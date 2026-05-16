@@ -118,6 +118,16 @@ body{
   overflow-x:hidden;
   padding-bottom:env(safe-area-inset-bottom);
   text-rendering:optimizeLegibility;
+  /* v3.2 · FOUC 방지 — 부부 정보 fetch 완료 전까지 숨김 */
+  opacity:0;
+  transition:opacity 0.45s ease-out;
+}
+body.couple-ready{
+  opacity:1;
+}
+/* JS 비활성 환경 · 노스크립트 fallback */
+.no-js body{
+  opacity:1;
 }
 
 /* ════════════════════════════════════════
@@ -2000,8 +2010,18 @@ const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRcl
   const params = new URLSearchParams(window.location.search);
   const eventId = (params.get('e') || '').trim();
 
-  // eventId 없으면 프리뷰 모드 → 기존 더미 데이터 유지
-  if (!eventId) return;
+  // v3.2 · FOUC 방지: 최종 안전망 (5초 후 강제 표시)
+  // fetch 무한 대기로 흰 화면 영구 노출 방지
+  const failsafeTimer = setTimeout(() => {
+    document.body.classList.add('couple-ready');
+  }, 5000);
+
+  // eventId 없으면 프리뷰 모드 → 기존 더미 데이터 그대로 즉시 표시
+  if (!eventId) {
+    clearTimeout(failsafeTimer);
+    document.body.classList.add('couple-ready');
+    return;
+  }
 
   // 시트에서 부부 정보 fetch
   try {
@@ -2011,13 +2031,19 @@ const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRcl
 
     if (!data.ok) {
       console.warn('[Live] Couple not found:', eventId, data.error);
-      return; // 프리뷰 모드 fallback
+      clearTimeout(failsafeTimer);
+      document.body.classList.add('couple-ready');
+      return; // 프리뷰 모드 fallback (더미 표시)
     }
 
     applyCoupleInfo(data.couple);
     attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
   } catch (err) {
     console.error('[Live] Failed to load couple info:', err);
+  } finally {
+    // fetch 성공/실패 무관 · 항상 표시 (try 안에서 return해도 finally 실행됨)
+    clearTimeout(failsafeTimer);
+    document.body.classList.add('couple-ready');
   }
 })();
 
