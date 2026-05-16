@@ -1614,9 +1614,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <div class="player-frame" id="playerFrame">
 
       <!-- ════════════════════════════════════════════════════════════════
-           VIMEO 자동 연결 시스템 (v3.2 시트 연동)
+           VIMEO 자동 연결 시스템
            
-           Couples 시트의 vimeoId / vimeoHash 열(N · O)에 값 입력 시
+           아래 스크립트 맨 위 LIVE_CONFIG의 vimeoId / vimeoHash 설정 시
            이 placeholder가 자동으로 iframe으로 교체됩니다.
            값이 비어있으면 이 placeholder가 그대로 표시됩니다.
            ════════════════════════════════════════════════════════════════ -->
@@ -1980,218 +1980,40 @@ window.addEventListener('load', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// COUPLE DATA · 시트(Apps Script v3.2)에서 부부 정보 fetch
+// LIVE BROADCAST · Vimeo 자동 연결
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 흐름:
-//   1. URL 파라미터 ?e=eventId 추출
-//   2. eventId 없으면 프리뷰 모드 (기존 더미 유지, 직접 접속용)
-//   3. fetch(?action=getCouple&eventId=xxx)
-//   4. 응답 JSON으로 모든 DOM 동적 업데이트
-//   5. vimeoId 있으면 Vimeo iframe 자동 첨부
-//
-// 안전 원칙:
-//   · 네트워크 실패 / 부부 미등록 → 프리뷰 모드로 fallback
-//   · 빈 필드(부모정보 등) → 해당 행 hide 처리
+// 예식 당일 설정 — 이 두 값만 수정하세요
+// vimeoId  : Vimeo Live 이벤트 ID (예: "987654321")
+// vimeoHash: Vimeo 비공개 링크 해시 (예: "abc12de34")  ※ 공개 영상이면 빈 문자열
+// 
+// 두 값 중 vimeoId가 비어있으면 Preview 플레이스홀더가 유지됩니다.
 // ═══════════════════════════════════════════════════════════════
-const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+const LIVE_CONFIG = {
+  vimeoId:   "",   // ← 예식 당일 여기에 ID 입력 (예: "987654321")
+  vimeoHash: "",   // ← 비공개 해시 (선택, 예: "abc12de34")
+};
 
-(async function initLiveBroadcast(){
-  // URL에서 eventId 추출
-  const params = new URLSearchParams(window.location.search);
-  const eventId = (params.get('e') || '').trim();
-
-  // eventId 없으면 프리뷰 모드 → 기존 더미 데이터 유지
-  if (!eventId) return;
-
-  // 시트에서 부부 정보 fetch
-  try {
-    const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId);
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.ok) {
-      console.warn('[Live] Couple not found:', eventId, data.error);
-      return; // 프리뷰 모드 fallback
-    }
-
-    applyCoupleInfo(data.couple);
-    attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
-  } catch (err) {
-    console.error('[Live] Failed to load couple info:', err);
-  }
-})();
-
-// ═══════════════════════════════════════════════════════════════
-// DOM 동적 업데이트 — 모든 위치를 부부 정보로 채움
-// ═══════════════════════════════════════════════════════════════
-function applyCoupleInfo(couple){
-  if (!couple) return;
-
-  // 1. 영문 이름 (Cover) — couple-en-name 두 개
-  const enNames = document.querySelectorAll('.couple-en-name');
-  if (enNames.length >= 2) {
-    enNames[0].textContent = (couple.groomNameEn || 'GROOM').toUpperCase();
-    enNames[1].textContent = (couple.brideNameEn || 'BRIDE').toUpperCase();
-  }
-
-  // 2. 한글 이름 (Cover) — couple-ko
-  const koEl = document.querySelector('.couple-ko');
-  if (koEl) {
-    const groomKo = couple.groomName || '신랑';
-    const brideKo = couple.brideName || '신부';
-    koEl.innerHTML = groomKo + ' &middot; ' + brideKo;
-  }
-
-  // 3. 날짜 / 요일 / 시간
-  const date = couple.weddingDate || '';
-  const time24 = couple.weddingTime || '14:00';
-
-  if (date) {
-    const [y, m, d] = date.split('-');
-
-    // event-date: 2026·08·23
-    const dateEl = document.querySelector('.event-date');
-    if (dateEl) {
-      dateEl.innerHTML = y + '<span class="sep">·</span>' + m + '<span class="sep">·</span>' + d;
-    }
-
-    // 요일 계산 (KST 기준)
-    const weekdayMap = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-    const dayIdx = new Date(date + 'T00:00:00+09:00').getDay();
-    const weekdayEn = weekdayMap[dayIdx] || 'SUN';
-
-    // event-time: SUN／14:00 KST
-    const timeEl = document.querySelector('.event-time');
-    if (timeEl) {
-      timeEl.innerHTML = weekdayEn + '<span class="sep">／</span>' + time24 + ' KST';
-    }
-
-    // credit-val × 2 (날짜+요일, 시간)
-    const credits = document.querySelectorAll('.credit-val');
-    if (credits.length >= 2) {
-      credits[0].innerHTML = y + '.' + m + '.' + d + ' <span class="small">' + weekdayEn + '</span>';
-      credits[1].innerHTML = time24 + ' <span class="small">KST</span>';
-    }
-
-    // 4. JSON-LD startDate / endDate 동적 갱신 (SEO)
-    const [h, mi] = time24.split(':');
-    if (h && mi) {
-      const startH = h.padStart(2, '0');
-      const endH = String((parseInt(h, 10) + 1) % 24).padStart(2, '0');
-      const startISO = date + 'T' + startH + ':' + mi + ':00+09:00';
-      const endISO = date + 'T' + endH + ':' + mi + ':00+09:00';
-
-      document.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
-        try {
-          const json = JSON.parse(script.textContent);
-          if (json.publication && json.publication.startDate) {
-            json.publication.startDate = startISO;
-            json.publication.endDate = endISO;
-            script.textContent = JSON.stringify(json, null, 2);
-          }
-        } catch (_) { /* 무시 */ }
-      });
-    }
-  }
-
-  // 5. 페이지 title 갱신
-  if (couple.groomName && couple.brideName) {
-    document.title = couple.groomName + ' · ' + couple.brideName + ' 라이브 — Moment Edit';
-  }
-
-  // 6. envelope 신랑 측
-  const groomEnv = document.getElementById('env-groom');
-  if (groomEnv) {
-    updateEnvelopeBlock(groomEnv.closest('.env-item'), {
-      name: couple.groomName,
-      parents: couple.groomParents,
-      parentRelation: '의 아들',
-      bank: couple.groomBank,
-      account: couple.groomAccount,
-    });
-  }
-
-  // 7. envelope 신부 측
-  const brideEnv = document.getElementById('env-bride');
-  if (brideEnv) {
-    updateEnvelopeBlock(brideEnv.closest('.env-item'), {
-      name: couple.brideName,
-      parents: couple.brideParents,
-      parentRelation: '의 딸',
-      bank: couple.brideBank,
-      account: couple.brideAccount,
-    });
-  }
-}
-
-function updateEnvelopeBlock(item, info){
-  if (!item) return;
-
-  // 이름
-  const nameEl = item.querySelector('.env-q-name');
-  if (nameEl && info.name) nameEl.textContent = info.name;
-
-  // 부모 정보 — 있으면 표시, 없으면 행 hide
-  const parentsEl = item.querySelector('.env-q-parents');
-  if (parentsEl) {
-    if (info.parents && String(info.parents).trim()) {
-      parentsEl.innerHTML = info.parents + '<span class="of">' + info.parentRelation + '</span>';
-      parentsEl.style.display = '';
-    } else {
-      parentsEl.style.display = 'none';
-    }
-  }
-
-  // 은행 (입력값 끝에 '은행' 자동 추가)
-  const bankEl = item.querySelector('.env-bank');
-  if (bankEl && info.bank) {
-    bankEl.textContent = /은행$/.test(info.bank) ? info.bank : (info.bank + '은행');
-  }
-
-  // 계좌번호
-  const accountEl = item.querySelector('.env-account');
-  if (accountEl && info.account) accountEl.textContent = info.account;
-
-  // 복사 버튼 data-account 갱신 (숫자만)
-  const copyBtn = item.querySelector('.env-copy');
-  if (copyBtn && info.account) {
-    copyBtn.setAttribute('data-account', info.account.replace(/[^0-9]/g, ''));
-  }
-
-  // 예금주
-  const holderEl = item.querySelector('.env-holder');
-  if (holderEl && info.name) {
-    holderEl.innerHTML = '<span class="label">예금주</span>' + info.name;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIMEO PLAYER · 시트에서 가져온 vimeoId로 iframe 첨부
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 예식 당일 시트 N열(vimeoId)에 ID 입력 → 페이지 새로고침 시 자동 송출
-// vimeoId 비어있으면 Preview 플레이스홀더 유지
-// ═══════════════════════════════════════════════════════════════
-function attachVimeoPlayer(vimeoId, vimeoHash){
+(function initLiveBroadcast(){
   const frame = document.getElementById('playerFrame');
   const placeholder = document.getElementById('playerPlaceholder');
   if (!frame || !placeholder) return;
 
-  // vimeoId 없으면 플레이스홀더 유지
-  if (!vimeoId || !String(vimeoId).trim()) return;
+  // ID 미설정: 플레이스홀더 유지 (예식 시작 전 기본 상태)
+  if (!LIVE_CONFIG.vimeoId || !LIVE_CONFIG.vimeoId.trim()) return;
 
-  const id = String(vimeoId).trim();
-  const hashPart = vimeoHash ? 'h=' + encodeURIComponent(String(vimeoHash).trim()) + '&' : '';
+  // Vimeo iframe 동적 생성
+  const hashPart = LIVE_CONFIG.vimeoHash ? 'h=' + encodeURIComponent(LIVE_CONFIG.vimeoHash) + '&' : '';
   const params = hashPart + 'autoplay=1&muted=1&dnt=1&pip=0&badge=0&autopause=0&title=0&byline=0&portrait=0&quality=1080p';
-
   const iframe = document.createElement('iframe');
-  iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?' + params;
+  iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(LIVE_CONFIG.vimeoId.trim()) + '?' + params;
   iframe.allow = 'autoplay; fullscreen; picture-in-picture';
   iframe.allowFullscreen = true;
   iframe.title = 'Moment Edit Digital Attendance';
 
+  // placeholder를 iframe으로 교체
   placeholder.remove();
   frame.appendChild(iframe);
-}
+})();
 
 // ═══════════════════════════════════════════════════════════════
 // HOME LINK · 새 탭으로 열린 경우 탭 닫기, 직접 방문이면 이동
