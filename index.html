@@ -1542,37 +1542,50 @@ function toggleEssay(btn){
 })();
 </script>
 <script>
-/* Auto-hide nav on scroll down, show on scroll up */
+/* Auto-hide nav on scroll down, show on scroll up
+   누적 방식: 마지막 nav 상태 변경 지점에서 TRIGGER_THRESHOLD px 이상
+   한 방향으로 스크롤되어야 상태 변경. 주소창 변동(viewport shift)에
+   의한 작은 흔들림은 임계값 미달로 무시됨. */
 (function(){
   var nav = document.querySelector('nav');
   if (!nav) return;
-  var lastY = window.scrollY;
+  var lastTriggerY = window.scrollY;
   var ticking = false;
-  var THRESHOLD = 8;     // 작은 스크롤 무시
-  var TOP_OFFSET = 80;   // 최상단 영역은 항상 표시
+  var TRIGGER_THRESHOLD = 50;  // 마지막 변경 시점부터 누적 50px 이상
+  var TOP_OFFSET = 80;          // 최상단 영역은 항상 표시
 
   function update(){
     var y = window.scrollY;
-    var delta = y - lastY;
 
     // 모바일 메뉴 열려있으면 nav 상태 변경 안 함
     if (document.body.classList.contains('menu-open')){
-      lastY = y;
       ticking = false;
       return;
     }
 
     if (y <= TOP_OFFSET){
-      nav.classList.remove('nav-hidden');
-    } else if (delta > THRESHOLD){
-      // 아래로 스크롤 → 숨김
-      nav.classList.add('nav-hidden');
-    } else if (delta < -THRESHOLD){
-      // 위로 스크롤 → 표시
-      nav.classList.remove('nav-hidden');
+      // 최상단: 항상 표시
+      if (nav.classList.contains('nav-hidden')){
+        nav.classList.remove('nav-hidden');
+      }
+      lastTriggerY = y;
+    } else {
+      var deltaFromTrigger = y - lastTriggerY;
+      if (deltaFromTrigger > TRIGGER_THRESHOLD){
+        // 트리거 지점에서 아래로 50px 이상 → 숨김
+        if (!nav.classList.contains('nav-hidden')){
+          nav.classList.add('nav-hidden');
+        }
+        lastTriggerY = y;
+      } else if (deltaFromTrigger < -TRIGGER_THRESHOLD){
+        // 트리거 지점에서 위로 50px 이상 → 표시
+        if (nav.classList.contains('nav-hidden')){
+          nav.classList.remove('nav-hidden');
+        }
+        lastTriggerY = y;
+      }
     }
 
-    lastY = y;
     ticking = false;
   }
 
