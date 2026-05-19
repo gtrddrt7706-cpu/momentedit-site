@@ -381,6 +381,7 @@
 
     const ifr = document.createElement('iframe');
     ifr.title = inv.name;
+    ifr.loading = 'lazy';
     ifr.dataset.num = String(i+1).padStart(2,'0');
 
     frame.appendChild(skel);
