@@ -237,8 +237,9 @@ body::after{
 .cover-bg-han{display:none}
 
 .cover-stamp{
+  display:none;
   position:absolute;right:28px;top:calc(28px + var(--safe-top) + 64px);
-  display:flex;flex-direction:column;gap:10px;z-index:2;align-items:center;
+  flex-direction:column;gap:10px;z-index:2;align-items:center;
 }
 .cover-stamp .s-line{width:0.5px;height:24px;background:var(--dancheong);opacity:0.35}
 .cover-stamp .s-mark{
@@ -335,7 +336,7 @@ body::after{
 @keyframes lineGrow{0%,100%{transform:scaleY(0.6);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
 
 /* 섹션 마커 */
-.sec-marker{position:absolute;display:flex;align-items:baseline;gap:10px;z-index:3;top:48px;right:32px}
+.sec-marker{position:absolute;display:none;align-items:baseline;gap:10px;z-index:3;top:48px;right:32px}
 .sec-marker-num{
   font-family:var(--serif-ko);font-weight:500;font-size:18px;
   color:var(--dancheong);letter-spacing:0;line-height:1;
@@ -406,7 +407,7 @@ body::after{
 }
 .date-han-main{
   font-family:var(--serif-ko);font-weight:500;
-  font-size:clamp(46px,12vw,58px);color:var(--ink);
+  font-size:clamp(38px,10vw,48px);color:var(--ink);
   letter-spacing:0.16em;padding-left:0.16em;line-height:1;margin-bottom:22px;
 }
 .date-han-main .sep{color:var(--dancheong);margin:0 0.08em;font-weight:400}
@@ -426,10 +427,19 @@ body::after{
 }
 .date-day .d-line{width:18px;height:1px;background:var(--ink);opacity:0.25}
 .date-time{
-  display:inline-flex;align-items:baseline;gap:16px;
-  padding:18px 36px;background:var(--paper);
-  border:1px solid var(--hairline-mid);margin-bottom:54px;
+  display:inline-flex;align-items:baseline;gap:18px;
+  padding:24px 36px;margin-bottom:54px;
+  position:relative;background:transparent;border:none;
 }
+.date-time::before,
+.date-time::after{
+  content:'';position:absolute;left:50%;transform:translateX(-50%);
+  width:80%;height:1px;
+  background:linear-gradient(to right,transparent,var(--dancheong) 40%,var(--dancheong) 60%,transparent);
+  opacity:0.4;
+}
+.date-time::before{top:0}
+.date-time::after{bottom:0}
 .date-time-label{
   font-family:var(--serif-en);font-weight:500;font-size:11px;letter-spacing:0.4em;
   color:var(--ink-fade);padding-left:0.4em;text-transform:uppercase;
@@ -472,12 +482,9 @@ body::after{
 .date-cal-cell.marked{color:var(--paper-bright);font-weight:500}
 .date-cal-cell.marked::before{
   content:'';position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) rotate(-3deg);
-  width:26px;height:26px;background:var(--dancheong);
-  box-shadow:
-    inset 0 0 0 1px var(--dancheong-deep),
-    inset 0 0 6px rgba(0,0,0,0.2),
-    0 1px 3px rgba(122,36,36,0.3);
+  transform:translate(-50%,-50%);
+  width:30px;height:30px;border-radius:50%;
+  background:var(--dancheong);
   z-index:0;
 }
 .date-cal-cell.marked span{position:relative;z-index:1}
@@ -571,34 +578,28 @@ body::after{
   font-family:var(--serif-ko);font-weight:300;font-size:14px;
   color:var(--ink-soft);letter-spacing:0.02em;line-height:1.9;margin-bottom:46px;
 }
-.env-list{text-align:left}
+.env-list{
+  text-align:left;
+  border-top:1px solid var(--hairline-mid);
+  border-bottom:1px solid var(--hairline-mid);
+}
 
 details.env-acc-item{
-  margin-bottom:12px;background:var(--paper-bright);
-  border:1px solid var(--hairline-mid);
-  transition:background 0.3s ease,border-color 0.3s ease;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--hairline-mid);
 }
-details.env-acc-item[open]{background:var(--paper);border-color:var(--hairline-strong)}
-details.env-acc-item:last-child{margin-bottom:0}
+details.env-acc-item:last-child{border-bottom:none}
+details.env-acc-item[open]{background:transparent}
 summary.env-acc-q{
-  width:100%;padding:20px 20px;display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:24px 4px;display:flex;align-items:center;justify-content:space-between;
   cursor:pointer;font-family:inherit;color:inherit;text-align:left;list-style:none;
   -webkit-tap-highlight-color:transparent;
 }
 summary.env-acc-q::-webkit-details-marker{display:none}
 summary.env-acc-q::marker{display:none}
 .env-acc-head{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
-.env-acc-mark{
-  position:relative;width:42px;height:42px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--serif-ko);font-weight:500;font-size:20px;
-  color:var(--dancheong);background:transparent;border:1px solid var(--dancheong);
-  line-height:1;flex-shrink:0;transform:rotate(-2deg);
-}
-.env-acc-mark::before{
-  content:'';position:absolute;inset:3px;
-  border:0.5px solid var(--dancheong);opacity:0.4;pointer-events:none;
-}
+.env-acc-mark{display:none}
 .env-acc-info{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
 .env-acc-role{
   font-family:var(--serif-en);font-weight:500;font-size:10px;letter-spacing:0.4em;
@@ -618,7 +619,7 @@ summary.env-acc-q::marker{display:none}
 }
 details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dancheong)}
 .env-acc-a{padding:0}
-.env-acc-inner{padding:0 20px 20px}
+.env-acc-inner{padding:0 4px 24px}
 .env-acc-row{
   background:var(--paper2);padding:16px 18px;
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
@@ -704,7 +705,6 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
   .date-bg-han{font-size:clamp(340px,100vw,520px)}
   .join-btn{min-width:240px;font-size:14px;letter-spacing:0.4em;padding:20px 28px;padding-left:calc(28px + 0.4em)}
   .env-acc-name{font-size:15.5px}
-  .env-acc-mark{width:38px;height:38px;font-size:18px}
   .env-acc-num{font-size:13px}
   .cover-mark{width:48px;height:48px;font-size:21px}
 }
@@ -794,7 +794,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
     </div>
 
     <div class="cover-main reveal">
-      <div class="cover-eyebrow">우리의 시작</div>
+      <div class="cover-eyebrow">두 사람</div>
 
       <div class="cover-title">
         <h1 class="cover-names-ko" id="cover-title">
@@ -839,7 +839,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
       <div class="inv-han-mark" aria-hidden="true">心</div>
 
       <div class="inv-title-wrap">
-        <h2 class="inv-title" id="sec-01-title">모심</h2>
+        <h2 class="inv-title" id="sec-01-title">모시는 글</h2>
         <div class="inv-title-en">The Invitation</div>
       </div>
 
@@ -895,7 +895,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
     <div class="date-bg-han" aria-hidden="true">오</div>
 
     <div class="date-content reveal">
-      <div class="date-eyebrow">그 날</div>
+      <div class="date-eyebrow">약속의 날</div>
 
       <h2 class="date-han-main" id="sec-02-title">
         삼월<span class="sep">·</span>오일
@@ -1000,8 +1000,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
 
     <div class="join-inner reveal">
       <div class="join-eyebrow">함께하기</div>
-      <h2 class="join-title" id="sec-03-title">함께</h2>
-      <div class="join-title-en">Join the Moment</div>
+      <div class="join-title-en" id="sec-03-title">Join the Moment</div>
 
       <div class="join-desc">
         그날 그곳의 모든 자리가<br>
@@ -1032,9 +1031,8 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
     </div>
 
     <div class="env-inner reveal">
-      <div class="env-eyebrow">마음을 전하다</div>
-      <h2 class="env-title" id="sec-04-title">마음</h2>
-      <div class="env-title-en">The Envelope</div>
+      <div class="env-eyebrow">축의</div>
+      <h2 class="env-title-en" id="sec-04-title">The Envelope</h2>
       <div class="env-title-ko">
         드러내지 않아도,<br>
         전하고 싶은 마음은 온전히 닿습니다.
@@ -1048,7 +1046,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
               <span class="env-acc-info">
                 <span class="env-acc-role">신랑</span>
                 <span class="env-acc-name">이서준</span>
-                <span class="env-acc-parents">이재환 · 최미경 의 장남</span>
+                <span class="env-acc-parents">이재환<span class="sep">·</span>최미경 의 아들</span>
               </span>
             </span>
             <span class="env-acc-plus" aria-hidden="true">+</span>
@@ -1056,7 +1054,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
           <div class="env-acc-a">
             <div class="env-acc-inner">
               <div class="env-acc-row">
-                <span class="env-acc-bank">KB</span>
+                <span class="env-acc-bank">국민은행</span>
                 <span class="env-acc-num">123456-78-901234</span>
                 <button class="env-acc-copy" type="button" data-account="12345678901234" aria-label="신랑측 계좌번호 복사">복사</button>
               </div>
@@ -1072,7 +1070,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
               <span class="env-acc-info">
                 <span class="env-acc-role">신부</span>
                 <span class="env-acc-name">정하윤</span>
-                <span class="env-acc-parents">정영석 · 박윤희 의 장녀</span>
+                <span class="env-acc-parents">정영석<span class="sep">·</span>박윤희 의 딸</span>
               </span>
             </span>
             <span class="env-acc-plus" aria-hidden="true">+</span>
@@ -1080,7 +1078,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
           <div class="env-acc-a">
             <div class="env-acc-inner">
               <div class="env-acc-row">
-                <span class="env-acc-bank">Shinhan</span>
+                <span class="env-acc-bank">신한은행</span>
                 <span class="env-acc-num">110-987-654321</span>
                 <button class="env-acc-copy" type="button" data-account="110987654321" aria-label="신부측 계좌번호 복사">복사</button>
               </div>
