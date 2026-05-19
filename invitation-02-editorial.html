@@ -96,8 +96,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Italiana&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap"></noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Italiana&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Pinyon+Script&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Pinyon+Script&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap"></noscript>
 
 <style>
 :root{
@@ -313,11 +313,16 @@ body::before{
 .cover.loaded .cover-names-en .row-1{opacity:1;transform:none;transition-delay:0.7s}
 .cover.loaded .cover-names-en .row-2{opacity:1;transform:none;transition-delay:0.95s}
 .cover-names-en .amp{
-  font-style:italic;
+  font-family:'Pinyon Script','Cormorant Garamond',cursive;
+  font-style:normal;
   color:var(--gold);
   font-weight:400;
+  font-size:1.05em;
   padding-right:0.14em;
   display:inline-block;
+  vertical-align:-0.08em;
+  line-height:1;
+  transform:rotate(-2deg);
 }
 
 .cover-names-ko{
@@ -1294,12 +1299,6 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
 
   <!-- FOOTER -->
   <footer class="inv-footer">
-    <div class="foot-mark" aria-hidden="true">M.E.</div>
-    <div class="foot-divider" aria-hidden="true">
-      <div class="line"></div>
-      <div class="dot"></div>
-      <div class="line"></div>
-    </div>
     <div class="foot-brand">Moment Edit</div>
     <div class="foot-sub">Private Wedding Studio</div>
     <div class="foot-quote">Focus on the Essence,<br>Record the Truth.</div>

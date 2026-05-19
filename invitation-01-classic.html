@@ -164,6 +164,26 @@ body{
   text-align:center;
 }
 
+/* 콘텐츠가 짧은 Nº 03(Join)·Nº 04(Envelope) 챕터 — 1, 2번과 동일하게 상단부터 시작 */
+.sec:has(.join-inner),
+.sec:has(.env-inner){
+  justify-content:flex-start;
+  min-height:50vh;
+  min-height:50svh;
+}
+.join-inner,
+.env-inner{
+  margin-top:40px;
+}
+.sec:has(.join-inner),
+.sec:has(.env-inner),
+.inv-footer{
+  margin-top:180px;
+}
+.sec:has(.when-label){
+  margin-top:120px;
+}
+
 /* 섹션 번호 (우상단) */
 .sec-num{
   position:absolute;
