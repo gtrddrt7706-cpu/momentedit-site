@@ -393,22 +393,32 @@ body::after{
   font-family:var(--serif);
   font-style:normal;
   font-weight:400;
-  font-size:clamp(36px,9vw,52px);
+  font-size:clamp(48px,12vw,64px);
   line-height:1.15;
   color:var(--ink-green);
   letter-spacing:0;
   margin-bottom:4px;
   text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 .cover-title .name-first{
   font-style:normal;
+  white-space:nowrap;
+}
+.cover-title .name-first:first-of-type{
+  transform:translateX(-1em);
+}
+.cover-title .name-first:last-of-type{
+  transform:translateX(1em);
 }
 .cover-title .amp{
   font-family:var(--serif);
   font-style:italic;
   font-weight:300;
   color:var(--ink-green-fade);
-  margin:0 0.3em;
+  margin:0.05em 0;
   font-size:0.85em;
 }
 
@@ -1235,7 +1245,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   .cover-head{padding:calc(22px + var(--safe-top)) 28px 18px}
   .cover-main{padding:30px 28px}
   .cover-foot{padding:18px 28px calc(18px + var(--safe-bottom))}
-    .cover-title{font-size:clamp(32px,8vw,42px)}
+    .cover-title{font-size:clamp(40px,10vw,52px)}
   .cover-eyebrow{gap:12px;margin-bottom:22px}
   .cover-sprig{width:42px;height:13px}
   .cover-eyebrow-text{font-size:10.5px;letter-spacing:0.28em}

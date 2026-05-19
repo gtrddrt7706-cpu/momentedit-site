@@ -225,10 +225,10 @@ body::before{
 
 /* 상단 얇은 헤더 — 브랜드 노출 */
 .cover-header{
-  display:flex;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto minmax(0, 1fr);
   align-items:center;
-  justify-content:space-between;
-  padding:0 4px 18px;
+  padding:0 15% 18px;
   margin-bottom:24px;
   border-bottom:1px solid var(--hairline);
   position:relative;
@@ -242,6 +242,8 @@ body::before{
   text-transform:uppercase;
   color:var(--ink);
   padding-left:0.36em;
+  white-space:nowrap;
+  justify-self:end;
 }
 .cover-brand-dot{
   width:4px;
@@ -249,7 +251,7 @@ body::before{
   background:var(--vermilion);
   border-radius:50%;
   flex-shrink:0;
-  margin:0 12px;
+  margin:0 45px;
 }
 .cover-date-tag{
   font-family:var(--serif-en);
@@ -258,6 +260,8 @@ body::before{
   letter-spacing:0.18em;
   color:var(--ink-fade);
   text-transform:uppercase;
+  white-space:nowrap;
+  justify-self:start;
 }
 
 .cover-mark{
@@ -547,28 +551,17 @@ body::before{
 .date-block{
   text-align:center;
   padding:48px 0;
-  border-top:1px solid var(--hairline-mid);
-  border-bottom:1px solid var(--hairline-mid);
   position:relative;
 }
-/* 위아래 보더에 주홍 작은 마름모 한 점씩 */
-.date-block::before,
+/* 아래쪽 그라데이션 디바이더 — 양 끝 투명, 가운데 진함 */
 .date-block::after{
   content:'';
   position:absolute;
-  left:50%;
-  width:6px;
-  height:6px;
-  transform:translateX(-50%) rotate(45deg);
-}
-.date-block::before{
-  top:-3px;
-  background:var(--paper);
-  border:1px solid var(--vermilion);
-}
-.date-block::after{
-  bottom:-3px;
-  background:var(--vermilion);
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(to right, transparent, var(--hairline-mid), transparent);
 }
 
 .date-eyebrow{
@@ -992,9 +985,9 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   /* cover의 위/아래 padding을 대칭으로 (위 36→28). cover-header도 약간 위쪽으로
      끌어올려서 콘텐츠 시각적 무게중심이 cover 정중앙에 오도록 조정 */
   .cover{padding:28px 0 28px}
-  .cover-header{padding:0 2px 12px;margin-bottom:14px}
+  .cover-header{padding:0 10% 12px;margin-bottom:14px}
   .cover-brand{font-size:10px;letter-spacing:0.28em}
-  .cover-brand-dot{width:3.5px;height:3.5px;margin:0 8px}
+  .cover-brand-dot{width:3.5px;height:3.5px;margin:0 30px}
   .cover-date-tag{font-size:9.5px;letter-spacing:0.14em}
   .cover-mark{font-size:10px;letter-spacing:0.34em}
   .cover-stage{padding:18px 0}
@@ -1091,7 +1084,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     <div class="cover-header">
       <div class="cover-brand">Moment Edit</div>
       <span class="cover-brand-dot" aria-hidden="true"></span>
-      <div class="cover-date-tag">MMXXVI · III · V</div>
+      <div class="cover-date-tag">2026. 03. 05</div>
     </div>
 
     <div class="cover-mark">A Quiet Invitation</div>
@@ -1163,7 +1156,6 @@ details.acc[open] summary::after{transform:rotate(45deg)}
         <span class="sec-num-label">Date</span>
       </div>
       <h2 class="sec-title" id="sec-02-title">a single day.</h2>
-      <p class="sec-title-ko">그날</p>
     </div>
 
     <div class="date-block reveal">
@@ -1399,12 +1391,6 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     var diff = targetDate - Date.now();
     if(diff <= 0){
       if(cdInterval){ clearInterval(cdInterval); cdInterval = null; }
-      if(cdEl && cdEl.parentNode){
-        var done = document.createElement('div');
-        done.className = 'countdown-done reveal visible';
-        done.innerHTML = 'the day has come.<em>함께해 주셔서 감사합니다.</em>';
-        cdEl.parentNode.replaceChild(done, cdEl);
-      }
       return;
     }
     var d = Math.floor(diff / 86400000);
