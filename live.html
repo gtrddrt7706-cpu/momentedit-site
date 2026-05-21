@@ -669,7 +669,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   word-break:keep-all;
 }
 
-/* Section outro — graceful exit before the dark footer */
+/* Section outro — graceful exit at page end */
 .section-outro{
   margin-top:auto;
   padding:80px 0 32px;
@@ -1375,106 +1375,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 }
 
 /* ════════════════════════════════════════
-   FOOTER
-   ════════════════════════════════════════ */
-
-.footer{
-  text-align:center;
-  margin-top:32px;
-  padding:48px 22px 36px;
-  background:var(--footer-bg);
-  position:relative;
-}
-.footer-frame-top,.footer-frame-bottom{
-  width:72px;
-  height:1px;
-  background:rgba(184,154,117,0.32);
-  margin:0 auto;
-}
-.footer-frame-bottom{margin-top:14px;position:relative}
-.footer-frame-bottom::after{
-  content:'';
-  position:absolute;
-  width:7px;height:7px;
-  background:var(--seal);
-  border-radius:1px;
-  left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  opacity:0.88;
-}
-.footer-mark{
-  font-family:var(--serif);
-  font-size:14px;
-  font-weight:400;
-  color:rgba(255,255,255,0.85);
-  letter-spacing:0.34em;
-  margin-top:14px;
-}
-.footer-home-link{
-  display:inline-flex;
-  align-items:center;
-  gap:12px;
-  margin-top:30px;
-  font-family:var(--serif);
-  font-style:italic;
-  font-size:12px;
-  font-weight:400;
-  color:rgba(255,255,255,0.75);
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  text-decoration:none;
-  padding:13px 26px;
-  border:1px solid rgba(255,255,255,0.32);
-  border-radius:4px;
-  background:transparent;
-  transition:color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-}
-.footer-home-link:hover{
-  color:#fff;
-  border-color:rgba(255,255,255,0.62);
-  background:rgba(255,255,255,0.04);
-}
-.footer-home-link .arrow{
-  font-family:var(--serif);
-  font-style:normal;
-  transition:transform 0.3s ease;
-  display:inline-block;
-}
-.footer-home-link:hover .arrow{transform:translateX(-3px)}
-.footer-tagline{
-  font-family:var(--serif);
-  font-style:italic;
-  font-size:12px;
-  font-weight:300;
-  color:rgba(255,255,255,0.5);
-  letter-spacing:0.04em;
-  line-height:1.7;
-  margin:18px 0 0;
-}
-.footer-meta{
-  margin-top:36px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:20px;
-  flex-wrap:wrap;
-  font-size:9px;
-  letter-spacing:0.24em;
-  color:rgba(255,255,255,0.32);
-  text-transform:uppercase;
-}
-.footer-meta .sep{
-  width:1px;height:8px;
-  background:rgba(255,255,255,0.18);
-}
-.footer-copy{
-  font-size:10px;
-  color:rgba(255,255,255,0.2);
-  margin-top:18px;
-  letter-spacing:0.08em;
-}
-
-/* ════════════════════════════════════════
    TOAST
    ════════════════════════════════════════ */
 
@@ -1527,7 +1427,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   .player-section{padding:12px 26px 0}
   .credit-bar{margin-top:44px;padding:0 26px}
   .section{padding-top:104px;padding-left:26px;padding-right:26px}
-  .footer{padding:64px 26px 44px}
 }
 
 @media(max-width:375px){
@@ -1557,8 +1456,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   .env-q-name{font-size:17px;letter-spacing:0.12em}
   .env-account{font-size:15px}
   .env-row{padding:14px 16px;gap:10px}
-  .footer{padding:40px 18px 32px}
-  .footer-meta{gap:14px;font-size:8px}
 }
 
 /* 모바일 전용 줄바꿈 유틸리티 */
@@ -1907,34 +1804,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <div class="outro-mark">MOMENT&nbsp;EDIT</div>
   </div>
 </section>
-
-<!-- ═══ FOOTER ═══ -->
-<footer class="footer">
-  <div class="footer-frame-top"></div>
-  <div class="footer-mark">MOMENT&nbsp;EDIT</div>
-  <div class="footer-frame-bottom"></div>
-  <p class="footer-tagline">Private Wedding Studio</p>
-  <a href="index.html" class="footer-home-link" data-home-link aria-label="Moment Edit 스튜디오 홈페이지로 돌아가기">
-    <span class="arrow">←</span>
-    <span>Return to Studio</span>
-  </a>
-  <div class="footer-meta">
-    <span>P. 01 / 01</span>
-    <span class="sep"></span>
-    <span>Ed. 2026.03</span>
-    <span class="sep"></span>
-    <span>Digital Attendance</span>
-  </div>
-  <div class="footer-copy">&copy; 2026 Moment Edit. All rights reserved.</div>
-</footer>
-
-<!-- ═══ SITE FOOTER · 사이트 NAP 통일 푸터 ═══ -->
-<footer style="text-align:center;padding:32px 28px 36px;background:var(--footer-bg);border-top:1px solid rgba(255,255,255,0.06)">
-  <div style="margin-bottom:10px"><span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#6B2A24;border-radius:1px;color:rgba(255,255,255,0.92);font-family:'Noto Serif KR','Nanum Myeongjo',serif;font-size:8px;font-weight:500;opacity:0.88">本</span></div>
-  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.55)">contact@momentedit.kr</div>
-  <div style="font-family:'Noto Serif KR','Nanum Myeongjo',serif;font-size:10px;color:rgba(255,255,255,0.32);margin-top:8px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796<br>경기 고양시 덕양구 향동동 <span style="opacity:0.7;font-style:italic">(정확한 주소는 본 계약 후 안내)</span></div>
-  <div style="font-size:10.5px;color:rgba(255,255,255,0.28);margin-top:6px;letter-spacing:0.06em">&copy; 2026 Moment Edit <span style="margin:0 8px;color:rgba(255,255,255,0.18)">|</span> <a href="./privacy.html" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.42);text-decoration:none">개인정보처리방침</a></div>
-</footer>
 
 <!-- ═══ TOAST ═══ -->
 <div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
