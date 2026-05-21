@@ -670,16 +670,7 @@ summary:focus-visible{outline-offset:2px}
   font-family:var(--serif-ko);font-size:13.5px;font-weight:300;
   color:var(--ink-2);line-height:1.9;
 }
-.venue-meta-row .venue-tel{
-  display:block;margin-top:8px;
-  font-family:var(--serif);font-style:italic;font-size:13.5px;letter-spacing:0.04em;
-  color:var(--ink);text-decoration:none;
-  border-bottom:1px solid var(--hairline-gold);
-  padding-bottom:3px;width:fit-content;
-  transition:border-color 0.3s var(--ease);
-}
-.venue-meta-row .venue-tel:hover{border-bottom-color:var(--gold)}
-.venue-meta-arrival .em{color:var(--gold);font-weight:400;font-style:normal}
+.venue-meta-row .venue-meta-row .venue-meta-arrival .em{color:var(--gold);font-weight:400;font-style:normal}
 
 /* ─────────────────────────────────
    Nº V — ENVELOPE (마음을 전하다)
@@ -1073,7 +1064,6 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg)}
           <dt>Address · 주소</dt>
           <dd>
             {{VENUE_ADDRESS}}
-            <a class="venue-tel" href="tel:{{VENUE_TEL}}">{{VENUE_TEL}}</a>
           </dd>
         </div>
         <div class="venue-meta-row">

@@ -994,21 +994,7 @@ body::after{
   color:var(--parchment);
   line-height:1.9;
 }
-.venue-meta-row .venue-tel{
-  display:block;
-  margin-top:8px;
-  font-family:var(--serif);
-  font-size:13px;
-  letter-spacing:0.05em;
-  color:var(--cream);
-  text-decoration:none;
-  border-bottom:1px solid var(--sage-soft);
-  padding-bottom:2px;
-  width:fit-content;
-  transition:border-color 0.3s var(--ease-out);
-}
-.venue-meta-row .venue-tel:hover{border-bottom-color:var(--rose-warm)}
-.venue-meta-arrival .em{
+.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
   color:var(--rose-warm);
   font-weight:400;
   font-style:normal;
@@ -1540,7 +1526,6 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
           <dt>Address · 주소</dt>
           <dd>
             {{VENUE_ADDRESS}}
-            <a class="venue-tel" href="tel:{{VENUE_TEL}}">{{VENUE_TEL}}</a>
           </dd>
         </div>
         <div class="venue-meta-row">

@@ -532,16 +532,7 @@ body::after{
   font-family:var(--serif-ko);font-size:13.5px;font-weight:300;
   color:rgba(242,240,235,0.85);line-height:1.9;
 }
-.venue-meta-row .venue-tel{
-  display:block;margin-top:8px;
-  font-family:var(--serif-en);font-size:13px;letter-spacing:0.05em;
-  color:var(--paper);text-decoration:none;
-  border-bottom:1px solid var(--dancheong-soft);
-  padding-bottom:2px;width:fit-content;
-  transition:border-color 0.3s var(--ease);
-}
-.venue-meta-row .venue-tel:hover{border-bottom-color:var(--dancheong)}
-.venue-meta-arrival .em{
+.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
   color:var(--dancheong);font-weight:500;font-style:normal;
 }
 
@@ -993,7 +984,6 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
           <dt>주소</dt>
           <dd>
             {{VENUE_ADDRESS}}
-            <a class="venue-tel" href="tel:{{VENUE_TEL}}">{{VENUE_TEL}}</a>
           </dd>
         </div>
         <div class="venue-meta-row">

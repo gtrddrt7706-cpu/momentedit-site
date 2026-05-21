@@ -885,21 +885,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   color:var(--ink-soft);
   line-height:1.95;
 }
-.venue-meta-row .venue-tel{
-  display:block;
-  margin-top:8px;
-  font-family:var(--serif-en);
-  font-size:13px;
-  letter-spacing:0.06em;
-  color:var(--ink);
-  text-decoration:none;
-  border-bottom:1px solid var(--hairline-mid);
-  padding-bottom:2px;
-  width:fit-content;
-  transition:border-color 0.3s var(--ease);
-}
-.venue-meta-row .venue-tel:hover{border-bottom-color:var(--vermilion)}
-.venue-meta-arrival .accent{
+.venue-meta-row .venue-meta-row .venue-meta-arrival .accent{
   color:var(--vermilion);
   font-weight:400;
 }
@@ -1262,7 +1248,6 @@ details.acc[open] summary::after{transform:rotate(45deg)}
           <dt>Address · 주소</dt>
           <dd>
             {{VENUE_ADDRESS}}
-            <a class="venue-tel" href="tel:{{VENUE_TEL}}">{{VENUE_TEL}}</a>
           </dd>
         </div>
         <div class="venue-meta-row">
