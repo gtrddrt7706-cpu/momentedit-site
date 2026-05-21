@@ -91,6 +91,11 @@ html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
 :root{
+  --hover-lift:-1px;
+  --tracking-ko:0;
+  --tracking-en:-0.015em;
+  --focus-ring-color:var(--seal);
+  --focus-ring-offset:3px;
   color-scheme:light;
   --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;
   --text:#1C1B19;--sub:#5A554C;--light:#75705F;--gold:#B89A75;
@@ -117,7 +122,7 @@ body{
   font-weight:300;
   font-size:15px;
   line-height:1.9;
-  letter-spacing:-0.01em;
+  letter-spacing:0;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   word-break:keep-all;
@@ -1561,6 +1566,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 @media (max-width:680px){
   .mobile-br{display:block}
 }
+:where(a,button,input,textarea,select,[tabindex]):focus{outline:none}
+:where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
 </style>
 </head>
 <body>
