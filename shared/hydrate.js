@@ -197,6 +197,10 @@
     var time = transformTime(c.weddingTime);
     var gAcct = coupleAccount(c.groomBank, c.groomAccount);
     var bAcct = coupleAccount(c.brideBank, c.brideAccount);
+    // 측 라벨: 부모 계좌가 함께 표시되면 "신랑측/신부측"(여러 명), 본인만이면 "신랑/신부". 측별 독립 판단.
+    var showEnvP = truthy(c.envelopeShowParents);
+    var gHasPar = showEnvP && !!(String(c.groomFatherAccount || '').trim() || String(c.groomMotherAccount || '').trim());
+    var bHasPar = showEnvP && !!(String(c.brideFatherAccount || '').trim() || String(c.brideMotherAccount || '').trim());
 
     var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
     var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
@@ -248,12 +252,11 @@
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
       GROOM_BIO: nl2br(c.groomBio || ''), BRIDE_BIO: nl2br(c.brideBio || ''),
-      GROOM_SIDE_LABEL: '신랑', BRIDE_SIDE_LABEL: '신부',
+      GROOM_SIDE_LABEL: gHasPar ? '신랑측' : '신랑', BRIDE_SIDE_LABEL: bHasPar ? '신부측' : '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };
 
     // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
-    var showEnvP = truthy(c.envelopeShowParents);
     var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
     [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
      ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
