@@ -118,27 +118,44 @@
     return result;
   }
 
-  // weddingDate('YYYY-MM-DD') → 날짜 8종 + 요일 3종 (KST 기준)
+  // 일(日) → 사한자(이십사). 1~31.
+  function sinoDay(n) {
+    var o = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+    var t = ['', '십', '이십', '삼십'];
+    if (n < 10) return o[n];
+    if (n <= 39) return t[Math.floor(n / 10)] + o[n % 10];
+    return String(n);
+  }
+  // 연도 → 로마숫자 (2026 → MMXXVI)
+  function roman(num) {
+    var map = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+    var r = '';
+    for (var i = 0; i < map.length; i++) { while (num >= map[i][0]) { r += map[i][1]; num -= map[i][0]; } }
+    return r;
+  }
+
+  // weddingDate('YYYY-MM-DD') → 날짜 전 형식 (KST 기준)
   function transformDate(weddingDate) {
     var d = new Date(weddingDate + 'T00:00:00+09:00');
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var dd = String(d.getDate()).padStart(2, '0');
-    var idx = d.getDay();
+    var y = d.getFullYear(), mn = d.getMonth() + 1, dn = d.getDate(), idx = d.getDay();
+    var m = String(mn).padStart(2, '0'), dd = String(dn).padStart(2, '0');
     var monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     var daysKor = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    var monthsHan = ['', '일월', '이월', '삼월', '사월', '오월', '유월', '칠월', '팔월', '구월', '시월', '십일월', '십이월'];
     return {
-      display: y + '. ' + m + '. ' + dd,
-      monthDay: m + ' · ' + dd,
-      monthEn: monthsEn[d.getMonth()] + ' ' + y,
-      yearEn: yearToEnglish(y),
-      fullDot: y + ' · ' + m + ' · ' + dd,
-      monthSlash: m + ' / ' + y,
-      monthKor: parseInt(m, 10) + '월',
-      monthDayPeriod: m + '.' + dd,
-      dayEn: daysEn[idx], dayEnShort: daysShort[idx], dayKor: daysKor[idx]
+      y: y, m: m, dd: dd,
+      display: y + '. ' + m + '. ' + dd, dateKor: y + '년 ' + mn + '월 ' + dn + '일',
+      compact: '' + y + m + dd, spaced: y + ' ' + m + ' ' + dd,
+      monthDay: m + ' · ' + dd, monthDayDot: m + '. ' + dd, monthDayPeriod: m + '.' + dd,
+      monthEn: monthsEn[mn - 1] + ' ' + y, monthEnShort: monthsShort[mn - 1],
+      monthNum: '' + mn, monthNumPad: m, monthKor: mn + '월', monthDisplay: y + '년 ' + mn + '월',
+      monthHan: monthsHan[mn], monthSlash: m + ' / ' + y, fullDot: y + ' · ' + m + ' · ' + dd,
+      dayOfMonth: '' + dn, dayOfMonthPad: dd,
+      dayEn: daysEn[idx], dayEnShort: daysShort[idx], dayKor: daysKor[idx], dayHan: sinoDay(dn) + '일',
+      year: '' + y, yearEn: yearToEnglish(y), yearRoman: roman(y)
     };
   }
 
@@ -146,7 +163,7 @@
   function transformTime(weddingTime) {
     var s = String(weddingTime || '14:00').trim();
     var match = s.match(/^(\d{1,2}):(\d{2})$/);
-    if (!match) return { display: s, kor: s };
+    if (!match) return { display: s, kor: s, korFull: s, time24: s };
     var hour24 = parseInt(match[1], 10), min = match[2];
     var period = hour24 >= 12 ? '오후' : '오전';
     var hour12 = hour24 > 12 ? hour24 - 12 : (hour24 === 0 ? 12 : hour24);
@@ -155,7 +172,8 @@
     if (min === '00') kor = period + ' ' + hourKor[hour12] + ' 시';
     else if (min === '30') kor = period + ' ' + hourKor[hour12] + ' 시 반';
     else kor = period + ' ' + hourKor[hour12] + ' 시 ' + parseInt(min, 10) + '분';
-    return { display: period + ' ' + hour12 + ':' + min, kor: kor };
+    var time24 = String(hour24).padStart(2, '0') + ':' + min;
+    return { display: period + ' ' + hour12 + ':' + min, kor: kor, korFull: kor, time24: time24 };
   }
 
   // 캘린더 셀 HTML (디자인 01은 when-cal-cell, 그 외 date-cal-cell)
@@ -207,6 +225,11 @@
     html = processOptional(html, 'groomParents', hasGroomParents);
     html = processOptional(html, 'brideParents', hasBrideParents);
 
+    // 계좌 영역: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
+    html = processOptional(html, 'envelope', true);
+    html = processOptional(html, 'groomAccount', !!gAcct.account);
+    html = processOptional(html, 'brideAccount', !!bAcct.account);
+
     // ── 고객 선택 3종 ──────────────────────────────────────
     // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지
     var customInv = String(c.invitationText || '').trim();
@@ -240,12 +263,18 @@
       GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,
       GROOM_FIRST_EN_SPACED: groomEn.spaced, BRIDE_FIRST_EN_SPACED: brideEn.spaced,
       GROOM_FULL_EN: groomEn.full, BRIDE_FULL_EN: brideEn.full,
-      WEDDING_DATE_DISPLAY: date.display, WEDDING_MONTH_DAY_DISPLAY: date.monthDay,
-      WEDDING_MONTH_EN: date.monthEn, WEDDING_YEAR_EN: date.yearEn,
-      WEDDING_FULL_DATE_DOT: date.fullDot, WEDDING_MONTH_SLASH: date.monthSlash,
-      WEDDING_MONTH_KOR: date.monthKor, WEDDING_MONTH_DAY_PERIOD: date.monthDayPeriod,
-      WEDDING_DAY_EN: date.dayEn, WEDDING_DAY_EN_SHORT: date.dayEnShort, WEDDING_DAY_KOR: date.dayKor,
-      WEDDING_TIME_DISPLAY: time.display, WEDDING_TIME_KOR: time.kor,
+      WEDDING_DATE_DISPLAY: date.display, WEDDING_DATE_KOR: date.dateKor,
+      WEDDING_DATE_COMPACT: date.compact, WEDDING_DATE_SPACED: date.spaced,
+      WEDDING_MONTH_DAY_DISPLAY: date.monthDay, WEDDING_MONTH_DAY_DOT: date.monthDayDot, WEDDING_MONTH_DAY_PERIOD: date.monthDayPeriod,
+      WEDDING_MONTH_EN: date.monthEn, WEDDING_MONTH_EN_SHORT: date.monthEnShort,
+      WEDDING_MONTH_NUM: date.monthNum, WEDDING_MONTH_NUM_PAD: date.monthNumPad,
+      WEDDING_MONTH_KOR: date.monthKor, WEDDING_MONTH_DISPLAY: date.monthDisplay, WEDDING_MONTH_HAN: date.monthHan,
+      WEDDING_MONTH_SLASH: date.monthSlash, WEDDING_FULL_DATE_DOT: date.fullDot,
+      WEDDING_DAY_OF_MONTH: date.dayOfMonth, WEDDING_DAY_OF_MONTH_PAD: date.dayOfMonthPad,
+      WEDDING_DAY_EN: date.dayEn, WEDDING_DAY_EN_SHORT: date.dayEnShort, WEDDING_DAY_KOR: date.dayKor, WEDDING_DAY_HAN: date.dayHan,
+      WEDDING_YEAR: date.year, WEDDING_YEAR_EN: date.yearEn, WEDDING_YEAR_ROMAN: date.yearRoman,
+      WEDDING_TIME_DISPLAY: time.display, WEDDING_TIME_KOR: time.kor, WEDDING_TIME_KOR_FULL: time.korFull, WEDDING_TIME_24H: time.time24,
+      WEDDING_ISO_DATETIME: date.y + '-' + date.m + '-' + date.dd + 'T' + time.time24 + ':00+09:00',
       VENUE_NAME_KO: escapeHtml(venue.nameKo || ''), VENUE_NAME_EN: escapeHtml(venue.nameEn || ''),
       VENUE_NAME_KO_URI: encodeURIComponent(venue.nameKo || ''),
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
@@ -281,11 +310,26 @@
   function reveal() { document.body.classList.add('couple-ready'); }
   function designNum() { return (document.body.getAttribute('data-design') || '00').trim(); }
 
+  // innerHTML 교체로 죽은 본문 스크립트 재실행 (결선 시 <script type="me/inert">로 표시됨)
+  // 초기 파싱 땐 안 돌고, 채우기 끝난 최종 DOM에서 딱 1회 실행 → 인터랙션 보존
+  function runInertScripts() {
+    var list = document.body.querySelectorAll('script[type="me/inert"]');
+    for (var i = 0; i < list.length; i++) {
+      var old = list[i], s = document.createElement('script');
+      for (var j = 0; j < old.attributes.length; j++) {
+        if (old.attributes[j].name !== 'type') s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+      }
+      s.textContent = old.textContent;
+      old.parentNode.replaceChild(s, old);
+    }
+  }
+
   function apply(couple) {
     try {
       var venue = window.MOMENT_VENUE || {};
       document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
       if (couple.groomName && couple.brideName) document.title = couple.groomName + ' · ' + couple.brideName + ' — Moment Edit';
+      runInertScripts();
     } catch (e) { console.error('[hydrate]', e); }
   }
 
