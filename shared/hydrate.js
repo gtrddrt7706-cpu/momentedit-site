@@ -29,8 +29,7 @@
     groomNameEn: 'Park Jihoon', brideNameEn: 'Kim Seoyeon',
     weddingDate: '2026-10-24', weddingTime: '14:00',
     groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
-    groomBank: '하나', groomAccount: '222-456-789012',
-    brideBank: '우리', brideAccount: '333-456-789012',
+    groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
     invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y',
@@ -74,6 +73,15 @@
   function splitParents(s) {
     var p = String(s || '').split(/[·,/]|\s및\s/).map(function (x) { return x.trim(); }).filter(Boolean);
     return { father: p[0] || '', mother: p[1] || '' };
+  }
+  // 본인 계좌: 신 시트(한 칸 "은행 번호") + 구 시트(은행 분리) 모두 호환
+  function coupleAccount(bankField, accountCell) {
+    bankField = String(bankField || '').trim();
+    if (bankField) {
+      var acc = String(accountCell || '').trim();
+      return { bank: bankLabel(bankField), account: acc, raw: acc.replace(/\D/g, '') };
+    }
+    return parseAccount(accountCell) || { bank: '', account: '', raw: '' };
   }
 
   // 영문 이름 "Kim Minjun" → {full, first, upper, spaced}
@@ -183,6 +191,8 @@
     var brideEn = transformEnName(c.brideNameEn);
     var date = transformDate(c.weddingDate);
     var time = transformTime(c.weddingTime);
+    var gAcct = coupleAccount(c.groomBank, c.groomAccount);
+    var bAcct = coupleAccount(c.brideBank, c.brideAccount);
 
     var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
     var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
@@ -203,9 +213,9 @@
 
     var map = {
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
-      GROOM_BANK: escapeHtml(bankLabel(c.groomBank)), BRIDE_BANK: escapeHtml(bankLabel(c.brideBank)),
-      GROOM_ACCOUNT: escapeHtml(String(c.groomAccount || '')), BRIDE_ACCOUNT: escapeHtml(String(c.brideAccount || '')),
-      GROOM_ACCOUNT_RAW: String(c.groomAccount || '').replace(/-/g, ''), BRIDE_ACCOUNT_RAW: String(c.brideAccount || '').replace(/-/g, ''),
+      GROOM_BANK: escapeHtml(gAcct.bank), BRIDE_BANK: escapeHtml(bAcct.bank),
+      GROOM_ACCOUNT: escapeHtml(gAcct.account), BRIDE_ACCOUNT: escapeHtml(bAcct.account),
+      GROOM_ACCOUNT_RAW: gAcct.raw, BRIDE_ACCOUNT_RAW: bAcct.raw,
       GROOM_PARENTS: escapeHtml(c.groomParents || ''), BRIDE_PARENTS: escapeHtml(c.brideParents || ''),
       GROOM_FIRST_EN_UPPER: groomEn.upper, BRIDE_FIRST_EN_UPPER: brideEn.upper,
       GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,

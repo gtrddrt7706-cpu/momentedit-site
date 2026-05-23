@@ -2038,27 +2038,39 @@ function applyCoupleInfo(couple){
     document.title = couple.groomName + ' · ' + couple.brideName + ' 라이브 — Moment Edit';
   }
 
+  // 본인 계좌: 신 시트(한 칸 "은행 번호") + 구 시트(은행 분리) 호환
+  const coupleAcct = (bankField, accountCell) => {
+    bankField = String(bankField || '').trim();
+    if (bankField) return { bank: bankField, account: String(accountCell || '').trim() };
+    const cell = String(accountCell || '').trim();
+    const sp = cell.split(/\s+/); let bank = sp.shift(); let account = sp.join(' ');
+    if (!account) { account = bank; bank = ''; }
+    return { bank: bank, account: account };
+  };
+
   // 6. envelope 신랑 측
   const groomEnv = document.getElementById('env-groom');
   if (groomEnv) {
+    const gA = coupleAcct(couple.groomBank, couple.groomAccount);
     updateEnvelopeBlock(groomEnv.closest('.env-item'), {
       name: couple.groomName,
       parents: couple.groomParents,
       parentRelation: '의 아들',
-      bank: couple.groomBank,
-      account: couple.groomAccount,
+      bank: gA.bank,
+      account: gA.account,
     });
   }
 
   // 7. envelope 신부 측
   const brideEnv = document.getElementById('env-bride');
   if (brideEnv) {
+    const bA = coupleAcct(couple.brideBank, couple.brideAccount);
     updateEnvelopeBlock(brideEnv.closest('.env-item'), {
       name: couple.brideName,
       parents: couple.brideParents,
       parentRelation: '의 딸',
-      bank: couple.brideBank,
-      account: couple.brideAccount,
+      bank: bA.bank,
+      account: bA.account,
     });
   }
 
