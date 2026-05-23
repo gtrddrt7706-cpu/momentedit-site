@@ -33,7 +33,10 @@
     brideBank: '우리', brideAccount: '333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
-    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y'
+    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y',
+    // 부모 계좌 (프리뷰 샘플)
+    groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
+    brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789'
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -56,6 +59,21 @@
     return String(text).trim().split(/\n\s*\n/).map(function (p) {
       return '<p>' + p.split('\n').map(function (l) { return escapeHtml(l.trim()); }).join('<br>') + '</p>';
     }).join('');
+  }
+  // 계좌 셀 "국민 110-123-456789" → {bank, account, raw}. 비면 null.
+  function parseAccount(cell) {
+    cell = String(cell || '').trim();
+    if (!cell) return null;
+    var sp = cell.split(/\s+/);
+    var bank = sp.shift();
+    var account = sp.join(' ');
+    if (!account) { account = bank; bank = ''; } // 계좌만 적은 경우
+    return { bank: bankLabel(bank), account: account, raw: account.replace(/\D/g, '') };
+  }
+  // 혼주 문자열 "박철수 · 이미경" → {father:'박철수', mother:'이미경'}
+  function splitParents(s) {
+    var p = String(s || '').split(/[·,/]|\s및\s/).map(function (x) { return x.trim(); }).filter(Boolean);
+    return { father: p[0] || '', mother: p[1] || '' };
   }
 
   // 영문 이름 "Kim Minjun" → {full, first, upper, spaced}
@@ -206,6 +224,24 @@
       VENUE_MAP_IFRAME: venue.mapIframe || '',
       EVENT_ID: escapeHtml(c.eventId || '')
     };
+
+    // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
+    var showEnvP = truthy(c.envelopeShowParents);
+    var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
+    [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
+     ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
+     ['brideFatherAccount', 'BRIDE_FATHER', bPar.father, c.brideFatherAccount],
+     ['brideMotherAccount', 'BRIDE_MOTHER', bPar.mother, c.brideMotherAccount]
+    ].forEach(function (x) {
+      var cell = String(x[3] || '').trim();
+      html = processOptional(html, x[0], showEnvP && !!cell);
+      var a = parseAccount(cell) || { bank: '', account: '', raw: '' };
+      map[x[1] + '_NAME'] = escapeHtml(x[2] || '');
+      map[x[1] + '_BANK'] = escapeHtml(a.bank);
+      map[x[1] + '_ACCOUNT'] = escapeHtml(a.account);
+      map[x[1] + '_ACCOUNT_RAW'] = a.raw;
+    });
+
     for (var k in map) html = replaceAll(html, '{{' + k + '}}', map[k]);
     html = replaceAll(html, '{{CALENDAR_CELLS_HTML}}', generateCalendarCells(c.weddingDate, designNum));
     return html;
