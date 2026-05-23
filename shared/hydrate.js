@@ -31,7 +31,9 @@
     groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
     groomBank: '하나', groomAccount: '222-456-789012',
     brideBank: '우리', brideAccount: '333-456-789012',
-    vimeoId: '', vimeoHash: ''
+    vimeoId: '', vimeoHash: '',
+    // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
+    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y'
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -46,6 +48,14 @@
     bank = String(bank || '').trim();
     if (!bank) return '';
     return /(은행|뱅크)$/.test(bank) ? bank : bank + '은행';
+  }
+  // 토글 값 해석 (Y/YES/예/1/표시 등 → true, 그 외/빈 값 → false)
+  function truthy(v) { return /^(y|yes|true|1|on|표시|예|네)$/i.test(String(v || '').trim()); }
+  // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
+  function buildInvitation(text) {
+    return String(text).trim().split(/\n\s*\n/).map(function (p) {
+      return '<p>' + p.split('\n').map(function (l) { return escapeHtml(l.trim()); }).join('<br>') + '</p>';
+    }).join('');
   }
 
   // 영문 이름 "Kim Minjun" → {full, first, upper, spaced}
@@ -160,6 +170,18 @@
     var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
     html = processOptional(html, 'groomParents', hasGroomParents);
     html = processOptional(html, 'brideParents', hasBrideParents);
+
+    // ── 고객 선택 3종 ──────────────────────────────────────
+    // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지
+    var customInv = String(c.invitationText || '').trim();
+    if (customInv) {
+      html = html.replace(/<!-- OPTIONAL:invitationText -->[\s\S]*?<!-- \/OPTIONAL:invitationText -->/g, buildInvitation(customInv));
+    } else {
+      html = processOptional(html, 'invitationText', true); // 기본 인사글 유지
+    }
+    // ② 인사글 밑 부모 표기 · ③ 계좌 부분 부모 표기 — 비우면 숨김
+    html = processOptional(html, 'greetingParents', truthy(c.greetingShowParents));
+    html = processOptional(html, 'envelopeParents', truthy(c.envelopeShowParents));
 
     var map = {
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
