@@ -1309,7 +1309,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   overflow:hidden;
   transition:max-height 0.5s var(--ease);
 }
-.env-item.open .env-a{max-height:560px}
+.env-item.open .env-a{max-height:1000px}
+.env-row.env-parent[hidden],.env-holder.env-parent[hidden]{display:none}
+.env-holder.env-parent{margin-top:2px}
 .env-a-inner{padding:4px 0 32px}
 
 .env-row{
@@ -1769,6 +1771,16 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
             <button class="env-copy" type="button" data-account="12345678901234">복사</button>
           </div>
           <div class="env-holder"><span class="label">예금주</span>이서준</div>
+          <div class="env-row env-parent" data-rel="father" hidden>
+            <span class="env-bank"></span><span class="env-account"></span>
+            <button class="env-copy" type="button" data-account="">복사</button>
+          </div>
+          <div class="env-holder env-parent" data-rel="father" hidden><span class="label">아버지</span></div>
+          <div class="env-row env-parent" data-rel="mother" hidden>
+            <span class="env-bank"></span><span class="env-account"></span>
+            <button class="env-copy" type="button" data-account="">복사</button>
+          </div>
+          <div class="env-holder env-parent" data-rel="mother" hidden><span class="label">어머니</span></div>
         </div>
       </div>
     </div>
@@ -1792,6 +1804,16 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
             <button class="env-copy" type="button" data-account="110987654321">복사</button>
           </div>
           <div class="env-holder"><span class="label">예금주</span>정하윤</div>
+          <div class="env-row env-parent" data-rel="father" hidden>
+            <span class="env-bank"></span><span class="env-account"></span>
+            <button class="env-copy" type="button" data-account="">복사</button>
+          </div>
+          <div class="env-holder env-parent" data-rel="father" hidden><span class="label">아버지</span></div>
+          <div class="env-row env-parent" data-rel="mother" hidden>
+            <span class="env-bank"></span><span class="env-account"></span>
+            <button class="env-copy" type="button" data-account="">복사</button>
+          </div>
+          <div class="env-holder env-parent" data-rel="mother" hidden><span class="label">어머니</span></div>
         </div>
       </div>
     </div>
@@ -2039,6 +2061,35 @@ function applyCoupleInfo(couple){
       account: couple.brideAccount,
     });
   }
+
+  // 8. 부모 계좌 (envelopeShowParents=Y + 계좌 있을 때만) — 가족/라이브 동일 동작
+  const showEnvP = /^(y|yes|true|1|on|표시|예|네)$/i.test(String(couple.envelopeShowParents || '').trim());
+  if (groomEnv) fillParentAccounts(groomEnv.closest('.env-item'), couple.groomParents, showEnvP, couple.groomFatherAccount, couple.groomMotherAccount);
+  if (brideEnv) fillParentAccounts(brideEnv.closest('.env-item'), couple.brideParents, showEnvP, couple.brideFatherAccount, couple.brideMotherAccount);
+}
+
+// 부모 계좌 블록 채우기 (아버지·어머니) — hydrate.js와 동일 규칙
+function fillParentAccounts(item, parentsStr, show, fatherCell, motherCell){
+  if (!item) return;
+  const names = String(parentsStr || '').split(/[·,/]/).map(s => s.trim()).filter(Boolean);
+  const data = { father: { name: names[0] || '', cell: fatherCell }, mother: { name: names[1] || '', cell: motherCell } };
+  ['father', 'mother'].forEach(rel => {
+    const row = item.querySelector('.env-row.env-parent[data-rel="' + rel + '"]');
+    const holder = item.querySelector('.env-holder.env-parent[data-rel="' + rel + '"]');
+    if (!row || !holder) return;
+    const cell = String(data[rel].cell || '').trim();
+    if (show && cell) {
+      const sp = cell.split(/\s+/); let bank = sp.shift(); let account = sp.join(' ');
+      if (!account) { account = bank; bank = ''; }
+      row.querySelector('.env-bank').textContent = bank ? (/(은행|뱅크)$/.test(bank) ? bank : bank + '은행') : '';
+      row.querySelector('.env-account').textContent = account;
+      row.querySelector('.env-copy').setAttribute('data-account', account.replace(/\D/g, ''));
+      holder.innerHTML = '<span class="label">' + (rel === 'father' ? '아버지' : '어머니') + '</span>' + (data[rel].name || '');
+      row.hidden = false; holder.hidden = false;
+    } else {
+      row.hidden = true; holder.hidden = true;
+    }
+  });
 }
 
 function updateEnvelopeBlock(item, info){
