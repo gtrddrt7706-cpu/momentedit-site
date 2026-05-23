@@ -48,6 +48,8 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function replaceAll(str, find, rep) { return str.split(find).join(rep); }
+  // 셀 안 줄바꿈(Alt+Enter) → <br> (HTML 이스케이프 후 변환)
+  function nl2br(s) { return escapeHtml(s).replace(/\r?\n/g, '<br>'); }
   function bankLabel(bank) {
     bank = String(bank || '').trim();
     if (!bank) return '';
@@ -216,7 +218,7 @@
     // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지
     var customPQ = String(c.pullQuote || '').trim();
     if (customPQ) {
-      html = html.replace(/<!-- OPTIONAL:pullQuote -->[\s\S]*?<!-- \/OPTIONAL:pullQuote -->/g, escapeHtml(customPQ));
+      html = html.replace(/<!-- OPTIONAL:pullQuote -->[\s\S]*?<!-- \/OPTIONAL:pullQuote -->/g, nl2br(customPQ));
     } else {
       html = processOptional(html, 'pullQuote', true);
     }
@@ -245,7 +247,7 @@
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
-      GROOM_BIO: escapeHtml(c.groomBio || ''), BRIDE_BIO: escapeHtml(c.brideBio || ''),
+      GROOM_BIO: nl2br(c.groomBio || ''), BRIDE_BIO: nl2br(c.brideBio || ''),
       GROOM_SIDE_LABEL: '신랑', BRIDE_SIDE_LABEL: '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };
