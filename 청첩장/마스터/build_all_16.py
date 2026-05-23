@@ -1,7 +1,6 @@
 """
 8개 디자인 × 라이브/가족 = 16개 검토용 빌드
-- 01~05: 핸드오프 원본 마스터 사용 (작업 안 함)
-- 06~08: 현재 작업본 사용
+- 01~08: 작업본 마스터 사용
 - 모두 A 케이스 (부모 정보 전부 + 커스텀 인사말)
 """
 
@@ -68,8 +67,7 @@ DATA = {
     'WEDDING_DAY_OF_MONTH_PAD': '24',
     'WEDDING_DAY_KOR': '토요일',
     'WEDDING_DAY_EN': 'Saturday',
-    'WEDDING_DAY_KOR': '토요일',
-    'WEDDING_DAY_EN_SHORT': 'Sun',
+    'WEDDING_DAY_EN_SHORT': 'Sat',
     'WEDDING_YEAR': '2026',
     'WEDDING_YEAR_EN': 'Two Thousand Twenty-Six',
     'WEDDING_YEAR_ROMAN': 'MMXXVI',

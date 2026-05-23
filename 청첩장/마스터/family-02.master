@@ -1246,7 +1246,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
           <div class="date-cal-month-num">{{WEDDING_MONTH_SLASH}}</div>
         </div>
         <div class="date-cal" role="grid" aria-label="결혼식 달력">
-          <div class="date-cal-dow sun">{{WEDDING_DAY_EN_SHORT}}</div>
+          <div class="date-cal-dow sun">Sun</div>
           <div class="date-cal-dow">Mon</div>
           <div class="date-cal-dow">Tue</div>
           <div class="date-cal-dow">Wed</div>
