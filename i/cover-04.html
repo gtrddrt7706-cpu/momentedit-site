@@ -1139,7 +1139,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
       <p class="live-desc">
         그날 그곳의 장면을 편지와 함께<br>이 안에 온전히 담았습니다.<br>먼 곳에서도, 가장 가까운 자리로 모십니다.
       </p>
-      <a class="live-btn" href="live.html?e={{EVENT_ID}}" aria-label="디지털 참석 페이지 입장">
+      <a class="live-btn" href="/live.html?e={{EVENT_ID}}" aria-label="디지털 참석 페이지 입장">
         <span>Enter Live Page</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
@@ -1264,7 +1264,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     if(eventId){
       document.documentElement.setAttribute('data-event', eventId);
       var liveBtn = document.querySelector('.live-btn');
-      if(liveBtn) liveBtn.href = 'live.html?e=' + encodeURIComponent(eventId);
+      if(liveBtn) liveBtn.href = '/live.html?e=' + encodeURIComponent(eventId);
     }
   } catch(_){}
 

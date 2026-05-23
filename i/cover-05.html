@@ -1555,7 +1555,7 @@ details.env-acc-item[open] > summary.env-acc-q{
         이 안에 있습니다.
       </div>
 
-      <a href="live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
+      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
         <span>Enter</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
@@ -1732,7 +1732,7 @@ details.env-acc-item[open] > summary.env-acc-q{
   const eventId = urlParams.get('e') || 'test-couple';
   const enterBtn = document.querySelector('.join-btn');
   if (enterBtn) {
-    enterBtn.href = 'live.html?e=' + encodeURIComponent(eventId);
+    enterBtn.href = '/live.html?e=' + encodeURIComponent(eventId);
   }
 
   // Details

@@ -1190,7 +1190,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
         조용히 기록되어 도착합니다.
       </div>
 
-      <a href="live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
+      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
         <span>Enter the Live Page</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
@@ -1349,7 +1349,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('e') || 'test-couple';
   const enterBtn = document.querySelector('.join-btn');
-  if (enterBtn) enterBtn.href = 'live.html?e=' + encodeURIComponent(eventId);
+  if (enterBtn) enterBtn.href = '/live.html?e=' + encodeURIComponent(eventId);
 
   // 봉투 아코디언 — 한 번에 하나만
   document.querySelectorAll('details.env-acc-item').forEach(d => {

@@ -1100,7 +1100,7 @@ body{
         이 안에 있습니다.
       </div>
 
-      <a href="live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
+      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
         <span>Enter</span>
         <span class="arrow">→</span>
       </a>
@@ -1262,13 +1262,13 @@ body{
   }, { passive: true });
 
   // 예식 ID 자동 전달 — 청첩장 URL의 ?e= 값을 Enter 버튼에 자동 반영
-  // 예: invitation.html?e=minsu-hayun → Enter 클릭 시 live.html?e=minsu-hayun
+  // 예: invitation.html?e=minsu-hayun → Enter 클릭 시 /live.html?e=minsu-hayun
   // 라이브 페이지 맨 위부터 자연스럽게 영상 → 편지 → 봉투 순으로 흐름
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('e') || 'test-couple';
   const enterBtn = document.querySelector('.join-btn');
   if (enterBtn) {
-    enterBtn.href = 'live.html?e=' + encodeURIComponent(eventId);
+    enterBtn.href = '/live.html?e=' + encodeURIComponent(eventId);
   }
 
   // ═══════════════════════════════════════════════════════════
