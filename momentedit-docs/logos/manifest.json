@@ -1,0 +1,206 @@
+{
+  "brand": {
+    "name": "Moment Edit",
+    "korean_name": "모먼트 에디트",
+    "descriptor": "PRIVATE WEDDING STUDIO",
+    "slogan": "Focus on the Essence, Record the Truth",
+    "tagline_korean": "본질에 집중하고, 진실을 기록하다"
+  },
+  "design_system": {
+    "wordmark_font": "Classic Serif (Georgia / Times New Roman / Cormorant Garamond Medium)",
+    "wordmark_style": "All Caps, wide letter-spacing 6-8pt (0.18em)",
+    "slogan_font": "Serif Italic",
+    "descriptor_font": "Sans-serif (Helvetica), letter-spacing 8pt",
+    "frame_style": "Double hairline (0.3-0.4px, opacity 0.25)",
+    "tone": "Minimal, Refined, Restrained",
+    "aesthetic": "Korean propriety × Japanese aesthetics"
+  },
+  "colors": {
+    "primary_dark": "#1a1a18",
+    "primary_cream": "#e8e6df",
+    "background_beige": "#f5f4f0",
+    "muted_text": "#888888",
+    "muted_dark_text": "#9c9a92",
+    "charcoal_v3": "#1C1B19",
+    "vermilion_v3": "#6B2A24",
+    "ivory_v3": "#FAFAF8"
+  },
+  "logos": [
+    {
+      "id": "primary-dark-bg",
+      "path": "01-primary/01-primary-dark-bg.png",
+      "category": "primary",
+      "background": "pure-black",
+      "foreground": "dark/subtle",
+      "has_tagline": true,
+      "use_for": [
+        "Hero sections with black background",
+        "Cover images on dark photography",
+        "Premium dark brand presentations"
+      ],
+      "avoid_when": "Light backgrounds — contrast too low",
+      "min_width_px": 600
+    },
+    {
+      "id": "primary-charcoal-bg",
+      "path": "01-primary/02-primary-charcoal-bg.png",
+      "category": "primary",
+      "background": "charcoal #1a1a18",
+      "foreground": "cream #e8e6df",
+      "has_tagline": true,
+      "use_for": [
+        "Default hero on website (dark mode)",
+        "Email signatures on dark template",
+        "Instagram cover, social media dark posts",
+        "Wedding invitation dark designs"
+      ],
+      "avoid_when": "Light backgrounds — won't show clearly",
+      "min_width_px": 600,
+      "recommended": "PRIMARY DEFAULT for dark contexts"
+    },
+    {
+      "id": "primary-beige-bg",
+      "path": "01-primary/03-primary-beige-bg.png",
+      "category": "primary",
+      "background": "beige #f5f4f0",
+      "foreground": "dark #1a1a18",
+      "has_tagline": true,
+      "use_for": [
+        "Letterhead and business documents",
+        "Print materials (brochures, leaflets)",
+        "Light-themed web pages",
+        "Wedding invitation light designs"
+      ],
+      "avoid_when": "Dark backgrounds — invisible",
+      "min_width_px": 600,
+      "recommended": "PRIMARY DEFAULT for light contexts"
+    },
+    {
+      "id": "no-tagline",
+      "path": "02-variants/01-no-tagline.png",
+      "category": "variant",
+      "has_tagline": false,
+      "use_for": ["Header navigation bars", "Compact horizontal placements"],
+      "min_width_px": 400
+    },
+    {
+      "id": "stacked",
+      "path": "02-variants/02-stacked.png",
+      "category": "variant",
+      "layout": "vertical 2-line",
+      "use_for": ["Square or vertical formats", "Stamp/seal applications", "Narrow column layouts"],
+      "min_width_px": 300
+    },
+    {
+      "id": "compact",
+      "path": "02-variants/03-compact.png",
+      "category": "variant",
+      "use_for": ["Small sizes (under 200px wide)", "Email footers", "Mobile navigation", "Document footers"],
+      "min_width_px": 150
+    },
+    {
+      "id": "footer",
+      "path": "02-variants/04-footer.png",
+      "category": "variant",
+      "use_for": ["Website footer (default)", "Discreet bottom-of-page branding"],
+      "min_width_px": 200
+    },
+    {
+      "id": "favicon",
+      "path": "03-icon-favicon/favicon-square.png",
+      "category": "icon",
+      "shape": "rounded-square",
+      "content": "ME monogram",
+      "use_for": ["Browser favicon", "App icons", "Square social profiles", "Touch icons"],
+      "size_px": "400x400"
+    },
+    {
+      "id": "stamp-circle",
+      "path": "03-icon-favicon/stamp-circle.png",
+      "category": "icon",
+      "shape": "circle",
+      "content": "ME monogram",
+      "use_for": ["Social media profile (Instagram, KakaoTalk)", "Round stamp/seal", "Email avatar"],
+      "size_px": "400x400"
+    },
+    {
+      "id": "watermark",
+      "path": "04-utility/watermark.png",
+      "category": "utility",
+      "background": "transparent",
+      "opacity": "low (~12%)",
+      "use_for": ["Subtle watermark on photographs", "Background overlay on portfolio images"]
+    },
+    {
+      "id": "mark-v3",
+      "path": "06-marks/moment-edit-mark.png",
+      "category": "mark-v3",
+      "version": "v3 (본 도장 제거 · 워드마크 + 하단 진사 액센트 라인)",
+      "background": "transparent (light mode)",
+      "foreground": "charcoal #1C1B19",
+      "size_px": "600x180",
+      "use_for": [
+        "Email signature (Gmail) — width 300px recommended",
+        "Website header — desktop 200px / mobile 140px",
+        "Business card front"
+      ]
+    },
+    {
+      "id": "mark-v3-dark",
+      "path": "06-marks/moment-edit-mark-dark.png",
+      "category": "mark-v3",
+      "version": "v3 dark mode (차콜→아이보리 반전)",
+      "background": "transparent (dark mode)",
+      "foreground": "ivory #FAFAF8",
+      "size_px": "600x180",
+      "use_for": ["Gmail dark theme recipients", "Dark UI headers"]
+    },
+    {
+      "id": "mark-v3-minimal",
+      "path": "06-marks/moment-edit-mark-minimal.png",
+      "category": "mark-v3",
+      "version": "v3 slogan 제외 압축 버전",
+      "size_px": "600x120",
+      "use_for": ["Mobile email signature", "Favicon (large)", "Narrow spaces"]
+    },
+    {
+      "id": "me-monogram",
+      "path": "06-marks/me-monogram.png",
+      "category": "monogram",
+      "shape": "square",
+      "size_px": "480x480",
+      "use_for": ["Favicon", "Instagram avatar", "Wedding invitation wax seal"]
+    },
+    {
+      "id": "me-monogram-h",
+      "path": "06-marks/me-monogram-h.png",
+      "category": "monogram",
+      "shape": "horizontal",
+      "size_px": "200x80",
+      "use_for": ["Email signature header", "Small horizontal placements"]
+    }
+  ],
+  "selection_rules": {
+    "default_dark_context": "primary-charcoal-bg",
+    "default_light_context": "primary-beige-bg",
+    "square_aspect_ratio": "stacked OR stamp-circle (if small)",
+    "small_size_under_200px": "compact OR favicon (if square)",
+    "social_media_profile": "stamp-circle OR favicon OR me-monogram",
+    "browser_tab": "favicon",
+    "website_footer": "footer",
+    "website_hero": "primary-charcoal-bg or primary-beige-bg",
+    "photograph_overlay": "watermark",
+    "print_documents": "primary-beige-bg",
+    "if_no_tagline_room": "no-tagline",
+    "email_signature_light": "mark-v3",
+    "email_signature_dark": "mark-v3-dark",
+    "email_signature_mobile": "mark-v3-minimal",
+    "business_card": "mark-v3 (front) + me-monogram (back)",
+    "instagram_avatar": "me-monogram OR stamp-circle"
+  },
+  "source_file": {
+    "path": "05-source/logo-system-master.svg",
+    "description": "Master SVG with all primary/variant logos laid out. Edit this to regenerate any PNG in 01~04 folders.",
+    "editable": true
+  }
+}

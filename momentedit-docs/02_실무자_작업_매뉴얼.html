@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moment Edit · 실무자 작업 매뉴얼</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;
+  --text:#1C1B19;--sub:#5A554C;--light:#75705F;
+  --gold:#B89A75;--accent:#3A2D22;--seal:#6B2A24;
+  --border:#DDD8D1;--footer-bg:#1A1714;
+  --hairline:rgba(28,27,25,0.18);
+  --serif:'Cormorant Garamond','Noto Serif KR',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --sans:'Noto Sans KR',-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,monospace;
+  --max:820px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-weight:400;
+  font-size:15px;line-height:1.85;
+  letter-spacing:-0.005em;
+  -webkit-font-smoothing:antialiased;
+  word-break:keep-all;padding-bottom:60px;
+}
+
+/* ============ COVER ============ */
+.cover{padding:60px 24px 36px;text-align:center;position:relative}
+.cover-eyebrow{
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.32em;
+  text-transform:uppercase;color:var(--gold);
+  margin-bottom:24px;padding-left:0.32em;
+}
+.cover-mark{
+  font-family:var(--serif);font-weight:400;
+  font-size:28px;letter-spacing:0.22em;
+  color:var(--accent);padding-left:0.22em;line-height:1;
+}
+.cover-rule{width:36px;height:1px;background:var(--gold);margin:24px auto;opacity:0.7}
+.cover-title{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(24px,5vw,30px);line-height:1.3;
+  letter-spacing:-0.01em;color:var(--accent);margin-bottom:14px;
+}
+.cover-title em{font-style:italic;color:var(--gold)}
+.cover-sub{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:14px;line-height:1.85;color:var(--sub);
+  letter-spacing:0.02em;
+}
+.cover-meta{
+  margin-top:24px;font-family:var(--mono);
+  font-size:10px;color:var(--light);
+  letter-spacing:0.12em;text-transform:uppercase;
+}
+
+/* ============ HUB GRID (홈) ============ */
+.hub-wrap{max-width:var(--max);margin:0 auto;padding:24px 24px 0}
+.hub-label{
+  text-align:center;
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.28em;
+  text-transform:uppercase;color:var(--gold);
+  font-weight:500;margin-bottom:8px;
+}
+.hub-headline{
+  text-align:center;
+  font-family:var(--serif-ko);font-weight:400;
+  font-size:16px;color:var(--accent);
+  margin-bottom:32px;letter-spacing:0.02em;
+}
+.hub-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+.hub-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:6px;padding:24px 22px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;flex-direction:column;gap:8px;
+  text-align:left;text-decoration:none;color:inherit;
+  position:relative;
+}
+.hub-card:hover{
+  border-color:var(--gold);transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(184,154,117,0.12);
+}
+.hub-icon{
+  font-size:24px;line-height:1;margin-bottom:4px;
+}
+.hub-card-num{
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;color:var(--gold);
+  letter-spacing:0.12em;margin-bottom:4px;
+}
+.hub-card-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:15px;color:var(--accent);
+  letter-spacing:0.01em;
+}
+.hub-card-desc{
+  font-size:12px;color:var(--sub);
+  font-weight:300;line-height:1.6;
+  letter-spacing:0.02em;
+}
+.hub-card-meta{
+  margin-top:8px;padding-top:8px;
+  border-top:1px solid var(--hairline);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:10px;color:var(--light);
+  font-family:var(--serif);font-style:italic;
+  letter-spacing:0.12em;text-transform:uppercase;
+}
+.hub-card-meta .who{color:var(--seal);font-weight:500}
+
+/* ============ PANEL (각 작업 매뉴얼) ============ */
+.panels-wrap{
+  max-width:var(--max);margin:48px auto 0;padding:0 24px;
+}
+.panel{display:none}
+.panel.active{display:block}
+
+.panel-head{
+  display:flex;align-items:center;gap:16px;
+  padding-bottom:20px;margin-bottom:32px;
+  border-bottom:1px solid var(--hairline);
+}
+.panel-back{
+  background:none;border:1px solid var(--border);
+  border-radius:4px;padding:8px 14px;
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;color:var(--sub);
+  letter-spacing:0.12em;cursor:pointer;
+  transition:all 0.2s;
+  display:flex;align-items:center;gap:6px;
+}
+.panel-back:hover{
+  border-color:var(--gold);color:var(--accent);
+}
+.panel-title-wrap{flex:1}
+.panel-num{
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;color:var(--gold);
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:4px;
+}
+.panel-title{
+  font-family:var(--serif);font-weight:300;
+  font-size:22px;line-height:1.3;color:var(--accent);
+  letter-spacing:-0.005em;
+}
+.panel-title .ko{
+  display:block;font-family:var(--serif-ko);
+  font-size:12px;color:var(--light);font-weight:300;
+  letter-spacing:0.04em;margin-top:4px;
+}
+.panel-meta{
+  font-size:11px;color:var(--light);
+  font-family:var(--serif);font-style:italic;
+  letter-spacing:0.08em;text-transform:uppercase;
+}
+.panel-meta .who{color:var(--seal);font-weight:500}
+
+/* ============ CARDS in panel ============ */
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:28px 24px;
+  margin-bottom:20px;
+}
+.card-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:15px;color:var(--accent);
+  margin-bottom:14px;letter-spacing:0.02em;
+  padding-bottom:10px;border-bottom:1px solid var(--hairline);
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::before{
+  content:'';width:6px;height:6px;
+  background:var(--seal);border-radius:50%;
+  flex-shrink:0;
+}
+.card p{margin-bottom:12px;color:var(--sub);font-size:13.5px;line-height:1.85}
+.card p:last-child{margin-bottom:0}
+.card strong{color:var(--accent);font-weight:500}
+.card em{font-style:italic;color:var(--seal)}
+
+/* ============ STEP-BY-STEP ============ */
+.step-block{
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:24px 22px;
+  margin-bottom:14px;position:relative;
+  padding-left:64px;
+}
+.step-number{
+  position:absolute;top:24px;left:22px;
+  width:28px;height:28px;
+  background:var(--seal);color:#fff;
+  border-radius:50%;display:flex;
+  align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:500;
+  font-size:13px;letter-spacing:0.04em;
+}
+.step-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:14px;color:var(--accent);
+  margin-bottom:10px;letter-spacing:0.01em;
+}
+.step-body{
+  font-size:13px;color:var(--sub);line-height:1.85;
+}
+.step-body p{margin-bottom:8px}
+.step-body p:last-child{margin-bottom:0}
+.step-body code{
+  background:#FBF9F4;padding:1px 5px;
+  border-radius:2px;font-size:12px;
+  color:var(--seal);
+  border:1px solid var(--border);
+  font-family:var(--mono);
+}
+.step-body strong{color:var(--accent);font-weight:500}
+
+ul.bullet{list-style:none;padding-left:0;margin-top:8px}
+ul.bullet li{
+  position:relative;padding-left:18px;
+  margin-bottom:6px;color:var(--sub);
+  font-size:13px;line-height:1.7;
+}
+ul.bullet li::before{
+  content:'·';position:absolute;left:6px;top:-2px;
+  color:var(--gold);font-size:18px;font-weight:600;
+}
+ul.bullet li strong{color:var(--accent);font-weight:500}
+
+/* ============ NOTE / WARN / TIP ============ */
+.note,.warn,.tip{
+  border-left:3px solid var(--gold);
+  background:#FBF9F4;padding:14px 18px;
+  margin:14px 0;font-size:13px;line-height:1.75;
+  color:var(--sub);border-radius:0 3px 3px 0;
+}
+.warn{border-left-color:var(--seal);background:#FBF5F2}
+.tip{border-left-color:#A89868;background:#F8F6F0}
+.note strong,.warn strong,.tip strong{
+  color:var(--accent);font-weight:500;
+  display:block;margin-bottom:6px;
+  font-family:var(--serif-ko);
+  font-size:13px;letter-spacing:0.02em;
+}
+.warn strong{color:var(--seal)}
+
+/* ============ TABLE ============ */
+table{
+  width:100%;border-collapse:collapse;
+  font-size:12.5px;margin:12px 0;
+}
+table th,table td{
+  text-align:left;padding:9px 10px;
+  border-bottom:1px solid var(--hairline);
+  vertical-align:top;
+}
+table th{
+  font-family:var(--serif);font-style:italic;
+  color:var(--gold);font-weight:500;
+  font-size:11px;letter-spacing:0.06em;
+  text-transform:uppercase;padding-bottom:6px;
+  border-bottom:1px solid var(--gold);
+}
+table td{color:var(--sub)}
+table td strong{color:var(--accent);font-weight:500}
+
+/* ============ FORM (정보 수집 양식) ============ */
+.form-section{
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:24px 22px;
+  margin-bottom:14px;
+}
+.form-section-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:14px;color:var(--accent);
+  margin-bottom:14px;letter-spacing:0.02em;
+  padding-bottom:10px;border-bottom:1px solid var(--gold);
+}
+.form-row{
+  display:grid;grid-template-columns:160px 1fr;
+  gap:14px;padding:10px 0;
+  border-bottom:1px dashed var(--hairline);
+  align-items:start;
+}
+.form-row:last-child{border-bottom:none}
+.form-label{
+  font-size:12px;color:var(--sub);font-weight:500;
+  padding-top:4px;
+}
+.form-label .required{color:var(--seal)}
+.form-input{
+  font-size:12.5px;color:var(--light);
+  padding:6px 10px;border:1px solid var(--border);
+  border-radius:3px;background:#FBF9F4;
+  font-family:var(--mono);min-height:32px;
+}
+.form-hint{
+  font-size:11px;color:var(--light);
+  margin-top:4px;line-height:1.6;
+  font-style:italic;
+}
+@media (max-width:600px){
+  .form-row{grid-template-columns:1fr;gap:6px}
+  .form-label{padding-top:0;font-size:11px}
+}
+
+/* ============ COPY BOX (복붙용 블록) ============ */
+.copy-box{
+  background:#1C1B19;color:#E5E2DD;
+  border-radius:4px;padding:18px 20px;
+  margin:14px 0;position:relative;
+  font-family:var(--mono);font-size:12px;
+  line-height:1.85;white-space:pre-wrap;word-break:break-all;
+}
+.copy-box-label{
+  position:absolute;top:-10px;left:20px;
+  background:var(--gold);color:#fff;
+  font-family:var(--serif);font-style:italic;
+  font-size:10px;letter-spacing:0.12em;
+  padding:3px 8px;border-radius:2px;
+}
+
+/* ============ CODE ============ */
+pre{
+  display:block;background:#FBF9F4;
+  border:1px solid var(--border);border-radius:3px;
+  padding:14px 16px;margin:12px 0;
+  font-family:var(--mono);font-size:11.5px;line-height:1.7;
+  color:var(--text);white-space:pre-wrap;word-break:break-all;
+  overflow-x:auto;
+}
+code{
+  font-family:var(--mono);font-size:12px;
+  background:#FBF9F4;padding:1px 5px;border-radius:2px;
+  color:var(--seal);border:1px solid var(--border);
+}
+pre code{background:none;border:none;padding:0;color:inherit;font-size:inherit}
+
+/* ============ FOOTER ============ */
+.footer{
+  margin-top:60px;padding:36px 24px;
+  background:var(--footer-bg);color:rgba(255,255,255,0.65);
+  text-align:center;
+}
+.footer-mark{
+  font-family:var(--serif);font-size:16px;
+  letter-spacing:0.32em;color:rgba(255,255,255,0.92);
+  margin-bottom:8px;
+}
+.footer-sub{
+  font-family:var(--serif);font-style:italic;
+  font-size:10px;letter-spacing:0.16em;
+  color:rgba(184,154,117,0.7);margin-bottom:18px;
+}
+.footer-meta{
+  font-size:10px;color:rgba(255,255,255,0.45);
+  line-height:1.85;
+}
+
+@media (max-width:560px){
+  .cover{padding:40px 18px 24px}
+  .hub-wrap,.panels-wrap{padding:0 18px}
+  .hub-card{padding:20px 18px}
+  .card,.step-block,.form-section{padding:20px 18px}
+  .step-block{padding-left:56px}
+  .step-number{left:16px;width:24px;height:24px;font-size:12px}
+  .panel-title{font-size:18px}
+  pre,.copy-box{font-size:11px;padding:12px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ COVER ═══ -->
+<div class="cover">
+  <div class="cover-eyebrow">Operations Manual</div>
+  <div class="cover-mark">MOMENT&nbsp;EDIT</div>
+  <div class="cover-rule"></div>
+  <h1 class="cover-title">실무자 작업 매뉴얼<br><em>step-by-step Guide</em></h1>
+  <p class="cover-sub">huijun + Miku가 직접 실행하는 작업들을<br>step-by-step으로 정리한 실무 가이드.</p>
+  <p class="cover-meta">v4.0 · 2026.05.21 · 가족 청첩장 자동화 반영</p>
+</div>
+
+<!-- ═══ 짝 문서 동기화 안내 (v4.0 신규) ═══ -->
+<div style="max-width:760px;margin:0 auto 40px;padding:0 24px">
+  <div style="background:#FBF5F2;border:1px solid #6B2A24;padding:24px 28px;border-radius:2px">
+    <div style="font-family:'EB Garamond',serif;font-size:14px;letter-spacing:0.12em;text-transform:uppercase;color:#6B2A24;margin-bottom:12px">🔗 Paired Document Notice · 짝 문서 안내</div>
+    <p style="font-size:14px;line-height:1.7;color:#3A2D22;margin:0 0 12px"><strong>이 매뉴얼은 단독으로 존재하지 않습니다. 짝 문서가 있습니다.</strong></p>
+    <ul style="font-size:13px;line-height:1.7;color:#3A2D22;margin:0 0 12px;padding-left:20px">
+      <li><strong>본 파일:</strong> <code>02_실무자_매뉴얼.html</code> · <strong>v4.0</strong> (huijun·Miku 일일 작업 단계별 가이드)</li>
+      <li><strong>짝 파일:</strong> <code>01_AI_시스템_마스터.html</code> · <strong>v5.0</strong> (AI 컨텍스트·시스템 전체)</li>
+    </ul>
+    <p style="font-size:13px;line-height:1.7;color:#3A2D22;margin:0 0 12px"><strong>두 문서는 항상 짝으로 동기화되어야 합니다.</strong> 실무 작업 흐름에 영향을 주는 시스템 변경(컬럼 추가, 워크플로우 변경, 새 트러블슈팅 케이스 등)이 있으면, 양쪽 모두 함께 업데이트해야 정상 운영됩니다.</p>
+    <div style="background:#fff;border-left:3px solid #6B2A24;padding:14px 18px;margin-top:14px">
+      <p style="font-size:13px;line-height:1.7;color:#3A2D22;margin:0;font-weight:600">⚠️ AI에게 작업 요청 시 두 파일 모두 첨부 권장</p>
+      <p style="font-size:12px;line-height:1.6;color:#75705F;margin:6px 0 0">시스템 변경이 매뉴얼에도 영향을 주면, AI가 자동으로 "두 파일 모두 업로드해주세요"라고 안내합니다. 처음부터 짝으로 첨부하면 한 번에 양쪽 동기화 가능.</p>
+    </div>
+    <p style="font-size:12px;line-height:1.6;color:#75705F;margin:14px 0 0;font-style:italic">📌 짝 문서 버전 호환: 매뉴얼 v4.X ↔ 시스템 마스터 v5.X. 한쪽만 업데이트되면 버전 mismatch 가능. 항상 짝으로 검토.</p>
+  </div>
+</div>
+
+<!-- ═══ HUB · 메인 카드 인덱스 ═══ -->
+<div class="hub-wrap" id="hub">
+  <div class="hub-label">Choose a Task</div>
+  <div class="hub-headline">작업을 선택해주세요</div>
+
+  <div class="hub-grid">
+
+    <a class="hub-card" onclick="showPanel('p01')">
+      <div class="hub-icon">📧</div>
+      <div class="hub-card-num">Nº 01</div>
+      <div class="hub-card-title">예약 문의 응대</div>
+      <div class="hub-card-desc">인콰이어리 수신 → 회신 → 상담 진행</div>
+      <div class="hub-card-meta">
+        <span>약 10분 / 건</span>
+        <span class="who">Miku</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p02')">
+      <div class="hub-icon">📋</div>
+      <div class="hub-card-num">Nº 02</div>
+      <div class="hub-card-title">부부 정보 수집</div>
+      <div class="hub-card-desc">신랑신부에게 카톡으로 정보 받기</div>
+      <div class="hub-card-meta">
+        <span>3~7일 진행</span>
+        <span class="who">Miku</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p03')">
+      <div class="hub-icon">✉️</div>
+      <div class="hub-card-num">Nº 03</div>
+      <div class="hub-card-title">청첩장 만들기</div>
+      <div class="hub-card-desc">라이브 AI 생성 · 가족은 자동 (v4.0)</div>
+      <div class="hub-card-meta">
+        <span>약 5분 (라이브만)</span>
+        <span class="who">huijun</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p04')">
+      <div class="hub-icon">📊</div>
+      <div class="hub-card-num">Nº 04</div>
+      <div class="hub-card-title">시트에 부부 등록</div>
+      <div class="hub-card-desc">A~Q 17열 + 가족시 R~Z 9열 (v4.0)</div>
+      <div class="hub-card-meta">
+        <span>약 5~10분</span>
+        <span class="who">huijun</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p05')">
+      <div class="hub-icon">🚀</div>
+      <div class="hub-card-num">Nº 05</div>
+      <div class="hub-card-title">GitHub 배포</div>
+      <div class="hub-card-desc">라이브만 수동 push (가족은 자동)</div>
+      <div class="hub-card-meta">
+        <span>약 5분</span>
+        <span class="who">huijun</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p06')">
+      <div class="hub-icon">✅</div>
+      <div class="hub-card-num">Nº 06</div>
+      <div class="hub-card-title">URL 검증 & 전달</div>
+      <div class="hub-card-desc">라이브 + 가족 양쪽 검증 후 전달</div>
+      <div class="hub-card-meta">
+        <span>약 10분</span>
+        <span class="who">huijun + Miku</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p07')">
+      <div class="hub-icon">🎬</div>
+      <div class="hub-card-num">Nº 07</div>
+      <div class="hub-card-title">예식 당일 영상 송출</div>
+      <div class="hub-card-desc">Vimeo ID 시트 입력</div>
+      <div class="hub-card-meta">
+        <span>약 1분</span>
+        <span class="who">huijun + Miku</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p08')">
+      <div class="hub-icon">🚨</div>
+      <div class="hub-card-num">Nº 08</div>
+      <div class="hub-card-title">트러블슈팅</div>
+      <div class="hub-card-desc">문제 발생 시 즉시 해결</div>
+      <div class="hub-card-meta">
+        <span>긴급 대응</span>
+        <span class="who">huijun</span>
+      </div>
+    </a>
+
+    <a class="hub-card" onclick="showPanel('p09')">
+      <div class="hub-icon">🔄</div>
+      <div class="hub-card-num">Nº 09</div>
+      <div class="hub-card-title">일상 점검</div>
+      <div class="hub-card-desc">매일·주·월·년 체크리스트</div>
+      <div class="hub-card-meta">
+        <span>정기 작업</span>
+        <span class="who">huijun + Miku</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ═══ PANELS · 각 작업 매뉴얼 ═══ -->
+<div class="panels-wrap">
+
+<!-- ═════ PANEL 01 · 예약 문의 응대 ═════ -->
+<div class="panel" id="p01">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 01</div>
+      <div class="panel-title">예약 문의 응대<span class="ko">Inquiry Response</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">Miku</span></div>
+  </div>
+
+  <div class="note">
+    <strong>전체 흐름</strong>
+    예비 부부가 inquiry.html 폼 작성 → contact@momentedit.kr 수신 → Miku 이메일로 자동 전달 → 24시간 내 회신 → 카톡 또는 통화 상담 → 방문 상담 일정 잡기
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">수신 확인</div>
+    <div class="step-body">
+      <p>contact@momentedit.kr 메일함 확인 (스팸함 포함).</p>
+      <p>Formspree에서 전송된 메일 제목: <code>New submission from Moment Edit</code></p>
+      <p><strong>매일 1회 이상 확인</strong> (오전·오후 권장).</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">정보 정리</div>
+    <div class="step-body">
+      <p>메일에 포함된 내용:</p>
+      <ul class="bullet">
+        <li>이름</li>
+        <li>이메일</li>
+        <li>연락처 (선택)</li>
+        <li>예상 예식 날짜 (선택)</li>
+        <li>문의 내용</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">24시간 내 회신 (이메일)</div>
+    <div class="step-body">
+      <p>아래 템플릿을 베이스로 회신:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">복붙 템플릿</span>안녕하세요, [이름]님.
+Moment Edit입니다.
+
+문의 주신 [날짜]에 대한 답신을 드립니다.
+
+[구체적 답변]
+
+추가 상담은 카카오톡 또는 통화로 진행하실 수 있습니다.
+원하시는 방법으로 편하게 연락 주세요.
+
+— Miku · Moment Edit
+contact@momentedit.kr</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">상담 단계 진행</div>
+    <div class="step-body">
+      <p>관심도가 확인되면 다음 단계:</p>
+      <ul class="bullet">
+        <li><strong>1차 답변:</strong> 일정·가격 안내</li>
+        <li><strong>방문 상담:</strong> 스튜디오 직접 방문 권유</li>
+        <li><strong>견적·계약:</strong> 방문 후 확정</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">기록 보관</div>
+    <div class="step-body">
+      <p>모든 문의는 회신 후에도 메일함에 보관. 향후 단골 고객 또는 재문의 시 참고.</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💬 응대 톤 가이드</strong>
+    프라이빗 웨딩 브랜드 톤 유지. 친근하면서도 격조 있게. 가격은 직접 명시 (₩2,800,000 주말 / ₩2,100,000 평일 · VAT 포함). 할인 안내는 신중하게.
+  </div>
+</div>
+
+<!-- ═════ PANEL 02 · 부부 정보 수집 ═════ -->
+<div class="panel" id="p02">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 02</div>
+      <div class="panel-title">부부 정보 수집<span class="ko">Information Gathering</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">Miku</span></div>
+  </div>
+
+  <div class="note">
+    <strong>목적</strong>
+    청첩장 제작에 필요한 모든 정보를 카톡으로 단계별 수집. 한 번에 다 묻지 말고, 부담 없이 며칠에 걸쳐 나눠서 받기.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">계약 직후 · 안내 메시지</div>
+    <div class="step-body">
+      <p>계약 끝난 직후 신랑신부에게 카톡 보내기:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">카톡 1차 안내</span>안녕하세요 [신랑]님, [신부]님 :)
+Moment Edit 미쿠입니다.
+
+청첩장 제작을 위해 몇 가지 정보를 받아두려고 해요.
+한 번에 다 받지 않고, 며칠에 걸쳐 편하게 나눠서 보내주세요.
+
+오늘 먼저 받을 정보는 이거예요:
+
+✦ 신랑·신부 이름 (한글·영문 여권 표기)
+✦ 결혼식 날짜·시간 (요일 포함)
+✦ 결혼식 장소 (이름·주소)
+
+언제든 편하게 답해주세요.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">2~3일 후 · 부모님 정보</div>
+    <div class="step-body">
+      <p>고객이 원하는 경우에만:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">카톡 2차</span>이번엔 부모님 정보를 받아두려고요.
+
+✦ 신랑 측 아버님·어머님 성함 (혼주)
+✦ 신부 측 아버님·어머님 성함 (혼주)
+
+※ 청첩장에 부모님 성함 노출을 원치 않으시면 알려주세요.
+혼주분 함자 없이도 청첩장은 만들 수 있어요.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">3~5일 후 · 계좌 정보</div>
+    <div class="step-body">
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">카톡 3차</span>이번엔 마음 전하기(계좌) 정보예요.
+
+✦ 신랑 본인 계좌 (은행명 + 계좌번호)
+✦ 신부 본인 계좌 (은행명 + 계좌번호)
+
+부모님 계좌도 함께 받으시려면 알려주세요.
+원치 않으시면 본인 계좌만 받습니다.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">5~7일 후 · 청첩장 디자인 선택</div>
+    <div class="step-body">
+      <p>홈페이지 청첩장 갤러리 보여주고 선택:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">카톡 4차</span>거의 다 왔어요! 마지막으로 청첩장 디자인을 골라주세요.
+
+👉 https://momentedit.kr/invitation-gallery.html
+
+8가지 디자인이 있어요.
+01 Classic · 02 Editorial · 03 Letterpress · 04 Vermilion
+05 Botanical · 06 Hangeul · 07 Architect · 08 Noir
+
+마음에 드는 번호 알려주세요.
+(추천도 가능하니 편하게 말씀해주세요.)</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">기타 부가 정보 (선택)</div>
+    <div class="step-body">
+      <p>필요한 경우만:</p>
+      <ul class="bullet">
+        <li>인사말 (직접 작성 원할 시)</li>
+        <li>입장곡 (예식 당일용)</li>
+        <li>기타 특별 요청</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">6</div>
+    <div class="step-title">가족 청첩장 발행 여부 + 식장 정보 (v4.0) <span class="tag" style="background:var(--seal);color:#fff">v4.0 신규</span></div>
+    <div class="step-body">
+      <p>일반 하객용 라이브 청첩장에 더해, 직계 가족용 청첩장도 만들지 신랑신부에게 확인. 발행하기로 했으면 식장 상세 정보 추가 수집:</p>
+      <ul class="bullet">
+        <li><strong>식장명 한글</strong> (필수) · 예: 더채플앳논현</li>
+        <li><strong>식장명 영문</strong> (옵션) · 예: The Chapel at Nonhyeon</li>
+        <li><strong>식장 주소</strong> (필수) · 도로명 주소</li>
+        <li><strong>교통편</strong> (필수) · "○호선 ○○역 ○번 출구 도보 ○분" 형식 권장</li>
+        <li><strong>주차 안내</strong> (필수) · "발렛 가능 · ○시간 무료" 또는 "1인 1대 무료" 등</li>
+        <li><strong>구글맵 URL</strong> (huijun이 직접 추출 · 패널 04 참조)</li>
+        <li><strong>가족 청첩장 디자인</strong> (필수) · 8종 중 1개 선택 (라이브와 같거나 달라도 무관)</li>
+      </ul>
+      <p class="small" style="color:var(--seal)">⚠️ 식장 전화번호는 시트에 입력해도 가족 카드 표시에는 사용되지 않음 (직계 가족은 직접 부부에게 문의함). 옵션으로만 기록.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">7</div>
+    <div class="step-title">huijun에게 전달</div>
+    <div class="step-body">
+      <p>모든 정보가 모이면 huijun에게 정리해서 전달:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">huijun에게 전달용</span>[부부 정보 정리 — eventId: __________]
+
+신랑 한글:    
+신부 한글:    
+신랑 영문:    
+신부 영문:    
+
+결혼식 날짜:  
+결혼식 시간:  
+결혼식 장소:  
+
+신랑 부모:    [있음/없음]
+신부 부모:    [있음/없음]
+
+신랑 계좌:    
+신부 계좌:    
+부모 계좌:    [있음/없음 · 있으면 상세]
+
+라이브 디자인: invitation-XX-XXXX
+
+[가족 청첩장 발행 여부]   [발행 / 발행 안 함]
+[가족 디자인]            invitation-XX-XXXX (발행시)
+[식장명]                 (발행시)
+[식장 주소]              (발행시)
+[교통편]                 (발행시)
+[주차 안내]              (발행시)
+
+특이사항:     [있으면 메모]</div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 수집 팁</strong>
+    한 번에 다 묻지 X. 신랑신부도 결혼 준비로 정신 없으니 며칠에 걸쳐 부담 없이. 영문 이름은 반드시 <strong>여권 표기 기준</strong> 강조 (오타 방지). 부모 정보·계좌는 옵션임을 명확히 (강제 아님). <strong>가족 청첩장 발행 여부는 5~7일차에 같이 확인</strong> — 디자인 선택할 때 묶어서 물어보면 깔끔.
+  </div>
+</div>
+
+<!-- ═════ PANEL 03 · 청첩장 만들기 ═════ -->
+<div class="panel" id="p03">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 03</div>
+      <div class="panel-title">청첩장 만들기<span class="ko">라이브 + 가족 청첩장 동시 발행 (v4.0)</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun</span></div>
+  </div>
+
+  <div class="note">
+    <strong>흐름 (v4.0 옵션 C 반영)</strong>
+    <strong>라이브 청첩장</strong>은 AI 자동화 프롬프트로 HTML 생성 → GitHub /i/ 폴더 push.<br>
+    <strong>가족 청첩장</strong>은 시트에 R~Z 9컬럼 추가 입력 → 메뉴 클릭만으로 자동 빌드 (별도 AI 작업 불필요).
+  </div>
+
+  <div class="warn" style="background:#FBF5F2;border-color:var(--seal)">
+    <strong>📌 v4.0 변경 사항</strong>
+    이전 v3.x까지는 직계가족 청첩장이 별도 수작업이었으나, v4.0 옵션 C 구축 완료로 <strong>가족 청첩장도 시트 입력 → 메뉴 클릭만으로 자동 빌드</strong>됨. 본 패널은 라이브 청첩장 생성 흐름 중심으로 설명. 가족 청첩장은 다음 패널(P04 · 시트에 부부 등록)에서 R~Z 입력 후 자동 빌드.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">eventId 결정</div>
+    <div class="step-body">
+      <p>규칙: <strong>신랑이니셜3-신부이니셜3-월일</strong></p>
+      <ul class="bullet">
+        <li>예: 이민호 · 최유진 / 8월 23일 → <code>lmh-cyj-0823</code></li>
+        <li>예: 박서준 · 김지원 / 12월 5일 → <code>psj-kjw-1205</code></li>
+      </ul>
+      <p>영문 소문자 + 숫자 + 하이픈만 사용. 한글 절대 X.</p>
+      <p class="small" style="color:var(--seal)">⚠️ eventId는 라이브와 가족 청첩장 모두에 동일하게 사용됨. URL 라우팅·시트 PK·파일명 통일.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">라이브 청첩장 생성 · 새 채팅 열기 + 파일 첨부</div>
+    <div class="step-body">
+      <p>claude.ai에서 새 채팅 열기 → 아래 2개 파일 첨부:</p>
+      <ul class="bullet">
+        <li><strong>01_AI_시스템_마스터.html</strong> (AI 컨텍스트)</li>
+        <li><strong>invitation-XX-XXXX.html</strong> (선택한 라이브 마스터)</li>
+      </ul>
+      <p>라이브 마스터 파일은 GitHub 로컬 폴더에서 가져옴 (v5.0 신규 위치):<br><code>C:\Users\gtrdd\Documents\GitHub\momentedit-site\<strong>i\invitations\</strong>invitation-04-Vermilion.html</code></p>
+      <p class="small" style="color:var(--seal)">※ 가족 마스터는 자동 빌드되므로 첨부 불필요. 라이브 마스터만 첨부.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">첫 메시지 + 양식 전송</div>
+    <div class="step-body">
+      <p>아래 양식을 채워서 한 번에 전송:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">AI에게 보낼 메시지</span>이 가이드(01_AI_시스템_마스터.html)를 먼저 읽어줘.
+첨부한 청첩장 마스터를 베이스로,
+아래 부부 정보로 라이브 청첩장 HTML을 만들어줘.
+§14의 모든 자동화 규칙 그대로 적용.
+
+신랑 한글:    이민호
+신부 한글:    최유진
+신랑 영문:    Lee Minho
+신부 영문:    Choi Yujin
+
+결혼식 날짜:  2026년 8월 23일 일요일
+결혼식 시간:  오후 2시
+
+eventId:     lmh-cyj-0823
+
+신랑 부모:    이정환 · 김선미
+신부 부모:    최영수 · 박미경
+
+신랑 계좌:    신한 110-456-789012
+신부 계좌:    국민 612-345-678901
+신랑 父 계좌: (선택)
+신랑 母 계좌: (선택)
+신부 父 계좌: (선택)
+신부 母 계좌: (선택)
+
+완성된 HTML 전체 코드만 반환해줘.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">AI 응답 확인</div>
+    <div class="step-body">
+      <p>AI는 다음 형식으로 응답:</p>
+      <ul class="bullet">
+        <li>✅ 청첩장 생성 완료 알림</li>
+        <li>수정 내역 (이름·날짜·eventId 등)</li>
+        <li>검증 통과 항목 (test-couple 잔존 없음 등)</li>
+        <li>완성된 HTML 전체 코드</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">HTML 코드 파일로 저장</div>
+    <div class="step-body">
+      <p>AI가 준 HTML 코드 전체를 복사 → 메모장 또는 VSCode 열기 → 붙여넣기 → 파일로 저장:</p>
+      <ul class="bullet">
+        <li>파일명: <code>[eventId].html</code> (예: <code>lmh-cyj-0823.html</code>)</li>
+        <li>인코딩: UTF-8</li>
+        <li>저장 위치: 우선 다운로드 폴더에 임시 저장</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 검증 팁</strong>
+    AI가 응답한 검증 통과 목록을 꼭 확인. 특히 <code>?e=test-couple</code> 잔존 검사·이전 부부 이름 잔존 검사가 통과되어야 함. 통과 안 됐다면 AI에게 재수정 요청.
+  </div>
+
+  <div class="tip" style="border-color:var(--seal)">
+    <strong>🏗️ 가족 청첩장은 자동 빌드 (v4.0)</strong>
+    가족 청첩장은 별도 AI 작업 X. 다음 패널(P04)에서 Couples 시트 R~Z 9컬럼만 입력하고, 시트 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭하면 Apps Script가 자동으로 빌드 → GitHub /i-family/ 폴더에 push → Vercel 배포. 부부당 2분.
+  </div>
+</div>
+
+<!-- ═════ PANEL 04 · 시트에 부부 등록 ═════ -->
+<div class="panel" id="p04">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 04</div>
+      <div class="panel-title">시트에 부부 등록<span class="ko">Couples 시트 26열 입력 + 가족 빌드 트리거 (v4.0)</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun</span></div>
+  </div>
+
+  <div class="note">
+    <strong>중요 (v4.0 옵션 C 반영)</strong>
+    이 작업이 끝나야 라이브 페이지에서 부부 정보가 동적으로 표시됨. 정확히 17열(A~Q) 모두 입력해야 라이브 정상 동작. <strong>가족 청첩장도 발행이면 R~Z 9열 추가 입력 (총 26열) → 메뉴 클릭으로 자동 빌드</strong>.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">시트 열기</div>
+    <div class="step-body">
+      <p>huijun Drive → <strong>"Moment Edit · Letter System"</strong> 더블클릭 → <strong>Couples 탭</strong> 클릭</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">데이터 행 찾기</div>
+    <div class="step-body">
+      <p>row 1: 한글 라벨 (예식ID, 신랑 한글, ...)<br>row 2: 영문 헤더 (eventId, groomName, ...)<br>row 3~: 기존 부부 데이터</p>
+      <p>새 부부는 <strong>맨 아래 빈 행</strong>에 추가.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">A~Q 17열 입력 (라이브 청첩장용)</div>
+    <div class="step-body">
+      <p>한 행에 탭으로 구분해서 한 번에 붙여넣기 가능:</p>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">기본 정보 (A~F · 필수)</div>
+      <div class="form-row"><div class="form-label">A · 예식ID <span class="required">*</span></div><div class="form-input">lmh-cyj-0823</div></div>
+      <div class="form-row"><div class="form-label">B · 신랑 한글 <span class="required">*</span></div><div class="form-input">이민호</div></div>
+      <div class="form-row"><div class="form-label">C · 신부 한글 <span class="required">*</span></div><div class="form-input">최유진</div></div>
+      <div class="form-row"><div class="form-label">D · 신랑 이메일 <span class="required">*</span></div><div class="form-input">groom@gmail.com</div></div>
+      <div class="form-row"><div class="form-label">E · 신부 이메일 <span class="required">*</span></div><div class="form-input">bride@gmail.com</div></div>
+      <div class="form-row"><div class="form-label">F · 결혼식 날짜 <span class="required">*</span></div><div class="form-input">2026-08-23</div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">영문 이름 & 시간 (G~I · 필수)</div>
+      <div class="form-row"><div class="form-label">G · 신랑 영문 <span class="required">*</span></div><div class="form-input">Lee Minho</div></div>
+      <div class="form-row"><div class="form-label">H · 신부 영문 <span class="required">*</span></div><div class="form-input">Choi Yujin</div></div>
+      <div class="form-row"><div class="form-label">I · 결혼식 시간 <span class="required">*</span></div><div class="form-input">14:00 (텍스트 형식)</div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">계좌 정보 (J~M · 필수)</div>
+      <div class="form-row"><div class="form-label">J · 신랑 은행 <span class="required">*</span></div><div class="form-input">신한</div></div>
+      <div class="form-row"><div class="form-label">K · 신랑 계좌 <span class="required">*</span></div><div class="form-input">110-456-789012</div></div>
+      <div class="form-row"><div class="form-label">L · 신부 은행 <span class="required">*</span></div><div class="form-input">국민</div></div>
+      <div class="form-row"><div class="form-label">M · 신부 계좌 <span class="required">*</span></div><div class="form-input">612-345-678901</div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">영상 (N~O · 예식 당일에 입력)</div>
+      <div class="form-row"><div class="form-label">N · Vimeo ID</div><div class="form-input">(예식 당일까지 비움)</div></div>
+      <div class="form-row"><div class="form-label">O · Vimeo Hash</div><div class="form-input">(선택 · 비공개 영상만)</div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">부모 정보 (P~Q · 옵션)</div>
+      <div class="form-row"><div class="form-label">P · 신랑 부모</div><div class="form-input">이정환 · 김선미</div></div>
+      <div class="form-row"><div class="form-label">Q · 신부 부모</div><div class="form-input">최영수 · 박미경</div></div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">R~Z 9열 입력 (가족 청첩장 발행 시 · v4.0) <span class="tag" style="background:var(--seal);color:#fff">v4.0 신규</span></div>
+    <div class="step-body">
+      <p>가족 청첩장도 만들 거면 같은 행에 R~Z 9열 추가 입력. 라이브만 발행이면 R~Z는 비워두면 됨 (familyActive=비어있음 또는 N).</p>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">가족카드 활성화 (R~S · 필수)</div>
+      <div class="form-row"><div class="form-label">R · 가족카드 활성 <span class="required">*</span></div><div class="form-input">Y (또는 N · 비활성)</div></div>
+      <div class="form-row"><div class="form-label">S · 가족 디자인 코드 <span class="required">*</span></div><div class="form-input">01 (01~08 중 · 텍스트 형식 필수)</div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">식장 정보 (T~Z · 필수)</div>
+      <div class="form-row"><div class="form-label">T · 식장명 한글 <span class="required">*</span></div><div class="form-input">더채플앳논현</div></div>
+      <div class="form-row"><div class="form-label">U · 식장명 영문</div><div class="form-input">The Chapel at Nonhyeon (옵션)</div></div>
+      <div class="form-row"><div class="form-label">V · 식장 주소 <span class="required">*</span></div><div class="form-input">서울시 강남구 학동로 419</div></div>
+      <div class="form-row"><div class="form-label">W · 식장 전화</div><div class="form-input">02-3443-4441 (옵션 · 마스터 표시는 v4.0에서 제거)</div></div>
+      <div class="form-row"><div class="form-label">X · 교통편 <span class="required">*</span></div><div class="form-input">7호선 학동역 1번 출구 도보 3분</div></div>
+      <div class="form-row"><div class="form-label">Y · 주차 안내 <span class="required">*</span></div><div class="form-input">발렛 가능 · 2시간 무료</div></div>
+      <div class="form-row"><div class="form-label">Z · 구글맵 iframe <span class="required">*</span></div><div class="form-input">https://www.google.com/maps/embed?pb=...</div></div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">가족 청첩장 빌드 트리거 (v4.0 · R열 Y인 경우만) <span class="tag" style="background:var(--seal);color:#fff">v4.0 신규</span></div>
+    <div class="step-body">
+      <p>R~Z 입력이 끝났으면 시트 메뉴에서 바로 빌드:</p>
+      <ul class="bullet">
+        <li>방금 입력한 부부 행의 <strong>아무 셀이나 클릭</strong></li>
+        <li>상단 메뉴 <strong>Moment Edit → 가족 청첩장 빌드 (선택한 행)</strong> 클릭</li>
+        <li>약 5~10초 대기 → <strong>"빌드 완료" 알림창</strong> 표시 (eventId · 디자인 · URL)</li>
+        <li>BuildLogs 탭으로 이동 → 새 행에 <strong>status=OK</strong> 기록 확인</li>
+        <li>Vercel 자동 배포 1~2분 → URL 접속 가능</li>
+      </ul>
+      <p class="small" style="color:var(--seal)">⚠️ 라이브 청첩장은 별도 시점에 GitHub /i/ 폴더에 수동 push (다음 패널 05). 가족은 자동.</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ I열 weddingTime 주의</strong>
+    구글 시트가 "14:00" 입력 시 자동으로 시간 형식으로 바꿔버린다. 입력 전 반드시 I열 전체를 <strong>일반 텍스트 형식</strong>으로 변경:
+    <ul class="bullet">
+      <li>I열 머리글(컬럼 "I") 클릭 → I열 전체 선택</li>
+      <li>상단 메뉴: 서식 → 숫자 → 일반 텍스트</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ S열 디자인 코드 주의 (v4.0)</strong>
+    <code>01</code> 그대로 입력하면 구글시트가 숫자 <code>1</code>로 변환 → 빌드 시 "잘못된 디자인 코드" 오류. 해결:
+    <ul class="bullet">
+      <li>방법 1: 앞에 작은따옴표 <code>'01</code> 입력 → 텍스트로 강제</li>
+      <li>방법 2: S열 전체 선택 → 서식 → 숫자 → 일반 텍스트 → 값 재입력</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ Z열 구글맵 iframe URL 추출법 (v4.0)</strong>
+    iframe 코드 전체를 붙여넣으면 안 됨. <strong>src=""안의 URL만</strong> 추출해서 붙여넣기:
+    <ul class="bullet">
+      <li>구글맵(google.com/maps)에서 식장 검색</li>
+      <li>식장 카드 → 공유 → "지도 퍼가기" 탭</li>
+      <li><code>&lt;iframe src="여기부터...따옴표 직전까지" ...&gt;</code></li>
+      <li>예시: <code>https://www.google.com/maps/embed?pb=!1m18!...</code></li>
+    </ul>
+  </div>
+
+  <div class="tip">
+    <strong>💡 부모 정보 P, Q열</strong>
+    고객이 부모 정보 노출을 원치 않으면 <strong>비워두면 됨</strong>. 라이브 페이지·가족 청첩장 모두에서 자동으로 해당 영역이 hide된다.
+  </div>
+
+  <div class="tip" style="border-color:var(--seal)">
+    <strong>📊 BuildLogs 시트 활용 (v4.0)</strong>
+    가족 청첩장 빌드 결과는 자동으로 BuildLogs 시트에 기록됨. 오류 발생 시 error 컬럼에 상세 메시지 표시. 운영 중 문제 발견 시 BuildLogs 먼저 확인 → 트러블슈팅(P08)으로 분기.
+  </div>
+</div>
+
+<!-- ═════ PANEL 05 · GitHub 배포 ═════ -->
+<div class="panel" id="p05">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 05</div>
+      <div class="panel-title">GitHub 배포<span class="ko">라이브 청첩장만 수동 push (가족은 자동) (v4.0)</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun</span></div>
+  </div>
+
+  <div class="note">
+    <strong>이 단계 후 (v4.0 옵션 C 반영)</strong>
+    <strong>라이브 청첩장</strong>은 본 패널 절차로 수동 push → Vercel 자동 배포 → <code>https://momentedit.kr/i/[eventId].html</code> 접속.<br>
+    <strong>가족 청첩장</strong>은 패널 04의 시트 메뉴 트리거로 자동 push 완료 (본 패널 불필요). Vercel 자동 배포 후 <code>https://momentedit.kr/i-family/[eventId].html</code> 접속.
+  </div>
+
+  <div class="warn" style="background:#FBF5F2;border-color:var(--seal)">
+    <strong>📌 본 패널은 라이브 청첩장 전용</strong>
+    가족 청첩장은 본 패널 절차 불필요. 패널 04의 5단계에서 메뉴 클릭으로 이미 GitHub push까지 자동 완료됨. 본 패널은 라이브 청첩장 파일(<code>i/[eventId].html</code>)만 다룬다.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">파일 옮기기 (라이브 청첩장만)</div>
+    <div class="step-body">
+      <p>다운로드 폴더의 새 라이브 청첩장 파일을 GitHub 로컬 폴더의 <code>i\</code> 서브폴더로 옮기기:</p>
+      <ul class="bullet">
+        <li>출발: <code>C:\Users\gtrdd\Downloads\[eventId].html</code></li>
+        <li>도착: <code>C:\Users\gtrdd\Documents\GitHub\momentedit-site\i\[eventId].html</code></li>
+      </ul>
+      <p>잘라내기 (Ctrl+X) → i 폴더 안에서 붙여넣기 (Ctrl+V)</p>
+      <p class="small" style="color:var(--seal)">⚠️ <code>i-family\</code> 폴더는 가족 청첩장 자동 빌드 결과물 저장소. 사람이 직접 파일 추가 X.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">GitHub Desktop 열기</div>
+    <div class="step-body">
+      <p>바탕화면 또는 시작 메뉴 → GitHub Desktop 실행</p>
+      <p>좌측 상단 "Current repository"가 <strong>momentedit-site</strong>로 되어있는지 확인.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">변경 사항 확인</div>
+    <div class="step-body">
+      <p>좌측 "Changes" 탭에 새 파일 표시됨:</p>
+      <ul class="bullet">
+        <li><code>i/[eventId].html</code> (new file · 초록 +)</li>
+        <li>체크박스가 ☑로 체크되어 있는지 확인</li>
+      </ul>
+      <p class="small" style="color:var(--light)">※ <code>i-family/[eventId].html</code> 변경이 보이면 (가족 빌드가 패널 04에서 진행됐을 경우) 그것도 자동 fetch되어 표시됨. 별도 작업 불필요.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">Commit 작성</div>
+    <div class="step-body">
+      <p>좌측 하단:</p>
+      <ul class="bullet">
+        <li><strong>Summary:</strong> <code>Add invitation: [eventId]</code></li>
+        <li><strong>Description:</strong> (선택) 신랑신부 이름·예식일</li>
+      </ul>
+      <p>파란색 "Commit to main" 클릭.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">Push origin</div>
+    <div class="step-body">
+      <p>커밋 직후 상단 또는 중앙에 <strong>"Push origin"</strong> 버튼 활성화됨.<br>클릭 → GitHub로 코드 전송.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">6</div>
+    <div class="step-title">Vercel 자동 배포 대기 (1~2분)</div>
+    <div class="step-body">
+      <p>vercel.com → momentedit-site 프로젝트 → Deployments 탭에서 진행 상황 확인 가능.</p>
+      <p>상태가 <strong>Ready</strong>(초록)로 바뀌면 배포 완료.</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 배포 확인 빠른 방법</strong>
+    GitHub Push 후 약 1분 기다린 다음 <code>https://momentedit.kr/i/[eventId].html</code> 시크릿 창으로 접속. 청첩장 표시되면 배포 완료.
+  </div>
+</div>
+
+<!-- ═════ PANEL 06 · URL 검증 & 전달 ═════ -->
+<div class="panel" id="p06">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 06</div>
+      <div class="panel-title">URL 검증 & 전달<span class="ko">라이브 + 가족 URL 양쪽 검증 후 전달 (v4.0)</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun + Miku</span></div>
+  </div>
+
+  <div class="note">
+    <strong>이 단계의 목적</strong>
+    실제 신랑신부에게 보내기 전, 본인이 먼저 모든 동작을 검증. 한 번 보낸 후 발견되는 문제는 사고가 큰 만큼 사전 검증 필수. <strong>v4.0부터 라이브 + 가족 두 URL 모두 검증 필요</strong>.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">라이브 청첩장 URL 직접 접속 (huijun · 시크릿 창)</div>
+    <div class="step-body">
+      <p>시크릿 창 열기 (Ctrl+Shift+N) → 주소:<br><code>https://momentedit.kr/i/[eventId].html</code></p>
+      <p>확인 항목:</p>
+      <ul class="bullet">
+        <li>청첩장 정상 표시 (이름·날짜·계좌 모두 부부 정보로 나옴)</li>
+        <li>레이아웃 깨짐 없음</li>
+        <li>모바일 뷰 확인 (F12 → 모바일 모드)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">Enter 버튼 → 라이브 페이지</div>
+    <div class="step-body">
+      <p>청첩장에서 <strong>"Enter Live Page"</strong> 버튼 클릭.</p>
+      <p>확인 항목:</p>
+      <ul class="bullet">
+        <li>흰 화면 1~3초 (FOUC 방지 정상 동작)</li>
+        <li>옛 부부(이서준·정하윤) 절대 보이면 X</li>
+        <li>Cover: 이민호·최유진 + 날짜·요일·시간</li>
+        <li>Envelope: 부모 정보·계좌 정확히 표시</li>
+        <li>Credit Bar 정보 정확</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">가족 청첩장 URL 검증 (R열 Y인 경우) <span class="tag" style="background:var(--seal);color:#fff">v4.0 신규</span></div>
+    <div class="step-body">
+      <p>시크릿 창에서 가족 청첩장 URL 접속:<br><code>https://momentedit.kr/i-family/[eventId].html</code></p>
+      <p>확인 항목:</p>
+      <ul class="bullet">
+        <li>신랑·신부 한글·영문 이름 정확 (디자인별 영문 표기 형식 확인)</li>
+        <li>날짜·시간 정확 (요일·캘린더 셀 표시 OK)</li>
+        <li>식장 정보 정확 (이름·주소·교통편·주차)</li>
+        <li>구글맵 iframe 정상 로드 (식장 위치 표시)</li>
+        <li>지도 좌상단 "지도에서 열기 ↗" 클릭 시 구글맵 새 탭으로 정상 이동</li>
+        <li>계좌 정보 정확 (Copy 버튼 동작)</li>
+        <li>부모 정보 정확 (P/Q열 비어있으면 영역 자동 제거 확인)</li>
+        <li>카카오톡 인앱 브라우저로도 확인 (URL을 본인 카톡으로 전송 후 클릭)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">편지 발송 테스트 (라이브 페이지)</div>
+    <div class="step-body">
+      <p>라이브 페이지 LETTER 섹션에서 본인 메일로 테스트 편지 발송:</p>
+      <ul class="bullet">
+        <li>탭: "두 분 모두" 선택</li>
+        <li>이름: <code>시스템 테스트</code></li>
+        <li>관계: <code>운영자 검증</code></li>
+        <li>메시지: 1~2줄 짧게</li>
+        <li>DELIVER → 클릭</li>
+      </ul>
+      <p>확인:</p>
+      <ul class="bullet">
+        <li>본인 메일(huijun) 도착 여부</li>
+        <li>Miku 메일 도착 여부</li>
+        <li>Messages 시트에 새 행 기록</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">Miku에게 1차 검토 요청</div>
+    <div class="step-body">
+      <p>Miku에게 카톡으로 두 URL 전달:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">huijun → Miku</span>새 청첩장 완성!
+
+[라이브] https://momentedit.kr/i/[eventId].html
+[가족]   https://momentedit.kr/i-family/[eventId].html
+
+한번 확인해주고 이상 있으면 알려줘.
+없으면 신랑신부에게 전달.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">6</div>
+    <div class="step-title">신랑신부에게 URL 전달 (Miku)</div>
+    <div class="step-body">
+      <p>검토 완료 후 Miku가 신랑신부에게 카톡:</p>
+    </div>
+    <div class="copy-box">
+<span class="copy-box-label">Miku → 신랑신부</span>[신랑]님, [신부]님!
+
+청첩장 완성됐어요 :)
+
+📨 일반 하객용 (라이브)
+👉 https://momentedit.kr/i/[eventId].html
+
+💌 가족용 (식장 정보 포함)
+👉 https://momentedit.kr/i-family/[eventId].html
+
+각각 확인해보시고 수정사항 있으면 편하게 알려주세요.
+오타나 잘못된 정보가 있을 수도 있으니 꼼꼼히 봐주시면 좋아요.
+
+수정 없으시면 그대로 하객분들·가족분들께 공유하셔도 됩니다.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">7</div>
+    <div class="step-title">수정 요청 대응 (필요 시)</div>
+    <div class="step-body">
+      <p>신랑신부가 수정 요청하면:</p>
+      <ul class="bullet">
+        <li><strong>라이브 이름·날짜·계좌 수정:</strong> 패널 03 다시 진행 (자동화 프롬프트 재실행) → 패널 05 push</li>
+        <li><strong>라이브 시트 정보만 수정:</strong> 패널 04에서 Couples 시트 A~Q 수정 → live.html에 자동 반영</li>
+        <li><strong>가족 청첩장 정보 수정:</strong> 시트 A~Z 수정 → <strong>패널 04 5단계 빌드 트리거 재실행</strong> → 가족 카드 재빌드</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 시트 정보만 변경 시</strong>
+    신랑신부가 결혼식 시간 변경, 계좌 수정 등 시트 정보만 바꾸는 거라면 <strong>라이브 청첩장은 재생성 불필요</strong> (시트만 수정하면 자동 반영). 하지만 <strong>가족 청첩장은 시트 수정 후 반드시 재빌드 필요</strong> (정적 HTML이라 시트 변경이 자동 반영 X).
+  </div>
+</div>
+
+<!-- ═════ PANEL 07 · 예식 당일 영상 송출 ═════ -->
+<div class="panel" id="p07">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 07</div>
+      <div class="panel-title">예식 당일 영상 송출<span class="ko">Vimeo ID 시트 입력 · 약 1분</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun + Miku</span></div>
+  </div>
+
+  <div class="warn">
+    <strong>⏰ 타이밍</strong>
+    예식 시작 <strong>15~30분 전</strong>에 영상 송출 준비 완료. 너무 일찍 활성화하면 하객이 송출 전 화면을 보고 혼란. 너무 늦으면 시작 시각 놓침.
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">1</div>
+    <div class="step-title">Vimeo Live 송출 시작</div>
+    <div class="step-body">
+      <p>예식 당일 카메라맨 또는 영상 담당자가 Vimeo에서 라이브 송출 시작.</p>
+      <p>Vimeo 영상 ID는 보통 9자리 숫자 (예: <code>987654321</code>).</p>
+      <p>비공개 영상이면 별도 hash 코드 (예: <code>abc12de34</code>).</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">2</div>
+    <div class="step-title">Couples 시트 열기</div>
+    <div class="step-body">
+      <p>모바일 또는 PC에서 huijun Drive → <strong>Moment Edit · Letter System</strong> → <strong>Couples 탭</strong></p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">3</div>
+    <div class="step-title">해당 부부 행 찾기</div>
+    <div class="step-body">
+      <p>A열에서 오늘 예식 부부의 <strong>eventId</strong> 찾기.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">4</div>
+    <div class="step-title">N열에 Vimeo ID 입력</div>
+    <div class="step-body">
+      <p>해당 부부 행의 <strong>N열</strong>(vimeoId)에 Vimeo 영상 ID 입력.</p>
+      <p>비공개 영상이면 <strong>O열</strong>(vimeoHash)에도 hash 입력.</p>
+      <p>저장은 자동 (Enter 누르면 끝).</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">5</div>
+    <div class="step-title">라이브 페이지 확인</div>
+    <div class="step-body">
+      <p>모바일에서 라이브 페이지 새로고침:<br><code>https://momentedit.kr/live.html?e=[eventId]</code></p>
+      <p>BROADCAST 섹션에 Vimeo iframe이 자동으로 표시되면 성공.</p>
+      <p>음소거 상태로 자동 재생됨.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-number">6</div>
+    <div class="step-title">예식 종료 후 N, O열 비우기</div>
+    <div class="step-body">
+      <p>예식이 끝나면 시트 N, O열의 값을 <strong>Delete 키로 삭제</strong>.</p>
+      <p>이렇게 하면 라이브 페이지가 다시 placeholder 상태로 복귀.</p>
+      <p>예식 후 우연히 페이지 접속한 하객이 옛 영상을 보지 않게 함.</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 사고 방지</strong>
+    엉뚱한 부부 행의 N열에 입력하지 않도록 주의. 반드시 오늘 예식 부부의 eventId 확인 후 입력. 모바일에서 시트 작업 시 행이 헷갈리기 쉬움.
+  </div>
+
+  <div class="note">
+    <strong>📱 모바일에서도 가능</strong>
+    이 작업은 시트 셀 하나만 채우는 거라 스마트폰에서도 충분. 예식장 가는 길이나 현장에서 바로 처리 가능.
+  </div>
+</div>
+
+<!-- ═════ PANEL 08 · 트러블슈팅 ═════ -->
+<div class="panel" id="p08">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 08</div>
+      <div class="panel-title">트러블슈팅<span class="ko">자주 발생하는 문제 해결</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ① · 인콰이어리 안 옴</div>
+    <ul class="bullet">
+      <li>Formspree 대시보드 → 활성 상태 확인 (formspree.io/f/xqenovjv)</li>
+      <li>contact@momentedit.kr 메일 박스 확인 (스팸함 포함)</li>
+      <li>inquiry.html의 FORM_ENDPOINT 값 변경 안 됐는지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ② · 청첩장 URL 안 열림</div>
+    <ul class="bullet">
+      <li>Vercel 대시보드 → Deployments → 최근 배포 Status: Ready 확인</li>
+      <li><strong>라이브:</strong> GitHub에 i/[eventId].html 파일 실제로 존재하는지 확인</li>
+      <li><strong>가족 (v4.0):</strong> GitHub에 i-family/[eventId].html 파일 실제로 존재하는지 확인 → 없으면 패널 04 5단계 빌드 트리거 재실행</li>
+      <li>도메인 정상 작동 확인 (메인 페이지 https://momentedit.kr)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ③ · 라이브 페이지에 옛 부부 정보 보임</div>
+    <ul class="bullet">
+      <li>?e 파라미터 누락 시 발생 (URL 직접 접속 등) — 의도된 동작</li>
+      <li>청첩장 Enter 버튼으로 들어왔는지 확인</li>
+      <li>3초 이상 옛 정보 노출되면 → live.html FOUC 코드 누락 (AI에게 점검 요청)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ④ · 편지 발송 안 됨</div>
+    <ul class="bullet">
+      <li>Couples 시트의 해당 eventId 행 D, E열(이메일) 정상 입력 확인</li>
+      <li>Banned 시트에 의도치 않은 금지어 포함 여부 확인</li>
+      <li>Apps Script 편집기 → testSendToBoth 함수 실행 → 정상 발송 확인</li>
+      <li>STUDIO_EMAIL이 huijun 계정 별칭으로 정확히 등록되어 있는지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑤ · 라이브 페이지에 빈 화면 (5초 이상)</div>
+    <ul class="bullet">
+      <li>5초 후 failsafe 작동해서 더미 데이터 표시되어야 정상</li>
+      <li>?e 파라미터의 eventId가 시트에 실제 등록되었는지 확인</li>
+      <li>Apps Script 새 배포가 활성 상태인지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑥ · 영상 안 나옴</div>
+    <ul class="bullet">
+      <li>Vimeo 영상이 실제 라이브 송출 중인지 확인</li>
+      <li>시트 N열의 vimeoId가 숫자만 정확히 입력되었는지 확인</li>
+      <li>비공개 영상이면 O열 vimeoHash 필수</li>
+      <li>페이지 강력 새로고침 (Ctrl+Shift+R)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑦ · 사이트 전체 안 열림</div>
+    <ul class="bullet">
+      <li>가비아 도메인 만료 여부 확인 (2027.04.20)</li>
+      <li>Vercel 프로젝트 상태 (장애 페이지 표시되면 Vercel 자체 장애)</li>
+      <li>GitHub repository 비공개 전환 안 됐는지 확인 (반드시 Public 유지)</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑧ · 가족 청첩장 빌드 실패 - 디자인 코드 <span class="tag" style="background:var(--seal);color:#fff">v4.0</span></div>
+    <p>BuildLogs status=ERROR + error="잘못된 디자인 코드: '1' (01~08 또는 01-classic 형식)"</p>
+    <ul class="bullet">
+      <li><strong>원인:</strong> 구글시트가 S열 <code>01</code>을 숫자 <code>1</code>로 자동 변환</li>
+      <li><strong>해결 1:</strong> S5 셀(또는 해당 행) 클릭 → 기존 값 삭제 → 작은따옴표 추가하여 <code>'01</code> 입력 → Enter</li>
+      <li><strong>해결 2 (영구):</strong> S열 전체 선택 → 메뉴 서식 → 숫자 → "일반 텍스트" → 값 재입력</li>
+      <li><strong>검증:</strong> 다시 빌드 트리거 → BuildLogs OK 확인</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑨ · 가족 청첩장 빌드 실패 - 필수 필드 누락 <span class="tag" style="background:var(--seal);color:#fff">v4.0</span></div>
+    <p>BuildLogs error="필수 필드 누락: venueAddress, venueTransport, ..."</p>
+    <ul class="bullet">
+      <li><strong>원인:</strong> Couples 시트 R~Z 컬럼 중 필수 필드가 비어있음</li>
+      <li><strong>해결:</strong> 오류 메시지에 표시된 컬럼명 확인 → 시트에 값 입력 → 재빌드</li>
+      <li>필수: familyDesign(S), venueNameKo(T), venueAddress(V), venueTransport(X), venueParking(Y), venueMapIframe(Z)</li>
+      <li>옵션: venueNameEn(U), venueTel(W) — 비어있어도 빌드 진행</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑩ · 가족 청첩장 빌드 실패 - GitHub 인증 <span class="tag" style="background:var(--seal);color:#fff">v4.0</span></div>
+    <p>BuildLogs error="GitHub push 실패 (401)" 또는 "GITHUB_TOKEN이 설정되지 않았습니다"</p>
+    <ul class="bullet">
+      <li><strong>원인 1:</strong> Apps Script Properties에 GITHUB_TOKEN 누락</li>
+      <li><strong>해결:</strong> Apps Script 편집기 → 프로젝트 설정(⚙️) → 스크립트 속성 → GITHUB_TOKEN 값 확인 · 추가</li>
+      <li><strong>원인 2:</strong> 토큰 만료 또는 폐기됨</li>
+      <li><strong>해결:</strong> github.com/settings/tokens → 새 토큰(classic · repo 권한) 발급 → Properties의 GITHUB_TOKEN 값 갱신</li>
+      <li><strong>연결 테스트:</strong> 시트 메뉴 "Moment Edit → 연결 테스트 (GitHub)" 클릭 → 성공 확인</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑪ · 가족 청첩장 구글맵 안 보임 <span class="tag" style="background:var(--seal);color:#fff">v4.0</span></div>
+    <ul class="bullet">
+      <li><strong>원인:</strong> Z열 venueMapIframe URL 잘못 추출 (iframe 태그 전체 붙여넣기 등)</li>
+      <li><strong>해결:</strong> Z열 값 확인 → <code>https://www.google.com/maps/embed?pb=...</code> 형태인지 확인 → src=""안의 URL만 추출해서 재입력 → 재빌드</li>
+      <li>가족 페이지에 404 화면이 보이면 URL이 잘못 추출된 것</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑫ · 보안 사고 - 토큰 노출 <span class="tag" style="background:var(--seal);color:#fff">v4.0</span></div>
+    <p>실수로 GitHub PAT(ghp_...)를 채팅·스크린샷·코드 파일 등에 노출한 경우</p>
+    <ol class="steps">
+      <li><strong>즉시 폐기</strong> · github.com/settings/tokens → 노출된 토큰 옆 빨간 Delete 버튼</li>
+      <li><strong>새 토큰 발급</strong> · Generate new token (classic) → repo 권한 · No expiration → 토큰 복사 (메모장에만 임시)</li>
+      <li><strong>Properties 갱신</strong> · Apps Script 편집기 → 프로젝트 설정 → GITHUB_TOKEN 값 새 토큰으로 교체 → 저장</li>
+      <li><strong>연결 테스트</strong> · 시트 메뉴 "Moment Edit → 연결 테스트 (GitHub)" → 성공 확인</li>
+      <li><strong>메모장 토큰 삭제</strong> · 임시 저장한 토큰 정리</li>
+    </ol>
+  </div>
+
+  <div class="warn">
+    <strong>🚨 긴급 롤백 절차</strong>
+    <ol class="steps">
+      <li>GitHub Desktop → History 탭 → 마지막 안전 커밋 우클릭 → "Revert this commit"</li>
+      <li>Push origin → Vercel 자동 재배포 (1~2분)</li>
+      <li>또는 백업 파일(live_v3.1_backup_YYYYMMDD.html) 직접 복원</li>
+      <li>Apps Script는 배포 관리 → 보관처리된 이전 버전 활성화로 롤백</li>
+      <li><strong>가족 청첩장 롤백 (v4.0):</strong> 시트 데이터 수정 → 빌드 트리거 재실행. 또는 GitHub에서 <code>i-family/[eventId].html</code> 이전 커밋으로 revert.</li>
+    </ol>
+  </div>
+
+  <div class="tip">
+    <strong>💡 AI에게 도움 요청 시 (v4.0 짝 문서 동기화)</strong>
+    <strong>두 파일 모두</strong> 함께 첨부:
+    <ul class="bullet">
+      <li><code>01_AI_시스템_마스터.html</code> v5.0 (시스템 컨텍스트)</li>
+      <li><code>02_실무자_매뉴얼.html</code> v4.0 (본 매뉴얼)</li>
+    </ul>
+    그리고 문제 상황 캡처도 함께 전달. 두 파일을 짝으로 보내면 AI가 시스템 컨텍스트 + 실무 흐름을 모두 이해해서 정확한 해결책을 제시할 수 있음. 가족 청첩장 문제는 <strong>BuildLogs 시트 스크린샷</strong>도 함께 첨부하면 빠른 진단 가능.
+  </div>
+</div>
+
+<!-- ═════ PANEL 09 · 일상 점검 ═════ -->
+<div class="panel" id="p09">
+  <div class="panel-head">
+    <button class="panel-back" onclick="showHub()">← 메뉴로</button>
+    <div class="panel-title-wrap">
+      <div class="panel-num">Nº 09</div>
+      <div class="panel-title">일상 점검 체크리스트<span class="ko">Daily · Weekly · Monthly · Yearly</span></div>
+    </div>
+    <div class="panel-meta">담당: <span class="who">huijun + Miku</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 매일 점검 (5분)</div>
+    <ul class="bullet">
+      <li><strong>contact@momentedit.kr 받은편지함 확인</strong> (인콰이어리 응대)</li>
+      <li><strong>Messages 시트 신규 행 확인</strong> (편지 발송 정상 여부)</li>
+      <li><strong>Moderation 시트 확인</strong> (오탐 여부, 차단된 편지 검토)</li>
+      <li><strong>BuildLogs 시트 확인 (v4.0)</strong> · 가족 청첩장 빌드 결과 OK 여부. ERROR 행 발견 시 즉시 트러블슈팅 진행</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 매주 점검 (15분)</div>
+    <ul class="bullet">
+      <li>예정된 예식 부부의 청첩장 URL 점검 (랜덤 1~2개 접속 테스트)</li>
+      <li><strong>가족 청첩장 URL도 함께 점검 (v4.0)</strong> · <code>/i-family/[eventId].html</code> 접속 → 구글맵 정상 표시 확인</li>
+      <li>Banned 시트 검토 (필요한 단어 추가, 의도치 않은 금지어 제거)</li>
+      <li>Vercel 배포 상태 확인 (대시보드 한 번 들어가기)</li>
+      <li>Formspree 통계 확인 (인콰이어리 추이)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 매달 점검 (30분)</div>
+    <ul class="bullet">
+      <li>Couples 시트 정리 (지난 예식 부부는 별도 시트 보관용 폴더로 이동)</li>
+      <li>GitHub repository 사이즈 확인 (i/ + i-family/ 폴더 누적 — 너무 커지면 별도 처리)</li>
+      <li>Apps Script 사용량 확인 (Google quota 한도 점검)</li>
+      <li>BuildLogs 시트 정리 (v4.0) · 누적 행이 1000개 넘으면 별도 보관 시트로 이동</li>
+      <li>Google Workspace 결제 정상 여부</li>
+      <li>월별 매출·예약 추이 정리</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 매년 점검 (긴급)</div>
+    <ul class="bullet">
+      <li><strong>⚠️ 도메인 갱신:</strong> momentedit.kr (가비아, 만료일 <strong>2027.04.20</strong>) — 만료 1개월 전 알림 설정 권장</li>
+      <li><strong>⚠️ GitHub PAT 갱신 (v4.0):</strong> No expiration으로 발급한 경우 무기한 사용 가능하나, 보안상 1년에 1회 재발급 권장. 발급 후 Apps Script Properties의 GITHUB_TOKEN 값 갱신 + 연결 테스트</li>
+      <li>Google Workspace 연간 결제 갱신</li>
+      <li>시스템 전체 백업 (GitHub 외에 별도 저장)</li>
+      <li>01_AI_시스템_마스터.html 가이드 업데이트 (변경 이력 추가)</li>
+      <li>이 매뉴얼(02번 파일)도 함께 업데이트</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 도메인 만료 절대 잊지 X</strong>
+    가비아 도메인 만료일은 <strong>2027.04.20</strong>. 1주일 전부터 알림 받도록 캘린더에 등록 권장. 만료 시 도메인 손실 = 사이트·메일·청첩장 URL 전체 손실.
+  </div>
+</div>
+
+</div><!-- /panels-wrap -->
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-mark">MOMENT&nbsp;EDIT</div>
+  <div class="footer-sub">Focus on the Essence, Record the Truth.</div>
+  <div class="footer-meta">
+    Operations Manual v4.0 · 2026.05.21<br>
+    For huijun + Miku internal use<br>
+    <span style="opacity:0.7;font-size:11px;margin-top:6px;display:inline-block">🔗 짝 문서: 01_AI_시스템_마스터.html v5.0 · 함께 동기화 유지</span>
+  </div>
+</div>
+
+<script>
+function showPanel(id){
+  document.getElementById('hub').style.display = 'none';
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showHub(){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('hub').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>

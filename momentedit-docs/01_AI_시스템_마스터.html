@@ -1,0 +1,2814 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moment Edit · AI 시스템 마스터 (System Context for AI)</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;
+  --text:#1C1B19;--sub:#5A554C;--light:#75705F;
+  --gold:#B89A75;--accent:#3A2D22;--seal:#6B2A24;
+  --border:#DDD8D1;--footer-bg:#1A1714;
+  --hairline:rgba(28,27,25,0.18);
+  --serif:'Cormorant Garamond','Noto Serif KR',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --sans:'Noto Sans KR',-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,monospace;
+  --max:780px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-weight:400;
+  font-size:15px;line-height:1.85;
+  letter-spacing:-0.005em;
+  -webkit-font-smoothing:antialiased;
+  word-break:keep-all;padding-bottom:60px;
+}
+
+/* ============ COVER ============ */
+.cover{padding:64px 24px 48px;text-align:center;position:relative}
+.cover-seal{
+  position:absolute;top:24px;right:24px;
+  width:18px;height:18px;
+  background:var(--seal);border-radius:1px;opacity:0.88;
+}
+.cover-seal::after{
+  content:'AI';
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:8px;
+  color:rgba(255,255,255,0.92);font-weight:600;
+  letter-spacing:0.04em;
+}
+.cover-eyebrow{
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.32em;
+  text-transform:uppercase;color:var(--gold);
+  margin-bottom:24px;padding-left:0.32em;
+}
+.cover-mark{
+  font-family:var(--serif);font-weight:400;
+  font-size:28px;letter-spacing:0.22em;
+  color:var(--accent);padding-left:0.22em;line-height:1;
+}
+.cover-rule{width:36px;height:1px;background:var(--gold);margin:28px auto;opacity:0.7}
+.cover-title{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(26px,5vw,34px);line-height:1.3;
+  letter-spacing:-0.01em;color:var(--accent);margin-bottom:16px;
+}
+.cover-title em{font-style:italic;color:var(--gold)}
+.cover-sub{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:14px;line-height:1.85;color:var(--sub);
+  letter-spacing:0.02em;
+}
+.cover-meta{
+  margin-top:32px;font-family:var(--mono);
+  font-size:10px;color:var(--light);
+  letter-spacing:0.12em;text-transform:uppercase;
+}
+
+/* ============ AI PROMPT BANNER ============ */
+.ai-banner{
+  max-width:var(--max);margin:32px auto 0;padding:0 24px;
+}
+.ai-banner-card{
+  background:#FBF5F2;border:1px solid var(--seal);
+  border-radius:6px;padding:24px 28px;position:relative;
+}
+.ai-banner-card::before{
+  content:'AI';position:absolute;top:-10px;left:24px;
+  background:var(--seal);color:#fff;
+  font-family:var(--serif);font-size:10px;
+  letter-spacing:0.16em;padding:3px 8px;border-radius:2px;
+}
+.ai-banner-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:14px;color:var(--seal);
+  margin-bottom:10px;letter-spacing:0.02em;
+}
+.ai-banner-body{
+  font-family:var(--serif-ko);font-size:13px;
+  color:var(--sub);line-height:1.85;font-weight:300;
+}
+.ai-banner-body strong{color:var(--accent);font-weight:500}
+.ai-banner-body code{
+  background:#fff;padding:1px 5px;border-radius:2px;
+  font-size:12px;color:var(--seal);
+}
+
+/* ============ OVERVIEW ============ */
+.overview{max-width:var(--max);margin:32px auto 0;padding:0 24px}
+.overview-label{
+  text-align:center;
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.28em;
+  text-transform:uppercase;color:var(--gold);
+  font-weight:500;margin-bottom:24px;
+}
+.overview-card{
+  background:linear-gradient(180deg,var(--bg2) 0%,#EFEDE7 100%);
+  border:1px solid var(--gold);border-radius:6px;
+  padding:32px 28px;position:relative;
+}
+.overview-card::before{
+  content:'';position:absolute;top:-5px;left:28px;
+  width:9px;height:9px;background:var(--seal);
+  border-radius:1px;opacity:0.88;
+}
+.overview-intro{
+  font-family:var(--serif-ko);font-size:13px;
+  color:var(--sub);font-weight:300;line-height:1.85;
+  letter-spacing:0.02em;margin-bottom:24px;
+  padding-bottom:20px;border-bottom:1px solid var(--hairline);
+}
+.overview-intro strong{color:var(--accent);font-weight:500}
+
+/* ============ TOC ============ */
+.toc{max-width:var(--max);margin:48px auto 0;padding:0 24px}
+.toc-label{
+  text-align:center;
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.28em;
+  text-transform:uppercase;color:var(--gold);
+  margin-bottom:24px;
+}
+.toc-list{
+  list-style:none;
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:24px 28px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px 24px;
+}
+.toc-list li a{
+  display:flex;align-items:baseline;gap:10px;
+  color:var(--accent);text-decoration:none;
+  font-family:var(--serif-ko);font-size:13px;font-weight:400;
+  padding:6px 0;transition:color 0.2s;
+}
+.toc-list li a:hover{color:var(--seal)}
+.toc-num{
+  font-family:var(--serif);font-style:italic;
+  font-size:12px;color:var(--gold);font-weight:500;
+  letter-spacing:0.04em;flex-shrink:0;width:22px;
+}
+@media (max-width:600px){
+  .toc-list{grid-template-columns:1fr;gap:4px}
+}
+
+/* ============ SECTION ============ */
+section{max-width:var(--max);margin:64px auto 0;padding:0 24px}
+.sec-head{margin-bottom:32px;text-align:center}
+.sec-num{
+  font-family:var(--serif);font-style:italic;
+  font-size:14px;color:var(--gold);letter-spacing:0.12em;
+  font-weight:500;margin-bottom:8px;display:block;
+}
+.sec-title{
+  font-family:var(--serif);font-weight:300;
+  font-size:22px;line-height:1.4;color:var(--accent);
+  letter-spacing:-0.005em;display:flex;flex-direction:column;
+  align-items:center;gap:6px;
+}
+.sec-title .ko{
+  font-family:var(--serif-ko);font-size:12px;
+  font-weight:300;color:var(--light);
+  letter-spacing:0.04em;
+}
+.sec-rule{width:32px;height:1px;background:var(--gold);
+  margin:20px auto 0;opacity:0.5}
+
+/* ============ CARD ============ */
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:28px 24px;
+  margin-bottom:20px;
+}
+.card-title{
+  font-family:var(--serif-ko);font-weight:500;
+  font-size:15px;color:var(--accent);
+  margin-bottom:14px;letter-spacing:0.02em;
+  padding-bottom:10px;border-bottom:1px solid var(--hairline);
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::before{
+  content:'';width:6px;height:6px;
+  background:var(--seal);border-radius:50%;
+  flex-shrink:0;
+}
+.card-title.no-dot::before{display:none}
+.card p{margin-bottom:12px;color:var(--sub);font-size:13.5px;line-height:1.85}
+.card p:last-child{margin-bottom:0}
+.card strong{color:var(--accent);font-weight:500}
+.card em{font-style:italic;color:var(--seal)}
+
+/* ============ LIST ============ */
+.kv-list{
+  display:grid;grid-template-columns:160px 1fr;gap:6px 16px;
+  font-size:13px;line-height:1.7;
+}
+.kv-list dt{
+  color:var(--light);font-weight:400;
+  font-size:11px;letter-spacing:0.06em;
+  text-transform:uppercase;padding-top:1px;
+}
+.kv-list dd{color:var(--text);font-weight:400}
+.kv-list dd strong{color:var(--seal)}
+.kv-list dd .small{color:var(--light);font-size:11px}
+@media (max-width:600px){
+  .kv-list{grid-template-columns:1fr;gap:2px 0}
+  .kv-list dt{padding-top:8px;margin-bottom:0}
+  .kv-list dt:first-child{padding-top:0}
+}
+
+ul.bullet{list-style:none;padding-left:0}
+ul.bullet li{
+  position:relative;padding-left:18px;
+  margin-bottom:8px;color:var(--sub);
+  font-size:13.5px;line-height:1.75;
+}
+ul.bullet li::before{
+  content:'·';position:absolute;left:6px;top:-2px;
+  color:var(--gold);font-size:18px;font-weight:600;
+}
+ul.bullet li strong{color:var(--accent);font-weight:500}
+
+ol.steps{list-style:none;padding-left:0;counter-reset:step}
+ol.steps li{
+  position:relative;padding-left:34px;
+  margin-bottom:14px;color:var(--sub);
+  font-size:13.5px;line-height:1.75;
+  counter-increment:step;
+}
+ol.steps li::before{
+  content:counter(step,decimal-leading-zero);
+  position:absolute;left:0;top:0;
+  font-family:var(--serif);font-style:italic;
+  font-size:13px;color:var(--gold);font-weight:500;
+  letter-spacing:0.06em;
+}
+ol.steps li strong{color:var(--accent);font-weight:500}
+
+/* ============ CODE ============ */
+pre, code.block{
+  display:block;background:#FBF9F4;
+  border:1px solid var(--border);border-radius:3px;
+  padding:14px 16px;margin:12px 0;
+  font-family:var(--mono);font-size:11.5px;line-height:1.7;
+  color:var(--text);white-space:pre-wrap;word-break:break-all;
+  overflow-x:auto;
+}
+code{
+  font-family:var(--mono);font-size:12px;
+  background:#FBF9F4;padding:1px 5px;border-radius:2px;
+  color:var(--seal);border:1px solid var(--border);
+}
+pre code{background:none;border:none;padding:0;color:inherit;font-size:inherit}
+
+/* ============ NOTE / WARN / TIP ============ */
+.note,.warn,.tip,.ai-note{
+  border-left:3px solid var(--gold);
+  background:#FBF9F4;padding:14px 18px;
+  margin:14px 0;font-size:13px;line-height:1.75;
+  color:var(--sub);border-radius:0 3px 3px 0;
+}
+.warn{border-left-color:var(--seal);background:#FBF5F2}
+.tip{border-left-color:#A89868;background:#F8F6F0}
+.ai-note{border-left-color:#5A7BA8;background:#F2F5FA}
+.note strong,.warn strong,.tip strong,.ai-note strong{
+  color:var(--accent);font-weight:500;
+  display:block;margin-bottom:6px;
+  font-family:var(--serif-ko);
+  font-size:13px;letter-spacing:0.02em;
+}
+.warn strong{color:var(--seal)}
+.ai-note strong{color:#3D5A8C}
+
+/* ============ TABLE ============ */
+table{
+  width:100%;border-collapse:collapse;
+  font-size:12.5px;margin:12px 0;
+}
+table th,table td{
+  text-align:left;padding:9px 10px;
+  border-bottom:1px solid var(--hairline);
+  vertical-align:top;
+}
+table th{
+  font-family:var(--serif);font-style:italic;
+  color:var(--gold);font-weight:500;
+  font-size:11px;letter-spacing:0.06em;
+  text-transform:uppercase;padding-bottom:6px;
+  border-bottom:1px solid var(--gold);
+}
+table td{color:var(--sub)}
+table td strong{color:var(--accent);font-weight:500}
+table td code{font-size:11px}
+
+/* ============ TAG ============ */
+.tag{
+  display:inline-block;
+  padding:2px 8px;border:1px solid var(--gold);
+  border-radius:999px;font-family:var(--serif);
+  font-style:italic;font-size:10px;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--gold);margin-right:4px;
+}
+.tag.new{color:var(--seal);border-color:var(--seal)}
+.tag.danger{color:#fff;background:var(--seal);border-color:var(--seal)}
+
+/* ============ FOOTER ============ */
+.footer{
+  margin-top:80px;padding:48px 24px;
+  background:var(--footer-bg);color:rgba(255,255,255,0.65);
+  text-align:center;
+}
+.footer-mark{
+  font-family:var(--serif);font-size:18px;
+  letter-spacing:0.32em;color:rgba(255,255,255,0.92);
+  margin-bottom:12px;
+}
+.footer-sub{
+  font-family:var(--serif);font-style:italic;
+  font-size:11px;letter-spacing:0.16em;
+  color:rgba(184,154,117,0.7);margin-bottom:24px;
+}
+.footer-meta{
+  font-size:11px;color:rgba(255,255,255,0.45);
+  line-height:1.85;
+}
+.footer-rule{
+  width:32px;height:1px;background:var(--gold);
+  margin:20px auto;opacity:0.4;
+}
+
+@media (max-width:560px){
+  .cover{padding:48px 18px 36px}
+  .overview,.toc,section,.ai-banner{padding:0 18px}
+  .toc-list{padding:18px 20px}
+  .card{padding:22px 18px}
+  .sec-title{font-size:18px}
+  pre{font-size:11px;padding:12px 14px}
+  .kv-list{grid-template-columns:1fr}
+}
+
+@media print{
+  body{font-size:12px;line-height:1.6}
+  .card{break-inside:avoid;page-break-inside:avoid}
+  section{break-inside:avoid;page-break-inside:avoid}
+  .footer{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ COVER ═══ -->
+<div class="cover">
+  <div class="cover-seal"></div>
+  <div class="cover-eyebrow">System Master for AI Context</div>
+  <div class="cover-mark">MOMENT&nbsp;EDIT</div>
+  <div class="cover-rule"></div>
+  <h1 class="cover-title">AI 시스템 마스터<br><em>Complete System Context</em></h1>
+  <p class="cover-sub">이 단일 파일로 Moment Edit 시스템 전체를 이해하고<br>운영 작업·코드 변경·청첩장 자동화까지 모두 가능합니다.</p>
+  <p class="cover-meta">v5.0 · 2026.05.21 · For AI Consumption</p>
+</div>
+
+<!-- ═══ AI 사용 안내 (최상단) ═══ -->
+<div class="ai-banner">
+  <div class="ai-banner-card">
+    <div class="ai-banner-title">📌 AI에게 보내는 첫 메시지 (이 파일 첨부 후)</div>
+    <div class="ai-banner-body">
+      <strong>기본:</strong> "이 가이드를 먼저 끝까지 읽어줘. Moment Edit 시스템에서 [작업 내용]을 하려고 해."<br><br>
+      <strong>청첩장 만들기:</strong> 위 메시지 + 청첩장 마스터(<code>invitation-XX.html</code>) 첨부 + <strong>§14 자동화 프롬프트 양식</strong>에 부부 정보 채워서 전송<br><br>
+      <strong>코드 수정:</strong> 위 메시지 + 수정할 파일(<code>live.html</code> 또는 <code>Code.gs</code>) 첨부<br><br>
+      <strong>응답 언어:</strong> 항상 한국어. 코드 주석·영문 용어는 그대로 OK.
+    </div>
+  </div>
+
+  <div class="ai-banner-card" style="margin-top:32px;border-color:var(--accent);background:#F5F3EF">
+    <div class="ai-banner-title">🔄 마스터 파일 세션 동기화 의무 (v5.0 갱신 · 절대 규칙)</div>
+    <div class="ai-banner-body">
+      <strong>마스터 파일 업데이트는 작업 단위가 아닌 세션 단위로 처리한다.</strong> 매 작업마다 새 파일을 생성하지 않음.<br><br>
+
+      <strong>AI 동작 흐름:</strong><br>
+      ① 각 작업 완료 후 → "추가 작업 있어?" 또는 "이대로 마무리할까?" <strong>먼저 확인</strong><br>
+      ② huijun이 추가 작업 요청 시 → 변경 사항 메모리상 누적, 파일 생성 X<br>
+      ③ huijun이 종료 신호("끝", "마무리", "여기까지" 등) 또는 즉시 요청("지금 파일 줘" 등) 시 → 누적된 변경 모두 통합한 단일 가이드 파일 반환<br><br>
+
+      <strong>버전 처리:</strong> 세션 종료 시점에 한 번만 버전 증가. 세션 내 여러 변경은 §18에 통합 bullet로 단일 카드에 누적 기록.<br><br>
+
+      <strong>반영 항목 (세션 종료 시):</strong><br>
+      · §18 변경 이력에 세션 통합 카드 추가 (vN.N · YYYY.MM.DD · 모든 변경 bullet)<br>
+      · 표지 + footer 버전 동기화<br>
+      · 본문 섹션에 작업 결과 직접 반영 (전 작업 누적)<br>
+      · 새 발견 사항은 §12 트러블슈팅 또는 §15 작업 규칙에 추가<br><br>
+
+      <strong>버전 넘버링:</strong> 매 세션마다 minor 증가(v4.3→v4.4), 큰 구조 변경은 major(v5.0), 오타·서식만 patch(v4.4.1).<br><br>
+
+      <strong>⚠️ 이 의무를 누락한 응답은 미완료로 간주.</strong> 자세한 프로토콜은 <strong>§15 마스터 동기화 프로토콜</strong> 참조.
+    </div>
+  </div>
+
+  <div class="ai-banner-card" style="margin-top:32px;border-color:var(--seal);background:#FBF5F2">
+    <div class="ai-banner-title">🔗 짝 문서 동기화 의무 (v5.0 신규 · 절대 규칙)</div>
+    <div class="ai-banner-body">
+      <strong>이 파일은 단독으로 존재하지 않는다. 짝 문서가 있다.</strong><br><br>
+
+      <strong>📄 짝 문서 식별:</strong><br>
+      · <strong>본 파일:</strong> <code>01_AI_시스템_마스터.html</code> (AI 컨텍스트·시스템 전체)<br>
+      · <strong>짝 파일:</strong> <code>02_실무자_매뉴얼.html</code> (huijun·Miku 일일 작업 단계별 가이드)<br><br>
+
+      <strong>두 문서는 항상 짝으로 동기화되어야 한다.</strong> 본 시스템 마스터의 변경 사항이 실무 작업 흐름에 영향을 주는 경우, 짝 문서(실무자 매뉴얼)도 함께 업데이트해야 한다.<br><br>
+
+      <strong>📋 짝 문서 동기화 트리거 (시스템 마스터 변경 시):</strong><br>
+      · Couples 시트 컬럼 추가/변경 → 실무자 매뉴얼 P04 (시트에 부부 등록) 업데이트<br>
+      · 부부 등록 워크플로우 변경 (§10) → 실무자 매뉴얼 P03~P06 업데이트<br>
+      · 트러블슈팅 케이스 추가 (§12) → 실무자 매뉴얼 P08 업데이트<br>
+      · 일상 점검 항목 추가 (§16) → 실무자 매뉴얼 P09 업데이트<br>
+      · 핵심 코드 상수 변경 (§03) → 실무자 매뉴얼은 직접 영향 X (참고만)<br>
+      · 보안 정책 변경 (§13) → 실무자 매뉴얼 P08 트러블슈팅 보안 사고 케이스 업데이트<br><br>
+
+      <strong>⚠️ AI 동작 - 짝 문서 누락 시 필수 안내:</strong><br>
+      huijun이 본 파일만 첨부하고 작업을 요청했을 때, 변경 사항이 짝 문서에도 영향을 준다면:<br>
+      <strong>"이 변경은 실무자 매뉴얼(02_실무자_매뉴얼.html)에도 반영이 필요합니다. 매뉴얼 파일도 함께 업로드해주시면 양쪽 동기화하여 작업하겠습니다."</strong><br>
+      라고 먼저 안내하고, huijun의 결정을 기다린다.<br><br>
+
+      <strong>🔄 양쪽 동기화 완료 시 응답 형식:</strong><br>
+      · "시스템 마스터 v5.X + 실무자 매뉴얼 v4.X 양쪽 모두 업데이트 완료" 명시<br>
+      · 변경 사항을 양쪽 어디에 어떻게 반영했는지 간단 요약<br>
+      · 두 파일 모두 다운로드 제공<br><br>
+
+      <strong>📌 짝 문서 버전 호환:</strong> 시스템 마스터 v5.X ↔ 실무자 매뉴얼 v4.X 짝. 한쪽만 업데이트되면 버전 mismatch 가능. 항상 짝으로 검토.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERVIEW ═══ -->
+<div class="overview">
+  <div class="overview-label">System At-a-Glance</div>
+  <div class="overview-card">
+    <p class="overview-intro">
+      <strong>Moment Edit</strong>은 경기 고양시 기반 프라이빗 웨딩 스튜디오로,
+      한국 예우와 일본 미학의 교차점에서 운영된다.
+      <strong>2026.05.16 풀패키지 통합 작업</strong>으로 라이브 페이지 시트 연동·
+      청첩장 자동화·편지 시스템 v3.2가 모두 완성되었고,
+      <strong>2026.05.21 v4.0 옵션 C 구축 완료</strong>로 가족 청첩장도 시트 입력 → 메뉴 클릭만으로 자동 빌드되는 통합 자동화 시스템이 운영 중이다.
+    </p>
+    <dl class="kv-list">
+      <dt>도메인</dt><dd><strong>momentedit.kr</strong> <span class="small">(가비아, 만료 2027.04.20)</span></dd>
+      <dt>호스팅</dt><dd>Vercel Hobby <span class="small">(GitHub 자동 배포)</span></dd>
+      <dt>저장소</dt><dd>github.com/gtrddrt7706-cpu/momentedit-site</dd>
+      <dt>도메인 메일</dt><dd>contact@momentedit.kr</dd>
+      <dt>로컬 작업 폴더</dt><dd>C:\Users\gtrdd\Documents\GitHub\momentedit-site</dd>
+      <dt>운영자</dt><dd>huijun (정희준) + Miku (川名 美玖) 부부</dd>
+      <dt>창업 단계</dt><dd>2026년 상반기 오픈 준비</dd>
+    </dl>
+  </div>
+</div>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc">
+  <div class="toc-label">Table of Contents · 18 Sections</div>
+  <ul class="toc-list">
+    <li><a href="#s01"><span class="toc-num">01</span>시스템 개요</a></li>
+    <li><a href="#s02"><span class="toc-num">02</span>시스템 아키텍처</a></li>
+    <li><a href="#s03"><span class="toc-num">03</span>핵심 코드 상수</a></li>
+    <li><a href="#s04"><span class="toc-num">04</span>청첩장 시스템</a></li>
+    <li><a href="#s05"><span class="toc-num">05</span>Couples 시트 스키마</a></li>
+    <li><a href="#s06"><span class="toc-num">06</span>라이브 페이지 시스템</a></li>
+    <li><a href="#s07"><span class="toc-num">07</span>편지 시스템 v3.2</a></li>
+    <li><a href="#s08"><span class="toc-num">08</span>인콰이어리 시스템</a></li>
+    <li><a href="#s09"><span class="toc-num">09</span>디자인 시스템</a></li>
+    <li><a href="#s10"><span class="toc-num">10</span>부부 등록 워크플로우</a></li>
+    <li><a href="#s11"><span class="toc-num">11</span>작업 시나리오</a></li>
+    <li><a href="#s12"><span class="toc-num">12</span>트러블슈팅</a></li>
+    <li><a href="#s13"><span class="toc-num">13</span>변경 금지 코드</a></li>
+    <li><a href="#s14"><span class="toc-num">14</span>청첩장 자동화 프롬프트</a></li>
+    <li><a href="#s15"><span class="toc-num">15</span>AI 작업 규칙 14조항</a></li>
+    <li><a href="#s16"><span class="toc-num">16</span>일상 점검 체크리스트</a></li>
+    <li><a href="#s17"><span class="toc-num">17</span>자주 쓸 링크</a></li>
+    <li><a href="#s18"><span class="toc-num">18</span>시스템 변경 이력</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 01 · 시스템 개요
+     ═══════════════════════════════════════════════ -->
+<section id="s01">
+  <div class="sec-head">
+    <span class="sec-num">Nº 01</span>
+    <h2 class="sec-title">시스템 개요<span class="ko">Moment Edit · 브랜드 · 역할</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">브랜드 정체성</div>
+    <p>Moment Edit은 <strong>한국 예우 + 일본 미학</strong>의 교차점에서 운영되는 프라이빗 웨딩 스튜디오. 슬로건 <em>"Focus on the Essence, Record the Truth."</em>를 중심으로, 클래식 세리프 워드마크와 더블 헤어라인 프레임 로고를 사용한다.</p>
+    <p>핵심 서비스는 <strong>140분 시그니처 시퀀스</strong>(촬영+예식 통합). 공간은 Ambient Candle(캔들존) + Editorial White(화이트존) 두 구역으로 구성된다.</p>
+    <p class="small" style="margin-top:10px;color:var(--seal);font-style:italic"><strong>⚠️ AI 카피 노출 정책 (v2.2):</strong> "한국 예우·일본 미학" 표현은 <strong>About 섹션의 디렉터 소개에만 1~2회 노출</strong>로 제한. Hero·메타·일반 본문에 반복 노출 금지 (느끼한 수식어 회피). 대체 표현: "촬영과 예식이 하나로 흐르는 올인원 140분 시그니처 시퀀스".</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">가격 정책</div>
+    <dl class="kv-list">
+      <dt>주말·공휴일</dt><dd><strong>₩2,800,000</strong> <span class="small">(VAT 포함)</span></dd>
+      <dt>평일</dt><dd><strong>₩2,100,000</strong> <span class="small">(VAT 포함)</span></dd>
+      <dt>Archive Opening Honor</dt><dd>2027 상반기 한정 · 동일 가격 + 보정 셀렉트 컷 10장</dd>
+      <dt>평일 웨딩스냅</dt><dd>초기 한정 ₩600,000 <span class="small">(정가 ₩800,000)</span></dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">운영 역할 분담</div>
+    <dl class="kv-list">
+      <dt>huijun</dt><dd>시스템·기술·재무·외부 협상 · 전체 운영 총괄</dd>
+      <dt>Miku</dt><dd>상담·디렉팅·고객 응대 · 한국 웨딩업계 5년+ 경력</dd>
+      <dt>공통</dt><dd>예식 당일 운영·아카이브 정리</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">SEO 전략 핵심 키워드 (v2.2)</div>
+    <p><strong>Tier 1 (5개):</strong> 마이크로웨딩 · 프라이빗 웨딩 스튜디오 · 양가 직계가족 결혼식 · 평일 결혼식 · 단독 하우스웨딩</p>
+    <p>광역 무지역 키워드 중심. 결혼식·웨딩홀·본식스냅 등 고볼륨 범용 키워드는 의도적 배제. 본식영상·모바일청첩장 키워드는 축소 운영.</p>
+    <p class="small" style="margin-top:10px;color:var(--seal);font-style:italic"><strong>⚠️ 회피 키워드 (모든 페이지 메타·H·Schema·alt에서 0건 유지):</strong> 자연광·감성웨딩·내추럴·가성비·저렴·셀프웨딩·에코웨딩·강남·청담·연희동·<strong>일산</strong> (v2.2 확정 — 일산은 가성비 컨벤션홀 검색자 미스매치, Access 평문 이정표만 허용).</p>
+    <p class="small" style="margin-top:6px"><strong>📎 상세 정책:</strong> <code>04_브랜드_키워드_시스템_v2.2.html</code> 참조 — Tier 1~4 시스템·페이지별 키워드 배치·90일 로드맵·v2.2 의사결정 추적 등 종합 가이드.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 02 · 시스템 아키텍처
+     ═══════════════════════════════════════════════ -->
+<section id="s02">
+  <div class="sec-head">
+    <span class="sec-num">Nº 02</span>
+    <h2 class="sec-title">시스템 아키텍처<span class="ko">Full Stack Overview</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">데이터 흐름 ① · 라이브 청첩장 (런타임 fetch)</div>
+<pre>
+사용자(하객)
+   ↓
+[카톡 청첩장 링크 https://momentedit.kr/i/[eventId].html]
+   ↓
+부부 청첩장 (i/[eventId].html)
+   ↓ Enter 버튼 클릭
+   ↓
+live.html?e=[eventId]
+   ├─ body opacity:0 (FOUC 방지)
+   ├─ JavaScript fetch(WEBHOOK_URL?action=getCouple&eventId=XXX)
+   ↓
+Apps Script v3.2 Webhook (doGet)
+   ├─ Couples 시트에서 부부 정보 조회 (A~Q · 17열)
+   ├─ JSON 응답
+   ↓
+live.html
+   ├─ DOM 동적 업데이트 (이름·날짜·요일·계좌·부모·영상)
+   ├─ body.couple-ready 추가 → fade-in
+   ↓
+하객이 편지 작성
+   ↓ POST
+Apps Script v3.2
+   ├─ Banned 시트 금지어 필터
+   ├─ Messages 시트 기록
+   ├─ 신랑/신부 메일로 발송 (from: contact@momentedit.kr)
+</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">데이터 흐름 ② · 가족 청첩장 (빌드 트리거) <span class="tag new">v4.0 옵션 C</span></div>
+<pre>
+huijun: Couples 시트에 부부 1행 입력 (A~Q + R~Z 26열)
+   ↓
+huijun: 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭
+   ↓
+Apps Script · 가족청첩장빌드.gs
+   ├─ FC_loadCoupleData(eventId) · 시트 행 조회
+   ├─ FC_validateRequiredFields · 필수 필드 검증
+   ├─ FC_loadMasterHtml · i-family-masters/invitation-XX-family.html fetch
+   ├─ FC_transformPlaceholders · 47종 placeholder 치환
+   │   ├─ 한글 이름·계좌·부모·식장 정보 (직접)
+   │   ├─ 영문 이름 4가지 변형 자동 생성 (MINHO/Minho/Min Ho/Lee Minho)
+   │   ├─ 날짜 8종 형식 자동 생성 (2026.08.23 · Sunday · 일요일 · August 2026 …)
+   │   ├─ 캘린더 셀 HTML 자동 생성
+   │   └─ OPTIONAL 마커 처리 (부모 정보 비어있으면 영역 삭제)
+   ├─ FC_pushToGithub · i-family/[eventId].html 생성/덮어쓰기
+   └─ FC_logBuild · BuildLogs 시트에 결과 기록 (OK / ERROR)
+   ↓
+Vercel 자동 배포 (1~2분)
+   ↓
+https://momentedit.kr/i-family/[eventId].html 사용 가능
+</pre>
+    <p class="small" style="margin-top:8px;color:var(--seal);font-style:italic"><strong>⚠️ 라이브와 차이:</strong> 라이브는 페이지 열 때마다 시트 fetch (실시간), 가족은 빌드 시점에만 시트 읽고 정적 HTML 생성 (이후 시트 변경되어도 가족 카드는 변경 X · 재빌드 필요).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">사이트 파일 구조 <span class="tag new">v5.0 갱신</span></div>
+<pre>
+momentedit-site/
+├── index.html                  메인 페이지
+├── inquiry.html                예약 문의 (Formspree)
+├── live.html                   라이브 페이지 (편지·영상·계좌 · 런타임 fetch)
+├── privacy.html                개인정보
+├── invitation-gallery.html     청첩장 갤러리 ⚠️ base64 내장 구조 (§04 경고 카드 필독)
+├── i/                          라이브 청첩장 폴더
+│   ├── lmh-cyj-0823.html       부부별 라이브 청첩장 (Enter → /live.html)
+│   ├── ...
+│   └── invitations/            라이브 마스터 8종 (v5.0 신규 위치)
+│       ├── invitation-01-classic.html
+│       ├── invitation-02-editorial.html
+│       ├── invitation-03-letterpress.html
+│       ├── invitation-04-Vermilion.html
+│       ├── invitation-05-botanical.html
+│       ├── invitation-06-hangeul.html
+│       ├── invitation-07-architect.html
+│       └── invitation-08-noir.html
+├── i-family-masters/           가족 청첩장 마스터 8종 (v4.0 신규)
+│   ├── invitation-01-classic-family.html   placeholder 47종 (Apps Script가 fetch)
+│   ├── invitation-02-editorial-family.html
+│   ├── ... (총 8개)
+│   └── invitation-08-noir-family.html
+└── i-family/                   가족 청첩장 폴더 (v4.0 신규 · 부부별 자동 빌드 결과물)
+    ├── lmh-cyj-0823.html       Apps Script가 FC_buildFamilyCard로 생성
+    └── ...
+</pre>
+    <p class="small" style="margin-top:10px;color:var(--seal);font-style:italic"><strong>⚠️ 폴더 구조 핵심 (v5.0 갱신):</strong> ① 라이브 마스터 8종은 루트가 아닌 <code>i/invitations/</code> 하위. ② 라이브 마스터의 live.html 링크는 <code>/live.html?e=...</code> 절대경로 필수 (폴더 깊이 변경 영향 차단). ③ invitation-gallery.html은 라이브 마스터 8종 + live.html을 모두 base64로 내장 (자세히는 §04 경고 카드).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DNS 설정 (가비아)</div>
+<pre>
+A     @     76.76.21.21          (Vercel)
+CNAME www   cname.vercel-dns.com
+MX    @     smtp.google.com      (pri=1)
+TXT   @     google-site-verification=3Xu_yrtXkh_TErpgDyEJTElawOTBAjcRM8WHGMBS-EA
+</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">외부 시스템 연동</div>
+    <table>
+      <thead><tr><th>시스템</th><th>역할</th><th>접근</th></tr></thead>
+      <tbody>
+        <tr><td>Formspree</td><td>인콰이어리 폼</td><td>endpoint xqenovjv</td></tr>
+        <tr><td>Apps Script (Code.gs)</td><td>편지·시트 webhook (v3.2)</td><td>huijun Drive · 활성</td></tr>
+        <tr><td>Apps Script (가족청첩장빌드.gs)</td><td>가족 청첩장 빌드 (v4.0)</td><td>같은 프로젝트 · 별도 파일 · FC_ 네임스페이스</td></tr>
+        <tr><td>GitHub Personal Access Token</td><td>가족 청첩장 push 인증 (v4.0)</td><td>Properties: GITHUB_TOKEN (classic · repo 권한)</td></tr>
+        <tr><td>Vercel</td><td>호스팅·자동 배포</td><td>GitHub 연결, 푸시 시 자동</td></tr>
+        <tr><td>Vimeo</td><td>라이브 영상 송출</td><td>예식 당일만 운영</td></tr>
+        <tr><td>Google Workspace</td><td>contact@ 메일</td><td>huijun 별칭 (Business Starter)</td></tr>
+        <tr><td>Google Maps</td><td>가족 청첩장 약도 (v4.0)</td><td>iframe 임베드 URL · Couples 시트 Z열</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 03 · 핵심 코드 상수
+     ═══════════════════════════════════════════════ -->
+<section id="s03">
+  <div class="sec-head">
+    <span class="sec-num">Nº 03</span>
+    <h2 class="sec-title">핵심 코드 상수<span class="ko">DO NOT CHANGE · System Critical</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="warn">
+    <strong>경고</strong>
+    아래 값들을 임의로 변경하면 서비스가 즉시 중단된다. 변경 필요 시 반드시 백업 + 단계별 검증 + 롤백 계획 후 진행 (§13 참조).
+  </div>
+
+  <div class="card">
+    <div class="card-title">inquiry.html · Formspree Endpoint</div>
+<pre>FORM_ENDPOINT: 'https://formspree.io/f/xqenovjv'</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">live.html · Apps Script Webhook (2곳, 동일 URL)</div>
+<pre>const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+
+const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';</pre>
+    <p><strong>COUPLE_WEBHOOK_URL</strong>은 부부 정보 fetch용 (initLiveBroadcast 함수), <strong>WEBHOOK_URL</strong>은 편지 발송용 (initLetterSystem 함수). 같은 URL이지만 별도 변수로 관리.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Apps Script · Constants (Code.gs · 편지 시스템)</div>
+<pre>const SHEET_COUPLES = 'Couples';
+const SHEET_MESSAGES = 'Messages';
+const SHEET_MODERATION = 'Moderation';
+const SHEET_BANNED = 'Banned';
+
+const STUDIO_EMAIL = 'contact@momentedit.kr';
+
+// 헤더 행 인덱스 (0-indexed)
+// v3.2: row 1 = 한글 라벨, row 2 = 영문 헤더 → idx 1
+const HEADER_ROW_INDEX = 1;
+const DATA_START_INDEX = 2;</pre>
+    <p>STUDIO_EMAIL은 huijun 계정 별칭으로 등록된 contact@ 주소. 발신자(from) 표시에 사용.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">Apps Script · Constants (가족청첩장빌드.gs · v4.0) <span class="tag new">신규</span></div>
+<pre>const FC_SHEET_COUPLES = 'Couples';
+const FC_SHEET_BUILD_LOGS = 'BuildLogs';
+
+const FC_MASTER_URL_BASE = 'https://raw.githubusercontent.com/{owner}/{repo}/{branch}/i-family-masters/';
+const FC_OUTPUT_PATH_BASE = 'i-family/';
+
+const FC_DESIGN_CODES = ['01-classic', '02-editorial', '03-letterpress', '04-vermilion',
+                          '05-botanical', '06-hangeul', '07-architect', '08-noir'];</pre>
+    <p><strong>FC_ 네임스페이스 원칙:</strong> 기존 Code.gs와 식별자 충돌 방지를 위해 가족 청첩장 빌드 시스템의 모든 전역 식별자에 <code>FC_</code> 접두사를 붙인다. (예: <code>FC_buildFamilyCard</code>, <code>FC_loadCoupleData</code>, <code>FC_pushToGithub</code>). Code.gs의 <code>SHEET_COUPLES</code>와 별개로 <code>FC_SHEET_COUPLES</code>가 존재.</p>
+    <p><strong>onOpen 통합:</strong> Code.gs 맨 아래에 <code>function onOpen() { FC_addFamilyMenu(); }</code> 한 줄로 가족 메뉴 등록. Code.gs에는 onOpen이 원래 없었으므로 신규 추가.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">Apps Script Properties (v4.0) <span class="tag new">필수</span></div>
+<pre>GITHUB_TOKEN: ghp_xxxxxxxxxxxxxxxxxxxx (Personal Access Token classic · repo 권한)
+GITHUB_OWNER: gtrddrt7706-cpu
+GITHUB_REPO:  momentedit-site
+GITHUB_BRANCH: main</pre>
+    <p>스크립트 속성(Properties Service)에 저장. 토큰은 만료 없이 발급. 토큰 노출 시 즉시 GitHub에서 폐기하고 재발급 + Properties 갱신.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Vercel · 도메인 매핑</div>
+<pre>momentedit.kr      → momentedit-site project (Production)
+www.momentedit.kr  → 같은 project (자동 301 리다이렉트)</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">GitHub 저장소</div>
+<pre>github.com/gtrddrt7706-cpu/momentedit-site
+브랜치: main (운영용 단일 브랜치)
+공개: Public (Vercel Hobby 호스팅 요구사항)</pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 04 · 청첩장 시스템
+     ═══════════════════════════════════════════════ -->
+<section id="s04">
+  <div class="sec-head">
+    <span class="sec-num">Nº 04</span>
+    <h2 class="sec-title">청첩장 시스템<span class="ko">8종 디자인 · 두 종류 구분</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">8종 마스터 디자인 라인업</div>
+    <table>
+      <thead><tr><th>번호</th><th>이름</th><th>키워드</th><th>주조색</th><th>액센트</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Classic</td><td>세리프 + 골드</td><td>#FAFAF8 아이보리</td><td>#B89A75 골드</td></tr>
+        <tr><td>02</td><td>Editorial</td><td>매거진 레이아웃</td><td>#FFFFFF 화이트</td><td>#3A2D22 차콜</td></tr>
+        <tr><td>03</td><td>Letterpress</td><td>아이보리 + 금박</td><td>#F4EFE5 크림</td><td>#9E7B3E 금박</td></tr>
+        <tr><td>04</td><td>Vermilion</td><td>진사 + 일본 미감 · 세로쓰기</td><td>#FAF4EE 화선지</td><td>#6B2A24 진사</td></tr>
+        <tr><td>05</td><td>Botanical</td><td>그린 + 식물</td><td>#F0EEE7 크림</td><td>#3D4F3F 잉크그린</td></tr>
+        <tr><td>06</td><td>Hangeul</td><td>한지 · 한글 타이포</td><td>#F5EEDF 한지</td><td>#A03A2E 단청붉은</td></tr>
+        <tr><td>07</td><td>Architect</td><td>미니멀 그리드 · 모노톤</td><td>#FFFFFF</td><td>#1C1B19 모노</td></tr>
+        <tr><td>08</td><td>Noir</td><td>다크 + 골드</td><td>#0F0E0C 다크</td><td>#B89A75 골드</td></tr>
+      </tbody>
+    </table>
+    <p class="small" style="margin-top:8px;color:var(--light)">라이브 마스터 파일명은 <code>invitation-01-classic.html</code> ~ <code>invitation-08-noir.html</code>. 가족 마스터 파일명은 <code>invitation-01-classic-family.html</code> ~ <code>invitation-08-noir-family.html</code> (v4.0 신규 명명 규칙).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">청첩장 두 종류 구분 <span class="tag new">중요</span></div>
+    <table>
+      <thead><tr><th>종류</th><th>Enter 버튼</th><th>식장 주소</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><strong>라이브 초대장</strong></td><td>있음</td><td>없음</td><td>일반 하객 (디지털 참석)</td></tr>
+        <tr><td><strong>직계가족 청첩장</strong></td><td>없음</td><td>있음</td><td>부모·친척 (실제 식장)</td></tr>
+      </tbody>
+    </table>
+    <p>현재 시스템은 <strong>라이브·직계가족 두 모드 모두 자동화 완성</strong>(v3.3, §14 자동화 프롬프트 + 규칙 ⑦ 모드 분기). 라이브는 시트 연동, 직계가족은 정적 HTML(식장 정보 포함·편지 폼 제거·Enter→오시는 길) 구조.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">마스터 파일 위치 <span class="tag new">v5.0 갱신</span></div>
+    <ul class="bullet">
+      <li><strong>라이브 마스터 (GitHub):</strong> github.com/gtrddrt7706-cpu/momentedit-site · <code>i/invitations/invitation-01~08.html</code></li>
+      <li><strong>라이브 마스터 (로컬):</strong> C:\Users\gtrdd\Documents\GitHub\momentedit-site\<strong>i\invitations\</strong></li>
+      <li><strong>가족 마스터 (GitHub):</strong> github.com/gtrddrt7706-cpu/momentedit-site · <code>i-family-masters/invitation-01~08-family.html</code></li>
+      <li><strong>가족 마스터 (로컬):</strong> C:\Users\gtrdd\Documents\GitHub\momentedit-site\<strong>i-family-masters\</strong></li>
+      <li>라이브 마스터 수정 → <strong>invitation-gallery.html의 TEMPLATES['XX'] 동기화 필수</strong> → GitHub Push → Vercel 자동 배포 → 다음 자동화부터 새 디자인 반영</li>
+      <li>가족 마스터 수정 → GitHub Push → 다음 빌드부터 새 디자인 반영 (Apps Script가 fetch)</li>
+    </ul>
+    <p class="small" style="margin-top:8px;color:var(--seal);font-style:italic">⚠️ 라이브 마스터 수정 시 invitation-gallery.html에 base64로 내장된 TEMPLATES 동기화를 빠뜨리면 갤러리에서만 옛 디자인 보임. 자세히는 아래 "🚨 invitation-gallery.html 내장 구조" 경고 카드 참조.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal);background:#FBF5F2">
+    <div class="card-title">🚨 invitation-gallery.html 내장 구조 · 동기화 함정 <span class="tag new">v5.0 신규</span></div>
+    <p><strong>invitation-gallery.html은 청첩장 8종 + live.html을 모두 base64로 안에 박아두고 srcdoc iframe으로 렌더링하는 구조다.</strong> 서버 파일을 fetch하는 게 아니라 내장된 코드를 실행한다. 결과적으로 마스터 파일을 수정해도 invitation-gallery.html 안의 base64를 갱신하지 않으면 갤러리에서만 옛 디자인이 보인다.</p>
+
+    <div class="card-title" style="margin-top:1em">내장 구조</div>
+    <table>
+      <thead><tr><th>변수명</th><th>내용</th><th>동기화 필요 시점</th></tr></thead>
+      <tbody>
+        <tr><td><code>LIVE_HTML_B64</code></td><td>live.html 전체 코드 (base64)</td><td>live.html 수정할 때마다</td></tr>
+        <tr><td><code>TEMPLATES['01']</code> ~ <code>['08']</code></td><td>라이브 마스터 8종 (base64)</td><td>해당 마스터 수정할 때마다</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card-title" style="margin-top:1em">⚠️ 동기화 누락 증상 3가지</div>
+    <ul class="bullet">
+      <li>마스터 청첩장은 새 버전인데 <strong>갤러리에서 보이는 청첩장만 옛 디자인</strong></li>
+      <li>live.html은 새 버전인데 <strong>청첩장에서 Enter 클릭 시 보이는 라이브만 옛 디자인</strong></li>
+      <li>직접 URL 접속(<code>/live.html</code>, <code>/i/invitations/invitation-XX-NAME.html</code>)은 정상 → <strong>브라우저 캐시 문제로 오인하기 쉬움</strong></li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">동기화 절차</div>
+    <ol class="steps">
+      <li>수정한 파일(live.html 또는 i/invitations/invitation-XX-XXXX.html) 내용을 그대로 복사</li>
+      <li>base64 인코딩 (온라인 도구 또는 PowerShell <code>[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($content))</code>)</li>
+      <li>invitation-gallery.html 열어서 해당 변수(<code>LIVE_HTML_B64 = '...'</code> 또는 <code>TEMPLATES['XX'] = '...'</code>) 값 교체</li>
+      <li><strong>수정한 마스터 파일 + invitation-gallery.html을 동시에 한 commit으로 push</strong> (한쪽만 push 시 불일치 상태)</li>
+      <li>Vercel 자동 배포 (1~2분) 후 검증 (다음 항목)</li>
+    </ol>
+
+    <div class="card-title" style="margin-top:1em">검증 방법 (두 경로 모두 확인 필수)</div>
+    <ol class="steps">
+      <li><strong>갤러리 경유:</strong> 시크릿 창에서 <code>invitation-gallery.html?e=test-couple&amp;i=N</code> (N=슬롯 번호-1) → 청첩장 안 Enter → 새 라이브 반영 확인</li>
+      <li><strong>직접 URL:</strong> 시크릿 창에서 <code>/live.html?e=test-couple</code> 또는 <code>/i/invitations/invitation-XX-NAME.html</code> 직접 접속 → 새 디자인 반영 확인</li>
+      <li>두 경로 모두 정상이어야 진짜 완료. 갤러리만 옛 디자인 = TEMPLATES 동기화 누락 신호</li>
+    </ol>
+
+    <div class="card-title" style="margin-top:1em">📝 실제 발생 사례 (2026.05.21)</div>
+    <p>huijun이 live.html 푸터를 삭제하고 GitHub Push 했으나, 시크릿 창에서 푸터가 여전히 보임. 처음엔 브라우저 캐시·Push 누락 의심했으나 진단 결과 invitation-gallery.html에 옛 live.html이 base64로 박혀 있었음. URL이 invitation-gallery.html이었던 게 단서. 이런 종류의 문제는 본 카드를 참고해 첫 의심 영역에 포함시켜야 함.</p>
+
+    <div class="card-title" style="margin-top:1em">향후 자동화 권장</div>
+    <p>OpenClaw 도입 후 자동 동기화 스크립트 작성 권장. 마스터 파일 저장 시 자동으로 invitation-gallery.html에 base64 동기화 → GitHub Push까지 자동 처리. 현재는 수동 동기화 의무.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">청첩장 운영 워크플로우 (시점 분리) <span class="tag new">v3.4</span></div>
+    <p>청첩장 자동화는 두 단계로 명확히 분리된다. <strong>시뮬레이션·검증 단계</strong>와 <strong>실전 운영 단계</strong>는 디자인 선택 시점이 다르다.</p>
+
+    <table>
+      <thead><tr><th>단계</th><th>시점</th><th>디자인 결정 주체</th><th>산출물</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>시뮬레이션·검증</strong></td>
+          <td>실전 첫 고객 이전</td>
+          <td>없음 (디자인 중립)</td>
+          <td>양식·체크리스트·시스템 가이드 (디자인 무관)</td>
+        </tr>
+        <tr>
+          <td><strong>실전 운영</strong></td>
+          <td>고객이 갤러리에서 디자인을 선택한 시점</td>
+          <td><strong>고객(부부)</strong></td>
+          <td>고객 선택 디자인 기반 [eventId].html / [eventId]-family.html</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card-title" style="margin-top:1em">실전 운영 트리거</div>
+    <ol class="steps">
+      <li>고객이 inquiry.html에서 문의 → 방문 상담 진행</li>
+      <li>계약 체결 → 고객에게 invitation-gallery.html 안내 → 8종 중 디자인 선택</li>
+      <li>huijun·Miku가 고객 선택 디자인 + 부부 정보·식장 정보(가족카드용) 수집</li>
+      <li>새 채팅에서 §14 자동화 프롬프트 + 고객 선택 마스터 HTML 첨부 → AI 실행</li>
+      <li>완성 HTML 검수 → GitHub /i/ 또는 /i-family/ 폴더 push → Vercel 배포 → 카톡 URL 발송</li>
+    </ol>
+
+    <div class="warn">
+      <strong>⚠️ 운영 단계와 시뮬레이션 단계 구분 (v3.5 명확화)</strong>
+      운영 단계(고객에게 청첩장 발송)에서는 디자인을 반드시 고객이 선택. 시뮬레이션 단계(검증·테스트 목적)에서는 운영자(huijun)가 임의 디자인 선택 가능 — 단 결과물을 고객에게 발송하지 X.
+    </div>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">가족 청첩장 데이터 자동화 방식 <span class="tag new">v4.0 · 옵션 C 구축 완료 · 운영 중</span></div>
+    <p>가족 청첩장의 부부별 데이터 자동화 방식. <strong>v4.0에서 옵션 C(하이브리드 · 시트 → 빌드 → 정적 HTML)로 채택 및 구축 완료, 2026.05.21 시뮬레이션 검증 후 운영 시작</strong>. 이전 v3.6 옵션 B(§14 자동 치환)는 부부당 10~15분 수작업 부담으로 폐기됨.</p>
+
+    <div class="card-title" style="margin-top:1em">의사결정 변경 흐름</div>
+    <table>
+      <thead><tr><th>버전</th><th>채택 옵션</th><th>주된 이유</th><th>한계 / 결과</th></tr></thead>
+      <tbody>
+        <tr><td>v3.6</td><td>옵션 B (§14 자동 치환)</td><td>구축 비용 0 · 장애 안전</td><td>부부당 10~15분 수작업 (시트 + AI + push)</td></tr>
+        <tr><td><strong>v4.0</strong></td><td><strong>옵션 C (하이브리드 빌드)</strong></td><td><strong>시트 입력 한 번으로 라이브+가족 동시 자동 처리</strong></td><td><strong>운영: 부부당 2~3분 · 구축 완료</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="card-title" style="margin-top:1em">옵션 C 채택 이유</div>
+    <ol class="steps">
+      <li><strong>운영 확장성</strong> · 부부 수 증가해도 huijun 작업 시간이 일정 (시트 입력 + 클릭 1회 = 부부당 2~3분)</li>
+      <li><strong>단일 진실의 원천</strong> · Couples 시트가 라이브·가족 청첩장 모두의 데이터 소스. 계좌 변경 시 시트 한 곳만 수정</li>
+      <li><strong>장애 안전 유지</strong> · 빌드 시점에만 시트 fetch, 결과물은 정적 HTML. 라이브의 런타임 fetch 의존과 분리</li>
+      <li><strong>운영 일관성</strong> · 라이브 청첩장과 동일한 시트 입력 워크플로우</li>
+    </ol>
+
+    <div class="card-title" style="margin-top:1em">옵션 C 시스템 아키텍처 (구축 완료)</div>
+<pre>huijun: Couples 시트 한 행 입력 (A~Q 17열 + R~Z 9열 = 26열)
+    ↓
+huijun: 시트 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭
+    ↓
+Apps Script 가족청첩장빌드.gs (FC_ 네임스페이스):
+    ├─ FC_loadCoupleData(eventId) · 시트 행 조회
+    ├─ FC_validateRequiredFields · familyActive=Y 확인, 필수 필드 검증
+    ├─ FC_findFullDesignCode · "01" → "01-classic" 매칭
+    ├─ FC_loadMasterHtml · i-family-masters/invitation-XX-family.html fetch
+    ├─ FC_transformPlaceholders · 47종 placeholder 치환
+    │   ├─ 한글 이름·계좌·부모·식장 (직접)
+    │   ├─ 영문 이름 4종 변형 (UPPER/proper/spaced/full)
+    │   ├─ 날짜 8종 형식 (display/MonthDay/MonthEn/YearEn/...)
+    │   ├─ 캘린더 셀 HTML (디자인별 클래스명 대응)
+    │   └─ OPTIONAL 마커 처리 (부모 비어있으면 영역 삭제)
+    ├─ FC_pushToGithub · GitHub API로 i-family/[eventId].html push
+    └─ FC_logBuild · BuildLogs 시트에 결과 기록 (OK / ERROR)
+    ↓
+Vercel 자동 배포 (1~2분)
+    ↓
+https://momentedit.kr/i-family/[eventId].html 사용 가능</pre>
+
+    <div class="card-title" style="margin-top:1em">구축 단계 (Phase α~ζ · 완료)</div>
+    <ul class="bullet">
+      <li><strong>α</strong> ✅ 8종 가족 마스터 HTML 제작 (placeholder 마스터 · 47종 placeholder · /i-family-masters/ 배포 완료)</li>
+      <li><strong>β</strong> ✅ Couples 시트 컬럼 확장 (R~Z 9컬럼 + BuildLogs 시트 신설)</li>
+      <li><strong>γ</strong> ✅ GitHub PAT 발급 + Apps Script Properties 4개 등록</li>
+      <li><strong>δ</strong> ✅ Apps Script 가족청첩장빌드.gs 작성 + 시트 메뉴 통합 (FC_ 네임스페이스로 Code.gs 충돌 회피)</li>
+      <li><strong>ε</strong> ✅ 가상 부부(lmh-cyj-0823 · 01 Classic) 빌드 검증 완료</li>
+      <li><strong>ζ</strong> ✅ 본 시스템 마스터 + 실무자 매뉴얼 v4.0 반영</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">운영 워크플로우 (huijun · 부부당 2~3분)</div>
+    <ol class="steps">
+      <li><strong>시트 입력 (1~2분)</strong> · Couples 시트 새 행에 A~Q 17열 입력 → 가족 청첩장도 발행이면 R~Z 9열 추가 입력 (R열=Y, S열=디자인 코드 01~08, T~Z 식장 정보)</li>
+      <li><strong>가족 빌드 트리거 (10초)</strong> · 해당 행 클릭 → 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭</li>
+      <li><strong>BuildLogs 확인 (10초)</strong> · BuildLogs 시트에 status=OK 확인 (ERROR면 트러블슈팅 §12)</li>
+      <li><strong>Vercel 배포 대기 (1~2분)</strong> · 자동 배포</li>
+      <li><strong>URL 검증</strong> · 시크릿 창에서 양쪽 URL 접속 → 정상 표시 확인 → 부부에게 전달</li>
+    </ol>
+
+    <div class="warn">
+      <strong>⚠️ 디자인 코드 입력 주의</strong>
+      S열 familyDesign은 반드시 텍스트로 입력. <code>01</code> 그대로 치면 구글시트가 숫자 <code>1</code>로 변환해 빌드 실패. 텍스트로 강제하려면 작은따옴표(<code>'01</code>) 또는 S열 전체 서식을 "일반 텍스트"로 변경.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ 빌드 트리거는 수동 클릭</strong>
+      시트 입력 자체로는 가족 청첩장이 생성되지 않음. huijun이 시트 메뉴 "가족 청첩장 빌드"를 클릭해야 실행. 자동 빌드(onEdit 트리거)는 의도적 미적용 — 시트 작성 중 실수로 빌드되는 것 방지.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ 시트 변경 ≠ 가족 카드 자동 변경</strong>
+      가족 청첩장은 빌드 시점의 시트 데이터로 정적 HTML이 생성됨. 빌드 후 시트의 부부 정보를 수정해도 가족 카드는 자동 갱신 X. 변경 사항 반영하려면 같은 부부 행 선택 후 다시 빌드 트리거.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ 라이브와 데이터 모델 통합</strong>
+      Couples 시트가 라이브·가족 양쪽의 데이터 소스다. 라이브 청첩장 운영 중인 부부의 시트 행을 함부로 수정하면 라이브가 즉시 영향받음. 변경 전 BuildLogs로 영향 범위 확인 권장.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">부부 청첩장 SEO 설정</div>
+    <p>부부별 청첩장 (i/[eventId].html) 은 <strong>noindex, nofollow</strong> 적용. 검색엔진 노출 의도적 차단 → 프라이버시 보호.</p>
+<pre>&lt;meta name="robots" content="noindex, nofollow"&gt;</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">eventId 규칙</div>
+    <ul class="bullet">
+      <li>형식: <strong>신랑이니셜3-신부이니셜3-월일</strong> (예: lmh-cyj-0823)</li>
+      <li>영문 소문자 + 숫자 + 하이픈만 사용</li>
+      <li>한글·언더스코어·대문자·공백 사용 절대 금지</li>
+      <li>이 값이 URL 라우팅·시트 PK·파일명 모두에 동일하게 사용됨</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 05 · Couples 시트 스키마
+     ═══════════════════════════════════════════════ -->
+<section id="s05">
+  <div class="sec-head">
+    <span class="sec-num">Nº 05</span>
+    <h2 class="sec-title">Couples 시트 스키마<span class="ko">17 Columns · 2-Row Header</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal);background:#FBF5F2">
+    <div class="card-title">시트 적용 범위 <span class="tag new">v4.0 옵션 C 반영</span></div>
+    <p><strong>v4.0부터 Couples 시트는 라이브·가족 청첩장 모두의 데이터 소스이다.</strong> v3.6까지는 라이브 전용이었으나, v4.0 옵션 C 채택으로 가족 청첩장도 시트 입력 → 빌드 트리거 → 정적 HTML 생성 구조로 통합됨.</p>
+
+    <table>
+      <thead><tr><th>청첩장 종류</th><th>데이터 소스</th><th>처리 방식</th><th>시트 컬럼</th></tr></thead>
+      <tbody>
+        <tr><td>라이브 청첩장</td><td>Couples 시트</td><td>런타임 fetch (live.html → Apps Script Code.gs)</td><td>A~Q (17열)</td></tr>
+        <tr><td>가족 청첩장</td><td>Couples 시트</td><td>빌드 트리거 (시트 메뉴 → FC_buildFamilyCard → GitHub push)</td><td>R~Z (9열 추가)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card-title" style="margin-top:1em">시트 컬럼 확장 (v4.0 옵션 C)</div>
+    <table>
+      <thead><tr><th>열</th><th>한글 (row 1)</th><th>영문 (row 2)</th><th>예시</th><th>필수</th></tr></thead>
+      <tbody>
+        <tr><td>R</td><td>가족카드 활성</td><td><code>familyActive</code></td><td>Y / N</td><td>✅</td></tr>
+        <tr><td>S</td><td>가족 디자인 코드</td><td><code>familyDesign</code></td><td>01 (01~08 중 텍스트 형식)</td><td>✅ (R=Y일 때)</td></tr>
+        <tr><td>T</td><td>식장명 한글</td><td><code>venueNameKo</code></td><td>더채플앳논현</td><td>✅</td></tr>
+        <tr><td>U</td><td>식장명 영문</td><td><code>venueNameEn</code></td><td>The Chapel at Nonhyeon</td><td>⚪</td></tr>
+        <tr><td>V</td><td>식장 주소</td><td><code>venueAddress</code></td><td>서울시 강남구 학동로 419</td><td>✅</td></tr>
+        <tr><td>W</td><td>식장 전화 <span class="small">(v4.0에서 마스터 표시 제거)</span></td><td><code>venueTel</code></td><td>02-XXX-XXXX</td><td>⚪</td></tr>
+        <tr><td>X</td><td>교통편</td><td><code>venueTransport</code></td><td>7호선 학동역 1번 출구...</td><td>✅</td></tr>
+        <tr><td>Y</td><td>주차 안내</td><td><code>venueParking</code></td><td>발렛 가능 · 2시간 무료</td><td>✅</td></tr>
+        <tr><td>Z</td><td>구글맵 iframe <span class="small">(v4.0에서 네이버 → 구글맵)</span></td><td><code>venueMapIframe</code></td><td>https://www.google.com/maps/embed?pb=...</td><td>✅</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn">
+      <strong>⚠️ 시트와 가족 청첩장 (v4.0)</strong>
+      R열 "가족카드 활성"이 Y인 경우만 가족 청첩장 빌드 대상. N 또는 비어있으면 라이브 청첩장만 운영. S~Z 컬럼은 R=Y일 때 필수(W 식장 전화는 v4.0 변경으로 옵션이지만 시트 컬럼은 유지).
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ S열 디자인 코드 입력 주의</strong>
+      <code>01</code> 그대로 입력하면 구글시트가 숫자 <code>1</code>로 변환 → 빌드 시 "잘못된 디자인 코드" 오류 발생. 텍스트 강제 방법: ① 앞에 작은따옴표 <code>'01</code> 입력, 또는 ② S열 전체 서식을 "일반 텍스트"로 변경 후 입력.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ Z열 구글맵 iframe URL 추출법</strong>
+      구글맵에서 식장 검색 → 공유 → "지도 퍼가기" 탭 → iframe 코드 복사 → <strong>src="" 안의 URL만</strong> 추출해서 Z열에 붙여넣기. iframe 태그 전체를 붙여넣으면 안 됨.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ 빌드 트리거는 수동 클릭</strong>
+      시트 입력 자체로는 가족 청첩장이 생성되지 않음. huijun이 시트 메뉴 "Moment Edit → 가족 청첩장 빌드"를 클릭해야 Apps Script FC_buildFamilyCard() 실행됨. 자동 빌드(onEdit 트리거)는 의도적 미적용 — 시트 작성 중 실수로 빌드되는 것 방지.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시트 구조 (A~Q · 17열 · 2단 헤더)</div>
+    <p>row 1 = 한글 라벨 (사람용), row 2 = 영문 헤더 (코드용), row 3~ = 데이터</p>
+    <table>
+      <thead><tr><th>열</th><th>한글 (row 1)</th><th>영문 (row 2)</th><th>예시</th><th>필수</th></tr></thead>
+      <tbody>
+        <tr><td>A</td><td>예식ID</td><td><code>eventId</code></td><td>lmh-cyj-0823</td><td>✅</td></tr>
+        <tr><td>B</td><td>신랑 한글</td><td><code>groomName</code></td><td>이민호</td><td>✅</td></tr>
+        <tr><td>C</td><td>신부 한글</td><td><code>brideName</code></td><td>최유진</td><td>✅</td></tr>
+        <tr><td>D</td><td>신랑 이메일</td><td><code>groomEmail</code></td><td>...</td><td>✅</td></tr>
+        <tr><td>E</td><td>신부 이메일</td><td><code>brideEmail</code></td><td>...</td><td>✅</td></tr>
+        <tr><td>F</td><td>결혼식 날짜</td><td><code>weddingDate</code></td><td>2026-08-23</td><td>✅</td></tr>
+        <tr><td>G</td><td>신랑 영문</td><td><code>groomNameEn</code></td><td>Lee Minho</td><td>✅</td></tr>
+        <tr><td>H</td><td>신부 영문</td><td><code>brideNameEn</code></td><td>Choi Yujin</td><td>✅</td></tr>
+        <tr><td>I</td><td>결혼식 시간</td><td><code>weddingTime</code></td><td>14:00 <span class="small">(텍스트)</span></td><td>✅</td></tr>
+        <tr><td>J</td><td>신랑 은행</td><td><code>groomBank</code></td><td>신한</td><td>✅</td></tr>
+        <tr><td>K</td><td>신랑 계좌</td><td><code>groomAccount</code></td><td>110-456-789012</td><td>✅</td></tr>
+        <tr><td>L</td><td>신부 은행</td><td><code>brideBank</code></td><td>국민</td><td>✅</td></tr>
+        <tr><td>M</td><td>신부 계좌</td><td><code>brideAccount</code></td><td>612-345-678901</td><td>✅</td></tr>
+        <tr><td>N</td><td>Vimeo ID</td><td><code>vimeoId</code></td><td>(예식 당일)</td><td>⚪ 선택</td></tr>
+        <tr><td>O</td><td>Vimeo Hash</td><td><code>vimeoHash</code></td><td>(선택)</td><td>⚪ 선택</td></tr>
+        <tr><td>P</td><td>신랑 부모</td><td><code>groomParents</code></td><td>이정환 · 김선미</td><td>⚪ 선택</td></tr>
+        <tr><td>Q</td><td>신부 부모</td><td><code>brideParents</code></td><td>최영수 · 박미경</td><td>⚪ 선택</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ I열 weddingTime 주의</strong>
+    구글 시트가 "14:00" 입력 시 자동으로 시간 형식(Date 객체)으로 변환한다. 반드시 <strong>I열 전체 서식을 "일반 텍스트"로 변경</strong> 후 입력. (서식 → 숫자 → 일반 텍스트)
+  </div>
+
+  <div class="tip">
+    <strong>부모 정보 P, Q열 (선택)</strong>
+    고객 요청에 따라 선택적으로 입력. 비어있으면 라이브 페이지 envelope에서 자동으로 해당 행이 hide된다. 채워지면 "이정환 · 김선미의 아들" 형태로 표시.
+  </div>
+
+  <div class="card">
+    <div class="card-title">기타 탭 구조</div>
+    <table>
+      <thead><tr><th>탭 이름</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Couples</strong></td><td>부부 정보 (A~Q 17열 + v4.0 R~Z 9열 = 총 26열)</td></tr>
+        <tr><td><strong>Messages</strong></td><td>발송된 편지 기록 · 8열 (시각·eventId·커플·하객·관계·메시지·상태·구분)</td></tr>
+        <tr><td><strong>Moderation</strong></td><td>금지어 차단된 편지 기록 (감사·검토용)</td></tr>
+        <tr><td><strong>Banned</strong></td><td>금지어 리스트 · 4열 (단어·카테고리·타입·메모)</td></tr>
+        <tr><td><strong>BuildLogs</strong> <span class="tag new">v4.0</span></td><td>가족 청첩장 빌드 로그 · 6열 (timestamp · eventId · design · status · url · error). FC_logBuild 함수가 자동 기록.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 06 · 라이브 페이지 시스템
+     ═══════════════════════════════════════════════ -->
+<section id="s06">
+  <div class="sec-head">
+    <span class="sec-num">Nº 06</span>
+    <h2 class="sec-title">라이브 페이지 시스템<span class="ko">live.html · 시트 연동 풀패키지</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal);background:#FBF5F2">
+    <div class="card-title">라이브 vs 가족 청첩장 관계 <span class="tag new">v4.0</span></div>
+    <p>본 §06은 <strong>라이브 청첩장</strong> 시스템에 대한 설명이다. v4.0에서 도입된 가족 청첩장과는 데이터 흐름 자체가 다르므로 혼동 주의:</p>
+    <table>
+      <thead><tr><th>구분</th><th>라이브 청첩장 (§06)</th><th>가족 청첩장 (§04 v4.0)</th></tr></thead>
+      <tbody>
+        <tr><td>URL</td><td>/i/[eventId].html → live.html?e=...</td><td>/i-family/[eventId].html (단일 페이지)</td></tr>
+        <tr><td>데이터 처리</td><td>런타임 fetch (페이지 열 때마다 시트 조회)</td><td>빌드 시점 1회 (정적 HTML)</td></tr>
+        <tr><td>시트 변경 반영</td><td>즉시 (다음 페이지 로드)</td><td>재빌드 필요 (FC_buildFamilyCard 재실행)</td></tr>
+        <tr><td>편지 발송</td><td>있음 (LETTER 섹션)</td><td>없음 (직계가족은 직접 부부에게)</td></tr>
+        <tr><td>식장 정보</td><td>없음 (일반 하객은 식장 안내 X)</td><td>있음 (가족용 핵심 기능)</td></tr>
+        <tr><td>Enter 버튼</td><td>i/ 청첩장에서 live.html로 이동</td><td>없음 (단일 페이지에 모두 표시)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">동작 흐름 (라이브 청첩장)</div>
+    <ol class="steps">
+      <li>하객이 청첩장(i/[eventId].html)에서 <strong>Enter</strong> 클릭</li>
+      <li>live.html?e=[eventId] 로 이동 · <strong>body opacity 0</strong> (FOUC 방지)</li>
+      <li>JavaScript가 ?e 파라미터 읽기</li>
+      <li>Apps Script Webhook 호출: <code>?action=getCouple&amp;eventId=XXX</code></li>
+      <li>JSON 응답으로 모든 DOM 동적 업데이트</li>
+      <li><strong>body.couple-ready</strong> 클래스 추가 → fade-in 등장 (0.45초)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">FOUC 방지 코드 (필수 유지)</div>
+<pre>/* CSS */
+body { opacity: 0; transition: opacity 0.45s ease-out; }
+body.couple-ready { opacity: 1; }
+
+/* JS · 안전망 */
+const failsafeTimer = setTimeout(() =&gt; {
+  document.body.classList.add('couple-ready');
+}, 5000);  // 5초 후 강제 표시 (영구 흰화면 방지)
+
+// fetch 완료 후 finally 블록에서 클래스 추가</pre>
+    <p>이 코드를 제거하면 옛 더미 데이터(이서준·정하윤)가 3초간 노출되는 치명적 문제 재발. 절대 삭제 X.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DOM 업데이트 대상</div>
+    <table>
+      <thead><tr><th>위치</th><th>시트 필드</th></tr></thead>
+      <tbody>
+        <tr><td>Cover · 영문 이름 (.couple-en-name × 2)</td><td>groomNameEn · brideNameEn</td></tr>
+        <tr><td>Cover · 한글 이름 (.couple-ko)</td><td>groomName · brideName</td></tr>
+        <tr><td>Cover · 날짜 (.event-date)</td><td>weddingDate</td></tr>
+        <tr><td>Cover · 요일/시간 (.event-time)</td><td>요일 JS 자동 계산 + weddingTime</td></tr>
+        <tr><td>Credit Bar (.credit-val × 2)</td><td>날짜+요일, 시간</td></tr>
+        <tr><td>JSON-LD startDate/endDate</td><td>weddingDate + weddingTime</td></tr>
+        <tr><td>페이지 title</td><td>groomName · brideName + " 라이브"</td></tr>
+        <tr><td>Envelope 신랑 (#env-groom)</td><td>name · parents · bank · account</td></tr>
+        <tr><td>Envelope 신부 (#env-bride)</td><td>name · parents · bank · account</td></tr>
+        <tr><td>Vimeo iframe (#playerFrame)</td><td>vimeoId · vimeoHash</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">프리뷰 모드 (?e 파라미터 없음)</div>
+    <p>홈페이지에서 "청첩장 미리보기" 클릭 → 라이브 페이지 직접 진입 시:</p>
+    <ul class="bullet">
+      <li>?e 파라미터 없음 → fetch 호출하지 않음</li>
+      <li>HTML의 더미 데이터(SEO JUN & HA YUN 등) 그대로 표시</li>
+      <li>편지 발송은 "고유 링크로만 접근 가능" 메시지로 차단</li>
+      <li>전체 디자인 미리보기 용도</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">예식 당일 영상 송출</div>
+    <p>Couples 시트 N열(vimeoId)에 Vimeo Live 이벤트 ID 입력 → 라이브 페이지 새로고침 시 자동으로 iframe 첨부. 비공개 영상이면 O열(vimeoHash)도 함께 입력. <strong>코드 작업 0건.</strong></p>
+<pre>player.vimeo.com/video/[vimeoId]?h=[vimeoHash]&amp;autoplay=1&amp;muted=1&amp;dnt=1&amp;...</pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 07 · 편지 시스템 v3.2
+     ═══════════════════════════════════════════════ -->
+<section id="s07">
+  <div class="sec-head">
+    <span class="sec-num">Nº 07</span>
+    <h2 class="sec-title">편지 시스템 v3.2<span class="ko">Apps Script · 하객 → 신랑신부</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.2 엔드포인트</div>
+    <table>
+      <thead><tr><th>메서드</th><th>액션</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td>GET</td><td><code>?action=getCouple&amp;eventId=XXX</code></td><td>부부 정보 JSON 반환 (live.html이 호출)</td></tr>
+        <tr><td>POST</td><td>(편지 본문 JSON)</td><td>금지어 검사 + 메일 발송</td></tr>
+        <tr><td>GET</td><td>(파라미터 없음)</td><td>헬스체크</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">getCouple 응답 JSON 구조</div>
+<pre>{
+  "ok": true,
+  "couple": {
+    "eventId": "lmh-cyj-0823",
+    "groomName": "이민호",
+    "brideName": "최유진",
+    "groomEmail": "...",
+    "brideEmail": "...",
+    "weddingDate": "2026-08-23",
+    "groomNameEn": "Lee Minho",
+    "brideNameEn": "Choi Yujin",
+    "weddingTime": "14:00",
+    "groomBank": "신한",
+    "groomAccount": "110-456-789012",
+    "brideBank": "국민",
+    "brideAccount": "612-345-678901",
+    "vimeoId": "",
+    "vimeoHash": "",
+    "groomParents": "이정환 · 김선미",
+    "brideParents": "최영수 · 박미경"
+  }
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">doPost 입력 JSON</div>
+<pre>{
+  "eventId": "lmh-cyj-0823",
+  "guestName": "정희준",
+  "relation": "남편",
+  "recipient": "both",     // "groom" | "bride" | "both"
+  "message": "편지 본문..."
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">금지어 필터 (Banned 시트)</div>
+    <p>실시간 반영 · 캐시 없음. Banned 시트 컬럼 구조:</p>
+<pre>A: 단어        욕설·비속어·금지 표현
+B: 카테고리     욕설/주민번호/이혼언급 등
+C: 타입        word | regex
+D: 메모         (자유 메모)</pre>
+    <p>변형 감지 — 띄어쓰기/특수문자/대소문자 우회 차단. <code>시*발</code>, <code>시 발</code>, <code>시.발</code> 모두 차단됨.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">메일 디자인</div>
+    <ul class="bullet">
+      <li>발신자: <strong>Moment Edit &lt;contact@momentedit.kr&gt;</strong></li>
+      <li>제목: <code>[To Groom/Bride] 하객명님이 [대상]께 마음을 전했습니다</code></li>
+      <li>본문: Cormorant Garamond + Noto Serif KR + 골드 헤어라인 + Private 뱃지</li>
+      <li>슬로건: <em>Focus on the Essence, Record the Truth.</em></li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <strong>v3.1 → v3.2 핵심 변경</strong>
+    헤더 행 인덱스가 row 1(0-indexed)에서 row 2(1-indexed)로 변경. 한글 라벨 행이 row 1에 추가되었기 때문. Apps Script 내부 <code>HEADER_ROW_INDEX = 1</code> 상수로 관리. doPost · doGet 둘 다 영향 받음 — 모두 v3.2에서 통합 처리됨.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 08 · 인콰이어리 시스템
+     ═══════════════════════════════════════════════ -->
+<section id="s08">
+  <div class="sec-head">
+    <span class="sec-num">Nº 08</span>
+    <h2 class="sec-title">인콰이어리 시스템<span class="ko">예약 문의 · Formspree 연동</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">동작 흐름</div>
+    <ol class="steps">
+      <li>예비 부부가 inquiry.html 폼 작성 (이름·이메일·예식 예정일·문의 내용)</li>
+      <li>JavaScript가 Formspree로 POST</li>
+      <li>contact@momentedit.kr 수신함에 도착</li>
+      <li>Google Workspace 자동 전달 규칙 → Miku 이메일</li>
+      <li>Miku가 카톡 또는 이메일로 응대</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Formspree 설정</div>
+    <dl class="kv-list">
+      <dt>Endpoint</dt><dd><code>https://formspree.io/f/xqenovjv</code></dd>
+      <dt>대시보드</dt><dd>formspree.io (huijun 계정)</dd>
+      <dt>무료 한도</dt><dd>월 50건 (현재 충분)</dd>
+      <dt>수신처</dt><dd>contact@momentedit.kr</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">폼 필드</div>
+    <ul class="bullet">
+      <li>이름 (필수)</li>
+      <li>이메일 (필수)</li>
+      <li>연락처 (선택)</li>
+      <li>예상 예식 날짜 (선택)</li>
+      <li>문의 내용 (필수)</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--seal)">
+    <div class="card-title">v2.2 적용 사항 (2026.05.18)</div>
+    <ul class="bullet">
+      <li><strong>meta keywords 정비</strong>: "일산스몰웨딩" 토큰 제거 완료 (v2.2 회피 정책). 잔여 키워드는 마이크로웨딩·프라이빗웨딩·평일결혼식·직계가족결혼식·하우스웨딩 등 Tier 1 합성형 중심.</li>
+      <li><strong>title 표기 통일</strong>: "방문 상담 — 마이크로웨딩…" → "방문 상담 · 마이크로웨딩…" (작대기 → 점, 모든 페이지 통일).</li>
+      <li><strong>푸터 NAP 통일</strong>: 本 도장 + contact@momentedit.kr + 사업자정보(상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796) + 주소(경기 고양시 덕양구 향동동) + 개인정보처리방침 링크. index.html과 동일 구조.</li>
+      <li><strong>본문 privacy.html 링크</strong>: 이미 2회 노출 (개인정보 수집·이용 동의 + 푸터 위 안내). 광고 심사 통과 필수 요건 충족.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 09 · 디자인 시스템
+     ═══════════════════════════════════════════════ -->
+<section id="s09">
+  <div class="sec-head">
+    <span class="sec-num">Nº 09</span>
+    <h2 class="sec-title">디자인 시스템<span class="ko">Brand · CSS · Typography</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">색상 팔레트 (모든 페이지 공통)</div>
+<pre>--bg:       #FAFAF8    배경 (아이보리 페일)
+--bg2:      #F5F3EF    카드 배경
+--bg3:      #EDEBE6    엑센트 배경
+--text:     #1C1B19    본문 텍스트
+--sub:      #5A554C    보조 텍스트
+--light:    #75705F    가장 옅은 텍스트
+--gold:     #B89A75    포인트 골드
+--accent:   #3A2D22    헤더·강조
+--seal:     #6B2A24    경고·진사 레드 (브랜드 핵심)
+--border:   #DDD8D1    구분선·테두리</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">폰트 시스템</div>
+<pre>--serif:     Cormorant Garamond + Noto Serif KR
+             영문 헤드라인 · 이탤릭 액센트
+--serif-ko:  Noto Serif KR + Nanum Myeongjo
+             한글 본문·세리프
+--sans:      Noto Sans KR
+             기본 본문
+--mono:      JetBrains Mono
+             코드 블록</pre>
+    <p>모든 페이지에서 구글 폰트 CDN으로 로드.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">로고 시스템</div>
+    <ul class="bullet">
+      <li>클래식 세리프 올캡스 워드마크 <strong>MOMENT EDIT</strong></li>
+      <li>더블 헤어라인 프레임 (가로 1px 골드)</li>
+      <li>상단 디스크립터: <em>PRIVATE WEDDING STUDIO</em></li>
+      <li>슬로건 (이탤릭): <em>Focus on the Essence, Record the Truth.</em></li>
+      <li>10종 PNG + SVG 시스템 완비 (다크/라이트 · 비율 다양)</li>
+      <li>Footer SVG 로고는 인라인 처리</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">디자인 토큰 v2 (Apple 원칙 통합) <span class="tag new">v4.3</span></div>
+    <p>5개 페이지(index · inquiry · live · invitation-gallery · privacy) <strong>:root에 공통으로 추가된 5개 신규 토큰</strong>. 호버 강도 · 한·영 자간 · 포커스 링을 변수로 추출하여 향후 전 사이트 일괄 조정 가능하게 정리.</p>
+<pre>--hover-lift:           -1px       호버 들어올림 (이전 -4px → -1px 정돈)
+--tracking-ko:           0         한글 본문 자간 (이전 -0.005em / -0.01em)
+--tracking-en:           -0.015em  영문 헤드라인 자간
+--focus-ring-color:      var(--seal)   포커스 링 색
+--focus-ring-offset:     3px       포커스 링 거리</pre>
+    <p class="small" style="margin-top:10px"><strong>본문 자간 한·영 분기 원칙:</strong> Noto Serif/Sans KR은 정사각형 em-box를 가져 음수 자간을 강하게 주면 자모가 답답해짐 → <strong>body letter-spacing: 0</strong>이 기본. 영문 헤드라인은 Apple SF Pro 본문(-0.022em)에 준하는 -0.015em 적용. 영문 캡션·라벨은 기존 0.08~0.22em 양수 자간 유지.</p>
+    <p class="small" style="margin-top:6px"><strong>호버 강도 정돈 (Apple 원칙):</strong> Apple은 호버에서 위치 변경 최소화, 색상·밑줄 등장에 비중. Moment Edit의 정제된 톤에 맞춰 카드/feature/price-block/journal-card 호버를 -1px로 통일.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">접근성 & 성능 기본값 <span class="tag new">v4.3</span></div>
+    <p>5개 페이지에 일관 적용된 접근성·성능 베이스 규칙.</p>
+<pre>1. color-scheme: light                  OS 다크모드 폼 컨트롤 충돌 방지 (:root 명시)
+2. :focus-visible 글로벌 base rule       키보드 사용자에게만 2px seal 아웃라인
+   (마우스 클릭 시 :focus는 outline:none, :focus-visible만 표시)
+3. @media (prefers-reduced-motion)       전정장애 사용자용 모션 감소
+   *::transition-duration: 0.01ms        (animation/transition/scroll 전역 차단)
+4. fetchpriority="high"                  index.html hero LCP 이미지 우선 로드
+   (Google Flights 실측 LCP 2.6s → 1.9s · 약 27% 단축)</pre>
+    <p class="small" style="margin-top:10px"><strong>focus-visible 적용 selector:</strong> <code>:where(a,button,input,textarea,select,[tabindex])</code> — :where()로 specificity를 0으로 만들어 기존 스타일과 충돌 없이 안전하게 덮어쓰기.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">페이지별 디자인 시스템 차이</div>
+<pre>index.html             --max:820px    내러티브 본문 (--gap:104px · ease 4종)
+inquiry.html           --max:620px    폼·상담 페이지 (--radius:4px · --gold-soft 추가)
+live.html              max-width 개별  본식 라이브 (--max 미지정 · 섹션별 개별)
+invitation-gallery     별도 .gv- 시스템 청첩장 갤러리 (전체화면 iframe)
+privacy.html           --max:680px    법적 문서 (--radius:4px)</pre>
+    <p class="small" style="margin-top:10px">의도된 차이로 일부 정당하나, 향후 의미별 변수명(<code>--max-narrative</code> / <code>--max-form</code> / <code>--max-document</code>)으로 정리 가능 (선택사항).</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 10 · 부부 등록 워크플로우
+     ═══════════════════════════════════════════════ -->
+<section id="s10">
+  <div class="sec-head">
+    <span class="sec-num">Nº 10</span>
+    <h2 class="sec-title">부부 등록 워크플로우<span class="ko">Phase 1~5 · 라이브 20분 / 가족 동시 25분 (v4.0)</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">5단계 전체 흐름 (v4.0 옵션 C 반영)</div>
+    <ol class="steps">
+      <li><strong>Phase 1 · 정보 수집 (Miku, 3~7일)</strong><br>카톡으로 단계별 수집. 라이브 청첩장은 A~Q 17열 정보, 가족 청첩장도 발행이면 식장 정보 6필드 추가 수집 (실무자 매뉴얼 참조)</li>
+      <li><strong>Phase 2 · 시트 등록 (huijun, 5~10분)</strong><br>Couples 시트에 한 행 입력. 라이브만이면 A~Q 17열, 가족도 같이면 R~Z 9열 추가 (총 26열).</li>
+      <li><strong>Phase 3a · 라이브 청첩장 생성 (huijun, 5분)</strong><br>새 채팅 + 이 가이드 + 라이브 마스터 첨부 → §14 자동화 프롬프트 → 완성 HTML → GitHub /i/ 폴더 push</li>
+      <li><strong>Phase 3b · 가족 청첩장 빌드 (huijun, 2분) <span class="tag new">v4.0</span></strong><br>시트 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭 → Apps Script가 자동 빌드 → GitHub /i-family/ 폴더 push → BuildLogs 시트 확인 (status=OK)</li>
+      <li><strong>Phase 4 · 검증 (huijun, 5분)</strong><br>시크릿 창에서 양쪽 URL 접속 (라이브 + 가족) · Enter 버튼 → 라이브 페이지 · 편지 발송 테스트</li>
+      <li><strong>Phase 5 · 전달 (Miku, 1~3일)</strong><br>신랑신부에게 두 URL 전달 → 검토 → 수정 반영 → 최종 확정 → 하객 공유 시작</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">총 본인 실작업 시간 (v4.0)</div>
+    <p>라이브만 발행 시 <strong>약 20분</strong>, 가족 청첩장 동시 발행 시 <strong>약 25분</strong> (Phase 2 + 3a + 3b + 4)</p>
+    <p>v4.0 옵션 C 도입으로 가족 청첩장 생성이 부부당 10~15분 수작업 → 2분 클릭 한 번으로 단축됨.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 11 · 작업 시나리오
+     ═══════════════════════════════════════════════ -->
+<section id="s11">
+  <div class="sec-head">
+    <span class="sec-num">Nº 11</span>
+    <h2 class="sec-title">작업 시나리오<span class="ko">자주 사용할 작업 가이드</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ① · 새 부부 등록</div>
+    <p>라이브만 발행 시 <strong>약 20분</strong>, 가족 청첩장 동시 발행 시 <strong>약 25분</strong> + 1~3일 검토 대기. §10 워크플로우 참조.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ② · 예식 당일 영상 송출 (1분)</div>
+    <ol class="steps">
+      <li>예식 직전 Couples 시트 → 해당 부부 행 → N열(vimeoId) 입력</li>
+      <li>비공개 영상이면 O열(vimeoHash)도 함께 입력</li>
+      <li>라이브 페이지 한 번 새로고침 (Ctrl+Shift+R) → 송출 확인</li>
+      <li>예식 종료 후 N, O열 비우기 → placeholder 복귀</li>
+    </ol>
+    <p>코드 작업 0건. 모바일에서도 시트 입력만으로 운영 가능. <strong>가족 청첩장에는 영향 없음</strong> (가족 카드는 영상 영역 없음).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ③ · 새 청첩장 디자인 추가 (9번째) <span class="tag new">v4.0 보강</span></div>
+    <ol class="steps">
+      <li>새 라이브 마스터 HTML 작성 (invitation-09-XXXX.html)</li>
+      <li>기존 8종과 동일한 구조 + 색상 토큰 정의</li>
+      <li><strong>가족 마스터도 동시 작성</strong> (invitation-09-XXXX-family.html · placeholder 47종 포함)</li>
+      <li>가족 마스터는 /i-family-masters/ 폴더에 push</li>
+      <li>invitation-gallery.html에 9번째 슬롯 추가 (iframe 임베드)</li>
+      <li>Apps Script <code>FC_DESIGN_CODES</code> 배열에 <code>'09-xxxx'</code> 추가</li>
+      <li>GitHub Push → 자동 배포</li>
+      <li>가상 부부(lmh-cyj-0823) 시트에서 S열 09 입력 → 빌드 검증</li>
+      <li>자동화 프롬프트(§14)는 라이브 마스터에 그대로 사용 가능 (마스터 첨부 방식)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ④ · 청첩장 디자인 수정 <span class="tag new">v4.0 보강</span></div>
+    <ol class="steps">
+      <li>로컬 GitHub 폴더의 invitation-XX-XXXX.html (라이브) 직접 수정</li>
+      <li>가족 마스터도 수정 필요하면 i-family-masters/invitation-XX-XXXX-family.html 함께 수정 (placeholder 변수명은 절대 변경 X)</li>
+      <li>로컬에서 브라우저로 미리보기 확인</li>
+      <li>GitHub Push → 자동 배포</li>
+      <li>다음 자동화부터 새 디자인 반영됨</li>
+    </ol>
+    <div class="note">
+      <strong>주의</strong>
+      이미 발행된 부부 청첩장 (i/ 폴더 내 파일)은 자동 업데이트 X. 마스터 수정은 향후 신규 부부에게만 적용됨. <strong>가족 청첩장도 마찬가지</strong> — 이미 빌드된 i-family/ 파일에 마스터 수정 반영하려면 해당 부부 재빌드 필요.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ⑤ · 금지어 추가</div>
+    <ol class="steps">
+      <li>Banned 시트 → 빈 행에 단어 입력</li>
+      <li>B열에 카테고리 (욕설/스팸/주민번호 등)</li>
+      <li>C열에 타입: 보통 <code>word</code>, 패턴 매칭이면 <code>regex</code></li>
+      <li>저장 즉시 반영 (캐시 없음)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시나리오 ⑥ · live.html 수정 <span class="tag new">v5.0 보강</span></div>
+    <ol class="steps">
+      <li>로컬 GitHub 폴더의 live.html 백업 (live_v[버전]_backup_YYYYMMDD.html)</li>
+      <li>수정 (FOUC 방지·WEBHOOK_URL 절대 건드리지 X)</li>
+      <li>로컬에서 file:// 또는 라이브 서버로 검증</li>
+      <li><strong>⚠️ invitation-gallery.html의 LIVE_HTML_B64 동기화 (v5.0 신규)</strong> · 수정한 live.html을 base64 인코딩 → invitation-gallery.html의 <code>LIVE_HTML_B64 = '...'</code> 값 교체. 누락 시 갤러리에서 옛 라이브 노출 (§04 경고 카드 참조)</li>
+      <li><strong>GitHub Push (live.html + invitation-gallery.html 동시 한 commit)</strong> → Vercel 자동 배포</li>
+      <li>시크릿 창에서 부부 청첩장 → Enter → 직접 live.html 정상 동작 검증</li>
+      <li><strong>추가 검증 (v5.0 신규)</strong> · <code>invitation-gallery.html?e=test-couple&amp;i=0</code> 접속 → 청첩장 안 Enter → 갤러리 경유 라이브도 새 버전인지 확인</li>
+    </ol>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">시나리오 ⑦ · 가족 청첩장 재빌드 <span class="tag new">v4.0</span></div>
+    <p>이미 빌드된 가족 청첩장의 시트 데이터를 수정한 경우, 정적 HTML이라 자동 반영 X. 다시 빌드 필요.</p>
+    <ol class="steps">
+      <li>Couples 시트에서 해당 부부 행 클릭</li>
+      <li>시트 메뉴 "Moment Edit → 가족 청첩장 빌드 (선택한 행)" 클릭</li>
+      <li>BuildLogs 시트에 새 행 status=OK 확인</li>
+      <li>Vercel 자동 배포 1~2분 후 URL 접속 → 변경 사항 반영 확인</li>
+    </ol>
+    <p class="small" style="color:var(--seal)">⚠️ 라이브 청첩장은 시트 변경 시 자동 반영 (런타임 fetch), 가족 청첩장만 재빌드 필요.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">시나리오 ⑧ · 가족 마스터 placeholder 수정 <span class="tag new">v4.0</span></div>
+    <p>8개 가족 마스터 HTML의 placeholder 변수명·구조 수정 시 Apps Script와의 동기화 필수.</p>
+    <ol class="steps">
+      <li>변경 전 i-family-masters/ 폴더 백업 (GitHub commit 이력으로 복구 가능)</li>
+      <li>변경하려는 placeholder 변수명을 결정 → Apps Script <code>FC_transformPlaceholders</code> 함수와 1:1 매핑 확인</li>
+      <li>8개 마스터 HTML 모두 동일하게 수정 (변수명 통일)</li>
+      <li>Apps Script <code>FC_transformPlaceholders</code> 함수 동기화</li>
+      <li>가상 부부(lmh-cyj-0823)로 빌드 검증 → BuildLogs OK 확인</li>
+      <li>GitHub Push → 다음 빌드부터 새 placeholder 반영</li>
+    </ol>
+    <p class="small" style="color:var(--seal)">⚠️ 마스터 HTML과 Apps Script는 짝으로 검증. 한쪽만 수정하면 빌드 실패 또는 빈 값 출력.</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">시나리오 ⑨ · BuildLogs 시트 정리 <span class="tag new">v4.0</span></div>
+    <p>BuildLogs는 누적되므로 매달 정리 필요.</p>
+    <ol class="steps">
+      <li>BuildLogs 시트 → 누적 1000행 넘으면 오래된 OK 행은 별도 보관 시트로 이동</li>
+      <li>ERROR 행은 모두 보관 (트러블슈팅 참고용)</li>
+      <li>최근 1~2개월 OK 행만 유지</li>
+    </ol>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">시나리오 ⑩ · 라이브 청첩장 마스터 수정 <span class="tag new">v5.0 신규</span></div>
+    <p>라이브 마스터(<code>i/invitations/invitation-XX-XXXX.html</code>) 수정 시 invitation-gallery.html의 TEMPLATES 동기화 필수. 누락 시 갤러리에서만 옛 디자인 노출.</p>
+    <ol class="steps">
+      <li>로컬 GitHub 폴더의 <code>i/invitations/invitation-XX-XXXX.html</code> 백업</li>
+      <li>마스터 수정 (<strong>live.html 링크는 <code>/live.html?e=...</code> 절대경로 유지 필수</strong> · 상대경로 사용 금지)</li>
+      <li>로컬에서 file:// 또는 라이브 서버로 검증</li>
+      <li><strong>⚠️ invitation-gallery.html의 TEMPLATES['XX'] 동기화 (필수)</strong> · 수정한 마스터를 base64 인코딩 → <code>TEMPLATES['XX'] = '...'</code> 값 교체</li>
+      <li><strong>GitHub Push (해당 마스터 + invitation-gallery.html 동시 한 commit)</strong> → Vercel 자동 배포</li>
+      <li>시크릿 창에서 <code>invitation-gallery.html?e=test-couple&amp;i=N</code> (N=슬롯-1) 진입 → 갤러리 안 새 디자인 반영 확인</li>
+      <li>직접 URL(<code>/i/invitations/invitation-XX-XXXX.html</code>)도 시크릿 창 접속 → 새 디자인 반영 확인</li>
+    </ol>
+    <p class="small" style="color:var(--seal);font-style:italic">⚠️ 두 경로(갤러리·직접 URL) 모두 정상이어야 진짜 완료. 갤러리만 옛 디자인 = TEMPLATES 동기화 누락. 자세한 동기화 방법은 §04 "🚨 invitation-gallery.html 내장 구조" 경고 카드 참조.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 12 · 트러블슈팅
+     ═══════════════════════════════════════════════ -->
+<section id="s12">
+  <div class="sec-head">
+    <span class="sec-num">Nº 12</span>
+    <h2 class="sec-title">트러블슈팅<span class="ko">자주 발생하는 문제 해결</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ① · 인콰이어리 안 옴</div>
+    <ul class="bullet">
+      <li>Formspree 대시보드 → 활성 상태 확인 (formspree.io/f/xqenovjv)</li>
+      <li>contact@momentedit.kr 메일 박스 확인 (스팸함 포함)</li>
+      <li>inquiry.html의 FORM_ENDPOINT 값 변경 안 됐는지 확인</li>
+      <li>DNS MX 레코드 정상인지 확인 (smtp.google.com)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ② · 청첩장 URL 안 열림</div>
+    <ul class="bullet">
+      <li>Vercel 대시보드 → Deployments → 최근 배포 Status: Ready 확인</li>
+      <li>GitHub에 i/[eventId].html 파일 실제로 존재하는지 확인</li>
+      <li>도메인 정상 작동 확인 (https://momentedit.kr 메인 페이지)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ③ · 편지 발송 안 됨</div>
+    <ul class="bullet">
+      <li>F12 콘솔에서 fetch 오류 확인</li>
+      <li>Apps Script 편집기 → testSendToBoth 함수 실행 → 정상 발송 확인</li>
+      <li>Couples 시트의 해당 eventId 행 D, E열(이메일) 정상 입력 확인</li>
+      <li>Banned 시트에 의도치 않은 금지어 포함 여부 확인</li>
+      <li>STUDIO_EMAIL이 huijun 계정 별칭으로 정확히 등록되어 있는지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ④ · 라이브 페이지에 빈 화면 (5초 이상)</div>
+    <ul class="bullet">
+      <li>5초 후 failsafe 작동 → 더미 데이터로 표시되어야 정상</li>
+      <li>F12 콘솔 → fetch 응답 확인 (Apps Script 응답 정상인지)</li>
+      <li>?e 파라미터의 eventId가 시트에 실제 등록되었는지 확인</li>
+      <li>Apps Script 새 배포가 활성 상태인지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑤ · 라이브 페이지에 옛 부부 정보 보임</div>
+    <ul class="bullet">
+      <li>?e 파라미터 누락 시 발생 (URL 직접 접속 등)</li>
+      <li>이는 의도된 동작 — 프리뷰 모드 (홈페이지 미리보기용)</li>
+      <li>부부 청첩장에서 Enter 버튼으로 들어왔는지 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑥ · 사이트 전체 안 열림</div>
+    <ul class="bullet">
+      <li>가비아 도메인 만료 여부 확인 (2027.04.20)</li>
+      <li>Vercel 프로젝트 상태 (장애 페이지 표시되면 Vercel 자체 장애)</li>
+      <li>GitHub repository 비공개 전환 안 됐는지 확인 (반드시 Public 유지)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">증상 ⑦ · 영상 안 나옴</div>
+    <ul class="bullet">
+      <li>Vimeo 영상이 실제 라이브 송출 중인지 확인</li>
+      <li>시트 N열의 vimeoId가 숫자만 정확히 입력되었는지 확인</li>
+      <li>비공개 영상이면 O열 vimeoHash 필수</li>
+      <li>F12 콘솔에서 Vimeo iframe 로드 오류 확인</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑧ · 가족 청첩장 빌드 실패 - 디자인 코드 <span class="tag new">v4.0</span></div>
+    <p>BuildLogs status=ERROR + error="잘못된 디자인 코드: '1' (01~08 또는 01-classic 형식)"</p>
+    <ul class="bullet">
+      <li><strong>원인:</strong> 구글시트가 S열 <code>01</code>을 숫자 <code>1</code>로 변환</li>
+      <li><strong>해결 1:</strong> S5 셀(또는 해당 행) 클릭 → 기존 값 삭제 → 작은따옴표 추가하여 <code>'01</code> 입력 → Enter</li>
+      <li><strong>해결 2 (영구):</strong> S열 전체 선택 → 메뉴 서식 → 숫자 → "일반 텍스트" 변경 → 값 재입력</li>
+      <li><strong>검증:</strong> 다시 빌드 트리거 → BuildLogs OK 확인</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑨ · 가족 청첩장 빌드 실패 - 필수 필드 누락 <span class="tag new">v4.0</span></div>
+    <p>BuildLogs error="필수 필드 누락: venueAddress, venueTransport, ..."</p>
+    <ul class="bullet">
+      <li><strong>원인:</strong> Couples 시트 R~Z 컬럼 중 필수 필드가 비어있음</li>
+      <li><strong>해결:</strong> 오류 메시지에 표시된 컬럼명 확인 → 시트에 값 입력 → 재빌드</li>
+      <li>필수: familyDesign(S), venueNameKo(T), venueAddress(V), venueTransport(X), venueParking(Y), venueMapIframe(Z)</li>
+      <li>옵션: venueNameEn(U), venueTel(W) — 비어있어도 빌드 진행</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑩ · 가족 청첩장 빌드 실패 - GitHub 인증 <span class="tag new">v4.0</span></div>
+    <p>BuildLogs error="GitHub push 실패 (401)" 또는 "GITHUB_TOKEN이 설정되지 않았습니다"</p>
+    <ul class="bullet">
+      <li><strong>원인 1:</strong> Apps Script Properties에 GITHUB_TOKEN 누락</li>
+      <li><strong>해결:</strong> Apps Script 편집기 → 프로젝트 설정(⚙️) → 스크립트 속성 → GITHUB_TOKEN 값 확인 · 추가</li>
+      <li><strong>원인 2:</strong> 토큰 만료 또는 폐기됨</li>
+      <li><strong>해결:</strong> github.com/settings/tokens → 새 토큰(classic · repo 권한) 발급 → Properties의 GITHUB_TOKEN 값 갱신</li>
+      <li><strong>연결 테스트:</strong> 메뉴 "Moment Edit → 연결 테스트 (GitHub)" 클릭 → 성공 확인</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑪ · 가족 청첩장 빌드 후 시트 변경 반영 안 됨 <span class="tag new">v4.0</span></div>
+    <ul class="bullet">
+      <li><strong>원인:</strong> 가족 카드는 빌드 시점의 시트 데이터로 정적 HTML 생성. 빌드 후 시트 수정해도 자동 갱신 X</li>
+      <li><strong>해결:</strong> 시트 수정 후 같은 부부 행 선택 → 메뉴 "가족 청첩장 빌드 (선택한 행)" 다시 클릭 → 재빌드</li>
+      <li>이는 의도된 동작 — 라이브 청첩장과 데이터 분리, 의도치 않은 변경 차단</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑫ · 가족 청첩장 구글맵 안 보임 <span class="tag new">v4.0</span></div>
+    <ul class="bullet">
+      <li><strong>원인 1:</strong> Z열 venueMapIframe URL 잘못 추출 (iframe 태그 전체 붙여넣기)</li>
+      <li><strong>해결:</strong> Z열 값 확인 → <code>https://www.google.com/maps/embed?pb=...</code> 형태인지 확인 → src=""안의 URL만 추출해서 재입력 → 재빌드</li>
+      <li><strong>원인 2:</strong> URL 만료 (드물게 발생)</li>
+      <li><strong>해결:</strong> 구글맵에서 식장 다시 검색 → 새 iframe URL 추출 → Z열 갱신 → 재빌드</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal)">
+    <div class="card-title">증상 ⑬ · 가족 청첩장 계좌 섹션 안 열림 <span class="tag new">v5.0</span></div>
+    <p>가족 청첩장에서 계좌 섹션(Groom/Bride) 클릭해도 펼쳐지지 않음. Copy 버튼도 동작 안 함.</p>
+    <ul class="bullet">
+      <li><strong>원인:</strong> 가족 마스터 HTML의 <code>&lt;script&gt;</code> 영역에 계좌 토글·복사 클릭 핸들러 누락. 8개 가족 마스터 중 일부에서 발생 가능 (실제 발생: 2026.05.21 invitation-01-classic-family.html)</li>
+      <li><strong>진단:</strong> 해당 마스터의 script 영역 검색 → <code>env-acc-q</code> 또는 <code>env-acc-copy</code> 클릭 핸들러가 있는지 확인. 다른 정상 디자인(02·03·05·06·07·08)에는 있고 누락된 디자인에만 없음.</li>
+      <li><strong>해결:</strong> 정상 디자인의 script 영역에서 ① 계좌 토글 핸들러(<code>.env-acc-q</code>) ② 계좌 복사 핸들러(<code>.env-acc-copy</code>) ③ <code>#copy-announce</code> aria-live 영역, 이 3가지를 복사해 누락 마스터에 추가</li>
+      <li><strong>구조 차이 주의:</strong> 02번처럼 <code>&lt;details&gt;</code> 사용 디자인과 01번처럼 <code>&lt;div&gt;+&lt;button&gt;</code> 사용 디자인은 핸들러 코드가 다름. 01번류는 클래스 토글(<code>.open</code>)로 동작</li>
+      <li><strong>수정 후:</strong> i-family-masters/에 push → 기존 빌드된 가족 청첩장은 <strong>재빌드 필요</strong> (정적 HTML이라 마스터 수정 자동 반영 X)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">롤백 절차 (긴급)</div>
+    <ol class="steps">
+      <li>GitHub Desktop → History 탭 → 마지막 안전 커밋 우클릭 → "Revert this commit"</li>
+      <li>Push origin → Vercel 자동 재배포 (1~2분)</li>
+      <li>또는 백업 파일(live_v3.1_backup_YYYYMMDD.html) 직접 복원</li>
+      <li>Apps Script는 배포 관리 → 보관처리된 이전 버전 활성화로 롤백</li>
+      <li><strong>가족 청첩장 롤백 (v4.0):</strong> i-family/[eventId].html을 GitHub에서 이전 커밋으로 revert. 또는 시트 데이터 수정 후 재빌드.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 13 · 변경 금지 코드
+     ═══════════════════════════════════════════════ -->
+<section id="s13">
+  <div class="sec-head">
+    <span class="sec-num">Nº 13</span>
+    <h2 class="sec-title">변경 금지 코드<span class="ko">DO NOT MODIFY · System Critical</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="warn">
+    <strong>경고</strong>
+    아래 값들은 시스템 동작에 직접 연결되어 있다. 잘못 변경하면 서비스 즉시 중단 + 이전 발송된 모든 청첩장 망가짐. 변경이 절대적으로 필요한 경우 반드시 백업 + 단계별 검증 + 롤백 계획 후 진행.
+  </div>
+
+  <div class="card">
+    <div class="card-title">절대 변경 금지 항목</div>
+    <table>
+      <thead><tr><th>위치</th><th>값</th><th>변경 시 영향</th></tr></thead>
+      <tbody>
+        <tr><td>inquiry.html · FORM_ENDPOINT</td><td><code>formspree.io/f/xqenovjv</code></td><td>인콰이어리 폼 동작 중단</td></tr>
+        <tr><td>live.html · WEBHOOK_URL × 2</td><td><code>script.google.com/.../AKfycbwWuUVCgRRclss...</code></td><td>편지·시트 연동 전부 중단</td></tr>
+        <tr><td>Apps Script Code.gs · STUDIO_EMAIL</td><td><code>contact@momentedit.kr</code></td><td>발신자 변경, 별칭 미등록 시 발송 실패</td></tr>
+        <tr><td>Apps Script · 시트 이름 5개</td><td>Couples / Messages / Moderation / Banned / BuildLogs</td><td>해당 탭 접근 실패</td></tr>
+        <tr><td>Apps Script · HEADER_ROW_INDEX</td><td><code>1</code> (0-indexed)</td><td>모든 시트 조회 실패</td></tr>
+        <tr><td>Apps Script · FC_ 네임스페이스 <span class="tag new">v4.0</span></td><td>FC_SHEET_COUPLES, FC_buildFamilyCard 등 모든 FC_ 접두사</td><td>제거 시 Code.gs와 식별자 충돌 발생, 시트 메뉴 동작 중단</td></tr>
+        <tr><td>Apps Script · onOpen 통합 <span class="tag new">v4.0</span></td><td>Code.gs 맨 아래 <code>function onOpen() { FC_addFamilyMenu(); }</code></td><td>제거 시 시트 새로고침 후 "Moment Edit" 메뉴 사라짐</td></tr>
+        <tr><td>Apps Script Properties <span class="tag new">v4.0</span></td><td>GITHUB_TOKEN · GITHUB_OWNER · GITHUB_REPO · GITHUB_BRANCH</td><td>가족 청첩장 빌드 시 GitHub push 실패</td></tr>
+        <tr><td>GitHub 경로 <span class="tag new">v4.0</span></td><td><code>i-family-masters/</code> · <code>i-family/</code></td><td>경로 변경 시 빌드 함수가 마스터 fetch 실패, 결과물 push 위치 어긋남</td></tr>
+        <tr><td>가족 마스터 placeholder <span class="tag new">v4.0</span></td><td>47종 <code>{{...}}</code> 변수 (이름·날짜·식장·계좌 등)</td><td>변수명 변경 시 Apps Script 치환 함수와 불일치 → 빈 값 또는 치환 실패</td></tr>
+        <tr><td>DNS A 레코드</td><td><code>76.76.21.21</code> (Vercel)</td><td>도메인 접속 불가</td></tr>
+        <tr><td>도메인 만료일</td><td>2027.04.20</td><td>도메인 손실 → 사이트 전체 손실</td></tr>
+        <tr><td>live.html · FOUC body opacity 코드</td><td>(§06 참조)</td><td>옛 더미 3초간 노출 재발</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">변경 시 반드시 백업</div>
+    <ul class="bullet">
+      <li>live.html 수정 전: 원본을 live_v[버전]_backup_YYYYMMDD.html 로 저장</li>
+      <li>Apps Script Code.gs 수정 전: 전체 복사 → 메모장 저장</li>
+      <li><strong>Apps Script 가족청첩장빌드.gs 수정 전 (v4.0):</strong> 전체 복사 → 메모장 저장. Properties 4종 값 별도 메모</li>
+      <li>청첩장 마스터 수정 전: 원본 백업 또는 GitHub 커밋 이력으로 복구 가능 확인</li>
+      <li><strong>가족 마스터 수정 전 (v4.0):</strong> i-family-masters/ 폴더의 원본 8개 파일을 GitHub 커밋 이력으로 복구 가능. placeholder 변수명은 절대 변경 금지</li>
+      <li>큰 변경은 시뮬레이션 부부(lmh-cyj-0823)로 먼저 검증</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 14 · 청첩장 자동화 프롬프트 ⭐
+     ═══════════════════════════════════════════════ -->
+<section id="s14">
+  <div class="sec-head">
+    <span class="sec-num">Nº 14</span>
+    <h2 class="sec-title">청첩장 자동화 프롬프트<span class="ko">새 부부 청첩장 생성 마스터 가이드</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="ai-note">
+    <strong>📌 AI가 청첩장을 생성할 때 적용해야 할 모든 규칙</strong>
+    이 섹션은 huijun이 새 채팅에서 청첩장을 만들 때 AI가 따라야 할 완전한 규칙 모음. AI는 이 가이드를 받으면 자동으로 본 섹션의 모든 규칙을 적용해 청첩장을 생성한다.
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal);background:#FBF5F2">
+    <div class="card-title">🎨 디자인 비종속성 원칙 (Design-Agnostic Principle) <span class="tag new">v3.4 핵심</span></div>
+    <p><strong>본 §14 자동화 시스템은 8종 마스터 디자인 어느 것에든 동일하게 작동한다.</strong> 특정 디자인에 종속되거나 최적화되지 않으며, AI는 어떤 마스터가 첨부되든 §14 전체 규칙을 동일하게 적용한다.</p>
+
+    <div class="card-title" style="margin-top:1em">디자인 선택의 주체</div>
+    <ul class="bullet">
+      <li><strong>고객(부부)</strong> · 8종 마스터 디자인 중 어느 것을 사용할지 선택하는 유일한 주체</li>
+      <li><strong>huijun·Miku (운영자)</strong> · 갤러리(invitation-gallery.html)에서 고객이 디자인을 선택할 수 있도록 제시. 운영자가 사전에 "이 디자인으로 가자"고 임의 결정 X</li>
+      <li><strong>AI</strong> · 고객이 선택한 디자인의 마스터를 받아 §14 규칙을 적용. 디자인 선호·추천·변경 제안을 하지 않음</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">금지 사항</div>
+    <ul class="bullet">
+      <li>❌ <strong>운영 단계</strong>에서 운영자가 고객 선택 없이 디자인을 임의 결정 (사업 모델 위반)</li>
+      <li>❌ "이 케이스에는 X 디자인이 더 적합" 같은 AI 측 고객 대상 디자인 추천</li>
+      <li>❌ 특정 디자인에 한정된 §14 규칙 추가 (모든 규칙은 8종 공통으로 작동)</li>
+      <li>❌ 8종 중 일부만 가족카드 모드 지원하는 식의 비대칭 구현</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">시뮬레이션·검증 단계의 올바른 방식 <span class="tag new">v3.5 명확화</span></div>
+    <ul class="bullet">
+      <li>✅ <strong>운영자(huijun)의 검증 목적 디자인 선택 허용</strong> · 결과물을 고객에게 발송하지 않는 한, 시뮬레이션 시점에 huijun이 8종 중 임의의 1종을 선택하여 §14 워크플로우를 실행하는 것은 디자인 비종속성 원칙 위반 X. 오히려 호환성 검증에 권장됨.</li>
+      <li>✅ <strong>양식 검증</strong> · 가상 부부 정보 양식을 디자인 중립으로 작성 (B-2 산출물 참조)</li>
+      <li>✅ <strong>워크플로우 검증</strong> · §14 규칙 자체가 8종에 모두 작동하는지 코드 레벨 자가 검증 (호환성 체크리스트 참조)</li>
+      <li>✅ <strong>참조 마스터 활용</strong> · 디자인 중립 참조 마스터(Reference Master)로 §14 호환성 사전 검증. 8종 본 마스터로 동일 케이스 확장 검증 가능.</li>
+      <li>✅ <strong>실전 생성</strong> · 고객이 디자인을 선택한 시점에 그 디자인 마스터로 §14 워크플로우 즉시 실행</li>
+    </ul>
+
+    <div class="warn">
+      <strong>⚠️ 원칙의 본래 의도 (v3.5 명확화)</strong>
+      "디자인 비종속성"은 <strong>운영 시점</strong>의 디자인 결정권을 고객에게 두는 것이다. 운영자(huijun)가 시스템 검증·시뮬레이션 목적으로 디자인 1종을 선택하여 결과물을 점검하는 것은 본 원칙과 무관. 핵심은 <strong>"고객에게 발송되는 청첩장의 디자인은 고객이 선택한다"</strong>는 점.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">8종 마스터 호환성 자가 검증 체크리스트</div>
+    <p>§14 규칙이 8종 어느 디자인에든 동일하게 작동하는지 확인하는 점검 항목. 신규 마스터 디자인 추가 시(9번째 이후)에도 동일 체크리스트로 호환성 확보.</p>
+
+    <div class="card-title" style="margin-top:1em">CSS 변수 통일 (테마 상속의 전제)</div>
+    <ul class="bullet">
+      <li>모든 마스터가 <code>--ink</code>(글자), <code>--paper</code>(배경), <code>--accent</code>(포인트) 3개 변수를 정의</li>
+      <li>식장 섹션 등 §14 규칙 ⑦이 삽입하는 요소가 별도 색상 하드코딩 없이 마스터 톤을 자연 상속</li>
+      <li>변수명 통일이 깨진 마스터는 §14 적용 전 변수 정규화 필요</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">구조적 삽입 지점 (가족카드 모드 필수)</div>
+    <ul class="bullet">
+      <li>마지막 본문 섹션(N° 04 또는 마지막 Nº) 직후에 식장 섹션 삽입 가능한 구조</li>
+      <li>Enter 버튼이 단일 식별 가능한 위치에 존재 (텍스트·링크 변환 위치)</li>
+      <li>편지 폼이 명확한 단일 섹션으로 분리되어 있어 통째 제거 가능</li>
+      <li>fetch / getCouple JS 호출이 한곳에 모여있어 통째 제거 가능</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">메타·SEO 통일</div>
+    <ul class="bullet">
+      <li>8종 모두 <code>&lt;title&gt;</code>·<code>og:title</code>·<code>twitter:title</code> 위치 일관</li>
+      <li>OG 이미지 메타 6종이 동일 위치·형식</li>
+      <li>구조화 데이터(JSON-LD)가 있다면 동일 스키마</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">디자인별 특수 이슈 기록 (있을 시)</div>
+    <table>
+      <thead><tr><th>마스터</th><th>특수 이슈</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr><td>01 Classic</td><td>—</td><td>—</td></tr>
+        <tr><td>02 Editorial</td><td>v3 코드 미보존</td><td>재구축 시 본 체크리스트 통과 필수</td></tr>
+        <tr><td>03 Letterpress</td><td>v3 코드 미보존</td><td>재구축 시 본 체크리스트 통과 필수</td></tr>
+        <tr><td>04 Japanese</td><td>—</td><td>—</td></tr>
+        <tr><td>05 Botanical</td><td>—</td><td>—</td></tr>
+        <tr><td>06 Hangeul</td><td>—</td><td>—</td></tr>
+        <tr><td>07 Architect</td><td>—</td><td>—</td></tr>
+        <tr><td>08 Noir</td><td>다크 디자인 자동 반전 기능 영향 확인</td><td>식장 섹션 색상 가독성 검증 필요</td></tr>
+      </tbody>
+    </table>
+    <p>새 이슈 발견 시 본 표에 즉시 추가 + 마스터 동기화(§15 프로토콜).</p>
+  </div>
+
+  <div class="card" style="border:1px solid var(--seal);background:#FBF5F2">
+    <div class="card-title">⚠️ 본 §14는 라이브 청첩장 전용 (v4.0 변경 사항) <span class="tag new">v5.0 명시</span></div>
+    <p><strong>v4.0 옵션 C 구축 완료 후, 가족 청첩장은 §14 워크플로우(AI 채팅)가 아닌 시트 메뉴 자동 빌드를 사용한다.</strong></p>
+    <ul class="bullet">
+      <li><strong>라이브 청첩장</strong> → §14 자동화 프롬프트 사용 (이 섹션)</li>
+      <li><strong>가족 청첩장</strong> → 시트 R~Z 입력 + 메뉴 "가족 청첩장 빌드" 클릭 (§04 v4.0 옵션 C 카드 참조)</li>
+    </ul>
+    <p>아래 부부 정보 양식의 <strong>"직계가족 모드"는 v4.0 옵션 C 도입으로 더 이상 사용하지 않는다 (deprecated)</strong>. 양식 구조는 호환성을 위해 보존하지만, 실제 운영에서는 "모드: 라이브"만 선택해서 사용한다.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">사용 흐름 (라이브 청첩장)</div>
+    <ol class="steps">
+      <li>새 채팅 열기 (claude.ai)</li>
+      <li>이 가이드 파일 + 라이브 마스터(invitation-XX.html) 첨부 (※ 가족 마스터는 첨부 X — Apps Script가 자동 처리)</li>
+      <li>아래 "부부 정보 양식"을 채워서 전송 ("모드: 라이브" 고정)</li>
+      <li>AI가 5군데 자동 수정 + 검증 → 완성 HTML 반환</li>
+      <li>받은 HTML을 [eventId].html로 저장 → GitHub i/ 폴더에 push</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">부부 정보 양식 (라이브 청첩장용 · 복붙용)</div>
+<pre>아래 부부 정보로 라이브 청첩장 HTML을 만들어줘.
+첨부한 마스터 파일을 베이스로, §14의 모든 규칙 자동 적용.
+
+━━━ 모드 (v4.0 이후 라이브만 사용) ━━━
+모드: 라이브
+※ 가족 청첩장은 시트 메뉴로 자동 빌드 (§04 옵션 C)
+※ "직계가족" 모드는 deprecated (호환성 보존만)
+
+━━━ 부부 정보 ━━━
+신랑 한글:    [여기 입력]
+신부 한글:    [여기 입력]
+신랑 영문:    [여기 입력 — 여권 표기]
+신부 영문:    [여기 입력 — 여권 표기]
+
+결혼식 날짜:  [예: 2026년 8월 23일 일요일]
+결혼식 시간:  [예: 오후 2시]
+
+eventId:     [신랑이니셜3-신부이니셜3-월일 · 예: lmh-cyj-0823]
+
+━━━ 가족 정보 ━━━
+신랑 부모:    [아버지 성함] · [어머니 성함]
+신부 부모:    [아버지 성함] · [어머니 성함]
+
+━━━ 계좌 정보 ━━━
+신랑 계좌:    [은행명] · [계좌번호] (예: 신한 110-456-789012)
+신부 계좌:    [은행명] · [계좌번호]
+신랑 父 계좌: [은행명] · [계좌번호] (선택 — 비우면 더미 유지)
+신랑 母 계좌: [은행명] · [계좌번호] (선택)
+신부 父 계좌: [은행명] · [계좌번호] (선택)
+신부 母 계좌: [은행명] · [계좌번호] (선택)
+
+완성된 HTML 전체 코드만 반환해줘. 설명은 짧게 1~2줄만.
+
+━━━ [DEPRECATED · v4.0 이후 미사용] 직계가족 모드 양식 ━━━
+※ 아래는 호환성 보존용. v4.0 옵션 C 도입으로 가족 청첩장은
+   시트 R~Z 입력 → 메뉴 "가족 청첩장 빌드" 클릭으로 자동 생성.
+   더 이상 본 §14 양식으로 가족 청첩장을 생성하지 않음.
+
+식장명 한글:  [예: 더채플앳논현]
+식장명 영문:  [예: The Chapel at Nonhyeon] (선택)
+식장 주소:    [도로명 주소]
+교통편:       [지하철·버스·자가용 정보 자유 입력]
+주차 안내:    [자유 입력 · 예: 발렛 가능, 2시간 무료]
+구글맵:       [iframe src URL — 구글맵에서 "공유→지도 퍼가기"→iframe src 추출]</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ① · 이름 (한글·영문) 전 영역 치환</div>
+    <ul class="bullet">
+      <li><code>&lt;title&gt;</code> 태그</li>
+      <li><code>&lt;meta&gt;</code> 태그 (description, keywords, author, og:*, twitter:*)</li>
+      <li>구조화 데이터 JSON-LD</li>
+      <li>본문 H1 (한글 세로쓰기·.vname 또는 동등 요소)</li>
+      <li>본문 영문 표기 (.cover-en-names 또는 동등)</li>
+      <li>서명부 (.sign-name, .sign-parents)</li>
+      <li>계좌 섹션 (.acc-info .name)</li>
+      <li>계좌 복사 버튼 data-name 속성</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ② · 날짜 모든 포맷 일관 치환</div>
+    <ul class="bullet">
+      <li>한글: "2026년 X월 X일 X요일"</li>
+      <li>점/하이픈: "2026.MM.DD", "2026-MM-DD"</li>
+      <li>영문: "Month Day, Year"</li>
+      <li>영어 요일: Monday/Tuesday/.../Sunday</li>
+      <li>로마자: MMXXVI · MM · DD (cover-date-tag)</li>
+      <li>큰 날짜: MM·DD (.date-main)</li>
+      <li>JavaScript 카운트다운: <code>new Date('YYYY-MM-DDT14:00:00+09:00')</code></li>
+      <li>canonical, og:url, 구조화 데이터의 URL 경로</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ③ · 부모님 성함</div>
+    <ul class="bullet">
+      <li>서명부 .sign-parents</li>
+      <li>계좌 섹션 .acc-info .name (Father·Mother 행)</li>
+      <li>계좌 복사 버튼 data-name</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ④ · 계좌번호</div>
+    <ul class="bullet">
+      <li>계좌 섹션 .acc-info .num</li>
+      <li>계좌 복사 버튼 data-copy 속성</li>
+    </ul>
+    <p><strong>비어있는 정보 처리:</strong> 부부가 제공하지 않은 계좌(부모 등)는 더미값 유지. 더미: "000-00-0000-000" 또는 마스터 원본 값. <strong>절대 임의로 만들어내지 X.</strong></p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ⑤ · eventId / URL 라우팅</div>
+    <p><strong>모드별 분기 처리:</strong></p>
+    <ul class="bullet">
+      <li><strong>라이브 모드</strong> · 파일 위치: <code>/i/[eventId].html</code></li>
+      <li><strong>직계가족 모드</strong> · 파일 위치: <code>/i-family/[eventId]-family.html</code> ⭐</li>
+    </ul>
+    <p><strong>공통 처리:</strong></p>
+    <ul class="bullet">
+      <li><code>live.html?e=test-couple</code> → <code>../live.html?e=[새 eventId]</code> <em>(라이브 모드만)</em></li>
+      <li>JavaScript urlParams 기본값: 'test-couple' → '[새 eventId]'</li>
+      <li>canonical URL: 모드별 경로로 설정</li>
+      <li>og:url, twitter URL도 동일하게</li>
+    </ul>
+    <div class="warn">
+      <strong>⚠️ 경로 주의</strong>
+      라이브 청첩장은 <code>/i/</code> 폴더, 직계가족은 <code>/i-family/</code> 폴더. live.html 경로는 한 단계 위 (<code>../live.html</code>) — 직계가족 모드에서는 <strong>live.html 링크 자체를 제거</strong>하고 "오시는 길" 버튼으로 대체 (규칙 ⑦ 참조).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 · 메타 정보</div>
+<pre>title:           "[신랑] · [신부] 결혼합니다 — Moment Edit"
+description:     부부 정보 + 결혼식 정보로 자연스럽게 작성
+keywords:        "[신랑] [신부] 청첩장,모바일 청첩장,프라이빗 웨딩 청첩장"
+robots:          "noindex, nofollow"   ⭐ 부부 청첩장 SEO 차단
+canonical:       "https://momentedit.kr/i/[eventId].html"
+og:url:          "https://momentedit.kr/i/[eventId].html"
+og:image:        "https://momentedit.kr/og-image.png"
+og:image:width:  "1200"
+og:image:height: "630"
+og:image:type:   "image/png"
+twitter:image:   "https://momentedit.kr/og-image.png"
+twitter:card:    "summary_large_image"</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ⑥ · OG / SNS 카드 이미지</div>
+    <p><strong>브랜드 통일 정책:</strong> 모든 청첩장은 메인 페이지와 동일한 OG 이미지(<code>og-image.png</code>) 사용. 부부별 개별 이미지 X — 진사 리본 + MOMENT EDIT 카드가 브랜드 시그니처.</p>
+    <ul class="bullet">
+      <li>이미지 경로 고정: <code>https://momentedit.kr/og-image.png</code></li>
+      <li>규격 고정: 1200×630, image/png</li>
+      <li>카카오톡·라인·페이스북·트위터·iMessage 공유 시 자동 표시</li>
+      <li>마스터에 OG 메타태그 이미 존재하면 그대로 유지 (이름·날짜만 치환)</li>
+      <li>마스터에 OG 메타태그 없으면 아래 6종 자동 추가</li>
+    </ul>
+<pre>&lt;meta property="og:image" content="https://momentedit.kr/og-image.png"&gt;
+&lt;meta property="og:image:width" content="1200"&gt;
+&lt;meta property="og:image:height" content="630"&gt;
+&lt;meta property="og:image:type" content="image/png"&gt;
+&lt;meta name="twitter:image" content="https://momentedit.kr/og-image.png"&gt;
+&lt;meta name="twitter:card" content="summary_large_image"&gt;</pre>
+    <div class="warn">
+      <strong>⚠️ 절대 금지</strong>
+      AI가 임의로 OG 이미지 경로를 바꾸거나 placeholder URL(예: example.com/img.png) 삽입 X. og-image.png는 GitHub 저장소 루트에 실제 파일이 존재함.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 ⑦ · 직계가족 모드 분기</div>
+    <p><strong>직계가족 모드는 라이브 모드와 다음 5가지가 다름:</strong></p>
+    <ul class="bullet">
+      <li>① 파일 경로: <code>/i-family/[eventId]-family.html</code></li>
+      <li>② eventId: 기본값에 <code>-family</code> 접미사 자동 추가</li>
+      <li>③ Enter 버튼: "오시는 길"로 변환 (live.html 링크 제거)</li>
+      <li>④ 식장 정보 섹션: 필수 포함 (아래 표준 구조 사용)</li>
+      <li>⑤ 라이브 페이지 라우팅 코드 전체 제거 (urlParams, fetch 등)</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">표준 식장 섹션 HTML 구조</div>
+<pre>&lt;section class="venue-section" aria-label="식장 안내" id="venue"&gt;
+  &lt;div class="sec-head"&gt;
+    &lt;span class="sec-num"&gt;Nº 05&lt;/span&gt;
+    &lt;h2 class="sec-title"&gt;오시는 길&lt;span class="ko"&gt;Venue&lt;/span&gt;&lt;/h2&gt;
+    &lt;div class="sec-rule"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="venue-info"&gt;
+    &lt;p class="venue-name-ko"&gt;[식장명 한글]&lt;/p&gt;
+    &lt;p class="venue-name-en"&gt;[식장명 영문]&lt;/p&gt;
+    &lt;p class="venue-address"&gt;[도로명 주소]&lt;/p&gt;
+    &lt;p class="venue-tel"&gt;&lt;a href="tel:[전화번호]"&gt;[전화번호]&lt;/a&gt;&lt;/p&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="venue-map"&gt;
+    &lt;iframe src="[구글맵 iframe URL]" 
+            width="100%" height="320" 
+            frameborder="0" loading="lazy"
+            title="식장 약도"&gt;&lt;/iframe&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="venue-transport"&gt;
+    &lt;h3&gt;교통편&lt;/h3&gt;
+    &lt;p&gt;[교통편 자유 텍스트 — 줄바꿈은 &amp;lt;br&amp;gt;]&lt;/p&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="venue-parking"&gt;
+    &lt;h3&gt;주차 안내&lt;/h3&gt;
+    &lt;p&gt;[주차 안내 자유 텍스트]&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</pre>
+
+    <div class="card-title" style="margin-top:1em">"오시는 길" 버튼 변환 규칙</div>
+    <ul class="bullet">
+      <li>기존 마스터의 Enter / Live 버튼 위치를 그대로 사용</li>
+      <li>버튼 텍스트: "Enter" → "오시는 길" 또는 "Venue"</li>
+      <li>링크 타겟: <code>href="../live.html?e=..."</code> → <code>href="#venue"</code> (식장 섹션으로 부드러운 스크롤)</li>
+      <li>onclick에 <code>scrollIntoView({behavior:'smooth'})</code> 적용</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">구글맵 iframe URL 추출 방법 (huijun·Miku 안내용 · §14 옵션 B 잔존 참고)</div>
+    <ol class="steps">
+      <li>구글맵(google.com/maps)에서 식장 검색</li>
+      <li>식장 카드 → <strong>공유</strong> 버튼</li>
+      <li>탭에서 <strong>"지도 퍼가기"</strong> 선택</li>
+      <li><code>&lt;iframe src="..."&gt;</code> 형식 코드에서 <code>src=""</code> 안의 URL만 추출</li>
+      <li>이 URL을 시트 Z열 venueMapIframe 또는 (옵션 B 잔존시) 부부 정보 양식의 "구글맵" 필드에 붙여넣기</li>
+    </ol>
+
+    <div class="card-title" style="margin-top:1em">디자인별 식장 섹션 스타일 통합</div>
+    <p>8종 마스터 디자인의 톤(<code>--ink</code>, <code>--paper</code>, <code>--accent</code> CSS 변수)을 그대로 상속받아 식장 섹션도 자연스럽게 어우러지도록 함. 별도 색상 하드코딩 X.</p>
+
+    <div class="warn">
+      <strong>⚠️ 직계가족 모드 필수 제거 항목</strong>
+      <ul class="bullet" style="margin-top:0.5em">
+        <li>라이브 페이지 fetch 코드 (getCouple API 호출)</li>
+        <li>실시간 인사말/사진 갱신 JS</li>
+        <li>하객 편지 전송 폼 (직계가족은 불필요)</li>
+        <li>live.html 진입 버튼 / Enter 버튼</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 · 식장 정보 처리 (모드별 분기)</div>
+    <p><strong>라이브 모드 (기존):</strong></p>
+    <ul class="bullet">
+      <li>마스터에 식장 섹션이 없으면 그대로 유지</li>
+      <li>마스터에 식장 섹션이 있으면 그 섹션 통째로 삭제</li>
+      <li>라이브 페이지의 Enter 버튼이 식장 방문을 대체함</li>
+    </ul>
+    <p><strong>직계가족 모드 (신규):</strong></p>
+    <ul class="bullet">
+      <li>식장 정보 섹션 <strong>필수 포함</strong> (규칙 ⑦ 상세 참조)</li>
+      <li>마스터에 식장 섹션이 있으면 정보만 치환</li>
+      <li>마스터에 식장 섹션이 없으면 §14 규칙 ⑦의 표준 식장 섹션 HTML 삽입</li>
+      <li>Enter 버튼은 "오시는 길" 버튼으로 변환 (식장 섹션 스크롤)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 적용 규칙 · 한글 식별자 금지</div>
+    <p>eventId·파일명·URL에 한글 사용 절대 금지. 영문 소문자 + 숫자 + 하이픈만 허용.</p>
+    <ul class="bullet">
+      <li>❌ 잘못된 예: 이-최-0823, lee_choi_0823, Lee-Choi-0823</li>
+      <li>✅ 올바른 예: lmh-cyj-0823, lee-choi-0823</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 완성본 반환 전 자동 검증</div>
+    <p><strong>공통 검증 (모든 모드):</strong></p>
+    <ul class="bullet">
+      <li>✓ <code>?e=test-couple</code> 잔존 검사 (있으면 수정)</li>
+      <li>✓ 이전 부부 이름 (예: 이서준·정하윤) 잔존 검사</li>
+      <li>✓ 이전 날짜 (예: 2026-03-05) 잔존 검사</li>
+      <li>✓ 한글 eventId 사용 여부</li>
+      <li>✓ robots: noindex,nofollow 적용 여부</li>
+      <li>✓ <code>og:image</code> 6종 메타태그 존재 여부 (og:image / width / height / type / twitter:image / twitter:card)</li>
+      <li>✓ OG 이미지 경로가 <code>https://momentedit.kr/og-image.png</code> 인지 (placeholder 금지)</li>
+    </ul>
+    <p><strong>라이브 모드 전용 검증:</strong></p>
+    <ul class="bullet">
+      <li>✓ live.html 경로가 <code>../live.html</code>인지</li>
+      <li>✓ canonical URL이 <code>/i/[eventId].html</code> 형식인지</li>
+    </ul>
+    <p><strong>직계가족 모드 전용 검증:</strong></p>
+    <ul class="bullet">
+      <li>✓ eventId 끝에 <code>-family</code> 접미사 존재</li>
+      <li>✓ canonical URL이 <code>/i-family/[eventId]-family.html</code> 형식</li>
+      <li>✓ <code>live.html</code> 링크가 모두 제거됨 (또는 <code>#venue</code>로 변환)</li>
+      <li>✓ 식장 섹션(<code>.venue-section</code> 또는 <code>#venue</code>) 존재</li>
+      <li>✓ 식장명 / 주소 / 전화 / 약도 / 교통편 / 주차 6개 정보 모두 채워짐</li>
+      <li>✓ 구글맵 iframe src URL 유효 (placeholder 금지)</li>
+      <li>✓ getCouple fetch / 하객 편지 폼 코드 잔존 없음</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI 응답 형식</div>
+<pre>✅ 청첩장 생성 완료 — [신랑]·[신부] 부부
+모드: [라이브 / 직계가족]
+
+수정 내역:
+- 이름: [이전] → [이후]
+- 날짜: [이전] → [이후]
+- eventId: [새 값]
+- 파일명 권장: [eventId].html (라이브) 또는 [eventId]-family.html (직계가족)
+
+검증 통과:
+✓ ?e=test-couple 잔존 없음
+✓ 이전 부부 정보 잔존 없음
+✓ 한글 식별자 미사용
+✓ live.html 경로 정상 (라이브 모드) / 제거 완료 (직계가족 모드)
+✓ noindex 적용
+✓ OG 이미지 6종 메타태그 정상
+✓ 식장 정보 6필드 모두 채워짐 (직계가족 모드만)
+
+---
+
+[완성된 HTML 코드 전체]</pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 15 · AI 작업 규칙 14조항
+     ═══════════════════════════════════════════════ -->
+<section id="s15">
+  <div class="sec-head">
+    <span class="sec-num">Nº 15</span>
+    <h2 class="sec-title">AI 작업 규칙 14조항<span class="ko">Working with AI · 14 Commandments + Sync Protocol</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">필수 준수 사항</div>
+    <ol class="steps">
+      <li><strong>한국어 응답 필수</strong> · 운영자 huijun은 한국어 사용자. 코드와 영문 용어는 그대로 OK.</li>
+      <li><strong>변경 금지 코드 사전 확인</strong> · §13에 명시된 상수들은 절대 임의 변경 X.</li>
+      <li><strong>step-by-step 진행</strong> · 한 번에 1~3단계까지만. 모바일 환경 고려.</li>
+      <li><strong>검증·롤백 가능한 단위로 작업</strong> · 큰 변경은 분할 + 백업 + 검증.</li>
+      <li><strong>코드 작업 시 다운로드 파일 제공</strong> · 채팅창 긴 코드보다 파일이 검수·복붙 안전.</li>
+      <li><strong>외부 시스템 변경 시 안전 우선</strong> · GitHub Push 전 백업, Apps Script 배포 전 보관처리.</li>
+      <li><strong>발견 사항 즉시 기록</strong> · 작업 중 새 발견은 인수인계 메모 또는 본 가이드 업데이트.</li>
+      <li><strong>미사적 표현 자제</strong> · 과장된 이모지·감탄사 X. 담담하고 정확하게.</li>
+      <li><strong>FOUC·로딩 노출 최소화</strong> · opacity 0 → fade-in 등 사용자 경험 우선.</li>
+      <li><strong>부자 만드는 시스템 톤 유지</strong> · "부자를 위해 오늘도 달려보자" — 작업의 의미를 잊지 X.</li>
+      <li><strong>🔄 마스터 파일 세션 동기화 필수 (v4.1)</strong> · 세션 종료 시 또는 huijun 즉시 요청 시점에 본 가이드 파일(<code>01_AI_시스템_마스터.html</code>)의 통합 업데이트 버전을 반환. 각 작업 완료 후 "추가 작업 있어?" 먼저 확인. 매 작업마다 파일 생성 X. 상세 규칙은 아래 <strong>마스터 동기화 프로토콜</strong> 카드 참조.</li>
+      <li><strong>🔐 보안 정보 채팅 노출 금지 (v5.0)</strong> · GitHub PAT(<code>ghp_...</code>), API 키, 비밀번호 등 자격 증명은 채팅·스크린샷에 절대 노출 X. 노출 발견 시 즉시 폐기 + 재발급 + Properties 갱신 안내. 사용자가 실수로 노출했어도 동일하게 처리.</li>
+      <li><strong>🏗️ 가족 청첩장 빌드 시스템 무결성 (v5.0)</strong> · FC_ 네임스페이스의 모든 함수·상수는 통일된 접두사 유지. placeholder 변수명 47종은 Apps Script 변환 함수와 1:1 매핑된 단일 진실의 원천. 마스터 HTML과 Apps Script를 따로 수정하지 X — 짝으로 검증. 변경 시 가상 부부(lmh-cyj-0823)로 먼저 검증.</li>
+      <li><strong>🔗 짝 문서 동기화 의무 (v5.0)</strong> · 본 파일(<code>01_AI_시스템_마스터.html</code>)은 <strong>실무자 매뉴얼(<code>02_실무자_매뉴얼.html</code>)과 짝</strong>으로 동작. 본 파일 변경이 실무 작업 흐름에 영향을 주는 경우, 매뉴얼도 함께 업데이트해야 한다. huijun이 본 파일만 첨부했을 때 변경 사항이 매뉴얼에도 영향을 주면 <strong>"실무자 매뉴얼도 함께 업로드해주세요"</strong> 먼저 안내. 자세한 트리거는 상단 "🔗 짝 문서 동기화 의무" 배너 카드 참조.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 마스터 동기화 프로토콜 (v4.1 개정 · 세션 단위)</div>
+    <p><strong>v4.1부터 마스터 파일 업데이트는 작업 단위가 아닌 세션 단위로 처리한다.</strong> 매 작업마다 새 파일을 생성하지 않음. huijun의 종료 신호 또는 즉시 요청 시점에만 통합 반환.</p>
+
+    <div class="card-title" style="margin-top:1em">신호 패턴 인식</div>
+    <table>
+      <thead><tr><th>신호 종류</th><th>huijun 표현 예시</th><th>AI 동작</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>진행 신호</strong></td>
+          <td>"다음 작업", "추가로", "이거 또 해줘", "그리고", 새 작업 요청 등</td>
+          <td>변경 사항 메모리상 누적, <strong>파일 생성 X</strong></td>
+        </tr>
+        <tr>
+          <td><strong>종료 신호</strong></td>
+          <td>"끝", "마무리", "여기까지", "이거로 됐어", "더 없어", "다 됐다"</td>
+          <td>누적 변경 통합 → <strong>단일 파일 반환</strong></td>
+        </tr>
+        <tr>
+          <td><strong>즉시 요청</strong></td>
+          <td>"지금 파일 줘", "현재 상태 다운로드", "지금까지 정리해서 줘", "최신화"</td>
+          <td>세션 종료 아니어도 <strong>즉시 통합 반환</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card-title" style="margin-top:1em">AI 작업 종료 시 필수 질문</div>
+    <p>각 작업 단위 완료 후 huijun에게 다음 중 하나로 <strong>먼저 확인</strong>한다:</p>
+    <ul class="bullet">
+      <li>"추가 작업 있어?"</li>
+      <li>"이대로 마무리할까?"</li>
+      <li>"더 손볼 부분 있어?"</li>
+    </ul>
+    <p>답변에 따라 누적 또는 통합 반환 분기.</p>
+
+    <div class="card-title" style="margin-top:1em">반환 시 마스터 파일에 반영할 항목 (세션 통합)</div>
+    <ul class="bullet">
+      <li><strong>§18 변경 이력</strong> · 세션 통합 카드 추가 (vN.N · YYYY.MM.DD · 모든 변경 bullet로 누적). 이전 "현재" 태그는 제거.</li>
+      <li><strong>표지(cover)</strong> · <code>cover-meta</code>의 버전 표기 동기화</li>
+      <li><strong>footer</strong> · "AI System Master vN.N" + Compiled 날짜 동기화</li>
+      <li><strong>본문 섹션</strong> · 세션 내 모든 작업 결과 직접 반영</li>
+      <li><strong>새 발견 사항</strong> · 트러블슈팅 사례는 §12에, 새 작업 규칙은 §15에 추가</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">버전 넘버링 규칙</div>
+    <ul class="bullet">
+      <li><strong>minor 증가</strong> (v4.3 → v4.4) · 일반 세션 (신규 기능, 섹션 보강, 정책 변경 등)</li>
+      <li><strong>major 증가</strong> (v4.x → v5.0) · 큰 구조 변경 (섹션 추가/제거, 시스템 아키텍처 변경)</li>
+      <li><strong>patch 증가</strong> (v4.4 → v4.4.1) · 오타·서식·링크 수정 등 사소한 변경만 있는 세션</li>
+      <li>세션 내 여러 변경이 누적되어도 <strong>단일 버전으로 통합</strong> 기록</li>
+    </ul>
+
+    <div class="card-title" style="margin-top:1em">세션 통합 반환 형식</div>
+<pre>✅ 세션 완료 · 통합 반환
+
+[1] 세션 내 수행한 작업 (순차 정리)
+- 작업 1: ...
+- 작업 2: ...
+- 작업 3: ...
+
+[2] 산출물 (있는 경우)
+- 파일: [파일명] (다운로드 링크)
+
+[3] 마스터 파일 동기화 (통합)
+- 파일: 01_AI_시스템_마스터.html (다운로드 링크)
+- 버전: v4.X → v4.X+1 (또는 v5.0 / v4.X.1)
+- §18 통합 카드 반영 내역:
+  · 작업 1 변경 사항
+  · 작업 2 변경 사항
+  · 작업 3 변경 사항
+- 표지 + footer 버전 동기화</pre>
+
+    <div class="warn">
+      <strong>⚠️ v4.0 이전 방식과의 차이</strong>
+      v4.0까지는 매 작업마다 새 가이드 파일을 생성했음. 이로 인해 한 세션에서 v3.2→3.3→3.4→3.5→3.6→4.0 형태로 6개 파일이 생성되는 비효율 발생. v4.1부터는 동일 세션 = 단일 파일 = 단일 버전 증가로 통합.
+    </div>
+
+    <div class="warn">
+      <strong>⚠️ 신호가 애매할 때</strong>
+      huijun의 답변이 진행/종료 어느 쪽인지 명확하지 않을 때 (예: "음...", "잠깐만"), AI는 추측 X. 다시 명확하게 질문 ("계속 진행할까, 아니면 여기까지 정리해서 파일로 줄까?").
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">작업 시 권장 흐름</div>
+    <ol class="steps">
+      <li>현재 상태 파악 (관련 파일 확인 + 이슈 진단)</li>
+      <li>변경 계획 정리 + 영향 분석</li>
+      <li>안전망 확보 (백업, 롤백 경로)</li>
+      <li>최소 단위로 실행</li>
+      <li>각 단계마다 검증</li>
+      <li>문서화 (필요 시 본 가이드 업데이트)</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 16 · 일상 점검 체크리스트
+     ═══════════════════════════════════════════════ -->
+<section id="s16">
+  <div class="sec-head">
+    <span class="sec-num">Nº 16</span>
+    <h2 class="sec-title">일상 점검 체크리스트<span class="ko">Daily · Weekly · Monthly · Yearly</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">매일</div>
+    <ul class="bullet">
+      <li>contact@momentedit.kr 받은편지함 확인 (인콰이어리 응대)</li>
+      <li>Messages 시트 신규 행 확인 (편지 발송 정상 여부)</li>
+      <li>Moderation 시트 확인 (오탐 여부)</li>
+      <li><strong>BuildLogs 시트 확인 (v4.0)</strong> · 가족 청첩장 빌드 결과 OK 여부. ERROR 행 발견 시 즉시 트러블슈팅 진행</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">매주</div>
+    <ul class="bullet">
+      <li>예정된 예식 부부의 라이브 청첩장 URL 점검</li>
+      <li><strong>가족 청첩장 URL도 점검 (v4.0)</strong> · /i-family/ 폴더 누적분 일부 접속 → 구글맵 정상 표시 확인</li>
+      <li>Banned 시트 검토 (필요한 단어 추가)</li>
+      <li>Vercel 배포 상태 확인</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">매달</div>
+    <ul class="bullet">
+      <li>Couples 시트 정리 (지난 예식 부부는 별도 시트 보관)</li>
+      <li>GitHub repository 사이즈 확인 (i/ + i-family/ 폴더 누적)</li>
+      <li>Apps Script 사용량 확인 (Google quota)</li>
+      <li><strong>BuildLogs 시트 정리 (v4.0)</strong> · 누적 1000행 이상 시 오래된 OK 행은 별도 보관 시트로 이동, ERROR 행은 보관</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">매년</div>
+    <ul class="bullet">
+      <li><strong>도메인 갱신:</strong> momentedit.kr (가비아, 만료일 2027.04.20)</li>
+      <li><strong>GitHub PAT 갱신 권장 (v4.0):</strong> No expiration이라도 보안상 1년 1회 재발급. Properties의 GITHUB_TOKEN 갱신 + 연결 테스트</li>
+      <li>Google Workspace 결제 확인</li>
+      <li>시스템 전체 백업 (GitHub Public 외 별도 저장)</li>
+      <li>이 가이드 + 실무자 매뉴얼 v4.0 업데이트 (§18 변경 이력 · <strong>짝 문서 모두</strong>)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 17 · 자주 쓸 링크
+     ═══════════════════════════════════════════════ -->
+<section id="s17">
+  <div class="sec-head">
+    <span class="sec-num">Nº 17</span>
+    <h2 class="sec-title">자주 쓸 링크<span class="ko">Quick Access</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">운영 사이트</div>
+    <dl class="kv-list">
+      <dt>메인</dt><dd>https://momentedit.kr</dd>
+      <dt>인콰이어리</dt><dd>https://momentedit.kr/inquiry.html</dd>
+      <dt>청첩장 갤러리</dt><dd>https://momentedit.kr/invitation-gallery.html</dd>
+      <dt>라이브 페이지</dt><dd>https://momentedit.kr/live.html <span class="small">(직접 접속 = 프리뷰)</span></dd>
+      <dt>개인정보처리방침</dt><dd>https://momentedit.kr/privacy.html</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">관리 도구</div>
+    <dl class="kv-list">
+      <dt>GitHub</dt><dd>github.com/gtrddrt7706-cpu/momentedit-site</dd>
+      <dt>Vercel</dt><dd>vercel.com → momentedit-site 프로젝트</dd>
+      <dt>가비아</dt><dd>my.gabia.com (도메인 관리)</dd>
+      <dt>Formspree</dt><dd>formspree.io (인콰이어리 대시보드)</dd>
+      <dt>Google Workspace</dt><dd>admin.google.com (contact@ 메일 관리)</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">시트 & 스크립트</div>
+    <dl class="kv-list">
+      <dt>Couples 시트</dt><dd>huijun Drive → "Moment Edit · Letter System"</dd>
+      <dt>Apps Script</dt><dd>위 시트 → 확장 프로그램 → Apps Script</dd>
+      <dt>Webhook URL (편지)</dt><dd>script.google.com/.../AKfycbwWuUVCgRRclss.../exec</dd>
+      <dt>가족 빌드 진입 <span class="tag new">v4.0</span></dt><dd>시트 메뉴 → Moment Edit → 가족 청첩장 빌드 (선택한 행)</dd>
+      <dt>BuildLogs <span class="tag new">v4.0</span></dt><dd>같은 시트의 BuildLogs 탭 (빌드 결과 자동 기록)</dd>
+      <dt>GitHub PAT <span class="tag new">v4.0</span></dt><dd>github.com/settings/tokens (classic · repo 권한)</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <div class="card-title">로컬 작업 폴더 (huijun PC)</div>
+<pre>GitHub 로컬:
+C:\Users\gtrdd\Documents\GitHub\momentedit-site\
+
+라이브 마스터 (8종):
+같은 폴더의 invitation-01~08.html
+
+가족 마스터 (8종 · v4.0):
+같은 폴더의 i-family-masters\ 서브폴더 안 invitation-XX-family.html
+
+라이브 청첩장 (자동 생성):
+같은 폴더의 i\ 서브폴더 안 [eventId].html
+
+가족 청첩장 (자동 생성 · v4.0):
+같은 폴더의 i-family\ 서브폴더 안 [eventId].html
+
+백업 파일:
+같은 폴더의 live_v[버전]_backup_YYYYMMDD.html</pre>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--seal)">
+    <div class="card-title">운영 가이드 문서 (v5.0 / v4.0 짝 동작) <span class="tag new">v5.0</span></div>
+    <dl class="kv-list">
+      <dt>본 파일</dt><dd><code>01_AI_시스템_마스터.html</code> · <strong>v5.0</strong> (AI 컨텍스트 종합 · 시스템 전체)</dd>
+      <dt>짝 문서 <span class="tag new">동기화 필수</span></dt><dd><code>02_실무자_매뉴얼.html</code> · <strong>v4.0</strong> (huijun·Miku 일일 작업 단계별 가이드)</dd>
+      <dt>키워드 시스템</dt><dd><code>04_브랜드_키워드_시스템_v2.2.html</code> · Tier 1~4 + 회피 키워드 + 페이지별 키워드 배치</dd>
+    </dl>
+    <p class="small" style="margin-top:8px;color:var(--seal);font-style:italic">⚠️ <strong>본 파일(시스템 마스터)과 실무자 매뉴얼은 짝으로 동기화되어야 한다.</strong> 시스템 마스터 변경이 실무 작업 흐름에 영향을 주는 경우, 매뉴얼도 함께 업데이트 필수. AI가 본 파일만 받았을 경우 짝 문서도 함께 업로드 요청해야 함. 자세한 내용은 본 문서 상단 "🔗 짝 문서 동기화 의무" 카드 참조.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 18 · 시스템 변경 이력
+     ═══════════════════════════════════════════════ -->
+<section id="s18">
+  <div class="sec-head">
+    <span class="sec-num">Nº 18</span>
+    <h2 class="sec-title">시스템 변경 이력<span class="ko">Changelog</span></h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="card" style="border:2px solid var(--seal)">
+    <div class="card-title">v5.0 · 2026.05.21 <span class="tag new">현재 · v4.0 옵션 C 구축 완료</span></div>
+    <p><strong>가족 청첩장 자동화 시스템(옵션 C 하이브리드 빌드) 구축 완료 · 운영 시작</strong></p>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[1] 가족 마스터 8종 placeholder 변환 완료 (Phase α)</p>
+    <ul class="bullet">
+      <li><strong>placeholder 47종 정의</strong> — 부부 기본(이름·계좌·부모) 10종 · 영문 이름 4종 변형(UPPER/proper/spaced/full) · 날짜 8종 형식 · 요일/시간 5종 · 캘린더 셀 자동 생성 1종 · 식장 정보 7종 · 메타 1종</li>
+      <li><strong>OPTIONAL 마커 시스템</strong> — 부모 정보 비어있을 경우 자동 영역 삭제. <code>&lt;!-- OPTIONAL:groomParents --&gt;</code> ~ <code>&lt;!-- /OPTIONAL:groomParents --&gt;</code> 패턴</li>
+      <li><strong>디자인별 영문 이름 변형 4종</strong> — 01 Classic은 대문자(MINHO), 02/07은 첫글자(Minho), 04/06/08은 풀네임(Lee Minho), 05는 띄어쓰기(Min Ho). Apps Script가 시트의 단일 입력값으로 디자인별 변환</li>
+      <li><strong>04 Vermilion 신규 placeholder 4종</strong> — Father/Mother 분리 표시(GROOM_FATHER/GROOM_MOTHER/BRIDE_FATHER/BRIDE_MOTHER). 다른 디자인은 단일 GROOM_PARENTS 형식</li>
+      <li><strong>파일명 정리</strong> — preview- 접두사 → invitation- 통일 · 04 Vermilion → vermilion 소문자화 (가족 마스터)</li>
+      <li><strong>총 16개 마스터 파일</strong> — 라이브 8종(기존) + 가족 8종(신규). 모든 더미 데이터 잔존 0건 검증 완료</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[2] Couples 시트 컬럼 확장 (Phase β)</p>
+    <ul class="bullet">
+      <li><strong>R~Z 9컬럼 추가</strong> — familyActive · familyDesign · venueNameKo · venueNameEn · venueAddress · venueTel · venueTransport · venueParking · venueMapIframe</li>
+      <li><strong>BuildLogs 시트 신설</strong> — 6열 (timestamp · eventId · design · status · url · error). FC_logBuild 함수가 빌드마다 자동 기록</li>
+      <li><strong>2단 헤더 유지</strong> — row 1 = 한글 라벨(사람용), row 2 = 영문 헤더(코드용). 기존 A~Q 17열과 동일 패턴</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[3] GitHub PAT + Apps Script Properties (Phase γ)</p>
+    <ul class="bullet">
+      <li><strong>Personal Access Token (classic) 발급</strong> — repo 권한 전체 · 만료 없음. 토큰 노출 시 즉시 폐기 + 재발급 프로토콜 확립</li>
+      <li><strong>Properties 4종 등록</strong> — GITHUB_TOKEN · GITHUB_OWNER (gtrddrt7706-cpu) · GITHUB_REPO (momentedit-site) · GITHUB_BRANCH (main)</li>
+      <li><strong>연결 테스트 함수</strong> — FC_testGithubConnection · 메뉴에서 1클릭 검증 가능</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[4] Apps Script 가족청첩장빌드.gs (Phase δ)</p>
+    <ul class="bullet">
+      <li><strong>FC_ 네임스페이스 도입</strong> — 기존 Code.gs와의 식별자 충돌 회피. SHEET_COUPLES 같은 동일 이름 상수가 양쪽에 존재해도 충돌 X (FC_SHEET_COUPLES vs SHEET_COUPLES)</li>
+      <li><strong>onOpen 통합 방식</strong> — Code.gs 맨 아래에 <code>function onOpen() { FC_addFamilyMenu(); }</code> 한 줄 추가. 시트 새로고침 시 자동 메뉴 등록</li>
+      <li><strong>FC_transformPlaceholders 함수</strong> — 642줄 코드 중 핵심. 시트 데이터를 47종 placeholder로 매핑. 영문 이름 4종 변형 자동 생성, 날짜 8종 형식 자동 생성, 디자인별 캘린더 셀 HTML 자동 생성</li>
+      <li><strong>FC_pushToGithub 함수</strong> — GitHub Contents API 사용. 기존 파일 있으면 sha 조회 후 덮어쓰기, 없으면 신규 생성. UTF-8 인코딩 강제</li>
+      <li><strong>FC_validateRequiredFields 함수</strong> — 빌드 전 필수 필드 검증. 누락 시 명확한 오류 메시지 + BuildLogs ERROR 기록</li>
+      <li><strong>메뉴 항목 4개</strong> — 가족 청첩장 빌드(선택한 행) · 가족 청첩장 빌드(eventId 입력) · 전체 활성 부부 빌드 · 연결 테스트 (GitHub)</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[5] 첫 시뮬레이션 빌드 검증 (Phase ε)</p>
+    <ul class="bullet">
+      <li><strong>가상 부부 lmh-cyj-0823 (이민호·최유진)</strong> — 01 Classic 디자인. 첫 시도 디자인 코드 "1" 오류 → S열 텍스트 형식 수정 → 재시도 성공</li>
+      <li><strong>빌드 결과</strong> — i-family/lmh-cyj-0823.html 자동 생성 · Vercel 자동 배포 · URL 정상 접속 확인</li>
+      <li><strong>BuildLogs 동작 확인</strong> — ERROR 행 1건 + OK 행 1건 자동 기록. 디버깅 용이성 검증</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[6] 사용 중 발견된 이슈와 수정</p>
+    <ul class="bullet">
+      <li><strong>전화번호 위치 문제</strong> — venue-tel 클래스가 모바일에서 주소 박스 좌측에 비정상 배치. 사용자 요청에 따라 전화번호 완전 제거. 가족 청첩장은 직계가족 대상이라 식장 전화 표시 불필요 판단</li>
+      <li><strong>지도 시스템 변경 (카카오 → 네이버 → 구글맵)</strong> — 초기 카카오 정적 지도 → 사용자 요청에 따라 네이버지도 iframe → 네이버 iframe이 카카오톡 인앱에서 안 보일 가능성 + 만료 가능성 우려로 구글맵 iframe으로 최종 변경. 카카오톡 공유 환경에서 안정성 우선</li>
+      <li><strong>지도 클릭 인터랙션</strong> — 별도 길찾기 버튼 박스 제거. 지도 좌상단에 작은 "지도에서 열기 ↗" 라벨로 통합. 더 깔끔한 모바일 UX</li>
+      <li><strong>placeholder 47종 → 마스터에서 venueTel 제거</strong> — 8개 마스터 모두 venue-tel HTML + CSS 제거. Apps Script에서도 필수 필드 검증에서 제외 + VENUE_TEL 치환 라인 제거</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[7] 운영 시간 단축 효과</p>
+    <ul class="bullet">
+      <li><strong>이전 (옵션 B)</strong> — 부부당 가족 청첩장 생성 10~15분 (시트 + AI 채팅 + 마스터 첨부 + 완성 HTML 수령 + GitHub push)</li>
+      <li><strong>현재 (옵션 C)</strong> — 부부당 가족 청첩장 생성 약 2분 (시트 R~Z 입력 + 메뉴 클릭 1회)</li>
+      <li><strong>확장성</strong> — 부부 수 증가해도 huijun 작업 시간 일정. 시뮬레이션상 100쌍/년 처리해도 1시간 작업량 미만</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[8] 짝 문서 동기화 시스템 도입 (v5.0)</p>
+    <ul class="bullet">
+      <li><strong>본 시스템 마스터 + 실무자 매뉴얼 = 짝 문서로 정의</strong> — 두 문서가 서로의 존재를 인지하고, 한쪽 변경이 다른 쪽에 영향을 주면 함께 업데이트되도록 시스템화</li>
+      <li><strong>AI 배너에 "🔗 짝 문서 동기화 의무" 카드 신설</strong> — 두 파일 모두 상단에 위치. 짝 문서 식별, 동기화 트리거, 짝 문서 누락 시 AI 안내 멘트 명시</li>
+      <li><strong>AI 작업 규칙 13조항 → 14조항으로 확장</strong> — 14번째 조항 "짝 문서 동기화 의무" 추가. 본 파일만 받았을 때 AI가 자동으로 매뉴얼 첨부 요청하도록 명문화</li>
+      <li><strong>버전 매핑</strong> — 시스템 마스터 v5.0 ↔ 실무자 매뉴얼 v4.0이 짝. 향후 한쪽만 업데이트되면 버전 mismatch 알림</li>
+      <li><strong>§17 자주 쓸 링크의 가이드 문서 카드 갱신</strong> — 짝 문서 명시 + 동기화 필수 안내</li>
+    </ul>
+
+    <p class="small" style="margin-top:10px;color:var(--seal);font-style:italic"><strong>📝 v5.0 핵심 학습:</strong></p>
+    <ul class="bullet" style="margin-top:4px">
+      <li><strong>"placeholder 마스터 명명 규칙은 단일 진실의 원천이 되어야 한다"</strong> — 47종 placeholder 변수명을 한 번 정하면 8개 디자인 모두 통일. 변수명 일관성이 Apps Script 변환 함수의 단순성을 보장. 디자인별 차이는 변수 값에서 (영문 표기 형식 등), 변수명에서가 아니라</li>
+      <li><strong>"Apps Script 네임스페이스는 접두사로 안전하게"</strong> — 기존 Code.gs가 있는 프로젝트에 새 기능 추가할 때, FC_ 같은 명확한 접두사로 충돌 회피. <code>function</code>·<code>const</code>·<code>let</code> 모두에 적용. Apps Script는 모든 .gs를 전역 네임스페이스로 합치므로 같은 이름 두 번 선언 = SyntaxError</li>
+      <li><strong>"디자인 코드 입력은 텍스트 강제 필수"</strong> — 구글시트의 숫자 자동 변환 함정. 처음 사용자가 마주칠 "잘못된 디자인 코드 1" 오류는 명확한 해결책(작은따옴표 또는 서식 변경)을 트러블슈팅에 명시</li>
+      <li><strong>"지도 시스템은 모바일 안정성이 최우선"</strong> — 한국 시장 직관으로는 네이버지도가 자연스럽지만, 카카오톡 인앱 브라우저(청첩장 주 전달 채널)에서의 호환성을 고려하면 구글맵이 안정적. 사용자 본능보다 환경 제약이 우선되어야 하는 케이스</li>
+      <li><strong>"전화번호는 가족 청첩장에 불필요"</strong> — 가족 청첩장 = 직계가족 대상이라 식장 대표전화 호출은 발생하지 않음. 정보 풍부보다 절제가 부티크 톤에 맞음. 모바일에서 잘못된 레이아웃 발생하는 요소는 제거가 정답</li>
+      <li><strong>"새 기능은 시뮬레이션 부부로 먼저 검증"</strong> — lmh-cyj-0823 가상 부부로 빌드 → 오류 발견 → 수정 → 재빌드 사이클. 실제 운영 부부에게 적용하기 전 모든 엣지 케이스 점검</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v4.4 · 2026.05.21</div>
+    <p><strong>모바일 NAV 정돈 · Hero 강화 · 푸터 4줄 재배열 · NAV 로고 클릭 시 hero 재등장 · 셀렉션·이미지 페이드인 · 폼 underline·청첩장 호버 · 모바일 메뉴 스으윽·탭 ripple</strong> <em style="color:var(--light);font-size:11px">(푸터 재설계·CTA 광택은 시도 후 롤백, 나머지는 미세 조정으로 정착)</em></p>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[1] 모바일 NAV 미세 조정 시리즈</p>
+    <ul class="bullet">
+      <li><strong>NAV 두께 단계적 축소</strong> — <code>.nav-in</code> padding 모바일 5px→10px→7px→5px→<strong>3px</strong> 20px (최종). 위·아래 균형 유지. 총 NAV 영역 추정 높이: 43.5px → <strong>29.5px</strong> (32% 얇아짐)</li>
+      <li><strong>로고 사이즈·위치</strong> — <code>.nav-logo</code> 모바일 height 22px → <strong>23.5px</strong> (사용자 선호). <code>transform:translateY(0px)</code> → <strong><code>1px</code></strong> (살짝 내림으로 시각 정렬)</li>
+      <li><strong>메뉴 라벨 색·위치</strong> — <code>.nav-toggle</code> + <code>.nav-toggle-label</code> 색상 <code>var(--light)</code> → <code>rgba(117,112,95,0.65)</code> → 최종 <strong><code>rgba(117,112,95,0.82)</code></strong> (절반 정도 진하게). <code>.nav-toggle</code> transform 3px→2px→<strong>1px</strong> (1px 위로)</li>
+      <li><strong>NAV 배경 더 투명하게</strong> — <code>nav</code> background <code>rgba(250,250,248,0.72)</code> → <strong><code>0.55</code></strong> (blur 효과는 유지). 페이지 컨텐츠가 더 자연스럽게 비침</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[2] Hero 영역 위계 강화 + 재등장 애니메이션</p>
+    <ul class="bullet">
+      <li><strong>"PRIVATE WEDDING STUDIO" 색 강화</strong> — <code>.hero-logo-eyebrow</code> 색상 <code>var(--light)</code> → <code>var(--sub)</code> → <code>var(--accent)</code> → 최종 <strong><code>#1C140C</code></strong> (거의 검정에 가까운 다크 브라운) + <code>font-weight:400→500</code>. 작은 글자(clamp 9~11px) + 넓은 자간(0.38em)이라 색을 진하게 안 하면 가독성 ↓</li>
+      <li><strong>양가 직계가족 카피 자간</strong> — 0.02em → 0.06em 벌렸다가 → <strong>0.02em 복원</strong> (벌릴수록 부자연스러움. 한글은 정사각형 em-box라 양수 자간 과하면 글자가 분리되어 보임. 사이트 본문 통일 표준 = 0)</li>
+      <li><strong>NAV 로고 클릭 시 hero 재등장 애니메이션 ⭐</strong> — JS 함수 <code>replayHeroAnimation()</code> 추가. <code>onclick="event.preventDefault();replayHeroAnimation();"</code>. 핵심 기법: 모든 hero 요소를 일제히 <code>opacity:0 + animation:none</code>로 리셋 → <code>requestAnimationFrame</code> 2번 후 원래값 복원 (브라우저가 새 frame에서 새 애니메이션으로 인식). 대상: <code>.hero-logo · .hero-logo-seal · .hero-sub · .hero-sub-seal · .hero-scroll · .hero-scroll-line · .hero p[style*="heroFade"]</code></li>
+      <li><strong>inline animation 보존 트릭</strong> — <code>.hero</code> 안의 <code>&lt;p style="...animation:heroFade..."&gt;</code>는 CSS 클래스가 아닌 inline에 애니메이션이 있어서, JS에서 <code>style.animation=''</code>로 비우면 원래값 잃어버림. 백업/복원 로직으로 해결: <code>backups.push({el, inlineAnim, inlineOpacity, inlineTransform})</code> 후 RAF 2번 후 복원</li>
+      <li><strong>"Scroll" 아래 세로선 잉크 효과 ⭐</strong> — 기존 정적 그라데이션 → ① 1.8s 후 <code>scaleY(0)→scaleY(1)</code>로 한 번 그려짐 (<code>heroScrollDraw</code>) ② 3.4s 후 골드 광점이 위→아래로 2번만 떨어짐 (<code>heroScrollDrop</code>, <code>animation-iteration-count:2</code>) ③ 광점은 세로선 ¾지점(36px)에서 자연스럽게 페이드아웃 (어색하게 라인 밖으로 안 나감)</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[3] 푸터 — 시도·롤백·재정착의 4줄 구조</p>
+    <ul class="bullet">
+      <li style="color:var(--seal)"><strong>⏎ 옵션 C(시그니처 컴팩트) 시도 후 롤백</strong> — 4페이지 통합 + live 푸터 제거 + 다크 로고 + CONTACT/STUDIO 라벨. 실제 렌더링 결과 ① 다크 로고가 푸터 배경(#1A1714)과 톤 충돌로 "검은 사각형 테두리" 인상 ② 라벨 가운데 정렬 어색 ③ 블록 간 여백 과도 ④ 부티크 톤과 부조화. 백업본으로 완전 롤백</li>
+      <li><strong>푸터 재설계 보류 학습</strong> — Apple ac-gf 패턴은 정보량 많은 글로벌 브랜드용. Moment Edit엔 단순 한 줄 구조가 톤에 더 맞음. 향후 푸터 변경 시 ① 구조 변경보다 시각적 정돈 우선 ② 로고 변경 시 투명 배경 PNG 필수 ③ 정보 위계 평평한 상태가 부티크에선 적절할 수 있음</li>
+      <li><strong>롤백 후 사후 정돈</strong> — ① 푸터 주소 "(정확한 주소는 본 계약 후 안내)" 부속 카피 <strong>제거</strong> ② inquiry·privacy 푸터 SVG 로고 → index와 동일한 base64 PNG <strong>통일</strong> ③ privacy 한자 인장(本) <strong>제거</strong> ④ inquiry.html <code>.f-footer-logo</code> CSS에 <code>height:auto</code> 누락되어 로고 세로 늘어짐 → <strong>index와 동일한 CSS로 통일</strong> (사용자 솔직 피드백 "로고가 세로로 늘어났잖아"로 발견)</li>
+      <li><strong>최종 푸터 4줄 구조 (3개 파일 동일)</strong> — <code>contact@momentedit.kr</code> / <code>상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796</code> / <code>경기 고양시 덕양구 향동동 | 개인정보처리방침</code> / <code>© 2026 Moment Edit. All rights reserved.</code></li>
+      <li><strong>푸터 색 위계</strong> — 이메일·사업자·주소 = <code>rgba(255,255,255,0.32)</code> (동일 톤). 「개인정보처리방침」만 <strong><code>rgba(255,255,255,0.5)</code></strong> (살짝 밝게, 링크임을 시각적 신호). 카피라이트 = <code>rgba(255,255,255,0.22)</code> (한 단계 더 옅음). 구분자 <code>|</code> 세로선 = <code>rgba(255,255,255,0.22)</code></li>
+      <li><strong>이메일 mailto 링크 부수효과</strong> — 작업 중 <code>&lt;a href="mailto:contact@momentedit.kr"&gt;</code>로 감싸짐. 클릭 시 메일 앱 자동 실행 (UX 보너스)</li>
+      <li><strong>카피라이트 위 간격</strong> — <code>margin-top:10px → 14px</code> (의무 정보와 본 정보 시각적 분리)</li>
+      <li><strong>privacy.html 자기참조 해결</strong> — 자기 페이지에 자기 「개인정보처리방침」 링크는 어색 → privacy 푸터에서 해당 링크 + 구분자 <strong>삭제</strong> (3번째 줄 "경기 고양시 덕양구 향동동"만 남음)</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[4] 인스타그램 영역 — 절제된 부티크 톤으로</p>
+    <ul class="bullet">
+      <li><strong>채널 블록 텍스트 전용 모드</strong> — 컬러풀한 Instagram 그라데이션 PNG 아이콘 <strong>제거</strong>, <code>@moment_edit_official</code> 핸들만 중앙정렬 노출. 새 클래스 <code>.channel-block-link--text-only</code> 신설</li>
+      <li><strong>호버 효과</strong> — 마우스 올리면 핸들이 골드색(<code>var(--gold)</code>)으로 변하고, 아래에 <code>::before</code> 골드 라인이 <code>scaleX(0.3)→scaleX(1)</code>로 양옆으로 펼쳐짐. 사이트의 <code>.card·.sec-title-link</code> 호버 패턴과 일관성</li>
+      <li><strong>이유</strong> — Instagram 브랜드 컬러(핑크-오렌지)가 사이트의 절제된 톤(웜 베이지·세리프)과 부딪힘. 텍스트로 가면 부티크 분위기 유지. 인지 속도는 살짝 느려지지만 (★4/5) 사이트 톤 일치 측면(★5/5)에서 우위</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[5] 잔여 추천 작업 — 셀렉션·이미지 페이드인</p>
+    <ul class="bullet">
+      <li><strong>텍스트 셀렉션 색 커스텀 ⭐</strong> — 5개 파일 모두 <code>::selection</code> + <code>::-moz-selection</code> 추가. <code>background:rgba(107,42,36,0.18)</code> (씰 빨간 톤 18%) + <code>color:var(--accent)</code>. 기본 파란색(macOS #B5D5FF / Windows #338FFF)이 사이트 톤과 부조화. 사용자가 가격/주소/이메일 드래그해서 복사할 때 부티크 톤 유지</li>
+      <li><strong>이미지 페이드인 인프라 ⭐</strong> — 24개 이미지 부드러운 등장. CSS: <code>.ph-img · .archive-grid-cell img</code>에 <code>opacity:0 + transition:opacity 0.7s var(--ease-essence)</code> + <code>.loaded</code> 클래스 토글. JS: <code>img.complete && naturalWidth>0</code> 즉시 처리(캐시) + <code>load/error</code> 이벤트 리스너(새로 로드). picsum 더미라 현재 효과는 약하지만 <strong>Phase 3 실제 사진 교체 후 자동 적용</strong>. <code>onerror</code> 숨김 처리와 충돌 안 함</li>
+      <li style="color:var(--light)"><strong>건너뜀 (불필요 판단)</strong> — ① 스크롤바 스타일: macOS·iOS 기본값이 이미 미니멀, 모바일 위주 트래픽엔 불필요 ② 링크 <code>text-underline-offset</code>: 사이트가 이미 <code>text-decoration:none</code> + <code>::after</code> 의사 요소로 처리 중, <code>underline</code> 자체를 안 써서 적용 대상 0개</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[6] 디테일 인터랙션 — 폼·NAV·청첩장 미리보기</p>
+    <ul class="bullet">
+      <li><strong>Input 포커스 골드 underline ⭐</strong> — inquiry.html <code>.field::after</code> 추가. <code>width:0 → 100%</code>로 좌→우 0.45s 펼쳐짐 (<code>:focus-within</code> 트리거). 1.5px 골드 라인. 기존 <code>border-bottom-color:var(--accent)</code>는 유지하고 그 아래로 골드 라인이 부드럽게 추가됨. 핵심 폼 UX 강화</li>
+      <li><strong>NAV 메뉴 호버 underline ⭐</strong> — index.html만 적용 (다른 파일은 NAV 구조 다름). <code>.nav-links a::after</code> 골드 라인 <code>scaleX(0)→scaleX(1)</code> 가운데에서 양옆 펼쳐짐 0.4s. 글자 색도 <code>var(--sub)→var(--gold)</code>. <code>position:relative + padding-bottom:4px</code>로 라인 자리 확보</li>
+      <li style="color:var(--seal)"><strong>⏎ CTA 광택 효과 시도 후 제거</strong> — <code>.cta-btn::before</code>로 좌→우 흰색 그라데이션 광택 추가 시도. 사용자 피드백 "짜쳐"로 즉시 <strong>롤백</strong>. 학습: 빨간 인장(<code>--seal</code>) 단색 버튼에 흰색 광택은 너무 통상적인 SaaS 느낌. 부티크엔 안 어울림</li>
+      <li><strong>청첩장 미리보기 호버 효과 ⭐ (셀렉터 디버깅 포함)</strong> — 처음에 <code>.preview-link:hover</code>에 효과 추가했으나 <strong>적용 안 됨</strong>. 디버깅 결과: 실제 카드는 <code>class="preview-link"</code>가 아니라 <code>.preview-link-wrap</code> 부모 안의 <code>&lt;a&gt;</code> 태그 (클래스 없음, 모든 스타일 inline). 정확한 셀렉터로 수정: <code>.preview-link-wrap a:hover</code> 사용 + <code>!important</code>로 inline style 오버라이드. 효과: ① <code>translateY(-2px)</code> 떠오름 ② <code>box-shadow:0 10px 28px rgba(107,42,36,0.12)</code> 빨간 인장 글로우 ③ 배경 6%→10% 진해짐 ④ 화살표 <code>↗</code> 2px→3px 우상향. 카드가 이미 seal 톤이라 골드 대신 seal 톤으로 글로우 색상 통일</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--accent);font-weight:600">[7] 모바일 메뉴 부드러움 + 탭 피드백 보강</p>
+    <ul class="bullet">
+      <li><strong>메뉴 항목 등장 부드럽게 ⭐</strong> — 사용자 피드백 "글짜가 너무 뚝뚝하면서 나타남, 좀더 스으윽". 조정: ① 시작점 <code>translateY(12px)→20px</code> (더 멀리서 떠오름) ② duration <code>0.55s→0.85s</code> (54% 느긋) ③ easing <code>var(--ease)→var(--ease-essence)</code> (Apple식 자연 감속 곡선 <code>cubic-bezier(0.16,1,0.3,1)</code>) ④ 항목 간 delay 간격 <code>0.05s→0.08s</code> (여유). eyebrow도 <code>0.5s→0.75s ease-essence</code>로 통일. 마지막 7번 도착: 0.99s → 1.49s (느긋한 활공감)</li>
+      <li><strong>햄버거 "menu" 탭 효과 ⭐</strong> — <code>.nav-toggle:active .nav-toggle-label</code>에 추가: 색 <code>var(--gold)</code> + <code>letter-spacing:0.12em→0.18em</code> (벌어짐) + <code>transform:scale(0.96)</code> (눌림 느낌). 모바일 사용자가 "내가 눌렀다" 즉각 인지. 메뉴 열리기 전 시각 피드백</li>
+      <li><strong>Close 버튼 잔상 효과</strong> — <code>.mm-close-label</code> + <code>.mm-close-x>span</code>의 transition <code>0.3s→0.65s</code>로 늘림. 모바일은 :active가 짧아 인지 어려움 → 빨간 인장 색이 0.65초 동안 천천히 원래 색으로 돌아오는 잔상 효과. 시각 흔적 남김</li>
+      <li><strong>CTA 클릭 ripple 효과 ⭐</strong> — <code>.cta-btn::after</code>로 가운데에 8px 흰색 원 숨김 (<code>scale(0)</code>). <code>:active</code> 시 <code>ctaRipple 0.6s ease-out</code>로 <code>scale(40)+opacity 0.5→0</code>. Material Design 톤 ripple이지만 흰색 0.4 alpha라 절제됨. 모바일에서 "예약 문의하기" 탭 시 빵! 하고 퍼지면서 "성공적으로 눌렸다" 명확한 신호 (이전 광택 롤백 후 대체 효과)</li>
+    </ul>
+
+    <p class="small" style="margin-top:10px;color:var(--seal);font-style:italic"><strong>⚠️ 광고 ON 전 잔여 placeholder (v4.2부터 이월):</strong></p>
+    <ul class="bullet" style="margin-top:4px">
+      <li><strong>인스타그램 계정</strong> — <code>moment_edit_official</code> 핸들은 본문(채널 블록)에 텍스트로 노출 중. 계정 개설 후 실제 활성화 확인</li>
+      <li><strong>카카오톡 채널 URL</strong> — index.html 라인 ~1096 placeholder 그대로</li>
+      <li><strong>picsum.photos 17개</strong> — Phase 3 스타일드 슛 후 일괄 교체 (현재 페이드인 인프라는 깔려있어서 교체 즉시 효과 적용)</li>
+      <li><strong>통신판매업 신고증</strong> — 필요 시</li>
+    </ul>
+
+    <p class="small" style="margin-top:14px;color:var(--light);font-style:italic"><strong>📝 이 세션의 핵심 학습:</strong></p>
+    <ul class="bullet" style="margin-top:4px">
+      <li><strong>"코드만 보고 디자인 판단은 한계가 있다"</strong> — Claude는 base64 이미지를 렌더링해 볼 수 없음. inquiry.html 로고 세로 늘어남, 푸터 다크 로고의 검은 사각형 인상 등은 사용자 화면 피드백 없이는 못 잡았을 문제</li>
+      <li><strong>"위계 역전 주의"</strong> — PRIVATE WEDDING STUDIO를 메인 로고보다 더 진하게(#1C140C) 만들면서 색상 위계가 미세하게 역전됨. 그러나 작은 글자+넓은 자간 보정 차원에서 의도적 허용</li>
+      <li><strong>"CSS 애니메이션 재실행은 RAF 2번이 안전"</strong> — <code>void el.offsetWidth</code>만으로는 inline animation 요소의 재실행이 보장 안 됨. <code>requestAnimationFrame</code> 두 번 호출 후 복원해야 박자 안정</li>
+      <li><strong>"부티크 사이트는 빼는 게 더 나을 때가 많다"</strong> — 인스타 아이콘 제거, 푸터 부속 카피 제거, CTA 광택 롤백 등. 정보·인터랙션 풍부함보다 절제가 톤에 맞음</li>
+      <li><strong>"클래스 이름과 실제 적용 셀렉터 일치 확인 필수"</strong> — 청첩장 미리보기 호버 효과가 처음에 적용 안 된 이유: <code>.preview-link</code> 클래스는 CSS에 정의돼 있지만 실제 HTML은 <code>.preview-link-wrap</code> 안 inline-style <code>&lt;a&gt;</code>. CSS 작업 전 HTML 구조 먼저 grep으로 검증 → 셀렉터 일치 확인 → 그 다음 스타일 작성</li>
+      <li><strong>"광택보다 떠오름이 부티크에 맞다"</strong> — CTA 광택 롤백 + 청첩장 미리보기 카드 떠오름 효과 채택. 광택(shine)은 SaaS·통상 UI 톤, 떠오름(elevation)은 명품 카드·미술관 톤</li>
+      <li><strong>"애니메이션 부드러움 = duration + distance + easing 조합"</strong> — 모바일 메뉴 항목 등장이 뚝뚝하던 이유: 가까운 거리(12px)를 짧은 시간(0.55s)에 직선적 easing으로. 해결: 멀리(20px) + 느긋(0.85s) + Apple식 자연 감속(<code>cubic-bezier(0.16,1,0.3,1)</code>). 셋 중 하나만 바꾸면 효과 약함, 셋 다 같이 조정해야 "스으윽" 느낌</li>
+      <li><strong>"모바일 :active는 잔상 필수"</strong> — 모바일은 호버가 없고 :active도 매우 짧음 (탭 손가락 떼는 순간 끝). 시각 피드백을 인지하려면 transition 시간을 늘려서 잔상을 남겨야 함 (Close 버튼 0.3s→0.65s). 또는 명확한 ripple 같은 활성 애니메이션 필요 (CTA)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v4.3 · 2026.05.20</div>
+    <p><strong>Apple 디자인 원칙 6개 항목 적용 (디자인 토큰 v2 · 접근성 · 성능)</strong></p>
+    <ul class="bullet">
+      <li><strong>§09 디자인 토큰 v2 카드 신설</strong> — 5개 페이지 :root에 신규 토큰 5개 공통 추가 (<code>--hover-lift:-1px</code> · <code>--tracking-ko:0</code> · <code>--tracking-en:-0.015em</code> · <code>--focus-ring-color</code> · <code>--focus-ring-offset</code>)</li>
+      <li><strong>본문 자간 한·영 분기</strong> — body letter-spacing을 5개 페이지 모두 <strong>0</strong>으로 통일 (이전 -0.005em / -0.01em 혼재). Noto Serif/Sans KR의 정사각형 em-box 특성 고려, 한글에 음수 자간 강제 금지. 영문 헤드라인만 -0.015em 적용 정책 명문화</li>
+      <li><strong>호버 강도 정돈</strong> — index.html의 <code>.card · .feature · .price-block · .journal-card</code> 4개 호버를 <code>translateY(-2~4px)</code> → <code>translateY(var(--hover-lift))</code>로 통일. Apple식 "위치보다 색·밑줄로 호버 표현" 원칙. inquiry submit-btn도 -2px → -1px</li>
+      <li><strong>focus-visible 글로벌 base 추가</strong> — 5개 페이지 모두 <code>:where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px}</code> 추가. 마우스 사용자는 outline 안 보임 / 키보드 사용자만 표시 (WCAG 2.4.7 + 2.4.13 Focus Appearance 충족)</li>
+      <li><strong>prefers-reduced-motion 전역 확장</strong> — index.html 기존 .reveal 한정 → 5개 페이지 모두 <code>*,*::before,*::after</code> 전역으로 확장. animation·transition·scroll-behavior 모두 0.01ms로 차단 (전정장애 사용자 대응)</li>
+      <li><strong>fetchpriority="high" 검증</strong> — index.html hero LCP 이미지에 이미 적용됨 확인. Google Flights 실측 LCP 2.6s→1.9s (27% 단축)</li>
+      <li><strong>color-scheme: light 검증</strong> — 5개 페이지 모두 :root에 명시됨 확인 (OS 다크모드 폼 컨트롤 충돌 방지)</li>
+      <li><strong>02번(CTA Secondary 패턴) 보류</strong> — "더 보기 ›" 텍스트 링크 패턴은 huijun 결정으로 이번 적용 범위 제외. 향후 적용 시 별도 작업으로 진행</li>
+      <li>표지 + footer 버전 표기 동기화 (v4.2 → v4.3)</li>
+    </ul>
+    <p class="small" style="margin-top:10px"><strong>참조:</strong> 본 작업의 임팩트별 15개 항목 원본 분석 보고서 + Apple.com 웹디자인 심층 분석 보고서는 huijun의 별도 채팅 컨텍스트에 보존됨.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v4.2 · 2026.05.18</div>
+    <p><strong>v2.2 사이트 통합 작업 반영 (키워드 시스템·5페이지 통일·NAP 완성)</strong></p>
+    <ul class="bullet">
+      <li><strong>§01 SEO 키워드 v2.2 동기화</strong> — Tier 1 8개 → 5개 압축 (마이크로웨딩 · 프라이빗 웨딩 스튜디오 · 양가 직계가족 결혼식 · 평일 결혼식 · 단독 하우스웨딩)</li>
+      <li><strong>§01 일산 키워드 회피 정책 명시</strong> — SEO 토큰 회피 + Access 평문 이정표만 허용. 가성비 컨벤션홀 검색자 미스매치 데이터 기반 (향동은 행정·생활권 모두 DMC·수색·상암 연장선)</li>
+      <li><strong>§01 "한국 예우·일본 미학" 카피 노출 정책</strong> — About 섹션 디렉터 소개에만 1~2회 노출 제한. Hero·메타·일반 본문 반복 노출 금지 (느끼한 수식어 회피)</li>
+      <li><strong>§08 인콰이어리 시스템 v2.2 적용 카드 신설</strong> — meta keywords "일산스몰웨딩" 제거 · title 작대기→점 통일 · 푸터 NAP 통일 (本 + 사업자정보 + 주소 + privacy 링크)</li>
+      <li><strong>§17 자주 쓸 링크 보강</strong> — privacy.html 추가 + 운영 가이드 문서 카드 신설 (본 마스터 v4.2 + 02 세팅 가이드 v3.2 + 04 키워드 시스템 v2.2 짝 동작 명시)</li>
+      <li><strong>사이트 5페이지 전체 v2.2 적용</strong> — index / inquiry / live / privacy / invitation-gallery 모두 title 작대기(—) → 점(·) 통일, 푸터 NAP 통일 (invitation-gallery는 갤러리 네비게이션 보호 위해 title만)</li>
+      <li><strong>FAQ 17→13개 재편</strong> — 자랑형·걱정 해소형 13개 유지, 사무·운영 5개 카톡 위임. 카톡 위임 카피: "그 외 자세한 안내는 카카오톡 채널에서 1:1로 드립니다." · 02 가이드 v3.2 위임 매핑표 동기화</li>
+      <li><strong>키워드 시스템 v2.1 → v2.2</strong> — 11.7 의사결정 섹션 신규 (일산 정책·FAQ 재편·카톡 위임·sticky 미도입·푸터 NAP·광고 ON 잔여·타 페이지 점검 7개 행)</li>
+      <li><strong>02 세팅 가이드 v3.1 → v3.2</strong> — 카톡 위임 매핑표 추가</li>
+      <li><strong>광고 ON 전 잔여 placeholder 3종 명시</strong> — ① 카톡 채널 URL (index.html 라인 1096) ② 인스타그램 계정 (moment_edit_official) ③ picsum.photos 17개 (Phase 3 스타일드 슛 후 일괄 교체) + 통신판매업 신고증 (필요 시)</li>
+      <li>표지 + footer 버전 표기 동기화 (v4.1 → v4.2)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v4.1 · 2026.05.17</div>
+    <p><strong>마스터 동기화 프로토콜 개정 (작업 단위 → 세션 단위)</strong></p>
+    <ul class="bullet">
+      <li>v4.0까지의 "매 작업마다 새 가이드 파일 생성" 방식이 한 세션에서 6번의 버전 증가(v3.2→3.3→3.4→3.5→3.6→4.0)를 유발하는 비효율 발생 → 세션 단위 통합 반환 방식으로 개정</li>
+      <li>AI 배너 메타-규칙 카드 전면 재작성 — 신호 패턴 (진행/종료/즉시 요청) + AI 동작 분기 명시</li>
+      <li>§15 마스터 동기화 프로토콜 카드 재작성 — 신호 패턴 표 + 작업 종료 시 필수 질문 ("추가 작업 있어?") + 세션 통합 반환 형식 + v4.0 이전 방식과의 차이 명시</li>
+      <li>§15 11번째 작업 규칙 문구를 "세션 동기화"로 수정</li>
+      <li>신호 애매할 때 추측 X 명문화 — AI가 다시 명확히 질문</li>
+      <li>표지 + footer 버전 표기 동기화 (v4.0 → v4.1)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v4.0 · 2026.05.17</div>
+    <p><strong>가족 청첩장 옵션 B → C 전환 (시스템 아키텍처 변경 · major)</strong></p>
+    <ul class="bullet">
+      <li>v3.6 옵션 B(§14 자동 치환) → v4.0 옵션 C(하이브리드 빌드)로 시스템 아키텍처 전환</li>
+      <li>전환 사유: 옵션 B의 부부당 10~15분 수작업 부담 vs 옵션 C의 시트 입력 한 번 + 클릭 1회</li>
+      <li>§04 가족 청첩장 데이터 자동화 카드 전면 재작성 — 옵션 C 채택 이유 4가지 + 시스템 아키텍처 다이어그램 + 구축 단계 Phase α~ζ 명시</li>
+      <li>§05 시트 적용 범위 카드 재작성 — Couples 시트가 디지털·가족 모두의 데이터 소스로 확장, 컬럼 R~Z(9개) 가족카드용 추가 명시</li>
+      <li>구축 자체는 별도 작업 세션에서 진행 (8종 가족 마스터 제작 → 시트 컬럼 확장 → GitHub PAT → Apps Script buildFamilyCard → 검증)</li>
+      <li>구축 완료 전까지 임시 운영 방식: 옵션 B(§14 워크플로우 수동 실행)로 처리</li>
+      <li>major 버전 증가: 가족 청첩장 데이터 아키텍처 자체가 변경 (§15 버전 규칙: 큰 구조 변경 시 major)</li>
+      <li>표지 + footer 버전 표기 동기화 (v3.6 → v4.0)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.6 · 2026.05.17</div>
+    <p><strong>가족 청첩장 데이터 자동화 방식 옵션 B 채택 (시트 무관 · §14 자동 치환)</strong></p>
+    <ul class="bullet">
+      <li>§04에 "가족 청첩장 데이터 자동화 방식 (옵션 B 채택)" 카드 신설 — 검토된 3옵션(A 시트 연동 / B §14 자동 치환 / C 하이브리드) 비교표 + 옵션 B 채택 4가지 이유 + 데이터 흐름 다이어그램 + 계좌 변경 대응 절차 + 향후 옵션 C 전환 트리거</li>
+      <li>§05에 "시트 적용 범위" 카드 신설 — Couples 시트는 디지털 청첩장 전용임을 명시, 가족 청첩장은 시트 무관임을 표로 정리</li>
+      <li>의사결정 흔적 보존: huijun이 명시적 결정으로만 옵션 변경 가능, AI 자체 판단의 시트 연동 추가 제안 금지</li>
+      <li>표지 + footer 버전 표기 동기화 (v3.5 → v3.6)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.5 · 2026.05.17</div>
+    <p><strong>디자인 비종속성 원칙 표현 명확화 + 가족카드 첫 시뮬레이션 실행 완료</strong></p>
+    <ul class="bullet">
+      <li>§14 디자인 비종속성 원칙: 시뮬레이션 금지 문구 → 운영자(huijun)의 검증 목적 디자인 선택 허용으로 표현 명확화 (결과물 고객 발송 X 조건)</li>
+      <li>§14 시뮬레이션 단계 올바른 방식에 "참조 마스터(Reference Master)" 활용 항목 신설 — 디자인 중립 마스터로 §14 호환성 사전 검증</li>
+      <li>§04 운영 워크플로우: 시뮬레이션 단계 임의 선택 금지 → 운영·시뮬레이션 단계 구분 명확화</li>
+      <li>가족카드 첫 시뮬레이션 케이스 실행: kmj-psy-1025-family.html 생성 (디자인 중립 참조 마스터 기반)</li>
+      <li>시뮬레이션 검증 리포트 v1 산출 — §14 ①~⑦ 적용 매트릭스 32/34 통과 (마스터 의존 2건 제외 시 100%)</li>
+      <li>구글 시트 ↔ 가족카드 데이터 분리 검증 완료 (시트 미경유 정상)</li>
+      <li>표지 + footer 버전 표기 동기화 (v3.4 → v3.5)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.4 · 2026.05.17</div>
+    <p><strong>디자인 비종속성 원칙 도입 + 청첩장 운영 워크플로우 시점 분리 명문화</strong></p>
+    <ul class="bullet">
+      <li>§14에 "디자인 비종속성 원칙(Design-Agnostic Principle)" 카드 신설 (진사색 강조) — 디자인 선택 주체는 고객, AI·운영자는 임의 결정 금지 명시</li>
+      <li>§14에 "8종 마스터 호환성 자가 검증 체크리스트" 카드 추가 — CSS 변수 통일·구조적 삽입 지점·메타 통일·디자인별 특수 이슈 표 포함</li>
+      <li>§04에 "청첩장 운영 워크플로우 (시점 분리)" 카드 신설 — 시뮬레이션 단계 vs 실전 운영 단계 명확 구분, 실전 운영 트리거 5단계 명시</li>
+      <li>Phase B 진행 방향 전환: 시범 디자인 1종 선택 → v3.4 시스템 원칙 보강으로 전환 (디자인 종속 위험 사전 차단)</li>
+      <li>v3.3에서 누락된 §15 헤더 코멘트 "10조항" → "11조항" 동기화</li>
+      <li>표지 + footer 버전 표기 동기화 (v3.3 → v3.4)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.3 · 2026.05.17</div>
+    <p><strong>마스터 동기화 프로토콜 도입 + 직계가족 자동화 정식 운영</strong></p>
+    <ul class="bullet">
+      <li>AI 배너 최상단에 "마스터 파일 동기화 의무" 메타-규칙 신설 (절대 규칙)</li>
+      <li>§15 작업 규칙: 10조항 → 11조항으로 확장, 11번째 조항 "마스터 파일 동기화 필수" 추가</li>
+      <li>§15에 "마스터 동기화 프로토콜" 카드 신설 (반영 항목·버전 규칙·반환 형식 예시 명시)</li>
+      <li>버전 넘버링 규칙 공식화: minor(일반 작업) / major(구조 변경) / patch(사소한 수정)</li>
+      <li>§04 직계가족 청첩장: "추후 별도 작업 예정" 문구 제거 → §14 규칙 ⑦로 자동화 완성됨 반영</li>
+      <li>표지 + footer 버전 표기 동기화 (v3.2 → v3.3)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.2 · 2026.05.16</div>
+    <p><strong>라이브 페이지 풀패키지 · 시트 연동 완성</strong></p>
+    <ul class="bullet">
+      <li>Couples 시트 17열 확장 (한글 라벨 + 영문 헤더 2단 구조)</li>
+      <li>Apps Script doGet getCouple 엔드포인트 추가</li>
+      <li>live.html LIVE_CONFIG 제거 → 시트 fetch 기반 동적 로딩</li>
+      <li>FOUC 방지 (body opacity 0 → couple-ready fade-in + 5초 timeout fallback)</li>
+      <li>부모 정보 옵션 (P, Q열) · 비어있으면 hide</li>
+      <li>weddingTime 시간 정규화 (Date 객체 → "14:00" 텍스트)</li>
+      <li>예식 당일 영상 송출 자동화 (시트 N열 입력만)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.1 · 2026.04 <span class="small">(보관처리됨)</span></div>
+    <ul class="bullet">
+      <li>contact@momentedit.kr 별칭 발신자(from) 명시</li>
+      <li>v3.2 배포 후 보관처리 상태 (롤백 가능)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v3.0 · 2026.04</div>
+    <p>금지어 시트 기반 필터 통합</p>
+    <ul class="bullet">
+      <li>Banned 시트 기반 실시간 금지어 필터</li>
+      <li>변형 감지 (띄어쓰기·특수문자·대소문자 우회 차단)</li>
+      <li>정규식 지원 (주민번호 등)</li>
+      <li>Moderation 시트에 차단 기록</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v2.0 · 2026.04 (초기 편지 시스템)</div>
+    <ul class="bullet">
+      <li>Apps Script Webhook 구축</li>
+      <li>하객 → 신랑신부 직접 발송 구조</li>
+      <li>Messages 시트 기록</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">v1.0 · 2026.03 (시스템 초기 셋업)</div>
+    <ul class="bullet">
+      <li>도메인 등록 (가비아 momentedit.kr)</li>
+      <li>GitHub + Vercel 호스팅 셋업</li>
+      <li>청첩장 8종 마스터 디자인 완성</li>
+      <li>로고 + 브랜드 시스템 확립</li>
+      <li>Formspree 인콰이어리 연동</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-mark">MOMENT&nbsp;EDIT</div>
+  <div class="footer-sub">Focus on the Essence, Record the Truth.</div>
+  <div class="footer-rule"></div>
+  <div class="footer-meta">
+    Private Wedding Studio · 경기 고양시<br>
+    contact@momentedit.kr · momentedit.kr<br>
+    <br>
+    AI System Master v5.0<br>
+    Compiled 2026.05.21 by huijun<br>
+    For AI consumption · Do not distribute publicly<br>
+    <br>
+    <span style="opacity:0.7;font-size:11px">🔗 짝 문서: 02_실무자_매뉴얼.html v4.0 · 함께 동기화 유지</span>
+  </div>
+</div>
+
+</body>
+</html>
