@@ -1,0 +1,233 @@
+/*
+ * Moment Edit · 청첩장 클라이언트 하이드레이션 엔진
+ * ──────────────────────────────────────────────────────────────
+ * 정적 빌드(Apps Script) 대신, 브라우저에서 ?e=eventId 로 시트 데이터를 받아
+ * 템플릿의 {{PLACEHOLDER}} 와 OPTIONAL 마커를 채운다. (라이브 커버 · 가족 카드 공용)
+ *
+ * 사용법 — 각 템플릿 <head> 끝에 두 줄, <body>에 디자인 번호 표기:
+ *   <script src="/shared/venue.js"></script>
+ *   <script src="/shared/hydrate.js" defer></script>
+ *   ...
+ *   <body data-design="01">              ← 01~08
+ * 그리고 흰 화면 방지용 CSS:
+ *   body{opacity:0;transition:opacity .6s} body.couple-ready{opacity:1}
+ *
+ * 식장 정보는 고정(window.MOMENT_VENUE) — venue.js 한 곳에서 관리.
+ * 데이터 출처는 Couples 시트(getCouple). 시트만 고치면 자동 반영된다.
+ *
+ * 본 변환 로직은 운영 검증된 가족 빌드 스크립트(FC_transformPlaceholders)를
+ * 브라우저로 포팅한 것이다. 동작 동일성 유지가 원칙.
+ */
+(function () {
+  'use strict';
+
+  var WEBHOOK = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+
+  // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
+  var SAMPLE = {
+    groomName: '박지훈', brideName: '김서연',
+    groomNameEn: 'Park Jihoon', brideNameEn: 'Kim Seoyeon',
+    weddingDate: '2026-10-24', weddingTime: '14:00',
+    groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
+    groomBank: '하나', groomAccount: '222-456-789012',
+    brideBank: '우리', brideAccount: '333-456-789012',
+    vimeoId: '', vimeoHash: ''
+  };
+
+  // ─── 유틸 ───────────────────────────────────────────────
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function replaceAll(str, find, rep) { return str.split(find).join(rep); }
+  function bankLabel(bank) {
+    bank = String(bank || '').trim();
+    if (!bank) return '';
+    return /(은행|뱅크)$/.test(bank) ? bank : bank + '은행';
+  }
+
+  // 영문 이름 "Kim Minjun" → {full, first, upper, spaced}
+  function transformEnName(fullName) {
+    var trimmed = String(fullName || '').trim();
+    var parts = trimmed.split(/\s+/);
+    var first = parts.length >= 2 ? parts.slice(1).join('') : trimmed;
+    return { full: trimmed, first: first, upper: first.toUpperCase(), spaced: splitName(first) };
+  }
+  function splitName(s) {
+    if (s.length <= 1) return s;
+    var mid = Math.ceil(s.length / 2);
+    return s.slice(0, mid) + ' ' + s.slice(mid);
+  }
+
+  function yearToEnglish(year) {
+    var ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    var teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    var thousand = Math.floor(year / 1000), remainder = year % 1000;
+    var hundred = Math.floor(remainder / 100), last2 = remainder % 100, result = '';
+    if (thousand > 0) result += ones[thousand] + ' Thousand';
+    if (hundred > 0) result += (result ? ' ' : '') + ones[hundred] + ' Hundred';
+    if (last2 > 0) {
+      if (result) result += ' ';
+      if (last2 < 10) result += ones[last2];
+      else if (last2 < 20) result += teens[last2 - 10];
+      else { var t = Math.floor(last2 / 10), o = last2 % 10; result += tens[t] + (o > 0 ? '-' + ones[o] : ''); }
+    }
+    return result;
+  }
+
+  // weddingDate('YYYY-MM-DD') → 날짜 8종 + 요일 3종 (KST 기준)
+  function transformDate(weddingDate) {
+    var d = new Date(weddingDate + 'T00:00:00+09:00');
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    var idx = d.getDay();
+    var monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var daysKor = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    return {
+      display: y + '. ' + m + '. ' + dd,
+      monthDay: m + ' · ' + dd,
+      monthEn: monthsEn[d.getMonth()] + ' ' + y,
+      yearEn: yearToEnglish(y),
+      fullDot: y + ' · ' + m + ' · ' + dd,
+      monthSlash: m + ' / ' + y,
+      monthKor: parseInt(m, 10) + '월',
+      monthDayPeriod: m + '.' + dd,
+      dayEn: daysEn[idx], dayEnShort: daysShort[idx], dayKor: daysKor[idx]
+    };
+  }
+
+  // 시간 '14:00' → {display:'오후 2:00', kor:'오후 두 시'}
+  function transformTime(weddingTime) {
+    var s = String(weddingTime || '14:00').trim();
+    var match = s.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return { display: s, kor: s };
+    var hour24 = parseInt(match[1], 10), min = match[2];
+    var period = hour24 >= 12 ? '오후' : '오전';
+    var hour12 = hour24 > 12 ? hour24 - 12 : (hour24 === 0 ? 12 : hour24);
+    var hourKor = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열', '열한', '열두'];
+    var kor;
+    if (min === '00') kor = period + ' ' + hourKor[hour12] + ' 시';
+    else if (min === '30') kor = period + ' ' + hourKor[hour12] + ' 시 반';
+    else kor = period + ' ' + hourKor[hour12] + ' 시 ' + parseInt(min, 10) + '분';
+    return { display: period + ' ' + hour12 + ':' + min, kor: kor };
+  }
+
+  // 캘린더 셀 HTML (디자인 01은 when-cal-cell, 그 외 date-cal-cell)
+  function generateCalendarCells(weddingDate, designNum) {
+    var d = new Date(weddingDate + 'T00:00:00+09:00');
+    var year = d.getFullYear(), month = d.getMonth(), weddingDay = d.getDate();
+    var firstDay = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var cellCls, sunCls, hi;
+    if (designNum === '01') { cellCls = 'when-cal-cell'; sunCls = 'when-cal-cell when-cal-cell-sun'; hi = ' when-cal-cell-today'; }
+    else { cellCls = 'date-cal-cell'; sunCls = 'date-cal-cell sun'; hi = ' today'; }
+    var html = '';
+    for (var i = 0; i < firstDay; i++) html += '<div class="' + cellCls + ' empty" aria-hidden="true"></div>\n          ';
+    for (var day = 1; day <= daysInMonth; day++) {
+      var dow = (firstDay + day - 1) % 7;
+      var cls = (dow === 0) ? sunCls : cellCls;
+      if (day === weddingDay) cls += hi;
+      html += '<div class="' + cls + '">' + day + '</div>\n          ';
+    }
+    return html.trim();
+  }
+
+  // OPTIONAL 마커: 값 있으면 마커만 제거, 없으면 블록 통째 제거
+  function processOptional(html, key, hasValue) {
+    if (hasValue) {
+      return html
+        .split('<!-- OPTIONAL:' + key + ' -->').join('')
+        .split('<!-- /OPTIONAL:' + key + ' -->').join('');
+    }
+    var re = new RegExp('[ \\t]*<!-- OPTIONAL:' + key + ' -->[\\s\\S]*?<!-- /OPTIONAL:' + key + ' -->\\n?', 'g');
+    return html.replace(re, '');
+  }
+
+  // ─── 핵심 변환: 템플릿 HTML 문자열 → 채워진 HTML ───────────
+  function transform(html, c, venue, designNum) {
+    var groomEn = transformEnName(c.groomNameEn);
+    var brideEn = transformEnName(c.brideNameEn);
+    var date = transformDate(c.weddingDate);
+    var time = transformTime(c.weddingTime);
+
+    var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
+    var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
+    html = processOptional(html, 'groomParents', hasGroomParents);
+    html = processOptional(html, 'brideParents', hasBrideParents);
+
+    var map = {
+      GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
+      GROOM_BANK: escapeHtml(bankLabel(c.groomBank)), BRIDE_BANK: escapeHtml(bankLabel(c.brideBank)),
+      GROOM_ACCOUNT: escapeHtml(String(c.groomAccount || '')), BRIDE_ACCOUNT: escapeHtml(String(c.brideAccount || '')),
+      GROOM_ACCOUNT_RAW: String(c.groomAccount || '').replace(/-/g, ''), BRIDE_ACCOUNT_RAW: String(c.brideAccount || '').replace(/-/g, ''),
+      GROOM_PARENTS: escapeHtml(c.groomParents || ''), BRIDE_PARENTS: escapeHtml(c.brideParents || ''),
+      GROOM_FIRST_EN_UPPER: groomEn.upper, BRIDE_FIRST_EN_UPPER: brideEn.upper,
+      GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,
+      GROOM_FIRST_EN_SPACED: groomEn.spaced, BRIDE_FIRST_EN_SPACED: brideEn.spaced,
+      GROOM_FULL_EN: groomEn.full, BRIDE_FULL_EN: brideEn.full,
+      WEDDING_DATE_DISPLAY: date.display, WEDDING_MONTH_DAY_DISPLAY: date.monthDay,
+      WEDDING_MONTH_EN: date.monthEn, WEDDING_YEAR_EN: date.yearEn,
+      WEDDING_FULL_DATE_DOT: date.fullDot, WEDDING_MONTH_SLASH: date.monthSlash,
+      WEDDING_MONTH_KOR: date.monthKor, WEDDING_MONTH_DAY_PERIOD: date.monthDayPeriod,
+      WEDDING_DAY_EN: date.dayEn, WEDDING_DAY_EN_SHORT: date.dayEnShort, WEDDING_DAY_KOR: date.dayKor,
+      WEDDING_TIME_DISPLAY: time.display, WEDDING_TIME_KOR: time.kor,
+      VENUE_NAME_KO: escapeHtml(venue.nameKo || ''), VENUE_NAME_EN: escapeHtml(venue.nameEn || ''),
+      VENUE_NAME_KO_URI: encodeURIComponent(venue.nameKo || ''),
+      VENUE_ADDRESS: escapeHtml(venue.address || ''),
+      VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
+      VENUE_MAP_IFRAME: venue.mapIframe || '',
+      EVENT_ID: escapeHtml(c.eventId || '')
+    };
+    for (var k in map) html = replaceAll(html, '{{' + k + '}}', map[k]);
+    html = replaceAll(html, '{{CALENDAR_CELLS_HTML}}', generateCalendarCells(c.weddingDate, designNum));
+    return html;
+  }
+
+  // ─── 메인 ───────────────────────────────────────────────
+  function reveal() { document.body.classList.add('couple-ready'); }
+  function designNum() { return (document.body.getAttribute('data-design') || '00').trim(); }
+
+  function apply(couple) {
+    try {
+      var venue = window.MOMENT_VENUE || {};
+      document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
+      if (couple.groomName && couple.brideName) document.title = couple.groomName + ' · ' + couple.brideName + ' — Moment Edit';
+    } catch (e) { console.error('[hydrate]', e); }
+  }
+
+  function init() {
+    var eventId = (new URLSearchParams(location.search).get('e') || '').trim();
+    var failsafe = setTimeout(reveal, 5000);
+
+    if (!eventId) { apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
+
+    var cacheKey = 'me_couple_' + eventId;
+    fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.couple) {
+          data.couple.eventId = eventId;
+          try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
+          apply(data.couple);
+        } else {
+          var cached = safeCache(cacheKey);
+          apply(cached || SAMPLE);
+        }
+      })
+      .catch(function () { apply(safeCache(cacheKey) || SAMPLE); })
+      .then(function () { clearTimeout(failsafe); reveal(); });
+  }
+
+  function safeCache(key) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (_) { return null; }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
