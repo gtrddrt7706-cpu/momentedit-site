@@ -35,7 +35,9 @@
     invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y',
     // 부모 계좌 (프리뷰 샘플)
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
-    brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789'
+    brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
+    // 디자인 특수 (02 대표문구 · 08 자기소개)
+    pullQuote: '', groomBio: '', brideBio: ''
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -211,6 +213,17 @@
     html = processOptional(html, 'greetingParents', truthy(c.greetingShowParents));
     html = processOptional(html, 'envelopeParents', truthy(c.envelopeShowParents));
 
+    // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지
+    var customPQ = String(c.pullQuote || '').trim();
+    if (customPQ) {
+      html = html.replace(/<!-- OPTIONAL:pullQuote -->[\s\S]*?<!-- \/OPTIONAL:pullQuote -->/g, escapeHtml(customPQ));
+    } else {
+      html = processOptional(html, 'pullQuote', true);
+    }
+    // 디자인 08 전용 · 자기소개(BIO): 있으면 표시, 없으면 숨김
+    html = processOptional(html, 'groomBio', !!String(c.groomBio || '').trim());
+    html = processOptional(html, 'brideBio', !!String(c.brideBio || '').trim());
+
     var map = {
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
       GROOM_BANK: escapeHtml(gAcct.bank), BRIDE_BANK: escapeHtml(bAcct.bank),
@@ -232,6 +245,8 @@
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
+      GROOM_BIO: escapeHtml(c.groomBio || ''), BRIDE_BIO: escapeHtml(c.brideBio || ''),
+      GROOM_SIDE_LABEL: '신랑', BRIDE_SIDE_LABEL: '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };
 
