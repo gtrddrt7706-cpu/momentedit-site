@@ -26,7 +26,7 @@
   // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
   var SAMPLE = {
     groomName: '박지훈', brideName: '김서연',
-    groomNameEn: 'Park Jihoon', brideNameEn: 'Kim Seoyeon',
+    groomNameEn: 'Park Ji Hoon', brideNameEn: 'Kim Seo Yeon',
     weddingDate: '2026-10-24', weddingTime: '14:00',
     groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
@@ -88,17 +88,23 @@
     return parseAccount(accountCell) || { bank: '', account: '', raw: '' };
   }
 
-  // 영문 이름 "Kim Minjun" → {full, first, upper, spaced}
+  // 첫 글자만 대문자: "HOON"/"hoon" → "Hoon"
+  function cap(w) { return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ''; }
+  // 영문 이름 → {full, first, upper, spaced}
+  //  입력 "Park Ji Hoon"(성 + 이름음절 띄어쓰기) →
+  //    full "Park Jihoon" · first "Jihoon" · upper "JIHOON" · spaced "Ji Hoon"
+  //  입력 "Park Jihoon"(이름 한 단어) → spaced도 "Jihoon"(안 깨짐)
   function transformEnName(fullName) {
-    var trimmed = String(fullName || '').trim();
-    var parts = trimmed.split(/\s+/);
-    var first = parts.length >= 2 ? parts.slice(1).join('') : trimmed;
-    return { full: trimmed, first: first, upper: first.toUpperCase(), spaced: splitName(first) };
-  }
-  function splitName(s) {
-    if (s.length <= 1) return s;
-    var mid = Math.ceil(s.length / 2);
-    return s.slice(0, mid) + ' ' + s.slice(mid);
+    var parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+    var surname = parts.length >= 2 ? parts[0] : '';
+    var firstWords = parts.length >= 2 ? parts.slice(1) : parts;   // 성 제외한 이름 음절들
+    var first = cap(firstWords.join(''));                          // "Jihoon"
+    return {
+      full: (surname ? cap(surname) + ' ' : '') + first,          // "Park Jihoon"
+      first: first,
+      upper: first.toUpperCase(),                                 // "JIHOON"
+      spaced: firstWords.map(cap).join(' ')                       // "Ji Hoon"
+    };
   }
 
   function yearToEnglish(year) {
