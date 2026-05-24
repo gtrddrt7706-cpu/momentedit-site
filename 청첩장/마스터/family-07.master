@@ -188,8 +188,7 @@ body::after{
   margin:0 16px;
   border-bottom:1px solid var(--hairline-strong);
   position:relative;
-  z-index:3;
-}
+  z-index:3;white-space:nowrap;}
 .cover-meta-cell{
   padding:10px 14px;
   border-right:1px solid var(--hairline-mid);
@@ -1036,7 +1035,7 @@ details.env-acc-item[open] > .env-acc-q{
 /* 반응형 */
 @media(max-width:400px){
   .cover-titleblock{margin:0 12px;padding:calc(22px + var(--safe-top)) 22px 14px}
-  .cover-meta{margin:0 12px}
+  .cover-meta{margin:0 12px;white-space:nowrap;}
   .cover-meta-cell{padding:9px 12px}
   .cover-main{padding:50px 28px 36px}
   .cover-index,.cover-coord{display:none}
@@ -1053,7 +1052,7 @@ details.env-acc-item[open] > .env-acc-q{
 }
 @media(max-width:360px){
   .cover-titleblock{margin:0 8px}
-  .cover-meta{margin:0 8px}
+  .cover-meta{margin:0 8px;white-space:nowrap;}
   .cover-meta-cell{padding:8px 10px}
   .cover-meta-value{font-size:10px}
   .cover-footer-block{margin:0 8px}
@@ -1162,8 +1161,7 @@ details.env-acc-item[open] > .env-acc-q{
   letter-spacing:0.28em;
   color:var(--ink);
   text-transform:uppercase;
-  padding-left:0.28em;
-}
+  padding-left:0.28em;white-space:nowrap;}
 .cover-date-tag{
   font-family:var(--serif-en);
   font-style:italic;
@@ -1210,7 +1208,7 @@ details.env-acc-item[open] > .env-acc-q{
   font-family:var(--serif-en);
   font-style:italic;
   font-weight:300;
-  font-size:clamp(40px,11vw,64px);
+  font-size:clamp(43px,11.8vw,68px);
   line-height:1.15;
   color:var(--ink);
   letter-spacing:-0.01em;
@@ -1343,7 +1341,7 @@ details.env-acc-item[open] > .env-acc-q{
   .cover-foot-right{font-size:10px}
 }
 @media (max-width:340px){
-  .cover-names{font-size:58px}
+  .cover-names{font-size:62px}
   .cover-foot{flex-direction:column;gap:8px;text-align:center}
 }
 

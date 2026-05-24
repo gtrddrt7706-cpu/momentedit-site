@@ -274,8 +274,7 @@ summary:focus-visible{outline-offset:2px}
   font-size:10px;
   letter-spacing:0.24em;
   text-transform:uppercase;
-  color:var(--ink-3);
-}
+  color:var(--ink-3);white-space:nowrap;}
 .cover-meta.r{text-align:right;color:var(--gold);font-style:italic}
 .cover-meta em{
   display:block;

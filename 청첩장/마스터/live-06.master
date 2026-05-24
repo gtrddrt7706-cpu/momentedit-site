@@ -686,7 +686,7 @@ details.env-acc-item[open] > .env-acc-q{
 /* 반응형 */
 @media(max-width:400px){
   .cover-top{padding:calc(28px + var(--safe-top)) 24px 0}
-  .cover-brand{font-size:10px;letter-spacing:0.26em;padding-left:0.26em}
+  .cover-brand{font-size:10px;letter-spacing:0.26em;padding-left:0.26em;white-space:nowrap;}
   .cover-issue .label{font-size:9.5px}
   .cover-main{padding:40px}
   .cover-bottom{padding:0 24px calc(28px + var(--safe-bottom))}

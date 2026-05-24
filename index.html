@@ -1364,7 +1364,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
   }
 
   toggle.addEventListener('click', toggleMenu);
-  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  if (closeBtn) closeBtn.addEventListener('click', function(){ closeMenu(); });
 
   // 메뉴 항목 클릭 시: anchor link이면 scroll 복원 skip하고 target으로 부드럽게 이동
   menu.querySelectorAll('a').forEach(function(a){
