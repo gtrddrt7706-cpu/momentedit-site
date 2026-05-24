@@ -233,9 +233,9 @@ function createCoupleForm() {
   opt('신부 혼주(부모님)', '예) 최영수 · 박미경 — 비우면 미표기');
 
   var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
-  form.addMultipleChoiceItem().setTitle('온라인 청첩장 디자인 번호').setRequired(true)
-    .setChoiceValues(designs)
-    .setHelpText('갤러리에서 고른 번호. momentedit.kr/invitation-gallery.html');
+  form.addMultipleChoiceItem().setTitle('온라인 청첩장 디자인 번호').setRequired(false)
+    .setChoiceValues(designs.concat(['발행 안 함']))
+    .setHelpText('갤러리에서 고른 번호. 온라인 청첩장도 두 분의 선택 — 안 만들면 "발행 안 함". momentedit.kr/invitation-gallery.html');
 
   form.addMultipleChoiceItem().setTitle('가족 청첩장 디자인 번호').setRequired(false)
     .setChoiceValues(designs.concat(['발행 안 함']))
