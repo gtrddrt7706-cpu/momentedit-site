@@ -46,8 +46,8 @@
 // ============================ CONFIG ============================
 var CFG = {
   SHEET_NAME: 'Couples',   // 부부 데이터 탭 이름
-  HEADER_ROW: 2,           // 영문 헤더가 있는 행 (1행=한글 라벨, 2행=영문)
-  DATA_START_ROW: 3,       // 실제 데이터 시작 행
+  HEADER_ROW: 3,           // 영문 헤더 행 (현행 v3.3 구조: 1행 버튼/안내, 2행 한글 라벨, 3행 영문 헤더) — getCouple과 동일
+  DATA_START_ROW: 4,       // 실제 데이터 시작 행 (4행~)
   SITE_BASE: 'https://momentedit.kr',
   // 폼 질문 제목 → Couples 영문 헤더 매핑 (값 = 시트 2행의 영문 헤더명)
   MAP: {
