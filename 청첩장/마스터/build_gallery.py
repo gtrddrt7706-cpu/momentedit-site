@@ -128,47 +128,32 @@ GUIDE_CARD = """<!DOCTYPE html>
 <meta name="description" content="모먼트 에디트 청첩장이 두 분께 맞춰지는 방식 — 인사말, 혼주 표기, 마음 전하실 곳(양가 부모님 계좌까지). 온라인·오프라인 두 편을 함께.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
   :root{
-    --bg:#FAF8F4;--paper:#FFFFFF;--text:#1C1B19;--sub:#5A554C;--light:#8B857A;
-    --gold:#B89A75;--seal:#6B2A24;--line:#E7E2DA;
+    --bg:#FAF8F4;--text:#1C1B19;--sub:#5A554C;--light:#8B857A;
+    --gold:#B89A75;--seal:#6B2A24;--line:#EAE5DC;
     --serif:'Cormorant Garamond',Georgia,serif;
     --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
     --sans:'Noto Sans KR',-apple-system,sans-serif;
   }
   html{-webkit-text-size-adjust:100%}
-  body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);line-height:1.8;-webkit-font-smoothing:antialiased;padding:0 0 64px}
-  .gd-page{max-width:560px;margin:0 auto;padding:0 26px}
-  .gd-head{text-align:center;padding:62px 0 38px}
+  body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);line-height:1.85;-webkit-font-smoothing:antialiased;padding:0 0 76px}
+  .gd-page{max-width:520px;margin:0 auto;padding:0 34px}
+  .gd-head{text-align:center;padding:76px 0 8px}
   .gd-eyebrow{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.26em;text-transform:uppercase;color:var(--seal)}
-  .gd-title{font-family:var(--serif-ko);font-size:25px;font-weight:500;letter-spacing:0.04em;margin:16px 0 0}
-  .gd-sub{font-size:13.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;margin:13px 0 0}
-  .gd-rule{width:40px;height:1px;background:var(--gold);margin:26px auto 0}
-  .gd-step{margin:0 0 38px}
-  .gd-stepnum{font-family:var(--serif);font-style:italic;font-size:15px;letter-spacing:0.08em;color:var(--gold);margin-bottom:11px;text-align:center}
-  .gd-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:26px 24px;text-align:center}
-  .gd-greet{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--text);line-height:2.0;letter-spacing:0.01em}
-  .gd-par{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:2.2;letter-spacing:0.02em}
-  .gd-par b{font-weight:500;color:var(--text)}
-  .gd-acc{border:1px solid var(--line);border-radius:6px;overflow:hidden}
-  .gd-acc-hd{font-family:var(--serif);font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:var(--seal);padding:13px}
-  .gd-acc-row{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;font-size:13px;color:var(--sub);border-top:1px solid var(--line)}
-  .gd-acc-row b{font-weight:500;color:var(--text)}
-  .gd-acc-row em{font-family:var(--sans);font-style:normal;font-size:11px;color:var(--light);letter-spacing:0.02em}
-  .gd-memo{margin:14px 4px 0;padding:13px 16px 13px 18px;background:rgba(184,154,117,0.10);border-left:2px solid var(--gold);border-radius:0 6px 6px 0;text-align:left}
-  .gd-memo-tag{font-family:var(--serif);font-style:italic;font-size:12.5px;letter-spacing:0.05em;color:var(--seal);display:block;margin-bottom:4px}
-  .gd-memo-tag::before{content:"\\270E  ";font-style:normal}
-  .gd-memo-txt{font-size:12px;font-weight:300;color:var(--sub);line-height:1.78;letter-spacing:0.01em}
-  .gd-foot{margin-top:6px;text-align:center;padding-top:36px;border-top:1px solid var(--line)}
-  .gd-foot-en{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.14em;color:var(--gold)}
-  .gd-foot-ko{font-family:var(--serif-ko);font-size:16px;font-weight:500;letter-spacing:0.03em;margin:12px 0 0}
-  .gd-foot-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.8;margin:11px 0 0}
-  .gd-two{display:flex;gap:12px;margin:22px 0 0}
-  .gd-two>div{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:16px 14px}
-  .gd-two-t{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.05em;color:var(--seal)}
-  .gd-two-d{font-size:11px;font-weight:300;color:var(--light);line-height:1.65;margin-top:6px}
+  .gd-title{font-family:var(--serif-ko);font-size:26px;font-weight:500;letter-spacing:0.04em;margin:16px 0 0}
+  .gd-sub{font-size:13.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;margin:14px 0 0}
+  .gd-rule{width:34px;height:1px;background:var(--gold);margin:32px auto 12px}
+  .gd-item{text-align:center;padding:30px 0}
+  .gd-item + .gd-item{border-top:1px solid var(--line)}
+  .gd-label{font-family:var(--serif-ko);font-size:17px;font-weight:500;letter-spacing:0.05em;color:var(--text)}
+  .gd-desc{font-size:13px;font-weight:300;color:var(--sub);letter-spacing:0.01em;line-height:1.85;margin:11px auto 0;max-width:360px;word-break:keep-all}
+  .gd-foot{text-align:center;margin-top:18px;padding-top:42px;border-top:1px solid var(--line)}
+  .gd-foot-en{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.16em;color:var(--gold)}
+  .gd-foot-ko{font-family:var(--serif-ko);font-size:17px;font-weight:500;letter-spacing:0.03em;margin:13px 0 0}
+  .gd-foot-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:14px 0 0;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -180,53 +165,23 @@ GUIDE_CARD = """<!DOCTYPE html>
     <div class="gd-rule"></div>
   </div>
 
-  <div class="gd-step">
-    <div class="gd-stepnum">i. 인사말</div>
-    <div class="gd-card">
-      <p class="gd-greet">서로를 향해 걸어온 길이<br>이제 하나의 약속이 됩니다.<br><br>그 시작의 자리에<br>귀한 마음 더해 주시면<br>오래 간직하겠습니다.</p>
-    </div>
-    <div class="gd-memo">
-      <span class="gd-memo-tag">인사말</span>
-      <span class="gd-memo-txt">두 분의 문장을 그대로 새겨 드립니다. 따로 적지 않으시면 정갈한 기본 인사말로 채워집니다.</span>
-    </div>
+  <div class="gd-item">
+    <div class="gd-label">인사말</div>
+    <p class="gd-desc">두 분의 문장을 그대로 새겨 드립니다. 따로 적지 않으시면 정갈한 기본 인사말로 채워집니다.</p>
   </div>
-
-  <div class="gd-step">
-    <div class="gd-stepnum">ii. 혼주 표기</div>
-    <div class="gd-card">
-      <p class="gd-par"><b>신랑측</b> 아버지 · 어머니 의 아들<br><b>신부측</b> 아버지 · 어머니 의 딸</p>
-    </div>
-    <div class="gd-memo">
-      <span class="gd-memo-tag">혼주 표기</span>
-      <span class="gd-memo-txt">양가 부모님을 함께 모실 수 있습니다. 원치 않으시면 표기 없이 비워 둡니다.</span>
-    </div>
+  <div class="gd-item">
+    <div class="gd-label">혼주 표기</div>
+    <p class="gd-desc">양가 부모님을 함께 모실 수 있습니다. 원치 않으시면 표기 없이 비워 둡니다.</p>
   </div>
-
-  <div class="gd-step">
-    <div class="gd-stepnum">iii. 마음 전하실 곳</div>
-    <div class="gd-card">
-      <div class="gd-acc">
-        <div class="gd-acc-hd">마음 전하실 곳</div>
-        <div class="gd-acc-row"><b>신랑</b><em>계좌</em></div>
-        <div class="gd-acc-row"><b>신부</b><em>계좌</em></div>
-        <div class="gd-acc-row"><b>신랑 혼주</b><em>아버지 · 어머니</em></div>
-        <div class="gd-acc-row"><b>신부 혼주</b><em>아버지 · 어머니</em></div>
-      </div>
-    </div>
-    <div class="gd-memo">
-      <span class="gd-memo-tag">마음 전하실 곳</span>
-      <span class="gd-memo-txt">양가 부모님 계좌까지 함께 담을 수 있습니다. 필요하신 분만 펼쳐 보도록 정중히 접어 둡니다.</span>
-    </div>
+  <div class="gd-item">
+    <div class="gd-label">마음 전하실 곳</div>
+    <p class="gd-desc">양가 부모님 계좌까지 함께. 필요하신 분만 펼쳐 보도록 정중히 접어 둡니다.</p>
   </div>
 
   <div class="gd-foot">
     <div class="gd-foot-en">Two invitations, one preparation</div>
     <p class="gd-foot-ko">온라인 · 오프라인, 두 편을 함께</p>
     <p class="gd-foot-desc">멀리 계신 하객께는 링크로,<br>가까운 분들께는 직접 건네는 한 편으로.</p>
-    <div class="gd-two">
-      <div><div class="gd-two-t">Online</div><div class="gd-two-d">링크 한 번으로<br>예식 영상까지</div></div>
-      <div><div class="gd-two-t">Offline</div><div class="gd-two-d">직접 건네는<br>오시는 길과 함께</div></div>
-    </div>
   </div>
 </div>
 </body>

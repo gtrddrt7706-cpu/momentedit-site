@@ -805,7 +805,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
 <div class="divider-line"></div>
 <div class="reveal">
   <h3 class="sec-label">Experience Design</h3>
-  <p class="t-body" style="margin-bottom:28px">디지털 참석은 의무가 아닌 선택입니다.<br>원하시는 분을 위해, 하객의 시선에 맞춰 설계된 전용 페이지를 준비했습니다.</p>
+  <p class="t-body" style="margin-bottom:28px">라이브 중계는 의무가 아닌, 온전히 두 분의 선택입니다.<br>카메라가 부담스러우시면 송출 없이 진행하셔도 좋습니다 — 멀리 계신 분을 위한 자리는 두 분의 뜻에 맞춰 준비됩니다.</p>
   <div class="card-grid">
     <div class="card"><div class="card-label">Seamless Access</div><p>단 한 번의 터치로 모든 세대가 정갈한 시퀀스에 닿습니다</p></div>
     <div class="card"><div class="card-label">Archive Message</div><p>두 사람에게만 전해지는, 온전한 축복의 기록</p></div>
@@ -1355,7 +1355,10 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     body.style.left = '';
     body.style.right = '';
     if (!skipScrollRestore){
+      var _de=document.documentElement, _sb=_de.style.scrollBehavior;
+      _de.style.scrollBehavior='auto';
       window.scrollTo(0, scrollY);
+      _de.style.scrollBehavior=_sb;
     }
   }
   function toggleMenu(){
