@@ -154,6 +154,7 @@ GUIDE_CARD = """<!DOCTYPE html>
   .gd-foot{text-align:center;margin-top:18px;padding-top:42px;border-top:1px solid var(--line)}
   .gd-foot-en{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.16em;color:var(--gold)}
   .gd-foot-ko{font-family:var(--serif-ko);font-size:17px;font-weight:500;letter-spacing:0.03em;margin:13px 0 0}
+  .gd-foot-note{font-family:var(--serif-ko);font-size:12px;font-weight:400;color:var(--seal);letter-spacing:0.02em;line-height:1.7;margin:11px 0 0;word-break:keep-all}
   .gd-foot-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:14px 0 0;word-break:keep-all}
   .gd-two{margin:30px 0 0}
   .gd-two-item{padding-top:20px}
@@ -188,11 +189,11 @@ GUIDE_CARD = """<!DOCTYPE html>
   <div class="gd-foot">
     <div class="gd-foot-en">Two invitations, one preparation</div>
     <p class="gd-foot-ko">온라인 · 오프라인, 두 편을 함께</p>
+    <p class="gd-foot-note">온라인 청첩장 진행은 두 분의 선택입니다.</p>
     <div class="gd-two">
       <div class="gd-two-item">
         <div class="gd-two-label">온라인 청첩장</div>
         <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>디지털 참석 페이지로 이어집니다.</p>
-        <p class="gd-two-note">디지털 참석은 두 분의 선택입니다.</p>
       </div>
       <div class="gd-two-item">
         <div class="gd-two-label">오프라인 청첩장</div>
