@@ -16,8 +16,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <title>방문 상담 · 마이크로웨딩·프라이빗 웨딩 스튜디오 | 모먼트에디트 Moment Edit</title>
-<meta name="description" content="서울·경기 수도권 마이크로웨딩 방문 상담 예약. 양가 직계가족 30명까지 함께하는 프라이빗 웨딩 스튜디오. 평일결혼식·하우스웨딩·올인원 140분 시그니처 시퀀스. 주말 ₩2,800,000 / 평일 ₩2,100,000.">
-<meta name="keywords" content="마이크로웨딩,프라이빗웨딩,프리미엄스몰웨딩,프라이빗웨딩스튜디오,스몰웨딩상담,스몰웨딩문의,하우스웨딩,직계가족결혼식,평일결혼식,양가가족만결혼식,30명결혼식,서울스몰웨딩,경기스몰웨딩,서울근교스몰웨딩,수도권스몰웨딩,소규모결혼식,모먼트에디트">
+<meta name="description" content="서울·경기 수도권 마이크로웨딩 방문 상담 예약. 양가 직계가족 25명까지 함께하는 프라이빗 웨딩 스튜디오. 평일결혼식·하우스웨딩·올인원 140분 시그니처 시퀀스. 주말 ₩2,800,000 / 평일 ₩2,100,000.">
+<meta name="keywords" content="마이크로웨딩,프라이빗웨딩,프리미엄스몰웨딩,프라이빗웨딩스튜디오,스몰웨딩상담,스몰웨딩문의,하우스웨딩,직계가족결혼식,평일결혼식,양가가족만결혼식,25명결혼식,서울스몰웨딩,경기스몰웨딩,서울근교스몰웨딩,수도권스몰웨딩,소규모결혼식,모먼트에디트">
 <meta name="author" content="Moment Edit">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="naver-site-verification" content="">
@@ -545,10 +545,10 @@
         <label for="guests">양가 합산 (명)</label>
       </div>
       <div class="guest-hint">
-        <span class="accent">*</span> 좌석 정원 <strong>30명</strong> · 초과 시 <strong>스탠딩</strong> 진행 · 추가금 발생
+        <span class="accent">*</span> 좌석 정원 <strong>25명</strong> · 초과 시 <strong>스탠딩</strong> 진행 · 추가금 발생
       </div>
       <div class="guest-warning" id="guestWarning">
-        <span class="tag">Note</span>권장 정원(30명)을 초과하셨습니다. 초과 인원은 <strong>스탠딩</strong>으로 진행되어 권장드리지 않으나, 희망하실 경우 인원 추가금이 발생합니다.
+        <span class="tag">Note</span>권장 정원(25명)을 초과하셨습니다. 초과 인원은 <strong>스탠딩</strong>으로 진행되어 권장드리지 않으나, 희망하실 경우 인원 추가금이 발생합니다.
       </div>
     </div>
 
@@ -1447,13 +1447,13 @@ refMood.addEventListener('input', () => {
 });
 
 /* ═══════════════════════════════════════════════
-   GUEST CAPACITY · 30명 초과 시 경고 노출
+   GUEST CAPACITY · 25명 초과 시 경고 노출
    ═══════════════════════════════════════════════ */
 const guestsInput = document.getElementById('guests');
 const guestWarning = document.getElementById('guestWarning');
 guestsInput.addEventListener('input', () => {
   const n = parseInt(guestsInput.value, 10);
-  if (!isNaN(n) && n > 30) {
+  if (!isNaN(n) && n > 25) {
     guestWarning.classList.add('show');
   } else {
     guestWarning.classList.remove('show');
@@ -1556,7 +1556,7 @@ function buildFormData(){
 
   const guestCount = parseInt(form.guests.value, 10);
   let guestLabel = form.guests.value + '명';
-  if (!isNaN(guestCount) && guestCount > 30) {
+  if (!isNaN(guestCount) && guestCount > 25) {
     guestLabel += ' (⚠ 권장 정원 초과)';
   }
   data.append('예상 하객 인원', guestLabel);
