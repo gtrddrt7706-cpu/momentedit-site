@@ -756,7 +756,11 @@
       // 갤러리 wrapper 안에서는 청첩장 메인 컨테이너의 box-shadow / 좌우 border 무력화 + 스크롤바 숨김.
       // (청첩장 자체 디자인의 일부이지만, wrapper 안에서는 양옆 띠처럼 보여서 어색함.
       //  청첩장 원본 파일은 변경되지 않으며, 직접 열 때는 디자인 그대로 표시됨.)
-      const shadowKillCSS = '<style>[class*="invitation"],[class*="container"],[class*="wrap"],[class*="inner"],main{box-shadow:none !important;border-left:none !important;border-right:none !important}html,body{scrollbar-width:none !important;-ms-overflow-style:none !important}html::-webkit-scrollbar,body::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}</style>';
+      let shadowKillCSS = '<style>[class*="invitation"],[class*="container"],[class*="wrap"],[class*="inner"],main{box-shadow:none !important;border-left:none !important;border-right:none !important}html,body{scrollbar-width:none !important;-ms-overflow-style:none !important}html::-webkit-scrollbar,body::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}</style>';
+      // 01 Classic — 속지 그림자 복원(PC Open에서도 동일)
+      if (num === '01'){
+        shadowKillCSS = shadowKillCSS.replace('</style>', '.invitation{box-shadow:0 1px 2px rgba(95,75,55,0.05),0 6px 16px rgba(95,75,55,0.07),0 24px 48px rgba(95,75,55,0.10),0 48px 96px rgba(95,75,55,0.08) !important}</style>');
+      }
       if (html.indexOf('</head>') !== -1){
         html = html.replace('</head>', shadowKillCSS + '</head>');
       } else {
@@ -831,7 +835,7 @@
       }catch(_){}
       // 베이지 청첩장: wrapper bg를 카드보다 5% 어둡게 (부드러운 톤 차이)
       // 다크 청첩장(Noir): wrapper bg를 따뜻한 다크 톤으로 — 칙칙하지 않게 골드 언더톤 가미
-      const bodyBg = isDark ? '#100F0D' : darkenHex(cardBg, 0.05);
+      const bodyBg = isDark ? darkenHex(cardBg, 0.06) : darkenHex(cardBg, 0.05);
       // floating 메타바 색상은 카드 톤에 따라 자동 분기
       const metaColor = isDark ? 'rgba(250,250,248,0.55)' : 'rgba(28,27,25,0.55)';
       const metaHover = isDark ? 'rgba(250,250,248,0.9)' : 'rgba(28,27,25,0.88)';
@@ -846,7 +850,7 @@
       // 갤러리 브랜드와 일관된 헤더 + 데스크톱 카드형 프레임 + 페이드인 애니메이션
       // 청첩장은 srcdoc로 직접 임베드 (Blob URL nesting 회피 — 호환성↑)
       // 라이트/다크 자동 분기
-      const headerBg = isDark ? '#100F0D' : darkenHex(cardBg, 0.02);
+      const headerBg = isDark ? darkenHex(cardBg, 0.12) : darkenHex(cardBg, 0.02);
       const headerBorder = isDark ? 'rgba(184,154,117,0.15)' : 'rgba(28,27,25,0.08)';
       const brandColor = isDark ? '#B89A75' : '#3A2D22';
       const backColor = isDark ? 'rgba(184,154,117,0.6)' : '#5A554C';
