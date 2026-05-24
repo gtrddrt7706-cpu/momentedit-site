@@ -10,6 +10,10 @@
  *
  * ──────────────────────────────────────────────────────────────────────────
  * [설치 방법]
+ *  ★ 가장 쉬운 길: 이 파일을 Apps Script 편집기에 붙여넣고 createCoupleForm() 함수를
+ *    한 번 실행하면 → 폼 자동 생성 + 응답 시트 연결 + 트리거 자동 등록까지 끝.
+ *    (실행 로그에 찍히는 '작성 URL'을 부부에게 보내면 됨.) 아래 수동 절차는 참고용.
+ *
  *  1) 구글폼을 만든다(아래 [구글폼 항목] 그대로). 폼 편집 → 응답 → 시트 연결을
  *     "Moment Edit · Letter System" 스프레드시트로 지정(응답 탭이 생긴다).
  *  2) 그 스프레드시트의 Apps Script 편집기(확장 프로그램 → Apps Script)에
@@ -180,6 +184,81 @@ function pad2(s) {
   if (!s) return '';
   var n = s.replace(/[^0-9]/g, '');
   return n ? ('0' + n).slice(-2) : '';   // "3" → "03", "08" → "08"
+}
+
+// ============== 구글폼 자동 생성기 (최초 1회 실행) ==============
+// Apps Script 편집기에서 이 함수를 한 번만 실행하면, 위 CFG.MAP과 정확히 같은
+// 제목의 질문을 가진 구글폼이 자동 생성되고, 응답이 현재 스프레드시트로 연결되며,
+// onCoupleFormSubmit 트리거까지 자동 등록된다. (질문 제목 오타·매핑 불일치 원천 차단)
+function createCoupleForm() {
+  var form = FormApp.create('Moment Edit · 청첩장 정보 입력');
+  form.setDescription('두 분의 청첩장에 들어갈 정보를 입력해 주세요. 적어주신 그대로 청첩장에 반영됩니다.\n※ 식장 정보는 받지 않습니다(모먼트 에디트 스튜디오 고정).');
+  form.setCollectEmail(false);
+
+  var req = function (title, help) {
+    var it = form.addTextItem().setTitle(title).setRequired(true);
+    if (help) it.setHelpText(help);
+    return it;
+  };
+  var opt = function (title, help) {
+    var it = form.addTextItem().setTitle(title).setRequired(false);
+    if (help) it.setHelpText(help);
+    return it;
+  };
+
+  // 예식ID — 형식 검증
+  req('예식ID', '영문 소문자·숫자·하이픈만. 규칙: 신랑이니셜3-신부이니셜3-월일. 예) lmh-cyj-0823')
+    .setValidation(FormApp.createTextValidation()
+      .setHelpText('예: lmh-cyj-0823 (영문 소문자·숫자·하이픈)')
+      .requireTextMatchesPattern('^[a-z0-9-]{3,}$').build());
+
+  req('신랑 한글 이름', '예) 이민호');
+  req('신부 한글 이름', '예) 최유진');
+  req('신랑 이메일');
+  req('신부 이메일');
+
+  req('결혼식 날짜', 'YYYY-MM-DD 형식. 예) 2026-08-23')
+    .setValidation(FormApp.createTextValidation()
+      .setHelpText('예: 2026-08-23')
+      .requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
+
+  req('결혼식 시간', '24시간 형식. 예) 14:00');
+  req('신랑 영문 이름', '여권 표기. 예) Lee Minho');
+  req('신부 영문 이름', '여권 표기. 예) Choi Yujin');
+  req('신랑 은행', '예) 신한');
+  req('신랑 계좌번호', '예) 110-456-789012');
+  req('신부 은행', '예) 국민');
+  req('신부 계좌번호', '예) 612-345-678901');
+  opt('신랑 혼주(부모님)', '예) 이정환 · 김선미 — 비우면 청첩장에 미표기');
+  opt('신부 혼주(부모님)', '예) 최영수 · 박미경 — 비우면 미표기');
+
+  var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
+  form.addMultipleChoiceItem().setTitle('온라인 청첩장 디자인 번호').setRequired(true)
+    .setChoiceValues(designs)
+    .setHelpText('갤러리에서 고른 번호. momentedit.kr/invitation-gallery.html');
+
+  form.addMultipleChoiceItem().setTitle('가족 청첩장 디자인 번호').setRequired(false)
+    .setChoiceValues(designs.concat(['발행 안 함']))
+    .setHelpText('가족(오프라인) 청첩장도 만들면 번호 선택. 안 만들면 "발행 안 함".');
+
+  form.addMultipleChoiceItem().setTitle('디지털 참석').setRequired(false)
+    .setChoiceValues(['함께 진행합니다 (기본)', '이번엔 빼주세요'])
+    .setHelpText('멀리 못 오시는 하객을 위한 온라인 참석. 부담되시면 "이번엔 빼주세요".');
+
+  // 응답을 현재 스프레드시트로 연결
+  var ss = SpreadsheetApp.getActive();
+  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+
+  // onFormSubmit 트리거 자동 등록(중복 방지)
+  var exists = ScriptApp.getProjectTriggers().some(function (t) {
+    return t.getHandlerFunction() === 'onCoupleFormSubmit';
+  });
+  if (!exists) {
+    ScriptApp.newTrigger('onCoupleFormSubmit').forSpreadsheet(ss).onFormSubmit().create();
+  }
+
+  Logger.log('폼 생성 완료\n  작성(응답) URL: %s\n  편집 URL: %s\n  제출 트리거: %s',
+    form.getPublishedUrl(), form.getEditUrl(), exists ? '이미 있음' : '새로 등록');
 }
 
 // ===================== 2단계 자리(솔라피 알림톡) =====================
