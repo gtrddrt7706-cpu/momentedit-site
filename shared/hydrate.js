@@ -352,27 +352,46 @@
     } catch (e) { console.error('[hydrate]', e); }
   }
 
+  function preconnectWebhook() {
+    try {
+      ['https://script.google.com', 'https://script.googleusercontent.com'].forEach(function (h) {
+        if (document.querySelector('link[rel="preconnect"][href="' + h + '"]')) return;
+        var l = document.createElement('link'); l.rel = 'preconnect'; l.href = h; l.crossOrigin = '';
+        document.head.appendChild(l);
+      });
+    } catch (_) {}
+  }
+
   function init() {
+    preconnectWebhook();
     var eventId = (new URLSearchParams(location.search).get('e') || '').trim();
     var failsafe = setTimeout(reveal, 5000);
 
     if (!eventId) { apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
 
     var cacheKey = 'me_couple_' + eventId;
+    // 캐시 우선: 같은 부부(eventId)는 재방문·다른 디자인도 즉시 렌더(체감 속도↑).
+    // 그 뒤 백그라운드로 시트 최신값을 캐시에 갱신(다음 로드에 반영).
+    var cached = safeCache(cacheKey);
+    var rendered = false;
+    if (cached) {
+      cached.eventId = eventId;
+      apply(cached); clearTimeout(failsafe); reveal(); rendered = true;
+    }
+
     fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId))
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.ok && data.couple) {
           data.couple.eventId = eventId;
           try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
-          apply(data.couple);
-        } else {
-          var cached = safeCache(cacheKey);
-          apply(cached || SAMPLE);
+          if (!rendered) apply(data.couple);
+        } else if (!rendered) {
+          apply(SAMPLE);
         }
       })
-      .catch(function () { apply(safeCache(cacheKey) || SAMPLE); })
-      .then(function () { clearTimeout(failsafe); reveal(); });
+      .catch(function () { if (!rendered) apply(safeCache(cacheKey) || SAMPLE); })
+      .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } });
   }
 
   function safeCache(key) {
