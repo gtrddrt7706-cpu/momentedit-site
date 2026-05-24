@@ -70,12 +70,20 @@ function doGet(e) {
         return jsonResponse({ ok: false, error: 'MISSING_EVENT_ID' });
       }
 
-      const couple = getCoupleByEventIdFull(eventId);
-      if (!couple) {
-        return jsonResponse({ ok: false, error: 'COUPLE_NOT_FOUND' });
+      // ── 캐시(CacheService): 같은 eventId 응답을 재사용해 시트 읽기 생략 → 응답 빨라짐 ──
+      //    편집 직후 즉시 확인하려면 URL 끝에 &fresh=1 (캐시 무시).
+      const cache = CacheService.getScriptCache();
+      const cacheKey = 'couple_' + eventId;
+      const skipCache = String((e.parameter.fresh || '')) === '1';
+      if (!skipCache) {
+        const hit = cache.get(cacheKey);
+        if (hit) return jsonResponse(JSON.parse(hit));
       }
 
-      return jsonResponse({ ok: true, couple: couple });
+      const couple = getCoupleByEventIdFull(eventId);
+      const payload = couple ? { ok: true, couple: couple } : { ok: false, error: 'COUPLE_NOT_FOUND' };
+      if (couple) { try { cache.put(cacheKey, JSON.stringify(payload), 600); } catch (_e) {} }  // TTL 600초(10분)
+      return jsonResponse(payload);
     }
 
     // 헬스체크
