@@ -465,7 +465,8 @@ body::after{
 
 .cover-foot{
   flex:0 0 auto;
-  padding:20px 36px calc(80px + var(--safe-bottom));
+  transform:translateY(-56px);
+  padding:20px 36px calc(20px + var(--safe-bottom));
   border-top:none;
   display:flex;
   justify-content:space-between;
@@ -1271,7 +1272,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   .sec-meta{padding:40px 28px 0;font-size:9.5px}
   .cover-head{padding:calc(22px + var(--safe-top)) 28px 18px}
   .cover-main{padding:30px 28px}
-  .cover-foot{padding:18px 28px calc(72px + var(--safe-bottom))}
+  .cover-foot{padding:18px 28px calc(18px + var(--safe-bottom))}
     .cover-title{font-size:clamp(48px,12vw,64px)}
   .cover-eyebrow{gap:12px;margin-bottom:22px}
   .cover-sprig{width:42px;height:13px}
