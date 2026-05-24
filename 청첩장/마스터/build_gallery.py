@@ -191,7 +191,7 @@ GUIDE_CARD = """<!DOCTYPE html>
       <div class="gd-two-item">
         <div class="gd-two-label">온라인 청첩장</div>
         <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>라이브 페이지로 이어집니다.</p>
-        <p class="gd-two-note">라이브 중계 여부는 두 분의 선택입니다.</p>
+        <p class="gd-two-note">디지털 참석은 두 분의 선택입니다.</p>
       </div>
       <div class="gd-two-item">
         <div class="gd-two-label">오프라인 청첩장</div>
