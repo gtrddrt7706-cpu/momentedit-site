@@ -57,6 +57,8 @@
   }
   // 토글 값 해석 (Y/YES/예/1/표시 등 → true, 그 외/빈 값 → false)
   function truthy(v) { return /^(y|yes|true|1|on|표시|예|네)$/i.test(String(v || '').trim()); }
+  // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
+  function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
   // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
   function buildInvitation(text) {
     return String(text).trim().split(/\n\s*\n/).map(function (p) {
@@ -222,13 +224,13 @@
     var gAcct = coupleAccount(c.groomBank, c.groomAccount);
     var bAcct = coupleAccount(c.brideBank, c.brideAccount);
     // 측 라벨: 부모 계좌가 함께 표시되면 "신랑측/신부측"(여러 명), 본인만이면 "신랑/신부". 측별 독립 판단.
-    var showEnvP = truthy(c.envelopeShowParents);
+    var showEnvP = showUnlessNo(c.envelopeShowParents);
     var gHasPar = showEnvP && !!(String(c.groomFatherAccount || '').trim() || String(c.groomMotherAccount || '').trim());
     var bHasPar = showEnvP && !!(String(c.brideFatherAccount || '').trim() || String(c.brideMotherAccount || '').trim());
 
     var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
     var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
-    var showGreetPar = truthy(c.greetingShowParents);
+    var showGreetPar = showUnlessNo(c.greetingShowParents);
     // 인사글 자녀소개 부모(greetingShowParents) — 결선 시 greeting* 마커로 분리됨
     html = processOptional(html, 'greetingGroomParents', showGreetPar && hasGroomParents);
     html = processOptional(html, 'greetingBrideParents', showGreetPar && hasBrideParents);
@@ -237,8 +239,7 @@
     html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
 
     // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
-    var hideDigital = /^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(c.digitalAttendance || '').trim());
-    html = processOptional(html, 'digitalAttendance', !hideDigital);
+    html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
 
     // 계좌 섹션: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
     html = processOptional(html, 'envelope', true);
