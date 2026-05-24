@@ -530,10 +530,12 @@
       }
       // 모바일 몰입형용 inline JS 주입 — </body> 직전 (DOM 로드 완료 시점에 실행)
       // + 라이브 페이지 링크 인터셉트 JS도 함께 주입
+      // 커버 등장 애니메이션 재생 + 스크롤 리셋 핸들러 (무거운 iframe 리로드 대체)
+      var coverResetJS = '<scr'+'ipt>(function(){function R(){try{var sc=document.querySelector(".cover")||document.querySelector("header.cover")||document.querySelector(".sec");if(!sc)return;var L=[];if(sc.classList.contains("loaded"))L.push(sc);var q=sc.querySelectorAll(".loaded");for(var a=0;a<q.length;a++)L.push(q[a]);for(var i=0;i<L.length;i++)L[i].classList.remove("loaded");var E=sc.querySelectorAll("*");for(var j=0;j<E.length;j++)E[j].style.animation="none";void sc.offsetWidth;for(var k=0;k<E.length;k++)E[k].style.animation="";for(var m=0;m<L.length;m++)L[m].classList.add("loaded")}catch(_){}}window.addEventListener("message",function(ev){if(ev.data==="gv:scroll-to-top"){try{window.scrollTo(0,0)}catch(_){}}else if(ev.data==="gv:enter"){try{window.scrollTo(0,0)}catch(_){}R()}})})();<\/scr'+'ipt>';
       if (html.indexOf('</body>') !== -1){
-        html = html.replace('</body>', galleryEmbedJS + liveInterceptJS + '</body>');
+        html = html.replace('</body>', galleryEmbedJS + liveInterceptJS + coverResetJS + '</body>');
       } else {
-        html = html + galleryEmbedJS + liveInterceptJS;
+        html = html + galleryEmbedJS + liveInterceptJS + coverResetJS;
       }
       // 청첩장 내 정적 ?e=test-couple → 갤러리에서 받은 eId
       if (eId !== 'test-couple'){
@@ -565,92 +567,6 @@
     // 즉시 + 짧은 간격으로 한 번 더 (메시지 누락 대비)
     send();
     setTimeout(send, 80);
-    // 마지막 fallback: 600ms 후에도 효과가 없을 가능성 대비해 srcdoc 재설정
-    // (이 시점이면 다음 슬라이드로 화면이 넘어가 있어 사용자에게 보이지 않음)
-    setTimeout(function(){
-      const num = ifr.dataset.num;
-      const b64 = TEMPLATES[num];
-      if (!b64) return;
-      try {
-        const binary = atob(b64);
-        const bytes = new Uint8Array(binary.length);
-        for (let j=0; j<binary.length; j++) bytes[j] = binary.charCodeAt(j);
-        let html = new TextDecoder('utf-8').decode(bytes);
-        // 갤러리 임베드용 CSS 재주입 — 청첩장 톤(라이트/다크) 분기 (loadIframe과 동일 규칙)
-        // ▸ 모바일/데스크톱 분기: 데스크톱 cover-only, 모바일 청첩장 원본 그대로 스크롤 가능
-        const idxFromNum = parseInt(num, 10) - 1;
-        var gCSS;
-        if (isDarkInv(idxFromNum)){
-          gCSS = '<style>' + 'html{background:#201b16 !important}html,body{scrollbar-width:none !important;-ms-overflow-style:none !important}' + 'html::-webkit-scrollbar,body::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}' + '[class*="invitation"],[class*="container"],[class*="wrap"],[class*="inner"],main{box-shadow:none !important;border-left:none !important;border-right:none !important}' + '.cover-scroll{display:none !important}' + '@media(min-width:761px){' + 'html,body{height:100dvh !important;max-height:100dvh !important;overflow:hidden !important}' + '.sec:first-child~.sec,.sec:first-child~section,header.cover~.sec,header.cover~section,.invitation>.cover~.sec,.invitation>.cover~section,main>.cover~.sec,main>.cover~section{display:none !important}' + '}' + '@media(max-width:760px){' + 'html,body{overflow-x:hidden !important}' + '}' + '</style>';
-        } else {
-          gCSS = '<style>' + 'html,body{scrollbar-width:none !important;-ms-overflow-style:none !important}' + 'html::-webkit-scrollbar,body::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}' + '[class*="invitation"],[class*="container"],[class*="wrap"],[class*="inner"],main{box-shadow:none !important;border-left:none !important;border-right:none !important}' + '.cover-scroll{display:none !important}' + '@media(min-width:761px){' + 'html,body{height:100dvh !important;max-height:100dvh !important;overflow:hidden !important}' + '.sec:first-child,header.cover,.invitation>.cover,main>.cover{height:100dvh !important;max-height:100dvh !important;min-height:100dvh !important;overflow:hidden !important;padding-top:24px !important;padding-bottom:8px !important;box-sizing:border-box !important}' + '.sec:first-child~.sec,.sec:first-child~section,header.cover~.sec,header.cover~section,.invitation>.cover~.sec,.invitation>.cover~section,main>.cover~.sec,main>.cover~section{display:none !important}' + '}' + '@media(max-width:760px){' + 'html,body{overflow-x:hidden !important}' + '}' + '</style>';
-        }
-        if (num === '01'){
-          gCSS = gCSS.replace('</style>', 'html,body{background:#E8E4DA !important}.invitation{max-width:calc(100% - 28px) !important;margin:0 auto !important;background:#FAFAF8 !important;border-radius:3px !important;box-shadow:0 1px 2px rgba(95,75,55,0.06),0 10px 28px rgba(95,75,55,0.10),0 28px 60px rgba(95,75,55,0.09) !important}</style>');
-        }
-        // 03 Letterpress 전용 미세조정 — loadIframe과 동일 규칙 (미디어쿼리 없이 직접 룰)
-        if (num === '03'){
-          var lpTuneCSS = '<style>'
-            + '.cover{grid-template-rows:1fr auto 1fr !important}'
-            + '.cover-main{padding-top:0 !important;padding-bottom:0 !important}'
-            + '.cover-bottom{display:none !important}'
-            + '</style>';
-          if (html.indexOf('</head>') !== -1){
-            html = html.replace('</head>', lpTuneCSS + '</head>');
-          }
-        }
-        // 모바일 옵션 3용 inline JS — loadIframe과 동일 규칙 (스와이프만)
-        var resetEmbedJS = '<script>'
-          + '(function(){'
-            + 'if(window.parent===window) return;'
-            + 'if(!window.matchMedia("(max-width: 760px)").matches) return;'
-            + 'var sx=null,sy=null;'
-            + 'document.addEventListener("touchstart",function(e){'
-              + 'if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}'
-            + '},{passive:true});'
-            + 'document.addEventListener("touchend",function(e){'
-              + 'if(sx===null) return;'
-              + 'var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;'
-              + 'if(Math.abs(dx)>36 && Math.abs(dx)>Math.abs(dy)*1.4){'
-                + 'try{window.parent.postMessage(dx<0?"gv:swipe:left":"gv:swipe:right","*")}catch(_){}'
-              + '}'
-              + 'sx=null;sy=null;'
-            + '},{passive:true});'
-            + 'document.addEventListener("touchcancel",function(){sx=null;sy=null},{passive:true});'
-          + '})();'
-          + '<\/script>';
-        // ───── 라이브 페이지 링크 인터셉트 JS (resetScroll용) ─────
-        var resetLiveInterceptJS = '<script>'
-          + '(function(){'
-            + 'document.addEventListener("click",function(e){'
-              + 'var a=e.target.closest?e.target.closest("a[href]"):null;'
-              + 'if(!a) return;'
-              + 'var h=a.getAttribute("href")||"";'
-              + 'if(h.indexOf("live.html")===-1) return;'
-              + 'e.preventDefault();'
-              + 'e.stopPropagation();'
-              + 'try{window.parent.postMessage({type:"gv:open-live-inline",url:h},"*")}catch(_){}'
-            + '},true)'
-          + '})();'
-          + '<\/script>';
-        if (html.indexOf('</head>') !== -1){
-          html = html.replace('</head>', gCSS + '</head>');
-        } else {
-          html = gCSS + html;
-        }
-        if (html.indexOf('</body>') !== -1){
-          html = html.replace('</body>', resetEmbedJS + resetLiveInterceptJS + '</body>');
-        } else {
-          html = html + resetEmbedJS + resetLiveInterceptJS;
-        }
-        if (eId !== 'test-couple'){
-          html = html.split('?e=test-couple').join('?e=' + encodeURIComponent(eId));
-        }
-        const baseDir = location.href.substring(0, location.href.lastIndexOf('/')+1);
-        html = html.replace(/href="live\.html(\?[^"]*)?"/g, 'href="' + baseDir + 'live.html$1"');
-        ifr.srcdoc = html;
-      } catch(_){}
-    }, 600);
   }
 
   function go(i){
@@ -689,9 +605,16 @@
     nextBtn.disabled = (i===INVITATIONS.length-1);
     mPrev.disabled = (i===0);
     mNext.disabled = (i===INVITATIONS.length-1);
+    var _aifr = cards[i] && cards[i].querySelector('iframe');
+    var _wasLoaded = !!(_aifr && _aifr.dataset.loaded === '1');
     loadIframe(i);
     loadIframe(i-1);
     loadIframe(i+1);
+    // 이미 로드된 슬라이드면 등장 애니메이션 재생(처음 로드면 자연 재생)
+    if (_wasLoaded && _aifr){
+      var _enter = function(){ try{ if(_aifr.contentWindow) _aifr.contentWindow.postMessage('gv:enter','*'); }catch(_){} };
+      _enter(); setTimeout(_enter, 60);
+    }
     try{
       const u = new URL(location.href);
       u.searchParams.set('i', String(i));
