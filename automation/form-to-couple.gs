@@ -114,17 +114,10 @@ function onCoupleFormSubmit(e) {
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily);
     writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, digital);
 
-    // 3) URL 자동 조립
-    var liveUrl = '';
-    if (designOnline) {
-      liveUrl = CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId);
-    }
-    var familyUrl = '';
-    if (designFamily) {
-      familyUrl = CFG.SITE_BASE + '/i-family/family-' + designFamily + '.html?e=' + encodeURIComponent(eventId);
-    }
-    writeCell(sheet, colOf, rowNum, CFG.COL_LIVE_URL, liveUrl);
-    writeCell(sheet, colOf, rowNum, CFG.COL_FAMILY_URL, familyUrl);
+    // 3) URL — liveUrl·familyUrl 열은 시트의 ARRAYFORMULA가 자동 생성하므로
+    //    스크립트는 기록하지 않음(수식 덮어쓰기 방지). 아래는 로그 표기용으로만 계산.
+    var liveUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';
+    var familyUrl = designFamily ? (CFG.SITE_BASE + '/i-family/family-' + designFamily + '.html?e=' + encodeURIComponent(eventId)) : '';
 
     Logger.log('[OK] %s · row %s\n  online: %s\n  family: %s', eventId, rowNum, liveUrl, familyUrl || '(미발행)');
 
