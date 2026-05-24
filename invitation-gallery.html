@@ -470,6 +470,11 @@
       if (num === '01'){
         galleryEmbedCSS = galleryEmbedCSS.replace('</style>', 'html,body{background:#E8E4DA !important}.invitation{max-width:calc(100% - 28px) !important;margin:0 auto !important;background:#FAFAF8 !important;border-radius:3px !important;box-shadow:0 1px 2px rgba(95,75,55,0.06),0 10px 28px rgba(95,75,55,0.10),0 28px 60px rgba(95,75,55,0.09) !important}</style>');
       }
+      // 06 전용 — 표지가 115vh라 모바일 첫 화면에서 표지 하단(스튜디오 줄)이 잘림.
+      //   미리보기에서만 표지 min-height를 100dvh로 낮춰 한 화면에 들어오게 함(그리드라 내용은 자동 재배치, 디자인 원본 불변).
+      if (num === '06'){
+        galleryEmbedCSS = galleryEmbedCSS.replace('</style>', '.sec.cover{min-height:100vh !important;min-height:100dvh !important}</style>');
+      }
       // 03 Letterpress 전용 미세조정.
       // ⚠️ iframe 안 viewport = iframe element width(420px)라 미디어쿼리 max-width:760px이
       // 항상 매칭됨 (부모가 데스크탑이어도). 그래서 미디어쿼리 분기 대신 직접 룰로 작성.
