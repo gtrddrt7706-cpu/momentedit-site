@@ -293,6 +293,11 @@
 
     // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
     var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
+    // 지도 미설정(사업장 계약 전 등) → 빈 iframe 대신 안내 placeholder (#5)
+    if (!String(venue.mapIframe || '').trim()) {
+      html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g,
+        '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#9a8f7f;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>');
+    }
     [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
      ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
      ['brideFatherAccount', 'BRIDE_FATHER', bPar.father, c.brideFatherAccount],
@@ -334,7 +339,7 @@
     try {
       var venue = window.MOMENT_VENUE || {};
       document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
-      if (couple.groomName && couple.brideName) document.title = couple.groomName + ' · ' + couple.brideName + ' — Moment Edit';
+      if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
       runInertScripts();
     } catch (e) { console.error('[hydrate]', e); }
   }
