@@ -1,81 +1,113 @@
 """
 invitation-gallery.html 의 TEMPLATES(base64) 9개 재생성기.
 
-- 01~08: live-0X.master 를 샘플 데이터로 채워(=A 케이스: 양가 부모님 전부 + 커스텀 인사말)
-          base64 인코딩. 갤러리 iframe srcdoc 로 들어가며, 내부 live.html Enter 링크는
-          갤러리 런타임 JS(liveInterceptJS)가 가로채 인라인 라이브로 전환한다.
-          ※ 임베드된 라이브 스냅샷(LIVE_HTML_B64)·live-inline 기능은 절대 건드리지 않음.
-- 09:     "이렇게 맞춰집니다" 맞춤 안내 엔드카드(커플 이름·날짜 미노출, 메모형 주석).
+미리보기 일관성 원칙 (huijun 지시):
+- 더미 커플은 **이서준 · 정하윤 (2026.03.05 목)** 로 고정 — 갤러리 인라인 라이브
+  스냅샷(LIVE_HTML_B64)과 동일. 모든 미리보기에서 일관된 기본값.
+- 인사말·대표문구·자기소개는 **기본값(마스터 내장)** 사용(커스텀 미적용).
+- 혼주 표기 + 양가 부모님 계좌는 **어울리는 디자인에만** 표기:
+    SHOW = 01 Classic · 03 Letterpress · 04 Vermilion · 06 Hangeul  (격식/전통)
+    HIDE = 02 Editorial · 05 Botanical · 07 Architect · 08 Noir      (모던/에디토리얼)
+  신랑·신부 본인 계좌(마음 전하실 곳)는 8종 전부 표기.
+- 09: "이렇게 맞춰집니다" 맞춤 안내 엔드카드(이름·날짜 미노출, 메모형 주석).
 
-실행: python3 build_gallery.py            → /tmp/gallery_templates.json 에 {01..09: b64} 저장
+※ 임베드 라이브 스냅샷(LIVE_HTML_B64)·live-inline(Enter) 기능은 절대 건드리지 않음.
+
+실행: python3 build_gallery.py            → /tmp/gallery_templates.json
       python3 build_gallery.py --apply    → invitation-gallery.html 직접 패치(+ .bak 백업)
 """
-import re, base64, json, sys
+import re, base64, json, sys, datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SITE = HERE.parent.parent                      # momentedit-site/
+SITE = HERE.parent.parent
 GALLERY = SITE / 'invitation-gallery.html'
 
 # ============================================================
-# 샘플 데이터 (build_all_16.py 와 동일, EVENT_ID 만 test-couple)
+# 더미 커플 — 이서준 · 정하윤 / 2026.03.05(목) 14:00 / 스냅샷과 동일
 # ============================================================
 DATA = {
- 'GROOM_NAME':'박지훈','BRIDE_NAME':'김서연','GROOM_PARENTS':'박철수 · 이미경','BRIDE_PARENTS':'김영호 · 최선영',
- 'GROOM_SIDE_LABEL':'신랑','BRIDE_SIDE_LABEL':'신부','GROOM_FIRST_EN_UPPER':'JIHOON','BRIDE_FIRST_EN_UPPER':'SEOYEON',
- 'GROOM_FIRST_EN_SPACED':'JI HOON','BRIDE_FIRST_EN_SPACED':'SEO YEON','GROOM_FIRST_EN':'Jihoon','BRIDE_FIRST_EN':'Seoyeon',
- 'GROOM_FULL_EN':'Park Jihoon','BRIDE_FULL_EN':'Kim Seoyeon','GROOM_BANK':'하나은행','GROOM_ACCOUNT':'222-456-789012','GROOM_ACCOUNT_RAW':'222456789012',
+ 'GROOM_NAME':'이서준','BRIDE_NAME':'정하윤',
+ 'GROOM_PARENTS':'이재환 · 최미경','BRIDE_PARENTS':'정영석 · 박윤희',
+ 'GROOM_SIDE_LABEL':'신랑','BRIDE_SIDE_LABEL':'신부',
+ 'GROOM_FIRST_EN_UPPER':'SEOJUN','BRIDE_FIRST_EN_UPPER':'HAYOON',
+ 'GROOM_FIRST_EN_SPACED':'SEO JUN','BRIDE_FIRST_EN_SPACED':'HA YOON',
+ 'GROOM_FIRST_EN':'Seojun','BRIDE_FIRST_EN':'Hayoon',
+ 'GROOM_FULL_EN':'Lee Seojun','BRIDE_FULL_EN':'Jung Hayoon',
+ 'GROOM_BANK':'하나은행','GROOM_ACCOUNT':'222-456-789012','GROOM_ACCOUNT_RAW':'222456789012',
  'BRIDE_BANK':'우리은행','BRIDE_ACCOUNT':'333-456-789012','BRIDE_ACCOUNT_RAW':'333456789012',
- 'GROOM_FATHER_NAME':'박철수','GROOM_FATHER_BANK':'국민은행','GROOM_FATHER_ACCOUNT':'110-123-456789','GROOM_FATHER_ACCOUNT_RAW':'110123456789',
- 'GROOM_MOTHER_NAME':'이미경','GROOM_MOTHER_BANK':'신한은행','GROOM_MOTHER_ACCOUNT':'220-456-123789','GROOM_MOTHER_ACCOUNT_RAW':'220456123789',
- 'BRIDE_FATHER_NAME':'김영호','BRIDE_FATHER_BANK':'농협','BRIDE_FATHER_ACCOUNT':'351-234-567890','BRIDE_FATHER_ACCOUNT_RAW':'351234567890',
- 'BRIDE_MOTHER_NAME':'최선영','BRIDE_MOTHER_BANK':'카카오뱅크','BRIDE_MOTHER_ACCOUNT':'3333-12-3456789','BRIDE_MOTHER_ACCOUNT_RAW':'3333123456789',
- 'WEDDING_DATE_DISPLAY':'2026. 10. 24','WEDDING_DATE_KOR':'2026년 10월 24일','WEDDING_DATE_COMPACT':'20261024','WEDDING_DATE_SPACED':'2026 10 24',
- 'WEDDING_DATE_LITERARY':'이천이십육년 시월 이십사일','WEDDING_MONTH_EN':'October 2026','WEDDING_MONTH_EN_SHORT':'Oct','WEDDING_MONTH_NUM':'10','WEDDING_MONTH_NUM_PAD':'10',
- 'WEDDING_MONTH_DAY_KOR':'10월 24일','WEDDING_DAY_OF_MONTH':'24','WEDDING_DAY_OF_MONTH_PAD':'24','WEDDING_DAY_KOR':'토요일','WEDDING_DAY_EN':'Saturday','WEDDING_DAY_EN_SHORT':'Sat',
- 'WEDDING_YEAR':'2026','WEDDING_YEAR_EN':'Two Thousand Twenty-Six','WEDDING_YEAR_ROMAN':'MMXXVI','WEDDING_ISO_DATETIME':'2026-10-24T14:00:00+09:00',
- 'WEDDING_TIME_KOR':'오후 두 시','WEDDING_TIME_KOR_FULL':'오후 두 시','WEDDING_TIME_24H':'14:00','WEDDING_TIME_DISPLAY':'오후 2:00','WEDDING_MONTH_KOR':'10월',
- 'WEDDING_MONTH_DISPLAY':'2026년 10월','WEDDING_MONTH_HAN':'시월','WEDDING_DAY_HAN':'이십사일','WEDDING_MONTH_DAY_DISPLAY':'10 · 24','WEDDING_MONTH_DAY_PERIOD':'10.24',
- 'WEDDING_MONTH_DAY_DOT':'10. 24','WEDDING_MONTH_SLASH':'10 / 2026','WEDDING_FULL_DATE_DOT':'2026 · 10 · 24',
+ 'GROOM_FATHER_NAME':'이재환','GROOM_FATHER_BANK':'국민은행','GROOM_FATHER_ACCOUNT':'110-123-456789','GROOM_FATHER_ACCOUNT_RAW':'110123456789',
+ 'GROOM_MOTHER_NAME':'최미경','GROOM_MOTHER_BANK':'신한은행','GROOM_MOTHER_ACCOUNT':'220-456-123789','GROOM_MOTHER_ACCOUNT_RAW':'220456123789',
+ 'BRIDE_FATHER_NAME':'정영석','BRIDE_FATHER_BANK':'농협','BRIDE_FATHER_ACCOUNT':'351-234-567890','BRIDE_FATHER_ACCOUNT_RAW':'351234567890',
+ 'BRIDE_MOTHER_NAME':'박윤희','BRIDE_MOTHER_BANK':'카카오뱅크','BRIDE_MOTHER_ACCOUNT':'3333-12-3456789','BRIDE_MOTHER_ACCOUNT_RAW':'3333123456789',
+ # 날짜 — 2026.03.05 목요일
+ 'WEDDING_DATE_DISPLAY':'2026. 3. 5','WEDDING_DATE_KOR':'2026년 3월 5일','WEDDING_DATE_COMPACT':'20260305','WEDDING_DATE_SPACED':'2026 03 05',
+ 'WEDDING_DATE_LITERARY':'이천이십육년 삼월 오일','WEDDING_MONTH_EN':'March 2026','WEDDING_MONTH_EN_SHORT':'Mar','WEDDING_MONTH_NUM':'3','WEDDING_MONTH_NUM_PAD':'03',
+ 'WEDDING_MONTH_DAY_KOR':'3월 5일','WEDDING_DAY_OF_MONTH':'5','WEDDING_DAY_OF_MONTH_PAD':'05','WEDDING_DAY_KOR':'목요일','WEDDING_DAY_EN':'Thursday','WEDDING_DAY_EN_SHORT':'Thu',
+ 'WEDDING_YEAR':'2026','WEDDING_YEAR_EN':'Two Thousand Twenty-Six','WEDDING_YEAR_ROMAN':'MMXXVI','WEDDING_ISO_DATETIME':'2026-03-05T14:00:00+09:00',
+ 'WEDDING_TIME_KOR':'오후 두 시','WEDDING_TIME_KOR_FULL':'오후 두 시','WEDDING_TIME_24H':'14:00','WEDDING_TIME_DISPLAY':'오후 2:00','WEDDING_MONTH_KOR':'3월',
+ 'WEDDING_MONTH_DISPLAY':'2026년 3월','WEDDING_MONTH_HAN':'삼월','WEDDING_DAY_HAN':'오일','WEDDING_MONTH_DAY_DISPLAY':'3 · 5','WEDDING_MONTH_DAY_PERIOD':'3.5',
+ 'WEDDING_MONTH_DAY_DOT':'3. 5','WEDDING_MONTH_SLASH':'3 / 2026','WEDDING_FULL_DATE_DOT':'2026 · 3 · 5',
  'GROOM_BIO':'풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.','BRIDE_BIO':'오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.',
  'VENUE_NAME_KO':'모먼트 에디트 스튜디오','VENUE_NAME_EN':'Moment Edit Studio',
  'VENUE_NAME_KO_URI':'%EB%AA%A8%EB%A8%BC%ED%8A%B8%20%EC%97%90%EB%94%94%ED%8A%B8%20%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4',
  'VENUE_ADDRESS':'경기도 고양시 덕양구 향동동 일대','VENUE_TRANSPORT':'6호선 디지털미디어시티역 1번 출구 차량 8분','VENUE_PARKING':'건물 지하 1~3층 주차 가능 (3시간 무료)',
  'VENUE_MAP_IFRAME':'https://maps.google.com/maps?q=37.6204,126.8786&z=16&output=embed','EVENT_ID':'test-couple',
 }
-CUSTOM_INVITATION="<p>함께 걸어온 시간이<br>7년의 봄여름을 지나 하나의 약속이 됩니다.</p><p>저희 두 사람의 시작에<br>귀한 마음 함께해 주시면<br>오래오래 기억하겠습니다.</p>"
-CUSTOM_PULLQUOTE="한 장면, 한 약속, 하나의 시작."
 
-def build_calendar_cells():
-    cells = ['<div class="date-cal-cell when-cal-cell empty" aria-hidden="true"></div>']*4
-    for day in range(1,32):
-        s=' sun' if day in (4,11,18,25) else ''
-        mk=' marked' if day==24 else ''
-        ar=' aria-current="date"' if day==24 else ''
+# ============================================================
+# 캘린더 — 2026년 3월(1일=일요일), 결혼일 5일 marked
+# ============================================================
+def build_calendar_cells(year=2026, month=3, marked=5):
+    first = datetime.date(year, month, 1)
+    lead = (first.weekday() + 1) % 7           # 일요일 시작 달력에서 1일의 칸 위치
+    nxt = datetime.date(year + (month == 12), (month % 12) + 1, 1)
+    ndays = (nxt - first).days
+    cells = ['<div class="date-cal-cell when-cal-cell empty" aria-hidden="true"></div>'] * lead
+    for day in range(1, ndays + 1):
+        col = (lead + day - 1) % 7
+        s = ' sun' if col == 0 else ''
+        mk = ' marked' if day == marked else ''
+        ar = ' aria-current="date"' if day == marked else ''
         cells.append(f'<div class="date-cal-cell when-cal-cell{s}{mk}"{ar}><span>{day}</span></div>')
     return '\n'.join(cells)
 CAL = build_calendar_cells()
 
-def process_optional(t,k,a,c=None):
-    p=re.compile(rf'<!-- OPTIONAL:{re.escape(k)} -->(.*?)<!-- /OPTIONAL:{re.escape(k)} -->',re.DOTALL)
-    if a=='keep':    return p.sub(lambda m:m.group(1),t)
-    if a=='remove':  return p.sub('',t)
-    if a=='replace': return p.sub(lambda m:c,t)
+# ============================================================
+# OPTIONAL 마커 처리
+# ============================================================
+def process_optional(t, k, a, c=None):
+    p = re.compile(rf'<!-- OPTIONAL:{re.escape(k)} -->(.*?)<!-- /OPTIONAL:{re.escape(k)} -->', re.DOTALL)
+    if a == 'keep':    return p.sub(lambda m: m.group(1), t)
+    if a == 'remove':  return p.sub('', t)
+    if a == 'replace': return p.sub(lambda m: c, t)
     return t
+
+# 혼주 표기 + 양가 부모님 계좌를 노출할 디자인
+PARENTS_SHOW = {'01', '03', '04', '06'}
 
 def fill_master(num, has_pq, has_bio):
     t = (HERE / f'live-{num}.master').read_text(encoding='utf-8')
-    t = process_optional(t,'invitationText','replace',CUSTOM_INVITATION)
+    # 글(인사말·대표문구·자기소개) — 기본값 유지(커스텀 미적용)
+    t = process_optional(t, 'invitationText', 'keep')
     if has_pq:
-        t = process_optional(t,'pullQuote','replace',CUSTOM_PULLQUOTE)
-    for k in ['envelope','groomParents','brideParents','groomAccount','brideAccount',
-              'groomFatherAccount','groomMotherAccount','brideFatherAccount','brideMotherAccount']:
-        t = process_optional(t,k,'keep')
+        t = process_optional(t, 'pullQuote', 'keep')
     if has_bio:
-        for k in ['groomBio','brideBio']:
-            t = process_optional(t,k,'keep')
-    for k,v in DATA.items():
-        t = t.replace('{{'+k+'}}', str(v))
+        for k in ['groomBio', 'brideBio']:
+            t = process_optional(t, k, 'keep')
+    # 마음 전하실 곳 — 봉투 + 신랑·신부 본인 계좌는 항상 표기
+    for k in ['envelope', 'groomAccount', 'brideAccount']:
+        t = process_optional(t, k, 'keep')
+    # 혼주 이름 표기 + 양가 부모님 계좌 — 어울리는 디자인에만
+    parent_keys = ['groomParents', 'brideParents',
+                   'groomFatherAccount', 'groomMotherAccount',
+                   'brideFatherAccount', 'brideMotherAccount']
+    action = 'keep' if num in PARENTS_SHOW else 'remove'
+    for k in parent_keys:
+        t = process_optional(t, k, action)
+    # placeholder 치환
+    for k, v in DATA.items():
+        t = t.replace('{{' + k + '}}', str(v))
     t = t.replace('{{CALENDAR_CELLS_HTML}}', CAL)
     return t
 
@@ -166,7 +198,7 @@ GUIDE_CARD = """<!DOCTYPE html>
     </div>
     <div class="gd-memo">
       <span class="gd-memo-tag">혼주 표기</span>
-      <span class="gd-memo-txt">양가 부모님을 인사말 아래 함께 모실 수 있습니다. 원치 않으시면 표기 없이 비워 둡니다.</span>
+      <span class="gd-memo-txt">양가 부모님을 함께 모실 수 있습니다. 원치 않으시면 표기 없이 비워 둡니다.</span>
     </div>
   </div>
 
@@ -207,15 +239,15 @@ def build_all():
     out = {}
     for num, pq, bio in DESIGNS:
         html = fill_master(num, pq, bio)
-        # 검증
         leftover = re.findall(r'\{\{[A-Z_]+\}\}', html)
         opts = re.findall(r'<!-- /?OPTIONAL:[^>]+-->', html)
         assert not leftover, f"{num}: leftover placeholders {leftover[:5]}"
         assert not opts, f"{num}: leftover OPTIONAL markers {opts[:5]}"
         assert 'live.html' in html, f"{num}: missing live.html Enter link"
-        assert '<title>' in html, f"{num}: missing <title>"
+        assert '이서준' in html and '정하윤' in html, f"{num}: couple name missing"
+        if num in PARENTS_SHOW:
+            assert '이재환' in html, f"{num}: parents expected but missing"
         out[num] = b64(html)
-    # 09 엔드카드
     assert '{{' not in GUIDE_CARD, "guide card has leftover placeholders"
     assert 'live.html' not in GUIDE_CARD, "guide card must NOT contain live.html"
     out['09'] = b64(GUIDE_CARD)
@@ -224,29 +256,11 @@ def build_all():
 def apply_to_gallery(templates):
     src = GALLERY.read_text(encoding='utf-8')
     orig = src
-
-    # 1) TEMPLATES 블록 교체
     new_block = "const TEMPLATES = {\n" + ",\n".join(
         f"    '{k}': '{templates[k]}'" for k in ['01','02','03','04','05','06','07','08','09']
     ) + "\n  };"
     src, n = re.subn(r"const TEMPLATES = \{.*?\};", lambda m: new_block, src, count=1, flags=re.DOTALL)
     assert n == 1, f"TEMPLATES block replace count={n}"
-
-    # 2) INVITATIONS 9번째 항목 추가 (08 항목 뒤)
-    inv_old = "{file:'invitation-08-noir.html', name:'Noir Editorial', bg:'#0B0A09'}"
-    inv_new = inv_old + ",\n    {file:'invitation-09-guide.html', name:'Tailored · 맞춤 안내', bg:'#FAF8F4'}"
-    assert src.count(inv_old) == 1, "INVITATIONS 08 entry not unique"
-    src = src.replace(inv_old, inv_new, 1)
-
-    # 3) footer 'of 8' 정적 → 동적
-    of_old = ("var counterTotal = document.querySelector('.gv-counter-total');\n"
-              "  if (counterTotal) counterTotal.textContent = String(INVITATIONS.length).padStart(2,'0');")
-    of_new = of_old + ("\n  var metaOf = document.querySelector('.gv-meta-of');\n"
-                       "  if (metaOf) metaOf.textContent = 'of ' + INVITATIONS.length;")
-    assert src.count(of_old) == 1, "counterTotal anchor not unique"
-    src = src.replace(of_old, of_new, 1)
-
-    assert src != orig, "no changes applied"
     bak = GALLERY.with_suffix('.html.bak')
     bak.write_text(orig, encoding='utf-8')
     GALLERY.write_text(src, encoding='utf-8')
@@ -255,7 +269,8 @@ def apply_to_gallery(templates):
 if __name__ == '__main__':
     t = build_all()
     for k in sorted(t):
-        print(f"  {k}: {len(base64.b64decode(t[k])):,}B html  →  {len(t[k]):,}B b64")
+        tag = '' if k == '09' else ('  [혼주·부모계좌 표기]' if k in PARENTS_SHOW else '  [본인 계좌만]')
+        print(f"  {k}: {len(base64.b64decode(t[k])):,}B html  →  {len(t[k]):,}B b64{tag}")
     if '--apply' in sys.argv:
         apply_to_gallery(t)
     else:
