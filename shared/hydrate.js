@@ -228,10 +228,15 @@
 
     var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
     var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
-    html = processOptional(html, 'groomParents', hasGroomParents);
-    html = processOptional(html, 'brideParents', hasBrideParents);
+    var showGreetPar = truthy(c.greetingShowParents);
+    // 인사글 자녀소개 부모(greetingShowParents) — 결선 시 greeting* 마커로 분리됨
+    html = processOptional(html, 'greetingGroomParents', showGreetPar && hasGroomParents);
+    html = processOptional(html, 'greetingBrideParents', showGreetPar && hasBrideParents);
+    // 계좌 영역 부모 이름 라벨(envelopeShowParents · 부모 계좌와 묶음)
+    html = processOptional(html, 'groomParents', showEnvP && hasGroomParents);
+    html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
 
-    // 계좌 영역: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
+    // 계좌 섹션: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
     html = processOptional(html, 'envelope', true);
     html = processOptional(html, 'groomAccount', !!gAcct.account);
     html = processOptional(html, 'brideAccount', !!bAcct.account);
@@ -244,9 +249,7 @@
     } else {
       html = processOptional(html, 'invitationText', true); // 기본 인사글 유지
     }
-    // ② 인사글 밑 부모 표기 · ③ 계좌 부분 부모 표기 — 비우면 숨김
-    html = processOptional(html, 'greetingParents', truthy(c.greetingShowParents));
-    html = processOptional(html, 'envelopeParents', truthy(c.envelopeShowParents));
+    // (부모 표기 토글은 위 greeting*/envelope 부모 처리에서 분리 제어)
 
     // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지
     var customPQ = String(c.pullQuote || '').trim();
