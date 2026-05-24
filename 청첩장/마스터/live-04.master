@@ -1049,7 +1049,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     </div>
 
     <div class="cover-bottom">
-      <div class="cover-en-names">{{GROOM_FULL_EN}} <span class="amp">&amp;</span> {{BRIDE_FULL_EN}}</div>
+      <div class="cover-en-names">{{GROOM_FIRST_EN}} <span class="amp">&amp;</span> {{BRIDE_FIRST_EN}}</div>
       <div class="cover-date">
         {{WEDDING_DATE_KOR}}
         <em>{{WEDDING_DAY_KOR}} · {{WEDDING_TIME_KOR}}</em>
