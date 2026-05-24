@@ -159,6 +159,7 @@ GUIDE_CARD = """<!DOCTYPE html>
   .gd-two-item + .gd-two-item{padding-top:22px}
   .gd-two-label{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.07em;color:var(--seal)}
   .gd-two-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:8px 0 0;word-break:keep-all}
+  .gd-two-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--seal);letter-spacing:0.02em;line-height:1.7;margin:9px 0 0;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -190,6 +191,7 @@ GUIDE_CARD = """<!DOCTYPE html>
       <div class="gd-two-item">
         <div class="gd-two-label">온라인 청첩장</div>
         <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>라이브 페이지로 이어집니다.</p>
+        <p class="gd-two-note">라이브 중계 여부는 두 분의 선택입니다.</p>
       </div>
       <div class="gd-two-item">
         <div class="gd-two-label">오프라인 청첩장</div>
