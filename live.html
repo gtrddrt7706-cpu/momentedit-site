@@ -1968,11 +1968,12 @@ const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRcl
 function applyCoupleInfo(couple){
   if (!couple) return;
 
-  // 1. 영문 이름 (Cover) — couple-en-name 두 개
+  // 1. 영문 이름 (Cover) — 성 제외, 이름만 (couple-en-name 두 개)
   const enNames = document.querySelectorAll('.couple-en-name');
   if (enNames.length >= 2) {
-    enNames[0].textContent = (couple.groomNameEn || 'GROOM').toUpperCase();
-    enNames[1].textContent = (couple.brideNameEn || 'BRIDE').toUpperCase();
+    const firstEn = function (s) { var p = String(s || '').trim().split(/\s+/); return (p.length > 1 ? p.slice(1).join(' ') : (p[0] || '')); };
+    enNames[0].textContent = (firstEn(couple.groomNameEn) || 'GROOM').toUpperCase();
+    enNames[1].textContent = (firstEn(couple.brideNameEn) || 'BRIDE').toUpperCase();
   }
 
   // 2. 한글 이름 (Cover) — couple-ko
@@ -2050,6 +2051,9 @@ function applyCoupleInfo(couple){
     return { bank: bank, account: account };
   };
 
+  // envelopeShowParents: 명시적 N일 때만 숨김(빈 칸·미지정·Y는 노출) — hydrate.js와 동일
+  const showEnvP = !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(couple.envelopeShowParents || '').trim());
+
   // 6. envelope 신랑 측
   const groomEnv = document.getElementById('env-groom');
   if (groomEnv) {
@@ -2058,6 +2062,7 @@ function applyCoupleInfo(couple){
       name: couple.groomName,
       parents: couple.groomParents,
       parentRelation: '의 아들',
+      showParents: showEnvP,
       bank: gA.bank,
       account: gA.account,
     });
@@ -2071,13 +2076,13 @@ function applyCoupleInfo(couple){
       name: couple.brideName,
       parents: couple.brideParents,
       parentRelation: '의 딸',
+      showParents: showEnvP,
       bank: bA.bank,
       account: bA.account,
     });
   }
 
-  // 8. 부모 계좌 (envelopeShowParents=Y + 계좌 있을 때만) — 가족/라이브 동일 동작
-  const showEnvP = /^(y|yes|true|1|on|표시|예|네)$/i.test(String(couple.envelopeShowParents || '').trim());
+  // 8. 부모 계좌 (envelopeShowParents + 계좌 있을 때만) — 가족/라이브 동일 동작
   if (groomEnv) fillParentAccounts(groomEnv.closest('.env-item'), couple.groomParents, showEnvP, couple.groomFatherAccount, couple.groomMotherAccount);
   if (brideEnv) fillParentAccounts(brideEnv.closest('.env-item'), couple.brideParents, showEnvP, couple.brideFatherAccount, couple.brideMotherAccount);
 }
@@ -2116,7 +2121,7 @@ function updateEnvelopeBlock(item, info){
   // 부모 정보 — 있으면 표시, 없으면 행 hide
   const parentsEl = item.querySelector('.env-q-parents');
   if (parentsEl) {
-    if (info.parents && String(info.parents).trim()) {
+    if (info.showParents && info.parents && String(info.parents).trim()) {
       parentsEl.innerHTML = info.parents + '<span class="of">' + info.parentRelation + '</span>';
       parentsEl.style.display = '';
     } else {
