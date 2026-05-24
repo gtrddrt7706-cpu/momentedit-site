@@ -172,15 +172,15 @@ GUIDE_CARD = """<!DOCTYPE html>
 
   <div class="gd-item">
     <div class="gd-label">인사말</div>
-    <p class="gd-desc">두 분의 문장을 그대로 새겨 드립니다. 따로 적지 않으시면 정갈한 기본 인사말로 채워집니다.</p>
+    <p class="gd-desc">두 분의 문장을 그대로 새겨 드립니다.<br>따로 적지 않으시면 정갈한 기본 인사말로 채워집니다.</p>
   </div>
   <div class="gd-item">
     <div class="gd-label">혼주 표기</div>
-    <p class="gd-desc">양가 부모님을 함께 모실 수 있습니다. 원치 않으시면 표기 없이 비워 둡니다.</p>
+    <p class="gd-desc">양가 부모님을 함께 모실 수 있습니다.<br>원치 않으시면 표기 없이 비워 둡니다.</p>
   </div>
   <div class="gd-item">
     <div class="gd-label">마음 전하실 곳</div>
-    <p class="gd-desc">양가 부모님 계좌까지 함께. 필요하신 분만 펼쳐 보도록 정중히 접어 둡니다.</p>
+    <p class="gd-desc">양가 부모님 계좌까지 함께.<br>필요하신 분만 펼쳐 보도록 정중히 접어 둡니다.</p>
   </div>
 
   <div class="gd-foot">
