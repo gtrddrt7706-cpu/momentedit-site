@@ -154,6 +154,11 @@ GUIDE_CARD = """<!DOCTYPE html>
   .gd-foot-en{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.16em;color:var(--gold)}
   .gd-foot-ko{font-family:var(--serif-ko);font-size:17px;font-weight:500;letter-spacing:0.03em;margin:13px 0 0}
   .gd-foot-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:14px 0 0;word-break:keep-all}
+  .gd-two{margin:30px 0 0}
+  .gd-two-item{padding-top:20px}
+  .gd-two-item + .gd-two-item{padding-top:22px}
+  .gd-two-label{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.07em;color:var(--seal)}
+  .gd-two-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:8px 0 0;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -181,7 +186,16 @@ GUIDE_CARD = """<!DOCTYPE html>
   <div class="gd-foot">
     <div class="gd-foot-en">Two invitations, one preparation</div>
     <p class="gd-foot-ko">온라인 · 오프라인, 두 편을 함께</p>
-    <p class="gd-foot-desc">멀리 계신 하객께는 링크로,<br>가까운 분들께는 직접 건네는 한 편으로.</p>
+    <div class="gd-two">
+      <div class="gd-two-item">
+        <div class="gd-two-label">온라인 청첩장</div>
+        <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>라이브 페이지로 이어집니다.</p>
+      </div>
+      <div class="gd-two-item">
+        <div class="gd-two-label">오프라인 청첩장</div>
+        <p class="gd-two-desc">가까운 분들께 직접 건네는 한 편,<br>오시는 길(약도)을 함께 담습니다.</p>
+      </div>
+    </div>
   </div>
 </div>
 </body>
