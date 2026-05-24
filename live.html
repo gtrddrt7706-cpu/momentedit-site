@@ -1921,12 +1921,21 @@ window.addEventListener('load', () => {
 const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
 
 (async function initLiveBroadcast(){
+  // Apps Script 서버에 미리 연결(체감 속도 ↑)
+  try {
+    ['https://script.google.com', 'https://script.googleusercontent.com'].forEach(function(h){
+      if (document.querySelector('link[rel="preconnect"][href="' + h + '"]')) return;
+      var l = document.createElement('link'); l.rel = 'preconnect'; l.href = h; l.crossOrigin = '';
+      document.head.appendChild(l);
+    });
+  } catch (_) {}
+
   // URL에서 eventId 추출
   const params = new URLSearchParams(window.location.search);
   const eventId = (params.get('e') || '').trim();
+  const forceFresh = params.get('fresh') === '1';   // &fresh=1 → 캐시 무시(편집 중 즉시 확인)
 
   // v3.2 · FOUC 방지: 최종 안전망 (5초 후 강제 표시)
-  // fetch 무한 대기로 흰 화면 영구 노출 방지
   const failsafeTimer = setTimeout(() => {
     document.body.classList.add('couple-ready');
   }, 5000);
@@ -1938,27 +1947,47 @@ const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRcl
     return;
   }
 
-  // 시트에서 부부 정보 fetch
+  const cacheKey = 'me_couple_' + eventId;   // 청첩장 커버(hydrate)와 캐시 공유
+  let rendered = false;
+
+  // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
+  if (!forceFresh) {
+    try {
+      const raw = localStorage.getItem(cacheKey);
+      if (raw) {
+        const c = JSON.parse(raw); c.eventId = eventId;
+        applyCoupleInfo(c);
+        attachVimeoPlayer(c.vimeoId, c.vimeoHash);
+        clearTimeout(failsafeTimer);
+        document.body.classList.add('couple-ready');
+        rendered = true;
+      }
+    } catch (_) {}
+  }
+
+  // 시트에서 부부 정보 fetch (캐시 없으면 지금 렌더, 있으면 캐시만 갱신)
   try {
-    const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId);
+    const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + (forceFresh ? '&fresh=1' : '');
     const res = await fetch(url);
     const data = await res.json();
 
     if (!data.ok) {
       console.warn('[Live] Couple not found:', eventId, data.error);
-      clearTimeout(failsafeTimer);
-      document.body.classList.add('couple-ready');
-      return; // 프리뷰 모드 fallback (더미 표시)
+      return; // finally에서 표시
     }
 
-    applyCoupleInfo(data.couple);
-    attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
+    try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
+    if (!rendered) {
+      applyCoupleInfo(data.couple);
+      attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
+    }
   } catch (err) {
     console.error('[Live] Failed to load couple info:', err);
   } finally {
-    // fetch 성공/실패 무관 · 항상 표시 (try 안에서 return해도 finally 실행됨)
-    clearTimeout(failsafeTimer);
-    document.body.classList.add('couple-ready');
+    if (!rendered) {
+      clearTimeout(failsafeTimer);
+      document.body.classList.add('couple-ready');
+    }
   }
 })();
 
