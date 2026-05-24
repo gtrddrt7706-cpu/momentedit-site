@@ -1072,7 +1072,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     <div class="invite-text reveal"><!-- OPTIONAL:invitationText -->
       <p>두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.</p>
       <p class="em">크지 않은 자리이지만,<br>그 한 장면을 함께 지켜봐 주신다면<br>오래도록 간직하겠습니다.</p>
-      <p>귀한 걸음으로 마음만 더해 주십시오.</p>
+      <p>귀한 마음만 더해 주십시오.</p>
     <!-- /OPTIONAL:invitationText --></div>
 
     <div class="invite-sign reveal">
