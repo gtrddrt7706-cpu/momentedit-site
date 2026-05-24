@@ -1,0 +1,10 @@
+# 작업용 엑셀 — 열 때마다 '변경'으로 떠서 git 추적 제외 (파일은 PC에 그대로 남음)
+*.xlsx
+*.xls
+~$*
+
+# OS / 편집기 / 빌드 잡파일
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
