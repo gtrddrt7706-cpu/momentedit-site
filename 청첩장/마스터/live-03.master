@@ -1708,6 +1708,7 @@ details.env-acc-item[open] .env-acc-plus{
   </section>
 
   <!-- ═══ Nº III. JOIN ═══ -->
+  <!-- OPTIONAL:digitalAttendance -->
   <section class="sec sec-join" aria-labelledby="sec-03-title">
     <div class="sec-marker tc">
       <span class="sec-marker-num">III</span>
@@ -1742,6 +1743,7 @@ details.env-acc-item[open] .env-acc-plus{
       </div>
     </div>
   </section>
+  <!-- /OPTIONAL:digitalAttendance -->
 
   <!-- OPTIONAL:envelope -->
   <!-- ═══ Nº IV. ENVELOPE ═══ -->

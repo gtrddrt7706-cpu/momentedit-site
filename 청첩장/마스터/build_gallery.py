@@ -96,7 +96,8 @@ def fill_master(num, has_pq, has_bio):
         for k in ['groomBio', 'brideBio']:
             t = process_optional(t, k, 'keep')
     # 마음 전하실 곳 — 봉투 + 신랑·신부 본인 계좌는 항상 표기
-    for k in ['envelope', 'groomAccount', 'brideAccount']:
+    # 디지털 참석(선택제) — 미리보기는 기본값(노출) 유지
+    for k in ['envelope', 'groomAccount', 'brideAccount', 'digitalAttendance']:
         t = process_optional(t, k, 'keep')
     # 혼주 이름 표기 + 양가 부모님 계좌 — 어울리는 디자인에만
     parent_keys = ['groomParents', 'brideParents',
@@ -190,7 +191,7 @@ GUIDE_CARD = """<!DOCTYPE html>
     <div class="gd-two">
       <div class="gd-two-item">
         <div class="gd-two-label">온라인 청첩장</div>
-        <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>라이브 페이지로 이어집니다.</p>
+        <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>디지털 참석 페이지로 이어집니다.</p>
         <p class="gd-two-note">디지털 참석은 두 분의 선택입니다.</p>
       </div>
       <div class="gd-two-item">

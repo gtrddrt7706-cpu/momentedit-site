@@ -1531,6 +1531,7 @@ details.env-acc-item[open] > summary.env-acc-q{
   </section>
 
   <!-- ═══ Nº III. JOIN (Short + Dark - Color Blocking) ═══ -->
+  <!-- OPTIONAL:digitalAttendance -->
   <section class="sec sec-short sec-join" aria-labelledby="sec-03-title">
 
     <div class="sec-meta">
@@ -1565,6 +1566,7 @@ details.env-acc-item[open] > summary.env-acc-q{
       </div>
     </div>
   </section>
+  <!-- /OPTIONAL:digitalAttendance -->
 
   <!-- OPTIONAL:envelope -->
   <!-- ═══ Nº IV. ENVELOPE ═══ -->

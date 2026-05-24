@@ -32,7 +32,7 @@
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
-    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y',
+    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y', digitalAttendance: 'Y',
     // 부모 계좌 (프리뷰 샘플)
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
@@ -235,6 +235,10 @@
     // 계좌 영역 부모 이름 라벨(envelopeShowParents · 부모 계좌와 묶음)
     html = processOptional(html, 'groomParents', showEnvP && hasGroomParents);
     html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
+
+    // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
+    var hideDigital = /^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(c.digitalAttendance || '').trim());
+    html = processOptional(html, 'digitalAttendance', !hideDigital);
 
     // 계좌 섹션: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
     html = processOptional(html, 'envelope', true);
