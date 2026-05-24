@@ -109,11 +109,8 @@ body{
 
 /* 시스템 라이트 모드도 무시 — Velour는 항상 다크 */
 @media (prefers-color-scheme:light){
-  html,body{
-  background:linear-gradient(to bottom, var(--bg) 0%, var(--bg-deep) 100%) !important;
-    background:#0E0E14 !important;
-    color:#F2E8D5 !important;
-  }
+  html{ background:#1a1612 !important; }
+  body{ color:#F2E8D5 !important; }
 }
 
 /* 접근성 — 스크린리더 전용 */
