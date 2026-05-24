@@ -162,6 +162,11 @@ GUIDE_CARD = """<!DOCTYPE html>
   .gd-two-label{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.07em;color:var(--seal)}
   .gd-two-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:8px 0 0;word-break:keep-all}
   .gd-two-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--seal);letter-spacing:0.02em;line-height:1.7;margin:9px 0 0;word-break:keep-all}
+  .gd-scroll{position:fixed;left:0;right:0;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:20;transition:opacity 0.4s ease}
+  .gd-scroll.hide{opacity:0}
+  .gd-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold)}
+  .gd-scroll-chev{width:8px;height:8px;border-right:1.4px solid var(--gold);border-bottom:1.4px solid var(--gold);animation:gdScrollBounce 1.8s ease-in-out infinite}
+  @keyframes gdScrollBounce{0%,100%{transform:rotate(45deg) translate(-2px,-2px);opacity:0.45}50%{transform:rotate(45deg) translate(1px,1px);opacity:1}}
 </style>
 </head>
 <body>
@@ -202,6 +207,13 @@ GUIDE_CARD = """<!DOCTYPE html>
     </div>
   </div>
 </div>
+<div class="gd-scroll" id="gdScroll" aria-hidden="true">
+  <span class="gd-scroll-label">Scroll</span>
+  <span class="gd-scroll-chev"></span>
+</div>
+<script>
+(function(){var c=document.getElementById('gdScroll');if(!c)return;function u(){var b=document.documentElement;var atEnd=(window.innerHeight+(window.scrollY||window.pageYOffset))>=(b.scrollHeight-28);c.classList.toggle('hide',atEnd);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();
+</script>
 </body>
 </html>"""
 
