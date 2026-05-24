@@ -470,6 +470,17 @@
       if (num === '01'){
         galleryEmbedCSS = galleryEmbedCSS.replace('</style>', 'html,body{background:#E8E4DA !important}.invitation{max-width:calc(100% - 28px) !important;margin:0 auto !important;background:#FAFAF8 !important;border-radius:3px !important;box-shadow:0 1px 2px rgba(95,75,55,0.06),0 10px 28px rgba(95,75,55,0.10),0 28px 60px rgba(95,75,55,0.09) !important}</style>');
       }
+      // 06·07 전용 — 표지가 115vh/118vh로 프레임(100dvh)보다 길어 하단(스튜디오 줄)이 잘림.
+      //   갤러리 미리보기에서만 표지를 살짝 축소해 통째로 들어오게 한다(디자인 원본은 불변).
+      if (num === '06' || num === '07'){
+        var _sc = (num === '06') ? 0.86 : 0.84;
+        var _wd = (num === '06') ? 116.28 : 119.05;
+        var _ml = (num === '06') ? -8.14 : -9.52;
+        galleryEmbedCSS = galleryEmbedCSS.replace('</style>',
+          'main>.cover,.sec:first-child,header.cover,.invitation>.cover{height:auto !important;max-height:none !important;overflow:visible !important}' +
+          'main.invitation{transform:scale(' + _sc + ') !important;transform-origin:top center !important;width:' + _wd + '% !important;margin-left:' + _ml + '% !important}' +
+          '</style>');
+      }
       // 03 Letterpress 전용 미세조정.
       // ⚠️ iframe 안 viewport = iframe element width(420px)라 미디어쿼리 max-width:760px이
       // 항상 매칭됨 (부모가 데스크탑이어도). 그래서 미디어쿼리 분기 대신 직접 룰로 작성.
