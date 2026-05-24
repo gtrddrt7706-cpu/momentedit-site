@@ -2,7 +2,7 @@
 invitation-gallery.html 의 TEMPLATES(base64) 9개 재생성기.
 
 미리보기 일관성 원칙 (huijun 지시):
-- 더미 커플은 **이서준 · 정하윤 (2026.11.27 금)** 로 고정 — 갤러리 인라인 라이브
+- 더미 커플은 **이서준 · 정하윤 (2027.11.27 토)** 로 고정 — 갤러리 인라인 라이브
   스냅샷(LIVE_HTML_B64)과 동일. 모든 미리보기에서 일관된 기본값.
 - 인사말·대표문구·자기소개는 **기본값(마스터 내장)** 사용(커스텀 미적용).
 - 혼주 표기 + 양가 부모님 계좌는 **어울리는 디자인에만** 표기:
@@ -24,7 +24,7 @@ SITE = HERE.parent.parent
 GALLERY = SITE / 'invitation-gallery.html'
 
 # ============================================================
-# 더미 커플 — 이서준 · 정하윤 / 2026.11.27(금) 10:00 / 스냅샷과 동일
+# 더미 커플 — 이서준 · 정하윤 / 2027.11.27(토) 10:00 / 스냅샷과 동일
 # ============================================================
 DATA = {
  'GROOM_NAME':'이서준','BRIDE_NAME':'정하윤',
@@ -40,14 +40,14 @@ DATA = {
  'GROOM_MOTHER_NAME':'최미경','GROOM_MOTHER_BANK':'신한은행','GROOM_MOTHER_ACCOUNT':'220-456-123789','GROOM_MOTHER_ACCOUNT_RAW':'220456123789',
  'BRIDE_FATHER_NAME':'정영석','BRIDE_FATHER_BANK':'농협','BRIDE_FATHER_ACCOUNT':'351-234-567890','BRIDE_FATHER_ACCOUNT_RAW':'351234567890',
  'BRIDE_MOTHER_NAME':'박윤희','BRIDE_MOTHER_BANK':'카카오뱅크','BRIDE_MOTHER_ACCOUNT':'3333-12-3456789','BRIDE_MOTHER_ACCOUNT_RAW':'3333123456789',
- # 날짜 — 2026.11.27 금요일
- 'WEDDING_DATE_DISPLAY':'2026. 11. 27','WEDDING_DATE_KOR':'2026년 11월 27일','WEDDING_DATE_COMPACT':'20261127','WEDDING_DATE_SPACED':'2026 11 27',
- 'WEDDING_DATE_LITERARY':'이천이십육년 십일월 이십칠일','WEDDING_MONTH_EN':'November 2026','WEDDING_MONTH_EN_SHORT':'Nov','WEDDING_MONTH_NUM':'11','WEDDING_MONTH_NUM_PAD':'11',
- 'WEDDING_MONTH_DAY_KOR':'11월 27일','WEDDING_DAY_OF_MONTH':'27','WEDDING_DAY_OF_MONTH_PAD':'27','WEDDING_DAY_KOR':'금요일','WEDDING_DAY_EN':'Friday','WEDDING_DAY_EN_SHORT':'Fri',
- 'WEDDING_YEAR':'2026','WEDDING_YEAR_EN':'Two Thousand Twenty-Six','WEDDING_YEAR_ROMAN':'MMXXVI','WEDDING_ISO_DATETIME':'2026-11-27T10:00:00+09:00',
+ # 날짜 — 2027.11.27 토요일
+ 'WEDDING_DATE_DISPLAY':'2027. 11. 27','WEDDING_DATE_KOR':'2027년 11월 27일','WEDDING_DATE_COMPACT':'20271127','WEDDING_DATE_SPACED':'2027 11 27',
+ 'WEDDING_DATE_LITERARY':'이천이십칠년 십일월 이십칠일','WEDDING_MONTH_EN':'November 2027','WEDDING_MONTH_EN_SHORT':'Nov','WEDDING_MONTH_NUM':'11','WEDDING_MONTH_NUM_PAD':'11',
+ 'WEDDING_MONTH_DAY_KOR':'11월 27일','WEDDING_DAY_OF_MONTH':'27','WEDDING_DAY_OF_MONTH_PAD':'27','WEDDING_DAY_KOR':'토요일','WEDDING_DAY_EN':'Saturday','WEDDING_DAY_EN_SHORT':'Sat',
+ 'WEDDING_YEAR':'2027','WEDDING_YEAR_EN':'Two Thousand Twenty-Seven','WEDDING_YEAR_ROMAN':'MMXXVII','WEDDING_ISO_DATETIME':'2027-11-27T10:00:00+09:00',
  'WEDDING_TIME_KOR':'오전 열 시','WEDDING_TIME_KOR_FULL':'오전 열 시','WEDDING_TIME_24H':'10:00','WEDDING_TIME_DISPLAY':'오전 10:00','WEDDING_MONTH_KOR':'11월',
- 'WEDDING_MONTH_DISPLAY':'2026년 11월','WEDDING_MONTH_HAN':'십일월','WEDDING_DAY_HAN':'이십칠일','WEDDING_MONTH_DAY_DISPLAY':'11 · 27','WEDDING_MONTH_DAY_PERIOD':'11.27',
- 'WEDDING_MONTH_DAY_DOT':'11. 27','WEDDING_MONTH_SLASH':'11 / 2026','WEDDING_FULL_DATE_DOT':'2026 · 11 · 27',
+ 'WEDDING_MONTH_DISPLAY':'2027년 11월','WEDDING_MONTH_HAN':'십일월','WEDDING_DAY_HAN':'이십칠일','WEDDING_MONTH_DAY_DISPLAY':'11 · 27','WEDDING_MONTH_DAY_PERIOD':'11.27',
+ 'WEDDING_MONTH_DAY_DOT':'11. 27','WEDDING_MONTH_SLASH':'11 / 2027','WEDDING_FULL_DATE_DOT':'2027 · 11 · 27',
  'GROOM_BIO':'풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.','BRIDE_BIO':'오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.',
  'VENUE_NAME_KO':'모먼트 에디트 스튜디오','VENUE_NAME_EN':'Moment Edit Studio',
  'VENUE_NAME_KO_URI':'%EB%AA%A8%EB%A8%BC%ED%8A%B8%20%EC%97%90%EB%94%94%ED%8A%B8%20%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4',
@@ -56,9 +56,9 @@ DATA = {
 }
 
 # ============================================================
-# 캘린더 — 2026년 11월(1일=일요일), 결혼일 27일 marked
+# 캘린더 — 2027년 11월(1일=월요일), 결혼일 27일 marked
 # ============================================================
-def build_calendar_cells(year=2026, month=11, marked=27):
+def build_calendar_cells(year=2027, month=11, marked=27):
     first = datetime.date(year, month, 1)
     lead = (first.weekday() + 1) % 7           # 일요일 시작 달력에서 1일의 칸 위치
     nxt = datetime.date(year + (month == 12), (month % 12) + 1, 1)

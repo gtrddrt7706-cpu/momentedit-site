@@ -1052,7 +1052,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
       <div class="cover-en-names">{{GROOM_FULL_EN}} <span class="amp">&amp;</span> {{BRIDE_FULL_EN}}</div>
       <div class="cover-date">
         {{WEDDING_DATE_KOR}}
-        <em>목요일 · 오후 두 시</em>
+        <em>{{WEDDING_DAY_KOR}} · {{WEDDING_TIME_KOR}}</em>
       </div>
     </div>
   </header>
@@ -1245,7 +1245,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     <div class="foot-brand">Moment Edit</div>
     <div class="foot-sub">Private Wedding Studio</div>
     <div class="foot-quote">Focus on the Essence,<br>Record the Truth.</div>
-    <div class="foot-spec">DRW.04 · REV.03 · 2026</div>
+    <div class="foot-spec">DRW.04 · REV.03 · 2027</div>
   </footer>
 
 </main>
