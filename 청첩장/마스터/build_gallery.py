@@ -142,12 +142,12 @@ GUIDE_CARD = """<!DOCTYPE html>
   html{-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);line-height:1.85;-webkit-font-smoothing:antialiased;padding:0 0 76px}
   .gd-page{max-width:520px;margin:0 auto;padding:0 34px}
-  .gd-head{text-align:center;padding:76px 0 8px}
+  .gd-head{text-align:center;padding:30px 0 8px}
   .gd-eyebrow{font-family:var(--serif);font-style:italic;font-size:13px;letter-spacing:0.26em;text-transform:uppercase;color:var(--seal)}
   .gd-title{font-family:var(--serif-ko);font-size:26px;font-weight:500;letter-spacing:0.04em;margin:16px 0 0}
   .gd-sub{font-size:13.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;margin:14px 0 0}
-  .gd-rule{width:34px;height:1px;background:var(--gold);margin:32px auto 12px}
-  .gd-item{text-align:center;padding:30px 0}
+  .gd-rule{width:34px;height:1px;background:var(--gold);margin:16px auto 10px}
+  .gd-item{text-align:center;padding:20px 0}
   .gd-item + .gd-item{border-top:1px solid var(--line)}
   .gd-label{font-family:var(--serif-ko);font-size:17px;font-weight:500;letter-spacing:0.05em;color:var(--text)}
   .gd-desc{font-size:13px;font-weight:300;color:var(--sub);letter-spacing:0.01em;line-height:1.85;margin:11px auto 0;max-width:360px;word-break:keep-all}
