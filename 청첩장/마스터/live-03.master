@@ -338,7 +338,7 @@ body::after{
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:84px 30px 36px;
+  padding:140px 30px 36px;
   position:relative;
   z-index:2;
 }
