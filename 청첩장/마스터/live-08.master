@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="color-scheme" content="dark only">
-<meta name="theme-color" content="#1a1612">
+<meta name="theme-color" content="#201b16">
 <title>{{GROOM_NAME}} ♥ {{BRIDE_NAME}}의 결혼식에 초대합니다 | Moment Edit</title>
 <meta name="description" content="{{GROOM_NAME}} · {{BRIDE_NAME}}, {{WEDDING_DATE_DISPLAY}} {{WEDDING_DAY_KOR}} {{WEDDING_TIME_DISPLAY}}. 함께해주시면 큰 기쁨이겠습니다.">
 <meta name="author" content="Moment Edit">
@@ -49,7 +49,7 @@
 :root{
   color-scheme:dark;
   /* Velour Warm Charcoal 팔레트 (시네마 + 결혼식 분위기) */
-  --bg:#1a1612;            /* 따뜻한 차콜 (메인 배경) */
+  --bg:#201b16;            /* 따뜻한 차콜 (메인 배경) */
   --bg-2:#231d17;          /* 한 톤 라이트 (섹션 내부 카드) */
   --bg-deep:#13100c;       /* 한 톤 다크 (Cover 끝 그라데이션) */
   --ink:#F2E8D5;           /* 샴페인 아이보리 (본문) */
@@ -109,7 +109,7 @@ body{
 
 /* 시스템 라이트 모드도 무시 — Velour는 항상 다크 */
 @media (prefers-color-scheme:light){
-  html{ background:#1a1612 !important; }
+  html{ background:#201b16 !important; }
   body{ color:#F2E8D5 !important; }
 }
 
