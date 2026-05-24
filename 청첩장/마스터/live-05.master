@@ -355,7 +355,7 @@ body::after{
   line-height:0.95;
   color:var(--ink-green);
   letter-spacing:0;
-  margin-bottom:20px;
+  margin-bottom:8px;
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -405,7 +405,7 @@ body::after{
   opacity:0.45;
   letter-spacing:0.3em;
   padding-left:0.3em;
-  margin-top:16px;
+  margin-top:6px;
   margin-bottom:0;
   text-align:center;
 }
