@@ -51,15 +51,15 @@ html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
   "thumbnailUrl": [
     "https://momentedit.kr/og-image.png"
   ],
-  "uploadDate": "2026-01-01",
+  "uploadDate": "2027-11-01",
   "contentUrl": "https://momentedit.kr/live.html",
   "embedUrl": "https://momentedit.kr/live.html",
   "publication": {
     "@type": "BroadcastEvent",
     "name": "Moment Edit 디지털 참석 송출 (예시)",
     "isLiveBroadcast": false,
-    "startDate": "2026-03-05T11:00:00+09:00",
-    "endDate": "2026-03-05T12:00:00+09:00"
+    "startDate": "2027-12-17T10:00:00+09:00",
+    "endDate": "2027-12-17T11:00:00+09:00"
   },
   "potentialAction": {
     "@type": "WatchAction",
@@ -1504,7 +1504,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <div class="couple-en">
       <span class="couple-en-name">SEO&nbsp;JUN</span>
       <span class="couple-en-amp">&amp;</span>
-      <span class="couple-en-name">HA&nbsp;YUN</span>
+      <span class="couple-en-name">HA&nbsp;YOON</span>
     </div>
     <div class="couple-hairline"></div>
     <div class="couple-ko">이서준 &middot; 정하윤</div>
@@ -1513,8 +1513,8 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   <div class="hero-divider hairline hairline-draw"></div>
 
   <div class="event-meta">
-    <div class="event-date">2026<span class="sep">·</span>03<span class="sep">·</span>05</div>
-    <div class="event-time">THU<span class="sep">／</span>14:00 KST</div>
+    <div class="event-date">2027<span class="sep">·</span>12<span class="sep">·</span>17</div>
+    <div class="event-time">FRI<span class="sep">／</span>10:00 KST</div>
   </div>
 
   <p class="hero-note">두 분의 가장 빛나는 순간에<br>함께해 주셔서 감사합니다.</p>
@@ -1571,11 +1571,11 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <div class="credit-table">
       <div class="credit-row">
         <span class="credit-key">Date</span>
-        <span class="credit-val">2026.03.05 <span class="small">THU</span></span>
+        <span class="credit-val">2027.12.17 <span class="small">FRI</span></span>
       </div>
       <div class="credit-row">
         <span class="credit-key">Time</span>
-        <span class="credit-val">14:00 <span class="small">KST</span></span>
+        <span class="credit-val">10:00 <span class="small">KST</span></span>
       </div>
       <div class="credit-row">
         <span class="credit-key">Duration</span>
@@ -1984,12 +1984,12 @@ function applyCoupleInfo(couple){
 
   // 3. 날짜 / 요일 / 시간
   const date = couple.weddingDate || '';
-  const time24 = couple.weddingTime || '14:00';
+  const time24 = couple.weddingTime || '10:00';
 
   if (date) {
     const [y, m, d] = date.split('-');
 
-    // event-date: 2026·08·23
+    // event-date: 2027·12·17
     const dateEl = document.querySelector('.event-date');
     if (dateEl) {
       dateEl.innerHTML = y + '<span class="sep">·</span>' + m + '<span class="sep">·</span>' + d;
@@ -2000,7 +2000,7 @@ function applyCoupleInfo(couple){
     const dayIdx = new Date(date + 'T00:00:00+09:00').getDay();
     const weekdayEn = weekdayMap[dayIdx] || 'SUN';
 
-    // event-time: SUN／14:00 KST
+    // event-time: FRI／10:00 KST
     const timeEl = document.querySelector('.event-time');
     if (timeEl) {
       timeEl.innerHTML = weekdayEn + '<span class="sep">／</span>' + time24 + ' KST';
