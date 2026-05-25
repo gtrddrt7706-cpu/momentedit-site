@@ -37,9 +37,8 @@
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
     // 디자인 특수 (02 대표문구 · 08 자기소개)
-    pullQuote: '',
-    groomBio: '풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.',
-    brideBio: '오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.'
+    // 08 한마디는 비워 기본 문구(다짐·마음 형식, DEFAULT_*_BIO)가 프리뷰에 나오게 — 폼 안내와 일치
+    pullQuote: '', groomBio: '', brideBio: ''
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -62,9 +61,11 @@
   // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
   function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
   // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
+  // 직접 작성 인사말 → 문단/줄 처리. *별표*로 감싼 부분은 강조(.em, 전 디자인 공통)로 변환.
   function buildInvitation(text) {
+    function emph(s) { return s.replace(/\*([^*\n]+)\*/g, '<span class="em">$1</span>'); }
     return String(text).trim().split(/\n\s*\n/).map(function (p) {
-      return '<p>' + p.split('\n').map(function (l) { return escapeHtml(l.trim()); }).join('<br>') + '</p>';
+      return '<p>' + p.split('\n').map(function (l) { return emph(escapeHtml(l.trim())); }).join('<br>') + '</p>';
     }).join('');
   }
   // 계좌 셀 "국민 110-123-456789" → {bank, account, raw}. 비면 null.
