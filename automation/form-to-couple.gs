@@ -7,6 +7,13 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v6 개정 · 2026.05.25]
+ *  · 폼 인트로에 갤러리 링크 추가. 02/08 질문 본문의 미리보기 URL 제거(페이지 머리말에 이미 있음).
+ *  · 혼주 게이트에 안내 이미지 자동 첨부(CFG.IMG_PARENT_HELP에 URL 넣으면 ImageItem로 삽입).
+ *  · 가족 "QR만" 선택지를 "디지털 참석 입장 QR만 받을게요 (직접 제작용)"으로 명확화(라이브 페이지 QR).
+ *  · 08 자기소개=비우면 숨김(hydrate.js 확인), 02 대표문구=비우면 기본 — 문구 그대로 유지.
+ *  · 마지막 페이지에서 불필요한 "뒤로 안내" 문장 제거.
+ *
  * [v5 개정 · 2026.05.25]
  *  · 부부 자동 메일: 제출 즉시 부부 이메일로 청첩장 URL 발송(sendCoupleEmail).
  *    "수정하려면 폼 다시 작성" 안내 포함 → 고객이 직접 수정(같은 이름·날짜면 같은 행 갱신).
@@ -75,7 +82,8 @@ var CFG = {
   Q_GREET_GATE: '인사말에 혼주(부모님) 성함을 넣으시겠어요?',
   Q_ENVELOPE_GATE: '마음 전하실 곳(계좌)에 부모님 계좌를 넣으시겠어요?',
 
-  PROP_FORM_URL: 'FORM_PUBLISHED_URL'          // 자동 메일의 "다시 작성" 안내에 쓰는 폼 URL
+  PROP_FORM_URL: 'FORM_PUBLISHED_URL',         // 자동 메일의 "다시 작성" 안내에 쓰는 폼 URL
+  IMG_PARENT_HELP: ''                          // 인사말 "자녀 소개" 위치 안내 이미지 URL(비우면 첨부 안 함). 예) https://momentedit.kr/assets/form-parents.png
 };
 
 // ====================== 폼 제출 트리거 진입점 ======================
@@ -281,6 +289,7 @@ function createCoupleForm() {
   var form = FormApp.create('Moment Edit · 청첩장 정보');
   form.setDescription(
     '두 분의 결혼을 진심으로 축하드립니다.\n' +
+    '먼저 어떤 청첩장인지 둘러보고 싶으시면 → momentedit.kr/invitation-gallery.html\n' +
     '청첩장에 담길 내용을 받습니다 — 적어주신 그대로 청첩장에 들어갑니다.\n' +
     '필요한 항목만 채우셔도 돼요. 선택 항목을 비우면 가장 어울리는 기본값으로 들어갑니다.\n' +
     '제출하시면 완성된 청첩장 링크를 이메일로 보내드립니다.\n' +
@@ -328,6 +337,13 @@ function createCoupleForm() {
   var pbGreetGate = form.addPageBreakItem().setTitle('인사말 · 혼주 성함');
   var gateGreet = form.addMultipleChoiceItem().setTitle(CFG.Q_GREET_GATE).setRequired(true)
     .setHelpText('청첩장 인사말 아래 "자녀 소개" 부분에 혼주(부모님) 성함을 넣을지 정해주세요.');
+  if (CFG.IMG_PARENT_HELP) {
+    try {
+      form.addImageItem().setTitle('표시 위치 예시')
+        .setHelpText('인사말 아래 "자녀 소개" 부분에 이렇게 들어갑니다.')
+        .setImage(UrlFetchApp.fetch(CFG.IMG_PARENT_HELP).getBlob());
+    } catch (imgErr) { Logger.log('  (혼주 안내 이미지 첨부 실패: ' + imgErr.message + ')'); }
+  }
 
   // ── 페이지 4a · 혼주 성함 입력 ──
   var pbNames = form.addPageBreakItem().setTitle('혼주(부모님) 성함');
@@ -355,9 +371,10 @@ function createCoupleForm() {
   var pbFamily = form.addPageBreakItem().setTitle('가족 청첩장')
     .setHelpText('가족·가까운 분들께 따로 보내는 청첩장이에요. 식장 약도가 자동 포함됩니다(모먼트 스튜디오 고정).');
   form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_FAMILY).setRequired(false)
-    .setChoiceValues(designs.concat(['발행 안 함', '디지털 참석 QR만 제공 희망 (가족 청첩장 미발행)']))
+    .setChoiceValues(designs.concat(['발행 안 함', '디지털 참석 입장 QR만 받을게요 (직접 제작용)']))
     .setHelpText(GALLERY + ' 디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다. ' +
-      '가족 카드는 안 만들고 디지털 참석 청첩장 QR만 받고 싶으시면 "디지털 참석 QR만 제공 희망"을 골라주세요.');
+      '실물 청첩장을 직접 만드시거나 다른 곳에서 청첩장을 제작하셔서 ' +
+      '"디지털 참석 입장 QR"(라이브 페이지로 연결되는 QR)만 필요하시면 마지막 항목을 골라주세요.');
 
   // ── 페이지 8 · 디지털 참석 청첩장 게이트 ──
   var pbOnlineGate = form.addPageBreakItem().setTitle('디지털 참석 청첩장 (온라인 하객용)');
@@ -371,19 +388,18 @@ function createCoupleForm() {
   // ── 페이지 10 · 대표 문구 (02) ──
   var pbQuote = form.addPageBreakItem().setTitle('대표 문구 (Editorial · 02)')
     .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html');
-  optPara('대표 문구 (02 Editorial 전용)', '비우면 기본 문구가 들어갑니다. 02 디자인 미리보기: momentedit.kr/i/cover-02.html');
+  optPara('대표 문구 (02 Editorial 전용)', '비우면 기본 문구가 들어갑니다.');
 
   // ── 페이지 11 · 두 사람 소개 (08) ──
   var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
     .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html');
-  optPara('신랑 자기소개 (08 Noir 전용)', '비우면 숨겨집니다. 08 디자인 미리보기: momentedit.kr/i/cover-08.html');
+  optPara('신랑 자기소개 (08 Noir 전용)', '비우면 숨겨집니다.');
   optPara('신부 자기소개 (08 Noir 전용)', '비우면 숨겨집니다.');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
     .setHelpText('수고하셨어요! 위 내용으로 청첩장을 준비해, 완성 링크를 이메일로 보내드립니다.\n' +
-      '잘못 적은 곳이 있으면 "뒤로"로 돌아가 고치실 수 있어요.\n' +
-      '다 확인하셨으면 아래 "제출"을 눌러주세요. (제출 후 받으신 메일에서 폼을 다시 작성해 수정 가능)');
+      '다 확인하셨으면 아래 "제출"을 눌러주세요. (제출 후에도 받으신 메일의 안내대로 폼을 다시 작성하시면 수정돼요.)');
 
   // ── 분기 배선 ──
   gateGreet.setChoices([
