@@ -86,9 +86,9 @@ DATA = {
     'WEDDING_MONTH_SLASH': '10 / 2026',
     'WEDDING_FULL_DATE_DOT': '2026 · 10 · 24',
 
-    # 08 Noir 자기소개
-    'GROOM_BIO': '풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.',
-    'BRIDE_BIO': '오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.',
+    # 08 Noir 전하는 한마디
+    'GROOM_BIO': '특별하지 않은 하루도, 함께라 충분합니다.',
+    'BRIDE_BIO': '사랑한다는 말보다, 더 오래 곁에 있겠습니다.',
 
     # Venue
     'VENUE_NAME_KO': '모먼트 에디트 스튜디오',
