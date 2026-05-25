@@ -7,6 +7,13 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v13 개정 · 2026.05.25]
+ *  · 디자인 선택지 라벨 "01번 청첩장" → "01번"로 단축(#4).
+ *  · 02·08 전용 질문을 "디지털 디자인" 선택에 따라서만 노출(항상 노출 → 조건부, #5).
+ *    ※ 가족만 02·08인 경우엔 기본 문구가 들어감(폼은 EITHER-OR 조건 표시 불가).
+ *  · 계좌 게이트 중복 안내 제거(#1) · 08 안내 자연스럽게(#6) · 마지막 페이지 줄바꿈/문구 정리(#8).
+ *  · 폼 안내 이미지 표시 폭 축소(setWidth 300, #2).
+ *
  * [v12 개정 · 2026.05.25]
  *  · 디자인 선택지 라벨을 "01번 청첩장" 형식으로(가족·온라인 공통). 제출값은 숫자만 추출해 동일.
  *  · 08을 "자기소개" → "전하는 한마디(다짐·마음·소감)" 컨셉으로 변경(질문/안내/MAP 키).
@@ -334,7 +341,7 @@ function addFormImage(form, src, title, help) {
     var blob = /^https?:\/\//i.test(src)
       ? UrlFetchApp.fetch(src).getBlob()
       : DriveApp.getFileById(src).getBlob();
-    var it = form.addImageItem().setTitle(title || '예시 이미지').setImage(blob);
+    var it = form.addImageItem().setTitle(title || '예시 이미지').setImage(blob).setWidth(300);
     if (help) it.setHelpText(help);
   } catch (e) { Logger.log('  (이미지 첨부 실패: ' + (title || '') + ' — ' + e.message + ')'); }
 }
@@ -360,7 +367,7 @@ function createCoupleForm() {
   form.setConfirmationMessage('감사합니다! 입력하신 내용으로 청첩장을 준비해, 완성 링크를 이메일로 보내드릴게요. 수정하실 내용이 있으면 받으신 메일의 안내대로 폼을 다시 작성해 주세요.');
 
   var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
-  var designLabels = designs.map(function (n) { return n + '번 청첩장'; });  // "01번 청첩장" … (제출값에서 숫자만 추출)
+  var designLabels = designs.map(function (n) { return n + '번'; });  // "01번" … (제출값에서 숫자만 추출)
   var GALLERY = '갤러리에서 마음에 드신 번호를 골라주세요. → momentedit.kr/invitation-gallery.html';
 
   var req = function (title, help) { var it = form.addTextItem().setTitle(title).setRequired(true); if (help) it.setHelpText(help); return it; };
@@ -407,7 +414,7 @@ function createCoupleForm() {
   // ── 페이지 5 · 계좌 부모 표시 게이트(독립) ──
   var pbEnvGate = form.addPageBreakItem().setTitle('마음 전하실 곳 · 부모님 계좌');
   var gateEnv = form.addMultipleChoiceItem().setTitle(CFG.Q_ENVELOPE_GATE).setRequired(true)
-    .setHelpText('"마음 전하실 곳"에 부모님 계좌까지 넣을지 정해주세요.\n(위 인사말 단계의 성함 표시와 별개로 선택하실 수 있어요.)');
+    .setHelpText('위 인사말 단계의 성함 표시와 별개로 선택하실 수 있어요.');
   addFormImage(form, CFG.IMG_ENVELOPE, '예시 — 마음 전하실 곳', '부모님 계좌를 넣으면 청첩장에 이렇게 표시됩니다.');
 
   // ── 페이지 5a · 부모 계좌 입력 ──
@@ -445,7 +452,7 @@ function createCoupleForm() {
   // ── 페이지 10 · 대표 문구 (02) ── (온라인/가족 어느 쪽이든 02를 고른 분을 위해 항상 노출·선택)
   var pbQuote = form.addPageBreakItem().setTitle('대표 문구 (Editorial · 02)')
     .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html\n' +
-      '※ 02 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+      '※ 디지털 참석 청첩장을 02 디자인으로 고르신 경우에만 나오는 항목이에요.');
   addFormImage(form, CFG.IMG_QUOTE_02, '예시 — 02 대표 문구', '02 디자인 표지의 대표 문구가 들어가는 자리예요.');
   optPara('대표 문구 (02 Editorial 전용)',
     '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
@@ -453,18 +460,19 @@ function createCoupleForm() {
   // ── 페이지 11 · 두 사람의 한마디 (08) ── (온라인/가족 어느 쪽이든 08을 고른 분을 위해 항상 노출·선택)
   var pbBio = form.addPageBreakItem().setTitle('두 사람의 한마디 (Noir · 08)')
     .setHelpText('08 Noir 디자인의 "두 사람" 카드에 들어가는 짧은 글이에요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
-      '자기소개보다는, 상대에게 전하는 다짐·마음·짧은 소감이 잘 어울려요.\n' +
-      '※ 08 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+      '딱딱한 자기소개보다, 서로에게 또는 와주실 분들께 전하고 싶은 따뜻한 한마디가 잘 어울려요.\n' +
+      '※ 디지털 참석 청첩장을 08 디자인으로 고르신 경우에만 나오는 항목이에요.');
   addFormImage(form, CFG.IMG_BIO_08, '예시 — 08 두 사람의 한마디', '08 디자인의 "두 사람" 카드 자리예요.');
   optPara('신랑이 전하는 한마디 (08 Noir 전용)',
-    '상대에게 전하고 싶은 다짐이나 마음, 짧은 소감을 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
+    '전하고 싶은 마음을 한두 문장으로 자유롭게 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
   optPara('신부가 전하는 한마디 (08 Noir 전용)',
-    '상대에게 전하고 싶은 다짐이나 마음, 짧은 소감을 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
+    '전하고 싶은 마음을 한두 문장으로 자유롭게 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
     .setHelpText('수고하셨어요! 위 내용으로 청첩장을 준비해, 완성 링크를 이메일로 보내드립니다.\n' +
-      '다 확인하셨으면 아래 "제출"을 눌러주세요. (제출 후에도 받으신 메일의 안내대로 폼을 다시 작성하시면 수정돼요.)');
+      '다 확인하셨으면 아래 "제출"을 눌러주세요.\n' +
+      '(제출 후에도 받으신 메일의 안내를 따라 폼을 다시 작성하시면 언제든 수정하실 수 있어요.)');
 
   // ── 분기 배선 ──
   gateGreet.setChoices([
@@ -480,16 +488,20 @@ function createCoupleForm() {
   pbAccounts.setGoToPage(pbInvite);
   // pbInvite → pbFamily → pbOnlineGate (기본 다음)
 
-  // 디지털 게이트: 만들기 / 안 만들기 / QR만. '아니요'·'QR만'도 02·08 전용 질문(pbQuote·pbBio)은 거치게 한다.
-  // → 가족 청첩장에서 02·08을 골랐을 때도 대표문구·자기소개를 받을 수 있게 하기 위함(버그 수정).
+  // 디지털 게이트: 만들기 / 안 만들기 / QR만. 디지털 청첩장을 안 만들면 02·08 전용 질문도 건너뜀.
   gateOnline.setChoices([
     gateOnline.createChoice('네 — 만들게요', pbOnlineDesign),
-    gateOnline.createChoice('아니요 — 만들지 않을게요 (가족 청첩장만)', pbQuote),
-    gateOnline.createChoice('디자인은 직접 제작할게요 · 디지털 참석 입장 QR만 받을게요', pbQuote)
+    gateOnline.createChoice('아니요 — 만들지 않을게요 (가족 청첩장만)', pbFinal),
+    gateOnline.createChoice('디자인은 직접 제작할게요 · 디지털 참석 입장 QR만 받을게요', pbFinal)
   ]);
-  // 02·08 전용 질문은 분기 없이 항상 노출(선택). 온라인 디자인은 단순 선택지만(분기 제거).
-  // 흐름: pbOnlineDesign → pbQuote → pbBio → pbFinal (기본 순서 진행)
-  designItem.setChoiceValues(designLabels);
+  // 02·08 전용 질문은 "디지털 디자인" 선택에 따라서만 등장(02→대표문구, 08→한마디, 그 외→건너뜀).
+  // (구글폼은 "온라인 OR 가족" 동시 조건 표시가 불가 → 가족만 02·08이면 기본 문구가 들어감)
+  designItem.setChoices(designLabels.map(function (lbl) {
+    var n = lbl.replace(/[^0-9]/g, '');
+    return designItem.createChoice(lbl, n === '02' ? pbQuote : n === '08' ? pbBio : pbFinal);
+  }));
+  pbQuote.setGoToPage(pbFinal);
+  pbBio.setGoToPage(pbFinal);
 
   // 응답 연결 + 트리거 + 폼 URL 저장
   var ss = SpreadsheetApp.getActive();
