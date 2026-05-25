@@ -267,8 +267,8 @@
       html = processOptional(html, 'pullQuote', true);
     }
     // 디자인 08 전용 · 자기소개(BIO): 직접 작성 시 그 글, 비우면 디자인 기본 소개(02 대표문구와 동일 정책)
-    var DEFAULT_GROOM_BIO = '한결같은 마음으로 곁을 지키겠습니다.';
-    var DEFAULT_BRIDE_BIO = '서로의 가장 좋은 친구로 평생을 함께하겠습니다.';
+    var DEFAULT_GROOM_BIO = '특별하지 않은 하루도, 함께라 충분합니다.';
+    var DEFAULT_BRIDE_BIO = '사랑한다는 말보다, 더 오래 곁에 있겠습니다.';
     html = processOptional(html, 'groomBio', true);
     html = processOptional(html, 'brideBio', true);
 
