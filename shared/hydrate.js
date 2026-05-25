@@ -37,9 +37,8 @@
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
     // 디자인 특수 (02 대표문구 · 08 자기소개)
-    pullQuote: '',
-    groomBio: '풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.',
-    brideBio: '오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.'
+    // 08 한마디는 비워 기본 문구(다짐·마음 형식, DEFAULT_*_BIO)가 프리뷰에 나오게 — 폼 안내와 일치
+    pullQuote: '', groomBio: '', brideBio: ''
   };
 
   // ─── 유틸 ───────────────────────────────────────────────

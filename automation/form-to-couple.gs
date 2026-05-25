@@ -7,6 +7,11 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v12 개정 · 2026.05.25]
+ *  · 디자인 선택지 라벨을 "01번 청첩장" 형식으로(가족·온라인 공통). 제출값은 숫자만 추출해 동일.
+ *  · 08을 "자기소개" → "전하는 한마디(다짐·마음·소감)" 컨셉으로 변경(질문/안내/MAP 키).
+ *    프리뷰 더미 bio를 비워 폼 기본 문구(DEFAULT_*_BIO)와 일치시킴(라이프스타일 문구 제거).
+ *
  * [v11 개정 · 2026.05.25]
  *  · 직접 작성 인사말에서 *별표*로 감싼 부분을 강조(.em)로 표시 — 전 16개 디자인 공통(shared/hydrate.js).
  *    폼 인사말 안내에 마커 사용법·예시 추가. (모든 디자인이 .em 정의 확인됨)
@@ -92,8 +97,8 @@ var CFG = {
     '신부 어머니 계좌 (은행 번호)': 'brideMotherAccount',
     '인사말 (직접 작성)': 'invitationText',
     '대표 문구 (02 Editorial 전용)': 'pullQuote',
-    '신랑 자기소개 (08 Noir 전용)': 'groomBio',
-    '신부 자기소개 (08 Noir 전용)': 'brideBio'
+    '신랑이 전하는 한마디 (08 Noir 전용)': 'groomBio',
+    '신부가 전하는 한마디 (08 Noir 전용)': 'brideBio'
   },
 
   COL_DESIGN_ONLINE: 'designOnline',
@@ -355,6 +360,7 @@ function createCoupleForm() {
   form.setConfirmationMessage('감사합니다! 입력하신 내용으로 청첩장을 준비해, 완성 링크를 이메일로 보내드릴게요. 수정하실 내용이 있으면 받으신 메일의 안내대로 폼을 다시 작성해 주세요.');
 
   var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
+  var designLabels = designs.map(function (n) { return n + '번 청첩장'; });  // "01번 청첩장" … (제출값에서 숫자만 추출)
   var GALLERY = '갤러리에서 마음에 드신 번호를 골라주세요. → momentedit.kr/invitation-gallery.html';
 
   var req = function (title, help) { var it = form.addTextItem().setTitle(title).setRequired(true); if (help) it.setHelpText(help); return it; };
@@ -421,7 +427,7 @@ function createCoupleForm() {
   var pbFamily = form.addPageBreakItem().setTitle('가족 청첩장')
     .setHelpText('가족·가까운 분들께 따로 보내는 청첩장이에요. 식장 약도가 자동 포함됩니다(모먼트 스튜디오 고정).');
   form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_FAMILY).setRequired(false)
-    .setChoiceValues(designs.concat(['발행 안 함']))
+    .setChoiceValues(designLabels.concat(['발행 안 함']))
     .setHelpText(GALLERY + '\n(디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다.)\n' +
       '가족 청첩장이 필요 없으시면 "발행 안 함"을 골라주세요.');
 
@@ -444,15 +450,16 @@ function createCoupleForm() {
   optPara('대표 문구 (02 Editorial 전용)',
     '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
 
-  // ── 페이지 11 · 두 사람 소개 (08) ── (온라인/가족 어느 쪽이든 08을 고른 분을 위해 항상 노출·선택)
-  var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
-    .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
+  // ── 페이지 11 · 두 사람의 한마디 (08) ── (온라인/가족 어느 쪽이든 08을 고른 분을 위해 항상 노출·선택)
+  var pbBio = form.addPageBreakItem().setTitle('두 사람의 한마디 (Noir · 08)')
+    .setHelpText('08 Noir 디자인의 "두 사람" 카드에 들어가는 짧은 글이에요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
+      '자기소개보다는, 상대에게 전하는 다짐·마음·짧은 소감이 잘 어울려요.\n' +
       '※ 08 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
-  addFormImage(form, CFG.IMG_BIO_08, '예시 — 08 두 사람 소개', '08 디자인의 "두 사람" 소개 카드 자리예요.');
-  optPara('신랑 자기소개 (08 Noir 전용)',
-    '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
-  optPara('신부 자기소개 (08 Noir 전용)',
-    '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
+  addFormImage(form, CFG.IMG_BIO_08, '예시 — 08 두 사람의 한마디', '08 디자인의 "두 사람" 카드 자리예요.');
+  optPara('신랑이 전하는 한마디 (08 Noir 전용)',
+    '상대에게 전하고 싶은 다짐이나 마음, 짧은 소감을 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
+  optPara('신부가 전하는 한마디 (08 Noir 전용)',
+    '상대에게 전하고 싶은 다짐이나 마음, 짧은 소감을 적어주세요.\n비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
@@ -482,7 +489,7 @@ function createCoupleForm() {
   ]);
   // 02·08 전용 질문은 분기 없이 항상 노출(선택). 온라인 디자인은 단순 선택지만(분기 제거).
   // 흐름: pbOnlineDesign → pbQuote → pbBio → pbFinal (기본 순서 진행)
-  designItem.setChoiceValues(designs);
+  designItem.setChoiceValues(designLabels);
 
   // 응답 연결 + 트리거 + 폼 URL 저장
   var ss = SpreadsheetApp.getActive();
