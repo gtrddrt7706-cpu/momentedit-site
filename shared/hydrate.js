@@ -263,9 +263,11 @@
     } else {
       html = processOptional(html, 'pullQuote', true);
     }
-    // 디자인 08 전용 · 자기소개(BIO): 있으면 표시, 없으면 숨김
-    html = processOptional(html, 'groomBio', !!String(c.groomBio || '').trim());
-    html = processOptional(html, 'brideBio', !!String(c.brideBio || '').trim());
+    // 디자인 08 전용 · 자기소개(BIO): 직접 작성 시 그 글, 비우면 디자인 기본 소개(02 대표문구와 동일 정책)
+    var DEFAULT_GROOM_BIO = '한결같은 마음으로 곁을 지키겠습니다.';
+    var DEFAULT_BRIDE_BIO = '서로의 가장 좋은 친구로 평생을 함께하겠습니다.';
+    html = processOptional(html, 'groomBio', true);
+    html = processOptional(html, 'brideBio', true);
 
     var map = {
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
@@ -294,7 +296,8 @@
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
-      GROOM_BIO: nl2br(c.groomBio || ''), BRIDE_BIO: nl2br(c.brideBio || ''),
+      GROOM_BIO: nl2br(String(c.groomBio || '').trim() || DEFAULT_GROOM_BIO),
+      BRIDE_BIO: nl2br(String(c.brideBio || '').trim() || DEFAULT_BRIDE_BIO),
       GROOM_SIDE_LABEL: gHasPar ? '신랑측' : '신랑', BRIDE_SIDE_LABEL: bHasPar ? '신부측' : '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };

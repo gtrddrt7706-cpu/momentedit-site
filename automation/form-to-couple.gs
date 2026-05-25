@@ -7,6 +7,11 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v7 개정 · 2026.05.25]
+ *  · 08 자기소개(BIO): 비우면 숨김 → 디자인 기본 소개 문구 표시로 변경(shared/hydrate.js).
+ *    02 대표문구와 동일 정책. cover-08·family-08 공통 적용. 폼 안내도 "기본 문구"로 수정.
+ *  · 혼주 안내 이미지 소스를 URL 또는 구글 드라이브 파일 ID 모두 지원(CFG.IMG_PARENT_HELP).
+ *
  * [v6 개정 · 2026.05.25]
  *  · 폼 인트로에 갤러리 링크 추가. 02/08 질문 본문의 미리보기 URL 제거(페이지 머리말에 이미 있음).
  *  · 혼주 게이트에 안내 이미지 자동 첨부(CFG.IMG_PARENT_HELP에 URL 넣으면 ImageItem로 삽입).
@@ -83,7 +88,7 @@ var CFG = {
   Q_ENVELOPE_GATE: '마음 전하실 곳(계좌)에 부모님 계좌를 넣으시겠어요?',
 
   PROP_FORM_URL: 'FORM_PUBLISHED_URL',         // 자동 메일의 "다시 작성" 안내에 쓰는 폼 URL
-  IMG_PARENT_HELP: ''                          // 인사말 "자녀 소개" 위치 안내 이미지 URL(비우면 첨부 안 함). 예) https://momentedit.kr/assets/form-parents.png
+  IMG_PARENT_HELP: ''                          // 혼주 "자녀 소개" 위치 안내 이미지: 사이트 URL 또는 구글 드라이브 파일 ID(비우면 첨부 안 함)
 };
 
 // ====================== 폼 제출 트리거 진입점 ======================
@@ -339,9 +344,12 @@ function createCoupleForm() {
     .setHelpText('청첩장 인사말 아래 "자녀 소개" 부분에 혼주(부모님) 성함을 넣을지 정해주세요.');
   if (CFG.IMG_PARENT_HELP) {
     try {
+      var imgBlob = /^https?:\/\//i.test(CFG.IMG_PARENT_HELP)
+        ? UrlFetchApp.fetch(CFG.IMG_PARENT_HELP).getBlob()       // 사이트 등 공개 URL
+        : DriveApp.getFileById(CFG.IMG_PARENT_HELP).getBlob();   // 구글 드라이브 파일 ID
       form.addImageItem().setTitle('표시 위치 예시')
         .setHelpText('인사말 아래 "자녀 소개" 부분에 이렇게 들어갑니다.')
-        .setImage(UrlFetchApp.fetch(CFG.IMG_PARENT_HELP).getBlob());
+        .setImage(imgBlob);
     } catch (imgErr) { Logger.log('  (혼주 안내 이미지 첨부 실패: ' + imgErr.message + ')'); }
   }
 
@@ -393,8 +401,8 @@ function createCoupleForm() {
   // ── 페이지 11 · 두 사람 소개 (08) ──
   var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
     .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html');
-  optPara('신랑 자기소개 (08 Noir 전용)', '비우면 숨겨집니다.');
-  optPara('신부 자기소개 (08 Noir 전용)', '비우면 숨겨집니다.');
+  optPara('신랑 자기소개 (08 Noir 전용)', '비우면 기본 소개 문구가 들어갑니다.');
+  optPara('신부 자기소개 (08 Noir 전용)', '비우면 기본 소개 문구가 들어갑니다.');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
