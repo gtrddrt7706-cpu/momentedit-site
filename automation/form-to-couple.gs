@@ -7,6 +7,13 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v8 개정 · 2026.05.25]
+ *  · 'QR만 받을게요' 선택지를 가족 디자인 → 디지털 게이트로 이동(라이브 입장 QR 의미에 맞게).
+ *    선택 시 designOnline 공백 + digitalAttendance='QR'로 기록.
+ *  · (버그수정) 가족에서 02·08을 골라도 대표문구·자기소개를 받도록 두 전용 질문을 항상 노출(선택).
+ *    온라인 디자인의 02→문구·08→소개 분기를 제거하고 pbOnlineDesign→pbQuote→pbBio→pbFinal 순서로.
+ *  · 02·08 전용 질문에 기본 문구 예시 표기(이미지 대신). 폼 인트로 줄바꿈 정리.
+ *
  * [v7 개정 · 2026.05.25]
  *  · 08 자기소개(BIO): 비우면 숨김 → 디자인 기본 소개 문구 표시로 변경(shared/hydrate.js).
  *    02 대표문구와 동일 정책. cover-08·family-08 공통 적용. 폼 안내도 "기본 문구"로 수정.
@@ -120,9 +127,11 @@ function onCoupleFormSubmit(e) {
     });
 
     // 2) 디지털 참석 청첩장 게이트 → 만들 때만 디자인·디지털 기록
-    var makeOnline = ynShow(get(CFG.Q_ONLINE_GATE));
+    //    'QR만 받을게요' 선택 시: 온라인 청첩장 미발행(designOnline 공백) + digitalAttendance='QR'로 표기
+    var onlineAns = get(CFG.Q_ONLINE_GATE);
+    var makeOnline = /QR/i.test(onlineAns) ? 'QR' : ynShow(onlineAns);
     var designOnline = (makeOnline === 'Y') ? pad2(get(CFG.Q_DESIGN_ONLINE)) : '';
-    var designFamily = pad2(get(CFG.Q_DESIGN_FAMILY));    // "QR만 제공 희망"·"발행 안 함" → 숫자 없음 → ''
+    var designFamily = pad2(get(CFG.Q_DESIGN_FAMILY));    // "발행 안 함" → 숫자 없음 → ''
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_ONLINE, designOnline);
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily);
     writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, makeOnline);
@@ -293,12 +302,16 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl)
 function createCoupleForm() {
   var form = FormApp.create('Moment Edit · 청첩장 정보');
   form.setDescription(
-    '두 분의 결혼을 진심으로 축하드립니다.\n' +
-    '먼저 어떤 청첩장인지 둘러보고 싶으시면 → momentedit.kr/invitation-gallery.html\n' +
-    '청첩장에 담길 내용을 받습니다 — 적어주신 그대로 청첩장에 들어갑니다.\n' +
-    '필요한 항목만 채우셔도 돼요. 선택 항목을 비우면 가장 어울리는 기본값으로 들어갑니다.\n' +
-    '제출하시면 완성된 청첩장 링크를 이메일로 보내드립니다.\n' +
-    '※ 식장 정보는 따로 받지 않습니다(예식은 모먼트 에디트 스튜디오에서 진행됩니다).'
+    '두 분의 결혼을 진심으로 축하드립니다.\n\n' +
+    '먼저 어떤 청첩장인지 둘러보고 싶으시면\n' +
+    '→ momentedit.kr/invitation-gallery.html\n\n' +
+    '청첩장에 담길 내용을 받습니다.\n' +
+    '적어주신 그대로 청첩장에 들어갑니다.\n\n' +
+    '필요한 항목만 채우셔도 돼요.\n' +
+    '선택 항목을 비우면 가장 어울리는 기본값으로 들어갑니다.\n\n' +
+    '제출하시면 완성된 청첩장 링크를 이메일로 보내드립니다.\n\n' +
+    '※ 식장 정보는 따로 받지 않습니다.\n' +
+    '   (예식은 모먼트 에디트 스튜디오에서 진행됩니다.)'
   );
   form.setCollectEmail(false);
   form.setProgressBar(true);
@@ -379,30 +392,35 @@ function createCoupleForm() {
   var pbFamily = form.addPageBreakItem().setTitle('가족 청첩장')
     .setHelpText('가족·가까운 분들께 따로 보내는 청첩장이에요. 식장 약도가 자동 포함됩니다(모먼트 스튜디오 고정).');
   form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_FAMILY).setRequired(false)
-    .setChoiceValues(designs.concat(['발행 안 함', '디지털 참석 입장 QR만 받을게요 (직접 제작용)']))
-    .setHelpText(GALLERY + ' 디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다. ' +
-      '실물 청첩장을 직접 만드시거나 다른 곳에서 청첩장을 제작하셔서 ' +
-      '"디지털 참석 입장 QR"(라이브 페이지로 연결되는 QR)만 필요하시면 마지막 항목을 골라주세요.');
+    .setChoiceValues(designs.concat(['발행 안 함']))
+    .setHelpText(GALLERY + ' (디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다.) ' +
+      '가족 청첩장이 필요 없으시면 "발행 안 함"을 골라주세요.');
 
   // ── 페이지 8 · 디지털 참석 청첩장 게이트 ──
   var pbOnlineGate = form.addPageBreakItem().setTitle('디지털 참석 청첩장 (온라인 하객용)');
   var gateOnline = form.addMultipleChoiceItem().setTitle(CFG.Q_ONLINE_GATE).setRequired(true)
-    .setHelpText('멀리 못 오시는 분들도 온라인으로 함께하고, 하객 편지·마음 전하실 곳이 담기는 일반 하객용 청첩장이에요.');
+    .setHelpText('멀리 못 오시는 분들도 온라인으로 함께하고, 하객 편지·마음 전하실 곳이 담기는 일반 하객용 청첩장이에요.\n' +
+      '청첩장을 직접 제작하셔서 "디지털 참석 입장 QR"(라이브 페이지로 연결되는 QR)만 필요하시면 세 번째를 골라주세요.');
 
   // ── 페이지 9 · 디지털 참석 청첩장 디자인 (분기) ──
   var pbOnlineDesign = form.addPageBreakItem().setTitle('디지털 참석 청첩장 디자인').setHelpText(GALLERY);
   var designItem = form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_ONLINE).setRequired(true);
 
-  // ── 페이지 10 · 대표 문구 (02) ──
+  // ── 페이지 10 · 대표 문구 (02) ── (온라인/가족 어느 쪽이든 02를 고른 분을 위해 항상 노출·선택)
   var pbQuote = form.addPageBreakItem().setTitle('대표 문구 (Editorial · 02)')
-    .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html');
-  optPara('대표 문구 (02 Editorial 전용)', '비우면 기본 문구가 들어갑니다.');
+    .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html\n' +
+      '※ 02 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+  optPara('대표 문구 (02 Editorial 전용)',
+    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
 
-  // ── 페이지 11 · 두 사람 소개 (08) ──
+  // ── 페이지 11 · 두 사람 소개 (08) ── (온라인/가족 어느 쪽이든 08을 고른 분을 위해 항상 노출·선택)
   var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
-    .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html');
-  optPara('신랑 자기소개 (08 Noir 전용)', '비우면 기본 소개 문구가 들어갑니다.');
-  optPara('신부 자기소개 (08 Noir 전용)', '비우면 기본 소개 문구가 들어갑니다.');
+    .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
+      '※ 08 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+  optPara('신랑 자기소개 (08 Noir 전용)',
+    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
+  optPara('신부 자기소개 (08 Noir 전용)',
+    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
@@ -423,22 +441,16 @@ function createCoupleForm() {
   pbAccounts.setGoToPage(pbInvite);
   // pbInvite → pbFamily → pbOnlineGate (기본 다음)
 
+  // 디지털 게이트: 만들기 / 안 만들기 / QR만. '아니요'·'QR만'도 02·08 전용 질문(pbQuote·pbBio)은 거치게 한다.
+  // → 가족 청첩장에서 02·08을 골랐을 때도 대표문구·자기소개를 받을 수 있게 하기 위함(버그 수정).
   gateOnline.setChoices([
     gateOnline.createChoice('네 — 만들게요', pbOnlineDesign),
-    gateOnline.createChoice('아니요 — 만들지 않을게요 (가족 청첩장만)', pbFinal)
+    gateOnline.createChoice('아니요 — 만들지 않을게요 (가족 청첩장만)', pbQuote),
+    gateOnline.createChoice('디자인은 직접 제작할게요 · 디지털 참석 입장 QR만 받을게요', pbQuote)
   ]);
-  designItem.setChoices([
-    designItem.createChoice('01', pbFinal),
-    designItem.createChoice('02', pbQuote),
-    designItem.createChoice('03', pbFinal),
-    designItem.createChoice('04', pbFinal),
-    designItem.createChoice('05', pbFinal),
-    designItem.createChoice('06', pbFinal),
-    designItem.createChoice('07', pbFinal),
-    designItem.createChoice('08', pbBio)
-  ]);
-  pbQuote.setGoToPage(pbFinal);
-  pbBio.setGoToPage(pbFinal);
+  // 02·08 전용 질문은 분기 없이 항상 노출(선택). 온라인 디자인은 단순 선택지만(분기 제거).
+  // 흐름: pbOnlineDesign → pbQuote → pbBio → pbFinal (기본 순서 진행)
+  designItem.setChoiceValues(designs);
 
   // 응답 연결 + 트리거 + 폼 URL 저장
   var ss = SpreadsheetApp.getActive();
