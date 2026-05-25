@@ -62,9 +62,11 @@
   // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
   function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
   // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
+  // 직접 작성 인사말 → 문단/줄 처리. *별표*로 감싼 부분은 강조(.em, 전 디자인 공통)로 변환.
   function buildInvitation(text) {
+    function emph(s) { return s.replace(/\*([^*\n]+)\*/g, '<span class="em">$1</span>'); }
     return String(text).trim().split(/\n\s*\n/).map(function (p) {
-      return '<p>' + p.split('\n').map(function (l) { return escapeHtml(l.trim()); }).join('<br>') + '</p>';
+      return '<p>' + p.split('\n').map(function (l) { return emph(escapeHtml(l.trim())); }).join('<br>') + '</p>';
     }).join('');
   }
   // 계좌 셀 "국민 110-123-456789" → {bank, account, raw}. 비면 null.
