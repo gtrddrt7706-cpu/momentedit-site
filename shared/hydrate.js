@@ -25,10 +25,10 @@
 
   // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
   var SAMPLE = {
-    groomName: '박지훈', brideName: '김서연',
-    groomNameEn: 'Park Ji Hoon', brideNameEn: 'Kim Seo Yeon',
+    groomName: '이서준', brideName: '정하윤',
+    groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
     weddingDate: '2026-10-24', weddingTime: '14:00',
-    groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
+    groomParents: '이정환 · 김미경', brideParents: '정성호 · 박은영',
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시

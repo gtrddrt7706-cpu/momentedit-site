@@ -7,6 +7,10 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v9 개정 · 2026.05.25]
+ *  · 프리뷰 더미를 이서준·정하윤으로 통일(shared/hydrate.js SAMPLE — 전 디자인 공통).
+ *  · 안내 문구 줄내림 정리(02·08 예시, 가족·계좌·인사말 등 긴 안내문).
+ *
  * [v8 개정 · 2026.05.25]
  *  · 'QR만 받을게요' 선택지를 가족 디자인 → 디지털 게이트로 이동(라이브 입장 QR 의미에 맞게).
  *    선택 시 designOnline 공백 + digitalAttendance='QR'로 기록.
@@ -374,7 +378,7 @@ function createCoupleForm() {
   // ── 페이지 5 · 계좌 부모 표시 게이트(독립) ──
   var pbEnvGate = form.addPageBreakItem().setTitle('마음 전하실 곳 · 부모님 계좌');
   var gateEnv = form.addMultipleChoiceItem().setTitle(CFG.Q_ENVELOPE_GATE).setRequired(true)
-    .setHelpText('"마음 전하실 곳"에 부모님 계좌까지 넣을지 정해주세요. (위 인사말 단계의 성함 표시와 별개로 선택하실 수 있어요.)');
+    .setHelpText('"마음 전하실 곳"에 부모님 계좌까지 넣을지 정해주세요.\n(위 인사말 단계의 성함 표시와 별개로 선택하실 수 있어요.)');
 
   // ── 페이지 5a · 부모 계좌 입력 ──
   var pbAccounts = form.addPageBreakItem().setTitle('부모님 계좌')
@@ -386,14 +390,14 @@ function createCoupleForm() {
 
   // ── 페이지 6 · 인사말 ──
   var pbInvite = form.addPageBreakItem().setTitle('인사말 · 선택');
-  optPara('인사말 (직접 작성)', '직접 쓰신 인사말이 청첩장에 그대로 들어갑니다. 비우면 고르신 디자인에 어울리는 기본 인사말이 자동으로 담깁니다.');
+  optPara('인사말 (직접 작성)', '직접 쓰신 인사말이 청첩장에 그대로 들어갑니다.\n비우면 고르신 디자인에 어울리는 기본 인사말이 자동으로 담깁니다.');
 
   // ── 페이지 7 · 가족 청첩장 ──
   var pbFamily = form.addPageBreakItem().setTitle('가족 청첩장')
     .setHelpText('가족·가까운 분들께 따로 보내는 청첩장이에요. 식장 약도가 자동 포함됩니다(모먼트 스튜디오 고정).');
   form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_FAMILY).setRequired(false)
     .setChoiceValues(designs.concat(['발행 안 함']))
-    .setHelpText(GALLERY + ' (디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다.) ' +
+    .setHelpText(GALLERY + '\n(디지털 참석 청첩장과 같은 번호여도, 달라도 됩니다.)\n' +
       '가족 청첩장이 필요 없으시면 "발행 안 함"을 골라주세요.');
 
   // ── 페이지 8 · 디지털 참석 청첩장 게이트 ──
@@ -411,16 +415,16 @@ function createCoupleForm() {
     .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html\n' +
       '※ 02 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
   optPara('대표 문구 (02 Editorial 전용)',
-    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
+    '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
 
   // ── 페이지 11 · 두 사람 소개 (08) ── (온라인/가족 어느 쪽이든 08을 고른 분을 위해 항상 노출·선택)
   var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
     .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
       '※ 08 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
   optPara('신랑 자기소개 (08 Noir 전용)',
-    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
+    '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
   optPara('신부 자기소개 (08 Noir 전용)',
-    '비우면 기본 문구가 들어갑니다.  (기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
+    '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 좋은 친구로 평생을 함께하겠습니다.”)');
 
   // ── 페이지 12 · 마지막 확인 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
