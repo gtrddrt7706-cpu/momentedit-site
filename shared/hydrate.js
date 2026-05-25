@@ -25,10 +25,10 @@
 
   // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
   var SAMPLE = {
-    groomName: '박지훈', brideName: '김서연',
-    groomNameEn: 'Park Ji Hoon', brideNameEn: 'Kim Seo Yeon',
+    groomName: '이서준', brideName: '정하윤',
+    groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
     weddingDate: '2026-10-24', weddingTime: '14:00',
-    groomParents: '박철수 · 이미경', brideParents: '김영호 · 최선영',
+    groomParents: '이재환 · 최미경', brideParents: '정영석 · 박윤희',
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
@@ -37,7 +37,9 @@
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
     // 디자인 특수 (02 대표문구 · 08 자기소개)
-    pullQuote: '', groomBio: '', brideBio: ''
+    pullQuote: '',
+    groomBio: '풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.',
+    brideBio: '오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.'
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -263,9 +265,11 @@
     } else {
       html = processOptional(html, 'pullQuote', true);
     }
-    // 디자인 08 전용 · 자기소개(BIO): 있으면 표시, 없으면 숨김
-    html = processOptional(html, 'groomBio', !!String(c.groomBio || '').trim());
-    html = processOptional(html, 'brideBio', !!String(c.brideBio || '').trim());
+    // 디자인 08 전용 · 자기소개(BIO): 직접 작성 시 그 글, 비우면 디자인 기본 소개(02 대표문구와 동일 정책)
+    var DEFAULT_GROOM_BIO = '한결같은 마음으로 곁을 지키겠습니다.';
+    var DEFAULT_BRIDE_BIO = '서로의 가장 좋은 친구로 평생을 함께하겠습니다.';
+    html = processOptional(html, 'groomBio', true);
+    html = processOptional(html, 'brideBio', true);
 
     var map = {
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
@@ -294,7 +298,8 @@
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
-      GROOM_BIO: nl2br(c.groomBio || ''), BRIDE_BIO: nl2br(c.brideBio || ''),
+      GROOM_BIO: nl2br(String(c.groomBio || '').trim() || DEFAULT_GROOM_BIO),
+      BRIDE_BIO: nl2br(String(c.brideBio || '').trim() || DEFAULT_BRIDE_BIO),
       GROOM_SIDE_LABEL: gHasPar ? '신랑측' : '신랑', BRIDE_SIDE_LABEL: bHasPar ? '신부측' : '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };
