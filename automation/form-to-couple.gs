@@ -107,12 +107,14 @@ var CFG = {
   PROP_FORM_URL: 'FORM_PUBLISHED_URL',         // 자동 메일의 "다시 작성" 안내에 쓰는 폼 URL
 
   // 폼 안내 이미지(선택) — 사이트 공개 URL 또는 구글 드라이브 파일 ID. 비우면 해당 위치에 이미지 없음.
-  IMG_PARENT_HELP: '',   // 혼주 "자녀 소개" 위치 (혼주 성함 게이트)
-  IMG_INVITE: '',        // 인사말 — 01 기본 청첩장 예시 (인사말 페이지)
-  IMG_QUOTE_02: '',      // 02 대표문구 예시 (대표 문구 페이지)
-  IMG_BIO_08: '',        // 08 자기소개 예시 (두 사람 소개 페이지)
-  IMG_ENVELOPE: '',      // "마음 전하실 곳"(계좌) 표시 예시 (부모님 계좌 게이트) [제안]
-  IMG_QR_LIVE: ''        // 디지털 참석 입장 QR/라이브 페이지 예시 (디지털 게이트) [제안]
+  // ※ 아래 URL은 main 배포 후 momentedit.kr/assets/* 가 라이브여야 폼이 가져옵니다.
+  //    만약 서버 측 이미지 fetch가 차단되면, 같은 PNG를 드라이브에 올려 파일ID로 교체하세요.
+  IMG_PARENT_HELP: 'https://momentedit.kr/assets/form-parents.png',   // 혼주 "자녀 소개" 위치 (혼주 성함 게이트)
+  IMG_INVITE: 'https://momentedit.kr/assets/form-invite.png',         // 인사말 — 01 기본 청첩장 예시
+  IMG_QUOTE_02: 'https://momentedit.kr/assets/form-quote-02.png',     // 02 대표문구 예시
+  IMG_BIO_08: 'https://momentedit.kr/assets/form-bio-08.png',         // 08 자기소개 예시
+  IMG_ENVELOPE: 'https://momentedit.kr/assets/form-envelope.png',     // "마음 전하실 곳"(계좌) 예시
+  IMG_QR_LIVE: 'https://momentedit.kr/assets/form-live.png'           // 디지털 참석 입장 QR/라이브 예시
 };
 
 // ====================== 폼 제출 트리거 진입점 ======================
