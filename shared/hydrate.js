@@ -28,7 +28,7 @@
     groomName: '이서준', brideName: '정하윤',
     groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
     weddingDate: '2026-10-24', weddingTime: '14:00',
-    groomParents: '이정환 · 김미경', brideParents: '정성호 · 박은영',
+    groomParents: '이재환 · 최미경', brideParents: '정영석 · 박윤희',
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
@@ -37,7 +37,9 @@
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
     // 디자인 특수 (02 대표문구 · 08 자기소개)
-    pullQuote: '', groomBio: '', brideBio: ''
+    pullQuote: '',
+    groomBio: '풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.',
+    brideBio: '오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.'
   };
 
   // ─── 유틸 ───────────────────────────────────────────────

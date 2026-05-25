@@ -7,6 +7,12 @@
  *       → 청첩장 운영은 "폼 하나"로 자동화. 사람이 신경 쓸 건 예식 당일 영상(Vimeo)뿐.
  *
  * ──────────────────────────────────────────────────────────────────────────
+ * [v10 개정 · 2026.05.25]
+ *  · 폼 안내 이미지 슬롯 도입(addFormImage 헬퍼). 각 위치에 CFG 값(URL/드라이브 파일ID) 넣으면 표시:
+ *    IMG_PARENT_HELP(혼주위치)·IMG_INVITE(인사말)·IMG_QUOTE_02·IMG_BIO_08·IMG_ENVELOPE·IMG_QR_LIVE.
+ *    비우면 미표시. 드라이브 파일ID로 넣으면 폼 재생성해도 유지.
+ *  · 프리뷰 더미 보강: 부모님(이재환·최미경/정영석·박윤희), 08 자기소개 라이프스타일 문구.
+ *
  * [v9 개정 · 2026.05.25]
  *  · 프리뷰 더미를 이서준·정하윤으로 통일(shared/hydrate.js SAMPLE — 전 디자인 공통).
  *  · 안내 문구 줄내림 정리(02·08 예시, 가족·계좌·인사말 등 긴 안내문).
@@ -99,7 +105,14 @@ var CFG = {
   Q_ENVELOPE_GATE: '마음 전하실 곳(계좌)에 부모님 계좌를 넣으시겠어요?',
 
   PROP_FORM_URL: 'FORM_PUBLISHED_URL',         // 자동 메일의 "다시 작성" 안내에 쓰는 폼 URL
-  IMG_PARENT_HELP: ''                          // 혼주 "자녀 소개" 위치 안내 이미지: 사이트 URL 또는 구글 드라이브 파일 ID(비우면 첨부 안 함)
+
+  // 폼 안내 이미지(선택) — 사이트 공개 URL 또는 구글 드라이브 파일 ID. 비우면 해당 위치에 이미지 없음.
+  IMG_PARENT_HELP: '',   // 혼주 "자녀 소개" 위치 (혼주 성함 게이트)
+  IMG_INVITE: '',        // 인사말 — 01 기본 청첩장 예시 (인사말 페이지)
+  IMG_QUOTE_02: '',      // 02 대표문구 예시 (대표 문구 페이지)
+  IMG_BIO_08: '',        // 08 자기소개 예시 (두 사람 소개 페이지)
+  IMG_ENVELOPE: '',      // "마음 전하실 곳"(계좌) 표시 예시 (부모님 계좌 게이트) [제안]
+  IMG_QR_LIVE: ''        // 디지털 참석 입장 QR/라이브 페이지 예시 (디지털 게이트) [제안]
 };
 
 // ====================== 폼 제출 트리거 진입점 ======================
@@ -302,6 +315,19 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl)
     '</div>';
 }
 
+// 폼 안내 이미지 1장 삽입(선택) — src는 사이트 공개 URL 또는 구글 드라이브 파일 ID.
+// addImageItem은 폼 끝에 추가되므로, 원하는 위치(페이지/질문) 바로 옆에서 호출한다. 비우면 아무것도 안 함.
+function addFormImage(form, src, title, help) {
+  if (!src) return;
+  try {
+    var blob = /^https?:\/\//i.test(src)
+      ? UrlFetchApp.fetch(src).getBlob()
+      : DriveApp.getFileById(src).getBlob();
+    var it = form.addImageItem().setTitle(title || '예시 이미지').setImage(blob);
+    if (help) it.setHelpText(help);
+  } catch (e) { Logger.log('  (이미지 첨부 실패: ' + (title || '') + ' — ' + e.message + ')'); }
+}
+
 // ============== 구글폼 자동 생성기 (최초 1회 실행) ==============
 function createCoupleForm() {
   var form = FormApp.create('Moment Edit · 청첩장 정보');
@@ -359,16 +385,7 @@ function createCoupleForm() {
   var pbGreetGate = form.addPageBreakItem().setTitle('인사말 · 혼주 성함');
   var gateGreet = form.addMultipleChoiceItem().setTitle(CFG.Q_GREET_GATE).setRequired(true)
     .setHelpText('청첩장 인사말 아래 "자녀 소개" 부분에 혼주(부모님) 성함을 넣을지 정해주세요.');
-  if (CFG.IMG_PARENT_HELP) {
-    try {
-      var imgBlob = /^https?:\/\//i.test(CFG.IMG_PARENT_HELP)
-        ? UrlFetchApp.fetch(CFG.IMG_PARENT_HELP).getBlob()       // 사이트 등 공개 URL
-        : DriveApp.getFileById(CFG.IMG_PARENT_HELP).getBlob();   // 구글 드라이브 파일 ID
-      form.addImageItem().setTitle('표시 위치 예시')
-        .setHelpText('인사말 아래 "자녀 소개" 부분에 이렇게 들어갑니다.')
-        .setImage(imgBlob);
-    } catch (imgErr) { Logger.log('  (혼주 안내 이미지 첨부 실패: ' + imgErr.message + ')'); }
-  }
+  addFormImage(form, CFG.IMG_PARENT_HELP, '표시 위치 예시', '인사말 아래 "자녀 소개" 부분에 이렇게 들어갑니다.');
 
   // ── 페이지 4a · 혼주 성함 입력 ──
   var pbNames = form.addPageBreakItem().setTitle('혼주(부모님) 성함');
@@ -379,6 +396,7 @@ function createCoupleForm() {
   var pbEnvGate = form.addPageBreakItem().setTitle('마음 전하실 곳 · 부모님 계좌');
   var gateEnv = form.addMultipleChoiceItem().setTitle(CFG.Q_ENVELOPE_GATE).setRequired(true)
     .setHelpText('"마음 전하실 곳"에 부모님 계좌까지 넣을지 정해주세요.\n(위 인사말 단계의 성함 표시와 별개로 선택하실 수 있어요.)');
+  addFormImage(form, CFG.IMG_ENVELOPE, '예시 — 마음 전하실 곳', '부모님 계좌를 넣으면 청첩장에 이렇게 표시됩니다.');
 
   // ── 페이지 5a · 부모 계좌 입력 ──
   var pbAccounts = form.addPageBreakItem().setTitle('부모님 계좌')
@@ -390,6 +408,7 @@ function createCoupleForm() {
 
   // ── 페이지 6 · 인사말 ──
   var pbInvite = form.addPageBreakItem().setTitle('인사말 · 선택');
+  addFormImage(form, CFG.IMG_INVITE, '예시 — 기본 인사말 (디자인 01)', '비워두시면 이런 느낌의 기본 인사말이 자동으로 들어갑니다.');
   optPara('인사말 (직접 작성)', '직접 쓰신 인사말이 청첩장에 그대로 들어갑니다.\n비우면 고르신 디자인에 어울리는 기본 인사말이 자동으로 담깁니다.');
 
   // ── 페이지 7 · 가족 청첩장 ──
@@ -405,6 +424,7 @@ function createCoupleForm() {
   var gateOnline = form.addMultipleChoiceItem().setTitle(CFG.Q_ONLINE_GATE).setRequired(true)
     .setHelpText('멀리 못 오시는 분들도 온라인으로 함께하고, 하객 편지·마음 전하실 곳이 담기는 일반 하객용 청첩장이에요.\n' +
       '청첩장을 직접 제작하셔서 "디지털 참석 입장 QR"(라이브 페이지로 연결되는 QR)만 필요하시면 세 번째를 골라주세요.');
+  addFormImage(form, CFG.IMG_QR_LIVE, '예시 — 디지털 참석 · 입장 QR', '디지털 참석 청첩장과 입장 QR(라이브 페이지)은 이런 모습이에요.');
 
   // ── 페이지 9 · 디지털 참석 청첩장 디자인 (분기) ──
   var pbOnlineDesign = form.addPageBreakItem().setTitle('디지털 참석 청첩장 디자인').setHelpText(GALLERY);
@@ -414,6 +434,7 @@ function createCoupleForm() {
   var pbQuote = form.addPageBreakItem().setTitle('대표 문구 (Editorial · 02)')
     .setHelpText('02 Editorial 디자인 표지의 대표 문구예요. 미리보기 → momentedit.kr/i/cover-02.html\n' +
       '※ 02 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+  addFormImage(form, CFG.IMG_QUOTE_02, '예시 — 02 대표 문구', '02 디자인 표지의 대표 문구가 들어가는 자리예요.');
   optPara('대표 문구 (02 Editorial 전용)',
     '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “서로의 가장 진실한 / 순간을 기록하기로 합니다.”)');
 
@@ -421,6 +442,7 @@ function createCoupleForm() {
   var pbBio = form.addPageBreakItem().setTitle('두 사람 소개 (Noir · 08)')
     .setHelpText('08 Noir 디자인의 "두 사람" 소개 카드예요. 미리보기 → momentedit.kr/i/cover-08.html\n' +
       '※ 08 디자인(디지털 또는 가족)을 고르신 경우에만 작성하세요. 아니면 비워두고 넘어가시면 됩니다.');
+  addFormImage(form, CFG.IMG_BIO_08, '예시 — 08 두 사람 소개', '08 디자인의 "두 사람" 소개 카드 자리예요.');
   optPara('신랑 자기소개 (08 Noir 전용)',
     '비우면 기본 문구가 들어갑니다.\n(기본 문구 예시 — “한결같은 마음으로 곁을 지키겠습니다.”)');
   optPara('신부 자기소개 (08 Noir 전용)',
