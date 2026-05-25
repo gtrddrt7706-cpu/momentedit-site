@@ -48,7 +48,7 @@ DATA = {
  'WEDDING_TIME_KOR':'오전 열 시','WEDDING_TIME_KOR_FULL':'오전 열 시','WEDDING_TIME_24H':'10:00','WEDDING_TIME_DISPLAY':'오전 10:00','WEDDING_MONTH_KOR':'12월',
  'WEDDING_MONTH_DISPLAY':'2027년 12월','WEDDING_MONTH_HAN':'십이월','WEDDING_DAY_HAN':'십칠일','WEDDING_MONTH_DAY_DISPLAY':'12 · 17','WEDDING_MONTH_DAY_PERIOD':'12.17',
  'WEDDING_MONTH_DAY_DOT':'12. 17','WEDDING_MONTH_SLASH':'12 / 2027','WEDDING_FULL_DATE_DOT':'2027 · 12 · 17',
- 'GROOM_BIO':'풍경 사진을 좋아하고, 조용한 카페에서 책 읽는 시간을 좋아합니다.','BRIDE_BIO':'오래된 영화와 손편지를 좋아하고, 매일 작은 기록을 남기며 살아갑니다.',
+ 'GROOM_BIO':'한결같은 마음으로 곁을 지키겠습니다.','BRIDE_BIO':'서로의 가장 좋은 친구로 평생을 함께하겠습니다.',
  'VENUE_NAME_KO':'모먼트 에디트 스튜디오','VENUE_NAME_EN':'Moment Edit Studio',
  'VENUE_NAME_KO_URI':'%EB%AA%A8%EB%A8%BC%ED%8A%B8%20%EC%97%90%EB%94%94%ED%8A%B8%20%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4',
  'VENUE_ADDRESS':'경기 고양시 덕양구 향동동 (정확한 주소는 본계약 후 안내드립니다)','VENUE_TRANSPORT':'6호선 디지털미디어시티역 1번 출구 차량 8분','VENUE_PARKING':'건물 지하 1~3층 주차 가능 (3시간 무료)',
