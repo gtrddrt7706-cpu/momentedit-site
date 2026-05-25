@@ -64,6 +64,13 @@
  * ※ 식장 정보는 받지 않는다(shared/venue.js 고정). Vimeo ID는 예식 당일 따로 입력.
  */
 
+// ─────────────────────── 배포 기록 (Deployment) ───────────────────────
+// 2026-05-25 · createCoupleForm() 최초 실행 → 폼 생성 + 제출 트리거(onCoupleFormSubmit) 등록 완료.
+//   폼 ID:    1QOSFZ7GokQGkMoxvUvnWGoQkwotWznC04UWh69b-wWU
+//   편집 URL: https://docs.google.com/forms/d/1QOSFZ7GokQGkMoxvUvnWGoQkwotWznC04UWh69b-wWU/edit
+//   ※ 부부에게 보내는 작성(응답) /viewform 링크는 공개 저장소에 적지 않음(스팸 제출 방지).
+//      그 링크는 비공개로 보관(시트 1행 안내 영역·개인 메모 등). 편집 URL은 편집 권한이 필요해 안전.
+
 // ============================ CONFIG ============================
 var CFG = {
   SHEET_NAME: 'Couples',   // 부부 데이터 탭 이름
