@@ -1753,10 +1753,18 @@ function replayHeroAnimation(){
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){
       backups.forEach(function(b){
-        // inline animation이 있던 요소는 그 값 복원, 없으면 빈 값(CSS 클래스 정의 따름)
-        b.el.style.animation = b.inlineAnim;
+        // opacity·transform 먼저 원복
         b.el.style.opacity = b.inlineOpacity;
         b.el.style.transform = b.inlineTransform;
+        // 애니메이션 강제 재시작: none → 동기 reflow → 재적용
+        // (스타일시트 정의 애니인 로고 heroFade·밑줄 hl-seal·점 hero-sub-seal도 iOS 포함 확실히 재생)
+        b.el.style.animation = 'none';
+        void b.el.offsetWidth;
+        if(b.inlineAnim){
+          b.el.style.animation = b.inlineAnim;        // 인라인 애니 요소: 원래 값 복원
+        } else {
+          b.el.style.removeProperty('animation');     // 스타일시트 애니 요소: 인라인 제거 → 클래스 정의 재적용
+        }
       });
     });
   });
