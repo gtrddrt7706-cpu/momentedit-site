@@ -131,11 +131,13 @@ function onCoupleFormSubmit(e) {
     // 5) URL
     var liveUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';
     var familyUrl = designFamily ? (CFG.SITE_BASE + '/i-family/family-' + designFamily + '.html?e=' + encodeURIComponent(eventId)) : '';
-    Logger.log('[OK] %s · row %s\n  digital: %s\n  family: %s', eventId, rowNum, liveUrl || '(미발행)', familyUrl || '(미발행)');
+    // 라이브(입장) 페이지 — QR 대상. 디지털 참석/입장QR 선택 시에만(종이 청첩장에 넣어 공유용)
+    var enterUrl = (makeOnline === 'Y' || makeOnline === 'QR') ? (CFG.SITE_BASE + '/live.html?e=' + encodeURIComponent(eventId)) : '';
+    Logger.log('[OK] %s · row %s\n  digital: %s\n  family: %s\n  live(QR): %s', eventId, rowNum, liveUrl || '(미발행)', familyUrl || '(미발행)', enterUrl || '(없음)');
 
     // 6) 부부 자동 메일
     try {
-      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), liveUrl, familyUrl);
+      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), liveUrl, familyUrl, enterUrl);
     } catch (mailErr) { Logger.log('  (이메일 발송 실패: ' + mailErr.message + ')'); }
 
   } catch (err) {
@@ -201,20 +203,20 @@ function ynShow(answer) {
 }
 
 // ===================== 부부 URL 자동 이메일 =====================
-function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl) {
+function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl) {
   var to = [groomEmail, brideEmail].filter(function (em) { return em && em.indexOf('@') !== -1; }).join(',');
   if (!to) { Logger.log('  (수신 이메일 없음 — 메일 건너뜀)'); return; }
-  if (!liveUrl && !familyUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
+  if (!liveUrl && !familyUrl && !enterUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
   var formUrl = '';
   try { formUrl = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_URL) || ''; } catch (_p) {}
 
-  // 디지털 청첩장 링크 → QR 변환(있을 때만 · 실패해도 메일은 정상 발송)
+  // 라이브(입장) 페이지 링크 → QR 변환(있을 때만 · 실패해도 메일은 정상 발송)
   var qrBlob = null;
-  if (liveUrl) {
+  if (enterUrl) {
     try {
-      var qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=' + encodeURIComponent(liveUrl);
+      var qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=' + encodeURIComponent(enterUrl);
       var resp = UrlFetchApp.fetch(qrApi, { muteHttpExceptions: true });
-      if (resp.getResponseCode() === 200) qrBlob = resp.getBlob().setName('moment-edit-digital-qr.png');
+      if (resp.getResponseCode() === 200) qrBlob = resp.getBlob().setName('moment-edit-live-qr.png');
     } catch (qe) { Logger.log('  (QR 생성 실패: ' + qe.message + ')'); }
   }
 
@@ -224,7 +226,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   };
   if (qrBlob) {
     opts.inlineImages = { qrDigital: qrBlob };
-    opts.attachments = [qrBlob.copyBlob().setName('moment-edit-digital-qr.png')];
+    opts.attachments = [qrBlob.copyBlob().setName('moment-edit-live-qr.png')];
   }
   GmailApp.sendEmail(to, '[Moment Edit] 두 분의 청첩장이 준비되었습니다', '', opts);
   Logger.log('  (이메일 발송 → ' + to + (qrBlob ? ' · QR 포함' : '') + ')');
@@ -249,7 +251,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
       '<div style="width:40px;height:1px;background:#B89A75;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
       '<div style="background:#fff;padding:22px 20px;border:1px solid rgba(0,0,0,0.06);border-radius:2px;margin:24px 0;">' + links + '</div>' +
-      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="디지털 청첩장 QR" width="148" style="width:148px;height:148px;display:block;margin:0 auto;border:1px solid rgba(0,0,0,0.06);background:#fff;padding:8px;"><div style="font-size:12px;color:#9a8f7f;margin-top:10px;">디지털 청첩장 QR · 하객에게 공유하세요 (첨부 파일로도 보내드렸어요)</div></div>' : '') +
+      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="디지털 청첩장 QR" width="148" style="width:148px;height:148px;display:block;margin:0 auto;border:1px solid rgba(0,0,0,0.06);background:#fff;padding:8px;"><div style="font-size:12px;color:#9a8f7f;margin-top:10px;">라이브(입장) 페이지 QR · 종이 청첩장에 넣어 공유하세요 (첨부 파일로도 보내드렸어요)</div></div>' : '') +
       '<p style="font-size:13px;line-height:1.9;color:#5A554C;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
       '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
       '<div style="text-align:center;margin-top:14px;font-size:10px;color:#aaa;">Moment Edit · contact@momentedit.kr</div></div>';
