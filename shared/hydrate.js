@@ -147,8 +147,9 @@
 
   // weddingDate('YYYY-MM-DD') → 날짜 전 형식 (KST 기준)
   function transformDate(weddingDate) {
-    var d = new Date(weddingDate + 'T00:00:00+09:00');
-    var y = d.getFullYear(), mn = d.getMonth() + 1, dn = d.getDate(), idx = d.getDay();
+    var p = String(weddingDate).split('-');
+    var y = +p[0], mn = +p[1], dn = +p[2];
+    var idx = new Date(y, mn - 1, dn).getDay();
     var m = String(mn).padStart(2, '0'), dd = String(dn).padStart(2, '0');
     var monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     var monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -189,20 +190,19 @@
 
   // 캘린더 셀 HTML (디자인 01은 when-cal-cell, 그 외 date-cal-cell)
   function generateCalendarCells(weddingDate, designNum) {
-    var d = new Date(weddingDate + 'T00:00:00+09:00');
-    var year = d.getFullYear(), month = d.getMonth(), weddingDay = d.getDate();
+    var p = String(weddingDate).split('-');
+    var year = +p[0], month = (+p[1]) - 1, weddingDay = +p[2];
     var firstDay = new Date(year, month, 1).getDay();
     var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var cellCls, sunCls, hi;
-    if (designNum === '01') { cellCls = 'when-cal-cell'; sunCls = 'when-cal-cell when-cal-cell-sun'; hi = ' when-cal-cell-today'; }
-    else { cellCls = 'date-cal-cell'; sunCls = 'date-cal-cell sun'; hi = ' today'; }
+    var base = (designNum === '01' || designNum === '05') ? 'when-cal-cell' : 'date-cal-cell';
+    var cellCls = base, sunCls = base + ' sun';
     var html = '';
     for (var i = 0; i < firstDay; i++) html += '<div class="' + cellCls + ' empty" aria-hidden="true"></div>\n          ';
     for (var day = 1; day <= daysInMonth; day++) {
       var dow = (firstDay + day - 1) % 7;
       var cls = (dow === 0) ? sunCls : cellCls;
-      if (day === weddingDay) cls += hi;
-      html += '<div class="' + cls + '">' + day + '</div>\n          ';
+      if (day === weddingDay) html += '<div class="' + cls + ' marked"><span>' + day + '</span></div>\n          ';
+      else html += '<div class="' + cls + '">' + day + '</div>\n          ';
     }
     return html.trim();
   }
