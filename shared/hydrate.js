@@ -56,8 +56,6 @@
     if (!bank) return '';
     return /(은행|뱅크)$/.test(bank) ? bank : bank + '은행';
   }
-  // 토글 값 해석 (Y/YES/예/1/표시 등 → true, 그 외/빈 값 → false)
-  function truthy(v) { return /^(y|yes|true|1|on|표시|예|네)$/i.test(String(v || '').trim()); }
   // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
   function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
   // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
