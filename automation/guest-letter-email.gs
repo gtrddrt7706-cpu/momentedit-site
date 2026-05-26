@@ -13,7 +13,7 @@
  *   recipient 값: 'groom' | 'bride' | 'both'  (live.html 폼의 recipient 필드)
  */
 
-var LETTER_LOGO_URL = 'https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/assets/preview/email-logo-dark.png';
+var LETTER_LOGO_URL = 'https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/assets/preview/email-logo-gold.png';
 
 function toTitle(recipient) {
   return recipient === 'groom' ? '신랑에게' : (recipient === 'bride' ? '신부에게' : '두 분께');

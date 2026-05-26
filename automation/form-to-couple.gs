@@ -249,7 +249,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
     '<body style="margin:0;padding:0;background:#1E1A17;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1E1A17;width:100%;"><tr><td align="center" bgcolor="#1E1A17" style="background:#1E1A17;">' +
     '<div style="color-scheme:dark;font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#1E1A17;color:#E8E1D6;">' +
-      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-dark.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
+      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-gold.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
       '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
       '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:-2px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>이에요.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
