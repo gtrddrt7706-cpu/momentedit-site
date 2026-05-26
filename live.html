@@ -1477,7 +1477,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 <!-- ═══ STICKY HEADER ═══ -->
 <header class="brand-strip">
   <div class="brand-strip-in">
-    <a href="index.html" class="brand-mark brand-mark-link" data-home-link aria-label="Moment Edit 홈페이지로 돌아가기">
+    <a href="index.html" class="brand-mark brand-mark-link" data-home-link aria-label="청첩장으로 돌아가기">
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
@@ -2226,17 +2226,15 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
   const links = document.querySelectorAll('[data-home-link]');
   if (!links.length) return;
 
-  // 이 탭이 다른 탭에 의해 열렸거나, 탭의 히스토리가 비어있으면 close 시도
-  const canClose = (window.opener !== null) || (window.history.length <= 1);
-
   links.forEach(link => {
     link.addEventListener('click', (e) => {
-      if (!canClose) return; // 일반 이동으로 fallback (href 동작)
       e.preventDefault();
-      window.close();
-      // window.close()가 실패한 경우의 최종 fallback: href로 이동
-      // (브라우저 정책상 close가 거부될 수 있음)
-      setTimeout(() => { window.location.href = link.href; }, 100);
+      // 청첩장에서 입장한 경우(같은 탭) → 뒤로가기로 청첩장 복귀
+      if (window.history.length > 1) { history.back(); return; }
+      // 다른 탭에서 열린 경우 → 탭 닫아 청첩장 탭으로 복귀
+      if (window.opener && !window.opener.closed) { window.close(); }
+      // 직접 접속(QR 등) → 최종 fallback
+      setTimeout(() => { window.location.href = link.href; }, 120);
     });
   });
 })();
