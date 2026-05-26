@@ -324,7 +324,6 @@ function createCoupleForm() {
       it.setValidation(FormApp.createTextValidation().setHelpText('디자인에 맞는 적정 길이 · ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
     };
     mk(' 인사말 큰 제목', cfg.title);
-    if (cfg.eye) mk(' 인사말 작은 제목', cfg.eye);
     if (cfg.subko) mk(' 인사말 한글 부제', cfg.subko);
   }
 
@@ -384,7 +383,7 @@ function createCoupleForm() {
     addFormImage(form, R + 'prev-family-' + nn + '.png', '오프라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 직접 정하실 수 있는 부분 · 아래에서 차례로 입력해요. 실제로 열어보기 → momentedit.kr/i-family/family-' + nn + '.html');
     var tpf = form.addPageBreakItem().setTitle('제목 — 오프라인 청첩장 ' + (+nn) + '번');
-    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(큰/작은 제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
+    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('오프라인 청첩장', nn);
     pb.setGoToPage(tpf);  // 미리보기 → 제목 페이지 명시적 연결
     if (nn === '02') { addFormImage(form, R + 'sec-family-02-quote.png', '대표 문구 자리', '✎ 표지 대표 문구를 정하실 수 있어요.'); optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '비우면 기본 문구가 들어갑니다.  (예: 서로의 가장 진실한 / 순간을 기록하기로 합니다.)'); }
@@ -408,7 +407,7 @@ function createCoupleForm() {
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '온라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 정하실 수 있는 부분 · 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
     var tp = form.addPageBreakItem().setTitle('제목 — 온라인 청첩장 ' + (+nn) + '번');
-    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(큰/작은 제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
+    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('온라인 청첩장', nn);
     var last = tp;
     pb.setGoToPage(tp);  // 미리보기 → 제목 페이지 명시적 연결(이미지 전용 섹션 자동진행 보강)
