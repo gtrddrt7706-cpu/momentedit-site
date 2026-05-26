@@ -250,8 +250,10 @@
     html = processOptional(html, 'brideAccount', !!bAcct.account);
 
     // ── 고객 선택 3종 ──────────────────────────────────────
-    // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지
-    var customInv = String(c.invitationText || '').trim();
+    // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지.
+    //    온라인(/i/)은 digInvitationText로 따로 작성 가능 — 비우면 오프라인/공통 invitationText를 그대로 이어받음.
+    var famPage = location.pathname.indexOf('/i-family/') !== -1;
+    var customInv = String((famPage ? c.invitationText : (c.digInvitationText || c.invitationText)) || '').trim();
     if (customInv) {
       html = html.replace(/<!-- OPTIONAL:invitationText -->[\s\S]*?<!-- \/OPTIONAL:invitationText -->/g, buildInvitation(customInv));
     } else {
