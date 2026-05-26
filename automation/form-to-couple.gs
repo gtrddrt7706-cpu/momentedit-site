@@ -368,6 +368,8 @@ function createCoupleForm() {
     var pb = form.addPageBreakItem().setTitle('오프라인 청첩장 ' + (+nn) + '번 — 미리보기');
     addFormImage(form, R + 'prev-family-' + nn + '.png', '오프라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 직접 정하실 수 있는 부분 · 아래에서 차례로 입력해요. 실제로 열어보기 → momentedit.kr/i-family/family-' + nn + '.html');
+    form.addPageBreakItem().setTitle('제목 — 오프라인 청첩장 ' + (+nn) + '번');
+    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(큰/작은 제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('오프라인 청첩장', nn);
     if (nn === '02') { addFormImage(form, R + 'sec-family-02-quote.png', '대표 문구 자리', '✎ 표지 대표 문구를 정하실 수 있어요.'); optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '비우면 기본 문구가 들어갑니다.  (예: 서로의 가장 진실한 / 순간을 기록하기로 합니다.)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-family-08-duo.png', '두 사람 한마디 자리', '✎ 두 분의 한마디를 정하실 수 있어요.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '전하고 싶은 마음을 한두 문장으로. 비우면 기본 문구.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '비우면 기본 문구.'); }
@@ -389,8 +391,10 @@ function createCoupleForm() {
     var pb = form.addPageBreakItem().setTitle('온라인 청첩장 ' + (+nn) + '번 — 미리보기');
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '온라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 정하실 수 있는 부분 · 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
+    var tp = form.addPageBreakItem().setTitle('제목 — 온라인 청첩장 ' + (+nn) + '번');
+    addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(큰/작은 제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('온라인 청첩장', nn);
-    var last = pb;
+    var last = tp;
     if (nn === '02') { addFormImage(form, R + 'sec-digital-02-quote.png', '대표 문구 자리', '✎ 02 표지 대표 문구.'); optPara('대표 문구 (2번 디자인 전용)' + T + '온라인 청첩장 2번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 2번이면 여기에 적어주세요. (비우면 기본 문구)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-digital-08-duo.png', '두 사람 한마디 자리', '✎ 08 두 사람 한마디.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 8번이면 여기에 적어주세요.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요).'); }
     digFirst[nn] = pb; digLast[nn] = last;
