@@ -271,14 +271,14 @@ function createCoupleForm() {
 
   // 디자인별 인사말 제목 — 언어/한줄 글자수 한도(측정값)/기본문구. eye·subko는 있는 디자인만.
   var TITLECFG = {
-    '01': { title: { lang: '영문', max: 22, def: 'We Invite You' }, eye: { lang: '영문', max: 28, def: 'The Invitation' } },
-    '02': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 28, def: 'A Letter' } },
-    '03': { title: { lang: '영문', max: 15, def: 'Invitation' }, eye: { lang: '영문', max: 14, def: 'The Invitation' } },
-    '04': { title: { lang: '영문', max: 26, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 18, def: 'Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } },
-    '05': { title: { lang: '영문', max: 18, def: 'Invitation' }, eye: { lang: '영문', max: 28, def: 'Invitation' } },
-    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 24, def: 'The Invitation' } },
-    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 28, def: 'No. I · The Invitation' }, subko: { lang: '한글', max: 9, def: '초대의 글' } },
-    '08': { title: { lang: '영문', max: 22, def: 'The Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } }
+    '01': { title: { lang: '영문', max: 19, def: 'We Invite You' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
+    '02': { title: { lang: '영문', max: 17, def: 'Save the Day' }, eye: { lang: '영문', max: 14, def: 'A Letter' } },
+    '03': { title: { lang: '영문', max: 13, def: 'Invitation' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
+    '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 15, def: 'Invitation' }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
+    '05': { title: { lang: '영문', max: 16, def: 'Invitation' }, eye: { lang: '영문', max: 16, def: 'Invitation' } },
+    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
+    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 26, def: 'No. I · The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
+    '08': { title: { lang: '영문', max: 20, def: 'The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } }
   };
   // 디자인 브랜치에 제목 편집칸 추가(선택) — prefix='가족'/'디지털' → 시트 fam*/dig* 필드로 매핑됨.
   function addTitleFields(prefix, nn) {
