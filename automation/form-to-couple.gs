@@ -286,7 +286,7 @@ function createCoupleForm() {
     var tag = prefix + ' ' + nn + '번';
     var mk = function (label, spec) {
       var it = form.addTextItem().setTitle(prefix + label + T + tag).setRequired(false)
-        .setHelpText(spec.lang + '으로 · 한 줄 유지 ' + spec.max + '자 이내 · 비우면 기본 "' + spec.def + '" 유지');
+        .setHelpText((spec.lang === '한글' ? '한글로' : '영문으로') + ' · 한 줄 유지 ' + spec.max + '자 이내 · 비우면 기본 "' + spec.def + '" 유지');
       it.setValidation(FormApp.createTextValidation().setHelpText('한 줄 유지를 위해 ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
     };
     mk(' 인사말 큰 제목', cfg.title);
