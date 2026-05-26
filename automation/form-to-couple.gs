@@ -229,8 +229,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl)
     : '내용을 고치고 싶으시면 처음 작성하신 폼을 다시 제출해 주세요(같은 성함·날짜면 자동 갱신).';
   return '' +
     '<div style="font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#FAFAF8;color:#3d3d3a;">' +
-      '<div style="text-align:center;margin-bottom:28px;"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;letter-spacing:0.34em;">MOMENT&nbsp;EDIT</div>' +
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:10px;letter-spacing:0.3em;color:#B89A75;margin-top:8px;">PRIVATE WEDDING STUDIO</div></div>' +
+      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
       '<div style="width:40px;height:1px;background:#B89A75;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
       '<div style="background:#fff;padding:22px 20px;border:1px solid rgba(0,0,0,0.06);border-radius:2px;margin:24px 0;">' + links + '</div>' +
