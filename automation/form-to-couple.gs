@@ -226,7 +226,6 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   };
   if (qrBlob) {
     opts.inlineImages = { qrDigital: qrBlob };
-    opts.attachments = [qrBlob.copyBlob().setName('moment-edit-live-qr.png')];
   }
   GmailApp.sendEmail(to, '[Moment Edit] 두 분의 청첩장이 준비되었습니다', '', opts);
   Logger.log('  (이메일 발송 → ' + to + (qrBlob ? ' · QR 포함' : '') + ')');
@@ -235,27 +234,27 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
   var esc = function (s) { return String(s || '').replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
   var who = (groomName && brideName) ? (esc(groomName) + ' · ' + esc(brideName)) : '두 분';
   var row = function (label, sub, url) {
-    return '<div style="margin:14px 0;"><div style="font-size:13px;color:#5A554C;margin-bottom:6px;">' + label +
-      '<span style="color:#9a8f7f;font-size:12px;"> · ' + sub + '</span></div>' +
-      '<a href="' + url + '" style="display:inline-block;word-break:break-all;font-size:13px;color:#6B2A24;">' + url + '</a></div>';
+    return '<div style="margin:14px 0;"><div style="font-size:13px;color:#CFC6B8;margin-bottom:6px;">' + label +
+      '<span style="color:#9C9080;font-size:12px;"> · ' + sub + '</span></div>' +
+      '<a href="' + url + '" style="display:inline-block;word-break:break-all;font-size:13px;color:#D8B48C;">' + url + '</a></div>';
   };
   var links = '';
   if (liveUrl) links += row('온라인 청첩장', '멀리 계신 하객용', liveUrl);
   if (familyUrl) links += row('오프라인 청첩장', '가족·가까운 분들께', familyUrl);
   var editNote = formUrl
-    ? '내용을 고치고 싶으시면 <a href="' + formUrl + '" style="color:#6B2A24;">이 폼을 다시 작성</a>해 주세요. 같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.'
+    ? '내용을 고치고 싶으시면 <a href="' + formUrl + '" style="color:#D8B48C;">이 폼을 다시 작성</a>해 주세요. 같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.'
     : '내용을 고치고 싶으시면 처음 작성하신 폼을 다시 제출해 주세요(같은 성함·날짜면 자동 갱신).';
   return '' +
-    '<div style="font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#FAFAF8;color:#3d3d3a;">' +
-      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
-      '<div style="width:40px;height:1px;background:#B89A75;margin:24px auto;"></div>' +
-      '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
-      '<p style="font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:-2px 0 0;">아래 링크가 <span style="color:#6B2A24;font-weight:600;">그대로 완성된 청첩장</span>이에요.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
-      '<div style="background:#fff;padding:22px 20px;border:1px solid rgba(0,0,0,0.06);border-radius:2px;margin:24px 0;">' + links + '</div>' +
-      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="148" style="width:148px;height:148px;display:block;margin:0 auto;border:1px solid rgba(0,0,0,0.06);background:#fff;padding:8px;"><div style="font-size:12px;color:#9a8f7f;margin-top:10px;line-height:1.7;"><span style="color:#6B2A24;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으면, 하객이 스캔해 바로 입장할 수 있어요. (PNG 파일로도 첨부했어요)</div></div>' : '') +
-      '<p style="font-size:13px;line-height:1.9;color:#5A554C;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
-      '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
-      '<div style="text-align:center;margin-top:14px;font-size:10px;color:#aaa;">Moment Edit · contact@momentedit.kr</div></div>';
+    '<div style="color-scheme:dark;font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#1E1A17;color:#E8E1D6;">' +
+      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-dark.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
+      '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
+      '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
+      '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:-2px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>이에요.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
+      '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + '</div>' +
+      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="148" style="width:148px;height:148px;display:block;margin:0 auto;border:1px solid rgba(255,255,255,0.12);background:#fff;padding:8px;"><div style="font-size:12px;color:#B8AE9F;margin-top:10px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으면, 하객이 스캔해 바로 입장할 수 있어요.</div></div>' : '') +
+      '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
+      '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#C9A977;">Focus on the Essence, Record the Truth.</div>' +
+      '<div style="text-align:center;margin-top:14px;font-size:10px;color:#7A7165;">Moment Edit · contact@momentedit.kr</div></div>';
 }
 
 // ============== 구글폼 자동 생성기 (최초 1회 실행) ==============
@@ -276,6 +275,7 @@ function createCoupleForm() {
     '※ 식장 정보는 따로 받지 않습니다(예식은 모먼트 에디트 스튜디오에서 진행됩니다).'
   );
   form.setCollectEmail(false);
+  try { form.setRequireLogin(false); } catch (_r) {}
   form.setProgressBar(true);
   form.setAllowResponseEdits(true);
   form.setConfirmationMessage('감사합니다! 입력하신 내용으로 청첩장을 준비해, 완성 링크를 이메일로 보내드릴게요. 수정은 받으신 메일의 안내대로 폼을 다시 작성하시면 됩니다.');
