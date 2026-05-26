@@ -292,7 +292,7 @@ function createCoupleForm() {
   var TITLECFG = {
     '01': { title: { lang: '영문', max: 19, def: 'We Invite You' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
     '02': { title: { lang: '영문', max: 17, def: 'Save the Day' }, eye: { lang: '영문', max: 14, def: 'A Letter' } },
-    '03': { title: { lang: '영문', max: 13, def: 'Invitation', caps: true }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
+    '03': { title: { lang: '영문', max: 13, def: 'Invitation', caps: true }, eye: { lang: '영문', max: 22, def: 'Cordially Invited', caps: true } },
     '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 15, def: 'Invitation', caps: true }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
     '05': { title: { lang: '영문', max: 16, def: 'Invitation' }, eye: { lang: '영문', max: 16, def: 'Invitation', caps: true } },
     '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },

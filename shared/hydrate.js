@@ -367,7 +367,7 @@
     var eyebrow = pick('famInvEyebrow', 'digInvEyebrow');
     var subko = pick('famInvSubKo', 'digInvSubKo');
     if (title) { var t = document.getElementById('sec-01-title') || document.querySelector('.inv-title'); if (t) t.textContent = title; }
-    var EB = { '01': '.inv-label', '02': '.inv-eyebrow', '03': '.sec-marker-label', '04': '.sec-num-label', '05': '.label', '06': '.inv-title-en', '07': '.inv-eyebrow' };  // 08은 작은제목 칸 없음
+    var EB = { '01': '.inv-label', '02': '.inv-eyebrow', '03': '.inv-title-sub', '04': '.sec-num-label', '05': '.label', '06': '.inv-title-en', '07': '.inv-eyebrow' };  // 08은 작은제목 칸 없음
     if (eyebrow && EB[dn]) { var e = document.querySelector(EB[dn]); if (e) e.textContent = eyebrow; }
     var KO = { '04': '.sec-title-ko', '07': '.inv-title-ko', '08': '.sec-title-ko' };  // 한글 부제가 따로 있는 디자인
     if (subko && KO[dn]) { var k = document.querySelector(KO[dn]); if (k) k.textContent = subko; }
