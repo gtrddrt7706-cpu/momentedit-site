@@ -271,13 +271,13 @@ function createCoupleForm() {
 
   // 디자인별 인사말 제목 — 언어/한줄 글자수 한도(측정값)/기본문구. eye·subko는 있는 디자인만.
   var TITLECFG = {
-    '01': { title: { lang: '영문', max: 19, def: 'We Invite You' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
+    '01': { title: { lang: '영문', max: 19, def: 'We Invite You' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
     '02': { title: { lang: '영문', max: 17, def: 'Save the Day' }, eye: { lang: '영문', max: 14, def: 'A Letter' } },
-    '03': { title: { lang: '영문', max: 13, def: 'Invitation' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
-    '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 15, def: 'Invitation' }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
-    '05': { title: { lang: '영문', max: 16, def: 'Invitation' }, eye: { lang: '영문', max: 16, def: 'Invitation' } },
-    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 18, def: 'The Invitation' } },
-    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 26, def: 'No. I · The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
+    '03': { title: { lang: '영문', max: 13, def: 'Invitation', caps: true }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
+    '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 15, def: 'Invitation', caps: true }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
+    '05': { title: { lang: '영문', max: 16, def: 'Invitation' }, eye: { lang: '영문', max: 16, def: 'Invitation', caps: true } },
+    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
+    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 26, def: 'No. I · The Invitation', caps: true, note: '앞 번호(No. I)도 함께 적어야 유지돼요' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
     '08': { title: { lang: '영문', max: 20, def: 'The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } }
   };
   // 디자인 브랜치에 제목 편집칸 추가(선택) — prefix='가족'/'디지털' → 시트 fam*/dig* 필드로 매핑됨.
@@ -286,7 +286,7 @@ function createCoupleForm() {
     var tag = prefix + ' ' + nn + '번';
     var mk = function (label, spec) {
       var it = form.addTextItem().setTitle(prefix + label + T + tag).setRequired(false)
-        .setHelpText((spec.lang === '한글' ? '한글로' : '영문으로') + ' · 한 줄 유지 ' + spec.max + '자 이내 · 비우면 기본 "' + spec.def + '" 유지');
+        .setHelpText((spec.lang === '한글' ? '한글로' : '영문으로') + ' · 한 줄 유지 ' + spec.max + '자 이내' + (spec.caps ? ' · 대문자로 표시돼요' : '') + (spec.note ? ' · ' + spec.note : '') + ' · 비우면 기본 "' + spec.def + '" 유지');
       it.setValidation(FormApp.createTextValidation().setHelpText('한 줄 유지를 위해 ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
     };
     mk(' 인사말 큰 제목', cfg.title);
