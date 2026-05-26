@@ -299,6 +299,17 @@ function createCoupleForm() {
     '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 26, def: 'No. I · The Invitation', caps: true, note: '앞 번호(No. I)도 함께 적어야 유지돼요' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
     '08': { title: { lang: '영문', max: 20, def: 'The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } }
   };
+  // 디자인별 기본 인사말(인사말 도움말 예시용 · *별표*는 그 디자인 강조 위치)
+  var GREET_EG = {
+    '01': '저희 두 사람, 조용한 자리에서 *평생의 약속*을 건네기로 했습니다.',
+    '02': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*.',
+    '03': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*, 계절은 여러 번 바뀌었습니다.',
+    '04': '두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.',
+    '05': '저희 두 사람, 사랑으로 한 길을 걷기로 약속하였습니다.',
+    '06': '서로의 이름을 처음 부르던 날부터 오늘에 이르기까지, *계절은 여러 번 바뀌었습니다.*',
+    '07': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*, 계절은 여러 번 바뀌었습니다.',
+    '08': '서로의 평범한 하루를 나누던 두 사람이, 이제 같은 하루를 살아가려 합니다.'
+  };
   // 디자인 브랜치에 제목 편집칸 추가(선택) — prefix='오프라인 청첩장'/'온라인 청첩장' → 시트 fam*/dig* 필드로 매핑됨.
   function addTitleFields(prefix, nn) {
     var cfg = TITLECFG[nn]; if (!cfg) return;
@@ -332,12 +343,12 @@ function createCoupleForm() {
   // 공통 디테일 페이지 묶음 생성기 (가족 브랜치 / 발행안함 폴백 공용)
   // tag: '오프라인 청첩장 1번' 등 · secPrefix: 'sec-family-01-'(이미지) 또는 null
   // 반환: 이 묶음의 마지막 PageBreakItem (브랜치 연결용)
-  function addDetailPages(tag, secPrefix) {
+  function addDetailPages(tag, secPrefix, dn) {
     var last;
     last = form.addPageBreakItem().setTitle('인사말 · ' + tag);
     if (secPrefix) addFormImage(form, R + secPrefix + 'invite.png', '인사말이 들어가는 자리', '✎ 점선 부분이 인사말이에요.');
     optPara('인사말 (직접 작성)' + T + tag,
-      '직접 쓰신 인사말이 그대로 들어가요. 강조할 부분은 *별표*로 감싸면 포인트 색이 됩니다.\n예) 조용한 자리에서 *평생의 약속*을 건네기로 했습니다.\n비우면 디자인에 어울리는 기본 인사말이 자동으로 담깁니다.');
+      '직접 쓰신 인사말이 그대로 들어가요. 강조하고 싶은 부분을 *별표*로 감싸면 이 디자인에 맞춰 강조 표시됩니다.\n예) ' + ((dn && GREET_EG[dn]) ? GREET_EG[dn] : '두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.') + '\n비우면 이 디자인의 기본 인사말이 자동으로 담깁니다.');
 
     last = form.addPageBreakItem().setTitle('혼주(부모님) 성함 · ' + tag);
     if (secPrefix) addFormImage(form, R + secPrefix + 'invite.png', '혼주 성함이 들어가는 자리', '✎ 인사말 아래 "자녀 소개" 부분이에요.');
@@ -374,7 +385,7 @@ function createCoupleForm() {
     if (nn === '02') { addFormImage(form, R + 'sec-family-02-quote.png', '대표 문구 자리', '✎ 표지 대표 문구를 정하실 수 있어요.'); optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '비우면 기본 문구가 들어갑니다.  (예: 서로의 가장 진실한 / 순간을 기록하기로 합니다.)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-family-08-duo.png', '두 사람 한마디 자리', '✎ 두 분의 한마디를 정하실 수 있어요.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '전하고 싶은 마음을 한두 문장으로. 비우면 기본 문구.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '비우면 기본 문구.'); }
     famFirst[nn] = pb;
-    famLast[nn] = addDetailPages('오프라인 청첩장 ' + (+nn) + '번', 'sec-family-' + nn + '-');
+    famLast[nn] = addDetailPages('오프라인 청첩장 ' + (+nn) + '번', 'sec-family-' + nn + '-', nn);
   });
   // 발행 안 함 폴백(이미지 없이 공통 디테일만)
   var pbFamNone = form.addPageBreakItem().setTitle('청첩장에 담길 내용')
