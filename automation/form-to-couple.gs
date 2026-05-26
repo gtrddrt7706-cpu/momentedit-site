@@ -1,9 +1,10 @@
 /**
  * Moment Edit · 구글폼 → Couples 시트 자동 등록 + URL 자동 조립 + 부부 자동 메일
  * ──────────────────────────────────────────────────────────────────────────
- * [v16 · 2026.05.26] 인사말 제목 편집 — 큰/작은 제목·한글 부제를 디자인별·가족/디지털 따로 편집
+ * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
- *  ⚠️ 시트에 6열 추가 필요: famInvTitle·famInvEyebrow·famInvSubKo·digInvTitle·digInvEyebrow·digInvSubKo.
+ *  작은제목(eyebrow) 편집은 제거됨 — 점선=편집가능 원칙에 맞춰 디자인 고정값으로.
+ *  ⚠️ 시트 4열: famInvTitle·famInvSubKo·digInvTitle·digInvSubKo (작은제목 2열 제거).
  *
  * [v15 · 2026.05.26] 디자인-우선(Design-first) 구조 전면 개편 (Bβ)
  *  · 흐름: 공통기본 → 가족 디자인 선택 → (그 디자인) 전체 미리보기(선표기)+섹션 이미지 + 디테일
@@ -56,11 +57,9 @@ var CFG = {
     '신랑 한마디 (8번 디자인 전용)': 'groomBio',
     '신부 한마디 (8번 디자인 전용)': 'brideBio',
     '오프라인 청첩장 인사말 큰 제목': 'famInvTitle',
-    '오프라인 청첩장 인사말 작은 제목': 'famInvEyebrow',
-    '오프라인 청첩장 인사말 한글 부제': 'famInvSubKo',
+    '오프라인 청첩장 인사말 부제': 'famInvSubKo',
     '온라인 청첩장 인사말 큰 제목': 'digInvTitle',
-    '온라인 청첩장 인사말 작은 제목': 'digInvEyebrow',
-    '온라인 청첩장 인사말 한글 부제': 'digInvSubKo'
+    '온라인 청첩장 인사말 부제': 'digInvSubKo'
   },
 
   COL_DESIGN_ONLINE: 'designOnline',
@@ -297,13 +296,13 @@ function createCoupleForm() {
 
   // 디자인별 인사말 제목 — 언어/한줄 글자수 한도(측정값)/기본문구. eye·subko는 있는 디자인만.
   var TITLECFG = {
-    '01': { title: { lang: '영문', max: 19, def: 'We Invite You' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
-    '02': { title: { lang: '영문', max: 17, def: 'Save the Day' }, eye: { lang: '영문', max: 14, def: 'A Letter' } },
-    '03': { title: { lang: '영문', max: 13, def: 'Invitation', caps: true }, eye: { lang: '영문', max: 22, def: 'Cordially Invited', caps: true } },
-    '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 15, def: 'Invitation', caps: true }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
-    '05': { title: { lang: '영문', max: 16, def: 'Invitation' }, eye: { lang: '영문', max: 16, def: 'Invitation', caps: true } },
-    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 18, def: 'The Invitation', caps: true } },
-    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 26, def: 'No. I · The Invitation', caps: true, note: '앞 번호(No. I)도 함께 적어야 유지돼요' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
+    '01': { title: { lang: '영문', max: 19, def: 'We Invite You' } },
+    '02': { title: { lang: '영문', max: 17, def: 'Save the Day' } },
+    '03': { title: { lang: '영문', max: 13, def: 'Invitation', caps: true }, subko: { lang: '영문', max: 22, def: 'Cordially Invited', caps: true } },
+    '04': { title: { lang: '영문', max: 24, def: 'a quiet invitation.' }, subko: { lang: '한글', max: 12, def: '초대의 글' } },
+    '05': { title: { lang: '영문', max: 16, def: 'Invitation' } },
+    '06': { title: { lang: '한글', max: 7, def: '모시는 글' } },
+    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, subko: { lang: '한글', max: 11, def: '초대의 글' } },
     '08': { title: { lang: '영문', max: 20, def: 'The Invitation' }, subko: { lang: '한글', max: 11, def: '초대의 글' } }
   };
   // 디자인별 기본 인사말(인사말 도움말 예시용 · *별표*는 그 디자인 강조 위치)
@@ -327,7 +326,7 @@ function createCoupleForm() {
       it.setValidation(FormApp.createTextValidation().setHelpText('디자인에 맞는 적정 길이 · ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
     };
     mk(' 인사말 큰 제목', cfg.title);
-    if (cfg.subko) mk(' 인사말 한글 부제', cfg.subko);
+    if (cfg.subko) mk(' 인사말 부제', cfg.subko);
   }
 
   // ── PART 0 · 공통 기본정보 ──
