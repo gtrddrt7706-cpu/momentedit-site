@@ -276,7 +276,7 @@ function createCoupleForm() {
     '03': { title: { lang: '영문', max: 15, def: 'Invitation' }, eye: { lang: '영문', max: 14, def: 'The Invitation' } },
     '04': { title: { lang: '영문', max: 26, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 18, def: 'Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } },
     '05': { title: { lang: '영문', max: 18, def: 'Invitation' }, eye: { lang: '영문', max: 28, def: 'Invitation' } },
-    '06': { title: { lang: '한글', max: 8, def: '모시는 글' }, eye: { lang: '영문', max: 24, def: 'The Invitation' } },
+    '06': { title: { lang: '한글', max: 7, def: '모시는 글' }, eye: { lang: '영문', max: 24, def: 'The Invitation' } },
     '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 28, def: 'No. I · The Invitation' }, subko: { lang: '한글', max: 9, def: '초대의 글' } },
     '08': { title: { lang: '영문', max: 22, def: 'The Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } }
   };
