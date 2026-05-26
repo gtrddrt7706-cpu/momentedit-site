@@ -382,13 +382,12 @@ function createCoupleForm() {
   // 가족 브랜치 8개 + 발행안함 폴백 — 각 묶음의 (첫 페이지, 마지막 페이지) 기록
   var famFirst = {}, famLast = {};
   designs.forEach(function (nn) {
-    var pb = form.addPageBreakItem().setTitle('오프라인 청첩장 ' + (+nn) + '번 — 미리보기');
+    // 미리보기 이미지 + 제목 이미지/입력을 한 페이지에 둠 → 질문이 있는 페이지라 절대 자동 건너뛰지 않음
+    var pb = form.addPageBreakItem().setTitle('오프라인 청첩장 ' + (+nn) + '번 — 미리보기 · 제목');
     addFormImage(form, R + 'prev-family-' + nn + '.png', '오프라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 직접 정하실 수 있는 부분 · 아래에서 차례로 입력해요. 실제로 열어보기 → momentedit.kr/i-family/family-' + nn + '.html');
-    var tpf = form.addPageBreakItem().setTitle('제목 — 오프라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('오프라인 청첩장', nn);
-    pb.setGoToPage(tpf);  // 미리보기 → 제목 페이지 명시적 연결
     if (nn === '02') { addFormImage(form, R + 'sec-family-02-quote.png', '대표 문구 자리', '✎ 표지 대표 문구를 정하실 수 있어요.'); optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '비우면 기본 문구가 들어갑니다.  (예: 서로의 가장 진실한 / 순간을 기록하기로 합니다.)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-family-08-duo.png', '두 사람 한마디 자리', '✎ 두 분의 한마디를 정하실 수 있어요.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '전하고 싶은 마음을 한두 문장으로. 비우면 기본 문구.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '비우면 기본 문구.'); }
     famFirst[nn] = pb;
@@ -404,19 +403,17 @@ function createCoupleForm() {
     .setHelpText('멀리 못 오시는 분들도 온라인으로 함께하고, 하객 편지·마음 전하실 곳이 담겨요.\n앞서 적으신 인사말·혼주·계좌가 여기에도 그대로 담깁니다. 디자인만 골라주세요.');
   var digDesignQ = form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_ONLINE).setRequired(true).setHelpText(GALLERY);
 
-  var digFirst = {}, digLast = {};
+  var digFirst = {};
   designs.forEach(function (nn) {
-    var pb = form.addPageBreakItem().setTitle('온라인 청첩장 ' + (+nn) + '번 — 미리보기');
+    // 미리보기 + 제목을 한 페이지에. 질문(제목칸)이 있어 자동 건너뛰기 불가 → 선택 직후 바로 제출로 넘어가던 현상 차단.
+    var pb = form.addPageBreakItem().setTitle('온라인 청첩장 ' + (+nn) + '번 — 미리보기 · 제목');
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '온라인 청첩장 ' + (+nn) + '번 미리보기',
       '✎ 점선 = 정하실 수 있는 부분 · 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
-    var tp = form.addPageBreakItem().setTitle('제목 — 온라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('온라인 청첩장', nn);
-    var last = tp;
-    pb.setGoToPage(tp);  // 미리보기 → 제목 페이지 명시적 연결(이미지 전용 섹션 자동진행 보강)
     if (nn === '02') { addFormImage(form, R + 'sec-digital-02-quote.png', '대표 문구 자리', '✎ 02 표지 대표 문구.'); optPara('대표 문구 (2번 디자인 전용)' + T + '온라인 청첩장 2번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 2번이면 여기에 적어주세요. (비우면 기본 문구)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-digital-08-duo.png', '두 사람 한마디 자리', '✎ 08 두 사람 한마디.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 8번이면 여기에 적어주세요.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요).'); }
-    digFirst[nn] = pb; digLast[nn] = last;
+    digFirst[nn] = pb;
   });
 
   // ── PART 3 · 마지막 확인 ──
@@ -437,8 +434,8 @@ function createCoupleForm() {
   digChoices.push(digDesignQ.createChoice('만들지 않음 (오프라인 청첩장만)', pbFinal));
   digChoices.push(digDesignQ.createChoice('디자인은 직접 제작 · 입장 QR만 받을게요', pbFinal));
   digDesignQ.setChoices(digChoices);
-  // 각 디지털 브랜치 마지막 → 최종으로 수렴
-  designs.forEach(function (nn) { digLast[nn].setGoToPage(pbFinal); });
+  // 각 디지털 디자인 페이지 → 최종(제출)으로. (선택 → 미리보기·제목 페이지 → 제출, 2단계 확실히 보장)
+  designs.forEach(function (nn) { digFirst[nn].setGoToPage(pbFinal); });
 
   // 응답 연결 + 트리거 + 폼 URL 저장
   var ss = SpreadsheetApp.getActive();
