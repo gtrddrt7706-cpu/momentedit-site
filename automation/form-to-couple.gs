@@ -241,9 +241,6 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
   var links = '';
   if (liveUrl) links += row('온라인 청첩장', '멀리 계신 하객용', liveUrl);
   if (familyUrl) links += row('오프라인 청첩장', '가족·가까운 분들께', familyUrl);
-  var shareNote = (liveUrl || familyUrl)
-    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;line-height:1.7;color:#9C9080;">카톡·문자로 이 링크를 보내면 미리보기 이미지가 함께 떠요.</div>'
-    : '';
   var editNote = formUrl
     ? '내용을 고치고 싶으시면 <a href="' + formUrl + '" style="color:#D8B48C;">이 폼을 다시 작성</a>해 주세요.<br>같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.'
     : '내용을 고치고 싶으시면 처음 작성하신 폼을 다시 제출해 주세요(같은 성함·날짜면 자동 갱신).';
@@ -256,8 +253,8 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
       '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
       '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:-2px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>이에요.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
-      '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + shareNote + '</div>' +
-      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="148" style="width:148px;height:148px;display:block;margin:0 auto;border:1px solid rgba(255,255,255,0.12);background:#fff;padding:8px;"><div style="font-size:12px;color:#B8AE9F;margin-top:10px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으면, 하객이 스캔해 바로 입장할 수 있어요.<br>QR을 길게(꾹) 누르면 이미지로 저장할 수 있어요.</div></div>' : '') +
+      '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + '</div>' +
+      (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="150" style="width:150px;height:150px;display:block;margin:0 auto;border:0;border-radius:2px;"><div style="font-size:12px;color:#B8AE9F;margin-top:12px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으면, 하객이 스캔해 바로 입장할 수 있어요.<br>QR을 길게(꾹) 누르면 이미지로 저장할 수 있어요.</div></div>' : '') +
       '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
       '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#C9A977;">Focus on the Essence, Record the Truth.</div>' +
       '<div style="text-align:center;margin-top:14px;font-size:10px;color:#7A7165;">Moment Edit · contact@momentedit.kr</div></div>' +
