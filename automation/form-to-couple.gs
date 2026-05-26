@@ -59,7 +59,8 @@ var CFG = {
     '오프라인 청첩장 인사말 큰 제목': 'famInvTitle',
     '오프라인 청첩장 인사말 부제': 'famInvSubKo',
     '온라인 청첩장 인사말 큰 제목': 'digInvTitle',
-    '온라인 청첩장 인사말 부제': 'digInvSubKo'
+    '온라인 청첩장 인사말 부제': 'digInvSubKo',
+    '온라인 청첩장 인사말 (직접 작성)': 'digInvitationText'
   },
 
   COL_DESIGN_ONLINE: 'designOnline',
@@ -410,6 +411,9 @@ function createCoupleForm() {
       '✎ 점선 = 정하실 수 있는 부분 · 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
     addFormImage(form, R + 'sec-family-' + nn + '-title.png', '제목이 들어가는 자리', '✎ 점선 부분(제목)을 직접 정하실 수 있어요. 비우면 기본값이 들어갑니다.');
     addTitleFields('온라인 청첩장', nn);
+    addFormImage(form, R + 'sec-family-' + nn + '-invite.png', '인사말이 들어가는 자리', '✎ 점선 부분이 인사말이에요. 온라인 청첩장 인사말을 따로 정하실 수 있어요.');
+    optPara('온라인 청첩장 인사말 (직접 작성)' + T + '온라인 청첩장 ' + (+nn) + '번',
+      '온라인 청첩장(멀리 계신 하객용) 인사말이에요. 강조는 *별표*로 감싸면 돼요.\n예) ' + ((GREET_EG[nn]) ? GREET_EG[nn] : '두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.') + '\n비우면 오프라인에 적으신 인사말(또는 디자인 기본 인사말)이 그대로 담깁니다. 온라인만 다르게 하시려면 여기에 적어주세요.');
     if (nn === '02') { addFormImage(form, R + 'sec-digital-02-quote.png', '대표 문구 자리', '✎ 02 표지 대표 문구.'); optPara('대표 문구 (2번 디자인 전용)' + T + '온라인 청첩장 2번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 2번이면 여기에 적어주세요. (비우면 기본 문구)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-digital-08-duo.png', '두 사람 한마디 자리', '✎ 08 두 사람 한마디.'); optPara('신랑 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요). 온라인만 8번이면 여기에 적어주세요.'); optPara('신부 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '오프라인 청첩장에서 이미 적으셨다면 비워두세요 (그대로 담겨요).'); }
     digFirst[nn] = pb;
