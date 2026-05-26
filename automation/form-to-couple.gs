@@ -1,6 +1,10 @@
 /**
  * Moment Edit · 구글폼 → Couples 시트 자동 등록 + URL 자동 조립 + 부부 자동 메일
  * ──────────────────────────────────────────────────────────────────────────
+ * [v16 · 2026.05.26] 인사말 제목 편집 — 큰/작은 제목·한글 부제를 디자인별·가족/디지털 따로 편집
+ *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
+ *  ⚠️ 시트에 6열 추가 필요: famInvTitle·famInvEyebrow·famInvSubKo·digInvTitle·digInvEyebrow·digInvSubKo.
+ *
  * [v15 · 2026.05.26] 디자인-우선(Design-first) 구조 전면 개편 (Bβ)
  *  · 흐름: 공통기본 → 가족 디자인 선택 → (그 디자인) 전체 미리보기(선표기)+섹션 이미지 + 디테일
  *          → 디지털 디자인 선택 → (그 디자인) 미리보기 + (02/08) 문구 → 제출
@@ -50,7 +54,13 @@ var CFG = {
     '인사말 (직접 작성)': 'invitationText',
     '대표 문구 (02 Editorial 전용)': 'pullQuote',
     '신랑 한마디 (08 Noir 전용)': 'groomBio',
-    '신부 한마디 (08 Noir 전용)': 'brideBio'
+    '신부 한마디 (08 Noir 전용)': 'brideBio',
+    '가족 인사말 큰 제목': 'famInvTitle',
+    '가족 인사말 작은 제목': 'famInvEyebrow',
+    '가족 인사말 한글 부제': 'famInvSubKo',
+    '디지털 인사말 큰 제목': 'digInvTitle',
+    '디지털 인사말 작은 제목': 'digInvEyebrow',
+    '디지털 인사말 한글 부제': 'digInvSubKo'
   },
 
   COL_DESIGN_ONLINE: 'designOnline',
@@ -259,6 +269,31 @@ function createCoupleForm() {
   var nameVal = FormApp.createTextValidation().setHelpText('성과 이름을 한 칸씩 띄어 적어주세요. 예) Lee Seo Jun').requireTextMatchesPattern('^\\S+(\\s+\\S+)+$').build();
   var GALLERY = '갤러리에서 미리 둘러보실 수 있어요 → momentedit.kr/invitation-gallery.html';
 
+  // 디자인별 인사말 제목 — 언어/한줄 글자수 한도(측정값)/기본문구. eye·subko는 있는 디자인만.
+  var TITLECFG = {
+    '01': { title: { lang: '영문', max: 22, def: 'We Invite You' }, eye: { lang: '영문', max: 28, def: 'The Invitation' } },
+    '02': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 28, def: 'A Letter' } },
+    '03': { title: { lang: '영문', max: 15, def: 'Invitation' }, eye: { lang: '영문', max: 14, def: 'The Invitation' } },
+    '04': { title: { lang: '영문', max: 26, def: 'a quiet invitation.' }, eye: { lang: '영문', max: 18, def: 'Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } },
+    '05': { title: { lang: '영문', max: 18, def: 'Invitation' }, eye: { lang: '영문', max: 28, def: 'Invitation' } },
+    '06': { title: { lang: '한글', max: 8, def: '모시는 글' }, eye: { lang: '영문', max: 24, def: 'The Invitation' } },
+    '07': { title: { lang: '영문', max: 18, def: 'Save the Day' }, eye: { lang: '영문', max: 28, def: 'No. I · The Invitation' }, subko: { lang: '한글', max: 9, def: '초대의 글' } },
+    '08': { title: { lang: '영문', max: 22, def: 'The Invitation' }, subko: { lang: '한글', max: 10, def: '초대의 글' } }
+  };
+  // 디자인 브랜치에 제목 편집칸 추가(선택) — prefix='가족'/'디지털' → 시트 fam*/dig* 필드로 매핑됨.
+  function addTitleFields(prefix, nn) {
+    var cfg = TITLECFG[nn]; if (!cfg) return;
+    var tag = prefix + ' ' + nn + '번';
+    var mk = function (label, spec) {
+      var it = form.addTextItem().setTitle(prefix + label + T + tag).setRequired(false)
+        .setHelpText(spec.lang + '으로 · 한 줄 유지 ' + spec.max + '자 이내 · 비우면 기본 "' + spec.def + '" 유지');
+      it.setValidation(FormApp.createTextValidation().setHelpText('한 줄 유지를 위해 ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
+    };
+    mk(' 인사말 큰 제목', cfg.title);
+    if (cfg.eye) mk(' 인사말 작은 제목', cfg.eye);
+    if (cfg.subko) mk(' 인사말 한글 부제', cfg.subko);
+  }
+
   // ── PART 0 · 공통 기본정보 ──
   form.addSectionHeaderItem().setTitle('두 분 정보').setHelpText('성함과 연락받으실 이메일, 예식 일정, 본인 계좌를 적어주세요.');
   req('신랑 한글 이름', '예) 이서준');
@@ -314,6 +349,7 @@ function createCoupleForm() {
     var pb = form.addPageBreakItem().setTitle('가족 ' + nn + '번 — 미리보기');
     addFormImage(form, R + 'prev-family-' + nn + '.png', '가족 ' + nn + '번 청첩장 미리보기',
       '✎ 점선 = 직접 정하실 수 있는 부분 · 아래에서 차례로 입력해요. 실제로 열어보기 → momentedit.kr/i-family/family-' + nn + '.html');
+    addTitleFields('가족', nn);
     if (nn === '02') { addFormImage(form, R + 'sec-family-02-quote.png', '대표 문구 자리', '✎ 표지 대표 문구를 정하실 수 있어요.'); optPara('대표 문구 (02 Editorial 전용)' + T + '가족 02번', '비우면 기본 문구가 들어갑니다.  (예: 서로의 가장 진실한 / 순간을 기록하기로 합니다.)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-family-08-duo.png', '두 사람 한마디 자리', '✎ 두 분의 한마디를 정하실 수 있어요.'); optPara('신랑 한마디 (08 Noir 전용)' + T + '가족 08번', '전하고 싶은 마음을 한두 문장으로. 비우면 기본 문구.'); optPara('신부 한마디 (08 Noir 전용)' + T + '가족 08번', '비우면 기본 문구.'); }
     famFirst[nn] = pb;
@@ -334,6 +370,7 @@ function createCoupleForm() {
     var pb = form.addPageBreakItem().setTitle('디지털 ' + nn + '번 — 미리보기');
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '디지털 ' + nn + '번 청첩장 미리보기',
       '✎ 점선 = 정하실 수 있는 부분 · 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
+    addTitleFields('디지털', nn);
     var last = pb;
     if (nn === '02') { addFormImage(form, R + 'sec-digital-02-quote.png', '대표 문구 자리', '✎ 02 표지 대표 문구.'); optPara('대표 문구 (02 Editorial 전용)' + T + '디지털 02번', '가족 청첩장에서 이미 적으셨다면 비워두셔도 그대로 담겨요. 디지털만 02라면 여기 적어주세요. (비우면 기본 문구)'); }
     if (nn === '08') { addFormImage(form, R + 'sec-digital-08-duo.png', '두 사람 한마디 자리', '✎ 08 두 사람 한마디.'); optPara('신랑 한마디 (08 Noir 전용)' + T + '디지털 08번', '가족에서 적으셨다면 비워두세요(그대로 담겨요). 디지털만 08이면 여기 적기.'); optPara('신부 한마디 (08 Noir 전용)' + T + '디지털 08번', '가족에서 적으셨다면 비워두세요.'); }

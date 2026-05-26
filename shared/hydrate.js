@@ -355,7 +355,22 @@
       document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
       if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
       runInertScripts();
+      applyTitles(couple, designNum());
     } catch (e) { console.error('[hydrate]', e); }
+  }
+
+  // 인사말 섹션 제목 교체 — 커스텀 있을 때만 텍스트 교체(폰트·스타일 유지). 가족/디지털 디자인 따로.
+  function applyTitles(c, dn) {
+    var fam = location.pathname.indexOf('/i-family/') !== -1;
+    var pick = function (fk, dk) { return String((fam ? c[fk] : c[dk]) || '').trim(); };
+    var title = pick('famInvTitle', 'digInvTitle');
+    var eyebrow = pick('famInvEyebrow', 'digInvEyebrow');
+    var subko = pick('famInvSubKo', 'digInvSubKo');
+    if (title) { var t = document.getElementById('sec-01-title') || document.querySelector('.inv-title'); if (t) t.textContent = title; }
+    var EB = { '01': '.inv-label', '02': '.inv-eyebrow', '03': '.sec-marker-label', '04': '.sec-num-label', '05': '.label', '06': '.inv-title-en', '07': '.inv-eyebrow', '08': '.sec-num-label' };
+    if (eyebrow && EB[dn]) { var e = document.querySelector(EB[dn]); if (e) e.textContent = eyebrow; }
+    var KO = { '04': '.sec-title-ko', '07': '.inv-title-ko', '08': '.sec-title-ko' };  // 한글 부제가 따로 있는 디자인
+    if (subko && KO[dn]) { var k = document.querySelector(KO[dn]); if (k) k.textContent = subko; }
   }
 
   function preconnectWebhook() {
