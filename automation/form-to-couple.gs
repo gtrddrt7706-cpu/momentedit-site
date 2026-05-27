@@ -338,7 +338,7 @@ function createCoupleForm() {
   var gate = function (title, help) { return form.addMultipleChoiceItem().setTitle(title).setRequired(true).setChoiceValues(['네 — 넣을게요', '아니요 — 넣지 않을게요']).setHelpText(help); };
   var nameVal = FormApp.createTextValidation().setHelpText('성을 먼저, 띄어쓰기로. 예) Lee Seo Jun').requireTextMatchesPattern('^\\S+(\\s+\\S+)+$').build();
   var emailVal = FormApp.createTextValidation().setHelpText('올바른 이메일 주소를 적어주세요. 예) name@gmail.com').requireTextIsEmail().build();
-  var timeVal = FormApp.createTextValidation().setHelpText('24시간 형식으로, 콜론(:)을 넣어주세요. 예) 14:00').requireTextMatchesPattern('^([01]?\\d|2[0-3]):[0-5]\\d$').build();
+  var timeVal = FormApp.createTextValidation().setHelpText('24시간 형식으로, 콜론(:)을 넣어주세요. 예) 10:00').requireTextMatchesPattern('^([01]?\\d|2[0-3]):[0-5]\\d$').build();
   var GALLERY = '갤러리에서 미리 둘러보실 수 있습니다 → momentedit.kr/invitation-gallery.html';
 
   // 디자인별 인사말 제목 — 한줄 글자수 한도(측정값)/기본문구. subko(부제)는 있는 디자인만.
@@ -393,8 +393,8 @@ function createCoupleForm() {
   // ── ② 예식 일정 ──
   form.addPageBreakItem().setTitle('예식 일정')
     .setHelpText('날짜·시간은 청첩장 곳곳에 자동으로 담깁니다.\n※ 예식 장소는 Moment Edit 스튜디오입니다 (경기 고양 향동).');
-  req('결혼식 날짜', '예) 2026-10-24 (연-월-일, 월·일은 두 자리)').setValidation(FormApp.createTextValidation().setHelpText('예: 2026-10-24 (월·일을 두 자리로 적어주세요)').requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
-  req('결혼식 시간', '24시간 형식으로 콜론(:)을 넣어주세요. 예) 14:00').setValidation(timeVal);
+  req('결혼식 날짜', '예) 2027-12-17 (연-월-일, 월·일은 두 자리)').setValidation(FormApp.createTextValidation().setHelpText('예: 2027-12-17 (월·일을 두 자리로 적어주세요)').requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
+  req('결혼식 시간', '24시간 형식으로 콜론(:)을 넣어주세요. 예) 10:00').setValidation(timeVal);
 
   // ── ③ 혼주(부모님 성함) · 마음 전하실 곳 (공통, 한 번만) ──
   form.addPageBreakItem().setTitle('혼주(부모님 성함) · 마음 전하실 곳')
