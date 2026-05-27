@@ -1920,6 +1920,9 @@ window.addEventListener('load', () => {
 // ═══════════════════════════════════════════════════════════════
 const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
 
+// 부부 자유입력(이름·혼주·예금주)을 innerHTML에 넣기 전 이스케이프 — 저장형 XSS 방지(정상 텍스트엔 무영향)
+function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
 (async function initLiveBroadcast(){
   // Apps Script 서버에 미리 연결(체감 속도 ↑)
   try {
@@ -2010,7 +2013,7 @@ function applyCoupleInfo(couple){
   if (koEl) {
     const groomKo = couple.groomName || '신랑';
     const brideKo = couple.brideName || '신부';
-    koEl.innerHTML = groomKo + ' &middot; ' + brideKo;
+    koEl.innerHTML = escHtml(groomKo) + ' &middot; ' + escHtml(brideKo);
   }
 
   // 3. 날짜 / 요일 / 시간
@@ -2132,7 +2135,7 @@ function fillParentAccounts(item, parentsStr, show, fatherCell, motherCell){
       row.querySelector('.env-bank').textContent = bank ? (/(은행|뱅크)$/.test(bank) ? bank : bank + '은행') : '';
       row.querySelector('.env-account').textContent = account;
       row.querySelector('.env-copy').setAttribute('data-account', account.replace(/\D/g, ''));
-      holder.innerHTML = '<span class="label">' + (rel === 'father' ? '아버지' : '어머니') + '</span>' + (data[rel].name || '');
+      holder.innerHTML = '<span class="label">' + (rel === 'father' ? '아버지' : '어머니') + '</span>' + escHtml(data[rel].name || '');
       row.hidden = false; holder.hidden = false;
     } else {
       row.hidden = true; holder.hidden = true;
@@ -2151,7 +2154,7 @@ function updateEnvelopeBlock(item, info){
   const parentsEl = item.querySelector('.env-q-parents');
   if (parentsEl) {
     if (info.showParents && info.parents && String(info.parents).trim()) {
-      parentsEl.innerHTML = info.parents + '<span class="of">' + info.parentRelation + '</span>';
+      parentsEl.innerHTML = escHtml(info.parents) + '<span class="of">' + info.parentRelation + '</span>';
       parentsEl.style.display = '';
     } else {
       parentsEl.style.display = 'none';
@@ -2177,7 +2180,7 @@ function updateEnvelopeBlock(item, info){
   // 예금주
   const holderEl = item.querySelector('.env-holder');
   if (holderEl && info.name) {
-    holderEl.innerHTML = '<span class="label">예금주</span>' + info.name;
+    holderEl.innerHTML = '<span class="label">예금주</span>' + escHtml(info.name);
   }
 }
 

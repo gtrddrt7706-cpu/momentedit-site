@@ -244,7 +244,12 @@ function ynShow(answer) {
 
 // ===================== 부부 URL 자동 이메일 =====================
 function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl) {
-  var to = [groomEmail, brideEmail].filter(function (em) { return em && em.indexOf('@') !== -1; }).join(',');
+  var _seen = {};
+  var to = [groomEmail, brideEmail]
+    .map(function (em) { return String(em || '').trim(); })
+    .filter(function (em) { return em.indexOf('@') !== -1; })
+    .filter(function (em) { var k = em.toLowerCase(); if (_seen[k]) return false; _seen[k] = 1; return true; })
+    .join(',');
   if (!to) { Logger.log('  (수신 이메일 없음 — 메일 건너뜀)'); return; }
   if (!liveUrl && !familyUrl && !enterUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
   var formUrl = '';

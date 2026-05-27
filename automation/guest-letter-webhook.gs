@@ -237,9 +237,13 @@ function getCoupleByEventIdFull(eventId) {
     if (String(row[idxEventId]).trim() !== eventId) continue;
 
     // 헤더별로 값 매핑 (정규화 포함)
+    // 공개 getCouple 응답에서 이메일은 제외 — 청첩장 렌더에 안 쓰이는 PII이고, eventId만 알면
+    // 누구나 호출 가능한 공개 엔드포인트라 불필요한 노출을 줄임. (계좌는 청첩장 표시에 필요해 유지)
+    const PUBLIC_EXCLUDE = { groomEmail: true, brideEmail: true };
     const couple = {};
     headers.forEach((header, idx) => {
       if (!header) return;
+      if (PUBLIC_EXCLUDE[header]) return;
       let value = row[idx];
 
       // 날짜 필드 정규화 → YYYY-MM-DD
