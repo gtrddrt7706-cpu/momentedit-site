@@ -11,6 +11,7 @@
  *  · ⑤ 온라인 디자인 선택 페이지에 "대표문구(02)·한마디(08)는 오프/온 동일 적용" 안내 추가
  *    (단일 열 상속 구조 — 오프와 다른 디자인 선택 시 기본 문구 표시).
  *  · addFormImage 개선: 너비 740·중앙정렬, fetch 실패 시 텍스트 대체(섹션헤더) + 1회 재시도.
+ *  · 도움말 압축: 인사말/대표문구/한마디/미리보기/⑤헤더를 1~2줄로. GREET_EG·EMPH_ONLY 제거.
  *
  * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
@@ -341,17 +342,6 @@ function createCoupleForm() {
     '07': { title: { max: 18, def: 'Save the Day' }, subko: { max: 11, def: '초대의 글' } },
     '08': { title: { max: 20, def: 'The Invitation' }, subko: { max: 11, def: '초대의 글' } }
   };
-  // 디자인별 인사말 예시(도움말용 · *별표*는 그 디자인 강조 위치)
-  var GREET_EG = {
-    '01': '저희 두 사람, 조용한 자리에서 *평생의 약속*을 건네기로 했습니다.',
-    '02': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*.',
-    '03': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*, 계절은 여러 번 바뀌었습니다.',
-    '04': '두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.',
-    '05': '저희 두 사람, 사랑으로 한 길을 걷기로 약속하였습니다.',
-    '06': '서로의 이름을 처음 부르던 날부터 오늘에 이르기까지, *계절은 여러 번 바뀌었습니다.*',
-    '07': '서로의 이름을 처음 부르던 날부터 *오늘에 이르기까지*, 계절은 여러 번 바뀌었습니다.',
-    '08': '서로의 평범한 하루를 나누던 두 사람이, 이제 같은 하루를 살아가려 합니다.'
-  };
   // 제목·부제 편집칸 — prefix='오프라인 청첩장'/'온라인 청첩장', 꼬리표 '1번' → BASE는 fam*/dig* 매핑
   function addTitleFields(prefix, nn) {
     var cfg = TITLECFG[nn]; if (!cfg) return;
@@ -364,15 +354,12 @@ function createCoupleForm() {
     mk(' 인사말 큰 제목', cfg.title);
     if (cfg.subko) mk(' 인사말 부제', cfg.subko);
   }
-  // 인사말 도움말 — 별표 안내 + 05 날짜 자동변수 안내 + 오프/온 상속 안내
+  // 인사말 도움말 — 1~2줄 압축. (온라인)상속 / (05)날짜 자동 / (그 외)디자인 기본
   function greetHelp(nn, dig) {
-    var s = '강조할 부분을 *별표*로 감싸면 골드로 강조됩니다.\n예) ' + (GREET_EG[nn] || '두 사람이 만나, 마침내 같은 하루를 살기로 하였습니다.');
-    if (nn === '05') s += '\n※ 비우면 기본 인사말에 결혼식 날짜가 자동으로 들어갑니다. 직접 쓰시면 자동 날짜는 사라지고 쓰신 그대로 표시됩니다.';
-    s += dig ? '\n비우면 오프라인에 적으신 인사말(또는 디자인 기본)이 그대로 담깁니다. 온라인만 다르게 하실 때 적어주세요.'
-             : '\n비우면 이 디자인의 기본 인사말이 자동으로 담깁니다.';
-    return s;
+    if (dig) return '비우면 오프라인 인사말이 그대로 담깁니다 (다르게 쓰실 때만 입력).\n강조할 부분은 *별표*로 감싸기.';
+    if (nn === '05') return '비우면 디자인 기본 인사말 + 결혼식 날짜 자동 삽입.\n직접 쓰시면 자동 날짜는 사라집니다. *별표*로 강조 가능.';
+    return '비우면 디자인 기본 인사말이 들어갑니다.\n강조할 부분은 *별표*로 감싸기 · 예) *계절은 여러 번 바뀌었습니다.*';
   }
-  var EMPH_ONLY = '※ 별표 강조는 인사말에서만 작동합니다(여기엔 글자 그대로 보입니다).';
 
   // ── ① 두 분 정보 ──
   form.addSectionHeaderItem().setTitle('두 분 정보').setHelpText('성함과 연락받으실 이메일을 적어주세요.');
@@ -413,28 +400,28 @@ function createCoupleForm() {
   designs.forEach(function (nn) {
     var pb = form.addPageBreakItem().setTitle('오프라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'prev-family-' + nn + '.png', '오프라인 청첩장 ' + (+nn) + '번 미리보기',
-      '✎ 점선 = 직접 정하실 수 있는 부분. 비우면 기본값이 들어갑니다. 실제로 열어보기 → momentedit.kr/i-family/family-' + nn + '.html');
+      '✎ 점선 = 직접 정하는 부분(비우면 기본값) · 열어보기 momentedit.kr/i-family/family-' + nn + '.html');
     addTitleFields('오프라인 청첩장', nn);
     optPara('인사말 (직접 작성)' + T + '오프라인 청첩장 ' + (+nn) + '번', greetHelp(nn, false));
-    if (nn === '02') optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '표지 대표 문구. 줄바꿈은 Enter로.\n예)\n서로의 가장 진실한\n순간을 기록하기로 합니다.\n비우면 기본 문구.\n' + EMPH_ONLY);
+    if (nn === '02') optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '줄바꿈은 Enter. 비우면 기본 문구 (별표 강조 안 됨).');
     if (nn === '08') {
-      optPara('신랑 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '전하고 싶은 마음을 한두 문장으로. 비우면 기본 문구.\n' + EMPH_ONLY);
-      optPara('신부 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '비우면 기본 문구.\n' + EMPH_ONLY);
+      optPara('신랑 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '한두 문장 권장. 비우면 기본 문구 (별표 강조 안 됨).');
+      optPara('신부 한마디 (8번 디자인 전용)' + T + '오프라인 청첩장 8번', '한두 문장 권장. 비우면 기본 문구 (별표 강조 안 됨).');
     }
     famFirst[nn] = pb;
   });
 
   // ── ⑤ 온라인 청첩장 (디자인 선택 → 1페이지 묶음) ──
   var pbDigDesign = form.addPageBreakItem().setTitle('온라인 청첩장 (멀리 계신 하객용)')
-    .setHelpText('멀리 못 오시는 분들도 온라인으로 함께해요. 혼주·계좌·문구는 오프라인에 적으신 내용이 그대로 담깁니다.\n'
-      + '※ 대표 문구(02)·한마디(08)는 오프/온 동일 적용됩니다. 오프라인과 다른 디자인을 온라인에 고르시면 그 디자인의 기본 문구가 표시됩니다.');
+    .setHelpText('멀리 계신 분들도 함께하는 청첩장이에요. 혼주·계좌·문구는 오프라인 내용이 그대로 담깁니다.\n'
+      + '※ 대표문구(02)·한마디(08)는 오프/온 동일 — 오프와 다른 디자인 선택 시 그 디자인 기본 문구가 나옵니다.');
   var digDesignQ = form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_ONLINE).setRequired(true).setHelpText(GALLERY);
 
   var digFirst = {};
   designs.forEach(function (nn) {
     var pb = form.addPageBreakItem().setTitle('온라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '온라인 청첩장 ' + (+nn) + '번 미리보기',
-      '✎ 점선 = 정하실 수 있는 부분. 비우면 오프라인 내용이 그대로. 실제로 열어보기 → momentedit.kr/i/cover-' + nn + '.html');
+      '✎ 점선 = 직접 정하는 부분(비우면 오프라인 내용) · 열어보기 momentedit.kr/i/cover-' + nn + '.html');
     addTitleFields('온라인 청첩장', nn);
     optPara('온라인 청첩장 인사말 (직접 작성)' + T + '온라인 청첩장 ' + (+nn) + '번', greetHelp(nn, true));
     digFirst[nn] = pb;
