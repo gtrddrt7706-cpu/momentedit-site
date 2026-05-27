@@ -320,7 +320,7 @@ function createCoupleForm() {
     var tag = (+nn) + '번';
     var mk = function (label, spec) {
       var it = form.addTextItem().setTitle(prefix + label + T + tag).setRequired(false)
-        .setHelpText((spec.lang === '한글' ? '한글로' : '영문으로') + ' · 적정 길이 ' + spec.max + '자 이내' + (spec.caps ? ' · 대문자로 표시돼요' : '') + (spec.note ? ' · ' + spec.note : '') + ' · 비우면 기본 "' + spec.def + '" 유지');
+        .setHelpText((spec.lang === '한글' ? '한글 권장(영문도 됩니다)' : '영문 권장(한글도 됩니다)') + ' · 적정 길이 ' + spec.max + '자 이내' + (spec.caps ? ' · 대문자로 표시돼요' : '') + (spec.note ? ' · ' + spec.note : '') + ' · 비우면 기본 "' + spec.def + '" 유지');
       it.setValidation(FormApp.createTextValidation().setHelpText('디자인에 맞는 적정 길이 · ' + spec.max + '자 이내').requireTextLengthLessThanOrEqualTo(spec.max).build());
     };
     mk(' 인사말 큰 제목', cfg.title);
