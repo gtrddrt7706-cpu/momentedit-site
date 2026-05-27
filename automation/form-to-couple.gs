@@ -148,9 +148,9 @@ function onCoupleFormSubmit(e) {
     var sameAsFamily = /동일/.test(digVal) && !!designFamily;   // "오프라인과 동일하게" (오프라인 발행 시에만 유효)
     var designOnline = sameAsFamily ? designFamily : pad2(digVal);
     var makeOnline = designOnline ? 'Y' : 'N';
-    writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily);
-    writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_ONLINE, designOnline);
-    writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, makeOnline);
+    writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily, true);   // force: 발행 취소(빈 값)도 반영
+    writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_ONLINE, designOnline, true);   // force: 온라인 미발행(빈 값)도 반영
+    writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, makeOnline, true);           // force: designOnline 기반 일관성(항상 Y/N)
     // "오프라인과 동일하게" → 온라인 제목·부제·대표문구·한마디를 오프라인 값으로 미러
     // (인사말은 hydrate가 invitationText 자동 상속). 온라인 디자인 페이지는 안 거치므로 dig*는 여기서 채움.
     if (sameAsFamily) {
@@ -162,8 +162,8 @@ function onCoupleFormSubmit(e) {
     }
 
     // 3) 혼주 표시 토글(인사말 성함 / 계좌 부모)
-    writeCell(sheet, colOf, rowNum, CFG.COL_GREETING, ynShow(g(CFG.Q_GREET_GATE)));
-    writeCell(sheet, colOf, rowNum, CFG.COL_ENVELOPE, ynShow(g(CFG.Q_ENVELOPE_GATE)));
+    writeCell(sheet, colOf, rowNum, CFG.COL_GREETING, ynShow(g(CFG.Q_GREET_GATE)), true);   // force: 게이트 답(혼주 표시↔숨김) 변경 반영
+    writeCell(sheet, colOf, rowNum, CFG.COL_ENVELOPE, ynShow(g(CFG.Q_ENVELOPE_GATE)), true); // force: 게이트 답(부모계좌 표시↔숨김) 변경 반영
 
     // 4) 캐시 무효화
     try { CacheService.getScriptCache().remove(CFG.CACHE_KEY_PREFIX + eventId); } catch (_c) {}
@@ -228,10 +228,10 @@ function resolveEventId(sheet, colOf, base, groomName, brideName) {
     suffix++; candidate = base + '-' + suffix;
   }
 }
-function writeCell(sheet, colOf, rowNum, header, value) {
+function writeCell(sheet, colOf, rowNum, header, value, force) {
   var c = colOf[header];
   if (!c) { Logger.log('  (헤더 없음, 건너뜀: ' + header + ')'); return; }
-  if (value === '') return;
+  if (value === '' && !force) return;   // 기본: 빈 값 스킵(점진적 입력 보존) · force=true면 빈 값도 기록(디자인·토글은 매 제출의 현재 의도 반영)
   sheet.getRange(rowNum, c).setValue(value);
 }
 function pad2(s) {
