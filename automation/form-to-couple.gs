@@ -15,6 +15,8 @@
  *  · 정밀점검 16건 반영: 이메일·시간 형식 검증, 08 한마디 길이검증(60자), 디자인별 강조예시 복구,
  *    영문·이메일 도움말 통일, 혼주/계좌 입력 가이드, 톤 정리(설명·확인메시지), 소요시간·장소·스팸·
  *    개인정보·재제출 안내 추가. (질문 제목 BASE 불변 → MAP·시트열 33열 그대로)
+ *  · 톤 다듬기 13건: 섹션/페이지 헤더·게이트·갤러리·이미지·이름/시간 도움말의 캐주얼 어미를
+ *    정중형으로 통일(~이에요/정해주세요 → ~입니다/선택해 주세요 등). 텍스트만 변경.
  *
  * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
@@ -337,7 +339,7 @@ function createCoupleForm() {
   var nameVal = FormApp.createTextValidation().setHelpText('성을 먼저, 띄어쓰기로. 예) Lee Seo Jun').requireTextMatchesPattern('^\\S+(\\s+\\S+)+$').build();
   var emailVal = FormApp.createTextValidation().setHelpText('올바른 이메일 주소를 적어주세요. 예) name@gmail.com').requireTextIsEmail().build();
   var timeVal = FormApp.createTextValidation().setHelpText('24시간 형식으로, 콜론(:)을 넣어주세요. 예) 14:00').requireTextMatchesPattern('^([01]?\\d|2[0-3]):[0-5]\\d$').build();
-  var GALLERY = '갤러리에서 미리 둘러보실 수 있어요 → momentedit.kr/invitation-gallery.html';
+  var GALLERY = '갤러리에서 미리 둘러보실 수 있습니다 → momentedit.kr/invitation-gallery.html';
 
   // 디자인별 인사말 제목 — 한줄 글자수 한도(측정값)/기본문구. subko(부제)는 있는 디자인만.
   var TITLECFG = {
@@ -380,31 +382,31 @@ function createCoupleForm() {
   }
 
   // ── ① 두 분 정보 ──
-  form.addSectionHeaderItem().setTitle('두 분 정보').setHelpText('성함과 연락받으실 이메일을 적어주세요.');
+  form.addSectionHeaderItem().setTitle('두 분 정보').setHelpText('성함과 이메일을 알려주세요.');
   req('신랑 한글 이름', '예) 이서준');
   req('신부 한글 이름', '예) 정하윤');
-  req('신랑 영문 이름', '성·이름 띄어쓰기로 적어주세요. 대소문자는 자동 정돈됩니다. 예) Lee Seo Jun').setValidation(nameVal);
-  req('신부 영문 이름', '성·이름 띄어쓰기로 적어주세요. 대소문자는 자동 정돈됩니다. 예) Jeong Ha Yoon').setValidation(nameVal);
+  req('신랑 영문 이름', '성·이름 사이에 띄어쓰기로 적어주세요. 대소문자는 자동으로 맞춰드립니다. 예) Lee Seo Jun').setValidation(nameVal);
+  req('신부 영문 이름', '성·이름 사이에 띄어쓰기로 적어주세요. 대소문자는 자동으로 맞춰드립니다. 예) Jeong Ha Yoon').setValidation(nameVal);
   req('신랑 이메일', '완성된 청첩장 링크가 도착할 주소입니다. (두 분 모두에게 발송)').setValidation(emailVal);
   req('신부 이메일', '완성된 청첩장 링크가 도착할 주소입니다. (두 분 모두에게 발송)').setValidation(emailVal);
 
   // ── ② 예식 일정 ──
   form.addPageBreakItem().setTitle('예식 일정')
-    .setHelpText('날짜·시간은 청첩장 곳곳에 자동 반영됩니다.\n※ 예식 장소는 Moment Edit 스튜디오로 자동 설정됩니다 (경기 고양 향동).');
+    .setHelpText('날짜·시간은 청첩장 곳곳에 자동으로 담깁니다.\n※ 예식 장소는 Moment Edit 스튜디오입니다 (경기 고양 향동).');
   req('결혼식 날짜', '예) 2026-10-24 (연-월-일, 월·일은 두 자리)').setValidation(FormApp.createTextValidation().setHelpText('예: 2026-10-24 (월·일을 두 자리로 적어주세요)').requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
-  req('결혼식 시간', '24시간 형식. 예) 14:00 (반드시 콜론 사용)').setValidation(timeVal);
+  req('결혼식 시간', '24시간 형식으로 콜론(:)을 넣어주세요. 예) 14:00').setValidation(timeVal);
 
   // ── ③ 혼주(부모님 성함) · 마음 전하실 곳 (공통, 한 번만) ──
   form.addPageBreakItem().setTitle('혼주(부모님 성함) · 마음 전하실 곳')
-    .setHelpText('모두 선택 입력이에요. 청첩장에 넣으실 때만 적어주세요.\n본인 계좌는 은행·번호를 따로, 부모님 계좌는 함께 적어주세요.');
-  gate(CFG.Q_GREET_GATE, '인사말 아래에 부모님 성함을 넣을지 정해주세요.');
+    .setHelpText('모두 선택 입력입니다. 청첩장에 넣으실 때만 적어주세요.\n본인 계좌는 은행·번호를 따로, 부모님 계좌는 함께 적어주세요.');
+  gate(CFG.Q_GREET_GATE, '인사말 아래에 부모님 성함을 넣으실지 선택해 주세요.');
   opt('신랑 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 이재환·최미경\n(·가 어려우면 쉼표나 띄어쓰기로 구분해도 됩니다)');
-  opt('신부 혼주(부모님)', '예) 정영석·박윤희');
+  opt('신부 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 정영석·박윤희');
   opt('신랑 은행', '예) 하나은행');
   opt('신랑 계좌번호', '예) 222-456-789012');
   opt('신부 은행', '예) 우리은행');
   opt('신부 계좌번호', '예) 333-456-789012');
-  gate(CFG.Q_ENVELOPE_GATE, '부모님 계좌도 함께 넣을지 정해주세요.');
+  gate(CFG.Q_ENVELOPE_GATE, '부모님 계좌를 함께 넣으실지 선택해 주세요.');
   opt('신랑 아버지 계좌 (은행 번호)', '예) 국민 110-123-456789');
   opt('신랑 어머니 계좌 (은행 번호)', '예) 신한 220-456-123789');
   opt('신부 아버지 계좌 (은행 번호)', '예) 농협 351-234-567890');
@@ -412,14 +414,14 @@ function createCoupleForm() {
 
   // ── ④ 오프라인 청첩장 (디자인 선택 → 1페이지 묶음) ──
   var pbFamDesign = form.addPageBreakItem().setTitle('오프라인 청첩장')
-    .setHelpText('가족·가까운 분들께 드리는 청첩장이에요. 식장 약도가 자동 포함됩니다(스튜디오 고정).');
+    .setHelpText('가족·가까운 분들께 드리는 청첩장입니다. 식장 약도는 Moment Edit 스튜디오로 자동 포함됩니다.');
   var famDesignQ = form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_FAMILY).setRequired(true).setHelpText(GALLERY);
 
   var famFirst = {};
   designs.forEach(function (nn) {
     var pb = form.addPageBreakItem().setTitle('오프라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'prev-family-' + nn + '.png', '오프라인 청첩장 ' + (+nn) + '번 미리보기',
-      '✎ 점선 = 직접 정하는 부분(비우면 기본값) · 열어보기 momentedit.kr/i-family/family-' + nn + '.html');
+      '✎ 점선 = 직접 정하는 부분(비우면 기본값) · 실제 화면 → momentedit.kr/i-family/family-' + nn + '.html');
     addTitleFields('오프라인 청첩장', nn);
     optPara('인사말 (직접 작성)' + T + '오프라인 청첩장 ' + (+nn) + '번', greetHelp(nn, false));
     if (nn === '02') optPara('대표 문구 (2번 디자인 전용)' + T + '오프라인 청첩장 2번', '1~3줄 권장. 줄바꿈은 Enter. 비우면 기본 문구 (별표 강조 안 됨).');
@@ -433,15 +435,15 @@ function createCoupleForm() {
 
   // ── ⑤ 온라인 청첩장 (디자인 선택 → 1페이지 묶음) ──
   var pbDigDesign = form.addPageBreakItem().setTitle('온라인 청첩장 (멀리 계신 하객용)')
-    .setHelpText('멀리 계신 분들도 함께하는 청첩장이에요. 혼주·계좌·문구는 오프라인 내용이 그대로 담깁니다.\n'
-      + '※ 대표문구(02)·한마디(08)는 오프/온 동일 — 오프와 다른 디자인 선택 시 그 디자인 기본 문구가 나옵니다.');
+    .setHelpText('멀리 계신 분들도 함께하는 청첩장입니다. 혼주·계좌·문구는 오프라인 내용이 그대로 담깁니다.\n'
+      + '※ 대표문구(02)·한마디(08)는 오프/온 동일 — 오프와 다른 디자인 선택 시 그 디자인 기본 문구가 표시됩니다.');
   var digDesignQ = form.addMultipleChoiceItem().setTitle(CFG.Q_DESIGN_ONLINE).setRequired(true).setHelpText(GALLERY);
 
   var digFirst = {};
   designs.forEach(function (nn) {
     var pb = form.addPageBreakItem().setTitle('온라인 청첩장 ' + (+nn) + '번');
     addFormImage(form, R + 'prev-digital-' + nn + '.png', '온라인 청첩장 ' + (+nn) + '번 미리보기',
-      '✎ 점선 = 직접 정하는 부분(비우면 오프라인 내용) · 열어보기 momentedit.kr/i/cover-' + nn + '.html');
+      '✎ 점선 = 직접 정하는 부분(비우면 오프라인 내용) · 실제 화면 → momentedit.kr/i/cover-' + nn + '.html');
     addTitleFields('온라인 청첩장', nn);
     optPara('온라인 청첩장 인사말 (직접 작성)' + T + '온라인 청첩장 ' + (+nn) + '번', greetHelp(nn, true));
     digFirst[nn] = pb;
@@ -449,7 +451,7 @@ function createCoupleForm() {
 
   // ── ⑥ 제출 ──
   var pbFinal = form.addPageBreakItem().setTitle('마지막으로 — 확인 후 제출')
-    .setHelpText('수고하셨어요! 완성된 청첩장은 입력하신 이메일로 발송됩니다.\n보통 1~2분 이내 도착합니다. 늦거나 못 받으신 경우 스팸함을 확인해 주세요.');
+    .setHelpText('마지막으로, 입력하신 내용을 한 번 살펴보시고 제출해 주세요.\n완성된 청첩장은 입력하신 이메일로 곧 전해드리겠습니다.\n보통 1~2분 이내 도착하며, 늦거나 못 받으신 경우 스팸함을 확인해 주세요.');
 
   // ── 분기 배선 ──
   // ④ 오프라인 디자인 선택 → 해당 페이지 / "발행 안 함" → ⑤로
