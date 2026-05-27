@@ -363,9 +363,10 @@
   }
 
   // 인사말 섹션 제목 교체 — 커스텀 있을 때만 텍스트 교체(폰트·스타일 유지). 가족/디지털 디자인 따로.
+  // 온라인(/i/)은 dig 우선, 비면 오프라인(fam) 상속 → 비면 디자인 기본. (인사말·대표문구·한마디와 동일 정책)
   function applyTitles(c, dn) {
     var fam = location.pathname.indexOf('/i-family/') !== -1;
-    var pick = function (fk, dk) { return String((fam ? c[fk] : c[dk]) || '').trim(); };
+    var pick = function (fk, dk) { return String((fam ? c[fk] : (c[dk] || c[fk])) || '').trim(); };
     var title = pick('famInvTitle', 'digInvTitle');
     var subko = pick('famInvSubKo', 'digInvSubKo');
     if (title) { var t = document.getElementById('sec-01-title') || document.querySelector('.inv-title'); if (t) t.textContent = title; }
