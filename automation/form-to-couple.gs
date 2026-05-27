@@ -10,6 +10,7 @@
  *  · 날짜 도움말에 "월·일 두 자리" 안내 추가(정규식 ^\d{4}-\d{2}-\d{2}$ 와 일치하도록).
  *  · ⑤ 온라인 디자인 선택 페이지에 "대표문구(02)·한마디(08)는 오프/온 동일 적용" 안내 추가
  *    (단일 열 상속 구조 — 오프와 다른 디자인 선택 시 기본 문구 표시).
+ *  · addFormImage 개선: 너비 740·중앙정렬, fetch 실패 시 텍스트 대체(섹션헤더) + 1회 재시도.
  *
  * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
@@ -279,10 +280,28 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
 
 // ============== 구글폼 자동 생성기 (최초 1회 실행) ==============
 function addFormImage(form, url, title, help) {
-  try {
-    var it = form.addImageItem().setTitle(title || '미리보기').setImage(UrlFetchApp.fetch(url).getBlob());
+  var blob = null;
+  for (var attempt = 0; attempt < 2 && !blob; attempt++) {
+    try {
+      var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+      if (resp.getResponseCode() === 200) { blob = resp.getBlob(); break; }
+      Logger.log('  (이미지 응답 ' + resp.getResponseCode() + ': ' + (title || '') + ')');
+    } catch (e) {
+      Logger.log('  (이미지 fetch 오류: ' + (title || '') + ' — ' + e.message + ')');
+    }
+    if (attempt === 0) Utilities.sleep(800); // GitHub raw 일시 장애 대비 1회 재시도
+  }
+  if (blob) {
+    var it = form.addImageItem().setTitle(title || '미리보기').setImage(blob);
+    try { it.setWidth(740); } catch (_w) {}
+    try { it.setAlignment(FormApp.Alignment.CENTER); } catch (_a) {}
     if (help) it.setHelpText(help);
-  } catch (e) { Logger.log('  (이미지 첨부 실패: ' + (title || '') + ' — ' + e.message + ')'); }
+  } else {
+    Logger.log('  (이미지 첨부 실패 → 텍스트 대체: ' + (title || '') + ')');
+    form.addSectionHeaderItem()
+      .setTitle('⚠️ 미리보기 이미지를 불러올 수 없습니다 — 갤러리에서 확인')
+      .setHelpText('momentedit.kr/invitation-gallery.html' + (help ? '\n' + help : ''));
+  }
 }
 
 function createCoupleForm() {
