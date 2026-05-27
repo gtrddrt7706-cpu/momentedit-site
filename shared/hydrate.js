@@ -38,7 +38,9 @@
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
     // 디자인 특수 (02 대표문구 · 08 자기소개)
     // 08 한마디는 비워 기본 문구(다짐·마음 형식, DEFAULT_*_BIO)가 프리뷰에 나오게 — 폼 안내와 일치
-    pullQuote: '', groomBio: '', brideBio: ''
+    // dig* = 온라인 전용 오버라이드(비우면 오프/공통 값 상속). 프리뷰는 비워 기본 유지.
+    pullQuote: '', groomBio: '', brideBio: '',
+    digPullQuote: '', digGroomBio: '', digBrideBio: ''
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -259,8 +261,9 @@
     }
     // (부모 표기 토글은 위 greeting*/envelope 부모 처리에서 분리 제어)
 
-    // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지
-    var customPQ = String(c.pullQuote || '').trim();
+    // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지.
+    //   온라인(/i/)은 digPullQuote로 따로 작성 가능 — 비우면 오프/공통 pullQuote를 그대로 상속.
+    var customPQ = String((famPage ? c.pullQuote : (c.digPullQuote || c.pullQuote)) || '').trim();
     if (customPQ) {
       html = html.replace(/<!-- OPTIONAL:pullQuote -->[\s\S]*?<!-- \/OPTIONAL:pullQuote -->/g, nl2br(customPQ));
     } else {
@@ -299,8 +302,8 @@
       VENUE_ADDRESS: escapeHtml(venue.address || ''),
       VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
       VENUE_MAP_IFRAME: venue.mapIframe || '',
-      GROOM_BIO: nl2br(String(c.groomBio || '').trim() || DEFAULT_GROOM_BIO),
-      BRIDE_BIO: nl2br(String(c.brideBio || '').trim() || DEFAULT_BRIDE_BIO),
+      GROOM_BIO: nl2br(String((famPage ? c.groomBio : (c.digGroomBio || c.groomBio)) || '').trim() || DEFAULT_GROOM_BIO),
+      BRIDE_BIO: nl2br(String((famPage ? c.brideBio : (c.digBrideBio || c.brideBio)) || '').trim() || DEFAULT_BRIDE_BIO),
       GROOM_SIDE_LABEL: gHasPar ? '신랑측' : '신랑', BRIDE_SIDE_LABEL: bHasPar ? '신부측' : '신부',
       EVENT_ID: escapeHtml(c.eventId || '')
     };

@@ -17,6 +17,10 @@
  *    개인정보·재제출 안내 추가. (질문 제목 BASE 불변 → MAP·시트열 33열 그대로)
  *  · 톤 다듬기 13건: 섹션/페이지 헤더·게이트·갤러리·이미지·이름/시간 도움말의 캐주얼 어미를
  *    정중형으로 통일(~이에요/정해주세요 → ~입니다/선택해 주세요 등). 텍스트만 변경.
+ *  · 온라인 02 대표문구 / 08 한마디 입력칸 신설(오프와 다른 디자인을 온라인에 고를 때 따로 작성).
+ *    시트 3열 추가(digPullQuote·digGroomBio·digBrideBio → 36열). MAP에 "전체 제목(꼬리표 포함)"
+ *    키로 등록하고, 핸들러는 mergedFull(전체 제목)로 오프/온 같은 BASE를 구분 기록.
+ *    "오프라인과 동일하게"는 이 3개도 오프 값으로 미러. hydrate는 온라인에서 dig*||기존||기본 폴백.
  *
  * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
@@ -70,14 +74,19 @@ var CFG = {
     '신부 아버지 계좌 (은행 번호)': 'brideFatherAccount',
     '신부 어머니 계좌 (은행 번호)': 'brideMotherAccount',
     '인사말 (직접 작성)': 'invitationText',
-    '대표 문구 (2번 디자인 전용)': 'pullQuote',
-    '신랑 한마디 (8번 디자인 전용)': 'groomBio',
-    '신부 한마디 (8번 디자인 전용)': 'brideBio',
+    // 02 대표문구 / 08 한마디 — 오프/온이 같은 BASE라 "전체 제목(꼬리표 포함)"으로 정확 분리(병합 순서 무관)
+    '대표 문구 (2번 디자인 전용) · 오프라인 청첩장 2번': 'pullQuote',
+    '신랑 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번': 'groomBio',
+    '신부 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번': 'brideBio',
     '오프라인 청첩장 인사말 큰 제목': 'famInvTitle',
     '오프라인 청첩장 인사말 부제': 'famInvSubKo',
     '온라인 청첩장 인사말 큰 제목': 'digInvTitle',
     '온라인 청첩장 인사말 부제': 'digInvSubKo',
-    '온라인 청첩장 인사말 (직접 작성)': 'digInvitationText'
+    '온라인 청첩장 인사말 (직접 작성)': 'digInvitationText',
+    // 온라인 전용 02 대표문구 / 08 한마디 — 오프와 같은 BASE라 "전체 제목(꼬리표 포함)"을 키로 사용(핸들러가 구분)
+    '대표 문구 (2번 디자인 전용) · 온라인 청첩장 2번': 'digPullQuote',
+    '신랑 한마디 (8번 디자인 전용) · 온라인 청첩장 8번': 'digGroomBio',
+    '신부 한마디 (8번 디자인 전용) · 온라인 청첩장 8번': 'digBrideBio'
   },
 
   COL_DESIGN_ONLINE: 'designOnline',
@@ -100,13 +109,16 @@ function onCoupleFormSubmit(e) {
   try {
     if (!e || !e.namedValues) throw new Error('폼 제출 이벤트가 아닙니다(트리거 설정 확인).');
 
-    // 브랜치 구분자(" · 가족 01번")를 떼어 베이스 제목으로 병합 — 먼저 적힌 비어있지 않은 값 채택
-    var merged = {};
+    // merged = 베이스 제목(꼬리표 뗌)으로 병합 — 먼저 적힌 비어있지 않은 값 채택(공통 필드용).
+    // mergedFull = 전체 제목(꼬리표 포함) 그대로 — 오프/온 같은 BASE를 구분해야 하는 dig* 전용.
+    var merged = {}, mergedFull = {};
     Object.keys(e.namedValues).forEach(function (title) {
-      var base = title.split(CFG.TAG)[0].trim();
       var arr = e.namedValues[title];
       var val = (arr && arr[0] != null) ? String(arr[0]).trim() : '';
-      if (val !== '' && (merged[base] === undefined || merged[base] === '')) merged[base] = val;
+      if (val === '') return;
+      var base = title.split(CFG.TAG)[0].trim();
+      if (merged[base] === undefined || merged[base] === '') merged[base] = val;
+      if (mergedFull[title] === undefined || mergedFull[title] === '') mergedFull[title] = val;
     });
     var g = function (base) { return merged[base] || ''; };
 
@@ -123,9 +135,10 @@ function onCoupleFormSubmit(e) {
     var eventId = resolved.eventId, rowNum = resolved.rowNum;
     writeCell(sheet, colOf, rowNum, 'eventId', eventId);
 
-    // 1) 단순 텍스트 필드(MAP)
-    Object.keys(CFG.MAP).forEach(function (title) {
-      writeCell(sheet, colOf, rowNum, CFG.MAP[title], g(title));
+    // 1) 단순 텍스트 필드(MAP) — 꼬리표 포함 키(dig*)는 전체 제목으로 정확 매칭, 그 외는 BASE 병합값
+    Object.keys(CFG.MAP).forEach(function (key) {
+      var val = (key.indexOf(CFG.TAG) >= 0) ? (mergedFull[key] || '') : (merged[key] || '');
+      writeCell(sheet, colOf, rowNum, CFG.MAP[key], val);
     });
 
     // 2) 디자인 번호 / 디지털 상태
@@ -138,10 +151,14 @@ function onCoupleFormSubmit(e) {
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily);
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_ONLINE, designOnline);
     writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, makeOnline);
-    // "오프라인과 동일하게" → 온라인 제목·부제를 오프라인 값으로 미러(인사말은 hydrate가 invitationText 자동 상속)
+    // "오프라인과 동일하게" → 온라인 제목·부제·대표문구·한마디를 오프라인 값으로 미러
+    // (인사말은 hydrate가 invitationText 자동 상속). 온라인 디자인 페이지는 안 거치므로 dig*는 여기서 채움.
     if (sameAsFamily) {
       var _ft = g('오프라인 청첩장 인사말 큰 제목'); if (_ft) writeCell(sheet, colOf, rowNum, 'digInvTitle', _ft);
       var _fs = g('오프라인 청첩장 인사말 부제'); if (_fs) writeCell(sheet, colOf, rowNum, 'digInvSubKo', _fs);
+      var _pq = mergedFull['대표 문구 (2번 디자인 전용) · 오프라인 청첩장 2번']; if (_pq) writeCell(sheet, colOf, rowNum, 'digPullQuote', _pq);
+      var _gb = mergedFull['신랑 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번']; if (_gb) writeCell(sheet, colOf, rowNum, 'digGroomBio', _gb);
+      var _bb = mergedFull['신부 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번']; if (_bb) writeCell(sheet, colOf, rowNum, 'digBrideBio', _bb);
     }
 
     // 3) 혼주 표시 토글(인사말 성함 / 계좌 부모)
@@ -446,6 +463,12 @@ function createCoupleForm() {
       '✎ 점선 = 직접 정하는 부분(비우면 오프라인 내용) · 실제 화면 → momentedit.kr/i/cover-' + nn + '.html');
     addTitleFields('온라인 청첩장', nn);
     optPara('온라인 청첩장 인사말 (직접 작성)' + T + '온라인 청첩장 ' + (+nn) + '번', greetHelp(nn, true));
+    if (nn === '02') optPara('대표 문구 (2번 디자인 전용)' + T + '온라인 청첩장 2번', '비우면 오프라인 대표 문구가 그대로 담깁니다. 줄바꿈은 Enter.');
+    if (nn === '08') {
+      var digBioVal = FormApp.createParagraphTextValidation().setHelpText('약 60자 이내로 적어주세요.').requireTextLengthLessThanOrEqualTo(60).build();
+      optPara('신랑 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '비우면 오프라인 한마디가 그대로 담깁니다. 약 30자 이내.').setValidation(digBioVal);
+      optPara('신부 한마디 (8번 디자인 전용)' + T + '온라인 청첩장 8번', '비우면 오프라인 한마디가 그대로 담깁니다. 약 30자 이내.').setValidation(digBioVal);
+    }
     digFirst[nn] = pb;
   });
 
