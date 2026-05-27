@@ -106,7 +106,8 @@ function doGet(e) {
       endpoints: ['GET ?action=getCouple&eventId=XXX', 'POST (letter body)']
     });
   } catch (err) {
-    return jsonResponse({ ok: false, error: err.toString() });
+    console.error('[getCouple] ' + err.toString());
+    return jsonResponse({ ok: false, error: 'INTERNAL_ERROR' });   // 외부엔 일반화 — 상세 정보 누출 방지
   }
 }
 
@@ -122,11 +123,11 @@ function doPost(e) {
     const message = String(data.message || '').trim().substring(0, 2000);
     const recipient = normalizeRecipient(data.recipient);
 
-    if (!eventId || !guestName || !message) {
-      return jsonResponse({ ok: false, error: '필수 항목이 비어 있습니다.' });
-    }
     if (!/^[a-z0-9-]{3,64}$/.test(eventId)) {
       return jsonResponse({ ok: false, error: 'INVALID_EVENT_ID' });
+    }
+    if (!guestName || !message) {
+      return jsonResponse({ ok: false, error: '필수 항목이 비어 있습니다.' });
     }
 
     const couple = getCoupleByEventId(eventId);
@@ -174,7 +175,7 @@ function doPost(e) {
         { from: STUDIO_EMAIL }
       );
     } catch (_) {}
-    return jsonResponse({ ok: false, error: err.toString() });
+    return jsonResponse({ ok: false, error: 'INTERNAL_ERROR' });   // 외부엔 일반화 — 상세는 위 관리자 메일/로그
   }
 }
 
@@ -376,35 +377,47 @@ function recipientLabelEn(recipient) {
   return 'Together';
 }
 
+// 동시 제출 시 appendRow 경합 방지 — 락 획득 실패해도 데이터 손실보단 비잠금 기록이 안전
+function withRowLock(fn) {
+  const lock = LockService.getScriptLock();
+  let locked = false;
+  try { lock.waitLock(5000); locked = true; } catch (e) { console.warn('[lock] 획득 실패 — 비잠금 진행'); }
+  try { return fn(); } finally { if (locked) { try { lock.releaseLock(); } catch (_) {} } }
+}
+
 function appendMessage(data) {
   const sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_MESSAGES);
   if (!sheet) throw new Error('Messages 시트를 찾을 수 없습니다.');
-  sheet.appendRow([
-    new Date(),
-    data.eventId,
-    data.groomName + ' · ' + data.brideName,
-    data.guestName,
-    data.relation || '(미기재)',
-    data.message,
-    data.moderated ? '검수 대기' : '전송됨',
-    recipientLabelKo(data.recipient),
-  ]);
+  withRowLock(function () {
+    sheet.appendRow([
+      new Date(),
+      data.eventId,
+      data.groomName + ' · ' + data.brideName,
+      data.guestName,
+      data.relation || '(미기재)',
+      data.message,
+      data.moderated ? '검수 대기' : '전송됨',
+      recipientLabelKo(data.recipient),
+    ]);
+  });
 }
 
 function appendModeration(data) {
   const sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_MODERATION);
   if (!sheet) throw new Error('Moderation 시트를 찾을 수 없습니다.');
-  sheet.appendRow([
-    new Date(),
-    data.eventId || '',
-    data.guestName || '',
-    data.relation || '',
-    data.recipient || '',
-    data.message || '',
-    data.matchedWord || '',
-    data.category || '',
-    'BLOCKED',
-  ]);
+  withRowLock(function () {
+    sheet.appendRow([
+      new Date(),
+      data.eventId || '',
+      data.guestName || '',
+      data.relation || '',
+      data.recipient || '',
+      data.message || '',
+      data.matchedWord || '',
+      data.category || '',
+      'BLOCKED',
+    ]);
+  });
 }
 
 function sendToRecipients(couple, guestName, relation, message, recipient) {
@@ -522,12 +535,26 @@ function jsonResponse(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// 관리자 알림 — 동일 cacheKey는 24h 1회만(스팸 방지). 비차단(try/catch).
+function notifyStudioOnce(cacheKey, subject, body) {
+  try {
+    const c = CacheService.getScriptCache();
+    if (c.get(cacheKey)) return;
+    c.put(cacheKey, '1', 86400);
+    GmailApp.sendEmail(STUDIO_EMAIL, subject, body, { from: STUDIO_EMAIL, name: 'Moment Edit' });
+  } catch (_) {}
+}
+
 
 // ═══════════════════════════════════════════════
 // BANNED FILTER · 금지어 필터 (v3 그대로)
 // ═══════════════════════════════════════════════
 
 function getBannedList() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get('banned_list_v1');
+  if (cached) { try { return JSON.parse(cached); } catch (_) {} }   // 시트 편집은 최대 600초 후 반영
+
   const sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_BANNED);
   if (!sheet) {
     console.warn('[BannedFilter] Banned 시트를 찾을 수 없습니다.');
@@ -544,6 +571,7 @@ function getBannedList() {
       type: String(data[i][2] || 'word').trim().toLowerCase()
     });
   }
+  try { cache.put('banned_list_v1', JSON.stringify(list), 600); } catch (_) {}
   return list;
 }
 
@@ -570,6 +598,8 @@ function checkBannedWords(message) {
         }
       } catch (e) {
         console.warn('[BannedFilter] 잘못된 정규식: ' + item.word);
+        notifyStudioOnce('badregex_' + item.word, '[Moment Edit] ⚠️ 금지어 정규식 오류',
+          'Banned 시트의 정규식 패턴이 잘못되어 무시됩니다(필터 일부 silent 미작동):\n  ' + item.word + '\n오류: ' + e.toString());
         continue;
       }
     } else {
@@ -603,11 +633,11 @@ function testGetCouple() {
   console.log('═══ getCouple 테스트 ═══');
 
   const testCases = [
-    { eventId: 'lmh-cyj-0823', label: '시뮬레이션 부부 (전체 정보 채워짐)' },
-    { eventId: 'test-couple',  label: '테스트 부부 (부모 정보 없음)' },
-    { eventId: 'real-test',    label: '미쿠·본인 (부모 정보 없음)' },
-    { eventId: 'nonexistent',  label: '존재하지 않는 ID (오류 케이스)' },
-    { eventId: '',             label: '빈 ID (오류 케이스)' },
+    { eventId: 'test-couple-001', label: '더미 — 존재 시 전체 정보' },
+    { eventId: 'test-couple-002', label: '더미 — 존재 시 부모 정보 없음' },
+    { eventId: 'nonexistent',     label: '존재하지 않는 ID (오류 케이스)' },
+    { eventId: 'INVALID ID!',     label: '잘못된 형식 (거부 케이스)' },
+    { eventId: '',                label: '빈 ID (오류 케이스)' },
   ];
 
   testCases.forEach((tc, idx) => {

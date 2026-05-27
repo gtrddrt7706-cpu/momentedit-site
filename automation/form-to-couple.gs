@@ -125,6 +125,17 @@ function onCoupleFormSubmit(e) {
     var sheet = SpreadsheetApp.getActive().getSheetByName(CFG.SHEET_NAME);
     if (!sheet) throw new Error('시트 없음: ' + CFG.SHEET_NAME);
     var colOf = buildHeaderIndex(sheet);
+    // 필수 헤더(시트 3행 영문키) 누락 감지 — 실수로 지우면 데이터 침묵 손실 → 24h 1회 관리자 알림
+    var REQUIRED_HEADERS = ['eventId', 'groomName', 'brideName', 'groomNameEn', 'brideNameEn',
+      'groomEmail', 'brideEmail', 'weddingDate', 'weddingTime', 'designFamily', 'designOnline',
+      'digitalAttendance', 'invitationText', 'digPullQuote', 'digGroomBio', 'digBrideBio'];
+    var _missing = REQUIRED_HEADERS.filter(function (h) { return !colOf[h]; });
+    if (_missing.length) {
+      notifyStudio('[Moment Edit] ⚠️ Couples 시트 헤더 누락',
+        'Couples 시트 ' + CFG.HEADER_ROW + '행에서 다음 영문 헤더를 찾을 수 없습니다:\n  ' + _missing.join(', ') +
+        '\n\n해당 열은 기록되지 않습니다(데이터 침묵 손실). 헤더를 복구해 주세요.',
+        'hdr_missing_' + _missing.join('_'));
+    }
 
     // 0) 예식ID
     var base = makeEventId(g('신랑 영문 이름'), g('신부 영문 이름'), g('결혼식 날짜'));
@@ -177,8 +188,14 @@ function onCoupleFormSubmit(e) {
 
     // 6) 부부 자동 메일
     try {
-      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), liveUrl, familyUrl, enterUrl);
-    } catch (mailErr) { Logger.log('  (이메일 발송 실패: ' + mailErr.message + ')'); }
+      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), liveUrl, familyUrl, enterUrl, g('결혼식 날짜'), g('결혼식 시간'));
+    } catch (mailErr) {
+      Logger.log('  (이메일 발송 실패: ' + mailErr.message + ')');
+      // silent 사고 차단 — 시트엔 정상인데 부부가 못 받는 경우를 즉시 인지
+      notifyStudio('[Moment Edit] ⚠️ 부부 청첩장 메일 발송 실패',
+        '예식ID: ' + eventId + '\n수신: ' + g('신랑 이메일') + ', ' + g('신부 이메일') +
+        '\n오류: ' + mailErr.message + '\n\n시트엔 정상 기록됨 — 수동 발송이 필요합니다.');
+    }
 
   } catch (err) {
     Logger.log('[ERROR] ' + err.message);
@@ -224,7 +241,14 @@ function resolveEventId(sheet, colOf, base, groomName, brideName) {
       if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: candidate, rowNum: CFG.DATA_START_ROW + i };
       taken = true; break;
     }
-    if (!taken) return { eventId: candidate, rowNum: lastRow + 1 };
+    if (!taken) {
+      if (candidate !== base) {   // 다른 부부와 충돌해 접미사(-2 이상) 부여된 새 ID → 청첩장 URL이 바뀜
+        notifyStudio('[Moment Edit] ⚠️ 예식ID 충돌 — 접미사 부여',
+          '기존 base ID와 충돌해 새 ID에 접미사가 붙었습니다.\n  base: ' + base + '\n  새 ID: ' + candidate +
+          '\n  부부: ' + groomName + ' · ' + brideName + '\n\n청첩장 URL이 이 새 ID 기준입니다.');
+      }
+      return { eventId: candidate, rowNum: lastRow + 1 };
+    }
     suffix++; candidate = base + '-' + suffix;
   }
 }
@@ -241,9 +265,20 @@ function pad2(s) {
 function ynShow(answer) {
   return /(안\s*함|미표시|숨김|제외|빼|아니|off|^\s*no\s*$|^\s*n\s*$)/i.test(String(answer || '').trim()) ? 'N' : 'Y';
 }
+// 관리자(스튜디오) 알림 — 본 흐름 비차단(try/catch). dedupKey 주면 24h 내 동일 알림 1회만(스팸 방지).
+function notifyStudio(subject, body, dedupKey) {
+  try {
+    if (dedupKey) {
+      var _c = CacheService.getScriptCache();
+      if (_c.get(dedupKey)) return;
+      _c.put(dedupKey, '1', 86400);
+    }
+    GmailApp.sendEmail(CFG.STUDIO_EMAIL, subject, body, { from: CFG.STUDIO_EMAIL, name: 'Moment Edit' });
+  } catch (_n) {}
+}
 
 // ===================== 부부 URL 자동 이메일 =====================
-function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl) {
+function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl, weddingDate, weddingTime) {
   var _seen = {};
   var to = [groomEmail, brideEmail]
     .map(function (em) { return String(em || '').trim(); })
@@ -252,8 +287,6 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
     .join(',');
   if (!to) { Logger.log('  (수신 이메일 없음 — 메일 건너뜀)'); return; }
   if (!liveUrl && !familyUrl && !enterUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
-  var formUrl = '';
-  try { formUrl = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_URL) || ''; } catch (_p) {}
 
   // 라이브(입장) 페이지 링크 → QR 변환(있을 때만 · 실패해도 메일은 정상 발송)
   var qrBlob = null;
@@ -266,7 +299,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   }
 
   var opts = {
-    htmlBody: buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl, !!qrBlob),
+    htmlBody: buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, !!qrBlob, weddingDate, weddingTime),
     name: 'Moment Edit', from: CFG.STUDIO_EMAIL
   };
   if (qrBlob) {
@@ -276,20 +309,22 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   GmailApp.sendEmail(to, '[Moment Edit] 두 분의 청첩장이 준비되었습니다', '', opts);
   Logger.log('  (이메일 발송 → ' + to + (qrBlob ? ' · QR 포함' : '') + ')');
 }
-function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl, hasQr) {
+function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, hasQr, weddingDate, weddingTime) {
   var esc = function (s) { return String(s || '').replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
   var who = (groomName && brideName) ? (esc(groomName) + ' · ' + esc(brideName)) : '두 분';
+  var when = String(weddingDate || '').trim();
+  if (when && String(weddingTime || '').trim()) when += ' · ' + String(weddingTime).trim();
+  var whenLine = when ? '<p style="font-size:12px;line-height:1.6;color:#9C9080;text-align:center;margin:6px 0 0;">' + esc(when) + ' 예식</p>' : '';
   var row = function (label, sub, url) {
+    var escUrl = esc(url);   // 방어적 — url은 서버 구성·eventId 인코딩됨이나 이중 안전
     return '<div style="margin:14px 0;"><div style="font-size:13px;color:#CFC6B8;margin-bottom:6px;">' + label +
       '<span style="color:#9C9080;font-size:12px;"> · ' + sub + '</span></div>' +
-      '<a href="' + url + '" style="display:inline-block;word-break:break-all;font-size:13px;color:#D8B48C;">' + url + '</a></div>';
+      '<a href="' + escUrl + '" style="display:inline-block;word-break:break-all;font-size:13px;color:#D8B48C;">' + escUrl + '</a></div>';
   };
   var links = '';
   if (liveUrl) links += row('온라인 청첩장', '멀리 계신 하객용', liveUrl);
   if (familyUrl) links += row('오프라인 청첩장', '가족·가까운 분들께', familyUrl);
-  var editNote = formUrl
-    ? '내용을 고치고 싶으시면 <a href="' + formUrl + '" style="color:#D8B48C;">이 폼을 다시 작성</a>해 주세요.<br>같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.'
-    : '내용을 고치고 싶으시면 처음 작성하신 폼을 다시 제출해 주세요(같은 성함·날짜면 자동 갱신).';
+  var editNote = '내용을 고치고 싶으시면 <a href="' + CFG.SITE_BASE + '/form" style="color:#D8B48C;">momentedit.kr/form</a>에서 다시 작성해 주세요.<br>같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.';
   return '' +
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><style>:root{color-scheme:dark}body{margin:0;padding:0;background:#1E1A17}</style></head>' +
     '<body style="margin:0;padding:0;background:#1E1A17;">' +
@@ -298,7 +333,8 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
       '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-gold.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
       '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
-      '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:-2px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>입니다.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
+      whenLine +
+      '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:14px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>입니다.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
       '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + '</div>' +
       (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="150" style="width:150px;height:150px;display:block;margin:0 auto;border:0;border-radius:2px;"><div style="font-size:12px;color:#B8AE9F;margin-top:12px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으시면, 하객이 스캔해 바로 입장할 수 있습니다.<br>QR을 길게(꾹) 누르면 이미지로 저장하실 수 있습니다.</div></div>' : '') +
       '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
@@ -501,8 +537,10 @@ function createCoupleForm() {
   // 응답 연결 + 트리거 + 폼 URL 저장
   var ss = SpreadsheetApp.getActive();
   form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
-  var exists = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'onCoupleFormSubmit'; });
-  if (!exists) ScriptApp.newTrigger('onCoupleFormSubmit').forSpreadsheet(ss).onFormSubmit().create();
+  var _trigs = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'onCoupleFormSubmit'; });
+  for (var _ti = 1; _ti < _trigs.length; _ti++) ScriptApp.deleteTrigger(_trigs[_ti]); // 중복 제거 — 정확히 1개만 유지
+  if (_trigs.length === 0) ScriptApp.newTrigger('onCoupleFormSubmit').forSpreadsheet(ss).onFormSubmit().create();
+  var exists = _trigs.length > 0;
   try { PropertiesService.getScriptProperties().setProperty(CFG.PROP_FORM_URL, form.getPublishedUrl()); } catch (_p) {}
 
   Logger.log('폼 v2 생성 완료 (6단계)\n  작성 URL: %s\n  편집 URL: %s\n  트리거: %s\n  ⚠️ 구 폼 삭제 + momentedit.kr/form 단축주소 갱신 필요.',
