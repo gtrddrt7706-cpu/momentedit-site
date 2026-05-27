@@ -7,6 +7,7 @@
  *  · 혼주·계좌를 디자인 묶음 밖 공통 페이지로 이동. 디자인 묶음은 1페이지(미리보기+제목·부제·인사말).
  *  · "오프라인과 동일하게" 선택 시 핸들러가 designOnline=designFamily + 제목·부제 미러(인사말은 상속).
  *  · "입장 QR만" 선택지 제거. MAP·시트열 동일(33열).
+ *  · 날짜 도움말에 "월·일 두 자리" 안내 추가(정규식 ^\d{4}-\d{2}-\d{2}$ 와 일치하도록).
  *
  * [v17 · 2026.05.26] 인사말 제목 편집 — 큰 제목 + 부제(03=영문·04/07/08=한글)를 디자인별·가족/디지털 따로 편집
  *  (텍스트만·언어 고정·측정한 한 줄 글자수 제한). hydrate가 렌더 후 제목 텍스트만 교체(커스텀 있을 때).
@@ -363,7 +364,7 @@ function createCoupleForm() {
 
   // ── ② 예식 일정 ──
   form.addPageBreakItem().setTitle('예식 일정').setHelpText('날짜·시간은 청첩장 곳곳에 자동 반영됩니다.');
-  req('결혼식 날짜', '예) 2026-10-24 (연-월-일)').setValidation(FormApp.createTextValidation().setHelpText('예: 2026-10-24').requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
+  req('결혼식 날짜', '예) 2026-10-24 (연-월-일, 월·일은 두 자리)').setValidation(FormApp.createTextValidation().setHelpText('예: 2026-10-24 (월·일을 두 자리로 적어주세요)').requireTextMatchesPattern('^\\d{4}-\\d{2}-\\d{2}$').build());
   req('결혼식 시간', '24시간 형식. 예) 14:00');
 
   // ── ③ 혼주(부모님 성함) · 마음 전하실 곳 (공통, 한 번만) ──
