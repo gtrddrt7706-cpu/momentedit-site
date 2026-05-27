@@ -76,8 +76,8 @@ function doGet(e) {
 
     if (action === 'getCouple') {
       const eventId = String((e.parameter.eventId || '')).trim();
-      if (!eventId) {
-        return jsonResponse({ ok: false, error: 'MISSING_EVENT_ID' });
+      if (!eventId || !/^[a-z0-9-]{3,64}$/.test(eventId)) {
+        return jsonResponse({ ok: false, error: 'INVALID_EVENT_ID' });
       }
 
       // ── 캐시(CacheService): 같은 eventId 응답을 재사용해 시트 읽기 생략 → 응답 빨라짐 ──
@@ -116,14 +116,17 @@ function doGet(e) {
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const eventId = String(data.eventId || '').trim();
-    const guestName = String(data.guestName || '').trim();
-    const relation = String(data.relation || '').trim();
-    const message = String(data.message || '').trim();
+    const eventId = String(data.eventId || '').trim().substring(0, 64);
+    const guestName = String(data.guestName || '').trim().substring(0, 50);
+    const relation = String(data.relation || '').trim().substring(0, 30);
+    const message = String(data.message || '').trim().substring(0, 2000);
     const recipient = normalizeRecipient(data.recipient);
 
     if (!eventId || !guestName || !message) {
       return jsonResponse({ ok: false, error: '필수 항목이 비어 있습니다.' });
+    }
+    if (!/^[a-z0-9-]{3,64}$/.test(eventId)) {
+      return jsonResponse({ ok: false, error: 'INVALID_EVENT_ID' });
     }
 
     const couple = getCoupleByEventId(eventId);

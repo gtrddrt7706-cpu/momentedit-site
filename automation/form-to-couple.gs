@@ -128,7 +128,7 @@ function onCoupleFormSubmit(e) {
 
     // 0) 예식ID
     var base = makeEventId(g('신랑 영문 이름'), g('신부 영문 이름'), g('결혼식 날짜'));
-    if (!/^[a-z0-9-]{3,}$/.test(base)) {
+    if (!/^[a-z]+-[a-z]+-\d{4}$/.test(base)) {
       throw new Error('예식ID 자동생성 실패 — 영문 이름/날짜 확인. (생성값: "' + base + '")');
     }
     var resolved = resolveEventId(sheet, colOf, base, g('신랑 한글 이름'), g('신부 한글 이름'));
@@ -172,7 +172,7 @@ function onCoupleFormSubmit(e) {
     var liveUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';
     var familyUrl = designFamily ? (CFG.SITE_BASE + '/i-family/family-' + designFamily + '.html?e=' + encodeURIComponent(eventId)) : '';
     // 라이브(입장) 페이지 — QR 대상. 디지털 참석/입장QR 선택 시에만(종이 청첩장에 넣어 공유용)
-    var enterUrl = (makeOnline === 'Y' || makeOnline === 'QR') ? (CFG.SITE_BASE + '/live.html?e=' + encodeURIComponent(eventId)) : '';
+    var enterUrl = (makeOnline === 'Y') ? (CFG.SITE_BASE + '/live.html?e=' + encodeURIComponent(eventId)) : '';
     Logger.log('[OK] %s · row %s\n  digital: %s\n  family: %s\n  live(QR): %s', eventId, rowNum, liveUrl || '(미발행)', familyUrl || '(미발행)', enterUrl || '(없음)');
 
     // 6) 부부 자동 메일
@@ -235,8 +235,8 @@ function writeCell(sheet, colOf, rowNum, header, value) {
   sheet.getRange(rowNum, c).setValue(value);
 }
 function pad2(s) {
-  s = String(s || '').trim(); if (!s) return '';
-  var n = s.replace(/[^0-9]/g, ''); return n ? ('0' + n).slice(-2) : '';
+  var n = parseInt(String(s || '').replace(/[^0-9]/g, ''), 10);
+  return (n >= 1 && n <= 99) ? ('0' + n).slice(-2) : '';   // 01~08만 유효 · 100번 등 방어
 }
 function ynShow(answer) {
   return /(안\s*함|미표시|숨김|제외|빼|아니|off|^\s*no\s*$|^\s*n\s*$)/i.test(String(answer || '').trim()) ? 'N' : 'Y';
@@ -247,7 +247,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   var _seen = {};
   var to = [groomEmail, brideEmail]
     .map(function (em) { return String(em || '').trim(); })
-    .filter(function (em) { return em.indexOf('@') !== -1; })
+    .filter(function (em) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em); })
     .filter(function (em) { var k = em.toLowerCase(); if (_seen[k]) return false; _seen[k] = 1; return true; })
     .join(',');
   if (!to) { Logger.log('  (수신 이메일 없음 — 메일 건너뜀)'); return; }
@@ -272,6 +272,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   if (qrBlob) {
     opts.inlineImages = { qrDigital: qrBlob };
   }
+  try { var _quota = MailApp.getRemainingDailyQuota(); if (_quota <= 3) Logger.log('  ⚠️ Gmail 잔여 발송 한도 ' + _quota + '건 — 곧 소진(부부 증가 시 모니터링)'); } catch (_q) {}
   GmailApp.sendEmail(to, '[Moment Edit] 두 분의 청첩장이 준비되었습니다', '', opts);
   Logger.log('  (이메일 발송 → ' + to + (qrBlob ? ' · QR 포함' : '') + ')');
 }
@@ -309,7 +310,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, formUrl,
 // ============== 구글폼 자동 생성기 (최초 1회 실행) ==============
 function addFormImage(form, url, title, help) {
   var blob = null;
-  for (var attempt = 0; attempt < 2 && !blob; attempt++) {
+  for (var attempt = 0; attempt < 3 && !blob; attempt++) {
     try {
       var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
       if (resp.getResponseCode() === 200) { blob = resp.getBlob(); break; }
@@ -317,7 +318,7 @@ function addFormImage(form, url, title, help) {
     } catch (e) {
       Logger.log('  (이미지 fetch 오류: ' + (title || '') + ' — ' + e.message + ')');
     }
-    if (attempt === 0) Utilities.sleep(800); // GitHub raw 일시 장애 대비 1회 재시도
+    if (attempt < 2) Utilities.sleep(800 * (attempt + 1)); // GitHub raw 일시 장애 대비 2회 재시도(0.8s·1.6s)
   }
   if (blob) {
     var it = form.addImageItem().setTitle(title || '미리보기').setImage(blob);
