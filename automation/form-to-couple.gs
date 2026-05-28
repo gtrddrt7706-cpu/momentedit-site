@@ -212,8 +212,14 @@ function onCoupleFormSubmit(e) {
     writeCell(sheet, colOf, rowNum, CFG.COL_GREETING, ynShow(g(CFG.Q_GREET_GATE)), true);   // force: 게이트 답(혼주 표시↔숨김) 변경 반영
     writeCell(sheet, colOf, rowNum, CFG.COL_ENVELOPE, ynShow(g(CFG.Q_ENVELOPE_GATE)), true); // force: 게이트 답(부모계좌 표시↔숨김) 변경 반영
 
-    // 4) 캐시 무효화
-    try { CacheService.getScriptCache().remove(CFG.CACHE_KEY_PREFIX + eventId); } catch (_c) {}
+    // 4) 캐시 무효화 — webhook 측 getCouple 캐시(같은 키)를 즉시 삭제 → 재제출 즉시 반영.
+    //    ⚠️ 두 .gs가 같은 Apps Script 프로젝트에 있어야 ScriptCache 공유됨.
+    try {
+      CacheService.getScriptCache().remove(CFG.CACHE_KEY_PREFIX + eventId);
+      Logger.log('  (캐시 무효화 OK: ' + CFG.CACHE_KEY_PREFIX + eventId + ')');
+    } catch (_c) {
+      Logger.log('  (캐시 무효화 실패: ' + _c.message + ')');
+    }
 
     // 5) URL
     var liveUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';

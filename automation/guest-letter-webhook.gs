@@ -57,8 +57,9 @@ const STUDIO_EMAIL = 'contact@momentedit.kr';
 const HEADER_ROW_INDEX = 2;
 const DATA_START_INDEX = 3;
 
-// getCouple 응답 캐시 TTL(초) — 같은 eventId 재요청 시 시트 읽기 생략
-const COUPLE_CACHE_TTL = 600; // 10분
+// getCouple 응답 캐시 TTL(초) — 같은 eventId 재요청 시 시트 읽기 생략.
+// 재제출 시 form-to-couple.gs가 명시적으로 무효화하지만, 무효화 실패 시 안전망으로 짧게 유지.
+const COUPLE_CACHE_TTL = 60; // 1분 (재제출 즉시 반영 안전망 · 시트 읽기 부담 미미)
 
 
 // ═══════════════════════════════════════════════
