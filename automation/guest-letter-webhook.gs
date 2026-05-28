@@ -653,6 +653,100 @@ function testGetCouple() {
 }
 
 /**
+ * 진단 — webhook이 어떤 스프레드시트·시트·헤더·데이터를 보는지 확인.
+ * 편집기 함수 드롭다운 → diagnoseWebhookSheet 선택 → ▶ 실행 → 실행 로그 확인.
+ */
+function diagnoseWebhookSheet() {
+  console.log('═══ Moment Edit · webhook 시트 진단 ═══');
+
+  // 1) getActive() — webhook이 보는 스프레드시트
+  let ss = null;
+  try { ss = SpreadsheetApp.getActive(); } catch (e) {
+    console.log('[스프레드시트] ❌ getActive() 실패: ' + e.message);
+    console.log('  → 이 스크립트가 container-bound가 아닐 가능성 (standalone 스크립트).');
+    console.log('  → form-to-couple.gs와 같은 GAS 프로젝트로 합쳐야 함.');
+    return;
+  }
+  if (!ss) {
+    console.log('[스프레드시트] ❌ getActive() 반환값 없음');
+    return;
+  }
+  console.log('[스프레드시트]');
+  console.log('  ID: ' + ss.getId());
+  console.log('  이름: ' + ss.getName());
+  console.log('  URL: ' + ss.getUrl());
+
+  // 2) 시트 목록
+  const sheets = ss.getSheets();
+  console.log('[시트 목록]');
+  sheets.forEach((s, i) => {
+    console.log('  [' + i + '] "' + s.getName() + '" (lastRow=' + s.getLastRow() + ', lastCol=' + s.getLastColumn() + ')');
+  });
+
+  // 3) Couples 시트 존재 여부
+  const sheet = ss.getSheetByName(SHEET_COUPLES);
+  if (!sheet) {
+    console.log('[Couples 시트] ❌ "' + SHEET_COUPLES + '" 시트 없음');
+    console.log('  → 시트 이름이 정확히 "Couples" 인지 확인 (대소문자·공백 주의)');
+    return;
+  }
+  console.log('[Couples 시트] ✅ 발견');
+  console.log('  lastRow: ' + sheet.getLastRow());
+  console.log('  lastCol: ' + sheet.getLastColumn());
+
+  // 4) 헤더 행
+  const range = sheet.getDataRange().getValues();
+  console.log('[헤더 행 (' + (HEADER_ROW_INDEX + 1) + '행 · 0-indexed ' + HEADER_ROW_INDEX + ')]');
+  if (range.length <= HEADER_ROW_INDEX) {
+    console.log('  ❌ 시트에 충분한 행 없음 (range.length=' + range.length + ')');
+    return;
+  }
+  const headers = range[HEADER_ROW_INDEX].map(h => String(h).trim());
+  console.log('  컬럼 수: ' + headers.length);
+  console.log('  헤더: [' + headers.join(' | ') + ']');
+  const idxEventId = headers.indexOf('eventId');
+  console.log('  eventId 컬럼 위치: ' + (idxEventId === -1 ? '❌ 못 찾음' : '✅ index ' + idxEventId));
+
+  // 5) 첫 데이터 행 (DATA_START_INDEX = 0-indexed 3 = 4행)
+  console.log('[첫 데이터 행 (' + (DATA_START_INDEX + 1) + '행)]');
+  if (range.length <= DATA_START_INDEX) {
+    console.log('  ❌ 데이터 행 없음 (시트가 비어있음)');
+  } else {
+    const row = range[DATA_START_INDEX];
+    console.log('  컬럼 수: ' + row.length);
+    if (idxEventId !== -1) {
+      const evVal = String(row[idxEventId]).trim();
+      console.log('  eventId 컬럼 값: "' + evVal + '" (길이=' + evVal.length + ')');
+      // 일치 검사 (예: jh-km-0625와 보이지 않는 공백 차이)
+      const charCodes = [];
+      for (let i = 0; i < evVal.length; i++) charCodes.push(evVal.charCodeAt(i));
+      console.log('  charCodes: [' + charCodes.join(',') + ']');
+    }
+    // 첫 5컬럼 미리보기
+    console.log('  미리보기 (앞 5컬럼): [' + row.slice(0, 5).map(v => '"' + String(v) + '"').join(' | ') + ']');
+  }
+
+  // 6) 전체 데이터 행 수
+  const dataRows = Math.max(0, range.length - DATA_START_INDEX);
+  console.log('[전체 데이터 행 수]: ' + dataRows);
+
+  console.log('═══ 진단 종료 ═══');
+}
+
+/**
+ * 진단 — 특정 eventId로 직접 getCouple 호출 (캐시 우회).
+ * 편집기에서 EVENT_ID_TO_TEST 값 변경 후 ▶ 실행.
+ */
+function testGetCoupleByEventId() {
+  const EVENT_ID_TO_TEST = 'jh-km-0625';   // ← 여기 바꿔서 테스트
+  console.log('═══ getCouple 직접 호출 — eventId: ' + EVENT_ID_TO_TEST + ' ═══');
+  const fakeEvent = { parameter: { action: 'getCouple', eventId: EVENT_ID_TO_TEST, fresh: '1' } };
+  const result = doGet(fakeEvent);
+  console.log('응답:');
+  console.log(result.getContent());
+}
+
+/**
  * 편지 발송 테스트 (v3.1 그대로)
  */
 function testSendToGroom() {
