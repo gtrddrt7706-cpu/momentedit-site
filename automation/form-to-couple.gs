@@ -109,7 +109,8 @@ var CFG = {
   ACCT_CHOICE_FAMILY: '오프라인 청첩장',
 
   TAG: ' · ',   // 베이스 제목과 브랜치 구분자 사이 구분자(베이스 제목엔 없는 문자열)
-  PROP_FORM_URL: 'FORM_PUBLISHED_URL'
+  PROP_FORM_URL: 'FORM_PUBLISHED_URL',
+  PROP_FORM_ID: 'FORM_ID'
 };
 
 // ====================== 폼 제출 트리거 진입점 ======================
@@ -677,7 +678,12 @@ function createCoupleForm() {
   for (var _ti = 1; _ti < _trigs.length; _ti++) ScriptApp.deleteTrigger(_trigs[_ti]); // 중복 제거 — 정확히 1개만 유지
   if (_trigs.length === 0) ScriptApp.newTrigger('onCoupleFormSubmit').forSpreadsheet(ss).onFormSubmit().create();
   var exists = _trigs.length > 0;
-  try { PropertiesService.getScriptProperties().setProperty(CFG.PROP_FORM_URL, form.getPublishedUrl()); } catch (_p) {}
+  // 폼 URL(viewform) + 폼 ID 모두 저장 — addAccountDisplayCheckbox 등 후속 작업이 ID로 폼 열기 가능
+  try {
+    var _props = PropertiesService.getScriptProperties();
+    _props.setProperty(CFG.PROP_FORM_URL, form.getPublishedUrl());
+    _props.setProperty(CFG.PROP_FORM_ID, form.getId());
+  } catch (_p) {}
 
   Logger.log('폼 v2 생성 완료 (6단계)\n  작성 URL: %s\n  편집 URL: %s\n  트리거: %s\n  ⚠️ 구 폼 삭제 + momentedit.kr/form 단축주소 갱신 필요.',
     form.getPublishedUrl(), form.getEditUrl(), exists ? '이미 있음' : '새로 등록');
@@ -775,24 +781,66 @@ function extractFormId_(url) {
 
 // ============== 기존 폼에 "계좌 표시 위치" 체크박스만 추가 ==============
 // createCoupleForm 재실행(새 폼) 없이 정본 폼에 1개 질문만 삽입.
-// PROP_FORM_URL에서 폼 URL 가져옴 → 거기에 항목 추가 → ③ 페이지의
-// "신부 어머니 계좌 (은행 번호)" 바로 다음 위치로 이동.
 // 같은 제목 항목이 이미 있으면 중복 추가 안 함(멱등).
+//
+// 폼 열기 우선순위:
+//   1) FORM_ID_OVERRIDE 함수 안 상수에 직접 입력 (최우선)
+//   2) PROP_FORM_ID (createCoupleForm이 자동 저장 — 신규 폼)
+//   3) PROP_FORM_URL이 /edit URL이면 직접 사용 (옛 폼 호환)
+//   ※ PROP_FORM_URL이 /viewform이면 openByUrl 실패 → 수동 폼 ID 입력 필요
 //
 // 사용: GAS 편집기 함수 드롭다운 → addAccountDisplayCheckbox ▶ 실행
 function addAccountDisplayCheckbox() {
   Logger.log('═══ Moment Edit · "계좌 표시 위치" 체크박스 추가 ═══');
 
-  // 1) 폼 URL 확보 — PROP_FORM_URL에 저장된 정본 폼
-  var url = '';
-  try { url = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_URL) || ''; } catch (_) {}
-  if (!url) {
-    throw new Error('PROP_FORM_URL 저장값 없음 — createCoupleForm 한 번도 실행 안 됐거나 속성이 비었음.\n' +
-      'GAS 편집기에서 Project Settings → Script Properties에서 FORM_PUBLISHED_URL 값을 확인하거나, ' +
-      'createCoupleForm을 한 번 실행한 적이 있는 폼이어야 합니다.');
+  // ⚠️ huijun: PROP_FORM_ID가 없는 옛 폼이면 여기에 폼 ID 직접 입력.
+  //   폼 ID는 폼 편집 URL https://docs.google.com/forms/d/{이 부분}/edit 에서 추출.
+  //   (정본 폼 편집기 주소창 → /d/와 /edit 사이 긴 문자열)
+  var FORM_ID_OVERRIDE = '';
+
+  var props = PropertiesService.getScriptProperties();
+  var form = null;
+  var source = '';
+
+  // 1) FORM_ID_OVERRIDE (수동)
+  if (FORM_ID_OVERRIDE) {
+    try { form = FormApp.openById(FORM_ID_OVERRIDE); source = 'FORM_ID_OVERRIDE'; }
+    catch (e) { throw new Error('FORM_ID_OVERRIDE "' + FORM_ID_OVERRIDE + '" 로 폼 열기 실패: ' + e.message); }
   }
-  var form = FormApp.openByUrl(url);
-  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ')');
+  // 2) PROP_FORM_ID (자동 저장)
+  if (!form) {
+    var propId = '';
+    try { propId = props.getProperty(CFG.PROP_FORM_ID) || ''; } catch (_) {}
+    if (propId) {
+      try { form = FormApp.openById(propId); source = 'PROP_FORM_ID'; }
+      catch (e) { Logger.log('  ⚠️ PROP_FORM_ID "' + propId + '" 폼 열기 실패: ' + e.message); }
+    }
+  }
+  // 3) PROP_FORM_URL이 /edit URL이면 시도
+  if (!form) {
+    var propUrl = '';
+    try { propUrl = props.getProperty(CFG.PROP_FORM_URL) || ''; } catch (_) {}
+    if (propUrl && propUrl.indexOf('/edit') !== -1) {
+      try { form = FormApp.openByUrl(propUrl); source = 'PROP_FORM_URL(edit)'; }
+      catch (e) { Logger.log('  ⚠️ PROP_FORM_URL "' + propUrl + '" 폼 열기 실패: ' + e.message); }
+    }
+  }
+
+  if (!form) {
+    throw new Error(
+      '폼을 열 수 없습니다.\n\n' +
+      '저장된 PROP_FORM_URL은 viewform(응답자용) URL이라 openByUrl이 안 됩니다.\n' +
+      '아래 둘 중 하나를 해주세요:\n\n' +
+      '[방법 A] 함수 안 FORM_ID_OVERRIDE에 폼 ID 직접 입력\n' +
+      '  · 정본 폼 편집기 주소창에서 /d/와 /edit 사이 부분 복사\n' +
+      '  · 예: https://docs.google.com/forms/d/1AbCdEf.../edit → "1AbCdEf..."\n\n' +
+      '[방법 B] GAS 편집기 Project Settings → Script Properties\n' +
+      '  · FORM_ID 추가 + 위 폼 ID 입력 → 저장 → 함수 재실행'
+    );
+  }
+  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ', 출처: ' + source + ')');
+  // PROP_FORM_ID 자동 보강 (옛 폼이라 안 저장된 경우 다음부턴 자동 사용)
+  try { props.setProperty(CFG.PROP_FORM_ID, form.getId()); } catch (_) {}
 
   // 2) 멱등 — 이미 같은 제목 항목 있으면 추가 안 함
   var existing = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_ACCT_DISPLAY; });
