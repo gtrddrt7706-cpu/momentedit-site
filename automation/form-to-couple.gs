@@ -152,7 +152,7 @@ function onCoupleFormSubmit(e) {
             '[Moment Edit] 예식 날짜 재확인 부탁드립니다',
             '안녕하세요, 모먼트 에디트입니다.\n\n' +
             '제출해 주신 예식 날짜 "' + weddingDateRaw + '" 가 실제 달력에 존재하지 않는 날짜로 확인되었습니다.\n' +
-            '죄송하지만 두 분의 예식 날짜를 다시 한 번 확인해 주신 뒤, 폼을 다시 작성해 주시면 감사드리겠습니다.\n\n' +
+            '번거로우시겠지만 두 분의 예식 날짜를 다시 한 번 확인해 주신 뒤, 폼을 다시 작성해 주시면 감사하겠습니다.\n\n' +
             '다시 작성하실 곳: ' + CFG.SITE_BASE + '/form\n' +
             '(같은 성함으로 제출해 주시면 이전 정보가 자동으로 갱신됩니다.)\n\n' +
             '— Moment Edit\ncontact@momentedit.kr',
@@ -407,7 +407,7 @@ function buildDateRetryEmailHtml(groomName, brideName, weddingDateRaw) {
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#D8B48C;letter-spacing:0.06em;">' + esc(weddingDateRaw || '(공란)') + '</div>' +
       '</div>' +
       '<p style="font-size:13px;line-height:1.95;color:#B8AE9F;">제출해 주신 날짜가 실제 달력에 존재하지 않는 날짜로 확인되었습니다.<br>' +
-      '죄송하지만 두 분의 예식 날짜를 다시 한 번 확인해 주신 뒤, 폼을 다시 작성해 주시면 감사드리겠습니다.</p>' +
+      '번거로우시겠지만 두 분의 예식 날짜를 다시 한 번 확인해 주신 뒤, 폼을 다시 작성해 주시면 감사하겠습니다.</p>' +
       '<div style="text-align:center;margin:28px 0 8px;">' +
         '<div style="font-size:11px;letter-spacing:0.2em;color:#9C9080;margin-bottom:10px;">다시 작성하실 곳</div>' +
         '<div style="font-size:15px;font-family:\'Cormorant Garamond\',serif;letter-spacing:0.04em;">' + formLink + '</div>' +

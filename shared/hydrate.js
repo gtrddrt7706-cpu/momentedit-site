@@ -244,8 +244,14 @@
     // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
     html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
 
-    // 계좌 섹션: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
-    html = processOptional(html, 'envelope', true);
+    // 계좌 섹션: 측별 토글은 해당 측에 보여줄 계좌가 1개라도 있을 때만 노출
+    //   · gShowItem: 본인 계좌 있음 OR (부모 표시 ON 이고 부모 계좌 1개라도 있음 — gHasPar에 showEnvP 포함)
+    //   · envelope 섹션 전체: 양쪽 다 보여줄 게 없으면 제거 → 빈 섹션·빈 토글 노출 방지
+    var gShowItem = !!gAcct.account || gHasPar;
+    var bShowItem = !!bAcct.account || bHasPar;
+    html = processOptional(html, 'envelope', gShowItem || bShowItem);
+    html = processOptional(html, 'groomEnvItem', gShowItem);
+    html = processOptional(html, 'brideEnvItem', bShowItem);
     html = processOptional(html, 'groomAccount', !!gAcct.account);
     html = processOptional(html, 'brideAccount', !!bAcct.account);
 
