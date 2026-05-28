@@ -211,11 +211,19 @@ a.brand-mark-link{text-decoration:none;display:flex;align-items:center;gap:10px;
 a.brand-mark-link .back-arrow{font-family:var(--serif);font-style:normal;font-size:15px;color:var(--gold);letter-spacing:0;transition:transform 0.3s ease;line-height:1}
 a.brand-mark-link:hover{background:rgba(184,154,117,0.08)}
 a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
+.brand-mark-text{
+  display:inline-flex;
+  align-items:center;
+  gap:0.55em;
+  line-height:1;
+}
 .brand-mark .dot{
-  width:2px;height:2px;
+  width:3px;height:3px;
   border-radius:50%;
-  background:var(--gold);
+  background:var(--seal);
   display:inline-block;
+  flex:0 0 auto;
+  transform:translateY(-0.5px);
 }
 
 .on-air{
@@ -223,7 +231,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   align-items:center;
   gap:8px;
   padding:5px 11px;
-  border:1px solid rgba(107,42,36,0.32);
+  border:1px solid rgba(107,42,36,0.55);
   border-radius:2px;
   font-size:9px;
   font-weight:500;
@@ -231,6 +239,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   color:var(--seal);
   text-transform:uppercase;
   font-family:var(--sans);
+  background:rgba(107,42,36,0.04);
 }
 .on-air .live-dot{
   width:5px;height:5px;border-radius:50%;
