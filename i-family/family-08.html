@@ -99,9 +99,8 @@ body{
   position:relative;
   max-width:480px;
   margin:0 auto;
-  box-shadow:                    /* 본체 가장자리 분리 — inset 미세 하이라이트 + 깊은 웜 다크 드롭 */
-    inset 0 0 0 1px rgba(255,255,255,0.04),
-    0 16px 48px -16px rgba(0,0,0,0.45);
+  box-shadow:                    /* 본체 가장자리만 — inset 미세 하이라이트(외부 halo 제거, 본체 내부 효과 무영향) */
+    inset 0 0 0 1px rgba(255,255,255,0.06);
 }
 
 /* 시스템 라이트 모드도 무시 — Velour는 항상 다크. 외부 gutter도 유지. */
