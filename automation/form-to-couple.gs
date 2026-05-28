@@ -643,3 +643,93 @@ function createCoupleForm() {
   Logger.log('폼 v2 생성 완료 (6단계)\n  작성 URL: %s\n  편집 URL: %s\n  트리거: %s\n  ⚠️ 구 폼 삭제 + momentedit.kr/form 단축주소 갱신 필요.',
     form.getPublishedUrl(), form.getEditUrl(), exists ? '이미 있음' : '새로 등록');
 }
+
+// ============== 트리거·폼 연결 진단/복구 (createCoupleForm 재실행 없이) ==============
+// 폼 정리 과정에서 트리거나 시트 응답 연결이 끊긴 경우를 위한 진단·복구.
+// huijun이 GAS 편집기에서 함수 선택 후 ▶ 실행.
+
+/** 진단 — 현재 폼·트리거·시트 연결 상태를 로그로 출력 (변경 없음, 읽기만). */
+function diagnoseFormSetup() {
+  var ss = SpreadsheetApp.getActive();
+  Logger.log('═══ Moment Edit · 폼 연결 진단 ═══');
+  Logger.log('현재 스프레드시트: ' + ss.getName() + ' (id: ' + ss.getId() + ')');
+
+  // 1) 시트에 연결된 폼
+  var linkedFormUrl = null;
+  try { linkedFormUrl = ss.getFormUrl(); } catch (_) {}
+  Logger.log('[시트→폼 연결]');
+  if (linkedFormUrl) {
+    Logger.log('  ✅ 시트에 연결된 폼 URL: ' + linkedFormUrl);
+  } else {
+    Logger.log('  ❌ 시트에 연결된 폼 없음 — 폼이 이 시트에 응답을 보내지 않습니다.');
+  }
+
+  // 2) PROP_FORM_URL (생성 시 저장된 정본 폼 URL)
+  var propUrl = '';
+  try { propUrl = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_URL) || ''; } catch (_) {}
+  Logger.log('[저장된 정본 폼 URL]');
+  if (propUrl) {
+    Logger.log('  저장값: ' + propUrl);
+    if (linkedFormUrl && linkedFormUrl.indexOf(extractFormId_(propUrl)) === -1) {
+      Logger.log('  ⚠️ 시트 연결 폼과 저장된 정본 폼이 다름!');
+    }
+  } else {
+    Logger.log('  ❌ PROP_FORM_URL 저장값 없음 (createCoupleForm 미실행 또는 초기화됨)');
+  }
+
+  // 3) onCoupleFormSubmit 트리거
+  var trigs = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'onCoupleFormSubmit'; });
+  Logger.log('[트리거 (onCoupleFormSubmit)]');
+  Logger.log('  개수: ' + trigs.length);
+  trigs.forEach(function (t, i) {
+    Logger.log('  [' + i + '] eventType=' + t.getEventType() + ', sourceId=' + t.getTriggerSourceId());
+    if (t.getTriggerSourceId() !== ss.getId()) {
+      Logger.log('       ⚠️ 트리거가 다른 시트에 묶여있음 (현재 시트 아님)');
+    }
+  });
+  if (trigs.length === 0) {
+    Logger.log('  ❌ 트리거 없음 — 폼이 제출돼도 핸들러가 실행되지 않습니다.');
+    Logger.log('  → ensureTrigger() 실행으로 복구 가능.');
+  } else if (trigs.length > 1) {
+    Logger.log('  ⚠️ 트리거 중복 ' + trigs.length + '개 — ensureTrigger() 실행으로 정리 가능.');
+  } else if (trigs[0].getTriggerSourceId() !== ss.getId()) {
+    Logger.log('  ⚠️ 트리거가 다른 시트에 묶여있음 — ensureTrigger() 실행으로 현재 시트로 재등록.');
+  } else if (trigs[0].getEventType() !== ScriptApp.EventType.ON_FORM_SUBMIT) {
+    Logger.log('  ⚠️ 트리거 이벤트 타입이 onFormSubmit 아님 — ensureTrigger() 실행으로 재등록.');
+  } else {
+    Logger.log('  ✅ 트리거 정상 (1개, 현재 시트, onFormSubmit).');
+  }
+
+  // 4) Couples 시트 헤더 존재 여부
+  var sheet = ss.getSheetByName(CFG.SHEET_NAME);
+  Logger.log('[Couples 시트]');
+  if (!sheet) {
+    Logger.log('  ❌ "' + CFG.SHEET_NAME + '" 시트 없음.');
+  } else {
+    var headers = sheet.getRange(CFG.HEADER_ROW, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var hasEventId = headers.indexOf('eventId') !== -1;
+    Logger.log('  헤더 행(' + CFG.HEADER_ROW + ') 컬럼 수: ' + headers.length + ', eventId 헤더: ' + (hasEventId ? '✅' : '❌'));
+  }
+  Logger.log('═══ 진단 종료 ═══');
+}
+
+/** 복구 — 현재 시트에 onCoupleFormSubmit 트리거를 정확히 1개 보장.
+ *  · createCoupleForm을 재실행하지 않음(새 폼 안 만듦).
+ *  · 시트에 폼이 연결되어 있어야 폼 제출 시 트리거가 발동함(시트 측 연결 별도 확인 필요).
+ */
+function ensureTrigger() {
+  var ss = SpreadsheetApp.getActive();
+  var trigs = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'onCoupleFormSubmit'; });
+  // 모두 일단 삭제하고 새로 1개 등록 → 다른 시트 바인딩·중복·잘못된 이벤트타입 동시 해결.
+  trigs.forEach(function (t) { ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('onCoupleFormSubmit').forSpreadsheet(ss).onFormSubmit().create();
+  Logger.log('트리거 정리·재등록 완료 — 현재 시트(' + ss.getName() + ')에 onFormSubmit 1개.');
+  Logger.log('  (이전 트리거 ' + trigs.length + '개 삭제 → 새 트리거 1개 등록)');
+  Logger.log('  다음 단계: diagnoseFormSetup() 실행해 "시트→폼 연결" 확인. 비었으면 폼에서 시트로 응답 연결 필요.');
+}
+
+// 내부 유틸 — URL에서 폼 ID(/d/e/{ID}/) 추출.
+function extractFormId_(url) {
+  var m = String(url || '').match(/\/forms\/d\/e?\/?([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : '';
+}
