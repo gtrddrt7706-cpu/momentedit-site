@@ -249,6 +249,33 @@
     //   · envelope 섹션 전체: 양쪽 다 보여줄 게 없으면 제거 → 빈 섹션·빈 토글 노출 방지
     var gShowItem = !!gAcct.account || gHasPar;
     var bShowItem = !!bAcct.account || bHasPar;
+
+    // ?debug=1 시 모든 결정값을 콘솔에 출력 — 운영 진단용. 사용자에 영향 없음.
+    try {
+      if (new URLSearchParams(location.search).get('debug') === '1') {
+        console.group('🔧 Moment Edit · Hydrate Debug');
+        console.log('eventId           :', c.eventId);
+        console.log('designNum         :', designNum, '/ famPage =', famPage);
+        console.log('— 섹션 토글 —');
+        console.log('digitalAttendance :', JSON.stringify(c.digitalAttendance), '→', showUnlessNo(c.digitalAttendance) ? '✅ Nº IV 표시' : '❌ Nº IV 제거');
+        console.log('greetingShowParents:', JSON.stringify(c.greetingShowParents), '→ showGreetPar =', showGreetPar);
+        console.log('envelopeShowParents:', JSON.stringify(c.envelopeShowParents), '→ showEnvP =', showEnvP);
+        console.log('— 신랑 계좌 —');
+        console.log('groomBank/Account :', JSON.stringify(c.groomBank), '/', JSON.stringify(c.groomAccount), '→ gAcct.account =', JSON.stringify(gAcct.account));
+        console.log('groomFatherAccount:', JSON.stringify(c.groomFatherAccount));
+        console.log('groomMotherAccount:', JSON.stringify(c.groomMotherAccount));
+        console.log('gHasPar           :', gHasPar, '/ gShowItem =', gShowItem, '→', gShowItem ? '✅ 신랑 토글 표시' : '❌ 신랑 토글 제거');
+        console.log('— 신부 계좌 —');
+        console.log('brideBank/Account :', JSON.stringify(c.brideBank), '/', JSON.stringify(c.brideAccount), '→ bAcct.account =', JSON.stringify(bAcct.account));
+        console.log('brideFatherAccount:', JSON.stringify(c.brideFatherAccount));
+        console.log('brideMotherAccount:', JSON.stringify(c.brideMotherAccount));
+        console.log('bHasPar           :', bHasPar, '/ bShowItem =', bShowItem, '→', bShowItem ? '✅ 신부 토글 표시' : '❌ 신부 토글 제거');
+        console.log('— 결론 —');
+        console.log('envelope 섹션     :', (gShowItem || bShowItem) ? '✅ Nº V 표시' : '❌ Nº V 제거');
+        console.groupEnd();
+      }
+    } catch (_) {}
+
     html = processOptional(html, 'envelope', gShowItem || bShowItem);
     html = processOptional(html, 'groomEnvItem', gShowItem);
     html = processOptional(html, 'brideEnvItem', bShowItem);

@@ -198,6 +198,8 @@ function onCoupleFormSubmit(e) {
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_FAMILY, designFamily, true);   // force: 발행 취소(빈 값)도 반영
     writeCell(sheet, colOf, rowNum, CFG.COL_DESIGN_ONLINE, designOnline, true);   // force: 온라인 미발행(빈 값)도 반영
     writeCell(sheet, colOf, rowNum, CFG.COL_DIGITAL, makeOnline, true);           // force: designOnline 기반 일관성(항상 Y/N)
+    Logger.log('  (디자인 결정 — designFamily="%s" / designOnline="%s" / digitalAttendance="%s" / sameAsFamily=%s)',
+      designFamily, designOnline, makeOnline, sameAsFamily);
     // "오프라인과 동일하게" → 온라인 제목·부제·대표문구·한마디를 오프라인 값으로 미러
     // (인사말은 hydrate가 invitationText 자동 상속). 온라인 디자인 페이지는 안 거치므로 dig*는 여기서 채움.
     if (sameAsFamily) {
