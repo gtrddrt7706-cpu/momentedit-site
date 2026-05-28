@@ -266,7 +266,10 @@ function resolveEventId(sheet, colOf, base, groomName, brideName) {
   var idCol = colOf['eventId'];
   if (!idCol) throw new Error("'eventId' 헤더를 시트 " + CFG.HEADER_ROW + "행에서 못 찾음");
   var gCol = colOf['groomName'], bCol = colOf['brideName'];
-  var lastRow = Math.max(sheet.getLastRow(), CFG.DATA_START_ROW - 1);
+  // getLastRow()는 "content 있는 마지막 행"이라 다른 컬럼의 보이지 않는 잔여(공백·서식)에
+  // 영향받아 새 행이 시트 아래쪽으로 흩어질 수 있음. eventId 컬럼만 실제 스캔해 마지막
+  // 실 데이터 행을 찾음 → 잔여 셀과 무관하게 항상 데이터 끝에 정렬되어 쌓임.
+  var lastRow = findLastEventIdRow(sheet, idCol);
   var ids = [], gNames = [], bNames = [];
   if (lastRow >= CFG.DATA_START_ROW) {
     var n = lastRow - CFG.DATA_START_ROW + 1;
@@ -293,6 +296,19 @@ function resolveEventId(sheet, colOf, base, groomName, brideName) {
     }
     suffix++; candidate = base + '-' + suffix;
   }
+}
+// eventId 컬럼을 아래에서 위로 스캔해 마지막 실 데이터 행 위치 반환.
+// 빈 셀(공백·trim 후 빈 문자열) 무시 → 빈 행 다음에 쌓이는 문제 차단.
+// 모든 데이터 행이 비면 DATA_START_ROW - 1 반환 → 다음 행이 DATA_START_ROW부터 정상 시작.
+function findLastEventIdRow(sheet, idCol) {
+  var rawLast = sheet.getLastRow();
+  if (rawLast < CFG.DATA_START_ROW) return CFG.DATA_START_ROW - 1;
+  var n = rawLast - CFG.DATA_START_ROW + 1;
+  var values = sheet.getRange(CFG.DATA_START_ROW, idCol, n, 1).getValues();
+  for (var i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][0]).trim() !== '') return CFG.DATA_START_ROW + i;
+  }
+  return CFG.DATA_START_ROW - 1;
 }
 function writeCell(sheet, colOf, rowNum, header, value, force) {
   var c = colOf[header];
