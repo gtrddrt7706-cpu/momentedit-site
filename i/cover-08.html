@@ -80,13 +80,11 @@
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
-  background:var(--bg);
+  background:#1A1612;          /* outer gutter — 본체 #3A322A보다 약간 더 어두움 (와이드 데스크톱에서만 보임) */
   scrollbar-gutter:stable;
 }
 body{
-  background:
-    linear-gradient(to top, rgba(7,7,12,0.5) 0%, rgba(7,7,12,0.15) 50%, transparent 100%) bottom / 100% 600px no-repeat,
-    var(--bg);
+  background:#3A322A;          /* "종이" 톤온톤 다크 — 작품(--bg #2f2820)보다 살짝 밝음 */
   color:var(--ink);
   font-family:var(--sans-ko);
   font-weight:300;
@@ -105,15 +103,16 @@ body{
   position:relative;
   max-width:480px;
   margin:0 auto;
+  box-shadow:                  /* 종이 외곽 — 01 패턴 차용 */
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 16px 48px -16px rgba(0,0,0,0.45);
 }
 
-/* 시스템 라이트 모드도 무시 — Velour는 항상 다크 */
+/* 시스템 라이트 모드도 무시 — Velour는 항상 다크. 종이 외곽 구조도 유지. */
 @media (prefers-color-scheme:light){
-  html,body{
-  background:linear-gradient(to bottom, var(--bg) 0%, var(--bg-deep) 100%) !important;
-    background:#2f2820 !important;
-    color:#F2E8D5 !important;
-  }
+  html{ background:#1A1612 !important }
+  body{ background:#3A322A !important; color:#F2E8D5 !important }
+  .invitation{ background:linear-gradient(to top, rgba(7,7,12,0.5) 0%, rgba(7,7,12,0.15) 50%, transparent 100%) bottom / 100% 600px no-repeat, #2f2820 !important }
 }
 
 /* 접근성 — 스크린리더 전용 */
@@ -151,10 +150,22 @@ summary:focus-visible{outline-offset:2px}
 ───────────────────────────────── */
 .invitation{
   max-width:var(--max);
-  margin:0 auto;
+  margin:12vh auto;            /* 위아래 종이 여백(데스크톱 12vh) — 작품 시작 전·끝 후 종이 보임 */
   padding:0 28px;
   position:relative;
+  background:                  /* 본래 body에 있던 시네마틱 다크 그라데이션 — 작품 영역으로 이동 */
+    linear-gradient(to top, rgba(7,7,12,0.5) 0%, rgba(7,7,12,0.15) 50%, transparent 100%) bottom / 100% 600px no-repeat,
+    var(--bg);
+  border-radius:3px;
+  box-shadow:                  /* 4단 깊은 다크 드롭 + 골드 헤어라인 (E3) */
+    0 1px 2px rgba(0,0,0,0.30),
+    0 6px 16px rgba(0,0,0,0.35),
+    0 24px 48px rgba(0,0,0,0.45),
+    0 48px 96px rgba(0,0,0,0.40),
+    0 0 0 1px rgba(201,168,118,0.32);
 }
+/* 모바일에서 종이 여백 축소(7vh) */
+@media (max-width:480px){ .invitation{ margin:7vh auto } }
 .sec{padding:96px 0;position:relative}
 .sec + .sec{position:relative}
 
@@ -981,8 +992,9 @@ details.env-acc[open] > .env-acc-q{
 @media print{
   :root{--bg:#fff;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#666;--gold:#7A5F3D}
   html,body{background:#fff !important;color:#1a1a1a !important}
+  body{box-shadow:none !important}
   .toast{display:none !important}
-  .invitation{max-width:100%;padding:18mm}
+  .invitation{max-width:100%;padding:18mm;background:#fff !important;box-shadow:none !important;margin:0 !important;border-radius:0 !important}
   .sec{padding:10mm 0;page-break-inside:avoid}
   .cover{min-height:auto;padding:0 0 10mm}
   .cover-display{font-size:42pt;color:#1a1a1a}
