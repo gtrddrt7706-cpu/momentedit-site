@@ -872,18 +872,125 @@ function addAccountDisplayCheckbox() {
       '※ 계좌를 비워두셔도 표시되지 않습니다.'
     );
 
-  // 4) ③ 페이지의 "신부 어머니 계좌" 바로 다음으로 이동
+  // 4) ③ 페이지의 "신부 어머니 계좌" 다음 PageBreak 직전(=③ 페이지 끝)에 배치
+  //    moveItem(cb, X)은 cb를 index X 자리에 놓고 기존 X 이상을 한 칸 미는 동작.
+  //    "신부 어머니 계좌" 다음 PageBreak의 index를 X로 주면, PageBreak가 한 칸 밀리고
+  //    cb가 ③ 페이지 마지막 자리(다음 PageBreak 직전)에 정확히 들어감.
+  //    PageBreak를 찾지 못하면 (마지막 페이지) 폼 끝에 추가.
   var items = form.getItems();
   var targetTitle = '신부 어머니 계좌 (은행 번호)';
   var targetIdx = -1;
   for (var i = 0; i < items.length; i++) {
     if (items[i].getTitle() === targetTitle) { targetIdx = i; break; }
   }
-  if (targetIdx !== -1) {
-    form.moveItem(checkbox, targetIdx + 1);
-    Logger.log('✅ 추가 완료 — "' + targetTitle + '" 다음(index ' + (targetIdx + 1) + ')에 위치');
-  } else {
+  if (targetIdx === -1) {
     Logger.log('⚠️ "' + targetTitle + '" 항목을 못 찾음 — 체크박스가 폼 마지막에 추가됨. 폼 편집기에서 수동으로 ③ 페이지 끝으로 옮기세요.');
+    Logger.log('폼 URL: ' + form.getPublishedUrl());
+    return;
   }
+  // targetIdx 이후의 첫 PageBreak 찾기 (=④ 페이지 시작 자리)
+  var nextPageBreakIdx = -1;
+  for (var j = targetIdx + 1; j < items.length; j++) {
+    if (items[j].getType() === FormApp.ItemType.PAGE_BREAK) { nextPageBreakIdx = j; break; }
+  }
+  // moveItem 목적지: PageBreak 자리 (PageBreak가 한 칸 밀려나 cb가 ③ 페이지 끝). PageBreak 없으면 폼 끝.
+  // ⚠️ 체크박스 자체가 폼 끝에 막 추가됐기 때문에 nextPageBreakIdx 계산 시점에는 cb 위치보다 PageBreak가 앞에 있음.
+  //   moveItem이 cb를 PageBreak 자리로 옮기면 PageBreak는 한 칸 밀려나 다음 자리로 → 결과: cb @ ③ 페이지 끝.
+  var destIdx = (nextPageBreakIdx !== -1) ? nextPageBreakIdx : items.length - 1;
+  form.moveItem(checkbox, destIdx);
+  Logger.log('✅ 체크박스 추가 — "' + targetTitle + '" 직후, ' +
+    (nextPageBreakIdx !== -1
+      ? '다음 PageBreak(' + items[nextPageBreakIdx].getTitle() + ') 직전 → ③ 페이지 안'
+      : '폼 끝(PageBreak 없음)'));
   Logger.log('폼 URL: ' + form.getPublishedUrl());
+}
+
+// 폼 열기 헬퍼 — addAccountDisplayCheckbox / verifyAccountCheckbox 공용.
+// 우선순위: FORM_ID_OVERRIDE → PROP_FORM_ID → PROP_FORM_URL(/edit).
+// 실패 시 안내 메시지 throw.
+function openFormForEdit_(FORM_ID_OVERRIDE) {
+  var props = PropertiesService.getScriptProperties();
+  if (FORM_ID_OVERRIDE) {
+    try { return { form: FormApp.openById(FORM_ID_OVERRIDE), source: 'FORM_ID_OVERRIDE' }; }
+    catch (e) { throw new Error('FORM_ID_OVERRIDE "' + FORM_ID_OVERRIDE + '" 폼 열기 실패: ' + e.message); }
+  }
+  var propId = '';
+  try { propId = props.getProperty(CFG.PROP_FORM_ID) || ''; } catch (_) {}
+  if (propId) {
+    try { return { form: FormApp.openById(propId), source: 'PROP_FORM_ID' }; }
+    catch (e) { Logger.log('  ⚠️ PROP_FORM_ID "' + propId + '" 폼 열기 실패: ' + e.message); }
+  }
+  var propUrl = '';
+  try { propUrl = props.getProperty(CFG.PROP_FORM_URL) || ''; } catch (_) {}
+  if (propUrl && propUrl.indexOf('/edit') !== -1) {
+    try { return { form: FormApp.openByUrl(propUrl), source: 'PROP_FORM_URL(edit)' }; }
+    catch (e) { Logger.log('  ⚠️ PROP_FORM_URL "' + propUrl + '" 폼 열기 실패: ' + e.message); }
+  }
+  throw new Error('폼을 열 수 없습니다. FORM_ID_OVERRIDE에 폼 ID를 입력하거나 GAS Script Properties에 FORM_ID를 추가해 주세요.');
+}
+
+// 검증 — "계좌 표시 위치" 체크박스가 ③ 페이지 안에 정확히 1개 있는지 확인.
+// 출시 전 확인용. 변경 없음(읽기만). 사용: GAS 함수 드롭다운 → verifyAccountCheckbox ▶ 실행.
+function verifyAccountCheckbox() {
+  Logger.log('═══ Moment Edit · "계좌 표시 위치" 체크박스 검증 ═══');
+
+  // 폼 열기 — addAccountDisplayCheckbox와 동일 정책
+  var FORM_ID_OVERRIDE = '1QxCkxRP97kS3qpUOwHyp2J5beOVKpD3bLuz3QXwtLj4';
+  var opened = openFormForEdit_(FORM_ID_OVERRIDE);
+  var form = opened.form;
+  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ', 출처: ' + opened.source + ')');
+
+  var items = form.getItems();
+
+  // PageBreak 인덱스 모음 (페이지 경계)
+  var pageBreaks = [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getType() === FormApp.ItemType.PAGE_BREAK) pageBreaks.push(i);
+  }
+  Logger.log('전체 항목 수: ' + items.length + ' / PageBreak 수: ' + pageBreaks.length);
+
+  // 같은 제목 체크박스 모두 찾기
+  var matches = [];
+  for (var j = 0; j < items.length; j++) {
+    if (items[j].getType() === FormApp.ItemType.CHECKBOX && items[j].getTitle() === CFG.Q_ACCT_DISPLAY) {
+      matches.push(j);
+    }
+  }
+  Logger.log('"' + CFG.Q_ACCT_DISPLAY + '" 체크박스: ' + matches.length + '개');
+
+  if (matches.length === 0) {
+    Logger.log('❌ 체크박스 없음 — addAccountDisplayCheckbox 실행 필요');
+    return;
+  }
+
+  // 각 체크박스의 페이지 위치 분석
+  matches.forEach(function (idx) {
+    // 페이지 번호 = (idx 이전의 PageBreak 수) + 1
+    var pageNum = 1;
+    for (var k = 0; k < pageBreaks.length; k++) {
+      if (pageBreaks[k] < idx) pageNum = k + 2; // 첫 PageBreak 이후 = 2페이지
+    }
+    // 직전·직후 아이템
+    var prevTitle = (idx > 0) ? items[idx - 1].getTitle() : '(폼 시작)';
+    var nextItem = (idx + 1 < items.length) ? items[idx + 1] : null;
+    var nextDesc = nextItem
+      ? (nextItem.getType() === FormApp.ItemType.PAGE_BREAK
+          ? 'PageBreak("' + nextItem.getTitle() + '")'
+          : '"' + nextItem.getTitle() + '"')
+      : '(폼 끝)';
+    Logger.log('  [index ' + idx + '] 페이지 ' + pageNum);
+    Logger.log('    직전: "' + prevTitle + '"');
+    Logger.log('    직후: ' + nextDesc);
+    // ③ 페이지 검증 — 직전이 "신부 어머니 계좌" + 직후가 PageBreak("오프라인 청첩장")
+    var onPage3 = (prevTitle === '신부 어머니 계좌 (은행 번호)') &&
+                  nextItem && nextItem.getType() === FormApp.ItemType.PAGE_BREAK;
+    Logger.log('    ③ 페이지 끝 위치: ' + (onPage3 ? '✅' : '⚠️ 위치 비정상 — 폼 편집기에서 확인 필요'));
+  });
+
+  if (matches.length > 1) {
+    Logger.log('⚠️ 체크박스 중복 ' + matches.length + '개 — 폼 편집기에서 수동 정리 권장');
+  } else {
+    Logger.log('✅ 체크박스 1개 — 정상');
+  }
+  Logger.log('═══ 검증 종료 ═══');
 }
