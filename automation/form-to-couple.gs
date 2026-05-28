@@ -491,6 +491,25 @@ function addFormImage(form, url, title, help) {
 }
 
 function createCoupleForm() {
+  // 안전장치 — 이미 정본 폼이 있으면 새로 만들지 않음 (실수 클릭 방어).
+  // 정말 새 폼을 만들어야 할 땐 createCoupleFormForce() 사용.
+  try {
+    var _existingId = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_ID);
+    if (_existingId) {
+      var _existing = FormApp.openById(_existingId);
+      Logger.log('⚠️ createCoupleForm 차단 — 이미 정본 폼이 있습니다.');
+      Logger.log('  현재 정본: "' + _existing.getTitle() + '"');
+      Logger.log('  id: ' + _existing.getId());
+      Logger.log('  편집 URL: ' + _existing.getEditUrl());
+      Logger.log('');
+      Logger.log('정말 새 폼을 만들고 싶다면 createCoupleFormForce()를 실행하세요.');
+      Logger.log('(정본을 잃을 수 있음 — 단축주소·시트 연결도 새 폼으로 옮겨야 함)');
+      return;
+    }
+  } catch (_) {
+    // PROP_FORM_ID가 없거나 폼이 삭제된 경우 → 새로 생성 진행
+  }
+
   var form = FormApp.create('Moment Edit · 청첩장 정보');
   form.setDescription(
     '두 분의 결혼을 진심으로 축하드립니다. 청첩장에 담길 내용을 정중히 여쭤보겠습니다.\n' +
@@ -687,6 +706,19 @@ function createCoupleForm() {
 
   Logger.log('폼 v2 생성 완료 (6단계)\n  작성 URL: %s\n  편집 URL: %s\n  트리거: %s\n  ⚠️ 구 폼 삭제 + momentedit.kr/form 단축주소 갱신 필요.',
     form.getPublishedUrl(), form.getEditUrl(), exists ? '이미 있음' : '새로 등록');
+}
+
+// createCoupleForm을 강제로 다시 실행 — 안전장치 우회.
+// 정본을 새로 만들 필요가 정말 있을 때만 사용. PROP_FORM_ID/URL 초기화 후 createCoupleForm 호출.
+// ⚠️ 실행 후 단축주소·시트 연결도 새 폼으로 옮겨야 함.
+function createCoupleFormForce() {
+  Logger.log('═══ createCoupleFormForce — 안전장치 우회, 새 폼 생성 ═══');
+  try {
+    var p = PropertiesService.getScriptProperties();
+    p.deleteProperty(CFG.PROP_FORM_ID);
+    p.deleteProperty(CFG.PROP_FORM_URL);
+  } catch (_) {}
+  createCoupleForm();
 }
 
 // ============== 트리거·폼 연결 진단/복구 (createCoupleForm 재실행 없이) ==============
