@@ -43,7 +43,7 @@
   --sans:'Noto Sans KR',-apple-system,sans-serif;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;background:#F2EEE5}   /* outer gutter — 본체보다 살짝 어둡게 */
 body{
   background:var(--bg);
   color:var(--accent);
@@ -59,12 +59,10 @@ body{
   margin:0 auto;
 }
 
-/* 시스템 다크 모드 강제 무시 */
+/* 시스템 다크 모드 강제 무시 — outer/본체 분리 유지 */
 @media (prefers-color-scheme:dark){
-  html,body{
-    background:#FAFAF8 !important;
-    color:#2C2825 !important;
-  }
+  html{ background:#F2EEE5 !important }
+  body{ background:#FAFAF8 !important; color:#2C2825 !important }
 }
 
 /* 전체 컨테이너 — 모바일 기준
