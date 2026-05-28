@@ -2095,11 +2095,15 @@ function applyCoupleInfo(couple){
   // envelopeShowParents: 명시적 N일 때만 숨김(빈 칸·미지정·Y는 노출) — hydrate.js와 동일
   const showEnvP = !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(couple.envelopeShowParents || '').trim());
 
-  // 6. envelope 신랑 측
+  // 6·7. envelope 신랑/신부 측 — 보여줄 게 1개라도 있을 때만 노출(SAMPLE placeholder 차단)
   const groomEnv = document.getElementById('env-groom');
-  if (groomEnv) {
-    const gA = coupleAcct(couple.groomBank, couple.groomAccount);
-    updateEnvelopeBlock(groomEnv.closest('.env-item'), {
+  const groomItem = groomEnv ? groomEnv.closest('.env-item') : null;
+  const gA = coupleAcct(couple.groomBank, couple.groomAccount);
+  const gHasPar = showEnvP && !!(String(couple.groomFatherAccount || '').trim() || String(couple.groomMotherAccount || '').trim());
+  const gShow = !!gA.account || gHasPar;
+  if (groomItem) groomItem.style.display = gShow ? '' : 'none';
+  if (groomItem && gShow) {
+    updateEnvelopeBlock(groomItem, {
       name: couple.groomName,
       parents: couple.groomParents,
       parentRelation: '의 아들',
@@ -2109,11 +2113,14 @@ function applyCoupleInfo(couple){
     });
   }
 
-  // 7. envelope 신부 측
   const brideEnv = document.getElementById('env-bride');
-  if (brideEnv) {
-    const bA = coupleAcct(couple.brideBank, couple.brideAccount);
-    updateEnvelopeBlock(brideEnv.closest('.env-item'), {
+  const brideItem = brideEnv ? brideEnv.closest('.env-item') : null;
+  const bA = coupleAcct(couple.brideBank, couple.brideAccount);
+  const bHasPar = showEnvP && !!(String(couple.brideFatherAccount || '').trim() || String(couple.brideMotherAccount || '').trim());
+  const bShow = !!bA.account || bHasPar;
+  if (brideItem) brideItem.style.display = bShow ? '' : 'none';
+  if (brideItem && bShow) {
+    updateEnvelopeBlock(brideItem, {
       name: couple.brideName,
       parents: couple.brideParents,
       parentRelation: '의 딸',
@@ -2123,9 +2130,13 @@ function applyCoupleInfo(couple){
     });
   }
 
-  // 8. 부모 계좌 (envelopeShowParents + 계좌 있을 때만) — 가족/라이브 동일 동작
-  if (groomEnv) fillParentAccounts(groomEnv.closest('.env-item'), couple.groomParents, showEnvP, couple.groomFatherAccount, couple.groomMotherAccount);
-  if (brideEnv) fillParentAccounts(brideEnv.closest('.env-item'), couple.brideParents, showEnvP, couple.brideFatherAccount, couple.brideMotherAccount);
+  // 8. 부모 계좌 — 그 측이 visible할 때만 호출
+  if (gShow && groomItem) fillParentAccounts(groomItem, couple.groomParents, showEnvP, couple.groomFatherAccount, couple.groomMotherAccount);
+  if (bShow && brideItem) fillParentAccounts(brideItem, couple.brideParents, showEnvP, couple.brideFatherAccount, couple.brideMotherAccount);
+
+  // 9. envelope 섹션 전체 hide — 양쪽 다 보여줄 게 없으면 (Nº 03 안내문구·outro 포함)
+  const envSection = document.getElementById('envelope');
+  if (envSection) envSection.style.display = (gShow || bShow) ? '' : 'none';
 }
 
 // 부모 계좌 블록 채우기 (아버지·어머니) — hydrate.js와 동일 규칙
@@ -2170,26 +2181,23 @@ function updateEnvelopeBlock(item, info){
     }
   }
 
-  // 은행 (입력값 끝에 '은행' 자동 추가)
-  const bankEl = item.querySelector('.env-bank');
-  if (bankEl && info.bank) {
-    bankEl.textContent = /은행$/.test(info.bank) ? info.bank : (info.bank + '은행');
-  }
-
-  // 계좌번호
-  const accountEl = item.querySelector('.env-account');
-  if (accountEl && info.account) accountEl.textContent = info.account;
-
-  // 복사 버튼 data-account 갱신 (숫자만)
-  const copyBtn = item.querySelector('.env-copy');
-  if (copyBtn && info.account) {
-    copyBtn.setAttribute('data-account', info.account.replace(/[^0-9]/g, ''));
-  }
-
-  // 예금주
-  const holderEl = item.querySelector('.env-holder');
-  if (holderEl && info.name) {
-    holderEl.innerHTML = '<span class="label">예금주</span>' + escHtml(info.name);
+  // 본인 계좌 row + 예금주 — 계좌 비면 SAMPLE placeholder가 새지 않도록 hide
+  const acct = String(info.account || '').trim();
+  const selfRow = item.querySelector('.env-row:not(.env-parent)');
+  const selfHolder = item.querySelector('.env-holder:not(.env-parent)');
+  if (acct) {
+    if (selfRow) selfRow.style.display = '';
+    if (selfHolder) selfHolder.style.display = '';
+    const bankEl = item.querySelector('.env-row:not(.env-parent) .env-bank');
+    if (bankEl) bankEl.textContent = info.bank ? (/은행$/.test(info.bank) ? info.bank : (info.bank + '은행')) : '';
+    const accountEl = item.querySelector('.env-row:not(.env-parent) .env-account');
+    if (accountEl) accountEl.textContent = acct;
+    const copyBtn = item.querySelector('.env-row:not(.env-parent) .env-copy');
+    if (copyBtn) copyBtn.setAttribute('data-account', acct.replace(/[^0-9]/g, ''));
+    if (selfHolder && info.name) selfHolder.innerHTML = '<span class="label">예금주</span>' + escHtml(info.name);
+  } else {
+    if (selfRow) selfRow.style.display = 'none';
+    if (selfHolder) selfHolder.style.display = 'none';
   }
 }
 
