@@ -87,7 +87,7 @@
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
-  background:#EEE8D8;             /* outer gutter — 본체(#F6F2E8)보다 살짝 어둡게 */
+  background:#E8E3D6;             /* outer gutter — 본체(#F6F2E8)보다 살짝 어둡게(그레이 베이지) */
   color:#1A1817;
   scrollbar-gutter:stable;
   color-scheme:light;
@@ -119,10 +119,8 @@ body{
 
 /* 시스템 다크 모드도 강제로 라이트 톤 유지 */
 @media (prefers-color-scheme:dark){
-  html,body{
-    background:#F6F2E8 !important;
-    color:#1A1817 !important;
-  }
+  html{ background:#E8E3D6 !important; color:#1A1817 !important; }
+  body{ background:#F6F2E8 !important; color:#1A1817 !important; }
 }
 
 /* 화지 텍스처 — 매우 옅게, 안전한 블렌드 */
