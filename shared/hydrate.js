@@ -261,6 +261,9 @@
         console.log('eventId           :', c.eventId);
         console.log('designNum         :', designNum, '/ famPage =', famPage);
         console.log('accountOnline     :', JSON.stringify(c.accountOnline), '/ accountFamily:', JSON.stringify(c.accountFamily), '→ pageShowAcct =', pageShowAcct);
+        console.log('— 영문 이름 분리(transformEnName) —');
+        console.log('groomNameEn raw   :', JSON.stringify(c.groomNameEn), '→ {full:', JSON.stringify(transformEnName(c.groomNameEn).full), ', first:', JSON.stringify(transformEnName(c.groomNameEn).first), ', spaced:', JSON.stringify(transformEnName(c.groomNameEn).spaced), '}');
+        console.log('brideNameEn raw   :', JSON.stringify(c.brideNameEn), '→ {full:', JSON.stringify(transformEnName(c.brideNameEn).full), ', first:', JSON.stringify(transformEnName(c.brideNameEn).first), ', spaced:', JSON.stringify(transformEnName(c.brideNameEn).spaced), '}');
         console.log('— 섹션 토글 —');
         console.log('digitalAttendance :', JSON.stringify(c.digitalAttendance), '→', showUnlessNo(c.digitalAttendance) ? '✅ Nº IV 표시' : '❌ Nº IV 제거');
         console.log('greetingShowParents:', JSON.stringify(c.greetingShowParents), '→ showGreetPar =', showGreetPar);
