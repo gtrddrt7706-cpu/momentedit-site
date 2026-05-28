@@ -451,13 +451,15 @@ summary:focus-visible{outline-offset:2px}
 }
 .date-display-num{
   font-family:var(--serif-display);font-weight:400;
-  font-size:clamp(72px,18vw,104px);
+  font-size:clamp(56px,16vw,104px);
   line-height:1;letter-spacing:0.04em;
   color:var(--ink);
   margin-bottom:18px;
   display:flex;align-items:baseline;justify-content:center;
   gap:0;
+  white-space:nowrap;
 }
+.date-display-num span{white-space:nowrap}
 .date-display-num .dot{
   color:var(--gold);font-style:italic;
   margin:0 12px;font-size:0.7em;
@@ -1024,12 +1026,12 @@ details.env-acc[open] > .env-acc-q{
 
     <div class="date-display reveal">
       <div class="date-display-num">
-        <span>08</span>
+        <span>{{WEDDING_MONTH_NUM_PAD}}</span>
         <span class="dot">.</span>
-        <span>23</span>
+        <span>{{WEDDING_DAY_OF_MONTH_PAD}}</span>
       </div>
       <div class="date-display-year">{{WEDDING_YEAR_EN}}</div>
-      <div class="date-display-day">{{WEDDING_DAY_KOR}}요일 · {{WEDDING_TIME_KOR}}</div>
+      <div class="date-display-day">{{WEDDING_DAY_KOR}} · {{WEDDING_TIME_KOR}}</div>
     </div>
 
     <div class="date-cal reveal">
