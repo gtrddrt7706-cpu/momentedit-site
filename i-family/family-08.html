@@ -74,7 +74,7 @@
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
-  background:var(--bg);
+  background:#1F1A16;          /* 외부 gutter — 본체보다 어둡게(데스크톱 와이드에서 본체 떠오름) */
   scrollbar-gutter:stable;
 }
 body{
@@ -99,14 +99,15 @@ body{
   position:relative;
   max-width:480px;
   margin:0 auto;
+  box-shadow:                    /* 본체 가장자리 분리 — inset 미세 하이라이트 + 깊은 웜 다크 드롭 */
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 16px 48px -16px rgba(0,0,0,0.45);
 }
 
-/* 시스템 라이트 모드도 무시 — Velour는 항상 다크 */
+/* 시스템 라이트 모드도 무시 — Velour는 항상 다크. 외부 gutter도 유지. */
 @media (prefers-color-scheme:light){
-  html,body{
-    background:#2f2820 !important;
-    color:#F2E8D5 !important;
-  }
+  html{ background:#1F1A16 !important }
+  body{ background:#2f2820 !important; color:#F2E8D5 !important }
 }
 
 /* 접근성 — 스크린리더 전용 */
@@ -878,6 +879,7 @@ details.env-acc[open] > .env-acc-q{
 @media print{
   :root{--bg:#fff;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#666;--gold:#7A5F3D}
   html,body{background:#fff !important;color:#1a1a1a !important}
+  body{box-shadow:none !important}
   .toast{display:none !important}
   .invitation{max-width:100%;padding:18mm}
   .sec{padding:10mm 0;page-break-inside:avoid}
