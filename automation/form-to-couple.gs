@@ -772,3 +772,66 @@ function extractFormId_(url) {
   var m = String(url || '').match(/\/forms\/d\/e?\/?([a-zA-Z0-9_-]+)/);
   return m ? m[1] : '';
 }
+
+// ============== 기존 폼에 "계좌 표시 위치" 체크박스만 추가 ==============
+// createCoupleForm 재실행(새 폼) 없이 정본 폼에 1개 질문만 삽입.
+// PROP_FORM_URL에서 폼 URL 가져옴 → 거기에 항목 추가 → ③ 페이지의
+// "신부 어머니 계좌 (은행 번호)" 바로 다음 위치로 이동.
+// 같은 제목 항목이 이미 있으면 중복 추가 안 함(멱등).
+//
+// 사용: GAS 편집기 함수 드롭다운 → addAccountDisplayCheckbox ▶ 실행
+function addAccountDisplayCheckbox() {
+  Logger.log('═══ Moment Edit · "계좌 표시 위치" 체크박스 추가 ═══');
+
+  // 1) 폼 URL 확보 — PROP_FORM_URL에 저장된 정본 폼
+  var url = '';
+  try { url = PropertiesService.getScriptProperties().getProperty(CFG.PROP_FORM_URL) || ''; } catch (_) {}
+  if (!url) {
+    throw new Error('PROP_FORM_URL 저장값 없음 — createCoupleForm 한 번도 실행 안 됐거나 속성이 비었음.\n' +
+      'GAS 편집기에서 Project Settings → Script Properties에서 FORM_PUBLISHED_URL 값을 확인하거나, ' +
+      'createCoupleForm을 한 번 실행한 적이 있는 폼이어야 합니다.');
+  }
+  var form = FormApp.openByUrl(url);
+  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ')');
+
+  // 2) 멱등 — 이미 같은 제목 항목 있으면 추가 안 함
+  var existing = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_ACCT_DISPLAY; });
+  if (existing.length > 0) {
+    Logger.log('"' + CFG.Q_ACCT_DISPLAY + '" 항목이 이미 ' + existing.length + '개 있음 — 추가 안 함');
+    if (existing.length > 1) {
+      Logger.log('⚠️ 중복 ' + existing.length + '개 — 폼 편집기에서 수동 정리 권장');
+    }
+    return;
+  }
+
+  // 3) 체크박스 추가 (폼 끝에 추가됨)
+  var checkbox = form.addCheckboxItem()
+    .setTitle(CFG.Q_ACCT_DISPLAY)
+    .setRequired(false)
+    .setChoiceValues([
+      CFG.ACCT_CHOICE_ONLINE,
+      CFG.ACCT_CHOICE_LIVE,
+      CFG.ACCT_CHOICE_FAMILY
+    ])
+    .setHelpText(
+      '· 라이브 화면 = 온라인 청첩장 안에서 예식을 실시간으로 보는 페이지입니다.\n' +
+      '※ 입력하신 계좌(신랑·신부, 부모님 포함)가 체크하신 곳에 표시됩니다.\n' +
+      '※ 한 곳도 선택하지 않으시면 어디에도 표시되지 않습니다.\n' +
+      '※ 계좌를 비워두셔도 표시되지 않습니다.'
+    );
+
+  // 4) ③ 페이지의 "신부 어머니 계좌" 바로 다음으로 이동
+  var items = form.getItems();
+  var targetTitle = '신부 어머니 계좌 (은행 번호)';
+  var targetIdx = -1;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getTitle() === targetTitle) { targetIdx = i; break; }
+  }
+  if (targetIdx !== -1) {
+    form.moveItem(checkbox, targetIdx + 1);
+    Logger.log('✅ 추가 완료 — "' + targetTitle + '" 다음(index ' + (targetIdx + 1) + ')에 위치');
+  } else {
+    Logger.log('⚠️ "' + targetTitle + '" 항목을 못 찾음 — 체크박스가 폼 마지막에 추가됨. 폼 편집기에서 수동으로 ③ 페이지 끝으로 옮기세요.');
+  }
+  Logger.log('폼 URL: ' + form.getPublishedUrl());
+}
