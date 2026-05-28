@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="color-scheme" content="dark only">
+<meta name="theme-color" content="#2f2820">
+<title>결혼식에 초대합니다 · Moment Edit</title>
+<meta name="description" content="두 분의 결혼식에 진심으로 초대합니다. · Moment Edit">
+<meta name="author" content="Moment Edit">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://momentedit.kr/i-family/family-08.html">
+
+<!-- 네이버지도 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moment Edit">
+<meta property="og:title" content="결혼식에 초대합니다 · Moment Edit">
+<meta property="og:description" content="두 분의 결혼식에 진심으로 초대합니다. · Moment Edit">
+<meta property="og:url" content="https://momentedit.kr/i-family/family-08.html">
+<meta property="og:image" content="https://momentedit.kr/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moment Edit · 결혼식에 초대합니다">
+<meta property="og:locale" content="ko_KR">
+
+<!-- Favicon (Velour Plum) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E0E14'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%239E7C4F'/%3E%3C/svg%3E">
+
+<!-- 폰트: Italiana (디스플레이) + Cormorant Garamond (영문 본문) + 마루 부리 (한글 본문 · 네이버 공식 CDN) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Italiana&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2) format('woff2');font-weight:200;font-display:swap}
+@font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2) format('woff2');font-weight:300;font-display:swap}
+@font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2) format('woff2');font-weight:500;font-display:swap}
+</style>
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  color-scheme:dark;
+  /* Velour Warm Charcoal 팔레트 (시네마 + 결혼식 분위기) */
+  --bg:#2f2820;            /* 따뜻한 차콜 (메인 배경) */
+  --bg-2:#372f26;          /* 한 톤 라이트 (섹션 내부 카드) */
+  --bg-deep:#221d15;       /* 한 톤 다크 (Cover 끝 그라데이션) */
+  --ink:#F2E8D5;           /* 샴페인 아이보리 (본문) */
+  --ink-2:#D9CFBC;         /* 한 톤 다운 */
+  --ink-3:#8F8473;         /* 캡션·메타 */
+  --gold:#C9A876;          /* 라이트 브론즈 (액센트 - 더 밝게) */
+  --gold-deep:#9E7C4F;     /* 진한 브론즈 (이전 메인 골드) */
+  --gold-soft:rgba(201,168,118,0.65);
+  --hairline:rgba(242,232,213,0.14);
+  --hairline-gold:rgba(201,168,118,0.40);
+  --hairline-strong:rgba(201,168,118,0.55);
+  --focus:rgba(201,168,118,0.85);
+
+  /* 폰트 */
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --serif-display:'Italiana','Cormorant Garamond',Georgia,serif;
+  --serif-ko:'MaruBuri','Noto Serif KR','Nanum Myeongjo',serif;
+  --sans-ko:'MaruBuri','Noto Serif KR',-apple-system,BlinkMacSystemFont,sans-serif;
+
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --max:620px;
+
+  --letterbox-h:22px;
+  --safe-top:max(env(safe-area-inset-top), var(--letterbox-h));
+  --safe-bottom:max(env(safe-area-inset-bottom), var(--letterbox-h));
+}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+  background:#1F1A16;          /* 외부 gutter — 본체보다 어둡게(데스크톱 와이드에서 본체 떠오름) */
+  scrollbar-gutter:stable;
+}
+body{
+  background:
+    linear-gradient(to top, rgba(7,7,12,0.5) 0%, rgba(7,7,12,0.15) 50%, transparent 100%) bottom / 100% 600px no-repeat,
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--sans-ko);
+  font-weight:300;
+  font-size:15px;
+  line-height:1.9;
+  letter-spacing:-0.005em;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  overflow-x:hidden;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
+  min-height:100vh;
+  min-height:100svh;
+  position:relative;
+  max-width:480px;
+  margin:0 auto;
+  box-shadow:                    /* 본체 가장자리 분리 — inset 미세 하이라이트 + 깊은 웜 다크 드롭 */
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 16px 48px -16px rgba(0,0,0,0.45);
+}
+
+/* 시스템 라이트 모드도 무시 — Velour는 항상 다크. 외부 gutter도 유지. */
+@media (prefers-color-scheme:light){
+  html{ background:#1F1A16 !important }
+  body{ background:#2f2820 !important; color:#F2E8D5 !important }
+}
+
+/* 접근성 — 스크린리더 전용 */
+.sr-only{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ─────────────────────────────────
+   FOCUS STATES
+───────────────────────────────── */
+*:focus{outline:none}
+*:focus-visible{
+  outline:1px solid var(--focus);
+  outline-offset:3px;
+}
+summary:focus-visible{outline-offset:2px}
+
+/* ─────────────────────────────────
+   FILM GRAIN — 제거 (Velour는 매트 표면)
+───────────────────────────────── */
+
+/* ─────────────────────────────────
+   LETTERBOX — 제거 (Velour는 띠 없음)
+───────────────────────────────── */
+.letterbox{display:none !important}
+
+/* ─────────────────────────────────
+   MAIN CONTAINER
+───────────────────────────────── */
+.invitation{
+  max-width:var(--max);
+  margin:0 auto;
+  padding:0 28px;
+  position:relative;
+}
+.sec{padding:96px 0;position:relative}
+.sec + .sec{position:relative}
+
+/* 섹션 간 그라데이션 헤어라인 — 제거 */
+.sec + .sec::before{display:none}
+
+/* ─────────────────────────────────
+   COVER — Noir 시네마 3단 플렉스
+───────────────────────────────── */
+.cover{
+  min-height:calc(100vh - var(--safe-top) - var(--safe-bottom));
+  min-height:calc(100svh - var(--safe-top) - var(--safe-bottom));
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  padding:80px 0 72px;
+}
+.cover::before,
+.cover::after{display:none}
+
+.cover-top{flex:0 0 auto}
+.cover-mark{
+  font-family:var(--serif);
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  color:var(--gold);
+  text-align:center;
+  padding-left:0.32em;
+  opacity:0;
+  animation:fadeUp 1.4s var(--ease) 0.2s forwards;
+}
+.cover-mark .mark-dot{
+  display:inline-block;
+  width:3px;height:3px;
+  border-radius:50%;
+  background:var(--gold);
+  margin:0 8px;
+  vertical-align:middle;
+}
+
+.cover-mid{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:24px;
+  padding:48px 0;
+}
+.cover-display{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(44px,12vw,68px);
+  line-height:1.02;
+  letter-spacing:-0.018em;
+  color:var(--ink);
+  margin:0;
+  opacity:0;
+  animation:fadeUp 1.6s var(--ease) 0.5s forwards;
+}
+.cover-display .l2{display:block;padding-left:1.1em}
+.cover-display .ko{
+  display:block;
+  font-family:var(--serif-ko);
+  font-style:normal;
+  font-size:18px;
+  font-weight:400;
+  color:var(--ink);
+  letter-spacing:0.42em;
+  padding-left:0.42em;
+  margin-top:1.8em;
+  text-transform:none;
+}
+
+.cover-greet{
+  font-family:var(--serif-ko);
+  font-weight:300;
+  font-size:13px;
+  color:var(--ink-3);
+  letter-spacing:0.04em;
+  line-height:1;
+  text-align:left;
+  margin-top:18px;
+  opacity:0;
+  animation:fadeUp 1.4s var(--ease) 0.9s forwards;
+}
+.cover-greet::before{
+  content:'';display:inline-block;
+  width:24px;height:1px;
+  background:var(--gold-soft);
+  vertical-align:middle;
+  margin-right:12px;
+}
+
+.cover-sub{
+  font-family:var(--serif-ko);
+  font-size:14px;
+  font-weight:300;
+  color:var(--ink-2);
+  line-height:2;
+  letter-spacing:0;
+  max-width:380px;
+  opacity:0;
+  animation:fadeUp 1.4s var(--ease) 0.9s forwards;
+}
+
+.cover-bot{
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:end;
+  gap:20px;
+  opacity:0;
+  animation:fadeUp 1.2s var(--ease) 1.3s forwards;
+}
+.cover-meta{
+  font-family:var(--serif);
+  font-size:10px;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--ink-3);white-space:nowrap;}
+.cover-meta.r{text-align:right;color:var(--gold);font-style:italic}
+.cover-meta em{
+  display:block;
+  font-style:italic;
+  color:var(--ink-2);
+  font-size:11px;
+  letter-spacing:0.18em;
+  margin-top:6px;
+  text-transform:none;
+}
+.cover-meta.r em{font-style:normal}
+
+.cover-scroll{display:none}
+
+/* ─────────────────────────────────
+   섹션 공통 — Nº, 타이틀, 한글 부제
+───────────────────────────────── */
+.sec-num{
+  display:flex;align-items:baseline;gap:14px;
+  margin-bottom:18px;
+}
+.sec-num-mark{
+  font-family:var(--serif);
+  font-style:italic;font-weight:500;
+  font-size:11px;letter-spacing:0.18em;
+  color:var(--gold);
+  text-transform:uppercase;padding-left:0.18em;
+}
+.sec-num-rule{
+  flex:1;height:1px;
+  background:linear-gradient(to right,var(--hairline-gold) 0%,transparent 100%);
+}
+.sec-title{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(28px,7.5vw,38px);
+  line-height:1.15;letter-spacing:-0.005em;
+  margin:0 0 8px;
+  background:linear-gradient(135deg, #E8C896 0%, #C9A876 50%, #9E7C4F 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+@supports not (-webkit-background-clip:text){
+  .sec-title{background:none;color:var(--gold)}
+}
+.sec-title-ko{
+  font-family:var(--serif-ko);
+  font-weight:300;font-size:11.5px;
+  letter-spacing:0.5em;padding-left:0.5em;
+  color:var(--ink-3);
+  margin:0 0 56px;
+  opacity:0.55;
+  text-transform:uppercase;
+}
+
+/* ─────────────────────────────────
+   Nº I — INVITATION (초대글)
+───────────────────────────────── */
+.greeting{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:15px;line-height:2;
+  color:var(--ink-2);letter-spacing:-0.005em;
+  max-width:380px;
+  margin-bottom:60px;
+}
+.greeting p{margin-bottom:24px}
+.greeting p:last-child{margin-bottom:0}
+.greeting .emph{
+  font-weight:400;color:var(--ink);
+}
+
+.gs-list{
+  position:relative;
+}
+
+.gs-row{
+  display:grid;
+  grid-template-columns:72px 1fr;
+  gap:18px;align-items:baseline;
+  padding:24px 4px;
+  position:relative;
+}
+.gs-row + .gs-row::before{
+  content:'';position:absolute;left:0;right:0;top:0;
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 25%,var(--hairline-gold) 75%,transparent);
+}
+.gs-role{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:11px;letter-spacing:0.2em;
+  color:var(--gold);text-transform:uppercase;
+  padding-left:0.2em;
+}
+.gs-name{
+  font-family:var(--serif-ko);font-weight:400;
+  font-size:18px;color:var(--ink);
+  letter-spacing:0.14em;padding-left:0.14em;
+  line-height:1.4;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  column-gap:14px;
+  row-gap:4px;
+}
+.gs-name-en{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:13px;color:var(--ink-3);
+  letter-spacing:0.06em;padding-left:0;
+}
+.gs-parents{
+  flex-basis:100%;
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:11.5px;color:var(--ink-3);
+  letter-spacing:0.02em;
+  margin-top:4px;
+  opacity:0.75;
+}
+
+/* ─────────────────────────────────
+   Nº II — DUO (Bride & Groom 소개, 신설)
+───────────────────────────────── */
+.duo{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+  position:relative;
+}
+
+.duo-card{
+  padding:36px 4px;
+  position:relative;
+}
+.duo-card + .duo-card::before{
+  content:'';position:absolute;left:0;right:0;top:0;
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 25%,var(--hairline-gold) 75%,transparent);
+}
+.duo-role{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:11px;letter-spacing:0.24em;
+  color:var(--gold);text-transform:uppercase;
+  padding-left:0.24em;
+  margin-bottom:12px;
+}
+.duo-name{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  column-gap:14px;
+  row-gap:4px;
+  margin-bottom:14px;
+}
+.duo-name-en{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:26px;color:var(--ink);
+  letter-spacing:0.02em;line-height:1.1;
+}
+.duo-name-ko{
+  font-family:var(--serif-ko);font-weight:400;
+  font-size:16px;color:var(--ink-2);
+  letter-spacing:0.14em;padding-left:0.14em;
+}
+.duo-bio{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:13.5px;color:var(--ink-3);
+  line-height:1.9;letter-spacing:-0.005em;
+  margin:0;
+}
+
+/* ─────────────────────────────────
+   Nº III — DATE (캘린더)
+───────────────────────────────── */
+.date-display{
+  text-align:center;
+  margin-bottom:48px;
+}
+.date-display-num{
+  font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(72px,18vw,104px);
+  line-height:1;letter-spacing:0.04em;
+  color:var(--ink);
+  margin-bottom:18px;
+  display:flex;align-items:baseline;justify-content:center;
+  gap:0;
+}
+.date-display-num .dot{
+  color:var(--gold);font-style:italic;
+  margin:0 12px;font-size:0.7em;
+}
+.date-display-year{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:14px;letter-spacing:0.32em;
+  color:var(--gold);padding-left:0.32em;
+  margin-bottom:8px;
+}
+.date-display-day{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:13px;color:var(--ink-3);
+  letter-spacing:0.18em;padding-left:0.18em;
+}
+
+.date-time-line{
+  display:inline-flex;align-items:baseline;gap:14px;
+  padding:24px 0;margin:0 auto 48px;
+  position:relative;
+}
+.date-time-line::before,
+.date-time-line::after{
+  content:'';position:absolute;left:50%;transform:translateX(-50%);
+  width:80%;height:1px;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 20%,var(--hairline-gold) 80%,transparent);
+}
+.date-time-line::before{top:0}
+.date-time-line::after{bottom:0}
+.date-time-label{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:10.5px;letter-spacing:0.24em;
+  color:var(--gold);padding-left:0.24em;
+  text-transform:uppercase;
+}
+.date-time-val{
+  font-family:var(--serif-ko);font-weight:400;font-size:14.5px;
+  color:var(--ink);letter-spacing:0.06em;
+}
+
+/* 캘린더 */
+.date-cal{
+  max-width:300px;width:100%;margin:0 auto;
+}
+.date-cal-head{
+  text-align:center;padding:0 0 18px;
+  position:relative;
+}
+.date-cal-head::after{
+  content:'';position:absolute;left:50%;transform:translateX(-50%);
+  bottom:0;width:80%;height:1px;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 20%,var(--hairline-gold) 80%,transparent);
+}
+.date-cal-month{
+  font-family:var(--serif-display);font-weight:400;
+  font-size:18px;letter-spacing:0.18em;
+  color:var(--ink);padding-left:0.18em;
+}
+.date-cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:0;padding:18px 0 0;
+}
+.date-cal-dow{
+  font-family:var(--serif);font-weight:500;font-style:italic;
+  font-size:9.5px;letter-spacing:0.16em;
+  color:var(--ink-3);text-align:center;
+  padding:10px 0;text-transform:uppercase;
+}
+.date-cal-dow.sun{color:var(--gold-deep)}
+.date-cal-cell{
+  font-family:var(--serif);font-weight:400;
+  font-size:13px;color:var(--ink-2);
+  text-align:center;
+  padding:10px 0;aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;font-variant-numeric:tabular-nums;
+}
+.date-cal-cell.sun{color:var(--gold-deep);opacity:0.75}
+.date-cal-cell.empty{color:transparent}
+.date-cal-cell.marked{
+  color:var(--bg);font-weight:500;z-index:1;
+}
+.date-cal-cell.marked::before{
+  content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:32px;height:32px;border-radius:50%;
+  background:var(--gold);
+  z-index:-1;
+}
+
+/* ─────────────────────────────────
+   Nº IV — VENUE (Family Mode)
+───────────────────────────────── */
+.venue-inner{max-width:380px;width:100%;margin:0 auto}
+.venue-name-block{
+  text-align:center;
+  margin-bottom:10px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.venue-name-en{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:24px;color:var(--ink);
+  letter-spacing:0.02em;line-height:1.2;
+}
+
+.venue-map-wrap{
+  position:relative;width:100%;margin-bottom:20px;
+  border:1px solid var(--hairline-gold);
+  background:var(--bg-2);
+  overflow:hidden;
+  aspect-ratio:504/310;
+}
+.venue-map-link{display:block;width:100%;height:100%}
+.venue-map-img{display:block;width:100%;height:100%;object-fit:cover;opacity:0.92}
+.venue-map-overlay{
+  position:absolute;top:14px;left:14px;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 14px;background:var(--bg);
+  border:1px solid var(--gold-soft);
+  font-family:var(--serif-ko);font-size:12px;
+  color:var(--ink);text-decoration:none;letter-spacing:0.04em;
+  transition:all 0.3s var(--ease);
+}
+.venue-map-overlay:hover,
+.venue-map-overlay:focus-visible{
+  background:var(--gold);color:var(--bg);border-color:var(--gold);
+}
+.venue-map-overlay-arrow{
+  font-family:var(--serif);font-size:13px;color:var(--gold);line-height:1;
+}
+.venue-map-overlay:hover .venue-map-overlay-arrow{color:var(--bg)}
+
+.venue-apps{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  width:100%;margin-bottom:36px;position:relative;
+}
+.venue-apps::before,
+.venue-apps::after{
+  content:'';position:absolute;left:0;right:0;
+  height:1px;pointer-events:none;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 20%,var(--hairline-gold) 80%,transparent);
+}
+.venue-apps::before{top:0}
+.venue-apps::after{bottom:0}
+.venue-app-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:18px 6px;background:transparent;
+  text-decoration:none;
+  transition:all 0.3s var(--ease);
+}
+.venue-app-btn:hover,
+.venue-app-btn:focus-visible{
+  background:rgba(158,124,79,0.06);
+}
+.venue-app-name{
+  font-family:var(--serif);font-weight:500;font-style:italic;font-size:12px;
+  color:var(--gold);line-height:1;letter-spacing:0.06em;
+}
+.venue-app-label{
+  font-family:var(--serif-ko);font-size:12px;
+  color:var(--ink-2);letter-spacing:0.04em;
+}
+
+.venue-meta{width:100%;margin:0;text-align:left}
+.venue-meta-row{
+  padding:22px 0;
+  position:relative;
+}
+.venue-meta-row::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;
+  height:1px;pointer-events:none;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 20%,var(--hairline-gold) 80%,transparent);
+}
+.venue-meta-row:last-child::after{display:none}
+.venue-meta-row dt{
+  font-family:var(--serif);font-weight:500;font-style:italic;
+  font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;padding-left:0.24em;
+}
+.venue-meta-row dd{
+  margin:0;
+  font-family:var(--serif-ko);font-size:13.5px;font-weight:300;
+  color:var(--ink-2);line-height:1.9;
+}
+.venue-meta-row .venue-meta-row .venue-meta-arrival .em{color:var(--gold);font-weight:400;font-style:normal}
+
+/* ─────────────────────────────────
+   Nº V — ENVELOPE (축의)
+───────────────────────────────── */
+.env-intro{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:14px;color:var(--ink-2);
+  line-height:2;text-align:left;
+  margin-bottom:40px;max-width:380px;
+}
+
+.env-list{
+  position:relative;
+}
+
+details.env-acc{
+  margin:0;background:transparent;
+  border:none;position:relative;
+}
+details.env-acc::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;
+  height:1px;pointer-events:none;
+  background:linear-gradient(to right,transparent,var(--hairline-gold) 25%,var(--hairline-gold) 75%,transparent);
+}
+details.env-acc:last-child::after{display:none}
+
+summary.env-acc-q{
+  width:100%;padding:24px 4px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;font-family:inherit;color:inherit;text-align:left;
+  list-style:none;-webkit-tap-highlight-color:transparent;
+  gap:14px;
+}
+summary.env-acc-q::-webkit-details-marker{display:none}
+summary.env-acc-q::marker{display:none}
+
+.env-acc-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.env-acc-role{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:10.5px;letter-spacing:0.24em;
+  color:var(--gold);text-transform:uppercase;
+  padding-left:0.24em;
+}
+.env-acc-name{
+  font-family:var(--serif-ko);font-weight:400;font-size:17px;
+  color:var(--ink);letter-spacing:0.14em;padding-left:0.14em;
+}
+/* 05 표준 — 한글 라벨 + dot 인라인 (다크 모드) */
+.env-acc-name .acc-role-ko{
+  font-family:var(--serif-ko);font-weight:300;font-size:0.78em;
+  color:var(--ink-3);letter-spacing:0.08em;margin-right:1px;
+}
+.env-acc-name .dot{
+  color:var(--gold);margin:0 6px;font-weight:300;font-size:0.9em;
+}
+.env-acc-plus{
+  font-family:var(--serif);font-weight:300;font-size:20px;
+  color:var(--gold);transition:transform 0.4s ease;
+  flex-shrink:0;line-height:1;
+}
+details.env-acc[open] .env-acc-plus{transform:rotate(45deg)}
+
+.env-acc-body{padding:0 4px 24px}
+.env-acc-sub{
+  padding:14px 0;
+  border-bottom:1px dashed var(--hairline-gold, rgba(158,124,79,0.40));
+}
+.env-acc-sub:last-child{border-bottom:none}
+/* 05 표준 — 본인 sub padding 분리 */
+.env-acc-sub:first-child{
+  padding-top:0 !important;
+  padding-bottom:14px;
+}
+.env-acc-sub:first-child .env-acc-row{
+  margin-bottom:4px;
+}
+/* 05 표준 — 펼친 상태 헤더 padding 좁게 */
+details.env-acc[open] > .env-acc-q{
+  padding-bottom:10px;
+}
+.env-acc-sub-label{
+  font-family:var(--serif-ko, serif);
+  font-weight:500;
+  font-size:13px;
+  letter-spacing:0.08em;
+  color:var(--gold, #9E7C4F);
+  margin-bottom:10px;
+  padding-left:2px;
+}
+.env-acc-sub-label .dot{
+  color:var(--gold-soft, rgba(158,124,79,0.65));
+  margin:0 6px;
+  font-weight:300;
+}
+.env-acc-parents{
+  font-family:var(--serif-ko, serif);
+  font-size:11px;
+  color:var(--gold-soft, rgba(158,124,79,0.65));
+  margin-top:4px;
+  letter-spacing:0.04em;
+}
+.env-acc-row{
+  background:transparent;padding:4px 0;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border:none;
+}
+.env-acc-bank{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:10.5px;letter-spacing:0.18em;
+  color:var(--gold);text-transform:uppercase;
+  padding-right:14px;border-right:1px solid var(--hairline-gold);
+  flex-shrink:0;
+}
+.env-acc-num{
+  font-family:var(--serif);font-weight:400;
+  font-size:14px;font-variant-numeric:tabular-nums;
+  color:var(--ink);letter-spacing:0.04em;
+  flex:1;min-width:0;
+}
+.env-acc-copy{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold);background:transparent;
+  border:none;border-bottom:1px solid var(--gold);
+  padding:3px 2px 4px;
+  padding-left:calc(2px + 0.22em);
+  cursor:pointer;
+  transition:color 0.3s ease,border-color 0.3s ease;
+  flex-shrink:0;-webkit-tap-highlight-color:transparent;
+}
+.env-acc-copy:hover,
+.env-acc-copy:focus-visible{
+  color:var(--ink);border-color:var(--ink);
+}
+.env-acc-copy.copied{color:var(--ink);border-color:var(--ink)}
+
+/* ─────────────────────────────────
+   FOOTER
+───────────────────────────────── */
+.inv-footer{
+  text-align:center;
+  padding:80px 28px 56px;
+  position:relative;
+  background:transparent;
+}
+.foot-date{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:13px;letter-spacing:0.28em;
+  color:var(--gold);padding-left:0.28em;
+  margin-bottom:6px;
+}
+.foot-rule{
+  width:60px;height:1px;
+  background:var(--hairline-gold);
+  margin:0 auto 14px;
+}
+.foot-thanks{
+  font-family:var(--serif-ko);font-weight:300;
+  font-size:13.5px;color:var(--ink-2);
+  letter-spacing:0.18em;padding-left:0.18em;
+  margin-bottom:48px;
+}
+.foot-brand{
+  font-family:var(--serif);font-weight:500;
+  font-size:11px;letter-spacing:0.36em;
+  color:var(--ink-3);padding-left:0.36em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.foot-sub{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:10px;letter-spacing:0.2em;
+  color:var(--gold-deep);
+}
+
+/* ─────────────────────────────────
+   TOAST (계좌 복사 알림)
+───────────────────────────────── */
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(40px + var(--safe-bottom));
+  background:var(--bg-2);
+  color:var(--ink);
+  border:1px solid var(--hairline-gold);
+  padding:12px 22px;
+  font-family:var(--serif-ko);font-size:13px;
+  letter-spacing:0.04em;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s var(--ease);
+  z-index:200;
+}
+.toast.show{opacity:1}
+
+/* ─────────────────────────────────
+   REVEAL 애니메이션
+───────────────────────────────── */
+.reveal{
+  opacity:0;transform:translateY(12px);
+  transition:opacity 0.7s var(--ease),transform 0.7s var(--ease);
+}
+.reveal.visible{opacity:1;transform:none}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ─────────────────────────────────
+   MOBILE 반응형 (≤390px)
+───────────────────────────────── */
+@media (max-width:390px){
+  .invitation{padding:0 22px}
+  .sec{padding:80px 0}
+  .cover{padding:60px 0 40px}
+  .cover-display{font-size:clamp(34px,9.5vw,46px)}
+  .sec-title{font-size:clamp(30px,8.5vw,40px)}
+  .date-display-num{font-size:clamp(60px,16vw,84px)}
+  .date-cal-dow{font-size:9px;letter-spacing:0.12em}
+  .date-cal-cell{font-size:12px}
+  .duo-name-en{font-size:26px}
+  .gs-row{grid-template-columns:60px 1fr;gap:14px}
+  .env-acc-num{font-size:13px}
+  .env-acc-copy{padding:7px 14px;font-size:10px}
+}
+
+/* ─────────────────────────────────
+   PRINT
+───────────────────────────────── */
+@media print{
+  :root{--bg:#fff;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#666;--gold:#7A5F3D}
+  html,body{background:#fff !important;color:#1a1a1a !important}
+  body{box-shadow:none !important}
+  .toast{display:none !important}
+  .invitation{max-width:100%;padding:18mm}
+  .sec{padding:10mm 0;page-break-inside:avoid}
+  .cover{min-height:auto;padding:0 0 10mm}
+  .cover-display{font-size:42pt;color:#1a1a1a}
+  .sec-title{color:#1a1a1a;font-size:24pt}
+  .date-display-num{font-size:54pt;color:#1a1a1a}
+  .reveal{opacity:1 !important;transform:none !important}
+  details.env-acc .env-acc-body{display:block !important}
+  .env-acc-copy{display:none}
+  .inv-footer{padding:14mm 0 0}
+}
+</style>
+<script>
+/*
+ * Moment Edit · 고정 식장 정보 (모든 청첩장 공통)
+ * ──────────────────────────────────────────────────────────────
+ * 식장은 모먼트 에디트 스튜디오 한 곳으로 고정이다(커플마다 다르지 않음).
+ * 그래서 시트가 아니라 여기 한 곳에서만 관리한다.
+ *
+ * ⚠️ 사업장 본계약 후 ADDRESS / TRANSPORT / PARKING / MAP_IFRAME 네 줄만
+ *    채우면 모든 청첩장(라이브·가족)에 한 번에 반영된다. 커플별 입력 불필요.
+ */
+window.MOMENT_VENUE = {
+  nameKo:    '모먼트 에디트 스튜디오',
+  nameEn:    'Moment Edit Studio',
+
+  // 계약 전 — 정확 주소 미정. 본계약 후 정확 주소로 교체.
+  address:   '경기 고양시 덕양구 향동동 (정확한 주소는 본계약 후 안내드립니다)',
+
+  // 본계약 후 채울 항목 (비어 있으면 청첩장에서 해당 줄 자동 숨김)
+  transport: '',   // 예: '6호선 디지털미디어시티역 1번 출구 차량 8분'
+  parking:   '',   // 예: '건물 지하 1~3층 주차 가능 (3시간 무료)'
+  mapIframe: ''    // 예: 'https://maps.google.com/maps?q=...&output=embed'
+};
+
+</script>
+<script>
+/*
+ * Moment Edit · 청첩장 클라이언트 하이드레이션 엔진
+ * ──────────────────────────────────────────────────────────────
+ * 정적 빌드(Apps Script) 대신, 브라우저에서 ?e=eventId 로 시트 데이터를 받아
+ * 템플릿의 {{PLACEHOLDER}} 와 OPTIONAL 마커를 채운다. (라이브 커버 · 가족 카드 공용)
+ *
+ * 사용법 — 각 템플릿 <head> 끝에 두 줄, <body>에 디자인 번호 표기:
+ *   <script src="/shared/venue.js"><\/script>
+ *   <script src="/shared/hydrate.js" defer><\/script>
+ *   ...
+ *   <body data-design="01">              ← 01~08
+ * 그리고 흰 화면 방지용 CSS:
+ *   body{opacity:0;transition:opacity .6s} body.couple-ready{opacity:1}
+ *
+ * 식장 정보는 고정(window.MOMENT_VENUE) — venue.js 한 곳에서 관리.
+ * 데이터 출처는 Couples 시트(getCouple). 시트만 고치면 자동 반영된다.
+ *
+ * 본 변환 로직은 운영 검증된 가족 빌드 스크립트(FC_transformPlaceholders)를
+ * 브라우저로 포팅한 것이다. 동작 동일성 유지가 원칙.
+ */
+(function () {
+  'use strict';
+
+  var WEBHOOK = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+
+  // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
+  var SAMPLE = {
+    groomName: '이서준', brideName: '정하윤',
+    groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
+    weddingDate: '2026-10-24', weddingTime: '14:00',
+    groomParents: '이재환 · 최미경', brideParents: '정영석 · 박윤희',
+    groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
+    vimeoId: '', vimeoHash: '',
+    // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
+    invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y', digitalAttendance: 'Y',
+    // 부모 계좌 (프리뷰 샘플)
+    groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
+    brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
+    // 디자인 특수 (02 대표문구 · 08 자기소개)
+    // 08 한마디는 비워 기본 문구(다짐·마음 형식, DEFAULT_*_BIO)가 프리뷰에 나오게 — 폼 안내와 일치
+    // dig* = 온라인 전용 오버라이드(비우면 오프/공통 값 상속). 프리뷰는 비워 기본 유지.
+    pullQuote: '', groomBio: '', brideBio: '',
+    digPullQuote: '', digGroomBio: '', digBrideBio: ''
+  };
+
+  // ─── 유틸 ───────────────────────────────────────────────
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function replaceAll(str, find, rep) { return str.split(find).join(rep); }
+  // 셀 안 줄바꿈(Alt+Enter) → <br> (HTML 이스케이프 후 변환)
+  function nl2br(s) { return escapeHtml(s).replace(/\r?\n/g, '<br>'); }
+  function bankLabel(bank) {
+    bank = String(bank || '').trim();
+    if (!bank) return '';
+    return /(은행|뱅크)$/.test(bank) ? bank : bank + '은행';
+  }
+  // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
+  function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
+  // 고객 직접 작성 인사글(평문) → 문단 HTML (빈 줄=문단, 줄바꿈=<br>)
+  // 직접 작성 인사말 → 문단/줄 처리. *별표*로 감싼 부분은 강조(.em, 전 디자인 공통)로 변환.
+  function buildInvitation(text) {
+    function emph(s) { return s.replace(/\*([^*\n]+)\*/g, '<span class="em">$1</span>'); }
+    return String(text).trim().split(/\n\s*\n/).map(function (p) {
+      return '<p>' + p.split('\n').map(function (l) { return emph(escapeHtml(l.trim())); }).join('<br>') + '</p>';
+    }).join('');
+  }
+  // 계좌 셀 "국민 110-123-456789" → {bank, account, raw}. 비면 null.
+  function parseAccount(cell) {
+    cell = String(cell || '').trim();
+    if (!cell) return null;
+    var sp = cell.split(/\s+/);
+    var bank = sp.shift();
+    var account = sp.join(' ');
+    if (!account) { account = bank; bank = ''; } // 계좌만 적은 경우
+    return { bank: bankLabel(bank), account: account, raw: account.replace(/\D/g, '') };
+  }
+  // 혼주 문자열 "박철수 · 이미경" → {father:'박철수', mother:'이미경'}
+  function splitParents(s) {
+    var p = String(s || '').split(/[·,/]|\s및\s/).map(function (x) { return x.trim(); }).filter(Boolean);
+    return { father: p[0] || '', mother: p[1] || '' };
+  }
+  // 본인 계좌: 신 시트(한 칸 "은행 번호") + 구 시트(은행 분리) 모두 호환
+  function coupleAccount(bankField, accountCell) {
+    bankField = String(bankField || '').trim();
+    if (bankField) {
+      var acc = String(accountCell || '').trim();
+      return { bank: bankLabel(bankField), account: acc, raw: acc.replace(/\D/g, '') };
+    }
+    return parseAccount(accountCell) || { bank: '', account: '', raw: '' };
+  }
+
+  // 첫 글자만 대문자: "HOON"/"hoon" → "Hoon"
+  function cap(w) { return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ''; }
+  // 영문 이름 → {full, first, upper, spaced}
+  //  입력 "Park Ji Hoon"(성 + 이름음절 띄어쓰기) →
+  //    full "Park Jihoon" · first "Jihoon" · upper "JIHOON" · spaced "Ji Hoon"
+  //  입력 "Park Jihoon"(이름 한 단어) → spaced도 "Jihoon"(안 깨짐)
+  function transformEnName(fullName) {
+    var parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+    var surname = parts.length >= 2 ? parts[0] : '';
+    var firstWords = parts.length >= 2 ? parts.slice(1) : parts;   // 성 제외한 이름 음절들
+    var first = cap(firstWords.join(''));                          // "Jihoon"
+    return {
+      full: (surname ? cap(surname) + ' ' : '') + first,          // "Park Jihoon"
+      first: first,
+      upper: first.toUpperCase(),                                 // "JIHOON"
+      spaced: firstWords.map(cap).join(' ')                       // "Ji Hoon"
+    };
+  }
+
+  function yearToEnglish(year) {
+    var ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    var teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    var thousand = Math.floor(year / 1000), remainder = year % 1000;
+    var hundred = Math.floor(remainder / 100), last2 = remainder % 100, result = '';
+    if (thousand > 0) result += ones[thousand] + ' Thousand';
+    if (hundred > 0) result += (result ? ' ' : '') + ones[hundred] + ' Hundred';
+    if (last2 > 0) {
+      if (result) result += ' ';
+      if (last2 < 10) result += ones[last2];
+      else if (last2 < 20) result += teens[last2 - 10];
+      else { var t = Math.floor(last2 / 10), o = last2 % 10; result += tens[t] + (o > 0 ? '-' + ones[o] : ''); }
+    }
+    return result;
+  }
+
+  // 일(日) → 사한자(이십사). 1~31.
+  function sinoDay(n) {
+    var o = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+    var t = ['', '십', '이십', '삼십'];
+    if (n < 10) return o[n];
+    if (n <= 39) return t[Math.floor(n / 10)] + o[n % 10];
+    return String(n);
+  }
+  // 연도 → 로마숫자 (2026 → MMXXVI)
+  function roman(num) {
+    var map = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+    var r = '';
+    for (var i = 0; i < map.length; i++) { while (num >= map[i][0]) { r += map[i][1]; num -= map[i][0]; } }
+    return r;
+  }
+
+  // weddingDate('YYYY-MM-DD') → 날짜 전 형식 (KST 기준)
+  function transformDate(weddingDate) {
+    var p = String(weddingDate).split('-');
+    var y = +p[0], mn = +p[1], dn = +p[2];
+    var idx = new Date(y, mn - 1, dn).getDay();
+    var m = String(mn).padStart(2, '0'), dd = String(dn).padStart(2, '0');
+    var monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var daysKor = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    var monthsHan = ['', '일월', '이월', '삼월', '사월', '오월', '유월', '칠월', '팔월', '구월', '시월', '십일월', '십이월'];
+    return {
+      y: y, m: m, dd: dd,
+      display: y + '. ' + m + '. ' + dd, dateKor: y + '년 ' + mn + '월 ' + dn + '일',
+      compact: '' + y + m + dd, spaced: y + ' ' + m + ' ' + dd,
+      monthDay: m + ' · ' + dd, monthDayDot: m + '. ' + dd, monthDayPeriod: m + '.' + dd,
+      monthEn: monthsEn[mn - 1] + ' ' + y, monthEnShort: monthsShort[mn - 1], monthNameEn: monthsEn[mn - 1],
+      monthNum: '' + mn, monthNumPad: m, monthKor: mn + '월', monthDisplay: y + '년 ' + mn + '월',
+      monthHan: monthsHan[mn], monthSlash: m + ' / ' + y, fullDot: y + ' · ' + m + ' · ' + dd,
+      dayOfMonth: '' + dn, dayOfMonthPad: dd,
+      dayEn: daysEn[idx], dayEnShort: daysShort[idx], dayKor: daysKor[idx], dayHan: sinoDay(dn) + '일',
+      year: '' + y, yearEn: yearToEnglish(y), yearRoman: roman(y)
+    };
+  }
+
+  // 시간 '14:00' → {display:'오후 2:00', kor:'오후 두 시'}
+  function transformTime(weddingTime) {
+    var s = String(weddingTime || '14:00').trim();
+    var match = s.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return { display: s, kor: s, korFull: s, time24: s };
+    var hour24 = parseInt(match[1], 10), min = match[2];
+    var period = hour24 >= 12 ? '오후' : '오전';
+    var hour12 = hour24 > 12 ? hour24 - 12 : (hour24 === 0 ? 12 : hour24);
+    var hourKor = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열', '열한', '열두'];
+    var kor;
+    if (min === '00') kor = period + ' ' + hourKor[hour12] + ' 시';
+    else if (min === '30') kor = period + ' ' + hourKor[hour12] + ' 시 반';
+    else kor = period + ' ' + hourKor[hour12] + ' 시 ' + parseInt(min, 10) + '분';
+    var time24 = String(hour24).padStart(2, '0') + ':' + min;
+    return { display: period + ' ' + hour12 + ':' + min, kor: kor, korFull: kor, time24: time24 };
+  }
+
+  // 캘린더 셀 HTML (디자인 01은 when-cal-cell, 그 외 date-cal-cell)
+  function generateCalendarCells(weddingDate, designNum) {
+    var p = String(weddingDate).split('-');
+    var year = +p[0], month = (+p[1]) - 1, weddingDay = +p[2];
+    var firstDay = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var base = (designNum === '01' || designNum === '05') ? 'when-cal-cell' : 'date-cal-cell';
+    var cellCls = base, sunCls = base + ' sun';
+    var html = '';
+    for (var i = 0; i < firstDay; i++) html += '<div class="' + cellCls + ' empty" aria-hidden="true"></div>\n          ';
+    for (var day = 1; day <= daysInMonth; day++) {
+      var dow = (firstDay + day - 1) % 7;
+      var cls = (dow === 0) ? sunCls : cellCls;
+      if (day === weddingDay) html += '<div class="' + cls + ' marked"><span>' + day + '</span></div>\n          ';
+      else html += '<div class="' + cls + '">' + day + '</div>\n          ';
+    }
+    return html.trim();
+  }
+
+  // OPTIONAL 마커: 값 있으면 마커만 제거, 없으면 블록 통째 제거
+  function processOptional(html, key, hasValue) {
+    if (hasValue) {
+      return html
+        .split('<!-- OPTIONAL:' + key + ' -->').join('')
+        .split('<!-- /OPTIONAL:' + key + ' -->').join('');
+    }
+    var re = new RegExp('[ \\t]*<!-- OPTIONAL:' + key + ' -->[\\s\\S]*?<!-- /OPTIONAL:' + key + ' -->\\n?', 'g');
+    return html.replace(re, '');
+  }
+
+  // ─── 핵심 변환: 템플릿 HTML 문자열 → 채워진 HTML ───────────
+  function transform(html, c, venue, designNum) {
+    var groomEn = transformEnName(c.groomNameEn);
+    var brideEn = transformEnName(c.brideNameEn);
+    var date = transformDate(c.weddingDate);
+    var time = transformTime(c.weddingTime);
+    var gAcct = coupleAccount(c.groomBank, c.groomAccount);
+    var bAcct = coupleAccount(c.brideBank, c.brideAccount);
+    // 측 라벨: 부모 계좌가 함께 표시되면 "신랑측/신부측"(여러 명), 본인만이면 "신랑/신부". 측별 독립 판단.
+    var showEnvP = showUnlessNo(c.envelopeShowParents);
+    var gHasPar = showEnvP && !!(String(c.groomFatherAccount || '').trim() || String(c.groomMotherAccount || '').trim());
+    var bHasPar = showEnvP && !!(String(c.brideFatherAccount || '').trim() || String(c.brideMotherAccount || '').trim());
+
+    var hasGroomParents = !!(c.groomParents && String(c.groomParents).trim());
+    var hasBrideParents = !!(c.brideParents && String(c.brideParents).trim());
+    var showGreetPar = showUnlessNo(c.greetingShowParents);
+    // 인사글 자녀소개 부모(greetingShowParents) — 결선 시 greeting* 마커로 분리됨
+    html = processOptional(html, 'greetingGroomParents', showGreetPar && hasGroomParents);
+    html = processOptional(html, 'greetingBrideParents', showGreetPar && hasBrideParents);
+    // 계좌 영역 부모 이름 라벨(envelopeShowParents · 부모 계좌와 묶음)
+    html = processOptional(html, 'groomParents', showEnvP && hasGroomParents);
+    html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
+
+    // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
+    html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
+
+    // 계좌 섹션: envelope=항상 표시(마커만 제거) · 본인 계좌=있으면 표시
+    html = processOptional(html, 'envelope', true);
+    html = processOptional(html, 'groomAccount', !!gAcct.account);
+    html = processOptional(html, 'brideAccount', !!bAcct.account);
+
+    // ── 고객 선택 3종 ──────────────────────────────────────
+    // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지.
+    //    온라인(/i/)은 digInvitationText로 따로 작성 가능 — 비우면 오프라인/공통 invitationText를 그대로 이어받음.
+    var famPage = location.pathname.indexOf('/i-family/') !== -1;
+    var customInv = String((famPage ? c.invitationText : (c.digInvitationText || c.invitationText)) || '').trim();
+    if (customInv) {
+      html = html.replace(/<!-- OPTIONAL:invitationText -->[\s\S]*?<!-- \/OPTIONAL:invitationText -->/g, buildInvitation(customInv));
+    } else {
+      html = processOptional(html, 'invitationText', true); // 기본 인사글 유지
+    }
+    // (부모 표기 토글은 위 greeting*/envelope 부모 처리에서 분리 제어)
+
+    // 디자인 02 전용 · 대표 문구(pullQuote): 직접 작성 시 교체, 비우면 기본 유지.
+    //   온라인(/i/)은 digPullQuote로 따로 작성 가능 — 비우면 오프/공통 pullQuote를 그대로 상속.
+    var customPQ = String((famPage ? c.pullQuote : (c.digPullQuote || c.pullQuote)) || '').trim();
+    if (customPQ) {
+      html = html.replace(/<!-- OPTIONAL:pullQuote -->[\s\S]*?<!-- \/OPTIONAL:pullQuote -->/g, nl2br(customPQ));
+    } else {
+      html = processOptional(html, 'pullQuote', true);
+    }
+    // 디자인 08 전용 · 자기소개(BIO): 직접 작성 시 그 글, 비우면 디자인 기본 소개(02 대표문구와 동일 정책)
+    var DEFAULT_GROOM_BIO = '특별하지 않은 하루도, 함께라 충분합니다.';
+    var DEFAULT_BRIDE_BIO = '사랑한다는 말보다, 더 오래 곁에 있겠습니다.';
+    html = processOptional(html, 'groomBio', true);
+    html = processOptional(html, 'brideBio', true);
+
+    var map = {
+      GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
+      GROOM_BANK: escapeHtml(gAcct.bank), BRIDE_BANK: escapeHtml(bAcct.bank),
+      GROOM_ACCOUNT: escapeHtml(gAcct.account), BRIDE_ACCOUNT: escapeHtml(bAcct.account),
+      GROOM_ACCOUNT_RAW: gAcct.raw, BRIDE_ACCOUNT_RAW: bAcct.raw,
+      GROOM_PARENTS: escapeHtml(c.groomParents || ''), BRIDE_PARENTS: escapeHtml(c.brideParents || ''),
+      GROOM_FIRST_EN_UPPER: groomEn.upper, BRIDE_FIRST_EN_UPPER: brideEn.upper,
+      GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,
+      GROOM_FIRST_EN_SPACED: groomEn.spaced, BRIDE_FIRST_EN_SPACED: brideEn.spaced,
+      GROOM_FULL_EN: groomEn.full, BRIDE_FULL_EN: brideEn.full,
+      WEDDING_DATE_DISPLAY: date.display, WEDDING_DATE_KOR: date.dateKor,
+      WEDDING_DATE_COMPACT: date.compact, WEDDING_DATE_SPACED: date.spaced,
+      WEDDING_MONTH_DAY_DISPLAY: date.monthDay, WEDDING_MONTH_DAY_DOT: date.monthDayDot, WEDDING_MONTH_DAY_PERIOD: date.monthDayPeriod,
+      WEDDING_MONTH_EN: date.monthEn, WEDDING_MONTH_EN_SHORT: date.monthEnShort, WEDDING_MONTH_NAME_EN: date.monthNameEn,
+      WEDDING_MONTH_NUM: date.monthNum, WEDDING_MONTH_NUM_PAD: date.monthNumPad,
+      WEDDING_MONTH_KOR: date.monthKor, WEDDING_MONTH_DISPLAY: date.monthDisplay, WEDDING_MONTH_HAN: date.monthHan,
+      WEDDING_MONTH_SLASH: date.monthSlash, WEDDING_FULL_DATE_DOT: date.fullDot,
+      WEDDING_DAY_OF_MONTH: date.dayOfMonth, WEDDING_DAY_OF_MONTH_PAD: date.dayOfMonthPad,
+      WEDDING_DAY_EN: date.dayEn, WEDDING_DAY_EN_SHORT: date.dayEnShort, WEDDING_DAY_KOR: date.dayKor, WEDDING_DAY_HAN: date.dayHan,
+      WEDDING_YEAR: date.year, WEDDING_YEAR_EN: date.yearEn, WEDDING_YEAR_ROMAN: date.yearRoman,
+      WEDDING_TIME_DISPLAY: time.display, WEDDING_TIME_KOR: time.kor, WEDDING_TIME_KOR_FULL: time.korFull, WEDDING_TIME_24H: time.time24,
+      WEDDING_ISO_DATETIME: date.y + '-' + date.m + '-' + date.dd + 'T' + time.time24 + ':00+09:00',
+      VENUE_NAME_KO: escapeHtml(venue.nameKo || ''), VENUE_NAME_EN: escapeHtml(venue.nameEn || ''),
+      VENUE_NAME_KO_URI: encodeURIComponent(venue.nameKo || ''),
+      VENUE_ADDRESS: escapeHtml(venue.address || ''),
+      VENUE_TRANSPORT: venue.transport || '', VENUE_PARKING: escapeHtml(venue.parking || ''),
+      VENUE_MAP_IFRAME: venue.mapIframe || '',
+      GROOM_BIO: nl2br(String((famPage ? c.groomBio : (c.digGroomBio || c.groomBio)) || '').trim() || DEFAULT_GROOM_BIO),
+      BRIDE_BIO: nl2br(String((famPage ? c.brideBio : (c.digBrideBio || c.brideBio)) || '').trim() || DEFAULT_BRIDE_BIO),
+      GROOM_SIDE_LABEL: gHasPar ? '신랑측' : '신랑', BRIDE_SIDE_LABEL: bHasPar ? '신부측' : '신부',
+      EVENT_ID: escapeHtml(c.eventId || '')
+    };
+
+    // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
+    var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
+    // 지도 미설정(사업장 계약 전 등) → 빈 iframe 대신 안내 placeholder (#5)
+    if (!String(venue.mapIframe || '').trim()) {
+      html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g,
+        '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#9a8f7f;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>');
+    }
+    [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
+     ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
+     ['brideFatherAccount', 'BRIDE_FATHER', bPar.father, c.brideFatherAccount],
+     ['brideMotherAccount', 'BRIDE_MOTHER', bPar.mother, c.brideMotherAccount]
+    ].forEach(function (x) {
+      var cell = String(x[3] || '').trim();
+      html = processOptional(html, x[0], showEnvP && !!cell);
+      var a = parseAccount(cell) || { bank: '', account: '', raw: '' };
+      map[x[1] + '_NAME'] = escapeHtml(x[2] || '');
+      map[x[1] + '_BANK'] = escapeHtml(a.bank);
+      map[x[1] + '_ACCOUNT'] = escapeHtml(a.account);
+      map[x[1] + '_ACCOUNT_RAW'] = a.raw;
+    });
+
+    for (var k in map) html = replaceAll(html, '{{' + k + '}}', map[k]);
+    html = replaceAll(html, '{{CALENDAR_CELLS_HTML}}', generateCalendarCells(c.weddingDate, designNum));
+    return html;
+  }
+
+  // ─── 메인 ───────────────────────────────────────────────
+  function reveal() { document.body.classList.add('couple-ready'); }
+  function designNum() { return (document.body.getAttribute('data-design') || '00').trim(); }
+
+  // innerHTML 교체로 죽은 본문 스크립트 재실행 (결선 시 <script type="me/inert">로 표시됨)
+  // 초기 파싱 땐 안 돌고, 채우기 끝난 최종 DOM에서 딱 1회 실행 → 인터랙션 보존
+  function runInertScripts() {
+    var list = document.body.querySelectorAll('script[type="me/inert"]');
+    for (var i = 0; i < list.length; i++) {
+      var old = list[i], s = document.createElement('script');
+      for (var j = 0; j < old.attributes.length; j++) {
+        if (old.attributes[j].name !== 'type') s.setAttribute(old.attributes[j].name, old.attributes[j].value);
+      }
+      s.textContent = old.textContent;
+      old.parentNode.replaceChild(s, old);
+    }
+  }
+
+  function apply(couple) {
+    try {
+      var venue = window.MOMENT_VENUE || {};
+      document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
+      if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
+      runInertScripts();
+      applyTitles(couple, designNum());
+    } catch (e) { console.error('[hydrate]', e); }
+  }
+
+  // 인사말 섹션 제목 교체 — 커스텀 있을 때만 텍스트 교체(폰트·스타일 유지). 가족/디지털 디자인 따로.
+  // 온라인(/i/)은 dig 우선, 비면 오프라인(fam) 상속 → 비면 디자인 기본. (인사말·대표문구·한마디와 동일 정책)
+  function applyTitles(c, dn) {
+    var fam = location.pathname.indexOf('/i-family/') !== -1;
+    var pick = function (fk, dk) { return String((fam ? c[fk] : (c[dk] || c[fk])) || '').trim(); };
+    var title = pick('famInvTitle', 'digInvTitle');
+    var subko = pick('famInvSubKo', 'digInvSubKo');
+    if (title) { var t = document.getElementById('sec-01-title') || document.querySelector('.inv-title'); if (t) t.textContent = title; }
+    // 부제(큰 제목 아래 작은 줄) — 03=영문 'Cordially Invited' 자리, 04/07/08=한글 부제. 그 외 디자인은 부제 없음.
+    var SUB = { '03': '.inv-title-sub', '04': '.sec-title-ko', '07': '.inv-title-ko', '08': '.sec-title-ko' };
+    if (subko && SUB[dn]) { var k = document.querySelector(SUB[dn]); if (k) k.textContent = subko; }
+  }
+
+  function preconnectWebhook() {
+    try {
+      ['https://script.google.com', 'https://script.googleusercontent.com'].forEach(function (h) {
+        if (document.querySelector('link[rel="preconnect"][href="' + h + '"]')) return;
+        var l = document.createElement('link'); l.rel = 'preconnect'; l.href = h; l.crossOrigin = '';
+        document.head.appendChild(l);
+      });
+    } catch (_) {}
+  }
+
+  function init() {
+    preconnectWebhook();
+    var _p = new URLSearchParams(location.search);
+    var eventId = (_p.get('e') || '').trim();
+    var forceFresh = _p.get('fresh') === '1';   // ?e=...&fresh=1 → 캐시(클라+서버) 전부 무시(편집 중 확인용)
+    var failsafe = setTimeout(reveal, 5000);
+
+    if (!eventId) { apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
+
+    var cacheKey = 'me_couple_' + eventId;
+    // 캐시 우선: 같은 부부(eventId)는 재방문·다른 디자인도 즉시 렌더(체감 속도↑).
+    // 그 뒤 백그라운드로 시트 최신값을 캐시에 갱신(다음 로드에 반영).
+    var cached = forceFresh ? null : safeCache(cacheKey);
+    var rendered = false;
+    if (cached) {
+      cached.eventId = eventId;
+      apply(cached); clearTimeout(failsafe); reveal(); rendered = true;
+    }
+
+    fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + (forceFresh ? '&fresh=1' : ''))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.couple) {
+          data.couple.eventId = eventId;
+          try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
+          if (!rendered) apply(data.couple);
+        } else if (!rendered) {
+          apply(SAMPLE);
+        }
+      })
+      .catch(function () { if (!rendered) apply(safeCache(cacheKey) || SAMPLE); })
+      .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } });
+  }
+
+  function safeCache(key) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (_) { return null; }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+<style>body{opacity:0;transition:opacity .5s ease}body.couple-ready{opacity:1}</style>
+</head>
+<body data-design="08">
+
+<!-- 스크린리더 전용 복사 안내 -->
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="copy-announce"></div>
+<!-- 시각 토스트 -->
+<div class="toast" id="toast" role="status" aria-hidden="true"></div>
+
+<main class="invitation">
+
+  <!-- ═══ COVER — Noir 시네마 (Velour 잉크 톤) ═══ -->
+  <section class="sec cover" aria-labelledby="cover-title">
+
+    <div class="cover-top">
+      <div class="cover-mark">
+        Private Ceremony
+        <span class="mark-dot" aria-hidden="true"></span>
+        For Those We Love
+      </div>
+    </div>
+
+    <div class="cover-mid">
+      <h1 class="cover-display" id="cover-title">
+        We are<br>
+        <span class="l2">getting<br>married.</span>
+        <span class="ko">{{GROOM_NAME}} · {{BRIDE_NAME}}</span>
+      </h1>
+      <p class="cover-greet">소중한 분들을 모십니다.</p>
+    </div>
+
+    <div class="cover-bot">
+      <div class="cover-meta">
+        {{WEDDING_DAY_EN}}
+        <em>{{WEDDING_FULL_DATE_DOT}}</em>
+      </div>
+      <div class="cover-scroll" aria-hidden="true">
+        <div class="cover-scroll-line"></div>
+        <span class="cover-scroll-label">Roll</span>
+      </div>
+      <div class="cover-meta r">
+        {{VENUE_NAME_KO}}
+        <em>{{WEDDING_TIME_DISPLAY}}</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Nº I — INVITATION (초대글) ═══ -->
+  <section class="sec sec-invite" aria-labelledby="sec-01-title">
+    <div class="sec-num reveal">
+      <span class="sec-num-mark">Nº I</span>
+      <span class="sec-num-rule" aria-hidden="true"></span>
+    </div>
+    <h2 class="sec-title reveal" id="sec-01-title">The Invitation</h2>
+    <p class="sec-title-ko reveal">초대의 글</p>
+
+    <div class="greeting reveal">
+<!-- OPTIONAL:invitationText -->      <p>서로의 평범한 하루를 나누던 두 사람이,<br>이제 같은 하루를 살아가려 합니다.</p>
+      <p class="emph">화려하지 않아도 좋습니다.<br>우리다운 모습 그대로.</p>
+      <p>그 자리에 오셔서, 저희의 시작을 함께 지켜봐 주세요.</p><!-- /OPTIONAL:invitationText -->
+    </div>
+
+    <div class="gs-list reveal">
+      
+      <div class="gs-row">
+        <div class="gs-role">Groom</div>
+        <div class="gs-name">
+          {{GROOM_NAME}}
+          <span class="gs-name-en">{{GROOM_FIRST_EN}}</span>
+          <!-- OPTIONAL:greetingGroomParents -->
+          <span class="gs-parents">{{GROOM_PARENTS}} 의 아들</span>
+          <!-- /OPTIONAL:greetingGroomParents -->
+        </div>
+      </div>
+      
+      
+      <div class="gs-row">
+        <div class="gs-role">Bride</div>
+        <div class="gs-name">
+          {{BRIDE_NAME}}
+          <span class="gs-name-en">{{BRIDE_FIRST_EN}}</span>
+          <!-- OPTIONAL:greetingBrideParents -->
+          <span class="gs-parents">{{BRIDE_PARENTS}} 의 딸</span>
+          <!-- /OPTIONAL:greetingBrideParents -->
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ Nº II — DUO (Bride & Groom 소개, 신설) ═══ -->
+  <section class="sec sec-duo" aria-labelledby="sec-02-title">
+    <div class="sec-num reveal">
+      <span class="sec-num-mark">Nº II</span>
+      <span class="sec-num-rule" aria-hidden="true"></span>
+    </div>
+    <h2 class="sec-title reveal" id="sec-02-title">The Two of Us</h2>
+    <p class="sec-title-ko reveal">두 사람</p>
+
+    <div class="duo reveal">
+      <div class="duo-card">
+        <div class="duo-role">Groom</div>
+        <div class="duo-name">
+          <div class="duo-name-en">{{GROOM_FIRST_EN}}</div>
+          <div class="duo-name-ko">{{GROOM_NAME}}</div>
+        </div>
+        <!-- OPTIONAL:groomBio --><p class="duo-bio">{{GROOM_BIO}}</p><!-- /OPTIONAL:groomBio -->
+      </div>
+      <div class="duo-card">
+        <div class="duo-role">Bride</div>
+        <div class="duo-name">
+          <div class="duo-name-en">{{BRIDE_FIRST_EN}}</div>
+          <div class="duo-name-ko">{{BRIDE_NAME}}</div>
+        </div>
+        <!-- OPTIONAL:brideBio --><p class="duo-bio">{{BRIDE_BIO}}</p><!-- /OPTIONAL:brideBio -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Nº III — DATE (캘린더) ═══ -->
+  <section class="sec sec-date" aria-labelledby="sec-03-title">
+    <div class="sec-num reveal">
+      <span class="sec-num-mark">Nº III</span>
+      <span class="sec-num-rule" aria-hidden="true"></span>
+    </div>
+    <h2 class="sec-title reveal" id="sec-03-title">The Day</h2>
+    <p class="sec-title-ko reveal">그날</p>
+
+    <div class="date-display reveal">
+      <div class="date-display-num">
+        <span>08</span>
+        <span class="dot">.</span>
+        <span>23</span>
+      </div>
+      <div class="date-display-year">{{WEDDING_YEAR_EN}}</div>
+      <div class="date-display-day">{{WEDDING_DAY_KOR}}요일 · {{WEDDING_TIME_KOR}}</div>
+    </div>
+
+    <div class="date-cal reveal">
+      <div class="date-cal-head">
+        <div class="date-cal-month">{{WEDDING_MONTH_EN}}</div>
+      </div>
+      <div class="date-cal-grid">
+        <div class="date-cal-dow sun">Sun</div>
+        <div class="date-cal-dow">Mon</div>
+        <div class="date-cal-dow">Tue</div>
+        <div class="date-cal-dow">Wed</div>
+        <div class="date-cal-dow">Thu</div>
+        <div class="date-cal-dow">Fri</div>
+        <div class="date-cal-dow">Sat</div>
+          {{CALENDAR_CELLS_HTML}}
+        </div>
+      </div>
+
+  </section>
+
+  <!-- ═══ Nº IV — VENUE ═══ -->
+  <section class="sec sec-venue" id="venue" aria-labelledby="sec-04-title">
+    <div class="sec-num reveal">
+      <span class="sec-num-mark">Nº IV</span>
+      <span class="sec-num-rule" aria-hidden="true"></span>
+    </div>
+    <h2 class="sec-title reveal" id="sec-04-title">Your Way Here</h2>
+    <p class="sec-title-ko reveal">모시는 길</p>
+
+    <div class="venue-inner reveal">
+      <div class="venue-name-block">
+        <p class="venue-name-en">{{VENUE_NAME_EN}}</p>
+      </div>
+
+      <div class="venue-map-wrap">
+        <iframe src="{{VENUE_MAP_IFRAME}}"
+                width="100%" height="320"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="식장 약도"></iframe>
+        <a class="venue-map-overlay"
+           href="https://www.google.com/maps/search/?api=1&query={{VENUE_NAME_KO_URI}}"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="구글맵에서 위치 자세히 보기">
+          <span>지도에서 열기</span>
+          <span class="venue-map-overlay-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <dl class="venue-meta">
+        <div class="venue-meta-row">
+          <dt>Address · 주소</dt>
+          <dd>
+            {{VENUE_ADDRESS}}
+          </dd>
+        </div>
+        <div class="venue-meta-row">
+          <dt>Transit · 교통편</dt>
+          <dd>{{VENUE_TRANSPORT}}</dd>
+        </div>
+        <div class="venue-meta-row">
+          <dt>Parking · 주차</dt>
+          <dd>{{VENUE_PARKING}}</dd>
+        </div>
+        <div class="venue-meta-row venue-meta-arrival">
+          <dt>Arrival · 도착 안내</dt>
+          <dd>본예식 <span class="em">15분 전</span>부터 내빈 입장이 시작됩니다.<br>
+              대기 공간이 없으니, 입장 시간에 맞춰 도착 부탁드립니다.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ═══ Nº V — ENVELOPE (축의) ═══ -->
+  <!-- OPTIONAL:envelope --><section class="sec sec-env" aria-labelledby="sec-05-title">
+    <div class="sec-num reveal">
+      <span class="sec-num-mark">Nº V</span>
+      <span class="sec-num-rule" aria-hidden="true"></span>
+    </div>
+    <h2 class="sec-title reveal" id="sec-05-title">Envelope</h2>
+    <p class="sec-title-ko reveal">축의</p>
+
+    <p class="env-intro reveal">
+      마음 전하실 곳입니다.<br>
+      참석이 어려운 분들을 위한 안내입니다.
+    </p>
+
+    <div class="env-list reveal">
+      <details class="env-acc" name="env">
+        <summary class="env-acc-q">
+          <div class="env-acc-info">
+            <div class="env-acc-role">Groom</div>
+            <div class="env-acc-name"><span class="acc-role-ko">신랑</span><span class="dot">·</span>{{GROOM_NAME}}</div>
+          </div>
+          <span class="env-acc-plus" aria-hidden="true">+</span>
+        </summary>
+        <div class="env-acc-body">
+          <!-- OPTIONAL:groomAccount --><div class="env-acc-sub">
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{GROOM_BANK}}</span>
+              <span class="env-acc-num">{{GROOM_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{GROOM_ACCOUNT_RAW}}" data-name="{{GROOM_NAME}}" aria-label="신랑 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:groomAccount -->
+
+          <!-- OPTIONAL:groomFatherAccount --><div class="env-acc-sub">
+            <div class="env-acc-sub-label">신랑 아버님 <span class="dot">·</span> {{GROOM_FATHER_NAME}}</div>
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{GROOM_FATHER_BANK}}</span>
+              <span class="env-acc-num">{{GROOM_FATHER_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{GROOM_FATHER_ACCOUNT_RAW}}" data-name="{{GROOM_FATHER_NAME}}" aria-label="신랑 아버님 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:groomFatherAccount -->
+
+          <!-- OPTIONAL:groomMotherAccount --><div class="env-acc-sub">
+            <div class="env-acc-sub-label">신랑 어머님 <span class="dot">·</span> {{GROOM_MOTHER_NAME}}</div>
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{GROOM_MOTHER_BANK}}</span>
+              <span class="env-acc-num">{{GROOM_MOTHER_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{GROOM_MOTHER_ACCOUNT_RAW}}" data-name="{{GROOM_MOTHER_NAME}}" aria-label="신랑 어머님 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:groomMotherAccount -->
+        </div>
+      </details>
+
+      <details class="env-acc" name="env">
+        <summary class="env-acc-q">
+          <div class="env-acc-info">
+            <div class="env-acc-role">Bride</div>
+            <div class="env-acc-name"><span class="acc-role-ko">신부</span><span class="dot">·</span>{{BRIDE_NAME}}</div>
+          </div>
+          <span class="env-acc-plus" aria-hidden="true">+</span>
+        </summary>
+        <div class="env-acc-body">
+          <!-- OPTIONAL:brideAccount --><div class="env-acc-sub">
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{BRIDE_BANK}}</span>
+              <span class="env-acc-num">{{BRIDE_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{BRIDE_ACCOUNT_RAW}}" data-name="{{BRIDE_NAME}}" aria-label="신부 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:brideAccount -->
+
+          <!-- OPTIONAL:brideFatherAccount --><div class="env-acc-sub">
+            <div class="env-acc-sub-label">신부 아버님 <span class="dot">·</span> {{BRIDE_FATHER_NAME}}</div>
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{BRIDE_FATHER_BANK}}</span>
+              <span class="env-acc-num">{{BRIDE_FATHER_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{BRIDE_FATHER_ACCOUNT_RAW}}" data-name="{{BRIDE_FATHER_NAME}}" aria-label="신부 아버님 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:brideFatherAccount -->
+
+          <!-- OPTIONAL:brideMotherAccount --><div class="env-acc-sub">
+            <div class="env-acc-sub-label">신부 어머님 <span class="dot">·</span> {{BRIDE_MOTHER_NAME}}</div>
+            <div class="env-acc-row">
+              <span class="env-acc-bank">{{BRIDE_MOTHER_BANK}}</span>
+              <span class="env-acc-num">{{BRIDE_MOTHER_ACCOUNT}}</span>
+              <button type="button" class="env-acc-copy" data-copy="{{BRIDE_MOTHER_ACCOUNT_RAW}}" data-name="{{BRIDE_MOTHER_NAME}}" aria-label="신부 어머님 계좌번호 복사">Copy</button>
+            </div>
+          </div><!-- /OPTIONAL:brideMotherAccount -->
+        </div>
+      </details>
+    </div>
+  </section><!-- /OPTIONAL:envelope -->
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="inv-footer">
+    <div class="foot-date">{{WEDDING_FULL_DATE_DOT}}</div>
+    <div class="foot-thanks">함께해 주셔서 감사합니다</div>
+    <div class="foot-brand">Moment Edit</div>
+    <div class="foot-sub">Private Wedding Studio</div>
+  </footer>
+
+</main>
+
+<script type="me/inert">
+(function(){
+  'use strict';
+
+  // URL 파라미터 ?e=ID (이벤트 식별)
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var eventId = params.get('e');
+    if(eventId) document.documentElement.setAttribute('data-event', eventId);
+  } catch(_){}
+  // Scroll reveal
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          en.target.classList.add('visible');
+          io.unobserve(en.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('visible')});
+  }
+
+  // 계좌 복사
+  var toast = document.getElementById('toast');
+  var announce = document.getElementById('copy-announce');
+  var toastTimer = null;
+  function showToast(msg){
+    if(announce) announce.textContent = msg;
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){toast.classList.remove('show')}, 2200);
+  }
+  function fallbackCopy(text, name){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(_){}
+    document.body.removeChild(ta);
+    if(ok) showToast(name + ' · 계좌번호 복사됨');
+  }
+  document.querySelectorAll('.env-acc-copy').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var value = btn.getAttribute('data-copy');
+      var name = btn.getAttribute('data-name') || '';
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(value).then(function(){
+          showToast(name + ' · 계좌번호 복사됨');
+        }).catch(function(){ fallbackCopy(value, name); });
+      } else {
+        fallbackCopy(value, name);
+      }
+    });
+  });
+
+  window.addEventListener('pagehide', function(){
+    if(toastTimer){ clearTimeout(toastTimer); toastTimer = null; }
+  });
+
+})();
+</script>
+
+</body>
+</html>
