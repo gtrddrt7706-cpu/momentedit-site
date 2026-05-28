@@ -2095,12 +2095,15 @@ function applyCoupleInfo(couple){
   // envelopeShowParents: 명시적 N일 때만 숨김(빈 칸·미지정·Y는 노출) — hydrate.js와 동일
   const showEnvP = !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(couple.envelopeShowParents || '').trim());
 
+  // 계좌 표시 위치 — 폼 "계좌를 어디에 표시할까요?"에서 '라이브 화면' 체크해야만 노출
+  const showAcctOnLive = String(couple.accountLive || '').trim().toUpperCase() === 'Y';
+
   // 6·7. envelope 신랑/신부 측 — 보여줄 게 1개라도 있을 때만 노출(SAMPLE placeholder 차단)
   const groomEnv = document.getElementById('env-groom');
   const groomItem = groomEnv ? groomEnv.closest('.env-item') : null;
   const gA = coupleAcct(couple.groomBank, couple.groomAccount);
   const gHasPar = showEnvP && !!(String(couple.groomFatherAccount || '').trim() || String(couple.groomMotherAccount || '').trim());
-  const gShow = !!gA.account || gHasPar;
+  const gShow = showAcctOnLive && (!!gA.account || gHasPar);
   if (groomItem) groomItem.style.display = gShow ? '' : 'none';
   if (groomItem && gShow) {
     updateEnvelopeBlock(groomItem, {
@@ -2117,7 +2120,7 @@ function applyCoupleInfo(couple){
   const brideItem = brideEnv ? brideEnv.closest('.env-item') : null;
   const bA = coupleAcct(couple.brideBank, couple.brideAccount);
   const bHasPar = showEnvP && !!(String(couple.brideFatherAccount || '').trim() || String(couple.brideMotherAccount || '').trim());
-  const bShow = !!bA.account || bHasPar;
+  const bShow = showAcctOnLive && (!!bA.account || bHasPar);
   if (brideItem) brideItem.style.display = bShow ? '' : 'none';
   if (brideItem && bShow) {
     updateEnvelopeBlock(brideItem, {

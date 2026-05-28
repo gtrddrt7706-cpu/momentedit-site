@@ -94,11 +94,19 @@ var CFG = {
   COL_DIGITAL: 'digitalAttendance',
   COL_GREETING: 'greetingShowParents',
   COL_ENVELOPE: 'envelopeShowParents',
+  COL_ACCT_ONLINE: 'accountOnline',
+  COL_ACCT_LIVE: 'accountLive',
+  COL_ACCT_FAMILY: 'accountFamily',
 
   Q_DESIGN_FAMILY: '오프라인 청첩장 디자인 번호',
   Q_DESIGN_ONLINE: '온라인 청첩장 디자인 번호',
   Q_GREET_GATE: '인사말에 혼주(부모님) 성함을 넣으시겠어요?',
   Q_ENVELOPE_GATE: '마음 전하실 곳에 부모님 계좌도 함께 넣으시겠어요?',
+  Q_ACCT_DISPLAY: '계좌를 어디에 표시할까요?',
+
+  ACCT_CHOICE_ONLINE: '온라인 청첩장',
+  ACCT_CHOICE_LIVE: '라이브 화면',
+  ACCT_CHOICE_FAMILY: '오프라인 청첩장',
 
   TAG: ' · ',   // 베이스 제목과 브랜치 구분자 사이 구분자(베이스 제목엔 없는 문자열)
   PROP_FORM_URL: 'FORM_PUBLISHED_URL'
@@ -128,7 +136,8 @@ function onCoupleFormSubmit(e) {
     // 필수 헤더(시트 3행 영문키) 누락 감지 — 실수로 지우면 데이터 침묵 손실 → 24h 1회 관리자 알림
     var REQUIRED_HEADERS = ['eventId', 'groomName', 'brideName', 'groomNameEn', 'brideNameEn',
       'groomEmail', 'brideEmail', 'weddingDate', 'weddingTime', 'designFamily', 'designOnline',
-      'digitalAttendance', 'invitationText', 'digPullQuote', 'digGroomBio', 'digBrideBio'];
+      'digitalAttendance', 'invitationText', 'digPullQuote', 'digGroomBio', 'digBrideBio',
+      'accountOnline', 'accountLive', 'accountFamily'];
     var _missing = REQUIRED_HEADERS.filter(function (h) { return !colOf[h]; });
     if (_missing.length) {
       notifyStudio('[Moment Edit] ⚠️ Couples 시트 헤더 누락',
@@ -213,6 +222,18 @@ function onCoupleFormSubmit(e) {
     // 3) 혼주 표시 토글(인사말 성함 / 계좌 부모)
     writeCell(sheet, colOf, rowNum, CFG.COL_GREETING, ynShow(g(CFG.Q_GREET_GATE)), true);   // force: 게이트 답(혼주 표시↔숨김) 변경 반영
     writeCell(sheet, colOf, rowNum, CFG.COL_ENVELOPE, ynShow(g(CFG.Q_ENVELOPE_GATE)), true); // force: 게이트 답(부모계좌 표시↔숨김) 변경 반영
+
+    // 3-1) 계좌 표시 위치 (체크박스 — 콤마 구분, raw 파싱)
+    //   체크박스는 e.namedValues에서 "온라인 청첩장, 라이브 화면" 같은 단일 문자열로 옴.
+    //   merged[base]는 첫 값만 잡으므로 namedValues에서 직접 읽음.
+    //   indexOf('온라인 청첩장')는 '오프라인 청첩장'엔 매칭 안 됨(온/오프 첫 글자 다름) → 안전.
+    var acctRaw = (e.namedValues[CFG.Q_ACCT_DISPLAY] && e.namedValues[CFG.Q_ACCT_DISPLAY][0]) || '';
+    var acctOnline = acctRaw.indexOf(CFG.ACCT_CHOICE_ONLINE) !== -1 ? 'Y' : 'N';
+    var acctLive   = acctRaw.indexOf(CFG.ACCT_CHOICE_LIVE)   !== -1 ? 'Y' : 'N';
+    var acctFamily = acctRaw.indexOf(CFG.ACCT_CHOICE_FAMILY) !== -1 ? 'Y' : 'N';
+    writeCell(sheet, colOf, rowNum, CFG.COL_ACCT_ONLINE, acctOnline, true);
+    writeCell(sheet, colOf, rowNum, CFG.COL_ACCT_LIVE,   acctLive,   true);
+    writeCell(sheet, colOf, rowNum, CFG.COL_ACCT_FAMILY, acctFamily, true);
 
     // 4) 캐시 무효화 — webhook 측 getCouple 캐시(같은 키)를 즉시 삭제 → 재제출 즉시 반영.
     //    ⚠️ 두 .gs가 같은 Apps Script 프로젝트에 있어야 ScriptCache 공유됨.
@@ -569,6 +590,22 @@ function createCoupleForm() {
   opt('신랑 어머니 계좌 (은행 번호)', '예) 신한 220-456-123789');
   opt('신부 아버지 계좌 (은행 번호)', '예) 농협 351-234-567890');
   opt('신부 어머니 계좌 (은행 번호)', '예) 카카오뱅크 3333-12-3456789');
+
+  // 계좌 표시 위치 — 체크박스(다중선택). 한 곳도 선택 안 하면 어디에도 미표시.
+  form.addCheckboxItem()
+    .setTitle(CFG.Q_ACCT_DISPLAY)
+    .setRequired(false)
+    .setChoiceValues([
+      CFG.ACCT_CHOICE_ONLINE,
+      CFG.ACCT_CHOICE_LIVE,
+      CFG.ACCT_CHOICE_FAMILY
+    ])
+    .setHelpText(
+      '· 라이브 화면 = 온라인 청첩장 안에서 예식을 실시간으로 보는 페이지입니다.\n' +
+      '※ 입력하신 계좌(신랑·신부, 부모님 포함)가 체크하신 곳에 표시됩니다.\n' +
+      '※ 한 곳도 선택하지 않으시면 어디에도 표시되지 않습니다.\n' +
+      '※ 계좌를 비워두셔도 표시되지 않습니다.'
+    );
 
   // ── ④ 오프라인 청첩장 (디자인 선택 → 1페이지 묶음) ──
   var pbFamDesign = form.addPageBreakItem().setTitle('오프라인 청첩장')

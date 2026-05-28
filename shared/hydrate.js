@@ -245,10 +245,14 @@
     html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
 
     // 계좌 섹션: 측별 토글은 해당 측에 보여줄 계좌가 1개라도 있을 때만 노출
-    //   · gShowItem: 본인 계좌 있음 OR (부모 표시 ON 이고 부모 계좌 1개라도 있음 — gHasPar에 showEnvP 포함)
+    //   · pageShowAcct: 이 페이지(오프/온)에서 표시 허용됐는지 — 폼 "계좌 표시 위치" 체크 결과
+    //   · gShowItem: pageShowAcct AND (본인 계좌 있음 OR 부모 표시 ON & 부모 계좌 있음)
     //   · envelope 섹션 전체: 양쪽 다 보여줄 게 없으면 제거 → 빈 섹션·빈 토글 노출 방지
-    var gShowItem = !!gAcct.account || gHasPar;
-    var bShowItem = !!bAcct.account || bHasPar;
+    //   ※ '/i-family/' = 오프라인 → accountFamily, '/i/' = 온라인 → accountOnline
+    var famPage = location.pathname.indexOf('/i-family/') !== -1;
+    var pageShowAcct = (String((famPage ? c.accountFamily : c.accountOnline) || '').trim().toUpperCase() === 'Y');
+    var gShowItem = pageShowAcct && (!!gAcct.account || gHasPar);
+    var bShowItem = pageShowAcct && (!!bAcct.account || bHasPar);
 
     // ?debug=1 시 모든 결정값을 콘솔에 출력 — 운영 진단용. 사용자에 영향 없음.
     try {
@@ -256,6 +260,7 @@
         console.group('🔧 Moment Edit · Hydrate Debug');
         console.log('eventId           :', c.eventId);
         console.log('designNum         :', designNum, '/ famPage =', famPage);
+        console.log('accountOnline     :', JSON.stringify(c.accountOnline), '/ accountFamily:', JSON.stringify(c.accountFamily), '→ pageShowAcct =', pageShowAcct);
         console.log('— 섹션 토글 —');
         console.log('digitalAttendance :', JSON.stringify(c.digitalAttendance), '→', showUnlessNo(c.digitalAttendance) ? '✅ Nº IV 표시' : '❌ Nº IV 제거');
         console.log('greetingShowParents:', JSON.stringify(c.greetingShowParents), '→ showGreetPar =', showGreetPar);
@@ -285,7 +290,7 @@
     // ── 고객 선택 3종 ──────────────────────────────────────
     // ① 인사글: 직접 작성 시 교체, 비우면 디자인 기본 인사글 유지.
     //    온라인(/i/)은 digInvitationText로 따로 작성 가능 — 비우면 오프라인/공통 invitationText를 그대로 이어받음.
-    var famPage = location.pathname.indexOf('/i-family/') !== -1;
+    //    famPage 는 위 envelope 처리 블록에서 선언됨.
     var customInv = String((famPage ? c.invitationText : (c.digInvitationText || c.invitationText)) || '').trim();
     if (customInv) {
       html = html.replace(/<!-- OPTIONAL:invitationText -->[\s\S]*?<!-- \/OPTIONAL:invitationText -->/g, buildInvitation(customInv));
