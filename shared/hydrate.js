@@ -415,8 +415,12 @@
       .then(function (data) {
         if (data && data.ok && data.couple) {
           data.couple.eventId = eventId;
-          try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
-          if (!rendered) apply(data.couple);
+          var fresh = JSON.stringify(data.couple);
+          // 재제출로 데이터가 바뀐 경우(이전 캐시 ≠ 최신 응답)에만 재렌더 → 깜빡임 없이 항상 최신 반영
+          var prev = null;
+          try { prev = localStorage.getItem(cacheKey); } catch (_) {}
+          try { localStorage.setItem(cacheKey, fresh); } catch (_) {}
+          if (!rendered || prev !== fresh) apply(data.couple);
         } else if (!rendered) {
           apply(SAMPLE);
         }
