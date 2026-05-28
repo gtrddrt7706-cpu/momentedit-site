@@ -793,10 +793,9 @@ function extractFormId_(url) {
 function addAccountDisplayCheckbox() {
   Logger.log('═══ Moment Edit · "계좌 표시 위치" 체크박스 추가 ═══');
 
-  // ⚠️ huijun: PROP_FORM_ID가 없는 옛 폼이면 여기에 폼 ID 직접 입력.
-  //   폼 ID는 폼 편집 URL https://docs.google.com/forms/d/{이 부분}/edit 에서 추출.
-  //   (정본 폼 편집기 주소창 → /d/와 /edit 사이 긴 문자열)
-  var FORM_ID_OVERRIDE = '';
+  // 정본 폼 ID(편집 URL /d/와 /edit 사이). 미리 입력 — huijun 추가 작업 없이 바로 실행.
+  //   비워두면 PROP_FORM_ID → PROP_FORM_URL(/edit) 순서로 자동 탐색.
+  var FORM_ID_OVERRIDE = '1QxCkxRP97kS3qpUOwHyp2J5beOVKpD3bLuz3QXwtLj4';
 
   var props = PropertiesService.getScriptProperties();
   var form = null;
@@ -839,8 +838,13 @@ function addAccountDisplayCheckbox() {
     );
   }
   Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ', 출처: ' + source + ')');
-  // PROP_FORM_ID 자동 보강 (옛 폼이라 안 저장된 경우 다음부턴 자동 사용)
-  try { props.setProperty(CFG.PROP_FORM_ID, form.getId()); } catch (_) {}
+  // PROP_FORM_URL / PROP_FORM_ID 자동 갱신 — 이 함수가 다룬 폼을 '정본'으로 PROP에 기록
+  //   (실수로 createCoupleForm을 또 돌려 PROP이 새 폼을 가리키게 됐을 때 자동 복구)
+  try {
+    props.setProperty(CFG.PROP_FORM_URL, form.getPublishedUrl());
+    props.setProperty(CFG.PROP_FORM_ID, form.getId());
+    Logger.log('  PROP 갱신: PROP_FORM_URL/ID → 이 폼(정본)');
+  } catch (_) {}
 
   // 2) 멱등 — 이미 같은 제목 항목 있으면 추가 안 함
   var existing = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_ACCT_DISPLAY; });
