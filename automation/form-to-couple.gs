@@ -614,12 +614,12 @@ function createCoupleForm() {
     .setTitle(CFG.Q_CHILD_GROOM)
     .setRequired(false)
     .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
-    .setHelpText('청첩장에 "○○○의 [장남] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "아들"로 표기됩니다.');
+    .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
   form.addMultipleChoiceItem()
     .setTitle(CFG.Q_CHILD_BRIDE)
     .setRequired(false)
     .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
-    .setHelpText('청첩장에 "○○○의 [장녀] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "딸"로 표기됩니다.');
+    .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
   opt('신랑 은행', '예) 하나은행');
   opt('신랑 계좌번호', '예) 222-456-789012');
   opt('신부 은행', '예) 우리은행');
@@ -1067,7 +1067,7 @@ function addChildTitleQuestions() {
       .setTitle(CFG.Q_CHILD_GROOM)
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
-      .setHelpText('청첩장에 "○○○의 [장남] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "아들"로 표기됩니다.');
+      .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
     Logger.log('  ✅ "' + CFG.Q_CHILD_GROOM + '" 추가');
   } else {
     Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_GROOM + '")');
@@ -1080,7 +1080,7 @@ function addChildTitleQuestions() {
       .setTitle(CFG.Q_CHILD_BRIDE)
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
-      .setHelpText('청첩장에 "○○○의 [장녀] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "딸"로 표기됩니다.');
+      .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
     Logger.log('  ✅ "' + CFG.Q_CHILD_BRIDE + '" 추가');
   } else {
     Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_BRIDE + '")');
