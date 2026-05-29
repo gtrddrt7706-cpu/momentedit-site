@@ -965,7 +965,7 @@ function addAccountDisplayCheckbox() {
   // ⚠️ 체크박스 자체가 폼 끝에 막 추가됐기 때문에 nextPageBreakIdx 계산 시점에는 cb 위치보다 PageBreak가 앞에 있음.
   //   moveItem이 cb를 PageBreak 자리로 옮기면 PageBreak는 한 칸 밀려나 다음 자리로 → 결과: cb @ ③ 페이지 끝.
   var destIdx = (nextPageBreakIdx !== -1) ? nextPageBreakIdx : items.length - 1;
-  form.moveItem(checkbox, destIdx);
+  form.moveItem(checkbox.getIndex(), destIdx);
   Logger.log('✅ 체크박스 추가 — "' + targetTitle + '" 직후, ' +
     (nextPageBreakIdx !== -1
       ? '다음 PageBreak(' + items[nextPageBreakIdx].getTitle() + ') 직전 → ③ 페이지 안'
@@ -1124,10 +1124,11 @@ function addChildTitleQuestions() {
     if (anchorIdx === -1) {
       Logger.log('  ⚠️ "신부 혼주(부모님)" 못 찾음 — 새 질문이 폼 끝에 있음. 폼 편집기에서 ③ 페이지로 옮기세요.');
     } else {
-      // 신랑 먼저, 신부 그 다음 순서로 배치
+      // 신랑 먼저, 신부 그 다음 순서로 배치 — moveItem(item, toIdx)는 MultipleChoiceItem 타입을
+      // 직접 받지 못하는 GAS 버전이 있어 인덱스 기반(fromIdx, toIdx) 시그니처 사용.
       var nextIdx = anchorIdx + 1;
-      if (groomQ) { form.moveItem(groomQ, nextIdx); nextIdx++; }
-      if (brideQ) { form.moveItem(brideQ, nextIdx); }
+      if (groomQ) { form.moveItem(groomQ.getIndex(), nextIdx); nextIdx++; }
+      if (brideQ) { form.moveItem(brideQ.getIndex(), nextIdx); }
       Logger.log('  ✅ 위치 조정 — "신부 혼주(부모님)" 다음에 배치');
     }
   }
