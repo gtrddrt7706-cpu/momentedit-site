@@ -33,6 +33,7 @@
     vimeoId: '', vimeoHash: '',
     // 고객 선택 3종 (프리뷰 기본값) — 인사글 비움→기본, 부모표기 둘 다 표시
     invitationText: '', greetingShowParents: 'Y', envelopeShowParents: 'Y', digitalAttendance: 'Y',
+    groomChildTitle: '장남', brideChildTitle: '차녀',
     // 부모 계좌 (프리뷰 샘플)
     groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
     brideFatherAccount: '농협 351-234-567890', brideMotherAccount: '카카오뱅크 3333-12-3456789',
@@ -322,6 +323,9 @@
       GROOM_ACCOUNT: escapeHtml(gAcct.account), BRIDE_ACCOUNT: escapeHtml(bAcct.account),
       GROOM_ACCOUNT_RAW: gAcct.raw, BRIDE_ACCOUNT_RAW: bAcct.raw,
       GROOM_PARENTS: escapeHtml(c.groomParents || ''), BRIDE_PARENTS: escapeHtml(c.brideParents || ''),
+      // 자녀 호칭(형제 순서) — 비우면 기본 "아들"/"딸"
+      GROOM_CHILD_TITLE: escapeHtml(String(c.groomChildTitle || '').trim() || '아들'),
+      BRIDE_CHILD_TITLE: escapeHtml(String(c.brideChildTitle || '').trim() || '딸'),
       GROOM_FIRST_EN_UPPER: groomEn.upper, BRIDE_FIRST_EN_UPPER: brideEn.upper,
       GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,
       GROOM_FIRST_EN_SPACED: groomEn.spaced, BRIDE_FIRST_EN_SPACED: brideEn.spaced,

@@ -74,6 +74,8 @@ var CFG = {
     '신부 아버지 계좌 (은행 번호)': 'brideFatherAccount',
     '신부 어머니 계좌 (은행 번호)': 'brideMotherAccount',
     '인사말 (직접 작성)': 'invitationText',
+    '신랑 형제 순서 (자녀 호칭)': 'groomChildTitle',
+    '신부 형제 순서 (자녀 호칭)': 'brideChildTitle',
     // 02 대표문구 / 08 한마디 — 오프/온이 같은 BASE라 "전체 제목(꼬리표 포함)"으로 정확 분리(병합 순서 무관)
     '대표 문구 (2번 디자인 전용) · 오프라인 청첩장 2번': 'pullQuote',
     '신랑 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번': 'groomBio',
@@ -103,6 +105,11 @@ var CFG = {
   Q_GREET_GATE: '인사말에 혼주(부모님) 성함을 넣으시겠어요?',
   Q_ENVELOPE_GATE: '마음 전하실 곳에 부모님 계좌도 함께 넣으시겠어요?',
   Q_ACCT_DISPLAY: '계좌를 어디에 표시할까요?',
+  Q_CHILD_GROOM: '신랑 형제 순서 (자녀 호칭)',
+  Q_CHILD_BRIDE: '신부 형제 순서 (자녀 호칭)',
+
+  CHILD_GROOM_CHOICES: ['외동아들', '장남', '차남', '삼남', '막내아들'],
+  CHILD_BRIDE_CHOICES: ['외동딸', '장녀', '차녀', '삼녀', '막내딸'],
 
   ACCT_CHOICE_ONLINE: '온라인 청첩장',
   ACCT_CHOICE_LIVE: '라이브 화면',
@@ -138,7 +145,8 @@ function onCoupleFormSubmit(e) {
     var REQUIRED_HEADERS = ['eventId', 'groomName', 'brideName', 'groomNameEn', 'brideNameEn',
       'groomEmail', 'brideEmail', 'weddingDate', 'weddingTime', 'designFamily', 'designOnline',
       'digitalAttendance', 'invitationText', 'digPullQuote', 'digGroomBio', 'digBrideBio',
-      'accountOnline', 'accountLive', 'accountFamily'];
+      'accountOnline', 'accountLive', 'accountFamily',
+      'groomChildTitle', 'brideChildTitle'];
     var _missing = REQUIRED_HEADERS.filter(function (h) { return !colOf[h]; });
     if (_missing.length) {
       notifyStudio('[Moment Edit] ⚠️ Couples 시트 헤더 누락',
@@ -601,6 +609,17 @@ function createCoupleForm() {
   gate(CFG.Q_GREET_GATE, '인사말 아래에 부모님 성함을 넣으실지 선택해 주세요.');
   opt('신랑 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 이재환·최미경\n(·가 어려우면 쉼표나 띄어쓰기로 구분해도 됩니다)');
   opt('신부 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 정영석·박윤희');
+  // 자녀 호칭 — 청첩장의 "OOO의 OOO" 표기에 사용. 비우면 기본 "아들"/"딸".
+  form.addMultipleChoiceItem()
+    .setTitle(CFG.Q_CHILD_GROOM)
+    .setRequired(false)
+    .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
+    .setHelpText('청첩장에 "○○○의 [장남] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "아들"로 표기됩니다.');
+  form.addMultipleChoiceItem()
+    .setTitle(CFG.Q_CHILD_BRIDE)
+    .setRequired(false)
+    .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
+    .setHelpText('청첩장에 "○○○의 [장녀] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "딸"로 표기됩니다.');
   opt('신랑 은행', '예) 하나은행');
   opt('신랑 계좌번호', '예) 222-456-789012');
   opt('신부 은행', '예) 우리은행');
@@ -1025,4 +1044,64 @@ function verifyAccountCheckbox() {
     Logger.log('✅ 체크박스 1개 — 정상');
   }
   Logger.log('═══ 검증 종료 ═══');
+}
+
+// 기존 폼에 자녀 호칭 질문 2개만 추가 — 신랑 형제 순서 + 신부 형제 순서.
+// "신부 혼주(부모님)" 다음 위치에 배치 (③ 페이지 내).
+// 같은 제목 항목 있으면 추가 안 함 (멱등).
+function addChildTitleQuestions() {
+  Logger.log('═══ Moment Edit · 자녀 호칭 질문 2개 추가 ═══');
+
+  var FORM_ID_OVERRIDE = '1QxCkxRP97kS3qpUOwHyp2J5beOVKpD3bLuz3QXwtLj4';
+  var opened = openFormForEdit_(FORM_ID_OVERRIDE);
+  var form = opened.form;
+  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ', 출처: ' + opened.source + ')');
+
+  var existingGroom = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_GROOM; });
+  var existingBride = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_BRIDE; });
+
+  // 신랑 자녀 호칭
+  var groomQ = null;
+  if (existingGroom.length === 0) {
+    groomQ = form.addMultipleChoiceItem()
+      .setTitle(CFG.Q_CHILD_GROOM)
+      .setRequired(false)
+      .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
+      .setHelpText('청첩장에 "○○○의 [장남] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "아들"로 표기됩니다.');
+    Logger.log('  ✅ "' + CFG.Q_CHILD_GROOM + '" 추가');
+  } else {
+    Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_GROOM + '")');
+  }
+
+  // 신부 자녀 호칭
+  var brideQ = null;
+  if (existingBride.length === 0) {
+    brideQ = form.addMultipleChoiceItem()
+      .setTitle(CFG.Q_CHILD_BRIDE)
+      .setRequired(false)
+      .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
+      .setHelpText('청첩장에 "○○○의 [장녀] ○○○" 형식으로 표기됩니다.\n※ 비우시면 "딸"로 표기됩니다.');
+    Logger.log('  ✅ "' + CFG.Q_CHILD_BRIDE + '" 추가');
+  } else {
+    Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_BRIDE + '")');
+  }
+
+  // 위치 조정 — "신부 혼주(부모님)" 다음으로
+  if (groomQ || brideQ) {
+    var items = form.getItems();
+    var anchorIdx = -1;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].getTitle() === '신부 혼주(부모님)') { anchorIdx = i; break; }
+    }
+    if (anchorIdx === -1) {
+      Logger.log('  ⚠️ "신부 혼주(부모님)" 못 찾음 — 새 질문이 폼 끝에 있음. 폼 편집기에서 ③ 페이지로 옮기세요.');
+    } else {
+      // 신랑 먼저, 신부 그 다음 순서로 배치
+      var nextIdx = anchorIdx + 1;
+      if (groomQ) { form.moveItem(groomQ, nextIdx); nextIdx++; }
+      if (brideQ) { form.moveItem(brideQ, nextIdx); }
+      Logger.log('  ✅ 위치 조정 — "신부 혼주(부모님)" 다음에 배치');
+    }
+  }
+  Logger.log('폼 URL: ' + form.getPublishedUrl());
 }
