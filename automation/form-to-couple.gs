@@ -1105,3 +1105,67 @@ function addChildTitleQuestions() {
   }
   Logger.log('폼 URL: ' + form.getPublishedUrl());
 }
+
+// 시트 헤더 자동 동기화 — Couples 시트 3행에 모든 영문 헤더 누락 없이 보장.
+// 미래에 컬럼이 추가될 때마다 ALL_HEADERS만 업데이트하고 이 함수 ▶ 실행.
+// 기존 데이터·위치는 손대지 않고, 누락된 헤더만 시트 끝에 추가 (안전).
+// 사용: GAS 함수 드롭다운 → ensureSheetHeaders ▶ 실행
+function ensureSheetHeaders() {
+  Logger.log('═══ Moment Edit · Couples 시트 헤더 동기화 ═══');
+
+  // 전체 헤더 (코드가 사용하는 모든 영문 컬럼 이름) — 새 컬럼 추가 시 여기에 append만
+  var ALL_HEADERS = [
+    'eventId',
+    'groomName', 'brideName', 'groomNameEn', 'brideNameEn',
+    'groomEmail', 'brideEmail',
+    'weddingDate', 'weddingTime',
+    'designFamily', 'designOnline', 'digitalAttendance',
+    'groomBank', 'groomAccount', 'brideBank', 'brideAccount',
+    'groomParents', 'brideParents',
+    'greetingShowParents', 'envelopeShowParents',
+    'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount',
+    'invitationText', 'digInvitationText',
+    'pullQuote', 'groomBio', 'brideBio',
+    'famInvTitle', 'famInvSubKo', 'digInvTitle', 'digInvSubKo',
+    'digPullQuote', 'digGroomBio', 'digBrideBio',
+    'accountOnline', 'accountLive', 'accountFamily',
+    'groomChildTitle', 'brideChildTitle'
+  ];
+
+  var ss = SpreadsheetApp.getActive();
+  var sheet = ss.getSheetByName(CFG.SHEET_NAME);
+  if (!sheet) throw new Error('Couples 시트 없음 — 시트 이름이 정확히 "' + CFG.SHEET_NAME + '" 인지 확인');
+  Logger.log('대상 시트: ' + ss.getName() + ' · ' + CFG.SHEET_NAME);
+
+  // 현재 헤더 (3행)
+  var currentLastCol = sheet.getLastColumn();
+  var currentHeaders = currentLastCol > 0
+    ? sheet.getRange(CFG.HEADER_ROW, 1, 1, currentLastCol).getValues()[0].map(function (h) { return String(h).trim(); })
+    : [];
+  Logger.log('현재 헤더 수: ' + currentHeaders.length + ' / 필요 헤더 수: ' + ALL_HEADERS.length);
+
+  // 누락된 헤더 (순서 유지)
+  var missing = ALL_HEADERS.filter(function (h) { return currentHeaders.indexOf(h) === -1; });
+  // 알 수 없는 헤더 (참고용 — 직접 추가한 사용자 컬럼 등)
+  var unknown = currentHeaders.filter(function (h) { return h && ALL_HEADERS.indexOf(h) === -1; });
+
+  if (unknown.length) {
+    Logger.log('ℹ️ 알 수 없는 헤더(보존됨): ' + unknown.join(', '));
+  }
+
+  if (missing.length === 0) {
+    Logger.log('✅ 모든 헤더 존재 — 변경 없음');
+    return;
+  }
+
+  Logger.log('누락 헤더 ' + missing.length + '개: ' + missing.join(', '));
+
+  // 시트 끝에 누락 헤더 추가 (기존 데이터 안 건드림)
+  var startCol = currentLastCol + 1;
+  missing.forEach(function (h, i) {
+    sheet.getRange(CFG.HEADER_ROW, startCol + i).setValue(h);
+  });
+  Logger.log('✅ ' + missing.length + '개 헤더 추가 — 열 ' + startCol + '~' + (startCol + missing.length - 1));
+  Logger.log('   (헤더 순서는 코드 매칭에 무관 — buildHeaderIndex가 이름으로 검색)');
+  Logger.log('═══ 동기화 종료 ═══');
+}
