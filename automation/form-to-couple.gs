@@ -452,7 +452,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, hasQr, w
       '<p style="font-size:13px;line-height:1.8;color:#B8AE9F;text-align:center;margin:14px 0 0;">아래 링크가 <span style="color:#D8B48C;font-weight:600;">그대로 완성된 청첩장</span>입니다.<br>따로 만드실 것 없이 이 링크를 그대로 공유하시면 됩니다.</p>' +
       '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + '</div>' +
       (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="150" height="150" style="width:150px !important;height:150px !important;max-width:150px !important;display:block;margin:0 auto;border:0;border-radius:2px;"><div style="font-size:12px;color:#B8AE9F;margin-top:12px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으시면, 하객이 스캔해 바로 입장할 수 있습니다.<br>QR을 길게(꾹) 누르면 이미지로 저장하실 수 있습니다.</div></div>' : '') +
-      '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
+      '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌·호칭에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
       '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#C9A977;">Focus on the Essence, Record the Truth.</div>' +
       '<div style="text-align:center;margin-top:14px;font-size:10px;color:#7A7165;">Moment Edit · contact@momentedit.kr</div></div>' +
     '</td></tr></table></body></html>';
@@ -550,7 +550,10 @@ function createCoupleForm() {
   try { form.setRequireLogin(false); } catch (_r) {}
   form.setProgressBar(true);
   form.setAllowResponseEdits(true);
-  form.setConfirmationMessage('두 분의 정성, 잘 받았습니다.\n완성된 청첩장은 입력하신 이메일로 곧 전해드리겠습니다.\n내용을 고치고 싶으시면 같은 성함·날짜로 다시 제출하시면 자동으로 갱신됩니다.');
+  form.setConfirmationMessage('두 분의 정성, 잘 받았습니다.\n' +
+    '입력하신 이메일로 청첩장 링크가 곧 전해드리겠습니다 (보통 30초~1분 소요).\n' +
+    '메일이 안 보이시면 스팸함도 확인해 주세요.\n\n' +
+    '내용을 고치고 싶으시면 같은 성함·날짜로 다시 제출하시면 자동으로 갱신됩니다.\n\n— Moment Edit');
 
   var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
   var R = CFG.RAW, T = CFG.TAG;
@@ -1197,4 +1200,66 @@ function ensureSheetHeaders() {
   Logger.log('✅ ' + missing.length + '개 헤더 추가 — 열 ' + startCol + '~' + (startCol + missing.length - 1));
   Logger.log('   (헤더 순서는 코드 매칭에 무관 — buildHeaderIndex가 이름으로 검색)');
   Logger.log('═══ 동기화 종료 ═══');
+}
+
+// 정본 폼에 폼 제출 후 확인 메시지 적용 — 기존 폼은 옛 메시지(또는 기본)일 수 있어 명시적 갱신.
+// 사용: GAS 함수 드롭다운 → setFormConfirmationMessage ▶ 실행
+function setFormConfirmationMessage() {
+  Logger.log('═══ Moment Edit · 폼 확인 메시지 설정 ═══');
+  var FORM_ID_OVERRIDE = '1QxCkxRP97kS3qpUOwHyp2J5beOVKpD3bLuz3QXwtLj4';
+  var opened = openFormForEdit_(FORM_ID_OVERRIDE);
+  var form = opened.form;
+  var msg = '두 분의 정성, 잘 받았습니다.\n' +
+            '입력하신 이메일로 청첩장 링크가 곧 전해드리겠습니다 (보통 30초~1분 소요).\n' +
+            '메일이 안 보이시면 스팸함도 확인해 주세요.\n\n' +
+            '내용을 고치고 싶으시면 같은 성함·날짜로 다시 제출하시면 자동으로 갱신됩니다.\n\n— Moment Edit';
+  form.setConfirmationMessage(msg);
+  Logger.log('✅ 확인 메시지 설정 완료 (' + form.getTitle() + ')');
+  Logger.log('미리보기:\n' + msg);
+}
+
+// 검증 — 자녀 호칭 질문 2개가 ③ 페이지 안에 정상 배치됐는지 확인 (옛 제목 잔여 포함).
+// 사용: GAS 함수 드롭다운 → verifyChildTitleQuestions ▶ 실행
+function verifyChildTitleQuestions() {
+  Logger.log('═══ Moment Edit · 자녀 호칭 질문 검증 ═══');
+  var FORM_ID_OVERRIDE = '1QxCkxRP97kS3qpUOwHyp2J5beOVKpD3bLuz3QXwtLj4';
+  var opened = openFormForEdit_(FORM_ID_OVERRIDE);
+  var form = opened.form;
+  Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ')');
+
+  var items = form.getItems();
+  var pageBreaks = [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getType() === FormApp.ItemType.PAGE_BREAK) pageBreaks.push(i);
+  }
+
+  var LEGACY = ['신랑 형제 순서 (자녀 호칭)', '신부 형제 순서 (자녀 호칭)'];
+  var legacy = items.filter(function (it) { return LEGACY.indexOf(it.getTitle()) !== -1; });
+  if (legacy.length) {
+    Logger.log('⚠️ 옛 제목 잔여 ' + legacy.length + '개 발견 — 폼 편집기에서 수동 삭제 권장:');
+    legacy.forEach(function (it) { Logger.log('   · "' + it.getTitle() + '" (index ' + it.getIndex() + ')'); });
+  }
+
+  [CFG.Q_CHILD_GROOM, CFG.Q_CHILD_BRIDE].forEach(function (title) {
+    var matches = items.filter(function (it) { return it.getTitle() === title; });
+    Logger.log('"' + title + '" 개수: ' + matches.length);
+    if (matches.length === 0) {
+      Logger.log('  ❌ 없음 — addChildTitleQuestions 실행 필요');
+      return;
+    }
+    matches.forEach(function (it) {
+      var idx = it.getIndex();
+      var page = 1;
+      for (var k = 0; k < pageBreaks.length; k++) if (pageBreaks[k] < idx) page = k + 2;
+      var nextItem = (idx + 1 < items.length) ? items[idx + 1] : null;
+      var nextDesc = nextItem
+        ? (nextItem.getType() === FormApp.ItemType.PAGE_BREAK
+            ? 'PageBreak("' + nextItem.getTitle() + '")'
+            : '"' + nextItem.getTitle() + '"')
+        : '(폼 끝)';
+      Logger.log('  [index ' + idx + '] 페이지 ' + page + ' · 직후: ' + nextDesc);
+    });
+    if (matches.length > 1) Logger.log('  ⚠️ 중복 ' + matches.length + '개 — 폼 편집기에서 수동 정리');
+  });
+  Logger.log('═══ 검증 종료 ═══');
 }
