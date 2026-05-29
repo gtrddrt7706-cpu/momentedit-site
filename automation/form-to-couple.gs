@@ -244,6 +244,21 @@ function onCoupleFormSubmit(e) {
     writeCell(sheet, colOf, rowNum, CFG.COL_ACCT_LIVE,   acctLive,   true);
     writeCell(sheet, colOf, rowNum, CFG.COL_ACCT_FAMILY, acctFamily, true);
 
+    // 3-2) 자녀 호칭 길이 안전망 — "기타" 직접 입력이 너무 길면 청첩장 깨질 위험.
+    //   10자 초과 시 잘라내고 관리자 알림(추후 점검). 빈 값/짧은 값은 그대로 기록.
+    var CHILD_TITLE_MAX = 10;
+    ['groomChildTitle', 'brideChildTitle'].forEach(function (col) {
+      var raw = String((col === 'groomChildTitle' ? merged['신랑 자녀 호칭 (장남·차남 등)'] : merged['신부 자녀 호칭 (장녀·차녀 등)']) || '').trim();
+      if (raw.length > CHILD_TITLE_MAX) {
+        var clipped = raw.slice(0, CHILD_TITLE_MAX);
+        writeCell(sheet, colOf, rowNum, col, clipped, true);
+        notifyStudio('[Moment Edit] 자녀 호칭 입력값 잘라냄',
+          col + ' 원본 길이 ' + raw.length + '자 → ' + CHILD_TITLE_MAX + '자로 잘림.\n' +
+          '원본: "' + raw + '"\n잘림 후: "' + clipped + '"\neventId: ' + eventId,
+          'child_title_clip_' + eventId + '_' + col);
+      }
+    });
+
     // 4) 캐시 무효화 — webhook 측 getCouple 캐시(같은 키)를 즉시 삭제 → 재제출 즉시 반영.
     //    ⚠️ 두 .gs가 같은 Apps Script 프로젝트에 있어야 ScriptCache 공유됨.
     try {
@@ -1058,6 +1073,15 @@ function addChildTitleQuestions() {
   var opened = openFormForEdit_(FORM_ID_OVERRIDE);
   var form = opened.form;
   Logger.log('대상 폼: ' + form.getTitle() + ' (id: ' + form.getId() + ', 출처: ' + opened.source + ')');
+
+  // 옛 제목 잔여 검사 — 이전 버전("신랑/신부 형제 순서 (자녀 호칭)") 으로 추가했던 흔적 감지
+  var LEGACY_TITLES = ['신랑 형제 순서 (자녀 호칭)', '신부 형제 순서 (자녀 호칭)'];
+  var legacy = form.getItems().filter(function (it) { return LEGACY_TITLES.indexOf(it.getTitle()) !== -1; });
+  if (legacy.length) {
+    Logger.log('⚠️ 옛 제목 잔여 ' + legacy.length + '개 발견:');
+    legacy.forEach(function (it) { Logger.log('   · "' + it.getTitle() + '" (index ' + it.getIndex() + ')'); });
+    Logger.log('   → 폼 편집기에서 수동 삭제해 주세요. 안 그러면 새 제목과 함께 중복으로 남습니다.');
+  }
 
   var existingGroom = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_GROOM; });
   var existingBride = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_BRIDE; });
