@@ -242,6 +242,11 @@
     html = processOptional(html, 'groomParents', showEnvP && hasGroomParents);
     html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
 
+    // 자녀 호칭 자체 토글 — 호칭 입력 안 했으면 호칭 영역 통째 제거 (04 디자인 "호칭 + 이름" 패턴에서
+    // 폴백 "아들 이서준" 어색함 방지). 일반 디자인은 호칭이 부모 이름 다음("OOO의 ___")이라 폴백 자연스러움 → 영향 없음.
+    html = processOptional(html, 'groomChildTitle', !!String(c.groomChildTitle || '').trim());
+    html = processOptional(html, 'brideChildTitle', !!String(c.brideChildTitle || '').trim());
+
     // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
     html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
 
