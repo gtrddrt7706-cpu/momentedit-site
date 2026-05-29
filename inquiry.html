@@ -374,7 +374,7 @@
           <span class="compact-text">네이버·검색</span>
         </label>
         <label class="compact-option">
-          <input type="radio" name="referral" value="웨딩 플랫폼">
+          <input type="radio" name="referral" value="웨딩 플랫폼" data-conditional="referral-platform">
           <span class="compact-mark"></span>
           <span class="compact-text">웨딩 플랫폼</span>
         </label>
@@ -383,6 +383,14 @@
           <span class="compact-mark"></span>
           <span class="compact-text">기타</span>
         </label>
+      </div>
+      <div class="conditional" id="referral-platform">
+        <div class="conditional-inner">
+          <div class="field" style="margin-bottom:0">
+            <input type="text" id="referralPlatform" name="알게 된 경로 (웨딩 플랫폼)" placeholder=" " maxlength="80" autocomplete="off">
+            <label for="referralPlatform">어떤 플랫폼인지 적어주세요</label>
+          </div>
+        </div>
       </div>
       <div class="conditional" id="referral-custom">
         <div class="conditional-inner">
@@ -1534,13 +1542,17 @@ function buildFormData(){
   const consultDatetime = form.querySelector('#consultDatetime').value.trim();
   data.append('방문 상담 희망 일시', consultDatetime || '(선택 없음 · 조율 필요)');
 
-  // 알게 된 경로 (기타 선택 시 직접 입력값 합산)
+  // 알게 된 경로 (기타·웨딩 플랫폼 선택 시 직접 입력값 합산)
   const referralVal = form.querySelector('input[name="referral"]:checked')?.value || '(선택 없음)';
   const referralCustomEl = form.querySelector('#referralCustom');
   const referralCustom = referralCustomEl ? referralCustomEl.value.trim() : '';
+  const referralPlatformEl = form.querySelector('#referralPlatform');
+  const referralPlatform = referralPlatformEl ? referralPlatformEl.value.trim() : '';
   let referralLabel = referralVal;
   if (referralVal === '기타' && referralCustom) {
     referralLabel = `기타 — ${referralCustom}`;
+  } else if (referralVal === '웨딩 플랫폼' && referralPlatform) {
+    referralLabel = `웨딩 플랫폼 — ${referralPlatform}`;
   }
   data.append('알게 된 경로', referralLabel);
 
