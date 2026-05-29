@@ -74,8 +74,8 @@ var CFG = {
     '신부 아버지 계좌 (은행 번호)': 'brideFatherAccount',
     '신부 어머니 계좌 (은행 번호)': 'brideMotherAccount',
     '인사말 (직접 작성)': 'invitationText',
-    '신랑 형제 순서 (자녀 호칭)': 'groomChildTitle',
-    '신부 형제 순서 (자녀 호칭)': 'brideChildTitle',
+    '신랑 자녀 호칭 (장남·차남 등)': 'groomChildTitle',
+    '신부 자녀 호칭 (장녀·차녀 등)': 'brideChildTitle',
     // 02 대표문구 / 08 한마디 — 오프/온이 같은 BASE라 "전체 제목(꼬리표 포함)"으로 정확 분리(병합 순서 무관)
     '대표 문구 (2번 디자인 전용) · 오프라인 청첩장 2번': 'pullQuote',
     '신랑 한마디 (8번 디자인 전용) · 오프라인 청첩장 8번': 'groomBio',
@@ -105,11 +105,11 @@ var CFG = {
   Q_GREET_GATE: '인사말에 혼주(부모님) 성함을 넣으시겠어요?',
   Q_ENVELOPE_GATE: '마음 전하실 곳에 부모님 계좌도 함께 넣으시겠어요?',
   Q_ACCT_DISPLAY: '계좌를 어디에 표시할까요?',
-  Q_CHILD_GROOM: '신랑 형제 순서 (자녀 호칭)',
-  Q_CHILD_BRIDE: '신부 형제 순서 (자녀 호칭)',
+  Q_CHILD_GROOM: '신랑 자녀 호칭 (장남·차남 등)',
+  Q_CHILD_BRIDE: '신부 자녀 호칭 (장녀·차녀 등)',
 
-  CHILD_GROOM_CHOICES: ['외동아들', '장남', '차남', '삼남', '막내아들'],
-  CHILD_BRIDE_CHOICES: ['외동딸', '장녀', '차녀', '삼녀', '막내딸'],
+  CHILD_GROOM_CHOICES: ['외동아들', '장남', '차남', '삼남', '사남', '막내아들'],
+  CHILD_BRIDE_CHOICES: ['외동딸', '장녀', '차녀', '삼녀', '사녀', '막내딸'],
 
   ACCT_CHOICE_ONLINE: '온라인 청첩장',
   ACCT_CHOICE_LIVE: '라이브 화면',
@@ -609,17 +609,19 @@ function createCoupleForm() {
   gate(CFG.Q_GREET_GATE, '인사말 아래에 부모님 성함을 넣으실지 선택해 주세요.');
   opt('신랑 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 이재환·최미경\n(·가 어려우면 쉼표나 띄어쓰기로 구분해도 됩니다)');
   opt('신부 혼주(부모님)', '두 분 성함을 함께 적어주세요. 예) 정영석·박윤희');
-  // 자녀 호칭 — 청첩장의 "OOO의 OOO" 표기에 사용. 비우면 기본 "아들"/"딸".
+  // 자녀 호칭 — 청첩장의 "OOO의 OOO" 표기에 사용. 비우면 기본 "아들"/"딸". 기타(직접 입력) 허용.
   form.addMultipleChoiceItem()
     .setTitle(CFG.Q_CHILD_GROOM)
     .setRequired(false)
     .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
-    .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
+    .showOtherOption(true)
+    .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
   form.addMultipleChoiceItem()
     .setTitle(CFG.Q_CHILD_BRIDE)
     .setRequired(false)
     .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
-    .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
+    .showOtherOption(true)
+    .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
   opt('신랑 은행', '예) 하나은행');
   opt('신랑 계좌번호', '예) 222-456-789012');
   opt('신부 은행', '예) 우리은행');
@@ -1067,7 +1069,8 @@ function addChildTitleQuestions() {
       .setTitle(CFG.Q_CHILD_GROOM)
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
-      .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
+      .showOtherOption(true)
+      .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "아들"로 표기됩니다.');
     Logger.log('  ✅ "' + CFG.Q_CHILD_GROOM + '" 추가');
   } else {
     Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_GROOM + '")');
@@ -1080,7 +1083,8 @@ function addChildTitleQuestions() {
       .setTitle(CFG.Q_CHILD_BRIDE)
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
-      .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
+      .showOtherOption(true)
+      .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "딸"로 표기됩니다.');
     Logger.log('  ✅ "' + CFG.Q_CHILD_BRIDE + '" 추가');
   } else {
     Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_BRIDE + '")');
