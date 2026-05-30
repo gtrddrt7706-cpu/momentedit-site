@@ -228,6 +228,9 @@ function submitApplication(form) {
   var memo = String(form.memo || '').trim();
   var detail = String(form.detail || '').trim();   // 화면 A(문의폼)의 상세 신청내용
 
+  // 허니팟(봇 차단): 숨김 필드(_gotcha)에 값이 차 있으면 자동입력 봇 → 조용히 무시(성공인 척)
+  if (String(form.hp || '').trim()) { Logger.log('  (honeypot 걸림 — 봇 의심, 기록·메일 생략)'); return { ok: true }; }
+
   if (!groom || !bride) throw new Error('성함을 입력해 주세요.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   if (!phone) throw new Error('연락처를 입력해 주세요.');
