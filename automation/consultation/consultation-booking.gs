@@ -82,6 +82,24 @@ function doGet(e) {
   }
 }
 
+// ============================ 자체 도메인 폼(fetch) → doPost ============================
+// momentedit.kr/inquiry.html 이 fetch(POST · JSON)로 신청을 보냄 (iframe 아님).
+// payload: { groom, bride, phone, email, memo, detail, hp }  (detail·hp 는 폼에서 조립)
+// 응답: { ok:true } 또는 { ok:false, error }  (폼이 data.ok 로 성공 판정)
+function doPost(e) {
+  try {
+    var body = {};
+    try { body = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { body = {}; }
+    submitApplication(body);   // {groom,bride,phone,email,memo,detail,hp} — 허니팟·검증은 submitApplication 내부에서
+    return jsonOut({ ok: true });
+  } catch (err) {
+    return jsonOut({ ok: false, error: (err && err.message) ? err.message : String(err) });
+  }
+}
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
 // ───────────── 화면 A · 상담 신청 폼 (공개) ─────────────
 function serveApplyA() {
   var t = HtmlService.createTemplateFromFile(SYS.HTML_A);
