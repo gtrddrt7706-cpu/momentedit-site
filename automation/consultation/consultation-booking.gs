@@ -36,8 +36,8 @@ const CONFIG = {
   CONFIRM_DEADLINE_HOURS: 24,                  // 확정 메일 발송 데드라인
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 — 운영자 입력 예정
   KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 — 운영자 입력 예정
-  ADMIN_EMAIL: '[미쿠 이메일]',                 // 알림 받을 주소 — 운영자 입력 예정
-  CALENDAR_ID: '[상담용 구글 캘린더 ID]',        // 운영자 연결 예정
+  ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소
+  CALENDAR_ID: 'c_c6c2f76cd17c85e3ddfa4ded4ca3634b9fd3de774222171c0c30a850a0cfbf00@group.calendar.google.com',  // 연결됨
 };
 
 // 시스템 상수 (운영자가 건드릴 필요 없음)
