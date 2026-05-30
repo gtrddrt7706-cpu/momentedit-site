@@ -58,7 +58,7 @@ const SYS = {
 
 // 시트 헤더 (STEP 2)
 const HEADERS = [
-  '신청일시', '성함(신랑)', '성함(신부)', '연락처', '이메일', '메모', '토큰',
+  '신청일시', '성함(신랑)', '성함(신부)', '연락처', '이메일', '메모', '신청상세', '토큰',
   '선택날짜', '선택시간', '그외가능시간대', '기타희망시간',
   '입금확인', '상태', '변경제안날짜', '변경제안시간', '캘린더이벤트ID', '확정일시'
 ];
@@ -226,6 +226,7 @@ function submitApplication(form) {
   var phone = String(form.phone || '').trim();
   var email = String(form.email || '').trim();
   var memo = String(form.memo || '').trim();
+  var detail = String(form.detail || '').trim();   // 화면 A(문의폼)의 상세 신청내용
 
   if (!groom || !bride) throw new Error('성함을 입력해 주세요.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
@@ -243,6 +244,7 @@ function submitApplication(form) {
   writeCell(sheet, colOf, rowNum, '연락처', phone);
   writeCell(sheet, colOf, rowNum, '이메일', email);
   writeCell(sheet, colOf, rowNum, '메모', memo);
+  writeCell(sheet, colOf, rowNum, '신청상세', detail);
   writeCell(sheet, colOf, rowNum, '토큰', token);
   writeCell(sheet, colOf, rowNum, '상태', ST.APPLIED);
 
