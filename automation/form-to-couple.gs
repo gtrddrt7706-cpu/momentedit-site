@@ -1089,7 +1089,10 @@ function addChildTitleQuestions() {
   var existingGroom = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_GROOM; });
   var existingBride = form.getItems().filter(function (it) { return it.getTitle() === CFG.Q_CHILD_BRIDE; });
 
-  // 신랑 자녀 호칭
+  // 신랑 자녀 호칭 — 없으면 추가, 있으면 선택지·도움말 갱신(멱등, 옛 버전 동기화)
+  var GROOM_HELP = '예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 호칭 없이 이름만 표시하려면 "호칭 생략 (이름만 표시)"을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "아들"로 표기됩니다 (4번 디자인은 자동 생략).';
+  var BRIDE_HELP = '예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 호칭 없이 이름만 표시하려면 "호칭 생략 (이름만 표시)"을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "딸"로 표기됩니다 (4번 디자인은 자동 생략).';
+
   var groomQ = null;
   if (existingGroom.length === 0) {
     groomQ = form.addMultipleChoiceItem()
@@ -1097,13 +1100,17 @@ function addChildTitleQuestions() {
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_GROOM_CHOICES)
       .showOtherOption(true)
-      .setHelpText('예시: "이재환·최미경의 장남 이서준" 형태로 청첩장에 표기됩니다.\n· 외동·장남·차남 등 신랑께 어울리는 호칭을 선택해 주세요.\n· 호칭 없이 이름만 표시하려면 "호칭 생략 (이름만 표시)"을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "아들"로 표기됩니다 (4번 디자인은 자동 생략).');
+      .setHelpText(GROOM_HELP);
     Logger.log('  ✅ "' + CFG.Q_CHILD_GROOM + '" 추가');
   } else {
-    Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_GROOM + '")');
+    // 이미 있으면 선택지·도움말만 최신으로 갱신 (위치는 유지)
+    var groomItem = existingGroom[0].asMultipleChoiceItem();
+    groomItem.setChoiceValues(CFG.CHILD_GROOM_CHOICES).showOtherOption(true);
+    groomItem.setHelpText(GROOM_HELP);
+    Logger.log('  🔄 "' + CFG.Q_CHILD_GROOM + '" 갱신 (선택지 + 도움말)');
   }
 
-  // 신부 자녀 호칭
+  // 신부 자녀 호칭 — 동일 정책
   var brideQ = null;
   if (existingBride.length === 0) {
     brideQ = form.addMultipleChoiceItem()
@@ -1111,10 +1118,13 @@ function addChildTitleQuestions() {
       .setRequired(false)
       .setChoiceValues(CFG.CHILD_BRIDE_CHOICES)
       .showOtherOption(true)
-      .setHelpText('예시: "정영석·박윤희의 장녀 정하윤" 형태로 청첩장에 표기됩니다.\n· 외동·장녀·차녀 등 신부께 어울리는 호칭을 선택해 주세요.\n· 호칭 없이 이름만 표시하려면 "호칭 생략 (이름만 표시)"을 선택해 주세요.\n· 해당 사항이 없으시면 "기타"에 직접 입력해 주셔도 됩니다.\n· 비워두시면 기본으로 "딸"로 표기됩니다 (4번 디자인은 자동 생략).');
+      .setHelpText(BRIDE_HELP);
     Logger.log('  ✅ "' + CFG.Q_CHILD_BRIDE + '" 추가');
   } else {
-    Logger.log('  (이미 있음 — "' + CFG.Q_CHILD_BRIDE + '")');
+    var brideItem = existingBride[0].asMultipleChoiceItem();
+    brideItem.setChoiceValues(CFG.CHILD_BRIDE_CHOICES).showOtherOption(true);
+    brideItem.setHelpText(BRIDE_HELP);
+    Logger.log('  🔄 "' + CFG.Q_CHILD_BRIDE + '" 갱신 (선택지 + 도움말)');
   }
 
   // 위치 조정 — "신부 혼주(부모님)" 다음으로
