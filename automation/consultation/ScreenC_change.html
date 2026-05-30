@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>시간 변경 제안 · Moment Edit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FAFAF8;--bg2:#F5F3EF;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
+  --gold:#B89A75;--gold-soft:rgba(184,154,117,0.16);--accent:#3A2D22;--seal:#6B2A24;
+  --border:#DDD8D1;--hairline:rgba(28,27,25,0.14);
+  --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif;--sans:'Noto Sans KR',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);--radius:4px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;
+  line-height:1.85;word-break:keep-all;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:460px;margin:0 auto;padding:0 22px}
+.top{text-align:center;padding:44px 22px 6px}
+.brand{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.34em;color:var(--accent);text-transform:uppercase}
+.greet{text-align:center;padding:16px 22px 26px}
+.greet-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.greet-title{font-family:var(--serif-ko);font-size:23px;font-weight:400;color:var(--accent);line-height:1.4}
+.greet-title .name{color:var(--gold);font-weight:500}
+.greet-line{width:30px;height:1px;background:var(--gold);margin:18px auto 0}
+.cur{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:18px;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
+.cur b{color:var(--accent);font-weight:500}
+.cur .line{padding:4px 0}
+.cur .mut{font-size:11.5px;color:var(--light)}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;
+  box-shadow:0 1px 2px rgba(28,27,25,0.03),0 8px 30px rgba(28,27,25,0.04);padding:26px 24px;margin-bottom:18px}
+.field{margin-bottom:20px}
+.field:last-child{margin-bottom:0}
+.label{display:block;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);margin-bottom:8px}
+.label .opt{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--light);letter-spacing:0.12em;margin-left:6px;text-transform:uppercase}
+.hint{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);margin-bottom:9px;line-height:1.6}
+.input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;
+  font-family:var(--serif-ko);font-size:14px;color:var(--accent);transition:border-color 0.25s var(--ease)}
+.input:focus{outline:none;border-color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;font-family:var(--serif-ko);font-size:14px;
+  letter-spacing:0.1em;color:#fff;background:var(--seal);padding:18px;border:none;border-radius:var(--radius);
+  cursor:pointer;font-weight:300;transition:all 0.3s var(--ease)}
+.btn:hover:not(:disabled){background:#5B1E18}
+.btn:disabled{opacity:0.4;cursor:wait}
+.note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;margin-top:14px;text-align:center}
+.err{font-family:var(--serif-ko);font-size:12px;color:var(--seal);margin-top:12px;text-align:center;min-height:18px}
+.done-box{display:none;text-align:center;padding:18px 0}
+.done-box.show{display:block}
+.done-check{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center}
+.done-check svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.done-title{font-family:var(--serif-ko);font-size:19px;font-weight:500;color:var(--accent);margin-bottom:12px}
+.done-desc{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.85}
+.form-area.hide{display:none}
+footer{text-align:center;padding:28px 22px 36px;border-top:1px solid var(--hairline);margin-top:8px}
+.f-mark{font-family:var(--serif);font-size:11px;letter-spacing:0.28em;color:var(--light);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="brand">Moment Edit</div></div>
+<div class="greet">
+  <div class="greet-label">Propose a new time</div>
+  <h1 class="greet-title"><span class="name"><?= names ?></span> 님께<br>새 시간을 제안합니다</h1>
+  <div class="greet-line"></div>
+</div>
+
+<div class="wrap">
+  <div class="form-area" id="formArea">
+    <div class="cur">
+      <div class="line">고객이 선택한 일정 · <b><?= curDate ?> <?= curTime ?></b></div>
+      <div class="line mut">그 외 가능 시간대 · <?= flex || '—' ?></div>
+      <div class="line mut">기타 희망 · <?= etc || '—' ?></div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label class="label">새 날짜</label>
+        <input class="input" id="ndate" type="date">
+      </div>
+      <div class="field">
+        <label class="label">새 시간</label>
+        <p class="hint">슬롯 제약 없이 자유롭게 입력하실 수 있습니다.</p>
+        <input class="input" id="ntime" type="time">
+      </div>
+      <div class="field">
+        <label class="label">메모<span class="opt">선택</span></label>
+        <input class="input" id="memo" type="text" maxlength="100" placeholder="고객에게 전할 한마디 (예: 그 시간이 어려워 이 시간으로 제안드려요)">
+      </div>
+    </div>
+
+    <button class="btn" id="submitBtn"><span>제안 보내기</span></button>
+    <p class="note">제안을 보내면 고객에게 <b>[수락]</b> / <b>[다른 시간 보기]</b> 메일이 발송됩니다.</p>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="done-box" id="doneBox">
+    <div class="done-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <div class="done-title">제안을 보냈습니다</div>
+    <p class="done-desc">고객에게 변경 제안 메일이 발송되었습니다.<br>고객이 수락하면 예약이 확정되고,<br>캘린더에 일정이 등록됩니다.</p>
+  </div>
+</div>
+
+<footer><div class="f-mark">Moment Edit</div></footer>
+
+<script>
+var TOKEN=<?!= JSON.stringify(token) ?>;
+var SIG=<?!= JSON.stringify(sig) ?>;
+function $(id){return document.getElementById(id);}
+$('submitBtn').onclick=function(){
+  var nd=$('ndate').value, nt=$('ntime').value, memo=$('memo').value.trim();
+  var err=$('err'); err.textContent='';
+  if(!nd){err.textContent='새 날짜를 선택해 주세요.';return;}
+  if(!nt){err.textContent='새 시간을 입력해 주세요.';return;}
+  // YYYY-MM-DD → 서버 포맷(YYYY-M-D)으로 정규화
+  var p=nd.split('-'); var dateKey=(+p[0])+'-'+(+p[1])+'-'+(+p[2]);
+  var btn=$('submitBtn'); btn.disabled=true; btn.querySelector('span').textContent='보내는 중...';
+  google.script.run
+    .withSuccessHandler(function(){
+      $('formArea').classList.add('hide'); $('doneBox').classList.add('show');
+      window.scrollTo({top:0,behavior:'smooth'});
+    })
+    .withFailureHandler(function(e){
+      err.textContent=(e&&e.message)?e.message:'전송 중 문제가 발생했습니다.';
+      btn.disabled=false; btn.querySelector('span').textContent='제안 보내기';
+    })
+    .submitProposal(TOKEN, SIG, dateKey, nt, memo);
+};
+</script>
+</body>
+</html>
