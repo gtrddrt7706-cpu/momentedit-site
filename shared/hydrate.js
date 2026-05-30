@@ -242,10 +242,17 @@
     html = processOptional(html, 'groomParents', showEnvP && hasGroomParents);
     html = processOptional(html, 'brideParents', showEnvP && hasBrideParents);
 
-    // 자녀 호칭 자체 토글 — 호칭 입력 안 했으면 호칭 영역 통째 제거 (04 디자인 "호칭 + 이름" 패턴에서
-    // 폴백 "아들 이서준" 어색함 방지). 일반 디자인은 호칭이 부모 이름 다음("OOO의 ___")이라 폴백 자연스러움 → 영향 없음.
-    html = processOptional(html, 'groomChildTitle', !!String(c.groomChildTitle || '').trim());
-    html = processOptional(html, 'brideChildTitle', !!String(c.brideChildTitle || '').trim());
+    // 자녀 호칭 OPTIONAL — 모든 디자인 일관 처리:
+    //   · 명시적 "호칭 생략 (이름만 표시)" 선택 → 호칭 통째 제거 (모든 디자인)
+    //   · 빈 값(미선택) → 04는 마커로 통째 제거(폴백 어색 방지), 다른 디자인은 placeholder 폴백 "아들/딸"
+    //   · 일반 호칭 ("장남" 등) → 그대로 표시
+    var OMIT_TITLE = '호칭 생략 (이름만 표시)';
+    var isGroomOmit = String(c.groomChildTitle || '').trim() === OMIT_TITLE;
+    var isBrideOmit = String(c.brideChildTitle || '').trim() === OMIT_TITLE;
+    var hasGroomTitle = !isGroomOmit && !!String(c.groomChildTitle || '').trim();
+    var hasBrideTitle = !isBrideOmit && !!String(c.brideChildTitle || '').trim();
+    html = processOptional(html, 'groomChildTitle', hasGroomTitle);
+    html = processOptional(html, 'brideChildTitle', hasBrideTitle);
 
     // 디지털 참석(선택제): 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출(기본 ON)
     html = processOptional(html, 'digitalAttendance', showUnlessNo(c.digitalAttendance));
@@ -329,8 +336,9 @@
       GROOM_ACCOUNT_RAW: gAcct.raw, BRIDE_ACCOUNT_RAW: bAcct.raw,
       GROOM_PARENTS: escapeHtml(c.groomParents || ''), BRIDE_PARENTS: escapeHtml(c.brideParents || ''),
       // 자녀 호칭(형제 순서) — 비우면 기본 "아들"/"딸"
-      GROOM_CHILD_TITLE: escapeHtml(String(c.groomChildTitle || '').trim() || '아들'),
-      BRIDE_CHILD_TITLE: escapeHtml(String(c.brideChildTitle || '').trim() || '딸'),
+      // "호칭 생략" 선택 시 placeholder 빈 문자열 (OPTIONAL 마커가 통째 제거). 빈 값(미선택)은 폴백 "아들/딸".
+      GROOM_CHILD_TITLE: escapeHtml(isGroomOmit ? '' : (String(c.groomChildTitle || '').trim() || '아들')),
+      BRIDE_CHILD_TITLE: escapeHtml(isBrideOmit ? '' : (String(c.brideChildTitle || '').trim() || '딸')),
       GROOM_FIRST_EN_UPPER: groomEn.upper, BRIDE_FIRST_EN_UPPER: brideEn.upper,
       GROOM_FIRST_EN: groomEn.first, BRIDE_FIRST_EN: brideEn.first,
       GROOM_FIRST_EN_SPACED: groomEn.spaced, BRIDE_FIRST_EN_SPACED: brideEn.spaced,
