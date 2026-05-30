@@ -920,11 +920,11 @@
     <p>날짜·시간 선택과 예약금 입금을 마치면, 디렉터 확인 후 예약이 확정됩니다.<br>메일이 없다면 스팸함을 확인하시거나 카카오톡으로 문의해 주세요.</p>
   </div>
   <div class="success-hours">
-    <span class="hours-label">상담 가능 시간</span><span class="dot"></span><span class="hours-day">평일</span><span class="hours-time">09:00 — 20:00</span>
+    <span class="hours-label">상담 가능 시간</span><span class="dot"></span><span class="hours-day">평일</span><span class="hours-time">09:00 — 18:00</span>
   </div>
   <div class="success-support">
     <div class="success-support-intro">
-      답변을 기다리시는 동안 간단한 문의가 있으시다면
+      기다리시는 동안 궁금한 점은 카카오톡으로 문의해 주세요.
     </div>
     <a href="/" target="_blank" rel="noopener" class="success-kakao" id="kakaoLink">
       <span class="kakao-label">KakaoTalk</span>
@@ -967,8 +967,9 @@
   if (isValidUrl) {
     el.href = KAKAO_URL;
   } else {
-    // URL 미설정: 버튼 자체를 DOM에서 숨김 (깨진 링크 노출 방지)
-    el.style.display = 'none';
+    // URL 미설정: 카톡 안내 블록 전체를 숨김 (문구만 남는 것 방지)
+    var support = el.closest('.success-support');
+    if (support) support.style.display = 'none'; else el.style.display = 'none';
   }
 })();
 
