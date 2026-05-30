@@ -7,14 +7,15 @@
 | 파일 | Apps Script 안에서의 이름 | 역할 |
 |---|---|---|
 | `consultation-booking.gs` | (스크립트 파일) | 백엔드 전체 — CONFIG·시트·토큰·라우팅·캘린더·메일 5종·onEdit·설치 |
-| `ScreenA_apply.html` | `ScreenA_apply` (HTML) | 화면 A — 상담 신청 폼 (공개) |
 | `ScreenB_schedule.html` | `ScreenB_schedule` (HTML) | 화면 B — 스케줄 선택 (디자인 확정본 그대로 + 실연동) |
 | `ScreenC_change.html` | `ScreenC_change` (HTML) | 화면 C — 미쿠 변경입력 미니페이지 |
 | `SETUP_운영자_설정가이드.md` | — | 설정·배포·테스트 상세 절차 |
 | `내가_할일_체크리스트.md` | — | 운영자가 직접 할 일만 순서대로 |
 
-> ⚠️ Apps Script 편집기에서 HTML 파일을 만들 때 **이름에 `.html`을 빼고**
-> 정확히 `ScreenA_apply` / `ScreenB_schedule` / `ScreenC_change` 로 만들어 주세요.
+> ⚠️ Apps Script 편집기에서 HTML 파일은 **2개만** 만들면 됩니다(`.html` 빼고):
+> 정확히 `ScreenB_schedule` / `ScreenC_change`.
+> **화면 A(상담 신청 폼)는 자체 도메인 `momentedit.kr/inquiry.html`로 이전**됐습니다.
+> 제출은 그 페이지가 `fetch`로 `.gs`의 `doPost`를 호출합니다. (exec 루트로 직접 들어오면 inquiry.html로 자동 이동)
 
 ## 핵심 흐름
 신청(화면 A) → 메일①(전용 URL) → 날짜·시간 선택+입금(화면 B) → 메일②(미쿠 알림+버튼)

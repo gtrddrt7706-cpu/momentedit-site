@@ -7,12 +7,12 @@
 | 파일 | Apps Script 안에서의 이름 | 역할 |
 |---|---|---|
 | `consultation-booking.gs` | (스크립트 파일) | 백엔드 전체 — CONFIG·라우팅·토큰·시트·캘린더·메일 5종·onEdit·설치 |
-| `ScreenA_apply.html` | `ScreenA_apply` (HTML) | 화면 A — 상담 신청 폼 (공개, 홈페이지) |
 | `ScreenB_schedule.html` | `ScreenB_schedule` (HTML) | 화면 B — 스케줄 선택 (디자인 확정본 그대로 + 실연동) |
 | `ScreenC_change.html` | `ScreenC_change` (HTML) | 화면 C — 미쿠 변경입력 미니페이지 |
 
-> ⚠️ Apps Script 편집기에서 HTML 파일을 만들 때 **이름에 `.html`을 붙이지 마세요.** 파일명은
-> 정확히 `ScreenA_apply` / `ScreenB_schedule` / `ScreenC_change` 여야 합니다 (.gs가 이 이름으로 불러옵니다).
+> ⚠️ Apps Script 편집기에서 HTML 파일은 **2개만** 만듭니다(이름에 `.html` 붙이지 말 것):
+> 정확히 `ScreenB_schedule` / `ScreenC_change` (.gs가 이 이름으로 불러옵니다).
+> **화면 A(상담 신청 폼)는 자체 도메인 `momentedit.kr/inquiry.html`** 입니다 — 그 페이지가 `fetch`로 `.gs`의 `doPost`를 호출하므로 Apps Script 안에 화면 A 템플릿은 만들지 않습니다. (웹앱 exec 루트로 직접 접속하면 inquiry.html로 자동 이동)
 
 ---
 
@@ -20,7 +20,7 @@
 1. 구글 드라이브에서 **새 구글 시트** 생성 (예: "Moment Edit 상담예약").
 2. 상단 메뉴 **확장 프로그램 → Apps Script**.
 3. 기본 `Code.gs`에 `consultation-booking.gs` 내용을 **전체 붙여넣기**.
-4. 좌측 파일 **＋ → HTML** 로 3개 파일 생성, 각각 위 표의 이름으로 만들고 내용 붙여넣기.
+4. 좌측 파일 **＋ → HTML** 로 **2개**(`ScreenB_schedule`·`ScreenC_change`) 생성, 각각 내용 붙여넣기. (화면 A는 안 만듦 — `momentedit.kr/inquiry.html`)
 
 ## STEP 2 · 상담용 구글 캘린더 준비
 1. 구글 캘린더에서 **새 캘린더**를 하나 만듭니다 (예: "상담 가능 시간").

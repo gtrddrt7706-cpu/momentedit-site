@@ -33,7 +33,9 @@ const CONFIG = {
   ACCOUNT: '[은행 000-0000-0000]',             // 입금 계좌 — 운영자 입력 예정
   ACCOUNT_HOLDER: '[예금주]',                   // 운영자 입력 예정
   URL_VALID_DAYS: 7,                           // 전용 URL 유효기간
-  CONFIRM_DEADLINE_HOURS: 24,                  // 확정 메일 발송 데드라인
+  CONFIRM_DEADLINE_HOURS: 72,                  // 변경·취소 마감(상담 N시간 전까지) — 3일 정책
+  CHANGE_DEADLINE_LABEL: '3일',                // 위 시간의 사람용 표기(화면·메일 문구)
+  CONFIRM_MAIL_SLA_HOURS: 24,                  // (별개) 입금 확인 후 확정 메일 발송 SLA — 화면 문구용
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 — 운영자 입력 예정
   KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 — 운영자 입력 예정
   ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소
@@ -51,7 +53,7 @@ const SYS = {
   EVENT_PREFIX: 'Moment Edit 상담 · ',
   PROP_SECRET: 'CONSULT_ACTION_SECRET',        // 관리자 버튼 서명용 비밀키 (setup 시 생성)
   // HTML 템플릿 파일명 (Apps Script 안의 HTML 파일 이름과 일치해야 함)
-  HTML_A: 'ScreenA_apply',
+  // 화면 A는 momentedit.kr/inquiry.html로 이전됨(별도 템플릿 없음). B·C만 사용.
   HTML_B: 'ScreenB_schedule',
   HTML_C: 'ScreenC_change',
 };
@@ -101,10 +103,19 @@ function jsonOut(obj) {
 }
 
 // ───────────── 화면 A · 상담 신청 폼 (공개) ─────────────
+// 화면 A는 자체 도메인 momentedit.kr/inquiry.html(fetch→doPost)로 이전됨.
+// exec 루트 직접 접속 시 실제 신청 폼으로 리다이렉트한다. (별도 HTML 템플릿 불필요)
 function serveApplyA() {
-  var t = HtmlService.createTemplateFromFile(SYS.HTML_A);
-  t.kakao = safeAttr(CONFIG.KAKAO_URL);
-  return t.evaluate()
+  var url = 'https://momentedit.kr/inquiry.html';
+  var u = JSON.stringify(url);
+  var html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<script>try{(window.top||window).location.replace(' + u + ');}catch(e){location.href=' + u + ';}<\/script>'
+    + '<style>body{margin:0;background:#FAFAF8;color:#5A554C;font-family:"Noto Sans KR",sans-serif;'
+    + 'display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;text-align:center}'
+    + 'a{color:#6B2A24}</style></head>'
+    + '<body><p>상담 신청 페이지로 이동합니다…<br>자동 이동이 안 되면 <a href="' + url + '">여기</a>를 눌러 주세요.</p></body></html>';
+  return HtmlService.createHtmlOutput(html)
     .setTitle('대면 상담 신청 · Moment Edit')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -289,12 +300,12 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
   if (isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
   if (!dateKey || !time) throw new Error('날짜와 시간을 선택해 주세요.');
 
-  // 셀프 변경(확정 후 재방문) 시 24시간 전까지만 허용
+  // 셀프 변경(확정 후 재방문) 시 변경 마감(3일 전)까지만 허용
   var status = row.get('상태');
   if (status === ST.CONFIRMED || status === ST.APPROVED) {
     var cur = parseDateTime(row.get('선택날짜'), row.get('선택시간'));
     if (cur && (cur.getTime() - Date.now()) < CONFIG.CONFIRM_DEADLINE_HOURS * 3600 * 1000) {
-      throw new Error('상담 ' + CONFIG.CONFIRM_DEADLINE_HOURS + '시간 전부터는 변경할 수 없습니다. 카카오톡으로 문의해 주세요.');
+      throw new Error('상담 ' + CONFIG.CHANGE_DEADLINE_LABEL + ' 전부터는 변경할 수 없습니다. 카카오톡으로 문의해 주세요.');
     }
   }
 
@@ -467,7 +478,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange) {
       ['장소', esc(CONFIG.STUDIO_ADDRESS)],
       ['소요 시간', '약 ' + CONFIG.SLOT_DURATION_MIN + '분'],
       ['준비물', '특별한 준비물은 없습니다. 가능하시면 두 분이 함께 방문해 주세요.'],
-      ['변경 · 취소', '상담 ' + CONFIG.CONFIRM_DEADLINE_HOURS + '시간 전까지 가능하며, 이후 예약금은 반환되지 않습니다.']
+      ['변경 · 취소', '상담 ' + CONFIG.CHANGE_DEADLINE_LABEL + ' 전까지 가능하며, 이후 예약금은 반환되지 않습니다.']
     ]) +
     smallP('일정 변경이 필요하시면 받으셨던 전용 링크에서 다시 선택하시거나, <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#D8B48C">카카오톡</a>으로 문의해 주세요.');
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 확정되었습니다 · ' + prettyDate(dateKey) + ' ' + time, '',
