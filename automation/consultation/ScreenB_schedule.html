@@ -610,6 +610,7 @@ function updateSummary(){
   const sum=document.getElementById('summary'); const btn=document.getElementById('submitBtn');
   const sT=document.getElementById('stepTime'), sDa=document.getElementById('stepDate'), sDo=document.getElementById('stepDone');
   const bar=document.getElementById('stickyBar');
+  sum.style.color='';
   if(selDate&&selTime){
     const pickStr=(selDate.getMonth()+1)+'월 '+selDate.getDate()+'일 ('+WD_KO[selDate.getDay()]+') '+selTime;
     sum.classList.add('on');
@@ -659,7 +660,10 @@ function doSubmit(){
       restore();
     })
     .withFailureHandler(function(err){
-      alert((err&&err.message)?err.message:'신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      var sum=document.getElementById('summary');
+      sum.textContent=(err&&err.message)?err.message:'신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+      sum.classList.remove('on'); sum.style.color='var(--seal)';
+      sum.scrollIntoView({behavior:'smooth',block:'center'});
       restore();
     })
     .submitSchedule(SERVER.token, key(selDate), selTime, flex, etc);
@@ -672,11 +676,15 @@ document.getElementById('stickyBtn').onclick=()=>{
   document.getElementById('submitBtn').scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(doSubmit,400);
 };
-document.getElementById('modalClose').onclick=()=>{
+function meFinishClose(){
   document.getElementById('modal').classList.remove('show');
-};
+  try { window.open('','_self'); window.close(); } catch(e){}
+  try { window.top.location.href = 'https://momentedit.kr'; }
+  catch(e){ location.href = 'https://momentedit.kr'; }
+}
+document.getElementById('modalClose').onclick=meFinishClose;
 document.getElementById('modal').onclick=(e)=>{
-  if(e.target.id==='modal') document.getElementById('modal').classList.remove('show');
+  if(e.target.id==='modal') meFinishClose();
 };
 // 기타 글자수 카운터
 document.getElementById('flexEtc').addEventListener('input',(e)=>{
