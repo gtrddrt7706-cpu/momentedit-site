@@ -54,15 +54,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .en-22{letter-spacing:.22em;padding-left:.22em}
 
 /* ── 헤더 (인장 없음) ── */
-.topbar{padding:26px 24px 22px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
+.topbar{padding:26px 24px 14px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
 .brand-link{display:inline-block;text-decoration:none;line-height:0}
-.brand-img{width:224px;max-width:71%;height:auto;display:inline-block}
+.brand-img{width:270px;max-width:80%;height:auto;display:inline-block}
 .brand-fallback{display:block;line-height:1.5}
 .wordmark{display:block;font-family:var(--serif);font-size:16px;font-weight:500;color:var(--accent);text-decoration:none}
 .topsub{font-family:var(--serif);font-size:8px;color:var(--label-soft);margin-top:7px}
 
 /* ── 레이아웃 ── */
-main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:38px 22px 60px}
+main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:26px 22px 60px}
 .view{display:none;animation:fade .5s var(--ease)}
 .view.show{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -396,7 +396,18 @@ function renderMyPage(d){
   $('mp_product').textContent = d.product || '';
 
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)
-  $('mp_nowHead').textContent = d.nextAction || '디렉터가 확인 후 안내드립니다.';
+  // NOW: 첫 문장 = 헤드라인(마침표 없이), 나머지 = 서브
+  (function(){
+    var na = String(d.nextAction || '디렉터가 확인 후 안내드립니다.').trim();
+    var i = na.search(/\.\s/);              // 첫 '마침표+공백' 위치
+    var head, sub;
+    if (i === -1) { head = na.replace(/\.$/, ''); sub = ''; }
+    else { head = na.slice(0, i); sub = na.slice(i + 1).trim(); }
+    $('mp_nowHead').textContent = head;
+    var subEl = $('mp_nowSub');
+    if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; }
+    else { subEl.style.display = 'none'; }
+  })();
 
   // 진행바 vs 예외
   var list = d.stageList || [];
