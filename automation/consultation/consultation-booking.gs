@@ -400,22 +400,19 @@ function serveCancelD(token, row) {
     '<a class="btn btn-keep" href="javascript:history.back()">예약 유지</a>' +
     '<button class="btn btn-cancel" id="go">취소 확정</button>' +
     '</div></div>' +
-    '<form id="f" method="get" action="' + safeAttr(webAppUrl()) + '" style="display:none">' +
-    '<input type="hidden" name="action" value="docancel">' +
-    '<input type="hidden" name="token" value="' + safeAttr(token) + '">' +
-    '<input type="hidden" name="sig" value="' + sign(token, 'docancel') + '">' +
-    '<input type="hidden" name="acct" id="acctHidden">' +
-    '</form>' +
     '<script>' +
+    '(function(){' +
     'var go=document.getElementById("go"),acct=document.getElementById("acct"),err=document.getElementById("err");' +
+    'var base=' + JSON.stringify(actionUrl('docancel', token)) + ';' +
     'go.addEventListener("click",function(){' +
     'var v=acct.value.trim();' +
     'if(v.length<5){err.textContent="환불 계좌를 입력해 주세요.";acct.focus();return;}' +
     'go.disabled=true;go.textContent="취소 처리 중…";' +
-    'document.getElementById("acctHidden").value=v;' +
-    'document.getElementById("f").submit();' +
+    'var url=base+"&acct="+encodeURIComponent(v);' +
+    'try{window.top.location.href=url;}catch(e){window.location.href=url;}' +
     '});' +
     'acct.addEventListener("input",function(){err.textContent="";});' +
+    '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 · Moment Edit')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -489,7 +486,7 @@ function serveAdminCancelD(token, row) {
     '<div class="notice">취소하면 캘린더 일정이 삭제되고,<br>고객에게 취소 안내 메일이 발송됩니다.</div>' +
     '<div class="btns">' +
     '<a class="btn btn-keep" href="javascript:history.back()">유지</a>' +
-    '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '">취소 확정</a>' +
+    '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '" target="_top">취소 확정</a>' +
     '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 (관리자) · Moment Edit')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -600,12 +597,18 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
   writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
   writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
 
+  var mailOk = false, mailErrMsg = '';
   try {
     sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''));
+    mailOk = true;
   } catch (mailErr) {
-    notifyStudio('[상담] ⚠️오류 · 미쿠 알림 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message);
+    mailErrMsg = (mailErr && mailErr.message) || String(mailErr);
+    Logger.log('❌ 관리자 알림 메일 실패: ' + mailErrMsg);
+    // 남은 메일 할당량 함께 기록 (한도 초과 진단용)
+    try { Logger.log('   남은 Gmail 할당량: ' + MailApp.getRemainingDailyQuota()); } catch (q) {}
+    notifyStudio('[상담] ⚠️오류 · 관리자 알림 메일 발송 실패', coupleNames(row) + ' · ' + dateKey + ' ' + time + '\n' + mailErrMsg);
   }
-  return { ok: true };
+  return { ok: true, mailOk: mailOk, mailErr: mailErrMsg };
 }
 
 // 화면 C 제출(미쿠) → 상태=변경제안 + 고객에게 제안 메일④
@@ -1064,6 +1067,33 @@ function getCalendar() {
   try { return CalendarApp.getCalendarById(CONFIG.CALENDAR_ID); }
   catch (e) { Logger.log('  (캘린더 열기 실패: ' + e.message + ')'); return null; }
 }
+
+// ── 메일 진단 (편집기에서 직접 실행) ───────────────────────────
+// 메일이 안 올 때 원인 파악용. ▶실행 후 실행 로그 확인.
+function diagnoseEmail() {
+  Logger.log('=== 메일 진단 ===');
+  // 1) 남은 일일 할당량 (0이면 한도 초과 → 메일 안 감)
+  var quota = '?';
+  try { quota = MailApp.getRemainingDailyQuota(); } catch (e) { quota = '확인 실패: ' + e.message; }
+  Logger.log('남은 Gmail 일일 할당량: ' + quota + '  (0이면 오늘 더 못 보냄 — 내일 리셋)');
+
+  // 2) ADMIN_EMAIL 설정 확인
+  Logger.log('ADMIN_EMAIL: ' + CONFIG.ADMIN_EMAIL);
+  Logger.log('cc 대상: ' + (adminCc() || '(없음)'));
+
+  // 3) 실제 테스트 메일 1통 발송 시도
+  try {
+    GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 메일 진단 테스트',
+      '이 메일이 보이면 발송 자체는 정상입니다. (' + new Date() + ')',
+      { name: SYS.FROM_NAME, cc: adminCc() });
+    Logger.log('✅ 테스트 메일 발송 성공 → ' + CONFIG.ADMIN_EMAIL + ' 확인하세요.');
+  } catch (sendErr) {
+    Logger.log('❌ 테스트 메일 발송 실패: ' + ((sendErr && sendErr.message) || sendErr));
+    Logger.log('   → 할당량이 0이거나 권한 문제일 수 있습니다.');
+  }
+  return '진단 완료 — 실행 로그를 확인하세요.';
+}
+
 
 // ────────────────────────────────────────────────────────────
 // 수동 취소 (편집기에서 실행) — 시트 행 번호를 넣고 ▶실행.
