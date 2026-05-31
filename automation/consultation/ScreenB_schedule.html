@@ -499,15 +499,6 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 </footer>
 
 <!-- 하단 고정 선택 바 -->
-<div class="sticky-bar" id="stickyBar">
-  <div class="sticky-in">
-    <div class="sticky-info">
-      <span class="sticky-label">선택한 일정</span>
-      <span class="sticky-pick" id="stickyPick">—</span>
-    </div>
-    <button class="sticky-btn" id="stickyBtn">신청하기</button>
-  </div>
-</div>
 
 <!-- 확정 팝업 -->
 <div class="modal-overlay" id="modal">
@@ -626,6 +617,7 @@ function updateSummary(){
   const sum=document.getElementById('summary'); const btn=document.getElementById('submitBtn');
   const sT=document.getElementById('stepTime'), sDa=document.getElementById('stepDate'), sDo=document.getElementById('stepDone');
   const bar=document.getElementById('stickyBar');
+  const pickEl=document.getElementById('stickyPick');
   sum.style.color='';
   if(selDate&&selTime){
     const pickStr=fmtDate(selDate)+' '+selTime;
@@ -635,16 +627,16 @@ function updateSummary(){
     sDa.classList.add('done');sDa.classList.remove('active');
     sT.classList.add('done');sT.classList.remove('active');
     sDo.classList.add('active');
-    document.getElementById('stickyPick').textContent=pickStr;
-    bar.classList.add('show');
+    if(pickEl) pickEl.textContent=pickStr;
+    if(bar) bar.classList.add('show');
   } else if(selDate){
     sum.textContent='시간을 선택해 주세요';sum.classList.remove('on');btn.disabled=true;
     sDa.classList.add('done');sDa.classList.remove('active');
     sT.classList.add('active');sDo.classList.remove('active');
-    bar.classList.remove('show');
+    if(bar) bar.classList.remove('show');
   } else {
     sum.textContent='날짜와 시간을 선택해 주세요';sum.classList.remove('on');btn.disabled=true;
-    bar.classList.remove('show');
+    if(bar) bar.classList.remove('show');
   }
 }
 function revealGuide(){
@@ -661,12 +653,12 @@ function doSubmit(){
   if(!selDate||!selTime) return;
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
-  btn.classList.add('loading'); btn.disabled=true; sbtn.disabled=true;
+  btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
   btn.querySelector('span').textContent='신청 중...';
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
-  const restore=function(){btn.classList.remove('loading');btn.disabled=false;sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
+  const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
   google.script.run
     .withSuccessHandler(function(){
@@ -688,7 +680,8 @@ function doSubmit(){
 document.getElementById('prevM').onclick=()=>{if(viewM===0){viewM=11;viewY--;}else viewM--;renderCal();};
 document.getElementById('nextM').onclick=()=>{if(viewM===11){viewM=0;viewY++;}else viewM++;renderCal();};
 document.getElementById('submitBtn').onclick=doSubmit;
-document.getElementById('stickyBtn').onclick=()=>{
+var _stickyBtn=document.getElementById('stickyBtn');
+if(_stickyBtn) _stickyBtn.onclick=()=>{
   document.getElementById('submitBtn').scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(doSubmit,400);
 };
