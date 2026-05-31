@@ -54,11 +54,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .en-22{letter-spacing:.22em;padding-left:.22em}
 
 /* ── 헤더 (인장 없음) ── */
-.topbar{padding:30px 24px 24px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
-.brand-link{display:inline-block;text-decoration:none}
-.wordmark{display:block;font-family:var(--serif);font-size:22px;font-weight:600;color:var(--accent);letter-spacing:.4em;padding-left:.4em;text-decoration:none}
-.brand-rule{display:block;width:44px;height:1px;background:var(--accent);opacity:.45;margin:11px auto 9px}
-.topsub{display:block;font-family:var(--serif);font-size:8.5px;color:var(--label-soft);letter-spacing:.34em;padding-left:.34em}
+.topbar{padding:26px 24px 22px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
+.brand-link{display:inline-block;text-decoration:none;line-height:0}
+.brand-img{width:208px;max-width:68%;height:auto;display:inline-block}
+.brand-fallback{display:block;line-height:1.5}
+.wordmark{display:block;font-family:var(--serif);font-size:16px;font-weight:500;color:var(--accent);text-decoration:none}
+.topsub{font-family:var(--serif);font-size:8px;color:var(--label-soft);margin-top:7px}
 
 /* ── 레이아웃 ── */
 main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:38px 22px 60px}
@@ -165,9 +166,12 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
 <div class="topbar">
   <a href="/" class="brand-link" aria-label="Moment Edit">
-    <span class="wordmark">MOMENT EDIT</span>
-    <span class="brand-rule"></span>
-    <span class="topsub">PRIVATE WEDDING STUDIO</span>
+    <img class="brand-img" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio"
+         onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block'">
+    <span id="brandFallback" class="brand-fallback" style="display:none">
+      <span class="wordmark en-40">MOMENT EDIT</span>
+      <span class="topsub en-34">PRIVATE WEDDING STUDIO</span>
+    </span>
   </a>
 </div>
 
