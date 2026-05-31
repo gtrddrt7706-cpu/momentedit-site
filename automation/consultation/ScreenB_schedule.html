@@ -533,6 +533,8 @@ const DURATION = SERVER.duration;            // CONFIG.SLOT_DURATION_MIN
 function slotsFor(d){ var w=d.getDay(); return (w===0||w===6)?SLOTS_WEEKEND:SLOTS_WEEKDAY; }
 const today = new Date(); today.setHours(0,0,0,0);
 const WD_KO = ['일','월','화','수','목','금','토'];
+// 연도 포함 날짜 표기 (웨딩 특성상 예약기간이 길어 연도 명시): '2026년 6월 28일 (일)'
+function fmtDate(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+WD_KO[d.getDay()]+')'; }
 let viewY = today.getFullYear(), viewM = today.getMonth();
 let selDate = null, selTime = null;
 // 첫 가능일이 있는 달로 달력을 연다
@@ -585,7 +587,7 @@ function renderTime(){
     head.textContent='먼저 날짜를 선택해 주세요';head.classList.remove('on');return;}
   const wd = selDate.getDay();
   const tag = (wd===0||wd===6)?'주말':'평일';
-  head.innerHTML = (selDate.getMonth()+1)+'월 '+selDate.getDate()+'일 ('+WD_KO[wd]+')'
+  head.innerHTML = fmtDate(selDate)
     +'<span class="tag">'+tag+'</span>';
   head.classList.add('on');
   box.innerHTML='';
@@ -623,7 +625,7 @@ function updateSummary(){
   const bar=document.getElementById('stickyBar');
   sum.style.color='';
   if(selDate&&selTime){
-    const pickStr=(selDate.getMonth()+1)+'월 '+selDate.getDate()+'일 ('+WD_KO[selDate.getDay()]+') '+selTime;
+    const pickStr=fmtDate(selDate)+' '+selTime;
     sum.classList.add('on');
     sum.innerHTML='<span class="pick">'+pickStr+'</span> 상담 신청';
     btn.disabled=false;
@@ -646,7 +648,7 @@ function revealGuide(){
   document.getElementById('guide').classList.add('show');
   document.getElementById('flexTimes').classList.add('show');
   if(selDate){
-    const d=(selDate.getMonth()+1)+'월 '+selDate.getDate()+'일 ('+WD_KO[selDate.getDay()]+')';
+    const d=fmtDate(selDate);
     document.getElementById('flexTitle').textContent=d+' 중 가능한 시간대';
   }
 }
@@ -665,7 +667,7 @@ function doSubmit(){
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
   google.script.run
     .withSuccessHandler(function(){
-      const dateStr=(selDate.getMonth()+1)+'월 '+selDate.getDate()+'일 ('+WD_KO[selDate.getDay()]+')';
+      const dateStr=fmtDate(selDate);
       document.getElementById('modalPick').innerHTML=SERVER.names+' 님<br>'+dateStr+' · '+selTime;
       document.getElementById('modal').classList.add('show');
       restore();

@@ -719,8 +719,8 @@ function emailShell(headline, innerHtml) {
     '<body style="margin:0;padding:0;background:#FAFAF8;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAFAF8;width:100%;"><tr><td align="center" bgcolor="#FAFAF8" style="background:#FAFAF8;padding:32px 16px;">' +
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #DDD8D1;border-radius:10px;"><tr><td bgcolor="#FFFFFF" class="me-card" style="background:#FFFFFF;border-radius:10px;padding:46px 38px;font-family:\'Noto Serif KR\',serif;color:#3A2D22;">' +
-      '<div style="text-align:center;font-family:\'Cormorant Garamond\',serif;font-size:13px;letter-spacing:.34em;color:#B89A75;text-transform:uppercase">Moment Edit</div>' +
-      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto;"><tr>' +
+      '<div style="text-align:center;"><img src="https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto 22px;"><tr>' +
         '<td style="width:40px;height:1px;background:#B89A75;line-height:1px;font-size:0;">&nbsp;</td>' +
         '<td style="padding:0 8px;line-height:0;font-size:0;"><span style="display:inline-block;width:5px;height:5px;background:#6B2A24;border-radius:50%;"></span></td>' +
         '<td style="width:40px;height:1px;background:#B89A75;line-height:1px;font-size:0;">&nbsp;</td>' +
@@ -739,9 +739,9 @@ function emailBtn(url, label, color) {
 function emailBtnOutline(url, label) {
   return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:#FFFFFF;color:#8A7A5E;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #CDBFA6;border-radius:4px;">' + esc(label) + '</a></div>';
 }
-function centerP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:18px 0 0">' + html + '</p>'; }
-function noteP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:14px 0 0">' + html + '</p>'; }
-function smallP(html) { return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#75705F;text-align:center;margin:20px 0 0">' + html + '</p>'; }
+function centerP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:18px 0 0;word-break:keep-all">' + html + '</p>'; }
+function noteP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:14px 0 0;word-break:keep-all">' + html + '</p>'; }
+function smallP(html) { return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#75705F;text-align:center;margin:20px 0 0;word-break:keep-all">' + html + '</p>'; }
 function infoRow(label, valHtml) {
   return '<div style="display:block;padding:11px 0;border-bottom:1px solid #ECE8E1"><span style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.02em;color:#A39C8E">' + esc(label) + '</span><br><span style="font-family:\'Noto Serif KR\',serif;font-size:14px;color:#3A2D22;line-height:1.6">' + valHtml + '</span></div>';
 }
@@ -978,15 +978,16 @@ function prettyDate(dateKey) {
   var d = parseDateTime(dateKey, '00:00');
   if (!d) return esc(dateKey);
   var wd = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
-  return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + wd + ')';
+  return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + wd + ')';
 }
 
-// 제목용 짧은 날짜: '6/4(목)'
+// 제목용 짧은 날짜: '26/6/4(목)' — 메일 제목은 짧게, 연도는 2자리
 function shortDate(dateKey) {
   var d = parseDateTime(dateKey, '00:00');
   if (!d) return String(dateKey || '');
   var wd = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
-  return (d.getMonth() + 1) + '/' + d.getDate() + '(' + wd + ')';
+  var yy = String(d.getFullYear()).slice(2);
+  return yy + '/' + (d.getMonth() + 1) + '/' + d.getDate() + '(' + wd + ')';
 }
 
 // 운영자 메일 제목 조립 — 안 열어도 [단계·이름·일시]가 한눈에.
