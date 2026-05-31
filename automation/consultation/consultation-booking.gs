@@ -27,8 +27,9 @@
 // ============================ STEP 1 · CONFIG 상수 ============================
 // ⚠️ [...] placeholder 는 운영자가 직접 채웁니다. (임의 값 넣지 말 것)
 const CONFIG = {
-  SLOT_DURATION_MIN: 40,                       // 상담 길이(분) — 운영자 확정 예정
-  SLOTS: ['11:30', '14:50', '18:10'],          // 1일 슬롯(평일·주말 공통) — 운영자 확정 예정
+  SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
+  SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
+  SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
   DEPOSIT: 100000,                             // 예약금
   ACCOUNT: '[은행 000-0000-0000]',             // 입금 계좌 — 운영자 입력 예정
   ACCOUNT_HOLDER: '[예금주]',                   // 운영자 입력 예정
@@ -43,6 +44,14 @@ const CONFIG = {
   ],
   CALENDAR_ID: 'c_c6c2f76cd17c85e3ddfa4ded4ca3634b9fd3de774222171c0c30a850a0cfbf00@group.calendar.google.com',
 };
+
+// 날짜키('YYYY-M-D' 또는 Date)의 요일에 맞는 슬롯 배열 반환 (주말=토·일)
+function slotsForDate(dateKeyOrDate) {
+  var d = (dateKeyOrDate instanceof Date) ? dateKeyOrDate : parseDateTime(normalizeDateKey(dateKeyOrDate), '00:00');
+  if (!d) return CONFIG.SLOTS_WEEKDAY;
+  var wd = d.getDay(); // 0=일, 6=토
+  return (wd === 0 || wd === 6) ? CONFIG.SLOTS_WEEKEND : CONFIG.SLOTS_WEEKDAY;
+}
 
 // 운영자 알림 CC 문자열 생성 — ADMIN_CC 중 유효한 주소만 콤마로 연결.
 // placeholder([…])·빈값·정본(ADMIN_EMAIL)과 중복되는 주소는 제외.
@@ -169,7 +178,8 @@ function serveScheduleB(token) {
 
   var data = getAvailability();
   var server = {
-    slots: CONFIG.SLOTS,
+    slotsWeekday: CONFIG.SLOTS_WEEKDAY,
+    slotsWeekend: CONFIG.SLOTS_WEEKEND,
     duration: CONFIG.SLOT_DURATION_MIN,
     avail: data.avail,
     full: data.full,
@@ -356,6 +366,11 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
   if (isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
   if (!dateKey || !time) throw new Error('날짜와 시간을 선택해 주세요.');
 
+  // 제출된 시간이 그 날짜(요일)의 유효 슬롯인지 검증 — 잘못된 값 차단
+  if (slotsForDate(dateKey).indexOf(time) === -1) {
+    throw new Error('선택하신 시간은 예약 가능한 시간이 아닙니다. 다시 선택해 주세요.');
+  }
+
   // 셀프 변경(확정 후 재방문) 시 24시간 전까지만 허용
   var status = row.get('상태');
   if (status === ST.CONFIRMED || status === ST.APPROVED) {
@@ -446,7 +461,7 @@ function getAvailability() {
     }
   });
   Object.keys(avail).forEach(function (dk) {
-    CONFIG.SLOTS.forEach(function (time) {
+    slotsForDate(dk).forEach(function (time) {
       var s = parseDateTime(dk, time);
       if (!s) return;
       var e2 = new Date(s.getTime() + CONFIG.SLOT_DURATION_MIN * 60000);
@@ -787,20 +802,23 @@ function getCalendar() {
 }
 
 // ============================================================
-// 상담가능일 자동 생성 — 캘린더에 평일 '상담가능' 종일 일정을 깔아둠
-//   · 평일(월~금)에만 생성 (폼 안내 '평일 상담'과 일치)
+// 상담가능일 자동 생성 — 캘린더에 '상담가능' 종일 일정을 깔아둠
+//   · 슬롯 시간은 요일에 따라 자동 적용 (평일 4타임 / 주말 1타임 = CONFIG)
 //   · 이미 그 날 '상담가능' 일정이 있으면 건너뜀 → 여러 번 실행해도 중복 안 생김
-//   · 슬롯 시간(11:30/14:50/18:10·40분)은 CONFIG.SLOTS 가 자동 적용되므로 종일 일정이면 충분
 //
 // [실행법] Apps Script 편집기 상단 함수 선택창에서 함수 고르고 ▶ 실행
-//   · seedWeekdaySlots()        → 오늘부터 8주치 생성 (기본)
-//   · seedWeekdaySlotsUntil2027() → 오늘부터 2027-12-31 까지 전부 생성 (한 번에 길게)
+//   · seedWeekdaySlots()          → 오늘부터 8주치 평일 생성
+//   · seedWeekendSlots()          → 오늘부터 8주치 주말 생성
+//   · seedAllDaysUntil2027()      → 2027-12-31 까지 평일+주말 전부 생성 ★
+//   · seedWeekdaySlotsUntil2027() → 2027-12-31 까지 평일만
+//   · seedWeekendSlotsUntil2027() → 2027-12-31 까지 주말만
 // ============================================================
 
-// 핵심: start~end 사이 평일에 '상담가능' 종일 일정 생성. 생성/건너뜀 건수 반환.
-function seedAvailabilityRange(startDate, endDate) {
+// 핵심: start~end 사이, dayFilter(d)가 true인 날에 '상담가능' 종일 일정 생성.
+function seedAvailabilityRange(startDate, endDate, dayFilter) {
   var cal = getCalendar();
   if (!cal) throw new Error('캘린더를 열 수 없습니다. CONFIG.CALENDAR_ID 확인 필요.');
+  var ok = dayFilter || function () { return true; };
 
   // 기존 '상담가능' 일정이 있는 날짜 집합 (중복 방지용)
   var existing = {};
@@ -814,9 +832,7 @@ function seedAvailabilityRange(startDate, endDate) {
   var d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
   var stop = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
   while (d <= stop) {
-    var day = d.getDay(); // 0=일 .. 6=토
-    var isWeekday = (day >= 1 && day <= 5);
-    if (isWeekday) {
+    if (ok(d)) {
       if (existing[dkey(d)]) {
         skipped++;
       } else {
@@ -832,19 +848,34 @@ function seedAvailabilityRange(startDate, endDate) {
   return msg;
 }
 
-// 오늘부터 N주치 평일 생성 (기본 8주). 평소 운영용 — 줄어들면 다시 실행.
+// 요일 판별 헬퍼
+function isWeekdayDay(d) { var x = d.getDay(); return x >= 1 && x <= 5; }
+function isWeekendDay(d) { var x = d.getDay(); return x === 0 || x === 6; }
+
+// --- 오늘부터 N주치 (기본 8주) ---
 function seedWeekdaySlots(weeks) {
-  var w = weeks || 8;
   var start = new Date(); start.setHours(0, 0, 0, 0);
-  var end = new Date(start); end.setDate(end.getDate() + w * 7);
-  return seedAvailabilityRange(start, end);
+  var end = new Date(start); end.setDate(end.getDate() + (weeks || 8) * 7);
+  return seedAvailabilityRange(start, end, isWeekdayDay);
+}
+function seedWeekendSlots(weeks) {
+  var start = new Date(); start.setHours(0, 0, 0, 0);
+  var end = new Date(start); end.setDate(end.getDate() + (weeks || 8) * 7);
+  return seedAvailabilityRange(start, end, isWeekendDay);
 }
 
-// 오늘부터 2027-12-31 까지 평일 전부 한 번에 생성.
-function seedWeekdaySlotsUntil2027() {
+// --- 오늘부터 2027-12-31 까지 ---
+function seedAllDaysUntil2027() {       // 평일+주말 전부 ★
   var start = new Date(); start.setHours(0, 0, 0, 0);
-  var end = new Date(2027, 11, 31); // 2027-12-31 (월 0-index)
-  return seedAvailabilityRange(start, end);
+  return seedAvailabilityRange(start, new Date(2027, 11, 31), null);
+}
+function seedWeekdaySlotsUntil2027() {  // 평일만
+  var start = new Date(); start.setHours(0, 0, 0, 0);
+  return seedAvailabilityRange(start, new Date(2027, 11, 31), isWeekdayDay);
+}
+function seedWeekendSlotsUntil2027() {  // 주말만
+  var start = new Date(); start.setHours(0, 0, 0, 0);
+  return seedAvailabilityRange(start, new Date(2027, 11, 31), isWeekendDay);
 }
 
 function buildHeaderIndex(sheet) {
