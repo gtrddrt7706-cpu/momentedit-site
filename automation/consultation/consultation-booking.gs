@@ -34,7 +34,7 @@ const CONFIG = {
   ACCOUNT: '[은행 000-0000-0000]',             // 입금 계좌 — 운영자 입력 예정
   ACCOUNT_HOLDER: '[예금주]',                   // 운영자 입력 예정
   URL_VALID_DAYS: 7,                           // 전용 URL 유효기간
-  CONFIRM_DEADLINE_HOURS: 72,                  // 확정 메일 발송 데드라인
+  CONFIRM_DEADLINE_HOURS: 24,                  // 변경·취소 기한 (상담 24시간 전까지)
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 — 운영자 입력 예정
   KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 — 운영자 입력 예정
   ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소(정본)
@@ -230,7 +230,7 @@ function handleAction(p) {
   if (!row) return infoPage('예약을 찾을 수 없습니다', '링크가 올바르지 않습니다.', false);
 
   // 관리자(미쿠) 전용 액션은 서명 검증 — 고객 토큰만으로는 승인/변경 불가
-  var adminActions = { approve: 1, change: 1 };
+  var adminActions = { approve: 1, change: 1, admincancelreq: 1, admindocancel: 1 };
   if (adminActions[action] && !verifySig(token, action, sig)) {
     return infoPage('권한이 없습니다', '관리자 전용 링크입니다. 알림 메일의 버튼으로 다시 시도해 주세요.', false);
   }
@@ -247,21 +247,30 @@ function handleAction(p) {
     case 'reselect': return serveScheduleB(token); // [다른 시간 보기] → 화면 B 재오픈
     case 'cancelreq': return serveCancelD(token, row);       // 고객 [예약 취소] → 취소 신청 화면 D
     case 'docancel':  return doCustomerCancel(sheet, colOf, row, p); // 취소 확정(계좌 제출)
+    case 'admincancelreq': return serveAdminCancelD(token, row);     // 관리자 [예약 취소] → 확인 화면
+    case 'admindocancel':  return doAdminCancel(sheet, colOf, row);  // 관리자 취소 확정
     default:         return infoPage('알 수 없는 요청', '', false);
   }
 }
 
-// [✓ 승인하기] → 상태=승인완료 + 캘린더 일정 + 고객 확정 메일③
-function actApprove(sheet, colOf, row) {
-  var status = row.get('상태');
-  if (status === ST.APPROVED || status === ST.CONFIRMED) {
-    return infoPage('이미 승인된 예약입니다', coupleNames(row) + ' 님 · ' + row.get('선택날짜') + ' ' + row.get('선택시간'), true);
-  }
+// [✓ 승인하기] / 시트에서 상태를 '승인완료' 또는 '확정'으로 변경 시
+// → 캘린더 일정 생성 + 고객 확정 메일 + 운영자 브리프.
+// enteredStatus: 시트에서 직접 입력한 상태값(있으면 그 라벨 유지). 버튼/메일 경로면 생략→'승인완료'.
+function actApprove(sheet, colOf, row, enteredStatus) {
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   if (!dateKey || !time) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
 
+  // 이미 캘린더에 일정이 있으면(=이미 확정 처리됨) → 메일·캘린더 재발송 없이 상태 라벨만 정리
+  var alreadyDone = !!row.get('캘린더이벤트ID');
+  var targetStatus = (enteredStatus === ST.CONFIRMED) ? ST.CONFIRMED : ST.APPROVED;
+
+  if (alreadyDone) {
+    writeCell(sheet, colOf, row.num, '상태', targetStatus);
+    return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
+  }
+
   writeCell(sheet, colOf, row.num, '입금확인', '확인');
-  writeCell(sheet, colOf, row.num, '상태', ST.APPROVED);
+  writeCell(sheet, colOf, row.num, '상태', targetStatus);
   writeCell(sheet, colOf, row.num, '확정일시', new Date());
   syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
 
@@ -442,6 +451,57 @@ function doCustomerCancel(sheet, colOf, row, p) {
 
   return infoPage('예약이 취소되었습니다',
     '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
+}
+
+// ── 관리자 셀프 취소 (확정 메일의 [예약 취소] 버튼) ──────────────
+// 관리자는 기한 제약 없이 언제든 취소 가능. 확인 화면 거친 뒤 실행.
+function serveAdminCancelD(token, row) {
+  var status = String(row.get('상태') || '').trim();
+  if (status === ST.CANCELLED) {
+    return infoPage('이미 취소된 예약입니다', coupleNames(row) + ' · 이미 취소 처리되었습니다.', true);
+  }
+  var dateKey = row.get('선택날짜'), time = row.get('선택시간');
+  var names = coupleNames(row);
+  var doUrl = actionUrl('admindocancel', token);
+  var html =
+    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '.box{max-width:420px;width:100%;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:42px 32px 30px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
+    '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;text-align:center;margin-bottom:8px}' +
+    '.admin-tag{text-align:center;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:11px;color:#B89A75;letter-spacing:.1em;margin-bottom:16px}' +
+    '.bar{width:40px;height:3px;background:#6B2A24;border-radius:3px;margin:0 auto 22px}' +
+    '.t{font-family:"Noto Serif KR",serif;font-size:20px;font-weight:500;color:#3A2D22;text-align:center;margin-bottom:18px}' +
+    '.card{background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;padding:18px;text-align:center;margin-bottom:22px}' +
+    '.card .ey{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:8px}' +
+    '.card .nm{font-family:"Noto Serif KR",serif;font-size:15px;font-weight:500;color:#3A2D22;margin-bottom:6px}' +
+    '.card .dt{font-family:"Noto Serif KR",serif;font-size:16px;font-weight:600;color:#3A2D22}' +
+    '.notice{font-size:12.5px;line-height:1.8;color:#5A554C;text-align:center;margin-bottom:24px}' +
+    '.btns{display:flex;gap:10px}' +
+    '.btn{flex:1;text-align:center;padding:14px 0;border-radius:6px;font-family:"Noto Serif KR",serif;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:block}' +
+    '.btn-keep{background:#fff;color:#5A554C;border:1px solid #DDD8D1}' +
+    '.btn-cancel{background:#6B2A24;color:#fff;border:none}</style></head>' +
+    '<body><div class="box"><div class="brand">Moment Edit</div><div class="admin-tag">Admin</div><div class="bar"></div>' +
+    '<div class="t">이 예약을 취소할까요?</div>' +
+    '<div class="card"><div class="ey">Reservation</div><div class="nm">' + esc(names) + '</div><div class="dt">' + (dateKey ? prettyDate(dateKey) + ' · ' + esc(time) : '일정 미정') + '</div></div>' +
+    '<div class="notice">취소하면 캘린더 일정이 삭제되고,<br>고객에게 취소 안내 메일이 발송됩니다.</div>' +
+    '<div class="btns">' +
+    '<a class="btn btn-keep" href="javascript:history.back()">유지</a>' +
+    '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '">취소 확정</a>' +
+    '</div></div></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle('예약 취소 (관리자) · Moment Edit')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// 관리자 취소 확정 — 캘린더 삭제 + 상태=취소 + 고객 취소 안내 메일 (계좌 입력 없음)
+function doAdminCancel(sheet, colOf, row) {
+  var status = String(row.get('상태') || '').trim();
+  if (status === ST.CANCELLED) {
+    return infoPage('이미 취소되었습니다', '이 예약은 이미 취소 처리되었습니다.', true);
+  }
+  actCancel(sheet, colOf, row); // 캘린더삭제 + 상태=취소 + 취소일시 + 고객 취소안내 메일
+  return infoPage('예약이 취소되었습니다',
+    coupleNames(row) + ' 님의 예약이 취소되었습니다.<br>캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.', true);
 }
 
 // ============================ google.script.run 핸들러 ============================
@@ -881,6 +941,10 @@ function sendStudioBriefEmail(row, dateKey, time) {
     infoRow('이메일', mailLink(row.get('이메일'))) +
     infoRow('확정 일정', '<b style="color:#3A2D22">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b>');
   var detailRows = applicantDetailRows(row);
+  var token = row.get('토큰');
+  var adminCancelBtn = token
+    ? emailBtnOutline(actionUrl('admincancelreq', token), '이 예약 취소하기')
+    : '';
   var inner =
     centerP('상담 예약이 확정되었습니다.<br>이 메일 하나로 준비를 마치실 수 있습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -888,7 +952,8 @@ function sendStudioBriefEmail(row, dateKey, time) {
     '<div style="background:#F7F5F1;padding:6px 20px;border:1px solid #E6E1D8;border-radius:6px;margin:6px 0 0;">' + scheduleRows + '</div>' +
     sectionLabel('Application · 신청 내용') +
     '<div style="background:#FCFBF9;padding:6px 20px;border:1px solid #ECE8E1;border-radius:6px;margin:6px 0 0;">' + (detailRows || infoRow('내용', '—')) + '</div>' +
-    smallP('고객에게 확정 메일이 발송되고 캘린더에 일정이 등록되었습니다.');
+    smallP('고객에게 확정 메일이 발송되고 캘린더에 일정이 등록되었습니다.') +
+    adminCancelBtn;
   GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('③확정', row, dateKey, time), '',
     { htmlBody: emailShell('상담 준비 브리프', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
@@ -1314,7 +1379,7 @@ function onConsultEdit(e) {
     if (e.range.getColumn() !== colOf['상태']) return;
     var v = String(e.value || '').trim();
     var r = row(sheet, colOf, e.range.getRow());
-    if (v === ST.APPROVED) actApprove(sheet, colOf, r);
+    if (v === ST.APPROVED || v === ST.CONFIRMED) actApprove(sheet, colOf, r, v);
     else if (v === ST.CANCELLED) actCancel(sheet, colOf, r);
   } catch (err) {
     Logger.log('onConsultEdit 오류: ' + err.message);
