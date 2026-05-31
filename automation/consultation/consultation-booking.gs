@@ -99,7 +99,7 @@ const HEADERS = [
   // 상담 일정
   '선택날짜', '선택시간', '그외가능시간대', '기타희망시간',
   // 확정
-  '변경제안날짜', '변경제안시간', '확정일시',
+  '변경제안날짜', '변경제안시간', '확정일시', '취소일시', '환불계좌',
   // 동의
   '개인정보동의', '제출시각',
   // 식별
@@ -235,7 +235,7 @@ function handleAction(p) {
     return infoPage('권한이 없습니다', '관리자 전용 링크입니다. 알림 메일의 버튼으로 다시 시도해 주세요.', false);
   }
   // 고객 액션도 가볍게 서명 검증
-  var custActions = { accept: 1, reselect: 1 };
+  var custActions = { accept: 1, reselect: 1, cancelreq: 1, docancel: 1 };
   if (custActions[action] && !verifySig(token, action, sig)) {
     return infoPage('링크가 올바르지 않습니다', '메일의 버튼으로 다시 시도해 주세요.', false);
   }
@@ -245,6 +245,8 @@ function handleAction(p) {
     case 'change':   return serveChangeC(token, p);
     case 'accept':   return actAccept(sheet, colOf, row);
     case 'reselect': return serveScheduleB(token); // [다른 시간 보기] → 화면 B 재오픈
+    case 'cancelreq': return serveCancelD(token, row);       // 고객 [예약 취소] → 취소 신청 화면 D
+    case 'docancel':  return doCustomerCancel(sheet, colOf, row, p); // 취소 확정(계좌 제출)
     default:         return infoPage('알 수 없는 요청', '', false);
   }
 }
@@ -264,7 +266,7 @@ function actApprove(sheet, colOf, row) {
   syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
 
   try {
-    sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false);
+    sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
   } catch (mailErr) {
     notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
       coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 — 수동 안내가 필요합니다.');
@@ -275,6 +277,14 @@ function actApprove(sheet, colOf, row) {
 
 // [수락] (변경 제안에 대한 고객 수락) → 상태=확정 + 캘린더 갱신 + 변경 확정 메일⑤
 function actAccept(sheet, colOf, row) {
+  var curStatus = String(row.get('상태') || '').trim();
+  // 이미 확정/취소된 건 재처리 안 함 (버튼 2번 클릭·새로고침 시 메일 중복 방지)
+  if (curStatus === ST.CONFIRMED) {
+    return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(row.get('선택날짜')) + ' · ' + row.get('선택시간'), true);
+  }
+  if (curStatus === ST.CANCELLED) {
+    return infoPage('취소된 예약입니다', '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
+  }
   var nd = row.get('변경제안날짜'), nt = row.get('변경제안시간');
   if (!nd || !nt) return infoPage('제안된 시간이 없습니다', '변경 제안 정보를 찾을 수 없습니다.', false);
 
@@ -285,12 +295,153 @@ function actAccept(sheet, colOf, row) {
   syncCalendarEvent(sheet, colOf, row.num, nd, nt, coupleNames(row), row.get('연락처'));
 
   try {
-    sendConfirmEmail(row.get('이메일'), coupleNames(row), nd, nt, true);
+    sendConfirmEmail(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
   } catch (mailErr) {
     notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message);
   }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
   return infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + nt, true);
+}
+
+// 취소 처리 (공통) — 캘린더 일정 삭제 + 고객 취소 안내 메일 + 취소일시 기록.
+// onConsultEdit(상태를 '취소'로 변경)와 수동 함수(cancelByRow) 양쪽에서 호출.
+function actCancel(sheet, colOf, r) {
+  var names = coupleNames(r);
+  var dateKey = r.get('선택날짜'), time = r.get('선택시간');
+
+  // 1) 캘린더 일정 삭제
+  deleteCalendarEvent(sheet, colOf, r.num, names);
+
+  // 2) 상태/취소일시 기록 (이미 '취소'면 상태는 그대로, 일시만 갱신)
+  if (String(r.get('상태') || '').trim() !== ST.CANCELLED) {
+    writeCell(sheet, colOf, r.num, '상태', ST.CANCELLED);
+  }
+  writeCell(sheet, colOf, r.num, '취소일시', new Date());
+
+  // 3) 고객 취소 안내 메일 (이메일 있을 때만)
+  var to = r.get('이메일');
+  if (to) {
+    try { sendCancelEmail(to, names, dateKey, time); }
+    catch (mailErr) { notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
+  }
+}
+
+// ── 고객 셀프 취소 ──────────────────────────────────────────
+// [예약 취소] 클릭 → 취소 신청 화면. 상담 3일 전(기한) 이내만 취소 가능, 지나면 안내만.
+function serveCancelD(token, row) {
+  var status = String(row.get('상태') || '').trim();
+  // 확정/승인 상태가 아니면 취소할 게 없음
+  if (status === ST.CANCELLED) {
+    return infoPage('이미 취소된 예약입니다', '이 예약은 이미 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
+  }
+  if (LOCKED_STATES.indexOf(status) === -1) {
+    return infoPage('취소할 예약이 없습니다', '확정된 예약이 없습니다. 문의가 필요하시면 카카오톡으로 연락 주세요.', false);
+  }
+
+  var dateKey = row.get('선택날짜'), time = row.get('선택시간');
+  var names = coupleNames(row);
+
+  // 기한 경과 → 취소 불가 안내
+  if (!withinCancelDeadline(dateKey, time)) {
+    var kakao = (CONFIG.KAKAO_URL && CONFIG.KAKAO_URL.charAt(0) !== '[')
+      ? '<a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:600;text-decoration:none">카카오톡</a>' : '카카오톡';
+    return infoPage('온라인 취소 기한이 지났습니다',
+      '상담 <b>' + deadlineLabel() + ' 전</b>까지만 온라인 취소가 가능합니다.<br><br>' +
+      '예약하신 일정: <b style="color:#3A2D22">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b><br><br>' +
+      '부득이하게 취소가 필요하시면 ' + kakao + '으로 문의해 주세요.', false);
+  }
+
+  // 기한 이내 → 취소 확인 + 환불 계좌 입력 화면
+  var docancelUrl = actionUrl('docancel', token);
+  var depositTxt = (CONFIG.DEPOSIT ? (Number(CONFIG.DEPOSIT).toLocaleString() + '원') : '예약금');
+  var html =
+    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '.box{max-width:440px;width:100%;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:42px 32px 34px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
+    '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;text-align:center;margin-bottom:16px}' +
+    '.bar{width:40px;height:3px;background:#6B2A24;border-radius:3px;margin:0 auto 22px}' +
+    '.t{font-family:"Noto Serif KR",serif;font-size:20px;font-weight:500;color:#3A2D22;text-align:center;margin-bottom:18px}' +
+    '.card{background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;padding:18px 18px;text-align:center;margin-bottom:22px}' +
+    '.card .ey{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:8px}' +
+    '.card .dt{font-family:"Noto Serif KR",serif;font-size:18px;font-weight:600;color:#3A2D22}' +
+    '.notice{font-size:12.5px;line-height:1.8;color:#6B2A24;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.18);border-radius:6px;padding:13px 15px;margin-bottom:22px}' +
+    '.lbl{display:block;font-size:11px;letter-spacing:.06em;color:#8A7A5E;text-transform:uppercase;margin-bottom:8px;font-family:"Cormorant Garamond",serif}' +
+    '.fld{margin-bottom:16px}' +
+    'input{width:100%;box-sizing:border-box;border:1px solid #DDD8D1;border-radius:6px;padding:13px 14px;font-family:"Noto Sans KR",sans-serif;font-size:14px;color:#3A2D22;background:#fff;outline:none}' +
+    'input:focus{border-color:#B89A75}' +
+    '.btns{display:flex;gap:10px;margin-top:24px}' +
+    '.btn{flex:1;text-align:center;padding:14px 0;border-radius:6px;font-family:"Noto Serif KR",serif;font-size:14px;font-weight:500;cursor:pointer;border:none}' +
+    '.btn-keep{background:#fff;color:#5A554C;border:1px solid #DDD8D1;text-decoration:none;display:block}' +
+    '.btn-cancel{background:#6B2A24;color:#fff}' +
+    '.btn-cancel:disabled{opacity:.5;cursor:not-allowed}' +
+    '.err{color:#B53A3A;font-size:12px;margin-top:8px;min-height:14px;text-align:center}' +
+    '.hint{font-size:11px;color:#A39C8E;margin-top:6px;line-height:1.6}</style></head>' +
+    '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
+    '<div class="t">예약을 취소하시겠어요?</div>' +
+    '<div class="card"><div class="ey">Reservation</div><div class="dt">' + prettyDate(dateKey) + ' · ' + esc(time) + '</div></div>' +
+    '<div class="notice">취소 시 예약금 ' + depositTxt + '은 입력하신 계좌로 환불해 드립니다.<br>환불은 영업일 기준 수일이 소요될 수 있습니다.</div>' +
+    '<div class="fld"><span class="lbl">환불 계좌</span>' +
+    '<input id="acct" type="text" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">' +
+    '<div class="hint">예: 국민 123456-78-901234 정희준</div></div>' +
+    '<div class="err" id="err"></div>' +
+    '<div class="btns">' +
+    '<a class="btn btn-keep" href="javascript:history.back()">예약 유지</a>' +
+    '<button class="btn btn-cancel" id="go">취소 확정</button>' +
+    '</div></div>' +
+    '<form id="f" method="get" action="' + safeAttr(webAppUrl()) + '" style="display:none">' +
+    '<input type="hidden" name="action" value="docancel">' +
+    '<input type="hidden" name="token" value="' + safeAttr(token) + '">' +
+    '<input type="hidden" name="sig" value="' + sign(token, 'docancel') + '">' +
+    '<input type="hidden" name="acct" id="acctHidden">' +
+    '</form>' +
+    '<script>' +
+    'var go=document.getElementById("go"),acct=document.getElementById("acct"),err=document.getElementById("err");' +
+    'go.addEventListener("click",function(){' +
+    'var v=acct.value.trim();' +
+    'if(v.length<5){err.textContent="환불 계좌를 입력해 주세요.";acct.focus();return;}' +
+    'go.disabled=true;go.textContent="취소 처리 중…";' +
+    'document.getElementById("acctHidden").value=v;' +
+    'document.getElementById("f").submit();' +
+    '});' +
+    'acct.addEventListener("input",function(){err.textContent="";});' +
+    '</script></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle('예약 취소 · Moment Edit')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// 취소 확정 처리 (계좌 제출됨) → 기한 재확인 → 캘린더 삭제·상태=취소·운영자 송금요청 메일·고객 취소완료 메일
+function doCustomerCancel(sheet, colOf, row, p) {
+  var status = String(row.get('상태') || '').trim();
+  if (status === ST.CANCELLED) {
+    return infoPage('이미 취소되었습니다', '이 예약은 이미 취소 처리되었습니다.', true);
+  }
+  var dateKey = row.get('선택날짜'), time = row.get('선택시간');
+  var names = coupleNames(row);
+
+  // 기한 재확인 (화면 우회 방지)
+  if (!withinCancelDeadline(dateKey, time)) {
+    return infoPage('온라인 취소 기한이 지났습니다', '카카오톡으로 문의해 주세요.', false);
+  }
+
+  var acct = String((p && p.acct) || '').trim();
+
+  // 1) 캘린더 삭제 + 상태=취소 + 취소일시 (actCancel 재사용하되, 고객 취소 메일은 별도라 여기선 캘린더+상태만)
+  deleteCalendarEvent(sheet, colOf, row.num, names);
+  writeCell(sheet, colOf, row.num, '상태', ST.CANCELLED);
+  writeCell(sheet, colOf, row.num, '취소일시', new Date());
+  if (acct) writeCell(sheet, colOf, row.num, '환불계좌', acct);
+
+  // 2) 운영자에게 송금 요청 메일 (계좌 포함)
+  try { sendRefundRequestEmail(row, dateKey, time, acct); }
+  catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
+
+  // 3) 고객에게 취소 완료 메일
+  var to = row.get('이메일');
+  if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
+
+  return infoPage('예약이 취소되었습니다',
+    '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
 }
 
 // ============================ google.script.run 핸들러 ============================
@@ -497,7 +648,22 @@ function syncCalendarEvent(sheet, colOf, rowNum, dateKey, time, names, phone) {
   }
 }
 
-// ============================ 메일 5종 ============================
+// 캘린더 일정 삭제 (취소 시) — 저장된 이벤트ID로 그 일정만 정확히 제거. 성공하면 시트의 ID도 비움.
+function deleteCalendarEvent(sheet, colOf, rowNum, names) {
+  var existingId = row(sheet, colOf, rowNum).get('캘린더이벤트ID');
+  if (!existingId) return false; // 지울 일정 없음
+  var cal = getCalendar();
+  if (!cal) return false;
+  try {
+    var ev = cal.getEventById(existingId);
+    if (ev) ev.deleteEvent();
+    writeCell(sheet, colOf, rowNum, '캘린더이벤트ID', ''); // ID 비움 (재삭제·오작동 방지)
+    return true;
+  } catch (e) {
+    notifyStudio('[상담] ⚠️오류 · 캘린더 일정 삭제 실패', (names || '') + '\n' + e.message);
+    return false;
+  }
+}
 // 메일① — 전용 URL (신청 즉시, 고객) · "신청 접수"(확정 아님)
 function sendUrlEmail(to, names, url, summary) {
   var summaryBlock = (summary && String(summary).trim())
@@ -653,8 +819,11 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
 }
 
 // 메일③/⑤ — 예약 확정 (승인/수락, 고객) · ★완료 · 정확한 주소·준비안내
-function sendConfirmEmail(to, names, dateKey, time, isChange) {
+function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
+  var cancelLine = token
+    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(actionUrl('cancelreq', token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
+    : '';
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -665,9 +834,42 @@ function sendConfirmEmail(to, names, dateKey, time, isChange) {
       ['변경 · 취소', '상담 ' + deadlineLabel() + ' 전까지 가능하며, 이후 예약금은 반환되지 않습니다.']
     ]) +
     emailBtnOutline(gcalUrl('Moment Edit 상담 · ' + names, dateKey, time, CONFIG.SLOT_DURATION_MIN), '내 캘린더에 추가') +
-    smallP('일정 변경이 필요하시면 받으셨던 전용 링크에서 다시 선택하시거나, <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 문의해 주세요.');
+    smallP('일정 변경이 필요하시면 받으셨던 전용 링크에서 다시 선택하시거나, <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 문의해 주세요.') +
+    cancelLine;
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 확정되었습니다 · ' + prettyDate(dateKey) + ' ' + time, '',
     { htmlBody: emailShell(head, inner), name: SYS.FROM_NAME });
+}
+
+// 취소 안내 (고객) — 예약 취소 시 발송. 차분한 안내 + 재예약/문의 경로.
+function sendCancelEmail(to, names, dateKey, time) {
+  var when = dateKey ? (prettyDate(dateKey) + (time ? ' · ' + esc(time) : '')) : '';
+  var inner =
+    centerP(esc(names) + ' 님,<br>아래 상담 예약이 <b style="color:#6B2A24;font-weight:600">취소</b>되었습니다.') +
+    (when ? dateCard('Cancelled', prettyDate(dateKey), esc(time)) : '') +
+    noteP('다시 찾아주실 때 언제든 편하게 일정을 잡아드리겠습니다.') +
+    emailBtnOutline((CONFIG.FORM_URL && CONFIG.FORM_URL.charAt(0) !== '[') ? CONFIG.FORM_URL : webAppUrl(), '다시 예약하기') +
+    smallP('문의 사항이 있으시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
+  GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 취소되었습니다' + (when ? ' · ' + prettyDate(dateKey) : ''), '',
+    { htmlBody: emailShell('예약 취소 안내', inner), name: SYS.FROM_NAME });
+}
+
+// 운영자 송금 요청 (고객 셀프 취소 시) — 환불 계좌·금액 포함. contact@ + cc(미쿠·희준).
+function sendRefundRequestEmail(row, dateKey, time, acct) {
+  if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
+  var names = coupleNames(row);
+  var depositTxt = (CONFIG.DEPOSIT ? (Number(CONFIG.DEPOSIT).toLocaleString() + '원') : '예약금');
+  var rows =
+    infoRow('성함', names) +
+    infoRow('연락처', telLink(row.get('연락처'))) +
+    infoRow('취소된 일정', '<b style="color:#3A2D22">' + (dateKey ? prettyDate(dateKey) + ' · ' + esc(time) : '—') + '</b>') +
+    infoRow('환불 금액', '<b style="color:#6B2A24">' + depositTxt + '</b>') +
+    infoRow('환불 계좌', '<b style="color:#3A2D22;font-size:15px">' + (acct ? esc(acct) : '— (미입력)') + '</b>');
+  var inner =
+    centerP('고객이 예약을 취소했습니다.<br>아래 계좌로 <b style="color:#6B2A24;font-weight:600">예약금 환불</b>을 진행해 주세요.') +
+    '<div style="background:#FBF7F2;padding:6px 20px;border:1px solid #E8DCCB;border-radius:6px;margin:18px 0 0;">' + rows + '</div>' +
+    smallP('캘린더 일정은 자동 삭제되었고, 고객에게는 취소 완료 안내가 발송되었습니다.');
+  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('⚠️환불요청', row, dateKey, time), '',
+    { htmlBody: emailShell('예약 취소 · 환불 요청', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
 // 메일③(운영자) — 예약 확정 시 contact@ 로 "상담 준비 브리프" (이 메일 1장 = 상담 준비 끝)
@@ -719,12 +921,7 @@ function emailShell(headline, innerHtml) {
     '<body style="margin:0;padding:0;background:#FAFAF8;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAFAF8;width:100%;"><tr><td align="center" bgcolor="#FAFAF8" style="background:#FAFAF8;padding:32px 16px;">' +
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #DDD8D1;border-radius:10px;"><tr><td bgcolor="#FFFFFF" class="me-card" style="background:#FFFFFF;border-radius:10px;padding:46px 38px;font-family:\'Noto Serif KR\',serif;color:#3A2D22;">' +
-      '<div style="text-align:center;"><img src="https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +
-      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto 22px;"><tr>' +
-        '<td style="width:40px;height:1px;background:#B89A75;line-height:1px;font-size:0;">&nbsp;</td>' +
-        '<td style="padding:0 8px;line-height:0;font-size:0;"><span style="display:inline-block;width:5px;height:5px;background:#6B2A24;border-radius:50%;"></span></td>' +
-        '<td style="width:40px;height:1px;background:#B89A75;line-height:1px;font-size:0;">&nbsp;</td>' +
-      '</tr></table>' +
+      '<div style="text-align:center;margin-bottom:24px;"><img src="https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +
       '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#3A2D22;margin:0 0 8px">' + esc(headline) + '</p>' +
       innerHtml +
       '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:20px;text-align:center;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
@@ -799,6 +996,32 @@ function getCalendar() {
   }
   try { return CalendarApp.getCalendarById(CONFIG.CALENDAR_ID); }
   catch (e) { Logger.log('  (캘린더 열기 실패: ' + e.message + ')'); return null; }
+}
+
+// ────────────────────────────────────────────────────────────
+// 수동 취소 (편집기에서 실행) — 시트 행 번호를 넣고 ▶실행.
+// 캘린더 일정 삭제 + 고객 취소 메일 + 상태=취소 기록.
+// 사용법: 아래 TARGET_ROW 를 취소할 시트 행 번호(예: 5)로 바꾸고 cancelByRow 실행.
+// ────────────────────────────────────────────────────────────
+function cancelByRow() {
+  var TARGET_ROW = 0; // ← 여기에 취소할 시트 행 번호를 입력 후 실행 (예: 5)
+
+  if (!TARGET_ROW || TARGET_ROW < SYS.DATA_START_ROW) {
+    Logger.log('⚠️ TARGET_ROW에 올바른 행 번호를 입력하세요 (데이터는 ' + SYS.DATA_START_ROW + '행부터).');
+    return;
+  }
+  var sheet = getSheet();
+  var colOf = buildHeaderIndex(sheet);
+  if (TARGET_ROW > sheet.getLastRow()) {
+    Logger.log('⚠️ 그런 행이 없습니다. 마지막 행: ' + sheet.getLastRow());
+    return;
+  }
+  var r = row(sheet, colOf, TARGET_ROW);
+  var names = coupleNames(r);
+  var when = (r.get('선택날짜') ? prettyDate(r.get('선택날짜')) : '날짜미정') + ' ' + (r.get('선택시간') || '');
+  Logger.log('취소 진행: ' + TARGET_ROW + '행 · ' + names + ' · ' + when);
+  actCancel(sheet, colOf, r);
+  Logger.log('✅ 취소 완료 — 캘린더 일정 삭제 + 취소 메일 발송(이메일 있을 시) + 상태=취소');
 }
 
 // ============================================================
@@ -921,6 +1144,15 @@ function isExpired(applied) {
   var t = (applied instanceof Date) ? applied.getTime() : new Date(applied).getTime();
   if (isNaN(t)) return false;
   return (Date.now() - t) > CONFIG.URL_VALID_DAYS * 86400 * 1000;
+}
+
+// 셀프 취소 가능 여부 — 상담 시작까지 (기한시간) 이상 남아 있어야 true.
+// dateKey/time = 확정된 상담 일시. 남은 시간이 CONFIRM_DEADLINE_HOURS 미만이면 기한 경과(false).
+function withinCancelDeadline(dateKey, time) {
+  var start = parseDateTime(dateKey, time || '00:00');
+  if (!start) return false;
+  var msLeft = start.getTime() - Date.now();
+  return msLeft >= CONFIG.CONFIRM_DEADLINE_HOURS * 3600 * 1000;
 }
 function makeToken() { return Utilities.getUuid().replace(/-/g, ''); }
 
@@ -1083,6 +1315,7 @@ function onConsultEdit(e) {
     var v = String(e.value || '').trim();
     var r = row(sheet, colOf, e.range.getRow());
     if (v === ST.APPROVED) actApprove(sheet, colOf, r);
+    else if (v === ST.CANCELLED) actCancel(sheet, colOf, r);
   } catch (err) {
     Logger.log('onConsultEdit 오류: ' + err.message);
   }
@@ -1212,7 +1445,7 @@ function formatConsultationSheet() {
   if (maxRows > 1) sheet.getRange(2, 1, maxRows - 1, lastCol).setVerticalAlignment('top').setFontSize(10).setFontColor('#1C1B19');
 
   // 열폭
-  var W = {'신청일시':150,'상태':100,'입금확인':80,'성함(신랑)':80,'성함(신부)':80,'연락처':120,'이메일':190,'경로':90,'예식일자':180,'요일':90,'시간대':90,'하객':150,'디지털참석':100,'의상':150,'분위기·스냅':140,'중요하게여김':200,'망설이는점':140,'준비상황':200,'참고링크':160,'자유메모':220,'선택날짜':100,'선택시간':80,'그외가능시간대':100,'기타희망시간':110,'변경제안날짜':100,'변경제안시간':100,'확정일시':150,'개인정보동의':90,'제출시각':160,'토큰':70,'캘린더이벤트ID':70};
+  var W = {'신청일시':150,'상태':100,'입금확인':80,'성함(신랑)':80,'성함(신부)':80,'연락처':120,'이메일':190,'경로':90,'예식일자':180,'요일':90,'시간대':90,'하객':150,'디지털참석':100,'의상':150,'분위기·스냅':140,'중요하게여김':200,'망설이는점':140,'준비상황':200,'참고링크':160,'자유메모':220,'선택날짜':100,'선택시간':80,'그외가능시간대':100,'기타희망시간':110,'변경제안날짜':100,'변경제안시간':100,'확정일시':150,'취소일시':150,'환불계좌':200,'개인정보동의':90,'제출시각':160,'토큰':70,'캘린더이벤트ID':70};
   Object.keys(W).forEach(function (h) { if (colOf[h]) sheet.setColumnWidth(colOf[h], W[h]); });
 
   // 줄바꿈(긴 텍스트)
