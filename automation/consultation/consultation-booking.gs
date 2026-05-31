@@ -1584,13 +1584,32 @@ function formatConsultationSheet() {
 }
 
 // ============================ 자체 도메인 폼(fetch) → doPost ============================
-// momentedit.kr/inquiry.html 이 fetch(POST·JSON)로 신청을 보냄. payload {groom,bride,phone,email,memo,detail,hp}
+// 통합 라우터 — action 으로 분기한다(프로젝트당 doPost 1개 원칙).
+//   · 기존 상담 신청: action 없음 → submitApplication (하위호환 유지)
+//   · 통합 플랫폼(Phase 1): signup·login·autologin·verify·getMyState·findCode·resetPw·doResetPw
+//     (핸들러는 automation/platform/*.gs 에 정의 — 같은 GAS 프로젝트라 그대로 호출)
 function doPost(e) {
   try {
     var body = {};
     try { body = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { body = {}; }
-    submitApplication(body);
-    return jsonOut({ ok: true });
+    var action = String((body && body.action) || '').trim();
+    switch (action) {
+      // ── 통합 플랫폼 ──
+      case 'signup':     return jsonOut(handleSignup(body));
+      case 'login':      return jsonOut(handleLogin(body));
+      case 'autologin':  return jsonOut(handleAutologin(body));
+      case 'verify':     return jsonOut(handleVerify(body));
+      case 'getMyState': return jsonOut(handleGetMyState(body));
+      case 'findCode':   return jsonOut(handleFindCode(body));
+      case 'resetPw':    return jsonOut(handleResetPw(body));
+      case 'doResetPw':  return jsonOut(handleDoResetPw(body));
+      // ── 기존 상담 신청 (action 없음) ──
+      case '':
+        submitApplication(body);
+        return jsonOut({ ok: true });
+      default:
+        return jsonOut({ ok: false, error: '알 수 없는 요청입니다.' });
+    }
   } catch (err) {
     return jsonOut({ ok: false, error: (err && err.message) ? err.message : String(err) });
   }

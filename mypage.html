@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<title>마이페이지 · Moment Edit</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  color-scheme:light;
+  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6;
+  --text:#1C1B19; --sub:#5A554C; --light:#75705F;
+  --gold:#B89A75; --gold-soft:rgba(184,154,117,0.18);
+  --accent:#3A2D22; --seal:#6B2A24; --border:#DDD8D1; --hairline:rgba(28,27,25,0.14);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --sans:'Noto Sans KR',-apple-system,sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── 상단 브랜드 바 ── */
+.topbar{padding:22px 24px;text-align:center;border-bottom:1px solid var(--hairline);background:rgba(250,250,248,0.9)}
+.brand{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.34em;color:var(--accent);text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.brand .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
+
+/* ── 공통 레이아웃 ── */
+main{flex:1;width:100%;max-width:480px;margin:0 auto;padding:40px 24px 64px}
+.view{display:none;animation:fade .5s var(--ease)}
+.view.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-family:var(--serif);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px}
+h1.title{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);text-align:center;letter-spacing:.01em;margin-bottom:8px}
+.subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.8;margin-bottom:30px}
+
+/* ── 입력 필드 (floating label) ── */
+.field{position:relative;margin-bottom:16px}
+.field input{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px 18px;font-family:var(--sans);font-size:15px;color:var(--accent);background:#fff;outline:none;transition:border-color .3s}
+.field input:focus{border-color:var(--gold)}
+.field label{position:absolute;left:14px;top:17px;font-family:var(--serif-ko);font-size:14px;color:var(--light);pointer-events:none;transition:all .25s var(--ease);background:#fff;padding:0 5px}
+.field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold);letter-spacing:.04em}
+
+/* ── 버튼 ── */
+.btn{display:block;width:100%;text-align:center;padding:17px 0;border:none;border-radius:var(--radius);font-family:var(--serif-ko);font-size:15px;font-weight:500;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}
+.btn-primary{background:var(--gold);color:#fff;box-shadow:0 4px 14px rgba(184,154,117,0.3)}
+.btn-primary:hover{background:#A88863}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-ghost{background:#fff;color:var(--sub);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg2);color:var(--accent)}
+.btn+.btn{margin-top:10px}
+
+.linkrow{display:flex;justify-content:center;gap:18px;margin-top:22px;flex-wrap:wrap}
+.linkrow a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;border-bottom:1px solid var(--gold-soft);padding-bottom:1px;cursor:pointer}
+.linkrow a:hover{color:var(--accent);border-color:var(--gold)}
+
+.errbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);text-align:center;line-height:1.7}
+.errbox.show{display:block}
+.okbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(46,107,67,0.06);border:1px solid rgba(46,107,67,0.22);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:#2E6B43;text-align:center;line-height:1.7}
+.okbox.show{display:block}
+
+/* ── 로딩 ── */
+#loading{text-align:center;padding:80px 0;color:var(--light)}
+.spinner{width:30px;height:30px;border:2px solid var(--gold-soft);border-top-color:var(--gold);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── 마이페이지 ── */
+.greet{text-align:center;margin-bottom:6px}
+.greet .names{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--accent)}
+.greet .product{display:inline-block;margin-top:10px;font-family:var(--serif);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-soft);border-radius:20px;padding:3px 14px}
+
+/* 진행바 */
+.progress{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px 22px;margin:26px 0}
+.progress .stage-now{font-family:var(--serif-ko);font-size:19px;font-weight:600;color:var(--accent);text-align:center;margin-bottom:4px}
+.progress .stage-count{font-family:var(--serif);font-size:11px;letter-spacing:.12em;color:var(--gold);text-align:center;margin-bottom:18px}
+.bar{height:6px;background:var(--bg3);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.bar .fill{height:100%;background:linear-gradient(90deg,#C9B08A,#B89A75);border-radius:6px;width:0;transition:width .8s var(--ease)}
+.dots{display:flex;justify-content:space-between;gap:4px}
+.dots .dot{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.dots .dot .pt{width:9px;height:9px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--border);transition:all .4s var(--ease);flex:none}
+.dots .dot.done .pt{background:var(--gold);border-color:var(--gold)}
+.dots .dot.current .pt{background:var(--seal);border-color:var(--seal);width:13px;height:13px;box-shadow:0 0 0 4px rgba(107,42,36,0.12)}
+.dots .dot .lb{font-family:var(--serif-ko);font-size:8.5px;color:var(--light);text-align:center;line-height:1.25;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.dots .dot.current .lb{color:var(--seal);font-weight:500}
+
+/* 예외 배지 */
+.exception{background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:12px;padding:20px;text-align:center;margin:26px 0}
+.exception .badge{display:inline-block;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--seal);background:#fff;border:1px solid rgba(107,42,36,0.25);border-radius:20px;padding:5px 18px}
+
+/* 지금 할 일 */
+.todo{background:linear-gradient(180deg,#FFFDF9,#FBF7F0);border:1px solid var(--gold-soft);border-radius:12px;padding:24px 22px;margin:22px 0;text-align:center;box-shadow:0 4px 18px rgba(184,154,117,0.08)}
+.todo .lbl{font-family:var(--serif);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.todo .act{font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--accent);line-height:1.75}
+
+/* 개인코드 카드 */
+.codecard{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin:22px 0;text-align:center}
+.codecard .lbl{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.codecard .code{font-family:'Roboto Mono',ui-monospace,monospace;font-size:26px;font-weight:600;letter-spacing:.16em;color:var(--accent)}
+.codecard button{margin-top:12px;padding:8px 22px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;transition:all .3s}
+.codecard button:hover{background:var(--bg3);color:var(--accent)}
+
+/* 다음 단계 placeholder */
+.upcoming{margin:22px 0}
+.upcoming .h{font-family:var(--serif);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px}
+.upcoming .item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;margin-bottom:8px;opacity:.7}
+.upcoming .item .ic{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--light)}
+.upcoming .item .tx{font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
+.upcoming .item .tx small{display:block;font-size:11px;color:var(--light);font-weight:300}
+
+/* 카톡 + 로그아웃 */
+.kakao-btn{display:block;width:100%;text-align:center;padding:15px 0;background:#FEE500;color:#3A1D1D;border-radius:var(--radius);font-family:var(--serif-ko);font-size:14px;font-weight:500;text-decoration:none;margin-top:8px}
+.foot-actions{margin-top:26px;text-align:center}
+.foot-actions a{font-family:var(--serif-ko);font-size:12.5px;color:var(--light);text-decoration:none;border-bottom:1px solid var(--gold-soft);cursor:pointer}
+.foot-actions a:hover{color:var(--sub)}
+
+.hint{font-family:var(--serif-ko);font-size:11.5px;color:var(--light);text-align:center;line-height:1.7;margin-top:14px}
+
+footer{padding:24px;text-align:center;border-top:1px solid var(--hairline);font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="brand">Moment Edit<span class="dot"></span></a>
+</div>
+
+<main>
+  <!-- 로딩 -->
+  <div id="loading"><div class="spinner"></div><div style="font-family:var(--serif-ko);font-size:13px">불러오는 중…</div></div>
+
+  <!-- 로그인 -->
+  <section class="view" id="loginView">
+    <div class="eyebrow">My Page</div>
+    <h1 class="title">로그인</h1>
+    <p class="subtitle">개인코드와 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
+    <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="latin" autocapitalize="characters" maxlength="6">
+        <label for="li_code">개인코드 (6자)</label>
+      </div>
+      <div class="field">
+        <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password">
+        <label for="li_pw">비밀번호</label>
+      </div>
+      <button type="submit" class="btn btn-primary" id="li_btn">로그인</button>
+    </form>
+    <div class="errbox" id="li_err"></div>
+    <div class="linkrow">
+      <a id="link_findcode">개인코드를 잊으셨나요?</a>
+      <a id="link_reset">비밀번호 재설정</a>
+    </div>
+  </section>
+
+  <!-- 마이페이지 -->
+  <section class="view" id="mypageView">
+    <div class="greet">
+      <div class="names" id="mp_names">—</div>
+      <span class="product" id="mp_product">—</span>
+    </div>
+
+    <!-- 진행바 또는 예외 -->
+    <div class="progress" id="mp_progress">
+      <div class="stage-now" id="mp_stageNow">—</div>
+      <div class="stage-count" id="mp_stageCount"></div>
+      <div class="bar"><div class="fill" id="mp_fill"></div></div>
+      <div class="dots" id="mp_dots"></div>
+    </div>
+    <div class="exception" id="mp_exception" style="display:none">
+      <span class="badge" id="mp_exBadge">—</span>
+    </div>
+
+    <!-- 지금 할 일 -->
+    <div class="todo">
+      <div class="lbl">지금 할 일</div>
+      <div class="act" id="mp_action">—</div>
+    </div>
+
+    <!-- 개인코드 -->
+    <div class="codecard">
+      <div class="lbl">Personal Code</div>
+      <div class="code" id="mp_code">—</div>
+      <button type="button" id="mp_copy">코드 복사</button>
+    </div>
+
+    <!-- 다음 단계 (후속 Phase 준비중) -->
+    <div class="upcoming" id="mp_upcoming">
+      <div class="h">다음 단계</div>
+      <!-- JS가 채움 -->
+    </div>
+
+    <!-- 카톡 문의 -->
+    <a class="kakao-btn" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
+
+    <div class="foot-actions">
+      <a id="mp_logout">로그아웃</a>
+    </div>
+  </section>
+
+  <!-- 코드찾기 / 비번재설정 요청 (이메일) -->
+  <section class="view" id="forgotView">
+    <div class="eyebrow">My Page</div>
+    <h1 class="title" id="fg_title">개인코드 찾기</h1>
+    <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드립니다.</p>
+    <form id="forgotForm">
+      <div class="field">
+        <input type="email" id="fg_email" placeholder=" " required autocomplete="email">
+        <label for="fg_email">이메일</label>
+      </div>
+      <button type="submit" class="btn btn-primary" id="fg_btn">메일 보내기</button>
+    </form>
+    <div class="okbox" id="fg_ok"></div>
+    <div class="errbox" id="fg_err"></div>
+    <div class="linkrow"><a id="fg_back">← 로그인으로 돌아가기</a></div>
+  </section>
+
+  <!-- 비번 재설정 (reset 링크 진입) -->
+  <section class="view" id="resetView">
+    <div class="eyebrow">My Page</div>
+    <h1 class="title">비밀번호 재설정</h1>
+    <p class="subtitle">새로 사용할 비밀번호를 입력해 주세요.</p>
+    <form id="resetForm">
+      <div class="field">
+        <input type="password" id="rs_pw" placeholder=" " required minlength="6" autocomplete="new-password">
+        <label for="rs_pw">새 비밀번호 (6자 이상)</label>
+      </div>
+      <div class="field">
+        <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password">
+        <label for="rs_pw2">새 비밀번호 확인</label>
+      </div>
+      <button type="submit" class="btn btn-primary" id="rs_btn">비밀번호 변경</button>
+    </form>
+    <div class="errbox" id="rs_err"></div>
+    <div class="linkrow"><a id="rs_back">← 로그인으로 돌아가기</a></div>
+  </section>
+</main>
+
+<footer>Focus on the Essence, Record the Truth.</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   Moment Edit · 마이페이지 (Phase 1)
+   통합 GAS 웹앱(doPost, action 분기)과 fetch 로 통신.
+   ⚠️ EXEC_URL 은 inquiry.html 과 동일한 웹앱 배포 URL 이어야 합니다.
+      (같은 GAS 프로젝트를 재배포한 뒤 URL 이 바뀌면 두 파일을 함께 갱신)
+   ═══════════════════════════════════════════════ */
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+const TOKEN_KEY = 'me_token';
+
+// ── 공통 유틸 ──────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function show(viewId){
+  ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
+    var el=$(v); if(!el) return;
+    if(v==='loading'){ el.style.display=(viewId==='loading')?'block':'none'; }
+    else { el.classList.toggle('show', v===viewId); }
+  });
+  window.scrollTo({top:0});
+}
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
+function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
+function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'; el.classList.add('show'); } }
+function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
+
+// fetch (단순 요청 → CORS preflight 회피)
+function api(payload){
+  return fetch(EXEC_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  }).then(function(r){ return r.json(); });
+}
+
+function qp(name){
+  try { return new URLSearchParams(window.location.search).get(name) || ''; }
+  catch(e){ return ''; }
+}
+
+// ── 부팅 라우팅 ────────────────────────────────
+(function boot(){
+  var mode = qp('mode');
+  if (mode === 'reset' && qp('code') && qp('sig') && qp('exp')) {
+    show('resetView');
+    return;
+  }
+  var urlToken = qp('token');
+  if (urlToken) {
+    // 메일 링크 자동로그인
+    show('loading');
+    api({action:'autologin', token:urlToken}).then(function(d){
+      if (d && d.ok) { setToken(d.token || urlToken); cleanUrl(); loadMyState(); }
+      else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
+    }).catch(function(){ show('loginView'); });
+    return;
+  }
+  // 저장된 토큰 검증
+  var t = getToken();
+  if (t) {
+    show('loading');
+    api({action:'verify', token:t}).then(function(d){
+      if (d && d.ok) { loadMyState(); }
+      else { clearToken(); show('loginView'); }
+    }).catch(function(){ show('loginView'); });
+    return;
+  }
+  show('loginView');
+})();
+
+function cleanUrl(){
+  try { history.replaceState({}, '', window.location.pathname); } catch(e){}
+}
+function softLoginNote(msg){
+  // 자동로그인이 만료/무효일 때 로그인 화면에 가볍게 안내
+  showErr('li_err', msg);
+}
+
+// ── 로그인 ─────────────────────────────────────
+$('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  hideErr('li_err');
+  var code = $('li_code').value.trim().toUpperCase();
+  var pw = $('li_pw').value;
+  if (!code || !pw){ showErr('li_err','개인코드와 비밀번호를 입력해 주세요.'); return; }
+  var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
+  api({action:'login', code:code, pw:pw}).then(function(d){
+    if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
+    else { showErr('li_err', (d&&d.error)||'로그인에 실패했습니다.'); }
+  }).catch(function(){ showErr('li_err'); })
+  .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
+});
+
+// ── 마이페이지 로드 + 렌더 ─────────────────────
+function loadMyState(){
+  show('loading');
+  api({action:'getMyState', token:getToken()}).then(function(d){
+    if (d && d.ok){ renderMyPage(d); show('mypageView'); }
+    else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
+  }).catch(function(){ show('loginView'); });
+}
+
+function renderMyPage(d){
+  $('mp_names').textContent = d.name || '고객';
+  $('mp_product').textContent = d.product || '';
+
+  // 진행바 vs 예외
+  if (d.isException){
+    $('mp_progress').style.display='none';
+    $('mp_exception').style.display='block';
+    $('mp_exBadge').textContent = '상태 · ' + d.stage;
+  } else {
+    $('mp_exception').style.display='none';
+    $('mp_progress').style.display='block';
+    var list = d.stageList || [];
+    var idx = (typeof d.stageIndex==='number') ? d.stageIndex : -1;
+    if (idx < 0) idx = 0;
+    $('mp_stageNow').textContent = d.stage || (list[idx]||'—');
+    $('mp_stageCount').textContent = list.length ? ('STEP ' + (idx+1) + ' / ' + list.length) : '';
+    var pct = list.length ? Math.round((idx+1)/list.length*100) : 0;
+    setTimeout(function(){ $('mp_fill').style.width = pct + '%'; }, 60);
+    // 점 마커
+    var dots = list.map(function(label,i){
+      var cls = (i<idx?'done':(i===idx?'current':''));
+      return '<div class="dot '+cls+'"><span class="pt"></span><span class="lb">'+escapeHtml(label)+'</span></div>';
+    }).join('');
+    $('mp_dots').innerHTML = dots;
+  }
+
+  // 지금 할 일
+  $('mp_action').textContent = d.nextAction || '디렉터가 확인 후 안내드립니다.';
+
+  // 개인코드
+  $('mp_code').textContent = d.code || '—';
+
+  // 다음 단계 placeholder (상품별로 잠금/준비중 표기)
+  renderUpcoming(d.product);
+
+  // 카톡
+  var ka = $('mp_kakao');
+  if (d.kakao){ ka.href = d.kakao; ka.style.display='block'; }
+  else { ka.style.display='none'; }
+}
+
+function renderUpcoming(product){
+  var box = $('mp_upcoming');
+  var items = (product === '웨딩스냅')
+    ? [['본 계약','서명 후 효력 발생'],['예약금 입금','입금 확인 후 다음 단계 해제'],['촬영','예정일에 진행'],['결과물 전달','마이페이지에서 확인']]
+    : [['본 계약','서명 후 효력 발생'],['예약금 입금','입금 확인 후 다음 단계 해제'],['제작 정보','식순·다이닝·큐시트 입력'],['청첩장','온·오프·라이브'],['결과물 전달','마이페이지에서 확인']];
+  var html = '<div class="h">다음 단계 (준비 중)</div>' + items.map(function(it){
+    return '<div class="item"><span class="ic">🔒</span><span class="tx">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
+  }).join('');
+  box.innerHTML = html;
+}
+
+// 코드 복사
+$('mp_copy').addEventListener('click', function(){
+  var code = $('mp_code').textContent.trim();
+  if (!code || code==='—') return;
+  var btn=this;
+  var done=function(){ btn.textContent='복사됐어요 ✓'; setTimeout(function(){ btn.textContent='코드 복사'; },1800); };
+  try{
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(done).catch(function(){ legacyCopy(code); done(); });
+    } else { legacyCopy(code); done(); }
+  }catch(e){ legacyCopy(code); done(); }
+});
+function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
+
+// 로그아웃
+$('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });
+
+// ── 코드찾기 / 비번재설정 요청 ─────────────────
+var forgotMode = 'findCode';
+$('link_findcode').addEventListener('click', function(){ openForgot('findCode'); });
+$('link_reset').addEventListener('click', function(){ openForgot('resetPw'); });
+$('fg_back').addEventListener('click', function(){ show('loginView'); });
+function openForgot(mode){
+  forgotMode = mode;
+  hideErr('fg_err'); $('fg_ok').classList.remove('show');
+  if (mode==='findCode'){ $('fg_title').textContent='개인코드 찾기'; $('fg_sub').textContent='가입하신 이메일을 입력하시면 개인코드를 보내드립니다.'; }
+  else { $('fg_title').textContent='비밀번호 재설정'; $('fg_sub').textContent='가입하신 이메일로 재설정 링크를 보내드립니다.'; }
+  show('forgotView');
+}
+$('forgotForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  hideErr('fg_err'); $('fg_ok').classList.remove('show');
+  var email = $('fg_email').value.trim();
+  if (!email){ showErr('fg_err','이메일을 입력해 주세요.'); return; }
+  var btn=$('fg_btn'); btn.disabled=true; btn.textContent='보내는 중…';
+  api({action:forgotMode, email:email}).then(function(d){
+    if (d && d.ok){
+      var ok=$('fg_ok');
+      ok.textContent = (forgotMode==='findCode')
+        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸습니다. 메일함을 확인해 주세요.'
+        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸습니다. 메일함을 확인해 주세요.';
+      ok.classList.add('show');
+    } else { showErr('fg_err',(d&&d.error)||'요청에 실패했습니다.'); }
+  }).catch(function(){ showErr('fg_err'); })
+  .then(function(){ btn.disabled=false; btn.textContent='메일 보내기'; });
+});
+
+// ── 비번 재설정 (reset 링크) ───────────────────
+$('rs_back').addEventListener('click', function(){ cleanUrl(); show('loginView'); });
+$('resetForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  hideErr('rs_err');
+  var pw=$('rs_pw').value, pw2=$('rs_pw2').value;
+  if (pw.length<6){ showErr('rs_err','비밀번호는 6자 이상이어야 합니다.'); return; }
+  if (pw!==pw2){ showErr('rs_err','비밀번호가 일치하지 않습니다.'); return; }
+  var btn=$('rs_btn'); btn.disabled=true; btn.textContent='변경 중…';
+  api({action:'doResetPw', code:qp('code'), exp:qp('exp'), sig:qp('sig'), pw:pw, pw2:pw2}).then(function(d){
+    if (d && d.ok){
+      if (d.token) setToken(d.token);
+      cleanUrl();
+      if (d.token) loadMyState();   // 재설정 후 바로 로그인
+      else { show('loginView'); softLoginNote('비밀번호가 변경되었습니다. 다시 로그인해 주세요.'); }
+    } else { showErr('rs_err',(d&&d.error)||'재설정에 실패했습니다.'); }
+  }).catch(function(){ showErr('rs_err'); })
+  .then(function(){ btn.disabled=false; btn.textContent='비밀번호 변경'; });
+});
+
+// HTML escape
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+</script>
+</body>
+</html>
