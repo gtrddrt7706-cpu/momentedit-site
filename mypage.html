@@ -131,7 +131,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .exception .badge{display:inline-block;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--seal);background:#fff;border:1px solid rgba(107,42,36,0.22);border-radius:20px;padding:5px 18px}
 
 /* ── 개인코드 카드 ── */
-.codecard{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:11px 18px;max-width:320px;margin:0 auto 24px}
+.codecard{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:11px 16px;max-width:280px;margin:20px auto 0}
 .codecard .cc-left{display:flex;flex-direction:column;gap:3px;min-width:0}
 .codecard .cc-label{font-family:var(--serif);font-size:9px;color:var(--gold-deep);letter-spacing:.18em;padding-left:.18em}
 .codecard .code{font-family:var(--mono);font-size:17px;font-weight:400;letter-spacing:.1em;color:var(--accent)}
@@ -232,7 +232,13 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
       <span class="badge" id="mp_exBadge">—</span>
     </div>
 
-    <!-- 개인코드 -->
+    <!-- NEXT (잠금) -->
+    <div class="next-sec" id="mp_upcoming"></div>
+
+    <!-- 카카오톡 -->
+    <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
+
+    <!-- 개인코드 (로그아웃 위) -->
     <div class="codecard">
       <div class="cc-left">
         <span class="cc-label">PERSONAL CODE</span>
@@ -243,12 +249,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
         <span id="mp_copy_txt">복사</span>
       </button>
     </div>
-
-    <!-- NEXT (잠금) -->
-    <div class="next-sec" id="mp_upcoming"></div>
-
-    <!-- 카카오톡 -->
-    <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
 
     <div class="foot-actions"><a id="mp_logout">로그아웃</a></div>
   </section>
