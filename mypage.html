@@ -21,7 +21,7 @@
 :root{
   color-scheme:light;
   /* ── 03 브랜드 색 토큰 (index.html :root 와 동일) ── */
-  --bg:#FAFAF8; --bg2:#F5F3EF; --text:#1C1B19;
+  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19;
   --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
   --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
   /* ── 시안 보조값 (03 팔레트 계열) ── */
@@ -73,7 +73,7 @@ main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:22px 22px 60px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── 로그인 / 폼 공통 ── */
-.eyebrow{font-family:var(--serif);font-style:italic;font-size:17.5px;color:var(--gold-deep);text-align:center;margin-bottom:12px}
+.eyebrow{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--gold-deep);text-align:center;margin-bottom:12px}
 h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--accent);text-align:center;margin-bottom:8px}
 .subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px}
 
@@ -89,6 +89,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .btn-seal:hover{background:#5A231E}
 .btn-seal:active{background:#511F1B}
 .btn-seal:disabled{opacity:.55;cursor:not-allowed}
+/* 키보드 포커스 가시성(접근성) */
+.btn:focus-visible,.linkrow a:focus-visible,.foot-actions a:focus-visible,.codecard .copy:focus-visible,.kakao:focus-visible,.brand-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
 
 .linkrow{display:flex;justify-content:center;gap:18px;margin-top:22px;flex-wrap:wrap}
 .linkrow a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;border-bottom:1px solid var(--card-border);padding-bottom:1px;cursor:pointer;transition:color .3s}
@@ -101,14 +103,14 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 
 /* ── 마이페이지 · 환영 ── */
 .welcome{text-align:center;margin-bottom:24px}
-.welcome .mp-label{font-family:var(--serif);font-style:italic;font-size:17.5px;color:var(--gold-deep);margin-bottom:10px}
+.welcome .mp-label{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--gold-deep);margin-bottom:10px}
 .welcome .names{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);line-height:1.4}
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:4px 16px}
 
 /* ── NOW 카드 (주인공) ── */
 .now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center}
-.now .now-label{font-family:Georgia,var(--serif);font-size:10px;font-weight:500;color:var(--seal);margin-bottom:14px}
+.now .now-label{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--seal);margin-bottom:14px}
 .now .now-head{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);line-height:1.6}
 .now .now-sub{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:10px}
 
@@ -125,11 +127,11 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .dots .dot.current{width:9px;height:9px;background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,0.1)}
 
 /* 예외 상태 */
-.exception{background:rgba(107,42,36,0.04);border:1px solid rgba(107,42,36,0.18);border-radius:2px;padding:18px;text-align:center;margin-bottom:24px}
+.exception{background:rgba(107,42,36,0.04);border:1px solid rgba(107,42,36,0.18);border-radius:8px;padding:18px;text-align:center;margin-bottom:24px}
 .exception .badge{display:inline-block;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--seal);background:#fff;border:1px solid rgba(107,42,36,0.22);border-radius:20px;padding:5px 18px}
 
 /* ── 개인코드 카드 ── */
-.codecard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:11px 16px;margin-bottom:24px}
+.codecard{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:11px 18px;max-width:320px;margin:0 auto 24px}
 .codecard .cc-left{display:flex;flex-direction:column;gap:3px;min-width:0}
 .codecard .cc-label{font-family:var(--serif);font-size:9px;color:var(--gold-deep);letter-spacing:.18em;padding-left:.18em}
 .codecard .code{font-family:var(--mono);font-size:17px;font-weight:400;letter-spacing:.1em;color:var(--accent)}
