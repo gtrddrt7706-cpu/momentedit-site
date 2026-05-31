@@ -260,11 +260,12 @@ function actApprove(sheet, colOf, row, enteredStatus) {
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   if (!dateKey || !time) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
 
-  // 이미 캘린더에 일정이 있으면(=이미 확정 처리됨) → 메일·캘린더 재발송 없이 상태 라벨만 정리
-  var alreadyDone = !!row.get('캘린더이벤트ID');
+  // 중복 처리 차단은 "상태가 이미 승인완료/확정"인 경우에만.
+  // (고객이 시간을 다시 골라 재승인 대기 중이면 상태는 '시간선택완료' → 아래로 진행해 갱신)
+  var curStatus = String(row.get('상태') || '').trim();
   var targetStatus = (enteredStatus === ST.CONFIRMED) ? ST.CONFIRMED : ST.APPROVED;
 
-  if (alreadyDone) {
+  if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
     writeCell(sheet, colOf, row.num, '상태', targetStatus);
     return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
   }
@@ -272,6 +273,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
   writeCell(sheet, colOf, row.num, '입금확인', '확인');
   writeCell(sheet, colOf, row.num, '상태', targetStatus);
   writeCell(sheet, colOf, row.num, '확정일시', new Date());
+  // syncCalendarEvent: 기존 이벤트ID가 있으면 그 일정을 새 날짜·시간으로 갱신, 없으면 새로 생성
   syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
 
   try {
