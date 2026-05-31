@@ -64,7 +64,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 /* ── 레이아웃 ── */
 main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:22px 22px 60px}
 /* 콘텐츠 적은 화면(로그인·코드찾기·재설정)은 세로 중앙 — 풋터까지 한 화면에 */
-main.centered{display:flex;flex-direction:column;justify-content:center;padding-top:0;padding-bottom:40px}
+main.centered{display:block;flex:none;padding-top:17vh;padding-bottom:20px}
 .view{display:none;animation:fade .5s var(--ease)}
 .view.show{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
