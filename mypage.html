@@ -25,8 +25,9 @@
   --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
   --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
   /* ── 시안 보조값 (03 팔레트 계열) ── */
-  --card-bg:#FCFAF6;      /* NOW·코드 카드 배경 (옅은 골드빛) */
-  --card-border:#E8DEC9;  /* 강조 카드 테두리 (골드 계열) */
+  --card-white:#FFFFFF;   /* 카드 흰 배경 (홈피 .card 톤) */
+  --card-bg:#FCFAF6;      /* 옅은 골드빛 (버튼 호버 등 보조) */
+  --card-border:#E8DEC9;  /* 골드 계열 (보조) */
   --divider:#EDEAE4;      /* 연한 회색 구분선 */
   --hairline:#E6E1D8;     /* 헤더 구분선 */
   --dot-future:#CFC9BC;   /* 미래 점 테두리 */
@@ -53,12 +54,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .en-22{letter-spacing:.22em;padding-left:.22em}
 
 /* ── 헤더 (인장 없음) ── */
-.topbar{padding:22px 24px 18px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
-.brand-link{display:inline-block;text-decoration:none;line-height:0}
-.brand-img{width:172px;max-width:60%;height:auto;display:inline-block}
-.brand-fallback{display:block;line-height:1.5}
-.wordmark{display:block;font-family:var(--serif);font-size:14px;font-weight:500;color:var(--accent);text-decoration:none}
-.topsub{font-family:var(--serif);font-size:8px;color:var(--label-soft);margin-top:7px}
+.topbar{padding:30px 24px 24px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
+.brand-link{display:inline-block;text-decoration:none}
+.wordmark{display:block;font-family:var(--serif);font-size:22px;font-weight:600;color:var(--accent);letter-spacing:.4em;padding-left:.4em;text-decoration:none}
+.brand-rule{display:block;width:44px;height:1px;background:var(--accent);opacity:.45;margin:11px auto 9px}
+.topsub{display:block;font-family:var(--serif);font-size:8.5px;color:var(--label-soft);letter-spacing:.34em;padding-left:.34em}
 
 /* ── 레이아웃 ── */
 main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:38px 22px 60px}
@@ -106,7 +106,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:4px 16px}
 
 /* ── NOW 카드 (주인공) ── */
-.now{background:var(--card-bg);border:1px solid var(--card-border);border-radius:2px;padding:34px 28px;margin-bottom:22px;text-align:center;min-height:148px;display:flex;flex-direction:column;justify-content:center}
+.now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center}
 .now .now-label{font-family:Georgia,var(--serif);font-size:10px;font-weight:500;color:var(--seal);margin-bottom:14px}
 .now .now-head{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);line-height:1.6}
 .now .now-sub{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:10px}
@@ -128,13 +128,14 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .exception .badge{display:inline-block;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--seal);background:#fff;border:1px solid rgba(107,42,36,0.22);border-radius:20px;padding:5px 18px}
 
 /* ── 개인코드 카드 ── */
-.codecard{background:var(--card-bg);border:1px solid var(--card-border);border-radius:2px;padding:24px 20px;margin-bottom:24px;text-align:center}
-.codecard .cc-label{font-family:var(--serif);font-size:10px;color:var(--gold-deep);margin-bottom:10px}
-.codecard .code{font-family:var(--mono);font-size:27px;font-weight:500;letter-spacing:.18em;color:var(--accent);padding-left:.18em}
-.codecard .copy{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:9px 20px;background:#fff;border:1px solid var(--gold-btn-border);border-radius:3px;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);cursor:pointer;transition:all .3s var(--ease)}
-.codecard .copy:hover{background:var(--card-bg);border-color:var(--gold-deep)}
-.codecard .copy:active{background:var(--bg2)}
-.codecard .copy svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6}
+.codecard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:24px}
+.codecard .cc-left{display:flex;flex-direction:column;gap:3px;min-width:0}
+.codecard .cc-label{font-family:var(--serif);font-size:9px;color:var(--gold-deep);letter-spacing:.18em;padding-left:.18em}
+.codecard .code{font-family:var(--mono);font-size:19px;font-weight:500;letter-spacing:.12em;color:var(--accent)}
+.codecard .copy{display:inline-flex;align-items:center;gap:6px;flex:none;padding:8px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deeper);cursor:pointer;transition:all .3s var(--ease)}
+.codecard .copy:hover{background:var(--bg3);border-color:var(--gold-deep);color:var(--accent)}
+.codecard .copy:active{background:var(--bg3)}
+.codecard .copy svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6}
 
 /* ── NEXT (잠금) ── */
 .next-sec{margin-bottom:26px}
@@ -164,12 +165,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
 <div class="topbar">
   <a href="/" class="brand-link" aria-label="Moment Edit">
-    <img class="brand-img" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio"
-         onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block'">
-    <span id="brandFallback" class="brand-fallback" style="display:none">
-      <span class="wordmark en-40">MOMENT EDIT</span>
-      <span class="topsub en-34">PRIVATE WEDDING STUDIO</span>
-    </span>
+    <span class="wordmark">MOMENT EDIT</span>
+    <span class="brand-rule"></span>
+    <span class="topsub">PRIVATE WEDDING STUDIO</span>
   </a>
 </div>
 
@@ -230,11 +228,13 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 개인코드 -->
     <div class="codecard">
-      <div class="cc-label en-22">PERSONAL CODE</div>
-      <div class="code" id="mp_code">—</div>
+      <div class="cc-left">
+        <span class="cc-label">PERSONAL CODE</span>
+        <span class="code" id="mp_code">—</span>
+      </div>
       <button type="button" class="copy" id="mp_copy">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-        <span id="mp_copy_txt">코드 복사</span>
+        <span id="mp_copy_txt">복사</span>
       </button>
     </div>
 
@@ -445,7 +445,7 @@ $('mp_copy').addEventListener('click', function(){
   var code = $('mp_code').textContent.trim();
   if (!code || code==='—') return;
   var txt=$('mp_copy_txt');
-  var done=function(){ txt.textContent='복사됐습니다'; setTimeout(function(){ txt.textContent='코드 복사'; },1500); };
+  var done=function(){ txt.textContent='복사됐습니다'; setTimeout(function(){ txt.textContent='복사'; },1500); };
   try{
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(code).then(done).catch(function(){ legacyCopy(code); done(); });
