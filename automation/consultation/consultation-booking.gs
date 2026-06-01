@@ -150,6 +150,7 @@ const LOCKED_STATES = [ST.APPROVED, ST.CONFIRMED];
 function doGet(e) {
   var p = (e && e.parameter) || {};
   try {
+    if (p.admin === '1') return serveAdmin(e);       // [관리자 v1] 구글 로그인 + Admins 화이트리스트
     if (p.action) return handleAction(p);            // 메일 버튼(승인/변경/수락/재선택)
     if (p.page === 'schedule' && p.token) return serveScheduleB(p.token); // 화면 B
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
@@ -308,6 +309,9 @@ function actApprove(sheet, colOf, row, enteredStatus) {
     if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
       writeCell(sheet, colOf, row.num, '상태', targetStatus);
       return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
+    }
+    if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 — 메일버튼·관리자 양쪽 보호(되살아남 방지)
+      return infoPage('취소된 예약입니다', '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.', false);
     }
 
     // ★ (가)의 완성 — 승인 직전, 같은 슬롯에 이미 LOCKED(승인완료·확정)인 '다른' 행이 있으면 차단.

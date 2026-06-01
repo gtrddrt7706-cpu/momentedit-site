@@ -114,3 +114,34 @@ function testLoginRoundTrip() {
   Logger.log(leak ? '❌ 응답에 민감정보 누출!' : '✅ 응답에 민감정보 없음');
   return state;
 }
+
+// ── [관리자 v1] 스모크 테스트 (편집기에서 실행 — 실행자가 Admins에 있어야) ──
+function adminSmokeTest() {
+  var log = [];
+  var email = currentAdminEmail();
+  log.push('현재 로그인: ' + (email || '(없음 — 편집기 실행)'));
+  log.push('isAdmin(' + email + '): ' + isAdmin(email));
+  log.push('Admins 시트 존재: ' + (!!_adminSheet()));
+  try {
+    var h = adminHome();
+    log.push('홈 집계 — 승인대기 ' + h.groups.pending.length + ' / 변경제안 ' + h.groups.proposed.length +
+      ' / 새신청 ' + h.groups.applied.length + ' / 다가오는7일 ' + h.groups.upcoming.length);
+  } catch (e) { log.push('adminHome 오류: ' + e.message + ' (실행자가 Admins에 없으면 정상 — setupAdmins 후 본인 등록 확인)'); }
+  Logger.log(log.join('\n'));
+  return log.join('\n');
+}
+
+// ── 회귀: 관리자 메모(21열)가 고객 getMyState 응답에 새지 않는지 ──
+function testMemoNotLeaked() {
+  if (!_LAST_TEST_CODE) { Logger.log('먼저 testSignupSignature() 실행'); return; }
+  // 해당 코드에 메모 심기
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(_LAST_TEST_CODE);
+  if (cust) touchCustomer(sheet, colOf, cust.num, { '관리자메모': '내부전용-비밀메모-LEAKTEST' });
+  var login = handleLogin({ code: _LAST_TEST_CODE, pw: 'test1234' });
+  var state = handleGetMyState({ token: login.token });
+  var json = JSON.stringify(state);
+  var leaked = json.indexOf('LEAKTEST') >= 0 || ('관리자메모' in state) || ('memo' in state);
+  Logger.log(leaked ? '❌ 메모가 마이페이지 응답에 노출됨!' : '✅ 관리자 메모 미노출(회귀 통과)');
+  return !leaked;
+}
