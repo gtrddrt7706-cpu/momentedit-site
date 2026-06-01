@@ -1336,6 +1336,9 @@ function isExpired(applied) {
 
 // 셀프 취소 가능 여부 — 상담 시작까지 (기한시간) 이상 남아 있어야 true.
 // dateKey/time = 확정된 상담 일시. 남은 시간이 CONFIRM_DEADLINE_HOURS 미만이면 기한 경과(false).
+// [P1.5 ⚠️ KST 전제] parseDateTime은 스크립트 타임존 기준 Date를 만든다 → appsscript.json "timeZone":"Asia/Seoul" 고정 필요.
+//   서울이면 이 "24h 전" 비교는 KST로 정확하고, 캘린더 일정 생성도 같은 전제로 맞는다.
+//   타임존이 서울이 아니면(UTC 등) 24h 판정과 캘린더 일정이 최대 9h 어긋남 → 반드시 Asia/Seoul로 둘 것.
 function withinCancelDeadline(dateKey, time) {
   var start = parseDateTime(dateKey, time || '00:00');
   if (!start) return false;
@@ -1372,6 +1375,8 @@ function normalizeDateKey(v) {
   var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   return m ? (parseInt(m[1], 10) + '-' + parseInt(m[2], 10) + '-' + parseInt(m[3], 10)) : '';
 }
+// [P1.5 ⚠️] new Date(y,mo,da,hh,mi)는 스크립트 타임존(appsscript.json "timeZone") 기준.
+//   P1.5 전제 = "Asia/Seoul"(KST). 변경/취소 24h 판정·캘린더 일정이 이 전제에 의존.
 function parseDateTime(dateKey, time) {
   // 시트가 텍스트를 Date 로 자동 변환한 경우까지 방어
   var y, mo, da;
