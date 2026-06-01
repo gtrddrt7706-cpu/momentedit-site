@@ -165,6 +165,7 @@ function serveApplyA() {
   t.kakao = safeAttr(CONFIG.KAKAO_URL);
   return t.evaluate()
     .setTitle('대면 상담 신청 · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -202,6 +203,7 @@ function serveScheduleB(token, fromMypage) {
   t.serverJson = JSON.stringify(server).replace(/</g, '\\u003c'); // </script> 방어
   return t.evaluate()
     .setTitle('상담 일정 선택 · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -223,6 +225,7 @@ function serveChangeC(token, p) {
   t.etc = row.get('기타희망시간') || '';
   return t.evaluate()
     .setTitle('시간 변경 제안 · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -473,6 +476,7 @@ function serveCancelD(token, row) {
     '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -548,6 +552,7 @@ function serveAdminCancelD(token, row) {
     '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '" target="_top">취소 확정</a>' +
     '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 (관리자) · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -1472,6 +1477,7 @@ function infoPage(title, bodyHtml, ok) {
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
     '<div class="t">' + esc(title) + '</div><div class="d">' + bodyHtml + '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
+    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
