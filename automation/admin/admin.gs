@@ -96,7 +96,6 @@ function serveAdmin(e) {
   var t = HtmlService.createTemplateFromFile('Admin');
   t.adminName = adminNameOf(email);
   return t.evaluate().setTitle('Moment Edit · 관리자')
-    .setFaviconUrl('https://momentedit.kr/favicon-32x32.png')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
