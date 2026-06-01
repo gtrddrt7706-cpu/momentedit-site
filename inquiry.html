@@ -943,6 +943,10 @@
     <div id="meCodeText" style="font-family:'Roboto Mono',ui-monospace,monospace;font-size:28px;font-weight:600;letter-spacing:.16em;color:var(--accent)"></div>
     <button type="button" id="meCopyCode" style="margin-top:12px;padding:8px 22px;background:#fff;border:1px solid var(--border);border-radius:4px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;transition:all .3s var(--ease)">코드 복사</button>
     <div style="margin-top:10px;font-family:var(--serif-ko);font-size:11px;color:var(--light);line-height:1.6">이 코드와 비밀번호로 마이페이지에 로그인할 수 있어요.</div>
+    <a id="meLoginBtn" href="./mypage.html" style="display:flex;align-items:center;justify-content:center;gap:9px;margin-top:16px;padding:14px 20px;background:var(--accent);color:#fff;border-radius:4px;font-family:var(--serif-ko);font-size:13.5px;font-weight:400;letter-spacing:0.04em;text-decoration:none;transition:all .3s var(--ease)">
+      <span>마이페이지 로그인</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="display:block"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
   <div class="success-body">
     <p>입력하신 이메일로 <strong style="color:var(--accent);font-weight:500">개인코드와 마이페이지 링크</strong>를 보내 드렸습니다.</p>
@@ -1373,6 +1377,9 @@ function showSuccess(code){
     if (card && txt) {
       txt.textContent = code;
       card.style.display = 'block';
+      // 개인코드를 마이페이지 로그인 화면에 미리 채워 바로 로그인하러 갈 수 있게
+      var loginBtn = document.getElementById('meLoginBtn');
+      if (loginBtn) loginBtn.href = './mypage.html?code=' + encodeURIComponent(code);
       if (btn && !btn.dataset.bound) {
         btn.dataset.bound = '1';
         btn.addEventListener('click', function(){

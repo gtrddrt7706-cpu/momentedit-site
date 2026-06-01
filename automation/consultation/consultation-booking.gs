@@ -152,7 +152,7 @@ function doGet(e) {
   try {
     if (p.admin === '1') return serveAdmin(e);       // [관리자 v1] 구글 로그인 + Admins 화이트리스트
     if (p.action) return handleAction(p);            // 메일 버튼(승인/변경/수락/재선택)
-    if (p.page === 'schedule' && p.token) return serveScheduleB(p.token); // 화면 B
+    if (p.page === 'schedule' && p.token) return serveScheduleB(p.token, p.me === '1'); // 화면 B (me=1: 마이페이지 진입)
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
   } catch (err) {
     return infoPage('문제가 발생했습니다', String(err && err.message || err), false);
@@ -170,7 +170,7 @@ function serveApplyA() {
 }
 
 // ───────────── 화면 B · 스케줄 선택 (비공개 / 토큰) ★핵심 ─────────────
-function serveScheduleB(token) {
+function serveScheduleB(token, fromMypage) {
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -189,7 +189,8 @@ function serveScheduleB(token) {
     avail: data.avail,
     full: data.full,
     names: coupleNames(row),
-    token: token
+    token: token,
+    me: !!fromMypage            // 마이페이지에서 진입했으면 완료 후 마이페이지로 복귀(세션 유지)
   };
 
   var t = HtmlService.createTemplateFromFile(SYS.HTML_B);

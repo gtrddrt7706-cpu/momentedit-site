@@ -388,9 +388,18 @@ function qp(name){
     return;
   }
   show('loginView');
+  prefillLoginCode();   // 신청 완료 화면에서 ?code=로 넘어온 경우 개인코드 미리 채움
 })();
 
 function cleanUrl(){ try { history.replaceState({}, '', window.location.pathname); } catch(e){} }
+// 신청 완료 화면 "마이페이지 로그인" 버튼(?code=)으로 진입 시 개인코드 자동 입력
+function prefillLoginCode(){
+  var pc = qp('code');
+  if (!pc) return;
+  var f = $('li_code'); if (f) f.value = pc.trim().toUpperCase();
+  cleanUrl();
+  var pf = $('li_pw'); if (pf) { try { pf.focus(); } catch(e){} }
+}
 function softLoginNote(msg){ showErr('li_err', msg); }
 
 // ── 로그인 ─────────────────────────────────────

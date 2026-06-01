@@ -687,9 +687,12 @@ if(_stickyBtn) _stickyBtn.onclick=()=>{
 };
 function meFinishClose(){
   document.getElementById('modal').classList.remove('show');
-  try { window.open('','_self'); window.close(); } catch(e){}
-  try { window.top.location.href = 'https://momentedit.kr'; }
-  catch(e){ location.href = 'https://momentedit.kr'; }
+  // 마이페이지에서 진입(me=1)했으면 마이페이지로 복귀(로그인 유지) · 그 외(메일 링크 등)는 기존대로 메인
+  var fromMypage = !!(SERVER && SERVER.me);
+  var dest = fromMypage ? 'https://momentedit.kr/mypage.html' : 'https://momentedit.kr';
+  if (!fromMypage) { try { window.open('','_self'); window.close(); } catch(e){} }
+  try { window.top.location.href = dest; }
+  catch(e){ location.href = dest; }
 }
 document.getElementById('modalClose').onclick=meFinishClose;
 document.getElementById('modal').onclick=(e)=>{

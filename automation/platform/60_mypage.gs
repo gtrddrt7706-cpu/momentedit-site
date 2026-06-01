@@ -57,7 +57,7 @@ function buildConsultState(code) {
     time: time,
     canChange: within,
     canCancel: within,
-    scheduleUrl: consultToken ? scheduleUrl(consultToken) : '',  // ?page=schedule&token= (일정선택)
+    scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
     proposedTime: String(cr.get('변경제안시간') || '').trim()
   };
