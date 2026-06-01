@@ -166,6 +166,21 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 footer{padding:28px 24px 32px;text-align:center;border-top:1px solid var(--divider)}
 footer .seal{width:24px;height:24px;opacity:.55;margin-bottom:10px;display:inline-block}
 footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--gold);display:block}
+
+/* ── 상담/촬영 카드 (P1.5) ── */
+.consult-sec{margin-bottom:24px}
+.consult-card{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:22px 20px;text-align:center}
+.consult-card .cc-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
+.consult-card .cc-title{font-family:var(--serif-ko);font-size:17px;font-weight:500;color:var(--accent);line-height:1.5}
+.consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
+.consult-card .cc-sub b{color:var(--accent);font-weight:500}
+.consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);line-height:1.6;margin-top:10px}
+.consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.consult-card .cc-actions:empty{display:none}
+.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:3px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:var(--seal);color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
+.cc-btn:hover{background:#5A231E}
+.cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:3px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
+.cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -235,6 +250,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <div class="exception" id="mp_exception" style="display:none">
       <span class="badge" id="mp_exBadge">—</span>
     </div>
+
+    <!-- 상담/촬영 (P1.5) — 활성 카드. consult 있을 때만 표시 -->
+    <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -443,6 +461,9 @@ function renderMyPage(d){
   // 개인코드
   $('mp_code').textContent = d.code || '—';
 
+  // 상담/촬영 (P1.5) — NOW·진행바 다음, NEXT 위
+  renderConsult(d.consult, d.product);
+
   // NEXT (잠금)
   renderUpcoming(d.product);
 
@@ -463,6 +484,65 @@ function renderUpcoming(product){
   }).join('');
   box.innerHTML = html;
 }
+
+// [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
+function renderConsult(c, product){
+  var box = $('mp_consult');
+  if (!c || !c.status){ box.style.display='none'; return; }
+  var isSnap = (product === '웨딩스냅');
+  var L = isSnap ? '촬영' : '상담';                 // ★3 라벨 분기(촬영일=상담일)
+  var eyebrow = isSnap ? 'Photo' : 'Consultation';
+  var s = c.status;
+  var url = c.scheduleUrl || '';
+  var body = '', cta = '';
+
+  if (s === '신청접수'){
+    body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
+    cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
+  } else if (s === '시간선택완료'){
+    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>확인 후 확정을 안내드립니다.</div>';
+  } else if (s === '승인완료' || s === '확정'){
+    body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>';
+    if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
+    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelRes">예약 취소</button>';
+    if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
+  } else if (s === '변경제안'){
+    body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>';
+    cta  = '<button type="button" class="cc-btn" id="mp_acceptProp">이 시간으로 수락</button>' + (url ? '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">다른 시간 보기</a>' : '');
+  } else if (s === '취소'){
+    body = '<div class="cc-title">취소된 예약입니다</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
+  } else {
+    box.style.display='none'; return;
+  }
+
+  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">'+eyebrow+'</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  box.style.display='block';
+
+  var cancelBtn = $('mp_cancelRes'); if (cancelBtn) cancelBtn.addEventListener('click', doCancelRes);
+  var acceptBtn = $('mp_acceptProp'); if (acceptBtn) acceptBtn.addEventListener('click', doAcceptProp);
+}
+
+function doCancelRes(){
+  if (!window.confirm('예약을 취소하시겠어요?')) return;
+  api({action:'cancelReservation', token:getToken()}).then(function(d){
+    if (d && d.ok){ loadMyState(); } else { window.alert((d && d.error) || '취소에 실패했습니다.'); }
+  }).catch(function(){ window.alert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+}
+function doAcceptProp(){
+  api({action:'acceptProposal', token:getToken()}).then(function(d){
+    if (d && d.ok){ loadMyState(); } else { window.alert((d && d.error) || '수락에 실패했습니다.'); }
+  }).catch(function(){ window.alert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+}
+
+// [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
+//   같은 탭 이동은 boot()가 다시 돌고, 새 탭/복귀는 이 리스너가 loadMyState 재호출(3초 디바운스).
+var _mpLastReload = 0;
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'visible' && $('mypageView').classList.contains('show')){
+    var now = Date.now();
+    if (now - _mpLastReload > 3000){ _mpLastReload = now; loadMyState(); }
+  }
+});
 
 // 코드 복사 (피드백)
 $('mp_copy').addEventListener('click', function(){

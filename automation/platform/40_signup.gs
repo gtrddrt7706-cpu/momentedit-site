@@ -96,6 +96,17 @@ function handleSignup(body) {
     try { lock.releaseLock(); } catch (e) {}
   }
 
+  // 7-b) [P1.5 작업1] 상담예약 행도 같은 개인코드로 생성 (Customers + 상담예약 두 행 = 한 개인코드).
+  //   실패해도 Customers·코드·접수메일은 유지(원자성·가) — 고객 진입을 막지 않는다.
+  //   고객 접수메일은 아래 sendSignupEmail 1통뿐(submitApplication은 메일 안 보냄 = 다이어트됨).
+  try {
+    submitApplication({ groom: groom, bride: bride, phone: phone, email: email, memo: memo, detail: detail, hp: '' }, code);
+  } catch (consErr) {
+    notifyStudio('[플랫폼] ⚠️오류 · 상담예약 행 생성 실패',
+      '개인코드: ' + code + '\n' + groom + ' · ' + bride + '\n오류: ' + (consErr && consErr.message) +
+      '\n(Customers·코드·접수메일은 정상. 상담예약 행만 수동 보완 필요.)');
+  }
+
   // 8) 접수 메일 — 실패해도 행/코드는 유지(메일은 재시도 가능). 관리자에 오류 알림.
   try {
     sendSignupEmail(email, groom + ' · ' + bride, code, token, product, detail);

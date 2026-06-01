@@ -27,6 +27,10 @@
 // ============================ STEP 1 · CONFIG 상수 ============================
 // ⚠️ [...] placeholder 는 운영자가 직접 채웁니다. (임의 값 넣지 말 것)
 const CONFIG = {
+  // [P1.5 작업5] 고객 상태메일 토글 — 기본 OFF(마이페이지가 상태를 대체). 켜려면 true.
+  SEND_CONFIRM_MAIL: false,                    // 확정 안내 (sendConfirmEmail)
+  SEND_CHANGE_MAIL: false,                     // 변경제안 안내 (sendProposalEmail)
+  SEND_CANCEL_MAIL: false,                     // 취소 안내 (sendCancelEmail)
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
@@ -103,7 +107,7 @@ const HEADERS = [
   // 동의
   '개인정보동의', '제출시각',
   // 식별
-  '토큰', '캘린더이벤트ID'
+  '토큰', '캘린더이벤트ID', '개인코드'
 ];
 // 신청상세(detail 문자열)의 '라벨' → 시트 컬럼 매핑 (폼 출력 라벨과 정확히 일치해야 함)
 var DETAIL_MAP = {
@@ -256,34 +260,81 @@ function handleAction(p) {
 // [✓ 승인하기] / 시트에서 상태를 '승인완료' 또는 '확정'으로 변경 시
 // → 캘린더 일정 생성 + 고객 확정 메일 + 운영자 브리프.
 // enteredStatus: 시트에서 직접 입력한 상태값(있으면 그 라벨 유지). 버튼/메일 경로면 생략→'승인완료'.
+// [P1.5 ★③] 단일 전이 함수 — 상담행 상태 변화 → Customers 현재단계(10) 갱신을 이 함수 한 곳으로(산재 금지).
+// transition: 'confirm'(상담/촬영확정) · 'complete'(상담완료) · 'cancel'(취소). 상품타입 보고 라벨 매핑.
+// 예외상태(취소·노쇼·미계약)는 정상 자동전이가 덮지 않음(가드). P1.5=수동/래퍼 호출, P2=자동배치가 같은 함수 호출.
+function setCustomerStage(code, transition) {
+  code = String(code || '').trim().toUpperCase();
+  if (!code) return false;
+  var rowObj = findCustomerByCode(code);    // platform/20 — Customers 행
+  if (!rowObj) return false;
+  var sheet = getCustomersSheet();           // platform/10
+  var colOf = buildHeaderIndex(sheet);
+  var isSnap = (String(rowObj.get('상품타입') || '').trim() === '웨딩스냅');
+  var MAP = {
+    confirm:  isSnap ? '촬영확정' : '상담확정',
+    complete: '상담완료',                    // 스냅 '촬영완료'는 결과물 단계(이후 Phase)
+    cancel:   '취소'
+  };
+  var newStage = MAP[transition] || transition;
+  var cur = String(rowObj.get('현재단계') || '').trim();
+  var EX = ['취소', '노쇼', '미계약'];
+  if (EX.indexOf(cur) !== -1 && transition !== 'cancel') return false;  // 예외→정상 자동전이 금지
+  if (cur === newStage) return true;          // 멱등
+  touchCustomer(sheet, colOf, rowObj.num, { '현재단계': newStage });    // platform/20
+  return true;
+}
+
+// 운영자 수동 '상담완료' 처리 호출구(④ 수동 우선). 편집기에서 개인코드 넣고 실행 / P6 UI가 호출. (자동배치는 P2)
+function markConsultDone(personalCode) {
+  var ok = setCustomerStage(personalCode, 'complete');
+  Logger.log(ok ? ('상담완료 전이 OK: ' + personalCode) : ('전이 실패(코드없음/예외상태): ' + personalCode));
+  return ok;
+}
+
 function actApprove(sheet, colOf, row, enteredStatus) {
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   if (!dateKey || !time) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
 
-  // 중복 처리 차단은 "상태가 이미 승인완료/확정"인 경우에만.
-  // (고객이 시간을 다시 골라 재승인 대기 중이면 상태는 '시간선택완료' → 아래로 진행해 갱신)
-  var curStatus = String(row.get('상태') || '').trim();
-  var targetStatus = (enteredStatus === ST.CONFIRMED) ? ST.CONFIRMED : ST.APPROVED;
-
-  if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
-    writeCell(sheet, colOf, row.num, '상태', targetStatus);
-    return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
-  }
-
-  writeCell(sheet, colOf, row.num, '입금확인', '확인');
-  writeCell(sheet, colOf, row.num, '상태', targetStatus);
-  writeCell(sheet, colOf, row.num, '확정일시', new Date());
-  // syncCalendarEvent: 기존 이벤트ID가 있으면 그 일정을 새 날짜·시간으로 갱신, 없으면 새로 생성
-  syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
-
+  // [P1.5 작업6] Lock + 점유 재확인으로 더블 확정 0. 점유확인~쓰기를 원자적으로.
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return infoPage('잠시 후 다시 시도해 주세요', '서버가 혼잡합니다. 잠시 후 다시 시도해 주세요.', false); }
   try {
-    sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
-  } catch (mailErr) {
-    notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
-      coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 — 수동 안내가 필요합니다.');
+    // 중복 처리 차단은 "상태가 이미 승인완료/확정"인 경우에만.
+    // (고객이 시간을 다시 골라 재승인 대기 중이면 상태는 '시간선택완료' → 아래로 진행해 갱신)
+    var curStatus = String(row.get('상태') || '').trim();
+    var targetStatus = (enteredStatus === ST.CONFIRMED) ? ST.CONFIRMED : ST.APPROVED;
+
+    if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
+      writeCell(sheet, colOf, row.num, '상태', targetStatus);
+      return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
+    }
+
+    // ★ (가)의 완성 — 승인 직전, 같은 슬롯에 이미 LOCKED(승인완료·확정)인 '다른' 행이 있으면 차단.
+    //   PICKED 둘이 통과해도 여기서 두 번째 승인을 막아 더블 확정 0.
+    if (_slotTaken(dateKey, time, row.num)) {
+      return infoPage('이미 마감된 슬롯입니다',
+        coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>같은 시간이 다른 예약으로 이미 확정되어 있습니다. 이 고객에게는 <b>변경 제안</b>을 보내 주세요.', false);
+    }
+
+    writeCell(sheet, colOf, row.num, '입금확인', '확인');
+    writeCell(sheet, colOf, row.num, '상태', targetStatus);
+    writeCell(sheet, colOf, row.num, '확정일시', new Date());
+    // syncCalendarEvent: 기존 이벤트ID가 있으면 그 일정을 새 날짜·시간으로 갱신, 없으면 새로 생성
+    syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
+
+    try {
+      sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
+    } catch (mailErr) {
+      notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
+        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 — 수동 안내가 필요합니다.');
+    }
+    try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
+    setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ Customers 현재단계 → 상담/촬영확정
+    return infoPage('승인 완료', coupleNames(row) + ' 님께 예약 확정 메일을 보냈습니다.<br>' + prettyDate(dateKey) + ' · ' + time + '<br>캘린더에도 일정이 등록되었습니다.', true);
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
   }
-  try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
-  return infoPage('승인 완료', coupleNames(row) + ' 님께 예약 확정 메일을 보냈습니다.<br>' + prettyDate(dateKey) + ' · ' + time + '<br>캘린더에도 일정이 등록되었습니다.', true);
 }
 
 // [수락] (변경 제안에 대한 고객 수락) → 상태=확정 + 캘린더 갱신 + 변경 확정 메일⑤
@@ -311,6 +362,7 @@ function actAccept(sheet, colOf, row) {
     notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message);
   }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
+  setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ 변경수락→확정도 동일 전이
   return infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + nt, true);
 }
 
@@ -335,6 +387,7 @@ function actCancel(sheet, colOf, r) {
     try { sendCancelEmail(to, names, dateKey, time); }
     catch (mailErr) { notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
   }
+  setCustomerStage(String(r.get('개인코드') || '').trim(), 'cancel');  // ★③ Customers 현재단계 → 취소(예외)
 }
 
 // ── 고객 셀프 취소 ──────────────────────────────────────────
@@ -448,6 +501,7 @@ function doCustomerCancel(sheet, colOf, row, p) {
   var to = row.get('이메일');
   if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
 
+  setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');  // ★③ 고객 셀프취소도 동일 전이
   return infoPage('예약이 취소되었습니다',
     '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
 }
@@ -505,7 +559,9 @@ function doAdminCancel(sheet, colOf, row) {
 
 // ============================ google.script.run 핸들러 ============================
 // 화면 A 제출 → 행 추가(상태=신청접수) + 토큰 + 메일①(전용 URL)
-function submitApplication(form) {
+// [P1.5] 인자 personalCode 추가 — handleSignup이 발급한 개인코드로 Customers·상담예약 두 행을 묶는다(★4 FK).
+// 고객 일정링크 메일(sendUrlEmail)은 제거 — 접수 고객메일은 handleSignup의 sendSignupEmail 1통으로 통일(★5-a).
+function submitApplication(form, personalCode) {
   var groom = String(form.groom || '').trim();
   var bride = String(form.bride || '').trim();
   var phone = String(form.phone || '').trim();
@@ -514,7 +570,7 @@ function submitApplication(form) {
   var detail = String(form.detail || '').trim();   // 화면 A(문의폼)의 상세 신청내용
 
   // 허니팟(봇 차단): 숨김 필드(_gotcha)에 값이 차 있으면 자동입력 봇 → 조용히 무시(성공인 척)
-  if (String(form.hp || '').trim()) { Logger.log('  (honeypot 걸림 — 봇 의심, 기록·메일 생략)'); return { ok: true }; }
+  if (String(form.hp || '').trim()) { Logger.log('  (honeypot 걸림 — 봇 의심, 기록 생략)'); return { ok: true }; }
 
   if (!groom || !bride) throw new Error('성함을 입력해 주세요.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
@@ -534,6 +590,8 @@ function submitApplication(form) {
   writeCell(sheet, colOf, rowNum, '자유메모', memo);
   writeCell(sheet, colOf, rowNum, '토큰', token);
   writeCell(sheet, colOf, rowNum, '상태', ST.APPLIED);
+  // ★4 FK — 개인코드(34열). Customers 행과 같은 코드로 묶는다.
+  if (personalCode) writeCell(sheet, colOf, rowNum, '개인코드', String(personalCode).trim().toUpperCase());
 
   // 신청상세(detail)를 라벨별로 분리해 각 컬럼에 기록
   var parsed = parseDetail(detail);
@@ -541,30 +599,30 @@ function submitApplication(form) {
     writeCell(sheet, colOf, rowNum, col, parsed[col]);
   });
 
-  var url = scheduleUrl(token);
-  // 메일① 고객 확인용 신청 요약 한 줄 (예식일 · 인원)
-  // 고객 메일에서는 '(⚠ 권장 정원 초과)' 같은 운영자용 경고 문구는 제거 — 시트·운영자 메일엔 그대로 유지
-  var sumParts = [];
-  if (parsed['예식일자']) sumParts.push(String(parsed['예식일자']));
-  if (parsed['하객']) sumParts.push(stripGuestFlag(parsed['하객']));
-  var applySummary = sumParts.join(' · ');
-  try {
-    sendUrlEmail(email, groom + ' · ' + bride, url, applySummary);
-  } catch (mailErr) {
-    notifyStudio('[상담] ⚠️오류 · 전용 URL 메일 발송 실패',
-      groom + ' · ' + bride + '\n수신: ' + email + '\n오류: ' + mailErr.message + '\nURL: ' + url);
-    throw new Error('메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
-  }
+  // [P1.5 다이어트] 고객 일정링크 메일(sendUrlEmail) 제거 — 접수메일은 sendSignupEmail 1통(중복 방지).
+  //   토큰은 위에서 기록됨(메일링크·ScreenB 진입·내부 보안축으로 계속 사용. getMyState가 scheduleUrl 조립).
+  // ② 운영자 신규알림(sendNewInquiryEmail)은 비활성 유지 — 시간선택 시 sendAdminNotifyEmail이 최초 알림.
+  return { ok: true, token: token };
+}
 
-  // ② 관리자 신규 신청 알림 — [비활성화] 고객이 시간까지 선택한 뒤(sendPickedEmail)
-  //    오는 알림을 '최초 알림'으로 운영. 신청 즉시 알림은 보내지 않음.
-  //    (되살리려면 아래 try 블록 주석 해제)
-  // try {
-  //   sendNewInquiryEmail(groom, bride, phone, email, memo, parsed);
-  // } catch (e2) {
-  //   Logger.log('신규 신청 관리자 메일 실패: ' + e2.message);
-  // }
-  return { ok: true };
+// [P1.5 작업6] 슬롯 점유 재확인 — 같은 (선택날짜·선택시간)에 LOCKED(승인완료·확정)인 '다른' 행이 있나.
+//   점유 기준 = (가) 좁게: LOCKED 만 차단. PICKED 중복은 허용(운영자 승인 게이트가 거름).
+function _slotTaken(dateKey, time, exceptRowNum) {
+  var sheet = getSheet();
+  var colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < SYS.DATA_START_ROW) return false;
+  var dCol = colOf['선택날짜'], tCol = colOf['선택시간'], sCol = colOf['상태'];
+  var dk = normalizeDateKey(dateKey), tm = String(time || '').trim();
+  if (!dk || !tm) return false;
+  var vals = sheet.getRange(SYS.DATA_START_ROW, 1, last - SYS.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    var rn = SYS.DATA_START_ROW + i;
+    if (rn === exceptRowNum) continue;                                   // 자기 행 제외
+    if (LOCKED_STATES.indexOf(String(vals[i][sCol - 1]).trim()) === -1) continue;  // LOCKED 만
+    if (normalizeDateKey(vals[i][dCol - 1]) === dk && String(vals[i][tCol - 1]).trim() === tm) return true;
+  }
+  return false;
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
@@ -591,24 +649,35 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
   }
 
   var flex = Array.isArray(flexArr) ? flexArr.join(', ') : String(flexArr || '');
-  writeCell(sheet, colOf, row.num, '선택날짜', dateKey);
-  writeCell(sheet, colOf, row.num, '선택시간', time);
-  writeCell(sheet, colOf, row.num, '그외가능시간대', flex);
-  writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
-  writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
 
-  var mailOk = false, mailErrMsg = '';
+  // [P1.5 작업6] Lock + 점유 재확인 — 동시 제출 직렬화 + 이미 확정된 슬롯 차단(더블 확정 0)
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
-    sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''));
-    mailOk = true;
-  } catch (mailErr) {
-    mailErrMsg = (mailErr && mailErr.message) || String(mailErr);
-    Logger.log('❌ 관리자 알림 메일 실패: ' + mailErrMsg);
-    // 남은 메일 할당량 함께 기록 (한도 초과 진단용)
-    try { Logger.log('   남은 Gmail 할당량: ' + MailApp.getRemainingDailyQuota()); } catch (q) {}
-    notifyStudio('[상담] ⚠️오류 · 관리자 알림 메일 발송 실패', coupleNames(row) + ' · ' + dateKey + ' ' + time + '\n' + mailErrMsg);
+    if (_slotTaken(dateKey, time, row.num)) {
+      return { ok: false, slotTaken: true, error: '방금 마감되었어요. 다른 시간을 선택해 주세요.' };
+    }
+    writeCell(sheet, colOf, row.num, '선택날짜', dateKey);
+    writeCell(sheet, colOf, row.num, '선택시간', time);
+    writeCell(sheet, colOf, row.num, '그외가능시간대', flex);
+    writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
+    writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
+
+    var mailOk = false, mailErrMsg = '';
+    try {
+      sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''));
+      mailOk = true;
+    } catch (mailErr) {
+      mailErrMsg = (mailErr && mailErr.message) || String(mailErr);
+      Logger.log('❌ 관리자 알림 메일 실패: ' + mailErrMsg);
+      // 남은 메일 할당량 함께 기록 (한도 초과 진단용)
+      try { Logger.log('   남은 Gmail 할당량: ' + MailApp.getRemainingDailyQuota()); } catch (q) {}
+      notifyStudio('[상담] ⚠️오류 · 관리자 알림 메일 발송 실패', coupleNames(row) + ' · ' + dateKey + ' ' + time + '\n' + mailErrMsg);
+    }
+    return { ok: true, mailOk: mailOk, mailErr: mailErrMsg };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
   }
-  return { ok: true, mailOk: mailOk, mailErr: mailErrMsg };
 }
 
 // 화면 C 제출(미쿠) → 상태=변경제안 + 고객에게 제안 메일④
@@ -885,6 +954,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
 
 // 메일③/⑤ — 예약 확정 (승인/수락, 고객) · ★완료 · 정확한 주소·준비안내
 function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
+  if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   var cancelLine = token
     ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(actionUrl('cancelreq', token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
@@ -907,6 +977,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
 
 // 취소 안내 (고객) — 예약 취소 시 발송. 차분한 안내 + 재예약/문의 경로.
 function sendCancelEmail(to, names, dateKey, time) {
+  if (!CONFIG.SEND_CANCEL_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 취소 상태를 대체
   var when = dateKey ? (prettyDate(dateKey) + (time ? ' · ' + esc(time) : '')) : '';
   var inner =
     centerP(esc(names) + ' 님,<br>아래 상담 예약이 <b style="color:#6B2A24;font-weight:600">취소</b>되었습니다.') +
@@ -965,6 +1036,7 @@ function sendStudioBriefEmail(row, dateKey, time) {
 
 // 메일④ — 시간 변경 제안 (변경제안, 고객) · [수락]/[다른 시간 보기]
 function sendProposalEmail(row, newDate, newTime, memo) {
+  if (!CONFIG.SEND_CHANGE_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 변경제안을 대체
   var token = row.get('토큰');
   var acceptUrl = actionUrl('accept', token);
   var reselectUrl = actionUrl('reselect', token);
@@ -1224,6 +1296,25 @@ function findRowByToken(sheet, colOf, token) {
   }
   return null;
 }
+// [P1.5 ★4] 개인코드(34열·FK)로 상담예약 행 조회 — 마이페이지(getMyState)·작업3/4 조인 기반.
+// findRowByToken 과 같은 패턴(buildHeaderIndex 안전). 1:N 대비 가장 최근(마지막) 행 반환.
+function findRowByPersonalCode(code) {
+  code = String(code || '').trim().toUpperCase();
+  if (!code) return null;
+  var sheet = getSheet();
+  var colOf = buildHeaderIndex(sheet);
+  var c = colOf['개인코드'];
+  var last = sheet.getLastRow();
+  if (!c || last < SYS.DATA_START_ROW) return null;
+  var vals = sheet.getRange(SYS.DATA_START_ROW, 1, last - SYS.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var found = null;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][c - 1]).trim().toUpperCase() === code) {
+      found = rowFromValues(colOf, vals[i], SYS.DATA_START_ROW + i); // 마지막 일치 행(최신)
+    }
+  }
+  return found;
+}
 function rowFromValues(colOf, arr, rowNum) {
   return { num: rowNum, get: function (h) { var c = colOf[h]; return c ? arr[c - 1] : ''; } };
 }
@@ -1384,7 +1475,7 @@ function setupConsultation() {
   sheet.setFrozenRows(SYS.HEADER_ROW);
   // 날짜·시간·연락처 컬럼을 '텍스트'로 고정 — 시트 자동 변환(2026-6-3, 11:30) 방지
   var colOf0 = buildHeaderIndex(sheet);
-  ['선택날짜', '선택시간', '변경제안날짜', '변경제안시간', '그외가능시간대', '기타희망시간', '연락처', '예식일자', '제출시각'].forEach(function (h) {
+  ['선택날짜', '선택시간', '변경제안날짜', '변경제안시간', '그외가능시간대', '기타희망시간', '연락처', '예식일자', '제출시각', '개인코드'].forEach(function (h) {
     var c = colOf0[h];
     if (c) sheet.getRange(SYS.DATA_START_ROW, c, sheet.getMaxRows() - SYS.HEADER_ROW, 1).setNumberFormat('@');
   });
@@ -1588,6 +1679,62 @@ function formatConsultationSheet() {
 //   · 기존 상담 신청: action 없음 → submitApplication (하위호환 유지)
 //   · 통합 플랫폼(Phase 1): signup·login·autologin·verify·getMyState·findCode·resetPw·doResetPw
 //     (핸들러는 automation/platform/*.gs 에 정의 — 같은 GAS 프로젝트라 그대로 호출)
+// ============================ P1.5 · 마이페이지 일정 라우터 (세션→상담 어댑터) ============================
+// 마이페이지는 로그인 '세션토큰'(Customers 3열)을 보낸다. 상담 함수들은 '상담토큰'(상담예약 32열)을 기대한다.
+// 세션 → 개인코드 → 상담행 → 상담토큰 으로 잇는 어댑터(★4 두 축 공존의 실제 코드).
+function _sessionToConsult(token) {
+  var s = resolveSession(token);                 // platform/30 — Customers 세션 검증
+  if (!s.ok) return { ok: false, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  var consult = code ? findRowByPersonalCode(code) : null;  // 상담예약 행(없으면 null·원자성 케이스)
+  return { ok: true, code: code, cust: s.row, consult: consult };
+}
+
+// getAvailability — 세션 확인 후 슬롯 가능/마감 반환(재사용)
+function handleGetAvailability(body) {
+  var a = _sessionToConsult(body && body.token);
+  if (!a.ok) return { ok: false, error: a.error };
+  var data = getAvailability();
+  return { ok: true, avail: data.avail, full: data.full,
+    slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN };
+}
+
+// submitSchedule — 세션→상담토큰 변환 후 기존 함수 호출(재사용)
+function handleSubmitSchedule(body) {
+  var a = _sessionToConsult(body && body.token);
+  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.consult) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
+  var consultToken = String(a.consult.get('토큰') || '');
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '');
+}
+
+// cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
+function handleCancelReservation(body) {
+  var a = _sessionToConsult(body && body.token);
+  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  var sheet = getSheet(); var colOf = buildHeaderIndex(sheet);
+  var r = row(sheet, colOf, a.consult.num);
+  var status = String(r.get('상태') || '').trim();
+  if (status === ST.CANCELLED) return { ok: true };  // 멱등
+  if (LOCKED_STATES.indexOf(status) !== -1 && !withinCancelDeadline(r.get('선택날짜'), r.get('선택시간'))) {
+    return { ok: false, error: '상담 ' + deadlineLabel() + ' 전까지만 취소할 수 있습니다. 카카오톡으로 문의해 주세요.' };
+  }
+  actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + (토글 시)취소메일 [+ setCustomerStage: 작업3]
+  return { ok: true };
+}
+
+// acceptProposal — 변경제안 수락 → 확정(재사용). 반환 HTML(infoPage)은 버리고 JSON만 응답.
+function handleAcceptProposal(body) {
+  var a = _sessionToConsult(body && body.token);
+  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  var sheet = getSheet(); var colOf = buildHeaderIndex(sheet);
+  var r = row(sheet, colOf, a.consult.num);
+  actAccept(sheet, colOf, r);  // 변경제안→확정 + 캘린더 sync + (토글)메일 [+ setCustomerStage: 작업3]
+  return { ok: true };
+}
+
 function doPost(e) {
   try {
     var body = {};
@@ -1603,6 +1750,11 @@ function doPost(e) {
       case 'findCode':   return jsonOut(handleFindCode(body));
       case 'resetPw':    return jsonOut(handleResetPw(body));
       case 'doResetPw':  return jsonOut(handleDoResetPw(body));
+      // ── P1.5 일정(상담/촬영) — 세션→상담토큰 어댑터 경유 ──
+      case 'getAvailability':   return jsonOut(handleGetAvailability(body));
+      case 'submitSchedule':    return jsonOut(handleSubmitSchedule(body));
+      case 'cancelReservation': return jsonOut(handleCancelReservation(body));
+      case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 기존 상담 신청 (action 없음) ──
       case '':
         submitApplication(body);

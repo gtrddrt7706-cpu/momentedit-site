@@ -31,6 +31,34 @@ function handleGetMyState(body) {
     isException: isException,                // 취소·노쇼·미계약 여부
     nextAction: nextActionFor(product, stage), // "지금 할 일" 한 문장
     code: String(r.get('개인코드') || ''),    // 코드 복사용
-    kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '' // 카톡 문의(미설정 시 빈값)
+    kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '', // 카톡 문의(미설정 시 빈값)
+    consult: buildConsultState(String(r.get('개인코드') || ''))  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
+  };
+}
+
+// [P1.5 작업3] 개인코드로 상담예약 행을 조인해 마이페이지 "상담/촬영" 카드용 상태 구성.
+// 상담행 없으면 null(원자성 실패 케이스 — 마이페이지는 에러 없이 렌더). 상담토큰·비번 등 민감필드는 내보내지 않음.
+function buildConsultState(code) {
+  code = String(code || '').trim();
+  if (!code) return null;
+  var cr = findRowByPersonalCode(code);     // consultation-booking 전역
+  if (!cr) return null;
+
+  var status = String(cr.get('상태') || '').trim();
+  var dateKey = cr.get('선택날짜');
+  var time = String(cr.get('선택시간') || '').trim();
+  var consultToken = String(cr.get('토큰') || '');
+  var locked = (status === ST.APPROVED || status === ST.CONFIRMED);  // LOCKED_STATES
+  var within = locked ? withinCancelDeadline(dateKey, time) : false; // 변경/취소 = 확정 + 24h 전(KST)
+
+  return {
+    status: status,                                  // 신청접수·시간선택완료·승인완료·확정·변경제안·취소
+    date: dateKey ? prettyDate(dateKey) : '',        // 표시용
+    time: time,
+    canChange: within,
+    canCancel: within,
+    scheduleUrl: consultToken ? scheduleUrl(consultToken) : '',  // ?page=schedule&token= (일정선택)
+    proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
+    proposedTime: String(cr.get('변경제안시간') || '').trim()
   };
 }
