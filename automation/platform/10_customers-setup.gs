@@ -90,12 +90,12 @@ function formatCustomersSheet() {
     '제작임시저장': 140, '입금완료신호': 140,
     '원본링크': 160, '영상링크': 160, '보정본폴더': 160,
     '관리자메모': 180, '생성일시': 150, '최종수정': 150,
-    '시착동의일시': 140, '계약서명일시': 140, '계약서링크': 160, '동의기록': 200, '입금자명': 110
+    '시착동의상태': 100, '시착동의일시': 140, '계약서명일시': 140, '계약서링크': 160, '동의기록': 200, '입금자명': 110
   };
   Object.keys(W).forEach(function (h) { if (colOf[h]) sheet.setColumnWidth(colOf[h], W[h]); });
 
   // 가운데 정렬 컬럼
-  ['개인코드', '상품타입', '현재단계', '계약상태', '입금상태', '제작상태', '결과물상태'].forEach(function (h) {
+  ['개인코드', '상품타입', '현재단계', '시착동의상태', '계약상태', '입금상태', '제작상태', '결과물상태'].forEach(function (h) {
     if (colOf[h]) sheet.getRange(P.DATA_START_ROW, colOf[h], bodyRows, 1).setHorizontalAlignment('center');
   });
 

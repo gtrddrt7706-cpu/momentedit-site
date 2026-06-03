@@ -1765,6 +1765,8 @@ function doPost(e) {
       case 'submitSchedule':    return jsonOut(handleSubmitSchedule(body));
       case 'cancelReservation': return jsonOut(handleCancelReservation(body));
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
+      // ── 02 여정(계약·입금) — 세션→Customers ──
+      case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       // ── 기존 상담 신청 (action 없음) ──
       case '':
         submitApplication(body);
