@@ -181,6 +181,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .cc-btn:hover{background:#5A231E}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:3px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
+.consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
+.consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 </style>
 </head>
 <body>
@@ -253,6 +255,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 상담/촬영 (P1.5) — 활성 카드. consult 있을 때만 표시 -->
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
+
+    <!-- 시착 동의 (02-2) — 상담 다음·계약 전 -->
+    <div class="consult-sec" id="mp_fitting" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -473,6 +478,9 @@ function renderMyPage(d){
   // 상담/촬영 (P1.5) — NOW·진행바 다음, NEXT 위
   renderConsult(d.consult, d.product);
 
+  // 시착 동의 (02-2) — 상담 카드 다음, 계약 전
+  renderFitting(d.fitting);
+
   // NEXT (잠금)
   renderUpcoming(d.product);
 
@@ -541,6 +549,47 @@ function doAcceptProp(){
   api({action:'acceptProposal', token:getToken()}).then(function(d){
     if (d && d.ok){ loadMyState(); } else { window.alert((d && d.error) || '수락에 실패했습니다.'); }
   }).catch(function(){ window.alert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+}
+
+// [02-2] 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
+function renderFitting(f){
+  var box = $('mp_fitting');
+  if (!box) return;
+  if (!f){ box.style.display='none'; box.innerHTML=''; return; }
+  var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
+  var body, cta;
+  if (!f.signed){
+    body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div>'
+         + '<ul class="cc-terms">'+terms+'</ul>';
+    cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
+         + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
+         + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+  } else {
+    body = '<div class="cc-title">시착 동의 완료</div>'
+         + (f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '')
+         + '<ul class="cc-terms" id="mp_fitTerms" style="display:none">'+terms+'</ul>';
+    cta  = '<button type="button" class="cc-btn-ghost" id="mp_fitReview">동의서 보기</button>'
+         + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+  }
+  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  box.style.display='block';
+
+  var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
+  var rev = $('mp_fitReview'); if (rev) rev.addEventListener('click', function(){
+    var t=$('mp_fitTerms'); if(!t) return;
+    var open = t.style.display !== 'none';
+    t.style.display = open ? 'none' : 'block';
+    rev.textContent = open ? '동의서 보기' : '동의서 닫기';
+  });
+}
+function doSignFitting(){
+  if (!window.confirm('시착 동의서에 서명하시겠어요?\n서명하면 시착이 진행됩니다.')) return;
+  var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
+  api({action:'signFittingConsent', token:getToken()}).then(function(d){
+    if (d && d.ok){ loadMyState(); }
+    else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
+  }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 
 // [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
