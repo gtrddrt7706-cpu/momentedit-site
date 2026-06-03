@@ -1,7 +1,8 @@
 /**
  * Moment Edit · 통합 플랫폼 (Phase 1) — T1 Customers 마스터 시트 세팅
  * ──────────────────────────────────────────────────────────────────────────
- * setupCustomers()  : 헤더 23컬럼 + 데이터 검증(드롭다운) + 서식. 멱등(재실행 안전).
+ * setupCustomers()  : 헤더 28컬럼 + 데이터 검증(드롭다운) + 서식. 멱등(재실행 안전).
+ *                     (Phase1 23 + 계약·입금 5칸: 시착동의일시·계약서명일시·계약서링크·동의기록·입금자명)
  * getCustomersSheet(): Customers 탭 핸들 (없으면 명확한 오류).
  *
  * 헬퍼는 consultation-booking.gs 의 것을 재사용: buildHeaderIndex · writeCell.
@@ -22,6 +23,12 @@ function setupCustomers() {
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName(P.CUSTOMERS_SHEET) || ss.insertSheet(P.CUSTOMERS_SHEET, 0); // 첫 탭으로
 
+  // 0) 컬럼 수 보장 — 헤더가 늘어나면(예: 23→28) 부족한 만큼 열을 먼저 추가한다.
+  //    (안 하면 아래 setValues(1,1,1,헤더수)가 기존 그리드 열수를 초과해 실패한다)
+  if (sheet.getMaxColumns() < CUSTOMER_HEADERS.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), CUSTOMER_HEADERS.length - sheet.getMaxColumns());
+  }
+
   // 1) 헤더 (1행) — 항상 설계서 순서로 덮어써서 헤더 드리프트 방지
   sheet.getRange(P.HEADER_ROW, 1, 1, CUSTOMER_HEADERS.length).setValues([CUSTOMER_HEADERS]);
   sheet.getRange(P.HEADER_ROW, 1, 1, CUSTOMER_HEADERS.length)
@@ -36,7 +43,8 @@ function setupCustomers() {
 
   // 2) 텍스트 고정 — 시트가 코드/날짜/연락처를 멋대로 숫자·날짜로 바꾸지 않게 '@' 서식
   //    (개인코드 'A7K2QX'가 날짜로 둔갑하거나, 토큰 앞 0이 사라지는 사고 방지)
-  ['개인코드', '비번해시', '로그인토큰', '토큰만료', '연락처', '생성일시', '최종수정', 'eventId', '입금완료신호']
+  //    신규: 시착동의일시·계약서명일시(KST 문자열)·동의기록(JSON)도 텍스트 고정
+  ['개인코드', '비번해시', '로그인토큰', '토큰만료', '연락처', '생성일시', '최종수정', 'eventId', '입금완료신호', '시착동의일시', '계약서명일시', '동의기록']
     .forEach(function (h) {
       if (colOf[h]) sheet.getRange(P.DATA_START_ROW, colOf[h], bodyRows, 1).setNumberFormat('@');
     });
@@ -81,7 +89,8 @@ function formatCustomersSheet() {
     'eventId': 110,
     '제작임시저장': 140, '입금완료신호': 140,
     '원본링크': 160, '영상링크': 160, '보정본폴더': 160,
-    '관리자메모': 180, '생성일시': 150, '최종수정': 150
+    '관리자메모': 180, '생성일시': 150, '최종수정': 150,
+    '시착동의일시': 140, '계약서명일시': 140, '계약서링크': 160, '동의기록': 200, '입금자명': 110
   };
   Object.keys(W).forEach(function (h) { if (colOf[h]) sheet.setColumnWidth(colOf[h], W[h]); });
 
@@ -96,8 +105,8 @@ function formatCustomersSheet() {
       .setFontWeight('bold').setFontColor('#8A5A2B').setFontFamily('Roboto Mono');
   }
 
-  // 민감/내부 열 흐리게 — 비번해시·토큰은 눈에 잘 안 띄게(원문 아님에 유의)
-  ['비번해시', '로그인토큰', '토큰만료', '제작임시저장'].forEach(function (h) {
+  // 민감/내부 열 흐리게 — 비번해시·토큰·동의기록(JSON)은 눈에 잘 안 띄게(원문/내부 데이터)
+  ['비번해시', '로그인토큰', '토큰만료', '제작임시저장', '동의기록'].forEach(function (h) {
     if (colOf[h]) sheet.getRange(P.HEADER_ROW, colOf[h], maxRows, 1).setFontColor('#B0AAA0').setFontSize(8);
   });
 
