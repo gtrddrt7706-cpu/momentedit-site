@@ -293,6 +293,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
       <div class="now-label en-32">NOW</div>
       <div class="now-head" id="mp_nowHead">—</div>
       <div class="now-sub" id="mp_nowSub" style="display:none"></div>
+      <div id="mp_waiting" style="display:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);margin-top:6px"></div>
     </div>
 
     <!-- 진행바 (점만) -->
@@ -514,6 +515,13 @@ function renderMyPage(d){
     else { subEl.style.display = 'none'; }
   })();
 
+  // [02-1] 대기 갭 한 줄 (⏳) — 카드 없는 관리자 대기 구간
+  (function(){
+    var w = String(d.waiting||'').trim(), el = $('mp_waiting'); if(!el) return;
+    if (w){ el.textContent = '⏳ '+w+' 기다리는 중'; el.style.display='block'; }
+    else el.style.display='none';
+  })();
+
   // 진행바 vs 예외
   var list = d.stageList || [];
   var idx = (typeof d.stageIndex==='number') ? d.stageIndex : -1;
@@ -590,7 +598,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
-    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>확인 후 확정을 안내드립니다.</div>';
+    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요.</div>';
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';

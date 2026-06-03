@@ -37,8 +37,19 @@ function handleGetMyState(body) {
     contract: buildContractState(r),  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
     payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
     production: buildProductionState(r),  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
-    invitation: buildInvitationState(r)  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
+    invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
+    waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };
+}
+
+// [02-1] 카드가 안 뜨는 "관리자 대기" 갭을 한 줄로(답답함 방지). 카드(상담·입금)가 이미 표시하는 구간은 빈값.
+//   현재 핵심 갭 = 시착 동의 완료 후 ~ 계약서 발송 전(상담완료 단계).
+function _journeyWaiting(r) {
+  var stage = String(r.get('현재단계') || '').trim();
+  var fit = String(r.get('시착동의상태') || '').trim();
+  var con = String(r.get('계약상태') || '').trim();
+  if (stage === '상담완료' && fit === '동의완료' && (con === '' || con === '미발송')) return '계약서를 준비하고 있어요';
+  return '';
 }
 
 // [P1.5 작업3] 개인코드로 상담예약 행을 조인해 마이페이지 "상담/촬영" 카드용 상태 구성.
