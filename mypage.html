@@ -226,6 +226,18 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .inv-row .cc-input{margin-bottom:0}
 .inv-nav{display:flex;gap:8px;margin-top:18px}
 .inv-nav .cc-btn,.inv-nav .cc-btn-ghost{flex:1}
+.inv-side{margin:12px 0}
+.inv-side-l{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);margin-bottom:6px}
+.inv-dz-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.inv-dz{border:1px solid var(--border);background:#fff;border-radius:6px;padding:10px 8px;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);cursor:pointer;text-align:center}
+.inv-dz.sel{border-color:var(--gold);color:var(--accent);background:var(--gold-bg,#faf6ef)}
+.inv-fields textarea.cc-input{font-family:var(--serif-ko);line-height:1.6;resize:vertical}
+.inv-chk{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin:5px 0}
+.inv-prev{margin:14px 0;padding:18px 16px;border:1px dashed var(--border);border-radius:8px;text-align:center;background:var(--gold-bg,#faf6ef)}
+.ivp-names{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
+.ivp-title{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:8px}
+.ivp-body{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7;margin-top:6px;white-space:pre-wrap}
+.ivp-par{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin-top:8px}
 </style>
 </head>
 <body>
@@ -805,7 +817,7 @@ function renderProduction(p, inv){
     Array.prototype.forEach.call(box.querySelectorAll('[data-prep]'), function(el){
       el.addEventListener('click', function(){ window.alert('아직 준비 중이에요. 곧 열릴 거예요.'); });
     });
-    var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}); });
+    var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   }
 }
 function productionFormHtml(b){
@@ -872,9 +884,9 @@ function productionDashHtml(t, inv){
 
 // ── 청첩장 입력 위저드 (04) — 입구 → 혼주·계좌 → [디자인·발행=다음 조각] ──
 var INVFLOW = { active:false, step:'method', draft:{} };
-function startInvFlow(inv){
+function startInvFlow(inv, base){
   var dr = (inv && inv.draft) ? JSON.parse(JSON.stringify(inv.draft)) : {};
-  INVFLOW = { active:true, step:'method', draft:dr };
+  INVFLOW = { active:true, step:'method', draft:dr, base: base||{} };
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -884,7 +896,8 @@ function renderInvFlow(box){
   if(!box) return;
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);
-  else invStepStub(box);   // 디자인·발행 = (2)조각
+  else if(INVFLOW.step==='design') invStepDesign(box);
+  else invStepConfirm(box);
 }
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
@@ -909,7 +922,7 @@ function invStepMethod(box){
     if(!mm){ window.alert('초대 방식을 골라 주세요.'); return; }
     saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
-    else { INVFLOW.step='stub'; }   // self/none 발행 = (2)조각
+    else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행
     renderInvFlow(box);
   });
 }
@@ -949,17 +962,121 @@ function invStepParents(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
   $('iv_back').addEventListener('click',function(){collect();INVFLOW.step='method';renderInvFlow(box);});
-  $('iv_next').addEventListener('click',function(){collect();saveInvDraft();INVFLOW.step='stub';renderInvFlow(box);});
+  $('iv_next').addEventListener('click',function(){collect();saveInvDraft();INVFLOW.step='design';renderInvFlow(box);});
 }
-function invStepStub(box){
-  box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 3·4 / 4</span></div>'
-    +'<div class="inv-q">여기까지 저장됐어요</div>'
-    +'<div class="inv-sub">디자인 선택과 발행은 다음 업데이트에서 열려요. 입력하신 내용은 안전하게 저장됐습니다.</div>'
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_exit">나가기</button></div>'
-    +'</div>';
-  $('iv_back').addEventListener('click',function(){ var m=INVFLOW.draft.method; INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'parents':'method'; renderInvFlow(box); });
-  $('iv_exit').addEventListener('click', exitInvFlow);
+var DESIGNS=[['01','클래식'],['02','에디토리얼'],['03','레터프레스'],['04','버밀리언'],['05','보태니컬'],['06','한글'],['07','아키텍트'],['08','누아르']];
+var SIDE_KEYS={
+  offline:{d:'designFamily',title:'famInvTitle',sub:'famInvSubKo',body:'invitationText',quote:'pullQuote',gb:'groomBio',bb:'brideBio'},
+  online:{d:'designOnline',title:'digInvTitle',sub:'digInvSubKo',body:'digInvitationText',quote:'digPullQuote',gb:'digGroomBio',bb:'digBrideBio'}
+};
+function _designHasSub(n){ return ['03','04','07','08'].indexOf(n)>=0; }
+function _starGold(s){ return escapeHtml(String(s||'')).replace(/\*([^*]+)\*/g,'<span style="color:var(--gold-deep)">$1</span>'); }
+function designBlock(side,label){
+  var d=INVFLOW.draft, K=SIDE_KEYS[side], cur=d[K.d]||'';
+  var grid=DESIGNS.map(function(p){ return '<button type="button" class="inv-dz'+(cur===p[0]?' sel':'')+'" data-side="'+side+'" data-n="'+p[0]+'">'+p[0]+' '+p[1]+'</button>'; }).join('');
+  var f='';
+  if(cur){
+    f+='<input class="cc-input" data-side="'+side+'" data-k="title" placeholder="인사말 큰 제목 (예: Save the Day)" value="'+escapeHtml(d[K.title]||'')+'">';
+    if(_designHasSub(cur)) f+='<input class="cc-input" data-side="'+side+'" data-k="sub" placeholder="인사말 부제" value="'+escapeHtml(d[K.sub]||'')+'">';
+    f+='<textarea class="cc-input" data-side="'+side+'" data-k="body" placeholder="인사말 본문 (*별표*로 감싸면 금색)" style="min-height:62px">'+escapeHtml(d[K.body]||'')+'</textarea>';
+    if(cur==='02') f+='<input class="cc-input" data-side="'+side+'" data-k="quote" placeholder="대표 문구 (2번 전용)" value="'+escapeHtml(d[K.quote]||'')+'">';
+    if(cur==='08'){ f+='<input class="cc-input" data-side="'+side+'" data-k="gb" placeholder="신랑 한마디 (8번 전용)" value="'+escapeHtml(d[K.gb]||'')+'"><input class="cc-input" data-side="'+side+'" data-k="bb" placeholder="신부 한마디" value="'+escapeHtml(d[K.bb]||'')+'">'; }
+  }
+  return '<div class="inv-side"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div><div class="inv-fields">'+f+'</div></div>';
+}
+function collectDesign(box){
+  var d=INVFLOW.draft;
+  Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){
+    var K=SIDE_KEYS[el.getAttribute('data-side')]; d[K[el.getAttribute('data-k')]] = (el.value||'').trim();
+  });
+  if(d.method==='both' && d._onlineSame!=='N'){   // 온라인=오프라인 미러
+    var O=SIDE_KEYS.offline, N=SIDE_KEYS.online;
+    d[N.d]=d[O.d]||''; ['title','sub','body','quote','gb','bb'].forEach(function(k){ d[N[k]]=d[O[k]]||''; });
+  }
+}
+function _invHasDesign(d){
+  if(d.method==='offline') return !!d.designFamily;
+  if(d.method==='online') return !!d.designOnline;
+  if(d.method==='both') return !!d.designFamily && (d._onlineSame!=='N' || !!d.designOnline);
+  return true;
+}
+function bindDesign(box){
+  Array.prototype.forEach.call(box.querySelectorAll('.inv-dz'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft[SIDE_KEYS[el.getAttribute('data-side')].d]=el.getAttribute('data-n'); invStepDesign(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){ el.addEventListener('input',function(){ collectDesign(box); updateInvPreview(); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){ el.addEventListener('change',function(){ var k=el.getAttribute('data-acc'); INVFLOW.draft[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N'; }); });
+}
+function updateInvPreview(){
+  var d=INVFLOW.draft, base=INVFLOW.base||{};
+  var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
+  var K=SIDE_KEYS[(d.method==='online')?'online':'offline'];
+  var title=d[K.title]||'', body=d[K.body]||'';
+  var par = d.greetingShowParents==='Y' ? ((d.groomParents||'')+(d.groomChildTitle&&d.groomChildTitle!=='호칭 생략'?(' '+d.groomChildTitle):'')+(base.groomKo?(' '+base.groomKo):'')) : '';
+  var el=$('iv_prev'); if(!el) return;
+  el.innerHTML = (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' ♥ ':'')+escapeHtml(b)+'</div>':'')
+    + (title?'<div class="ivp-title">'+_starGold(title)+'</div>':'')
+    + (body?'<div class="ivp-body">'+_starGold(body)+'</div>':'')
+    + (par?'<div class="ivp-par">'+escapeHtml(par)+'</div>':'');
+}
+function invStepDesign(box){
+  var d=INVFLOW.draft, m=d.method;
+  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>';
+  if(m==='offline') h+=designBlock('offline','직접 모시는 청첩장');
+  else if(m==='online') h+=designBlock('online','온라인(라이브) 청첩장');
+  else if(m==='both'){
+    h+=designBlock('offline','직접 모시는 청첩장(오프라인)');
+    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
+    if(d._onlineSame==='N') h+=designBlock('online','온라인(라이브) 청첩장');
+  }
+  if(d._acctGate==='Y'){
+    h+='<div class="inv-gate"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>';
+    if(m==='offline'||m==='both') h+='<label class="inv-chk"><input type="checkbox" data-acc="family" '+(d.accountFamily==='Y'?'checked':'')+'> 오프라인 청첩장</label>';
+    if(m==='online'||m==='both') h+='<label class="inv-chk"><input type="checkbox" data-acc="online" '+(d.accountOnline==='Y'?'checked':'')+'> 온라인 청첩장</label><label class="inv-chk"><input type="checkbox" data-acc="live" '+(d.accountLive==='Y'?'checked':'')+'> 라이브 화면</label>';
+    h+='</div>';
+  }
+  h+='<div class="inv-prev" id="iv_prev"></div>';
+  h+='<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
+  box.innerHTML=h;
+  bindDesign(box); updateInvPreview();
+  $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
+  $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ window.alert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
+}
+function invStepConfirm(box){
+  var d=INVFLOW.draft, m=d.method, sm;
+  if(m==='none') sm='청첩장을 만들지 않아요. (이 단계는 완료로 표시돼요)';
+  else if(m==='self') sm='개인 제작 — 라이브 QR'+(d.selfQR?'를 받아요.':' 없이 진행해요.');
+  else sm='초대 · '+({online:'온라인(라이브)',offline:'오프라인',both:'둘 다'}[m]||'')+(d.designFamily?(' · 오프라인 '+d.designFamily):'')+(d.designOnline?(' · 온라인 '+d.designOnline):'');
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span></div>'
+    +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
+    +'<div class="cc-note">비운 항목은 기본 문구로 채워져요. 발행 후에도 수정할 수 있어요.</div>'
+    +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
+    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
+  $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
+  $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
+}
+function doPublishInv(box){
+  var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
+  function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
+  api({action:'publishInvitation', token:getToken(), draft:INVFLOW.draft}).then(function(r){
+    if(r&&r.ok) invStepDone(box, r);
+    else reset((r&&r.error)||'발행에 실패했습니다.');
+  }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
+}
+function invStepDone(box, r){
+  if(r.skipped){
+    box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-q">청첩장 단계를 마쳤어요</div><div class="inv-sub">청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.</div><div class="inv-nav"><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    $('iv_done').addEventListener('click', exitInvFlow); return;
+  }
+  var u=(r&&r.urls)||{}, links='';
+  function lnk(label,url){ return url?('<a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):''; }
+  links+=lnk('📱 온라인 청첩장 (라이브 포함)', u.online);
+  links+=lnk('📄 직접 모시는 청첩장', u.family);
+  if(INVFLOW.draft.method==='self' && u.live) links+=lnk('🔳 라이브 QR (외부 청첩장용)', u.live);
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-q">✓ 완성됐어요</div>'
+    +'<div class="inv-sub">링크를 하객에게 카톡으로 보내세요. 발행 후 수정해도 링크는 그대로예요.</div>'
+    +'<div class="cc-actions" style="margin-top:12px">'+(links||'<div class="cc-note">표시할 링크가 없어요.</div>')+'</div>'
+    +'<div class="inv-nav"><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+  $('iv_done').addEventListener('click', exitInvFlow);
 }
 
 // [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
