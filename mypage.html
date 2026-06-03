@@ -580,8 +580,8 @@ function renderMyPage(d){
 function renderUpcoming(product){
   var box = $('mp_upcoming');
   var items = (product === '웨딩스냅')
-    ? [['본 계약','서명 후 효력 발생'],['예약금 입금','입금 확인 후 다음 단계 해제'],['촬영','예정일에 진행'],['결과물 전달','마이페이지에서 확인']]
-    : [['본 계약','서명 후 효력 발생'],['예약금 입금','입금 확인 후 다음 단계 해제'],['제작 정보','식순·다이닝·큐시트 입력'],['청첩장','온·오프·라이브'],['결과물 전달','마이페이지에서 확인']];
+    ? [['시착','동의 후 진행'],['본 계약','서명 후 효력 발생'],['계약금 입금','입금 확인 후 다음 단계 해제'],['촬영','예정일에 진행'],['결과물 전달','마이페이지에서 확인']]
+    : [['시착','동의 후 진행'],['본 계약','서명 후 효력 발생'],['계약금 입금','입금 확인 후 다음 단계 해제'],['제작 정보','식순·다이닝·큐시트 입력'],['청첩장','온·오프·라이브'],['결과물 전달','마이페이지에서 확인']];
   var lock = '<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   var html = '<div class="nx-label en-30">NEXT</div>' + items.map(function(it){
     return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
@@ -606,7 +606,12 @@ function renderConsult(c, product){
   } else if (s === '시간선택완료'){
     body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요.</div>';
   } else if (s === '승인완료' || s === '확정'){
-    body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>';
+    body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
+         + '<div class="cc-note" style="text-align:left;line-height:1.7;margin-top:10px">확정 후 안내'
+         + (isSnap ? '' : '<br>· 계약을 진행하시면 의상 시착이 가능해요')
+         + '<br>· 계약서는 여기 마이페이지로 보내드려요'
+         + '<br>· '+L+' 장소 · 경기 고양 덕양구 향동동 프라이빗 스튜디오 (3호선 원당역 버스 약 15분 · 전용 주차)'
+         + '<br>&nbsp;&nbsp;&nbsp;정확한 위치는 '+L+' 전에 안내드려요</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelRes">예약 취소</button>';
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
