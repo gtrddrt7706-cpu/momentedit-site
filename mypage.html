@@ -183,6 +183,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
+.consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
+.consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 </style>
 </head>
 <body>
@@ -258,6 +260,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 시착 동의 (02-2) — 상담 다음·계약 전 -->
     <div class="consult-sec" id="mp_fitting" style="display:none"></div>
+
+    <!-- 계약서 (02-3) — 시착 다음 -->
+    <div class="consult-sec" id="mp_contract" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -481,6 +486,9 @@ function renderMyPage(d){
   // 시착 동의 (02-2) — 상담 카드 다음, 계약 전
   renderFitting(d.fitting);
 
+  // 계약서 (02-3) — 시착 카드 다음
+  renderContract(d.contract);
+
   // NEXT (잠금)
   renderUpcoming(d.product);
 
@@ -587,6 +595,74 @@ function doSignFitting(){
   var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
   api({action:'signFittingConsent', token:getToken()}).then(function(d){
+    if (d && d.ok){ loadMyState(); }
+    else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
+  }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+
+// [02-3] 계약서 카드 — 미발송=null / 발송=계약서보기+서명기한 카운트다운+[계약서 서명하기] / 서명완료=완료+보기.
+var _contractTimer = null;
+function renderContract(c){
+  var box = $('mp_contract');
+  if (!box) return;
+  if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
+  if (!c){ box.style.display='none'; box.innerHTML=''; return; }
+  var link = c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '';
+  var expired = !c.signed && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
+  var body, cta;
+  if (c.signed){
+    body = '<div class="cc-title">계약이 완료되었어요</div>'
+         + (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '');
+    cta  = link;
+  } else if (expired){
+    body = '<div class="cc-title">계약서 서명 기한이 지났어요</div>'
+         + '<div class="cc-sub">디렉터에게 계약서 재발송을 요청해 주세요.</div>';
+    cta  = link;
+  } else {
+    body = '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
+         + (c.deadlineKst ? '<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>' : '')
+         + '<div class="cc-count" id="mp_ctCount"></div>'
+         + (c.effectNotice ? '<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>' : '');
+    cta  = link
+         + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
+         + (c.reviewNote ? '<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>' : '');
+  }
+  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  box.style.display='block';
+
+  var sign = $('mp_signContract'); if (sign) sign.addEventListener('click', doSignContract);
+
+  // 카운트다운 — 서버 기준 잔여초를 1초씩. 0 도달 시 만료 처리 후 재조회(서버 상태 반영).
+  if (!c.signed && !expired && typeof c.remainingSec==='number' && c.remainingSec>0){
+    var remain = c.remainingSec;
+    var el = $('mp_ctCount');
+    var tick = function(){
+      if (remain<=0){
+        if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
+        if (el) el.textContent='기한이 만료되었습니다';
+        loadMyState();
+        return;
+      }
+      if (el) el.textContent='남은 시간 '+fmtRemain(remain);
+      remain--;
+    };
+    tick();
+    _contractTimer = setInterval(tick, 1000);
+  }
+}
+function fmtRemain(s){
+  s = Math.max(0, s|0);
+  var d=Math.floor(s/86400); s-=d*86400;
+  var h=Math.floor(s/3600); s-=h*3600;
+  var m=Math.floor(s/60); var sec=s-m*60;
+  var p=function(n){ return (n<10?'0':'')+n; };
+  return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
+}
+function doSignContract(){
+  if (!window.confirm('계약서에 서명하시겠어요?\n\n서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.')) return;
+  var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
+  api({action:'signContract', token:getToken()}).then(function(d){
     if (d && d.ok){ loadMyState(); }
     else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
   }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
