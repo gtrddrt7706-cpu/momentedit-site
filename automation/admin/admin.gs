@@ -343,3 +343,26 @@ function adminAvailability() {
   var d = getAvailability();
   return { ok: true, avail: d.avail, full: d.full, slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND };
 }
+
+// ============================ 계약·입금 동작 (02) — Customers 측 ============================
+// [02-3] 계약서 발송 — 계약상태=발송 + 계약서발송일시(now, +72h 기한 기준) + 계약서링크.
+//   서명은 고객 측(signContract). 발송 시각을 정확히 찍어야 기한 계산이 맞으므로 이 핸들러로 발송(시트 직접 입력 X).
+function adminSendContract(code, link) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var stage = String(cust.get('현재단계') || '').trim();
+  if (['취소', '노쇼', '미계약'].indexOf(stage) !== -1) {
+    return { ok: false, error: '진행할 수 없는 상태입니다. (현재단계: ' + stage + ')' };
+  }
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var now = fmtKST(new Date());
+  touchCustomer(sheet, colOf, cust.num, {
+    '계약상태': '발송',
+    '계약서발송일시': now,
+    '계약서링크': String(link || '').trim()
+  });
+  _recordHandler(code, '계약서 발송' + (link ? ' (링크 첨부)' : ''));
+  return { ok: true, sentAt: now };
+}

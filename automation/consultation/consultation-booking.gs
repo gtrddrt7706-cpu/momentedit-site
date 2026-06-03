@@ -263,7 +263,7 @@ function handleAction(p) {
 // → 캘린더 일정 생성 + 고객 확정 메일 + 운영자 브리프.
 // enteredStatus: 시트에서 직접 입력한 상태값(있으면 그 라벨 유지). 버튼/메일 경로면 생략→'승인완료'.
 // [P1.5 ★③] 단일 전이 함수 — 상담행 상태 변화 → Customers 현재단계(10) 갱신을 이 함수 한 곳으로(산재 금지).
-// transition: 'confirm'(상담/촬영확정) · 'complete'(상담완료) · 'cancel'(취소). 상품타입 보고 라벨 매핑.
+// transition: 'confirm'(상담/촬영확정) · 'complete'(상담완료) · 'contract'(계약완료) · 'cancel'(취소). 상품타입 보고 라벨 매핑.
 // 예외상태(취소·노쇼·미계약)는 정상 자동전이가 덮지 않음(가드). P1.5=수동/래퍼 호출, P2=자동배치가 같은 함수 호출.
 function setCustomerStage(code, transition) {
   code = String(code || '').trim().toUpperCase();
@@ -276,6 +276,7 @@ function setCustomerStage(code, transition) {
   var MAP = {
     confirm:  isSnap ? '촬영확정' : '상담확정',
     complete: '상담완료',                    // 스냅 '촬영완료'는 결과물 단계(이후 Phase)
+    contract: '계약완료',                    // [02-3] 계약서 서명 완료 → 계약완료
     cancel:   '취소'
   };
   var newStage = MAP[transition] || transition;
@@ -1767,6 +1768,7 @@ function doPost(e) {
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 02 여정(계약·입금) — 세션→Customers ──
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
+      case 'signContract':       return jsonOut(handleSignContract(body));
       // ── 기존 상담 신청 (action 없음) ──
       case '':
         submitApplication(body);

@@ -112,3 +112,131 @@ function _termsHash(terms) {
   var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
   return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, '').slice(0, 16);
 }
+
+// ============================ 02-3 · 계약서 서명 ============================
+// 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
+var CONTRACT = {
+  version: '계약서명-v1',
+  서명기한시간: 72,                 // 발송 +72h 안에 서명
+  리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
+  effectNotice: '서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.',
+  reviewNote: '서명 전 계약 내용을 충분히 확인해 주세요. 기한이 지나면 계약서는 자동 파기됩니다.'
+};
+
+// [02-3] 계약서 서명(고객) → 계약서명일시 + 계약상태=서명완료 + 동의기록.계약 + 현재단계→계약완료.
+//   가드: 계약상태=발송 + 기한 내. 멱등(이미 서명완료). Lock + 최신 재읽기.
+function handleSignContract(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet();
+    var colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);                 // 최신 재읽기
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+
+    var cStatus = String(cust.get('계약상태') || '').trim();
+    var prevSigned = String(cust.get('계약서명일시') || '').trim();
+    if (cStatus === '서명완료' || prevSigned) {           // 멱등(이중 클릭·새로고침)
+      return { ok: true, already: true, signedAt: prevSigned };
+    }
+    if (cStatus !== '발송') return { ok: false, error: '서명할 계약서가 없습니다. (디렉터 발송 후 진행됩니다)' };
+
+    // 기한 가드 — 발송 +72h 경과면 차단 (KST)
+    var sentAt = _parseKstStr(cust.get('계약서발송일시'));
+    if (sentAt && Date.now() > sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) {
+      return { ok: false, expired: true, error: '서명 기한이 지났습니다. 디렉터에게 다시 요청해 주세요.' };
+    }
+
+    var now = fmtKST(new Date());
+    var prev = _parseJsonSafe(cust.get('동의기록'));
+    prev.계약 = {
+      type: '계약서명',
+      version: CONTRACT.version,
+      signedAt: now,
+      code: code,
+      sentAt: String(cust.get('계약서발송일시') || ''),
+      link: String(cust.get('계약서링크') || ''),
+      effectHash: _termsHash([CONTRACT.effectNotice])    // 동의한 효력 고지 문구 지문
+    };
+    touchCustomer(sheet, colOf, cust.num, {
+      '계약서명일시': now,
+      '계약상태': '서명완료',
+      '동의기록': JSON.stringify(prev)
+    });
+    setCustomerStage(code, 'contract');                   // 현재단계 → 계약완료 (단일 전이점)
+    return { ok: true, signedAt: now };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
+}
+
+// [02-3] 마이페이지 계약서 카드용 상태. 동의기록(내부 JSON) 비노출, 파생값·기한만.
+//   노출: 발송(서명 카드+카운트다운) 또는 서명완료(완료+계약서 보기). 미발송 → null.
+function buildContractState(r) {
+  if (!r) return null;
+  var cStatus = String(r.get('계약상태') || '').trim();
+  var signedAt = String(r.get('계약서명일시') || '').trim();
+  var link = String(r.get('계약서링크') || '').trim();
+  var signed = (cStatus === '서명완료') || !!signedAt;
+  var sent = (cStatus === '발송');
+  if (!signed && !sent) return null;
+  var out = {
+    signed: signed,
+    signedAt: signedAt,
+    link: link,
+    effectNotice: CONTRACT.effectNotice,
+    reviewNote: CONTRACT.reviewNote
+  };
+  if (!signed && sent) {                                  // 서명 대기 → 기한·카운트다운(서버 기준 잔여초)
+    var sentAt = _parseKstStr(r.get('계약서발송일시'));
+    if (sentAt) {
+      var deadlineMs = sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000;
+      out.deadlineKst = fmtKST(new Date(deadlineMs));
+      out.remainingSec = Math.max(0, Math.floor((deadlineMs - Date.now()) / 1000));
+      out.expired = Date.now() > deadlineMs;
+    }
+  }
+  return out;
+}
+
+// [02-3] 시간 트리거 — 계약서 미서명 기한(발송+72h) 경과분 자동 파기(계약상태→미발송, 링크·발송일시 비움 + 이력).
+//   ※ '자동 취소'의 여정/환불(예약금) 처리는 취소·환불 흐름에서 결정 — 여기선 계약서 offer만 파기(재발송 가능),
+//      현재단계는 건드리지 않는다(상담완료 유지). 운영자: 시간 기반 트리거로 1일 1회 설치.
+function expireUnsignedContracts() {
+  var sheet = getCustomersSheet();
+  var colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < P.DATA_START_ROW) return 0;
+  var cCol = colOf['계약상태'], sentCol = colOf['계약서발송일시'], memoCol = colOf['관리자메모'];
+  if (!cCol || !sentCol) return 0;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var n = 0, nowMs = Date.now();
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][cCol - 1] || '').trim() !== '발송') continue;
+    var sentAt = _parseKstStr(vals[i][sentCol - 1]);
+    if (!sentAt || nowMs <= sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) continue;
+    var rowNum = P.DATA_START_ROW + i;
+    var upd = { '계약상태': '미발송', '계약서링크': '', '계약서발송일시': '' };
+    if (memoCol) {
+      var prevMemo = String(vals[i][memoCol - 1] || '');
+      var line = '[' + fmtKST(new Date()) + '] 시스템: 계약서 미서명 기한경과 자동 파기';
+      upd['관리자메모'] = prevMemo ? (prevMemo + '\n' + line) : line;
+    }
+    touchCustomer(sheet, colOf, rowNum, upd);
+    n++;
+  }
+  Logger.log('expireUnsignedContracts: ' + n + '건 파기');
+  return n;
+}
+
+// 'YYYY-MM-DD HH:mm'(fmtKST) → Date. appsscript.json timeZone=Asia/Seoul 전제(KST).
+function _parseKstStr(s) {
+  var m = String(s || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], 0);
+}

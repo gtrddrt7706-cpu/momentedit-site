@@ -33,7 +33,8 @@ function handleGetMyState(body) {
     code: String(r.get('개인코드') || ''),    // 코드 복사용
     kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '', // 카톡 문의(미설정 시 빈값)
     consult: buildConsultState(String(r.get('개인코드') || '')),  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
-    fitting: buildFittingState(r)  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
+    fitting: buildFittingState(r),  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
+    contract: buildContractState(r)  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
   };
 }
 
