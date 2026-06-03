@@ -1,0 +1,92 @@
+/**
+ * Moment Edit · 통합 플랫폼 — 03 제작 (공통 기초정보 + 3트랙)
+ * ──────────────────────────────────────────────────────────────────────────
+ * 입금완료 후 진입. 공통 기초정보(이름 한/영·이메일·예식일시)를 제작임시저장(16열 JSON)에 저장.
+ * 3트랙(청첩장·다이닝·식순) 상태 대시보드 — 1차: 다이닝·식순=자리(준비중), 청첩장 상세=04.
+ *
+ * [두 층위] 제작상태(Customers 13)·현재단계=제작중(여정). 단계 전이는 setCustomerStage('produce') 단일점.
+ * [저장] 제작임시저장 JSON = { base:{...}, tracks:{invitation,dining,ritual}, invitationDraft:{...}(04) }.
+ *        04 발행 때 base/invitationDraft → Couples 로 promote.
+ * [재사용] resolveSession(30) · getCustomersSheet/buildHeaderIndex · findCustomerByCode/touchCustomer(20)
+ *          · _parseJsonSafe(70) · fmtKST · setCustomerStage(consultation)
+ */
+
+var PRODUCTION_STAGES = ['입금완료', '제작중'];   // 제작 UI 노출 단계
+
+// [03-1] 공통 기초정보 저장(고객) → 제작임시저장.base + 제작상태=작성중 + 현재단계→제작중.
+//   가드: 입금완료/제작중 단계만. 이름(한)·이메일은 Customers 마스터에도 반영(확인·보완 결과).
+function handleSaveProductionBase(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+
+  var base = (body && body.base) || {};
+  var groomKo = String(base.groomKo || '').trim();
+  var brideKo = String(base.brideKo || '').trim();
+  if (!groomKo || !brideKo) return { ok: false, error: '신랑·신부 이름을 입력해 주세요.' };
+  var email = String(base.email || '').trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: '이메일을 정확히 입력해 주세요.' };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet();
+    var colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+
+    var draft = _parseJsonSafe(cust.get('제작임시저장'));
+    draft.base = {
+      groomKo: groomKo,
+      brideKo: brideKo,
+      groomEn: String(base.groomEn || '').trim(),
+      brideEn: String(base.brideEn || '').trim(),
+      email: email,
+      weddingDate: String(base.weddingDate || '').trim(),
+      weddingTime: String(base.weddingTime || '').trim(),
+      savedAt: fmtKST(new Date())
+    };
+    var upd = { '제작임시저장': JSON.stringify(draft), '제작상태': '작성중' };
+    upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
+    upd['신부이름'] = brideKo;
+    if (email) upd['이메일'] = email;
+    touchCustomer(sheet, colOf, cust.num, upd);
+    setCustomerStage(code, 'produce');    // 입금완료 → 제작중 (단일 전이점)
+    return { ok: true };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
+}
+
+// [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
+//   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
+function buildProductionState(r) {
+  if (!r) return null;
+  var stage = String(r.get('현재단계') || '').trim();
+  if (PRODUCTION_STAGES.indexOf(stage) === -1) return null;
+  var draft = _parseJsonSafe(r.get('제작임시저장'));
+  var entered = !!draft.base;
+  var b = draft.base || {};
+  var base = {
+    groomKo: entered ? (b.groomKo || '') : String(r.get('신랑이름') || ''),
+    brideKo: entered ? (b.brideKo || '') : String(r.get('신부이름') || ''),
+    groomEn: b.groomEn || '',
+    brideEn: b.brideEn || '',
+    email: entered ? (b.email || '') : String(r.get('이메일') || ''),
+    weddingDate: b.weddingDate || '',
+    weddingTime: b.weddingTime || ''
+  };
+  var t = draft.tracks || {};
+  return {
+    entered: entered,                          // 기초정보 저장 여부(false면 입력 화면)
+    base: base,
+    tracks: {
+      invitation: t.invitation || '시작전',    // 04 청첩장에서 갱신
+      dining: '준비중',                         // 1차 자리(클릭 시 "준비 중" 안내)
+      ritual: '준비중'                          // 1차 자리(미정·희준)
+    }
+  };
+}

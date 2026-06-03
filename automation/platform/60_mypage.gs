@@ -35,7 +35,8 @@ function handleGetMyState(body) {
     consult: buildConsultState(String(r.get('개인코드') || '')),  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
     fitting: buildFittingState(r),  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
     contract: buildContractState(r),  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
-    payment: buildPaymentState(r)  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
+    payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
+    production: buildProductionState(r)  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
   };
 }
 
