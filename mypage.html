@@ -188,6 +188,25 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .consult-card .cc-mini{font-size:11px;color:var(--label-soft)}
 .consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold)}
+/* 완료 카드 접기 */
+.consult-card.cc-done{padding:0;text-align:left}
+.cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
+.cc-done-check{color:var(--gold-deep);font-weight:600}
+.cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
+.cc-done-toggle{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft)}
+.cc-done-full{padding:2px 18px 16px}
+/* 제작 화면(기초정보 폼·3트랙) */
+.pf{display:flex;gap:6px;align-items:center}
+.pf .pf-l{flex:0 0 36px;margin:0;font-size:12px}
+.pf-l{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:10px 0 3px}
+.pf-ko,.pf-en{flex:1}
+.pf-cover{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:var(--gold-deep);min-height:18px;margin:8px 0 4px}
+.pf2{display:flex;gap:8px}.pf2>div{flex:1}
+.trk-list{margin:12px 0 4px}
+.trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trk:last-child{border-bottom:none}
+.trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
+.trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 </style>
 </head>
 <body>
@@ -269,6 +288,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 계약금 입금 (02-4) — 계약서 다음 -->
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
+
+    <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
+    <div class="consult-sec" id="mp_production" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -498,6 +520,9 @@ function renderMyPage(d){
   // 계약금 입금 (02-4) — 계약서 카드 다음
   renderPayment(d.payment);
 
+  // 제작 (03) — 입금완료 후: 기초정보 + 3트랙
+  renderProduction(d.production);
+
   // NEXT (잠금)
   renderUpcoming(d.product);
 
@@ -574,30 +599,20 @@ function renderFitting(f){
   if (!box) return;
   if (!f){ box.style.display='none'; box.innerHTML=''; return; }
   var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
-  var body, cta;
-  if (!f.signed){
-    body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div>'
-         + '<ul class="cc-terms">'+terms+'</ul>';
-    cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
-         + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
-         + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
-  } else {
-    body = '<div class="cc-title">시착 동의 완료</div>'
-         + (f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '')
-         + '<ul class="cc-terms" id="mp_fitTerms" style="display:none">'+terms+'</ul>';
-    cta  = '<button type="button" class="cc-btn-ghost" id="mp_fitReview">동의서 보기</button>'
-         + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+  if (f.signed){   // 완료 → 접기
+    var full = (f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '')
+             + '<ul class="cc-terms">'+terms+'</ul>'
+             + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+    collapsedCard(box, '시착 동의 완료', full);
+    return;
   }
+  var body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>';
+  var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
+           + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
+           + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
   box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   box.style.display='block';
-
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
-  var rev = $('mp_fitReview'); if (rev) rev.addEventListener('click', function(){
-    var t=$('mp_fitTerms'); if(!t) return;
-    var open = t.style.display !== 'none';
-    t.style.display = open ? 'none' : 'block';
-    rev.textContent = open ? '동의서 보기' : '동의서 닫기';
-  });
 }
 function doSignFitting(){
   if (!window.confirm('시착 동의서에 서명하시겠어요?\n서명하면 시착이 진행됩니다.')) return;
@@ -617,13 +632,15 @@ function renderContract(c){
   if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
   if (!c){ box.style.display='none'; box.innerHTML=''; return; }
   var link = c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '';
-  var expired = !c.signed && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
+  if (c.signed){   // 완료 → 접기
+    var full = (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '')
+             + (link ? '<div class="cc-actions">'+link+'</div>' : '');
+    collapsedCard(box, '계약 완료', full);
+    return;
+  }
+  var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
   var body, cta;
-  if (c.signed){
-    body = '<div class="cc-title">계약이 완료되었어요</div>'
-         + (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '');
-    cta  = link;
-  } else if (expired){
+  if (expired){
     body = '<div class="cc-title">계약서 서명 기한이 지났어요</div>'
          + '<div class="cc-sub">디렉터에게 계약서 재발송을 요청해 주세요.</div>';
     cta  = link;
@@ -682,10 +699,14 @@ function renderPayment(p){
   var box=$('mp_payment'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   var a = p.amounts;
+  if(p.confirmed){   // 완료 → 접기
+    var full = '<div class="cc-sub">입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>'
+             + (a ? '<div class="cc-sub cc-mini">납부 '+fmtWon(a.납부액)+(a.잔금?(' · 잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점)):'')+'</div>' : '');
+    collapsedCard(box, '입금 확인 완료', full);
+    return;
+  }
   var body='', cta='';
-  if(p.confirmed){
-    body = '<div class="cc-title">입금이 확인되었어요</div><div class="cc-sub">이제 예식 준비를 시작합니다.</div>';
-  } else if(p.status==='완료신호'){
+  if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
          + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
   } else {
@@ -717,6 +738,113 @@ function doPaySignal(){
     if(d&&d.ok){ loadMyState(); }
     else { window.alert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
   }).catch(function(){ window.alert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+
+// ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ──
+function collapsedCard(box, label, fullHtml){
+  box.innerHTML = '<div class="consult-card cc-done">'
+    + '<div class="cc-done-row" role="button" tabindex="0"><span class="cc-done-check">✓</span><span class="cc-done-label">'+escapeHtml(label)+'</span><span class="cc-done-toggle">펼치기</span></div>'
+    + '<div class="cc-done-full" style="display:none">'+(fullHtml||'')+'</div></div>';
+  box.style.display='block';
+  var row=box.querySelector('.cc-done-row'), full=box.querySelector('.cc-done-full'), tg=box.querySelector('.cc-done-toggle');
+  if(row) row.addEventListener('click', function(){ var open=full.style.display!=='none'; full.style.display=open?'none':'block'; if(tg) tg.textContent=open?'펼치기':'접기'; });
+}
+
+// ── 한글 → 로마자(제안용·기본 매핑). 완벽 변환 아님 → 고객이 자유 수정 ──
+function romanizeKo(s){
+  s=String(s||'');
+  var CHO=['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+  var JU=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+  var JO=['','k','k','ks','n','nj','nh','t','l','lk','lm','lb','ls','lt','lp','lh','m','p','ps','t','t','ng','t','t','k','t','p','t'];
+  var out='';
+  for(var i=0;i<s.length;i++){
+    var ch=s.charCodeAt(i);
+    if(ch>=0xAC00 && ch<=0xD7A3){ var x=ch-0xAC00; out+=CHO[Math.floor(x/588)]+JU[Math.floor((x%588)/28)]+JO[x%28]; }
+    else if(s[i]===' ') out+=' ';
+  }
+  return out.split(' ').map(function(w){ return w?w.charAt(0).toUpperCase()+w.slice(1):w; }).join(' ').trim();
+}
+// 표지용 = 성 떼고 이름만 대문자 (영문 첫 토큰=성 가정)
+function coverName(en){
+  en=String(en||'').trim(); if(!en) return '';
+  var p=en.split(/\s+/);
+  return (p.length>1 ? p.slice(1).join(' ') : p[0]).toUpperCase();
+}
+
+// [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
+function renderProduction(p){
+  var box=$('mp_production'); if(!box) return;
+  if(!p){ box.style.display='none'; box.innerHTML=''; return; }
+  if(!p.entered){
+    box.innerHTML = productionFormHtml(p.base||{});
+    box.style.display='block';
+    bindProductionForm();
+  } else {
+    box.innerHTML = productionDashHtml(p.tracks||{});
+    box.style.display='block';
+    Array.prototype.forEach.call(box.querySelectorAll('[data-prep]'), function(el){
+      el.addEventListener('click', function(){ window.alert('아직 준비 중이에요. 곧 열릴 거예요.'); });
+    });
+  }
+}
+function productionFormHtml(b){
+  return '<div class="consult-card" style="text-align:left">'
+    + '<div class="cc-eyebrow en-22">Production</div>'
+    + '<div class="cc-title" style="text-align:left">두 분의 이야기를 시작할게요</div>'
+    + '<div class="cc-sub" style="text-align:left">청첩장·다이닝·식순에 공통으로 쓰는 기본 정보예요.</div>'
+    + '<div class="pf" style="margin-top:10px"><label class="pf-l">신랑</label>'
+      + '<input class="cc-input pf-ko" id="mp_gKo" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
+      + '<input class="cc-input pf-en" id="mp_gEn" placeholder="영문(자동 제안)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
+    + '<div class="pf"><label class="pf-l">신부</label>'
+      + '<input class="cc-input pf-ko" id="mp_bKo" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
+      + '<input class="cc-input pf-en" id="mp_bEn" placeholder="영문(자동 제안)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
+    + '<div class="pf-cover" id="mp_cover"></div>'
+    + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
+    + '<div class="pf2"><div><label class="pf-l">예식 날짜</label><input class="cc-input" id="mp_wDate" type="date" value="'+escapeHtml(b.weddingDate||'')+'"></div>'
+      + '<div><label class="pf-l">예식 시간</label><input class="cc-input" id="mp_wTime" type="time" value="'+escapeHtml(b.weddingTime||'')+'"></div></div>'
+    + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
+    + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_saveBase">저장하고 시작</button></div>'
+    + '</div>';
+}
+function bindProductionForm(){
+  function sg(koId, enId){ var ko=$(koId), en=$(enId); if(ko&&en) ko.addEventListener('blur', function(){ if(!en.value.trim() && ko.value.trim()){ en.value=romanizeKo(ko.value.trim()); } updateCover(); }); }
+  sg('mp_gKo','mp_gEn'); sg('mp_bKo','mp_bEn');
+  ['mp_gEn','mp_bEn'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', updateCover); });
+  updateCover();
+  var sv=$('mp_saveBase'); if(sv) sv.addEventListener('click', doSaveProductionBase);
+}
+function updateCover(){
+  var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
+  var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' ♥ ':'')+b) : '';
+}
+function doSaveProductionBase(){
+  var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
+    groomEn:($('mp_gEn')&&$('mp_gEn').value||'').trim(), brideEn:($('mp_bEn')&&$('mp_bEn').value||'').trim(),
+    email:($('mp_pEmail')&&$('mp_pEmail').value||'').trim(), weddingDate:($('mp_wDate')&&$('mp_wDate').value||'').trim(), weddingTime:($('mp_wTime')&&$('mp_wTime').value||'').trim() };
+  if(!base.groomKo||!base.brideKo){ window.alert('신랑·신부 이름을 입력해 주세요.'); return; }
+  var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
+  api({action:'saveProductionBase', token:getToken(), base:base}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { window.alert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
+  }).catch(function(){ window.alert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+function productionDashHtml(t){
+  function trk(name, sub, opt){
+    opt=opt||{};
+    var right = opt.href ? '<a class="cc-btn-ghost" style="width:auto;padding:8px 14px" href="'+escapeHtml(opt.href)+'">시작하기</a>' : '<span class="trk-st">'+escapeHtml(sub)+'</span>';
+    return '<div class="trk"'+(opt.prep?' data-prep="1"':'')+'><span class="trk-nm">'+escapeHtml(name)+'</span>'+right+'</div>';
+  }
+  return '<div class="consult-card" style="text-align:left">'
+    + '<div class="cc-eyebrow en-22">Production</div>'
+    + '<div class="cc-title" style="text-align:left">예식 준비</div>'
+    + '<div class="cc-sub" style="text-align:left">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
+    + '<div class="trk-list">'
+      + trk('청첩장', '곧 열려요', { prep:true })
+      + trk('다이닝', '준비 중', { prep:true })
+      + trk('식순', '준비 중', { prep:true })
+    + '</div>'
+    + '<div class="cc-note">셋 다 완료하면 예식 준비가 끝나요. (청첩장 입력은 곧 열립니다)</div>'
+    + '</div>';
 }
 
 // [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
