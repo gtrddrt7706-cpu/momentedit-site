@@ -185,6 +185,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
+.consult-card .cc-mini{font-size:11px;color:var(--label-soft)}
+.consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
+.consult-card .cc-input:focus{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -263,6 +266,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 계약서 (02-3) — 시착 다음 -->
     <div class="consult-sec" id="mp_contract" style="display:none"></div>
+
+    <!-- 계약금 입금 (02-4) — 계약서 다음 -->
+    <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -489,6 +495,9 @@ function renderMyPage(d){
   // 계약서 (02-3) — 시착 카드 다음
   renderContract(d.contract);
 
+  // 계약금 입금 (02-4) — 계약서 카드 다음
+  renderPayment(d.payment);
+
   // NEXT (잠금)
   renderUpcoming(d.product);
 
@@ -666,6 +675,48 @@ function doSignContract(){
     if (d && d.ok){ loadMyState(); }
     else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
   }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+
+// [02-4] 계약금 입금 카드 — 서명완료 후 노출. 대기=납부안내+입금자명+[입금완료] / 완료신호="확인 중" / 확인=완료.
+function renderPayment(p){
+  var box=$('mp_payment'); if(!box) return;
+  if(!p){ box.style.display='none'; box.innerHTML=''; return; }
+  var a = p.amounts;
+  var body='', cta='';
+  if(p.confirmed){
+    body = '<div class="cc-title">입금이 확인되었어요</div><div class="cc-sub">이제 예식 준비를 시작합니다.</div>';
+  } else if(p.status==='완료신호'){
+    body = '<div class="cc-title">입금 확인 중</div>'
+         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+  } else {
+    var amt;
+    if(a){
+      amt = '<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b><br>'
+          + '<span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span></div>'
+          + (p.account ? '<div class="cc-sub">'+escapeHtml(p.account)+(p.holder?(' ('+escapeHtml(p.holder)+')'):'')+'</div>' : '');
+    } else {
+      amt = '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
+    }
+    body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt;
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금자명" autocomplete="name">'
+        + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
+        + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
+  }
+  if(a && a.잔금){ body += '<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>'; }
+  box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Payment</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  box.style.display='block';
+  var b=$('mp_paySignal'); if(b) b.addEventListener('click', doPaySignal);
+}
+function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
+function doPaySignal(){
+  var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
+  if(!payer){ window.alert('입금자명을 입력해 주세요.'); return; }
+  var btn=$('mp_paySignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금 완료'; } }
+  api({action:'paymentSignal', token:getToken(), payerName:payer}).then(function(d){
+    if(d&&d.ok){ loadMyState(); }
+    else { window.alert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+  }).catch(function(){ window.alert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 
 // [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
