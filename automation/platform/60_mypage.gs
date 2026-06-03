@@ -38,6 +38,7 @@ function handleGetMyState(body) {
     payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
     production: buildProductionState(r),  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
+    result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };
 }

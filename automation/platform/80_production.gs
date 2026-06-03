@@ -90,3 +90,20 @@ function buildProductionState(r) {
     }
   };
 }
+
+// [05] 결과물 단계(예식완료/촬영완료/결과물전달) — 이미 있는 결과물 링크 컬럼 읽기 표시.
+//   1차: ①원본·④보정본·⑤영상 링크 표시 / ②③(번호 선택·추가 결제)은 2차 자리. 사진은 서버 X(드라이브 링크).
+var RESULT_STAGES = ['예식완료', '촬영완료', '결과물전달'];
+function buildResultState(r) {
+  if (!r) return null;
+  var stage = String(r.get('현재단계') || '').trim();
+  if (RESULT_STAGES.indexOf(stage) === -1) return null;
+  return {
+    stage: stage,
+    delivered: stage === '결과물전달',
+    isSnap: String(r.get('상품타입') || '').trim() === '웨딩스냅',
+    원본: String(r.get('원본링크') || '').trim(),
+    보정본: String(r.get('보정본폴더') || '').trim(),
+    영상: String(r.get('영상링크') || '').trim()
+  };
+}

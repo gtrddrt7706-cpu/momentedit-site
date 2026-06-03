@@ -324,6 +324,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
     <div class="consult-sec" id="mp_production" style="display:none"></div>
 
+    <!-- 결과물 (05) — 예식완료/결과물전달 -->
+    <div class="consult-sec" id="mp_result" style="display:none"></div>
+
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
 
@@ -561,6 +564,9 @@ function renderMyPage(d){
 
   // 제작 (03) — 입금완료 후: 기초정보 + 3트랙 / 청첩장(04) 입력 위저드
   renderProduction(d.production, d.invitation);
+
+  // 결과물 (05) — 예식완료/결과물전달
+  renderResult(d.result);
 
   // NEXT (잠금)
   renderUpcoming(d.product);
@@ -827,6 +833,37 @@ function renderProduction(p, inv){
     });
     var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   }
+}
+
+// [05] 결과물 카드 — 예식완료/촬영완료=준비 안내 / 결과물전달=5스텝(①④⑤ 링크, ②③ 자리). result 없으면 숨김.
+function renderResult(res){
+  var box=$('mp_result'); if(!box) return;
+  if(!res){ box.style.display='none'; box.innerHTML=''; return; }
+  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
+  if(!res.delivered){
+    h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
+      +'<div class="cc-sub" style="text-align:left">이제 결과물을 준비합니다.</div>'
+      +'<ul class="cc-terms"><li>원본 사진 — 예식 후 약 [기간 미정]</li>'
+      +(res.isSnap?'':'<li>본식 영상 — 약 [기간 미정]</li>')
+      +'<li>보정 사진 — 고르신 후 약 [기간 미정]</li></ul>'
+      +'<div class="cc-note">준비되면 마이페이지로 안내드려요. (기간은 추후 확정)</div>';
+  } else {
+    function step(n,label,link,linkLabel,future){
+      var right = future ? '<span class="trk-st">곧 열려요</span>'
+        : (link ? '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(link)+'" target="_blank" rel="noopener">'+linkLabel+'</a>'
+                : '<span class="trk-st">준비 중</span>');
+      return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';
+    }
+    h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
+      +step('①','원본 사진',res.원본,'원본 보기',false)
+      +step('②','보정 사진 고르기','','',true)
+      +step('③','추가 보정·결제','','',true)
+      +step('④','보정본',res.보정본,'보정본 받기',false)
+      +(res.isSnap?'':step('⑤','본식 영상',res.영상,'영상 보기',false))
+      +'</div><div class="cc-note">②③(번호 선택·추가 결제)은 곧 열려요. 사진은 드라이브 링크로 보고 골라 주세요.</div>';
+  }
+  h+='</div>';
+  box.innerHTML=h; box.style.display='block';
 }
 function productionFormHtml(b){
   return '<div class="consult-card" style="text-align:left">'
