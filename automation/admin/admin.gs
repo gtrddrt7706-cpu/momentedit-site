@@ -183,6 +183,12 @@ function adminDetail(code) {
     d.phone = String(cust.get('연락처') || '');
     d.email = String(cust.get('이메일') || '');
     d.memo = String(cust.get('관리자메모') || '');
+    // [02-0] 여정 상태(계약·입금 버튼 분기용)
+    d.fittingStatus = String(cust.get('시착동의상태') || '');
+    d.contractStatus = String(cust.get('계약상태') || '');
+    d.paymentStatus = String(cust.get('입금상태') || '');
+    d.contractLink = String(cust.get('계약서링크') || '');
+    d.payerName = String(cust.get('입금자명') || '');
   } else {
     d.names = _names(cr.get('성함(신랑)'), cr.get('성함(신부)'));
     d.product = ''; d.stage = ''; d.phone = String(cr.get('연락처') || ''); d.email = String(cr.get('이메일') || ''); d.memo = '';
@@ -383,5 +389,20 @@ function adminConfirmPayment(code) {
   touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인' });
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
   _recordHandler(code, '입금 확인 → 입금완료');
+  return { ok: true };
+}
+
+// [02-0] 시착 동의 게이트 열기 → 시착동의상태=동의요청 (고객 마이페이지에 동의서 노출). 상담완료 단계에서만.
+function adminOpenFittingConsent(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var stage = String(cust.get('현재단계') || '').trim();
+  if (stage !== '상담완료') return { ok: false, error: '상담완료 단계에서만 시착 동의를 열 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+  if (String(cust.get('시착동의상태') || '').trim() === '동의완료') return { ok: true, already: true };
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });
+  _recordHandler(code, '시착 동의 요청(게이트 열기)');
   return { ok: true };
 }

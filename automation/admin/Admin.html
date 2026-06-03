@@ -314,9 +314,11 @@ function renderDetail(d){
      '<textarea class="memo-area" id="memoArea" placeholder="고객에겐 안 보이는 내부 메모">'+esc(d.memo)+'</textarea>'+
      '<button class="memo-save" id="memoSave">메모 저장</button></div>';
 
-  // v2·v3 자리
-  h+='<div class="sec locked">[ 계약 ] — v2 (P2 이후)</div>';
-  h+='<div class="sec locked">[ 제작 ] — v3 (P3 이후)</div>';
+  // 계약·입금 (02-0 관리자 최소 버튼 — 상태별)
+  var jbtn = journeyButtons(d);
+  if(jbtn){ h+='<div class="sec"><div class="sec-t">계약 · 입금</div>'+journeyStateHtml(d)+'<div class="actions" id="jActions">'+jbtn+'</div></div>'; }
+  else { h+='<div class="sec locked">[ 계약·입금 ] — 상담 확정·완료 후 진행</div>'; }
+  h+='<div class="sec locked">[ 제작·청첩장 ] — 고객 마이페이지에서 진행</div>';
 
   $('detailBody').innerHTML=h;
 
@@ -324,6 +326,7 @@ function renderDetail(d){
   var ft=$('fldToggle'); if(ft) ft.addEventListener('click', function(){ var b=$('fldBox'); b.classList.toggle('open'); ft.textContent = b.classList.contains('open')?'신청 내용 접기 ▴':'신청 내용 보기 ▾'; });
   var ms=$('memoSave'); if(ms) ms.addEventListener('click', saveMemo);
   bindActions(d.code, c?c.status:'');
+  bindJourney(d.code);
 }
 
 function consultActions(status, L){
@@ -353,6 +356,58 @@ function consultActions(status, L){
 function bindActions(code, status){
   document.querySelectorAll('#cActions .btn[data-act]').forEach(function(el){
     el.addEventListener('click', function(){ onAction(el.getAttribute('data-act'), code); });
+  });
+}
+
+// ── 계약·입금 (02-0) — 상태별 버튼 + 핸들러(기존 핸들러 호출) ──
+function journeyStateHtml(d){
+  function kv(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
+  return kv('시착동의', d.fittingStatus) + kv('계약', d.contractStatus) +
+         kv('입금', (d.paymentStatus||'') + (d.payerName?(' · '+d.payerName):''));
+}
+function journeyButtons(d){
+  var stage=d.stage||'', fit=d.fittingStatus||'', con=d.contractStatus||'', pay=d.paymentStatus||'', b='';
+  if(stage==='상담완료' && fit!=='동의요청' && fit!=='동의완료') b+='<button class="btn btn-line" data-jact="openFitting">시착 동의 열기</button>';
+  if(fit==='동의완료' && (con===''||con==='미발송')) b+='<button class="btn btn-seal" data-jact="sendContract">계약서 발송</button>';
+  if(con==='발송') b+='<button class="btn btn-line" data-jact="sendContract">계약서 재발송</button>';
+  if(con==='서명완료' && pay!=='확인') b+='<button class="btn btn-seal" data-jact="confirmPay">입금 확인</button>';
+  return b;
+}
+function bindJourney(code){
+  document.querySelectorAll('#jActions .btn[data-jact]').forEach(function(el){
+    el.addEventListener('click', function(){ onJourney(el.getAttribute('data-jact'), code); });
+  });
+}
+function onJourney(act, code){
+  if(act==='openFitting') jConfirmOpenFitting(code);
+  else if(act==='sendContract') jOpenSendContract(code);
+  else if(act==='confirmPay') jConfirmPay(code);
+}
+function jConfirmOpenFitting(code){
+  openModal('시착 동의를 열까요?', '<b>'+esc(curDetail.names)+'</b><br>고객 마이페이지에 시착 동의서가 노출됩니다.', '', '열기', function(){
+    modalBusy(true); modalErr('');
+    gas('adminOpenFittingConsent', code).then(function(r){
+      if(r&&r.ok){ closeModal(); toast('시착 동의 열림'); openDetail(code); } else { modalBusy(false); modalErr(r&&r.error||'실패'); }
+    }).catch(function(){ modalBusy(false); modalErr('오류'); });
+  });
+}
+function jOpenSendContract(code){
+  var extra='<div class="field"><label>계약 총액</label><select id="ctTotal"><option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option></select></div>'+
+    '<div class="field"><label>계약서 링크(선택)</label><input type="text" id="ctLink" placeholder="계약서 URL"></div>';
+  openModal('계약서 발송', '<b>'+esc(curDetail.names)+'</b>님께 계약서를 발송합니다.<br>서명하면 72시간 기한이 시작돼요.', extra, '발송', function(){
+    var total=$('ctTotal')?$('ctTotal').value:'', link=$('ctLink')?$('ctLink').value:'';
+    modalBusy(true); modalErr('');
+    gas('adminSendContract', code, link, total).then(function(r){
+      if(r&&r.ok){ closeModal(); toast('계약서 발송됨'); openDetail(code); } else { modalBusy(false); modalErr(r&&r.error||'실패'); }
+    }).catch(function(){ modalBusy(false); modalErr('오류'); });
+  });
+}
+function jConfirmPay(code){
+  openModal('입금을 확인할까요?', '<b>'+esc(curDetail.names)+'</b><br>입금자: '+esc(curDetail.payerName||'(미입력)')+'<br>통장 대조 후 승인 → 입금완료로 진행돼요.', '', '입금 확인', function(){
+    modalBusy(true); modalErr('');
+    gas('adminConfirmPayment', code).then(function(r){
+      if(r&&r.ok){ closeModal(); toast('입금 확인됨'); openDetail(code); } else { modalBusy(false); modalErr(r&&r.error||'실패'); }
+    }).catch(function(){ modalBusy(false); modalErr('오류'); });
   });
 }
 
