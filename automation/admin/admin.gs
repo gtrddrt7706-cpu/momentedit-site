@@ -347,7 +347,8 @@ function adminAvailability() {
 // ============================ 계약·입금 동작 (02) — Customers 측 ============================
 // [02-3] 계약서 발송 — 계약상태=발송 + 계약서발송일시(now, +72h 기한 기준) + 계약서링크.
 //   서명은 고객 측(signContract). 발송 시각을 정확히 찍어야 기한 계산이 맞으므로 이 핸들러로 발송(시트 직접 입력 X).
-function adminSendContract(code, link) {
+// total = 계약총액(주말 2800000 / 평일 2100000 등, 공휴일=주말단가). 입금화면의 계약금·잔금 산출 기준.
+function adminSendContract(code, link, total) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
@@ -358,11 +359,29 @@ function adminSendContract(code, link) {
   }
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var now = fmtKST(new Date());
-  touchCustomer(sheet, colOf, cust.num, {
-    '계약상태': '발송',
-    '계약서발송일시': now,
-    '계약서링크': String(link || '').trim()
-  });
-  _recordHandler(code, '계약서 발송' + (link ? ' (링크 첨부)' : ''));
+  var amt = Math.round(Number(total) || 0);                   // 0이면 미설정(입금화면이 "확인 후 안내")
+  var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': String(link || '').trim() };
+  if (amt > 0) upd['계약총액'] = amt;
+  touchCustomer(sheet, colOf, cust.num, upd);
+  _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (link ? ' (링크)' : ''));
   return { ok: true, sentAt: now };
+}
+
+// [02-4] 계약금 입금 확인(통장 대조 후) → 입금상태=확인 + 현재단계=입금완료. 자동 진행 아님(이 승인이 트리거).
+function adminConfirmPayment(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (String(cust.get('계약상태') || '').trim() !== '서명완료') {
+    return { ok: false, error: '계약 서명 완료 후 입금 확인이 가능합니다.' };
+  }
+  if (String(cust.get('입금상태') || '').trim() === '확인') {
+    _recordHandler(code, '입금 확인(중복)'); return { ok: true, already: true };
+  }
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인' });
+  setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
+  _recordHandler(code, '입금 확인 → 입금완료');
+  return { ok: true };
 }

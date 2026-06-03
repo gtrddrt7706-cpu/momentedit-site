@@ -240,3 +240,81 @@ function _parseKstStr(s) {
   if (!m) return null;
   return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], 0);
 }
+
+// ============================ 02-4 · 계약금 입금 ============================
+// 계약금 = 총액 20%(예약금 차감 후 납부) · 잔금 = 총액 80%(예식 N일 전, 1차는 안내 카피만).
+//   ★ 잔금 시점은 PAYMENT.잔금일수전 단일 출처 — 7→14 수정 시 여기 한 곳만 고치면 전체 반영.
+var PAYMENT = {
+  예약금: 200000,
+  계약금율: 0.2,
+  잔금일수전: 7        // 잔금 입금 기한 = 예식 N일 전 (라벨·카피 모두 이 값에서 파생)
+};
+function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
+
+// 계약총액 → 금액 산출. 총액 없으면 null(입금화면이 "디렉터 확인 후 안내").
+function _journeyAmounts(total) {
+  var t = Math.round(Number(total) || 0);
+  if (t <= 0) return null;
+  var deposit = Math.round(t * PAYMENT.계약금율);            // 계약금(20%)
+  return {
+    총액: t,
+    계약금: deposit,
+    예약금: PAYMENT.예약금,
+    납부액: Math.max(0, deposit - PAYMENT.예약금),           // 계약금 단계 실제 납부(예약금 차감)
+    잔금: t - deposit,                                        // 80%
+    잔금시점: _balanceDueLabel()
+  };
+}
+
+// [02-4] 계약금 입금 신호(고객) → 입금자명 + 입금완료신호 + 입금상태=완료신호.
+//   가드: 계약 서명완료 이후. 자동 진행 X — 관리자 통장 대조 승인(adminConfirmPayment)이 트리거.
+function handlePaymentSignal(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var payer = String((body && body.payerName) || '').trim();
+  if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet();
+    var colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') {
+      return { ok: false, error: '계약 서명 후 입금을 진행해 주세요.' };
+    }
+    if (String(cust.get('입금상태') || '').trim() === '확인') {
+      return { ok: true, already: true };                    // 이미 관리자 확인 완료
+    }
+    touchCustomer(sheet, colOf, cust.num, {
+      '입금자명': payer,
+      '입금완료신호': fmtKST(new Date()),
+      '입금상태': '완료신호'
+    });
+    return { ok: true };                                      // 자동 진행 X — 관리자 승인 대기
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
+}
+
+// [02-4] 마이페이지 입금 카드용 상태. 계약 서명완료 + 현재단계(계약완료/입금완료)일 때 노출.
+//   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
+function buildPaymentState(r) {
+  if (!r) return null;
+  if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;   // 계약 서명 전 → 카드 없음
+  var stage = String(r.get('현재단계') || '').trim();
+  if (['계약완료', '입금완료'].indexOf(stage) === -1) return null;          // 제작중+ 이후엔 숨김
+  var iStatus = String(r.get('입금상태') || '').trim() || '대기';
+  return {
+    status: iStatus,                          // 대기 / 완료신호 / 확인
+    confirmed: iStatus === '확인',
+    payerName: String(r.get('입금자명') || '').trim(),
+    amounts: _journeyAmounts(r.get('계약총액')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
+    account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
+  };
+}
