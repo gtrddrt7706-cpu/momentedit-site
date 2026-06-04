@@ -56,9 +56,9 @@ function platformSelfTest() {
   A('reset 만료 거부', verifyResetSig('A7K2QX', Date.now() - 1, makeResetSig('A7K2QX', Date.now() - 1)) === false);
 
   // 진행바
-  A('시그니처 9단계', stageFlowFor('시그니처').length === 9);
+  A('시그니처 8단계', stageFlowFor('시그니처').length === 8);
   A('웨딩스냅 6단계', stageFlowFor('웨딩스냅').length === 6);
-  A('미지 상품 기본=시그니처', stageFlowFor('zzz').length === 9);
+  A('미지 상품 기본=시그니처', stageFlowFor('zzz').length === 8);
   A('신청접수 index 0', stageFlowFor('시그니처').indexOf('신청접수') === 0);
   A('스냅 신청접수 문구 촬영 언급', /촬영/.test(nextActionFor('웨딩스냅', '신청접수')));
 
