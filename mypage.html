@@ -622,7 +622,7 @@ function renderConsult(c, product){
          + '<br>· '+L+' 장소 · 경기 고양 덕양구 향동동 프라이빗 스튜디오 (3호선 원당역 버스 약 15분 · 전용 주차)'
          + '<br>&nbsp;&nbsp;&nbsp;정확한 위치는 '+L+' 전에 안내드려요</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelRes">예약 취소</button>';
+    if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(c.cancelUrl||'')+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
   } else if (s === '변경제안'){
     body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>';
@@ -665,7 +665,8 @@ function renderFitting(f){
     collapsedCard(box, '시착 동의 완료', full);
     return;
   }
-  var body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>';
+  var body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
+           + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice)+'</div>' : '');   // [③-2] 계약서 24h 예고
   var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
            + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
            + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
@@ -728,7 +729,7 @@ function renderContract(c){
         loadMyState();
         return;
       }
-      if (el) el.textContent='남은 시간 '+fmtRemain(remain);
+      if (el){ var urg=remain<86400; el.textContent=(urg?'⏰ 마감 임박 · ':'')+'남은 시간 '+fmtRemain(remain); el.style.color=urg?'var(--seal)':''; el.style.fontWeight=urg?'600':''; }   // [③-3] 24h 임박 강조
       remain--;
     };
     tick();

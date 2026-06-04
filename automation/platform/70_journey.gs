@@ -24,7 +24,8 @@ var FITTING_CONSENT = {
     '시착 후 계약을 진행하지 않으시면 예약금은 시착비로 전환되어 환불되지 않습니다. (시착 전 취소는 전액 환불)'
   ],
   gateNotice: '서명하면 시착이 진행됩니다.',
-  reviewNote: '서명 후에도 계약서 서명 전까지 다시 확인하실 수 있습니다.'
+  reviewNote: '서명 후에도 계약서 서명 전까지 다시 확인하실 수 있습니다.',
+  nextNotice: '시착 후, 계약서를 24시간 내에 이 마이페이지로 보내드려요.'   // [③-2] 다음 단계 예고
 };
 
 // [02-2] 시착 동의 서명(고객) → 시착동의일시 + 동의기록 + 시착동의상태=동의완료.
@@ -97,6 +98,7 @@ function buildFittingState(r) {
     terms: FITTING_CONSENT.terms,
     gateNotice: FITTING_CONSENT.gateNotice,
     reviewNote: FITTING_CONSENT.reviewNote,
+    nextNotice: FITTING_CONSENT.nextNotice,
     기본벌수: FITTING_CONSENT.기본벌수,
     추가벌비용: FITTING_CONSENT.추가벌비용,
     예약금: FITTING_CONSENT.예약금
@@ -307,11 +309,13 @@ function buildPaymentState(r) {
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;   // 계약 서명 전 → 카드 없음
   var stage = String(r.get('현재단계') || '').trim();
-  if (['계약완료', '입금완료'].indexOf(stage) === -1) return null;          // 제작중+ 이후엔 숨김
   var iStatus = String(r.get('입금상태') || '').trim() || '대기';
+  var confirmed = iStatus === '확인';
+  // [③-4] 계약완료·입금완료=항상 노출 / 제작중+ 이후엔 '확인' 완료분만 접힌 카드 유지(시착·계약과 일관)
+  if (['계약완료', '입금완료'].indexOf(stage) === -1 && !confirmed) return null;
   return {
     status: iStatus,                          // 대기 / 완료신호 / 확인
-    confirmed: iStatus === '확인',
+    confirmed: confirmed,
     payerName: String(r.get('입금자명') || '').trim(),
     amounts: _journeyAmounts(r.get('계약총액')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
