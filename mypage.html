@@ -923,7 +923,7 @@ function doSaveProductionBase(){
 function productionDashHtml(t, inv){
   inv=inv||{};
   var ist = inv.status || '시작전';
-  var ilabel = ist==='완료' ? '발행됨 · 수정' : (ist==='진행중' ? '이어서 하기' : '시작하기');
+  var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
   function trk(name, sub, opt){
     opt=opt||{};
     return '<div class="trk"'+(opt.prep?' data-prep="1"':'')+'><span class="trk-nm">'+escapeHtml(name)+'</span><span class="trk-st">'+escapeHtml(sub)+'</span></div>';
@@ -945,12 +945,15 @@ function productionDashHtml(t, inv){
 var INVFLOW = { active:false, step:'method', draft:{} };
 function startInvFlow(inv, base){
   var dr = (inv && inv.draft) ? JSON.parse(JSON.stringify(inv.draft)) : {};
-  INVFLOW = { active:true, step:'method', draft:dr, base: base||{} };
+  var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
+  if(!dr.method) st='method';
+  else if((dr.method==='self'||dr.method==='none') && (st==='parents'||st==='design')) st='confirm';
+  INVFLOW = { active:true, step:st, draft:dr, base: base||{} };
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
-function exitInvFlow(){ INVFLOW.active=false; loadMyState(); }
-function saveInvDraft(){ return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
+function exitInvFlow(){ saveInvDraft().then(function(){ INVFLOW.active=false; loadMyState(); }); }   // #8 나가기도 저장
+function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
 function renderInvFlow(box){
   if(!box) return;
   if(INVFLOW.step==='method') invStepMethod(box);
@@ -961,13 +964,13 @@ function renderInvFlow(box){
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
   function opt(v,l,s){ return '<label class="inv-opt'+(m===v?' sel':'')+'" data-m="'+v+'">'+l+(s?'<small>'+s+'</small>':'')+'</label>'; }
-  var qr = (m==='self') ? '<div class="inv-sub">라이브 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
+  var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / 4</span></div>'
     +'<div class="inv-q">청첩장, 어떻게 초대하실래요?</div>'
-    +opt('online','온라인 초대','라이브로 멀리 계신 분도 함께')
-    +opt('offline','오프라인 초대','직접 모시는 청첩장 (라이브 없음)')
-    +opt('both','둘 다','가까운 분은 직접, 먼 분은 라이브로')
+    +opt('online','온라인 초대','모바일 참석으로 멀리 계신 분도 함께')
+    +opt('offline','오프라인 초대','직접 모시는 청첩장 (모바일 참석 없음)')
+    +opt('both','둘 다','가까운 분은 직접, 먼 분은 모바일 참석으로')
     +opt('self','개인적으로 제작할게요','우리 디자인 없이')
     +qr
     +opt('none','청첩장 없이','')
@@ -1029,7 +1032,8 @@ function invStepParents(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
-  ['iv_gct','iv_bct','iv_gb','iv_bb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; }); });
+  Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ e.addEventListener('input',collect); });   // #8 입력 즉시 draft 반영(나가기 보존)
+  ['iv_gct','iv_bct','iv_gb','iv_bb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; collect(); }); });
   $('iv_back').addEventListener('click',function(){collect();INVFLOW.step='method';renderInvFlow(box);});
   $('iv_next').addEventListener('click',function(){collect();saveInvDraft();INVFLOW.step='design';renderInvFlow(box);});
 }
@@ -1114,8 +1118,8 @@ function invStepDesign(box){
 function invStepConfirm(box){
   var d=INVFLOW.draft, m=d.method, sm;
   if(m==='none') sm='청첩장을 만들지 않아요. (이 단계는 완료로 표시돼요)';
-  else if(m==='self') sm='개인 제작 — 라이브 QR'+(d.selfQR?'를 받아요.':' 없이 진행해요.');
-  else sm='초대 · '+({online:'온라인(라이브)',offline:'오프라인',both:'둘 다'}[m]||'')+(d.designFamily?(' · 오프라인 '+d.designFamily):'')+(d.designOnline?(' · 온라인 '+d.designOnline):'');
+  else if(m==='self') sm='개인 제작 — 모바일 참석 QR'+(d.selfQR?'를 받아요.':' 없이 진행해요.');
+  else sm='초대 · '+({online:'온라인(모바일 참석)',offline:'오프라인',both:'둘 다'}[m]||'')+(d.designFamily?(' · 오프라인 '+d.designFamily):'')+(d.designOnline?(' · 온라인 '+d.designOnline):'');
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span></div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
     +'<div class="cc-note">비운 항목은 기본 문구로 채워져요. 발행 후에도 수정할 수 있어요.</div>'
@@ -1127,7 +1131,8 @@ function invStepConfirm(box){
 function doPublishInv(box){
   var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
-  api({action:'publishInvitation', token:getToken(), draft:INVFLOW.draft}).then(function(r){
+  var dr=INVFLOW.draft, sendDraft=(dr.method==='self'&&!dr.selfQR)?Object.assign({},dr,{method:'none'}):dr;   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X)
+  api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
     if(r&&r.ok) invStepDone(box, r);
     else reset((r&&r.error)||'발행에 실패했습니다.');
   }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
