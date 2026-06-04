@@ -858,10 +858,10 @@ function renderResult(res){
   if(!res.delivered){
     h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
       +'<div class="cc-sub" style="text-align:left">이제 결과물을 준비합니다.</div>'
-      +'<ul class="cc-terms"><li>원본 사진 — 예식 후 약 [기간 미정]</li>'
-      +(res.isSnap?'':'<li>본식 영상 — 약 [기간 미정]</li>')
-      +'<li>보정 사진 — 고르신 후 약 [기간 미정]</li></ul>'
-      +'<div class="cc-note">준비되면 마이페이지로 안내드려요. (기간은 추후 확정)</div>';
+      +'<ul class="cc-terms"><li>원본 사진 — 예식 후 가장 먼저 전해드려요</li>'
+      +(res.isSnap?'':'<li>본식 영상 — 정성껏 편집해 전해드려요</li>')
+      +'<li>보정 사진 — 고르신 컷을 곱게 손봐 전해드려요</li></ul>'
+      +'<div class="cc-note">준비되는 대로 마이페이지로 안내드려요.</div>';
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'
