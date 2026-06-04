@@ -987,19 +987,27 @@ function invStepMethod(box){
 }
 function invStepParents(box){
   var d=INVFLOW.draft;
-  var GT=['장남','차남','삼남','외동아들','막내아들','호칭 생략'], BT=['장녀','차녀','삼녀','외동딸','막내딸','호칭 생략'];
+  var OMIT='호칭 생략 (이름만 표시)', ETC='기타(직접입력)';
+  var GT=['장남','차남','삼남','사남','외동아들','막내아들',OMIT], BT=['장녀','차녀','삼녀','사녀','외동딸','막내딸',OMIT];
+  var BANKS=['국민','신한','우리','하나','농협','기업','SC제일','씨티','카카오뱅크','토스뱅크','케이뱅크','새마을금고','우체국','수협','부산','대구','경남','광주','전북','산업'];
+  var is04=(d.designFamily==='04'||d.designOnline==='04'), is05=(d.designFamily==='05'||d.designOnline==='05');
   function yn(q,val,attr){ return '<div class="inv-gate"><div class="inv-gate-q">'+q+'</div><span class="inv-yn"><button type="button" '+attr+'="Y" class="'+(val==='Y'?'on':'')+'">네</button><button type="button" '+attr+'="N" class="'+(val==='N'?'on':'')+'">아니요</button></span></div>'; }
-  function sel(id,arr,cur){ return '<select class="cc-input" id="'+id+'" style="flex:0 0 108px;margin-bottom:0">'+arr.map(function(o){return '<option'+(cur===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'; }
+  // 드롭다운(목록에 없는 기존값은 '기타'로 보존) + 기타 선택 시 아래 직접입력 줄(etcRow) 노출
+  function selOnly(id,arr,cur,flex){ cur=cur||''; var sv=(cur!==''&&arr.indexOf(cur)<0)?ETC:(cur||arr[0]); return '<select class="cc-input" id="'+id+'" style="'+(flex||'')+'margin-bottom:0">'+arr.concat([ETC]).map(function(x){return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'; }
+  function etcRow(id,cur,arr,ph){ cur=cur||''; var etc=(cur!==''&&arr.indexOf(cur)<0); return '<input class="cc-input" id="'+id+'_e" placeholder="'+ph+'" value="'+(etc?escapeHtml(cur):'')+'" style="margin-top:6px;'+(etc?'':'display:none')+'">'; }
+  var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
-    +'<div class="inv-row"><input class="cc-input" id="iv_gp" placeholder="신랑 측 혼주 (예: 이재환·최미경)" value="'+escapeHtml(d.groomParents||'')+'">'+sel('iv_gct',GT,d.groomChildTitle||'장남')+'</div>'
-    +'<div class="inv-row"><input class="cc-input" id="iv_bp" placeholder="신부 측 혼주" value="'+escapeHtml(d.brideParents||'')+'">'+sel('iv_bct',BT,d.brideChildTitle||'차녀')+'</div>'
+    +'<div class="inv-row"><input class="cc-input" id="iv_gp" placeholder="신랑 측 혼주 (예: 이재환·최미경)" value="'+escapeHtml(d.groomParents||'')+'">'+selOnly('iv_gct',GT,gtCur,'flex:0 0 124px;')+'</div>'+etcRow('iv_gct',gtCur,GT,'신랑 호칭 직접 입력 (예: 장손)')
+    +'<div class="inv-row"><input class="cc-input" id="iv_bp" placeholder="신부 측 혼주" value="'+escapeHtml(d.brideParents||'')+'">'+selOnly('iv_bct',BT,btCur,'flex:0 0 124px;')+'</div>'+etcRow('iv_bct',btCur,BT,'신부 호칭 직접 입력')
+    +(is04?'<div class="cc-note">버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.</div>':'')
+    +(is05?'<div class="cc-note">보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.</div>':'')
     +'<div class="cc-note">예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';
   var paF = d.envelopeShowParents==='Y' ? '<div class="inv-fields">'
     +'<div class="inv-row"><input class="cc-input" id="iv_gfa" placeholder="신랑 아버지 계좌" value="'+escapeHtml(d.groomFatherAccount||'')+'"><input class="cc-input" id="iv_gma" placeholder="신랑 어머니 계좌" value="'+escapeHtml(d.groomMotherAccount||'')+'"></div>'
     +'<div class="inv-row"><input class="cc-input" id="iv_bfa" placeholder="신부 아버지 계좌" value="'+escapeHtml(d.brideFatherAccount||'')+'"><input class="cc-input" id="iv_bma" placeholder="신부 어머니 계좌" value="'+escapeHtml(d.brideMotherAccount||'')+'"></div></div>' : '';
   var aF = d._acctGate==='Y' ? '<div class="inv-fields">'
-    +'<div class="inv-row"><input class="cc-input" id="iv_gb" placeholder="신랑 은행" value="'+escapeHtml(d.groomBank||'')+'"><input class="cc-input" id="iv_ga" placeholder="신랑 계좌번호" value="'+escapeHtml(d.groomAccount||'')+'"></div>'
-    +'<div class="inv-row"><input class="cc-input" id="iv_bb" placeholder="신부 은행" value="'+escapeHtml(d.brideBank||'')+'"><input class="cc-input" id="iv_ba" placeholder="신부 계좌번호" value="'+escapeHtml(d.brideAccount||'')+'"></div>'
+    +'<div class="inv-row">'+selOnly('iv_gb',BANKS,d.groomBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ga" placeholder="신랑 계좌번호" value="'+escapeHtml(d.groomAccount||'')+'"></div>'+etcRow('iv_gb',d.groomBank,BANKS,'신랑 은행 직접 입력')
+    +'<div class="inv-row">'+selOnly('iv_bb',BANKS,d.brideBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ba" placeholder="신부 계좌번호" value="'+escapeHtml(d.brideAccount||'')+'"></div>'+etcRow('iv_bb',d.brideBank,BANKS,'신부 은행 직접 입력')
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span></div>'
@@ -1010,16 +1018,18 @@ function invStepParents(box){
     +'</div>';
   function collect(){
     var rd=function(id){ return ($(id)&&$(id).value||'').trim(); };
+    var rdSel=function(id){ var s=$(id); if(!s) return undefined; return s.value===ETC ? (($(id+'_e')&&$(id+'_e').value||'').trim()) : s.value; };
     if($('iv_gp')) d.groomParents=rd('iv_gp'); if($('iv_bp')) d.brideParents=rd('iv_bp');
-    if($('iv_gct')) d.groomChildTitle=$('iv_gct').value; if($('iv_bct')) d.brideChildTitle=$('iv_bct').value;
-    if($('iv_gb')) d.groomBank=rd('iv_gb'); if($('iv_ga')) d.groomAccount=rd('iv_ga');
-    if($('iv_bb')) d.brideBank=rd('iv_bb'); if($('iv_ba')) d.brideAccount=rd('iv_ba');
+    if($('iv_gct')) d.groomChildTitle=rdSel('iv_gct'); if($('iv_bct')) d.brideChildTitle=rdSel('iv_bct');
+    if($('iv_gb')) d.groomBank=rdSel('iv_gb'); if($('iv_ga')) d.groomAccount=rd('iv_ga');
+    if($('iv_bb')) d.brideBank=rdSel('iv_bb'); if($('iv_ba')) d.brideAccount=rd('iv_ba');
     if($('iv_gfa')) d.groomFatherAccount=rd('iv_gfa'); if($('iv_gma')) d.groomMotherAccount=rd('iv_gma');
     if($('iv_bfa')) d.brideFatherAccount=rd('iv_bfa'); if($('iv_bma')) d.brideMotherAccount=rd('iv_bma');
   }
   Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
+  ['iv_gct','iv_bct','iv_gb','iv_bb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; }); });
   $('iv_back').addEventListener('click',function(){collect();INVFLOW.step='method';renderInvFlow(box);});
   $('iv_next').addEventListener('click',function(){collect();saveInvDraft();INVFLOW.step='design';renderInvFlow(box);});
 }
@@ -1036,10 +1046,11 @@ function designBlock(side,label){
   var f='';
   if(cur){
     f+='<input class="cc-input" data-side="'+side+'" data-k="title" placeholder="인사말 큰 제목 (예: Save the Day)" value="'+escapeHtml(d[K.title]||'')+'">';
-    if(_designHasSub(cur)) f+='<input class="cc-input" data-side="'+side+'" data-k="sub" placeholder="인사말 부제" value="'+escapeHtml(d[K.sub]||'')+'">';
+    if(_designHasSub(cur)) f+='<input class="cc-input" data-side="'+side+'" data-k="sub" placeholder="'+(cur==='03'?'인사말 부제 (영문 권장 · Cordially Invited 자리)':'인사말 부제 (한글)')+'" value="'+escapeHtml(d[K.sub]||'')+'">';
     f+='<textarea class="cc-input" data-side="'+side+'" data-k="body" placeholder="인사말 본문 (*별표*로 감싸면 금색)" style="min-height:62px">'+escapeHtml(d[K.body]||'')+'</textarea>';
-    if(cur==='02') f+='<input class="cc-input" data-side="'+side+'" data-k="quote" placeholder="대표 문구 (2번 전용)" value="'+escapeHtml(d[K.quote]||'')+'">';
+    if(cur==='02') f+='<input class="cc-input" data-side="'+side+'" data-k="quote" placeholder="대표 문구 (2번 전용 · 별표 강조는 본문에서만 돼요)" value="'+escapeHtml(d[K.quote]||'')+'">';
     if(cur==='08'){ f+='<input class="cc-input" data-side="'+side+'" data-k="gb" placeholder="신랑 한마디 (8번 전용)" value="'+escapeHtml(d[K.gb]||'')+'"><input class="cc-input" data-side="'+side+'" data-k="bb" placeholder="신부 한마디" value="'+escapeHtml(d[K.bb]||'')+'">'; }
+    f+='<div class="cc-note">💡 제목·부제·본문은 청첩장 인사말 자리에 그대로 들어가요.</div>';
   }
   return '<div class="inv-side"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div><div class="inv-fields">'+f+'</div></div>';
 }
@@ -1060,7 +1071,7 @@ function _invHasDesign(d){
   return true;
 }
 function bindDesign(box){
-  Array.prototype.forEach.call(box.querySelectorAll('.inv-dz'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft[SIDE_KEYS[el.getAttribute('data-side')].d]=el.getAttribute('data-n'); invStepDesign(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('.inv-dz'),function(el){ el.addEventListener('click',function(){ collectDesign(box); var _n=el.getAttribute('data-n'); INVFLOW.draft[SIDE_KEYS[el.getAttribute('data-side')].d]=_n; if(_n==='04'&&!INVFLOW.draft._titleTouched){ INVFLOW.draft.groomChildTitle='호칭 생략 (이름만 표시)'; INVFLOW.draft.brideChildTitle='호칭 생략 (이름만 표시)'; } invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){ el.addEventListener('input',function(){ collectDesign(box); updateInvPreview(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){ el.addEventListener('change',function(){ var k=el.getAttribute('data-acc'); INVFLOW.draft[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N'; }); });
@@ -1070,7 +1081,7 @@ function updateInvPreview(){
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
   var K=SIDE_KEYS[(d.method==='online')?'online':'offline'];
   var title=d[K.title]||'', body=d[K.body]||'';
-  var par = d.greetingShowParents==='Y' ? ((d.groomParents||'')+(d.groomChildTitle&&d.groomChildTitle!=='호칭 생략'?(' '+d.groomChildTitle):'')+(base.groomKo?(' '+base.groomKo):'')) : '';
+  var par = d.greetingShowParents==='Y' ? ((d.groomParents||'')+(d.groomChildTitle&&d.groomChildTitle!=='호칭 생략 (이름만 표시)'?(' '+d.groomChildTitle):'')+(base.groomKo?(' '+base.groomKo):'')) : '';
   var el=$('iv_prev'); if(!el) return;
   el.innerHTML = (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' ♥ ':'')+escapeHtml(b)+'</div>':'')
     + (title?'<div class="ivp-title">'+_starGold(title)+'</div>':'')
