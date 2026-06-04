@@ -645,6 +645,26 @@
   mPrev.addEventListener('click', function(){ go(idx-1); });
   mNext.addEventListener('click', function(){ go(idx+1); });
 
+  // [G] ?pick 모드 — 위저드가 연 경우, 현재 슬라이드 디자인 번호를 postMessage로 돌려주고 닫기. (샘플 무수정, 버튼만 주입)
+  if (params.get('pick') === '1') {
+    var pickBtn = document.createElement('button');
+    pickBtn.type = 'button';
+    pickBtn.textContent = '이 디자인으로 선택';
+    pickBtn.setAttribute('style', 'position:fixed;left:50%;bottom:max(env(safe-area-inset-bottom),18px);transform:translateX(-50%);z-index:9999;padding:13px 26px;background:#6B2A24;color:#fff;border:none;border-radius:999px;font-family:"Noto Serif KR",serif;font-size:14px;font-weight:500;box-shadow:0 6px 20px rgba(28,27,25,.22);cursor:pointer;-webkit-tap-highlight-color:transparent');
+    pickBtn.addEventListener('click', function () {
+      var design = ('0' + (idx + 1)).slice(-2);   // idx 0→'01' … 7→'08'
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'me-pick', design: design }, location.origin);
+          window.close();
+          return;
+        }
+      } catch (e) {}
+      alert('위저드에서 \'샘플 갤러리에서 고르기\'로 열어 주세요. (고른 디자인 ' + design + ')');
+    });
+    document.body.appendChild(pickBtn);
+  }
+
   // ───── Open ↗: 청첩장을 wrapper에 감싸서 새 탭에서 열기 ─────
   // 어두운 청첩장(Noir 등)도 새 탭 자체는 항상 베이지 톤 wrapper로 감싸서
   // 청첩장 영역만 어둡게, 주변은 밝게 보이도록 처리.

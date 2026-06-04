@@ -194,6 +194,55 @@ function handlePublishInvitation(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// [04] 청첩장 미리보기 — draft를 Couples 같은 eventId 행에 기록(발행 전). ★발행과 동일 _invMakeEventId → 미리보기 행=발행 행(2개 X). tracks는 '완료'로 안 올림(미완료 유지) → 발행이 같은 행 덮어쓰며 '완료'로 승격.
+function saveInvitationPreview(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(20000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var custSheet = getCustomersSheet(), custCol = buildHeaderIndex(custSheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+
+    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var base = d.base || {};
+    var draft = (body && body.draft) || d.invitationDraft || {};
+    d.invitationDraft = draft;
+    var method = String(draft.method || '').trim();
+
+    // 미리보기는 디자인이 있는 경우만 (self/none은 미리볼 청첩장 없음)
+    if (['online', 'offline', 'both'].indexOf(method) === -1) return { ok: false, error: '미리볼 디자인이 없어요.' };
+    if (!_invConfigured()) return { ok: false, error: '청첩장 연동이 아직 설정되지 않았습니다. (관리자: INV.LETTER_SYSTEM_ID)' };
+    if (!base.groomEn || !base.brideEn) return { ok: false, error: '기초정보의 영문 이름을 먼저 입력해 주세요.' };
+    if (!base.weddingDate) return { ok: false, error: '기초정보의 예식 날짜를 먼저 입력해 주세요.' };
+
+    var sheet = _couplesSheet();
+    var colOf = _couplesColOf(sheet);
+    var eid = _invMakeEventId(base.groomEn, base.brideEn, base.weddingDate);   // ★ 발행과 동일한 결정적 eventId
+    if (!/^[a-z]+-[a-z]+-\d{4}$/.test(eid)) return { ok: false, error: 'eventId 생성 실패 — 영문 이름·예식 날짜를 확인해 주세요. (' + eid + ')' };
+    var rv = _invResolveEventId(sheet, colOf, eid, base.groomKo || '', base.brideKo || '');
+    var eventId = rv.eventId, rowNum = rv.rowNum;
+
+    _couplesWrite(sheet, colOf, rowNum, 'eventId', eventId, true);
+    var fields = _invCouplesFields(base, draft);
+    Object.keys(fields).forEach(function (k) { _couplesWrite(sheet, colOf, rowNum, k, fields[k], true); });
+
+    var urls = _invUrls(eventId, fields.designOnline, fields.designFamily, fields.digitalAttendance);
+
+    // 배선 저장 — ★ tracks.invitation은 '완료'면 유지, 아니면 '진행중'(미완료 유지. 발행이 '완료'로 올림)
+    d.eventId = eventId; d.invitationUrls = urls;
+    d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
+    touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d), 'eventId': eventId });
+
+    return { ok: true, eventId: eventId, urls: urls };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
 // [04] 마이페이지 청첩장 트랙 상태 — draft(이어쓰기) + 발행 결과(eventId·URL). 제작 단계에만.
 function buildInvitationState(r) {
   if (!r) return null;

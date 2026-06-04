@@ -1774,6 +1774,7 @@ function doPost(e) {
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
+      case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
       // ── 기존 상담 신청 (action 없음) ──
       case '':

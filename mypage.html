@@ -1110,11 +1110,14 @@ function invStepDesign(box){
     h+='</div>';
   }
   h+='<div class="inv-prev" id="iv_prev"></div>';
+  h+='<div class="cc-actions" style="margin-top:10px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 갤러리에서 고르기</button><button type="button" class="cc-btn-ghost" id="iv_preview2" style="width:auto;padding:7px 13px">실물로 미리보기</button></div>';
   h+='<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
   box.innerHTML=h;
   bindDesign(box); updateInvPreview();
   $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
   $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ window.alert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
+  var gl=$('iv_gallery'); if(gl) gl.addEventListener('click', openGalleryPick);
+  var pv2=$('iv_preview2'); if(pv2) pv2.addEventListener('click',function(){ doPreviewInv(box); });
 }
 function invStepConfirm(box){
   var d=INVFLOW.draft, m=d.method, sm;
@@ -1128,7 +1131,7 @@ function invStepConfirm(box){
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn-ghost" id="iv_preview">미리보기</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
   $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
-  var pv=$('iv_preview'); if(pv) pv.addEventListener('click',function(){ window.alert('미리보기는 곧 실제 청첩장 화면으로 보여드릴 예정이에요.\n지금은 \'청첩장 만들기\'로 발행하시면 링크에서 확인하실 수 있어요.'); });   // #18 stub (실제 미리보기는 묶음 G)
+  var pv=$('iv_preview'); if(pv) pv.addEventListener('click',function(){ doPreviewInv(box); });   // #18 실동작(묶음 G)
 }
 function doPublishInv(box){
   var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
@@ -1139,6 +1142,34 @@ function doPublishInv(box){
     else reset((r&&r.error)||'발행에 실패했습니다.');
   }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
 }
+// [04·G] 실물 미리보기 — saveInvitationPreview(발행과 같은 eventId 행 기록·미완료) → cover/family ?e=&fresh=1 새탭
+function doPreviewInv(box){
+  if(box) collectDesign(box);
+  var d=INVFLOW.draft;
+  if(!_invHasDesign(d)){ window.alert('먼저 디자인을 골라 주세요.'); return; }
+  var w=window.open('','_blank');   // ★팝업 차단 우회: 클릭 제스처 내 동기 오픈 → async에서 location 지정
+  saveInvDraft();
+  api({action:'saveInvitationPreview', token:getToken(), draft:d}).then(function(r){
+    if(r&&r.ok&&r.eventId){
+      var e=encodeURIComponent(r.eventId), url;
+      if(d.method==='offline') url='/i-family/family-'+(d.designFamily||'01')+'.html?e='+e+'&fresh=1';
+      else url='/i/cover-'+(d.designOnline||'01')+'.html?e='+e+'&fresh=1';   // online/both = 온라인 cover 우선
+      if(w) w.location.href=url; else window.location.href=url;
+    } else { if(w) w.close(); window.alert((r&&r.error)||'미리보기를 불러오지 못했어요.'); }
+  }).catch(function(){ if(w) w.close(); window.alert('미리보기 실패 — 잠시 후 다시 시도해 주세요.'); });
+}
+function openGalleryPick(){ window.open('/invitation-gallery.html?pick=1','_blank'); }
+// 갤러리(?pick)에서 고른 디자인 번호 수신 → 위저드 디자인 세팅 (origin 검증)
+window.addEventListener('message', function(ev){
+  if(ev.origin!==location.origin) return;
+  var data=ev.data||{};
+  if(data.type==='me-pick' && data.design && INVFLOW && INVFLOW.active){
+    var m=INVFLOW.draft.method;
+    if(m==='online') INVFLOW.draft[SIDE_KEYS.online.d]=String(data.design);
+    else { INVFLOW.draft[SIDE_KEYS.offline.d]=String(data.design); if(m==='both'&&INVFLOW.draft._onlineSame!=='N') INVFLOW.draft[SIDE_KEYS.online.d]=String(data.design); }
+    if(INVFLOW.step==='design') renderInvFlow($('mp_production'));
+  }
+});
 function invStepDone(box, r){
   if(r.skipped){
     box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.</div><div class="inv-nav"><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
