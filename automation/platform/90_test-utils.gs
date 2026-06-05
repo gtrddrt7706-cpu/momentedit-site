@@ -145,3 +145,48 @@ function testMemoNotLeaked() {
   Logger.log(leaked ? '❌ 메모가 마이페이지 응답에 노출됨!' : '✅ 관리자 메모 미노출(회귀 통과)');
   return !leaked;
 }
+
+// ── ⑧ 관리자 읽기 함수 점검 (묶음② 검증) — 편집기에서 ▶실행 → 보기>로그 ──
+//    adminHome(큐+현황)·adminDetail(첫 고객·product-aware)·adminArchive(끝난 고객) 한 번에 로그.
+function adminReadCheck() {
+  var log = [];
+  function L(s) { log.push(s); }
+
+  // 1) adminHome — 큐 + 현황 + 카운트
+  var h = adminHome();
+  L('■ adminHome (오늘 ' + h.today + ')');
+  L('  처리할 일: 총 ' + h.counts.total + ' (긴급 ' + h.counts.urgent + ')');
+  L('  현황 인원: 시그 ' + h.pipeCounts['시그니처'] + ' · 스냅 ' + h.pipeCounts['웨딩스냅']);
+  h.queue.urgent.concat(h.queue.normal).slice(0, 10).forEach(function (q) {
+    L('   · [' + q.kind + '] ' + q.names + ' (' + q.product + ')' + (q.badge ? ' — ' + q.badge.text : ''));
+  });
+  h.pipeline['시그니처'].forEach(function (g) { if (g.count) L('   현황(시그) ' + g.stage + ' (' + g.count + ')' + (g.hasUrgent ? ' 🔴' : '')); });
+  h.pipeline['웨딩스냅'].forEach(function (g) { if (g.count) L('   현황(스냅) ' + g.stage + ' (' + g.count + ')' + (g.hasUrgent ? ' 🔴' : '')); });
+
+  // 2) adminDetail — 데이터의 첫 고객 코드로
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), last = sheet.getLastRow(), code = '';
+  if (last >= P.DATA_START_ROW) {
+    var vals = sheet.getRange(P.DATA_START_ROW, colOf['개인코드'], last - P.DATA_START_ROW + 1, 1).getValues();
+    for (var i = 0; i < vals.length; i++) { var c = String(vals[i][0] || '').trim(); if (c) { code = c; break; } }
+  }
+  L('■ adminDetail(' + code + ')');
+  if (code) {
+    var d = adminDetail(code);
+    L('  ' + d.names + ' · ' + d.product + ' · 단계=' + d.stage);
+    L('  cards: ' + (d.cards || []).join(', '));
+    L('  pin: 예식일=' + d.pin['예식일'] + ' 하객=' + d.pin['하객']);
+    var mk = []; Object.keys(d.mirror || {}).forEach(function (k) { if (d.mirror[k]) mk.push(k); });
+    L('  거울(non-null): ' + (mk.join(', ') || '(없음)'));
+    L('  raw: 단계=' + d.raw['현재단계'] + ' 계약=' + d.raw['계약상태'] + ' 입금=' + d.raw['입금상태']);
+    L('  처리이력 ' + (d.history ? d.history.length : 0) + '줄 · 동의기록(시착)=' + (d.consent && d.consent.fitting ? 'Y' : 'N'));
+  } else { L('  (고객 데이터 없음)'); }
+
+  // 3) adminArchive — 끝난 고객(미계약·취소·노쇼·결과물전달)
+  var a = adminArchive('', 'all');
+  L('■ adminArchive: 총 ' + a.total + ' · 최근 ' + a.results.length + '명');
+  a.results.slice(0, 6).forEach(function (r) { L('   · ' + r.names + ' | ' + r.endType + '(' + r.endTypeLabel + ') | 종료 ' + (r.modified || '—')); });
+
+  var out = log.join('\n');
+  Logger.log(out);
+  return out;
+}
