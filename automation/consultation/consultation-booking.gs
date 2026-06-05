@@ -1778,6 +1778,10 @@ function doPost(e) {
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
+      // ── ⑧ 관리자 (momentedit.kr/admin → fetch). 인증=토큰. adminCall이 게이트웨이 ──
+      case 'adminLogin':  return jsonOut(adminLogin(body.id, body.pw));
+      case 'adminLogout': return jsonOut(adminLogout(body.token));
+      case 'adminCall':   return jsonOut(adminCall(body.token, body.fn, body.args));
       // ── 기존 상담 신청 (action 없음) ──
       case '':
         submitApplication(body);

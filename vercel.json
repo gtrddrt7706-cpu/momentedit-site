@@ -1,8 +1,6 @@
 {
   "rewrites": [
-    { "source": "/form", "destination": "/form.html" }
-  ],
-  "redirects": [
-    { "source": "/admin", "destination": "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec?admin=1", "permanent": false }
+    { "source": "/form", "destination": "/form.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ]
 }
