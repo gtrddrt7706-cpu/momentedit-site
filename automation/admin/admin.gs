@@ -483,7 +483,8 @@ function adminSaveMemo(code, memo) {
   return { ok: true };
 }
 
-// 처리 이력 append (개선 C·D — 사유·처리자를 관리자메모에 한 줄)
+// 처리 이력 append — 처리이력(32열)에 시간순 한 줄(Topic 3: 관리자메모[수동]와 분리).
+//   adminSaveMemo는 관리자메모만, 모든 액션 로그는 여기(처리이력). 표시 시 ④에서 M/D HH:mm로 단축.
 function _recordHandler(code, action) {
   try {
     var who = adminNameOf(currentAdminEmail());
@@ -491,9 +492,9 @@ function _recordHandler(code, action) {
     if (!cust) return;
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
-    var prev = String(cust.get('관리자메모') || '');
+    var prev = String(cust.get('처리이력') || '');
     var line = '[' + fmtKST(new Date()) + '] ' + who + ': ' + action;
-    touchCustomer(sheet, colOf, cust.num, { '관리자메모': prev ? (prev + '\n' + line) : line });
+    touchCustomer(sheet, colOf, cust.num, { '처리이력': prev ? (prev + '\n' + line) : line });
   } catch (e) { Logger.log('처리이력 기록 실패: ' + e.message); }
 }
 
@@ -587,13 +588,17 @@ function adminSendContract(code, link, total) {
   if (['취소', '노쇼', '미계약'].indexOf(stage) !== -1) {
     return { ok: false, error: '진행할 수 없는 상태입니다. (현재단계: ' + stage + ')' };
   }
+  var linkStr = String(link || '').trim();
+  if (!/^https?:\/\//i.test(linkStr)) {                       // #5 — 빈/잘못된 링크 발송 방지(고객 빈 계약서 차단)
+    return { ok: false, error: '계약서 링크(https://…)를 입력해 주세요.' };
+  }
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var now = fmtKST(new Date());
   var amt = Math.round(Number(total) || 0);                   // 0이면 미설정(입금화면이 "확인 후 안내")
-  var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': String(link || '').trim() };
+  var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': linkStr };
   if (amt > 0) upd['계약총액'] = amt;
   touchCustomer(sheet, colOf, cust.num, upd);
-  _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (link ? ' (링크)' : ''));
+  _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + ' (링크)');
   return { ok: true, sentAt: now };
 }
 
@@ -629,4 +634,183 @@ function adminOpenFittingConsent(code) {
   touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });
   _recordHandler(code, '시착 동의 요청(게이트 열기)');
   return { ok: true };
+}
+
+// ============================ ⑤⑥⑦·예외 동작 (⑧ 신규 8액션) ============================
+// 공통: _requireAdmin · LockService(15s) · 최신 재읽기 · 자체 멱등 · 입력검증 · 처리이력 · {ok:false,error}.
+//   ★ EX 멱등 함정(이음새 4-A): setCustomerStage는 EX→정상 차단 + 가드가 멱등보다 먼저 →
+//      노쇼/미계약/강제는 현재단계를 직접 touchCustomer로 쓰고 멱등(현재===타겟)을 스스로 처리한다.
+function _adminLock() {
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); return lock; } catch (e) { return null; }
+}
+var _LOCK_BUSY = '잠시 후 다시 시도해 주세요. (서버 혼잡)';
+
+// 1. 상담완료 처리 (시그니처 전용) — 상담확정 → 상담완료
+function adminMarkConsultDone(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    if (String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return { ok: false, error: '웨딩스냅은 상담완료 단계가 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (stage === '상담완료') return { ok: true, already: true, stage: stage };
+    if (stage !== '상담확정') return { ok: false, error: '상담확정 상태에서만 상담완료 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    setCustomerStage(code, 'complete');
+    _recordHandler(code, '상담완료 처리');
+    return { ok: true, stage: '상담완료' };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 2. 결과물 링크 등록 — 원본·영상·보정본(부분 허용·https) + 결과물상태 자동(전달완료는 유지)
+function adminSetResultLinks(code, links) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  links = links || {};
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (['제작중', '예식완료', '촬영완료', '결과물전달'].indexOf(stage) === -1) {
+      return { ok: false, error: '결과물 준비 단계가 아닙니다. (현재: ' + (stage || '없음') + ')' };
+    }
+    var isSnap = String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP;
+    var clean = function (v) { return String(v == null ? '' : v).trim(); };
+    var okUrl = function (v) { return v === '' || /^https?:\/\//i.test(v); };
+    var 원본 = clean(links['원본']), 보정본 = clean(links['보정본']), 영상 = isSnap ? '' : clean(links['영상']);
+    if (!okUrl(원본)) return { ok: false, error: '원본 링크가 올바른 주소가 아니에요 (https://…).' };
+    if (!okUrl(보정본)) return { ok: false, error: '보정본 링크가 올바른 주소가 아니에요 (https://…).' };
+    if (!okUrl(영상)) return { ok: false, error: '영상 링크가 올바른 주소가 아니에요 (https://…).' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var upd = { '원본링크': 원본, '보정본폴더': 보정본 };
+    if (!isSnap) upd['영상링크'] = 영상;
+    var cur결과물 = String(cust.get('결과물상태') || '').trim();
+    if (cur결과물 !== '전달완료') upd['결과물상태'] = (원본 || 보정본 || 영상) ? '업로드' : '대기';
+    touchCustomer(sheet, colOf, cust.num, upd);
+    _recordHandler(code, '결과물 링크 등록' + (원본 ? ' 원본' : '') + (보정본 ? ' 보정본' : '') + (영상 ? ' 영상' : ''));
+    return { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 3. 예식/촬영 완료 처리 — 제품분기(시그 제작중→예식완료 / 스냅 입금완료→촬영완료)
+function adminMarkEventDone(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var isSnap = String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP;
+    var stage = String(cust.get('현재단계') || '').trim();
+    var target = isSnap ? '촬영완료' : '예식완료';
+    var fromStage = isSnap ? '입금완료' : '제작중';
+    if (stage === target) return { ok: true, already: true, stage: stage };
+    if (stage !== fromStage) return { ok: false, error: target + ' 처리는 ' + fromStage + ' 상태에서만 가능합니다. (현재: ' + (stage || '없음') + ')' };
+    setCustomerStage(code, 'event');
+    _recordHandler(code, target + ' 처리');
+    return { ok: true, stage: target };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 4. 결과물 전달 완료 — 예식완료/촬영완료 + 원본 필수 → 결과물전달(아카이브로)
+function adminMarkDelivered(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (stage === '결과물전달') return { ok: true, already: true, stage: stage, archived: true };
+    if (['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료' });
+    setCustomerStage(code, 'deliver');
+    _recordHandler(code, '결과물 전달 완료');
+    return { ok: true, stage: '결과물전달', archived: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 5. ★강제 단계 변경 (EX 우회·복구용) — (b)현재단계만 + warning · 자체 멱등 · 제품 유효성 검증
+function adminForceStage(code, targetStage, reason) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  targetStage = String(targetStage || '').trim();
+  reason = String(reason || '').trim();
+  if (!reason) return { ok: false, error: '강제 변경 사유를 입력해 주세요.' };
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var product = String(cust.get('상품타입') || '').trim();
+    if (stageFlowFor(product).concat(STAGE_EXCEPTIONS).indexOf(targetStage) === -1) {
+      return { ok: false, error: '이 상품에 없는 단계입니다: ' + targetStage };
+    }
+    var cur = String(cust.get('현재단계') || '').trim();
+    if (cur === targetStage) return { ok: true, noop: true, from: cur, to: targetStage };   // 멱등(EX여도 안전)
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '현재단계': targetStage });   // ★(b) 현재단계만 — 카드/컬럼·상담예약 안 건드림
+    _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage + ' · 사유: ' + reason);
+    return { ok: true, from: cur, to: targetStage, warning: '상담 예약 상태는 별개입니다 — 필요 시 따로 확인하세요.' };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 6. 시착 동의 닫기 (실수 복구) — 동의요청 & 미서명만 → 대기
+function adminCloseFitting(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var fit = String(cust.get('시착동의상태') || '').trim();
+    if (fit === '대기' || fit === '') return { ok: true, already: true };
+    if (fit === '동의완료' || String(cust.get('시착동의일시') || '').trim()) return { ok: false, error: '이미 서명된 시착 동의는 닫을 수 없습니다.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '대기' });
+    _recordHandler(code, '시착 동의 닫기(요청 취소)');
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 7. ★노쇼 처리 — 상담확정/촬영확정 → 현재단계=노쇼 (자체 멱등·직접 쓰기·캘린더/메일/상담예약 안 건드림)
+function adminMarkNoshow(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (stage === '노쇼') return { ok: true, already: true, stage: stage, archived: true };   // ★EX 멱등(가드 함정 회피)
+    if (['상담확정', '촬영확정'].indexOf(stage) === -1) return { ok: false, error: '상담/촬영 확정 상태에서만 노쇼 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '현재단계': '노쇼' });
+    _recordHandler(code, '노쇼 처리');
+    return { ok: true, stage: '노쇼', archived: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 8. ★미계약 처리 — 계약 전 단계(서명 전) 포기 → 현재단계=미계약 (자체 멱등·직접 쓰기)
+function adminMarkUncontracted(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var stage = String(cust.get('현재단계') || '').trim();
+    if (stage === '미계약') return { ok: true, already: true, stage: stage, archived: true };   // ★EX 멱등
+    var flow = stageFlowFor(String(cust.get('상품타입') || '').trim());
+    var ci = flow.indexOf('계약완료'), si = flow.indexOf(stage);
+    if (si < 0 || ci < 0 || si >= ci) return { ok: false, error: '계약 전 단계에서만 미계약 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '현재단계': '미계약' });
+    _recordHandler(code, '미계약 처리');
+    return { ok: true, stage: '미계약', archived: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }

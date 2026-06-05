@@ -190,3 +190,47 @@ function adminReadCheck() {
   Logger.log(out);
   return out;
 }
+
+// ── ⑧ 관리자 액션 점검 (묶음③ 검증) — ★테스트 고객 1명 생성 후 액션 체인 실행 ──
+//    EX 멱등 함정·EX 우회·결과물 원본 필수 가드 등 까다로운 경로를 안전하게(실고객 X) 확인.
+//    ⚠️ 테스트 고객 1행 생성 + 접수메일 1통(관리자). 끝나면 그 행 삭제 권장.
+function adminActionCheck() {
+  var log = [], code;
+  function L(s) { log.push(s); }
+  function J(o) { return JSON.stringify(o); }
+
+  testSignupSignature();           // 테스트 시그 고객 생성 → _LAST_TEST_CODE
+  code = _LAST_TEST_CODE;
+  if (!code) { Logger.log('테스트 고객 생성 실패'); return; }
+  L('■ 테스트 고객: ' + code + ' (시그·신청접수)');
+
+  // 강제(정상→정상) — 신청접수→상담확정
+  L('force 신청접수→상담확정: ' + J(adminForceStage(code, '상담확정', '테스트 셋업')));
+  // 노쇼(정상→EX) + 멱등 함정(이미 노쇼면 already)
+  L('노쇼 1차: ' + J(adminMarkNoshow(code)));
+  L('노쇼 2차(멱등): ' + J(adminMarkNoshow(code)));
+  // EX 우회(노쇼→상담확정 복구) + noop
+  L('force 노쇼→상담확정(EX 우회): ' + J(adminForceStage(code, '상담확정', '복구')));
+  L('force 동일(noop): ' + J(adminForceStage(code, '상담확정', '동일')));
+  // 상담완료 + 멱등
+  L('상담완료: ' + J(adminMarkConsultDone(code)));
+  L('상담완료 2차(멱등): ' + J(adminMarkConsultDone(code)));
+  // 결과물 체인 — 제작중→예식완료→(원본없음 거부)→링크등록→전달
+  L('force →제작중: ' + J(adminForceStage(code, '제작중', '체인 테스트')));
+  L('예식완료: ' + J(adminMarkEventDone(code)));
+  L('전달(원본없음·거부 기대): ' + J(adminMarkDelivered(code)));
+  L('링크등록: ' + J(adminSetResultLinks(code, { 원본: 'https://drive.google.com/test', 보정본: '', 영상: '' })));
+  L('전달(원본있음·기대 ok+archived): ' + J(adminMarkDelivered(code)));
+  // 잘못된 단계 강제(차단 기대)
+  L('force 잘못된단계(거부 기대): ' + J(adminForceStage(code, '없는단계X', '오류 테스트')));
+
+  var d = adminDetail(code);
+  L('■ 처리이력 ' + (d.history ? d.history.length : 0) + '줄 (최신순):');
+  (d.history || []).slice(0, 8).forEach(function (h) { L('  ' + h); });
+  L('■ 최종 단계: ' + d.stage + ' / 결과물상태: ' + (d.raw && d.raw['결과물상태']));
+  L('★ 테스트 고객(' + code + ') 행은 검증 후 시트에서 삭제 권장.');
+
+  var out = log.join('\n');
+  Logger.log(out);
+  return out;
+}

@@ -214,7 +214,7 @@ function expireUnsignedContracts() {
   var colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
   if (last < P.DATA_START_ROW) return 0;
-  var cCol = colOf['계약상태'], sentCol = colOf['계약서발송일시'], memoCol = colOf['관리자메모'];
+  var cCol = colOf['계약상태'], sentCol = colOf['계약서발송일시'], histCol = colOf['처리이력'];
   if (!cCol || !sentCol) return 0;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   var n = 0, nowMs = Date.now();
@@ -224,10 +224,10 @@ function expireUnsignedContracts() {
     if (!sentAt || nowMs <= sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) continue;
     var rowNum = P.DATA_START_ROW + i;
     var upd = { '계약상태': '미발송', '계약서링크': '', '계약서발송일시': '' };
-    if (memoCol) {
-      var prevMemo = String(vals[i][memoCol - 1] || '');
+    if (histCol) {
+      var prevHist = String(vals[i][histCol - 1] || '');
       var line = '[' + fmtKST(new Date()) + '] 시스템: 계약서 미서명 기한경과 자동 파기';
-      upd['관리자메모'] = prevMemo ? (prevMemo + '\n' + line) : line;
+      upd['처리이력'] = prevHist ? (prevHist + '\n' + line) : line;
     }
     touchCustomer(sheet, colOf, rowNum, upd);
     n++;
