@@ -275,10 +275,12 @@ function setCustomerStage(code, transition) {
   var isSnap = (String(rowObj.get('상품타입') || '').trim() === '웨딩스냅');
   var MAP = {
     confirm:  isSnap ? '촬영확정' : '상담확정',
-    complete: '상담완료',                    // 스냅 '촬영완료'는 결과물 단계(이후 Phase)
+    complete: '상담완료',                    // 시그 전용(스냅 '촬영완료'는 event 전이로 — 아래)
     contract: '계약완료',                    // [02-3] 계약서 서명 완료 → 계약완료
     paid:     '입금완료',                    // [02-4] 계약금 입금 확인 → 입금완료
     produce:  '제작중',                      // [03] 제작 기초정보 시작 → 제작중
+    event:    isSnap ? '촬영완료' : '예식완료',  // [⑧관리자] 예식/촬영 완료 처리(제품 분기) — adminMarkEventDone
+    deliver:  '결과물전달',                  // [⑧관리자] 결과물 전달 완료 — adminMarkDelivered
     cancel:   '취소'
   };
   var newStage = MAP[transition] || transition;
