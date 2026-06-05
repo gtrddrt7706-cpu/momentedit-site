@@ -167,7 +167,8 @@ function _subStatusFor(stage, isSnap, x) {
     case '신청접수': return (x.booking === ST.PICKED) ? '승인 대기' : '시간 선택 대기';
     case '상담확정': return x.consultPast ? '상담일 지남' : '상담 예정';
     case '촬영확정': return x.consultPast ? '촬영일 지남' : '촬영 예정';
-    case '상담완료': return (x.시착 !== '동의완료') ? '시착 동의 대기' : ((!x.계약 || x.계약 === '미발송') ? '계약서 발송 대기' : '계약 진행 중');
+    case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
+    case '상담완료': return (!x.계약 || x.계약 === '미발송') ? '계약서 발송 대기' : '계약 진행 중';
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     case '제작중': return (x.invStatus === '완료') ? '청첩장 발행됨' : (x.invStatus === '진행중' ? '청첩장 만드는 중' : '제작 시작 전');
@@ -228,10 +229,15 @@ function adminHome() {
     var bookingStatus = bk ? String(bget(bk, '상태') || '').trim() : '';
     var consultPast = consultYmd ? (_dayDiff(today, consultYmd) > 0) : false;
 
-    // 상담완료 처리(시그 전용)
-    if (!isSnap && stage === '상담확정' && consultPast) {
-      pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '상담 끝남 · 처리 대기',
+    // 시착 동의 보내기(시그) — 상담확정 & 상담일 지남 & 시착 미발송
+    if (!isSnap && stage === '상담확정' && consultPast && 시착 !== '동의요청' && 시착 !== '동의완료') {
+      pushQ({ code: code, names: names, product: product, kind: '시착보내기', sub: '시착 동의서 보내기',
         badge: { level: 'yellow', text: '상담 끝남' }, _urgent: false, _stage: 2, _wait: createdYmd });
+    }
+    // 상담완료 처리(시그) — 시착 & 시착동의완료 & 상담일 지남
+    if (!isSnap && stage === '시착' && 시착 === '동의완료' && consultPast) {
+      pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '시착 완료 · 상담완료 처리',
+        badge: null, _urgent: false, _stage: 2, _wait: createdYmd });
     }
     // 계약서 발송 — 시그(상담완료&시착동의완료) / 스냅(촬영확정) — & 계약 미발송
     var canSend = isSnap ? (stage === '촬영확정') : (stage === '상담완료' && 시착 === '동의완료');
@@ -675,12 +681,14 @@ function adminOpenFittingConsent(code) {
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return { ok: false, error: '웨딩스냅은 시착 단계가 없습니다.' };
   var stage = String(cust.get('현재단계') || '').trim();
-  if (stage !== '상담완료' && stage !== '상담확정') return { ok: false, error: '상담확정/완료 단계에서만 시착 동의를 열 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+  if (stage !== '상담확정' && stage !== '시착') return { ok: false, error: '상담확정 단계에서 시착 동의서를 보낼 수 있습니다. (현재: ' + (stage || '없음') + ')' };
   if (String(cust.get('시착동의상태') || '').trim() === '동의완료') return { ok: true, already: true };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });
-  _recordHandler(code, '시착 동의 요청(게이트 열기)');
+  setCustomerStage(code, 'fitting');                          // 상담확정 → 시착 (진행바 전진)
+  _recordHandler(code, '시착 동의서 발송(→시착)');
   return { ok: true };
 }
 
@@ -705,7 +713,8 @@ function adminMarkConsultDone(code) {
     if (String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return { ok: false, error: '웨딩스냅은 상담완료 단계가 없습니다.' };
     var stage = String(cust.get('현재단계') || '').trim();
     if (stage === '상담완료') return { ok: true, already: true, stage: stage };
-    if (stage !== '상담확정') return { ok: false, error: '상담확정 상태에서만 상담완료 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    if (stage !== '시착') return { ok: false, error: '시착 단계에서 상담완료로 넘길 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    if (String(cust.get('시착동의상태') || '').trim() !== '동의완료') return { ok: false, error: '고객이 시착 동의서에 서명한 뒤 상담완료로 넘길 수 있어요.' };
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
     return { ok: true, stage: '상담완료' };
@@ -835,7 +844,7 @@ function adminMarkNoshow(code) {
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
     var stage = String(cust.get('현재단계') || '').trim();
     if (stage === '노쇼') return { ok: true, already: true, stage: stage, archived: true };   // ★EX 멱등(가드 함정 회피)
-    if (['상담확정', '촬영확정'].indexOf(stage) === -1) return { ok: false, error: '상담/촬영 확정 상태에서만 노쇼 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    if (['상담확정', '촬영확정', '시착'].indexOf(stage) === -1) return { ok: false, error: '상담/촬영 확정·시착 상태에서만 노쇼 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     touchCustomer(sheet, colOf, cust.num, { '현재단계': '노쇼' });
     _recordHandler(code, '노쇼 처리');

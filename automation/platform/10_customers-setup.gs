@@ -124,7 +124,7 @@ function formatCustomersSheet() {
     var rules = [
       R('신청접수', '#FBF1E6', '#8A5A2B'),
       R('상담확정', '#EAF0F6', '#2B5A8A'), R('촬영확정', '#EAF0F6', '#2B5A8A'),
-      R('상담완료', '#EAF0F6', '#2B5A8A'),
+      R('시착', '#EAF0F6', '#2B5A8A'), R('상담완료', '#EAF0F6', '#2B5A8A'),
       R('계약완료', '#E7F1EA', '#2E6B43'), R('입금완료', '#E3EFE6', '#1F6B3A'),
       R('제작중', '#F1EEF6', '#5A4B8A'),
       R('예식완료', '#E3EFE6', '#1F6B3A'), R('촬영완료', '#E3EFE6', '#1F6B3A'),

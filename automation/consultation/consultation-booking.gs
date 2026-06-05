@@ -275,6 +275,7 @@ function setCustomerStage(code, transition) {
   var isSnap = (String(rowObj.get('상품타입') || '').trim() === '웨딩스냅');
   var MAP = {
     confirm:  isSnap ? '촬영확정' : '상담확정',
+    fitting:  '시착',                        // [⑧] 시착 동의서 발송 → 상담확정→시착 (시그 전용)
     complete: '상담완료',                    // 시그 전용(스냅 '촬영완료'는 event 전이로 — 아래)
     contract: '계약완료',                    // [02-3] 계약서 서명 완료 → 계약완료
     paid:     '입금완료',                    // [02-4] 계약금 입금 확인 → 입금완료
