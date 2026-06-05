@@ -54,7 +54,7 @@ function handleSignFittingConsent(body) {
       return { ok: true, already: true, signedAt: prevSignedAt };
     }
     // 게이트 가드 — 단계/상태가 맞아야 서명 가능 (관리자 안내 전 차단)
-    if (stage !== '상담완료') return { ok: false, error: '아직 시착 동의 단계가 아닙니다.' };
+    if (stage !== '상담완료' && stage !== '상담확정') return { ok: false, error: '아직 시착 동의 단계가 아닙니다.' };
     if (fStatus !== '동의요청') return { ok: false, error: '아직 시착 동의 안내 전입니다. 디렉터 안내 후 진행됩니다.' };
 
     var now = fmtKST(new Date());
@@ -89,7 +89,7 @@ function buildFittingState(r) {
   var signedAt = String(r.get('시착동의일시') || '').trim();
   var signed = (status === '동의완료') || !!signedAt;
   var requested = (status === '동의요청');
-  if (!signed && !(stage === '상담완료' && requested)) return null;  // 아직 안내 전 → 카드 없음
+  if (!signed && !((stage === '상담완료' || stage === '상담확정') && requested)) return null;  // 아직 안내 전 → 카드 없음
   return {
     signed: signed,                 // 서명 완료 여부
     signedAt: signedAt,             // 서명 일시(표시용)

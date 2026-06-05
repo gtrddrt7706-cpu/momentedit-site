@@ -676,7 +676,7 @@ function adminOpenFittingConsent(code) {
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   var stage = String(cust.get('현재단계') || '').trim();
-  if (stage !== '상담완료') return { ok: false, error: '상담완료 단계에서만 시착 동의를 열 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+  if (stage !== '상담완료' && stage !== '상담확정') return { ok: false, error: '상담확정/완료 단계에서만 시착 동의를 열 수 있습니다. (현재: ' + (stage || '없음') + ')' };
   if (String(cust.get('시착동의상태') || '').trim() === '동의완료') return { ok: true, already: true };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });

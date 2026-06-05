@@ -604,7 +604,7 @@ function cardFitting(d){
   var r=d.raw||{}, fit=r['시착동의상태']||'대기', raw='시착동의 <b>'+esc(fit)+'</b>';
   if(r['시착동의일시']) raw+=' · '+fmtDT(r['시착동의일시']);
   var b='';
-  if(d.stage==='상담완료'){
+  if(d.stage==='상담완료'||d.stage==='상담확정'){
     if(fit==='대기'||fit==='') b+=ab('openFitting','시착 동의 열기','btn-line');
     else if(fit==='동의요청') b+='<div class="gate">고객 동의 대기 중</div>'+ab('closeFitting','시착 동의 닫기','btn-ghost');
   }
@@ -735,6 +735,7 @@ function openModal(opt){
   $('cm_text').innerHTML=opt.text||'';
   $('cm_extra').innerHTML=opt.extra||'';
   $('cm_err').textContent='';
+  $('cm_yes').disabled=false;
   $('cm_yes').textContent=opt.yes||'확인';
   $('cm_yes').className='btn '+(opt.danger?'btn-danger':'btn-seal');
   $('modalBox').className='modal'+(opt.danger?' danger':'');
