@@ -115,18 +115,19 @@ function testLoginRoundTrip() {
   return state;
 }
 
-// ── [관리자 v1] 스모크 테스트 (편집기에서 실행 — 실행자가 Admins에 있어야) ──
+// ── [관리자] 등록 계정 확인 (편집기 실행) — 비번해시는 표시하지 않음 ──
 function adminSmokeTest() {
-  var log = [];
-  var email = currentAdminEmail();
-  log.push('현재 로그인: ' + (email || '(없음 — 편집기 실행)'));
-  log.push('isAdmin(' + email + '): ' + isAdmin(email));
-  log.push('Admins 시트 존재: ' + (!!_adminSheet()));
-  try {
-    var h = adminHome();
-    log.push('홈 집계 — 승인대기 ' + h.groups.pending.length + ' / 변경제안 ' + h.groups.proposed.length +
-      ' / 새신청 ' + h.groups.applied.length + ' / 다가오는7일 ' + h.groups.upcoming.length);
-  } catch (e) { log.push('adminHome 오류: ' + e.message + ' (실행자가 Admins에 없으면 정상 — setupAdmins 후 본인 등록 확인)'); }
+  var sh = _adminSheet();
+  if (!sh) { Logger.log('Admins 시트 없음 — setupAdmins() 먼저 실행'); return 'Admins 시트 없음'; }
+  var last = sh.getLastRow(), colOf = buildHeaderIndex(sh), log = ['등록된 관리자 계정:'];
+  if (last < 2) { log.push('  (없음 — setAdminAccount("아이디","비번","이름")으로 등록)'); }
+  else {
+    var vals = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+    vals.forEach(function (r) {
+      log.push('  · 아이디=' + r[(colOf['아이디'] || 1) - 1] + ' · 이름=' + r[(colOf['이름'] || 3) - 1] +
+        ' · 비번=' + (r[(colOf['비번해시'] || 2) - 1] ? '설정됨' : '없음') + ' · 토큰=' + (r[(colOf['로그인토큰'] || 5) - 1] ? '발급됨' : '없음'));
+    });
+  }
   Logger.log(log.join('\n'));
   return log.join('\n');
 }

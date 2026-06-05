@@ -1,15 +1,17 @@
 /**
- * Moment Edit · 관리자 페이지 v1 (청사진 P6를 P2 앞으로)
+ * Moment Edit · 관리자 페이지 (⑧ — 자체 아이디·비번 로그인)
  * ──────────────────────────────────────────────────────────────────────────
- * 미쿠·희준이 폰에서 구글 로그인 → 처리할 일(홈) → 상담 승인·변경·취소.
+ * 미쿠·희준이 폰·PC 어디서든 URL 접속 → 아이디·비번 로그인 → 처리할 일·현황·상세·아카이브.
  *
  * [원칙] 관리자 동작은 P1.5 기존 함수 재사용 — 새 상태 로직 없음.
  *   actApprove · actAccept · doAdminCancel · submitProposal (consultation-booking.gs)
  *   슬롯 Lock+재확인 · setCustomerStage 단일 전이 = P1.5 그대로. 관리자 래퍼는 '호출만'.
  *
- * [라우트] doGet ?admin=1 → serveAdmin. 고객용 흐름(신청·schedule·메일버튼)과 분리.
- * [인증] 구글 로그인 + Admins 시트 화이트리스트. 동작 함수마다 isAdmin 재확인(보안 O).
- * [배포] 관리자용 별도 웹앱(액세스: Google 계정 보유 사용자). 고객 배포는 '모든 사용자' 유지.
+ * [라우트] doGet ?admin=1 → serveAdmin(셸만). 고객용 흐름과 분리.
+ * [인증] 자체 아이디·비번(Admins 시트·해시) → 로그인토큰. adminCall(token,fn,args) 단일 게이트웨이가
+ *   토큰 1회 검증(_AUTHED) 후 위임 → 각 동작 함수는 _requireAdmin()만(보안 O). 편집기 실행은 소유자 폴백.
+ *   계정 등록 = setAdminAccount(아이디,비번,이름)(편집기). 비번은 해시로만 저장.
+ * [배포] 관리자 웹앱 액세스 = '모든 사용자'(토큰이 게이트). 고객 배포와 별개 배포.
  *
  * 재사용(consultation-booking 전역): getSheet·buildHeaderIndex·row·findRowByPersonalCode·
  *   actApprove·actAccept·doAdminCancel·submitProposal·sign·getAvailability·_slotTaken·
@@ -18,85 +20,131 @@
  */
 
 var ADMIN_SHEET = 'Admins';
+var ADMIN_HEADERS = ['아이디', '비번해시', '이름', '역할', '로그인토큰', '토큰만료', '등록일'];
+var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백
+var _AUTHED = false;          // adminCall 디스패처가 토큰 검증 후 true (1회 실행 한정)
+var _CURRENT_ADMIN = '';      // _requireAdmin이 이름 저장 → _recordHandler가 처리이력에 사용
 
-// ============================ 인증 · Admins 화이트리스트 (작업1) ============================
+// ============================ 인증 · Admins (아이디·비번 로그인) ============================
+// 구글 로그인 대신 자체 아이디·비번(마이페이지 패턴) — 어떤 기기·브라우저든 URL 로그인.
+// 비번은 평문 저장 X → setAdminAccount(아이디,비번,이름)로 해시 등록(편집기 실행).
 function setupAdmins() {
   var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName(ADMIN_SHEET) || ss.insertSheet(ADMIN_SHEET);
-  sh.getRange(1, 1, 1, 4).setValues([['이메일', '이름', '역할', '등록일']])
+  if (sh.getMaxColumns() < ADMIN_HEADERS.length) sh.insertColumnsAfter(sh.getMaxColumns(), ADMIN_HEADERS.length - sh.getMaxColumns());
+  sh.getRange(1, 1, 1, ADMIN_HEADERS.length).setValues([ADMIN_HEADERS])
     .setFontWeight('bold').setBackground('#F3ECDF').setFontColor('#3A2D22');
   sh.setFrozenRows(1);
-  // 미쿠·희준 시드 등록 (중복 방지·멱등)
-  var seed = [
-    ['side.minds.1616@gmail.com', '미쿠', '대표'],
-    ['gtrddrt7706@gmail.com', '희준', '대표']
-  ];
-  var existing = {};
-  var last = sh.getLastRow();
-  if (last >= 2) {
-    sh.getRange(2, 1, last - 1, 1).getValues().forEach(function (r) { existing[String(r[0]).trim().toLowerCase()] = true; });
-  }
-  seed.forEach(function (s) {
-    if (!existing[s[0].toLowerCase()]) sh.appendRow([s[0], s[1], s[2], fmtKST(new Date())]);
-  });
-  Logger.log('✅ setupAdmins 완료 — Admins 시트 + 미쿠·희준');
-  return 'Admins 설치 완료';
+  var colOf = buildHeaderIndex(sh);
+  ['비번해시', '로그인토큰', '토큰만료'].forEach(function (h) { if (colOf[h]) sh.getRange(2, colOf[h], Math.max(sh.getMaxRows() - 1, 1), 1).setNumberFormat('@'); });
+  Logger.log('✅ setupAdmins 완료 — Admins 시트. setAdminAccount("아이디","비번","이름")으로 계정 등록하세요.');
+  return 'Admins 설치 완료 — setAdminAccount(아이디, 비번, 이름)으로 계정을 등록하세요.';
 }
 
 function _adminSheet() { return SpreadsheetApp.getActive().getSheetByName(ADMIN_SHEET); }
 
-// 이메일이 Admins 시트에 있나 (소문자 비교)
-function isAdmin(email) {
-  email = String(email || '').trim().toLowerCase();
-  if (!email) return false;
-  var sh = _adminSheet();
-  if (!sh) return false;
-  var last = sh.getLastRow();
-  if (last < 2) return false;
-  var vals = sh.getRange(2, 1, last - 1, 1).getValues();
+// 한 컬럼 값으로 Admins 행 → {num, get} 또는 null
+function _findAdminRow(header, value, ci) {
+  var sh = _adminSheet(); if (!sh) return null;
+  var colOf = buildHeaderIndex(sh), c = colOf[header], last = sh.getLastRow();
+  if (!c || last < 2) return null;
+  var cmp = ci ? String(value).trim().toLowerCase() : String(value).trim();
+  var vals = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
   for (var i = 0; i < vals.length; i++) {
-    if (String(vals[i][0]).trim().toLowerCase() === email) return true;
+    var cell = String(vals[i][c - 1] || '').trim();
+    if ((ci ? cell.toLowerCase() : cell) === cmp) return rowFromValues(colOf, vals[i], 2 + i);
   }
-  return false;
+  return null;
 }
 
-function adminNameOf(email) {
-  email = String(email || '').trim().toLowerCase();
-  var sh = _adminSheet();
-  if (!sh) return email;
-  var last = sh.getLastRow();
-  if (last < 2) return email;
-  var vals = sh.getRange(2, 1, last - 1, 2).getValues();
-  for (var i = 0; i < vals.length; i++) {
-    if (String(vals[i][0]).trim().toLowerCase() === email) return String(vals[i][1] || email);
+// ★ 계정 등록·갱신 (편집기에서 실행) — 비번은 해시로만 저장. 예: setAdminAccount('nm012','비번6자↑','미쿠')
+function setAdminAccount(id, pw, name, role) {
+  id = String(id || '').trim(); name = String(name || '').trim(); role = String(role || '대표').trim();
+  if (!id || !name) return '사용법: setAdminAccount("아이디","비밀번호","이름")  (예: setAdminAccount("nm012","비번6자↑","미쿠"))';
+  var pe = pwPolicyError(pw); if (pe) return pe;
+  var sh = _adminSheet(); if (!sh) return 'Admins 시트가 없습니다 — setupAdmins() 먼저 실행하세요.';
+  var colOf = buildHeaderIndex(sh), hash = hashPassword(pw);
+  var ex = _findAdminRow('아이디', id, true);
+  if (ex) {
+    sh.getRange(ex.num, colOf['비번해시']).setValue(hash);
+    sh.getRange(ex.num, colOf['이름']).setValue(name);
+    sh.getRange(ex.num, colOf['역할']).setValue(role);
+    Logger.log('✅ 계정 갱신: ' + id + ' (' + name + ')');
+    return '계정 갱신됨: ' + id + ' (' + name + ')';
   }
-  return email;
+  var rowData = ADMIN_HEADERS.map(function (h) {
+    return h === '아이디' ? id : h === '비번해시' ? hash : h === '이름' ? name : h === '역할' ? role : h === '등록일' ? fmtKST(new Date()) : '';
+  });
+  sh.appendRow(rowData);
+  Logger.log('✅ 계정 등록: ' + id + ' (' + name + ')');
+  return '계정 등록됨: ' + id + ' (' + name + ')';
 }
 
-function currentAdminEmail() {
-  try { return String(Session.getActiveUser().getEmail() || '').trim(); } catch (e) { return ''; }
+// 로그인 — 아이디·비번 검증 → 토큰 발급. (인증 자체이므로 토큰 불필요 · 디스패처 밖에서 직접 호출)
+function adminLogin(id, pw) {
+  id = String(id || '').trim();
+  if (!id || !pw) return { ok: false, error: '아이디와 비밀번호를 입력해 주세요.' };
+  var r = _findAdminRow('아이디', id, true);
+  if (!r || !verifyPassword(pw, r.get('비번해시'))) return { ok: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' };
+  var sh = _adminSheet(), colOf = buildHeaderIndex(sh);
+  var token = makeToken();
+  var expiry = fmtKST(new Date(Date.now() + (P.TOKEN_VALID_DAYS || 14) * 86400 * 1000));
+  sh.getRange(r.num, colOf['로그인토큰']).setValue(token);
+  sh.getRange(r.num, colOf['토큰만료']).setValue(expiry);
+  return { ok: true, token: token, name: String(r.get('이름') || id) };
 }
 
-// 동작 함수 진입 가드 (보안 O — 화면만 막으면 우회 가능)
-function _requireAdmin() {
-  var e = currentAdminEmail();
-  if (!isAdmin(e)) throw new Error('권한이 없습니다. (관리자 전용)');
-  return e;
+function adminLogout(token) {
+  var r = token ? _findAdminRow('로그인토큰', String(token).trim(), false) : null;
+  if (r) { var sh = _adminSheet(), colOf = buildHeaderIndex(sh); sh.getRange(r.num, colOf['로그인토큰']).setValue(''); sh.getRange(r.num, colOf['토큰만료']).setValue(''); }
+  return { ok: true };
 }
 
-// ── 웹앱 진입 (doGet ?admin=1 에서 호출) ──
+// 토큰 → 관리자 {ok, id, name, role} / {ok:false}
+function _resolveAdmin(token) {
+  token = String(token || '').trim();
+  if (!token) return { ok: false };
+  var r = _findAdminRow('로그인토큰', token, false);
+  if (!r) return { ok: false };
+  if (tokenExpired(r.get('토큰만료'))) return { ok: false, reason: 'expired' };
+  return { ok: true, id: String(r.get('아이디') || ''), name: String(r.get('이름') || ''), role: String(r.get('역할') || '') };
+}
+
+// 동작 가드 — 디스패처가 이미 검증(_AUTHED)했으면 통과 / 아니면 토큰 OR 편집기 소유자(폴백).
+function _requireAdmin(token) {
+  if (_AUTHED) return { ok: true, name: _CURRENT_ADMIN };
+  var a = _resolveAdmin(token);
+  if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
+  var email = ''; try { email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) {}
+  if (email && _ADMIN_OWNER_EMAILS.indexOf(email) !== -1) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
+  throw new Error('로그인이 필요합니다. (관리자 전용)');
+}
+
+// ★ 단일 게이트웨이 — Admin.html의 모든 데이터·동작 호출이 여기로(토큰 1회 검증 → 위임).
+//   client: gas(fn,...args) → adminCall(TOKEN, fn, [args]). adminLogin/Logout만 직접 호출.
+function adminCall(token, fn, args) {
+  _requireAdmin(token);          // 토큰 검증(실패 시 throw) + _CURRENT_ADMIN 설정
+  _AUTHED = true;
+  try {
+    args = args || [];
+    var FNS = {
+      adminHome: adminHome, adminDetail: adminDetail, adminArchive: adminArchive, adminSearch: adminSearch, adminSaveMemo: adminSaveMemo,
+      adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
+      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminOpenFittingConsent: adminOpenFittingConsent,
+      adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
+      adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
+    };
+    var f = FNS[fn];
+    if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
+    return f.apply(null, args);
+  } finally { _AUTHED = false; }
+}
+
+// ── 웹앱 진입 (doGet ?admin=1) — 셸만 서빙(로그인은 클라이언트 토큰). 접근=모든 사용자 배포. ──
 function serveAdmin(e) {
-  var email = currentAdminEmail();
-  if (!isAdmin(email)) {
-    return infoPage('접근 권한이 없습니다',
-      '관리자 전용 페이지입니다.<br>' +
-      (email ? ('현재 로그인: ' + esc(email)) : '구글 로그인이 필요합니다.') +
-      '<br><br>접근이 필요하시면 관리자에게 등록을 요청해 주세요.', false);
-  }
   var t = HtmlService.createTemplateFromFile('Admin');
-  t.adminName = adminNameOf(email);
   return t.evaluate().setTitle('Moment Edit · 관리자')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -134,7 +182,7 @@ function _subStatusFor(stage, isSnap, x) {
 // 끝난 고객(예외 미계약·취소·노쇼 + 결과물전달) = 아카이브 → 큐·현황 제외.
 function adminHome() {
   _requireAdmin();
-  var name = adminNameOf(currentAdminEmail());
+  var name = _CURRENT_ADMIN || '관리자';
   var today = _kstYmd(new Date());
   var nowMs = Date.now();
 
@@ -487,7 +535,7 @@ function adminSaveMemo(code, memo) {
 //   adminSaveMemo는 관리자메모만, 모든 액션 로그는 여기(처리이력). 표시 시 ④에서 M/D HH:mm로 단축.
 function _recordHandler(code, action) {
   try {
-    var who = adminNameOf(currentAdminEmail());
+    var who = _CURRENT_ADMIN || '관리자';
     var cust = findCustomerByCode(code);
     if (!cust) return;
     var sheet = getCustomersSheet();
