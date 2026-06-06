@@ -51,8 +51,15 @@ function handleFindCode(body) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
   if (rowObj) {
-    try { sendFindCodeEmail(email, customerNames(rowObj), String(rowObj.get('개인코드') || '')); }
-    catch (e) { notifyStudio('[플랫폼] ⚠️오류 · 코드찾기 메일 실패', email + '\n' + (e && e.message)); }
+    var names = customerNames(rowObj), code = String(rowObj.get('개인코드') || ''), phone = String(rowObj.get('연락처') || '').trim();
+    try {
+      // 알림톡(솔라피) 우선 — 미설정/실패면 sendFindCodeKakao가 false → 메일 폴백
+      var sent = (phone && typeof sendFindCodeKakao === 'function') ? sendFindCodeKakao(phone, names, code) : false;
+      if (!sent) sendFindCodeEmail(email, names, code);
+    } catch (e) {
+      try { sendFindCodeEmail(email, names, code); }
+      catch (e2) { notifyStudio('[플랫폼] ⚠️오류 · 코드찾기 발송 실패', email + '\n' + (e2 && e2.message)); }
+    }
   }
   // 등록 여부와 무관하게 항상 동일 응답(계정 존재 여부 노출 방지)
   return { ok: true };
@@ -120,6 +127,31 @@ function sendFindCodeEmail(to, names, code) {
     smallP('본인이 요청하지 않으셨다면 이 메일을 무시하셔도 됩니다.');
   GmailApp.sendEmail(to, '[Moment Edit] 개인코드 안내', '',
     { htmlBody: emailShell('개인코드 안내', inner), name: SYS.FROM_NAME });
+}
+
+// 개인코드 알림톡(솔라피) — Script Properties 미설정 시 false(호출부가 메일 폴백). [Task3]
+//   필요: SOLAPI_KEY / SOLAPI_SECRET / SOLAPI_PFID / SOLAPI_TPL_FINDCODE (+선택 SOLAPI_SENDER). 승인 템플릿 변수 #{이름}·#{코드}.
+function sendFindCodeKakao(phone, names, code) {
+  var P_ = PropertiesService.getScriptProperties();
+  var KEY = P_.getProperty('SOLAPI_KEY'), SEC = P_.getProperty('SOLAPI_SECRET');
+  var PFID = P_.getProperty('SOLAPI_PFID'), TPL = P_.getProperty('SOLAPI_TPL_FINDCODE');
+  if (!KEY || !SEC || !PFID || !TPL) return false;                 // 미설정 → 메일 폴백
+  var to = String(phone).replace(/[^0-9]/g, ''); if (!to) return false;
+  var date = new Date().toISOString(), salt = Utilities.getUuid().replace(/-/g, '');
+  var sig = Utilities.computeHmacSha256Signature(date + salt, SEC);
+  var hex = sig.map(function (b) { b = (b < 0 ? b + 256 : b).toString(16); return b.length === 1 ? '0' + b : b; }).join('');
+  var auth = 'HMAC-SHA256 apiKey=' + KEY + ', date=' + date + ', salt=' + salt + ', signature=' + hex;
+  var payload = { message: { to: to, from: P_.getProperty('SOLAPI_SENDER') || '', type: 'ATA',
+    kakaoOptions: { pfId: PFID, templateId: TPL, variables: { '#{이름}': String(names || ''), '#{코드}': String(code || '') } } } };
+  try {
+    var res = UrlFetchApp.fetch('https://api.solapi.com/messages/v4/send',
+      { method: 'post', contentType: 'application/json', headers: { Authorization: auth },
+        payload: JSON.stringify(payload), muteHttpExceptions: true });
+    var rc = res.getResponseCode();
+    if (rc >= 200 && rc < 300) return true;
+    notifyStudio('[플랫폼] ⚠️ 코드찾기 알림톡 실패(' + rc + ')', res.getContentText().slice(0, 500));
+  } catch (e) { notifyStudio('[플랫폼] ⚠️ 코드찾기 알림톡 예외', String(e && e.message)); }
+  return false;                                                    // 실패 → 메일 폴백
 }
 
 function sendResetPwEmail(to, names, link) {

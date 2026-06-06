@@ -77,6 +77,7 @@ function buildConsultState(code) {
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
     cancelUrl: (within && consultToken) ? actionUrl('cancelreq', consultToken) : '',  // [③-1] 예약취소 → ScreenD 환불흐름(serveCancelD). 확정+24h前에만(mail-0 무관).
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
-    proposedTime: String(cr.get('변경제안시간') || '').trim()
+    proposedTime: String(cr.get('변경제안시간') || '').trim(),
+    proposedNote: String(cr.get('변경제안메모') || '').trim()
   };
 }

@@ -35,8 +35,9 @@ const CONFIG = {
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
   DEPOSIT: 100000,                             // 예약금
-  ACCOUNT: '[은행 000-0000-0000]',             // 입금 계좌 — 운영자 입력 예정
-  ACCOUNT_HOLDER: '[예금주]',                   // 운영자 입력 예정
+  ACCOUNT: '기업 000-000-00000',                // 입금 계좌 — ⚠️ 임시값(기업은행), 실제 계좌번호로 교체 필요
+  ACCOUNT_HOLDER: '모먼트에디트',                // ⚠️ 임시값(예금주)
+  EXEC_URL: 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec',  // 웹앱 /exec (mypage.html의 EXEC_URL과 동일) — webAppUrl()이 사용
   URL_VALID_DAYS: 7,                           // 전용 URL 유효기간
   CONFIRM_DEADLINE_HOURS: 24,                  // 변경·취소 기한 (상담 24시간 전까지)
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 — 운영자 입력 예정
@@ -103,7 +104,7 @@ const HEADERS = [
   // 상담 일정
   '선택날짜', '선택시간', '그외가능시간대', '기타희망시간',
   // 확정
-  '변경제안날짜', '변경제안시간', '확정일시', '취소일시', '환불계좌',
+  '변경제안날짜', '변경제안시간', '변경제안메모', '확정일시', '취소일시', '환불계좌',
   // 동의
   '개인정보동의', '제출시각',
   // 식별
@@ -704,6 +705,7 @@ function submitProposal(token, sig, newDate, newTime, memo) {
 
   writeCell(sheet, colOf, row.num, '변경제안날짜', newDate);
   writeCell(sheet, colOf, row.num, '변경제안시간', newTime);
+  if (colOf['변경제안메모'] != null) writeCell(sheet, colOf, row.num, '변경제안메모', String(memo || ''));   // [Task12] 마이페이지 노출용(칼럼 있을 때만 — 없으면 무시)
   writeCell(sheet, colOf, row.num, '상태', ST.PROPOSED);
 
   try {
@@ -1372,7 +1374,7 @@ function sign(token, action) {
 function verifySig(token, action, sig) { return !!sig && sig === sign(token, action); }
 
 // URL 빌더
-function webAppUrl() { return ScriptApp.getService().getUrl(); }
+function webAppUrl() { return CONFIG.EXEC_URL; }   // getUrl()이 비공개 /dev·구버전 URL을 반환 → Google Drive "현재 파일을 열 수 없습니다" 오류. 고정 /exec 사용.
 function scheduleUrl(token) { return webAppUrl() + '?page=schedule&token=' + encodeURIComponent(token); }
 function actionUrl(action, token) {
   return webAppUrl() + '?action=' + action + '&token=' + encodeURIComponent(token) + '&sig=' + sign(token, action);

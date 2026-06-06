@@ -113,7 +113,11 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:4px 16px}
 
 /* ── NOW 카드 (주인공) ── */
-.now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center}
+.now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.now-refresh{position:absolute;top:11px;right:11px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:transparent;border:1px solid var(--border);border-radius:50%;color:var(--gold-deep);cursor:pointer;transition:all .25s var(--ease)}
+.now-refresh:hover{border-color:var(--gold);color:var(--accent);background:var(--bg2)}
+.now-refresh:active{transform:scale(.94)}
+.now-refresh svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .now .now-label{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--seal);margin-bottom:14px}
 .now .now-head{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);line-height:1.6}
 .now .now-sub{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:10px}
@@ -290,6 +294,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- NOW 카드 (주인공) -->
     <div class="now">
+      <button type="button" id="mp_refresh" class="now-refresh" aria-label="새로고침" title="새로고침">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
       <div class="now-label en-32">NOW</div>
       <div class="now-head" id="mp_nowHead">—</div>
       <div class="now-sub" id="mp_nowSub" style="display:none"></div>
@@ -591,6 +598,14 @@ function loadMyState(){
   }).catch(function(){ show('loginView'); });
 }
 
+// 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
+var STAGE_LABEL = {
+  '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
+  '상담완료':'계약서 서명','계약완료':'계약금 입금','입금완료':'입금 확인',
+  '제작중':'제작','촬영완료':'촬영','예식완료':'예식','결과물전달':'결과물 전달'
+};
+function stageLabel(code){ var k=String(code||'').trim(); return STAGE_LABEL[k] || k; }
+
 function renderMyPage(d){
   // 환영 — 이름 + '님'(작게)
   $('mp_names').innerHTML = escapeHtml(d.name || '고객') + ' <span class="nim">님</span>';
@@ -604,6 +619,11 @@ function renderMyPage(d){
     var head, sub;
     if (i === -1) { head = na.replace(/\.$/, ''); sub = ''; }
     else { head = na.slice(0, i); sub = na.slice(i + 1).trim(); }
+    // [계약서 발송됨·서명 대기] stage(상담완료) 기준 nextAction은 '준비 중'에 머무르므로 발송을 NOW에 반영
+    if (d.contract && !d.contract.signed && !d.contract.expired) {
+      head = '계약서가 도착했어요';
+      sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';
+    }
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; }
@@ -628,14 +648,14 @@ function renderMyPage(d){
     $('mp_exception').style.display='none';
     $('mp_progress').style.display='block';
     var cur = (idx<0?0:idx);
-    $('mp_stageNow').textContent = d.stage || (list[cur]||'—');
+    $('mp_stageNow').textContent = stageLabel(d.stage) || stageLabel(list[cur]) || '—';
     $('mp_stageCount').textContent = list.length ? ('STEP ' + (cur+1) + ' / ' + list.length) : '';
-    var nextStage = (cur+1 < list.length) ? list[cur+1] : '';
+    var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1]) : '';
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage) : '마지막 단계예요';
     // 점만 (막대 없음)
     $('mp_dots').innerHTML = list.map(function(label,i){
       var cls = (i<cur?'done':(i===cur?'current':'future'));
-      return '<span class="dot '+cls+'" title="'+escapeHtml(label)+'"></span>';
+      return '<span class="dot '+cls+'" title="'+escapeHtml(stageLabel(label))+'"></span>';
     }).join('');
   }
 
@@ -649,7 +669,7 @@ function renderMyPage(d){
   renderFitting(d.fitting, d);
 
   // 계약서 (02-3) — 시착 카드 다음
-  renderContract(d.contract);
+  renderContract(d.contract, d);
 
   // 계약금 입금 (02-4) — 계약서 카드 다음
   renderPayment(d.payment);
@@ -661,7 +681,7 @@ function renderMyPage(d){
   renderResult(d.result);
 
   // NEXT (잠금) — [D2] 현재단계 인식(지난 단계 숨김)
-  renderUpcoming(d.product, d.stageIndex, d.stageList);
+  renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract);
 
   // 카톡
   var ka = $('mp_kakao');
@@ -682,10 +702,9 @@ function applyCardStageView(d){
   if (cur < 0) return;
 
   // #9 — 상담확정 박스(방문일·방문 전 안내·변경/취소)는 방문 전까지만.
-  //   상담완료 이후이거나, 시착 서명 완료(시착 단계 도달분)면 숨김.
+  //   상담완료 이후이거나, 시착 단계 진입(시착 동의서 발송됨)이면 숨김 — 시착 카드가 다음 액션을 안내함.
   var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착');
-  var fittingSigned = !!(d.fitting && d.fitting.signed);
-  if ((visitDone >= 0 && cur >= visitDone) || (fittingSigned && fitIdx >= 0 && cur >= fitIdx)) {
+  if ((visitDone >= 0 && cur >= visitDone) || (fitIdx >= 0 && cur >= fitIdx)) {
     var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
   }
 
@@ -705,7 +724,7 @@ function applyCardStageView(d){
   }
 }
 
-function renderUpcoming(product, curIdx, stageList){
+function renderUpcoming(product, curIdx, stageList, contract){
   var box = $('mp_upcoming');
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
@@ -716,6 +735,10 @@ function renderUpcoming(product, curIdx, stageList){
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
     items = items.filter(function(it){ var ti = list.indexOf(it[2]); return ti < 0 || curIdx < ti; });
+  }
+  // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
+  if (contract && !contract.signed && !contract.expired){
+    items = items.filter(function(it){ return it[0] !== '본 계약'; });
   }
   if (!items.length){ box.innerHTML = ''; box.style.display = 'none'; return; }   // 남은 게 없으면(결과물전달 등) NEXT 숨김
   box.style.display = '';
@@ -737,6 +760,8 @@ function renderConsult(c, product){
   var url = c.scheduleUrl || '';
   // 스케줄 GAS URL → momentedit.kr/schedule 래퍼로 변환 (구글 페이지 인상 제거, 토큰 그대로 전달)
   if (url){ var _m = url.match(/[?&]token=([^&]+)/); if (_m){ url = '/schedule?token=' + _m[1] + (/[?&]me=1\b/.test(url) ? '&me=1' : ''); } }
+  // [Task9] cancelUrl 등 다른 GAS 링크 안전망 — webAppUrl()이 비공개 URL을 뱉어도 검증된 /exec로 강제 (Drive 오류 방지)
+  function fixGas(u){ if(!u||typeof EXEC_URL==='undefined') return u||''; var q=u.indexOf('?'); return q>=0 ? EXEC_URL+u.slice(q) : u; }
   var body = '', cta = '';
 
   if (s === '신청접수'){
@@ -747,15 +772,17 @@ function renderConsult(c, product){
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="cc-note" style="text-align:left;line-height:1.7;margin-top:10px">방문 전 안내'
-         + (isSnap ? '' : '<br>· 의상 컬렉션은 자유롭게 둘러보실 수 있습니다. 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 (기본 3벌).')
+         + (isSnap ? '' : '<br>· 의상 컬렉션은 자유롭게 둘러보실 수 있습니다. 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 (기본 3벌).'
+            + '<br>· 시착 동의서는 <b>본 계약의 준비 단계</b>입니다. 정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정되며, 시착을 진행하시면 예약금은 시착 비용으로 전환됩니다.')
          + '<br>· 계약서는 '+L+'을 마친 뒤 마이페이지로 보내 드립니다.'
          + '<br>· '+L+' 장소 — 경기 고양시 덕양구 향동동 프라이빗 스튜디오 (3호선 원당역 버스 약 15분 · 전용 주차)'
          + '<br>&nbsp;&nbsp;&nbsp;정확한 위치는 '+L+' 전에 안내드립니다.</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(c.cancelUrl||'')+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅
+    if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(fixGas(c.cancelUrl))+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
   } else if (s === '변경제안'){
-    body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>';
+    body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>'
+         + (c.proposedNote ? '<div class="cc-note" style="text-align:left;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'" <span style="font-style:normal;color:var(--light)">— 디렉터</span></div>' : '');
     cta  = '<button type="button" class="cc-btn" id="mp_acceptProp">이 시간으로 수락</button>' + (url ? '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">다른 시간 보기</a>' : '');
   } else if (s === '취소'){
     body = '<div class="cc-title">취소된 예약입니다</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
@@ -831,11 +858,23 @@ function doSignFitting(){
 
 // [02-3] 계약서 카드 — 미발송=null / 발송=계약서보기+서명기한 카운트다운+[계약서 서명하기] / 서명완료=완료+보기.
 var _contractTimer = null;
-function renderContract(c){
+function renderContract(c, ctx){
   var box = $('mp_contract');
   if (!box) return;
   if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
-  if (!c){ box.style.display='none'; box.innerHTML=''; return; }
+  if (!c){
+    if (ctx && /계약서/.test(String(ctx.waiting||''))){   // [Task5] 발송 전 대기(상담완료·시착완료·계약 미발송) — 진행 안내 카드
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
+        + '<div class="cc-title">계약서, 이렇게 진행돼요</div>'
+        + '<div class="cc-note" style="text-align:left;line-height:1.75;margin-top:10px">'
+        + '본 계약서는 상담을 마친 뒤 <b>24시간 안에</b> 이 마이페이지로 보내 드리며, 발송되면 <b>카카오톡</b>으로 알려드립니다.<br><br>'
+        + '계약서가 도착하면 <b>3일(72시간) 안에</b> 서명해 주세요. 기한이 지나면 계약서는 자동으로 파기되고 예약은 취소됩니다.<br><br>'
+        + '<span style="color:var(--light)">*시착을 진행하신 경우, 미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않습니다.</span>'
+        + '</div></div>';
+      box.style.display='block'; return;
+    }
+    box.style.display='none'; box.innerHTML=''; return;
+  }
   var link = c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '';
   if (c.signed){   // 완료 → 접기
     var full = (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '')
@@ -920,12 +959,18 @@ function renderPayment(p){
     var amt;
     if(a){
       amt = '<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b><br>'
-          + '<span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span></div>'
-          + (p.account ? '<div class="cc-sub">'+escapeHtml(p.account)+(p.holder?(' ('+escapeHtml(p.holder)+')'):'')+'</div>' : '');
+          + '<span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span></div>';
     } else {
       amt = '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
     }
-    body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt;
+    var acct = p.account ? (
+        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
+      + (p.holder ? '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>' : '')
+      + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '</div>' ) : '';
+    body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금자명" autocomplete="name">'
         + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
@@ -934,6 +979,11 @@ function renderPayment(p){
   box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Payment</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   box.style.display='block';
   var b=$('mp_paySignal'); if(b) b.addEventListener('click', doPaySignal);
+  var ac=$('mp_acctCopy'); if(ac) ac.addEventListener('click', function(){
+    var t=String(p.account||''); if(!t) return;
+    var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
+  });
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 function doPaySignal(){
@@ -1411,6 +1461,9 @@ function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value
 
 // 로그아웃
 $('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });
+
+// [새로고침] 진행 상황 수동 갱신 — loadMyState가 로딩 화면으로 피드백
+(function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){ loadMyState(); }); } })();
 
 // ── 코드찾기 / 비번재설정 요청 ─────────────────
 var forgotMode = 'findCode';
