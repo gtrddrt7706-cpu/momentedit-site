@@ -289,6 +289,13 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .inv-dz.sel{border-color:var(--gold);color:var(--accent);background:var(--gold-bg,#faf6ef)}
 .inv-fields textarea.cc-input{font-family:var(--serif-ko);line-height:1.6;resize:vertical}
 .inv-chk{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin:5px 0}
+/* 다이닝·식순 트랙 — 대시보드 완료표시 + 식순 12종 선택칩 */
+.trk-ok{color:var(--gold-deep);font-size:12px}
+.trk-chips{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 2px}
+.trk-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:10px 11px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--accent);user-select:none}
+.trk-chip.on{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
+.trk-chip .tc-box{width:16px;height:16px;border:1px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;line-height:1;color:#fff;background:#fff}
+.trk-chip.on .tc-box{background:var(--gold);border-color:var(--gold)}
 .inv-prev{margin:14px 0;padding:18px 16px;border:1px dashed var(--border);border-radius:8px;text-align:center;background:var(--gold-bg,#faf6ef)}
 .ivp-names{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
 .ivp-title{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:8px}
@@ -1124,8 +1131,9 @@ function weddingTimeOptions(sel){
 // [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
+  if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(!p.entered){
     box.innerHTML = productionFormHtml(p.base||{});
     box.style.display='block';
@@ -1133,10 +1141,9 @@ function renderProduction(p, inv){
   } else {
     box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
     box.style.display='block';
-    Array.prototype.forEach.call(box.querySelectorAll('[data-prep]'), function(el){
-      el.addEventListener('click', function(){ mpAlert('아직 준비 중이에요. 곧 열릴 거예요.'); });
-    });
     var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
+    var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
+    var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
   }
 }
 
@@ -1252,29 +1259,34 @@ function doSaveProductionBase(){
   }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function productionDashHtml(t, inv){
-  inv=inv||{};
+  t=t||{}; inv=inv||{};
+  function actLabel(st){ return st==='완료' ? '다시 보기' : (st==='진행중' ? '이어서 하기' : '시작하기'); }
+  function stText(st){ return st==='완료' ? '완료' : (st==='진행중' ? '작성 중' : '아직 안 함'); }
+  function row(name, st, btnId, label, showSt){
+    var done = (st==='완료');
+    return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
+      + (showSt?'<span class="trk-st">'+escapeHtml(stText(st))+'</span>':'')
+      + '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';
+  }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
-  function trk(name, sub, opt){
-    opt=opt||{};
-    return '<div class="trk"'+(opt.prep?' data-prep="1"':'')+'><span class="trk-nm">'+escapeHtml(name)+'</span><span class="trk-st">'+escapeHtml(sub)+'</span></div>';
-  }
   return '<div class="consult-card" style="text-align:left">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title" style="text-align:left">예식 준비</div>'
     + '<div class="cc-sub" style="text-align:left">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + '<div class="trk-list">'
-      + '<div class="trk"><span class="trk-nm">청첩장</span><button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="mp_invStart">'+escapeHtml(ilabel)+'</button></div>'
-      + trk('다이닝', '준비 중', { prep:true })
-      + trk('식순', '준비 중', { prep:true })
+      + row('청첩장', ist, 'mp_invStart', ilabel, false)
+      + row('다이닝', t.dining||'시작전', 'mp_diningStart', null, true)
+      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, true)
     + '</div>'
-    + '<div class="cc-note">셋 다 완료하면 예식 준비가 끝나요. (다이닝·식순은 곧 열립니다)</div>'
+    + '<div class="cc-note">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
     + '</div>';
 }
 
 // ── 청첩장 입력 위저드 (04) — 입구 → 혼주·계좌 → [디자인·발행=다음 조각] ──
 var INVFLOW = { active:false, step:'method', draft:{} };
 function startInvFlow(inv, base){
+  if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;       // 한 번에 하나의 위저드만
   var dr = (inv && inv.draft) ? JSON.parse(JSON.stringify(inv.draft)) : {};
   var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
   if(!dr.method) st='method';
@@ -1585,6 +1597,137 @@ function renderInvQR(url){
     }catch(e){}
   }
   qd.innerHTML='<div class="cc-note" style="text-align:left">QR 이미지는 준비 중이에요. 인쇄물엔 아래 주소를 넣어 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
+}
+
+// ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
+var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
+var TRK_META = { dining:{ label:'다이닝', steps:2 }, ritual:{ label:'식순', steps:3 } };
+function startTrkFlow(track, draft, base){
+  if(!TRK_META[track]) return;
+  INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
+  var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
+  var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
+  TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
+  renderTrkFlow($('mp_production'));
+  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+}
+function saveTrkDraft(done){
+  TRKFLOW.draft._step = TRKFLOW.step;
+  return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
+}
+function exitTrkFlow(){ saveTrkDraft(false).then(function(){ TRKFLOW.active=false; loadMyState(); }); }   // 나가기도 저장
+function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else renderDining(box); }
+function _trkOpt(val, cur, key, label, sub){
+  return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
+}
+function trkShell(stepNo, q, sub, body, last){
+  var m=TRK_META[TRKFLOW.track];
+  var navLeft = (TRKFLOW.step>0)
+    ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
+    : '<button type="button" class="cc-btn-ghost" id="trk_exit">나가기</button>';
+  return '<div class="consult-card inv-wrap">'
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span></div>'
+    + '<div class="inv-q">'+escapeHtml(q)+'</div>'
+    + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
+    + (body||'')
+    + '<div id="trk_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:4px"></div>'
+    + '<div class="inv-nav">'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(last?'완료':'다음')+'</button></div>'
+    + '</div>';
+}
+function bindTrk(box, render, collect, opt){
+  opt=opt||{};
+  Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ if(e.type==='checkbox') return; e.addEventListener('input',collect); });
+  var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
+  var exit=$('trk_exit'); if(exit) exit.addEventListener('click', exitTrkFlow);
+  var next=$('trk_next'); if(next) next.addEventListener('click',function(){
+    collect();
+    if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
+    if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
+      saveTrkDraft(true).then(function(){ TRKFLOW.active=false; loadMyState(); }); return; }
+    saveTrkDraft(false); TRKFLOW.step++; render(box);
+  });
+}
+function renderDining(box){
+  var d=TRKFLOW.draft;
+  function collect(){
+    if($('trk_dHead')) d.headcount=($('trk_dHead').value||'').trim();
+    if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
+  }
+  if(TRKFLOW.step===0){
+    var on=d.dining_on||'';
+    var meal=['코스 다이닝','뷔페형','핑거푸드·디저트','아직 정하지 못했어요'];
+    var ptn=['모먼트에디트 추천(큐레이션)','직접 섭외할게요','상담 때 함께 정할게요'];
+    var f = (on==='Y') ? '<div class="inv-fields">'
+        + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원</div>'
+        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 40" value="'+escapeHtml(d.headcount||'')+'">'
+        + '<div class="inv-side-l" style="margin:14px 0 4px">식사 형태</div>'
+        + meal.map(function(x){return _trkOpt(x,d.mealType,'mealType',x);}).join('')
+        + '<div class="inv-side-l" style="margin:14px 0 4px">파트너사(다이닝 업체)</div>'
+        + ptn.map(function(x){return _trkOpt(x,d.partner,'partner',x);}).join('')
+        + '<div class="cc-note">파트너사 목록은 상담 때 함께 보고 최종 확정해요.</div>'
+        + '</div>' : '';
+    var body='<div class="inv-gate"><div class="inv-gate-q">예식 후 다이닝(식사·다과)을 진행하시나요?</div><span class="inv-yn"><button type="button" data-gate="dining_on" data-gv="Y" class="'+(on==='Y'?'on':'')+'">네</button><button type="button" data-gate="dining_on" data-gv="N" class="'+(on==='N'?'on':'')+'">아니요</button></span></div>'+f;
+    box.innerHTML=trkShell(1,'다이닝, 어떻게 준비할까요?','식사·다과 구성이에요. 모두 나중에 바꿀 수 있어요.',body,false);
+    bindTrk(box,renderDining,collect,{ validate:function(){ if(!d.dining_on) return '진행 여부를 골라 주세요.'; } });
+  } else {
+    if(d.dining_on==='N'){
+      box.innerHTML=trkShell(2,'다이닝 없이 진행해요','이 단계는 완료로 표시돼요. 언제든 다시 켤 수 있어요.','',true);
+      bindTrk(box,renderDining,collect,{ last:true });
+    } else {
+      var body='<div class="cc-note">고르신 구성으로 협력사와 함께 준비해요. 메뉴·인원은 상담 때 더 다듬어요.</div>'
+        + '<label class="inv-chk" style="display:flex;gap:8px;align-items:flex-start;margin-top:12px"><input type="checkbox" id="trk_agree" '+(d.entrustAgree==='Y'?'checked':'')+' style="margin-top:3px"><span>다이닝·인쇄 협력사에 준비에 필요한 정보(성함·인원·메뉴)를 전달하는 것에 동의합니다.</span></label>';
+      box.innerHTML=trkShell(2,'마지막으로 확인할게요',null,body,true);
+      bindTrk(box,renderDining,collect,{ last:true, validate:function(){ if(!($('trk_agree')&&$('trk_agree').checked)) return '협력사 정보 위탁에 동의해 주세요.'; } });
+    }
+  }
+}
+function renderRitual(box){
+  var d=TRKFLOW.draft;
+  function collect(){
+    if($('trk_inMusic')) d.entryMusic=($('trk_inMusic').value||'').trim();
+    if($('trk_outMusic')) d.exitMusic=($('trk_outMusic').value||'').trim();
+    if($('trk_addOrder')) d.extraOrder=($('trk_addOrder').value||'').trim();
+    if($('trk_songT')) d.songTitle=($('trk_songT').value||'').trim();
+    if($('trk_songA')) d.songArtist=($('trk_songA').value||'').trim();
+    if($('trk_timeline')) d.timeline=($('trk_timeline').value||'').trim();
+  }
+  var EVENTS=['개식','환영 인사','주례','혼인 서약','예물 교환','부모님께 편지','내빈 인사','와인 세리머니','축가','케이크 커팅','성장 영상','이벤트 영상'];
+  if(TRKFLOW.step===0){
+    var mc=['직접 섭외한 사회자','사회자 없이 진행','모먼트에디트에 섭외 요청'];
+    var body='<div class="inv-side-l" style="margin:6px 0 4px">사회자</div>'
+      + mc.map(function(x){return _trkOpt(x,d.mc,'mc',x);}).join('')
+      + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">입장·퇴장 음악 <span style="color:var(--label-soft)">(선택)</span></div>'
+      + '<input class="cc-input" id="trk_inMusic" autocomplete="off" placeholder="입장 음악 (곡명·가수)" value="'+escapeHtml(d.entryMusic||'')+'">'
+      + '<input class="cc-input" id="trk_outMusic" autocomplete="off" placeholder="퇴장 음악 (곡명·가수)" value="'+escapeHtml(d.exitMusic||'')+'" style="margin-bottom:0"></div>';
+    box.innerHTML=trkShell(1,'식 진행, 어떻게 할까요?','사회와 음악을 먼저 정해요. 비워도 괜찮아요.',body,false);
+    bindTrk(box,renderRitual,collect,{ validate:function(){ if(!d.mc) return '사회자 진행 방식을 골라 주세요.'; } });
+  } else if(TRKFLOW.step===1){
+    var sel=d.events||[];
+    var chips='<div class="trk-chips">'+EVENTS.map(function(x){ var on=sel.indexOf(x)>=0; return '<span class="trk-chip'+(on?' on':'')+'" data-chip="'+escapeHtml(x)+'"><span class="tc-box">'+(on?'✓':'')+'</span>'+escapeHtml(x)+'</span>'; }).join('')+'</div>';
+    var body=chips
+      + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">더 넣고 싶은 순서 <span style="color:var(--label-soft)">(선택)</span></div>'
+      + '<input class="cc-input" id="trk_addOrder" autocomplete="off" placeholder="예: 양가 부모님 맞절, 포토타임" value="'+escapeHtml(d.extraOrder||'')+'" style="margin-bottom:0"></div>'
+      + '<div class="cc-note">고른 순서로 30분 식순을 구성해요. 세부 순서는 상담 때 함께 맞춰요.</div>';
+    box.innerHTML=trkShell(2,'식순을 골라주세요','넣고 싶은 순서를 모두 골라 주세요.',body,false);
+    bindTrk(box,renderRitual,collect,{});
+  } else {
+    var acc=['MR(반주 음원)','라이브 연주','아직 미정'];
+    var hasSong=(d.events||[]).indexOf('축가')>=0;
+    var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">축가'+(hasSong?'':' <span style="color:var(--label-soft)">(선택)</span>')+'</div>'
+      + '<input class="cc-input" id="trk_songT" autocomplete="off" placeholder="곡명" value="'+escapeHtml(d.songTitle||'')+'">'
+      + '<input class="cc-input" id="trk_songA" autocomplete="off" placeholder="가수·아티스트" value="'+escapeHtml(d.songArtist||'')+'">'
+      + '<div class="inv-side-l" style="margin:10px 0 4px">반주</div>'
+      + acc.map(function(x){return _trkOpt(x,d.accompaniment,'accompaniment',x);}).join('')
+      + '</div>'
+      + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">30분 식순 타임라인 <span style="color:var(--label-soft)">(선택)</span></div>'
+      + '<textarea class="cc-input" id="trk_timeline" placeholder="예) 0:00 개식 / 0:02 입장 / 0:08 주례 …" style="min-height:78px;margin-bottom:0">'+escapeHtml(d.timeline||'')+'</textarea></div>'
+      + '<div class="cc-note">성장·이벤트 영상 파일은 상담 때 또는 별도 링크로 전달해 주세요. (여기선 받지 않아요)</div>';
+    box.innerHTML=trkShell(3,'축가·마무리','거의 다 됐어요. 완료하면 대시보드로 돌아가요.',body,true);
+    bindTrk(box,renderRitual,collect,{ last:true });
+  }
 }
 
 // [수정] 탭 재포커스 자동 새로고침 제거 — 새로고침은 수동(NOW 카드 새로고침 버튼)·동작(서명·저장 등) 후에만 일어남.

@@ -61,6 +61,32 @@ function handleSaveProductionBase(body) {
   }
 }
 
+// [03] 다이닝·식순 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
+//   handleSaveInvitationDraft 와 같은 패턴. done=true 면 완료, 아니면 진행중(이미 완료면 완료 유지).
+function handleSaveProductionTrack(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var track = String((body && body.track) || '').trim();
+  if (track !== 'dining' && track !== 'ritual') return { ok: false, error: '알 수 없는 항목입니다.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    d[track + 'Draft'] = (body && body.draft) || {};
+    d.tracks = d.tracks || {};
+    if (body && body.done) d.tracks[track] = '완료';
+    else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
+    touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
 function buildProductionState(r) {
@@ -85,9 +111,11 @@ function buildProductionState(r) {
     base: base,
     tracks: {
       invitation: t.invitation || '시작전',    // 04 청첩장에서 갱신
-      dining: '준비중',                         // 1차 자리(클릭 시 "준비 중" 안내)
-      ritual: '준비중'                          // 1차 자리(미정·희준)
-    }
+      dining: t.dining || '시작전',            // 다이닝 위저드에서 갱신
+      ritual: t.ritual || '시작전'             // 식순 위저드에서 갱신
+    },
+    diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
+    ritualDraft: draft.ritualDraft || null     // 식순 입력 이어하기용
   };
 }
 
