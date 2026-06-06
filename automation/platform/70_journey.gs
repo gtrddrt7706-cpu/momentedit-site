@@ -153,6 +153,16 @@ function getSignatureDataUrl(code, type) {
   }
   return found;
 }
+// [02] 마이페이지 완료 카드 펼침용 — 내 시착/계약 손글씨 서명 dataUrl 조회(세션 본인 것만).
+function handleGetSignature(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var type = String((body && body.type) || '').trim();
+  if (type !== '시착' && type !== '계약') return { ok: false, error: '알 수 없는 요청입니다.' };
+  return { ok: true, dataUrl: getSignatureDataUrl(code, type) || '' };
+}
 
 // ============================ 02-3 · 계약서 서명 ============================
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.

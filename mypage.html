@@ -222,6 +222,13 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .cc-done-toggle{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft)}
 .cc-done-full{padding:2px 18px 16px}
+/* 완료 카드 펼침 시 손글씨 서명 */
+.cc-sig{margin-top:14px;padding-top:13px;border-top:1px dashed var(--hairline,rgba(28,27,25,.12))}
+.cc-sig-cap{display:block;font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F);margin-bottom:8px}
+.cc-sig-slot{position:relative;border:1px solid var(--border);border-radius:8px;background:var(--bg,#FAFAF8);min-height:84px;display:flex;align-items:center;justify-content:center;padding:14px 16px 18px;overflow:hidden}
+.cc-sig-slot::after{content:'';position:absolute;left:16px;right:16px;bottom:14px;border-bottom:1px solid var(--border);opacity:.55}
+.cc-sig-img{position:relative;max-width:100%;max-height:120px;height:auto;display:block;mix-blend-mode:multiply}
+.cc-sig-ph{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 /* 제작 화면(기초정보 폼·3트랙) */
 .pf{display:flex;gap:6px;align-items:center}
 .pf .pf-l{flex:0 0 36px;margin:0;font-size:12px}
@@ -789,7 +796,7 @@ function applyCardStageView(d){
     if (mi >= 0 && cur < mi){ box.style.display = 'none'; }
   });
 
-  // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '지난 단계 보기'로만 펼침 — 제작/예식준비에 집중
+  // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '계약 정보 보기'로만 펼침 — 제작/예식준비에 집중
   var paidIdx = sIdx('입금완료');
   if (paidIdx >= 0 && cur >= paidIdx) {
     var pastIds = ['mp_fitting','mp_contract','mp_payment'];
@@ -800,12 +807,12 @@ function applyCardStageView(d){
       if (anchor && anchor.parentNode) {
         var t = document.createElement('button');
         t.type='button'; t.id='mp_pastToggle'; t.className='past-toggle';
-        t.innerHTML = '지난 단계 보기 <span class="pt-ar">▾</span>';
+        t.innerHTML = '계약 정보 보기 <span class="pt-ar">▾</span>';
         anchor.parentNode.insertBefore(t, anchor);
         t.addEventListener('click', function(){
           var open = t.classList.toggle('open');
           pastIds.forEach(function(id){ var b=$(id); if (b && (b.innerHTML||'').trim()!=='') b.style.display = open?'block':'none'; });
-          t.innerHTML = (open?'지난 단계 접기 ':'지난 단계 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
+          t.innerHTML = (open?'계약 정보 접기 ':'계약 정보 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
         });
       }
     }
@@ -920,7 +927,7 @@ function renderFitting(f, d){
         + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 접힌 기록
-      collapsedCard(box, '시착 동의 완료', termsFull);
+      collapsedCard(box, '시착 동의 완료', termsFull, '시착');
     }
     return;
   }
@@ -968,7 +975,7 @@ function renderContract(c, ctx){
   if (c.signed){   // 완료 → 접기
     var full = (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '')
              + (link ? '<div class="cc-actions">'+link+'</div>' : '');
-    collapsedCard(box, '계약 완료', full);
+    collapsedCard(box, '계약 완료', full, '계약');
     return;
   }
   var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
@@ -1087,14 +1094,25 @@ function doPaySignal(){
   }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 
-// ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ──
-function collapsedCard(box, label, fullHtml){
+// ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
+function collapsedCard(box, label, fullHtml, sigType){
+  var sigBlock = sigType ? '<div class="cc-sig" data-sigtype="'+escapeHtml(sigType)+'"><span class="cc-sig-cap">Signature</span><div class="cc-sig-slot"><span class="cc-sig-ph">서명 불러오는 중…</span></div></div>' : '';
   box.innerHTML = '<div class="consult-card cc-done">'
     + '<div class="cc-done-row" role="button" tabindex="0"><span class="cc-done-check">✓</span><span class="cc-done-label">'+escapeHtml(label)+'</span><span class="cc-done-toggle">펼치기</span></div>'
-    + '<div class="cc-done-full" style="display:none">'+(fullHtml||'')+'</div></div>';
+    + '<div class="cc-done-full" style="display:none">'+(fullHtml||'')+sigBlock+'</div></div>';
   box.style.display='block';
   var row=box.querySelector('.cc-done-row'), full=box.querySelector('.cc-done-full'), tg=box.querySelector('.cc-done-toggle');
-  if(row) row.addEventListener('click', function(){ var open=full.style.display!=='none'; full.style.display=open?'none':'block'; if(tg) tg.textContent=open?'펼치기':'접기'; });
+  if(row) row.addEventListener('click', function(){ var open=full.style.display!=='none'; full.style.display=open?'none':'block'; if(tg) tg.textContent=open?'펼치기':'접기'; if(!open) _loadSig(full); });
+}
+// 펼침 시 1회 서명 조회(getSignature) → <img> 렌더. 실패/없음은 조용한 안내.
+function _loadSig(scope){
+  var wrap = scope && scope.querySelector('.cc-sig[data-sigtype]'); if(!wrap || wrap.getAttribute('data-loaded')) return;
+  wrap.setAttribute('data-loaded','1');
+  var slot = wrap.querySelector('.cc-sig-slot'), type = wrap.getAttribute('data-sigtype');
+  api({action:'getSignature', token:getToken(), type:type}).then(function(r){
+    if(r && r.ok && r.dataUrl){ var img=new Image(); img.className='cc-sig-img'; img.alt='서명'; img.onload=function(){ slot.innerHTML=''; slot.appendChild(img); }; img.onerror=function(){ slot.innerHTML='<span class="cc-sig-ph">서명 이미지를 불러오지 못했어요.</span>'; }; img.src=r.dataUrl; }
+    else { slot.innerHTML='<span class="cc-sig-ph">서명 기록을 찾지 못했어요.</span>'; }
+  }).catch(function(){ slot.innerHTML='<span class="cc-sig-ph">서명을 불러오지 못했어요. 잠시 후 다시 펼쳐 주세요.</span>'; wrap.removeAttribute('data-loaded'); });
 }
 
 // ── 한글 → 로마자(제안용·기본 매핑). 완벽 변환 아님 → 고객이 자유 수정 ──

@@ -1806,6 +1806,7 @@ function doPost(e) {
       // ── 02 여정(계약·입금) — 세션→Customers ──
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       case 'signContract':       return jsonOut(handleSignContract(body));
+      case 'getSignature':       return jsonOut(handleGetSignature(body));
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
