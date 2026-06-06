@@ -1422,6 +1422,7 @@ function _designHasSub(n){ return ['03','04','07','08'].indexOf(n)>=0; }
 function _starGold(s){ return escapeHtml(String(s||'')).replace(/\*([^*]+)\*/g,'<span style="color:var(--gold-deep)">$1</span>'); }
 // 디자인별 예시 렌더 이미지 (assets/preview) — online=prev-digital-NN, offline=prev-family-NN
 function _prevSrc(side,n){ return '/assets/preview/prev-'+(side==='online'?'digital':'family')+'-'+n+'.png'; }
+function _prevThumb(side,n){ return '/assets/preview/thumb/prev-'+(side==='online'?'digital':'family')+'-'+n+'.webp'; }   // 표지 크롭 경량 썸네일(인라인용)
 function designBlock(side,label){
   var d=INVFLOW.draft, K=SIDE_KEYS[side], cur=d[K.d]||'';
   var grid=DESIGNS.map(function(p){ return '<button type="button" class="inv-dz'+(cur===p[0]?' sel':'')+'" data-side="'+side+'" data-n="'+p[0]+'">'+p[0]+' '+p[1]+'</button>'; }).join('');
@@ -1437,11 +1438,11 @@ function designBlock(side,label){
   // 이 섹션 바로 아래 예시 미리보기(저장된 렌더 이미지) — 표지 영역을 액자에 보여주고 '전체 보기'로 새 탭
   var prev='';
   if(cur){
-    var src=_prevSrc(side,cur);
+    var src=_prevSrc(side,cur), thumb=_prevThumb(side,cur);
     prev='<div class="inv-onep">'
       + '<div class="inv-onep-cap">'+escapeHtml(label)+' 예시 · '+cur+' '+escapeHtml(_designName(cur))+'</div>'
       + '<a class="inv-onep-frame" href="'+src+'" target="_blank" rel="noopener" aria-label="청첩장 예시 크게 보기">'
-      +   '<img class="inv-onep-img" loading="lazy" decoding="async" src="'+src+'" alt="'+escapeHtml(_designName(cur))+' 청첩장 예시" onerror="var w=this.closest(\'.inv-onep\'); if(w) w.style.display=\'none\'">'
+      +   '<img class="inv-onep-img" loading="lazy" decoding="async" src="'+thumb+'" alt="'+escapeHtml(_designName(cur))+' 청첩장 예시" onerror="this.onerror=null;this.src=\''+src+'\'">'
       + '</a>'
       + '<a class="cc-btn-ghost inv-onep-zoom" href="'+src+'" target="_blank" rel="noopener">전체 보기 ↗</a>'
       + '</div>';
