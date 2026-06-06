@@ -821,6 +821,25 @@ function _clearForwardData(colOf, cust, product, targetStage) {
   }
   return upd;
 }
+// 강제 되돌리기로 '신청접수'까지 내릴 때 — 상담 예약을 초기상태(신청접수)로 되돌리고 캘린더 슬롯 해제.
+//   상태→신청접수 + 선택날짜·시간·확정·변경제안·취소일시 비움 + 캘린더 이벤트 삭제(슬롯 해제). 이미 초기상태면 무해(false).
+function _resetConsultBooking(code) {
+  try {
+    var cr = findRowByPersonalCode(code);
+    if (!cr) return false;
+    var curStatus = String(cr.get('상태') || '').trim();
+    var hasEvent = !!String(cr.get('캘린더이벤트ID') || '').trim();
+    if (curStatus === ST.APPLIED && !hasEvent) return false;          // 이미 신청접수 + 캘린더 없음 = 할 일 없음
+    var bsheet = getSheet(), bcolOf = buildHeaderIndex(bsheet);
+    deleteCalendarEvent(bsheet, bcolOf, cr.num, coupleNames(cr));     // 캘린더 슬롯 해제
+    var reset = { '상태': ST.APPLIED, '선택날짜': '', '선택시간': '', '확정일시': '', '변경제안날짜': '', '변경제안시간': '', '취소일시': '' };
+    Object.keys(reset).forEach(function (h) { if (bcolOf[h]) writeCell(bsheet, bcolOf, cr.num, h, reset[h]); });
+    return true;
+  } catch (e) {
+    notifyStudio('[관리자] ⚠️오류 · 강제 되돌리기 상담예약 초기화 실패', code + '\n' + (e && e.message));
+    return false;
+  }
+}
 function adminForceStage(code, targetStage, reason) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -836,15 +855,22 @@ function adminForceStage(code, targetStage, reason) {
       return { ok: false, error: '이 상품에 없는 단계입니다: ' + targetStage };
     }
     var cur = String(cust.get('현재단계') || '').trim();
+    var flow = stageFlowFor(product), ti = flow.indexOf(targetStage), isSnap = (product === P.PRODUCT_SNAP);
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cleared = _clearForwardData(colOf, cust, product, targetStage);   // 이후 단계 진행 데이터 초기화(완전 초기화)
-    if (cur === targetStage && !Object.keys(cleared).length) return { ok: true, noop: true, from: cur, to: targetStage };  // 같은 단계 + 지울 것 없음 = 멱등
+    // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
+    var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
+    var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
+    if (cur === targetStage && !Object.keys(cleared).length && !needBookingReset) return { ok: true, noop: true, from: cur, to: targetStage };
     var upd = { '현재단계': targetStage };
     Object.keys(cleared).forEach(function (k) { upd[k] = cleared[k]; });
     touchCustomer(sheet, colOf, cust.num, upd);
+    var bookingReset = needBookingReset ? _resetConsultBooking(code) : false;   // 예약 취소 + 캘린더 슬롯 해제
     var clearedCols = Object.keys(cleared).filter(function (k) { return k !== '동의기록'; });
-    _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '') + ' · 사유: ' + reason);
-    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, warning: '이후 단계 진행 데이터를 초기화했습니다. 상담 예약(캘린더)은 별개입니다.' };
+    _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
+      + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
+      + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '') + ' · 사유: ' + reason);
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: '이후 단계 진행 데이터' + (bookingReset ? '와 상담 예약(캘린더 포함)' : '') + '을 초기화했습니다.' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
