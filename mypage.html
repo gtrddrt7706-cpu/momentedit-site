@@ -1646,7 +1646,10 @@ function bindTrk(box, render, collect, opt){
     collect();
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
     if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
-      saveTrkDraft(true).then(function(){ TRKFLOW.active=false; loadMyState(); }); return; }
+      saveTrkDraft(true).then(function(r){
+        if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
+        TRKFLOW.active=false; loadMyState();
+      }); return; }
     saveTrkDraft(false); TRKFLOW.step++; render(box);
   });
 }
