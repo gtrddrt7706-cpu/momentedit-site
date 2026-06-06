@@ -34,7 +34,7 @@ const CONFIG = {
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
-  DEPOSIT: 100000,                             // 예약금
+  DEPOSIT: 200000,                             // 예약금
   ACCOUNT: '기업 000-000-00000',                // 입금 계좌 — ⚠️ 임시값(기업은행), 실제 계좌번호로 교체 필요
   ACCOUNT_HOLDER: '모먼트에디트',                // ⚠️ 임시값(예금주)
   EXEC_URL: 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec',  // 웹앱 /exec (mypage.html의 EXEC_URL과 동일) — webAppUrl()이 사용
