@@ -70,7 +70,7 @@ main.centered{display:block;flex:none;padding-top:12vh;padding-bottom:14vh}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* ── 로딩 ── */
-#loading{text-align:center;padding:90px 0;color:var(--light)}
+#loading{text-align:center;color:var(--light);min-height:calc(100vh - 280px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}
 .spinner{width:28px;height:28px;border:2px solid var(--card-border);border-top-color:var(--seal);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -506,7 +506,7 @@ function mpSignaturePad(opts){
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
-    if(v==='loading'){ el.style.display=(viewId==='loading')?'block':'none'; }
+    if(v==='loading'){ el.style.display=(viewId==='loading')?'flex':'none'; }
     else { el.classList.toggle('show', v===viewId); }
   });
   // 로그인·코드찾기·재설정은 세로 중앙(풋터까지 한 화면) / 마이페이지는 상단 고정
