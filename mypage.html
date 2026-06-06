@@ -654,6 +654,7 @@ function stageLabel(code, product){
 }
 
 function renderMyPage(d){
+  var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 — 데스크톱 600px / 모바일 100%)
   // 환영 — 이름 + '님'(작게)
   $('mp_names').innerHTML = escapeHtml(d.name || '고객') + ' <span class="nim">님</span>';
   $('mp_product').textContent = d.product || '';
@@ -772,7 +773,6 @@ function applyCardStageView(d){
 
   // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '지난 단계 보기'로만 펼침 — 제작/예식준비에 집중
   var paidIdx = sIdx('입금완료');
-  var mnW = document.querySelector('main'); if (mnW) mnW.classList.toggle('wide', paidIdx >= 0 && cur >= paidIdx);   // [제작단계] 좌우 여유(데스크톱)
   if (paidIdx >= 0 && cur >= paidIdx) {
     var pastIds = ['mp_fitting','mp_contract','mp_payment'];
     var hasPast = pastIds.some(function(id){ var b=$(id); return b && b.style.display!=='none' && (b.innerHTML||'').trim()!==''; });
@@ -1323,6 +1323,9 @@ function invStepParents(box){
   // 드롭다운(목록에 없는 기존값은 '기타'로 보존) + 기타 선택 시 아래 직접입력 줄(etcRow) 노출
   function selOnly(id,arr,cur,flex){ cur=cur||''; var sv=(cur!==''&&arr.indexOf(cur)<0)?ETC:(cur||arr[0]); return '<select class="cc-input" id="'+id+'" style="'+(flex||'')+'margin-bottom:0">'+arr.concat([ETC]).map(function(x){return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'; }
   function etcRow(id,cur,arr,ph){ cur=cur||''; var etc=(cur!==''&&arr.indexOf(cur)<0); return '<input class="cc-input" id="'+id+'_e" placeholder="'+ph+'" value="'+(etc?escapeHtml(cur):'')+'" style="margin-top:6px;'+(etc?'':'display:none')+'">'; }
+  // 부모님 계좌: 기존 단일값("은행 번호")을 은행/번호로 분리해 프리필 (은행이 목록에 있을 때만)
+  function paSplit(v){ v=String(v||'').trim(); var i=v.indexOf(' '); if(i>0){ var bk=v.slice(0,i); if(BANKS.indexOf(bk)>=0) return {bank:bk,no:v.slice(i+1).trim()}; } return {bank:'',no:v}; }
+  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 104px;')+'<input class="cc-input" id="'+numId+'" placeholder="'+label+' 계좌번호" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
   var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
     +'<div class="inv-row"><input class="cc-input" id="iv_gp" placeholder="신랑 측 혼주 (예: 이재환 최미경)" value="'+escapeHtml(d.groomParents||'')+'">'+selOnly('iv_gct',GT,gtCur,'flex:0 0 124px;')+'</div>'+etcRow('iv_gct',gtCur,GT,'신랑 호칭 직접 입력 (예: 장손)')
@@ -1331,8 +1334,11 @@ function invStepParents(box){
     +(is05?'<div class="cc-note">보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.</div>':'')
     +'<div class="cc-note">두 분 성함 사이 가운뎃점(·)은 띄어쓰기로 입력하면 자동으로 들어가요. 예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';
   var paF = d.envelopeShowParents==='Y' ? '<div class="inv-fields">'
-    +'<div class="inv-row"><input class="cc-input" id="iv_gfa" placeholder="신랑 아버지 계좌" value="'+escapeHtml(d.groomFatherAccount||'')+'"><input class="cc-input" id="iv_gma" placeholder="신랑 어머니 계좌" value="'+escapeHtml(d.groomMotherAccount||'')+'"></div>'
-    +'<div class="inv-row"><input class="cc-input" id="iv_bfa" placeholder="신부 아버지 계좌" value="'+escapeHtml(d.brideFatherAccount||'')+'"><input class="cc-input" id="iv_bma" placeholder="신부 어머니 계좌" value="'+escapeHtml(d.brideMotherAccount||'')+'"></div><div class="cc-note">은행과 계좌번호를 함께 적어주세요. (예: 국민 123456-78-901234)</div></div>' : '';
+    + paRow('신랑 아버지','iv_gfb','iv_gfa','groomFatherAccount')
+    + paRow('신랑 어머니','iv_gmb','iv_gma','groomMotherAccount')
+    + paRow('신부 아버지','iv_bfb','iv_bfa','brideFatherAccount')
+    + paRow('신부 어머니','iv_bmb','iv_bma','brideMotherAccount')
+    + '<div class="cc-note">은행을 고르고 계좌번호를 적어주세요. 빈 칸은 청첩장에 안 나와요.</div></div>' : '';
   var aF = d._acctGate==='Y' ? '<div class="inv-fields">'
     +'<div class="inv-row">'+selOnly('iv_gb',BANKS,d.groomBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ga" placeholder="신랑 계좌번호 (예: 110-315-175994)" value="'+escapeHtml(d.groomAccount||'')+'"></div>'+etcRow('iv_gb',d.groomBank,BANKS,'신랑 은행 직접 입력')
     +'<div class="inv-row">'+selOnly('iv_bb',BANKS,d.brideBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ba" placeholder="신부 계좌번호 (예: 110-315-175994)" value="'+escapeHtml(d.brideAccount||'')+'"></div>'+etcRow('iv_bb',d.brideBank,BANKS,'신부 은행 직접 입력')
@@ -1351,15 +1357,16 @@ function invStepParents(box){
     if($('iv_gct')) d.groomChildTitle=rdSel('iv_gct'); if($('iv_bct')) d.brideChildTitle=rdSel('iv_bct');
     if($('iv_gb')) d.groomBank=rdSel('iv_gb'); if($('iv_ga')) d.groomAccount=rd('iv_ga');
     if($('iv_bb')) d.brideBank=rdSel('iv_bb'); if($('iv_ba')) d.brideAccount=rd('iv_ba');
-    if($('iv_gfa')) d.groomFatherAccount=rd('iv_gfa'); if($('iv_gma')) d.groomMotherAccount=rd('iv_gma');
-    if($('iv_bfa')) d.brideFatherAccount=rd('iv_bfa'); if($('iv_bma')) d.brideMotherAccount=rd('iv_bma');
+    var paJoin=function(bankId,numId){ var bk=rdSel(bankId), no=rd(numId); return no ? ((bk?bk+' ':'')+no) : ''; };
+    if($('iv_gfa')) d.groomFatherAccount=paJoin('iv_gfb','iv_gfa'); if($('iv_gma')) d.groomMotherAccount=paJoin('iv_gmb','iv_gma');
+    if($('iv_bfa')) d.brideFatherAccount=paJoin('iv_bfb','iv_bfa'); if($('iv_bma')) d.brideMotherAccount=paJoin('iv_bmb','iv_bma');
   }
   Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ e.addEventListener('input',collect); });   // #8 입력 즉시 draft 반영(나가기 보존)
   ['iv_gp','iv_bp'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('blur', function(){ var parts=el.value.trim().split(/[\s,\/.·∙ㆍ]+/).filter(Boolean); var v=parts.join('·'); if(v!==el.value){ el.value=v; collect(); } }); });   // 혼주 성함 가운뎃점(·) 자동
-  ['iv_gct','iv_bct','iv_gb','iv_bb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; collect(); }); });
+  ['iv_gct','iv_bct','iv_gb','iv_bb','iv_gfb','iv_gmb','iv_bfb','iv_bmb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; collect(); }); });
   $('iv_back').addEventListener('click',function(){collect();INVFLOW.step='method';renderInvFlow(box);});
   $('iv_next').addEventListener('click',function(){collect();saveInvDraft();INVFLOW.step='design';renderInvFlow(box);});
 }
