@@ -329,6 +329,14 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
+    <style>
+    .card-ahead{position:relative;opacity:0.48;filter:grayscale(0.4);pointer-events:none}
+    .card-ahead::after{content:'이미 진행된 기록 · 현재 단계로 되돌려졌습니다';display:block;margin:6px 4px 0;font-size:11px;letter-spacing:0.02em;color:var(--light);text-align:center}
+    .merged-head{margin:22px 0 2px;text-align:center;font-size:13px;letter-spacing:0.06em;color:var(--accent);font-weight:500}
+    details.cc-more{margin-top:12px}
+    details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
+    details.cc-more>summary::-webkit-details-marker{display:none}
+    </style>
 
     <!-- 카카오톡 -->
     <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
@@ -554,7 +562,7 @@ function renderMyPage(d){
   renderConsult(d.consult, d.product);
 
   // 시착 동의 (02-2) — 상담 카드 다음, 계약 전
-  renderFitting(d.fitting);
+  renderFitting(d.fitting, d);
 
   // 계약서 (02-3) — 시착 카드 다음
   renderContract(d.contract);
@@ -575,6 +583,42 @@ function renderMyPage(d){
   var ka = $('mp_kakao');
   if (d.kakao){ ka.href = d.kakao; ka.style.display='inline-flex'; }
   else { ka.style.display='none'; }
+
+  // 단계-카드 정합 — 상담박스 방문 후 숨김(#9) · 앞선 카드(강제 되돌리기 잔여) 흐림(#신규2) · 계약완료 섹션 묶음(#신규1)
+  applyCardStageView(d);
+}
+
+// [단계-카드 정합] 백엔드 데이터는 보존하되, 현재 단계 기준으로 화면만 정리.
+function applyCardStageView(d){
+  var cur = (typeof d.stageIndex==='number') ? d.stageIndex : -1;
+  var list = d.stageList || [];
+  function sIdx(name){ return list.indexOf(name); }
+  // 기존 묶음 제목 제거(재렌더 대비)
+  var oldHead = document.getElementById('mp_payHead'); if (oldHead) oldHead.remove();
+  if (cur < 0) return;
+
+  // #9 — 상담확정 박스(방문일·방문 전 안내·변경/취소)는 방문 전까지만.
+  //   상담완료 이후이거나, 시착 서명 완료(시착 단계 도달분)면 숨김.
+  var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착');
+  var fittingSigned = !!(d.fitting && d.fitting.signed);
+  if ((visitDone >= 0 && cur >= visitDone) || (fittingSigned && fitIdx >= 0 && cur >= fitIdx)) {
+    var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
+  }
+
+  // #신규2 — 현재 단계보다 '앞선' 카드에 데이터가 남아있으면(=관리자 강제 되돌리기) 흐림+읽기전용 라벨.
+  var cardMin = { mp_fitting:'시착', mp_contract:'상담완료', mp_payment:'계약완료', mp_production:'제작중', mp_result:'예식완료' };
+  Object.keys(cardMin).forEach(function(id){
+    var box = $(id); if (!box) return;
+    var mi = sIdx(cardMin[id]);
+    var ahead = (mi >= 0 && cur < mi && box.style.display !== 'none');
+    box.classList.toggle('card-ahead', ahead);
+  });
+
+  // #신규1 — 계약완료: 계약서+입금을 한 섹션 제목으로 묶어 인식.
+  var cBox = $('mp_contract');
+  if (cBox && cur === sIdx('계약완료') && cBox.style.display !== 'none') {
+    cBox.insertAdjacentHTML('beforebegin', '<div id="mp_payHead" class="merged-head">계약서 확인·서명 및 입금</div>');
+  }
 }
 
 function renderUpcoming(product, curIdx, stageList){
@@ -582,8 +626,8 @@ function renderUpcoming(product, curIdx, stageList){
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
-    ? [['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','입금완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달']]
-    : [['시착','동의 후 진행','시착'],['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','입금완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['결과물 전달','마이페이지에서 확인','결과물전달']];
+    ? [['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달']]
+    : [['시착','동의 후 진행','시착'],['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['결과물 전달','마이페이지에서 확인','결과물전달']];
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
@@ -616,11 +660,11 @@ function renderConsult(c, product){
     body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요.</div>';
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
-         + '<div class="cc-note" style="text-align:left;line-height:1.7;margin-top:10px">확정 후 안내'
-         + (isSnap ? '' : '<br>· 계약을 진행하시면 의상 시착이 가능해요')
-         + '<br>· 계약서는 여기 마이페이지로 보내드려요'
-         + '<br>· '+L+' 장소 · 경기 고양 덕양구 향동동 프라이빗 스튜디오 (3호선 원당역 버스 약 15분 · 전용 주차)'
-         + '<br>&nbsp;&nbsp;&nbsp;정확한 위치는 '+L+' 전에 안내드려요</div>';
+         + '<div class="cc-note" style="text-align:left;line-height:1.7;margin-top:10px">방문 전 안내'
+         + (isSnap ? '' : '<br>· 의상 컬렉션은 자유롭게 둘러보실 수 있습니다. 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 (기본 3벌).')
+         + '<br>· 계약서는 '+L+'을 마친 뒤 마이페이지로 보내 드립니다.'
+         + '<br>· '+L+' 장소 — 경기 고양시 덕양구 향동동 프라이빗 스튜디오 (3호선 원당역 버스 약 15분 · 전용 주차)'
+         + '<br>&nbsp;&nbsp;&nbsp;정확한 위치는 '+L+' 전에 안내드립니다.</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(c.cancelUrl||'')+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
@@ -653,16 +697,27 @@ function doAcceptProp(){
 }
 
 // [02-2] 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
-function renderFitting(f){
+function renderFitting(f, d){
   var box = $('mp_fitting');
   if (!box) return;
   if (!f){ box.style.display='none'; box.innerHTML=''; return; }
   var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
-  if (f.signed){   // 완료 → 접기
-    var full = (f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '')
-             + '<ul class="cc-terms">'+terms+'</ul>'
-             + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
-    collapsedCard(box, '시착 동의 완료', full);
+  if (f.signed){   // 완료 — 시착 단계엔 완료 안내(#4), 상담완료 이후엔 접힌 기록(시착만 펼쳐보기)
+    var idxDone = (d && d.stageList) ? d.stageList.indexOf('상담완료') : -1;
+    var curIdx = (d && typeof d.stageIndex==='number') ? d.stageIndex : -1;
+    var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
+    var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+    if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
+      var notice = '<div class="cc-note" style="text-align:left;line-height:1.75;margin-top:10px">'
+                 + '계약서는 상담을 마친 뒤 24시간 안에 마이페이지로 보내 드리며, 발송되면 카카오톡으로 알려드립니다.<br><br>'
+                 + '계약서가 도착하면 3일 안에 서명해 주세요. 기한이 지나면 예약은 자동으로 취소됩니다.<br><br>'
+                 + '<span style="color:var(--light)">*시착을 진행하신 경우, 미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않습니다.</span></div>';
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">시착 동의가 완료되었습니다</div>'
+        + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
+      box.style.display='block';
+    } else {                                              // 상담완료 이후 → 접힌 기록
+      collapsedCard(box, '시착 동의 완료', termsFull);
+    }
     return;
   }
   var body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
