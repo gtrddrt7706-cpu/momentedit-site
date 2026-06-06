@@ -93,6 +93,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
+.consult-card .cc-input:-webkit-autofill,.consult-card .cc-input:-webkit-autofill:hover,.consult-card .cc-input:-webkit-autofill:focus,.consult-card .cc-input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .field label{position:absolute;left:13px;top:16px;font-family:var(--serif-ko);font-size:14px;color:var(--light);pointer-events:none;transition:all .25s var(--ease);background:var(--bg);padding:0 5px}
 .field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold-deep);letter-spacing:.03em}
 
@@ -1112,17 +1113,11 @@ function coverName(en){
 // 예식 시간 — 정해진 슬롯만 (자유 입력·오입력 차단). 시간대 조정은 이 목록만 고치면 됨.
 function weddingTimeOptions(sel){
   sel=String(sel||'').slice(0,5);
+  // 예약페이지(inquiry) 희망 예식 시간대와 동일한 고정 슬롯만 — 다른 시간 선택 불가
+  var SLOTS=[['10:00','오전 (10:00)'],['13:20','오후 (13:20)'],['16:40','늦은 오후 (16:40)']];
   var html='<option value="">시간 선택</option>', found=false;
-  for(var h=10; h<=19; h++){
-    var ms=(h===19)?[0]:[0,30];
-    for(var j=0;j<ms.length;j++){
-      var m=ms[j], v=(h<10?'0':'')+h+':'+(m?'30':'00');
-      var hh=(h>12?h-12:h), ap=(h<12?'오전':'오후'), label=ap+' '+hh+':'+(m?'30':'00');
-      if(v===sel) found=true;
-      html+='<option value="'+v+'"'+(v===sel?' selected':'')+'>'+label+'</option>';
-    }
-  }
-  if(sel && !found) html+='<option value="'+sel+'" selected>'+sel+'</option>';   // 기존 저장값 보존
+  SLOTS.forEach(function(s){ if(s[0]===sel) found=true; html+='<option value="'+s[0]+'"'+(s[0]===sel?' selected':'')+'>'+s[1]+'</option>'; });
+  if(sel && !found) html+='<option value="'+sel+'" selected>'+sel+' (기존)</option>';   // 과거 저장값 보존
   return html;
 }
 
@@ -1218,11 +1213,11 @@ function productionFormHtml(b){
     + '<div class="cc-title" style="text-align:left">두 분의 이야기를 시작할게요</div>'
     + '<div class="cc-sub" style="text-align:left">청첩장·다이닝·식순에 공통으로 쓰는 기본 정보예요.</div>'
     + '<div class="pf" style="margin-top:10px"><label class="pf-l">신랑</label>'
-      + '<input class="cc-input pf-ko" id="mp_gKo" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_gEn" placeholder="영문(자동 제안)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
+      + '<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
+      + '<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문(자동 제안)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
     + '<div class="pf"><label class="pf-l">신부</label>'
-      + '<input class="cc-input pf-ko" id="mp_bKo" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_bEn" placeholder="영문(자동 제안)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
+      + '<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
+      + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문(자동 제안)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
     + '<div class="pf-cover" id="mp_cover"></div>'
     + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
     + '<div class="pf2"><div><label class="pf-l">예식 날짜</label>'
@@ -1243,7 +1238,7 @@ function bindProductionForm(){
 }
 function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
-  var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' ♥ ':'')+b) : '';
+  var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
 function doSaveProductionBase(){
   var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
@@ -1433,7 +1428,7 @@ function _onePrev(side,label){
   var par = d.greetingShowParents==='Y' ? ((d.groomParents||'')+(d.groomChildTitle&&d.groomChildTitle!=='호칭 생략 (이름만 표시)'?(' '+d.groomChildTitle):'')+(base.groomKo?(' '+base.groomKo):'')) : '';
   return '<div class="ivp-card ivp-d'+dz+'">'
     + '<div class="ivp-tag">'+escapeHtml(label)+' · '+dz+' '+_designName(dz)+'</div>'
-    + (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' ♥ ':'')+escapeHtml(b)+'</div>':'')
+    + (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' & ':'')+escapeHtml(b)+'</div>':'')
     + (title?'<div class="ivp-title">'+_starGold(title)+'</div>':'')
     + (body?'<div class="ivp-body">'+_starGold(body)+'</div>':'')
     + (par?'<div class="ivp-par">'+escapeHtml(par)+'</div>':'')
@@ -1592,15 +1587,7 @@ function renderInvQR(url){
   qd.innerHTML='<div class="cc-note" style="text-align:left">QR 이미지는 준비 중이에요. 인쇄물엔 아래 주소를 넣어 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
 }
 
-// [P1.5 작업4] 복귀 재조회 — ScreenB(별 페이지)에서 돌아오거나 탭 재포커스 시 마이페이지 자동 갱신.
-//   같은 탭 이동은 boot()가 다시 돌고, 새 탭/복귀는 이 리스너가 loadMyState 재호출(3초 디바운스).
-var _mpLastReload = 0;
-document.addEventListener('visibilitychange', function(){
-  if (document.visibilityState === 'visible' && $('mypageView').classList.contains('show')){
-    var now = Date.now();
-    if (now - _mpLastReload > 3000){ _mpLastReload = now; loadMyState(); }
-  }
-});
+// [수정] 탭 재포커스 자동 새로고침 제거 — 새로고침은 수동(NOW 카드 새로고침 버튼)·동작(서명·저장 등) 후에만 일어남.
 
 // 코드 복사 (피드백) — codecard 제거 시 안전(요소 없으면 바인딩 생략)
 var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click', function(){
