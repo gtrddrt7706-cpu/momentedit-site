@@ -283,6 +283,17 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .ivp-title{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:8px}
 .ivp-body{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7;margin-top:6px;white-space:pre-wrap}
 .ivp-par{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin-top:8px}
+.ivp-card{padding:14px 12px;border-radius:6px;background:#fff;border:1px solid var(--border);margin:8px 0 0}
+.ivp-card+.ivp-card{margin-top:10px}
+.ivp-tag{font-family:var(--serif);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:8px}
+.ivp-empty{font-family:var(--serif-ko);font-size:12px;color:var(--light)}
+/* 디자인별 미리보기 악센트(느낌만 — 실물 매칭은 '실물로 미리보기') */
+.ivp-d06 .ivp-names,.ivp-d06 .ivp-title{font-family:var(--serif-ko)}
+.ivp-d02 .ivp-names,.ivp-d04 .ivp-names{font-size:17px}
+.ivp-d05{background:#f6f4ee}
+.ivp-d08{background:#23201d;border-color:#3a352f}
+.ivp-d08 .ivp-names,.ivp-d08 .ivp-title{color:#f3efe8}
+.ivp-d08 .ivp-body,.ivp-d08 .ivp-par,.ivp-d08 .ivp-tag{color:#b9b0a4}
 </style>
 </head>
 <body>
@@ -1395,17 +1406,28 @@ function bindDesign(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){ el.addEventListener('change',function(){ var k=el.getAttribute('data-acc'); INVFLOW.draft[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N'; }); });
 }
-function updateInvPreview(){
-  var d=INVFLOW.draft, base=INVFLOW.base||{};
+function _designName(n){ return ({'01':'클래식','02':'에디토리얼','03':'레터프레스','04':'버밀리언','05':'보태니컬','06':'한글','07':'아키텍트','08':'누아르'})[n]||''; }
+function _onePrev(side,label){
+  var d=INVFLOW.draft, base=INVFLOW.base||{}, K=SIDE_KEYS[side], dz=d[K.d]||'';
+  if(!dz) return '';
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
-  var K=SIDE_KEYS[(d.method==='online')?'online':'offline'];
   var title=d[K.title]||'', body=d[K.body]||'';
   var par = d.greetingShowParents==='Y' ? ((d.groomParents||'')+(d.groomChildTitle&&d.groomChildTitle!=='호칭 생략 (이름만 표시)'?(' '+d.groomChildTitle):'')+(base.groomKo?(' '+base.groomKo):'')) : '';
-  var el=$('iv_prev'); if(!el) return;
-  el.innerHTML = (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' ♥ ':'')+escapeHtml(b)+'</div>':'')
+  return '<div class="ivp-card ivp-d'+dz+'">'
+    + '<div class="ivp-tag">'+escapeHtml(label)+' · '+dz+' '+_designName(dz)+'</div>'
+    + (g||b?'<div class="ivp-names">'+escapeHtml(g)+(g&&b?' ♥ ':'')+escapeHtml(b)+'</div>':'')
     + (title?'<div class="ivp-title">'+_starGold(title)+'</div>':'')
     + (body?'<div class="ivp-body">'+_starGold(body)+'</div>':'')
-    + (par?'<div class="ivp-par">'+escapeHtml(par)+'</div>':'');
+    + (par?'<div class="ivp-par">'+escapeHtml(par)+'</div>':'')
+    + '</div>';
+}
+function updateInvPreview(){
+  var d=INVFLOW.draft, el=$('iv_prev'); if(!el) return;
+  var html='';
+  if(d.method==='online') html=_onePrev('online','온라인');
+  else if(d.method==='offline') html=_onePrev('offline','오프라인');
+  else if(d.method==='both') html=_onePrev('offline','오프라인')+((d._onlineSame==='N')?_onePrev('online','온라인'):'');
+  el.innerHTML = html || '<div class="ivp-empty">디자인을 고르면 여기에 미리보기가 보여요.</div>';
 }
 function invStepDesign(box){
   var d=INVFLOW.draft, m=d.method;
