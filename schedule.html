@@ -33,10 +33,10 @@
     return;
   }
   var src = EXEC_URL + '?page=schedule&token=' + encodeURIComponent(token) + (me ? '&me=1' : '');
-  var f = document.createElement('iframe');
-  f.id = 'sf'; f.src = src; f.title = '상담 일정 선택';
-  f.setAttribute('allow', 'clipboard-write');
-  document.body.appendChild(f);
+  // ⚠️ iframe 임베드는 브라우저의 third-party 쿠키 차단으로 GAS가 "Google Drive 파일 열 수 없음" 오류를 띄움.
+  //    → 최상위로 직접 이동(첫-당사자 컨텍스트라 정상). 선택 완료 후 ScreenB가 window.top.location 으로 마이페이지 복귀.
+  document.body.innerHTML = '<div class="err">상담 일정 페이지로 이동 중…</div>';
+  location.replace(src);
 })();
 </script>
 </body>
