@@ -694,7 +694,7 @@ function advancedBox(d){
   var opts='<optgroup label="정상 단계">'+flow.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>'+
     '<optgroup label="예외 상태">'+STAGE_EX.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>';
   return '<div class="adv"><button class="adv-t" id="advToggle">⚙ 고급 ▾</button><div class="adv-body" id="advBody">'+
-    '<div class="adv-warn">⚠ 강제 변경은 정상 흐름을 건너뜁니다 — 예외 복구용. 현재단계만 바뀌고 카드(컬럼)·상담 예약은 그대로예요.</div>'+
+    '<div class="adv-warn">⚠ 강제 변경은 정상 흐름을 건너뜁니다 — 복구·초기화용. <b>되돌리면 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화</b>됩니다. 상담 예약(캘린더)은 별개예요.</div>'+
     '<label>단계</label><select id="fStage">'+opts+'</select>'+
     '<label>사유 (필수)</label><input type="text" id="fReason" placeholder="예: 잘못 취소 복구">'+
     '<div class="actions"><button class="btn btn-danger" id="fGo">강제 변경</button></div></div></div>';
@@ -823,7 +823,7 @@ function fillTimes(dateStr){ var sel=$('pTime'); if(!sel) return; var slots=[]; 
 function doForce(code,names,target,reason){
   reason=String(reason||'').trim();
   if(!reason){ toast('강제 변경 사유를 입력해 주세요'); return; }
-  openModal({ title:'강제로 단계를 바꿀까요?', danger:true, text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('정상 흐름을 건너뛰어요')+li('상담 예약 상태는 별개예요')+li('이력에 남아요'), yes:'강제 변경',
+  openModal({ title:'강제로 단계를 바꿀까요?', danger:true, text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('⚠ 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화돼요')+li('상담 예약(캘린더)은 별개예요')+li('이력에 남아요'), yes:'강제 변경',
     onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
 }
 

@@ -792,7 +792,35 @@ function adminMarkDelivered(code) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
-// 5. ★강제 단계 변경 (EX 우회·복구용) — (b)현재단계만 + warning · 자체 멱등 · 제품 유효성 검증
+// 5. ★강제 단계 변경 (복구/초기화용) — 현재단계 변경 + '이후 단계 진행 데이터 초기화'(완전 초기화) · 제품 유효성 검증
+//   ※ 상담 예약(상담예약 시트·캘린더)은 별개라 건드리지 않음.
+function _clearForwardData(colOf, cust, product, targetStage) {
+  var flow = stageFlowFor(product);
+  var ti = flow.indexOf(targetStage);
+  if (ti < 0) return {};
+  var isSnap = (product === P.PRODUCT_SNAP);
+  // [컬럼들, 이 데이터가 생기는 단계(상품 기준), 동의기록 키] — 목표가 그 단계보다 앞이면 비움
+  var groups = [
+    { cols: ['시착동의상태', '시착동의일시'], at: '시착', consent: '시착' },
+    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액'], at: isSnap ? '촬영확정' : '상담완료', consent: '계약' },
+    { cols: ['입금상태', '입금완료신호', '입금자명'], at: '계약완료' },
+    { cols: ['제작임시저장', 'eventId'], at: '제작중' },
+    { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태'], at: isSnap ? '촬영완료' : '예식완료' }
+  ];
+  var upd = {}, consentKeys = [];
+  groups.forEach(function (g) {
+    var gi = flow.indexOf(g.at);
+    if (gi < 0 || ti >= gi) return;                 // 이 상품에 없거나, 목표가 이 데이터 단계 이상이면 보존
+    g.cols.forEach(function (c) { if (colOf[c]) upd[c] = ''; });
+    if (g.consent) consentKeys.push(g.consent);
+  });
+  if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    consentKeys.forEach(function (k) { delete rec[k]; });
+    upd['동의기록'] = Object.keys(rec).length ? JSON.stringify(rec) : '';
+  }
+  return upd;
+}
 function adminForceStage(code, targetStage, reason) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -808,11 +836,15 @@ function adminForceStage(code, targetStage, reason) {
       return { ok: false, error: '이 상품에 없는 단계입니다: ' + targetStage };
     }
     var cur = String(cust.get('현재단계') || '').trim();
-    if (cur === targetStage) return { ok: true, noop: true, from: cur, to: targetStage };   // 멱등(EX여도 안전)
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    touchCustomer(sheet, colOf, cust.num, { '현재단계': targetStage });   // ★(b) 현재단계만 — 카드/컬럼·상담예약 안 건드림
-    _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage + ' · 사유: ' + reason);
-    return { ok: true, from: cur, to: targetStage, warning: '상담 예약 상태는 별개입니다 — 필요 시 따로 확인하세요.' };
+    var cleared = _clearForwardData(colOf, cust, product, targetStage);   // 이후 단계 진행 데이터 초기화(완전 초기화)
+    if (cur === targetStage && !Object.keys(cleared).length) return { ok: true, noop: true, from: cur, to: targetStage };  // 같은 단계 + 지울 것 없음 = 멱등
+    var upd = { '현재단계': targetStage };
+    Object.keys(cleared).forEach(function (k) { upd[k] = cleared[k]; });
+    touchCustomer(sheet, colOf, cust.num, upd);
+    var clearedCols = Object.keys(cleared).filter(function (k) { return k !== '동의기록'; });
+    _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '') + ' · 사유: ' + reason);
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, warning: '이후 단계 진행 데이터를 초기화했습니다. 상담 예약(캘린더)은 별개입니다.' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
