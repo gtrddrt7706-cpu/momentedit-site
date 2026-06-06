@@ -1738,8 +1738,13 @@ function handleGetAvailability(body) {
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, error: a.error };
   var data = getAvailability();
+  var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
   return { ok: true, avail: data.avail, full: data.full,
-    slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN };
+    slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN,
+    names: names, depositStr: formatWon(CONFIG.DEPOSIT),
+    account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
+    kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '' };
 }
 
 // submitSchedule — 세션→상담토큰 변환 후 기존 함수 호출(재사용)
