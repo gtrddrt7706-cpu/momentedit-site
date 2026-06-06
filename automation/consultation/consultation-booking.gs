@@ -1344,6 +1344,15 @@ function findRowByPersonalCode(code) {
   var c = colOf['개인코드'];
   var last = sheet.getLastRow();
   if (!c || last < SYS.DATA_START_ROW) return null;
+  // 빠른 경로: TextFinder로 일치 셀만 서버에서 찾아 '마지막(최신)' 행 1개만 읽음. 예외 시 전체스캔 폴백.
+  try {
+    var hits = sheet.getRange(SYS.DATA_START_ROW, c, last - SYS.DATA_START_ROW + 1, 1)
+      .createTextFinder(code).matchEntireCell(true).matchCase(false).findAll();
+    if (hits && hits.length) {
+      var rn = hits[hits.length - 1].getRow();   // 마지막 일치(최신)
+      return rowFromValues(colOf, sheet.getRange(rn, 1, 1, sheet.getLastColumn()).getValues()[0], rn);
+    }
+  } catch (e) { /* 폴백 진행 */ }
   var vals = sheet.getRange(SYS.DATA_START_ROW, 1, last - SYS.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   var found = null;
   for (var i = 0; i < vals.length; i++) {

@@ -65,6 +65,16 @@ function _findCustomerBy(header, value, caseInsensitive) {
   var c = colOf[header];
   var last = sheet.getLastRow();
   if (!c || last < P.DATA_START_ROW) return null;
+  // 빠른 경로: TextFinder가 해당 컬럼의 일치 셀을 서버에서 직접 찾음(전체 시트 전송 회피 → 매 인증요청 가속).
+  //   matchEntireCell=정확히 일치만. 미스/예외 시 아래 전체스캔으로 폴백 → 정확성 보장(트림 일치 등).
+  try {
+    var hit = sheet.getRange(P.DATA_START_ROW, c, last - P.DATA_START_ROW + 1, 1)
+      .createTextFinder(value).matchEntireCell(true).matchCase(!caseInsensitive).findNext();
+    if (hit) {
+      var rn = hit.getRow();
+      return rowFromValues(colOf, sheet.getRange(rn, 1, 1, sheet.getLastColumn()).getValues()[0], rn);
+    }
+  } catch (e) { /* 폴백 진행 */ }
   var cmp = caseInsensitive ? value.toLowerCase() : value;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   for (var i = 0; i < vals.length; i++) {
