@@ -147,6 +147,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .codecard .copy:hover{background:var(--bg3);border-color:var(--gold-deep);color:var(--accent)}
 .codecard .copy:active{background:var(--bg3)}
 .codecard .copy svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6}
+.past-toggle{display:block;width:100%;margin:2px 0 22px;padding:11px 0;background:transparent;border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-family:var(--serif-ko);font-size:12.5px;color:var(--light);letter-spacing:.02em;cursor:pointer;transition:color .2s}
+.past-toggle:hover{color:var(--gold-deep)}
+.past-toggle .pt-ar{font-size:10px;margin-left:3px}
 
 /* ── NEXT (잠금) ── */
 .next-sec{margin-bottom:26px}
@@ -360,18 +363,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 
     <!-- 카카오톡 -->
     <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
-
-    <!-- 개인코드 (로그아웃 위) -->
-    <div class="codecard">
-      <div class="cc-left">
-        <span class="cc-label">PERSONAL CODE</span>
-        <span class="code" id="mp_code">—</span>
-      </div>
-      <button type="button" class="copy" id="mp_copy">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-        <span id="mp_copy_txt">복사</span>
-      </button>
-    </div>
 
     <div class="foot-actions"><a id="mp_logout">로그아웃</a></div>
   </section>
@@ -624,6 +615,11 @@ function renderMyPage(d){
       head = '계약서가 도착했어요';
       sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';
     }
+    // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
+    if (d.production && d.stage === '입금완료') {
+      head = '제작 정보를 입력해 주세요';
+      sub  = '아래에서 입력하시면 예식 준비가 시작됩니다.';
+    }
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; }
@@ -660,7 +656,7 @@ function renderMyPage(d){
   }
 
   // 개인코드
-  $('mp_code').textContent = d.code || '—';
+  var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
 
   // 상담/촬영 (P1.5) — NOW·진행바 다음, NEXT 위
   renderConsult(d.consult, d.product);
@@ -699,6 +695,7 @@ function applyCardStageView(d){
   function sIdx(name){ return list.indexOf(name); }
   // 기존 묶음 제목 제거(재렌더 대비)
   var oldHead = document.getElementById('mp_payHead'); if (oldHead) oldHead.remove();
+  var oldPT = document.getElementById('mp_pastToggle'); if (oldPT) oldPT.remove();   // 지난단계 토글(재렌더 대비)
   if (cur < 0) return;
 
   // #9 — 상담확정 박스(방문일·방문 전 안내·변경/취소)는 방문 전까지만.
@@ -710,17 +707,33 @@ function applyCardStageView(d){
 
   // #신규2 — 강제 되돌리기 시 현재보다 '앞선' 단계의 카드는 숨김(화면상 초기화처럼).
   //   ※ 데이터(계약상태·시착동의·입금 컬럼)는 백엔드에 그대로 보존 — 다시 진행시키면 복원(복구 안전장치). 화면만 정리.
-  var cardMin = { mp_fitting:'시착', mp_contract:'상담완료', mp_payment:'계약완료', mp_production:'제작중', mp_result:'예식완료' };
+  var cardMin = { mp_fitting:'시착', mp_contract:'상담완료', mp_payment:'계약완료', mp_production:'입금완료', mp_result:'예식완료' };
   Object.keys(cardMin).forEach(function(id){
     var box = $(id); if (!box) return;
     var mi = sIdx(cardMin[id]);
     if (mi >= 0 && cur < mi){ box.style.display = 'none'; }
   });
 
-  // #신규1 — 계약완료: 계약서+입금을 한 섹션 제목으로 묶어 인식.
-  var cBox = $('mp_contract');
-  if (cBox && cur === sIdx('계약완료') && cBox.style.display !== 'none') {
-    cBox.insertAdjacentHTML('beforebegin', '<div id="mp_payHead" class="merged-head">계약서 확인·서명 및 입금</div>');
+  // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '지난 단계 보기'로만 펼침 — 제작/예식준비에 집중
+  var paidIdx = sIdx('입금완료');
+  if (paidIdx >= 0 && cur >= paidIdx) {
+    var pastIds = ['mp_fitting','mp_contract','mp_payment'];
+    var hasPast = pastIds.some(function(id){ var b=$(id); return b && b.style.display!=='none' && (b.innerHTML||'').trim()!==''; });
+    if (hasPast) {
+      pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
+      var anchor = $('mp_fitting');
+      if (anchor && anchor.parentNode) {
+        var t = document.createElement('button');
+        t.type='button'; t.id='mp_pastToggle'; t.className='past-toggle';
+        t.innerHTML = '지난 단계 보기 <span class="pt-ar">▾</span>';
+        anchor.parentNode.insertBefore(t, anchor);
+        t.addEventListener('click', function(){
+          var open = t.classList.toggle('open');
+          pastIds.forEach(function(id){ var b=$(id); if (b && (b.innerHTML||'').trim()!=='') b.style.display = open?'block':'none'; });
+          t.innerHTML = (open?'지난 단계 접기 ':'지난 단계 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
+        });
+      }
+    }
   }
 }
 
@@ -971,7 +984,8 @@ function renderPayment(p){
       + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button>'
       + '</div>' ) : '';
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
-    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금자명" autocomplete="name">'
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name" style="font-family:var(--serif-ko);font-size:15px">'
+        + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금하시는 분 성함으로 적어 주세요. 입금자명이 같으면 더 빠르게 확인해 드려요.</div>'
         + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
   }
@@ -1445,8 +1459,8 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
-// 코드 복사 (피드백)
-$('mp_copy').addEventListener('click', function(){
+// 코드 복사 (피드백) — codecard 제거 시 안전(요소 없으면 바인딩 생략)
+var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click', function(){
   var code = $('mp_code').textContent.trim();
   if (!code || code==='—') return;
   var txt=$('mp_copy_txt');
