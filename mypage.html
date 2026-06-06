@@ -1534,12 +1534,11 @@ function invStepConfirm(box){
   else sm='초대 · '+({online:'온라인(모바일 참석)',offline:'오프라인',both:'둘 다'}[m]||'')+(d.designFamily?(' · 오프라인 '+d.designFamily):'')+(d.designOnline?(' · 온라인 '+d.designOnline):'');
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span></div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
-    +'<div class="cc-note">비운 항목은 기본 문구로 채워져요. 발행 후에도 수정할 수 있어요.</div>'
+    +'<div class="cc-note">비운 항목은 기본 문구로 채워져요. <b>만들기</b>를 누르면 두 분 정보가 담긴 실제 청첩장'+((m==='both')?'(온라인·오프라인)':'')+'이 바로 나와요 — 보고 언제든 고칠 수 있어요.</div>'
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn-ghost" id="iv_preview">미리보기</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
+    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
   $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
-  var pv=$('iv_preview'); if(pv) pv.addEventListener('click',function(){ doPreviewInv(box); });   // #18 실동작(묶음 G)
 }
 function doPublishInv(box){
   var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
@@ -1550,17 +1549,8 @@ function doPublishInv(box){
     else reset((r&&r.error)||'발행에 실패했습니다.');
   }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
 }
-// [04·G] 미리보기 — 레터시스템(라이브 하이드레이션) 미설정 상태에서도 항상 동작하도록,
-//   저장된 예시 렌더 이미지(assets/preview)를 새 탭으로 연다. (디자인별 예시는 각 섹션에도 인라인 노출)
-function doPreviewInv(box){
-  if(box) collectDesign(box);
-  var d=INVFLOW.draft;
-  if(!_invHasDesign(d)){ mpAlert('먼저 디자인을 골라 주세요.'); return; }
-  var url='';
-  if(d.method==='online') url=_prevSrc('online', d.designOnline||'01');
-  else url=_prevSrc('offline', d.designFamily||'01');   // offline·both = 오프라인 예시 우선(온라인은 섹션별 예시로 확인)
-  window.open(url,'_blank','noopener');
-}
+// (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.
+//   디자인별 예시 이미지는 3단계(디자인 선택)의 각 섹션에 인라인으로 계속 노출.
 function openGalleryPick(){ window.open('/invitation-gallery.html','_blank'); }   // 보기 전용(?pick 제거 → '이 디자인으로 선택' 버튼 미주입). 선택은 위저드 디자인 그리드에서.
 // 갤러리(?pick)에서 고른 디자인 번호 수신 → 위저드 디자인 세팅 (origin 검증)
 window.addEventListener('message', function(ev){
