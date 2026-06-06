@@ -12,7 +12,7 @@
  */
 
 var INV = {
-  LETTER_SYSTEM_ID: '[Letter System 스프레드시트 ID]',   // ← 운영자 입력 (Couples 탭이 있는 시트)
+  LETTER_SYSTEM_ID: '1GJX2pkaxbtER1xZq7hGrMVxm9kKh4-J1d2x-T5WwSq4',   // 'Moment Edit · Letter System'(Couples 탭) — 진단 리포트에서 확인된 시트 ID
   SHEET: 'Couples', HEADER_ROW: 3, DATA_START_ROW: 4,
   SITE_BASE: 'https://momentedit.kr', CACHE_PREFIX: 'couple_'
 };
