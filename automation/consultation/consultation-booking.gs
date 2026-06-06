@@ -334,6 +334,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
     writeCell(sheet, colOf, row.num, '확정일시', new Date());
     // syncCalendarEvent: 기존 이벤트ID가 있으면 그 일정을 새 날짜·시간으로 갱신, 없으면 새로 생성
     syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
+    _bustAvailCache();   // 슬롯 마감 → 가능일 캐시 무효화
 
     try {
       sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
@@ -367,6 +368,7 @@ function actAccept(sheet, colOf, row) {
   writeCell(sheet, colOf, row.num, '상태', ST.CONFIRMED);
   writeCell(sheet, colOf, row.num, '확정일시', new Date());
   syncCalendarEvent(sheet, colOf, row.num, nd, nt, coupleNames(row), row.get('연락처'));
+  _bustAvailCache();   // 변경 확정 → 가능일 캐시 무효화
 
   try {
     sendConfirmEmail(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
@@ -392,6 +394,7 @@ function actCancel(sheet, colOf, r) {
     writeCell(sheet, colOf, r.num, '상태', ST.CANCELLED);
   }
   writeCell(sheet, colOf, r.num, '취소일시', new Date());
+  _bustAvailCache();   // 슬롯 해제 → 가능일 캐시 무효화
 
   // 3) 고객 취소 안내 메일 (이메일 있을 때만)
   var to = r.get('이메일');
@@ -796,6 +799,26 @@ function getAvailability() {
   });
 
   return { avail: Object.keys(avail), full: full };
+}
+
+// 가능일 조회는 캘린더 120일 쿼리(느림)이고 결과가 '전 사용자 공통'이라, 스크립트 캐시로 공유(짧은 TTL).
+//   예약 확정/취소 등 슬롯 변동 시 _bustAvailCache()로 즉시 무효화. 캘린더 직접 편집은 TTL(90초)로 반영.
+var AVAIL_CACHE_KEY = 'avail_v2';
+function _cachedAvailability() {
+  var c = null;
+  try { c = CacheService.getScriptCache(); } catch (e) { c = null; }
+  if (c) { try { var hit = c.get(AVAIL_CACHE_KEY); if (hit) return JSON.parse(hit); } catch (e) {} }
+  var data = getAvailability();
+  if (c) { try { c.put(AVAIL_CACHE_KEY, JSON.stringify(data), 90); } catch (e) {} }
+  return data;
+}
+function _bustAvailCache() { try { CacheService.getScriptCache().remove(AVAIL_CACHE_KEY); } catch (e) {} }
+// (선택·권장) 가능일 캐시 워밍 — 1분 트리거로 항상 데워두면 '첫 방문'도 즉시. setupAvailWarmTrigger() 1회 실행.
+function warmAvailCache() { try { var d = getAvailability(); CacheService.getScriptCache().put(AVAIL_CACHE_KEY, JSON.stringify(d), 90); } catch (e) {} }
+function setupAvailWarmTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAvailCache') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('warmAvailCache').timeBased().everyMinutes(1).create();
+  return '가능일 캐시 워밍 트리거(1분) 등록 완료 — 콜드 로딩 제거';
 }
 
 // 확정 예약을 캘린더 일정으로 생성/갱신 (미쿠가 한눈에 봄)
@@ -1746,7 +1769,7 @@ function _sessionToConsult(token) {
 function handleGetAvailability(body) {
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, error: a.error };
-  var data = getAvailability();
+  var data = _cachedAvailability();   // 전역 캐시(캘린더 쿼리 생략) → 일정선택 페이지 로딩 가속
   var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
   return { ok: true, avail: data.avail, full: data.full,
     slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN,
