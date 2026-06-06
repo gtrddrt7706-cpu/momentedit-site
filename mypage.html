@@ -827,9 +827,8 @@ function renderConsult(c, product){
   var L = isSnap ? '촬영' : '상담';                 // ★3 라벨 분기(촬영일=상담일)
   var eyebrow = isSnap ? 'Photo' : 'Consultation';
   var s = c.status;
-  var url = c.scheduleUrl || '';
-  // 스케줄 GAS URL → momentedit.kr/schedule 래퍼로 변환 (구글 페이지 인상 제거, 토큰 그대로 전달)
-  if (url){ var _m = url.match(/[?&]token=([^&]+)/); if (_m){ url = '/schedule?token=' + _m[1] + (/[?&]me=1\b/.test(url) ? '&me=1' : ''); } }
+  // 일정 선택 = 자사 네이티브 페이지(/schedule). 세션 토큰은 localStorage 공유 → GAS doGet/iframe 우회(구글 로고·Drive오류 0)
+  var url = c.scheduleUrl ? '/schedule?me=1' : '';
   // [Task9] cancelUrl 등 다른 GAS 링크 안전망 — webAppUrl()이 비공개 URL을 뱉어도 검증된 /exec로 강제 (Drive 오류 방지)
   function fixGas(u){ if(!u||typeof EXEC_URL==='undefined') return u||''; var q=u.indexOf('?'); return q>=0 ? EXEC_URL+u.slice(q) : u; }
   var body = '', cta = '';
