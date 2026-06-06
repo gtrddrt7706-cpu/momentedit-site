@@ -603,6 +603,7 @@ function cardFitting(d){
   if(d.stage==='시착'){
     if(fit==='동의요청') b+='<div class="gate">고객 시착 서명 대기 중</div>'+ab('closeFitting','시착 동의 취소','btn-ghost');
     else if(fit==='동의완료') b+='<div class="gate">✓ 시착 동의 완료</div>';
+    else b+='<div class="gate">시착 동의 미발송</div>'+ab('openFitting','시착 동의 보내기');
   }
   // 동의기록(proof)
   var cs=d.consent&&d.consent.fitting;
