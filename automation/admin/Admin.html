@@ -765,7 +765,7 @@ function afterAction(code,res){
 
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
-function doConsultDone(code,names){ openModal({ title:'상담완료로 넘길까요?', text:b(names)+li('시착 동의를 열 수 있게 돼요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkConsultDone',code],code,'넘기기'); } }); }
+function doConsultDone(code,names){ openModal({ title:'상담완료로 넘길까요?', text:b(names)+li('단계가 상담완료로 바뀌어요')+li('계약서를 발송할 수 있게 돼요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkConsultDone',code],code,'넘기기'); } }); }
 function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 넘길까요?', text:b(names)+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요'), yes:'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,'전달 완료'); } }); }

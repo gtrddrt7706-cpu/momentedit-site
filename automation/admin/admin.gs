@@ -675,7 +675,7 @@ function adminConfirmPayment(code) {
   return { ok: true };
 }
 
-// [02-0] 시착 동의 게이트 열기 → 시착동의상태=동의요청 (고객 마이페이지에 동의서 노출). 상담완료 단계에서만.
+// [02-0] 시착 동의 게이트 열기 → 시착동의상태=동의요청 (고객 마이페이지에 동의서 노출). 상담확정 단계에서.
 function adminOpenFittingConsent(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();

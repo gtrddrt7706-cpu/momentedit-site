@@ -29,7 +29,7 @@ var FITTING_CONSENT = {
 };
 
 // [02-2] 시착 동의 서명(고객) → 시착동의일시 + 동의기록 + 시착동의상태=동의완료.
-//   가드: 상담완료 단계 + 관리자가 '동의요청'으로 게이트를 연 경우만. 멱등(이미 완료면 OK).
+//   가드: 시착 단계 + 관리자가 '동의요청'으로 게이트를 연 경우만. 멱등(이미 완료면 OK).
 //   Lock + 최신 재읽기 = 이중 클릭·동시성 보호.
 function handleSignFittingConsent(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -81,7 +81,7 @@ function handleSignFittingConsent(body) {
 }
 
 // [02-2] 마이페이지 시착 동의 카드용 상태. 동의기록(내부 JSON)은 내보내지 않고 파생값·약관 문구만.
-//   노출 조건: 서명함(완료·재열람 카드) 또는 상담완료+관리자 게이트 열림(서명 카드). 그 외 null(카드 없음).
+//   노출 조건: 서명함(완료·재열람 카드) 또는 시착 단계+관리자 게이트 열림(서명 카드). 그 외 null(카드 없음).
 function buildFittingState(r) {
   if (!r) return null;
   var stage = String(r.get('현재단계') || '').trim();
