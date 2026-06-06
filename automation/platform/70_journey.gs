@@ -58,6 +58,7 @@ function handleSignFittingConsent(body) {
     if (fStatus !== '동의요청') return { ok: false, error: '아직 시착 동의 안내 전입니다. 디렉터 안내 후 진행됩니다.' };
 
     var now = fmtKST(new Date());
+    var sigSaved = _saveSignature(code, '시착', (body && body.signature), now, FITTING_CONSENT.version);  // 손글씨 서명 저장
     var prev = _parseJsonSafe(cust.get('동의기록'));     // 기존 기록(없으면 {}) 위에 병합
     prev.시착 = {
       type: '시착동의',
@@ -67,7 +68,8 @@ function handleSignFittingConsent(body) {
       예약금: FITTING_CONSENT.예약금,                    // 그때 표시·합의된 금액
       기본벌수: FITTING_CONSENT.기본벌수,
       추가벌비용: FITTING_CONSENT.추가벌비용,
-      termsHash: _termsHash(FITTING_CONSENT.terms)       // 동의한 정확한 약관 문구의 지문
+      termsHash: _termsHash(FITTING_CONSENT.terms),      // 동의한 정확한 약관 문구의 지문
+      signatureSaved: sigSaved                           // 손글씨 서명 이미지 저장 여부(Signatures 시트)
     };
     touchCustomer(sheet, colOf, cust.num, {
       '시착동의일시': now,
@@ -115,6 +117,43 @@ function _termsHash(terms) {
   return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, '').slice(0, 16);
 }
 
+// ============================ 손글씨 서명 저장 (Signatures 시트 · Drive 권한 불필요) ============================
+// 시착·본계약 서명 이미지(base64 PNG)를 별도 시트에 누적 — Customers 시트는 가볍게(관리자 홈 성능 보존).
+//   ★ 1회 실행: setupSignatures()(시트 생성). 시착/계약 서명 핸들러가 _saveSignature 호출. 시착·본계약 공용.
+var SIGNATURES_SHEET = 'Signatures';
+function setupSignatures() {
+  var ss = SpreadsheetApp.getActive();
+  var sh = ss.getSheetByName(SIGNATURES_SHEET) || ss.insertSheet(SIGNATURES_SHEET);
+  sh.getRange(1, 1, 1, 5).setValues([['개인코드', '유형', '서명이미지', '서명일시', '버전']]).setFontWeight('bold');
+  sh.setFrozenRows(1);
+  sh.getRange('C:C').setNumberFormat('@');   // 이미지=문자(긴 base64)
+  return 'Signatures 시트 준비 완료 — 시착·본계약 서명이 여기 누적 저장됩니다.';
+}
+// 서명 저장 — dataUrl 형식·크기 검증 후 append. 성공 true / 미서명·형식오류 false.
+function _saveSignature(code, type, dataUrl, signedAt, version) {
+  dataUrl = String(dataUrl || '');
+  if (!/^data:image\/(png|jpeg);base64,/.test(dataUrl)) return false;   // 형식 검증(미서명이면 빈값 → false)
+  if (dataUrl.length > 800000) return false;                           // ~0.6MB↑ 과대 차단(셀 한도 보호)
+  try {
+    var ss = SpreadsheetApp.getActive();
+    var sh = ss.getSheetByName(SIGNATURES_SHEET);
+    if (!sh) { setupSignatures(); sh = ss.getSheetByName(SIGNATURES_SHEET); }
+    sh.appendRow([String(code || '').toUpperCase(), String(type || ''), dataUrl, signedAt || fmtKST(new Date()), version || '']);
+    return true;
+  } catch (e) { Logger.log('서명 저장 실패: ' + (e && e.message)); return false; }
+}
+// 최신 서명 dataUrl 조회(관리자/재열람) — code+type 마지막 매칭 1건.
+function getSignatureDataUrl(code, type) {
+  var sh = SpreadsheetApp.getActive().getSheetByName(SIGNATURES_SHEET);
+  if (!sh || sh.getLastRow() < 2) return '';
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
+  var found = '', c = String(code || '').trim().toUpperCase(), tp = String(type || '').trim();
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][0]).trim().toUpperCase() === c && String(vals[i][1]).trim() === tp) found = String(vals[i][2] || '');
+  }
+  return found;
+}
+
 // ============================ 02-3 · 계약서 서명 ============================
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
@@ -155,6 +194,7 @@ function handleSignContract(body) {
     }
 
     var now = fmtKST(new Date());
+    var sigSaved = _saveSignature(code, '계약', (body && body.signature), now, CONTRACT.version);  // 손글씨 서명 저장
     var prev = _parseJsonSafe(cust.get('동의기록'));
     prev.계약 = {
       type: '계약서명',
@@ -163,7 +203,8 @@ function handleSignContract(body) {
       code: code,
       sentAt: String(cust.get('계약서발송일시') || ''),
       link: String(cust.get('계약서링크') || ''),
-      effectHash: _termsHash([CONTRACT.effectNotice])    // 동의한 효력 고지 문구 지문
+      effectHash: _termsHash([CONTRACT.effectNotice]),   // 동의한 효력 고지 문구 지문
+      signatureSaved: sigSaved                           // 손글씨 서명 이미지 저장 여부(Signatures 시트)
     };
     touchCustomer(sheet, colOf, cust.num, {
       '계약서명일시': now,

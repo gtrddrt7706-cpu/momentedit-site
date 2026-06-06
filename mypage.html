@@ -344,6 +344,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .mp-modal-btn-primary{background:#1A1714;color:#fff}
     .mp-modal-btn-ghost{background:transparent;color:var(--light,#75705F);border-color:var(--border,#DDD8D1)}
     .mp-modal-btn:active{opacity:0.82}
+    .mp-sig-canvas{width:100%;height:190px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:4px;touch-action:none;display:block;cursor:crosshair}
+    .mp-sig-hint{font-size:11px;color:var(--light,#75705F);margin-top:6px}
     @keyframes mpPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
     @media(prefers-reduced-motion:reduce){.mp-modal-card{animation:none}}
     </style>
@@ -455,6 +457,45 @@ function mpModalOpen(o){
 }
 function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소' }); }
 function mpAlert(m){ var o=(m&&typeof m==='object')?m:{body:String(m==null?'':m)}; o.cancel=false; if(!o.confirmText)o.confirmText='확인'; return mpModalOpen(o); }
+// ── 손글씨 서명패드 (시착·본계약 공용) → Promise<dataURL PNG | null> ──
+function mpSignaturePad(opts){
+  opts=opts||{};
+  return new Promise(function(resolve){
+    var ov=$('mpModal'); if(!ov){ resolve(null); return; }
+    var t=$('mpModalTitle'), b=$('mpModalBody'), a=$('mpModalActions');
+    t.textContent=opts.title||'서명'; t.style.display='';
+    b.innerHTML=(opts.body?('<div style="font-size:13px;color:var(--sub,#5A554C);line-height:1.6;margin-bottom:12px;word-break:keep-all">'+escapeHtml(opts.body)+'</div>'):'')
+      +'<canvas id="mpSigCanvas" class="mp-sig-canvas" aria-label="서명 입력 영역"></canvas>'
+      +'<div class="mp-sig-hint" id="mpSigHint">위 칸에 손가락(또는 마우스)으로 서명해 주세요</div>';
+    b.style.display='';
+    a.innerHTML=''; var done=false;
+    function finish(v){ if(done)return; done=true; window.removeEventListener('resize',resize); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
+    var cv=$('mpSigCanvas'), ctx=cv.getContext('2d'), drawn=false, drawing=false, last=null, saved=null;
+    function resize(){
+      var img=drawn?ctx.getImageData(0,0,cv.width,cv.height):null;
+      var r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+      cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#1A1714';
+      if(img){ try{ ctx.putImageData(img,0,0); }catch(_){} }
+    }
+    function pos(e){ var r=cv.getBoundingClientRect(); var p=(e.touches&&e.touches[0])||e; return {x:p.clientX-r.left, y:p.clientY-r.top}; }
+    function start(e){ e.preventDefault(); drawing=true; last=pos(e); }
+    function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; if(!drawn){ drawn=true; var h=$('mpSigHint'); if(h) h.textContent='✓ 서명됨 — 완료를 눌러주세요'; } }
+    function up(){ drawing=false; }
+    cv.addEventListener('mousedown',start); cv.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+    cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',up);
+    var prim=document.createElement('button'); prim.type='button'; prim.className='mp-modal-btn mp-modal-btn-primary'; prim.textContent=opts.confirmText||'서명 완료';
+    prim.addEventListener('click',function(){ if(!drawn){ var h=$('mpSigHint'); if(h){ h.textContent='먼저 위 칸에 서명해 주세요'; h.style.color='var(--seal,#6B2A24)'; } return; } finish(cv.toDataURL('image/png')); });
+    var clr=document.createElement('button'); clr.type='button'; clr.className='mp-modal-btn mp-modal-btn-ghost'; clr.textContent='지우기';
+    clr.addEventListener('click',function(){ ctx.clearRect(0,0,cv.width,cv.height); drawn=false; var h=$('mpSigHint'); if(h){ h.textContent='위 칸에 손가락(또는 마우스)으로 서명해 주세요'; h.style.color=''; } });
+    var cancel=document.createElement('button'); cancel.type='button'; cancel.className='mp-modal-btn mp-modal-btn-ghost'; cancel.textContent='취소';
+    cancel.addEventListener('click',function(){ finish(null); });
+    a.appendChild(prim); a.appendChild(clr); a.appendChild(cancel);
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false');
+    window.addEventListener('resize',resize);
+    setTimeout(resize,40);
+  });
+}
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
@@ -775,11 +816,11 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpConfirm({ title:'시착 동의서에 서명하시겠어요?', body:'서명하면 시착이 진행됩니다.', yes:'동의하고 서명', no:'취소' }).then(function(ok){
-    if(!ok) return;
+  mpSignaturePad({ title:'시착 동의 서명', body:'아래 칸에 서명하시면 시착 동의가 완료됩니다. 서명하면 시착이 진행됩니다.', confirmText:'서명 완료' }).then(function(sig){
+    if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
-    api({action:'signFittingConsent', token:getToken()}).then(function(d){
+    api({action:'signFittingConsent', token:getToken(), signature:sig}).then(function(d){
       if (d && d.ok){ loadMyState(); }
       else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
     }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
@@ -847,11 +888,11 @@ function fmtRemain(s){
   return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
 }
 function doSignContract(){
-  mpConfirm({ title:'계약서에 서명하시겠어요?', body:'서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.', yes:'계약서 서명하기', no:'취소' }).then(function(ok){
-    if(!ok) return;
+  mpSignaturePad({ title:'계약서 서명', body:'아래 칸에 서명해 주세요. 서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.', confirmText:'서명 완료' }).then(function(sig){
+    if(!sig) return;
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
-    api({action:'signContract', token:getToken()}).then(function(d){
+    api({action:'signContract', token:getToken(), signature:sig}).then(function(d){
       if (d && d.ok){ loadMyState(); }
       else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
     }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
