@@ -334,7 +334,20 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
     details.cc-more>summary::-webkit-details-marker{display:none}
+    .mp-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.30);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+    .mp-modal.open{display:flex}
+    .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:6px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease)}
+    .mp-modal-title{font-family:var(--serif-ko,serif);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.5;margin-bottom:8px;word-break:keep-all}
+    .mp-modal-body{font-family:var(--serif-ko,serif);font-size:13.5px;color:var(--sub,#5A554C);line-height:1.75;margin-bottom:20px;word-break:keep-all}
+    .mp-modal-actions{display:flex;flex-direction:column;gap:8px}
+    .mp-modal-btn{padding:13px 18px;border-radius:4px;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
+    .mp-modal-btn-primary{background:#1A1714;color:#fff}
+    .mp-modal-btn-ghost{background:transparent;color:var(--light,#75705F);border-color:var(--border,#DDD8D1)}
+    .mp-modal-btn:active{opacity:0.82}
+    @keyframes mpPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    @media(prefers-reduced-motion:reduce){.mp-modal-card{animation:none}}
     </style>
+    <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
     <!-- 카카오톡 -->
     <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
@@ -410,6 +423,38 @@ const TOKEN_KEY = 'me_token';
 
 // ── 공통 유틸 ──────────────────────────────────
 function $(id){ return document.getElementById(id); }
+// ── 커스텀 모달 (브라우저 confirm/alert 대체) ── mpConfirm({title,body,yes,no})→Promise<bool> · mpAlert(msg)
+function mpModalOpen(o){
+  o = o || {};
+  return new Promise(function(resolve){
+    var ov=$('mpModal');
+    if(!ov){ resolve(o.cancel===false ? true : window.confirm(o.body||o.title||'')); return; }
+    var t=$('mpModalTitle'), b=$('mpModalBody'), a=$('mpModalActions');
+    if(o.title){ t.textContent=o.title; t.style.display=''; } else { t.style.display='none'; }
+    if(o.bodyHtml){ b.innerHTML=o.bodyHtml; b.style.display=''; }
+    else if(o.body){ b.innerHTML=String(o.body).split('\n').map(function(x){return escapeHtml(x);}).join('<br>'); b.style.display=''; }
+    else { b.innerHTML=''; b.style.display='none'; }
+    a.innerHTML=''; var done=false;
+    function close(v){ if(done) return; done=true; ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
+    var prim=document.createElement('button');
+    prim.type='button'; prim.className='mp-modal-btn mp-modal-btn-primary'; prim.textContent=o.confirmText||'확인';
+    prim.addEventListener('click',function(){ close(true); });
+    a.appendChild(prim);
+    if(o.cancel!==false){
+      var gh=document.createElement('button');
+      gh.type='button'; gh.className='mp-modal-btn mp-modal-btn-ghost'; gh.textContent=o.cancelText||'취소';
+      gh.addEventListener('click',function(){ close(false); });
+      a.appendChild(gh);
+      ov.onclick=function(e){ if(e.target===ov) close(false); };
+    }
+    function onKey(e){ if(e.key==='Escape' && o.cancel!==false) close(false); }
+    document.addEventListener('keydown',onKey);
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false');
+    try{ prim.focus(); }catch(_){}
+  });
+}
+function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소' }); }
+function mpAlert(m){ var o=(m&&typeof m==='object')?m:{body:String(m==null?'':m)}; o.cancel=false; if(!o.confirmText)o.confirmText='확인'; return mpModalOpen(o); }
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
@@ -683,15 +728,17 @@ function renderConsult(c, product){
 }
 
 function doCancelRes(){
-  if (!window.confirm('예약을 취소하시겠어요?')) return;
-  api({action:'cancelReservation', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { window.alert((d && d.error) || '취소에 실패했습니다.'); }
-  }).catch(function(){ window.alert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  mpConfirm({ title:'예약을 취소하시겠어요?', yes:'예약 취소', no:'닫기' }).then(function(ok){
+    if(!ok) return;
+    api({action:'cancelReservation', token:getToken()}).then(function(d){
+      if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '취소에 실패했습니다.'); }
+    }).catch(function(){ mpAlert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  });
 }
 function doAcceptProp(){
   api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { window.alert((d && d.error) || '수락에 실패했습니다.'); }
-  }).catch(function(){ window.alert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락에 실패했습니다.'); }
+  }).catch(function(){ mpAlert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
 }
 
 // [02-2] 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
@@ -728,13 +775,15 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  if (!window.confirm('시착 동의서에 서명하시겠어요?\n서명하면 시착이 진행됩니다.')) return;
-  var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
-  api({action:'signFittingConsent', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); }
-    else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-  }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  mpConfirm({ title:'시착 동의서에 서명하시겠어요?', body:'서명하면 시착이 진행됩니다.', yes:'동의하고 서명', no:'취소' }).then(function(ok){
+    if(!ok) return;
+    var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+    function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
+    api({action:'signFittingConsent', token:getToken()}).then(function(d){
+      if (d && d.ok){ loadMyState(); }
+      else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
+    }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  });
 }
 
 // [02-3] 계약서 카드 — 미발송=null / 발송=계약서보기+서명기한 카운트다운+[계약서 서명하기] / 서명완료=완료+보기.
@@ -798,13 +847,15 @@ function fmtRemain(s){
   return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
 }
 function doSignContract(){
-  if (!window.confirm('계약서에 서명하시겠어요?\n\n서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.')) return;
-  var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
-  api({action:'signContract', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); }
-    else { window.alert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-  }).catch(function(){ window.alert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  mpConfirm({ title:'계약서에 서명하시겠어요?', body:'서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.', yes:'계약서 서명하기', no:'취소' }).then(function(ok){
+    if(!ok) return;
+    var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+    function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
+    api({action:'signContract', token:getToken()}).then(function(d){
+      if (d && d.ok){ loadMyState(); }
+      else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
+    }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  });
 }
 
 // [02-4] 계약금 입금 카드 — 서명완료 후 노출. 대기=납부안내+입금자명+[입금완료] / 완료신호="확인 중" / 확인=완료.
@@ -844,13 +895,13 @@ function renderPayment(p){
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 function doPaySignal(){
   var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
-  if(!payer){ window.alert('입금자명을 입력해 주세요.'); return; }
+  if(!payer){ mpAlert('입금자명을 입력해 주세요.'); return; }
   var btn=$('mp_paySignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금 완료'; } }
   api({action:'paymentSignal', token:getToken(), payerName:payer}).then(function(d){
     if(d&&d.ok){ loadMyState(); }
-    else { window.alert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ window.alert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ──
@@ -897,7 +948,7 @@ function renderProduction(p, inv){
     box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
     box.style.display='block';
     Array.prototype.forEach.call(box.querySelectorAll('[data-prep]'), function(el){
-      el.addEventListener('click', function(){ window.alert('아직 준비 중이에요. 곧 열릴 거예요.'); });
+      el.addEventListener('click', function(){ mpAlert('아직 준비 중이에요. 곧 열릴 거예요.'); });
     });
     var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   }
@@ -967,12 +1018,12 @@ function doSaveProductionBase(){
   var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
     groomEn:($('mp_gEn')&&$('mp_gEn').value||'').trim(), brideEn:($('mp_bEn')&&$('mp_bEn').value||'').trim(),
     email:($('mp_pEmail')&&$('mp_pEmail').value||'').trim(), weddingDate:($('mp_wDate')&&$('mp_wDate').value||'').trim(), weddingTime:($('mp_wTime')&&$('mp_wTime').value||'').trim() };
-  if(!base.groomKo||!base.brideKo){ window.alert('신랑·신부 이름을 입력해 주세요.'); return; }
+  if(!base.groomKo||!base.brideKo){ mpAlert('신랑·신부 이름을 입력해 주세요.'); return; }
   var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
   api({action:'saveProductionBase', token:getToken(), base:base}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { window.alert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
-  }).catch(function(){ window.alert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function productionDashHtml(t, inv){
   inv=inv||{};
@@ -1035,7 +1086,7 @@ function invStepMethod(box){
   $('iv_exit').addEventListener('click', exitInvFlow);
   $('iv_next').addEventListener('click', function(){
     var mm=INVFLOW.draft.method;
-    if(!mm){ window.alert('초대 방식을 골라 주세요.'); return; }
+    if(!mm){ mpAlert('초대 방식을 골라 주세요.'); return; }
     saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
     else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행
@@ -1168,7 +1219,7 @@ function invStepDesign(box){
   box.innerHTML=h;
   bindDesign(box); updateInvPreview();
   $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
-  $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ window.alert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
+  $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ mpAlert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
   var gl=$('iv_gallery'); if(gl) gl.addEventListener('click', openGalleryPick);
   var pv2=$('iv_preview2'); if(pv2) pv2.addEventListener('click',function(){ doPreviewInv(box); });
 }
@@ -1199,7 +1250,7 @@ function doPublishInv(box){
 function doPreviewInv(box){
   if(box) collectDesign(box);
   var d=INVFLOW.draft;
-  if(!_invHasDesign(d)){ window.alert('먼저 디자인을 골라 주세요.'); return; }
+  if(!_invHasDesign(d)){ mpAlert('먼저 디자인을 골라 주세요.'); return; }
   var w=window.open('','_blank');   // ★팝업 차단 우회: 클릭 제스처 내 동기 오픈 → async에서 location 지정
   saveInvDraft();
   api({action:'saveInvitationPreview', token:getToken(), draft:d}).then(function(r){
@@ -1208,8 +1259,8 @@ function doPreviewInv(box){
       if(d.method==='offline') url='/i-family/family-'+(d.designFamily||'01')+'.html?e='+e+'&fresh=1';
       else url='/i/cover-'+(d.designOnline||'01')+'.html?e='+e+'&fresh=1';   // online/both = 온라인 cover 우선
       if(w) w.location.href=url; else window.location.href=url;
-    } else { if(w) w.close(); window.alert((r&&r.error)||'미리보기를 불러오지 못했어요.'); }
-  }).catch(function(){ if(w) w.close(); window.alert('미리보기 실패 — 잠시 후 다시 시도해 주세요.'); });
+    } else { if(w) w.close(); mpAlert((r&&r.error)||'미리보기를 불러오지 못했어요.'); }
+  }).catch(function(){ if(w) w.close(); mpAlert('미리보기 실패 — 잠시 후 다시 시도해 주세요.'); });
 }
 function openGalleryPick(){ window.open('/invitation-gallery.html?pick=1','_blank'); }
 // 갤러리(?pick)에서 고른 디자인 번호 수신 → 위저드 디자인 세팅 (origin 검증)
