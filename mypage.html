@@ -14,6 +14,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 백엔드(Apps Script) 미리 연결 — 첫 요청 TLS 핸드셰이크 선warm -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
@@ -591,7 +594,11 @@ function show(viewId){
 }
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
 function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
-function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); }catch(e){} }
+// 마지막 getMyState 스냅샷 캐시 — 재방문 시 즉시 표시(stale-while-revalidate). 토큰에 묶고, 로그아웃/만료 시 자동 폐기.
+var STATE_CACHE_KEY = 'me_state_v1';
+function cacheState(d){ try{ localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:d })); }catch(e){} }
+function readCachedState(){ try{ var c=JSON.parse(localStorage.getItem(STATE_CACHE_KEY)||'null'); if(c && c.t && c.t===getToken() && c.d) return c.d; }catch(e){} return null; }
 function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'; el.classList.add('show'); } }
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 
@@ -627,11 +634,12 @@ function qp(name){
   }
   var t = getToken();
   if (t) {
-    show('loading');
-    api({action:'verify', token:t}).then(function(d){
-      if (d && d.ok) { loadMyState(); }
-      else { clearToken(); show('loginView'); }
-    }).catch(function(){ show('loginView'); });
+    var cached = readCachedState();
+    if (cached){
+      show('loading');
+      // 스크립트 전체(하위 함수·상수 정의)가 끝난 뒤 렌더되도록 마이크로태스크로 미룸 → 즉시 표시 + 백그라운드 갱신
+      Promise.resolve().then(function(){ try{ renderMyPage(cached); show('mypageView'); }catch(e){} loadMyState({silent:true}); });
+    } else { loadMyState(); }   // 첫 방문: getMyState 직접 호출(verify 왕복 1회 제거)
     return;
   }
   show('loginView');
@@ -665,12 +673,13 @@ $('loginForm').addEventListener('submit', function(e){
 });
 
 // ── 마이페이지 로드 + 렌더 ─────────────────────
-function loadMyState(){
-  show('loading');
+function loadMyState(opts){
+  opts=opts||{};
+  if(!opts.silent) show('loading');                       // 백그라운드 갱신(silent)이면 스피너 없이 조용히
   api({action:'getMyState', token:getToken()}).then(function(d){
-    if (d && d.ok){ renderMyPage(d); show('mypageView'); }
+    if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
-  }).catch(function(){ show('loginView'); });
+  }).catch(function(){ if(!opts.silent) show('loginView'); });   // 갱신 실패 시엔 이미 보이는 캐시 화면 유지
 }
 
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
