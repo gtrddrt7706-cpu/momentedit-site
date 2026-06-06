@@ -735,6 +735,8 @@ function renderConsult(c, product){
   var eyebrow = isSnap ? 'Photo' : 'Consultation';
   var s = c.status;
   var url = c.scheduleUrl || '';
+  // 스케줄 GAS URL → momentedit.kr/schedule 래퍼로 변환 (구글 페이지 인상 제거, 토큰 그대로 전달)
+  if (url){ var _m = url.match(/[?&]token=([^&]+)/); if (_m){ url = '/schedule?token=' + _m[1] + (/[?&]me=1\b/.test(url) ? '&me=1' : ''); } }
   var body = '', cta = '';
 
   if (s === '신청접수'){

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>상담 일정 선택 · Moment Edit</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="robots" content="noindex">
+<!--
+  momentedit.kr/schedule — 상담 일정 선택 GAS 페이지를 자사 도메인으로 래핑(iframe).
+  · 구글(script.google.com) 인상 제거: 주소·탭 favicon이 momentedit.kr 본 브랜드로.
+  · 토큰 자동진입: ?token= 을 GAS ?page=schedule&token= 으로 그대로 전달(재로그인 없음).
+  · 완료 복귀: ScreenB가 window.top.location.href = momentedit.kr/mypage 로 이동 → 래퍼가 top이라 정상 복귀.
+  ※ EXEC_URL 은 mypage.html 과 동일한 웹앱 배포 URL(R3n9Mr).
+-->
+<style>
+  html,body{margin:0;height:100%;background:#FAFAF8;overflow:hidden}
+  #sf{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+  .err{font-family:'Noto Serif KR',serif;text-align:center;padding:64px 24px;color:#5A554C;line-height:1.7;font-size:14px}
+</style>
+</head>
+<body>
+<script>
+(function(){
+  var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+  var q = new URLSearchParams(location.search);
+  var token = (q.get('token') || '').trim();
+  var me = q.get('me');
+  if (!token) {
+    document.body.innerHTML = '<div class="err">유효하지 않은 링크입니다.<br>마이페이지에서 다시 시도해 주세요.</div>';
+    return;
+  }
+  var src = EXEC_URL + '?page=schedule&token=' + encodeURIComponent(token) + (me ? '&me=1' : '');
+  var f = document.createElement('iframe');
+  f.id = 'sf'; f.src = src; f.title = '상담 일정 선택';
+  f.setAttribute('allow', 'clipboard-write');
+  document.body.appendChild(f);
+})();
+</script>
+</body>
+</html>
