@@ -65,6 +65,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:22px 22px 60px}
 /* 콘텐츠 적은 화면(로그인·코드찾기·재설정)은 세로 중앙 — 풋터까지 한 화면에 */
 main.centered{display:block;flex:none;padding-top:12vh;padding-bottom:14vh}
+/* 제작 단계부터 좌우 여유 — 데스크톱만 확장, 모바일은 100% 유지 */
+main.wide{max-width:600px}
+@media (max-width:560px){
+  main.wide{max-width:100%}
+  /* 2열 입력(혼주+호칭, 날짜+시간 등)은 좁은 화면에서 세로로 쌓아 잘림 방지 */
+  .inv-row{flex-direction:column;gap:8px}
+  .inv-row>input,.inv-row>select{flex:1 1 100% !important;width:100%}
+  .pf2{flex-direction:column;gap:6px}
+}
 .view{display:none;animation:fade .5s var(--ease)}
 .view.show{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -193,7 +202,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 .consult-card .cc-mini{font-size:11px;color:var(--label-soft)}
-.consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
+.consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold)}
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
@@ -502,7 +511,10 @@ function show(viewId){
   });
   // 로그인·코드찾기·재설정은 세로 중앙(풋터까지 한 화면) / 마이페이지는 상단 고정
   var mn = document.querySelector('main');
-  if (mn) mn.classList.toggle('centered', viewId==='loginView'||viewId==='forgotView'||viewId==='resetView');
+  if (mn) {
+    mn.classList.toggle('centered', viewId==='loginView'||viewId==='forgotView'||viewId==='resetView');
+    if (viewId !== 'mypageView') mn.classList.remove('wide');   // mypage의 wide(제작단계)는 renderMyPage가 관리
+  }
   window.scrollTo({top:0});
 }
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
@@ -595,7 +607,11 @@ var STAGE_LABEL = {
   '상담완료':'계약서 서명','계약완료':'계약금 입금','입금완료':'입금 확인',
   '제작중':'제작','촬영완료':'촬영','예식완료':'예식','결과물전달':'결과물 전달'
 };
-function stageLabel(code){ var k=String(code||'').trim(); return STAGE_LABEL[k] || k; }
+function stageLabel(code, product){
+  var k=String(code||'').trim();
+  if (k==='입금완료') return (product==='웨딩스냅') ? '촬영 준비' : '제작 준비';   // 입금확인 후 = 제작/촬영 준비 (라벨-액션 정합)
+  return STAGE_LABEL[k] || k;
+}
 
 function renderMyPage(d){
   // 환영 — 이름 + '님'(작게)
@@ -644,14 +660,14 @@ function renderMyPage(d){
     $('mp_exception').style.display='none';
     $('mp_progress').style.display='block';
     var cur = (idx<0?0:idx);
-    $('mp_stageNow').textContent = stageLabel(d.stage) || stageLabel(list[cur]) || '—';
+    $('mp_stageNow').textContent = stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—';
     $('mp_stageCount').textContent = list.length ? ('STEP ' + (cur+1) + ' / ' + list.length) : '';
-    var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1]) : '';
+    var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage) : '마지막 단계예요';
     // 점만 (막대 없음)
     $('mp_dots').innerHTML = list.map(function(label,i){
       var cls = (i<cur?'done':(i===cur?'current':'future'));
-      return '<span class="dot '+cls+'" title="'+escapeHtml(stageLabel(label))+'"></span>';
+      return '<span class="dot '+cls+'" title="'+escapeHtml(stageLabel(label, d.product))+'"></span>';
     }).join('');
   }
 
@@ -716,6 +732,7 @@ function applyCardStageView(d){
 
   // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '지난 단계 보기'로만 펼침 — 제작/예식준비에 집중
   var paidIdx = sIdx('입금완료');
+  var mnW = document.querySelector('main'); if (mnW) mnW.classList.toggle('wide', paidIdx >= 0 && cur >= paidIdx);   // [제작단계] 좌우 여유(데스크톱)
   if (paidIdx >= 0 && cur >= paidIdx) {
     var pastIds = ['mp_fitting','mp_contract','mp_payment'];
     var hasPast = pastIds.some(function(id){ var b=$(id); return b && b.style.display!=='none' && (b.innerHTML||'').trim()!==''; });
@@ -984,7 +1001,7 @@ function renderPayment(p){
       + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button>'
       + '</div>' ) : '';
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
-    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name" style="font-family:var(--serif-ko);font-size:15px">'
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금하시는 분 성함으로 적어 주세요. 입금자명이 같으면 더 빠르게 확인해 드려요.</div>'
         + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
@@ -1040,6 +1057,22 @@ function coverName(en){
   en=String(en||'').trim(); if(!en) return '';
   var p=en.split(/\s+/);
   return (p.length>1 ? p.slice(1).join(' ') : p[0]).toUpperCase();
+}
+// 예식 시간 — 정해진 슬롯만 (자유 입력·오입력 차단). 시간대 조정은 이 목록만 고치면 됨.
+function weddingTimeOptions(sel){
+  sel=String(sel||'').slice(0,5);
+  var html='<option value="">시간 선택</option>', found=false;
+  for(var h=10; h<=19; h++){
+    var ms=(h===19)?[0]:[0,30];
+    for(var j=0;j<ms.length;j++){
+      var m=ms[j], v=(h<10?'0':'')+h+':'+(m?'30':'00');
+      var hh=(h>12?h-12:h), ap=(h<12?'오전':'오후'), label=ap+' '+hh+':'+(m?'30':'00');
+      if(v===sel) found=true;
+      html+='<option value="'+v+'"'+(v===sel?' selected':'')+'>'+label+'</option>';
+    }
+  }
+  if(sel && !found) html+='<option value="'+sel+'" selected>'+sel+'</option>';   // 기존 저장값 보존
+  return html;
 }
 
 // [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
@@ -1105,13 +1138,13 @@ function productionFormHtml(b){
     + '<div class="pf-cover" id="mp_cover"></div>'
     + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
     + '<div class="pf2"><div><label class="pf-l">예식 날짜</label><input class="cc-input" id="mp_wDate" type="date" value="'+escapeHtml(b.weddingDate||'')+'"></div>'
-      + '<div><label class="pf-l">예식 시간</label><input class="cc-input" id="mp_wTime" type="time" value="'+escapeHtml(b.weddingTime||'')+'"></div></div>'
+      + '<div><label class="pf-l">예식 시간</label><select class="cc-input" id="mp_wTime">'+weddingTimeOptions(b.weddingTime||'')+'</select></div></div>'
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
     + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_saveBase">저장하고 시작</button></div>'
     + '</div>';
 }
 function bindProductionForm(){
-  function sg(koId, enId){ var ko=$(koId), en=$(enId); if(ko&&en) ko.addEventListener('blur', function(){ if(!en.value.trim() && ko.value.trim()){ en.value=romanizeKo(ko.value.trim()); } updateCover(); }); }
+  function sg(koId, enId){ var ko=$(koId), en=$(enId); if(ko&&en) ko.addEventListener('blur', function(){ if(!en.value.trim() && ko.value.trim()){ var nm=ko.value.trim(), given=(nm.length>1?nm.slice(1):nm); en.value=romanizeKo(given)||romanizeKo(nm); } updateCover(); }); }
   sg('mp_gKo','mp_gEn'); sg('mp_bKo','mp_bEn');
   ['mp_gEn','mp_bEn'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', updateCover); });
   updateCover();
