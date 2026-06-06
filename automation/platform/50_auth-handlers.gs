@@ -49,7 +49,7 @@ function handleVerify(body) {
 function handleFindCode(body) {
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
-  var rowObj = findCustomerByEmail(email);
+  var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
   if (rowObj) {
     try { sendFindCodeEmail(email, customerNames(rowObj), String(rowObj.get('개인코드') || '')); }
     catch (e) { notifyStudio('[플랫폼] ⚠️오류 · 코드찾기 메일 실패', email + '\n' + (e && e.message)); }
@@ -62,7 +62,7 @@ function handleFindCode(body) {
 function handleResetPw(body) {
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
-  var rowObj = findCustomerByEmail(email);
+  var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
   if (rowObj) {
     var code = String(rowObj.get('개인코드') || '');
     var exp = Date.now() + 60 * 60 * 1000;                 // 링크 1시간 유효

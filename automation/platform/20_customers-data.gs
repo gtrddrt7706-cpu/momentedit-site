@@ -81,6 +81,32 @@ function findCustomerByCode(code) { return _findCustomerBy('개인코드', code,
 function findCustomerByToken(token) { return _findCustomerBy('로그인토큰', token, false); }
 function findCustomerByEmail(email) { return _findCustomerBy('이메일', email, true); }
 
+// 이메일로 '가장 최근 활성 행' 조회 — 같은 이메일 다중 신청 대응(코드 찾기·비번 재설정).
+//   취소·노쇼·미계약(STAGE_EXCEPTIONS) 제외한 활성 행 중 등록 시각(생성일시) 최신 1건.
+//   활성 행이 없으면 전체 중 최신(완료·취소 고객도 본인 최신 코드 회수 가능). 생성일시='YYYY-MM-DD HH:mm' → 문자열 비교가 곧 시각순.
+function findLatestCustomerByEmail(email) {
+  email = String(email == null ? '' : email).trim().toLowerCase();
+  if (!email) return null;
+  var sheet = getCustomersSheet();
+  var colOf = buildHeaderIndex(sheet);
+  var cEmail = colOf['이메일'], cStage = colOf['현재단계'], cCreated = colOf['생성일시'];
+  var last = sheet.getLastRow();
+  if (!cEmail || last < P.DATA_START_ROW) return null;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var bestActive = null, bestActiveKey = '', bestAny = null, bestAnyKey = '';
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][cEmail - 1] == null ? '' : vals[i][cEmail - 1]).trim().toLowerCase() !== email) continue;
+    var createdKey = String(cCreated ? (vals[i][cCreated - 1] || '') : '') + ('00000' + i).slice(-5); // 시각 동률이면 시트 뒤쪽(나중 추가)이 최신
+    var rowObj = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
+    if (createdKey >= bestAnyKey) { bestAnyKey = createdKey; bestAny = rowObj; }
+    var stage = String(cStage ? (vals[i][cStage - 1] || '') : '').trim();
+    if (STAGE_EXCEPTIONS.indexOf(stage) === -1) {                       // 활성(취소·노쇼·미계약 아님)
+      if (createdKey >= bestActiveKey) { bestActiveKey = createdKey; bestActive = rowObj; }
+    }
+  }
+  return bestActive || bestAny;                                          // 활성 우선, 없으면 전체 최신
+}
+
 // ============================ Customers 쓰기 (최종수정 자동 갱신) ============================
 // updates = { 헤더: 값, ... }. 모든 쓰기 끝에 '최종수정'을 자동으로 찍는다(설계서 노트).
 function touchCustomer(sheet, colOf, rowNum, updates) {
