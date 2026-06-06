@@ -330,8 +330,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
     <style>
-    .card-ahead{position:relative;opacity:0.48;filter:grayscale(0.4);pointer-events:none}
-    .card-ahead::after{content:'이미 진행된 기록 · 현재 단계로 되돌려졌습니다';display:block;margin:6px 4px 0;font-size:11px;letter-spacing:0.02em;color:var(--light);text-align:center}
     .merged-head{margin:22px 0 2px;text-align:center;font-size:13px;letter-spacing:0.06em;color:var(--accent);font-weight:500}
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
@@ -605,13 +603,13 @@ function applyCardStageView(d){
     var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
   }
 
-  // #신규2 — 현재 단계보다 '앞선' 카드에 데이터가 남아있으면(=관리자 강제 되돌리기) 흐림+읽기전용 라벨.
+  // #신규2 — 강제 되돌리기 시 현재보다 '앞선' 단계의 카드는 숨김(화면상 초기화처럼).
+  //   ※ 데이터(계약상태·시착동의·입금 컬럼)는 백엔드에 그대로 보존 — 다시 진행시키면 복원(복구 안전장치). 화면만 정리.
   var cardMin = { mp_fitting:'시착', mp_contract:'상담완료', mp_payment:'계약완료', mp_production:'제작중', mp_result:'예식완료' };
   Object.keys(cardMin).forEach(function(id){
     var box = $(id); if (!box) return;
     var mi = sIdx(cardMin[id]);
-    var ahead = (mi >= 0 && cur < mi && box.style.display !== 'none');
-    box.classList.toggle('card-ahead', ahead);
+    if (mi >= 0 && cur < mi){ box.style.display = 'none'; }
   });
 
   // #신규1 — 계약완료: 계약서+입금을 한 섹션 제목으로 묶어 인식.
