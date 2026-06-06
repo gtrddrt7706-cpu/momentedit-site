@@ -716,6 +716,31 @@ function submitProposal(token, sig, newDate, newTime, memo) {
   return { ok: true };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// [Task12] 변경제안메모 칼럼 자동 추가 — GAS 편집기에서 "한 번" 실행.
+//   동작: '변경제안시간' 다음에 '변경제안메모' 칼럼 1개 삽입 + 텍스트 서식(@) + 너비 설정.
+//   멱등: 이미 칼럼이 있으면 아무 일도 하지 않음 (재실행해도 안전).
+//   ※ 직접 setupConsultation()을 다시 돌리는 것보다 안전(다른 칼럼·서식·필터에 영향 X).
+// ─────────────────────────────────────────────────────────────────────────────
+function addProposalMemoColumn() {
+  var sheet = getSheet();
+  var colOf = buildHeaderIndex(sheet);
+  if (colOf['변경제안메모'] != null) {
+    Logger.log('이미 있음 — 작업 없음. (열 ' + colOf['변경제안메모'] + ')');
+    return '이미 추가됨 (열 ' + colOf['변경제안메모'] + ')';
+  }
+  var afterCol = colOf['변경제안시간'];
+  if (afterCol == null) throw new Error('"변경제안시간" 칼럼을 찾을 수 없습니다. setupConsultation()으로 시트 초기화가 되었는지 확인해 주세요.');
+  sheet.insertColumnAfter(afterCol);                                            // '변경제안시간' 다음에 1칸 삽입
+  var newCol = afterCol + 1;
+  sheet.getRange(1, newCol).setValue('변경제안메모');                            // 헤더
+  var lastRow = Math.max(1, sheet.getMaxRows() - 1);
+  sheet.getRange(2, newCol, lastRow, 1).setNumberFormat('@');                   // 텍스트 서식 고정
+  sheet.setColumnWidth(newCol, 240);
+  Logger.log('"변경제안메모" 칼럼 추가 완료 (열 ' + newCol + ')');
+  return 'OK · 추가됨 (열 ' + newCol + ')';
+}
+
 // ============================ STEP 9 · 캘린더 연동 ============================
 // 가능일/마감 슬롯 계산 — 데모 isAvail()/FULL 대체
 function getAvailability() {
