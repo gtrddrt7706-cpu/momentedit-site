@@ -1164,7 +1164,7 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
-    if (p && p.amounts){ h += '<div class="cc-note" style="text-align:left">서명하면 바로 이어서 <b>계약금 '+fmtWon(p.amounts.납부액)+'</b> 입금 안내를 드려요 — 한 번에 진행돼요.</div>'; }
+    h += '<div class="cc-note" style="text-align:left">서명하면 바로 이어서 <b>계약금 입금</b> 안내를 드려요 — 계약과 계약금은 한 번에 진행돼요.</div>';
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
@@ -1175,7 +1175,7 @@ function renderContractPayment(c, p, ctx){
   }
 
   // ── 2) 서명 완료 → 같은 카드에서 계약금 ──
-  h += '<div class="mp-step-done"><span class="trk-ok">✓</span> 계약 서명 완료'+(c.signedAt?(' · '+escapeHtml(c.signedAt)):'')+'</div>';
+  h += '<div class="mp-step-done"><span class="trk-ok">✓</span> 계약 서명 완료'+(c.signedAt?(' · '+escapeHtml(c.signedAt)):'')+(c.link?(' · <a href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener" style="color:var(--gold-deep)">계약서 다시 보기</a>'):'')+'</div>';
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
     h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
