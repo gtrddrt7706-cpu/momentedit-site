@@ -1109,7 +1109,7 @@ function fmtRemain(s){
   return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
 }
 function doSignContract(){
-  mpSignaturePad({ title:'계약서 서명', body:'아래 칸에 서명해 주세요. 서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.', confirmText:'서명 완료' }).then(function(sig){
+  mpSignaturePad({ title:'계약서 서명', body:'아래 칸에 서명해 주세요. 서명하면 계약이 성립하며, 계약 성립 후에도 제7조에 따른 청약철회(15일)·무상취소 및 제9조 위약금 규정이 적용됩니다.', confirmText:'서명 완료' }).then(function(sig){
     if(!sig) return;
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
