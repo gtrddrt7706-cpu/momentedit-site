@@ -168,6 +168,13 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .past-toggle{display:block;width:100%;margin:2px 0 22px;padding:11px 0;background:transparent;border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-family:var(--serif-ko);font-size:12.5px;color:var(--light);letter-spacing:.02em;cursor:pointer;transition:color .2s}
 .past-toggle:hover{color:var(--gold-deep)}
 .past-toggle .pt-ar{font-size:10px;margin-left:3px}
+/* 잔금 아코디언을 '계약 정보 보기'와 동일한 얇은 줄 토글로 통일 */
+summary.past-toggle{list-style:none;text-align:center}
+summary.past-toggle::-webkit-details-marker{display:none}
+details.acc{margin-bottom:22px}
+details.acc>summary.past-toggle{margin:2px 0 0}
+details.acc[open]>summary.past-toggle .pt-ar{display:inline-block;transform:rotate(180deg)}
+details.acc>.consult-card{margin-top:10px}
 .visit-guide{text-align:left;margin-top:14px;border-top:1px solid var(--hairline);padding-top:4px}
 .vg-title{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:10px 0 2px}
 .vg-row{display:flex;gap:12px;padding:10px 0;border-top:1px solid rgba(28,27,25,.06)}
@@ -1196,10 +1203,9 @@ function renderBalance(p){
     // 가까워짐(또는 입금 신호) → 펼친 활성 카드 (그 전엔 접힘 = 재촉 X)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
-    // 평소 → 접힌 아코디언(금액도 평소엔 숨김 = 부담 최소). 펼치면 미리 입금 가능.
-    box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Balance</div>'
-      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금 결제 안내 <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 알려드려요 (미리 입금하려면 펼치기 ▾)</span></summary>'
-      +'<div style="margin-top:10px">'+body+'<div class="cc-actions">'+cta+'</div></div></details></div>';
+    // 평소 → '계약 정보 보기'와 동일한 얇은 줄 토글로 통일. 펼치면 잔금 카드.
+    box.innerHTML='<details class="acc"><summary class="past-toggle">잔금 결제 안내 <span class="pt-ar">▾</span></summary>'
+      +'<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div></details>';
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
