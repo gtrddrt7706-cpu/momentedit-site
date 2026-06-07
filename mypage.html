@@ -308,6 +308,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
 /* 마지막 설문 — 별점 */
 .srv-q{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:13px 0 6px}
+.srv-starwrap{display:flex;align-items:center;gap:11px}
+.srv-rl{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deep);font-weight:600;min-height:1em}
 .srv-stars{display:flex;gap:7px}
 .srv-star{font-size:27px;line-height:1;background:none;border:none;cursor:pointer;color:var(--border);padding:0;transition:color .15s,transform .1s}
 .srv-star.on{color:var(--gold)}
@@ -1408,7 +1410,7 @@ function renderResult(res){
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> — 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
       +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
       +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
-      +'<textarea class="cc-input" id="mp_picks" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
+      +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>'
       +'</div>';
@@ -1431,8 +1433,10 @@ function renderResult(res){
         + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
         + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
     } else {
+      var over=(res.선택수>inc)?(res.선택수-inc):0;   // 고른 컷이 포함 컷보다 많으면 초과분을 기본값으로
       h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
-        +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">0원</b></span></div>'
+        +(over>0?'<div class="cc-mini" style="color:var(--gold-deep);margin:0 0 6px">고르신 '+res.선택수+'컷이 포함 '+inc+'컷보다 <b>'+over+'컷</b> 많아, 추가 '+over+'컷을 기본으로 넣어뒀어요. 바꾸셔도 돼요.</div>':'')
+        +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0" value="'+(over||'')+'"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">'+fmtWon(over*unit)+'</b></span></div>'
         +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
     }
     h+='</div>';
@@ -1454,8 +1458,9 @@ function renderResult(res){
       h+='<div class="res-panel"><div class="res-panel-t">🤍 마지막으로, 후기를 들려주세요</div>'
         +'<div class="cc-note" style="margin-top:0">두 분의 한마디가 큰 힘이 돼요. 잠깐이면 끝나요.</div>'
         +'<div class="srv-q">전체 만족도</div>'
-        +'<div class="srv-stars" id="mp_svStars">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="srv-star" data-v="'+n+'" aria-label="'+n+'점">★</button>';}).join('')+'</div>'
-        +'<textarea class="cc-input" id="mp_svReview" style="min-height:64px;margin-top:12px" placeholder="후기 (선택) — 동의 시 홍보에 쓰일 수 있어요"></textarea>'
+        +'<div class="srv-starwrap"><div class="srv-stars" id="mp_svStars">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="srv-star" data-v="'+n+'" aria-label="'+n+'점">★</button>';}).join('')+'</div><span class="srv-rl" id="mp_svRL"></span></div>'
+        +'<textarea class="cc-input" id="mp_svReview" style="min-height:64px;margin-top:12px" placeholder="후기를 남겨 주세요 (선택)"></textarea>'
+        +'<div class="cc-mini" style="margin:4px 0 0">남겨주신 후기는 <b>동의해 주실 때만</b> 소개에 쓰여요. 원치 않으시면 비워두셔도 돼요.</div>'
         +'<div class="srv-q">다른 분께도 추천하고 싶으세요?</div>'
         +'<span class="inv-yn" id="mp_svRec"><button type="button" data-r="Y">네</button><button type="button" data-r="N">아니요</button></span>'
         +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:12px">후기 보내기</button></div>';
@@ -1470,7 +1475,12 @@ function renderResult(res){
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
   var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
   var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
-  (function(){ var stars=$('mp_svStars'); if(stars){ Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(bt){ bt.addEventListener('click',function(){ var v=+bt.getAttribute('data-v'); stars.setAttribute('data-sel',v); Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(x){ x.classList.toggle('on',(+x.getAttribute('data-v'))<=v); }); }); }); }
+  (function(){ var stars=$('mp_svStars'); if(stars){ var rl=$('mp_svRL'), L=['','아쉬워요','그저 그래요','괜찮아요','좋아요','최고예요'];
+      var paint=function(v){ Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(x){ x.classList.toggle('on',(+x.getAttribute('data-v'))<=v); }); if(rl) rl.textContent=v?L[v]:''; };
+      Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(bt){ var v=+bt.getAttribute('data-v');
+        bt.addEventListener('mouseenter',function(){ paint(v); });
+        bt.addEventListener('click',function(){ stars.setAttribute('data-sel',v); paint(v); }); });
+      stars.addEventListener('mouseleave',function(){ paint(+(stars.getAttribute('data-sel')||0)); }); }
     var rec=$('mp_svRec'); if(rec){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(bt){ bt.addEventListener('click',function(){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(x){x.classList.remove('on');}); bt.classList.add('on'); rec.setAttribute('data-rec',bt.getAttribute('data-r')); }); }); }
     var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click', doSubmitSurvey); })();
   var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=fmtWon((q>0?q:0)*(res.추가단가||20000)); });
@@ -1481,20 +1491,27 @@ function renderResult(res){
     if(pc) pc.addEventListener('input', updc); updc(); }
 }
 function doSubmitSelection(){
-  var picks=(($('mp_picks')&&$('mp_picks').value)||'').trim();
+  var pcEl=$('mp_picks'), picks=((pcEl&&pcEl.value)||'').trim();
   if(!picks){ mpAlert('고르신 컷을 입력해 주세요.'); return; }
-  var btn=$('mp_pickSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  var btn=$('mp_pickSubmit');
+  function send(){ if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
+    function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
+    api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
+    }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); }); }
+  var inc=pcEl?(+(pcEl.getAttribute('data-inc')||10)):10, n=_resCount(picks);
+  if(n>inc){ mpConfirm({ title:'이대로 제출할까요?', body:'고르신 '+n+'컷 = 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷이에요.\n추가 '+(n-inc)+'컷은 다음 ③ 단계에서 결제 안내를 드려요.', yes:'네, 제출할게요', no:'다시 고를게요' }).then(function(ok){ if(ok) send(); }); }
+  else send();
 }
 function doConfirmRetouch(){
-  var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
-  api({action:'confirmRetouch', token:getToken()}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n더 손볼 컷이 있으면 취소하고 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){
+    if(!ok) return;
+    var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+    function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
+    api({action:'confirmRetouch', token:getToken()}).then(function(d){
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  });
 }
 function doSubmitSurvey(){
   var stars=$('mp_svStars'); var rating=stars?(+(stars.getAttribute('data-sel')||0)):0;
