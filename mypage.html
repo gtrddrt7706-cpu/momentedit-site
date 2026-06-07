@@ -1558,12 +1558,15 @@ function invStepDesign(box){
 }
 function invStepConfirm(box){
   var d=INVFLOW.draft, m=d.method, sm;
-  if(m==='none') sm='청첩장을 만들지 않아요. (이 단계는 완료로 표시돼요)';
-  else if(m==='self') sm='개인 제작 — 모바일 참석 QR'+(d.selfQR?'를 받아요.':' 없이 진행해요.');
-  else sm='초대 · '+({online:'온라인(모바일 참석)',offline:'오프라인',both:'둘 다'}[m]||'')+(d.designFamily?(' · 오프라인 '+d.designFamily):'')+(d.designOnline?(' · 온라인 '+d.designOnline):'');
+  function dz(n){ return n ? (n+' '+_designName(n)) : ''; }
+  if(m==='none') sm='청첩장 없이 진행해요.';
+  else if(m==='self') sm='개인 제작'+(d.selfQR?' · 모바일 참석 QR 받기':'');
+  else if(m==='offline') sm='직접 모시는 청첩장 · '+dz(d.designFamily);
+  else if(m==='online') sm='온라인(모바일 참석) 청첩장 · '+dz(d.designOnline);
+  else sm=((d._onlineSame!=='N')||(d.designOnline===d.designFamily)) ? ('온라인·오프라인 모두 '+dz(d.designFamily)) : ('오프라인 '+dz(d.designFamily)+' · 온라인 '+dz(d.designOnline));
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span></div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
-    +'<div class="cc-note">비운 항목은 기본 문구로 채워져요. <b>만들기</b>를 누르면 두 분 정보가 담긴 실제 청첩장'+((m==='both')?'(온라인·오프라인)':'')+'이 바로 나와요 — 보고 언제든 고칠 수 있어요.</div>'
+    +'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>'
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
