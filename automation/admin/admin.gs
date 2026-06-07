@@ -132,7 +132,7 @@ function adminCall(token, fn, args) {
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
       adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
-      adminConfirmExtra: adminConfirmExtra,
+      adminConfirmExtra: adminConfirmExtra, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
     };
     var f = FNS[fn];
@@ -238,8 +238,10 @@ function adminHome() {
     var createdYmd = _ymdOf(cget(rv, '생성일시'));
     custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd };
     surveyTally(rv, code, names, product);
-    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || stage === '결과물전달') {
-      // 전달 완료(아카이브)라도 추가 보정 입금 신호는 운영자 확인이 필요 → '처리할 일'에만 노출
+    var survStatus = String(cget(rv, '설문상태') || '').trim();
+    var surveyClosed = (survStatus === '완료' || survStatus === '건너뜀');   // 후기 마감(제출/넘기기) = 아카이브 조건
+    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || (stage === '결과물전달' && surveyClosed)) {
+      // 아카이브(예외/후기 마감)라도 추가 보정 입금 신호는 운영자 확인 필요 → 큐 노출
       if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
         pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
       }
@@ -261,6 +263,13 @@ function adminHome() {
     var consultYmd = _ymdOf(bk ? bget(bk, '선택날짜') : '');
     var bookingStatus = bk ? String(bget(bk, '상태') || '').trim() : '';
     var consultPast = consultYmd ? (_dayDiff(today, consultYmd) > 0) : false;
+
+    // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
+    if (stage === '결과물전달') {
+      if (추가보정 === '결제대기') pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
+      resultsList.push({ code: code, names: names, product: product, 상태: '후기대기', 선택수: 선택수, 원본: !!원본, 보정본: !!String(cget(rv, '보정본폴더') || '').trim(), 영상: !!String(cget(rv, '영상링크') || '').trim(), 추가보정: 추가보정, 추가보정수량: String(cget(rv, '추가보정수량') || ''), 설문: survStatus, dday: (wedYmd ? _dayDiff(today, wedYmd) : null) });
+      return;
+    }
 
     // 시착 동의 보내기(시그) — 상담확정 & 상담일 지남 & 시착 미발송
     if (!isSnap && stage === '상담확정' && consultPast && 시착 !== '동의요청' && 시착 !== '동의완료') {
@@ -854,7 +863,7 @@ function adminMarkEventDone(code) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
-// 4. 결과물 전달 완료 — 예식완료/촬영완료 + 원본 필수 → 결과물전달(아카이브로)
+// 4. 결과물 전달 완료 — 예식완료/촬영완료 + 원본 필수 → 결과물전달(후기 대기, 아카이브는 후기 마감 후)
 function adminMarkDelivered(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -863,14 +872,32 @@ function adminMarkDelivered(code) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
     var stage = String(cust.get('현재단계') || '').trim();
-    if (stage === '결과물전달') return { ok: true, already: true, stage: stage, archived: true };
+    if (stage === '결과물전달') return { ok: true, already: true, stage: stage };
     if (['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료' });
     setCustomerStage(code, 'deliver');
     _recordHandler(code, '결과물 전달 완료');
-    return { ok: true, stage: '결과물전달', archived: true };
+    return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 — 고객 후기 제출/운영자 넘기기 시 아카이브
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 4-1. 후기 넘기기 — 후기 미작성 고객을 수동 마감 → 설문상태=건너뜀 → 아카이브
+function adminSkipSurvey(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    if (String(cust.get('현재단계') || '').trim() !== '결과물전달') return { ok: false, error: '결과물 전달 완료 고객만 후기를 넘길 수 있습니다.' };
+    var cur = String(cust.get('설문상태') || '').trim();
+    if (cur === '완료' || cur === '건너뜀') return { ok: true, already: true, archived: true };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '설문상태': '건너뜀' });
+    _recordHandler(code, '후기 넘기기(설문 생략)');
+    return { ok: true, archived: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 

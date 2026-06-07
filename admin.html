@@ -518,7 +518,7 @@ function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
   var html='<div class="sect-h"><span class="ic">🎞️</span><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
-  if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요 — 예식완료부터 여기에 표시되고, 전달 완료 시 아카이브로 이동해요</div>'; }
+  if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요 — 예식완료부터 여기에 표시되고, 후기까지 끝나면 아카이브로 이동해요</div>'; }
   else { html+=list.map(resultRow).join(''); }
   wrap.innerHTML=html;
   wrap.querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home'); }); });
@@ -526,10 +526,10 @@ function renderResults(d){
 }
 function resultRow(it){
   var S=it.상태||'대기';
-  var oi={'대기':0,'원본전달':1,'선택완료':2,'보정중':2,'컨펌대기':3,'컨펌완료':4}[S]; if(oi==null) oi=0;
-  var labels=['원본','선택','보정','컨펌','전달'];
+  var oi={'대기':0,'원본전달':1,'선택완료':2,'보정중':2,'컨펌대기':3,'컨펌완료':4,'후기대기':5}[S]; if(oi==null) oi=0;
+  var labels=['원본','선택','보정','컨펌','전달','후기'];
   var strip=labels.map(function(l,i){ var cls=i<oi?'done':(i===oi?'cur':''); return '<span class="rs '+cls+'">'+(i<oi?'✓':'')+l+'</span>'; }).join('<span class="rsep">›</span>');
-  var nextTxt={'대기':'원본 등록 필요','원본전달':'고객 컷 선택 대기','선택완료':'보정본 등록 필요','보정중':'보정본 등록 필요','컨펌대기':'고객 컨펌 대기','컨펌완료':'결과물 전달 가능'}[S]||'';
+  var nextTxt={'대기':'원본 등록 필요','원본전달':'고객 컷 선택 대기','선택완료':'보정본 등록 필요','보정중':'보정본 등록 필요','컨펌대기':'고객 컨펌 대기','컨펌완료':'결과물 전달 가능','후기대기':'고객 후기 작성 대기 · 넘기기 가능'}[S]||'';
   if(S==='선택완료'&&it.선택수) nextTxt='고객 '+esc(it.선택수)+'컷 선택 · 보정본 등록';
   var exBadge = (it.추가보정==='결제대기') ? '<span class="qbadge yellow">추가보정 입금확인</span>'
               : ((it.추가보정==='신청'||it.추가보정==='견적') ? '<span class="qbadge yellow">추가보정 '+esc(it.추가보정수량||'')+'컷</span>' : '');
@@ -841,7 +841,12 @@ function cardResult(d,isSnap){
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(r['원본링크']) b+=ab('delivered','결과물 전달');
     else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
-  } else if(st==='결과물전달'){ b+='<div class="gate">✓ 전달 완료</div>'+(exPay?ab('confirmExtra','추가 보정 입금 확인'):''); }
+  } else if(st==='결과물전달'){
+    var svS=r['설문상태']||'대기';
+    b+='<div class="gate">✓ 전달 완료'+(svS==='완료'?' · 후기 완료':(svS==='건너뜀'?' · 후기 넘김':' · 후기 작성 대기'))+'</div>';
+    if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
+    if(svS!=='완료'&&svS!=='건너뜀') b+=ab('skipSurvey','후기 넘기기 (설문 생략)','btn-line');
+  }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 
@@ -887,6 +892,7 @@ function onDetailAct(act,d){
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names,d);
   else if(act==='confirmExtra') doConfirmExtra(code,names,d);
+  else if(act==='skipSurvey') doSkipSurvey(code,names);
 }
 
 /* ════════ 액션 모달 (큐·상세 공용) ════════ */
@@ -939,9 +945,10 @@ function doDelivered(code,names,d){
   var warn = noReto?'⚠ 보정본이 아직 등록되지 않았어요 — 빈 채로 전달돼요'
            : (noConfirm?'⚠ 고객 컨펌 전이에요 — 확인 후 전달을 권해요':'');
   openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!warn,
-    text:b(names)+(warn?li(warn):'')+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요')+li('전달 후엔 마지막 설문(만족도)을 받게 돼요'),
+    text:b(names)+(warn?li(warn):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
     yes:warn?'그래도 전달':'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,warn?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
+function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }

@@ -321,6 +321,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .srv-opts button{flex:0 1 auto;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);transition:all .14s;line-height:1.3}
 .srv-opts button:hover{border-color:var(--gold);color:var(--accent)}
 .srv-opts button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+#mp_svReview{font-family:var(--sans);font-weight:300;font-size:14px;line-height:1.65}
+#mp_svReview::placeholder{color:var(--label-soft);font-weight:300}
 .srv-consent{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
 .srv-consent input{width:15px;height:15px;accent-color:var(--gold-deep)}
 .srv-skip{display:block;width:100%;margin:11px 0 0;padding:6px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px}
@@ -1451,9 +1453,8 @@ function _bindExtra(res){
 }
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
-  var sv=res.survey||{}, skip=false; try{ skip=(localStorage.getItem('me_srv_skip_'+(code||'x'))==='1'); }catch(e){}
+  var sv=res.survey||{};
   if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
-  if(skip) return '<div class="cc-mini" style="margin:9px 0 2px">🤍 <a href="#" id="mp_svReopen" style="color:var(--gold-deep);font-weight:600">후기 남기기</a> · 두 분의 한마디가 큰 힘이 돼요</div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
@@ -1466,8 +1467,7 @@ function _surveyCardHtml(res, nm, code){
     +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="자유롭게 남겨 주세요 (선택)"></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
     +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
-    +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button>'
-    +'<button type="button" class="srv-skip" id="mp_svSkip">다음에 할게요</button></div>';
+    +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button></div>';
 }
 function _bindSurvey(res, nm, code){
   var panel=$('mp_svPanel');
@@ -1478,8 +1478,6 @@ function _bindSurvey(res, nm, code){
       var er=$('mp_svErr'); if(er) er.style.display='none';
     }); }); }); }
   var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click',function(){ doSubmitSurvey(res); });
-  var sk=$('mp_svSkip'); if(sk) sk.addEventListener('click',function(){ try{localStorage.setItem('me_srv_skip_'+(code||'x'),'1');}catch(e){} renderResult(res,nm,code); });
-  var ro=$('mp_svReopen'); if(ro) ro.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.removeItem('me_srv_skip_'+(code||'x'));}catch(e){} renderResult(res,nm,code); });
 }
 function renderResult(res, nm, code){
   var box=$('mp_result'); if(!box) return;
@@ -1509,11 +1507,13 @@ function renderResult(res, nm, code){
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
-    h+='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
-    h+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
-    if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') h+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
-    h+='<div class="srv-step-label">마지막 단계</div>'+_surveyCardHtml(res,nm,code);
-    box.innerHTML=h+'</div>'; box.style.display='block';
+    var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
+    hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
+    var inner='';
+    if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') inner+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
+    inner+='<div class="srv-step-label" style="margin:0 0 10px">마지막 단계</div>'+_surveyCardHtml(res,nm,code);
+    hd+='<div class="consult-card" style="text-align:left;margin-top:12px">'+inner+'</div>';
+    box.innerHTML=hd; box.style.display='block';   // 결과물 토글은 본계약서 보기 바로 밑(카드 없이), 설문만 카드로
     var tg=$('mp_delivToggle'); if(tg) tg.addEventListener('click',function(){ var body=$('mp_delivBody'); var open=(body.style.display==='none'); body.style.display=open?'block':'none'; tg.classList.toggle('open',open); tg.innerHTML=(open?'받은 결과물 접기 ':'받은 결과물 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>'; try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
     _bindExtra(res); _bindSurvey(res,nm,code);
     return;
