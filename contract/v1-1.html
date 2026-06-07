@@ -27,11 +27,10 @@
   color-scheme:light;
   --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;
   --text:#1C1B19;--sub:#5A554C;--light:#75705F;
-  --gold:#B89A75;--gold-soft:rgba(184,154,117,0.14);--gold-line:rgba(184,154,117,0.45);
+  --gold:#B89A75;--gold-soft:rgba(184,154,117,0.13);--gold-line:rgba(184,154,117,0.45);
   --accent:#3A2D22;--seal:#6B2A24;
   --border:#DDD8D1;--footer-bg:#1A1714;
-  --hairline:rgba(28,27,25,0.14);
-  --ease:cubic-bezier(0.16,1,0.3,1);
+  --hairline:rgba(28,27,25,0.13);
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
   --sans:'Noto Sans KR',-apple-system,sans-serif;
@@ -41,7 +40,7 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.9;letter-spacing:0;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* Nav */
-nav{position:sticky;top:0;z-index:100;background:rgba(250,250,248,0.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(221,216,209,0.6)}
+nav.top{position:sticky;top:0;z-index:100;background:rgba(250,250,248,0.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(221,216,209,0.6)}
 .nav-in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 32px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:500;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:4px;height:4px;border-radius:50%;background:var(--seal);display:inline-block}
@@ -61,64 +60,87 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,250,248,0.9);backdrop-
 /* Main */
 main{max-width:var(--max);margin:0 auto;padding:0 24px 80px}
 .doc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:40px 40px 32px;box-shadow:0 1px 3px rgba(28,27,25,0.04)}
-@media(max-width:680px){main{padding:0 14px 60px}.doc{padding:26px 20px 22px;border-radius:8px}}
+@media(max-width:680px){main{padding:0 14px 60px}.doc{padding:26px 18px 22px;border-radius:8px}}
 
-.preamble{font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.95;padding-bottom:8px;margin-bottom:8px}
+.preamble{font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.95;margin-bottom:24px}
+
+/* 목차 (TOC) */
+.toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:30px}
+.toc-title{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.05em;margin-bottom:12px}
+.toc-list{list-style:none;columns:2;column-gap:28px}
+.toc-list li{margin-bottom:8px;break-inside:avoid}
+.toc-list a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;line-height:1.5;display:inline-flex;align-items:baseline;gap:5px;transition:color .2s}
+.toc-list a:hover{color:var(--seal)}
+.toc-list a .tn{color:var(--gold);font-family:var(--serif);font-style:italic;font-size:12px}
+.toc-key{font-size:8.5px;font-weight:600;letter-spacing:0.04em;color:#fff;background:var(--gold);padding:1px 5px;border-radius:8px;font-family:var(--sans)}
+@media(max-width:560px){.toc-list{columns:1}.toc{padding:16px 18px}}
 
 /* Article */
-section.article{padding:26px 0;border-top:1px solid var(--hairline)}
+section.article{padding:26px 0;border-top:1px solid var(--hairline);scroll-margin-top:64px}
 section.article:first-of-type{border-top:none;padding-top:6px}
 .art-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
 .art-num{font-family:var(--serif);font-style:italic;font-size:17px;font-weight:500;color:var(--gold);letter-spacing:0.04em;line-height:1;flex-shrink:0;white-space:nowrap}
 .art-title{font-family:var(--serif-ko);font-size:17px;font-weight:600;color:var(--accent);letter-spacing:0.01em;line-height:1.4}
 .art-body{font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--text);line-height:1.95;letter-spacing:0.005em}
-.art-body p{margin-bottom:12px}
-.art-body p:last-child{margin-bottom:0}
+.art-body>p{margin-bottom:12px}
+.art-body>p:last-child{margin-bottom:0}
 .art-body strong{color:var(--accent);font-weight:600}
-.clause{margin-bottom:12px}
-.clause-n{font-weight:600;color:var(--accent)}
-.sub-list{list-style:none;margin:8px 0 12px;padding-left:14px}
+/* 항 — 행잘림 들여쓰기(hanging indent) */
+.clause{position:relative;padding-left:1.55em;margin-bottom:12px}
+.clause-n{position:absolute;left:0;top:0;font-weight:600;color:var(--accent)}
+.sub-list{list-style:none;margin:8px 0 12px;padding-left:1.55em}
 .sub-list li{position:relative;padding-left:18px;margin-bottom:6px;font-size:13.5px;color:var(--sub)}
 .sub-list li::before{content:counter(li)'.';counter-increment:li;position:absolute;left:0;top:0;color:var(--gold);font-weight:600}
 .sub-list{counter-reset:li}
-.inline-list{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;margin:6px 0 12px;padding-left:4px}
+.inline-list{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;margin:6px 0 12px;padding-left:1.55em}
 .inline-list li{font-size:13.5px;color:var(--sub)}
 
-/* 중요 조항 강조 */
-section.article.key{background:var(--gold-soft);border:1px solid var(--gold-line);border-left:3px solid var(--gold);border-radius:var(--radius);padding:22px 24px;margin:14px 0}
-section.article.key+section.article.key{margin-top:14px}
-.key-badge{display:inline-block;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.08em;color:#fff;background:var(--seal);padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:8px}
-@media(max-width:680px){section.article.key{padding:18px 16px}.art-title{font-size:15px}.art-num{font-size:15px}.art-body{font-size:13.5px}}
+/* 중요 조항 — 절제된 강조(좌측 골드 보더 + 배지, 배경 없음) */
+section.article.key{border-left:3px solid var(--gold);padding-left:20px}
+.key-badge{display:inline-block;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.06em;color:#fff;background:var(--gold);padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:8px}
+@media(max-width:680px){.art-title{font-size:15px}.art-num{font-size:15px}.art-body{font-size:13.5px}section.article.key{padding-left:14px}}
 
 /* Tables */
 .tbl-wrap{overflow-x:auto;margin:10px 0 14px;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-family:var(--serif-ko);font-size:13px;min-width:380px}
+table{border-collapse:collapse;width:100%;font-family:var(--serif-ko);font-size:13px}
 th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top;line-height:1.7;color:var(--sub)}
 th{background:var(--bg2);color:var(--accent);font-weight:600;font-size:12.5px;letter-spacing:0.02em}
 td strong{color:var(--accent);font-weight:600}
 .tbl-fill td{height:34px}
 @media(max-width:680px){table{font-size:12.5px}th,td{padding:7px 9px}}
+/* 모바일 카드형 표(다열) */
+@media(max-width:560px){
+  .tbl-card{border:none}
+  .tbl-card tr:first-child{display:none}
+  .tbl-card tr{display:block;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+  .tbl-card td{display:flex;justify-content:space-between;gap:14px;border:none;border-bottom:1px dashed var(--border);padding:8px 12px;text-align:right}
+  .tbl-card tr td:last-child{border-bottom:none}
+  .tbl-card td::before{content:attr(data-label);font-weight:600;color:var(--accent);text-align:left;flex-shrink:0}
+}
 
 /* 플레이스홀더 */
 .ph{background:#FBF3D6;border-bottom:1px dashed #C9A93B;color:#7A5E12;padding:0 4px;border-radius:2px;font-weight:500;font-family:var(--sans);font-size:0.92em}
 
 /* 서명란 */
-.sign-section{margin-top:30px;border-top:2px solid var(--gold-line);padding-top:26px}
+.sign-section{margin-top:30px;border-top:2px solid var(--gold-line);padding-top:26px;scroll-margin-top:64px}
 .sign-h{font-family:var(--serif-ko);font-size:16px;font-weight:600;color:var(--accent);margin-bottom:6px}
 .sign-note{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.9;margin-bottom:18px}
 .consent-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
 .consent-box .cb-title{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px}
+.consent-box .cb-title .pick{font-family:var(--sans);font-size:10.5px;font-weight:500;color:var(--gold);margin-left:6px}
 .check-line{font-family:var(--serif-ko);font-size:13.5px;color:var(--text);line-height:2;display:flex;align-items:flex-start;gap:8px}
-.opt-row{display:flex;flex-wrap:wrap;gap:8px 22px}
-.opt-row span{font-family:var(--serif-ko);font-size:13.5px;color:var(--text)}
+.opt-row{display:flex;flex-wrap:wrap;gap:10px 22px}
+.opt-row span{font-family:var(--serif-ko);font-size:13.5px;color:var(--text);display:inline-flex;align-items:center;gap:7px}
 .box{display:inline-block;width:15px;height:15px;border:1.5px solid var(--accent);border-radius:3px;flex-shrink:0;margin-top:4px}
-.sign-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+.opt-row .box{border-radius:50%;margin-top:0}
+.sign-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
 .sign-cell{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:#fff}
 .sign-cell .sc-role{font-family:var(--serif-ko);font-size:12px;font-weight:600;color:var(--gold);letter-spacing:0.04em;margin-bottom:10px}
-.sign-cell .sc-line{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.sign-cell .sc-line{display:flex;flex-direction:column;gap:8px}
 .sign-cell .sc-name{font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .sign-cell .sc-sign{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--light)}
 .date-line{margin-top:18px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500}
+@media(max-width:560px){.sign-grid{grid-template-columns:1fr}}
 
 /* Footer */
 footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-top:50px}
@@ -129,7 +151,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 
 /* Print */
 @media print{
-  nav,footer,.hero-divider,.hero-label{display:none}
+  nav.top,footer,.hero-divider,.hero-label,.toc{display:none}
   body{background:#fff;color:#000;font-size:10.5pt;line-height:1.6}
   .hero{padding:0 0 16pt}
   .hero-title{font-size:16pt;color:#000}
@@ -137,7 +159,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   main{padding:0;max-width:100%}
   .doc{border:none;box-shadow:none;padding:0;border-radius:0}
   section.article{padding:10pt 0;border-top:1px solid #ccc;page-break-inside:avoid}
-  section.article.key{background:#f6f6f6;border:1px solid #bbb;page-break-inside:avoid}
+  section.article.key{border-left:2.5pt solid #999}
   .key-badge{background:#000;color:#fff}
   .art-title,.art-body strong,td strong,.clause-n{color:#000}
   .art-num{color:#555}
@@ -152,7 +174,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 </head>
 <body>
 
-<nav>
+<nav class="top">
   <div class="nav-in">
     <a href="/index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
     <a href="/mypage.html" class="nav-back">마이페이지 →</a>
@@ -172,8 +194,32 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 
   <p class="preamble">본 계약은 신랑·신부(이하 "갑")와 모먼트에디트(이하 "을")가 '을'이 제공하는 'The 140 Signature' 촬영·예식 통합 서비스의 이용에 관하여 다음과 같이 체결하는 계약이다.</p>
 
+  <!-- 목차 -->
+  <nav class="toc" aria-label="목차">
+    <div class="toc-title">목차</div>
+    <ol class="toc-list">
+      <li><a href="#art1"><span class="tn">제1조</span> 목적 및 적용범위</a></li>
+      <li><a href="#art2"><span class="tn">제2조</span> 계약 당사자</a></li>
+      <li><a href="#art3"><span class="tn">제3조</span> 서비스 내용·결과물·이행장소</a></li>
+      <li><a href="#art4"><span class="tn">제4조</span> 대금의 구성 및 지급 <span class="toc-key">중요</span></a></li>
+      <li><a href="#art5"><span class="tn">제5조</span> 제작물의 수정·검수 및 확정</a></li>
+      <li><a href="#art6"><span class="tn">제6조</span> 계약의 성립</a></li>
+      <li><a href="#art7"><span class="tn">제7조</span> 청약철회 및 무상취소 <span class="toc-key">중요</span></a></li>
+      <li><a href="#art8"><span class="tn">제8조</span> 계약의 변경</a></li>
+      <li><a href="#art9"><span class="tn">제9조</span> 위약금 <span class="toc-key">중요</span></a></li>
+      <li><a href="#art10"><span class="tn">제10조</span> 불가항력 및 1급 감염병</a></li>
+      <li><a href="#art11"><span class="tn">제11조</span> 잔금 미납 시 해제</a></li>
+      <li><a href="#art12"><span class="tn">제12조</span> 결과물 인도·보관·멸실 배상</a></li>
+      <li><a href="#art13"><span class="tn">제13조</span> 저작권·초상권·결과물 사용 <span class="toc-key">중요</span></a></li>
+      <li><a href="#art14"><span class="tn">제14조</span> 개인정보의 처리 <span class="toc-key">중요</span></a></li>
+      <li><a href="#art15"><span class="tn">제15조</span> 분쟁해결·관할·준거법</a></li>
+      <li><a href="#art16"><span class="tn">제16조</span> 기타</a></li>
+      <li><a href="#sign"><span class="tn">서명</span> 및 동의</a></li>
+    </ol>
+  </nav>
+
   <!-- 제1조 -->
-  <section class="article">
+  <section class="article" id="art1">
     <div class="art-head"><span class="art-num">제1조</span><h2 class="art-title">목적 및 적용범위</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> 본 계약은 '갑'(신랑·신부)과 '을'(모먼트에디트)이 'The 140 Signature' 촬영·예식 통합 서비스(이하 "본 서비스")의 제공에 관하여 양 당사자의 권리와 의무를 정함을 목적으로 한다.</p>
@@ -183,7 +229,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제2조 -->
-  <section class="article">
+  <section class="article" id="art2">
     <div class="art-head"><span class="art-num">제2조</span><h2 class="art-title">계약 당사자</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>'갑'(고객).</strong> 본 계약의 '갑'은 신랑과 신부 양인으로 한다. 본 계약서에 신랑·신부 양인의 정보를 기재하고, 대표 1인이 양인을 대표하여 전자서명하며, 양인은 제2조 제3항에 따라 연대하여 책임을 진다.</p>
@@ -212,7 +258,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제3조 -->
-  <section class="article">
+  <section class="article" id="art3">
     <div class="art-head"><span class="art-num">제3조</span><h2 class="art-title">서비스의 내용·결과물 및 이행장소</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>기본 서비스의 구성.</strong> '을'이 '갑'에게 제공하는 기본 서비스(이하 "본 서비스")는 'The 140 Signature'로서, 다음 5개 시퀀스로 구성된 총 140분의 촬영·예식 통합 진행을 말한다. 본 서비스는 '을'의 스튜디오 내 <strong>캔들존(Ambient Candle)과 화이트존(Editorial White)</strong> 두 공간에서 진행되며, 하객은 <strong>양가 합산 25명까지 착석</strong>으로 모시며, 추가로 스탠딩 좌석 최대 5명을 더하여 <strong>총 30명까지</strong> 수용한다. 30명 초과는 공간·안전상 불가하다.</p>
@@ -250,22 +296,22 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제4조 (중요) -->
-  <section class="article key">
+  <section class="article key" id="art4">
     <div class="art-head"><span class="art-num">제4조</span><h2 class="art-title">대금의 구성 및 지급<span class="key-badge">중요</span></h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>총 계약금액.</strong> 본 서비스(The 140 Signature)의 총 계약금액은 다음과 같으며, 모두 <strong>부가가치세(VAT)가 포함</strong>된 금액이다.</p>
-      <div class="tbl-wrap"><table>
+      <div class="tbl-wrap"><table class="tbl-card">
         <tr><th style="width:50%">구분</th><th>총 계약금액(VAT 포함)</th></tr>
-        <tr><td>주말·공휴일</td><td><strong>2,800,000원</strong></td></tr>
-        <tr><td>평일</td><td><strong>2,100,000원</strong></td></tr>
+        <tr><td data-label="구분">주말·공휴일</td><td data-label="총 계약금액"><strong>2,800,000원</strong></td></tr>
+        <tr><td data-label="구분">평일</td><td data-label="총 계약금액"><strong>2,100,000원</strong></td></tr>
       </table></div>
       <p>별도 상품인 Weekday Editorial Snap은 <strong>600,000원</strong>(정가 800,000원, 운영 초기 한정)으로 한다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>대금의 단계별 지급.</strong> 대금은 다음 3단계로 나누어 지급한다.</p>
-      <div class="tbl-wrap"><table>
+      <div class="tbl-wrap"><table class="tbl-card">
         <tr><th>단계</th><th>비율</th><th>주말·공휴일</th><th>평일</th><th>지급 시기</th></tr>
-        <tr><td>계약금</td><td>10%</td><td>280,000원</td><td>210,000원</td><td>계약 성립 시</td></tr>
-        <tr><td>중도금</td><td>40%</td><td>1,120,000원</td><td>840,000원</td><td>예식일 <strong>30일 전(D-30)</strong>까지</td></tr>
-        <tr><td>잔금</td><td>50%</td><td>1,400,000원</td><td>1,050,000원</td><td>예식일 <strong>7일 전(D-7)</strong>까지</td></tr>
+        <tr><td data-label="단계">계약금</td><td data-label="비율">10%</td><td data-label="주말·공휴일">280,000원</td><td data-label="평일">210,000원</td><td data-label="지급 시기">계약 성립 시</td></tr>
+        <tr><td data-label="단계">중도금</td><td data-label="비율">40%</td><td data-label="주말·공휴일">1,120,000원</td><td data-label="평일">840,000원</td><td data-label="지급 시기">예식일 <strong>30일 전(D-30)</strong>까지</td></tr>
+        <tr><td data-label="단계">잔금</td><td data-label="비율">50%</td><td data-label="주말·공휴일">1,400,000원</td><td data-label="평일">1,050,000원</td><td data-label="지급 시기">예식일 <strong>7일 전(D-7)</strong>까지</td></tr>
       </table></div>
       <p class="clause"><span class="clause-n">③</span> <strong>상담 예약금의 충당.</strong> '갑'이 상담 시 납부한 예약금 <strong>200,000원</strong>은 본 계약 성립 시 계약금에 충당한다. 계약금에서 예약금을 충당하고 남는 차액(주말 80,000원·평일 10,000원)은 <strong>별도로 납입하지 아니하고 중도금에 합산</strong>한다. 즉 '갑'은 계약 성립 시 추가 납입 없이, 차액을 포함한 중도금을 D-30까지 납입한다.</p>
       <p class="clause"><span class="clause-n">④</span> <strong>중도금 시기의 사유.</strong> 중도금은 '을'이 예식 준비(의상 준비, 외주 인력 섭외, 소품·자재 발주 등)에 착수하는 시점에 맞추어 예식일 30일 전(D-30)으로 정한다.</p>
@@ -289,7 +335,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제5조 -->
-  <section class="article">
+  <section class="article" id="art5">
     <div class="art-head"><span class="art-num">제5조</span><h2 class="art-title">제작물의 수정·검수 및 확정</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>청첩장·식순(셀프 제작).</strong> 청첩장과 식순은 '갑'이 '을'의 마이페이지 시스템을 통해 직접 작성하며, <strong>예식 종료 시점까지 횟수 제한 없이 자유롭게 수정</strong>할 수 있다(예식 종료 후 시스템상 자동으로 수정이 종료된다).</p>
@@ -304,7 +350,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제6조 -->
-  <section class="article">
+  <section class="article" id="art6">
     <div class="art-head"><span class="art-num">제6조</span><h2 class="art-title">계약의 성립</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> 본 계약은 '을'이 '갑'에게 계약서 링크를 발송하고, '갑'이 <strong>발송 후 72시간 이내</strong>에 마이페이지에서 전자서명함으로써 성립한다.</p>
@@ -315,7 +361,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제7조 (중요) -->
-  <section class="article key">
+  <section class="article key" id="art7">
     <div class="art-head"><span class="art-num">제7조</span><h2 class="art-title">청약철회 및 무상취소<span class="key-badge">중요</span></h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>청약철회.</strong> '갑'은 <strong>계약 성립일부터 15일 이내</strong>에 위약금 없이 청약을 철회할 수 있으며, 이 경우 '을'은 기수령액 전액을 환급한다.</p>
@@ -326,7 +372,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제8조 -->
-  <section class="article">
+  <section class="article" id="art8">
     <div class="art-head"><span class="art-num">제8조</span><h2 class="art-title">계약의 변경</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>예식일 변경.</strong> '갑'은 예식일을 변경할 수 있다. 예식일 <strong>30일 전(D-30)까지는 1회에 한하여 무상</strong>으로 변경할 수 있되, 변경일은 '을'의 가용 일정 범위 내에서 정한다. D-30 이후의 변경 또는 2회째부터의 변경은 <strong>총 계약금액의 10%를 변경 수수료</strong>로 한다. 다만 변경이 사실상 취소(해제)에 해당하거나 '을'의 가용 일정이 없어 변경이 불가능한 경우에는 제9조(위약금)를 적용한다.</p>
@@ -339,20 +385,20 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제9조 (중요) -->
-  <section class="article key">
+  <section class="article key" id="art9">
     <div class="art-head"><span class="art-num">제9조</span><h2 class="art-title">위약금<span class="key-badge">중요</span></h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>위약금의 성격.</strong> 본 조의 위약금은 「민법」 제398조의 <strong>손해배상액의 예정</strong>이다. 따라서 '을'은 실손해를 입증하지 아니하고 약정 위약금을 청구할 수 있다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>'갑'의 귀책에 의한 해제 시 위약금.</strong> '갑'의 귀책으로 계약을 해제하는 경우, <strong>총 계약금액</strong>을 기준으로 다음의 위약금을 적용하며, '을'은 기수령액에서 위약금을 <strong>공제한 잔액을 환급</strong>한다.</p>
-      <div class="tbl-wrap"><table>
+      <div class="tbl-wrap"><table class="tbl-card">
         <tr><th style="width:55%">해제 시점</th><th>위약금(총 계약금액 기준)</th></tr>
-        <tr><td>계약 성립 후 15일 이내</td><td>0% (청약철회, 제7조)</td></tr>
-        <tr><td>예식일 150일 전까지</td><td>0% (무상취소, 제7조)</td></tr>
-        <tr><td>예식일 149일~60일 전</td><td>10%</td></tr>
-        <tr><td>예식일 59일~30일 전</td><td>20%</td></tr>
-        <tr><td>예식일 29일~10일 전</td><td>40%</td></tr>
-        <tr><td>예식일 9일~1일 전</td><td>50%</td></tr>
-        <tr><td>예식 당일</td><td>70%</td></tr>
+        <tr><td data-label="해제 시점">계약 성립 후 15일 이내</td><td data-label="위약금">0% (청약철회, 제7조)</td></tr>
+        <tr><td data-label="해제 시점">예식일 150일 전까지</td><td data-label="위약금">0% (무상취소, 제7조)</td></tr>
+        <tr><td data-label="해제 시점">예식일 149일~60일 전</td><td data-label="위약금">10%</td></tr>
+        <tr><td data-label="해제 시점">예식일 59일~30일 전</td><td data-label="위약금">20%</td></tr>
+        <tr><td data-label="해제 시점">예식일 29일~10일 전</td><td data-label="위약금">40%</td></tr>
+        <tr><td data-label="해제 시점">예식일 9일~1일 전</td><td data-label="위약금">50%</td></tr>
+        <tr><td data-label="해제 시점">예식 당일</td><td data-label="위약금">70%</td></tr>
       </table></div>
       <p class="clause"><span class="clause-n">③</span> <strong>'을'의 귀책에 의한 해제 시.</strong> '을'의 귀책으로 계약을 해제하는 경우 제2항의 표를 동일하게 적용하되, <strong>예식일 29일 전 이후에는 일률적으로 70%</strong>를 적용한다. '갑'에게 그 외의 추가 손해가 있는 경우 '을'은 이를 별도로 배상한다.</p>
       <p class="clause"><span class="clause-n">④</span> <strong>환급 방식.</strong> '을'은 기수령액에서 위약금을 공제한 잔액을 '갑'에게 환급하며, <strong>기수령액 전액을 몰취하지 아니한다.</strong> 환급은 '갑'이 환급을 위하여 별도로 통지한 계좌로 <strong>영업일 기준 7일 이내</strong>에 한다.</p>
@@ -362,7 +408,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제10조 -->
-  <section class="article">
+  <section class="article" id="art10">
     <div class="art-head"><span class="art-num">제10조</span><h2 class="art-title">불가항력 및 1급 감염병</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>불가항력.</strong> 천재지변, 1급 감염병, 정부의 행정명령 등 양 당사자의 통제를 벗어난 불가항력으로 본 서비스의 이행이 불가능한 경우, 위약금 없이 계약을 해제할 수 있으며 '을'은 기수령액을 환급한다(다만 이미 이행된 부분에 해당하는 비용은 공제한다). 이때 기이행분이란 이미 진행된 시착 등 실제 제공된 용역에 한하며, 촬영·예식·결과물 등 미제공 부분은 전액 환급한다.</p>
@@ -377,7 +423,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제11조 -->
-  <section class="article">
+  <section class="article" id="art11">
     <div class="art-head"><span class="art-num">제11조</span><h2 class="art-title">잔금 미납 시 해제</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> '갑'이 중도금 또는 잔금을 약정 기일까지 납입하지 아니한 경우, '을'은 「민법」 제544조에 따라 <strong>7일 이상의 기간</strong>을 정하여 서면(이메일·문자·카카오톡 포함)으로 이행을 <strong>최고</strong>한다.</p>
@@ -387,7 +433,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제12조 -->
-  <section class="article">
+  <section class="article" id="art12">
     <div class="art-head"><span class="art-num">제12조</span><h2 class="art-title">결과물의 인도·데이터 보관 및 멸실 시 배상</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>인도 방식 및 기한.</strong> 결과물은 <strong>외부 클라우드 드라이브 링크</strong>로 제공하며 '갑'이 직접 다운로드한다. 인도 기한은 예식일을 기준으로 다음과 같다.</p>
@@ -410,7 +456,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제13조 (중요) -->
-  <section class="article key">
+  <section class="article key" id="art13">
     <div class="art-head"><span class="art-num">제13조</span><h2 class="art-title">저작권·초상권 및 결과물의 사용<span class="key-badge">중요</span></h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>저작권.</strong> 본 서비스로 생성된 사진·영상의 저작권은 '을'에게 귀속한다. 다만 「저작권법」 제35조 제4항에 따라, 위탁에 의한 초상사진은 '갑'(위탁자)의 동의 없이 '을'이 이를 이용할 수 없다.</p>
@@ -432,7 +478,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제14조 (중요) -->
-  <section class="article key">
+  <section class="article key" id="art14">
     <div class="art-head"><span class="art-num">제14조</span><h2 class="art-title">개인정보의 처리<span class="key-badge">중요</span></h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>수집·이용 동의.</strong> '을'은 본 서비스 제공을 위하여 필수정보(신랑·신부 양인의 성명·생년월일·연락처·이메일·주소)와 선택정보를 구분하여 수집하며, 각 항목에 대하여 '갑'의 동의를 받는다.</p>
@@ -446,7 +492,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제15조 -->
-  <section class="article">
+  <section class="article" id="art15">
     <div class="art-head"><span class="art-num">제15조</span><h2 class="art-title">분쟁해결·관할 및 준거법</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>준거법.</strong> 본 계약은 대한민국 법에 따라 해석·규율된다.</p>
@@ -457,7 +503,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 제16조 -->
-  <section class="article">
+  <section class="article" id="art16">
     <div class="art-head"><span class="art-num">제16조</span><h2 class="art-title">기타</h2></div>
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>전자계약의 효력.</strong> 본 계약은 전자문서 및 전자서명의 방법으로 체결되며, 「전자서명법」 제3조 및 「전자문서 및 전자거래 기본법」 제4조에 따라 서면에 의한 계약과 동일한 효력을 가진다.</p>
@@ -470,7 +516,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   </section>
 
   <!-- 서명란 -->
-  <div class="sign-section">
+  <div class="sign-section" id="sign">
     <div class="sign-h">계약 체결 및 서명</div>
     <p class="sign-note">본 계약의 성립과 그 내용에 대한 동의를 증명하기 위하여, '갑'과 '을'은 본 계약서(버전 v1.1)의 내용을 충분히 확인한 후 전자적으로 서명한다.</p>
 
@@ -480,7 +526,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     </div>
 
     <div class="consent-box">
-      <div class="cb-title">초상권 사용 동의 (제13조 제3항 · 택1)</div>
+      <div class="cb-title">초상권 사용 동의 (제13조 제3항)<span class="pick">— 하나만 선택</span></div>
       <div class="opt-row">
         <span><span class="box" aria-hidden="true"></span> 전체 공개</span>
         <span><span class="box" aria-hidden="true"></span> 모자이크 후 공개</span>
@@ -491,8 +537,8 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="date-line">계약 체결일 : ____________________</div>
 
     <div class="sign-grid">
-      <div class="sign-cell"><div class="sc-role">갑 — 신랑</div><div class="sc-line"><span class="sc-name">성명 : ______________</span><span class="sc-sign">(서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">갑 — 신부</div><div class="sc-line"><span class="sc-name">성명 : ______________</span><span class="sc-sign">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 신랑</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 신부</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(서명)</span></div></div>
       <div class="sign-cell"><div class="sc-role">을 — 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign">(서명)</span></div></div>
     </div>
     <p class="sign-note" style="margin-top:14px;font-size:12px;color:var(--light)">※ 본 1차본은 대표 1인이 양인을 대표하여 전자서명하며(제2조 제1항), 양인은 제2조 제3항에 따라 연대하여 책임을 집니다. 신랑·신부 2인 개별 전자서명은 시스템 도입 후 적용됩니다.</p>
