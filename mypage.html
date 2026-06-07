@@ -1283,17 +1283,21 @@ function renderProduction(p, inv){
 }
 
 // [05] 결과물 카드 — 예식완료/촬영완료=준비 안내 / 결과물전달=5스텝(①④⑤ 링크, ②③ 자리). result 없으면 숨김.
+// 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
+var DELIVERY_ETA = { orig:'예식 후 약 ?일', retouch:'약 ?주', video:'약 ?주' };
 function renderResult(res){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
   var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
   if(!res.delivered){
     h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-      +'<div class="cc-sub" style="text-align:left">이제 결과물을 준비합니다.</div>'
-      +'<ul class="cc-terms"><li>원본 사진 — 예식 후 가장 먼저 전해드려요</li>'
-      +(res.isSnap?'':'<li>본식 영상 — 정성껏 편집해 전해드려요</li>')
-      +'<li>보정 사진 — 고르신 컷을 곱게 손봐 전해드려요</li></ul>'
-      +'<div class="cc-note">준비되는 대로 마이페이지로 안내드려요.</div>';
+      +'<div class="cc-sub" style="text-align:left">두 분의 하루를 한 장 한 장 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
+      +'<div class="visit-guide" style="margin-top:14px">'
+      +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 <b>'+DELIVERY_ETA.orig+'</b> 안에 <em>가장 먼저</em> 전해드려요.</span></div>'
+      +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐 <b>'+DELIVERY_ETA.retouch+'</b> 뒤 전해드려요.</span></div>'
+      +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해 <b>'+DELIVERY_ETA.video+'</b> 뒤 전해드려요.</span></div>')
+      +'</div>'
+      +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'
