@@ -294,6 +294,44 @@ function _parseKstStr(s) {
   return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], 0);
 }
 
+// ============================ 가격 엔진 (단일 출처) — Phase1 Step1-A ============================
+// 예식일 → 평일/주말·공휴일 판별 → 총액 자동 제안. 관리자가 발송 시 최종 확정(보정 가능).
+//   index.html 가격표와 동일: 시그니처 평일 210만·주말/공휴일 280만, 웨딩스냅 60만.
+var PRICING = {
+  '시그니처': { 평일: 2100000, 주말: 2800000 },
+  '웨딩스냅': 600000
+};
+// 한국 공휴일 — 양력 고정일은 코드로 판별(항상 정확). 음력·대체공휴일만 연도별 목록.
+//   ※ 음력(설·추석·석가탄신일)·대체공휴일은 매년 달라짐 → 연 1회 확인·갱신. 누락돼도 발송 시 관리자가 보정.
+var HOLIDAYS_LUNAR = {
+  '2025': ['2025-01-28', '2025-01-29', '2025-01-30', '2025-05-06', '2025-10-06', '2025-10-07', '2025-10-08'],
+  '2026': ['2026-02-16', '2026-02-17', '2026-02-18', '2026-05-25', '2026-09-24', '2026-09-25', '2026-09-26'],
+  '2027': ['2027-02-07', '2027-02-08', '2027-02-09', '2027-05-13', '2027-09-14', '2027-09-15', '2027-09-16']
+};
+function _isPublicHoliday(ymd) {
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return false;
+  var md = m[2] + '-' + m[3];
+  if (['01-01', '03-01', '05-05', '06-06', '08-15', '10-03', '10-09', '12-25'].indexOf(md) >= 0) return true;  // 양력 고정
+  return (HOLIDAYS_LUNAR[m[1]] || []).indexOf(m[0]) >= 0;   // 음력·대체(연도별)
+}
+function _isPremiumDay(ymd) {   // 주말 단가 적용일 = 토·일 또는 공휴일
+  var m = String(ymd || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (!m) return false;
+  var dow = new Date(+m[1], +m[2] - 1, +m[3]).getDay();   // 0=일 6=토
+  return (dow === 0 || dow === 6) || _isPublicHoliday(ymd);
+}
+// 예식일+상품 → 제안 총액. 예식일 미정이면 null(관리자 직접 선택). {total, premium, reason, weddingYmd}
+function suggestContractTotal(product, weddingYmd) {
+  product = String(product || '').trim() || '시그니처';
+  if (product === '웨딩스냅') return { total: PRICING['웨딩스냅'], premium: false, reason: '웨딩스냅 정가', weddingYmd: '' };
+  var m = String(weddingYmd || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return null;
+  var dow = new Date(+m[1], +m[2] - 1, +m[3]).getDay();
+  var dowK = ['일', '월', '화', '수', '목', '금', '토'][dow];
+  var prem = _isPremiumDay(weddingYmd);
+  var why = (dow === 0 || dow === 6) ? ('주말 ' + dowK + '요일') : (_isPublicHoliday(weddingYmd) ? ('공휴일 ' + dowK + '요일') : ('평일 ' + dowK + '요일'));
+  return { total: prem ? PRICING['시그니처'].주말 : PRICING['시그니처'].평일, premium: prem, reason: why, weddingYmd: weddingYmd };
+}
+
 // ============================ 02-4 · 계약금 입금 ============================
 // 계약금 = 총액 20%(예약금 차감 후 납부) · 잔금 = 총액 80%(예식 N일 전, 1차는 안내 카피만).
 //   ★ 잔금 시점은 PAYMENT.잔금일수전 단일 출처 — 7→14 수정 시 여기 한 곳만 고치면 전체 반영.

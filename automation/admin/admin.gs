@@ -453,6 +453,7 @@ function adminDetail(code) {
     하객: String(cr ? (cr.get('하객') || '') : ''),
     상품: product
   };
+  d.priceSuggest = suggestContractTotal(product, d.pin.예식일);   // 계약 발송 모달 자동 제안(예식일→주말/공휴일→총액). null=예식일 미정
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {
