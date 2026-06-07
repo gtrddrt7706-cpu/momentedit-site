@@ -126,12 +126,12 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .mp-label{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--gold-deep);margin-bottom:10px}
 .welcome .names{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);line-height:1.4}
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
-.welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:4px 16px}
+.welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);background:var(--gold-bg);border:1px solid var(--gold-soft);border-radius:20px;padding:4px 16px;letter-spacing:.02em}
 
 /* ── NOW 카드 (주인공) ── */
 .now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
-.now-refresh{position:absolute;top:11px;right:11px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:transparent;border:1px solid var(--border);border-radius:50%;color:var(--gold-deep);cursor:pointer;transition:all .25s var(--ease)}
-.now-refresh:hover{border-color:var(--gold);color:var(--accent);background:var(--bg2)}
+.now-refresh{position:absolute;top:11px;right:11px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:transparent;border:1px solid var(--border);border-radius:50%;color:var(--label-soft);opacity:.62;cursor:pointer;transition:all .25s var(--ease)}
+.now-refresh:hover{border-color:var(--gold);color:var(--accent);background:var(--bg2);opacity:1}
 .now-refresh:active{transform:scale(.94)}
 .now-refresh svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .now .now-label{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--seal);margin-bottom:14px}
@@ -187,7 +187,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .next-row .nx-txt small{display:block;font-size:11px;color:var(--label-soft);font-weight:300}
 
 /* ── 카카오톡 ── */
-.kakao{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 0;background:#fff;border:1px solid var(--border);border-radius:24px;font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);text-decoration:none;transition:all .3s var(--ease)}
+.kakao{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 0;background:#fff;border:1px solid var(--border);border-radius:24px;font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);text-decoration:none;box-shadow:var(--card-shadow);transition:all .3s var(--ease)}
 .kakao:hover{background:var(--bg2);border-color:var(--gold);color:var(--accent)}
 .kakao:active{background:var(--bg2)}
 
