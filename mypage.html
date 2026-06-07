@@ -798,6 +798,14 @@ function renderMyPage(d){
         sub  = (d.balance && d.balance.due) ? '이제 잔금만 입금하시면 끝이에요.' : '예식날 정성껏 준비해서 뵐게요.';
       }
     }
+    // [결과물] 고객이 지금 할 일을 NOW에 반영 — 원본 도착(선택)·선택 완료(보정 중)·추가 보정 입금
+    if (d.result && d.result.status) {
+      var _rs = d.result.status, _rx = d.result.extra || {};
+      if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
+      else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
+      else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
+      if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
+    }
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; }
@@ -1319,7 +1327,21 @@ function renderProduction(p, inv){
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
 // 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
+//   '?'가 남아 있으면 그 기간 문구는 자동으로 숨겨 '미정 티'가 안 나게 함(_eta).
 var DELIVERY_ETA = { orig:'예식 후 약 ?일', retouch:'약 ?주', video:'약 ?주' };
+function _eta(s){ return String(s||'').indexOf('?')<0; }                          // 구체 기간(물음표 없음)인지
+function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
+// 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
+function _resultWaitHtml(res){
+  return '<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
+    +'<div class="cc-sub" style="text-align:left">두 분의 하루를 한 장 한 장 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
+    +'<div class="visit-guide" style="margin-top:14px">'
+    +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
+    +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐'+(_eta(DELIVERY_ETA.retouch)?(' <b>'+DELIVERY_ETA.retouch+'</b> 뒤'):' 정성껏')+' 전해드려요.</span></div>'
+    +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?(' <b>'+DELIVERY_ETA.video+'</b> 뒤'):'')+' 전해드려요.</span></div>')
+    +'</div>'
+    +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+}
 function renderResult(res){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
@@ -1327,14 +1349,7 @@ function renderResult(res){
   var st = res.status;
   var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
   if(st==='대기'){
-    h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-      +'<div class="cc-sub" style="text-align:left">두 분의 하루를 한 장 한 장 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
-      +'<div class="visit-guide" style="margin-top:14px">'
-      +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 <b>'+DELIVERY_ETA.orig+'</b> 안에 <em>가장 먼저</em> 전해드려요.</span></div>'
-      +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐 <b>'+DELIVERY_ETA.retouch+'</b> 뒤 전해드려요.</span></div>'
-      +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해 <b>'+DELIVERY_ETA.video+'</b> 뒤 전해드려요.</span></div>')
-      +'</div>'
-      +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+    h+=_resultWaitHtml(res);
     box.innerHTML=h+'</div>'; box.style.display='block'; return;
   }
   var inc=res.포함컷||10, picked=(st==='선택완료'||st==='보정중'||st==='전달완료'), locked=(st==='보정중'||st==='전달완료');
@@ -1358,9 +1373,11 @@ function renderResult(res){
   // ② 선택 패널 — 원본전달=고르기 폼 / 선택완료=수정 가능 / 보정중·전달완료=잠금 요약
   h+='<div class="res-panel"><div class="res-panel-t">② 보정 사진 고르기</div>';
   if(!locked && (st==='원본전달'||st==='선택완료')){
-    h+='<div class="cc-note" style="margin-top:0">원본에서 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요. (예: 012, 045, 088)</div>'
+    h+='<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> — 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
+      +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
+      +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
       +'<textarea class="cc-input" id="mp_picks" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
-      +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 8px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
+      +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>';
   } else if(locked){
     h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> '+(res.선택수||0)+'컷 선택 완료'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+'</div>'
@@ -1375,7 +1392,7 @@ function renderResult(res){
     if(ex.status==='완료'){
       h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 추가 보정 '+(ex.수량||0)+'컷 결제 완료</div><div class="cc-note">고르신 추가 컷도 곱게 보정해 보정본에 함께 담아드려요.</div>';
     } else if(ex.status==='결제대기'){
-      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
+      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
     } else if(ex.status==='신청'||ex.status==='견적'){
       h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
         + (ex.account?(
@@ -1385,6 +1402,7 @@ function renderResult(res){
           + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')
           + '</div>'):'')
         + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
+        + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
         + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
@@ -1399,6 +1417,11 @@ function renderResult(res){
   var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
   var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
   var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=(q>0)?fmtWon(q*(res.추가단가||20000)):'—'; });
+  // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷(10). 초과분은 ③ 추가 보정 대상임을 미리 안내.
+  var pc=$('mp_picks'), pcl=$('mp_pickCount');
+  if(pcl){ var updc=function(){ var n=pc?_resCount(pc.value):0; pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
+    pcl.innerHTML = n ? ('현재 <b>'+n+'</b>컷'+(n>inc?(' · 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷은 ③에서 결제'):(' / 포함 '+inc+'컷'))) : ('포함 보정 '+inc+'컷'); };
+    if(pc) pc.addEventListener('input', updc); updc(); }
 }
 function doSubmitSelection(){
   var picks=(($('mp_picks')&&$('mp_picks').value)||'').trim();
@@ -1419,9 +1442,11 @@ function doRequestExtra(){
   }).catch(function(){ mpAlert('신청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function doExtraSignal(){
+  var payer=(($('mp_exPayer')&&$('mp_exPayer').value)||'').trim();
+  if(!payer){ mpAlert('입금하신 분 성함을 입력해 주세요.'); return; }
   var btn=$('mp_exSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
-  api({action:'extraRetouchSignal', token:getToken()}).then(function(d){
+  api({action:'extraRetouchSignal', token:getToken(), payerName:payer}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
@@ -1429,14 +1454,7 @@ function doExtraSignal(){
 function renderResultLegacy(res, box){
   var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
   if(!res.delivered){
-    h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-      +'<div class="cc-sub" style="text-align:left">두 분의 하루를 한 장 한 장 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
-      +'<div class="visit-guide" style="margin-top:14px">'
-      +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 <b>'+DELIVERY_ETA.orig+'</b> 안에 <em>가장 먼저</em> 전해드려요.</span></div>'
-      +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐 <b>'+DELIVERY_ETA.retouch+'</b> 뒤 전해드려요.</span></div>'
-      +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해 <b>'+DELIVERY_ETA.video+'</b> 뒤 전해드려요.</span></div>')
-      +'</div>'
-      +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+    h+=_resultWaitHtml(res);
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'

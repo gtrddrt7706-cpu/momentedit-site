@@ -154,6 +154,7 @@ function buildResultState(r) {
       status: String(r.get('추가보정상태') || '').trim() || '대기',  // 대기/신청/견적/결제대기/완료
       수량: Number(r.get('추가보정수량') || 0) || 0,
       금액: Number(r.get('추가보정금액') || 0) || 0,
+      payerName: String(r.get('추가보정입금자명') || '').trim(),
       account: acct.account,
       holder: acct.holder
     }
@@ -211,12 +212,13 @@ function handleRequestExtraRetouch(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
-// [05-③] 추가 보정 입금 신호(고객). 신청/견적/결제대기 → 결제대기.
+// [05-③] 추가 보정 입금 신호(고객). 신청/견적/결제대기 → 결제대기. 입금자명도 함께 기록(통장 대조용).
 function handleExtraRetouchSignal(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var payer = String((body && body.payerName) || '').trim();
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -226,8 +228,10 @@ function handleExtraRetouchSignal(body) {
     var cur = String(cust.get('추가보정상태') || '').trim();
     if (cur === '완료') return { ok: true, already: true };
     if (['신청', '견적', '결제대기'].indexOf(cur) === -1) return { ok: false, error: '추가 보정 신청 후 진행할 수 있어요.' };
-    touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '결제대기' });
-    try { notifyStudio('[플랫폼] 추가 보정 입금 신호 (' + code + ')', code); } catch (e) {}
+    var upd = { '추가보정상태': '결제대기' };
+    if (payer) upd['추가보정입금자명'] = payer;
+    touchCustomer(sheet, colOf, cust.num, upd);
+    try { notifyStudio('[플랫폼] 추가 보정 입금 신호 (' + code + ')', code + (payer ? (' · 입금자 ' + payer) : '')); } catch (e) {}
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -247,7 +251,7 @@ function adminConfirmExtra(code) {
 function addResultSelectionColumns() {
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액'], added = [];
+  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], added = [];
   need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
   var colOf = buildHeaderIndex(sheet), conv = 0;
   if (colOf['결과물상태']) {

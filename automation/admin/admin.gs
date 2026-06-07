@@ -173,10 +173,18 @@ function _subStatusFor(stage, isSnap, x) {
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     case '제작중': return (x.invStatus === '완료') ? '청첩장 발행됨' : (x.invStatus === '진행중' ? '청첩장 만드는 중' : '제작 시작 전');
-    case '예식완료': return x.원본 ? '결과물 전달 대기' : '결과물 등록 대기';
-    case '촬영완료': return x.원본 ? '결과물 전달 대기' : '결과물 등록 대기';
+    case '예식완료': return _resultSub(x);
+    case '촬영완료': return _resultSub(x);
     default: return '';
   }
+}
+// 결과물 단계 서브상태 — 결과물상태 기준(원본전달=고객 선택 대기 / 선택완료=보정 대기 / 보정중=전달 대기)
+function _resultSub(x) {
+  var r = (x.결과물 === '업로드') ? '원본전달' : (x.결과물 || '');
+  if (r === '보정중') return '보정 중 · 전달 대기';
+  if (r === '선택완료') return '고객 ' + (x.선택수 || '0') + '컷 선택 · 보정 대기';
+  if (r === '원본전달') return '고객 컷 선택 대기';
+  return x.원본 ? '결과물 진행 중' : '결과물 등록 대기';
 }
 
 // ============================ 홈 — 처리할 일 큐 + 진행 중 현황 (⑧ 재구성) ============================
@@ -222,6 +230,10 @@ function adminHome() {
     var 입금 = String(cget(rv, '입금상태') || '').trim();
     var 시착 = String(cget(rv, '시착동의상태') || '').trim();
     var 원본 = String(cget(rv, '원본링크') || '').trim();
+    var 잔금 = String(cget(rv, '잔금상태') || '').trim();
+    var 결과물 = String(cget(rv, '결과물상태') || '').trim();
+    var 추가보정 = String(cget(rv, '추가보정상태') || '').trim();
+    var 선택수 = String(cget(rv, '선택수') || '').trim();
     var bk = bookMap[code];
     var draft = _parseJsonSafe(cget(rv, '제작임시저장'));
     var invStatus = (draft.tracks && draft.tracks.invitation) || '시작전';
@@ -265,6 +277,11 @@ function adminHome() {
         badge: (sigDays != null && sigDays >= 1) ? { level: 'yellow', text: '입금 신호 ' + sigDays + '일째' } : null,
         _urgent: false, _stage: 4, _wait: createdYmd });
     }
+    // 잔금 확인 — 잔금상태=완료신호 (단계 무관, 제작~예식 구간에서 발생)
+    if (잔금 === '완료신호') {
+      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
+        badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
+    }
     // 예식/촬영 완료 — 시그(제작중&예식일 지남) / 스냅(입금완료&촬영일 지남)
     var eventStage = isSnap ? '입금완료' : '제작중';
     var dplus = (stage === eventStage && wedYmd) ? _dayDiff(today, wedYmd) : null;
@@ -274,17 +291,28 @@ function adminHome() {
         sub: ev + ' D+' + dplus + ' · 완료 처리', badge: { level: 'red', text: ev + ' D+' + dplus },
         _urgent: true, _loss: 5, _wait: createdYmd });
     }
-    // 결과물 2단계 — 예식완료/촬영완료: 원본없음→등록 / 원본있음→전달
+    // 결과물 — 결과물상태 기준. 원본전달=고객 선택 대기(운영자 액션 없음→큐 제외) / 선택완료=보정 / 보정중=전달.
     if (stage === '예식완료' || stage === '촬영완료') {
-      if (!원본) pushQ({ code: code, names: names, product: product, kind: '결과물등록', sub: '결과물 링크 등록', badge: null, _urgent: false, _stage: 6, _wait: createdYmd });
-      else pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '결과물 전달', badge: null, _urgent: false, _stage: 7, _wait: createdYmd });
+      var rs = (결과물 === '업로드') ? '원본전달' : 결과물;
+      if (!원본 || rs === '대기' || rs === '') {
+        pushQ({ code: code, names: names, product: product, kind: '결과물등록', sub: '원본 링크 등록', badge: null, _urgent: false, _stage: 6, _wait: createdYmd });
+      } else if (rs === '선택완료') {
+        pushQ({ code: code, names: names, product: product, kind: '보정시작', sub: '고객 ' + (선택수 || '0') + '컷 선택 · 보정본 등록', badge: { level: 'yellow', text: '선택 완료' }, _urgent: false, _stage: 6, _wait: createdYmd });
+      } else if (rs === '보정중') {
+        pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '보정 완료 · 결과물 전달', badge: null, _urgent: false, _stage: 7, _wait: createdYmd });
+      }
+      // rs === '원본전달' → 고객 선택 대기 → 큐 제외(현황에만 표시)
+    }
+    // 추가 보정 입금 확인 — 추가보정상태=결제대기
+    if (추가보정 === '결제대기') {
+      pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 6, _wait: createdYmd });
     }
 
     // 현황 그룹
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus }),
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null), _created: createdYmd
     });
   });
@@ -400,6 +428,7 @@ function adminDetail(code) {
     추가보정상태: String(cust.get('추가보정상태') || ''),
     추가보정수량: String(cust.get('추가보정수량') || ''),
     추가보정금액: String(cust.get('추가보정금액') || ''),
+    추가보정입금자명: String(cust.get('추가보정입금자명') || ''),
     계약총액: String(cust.get('계약총액') || ''),
     계약서링크: String(cust.get('계약서링크') || ''),
     계약서발송일시: String(cust.get('계약서발송일시') || ''),
