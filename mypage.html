@@ -131,7 +131,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
 
 /* ── NOW 카드 (주인공) ── */
-.now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:22px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
+.now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:12px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
 .now-refresh{position:absolute;top:11px;right:11px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:transparent;border:1px solid var(--border);border-radius:50%;color:var(--label-soft);opacity:.62;cursor:pointer;transition:all .25s var(--ease)}
 .now-refresh:hover{border-color:var(--gold);color:var(--accent);background:var(--bg2);opacity:1}
 .now-refresh:active{transform:scale(.94)}
@@ -212,6 +212,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 /* ── 상담/촬영 카드 (P1.5) ── */
 .consult-sec{margin-bottom:24px}
 .consult-card{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:22px 20px;text-align:center;box-shadow:var(--card-shadow)}
+.consult-card:has(.cc-btn){box-shadow:var(--card-shadow),inset 3px 0 0 0 var(--gold)}   /* 지금 할 일(액션) 카드 골드 좌측 띠 — 위계 강조 */
+.mp-step-done{font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-align:left;padding-bottom:11px;margin-bottom:13px;border-bottom:1px solid var(--hairline)}
+.mp-step-done .trk-ok{color:var(--gold-deep);font-weight:600}
 .consult-card .cc-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
 .consult-card .cc-title{font-family:var(--serif-ko);font-size:17px;font-weight:500;color:var(--accent);line-height:1.5}
 .consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
@@ -498,7 +501,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 상담/촬영 (P1.5) — 활성 카드. consult 있을 때만 표시 -->
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
-    <!-- 시착 동의 (02-2) — 상담 다음·계약 전 -->
+    <!-- 드레스 시착 동의 (02-2) — 상담 다음·계약 전 -->
     <div class="consult-sec" id="mp_fitting" style="display:none"></div>
 
     <!-- 계약서 (02-3) — 시착 다음 -->
@@ -897,14 +900,11 @@ function renderMyPage(d){
   // 상담/촬영 (P1.5) — NOW·진행바 다음, NEXT 위
   renderConsult(d.consult, d.product);
 
-  // 시착 동의 (02-2) — 상담 카드 다음, 계약 전
+  // 드레스 시착 동의 (02-2) — 상담 카드 다음, 계약 전
   renderFitting(d.fitting, d);
 
-  // 계약서 (02-3) — 시착 카드 다음
-  renderContract(d.contract, d);
-
-  // 계약금 입금 (02-4) — 계약서 카드 다음
-  renderPayment(d.payment);
+  // 본 계약 + 계약금 (02-3+02-4 병합) — 한 카드로 진행(서명→계약금→완료)
+  renderContractPayment(d.contract, d.payment, d);
 
   // 잔금 (02-5) — 결제 마일스톤
   renderBalance(d.balance);
@@ -938,7 +938,7 @@ function applyCardStageView(d){
   if (cur < 0) return;
 
   // #9 — 상담확정 박스(방문일·방문 전 안내·변경/취소)는 방문 전까지만.
-  //   상담완료 이후이거나, 시착 단계 진입(시착 동의서 발송됨)이면 숨김 — 시착 카드가 다음 액션을 안내함.
+  //   상담완료 이후이거나, 시착 단계 진입(드레스 시착 동의서 발송됨)이면 숨김 — 시착 카드가 다음 액션을 안내함.
   var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착');
   if ((visitDone >= 0 && cur >= visitDone) || (fitIdx >= 0 && cur >= fitIdx)) {
     var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
@@ -986,8 +986,8 @@ function renderUpcoming(product, curIdx, stageList, contract){
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
-    ? [['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['시착','동의 후 진행','시착'],['본 계약','서명 후 효력 발생','계약완료'],['계약금 입금','입금 확인 후 다음 단계 해제','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
+    : [['드레스 시착','동의 후 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
@@ -1029,8 +1029,8 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + (isSnap ? '' :
-              '<div class="vg-row"><span class="vg-k">의상·시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보세요. 드레스 시착은 상담 당일 동의 후 진행돼요 <em>(기본 3벌)</em>.</span></div>'
-            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">시착 동의서는 <b>본 계약의 준비 단계</b>예요. 정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정되며, 시착하시면 예약금은 시착 비용으로 전환돼요.</span></div>')
+              '<div class="vg-row"><span class="vg-k">의상·드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보세요. 드레스 시착은 상담 당일 동의 후 진행돼요 <em>(기본 3벌)</em>.</span></div>'
+            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">드레스 시착 동의서는 <b>본 계약의 준비 단계</b>예요. 정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정되며, 드레스 시착하시면 예약금은 시착 비용으로 전환돼요.</span></div>')
          + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+L+'을 마친 뒤 마이페이지로 보내드려요.</span></div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역 버스 약 15분 · 전용 주차 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
@@ -1068,7 +1068,7 @@ function doAcceptProp(){
   }).catch(function(){ mpAlert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
 }
 
-// [02-2] 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
+// [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
 function renderFitting(f, d){
   var box = $('mp_fitting');
   if (!box) return;
@@ -1083,17 +1083,17 @@ function renderFitting(f, d){
       var notice = '<div class="visit-guide" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고, 발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일 안에</b> 서명해 주세요. 기한이 지나면 예약은 자동으로 취소돼요.</span></div>'
-                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">시착을 진행하신 경우, 미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
                  + '</div>';
-      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">시착 동의가 완료되었습니다</div>'
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
         + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 접힌 기록
-      collapsedCard(box, '시착 동의 완료', termsFull, '시착');
+      collapsedCard(box, '드레스 시착 동의 완료', termsFull, '시착');
     }
     return;
   }
-  var body = '<div class="cc-title">'+escapeHtml(f.title || '시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
+  var body = '<div class="cc-title">'+escapeHtml(f.title || '드레스 시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
            + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice)+'</div>' : '');   // [③-2] 계약서 24h 예고
   var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
            + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
@@ -1103,7 +1103,7 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpSignaturePad({ title:'시착 동의 서명', body:'아래 칸에 서명하시면 시착 동의가 완료됩니다. 서명하면 시착이 진행됩니다.', confirmText:'서명 완료' }).then(function(sig){
+  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료됩니다. 서명하면 드레스 시착이 진행됩니다.', confirmText:'서명 완료' }).then(function(sig){
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
@@ -1116,67 +1116,101 @@ function doSignFitting(){
 
 // [02-3] 계약서 카드 — 미발송=null / 발송=계약서보기+서명기한 카운트다운+[계약서 서명하기] / 서명완료=완료+보기.
 var _contractTimer = null;
-function renderContract(c, ctx){
-  var box = $('mp_contract');
-  if (!box) return;
+// [02-3+02-4 병합] 본 계약 + 계약금을 한 카드로 — 어차피 한 번에 진행. 서명 → 같은 카드에서 계약금 → 완료 시 접힘.
+function renderContractPayment(c, p, ctx){
+  var box = $('mp_contract'); if (!box) return;
+  var payBox = $('mp_payment'); if (payBox){ payBox.style.display='none'; payBox.innerHTML=''; }   // 결제 카드는 병합 → 항상 비움
   if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
-  if (!c){
-    if (ctx && /계약서/.test(String(ctx.waiting||''))){   // [Task5] 발송 전 대기(상담완료·시착완료·계약 미발송) — 진행 안내 카드
+
+  if (!c){   // 계약서 발송 전 — 진행 안내
+    if (ctx && /계약서/.test(String(ctx.waiting||''))){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
-        + '<div class="cc-title">계약서, 이렇게 진행돼요</div>'
+        + '<div class="cc-title">계약, 이렇게 진행돼요</div>'
         + '<div class="visit-guide" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고, 발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
-        + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일(72시간) 안에</b> 서명해 주세요. 기한이 지나면 자동으로 파기되고 예약은 취소돼요.</span></div>'
-        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">시착을 진행하신 경우, 미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">서명·계약금</span><span class="vg-v">계약서 서명과 <b>계약금</b>은 한 번에 진행돼요. 서명 후 <b>72시간 안에</b> 마무리해 주세요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면 예약금은 드레스 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
         + '</div></div>';
       box.style.display='block'; return;
     }
     box.style.display='none'; box.innerHTML=''; return;
   }
+
   var link = c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '';
-  if (c.signed){   // 완료 → 접기
-    var full = (c.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(c.signedAt)+'</b></div>' : '')
-             + (link ? '<div class="cc-actions">'+link+'</div>' : '');
+  var signed = !!c.signed;
+  var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
+
+  // ── 완료: 서명 + 계약금 확인 모두 끝 → 접기 ──
+  if (signed && p && p.confirmed){
+    var a0 = p.amounts;
+    var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
+             + '<div class="cc-sub"><span class="trk-ok">✓</span> 계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>'
+             + (a0?'<div class="cc-sub cc-mini">납부 '+fmtWon(a0.납부액)+(a0.잔금?(' · 잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)):'')+'</div>':'')
+             + (link?'<div class="cc-actions">'+link+'</div>':'');
     collapsedCard(box, '계약 완료', full, '계약');
     return;
   }
+
+  var h = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>';
+
+  // ── 1) 서명 단계(미서명) — 계약금 미리보기로 "한 스텝"임을 안내 ──
+  if (!signed){
+    if (expired){
+      h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">디렉터에게 계약서 재발송을 요청해 주세요.</div>'
+         + '<div class="cc-actions">'+link+'</div></div>';
+      box.innerHTML=h; box.style.display='block'; return;
+    }
+    h += '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
+       + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
+       + '<div class="cc-count" id="mp_ctCount"></div>'
+       + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
+    if (p && p.amounts){ h += '<div class="cc-note" style="text-align:left">서명하면 바로 이어서 <b>계약금 '+fmtWon(p.amounts.납부액)+'</b> 입금 안내를 드려요 — 한 번에 진행돼요.</div>'; }
+    h += '<div class="cc-actions">'+link
+       + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
+       + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
+    box.innerHTML=h; box.style.display='block';
+    var sign=$('mp_signContract'); if (sign) sign.addEventListener('click', doSignContract);
+    _startContractCountdown(c);
+    return;
+  }
+
+  // ── 2) 서명 완료 → 같은 카드에서 계약금 ──
+  h += '<div class="mp-step-done"><span class="trk-ok">✓</span> 계약 서명 완료'+(c.signedAt?(' · '+escapeHtml(c.signedAt)):'')+'</div>';
+  if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
+  if (p.status==='완료신호'){
+    h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
+       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div></div>';
+    box.innerHTML=h; box.style.display='block'; return;
+  }
+  var a = p.amounts;
+  var amt = a
+    ? '<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b><br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span></div>'
+    : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
+  var acct = p.account ? ('<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
+      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
+      + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button></div>') : '';
+  h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
+     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
+     + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금하시는 분 성함으로 적어 주세요. 입금자명이 같으면 더 빠르게 확인해 드려요.</div>'
+     + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
+     + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
+  box.innerHTML=h; box.style.display='block';
+  var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
+  var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+}
+function _startContractCountdown(c){
+  if (!c || c.signed) return;
   var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
-  var body, cta;
-  if (expired){
-    body = '<div class="cc-title">계약서 서명 기한이 지났어요</div>'
-         + '<div class="cc-sub">디렉터에게 계약서 재발송을 요청해 주세요.</div>';
-    cta  = link;
-  } else {
-    body = '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
-         + (c.deadlineKst ? '<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>' : '')
-         + '<div class="cc-count" id="mp_ctCount"></div>'
-         + (c.effectNotice ? '<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>' : '');
-    cta  = link
-         + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
-         + (c.reviewNote ? '<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>' : '');
-  }
-  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
-  box.style.display='block';
-
-  var sign = $('mp_signContract'); if (sign) sign.addEventListener('click', doSignContract);
-
-  // 카운트다운 — 서버 기준 잔여초를 1초씩. 0 도달 시 만료 처리 후 재조회(서버 상태 반영).
-  if (!c.signed && !expired && typeof c.remainingSec==='number' && c.remainingSec>0){
-    var remain = c.remainingSec;
-    var el = $('mp_ctCount');
-    var tick = function(){
-      if (remain<=0){
-        if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
-        if (el) el.textContent='기한이 만료되었습니다';
-        loadMyState();
-        return;
-      }
-      if (el){ var urg=remain<86400; el.textContent=(urg?'⏰ 마감 임박 · ':'')+'남은 시간 '+fmtRemain(remain); el.style.color=urg?'var(--seal)':''; el.style.fontWeight=urg?'600':''; }   // [③-3] 24h 임박 강조
-      remain--;
-    };
-    tick();
-    _contractTimer = setInterval(tick, 1000);
-  }
+  if (expired || !(typeof c.remainingSec==='number' && c.remainingSec>0)) return;
+  var remain = c.remainingSec, el = $('mp_ctCount');
+  var tick = function(){
+    if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 만료되었습니다'; loadMyState(); return; }
+    if (el){ var urg=remain<86400; el.textContent=(urg?'⏰ 마감 임박 · ':'')+'남은 시간 '+fmtRemain(remain); el.style.color=urg?'var(--seal)':''; el.style.fontWeight=urg?'600':''; }
+    remain--;
+  };
+  tick(); _contractTimer = setInterval(tick, 1000);
 }
 function fmtRemain(s){
   s = Math.max(0, s|0);
