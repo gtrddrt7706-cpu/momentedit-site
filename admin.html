@@ -671,8 +671,28 @@ function cardProduction(d){
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
   else { raw+='<b>—</b>'; }
   if(d.stage==='제작중'&&inv&&inv.status!=='완료') raw+='<div class="cnote">🟡 고객이 청첩장을 만드는 중이에요</div>';
-  raw+='<div class="cnote">🍽 다이닝 · 📜 식순 — 준비 중 (곧)</div>';
-  return '<div class="raw">'+raw+'</div><div class="cnote">청첩장은 고객이 만들어요 (관리자는 보기 전용)</div>';
+  raw += prodTracksHtml(d.mirror?d.mirror.production:null);
+  return '<div class="raw">'+raw+'</div><div class="cnote">청첩장·다이닝·식순은 고객이 만들어요 (관리자 보기 전용)</div>';
+}
+function _tstat(s){ return s==='완료'?'완료 ✓':(s==='진행중'?'작성 중':'시작 전'); }
+function prodTracksHtml(prod){
+  if(!prod) return '<div class="cnote">🍽 다이닝 · 📜 식순 — 정보 없음</div>';
+  var t=prod.tracks||{}, dd=prod.diningDraft||null, rd=prod.ritualDraft||null, h='';
+  h+='<div class="cnote">🍽 다이닝 <b>'+esc(_tstat(t.dining))+'</b>';
+  if(dd){ if(dd.dining_on==='N'){ h+=' · 진행 안 함'; } else { var p=[]; if(dd.headcount)p.push('인원 '+esc(dd.headcount)); if(dd.mealType)p.push(esc(dd.mealType)); if(dd.partner)p.push(esc(dd.partner)); if(dd.entrustAgree==='Y')p.push('위탁동의✓'); if(p.length)h+=' · '+p.join(' · '); } }
+  h+='</div>';
+  h+='<div class="cnote">📜 식순 <b>'+esc(_tstat(t.ritual))+'</b>';
+  if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
+  h+='</div>';
+  if(dd||rd) h+='<button class="mt" data-mt="tracks">다이닝·식순 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd)+'</div>';
+  return h;
+}
+function prodTrackDetail(dd,rd){
+  function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
+  var h='';
+  if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사형태',dd.mealType)+row('파트너사',dd.partner)+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
+  if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
+  return h||'<div class="cnote">내용 없음</div>';
 }
 function cardResult(d,isSnap){
   var r=d.raw||{}, stt=r['결과물상태']||'대기', raw='결과물 <b>'+esc(stt)+'</b>';
