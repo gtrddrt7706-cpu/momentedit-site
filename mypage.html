@@ -40,7 +40,7 @@
   --gold-deep:#9A7B4F;    /* 진한 골드 (라벨·접근성) */
   --gold-deeper:#7A5F37;  /* 더 진한 골드 (버튼 텍스트) */
   --gold-btn-border:#C2A988; /* 아웃라인 버튼 테두리 */
-  --label-soft:#8A8475;   /* 연한 보조 라벨 (명도 계약 하한) */
+  --label-soft:#7C766A;   /* 연한 보조 라벨 — 가독성 위해 한 톤 진하게(여전히 최하위 위계) */
   /* 폰트 */
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
@@ -95,7 +95,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px}
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:3px;padding:17px 15px;font-family:var(--sans);font-size:15px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}
+.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:15px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -103,7 +103,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .field label{position:absolute;left:13px;top:16px;font-family:var(--serif-ko);font-size:14px;color:var(--light);pointer-events:none;transition:all .25s var(--ease);background:var(--bg);padding:0 5px}
 .field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold-deep);letter-spacing:.03em}
 
-.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:3px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}
+.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}
 /* 진사 버튼 = '결정'의 자리 (로그인·재설정) */
 .btn-seal{background:var(--seal);color:#fff}
 .btn-seal:hover{background:#5A231E}
@@ -116,9 +116,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .linkrow a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;border-bottom:1px solid var(--card-border);padding-bottom:1px;cursor:pointer;transition:color .3s}
 .linkrow a:hover{color:var(--accent);border-color:var(--gold)}
 
-.errbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:3px;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);text-align:center;line-height:1.7}
+.errbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);text-align:center;line-height:1.7}
 .errbox.show{display:block}
-.okbox{display:none;margin-top:16px;padding:12px 14px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:3px;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);text-align:center;line-height:1.7}
+.okbox{display:none;margin-top:16px;padding:12px 14px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);text-align:center;line-height:1.7}
 .okbox.show{display:block}
 
 /* ── 마이페이지 · 환영 ── */
@@ -210,16 +210,16 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .consult-card .cc-actions:empty{display:none}
-.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:3px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:var(--seal);color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
+.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:var(--seal);color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
 .cc-btn:hover{background:#5A231E}
-.cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:3px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
+.cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 .consult-card .cc-mini{font-size:11px;color:var(--label-soft)}
-.consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
+.consult-card .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold)}
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
@@ -244,7 +244,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .pf2{display:flex;gap:8px}.pf2>div{flex:1}
 /* 예식 날짜 커스텀 달력 (inquiry dt-picker 이식) */
 .dt-picker-wrap{position:relative;width:100%}
-.dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:3px;padding:12px 13px;font-family:var(--serif-ko);font-size:15px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
+.dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:15px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
 .dt-trigger:hover{border-color:var(--gold);background:#fafaf8}
 .dt-trigger-placeholder{color:var(--light);font-weight:300}
 .dt-trigger.has-value .dt-trigger-placeholder{color:var(--accent);font-weight:400}
@@ -333,9 +333,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .inv-onep-frame::after{content:'';position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(transparent,rgba(255,255,255,.92));pointer-events:none}
 .inv-onep-zoom{display:block;width:auto !important;margin:10px auto 0;padding:7px 16px !important}
 /* 청첩장 완성 화면 — 프리미엄 */
-.done-wrap{text-align:center}
+.done-wrap{text-align:center;animation:doneIn .6s var(--ease) both}
 .done-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F)}
-.done-rule{width:34px;height:1px;background:var(--gold,#B89A75);margin:13px auto;opacity:.7}
+.done-rule{width:34px;height:1px;background:var(--gold,#B89A75);margin:13px auto;opacity:.7;animation:doneRule .7s var(--ease) .15s both}
 .done-title{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);margin-bottom:7px;line-height:1.4}
 .done-names{font-family:var(--serif);font-size:23px;letter-spacing:.05em;color:var(--accent);margin:2px 0 5px}
 .done-when{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);letter-spacing:.03em}
@@ -349,12 +349,15 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .done-card-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:0 0 11px 39px;line-height:1.6}
 .done-url{display:block;font-family:'Roboto Mono',ui-monospace,monospace;font-size:11px;color:var(--gold-deep,#9A7F5F);background:var(--bg,#FAFAF8);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none}
 .done-acts{display:flex;gap:7px}
-.done-acts>*{flex:1;width:auto !important;padding:9px 6px !important;text-align:center;font-size:12.5px}
+.done-acts>*{flex:1;width:auto !important;min-height:44px;padding:9px 6px !important;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px}
 .done-qr{text-align:center;border:1px solid var(--border);border-radius:10px;padding:18px 16px 16px;background:#fff;margin-bottom:13px}
 .done-qr-nm{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent)}
 .done-qr-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:3px 0 13px}
 .done-qr-frame{display:inline-flex;padding:12px;background:#fff;border:1px solid var(--gold-soft,rgba(184,154,117,.3));border-radius:10px}
 .done-tagline{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.12em;color:var(--label-soft);margin-top:18px}
+@keyframes doneIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes doneRule{from{width:0;opacity:0}to{width:34px;opacity:.7}}
+@media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 </head>
 <body>
