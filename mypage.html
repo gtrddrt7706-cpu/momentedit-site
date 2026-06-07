@@ -446,11 +446,11 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 계약금 입금 (02-4) — 계약서 다음 -->
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
+    <!-- 잔금 (02-5) — 결제 마일스톤(단계 아님) · 위쪽 아코디언. 평소 접힘 → 예식 D-15 자동 펼침 -->
+    <div class="consult-sec" id="mp_balance" style="display:none"></div>
+
     <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
     <div class="consult-sec" id="mp_production" style="display:none"></div>
-
-    <!-- 잔금 (02-5) — 결제 마일스톤(단계 아님). 제작 단계에서 노출 -->
-    <div class="consult-sec" id="mp_balance" style="display:none"></div>
 
     <!-- 결과물 (05) — 예식완료/결과물전달 -->
     <div class="consult-sec" id="mp_result" style="display:none"></div>
@@ -1155,7 +1155,7 @@ function renderBalance(p){
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||'예식 7일 전');
-  var near=(p.dday!=null && p.dday<=10);   // 예식 D-10 이내 = 펼침·강조 기준
+  var near=(p.dday!=null && p.dday<=15);   // 예식 D-15 이내 = 자동 펼침·강조(잔금 마감 D-7보다 앞서 예고)
   var body='', cta='';
   if(p.status==='완료신호'){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
@@ -1182,7 +1182,7 @@ function renderBalance(p){
   } else {
     // 평소 → 접힌 아코디언(금액도 평소엔 숨김 = 부담 최소). 펼치면 미리 입금 가능.
     box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Balance</div>'
-      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금 안내 <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 알려드려요 (미리 입금하려면 펼치기 ▾)</span></summary>'
+      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금 결제 안내 <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 알려드려요 (미리 입금하려면 펼치기 ▾)</span></summary>'
       +'<div style="margin-top:10px">'+body+'<div class="cc-actions">'+cta+'</div></div></details></div>';
   }
   box.style.display='block';
