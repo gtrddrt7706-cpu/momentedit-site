@@ -181,7 +181,9 @@ function _subStatusFor(stage, isSnap, x) {
 // 결과물 단계 서브상태 — 결과물상태 기준(원본전달=고객 선택 대기 / 선택완료=보정 대기 / 보정중=전달 대기)
 function _resultSub(x) {
   var r = (x.결과물 === '업로드') ? '원본전달' : (x.결과물 || '');
-  if (r === '보정중') return '보정 중 · 전달 대기';
+  if (r === '컨펌완료') return '고객 컨펌 완료 · 전달 가능';
+  if (r === '컨펌대기') return '보정본 전달 · 고객 컨펌 대기';
+  if (r === '보정중') return '보정 중';
   if (r === '선택완료') return '고객 ' + (x.선택수 || '0') + '컷 선택 · 보정 대기';
   if (r === '원본전달') return '고객 컷 선택 대기';
   return x.원본 ? '결과물 진행 중' : '결과물 등록 대기';
@@ -302,12 +304,12 @@ function adminHome() {
       var rs = (결과물 === '업로드') ? '원본전달' : (결과물 || '대기');
       if (!원본 || rs === '대기' || rs === '') {
         pushQ({ code: code, names: names, product: product, kind: '결과물등록', sub: '원본 링크 등록', badge: null, _urgent: false, _stage: 6, _wait: createdYmd });
-      } else if (rs === '선택완료') {
+      } else if (rs === '선택완료' || rs === '보정중') {
         pushQ({ code: code, names: names, product: product, kind: '보정시작', sub: '고객 ' + (선택수 || '0') + '컷 선택 · 보정본 등록', badge: { level: 'yellow', text: '선택 완료' }, _urgent: false, _stage: 6, _wait: createdYmd });
-      } else if (rs === '보정중') {
-        pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '보정 완료 · 결과물 전달', badge: null, _urgent: false, _stage: 7, _wait: createdYmd });
+      } else if (rs === '컨펌완료') {
+        pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '고객 컨펌 완료 · 결과물 전달', badge: { level: 'yellow', text: '컨펌 완료' }, _urgent: false, _stage: 7, _wait: createdYmd });
       }
-      // rs === '원본전달' → 고객 선택 대기 → 큐 제외(현황에만 표시)
+      // rs === '원본전달'(고객 선택 대기) · '컨펌대기'(고객 컨펌 대기) → 운영자 액션 없음 → 큐 제외(보드·현황에만)
       // 결과물 관리 보드 — 결과물전달(아카이브) 전까지 모든 결과물 단계 고객을 한곳에.
       resultsList.push({
         code: code, names: names, product: product,
@@ -448,6 +450,10 @@ function adminDetail(code) {
     추가보정수량: String(cust.get('추가보정수량') || ''),
     추가보정금액: String(cust.get('추가보정금액') || ''),
     추가보정입금자명: String(cust.get('추가보정입금자명') || ''),
+    컨펌일시: String(cust.get('컨펌일시') || ''),
+    설문상태: String(cust.get('설문상태') || ''),
+    설문응답: String(cust.get('설문응답') || ''),
+    설문일시: String(cust.get('설문일시') || ''),
     계약총액: String(cust.get('계약총액') || ''),
     계약서링크: String(cust.get('계약서링크') || ''),
     계약서발송일시: String(cust.get('계약서발송일시') || ''),
@@ -804,7 +810,7 @@ function adminSetResultLinks(code, links) {
     if (cur결과물 === '업로드') cur결과물 = '원본전달';                         // 레거시
     if (cur결과물 !== '전달완료') {
       var ns = cur결과물 || '대기';
-      if (보정본) ns = '보정중';                                                 // 보정본 등록 = 보정 단계
+      if (보정본 && cur결과물 !== '컨펌완료') ns = '컨펌대기';                    // 보정본 등록 = 고객 컨펌 대기
       else if (원본 && (ns === '대기' || ns === '')) ns = '원본전달';            // 원본만 = 원본 전달(고객 선택 대기)
       if (!(원본 || 보정본 || 영상)) ns = '대기';
       upd['결과물상태'] = ns;

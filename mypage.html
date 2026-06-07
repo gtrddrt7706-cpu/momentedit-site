@@ -306,6 +306,12 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .res-exeq-k{font-family:var(--serif);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-right:6px}
 .res-exeq b{font-size:17px;font-weight:600;color:var(--accent)}
 .res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
+/* 마지막 설문 — 별점 */
+.srv-q{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:13px 0 6px}
+.srv-stars{display:flex;gap:7px}
+.srv-star{font-size:27px;line-height:1;background:none;border:none;cursor:pointer;color:var(--border);padding:0;transition:color .15s,transform .1s}
+.srv-star.on{color:var(--gold)}
+.srv-star:hover{color:var(--gold-deep);transform:scale(1.08)}
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:4px}
@@ -820,6 +826,9 @@ function renderMyPage(d){
       if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
       else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
       else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
+      else if (_rs === '컨펌대기') { head = '보정본을 확인해 주세요'; sub = '받아보시고 마음에 드시면 확인을 눌러 마무리해 주세요.'; }
+      else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '곧 최종 전달로 마무리할게요.'; }
+      else if (_rs === '전달완료' && _rx && d.result.survey && d.result.survey.status !== '완료') { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요. 🤍'; }
       if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
     }
     $('mp_nowHead').textContent = head;
@@ -1373,7 +1382,9 @@ function renderResult(res){
     h+=_resultWaitHtml(res);
     box.innerHTML=h+'</div>'; box.style.display='block'; return;
   }
-  var inc=res.포함컷||10, picked=(st==='선택완료'||st==='보정중'||st==='전달완료'), locked=(st==='보정중'||st==='전달완료');
+  var POST=['선택완료','보정중','컨펌대기','컨펌완료','전달완료'];
+  var inc=res.포함컷||10, picked=(POST.indexOf(st)>=0), locked=(['보정중','컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);
+  var hasReto=!!res.보정본 && (['컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);   // 보정본 받기 가능 시점
   function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+'</a>'; }
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
@@ -1383,7 +1394,7 @@ function renderResult(res){
   var ex=res.extra||{};
   var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chipGo('추가 가능 ↓'):chip('곧 열려요')));
-  var r4 = (res.보정본 && st==='전달완료') ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
+  var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
   h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
     + row('②','보정 사진 고르기', r2)
@@ -1426,11 +1437,42 @@ function renderResult(res){
     }
     h+='</div>';
   }
+  // ④ 보정본 확인(컨펌) 패널 — 컨펌대기일 때만
+  if(st==='컨펌대기' && res.보정본){
+    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
+      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 더 손볼 컷이 있으면 위 <b>③ 추가 보정</b>으로 알려 주세요.</div>'
+      +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
+      +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
+  } else if(st==='컨펌완료'){
+    h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
+      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 — 곧 최종 전달돼요</div></div>';
+  }
+  // 마지막 설문 — 전달 완료 후 만족도·후기
+  if(st==='전달완료'){
+    var sv=res.survey||{};
+    if(sv.status!=='완료'){
+      h+='<div class="res-panel"><div class="res-panel-t">🤍 마지막으로, 후기를 들려주세요</div>'
+        +'<div class="cc-note" style="margin-top:0">두 분의 한마디가 큰 힘이 돼요. 잠깐이면 끝나요.</div>'
+        +'<div class="srv-q">전체 만족도</div>'
+        +'<div class="srv-stars" id="mp_svStars">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="srv-star" data-v="'+n+'" aria-label="'+n+'점">★</button>';}).join('')+'</div>'
+        +'<textarea class="cc-input" id="mp_svReview" style="min-height:64px;margin-top:12px" placeholder="후기 (선택) — 동의 시 홍보에 쓰일 수 있어요"></textarea>'
+        +'<div class="srv-q">다른 분께도 추천하고 싶으세요?</div>'
+        +'<span class="inv-yn" id="mp_svRec"><button type="button" data-r="Y">네</button><button type="button" data-r="N">아니요</button></span>'
+        +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:12px">후기 보내기</button></div>';
+    } else {
+      h+='<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div>'
+        +'<div class="cc-sub" style="text-align:left">소중한 후기를 남겨주셔서 감사해요. 두 분의 하루를 오래 간직할게요.</div></div>';
+    }
+  }
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
+  var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
   var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
   var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
+  (function(){ var stars=$('mp_svStars'); if(stars){ Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(bt){ bt.addEventListener('click',function(){ var v=+bt.getAttribute('data-v'); stars.setAttribute('data-sel',v); Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(x){ x.classList.toggle('on',(+x.getAttribute('data-v'))<=v); }); }); }); }
+    var rec=$('mp_svRec'); if(rec){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(bt){ bt.addEventListener('click',function(){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(x){x.classList.remove('on');}); bt.classList.add('on'); rec.setAttribute('data-rec',bt.getAttribute('data-r')); }); }); }
+    var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click', doSubmitSurvey); })();
   var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=fmtWon((q>0?q:0)*(res.추가단가||20000)); });
   // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷(10). 초과분은 ③ 추가 보정 대상임을 미리 안내.
   var pc=$('mp_picks'), pcl=$('mp_pickCount');
@@ -1446,6 +1488,24 @@ function doSubmitSelection(){
   api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+function doConfirmRetouch(){
+  var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
+  api({action:'confirmRetouch', token:getToken()}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+function doSubmitSurvey(){
+  var stars=$('mp_svStars'); var rating=stars?(+(stars.getAttribute('data-sel')||0)):0;
+  if(!(rating>0)){ mpAlert('만족도(별점)를 선택해 주세요.'); return; }
+  var review=(($('mp_svReview')&&$('mp_svReview').value)||'').trim();
+  var rec=$('mp_svRec'); var recommend=rec?(rec.getAttribute('data-rec')||''):'';
+  var btn=$('mp_svSubmit'); if(btn){ btn.disabled=true; btn.textContent='보내는 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='후기 보내기'; } }
+  api({action:'submitSurvey', token:getToken(), rating:rating, review:review, recommend:recommend}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function doRequestExtra(){
   var qty=Math.floor(Number(($('mp_exQty')&&$('mp_exQty').value)||0));

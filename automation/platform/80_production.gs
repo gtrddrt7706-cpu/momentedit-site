@@ -139,8 +139,9 @@ function buildResultState(r) {
   var acct = _resAcct();
   return {
     stage: stage,
-    status: status,                                        // 대기/원본전달/선택완료/보정중/전달완료
+    status: status,                                        // 대기/원본전달/선택완료/보정중/컨펌대기/컨펌완료/전달완료
     delivered: stage === '결과물전달',
+    survey: { status: String(r.get('설문상태') || '').trim() || '대기' },   // 마지막 설문(전달완료 후)
     isSnap: String(r.get('상품타입') || '').trim() === '웨딩스냅',
     원본: String(r.get('원본링크') || '').trim(),
     보정본: String(r.get('보정본폴더') || '').trim(),
@@ -180,8 +181,7 @@ function handleSubmitResultSelection(body) {
     if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아닙니다.' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '원본이 아직 전달되지 않았어요.' };
     var cur = String(cust.get('결과물상태') || '').trim();
-    if (cur === '전달완료') return { ok: false, error: '이미 전달이 완료되었어요. 변경은 문의해 주세요.' };
-    if (cur === '보정중') return { ok: false, error: '보정이 시작되어 변경할 수 없어요. 변경은 문의해 주세요.' };
+    if (['보정중', '컨펌대기', '컨펌완료', '전달완료'].indexOf(cur) >= 0) return { ok: false, error: '보정이 시작되어 선택을 변경할 수 없어요. 변경은 문의해 주세요.' };
     touchCustomer(sheet, colOf, cust.num, { '선택사진': picks, '선택수': n, '선택확정일시': fmtKST(new Date()), '결과물상태': '선택완료' });
     try { notifyStudio('[플랫폼] 결과물 컷 선택 (' + code + ')', code + ' · ' + n + '컷 선택\n' + picks.slice(0, 800)); } catch (e) {}
     return { ok: true, 선택수: n };
@@ -236,6 +236,51 @@ function handleExtraRetouchSignal(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// [05-④] 보정본 컨펌(고객). 컨펌대기 → 컨펌완료. 단계 전이 없음(아카이브는 관리자 [결과물 전달] 때만).
+function handleConfirmRetouch(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var cur = String(cust.get('결과물상태') || '').trim();
+    if (cur === '컨펌완료' || cur === '전달완료') return { ok: true, already: true };
+    if (cur !== '컨펌대기' && cur !== '보정중') return { ok: false, error: '아직 보정본 확인 단계가 아니에요.' };
+    if (!String(cust.get('보정본폴더') || '').trim()) return { ok: false, error: '보정본이 아직 준비되지 않았어요.' };
+    touchCustomer(sheet, colOf, cust.num, { '결과물상태': '컨펌완료', '컨펌일시': fmtKST(new Date()) });
+    try { notifyStudio('[플랫폼] 보정본 컨펌 완료 (' + code + ')', code + ' · 고객이 보정본을 확인했어요. 최종 전달 가능.'); } catch (e) {}
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [05-마지막] 만족도 설문 제출(고객). 전달 완료 후. rating(1~5)·review(후기)·recommend(Y/N).
+function handleSubmitSurvey(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var rating = Math.max(0, Math.min(5, Math.floor(Number((body && body.rating) || 0))));
+  if (!(rating > 0)) return { ok: false, error: '만족도(별점)를 선택해 주세요.' };
+  var review = String((body && body.review) || '').trim().slice(0, 2000);
+  var recommend = String((body && body.recommend) || '').trim();   // 'Y'/'N'/''
+  var ans = { rating: rating, review: review, recommend: recommend };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(ans), '설문일시': fmtKST(new Date()) });
+    try { notifyStudio('[플랫폼] 만족도 설문 (' + code + ')', code + ' · ★' + rating + (recommend ? (' · 추천 ' + recommend) : '') + (review ? ('\n' + review) : '')); } catch (e) {}
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
 // [관리자] 추가 보정 입금 확인(통장 대조). adminCall 경유(관리자 인증은 adminCall에서).
 function adminConfirmExtra(code) {
   code = String(code || '').trim().toUpperCase();
@@ -251,7 +296,7 @@ function adminConfirmExtra(code) {
 function addResultSelectionColumns() {
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], added = [];
+  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시'], added = [];
   need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
   var colOf = buildHeaderIndex(sheet), conv = 0;
   if (colOf['결과물상태']) {
