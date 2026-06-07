@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>청첩장 미리보기 · Moment Edit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#EDEBE6;--bg2:#F5F3EF;--accent:#3A2D22;--sub:#5A554C;--gold:#B89A75;--gold-deep:#9A7B4F;--border:#DDD8D1;
+    --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+    padding:22px 16px calc(40px + env(safe-area-inset-bottom));font-family:var(--serif-ko);color:var(--accent);
+    background-image:radial-gradient(ellipse 120% 70% at 50% -10%,rgba(184,154,117,.08),transparent 60%)}
+  .pv-top{width:100%;max-width:460px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .pv-cap{font-family:var(--serif);font-style:italic;font-size:12px;letter-spacing:.14em;color:var(--gold-deep);text-transform:uppercase}
+  .pv-back{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:1px;cursor:pointer}
+  .pv-back:hover{color:var(--accent);border-color:var(--gold)}
+  .pv-frame{width:100%;max-width:430px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);
+    box-shadow:0 2px 6px rgba(28,27,25,.05),0 18px 50px rgba(28,27,25,.16)}
+  .pv-frame img{display:block;width:100%;height:auto}
+  .pv-skel{min-height:60vh;display:flex;align-items:center;justify-content:center;color:var(--gold);
+    font-family:var(--serif);font-style:italic;letter-spacing:.2em;font-size:13px;background:var(--bg2)}
+  .pv-err{font-family:var(--serif-ko);font-size:13px;color:var(--sub);padding:60px 24px;text-align:center;line-height:1.8}
+  .pv-foot{margin-top:18px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);text-align:center;line-height:1.7;letter-spacing:.01em}
+</style>
+</head>
+<body>
+  <div class="pv-top">
+    <span class="pv-cap" id="pv_cap">Preview</span>
+    <a class="pv-back" id="pv_back" href="#">← 돌아가기</a>
+  </div>
+  <div class="pv-frame" id="pv_frame"><div class="pv-skel">MOMENT EDIT</div></div>
+  <div class="pv-foot">화면 속 이름·문구는 예시예요. 실제 청첩장엔 두 분 정보가 들어가요.</div>
+<script>
+  (function(){
+    var p = new URLSearchParams(location.search);
+    var src = p.get('img') || '';
+    var title = p.get('t') || '';
+    var frame = document.getElementById('pv_frame');
+    var back = document.getElementById('pv_back');
+    back.addEventListener('click', function(e){ e.preventDefault(); if(history.length>1){ history.back(); return; } try{ window.close(); }catch(_){ } setTimeout(function(){ location.href='/mypage.html'; }, 160); });
+    if(title){ document.getElementById('pv_cap').textContent = title; document.title = title + ' · Moment Edit'; }
+    // 보안: /assets/preview/ 내부 이미지(png·webp·jpg)만 허용 — 임의 URL 차단
+    if(/^\/assets\/preview\/[A-Za-z0-9_./-]+\.(png|webp|jpe?g)$/.test(src)){
+      var img = new Image();
+      img.alt = title || '청첩장 예시';
+      img.onload = function(){ frame.innerHTML=''; frame.appendChild(img); };
+      img.onerror = function(){ frame.innerHTML='<div class="pv-err">미리보기 이미지를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>'; };
+      img.src = src;
+    } else {
+      frame.innerHTML='<div class="pv-err">표시할 미리보기가 없어요.</div>';
+    }
+  })();
+</script>
+</body>
+</html>
