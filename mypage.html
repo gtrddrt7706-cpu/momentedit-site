@@ -922,7 +922,7 @@ function renderMyPage(d){
   renderResult(d.result, d.name, d.code);
 
   // NEXT (잠금) — [D2] 현재단계 인식(지난 단계 숨김)
-  renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract);
+  renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);
 
   // 카톡
   var ka = $('mp_kakao');
@@ -987,18 +987,21 @@ function applyCardStageView(d){
   }
 }
 
-function renderUpcoming(product, curIdx, stageList, contract){
+function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
   var box = $('mp_upcoming');
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['중도금','예식 30일 전 · 40%','예식완료'],['잔금','예식 7일 전 · 50%','예식완료'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
     items = items.filter(function(it){ var ti = list.indexOf(it[2]); return ti < 0 || curIdx < ti; });
   }
+  // 결제 마일스톤(중도금·잔금)은 납부 확인되면 NEXT에서 자동 제거(완료된 게 🔒로 남지 않게)
+  var midDone = !!(mid && mid.confirmed), balDone = !!(bal && bal.confirmed);
+  items = items.filter(function(it){ if(it[0]==='중도금') return !midDone; if(it[0]==='잔금') return !balDone; return true; });
   // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
   if (contract && !contract.signed && !contract.expired){
     items = items.filter(function(it){ return it[0] !== '본 계약'; });
