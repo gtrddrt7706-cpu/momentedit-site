@@ -4,7 +4,7 @@
  * 핵심 이벤트는 페이지에서 ME_track('상담신청') 처럼 호출하면 기록됨(선택).
  */
 (function () {
-  var GA_ID = '';   // ← 여기에 GA4 측정 ID 입력 (예: 'G-ABCD1234'). 비우면 비활성.
+  var GA_ID = 'G-PJ596EFSDS';   // GA4 측정 ID (momentedit.kr)
   if (!GA_ID) { window.ME_track = function () {}; return; }
   var s = document.createElement('script');
   s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
