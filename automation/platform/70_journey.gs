@@ -494,6 +494,8 @@ function buildMidState(r) {
   var mStatus = String(r.get('중도금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'));
   var dday = _balanceDDay(r.get('예식일'));
+  // 결제 시기(D-45 이내) 또는 진행/완료일 때만 카드 노출 — 그 전엔 NEXT 자물쇠(인지)만. (중도금 due D-30)
+  if (mStatus !== '완료신호' && mStatus !== '확인' && !(dday != null && dday <= 45)) return null;
   return {
     status: mStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: mStatus === '확인',
