@@ -307,13 +307,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .res-exeq b{font-size:17px;font-weight:600;color:var(--accent)}
 .res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
 /* 마지막 설문 — 별점 */
-/* 전달완료 — 결과물 아코디언 */
-.deliv-acc{border:1px solid var(--border);border-radius:11px;overflow:hidden;margin:4px 0 6px;background:#fff}
-.deliv-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--accent);letter-spacing:.01em}
-.deliv-caret{color:var(--gold);font-size:12px;transition:transform .2s}
-.deliv-acc.open .deliv-caret{transform:rotate(180deg)}
-.deliv-body{display:none;padding:2px 16px 15px;border-top:1px solid var(--hairline)}
-.deliv-acc.open .deliv-body{display:block}
+/* 전달완료 — 결과물 토글(본계약서 보기와 동일 형식 = .past-toggle) */
+.deliv-body{padding:6px 4px 2px}
 .dl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .dl-row:last-child{border-bottom:none}
 .srv-step-label{text-align:center;font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:20px 0 10px}
@@ -1514,11 +1509,12 @@ function renderResult(res, nm, code){
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
-    h+='<div class="deliv-acc'+(clp?'':' open')+'" id="mp_delivAcc"><button type="button" class="deliv-head" id="mp_delivToggle"><span>🔒 받은 결과물 · 전달 완료</span><span class="deliv-caret">▾</span></button><div class="deliv-body">'+dl+'</div></div>';
+    h+='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
+    h+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') h+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
     h+='<div class="srv-step-label">마지막 단계</div>'+_surveyCardHtml(res,nm,code);
     box.innerHTML=h+'</div>'; box.style.display='block';
-    var tg=$('mp_delivToggle'); if(tg) tg.addEventListener('click',function(){ var open=$('mp_delivAcc').classList.toggle('open'); try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
+    var tg=$('mp_delivToggle'); if(tg) tg.addEventListener('click',function(){ var body=$('mp_delivBody'); var open=(body.style.display==='none'); body.style.display=open?'block':'none'; tg.classList.toggle('open',open); tg.innerHTML=(open?'받은 결과물 접기 ':'받은 결과물 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>'; try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
     _bindExtra(res); _bindSurvey(res,nm,code);
     return;
   }
