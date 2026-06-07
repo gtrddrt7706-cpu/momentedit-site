@@ -224,7 +224,13 @@ function adminHome() {
     var names = _names(cget(rv, '신랑이름'), cget(rv, '신부이름'));
     var createdYmd = _ymdOf(cget(rv, '생성일시'));
     custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd };
-    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || stage === '결과물전달') return;  // 끝남 → 제외
+    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || stage === '결과물전달') {
+      // 전달 완료(아카이브)라도 추가 보정 입금 신호는 운영자 확인이 필요 → '처리할 일'에만 노출
+      if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
+        pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
+      }
+      return;  // 끝남 → 제외(아카이브)
+    }
 
     var 계약 = String(cget(rv, '계약상태') || '').trim();
     var 입금 = String(cget(rv, '입금상태') || '').trim();
