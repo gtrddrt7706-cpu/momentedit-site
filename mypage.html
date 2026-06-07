@@ -1383,8 +1383,8 @@ function renderProduction(p, inv){
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
 // 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
 //   '?'가 남아 있으면 그 기간 문구는 자동으로 숨겨 '미정 티'가 안 나게 함(_eta).
-var DELIVERY_ETA = { orig:'예식 후 약 ?일', retouch:'약 ?주', video:'약 ?주' };
-var DOWNLOAD_KEEP = '약 ?개월';   // 다운로드 보관 기한 안내(고객 안심). '?'가 있으면 구체 기간은 숨기고 일반 문구로 표시
+var DELIVERY_ETA = { orig:'예식 후 약 2주', retouch:'약 4주', video:'약 6주' };   // 계약서 §12① (원본 2주·보정본 4주·영상 6주)
+var DOWNLOAD_KEEP = '6개월';   // 계약서 §12③ 인도 완료 후 6개월 보관. '?'가 있으면 구체 기간은 숨김
 function _eta(s){ return String(s||'').indexOf('?')<0; }                          // 구체 기간(물음표 없음)인지
 function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
