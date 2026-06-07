@@ -919,23 +919,28 @@ function applyCardStageView(d){
     if (mi >= 0 && cur < mi){ box.style.display = 'none'; }
   });
 
-  // [입금완료+] 완료된 지난 단계(시착·계약·입금) 카드는 메인에서 접어 '계약 정보 보기'로만 펼침 — 제작/예식준비에 집중
+  // [입금완료+] 완료된 지난 단계 카드는 접어 토글로만 펼침 — 제작/예식준비에 집중.
+  //   잔금 이후(잔금 확인·결과물 단계)엔 본계약서만 남기고 시착·입금 카드는 화면에서 제거.
   var paidIdx = sIdx('입금완료');
   if (paidIdx >= 0 && cur >= paidIdx) {
-    var pastIds = ['mp_fitting','mp_contract','mp_payment'];
+    var afterBalance = (d.balance && d.balance.confirmed) || ['예식완료','촬영완료','결과물전달'].indexOf(d.stage) >= 0;
+    var pastIds = afterBalance ? ['mp_contract'] : ['mp_fitting','mp_contract','mp_payment'];
+    if (afterBalance) { ['mp_fitting','mp_payment'].forEach(function(id){ var b=$(id); if (b) b.style.display='none'; }); }
+    var lblShow = afterBalance ? '본계약서 보기 ' : '계약 정보 보기 ';
+    var lblHide = afterBalance ? '본계약서 접기 ' : '계약 정보 접기 ';
     var hasPast = pastIds.some(function(id){ var b=$(id); return b && b.style.display!=='none' && (b.innerHTML||'').trim()!==''; });
     if (hasPast) {
       pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
-      var anchor = $('mp_fitting');
+      var anchor = $('mp_fitting') || $('mp_contract');
       if (anchor && anchor.parentNode) {
         var t = document.createElement('button');
         t.type='button'; t.id='mp_pastToggle'; t.className='past-toggle';
-        t.innerHTML = '계약 정보 보기 <span class="pt-ar">▾</span>';
+        t.innerHTML = lblShow + '<span class="pt-ar">▾</span>';
         anchor.parentNode.insertBefore(t, anchor);
         t.addEventListener('click', function(){
           var open = t.classList.toggle('open');
           pastIds.forEach(function(id){ var b=$(id); if (b && (b.innerHTML||'').trim()!=='') b.style.display = open?'block':'none'; });
-          t.innerHTML = (open?'계약 정보 접기 ':'계약 정보 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
+          t.innerHTML = (open?lblHide:lblShow)+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
         });
       }
     }
