@@ -759,7 +759,7 @@ function cardPayment(d){
   var r=d.raw||{}, pay=r['입금상태']||'대기', raw='입금 <b>'+esc(pay)+'</b>';
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
   if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
-  if(r['계약총액']){ var _T=Number(r['계약총액'])||0,_DEP=Math.round(_T*0.1),_MID0=Math.round(_T*0.4),_BAL=_T-_DEP-_MID0,_RES=200000,_GAP=Math.max(0,_DEP-_RES),_MID=_MID0+_GAP; raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 충당·추가 0) · 중도금 '+_MID.toLocaleString()+'(D-30) · 잔금 '+_BAL.toLocaleString()+'(D-7)</div>'; }
+  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-7)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID0=Math.round(_T*0.4),_BAL=_T-_DEP-_MID0,_RES=200000,_GAP=Math.max(0,_DEP-_RES),_MID=_MID0+_GAP; raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 충당·추가 0) · 중도금 '+_MID.toLocaleString()+'(D-30) · 잔금 '+_BAL.toLocaleString()+'(D-7)</div>'; } }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)

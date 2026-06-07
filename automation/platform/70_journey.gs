@@ -216,13 +216,19 @@ function handleSignContract(body) {
       effectHash: _termsHash([CONTRACT.effectNotice]),   // 동의한 효력 고지 문구 지문
       signatureSaved: sigSaved                           // 손글씨 서명 이미지 저장 여부(Signatures 시트)
     };
+    var isSnapC = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
+    if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
+      touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
+      setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
+      return { ok: true, signedAt: now };
+    }
     touchCustomer(sheet, colOf, cust.num, {
       '계약서명일시': now,
       '계약상태': '서명완료',
-      '입금상태': '확인',                                  // 계약금 = 예약금으로 충당(계약 성립 시 추가 0원) → 자동 확인
+      '입금상태': '확인',                                  // 시그니처: 계약금 = 예약금으로 충당(계약 성립 시 추가 0원) → 자동 확인
       '동의기록': JSON.stringify(prev)
     });
-    setCustomerStage(code, 'paid');                       // 서명 = 계약 성립 + 계약금(예약금 충당) → 입금완료(제작 준비)로 자동 진행
+    setCustomerStage(code, 'paid');                       // 시그니처: 서명 = 계약 성립 + 계약금(예약금 충당) → 입금완료(제작 준비)로 자동 진행
     return { ok: true, signedAt: now, autoPaid: true };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -346,10 +352,14 @@ var PAYMENT = {
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
 
-// 계약총액 → 3단계 금액(계약금10/중도금40/잔금50). 예약금 충당→계약금 단계 추가납부 0원, 차액은 중도금 합산.
-function _journeyAmounts(total) {
+// 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50·예약금 충당), 웨딩스냅=2단계(계약금20%·잔금80%, 중도금/충당 없음).
+function _journeyAmounts(total, product) {
   var t = Math.round(Number(total) || 0);
   if (t <= 0) return null;
+  if (String(product || '').trim() === '웨딩스냅') {        // 스냅 계약서 §4 — 2단계
+    var dep = Math.round(t * 0.2);
+    return { 총액: t, 계약금: dep, 예약금: 0, 납부액: dep, 중도금: 0, 중도금시점: '', 잔금: t - dep, 잔금시점: _balanceDueLabel() };
+  }
   var 계약금 = Math.round(t * PAYMENT.계약금율);            // 10%
   var 중도금기본 = Math.round(t * PAYMENT.중도금율);        // 40%
   var 잔금 = t - 계약금 - 중도금기본;                       // 나머지(=50%, 반올림 흡수)
@@ -415,7 +425,7 @@ function buildPaymentState(r) {
     status: iStatus,                          // 대기 / 완료신호 / 확인
     confirmed: confirmed,
     payerName: String(r.get('입금자명') || '').trim(),
-    amounts: _journeyAmounts(r.get('계약총액')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
+    amounts: _journeyAmounts(r.get('계약총액'), r.get('상품타입')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
   };
@@ -437,7 +447,7 @@ function buildBalanceState(r) {
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
   if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var bStatus = String(r.get('잔금상태') || '').trim() || '대기';
-  var amounts = _journeyAmounts(r.get('계약총액'));
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
   // 중도금 확인 후(또는 예식 D-21 이내)에만 노출 — 중도금→잔금 순서로 안내(둘이 한참 전부터 동시 노출 방지)
   if (bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 21)) return null;
@@ -489,10 +499,11 @@ function adminConfirmBalance(code) {
 //   계약금이 예약금 충당(0원)이므로 계약 후 첫 실결제. 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
 function buildMidState(r) {
   if (!r) return null;
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 2단계(계약금·잔금) — 중도금 없음
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
   if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var mStatus = String(r.get('중도금상태') || '').trim() || '대기';
-  var amounts = _journeyAmounts(r.get('계약총액'));
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
   // 결제 시기(D-45 이내) 또는 진행/완료일 때만 카드 노출 — 그 전엔 NEXT 자물쇠(인지)만. (중도금 due D-30)
   if (mStatus !== '완료신호' && mStatus !== '확인' && !(dday != null && dday <= 45)) return null;
