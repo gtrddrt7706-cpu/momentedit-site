@@ -1167,7 +1167,18 @@ function renderBalance(p){
       + '<button type="button" class="cc-btn" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
-  box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  var NEAR_DAYS=10;   // 예식 D-10부터 잔금 카드를 펼쳐 부각(그 전엔 접힘 = 재촉 X)
+  var near=(p.dday!=null && p.dday<=NEAR_DAYS);
+  if(p.status==='완료신호' || near){
+    // 가까워짐(또는 입금 신호) → 펼친 활성 카드
+    box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  } else {
+    // 평소 → 접힌 아코디언(재촉 X). 펼치면 미리 입금 가능.
+    var sumAmt=amtTxt?(' · '+amtTxt):'';
+    box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Balance</div>'
+      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금'+sumAmt+' <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 안내해요 (미리 입금하려면 펼치기 ▾)</span></summary>'
+      +'<div style="margin-top:10px">'+body+'<div class="cc-actions">'+cta+'</div></div></details></div>';
+  }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
   var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
