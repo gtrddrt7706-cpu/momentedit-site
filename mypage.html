@@ -1507,7 +1507,7 @@ function renderResult(res, nm, code){
   var ex=res.extra||{};
   // ── 전달완료: 🔒 결과물 아코디언(언제든 열람) + 마지막 단계=설문 ──
   if(st==='전달완료'){
-    var clp=false; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))==='c'); }catch(e){}
+    var clp=true; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))!=='o'); }catch(e){}   // 후기 단계 = 결과물 접어두고 설문에 집중(연 적 있으면 기억)
     var dl='';
     if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
