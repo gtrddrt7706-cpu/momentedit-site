@@ -288,17 +288,24 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
 .res-panel+.res-panel{margin-top:12px}
+/* 끝난(잠금/완료) 패널 = 면을 빼고 얇은 선 위에 조용히 — 지금 할 수 있는 크림 패널과 위계 차등 */
+.res-panel.done{background:transparent;border-top:1px solid var(--divider,#EDEAE4);border-radius:0;padding:13px 2px 2px;margin-top:14px}
+.res-panel.done .res-panel-t{color:var(--label-soft)}
+.res-panel.done .res-n{color:var(--gold)}
 .res-panel-t{display:flex;align-items:center;gap:7px;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);margin-bottom:11px}
 .res-panel-t .res-n{font-family:var(--serif);font-size:16px;line-height:1;color:var(--gold-deep)}
-/* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 합계 */
-.res-exrow{display:flex;align-items:center;gap:12px;margin:12px 0 4px}
-.res-qty{position:relative;flex:0 0 122px}
-.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:9px;padding:13px 32px 13px 14px;font-family:var(--serif-ko);font-size:17px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
+/* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 '합계 금액' */
+.res-exrow{display:flex;align-items:center;gap:12px;margin:13px 0 4px}
+.res-qty{position:relative;flex:0 0 116px}
+.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
 .res-qty input:focus{border-color:var(--gold)}
 .res-qty input::-webkit-outer-spin-button,.res-qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .res-qty input[type=number]{-moz-appearance:textfield}
-.res-qty-u{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);pointer-events:none}
-.res-exeq{margin-left:auto;font-family:var(--serif-ko);font-size:16.5px;font-weight:600;color:var(--accent);white-space:nowrap}
+.res-qty-u{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);pointer-events:none}
+.res-exeq{margin-left:auto;font-family:var(--serif-ko);font-size:15px;color:var(--sub);white-space:nowrap}
+.res-exeq-k{font-family:var(--serif);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-right:5px}
+.res-exeq b{font-size:16.5px;font-weight:600;color:var(--accent)}
+.res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:4px}
@@ -1380,7 +1387,7 @@ function renderResult(res){
     + (res.isSnap?'':row('⑤','본식 영상', res.영상?link(res.영상,'영상 보기'):(st==='전달완료'?chip('준비 중'):chip('곧 열려요'))))
     + '</div>';
   // ② 선택 패널 — 원본전달=고르기 폼 / 선택완료=수정 가능 / 보정중·전달완료=잠금 요약
-  h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>';
+  h+='<div class="res-panel'+(locked?' done':'')+'"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>';
   if(!locked && (st==='원본전달'||st==='선택완료')){
     h+='<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> — 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
       +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
@@ -1389,14 +1396,15 @@ function renderResult(res){
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>';
   } else if(locked){
-    h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> '+(res.선택수||0)+'컷 선택 완료'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+'</div>'
+    var nsel=res.선택수||0;
+    h+='<div class="cc-sub" style="text-align:left">'+(nsel>0?('<span class="trk-ok">✓</span> '+nsel+'컷 선택 완료'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')):'보정이 진행 중이에요')+'</div>'
       +(res.선택?'<div class="cc-note" style="margin-top:6px">고르신 컷: '+escapeHtml(res.선택).slice(0,400)+'</div>':'')
-      +'<div class="cc-note">보정이 시작돼 선택은 잠겼어요. 변경이 필요하면 문의해 주세요.</div>';
+      +'<div class="cc-note">보정이 시작돼 선택은 잠겼어요. 변경이 필요하면 <a href="mailto:contact@momentedit.kr" style="color:var(--gold-deep);text-decoration:underline">문의</a>해 주세요.</div>';
   }
   h+='</div>';
   // ③ 추가 보정·결제 패널 — 선택 이후 노출
   if(picked){
-    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">③</span> 추가 보정·결제</div>';
+    h+='<div class="res-panel'+(ex.status==='완료'?' done':'')+'"><div class="res-panel-t"><span class="res-n">③</span> 추가 보정·결제</div>';
     var unit=res.추가단가||20000;
     if(ex.status==='완료'){
       h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 추가 보정 '+(ex.수량||0)+'컷 결제 완료</div><div class="cc-note">고르신 추가 컷도 곱게 보정해 보정본에 함께 담아드려요.</div>';
@@ -1415,7 +1423,7 @@ function renderResult(res){
         + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
-        +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0"><span class="res-qty-u">컷</span></div><span class="res-exeq" id="mp_exAmt">= —</span></div>'
+        +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">—</b></span></div>'
         +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
     }
     h+='</div>';
@@ -1425,7 +1433,7 @@ function renderResult(res){
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
   var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
   var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
-  var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=(q>0)?('= '+fmtWon(q*(res.추가단가||20000))):'= —'; });
+  var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=(q>0)?fmtWon(q*(res.추가단가||20000)):'—'; });
   // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷(10). 초과분은 ③ 추가 보정 대상임을 미리 안내.
   var pc=$('mp_picks'), pcl=$('mp_pickCount');
   if(pcl){ var updc=function(){ var n=pc?_resCount(pc.value):0; pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
