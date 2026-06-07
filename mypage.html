@@ -752,6 +752,14 @@ function renderMyPage(d){
       head = '제작 정보를 입력해 주세요';
       sub  = '아래에서 입력하시면 예식 준비가 시작됩니다.';
     }
+    // [제작 완료·예식 대기] 셋 다 완료면 NOW를 '준비 끝' 톤으로 (멈춘 느낌 방지)
+    if (d.stage === '제작중' && d.production && d.production.tracks) {
+      var _tk = d.production.tracks;
+      if (_tk.invitation==='완료' && _tk.dining==='완료' && _tk.ritual==='완료') {
+        head = '예식 준비가 끝났어요';
+        sub  = (d.balance && d.balance.due) ? '이제 잔금만 입금하시면 끝이에요.' : '예식날 정성껏 준비해서 뵐게요.';
+      }
+    }
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; }
