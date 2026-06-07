@@ -872,11 +872,21 @@ function renderMyPage(d){
   } else {
     $('mp_exception').style.display='none';
     $('mp_progress').style.display='block';
+    // 마지막 단계 = '후기'(설문)를 항상 추가 → 여정은 '…→결과물 전달→후기'로 마무리. 후기까지 줘야 100%.
+    var atDelivered = (d.stage==='결과물전달');
+    var surveyDone = !!(d.result && d.result.survey && d.result.survey.status==='완료');
+    if (list.length){
+      list = list.concat(['후기']);
+      if (atDelivered) idx = surveyDone ? list.length : (list.length-1);   // 전달 완료=후기 현재, 후기 제출=전부 완료
+    }
     var cur = (idx<0?0:idx);
-    $('mp_stageNow').textContent = stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—';
-    $('mp_stageCount').textContent = list.length ? ('STEP ' + (cur+1) + ' / ' + list.length) : '';
+    var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
+                 : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
+    $('mp_stageNow').textContent = nowLabel;
+    $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
     var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
-    $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage) : '마지막 단계예요';
+    $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage)
+                 : (atDelivered ? (surveyDone ? '모든 순간이 마무리됐어요 🤍' : '후기를 남기면 끝나요') : '마지막 단계예요');
     // 점만 (막대 없음)
     $('mp_dots').innerHTML = list.map(function(label,i){
       var cls = (i<cur?'done':(i===cur?'current':'future'));
