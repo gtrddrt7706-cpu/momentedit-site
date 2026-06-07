@@ -585,6 +585,7 @@ function adminArchive(query, filter) {
     var rv = vals[i];
     var stage = get(rv, '현재단계').trim();
     if (ENDED.indexOf(stage) === -1) continue;            // 끝난 고객만
+    if (stage === '결과물전달') { var _ss = get(rv, '설문상태').trim(); if (_ss !== '완료' && _ss !== '건너뜀') continue; }   // 후기 대기는 아직 진행 중(보드) → 아카이브 제외
     var endType = (stage === '결과물전달') ? '완료' : '중단';   // 완료(전달·그린) / 중단(취소·노쇼·미계약·레드)
     if (filter === 'done' && endType !== '완료') continue;
     if (filter === 'stopped' && endType !== '중단') continue;

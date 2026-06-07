@@ -871,7 +871,7 @@ function renderMyPage(d){
     $('mp_progress').style.display='block';
     // 마지막 단계 = '후기'(설문)를 항상 추가 → 여정은 '…→결과물 전달→후기'로 마무리. 후기까지 줘야 100%.
     var atDelivered = (d.stage==='결과물전달');
-    var surveyDone = !!(d.result && d.result.survey && d.result.survey.status==='완료');
+    var surveyDone = !!(d.result && d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));
     if (list.length){
       list = list.concat(['후기']);
       if (atDelivered) idx = surveyDone ? list.length : (list.length-1);   // 전달 완료=후기 현재, 후기 제출=전부 완료
