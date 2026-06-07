@@ -1841,6 +1841,9 @@ function doPost(e) {
       case 'getSignature':       return jsonOut(handleGetSignature(body));
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
       case 'balanceSignal':      return jsonOut(handleBalanceSignal(body));
+      case 'submitResultSelection': return jsonOut(handleSubmitResultSelection(body));
+      case 'requestExtraRetouch':   return jsonOut(handleRequestExtraRetouch(body));
+      case 'extraRetouchSignal':    return jsonOut(handleExtraRetouchSignal(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));

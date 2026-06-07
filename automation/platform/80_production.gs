@@ -120,19 +120,143 @@ function buildProductionState(r) {
   };
 }
 
-// [05] 결과물 단계(예식완료/촬영완료/결과물전달) — 이미 있는 결과물 링크 컬럼 읽기 표시.
-//   1차: ①원본·④보정본·⑤영상 링크 표시 / ②③(번호 선택·추가 결제)은 2차 자리. 사진은 서버 X(드라이브 링크).
+// [05] 결과물 단계(예식완료/촬영완료/결과물전달) — 원본 전달 → 고객 선택 → 보정 → 전달.
+//   사진 파일은 서버 X(드라이브 링크). 선택 = A안(번호/파일명 텍스트). 추가 보정 = 포함 10컷·추가 컷당 20,000(홈페이지 기준).
 var RESULT_STAGES = ['예식완료', '촬영완료', '결과물전달'];
+var RESULT = { 포함보정컷: 10, 추가보정단가: 20000 };   // ★단가·포함컷 단일 출처(momentedit.kr 가격표와 동일)
+function _resAcct() {
+  return {
+    account: (typeof CONFIG !== 'undefined' && CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (typeof CONFIG !== 'undefined' && CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
+  };
+}
 function buildResultState(r) {
   if (!r) return null;
   var stage = String(r.get('현재단계') || '').trim();
   if (RESULT_STAGES.indexOf(stage) === -1) return null;
+  var status = String(r.get('결과물상태') || '').trim() || '대기';
+  if (status === '업로드') status = '원본전달';            // 레거시 정규화
+  var acct = _resAcct();
   return {
     stage: stage,
+    status: status,                                        // 대기/원본전달/선택완료/보정중/전달완료
     delivered: stage === '결과물전달',
     isSnap: String(r.get('상품타입') || '').trim() === '웨딩스냅',
     원본: String(r.get('원본링크') || '').trim(),
     보정본: String(r.get('보정본폴더') || '').trim(),
-    영상: String(r.get('영상링크') || '').trim()
+    영상: String(r.get('영상링크') || '').trim(),
+    선택: String(r.get('선택사진') || '').trim(),           // A안: 번호/파일명 텍스트
+    선택수: Number(r.get('선택수') || 0) || 0,
+    선택일시: String(r.get('선택확정일시') || '').trim(),
+    포함컷: RESULT.포함보정컷,
+    추가단가: RESULT.추가보정단가,
+    extra: {
+      status: String(r.get('추가보정상태') || '').trim() || '대기',  // 대기/신청/견적/결제대기/완료
+      수량: Number(r.get('추가보정수량') || 0) || 0,
+      금액: Number(r.get('추가보정금액') || 0) || 0,
+      account: acct.account,
+      holder: acct.holder
+    }
   };
+}
+
+// [05-②] 고객 사진 선택 제출(A안: 번호/파일명 텍스트). 단계 전이 없음.
+function handleSubmitResultSelection(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var picks = String((body && body.picks) || '').trim();
+  if (!picks) return { ok: false, error: '고르신 컷을 입력해 주세요.' };
+  if (picks.length > 4000) picks = picks.slice(0, 4000);
+  var n = picks.split(/[\s,\n;·]+/).filter(function (x) { return x; }).length;   // 토큰 수 = 대략 장수
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아닙니다.' };
+    if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '원본이 아직 전달되지 않았어요.' };
+    var cur = String(cust.get('결과물상태') || '').trim();
+    if (cur === '전달완료') return { ok: false, error: '이미 전달이 완료되었어요. 변경은 문의해 주세요.' };
+    if (cur === '보정중') return { ok: false, error: '보정이 시작되어 변경할 수 없어요. 변경은 문의해 주세요.' };
+    touchCustomer(sheet, colOf, cust.num, { '선택사진': picks, '선택수': n, '선택확정일시': fmtKST(new Date()), '결과물상태': '선택완료' });
+    try { notifyStudio('[플랫폼] 결과물 컷 선택 (' + code + ')', code + ' · ' + n + '컷 선택\n' + picks.slice(0, 800)); } catch (e) {}
+    return { ok: true, 선택수: n };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [05-③] 추가 보정 신청(고객). 포함 10컷 외 추가 = 컷당 20,000(자동 견적).
+function handleRequestExtraRetouch(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var qty = Math.floor(Number((body && body.qty) || 0));
+  if (!(qty > 0)) return { ok: false, error: '추가 보정 수량을 입력해 주세요.' };
+  if (qty > 500) qty = 500;
+  var amount = qty * RESULT.추가보정단가;
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아닙니다.' };
+    if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: false, error: '이미 결제가 완료된 추가 보정이 있어요. 문의해 주세요.' };
+    touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '신청', '추가보정수량': qty, '추가보정금액': amount });
+    try { notifyStudio('[플랫폼] 추가 보정 신청 (' + code + ')', code + ' · ' + qty + '컷 · ' + amount.toLocaleString() + '원'); } catch (e) {}
+    return { ok: true, qty: qty, amount: amount };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [05-③] 추가 보정 입금 신호(고객). 신청/견적/결제대기 → 결제대기.
+function handleExtraRetouchSignal(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var cur = String(cust.get('추가보정상태') || '').trim();
+    if (cur === '완료') return { ok: true, already: true };
+    if (['신청', '견적', '결제대기'].indexOf(cur) === -1) return { ok: false, error: '추가 보정 신청 후 진행할 수 있어요.' };
+    touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '결제대기' });
+    try { notifyStudio('[플랫폼] 추가 보정 입금 신호 (' + code + ')', code); } catch (e) {}
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [관리자] 추가 보정 입금 확인(통장 대조). adminCall 경유(관리자 인증은 adminCall에서).
+function adminConfirmExtra(code) {
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: true, already: true };
+  touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료' });
+  return { ok: true };
+}
+
+// [1회 실행] Customers에 결과물 셀렉트·추가 보정 컬럼 추가(멱등) + 레거시 결과물상태 '업로드'→'원본전달'.
+function addResultSelectionColumns() {
+  var sheet = getCustomersSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액'], added = [];
+  need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
+  var colOf = buildHeaderIndex(sheet), conv = 0;
+  if (colOf['결과물상태']) {
+    var last = sheet.getLastRow();
+    if (last >= P.DATA_START_ROW) {
+      var rng = sheet.getRange(P.DATA_START_ROW, colOf['결과물상태'], last - P.DATA_START_ROW + 1, 1), vals = rng.getValues();
+      for (var i = 0; i < vals.length; i++) { if (String(vals[i][0]).trim() === '업로드') { vals[i][0] = '원본전달'; conv++; } }
+      if (conv) rng.setValues(vals);
+    }
+  }
+  return (added.length ? ('추가됨: ' + added.join(', ')) : '컬럼 이미 있음') + (conv ? (' · 업로드→원본전달 ' + conv + '건') : '');
 }

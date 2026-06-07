@@ -133,6 +133,9 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .kv .v{flex:1;font-family:var(--serif-ko);color:var(--ink);word-break:break-all}
 .cnote{font-family:var(--serif-ko);font-size:11.5px;color:var(--light);margin-top:7px}
 .link-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--serif-ko);font-size:12px;color:var(--blue);margin-right:8px}
+.res-sel{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line,#E5E0D8)}
+.res-sel-list{margin-top:4px;font-size:12px;color:var(--ink,#3A332B);background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:6px;padding:7px 9px;max-height:120px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.res-ex{margin-top:6px;font-size:12.5px;color:var(--sub)}
 
 /* 메모·이력 */
 .memo-area{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--sans);font-size:14px;color:var(--accent);background:#fff;resize:vertical;min-height:62px;outline:none;line-height:1.6}
@@ -706,13 +709,20 @@ function cardResult(d,isSnap){
   raw+=' · 원본 '+has(r['원본링크'])+' · 보정본 '+has(r['보정본폴더'])+(isSnap?'':(' · 영상 '+has(r['영상링크'])));
   function lk(lb,v){ return v?('<br><span class="link-chip">🔗 <a href="'+esc(v)+'" target="_blank" rel="noopener">'+lb+' 열기</a></span>'):''; }
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
-  var b='', st=d.stage;
+  // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
+  var picks=r['선택사진'], pn=r['선택수'];
+  if(picks){ raw+='<div class="res-sel"><b>고른 컷 '+esc(pn||'')+'컷</b>'+(r['선택확정일시']?(' · '+esc(r['선택확정일시'])):'')+'<div class="res-sel-list">'+esc(picks)+'</div></div>'; }
+  // ③ 추가 보정 신청
+  var ex=r['추가보정상태'], exq=r['추가보정수량'], exa=r['추가보정금액'];
+  if(ex && ex!=='대기'){ raw+='<div class="res-ex">추가 보정 <b>'+esc(ex)+'</b> · '+esc(exq||'0')+'컷'+(exa?(' · '+Number(exa).toLocaleString()+'원'):'')+'</div>'; }
+  var b='', st=d.stage, exPay=(ex==='결제대기');
   if((isSnap&&st==='입금완료')||(!isSnap&&st==='제작중')){ b+='<div class="gate">'+(isSnap?'촬영':'예식')+' 후 결과물 단계예요</div>'+ab('eventDone',(isSnap?'촬영':'예식')+'완료 처리'); }
   else if(st==='예식완료'||st==='촬영완료'){
     b+=ab('setResult','결과물 링크 등록','btn-line');
+    if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(r['원본링크']) b+=ab('delivered','결과물 전달');
     else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
-  } else if(st==='결과물전달'){ b+='<div class="gate">✓ 전달 완료</div>'; }
+  } else if(st==='결과물전달'){ b+='<div class="gate">✓ 전달 완료</div>'+(exPay?ab('confirmExtra','추가 보정 입금 확인'):''); }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 
@@ -757,6 +767,7 @@ function onDetailAct(act,d){
   else if(act==='setResult') openSetResult(code,names,isSnap,d);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
+  else if(act==='confirmExtra') doConfirmExtra(code,names,d);
 }
 
 /* ════════ 액션 모달 (큐·상세 공용) ════════ */
@@ -805,6 +816,7 @@ function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할
 function doConfirmBalance(code,names){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 — 제작 계속 가능'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 넘길까요?', text:b(names)+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요'), yes:'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,'전달 완료'); } }); }
+function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
@@ -831,7 +843,7 @@ function openSetResult(code,names,isSnap,d){
   var extra='<div class="field"><label>원본 드라이브 링크</label><input type="url" id="rOrig" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['원본링크']||'')+'"></div>'+
     '<div class="field"><label>보정본 폴더 링크</label><input type="url" id="rReto" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['보정본폴더']||'')+'"></div>'+
     (isSnap?'':'<div class="field"><label>본식 영상 링크</label><input type="url" id="rVid" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['영상링크']||'')+'"></div>');
-  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('저장하면 결과물상태가 업로드로 바뀌어요'), extra:extra, yes:'저장',
+  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중'), extra:extra, yes:'저장',
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });
 }

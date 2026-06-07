@@ -285,6 +285,11 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .trk:last-child{border-bottom:none}
 .trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
+/* 결과물 ②선택·③추가보정 패널 */
+.res-panel{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(180deg,#fff,var(--bg2,#F5F3EF))}
+.res-panel-t{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);margin-bottom:8px}
+.res-exrow{display:flex;align-items:center;gap:10px;margin:8px 0 10px}
+.res-examt{font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--gold-deep);white-space:nowrap}
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:4px}
@@ -1312,12 +1317,116 @@ function renderProduction(p, inv){
   }
 }
 
-// [05] 결과물 카드 — 예식완료/촬영완료=준비 안내 / 결과물전달=5스텝(①④⑤ 링크, ②③ 자리). result 없으면 숨김.
+// [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
 // 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
 var DELIVERY_ETA = { orig:'예식 후 약 ?일', retouch:'약 ?주', video:'약 ?주' };
 function renderResult(res){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
+  if(res.status==null){ return renderResultLegacy(res, box); }   // GAS 미배포 폴백 — 기존 동작 그대로(무회귀)
+  var st = res.status;
+  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
+  if(st==='대기'){
+    h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
+      +'<div class="cc-sub" style="text-align:left">두 분의 하루를 한 장 한 장 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
+      +'<div class="visit-guide" style="margin-top:14px">'
+      +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 <b>'+DELIVERY_ETA.orig+'</b> 안에 <em>가장 먼저</em> 전해드려요.</span></div>'
+      +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐 <b>'+DELIVERY_ETA.retouch+'</b> 뒤 전해드려요.</span></div>'
+      +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해 <b>'+DELIVERY_ETA.video+'</b> 뒤 전해드려요.</span></div>')
+      +'</div>'
+      +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+    box.innerHTML=h+'</div>'; box.style.display='block'; return;
+  }
+  var inc=res.포함컷||10, picked=(st==='선택완료'||st==='보정중'||st==='전달완료'), locked=(st==='보정중'||st==='전달완료');
+  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+'</a>'; }
+  function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
+  function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
+  function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
+  function row(n,label,right){ return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }
+  // 스텝 개요 ①~⑤
+  var ex=res.extra||{};
+  var r2 = picked ? chipOk((res.선택수||0)+'컷 선택') : (st==='원본전달'? chipGo('아래에서 고르기') : chip('곧 열려요'));
+  var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chip('선택'):chip('곧 열려요')));
+  var r4 = (res.보정본 && st==='전달완료') ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
+  h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
+    + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
+    + row('②','보정 사진 고르기', r2)
+    + row('③','추가 보정·결제', r3)
+    + row('④','보정본', r4)
+    + (res.isSnap?'':row('⑤','본식 영상', res.영상?link(res.영상,'영상 보기'):(st==='전달완료'?chip('준비 중'):chip('곧 열려요'))))
+    + '</div>';
+  // ② 선택 패널 — 원본전달=고르기 폼 / 선택완료=수정 가능 / 보정중·전달완료=잠금 요약
+  h+='<div class="res-panel"><div class="res-panel-t">② 보정 사진 고르기</div>';
+  if(!locked && (st==='원본전달'||st==='선택완료')){
+    h+='<div class="cc-note" style="margin-top:0">원본에서 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요. (예: 012, 045, 088)</div>'
+      +'<textarea class="cc-input" id="mp_picks" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
+      +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 8px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
+      +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>';
+  } else if(locked){
+    h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> '+(res.선택수||0)+'컷 선택 완료'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+'</div>'
+      +(res.선택?'<div class="cc-note" style="margin-top:6px">고르신 컷: '+escapeHtml(res.선택).slice(0,400)+'</div>':'')
+      +'<div class="cc-note">보정이 시작돼 선택은 잠겼어요. 변경이 필요하면 문의해 주세요.</div>';
+  }
+  h+='</div>';
+  // ③ 추가 보정·결제 패널 — 선택 이후 노출
+  if(picked){
+    h+='<div class="res-panel"><div class="res-panel-t">③ 추가 보정·결제</div>';
+    var unit=res.추가단가||20000;
+    if(ex.status==='완료'){
+      h+='<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 추가 보정 '+(ex.수량||0)+'컷 결제 완료</div><div class="cc-note">고르신 추가 컷도 곱게 보정해 보정본에 함께 담아드려요.</div>';
+    } else if(ex.status==='결제대기'){
+      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
+    } else if(ex.status==='신청'||ex.status==='견적'){
+      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
+        + (ex.account?(
+            '<div style="margin:12px 0 2px;padding:13px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+          + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+          + '<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(ex.account)+'</div>'
+          + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')
+          + '</div>'):'')
+        + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
+        + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
+    } else {
+      h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
+        +'<div class="res-exrow"><input class="cc-input" id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="추가 컷 수" style="margin-bottom:0"><span class="res-examt" id="mp_exAmt">—</span></div>'
+        +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  box.innerHTML=h; box.style.display='block';
+  var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
+  var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
+  var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
+  var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=(q>0)?fmtWon(q*(res.추가단가||20000)):'—'; });
+}
+function doSubmitSelection(){
+  var picks=(($('mp_picks')&&$('mp_picks').value)||'').trim();
+  if(!picks){ mpAlert('고르신 컷을 입력해 주세요.'); return; }
+  var btn=$('mp_pickSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
+  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+function doRequestExtra(){
+  var qty=Math.floor(Number(($('mp_exQty')&&$('mp_exQty').value)||0));
+  if(!(qty>0)){ mpAlert('추가 보정 수량을 입력해 주세요.'); return; }
+  var btn=$('mp_exReq'); if(btn){ btn.disabled=true; btn.textContent='신청 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='추가 보정 신청'; } }
+  api({action:'requestExtraRetouch', token:getToken(), qty:qty}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('신청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+function doExtraSignal(){
+  var btn=$('mp_exSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
+  api({action:'extraRetouchSignal', token:getToken()}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+// 구버전(결과물 status 없음) 폴백 — 셀렉트 백엔드 배포 전까지 기존 카드 그대로(①④⑤ 링크, ②③ 자리).
+function renderResultLegacy(res, box){
   var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
   if(!res.delivered){
     h+='<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
@@ -1343,8 +1452,7 @@ function renderResult(res){
       +(res.isSnap?'':step('⑤','본식 영상',res.영상,'영상 보기',false))
       +'</div><div class="cc-note">②③(번호 선택·추가 결제)은 곧 열려요. 사진은 드라이브 링크로 보고 골라 주세요.</div>';
   }
-  h+='</div>';
-  box.innerHTML=h; box.style.display='block';
+  box.innerHTML=h+'</div>'; box.style.display='block';
 }
 // 날짜 선택 커스텀 위젯 (inquiry 이식·일반화) — opts: {wrap,trigger,text,panel,grid,title,prev,next,hidden,onPick}
 function initDatePicker(o){

@@ -132,6 +132,7 @@ function adminCall(token, fn, args) {
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
       adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
+      adminConfirmExtra: adminConfirmExtra,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
     };
     var f = FNS[fn];
@@ -393,6 +394,12 @@ function adminDetail(code) {
     원본링크: String(cust.get('원본링크') || ''),
     영상링크: String(cust.get('영상링크') || ''),
     보정본폴더: String(cust.get('보정본폴더') || ''),
+    선택사진: String(cust.get('선택사진') || ''),
+    선택수: String(cust.get('선택수') || ''),
+    선택확정일시: String(cust.get('선택확정일시') || ''),
+    추가보정상태: String(cust.get('추가보정상태') || ''),
+    추가보정수량: String(cust.get('추가보정수량') || ''),
+    추가보정금액: String(cust.get('추가보정금액') || ''),
     계약총액: String(cust.get('계약총액') || ''),
     계약서링크: String(cust.get('계약서링크') || ''),
     계약서발송일시: String(cust.get('계약서발송일시') || ''),
@@ -746,7 +753,14 @@ function adminSetResultLinks(code, links) {
     var upd = { '원본링크': 원본, '보정본폴더': 보정본 };
     if (!isSnap) upd['영상링크'] = 영상;
     var cur결과물 = String(cust.get('결과물상태') || '').trim();
-    if (cur결과물 !== '전달완료') upd['결과물상태'] = (원본 || 보정본 || 영상) ? '업로드' : '대기';
+    if (cur결과물 === '업로드') cur결과물 = '원본전달';                         // 레거시
+    if (cur결과물 !== '전달완료') {
+      var ns = cur결과물 || '대기';
+      if (보정본) ns = '보정중';                                                 // 보정본 등록 = 보정 단계
+      else if (원본 && (ns === '대기' || ns === '')) ns = '원본전달';            // 원본만 = 원본 전달(고객 선택 대기)
+      if (!(원본 || 보정본 || 영상)) ns = '대기';
+      upd['결과물상태'] = ns;
+    }
     touchCustomer(sheet, colOf, cust.num, upd);
     _recordHandler(code, '결과물 링크 등록' + (원본 ? ' 원본' : '') + (보정본 ? ' 보정본' : '') + (영상 ? ' 영상' : ''));
     return { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
