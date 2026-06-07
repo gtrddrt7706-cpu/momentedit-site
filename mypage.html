@@ -313,7 +313,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .srv-stars{display:flex;gap:7px}
 .srv-star{font-size:27px;line-height:1;background:none;border:none;cursor:pointer;color:var(--border);padding:0;transition:color .15s,transform .1s}
 .srv-star.on{color:var(--gold)}
-.srv-star:hover{color:var(--gold-deep);transform:scale(1.08)}
+.srv-star:hover{transform:scale(1.08)}
+.srv-skip{display:block;width:100%;margin:9px 0 0;padding:6px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px}
+.srv-skip:hover{color:var(--sub)}
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:4px}
@@ -890,7 +892,7 @@ function renderMyPage(d){
   renderProduction(d.production, d.invitation);
 
   // 결과물 (05) — 예식완료/결과물전달
-  renderResult(d.result);
+  renderResult(d.result, d.name, d.code);
 
   // NEXT (잠금) — [D2] 현재단계 인식(지난 단계 숨김)
   renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract);
@@ -1361,6 +1363,7 @@ function renderProduction(p, inv){
 // 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
 //   '?'가 남아 있으면 그 기간 문구는 자동으로 숨겨 '미정 티'가 안 나게 함(_eta).
 var DELIVERY_ETA = { orig:'예식 후 약 ?일', retouch:'약 ?주', video:'약 ?주' };
+var DOWNLOAD_KEEP = '약 ?개월';   // 다운로드 보관 기한 안내(고객 안심). '?'가 있으면 구체 기간은 숨기고 일반 문구로 표시
 function _eta(s){ return String(s||'').indexOf('?')<0; }                          // 구체 기간(물음표 없음)인지
 function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
@@ -1374,7 +1377,7 @@ function _resultWaitHtml(res){
     +'</div>'
     +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
 }
-function renderResult(res){
+function renderResult(res, nm, code){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
   if(res.status==null){ return renderResultLegacy(res, box); }   // GAS 미배포 폴백 — 기존 동작 그대로(무회귀)
@@ -1387,7 +1390,7 @@ function renderResult(res){
   var POST=['선택완료','보정중','컨펌대기','컨펌완료','전달완료'];
   var inc=res.포함컷||10, picked=(POST.indexOf(st)>=0), locked=(['보정중','컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);
   var hasReto=!!res.보정본 && (['컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);   // 보정본 받기 가능 시점
-  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+'</a>'; }
+  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+' ↗</a>'; }
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
@@ -1404,6 +1407,10 @@ function renderResult(res){
     + row('④','보정본', r4)
     + (res.isSnap?'':row('⑤','본식 영상', res.영상?link(res.영상,'영상 보기'):(st==='전달완료'?chip('준비 중'):chip('곧 열려요'))))
     + '</div>';
+  // 보관 안심 — 다운로드할 결과물이 생겼고 + 보관 기간이 설정돼 있을 때만(막연한 약속 방지)
+  if((res.원본 || hasReto) && _eta(DOWNLOAD_KEEP)){
+    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
+  }
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>'
@@ -1414,6 +1421,16 @@ function renderResult(res){
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>'
       +'</div>';
+  }
+  // ④ 보정본 확인(컨펌) 패널 — 컨펌대기면 '확인'이 최우선이라 ③ 추가결제보다 위에 둔다.
+  if(st==='컨펌대기' && res.보정본){
+    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
+      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 더 손볼 컷이 있으면 <b>③ 추가 보정</b>으로 알려 주세요.</div>'
+      +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
+      +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
+  } else if(st==='컨펌완료'){
+    h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
+      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 — 곧 최종 전달돼요</div></div>';
   }
   // ③ 추가 보정·결제 패널 — 선택 이후 & 결제 완료 전(완료는 위 개요 ✓로 충분).
   if(picked && ex.status!=='완료'){
@@ -1441,20 +1458,15 @@ function renderResult(res){
     }
     h+='</div>';
   }
-  // ④ 보정본 확인(컨펌) 패널 — 컨펌대기일 때만
-  if(st==='컨펌대기' && res.보정본){
-    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 더 손볼 컷이 있으면 위 <b>③ 추가 보정</b>으로 알려 주세요.</div>'
-      +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
-      +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
-  } else if(st==='컨펌완료'){
-    h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 — 곧 최종 전달돼요</div></div>';
-  }
-  // 마지막 설문 — 전달 완료 후 만족도·후기
+  // 마지막 설문 — 전달 완료 후 만족도·후기 (안 쓰면 '다음에 할게요'로 접고, 언제든 다시 열 수 있음)
   if(st==='전달완료'){
-    var sv=res.survey||{};
-    if(sv.status!=='완료'){
+    var sv=res.survey||{}, _skip=false; try{ _skip=(localStorage.getItem('me_srv_skip_'+(code||'x'))==='1'); }catch(e){}
+    if(sv.status==='완료'){
+      h+='<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div>'
+        +'<div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
+    } else if(_skip){
+      h+='<div class="cc-mini" style="margin:9px 0 2px">🤍 <a href="#" id="mp_svReopen" style="color:var(--gold-deep);font-weight:600">후기 남기기</a> · 두 분의 한마디가 큰 힘이 돼요</div>';
+    } else {
       h+='<div class="res-panel"><div class="res-panel-t">🤍 마지막으로, 후기를 들려주세요</div>'
         +'<div class="cc-note" style="margin-top:0">두 분의 한마디가 큰 힘이 돼요. 잠깐이면 끝나요.</div>'
         +'<div class="srv-q">전체 만족도</div>'
@@ -1463,10 +1475,8 @@ function renderResult(res){
         +'<div class="cc-mini" style="margin:4px 0 0">남겨주신 후기는 <b>동의해 주실 때만</b> 소개에 쓰여요. 원치 않으시면 비워두셔도 돼요.</div>'
         +'<div class="srv-q">다른 분께도 추천하고 싶으세요?</div>'
         +'<span class="inv-yn" id="mp_svRec"><button type="button" data-r="Y">네</button><button type="button" data-r="N">아니요</button></span>'
-        +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:12px">후기 보내기</button></div>';
-    } else {
-      h+='<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div>'
-        +'<div class="cc-sub" style="text-align:left">소중한 후기를 남겨주셔서 감사해요. 두 분의 하루를 오래 간직할게요.</div></div>';
+        +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:12px">후기 보내기</button>'
+        +'<button type="button" class="srv-skip" id="mp_svSkip">다음에 할게요</button></div>';
     }
   }
   h+='</div>';
@@ -1482,7 +1492,9 @@ function renderResult(res){
         bt.addEventListener('click',function(){ stars.setAttribute('data-sel',v); paint(v); }); });
       stars.addEventListener('mouseleave',function(){ paint(+(stars.getAttribute('data-sel')||0)); }); }
     var rec=$('mp_svRec'); if(rec){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(bt){ bt.addEventListener('click',function(){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(x){x.classList.remove('on');}); bt.classList.add('on'); rec.setAttribute('data-rec',bt.getAttribute('data-r')); }); }); }
-    var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click', doSubmitSurvey); })();
+    var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click', doSubmitSurvey);
+    var sk=$('mp_svSkip'); if(sk) sk.addEventListener('click',function(){ try{localStorage.setItem('me_srv_skip_'+(code||'x'),'1');}catch(e){} renderResult(res,nm,code); });
+    var ro=$('mp_svReopen'); if(ro) ro.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.removeItem('me_srv_skip_'+(code||'x'));}catch(e){} renderResult(res,nm,code); }); })();
   var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=fmtWon((q>0?q:0)*(res.추가단가||20000)); });
   // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷(10). 초과분은 ③ 추가 보정 대상임을 미리 안내.
   var pc=$('mp_picks'), pcl=$('mp_pickCount');
