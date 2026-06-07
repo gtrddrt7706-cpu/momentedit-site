@@ -130,7 +130,7 @@ function adminCall(token, fn, args) {
     var FNS = {
       adminHome: adminHome, adminDetail: adminDetail, adminArchive: adminArchive, adminSearch: adminSearch, adminSaveMemo: adminSaveMemo,
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
-      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminOpenFittingConsent: adminOpenFittingConsent,
+      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
@@ -306,6 +306,11 @@ function adminHome() {
         badge: (sigDays != null && sigDays >= 1) ? { level: 'yellow', text: '입금 신호 ' + sigDays + '일째' } : null,
         _urgent: false, _stage: 4, _wait: createdYmd });
     }
+    // 중도금 확인 — 중도금상태=완료신호 (계약 후 첫 실결제, D-30 구간)
+    if (String(cget(rv, '중도금상태') || '').trim() === '완료신호') {
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인',
+        badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
+    }
     // 잔금 확인 — 잔금상태=완료신호 (단계 무관, 제작~예식 구간에서 발생)
     if (잔금 === '완료신호') {
       pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
@@ -478,6 +483,9 @@ function adminDetail(code) {
     설문응답: String(cust.get('설문응답') || ''),
     설문일시: String(cust.get('설문일시') || ''),
     계약총액: String(cust.get('계약총액') || ''),
+    중도금상태: String(cust.get('중도금상태') || ''),
+    중도금입금자명: String(cust.get('중도금입금자명') || ''),
+    잔금상태: String(cust.get('잔금상태') || ''),
     계약서링크: String(cust.get('계약서링크') || ''),
     계약서발송일시: String(cust.get('계약서발송일시') || ''),
     계약서명일시: String(cust.get('계약서명일시') || ''),

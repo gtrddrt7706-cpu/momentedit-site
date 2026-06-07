@@ -510,6 +510,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 계약금 입금 (02-4) — 계약서 다음 -->
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
+    <!-- 중도금 (02-4b) — 결제 마일스톤(D-30) · 계약 후 첫 실결제. 평소 접힘 → D-37 자동 펼침 -->
+    <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
+
     <!-- 잔금 (02-5) — 결제 마일스톤(단계 아님) · 위쪽 아코디언. 평소 접힘 → 예식 D-15 자동 펼침 -->
     <div class="consult-sec" id="mp_balance" style="display:none"></div>
 
@@ -906,6 +909,9 @@ function renderMyPage(d){
   // 본 계약 + 계약금 (02-3+02-4 병합) — 한 카드로 진행(서명→계약금→완료)
   renderContractPayment(d.contract, d.payment, d);
 
+  // 중도금 (02-4b) — 결제 마일스톤(D-30) · 계약 후 첫 실결제
+  renderMid(d.midpayment);
+
   // 잔금 (02-5) — 결제 마일스톤
   renderBalance(d.balance);
 
@@ -1144,8 +1150,8 @@ function renderContractPayment(c, p, ctx){
   if (signed && p && p.confirmed){
     var a0 = p.amounts;
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
-             + '<div class="cc-sub"><span class="trk-ok">✓</span> 계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>'
-             + (a0?'<div class="cc-sub cc-mini">납부 '+fmtWon(a0.납부액)+(a0.잔금?(' · 잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)):'')+'</div>':'')
+             + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'계약금 — 예약금으로 충당 (추가 납부 없음)')+'</div>'
+             + (a0?'<div class="cc-sub cc-mini">다음 결제 · 중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · 잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
              + (link?'<div class="cc-actions">'+link+'</div>':'');
     collapsedCard(box, '계약 완료', full, '계약');
     return;
@@ -1164,7 +1170,7 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
-    h += '<div class="cc-note" style="text-align:left">서명하면 바로 이어서 <b>계약금 입금</b> 안내를 드려요 — 계약과 계약금은 한 번에 진행돼요.</div>';
+    h += '<div class="cc-note" style="text-align:left">서명하면 계약금은 <b>예약금으로 충당</b>돼 추가 납부 없이 바로 제작 준비로 이어져요. (첫 결제는 중도금 · 예식 D-30)</div>';
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
@@ -1329,6 +1335,57 @@ function doBalanceSignal(){
   var btn=$('mp_bSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   api({action:'balanceSignal', token:getToken(), payerName:payer}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+// [02-4b] 중도금 카드 — 잔금과 동형(결제 마일스톤·D-30). 계약 후 첫 실결제.
+function renderMid(p){
+  var box=$('mp_midpayment'); if(!box) return;
+  if(!p){ box.style.display='none'; box.innerHTML=''; return; }
+  if(p.confirmed){
+    collapsedCard(box, '중도금 입금 완료', '<div class="cc-sub">중도금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>');
+    return;
+  }
+  var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
+  var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
+  var dueLabel=escapeHtml(p.dueLabel||'예식 30일 전');
+  var near=(p.dday!=null && p.dday<=37);   // D-37 이내 자동 펼침(중도금 마감 D-30 앞서 예고)
+  var body='', cta='';
+  if(p.status==='완료신호'){
+    body='<div class="cc-title">중도금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+  } else {
+    var head=p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내');
+    var amt=amtTxt?('<div class="cc-sub">중도금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
+                  :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
+    var when='<div class="cc-note">'+(p.due?('중도금 시기예요 — '+dueLabel+'까지 입금 부탁드려요.'):(near?('중도금 시기가 다가와요 — '+dueLabel+'까지 편하실 때 입금해 주세요.'):('미리 입금도 괜찮아요. ('+dueLabel+' 안내)')))+'</div>';
+    var acct=p.account?(
+        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
+      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
+      + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '</div>'):'';
+    body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
+    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+      + '<button type="button" class="cc-btn" id="mp_mSignal">입금했어요</button>'
+      + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
+  }
+  if(p.status==='완료신호' || near){
+    box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Interim</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  } else {
+    box.innerHTML='<details class="acc"><summary class="past-toggle">중도금 결제 안내 <span class="pt-ar">▾</span></summary>'
+      +'<div class="consult-card"><div class="cc-eyebrow en-22">Interim</div>'+body+'<div class="cc-actions">'+cta+'</div></div></details>';
+  }
+  box.style.display='block';
+  var b=$('mp_mSignal'); if(b) b.addEventListener('click', doMidSignal);
+  var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+}
+function doMidSignal(){
+  var payer=(($('mp_mPayer')&&$('mp_mPayer').value)||'').trim();
+  if(!payer){ mpAlert('입금자명을 입력해 주세요.'); return; }
+  var btn=$('mp_mSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
+  api({action:'midSignal', token:getToken(), payerName:payer}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }

@@ -300,7 +300,7 @@ function adminConfirmExtra(code) {
 function addResultSelectionColumns() {
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시'], added = [];
+  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시', '중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], added = [];
   need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
   var colOf = buildHeaderIndex(sheet), conv = 0;
   if (colOf['결과물상태']) {

@@ -219,10 +219,11 @@ function handleSignContract(body) {
     touchCustomer(sheet, colOf, cust.num, {
       '계약서명일시': now,
       '계약상태': '서명완료',
+      '입금상태': '확인',                                  // 계약금 = 예약금으로 충당(계약 성립 시 추가 0원) → 자동 확인
       '동의기록': JSON.stringify(prev)
     });
-    setCustomerStage(code, 'contract');                   // 현재단계 → 계약완료 (단일 전이점)
-    return { ok: true, signedAt: now };
+    setCustomerStage(code, 'paid');                       // 서명 = 계약 성립 + 계약금(예약금 충당) → 입금완료(제작 준비)로 자동 진행
+    return { ok: true, signedAt: now, autoPaid: true };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
   }
@@ -337,22 +338,30 @@ function suggestContractTotal(product, weddingYmd) {
 //   ★ 잔금 시점은 PAYMENT.잔금일수전 단일 출처 — 7→14 수정 시 여기 한 곳만 고치면 전체 반영.
 var PAYMENT = {
   예약금: 200000,
-  계약금율: 0.2,
-  잔금일수전: 7        // 잔금 입금 기한 = 예식 N일 전 (라벨·카피 모두 이 값에서 파생)
+  계약금율: 0.1,       // 계약서 §4 — 계약금 10% (예약금으로 충당 → 계약 성립 시 추가 0원)
+  중도금율: 0.4,       // 중도금 40% (+ 계약금 차액 합산)
+  중도금일수전: 30,    // 중도금 기한 = 예식 D-30
+  잔금일수전: 7        // 잔금 기한 = 예식 D-7 (라벨·카피 모두 이 값에서 파생)
 };
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
+function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
 
-// 계약총액 → 금액 산출. 총액 없으면 null(입금화면이 "디렉터 확인 후 안내").
+// 계약총액 → 3단계 금액(계약금10/중도금40/잔금50). 예약금 충당→계약금 단계 추가납부 0원, 차액은 중도금 합산.
 function _journeyAmounts(total) {
   var t = Math.round(Number(total) || 0);
   if (t <= 0) return null;
-  var deposit = Math.round(t * PAYMENT.계약금율);            // 계약금(20%)
+  var 계약금 = Math.round(t * PAYMENT.계약금율);            // 10%
+  var 중도금기본 = Math.round(t * PAYMENT.중도금율);        // 40%
+  var 잔금 = t - 계약금 - 중도금기본;                       // 나머지(=50%, 반올림 흡수)
+  var 차액 = Math.max(0, 계약금 - PAYMENT.예약금);          // 예약금으로 못 덮은 계약금 → 중도금 합산
   return {
     총액: t,
-    계약금: deposit,
+    계약금: 계약금,                                         // 명목 10%
     예약금: PAYMENT.예약금,
-    납부액: Math.max(0, deposit - PAYMENT.예약금),           // 계약금 단계 실제 납부(예약금 차감)
-    잔금: t - deposit,                                        // 80%
+    납부액: 0,                                              // 계약 성립 시 추가 납부(예약금 충당·차액 이연) = 0원
+    중도금: 중도금기본 + 차액,                              // 40% + 계약금 차액
+    중도금시점: _midDueLabel(),
+    잔금: 잔금,                                             // 50%
     잔금시점: _balanceDueLabel()
   };
 }
@@ -473,6 +482,60 @@ function adminConfirmBalance(code) {
   touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()) });
   return { ok: true };
 }
+// ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
+// 중도금 = 총액 40% + 계약금 차액. 예식 D-30 마감(미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
+//   계약금이 예약금 충당(0원)이므로 계약 후 첫 실결제. 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
+function buildMidState(r) {
+  if (!r) return null;
+  if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
+  if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
+  var mStatus = String(r.get('중도금상태') || '').trim() || '대기';
+  var amounts = _journeyAmounts(r.get('계약총액'));
+  var dday = _balanceDDay(r.get('예식일'));
+  return {
+    status: mStatus,                                   // 대기 / 완료신호 / 확인
+    confirmed: mStatus === '확인',
+    payerName: String(r.get('중도금입금자명') || '').trim(),
+    amount: amounts ? amounts['중도금'] : null,        // 중도금액(40%+차액) 또는 null
+    account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
+    dday: dday,
+    due: (dday != null && dday <= PAYMENT.중도금일수전),  // D-30 이내(부각)
+    dueLabel: _midDueLabel()
+  };
+}
+// 중도금 입금 신호(고객). 단계 전이 없음·멱등.
+function handleMidSignal(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var payer = String((body && body.payerName) || '').trim();
+  if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후 진행할 수 있어요.' };
+    if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 중도금 단계가 아닙니다.' };
+    if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
+    touchCustomer(sheet, colOf, cust.num, { '중도금입금자명': payer, '중도금입금신호': fmtKST(new Date()), '중도금상태': '완료신호' });
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// 관리자 중도금 확인(통장 대조). 단계 전이 없음.
+function adminConfirmMid(code) {
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
+  touchCustomer(sheet, colOf, cust.num, { '중도금상태': '확인', '중도금확인일시': fmtKST(new Date()) });
+  return { ok: true };
+}
+
 // [트리거·일1회] 예식 D-7 이내 + 미확인 + 미발송 → 잔금 리마인드 메일 1회.
 function sendBalanceReminders() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
