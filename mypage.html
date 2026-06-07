@@ -1155,14 +1155,15 @@ function renderBalance(p){
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||'예식 7일 전');
+  var near=(p.dday!=null && p.dday<=10);   // 예식 D-10 이내 = 펼침·강조 기준
   var body='', cta='';
   if(p.status==='완료신호'){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
   } else {
-    var head=p.due?'잔금을 입금해 주세요':'잔금 안내';
+    var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
-    var when='<div class="cc-note">'+(p.due?('예식이 다가와요 — '+dueLabel+'까지 입금 부탁드려요.'):('예식 전 미리 입금도 괜찮아요. ('+dueLabel+' 안내)'))+'</div>';
+    var when='<div class="cc-note">'+(p.due?('예식이 코앞이에요 — '+dueLabel+'까지 입금 부탁드려요.'):(near?('예식이 가까워졌어요 — '+dueLabel+'까지 편하실 때 입금해 주세요.'):('예식 전 미리 입금도 괜찮아요. ('+dueLabel+' 안내)')))+'</div>';
     var acct=p.account?(
         '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
@@ -1175,16 +1176,13 @@ function renderBalance(p){
       + '<button type="button" class="cc-btn" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
-  var NEAR_DAYS=10;   // 예식 D-10부터 잔금 카드를 펼쳐 부각(그 전엔 접힘 = 재촉 X)
-  var near=(p.dday!=null && p.dday<=NEAR_DAYS);
   if(p.status==='완료신호' || near){
-    // 가까워짐(또는 입금 신호) → 펼친 활성 카드
+    // 가까워짐(또는 입금 신호) → 펼친 활성 카드 (그 전엔 접힘 = 재촉 X)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
-    // 평소 → 접힌 아코디언(재촉 X). 펼치면 미리 입금 가능.
-    var sumAmt=amtTxt?(' · '+amtTxt):'';
+    // 평소 → 접힌 아코디언(금액도 평소엔 숨김 = 부담 최소). 펼치면 미리 입금 가능.
     box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Balance</div>'
-      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금'+sumAmt+' <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 안내해요 (미리 입금하려면 펼치기 ▾)</span></summary>'
+      +'<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:14px;color:var(--accent)">잔금 안내 <span class="cc-mini" style="color:var(--label-soft)">· 예식이 가까워지면 알려드려요 (미리 입금하려면 펼치기 ▾)</span></summary>'
       +'<div style="margin-top:10px">'+body+'<div class="cc-actions">'+cta+'</div></div></details></div>';
   }
   box.style.display='block';
