@@ -651,6 +651,12 @@ function cardPayment(d){
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
+  var bal=d.mirror&&d.mirror.balance;
+  if(bal){
+    raw+='<div class="cnote">잔금 <b>'+esc(bal.status)+'</b>'+(bal.amount!=null?(' · '+Number(bal.amount).toLocaleString()+'원'):'')+(bal.payerName?(' · 입금자 '+esc(bal.payerName)):'')+(bal.dday!=null?(' · 예식 D'+(bal.dday>=0?('-'+bal.dday):('+'+(-bal.dday)))):'')+'</div>';
+    if(bal.status==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');
+    else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>';
+  }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 function cardProduction(d){
@@ -747,6 +753,7 @@ function onDetailAct(act,d){
   else if(act==='sendContract') openSendContract(code,names,d);
   else if(act==='uncontracted') doUncontracted(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names);
+  else if(act==='confirmBalance') doConfirmBalance(code,names);
   else if(act==='setResult') openSetResult(code,names,isSnap,d);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
@@ -795,6 +802,7 @@ function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
 function doConsultDone(code,names){ openModal({ title:'상담완료로 넘길까요?', text:b(names)+li('단계가 상담완료로 바뀌어요')+li('계약서를 발송할 수 있게 돼요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkConsultDone',code],code,'넘기기'); } }); }
 function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
+function doConfirmBalance(code,names){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 — 제작 계속 가능'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 넘길까요?', text:b(names)+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요'), yes:'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,'전달 완료'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';

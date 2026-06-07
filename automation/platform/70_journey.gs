@@ -373,3 +373,105 @@ function buildPaymentState(r) {
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
   };
 }
+
+// ============================ 02-5 · 잔금 (결제 마일스톤 — 단계 아님) ============================
+// 잔금 = 총액 80%. 예식 D-7 마감(미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
+//   현재단계는 안 바꿈 → 제작 편집 계속 가능. 계좌는 계약금과 동일(CONFIG.ACCOUNT).
+function _balanceDDay(weddingDate) {
+  var m = String(weddingDate || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return null;
+  var w = new Date(+m[1], +m[2] - 1, +m[3]); w.setHours(0, 0, 0, 0);
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  return Math.round((w - today) / 86400000);   // 남은 일수(음수=지남)
+}
+// 마이페이지 잔금 카드 상태. 계약 서명완료 + 제작 단계에서 노출(확인이면 접힘).
+function buildBalanceState(r) {
+  if (!r) return null;
+  if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
+  if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
+  var bStatus = String(r.get('잔금상태') || '').trim() || '대기';
+  var amounts = _journeyAmounts(r.get('계약총액'));
+  var dday = _balanceDDay(r.get('예식일'));
+  return {
+    status: bStatus,                                   // 대기 / 완료신호 / 확인
+    confirmed: bStatus === '확인',
+    payerName: String(r.get('잔금입금자명') || '').trim(),
+    amount: amounts ? amounts['잔금'] : null,          // 잔금액(총액 80%) 또는 null
+    account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
+    dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
+    due: (dday != null && dday <= PAYMENT.잔금일수전),  // D-7 이내(부각)
+    dueLabel: _balanceDueLabel()
+  };
+}
+// 잔금 입금 신호(고객). 단계 전이 없음·멱등.
+function handleBalanceSignal(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var payer = String((body && body.payerName) || '').trim();
+  if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후 진행할 수 있어요.' };
+    if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 잔금 단계가 아닙니다.' };
+    if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
+    touchCustomer(sheet, colOf, cust.num, { '잔금입금자명': payer, '잔금입금신호': fmtKST(new Date()), '잔금상태': '완료신호' });
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// 관리자 잔금 확인(통장 대조). 단계 전이 없음.
+function adminConfirmBalance(code) {
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
+  touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()) });
+  return { ok: true };
+}
+// [트리거·일1회] 예식 D-7 이내 + 미확인 + 미발송 → 잔금 리마인드 메일 1회.
+function sendBalanceReminders() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['잔금상태'] || !colOf['잔금리마인드'] || !colOf['예식일']) return;   // 마이그레이션 전이면 중단
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var c = function (h) { return colOf[h]; };
+  for (var i = 0; i < vals.length; i++) {
+    var row = vals[i];
+    if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
+    if ((String(row[c('잔금상태') - 1] || '').trim() || '대기') === '확인') continue;
+    if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
+    if (String(row[c('잔금리마인드') - 1] || '').trim()) continue;            // 이미 보냄
+    var dday = _balanceDDay(row[c('예식일') - 1]);
+    if (dday == null || dday > PAYMENT.잔금일수전) continue;                  // D-7 밖
+    var email = String(row[c('이메일') - 1] || '').trim();
+    if (email) {
+      try {
+        var amounts = _journeyAmounts(row[c('계약총액') - 1]);
+        var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
+        GmailApp.sendEmail(email, '[Moment Edit] 잔금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
+          '예식이 다가옵니다.\n잔금 ' + amtTxt + '을 ' + _balanceDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+      } catch (e) {}
+    }
+    sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(fmtKST(new Date()));
+  }
+}
+function setupBalanceReminderTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'sendBalanceReminders') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('sendBalanceReminders').timeBased().everyDays(1).atHour(10).create();
+  return '잔금 리마인드 트리거(매일 10시) 등록 완료';
+}
+// [1회 실행] Customers에 잔금·예식일 컬럼 추가(멱등).
+function addBalanceColumns() {
+  var sheet = getCustomersSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var need = ['예식일', '잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], added = [];
+  need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
+  return added.length ? ('추가됨: ' + added.join(', ')) : '이미 모두 있음';
+}

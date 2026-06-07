@@ -130,7 +130,7 @@ function adminCall(token, fn, args) {
     var FNS = {
       adminHome: adminHome, adminDetail: adminDetail, adminArchive: adminArchive, adminSearch: adminSearch, adminSaveMemo: adminSaveMemo,
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
-      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminOpenFittingConsent: adminOpenFittingConsent,
+      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
     };
@@ -408,6 +408,7 @@ function adminDetail(code) {
     fitting: buildFittingState(cust),
     contract: buildContractState(cust),
     payment: buildPaymentState(cust),
+    balance: buildBalanceState(cust),
     production: buildProductionState(cust),
     invitation: buildInvitationState(cust),
     result: buildResultState(cust)

@@ -1840,6 +1840,7 @@ function doPost(e) {
       case 'signContract':       return jsonOut(handleSignContract(body));
       case 'getSignature':       return jsonOut(handleGetSignature(body));
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
+      case 'balanceSignal':      return jsonOut(handleBalanceSignal(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));

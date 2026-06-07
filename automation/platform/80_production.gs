@@ -50,6 +50,7 @@ function handleSaveProductionBase(body) {
       savedAt: fmtKST(new Date())
     };
     var upd = { '제작임시저장': JSON.stringify(draft), '제작상태': '작성중' };
+    if (base.weddingDate) upd['예식일'] = String(base.weddingDate).trim();   // 잔금 D-7 산출용 톱레벨 컬럼
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
     if (email) upd['이메일'] = email;
