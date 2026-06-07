@@ -449,7 +449,7 @@ function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
   var html='<div class="sect-h"><span class="ic">🎞️</span><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
-  if(!list.length){ html+='<div class="empty">결과물 단계 고객이 없어요 — 전달 완료 시 아카이브로 이동해요</div>'; }
+  if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요 — 예식완료부터 여기에 표시되고, 전달 완료 시 아카이브로 이동해요</div>'; }
   else { html+=list.map(resultRow).join(''); }
   wrap.innerHTML=html;
   wrap.querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home'); }); });
