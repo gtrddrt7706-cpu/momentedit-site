@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <base target="_top">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Moment Edit · 관리자</title>
 <!-- 홈 화면 아이콘(본 로고) — 희준 PC: 본인 admin_icon_base64.txt 내용으로 교체 가능 -->
@@ -19,7 +19,7 @@
   --paper:#FAFAF8;--paper2:#F5F3EF;--paper3:#EDEBE6;--card:#FFFFFF;
   --ink:#1C1B19;--sub:#5A554C;--light:#75705F;--accent:#3A2D22;
   --gold:#B89A75;--gold-deep:#9A7B4F;--gold-deeper:#7A5F37;--gold-line:#E6E1D8;
-  --seal:#6B2A24;--border:#DDD8D1;--divider:#EDEAE4;--label-soft:#8A8475;
+  --seal:#6B2A24;--border:#DDD8D1;--divider:#EDEAE4;--label-soft:#7C766A;
   --blue:#3F6F7A;--red:#9A4A45;--redbg:#F2EDED;--yellow:#8A6A2B;--yellowbg:#FBF3E4;
   --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif;
   --sans:'Noto Sans KR',-apple-system,sans-serif;--mono:'Roboto Mono',monospace;
@@ -645,6 +645,7 @@ function cardPayment(d){
   var r=d.raw||{}, pay=r['입금상태']||'대기', raw='입금 <b>'+esc(pay)+'</b>';
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
   if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
+  if(r['계약총액']){ var _T=Number(r['계약총액'])||0,_DEP=Math.round(_T*0.2),_RES=200000,_PAY=Math.max(0,_DEP-_RES),_BAL=_T-_DEP; raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'원 (예약금 '+_RES.toLocaleString()+' 차감 → 납부 '+_PAY.toLocaleString()+') · 잔금 '+_BAL.toLocaleString()+'원</div>'; }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)

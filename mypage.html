@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="light only">
 <meta name="theme-color" content="#FAFAF8">
 <meta name="format-detection" content="telephone=no">
@@ -398,6 +398,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
       <a id="link_findcode">개인코드를 잊으셨나요?</a>
       <a id="link_reset">비밀번호 재설정</a>
     </div>
+    <div class="linkrow" style="margin-top:12px"><a href="/inquiry.html" style="border-bottom-color:var(--gold)">아직 신청 전이신가요? · 상담 신청 →</a></div>
   </section>
 
   <!-- 마이페이지 -->
@@ -473,6 +474,15 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     @media(prefers-reduced-motion:reduce){.mp-modal-card{animation:none}}
     </style>
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
+
+    <!-- 내 개인코드 (다음 로그인용) -->
+    <div class="codecard">
+      <div class="cc-left">
+        <span class="cc-label">MY CODE · 다음 로그인에 필요</span>
+        <span class="code" id="mp_code">—</span>
+      </div>
+      <button type="button" class="copy" id="mp_copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="mp_copy_txt">복사</span></button>
+    </div>
 
     <!-- 카카오톡 -->
     <a class="kakao" id="mp_kakao" href="#" target="_blank" rel="noopener">카카오톡 문의</a>
@@ -708,7 +718,7 @@ function loadMyState(opts){
   api({action:'getMyState', token:getToken()}).then(function(d){
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
-  }).catch(function(){ if(!opts.silent) show('loginView'); });   // 갱신 실패 시엔 이미 보이는 캐시 화면 유지
+  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ show('loginView'); } });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X)
 }
 
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
@@ -808,8 +818,8 @@ function renderMyPage(d){
 
   // 카톡
   var ka = $('mp_kakao');
-  if (d.kakao){ ka.href = d.kakao; ka.style.display='inline-flex'; }
-  else { ka.style.display='none'; }
+  if (d.kakao){ ka.href = d.kakao; ka.textContent='카카오톡 문의'; ka.target='_blank'; ka.style.display='inline-flex'; }
+  else { ka.href='mailto:contact@momentedit.kr'; ka.textContent='✉ 이메일 문의'; ka.removeAttribute('target'); ka.style.display='inline-flex'; }   // 카톡 미설정 시 연락 폴백
 
   // 단계-카드 정합 — 상담박스 방문 후 숨김(#9) · 앞선 카드(강제 되돌리기 잔여) 흐림(#신규2) · 계약완료 섹션 묶음(#신규1)
   applyCardStageView(d);
