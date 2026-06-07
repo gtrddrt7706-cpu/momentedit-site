@@ -95,10 +95,10 @@ section.article:first-of-type{border-top:none;padding-top:6px}
 .inline-list{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;margin:6px 0 12px;padding-left:1.55em}
 .inline-list li{font-size:13.5px;color:var(--sub)}
 
-/* 중요 조항 — 절제된 강조(좌측 골드 보더 + 배지, 배경 없음) */
-section.article.key{border-left:3px solid var(--gold);padding-left:20px}
+/* 중요 조항 — 절제된 강조(은은한 골드 배경 + 배지, 세로줄 없음) */
+section.article.key{background:var(--gold-soft);border-top:none;border-radius:10px;padding:24px 22px}
 .key-badge{display:inline-block;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.06em;color:#fff;background:var(--gold);padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:8px}
-@media(max-width:680px){.art-title{font-size:15px}.art-num{font-size:15px}.art-body{font-size:13.5px}section.article.key{padding-left:14px}}
+@media(max-width:680px){.art-title{font-size:15px}.art-num{font-size:15px}.art-body{font-size:13.5px}section.article.key{padding:18px 16px}}
 
 /* Tables */
 .tbl-wrap{overflow-x:auto;margin:10px 0 14px;-webkit-overflow-scrolling:touch}
@@ -159,7 +159,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   main{padding:0;max-width:100%}
   .doc{border:none;box-shadow:none;padding:0;border-radius:0}
   section.article{padding:10pt 0;border-top:1px solid #ccc;page-break-inside:avoid}
-  section.article.key{border-left:2.5pt solid #999}
+  section.article.key{border:1pt solid #999;border-radius:4pt;padding:9pt 11pt}
   .key-badge{background:#000;color:#fff}
   .art-title,.art-body strong,td strong,.clause-n{color:#000}
   .art-num{color:#555}
