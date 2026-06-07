@@ -31,7 +31,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weigh
 
 /* 헤더 */
 .topbar{position:sticky;top:0;z-index:20;background:rgba(250,250,248,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--gold-line);padding:12px 16px;display:flex;align-items:center;gap:8px}
-.topbar .wm{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--accent)}
+.topbar .wm{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--accent);cursor:pointer;transition:color .2s}
+.topbar .wm:hover{color:var(--seal)}
+.topbar .wm:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
 .topbar .who{margin-left:auto;font-family:var(--serif-ko);font-size:12px;color:var(--sub)}
 .topbar .tb{background:none;border:1px solid var(--border);border-radius:7px;min-width:34px;height:34px;cursor:pointer;color:var(--gold-deeper);font-size:13px;flex:none;padding:0 9px}
 .topbar .tb:active{background:var(--paper2)}
@@ -66,6 +68,12 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .qbtn{flex:none;background:var(--seal);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--serif-ko);font-size:12.5px;font-weight:500;cursor:pointer;min-height:38px}
 .qbtn.go{background:#fff;border:1px solid var(--gold-deep);color:var(--gold-deeper)}
 .qbtn:active{opacity:.85}
+/* 결과물 관리 — 진행 스텝 스트립(원본›선택›보정›전달) */
+.rstep{display:flex;align-items:center;flex-wrap:wrap;margin-top:5px}
+.rstep .rs{font-family:var(--serif-ko);font-size:10.5px;color:var(--label-soft)}
+.rstep .rs.done{color:var(--gold-deeper)}
+.rstep .rs.cur{color:var(--seal);font-weight:600}
+.rstep .rsep{color:var(--divider);margin:0 5px;font-size:10px}
 
 /* 진행 중 현황 */
 .ptabs{display:flex;gap:6px;margin:0 0 12px}
@@ -216,7 +224,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 <body>
 
 <div class="topbar">
-  <span class="wm">MOMENT EDIT</span>
+  <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
   <button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
   <button class="tb" id="btnRefresh" title="새로고침" style="display:none">↻</button>
@@ -244,6 +252,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
       <button id="btnSearch">검색</button>
     </div>
     <div id="queueWrap"></div>
+    <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
   </section>
 
@@ -356,6 +365,8 @@ $('lgPw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin()
 $('lgId').addEventListener('keydown', function(e){ if(e.key==='Enter'){ var p=$('lgPw'); if(p) p.focus(); } });
 $('btnLogout').addEventListener('click', doLogout);
 $('btnRefresh').addEventListener('click', loadHome);
+(function(){ var bh=$('brandHome'); if(!bh) return; var go=function(){ if(TOKEN) loadHome(); };   // 로고 클릭 → 관리자 홈(로그인 상태에서만)
+  bh.addEventListener('click', go); bh.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); })();
 $('btnArchive').addEventListener('click', function(){ openArchive(); });
 $('btnBack').addEventListener('click', goBack);
 $('btnArcBack').addEventListener('click', loadHome);
@@ -390,7 +401,7 @@ function loadHome(){
   gas('adminHome').then(function(d){
     if(!d||!d.ok){ authFail(); return; }
     setWho(d.name); setTopbar(true);
-    curHome=d; renderQueue(d); renderPipeline(d); show('home');
+    curHome=d; renderQueue(d); renderResults(d); renderPipeline(d); show('home');
   }).catch(function(e){ authFail(); });
 }
 var curHome=null;
@@ -431,6 +442,34 @@ function onQueueAct(act,code,names,isSnap){
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
+}
+
+/* ════════ 결과물 관리 — 원본→선택→보정→전달 보드 (전달완료=아카이브로 빠짐) ════════ */
+function renderResults(d){
+  var wrap=$('resultsWrap'); if(!wrap) return;
+  var list=d.results||[];
+  var html='<div class="sect-h"><span class="ic">🎞️</span><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
+  if(!list.length){ html+='<div class="empty">결과물 단계 고객이 없어요 — 전달 완료 시 아카이브로 이동해요</div>'; }
+  else { html+=list.map(resultRow).join(''); }
+  wrap.innerHTML=html;
+  wrap.querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home'); }); });
+  wrap.querySelectorAll('.qbtn[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); openDetail(b.getAttribute('data-go'),'home'); }); });
+}
+function resultRow(it){
+  var S=it.상태||'대기';
+  var oi={'대기':0,'원본전달':1,'선택완료':2,'보정중':3}[S]; if(oi==null) oi=0;
+  var labels=['원본','선택','보정','전달'];
+  var strip=labels.map(function(l,i){ var cls=i<oi?'done':(i===oi?'cur':''); return '<span class="rs '+cls+'">'+(i<oi?'✓':'')+l+'</span>'; }).join('<span class="rsep">›</span>');
+  var nextTxt={'대기':'원본 등록 필요','원본전달':'고객 컷 선택 대기','선택완료':'보정본 등록 필요','보정중':'결과물 전달 가능'}[S]||'';
+  if(S==='선택완료'&&it.선택수) nextTxt='고객 '+esc(it.선택수)+'컷 선택 · 보정본 등록';
+  var exBadge = (it.추가보정==='결제대기') ? '<span class="qbadge yellow">추가보정 입금확인</span>'
+              : ((it.추가보정==='신청'||it.추가보정==='견적') ? '<span class="qbadge yellow">추가보정 '+esc(it.추가보정수량||'')+'컷</span>' : '');
+  var dd = (it.dday!=null && it.dday>0) ? ('예식 D+'+it.dday) : '';
+  return '<div class="qrow" data-code="'+esc(it.code)+'">'
+    +'<div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'
+    +'<div class="rstep">'+strip+'</div>'
+    +'<div class="qs">'+esc(nextTxt)+(dd?(' · '+esc(dd)):'')+(exBadge?(' '+exBadge):'')+'</div></div>'
+    +'<button class="qbtn go" data-go="'+esc(it.code)+'">관리 ›</button></div>';
 }
 
 function renderPipeline(d){
@@ -498,7 +537,7 @@ function doSearch(){
     else html+=d.results.map(function(it){
       return '<div class="qrow" data-code="'+esc(it.code)+'"><div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div><div class="qs">'+esc(it.stage||'')+' · '+esc(it.code)+'</div></div><span style="color:var(--label-soft)">›</span></div>';
     }).join('');
-    $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML='';
+    $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _rw=$('resultsWrap'); if(_rw) _rw.innerHTML='';
     $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'search'); }); });
     show('home');
   }).catch(function(){ toast('검색 오류'); show('home'); });

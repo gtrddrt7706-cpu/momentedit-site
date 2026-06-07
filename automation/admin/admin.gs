@@ -210,7 +210,7 @@ function adminHome() {
   bookRows.forEach(function (rv) { var code = String(bget(rv, '개인코드') || '').trim().toUpperCase(); if (code) bookMap[code] = rv; });
   var custStageMap = {};
 
-  var urgent = [], normal = [], queueCodes = {};
+  var urgent = [], normal = [], queueCodes = {}, resultsList = [];
   var pipe = {}; pipe[P.PRODUCT_SIGNATURE] = {}; pipe[P.PRODUCT_SNAP] = {};
   function pushQ(it) { queueCodes[it.code] = true; if (it._urgent) urgent.push(it); else normal.push(it); }
 
@@ -293,7 +293,7 @@ function adminHome() {
     }
     // 결과물 — 결과물상태 기준. 원본전달=고객 선택 대기(운영자 액션 없음→큐 제외) / 선택완료=보정 / 보정중=전달.
     if (stage === '예식완료' || stage === '촬영완료') {
-      var rs = (결과물 === '업로드') ? '원본전달' : 결과물;
+      var rs = (결과물 === '업로드') ? '원본전달' : (결과물 || '대기');
       if (!원본 || rs === '대기' || rs === '') {
         pushQ({ code: code, names: names, product: product, kind: '결과물등록', sub: '원본 링크 등록', badge: null, _urgent: false, _stage: 6, _wait: createdYmd });
       } else if (rs === '선택완료') {
@@ -302,6 +302,18 @@ function adminHome() {
         pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '보정 완료 · 결과물 전달', badge: null, _urgent: false, _stage: 7, _wait: createdYmd });
       }
       // rs === '원본전달' → 고객 선택 대기 → 큐 제외(현황에만 표시)
+      // 결과물 관리 보드 — 결과물전달(아카이브) 전까지 모든 결과물 단계 고객을 한곳에.
+      resultsList.push({
+        code: code, names: names, product: product,
+        상태: rs,                                   // 대기/원본전달/선택완료/보정중
+        선택수: 선택수,
+        원본: !!원본,
+        보정본: !!String(cget(rv, '보정본폴더') || '').trim(),
+        영상: !!String(cget(rv, '영상링크') || '').trim(),
+        추가보정: 추가보정,
+        추가보정수량: String(cget(rv, '추가보정수량') || ''),
+        dday: (wedYmd ? _dayDiff(today, wedYmd) : null)   // 예식 후 경과(D+)
+      });
     }
     // 추가 보정 입금 확인 — 추가보정상태=결제대기
     if (추가보정 === '결제대기') {
@@ -363,6 +375,7 @@ function adminHome() {
     ok: true, name: name, today: today,
     queue: { urgent: urgent, normal: normal },
     counts: { total: urgent.length + normal.length, urgent: urgent.length },
+    results: resultsList,
     pipeline: { 시그니처: buildPipe(P.PRODUCT_SIGNATURE), 웨딩스냅: buildPipe(P.PRODUCT_SNAP) },
     pipeCounts: { 시그니처: countPipe(pipe[P.PRODUCT_SIGNATURE]), 웨딩스냅: countPipe(pipe[P.PRODUCT_SNAP]) }
   };
