@@ -215,6 +215,17 @@ function adminHome() {
   var urgent = [], normal = [], queueCodes = {}, resultsList = [];
   var pipe = {}; pipe[P.PRODUCT_SIGNATURE] = {}; pipe[P.PRODUCT_SNAP] = {};
   function pushQ(it) { queueCodes[it.code] = true; if (it._urgent) urgent.push(it); else normal.push(it); }
+  // 만족도 설문 집계(전 고객 — 완료자는 아카이브여도 포함)
+  var surveyAgg = { n: 0, byProduct: {}, q: {}, recent: [] };
+  function surveyTally(rv, code, names, product) {
+    if (String(cget(rv, '설문상태') || '').trim() !== '완료') return;
+    var parsed; try { parsed = JSON.parse(String(cget(rv, '설문응답') || '') || '{}'); } catch (e) { parsed = {}; }
+    var ans = (parsed && parsed.answers) || {}, k;
+    surveyAgg.n++;
+    surveyAgg.byProduct[product] = (surveyAgg.byProduct[product] || 0) + 1;
+    for (k in ans) { if (ans.hasOwnProperty(k)) { var v = String(ans[k] || ''); if (!v) continue; if (!surveyAgg.q[k]) surveyAgg.q[k] = {}; surveyAgg.q[k][v] = (surveyAgg.q[k][v] || 0) + 1; } }
+    if (surveyAgg.recent.length < 40) surveyAgg.recent.push({ code: code, names: names, product: product, overall: String(ans.overall || ''), recommend: String(ans.recommend || ''), review: String(parsed.review || ''), reviewPublic: String(parsed.reviewPublic || ''), date: String(cget(rv, '설문일시') || '') });
+  }
 
   // ── Customers 순회: 여정 트리거 + 현황 ──
   custRows.forEach(function (rv) {
@@ -226,6 +237,7 @@ function adminHome() {
     var names = _names(cget(rv, '신랑이름'), cget(rv, '신부이름'));
     var createdYmd = _ymdOf(cget(rv, '생성일시'));
     custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd };
+    surveyTally(rv, code, names, product);
     if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || stage === '결과물전달') {
       // 전달 완료(아카이브)라도 추가 보정 입금 신호는 운영자 확인이 필요 → '처리할 일'에만 노출
       if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
@@ -385,7 +397,8 @@ function adminHome() {
     counts: { total: urgent.length + normal.length, urgent: urgent.length },
     results: resultsList,
     pipeline: { 시그니처: buildPipe(P.PRODUCT_SIGNATURE), 웨딩스냅: buildPipe(P.PRODUCT_SNAP) },
-    pipeCounts: { 시그니처: countPipe(pipe[P.PRODUCT_SIGNATURE]), 웨딩스냅: countPipe(pipe[P.PRODUCT_SNAP]) }
+    pipeCounts: { 시그니처: countPipe(pipe[P.PRODUCT_SIGNATURE]), 웨딩스냅: countPipe(pipe[P.PRODUCT_SNAP]) },
+    survey: surveyAgg
   };
 }
 

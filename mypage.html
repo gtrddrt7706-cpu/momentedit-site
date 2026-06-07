@@ -307,14 +307,28 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .res-exeq b{font-size:17px;font-weight:600;color:var(--accent)}
 .res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
 /* 마지막 설문 — 별점 */
-.srv-q{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:13px 0 6px}
-.srv-starwrap{display:flex;align-items:center;gap:11px}
-.srv-rl{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deep);font-weight:600;min-height:1em}
-.srv-stars{display:flex;gap:7px}
-.srv-star{font-size:27px;line-height:1;background:none;border:none;cursor:pointer;color:var(--border);padding:0;transition:color .15s,transform .1s}
-.srv-star.on{color:var(--gold)}
-.srv-star:hover{transform:scale(1.08)}
-.srv-skip{display:block;width:100%;margin:9px 0 0;padding:6px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px}
+/* 전달완료 — 결과물 아코디언 */
+.deliv-acc{border:1px solid var(--border);border-radius:11px;overflow:hidden;margin:4px 0 6px;background:#fff}
+.deliv-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--accent);letter-spacing:.01em}
+.deliv-caret{color:var(--gold);font-size:12px;transition:transform .2s}
+.deliv-acc.open .deliv-caret{transform:rotate(180deg)}
+.deliv-body{display:none;padding:2px 16px 15px;border-top:1px solid var(--hairline)}
+.deliv-acc.open .deliv-body{display:block}
+.dl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
+.dl-row:last-child{border-bottom:none}
+.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:20px 0 10px}
+/* 마지막 설문 — 객관식 선택지 */
+.srv-block{margin:14px 0 0}
+.srv-q2{font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);margin:0 0 8px;line-height:1.5}
+.srv-req{color:var(--gold);margin-left:3px}
+.srv-opt-tag{font-size:10.5px;color:var(--label-soft);font-weight:400;margin-left:4px}
+.srv-opts{display:flex;flex-wrap:wrap;gap:7px}
+.srv-opts button{flex:0 1 auto;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);transition:all .14s;line-height:1.3}
+.srv-opts button:hover{border-color:var(--gold);color:var(--accent)}
+.srv-opts button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.srv-consent{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
+.srv-consent input{width:15px;height:15px;accent-color:var(--gold-deep)}
+.srv-skip{display:block;width:100%;margin:11px 0 0;padding:6px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px}
 .srv-skip:hover{color:var(--sub)}
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
@@ -1377,6 +1391,91 @@ function _resultWaitHtml(res){
     +'</div>'
     +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
 }
+// 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
+function _surveySchema(isSnap){
+  if(isSnap) return [
+    {k:'space',q:'두 공간(캔들존·화이트존)은 어떠셨어요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
+    {k:'shoot',q:'촬영 몰입·디렉션(60~90분)은요?',o:[['great','편안하게 몰입했어요'],['ok','무난했어요'],['poor','아쉬웠어요']]},
+    {k:'result',q:'결과물(셀렉트 컷)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
+    {k:'styling',q:'스타일링(드레스)은요?',o:[['great','만족'],['ok','보통'],['poor','아쉬웠어요']]},
+    {k:'transparency',q:'추가 비용 안내는 투명했나요?',o:[['kept','투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
+    {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+  ];
+  return [
+    {k:'pace',q:'140분의 호흡은 어떠셨어요?',pillar:1,o:[['good','딱 좋았어요 · 매 순간 또렷'],['short','조금 짧게 느껴졌어요'],['long','조금 벅찼어요']]},
+    {k:'transparency',q:'‘숨은 비용 없는 올인원’은 지켜졌나요?',pillar:1,o:[['kept','약속대로 투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
+    {k:'family',q:'부모님·가족은 편안하고 좋아하셨나요?',pillar:1,o:[['great','아주 만족하셨어요'],['ok','무난했어요'],['poor','아쉬워하셨어요']]},
+    {k:'result',q:'결과물(스냅·본식영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
+    {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
+    {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
+    {k:'dining',q:'다이닝(추천·예약 조율)은요?',o:[['good','추천·조율 만족'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+  ];
+}
+// ③ 추가 보정 패널 HTML(완료면 ''). 진행 중·전달 후 양쪽에서 재사용.
+function _extraPanelHtml(res){
+  var ex=res.extra||{}, inc=res.포함컷||10, unit=res.추가단가||20000;
+  if(ex.status==='완료') return '';
+  var h='<div class="res-panel"><div class="res-panel-t"><span class="res-n">③</span> 추가 보정·결제</div>';
+  if(ex.status==='결제대기'){
+    h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
+  } else if(ex.status==='신청'||ex.status==='견적'){
+    h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
+      + (ex.account?('<div style="margin:12px 0 2px;padding:13px 15px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:center">'
+        + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+        + '<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(ex.account)+'</div>'
+        + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')+'</div>'):'')
+      + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
+      + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
+      + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
+  } else {
+    var over=(res.선택수>inc)?(res.선택수-inc):0;
+    h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
+      +(over>0?'<div class="cc-mini" style="color:var(--gold-deep);margin:0 0 6px">고르신 '+res.선택수+'컷이 포함 '+inc+'컷보다 <b>'+over+'컷</b> 많아, 추가 '+over+'컷을 기본으로 넣어뒀어요. 바꾸셔도 돼요.</div>':'')
+      +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0" value="'+(over||'')+'"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">'+fmtWon(over*unit)+'</b></span></div>'
+      +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
+  }
+  return h+'</div>';
+}
+function _bindExtra(res){
+  var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
+  var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
+  var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=fmtWon((q>0?q:0)*(res.추가단가||20000)); });
+}
+// 마지막 설문 카드 HTML — 완료/접힘/문항.
+function _surveyCardHtml(res, nm, code){
+  var sv=res.survey||{}, skip=false; try{ skip=(localStorage.getItem('me_srv_skip_'+(code||'x'))==='1'); }catch(e){}
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
+  if(skip) return '<div class="cc-mini" style="margin:9px 0 2px">🤍 <a href="#" id="mp_svReopen" style="color:var(--gold-deep);font-weight:600">후기 남기기</a> · 두 분의 한마디가 큰 힘이 돼요</div>';
+  var body='';
+  _surveySchema(res.isSnap).forEach(function(it){
+    body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
+      + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
+  });
+  return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">🤍 두 분의 하루는 어떠셨나요</div>'
+    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.</div>'
+    + body
+    +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간 · 한마디 <span class="srv-opt-tag">선택</span></div>'
+    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="자유롭게 남겨 주세요 (선택)"></textarea>'
+    +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
+    +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
+    +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button>'
+    +'<button type="button" class="srv-skip" id="mp_svSkip">다음에 할게요</button></div>';
+}
+function _bindSurvey(res, nm, code){
+  var panel=$('mp_svPanel');
+  if(panel){ Array.prototype.forEach.call(panel.querySelectorAll('.srv-opts'),function(grp){
+    Array.prototype.forEach.call(grp.querySelectorAll('button'),function(bt){ bt.addEventListener('click',function(){
+      Array.prototype.forEach.call(grp.querySelectorAll('button'),function(x){x.classList.remove('on');});
+      bt.classList.add('on'); grp.setAttribute('data-sel',bt.getAttribute('data-v'));
+      var er=$('mp_svErr'); if(er) er.style.display='none';
+    }); }); }); }
+  var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click',function(){ doSubmitSurvey(res); });
+  var sk=$('mp_svSkip'); if(sk) sk.addEventListener('click',function(){ try{localStorage.setItem('me_srv_skip_'+(code||'x'),'1');}catch(e){} renderResult(res,nm,code); });
+  var ro=$('mp_svReopen'); if(ro) ro.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.removeItem('me_srv_skip_'+(code||'x'));}catch(e){} renderResult(res,nm,code); });
+}
 function renderResult(res, nm, code){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
@@ -1395,8 +1494,25 @@ function renderResult(res, nm, code){
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
   function row(n,label,right){ return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }
-  // 스텝 개요 ①~⑤
   var ex=res.extra||{};
+  // ── 전달완료: 🔒 결과물 아코디언(언제든 열람) + 마지막 단계=설문 ──
+  if(st==='전달완료'){
+    var clp=false; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))==='c'); }catch(e){}
+    var dl='';
+    if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
+    if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
+    if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
+    if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
+    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
+    h+='<div class="deliv-acc'+(clp?'':' open')+'" id="mp_delivAcc"><button type="button" class="deliv-head" id="mp_delivToggle"><span>🔒 받은 결과물 · 전달 완료</span><span class="deliv-caret">▾</span></button><div class="deliv-body">'+dl+'</div></div>';
+    if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') h+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
+    h+='<div class="srv-step-label">마지막 단계</div>'+_surveyCardHtml(res,nm,code);
+    box.innerHTML=h+'</div>'; box.style.display='block';
+    var tg=$('mp_delivToggle'); if(tg) tg.addEventListener('click',function(){ var open=$('mp_delivAcc').classList.toggle('open'); try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
+    _bindExtra(res); _bindSurvey(res,nm,code);
+    return;
+  }
+  // 스텝 개요 ①~⑤ (진행 중)
   var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chipGo('추가 가능 ↓'):chip('곧 열려요')));
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
@@ -1432,71 +1548,14 @@ function renderResult(res, nm, code){
     h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
       +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 — 곧 최종 전달돼요</div></div>';
   }
-  // ③ 추가 보정·결제 패널 — 선택 이후 & 결제 완료 전(완료는 위 개요 ✓로 충분).
-  if(picked && ex.status!=='완료'){
-    var unit=res.추가단가||20000;
-    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">③</span> 추가 보정·결제</div>';
-    if(ex.status==='결제대기'){
-      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
-    } else if(ex.status==='신청'||ex.status==='견적'){
-      h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
-        + (ex.account?(
-            '<div style="margin:12px 0 2px;padding:13px 15px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:center">'
-          + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-          + '<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(ex.account)+'</div>'
-          + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')
-          + '</div>'):'')
-        + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
-        + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
-        + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
-    } else {
-      var over=(res.선택수>inc)?(res.선택수-inc):0;   // 고른 컷이 포함 컷보다 많으면 초과분을 기본값으로
-      h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
-        +(over>0?'<div class="cc-mini" style="color:var(--gold-deep);margin:0 0 6px">고르신 '+res.선택수+'컷이 포함 '+inc+'컷보다 <b>'+over+'컷</b> 많아, 추가 '+over+'컷을 기본으로 넣어뒀어요. 바꾸셔도 돼요.</div>':'')
-        +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0" value="'+(over||'')+'"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">'+fmtWon(over*unit)+'</b></span></div>'
-        +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
-    }
-    h+='</div>';
-  }
-  // 마지막 설문 — 전달 완료 후 만족도·후기 (안 쓰면 '다음에 할게요'로 접고, 언제든 다시 열 수 있음)
-  if(st==='전달완료'){
-    var sv=res.survey||{}, _skip=false; try{ _skip=(localStorage.getItem('me_srv_skip_'+(code||'x'))==='1'); }catch(e){}
-    if(sv.status==='완료'){
-      h+='<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div>'
-        +'<div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
-    } else if(_skip){
-      h+='<div class="cc-mini" style="margin:9px 0 2px">🤍 <a href="#" id="mp_svReopen" style="color:var(--gold-deep);font-weight:600">후기 남기기</a> · 두 분의 한마디가 큰 힘이 돼요</div>';
-    } else {
-      h+='<div class="res-panel"><div class="res-panel-t">🤍 마지막으로, 후기를 들려주세요</div>'
-        +'<div class="cc-note" style="margin-top:0">두 분의 한마디가 큰 힘이 돼요. 잠깐이면 끝나요.</div>'
-        +'<div class="srv-q">전체 만족도</div>'
-        +'<div class="srv-starwrap"><div class="srv-stars" id="mp_svStars">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="srv-star" data-v="'+n+'" aria-label="'+n+'점">★</button>';}).join('')+'</div><span class="srv-rl" id="mp_svRL"></span></div>'
-        +'<textarea class="cc-input" id="mp_svReview" style="min-height:64px;margin-top:12px" placeholder="후기를 남겨 주세요 (선택)"></textarea>'
-        +'<div class="cc-mini" style="margin:4px 0 0">남겨주신 후기는 <b>동의해 주실 때만</b> 소개에 쓰여요. 원치 않으시면 비워두셔도 돼요.</div>'
-        +'<div class="srv-q">다른 분께도 추천하고 싶으세요?</div>'
-        +'<span class="inv-yn" id="mp_svRec"><button type="button" data-r="Y">네</button><button type="button" data-r="N">아니요</button></span>'
-        +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:12px">후기 보내기</button>'
-        +'<button type="button" class="srv-skip" id="mp_svSkip">다음에 할게요</button></div>';
-    }
-  }
+  // ③ 추가 보정·결제 패널 — 선택 이후(완료는 개요 ✓로 충분)
+  if(picked) h+=_extraPanelHtml(res);
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
-  var er=$('mp_exReq'); if(er) er.addEventListener('click', doRequestExtra);
-  var es=$('mp_exSignal'); if(es) es.addEventListener('click', doExtraSignal);
-  (function(){ var stars=$('mp_svStars'); if(stars){ var rl=$('mp_svRL'), L=['','아쉬워요','그저 그래요','괜찮아요','좋아요','최고예요'];
-      var paint=function(v){ Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(x){ x.classList.toggle('on',(+x.getAttribute('data-v'))<=v); }); if(rl) rl.textContent=v?L[v]:''; };
-      Array.prototype.forEach.call(stars.querySelectorAll('.srv-star'),function(bt){ var v=+bt.getAttribute('data-v');
-        bt.addEventListener('mouseenter',function(){ paint(v); });
-        bt.addEventListener('click',function(){ stars.setAttribute('data-sel',v); paint(v); }); });
-      stars.addEventListener('mouseleave',function(){ paint(+(stars.getAttribute('data-sel')||0)); }); }
-    var rec=$('mp_svRec'); if(rec){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(bt){ bt.addEventListener('click',function(){ Array.prototype.forEach.call(rec.querySelectorAll('button'),function(x){x.classList.remove('on');}); bt.classList.add('on'); rec.setAttribute('data-rec',bt.getAttribute('data-r')); }); }); }
-    var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click', doSubmitSurvey);
-    var sk=$('mp_svSkip'); if(sk) sk.addEventListener('click',function(){ try{localStorage.setItem('me_srv_skip_'+(code||'x'),'1');}catch(e){} renderResult(res,nm,code); });
-    var ro=$('mp_svReopen'); if(ro) ro.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.removeItem('me_srv_skip_'+(code||'x'));}catch(e){} renderResult(res,nm,code); }); })();
-  var eq=$('mp_exQty'); if(eq) eq.addEventListener('input', function(){ var q=Math.floor(Number(eq.value||0)); var a=$('mp_exAmt'); if(a) a.textContent=fmtWon((q>0?q:0)*(res.추가단가||20000)); });
-  // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷(10). 초과분은 ③ 추가 보정 대상임을 미리 안내.
+  _bindExtra(res);
+  // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷. 초과분은 ③ 추가 보정 대상임을 미리 안내.
   var pc=$('mp_picks'), pcl=$('mp_pickCount');
   if(pcl){ var updc=function(){ var n=pc?_resCount(pc.value):0; pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
     pcl.innerHTML = n ? ('현재 <b>'+n+'</b>컷'+(n>inc?(' · 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷은 ③에서 결제'):(' / 포함 '+inc+'컷'))) : ('포함 보정 '+inc+'컷'); };
@@ -1525,14 +1584,20 @@ function doConfirmRetouch(){
     }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
   });
 }
-function doSubmitSurvey(){
-  var stars=$('mp_svStars'); var rating=stars?(+(stars.getAttribute('data-sel')||0)):0;
-  if(!(rating>0)){ mpAlert('만족도(별점)를 선택해 주세요.'); return; }
+function doSubmitSurvey(res){
+  var panel=$('mp_svPanel'); if(!panel) return;
+  var answers={}, missing=null;
+  _surveySchema(res&&res.isSnap).forEach(function(it){
+    var grp=panel.querySelector('.srv-opts[data-key="'+it.k+'"]'), v=grp?grp.getAttribute('data-sel'):'';
+    if(v) answers[it.k]=v; else if(!missing) missing={it:it,grp:grp};
+  });
+  if(missing){ var er=$('mp_svErr'); if(er){ er.textContent='‘'+missing.it.q+'’ 도 골라 주세요.'; er.style.display='block'; }
+    if(missing.grp){ try{ missing.grp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } return; }
   var review=(($('mp_svReview')&&$('mp_svReview').value)||'').trim();
-  var rec=$('mp_svRec'); var recommend=rec?(rec.getAttribute('data-rec')||''):'';
+  var pub=($('mp_svPublic')&&$('mp_svPublic').checked)?'Y':'';
   var btn=$('mp_svSubmit'); if(btn){ btn.disabled=true; btn.textContent='보내는 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='후기 보내기'; } }
-  api({action:'submitSurvey', token:getToken(), rating:rating, review:review, recommend:recommend}).then(function(d){
+  api({action:'submitSurvey', token:getToken(), answers:answers, review:review, reviewPublic:pub}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }

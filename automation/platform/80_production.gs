@@ -258,25 +258,29 @@ function handleConfirmRetouch(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
-// [05-마지막] 만족도 설문 제출(고객). 전달 완료 후. rating(1~5)·review(후기)·recommend(Y/N).
+// [05-마지막] 만족도 설문 제출(고객). 전달 완료 후. answers={질문키:선택값} 객관식 + review(후기)·reviewPublic(공개동의).
 function handleSubmitSurvey(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  var rating = Math.max(0, Math.min(5, Math.floor(Number((body && body.rating) || 0))));
-  if (!(rating > 0)) return { ok: false, error: '만족도(별점)를 선택해 주세요.' };
+  var raw = (body && body.answers && typeof body.answers === 'object') ? body.answers : {};
+  var clean = {}, k;
+  for (k in raw) { if (raw.hasOwnProperty(k) && String(k).length <= 40) { clean[String(k).slice(0, 40)] = String(raw[k] == null ? '' : raw[k]).slice(0, 40); } }
+  if (!clean.overall || !clean.recommend) return { ok: false, error: '전체 만족도와 추천 여부는 골라 주세요.' };
   var review = String((body && body.review) || '').trim().slice(0, 2000);
-  var recommend = String((body && body.recommend) || '').trim();   // 'Y'/'N'/''
-  var ans = { rating: rating, review: review, recommend: recommend };
+  var reviewPublic = (String((body && body.reviewPublic) || '').trim() === 'Y') ? 'Y' : '';
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-    touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(ans), '설문일시': fmtKST(new Date()) });
-    try { notifyStudio('[플랫폼] 만족도 설문 (' + code + ')', code + ' · ★' + rating + (recommend ? (' · 추천 ' + recommend) : '') + (review ? ('\n' + review) : '')); } catch (e) {}
+    var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
+    var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
+    touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });
+    var sum = ''; for (k in clean) { if (clean.hasOwnProperty(k)) sum += k + '=' + clean[k] + '  '; }
+    try { notifyStudio('[플랫폼] 만족도 설문 (' + code + ')', code + ' · ' + product + '\n' + sum + (review ? ('\n후기' + (reviewPublic ? '(공개동의)' : '') + ': ' + review) : '')); } catch (e) {}
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }

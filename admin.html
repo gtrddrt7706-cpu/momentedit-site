@@ -145,6 +145,29 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .res-sel-list{margin-top:4px;font-size:12px;color:var(--ink,#3A332B);background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:6px;padding:7px 9px;max-height:120px;overflow:auto;white-space:pre-wrap;word-break:break-word}
 .res-ex{margin-top:6px;font-size:12.5px;color:var(--sub)}
 
+/* 설문 대시보드 */
+.sv-pillars{display:flex;gap:8px;margin:2px 2px 10px}
+.sv-pill{flex:1;text-align:center;background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:9px;padding:12px 6px}
+.sv-pill-pct{font-family:var(--serif,Georgia);font-size:24px;font-weight:500;color:var(--gold-deeper,#9A7B3F);line-height:1}
+.sv-pill-lb{font-size:11px;color:var(--sub);margin-top:5px;letter-spacing:.01em}
+.sv-sum{font-size:12.5px;color:var(--sub);text-align:center;margin:0 0 12px}
+.sv-sum b{color:var(--accent,#2C2722)}
+.sv-qs{display:flex;flex-direction:column;gap:11px}
+.sv-qrow{}
+.sv-qt{font-size:12px;font-weight:600;color:var(--accent,#2C2722);margin-bottom:4px}
+.sv-bar{display:flex;height:18px;border-radius:5px;overflow:hidden;background:#EEE9E1}
+.sv-seg{display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#fff;font-weight:500;min-width:0;overflow:hidden;white-space:nowrap}
+.sv-seg-0{background:#9A7B3F}.sv-seg-1{background:#C2A86A}.sv-seg-2{background:#CFC3A6}.sv-seg-3{background:#B9B0A0}
+.sv-leg{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.sv-lg{font-size:10.5px;color:var(--sub);display:inline-flex;align-items:center;gap:4px}
+.sv-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
+.sv-rev-h{font-size:12px;font-weight:600;color:var(--accent,#2C2722);margin:16px 2px 8px}
+.sv-rev{background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:8px;padding:9px 11px;margin-bottom:7px;font-size:12.5px;color:var(--ink,#3A332B);line-height:1.5}
+.sv-rev.pub{border-left:3px solid var(--gold-deeper,#9A7B3F)}
+.sv-rev-m{font-size:10.5px;color:var(--label-soft);margin-bottom:3px}
+.sv-rev-m span{color:var(--sub)}
+.sv-rev-m b{color:var(--gold-deeper,#9A7B3F)}.sv-rev-m i{color:var(--label-soft);font-style:normal}
+
 /* 메모·이력 */
 .memo-area{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--sans);font-size:14px;color:var(--accent);background:#fff;resize:vertical;min-height:62px;outline:none;line-height:1.6}
 .memo-area:focus{border-color:var(--gold)}
@@ -254,6 +277,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
     <div id="queueWrap"></div>
     <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
+    <div id="surveyWrap"></div>
   </section>
 
   <!-- 상세 -->
@@ -401,7 +425,7 @@ function loadHome(){
   gas('adminHome').then(function(d){
     if(!d||!d.ok){ authFail(); return; }
     setWho(d.name); setTopbar(true);
-    curHome=d; renderQueue(d); renderResults(d); renderPipeline(d); show('home');
+    curHome=d; renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); show('home');
   }).catch(function(e){ authFail(); });
 }
 var curHome=null;
@@ -445,6 +469,51 @@ function onQueueAct(act,code,names,isSnap){
 }
 
 /* ════════ 결과물 관리 — 원본→선택→보정→전달 보드 (전달완료=아카이브로 빠짐) ════════ */
+// 설문 라벨(mypage 스키마와 1:1) — 집계·카드 표시 공용
+var SURVEY_Q = {
+  pace:{t:'140분 호흡',o:{good:'딱 좋음',short:'짧음',long:'벅참'}},
+  transparency:{t:'올인원 투명성',o:{kept:'투명',mostly:'대체로',unexpected:'예상밖 비용'}},
+  family:{t:'가족 만족',o:{great:'아주 만족',ok:'무난',poor:'아쉬움'}},
+  result:{t:'결과물',o:{above:'기대 이상',expected:'기대만큼',below:'아쉬움'}},
+  ceremony:{t:'식순·나레이션',o:{free:'자유로워 좋음',ok:'무난',needGuide:'가이드 필요'}},
+  space:{t:'두 공간',o:{both:'둘 다 좋음',one:'한쪽 좋음',transition:'전환 아쉬움'}},
+  dining:{t:'다이닝',o:{good:'만족',ok:'보통',poor:'아쉬움',na:'이용 안 함'}},
+  shoot:{t:'촬영 몰입',o:{great:'몰입',ok:'무난',poor:'아쉬움'}},
+  styling:{t:'스타일링',o:{great:'만족',ok:'보통',poor:'아쉬움'}},
+  overall:{t:'종합 만족',o:{very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}},
+  recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'}}
+};
+var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','overall','recommend'];
+var SURVEY_PILLARS=[{k:'pace',label:'140분 적절',good:['good']},{k:'transparency',label:'투명성 약속 이행',good:['kept','mostly']},{k:'family',label:'가족 만족',good:['great']}];
+function _svPct(q,goods){ if(!q) return null; var tot=0,hit=0,v; for(v in q){ if(q.hasOwnProperty(v)){ tot+=q[v]; if(goods.indexOf(v)>=0) hit+=q[v]; } } return tot?{pct:Math.round(hit/tot*100),n:tot}:null; }
+function renderSurvey(d){
+  var wrap=$('surveyWrap'); if(!wrap) return;
+  var sv=d.survey||{n:0,q:{},recent:[]};
+  var html='<div class="sect-h"><span class="ic">📊</span><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
+  if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요 — 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
+  // 브랜드 약속 3축 이행률
+  html+='<div class="sv-pillars">';
+  SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'—')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
+  html+='</div>';
+  // 추천 의향 + 종합 한 줄
+  var rec=_svPct(sv.q.recommend,['definitely','maybe']), ov=_svPct(sv.q.overall,['very','satisfied']);
+  html+='<div class="sv-sum">추천 의향 <b>'+(rec?rec.pct+'%':'—')+'</b> · 종합 만족 <b>'+(ov?ov.pct+'%':'—')+'</b></div>';
+  // 문항별 분포 막대
+  html+='<div class="sv-qs">';
+  SURVEY_ORDER.forEach(function(k){ var q=sv.q[k]; if(!q) return; var meta=SURVEY_Q[k]; var tot=0,v; for(v in q){ if(q.hasOwnProperty(v)) tot+=q[v]; } if(!tot) return;
+    html+='<div class="sv-qrow"><div class="sv-qt">'+esc(meta?meta.t:k)+'</div><div class="sv-bar">';
+    var order=meta?Object.keys(meta.o):Object.keys(q);
+    order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; var pc=Math.round(c/tot*100); html+='<span class="sv-seg sv-seg-'+(i)+'" style="width:'+pc+'%" title="'+esc((meta&&meta.o[val])||val)+' '+c+'명">'+(pc>=14?(pc+'%'):'')+'</span>'; });
+    html+='</div><div class="sv-leg">'; order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; html+='<span class="sv-lg"><i class="sv-dot sv-seg-'+i+'"></i>'+esc((meta&&meta.o[val])||val)+' '+c+'</span>'; }); html+='</div></div>';
+  });
+  html+='</div>';
+  // 공개 동의 후기
+  var revs=(sv.recent||[]).filter(function(x){ return x.review; });
+  if(revs.length){ html+='<div class="sv-rev-h">후기 ('+revs.length+')</div>';
+    html+=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
+  }
+  wrap.innerHTML=html;
+}
 function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
@@ -537,7 +606,7 @@ function doSearch(){
     else html+=d.results.map(function(it){
       return '<div class="qrow" data-code="'+esc(it.code)+'"><div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div><div class="qs">'+esc(it.stage||'')+' · '+esc(it.code)+'</div></div><span style="color:var(--label-soft)">›</span></div>';
     }).join('');
-    $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _rw=$('resultsWrap'); if(_rw) _rw.innerHTML='';
+    $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _rw=$('resultsWrap'); if(_rw) _rw.innerHTML=''; var _sw=$('surveyWrap'); if(_sw) _sw.innerHTML='';
     $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'search'); }); });
     show('home');
   }).catch(function(){ toast('검색 오류'); show('home'); });
@@ -761,7 +830,9 @@ function cardResult(d,isSnap){
   if(ex && ex!=='대기'){ var exu=(exq>0&&exa>0)?Math.round(exa/exq):20000;
     raw+='<div class="res-ex">추가 보정 <b>'+esc(ex)+'</b> · '+exq+'컷 × '+exu.toLocaleString()+' = <b>'+exa.toLocaleString()+'원</b>'+(r['추가보정입금자명']?(' · 입금자 '+esc(r['추가보정입금자명'])):'')+'</div>'; }
   // 마지막 설문(만족도)
-  if(r['설문응답']){ try{ var sv=JSON.parse(r['설문응답']); raw+='<div class="res-ex">설문 <b>★'+esc(String(sv.rating||''))+'</b>'+(sv.recommend?(' · 추천 '+esc(sv.recommend)):'')+(r['설문일시']?(' · '+esc(r['설문일시'])):'')+'</div>'+(sv.review?'<div class="res-sel-list">'+esc(sv.review)+'</div>':''); }catch(e){} }
+  if(r['설문응답']){ try{ var sp=JSON.parse(r['설문응답']); var sa=sp.answers||{}; var bits=[];
+    SURVEY_ORDER.forEach(function(k){ if(sa[k]){ var q=SURVEY_Q[k]; bits.push((q?q.t:k)+' '+((q&&q.o[sa[k]])||sa[k])); } });
+    raw+='<div class="res-ex">설문'+(r['설문일시']?(' · '+esc(r['설문일시'])):'')+(sp.reviewPublic==='Y'?' · <b style="color:var(--gold-deeper)">공개동의</b>':'')+(bits.length?('<div class="res-sel-list">'+esc(bits.join(' · '))+'</div>'):'')+(sp.review?'<div class="res-sel-list">“'+esc(sp.review)+'”</div>':'')+'</div>'; }catch(e){} }
   var b='', st=d.stage, exPay=(ex==='결제대기'), rstt=stt;
   if((isSnap&&st==='입금완료')||(!isSnap&&st==='제작중')){ b+='<div class="gate">'+(isSnap?'촬영':'예식')+' 후 결과물 단계예요</div>'+ab('eventDone',(isSnap?'촬영':'예식')+'완료 처리'); }
   else if(st==='예식완료'||st==='촬영완료'){
