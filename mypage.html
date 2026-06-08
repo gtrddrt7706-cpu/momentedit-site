@@ -1786,10 +1786,11 @@ function productionFormHtml(b){
     + '<div class="cc-sub" style="text-align:left">청첩장·다이닝·식순에 공통으로 쓰는 기본 정보예요.</div>'
     + '<div class="pf" style="margin-top:10px"><label class="pf-l">신랑</label>'
       + '<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문(자동 제안)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
+      + '<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
     + '<div class="pf"><label class="pf-l">신부</label>'
       + '<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문(자동 제안)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
+      + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
+    + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요 — 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     + '<div class="pf-cover" id="mp_cover"></div>'
     + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
     + '<div class="pf2"><div><label class="pf-l">예식 날짜</label>'
@@ -1801,8 +1802,7 @@ function productionFormHtml(b){
     + '</div>';
 }
 function bindProductionForm(){
-  function sg(koId, enId){ var ko=$(koId), en=$(enId); if(ko&&en) ko.addEventListener('blur', function(){ if(!en.value.trim() && ko.value.trim()){ var nm=ko.value.trim(), given=(nm.length>1?nm.slice(1):nm); en.value=romanizeKo(given)||romanizeKo(nm); } updateCover(); }); }
-  sg('mp_gKo','mp_gEn'); sg('mp_bKo','mp_bEn');
+  // 영문 자동 제안 제거 — 고객이 직접 입력(성 없이 이름만). 표지는 coverName이 처리.
   ['mp_gEn','mp_bEn'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', updateCover); });
   updateCover();
   initDatePicker({wrap:'mpw_wrap',trigger:'mpw_trigger',text:'mpw_text',panel:'mpw_panel',grid:'mpw_grid',title:'mpw_title',prev:'mpw_prev',next:'mpw_next',hidden:'mp_wDate'});
