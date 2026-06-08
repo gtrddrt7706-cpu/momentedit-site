@@ -3,11 +3,5 @@
     { "source": "/form", "destination": "/form.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/schedule", "destination": "/schedule.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(mypage|inquiry|schedule|admin|index|privacy|live)\\.html",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
-    }
   ]
 }
