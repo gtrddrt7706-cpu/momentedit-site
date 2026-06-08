@@ -527,9 +527,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
     <div class="consult-sec" id="mp_production" style="display:none"></div>
 
-    <!-- 중도금·잔금 안내(제작 단계 내 노출) -->
-    <div class="consult-sec" id="mp_payNote" style="display:none"></div>
-
     <!-- 중도금 (02-4b) — 결제 마일스톤(D-30). 평소 접힘 → D-37 자동 펼침 -->
     <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
 
@@ -1023,10 +1020,6 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
     return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
   }).join('');
   box.innerHTML = html;
-  // 중도금·잔금 안내는 제작 화면 영역(mp_payNote)에 노출 — 제작 단계에서 결제 안내를 함께
-  (function(){ var pn=$('mp_payNote'); if(!pn) return;
-    if(items.some(function(it){return it[0]==='중도금 · 잔금';})){ pn.innerHTML='<div class="consult-card" style="padding:14px 18px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요.<br>한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div></div>'; pn.style.display='block'; }
-    else { pn.innerHTML=''; pn.style.display='none'; } })();
 }
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
@@ -1163,6 +1156,8 @@ function renderContractPayment(c, p, ctx){
   var signed = !!c.signed;
   var isSnap = !!(ctx && ctx.product === '웨딩스냅');   // 스냅=2단계(계약금20%·잔금80%, 충당/중도금 없음)
   var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
+  // 중도금·잔금 "언제·어떻게 열리나" 안내 — 계약 카드에만 노출(서명 단계 1회 + 완료 후 접힌 계약 아코디언 펼침 시). 비-스냅 전용.
+  var payOpenNote = '<div class="cc-note" style="text-align:center;color:var(--light);line-height:1.65;margin-top:8px">중도금·잔금 입금 정보는 <b style="color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요.<br>한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div>';
 
   // ── 완료: 서명 + 계약금 확인 모두 끝 → 접기 ──
   if (signed && p && p.confirmed){
@@ -1170,6 +1165,7 @@ function renderContractPayment(c, p, ctx){
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
              + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
              + (a0?'<div class="cc-sub cc-mini">다음 결제 · '+(a0.중도금>0?('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · '):'')+'잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
+             + (!isSnap?payOpenNote:'')
              + (link?'<div class="cc-actions">'+link+'</div>':'');
     collapsedCard(box, '계약 완료', full, '계약');
     return;
@@ -1188,7 +1184,9 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
-    h += '<div class="cc-note" style="text-align:center">'+(isSnap?'서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.':'추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span><br>첫 결제는 예식 30일 전 <b>중도금</b>이에요.')+'</div>';
+    h += isSnap
+       ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
+       : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>' + payOpenNote;
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
