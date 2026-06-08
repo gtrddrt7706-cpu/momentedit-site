@@ -536,7 +536,12 @@ function handleMidSignal(body) {
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후 진행할 수 있어요.' };
     if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 중도금 단계가 아닙니다.' };
     if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
-    touchCustomer(sheet, colOf, cust.num, { '중도금입금자명': payer, '중도금입금신호': fmtKST(new Date()), '중도금상태': '완료신호' });
+    var _upd = { '중도금입금자명': payer, '중도금입금신호': fmtKST(new Date()), '중도금상태': '완료신호' };
+    // 잔금 함께 결제(합계) — 고객이 중도금 카드에서 '잔금도 함께'를 선택. 잔금이 아직 확인 전이면 같은 입금신호로 처리.
+    if (body && body.withBalance && String(cust.get('잔금상태') || '').trim() !== '확인') {
+      _upd['잔금입금자명'] = payer; _upd['잔금입금신호'] = fmtKST(new Date()); _upd['잔금상태'] = '완료신호';
+    }
+    touchCustomer(sheet, colOf, cust.num, _upd);
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
