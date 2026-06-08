@@ -1137,7 +1137,7 @@ function renderContractPayment(c, p, ctx){
         + '<div class="cc-title">계약, 이렇게 진행돼요</div>'
         + '<div class="visit-guide" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고, 발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
-        + '<div class="vg-row"><span class="vg-k">서명·계약금</span><span class="vg-v">계약서 서명과 <b>계약금</b>은 한 번에 진행돼요. 서명 후 <b>72시간 안에</b> 마무리해 주세요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요. 서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요. 서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
         + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면 예약금은 드레스 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
         + '</div></div>';
       box.style.display='block'; return;
@@ -1154,7 +1154,7 @@ function renderContractPayment(c, p, ctx){
   if (signed && p && p.confirmed){
     var a0 = p.amounts;
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
-             + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'계약금 — 예약금으로 충당 (추가 납부 없음)')+'</div>'
+             + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
              + (a0?'<div class="cc-sub cc-mini">다음 결제 · '+(a0.중도금>0?('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · '):'')+'잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
              + (link?'<div class="cc-actions">'+link+'</div>':'');
     collapsedCard(box, '계약 완료', full, '계약');
@@ -1174,7 +1174,7 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
-    h += '<div class="cc-note" style="text-align:left">'+(isSnap?'서명 후 이어서 <b>계약금</b> 입금 안내를 드려요 — 계약과 계약금은 한 번에 진행돼요.':'서명하면 계약금은 <b>예약금으로 충당</b>돼 추가 납부 없이 바로 제작 준비로 이어져요. (첫 결제는 중도금 · 예식 D-30)')+'</div>';
+    h += '<div class="cc-note" style="text-align:left">'+(isSnap?'서명 후 이어서 <b>계약금</b> 입금 안내를 드려요 — 계약과 계약금은 한 번에 진행돼요.':'추가 납부는 없어요 — 이미 낸 <b>예약금으로 갈음</b>돼 바로 제작 준비로 이어져요. (첫 결제는 중도금 · 예식 D-30)')+'</div>';
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
