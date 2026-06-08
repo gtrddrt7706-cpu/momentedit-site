@@ -253,6 +253,19 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .pf .pf-l{flex:0 0 36px;margin:0;font-size:12px}
 .pf-l{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:10px 0 3px}
 .pf-ko,.pf-en{flex:1}
+.schedule-ref{margin-top:14px;padding:16px 18px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.schedule-ref-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--hairline);flex-wrap:wrap}
+.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
+.schedule-ref-title{font-family:var(--serif-ko);font-size:12.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
+.schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:center}
+.ref-row{display:contents}
+.ref-header-cell{font-family:var(--serif-ko);font-size:10.5px;color:var(--accent);padding:3px 0 9px;text-align:center;font-weight:400;word-break:keep-all}
+.ref-slot{font-family:var(--serif-ko);font-size:11.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em;padding:9px 0;border-top:1px dashed var(--hairline)}
+.ref-time{font-family:var(--serif);font-size:13px;color:var(--sub);text-align:center;padding:9px 0;letter-spacing:0.02em;border-top:1px dashed var(--hairline);font-variant-numeric:tabular-nums}
+.ref-time.highlight{color:var(--accent);font-weight:500}
+.schedule-ref-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--hairline);font-size:11px;color:var(--sub);line-height:1.75;font-family:var(--serif-ko);font-weight:300;word-break:keep-all}
+.schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:0.08em;margin-right:4px}
+@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:10.5px;letter-spacing:0}.ref-slot{font-size:10.5px}}
 .pf-cover{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:var(--gold-deep);min-height:18px;margin:8px 0 4px}
 .pf2{display:flex;gap:8px}.pf2>div{flex:1}
 /* 예식 날짜 커스텀 달력 (inquiry dt-picker 이식) */
@@ -1797,6 +1810,17 @@ function productionFormHtml(b){
       + '<div class="dt-picker-wrap" id="mpw_wrap"><button type="button" class="dt-trigger" id="mpw_trigger" aria-haspopup="dialog" aria-expanded="false"><span class="dt-trigger-placeholder" id="mpw_text">날짜를 선택해 주세요</span><span class="dt-trigger-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button><input type="hidden" id="mp_wDate" value="'+escapeHtml(b.weddingDate||'')+'"><div class="dt-panel" id="mpw_panel" role="dialog" aria-label="예식 날짜 선택" aria-hidden="true"><div class="dt-cal"><div class="dt-cal-head"><button type="button" class="dt-cal-nav" id="mpw_prev" aria-label="이전 달">‹</button><span class="dt-cal-title" id="mpw_title"></span><button type="button" class="dt-cal-nav" id="mpw_next" aria-label="다음 달">›</button></div><div class="dt-cal-weekdays"><span class="dt-wd sun">일</span><span class="dt-wd">월</span><span class="dt-wd">화</span><span class="dt-wd">수</span><span class="dt-wd">목</span><span class="dt-wd">금</span><span class="dt-wd sat">토</span></div><div class="dt-cal-grid" id="mpw_grid"></div></div></div></div>'
       + '</div>'
       + '<div><label class="pf-l">예식 시간</label><select class="cc-input" id="mp_wTime">'+weddingTimeOptions(b.weddingTime||'')+'</select></div></div>'
+    + '<div class="schedule-ref" aria-label="예식 진행 시간표">'
+      + '<div class="schedule-ref-head"><span class="schedule-ref-tag">Reference</span><span class="schedule-ref-title">예식 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);font-weight:400">· 140분 시퀀스</span></span></div>'
+      + '<div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">고르신 예식 시간대의 대표 진행 시각이에요. 세부 흐름은 상담에서 함께 맞춰드려요.</div>'
+      + '<div class="schedule-ref-table">'
+        + '<div class="ref-row"><span class="ref-header-cell"></span><span class="ref-header-cell">신랑·신부 도착</span><span class="ref-header-cell">내빈 입장</span><span class="ref-header-cell">본예식</span><span class="ref-header-cell">종료</span></div>'
+        + '<div class="ref-row"><span class="ref-slot">오전</span><span class="ref-time">09:00</span><span class="ref-time highlight">09:45</span><span class="ref-time">10:00</span><span class="ref-time">11:20</span></div>'
+        + '<div class="ref-row"><span class="ref-slot">오후</span><span class="ref-time">12:20</span><span class="ref-time highlight">13:05</span><span class="ref-time">13:20</span><span class="ref-time">14:40</span></div>'
+        + '<div class="ref-row"><span class="ref-slot">늦은 오후</span><span class="ref-time">15:40</span><span class="ref-time highlight">16:25</span><span class="ref-time">16:40</span><span class="ref-time">18:00</span></div>'
+      + '</div>'
+      + '<div class="schedule-ref-foot"><span class="accent">Note</span>대기 공간이 없으니, <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 방문 부탁드립니다.</div>'
+    + '</div>'
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
     + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_saveBase">저장하고 시작</button></div>'
     + '</div>';
