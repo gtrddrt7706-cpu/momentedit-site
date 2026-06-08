@@ -1012,6 +1012,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
   var html = '<div class="nx-label en-30">NEXT</div>' + items.map(function(it){
     return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
   }).join('');
+  if (items.some(function(it){return it[0]==='중도금 · 잔금';})) html += '<div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.65;margin-top:12px;padding-top:11px;border-top:1px solid rgba(28,27,25,.06);word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--sub)">예식 45일 전</b>부터 함께 열려요. 한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div>';
   box.innerHTML = html;
 }
 

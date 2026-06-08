@@ -449,8 +449,8 @@ function buildBalanceState(r) {
   var bStatus = String(r.get('잔금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
-  // 중도금 확인 후(또는 예식 D-21 이내)에만 노출 — 중도금→잔금 순서로 안내(둘이 한참 전부터 동시 노출 방지)
-  if (bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 21)) return null;
+  // 중도금과 함께 노출(예식 D-45 이내) — 중도금·잔금 동시 납부 희망 고객 대응. 또는 중도금 확인 후.
+  if (bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 45)) return null;
   return {
     status: bStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: bStatus === '확인',
