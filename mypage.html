@@ -927,7 +927,7 @@ function renderMyPage(d){
   // 카톡
   var ka = $('mp_kakao');
   if (d.kakao){ ka.href = d.kakao; ka.textContent='카카오톡 문의'; ka.target='_blank'; ka.style.display='inline-flex'; }
-  else { ka.href='mailto:contact@momentedit.kr'; ka.textContent='✉ 이메일 문의'; ka.removeAttribute('target'); ka.style.display='inline-flex'; }   // 카톡 미설정 시 연락 폴백
+  else { ka.href='mailto:contact@momentedit.kr'; ka.textContent='카카오톡 문의'; ka.removeAttribute('target'); ka.style.display='inline-flex'; }   // KAKAO_URL(GAS) 설정 전 임시 폴백 — 라벨은 카카오톡 문의 고정
 
   // 단계-카드 정합 — 상담박스 방문 후 숨김(#9) · 앞선 카드(강제 되돌리기 잔여) 흐림(#신규2) · 계약완료 섹션 묶음(#신규1)
   applyCardStageView(d);
@@ -1038,10 +1038,10 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + (isSnap ? '' :
-              '<div class="vg-row"><span class="vg-k">의상·드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보세요. 드레스 시착은 상담 당일 동의 후 진행돼요 <em>(기본 3벌)</em>.</span></div>'
-            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">드레스 시착 동의서는 <b>본 계약의 준비 단계</b>예요. 정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정되며, 드레스 시착하시면 예약금은 시착 비용으로 전환돼요.</span></div>')
-         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+L+'을 마친 뒤 마이페이지로 보내드려요.</span></div>'
-         + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역 버스 약 15분 · 전용 주차 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
+              '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요. 직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 3벌)</em>.</span></div>'
+            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요. 드레스 시착을 하시면 예약금은 <b>시착 비용</b>으로 전환됩니다.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
+         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+L+'을 마친 뒤 <b>마이페이지</b>로 보내드려요.</span></div>'
+         + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(fixGas(c.cancelUrl))+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅

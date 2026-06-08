@@ -28,7 +28,7 @@
 // ⚠️ [...] placeholder 는 운영자가 직접 채웁니다. (임의 값 넣지 말 것)
 const CONFIG = {
   // [P1.5 작업5] 고객 상태메일 토글 — 기본 OFF(마이페이지가 상태를 대체). 켜려면 true.
-  SEND_CONFIRM_MAIL: false,                    // 확정 안내 (sendConfirmEmail)
+  SEND_CONFIRM_MAIL: true,                     // 확정 안내 (sendConfirmEmail) — 대면상담 확정까지 메일 발송
   SEND_CHANGE_MAIL: false,                     // 변경제안 안내 (sendProposalEmail)
   SEND_CANCEL_MAIL: false,                     // 취소 안내 (sendCancelEmail)
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
