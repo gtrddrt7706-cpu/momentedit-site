@@ -320,6 +320,8 @@ function buildContractState(r) {
     brideBirth: _ci.brideBirth || '',
     groomAddr: _ci.groomAddr || '',
     brideAddr: _ci.brideAddr || '',
+    phone: String(r.get('연락처') || ''),   // 가입 계정 연락처 1개(신랑/대표 칸에 표시)
+    email: String(r.get('이메일') || ''),   // 가입 계정 이메일 1개
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
     total: Math.round(Number(r.get('계약총액')) || 0)
   };

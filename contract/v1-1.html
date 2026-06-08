@@ -239,8 +239,8 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
         <tr><th style="width:32%">구분</th><th>신랑</th><th>신부</th></tr>
         <tr><td>성명(한글)</td><td data-fill="groom"></td><td data-fill="bride"></td></tr>
         <tr><td>생년월일</td><td data-fill="groomBirth"></td><td data-fill="brideBirth"></td></tr>
-        <tr><td>연락처</td><td></td><td></td></tr>
-        <tr><td>이메일</td><td></td><td></td></tr>
+        <tr><td>연락처</td><td data-fill="phone"></td><td></td></tr>
+        <tr><td>이메일</td><td data-fill="email"></td><td></td></tr>
         <tr><td>주소</td><td data-fill="groomAddr"></td><td data-fill="brideAddr"></td></tr>
         <tr><td>(외국인 시) 여권 영문명·국적</td><td></td><td></td></tr>
       </table></div>
@@ -463,11 +463,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>저작권.</strong> 본 서비스로 생성된 사진·영상의 저작권은 '을'에게 귀속한다. 다만 「저작권법」 제35조 제4항에 따라, 위탁에 의한 초상사진은 '갑'(위탁자)의 동의 없이 '을'이 이를 이용할 수 없다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>'갑'의 이용 범위.</strong> '갑'은 인도받은 결과물을 사적·기념 목적으로 자유로이 이용할 수 있다. 다만 상업적 사용(쇼핑몰·광고 등)은 '을'과 별도 협의하며 유상으로 한다.</p>
-      <p class="clause"><span class="clause-n">③</span> <strong>초상권 사용 동의(옵트인).</strong> '을'이 결과물을 포트폴리오·홍보 목적으로 사용하려면 '갑'의 <strong>별도 동의</strong>를 받아야 하며, '갑'은 다음 중 하나를 선택한다(선택란은 서명란 위에 둔다). <strong>비공개</strong>를 선택한 경우 '을'은 결과물을 일체 사용하지 아니한다.</p>
-      <ul class="inline-list">
-        <li>1. 전체 공개</li><li>2. 모자이크(얼굴 비식별) 처리 후 공개</li><li>3. 비공개</li>
-      </ul>
-      <p>본 동의는 동의일로부터 <strong>5년간 유효</strong>하며 '갑'은 언제든 <strong>철회</strong>할 수 있고, 유효기간 만료 시 '갑'의 재동의로 갱신할 수 있다.</p>
+      <p class="clause"><span class="clause-n">③</span> <strong>초상권 사용 동의(옵트인).</strong> '을'이 결과물을 포트폴리오·홍보 목적으로 사용하려면 '갑'의 <strong>별도 동의</strong>를 받아야 한다. 본 동의는 본 계약과 별개로 <strong>결과물(보정본) 제공 단계에서</strong> '갑'이 마이페이지를 통해 <strong>옵트인 방식으로 개별 선택</strong>하며, '갑'이 동의하지 아니하면 '을'은 결과물을 홍보 목적으로 일체 사용하지 아니한다. '갑'은 동의 후에도 동의일로부터 <strong>5년 내 언제든 철회</strong>할 수 있다.</p>
       <p class="clause"><span class="clause-n">④</span> <strong>Archive Opening Honor.</strong> 운영 초기 한정(2027년 상반기) 예우인 'Archive Opening Honor'(보정 셀렉트 +10장)가 적용되는 경우에도, 결과물의 대외 사용은 제3항의 옵트인 동의 범위에 따른다.</p>
       <p class="clause"><span class="clause-n">⑤</span> <strong>디지털 참석(Quiet Broadcast) 송출.</strong> 디지털 참석 영상은 비공개 링크를 통해서만 제공된다.</p>
       <ul class="sub-list">
@@ -527,20 +523,11 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <div class="check-line"><span class="box" aria-hidden="true"></span><span>본인은 대금(제4조)·위약금(제9조)·청약철회(제7조)·저작권(제13조)·개인정보(제14조) 등 중요 조항을 확인하였습니다.</span></div>
     </div>
 
-    <div class="consent-box">
-      <div class="cb-title">초상권 사용 동의 (제13조 제3항)<span class="pick">— 하나만 선택</span></div>
-      <div class="opt-row">
-        <span><span class="box" aria-hidden="true"></span> 전체 공개</span>
-        <span><span class="box" aria-hidden="true"></span> 모자이크 후 공개</span>
-        <span><span class="box" aria-hidden="true"></span> 비공개</span>
-      </div>
-    </div>
-
     <div class="date-line">계약 체결일 : ____________________</div>
 
     <div class="sign-grid">
-      <div class="sign-cell"><div class="sc-role">갑 — 신랑</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">갑 — 신부</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 신랑</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="groom">____________</span></span><span class="sc-sign">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 신부</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="bride">____________</span></span><span class="sc-sign">(서명)</span></div></div>
       <div class="sign-cell"><div class="sc-role">을 — 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign">(서명)</span></div></div>
     </div>
     <p class="sign-note" style="margin-top:14px;font-size:12px;color:var(--light)">※ 본 1차본은 대표 1인이 양인을 대표하여 전자서명하며(제2조 제1항), 양인은 제2조 제3항에 따라 연대하여 책임을 집니다. 신랑·신부 2인 개별 전자서명은 시스템 도입 후 적용됩니다.</p>
@@ -572,7 +559,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     if(ev.origin!==location.origin) return;
     if(ev.data && ev.data.type==='momentedit:contractFill') fill(ev.data.data);
   });
-  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'momentedit:contractReady'}, location.origin); }catch(e){}
+  try{ if(window.parent && window.parent!==window){ var _nav=document.querySelector('nav.top'); if(_nav) _nav.style.display='none'; window.parent.postMessage({type:'momentedit:contractReady'}, location.origin); } }catch(e){}
 })();
 </script>
 

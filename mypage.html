@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · no default year · contract phase2 inview · redeploy 2026-06-08d -->
+<!-- build: birth 18-53 · contract phase2b (서명란 채움·연락처·초상권제거·헤더정리) · redeploy 2026-06-08e -->
 </head>
 <body>
 
@@ -1104,7 +1104,7 @@ function renderPayOpenNote(d){
   var isSnap=(d.product==='웨딩스냅');
   var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance;
   if(!show){ box.innerHTML=''; box.style.display='none'; return; }
-  box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요.<br>한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div></div>';
+  box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금과 잔금 안내는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>, 이 자리에서 가만히 열려요.<br>한 번에 치르셔도, 나누어 치르셔도 괜찮습니다. 그날까지는 마음만 가볍게 준비해 두세요.</div></div>';
   box.style.display='block';
 }
 
