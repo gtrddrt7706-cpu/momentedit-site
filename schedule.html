@@ -454,8 +454,8 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
       </div>
       <div class="deposit-payer">
         <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제로 입금하실 분 성함</span></label>
-        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="실제 입금하실 분 성함 (예: 홍길동)">
-        <div class="deposit-payer-hint">신청자 성함과 다르면 꼭 적어 주세요 — 입금 확인이 빨라져요.</div>
+        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="홍길동" oninput="var _h=document.getElementById('depPayerHint');if(_h)_h.style.color=''">
+        <div class="deposit-payer-hint" id="depPayerHint">꼭 적어 주세요 — 입금하실 때 표시될 성함과 같으면 확인이 빨라져요.</div>
       </div>
     </div>
 
@@ -476,7 +476,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <div class="notice-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
           <div class="notice-body">
             <div class="notice-t">상담 소요 시간</div>
-            <div class="notice-d">약 40분간 진행됩니다. 캔들존과 화이트존 두 공간을 직접 둘러보시고, 의상 컬렉션과 함께 상세한 기획을 나눕니다.</div>
+            <div class="notice-d">시작 시간으로부터 <span class="em">약 40분</span> 진행됩니다. 일정을 넉넉히 비워 두시면 좋아요. 캔들존과 화이트존 두 공간을 직접 둘러보시고, 의상 컬렉션과 함께 상세한 기획을 나눕니다.</div>
           </div>
         </div>
 
@@ -492,7 +492,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <div class="notice-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
           <div class="notice-body">
             <div class="notice-t">위치 안내</div>
-            <div class="notice-d">경기 고양시 덕양구 향동동 일대의 프라이빗 스튜디오입니다. 서울에서 차로 약 30분, 3호선 원당역에서 버스 약 15분 거리입니다. 전용 주차가 가능합니다. <span class="muted">정확한 도로명 주소는 예약 확정 메일로 안내드립니다.</span></div>
+            <div class="notice-d">경기 고양시 덕양구 향동동의 프라이빗 스튜디오입니다. <span class="em">3호선 원당역</span>에서 버스로 약 15분 거리입니다. <span class="muted">정확한 도로명 주소는 예약 확정 메일로 안내드립니다.</span></div>
           </div>
         </div>
 
@@ -680,7 +680,7 @@ function revealGuide(){
 function doSubmit(){
   if(!selDate||!selTime) return;
   var _payerEl=document.getElementById('depPayer');
-  if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _s=document.getElementById('summary'); if(_s){ _s.textContent='입금자명(실제 입금하실 분 성함)을 적어 주세요.'; _s.style.color='var(--seal)'; _s.classList.remove('on'); } return; }
+  if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; } return; }
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
