@@ -524,14 +524,17 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 계약금 입금 (02-4) — 계약서 다음 -->
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
-    <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
-    <div class="consult-sec" id="mp_production" style="display:none"></div>
+    <!-- 중도금·잔금 안내 박스 — 계약 정보 아래·카드 열리기 전(D-45 이전)에만 -->
+    <div class="consult-sec" id="mp_payNote" style="display:none"></div>
 
-    <!-- 중도금 (02-4b) — 결제 마일스톤(D-30). 평소 접힘 → D-37 자동 펼침 -->
+    <!-- 중도금 (02-4b) — 결제 마일스톤(D-30). 계약 정보 아래. 평소 접힘 → D-37 자동 펼침 -->
     <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
 
-    <!-- 잔금 (02-5) — 결제 마일스톤. 평소 접힘 → 예식 D-15 자동 펼침 -->
+    <!-- 잔금 (02-5) — 결제 마일스톤. 계약 정보 아래. 평소 접힘 → 예식 D-15 자동 펼침 -->
     <div class="consult-sec" id="mp_balance" style="display:none"></div>
+
+    <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
+    <div class="consult-sec" id="mp_production" style="display:none"></div>
 
     <!-- 결과물 (05) — 예식완료/결과물전달 -->
     <div class="consult-sec" id="mp_result" style="display:none"></div>
@@ -930,6 +933,8 @@ function renderMyPage(d){
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
   }
 
+  renderPayOpenNote(d);   // 중도금·잔금 안내 박스(계약 정보 아래·D-45 이전 · 취소/스냅/카드열림 시 숨김)
+
   // 카톡
   var ka = $('mp_kakao');
   if (d.kakao){ ka.href = d.kakao; ka.textContent='카카오톡 문의'; ka.target='_blank'; ka.style.display='inline-flex'; }
@@ -1020,6 +1025,16 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
     return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
   }).join('');
   box.innerHTML = html;
+}
+
+// 중도금·잔금 안내 박스 — 계약 정보 아래. 계약 후 ~ 중도금·잔금 카드가 열리기 전(D-45 이전)까지만. 취소·스냅·카드 열림 시 숨김.
+function renderPayOpenNote(d){
+  var box=$('mp_payNote'); if(!box) return;
+  var isSnap=(d.product==='웨딩스냅');
+  var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance;
+  if(!show){ box.innerHTML=''; box.style.display='none'; return; }
+  box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요.<br>한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div></div>';
+  box.style.display='block';
 }
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
@@ -1156,8 +1171,6 @@ function renderContractPayment(c, p, ctx){
   var signed = !!c.signed;
   var isSnap = !!(ctx && ctx.product === '웨딩스냅');   // 스냅=2단계(계약금20%·잔금80%, 충당/중도금 없음)
   var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
-  // 중도금·잔금 "언제·어떻게 열리나" 안내 — 계약 카드에만 노출(서명 단계 1회 + 완료 후 접힌 계약 아코디언 펼침 시). 비-스냅 전용.
-  var payOpenNote = '<div class="cc-note" style="text-align:center;color:var(--light);line-height:1.65;margin-top:8px">중도금·잔금 입금 정보는 <b style="color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요.<br>한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div>';
 
   // ── 완료: 서명 + 계약금 확인 모두 끝 → 접기 ──
   if (signed && p && p.confirmed){
@@ -1165,7 +1178,6 @@ function renderContractPayment(c, p, ctx){
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
              + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
              + (a0?'<div class="cc-sub cc-mini">다음 결제 · '+(a0.중도금>0?('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · '):'')+'잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
-             + (!isSnap?payOpenNote:'')
              + (link?'<div class="cc-actions">'+link+'</div>':'');
     collapsedCard(box, '계약 완료', full, '계약');
     return;
@@ -1186,7 +1198,7 @@ function renderContractPayment(c, p, ctx){
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
-       : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>' + payOpenNote;
+       : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>';
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
@@ -1323,7 +1335,13 @@ function renderBalance(p, mid){
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
-    var when='<div class="cc-note">'+(p.due?('예식이 코앞이에요 — '+dueLabel+'까지 입금 부탁드려요.'):(near?('예식이 가까워졌어요 — '+dueLabel+'까지 편하실 때 입금해 주세요.'):('예식 전 미리 입금도 괜찮아요. ('+dueLabel+' 안내)')))+'</div>';
+    var balDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
+    var balDue=balDateTxt?('<b>'+escapeHtml(balDateTxt)+'</b>까지'):(dueLabel+'까지');
+    var when='<div class="cc-note">'+(
+        p.due?(balDue+' 입금 부탁드려요 <span class="cc-mini">· '+dueLabel+'</span>')
+      : near?(balDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (balDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>미리 입금하셔도 괜찮아요.')
+    )+'</div>';
     var acct=p.account?(
         '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
@@ -1379,7 +1397,16 @@ function renderMid(p, bal){
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
-    var when='<div class="cc-note">'+(forceCombo?'예식이 가까워 중도금·잔금을 함께 받아요 — 예식 7일 전까지 입금 부탁드려요.':(p.due?('중도금 시기예요 — '+dueLabel+'까지 입금 부탁드려요.'):(near?('중도금 시기가 다가와요 — '+dueLabel+'까지 편하실 때 입금해 주세요.'):('미리 입금도 괜찮아요. ('+dueLabel+' 안내)'))))+'</div>';
+    var midDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
+    var midDue=midDateTxt?('<b>'+escapeHtml(midDateTxt)+'</b>까지'):(dueLabel+'까지');   // 날짜 있으면 날짜, 없으면 라벨
+    var balDateTxt=(bal&&bal.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
+    var comboDue=balDateTxt?('<b>'+escapeHtml(balDateTxt)+'</b>까지'):'예식 7일 전까지';
+    var when='<div class="cc-note">'+(
+        forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요 <span class="cc-mini">· 예식 7일 전</span>')
+      : p.due?(midDue+' 입금 부탁드려요 <span class="cc-mini">· '+dueLabel+'</span>')
+      : near?(midDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (midDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>미리 입금하셔도 괜찮아요.')
+    )+'</div>';
     var acct=p.account?(
         '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'

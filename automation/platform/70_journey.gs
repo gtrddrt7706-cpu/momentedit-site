@@ -441,6 +441,13 @@ function _balanceDDay(weddingDate) {
   var today = new Date(); today.setHours(0, 0, 0, 0);
   return Math.round((w - today) / 86400000);   // 남은 일수(음수=지남)
 }
+// 예식일 ± N일 → YYYY-MM-DD (TZ 무관 · UTC 산술). 중도금/잔금 입금 마감일 산출. 예식일 미정이면 ''.
+function _shiftYmd(weddingYmd, deltaDays) {
+  var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return '';
+  var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]) + (deltaDays * 86400000));
+  return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+}
 // 마이페이지 잔금 카드 상태. 계약 서명완료 + 제작 단계에서 노출(확인이면 접힘).
 function buildBalanceState(r) {
   if (!r) return null;
@@ -460,7 +467,8 @@ function buildBalanceState(r) {
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
     due: (dday != null && dday <= PAYMENT.잔금일수전),  // D-7 이내(부각)
-    dueLabel: _balanceDueLabel()
+    dueLabel: _balanceDueLabel(),
+    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전)   // 잔금 마감일 = 예식 D-7 (YYYY-MM-DD)
   };
 }
 // 잔금 입금 신호(고객). 단계 전이 없음·멱등.
@@ -516,7 +524,8 @@ function buildMidState(r) {
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,
     due: (dday != null && dday <= PAYMENT.중도금일수전),  // D-30 이내(부각)
-    dueLabel: _midDueLabel()
+    dueLabel: _midDueLabel(),
+    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전)   // 중도금 마감일 = 예식 D-30 (YYYY-MM-DD)
   };
 }
 // 중도금 입금 신호(고객). 단계 전이 없음·멱등.
