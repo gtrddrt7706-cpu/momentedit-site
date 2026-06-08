@@ -158,7 +158,6 @@ function sendSignupEmail(to, names, code, token, product, detail) {
     centerP('아래 버튼으로 <b style="color:#B89A75;font-weight:600">마이페이지</b>에 들어가<br>진행 상황을 확인하실 수 있습니다.') +
     emailBtn(mypage, 'My Page', '#6B2A24') +
     smallP('이 링크는 자동으로 로그인됩니다.<br>다른 기기에서는 개인코드와 비밀번호로 로그인해 주세요.') +
-    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.') +
     // 버튼이 안 열릴 때 대비 — 주소 직접 노출
     '<div style="margin:22px auto 0;max-width:440px;text-align:center">' +
       '<details style="text-align:center">' +
@@ -168,7 +167,8 @@ function sendSignupEmail(to, names, code, token, product, detail) {
           '<a href="' + safeAttr(mypage) + '" style="font-size:10px;color:#6E6557;word-break:break-all;text-decoration:none;line-height:1.6;font-family:monospace">' + esc(mypage) + '</a>' +
         '</div>' +
       '</details>' +
-    '</div>';
+    '</div>' +
+    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
 
   GmailApp.sendEmail(to, '[Moment Edit] 신청이 접수되었습니다 · 개인코드 ' + code, '',
     { htmlBody: emailShell('신청이 접수되었습니다', inner), name: SYS.FROM_NAME });
