@@ -1010,7 +1010,8 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
   }
   // 결제 마일스톤(중도금·잔금)은 인지용으로 계속 🔒 노출하되, 납부 확인되면 자동 제거(완료=✓처럼)
   var midDone = !!(mid && mid.confirmed), balDone = !!(bal && bal.confirmed);
-  items = items.filter(function(it){ if(it[0]==='중도금 · 잔금') return !balDone; return true; });
+  // 중도금/잔금 카드가 떠 있으면(=다음 단계가 이미 노출) NEXT 자물쇠는 제거 — 모순 방지. 카드 전(D-45 이전)에만 🔒.
+  items = items.filter(function(it){ if(it[0]==='중도금 · 잔금') return !balDone && !mid && !bal; return true; });
   // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
   if (contract && !contract.signed && !contract.expired){
     items = items.filter(function(it){ return it[0] !== '본 계약'; });
