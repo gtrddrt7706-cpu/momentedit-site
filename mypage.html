@@ -1336,11 +1336,13 @@ function renderBalance(p, mid){
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
     var balDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
-    var balDue=balDateTxt?('<b>'+escapeHtml(balDateTxt)+'</b>까지'):(dueLabel+'까지');
+    var balDue, balTag;
+    if(balDateTxt){ balDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; balTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
+    else { balDue=dueLabel+'까지'; balTag=''; }
     var when='<div class="cc-note">'+(
-        p.due?(balDue+' 입금 부탁드려요 <span class="cc-mini">· '+dueLabel+'</span>')
-      : near?(balDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>편하실 때 미리 입금하셔도 괜찮아요.')
-      : (balDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>미리 입금하셔도 괜찮아요.')
+        p.due?(balDue+' 입금 부탁드려요'+balTag)
+      : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
     var acct=p.account?(
         '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
@@ -1398,14 +1400,18 @@ function renderMid(p, bal){
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
     var midDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
-    var midDue=midDateTxt?('<b>'+escapeHtml(midDateTxt)+'</b>까지'):(dueLabel+'까지');   // 날짜 있으면 날짜, 없으면 라벨
+    var midDue, midTag;   // 날짜 있으면 '날짜까지'+라벨꼬리, 없으면 라벨만(중복 방지)
+    if(midDateTxt){ midDue='<b>'+escapeHtml(midDateTxt)+'</b>까지'; midTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
+    else { midDue=dueLabel+'까지'; midTag=''; }
     var balDateTxt=(bal&&bal.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
-    var comboDue=balDateTxt?('<b>'+escapeHtml(balDateTxt)+'</b>까지'):'예식 7일 전까지';
+    var comboDue, comboTag;
+    if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag=' <span class="cc-mini">· 예식 7일 전</span>'; }
+    else { comboDue='예식 7일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
-        forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요 <span class="cc-mini">· 예식 7일 전</span>')
-      : p.due?(midDue+' 입금 부탁드려요 <span class="cc-mini">· '+dueLabel+'</span>')
-      : near?(midDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>편하실 때 미리 입금하셔도 괜찮아요.')
-      : (midDue+' 보내주세요 <span class="cc-mini">· '+dueLabel+'</span><br>미리 입금하셔도 괜찮아요.')
+        forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요'+comboTag)
+      : p.due?(midDue+' 입금 부탁드려요'+midTag)
+      : near?(midDue+' 보내주세요'+midTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (midDue+' 보내주세요'+midTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
     var acct=p.account?(
         '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
