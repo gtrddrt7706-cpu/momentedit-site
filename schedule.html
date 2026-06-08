@@ -116,9 +116,9 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .day.avail::before{content:'';position:absolute;top:6px;right:7px;width:5px;height:5px;
   border-radius:50%;background:var(--gold);opacity:0.55}
 .day:hover:not(.off):not(.empty):not(.sel){background:var(--bg2);border-color:var(--gold-soft)}
-.day.sel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;
-  box-shadow:0 4px 14px rgba(58,45,34,0.22)}
-.day.sel::after{background:#fff}.day.sel::before{display:none}
+.day.sel{background:rgba(107,42,36,0.14);color:var(--seal);border-color:rgba(107,42,36,0.6);border-radius:50%;font-weight:600;
+  box-shadow:0 2px 10px rgba(107,42,36,0.14)}
+.day.sel::after{background:transparent}.day.sel::before{display:none}
 /* 로딩 스켈레톤 — 가능일 조회(네트워크) 전 빈 달력 대신 즉시 표시 */
 .day-skel{aspect-ratio:1;border-radius:6px;
   background:linear-gradient(100deg,var(--bg2) 28%,var(--bg3) 48%,var(--bg2) 68%);
@@ -204,7 +204,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .notice-body{flex:1;min-width:0}
 .notice-t{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);
   letter-spacing:0.02em;margin-bottom:4px}
-.notice-d{font-size:12.5px;color:var(--sub);line-height:1.75;letter-spacing:0.01em;font-weight:300}
+.notice-d{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;letter-spacing:0.01em;font-weight:300}
 .notice-d .em{color:var(--seal);font-weight:400}
 .notice-d .muted{color:var(--light);font-size:11.5px}
 
