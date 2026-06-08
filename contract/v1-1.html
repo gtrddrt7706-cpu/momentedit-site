@@ -237,11 +237,11 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <p class="clause"><span class="clause-n">①</span> <strong>'갑'(고객).</strong> 본 계약의 '갑'은 신랑과 신부 양인으로 한다. 본 계약서에 신랑·신부 양인의 정보를 기재하고, 대표 1인이 양인을 대표하여 전자서명하며, 양인은 제2조 제3항에 따라 연대하여 책임을 진다.</p>
       <div class="tbl-wrap"><table class="tbl-fill">
         <tr><th style="width:32%">구분</th><th>신랑</th><th>신부</th></tr>
-        <tr><td>성명(한글)</td><td></td><td></td></tr>
-        <tr><td>생년월일</td><td></td><td></td></tr>
+        <tr><td>성명(한글)</td><td data-fill="groom"></td><td data-fill="bride"></td></tr>
+        <tr><td>생년월일</td><td data-fill="groomBirth"></td><td data-fill="brideBirth"></td></tr>
         <tr><td>연락처</td><td></td><td></td></tr>
         <tr><td>이메일</td><td></td><td></td></tr>
-        <tr><td>주소</td><td></td><td></td></tr>
+        <tr><td>주소</td><td data-fill="groomAddr"></td><td data-fill="brideAddr"></td></tr>
         <tr><td>(외국인 시) 여권 영문명·국적</td><td></td><td></td></tr>
       </table></div>
       <p class="clause"><span class="clause-n">②</span> <strong>'을'(사업자).</strong></p>
@@ -554,6 +554,27 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span style="color:rgba(184,154,117,0.6)">[신고번호]</span><br>경기 고양시 덕양구 향동동 <span style="color:rgba(184,154,117,0.6)">[정식주소 — 이전 후 확정]</span> · contact@momentedit.kr</div>
   <div class="f-ver">웨딩 촬영·예식 서비스 이용계약서 v1.1 / 과도기 단일서명본</div>
 </footer>
+
+<script>
+/* [Phase2] 맞춤 채우기 — 인증된 마이페이지(같은 도메인 부모창)가 postMessage로 보낸 고객 정보로 '갑' 표를 채운다.
+   · 계약서를 직접(단독) 열면 부모가 없어 빈칸 그대로 → 정보 노출 없음.
+   · 같은 출처(location.origin)에서 온 메시지만 수용. */
+(function(){
+  function fill(d){
+    if(!d || typeof d!=='object') return;
+    var els=document.querySelectorAll('[data-fill]');
+    for(var i=0;i<els.length;i++){
+      var k=els[i].getAttribute('data-fill'), v=d[k];
+      if(v!=null && String(v)!=='') els[i].textContent=String(v);
+    }
+  }
+  window.addEventListener('message', function(ev){
+    if(ev.origin!==location.origin) return;
+    if(ev.data && ev.data.type==='momentedit:contractFill') fill(ev.data.data);
+  });
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'momentedit:contractReady'}, location.origin); }catch(e){}
+})();
+</script>
 
 </body>
 </html>

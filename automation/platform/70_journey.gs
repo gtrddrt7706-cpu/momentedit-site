@@ -310,6 +310,19 @@ function buildContractState(r) {
       out.expired = Date.now() > deadlineMs;
     }
   }
+  // [02-3 Phase2] 마이페이지 인뷰어(openContractView)가 v1-1 계약서를 고객 정보로 채우도록 표시 필드만 노출(동의기록 JSON 원본은 비노출).
+  var _rec = _parseJsonSafe(r.get('동의기록'));
+  var _ci = (_rec && _rec.계약정보) || {};
+  out.fill = {
+    groom: String(r.get('신랑이름') || ''),
+    bride: String(r.get('신부이름') || ''),
+    groomBirth: _ci.groomBirth || '',
+    brideBirth: _ci.brideBirth || '',
+    groomAddr: _ci.groomAddr || '',
+    brideAddr: _ci.brideAddr || '',
+    weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
+    total: Math.round(Number(r.get('계약총액')) || 0)
+  };
   return out;
 }
 
