@@ -287,6 +287,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .dt-cal-nav:hover:not(:disabled){color:var(--gold);background:var(--bg2)}
 .dt-cal-nav:disabled{opacity:.25;cursor:not-allowed}
 .dt-year-sel{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--border);padding:2px 2px;cursor:pointer;outline:none}
+.birth-sel{-webkit-appearance:none;-moz-appearance:none;appearance:none;box-sizing:border-box;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);background-color:#fff;border:1px solid var(--border);border-radius:6px;padding:12px 30px 12px 13px;outline:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B89A75' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 11px center}
+.birth-sel:focus{border-color:var(--gold)}
 .ci-terms-link{background:none;border:none;padding:0;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9a7f5f);text-decoration:underline;cursor:pointer}
 .pv-body{font-family:var(--serif-ko);font-size:13px;line-height:1.75;color:var(--sub);word-break:keep-all}
 .pv-body h2{font-size:14.5px;font-weight:600;color:var(--accent);margin:0}
@@ -1973,7 +1975,7 @@ function birthSelectHtml(idBase, val){
   var y='<option value="">년</option>'; for(var Y=ty;Y>=1940;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }
   var m='<option value="">월</option>'; for(var M=1;M<=12;M++){ var ms=('0'+M).slice(-2); m+='<option value="'+ms+'"'+(ms===vm?' selected':'')+'>'+M+'월</option>'; }
   var d='<option value="">일</option>'; for(var D=1;D<=31;D++){ var ds=('0'+D).slice(-2); d+='<option value="'+ds+'"'+(ds===vd?' selected':'')+'>'+D+'일</option>'; }
-  return '<div style="display:flex;gap:6px"><select class="cc-input" id="'+idBase+'_y" style="flex:1.4;min-width:0;width:auto;margin:0">'+y+'</select><select class="cc-input" id="'+idBase+'_m" style="flex:1;min-width:0;width:auto;margin:0">'+m+'</select><select class="cc-input" id="'+idBase+'_d" style="flex:1;min-width:0;width:auto;margin:0">'+d+'</select></div>';
+  return '<div style="display:flex;gap:6px"><select class="birth-sel" id="'+idBase+'_y" style="flex:1.4;min-width:0;margin:0">'+y+'</select><select class="birth-sel" id="'+idBase+'_m" style="flex:1;min-width:0;margin:0">'+m+'</select><select class="birth-sel" id="'+idBase+'_d" style="flex:1;min-width:0;margin:0">'+d+'</select></div>';
 }
 function openAddrSearch(roadId, jibunId, detailId){
   if(typeof daum==='undefined'||!daum.Postcode){ mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); return; }
