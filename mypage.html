@@ -900,29 +900,20 @@ function renderMyPage(d){
   // 개인코드
   var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
 
-  // 상담/촬영 (P1.5) — NOW·진행바 다음, NEXT 위
-  renderConsult(d.consult, d.product);
-
-  // 드레스 시착 동의 (02-2) — 상담 카드 다음, 계약 전
-  renderFitting(d.fitting, d);
-
-  // 본 계약 + 계약금 (02-3+02-4 병합) — 한 카드로 진행(서명→계약금→완료)
-  renderContractPayment(d.contract, d.payment, d);
-
-  // 중도금 (02-4b) — 결제 마일스톤(D-30) · 계약 후 첫 실결제
-  renderMid(d.midpayment);
-
-  // 잔금 (02-5) — 결제 마일스톤
-  renderBalance(d.balance);
-
-  // 제작 (03) — 입금완료 후: 기초정보 + 3트랙 / 청첩장(04) 입력 위저드
-  renderProduction(d.production, d.invitation);
-
-  // 결과물 (05) — 예식완료/결과물전달
-  renderResult(d.result, d.name, d.code);
-
-  // NEXT (잠금) — [D2] 현재단계 인식(지난 단계 숨김)
-  renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);
+  // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
+  if (d.isException){
+    ['mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);   // 자물쇠(잠긴 단계)만 유지
+  } else {
+    renderConsult(d.consult, d.product);                              // 상담/촬영 (P1.5)
+    renderFitting(d.fitting, d);                                      // 드레스 시착 동의 (02-2)
+    renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
+    renderMid(d.midpayment);                                          // 중도금 (02-4b)
+    renderBalance(d.balance);                                         // 잔금 (02-5)
+    renderProduction(d.production, d.invitation);                    // 제작 (03)
+    renderResult(d.result, d.name, d.code);                          // 결과물 (05)
+    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
+  }
 
   // 카톡
   var ka = $('mp_kakao');
