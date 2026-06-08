@@ -1800,7 +1800,14 @@ function handleCancelReservation(body) {
   if (LOCKED_STATES.indexOf(status) !== -1 && !withinCancelDeadline(r.get('선택날짜'), r.get('선택시간'))) {
     return { ok: false, error: '상담 ' + deadlineLabel() + ' 전까지만 취소할 수 있습니다. 카카오톡으로 문의해 주세요.' };
   }
-  actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + (토글 시)취소메일 [+ setCustomerStage: 작업3]
+  var acct = String((body && body.acct) || '').trim();
+  var dateKey = r.get('선택날짜'), time = r.get('선택시간');
+  if (acct) writeCell(sheet, colOf, r.num, '환불계좌', acct);   // 환불 계좌 기록(취소 처리 전)
+  actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + 고객 취소메일 + setCustomerStage
+  if (acct) {                  // 운영자에게 환불 송금 요청(계좌 포함)
+    try { sendRefundRequestEmail(r, dateKey, time, acct); }
+    catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', coupleNames(r) + ' · ' + e.message); }
+  }
   return { ok: true };
 }
 

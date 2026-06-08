@@ -186,6 +186,9 @@ details.acc>.consult-card{margin-top:10px}
 .vg-v em{font-style:normal;color:var(--gold-deep)}
 .vg-sub{display:inline-block;margin-top:3px;font-size:11px;color:var(--light);line-height:1.55}
 .vg-row:first-child{border-top:none}
+.visit-guide.vg-center .vg-row{display:block;text-align:center;padding:12px 0}
+.visit-guide.vg-center .vg-k{display:none}
+.visit-guide.vg-center .vg-v{display:block}
 .vg-v.vg-muted{color:var(--light)}
 
 /* ── NEXT (잠금) ── */
@@ -1049,7 +1052,7 @@ function renderConsult(c, product){
   var url = c.scheduleUrl ? '/schedule?me=1' : '';
   // [Task9] cancelUrl 등 다른 GAS 링크 안전망 — webAppUrl()이 비공개 URL을 뱉어도 검증된 /exec로 강제 (Drive 오류 방지)
   function fixGas(u){ if(!u||typeof EXEC_URL==='undefined') return u||''; var q=u.indexOf('?'); return q>=0 ? EXEC_URL+u.slice(q) : u; }
-  var body = '', cta = '';
+  var body = '', cta = '', extra = '';
 
   if (s === '신청접수'){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
@@ -1066,8 +1069,14 @@ function renderConsult(c, product){
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(fixGas(c.cancelUrl))+'">예약 취소</a>';  // [③-1] 환불흐름(ScreenD)로 라우팅
-    if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
+    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) — GAS 페이지 우회
+    if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
+    if (c.canCancel) extra = '<div id="mp_cancelPanel" style="display:none;margin-top:12px;padding:15px 16px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);text-align:left">'
+      + '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 입력하신 계좌로 환불해 드려요. <span class="cc-mini">환불은 영업일 기준 수일이 걸릴 수 있어요.</span></div>'
+      + '<input type="text" class="cc-input" id="mp_refundAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주">'
+      + '<div id="mp_refundErr" class="cc-mini" style="text-align:left;color:var(--seal);min-height:14px;margin:7px 0 0"></div>'
+      + '<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_cancelConfirm">취소 확정</button></div>'
+      + '</div>';
   } else if (s === '변경제안'){
     body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>'
          + (c.proposedNote ? '<div class="cc-note" style="text-align:center;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'"</div>' : '');
@@ -1078,20 +1087,24 @@ function renderConsult(c, product){
     box.style.display='none'; return;
   }
 
-  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">'+eyebrow+'</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">'+eyebrow+'</div>'+body+'<div class="cc-actions">'+cta+'</div>'+extra+'</div>';
   box.style.display='block';
 
-  var cancelBtn = $('mp_cancelRes'); if (cancelBtn) cancelBtn.addEventListener('click', doCancelRes);
+  var cancelToggle=$('mp_cancelToggle'), cancelPanel=$('mp_cancelPanel');
+  if(cancelToggle&&cancelPanel) cancelToggle.addEventListener('click', function(){ var open=cancelPanel.style.display!=='none'; cancelPanel.style.display=open?'none':'block'; if(!open){ var a=$('mp_refundAcct'); if(a) setTimeout(function(){a.focus();},60); } });
+  var cancelConfirm=$('mp_cancelConfirm'); if(cancelConfirm) cancelConfirm.addEventListener('click', doCancelRes);
   var acceptBtn = $('mp_acceptProp'); if (acceptBtn) acceptBtn.addEventListener('click', doAcceptProp);
 }
 
 function doCancelRes(){
-  mpConfirm({ title:'예약을 취소하시겠어요?', yes:'예약 취소', no:'닫기' }).then(function(ok){
-    if(!ok) return;
-    api({action:'cancelReservation', token:getToken()}).then(function(d){
-      if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '취소에 실패했습니다.'); }
-    }).catch(function(){ mpAlert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
-  });
+  var acctEl=$('mp_refundAcct'), errEl=$('mp_refundErr');
+  var acct=(acctEl&&acctEl.value||'').trim();
+  if(acct.length<5){ if(errEl) errEl.textContent='환불 계좌를 입력해 주세요. (은행·계좌번호·예금주)'; if(acctEl) acctEl.focus(); return; }
+  var btn=$('mp_cancelConfirm'); if(btn){ btn.disabled=true; btn.textContent='취소 처리 중…'; }
+  function reset(msg){ if(errEl) errEl.textContent=msg||''; if(btn){ btn.disabled=false; btn.textContent='취소 확정'; } }
+  api({action:'cancelReservation', token:getToken(), acct:acct}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소에 실패했습니다.'); }
+  }).catch(function(){ reset('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
 }
 function doAcceptProp(){
   api({action:'acceptProposal', token:getToken()}).then(function(d){
@@ -1111,7 +1124,7 @@ function renderFitting(f, d){
     var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
     var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
-      var notice = '<div class="visit-guide" style="margin-top:12px">'
+      var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일 안에</b> 서명해 주세요.<br>기한이 지나면 예약은 자동으로 취소돼요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
@@ -1157,7 +1170,7 @@ function renderContractPayment(c, p, ctx){
     if (ctx && /계약서/.test(String(ctx.waiting||''))){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
         + '<div class="cc-title">계약, 이렇게 진행돼요</div>'
-        + '<div class="visit-guide" style="margin-top:12px">'
+        + '<div class="visit-guide vg-center" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
         + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요.<br>서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요.<br>서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
         + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 드레스 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
