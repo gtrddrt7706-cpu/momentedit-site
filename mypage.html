@@ -1048,7 +1048,7 @@ function renderConsult(c, product){
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' 24시간 전부터는 변경·취소가 어렵습니다. 변경이 필요하시면 카카오톡으로 문의해 주세요.</div>';
   } else if (s === '변경제안'){
     body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>'
-         + (c.proposedNote ? '<div class="cc-note" style="text-align:left;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'" <span style="font-style:normal;color:var(--light)">— 디렉터</span></div>' : '');
+         + (c.proposedNote ? '<div class="cc-note" style="text-align:center;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'"</div>' : '');
     cta  = '<button type="button" class="cc-btn" id="mp_acceptProp">이 시간으로 수락</button>' + (url ? '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">다른 시간 보기</a>' : '');
   } else if (s === '취소'){
     body = '<div class="cc-title">취소된 예약입니다</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';

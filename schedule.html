@@ -242,6 +242,13 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   text-transform:uppercase;color:var(--light);display:block;margin-bottom:7px}
 .deposit-acct .acct-no{font-family:var(--serif);font-size:15px;letter-spacing:0.04em;color:var(--accent);font-weight:500}
 .deposit-acct .muted{display:block;font-size:11px;color:var(--light);font-weight:300;margin-top:8px}
+.deposit-payer{margin-top:18px;padding-top:18px;border-top:1px solid var(--hairline)}
+.deposit-payer-label{display:block;font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-bottom:9px;text-align:center}
+.deposit-payer-label span{font-size:11px;color:var(--light);font-weight:300}
+#depPayer{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--serif-ko);font-size:14px;color:var(--accent);letter-spacing:0.01em;text-align:center;background:#fff}
+#depPayer:focus{outline:none;border-color:var(--gold)}
+#depPayer::placeholder{color:var(--light);font-weight:300}
+.deposit-payer-hint{font-family:var(--serif-ko);font-size:11px;color:var(--light);font-weight:300;margin-top:9px;line-height:1.6;text-align:center}
 
 /* ── 제출 ── */
 .submit-wrap{padding:8px 0 40px;text-align:center}
@@ -441,7 +448,12 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
       <div class="deposit-acct">
         <span class="acct-label">입금 계좌</span>
         <span class="acct-no" id="t_account"></span>
-        <span class="muted">예금주 <span id="t_holder"></span> · 입금자명은 신청자 성함으로 부탁드립니다</span>
+        <span class="muted">예금주 <span id="t_holder"></span></span>
+      </div>
+      <div class="deposit-payer">
+        <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제로 입금하실 분 성함</span></label>
+        <input type="text" id="depPayer" maxlength="20" autocomplete="name" placeholder="예) 홍길동">
+        <div class="deposit-payer-hint">신청자 성함과 다르면 꼭 적어 주세요 — 입금 확인이 빨라져요.</div>
       </div>
     </div>
 
@@ -672,9 +684,10 @@ function doSubmit(){
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
+  const payer=(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();
   const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc})})
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer})})
     .then(function(r){return r.json();})
     .then(function(res){
       if(res&&res.ok){
@@ -739,7 +752,7 @@ renderCal();renderTime();updateSummary();
       if(!s||!s.ok){ fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
       s.token=token; s.me=!!me;
       var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};
-      set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder);
+      set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder); var _dp=document.getElementById('depPayer'); if(_dp&&!_dp.value&&s.names) _dp.value=s.names;
       var ka=$('t_kakao'); if(ka&&s.kakao) ka.href=s.kakao;
       boot(s);
     })
