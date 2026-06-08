@@ -511,14 +511,17 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 계약금 입금 (02-4) — 계약서 다음 -->
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
-    <!-- 중도금 (02-4b) — 결제 마일스톤(D-30) · 계약 후 첫 실결제. 평소 접힘 → D-37 자동 펼침 -->
-    <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
-
-    <!-- 잔금 (02-5) — 결제 마일스톤(단계 아님) · 위쪽 아코디언. 평소 접힘 → 예식 D-15 자동 펼침 -->
-    <div class="consult-sec" id="mp_balance" style="display:none"></div>
-
     <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
     <div class="consult-sec" id="mp_production" style="display:none"></div>
+
+    <!-- 중도금·잔금 안내(제작 단계 내 노출) -->
+    <div class="consult-sec" id="mp_payNote" style="display:none"></div>
+
+    <!-- 중도금 (02-4b) — 결제 마일스톤(D-30). 평소 접힘 → D-37 자동 펼침 -->
+    <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
+
+    <!-- 잔금 (02-5) — 결제 마일스톤. 평소 접힘 → 예식 D-15 자동 펼침 -->
+    <div class="consult-sec" id="mp_balance" style="display:none"></div>
 
     <!-- 결과물 (05) — 예식완료/결과물전달 -->
     <div class="consult-sec" id="mp_result" style="display:none"></div>
@@ -1005,8 +1008,11 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
   var html = '<div class="nx-label en-30">NEXT</div>' + items.map(function(it){
     return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
   }).join('');
-  if (items.some(function(it){return it[0]==='중도금 · 잔금';})) html += '<div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.65;margin-top:12px;padding-top:11px;border-top:1px solid rgba(28,27,25,.06);word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--sub)">예식 45일 전</b>부터 함께 열려요. 한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div>';
   box.innerHTML = html;
+  // 중도금·잔금 안내는 제작 화면 영역(mp_payNote)에 노출 — 제작 단계에서 결제 안내를 함께
+  (function(){ var pn=$('mp_payNote'); if(!pn) return;
+    if(items.some(function(it){return it[0]==='중도금 · 잔금';})){ pn.innerHTML='<div class="consult-card" style="padding:14px 18px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all">중도금·잔금 입금 정보는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>부터 여기에서 함께 열려요. 한 번에 내셔도, 따로 내셔도 괜찮아요. 그 전엔 준비만 하시면 돼요.</div></div>'; pn.style.display='block'; }
+    else { pn.innerHTML=''; pn.style.display='none'; } })();
 }
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).

@@ -166,8 +166,8 @@ function _cmpWait(a, b) { a = a || '9999'; b = b || '9999'; return a < b ? -1 : 
 function _subStatusFor(stage, isSnap, x) {
   switch (stage) {
     case '신청접수': return (x.booking === ST.PICKED) ? '승인 대기' : '시간 선택 대기';
-    case '상담확정': return x.consultPast ? '상담일 지남' : '상담 예정';
-    case '촬영확정': return x.consultPast ? '촬영일 지남' : '촬영 예정';
+    case '상담확정': return (x.consultPast ? '상담일 지남' : '상담 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
+    case '촬영확정': return (x.consultPast ? '촬영일 지남' : '촬영 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? '계약서 발송 대기' : '계약 진행 중';
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
@@ -263,6 +263,8 @@ function adminHome() {
     var consultYmd = _ymdOf(bk ? bget(bk, '선택날짜') : '');
     var bookingStatus = bk ? String(bget(bk, '상태') || '').trim() : '';
     var consultPast = consultYmd ? (_dayDiff(today, consultYmd) > 0) : false;
+    var consultDue = consultYmd ? (_dayDiff(today, consultYmd) >= 0) : false;   // 상담 당일부터(오늘 포함) — 시착 동의서 보낼 시점
+    var consultMD = (function(){ var m=String((bk ? normalizeDateKey(bget(bk,'선택날짜')) : '')||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? ((+m[2])+'/'+(+m[3])) : ''; })();   // 예정일 짧은 표기(M/D) — 현황 한눈에
 
     // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
     if (stage === '결과물전달') {
@@ -272,12 +274,12 @@ function adminHome() {
     }
 
     // 시착 동의 보내기(시그) — 상담확정 & 상담일 지남 & 시착 미발송
-    if (!isSnap && stage === '상담확정' && consultPast && 시착 !== '동의요청' && 시착 !== '동의완료') {
+    if (!isSnap && stage === '상담확정' && consultDue && 시착 !== '동의요청' && 시착 !== '동의완료') {
       pushQ({ code: code, names: names, product: product, kind: '시착보내기', sub: '시착 동의서 보내기',
-        badge: { level: 'yellow', text: '상담 끝남' }, _urgent: false, _stage: 2, _wait: createdYmd });
+        badge: { level: 'yellow', text: '상담일' }, _urgent: true, _stage: 2, _wait: createdYmd });
     }
     // 상담완료 처리(시그) — 시착 & 시착동의완료 & 상담일 지남
-    if (!isSnap && stage === '시착' && 시착 === '동의완료' && consultPast) {
+    if (!isSnap && stage === '시착' && 시착 === '동의완료' && consultDue) {
       pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '시착 완료 · 상담완료 처리',
         badge: null, _urgent: false, _stage: 2, _wait: createdYmd });
     }
@@ -358,7 +360,7 @@ function adminHome() {
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null), _created: createdYmd
     });
   });
