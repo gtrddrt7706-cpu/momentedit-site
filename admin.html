@@ -708,7 +708,7 @@ function cardConsult(d,isSnap){
   var b='';
   if(st==='시간선택완료'){ b+=ab('approve','✓ 승인')+ab('propose','시간 변경 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
   else if(st==='변경제안'){ b+=ab('accept','✓ 변경 수락')+ab('propose','다시 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
-  else if(st==='승인완료'||st==='확정'){ b+=ab('propose','시간 변경 제안','btn-line')+ab('cancel','예약 취소','btn-ghost'); }
+  else if(st==='승인완료'||st==='확정'){ if(d.raw&&d.raw['시착동의상태']&&d.raw['시착동의상태']!=='대기'){ b+='<div class="gate">대면상담 진행 중 — 시간 변경·취소 마감</div>'; } else { b+=ab('propose','시간 변경 제안','btn-line')+ab('cancel','예약 취소','btn-ghost'); } }
   else if(st==='신청접수'){ b+='<div class="gate">고객이 아직 시간을 선택하지 않았어요</div>'+ab('propose','시간 직접 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
   // 상담완료/노쇼 — 상담확정/촬영확정 단계
   if(d.stage==='상담확정'){ b+=ab('openFitting','드레스 시착 동의 보내기')+ab('noshow','노쇼 처리','btn-danger'); }
