@@ -453,10 +453,10 @@ function adminDetail(code) {
   d.phone = String(cust.get('연락처') || '');
   d.email = String(cust.get('이메일') || '');
 
-  // 헤더 핀 — 예식일(제작 base 우선·없으면 상담 예식일자)·하객·상품
+  // 헤더 핀 — 예식일(계약 확정 톱레벨 우선 · 없으면 제작 base · 없으면 상담 예식일자)·하객·상품
   var draft = _parseJsonSafe(cust.get('제작임시저장'));
   d.pin = {
-    예식일: _ymdOf(draft.base && draft.base.weddingDate) || _ymdOf(cr ? cr.get('예식일자') : ''),
+    예식일: _ymdOf(cust.get('예식일')) || _ymdOf(draft.base && draft.base.weddingDate) || _ymdOf(cr ? cr.get('예식일자') : ''),
     하객: String(cr ? (cr.get('하객') || '') : ''),
     상품: product
   };
@@ -729,7 +729,7 @@ function adminAvailability() {
 // [02-3] 계약서 발송 — 계약상태=발송 + 계약서발송일시(now, +72h 기한 기준) + 계약서링크.
 //   서명은 고객 측(signContract). 발송 시각을 정확히 찍어야 기한 계산이 맞으므로 이 핸들러로 발송(시트 직접 입력 X).
 // total = 계약총액(주말 2800000 / 평일 2100000 등, 공휴일=주말단가). 입금화면의 계약금·잔금 산출 기준.
-function adminSendContract(code, link, total) {
+function adminSendContract(code, link, total, weddingYmd) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
@@ -745,10 +745,12 @@ function adminSendContract(code, link, total) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var now = fmtKST(new Date());
   var amt = Math.round(Number(total) || 0);                   // 0이면 미설정(입금화면이 "확인 후 안내")
+  var wed = String(weddingYmd || '').trim();                  // 계약 시점에 예식일 확정 → 돈 계산(중도금·잔금 D-day) 단일 기준
   var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': linkStr };
   if (amt > 0) upd['계약총액'] = amt;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-7·중도금 D-30 산출 기준(계약에서 잠금)
   touchCustomer(sheet, colOf, cust.num, upd);
-  _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + ' (링크)');
+  _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (wed ? (' · 예식일 ' + wed) : '') + ' (링크)');
   return { ok: true, sentAt: now };
 }
 

@@ -97,14 +97,16 @@ function buildProductionState(r) {
   var draft = _parseJsonSafe(r.get('제작임시저장'));
   var entered = !!draft.base;
   var b = draft.base || {};
+  var lockedWed = _ymdOf(r.get('예식일'));                    // 계약 시점에 확정된 예식일(톱레벨) = 돈 계산 단일 기준
   var base = {
     groomKo: entered ? (b.groomKo || '') : String(r.get('신랑이름') || ''),
     brideKo: entered ? (b.brideKo || '') : String(r.get('신부이름') || ''),
     groomEn: b.groomEn || '',
     brideEn: b.brideEn || '',
     email: entered ? (b.email || '') : String(r.get('이메일') || ''),
-    weddingDate: b.weddingDate || '',
-    weddingTime: b.weddingTime || ''
+    weddingDate: lockedWed || b.weddingDate || '',          // 계약 확정일 우선(없으면 제작폼 입력값)
+    weddingTime: b.weddingTime || '',
+    weddingLocked: !!lockedWed                              // true면 제작폼에서 날짜 읽기전용(계약서 기준)
   };
   var t = draft.tracks || {};
   return {

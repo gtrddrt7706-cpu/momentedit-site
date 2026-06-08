@@ -971,18 +971,23 @@ function doCloseFitting(code,names){ openModal({ title:'드레스 시착 동의�
 function openSendContract(code,names,d){
   var sug=d.priceSuggest;   // {total,premium,reason,weddingYmd} | null
   var preset = sug ? String(sug.total) : (snap(d.product)?'600000':'2800000');
+  var wedPre = (d.pin && /^\d{4}-\d{2}-\d{2}$/.test(String(d.pin['예식일']||''))) ? esc(d.pin['예식일']) : ((sug && sug.weddingYmd) ? esc(sug.weddingYmd) : '');
   var sugLine = sug
     ? '<div class="cnote" style="margin:0 0 8px">자동 제안: '+(sug.weddingYmd?('예식일 <b>'+esc(sug.weddingYmd)+'</b> · '):'')+esc(sug.reason)+' → <b>'+Number(sug.total).toLocaleString()+'원</b> <span style="color:var(--label-soft)">(확인·수정 가능)</span></div>'
-    : '<div class="cnote" style="margin:0 0 8px;color:var(--label-soft)">예식일 미정 — 총액을 직접 선택해 주세요</div>';
-  var extra=sugLine+'<div class="field"><label>계약 총액</label><select id="ctSel">'+
+    : '<div class="cnote" style="margin:0 0 8px;color:var(--label-soft)">예식일 미정 — 아래에서 예식일을 확정해 주세요</div>';
+  var extra=sugLine
+    +'<div class="field"><label>예식일 (확정 · 중도금·잔금 기준일)</label><input type="date" id="ctWed" value="'+wedPre+'"></div>'
+    +'<div class="field"><label>계약 총액</label><select id="ctSel">'+
     '<option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option><option value="600000">스냅 — 60만</option><option value="__etc">직접 입력</option></select></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
     '<div class="field"><label>계약서 링크 (필수·https)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"></div>';
-  openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">서명하면 72시간 기한이 시작돼요.</span>', extra:extra, yes:'발송',
-    init:function(){ var pre=$('ctLink'); if(d.raw&&d.raw['계약서링크']) pre.value=d.raw['계약서링크']; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; }); },
-    onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim();
+  openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">예식일을 확정하면 중도금·잔금 일정이 이 날짜를 기준으로 잡혀요.</span>', extra:extra, yes:'발송',
+    init:function(){ var pre=$('ctLink'); if(d.raw&&d.raw['계약서링크']) pre.value=d.raw['계약서링크']; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
+      var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; }); },
+    onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim(); var wed=String($('ctWed')&&$('ctWed').value||'').trim();
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(wed)){ mErr('예식일을 선택해 주세요. 중도금·잔금 일정의 기준이 돼요.'); return; }
       if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크(https://…)를 입력해 주세요.'); return; }
-      runAct(['adminSendContract',code,link,total],code,'발송'); } });
+      runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
 
