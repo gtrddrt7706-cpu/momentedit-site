@@ -695,6 +695,7 @@ function doSubmit(){
     .then(function(r){return r.json();})
     .then(function(res){
       if(res&&res.ok){
+        try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
         const dateStr=fmtDate(selDate);
         document.getElementById('modalPick').innerHTML=(SERVER.names||'')+' 님<br>'+dateStr+' · '+selTime;
         document.getElementById('modal').classList.add('show');
