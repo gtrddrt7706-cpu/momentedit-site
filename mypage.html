@@ -1191,29 +1191,27 @@ function renderContractReqForm(ctx){
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:ci.weddingDate})
-    +'<div class="pf2" style="margin-top:8px"><div><label class="pf-l">신랑 생년월일</label>'+dtPickerHtml('mpcg','mp_ciGB','생년월일 선택',{value:ci.groomBirth,yearSel:true})+'</div>'
-    +'<div><label class="pf-l">신부 생년월일</label>'+dtPickerHtml('mpcb','mp_ciBB','생년월일 선택',{value:ci.brideBirth,yearSel:true})+'</div></div>'
+    +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
+    +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
     +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddr)
     +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddr)
     +'<label class="srv-consent" style="margin-top:14px"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
-    +'<div style="margin:5px 0 0 28px"><button type="button" class="ci-terms-link" id="mp_ciTerms">수집 항목·목적 보기</button></div>'
+    +'<div style="margin:5px 0 0 28px"><a class="ci-terms-link" href="privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
     +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ciSubmit">계약서 요청하기</button>'
     +'<div class="cc-note" style="text-align:center">계약서를 요청하시면 <b>24시간 안에</b> 보내드려요.</div></div></div>';
   box.style.display='block';
   initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed'});
-  initDatePicker({wrap:'mpcg_wrap',trigger:'mpcg_trigger',text:'mpcg_text',panel:'mpcg_panel',grid:'mpcg_grid',title:'mpcg_title',prev:'mpcg_prev',next:'mpcg_next',hidden:'mp_ciGB',allowPast:true,yearSel:'mpcg_ysel'});
-  initDatePicker({wrap:'mpcb_wrap',trigger:'mpcb_trigger',text:'mpcb_text',panel:'mpcb_panel',grid:'mpcb_grid',title:'mpcb_title',prev:'mpcb_prev',next:'mpcb_next',hidden:'mp_ciBB',allowPast:true,yearSel:'mpcb_ysel'});
   function _wireAddr(base){ function op(){ openAddrSearch(base+'_road', base+'_jibun', base+'_detail'); } var f=$(base+'_find'); if(f) f.addEventListener('click',op); var rd=$(base+'_road'); if(rd) rd.addEventListener('click',op); }
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
-  var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', showContractPrivacy);
   var sb=$('mp_ciSubmit'); if(sb) sb.addEventListener('click', doRequestContract);
 }
 function doRequestContract(){
   function v(id){ var e=$(id); return (e&&e.value||'').trim(); }
   function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세 합성
+  function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
-  var info={ weddingDate:v('mp_ciWed'), groomBirth:v('mp_ciGB'), brideBirth:v('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+  var info={ weddingDate:v('mp_ciWed'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
   if(!info.groomAddr||!info.brideAddr) return fail('신랑·신부 주소를 입력해 주세요.');
@@ -1939,6 +1937,15 @@ function addrFieldHtml(idBase, val){
   return '<div style="display:flex;gap:8px;align-items:stretch"><input type="text" class="cc-input" id="'+idBase+'_road" readonly placeholder="주소 찾기를 눌러 주세요" value="'+escapeHtml(val)+'" style="flex:1 1 auto;min-width:0;width:auto;cursor:pointer;background:#fff"><button type="button" class="cc-btn-ghost" id="'+idBase+'_find" style="flex:0 0 auto;width:auto;white-space:nowrap;padding:0 16px">주소 찾기</button></div>'
     +'<div id="'+idBase+'_jibun" style="font-size:11px;color:var(--light);margin:3px 0 0;font-family:var(--serif-ko)"></div>'
     +'<input type="text" class="cc-input" id="'+idBase+'_detail" autocomplete="off" placeholder="상세주소 (동·호 등)" style="margin-top:6px">';
+}
+// 생년월일 — 년·월·일 드롭다운(달력보다 빠르고 오타 없음). doRequestContract가 YYYY-MM-DD로 합성.
+function birthSelectHtml(idBase, val){
+  var vy='',vm='',vd='', mm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(val||''); if(mm){ vy=mm[1]; vm=mm[2]; vd=mm[3]; }
+  var ty=new Date().getFullYear();
+  var y='<option value="">년</option>'; for(var Y=ty;Y>=1940;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }
+  var m='<option value="">월</option>'; for(var M=1;M<=12;M++){ var ms=('0'+M).slice(-2); m+='<option value="'+ms+'"'+(ms===vm?' selected':'')+'>'+M+'월</option>'; }
+  var d='<option value="">일</option>'; for(var D=1;D<=31;D++){ var ds=('0'+D).slice(-2); d+='<option value="'+ds+'"'+(ds===vd?' selected':'')+'>'+D+'일</option>'; }
+  return '<div style="display:flex;gap:6px"><select class="cc-input" id="'+idBase+'_y" style="flex:1.4;min-width:0;width:auto;margin:0">'+y+'</select><select class="cc-input" id="'+idBase+'_m" style="flex:1;min-width:0;width:auto;margin:0">'+m+'</select><select class="cc-input" id="'+idBase+'_d" style="flex:1;min-width:0;width:auto;margin:0">'+d+'</select></div>';
 }
 function openAddrSearch(roadId, jibunId, detailId){
   if(typeof daum==='undefined'||!daum.Postcode){ mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); return; }
