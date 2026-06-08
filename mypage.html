@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-45 · no default year · contract phase1 · redeploy 2026-06-08b -->
+<!-- build: birth 18-53 · no default year · contract phase1 · redeploy 2026-06-08c -->
 </head>
 <body>
 
@@ -1973,7 +1973,7 @@ function addrFieldHtml(idBase, val){
 function birthSelectHtml(idBase, val){
   var vy='',vm='',vd='', mm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(val||''); if(mm){ vy=mm[1]; vm=mm[2]; vd=mm[3]; }
   var ty=new Date().getFullYear();
-  var y='<option value="">년</option>'; for(var Y=ty-18;Y>=ty-45;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }   // 18~45세 범위(올해-18 ~ 올해-45)만 · 기본값 없음('년' 플레이스홀더)
+  var y='<option value="">년</option>'; for(var Y=ty-18;Y>=ty-53;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }   // 18~53세 범위(올해-18 ~ 올해-53)만 · 기본값 없음('년' 플레이스홀더)
   var m='<option value="">월</option>'; for(var M=1;M<=12;M++){ var ms=('0'+M).slice(-2); m+='<option value="'+ms+'"'+(ms===vm?' selected':'')+'>'+M+'월</option>'; }
   var d='<option value="">일</option>'; for(var D=1;D<=31;D++){ var ds=('0'+D).slice(-2); d+='<option value="'+ds+'"'+(ds===vd?' selected':'')+'>'+D+'일</option>'; }
   return '<div style="display:flex;gap:6px"><select class="birth-sel" id="'+idBase+'_y" style="flex:1.4;min-width:0;margin:0">'+y+'</select><select class="birth-sel" id="'+idBase+'_m" style="flex:1;min-width:0;margin:0">'+m+'</select><select class="birth-sel" id="'+idBase+'_d" style="flex:1;min-width:0;margin:0">'+d+'</select></div>';
