@@ -1174,7 +1174,7 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'');
-    h += '<div class="cc-note" style="text-align:left">'+(isSnap?'서명 후 이어서 <b>계약금</b> 입금 안내를 드려요 — 계약과 계약금은 한 번에 진행돼요.':'추가 납부는 없어요 — 이미 낸 <b>예약금으로 갈음</b>돼 바로 제작 준비로 이어져요. (첫 결제는 중도금 · 예식 D-30)')+'</div>';
+    h += '<div class="cc-note" style="text-align:left">'+(isSnap?'서명 후 이어서 <b>계약금</b> 입금 안내를 드려요. 계약과 계약금은 한 번에 진행돼요.':'추가 납부는 없어요. 이미 낸 <b>예약금으로 갈음</b>돼 바로 제작 준비로 이어져요.<br>첫 결제는 예식 30일 전 중도금이에요.')+'</div>';
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
