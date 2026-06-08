@@ -989,13 +989,14 @@ function openSendContract(code,names,d){
     +'<div class="field"><label>계약 총액</label><select id="ctSel">'+
     '<option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option><option value="600000">스냅 — 60만</option><option value="__etc">직접 입력</option></select></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
-    '<div class="field"><label>계약서 링크 (필수·https)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"></div>';
+    '<div class="field"><label>계약서 링크 (기본 계약서 자동 — 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송하세요.</span>', extra:extra, yes:'발송',
-    init:function(){ var pre=$('ctLink'); if(d.raw&&d.raw['계약서링크']) pre.value=d.raw['계약서링크']; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
+    init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:'https://momentedit.kr/contract/v1-1.html'; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
       var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; }); },
     onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim(); var wed=String($('ctWed')&&$('ctWed').value||'').trim();
       if(!/^\d{4}-\d{2}-\d{2}$/.test(wed)){ mErr('예식일을 선택해 주세요. 중도금·잔금 일정의 기준이 돼요.'); return; }
-      if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크(https://…)를 입력해 주세요.'); return; }
+      if(!link) link='https://momentedit.kr/contract/v1-1.html';
+      if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크는 https://… 형식이어야 해요.'); return; }
       runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
