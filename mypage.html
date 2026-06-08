@@ -1936,19 +1936,34 @@ function dtPickerHtml(p, hiddenId, placeholder, opt){
 // 주소 필드(다음 우편번호) — idBase_road(도로명·읽기) + _find(검색) + _jibun(지번) + _detail(상세)
 function addrFieldHtml(idBase, val){
   val=val||'';
-  return '<div style="display:flex;gap:8px;align-items:stretch"><input type="text" class="cc-input" id="'+idBase+'_road" readonly placeholder="주소 찾기를 눌러 주세요" value="'+escapeHtml(val)+'" style="flex:1;cursor:pointer;background:#fff"><button type="button" class="cc-btn-ghost" id="'+idBase+'_find" style="flex:0 0 auto;white-space:nowrap;padding:0 15px">주소 찾기</button></div>'
+  return '<div style="display:flex;gap:8px;align-items:stretch"><input type="text" class="cc-input" id="'+idBase+'_road" readonly placeholder="주소 찾기를 눌러 주세요" value="'+escapeHtml(val)+'" style="flex:1 1 auto;min-width:0;width:auto;cursor:pointer;background:#fff"><button type="button" class="cc-btn-ghost" id="'+idBase+'_find" style="flex:0 0 auto;width:auto;white-space:nowrap;padding:0 16px">주소 찾기</button></div>'
     +'<div id="'+idBase+'_jibun" style="font-size:11px;color:var(--light);margin:3px 0 0;font-family:var(--serif-ko)"></div>'
     +'<input type="text" class="cc-input" id="'+idBase+'_detail" autocomplete="off" placeholder="상세주소 (동·호 등)" style="margin-top:6px">';
 }
 function openAddrSearch(roadId, jibunId, detailId){
   if(typeof daum==='undefined'||!daum.Postcode){ mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); return; }
-  new daum.Postcode({ oncomplete:function(data){
-    var road=data.roadAddress||data.autoRoadAddress||data.address||'';
-    var jibun=data.jibunAddress||data.autoJibunAddress||'';
-    var rEl=$(roadId); if(rEl) rEl.value=road;
-    var jEl=$(jibunId); if(jEl) jEl.textContent=jibun?('지번 · '+jibun):'';
-    var dEl=detailId?$(detailId):null; if(dEl){ try{ dEl.focus(); }catch(e){} }
-  } }).open();
+  var ov=$('mp_addrOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='mp_addrOverlay';
+    ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(28,27,25,.45);z-index:10000;align-items:center;justify-content:center;padding:20px';
+    ov.innerHTML='<div style="background:#fff;border-radius:12px;max-width:430px;width:100%;box-shadow:0 20px 60px rgba(28,27,25,.25);overflow:hidden"><div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--hairline)"><span style="font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)">주소 찾기</span><button type="button" id="mp_addrClose" aria-label="닫기" style="background:none;border:none;font-size:22px;color:var(--light);cursor:pointer;line-height:1;padding:0 4px">&times;</button></div><div id="mp_addrEmbed" style="width:100%;height:470px"></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target===ov) ov.style.display='none'; });
+    var cl=document.getElementById('mp_addrClose'); if(cl) cl.addEventListener('click', function(){ ov.style.display='none'; });
+  }
+  var em=document.getElementById('mp_addrEmbed'); em.innerHTML='';
+  ov.style.display='flex';
+  new daum.Postcode({
+    oncomplete:function(data){
+      var road=data.roadAddress||data.autoRoadAddress||data.address||'';
+      var jibun=data.jibunAddress||data.autoJibunAddress||'';
+      var rEl=$(roadId); if(rEl) rEl.value=road;
+      var jEl=$(jibunId); if(jEl) jEl.textContent=jibun?('지번 · '+jibun):'';
+      ov.style.display='none';
+      var dEl=detailId?$(detailId):null; if(dEl){ try{ dEl.focus(); }catch(e){} }
+    },
+    width:'100%', height:'100%'
+  }).embed(em);
 }
 function showContractPrivacy(){
   mpAlert({ title:'개인정보 수집·이용 안내', bodyHtml:'<div style="text-align:left;font-size:12.5px;line-height:1.85;color:var(--sub);word-break:keep-all">'
