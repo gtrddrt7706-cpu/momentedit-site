@@ -619,7 +619,8 @@ function openDetail(code, origin){
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
-    curDetail=d; renderDetail(d); show('detail'); window.scrollTo(0,0);
+    curDetail=d; renderDetail(d); show('detail');
+    setTimeout(function(){ var cur=document.querySelector('.card.cur'); if(cur){ var y=cur.getBoundingClientRect().top+window.pageYOffset-72; window.scrollTo({top:y<0?0:y,behavior:'smooth'}); } else window.scrollTo(0,0); }, 60);   // 진행 중인 단계 카드로 자동 스크롤
   }).catch(function(e){ toast('오류'); loadHome(); });
 }
 

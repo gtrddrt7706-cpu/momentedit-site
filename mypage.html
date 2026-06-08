@@ -1826,11 +1826,11 @@ function doSaveProductionBase(){
 function productionDashHtml(t, inv){
   t=t||{}; inv=inv||{};
   function actLabel(st){ return st==='완료' ? '다시 보기' : (st==='진행중' ? '이어서 하기' : '시작하기'); }
-  function stText(st){ return st==='완료' ? '완료' : (st==='진행중' ? '작성 중' : '아직 안 함'); }
+  function stText(st){ return st==='완료' ? '완료' : (st==='진행중' ? '작성 중' : ''); }
   function row(name, st, btnId, label, showSt){
     var done = (st==='완료');
     return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + (showSt?'<span class="trk-st">'+escapeHtml(stText(st))+'</span>':'')
+      + (showSt&&stText(st)?'<span class="trk-st">'+escapeHtml(stText(st))+'</span>':'')
       + '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';
   }
   var ist = inv.status || '시작전';
@@ -1907,7 +1907,7 @@ function invStepMethod(box){
   });
 }
 function invStepParents(box){
-  var d=INVFLOW.draft;
+  var d=INVFLOW.draft; d._acctGate='Y';   // 계좌(마음 전하실 곳)는 필수 — 항상 노출
   var OMIT='호칭 생략 (이름만 표시)', ETC='기타(직접입력)';
   var GT=['장남','차남','삼남','사남','외동아들','막내아들',OMIT], BT=['장녀','차녀','삼녀','사녀','외동딸','막내딸',OMIT];
   var BANKS=['국민','신한','우리','하나','농협','기업','SC제일','씨티','카카오뱅크','토스뱅크','케이뱅크','새마을금고','우체국','수협','부산','대구','경남','광주','전북','산업'];
@@ -1932,16 +1932,22 @@ function invStepParents(box){
     + paRow('신부 아버지','iv_bfb','iv_bfa','brideFatherAccount')
     + paRow('신부 어머니','iv_bmb','iv_bma','brideMotherAccount')
     + '<div class="cc-note">은행을 고르고 계좌번호를 적어주세요. 빈 칸은 청첩장에 안 나와요.</div></div>' : '';
-  var aF = d._acctGate==='Y' ? '<div class="inv-fields">'
+  var _accWhere = (function(){ var m=d.method, o='';
+    if(m==='offline'||m==='both') o+='<label class="inv-chk"><input type="checkbox" data-acc="family" '+(d.accountFamily==='Y'?'checked':'')+'> 오프라인 청첩장</label>';
+    if(m==='online'||m==='both') o+='<label class="inv-chk"><input type="checkbox" data-acc="online" '+(d.accountOnline==='Y'?'checked':'')+'> 온라인 청첩장</label><label class="inv-chk"><input type="checkbox" data-acc="live" '+(d.accountLive==='Y'?'checked':'')+'> 모바일 참석 화면</label>';
+    return o ? '<div class="inv-gate" style="margin-top:6px"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>' : '';
+  })();
+  var aF = '<div class="inv-fields">'
     +'<div class="inv-row">'+selOnly('iv_gb',BANKS,d.groomBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ga" placeholder="신랑 계좌번호 (예: 110-315-175994)" value="'+escapeHtml(d.groomAccount||'')+'"></div>'+etcRow('iv_gb',d.groomBank,BANKS,'신랑 은행 직접 입력')
     +'<div class="inv-row">'+selOnly('iv_bb',BANKS,d.brideBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ba" placeholder="신부 계좌번호 (예: 110-315-175994)" value="'+escapeHtml(d.brideAccount||'')+'"></div>'+etcRow('iv_bb',d.brideBank,BANKS,'신부 은행 직접 입력')
-    + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>' : '';
+    + _accWhere
+    + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span></div>'
-    +'<div class="inv-q">혼주 · 마음 전하실 곳</div><div class="inv-sub">여기는 모두 선택이에요.</div>'
+    +'<div class="inv-q">혼주 · 마음 전하실 곳</div><div class="inv-sub">계좌는 필수, 나머지는 선택이에요.</div>'
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
-    + yn('마음 전하실 곳(계좌)을 넣으실까요?', d._acctGate||'', 'data-ga') + aF
+    + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'</div>';
   function collect(){
@@ -1958,6 +1964,7 @@ function invStepParents(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
+  Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){el.addEventListener('change',function(){var k=el.getAttribute('data-acc');d[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N';});});
   Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ e.addEventListener('input',collect); });   // #8 입력 즉시 draft 반영(나가기 보존)
   ['iv_gp','iv_bp'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('blur', function(){ var parts=el.value.trim().split(/[\s,\/.·∙ㆍ]+/).filter(Boolean); var v=parts.join('·'); if(v!==el.value){ el.value=v; collect(); } }); });   // 혼주 성함 가운뎃점(·) 자동
   ['iv_gct','iv_bct','iv_gb','iv_bb','iv_gfb','iv_gmb','iv_bfb','iv_bmb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; collect(); }); });
@@ -2075,12 +2082,7 @@ function invStepDesign(box){
     h+='<div class="inv-gate"><div class="inv-gate-q">온라인 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
-  if(d._acctGate==='Y'){
-    h+='<div class="inv-gate"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>';
-    if(m==='offline'||m==='both') h+='<label class="inv-chk"><input type="checkbox" data-acc="family" '+(d.accountFamily==='Y'?'checked':'')+'> 오프라인 청첩장</label>';
-    if(m==='online'||m==='both') h+='<label class="inv-chk"><input type="checkbox" data-acc="online" '+(d.accountOnline==='Y'?'checked':'')+'> 온라인 청첩장</label><label class="inv-chk"><input type="checkbox" data-acc="live" '+(d.accountLive==='Y'?'checked':'')+'> 모바일 참석 화면</label>';
-    h+='</div>';
-  }
+  // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨
   h+='<div class="cc-actions" style="margin-top:10px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';
   h+='<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
   box.innerHTML=h;
