@@ -235,6 +235,55 @@ function handleSignContract(body) {
   }
 }
 
+// [02-2.5] 고객이 예식일·계약 당사자 정보 입력 + 계약서 요청 (상담완료). 예식일=톱레벨 컬럼, 나머지=동의기록.계약정보.
+//   이후: 관리자가 이 정보로 계약서 자동 완성 → 확인·발송. 계약일 별도 문의 불요.
+function handleRequestContract(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var info = (body && body.info) || {};
+  var wed = String(info.weddingDate || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(wed)) return { ok: false, error: '예식일을 선택해 주세요.' };
+  var todayNum = _ymdNum(_kstYmd(new Date())), wedNum = _ymdNum(wed);
+  if (wedNum != null && todayNum != null && wedNum < todayNum) return { ok: false, error: '예식일은 오늘 이후로 선택해 주세요.' };
+  var gB = String(info.groomBirth || '').trim(), bB = String(info.brideBirth || '').trim();
+  var gA = String(info.groomAddr || '').trim(), bA = String(info.brideAddr || '').trim();
+  if (!gB || !bB) return { ok: false, error: '신랑·신부 생년월일을 입력해 주세요.' };
+  if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
+  if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('현재단계') || '').trim() !== '상담완료') return { ok: false, error: '아직 계약서 요청 단계가 아닙니다.' };
+    if (String(cust.get('계약상태') || '').trim()) return { ok: false, error: '이미 계약이 진행 중입니다.' };
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
+    touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준 · 당사자 정보=계약서 자동기입용
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [02-2.5] 상담완료 단계 — 계약 정보 입력/요청 카드 상태. 계약 발송 후엔 null(계약 카드가 대체).
+function buildContractInfoState(r) {
+  if (!r) return null;
+  if (String(r.get('현재단계') || '').trim() !== '상담완료') return null;
+  if (String(r.get('계약상태') || '').trim()) return null;   // 발송됨 → 계약 카드로
+  var rec = _parseJsonSafe(r.get('동의기록'));
+  var ci = rec.계약정보 || null;
+  return {
+    requested: !!ci,
+    groom: String(r.get('신랑이름') || ''), bride: String(r.get('신부이름') || ''),
+    phone: String(r.get('연락처') || ''), email: String(r.get('이메일') || ''),
+    weddingDate: ci ? (ci.weddingDate || '') : _ymdOf(r.get('예식일')),
+    groomBirth: ci ? (ci.groomBirth || '') : '', brideBirth: ci ? (ci.brideBirth || '') : '',
+    groomAddr: ci ? (ci.groomAddr || '') : '', brideAddr: ci ? (ci.brideAddr || '') : '',
+    requestedAt: ci ? (ci.requestedAt || '') : ''
+  };
+}
+
 // [02-3] 마이페이지 계약서 카드용 상태. 동의기록(내부 JSON) 비노출, 파생값·기한만.
 //   노출: 발송(서명 카드+카운트다운) 또는 서명완료(완료+계약서 보기). 미발송 → null.
 function buildContractState(r) {

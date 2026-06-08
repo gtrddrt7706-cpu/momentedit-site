@@ -1160,6 +1160,60 @@ function doSignFitting(){
 
 // [02-3] 계약서 카드 — 미발송=null / 발송=계약서보기+서명기한 카운트다운+[계약서 서명하기] / 서명완료=완료+보기.
 var _contractTimer = null;
+// [02-2.5] 상담완료 — 계약 정보 입력 → 계약서 요청. 입력값(예식일·생년월일·주소)은 계약서에 그대로 자동 기입돼.
+function renderContractRequest(ctx){
+  var box=$('mp_contract'); if(!box) return;
+  var ci=(ctx&&ctx.contractInfo)||{};
+  if(ci.requested){   // 요청 완료 — 준비 중 + 입력 정보 수정
+    var wedTxt=(typeof fmtWedKo==='function' && fmtWedKo(ci.weddingDate))?fmtWedKo(ci.weddingDate):(ci.weddingDate||'');
+    box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
+      +'<div class="cc-title">계약서 요청 완료</div>'
+      +'<div class="cc-sub" style="text-align:center">예식일 <b>'+escapeHtml(wedTxt)+'</b> 기준으로<br>계약서를 <b>24시간 안에</b> 보내드릴게요.</div>'
+      +'<div class="cc-note" style="text-align:center;margin-top:8px">입력하신 정보가 계약서에 그대로 들어가요.</div>'
+      +'<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_ciEdit">입력 정보 수정</button></div></div>';
+    box.style.display='block';
+    var ed=$('mp_ciEdit'); if(ed) ed.addEventListener('click', function(){ renderContractReqForm(ctx); });
+    return;
+  }
+  renderContractReqForm(ctx);
+}
+function renderContractReqForm(ctx){
+  var box=$('mp_contract'); if(!box) return; var ci=(ctx&&ctx.contractInfo)||{};
+  var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
+    +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">확인</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml(ci.groom||'')+' · '+escapeHtml(ci.bride||'')+'</b><br>연락처 '+escapeHtml(ci.phone||'—')+' · 이메일 '+escapeHtml(ci.email||'—')+'</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px">정보가 다르면 카카오톡으로 알려 주세요.</div></div>';
+  box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Contract</div>'
+    +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
+    +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
+    +ex
+    +'<label class="pf-l">예식 날짜</label><input type="date" class="cc-input" id="mp_ciWed" value="'+escapeHtml(ci.weddingDate||'')+'">'
+    +'<div class="pf2"><div><label class="pf-l">신랑 생년월일</label><input type="date" class="cc-input" id="mp_ciGB" value="'+escapeHtml(ci.groomBirth||'')+'"></div>'
+    +'<div><label class="pf-l">신부 생년월일</label><input type="date" class="cc-input" id="mp_ciBB" value="'+escapeHtml(ci.brideBirth||'')+'"></div></div>'
+    +'<label class="pf-l">신랑 주소</label><input type="text" class="cc-input" id="mp_ciGA" autocomplete="off" placeholder="도로명 주소" value="'+escapeHtml(ci.groomAddr||'')+'">'
+    +'<label class="pf-l">신부 주소</label><input type="text" class="cc-input" id="mp_ciBA" autocomplete="off" placeholder="도로명 주소" value="'+escapeHtml(ci.brideAddr||'')+'">'
+    +'<label class="srv-consent" style="margin-top:13px"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
+    +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:6px"></div>'
+    +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ciSubmit">계약서 요청하기</button>'
+    +'<div class="cc-note" style="text-align:center">지정하신 예식일 기준으로 <b>24시간 안에</b> 계약서를 보내드려요.</div></div></div>';
+  box.style.display='block';
+  var sb=$('mp_ciSubmit'); if(sb) sb.addEventListener('click', doRequestContract);
+}
+function doRequestContract(){
+  function v(id){ var e=$(id); return (e&&e.value||'').trim(); }
+  var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
+  var info={ weddingDate:v('mp_ciWed'), groomBirth:v('mp_ciGB'), brideBirth:v('mp_ciBB'), groomAddr:v('mp_ciGA'), brideAddr:v('mp_ciBA'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+  if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
+  if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
+  if(!info.groomAddr||!info.brideAddr) return fail('신랑·신부 주소를 입력해 주세요.');
+  if(!info.consent) return fail('개인정보 수집·이용에 동의해 주세요.');
+  var btn=$('mp_ciSubmit'); if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 요청하기'; } }
+  api({action:'requestContract', token:getToken(), info:info}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청에 실패했습니다.'); reset(); }
+  }).catch(function(){ fail('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+}
+
 // [02-3+02-4 병합] 본 계약 + 계약금을 한 카드로 — 어차피 한 번에 진행. 서명 → 같은 카드에서 계약금 → 완료 시 접힘.
 function renderContractPayment(c, p, ctx){
   var box = $('mp_contract'); if (!box) return;
@@ -1167,6 +1221,7 @@ function renderContractPayment(c, p, ctx){
   if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
 
   if (!c){   // 계약서 발송 전 — 진행 안내
+    if (ctx && ctx.contractInfo){ renderContractRequest(ctx); return; }   // [02-2.5] 상담완료 — 계약 정보 입력/요청 카드
     if (ctx && /계약서/.test(String(ctx.waiting||''))){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
         + '<div class="cc-title">계약, 이렇게 진행돼요</div>'

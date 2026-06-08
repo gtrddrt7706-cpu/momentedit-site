@@ -34,6 +34,7 @@ function handleGetMyState(body) {
     kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '', // 카톡 문의(미설정 시 빈값)
     consult: buildConsultState(String(r.get('개인코드') || '')),  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
     fitting: buildFittingState(r),  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
+    contractInfo: buildContractInfoState(r),  // [02-2.5] 상담완료 — 계약 정보 입력/요청 카드(예식일·생년월일·주소)
     contract: buildContractState(r),  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
     payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
     midpayment: buildMidState(r),   // [02-4b] 중도금 카드용(결제 마일스톤·D-30). 계약 후 첫 실결제
@@ -51,7 +52,7 @@ function _journeyWaiting(r) {
   var stage = String(r.get('현재단계') || '').trim();
   var fit = String(r.get('시착동의상태') || '').trim();
   var con = String(r.get('계약상태') || '').trim();
-  if (stage === '상담완료' && fit === '동의완료' && (con === '' || con === '미발송')) return '계약서를 준비하고 있어요';
+  if (stage === '상담완료' && fit === '동의완료' && (con === '' || con === '미발송')) return _ymdOf(r.get('예식일')) ? '계약서를 준비하고 있어요' : '';   // 요청(예식일 입력) 후에만 '준비 중'
   return '';
 }
 

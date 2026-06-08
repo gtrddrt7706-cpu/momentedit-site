@@ -1843,6 +1843,7 @@ function doPost(e) {
       case 'cancelReservation': return jsonOut(handleCancelReservation(body));
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 02 여정(계약·입금) — 세션→Customers ──
+      case 'requestContract':    return jsonOut(handleRequestContract(body));
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       case 'signContract':       return jsonOut(handleSignContract(body));
       case 'getSignature':       return jsonOut(handleGetSignature(body));
