@@ -14,6 +14,8 @@
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}
+
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
@@ -116,8 +118,8 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .day.avail::before{content:'';position:absolute;top:6px;right:7px;width:5px;height:5px;
   border-radius:50%;background:var(--gold);opacity:0.55}
 .day:hover:not(.off):not(.empty):not(.sel){background:var(--bg2);border-color:var(--gold-soft)}
-.day.sel{background:rgba(107,42,36,0.14);color:var(--seal);border-color:rgba(107,42,36,0.6);border-radius:50%;font-weight:600;
-  box-shadow:0 2px 10px rgba(107,42,36,0.14)}
+.day.sel{background:rgba(184,154,117,0.15);color:var(--accent);border-color:rgba(184,154,117,0.7);border-radius:50%;font-weight:600;
+  box-shadow:0 2px 9px rgba(184,154,117,0.18)}
 .day.sel::after{background:transparent}.day.sel::before{display:none}
 /* 로딩 스켈레톤 — 가능일 조회(네트워크) 전 빈 달력 대신 즉시 표시 */
 .day-skel{aspect-ratio:1;border-radius:6px;
@@ -452,7 +454,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
       </div>
       <div class="deposit-payer">
         <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제로 입금하실 분 성함</span></label>
-        <input type="text" id="depPayer" maxlength="20" autocomplete="name" placeholder="예) 홍길동">
+        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="실제 입금하실 분 성함 (예: 홍길동)">
         <div class="deposit-payer-hint">신청자 성함과 다르면 꼭 적어 주세요 — 입금 확인이 빨라져요.</div>
       </div>
     </div>
@@ -677,6 +679,8 @@ function revealGuide(){
 // 신청 처리 (서버 전송 → 시트 기록 + 미쿠 알림 → 확정 팝업)
 function doSubmit(){
   if(!selDate||!selTime) return;
+  var _payerEl=document.getElementById('depPayer');
+  if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _s=document.getElementById('summary'); if(_s){ _s.textContent='입금자명(실제 입금하실 분 성함)을 적어 주세요.'; _s.style.color='var(--seal)'; _s.classList.remove('on'); } return; }
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
@@ -752,7 +756,7 @@ renderCal();renderTime();updateSummary();
       if(!s||!s.ok){ fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
       s.token=token; s.me=!!me;
       var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};
-      set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder); var _dp=document.getElementById('depPayer'); if(_dp&&!_dp.value&&s.names) _dp.value=s.names;
+      set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder);
       var ka=$('t_kakao'); if(ka&&s.kakao) ka.href=s.kakao;
       boot(s);
     })
