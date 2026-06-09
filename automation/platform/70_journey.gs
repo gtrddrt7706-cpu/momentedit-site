@@ -486,6 +486,7 @@ function handlePaymentSignal(body) {
       '입금완료신호': fmtKST(new Date()),
       '입금상태': '완료신호'
     });
+    _saveCashReceipt(cust, sheet, colOf, body && body.cashReceipt);   // 현금영수증 번호 저장(선택)
     notifyKakao('admin.depositSignal', code, { payer: payer });   // 관리자: 계약금 입금신호 — 확인 필요(카톡)
     return { ok: true };                                      // 자동 진행 X — 관리자 승인 대기
   } finally {
@@ -495,6 +496,13 @@ function handlePaymentSignal(body) {
 
 // [02-4] 마이페이지 입금 카드용 상태. 계약 서명완료 + 현재단계(계약완료/입금완료)일 때 노출.
 //   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
+// 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
+function _saveCashReceipt(cust, sheet, colOf, raw) {
+  var cr = String(raw || '').trim().slice(0, 40);
+  if (!cr) return;
+  try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
+}
+function _cashReceiptOf(r) { try { return String(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
 function buildPaymentState(r) {
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;   // 계약 서명 전 → 카드 없음
@@ -507,6 +515,7 @@ function buildPaymentState(r) {
     status: iStatus,                          // 대기 / 완료신호 / 확인
     confirmed: confirmed,
     payerName: String(r.get('입금자명') || '').trim(),
+    cashReceipt: _cashReceiptOf(r),
     amounts: _journeyAmounts(r.get('계약총액'), r.get('상품타입')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
@@ -544,6 +553,7 @@ function buildBalanceState(r) {
     status: bStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: bStatus === '확인',
     payerName: String(r.get('잔금입금자명') || '').trim(),
+    cashReceipt: _cashReceiptOf(r),
     amount: amounts ? amounts['잔금'] : null,          // 잔금액(총액 80%) 또는 null
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
@@ -571,6 +581,7 @@ function handleBalanceSignal(body) {
     if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 잔금 단계가 아닙니다.' };
     if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
     touchCustomer(sheet, colOf, cust.num, { '잔금입금자명': payer, '잔금입금신호': fmtKST(new Date()), '잔금상태': '완료신호' });
+    _saveCashReceipt(cust, sheet, colOf, body && body.cashReceipt);   // 현금영수증 번호 저장(선택)
     notifyKakao('admin.balanceSignal', code, { payer: payer });   // 관리자: 잔금 입금신호 — 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -603,6 +614,7 @@ function buildMidState(r) {
     status: mStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: mStatus === '확인',
     payerName: String(r.get('중도금입금자명') || '').trim(),
+    cashReceipt: _cashReceiptOf(r),
     amount: amounts ? amounts['중도금'] : null,        // 중도금액(40%+차액) 또는 null
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
@@ -635,6 +647,7 @@ function handleMidSignal(body) {
       _upd['잔금입금자명'] = payer; _upd['잔금입금신호'] = fmtKST(new Date()); _upd['잔금상태'] = '완료신호';
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
+    _saveCashReceipt(cust, sheet, colOf, body && body.cashReceipt);   // 현금영수증 번호 저장(선택)
     notifyKakao('admin.midSignal', code, { payer: payer, withBalance: !!(body && body.withBalance) });   // 관리자: 중도금 입금신호 — 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }

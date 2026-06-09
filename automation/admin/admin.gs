@@ -463,6 +463,7 @@ function adminDetail(code) {
   d.priceSuggest = suggestContractTotal(product, d.pin.예식일);   // 계약 발송 모달 자동 제안(예식일→주말/공휴일→총액). null=예식일 미정
   var _rec = _parseJsonSafe(cust.get('동의기록'));
   d.contractReq = _rec.계약정보 || null;   // [02-2.5] 고객이 입력한 계약 정보(예식일·생년월일·주소). null=고객 요청 전
+  d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 번호(선택·결제 카드 입력) — 관리자 발급용
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {
