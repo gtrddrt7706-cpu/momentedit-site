@@ -169,7 +169,7 @@ function _subStatusFor(stage, isSnap, x) {
     case '상담확정': return (x.consultPast ? '상담일 지남' : '상담 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
     case '촬영확정': return (x.consultPast ? '촬영일 지남' : '촬영 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
-    case '상담완료': return (!x.계약 || x.계약 === '미발송') ? '계약서 발송 대기' : '계약 진행 중';
+    case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     case '제작중': return (x.invStatus === '완료') ? '청첩장 발행됨' : (x.invStatus === '진행중' ? '청첩장 만드는 중' : '제작 시작 전');
@@ -284,8 +284,9 @@ function adminHome() {
       pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '시착 완료 · 상담완료 처리',
         badge: null, _urgent: false, _stage: 2, _wait: createdYmd });
     }
-    // 계약서 발송 — 시그(상담완료&시착동의완료) / 스냅(촬영확정) — & 계약 미발송
-    var canSend = isSnap ? (stage === '촬영확정') : (stage === '상담완료' && 시착 === '동의완료');
+    // 계약서 발송 — 시그(상담완료&시착동의완료&고객 계약요청완료) / 스냅(촬영확정) — & 계약 미발송
+    var hasReq = isSnap ? true : (!!_parseJsonSafe(cget(rv, '동의기록')).계약정보 || /^\d{4}-\d{2}-\d{2}$/.test(_ymdOf(cget(rv, '예식일'))));   // 고객이 계약정보(예식일·인적사항) 입력/요청했나
+    var canSend = isSnap ? (stage === '촬영확정') : (stage === '상담완료' && 시착 === '동의완료' && hasReq);
     if (canSend && bookingLocked && (!계약 || 계약 === '미발송')) {   // bookingLocked: 미승인 새 예약(현재단계만 최고수위로 남은 경우) 조기 노출 차단
       pushQ({ code: code, names: names, product: product, kind: '계약발송', sub: '계약서 발송 대기',
         badge: null, _urgent: false, _stage: 3, _wait: createdYmd });
@@ -361,7 +362,7 @@ function adminHome() {
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
       cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
       _created: createdYmd
@@ -762,6 +763,11 @@ function adminSendContract(code, link, total, weddingYmd) {
     var _bk = findRowByPersonalCode(code), _bs = _bk ? String(_bk.get('상태') || '').trim() : '';
     if (_bs === ST.APPLIED || _bs === ST.PICKED || _bs === ST.PROPOSED) {
       return { ok: false, error: '촬영 예약을 먼저 승인/확정한 뒤에 계약서를 보낼 수 있어요. (예약 상태: ' + _bs + ')' };
+    }
+  } else {   // 시그니처: 고객이 계약 정보(예식일·생년월일·주소)를 입력/요청해야 발송 — 빈 계약서·예식일 미설정(중도금·잔금 D-day 깨짐) 방지
+    var _rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!_rec.계약정보 && !/^\d{4}-\d{2}-\d{2}$/.test(String(cust.get('예식일') || '').trim())) {
+      return { ok: false, error: '고객이 아직 계약 정보(예식일·인적사항)를 입력하지 않았어요. 고객이 마이페이지에서 입력(요청)하면 발송할 수 있어요.' };
     }
   }
   var linkStr = String(link || '').trim();

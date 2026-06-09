@@ -76,6 +76,7 @@ function handleSignFittingConsent(body) {
       '시착동의상태': '동의완료',
       '동의기록': JSON.stringify(prev)
     });
+    notifyKakao('admin.fittingSigned', code);   // 관리자: 시착 동의 서명 완료 — 상담완료 처리 인지(카톡)
     return { ok: true, signedAt: now };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -543,12 +544,14 @@ function _shiftYmd(weddingYmd, deltaDays) {
 function buildBalanceState(r) {
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
-  if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
+  var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
+  var stages = isSnap ? ['입금완료', '촬영완료'] : ['입금완료', '제작중', '예식완료'];   // 스냅은 제작중 없음 — 촬영완료까지 노출
+  if (stages.indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var bStatus = String(r.get('잔금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
-  // 중도금과 함께 노출(예식 D-45 이내) — 중도금·잔금 동시 납부 희망 고객 대응. 또는 중도금 확인 후.
-  if (bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 45)) return null;
+  // 시그: 중도금과 함께(예식 D-45 이내)·중도금 확인 후 노출. 스냅: 2단계 결제(20/80)라 입금완료부터 바로 노출(예식일·dday 무관).
+  if (!isSnap && bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 45)) return null;
   return {
     status: bStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: bStatus === '확인',
@@ -578,7 +581,8 @@ function handleBalanceSignal(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후 진행할 수 있어요.' };
-    if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 잔금 단계가 아닙니다.' };
+    var _bStages = (String(cust.get('상품타입') || '').trim() === '웨딩스냅') ? ['입금완료', '촬영완료'] : ['입금완료', '제작중', '예식완료'];
+    if (_bStages.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 잔금 단계가 아닙니다.' };
     if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
     touchCustomer(sheet, colOf, cust.num, { '잔금입금자명': payer, '잔금입금신호': fmtKST(new Date()), '잔금상태': '완료신호' });
     _saveCashReceipt(cust, sheet, colOf, body && body.cashReceipt);   // 현금영수증 번호 저장(선택)

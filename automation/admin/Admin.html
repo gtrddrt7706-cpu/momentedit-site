@@ -391,7 +391,7 @@ var curHome=null;
 function queueRow(it){
   var inlineKinds={ '신규신청':'approve','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','추가보정확인':'confirmExtra','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','계약만료':'재발송' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','보정시작':'보정본 등록','계약만료':'재발송' }[it.kind]||'처리';
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'">'+esc(btnLbl)+'</button>'
@@ -812,7 +812,8 @@ function openSendContract(code,names,d){
     init:function(){ var pre=$('ctLink'); if(d.raw&&d.raw['계약서링크']) pre.value=d.raw['계약서링크']; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; }); },
     onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim();
       if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크(https://…)를 입력해 주세요.'); return; }
-      runAct(['adminSendContract',code,link,total],code,'발송'); } });
+      var wed=(d.contractReq&&d.contractReq.weddingDate)||(d.pin&&d.pin['예식일'])||'';   // 예식일 잠금(시그=고객 요청일·스냅=촬영 예약일) → 중도금/잔금 D-day 기준
+      runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
 
@@ -821,7 +822,7 @@ function openSetResult(code,names,isSnap,d){
   var extra='<div class="field"><label>원본 드라이브 링크</label><input type="url" id="rOrig" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['원본링크']||'')+'"></div>'+
     '<div class="field"><label>보정본 폴더 링크</label><input type="url" id="rReto" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['보정본폴더']||'')+'"></div>'+
     (isSnap?'':'<div class="field"><label>본식 영상 링크</label><input type="url" id="rVid" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['영상링크']||'')+'"></div>');
-  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('저장하면 결과물상태가 업로드로 바뀌어요'), extra:extra, yes:'저장',
+  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본 등록=고객 컷 선택 / 보정본 등록=고객 컨펌 대기로 진행돼요'), extra:extra, yes:'저장',
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });
 }

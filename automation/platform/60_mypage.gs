@@ -19,6 +19,9 @@ function handleGetMyState(body) {
   var idx = flow.indexOf(stage);
   var isException = (STAGE_EXCEPTIONS.indexOf(stage) !== -1);
 
+  var nextAction = nextActionFor(product, stage);
+  if (stage === '시착' && String(r.get('시착동의상태') || '').trim() === '동의완료') nextAction = '시착 동의가 완료됐어요. 디렉터 확인 후 계약서를 안내드릴게요.';   // 서명 후에도 '서명하세요'로 남던 문구 보정
+
   return {
     ok: true,
     name: customerNames(r),                 // 표시명 (신랑 · 신부)
@@ -29,7 +32,7 @@ function handleGetMyState(body) {
     stageList: flow,                         // 진행바 라벨 세트(상품별)
     stageIndex: idx,                         // 진행바 내 현재 위치(-1=정상경로 밖)
     isException: isException,                // 취소·노쇼·미계약 여부
-    nextAction: nextActionFor(product, stage), // "지금 할 일" 한 문장
+    nextAction: nextAction, // "지금 할 일" 한 문장
     code: String(r.get('개인코드') || ''),    // 코드 복사용
     kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '', // 카톡 문의(미설정 시 빈값)
     consult: buildConsultState(String(r.get('개인코드') || '')),  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
@@ -78,7 +81,7 @@ function buildConsultState(code) {
     canChange: within,
     canCancel: within,
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
-    cancelUrl: (within && consultToken) ? actionUrl('cancelreq', consultToken) : '',  // [③-1] 예약취소 → ScreenD 환불흐름(serveCancelD). 확정+24h前에만(mail-0 무관).
+    cancelUrl: (within && consultToken) ? cancelPageUrl(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
     proposedTime: String(cr.get('변경제안시간') || '').trim(),
     proposedNote: String(cr.get('변경제안메모') || '').trim()

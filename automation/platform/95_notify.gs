@@ -26,6 +26,7 @@ var NOTIFY_EVENTS = {
   'admin.midSignal':      { to: 'admin', need: true,  desc: '중도금 입금신호 — 확인 필요' },
   'admin.balanceSignal':  { to: 'admin', need: true,  desc: '잔금 입금신호 — 확인 필요' },
   // ── 관리자: 권장(업무 착수 신호) ──
+  'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
   'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },

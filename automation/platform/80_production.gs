@@ -35,6 +35,7 @@ function handleSaveProductionBase(body) {
     var colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };   // 스냅이 '제작중'으로 잘못 전이되어 관리자 화면에서 사라지는 것 방지
     var stage = String(cust.get('현재단계') || '').trim();
     if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
@@ -77,6 +78,7 @@ function handleSaveProductionTrack(body) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var d = _parseJsonSafe(cust.get('제작임시저장'));
     d[track + 'Draft'] = (body && body.draft) || {};
@@ -92,6 +94,7 @@ function handleSaveProductionTrack(body) {
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
 function buildProductionState(r) {
   if (!r) return null;
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 — 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
   var stage = String(r.get('현재단계') || '').trim();
   if (PRODUCTION_STAGES.indexOf(stage) === -1) return null;
   var draft = _parseJsonSafe(r.get('제작임시저장'));
@@ -297,6 +300,7 @@ function adminConfirmExtra(code) {
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료' });
+  notifyKakao('cust.paymentConfirmed', code, { kind: '추가보정' });   // 고객 안심 알림(카톡) — 다른 입금확인과 일관
   return { ok: true };
 }
 
