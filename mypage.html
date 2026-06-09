@@ -1730,21 +1730,24 @@ function weddingTimeOptions(sel){
 }
 
 // [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
+var _prodEditBase=false;   // 대시보드 '기본 정보 수정' → 입력 폼 재노출(이름·이메일·예식 시간 등)
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; _prodEditBase=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
-  if(!p.entered){
-    box.innerHTML = productionFormHtml(p.base||{});
+  if(!p.entered || _prodEditBase){
+    box.innerHTML = productionFormHtml(p.base||{}, _prodEditBase);
     box.style.display='block';
     bindProductionForm();
+    var cb=$('mp_cancelBase'); if(cb) cb.addEventListener('click', function(){ _prodEditBase=false; renderProduction(p, inv); });   // 취소 → 대시보드(재요청 없이)
   } else {
     box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
     box.style.display='block';
     var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
     var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
     var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
+    var eb=$('mp_editBase'); if(eb) eb.addEventListener('click', function(){ _prodEditBase=true; renderProduction(p, inv); });   // 기본 정보 수정 → 폼으로
   }
 }
 
@@ -2154,10 +2157,10 @@ function wedDateCell(b){
     + '<div class="dt-picker-wrap" id="mpw_wrap"><button type="button" class="dt-trigger" id="mpw_trigger" aria-haspopup="dialog" aria-expanded="false"><span class="dt-trigger-placeholder" id="mpw_text">날짜를 선택해 주세요</span><span class="dt-trigger-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button><input type="hidden" id="mp_wDate" value="'+escapeHtml(b.weddingDate||'')+'"><div class="dt-panel" id="mpw_panel" role="dialog" aria-label="예식 날짜 선택" aria-hidden="true"><div class="dt-cal"><div class="dt-cal-head"><button type="button" class="dt-cal-nav" id="mpw_prev" aria-label="이전 달">‹</button><span class="dt-cal-title" id="mpw_title"></span><button type="button" class="dt-cal-nav" id="mpw_next" aria-label="다음 달">›</button></div><div class="dt-cal-weekdays"><span class="dt-wd sun">일</span><span class="dt-wd">월</span><span class="dt-wd">화</span><span class="dt-wd">수</span><span class="dt-wd">목</span><span class="dt-wd">금</span><span class="dt-wd sat">토</span></div><div class="dt-cal-grid" id="mpw_grid"></div></div></div></div>'
     + '</div>';
 }
-function productionFormHtml(b){
+function productionFormHtml(b, isEdit){
   return '<div class="consult-card" style="text-align:left">'
     + '<div class="cc-eyebrow en-22">Production</div>'
-    + '<div class="cc-title" style="text-align:left">두 분의 이야기를 시작할게요</div>'
+    + '<div class="cc-title" style="text-align:left">'+(isEdit?'기본 정보 수정':'두 분의 이야기를 시작할게요')+'</div>'
     + '<div class="cc-sub" style="text-align:left">청첩장·다이닝·식순에 공통으로 쓰는 기본 정보예요.</div>'
     + '<div class="pf" style="margin-top:10px"><label class="pf-l">신랑</label>'
       + '<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
@@ -2183,7 +2186,7 @@ function productionFormHtml(b){
       + '<div class="schedule-ref-foot"><span class="accent">Note</span>별도 대기 공간이 없어, 하객분들은 <strong style="color:var(--accent);font-weight:500">내빈 입장 시간</strong>에 맞춰 오시도록 안내해 주세요.</div>'
     + '</div>'
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
-    + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_saveBase">저장하고 시작</button></div>'
+    + '<div class="cc-actions">'+(isEdit?'<button type="button" class="cc-btn-ghost" id="mp_cancelBase">취소</button>':'')+'<button type="button" class="cc-btn" id="mp_saveBase">'+(isEdit?'저장':'저장하고 시작')+'</button></div>'
     + '</div>';
 }
 function bindProductionForm(){
@@ -2205,7 +2208,7 @@ function doSaveProductionBase(){
   var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
   api({action:'saveProductionBase', token:getToken(), base:base}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
+    if(d&&d.ok){ _prodEditBase=false; loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function productionDashHtml(t, inv){
@@ -2231,7 +2234,7 @@ function productionDashHtml(t, inv){
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
       + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·다이닝·식순 모두 완료 · 펼쳐서 수정</span></summary>'
-      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div></div>'
+      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div><button type="button" class="cc-btn-ghost" id="mp_editBase" style="width:auto;padding:7px 13px;margin-top:10px;font-size:12.5px">이름·이메일·예식 시간 등 기본 정보 수정</button></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:left">'
@@ -2240,6 +2243,7 @@ function productionDashHtml(t, inv){
     + '<div class="cc-sub" style="text-align:left">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
     + '<div class="cc-note">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
+    + '<button type="button" class="cc-btn-ghost" id="mp_editBase" style="width:auto;padding:7px 13px;margin-top:12px;font-size:12.5px">이름·이메일·예식 시간 등 기본 정보 수정</button>'
     + '</div>';
 }
 
