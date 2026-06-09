@@ -519,7 +519,7 @@ function renderDetail(d){
   // 핀
   var pin=d.pin||{};
   h+='<div class="dhead"><div class="pin">'+
-     (pin['예식일']?'<span class="pchip">'+(isSnap?'촬영':'예식')+' '+esc(fmtDate(pin['예식일']))+'</span>':'')+
+     (pin['예식일']?'<span class="pchip">'+(isSnap?'촬영':'예식')+' '+esc(fmtDate(pin['예식일']))+((d.contractReq&&d.contractReq.weddingTime)?(' '+esc(({'09:00':'오전','12:20':'오후','15:40':'저녁'}[d.contractReq.weddingTime]||'')+' '+d.contractReq.weddingTime)):'')+'</span>':'')+
      (pin['하객']?'<span class="pchip">하객 '+esc(pin['하객'])+'</span>':'')+
      '<span class="pchip">'+esc(d.product||'—')+'</span><span class="code">'+esc(d.code)+'</span></div></div>';
   // 연락

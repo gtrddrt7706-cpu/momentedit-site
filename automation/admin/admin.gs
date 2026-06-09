@@ -779,6 +779,9 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   var amt = Math.round(Number(total) || 0);                   // 0이면 미설정(입금화면이 "확인 후 안내")
   var wed = String(weddingYmd || '').trim();                  // 계약 시점에 예식일 확정 → 돈 계산(중도금·잔금 D-day) 단일 기준
   var wT = String(weddingTime || '').trim();                  // 예식 슬롯(관리자 픽스) — 예식일과 함께 잠금
+  if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(wed) && _weddingSlotTaken(sheet, colOf, wed, wT, code)) {   // 발송 시점에 슬롯 충돌 차단(서명 때 늦은 거절 방지)
+    return { ok: false, error: '그 예식 시간(' + wed + ' ' + wT + ')은 이미 다른 예약으로 마감됐어요. 다른 슬롯으로 보내 주세요.' };
+  }
   var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': linkStr };
   if (amt > 0) upd['계약총액'] = amt;
   if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-7·중도금 D-30 산출 기준(계약에서 잠금)
