@@ -25,6 +25,7 @@ var NOTIFY_EVENTS = {
   'admin.depositSignal':  { to: 'admin', need: true,  desc: '계약금 입금신호 — 확인 필요' },
   'admin.midSignal':      { to: 'admin', need: true,  desc: '중도금 입금신호 — 확인 필요' },
   'admin.balanceSignal':  { to: 'admin', need: true,  desc: '잔금 입금신호 — 확인 필요' },
+  'admin.holdRequest':    { to: 'admin', need: true,  desc: '예식일 임시고정 요청 — 승인/거절 필요' },
   // ── 관리자: 권장(업무 착수 신호) ──
   'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
@@ -40,6 +41,8 @@ var NOTIFY_EVENTS = {
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
   // ── 고객: 권장(안심) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
+  'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
+  'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' }
 };
 

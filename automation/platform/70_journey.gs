@@ -271,7 +271,8 @@ function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
     var d = _ymdOf(topWedYmd), t = (rc.계약정보 && rc.계약정보.weddingTime) || '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(d) && t) return { date: d, slot: t };
   }
-  if (rc.가예약 && rc.가예약.status === '승인' && /^\d{4}-\d{2}-\d{2}$/.test(rc.가예약.date || '') && rc.가예약.slot) {
+  if (rc.가예약 && rc.가예약.status === '승인' && /^\d{4}-\d{2}-\d{2}$/.test(rc.가예약.date || '') && rc.가예약.slot
+      && !(rc.가예약.expires && _ymdNum(_ymdOf(new Date())) > _ymdNum(rc.가예약.expires))) {   // 만료된 홀드는 점유 자동해제
     return { date: rc.가예약.date, slot: rc.가예약.slot };                         // 임시고정(관리자 승인) 점유
   }
   return null;
