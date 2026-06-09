@@ -659,7 +659,11 @@ function openContractView(){
   ttl.style.cssText='font-family:var(--serif-ko,serif);font-size:14px;color:var(--accent,#3a2f25)';
   var x=document.createElement('button'); x.type='button'; x.textContent='닫기';
   x.style.cssText='border:1px solid var(--border,#e6e0d8);background:#fff;border-radius:6px;padding:8px 16px;font-family:var(--serif-ko,serif);font-size:13px;color:var(--sub,#6b5d4d);cursor:pointer';
-  bar.appendChild(ttl); bar.appendChild(x);
+  var pbtn=document.createElement('button'); pbtn.type='button'; pbtn.textContent='인쇄·저장';
+  pbtn.style.cssText='border:1px solid var(--border,#e6e0d8);background:#fff;border-radius:6px;padding:8px 14px;margin-right:8px;font-family:var(--serif-ko,serif);font-size:13px;color:var(--sub,#6b5d4d);cursor:pointer';
+  pbtn.addEventListener('click',function(){ try{ var w=fr.contentWindow; w.focus(); w.print(); }catch(e){} });
+  var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
+  bar.appendChild(ttl); bar.appendChild(rg);
   var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src='/contract/v1-1.html'; fr.title='본 계약서';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none';
   ov.appendChild(bar); ov.appendChild(fr);
