@@ -304,6 +304,19 @@ function adminConfirmExtra(code) {
   return { ok: true };
 }
 
+// [관리자] 보정 착수 — 선택완료 → 보정중. 고객 화면에 "보정 중"을 표시(선택완료=보정 대기와 구분). 결과물상태 전이만.
+function adminStartRetouch(code) {
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var rs = String(cust.get('결과물상태') || '').trim();
+  if (rs === '보정중') return { ok: true, already: true };
+  if (rs !== '선택완료') return { ok: false, error: '고객이 컷을 선택한 뒤(선택완료)에 보정 착수할 수 있어요. (현재: ' + (rs || '대기') + ')' };
+  touchCustomer(sheet, colOf, cust.num, { '결과물상태': '보정중' });
+  return { ok: true };
+}
+
 // [1회 실행] Customers에 결과물 셀렉트·추가 보정 컬럼 추가(멱등) + 레거시 결과물상태 '업로드'→'원본전달'.
 function addResultSelectionColumns() {
   var sheet = getCustomersSheet();

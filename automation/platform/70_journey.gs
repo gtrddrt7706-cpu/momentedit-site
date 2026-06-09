@@ -350,6 +350,9 @@ function buildContractState(r) {
 //   ※ '자동 취소'의 여정/환불(예약금) 처리는 취소·환불 흐름에서 결정 — 여기선 계약서 offer만 파기(재발송 가능),
 //      현재단계는 건드리지 않는다(상담완료 유지). 운영자: 시간 기반 트리거로 1일 1회 설치.
 function expireUnsignedContracts() {
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return 0; }   // 락: 고객 서명(handleSignContract)과 경쟁 방지 — 스냅샷 후 서명분이 '미발송'으로 덮이는 것 차단(다음 트리거에서 재시도)
+  try {
   var sheet = getCustomersSheet();
   var colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
@@ -374,6 +377,7 @@ function expireUnsignedContracts() {
   }
   Logger.log('expireUnsignedContracts: ' + n + '건 파기');
   return n;
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
 // 'YYYY-MM-DD HH:mm'(fmtKST) → Date. appsscript.json timeZone=Asia/Seoul 전제(KST).

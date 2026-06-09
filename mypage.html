@@ -1227,7 +1227,7 @@ function renderFitting(f, d){
         + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 접힌 기록
-      collapsedCard(box, '드레스 시착 동의 완료', termsFull, '시착');
+      collapsedCard(box, '드레스 시착 동의 완료', termsFull, '시착', true);   // 본계약서(계약완료)와 동일하게 기본 펼침
     }
     return;
   }

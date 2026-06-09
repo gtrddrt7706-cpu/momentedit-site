@@ -132,7 +132,7 @@ function adminCall(token, fn, args) {
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
       adminGetSignature: adminGetSignature, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
-      adminConfirmExtra: adminConfirmExtra, adminSkipSurvey: adminSkipSurvey,
+      adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
     };
     var f = FNS[fn];
