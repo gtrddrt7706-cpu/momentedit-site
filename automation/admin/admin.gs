@@ -362,7 +362,9 @@ function adminHome() {
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
       sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, 시착: 시착, 계약: 계약, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
-      dday: (wedYmd ? _dayDiff(wedYmd, today) : null), _created: createdYmd
+      dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
+      cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
+      _created: createdYmd
     });
   });
 
@@ -394,10 +396,12 @@ function adminHome() {
     stageFlowFor(product).forEach(function (stage) {
       if (stage === '결과물전달') return;  // 아카이브
       var list = g[stage] || [];
+      var byConsult = (stage === '상담확정' || stage === '촬영확정');   // 예식일이 아직 없는 단계 → 대면상담 D-day(cdday)로 가까운순 정렬
       list.sort(function (a, b) {
-        var an = (a.dday == null), bn = (b.dday == null);
-        if (an !== bn) return an ? 1 : -1;                 // 예식일 미정 뒤로
-        if (!an && a.dday !== b.dday) return a.dday - b.dday; // 가까운 먼저
+        var ak = byConsult ? a.cdday : a.dday, bk = byConsult ? b.cdday : b.dday;
+        var an = (ak == null), bn = (bk == null);
+        if (an !== bn) return an ? 1 : -1;                 // 날짜 미정 뒤로
+        if (!an && ak !== bk) return ak - bk;              // 가까운 먼저(위에서부터)
         return _cmpWait(a._created, b._created);
       });
       var hasUrgent = false;

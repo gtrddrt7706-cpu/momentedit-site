@@ -88,6 +88,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .pcust .cn{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);flex:none}
 .pcust .cs{font-family:var(--serif-ko);font-size:11.5px;color:var(--light);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pcust .cd{font-family:var(--mono);font-size:10.5px;color:var(--blue);flex:none}
+.pcust .cd.cd-soon{color:var(--seal);font-weight:600}
 .pcust .bolt{color:var(--seal);flex:none;font-size:12px}
 
 .empty{font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);text-align:center;padding:26px 0}
@@ -329,6 +330,7 @@ function prodLabel(p){ return snap(p)?'스냅':'시그'; }
 function fmtDT(s){ var m=String(s||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/); if(!m) return esc(s||''); var yr=(+m[1]!==new Date().getFullYear())?(m[1]+'/'):''; return yr+(+m[2])+'/'+(+m[3])+' '+m[4]+':'+m[5]; }
 function fmtDate(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return esc(ymd||''); var d=new Date(+m[1],+m[2]-1,+m[3]); return (+m[2])+'/'+(+m[3])+'('+WD[d.getDay()]+')'; }
 function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예식'; if(n>0) return w+' D-'+n; if(n<0) return w+' D+'+(-n); return w+' D-day'; }
+function consultLabel(n){ if(n==null) return ''; if(n===0) return '오늘'; if(n===1) return '내일'; if(n===2) return '모레'; if(n>2) return 'D-'+n; return 'D+'+(-n); }   // 대면상담까지 D-day(상담확정·촬영확정 그룹)
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
 function designLabel(v){ var n=('0'+String(v||'').replace(/[^0-9]/g,'')).slice(-2); return DESIGNS[n]?(n+' '+DESIGNS[n]):(v?('디자인 '+n):''); }
 
@@ -456,10 +458,14 @@ function pipeSection(groups, product){
     var isSnap=snap(product);
     if(!g.count) return '<div class="pgroup"><div class="pghead dim"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">0</span></div></div>';
     var key=product+':'+g.stage, isOpen=open.indexOf(key)!==-1;
+    var isConsultStage=(g.stage==='상담확정'||g.stage==='촬영확정');   // 이 그룹은 예식 D-day 대신 대면상담 D-day(cdday) 표시
     var cust=g.customers.map(function(c){
+      var cdHtml = isConsultStage
+        ? (c.cdday!=null?'<span class="cd'+(c.cdday<=1?' cd-soon':'')+'">'+esc(consultLabel(c.cdday))+'</span>':'')
+        : (c.dday!=null?'<span class="cd">'+esc(ddayLabel(c.dday,isSnap))+'</span>':'');
       return '<div class="pcust" data-code="'+esc(c.code)+'"><span class="cn">'+esc(c.names)+'</span>'+
         '<span class="cs">'+esc(c.sub||'')+'</span>'+
-        (c.dday!=null?'<span class="cd">'+esc(ddayLabel(c.dday,isSnap))+'</span>':'')+
+        cdHtml+
         (c.flag?'<span class="bolt">⚡</span>':'')+'</div>';
     }).join('');
     return '<div class="pgroup'+(isOpen?' open':'')+'" data-key="'+esc(key)+'">'+
