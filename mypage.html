@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · contract phase2d (서명완성 GAS불요·중요조항체크·체결일·손글씨) · redeploy 2026-06-08g -->
+<!-- build: birth 18-53 · contract phase2e (뷰어 서명CTA·체결 축하·페이드인) · redeploy 2026-06-08h -->
 </head>
 <body>
 
@@ -662,7 +662,19 @@ function openContractView(){
   bar.appendChild(ttl); bar.appendChild(x);
   var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src='/contract/v1-1.html'; fr.title='본 계약서';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none';
-  ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
+  ov.appendChild(bar); ov.appendChild(fr);
+  // 미서명이면 하단에 '서명하러 가기' CTA — 다 읽고 바로 서명으로(읽기→서명 자연 연결)
+  if(!(window._contractFill && window._contractFill.signed)){
+    var cta=document.createElement('div');
+    cta.style.cssText='flex:0 0 auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#e6e0d8);background:#fff';
+    var cbtn=document.createElement('button'); cbtn.type='button'; cbtn.textContent='이 내용을 확인했어요 · 서명하기';
+    cbtn.style.cssText='width:100%;padding:14px;border:none;border-radius:8px;background:var(--seal,#6B2A24);color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:600;letter-spacing:.01em;cursor:pointer';
+    cbtn.addEventListener('click',function(){ done(); doSignContract(); });
+    cta.appendChild(cbtn); ov.appendChild(cta);
+  }
+  ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
   var prevOverflow=document.body.style.overflow; document.body.style.overflow='hidden';
   function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; }
   function onKey(e){ if(e.key==='Escape') done(); }
@@ -1413,7 +1425,7 @@ function doSignContract(){
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
     api({action:'signContract', token:getToken(), signature:sig}).then(function(d){
-      if (d && d.ok){ loadMyState(); }
+      if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요. 모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
       else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
     }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
   });
