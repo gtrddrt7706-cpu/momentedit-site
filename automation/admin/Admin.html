@@ -519,7 +519,7 @@ function renderDetail(d){
   // 핀
   var pin=d.pin||{};
   h+='<div class="dhead"><div class="pin">'+
-     (pin['예식일']?'<span class="pchip">'+(isSnap?'촬영':'예식')+' '+esc(fmtDate(pin['예식일']))+((d.contractReq&&d.contractReq.weddingTime)?(' '+esc(({'09:00':'오전','12:20':'오후','15:40':'저녁'}[d.contractReq.weddingTime]||'')+' '+d.contractReq.weddingTime)):'')+'</span>':'')+
+     (pin['예식일']?'<span class="pchip">'+(isSnap?'촬영':'예식')+' '+esc(fmtDate(pin['예식일']))+((d.contractReq&&d.contractReq.weddingTime)?(' '+esc(({'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[d.contractReq.weddingTime]||'')+' '+d.contractReq.weddingTime)):'')+'</span>':'')+
      (pin['하객']?'<span class="pchip">하객 '+esc(pin['하객'])+'</span>':'')+
      '<span class="pchip">'+esc(d.product||'—')+'</span><span class="code">'+esc(d.code)+'</span></div></div>';
   // 연락
@@ -811,7 +811,7 @@ function openSendContract(code,names,d){
   var extra='<div class="field"><label>계약 총액</label><select id="ctSel">'+
     '<option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option><option value="600000">스냅 — 60만</option><option value="__etc">직접 입력</option></select></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
-    (snap(d.product)?'':('<div class="field"><label>예식 시간 · 140분</label><select id="ctSlot"><option value="">선택 안 함 (고객 요청 유지)</option>'+['09:00','12:20','15:40'].map(function(t){ var lab={'09:00':'오전','12:20':'오후','15:40':'저녁'}[t]; var wt=(d.contractReq&&d.contractReq.weddingTime)||''; return '<option value="'+t+'"'+(wt===t?' selected':'')+'>'+lab+' '+t+'</option>'; }).join('')+'</select></div>'))+
+    (snap(d.product)?'':('<div class="field"><label>예식 시간 · 140분</label><select id="ctSlot"><option value="">선택 안 함 (고객 요청 유지)</option>'+['09:00','12:20','15:40'].map(function(t){ var lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[t]; var wt=(d.contractReq&&d.contractReq.weddingTime)||''; return '<option value="'+t+'"'+(wt===t?' selected':'')+'>'+lab+' '+t+'</option>'; }).join('')+'</select></div>'))+
     '<div class="field"><label>계약서 링크 (필수·https)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">서명하면 72시간 기한이 시작돼요.</span>'+((d.priceSuggest&&d.priceSuggest.reason)?'<span class="li">예식일 '+esc(d.priceSuggest.reason)+' → 금액 자동 선택(확인 후 수정 가능)</span>':''), extra:extra, yes:'발송',
     init:function(){ var pre=$('ctLink'); if(d.raw&&d.raw['계약서링크']) pre.value=d.raw['계약서링크']; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; }); },

@@ -260,10 +260,23 @@ function handleSignContract(body) {
 // [02-2.5] 예식(시그니처) 슬롯 — 하루 3타임(엑셀 진행순서 기준). 각 140분(도착~환복). 평일·주말 동일.
 var WEDDING_SLOT = {
   SLOTS: ['09:00', '12:20', '15:40'],
-  LABELS: { '09:00': '오전', '12:20': '오후', '15:40': '저녁' },
+  LABELS: { '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후' },
   DURATION: 140
 };
-// 같은 (예식일·슬롯)을 '서명완료'(점유)한 다른 고객이 있나 — 요청·서명 시 더블부킹 차단.
+// 한 행이 점유하는 (예식일, 슬롯) — ① 서명완료(확정 점유) ② 임시고정 승인(동의기록.가예약). 점유 없으면 null.
+function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
+  if (stage === '취소' || stage === '노쇼' || stage === '미계약') return null;
+  var rc = {}; try { rc = JSON.parse(rcStr || '{}'); } catch (e) {}
+  if (String(contractStatus || '').trim() === '서명완료') {                       // 확정 점유 = 서명완료 + 예식일(톱레벨) + 슬롯
+    var d = _ymdOf(topWedYmd), t = (rc.계약정보 && rc.계약정보.weddingTime) || '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d) && t) return { date: d, slot: t };
+  }
+  if (rc.가예약 && rc.가예약.status === '승인' && /^\d{4}-\d{2}-\d{2}$/.test(rc.가예약.date || '') && rc.가예약.slot) {
+    return { date: rc.가예약.date, slot: rc.가예약.slot };                         // 임시고정(관리자 승인) 점유
+  }
+  return null;
+}
+// 같은 (예식일·슬롯)을 다른 고객이 점유(서명완료 또는 임시고정 승인)했나 — 요청·서명 시 더블부킹 차단.
 function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
   if (!ymd || !slot) return false;
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return false;
@@ -271,17 +284,13 @@ function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   exceptCode = String(exceptCode || '').trim().toUpperCase();
   for (var i = 0; i < vals.length; i++) {
-    if (String(vals[i][cCol - 1] || '').trim() !== '서명완료') continue;
-    var stg = String(vals[i][stCol - 1] || '').trim();
-    if (stg === '취소' || stg === '노쇼' || stg === '미계약') continue;
     if (codeCol && String(vals[i][codeCol - 1] || '').trim().toUpperCase() === exceptCode) continue;
-    if (_ymdOf(vals[i][wCol - 1]) !== ymd) continue;
-    var t = ''; try { var rc = JSON.parse(vals[i][recCol - 1] || '{}'); t = (rc.계약정보 && rc.계약정보.weddingTime) || ''; } catch (e) {}
-    if (t === slot) return true;
+    var occ = _weddingOccupancy(vals[i][wCol - 1], vals[i][cCol - 1], String(vals[i][stCol - 1] || '').trim(), vals[i][recCol - 1]);
+    if (occ && occ.date === ymd && occ.slot === slot) return true;
   }
   return false;
 }
-// 예식 슬롯 실시간 가용 — 서명완료(점유)된 (예식일→슬롯목록). 계약요청 캘린더 차단 표시용.
+// 예식 슬롯 실시간 가용 — 점유(서명완료·임시고정 승인)된 (예식일→슬롯목록). 계약요청 캘린더 차단 표시용.
 function handleWeddingAvailability(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -293,14 +302,10 @@ function handleWeddingAvailability(body) {
       var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'], codeCol = colOf['개인코드'];
       var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
       vals.forEach(function (row) {
-        if (String(row[cCol - 1] || '').trim() !== '서명완료') return;
-        var stg = String(row[stCol - 1] || '').trim();
-        if (stg === '취소' || stg === '노쇼' || stg === '미계약') return;
         if (codeCol && String(row[codeCol - 1] || '').trim().toUpperCase() === myCode) return;   // 본인 건 제외
-        var w = _ymdOf(row[wCol - 1]); if (!/^\d{4}-\d{2}-\d{2}$/.test(w)) return;
-        var t = ''; try { var rc = JSON.parse(row[recCol - 1] || '{}'); t = (rc.계약정보 && rc.계약정보.weddingTime) || ''; } catch (e) {}
-        if (!t) return;
-        (taken[w] = taken[w] || []); if (taken[w].indexOf(t) === -1) taken[w].push(t);
+        var occ = _weddingOccupancy(row[wCol - 1], row[cCol - 1], String(row[stCol - 1] || '').trim(), row[recCol - 1]);
+        if (!occ) return;
+        (taken[occ.date] = taken[occ.date] || []); if (taken[occ.date].indexOf(occ.slot) === -1) taken[occ.date].push(occ.slot);
       });
     }
     return { ok: true, taken: taken, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
