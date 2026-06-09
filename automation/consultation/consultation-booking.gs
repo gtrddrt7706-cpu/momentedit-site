@@ -31,6 +31,7 @@ const CONFIG = {
   SEND_CONFIRM_MAIL: true,                     // 확정 안내 (sendConfirmEmail) — 대면상담 확정까지 메일 발송
   SEND_CHANGE_MAIL: false,                     // 변경제안 안내 (sendProposalEmail)
   SEND_CANCEL_MAIL: false,                     // 취소 안내 (sendCancelEmail)
+  SEND_ADMIN_MAIL: false,                      // 관리자 알림 메일(①신규·②승인요청·③확정·④내일·환불요청) OFF — 카톡으로 받음. 오류알림(notifyStudio)은 별개로 유지.
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
@@ -971,7 +972,7 @@ function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) {
     centerP('새 상담 신청이 접수되었습니다.') +
     '<div style="background:#F7F5F1;padding:6px 20px;border:1px solid #E6E1D8;border-radius:6px;margin:22px 0;">' + rows + '</div>' +
     smallP('고객에게는 일정 선택 링크가 자동 발송되었습니다. 고객이 날짜·시간을 선택하면 [승인] 메일을 다시 받으십니다.');
-  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('①신규', names), '',
+  CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('①신규', names), '',
     { htmlBody: emailShell('새 상담 신청', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
@@ -1009,7 +1010,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
     sectionLabel('Application · 신청 내용') +
     '<div style="background:#FCFBF9;padding:6px 20px;border:1px solid #ECE8E1;border-radius:6px;margin:6px 0 0;">' + (detailRows || infoRow('내용', '—')) + '</div>' +
     smallP('승인하면 고객에게 확정 메일이 발송되고, 캘린더에 일정이 등록됩니다.');
-  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('②승인요청', row, dateKey, time), '',
+  CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('②승인요청', row, dateKey, time), '',
     { htmlBody: emailShell('새 상담 신청', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
@@ -1065,7 +1066,7 @@ function sendRefundRequestEmail(row, dateKey, time, acct) {
     centerP('고객이 예약을 취소했습니다.<br>아래 계좌로 <b style="color:#6B2A24;font-weight:600">예약금 환불</b>을 진행해 주세요.') +
     '<div style="background:#FBF7F2;padding:6px 20px;border:1px solid #E8DCCB;border-radius:6px;margin:18px 0 0;">' + rows + '</div>' +
     smallP('캘린더 일정은 자동 삭제되었고, 고객에게는 취소 완료 안내가 발송되었습니다.');
-  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('⚠️환불요청', row, dateKey, time), '',
+  CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('⚠️환불요청', row, dateKey, time), '',
     { htmlBody: emailShell('예약 취소 · 환불 요청', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
@@ -1091,7 +1092,7 @@ function sendStudioBriefEmail(row, dateKey, time) {
     '<div style="background:#FCFBF9;padding:6px 20px;border:1px solid #ECE8E1;border-radius:6px;margin:6px 0 0;">' + (detailRows || infoRow('내용', '—')) + '</div>' +
     smallP('고객에게 확정 메일이 발송되고 캘린더에 일정이 등록되었습니다.') +
     adminCancelBtn;
-  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('③확정', row, dateKey, time), '',
+  CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('③확정', row, dateKey, time), '',
     { htmlBody: emailShell('상담 준비 브리프', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
@@ -1669,7 +1670,7 @@ function sendReminderStudio(row, dateKey, time, idx, total) {
     '<div style="background:#F7F5F1;padding:6px 20px;border:1px solid #E6E1D8;border-radius:6px;margin:6px 0 0;">' + scheduleRows + '</div>' +
     sectionLabel('Application · 신청 내용') +
     '<div style="background:#FCFBF9;padding:6px 20px;border:1px solid #ECE8E1;border-radius:6px;margin:6px 0 0;">' + (detailRows || infoRow('내용', '—')) + '</div>';
-  GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('④내일', row, dateKey, time), '',
+  CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('④내일', row, dateKey, time), '',
     { htmlBody: emailShell('내일 상담 브리핑', inner), name: SYS.FROM_NAME, cc: adminCc() });
 }
 
