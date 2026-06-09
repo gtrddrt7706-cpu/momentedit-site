@@ -603,6 +603,12 @@ function cardConsult(d,isSnap){
   if(d.stage==='상담확정'){ b+=ab('openFitting','시착 동의 보내기')+ab('noshow','노쇼 처리','btn-danger'); }
   else if(d.stage==='시착'){ b+=ab('consultDone','상담완료 처리')+ab('noshow','노쇼 처리','btn-danger'); }
   else if(d.stage==='촬영확정'){ b+=ab('noshow','노쇼 처리','btn-danger'); }
+  if(d.hold && d.hold.date && d.hold.slot){   // 예식일 임시고정(요청/승인) — 카톡 사전확인 후 승인
+    var _hl={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[d.hold.slot]||'';
+    raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">예식일 임시고정 '+(d.hold.status==='승인'?'(승인됨)':'요청')+'</span> · '+esc(fmtDate(d.hold.date))+' '+esc(_hl+' '+d.hold.slot);
+    if(d.hold.status==='요청'){ b+=ab('grantHold','임시고정 승인')+ab('declineHold','거절','btn-ghost'); }
+    else if(d.hold.status==='승인'){ b+=ab('declineHold','임시고정 해제','btn-ghost'); }
+  }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 function cardFitting(d){
@@ -745,6 +751,8 @@ function onDetailAct(act,d){
   else if(act==='confirmBalance') doConfirmBalance(code,names);
   else if(act==='confirmExtra') doConfirmExtra(code,names);
   else if(act==='startRetouch') doStartRetouch(code,names);
+  else if(act==='grantHold') doGrantHold(code,names,d);
+  else if(act==='declineHold') doDeclineHold(code,names,d);
   else if(act==='setResult') openSetResult(code,names,isSnap,d);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
@@ -796,6 +804,8 @@ function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할
 function doConfirmMid(code,names){ openModal({ title:'중도금 입금을 확인할까요?', text:b(names)+li('중도금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
 function doConfirmBalance(code,names){ openModal({ title:'잔금 입금을 확인할까요?', text:b(names)+li('잔금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
 function doConfirmExtra(code,names){ openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 결제가 확인 처리돼요'), yes:'추가보정 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'추가보정 확인'); } }); }
+function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li(esc((h.date||'')+' '+lab+' '+(h.slot||'')))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
+function doDeclineHold(code,names,d){ var h=(d&&d.hold)||{}; openModal({ title:(h.status==='승인'?'임시고정을 해제할까요?':'임시고정 요청을 거절할까요?'), danger:true, text:b(names)+li('가예약이 풀려 그 슬롯이 다시 열려요')+li('고객에게 안내가 가요'), yes:(h.status==='승인'?'해제':'거절'), onYes:function(){ runAct(['adminDeclineWeddingHold',code],code,'임시고정 해제'); } }); }
 function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까요?', text:b(names)+li('고객 화면에 "보정 중"으로 표시돼요'), yes:'보정 착수', onYes:function(){ runAct(['adminStartRetouch',code],code,'보정 착수'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 넘길까요?', text:b(names)+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요'), yes:'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,'전달 완료'); } }); }
