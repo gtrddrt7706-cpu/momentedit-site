@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · contract phase2j (서명본 자동 Drive 보관·인쇄 파일명·스크롤·페이드) · redeploy 2026-06-08m -->
+<!-- build: birth 18-53 · contract phase2k (스냅↔시그니처 상품별 라우팅 · 자동완성 파란배경 제거) · redeploy 2026-06-09a -->
 </head>
 <body>
 
@@ -646,6 +646,8 @@ const TOKEN_KEY = 'me_token';
 
 // ── 공통 유틸 ──────────────────────────────────
 function $(id){ return document.getElementById(id); }
+// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → v1-1
+function contractSrc(product){ return /스냅|snap/i.test(String(product||'')) ? '/contract/snap-v1-0.html' : '/contract/v1-1.html'; }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
@@ -664,7 +666,7 @@ function openContractView(){
   pbtn.addEventListener('click',function(){ try{ var w=fr.contentWindow; w.focus(); w.print(); }catch(e){} });
   var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
   bar.appendChild(ttl); bar.appendChild(rg);
-  var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src='/contract/v1-1.html'; fr.title='본 계약서';
+  var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src=contractSrc(window._contractFill&&window._contractFill.product); fr.title='본 계약서';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(bar); ov.appendChild(fr);
   // 미서명이면 하단에 '서명하러 가기' CTA — 다 읽고 바로 서명으로(읽기→서명 자연 연결)
@@ -1335,7 +1337,7 @@ function renderContractPayment(c, p, ctx){
   }
 
   window._contractFill = c.fill || {};   // [Phase2] 인뷰어(openContractView)가 채울 고객 정보
-  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); window._contractFill.expired = !!(c && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0))); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); window._contractFill.docTitle = [((ctx&&ctx.product)||'계약서'), ((window._contractFill.groom||'')+(window._contractFill.bride?('·'+window._contractFill.bride):'')), (window._contractFill.weddingDate||'')].filter(Boolean).join('_'); }   // 서명완료/만료/파일명은 기존 값에서 직접(새 GAS 불요)
+  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); window._contractFill.expired = !!(c && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0))); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); window._contractFill.docTitle = [((ctx&&ctx.product)||'계약서'), ((window._contractFill.groom||'')+(window._contractFill.bride?('·'+window._contractFill.bride):'')), (window._contractFill.weddingDate||'')].filter(Boolean).join('_'); window._contractFill.product = (ctx&&ctx.product)||''; }   // 서명완료/만료/파일명·상품(스냅↔시그니처 라우팅)은 기존 값에서 직접(새 GAS 불요)
   var link = c.fill
     ? '<button type="button" class="cc-btn-ghost js-view-contract">계약서 보기</button>'
     : (c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '');   // c.fill 없으면(구 GAS·배포 갭) 기존 외부 링크로 폴백
@@ -1440,7 +1442,7 @@ function _archiveSignedContract(sig, cb){
     var t=new Date(); data.signDate=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
     fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
     window.addEventListener('message',onM);
-    fr.src='/contract/v1-1.html'; document.body.appendChild(fr);
+    fr.src=contractSrc(window._contractFill&&window._contractFill.product); document.body.appendChild(fr);
     setTimeout(function(){ fin(''); },2800);   // 안전망 — 못 만들면 보관 생략하고 서명 진행
   }catch(e){ fin(''); }
 }

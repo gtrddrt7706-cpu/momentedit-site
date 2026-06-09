@@ -1003,17 +1003,20 @@ function openSendContract(code,names,d){
     '<div class="field"><label>계약서 링크 (기본 계약서 자동 — 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>'
     +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">📄 채워진 계약서 미리보기 (발송 전 확인)</button></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송하세요.</span>', extra:extra, yes:'발송',
-    init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:'https://momentedit.kr/contract/v1-1.html'; var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
+    init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:contractFullUrl(d.product); var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
       var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; });
       var pv=$('ctPreview'); if(pv) pv.addEventListener('click',function(){ var s=$('ctSel').value; var tot=(s==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):s; var wv=String($('ctWed')&&$('ctWed').value||'').trim(); openContractViewer(d,{preview:true,weddingDate:wv,total:Number(tot)||0}); }); },
     onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim(); var wed=String($('ctWed')&&$('ctWed').value||'').trim();
       if(!/^\d{4}-\d{2}-\d{2}$/.test(wed)){ mErr('예식일을 선택해 주세요. 중도금·잔금 일정의 기준이 돼요.'); return; }
-      if(!link) link='https://momentedit.kr/contract/v1-1.html';
+      if(!link) link=contractFullUrl(d.product);
       if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크는 https://… 형식이어야 해요.'); return; }
       runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
-// [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' v1-1을 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.
+// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → v1-1
+function contractPath(product){ return /스냅|snap/i.test(String(product||'')) ? '/contract/snap-v1-0.html' : '/contract/v1-1.html'; }
+function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
+// [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.
 function openContractViewer(d, ov2){
   d=d||curDetail||{}; var r=d.raw||{}; var nm=String(d.names||'').split(' · '); var ci=d.contractReq||{}; ov2=ov2||{};
   var fillData={
@@ -1025,7 +1028,8 @@ function openContractViewer(d, ov2){
     total:(ov2.total!=null)?ov2.total:Math.round(Number(r.계약총액)||0),
     signed:ov2.preview?false:((r.계약상태==='서명완료')|| !!r.계약서명일시),
     signDate:r.계약서명일시?String(r.계약서명일시).slice(0,10):'',
-    docTitle:[(d.product||'계약서'),((nm[0]||'')+(nm[1]?('·'+nm[1]):'')),((d.pin&&d.pin.예식일)||ci.weddingDate||'')].filter(Boolean).join('_')
+    docTitle:[(d.product||'계약서'),((nm[0]||'')+(nm[1]?('·'+nm[1]):'')),((d.pin&&d.pin.예식일)||ci.weddingDate||'')].filter(Boolean).join('_'),
+    product:d.product||''
   };
   var ov=document.createElement('div'); ov.id='adm_ctViewer';
   ov.style.cssText='position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;opacity:0;transition:opacity .2s';
@@ -1036,7 +1040,7 @@ function openContractViewer(d, ov2){
   pbtn.addEventListener('click',function(){ try{ var w=fr.contentWindow; w.focus(); w.print(); }catch(e){} });
   var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
   bar.appendChild(rg);
-  var fr=document.createElement('iframe'); fr.src='/contract/v1-1.html'; fr.title='계약서 미리보기'; fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
+  var fr=document.createElement('iframe'); fr.src=contractPath(d.product); fr.title='계약서 미리보기'; fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   var prevOv=document.body.style.overflow; document.body.style.overflow='hidden';

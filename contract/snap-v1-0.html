@@ -66,6 +66,18 @@ main{max-width:var(--max);margin:0 auto;padding:0 24px 80px}
 
 .preamble{font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.95;margin-bottom:24px}
 
+/* 쉬운 요약 카드 */
+.summary-card{border:1.5px solid var(--gold-line,#e3dccb);background:#fcfbf7;border-radius:10px;padding:17px 19px;margin:0 0 26px}
+.summary-card .sum-head{font-family:var(--serif-ko);font-size:14.5px;font-weight:600;color:var(--accent);margin-bottom:13px}
+.summary-card .sum-head .sum-sub{display:block;font-weight:300;font-size:11.5px;color:var(--light);margin-top:3px;line-height:1.6}
+.summary-card .sum-grid{display:flex;flex-direction:column;gap:10px}
+.summary-card .sum-item{display:flex;gap:12px;align-items:flex-start}
+.summary-card .sum-k{flex:0 0 78px;font-family:var(--serif-ko);font-size:12.5px;font-weight:600;color:var(--gold,#b89a75)}
+.summary-card .sum-v{flex:1;font-family:var(--serif-ko);font-size:12.5px;color:var(--text);line-height:1.72;word-break:keep-all}
+.summary-card .sum-mini{font-size:11px;color:var(--sub)}
+.summary-card .sum-mine{display:inline-block;margin-top:2px;font-size:12px;color:var(--accent);font-weight:600}
+@media(max-width:560px){.summary-card .sum-item{flex-direction:column;gap:1px}.summary-card .sum-k{flex:none}}
+
 /* 목차 (TOC) */
 .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:30px}
 .toc-title{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.05em;margin-bottom:12px}
@@ -152,7 +164,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 /* Print */
 @media print{
   nav.top,footer,.hero-divider,.hero-label,.toc{display:none}
-  body{background:#fff;color:#000;font-size:10.5pt;line-height:1.6}
+  body{background:#fff;color:#000;font-size:10.5pt;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .hero{padding:0 0 16pt}
   .hero-title{font-size:16pt;color:#000}
   .hero-sub,.hero-meta{color:#333}
@@ -168,6 +180,8 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   .ph{background:none;border-bottom:1px dashed #999;color:#000}
   .sign-section{page-break-inside:avoid}
   .box{border-color:#000}
+  .summary-card{border:1pt solid #999;background:#fff;page-break-after:always;page-break-inside:avoid}
+  .summary-card .sum-k{color:#000}
 }
 :where(a,button):focus-visible{outline:2px solid var(--seal);outline-offset:3px}
 </style>
@@ -193,6 +207,17 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 <div class="doc">
 
   <p class="preamble">본 계약은 의뢰인(이하 "갑")과 모먼트에디트(이하 "을")가 '을'이 제공하는 'Weekday Editorial Snap' 촬영 서비스의 이용에 관하여 다음과 같이 체결하는 계약이다.</p>
+
+  <section class="summary-card" aria-label="쉬운 요약">
+    <div class="sum-head">한눈에 보는 핵심<span class="sum-sub">이해를 돕기 위한 요약이에요. 정확한 권리·의무는 아래 본문(제1조~)을 따릅니다.</span></div>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="sum-k">💰 금액</div><div class="sum-v"><b>600,000원</b> (정가 800,000원·운영 초기 한정, VAT 포함). 계약금 20%(120,000원·계약 시) → 잔금 80%(480,000원·촬영 7일 전). <span class="sum-mine" id="sum-mine"></span></div></div>
+      <div class="sum-item"><div class="sum-k">✅ 무료 취소</div><div class="sum-v">계약서 받은 날부터 <b>7일 이내</b> 청약철회 — 받은 금액 <b>전액 환급</b>. <span class="sum-mini">(이후는 시기별 위약금 · 제9조 / 촬영 시작 후에는 철회 불가)</span></div></div>
+      <div class="sum-item"><div class="sum-k">📦 결과물</div><div class="sum-v">클라우드 링크로 전달 — 원본(약 300컷+) <b>촬영 후 2주</b> · 보정본 10장 <b>4주</b> 이내 <span class="sum-mini">(영상은 미포함)</span></div></div>
+      <div class="sum-item"><div class="sum-k">✍️ 내가 직접</div><div class="sum-v">헤어·메이크업은 <b>외부에서 직접</b> 준비 (촬영·보정은 '을'이 진행)</div></div>
+      <div class="sum-item"><div class="sum-k">👥 서비스</div><div class="sum-v">평일 한정 · 캔들존+화이트존 · <b>60~90분</b> 프라이빗 촬영 · 의상 시착 2벌+착용 1벌 포함</div></div>
+    </div>
+  </section>
 
   <!-- 목차 -->
   <nav class="toc" aria-label="목차">
@@ -235,11 +260,11 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <p class="clause"><span class="clause-n">①</span> <strong>'갑'(의뢰인).</strong> 본 계약의 '갑'은 본 서비스를 의뢰하는 자로 하며, 2인 이상인 경우 공동으로 한다.</p>
       <div class="tbl-wrap"><table class="tbl-fill">
         <tr><th style="width:32%">구분</th><th>의뢰인 1</th><th>의뢰인 2 (있는 경우)</th></tr>
-        <tr><td>성명(한글)</td><td></td><td></td></tr>
-        <tr><td>생년월일</td><td></td><td></td></tr>
-        <tr><td>연락처</td><td></td><td></td></tr>
-        <tr><td>이메일</td><td></td><td></td></tr>
-        <tr><td>주소</td><td></td><td></td></tr>
+        <tr><td>성명(한글)</td><td data-fill="groom"></td><td data-fill="bride"></td></tr>
+        <tr><td>생년월일</td><td data-fill="groomBirth"></td><td data-fill="brideBirth"></td></tr>
+        <tr><td>연락처</td><td data-fill="groomPhone"></td><td data-fill="bridePhone"></td></tr>
+        <tr><td>이메일</td><td data-fill="groomEmail"></td><td data-fill="brideEmail"></td></tr>
+        <tr><td>주소</td><td data-fill="groomAddr"></td><td data-fill="brideAddr"></td></tr>
         <tr><td>(외국인 시) 여권 영문명·국적</td><td></td><td></td></tr>
       </table></div>
       <p class="clause"><span class="clause-n">②</span> <strong>'을'(사업자).</strong></p>
@@ -281,6 +306,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
         <tr><td data-label="단계">계약금</td><td data-label="비율">20%</td><td data-label="금액">120,000원</td><td data-label="지급 시기">전자계약 체결 시</td></tr>
         <tr><td data-label="단계">잔금</td><td data-label="비율">80%</td><td data-label="금액">480,000원</td><td data-label="지급 시기">촬영일 <strong>7일 전(D-7)</strong>까지</td></tr>
       </table></div>
+      <p class="clause" style="background:var(--bg2);border:1px solid var(--gold-line,#e3dccb);border-radius:8px;padding:11px 14px;margin:8px 0 4px"><strong>본 계약 적용</strong> — <span id="art4-mine">마이페이지에서 자동 표시됩니다.</span></p>
       <p class="clause"><span class="clause-n">③</span> <strong>계약금 상한.</strong> 계약금은 총 촬영대금의 <strong>20%를 초과하지 아니한다.</strong></p>
       <p class="clause"><span class="clause-n">④</span> <strong>결제수단 및 증빙.</strong> 결제는 계좌이체로 하며 결제수단에 따른 가격 차이는 없다. 모든 표시 가격은 부가가치세가 포함된 단일 가격이며, '을'은 현금영수증 또는 세금계산서를 발행한다('갑'은 발행에 필요한 휴대전화번호·사업자등록번호 등을 제공한다).</p>
       <p class="clause"><span class="clause-n">⑤</span> <strong>입금 확인.</strong> '갑'의 입금자명이 계약자와 다른 경우 '갑'은 사전에 통지하며, '을'은 영업일 기준 2일 이내에 통장 대조로 확인한다.</p>
@@ -400,8 +426,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>저작권.</strong> 결과물의 저작권은 '을'에게 귀속한다. 다만 「저작권법」 제35조 제4항에 따라 위탁에 의한 초상사진은 '갑'(위탁자)의 동의 없이 '을'이 이용할 수 없다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>'갑'의 이용 범위.</strong> '갑'은 결과물을 사적·기념 목적으로 자유로이 이용할 수 있다. 상업적 사용(쇼핑몰·광고 등)은 '을'과 별도 협의하며 유상으로 한다.</p>
-      <p class="clause"><span class="clause-n">③</span> <strong>초상권 사용 동의(옵트인).</strong> '을'이 결과물을 포트폴리오·홍보 목적으로 사용하려면 '갑'의 <strong>별도 동의</strong>를 받아야 하며, '갑'은 다음 중 하나를 선택한다(선택란은 서명란 위에 둔다). <strong>비공개</strong> 선택 시 '을'은 결과물을 일체 사용하지 아니한다. 본 동의는 동의일로부터 <strong>5년간 유효</strong>하며 '갑'은 언제든 철회할 수 있고, 만료 시 재동의로 갱신할 수 있다.</p>
-      <ul class="inline-list"><li>1. 전체 공개</li><li>2. 모자이크(얼굴 비식별) 처리 후 공개</li><li>3. 비공개</li></ul>
+      <p class="clause"><span class="clause-n">③</span> <strong>초상권 사용 동의(옵트인).</strong> '을'이 결과물을 포트폴리오·홍보 목적으로 사용하려면 '갑'의 <strong>별도 동의</strong>를 받아야 한다. 본 동의는 본 계약과 별개로 <strong>결과물(보정본) 제공 단계에서</strong> '갑'이 마이페이지를 통해 <strong>옵트인 방식으로 개별 선택</strong>(전체 공개 / 모자이크 후 공개 / 비공개)하며, '갑'이 동의하지 아니하면 '을'은 결과물을 홍보 목적으로 일체 사용하지 아니한다. '갑'은 동의 후에도 동의일로부터 <strong>5년 내 언제든 철회</strong>할 수 있다.</p>
       <p class="clause"><span class="clause-n">④</span> <strong>면책 단서.</strong> 본 조의 면책은 '을'의 고의·중대한 과실 및 플랫폼 자체 결함의 경우에는 적용하지 아니한다.</p>
     </div>
   </section>
@@ -453,21 +478,12 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <div class="check-line"><span class="box" aria-hidden="true"></span><span>본인은 대금(제4조)·위약금(제9조)·청약철회(제7조)·저작권(제13조)·개인정보(제14조) 등 중요 조항을 확인하였습니다.</span></div>
     </div>
 
-    <div class="consent-box">
-      <div class="cb-title">초상권 사용 동의 (제13조 제3항)<span class="pick">— 하나만 선택</span></div>
-      <div class="opt-row">
-        <span><span class="box" aria-hidden="true"></span> 전체 공개</span>
-        <span><span class="box" aria-hidden="true"></span> 모자이크 후 공개</span>
-        <span><span class="box" aria-hidden="true"></span> 비공개</span>
-      </div>
-    </div>
-
-    <div class="date-line">계약 체결일 : ____________________</div>
+    <div class="date-line">계약 체결일 : <span data-fill="signDate">____________________</span></div>
 
     <div class="sign-grid">
-      <div class="sign-cell"><div class="sc-role">갑 — 의뢰인 1</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(전자서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">갑 — 의뢰인 2 (있는 경우)</div><div class="sc-line"><span class="sc-name">성명 : ____________</span><span class="sc-sign">(전자서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">을 — 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign">(전자서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 의뢰인 1</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="groom">____________</span></span><span class="sc-sign" id="sigGroom">(전자서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 — 의뢰인 2 (있는 경우)</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="bride">____________</span></span><span class="sc-sign" id="sigBride">(전자서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">을 — 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="모먼트에디트 대표 정희준 직인" style="height:70px;width:70px;vertical-align:middle"><defs><path id="meSealArc" d="M 33,100 A 67,67 0 0 0 167,100" fill="none"/></defs><circle cx="100" cy="100" r="94" fill="none" stroke="#C0271E" stroke-width="3.5"/><circle cx="100" cy="100" r="85" fill="none" stroke="#C0271E" stroke-width="1.4"/><text fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="22" letter-spacing="3"><textPath xlink:href="#meSealArc" startOffset="50%" text-anchor="middle">MOMENT EDIT</textPath></text><text x="100" y="116" text-anchor="middle" fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="18" letter-spacing="0.5">JEONG HUIJUN</text><rect x="26" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 29 110)"/><rect x="168" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 171 110)"/></svg></span></div></div>
     </div>
     <p class="sign-note" style="margin-top:14px;font-size:12px;color:var(--light)">※ 본 1차본은 시스템상 의뢰인 대표 1인이 전자서명하며(제2조 제1항), 의뢰인이 2인 이상인 경우 제2조 제3항에 따라 연대하여 책임을 진다. 의뢰인 2인 개별 전자서명은 시스템 도입 후 적용된다.</p>
   </div>
@@ -480,6 +496,39 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span style="color:rgba(184,154,117,0.6)">[신고번호]</span><br>경기 고양시 덕양구 향동동 <span style="color:rgba(184,154,117,0.6)">[정식주소 — 이전 후 확정]</span> · contact@momentedit.kr</div>
   <div class="f-ver">웨딩 촬영 서비스 이용계약서 Snap v1.0 / 과도기 단일서명본</div>
 </footer>
+
+<script>
+/* [Phase2] 맞춤 채우기 — 인증된 마이페이지(같은 도메인 부모창)가 postMessage로 보낸 고객 정보로 '갑' 표를 채운다.
+   · 계약서를 직접(단독) 열면 부모가 없어 빈칸 그대로 → 정보 노출 없음.
+   · 같은 출처(location.origin)에서 온 메시지만 수용. */
+(function(){
+  function fill(d){
+    if(!d || typeof d!=='object') return;
+    var els=document.querySelectorAll('[data-fill]');
+    for(var i=0;i<els.length;i++){
+      var k=els[i].getAttribute('data-fill'), v=d[k];
+      if(v!=null && String(v)!=='') els[i].textContent=String(v);
+    }
+    if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_촬영일
+    var amt=Number(d.total)||0;   // 개인화 — 제4조·요약 카드 공통(촬영일·적용 총액)
+    var ps=[]; if(d.weddingDate) ps.push('촬영일 '+d.weddingDate); ps.push('웨딩스냅'); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
+    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='✦ 내 계약 — '+_pj; }
+    if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 의뢰인2 대표갈음
+      var cb=document.querySelector('.check-line .box');
+      if(cb){ cb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cb.textContent='✓'; }
+      var gs=document.getElementById('sigGroom');
+      if(gs){ gs.innerHTML = d.signImage ? '<img src="'+d.signImage+'" alt="의뢰인 전자서명" style="height:38px;max-width:150px;object-fit:contain;vertical-align:middle">' : '✓ 전자서명 완료'; }
+      var bs=document.getElementById('sigBride'); if(bs) bs.textContent='(대표 서명으로 갈음)';
+      try{ var _sg=document.getElementById('sign'); if(_sg) setTimeout(function(){ _sg.scrollIntoView({behavior:'smooth',block:'start'}); },140); }catch(e){}   // 서명본 재열람 → 서명란으로 안내
+    }
+  }
+  window.addEventListener('message', function(ev){
+    if(ev.origin!==location.origin) return;
+    if(ev.data && ev.data.type==='momentedit:contractFill') fill(ev.data.data);
+  });
+  try{ if(window.parent && window.parent!==window){ var _nav=document.querySelector('nav.top'); if(_nav) _nav.style.display='none'; window.parent.postMessage({type:'momentedit:contractReady'}, location.origin); } }catch(e){}
+})();
+</script>
 
 </body>
 </html>
