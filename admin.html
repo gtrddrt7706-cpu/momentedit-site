@@ -1015,6 +1015,7 @@ function openContractViewer(d){
     groom:(nm[0]||'').trim(), bride:(nm[1]||'').trim(),
     groomBirth:ci.groomBirth||'', brideBirth:ci.brideBirth||'',
     groomAddr:ci.groomAddr||'', brideAddr:ci.brideAddr||'',
+    groomPhone:ci.groomPhone||'', groomEmail:ci.groomEmail||'', bridePhone:ci.bridePhone||'', brideEmail:ci.brideEmail||'',
     weddingDate:(d.pin&&d.pin.예식일)||ci.weddingDate||'',
     total:Math.round(Number(r.계약총액)||0),
     signed:(r.계약상태==='서명완료')|| !!r.계약서명일시,
@@ -1034,6 +1035,9 @@ function openContractViewer(d){
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){ if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return; if(ev.data && ev.data.type==='momentedit:contractReady'){ fr.contentWindow.postMessage({type:'momentedit:contractFill', data:fillData}, location.origin); } }
   x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg);
+  if(fillData.signed){   // 서명완료면 고객 손글씨 진본 가져와 다시 채움(관리자 검증용)
+    try{ gas('adminGetSignature', d.code, '계약').then(function(rr){ if(rr&&rr.ok&&rr.dataUrl){ fillData.signImage=rr.dataUrl; if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:fillData}, location.origin); } }).catch(function(){}); }catch(e){}
+  }
 }
 
 function openSetResult(code,names,isSnap,d){

@@ -130,7 +130,7 @@ function adminCall(token, fn, args) {
     var FNS = {
       adminHome: adminHome, adminDetail: adminDetail, adminArchive: adminArchive, adminSearch: adminSearch, adminSaveMemo: adminSaveMemo,
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
-      adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
+      adminGetSignature: adminGetSignature, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
@@ -731,6 +731,13 @@ function adminAvailability() {
 // [02-3] 계약서 발송 — 계약상태=발송 + 계약서발송일시(now, +72h 기한 기준) + 계약서링크.
 //   서명은 고객 측(signContract). 발송 시각을 정확히 찍어야 기한 계산이 맞으므로 이 핸들러로 발송(시트 직접 입력 X).
 // total = 계약총액(주말 2800000 / 평일 2100000 등, 공휴일=주말단가). 입금화면의 계약금·잔금 산출 기준.
+// [계약] 관리자 — 고객 손글씨 서명 진본 조회(미리보기 검증용). getSignatureDataUrl 재사용.
+function adminGetSignature(code, type) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  if (!code) return { ok: false, error: '개인코드가 없습니다.' };
+  return { ok: true, dataUrl: getSignatureDataUrl(code, String(type || '계약').trim()) || '' };
+}
 function adminSendContract(code, link, total, weddingYmd) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();

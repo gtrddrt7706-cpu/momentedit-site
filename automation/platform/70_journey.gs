@@ -261,7 +261,7 @@ function handleRequestContract(body) {
     if (String(cust.get('현재단계') || '').trim() !== '상담완료') return { ok: false, error: '아직 계약서 요청 단계가 아닙니다.' };
     if (String(cust.get('계약상태') || '').trim()) return { ok: false, error: '이미 계약이 진행 중입니다.' };
     var rec = _parseJsonSafe(cust.get('동의기록'));
-    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
+    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준 · 당사자 정보=계약서 자동기입용
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -320,8 +320,10 @@ function buildContractState(r) {
     brideBirth: _ci.brideBirth || '',
     groomAddr: _ci.groomAddr || '',
     brideAddr: _ci.brideAddr || '',
-    phone: String(r.get('연락처') || ''),   // 가입 계정 연락처 1개(신랑/대표 칸에 표시)
-    email: String(r.get('이메일') || ''),   // 가입 계정 이메일 1개
+    groomPhone: _ci.groomPhone || String(r.get('연락처') || ''),   // 신랑 연락처(미입력 시 가입 계정값으로 폴백)
+    groomEmail: _ci.groomEmail || String(r.get('이메일') || ''),
+    bridePhone: _ci.bridePhone || '',                              // 신부 연락처(계약정보 입력분)
+    brideEmail: _ci.brideEmail || '',
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
     total: Math.round(Number(r.get('계약총액')) || 0)
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
