@@ -1298,6 +1298,7 @@ function renderContractReqForm(ctx){
     +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddr)
     +'<label class="pf-l" style="margin-top:8px">신랑 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 번호 <span style="color:var(--light);font-weight:300">(선택 · 휴대폰/사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="현금영수증 발급 번호 (선택)" inputmode="numeric" autocomplete="off" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">예약금·계약금 영수증은 계약 시, 중도금·잔금은 입금하실 때 발급해 드려요.</div>'
     +'<label class="srv-consent" style="margin-top:14px"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0 28px"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -1328,7 +1329,7 @@ function doRequestContract(){
   function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); if(de && r.indexOf(de)!==-1) de=''; return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세(이미 도로명에 포함된 동·호면 중복 제거)
   function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
-  var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+  var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');

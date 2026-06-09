@@ -335,6 +335,7 @@ function handleRequestContract(body) {
     if (_weddingSlotTaken(sheet, colOf, wed, wT, code)) return { ok: false, error: '선택하신 예식 시간이 이미 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
     var rec = _parseJsonSafe(cust.get('동의기록'));
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
+    var _cr = String(info.cashReceipt || '').replace(/[^0-9]/g, '').slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // 현금영수증 발급번호(선택) — 계약 충당분·중도금·잔금 발급에 공통 사용
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준·슬롯 점유 · 당사자 정보=계약서 자동기입용
     notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 — 발송 필요(카톡)
     return { ok: true };
@@ -356,6 +357,7 @@ function buildContractInfoState(r) {
     weddingTime: ci ? (ci.weddingTime || '') : '',
     groomBirth: ci ? (ci.groomBirth || '') : '', brideBirth: ci ? (ci.brideBirth || '') : '',
     groomAddr: ci ? (ci.groomAddr || '') : '', brideAddr: ci ? (ci.brideAddr || '') : '',
+    cashReceipt: _cashReceiptOf(r),
     requestedAt: ci ? (ci.requestedAt || '') : ''
   };
 }
@@ -401,6 +403,8 @@ function buildContractState(r) {
     bridePhone: _ci.bridePhone || '',                              // 신부 연락처(계약정보 입력분)
     brideEmail: _ci.brideEmail || '',
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
+    weddingTime: _ci.weddingTime || '',
+    weddingTimeLabel: (WEDDING_SLOT.LABELS && WEDDING_SLOT.LABELS[_ci.weddingTime]) || '',
     total: Math.round(Number(r.get('계약총액')) || 0)
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
   };
