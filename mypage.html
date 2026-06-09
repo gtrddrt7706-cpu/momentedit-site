@@ -1514,9 +1514,7 @@ function renderBalance(p, mid){
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){
     if(mid && mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 중도금과 함께 확인 → 중도금 카드에 '중도금·잔금'으로 통합 → 잔금 숨김
-    box.innerHTML='<details class="acc"><summary class="past-toggle">잔금 입금 완료 <span class="pt-ar">▾</span></summary>'
-      +'<div class="cc-sub" style="text-align:center;padding:12px 4px 6px">잔금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div></details>';
-    box.style.display='block';
+    collapsedCard(box, '잔금 입금 완료', '<div class="cc-sub">잔금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>');
     return;
   }
   // 중도금도 함께 입금신호(같이 입금) → 중도금 카드가 '중도금·잔금 입금 확인 중'으로 통합 표시 → 잔금 카드는 숨김(중복 방지)
@@ -1582,10 +1580,8 @@ function renderMid(p, bal){
   var box=$('mp_midpayment'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){
-    var _md=!!(bal && bal.confirmed);   // 중도금+잔금 모두 확인 → 한 줄로 통합(본계약서 보기와 같은 얇은 토글)
-    box.innerHTML='<details class="acc"><summary class="past-toggle">'+(_md?'중도금·잔금':'중도금')+' 입금 완료 <span class="pt-ar">▾</span></summary>'
-      +'<div class="cc-sub" style="text-align:center;padding:12px 4px 6px">'+(_md?'중도금·잔금':'중도금')+' 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div></details>';
-    box.style.display='block';
+    var _md=!!(bal && bal.confirmed);   // 중도금+잔금 모두 확인 → 한 카드로 통합(스타일은 기존 박스형 유지)
+    collapsedCard(box, (_md?'중도금·잔금':'중도금')+' 입금 완료', '<div class="cc-sub">'+(_md?'중도금·잔금':'중도금')+' 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>');
     return;
   }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
@@ -1666,11 +1662,12 @@ function doPaySignal(){
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
 function collapsedCard(box, label, fullHtml, sigType){
   var sigBlock = sigType ? '<div class="cc-sig" data-sigtype="'+escapeHtml(sigType)+'"><span class="cc-sig-cap">Signature</span><div class="cc-sig-slot"><span class="cc-sig-ph">서명 불러오는 중…</span></div></div>' : '';
-  box.innerHTML = '<details class="acc"><summary class="past-toggle">'+escapeHtml(label)+' <span class="pt-ar">▾</span></summary>'
-    + '<div class="cc-done-full" style="padding:12px 4px 6px">'+(fullHtml||'')+sigBlock+'</div></details>';   // 본계약서 보기와 동일한 얇은 토글로 통일
+  box.innerHTML = '<div class="consult-card cc-done">'
+    + '<div class="cc-done-row" role="button" tabindex="0"><span class="cc-done-check">✓</span><span class="cc-done-label">'+escapeHtml(label)+'</span><span class="cc-done-toggle">펼치기</span></div>'
+    + '<div class="cc-done-full" style="display:none">'+(fullHtml||'')+sigBlock+'</div></div>';
   box.style.display='block';
-  var det=box.querySelector('details'), full=box.querySelector('.cc-done-full');
-  if(det) det.addEventListener('toggle', function(){ if(det.open) _loadSig(full); });
+  var row=box.querySelector('.cc-done-row'), full=box.querySelector('.cc-done-full'), tg=box.querySelector('.cc-done-toggle');
+  if(row) row.addEventListener('click', function(){ var open=full.style.display!=='none'; full.style.display=open?'none':'block'; if(tg) tg.textContent=open?'펼치기':'접기'; if(!open) _loadSig(full); });
 }
 // 펼침 시 1회 서명 조회(getSignature) → <img> 렌더. 실패/없음은 조용한 안내.
 function _loadSig(scope){
