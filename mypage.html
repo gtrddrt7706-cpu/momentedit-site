@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · contract phase2e (뷰어 서명CTA·체결 축하·페이드인) · redeploy 2026-06-08h -->
+<!-- build: birth 18-53 · contract phase2f (제4조 개인화·주소중복정리·뷰어 서명완료표시) · redeploy 2026-06-08i -->
 </head>
 <body>
 
@@ -655,7 +655,7 @@ function openContractView(){
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column';
   var bar=document.createElement('div');
   bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border,#e6e0d8);background:#fff';
-  var ttl=document.createElement('span'); ttl.textContent='본 계약서';
+  var ttl=document.createElement('span'); ttl.textContent=(window._contractFill && window._contractFill.signed)?'본 계약서 · 서명 완료':'본 계약서';
   ttl.style.cssText='font-family:var(--serif-ko,serif);font-size:14px;color:var(--accent,#3a2f25)';
   var x=document.createElement('button'); x.type='button'; x.textContent='닫기';
   x.style.cssText='border:1px solid var(--border,#e6e0d8);background:#fff;border-radius:6px;padding:8px 16px;font-family:var(--serif-ko,serif);font-size:13px;color:var(--sub,#6b5d4d);cursor:pointer';
@@ -1291,7 +1291,7 @@ function renderContractReqForm(ctx){
 }
 function doRequestContract(){
   function v(id){ var e=$(id); return (e&&e.value||'').trim(); }
-  function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세 합성
+  function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); if(de && r.indexOf(de)!==-1) de=''; return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세(이미 도로명에 포함된 동·호면 중복 제거)
   function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
   var info={ weddingDate:v('mp_ciWed'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };

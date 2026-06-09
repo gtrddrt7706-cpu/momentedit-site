@@ -307,6 +307,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
         <tr><td data-label="구분">주말·공휴일</td><td data-label="총 계약금액"><strong>2,800,000원</strong></td></tr>
         <tr><td data-label="구분">평일</td><td data-label="총 계약금액"><strong>2,100,000원</strong></td></tr>
       </table></div>
+      <p class="clause" style="background:var(--bg2);border:1px solid var(--gold-line,#e3dccb);border-radius:8px;padding:11px 14px;margin:8px 0 4px"><strong>본 계약 적용</strong> — <span id="art4-mine">마이페이지에서 자동 표시됩니다.</span></p>
       <p>별도 상품인 Weekday Editorial Snap은 <strong>600,000원</strong>(정가 800,000원, 운영 초기 한정)으로 한다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>대금의 단계별 지급.</strong> 대금은 다음 3단계로 나누어 지급한다.</p>
       <div class="tbl-wrap"><table class="tbl-card">
@@ -553,6 +554,13 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     for(var i=0;i<els.length;i++){
       var k=els[i].getAttribute('data-fill'), v=d[k];
       if(v!=null && String(v)!=='') els[i].textContent=String(v);
+    }
+    var mine=document.getElementById('art4-mine');   // 제4조 — 본 계약 적용(예식일·총액) 개인화
+    if(mine){
+      var amt=Number(d.total)||0;
+      var kind=amt===2800000?'주말·공휴일 기준':(amt===2100000?'평일 기준':(amt===600000?'웨딩스냅':''));
+      var ps=[]; if(d.weddingDate) ps.push('예식일 '+d.weddingDate); if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
+      if(ps.length) mine.textContent=ps.join(' · ');
     }
     if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 신부 대표갈음
       var cb=document.querySelector('.check-line .box');
