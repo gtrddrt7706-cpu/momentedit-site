@@ -944,13 +944,14 @@ function li(s){ return '<span class="li">· '+esc(s)+'</span>'; }
 
 function runAct(fnArgs, code, lbl){
   mBusy(true); mErr('');
-  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ afterAction(code,r); } else { mBusy(false,lbl); mErr(r&&r.error||'실패'); } })
+  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ afterAction(code,r,fnArgs[0]); } else { mBusy(false,lbl); mErr(r&&r.error||'실패'); } })
     .catch(function(e){ mBusy(false,lbl); mErr('오류: '+(e&&e.message||e)); });
 }
-function afterAction(code,res){
+function afterAction(code,res,act){
   closeModal();
   if(res&&res.archived){ toast('처리됨 · 아카이브로 이동'); if(_view==='archive') loadArchive(); else loadHome(); return; }
-  toast('✓ 처리됨');
+  var NH={adminSendContract:'계약서 도착',adminOpenFittingConsent:'드레스 시착 동의 요청',adminConfirmPayment:'계약금 입금 확인',adminConfirmMid:'중도금 입금 확인',adminConfirmBalance:'잔금 입금 확인',adminSetResultLinks:'결과물 등록',adminMarkDelivered:'결과물 전달'};
+  toast(NH[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡 알림 잊지 마세요') : '✓ 처리됨');
   if(_view==='detail') openDetail(code);
   else if(_view==='archive') loadArchive();
   else loadHome();
