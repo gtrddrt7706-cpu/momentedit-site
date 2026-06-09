@@ -953,8 +953,8 @@ function _clearForwardData(colOf, cust, product, targetStage) {
   // [컬럼들, 이 데이터가 생기는 단계(상품 기준), 동의기록 키] — 목표가 그 단계보다 앞이면 비움
   var groups = [
     { cols: ['시착동의상태', '시착동의일시'], at: '시착', consent: '시착' },
-    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액'], at: '계약완료', consent: '계약' },
-    { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료' },
+    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액'], at: '계약완료', consent: ['계약', '계약정보'] },  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화
+    { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증' },
     { cols: ['제작임시저장', 'eventId'], at: '제작중' },
     { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태'], at: isSnap ? '촬영완료' : '예식완료' }
   ];
@@ -963,7 +963,7 @@ function _clearForwardData(colOf, cust, product, targetStage) {
     var gi = flow.indexOf(g.at);
     if (gi < 0 || ti >= gi) return;                 // 이 상품에 없거나, 목표가 이 데이터 단계 이상이면 보존
     g.cols.forEach(function (c) { if (colOf[c]) upd[c] = ''; });
-    if (g.consent) consentKeys.push(g.consent);
+    if (g.consent) consentKeys = consentKeys.concat(g.consent);   // string·array 모두 허용(한 그룹에서 여러 동의기록 키 제거)
   });
   if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
     var rec = _parseJsonSafe(cust.get('동의기록'));
