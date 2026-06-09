@@ -692,7 +692,7 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -740,6 +740,21 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
       // 남은 메일 할당량 함께 기록 (한도 초과 진단용)
       try { Logger.log('   남은 Gmail 할당량: ' + MailApp.getRemainingDailyQuota()); } catch (q) {}
       notifyStudio('[상담] ⚠️오류 · 관리자 알림 메일 발송 실패', coupleNames(row) + ' · ' + dateKey + ' ' + time + '\n' + mailErrMsg);
+    }
+    // [임시고정] 예식일 가예약 '요청' 저장(체크 시) — 슬롯 유효 + 미점유일 때만. 관리자 승인 시 점유 확정. best-effort(본 예약은 영향 X).
+    if (hold && hold.date && hold.slot) {
+      try {
+        var _hc = String(row.get('개인코드') || '').trim(), _hd = String(hold.date).trim(), _hs = String(hold.slot).trim();
+        if (_hc && WEDDING_SLOT.SLOTS.indexOf(_hs) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(_hd)) {
+          var _cs = getCustomersSheet(), _cco = buildHeaderIndex(_cs), _cust = findCustomerByCode(_hc);
+          if (_cust && !_weddingSlotTaken(_cs, _cco, _hd, _hs, _hc)) {
+            var _rec = _parseJsonSafe(_cust.get('동의기록'));
+            _rec.가예약 = { date: _hd, slot: _hs, status: '요청', at: fmtKST(new Date()) };
+            touchCustomer(_cs, _cco, _cust.num, { '동의기록': JSON.stringify(_rec) });
+            notifyKakao('admin.holdRequest', _hc, { date: _hd, slot: _hs });
+          }
+        }
+      } catch (e) {}
     }
     return { ok: true, mailOk: mailOk, mailErr: mailErrMsg };
   } finally {
@@ -1844,7 +1859,7 @@ function handleSubmitSchedule(body) {
   if (!a.ok) return { ok: false, error: a.error };
   if (!a.consult) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
   var consultToken = String(a.consult.get('토큰') || '');
-  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '');
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null);
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
