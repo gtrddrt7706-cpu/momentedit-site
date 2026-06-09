@@ -1516,7 +1516,7 @@ function renderBalance(p, mid){
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){
     if(mid && mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 중도금과 함께 확인 → 중도금 카드에 '중도금·잔금'으로 통합 → 잔금 숨김
-    collapsedCard(box, '잔금 입금 완료', '<div class="cc-sub">잔금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>');
+    collapsedCard(box, '잔금 입금 완료', '<div class="cc-sub">잔금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>', null, true);
     return;
   }
   // 중도금도 함께 입금신호(같이 입금) → 중도금 카드가 '중도금·잔금 입금 확인 중'으로 통합 표시 → 잔금 카드는 숨김(중복 방지)
@@ -1583,7 +1583,7 @@ function renderMid(p, bal){
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){
     var _md=!!(bal && bal.confirmed);   // 중도금+잔금 모두 확인 → 한 카드로 통합(스타일은 기존 박스형 유지)
-    collapsedCard(box, (_md?'중도금·잔금':'중도금')+' 입금 완료', '<div class="cc-sub">'+(_md?'중도금·잔금':'중도금')+' 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>');
+    collapsedCard(box, (_md?'중도금·잔금':'중도금')+' 입금 완료', '<div class="cc-sub">'+(_md?'중도금·잔금':'중도금')+' 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>', null, true);
     return;
   }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
