@@ -118,8 +118,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .day.avail::before{content:'';position:absolute;top:6px;right:7px;width:5px;height:5px;
   border-radius:50%;background:var(--gold);opacity:0.55}
 .day:hover:not(.off):not(.empty):not(.sel){background:var(--bg2);border-color:var(--gold-soft)}
-.day.sel{background:rgba(184,154,117,0.15);color:var(--accent);border-color:rgba(184,154,117,0.7);border-radius:50%;font-weight:600;
-  box-shadow:0 2px 9px rgba(184,154,117,0.18)}
+.day.sel{background:rgba(184,154,117,0.24);color:var(--accent);border-color:rgba(184,154,117,0.7);font-weight:600}
 .day.sel::after{background:transparent}.day.sel::before{display:none}
 /* 로딩 스켈레톤 — 가능일 조회(네트워크) 전 빈 달력 대신 즉시 표시 */
 .day-skel{aspect-ratio:1;border-radius:6px;
@@ -250,6 +249,8 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 #depPayer{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--serif-ko);font-size:14px;color:var(--accent);letter-spacing:0.01em;text-align:center;background:#fff}
 #depPayer:focus{outline:none;border-color:var(--gold)}
 #depPayer::placeholder{color:var(--light);font-weight:300}
+/* 자동완성(브라우저 저장값) 파란 배경 제거 — 흰 배경 유지 */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .deposit-payer-hint{font-family:var(--serif-ko);font-size:11px;color:var(--light);font-weight:300;margin-top:9px;line-height:1.6;text-align:center}
 
 /* ── 제출 ── */
@@ -358,7 +359,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 <body>
 
 <div class="top fade">
-  <a href="/" class="brand-link" aria-label="Moment Edit"><img class="logo-img" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio" onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block'"><span id="brandFallback" class="brand-fallback" style="display:none"><span class="wordmark">MOMENT EDIT</span><span class="topsub">PRIVATE WEDDING STUDIO</span></span></a>
+  <a href="/mypage.html" class="brand-link" aria-label="Moment Edit · 마이페이지"><img class="logo-img" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio" onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block'"><span id="brandFallback" class="brand-fallback" style="display:none"><span class="wordmark">MOMENT EDIT</span><span class="topsub">PRIVATE WEDDING STUDIO</span></span></a>
 </div>
 
 <div class="greet fade d1">

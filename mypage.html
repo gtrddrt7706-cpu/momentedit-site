@@ -102,7 +102,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
-.consult-card .cc-input:-webkit-autofill,.consult-card .cc-input:-webkit-autofill:hover,.consult-card .cc-input:-webkit-autofill:focus,.consult-card .cc-input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
+.cc-input:-webkit-autofill,.cc-input:-webkit-autofill:hover,.cc-input:-webkit-autofill:focus,.cc-input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .field label{position:absolute;left:13px;top:16px;font-family:var(--serif-ko);font-size:14px;color:var(--light);pointer-events:none;transition:all .25s var(--ease);background:var(--bg);padding:0 5px}
 .field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold-deep);letter-spacing:.03em}
 

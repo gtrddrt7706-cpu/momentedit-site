@@ -45,6 +45,8 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .search{display:flex;gap:8px;margin-bottom:16px}
 .search input{flex:1;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none}
 .search input:focus{border-color:var(--gold)}
+/* 자동완성(브라우저 저장값) 파란 배경 제거 — 흰 배경 유지 */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .search button{flex:none;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 16px;font-family:var(--serif-ko);font-size:13px;cursor:pointer}
 
 /* 섹션 제목 */
