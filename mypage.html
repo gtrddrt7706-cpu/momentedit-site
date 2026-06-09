@@ -272,6 +272,14 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .pf-cover{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:var(--gold-deep);min-height:18px;margin:8px 0 4px}
 .pf2{display:flex;gap:8px}.pf2>div{flex:1}
 /* 예식 날짜 커스텀 달력 (inquiry dt-picker 이식) */
+.wed-slot-row{display:flex;gap:8px;margin-top:6px}
+.wed-slot{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:11px 6px;border:1px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-family:var(--serif-ko);transition:border-color .15s,background .15s}
+.wed-slot .ws-lab{font-size:11px;color:var(--light)}
+.wed-slot .ws-t{font-size:14.5px;color:var(--accent);font-weight:500}
+.wed-slot.sel{border-color:var(--gold);background:var(--bg2)}
+.wed-slot.sel .ws-t{color:var(--seal)}
+.wed-slot.taken{opacity:.45;cursor:not-allowed;background:var(--bg2)}
+.wed-slot .ws-x{font-size:10px;color:var(--seal)}
 .dt-picker-wrap{position:relative;width:100%}
 .dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:15px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
 .dt-trigger:hover{border-color:var(--gold);background:#fafaf8}
@@ -1282,6 +1290,8 @@ function renderContractReqForm(ctx){
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:ci.weddingDate})
+    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(ci.weddingTime||'')+'">'
     +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
     +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
     +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddr)
@@ -1294,7 +1304,20 @@ function renderContractReqForm(ctx){
     +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ciSubmit">계약서 요청하기</button>'
     +'<div class="cc-note" style="text-align:center">계약서를 요청하시면 <b>24시간 안에</b> 보내드려요.</div></div></div>';
   box.style.display='block';
-  initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed'});
+  var _wedAvail={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'저녁'},taken:{}};
+  function _renderSlots(ymd){
+    var box=$('mp_ciSlots'), row=$('mp_ciSlotRow'), note=$('mp_ciSlotNote'); if(!row) return;
+    if(box) box.style.display=ymd?'block':'none'; if(!ymd){ row.innerHTML=''; return; }
+    var td=(_wedAvail.taken&&_wedAvail.taken[ymd])||[], hid=$('mp_ciWedTime'), sel=(hid&&hid.value)||'';
+    if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
+    row.innerHTML=_wedAvail.slots.map(function(t){ var lab=(_wedAvail.labels&&_wedAvail.labels[t])||''; var tk=td.indexOf(t)!==-1;
+      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
+    if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_ciWedTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); }); });
+  }
+  initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed',onPick:_renderSlots});
+  if(ci.weddingDate) _renderSlots(ci.weddingDate);
+  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _wedAvail.taken=r.taken||{}; if(r.slots&&r.slots.length)_wedAvail.slots=r.slots; if(r.labels)_wedAvail.labels=r.labels; var dd=($('mp_ciWed')&&$('mp_ciWed').value)||ci.weddingDate||''; if(dd)_renderSlots(dd); } }).catch(function(){});
   function _wireAddr(base){ function op(){ openAddrSearch(base+'_road', base+'_jibun', base+'_detail'); } var f=$(base+'_find'); if(f) f.addEventListener('click',op); var rd=$(base+'_road'); if(rd) rd.addEventListener('click',op); }
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
   var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(); });
@@ -1305,8 +1328,9 @@ function doRequestContract(){
   function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); if(de && r.indexOf(de)!==-1) de=''; return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세(이미 도로명에 포함된 동·호면 중복 제거)
   function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
-  var info={ weddingDate:v('mp_ciWed'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+  var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
+  if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
   if(!info.groomAddr||!info.brideAddr) return fail('신랑·신부 주소를 입력해 주세요.');
   if(!info.consent) return fail('개인정보 수집·이용에 동의해 주세요.');

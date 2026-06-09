@@ -203,6 +203,14 @@ function handleSignContract(body) {
     if (sentAt && Date.now() > sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) {
       return { ok: false, expired: true, error: '서명 기한이 지났습니다. 디렉터에게 다시 요청해 주세요.' };
     }
+    // 예식 슬롯 점유 가드 — 서명=점유 확정. 같은 예식일·슬롯을 다른 서명완료 고객이 선점했으면 차단(더블부킹 0·시그니처).
+    if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {
+      var _rec0 = _parseJsonSafe(cust.get('동의기록'));
+      var _wY = _ymdOf(cust.get('예식일')), _wT = (_rec0.계약정보 && _rec0.계약정보.weddingTime) || '';
+      if (_wY && _wT && _weddingSlotTaken(sheet, colOf, _wY, _wT, code)) {
+        return { ok: false, error: '선택하신 예식 시간이 방금 마감됐어요. 디렉터가 다른 시간을 안내드릴게요.' };
+      }
+    }
 
     var now = fmtKST(new Date());
     var sigSaved = _saveSignature(code, '계약', (body && body.signature), now, CONTRACT.version);  // 손글씨 서명 저장
@@ -249,6 +257,55 @@ function handleSignContract(body) {
 
 // [02-2.5] 고객이 예식일·계약 당사자 정보 입력 + 계약서 요청 (상담완료). 예식일=톱레벨 컬럼, 나머지=동의기록.계약정보.
 //   이후: 관리자가 이 정보로 계약서 자동 완성 → 확인·발송. 계약일 별도 문의 불요.
+// [02-2.5] 예식(시그니처) 슬롯 — 하루 3타임(엑셀 진행순서 기준). 각 140분(도착~환복). 평일·주말 동일.
+var WEDDING_SLOT = {
+  SLOTS: ['09:00', '12:20', '15:40'],
+  LABELS: { '09:00': '오전', '12:20': '오후', '15:40': '저녁' },
+  DURATION: 140
+};
+// 같은 (예식일·슬롯)을 '서명완료'(점유)한 다른 고객이 있나 — 요청·서명 시 더블부킹 차단.
+function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
+  if (!ymd || !slot) return false;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return false;
+  var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'], codeCol = colOf['개인코드'];
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  exceptCode = String(exceptCode || '').trim().toUpperCase();
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][cCol - 1] || '').trim() !== '서명완료') continue;
+    var stg = String(vals[i][stCol - 1] || '').trim();
+    if (stg === '취소' || stg === '노쇼' || stg === '미계약') continue;
+    if (codeCol && String(vals[i][codeCol - 1] || '').trim().toUpperCase() === exceptCode) continue;
+    if (_ymdOf(vals[i][wCol - 1]) !== ymd) continue;
+    var t = ''; try { var rc = JSON.parse(vals[i][recCol - 1] || '{}'); t = (rc.계약정보 && rc.계약정보.weddingTime) || ''; } catch (e) {}
+    if (t === slot) return true;
+  }
+  return false;
+}
+// 예식 슬롯 실시간 가용 — 서명완료(점유)된 (예식일→슬롯목록). 계약요청 캘린더 차단 표시용.
+function handleWeddingAvailability(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var last = sheet.getLastRow(), taken = {};
+    var myCode = String(s.row.get('개인코드') || '').trim().toUpperCase();
+    if (last >= P.DATA_START_ROW) {
+      var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'], codeCol = colOf['개인코드'];
+      var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+      vals.forEach(function (row) {
+        if (String(row[cCol - 1] || '').trim() !== '서명완료') return;
+        var stg = String(row[stCol - 1] || '').trim();
+        if (stg === '취소' || stg === '노쇼' || stg === '미계약') return;
+        if (codeCol && String(row[codeCol - 1] || '').trim().toUpperCase() === myCode) return;   // 본인 건 제외
+        var w = _ymdOf(row[wCol - 1]); if (!/^\d{4}-\d{2}-\d{2}$/.test(w)) return;
+        var t = ''; try { var rc = JSON.parse(row[recCol - 1] || '{}'); t = (rc.계약정보 && rc.계약정보.weddingTime) || ''; } catch (e) {}
+        if (!t) return;
+        (taken[w] = taken[w] || []); if (taken[w].indexOf(t) === -1) taken[w].push(t);
+      });
+    }
+    return { ok: true, taken: taken, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
+  } catch (e) { return { ok: true, taken: {}, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS }; }
+}
 function handleRequestContract(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -259,6 +316,8 @@ function handleRequestContract(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(wed)) return { ok: false, error: '예식일을 선택해 주세요.' };
   var todayNum = _ymdNum(_kstYmd(new Date())), wedNum = _ymdNum(wed);
   if (wedNum != null && todayNum != null && wedNum < todayNum) return { ok: false, error: '예식일은 오늘 이후로 선택해 주세요.' };
+  var wT = String(info.weddingTime || '').trim();
+  if (WEDDING_SLOT.SLOTS.indexOf(wT) === -1) return { ok: false, error: '예식 시간대를 선택해 주세요.' };
   var gB = String(info.groomBirth || '').trim(), bB = String(info.brideBirth || '').trim();
   var gA = String(info.groomAddr || '').trim(), bA = String(info.brideAddr || '').trim();
   if (!gB || !bB) return { ok: false, error: '신랑·신부 생년월일을 입력해 주세요.' };
@@ -273,9 +332,10 @@ function handleRequestContract(body) {
     if (String(cust.get('현재단계') || '').trim() !== '상담완료') return { ok: false, error: '아직 계약서 요청 단계가 아닙니다.' };
     var _cs = String(cust.get('계약상태') || '').trim();
     if (_cs === '발송' || _cs === '서명완료') return { ok: false, error: '이미 계약이 진행 중입니다.' };   // '미발송'(가입 기본값·만료 후)은 재요청 허용
+    if (_weddingSlotTaken(sheet, colOf, wed, wT, code)) return { ok: false, error: '선택하신 예식 시간이 이미 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
     var rec = _parseJsonSafe(cust.get('동의기록'));
-    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
-    touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준 · 당사자 정보=계약서 자동기입용
+    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
+    touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준·슬롯 점유 · 당사자 정보=계약서 자동기입용
     notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 — 발송 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -293,6 +353,7 @@ function buildContractInfoState(r) {
     groom: String(r.get('신랑이름') || ''), bride: String(r.get('신부이름') || ''),
     phone: String(r.get('연락처') || ''), email: String(r.get('이메일') || ''),
     weddingDate: ci ? (ci.weddingDate || '') : _ymdOf(r.get('예식일')),
+    weddingTime: ci ? (ci.weddingTime || '') : '',
     groomBirth: ci ? (ci.groomBirth || '') : '', brideBirth: ci ? (ci.brideBirth || '') : '',
     groomAddr: ci ? (ci.groomAddr || '') : '', brideAddr: ci ? (ci.brideAddr || '') : '',
     requestedAt: ci ? (ci.requestedAt || '') : ''

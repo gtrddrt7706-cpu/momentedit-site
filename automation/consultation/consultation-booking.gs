@@ -1904,6 +1904,7 @@ function doPost(e) {
       case 'emailCancel':       return jsonOut(handleEmailCancel(body));
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 02 여정(계약·입금) — 세션→Customers ──
+      case 'weddingAvailability': return jsonOut(handleWeddingAvailability(body));
       case 'requestContract':    return jsonOut(handleRequestContract(body));
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       case 'signContract':       return jsonOut(handleSignContract(body));
