@@ -121,6 +121,7 @@ function handleSignup(body) {
       '개인코드: ' + code + '\n상품: ' + product + '\n연락처: ' + phone + '\n이메일: ' + email,
       'NEWSIGNUP_' + code);
   } catch (e) {}
+  notifyKakao('admin.newSignup', code, { names: groom + '·' + bride, product: product, phone: phone });   // 관리자: 신규 신청 — 일정 잡기(카톡)
 
   return { ok: true, code: code };
 }

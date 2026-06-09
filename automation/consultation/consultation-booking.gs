@@ -349,6 +349,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
     }
     try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
     setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ Customers 현재단계 → 상담/촬영확정
+    notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });  // 고객: 상담/촬영 확정(카톡 — 메일과 동시 구간)
     return infoPage('승인 완료', coupleNames(row) + ' 님께 예약 확정 메일을 보냈습니다.<br>' + prettyDate(dateKey) + ' · ' + time + '<br>캘린더에도 일정이 등록되었습니다.', true);
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -516,6 +517,7 @@ function doCustomerCancel(sheet, colOf, row, p) {
   // 2) 운영자에게 송금 요청 메일 (계좌 포함)
   try { sendRefundRequestEmail(row, dateKey, time, acct); }
   catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
+  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });   // 관리자: 취소 — 환불 송금 필요(카톡)
 
   // 3) 고객에게 취소 완료 메일
   var to = row.get('이메일');
@@ -682,6 +684,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc) {
     writeCell(sheet, colOf, row.num, '그외가능시간대', flex);
     writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
     writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
+    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 — 승인 필요(카톡)
 
     var mailOk = false, mailErrMsg = '';
     try {
@@ -1645,7 +1648,8 @@ function sendDailyReminders() {
 
 // 고객용 리마인더
 function sendReminderCustomer(row, dateKey, time) {
-  if (!CONFIG.SEND_REMIND_MAIL) return;   // 상담 D-1 고객 리마인더 OFF — 카톡 대체
+  notifyKakao('cust.consultDayBefore', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });   // 상담 D-1 — 카톡(메일 OFF여도 발송)
+  if (!CONFIG.SEND_REMIND_MAIL) return;   // 메일은 토글 ON일 때만(기본 OFF)
   var to = row.get('이메일');
   if (!to) return;
   var inner =

@@ -229,6 +229,7 @@ function handleSignContract(body) {
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
       setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
+      notifyKakao('admin.contractSigned', code, { product: '웨딩스냅' });   // 관리자: 계약 서명 완료(카톡)
       return { ok: true, signedAt: now };
     }
     touchCustomer(sheet, colOf, cust.num, {
@@ -238,6 +239,7 @@ function handleSignContract(body) {
       '동의기록': JSON.stringify(prev)
     });
     setCustomerStage(code, 'paid');                       // 시그니처: 서명 = 계약 성립 + 계약금(예약금 충당) → 입금완료(제작 준비)로 자동 진행
+    notifyKakao('admin.contractSigned', code, { product: '시그니처', autoPaid: true });   // 관리자: 계약 서명 완료(카톡)
     return { ok: true, signedAt: now, autoPaid: true };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -272,6 +274,7 @@ function handleRequestContract(body) {
     var rec = _parseJsonSafe(cust.get('동의기록'));
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준 · 당사자 정보=계약서 자동기입용
+    notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 — 발송 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -481,6 +484,7 @@ function handlePaymentSignal(body) {
       '입금완료신호': fmtKST(new Date()),
       '입금상태': '완료신호'
     });
+    notifyKakao('admin.depositSignal', code, { payer: payer });   // 관리자: 계약금 입금신호 — 확인 필요(카톡)
     return { ok: true };                                      // 자동 진행 X — 관리자 승인 대기
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -565,6 +569,7 @@ function handleBalanceSignal(body) {
     if (['입금완료', '제작중', '예식완료'].indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 잔금 단계가 아닙니다.' };
     if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
     touchCustomer(sheet, colOf, cust.num, { '잔금입금자명': payer, '잔금입금신호': fmtKST(new Date()), '잔금상태': '완료신호' });
+    notifyKakao('admin.balanceSignal', code, { payer: payer });   // 관리자: 잔금 입금신호 — 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -576,6 +581,7 @@ function adminConfirmBalance(code) {
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()) });
+  notifyKakao('cust.paymentConfirmed', code, { kind: '잔금' });   // 고객 안심 알림(카톡)
   return { ok: true };
 }
 // ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
@@ -627,6 +633,7 @@ function handleMidSignal(body) {
       _upd['잔금입금자명'] = payer; _upd['잔금입금신호'] = fmtKST(new Date()); _upd['잔금상태'] = '완료신호';
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
+    notifyKakao('admin.midSignal', code, { payer: payer, withBalance: !!(body && body.withBalance) });   // 관리자: 중도금 입금신호 — 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -638,6 +645,7 @@ function adminConfirmMid(code) {
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '중도금상태': '확인', '중도금확인일시': fmtKST(new Date()) });
+  notifyKakao('cust.paymentConfirmed', code, { kind: '중도금' });   // 고객 안심 알림(카톡)
   return { ok: true };
 }
 
@@ -656,9 +664,9 @@ function sendBalanceReminders() {
     if (String(row[c('잔금리마인드') - 1] || '').trim()) continue;            // 이미 보냄
     var dday = _balanceDDay(row[c('예식일') - 1]);
     if (dday == null || dday > PAYMENT.잔금일수전) continue;                  // D-7 밖
-    if (!CONFIG.SEND_BALANCE_MAIL) continue;                                  // 잔금 안내 메일 OFF — 마이페이지+카톡 대체(마킹도 스킵 → 재활성화 시 정상 발송)
     var email = String(row[c('이메일') - 1] || '').trim();
-    if (email) {
+    notifyKakao('cust.balanceDue', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });   // 잔금 안내 — 카톡(메일 OFF여도 발송)
+    if (CONFIG.SEND_BALANCE_MAIL && email) {                                  // 메일은 토글 ON일 때만(기본 OFF)
       try {
         var amounts = _journeyAmounts(row[c('계약총액') - 1]);
         var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
@@ -666,7 +674,7 @@ function sendBalanceReminders() {
           '예식이 다가옵니다.\n잔금 ' + amtTxt + '을 ' + _balanceDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
       } catch (e) {}
     }
-    sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(fmtKST(new Date()));
+    sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(fmtKST(new Date()));   // 알림 발송 → 1회 마킹(중복 방지)
   }
 }
 function setupBalanceReminderTrigger() {

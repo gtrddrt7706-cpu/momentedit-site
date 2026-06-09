@@ -186,6 +186,7 @@ function handleSubmitResultSelection(body) {
     if (['보정중', '컨펌대기', '컨펌완료', '전달완료'].indexOf(cur) >= 0) return { ok: false, error: '보정이 시작되어 선택을 변경할 수 없어요. 변경은 문의해 주세요.' };
     touchCustomer(sheet, colOf, cust.num, { '선택사진': picks, '선택수': n, '선택확정일시': fmtKST(new Date()), '결과물상태': '선택완료' });
     try { notifyStudio('[플랫폼] 결과물 컷 선택 (' + code + ')', code + ' · ' + n + '컷 선택\n' + picks.slice(0, 800)); } catch (e) {}
+    notifyKakao('admin.resultPicked', code, { count: n });   // 관리자: 결과물(보정본) 선택됨 — 작업 착수(카톡)
     return { ok: true, 선택수: n };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -234,6 +235,7 @@ function handleExtraRetouchSignal(body) {
     if (payer) upd['추가보정입금자명'] = payer;
     touchCustomer(sheet, colOf, cust.num, upd);
     try { notifyStudio('[플랫폼] 추가 보정 입금 신호 (' + code + ')', code + (payer ? (' · 입금자 ' + payer) : '')); } catch (e) {}
+    notifyKakao('admin.extraSignal', code, { payer: payer });   // 관리자: 추가보정 입금신호 — 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }

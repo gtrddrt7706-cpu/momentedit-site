@@ -717,6 +717,7 @@ function adminProposeTime(code, newDate, newTime, memo) {
   var sig = sign(consultToken, 'change');             // submitProposal이 요구하는 서명 — 관리자가 직접 생성
   submitProposal(consultToken, sig, newDate, newTime, String(memo || ''));
   _recordHandler(code, '변경제안 ' + newDate + ' ' + newTime);
+  notifyKakao('cust.timeProposed', code, { date: newDate, time: newTime });   // 고객: 시간 변경 제안 — 수락 필요(카톡)
   return { ok: true };
 }
 
@@ -760,6 +761,7 @@ function adminSendContract(code, link, total, weddingYmd) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-7·중도금 D-30 산출 기준(계약에서 잠금)
   touchCustomer(sheet, colOf, cust.num, upd);
   _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (wed ? (' · 예식일 ' + wed) : '') + ' (링크)');
+  notifyKakao('cust.contractArrived', code);   // 고객: 계약서 도착 — 72시간 내 서명(카톡)
   try {   // 고객 알림 — 계약서 도착(72h 서명). 메일 실패해도 발송 자체는 성공(베스트에포트).
     var _cem = String(cust.get('이메일') || '').trim();
     if (CONFIG.SEND_CONTRACT_MAIL && _cem) {   // OFF 기본 — 마이페이지+카톡 대체. (복구: SEND_CONTRACT_MAIL=true)
@@ -792,6 +794,7 @@ function adminConfirmPayment(code) {
   touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인' });
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
   _recordHandler(code, '입금 확인 → 입금완료');
+  notifyKakao('cust.paymentConfirmed', code, { kind: '계약금' });   // 고객 안심 알림(카톡)
   return { ok: true };
 }
 
@@ -809,6 +812,7 @@ function adminOpenFittingConsent(code) {
   touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });
   setCustomerStage(code, 'fitting');                          // 상담확정 → 시착 (진행바 전진)
   _recordHandler(code, '시착 동의서 발송(→시착)');
+  notifyKakao('cust.fittingRequest', code);                   // 고객: 시착 동의서 서명 요청(카톡)
   return { ok: true };
 }
 
@@ -915,6 +919,7 @@ function adminMarkDelivered(code) {
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료' });
     setCustomerStage(code, 'deliver');
     _recordHandler(code, '결과물 전달 완료');
+    notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 — 다운로드 안내(가장 중요)
     return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 — 고객 후기 제출/운영자 넘기기 시 아카이브
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
