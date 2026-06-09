@@ -696,7 +696,9 @@ function openContractView(){
   window.addEventListener('message',onMsg);
   // 서명 완료인데 손글씨 이미지가 아직 없으면 기존 getSignature로 가져와 다시 채움(새 GAS 재배포 불요)
   if(window._contractFill && window._contractFill.signed && !window._contractFill.signImage){
-    try{ api({action:'getSignature', token:getToken(), type:'계약'}).then(function(r){ if(r&&r.ok&&r.dataUrl){ window._contractFill.signImage=r.dataUrl; if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:window._contractFill}, location.origin); } }).catch(function(){}); }catch(e){}
+    var _applySig=function(u){ if(!u) return; window._contractFill.signImage=u; _sigCache['계약']=u; try{ if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:window._contractFill}, location.origin); }catch(e){} };
+    if(_sigCache['계약']) _applySig(_sigCache['계약']);   // 미리 받아둔 서명 → 즉시
+    else { try{ api({action:'getSignature', token:getToken(), type:'계약'}).then(function(r){ if(r&&r.ok&&r.dataUrl) _applySig(r.dataUrl); }).catch(function(){}); }catch(e){} }
   }
 }
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
@@ -1668,14 +1670,28 @@ function collapsedCard(box, label, fullHtml, sigType){
   box.style.display='block';
   var row=box.querySelector('.cc-done-row'), full=box.querySelector('.cc-done-full'), tg=box.querySelector('.cc-done-toggle');
   if(row) row.addEventListener('click', function(){ var open=full.style.display!=='none'; full.style.display=open?'none':'block'; if(tg) tg.textContent=open?'펼치기':'접기'; if(!open) _loadSig(full); });
+  if(sigType) _prefetchSig(sigType);   // 카드 렌더 즉시 백그라운드 선로딩 → 펼칠 때 로딩 없이 바로
 }
 // 펼침 시 1회 서명 조회(getSignature) → <img> 렌더. 실패/없음은 조용한 안내.
+var _sigCache={}, _sigLoading={};   // type→dataUrl 세션 메모리 캐시(서명 재요청 없이 즉시 표시)
+function _prefetchSig(type){   // 서명완료 카드가 그려질 때 백그라운드 선로딩 → 펼칠 때 즉시
+  if(!type || _sigCache[type] || _sigLoading[type]) return;
+  _sigLoading[type]=1;
+  try{ api({action:'getSignature', token:getToken(), type:type}).then(function(r){ _sigLoading[type]=0; if(r&&r.ok&&r.dataUrl) _sigCache[type]=r.dataUrl; }).catch(function(){ _sigLoading[type]=0; }); }catch(e){ _sigLoading[type]=0; }
+}
+function _sigImg(slot, dataUrl){
+  var img=new Image(); img.className='cc-sig-img'; img.alt='서명';
+  img.onload=function(){ slot.innerHTML=''; slot.appendChild(img); };
+  img.onerror=function(){ slot.innerHTML='<span class="cc-sig-ph">서명 이미지를 불러오지 못했어요.</span>'; };
+  img.src=dataUrl;
+}
 function _loadSig(scope){
   var wrap = scope && scope.querySelector('.cc-sig[data-sigtype]'); if(!wrap || wrap.getAttribute('data-loaded')) return;
-  wrap.setAttribute('data-loaded','1');
   var slot = wrap.querySelector('.cc-sig-slot'), type = wrap.getAttribute('data-sigtype');
+  if(_sigCache[type]){ wrap.setAttribute('data-loaded','1'); _sigImg(slot, _sigCache[type]); return; }   // 캐시 적중 → 즉시
+  wrap.setAttribute('data-loaded','1');
   api({action:'getSignature', token:getToken(), type:type}).then(function(r){
-    if(r && r.ok && r.dataUrl){ var img=new Image(); img.className='cc-sig-img'; img.alt='서명'; img.onload=function(){ slot.innerHTML=''; slot.appendChild(img); }; img.onerror=function(){ slot.innerHTML='<span class="cc-sig-ph">서명 이미지를 불러오지 못했어요.</span>'; }; img.src=r.dataUrl; }
+    if(r && r.ok && r.dataUrl){ _sigCache[type]=r.dataUrl; _sigImg(slot, r.dataUrl); }
     else { slot.innerHTML='<span class="cc-sig-ph">서명 기록을 찾지 못했어요.</span>'; }
   }).catch(function(){ slot.innerHTML='<span class="cc-sig-ph">서명을 불러오지 못했어요. 잠시 후 다시 펼쳐 주세요.</span>'; wrap.removeAttribute('data-loaded'); });
 }
