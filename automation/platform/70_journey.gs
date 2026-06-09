@@ -656,6 +656,7 @@ function sendBalanceReminders() {
     if (String(row[c('잔금리마인드') - 1] || '').trim()) continue;            // 이미 보냄
     var dday = _balanceDDay(row[c('예식일') - 1]);
     if (dday == null || dday > PAYMENT.잔금일수전) continue;                  // D-7 밖
+    if (!CONFIG.SEND_BALANCE_MAIL) continue;                                  // 잔금 안내 메일 OFF — 마이페이지+카톡 대체(마킹도 스킵 → 재활성화 시 정상 발송)
     var email = String(row[c('이메일') - 1] || '').trim();
     if (email) {
       try {

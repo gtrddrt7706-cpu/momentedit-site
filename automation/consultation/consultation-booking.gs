@@ -28,10 +28,14 @@
 // ⚠️ [...] placeholder 는 운영자가 직접 채웁니다. (임의 값 넣지 말 것)
 const CONFIG = {
   // [P1.5 작업5] 고객 상태메일 토글 — 기본 OFF(마이페이지가 상태를 대체). 켜려면 true.
-  SEND_CONFIRM_MAIL: true,                     // 확정 안내 (sendConfirmEmail) — 대면상담 확정까지 메일 발송
-  SEND_CHANGE_MAIL: false,                     // 변경제안 안내 (sendProposalEmail)
-  SEND_CANCEL_MAIL: false,                     // 취소 안내 (sendCancelEmail)
-  SEND_ADMIN_MAIL: false,                      // 관리자 알림 메일(①신규·②승인요청·③확정·④내일·환불요청) OFF — 카톡으로 받음. 오류알림(notifyStudio)은 별개로 유지.
+  SEND_CONFIRM_MAIL: true,                     // [고객 ON] 상담 확정 안내 (sendConfirmEmail) — 대면상담 확정 시 발송
+  SEND_CHANGE_MAIL: false,                     // [고객 OFF·카톡] 변경제안 안내 (sendProposalEmail)
+  SEND_CANCEL_MAIL: false,                     // [고객 OFF·카톡] 취소 안내 (sendCancelEmail)
+  SEND_REMIND_MAIL: false,                     // [고객 OFF·카톡] 상담 D-1 리마인더 (sendReminderCustomer)
+  SEND_CONTRACT_MAIL: false,                   // [고객 OFF·마이페이지+카톡] 계약서 도착 안내 (adminSendContract→고객)
+  SEND_BALANCE_MAIL: false,                    // [고객 OFF·마이페이지+카톡] 잔금 안내 (70_journey 자동)
+  SEND_ADMIN_MAIL: false,                      // [관리자 전부 OFF·카톡] 신규신청·승인요청·확정·D-1브리핑·환불요청 + 오류알림(notifyStudio)까지 전부. true로 바꾸면 관리자 메일 전부 복구.
+  // 참고 — 항상 발송(고객 ON): 신청 접수(sendSignupEmail) · 코드찾기/비번재설정(개인코드 안내). 둘은 토글 없이 상시 ON.
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
@@ -1513,6 +1517,7 @@ function safeAttr(url) {
 // 관리자 알림 (참고 .gs notifyStudio · 24h dedup)
 function notifyStudio(subject, body, dedupKey) {
   try {
+    if (!CONFIG.SEND_ADMIN_MAIL) return;   // 관리자 메일 전부 OFF — 신규신청·오류알림 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -1640,6 +1645,7 @@ function sendDailyReminders() {
 
 // 고객용 리마인더
 function sendReminderCustomer(row, dateKey, time) {
+  if (!CONFIG.SEND_REMIND_MAIL) return;   // 상담 D-1 고객 리마인더 OFF — 카톡 대체
   var to = row.get('이메일');
   if (!to) return;
   var inner =

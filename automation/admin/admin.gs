@@ -762,7 +762,7 @@ function adminSendContract(code, link, total, weddingYmd) {
   _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (wed ? (' · 예식일 ' + wed) : '') + ' (링크)');
   try {   // 고객 알림 — 계약서 도착(72h 서명). 메일 실패해도 발송 자체는 성공(베스트에포트).
     var _cem = String(cust.get('이메일') || '').trim();
-    if (_cem) {
+    if (CONFIG.SEND_CONTRACT_MAIL && _cem) {   // OFF 기본 — 마이페이지+카톡 대체. (복구: SEND_CONTRACT_MAIL=true)
       GmailApp.sendEmail(_cem, '[Moment Edit] 계약서가 도착했어요 · 72시간 내 서명', '', {
         name: 'Moment Edit',
         htmlBody: '<div style="font-family:sans-serif;line-height:1.7;color:#3a2f25">'
