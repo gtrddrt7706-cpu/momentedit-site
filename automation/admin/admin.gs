@@ -760,6 +760,19 @@ function adminSendContract(code, link, total, weddingYmd) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-7·중도금 D-30 산출 기준(계약에서 잠금)
   touchCustomer(sheet, colOf, cust.num, upd);
   _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (wed ? (' · 예식일 ' + wed) : '') + ' (링크)');
+  try {   // 고객 알림 — 계약서 도착(72h 서명). 메일 실패해도 발송 자체는 성공(베스트에포트).
+    var _cem = String(cust.get('이메일') || '').trim();
+    if (_cem) {
+      GmailApp.sendEmail(_cem, '[Moment Edit] 계약서가 도착했어요 · 72시간 내 서명', '', {
+        name: 'Moment Edit',
+        htmlBody: '<div style="font-family:sans-serif;line-height:1.7;color:#3a2f25">'
+          + '<p>안녕하세요, 모먼트에디트입니다.</p>'
+          + '<p>요청하신 <b>계약서가 마이페이지에 도착</b>했어요. 내용을 확인하시고 <b>72시간 안에</b> 서명해 주세요.</p>'
+          + '<p style="margin:18px 0"><a href="https://momentedit.kr/mypage.html" style="background:#6B2A24;color:#fff;padding:11px 20px;border-radius:6px;text-decoration:none">마이페이지에서 계약서 보기</a></p>'
+          + '<p style="color:#8a7f70;font-size:13px">기한이 지나면 계약서는 자동 파기되며, 디렉터에게 재발송을 요청하실 수 있어요.</p></div>'
+      });
+    }
+  } catch (e) { Logger.log('계약서 발송 메일 실패: ' + (e && e.message)); }
   return { ok: true, sentAt: now };
 }
 
