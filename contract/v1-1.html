@@ -65,6 +65,16 @@ main{max-width:var(--max);margin:0 auto;padding:0 24px 80px}
 @media(max-width:680px){main{padding:0 14px 60px}.doc{padding:26px 18px 22px;border-radius:8px}}
 
 .preamble{font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.95;margin-bottom:24px}
+.summary-card{border:1.5px solid var(--gold-line,#e3dccb);background:#fcfbf7;border-radius:10px;padding:17px 19px;margin:0 0 26px}
+.summary-card .sum-head{font-family:var(--serif-ko);font-size:14.5px;font-weight:600;color:var(--accent);margin-bottom:13px}
+.summary-card .sum-head .sum-sub{display:block;font-weight:300;font-size:11.5px;color:var(--light);margin-top:3px;line-height:1.6}
+.summary-card .sum-grid{display:flex;flex-direction:column;gap:10px}
+.summary-card .sum-item{display:flex;gap:12px;align-items:flex-start}
+.summary-card .sum-k{flex:0 0 78px;font-family:var(--serif-ko);font-size:12.5px;font-weight:600;color:var(--gold,#b89a75)}
+.summary-card .sum-v{flex:1;font-family:var(--serif-ko);font-size:12.5px;color:var(--text);line-height:1.72;word-break:keep-all}
+.summary-card .sum-mini{font-size:11px;color:var(--sub)}
+.summary-card .sum-mine{display:inline-block;margin-top:2px;font-size:12px;color:var(--accent);font-weight:600}
+@media(max-width:560px){.summary-card .sum-item{flex-direction:column;gap:1px}.summary-card .sum-k{flex:none}}
 
 /* 목차 (TOC) */
 .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:30px}
@@ -170,6 +180,8 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   .ph{background:none;border-bottom:1px dashed #999;color:#000}
   .sign-section{page-break-inside:avoid}
   .box{border-color:#000}
+  .summary-card{border:1pt solid #999;background:#fff;page-break-after:always;page-break-inside:avoid}
+  .summary-card .sum-k{color:#000}
 }
 :where(a,button):focus-visible{outline:2px solid var(--seal);outline-offset:3px}
 </style>
@@ -195,6 +207,17 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 <div class="doc">
 
   <p class="preamble">본 계약은 신랑·신부(이하 "갑")와 모먼트에디트(이하 "을")가 '을'이 제공하는 'The 140 Signature' 촬영·예식 통합 서비스의 이용에 관하여 다음과 같이 체결하는 계약이다.</p>
+
+  <section class="summary-card" aria-label="쉬운 요약">
+    <div class="sum-head">한눈에 보는 핵심<span class="sum-sub">이해를 돕기 위한 요약이에요. 정확한 권리·의무는 아래 본문(제1조~)을 따릅니다.</span></div>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="sum-k">💰 금액</div><div class="sum-v"><b>주말·공휴일 280만원 / 평일 210만원</b> (VAT 포함). 계약금 10%(계약 시·예약금 충당) → 중도금 40%(예식 30일 전) → 잔금 50%(예식 7일 전). <span class="sum-mine" id="sum-mine"></span></div></div>
+      <div class="sum-item"><div class="sum-k">✅ 무료 취소</div><div class="sum-v"><b>예식 150일(5개월) 전</b>까지 위약금 없이 취소 — 받은 금액 <b>전액 환급</b>. 계약 후 <b>15일 이내</b> 청약철회도 전액 환급. <span class="sum-mini">(이후는 시기별 위약금 · 제9조)</span></div></div>
+      <div class="sum-item"><div class="sum-k">📦 결과물</div><div class="sum-v">클라우드 링크로 전달 — 원본 <b>예식 후 2주</b> · 보정본 10장 <b>4주</b> · 본식영상 <b>6주</b> 이내</div></div>
+      <div class="sum-item"><div class="sum-k">✍️ 내가 직접</div><div class="sum-v">모바일·가족 <b>청첩장</b>과 <b>식순</b>은 마이페이지에서 직접 작성·발행 (도구는 '을'이 제공)</div></div>
+      <div class="sum-item"><div class="sum-k">👥 서비스</div><div class="sum-v">캔들존+화이트존 · 총 <b>140분</b> · 하객 <b>25명 착석</b>(+스탠딩 5, 최대 30명)</div></div>
+    </div>
+  </section>
 
   <!-- 목차 -->
   <nav class="toc" aria-label="목차">
@@ -556,13 +579,10 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       if(v!=null && String(v)!=='') els[i].textContent=String(v);
     }
     if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_예식일
-    var mine=document.getElementById('art4-mine');   // 제4조 — 본 계약 적용(예식일·총액) 개인화
-    if(mine){
-      var amt=Number(d.total)||0;
-      var kind=amt===2800000?'주말·공휴일 기준':(amt===2100000?'평일 기준':(amt===600000?'웨딩스냅':''));
-      var ps=[]; if(d.weddingDate) ps.push('예식일 '+d.weddingDate); if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
-      if(ps.length) mine.textContent=ps.join(' · ');
-    }
+    var amt=Number(d.total)||0;   // 개인화 — 제4조·요약 카드 공통(예식일·적용 총액)
+    var kind=amt===2800000?'주말·공휴일 기준':(amt===2100000?'평일 기준':(amt===600000?'웨딩스냅':''));
+    var ps=[]; if(d.weddingDate) ps.push('예식일 '+d.weddingDate); if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
+    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='✦ 내 계약 — '+_pj; }
     if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 신부 대표갈음
       var cb=document.querySelector('.check-line .box');
       if(cb){ cb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cb.textContent='✓'; }
