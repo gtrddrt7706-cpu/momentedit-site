@@ -132,7 +132,7 @@ function adminCall(token, fn, args) {
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
       adminGetSignature: adminGetSignature, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
-      adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminSkipSurvey: adminSkipSurvey,
+      adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
     };
     var f = FNS[fn];
@@ -470,6 +470,7 @@ function adminDetail(code) {
   var _rec = _parseJsonSafe(cust.get('동의기록'));
   d.contractReq = _rec.계약정보 || null;   // [02-2.5] 고객이 입력한 계약 정보(예식일·생년월일·주소). null=고객 요청 전
   d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 번호(선택·결제 카드 입력) — 관리자 발급용
+  d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {
@@ -1076,6 +1077,41 @@ function adminCloseFitting(code) {
     _recordHandler(code, '시착 동의 닫기(요청 취소)');
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [임시고정] 예식일 가예약 승인 — 요청 → 승인(점유 확정·14일 후 자동해제). 승인 직전 슬롯 재확인(더블부킹 0).
+function adminGrantWeddingHold(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var rec = _parseJsonSafe(cust.get('동의기록')), hold = rec.가예약;
+  if (!hold || !hold.date || !hold.slot) return { ok: false, error: '임시고정 요청이 없습니다.' };
+  if (hold.status === '승인') return { ok: true, already: true };
+  if (_weddingSlotTaken(sheet, colOf, hold.date, hold.slot, code)) return { ok: false, error: '그 예식 시간이 이미 다른 예약으로 마감됐어요.' };
+  var exp = new Date(); exp.setDate(exp.getDate() + 14);
+  hold.status = '승인'; hold.grantedAt = fmtKST(new Date()); hold.expires = _kstYmd(exp);
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+  _recordHandler(code, '예식일 임시고정 승인 · ' + hold.date + ' ' + hold.slot);
+  notifyKakao('cust.holdGranted', code, { date: hold.date, slot: hold.slot });
+  return { ok: true };
+}
+// [임시고정] 예식일 가예약 거절/해제 — 동의기록.가예약 제거 + 고객 안내.
+function adminDeclineWeddingHold(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.가예약) return { ok: true, already: true };
+  var _d = rec.가예약.date, _s = rec.가예약.slot;
+  delete rec.가예약;
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
+  _recordHandler(code, '예식일 임시고정 거절/해제 · ' + (_d || '') + ' ' + (_s || ''));
+  notifyKakao('cust.holdReleased', code, { date: _d, slot: _s });
+  return { ok: true };
 }
 
 // 7. ★노쇼 처리 — 상담확정/촬영확정 → 현재단계=노쇼 (자체 멱등·직접 쓰기·캘린더/메일/상담예약 안 건드림)
