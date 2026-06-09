@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · contract phase2i (인쇄 파일명 자동·서명란 스크롤·로딩 페이드·패드 확대) · redeploy 2026-06-08l -->
+<!-- build: birth 18-53 · contract phase2j (서명본 자동 Drive 보관·인쇄 파일명·스크롤·페이드) · redeploy 2026-06-08m -->
 </head>
 <body>
 
@@ -1428,16 +1428,34 @@ function fmtRemain(s){
   var p=function(n){ return (n<10?'0':'')+n; };
   return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
 }
+// [02-3] 서명본 자동 보관 — 채워진+서명된 계약서를 숨김 iframe으로 렌더해 자기완결 HTML로 직렬화. cb(html)·실패 시 cb(''). 베스트에포트(서명 흐름 방해 X).
+function _archiveSignedContract(sig, cb){
+  var done=false, fr;
+  function fin(h){ if(done)return; done=true; try{window.removeEventListener('message',onM);}catch(e){} try{ if(fr&&fr.parentNode) fr.parentNode.removeChild(fr); }catch(e){} try{ cb(h); }catch(e){} }
+  function onM(ev){ if(!fr||ev.source!==fr.contentWindow||ev.origin!==location.origin) return; if(ev.data&&ev.data.type==='momentedit:contractReady'){ try{ fr.contentWindow.postMessage({type:'momentedit:contractFill',data:data},location.origin); }catch(e){} setTimeout(function(){ var h=''; try{ h='<!DOCTYPE html>\n'+fr.contentDocument.documentElement.outerHTML; }catch(e){} fin(h); },180); } }
+  var data;
+  try{
+    try{ data=JSON.parse(JSON.stringify(window._contractFill||{})); }catch(e){ data={}; }
+    data.signed=true; data.signImage=sig;
+    var t=new Date(); data.signDate=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+    fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
+    window.addEventListener('message',onM);
+    fr.src='/contract/v1-1.html'; document.body.appendChild(fr);
+    setTimeout(function(){ fin(''); },2800);   // 안전망 — 못 만들면 보관 생략하고 서명 진행
+  }catch(e){ fin(''); }
+}
 function doSignContract(){
   var _sd=new Date(), _sdY=_sd.getFullYear()+'-'+('0'+(_sd.getMonth()+1)).slice(-2)+'-'+('0'+_sd.getDate()).slice(-2);
   mpSignaturePad({ title:'계약서 서명', body:'서명하면 오늘('+_sdY+') 날짜로 계약이 성립해요. 성립 후에도 제7조 청약철회·무상취소, 제9조 위약금 규정은 그대로 적용돼요.', checkLabel:'본인은 대금(제4조)·위약금(제9조)·청약철회(제7조)·저작권(제13조)·개인정보(제14조) 등 중요 조항을 확인하였습니다.', confirmText:'동의하고 서명' }).then(function(sig){
     if(!sig) return;
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
-    api({action:'signContract', token:getToken(), signature:sig}).then(function(d){
-      if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요. 모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
-      else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
+      api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
+        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요. 모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
+        else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
+      }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    });
   });
 }
 

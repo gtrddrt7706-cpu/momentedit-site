@@ -216,6 +216,15 @@ function handleSignContract(body) {
       effectHash: _termsHash([CONTRACT.effectNotice]),   // 동의한 효력 고지 문구 지문
       signatureSaved: sigSaved                           // 손글씨 서명 이미지 저장 여부(Signatures 시트)
     };
+    try {   // 서명본 자동 보관 — 채워진+서명된 계약서 HTML을 구글 드라이브에 저장(베스트에포트, 실패해도 서명은 성공). ※ 재배포 시 Drive 권한 승인 필요.
+      var _ah = String((body && body.archiveHtml) || '');
+      if (_ah && _ah.length < 3000000) {
+        var _an = (String((body && body.archiveName) || '').replace(/[\/\\:*?"<>|\n\r\t]/g, '_').trim().slice(0, 120)) || ('계약서_' + code);
+        var _fs = DriveApp.getFoldersByName('모먼트에디트 계약서 서명본');
+        var _fd = _fs.hasNext() ? _fs.next() : DriveApp.createFolder('모먼트에디트 계약서 서명본');
+        _fd.createFile(_an + '.html', _ah, 'text/html');
+      }
+    } catch (e) { Logger.log('계약서 자동 보관 실패: ' + (e && e.message)); }
     var isSnapC = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
