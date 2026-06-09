@@ -211,11 +211,11 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   <section class="summary-card" aria-label="쉬운 요약">
     <div class="sum-head">한눈에 보는 핵심<span class="sum-sub">이해를 돕기 위한 요약이에요. 정확한 권리·의무는 아래 본문(제1조~)을 따릅니다.</span></div>
     <div class="sum-grid">
-      <div class="sum-item"><div class="sum-k">💰 금액</div><div class="sum-v"><b>600,000원</b> (정가 800,000원·운영 초기 한정, VAT 포함). 계약금 20%(120,000원·계약 시) → 잔금 80%(480,000원·촬영 7일 전). <span class="sum-mine" id="sum-mine"></span></div></div>
-      <div class="sum-item"><div class="sum-k">✅ 무료 취소</div><div class="sum-v">계약서 받은 날부터 <b>7일 이내</b> 청약철회 — 받은 금액 <b>전액 환급</b>. <span class="sum-mini">(이후는 시기별 위약금 · 제9조 / 촬영 시작 후에는 철회 불가)</span></div></div>
-      <div class="sum-item"><div class="sum-k">📦 결과물</div><div class="sum-v">클라우드 링크로 전달 — 원본(약 300컷+) <b>촬영 후 2주</b> · 보정본 10장 <b>4주</b> 이내 <span class="sum-mini">(영상은 미포함)</span></div></div>
-      <div class="sum-item"><div class="sum-k">✍️ 내가 직접</div><div class="sum-v">헤어·메이크업은 <b>외부에서 직접</b> 준비 (촬영·보정은 '을'이 진행)</div></div>
-      <div class="sum-item"><div class="sum-k">👥 서비스</div><div class="sum-v">평일 한정 · 캔들존+화이트존 · <b>60~90분</b> 프라이빗 촬영 · 의상 시착 2벌+착용 1벌 포함</div></div>
+      <div class="sum-item"><div class="sum-k">금액</div><div class="sum-v"><b>600,000원</b> (정가 800,000원·운영 초기 한정, VAT 포함). 계약금 20%(120,000원·계약 시) → 잔금 80%(480,000원·촬영 7일 전). <span class="sum-mine" id="sum-mine"></span></div></div>
+      <div class="sum-item"><div class="sum-k">무료 취소</div><div class="sum-v">계약서 받은 날부터 <b>7일 이내</b> 청약철회 — 받은 금액 <b>전액 환급</b>. <span class="sum-mini">(이후는 시기별 위약금 · 제9조 / 촬영 시작 후에는 철회 불가)</span></div></div>
+      <div class="sum-item"><div class="sum-k">결과물</div><div class="sum-v">클라우드 링크로 전달 — 원본(약 300컷+) <b>촬영 후 2주</b> · 보정본 10장 <b>4주</b> 이내 <span class="sum-mini">(영상은 미포함)</span></div></div>
+      <div class="sum-item"><div class="sum-k">내가 직접</div><div class="sum-v">헤어·메이크업은 <b>외부에서 직접</b> 준비 (촬영·보정은 '을'이 진행)</div></div>
+      <div class="sum-item"><div class="sum-k">서비스</div><div class="sum-v">평일 한정 · 캔들존+화이트존 · <b>60~90분</b> 프라이빗 촬영 · 의상 시착 2벌+착용 1벌 포함</div></div>
     </div>
   </section>
 
@@ -512,7 +512,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_촬영일
     var amt=Number(d.total)||0;   // 개인화 — 제4조·요약 카드 공통(촬영일·적용 총액)
     var ps=[]; if(d.weddingDate) ps.push('촬영일 '+d.weddingDate); ps.push('웨딩스냅'); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
-    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='✦ 내 계약 — '+_pj; }
+    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='내 계약 — '+_pj; }
     if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 의뢰인2 대표갈음
       var cb=document.querySelector('.check-line .box');
       if(cb){ cb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cb.textContent='✓'; }
