@@ -1211,7 +1211,7 @@ function renderFitting(f, d){
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
-                 + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일 안에</b> 서명해 주세요.<br>기한이 지나면 예약은 자동으로 취소돼요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
@@ -1406,7 +1406,9 @@ function _startContractCountdown(c){
   var remain = c.remainingSec, el = $('mp_ctCount');
   var tick = function(){
     if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 만료되었습니다'; loadMyState(); return; }
-    if (el){ var urg=remain<86400; el.textContent=(urg?'⏰ 마감 임박 · ':'')+'남은 시간 '+fmtRemain(remain); el.style.color=urg?'var(--seal)':''; el.style.fontWeight=urg?'600':''; }
+    if (el){ var urg=remain<86400;   // 1일 이내만 실시간(긴박) · 그 전엔 차분히 일수로(압박감↓)
+      if(urg){ el.textContent='⏰ 마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
+      else { el.textContent='서명까지 약 '+Math.ceil(remain/86400)+'일 남았어요'; el.style.color=''; el.style.fontWeight=''; } }
     remain--;
   };
   tick(); _contractTimer = setInterval(tick, 1000);
