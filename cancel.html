@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>예약 취소 · Moment Edit</title>
+<link rel="canonical" href="https://momentedit.kr/cancel">
+<!-- 이메일 '여기' 취소링크 전용 자사몰 페이지 — GAS /exec HTML(구글 Drive 오류) 우회. token·sig로 GAS api 호출(마이페이지와 동일 방식). -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#FAFAF8;--bg2:#F5F3EF;--accent:#3A2D22;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--seal:#6B2A24;--border:#DDD8D1;--serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;--sans:'Noto Sans KR',-apple-system,sans-serif}
+  html,body{background:var(--bg);color:var(--accent);font-family:var(--sans);font-weight:300;font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh;word-break:keep-all}
+  .wrap{max-width:480px;margin:0 auto;padding:60px 24px 90px;text-align:center}
+  .brand{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.34em;color:var(--accent)}
+  .brand .dot{display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--seal);margin:0 5px;vertical-align:2px}
+  .brand-sub{font-size:9px;letter-spacing:.3em;color:var(--light);text-transform:uppercase;margin:7px 0 40px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:34px 26px;box-shadow:0 1px 3px rgba(28,27,25,.05)}
+  .eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .title{font-family:var(--serif-ko);font-size:19px;font-weight:500;color:var(--accent);line-height:1.5;margin-bottom:10px}
+  .desc{font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);line-height:1.85}
+  .info{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:18px 0;font-family:var(--serif-ko);font-size:15px;color:var(--accent)}
+  .info b{font-weight:600}
+  label{display:block;text-align:left;font-size:12px;color:var(--light);margin:20px 0 6px;letter-spacing:.02em}
+  input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:15px;color:var(--accent);background:#fff;outline:none}
+  input:focus{border-color:var(--gold)}
+  .btn{width:100%;margin-top:18px;padding:15px;border:none;border-radius:8px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s}
+  .btn:disabled{opacity:.5;cursor:wait}
+  .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--sub);font-weight:400;margin-top:10px}
+  .note{font-size:11.5px;color:var(--light);line-height:1.75;margin-top:16px}
+  a.kakao{color:var(--gold);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">MOMENT<span class="dot"></span>EDIT</div>
+  <div class="brand-sub">Private Wedding Studio</div>
+  <div class="card" id="card"><div class="desc">불러오는 중…</div></div>
+</div>
+<script>
+var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+function api(payload){ return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}); }
+function q(name){ var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search); return m?decodeURIComponent(m[1].replace(/\+/g,' ')):''; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+var TOKEN=q('token'), SIG=q('sig'), card=document.getElementById('card');
+function showMsg(eyebrow,title,desc,note){ card.innerHTML='<div class="eyebrow">'+esc(eyebrow)+'</div><div class="title">'+title+'</div>'+(desc?'<div class="desc">'+desc+'</div>':'')+(note?'<div class="note">'+note+'</div>':''); }
+if(!TOKEN||!SIG){ showMsg('안내','유효하지 않은 링크예요','받으신 메일의 링크로 다시 시도해 주세요.'); }
+else {
+  api({action:'emailCancelInfo', token:TOKEN, sig:SIG}).then(function(d){
+    if(!d||!d.ok){ showMsg('안내','예약 정보를 불러오지 못했어요', esc((d&&d.error)||'')); return; }
+    if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 새로 신청해 주세요.'); return; }
+    if(d.state==='none'){ showMsg('안내','취소할 확정 예약이 없어요','문의가 필요하시면 카카오톡으로 연락 주세요.'); return; }
+    var kakao=d.kakao?'<a class="kakao" href="'+esc(d.kakao)+'" target="_blank" rel="noopener">카카오톡</a>':'카카오톡';
+    if(d.state==='expired'){
+      showMsg('안내','온라인 취소 기한이 지났어요',
+        '상담 <b>'+esc(d.deadlineLabel)+' 전</b>까지만 온라인 취소가 가능해요.<br><br>예약하신 일정: <b>'+esc(d.date)+' · '+esc(d.time)+'</b>',
+        '부득이하게 취소가 필요하시면 '+kakao+'으로 문의해 주세요.'); return;
+    }
+    // state === 'ok' — 취소 확인 화면
+    card.innerHTML='<div class="eyebrow">Cancel</div><div class="title">예약을 취소하시겠어요?</div>'
+      +'<div class="desc">'+esc(d.names)+' 님</div>'
+      +'<div class="info"><b>'+esc(d.date)+' · '+esc(d.time)+'</b></div>'
+      +'<label for="acct">환불 계좌 <span style="color:var(--light)">(예약금 환불용)</span></label>'
+      +'<input type="text" id="acct" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">'
+      +'<button type="button" class="btn" id="go">예약 취소하기</button>'
+      +'<button type="button" class="btn btn-ghost" id="keep">아니요, 유지할게요</button>'
+      +'<div class="note">취소 후 입력하신 계좌로 예약금을 환불해 드려요 (영업일 기준 수일 소요).</div>';
+    document.getElementById('keep').addEventListener('click', function(){ location.href='/mypage.html'; });
+    document.getElementById('go').addEventListener('click', function(){
+      var acct=(document.getElementById('acct').value||'').trim();
+      var b=document.getElementById('go'); b.disabled=true; b.textContent='처리 중…';
+      api({action:'emailCancel', token:TOKEN, sig:SIG, acct:acct}).then(function(r){
+        if(r&&r.ok){ showMsg('Done','예약이 취소되었어요','입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); }
+        else { b.disabled=false; b.textContent='예약 취소하기'; showMsg('안내','취소를 완료하지 못했어요', esc((r&&r.error)||'잠시 후 다시 시도해 주세요.')); }
+      }).catch(function(){ b.disabled=false; b.textContent='예약 취소하기'; alert('취소에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
+    });
+  }).catch(function(){ showMsg('안내','예약 정보를 불러오지 못했어요','네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요.'); });
+}
+</script>
+</body>
+</html>

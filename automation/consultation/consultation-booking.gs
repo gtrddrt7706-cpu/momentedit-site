@@ -528,6 +528,44 @@ function doCustomerCancel(sheet, colOf, row, p) {
     '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
 }
 
+// [자사몰 취소] 이메일 '여기' → momentedit.kr/cancel 가 token·sig로 호출(GAS HTML/구글 Drive 오류 우회). 정보조회 + 취소 처리 2종.
+function handleEmailCancelInfo(body) {
+  var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
+  if (!verifySig(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
+  var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+  var row = findRowByToken(sheet, colOf, token);
+  if (!row) return { ok: false, error: '예약 정보를 찾을 수 없어요.' };
+  var status = String(row.get('상태') || '').trim();
+  if (status === ST.CANCELLED) return { ok: true, state: 'cancelled', names: coupleNames(row) };
+  if (LOCKED_STATES.indexOf(status) === -1) return { ok: true, state: 'none', names: coupleNames(row) };
+  var dateKey = row.get('선택날짜'), time = row.get('선택시간');
+  return { ok: true, state: withinCancelDeadline(dateKey, time) ? 'ok' : 'expired',
+    names: coupleNames(row), date: prettyDate(dateKey), time: String(time || ''), deadlineLabel: deadlineLabel(),
+    kakao: (CONFIG.KAKAO_URL && CONFIG.KAKAO_URL.charAt(0) !== '[') ? CONFIG.KAKAO_URL : '' };
+}
+function handleEmailCancel(body) {
+  var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
+  if (!verifySig(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
+  var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+  var row = findRowByToken(sheet, colOf, token);
+  if (!row) return { ok: false, error: '예약 정보를 찾을 수 없어요.' };
+  var status = String(row.get('상태') || '').trim();
+  if (status === ST.CANCELLED) return { ok: true, already: true };
+  if (LOCKED_STATES.indexOf(status) === -1) return { ok: false, error: '취소할 확정 예약이 없어요.' };
+  var dateKey = row.get('선택날짜'), time = row.get('선택시간');
+  if (!withinCancelDeadline(dateKey, time)) return { ok: false, error: '온라인 취소 기한(상담 ' + deadlineLabel() + ' 전)이 지났어요. 카카오톡으로 문의해 주세요.' };
+  var acct = String((body && body.acct) || '').trim(), names = coupleNames(row);
+  deleteCalendarEvent(sheet, colOf, row.num, names);
+  writeCell(sheet, colOf, row.num, '상태', ST.CANCELLED);
+  writeCell(sheet, colOf, row.num, '취소일시', new Date());
+  if (acct) writeCell(sheet, colOf, row.num, '환불계좌', acct);
+  try { sendRefundRequestEmail(row, dateKey, time, acct); } catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
+  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });
+  var to = row.get('이메일'); if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
+  setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');
+  return { ok: true };
+}
+
 // ── 관리자 셀프 취소 (확정 메일의 [예약 취소] 버튼) ──────────────
 // 관리자는 기한 제약 없이 언제든 취소 가능. 확인 화면 거친 뒤 실행.
 function serveAdminCancelD(token, row) {
@@ -1026,7 +1064,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
   if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   var cancelLine = token
-    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(actionUrl('cancelreq', token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
+    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(cancelPageUrl(token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
     : '';
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
@@ -1444,6 +1482,10 @@ function scheduleUrl(token) { return webAppUrl() + '?page=schedule&token=' + enc
 function actionUrl(action, token) {
   return webAppUrl() + '?action=' + action + '&token=' + encodeURIComponent(token) + '&sig=' + sign(token, action);
 }
+// 자사몰 취소 페이지 URL — 이메일 '여기' 링크용(GAS HTML 우회). cancel.html이 token·sig로 emailCancel* api 호출.
+function cancelPageUrl(token) {
+  return 'https://momentedit.kr/cancel?token=' + encodeURIComponent(token) + '&sig=' + sign(token, 'cancelreq');
+}
 
 // 날짜/시간 유틸 — 화면 B의 key() 와 동일 포맷 'YYYY-M-D'
 function dkey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
@@ -1852,6 +1894,8 @@ function doPost(e) {
       case 'getAvailability':   return jsonOut(handleGetAvailability(body));
       case 'submitSchedule':    return jsonOut(handleSubmitSchedule(body));
       case 'cancelReservation': return jsonOut(handleCancelReservation(body));
+      case 'emailCancelInfo':   return jsonOut(handleEmailCancelInfo(body));
+      case 'emailCancel':       return jsonOut(handleEmailCancel(body));
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 02 여정(계약·입금) — 세션→Customers ──
       case 'requestContract':    return jsonOut(handleRequestContract(body));
