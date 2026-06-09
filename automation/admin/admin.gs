@@ -279,14 +279,14 @@ function adminHome() {
       pushQ({ code: code, names: names, product: product, kind: '시착보내기', sub: '시착 동의서 보내기',
         badge: { level: 'yellow', text: '상담일' }, _urgent: true, _stage: 2, _wait: createdYmd });
     }
-    // 상담완료 처리(시그) — 시착 & 시착동의완료 & 상담일 지남
-    if (!isSnap && stage === '시착' && 시착 === '동의완료' && consultDue) {
+    // 상담완료 처리(시그) — 예약 승인/확정됨 & 시착 & 시착동의완료 & 상담일 지남
+    if (!isSnap && stage === '시착' && bookingLocked && 시착 === '동의완료' && consultDue) {
       pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '시착 완료 · 상담완료 처리',
         badge: null, _urgent: false, _stage: 2, _wait: createdYmd });
     }
     // 계약서 발송 — 시그(상담완료&시착동의완료) / 스냅(촬영확정) — & 계약 미발송
     var canSend = isSnap ? (stage === '촬영확정') : (stage === '상담완료' && 시착 === '동의완료');
-    if (canSend && (!계약 || 계약 === '미발송')) {
+    if (canSend && bookingLocked && (!계약 || 계약 === '미발송')) {   // bookingLocked: 미승인 새 예약(현재단계만 최고수위로 남은 경우) 조기 노출 차단
       pushQ({ code: code, names: names, product: product, kind: '계약발송', sub: '계약서 발송 대기',
         badge: null, _urgent: false, _stage: 3, _wait: createdYmd });
     }
@@ -809,6 +809,8 @@ function adminOpenFittingConsent(code) {
   if (String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return { ok: false, error: '웨딩스냅은 시착 단계가 없습니다.' };
   var stage = String(cust.get('현재단계') || '').trim();
   if (stage !== '상담확정' && stage !== '시착') return { ok: false, error: '상담확정 단계에서 시착 동의서를 보낼 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+  var _bk = findRowByPersonalCode(code), _bs = _bk ? String(_bk.get('상태') || '').trim() : '';   // 예약이 미승인(신청·시간선택·변경제안)이면 차단 — 현재단계가 최고수위로만 남은 경우 조기 발송 방지
+  if (_bs === ST.APPLIED || _bs === ST.PICKED || _bs === ST.PROPOSED) return { ok: false, error: '상담 예약을 먼저 승인/확정한 뒤에 시착 동의서를 보낼 수 있어요. (예약 상태: ' + _bs + ')' };
   if (String(cust.get('시착동의상태') || '').trim() === '동의완료') return { ok: true, already: true };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   touchCustomer(sheet, colOf, cust.num, { '시착동의상태': '동의요청' });
