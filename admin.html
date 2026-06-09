@@ -1018,7 +1018,7 @@ function openContractViewer(d, ov2){
     groom:(nm[0]||'').trim(), bride:(nm[1]||'').trim(),
     groomBirth:ci.groomBirth||'', brideBirth:ci.brideBirth||'',
     groomAddr:ci.groomAddr||'', brideAddr:ci.brideAddr||'',
-    groomPhone:ci.groomPhone||'', groomEmail:ci.groomEmail||'', bridePhone:ci.bridePhone||'', brideEmail:ci.brideEmail||'',
+    groomPhone:ci.groomPhone||d.phone||'', groomEmail:ci.groomEmail||d.email||'', bridePhone:ci.bridePhone||'', brideEmail:ci.brideEmail||'',
     weddingDate:ov2.weddingDate||(d.pin&&d.pin.예식일)||ci.weddingDate||'',
     total:(ov2.total!=null)?ov2.total:Math.round(Number(r.계약총액)||0),
     signed:ov2.preview?false:((r.계약상태==='서명완료')|| !!r.계약서명일시),
