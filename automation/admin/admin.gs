@@ -262,6 +262,7 @@ function adminHome() {
     var wedYmd = _ymdOf(draft.base && draft.base.weddingDate) || _ymdOf(bk ? bget(bk, '예식일자') : '');
     var consultYmd = _ymdOf(bk ? bget(bk, '선택날짜') : '');
     var bookingStatus = bk ? String(bget(bk, '상태') || '').trim() : '';
+    var bookingLocked = (bookingStatus === ST.APPROVED || bookingStatus === ST.CONFIRMED);   // 예약이 실제 승인/확정됨. 현재단계(최고수위)와 별개 — 미승인(신청·시간선택·변경제안) 예약엔 시착 안내 안 띄움
     var consultPast = consultYmd ? (_dayDiff(today, consultYmd) > 0) : false;
     var consultDue = consultYmd ? (_dayDiff(today, consultYmd) >= 0) : false;   // 상담 당일부터(오늘 포함) — 시착 동의서 보낼 시점
     var consultMD = (function(){ var m=String((bk ? normalizeDateKey(bget(bk,'선택날짜')) : '')||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? ((+m[2])+'/'+(+m[3])) : ''; })();   // 예정일 짧은 표기(M/D) — 현황 한눈에
@@ -273,8 +274,8 @@ function adminHome() {
       return;
     }
 
-    // 시착 동의 보내기(시그) — 상담확정 & 상담일 지남 & 시착 미발송
-    if (!isSnap && stage === '상담확정' && consultDue && 시착 !== '동의요청' && 시착 !== '동의완료') {
+    // 시착 동의 보내기(시그) — 예약 승인/확정됨 & 상담확정 & 상담일 지남 & 시착 미발송
+    if (!isSnap && stage === '상담확정' && bookingLocked && consultDue && 시착 !== '동의요청' && 시착 !== '동의완료') {
       pushQ({ code: code, names: names, product: product, kind: '시착보내기', sub: '시착 동의서 보내기',
         badge: { level: 'yellow', text: '상담일' }, _urgent: true, _stage: 2, _wait: createdYmd });
     }
