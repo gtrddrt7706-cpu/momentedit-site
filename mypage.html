@@ -457,7 +457,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<!-- build: birth 18-53 · contract phase2h (발송전 미리보기·공휴일힌트·만료CTA숨김·발송 자동메일) · redeploy 2026-06-08k -->
+<!-- build: birth 18-53 · contract phase2i (인쇄 파일명 자동·서명란 스크롤·로딩 페이드·패드 확대) · redeploy 2026-06-08l -->
 </head>
 <body>
 
@@ -577,7 +577,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .mp-modal-btn-primary{background:#1A1714;color:#fff}
     .mp-modal-btn-ghost{background:transparent;color:var(--light,#75705F);border-color:var(--border,#DDD8D1)}
     .mp-modal-btn:active{opacity:0.82}
-    .mp-sig-canvas{width:100%;height:190px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:4px;touch-action:none;display:block;cursor:crosshair}
+    .mp-sig-canvas{width:100%;height:210px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:4px;touch-action:none;display:block;cursor:crosshair}
     .mp-sig-hint{font-size:11px;color:var(--light,#75705F);margin-top:6px}
     @keyframes mpPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
     @media(prefers-reduced-motion:reduce){.mp-modal-card{animation:none}}
@@ -665,7 +665,7 @@ function openContractView(){
   var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
   bar.appendChild(ttl); bar.appendChild(rg);
   var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src='/contract/v1-1.html'; fr.title='본 계약서';
-  fr.style.cssText='flex:1 1 auto;width:100%;border:none';
+  fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(bar); ov.appendChild(fr);
   // 미서명이면 하단에 '서명하러 가기' CTA — 다 읽고 바로 서명으로(읽기→서명 자연 연결)
   if(!(window._contractFill && (window._contractFill.signed || window._contractFill.expired))){
@@ -686,6 +686,7 @@ function openContractView(){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     if(ev.data && ev.data.type==='momentedit:contractReady'){
       fr.contentWindow.postMessage({type:'momentedit:contractFill', data: window._contractFill||{}}, location.origin);
+      setTimeout(function(){ fr.style.opacity='1'; },70);
     }
   }
   x.addEventListener('click',done);
@@ -1334,7 +1335,7 @@ function renderContractPayment(c, p, ctx){
   }
 
   window._contractFill = c.fill || {};   // [Phase2] 인뷰어(openContractView)가 채울 고객 정보
-  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); window._contractFill.expired = !!(c && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0))); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); }   // 서명완료/만료는 기존 c값에서 직접(새 GAS 불요)
+  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); window._contractFill.expired = !!(c && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0))); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); window._contractFill.docTitle = [((ctx&&ctx.product)||'계약서'), ((window._contractFill.groom||'')+(window._contractFill.bride?('·'+window._contractFill.bride):'')), (window._contractFill.weddingDate||'')].filter(Boolean).join('_'); }   // 서명완료/만료/파일명은 기존 값에서 직접(새 GAS 불요)
   var link = c.fill
     ? '<button type="button" class="cc-btn-ghost js-view-contract">계약서 보기</button>'
     : (c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '');   // c.fill 없으면(구 GAS·배포 갭) 기존 외부 링크로 폴백

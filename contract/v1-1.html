@@ -555,6 +555,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       var k=els[i].getAttribute('data-fill'), v=d[k];
       if(v!=null && String(v)!=='') els[i].textContent=String(v);
     }
+    if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_예식일
     var mine=document.getElementById('art4-mine');   // 제4조 — 본 계약 적용(예식일·총액) 개인화
     if(mine){
       var amt=Number(d.total)||0;
@@ -568,6 +569,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       var gs=document.getElementById('sigGroom');
       if(gs){ gs.innerHTML = d.signImage ? '<img src="'+d.signImage+'" alt="신랑 전자서명" style="height:38px;max-width:150px;object-fit:contain;vertical-align:middle">' : '✓ 전자서명 완료'; }
       var bs=document.getElementById('sigBride'); if(bs) bs.textContent='(대표 서명으로 갈음)';
+      try{ var _sg=document.getElementById('sign'); if(_sg) setTimeout(function(){ _sg.scrollIntoView({behavior:'smooth',block:'start'}); },140); }catch(e){}   // 서명본 재열람 → 서명란으로 안내
     }
   }
   window.addEventListener('message', function(ev){
