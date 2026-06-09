@@ -683,7 +683,7 @@ function sendBalanceReminders() {
     notifyKakao('cust.balanceDue', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });   // 잔금 안내 — 카톡(메일 OFF여도 발송)
     if (CONFIG.SEND_BALANCE_MAIL && email) {                                  // 메일은 토글 ON일 때만(기본 OFF)
       try {
-        var amounts = _journeyAmounts(row[c('계약총액') - 1]);
+        var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);   // 상품타입 전달 — 스냅 잔금(80%)/시그 잔금(50%) 분기 정확히
         var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
         GmailApp.sendEmail(email, '[Moment Edit] 잔금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
           '예식이 다가옵니다.\n잔금 ' + amtTxt + '을 ' + _balanceDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');

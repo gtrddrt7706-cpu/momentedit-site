@@ -295,6 +295,12 @@ function setCustomerStage(code, transition) {
   var EX = ['취소', '노쇼', '미계약'];
   if (EX.indexOf(cur) !== -1 && transition !== 'cancel') return false;  // 예외→정상 자동전이 금지
   if (cur === newStage) return true;          // 멱등
+  // [최고수위 보호] 정상 경로에서 이미 더 진행된 단계면 역행 금지 — 예약 재승인·변경수락(confirm 전이)이 시착/상담완료/계약완료 등을 상담확정으로 되돌리지 않게.
+  if (transition !== 'cancel') {
+    var _flow = stageFlowFor(String(rowObj.get('상품타입') || '').trim());
+    var _ci = _flow.indexOf(cur), _ni = _flow.indexOf(newStage);
+    if (_ci !== -1 && _ni !== -1 && _ni < _ci) return true;   // 역행 무시 — 현재(더 진행된) 단계 유지
+  }
   touchCustomer(sheet, colOf, rowObj.num, { '현재단계': newStage });    // platform/20
   return true;
 }
@@ -818,7 +824,7 @@ function getAvailability() {
     var dCol = colOf['선택날짜'], tCol = colOf['선택시간'], sCol = colOf['상태'];
     var vals = sheet.getRange(SYS.DATA_START_ROW, 1, last - SYS.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
     vals.forEach(function (r) {
-      var st = String(r[sCol - 1]);
+      var st = String(r[sCol - 1]).trim();   // 수기 입력 공백 방지 — 마감 슬롯이 빈 슬롯으로 새는 것 차단(다른 비교부와 일관)
       if (LOCKED_STATES.indexOf(st) === -1) return;
       var dk = normalizeDateKey(r[dCol - 1]);
       var tm = String(r[tCol - 1]).trim();

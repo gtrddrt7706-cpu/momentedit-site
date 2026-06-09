@@ -389,9 +389,9 @@ function loadHome(){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
+  var inlineKinds={ '신규신청':'approve','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','추가보정확인':'confirmExtra','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','계약만료':'재발송' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','계약만료':'재발송' }[it.kind]||'처리';
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'">'+esc(btnLbl)+'</button>'
@@ -419,6 +419,9 @@ function onQueueAct(act,code,names,isSnap){
   if(act==='approve') doApprove(code,names);
   else if(act==='consultDone') doConsultDone(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names);
+  else if(act==='confirmMid') doConfirmMid(code,names);
+  else if(act==='confirmBalance') doConfirmBalance(code,names);
+  else if(act==='confirmExtra') doConfirmExtra(code,names);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
@@ -646,10 +649,16 @@ function cardPayment(d){
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
   if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
+  // 중도금·잔금 — 계약금 이후 결제 마일스톤(상태 표시 + 신호 오면 확인 버튼)
+  var mid=r['중도금상태']||'', bal=r['잔금상태']||'';
+  if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
+  if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
+  if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');   // 고객 입금 신호 → 통장 대조 후 확인
+  if(bal==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 function cardProduction(d){
@@ -686,6 +695,10 @@ function cardResult(d,isSnap){
     if(r['원본링크']) b+=ab('delivered','결과물 전달');
     else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
   } else if(st==='결과물전달'){ b+='<div class="gate">✓ 전달 완료</div>'; }
+  // 추가 보정 — 결제대기 신호면 입금 확인 버튼
+  var ex=r['추가보정상태']||'';
+  if(ex&&ex!=='대기') raw+='<br>추가보정 <b>'+esc(ex)+'</b>'+(r['추가보정수량']?(' · '+esc(r['추가보정수량'])+'컷'):'')+(r['추가보정입금자명']?(' · '+esc(r['추가보정입금자명'])):'');
+  if(ex==='결제대기') b+=ab('confirmExtra','추가보정 입금 확인','btn-line');
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 
@@ -726,6 +739,9 @@ function onDetailAct(act,d){
   else if(act==='sendContract') openSendContract(code,names,d);
   else if(act==='uncontracted') doUncontracted(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names);
+  else if(act==='confirmMid') doConfirmMid(code,names);
+  else if(act==='confirmBalance') doConfirmBalance(code,names);
+  else if(act==='confirmExtra') doConfirmExtra(code,names);
   else if(act==='setResult') openSetResult(code,names,isSnap,d);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
@@ -774,6 +790,9 @@ function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
 function doConsultDone(code,names){ openModal({ title:'상담완료로 넘길까요?', text:b(names)+li('단계가 상담완료로 바뀌어요')+li('계약서를 발송할 수 있게 돼요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkConsultDone',code],code,'넘기기'); } }); }
 function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
+function doConfirmMid(code,names){ openModal({ title:'중도금 입금을 확인할까요?', text:b(names)+li('중도금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
+function doConfirmBalance(code,names){ openModal({ title:'잔금 입금을 확인할까요?', text:b(names)+li('잔금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
+function doConfirmExtra(code,names){ openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 결제가 확인 처리돼요'), yes:'추가보정 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'추가보정 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 넘길까요?', text:b(names)+li('고객 마이페이지에 결과물 단계가 열려요')+li('이 고객은 아카이브로 이동해요'), yes:'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,'전달 완료'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';

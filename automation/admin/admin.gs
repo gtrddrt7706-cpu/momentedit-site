@@ -496,6 +496,7 @@ function adminDetail(code) {
     중도금상태: String(cust.get('중도금상태') || ''),
     중도금입금자명: String(cust.get('중도금입금자명') || ''),
     잔금상태: String(cust.get('잔금상태') || ''),
+    잔금입금자명: String(cust.get('잔금입금자명') || ''),
     계약서링크: String(cust.get('계약서링크') || ''),
     계약서발송일시: String(cust.get('계약서발송일시') || ''),
     계약서명일시: String(cust.get('계약서명일시') || ''),
@@ -754,6 +755,15 @@ function adminSendContract(code, link, total, weddingYmd) {
   if (['취소', '노쇼', '미계약'].indexOf(stage) !== -1) {
     return { ok: false, error: '진행할 수 없는 상태입니다. (현재단계: ' + stage + ')' };
   }
+  if (String(cust.get('계약상태') || '').trim() === '서명완료') {   // 이미 서명된 계약 — 재발송 시 서명상태 다운그레이드(고객 결제카드 소실) 방지
+    return { ok: false, error: '이미 서명이 완료된 계약입니다. 다시 보내려면 강제 단계 변경으로 초기화 후 진행해 주세요.' };
+  }
+  if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') {   // 스냅: 예약 미승인(신청·시간선택·변경제안)이면 차단 — 현재단계가 최고수위로만 남은 경우 조기 발송 방지
+    var _bk = findRowByPersonalCode(code), _bs = _bk ? String(_bk.get('상태') || '').trim() : '';
+    if (_bs === ST.APPLIED || _bs === ST.PICKED || _bs === ST.PROPOSED) {
+      return { ok: false, error: '촬영 예약을 먼저 승인/확정한 뒤에 계약서를 보낼 수 있어요. (예약 상태: ' + _bs + ')' };
+    }
+  }
   var linkStr = String(link || '').trim();
   if (!/^https?:\/\//i.test(linkStr)) {                       // #5 — 빈/잘못된 링크 발송 방지(고객 빈 계약서 차단)
     return { ok: false, error: '계약서 링크(https://…)를 입력해 주세요.' };
@@ -962,8 +972,11 @@ function _clearForwardData(colOf, cust, product, targetStage) {
     { cols: ['시착동의상태', '시착동의일시'], at: '시착', consent: '시착' },
     { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액'], at: '계약완료', consent: ['계약', '계약정보'] },  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화
     { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증' },
-    { cols: ['제작임시저장', 'eventId'], at: '제작중' },
-    { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태'], at: isSnap ? '촬영완료' : '예식완료' }
+    { cols: ['중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], at: '제작중' },        // 중도금(시그 3단계 마일스톤)
+    { cols: ['잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], at: isSnap ? '촬영완료' : '제작중' }, // 잔금(제작/촬영 단계 마일스톤)
+    { cols: ['제작임시저장', 'eventId', '제작상태'], at: '제작중' },
+    { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], at: isSnap ? '촬영완료' : '예식완료' },
+    { cols: ['설문상태', '설문응답', '설문일시'], at: '결과물전달' }
   ];
   var upd = {}, consentKeys = [];
   groups.forEach(function (g) {
