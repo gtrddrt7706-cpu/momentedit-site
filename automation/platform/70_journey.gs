@@ -268,7 +268,8 @@ function handleRequestContract(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (String(cust.get('현재단계') || '').trim() !== '상담완료') return { ok: false, error: '아직 계약서 요청 단계가 아닙니다.' };
-    if (String(cust.get('계약상태') || '').trim()) return { ok: false, error: '이미 계약이 진행 중입니다.' };
+    var _cs = String(cust.get('계약상태') || '').trim();
+    if (_cs === '발송' || _cs === '서명완료') return { ok: false, error: '이미 계약이 진행 중입니다.' };   // '미발송'(가입 기본값·만료 후)은 재요청 허용
     var rec = _parseJsonSafe(cust.get('동의기록'));
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준 · 당사자 정보=계약서 자동기입용
@@ -279,7 +280,8 @@ function handleRequestContract(body) {
 function buildContractInfoState(r) {
   if (!r) return null;
   if (String(r.get('현재단계') || '').trim() !== '상담완료') return null;
-  if (String(r.get('계약상태') || '').trim()) return null;   // 발송됨 → 계약 카드로
+  var _cs = String(r.get('계약상태') || '').trim();
+  if (_cs === '발송' || _cs === '서명완료') return null;   // 발송/서명완료 → 계약 카드로 ('미발송'=가입 기본값·만료 후 → 요청 폼 유지)
   var rec = _parseJsonSafe(r.get('동의기록'));
   var ci = rec.계약정보 || null;
   return {
