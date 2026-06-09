@@ -1316,7 +1316,7 @@ function renderContractPayment(c, p, ctx){
   }
 
   window._contractFill = c.fill || {};   // [Phase2] 인뷰어(openContractView)가 채울 고객 정보
-  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); if(c && c.signedAt) window._contractFill.signDate = c.signedAt; }   // 서명완료 상태는 기존 c.signed/signedAt에서 직접(새 GAS 재배포 불요)
+  if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); }   // 서명완료 상태는 기존 c.signed/signedAt에서 직접(날짜만·새 GAS 재배포 불요)
   var link = c.fill
     ? '<button type="button" class="cc-btn-ghost js-view-contract">계약서 보기</button>'
     : (c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '');   // c.fill 없으면(구 GAS·배포 갭) 기존 외부 링크로 폴백

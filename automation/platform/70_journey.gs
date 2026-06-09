@@ -323,10 +323,8 @@ function buildContractState(r) {
     phone: String(r.get('연락처') || ''),   // 가입 계정 연락처 1개(신랑/대표 칸에 표시)
     email: String(r.get('이메일') || ''),   // 가입 계정 이메일 1개
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
-    total: Math.round(Number(r.get('계약총액')) || 0),
-    signed: signed,                                          // 서명 완료 여부 → 체결일·체크·갑 서명 자동 표시
-    signDate: signed ? signedAt : '',                        // 계약 체결일(서명 시각)
-    signImage: signed ? getSignatureDataUrl(String(r.get('개인코드') || ''), '계약') : ''   // 갑 대표 손글씨 서명(서명 시에만)
+    total: Math.round(Number(r.get('계약총액')) || 0)
+    // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
   };
   return out;
 }
