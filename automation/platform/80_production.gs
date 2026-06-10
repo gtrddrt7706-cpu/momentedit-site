@@ -1,7 +1,8 @@
 /**
  * Moment Edit · 통합 플랫폼 — 03 제작 (공통 기초정보 + 3트랙)
  * ──────────────────────────────────────────────────────────────────────────
- * 입금완료 후 진입. 공통 기초정보(이름 한/영·이메일·예식일시)를 제작임시저장(16열 JSON)에 저장.
+ * 입금완료 후 진입. 공통 기초정보(이름 한/영·예식일시)를 제작임시저장(16열 JSON)에 저장.
+ *   이메일은 입력받지 않고 계정 이메일(Customers '이메일')을 자동 재사용 — 청첩장 Couples 시드용.
  * 3트랙(청첩장·다이닝·식순) 상태 대시보드 — 1차: 다이닝·식순=자리(준비중), 청첩장 상세=04.
  *
  * [두 층위] 제작상태(Customers 13)·현재단계=제작중(여정). 단계 전이는 setCustomerStage('produce') 단일점.
@@ -14,7 +15,7 @@
 var PRODUCTION_STAGES = ['입금완료', '제작중'];   // 제작 UI 노출 단계
 
 // [03-1] 공통 기초정보 저장(고객) → 제작임시저장.base + 제작상태=작성중 + 현재단계→제작중.
-//   가드: 입금완료/제작중 단계만. 이름(한)·이메일은 Customers 마스터에도 반영(확인·보완 결과).
+//   가드: 입금완료/제작중 단계만. 이름(한)은 Customers 마스터에도 반영(확인·보완 결과).
 function handleSaveProductionBase(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -25,8 +26,6 @@ function handleSaveProductionBase(body) {
   var groomKo = String(base.groomKo || '').trim();
   var brideKo = String(base.brideKo || '').trim();
   if (!groomKo || !brideKo) return { ok: false, error: '신랑·신부 이름을 입력해 주세요.' };
-  var email = String(base.email || '').trim();
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: '이메일을 정확히 입력해 주세요.' };
 
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
@@ -40,6 +39,8 @@ function handleSaveProductionBase(body) {
     if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
     var draft = _parseJsonSafe(cust.get('제작임시저장'));
+    // 이메일은 폼에서 받지 않는다 — 계정 이메일 우선, 없으면 기존 저장값 유지(85 청첩장 Couples 시드가 계속 차도록)
+    var email = String((cust.get('이메일') || (draft.base && draft.base.email) || '')).trim();
     draft.base = {
       groomKo: groomKo,
       brideKo: brideKo,
@@ -54,7 +55,6 @@ function handleSaveProductionBase(body) {
     if (base.weddingDate) upd['예식일'] = String(base.weddingDate).trim();   // 잔금 D-7 산출용 톱레벨 컬럼
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
-    if (email) upd['이메일'] = email;
     touchCustomer(sheet, colOf, cust.num, upd);
     setCustomerStage(code, 'produce');    // 입금완료 → 제작중 (단일 전이점)
     return { ok: true };

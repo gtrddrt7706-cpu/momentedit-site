@@ -1949,7 +1949,7 @@ function weddingTimeOptions(sel){
 }
 
 // [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
-var _prodEditBase=false;   // 대시보드 '기본 정보 수정' → 입력 폼 재노출(이름·이메일·예식 시간 등)
+var _prodEditBase=false;   // 대시보드 '이름 수정하기' → 입력 폼 재노출(이름 수정 · 예식 일정은 계약 확정 표시)
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; _prodEditBase=false; return; }
@@ -2402,7 +2402,6 @@ function productionFormHtml(b, isEdit){
       + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
     + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     + '<div class="pf-cover" id="mp_cover"></div>'
-    + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
     + '<div class="pf2">'+wedDateCell(b)
       + wedTimeCell(b) + '</div>'
     + ((b.weddingLocked||b.weddingTimeLocked)?'<div class="cc-note" style="margin:5px 0 0">예식 '+(b.weddingTimeLocked?'날짜·시간은':'날짜는')+' <b>계약서에 확정된 일정</b>이에요. 변경이 필요하면 디렉터에게 문의해 주세요.</div>':'')
@@ -2439,7 +2438,7 @@ function updateCover(){
 function doSaveProductionBase(){
   var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
     groomEn:($('mp_gEn')&&$('mp_gEn').value||'').trim(), brideEn:($('mp_bEn')&&$('mp_bEn').value||'').trim(),
-    email:($('mp_pEmail')&&$('mp_pEmail').value||'').trim(), weddingDate:($('mp_wDate')&&$('mp_wDate').value||'').trim(), weddingTime:($('mp_wTime')&&$('mp_wTime').value||'').trim() };
+    weddingDate:($('mp_wDate')&&$('mp_wDate').value||'').trim(), weddingTime:($('mp_wTime')&&$('mp_wTime').value||'').trim() };   // 이메일은 서버가 계정 이메일을 그대로 사용(입력칸 제거)
   if(!base.groomKo||!base.brideKo){ mpAlert('신랑·신부 이름을 입력해 주세요.'); return; }
   var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
@@ -2470,7 +2469,7 @@ function productionDashHtml(t, inv){
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
       + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·다이닝·식순 모두 완료 · 펼쳐서 수정</span></summary>'
-      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div><div style="text-align:center;margin-top:12px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름·이메일·예식 시간 등 기본 정보 수정</button></div></div>'
+      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div><div style="text-align:center;margin-top:12px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름 수정하기</button></div></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:center">'
@@ -2479,7 +2478,7 @@ function productionDashHtml(t, inv){
     + '<div class="cc-sub">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
     + '<div class="cc-note" style="text-align:center">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
-    + '<div style="text-align:center;margin-top:14px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름·이메일·예식 시간 등 기본 정보 수정</button></div>'
+    + '<div style="text-align:center;margin-top:14px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름 수정하기</button></div>'
     + '</div>';
 }
 
