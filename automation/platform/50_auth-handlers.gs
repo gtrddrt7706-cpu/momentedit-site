@@ -157,7 +157,7 @@ function sendFindCodeKakao(phone, names, code) {
 function sendResetPwEmail(to, names, link) {
   var inner =
     centerP(esc(names) + ' 님,<br>비밀번호 <b style="color:#B89A75;font-weight:600">재설정</b> 링크를 보내드립니다.') +
-    emailBtn(link, '비밀번호 재설정', '#B89A75') +
+    emailBtn(link, '비밀번호 재설정') +
     smallP('이 링크는 <b>1시간</b> 동안만 유효합니다. 본인이 요청하지 않으셨다면 무시하셔도 됩니다(비밀번호는 그대로 유지됩니다).') +
     '<div style="margin:22px auto 0;max-width:440px;text-align:center">' +
       '<details style="text-align:center">' +

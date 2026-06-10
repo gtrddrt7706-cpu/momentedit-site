@@ -157,7 +157,7 @@ function sendSignupEmail(to, names, code, token, product, detail) {
     codeCard +
     '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#8A7A5E;letter-spacing:0.02em">아직 예약이 확정된 것은 아닙니다</div>' +
     centerP('아래 버튼으로 <b style="color:#B89A75;font-weight:600">마이페이지</b>에 들어가<br>진행 상황을 확인하실 수 있습니다.') +
-    emailBtn(mypage, 'My Page', '#6B2A24') +
+    emailBtn(mypage, 'My Page') +
     smallP('이 링크는 자동으로 로그인됩니다.<br>다른 기기에서는 개인코드와 비밀번호로 로그인해 주세요.') +
     // 버튼이 안 열릴 때 대비 — 주소 직접 노출
     '<div style="margin:22px auto 0;max-width:440px;text-align:center">' +

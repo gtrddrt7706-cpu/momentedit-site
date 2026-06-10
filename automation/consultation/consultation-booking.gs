@@ -1070,7 +1070,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
     dateCard('Requested', prettyDate(dateKey), esc(time)) +
     flag +
     '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">입금 확인 후</b> 승인해 주세요.</p>' +
-    emailBtn(approveUrl, '✓ 승인하기', '#B89A75') +
+    emailBtn(approveUrl, '✓ 승인하기') +
     emailBtnOutline(changeUrl, '시간 변경 제안') +
     // ② 상세는 아래로
     sectionLabel('Contact · 고객') +
@@ -1179,7 +1179,7 @@ function sendProposalEmail(row, newDate, newTime, memo) {
     })() +
     dateCard('Proposed', prettyDate(newDate), esc(newTime)) +
     (memo ? noteP(esc(memo)) : '') +
-    emailBtn(acceptUrl, '이 시간으로 수락', '#B89A75') +
+    emailBtn(acceptUrl, '이 시간으로 수락') +
     emailBtnOutline(reselectUrl, '다른 시간 보기') +
     smallP('수락하시면 예약이 확정되며, 확정 메일을 다시 보내드립니다.');
   GmailApp.sendEmail(row.get('이메일'), '[Moment Edit] 상담 시간 변경 제안 · ' + prettyDate(newDate) + ' ' + newTime, '',
@@ -1202,8 +1202,9 @@ function emailShell(headline, innerHtml) {
     '</td></tr></table></body></html>';
 }
 function emailBtn(url, label, color) {
-  var bg = color || '#B89A75';
-  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#FFFFFF;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(184,154,117,0.30);">' + esc(label) + '</a></div>';
+  // 기본 딥브라운 — 라이트에선 사이트 버튼과 동일 톤, Gmail 앱 강제 다크 변환 시 크림색으로 뒤집혀도 의도된 디자인처럼 보임(골드·버건디는 핑크로 깨짐)
+  var bg = color || '#3A2D22';
+  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#FFFFFF;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(58,45,34,0.22);">' + esc(label) + '</a></div>';
 }
 function emailBtnOutline(url, label) {
   return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:#FFFFFF;color:#8A7A5E;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #CDBFA6;border-radius:4px;">' + esc(label) + '</a></div>';
