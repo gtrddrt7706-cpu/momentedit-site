@@ -352,6 +352,20 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 .fade.d1{animation-delay:0.05s}.fade.d2{animation-delay:0.13s}.fade.d3{animation-delay:0.22s}
 @keyframes fade{to{opacity:1;transform:translateY(0)}}
 
+/* 140분 시퀀스 진행 시간표(참고) — 마이페이지 계약 폼과 동일 컴포넌트 */
+.schedule-ref{margin-top:14px;padding:16px 18px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.schedule-ref-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--hairline);flex-wrap:wrap}
+.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
+.schedule-ref-title{font-family:var(--serif-ko);font-size:12.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
+.schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:center}
+.ref-row{display:contents}
+.ref-header-cell{font-family:var(--serif-ko);font-size:10.5px;color:var(--accent);padding:3px 0 9px;text-align:center;font-weight:400;word-break:keep-all}
+.ref-slot{font-family:var(--serif-ko);font-size:11.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em;padding:9px 0;border-top:1px dashed var(--hairline)}
+.ref-time{font-family:var(--serif);font-size:13px;color:var(--sub);text-align:center;padding:9px 0;letter-spacing:0.02em;border-top:1px dashed var(--hairline);font-variant-numeric:tabular-nums}
+.ref-time.highlight{color:var(--accent);font-weight:500}
+.schedule-ref-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--hairline);font-size:11px;color:var(--sub);line-height:1.75;font-family:var(--serif-ko);font-weight:300;word-break:keep-all}
+.schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:0.08em;margin-right:4px}
+@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:10.5px;letter-spacing:0}.ref-slot{font-size:10.5px}}
 /* 커스텀 날짜 선택(예식일 임시고정) — 마이페이지 계약서 폼과 동일 컴포넌트 */
 .dt-picker-wrap{position:relative;width:100%}
 .dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
@@ -518,6 +532,17 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <label class="deposit-payer-label" for="holdSlot" style="text-align:left;margin-top:10px">예식 시간 <span>· 140분</span></label>
           <select id="holdSlot" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff"><option value="">선택해 주세요</option><option value="09:00">오전 09:00</option><option value="12:20">오후 12:20</option><option value="15:40">늦은 오후 15:40</option></select>
           <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 카카오톡으로 문의해 주시면 일정 조율을 도와드릴게요.</div>
+          <div class="schedule-ref" aria-label="예식 진행 시간표">
+            <div class="schedule-ref-head"><span class="schedule-ref-tag">Reference</span><span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);font-weight:400">· 요약</span></span></div>
+            <div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">시간대를 고르실 때 참고해 주세요. 위에서 선택하는 시간은 신랑·신부 도착 기준이에요. 세부 흐름은 방문 상담에서 함께 조정해 드려요.</div>
+            <div class="schedule-ref-table">
+              <div class="ref-row"><span class="ref-header-cell"></span><span class="ref-header-cell">신랑·신부 도착</span><span class="ref-header-cell">내빈 입장 시작</span><span class="ref-header-cell">본예식</span><span class="ref-header-cell">종료</span></div>
+              <div class="ref-row"><span class="ref-slot">오전</span><span class="ref-time">09:00</span><span class="ref-time highlight">09:45</span><span class="ref-time">10:00</span><span class="ref-time">11:20</span></div>
+              <div class="ref-row"><span class="ref-slot">오후</span><span class="ref-time">12:20</span><span class="ref-time highlight">13:05</span><span class="ref-time">13:20</span><span class="ref-time">14:40</span></div>
+              <div class="ref-row"><span class="ref-slot">늦은 오후</span><span class="ref-time">15:40</span><span class="ref-time highlight">16:25</span><span class="ref-time">16:40</span><span class="ref-time">18:00</span></div>
+            </div>
+            <div class="schedule-ref-foot"><span class="accent">Note</span>대기 공간이 없으니, 하객분들은 <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 오시도록 안내해 주세요.</div>
+          </div>
         </div>
       </div>
     </div>
