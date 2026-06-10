@@ -41,18 +41,25 @@ function handleSaveProductionBase(body) {
     var draft = _parseJsonSafe(cust.get('제작임시저장'));
     // 이메일은 폼에서 받지 않는다 — 계정 이메일 우선, 없으면 기존 저장값 유지(85 청첩장 Couples 시드가 계속 차도록)
     var email = String((cust.get('이메일') || (draft.base && draft.base.email) || '')).trim();
+    // 예식 일시도 폼에서 받지 않는다 — 계약 확정값(예식일 톱레벨 + 계약 슬롯→본예식 +1h)을 서버가 채움(청첩장·식순 단일 기준)
+    var wDate = _ymdOf(cust.get('예식일')) || String((draft.base && draft.base.weddingDate) || base.weddingDate || '').trim();
+    var wTime = String((draft.base && draft.base.weddingTime) || base.weddingTime || '').trim();
+    if (!wTime) {
+      var _ci0 = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
+      wTime = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci0.weddingTime || '').trim()] || '';
+    }
     draft.base = {
       groomKo: groomKo,
       brideKo: brideKo,
       groomEn: String(base.groomEn || '').trim(),
       brideEn: String(base.brideEn || '').trim(),
       email: email,
-      weddingDate: String(base.weddingDate || '').trim(),
-      weddingTime: String(base.weddingTime || '').trim(),
+      weddingDate: wDate,
+      weddingTime: wTime,
       savedAt: fmtKST(new Date())
     };
     var upd = { '제작임시저장': JSON.stringify(draft), '제작상태': '작성중' };
-    if (base.weddingDate) upd['예식일'] = String(base.weddingDate).trim();   // 잔금 D-7 산출용 톱레벨 컬럼
+    if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
     touchCustomer(sheet, colOf, cust.num, upd);

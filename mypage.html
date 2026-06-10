@@ -969,7 +969,10 @@ function renderMyPage(d){
     var dd=Math.round((w-t)/86400000);
     var wl=(d.product==='웨딩스냅')?'촬영':'예식';
     var lab=dd>0?('D-'+dd):(dd===0?'오늘이에요 🤍':wl+'을 마쳤어요');
-    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+' <span style="color:var(--label-soft)">· '+lab+'</span>';
+    // 본예식 시간(계약 확정 슬롯 +1h) — base에 있으면 그대로, 없으면 계약 fill에서 변환
+    var wt=(d.production && d.production.base && /^\d{2}:\d{2}$/.test(String(d.production.base.weddingTime||'')))?String(d.production.base.weddingTime):'';
+    if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
+    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+(wt?(' · '+wt):'')+' <span style="color:var(--label-soft)">· '+lab+'</span>';
     el.style.display='block';
   })();
 
@@ -2410,9 +2413,7 @@ function productionFormHtml(b, isEdit){
       + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
     + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     + '<div class="pf-cover" id="mp_cover"></div>'
-    + '<div class="pf2">'+wedDateCell(b)
-      + wedTimeCell(b) + '</div>'
-    + ((b.weddingLocked||b.weddingTimeLocked)?'<div class="cc-note" style="margin:5px 0 0">예식 '+(b.weddingTimeLocked?'날짜·시간은':'날짜는')+' <b>계약서에 확정된 일정</b>이에요. 변경이 필요하면 디렉터에게 문의해 주세요.</div>':'')
+    // 예식 날짜·시간 표시 블록 제거 — 계약 확정값이라 폼에선 보여줄 필요 없음(상단 D-day 줄에 날짜·시간 표기). 저장 시 서버가 계약 확정값을 자동 채움.
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
     + '<div class="cc-actions">'+(isEdit?'<button type="button" class="cc-btn-ghost" id="mp_cancelBase">취소</button>':'')+'<button type="button" class="cc-btn" id="mp_saveBase">'+(isEdit?'저장':'저장하고 시작')+'</button></div>'
     + '</div>';
@@ -2435,7 +2436,7 @@ function bindProductionForm(){
   // 영문 자동 제안 제거 — 고객이 직접 입력(성 없이 이름만). 표지는 coverName이 처리.
   ['mp_gEn','mp_bEn'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', updateCover); });
   updateCover();
-  initDatePicker({wrap:'mpw_wrap',trigger:'mpw_trigger',text:'mpw_text',panel:'mpw_panel',grid:'mpw_grid',title:'mpw_title',prev:'mpw_prev',next:'mpw_next',hidden:'mp_wDate'});
+  if($('mpw_wrap')) initDatePicker({wrap:'mpw_wrap',trigger:'mpw_trigger',text:'mpw_text',panel:'mpw_panel',grid:'mpw_grid',title:'mpw_title',prev:'mpw_prev',next:'mpw_next',hidden:'mp_wDate'});   // 날짜 필드가 없는 폼(계약 확정)에선 스킵
   var sv=$('mp_saveBase'); if(sv) sv.addEventListener('click', doSaveProductionBase);
 }
 function updateCover(){
@@ -2445,7 +2446,7 @@ function updateCover(){
 function doSaveProductionBase(){
   var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
     groomEn:($('mp_gEn')&&$('mp_gEn').value||'').trim(), brideEn:($('mp_bEn')&&$('mp_bEn').value||'').trim(),
-    weddingDate:($('mp_wDate')&&$('mp_wDate').value||'').trim(), weddingTime:($('mp_wTime')&&$('mp_wTime').value||'').trim() };   // 이메일은 서버가 계정 이메일을 그대로 사용(입력칸 제거)
+    email:'', weddingDate:'', weddingTime:'' };   // 이메일·예식 일시는 서버가 계정·계약 확정값을 자동 사용(입력칸 없음)
   if(!base.groomKo||!base.brideKo){ mpAlert('신랑·신부 이름을 입력해 주세요.'); return; }
   var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
