@@ -1263,9 +1263,8 @@ function renderHold(h){
   var slotTxt=labels[h.slot]||h.slot||'';
   var when=escapeHtml(dTxt)+(slotTxt?(' · '+escapeHtml(slotTxt)):'');
   var approved=(h.status==='승인');
-  var expTxt=h.expires?((typeof fmtWedKo==='function'&&fmtWedKo(h.expires))?fmtWedKo(h.expires):h.expires):'';
   var sub=approved
-    ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요'+(expTxt?(' <span class="hold-mute">· '+escapeHtml(expTxt)+'까지</span>'):'')+'. 본계약 시 이 날짜로 확정돼요.')
+    ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요.<br>대면 상담 후 <b>본계약을 진행하시면</b> 이 날짜로 확정돼요.')
     : ('<b>'+when+'</b><br>디렉터가 확인하고 있어요. 승인되면 알려드릴게요.<br><span class="hold-mute">상담 전이라면 사전 협의가 필요할 수 있어요.</span>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
   box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
