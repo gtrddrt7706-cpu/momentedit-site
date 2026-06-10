@@ -163,12 +163,29 @@ function _dayDiff(aYmd, bYmd) { var a = _ymdNum(aYmd), b = _ymdNum(bYmd); return
 // 대기 타이브레이크 — 오래된(작은 날짜) 먼저. 빈값은 맨 뒤.
 function _cmpWait(a, b) { a = a || '9999'; b = b || '9999'; return a < b ? -1 : (a > b ? 1 : 0); }
 
+// 자정(KST) 기준 남은 날 라벨 — 오늘/내일/내일모레/그 이후 D-n (+날짜). 지난·미정은 빈값.
+function _dueWhen(n, md) {
+  var tag = (n == null || n < 0) ? '' : (n === 0 ? '오늘' : (n === 1 ? '내일' : (n === 2 ? '내일모레' : 'D-' + n)));
+  if (!tag) return md ? ' · ' + md : '';
+  return ' · ' + tag + (md ? ' (' + md + ')' : '');
+}
+
+// 임시고정 표시용 — '2026.6.11(목) 오후 12:20'
+function _holdWhenLabel(ymd, slot) {
+  slot = String(slot || '').trim();
+  var lab = ({ '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후' })[slot] || '';
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return (String(ymd || '') + ' ' + slot).trim();
+  var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
+  return m[1] + '.' + (+m[2]) + '.' + (+m[3]) + '(' + w + ') ' + (lab ? lab + ' ' : '') + slot;
+}
+
 // 현황 줄 하위상태 1줄 (B2.2) — 단계+상품+보조상태
 function _subStatusFor(stage, isSnap, x) {
   switch (stage) {
     case '신청접수': return (x.booking === ST.PICKED) ? '승인 대기' : '시간 선택 대기';
-    case '상담확정': return (x.consultPast ? '상담일 지남' : '상담 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
-    case '촬영확정': return (x.consultPast ? '촬영일 지남' : '촬영 예정') + (x.consultDate ? ' · ' + x.consultDate : '');
+    case '상담확정': return x.consultPast ? ('상담일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('상담 예정' + _dueWhen(x.cdday, x.consultDate));
+    case '촬영확정': return x.consultPast ? ('촬영일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('촬영 예정' + _dueWhen(x.cdday, x.consultDate));
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
@@ -299,6 +316,17 @@ function adminHome() {
       return;
     }
 
+    // 예식일 임시고정(가예약) 승인 대기 — 상담 신청 시 함께 들어온 가예약 요청. 대면상담 승인(신규신청)과 별개 항목으로 분리 노출(놓침 방지). 승인/거절하면 사라짐.
+    var _hold = _parseJsonSafe(cget(rv, '동의기록')).가예약;
+    if (_hold && _hold.status === '요청' && _hold.date && _hold.slot && 계약 !== '서명완료') {
+      var _hReqYmd = _ymdOf(_hold.at) || createdYmd;
+      var _hDays = _dayDiff(today, _hReqYmd);
+      pushQ({ code: code, names: names, product: product, kind: '임시고정', sub: '예식일 임시고정 요청 · ' + _holdWhenLabel(_hold.date, _hold.slot),
+        hold: { date: _hold.date, slot: _hold.slot },
+        badge: (_hDays != null && _hDays >= 4) ? { level: 'red', text: '요청 ' + _hDays + '일째' } : ((_hDays != null && _hDays >= 2) ? { level: 'yellow', text: '요청 ' + _hDays + '일째' } : { level: 'yellow', text: '승인 대기' }),
+        _urgent: (_hDays != null && _hDays >= 4), _loss: 3, _stage: 1, _wait: _hReqYmd });
+    }
+
     // 시착 동의 보내기(시그) — 예약 승인/확정됨 & 상담확정 & 상담일 지남 & 시착 미발송
     if (!isSnap && stage === '상담확정' && bookingLocked && consultDue && 시착 !== '동의요청' && 시착 !== '동의완료') {
       pushQ({ code: code, names: names, product: product, kind: '시착보내기', sub: '시착 동의서 보내기',
@@ -389,7 +417,7 @@ function adminHome() {
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
       cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
       _created: createdYmd
