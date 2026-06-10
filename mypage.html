@@ -1042,7 +1042,7 @@ function renderMyPage(d){
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
-    ['mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+    ['mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);   // 자물쇠(잠긴 단계)만 유지
   } else {
     renderConsult(d.consult, d.product);                              // 상담/촬영 (P1.5)
@@ -1174,10 +1174,11 @@ function renderLedger(l){
   var docRows=(l.documents&&l.documents.length)
     ? l.documents.map(function(dc){ var link=dc.url?('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>'):''; return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+link+'</span></div>'; }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
+  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
   box.innerHTML='<div class="consult-card led-card">'+
     '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
     '<div class="led-title">내 내역</div>'+
-    '<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>'+
+    paySec+
     '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     '</div>';

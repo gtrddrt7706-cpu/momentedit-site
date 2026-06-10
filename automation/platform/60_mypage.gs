@@ -61,11 +61,13 @@ function buildLedgerState(r) {
   var depConfirmed = String(r.get('입금상태') || '').trim() === '확인';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   function st(v) { v = String(v || '').trim(); return v === '확인' ? '입금 확인' : (v === '완료신호' ? '확인 중' : '대기'); }
-  // 결제 마일스톤
+  // 결제 마일스톤 — 계약총액이 정해진 뒤(계약 발송~)에만 표기. 그 전엔 금액이 미정이라 결제 표를 만들지 않음(0원 행 방지).
   var payments = [];
-  payments.push({ key: '예약금', label: isSnap ? '계약금' : '예약금', amount: isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금, status: st(r.get('입금상태')), done: depConfirmed });
-  if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts ? amounts['중도금'] : 0, status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
-  payments.push({ key: '잔금', label: '잔금', amount: amounts ? amounts['잔금'] : 0, status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
+  if (amounts) {
+    payments.push({ key: '예약금', label: isSnap ? '계약금' : '예약금', amount: isSnap ? amounts['계약금'] : PAYMENT.예약금, status: st(r.get('입금상태')), done: depConfirmed });
+    if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
+    payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
+  }
   // 현금영수증 — 발행 완료분만
   var receipts = [];
   _cashReceiptLedger(r).forEach(function (it) { if (it.issued) receipts.push({ label: it.label, amount: it.issued.금액 || it.amount, num: it.issued.번호, at: it.issued.at }); });

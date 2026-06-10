@@ -268,6 +268,18 @@ function adminHome() {
     var consultDue = consultYmd ? (_dayDiff(today, consultYmd) >= 0) : false;   // 상담 당일부터(오늘 포함) — 시착 동의서 보낼 시점
     var consultMD = (function(){ var m=String((bk ? normalizeDateKey(bget(bk,'선택날짜')) : '')||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? ((+m[2])+'/'+(+m[3])) : ''; })();   // 예정일 짧은 표기(M/D) — 현황 한눈에
 
+    // 현금영수증 발행 — 입금 '확인'된 마일스톤 중 미발행분(의무발행업종·미발급 20% 가산세 방지). 발행(승인번호 기록) 전까지 단계와 무관하게 계속 노출(결과물전달까지). 취소·노쇼·미계약(STAGE_EXCEPTIONS)은 위에서 이미 return.
+    var _crIssued = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
+    var _crAmt = _journeyAmounts(cget(rv, '계약총액'), product);
+    [['입금상태', '예약금', isSnap ? (_crAmt ? _crAmt['계약금'] : 0) : PAYMENT.예약금],
+     ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
+     ['잔금상태', '잔금', _crAmt ? _crAmt['잔금'] : 0]].forEach(function (cr) {
+      if (cr[0] === '중도금상태' && isSnap) return;   // 스냅은 중도금 없음
+      if (String(cget(rv, cr[0]) || '').trim() !== '확인' || _crIssued[cr[1]]) return;
+      var _won = cr[2] ? (' · ' + Math.round(cr[2]).toLocaleString() + '원') : '';
+      pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
+        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
+    });
     // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
     if (stage === '결과물전달') {
       if (추가보정 === '결제대기') pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
@@ -321,18 +333,6 @@ function adminHome() {
       pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
-    // 현금영수증 발행 — 입금 '확인'된 마일스톤 중 미발행분(의무발행업종·미발급 20% 가산세 방지). 홈택스 발급 후 승인번호 기록 → 큐에서 사라짐.
-    var _crIssued = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
-    var _crAmt = _journeyAmounts(cget(rv, '계약총액'), product);
-    [['입금상태', '예약금', isSnap ? (_crAmt ? _crAmt['계약금'] : 0) : PAYMENT.예약금],
-     ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
-     ['잔금상태', '잔금', _crAmt ? _crAmt['잔금'] : 0]].forEach(function (cr) {
-      if (cr[0] === '중도금상태' && isSnap) return;   // 스냅은 중도금 없음
-      if (String(cget(rv, cr[0]) || '').trim() !== '확인' || _crIssued[cr[1]]) return;
-      var _won = cr[2] ? (' · ' + Math.round(cr[2]).toLocaleString() + '원') : '';
-      pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
-        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
-    });
     // 예식/촬영 완료 — 시그(제작중&예식일 지남) / 스냅(입금완료&촬영일 지남)
     var eventStage = isSnap ? '입금완료' : '제작중';
     var dplus = (stage === eventStage && wedYmd) ? _dayDiff(today, wedYmd) : null;
