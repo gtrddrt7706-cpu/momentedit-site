@@ -1075,6 +1075,12 @@ function renderMyPage(d){
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
+    // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 프리필.
+    //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40). 미입력일 때만, 수정 가능.
+    if (d.production && d.production.base && !d.production.base.weddingTime && d.contract && d.contract.fill && d.contract.fill.weddingTime){
+      var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
+      if (_wtMap[d.contract.fill.weddingTime]) d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime];
+    }
     renderProduction(d.production, d.invitation);                    // 제작 (03)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
     renderLedger(d.ledger);                                          // 내 내역 (02-6) — 결제·현금영수증·서류
@@ -1453,6 +1459,8 @@ function renderContractRequest(ctx){
 }
 function renderContractReqForm(ctx){
   var box=$('mp_contract'); if(!box) return; var ci=(ctx&&ctx.contractInfo)||{};
+  var hd=(ctx&&ctx.hold&&ctx.hold.status==='승인')?ctx.hold:{};   // [정합] 승인된 임시고정 일정 → 예식일·시간 프리필(빈 폼에 다시 안 고르게. 수정 가능)
+  var preWed=ci.weddingDate||hd.date||'', preSlot=ci.weddingTime||hd.slot||'';
   var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
     +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">확인</div>'
     +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml(ci.groom||'')+' · '+escapeHtml(ci.bride||'')+'</b><br>연락처 '+escapeHtml(ci.phone||'—')+' · 이메일 '+escapeHtml(ci.email||'—')+'</div>'
@@ -1461,9 +1469,10 @@ function renderContractReqForm(ctx){
     +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
-    +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:ci.weddingDate})
+    +((!ci.weddingDate&&hd.date)?'<div class="cc-note" style="text-align:left;margin:2px 0 8px">임시 고정하신 예식 일정으로 미리 채워뒀어요. 바꾸셔도 괜찮아요.</div>':'')
+    +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
     +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
-    +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(ci.weddingTime||'')+'">'
+    +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
     +weddingSequenceRef('대표 시간만 정리한 요약 시간표예요. 시간대를 고르실 때 참고해 주세요. 세부 흐름과 도착·종료 시각은 방문 상담에서 함께 조정해 드려요.')
     +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
     +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
@@ -1490,8 +1499,8 @@ function renderContractReqForm(ctx){
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_ciWedTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); }); });
   }
   initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed',onPick:_renderSlots});
-  if(ci.weddingDate) _renderSlots(ci.weddingDate);
-  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _wedAvail.taken=r.taken||{}; if(r.slots&&r.slots.length)_wedAvail.slots=r.slots; if(r.labels)_wedAvail.labels=r.labels; var dd=($('mp_ciWed')&&$('mp_ciWed').value)||ci.weddingDate||''; if(dd)_renderSlots(dd); } }).catch(function(){});
+  if(preWed) _renderSlots(preWed);
+  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _wedAvail.taken=r.taken||{}; if(r.slots&&r.slots.length)_wedAvail.slots=r.slots; if(r.labels)_wedAvail.labels=r.labels; var dd=($('mp_ciWed')&&$('mp_ciWed').value)||preWed||''; if(dd)_renderSlots(dd); } }).catch(function(){});
   function _wireAddr(base){ function op(){ openAddrSearch(base+'_road', base+'_jibun', base+'_detail'); } var f=$(base+'_find'); if(f) f.addEventListener('click',op); var rd=$(base+'_road'); if(rd) rd.addEventListener('click',op); }
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
   var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(); });
@@ -1527,7 +1536,7 @@ function renderContractPayment(c, p, ctx){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
         + '<div class="cc-title">계약, 이렇게 진행돼요</div>'
         + '<div class="visit-guide vg-center" style="margin-top:12px">'
-        + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면 <b>24시간 안에</b> 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
         + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요.<br>서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요.<br>서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
         + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 드레스 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
         + '</div></div>';
