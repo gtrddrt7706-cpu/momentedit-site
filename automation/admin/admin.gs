@@ -507,23 +507,23 @@ function adminHome() {
         badge: (sigDays != null && sigDays >= 1) ? { level: 'yellow', text: '입금 신호 ' + sigDays + '일째' } : null,
         _urgent: false, _stage: 4, _wait: createdYmd });
     }
+    // 기한 경과 미납(신호도 없음) — 계약서 11조 최고(7일) 운영 리마인드. 입금 신호가 오면 아래 '확인' 카드로 대체됨.
+    (function(){
+    var _wd = _ymdOf(cget(rv, '예식일')); if (!_wd) return;
+    var _dd = _dayDiff(_wd, today);   // 예식까지 남은 일수
+    if (String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.중도금일수전 && _dd > 9) {
+      var _over = PAYMENT.중도금일수전 - _dd;
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)',
+        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
+    }
+    if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.잔금일수전) {
+      var _over2 = PAYMENT.잔금일수전 - _dd;
+      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 미납 D+' + _over2 + ' · 7일 최고 후 해제 절차(계약 11조)',
+        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 6, _wait: createdYmd });
+    }
+    })();
     // 중도금 확인 — 중도금상태=완료신호 (계약 후 첫 실결제, D-30 구간)
     if (String(cget(rv, '중도금상태') || '').trim() === '완료신호') {
-      // 기한 경과 미납(신호도 없음) — 계약서 11조 최고(7일) 운영 리마인드. 입금 신호가 오면 아래 '확인' 카드로 대체됨.
-      (function(){
-        var _wd = _ymdOf(cget(rv, '예식일')); if (!_wd) return;
-        var _dd = _dayDiff(_wd, today);   // 예식까지 남은 일수
-        if (String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.중도금일수전 && _dd > 9) {
-          var _over = PAYMENT.중도금일수전 - _dd;
-          pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)',
-            badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
-        }
-        if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.잔금일수전) {
-          var _over2 = PAYMENT.잔금일수전 - _dd;
-          pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 미납 D+' + _over2 + ' · 7일 최고 후 해제 절차(계약 11조)',
-            badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 6, _wait: createdYmd });
-        }
-      })();
       pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인',
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
