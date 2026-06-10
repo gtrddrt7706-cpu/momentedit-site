@@ -568,10 +568,27 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 결과물 (05) — 예식완료/결과물전달 -->
     <div class="consult-sec" id="mp_result" style="display:none"></div>
 
+    <!-- 내 내역 (02-6) — 결제·현금영수증·서류 한곳에(단계 무관). 계약/시착/입금 중 하나라도 있으면 노출 -->
+    <div class="consult-sec" id="mp_ledger" style="display:none"></div>
+
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
     <style>
     .merged-head{margin:22px 0 2px;text-align:center;font-size:13px;letter-spacing:0.06em;color:var(--accent);font-weight:500}
+    /* 내 내역 패널 (02-6) */
+    .led-card{text-align:left;padding:20px 20px 16px}
+    .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
+    .led-sec{margin-top:15px}
+    .led-sec:first-of-type{margin-top:0}
+    .led-h{font-family:var(--serif-ko);font-size:11px;letter-spacing:.12em;color:var(--gold-deep);font-weight:500;margin-bottom:4px;text-transform:uppercase}
+    .led-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
+    .led-sec .led-row:first-of-type{border-top:none}
+    .led-k{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);font-weight:500;min-width:50px}
+    .led-v{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);flex:1}
+    .led-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);white-space:nowrap}
+    .led-s.led-done{color:var(--gold-deep);font-weight:500}
+    .led-link{color:var(--gold-deep);font-weight:500;text-decoration:none;font-size:12px;white-space:nowrap}
+    .led-empty{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--light);padding:5px 0}
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
     details.cc-more>summary::-webkit-details-marker{display:none}
@@ -1035,6 +1052,7 @@ function renderMyPage(d){
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
     renderProduction(d.production, d.invitation);                    // 제작 (03)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
+    renderLedger(d.ledger);                                          // 내 내역 (02-6) — 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
   }
 
@@ -1139,6 +1157,30 @@ function renderPayOpenNote(d){
   var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance;
   if(!show){ box.innerHTML=''; box.style.display='none'; return; }
   box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금과 잔금 안내는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>, 이 자리에서 가만히 열려요.<br>한 번에 치르셔도, 나누어 치르셔도 괜찮습니다. 그날까지는 마음만 가볍게 준비해 두세요.</div></div>';
+  box.style.display='block';
+}
+
+// [02-6] 내 내역 패널 — 결제·현금영수증·서류를 단계와 무관하게 한곳에. ledger=null이면 숨김(계약/시착/입금 전).
+function renderLedger(l){
+  var box=$('mp_ledger'); if(!box) return;
+  if(!l){ box.innerHTML=''; box.style.display='none'; return; }
+  function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
+  var payRows=(l.payments||[]).map(function(p){
+    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span><span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span></div>';
+  }).join('');
+  var recRows=(l.receipts&&l.receipts.length)
+    ? l.receipts.map(function(r){ return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s led-done">발행 '+escapeHtml(r.num)+'</span></div>'; }).join('')
+    : '<div class="led-empty">입금이 확인되면 현금영수증이 발행돼요</div>';
+  var docRows=(l.documents&&l.documents.length)
+    ? l.documents.map(function(dc){ var link=dc.url?('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>'):''; return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+link+'</span></div>'; }).join('')
+    : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
+  box.innerHTML='<div class="consult-card led-card">'+
+    '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
+    '<div class="led-title">내 내역</div>'+
+    '<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>'+
+    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+'</div>'+
+    '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
+    '</div>';
   box.style.display='block';
 }
 
