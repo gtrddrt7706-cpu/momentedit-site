@@ -155,10 +155,11 @@ function handlePublishInvitation(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
     var d = _parseJsonSafe(cust.get('제작임시저장'));
-    var base = d.base || {};
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
+    // 기초정보 화면 없이 — 이름은 위저드 1단계(draft), 일시·이메일은 계약·계정값으로 서버가 base 구성
+    var base = _ensureProductionBase(cust, d, draft);
 
     // 청첩장 없이 → 발행 없이 트랙 완료
     if (method === 'none') {
@@ -168,8 +169,8 @@ function handlePublishInvitation(body) {
     }
 
     if (!_invConfigured()) return { ok: false, error: '청첩장 연동이 아직 설정되지 않았습니다. (관리자: INV.LETTER_SYSTEM_ID)' };
-    if (!base.groomEn || !base.brideEn) return { ok: false, error: '기초정보의 영문 이름을 먼저 입력해 주세요.' };
-    if (!base.weddingDate) return { ok: false, error: '기초정보의 예식 날짜를 먼저 입력해 주세요.' };
+    if (!base.groomEn || !base.brideEn) return { ok: false, error: '신랑·신부 영문 이름을 입력해 주세요. (청첩장 1단계)' };
+    if (!base.weddingDate) return { ok: false, error: '예식 날짜가 아직 확정되지 않았어요. 디렉터에게 문의해 주세요.' };
 
     var sheet = _couplesSheet();
     var colOf = _couplesColOf(sheet);
@@ -187,7 +188,10 @@ function handlePublishInvitation(body) {
     // 배선 + draft/상태 저장 (Customers)
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
-    touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d), 'eventId': eventId });
+    var _updPub = { '제작임시저장': JSON.stringify(d), 'eventId': eventId };
+    if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
+    if (base.brideKo) _updPub['신부이름'] = base.brideKo;
+    touchCustomer(custSheet, custCol, cust.num, _updPub);
 
     // 캐시 무효화: webhook(별 프로젝트)의 ScriptCache는 여기서 못 지움 → 재발행 시 TTL만큼 지연 가능(신규는 무관).
     return { ok: true, eventId: eventId, urls: urls };
@@ -210,16 +214,17 @@ function saveInvitationPreview(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
     var d = _parseJsonSafe(cust.get('제작임시저장'));
-    var base = d.base || {};
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
+    // 기초정보 화면 없이 — 이름은 위저드 1단계(draft), 일시·이메일은 계약·계정값으로 서버가 base 구성
+    var base = _ensureProductionBase(cust, d, draft);
 
     // 미리보기는 디자인이 있는 경우만 (self/none은 미리볼 청첩장 없음)
     if (['online', 'offline', 'both'].indexOf(method) === -1) return { ok: false, error: '미리볼 디자인이 없어요.' };
     if (!_invConfigured()) return { ok: false, error: '청첩장 연동이 아직 설정되지 않았습니다. (관리자: INV.LETTER_SYSTEM_ID)' };
-    if (!base.groomEn || !base.brideEn) return { ok: false, error: '기초정보의 영문 이름을 먼저 입력해 주세요.' };
-    if (!base.weddingDate) return { ok: false, error: '기초정보의 예식 날짜를 먼저 입력해 주세요.' };
+    if (!base.groomEn || !base.brideEn) return { ok: false, error: '신랑·신부 영문 이름을 입력해 주세요. (청첩장 1단계)' };
+    if (!base.weddingDate) return { ok: false, error: '예식 날짜가 아직 확정되지 않았어요. 디렉터에게 문의해 주세요.' };
 
     var sheet = _couplesSheet();
     var colOf = _couplesColOf(sheet);

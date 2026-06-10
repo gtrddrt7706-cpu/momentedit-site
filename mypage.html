@@ -1960,25 +1960,18 @@ function weddingTimeOptions(sel){
 }
 
 // [03] 제작 화면 — 기초정보 미입력=폼 / 입력됨=3트랙 대시보드
-var _prodEditBase=false;   // 대시보드 '이름 수정하기' → 입력 폼 재노출(이름 수정 · 예식 일정은 계약 확정 표시)
+// 기초정보 입력 화면 제거 — 이름은 청첩장 위저드 1단계에서 입력(청첩장에만 쓰임), 예식 일시·이메일은 서버가 계약·계정값으로 자동 구성.
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; _prodEditBase=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
-  if(!p.entered || _prodEditBase){
-    box.innerHTML = productionFormHtml(p.base||{}, _prodEditBase);
-    box.style.display='block';
-    bindProductionForm();
-    var cb=$('mp_cancelBase'); if(cb) cb.addEventListener('click', function(){ _prodEditBase=false; renderProduction(p, inv); });   // 취소 → 대시보드(재요청 없이)
-  } else {
-    box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
-    box.style.display='block';
-    var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
-    var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
-    var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
-    var eb=$('mp_editBase'); if(eb) eb.addEventListener('click', function(){ _prodEditBase=true; renderProduction(p, inv); });   // 기본 정보 수정 → 폼으로
-  }
+  // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
+  box.style.display='block';
+  var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
+  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
+  var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
 }
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
@@ -2373,51 +2366,6 @@ function fmtWedKo(ymd){
   var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
 }
-// 예식 시간 셀 — 계약 확정(weddingTimeLocked)이면 읽기전용 표시(날짜와 동일), 아니면 셀렉트.
-function wedTimeCell(b){
-  var LBL={'10:00':'오전 (10:00)','13:20':'오후 (13:20)','16:40':'늦은 오후 (16:40)'};
-  if(b.weddingTimeLocked && b.weddingTime){
-    return '<div><label class="pf-l">예식 시간</label>'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)" title="계약서에 확정된 예식 시간이에요">'
-        + '<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500">'+escapeHtml(LBL[b.weddingTime]||b.weddingTime)+'</span>'
-        + '<span style="font-size:10px;letter-spacing:.04em;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 8px;white-space:nowrap">계약 확정</span>'
-      + '</div>'
-      + '<input type="hidden" id="mp_wTime" value="'+escapeHtml(b.weddingTime)+'"></div>';
-  }
-  return '<div><label class="pf-l">예식 시간</label><select class="cc-input" id="mp_wTime">'+weddingTimeOptions(b.weddingTime||'')+'</select></div>';
-}
-// 예식 날짜 셀 — 계약서로 확정(weddingLocked)이면 읽기전용 표시, 아니면 기존 날짜 선택기.
-function wedDateCell(b){
-  if(b.weddingLocked && /^\d{4}-\d{2}-\d{2}$/.test(b.weddingDate||'')){
-    return '<div><label class="pf-l">예식 날짜</label>'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)" title="계약서에 확정된 예식일이에요">'
-        + '<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500">'+escapeHtml(fmtWedKo(b.weddingDate))+'</span>'
-        + '<span style="font-size:10px;letter-spacing:.04em;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 8px;white-space:nowrap">계약 확정</span>'
-      + '</div>'
-      + '<input type="hidden" id="mp_wDate" value="'+escapeHtml(b.weddingDate)+'"></div>';
-  }
-  return '<div><label class="pf-l">예식 날짜</label>'
-    + '<div class="dt-picker-wrap" id="mpw_wrap"><button type="button" class="dt-trigger" id="mpw_trigger" aria-haspopup="dialog" aria-expanded="false"><span class="dt-trigger-placeholder" id="mpw_text">날짜를 선택해 주세요</span><span class="dt-trigger-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button><input type="hidden" id="mp_wDate" value="'+escapeHtml(b.weddingDate||'')+'"><div class="dt-panel" id="mpw_panel" role="dialog" aria-label="예식 날짜 선택" aria-hidden="true"><div class="dt-cal"><div class="dt-cal-head"><button type="button" class="dt-cal-nav" id="mpw_prev" aria-label="이전 달">‹</button><span class="dt-cal-title" id="mpw_title"></span><button type="button" class="dt-cal-nav" id="mpw_next" aria-label="다음 달">›</button></div><div class="dt-cal-weekdays"><span class="dt-wd sun">일</span><span class="dt-wd">월</span><span class="dt-wd">화</span><span class="dt-wd">수</span><span class="dt-wd">목</span><span class="dt-wd">금</span><span class="dt-wd sat">토</span></div><div class="dt-cal-grid" id="mpw_grid"></div></div></div></div>'
-    + '</div>';
-}
-function productionFormHtml(b, isEdit){
-  return '<div class="consult-card" style="text-align:left">'
-    + '<div class="cc-eyebrow en-22">Production</div>'
-    + '<div class="cc-title" style="text-align:left">'+(isEdit?'기본 정보 수정':'두 분의 이야기를 시작할게요')+'</div>'
-    + '<div class="cc-sub" style="text-align:left">청첩장·다이닝·식순에 공통으로 쓰는 기본 정보예요.</div>'
-    + '<div class="pf" style="margin-top:10px"><label class="pf-l">신랑</label>'
-      + '<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.groomKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.groomEn||'')+'"></div>'
-    + '<div class="pf"><label class="pf-l">신부</label>'
-      + '<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
-      + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
-    + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
-    + '<div class="pf-cover" id="mp_cover"></div>'
-    // 예식 날짜·시간 표시 블록 제거 — 계약 확정값이라 폼에선 보여줄 필요 없음(상단 D-day 줄에 날짜·시간 표기). 저장 시 서버가 계약 확정값을 자동 채움.
-    + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
-    + '<div class="cc-actions">'+(isEdit?'<button type="button" class="cc-btn-ghost" id="mp_cancelBase">취소</button>':'')+'<button type="button" class="cc-btn" id="mp_saveBase">'+(isEdit?'저장':'저장하고 시작')+'</button></div>'
-    + '</div>';
-}
 // 예식 140분 시퀀스 진행 시간표 — 계약요청 슬롯 선택·제작 폼 공통 참고 박스(.schedule-ref CSS 재사용).
 function weddingSequenceRef(intro){
   return '<div class="schedule-ref" aria-label="예식 진행 시간표">'
@@ -2432,27 +2380,9 @@ function weddingSequenceRef(intro){
     + '<div class="schedule-ref-foot"><span class="accent">Note</span>대기 공간이 없으니, 하객분들은 <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 오시도록 안내해 주세요.</div>'
   + '</div>';
 }
-function bindProductionForm(){
-  // 영문 자동 제안 제거 — 고객이 직접 입력(성 없이 이름만). 표지는 coverName이 처리.
-  ['mp_gEn','mp_bEn'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', updateCover); });
-  updateCover();
-  if($('mpw_wrap')) initDatePicker({wrap:'mpw_wrap',trigger:'mpw_trigger',text:'mpw_text',panel:'mpw_panel',grid:'mpw_grid',title:'mpw_title',prev:'mpw_prev',next:'mpw_next',hidden:'mp_wDate'});   // 날짜 필드가 없는 폼(계약 확정)에선 스킵
-  var sv=$('mp_saveBase'); if(sv) sv.addEventListener('click', doSaveProductionBase);
-}
 function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
-}
-function doSaveProductionBase(){
-  var base={ groomKo:($('mp_gKo')&&$('mp_gKo').value||'').trim(), brideKo:($('mp_bKo')&&$('mp_bKo').value||'').trim(),
-    groomEn:($('mp_gEn')&&$('mp_gEn').value||'').trim(), brideEn:($('mp_bEn')&&$('mp_bEn').value||'').trim(),
-    email:'', weddingDate:'', weddingTime:'' };   // 이메일·예식 일시는 서버가 계정·계약 확정값을 자동 사용(입력칸 없음)
-  if(!base.groomKo||!base.brideKo){ mpAlert('신랑·신부 이름을 입력해 주세요.'); return; }
-  var btn=$('mp_saveBase'); if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='저장하고 시작'; } }
-  api({action:'saveProductionBase', token:getToken(), base:base}).then(function(d){
-    if(d&&d.ok){ _prodEditBase=false; loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
 function productionDashHtml(t, inv){
   t=t||{}; inv=inv||{};
@@ -2476,7 +2406,7 @@ function productionDashHtml(t, inv){
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
       + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·다이닝·식순 모두 완료 · 펼쳐서 수정</span></summary>'
-      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div><div style="text-align:center;margin-top:12px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름 수정하기</button></div></div>'
+      + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:center">'
@@ -2485,7 +2415,7 @@ function productionDashHtml(t, inv){
     + '<div class="cc-sub">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
     + '<div class="cc-note" style="text-align:center">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
-    + '<div style="text-align:center;margin-top:14px"><button type="button" class="cc-btn-ghost" id="mp_editBase" style="display:inline-block;width:auto;margin:0 auto;padding:8px 16px;font-size:12.5px">이름 수정하기</button></div>'
+    + ''
     + '</div>';
 }
 
@@ -2497,7 +2427,9 @@ function startInvFlow(inv, base){
   var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
   if(!dr.method) st='method';
   else if((dr.method==='self'||dr.method==='none') && (st==='parents'||st==='design')) st='confirm';
-  INVFLOW = { active:true, step:st, draft:dr, base: base||{} };
+  var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
+  ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
+  INVFLOW = { active:true, step:st, draft:dr, base: b2 };
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -2513,10 +2445,22 @@ function renderInvFlow(box){
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
   function opt(v,l,s){ return '<label class="inv-opt'+(m===v?' sel':'')+'" data-m="'+v+'">'+l+(s?'<small>'+s+'</small>':'')+'</label>'; }
+  // 이름은 청첩장에만 쓰여서 여기(1단계)에서 받는다 — 기초정보 화면 제거. 프리필: draft → base(마스터 한글 이름).
+  function nv(k){ var v=(d[k]!=null&&String(d[k])!=='')?d[k]:((INVFLOW.base||{})[k]||''); return escapeHtml(String(v)); }
+  var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
+    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+nv('groomKo')+'">'
+    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('groomEn')+'"></div>'
+    +'<div class="pf"><label class="pf-l">신부</label>'
+    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+nv('brideKo')+'">'
+    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('brideEn')+'"></div>'
+    +'<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
+    +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / 4</span></div>'
-    +'<div class="inv-q">청첩장, 어떻게 초대하실래요?</div>'
+    +'<div class="inv-q">두 분 이름부터 적을게요</div>'
+    +names
+    +'<div class="inv-gate" style="margin:16px 0 4px"><div class="inv-gate-q">어떻게 초대하실래요?</div></div>'
     +opt('online','온라인 초대','모바일 참석으로 멀리 계신 분도 함께')
     +opt('offline','오프라인 초대','직접 모시는 청첩장 (모바일 참석 없음)')
     +opt('both','둘 다','가까운 분은 직접, 먼 분은 모바일 참석으로')
@@ -2525,12 +2469,25 @@ function invStepMethod(box){
     +opt('none','청첩장 없이','')
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_exit">나가기</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'</div>';
-  Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
-  $('iv_exit').addEventListener('click', exitInvFlow);
+  function collectNames(){
+    [['groomKo','mp_gKo'],['groomEn','mp_gEn'],['brideKo','mp_bKo'],['brideEn','mp_bEn']].forEach(function(p){
+      var el=$(p[1]); if(el) d[p[0]]=(el.value||'').trim();
+      if(d[p[0]]) (INVFLOW.base||(INVFLOW.base={}))[p[0]]=d[p[0]];   // 확인·완료 화면(표지 이름)도 같은 값 사용
+    });
+  }
+  ['mp_gEn','mp_bEn','mp_gKo','mp_bKo'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', function(){ collectNames(); updateCover(); }); });
+  updateCover();
+  Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
+  $('iv_exit').addEventListener('click', function(){ collectNames(); exitInvFlow(); });
   $('iv_next').addEventListener('click', function(){
+    collectNames();
     var mm=INVFLOW.draft.method;
     if(!mm){ mpAlert('초대 방식을 골라 주세요.'); return; }
+    if(mm!=='none'){
+      if(!d.groomKo||!d.brideKo){ mpAlert('신랑·신부 이름(한글)을 입력해 주세요.'); return; }
+      if(!d.groomEn||!d.brideEn){ mpAlert('영문 이름(성 제외)도 적어 주세요. 청첩장 표지와 링크에 들어가요.'); return; }
+    }
     saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
     else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행

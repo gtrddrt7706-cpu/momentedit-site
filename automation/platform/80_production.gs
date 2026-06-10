@@ -70,6 +70,26 @@ function handleSaveProductionBase(body) {
   }
 }
 
+// [03-1b] 기초정보 서버 구성 — 입력 화면 없이: 이름=청첩장 위저드 draft(없으면 기존 base→마스터), 이메일=계정, 일시=계약 확정(예식일+슬롯→본예식 +1h).
+//   발행(85 handlePublishInvitation) 등에서 호출해 prodDraft.base를 채워 돌려준다(저장은 호출자가).
+function _ensureProductionBase(cust, prodDraft, invDraft) {
+  var b = (prodDraft && prodDraft.base) || {};
+  var iv = invDraft || {};
+  var gKo = String(iv.groomKo || b.groomKo || cust.get('신랑이름') || '').trim();
+  var bKo = String(iv.brideKo || b.brideKo || cust.get('신부이름') || '').trim();
+  var gEn = String(iv.groomEn || b.groomEn || '').trim();
+  var bEn = String(iv.brideEn || b.brideEn || '').trim();
+  var email = String((cust.get('이메일') || b.email || '')).trim();
+  var wDate = _ymdOf(cust.get('예식일')) || String(b.weddingDate || '').trim();
+  var wTime = String(b.weddingTime || '').trim();
+  if (!wTime) {
+    var _ci = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
+    wTime = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci.weddingTime || '').trim()] || '';
+  }
+  prodDraft.base = { groomKo: gKo, brideKo: bKo, groomEn: gEn, brideEn: bEn, email: email, weddingDate: wDate, weddingTime: wTime, savedAt: fmtKST(new Date()) };
+  return prodDraft.base;
+}
+
 // [03] 다이닝·식순 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
 //   handleSaveInvitationDraft 와 같은 패턴. done=true 면 완료, 아니면 진행중(이미 완료면 완료 유지).
 function handleSaveProductionTrack(body) {
