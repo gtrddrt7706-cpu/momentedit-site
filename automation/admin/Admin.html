@@ -745,7 +745,7 @@ function onDetailAct(act,d){
   else if(act==='openFitting') doOpenFitting(code,names);
   else if(act==='closeFitting') doCloseFitting(code,names);
   else if(act==='sendContract') openSendContract(code,names,d);
-  else if(act==='uncontracted') doUncontracted(code,names);
+  else if(act==='uncontracted') doUncontracted(code,names,d);
   else if(act==='confirmPay') doConfirmPay(code,names);
   else if(act==='confirmMid') doConfirmMid(code,names);
   else if(act==='confirmBalance') doConfirmBalance(code,names);
@@ -812,7 +812,9 @@ function doDelivered(code,names){ openModal({ title:'결과물 전달 완료로 
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
-function doUncontracted(code,names){ openModal({ title:'계약이 성사되지 않았나요? 미계약으로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'미계약 처리', onYes:function(){ runAct(['adminMarkUncontracted',code],code,'미계약 처리'); } }); }
+function doUncontracted(code,names,d){ var fitDone=d&&d.raw&&d.raw['시착동의상태']==='동의완료';
+  var fitNote=fitDone?'<div class="note" style="margin-top:8px;border-left:3px solid #c9a86a;background:#faf6ef;padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.55;color:#6b5a3a">💴 <b>시착비 현금영수증</b> — 시착을 진행한 고객이에요. 예약금 200,000원이 시착비(환불 불가)로 전환되니, 세무 방침상 현금영수증 미발급분이면 이 금액으로 자진발급(소득공제용)해 두는 게 보수적으로 안전해요.</div>':'';
+  openModal({ title:'계약이 성사되지 않았나요? 미계약으로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('되돌리려면 ⚙ 고급 강제 변경')+fitNote, yes:'미계약 처리', onYes:function(){ runAct(['adminMarkUncontracted',code],code,'미계약 처리'); } }); }
 function doOpenFitting(code,names){ openModal({ title:'시착 동의서를 보낼까요?', text:b(names)+li('현재단계가 시착으로 넘어가요')+li('고객 마이페이지에 시착 동의서가 떠요'), yes:'보내기', onYes:function(){ runAct(['adminOpenFittingConsent',code],code,'보내기'); } }); }
 function doCloseFitting(code,names){ openModal({ title:'시착 동의를 닫을까요?', text:b(names)+li('고객 화면에서 동의서가 사라져요'), yes:'닫기', onYes:function(){ runAct(['adminCloseFitting',code],code,'닫기'); } }); }
 
