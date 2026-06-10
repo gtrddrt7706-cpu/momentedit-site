@@ -748,10 +748,12 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
         if (_hc && WEDDING_SLOT.SLOTS.indexOf(_hs) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(_hd)) {
           var _cs = getCustomersSheet(), _cco = buildHeaderIndex(_cs), _cust = findCustomerByCode(_hc);
           if (_cust && !_weddingSlotTaken(_cs, _cco, _hd, _hs, _hc)) {
-            var _rec = _parseJsonSafe(_cust.get('동의기록'));
-            _rec.가예약 = { date: _hd, slot: _hs, status: '요청', at: fmtKST(new Date()) };
-            touchCustomer(_cs, _cco, _cust.num, { '동의기록': JSON.stringify(_rec) });
-            notifyKakao('admin.holdRequest', _hc, { date: _hd, slot: _hs });
+            var _rec = _parseJsonSafe(_cust.get('동의기록')), _ex = _rec.가예약;
+            if (!(_ex && _ex.status === '승인' && _ex.date === _hd && _ex.slot === _hs)) {   // 이미 승인된 동일 홀드면 보존(재제출이 승인→요청으로 되돌리지 않게)
+              _rec.가예약 = { date: _hd, slot: _hs, status: '요청', at: fmtKST(new Date()) };
+              touchCustomer(_cs, _cco, _cust.num, { '동의기록': JSON.stringify(_rec) });
+              notifyKakao('admin.holdRequest', _hc, { date: _hd, slot: _hs });
+            }
           }
         }
       } catch (e) {}
