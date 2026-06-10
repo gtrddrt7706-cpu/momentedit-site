@@ -1077,15 +1077,16 @@ function adminSkipSurvey(code) {
 
 // 5. ★강제 단계 변경 (복구/초기화용) — 현재단계 변경 + '이후 단계 진행 데이터 초기화'(완전 초기화) · 제품 유효성 검증
 //   ※ 상담 예약(상담예약 시트·캘린더)은 별개라 건드리지 않음.
-function _clearForwardData(colOf, cust, product, targetStage) {
+function _clearForwardData(colOf, cust, product, targetStage, fromException) {
   var flow = stageFlowFor(product);
   var ti = flow.indexOf(targetStage);
   if (ti < 0) return {};
   var isSnap = (product === P.PRODUCT_SNAP);
   // [컬럼들, 이 데이터가 생기는 단계(상품 기준), 동의기록 키] — 목표가 그 단계보다 앞이면 비움
   var groups = [
+    { cols: [], at: isSnap ? '촬영확정' : '상담확정', consent: '가예약' },   // 예식일 임시고정 — 신청접수로 내리면(예약 자체 리셋) 요청/승인·슬롯 점유까지 제거. 상담확정 이상 복귀는 보존
     { cols: ['시착동의상태', '시착동의일시'], at: '시착', consent: '시착' },
-    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액'], at: '계약완료', consent: ['계약', '계약정보'] },  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화
+    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액', '예식일'], at: '계약완료', consent: ['계약', '계약정보'] },  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화. 예식일(톱레벨 복사본)도 함께 — 남으면 계약발송 큐·'계약서 준비 중' 안내가 잘못 살아남
     { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증' },
     { cols: ['중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], at: '제작중' },        // 중도금(시그 3단계 마일스톤)
     { cols: ['잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], at: isSnap ? '촬영완료' : '제작중' }, // 잔금(제작/촬영 단계 마일스톤)
@@ -1100,6 +1101,9 @@ function _clearForwardData(colOf, cust, product, targetStage) {
     g.cols.forEach(function (c) { if (colOf[c]) upd[c] = ''; });
     if (g.consent) consentKeys = consentKeys.concat(g.consent);   // string·array 모두 허용(한 그룹에서 여러 동의기록 키 제거)
   });
+  // 예외(취소·노쇼·미계약)→정상 복구 — 환불완료 흔적 제거(남으면 이후 재취소 때 환불송금 큐가 영영 안 뜸). 실제 송금 이력은 처리이력에 보존.
+  if (fromException) consentKeys.push('환불완료');
+  // ※ 동의기록.영수증발행(홈택스 발행 기록)은 의도적 보존 — 세무 증빙. 취소는 adminUndoCashReceipt로만.
   if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
     var rec = _parseJsonSafe(cust.get('동의기록'));
     consentKeys.forEach(function (k) { delete rec[k]; });
@@ -1143,7 +1147,7 @@ function adminForceStage(code, targetStage, reason) {
     var cur = String(cust.get('현재단계') || '').trim();
     var flow = stageFlowFor(product), ti = flow.indexOf(targetStage), isSnap = (product === P.PRODUCT_SNAP);
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    var cleared = _clearForwardData(colOf, cust, product, targetStage);   // 이후 단계 진행 데이터 초기화(완전 초기화)
+    var cleared = _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1);   // 이후 단계 진행 데이터 초기화(완전 초기화) + 예외 복구 시 환불 흔적 제거
     // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
     var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
     var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
