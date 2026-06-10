@@ -1070,7 +1070,9 @@ function renderMyPage(d){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);   // 자물쇠(잠긴 단계)만 유지
   } else {
-    renderHold(d.hold);                                              // 예식일 임시 고정(가예약) 상태 (①)
+    // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
+    var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
+    renderHold(_holdBannerOk ? d.hold : null);                       // 예식일 임시 고정(가예약) 상태 (①)
     renderConsult(d.consult, d.product);                              // 상담/촬영 (P1.5)
     renderFitting(d.fitting, d);                                      // 드레스 시착 동의 (02-2)
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)

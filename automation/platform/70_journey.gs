@@ -376,6 +376,12 @@ function handleRequestContract(body) {
     if (_cs === '발송' || _cs === '서명완료') return { ok: false, error: '이미 계약이 진행 중입니다.' };   // '미발송'(가입 기본값·만료 후)은 재요청 허용
     if (_weddingSlotTaken(sheet, colOf, wed, wT, code)) return { ok: false, error: '선택하신 예식 시간이 이미 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
     var rec = _parseJsonSafe(cust.get('동의기록'));
+    // [임시고정 연동] 요청한 예식 일정이 잡아둔 가예약과 다르면 — 이제 요청이 기준이므로 가예약 자동 해제(다른 슬롯이 몰래 점유로 남지 않게). 같으면 서명 전까지 슬롯 보호용으로 유지.
+    if (rec.가예약 && (rec.가예약.date !== wed || rec.가예약.slot !== wT)) {
+      var _ohd = rec.가예약.date, _ohs = rec.가예약.slot;
+      delete rec.가예약;
+      try { _recordHandler(code, '계약 요청 일정(' + wed + ' ' + wT + ')과 달라 임시고정 자동 해제 · ' + (_ohd || '') + ' ' + (_ohs || '')); } catch (e) {}
+    }
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA,
       groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 — 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
       brideAddrRoad: String(info.brideAddrRoad || '').trim(), brideAddrDetail: String(info.brideAddrDetail || '').trim(),
