@@ -170,8 +170,13 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
   .hero-sub,.hero-meta{color:#333}
   main{padding:0;max-width:100%}
   .doc{border:none;box-shadow:none;padding:0;border-radius:0}
-  section.article{padding:10pt 0;border-top:1px solid #ccc;page-break-inside:avoid}
-  section.article.key{border:1pt solid #999;border-radius:4pt;padding:9pt 11pt}
+  @page{size:A4;margin:13mm 12mm}
+  section.article{padding:10pt 0;border-top:1px solid #ccc}
+  .art-head{break-after:avoid-page}
+  p.clause,.sub-list li{break-inside:avoid}
+  .tbl-wrap tr{break-inside:avoid}
+  .tbl-wrap thead{display:table-header-group}
+  section.article.key{border:1pt solid #999;border-radius:4pt;padding:9pt 11pt;break-inside:avoid;box-decoration-break:clone;-webkit-box-decoration-break:clone}
   .key-badge{background:#000;color:#fff}
   .art-title,.art-body strong,td strong,.clause-n{color:#000}
   .art-num{color:#555}
@@ -212,8 +217,8 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="sum-head">한눈에 보는 핵심<span class="sum-sub">이해를 돕기 위한 요약이에요. 정확한 권리·의무는 아래 본문(제1조~)을 따릅니다.</span></div>
     <div class="sum-grid">
       <div class="sum-item"><div class="sum-k">금액</div><div class="sum-v"><b>주말·공휴일 280만원 / 평일 210만원</b> (VAT 포함). 계약금 10%(계약 시·예약금 충당) → 중도금 40%(예식 30일 전) → 잔금 50%(예식 7일 전). <span class="sum-mine" id="sum-mine"></span></div></div>
-      <div class="sum-item"><div class="sum-k">무료 취소</div><div class="sum-v"><b>예식 150일(5개월) 전</b>까지 위약금 없이 취소 — 받은 금액 <b>전액 환급</b>. 계약 후 <b>15일 이내</b> 청약철회도 전액 환급. <span class="sum-mini">(단, 이미 진행한 드레스 시착 비용은 제외 · 이후는 시기별 위약금 · 제9조)</span></div></div>
-      <div class="sum-item"><div class="sum-k">결과물</div><div class="sum-v">클라우드 링크로 전달 — 원본 <b>예식 후 2주</b> · 보정본 10장 <b>4주</b> · 본식영상 <b>6주</b> 이내</div></div>
+      <div class="sum-item"><div class="sum-k">무료 취소</div><div class="sum-v"><b>예식 150일(5개월) 전</b>까지 위약금 없이 취소 · 받은 금액 <b>전액 환급</b>. 계약 후 <b>15일 이내</b> 청약철회도 전액 환급. <span class="sum-mini">(단, 이미 진행한 드레스 시착 비용은 제외 · 이후는 시기별 위약금 · 제9조)</span></div></div>
+      <div class="sum-item"><div class="sum-k">결과물</div><div class="sum-v">클라우드 링크로 전달 · 원본 <b>예식 후 2주</b> · 보정본 10장 <b>4주</b> · 본식영상 <b>6주</b> 이내</div></div>
       <div class="sum-item"><div class="sum-k">내가 직접</div><div class="sum-v">모바일·가족 <b>청첩장</b>과 <b>식순</b>은 마이페이지에서 직접 작성·발행 (도구는 '을'이 제공)</div></div>
       <div class="sum-item"><div class="sum-k">서비스</div><div class="sum-v">캔들존+화이트존 · 총 <b>140분</b> · 하객 <b>25명 착석</b>(+스탠딩 5, 최대 30명)</div></div>
     </div>
@@ -274,7 +279,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
         <tr><td>대표자</td><td>정희준</td></tr>
         <tr><td>사업자등록번호</td><td>218-01-42796</td></tr>
         <tr><td>통신판매업 신고번호</td><td><span class="ph">[신고번호]</span></td></tr>
-        <tr><td>사업장 소재지</td><td>경기 고양시 덕양구 향동동 <span class="ph">[정식주소 — 이전 후 확정]</span></td></tr>
+        <tr><td>사업장 소재지</td><td>경기 고양시 덕양구 향동동 <span class="ph">[정식주소 · 이전 후 확정]</span></td></tr>
         <tr><td>연락처(이메일)</td><td>contact@momentedit.kr</td></tr>
       </table></div>
       <p class="clause"><span class="clause-n">③</span> <strong>연대책임.</strong> '갑'은 신랑·신부 2인으로서 본 계약상의 모든 의무(대금 지급 등)를 <strong>연대하여 부담</strong>한다. 양 당사자 간 혼인 무산·파혼 등의 사정은 본 계약상 의무에 영향을 미치지 아니하며, '을'은 신랑·신부 중 누구에게나 전부의 이행을 청구할 수 있다.</p>
@@ -288,28 +293,28 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>기본 서비스의 구성.</strong> '을'이 '갑'에게 제공하는 기본 서비스(이하 "본 서비스")는 'The 140 Signature'로서, 다음 5개 시퀀스로 구성된 총 140분의 촬영·예식 통합 진행을 말한다. 본 서비스는 '을'의 스튜디오 내 <strong>캔들존(Ambient Candle)과 화이트존(Editorial White)</strong> 두 공간에서 진행되며, 하객은 <strong>양가 합산 25명까지 착석</strong>으로 모시며, 추가로 스탠딩 좌석 최대 5명을 더하여 <strong>총 30명까지</strong> 수용한다. 30명 초과는 공간·안전상 불가하다.</p>
       <ul class="sub-list">
-        <li>Getting Ready (20분) — 의상 착장 및 컨디션 정돈</li>
-        <li>Private Snap (40분) — 캔들존·화이트존 집중 촬영</li>
-        <li>The Ceremony (30분) — 성우 나레이션과 함께하는 본식</li>
-        <li>Group Record (30분) — 양가 기념 촬영</li>
-        <li>Farewell (20분) — 마무리·배웅</li>
+        <li>Getting Ready (20분) · 의상 착장 및 컨디션 정돈</li>
+        <li>Private Snap (40분) · 캔들존·화이트존 집중 촬영</li>
+        <li>The Ceremony (30분) · 성우 나레이션과 함께하는 본식</li>
+        <li>Group Record (30분) · 양가 기념 촬영</li>
+        <li>Farewell (20분) · 마무리·배웅</li>
       </ul>
       <p class="clause"><span class="clause-n">②</span> <strong>서비스의 분류 및 책임 경계.</strong> 본 계약상 제공 항목은 수행 주체에 따라 다음 3가지로 구분되며, 책임은 각 분류에 따른다.</p>
       <ul class="sub-list">
-        <li><strong>'을' 직접 수행 항목</strong> — 웨딩스냅 촬영, 사진 보정, 본식 진행, 의상 시착 진행. 본 항목은 '을'이 직접 이행하며 그 결과에 대해 '을'이 책임을 진다.</li>
-        <li><strong>'갑' 셀프 제작 항목('을'은 제작 도구 제공)</strong> — 모바일·가족 청첩장, 식순. '갑'이 '을'이 제공하는 마이페이지 시스템을 통해 직접 작성·발행하며, 입력 내용의 정확성과 최종 검수·발행은 '갑'의 책임으로 한다. '을'은 도구(시스템·템플릿)를 제공할 뿐 '갑'이 입력한 내용을 검증할 의무가 없다.</li>
-        <li><strong>'을'이 소개·조율만 하는 항목('을'은 계약 당사자가 아님)</strong> — 다이닝(식사). '을'은 검증된 파트너사 소개 및 예약 조율만을 지원하며, <strong>식사 비용은 '갑'이 파트너사에 직접 지급</strong>한다. 식사의 품질·위생(식중독 등)·예약 이행에 관한 책임은 해당 파트너사에 있고 '을'은 책임지지 않는다.</li>
+        <li><strong>'을' 직접 수행 항목</strong> · 웨딩스냅 촬영, 사진 보정, 본식 진행, 의상 시착 진행. 본 항목은 '을'이 직접 이행하며 그 결과에 대해 '을'이 책임을 진다.</li>
+        <li><strong>'갑' 셀프 제작 항목('을'은 제작 도구 제공)</strong> · 모바일·가족 청첩장, 식순. '갑'이 '을'이 제공하는 마이페이지 시스템을 통해 직접 작성·발행하며, 입력 내용의 정확성과 최종 검수·발행은 '갑'의 책임으로 한다. '을'은 도구(시스템·템플릿)를 제공할 뿐 '갑'이 입력한 내용을 검증할 의무가 없다.</li>
+        <li><strong>'을'이 소개·조율만 하는 항목('을'은 계약 당사자가 아님)</strong> · 다이닝(식사). '을'은 검증된 파트너사 소개 및 예약 조율만을 지원하며, <strong>식사 비용은 '갑'이 파트너사에 직접 지급</strong>한다. 식사의 품질·위생(식중독 등)·예약 이행에 관한 책임은 해당 파트너사에 있고 '을'은 책임지지 않는다.</li>
       </ul>
       <p class="clause"><span class="clause-n">③</span> <strong>'갑'이 직접 선정한 외부 인력.</strong> 헤어·메이크업, 플로리스트, 부케, 실물 청첩장 인쇄 등 '갑'이 직접 선정·의뢰하는 외부 인력 및 그 결과물에 관한 책임은 '갑'에게 있으며 '을'은 관여하지 않는다.</p>
       <p class="clause"><span class="clause-n">④</span> <strong>'을'이 투입한 이행보조자.</strong> 제2항 제1호의 직접 수행을 위하여 '을'이 투입하는 인력(세컨 작가, 외주 편집자 등 이행보조자)의 행위에 대하여는 <strong>'을'이 '갑'에 대하여 직접 책임</strong>을 진다. (본 항은 제2항 제3호·제3항의 '갑' 선정 외부 인력과 명확히 구분된다.)</p>
-      <p class="clause"><span class="clause-n">⑤</span> <strong>이행 장소.</strong> 본 서비스의 이행 장소는 '을'의 스튜디오(경기 고양시 덕양구 향동동 소재, <span class="ph">[정식주소 — 이전 후 확정]</span>)로 한다. 스튜디오의 정확한 주소는 본 계약 체결 후 '갑'에게 개별 안내한다.</p>
+      <p class="clause"><span class="clause-n">⑤</span> <strong>이행 장소.</strong> 본 서비스의 이행 장소는 '을'의 스튜디오(경기 고양시 덕양구 향동동 소재, <span class="ph">[정식주소 · 이전 후 확정]</span>)로 한다. 스튜디오의 정확한 주소는 본 계약 체결 후 '갑'에게 개별 안내한다.</p>
       <p class="clause"><span class="clause-n">⑥</span> <strong>포함 항목 및 별도 비용 항목.</strong></p>
       <div class="tbl-wrap"><table>
         <tr><th style="width:50%">포함 (Included)</th><th>별도 비용 (Optional)</th></tr>
         <tr><td>140분 시그니처 시퀀스 진행</td><td>다이닝 식사비 (파트너사 직결제)</td></tr>
-        <tr><td>캔들존·화이트존 두 공간 단독 대관</td><td>추가 보정 — 20,000원/컷</td></tr>
-        <tr><td>웨딩스냅 원본 데이터 전체(약 300컷 이상)</td><td>추가 시착 — 70,000원/벌(4벌째부터)</td></tr>
-        <tr><td>보정 셀렉트 10장</td><td>25명 초과 시 스탠딩 — 1인당 50,000원(최대 30명)</td></tr>
+        <tr><td>캔들존·화이트존 두 공간 단독 대관</td><td>추가 보정 · 20,000원/컷</td></tr>
+        <tr><td>웨딩스냅 원본 데이터 전체(약 300컷 이상)</td><td>추가 시착 · 70,000원/벌(4벌째부터)</td></tr>
+        <tr><td>보정 셀렉트 10장</td><td>25명 초과 시 스탠딩 · 1인당 50,000원(최대 30명)</td></tr>
         <tr><td>본식영상(편집본)</td><td>헤어·메이크업(외부 진행)</td></tr>
         <tr><td>모바일 청첩장(8종 중 셀프 선택)</td><td>부케·생화 커스텀</td></tr>
         <tr><td>디지털 참석 페이지(Quiet Broadcast, 선택)</td><td>추가 의상</td></tr>
@@ -330,7 +335,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
         <tr><td data-label="구분">주말·공휴일</td><td data-label="총 계약금액"><strong>2,800,000원</strong></td></tr>
         <tr><td data-label="구분">평일</td><td data-label="총 계약금액"><strong>2,100,000원</strong></td></tr>
       </table></div>
-      <p class="clause" style="background:var(--bg2);border:1px solid var(--gold-line,#e3dccb);border-radius:8px;padding:11px 14px;margin:8px 0 4px"><strong>본 계약 적용</strong> — <span id="art4-mine">마이페이지에서 자동 표시됩니다.</span></p>
+      <p class="clause" style="background:var(--bg2);border:1px solid var(--gold-line,#e3dccb);border-radius:8px;padding:11px 14px;margin:8px 0 4px"><strong>본 계약 적용</strong> · <span id="art4-mine">마이페이지에서 자동 표시됩니다.</span></p>
       <p>별도 상품인 Weekday Editorial Snap은 <strong>600,000원</strong>(정가 800,000원, 운영 초기 한정)으로 한다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>대금의 단계별 지급.</strong> 대금은 다음 3단계로 나누어 지급한다.</p>
       <div class="tbl-wrap"><table class="tbl-card">
@@ -440,9 +445,9 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <p class="clause"><span class="clause-n">①</span> <strong>불가항력.</strong> 천재지변, 1급 감염병, 정부의 행정명령 등 양 당사자의 통제를 벗어난 불가항력으로 본 서비스의 이행이 불가능한 경우, 위약금 없이 계약을 해제할 수 있으며 '을'은 기수령액을 환급한다(다만 이미 이행된 부분에 해당하는 비용은 공제한다). 이때 기이행분이란 이미 진행된 시착 등 실제 제공된 용역에 한하며, 촬영·예식·결과물 등 미제공 부분은 전액 환급한다.</p>
       <p class="clause"><span class="clause-n">②</span> <strong>1급 감염병에 따른 감경.</strong> 1급 감염병과 관련하여 다음과 같이 위약금을 조정한다.</p>
       <ul class="sub-list">
-        <li>시설 폐쇄 명령 또는 특별재난지역 선포로 이행이 불가능한 경우 — <strong>위약금 면제</strong></li>
-        <li>집합 제한 행정명령이 있는 경우 — <strong>위약금 40% 감경</strong></li>
-        <li>감염병 위기경보 '심각' 단계의 경우 — <strong>위약금 20% 감경</strong></li>
+        <li>시설 폐쇄 명령 또는 특별재난지역 선포로 이행이 불가능한 경우 · <strong>위약금 면제</strong></li>
+        <li>집합 제한 행정명령이 있는 경우 · <strong>위약금 40% 감경</strong></li>
+        <li>감염병 위기경보 '심각' 단계의 경우 · <strong>위약금 20% 감경</strong></li>
       </ul>
       <p class="clause"><span class="clause-n">③</span> <strong>'을' 측 사유에 의한 진행 불가.</strong> '을'의 장비 고장, 디렉터 질병, 정전 등으로 예식 진행이 불가능한 경우, '을'은 <strong>대체일을 우선 제공</strong>하며, 대체가 불가능한 경우 제9조 제3항('을' 귀책: 29일 전 이후 70%)을 준용하고 기수령액을 환급한다.</p>
     </div>
@@ -464,9 +469,9 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="art-body">
       <p class="clause"><span class="clause-n">①</span> <strong>인도 방식 및 기한.</strong> 결과물은 <strong>외부 클라우드 드라이브 링크</strong>로 제공하며 '갑'이 직접 다운로드한다. 인도 기한은 예식일을 기준으로 다음과 같다.</p>
       <ul class="sub-list">
-        <li>원본 데이터 — 예식 후 <strong>2주</strong> 이내</li>
-        <li>보정본(10장) — 예식 후 <strong>4주</strong> 이내</li>
-        <li>본식영상(편집본) — 예식 후 <strong>6주</strong> 이내</li>
+        <li>원본 데이터 · 예식 후 <strong>2주</strong> 이내</li>
+        <li>보정본(10장) · 예식 후 <strong>4주</strong> 이내</li>
+        <li>본식영상(편집본) · 예식 후 <strong>6주</strong> 이내</li>
       </ul>
       <p class="clause"><span class="clause-n">②</span> <strong>인도 지연 배상.</strong> '을'의 귀책사유로 제1항의 기한을 초과하여 인도가 지연된 경우, '을'은 <strong>지연 1일당 총 계약금액의 0.1%</strong>를 '갑'에게 배상한다(단, 천재지변 등 불가항력 및 '갑'의 자료 미제출 등 '갑'의 귀책으로 인한 지연은 제외한다). 다만 본 항의 지연배상 총액은 <strong>총 계약금액의 10%를 한도</strong>로 한다. 단, '을'의 고의 또는 중대한 과실로 인한 경우에는 이 한도를 적용하지 아니한다.</p>
       <p class="clause"><span class="clause-n">③</span> <strong>데이터 보관 기간.</strong> '을'은 결과물을 <strong>인도 완료 후 6개월간</strong> 보관한다. 보관 기간 경과 후 '을'은 결과물 데이터를 삭제할 수 있으며, 그 이후의 보관·백업 책임은 '갑'에게 있다. 보관 기간 경과 후의 재발급은 데이터가 보존되어 있는 경우에 한하여 <strong>유상</strong>으로 제공될 수 있고, 보존되어 있지 않은 경우 재발급이 불가할 수 있다.</p>
@@ -550,9 +555,9 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     <div class="date-line">계약 체결일 : <span data-fill="signDate">____________________</span></div>
 
     <div class="sign-grid">
-      <div class="sign-cell"><div class="sc-role">갑 — 신랑</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="groom">____________</span></span><span class="sc-sign" id="sigGroom">(서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">갑 — 신부</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="bride">____________</span></span><span class="sc-sign" id="sigBride">(서명)</span></div></div>
-      <div class="sign-cell"><div class="sc-role">을 — 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="모먼트에디트 대표 정희준 직인" style="height:70px;width:70px;vertical-align:middle"><defs><path id="meSealArc" d="M 33,100 A 67,67 0 0 0 167,100" fill="none"/></defs><circle cx="100" cy="100" r="94" fill="none" stroke="#C0271E" stroke-width="3.5"/><circle cx="100" cy="100" r="85" fill="none" stroke="#C0271E" stroke-width="1.4"/><text fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="22" letter-spacing="3"><textPath xlink:href="#meSealArc" startOffset="50%" text-anchor="middle">MOMENT EDIT</textPath></text><text x="100" y="116" text-anchor="middle" fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="18" letter-spacing="0.5">JEONG HUIJUN</text><rect x="26" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 29 110)"/><rect x="168" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 171 110)"/></svg></span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 · 신랑</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="groom">____________</span></span><span class="sc-sign" id="sigGroom">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">갑 · 신부</div><div class="sc-line"><span class="sc-name">성명 : <span data-fill="bride">____________</span></span><span class="sc-sign" id="sigBride">(서명)</span></div></div>
+      <div class="sign-cell"><div class="sc-role">을 · 모먼트에디트 대표</div><div class="sc-line"><span class="sc-name">성명 : 정희준</span><span class="sc-sign"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="모먼트에디트 대표 정희준 직인" style="height:70px;width:70px;vertical-align:middle"><defs><path id="meSealArc" d="M 33,100 A 67,67 0 0 0 167,100" fill="none"/></defs><circle cx="100" cy="100" r="94" fill="none" stroke="#C0271E" stroke-width="3.5"/><circle cx="100" cy="100" r="85" fill="none" stroke="#C0271E" stroke-width="1.4"/><text fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="22" letter-spacing="3"><textPath xlink:href="#meSealArc" startOffset="50%" text-anchor="middle">MOMENT EDIT</textPath></text><text x="100" y="116" text-anchor="middle" fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="18" letter-spacing="0.5">JEONG HUIJUN</text><rect x="26" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 29 110)"/><rect x="168" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 171 110)"/></svg></span></div></div>
     </div>
     <p class="sign-note" style="margin-top:14px;font-size:12px;color:var(--light)">※ 본 1차본은 대표 1인이 양인을 대표하여 전자서명하며(제2조 제1항), 양인은 제2조 제3항에 따라 연대하여 책임을 집니다. 신랑·신부 2인 개별 전자서명은 시스템 도입 후 적용됩니다.</p>
   </div>
@@ -562,7 +567,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 
 <footer>
   <div class="f-mark">MOMENT<span class="dot"></span>EDIT</div>
-  <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span style="color:rgba(184,154,117,0.6)">[신고번호]</span><br>경기 고양시 덕양구 향동동 <span style="color:rgba(184,154,117,0.6)">[정식주소 — 이전 후 확정]</span> · contact@momentedit.kr</div>
+  <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span style="color:rgba(184,154,117,0.6)">[신고번호]</span><br>경기 고양시 덕양구 향동동 <span style="color:rgba(184,154,117,0.6)">[정식주소 · 이전 후 확정]</span> · contact@momentedit.kr</div>
   <div class="f-ver">웨딩 촬영·예식 서비스 이용계약서 v1.1 / 과도기 단일서명본</div>
 </footer>
 
@@ -579,12 +584,12 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       if(v!=null && String(v)!=='') els[i].textContent=String(v);
     }
     if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_예식일
-    var amt=Number(d.total)||0;   // 개인화 — 제4조·요약 카드 공통(예식일·적용 총액)
+    var amt=Number(d.total)||0;   // 개인화 · 제4조·요약 카드 공통(예식일·적용 총액)
     var kind=amt===2800000?'주말·공휴일 기준':(amt===2100000?'평일 기준':(amt===600000?'웨딩스냅':''));
     var ps=[];
     if(d.weddingDate){ var _w=String(d.weddingDate), _mm=_w.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(_mm){ var _dd=new Date(+_mm[1],+_mm[2]-1,+_mm[3]), _WD=['일','월','화','수','목','금','토']; _w=(+_mm[1])+'년 '+(+_mm[2])+'월 '+(+_mm[3])+'일 ('+_WD[_dd.getDay()]+')'; } var _wt=d.weddingTime?(' · '+(d.weddingTimeLabel?d.weddingTimeLabel+' ':'')+d.weddingTime):''; ps.push('예식 일시 '+_w+_wt); }
     if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
-    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='내 계약 — '+_pj; }
+    if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='내 계약 · '+_pj; }
     if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 신부 대표갈음
       var cb=document.querySelector('.check-line .box');
       if(cb){ cb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cb.textContent='✓'; }
