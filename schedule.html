@@ -501,6 +501,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <div style="display:flex;gap:7px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>예식 일정이 정해졌다면 날짜·시간을 미리 잡아둘 수 있어요.</span></div>
           <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>아직 미정이어도 괜찮아요. 대면 상담 후 <b style="font-weight:500;color:var(--sub)">본계약 요청 단계</b>에서 천천히 조율하실 수 있어요.</span></div>
         </div>
+        <div id="holdRuleNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:8px 0 0 25px;word-break:keep-all">선택하신 상담일이 오늘로부터 <b>7일 이후</b>예요. 예식일 임시 고정은 <b>상담을 7일 안에 진행하시는 경우에만</b> 적용돼요 — 상담일을 앞당기시거나, 임시 고정 없이 진행해 주세요.</div>
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">
             <div style="font-weight:500;margin-bottom:5px">원하시는 예식 날짜·시간을 자유롭게 선택해 주세요.</div>
@@ -756,7 +757,11 @@ function renderTime(){
   }
 }
 
+// [임시고정 7일 규칙] 상담일이 오늘+7일 이내인지 — 임시고정 체크와 충돌하면 인라인 경고·제출 차단
+function _holdDeadlineOk(){ if(!selDate) return true; var lim=new Date(today); lim.setDate(lim.getDate()+7); return selDate<=lim; }
+function _syncHoldRule(){ var chk=document.getElementById('holdChk'), n=document.getElementById('holdRuleNote'); if(!n) return; n.style.display=(chk&&chk.checked&&!_holdDeadlineOk())?'block':'none'; }
 function updateSummary(){
+  _syncHoldRule();
   const sum=document.getElementById('summary'); const btn=document.getElementById('submitBtn');
   const sT=document.getElementById('stepTime'), sDa=document.getElementById('stepDate'), sDo=document.getElementById('stepDone');
   const bar=document.getElementById('stickyBar');
@@ -807,7 +812,10 @@ function doSubmit(){
   var _payerEl=document.getElementById('depPayer');
   if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; } return; }
   var _hChk=document.getElementById('holdChk');
-  if(_hChk&&_hChk.checked){ var _hDate=(document.getElementById('holdDate')||{}).value||'', _hSlot=(document.getElementById('holdSlot')||{}).value||''; if(!_hDate||!_hSlot){ var _hBox=document.getElementById('holdBox'); if(_hBox) _hBox.scrollIntoView({behavior:'smooth',block:'center'}); alert('예식일 임시 고정을 요청하시려면 예식 날짜와 시간을 모두 선택해 주세요.\n(원치 않으시면 체크를 해제해 주세요.)'); return; } }
+  if(_hChk&&_hChk.checked){
+    if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); alert('예식일 임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.\n상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.'); return; }
+    var _hDate=(document.getElementById('holdDate')||{}).value||'', _hSlot=(document.getElementById('holdSlot')||{}).value||''; if(!_hDate||!_hSlot){ var _hBox=document.getElementById('holdBox'); if(_hBox) _hBox.scrollIntoView({behavior:'smooth',block:'center'}); alert('예식일 임시 고정을 요청하시려면 예식 날짜와 시간을 모두 선택해 주세요.\n(원치 않으시면 체크를 해제해 주세요.)'); return; }
+  }
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
@@ -907,7 +915,7 @@ if(_hdw){
   _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
   initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 — 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
   var _chk=document.getElementById('holdChk');
-  if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); }); if(_chk.checked) _loadWT(); }
+  if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); _syncHoldRule(); }); if(_chk.checked) _loadWT(); }
 }
 }
 // ── 부트스트랩: 세션 토큰으로 getAvailability 호출 → SERVER 구성 → boot() ──

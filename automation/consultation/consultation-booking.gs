@@ -752,9 +752,13 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
       try { Logger.log('   남은 Gmail 할당량: ' + MailApp.getRemainingDailyQuota()); } catch (q) {}
       notifyStudio('[상담] ⚠️오류 · 관리자 알림 메일 발송 실패', coupleNames(row) + ' · ' + dateKey + ' ' + time + '\n' + mailErrMsg);
     }
-    // [임시고정] 예식일 가예약 '요청' 저장(체크 시) — 슬롯 유효 + 미점유일 때만. 관리자 승인 시 점유 확정. best-effort(본 예약은 영향 X).
+    // [임시고정] 예식일 가예약 '요청' 저장(체크 시) — 슬롯 유효 + 미점유 + 상담일이 7일 이내일 때만. 관리자 승인 시 점유 확정. best-effort(본 예약은 영향 X).
     if (hold && hold.date && hold.slot) {
       try {
+        // [7일 규칙 백스톱] 상담일이 오늘+7일 이후면 임시고정 미적용(클라이언트가 먼저 안내·차단 — 우회 대비)
+        var _ck = String(normalizeDateKey(dateKey) || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        var _lim7 = new Date(); _lim7.setHours(0, 0, 0, 0); _lim7.setDate(_lim7.getDate() + 7);
+        if (!_ck || new Date(+_ck[1], +_ck[2] - 1, +_ck[3]) > _lim7) throw new Error('hold-skip');
         var _hc = String(row.get('개인코드') || '').trim(), _hd = String(hold.date).trim(), _hs = String(hold.slot).trim();
         if (_hc && WEDDING_SLOT.SLOTS.indexOf(_hs) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(_hd)) {
           var _cs = getCustomersSheet(), _cco = buildHeaderIndex(_cs), _cust = findCustomerByCode(_hc);
