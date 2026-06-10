@@ -2730,8 +2730,9 @@ window.addEventListener('message', function(ev){
 });
 function invStepDone(box, r){
   if(r.skipped){
-    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.</div><div class="inv-nav"><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
-    $('iv_done').addEventListener('click', exitInvFlow); return;
+    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.</div><div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    $('iv_done').addEventListener('click', exitInvFlow);
+    var _ed0=$('iv_edit'); if(_ed0) _ed0.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); }); return;
   }
   var u=(r&&r.urls)||{};
   var mobileUrl = u.online || u.live || '';   // 모바일 참석(스캔용): 온라인 청첩장 우선
@@ -2763,7 +2764,9 @@ function invStepDone(box, r){
   }
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
             + linkCard('family','직접 모시는 청첩장','가족·가까운 분께 직접 전하세요.',u.family);
-  if(!cards) cards='<div class="cc-note">표시할 링크가 없어요.</div>';
+  var leadHtml = cards
+    ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
+    : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
   var qr = mobileUrl ? '<div class="done-qr">'
       +'<div class="done-qr-nm">모바일 참석 QR</div>'
       +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣으면, 하객이 스캔해 바로 입장해요.</div>'
@@ -2775,13 +2778,14 @@ function invStepDone(box, r){
     +'<div class="done-title">두 분의 청첩장이 완성됐어요</div>'
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
-    +'<div class="done-lead">아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.</div>'
-    +'<div class="done-links">'+cards+'</div>'+qr
+    +'<div class="done-lead">'+leadHtml+'</div>'
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+qr
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
-    +'<div class="inv-nav"><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
   $('iv_done').addEventListener('click', exitInvFlow);
+  var _ed=$('iv_edit'); if(_ed) _ed.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); window.scrollTo({top:Math.max(0,box.offsetTop-12)}); });   // 작성 내용 그대로 1단계부터 점검 → 재발행하면 같은 링크 갱신
   Array.prototype.forEach.call(box.querySelectorAll('.dl-share'),function(b){ b.addEventListener('click',function(){ var url=b.getAttribute('data-url'); if(navigator.share){ navigator.share({title:'청첩장에 초대합니다',url:url}).catch(function(){}); } else { invCopy(url,b); } }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dl-copy'),function(b){ b.addEventListener('click',function(){ invCopy(b.getAttribute('data-url'),b); }); });
   if(mobileUrl) ensureQR(function(){ renderInvQR(mobileUrl); });
