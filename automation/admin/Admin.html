@@ -723,7 +723,37 @@ function cardProduction(d){
   var _prod=d.mirror?d.mirror.production:null, _tk=(_prod&&_prod.tracks)||{};
   function _trks(s){ s=s||'시작전'; return s==='완료'?'<b style="color:var(--gold-deeper,#7a5f37)">완료</b>':(s==='진행중'?'<b style="color:#b5852a">진행 중</b>':'<span style="color:var(--label-soft)">시작 전</span>'); }
   raw+='<div class="cnote">🍽 다이닝 '+_trks(_tk.dining)+' · 📜 식순 '+_trks(_tk.ritual)+'</div>';
-  return '<div class="raw">'+raw+'</div><div class="cnote">청첩장·다이닝·식순은 고객이 채워요 (관리자는 보기 전용)</div>';
+  return '<div class="raw">'+raw+'</div>'+_prodTrackDetail(_prod)+'<div class="cnote">청첩장·다이닝·식순은 고객이 채워요 (관리자는 보기 전용)</div>';
+}
+// 다이닝·식순 — 고객이 위저드에서 고른 내용을 관리자가 읽기 좋게 표시(예식 진행·다이닝 조율에 사용). 값은 대부분 한글 그대로.
+function _prodTrackDetail(prod){
+  if(!prod) return '';
+  function L(k,v){ return v?('<div><span style="color:var(--label-soft)">'+k+'</span> '+v+'</div>'):''; }
+  var out='', dd=prod.diningDraft, rd=prod.ritualDraft;
+  if(dd && (dd.dining_on||dd.headcount||dd.mealType||dd.partner)){
+    var dh='';
+    dh+=L('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'함':'—'));
+    if(dd.dining_on==='Y'){
+      dh+=L('인원', dd.headcount?(esc(dd.headcount)+'명'):'');
+      dh+=L('식사 형태', esc(dd.mealType||''));
+      dh+=L('파트너사', esc(dd.partner||''));
+      dh+=L('협력사 위탁', dd.entrustAgree==='Y'?'동의':(dd.entrustAgree==='N'?'미동의':''));
+    }
+    out+='<div class="raw-sub"><div class="raw-sub-h">🍽 다이닝</div>'+dh+'</div>';
+  }
+  if(rd && (rd.mc||(rd.events&&rd.events.length)||rd.timeline||rd.songTitle||rd.entryMusic)){
+    var rh='';
+    rh+=L('사회자', esc(rd.mc||''));
+    rh+=L('입장곡', esc(rd.entryMusic||''));
+    rh+=L('퇴장곡', esc(rd.exitMusic||''));
+    rh+=L('식순', (rd.events&&rd.events.length)?esc(rd.events.join(', ')):'');
+    rh+=L('추가 순서', esc(rd.extraOrder||''));
+    rh+=L('축가', (rd.songTitle||rd.songArtist)?esc((rd.songTitle||'')+(rd.songArtist?(' / '+rd.songArtist):'')):'');
+    rh+=L('반주', esc(rd.accompaniment||''));
+    if(rd.timeline) rh+='<div><span style="color:var(--label-soft)">타임라인</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rd.timeline)+'</span></div>';
+    out+='<div class="raw-sub"><div class="raw-sub-h">📜 식순</div>'+rh+'</div>';
+  }
+  return out;
 }
 function cardResult(d,isSnap){
   var r=d.raw||{}, stt=r['결과물상태']||'대기', raw='결과물 <b>'+esc(stt)+'</b>';
