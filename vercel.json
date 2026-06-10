@@ -1,8 +1,19 @@
 {
-  "rewrites": [
-    { "source": "/form", "destination": "/form.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/schedule", "destination": "/schedule.html" },
-    { "source": "/cancel", "destination": "/cancel.html" }
+  "routes": [
+    {
+      "src": "^/i/(cover-\\d{2})\\.html$",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(kakaotalk-scrap|kakaostory|facebookexternalhit|facebookcatalog|twitterbot|slackbot|slack-imgproxy|discordbot|telegrambot|whatsapp|line-poker|linespider|naverbot|yeti|daumoa|skypeuripreview|pinterestbot|vkshare|bingpreview|linkedinbot).*" }],
+      "dest": "/api/og-inv?page=/i/$1.html"
+    },
+    {
+      "src": "^/i-family/(family-\\d{2})\\.html$",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(kakaotalk-scrap|kakaostory|facebookexternalhit|facebookcatalog|twitterbot|slackbot|slack-imgproxy|discordbot|telegrambot|whatsapp|line-poker|linespider|naverbot|yeti|daumoa|skypeuripreview|pinterestbot|vkshare|bingpreview|linkedinbot).*" }],
+      "dest": "/api/og-inv?page=/i-family/$1.html"
+    },
+    { "handle": "filesystem" },
+    { "src": "^/form$", "dest": "/form.html" },
+    { "src": "^/admin$", "dest": "/admin.html" },
+    { "src": "^/schedule$", "dest": "/schedule.html" },
+    { "src": "^/cancel$", "dest": "/cancel.html" }
   ]
 }
