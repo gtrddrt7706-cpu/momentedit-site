@@ -1204,9 +1204,9 @@ function emailShell(headline, innerHtml) {
     '</td></tr></table></body></html>';
 }
 function emailBtn(url, label, color) {
-  // 기본 골드 — 중간 톤이라 강제 다크 변환에도 거의 그대로 유지됨(버건디·딥브라운은 다크에서 깨짐)
-  var bg = color || '#C9A86A';
-  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#221B14;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:600;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(184,154,117,0.35);">' + esc(label) + '</a></div>';
+  // 기본 베이지(#B89A75 — 브랜드 공용 톤) — 중간 톤이라 강제 다크 변환에도 거의 그대로 유지됨(버건디·딥브라운은 다크에서 깨짐)
+  var bg = color || '#B89A75';
+  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#FFFFFF;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(184,154,117,0.30);">' + esc(label) + '</a></div>';
 }
 function emailBtnOutline(url, label) {
   return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:#FFFFFF;color:#8A7A5E;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #CDBFA6;border-radius:4px;">' + esc(label) + '</a></div>';

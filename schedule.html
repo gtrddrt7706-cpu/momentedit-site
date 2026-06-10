@@ -503,8 +503,9 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         </div>
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">
-            <div style="font-weight:500;margin-bottom:5px">카카오톡으로 예식일 가능 여부를 미리 확인하셨나요?</div>
-            <div style="display:flex;gap:7px"><span>·</span><span>사전 확인 없이 요청하시면 <b>승인되지 않을 수 있어요.</b></span></div>
+            <div style="font-weight:500;margin-bottom:5px">원하시는 예식 날짜·시간을 달력에서 바로 선택하실 수 있어요.</div>
+            <div style="display:flex;gap:7px"><span>·</span><span>이미 예약된 날짜·시간은 <b>마감</b>으로 표시되어 선택할 수 없어요.</span></div>
+            <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>디렉터 확인 후 확정되며, 일정 사정에 따라 <b>승인이 어려울 수</b> 있어요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우 적용돼요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>확정 일정은 <b>대면상담 전</b> 마이페이지에서 안내드려요.</span></div>
           </div>
@@ -638,7 +639,8 @@ function initDatePicker(o){
       if(cur.getTime()===today.getTime()) btn.classList.add('today');
       if(cur.getDay()===0||cur.getDay()===6) btn.classList.add('weekend');
       if(cur<MIN){ btn.classList.add('past'); }
-      else { (function(c){ btn.addEventListener('click', function(){ selected=c; if(hidden) hidden.value=fmt(c); if(triggerText) triggerText.textContent=fmtKo(c); trigger.classList.add('has-value'); close(); }); })(cur); }
+      else if(o.isDisabled && o.isDisabled(fmt(cur))){ btn.classList.add('past'); btn.disabled=true; btn.title='이미 예약된 날짜예요'; }   // 점유일(전 슬롯 마감) — 선택 불가
+      else { (function(c){ btn.addEventListener('click', function(){ selected=c; if(hidden) hidden.value=fmt(c); if(triggerText) triggerText.textContent=fmtKo(c); trigger.classList.add('has-value'); close(); if(o.onPick) o.onPick(fmt(c)); }); })(cur); }
       if(selected&&cur.getTime()===selected.getTime()) btn.classList.add('selected');
       grid.appendChild(btn);
     }
@@ -861,10 +863,37 @@ document.getElementById('flexEtc').addEventListener('input',(e)=>{
 });
 
 renderCal();renderTime();updateSummary();
-// 예식일 임시고정 — 커스텀 달력 주입(OS 기본 달력 대신 우리 폼 달력). 숨김 input id=holdDate 유지 → _holdPayload 그대로.
+// 예식일 임시고정 — 커스텀 달력 주입 + 실시간 점유 반영(weddingAvailability: 서명완료·승인 홀드 점유 맵).
+//   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
 var _hdw=document.getElementById('holdDateWrap');
-if(_hdw){ _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
-  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate'}); }
+if(_hdw){
+  var WT=null, _wtLoading=false, WSLOT_N=3;   // WT = {ymd:[마감 슬롯]} — 체크 시 1회 로드(실패하면 서버 검증이 최종 안전망)
+  function _wtFull(ymd){ return !!(WT && WT[ymd] && WT[ymd].length>=WSLOT_N); }
+  function _syncHoldSlots(){
+    var d=(document.getElementById('holdDate')||{}).value||'';
+    var sel=document.getElementById('holdSlot'); if(!sel) return;
+    var takenList=(WT&&d&&WT[d])||[];
+    [].forEach.call(sel.options,function(op){
+      if(!op.value) return;
+      if(!op.getAttribute('data-label')) op.setAttribute('data-label',op.textContent);
+      var t=takenList.indexOf(op.value)!==-1;
+      op.disabled=t;
+      op.textContent=op.getAttribute('data-label')+(t?' · 마감':'');
+    });
+    if(sel.value && takenList.indexOf(sel.value)!==-1) sel.value='';
+  }
+  function _loadWT(){
+    if(WT||_wtLoading) return; _wtLoading=true;
+    fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'weddingAvailability',token:SERVER.token})})
+      .then(function(r){return r.json();})
+      .then(function(res){ _wtLoading=false; if(res&&res.ok){ WT=res.taken||{}; _syncHoldSlots(); } })
+      .catch(function(){ _wtLoading=false; });
+  }
+  _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
+  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',isDisabled:_wtFull,onPick:_syncHoldSlots});
+  var _chk=document.getElementById('holdChk');
+  if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); }); if(_chk.checked) _loadWT(); }
+}
 }
 // ── 부트스트랩: 세션 토큰으로 getAvailability 호출 → SERVER 구성 → boot() ──
 (function(){
