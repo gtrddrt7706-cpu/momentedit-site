@@ -140,7 +140,7 @@ function sendSignupEmail(to, names, code, token, product, detail) {
   // 신청 요약 한 줄(예식일·인원) — detail 에서 추려 부담 없이
   var summary = _applySummaryFromDetail(detail);
   var summaryBlock = summary
-    ? '<div style="margin:14px auto 0;max-width:380px;text-align:center;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#8A8475;line-height:1.7">신청 내용 · ' + esc(summary) + '</div>'
+    ? '<div style="margin:14px auto 0;max-width:380px;text-align:center;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A29684;line-height:1.7">신청 내용 · ' + esc(summary) + '</div>'
     : '';
 
   // 개인코드 카드 (마스터키 — 크게, 복사하기 쉽게)
@@ -155,7 +155,7 @@ function sendSignupEmail(to, names, code, token, product, detail) {
     centerP(esc(names) + ' 님,<br>' + (isSnap ? '웨딩스냅' : '방문 상담') + ' 신청이 <span style="color:#B89A75;font-weight:500">접수</span>되었습니다.') +
     summaryBlock +
     codeCard +
-    '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#8A7A5E;letter-spacing:0.02em">아직 예약이 확정된 것은 아닙니다</div>' +
+    '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#BFA77E;letter-spacing:0.02em">아직 예약이 확정된 것은 아닙니다</div>' +
     centerP('아래 버튼으로 <b style="color:#B89A75;font-weight:600">마이페이지</b>에 들어가<br>진행 상황을 확인하실 수 있습니다.') +
     emailBtn(mypage, 'My Page') +
     smallP('이 링크는 자동으로 로그인됩니다.<br>다른 기기에서는 개인코드와 비밀번호로 로그인해 주세요.') +

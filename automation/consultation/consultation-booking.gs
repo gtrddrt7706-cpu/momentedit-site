@@ -934,14 +934,14 @@ function sendUrlEmail(to, names, url, summary) {
     ? '<div style="margin:14px auto 0;max-width:380px;text-align:center;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#8A8475;line-height:1.7">신청 내용 · ' + esc(summary) + '</div>'
     : '';
   var inner =
-    '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:20px 0 0">' +
+    '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#EBE2D2;margin:20px 0 0">' +
       esc(names) + ' 님,<br>대면 상담 신청이 <span style="color:#B89A75;font-weight:500">접수</span>되었습니다.' +
     '</p>' +
     summaryBlock +
     '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#8A7A5E;letter-spacing:0.02em">' +
       '아직 예약이 확정된 것은 아닙니다' +
     '</div>' +
-    '<p style="font-family:\'Noto Serif KR\',serif;font-size:13.5px;line-height:1.85;font-weight:400;text-align:center;color:#5A554C;margin:18px 0 0">' +
+    '<p style="font-family:\'Noto Serif KR\',serif;font-size:13.5px;line-height:1.85;font-weight:400;text-align:center;color:#C9BFAF;margin:18px 0 0">' +
       '아래에서 원하시는 날짜와 시간을<br>선택해 주세요.' +
     '</p>' +
     '<div style="text-align:center;margin:28px 0 0;">' +
@@ -1087,7 +1087,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
   if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   var cancelLine = token
-    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(cancelPageUrl(token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
+    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(cancelPageUrl(token)) + '" style="color:#C9A86A;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
     : '';
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
@@ -1110,7 +1110,7 @@ function sendCancelEmail(to, names, dateKey, time) {
   if (!CONFIG.SEND_CANCEL_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 취소 상태를 대체
   var when = dateKey ? (prettyDate(dateKey) + (time ? ' · ' + esc(time) : '')) : '';
   var inner =
-    centerP(esc(names) + ' 님,<br>아래 상담 예약이 <b style="color:#6B2A24;font-weight:600">취소</b>되었습니다.') +
+    centerP(esc(names) + ' 님,<br>아래 상담 예약이 <b style="color:#D9A29A;font-weight:600">취소</b>되었습니다.') +
     (when ? dateCard('Cancelled', prettyDate(dateKey), esc(time)) : '') +
     noteP('다시 찾아주실 때 언제든 편하게 일정을 잡아드리겠습니다.') +
     emailBtnOutline((CONFIG.FORM_URL && CONFIG.FORM_URL.charAt(0) !== '[') ? CONFIG.FORM_URL : webAppUrl(), '다시 예약하기') +
@@ -1187,41 +1187,41 @@ function sendProposalEmail(row, newDate, newTime, memo) {
 }
 
 // ============================ 메일 HTML 헬퍼 (브랜드 톤 · 참고 .gs 재사용) ============================
-// [다크 프레임 + 큰 화이트 카드] 바깥 배경만 다크, 로고·본문·푸터는 전부 한 장의 흰 카드 안에.
-//   Gmail 앱은 라이트 메일만 강제 다크 변환하고 "이미 어두운 메일"(다크 배경)은 건드리지 않는 휴리스틱 →
-//   배경을 다크로 두면 흰 카드가 원본 그대로 살아남고(애플 메일 방식), 혹시 변환돼도 배경이 이미 다크라 디자인이 안 깨짐(양쪽 안전).
-//   카드 내부(각 메일 본문)는 기존 화이트 기준 스타일 그대로 사용.
+// [다크 카드] 메일 자체가 의도된 다크 디자인 — 카드(#1B1611)·골드·크림. 어떤 변환도 깨뜨릴 수 없는 구조:
+//   라이트 앱 = 다크 카드 그대로(프리미엄 초대장), 강제 다크 앱(Gmail 등) = 다크 요소는 유지되고 라이트 패널만 어두워져도 같은 톤이라 자연스러움.
+//   바깥 배경은 지정하지 않음 — 앱 기본(라이트=흰 배경·다크=어두운 배경)을 따라 반전 어색함 제거.
+//   카드 안 라이트 패널(날짜·개인코드·운영자 표)은 '페이퍼 패널'로 의도된 대비 — 그대로 둠.
 function emailShell(headline, innerHtml) {
   return '' +
-    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"><style>@import url(\'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap\');:root{color-scheme:only light;supported-color-schemes:only light}html,body{color-scheme:only light}body{margin:0;padding:0;background:#16120E !important}.me-card{padding:46px 38px}@media only screen and (max-width:600px){.me-card{padding:36px 22px !important}}@media (prefers-color-scheme:dark){body,.me-bg{background:#16120E !important}.me-card{background:#FFFFFF !important;color:#3A2D22 !important}}[data-ogsb] body,[data-ogsb] .me-bg{background:#16120E !important}[data-ogsb] .me-card{background:#FFFFFF !important}[data-ogsc] .me-card{color:#3A2D22 !important}</style></head>' +
-    '<body bgcolor="#16120E" style="margin:0;padding:0;background:#16120E;color-scheme:only light;">' +
-    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#16120E;width:100%;"><tr><td align="center" bgcolor="#16120E" class="me-bg" style="background:#16120E;padding:34px 16px;">' +
-    '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#FFFFFF;border-radius:10px;"><tr><td bgcolor="#FFFFFF" class="me-card" style="background:#FFFFFF;border-radius:10px;padding:46px 38px;font-family:\'Noto Serif KR\',serif;color:#3A2D22;">' +
-      '<div style="text-align:center;margin-bottom:24px;"><img src="https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +
-      '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#3A2D22;margin:0 0 8px">' + esc(headline) + '</p>' +
+    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"><style>@import url(\'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap\');.me-card{padding:46px 38px}@media only screen and (max-width:600px){.me-card{padding:36px 22px !important}}</style></head>' +
+    '<body style="margin:0;padding:0;">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr><td align="center" style="padding:30px 14px;">' +
+    '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#1B1611;border:1px solid #2E2820;border-radius:12px;"><tr><td bgcolor="#1B1611" class="me-card" style="background:#1B1611;border-radius:12px;padding:46px 38px;font-family:\'Noto Serif KR\',serif;color:#EBE2D2;">' +
+      '<div style="text-align:center;margin-bottom:26px;"><img src="https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +
+      '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#F0E8DB;margin:0 0 8px">' + esc(headline) + '</p>' +
       innerHtml +
-      '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:20px;text-align:center;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
-      '<div style="text-align:center;margin-top:10px;font-size:10px;letter-spacing:.04em;color:#A39C8E;">Moment Edit · Private Wedding Studio</div>' +
+      '<div style="border-top:1px solid #332C24;margin-top:32px;padding-top:20px;text-align:center;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
+      '<div style="text-align:center;margin-top:10px;font-size:10px;letter-spacing:.04em;color:#877B69;">Moment Edit · Private Wedding Studio</div>' +
     '</td></tr></table>' +
     '</td></tr></table></body></html>';
 }
 function emailBtn(url, label, color) {
-  // 기본 딥브라운 — 라이트에선 사이트 버튼과 동일 톤, Gmail 앱 강제 다크 변환 시 크림색으로 뒤집혀도 의도된 디자인처럼 보임(골드·버건디는 핑크로 깨짐)
-  var bg = color || '#3A2D22';
-  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#FFFFFF;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(58,45,34,0.22);">' + esc(label) + '</a></div>';
+  // 기본 골드 — 다크 카드 위 CTA. 중간 톤이라 강제 다크 변환에도 거의 그대로 유지됨
+  var bg = color || '#C9A86A';
+  return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#221B14;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:600;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(0,0,0,0.35);">' + esc(label) + '</a></div>';
 }
 function emailBtnOutline(url, label) {
-  return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:#FFFFFF;color:#8A7A5E;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #CDBFA6;border-radius:4px;">' + esc(label) + '</a></div>';
+  return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:transparent;color:#C9A86A;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #5A4D3B;border-radius:4px;">' + esc(label) + '</a></div>';
 }
-function centerP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:18px 0 0;word-break:keep-all">' + html + '</p>'; }
-function noteP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:14px 0 0;word-break:keep-all">' + html + '</p>'; }
-function smallP(html) { return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#75705F;text-align:center;margin:20px 0 0;word-break:keep-all">' + html + '</p>'; }
+function centerP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#EBE2D2;margin:18px 0 0;word-break:keep-all">' + html + '</p>'; }
+function noteP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#C9BFAF;text-align:center;margin:14px 0 0;word-break:keep-all">' + html + '</p>'; }
+function smallP(html) { return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#A29684;text-align:center;margin:20px 0 0;word-break:keep-all">' + html + '</p>'; }
 function infoRow(label, valHtml) {
   return '<div style="display:block;padding:11px 0;border-bottom:1px solid #ECE8E1"><span style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.02em;color:#A39C8E">' + esc(label) + '</span><br><span style="font-family:\'Noto Serif KR\',serif;font-size:14px;color:#3A2D22;line-height:1.6">' + valHtml + '</span></div>';
 }
 function infoBlock(pairs) {
   var rows = pairs.map(function (p) {
-    return '<div style="padding:12px 0;border-bottom:1px solid #ECE8E1"><div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.04em;color:#B89A75;margin-bottom:3px">' + esc(p[0]) + '</div><div style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.75;color:#5A554C">' + p[1] + '</div></div>';
+    return '<div style="padding:12px 0;border-bottom:1px solid #332C24"><div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.04em;color:#C9A86A;margin-bottom:3px">' + esc(p[0]) + '</div><div style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.75;color:#CFC4B2">' + p[1] + '</div></div>';
   }).join('');
   return '<div style="margin:6px 0 0">' + rows + '</div>';
 }
