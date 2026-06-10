@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>드레스 시착 동의서 · Moment Edit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+KR:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--accent:#3A2D22;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--gold-deep:#9A7B4F;--seal:#6B2A24;--border:#DDD8D1;
+--serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;--sans:'Noto Sans KR',-apple-system,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--accent);font-family:var(--serif-ko);font-weight:300;font-size:14.5px;line-height:1.85;-webkit-font-smoothing:antialiased;word-break:keep-all}
+main{max-width:680px;margin:0 auto;padding:46px 22px 70px}
+.hero{text-align:center;margin-bottom:30px}
+.hero-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-deep)}
+.hero-title{font-size:24px;font-weight:500;margin:10px 0 6px}
+.hero-ver{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.18em;color:var(--light)}
+.doc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:30px 28px;box-shadow:0 1px 3px rgba(28,27,25,.05)}
+.sec-h{font-size:15px;font-weight:500;margin:22px 0 10px;color:var(--accent)}
+.sec-h:first-child{margin-top:0}
+table.kv{width:100%;border-collapse:collapse;font-size:13.5px}
+table.kv td{border:1px solid var(--border);padding:9px 12px}
+table.kv td:first-child{width:128px;background:var(--bg2);color:var(--sub)}
+ol.terms{padding-left:20px;font-size:13.5px}
+ol.terms li{margin:9px 0}
+.note{font-size:12px;color:var(--light);margin-top:14px;line-height:1.8}
+.sign-wrap{display:flex;gap:14px;margin-top:24px;flex-wrap:wrap}
+.sign-cell{flex:1;min-width:230px;border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.sc-role{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:8px}
+.sc-name{font-size:13.5px;color:var(--sub)}
+.sc-name b{color:var(--accent);font-weight:500}
+.sc-sig{margin-top:8px;min-height:56px;display:flex;align-items:center}
+.sc-sig img{max-height:64px;max-width:200px}
+.f-copy{text-align:center;font-size:11px;color:var(--light);margin-top:26px;line-height:1.9}
+@media print{
+  @page{size:A4;margin:14mm 13mm}
+  body{background:#fff;font-size:10.5pt}
+  main{max-width:100%;padding:0}
+  .doc{border:none;box-shadow:none;padding:0;border-radius:0}
+  ol.terms li,.sign-cell,table.kv tr{break-inside:avoid}
+  .sign-wrap{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div class="hero-label">Fitting Consent</div>
+    <h1 class="hero-title">드레스 시착 동의서</h1>
+    <div class="hero-ver" id="docVer">시착동의-v2</div>
+  </div>
+  <div class="doc">
+    <div class="sec-h">동의 당사자</div>
+    <table class="kv">
+      <tr><td>고객 (신랑 · 신부)</td><td id="fNames">마이페이지에서 자동 표시됩니다.</td></tr>
+      <tr><td>동의 일시</td><td id="fAt">·</td></tr>
+      <tr><td>적용 금액</td><td>예약금 200,000원 · 기본 시착 3벌 · 4벌째부터 1벌당 70,000원</td></tr>
+    </table>
+
+    <div class="sec-h">동의 내용</div>
+    <ol class="terms" id="fTerms">
+      <li>드레스 시착은 3벌까지 포함됩니다. (4벌째부터 1벌당 70,000원)</li>
+      <li>예약금 200,000원은 계약을 진행하시면 계약금의 일부로 전환됩니다.</li>
+      <li>드레스 시착 후 계약을 진행하지 않으시면 예약금은 시착비로 전환되어 환불되지 않습니다. (시착 전 취소는 전액 환불)</li>
+      <li>계약을 진행하신 뒤 청약철회(계약 후 15일 이내)나 무상취소(예식 150일 전까지)로 전액 환급을 받으시는 경우에도, 시착이 이미 진행되었다면 전환된 예약금 200,000원은 실제 제공된 시착 서비스의 대가로서 환급에서 제외됩니다. 그 외 받으신 금액은 전액 환급됩니다. (이용계약서 제4조 제8항 · 제7조)</li>
+    </ol>
+    <div class="note">본 동의는 마이페이지 전자서명으로 이루어졌으며, 「전자서명법」 제3조 및 「전자문서 및 전자거래 기본법」 제4조에 따라 서면 동의와 동일한 효력을 가집니다. 서명 시점의 동의 문구는 버전(termsHash)으로 보존됩니다.</div>
+
+    <div class="sign-wrap">
+      <div class="sign-cell">
+        <div class="sc-role">고객 · Customer</div>
+        <div class="sc-name">성명 : <b id="fSigName">____________</b></div>
+        <div class="sc-sig" id="fSig">(전자서명)</div>
+      </div>
+      <div class="sign-cell">
+        <div class="sc-role">모먼트에디트 · Moment Edit</div>
+        <div class="sc-name">상호 모먼트에디트 · 대표 <b>정희준</b></div>
+        <div class="sc-sig"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="모먼트에디트 직인" style="height:58px;width:58px"><defs><path id="meSealArc2" d="M 33,100 A 67,67 0 0 0 167,100" fill="none"/></defs><circle cx="100" cy="100" r="94" fill="none" stroke="#C0271E" stroke-width="3.5"/><circle cx="100" cy="100" r="85" fill="none" stroke="#C0271E" stroke-width="1.4"/><text fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="22" letter-spacing="3"><textPath xlink:href="#meSealArc2" startOffset="50%" text-anchor="middle">MOMENT EDIT</textPath></text><text x="100" y="116" text-anchor="middle" fill="#C0271E" font-family="'Times New Roman',Georgia,serif" font-weight="600" font-size="18" letter-spacing="0.5">JEONG HUIJUN</text><rect x="26" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 29 110)"/><rect x="168" y="107" width="6" height="6" fill="#C0271E" transform="rotate(45 171 110)"/></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · contact@momentedit.kr</div>
+</main>
+<script>
+/* 부모창(마이페이지·관리자)이 postMessage로 채움 — 계약서와 동일 프로토콜 */
+(function(){
+  function esc(s){ return String(s==null?'':s); }
+  function fill(d){
+    d=d||{};
+    if(d.version){ document.getElementById('docVer').textContent=esc(d.version); }
+    var g=esc(d.groom||''), b=esc(d.bride||'');
+    var nm=(g||b)?(g+(g&&b?' · ':'')+b):'';
+    if(nm){ document.getElementById('fNames').textContent=nm; document.getElementById('fSigName').textContent=nm; }
+    if(d.signedAt){ document.getElementById('fAt').textContent=esc(d.signedAt); }
+    if(d.terms && d.terms.length){
+      var ol=document.getElementById('fTerms'); ol.innerHTML='';
+      d.terms.forEach(function(t){ var li=document.createElement('li'); li.textContent=t; ol.appendChild(li); });
+    }
+    if(d.signImage){
+      var box=document.getElementById('fSig'); box.innerHTML='';
+      var img=document.createElement('img'); img.src=d.signImage; img.alt='고객 전자서명';
+      box.appendChild(img);
+    }
+  }
+  window.addEventListener('message', function(ev){
+    if(ev.origin!==location.origin) return;
+    if(ev.data && ev.data.type==='momentedit:fittingFill') fill(ev.data.data||{});
+  });
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'momentedit:fittingReady'}, location.origin); }catch(e){}
+})();
+</script>
+</body>
+</html>

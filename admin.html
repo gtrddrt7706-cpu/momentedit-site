@@ -364,6 +364,39 @@ function show(view){
 function api(payload){
   return fetch(EXEC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) }).then(function(r){ return r.json(); });
 }
+// 시착 동의서 문서 뷰어(관리자) — /contract/fitting.html 오버레이 + 서버(adminFittingDoc) 데이터 채움 + 인쇄=PDF
+function openFittingDoc(code){
+  gas('adminFittingDoc', code).then(function(res){
+    if(!res || !res.ok){ alert((res&&res.error)||'동의서 데이터를 불러오지 못했습니다.'); return; }
+    var doc=res.doc||{};
+    var old=document.getElementById('ad_ftViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+    var ov=document.createElement('div'); ov.id='ad_ftViewer';
+    ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column';
+    var bar=document.createElement('div');
+    bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e6e0d8;background:#fff';
+    var ttl=document.createElement('span'); ttl.textContent='드레스 시착 동의서 · '+code;
+    ttl.style.cssText='font-size:14px;color:#3a2f25';
+    var x=document.createElement('button'); x.type='button'; x.textContent='닫기';
+    x.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer';
+    var p=document.createElement('button'); p.type='button'; p.textContent='인쇄·저장';
+    p.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 14px;margin-right:8px;font-size:13px;cursor:pointer';
+    var fr=document.createElement('iframe'); fr.src='/contract/fitting.html';
+    fr.style.cssText='flex:1 1 auto;width:100%;border:none';
+    p.addEventListener('click',function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
+    var rg=document.createElement('div'); rg.appendChild(p); rg.appendChild(x);
+    bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
+    document.body.appendChild(ov);
+    function done(){ window.removeEventListener('message',onMsg); if(ov.parentNode) ov.parentNode.removeChild(ov); }
+    function onMsg(ev){
+      if(ev.source!==fr.contentWindow) return;
+      if(ev.data && ev.data.type==='momentedit:fittingReady'){
+        fr.contentWindow.postMessage({type:'momentedit:fittingFill', data:doc}, location.origin);
+      }
+    }
+    x.addEventListener('click',done); window.addEventListener('message',onMsg);
+  }).catch(function(){ alert('동의서 데이터를 불러오지 못했습니다.'); });
+}
+
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
 function gasRaw(fn){
   var args = Array.prototype.slice.call(arguments,1);
@@ -749,6 +782,7 @@ function cardConsult(d,isSnap){
 function cardFitting(d){
   var r=d.raw||{}, fit=r['시착동의상태']||'대기', raw='시착동의 <b>'+esc(fit)+'</b>';
   if(r['시착동의일시']) raw+=' · '+fmtDT(r['시착동의일시']);
+  if(fit==='동의완료') raw+=' <button type="button" class="btn-line" style="margin-left:8px;padding:4px 10px;font-size:12px" onclick="openFittingDoc(\''+esc(d.code||'')+'\')">동의서 문서</button>';
   var b='';
   if(d.stage==='시착'){
     if(fit==='동의요청') b+='<div class="gate">고객 시착 서명 대기 중</div>'+ab('closeFitting','드레스 시착 동의 취소','btn-ghost');

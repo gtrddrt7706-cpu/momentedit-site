@@ -134,12 +134,29 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
-      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
     return f.apply(null, args);
   } finally { _AUTHED = false; }
+}
+
+// [서류] 시착 동의서 문서 데이터 — 문서 뷰어(/contract/fitting.html) 채움용(이름·일시·서명·서명 당시 버전 전문).
+function adminFittingDoc(code) {
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var rec = _parseJsonSafe(cust.get('동의기록')).시착 || {};
+  var ver = String(rec.version || (typeof FITTING_CONSENT !== 'undefined' ? FITTING_CONSENT.version : ''));
+  var terms = (typeof FITTING_TERMS_BY_VERSION !== 'undefined' && FITTING_TERMS_BY_VERSION[ver])
+    || ((typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : []);
+  return { ok: true, doc: {
+    version: ver, terms: terms,
+    groom: String(cust.get('신랑이름') || ''), bride: String(cust.get('신부이름') || ''),
+    signedAt: String(cust.get('시착동의일시') || ''),
+    signImage: getSignatureDataUrl(code, '시착') || ''
+  } };
 }
 
 // ── 웹앱 진입 (doGet ?admin=1) — 셸만 서빙(로그인은 클라이언트 토큰). 접근=모든 사용자 배포. ──

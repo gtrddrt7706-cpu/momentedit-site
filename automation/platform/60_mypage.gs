@@ -104,7 +104,16 @@ function buildLedgerState(r) {
   var crTail = crTarget ? String(crTarget).replace(/[^0-9]/g, '').slice(-4) : '';
   // 서류 — 시착 동의서·계약서
   var documents = [];
-  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [], sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // [③] 내 내역에서 동의 내용 재열람용 · sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
+  if (fitDone || fitAt) {
+    var _fitRec = _parseJsonSafe(r.get('동의기록')).시착 || {};
+    var _fitVer = String(_fitRec.version || (typeof FITTING_CONSENT !== 'undefined' ? FITTING_CONSENT.version : ''));
+    var _fitTerms = (typeof FITTING_TERMS_BY_VERSION !== 'undefined' && FITTING_TERMS_BY_VERSION[_fitVer])
+      || ((typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : []);
+    documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '',
+      version: _fitVer, signedAt: fitAt,
+      groom: String(r.get('신랑이름') || ''), bride: String(r.get('신부이름') || ''),
+      terms: _fitTerms, sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // 문서 뷰어(fitting.html)용 메타 포함
+  }   // [③] 내 내역에서 동의 내용 재열람용 · sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
   var clink = String(r.get('계약서링크') || '').trim();
   var _cStat = String(r.get('계약상태') || '').trim();
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (_cStat === '발송' ? '서명 대기' : (_cStat || '—')), at: _ymdOf(r.get('계약서명일시')), url: clink });   // 내부값 '발송'을 고객어로
