@@ -394,6 +394,23 @@ function actAccept(sheet, colOf, row) {
 
 // 취소 처리 (공통) — 캘린더 일정 삭제 + 고객 취소 안내 메일 + 취소일시 기록.
 // onConsultEdit(상태를 '취소'로 변경)와 수동 함수(cancelByRow) 양쪽에서 호출.
+// [임시고정 연동] 상담 취소 공통 — 가예약(요청/승인) 자동 해제(슬롯 반환). 모든 취소 경로(셀프·관리자·이메일)가 actCancel 또는 handleEmailCancel에서 호출.
+function _releaseWeddingHoldOnCancel(code) {
+  try {
+    code = String(code || '').trim().toUpperCase();
+    if (!code) return;
+    var cust = findCustomerByCode(code);
+    if (!cust) return;
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!rec.가예약) return;
+    var _hd = rec.가예약.date, _hs = rec.가예약.slot;
+    delete rec.가예약;
+    var cs = getCustomersSheet(), cc = buildHeaderIndex(cs);
+    touchCustomer(cs, cc, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
+    _recordHandler(code, '상담 취소 → 예식일 임시고정 자동 해제 · ' + (_hd || '') + ' ' + (_hs || ''));
+  } catch (e) {}
+}
+
 function actCancel(sheet, colOf, r) {
   var names = coupleNames(r);
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
@@ -415,6 +432,7 @@ function actCancel(sheet, colOf, r) {
     catch (mailErr) { notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
   }
   setCustomerStage(String(r.get('개인코드') || '').trim(), 'cancel');  // ★③ Customers 현재단계 → 취소(예외)
+  _releaseWeddingHoldOnCancel(String(r.get('개인코드') || '').trim()); // 가예약(요청/승인) 자동 해제 — 모든 actCancel 경유 취소 공통
 }
 
 // ── 고객 셀프 취소 ──────────────────────────────────────────
@@ -569,6 +587,7 @@ function handleEmailCancel(body) {
   notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });
   var to = row.get('이메일'); if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');
+  _releaseWeddingHoldOnCancel(String(row.get('개인코드') || '').trim());   // 이메일 취소도 가예약 해제(actCancel 미경유 경로)
   return { ok: true };
 }
 
@@ -1921,20 +1940,7 @@ function handleCancelReservation(body) {
   var acct = String((body && body.acct) || '').trim();
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
   if (acct) writeCell(sheet, colOf, r.num, '환불계좌', acct);   // 환불 계좌 기록(취소 처리 전)
-  actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + 고객 취소메일 + setCustomerStage
-  // [임시고정 연동] 상담 취소 → 가예약(요청/승인)도 자동 해제(슬롯 반환). 이력은 처리이력에 남김.
-  try {
-    if (a.cust) {
-      var _rc2 = _parseJsonSafe(a.cust.get('동의기록'));
-      if (_rc2.가예약) {
-        var _hd2 = _rc2.가예약.date, _hs2 = _rc2.가예약.slot;
-        delete _rc2.가예약;
-        var _cs2 = getCustomersSheet(), _cc2 = buildHeaderIndex(_cs2);
-        touchCustomer(_cs2, _cc2, a.cust.num, { '동의기록': Object.keys(_rc2).length ? JSON.stringify(_rc2) : '' });
-        _recordHandler(String(a.cust.get('개인코드') || ''), '상담 취소 → 예식일 임시고정 자동 해제 · ' + (_hd2 || '') + ' ' + (_hs2 || ''));
-      }
-    }
-  } catch (e2) {}
+  actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + 고객 취소메일 + setCustomerStage + 가예약 해제(공통)
   if (acct) {                  // 운영자에게 환불 송금 요청(계좌 포함)
     try { sendRefundRequestEmail(r, dateKey, time, acct); }
     catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', coupleNames(r) + ' · ' + e.message); }
