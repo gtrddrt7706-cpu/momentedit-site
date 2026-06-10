@@ -352,10 +352,39 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 .fade.d1{animation-delay:0.05s}.fade.d2{animation-delay:0.13s}.fade.d3{animation-delay:0.22s}
 @keyframes fade{to{opacity:1;transform:translateY(0)}}
 
+/* 커스텀 날짜 선택(예식일 임시고정) — 마이페이지 계약서 폼과 동일 컴포넌트 */
+.dt-picker-wrap{position:relative;width:100%}
+.dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
+.dt-trigger:hover{border-color:var(--gold);background:#fafaf8}
+.dt-trigger-placeholder{color:var(--light);font-weight:300}
+.dt-trigger.has-value .dt-trigger-placeholder{color:var(--accent);font-weight:400}
+.dt-trigger-icon{flex-shrink:0;color:var(--gold);opacity:.7;display:inline-flex;align-items:center}
+.dt-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:100;background:#fff;border:1px solid var(--border);border-radius:4px;box-shadow:0 18px 44px rgba(28,27,25,.14),0 4px 14px rgba(28,27,25,.06);padding:18px 16px 14px;display:none;opacity:0;transform:translateY(-6px);transition:opacity .25s var(--ease),transform .25s var(--ease)}
+.dt-panel.open{display:block}
+.dt-panel.visible{opacity:1;transform:translateY(0)}
+.dt-cal-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 12px;border-bottom:1px solid var(--hairline);margin-bottom:8px}
+.dt-cal-title{font-family:var(--serif);font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.06em}
+.dt-cal-nav{background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:20px;font-weight:300;color:var(--sub);line-height:1;padding:4px 9px;border-radius:2px;transition:all .25s var(--ease)}
+.dt-cal-nav:hover:not(:disabled){color:var(--gold);background:var(--bg2)}
+.dt-cal-nav:disabled{opacity:.25;cursor:not-allowed}
+.dt-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.dt-wd{text-align:center;font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:var(--light);padding:5px 0}
+.dt-wd.sun{color:#B53A3A}
+.dt-wd.sat{color:#4A6FA5}
+.dt-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dt-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:2px;font-family:var(--serif);font-size:12.5px;color:var(--accent);cursor:pointer;transition:all .2s var(--ease);position:relative;padding:0}
+.dt-day.empty{pointer-events:none;cursor:default}
+.dt-day.past{color:var(--light);opacity:.3;cursor:not-allowed;pointer-events:none}
+.dt-day.today{font-weight:500;color:var(--gold)}
+.dt-day.today::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold)}
+.dt-day.weekend{color:var(--sub)}
+.dt-day:hover:not(.past):not(.empty):not(.selected){background:var(--bg2);border-color:var(--gold)}
+.dt-day.selected{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
+.dt-day.selected.today::after{background:#fff}
 @media(max-width:560px){
   .day{font-size:15px}.slot{font-size:15px;padding:14px 6px}
   .greet-title{font-size:24px}.greet-sub{font-size:15px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
-  .deposit{margin:0 14px 4px}
+  .deposit{margin:0 0 18px}
 }
 </style>
 </head>
@@ -470,7 +499,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">카카오톡으로 예식일 가능 여부를 <b>미리 확인</b>하셨나요? 사전 확인 없이 요청하시면 해당 날짜는 <b>승인되지 않을 수 있어요.</b> 임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우 적용되며, 확정 일정은 계약 전 마이페이지에서 안내드려요.</div>
           <label class="deposit-payer-label" for="holdDate" style="text-align:left">예식 날짜</label>
-          <input type="date" id="holdDate" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff">
+          <div id="holdDateWrap"></div>
           <label class="deposit-payer-label" for="holdSlot" style="text-align:left;margin-top:10px">예식 시간 <span>· 140분</span></label>
           <select id="holdSlot" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff"><option value="">선택해 주세요</option><option value="09:00">오전 09:00</option><option value="12:20">오후 12:20</option><option value="15:40">늦은 오후 15:40</option></select>
         </div>
@@ -565,6 +594,55 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 // ── 서버(Google Apps Script) 주입 데이터 ──
 // 데모용 isAvail()/FULL 더미를 제거하고, 시트·캘린더 실제 데이터로 교체했습니다.
 var EXEC_URL="https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+// ── 커스텀 날짜 선택 컴포넌트(마이페이지 계약서 폼과 동일) — 예식일 임시고정용. OS 기본 달력 대신 우리 폼 달력 사용 ──
+function _g(i){return document.getElementById(i);}
+function _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function dtPickerHtml(p, hiddenId, placeholder, opt){
+  opt=opt||{};
+  var head='<div class="dt-cal-head"><button type="button" class="dt-cal-nav" id="'+p+'_prev" aria-label="이전 달">‹</button><span class="dt-cal-title" id="'+p+'_title"></span><button type="button" class="dt-cal-nav" id="'+p+'_next" aria-label="다음 달">›</button></div>';
+  return '<div class="dt-picker-wrap" id="'+p+'_wrap"><button type="button" class="dt-trigger" id="'+p+'_trigger" aria-haspopup="dialog" aria-expanded="false"><span class="dt-trigger-placeholder" id="'+p+'_text">'+placeholder+'</span><span class="dt-trigger-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button>'
+    +'<input type="hidden" id="'+hiddenId+'" value="'+_esc(opt.value||'')+'">'
+    +'<div class="dt-panel" id="'+p+'_panel" role="dialog" aria-hidden="true"><div class="dt-cal">'+head
+    +'<div class="dt-cal-weekdays"><span class="dt-wd sun">일</span><span class="dt-wd">월</span><span class="dt-wd">화</span><span class="dt-wd">수</span><span class="dt-wd">목</span><span class="dt-wd">금</span><span class="dt-wd sat">토</span></div>'
+    +'<div class="dt-cal-grid" id="'+p+'_grid"></div></div></div></div>';
+}
+function initDatePicker(o){
+  var wrap=_g(o.wrap), trigger=_g(o.trigger), triggerText=_g(o.text), panel=_g(o.panel), grid=_g(o.grid), title=_g(o.title), prevBtn=_g(o.prev), nextBtn=_g(o.next), hidden=_g(o.hidden);
+  if(!wrap||!trigger||!panel||!grid) return;
+  var today=new Date(); today.setHours(0,0,0,0);
+  var MIN=new Date(today), WD_KO=['일','월','화','수','목','금','토'];
+  function pad(n){ return (n<10?'0':'')+n; }
+  function fmt(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function fmtKo(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+WD_KO[d.getDay()]+')'; }
+  var selected=null, initV=(hidden&&hidden.value)?hidden.value:(o.value||'');
+  if(/^\d{4}-\d{2}-\d{2}$/.test(initV)){ var pp=initV.split('-'); selected=new Date(+pp[0],+pp[1]-1,+pp[2]); selected.setHours(0,0,0,0); if(triggerText) triggerText.textContent=fmtKo(selected); trigger.classList.add('has-value'); }
+  var basis=selected||today, viewY=basis.getFullYear(), viewM=basis.getMonth();
+  function render(){
+    if(title) title.textContent=viewY+'년 '+(viewM+1)+'월';
+    grid.innerHTML='';
+    var first=new Date(viewY,viewM,1), startDow=first.getDay(), dim=new Date(viewY,viewM+1,0).getDate();
+    for(var i=0;i<startDow;i++){ var e=document.createElement('span'); e.className='dt-day empty'; grid.appendChild(e); }
+    for(var d=1; d<=dim; d++){
+      var cur=new Date(viewY,viewM,d), btn=document.createElement('button');
+      btn.type='button'; btn.className='dt-day'; btn.textContent=d;
+      if(cur.getTime()===today.getTime()) btn.classList.add('today');
+      if(cur.getDay()===0||cur.getDay()===6) btn.classList.add('weekend');
+      if(cur<MIN){ btn.classList.add('past'); }
+      else { (function(c){ btn.addEventListener('click', function(){ selected=c; if(hidden) hidden.value=fmt(c); if(triggerText) triggerText.textContent=fmtKo(c); trigger.classList.add('has-value'); close(); }); })(cur); }
+      if(selected&&cur.getTime()===selected.getTime()) btn.classList.add('selected');
+      grid.appendChild(btn);
+    }
+    var firstOfView=new Date(viewY,viewM,1), firstOfThis=new Date(today.getFullYear(),today.getMonth(),1);
+    if(prevBtn) prevBtn.disabled=(firstOfView<=firstOfThis);
+  }
+  function open(){ panel.classList.add('open'); requestAnimationFrame(function(){ panel.classList.add('visible'); }); trigger.setAttribute('aria-expanded','true'); panel.setAttribute('aria-hidden','false'); }
+  function close(){ panel.classList.remove('visible'); trigger.setAttribute('aria-expanded','false'); panel.setAttribute('aria-hidden','true'); setTimeout(function(){ panel.classList.remove('open'); },280); }
+  trigger.addEventListener('click', function(e){ e.stopPropagation(); if(panel.classList.contains('open')) close(); else { render(); open(); } });
+  if(prevBtn) prevBtn.addEventListener('click', function(){ if(prevBtn.disabled) return; viewM--; if(viewM<0){viewM=11;viewY--;} render(); });
+  if(nextBtn) nextBtn.addEventListener('click', function(){ viewM++; if(viewM>11){viewM=0;viewY++;} render(); });
+  document.addEventListener('click', function(e){ if(panel.classList.contains('open') && !wrap.contains(e.target)) close(); });
+  render();
+}
 function boot(SERVER){
 const SLOTS_WEEKDAY = SERVER.slotsWeekday;   // 평일 슬롯 (CONFIG.SLOTS_WEEKDAY)
 const SLOTS_WEEKEND = SERVER.slotsWeekend;   // 주말 슬롯 (CONFIG.SLOTS_WEEKEND)
@@ -773,6 +851,10 @@ document.getElementById('flexEtc').addEventListener('input',(e)=>{
 });
 
 renderCal();renderTime();updateSummary();
+// 예식일 임시고정 — 커스텀 달력 주입(OS 기본 달력 대신 우리 폼 달력). 숨김 input id=holdDate 유지 → _holdPayload 그대로.
+var _hdw=document.getElementById('holdDateWrap');
+if(_hdw){ _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
+  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate'}); }
 }
 // ── 부트스트랩: 세션 토큰으로 getAvailability 호출 → SERVER 구성 → boot() ──
 (function(){
