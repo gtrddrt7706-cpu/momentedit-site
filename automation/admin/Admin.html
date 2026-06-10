@@ -740,8 +740,8 @@ function _prodTrackDetail(prod){
     dh+=L('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'함':'—'));
     if(dd.dining_on==='Y'){
       dh+=L('인원', dd.headcount?(esc(dd.headcount)+'명'):'');
-      dh+=L('식사 형태', esc(dd.mealType||''));
-      dh+=L('파트너사', esc(dd.partner||''));
+      dh+=L('식사 장소', esc(dd.venue||dd.venuePick||dd.partner||''));
+      if(dd.mealType) dh+=L('식사 형태(이전 입력)', esc(dd.mealType));
       dh+=L('협력사 위탁', dd.entrustAgree==='Y'?'동의':(dd.entrustAgree==='N'?'미동의':''));
     }
     out+='<div class="raw-sub"><div class="raw-sub-h">🍽 다이닝</div>'+dh+'</div>';

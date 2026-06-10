@@ -866,7 +866,7 @@ function prodTracksHtml(prod){
 function prodTrackDetail(dd,rd){
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   var h='';
-  if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사형태',dd.mealType)+row('파트너사',dd.partner)+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
+  if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
   if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   return h||'<div class="cnote">내용 없음</div>';
 }

@@ -2900,36 +2900,75 @@ function bindTrk(box, render, collect, opt){
     saveTrkDraft(false); TRKFLOW.step++; render(box);
   });
 }
+// 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. 회차(본예식 시간)에 맞춰 큐레이션 노출.
+var DINE_FORMAL=[
+  ['갈비도락 서오릉점','차로 10분 · 소양념갈비 4만 원대 · 한돈 2만 원대','대형 단체 룸 · 그릴링 서비스 · 브레이크 타임 없음'],
+  ['한우만 서오릉점','차로 10분 · 한우 생등심 5~6만 원대','최상급 한우 · 프라이빗 개별 룸'],
+  ['목향 강매동','차로 12분 · 한정식 코스 3~7만 원대','한옥 정원 조망 · 단독 룸'],
+  ['복옥정 서오릉본점','차로 10분 · 보리굴비·불고기 정식 2~3만 원대','모던하고 정갈한 공간'],
+  ['카페 스탠포드','차로 12분 · 호텔 주말 뷔페 7~8만 원대','4성급 호텔 서비스 · 단체 수용 용이']
+];
+var DINE_CAFE=[
+  ['경성빵공장 서오릉점','차로 8분 · 팥빵·건강빵','어르신 선호 · 넓은 야외 정원'],
+  ['카페 기와','차로 10분 · 카페·디저트','정통 한옥 마당 · 프라이빗 개별 공간'],
+  ['나인블럭 FARM 고양','차로 12분 · 카페·브런치','웅장한 층고 · 대규모 하객 수용'],
+  ['씨디에프 (CDF)','차로 10분 · 갤러리형 럭셔리 카페','단독 구역 협의 가능'],
+  ['리비토','향동 안 차로 2분 · 화덕피자·브런치','이동 편의 최상']
+];
+// 본예식 시간 → 식사 회차 안내·추천 목록 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
+function _dineSlot(wt){
+  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.', list:DINE_FORMAL};
+  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 갈비도락, 또는 여유로운 카페·브런치 파티가 잘 맞아요.', list:[DINE_FORMAL[0]].concat(DINE_CAFE)};
+  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.', list:DINE_FORMAL};
+  return {lead:'예식 시간대에 맞춰 디렉터가 직접 검증해 둔 연계 식당·카페예요.', list:DINE_FORMAL.concat(DINE_CAFE)};
+}
 function renderDining(box){
   var d=TRKFLOW.draft;
+  // 옛 저장값 호환: venuePick이 없으면 venue·구 파트너 선택에서 복원(구 '식사 형태'는 표시만 안 하고 보존)
+  if(!d.venuePick) d.venuePick = d.venue || ((d.partner==='직접 섭외할게요'||d.partner==='상담 때 함께 정할게요')?d.partner:'');
+  function syncVenue(){
+    if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
+    else { d.venue=''; if(d.venuePick) d.partner=d.venuePick; }
+  }
   function collect(){
     if($('trk_dHead')) d.headcount=($('trk_dHead').value||'').trim();
     if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
+    syncVenue();
   }
+  syncVenue();   // 클릭 직후 재렌더에서도 venue·partner가 바로 맞도록
   if(TRKFLOW.step===0){
     var on=d.dining_on||'';
-    var meal=['코스 다이닝','뷔페형','핑거푸드·디저트','아직 정하지 못했어요'];
-    var ptn=['모먼트에디트 추천(큐레이션)','직접 섭외할게요','상담 때 함께 정할게요'];
+    var slot=_dineSlot((TRKFLOW.base&&TRKFLOW.base.weddingTime)||'');
+    function vCard(v){ var sel=(d.venuePick===v[0]);
+      return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(v[0])+'">'+escapeHtml(v[0])
+        +'<small>'+escapeHtml(v[1])+'</small><small>'+escapeHtml(v[2])+'</small></label>'; }
     var f = (on==='Y') ? '<div class="inv-fields">'
         + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원</div>'
         + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
-        + '<div class="inv-side-l" style="margin:14px 0 4px">식사 형태</div>'
-        + meal.map(function(x){return _trkOpt(x,d.mealType,'mealType',x);}).join('')
-        + '<div class="inv-side-l" style="margin:14px 0 4px">파트너사(다이닝 업체)</div>'
-        + ptn.map(function(x){return _trkOpt(x,d.partner,'partner',x);}).join('')
-        + '<div class="cc-note">파트너사 목록은 상담 때 함께 보고 최종 확정해요.</div>'
+        + '<div class="inv-side-l" style="margin:14px 0 4px">식사 장소</div>'
+        + '<div class="cc-note" style="margin:0 0 8px">'+escapeHtml(slot.lead)+' 예식 후 가까운 연계 식당·카페로 이동해 식사해요.</div>'
+        + slot.list.map(vCard).join('')
+        + _trkOpt('직접 섭외할게요', d.venuePick, 'venuePick', '직접 섭외할게요', '원하시는 곳이 따로 있다면')
+        + _trkOpt('상담 때 함께 정할게요', d.venuePick, 'venuePick', '상담 때 함께 정할게요', '디렉터와 같이 보고 천천히')
+        + '<div class="cc-note">주차·맛·프라이빗 룸까지 디렉터가 직접 검증한 리스트예요. 장소를 정하시면 예약과 룸·좌석 요청은 디렉터가 대신 진행해 드려요.</div>'
         + '</div>' : '';
     var body='<div class="inv-gate"><div class="inv-gate-q">예식 후 다이닝(식사·다과)을 진행하시나요?</div><span class="inv-yn"><button type="button" data-gate="dining_on" data-gv="Y" class="'+(on==='Y'?'on':'')+'">네</button><button type="button" data-gate="dining_on" data-gv="N" class="'+(on==='N'?'on':'')+'">아니요</button></span></div>'+f;
-    box.innerHTML=trkShell(1,'다이닝, 어떻게 준비할까요?','식사·다과 구성이에요. 모두 나중에 바꿀 수 있어요.',body,false);
-    bindTrk(box,renderDining,collect,{ validate:function(){ if(!d.dining_on) return '진행 여부를 골라 주세요.'; } });
+    box.innerHTML=trkShell(1,'다이닝, 어떻게 준비할까요?','예식 후 식사 자리예요. 모두 나중에 바꿀 수 있어요.',body,false);
+    bindTrk(box,renderDining,collect,{ validate:function(){
+      if(!d.dining_on) return '진행 여부를 골라 주세요.';
+      if(d.dining_on==='Y' && !d.venuePick) return "식사 장소를 골라 주세요. 아직이면 '상담 때 함께 정할게요'를 선택해 주세요.";
+    } });
   } else {
     if(d.dining_on==='N'){
       box.innerHTML=trkShell(2,'다이닝 없이 진행해요','이 단계는 완료로 표시돼요. 언제든 다시 켤 수 있어요.','',true);
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
-      var body='<div class="cc-note">고르신 구성으로 협력사와 함께 준비해요. 메뉴·인원은 상담 때 더 다듬어요.</div>'
-        + '<label class="inv-chk" style="display:flex;gap:8px;align-items:flex-start;margin-top:12px"><input type="checkbox" id="trk_agree" '+(d.entrustAgree==='Y'?'checked':'')+' style="margin-top:3px"><span>다이닝·인쇄 협력사에 준비에 필요한 정보(성함·인원·메뉴)를 전달하는 것에 동의합니다.</span></label>';
-      box.innerHTML=trkShell(2,'마지막으로 확인할게요',null,body,true);
+      var pickedTxt = d.venue ? (d.venue+' · 예약은 디렉터가 대신 진행해 드려요') : (d.venuePick||'장소 미정');
+      var body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
+        + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(pickedTxt)+'</div>'
+        + '<div class="cc-note">인원·메뉴 디테일은 상담에서 함께 다듬어요.</div>'
+        + '<label class="inv-chk" style="display:flex;gap:8px;align-items:flex-start;margin-top:12px"><input type="checkbox" id="trk_agree" '+(d.entrustAgree==='Y'?'checked':'')+' style="margin-top:3px"><span>예약 진행에 필요한 정보(성함·인원·시간)를 연계 식당·협력사에 전달하는 것에 동의합니다.</span></label>';
+      box.innerHTML=trkShell(2,'마지막으로 확인할게요',null,body2,true);
       bindTrk(box,renderDining,collect,{ last:true, validate:function(){ if(!($('trk_agree')&&$('trk_agree').checked)) return '협력사 정보 위탁에 동의해 주세요.'; } });
     }
   }
