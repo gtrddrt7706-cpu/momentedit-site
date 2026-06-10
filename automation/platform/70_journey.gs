@@ -581,6 +581,15 @@ var PAYMENT = {
 };
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
+// 임박 계약(예식 149일 이내 성립) 대응 — 기한이 이미 지난 고객에겐 과거 날짜 대신 '계약 시 함께 납부'로 표기(계약서 4조④ 단서와 일치).
+function _midDuePast(r) {
+  var d = _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전);
+  if (!d) return false;
+  var today = _ymdOf(fmtKST(new Date()));
+  return today && d < today;   // 둘 다 YYYY-MM-DD 패딩이라 문자열 비교 안전
+}
+function _midDueLabelFor(r) { return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
+function _midDueDateFor(r) { return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
 
 // 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50·예약금 충당), 웨딩스냅=2단계(계약금20%·잔금80%, 중도금/충당 없음).
 function _journeyAmounts(total, product) {
@@ -823,8 +832,8 @@ function buildMidState(r) {
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,
     due: (dday != null && dday <= PAYMENT.중도금일수전),  // 기한 이내(부각)
-    dueLabel: _midDueLabel(),
-    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전)   // 중도금 마감일 (YYYY-MM-DD)
+    dueLabel: _midDueLabelFor(r),
+    dueDate: _midDueDateFor(r)   // 중도금 마감일 (YYYY-MM-DD · 임박 계약이면 빈값)
   };
 }
 // 중도금 입금 신호(고객). 단계 전이 없음·멱등.
@@ -918,7 +927,7 @@ function sendMidReminders() {
         var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
         var amtTxt = amounts ? (Number(amounts['중도금']).toLocaleString() + '원') : '중도금';
         GmailApp.sendEmail(email, '[Moment Edit] 중도금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
-          '예식이 다가옵니다.\n중도금 ' + amtTxt + '을 ' + _midDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+          '예식이 다가옵니다.\n중도금 ' + amtTxt + '을 ' + (dday < PAYMENT.중도금일수전 ? '계약 시 안내드린 대로 바로' : _midDueLabel() + '까지') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
       } catch (e) {}
     }
     sheet.getRange(P.DATA_START_ROW + i, c('중도금리마인드')).setValue(fmtKST(new Date()));

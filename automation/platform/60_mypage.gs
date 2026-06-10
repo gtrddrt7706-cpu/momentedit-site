@@ -86,7 +86,7 @@ function buildLedgerState(r) {
     if (isSnap) payments.push({ key: '예약금', label: '계약금', amount: amounts['계약금'], status: st(r.get('입금상태')), done: depConfirmed });
     else payments.push({ key: '예약금', label: '예약금', amount: PAYMENT.예약금, status: '결제 완료', done: true });
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인',
-      dueLabel: _midDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전) });   // 납부 기한 인지용(미납 행에만 표시)
+      dueLabel: _midDueLabelFor(r), dueDate: _midDueDateFor(r) });   // 납부 기한 인지용(미납 행에만 표시) · 임박 계약(기한 과거)이면 '계약 시 함께 납부'
     payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인',
       dueLabel: _balanceDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전) });
   }
