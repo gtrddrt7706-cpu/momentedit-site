@@ -391,7 +391,7 @@ var curHome=null;
 function queueRow(it){
   var inlineKinds={ '신규신청':'approve','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','추가보정확인':'confirmExtra','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','보정시작':'보정본 등록','계약만료':'재발송' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','보정시작':'보정본 등록','계약만료':'재발송','현금영수증발행':'현금영수증 발행' }[it.kind]||'처리';
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'">'+esc(btnLbl)+'</button>'
@@ -659,13 +659,23 @@ function cardPayment(d){
   var mid=r['중도금상태']||'', bal=r['잔금상태']||'';
   if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
   if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
-  if(d.cashReceipt) raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">현금영수증 '+esc(d.cashReceipt)+'</span> <span style="color:var(--label-soft)">· 입금 확인 후 5일 내 발급</span>';
+  // 현금영수증 — 발급 대상(고객 입력) + 마일스톤별 발행 상태(발행완료/발행대기)
+  if(d.cashReceipt) raw+='<br><span style="color:var(--label-soft)">현금영수증 발급대상 '+esc(d.cashReceipt)+'</span>';
+  (d.receipts||[]).forEach(function(it){
+    if(it.issued) raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 현금영수증 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</span>';
+    else if(it.due) raw+='<br><span style="color:#b5852a">• '+esc(it.label)+' 현금영수증 <b>발행 대기</b> ('+Number(it.amount||0).toLocaleString()+'원) · 홈택스 발급 후 번호 기록</span>';
+  });
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');   // 고객 입금 신호 → 통장 대조 후 확인
   if(bal==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');
+  // 현금영수증 발행/취소 — 입금 확인된 마일스톤 단위
+  (d.receipts||[]).forEach(function(it){
+    if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line');
+    else if(it.issued) b+=ab('undoReceipt:'+it.key, it.label+' 발행 취소','btn-ghost');
+  });
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 function cardProduction(d){
@@ -736,6 +746,8 @@ function bindDetail(d){
 }
 function onDetailAct(act,d){
   var code=d.code, names=d.names, isSnap=snap(d.product);
+  if(act.indexOf('issueReceipt:')===0){ doIssueReceipt(code,names,act.slice(13),d); return; }
+  if(act.indexOf('undoReceipt:')===0){ doUndoReceipt(code,names,act.slice(12)); return; }
   if(act==='approve') doApprove(code,names);
   else if(act==='accept') doAccept(code,names);
   else if(act==='cancel') doCancel(code,names);
@@ -803,6 +815,18 @@ function doConsultDone(code,names){ openModal({ title:'상담완료로 넘길까
 function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
 function doConfirmMid(code,names){ openModal({ title:'중도금 입금을 확인할까요?', text:b(names)+li('중도금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
 function doConfirmBalance(code,names){ openModal({ title:'잔금 입금을 확인할까요?', text:b(names)+li('잔금이 입금 확인 처리돼요')+li('고객에게 입금 확인 알림이 가요'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
+function doIssueReceipt(code,names,kind,d){
+  var it=null, rc=(d&&d.receipts)||[]; for(var i=0;i<rc.length;i++) if(rc[i].key===kind) it=rc[i];
+  var amt=it?Number(it.amount||0):0, tgt=(it&&it.target)||'';
+  var ro='background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:7px 9px;font-size:13px;color:#5c4a2c';
+  var extra='<div class="field"><label>발행 금액</label><div style="'+ro+'"><b>'+amt.toLocaleString()+'원</b></div></div>'+
+    '<div class="field"><label>발급 대상</label><div style="'+ro+'">'+(tgt?esc(tgt):'미입력 — 자진발급(010-000-1234)')+'</div></div>'+
+    '<div class="field"><label>발행번호 (홈택스 승인번호)</label><input id="crNum" inputmode="numeric" autocomplete="off" placeholder="홈택스 발급 후 승인번호 입력"></div>';
+  openModal({ title:kind+' 현금영수증 발행', text:b(names)+li('홈택스에서 발급한 뒤 승인번호를 기록해요')+li('기록하면 발행 대기에서 사라지고 고객 내역에 표시돼요'),
+    extra:extra, yes:'발행 완료', init:function(){ var i=$('crNum'); if(i) i.focus(); },
+    onYes:function(){ var num=(($('crNum')&&$('crNum').value)||'').trim(); if(!num){ mErr('발행번호를 입력해 주세요.'); return; } runAct(['adminIssueCashReceipt',code,kind,num],code,'발행 완료'); } });
+}
+function doUndoReceipt(code,names,kind){ openModal({ title:kind+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
 function doConfirmExtra(code,names){ openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 결제가 확인 처리돼요'), yes:'추가보정 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'추가보정 확인'); } }); }
 function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li(esc((h.date||'')+' '+lab+' '+(h.slot||'')))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
 function doDeclineHold(code,names,d){ var h=(d&&d.hold)||{}; openModal({ title:(h.status==='승인'?'임시고정을 해제할까요?':'임시고정 요청을 거절할까요?'), danger:true, text:b(names)+li('가예약이 풀려 그 슬롯이 다시 열려요')+li('고객에게 안내가 가요'), yes:(h.status==='승인'?'해제':'거절'), onYes:function(){ runAct(['adminDeclineWeddingHold',code],code,'임시고정 해제'); } }); }
