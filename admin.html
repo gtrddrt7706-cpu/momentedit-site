@@ -136,6 +136,8 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .card-h .ct{font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--accent)}
 .card-h .cflag{margin-left:auto;font-family:var(--serif-ko);font-size:10.5px;border-radius:9px;padding:2px 9px}
 .raw{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;line-height:1.7;word-break:break-all}
+.raw-sub{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;margin-top:6px;line-height:1.65;word-break:break-all;border-left:2px solid var(--gold-soft,rgba(184,154,117,.28))}
+.raw-sub-h{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#9A7B4F);font-weight:600;margin-bottom:3px}
 .raw b{color:var(--accent);font-weight:500}
 .mt{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deeper);background:none;border:none;cursor:pointer;padding:7px 0 2px}
 .mbody{display:none;margin-top:6px;border-top:1px dashed var(--gold-line);padding-top:8px}
@@ -374,6 +376,7 @@ function prodLabel(p){ return snap(p)?'스냅':'시그'; }
 /* 시각 표기 — "YYYY-MM-DD HH:mm" → "M/D HH:mm"(올해 연도 생략) */
 function fmtDT(s){ var m=String(s||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/); if(!m) return esc(s||''); var yr=(+m[1]!==new Date().getFullYear())?(m[1]+'/'):''; return yr+(+m[2])+'/'+(+m[3])+' '+m[4]+':'+m[5]; }
 function fmtDate(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return esc(ymd||''); var d=new Date(+m[1],+m[2]-1,+m[3]); return (+m[2])+'/'+(+m[3])+'('+WD[d.getDay()]+')'; }
+function fmtCRTarget(s){ var n=String(s||'').replace(/[^0-9]/g,''); if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
 function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예식'; if(n>0) return w+' D-'+n; if(n<0) return w+' D+'+(-n); return w+' D-day'; }
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
 function designLabel(v){ var n=('0'+String(v||'').replace(/[^0-9]/g,'')).slice(-2); return DESIGNS[n]?(n+' '+DESIGNS[n]):(v?('디자인 '+n):''); }
@@ -713,6 +716,11 @@ function cardConsult(d,isSnap){
   if(c.confirmedAt) raw+='<br>확정 '+fmtDT(c.confirmedAt);
   if(c.cancelledAt) raw+='<br>취소 '+fmtDT(c.cancelledAt);
   var b='';
+  // 취소 환불 — 환불계좌 + 송금 완료 처리(취소 고객만). 처리하면 환불송금 큐에서 사라짐.
+  if(d.stage==='취소' && c.refund){
+    if(d.refundDone){ raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">💸 환불 완료 · '+esc(fmtDT(d.refundDone))+'</span><br><span style="color:var(--label-soft)">환불 계좌 '+esc(c.refund)+'</span>'; }
+    else { raw+='<br><b style="color:var(--seal)">💸 예약금 환불 송금 필요</b><br>환불 계좌 <b>'+esc(c.refund)+'</b><br><span style="color:var(--label-soft)">이 계좌로 보낸 뒤 아래 버튼으로 완료 처리해 주세요</span>'; b+=ab('markRefunded','환불 완료 처리','btn-line'); }
+  }
   if(st==='시간선택완료'){ b+=ab('approve','✓ 승인')+ab('propose','시간 변경 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
   else if(st==='변경제안'){ b+=ab('accept','✓ 변경 수락')+ab('propose','다시 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
   else if(st==='승인완료'||st==='확정'){ if(d.raw&&d.raw['시착동의상태']&&d.raw['시착동의상태']!=='대기'){ b+='<div class="gate">대면상담 진행 중 — 시간 변경·취소 마감</div>'; } else { b+=ab('propose','시간 변경 제안','btn-line')+ab('cancel','예약 취소','btn-ghost'); } }
@@ -800,7 +808,17 @@ function cardPayment(d){
     if(bal.status==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');
     else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>';
   }
-  return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
+  // 현금영수증 — 발급대상 + 마일스톤별 발행 상태(원장 d.receipts). 발행할 것 먼저, 발행 취소는 뒤로.
+  var rcpt='';
+  if(d.cashReceipt) rcpt+='<div style="color:var(--label-soft)">발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</div>';
+  (d.receipts||[]).forEach(function(it){
+    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</div>';
+    else if(it.due) rcpt+='<div style="color:#b5852a">• '+esc(it.label)+' <b>발행 대기</b> '+Number(it.amount||0).toLocaleString()+'원 <span style="color:var(--label-soft)">· 홈택스 발급 후 번호 기록</span></div>';
+  });
+  var rcptBlock = rcpt ? '<div class="raw-sub"><div class="raw-sub-h">현금영수증</div>'+rcpt+'</div>' : '';
+  (d.receipts||[]).forEach(function(it){ if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line'); });
+  (d.receipts||[]).forEach(function(it){ if(it.issued) b+=ab('undoReceipt:'+it.key, it.label+' 발행 취소','btn-ghost'); });
+  return '<div class="raw">'+raw+'</div>'+rcptBlock+btnsWrap(b);
 }
 function cardProduction(d){
   var inv=d.mirror?d.mirror.invitation:null, r=d.raw||{};
@@ -866,6 +884,7 @@ function cardResult(d,isSnap){
   var b='', st=d.stage, exPay=(ex==='결제대기'), rstt=stt;
   if((isSnap&&st==='입금완료')||(!isSnap&&st==='제작중')){ b+='<div class="gate">'+(isSnap?'촬영':'예식')+' 후 결과물 단계예요</div>'+ab('eventDone',(isSnap?'촬영':'예식')+'완료 처리'); }
   else if(st==='예식완료'||st==='촬영완료'){
+    if(rstt==='선택완료') b+=ab('startRetouch','보정 착수','btn-line');             // 선택완료 → 보정중(고객 화면 '보정 중' 표시)
     if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');         // 선택 끝 → 보정본 올리기가 1순위
     else b+=ab('setResult',(r['원본링크']?'결과물 링크 수정':'원본 링크 등록'),'btn-line');
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
@@ -906,6 +925,8 @@ function bindDetail(d){
 }
 function onDetailAct(act,d){
   var code=d.code, names=d.names, isSnap=snap(d.product);
+  if(act.indexOf('issueReceipt:')===0){ doIssueReceipt(code,names,act.slice(13),d); return; }
+  if(act.indexOf('undoReceipt:')===0){ doUndoReceipt(code,names,act.slice(12)); return; }
   if(act==='approve') doApprove(code,names);
   else if(act==='accept') doAccept(code,names);
   else if(act==='cancel') doCancel(code,names);
@@ -926,6 +947,8 @@ function onDetailAct(act,d){
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names,d);
   else if(act==='confirmExtra') doConfirmExtra(code,names,d);
+  else if(act==='markRefunded') doMarkRefunded(code,names,d);
+  else if(act==='startRetouch') doStartRetouch(code,names);
   else if(act==='skipSurvey') doSkipSurvey(code,names);
 }
 
@@ -970,6 +993,20 @@ function afterAction(code,res,act){
 }
 
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }
+function doIssueReceipt(code,names,kind,d){
+  var it=null, rc=(d&&d.receipts)||[]; for(var i=0;i<rc.length;i++) if(rc[i].key===kind) it=rc[i];
+  var amt=it?Number(it.amount||0):0, tgt=(it&&it.target)||'';
+  var ro='background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:7px 9px;font-size:13px;color:#5c4a2c';
+  var extra='<div class="field"><label>발행 금액</label><div style="'+ro+'"><b>'+amt.toLocaleString()+'원</b></div></div>'+
+    '<div class="field"><label>발급 대상</label><div style="'+ro+'">'+(tgt?esc(fmtCRTarget(tgt)):'미입력 — 자진발급(010-000-1234)')+'</div></div>'+
+    '<div class="field"><label>발행번호 (홈택스 승인번호)</label><input id="crNum" inputmode="numeric" autocomplete="off" placeholder="홈택스 발급 후 승인번호 입력"></div>';
+  openModal({ title:kind+' 현금영수증 발행', text:b(names)+li('홈택스에서 발급한 뒤 승인번호를 기록해요')+li('기록하면 발행 대기에서 사라지고 고객 내역에 표시돼요'),
+    extra:extra, yes:'발행 완료', init:function(){ var i=$('crNum'); if(i) i.focus(); },
+    onYes:function(){ var num=(($('crNum')&&$('crNum').value)||'').trim(); if(!num){ mErr('발행번호를 입력해 주세요.'); return; } runAct(['adminIssueCashReceipt',code,kind,num],code,'발행 완료'); } });
+}
+function doUndoReceipt(code,names,kind){ openModal({ title:kind+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
+function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)||''; openModal({ title:'예약금 환불을 완료했나요?', text:b(names)+li('환불 계좌 '+acct)+li('이 고객이 환불 송금 대기에서 사라져요')+li('실제 송금은 통장에서 직접 하셔야 해요'), yes:'환불 완료', onYes:function(){ runAct(['adminMarkRefunded',code],code,'환불 완료'); } }); }
+function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까요?', text:b(names)+li('고객 화면에 \"보정 중\"으로 표시돼요'), yes:'보정 착수', onYes:function(){ runAct(['adminStartRetouch',code],code,'보정 착수'); } }); }
 function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li((h.date||'')+' '+lab+' '+(h.slot||''))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
 function doDeclineHold(code,names,d){ var h=(d&&d.hold)||{}; openModal({ title:(h.status==='승인'?'임시고정을 해제할까요?':'임시고정 요청을 거절할까요?'), danger:true, text:b(names)+li('가예약이 풀려 그 슬롯이 다시 열려요')+li('고객에게 안내가 가요'), yes:(h.status==='승인'?'해제':'거절'), onYes:function(){ runAct(['adminDeclineWeddingHold',code],code,'임시고정 해제'); } }); }
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
