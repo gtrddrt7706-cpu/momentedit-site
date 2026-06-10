@@ -587,8 +587,12 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .led-v{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);flex:1}
     .led-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);white-space:nowrap}
     .led-s.led-done{color:var(--gold-deep);font-weight:500}
+    .led-s.led-soon{color:var(--sub);font-weight:400}
     .led-link{color:var(--gold-deep);font-weight:500;text-decoration:none;font-size:12px;white-space:nowrap}
     .led-empty{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--light);padding:5px 0}
+    .led-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);padding:7px 0 1px;line-height:1.55}
+    .led-note.led-warn{color:var(--seal)}
+    .led-note .led-mute{color:var(--light)}
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
     details.cc-more>summary::-webkit-details-marker{display:none}
@@ -1169,8 +1173,12 @@ function renderLedger(l){
     return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span><span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span></div>';
   }).join('');
   var recRows=(l.receipts&&l.receipts.length)
-    ? l.receipts.map(function(r){ return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s led-done">발행 '+escapeHtml(r.num)+'</span></div>'; }).join('')
-    : '<div class="led-empty">입금이 확인되면 현금영수증이 발행돼요</div>';
+    ? l.receipts.map(function(r){ var done=!!r.num; return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s '+(done?'led-done':'led-soon')+'">'+(done?('발행 '+escapeHtml(r.num)):'발급 예정')+'</span></div>'; }).join('')
+    : '<div class="led-empty">입금이 확인되면 현금영수증을 발급해 드려요</div>';
+  // 소득공제 번호 등록 안내 — 등록됨(끝 4자리) / 입금했는데 미등록(자진발급 경고)
+  var crNote = l.cashTail
+    ? '<div class="led-note">소득공제 번호 등록됨 <span class="led-mute">· 끝 '+escapeHtml(l.cashTail)+'</span></div>'
+    : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급되어 소득공제는 어려워요</span></div>' : '');
   var docRows=(l.documents&&l.documents.length)
     ? l.documents.map(function(dc){ var link=dc.url?('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>'):''; return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+link+'</span></div>'; }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
@@ -1179,7 +1187,7 @@ function renderLedger(l){
     '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
     '<div class="led-title">내 내역</div>'+
     paySec+
-    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+'</div>'+
+    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     '</div>';
   box.style.display='block';

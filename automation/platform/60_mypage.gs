@@ -68,9 +68,14 @@ function buildLedgerState(r) {
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
     payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
   }
-  // 현금영수증 — 발행 완료분만
-  var receipts = [];
-  _cashReceiptLedger(r).forEach(function (it) { if (it.issued) receipts.push({ label: it.label, amount: it.issued.금액 || it.amount, num: it.issued.번호, at: it.issued.at }); });
+  // 현금영수증 — 입금 확인된 마일스톤별 상태(발행 완료 / 발급 예정) + 등록된 소득공제 번호(끝 4자리만, 안심용)
+  var receipts = [], crTarget = '';
+  _cashReceiptLedger(r).forEach(function (it) {
+    if (it.target && !crTarget) crTarget = it.target;
+    if (it.issued) receipts.push({ label: it.label, amount: it.issued.금액 || it.amount, num: it.issued.번호, state: '발행 완료', at: it.issued.at });
+    else if (it.confirmed) receipts.push({ label: it.label, amount: it.amount, num: '', state: '발급 예정', at: '' });
+  });
+  var crTail = crTarget ? String(crTarget).replace(/[^0-9]/g, '').slice(-4) : '';
   // 서류 — 시착 동의서·계약서
   var documents = [];
   if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '' });
@@ -78,7 +83,7 @@ function buildLedgerState(r) {
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
   // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
   if (!(signed || fitDone || fitAt || depConfirmed || receipts.length)) return null;
-  return { total: amounts ? amounts['총액'] : 0, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, documents: documents };
+  return { total: amounts ? amounts['총액'] : 0, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, cashTail: crTail, documents: documents };
 }
 
 // [02-1] 카드가 안 뜨는 "관리자 대기" 갭을 한 줄로(답답함 방지). 카드(상담·입금)가 이미 표시하는 구간은 빈값.
