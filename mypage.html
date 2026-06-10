@@ -328,7 +328,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .trk-list{margin:12px 0 4px}
 .trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .trk:last-child{border-bottom:none}
-.trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
+.trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent);text-align:left}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
@@ -561,7 +561,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <div class="consult-sec" id="mp_payment" style="display:none"></div>
 
     <!-- 중도금·잔금 안내 박스 — 계약 정보 아래·카드 열리기 전(D-45 이전)에만 -->
-    <div class="consult-sec" id="mp_payNote" style="display:none"></div>
 
     <!-- 중도금 (02-4b) — 결제 마일스톤(D-30). 계약 정보 아래. 평소 접힘 → D-37 자동 펼침 -->
     <div class="consult-sec" id="mp_midpayment" style="display:none"></div>
@@ -605,6 +604,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .led-note .led-mute{color:var(--light)}
 .led-due{font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--light);margin:-4px 0 6px;text-align:left}
 .led-due b{color:var(--sub);font-weight:500}
+.led-opennote{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);line-height:1.7;padding:9px 0 1px;text-align:left;word-break:keep-all}
+.led-opennote b{font-weight:500;color:var(--accent)}
     .led-editbtn{margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
     .led-editbtn:active{opacity:.7}
     .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
@@ -1089,11 +1090,14 @@ function renderMyPage(d){
     }
     renderProduction(d.production, d.invitation);                    // 제작 (03)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
+    // [02-6b] 중도금·잔금 '예식 45일 전 열림' 안내 — 별도 박스 대신 내 내역 결제 섹션 안에 한 줄(같은 정보 두 곳 배치 제거).
+    if (d.ledger){
+      d.ledger.payOpenNote = !d.isException && !!d.contract && d.product!=='웨딩스냅' && !d.midpayment && !d.balance
+        && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1;
+    }
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
   }
-
-  renderPayOpenNote(d);   // 중도금·잔금 안내 박스(계약 정보 아래·D-45 이전 · 취소/스냅/카드열림 시 숨김)
 
   // 카톡
   var ka = $('mp_kakao');
@@ -1168,17 +1172,6 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
   box.innerHTML = html;
 }
 
-// 중도금·잔금 안내 박스 — 계약 정보 아래. 계약 후 ~ 중도금·잔금 카드가 열리기 전(D-45 이전)까지만. 취소·스냅·카드 열림 시 숨김.
-function renderPayOpenNote(d){
-  var box=$('mp_payNote'); if(!box) return;
-  var isSnap=(d.product==='웨딩스냅');
-  var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance
-    && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1;   // 결제가 끝나 카드가 닫힌 결과물 단계에서 '45일 전 열려요'(미래형)가 되살아나지 않게
-  if(!show){ box.innerHTML=''; box.style.display='none'; return; }
-  box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금과 잔금 안내는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>, 이 자리에서 가만히 열려요.<br>한 번에 치르셔도, 나누어 치르셔도 괜찮습니다. 그날까지는 마음만 가볍게 준비해 두세요.</div></div>';
-  box.style.display='block';
-}
-
 // [02-6] 내 내역 패널 — 결제·현금영수증·서류를 단계와 무관하게 한곳에. ledger=null이면 숨김(계약/시착/입금 전).
 function renderLedger(l){
   var box=$('mp_ledger'); if(!box) return;
@@ -1205,7 +1198,9 @@ function renderLedger(l){
         return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
       }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
-  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
+  // 중도금·잔금 안내가 열리기 전(D-45 이전)엔 결제 섹션 끝에 한 줄로 안내 — 예전 독립 박스 대체(한 곳에만).
+  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금과 잔금 안내는 <b>예식 45일 전</b>, 마이페이지에 가만히 열려요. 한 번에 치르셔도, 나누어 치르셔도 괜찮습니다. 그날까지는 마음만 가볍게 준비해 두세요.</div>' : '';
+  var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
   box.innerHTML='<details class="acc"><summary class="past-toggle">내 내역 보기 <span class="pt-ar">▾</span></summary>'+
     '<div class="consult-card led-card">'+
     '<div class="cc-eyebrow en-22" style="text-align:center;font-size:12px;margin-bottom:14px">My Records</div>'+
