@@ -706,8 +706,11 @@ const TOKEN_KEY = 'me_token';
 
 // ── 공통 유틸 ──────────────────────────────────
 function $(id){ return document.getElementById(id); }
-// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → v1-1
-function contractSrc(product){ return /스냅|snap/i.test(String(product||'')) ? '/contract/snap-v1-0.html' : '/contract/v1-1.html'; }
+// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → 서명한 문서 버전별(v1.1 서명자는 보존본, 그 외 현행 v1.2)
+function contractSrc(product, docVersion){
+  if(/스냅|snap/i.test(String(product||''))) return '/contract/snap-v1-0.html';
+  return String(docVersion||'')==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
+}
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
@@ -726,7 +729,7 @@ function openContractView(){
   pbtn.addEventListener('click',function(){ try{ var w=fr.contentWindow; w.focus(); w.print(); }catch(e){} });
   var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
   bar.appendChild(ttl); bar.appendChild(rg);
-  var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src=contractSrc(window._contractFill&&window._contractFill.product); fr.title='본 계약서';
+  var fr=document.createElement('iframe'); fr.id='mp_ctFrame'; fr.src=contractSrc(window._contractFill&&window._contractFill.product, window._contractFill&&window._contractFill.docVersion); fr.title='본 계약서';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(bar); ov.appendChild(fr);
   // 미서명이면 하단에 '서명하러 가기' CTA — 다 읽고 바로 서명으로(읽기→서명 자연 연결)
@@ -1720,7 +1723,7 @@ function _archiveSignedContract(sig, cb){
     var t=new Date(); data.signDate=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
     fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
     window.addEventListener('message',onM);
-    fr.src=contractSrc(window._contractFill&&window._contractFill.product); document.body.appendChild(fr);
+    fr.src=contractSrc(window._contractFill&&window._contractFill.product, window._contractFill&&window._contractFill.docVersion); document.body.appendChild(fr);
     setTimeout(function(){ fin(''); },2800);   // 안전망 · 못 만들면 보관 생략하고 서명 진행
   }catch(e){ fin(''); }
 }

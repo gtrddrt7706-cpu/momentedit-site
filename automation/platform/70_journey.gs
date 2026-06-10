@@ -180,6 +180,7 @@ function handleGetSignature(body) {
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
   version: '계약서명-v1',
+  docVersion: 'v1.2',               // 계약서 '문서' 버전 — 서명 시 동의기록.계약.docVersion으로 스냅샷, 열람은 그 버전 문서로
   서명기한시간: 72,                 // 발송 +72h 안에 서명
   리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
   effectNotice: '서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.',
@@ -229,6 +230,7 @@ function handleSignContract(body) {
     prev.계약 = {
       type: '계약서명',
       version: CONTRACT.version,
+      docVersion: CONTRACT.docVersion,                   // 서명한 계약서 문서 버전(16조③ 버전 고정의 데이터 짝)
       signedAt: now,
       code: code,
       sentAt: String(cust.get('계약서발송일시') || ''),
@@ -484,7 +486,8 @@ function buildContractState(r) {
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
     weddingTime: _ci.weddingTime || '',
     weddingTimeLabel: (WEDDING_SLOT.LABELS && WEDDING_SLOT.LABELS[_ci.weddingTime]) || '',
-    total: Math.round(Number(r.get('계약총액')) || 0)
+    total: Math.round(Number(r.get('계약총액')) || 0),
+    docVersion: signed ? (((_rec && _rec.계약) || {}).docVersion || 'v1.1') : CONTRACT.docVersion   // 서명자=서명 당시 문서(기록 없는 구서명자는 v1.1 보존본), 미서명=현행
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
   };
   return out;
@@ -984,6 +987,44 @@ function sendHoldExpiryNotices() {
   }
 }
 
+// [트리거·일1회] 결과물 보관 만료 7일 전 — 삭제 예정 통지(계약서 12조③: 만료 7일 전까지 통지 후 삭제 가능).
+//   기산: 동의기록.결과물전달일(전달 완료 시 기록) + 6개월 = 만료일. 동의기록.보관만료통지로 1회 발송.
+function sendArchiveExpiryNotices() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['결과물상태'] || !colOf['동의기록']) return;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var c = function (h) { return colOf[h]; };
+  var today = _kstYmd(new Date());
+  for (var i = 0; i < vals.length; i++) {
+    var row = vals[i];
+    if (String(row[c('결과물상태') - 1] || '').trim() !== '전달완료') continue;
+    var rec = _parseJsonSafe(row[c('동의기록') - 1]);
+    if (!rec.결과물전달일 || rec.보관만료통지) continue;
+    var p = String(rec.결과물전달일).slice(0, 10).split('-');
+    if (p.length !== 3) continue;
+    var exp = new Date(Number(p[0]), Number(p[1]) - 1 + 6, Number(p[2]));        // 전달일 +6개월 = 보관 만료일
+    var expYmd = exp.getFullYear() + '-' + ('0' + (exp.getMonth() + 1)).slice(-2) + '-' + ('0' + exp.getDate()).slice(-2);
+    var left = _dayDiff(expYmd, today);
+    if (left == null || left > 7) continue;                                      // 만료 7일 전부터(이미 지난 행도 1회는 안내)
+    var code = String(row[c('개인코드') - 1] || '').trim();
+    notifyKakao('cust.archiveExpiring', code, { expires: expYmd, left: left });
+    var email = String(row[c('이메일') - 1] || '').trim();
+    if (email) {
+      var when = (left >= 0) ? (expYmd + '에 만료될 예정이에요') : (expYmd + '에 만료되었어요');
+      try {
+        GmailApp.sendEmail(email, '[Moment Edit] 결과물 보관 기간 안내 (' + expYmd + ')',
+          '전달드린 사진·영상의 보관 기간(전달일부터 6개월)이 ' + when + '.\n' +
+          '아직 내려받지 않으셨다면 미리 다운로드해 주세요. 만료 후에는 데이터가 삭제될 수 있고, 재발급이 어려울 수 있어요.\n' +
+          '이용계약서 제12조 제3항에 따른 안내입니다.\n\nMoment Edit');
+      } catch (e) {}
+    }
+    rec.보관만료통지 = fmtKST(new Date());
+    sheet.getRange(P.DATA_START_ROW + i, c('동의기록')).setValue(JSON.stringify(rec));
+    try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
+  }
+}
+
 // ★ 통합 트리거 설치기 — 1회 실행하면 자동화 전부 등록(멱등: 같은 핸들러 기존 트리거 정리 후 재생성).
 //   새 자동화가 추가되면 이 목록에 한 줄 넣고 다시 실행. 실행 결과로 설치 현황 문자열 반환.
 function setupAllTriggers() {
@@ -992,8 +1033,9 @@ function setupAllTriggers() {
     { fn: 'sendDailyReminders',      hour: 9,  label: '상담 D-1 리마인드(고객+운영자)' },
     { fn: 'sendMorningBrief',        hour: 9,  label: '아침 운영 브리핑' },
     { fn: 'sendHoldExpiryNotices',   hour: 9,  label: '임시고정 만료 D-3 안내' },
-    { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-7 리마인드' },
-    { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-30 리마인드' },
+    { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-9 리마인드' },
+    { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
+    { fn: 'sendArchiveExpiryNotices', hour: 11, label: '결과물 보관 만료 7일 전 통지' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
   ];

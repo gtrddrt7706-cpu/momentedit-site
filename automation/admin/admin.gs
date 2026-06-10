@@ -1211,7 +1211,9 @@ function adminMarkDelivered(code) {
     if (['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료' });
+    var _dRec = _parseJsonSafe(cust.get('동의기록'));
+    _dRec.결과물전달일 = fmtKST(new Date());                     // 인도 완료일(계약서 12조③ 보관 6개월 기산 · 만료 통지 기준)
+    touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     setCustomerStage(code, 'deliver');
     _recordHandler(code, '결과물 전달 완료');
     notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 — 다운로드 안내(가장 중요)

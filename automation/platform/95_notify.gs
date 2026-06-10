@@ -44,10 +44,11 @@ var NOTIFY_EVENTS = {
   'cust.cashReceiptIssued':{ to: 'customer', need: false, desc: '현금영수증 발행됨' },
   'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
-  'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(D-30) — 입금' },
+  'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(D-149) — 입금' },
   'admin.dailyBrief':     { to: 'admin',    need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
-  'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' }
+  'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' },
+  'cust.archiveExpiring': { to: 'customer', need: true,  desc: '결과물 보관 만료 임박 — 다운로드 안내' }
 };
 
 /**
