@@ -76,6 +76,12 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .pgroup{margin-bottom:7px}
 .pghead{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer}
 .pghead.dim{opacity:.5;cursor:default}
+.empties{margin:2px 0 7px}
+.empties>summary{cursor:pointer;list-style:none;font-size:11px;color:var(--label-soft);padding:5px 4px;letter-spacing:.02em}
+.empties>summary::-webkit-details-marker{display:none}
+.empties>summary::before{content:'▸ '}
+.empties[open]>summary::before{content:'▾ '}
+.empties>summary:hover{color:var(--sub)}
 .pgname{font-family:var(--serif-ko);font-size:13px;font-weight:500;border-radius:9px;padding:2px 10px}
 .pgn{font-family:var(--mono);font-size:11.5px;color:var(--light)}
 .pgdot{color:var(--seal);font-size:10px}
@@ -125,6 +131,8 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .card-h .ct{font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--accent)}
 .card-h .cflag{margin-left:auto;font-family:var(--serif-ko);font-size:10.5px;border-radius:9px;padding:2px 9px}
 .raw{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;line-height:1.7;word-break:break-all}
+.raw-sub{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;margin-top:6px;line-height:1.65;word-break:break-all;border-left:2px solid var(--gold-soft,rgba(184,154,117,.28))}
+.raw-sub-h{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#9A7B4F);font-weight:600;margin-bottom:3px}
 .raw b{color:var(--accent);font-weight:500}
 .mt{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deeper);background:none;border:none;cursor:pointer;padding:7px 0 2px}
 .mbody{display:none;margin-top:6px;border-top:1px dashed var(--gold-line);padding-top:8px}
@@ -457,10 +465,8 @@ function pipeSection(groups, product){
   groups=groups||[];
   var hasAny=groups.some(function(g){return g.count>0;});
   if(!hasAny) return '<div class="empty">진행 중인 '+(product==='웨딩스냅'?'웨딩스냅 ':'')+'고객이 없어요</div>';
-  var open=getOpen();
-  return groups.map(function(g){
-    var isSnap=snap(product);
-    if(!g.count) return '<div class="pgroup"><div class="pghead dim"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">0</span></div></div>';
+  var open=getOpen(), isSnap=snap(product);
+  function fullGroup(g){
     var key=product+':'+g.stage, isOpen=open.indexOf(key)!==-1;
     var isConsultStage=(g.stage==='상담확정'||g.stage==='촬영확정');   // 이 그룹은 예식 D-day 대신 대면상담 D-day(cdday) 표시
     var cust=g.customers.map(function(c){
@@ -468,14 +474,21 @@ function pipeSection(groups, product){
         ? (c.cdday!=null?'<span class="cd'+(c.cdday<=1?' cd-soon':'')+'">'+esc(consultLabel(c.cdday))+'</span>':'')
         : (c.dday!=null?'<span class="cd">'+esc(ddayLabel(c.dday,isSnap))+'</span>':'');
       return '<div class="pcust" data-code="'+esc(c.code)+'"><span class="cn">'+esc(c.names)+'</span>'+
-        '<span class="cs">'+esc(c.sub||'')+'</span>'+
-        cdHtml+
-        (c.flag?'<span class="bolt">⚡</span>':'')+'</div>';
+        '<span class="cs">'+esc(c.sub||'')+'</span>'+cdHtml+(c.flag?'<span class="bolt">⚡</span>':'')+'</div>';
     }).join('');
     return '<div class="pgroup'+(isOpen?' open':'')+'" data-key="'+esc(key)+'">'+
       '<div class="pghead"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">'+g.count+'</span>'+(g.hasUrgent?'<span class="pgdot">🔴</span>':'')+'<span class="pgcar">›</span></div>'+
       '<div class="pgbody">'+cust+'</div></div>';
-  }).join('');
+  }
+  // 인원 있는 단계 먼저(흐름 순), 빈 단계는 토글로 접어 노이즈 ↓
+  var html='', empties=[];
+  groups.forEach(function(g){ if(g.count) html+=fullGroup(g); else empties.push(g); });
+  if(empties.length){
+    html+='<details class="empties"><summary>빈 단계 '+empties.length+'개</summary>'+
+      empties.map(function(g){ return '<div class="pgroup"><div class="pghead dim"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">0</span></div></div>'; }).join('')+
+      '</details>';
+  }
+  return html;
 }
 function bindPipe(){
   $('pipeBody').querySelectorAll('.pghead:not(.dim)').forEach(function(h){ h.addEventListener('click', function(){ var g=h.parentNode; g.classList.toggle('open'); toggleOpen(g.getAttribute('data-key'), g.classList.contains('open')); }); });
@@ -660,12 +673,14 @@ function cardPayment(d){
   var mid=r['중도금상태']||'', bal=r['잔금상태']||'';
   if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
   if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
-  // 현금영수증 — 발급 대상(고객 입력) + 마일스톤별 발행 상태(발행완료/발행대기)
-  if(d.cashReceipt) raw+='<br><span style="color:var(--label-soft)">현금영수증 발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</span>';
+  // 현금영수증 — 결제 상태와 시각 분리(별도 서브 블록: 발급대상 + 마일스톤별 발행 상태)
+  var rcpt='';
+  if(d.cashReceipt) rcpt+='<div style="color:var(--label-soft)">발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</div>';
   (d.receipts||[]).forEach(function(it){
-    if(it.issued) raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 현금영수증 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</span>';
-    else if(it.due) raw+='<br><span style="color:#b5852a">• '+esc(it.label)+' 현금영수증 <b>발행 대기</b> ('+Number(it.amount||0).toLocaleString()+'원) · 홈택스 발급 후 번호 기록</span>';
+    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</div>';
+    else if(it.due) rcpt+='<div style="color:#b5852a">• '+esc(it.label)+' <b>발행 대기</b> '+Number(it.amount||0).toLocaleString()+'원 <span style="color:var(--label-soft)">· 홈택스 발급 후 번호 기록</span></div>';
   });
+  var rcptBlock = rcpt ? '<div class="raw-sub"><div class="raw-sub-h">현금영수증</div>'+rcpt+'</div>' : '';
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
@@ -675,7 +690,7 @@ function cardPayment(d){
   // 현금영수증 — 발행할 것(대기) 먼저, 발행 취소(드물게)는 뒤로
   (d.receipts||[]).forEach(function(it){ if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line'); });
   (d.receipts||[]).forEach(function(it){ if(it.issued) b+=ab('undoReceipt:'+it.key, it.label+' 발행 취소','btn-ghost'); });
-  return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
+  return '<div class="raw">'+raw+'</div>'+rcptBlock+btnsWrap(b);
 }
 function cardProduction(d){
   var inv=d.mirror?d.mirror.invitation:null, r=d.raw||{};
