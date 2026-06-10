@@ -2411,7 +2411,6 @@ function productionFormHtml(b, isEdit){
     + '<div class="pf2">'+wedDateCell(b)
       + wedTimeCell(b) + '</div>'
     + ((b.weddingLocked||b.weddingTimeLocked)?'<div class="cc-note" style="margin:5px 0 0">예식 '+(b.weddingTimeLocked?'날짜·시간은':'날짜는')+' <b>계약서에 확정된 일정</b>이에요. 변경이 필요하면 디렉터에게 문의해 주세요.</div>':'')
-    + weddingSequenceRef('고르신 예식 시간대의 대표 진행 시각이에요. 세부 시간은 예식이 가까워지면 디렉터가 다시 안내드려요.')
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
     + '<div class="cc-actions">'+(isEdit?'<button type="button" class="cc-btn-ghost" id="mp_cancelBase">취소</button>':'')+'<button type="button" class="cc-btn" id="mp_saveBase">'+(isEdit?'저장':'저장하고 시작')+'</button></div>'
     + '</div>';
