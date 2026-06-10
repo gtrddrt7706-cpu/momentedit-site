@@ -593,6 +593,11 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .led-s.led-soon{color:var(--sub);font-weight:400}
     .led-link{color:var(--gold-deep);font-weight:500;text-decoration:none;font-size:12px;white-space:nowrap}
     .led-empty{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--light);padding:5px 0}
+    .led-prog{margin:0 0 12px}
+    .led-prog-bar{height:5px;background:var(--hairline,#E6E1D8);border-radius:3px;overflow:hidden}
+    .led-prog-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold,#C9A86A),var(--gold-deep,#9a7b3f));border-radius:3px;transition:width .5s ease}
+    .led-prog-txt{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);margin-top:6px;letter-spacing:.01em}
+    .led-prog-txt b{color:var(--accent);font-weight:600}
     .led-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);padding:7px 0 1px;line-height:1.55}
     .led-note.led-warn{color:var(--seal)}
     .led-note .led-mute{color:var(--light)}
@@ -1203,7 +1208,11 @@ function renderLedger(l){
         return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
       }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
-  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
+  // 결제 진행률 — 완료 금액 / 총액 막대
+  var paidAmt=Number(l.paid||0), totalAmt=Number(l.total||0);
+  var pct=totalAmt>0?Math.min(100,Math.round(paidAmt/totalAmt*100)):0;
+  var prog=(totalAmt>0&&payRows)?('<div class="led-prog"><div class="led-prog-bar"><span style="width:'+pct+'%"></span></div><div class="led-prog-txt">결제 <b>'+won(paidAmt)+'</b> <span class="led-mute">/ 총 '+won(totalAmt)+'</span> · '+pct+'%</div></div>'):'';
+  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+prog+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
   box.innerHTML='<div class="consult-card led-card">'+
     '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
     '<div class="led-title">내 내역</div>'+

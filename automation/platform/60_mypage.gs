@@ -82,6 +82,10 @@ function buildLedgerState(r) {
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
     payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
   }
+  // 결제 진행률 — 완료된 마일스톤 금액 합 / 총액. (작은 계약서 등 예약금이 계약금을 초과해 100%를 넘는 경우 방지)
+  var paid = 0; payments.forEach(function (p) { if (p.done) paid += Number(p.amount) || 0; });
+  var ledgerTotal = amounts ? amounts['총액'] : 0;
+  if (ledgerTotal > 0) paid = Math.min(paid, ledgerTotal);
   // 현금영수증 — 입금 확인된 마일스톤별 상태(발행 완료 / 발급 예정) + 등록된 소득공제 번호(끝 4자리만, 안심용)
   var receipts = [], crTarget = '';
   _cashReceiptLedger(r).forEach(function (it) {
@@ -97,7 +101,7 @@ function buildLedgerState(r) {
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
   // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
   if (!(signed || fitDone || fitAt || depConfirmed || receipts.length)) return null;
-  return { total: amounts ? amounts['총액'] : 0, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, cashTail: crTail, documents: documents };
+  return { total: ledgerTotal, paid: paid, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, cashTail: crTail, documents: documents };
 }
 
 // [02-1] 카드가 안 뜨는 "관리자 대기" 갭을 한 줄로(답답함 방지). 카드(상담·입금)가 이미 표시하는 구간은 빈값.
