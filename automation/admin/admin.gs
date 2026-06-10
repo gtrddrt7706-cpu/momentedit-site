@@ -134,7 +134,7 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
-      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
@@ -245,6 +245,18 @@ function adminHome() {
       // 아카이브(예외/후기 마감)라도 추가 보정 입금 신호는 운영자 확인 필요 → 큐 노출
       if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
         pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
+      }
+      // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
+      if (stage === '취소') {
+        var _rbk = bookMap[code], _racct = _rbk ? String(bget(_rbk, '환불계좌') || '').trim() : '';
+        var _rdone = !!_parseJsonSafe(cget(rv, '동의기록')).환불완료;
+        if (_racct && !_rdone) {
+          var _rcd = _rbk ? _ymdOf(bget(_rbk, '취소일시')) : '';
+          var _rdays = _dayDiff(today, _rcd);
+          pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: '예약금 환불 송금 필요',
+            badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
+            _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
+        }
       }
       return;  // 끝남 → 제외(아카이브)
     }
@@ -487,6 +499,7 @@ function adminDetail(code) {
   d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 발급 대상(고객 입력 휴대폰/사업자번호)
   d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
+  d.refundDone = String(_rec.환불완료 || '');   // 취소 환불 송금 완료 시각(있으면 완료). 환불계좌는 d.consult.refund
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {
@@ -1208,4 +1221,19 @@ function adminMarkUncontracted(code) {
     _recordHandler(code, '미계약 처리');
     return { ok: true, stage: '미계약', archived: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 취소 환불 송금 완료 처리 — 동의기록.환불완료=시각 기록 → 환불 송금 큐에서 사라짐. (멱등)
+function adminMarkRefunded(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (rec.환불완료) return { ok: true, already: true };
+  rec.환불완료 = fmtKST(new Date());
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+  _recordHandler(code, '환불 송금 완료');
+  return { ok: true };
 }
