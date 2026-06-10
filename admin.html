@@ -437,7 +437,7 @@ var curHome=null;
 function queueRow(it){
   var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','환불송금':'환불 처리' }[it.kind]||'처리';
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var btn = act
