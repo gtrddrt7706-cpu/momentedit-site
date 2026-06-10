@@ -151,7 +151,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .slot .slot-sub{display:block;font-family:var(--sans);font-size:9.5px;font-weight:300;
   color:var(--light);letter-spacing:0.04em;margin-top:3px}
 .slot:hover:not(.sel):not(.full){border-color:var(--gold);background:var(--bg2)}
-.slot.sel{background:var(--accent);color:#fff;border-color:var(--accent);
+.slot.sel{background:#4E3F31;color:#fff;border-color:#4E3F31;
   box-shadow:0 4px 14px rgba(58,45,34,0.2)}
 .slot.sel .slot-sub{color:rgba(255,255,255,0.7)}
 .slot.full{opacity:0.5;cursor:not-allowed;background:var(--bg2)}
@@ -325,9 +325,9 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
   letter-spacing:-0.01em;line-height:1.5;padding:10px 12px;margin-bottom:24px;white-space:nowrap;
   background:rgba(107,42,36,0.05);border-radius:var(--radius)}
 .modal-btn{width:100%;font-family:var(--sans);font-size:12px;letter-spacing:0.18em;
-  text-transform:uppercase;color:#fff;background:var(--accent);padding:17px;border:none;
+  text-transform:uppercase;color:#fff;background:#4E3F31;padding:17px;border:none;
   border-radius:var(--radius);cursor:pointer;font-weight:400;transition:background 0.3s var(--ease)}
-.modal-btn:hover{background:#000}
+.modal-btn:hover{background:#3A2D22}
 
 /* 하단 고정 선택 바 */
 .sticky-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;
@@ -343,9 +343,9 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 .sticky-pick{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);
   letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sticky-btn{flex-shrink:0;font-family:var(--serif-ko);font-size:14px;letter-spacing:0.06em;color:#fff;
-  background:var(--seal);padding:13px 24px;border:none;border-radius:var(--radius);cursor:pointer;
+  background:#4E3F31;padding:13px 24px;border:none;border-radius:var(--radius);cursor:pointer;
   font-weight:300;transition:background 0.3s var(--ease)}
-.sticky-btn:hover{background:#5B1E18}
+.sticky-btn:hover{background:#3A2D22}
 
 /* 페이드인 */
 .fade{opacity:0;transform:translateY(14px);animation:fade 0.9s var(--ease) forwards}
@@ -394,7 +394,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 .dt-day.today::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold)}
 .dt-day.weekend{color:var(--sub)}
 .dt-day:hover:not(.past):not(.empty):not(.selected){background:var(--bg2);border-color:var(--gold)}
-.dt-day.selected{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
+.dt-day.selected{background:#4E3F31;color:#fff;border-color:#4E3F31;font-weight:500}
 .dt-day.selected.today::after{background:#fff}
 @media(max-width:560px){
   .day{font-size:15px}.slot{font-size:15px;padding:14px 6px}
@@ -616,12 +616,12 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 <!-- 하단 고정 선택 바 -->
 
 <!-- 확정 팝업 -->
-<!-- 브랜드 알림 모달 — OS alert 대체(중앙 정렬·베이지 버튼) -->
-<style>#meAlertOk:hover{background:#A8895F}#meAlertOk:active{background:#9C7E55}</style>
+<!-- 브랜드 알림 모달 — OS alert 대체(중앙 정렬·다크 모카 버튼) -->
+<style>#meAlertOk:hover{background:#3A2D22}#meAlertOk:active{background:#2E241B}</style>
 <div id="meAlert" style="display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.32);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)">
   <div style="background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:8px;max-width:340px;width:100%;padding:24px 20px 16px;box-shadow:0 14px 44px rgba(40,28,16,0.20)">
     <div id="meAlertMsg" style="font-family:var(--serif-ko,serif);font-size:13.5px;color:var(--sub,#5A554C);line-height:1.8;word-break:keep-all;margin-bottom:16px;text-align:left"></div>
-    <button type="button" id="meAlertOk" style="display:block;width:100%;padding:13px 0;border:none;border-radius:6px;background:#B89A75;color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;letter-spacing:.04em;cursor:pointer;box-shadow:0 3px 10px rgba(184,154,117,0.28);transition:background .2s">확인</button>
+    <button type="button" id="meAlertOk" style="display:block;width:100%;padding:13px 0;border:none;border-radius:6px;background:#4E3F31;color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;letter-spacing:.04em;cursor:pointer;box-shadow:0 3px 10px rgba(78,63,49,0.28);transition:background .2s">확인</button>
   </div>
 </div>
 <div class="modal-overlay" id="modal">
