@@ -207,6 +207,73 @@ function _resultSub(x) {
   return x.원본 ? '결과물 진행 중' : '결과물 등록 대기';
 }
 
+// ============================ 자동 브리핑 (트리거 — setupAllTriggers) ============================
+// 브리핑 메일 직송 게이트 — SEND_ADMIN_MAIL(건별 알림 OFF)과 별개. CONFIG에 SEND_DAILY_BRIEF=false로 끌 수 있음.
+function _briefMailOk() {
+  try { return CONFIG.SEND_DAILY_BRIEF !== false && CONFIG.ADMIN_EMAIL && String(CONFIG.ADMIN_EMAIL).charAt(0) !== '['; } catch (e) { return false; }
+}
+// [트리거·매일 9시] 아침 운영 브리핑 — 오늘 상담 일정 + 처리할 일 요약을 메일 1통으로(접속 안 해도 하루가 보임).
+//   처리할 일이 0이고 오늘 상담도 없으면 발송 생략(노이즈 방지).
+function sendMorningBrief() {
+  var d;
+  _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
+  try { d = adminHome(); } finally { _AUTHED = false; }
+  if (!d || !d.ok) return;
+  var today = d.today;
+  // 오늘 상담(승인/확정) — 상담예약 시트에서 직접
+  var bs = getSheet(), bc = buildHeaderIndex(bs), bLast = bs.getLastRow();
+  var todays = [];
+  if (bLast >= SYS.DATA_START_ROW) {
+    var rows = bs.getRange(SYS.DATA_START_ROW, 1, bLast - SYS.DATA_START_ROW + 1, bs.getLastColumn()).getValues();
+    var bg = function (rv, h) { var col = bc[h]; return col ? rv[col - 1] : ''; };
+    rows.forEach(function (rv) {
+      var st = String(bg(rv, '상태') || '').trim();
+      if (st !== ST.APPROVED && st !== ST.CONFIRMED) return;
+      if (_ymdOf(bg(rv, '선택날짜')) !== today) return;
+      todays.push(String(bg(rv, '선택시간') || '').trim() + ' ' + _names(bg(rv, '성함(신랑)'), bg(rv, '성함(신부)')));
+    });
+    todays.sort();
+  }
+  var q = d.queue.urgent.concat(d.queue.normal);
+  if (!q.length && !todays.length) { Logger.log('sendMorningBrief: 비어 있음 — 발송 생략'); return; }
+  var byKind = {};
+  q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
+  var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
+  var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  🔴 ' + it.names + ' — ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });
+  var body = '📅 오늘 상담 ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
+    + '⚡ 처리할 일 ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
+    + (urgentLines.length ? (urgentLines.join('\n') + '\n') : '')
+    + '\n관리자: https://momentedit.kr/admin.html';
+  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length });
+  if (_briefMailOk()) {
+    try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 — 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
+  }
+}
+
+// [트리거·매주 월 9시] 현금영수증 미발행 주간 점검 — 입금 확인됐는데 미발행(의무발급·가산세 방지) 전 고객 집계(아카이브 포함).
+function weeklyReceiptAudit() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var dues = [], sum = 0;
+  for (var i = 0; i < vals.length; i++) {
+    var rv = vals[i];
+    var rWrap = { get: function (h) { var c = colOf[h]; return c ? rv[c - 1] : ''; } };   // _cashReceiptLedger 재사용용 행 래퍼
+    var names = _names(rWrap.get('신랑이름'), rWrap.get('신부이름'));
+    _cashReceiptLedger(rWrap).forEach(function (it) {
+      if (!it.due) return;
+      dues.push('  • ' + names + ' — ' + it.label + ' ' + Number(it.amount || 0).toLocaleString() + '원');
+      sum += Number(it.amount || 0);
+    });
+  }
+  if (!dues.length) { Logger.log('weeklyReceiptAudit: 미발행 0건'); return; }
+  var body = '입금 확인됐는데 현금영수증이 아직 발행되지 않은 건이에요. (의무발행업종 · 미발급 가산세 20%)\n\n'
+    + dues.join('\n') + '\n\n합계 ' + dues.length + '건 · ' + sum.toLocaleString() + '원\n\n관리자에서 발행: https://momentedit.kr/admin.html';
+  if (_briefMailOk()) {
+    try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 현금영수증 미발행 ' + dues.length + '건 · ' + sum.toLocaleString() + '원 (주간 점검)', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('주간 점검 메일 실패: ' + (e && e.message)); }
+  }
+}
+
 // ============================ 홈 — 처리할 일 큐 + 진행 중 현황 (⑧ 재구성) ============================
 // v1(상담 4그룹) → Customers 주도 순회 + 상담예약 조인(개인코드). read 2번(풀폭)·인메모리 계산.
 // 끝난 고객(예외 미계약·취소·노쇼 + 결과물전달) = 아카이브 → 큐·현황 제외.

@@ -873,6 +873,95 @@ function sendBalanceReminders() {
     sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(fmtKST(new Date()));   // 알림 발송 → 1회 마킹(중복 방지)
   }
 }
+// [트리거·일1회] 예식 D-30 이내 + 중도금 미확인 + 미발송 → 중도금 리마인드 1회(잔금과 동일 패턴·컬럼 '중도금리마인드').
+function sendMidReminders() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['중도금상태'] || !colOf['중도금리마인드'] || !colOf['예식일']) return;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var c = function (h) { return colOf[h]; };
+  for (var i = 0; i < vals.length; i++) {
+    var row = vals[i];
+    if (String(row[c('상품타입') - 1] || '').trim() === '웨딩스냅') continue;          // 스냅은 중도금 없음
+    if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
+    if ((String(row[c('중도금상태') - 1] || '').trim() || '대기') === '확인') continue;
+    if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
+    if (String(row[c('중도금리마인드') - 1] || '').trim()) continue;                   // 이미 보냄
+    var dday = _balanceDDay(row[c('예식일') - 1]);
+    if (dday == null || dday > PAYMENT.중도금일수전) continue;                          // D-30 밖
+    var email = String(row[c('이메일') - 1] || '').trim();
+    notifyKakao('cust.midDue', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
+    if (CONFIG.SEND_BALANCE_MAIL && email) {                                            // 메일은 결제 리마인드 공통 토글
+      try {
+        var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
+        var amtTxt = amounts ? (Number(amounts['중도금']).toLocaleString() + '원') : '중도금';
+        GmailApp.sendEmail(email, '[Moment Edit] 중도금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
+          '예식이 다가옵니다.\n중도금 ' + amtTxt + '을 ' + _midDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+      } catch (e) {}
+    }
+    sheet.getRange(P.DATA_START_ROW + i, c('중도금리마인드')).setValue(fmtKST(new Date()));
+  }
+}
+
+// [트리거·일1회] 임시고정 만료 D-3 — 고객에게 1회 안내(메일 직송+카톡 키). 가예약.expiryNoticed로 중복 방지.
+function sendHoldExpiryNotices() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var c = function (h) { return colOf[h]; };
+  var today = _kstYmd(new Date());
+  for (var i = 0; i < vals.length; i++) {
+    var row = vals[i];
+    var stage = String(row[c('현재단계') - 1] || '').trim();
+    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1) continue;
+    if (String(row[c('계약상태') - 1] || '').trim() === '서명완료') continue;          // 계약되면 홀드는 의미 종료
+    var rec = _parseJsonSafe(row[c('동의기록') - 1]); var h = rec.가예약;
+    if (!h || h.status !== '승인' || !h.expires || h.expiryNoticed) continue;
+    var left = _dayDiff(h.expires, today);
+    if (left == null || left < 0 || left > 3) continue;                                 // 만료 D-3 ~ D-0
+    var code = String(row[c('개인코드') - 1] || '').trim();
+    notifyKakao('cust.holdExpiring', code, { date: h.date, slot: h.slot, left: left });
+    var email = String(row[c('이메일') - 1] || '').trim();
+    if (email) {
+      try {
+        GmailApp.sendEmail(email, '[Moment Edit] 예식일 임시 고정이 곧 풀려요 (D-' + left + ')',
+          '잡아두신 예식 일정(' + h.date + ')의 임시 고정이 ' + h.expires + '에 해제될 예정이에요.\n계속 진행을 원하시면 상담·본계약을 진행해 주시고, 일정 조율이 필요하시면 카카오톡으로 편하게 말씀해 주세요.\n\nMoment Edit');
+      } catch (e) {}
+    }
+    h.expiryNoticed = fmtKST(new Date());
+    sheet.getRange(P.DATA_START_ROW + i, c('동의기록')).setValue(JSON.stringify(rec));
+    try { _recordHandler(code, '임시고정 만료 D-' + left + ' 안내 발송'); } catch (e2) {}
+  }
+}
+
+// ★ 통합 트리거 설치기 — 1회 실행하면 자동화 전부 등록(멱등: 같은 핸들러 기존 트리거 정리 후 재생성).
+//   새 자동화가 추가되면 이 목록에 한 줄 넣고 다시 실행. 실행 결과로 설치 현황 문자열 반환.
+function setupAllTriggers() {
+  var plan = [
+    { fn: 'expireUnsignedContracts', hour: 3,  label: '계약서 72h 만료 자동 파기' },
+    { fn: 'sendDailyReminders',      hour: 9,  label: '상담 D-1 리마인드(고객+운영자)' },
+    { fn: 'sendMorningBrief',        hour: 9,  label: '아침 운영 브리핑' },
+    { fn: 'sendHoldExpiryNotices',   hour: 9,  label: '임시고정 만료 D-3 안내' },
+    { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-7 리마인드' },
+    { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-30 리마인드' },
+    { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
+    { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
+  ];
+  var names = plan.map(function (p) { return p.fn; });
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (names.indexOf(t.getHandlerFunction()) !== -1) ScriptApp.deleteTrigger(t); });
+  var out = [];
+  plan.forEach(function (p) {
+    var b = ScriptApp.newTrigger(p.fn).timeBased();
+    if (p.minutes) b.everyMinutes(p.minutes).create();
+    else if (p.weekly) b.onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(p.hour).create();
+    else b.everyDays(1).atHour(p.hour).create();
+    out.push((p.minutes ? ('매 ' + p.minutes + '분') : (p.weekly ? ('매주 월 ' + p.hour + '시') : ('매일 ' + p.hour + '시'))) + ' · ' + p.label + ' (' + p.fn + ')');
+  });
+  var msg = '트리거 ' + plan.length + '개 설치 완료\n' + out.join('\n');
+  Logger.log(msg);
+  return msg;
+}
+
 function setupBalanceReminderTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'sendBalanceReminders') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('sendBalanceReminders').timeBased().everyDays(1).atHour(10).create();

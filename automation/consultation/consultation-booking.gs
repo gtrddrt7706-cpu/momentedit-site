@@ -34,7 +34,9 @@ const CONFIG = {
   SEND_REMIND_MAIL: false,                     // [고객 OFF·카톡] 상담 D-1 리마인더 (sendReminderCustomer)
   SEND_CONTRACT_MAIL: false,                   // [고객 OFF·마이페이지+카톡] 계약서 도착 안내 (adminSendContract→고객)
   SEND_BALANCE_MAIL: false,                    // [고객 OFF·마이페이지+카톡] 잔금 안내 (70_journey 자동)
-  SEND_ADMIN_MAIL: false,                      // [관리자 전부 OFF·카톡] 신규신청·승인요청·확정·D-1브리핑·환불요청 + 오류알림(notifyStudio)까지 전부. true로 바꾸면 관리자 메일 전부 복구.
+  SEND_ADMIN_MAIL: false,
+  SEND_DAILY_BRIEF: true,                      // [관리자 ON·직송] 아침 운영 브리핑·주간 영수증 점검 — SEND_ADMIN_MAIL(건별 알림)과 별개로 하루 1통만. 끄려면 false.
+                      // [관리자 전부 OFF·카톡] 신규신청·승인요청·확정·D-1브리핑·환불요청 + 오류알림(notifyStudio)까지 전부. true로 바꾸면 관리자 메일 전부 복구.
   // 참고 — 항상 발송(고객 ON): 신청 접수(sendSignupEmail) · 코드찾기/비번재설정(개인코드 안내). 둘은 토글 없이 상시 ON.
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
