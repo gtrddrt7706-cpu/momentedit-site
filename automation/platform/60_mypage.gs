@@ -59,6 +59,7 @@ function buildHoldState(r) {
   if (!h || !h.date) return null;
   var st = String(h.status || '').trim();
   if (st !== '요청' && st !== '승인') return null;   // 반려=기록 삭제 → null
+  if (st === '승인' && h.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(h.expires)) return null;   // 14일 만료 — 점유 자동해제(_weddingOccupancy)와 화면 일치(배너 숨김)
   return { date: String(h.date || ''), slot: String(h.slot || ''), status: st, expires: String(h.expires || '') };
 }
 

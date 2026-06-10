@@ -527,6 +527,7 @@ function adminDetail(code) {
   d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 발급 대상(고객 입력 휴대폰/사업자번호)
   d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
+  if (d.hold && d.hold.status === '승인' && d.hold.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(d.hold.expires)) d.hold.expired = true;   // 14일 만료(점유 자동해제됨) — UI 표기용
   d.refundDone = String(_rec.환불완료 || '');   // 취소 환불 송금 완료 시각(있으면 완료). 환불계좌는 d.consult.refund
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
@@ -1189,6 +1190,7 @@ function adminGrantWeddingHold(code) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (노쇼·미계약 잔존 요청은 거절로 정리해 주세요)' };
   var rec = _parseJsonSafe(cust.get('동의기록')), hold = rec.가예약;
   if (!hold || !hold.date || !hold.slot) return { ok: false, error: '임시고정 요청이 없습니다.' };
   if (hold.status === '승인') return { ok: true, already: true };
