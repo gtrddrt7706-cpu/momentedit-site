@@ -76,7 +76,9 @@ function buildLedgerState(r) {
   // 결제 마일스톤 — 계약총액이 정해진 뒤(계약 발송~)에만 표기. 그 전엔 금액이 미정이라 결제 표를 만들지 않음(0원 행 방지).
   var payments = [];
   if (amounts) {
-    payments.push({ key: '예약금', label: isSnap ? '계약금' : '예약금', amount: isSnap ? amounts['계약금'] : PAYMENT.예약금, status: st(r.get('입금상태')), done: depConfirmed });
+    // 시그: 예약금은 상담 예약 시 이미 결제됨 → 항상 '결제 완료'(입금상태는 계약금 충당 확인용 내부값이라, 그대로 '대기'로 보이면 또 내야 하는 줄 오해). 스냅: 계약금은 계약 시 결제 → 입금상태 그대로.
+    if (isSnap) payments.push({ key: '예약금', label: '계약금', amount: amounts['계약금'], status: st(r.get('입금상태')), done: depConfirmed });
+    else payments.push({ key: '예약금', label: '예약금', amount: PAYMENT.예약금, status: '결제 완료', done: true });
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
     payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
   }
