@@ -250,6 +250,15 @@ function sendMorningBrief() {
   }
 }
 
+// 현금영수증 발급 기한 배지 — 받은 날(확인일)부터 5일(의무발행). 3일 경과부터 빨강, 5일 넘으면 '기한 경과'.
+function _crDueBadge(baseStr, todayYmd) {
+  var b = _ymdOf(baseStr); if (!b) return { level: 'yellow', text: '발행 대기' };
+  var n = _dayDiff(todayYmd, b);
+  if (n >= 5) return { level: 'red', text: '기한 경과 D+' + n };
+  if (n >= 3) return { level: 'red', text: '기한 D-' + (5 - n) };
+  return { level: 'yellow', text: '발행 대기 D+' + n };
+}
+
 // [트리거·매주 월 9시] 현금영수증 미발행 주간 점검 — 입금 확인됐는데 미발행(의무발급·가산세 방지) 전 고객 집계(아카이브 포함).
 function weeklyReceiptAudit() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -349,8 +358,18 @@ function adminHome() {
         var _exArc = Math.round(Number(cget(rv, '추가보정금액')) || 0);
         var _isuArc = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
         if (String(cget(rv, '추가보정상태') || '').trim() === '완료' && _exArc > 0 && !_isuArc['추가보정']) {
+          var _bdgArc = _crDueBadge(String((_parseJsonSafe(cget(rv, '동의기록')).영수증기준일 || {}).추가보정 || ''), today);
           pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '추가 보정 현금영수증 발행 · ' + _exArc.toLocaleString() + '원',
-            badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 8, _wait: createdYmd });
+            badge: _bdgArc, _urgent: _bdgArc.level === 'red', _stage: 8, _wait: createdYmd });
+        }
+      }
+      // 취소 고객의 기발행 현금영수증 — 환불하면 발행 취소(위약금 공제분은 공제 후 금액으로 재발행) 필요. 발행 취소 처리하면 사라짐.
+      if (stage === '취소') {
+        var _cxIss = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
+        var _cxKeys = Object.keys(_cxIss);
+        if (_cxKeys.length) {
+          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '취소 건 영수증 정리(발행 취소 · 공제 후 재발행) · ' + _cxKeys.join('·'),
+            badge: { level: 'yellow', text: '환불 연동' }, _urgent: false, _stage: 9, _wait: createdYmd });
         }
       }
       // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
@@ -388,7 +407,9 @@ function adminHome() {
     var consultMD = (function(){ var m=String((bk ? normalizeDateKey(bget(bk,'선택날짜')) : '')||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? ((+m[2])+'/'+(+m[3])) : ''; })();   // 예정일 짧은 표기(M/D) — 현황 한눈에
 
     // 현금영수증 발행 — 입금 '확인'된 마일스톤 중 미발행분(의무발행업종·미발급 20% 가산세 방지). 발행(승인번호 기록) 전까지 단계와 무관하게 계속 노출(결과물전달까지). 취소·노쇼·미계약(STAGE_EXCEPTIONS)은 위에서 이미 return.
-    var _crIssued = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
+    var _crRec = _parseJsonSafe(cget(rv, '동의기록'));
+    var _crIssued = _crRec.영수증발행 || {};
+    var _crStamp = _crRec.영수증기준일 || {};
     var _crAmt = _journeyAmounts(cget(rv, '계약총액'), product);
     [['입금상태', '예약금', isSnap ? (_crAmt ? _crAmt['계약금'] : 0) : PAYMENT.예약금],
      ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
@@ -398,15 +419,20 @@ function adminHome() {
       // 예약금은 '받은 날'부터 발급 기한(5일)이 기산 — 계약 서명 전이라도 상담 예약금 입금이 확인됐으면 발행 대기로
       if (!_crPaid && cr[1] === '예약금' && bk && String(bget(bk, '입금확인') || '').trim() === '확인') _crPaid = true;
       if (!_crPaid || _crIssued[cr[1]]) return;
+      var _base = cr[1] === '예약금' ? String(_crStamp['예약금'] || (bk ? bget(bk, '확정일시') : '') || '')
+                : cr[1] === '중도금' ? String(cget(rv, '중도금확인일시') || '')
+                : String(cget(rv, '잔금확인일시') || '');
+      var _bdg = _crDueBadge(_base, today);
       var _won = cr[2] ? (' · ' + Math.round(cr[2]).toLocaleString() + '원') : '';
       pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
-        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
+        badge: _bdg, _urgent: _bdg.level === 'red', _stage: 5, _wait: createdYmd });
     });
     // 추가 보정 현금영수증 — 결제 '완료'(확인)된 추가 보정 중 미발행분(과세 용역·10만원↑ 현금 의무발급)
     var _exCrAmt = Math.round(Number(cget(rv, '추가보정금액')) || 0);
     if (String(cget(rv, '추가보정상태') || '').trim() === '완료' && _exCrAmt > 0 && !_crIssued['추가보정']) {
+      var _bdgEx = _crDueBadge(String(_crStamp['추가보정'] || ''), today);
       pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '추가 보정 현금영수증 발행 · ' + _exCrAmt.toLocaleString() + '원',
-        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
+        badge: _bdgEx, _urgent: _bdgEx.level === 'red', _stage: 5, _wait: createdYmd });
     }
     // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
     if (stage === '결과물전달') {
@@ -980,7 +1006,10 @@ function adminConfirmPayment(code) {
     _recordHandler(code, '입금 확인(중복)'); return { ok: true, already: true };
   }
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-  touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인' });
+  var rec0 = _parseJsonSafe(cust.get('동의기록'));
+  rec0.영수증기준일 = rec0.영수증기준일 || {};
+  rec0.영수증기준일.예약금 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용 · 스냅 계약금 포함)
+  touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인', '동의기록': JSON.stringify(rec0) });
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
   _recordHandler(code, '입금 확인 → 입금완료');
   notifyKakao('cust.paymentConfirmed', code, { kind: '계약금' });   // 고객 안심 알림(카톡)

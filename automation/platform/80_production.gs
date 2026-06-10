@@ -299,7 +299,10 @@ function adminConfirmExtra(code) {
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: true, already: true };
-  touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료' });
+  var rec0 = _parseJsonSafe(cust.get('동의기록'));
+  rec0.영수증기준일 = rec0.영수증기준일 || {};
+  rec0.영수증기준일.추가보정 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용)
+  touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료', '동의기록': JSON.stringify(rec0) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '추가보정' });   // 고객 안심 알림(카톡) · 다른 입금확인과 일관
   return { ok: true };
 }
