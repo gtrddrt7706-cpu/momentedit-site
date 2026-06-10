@@ -1214,8 +1214,7 @@ function renderLedger(l){
   var prog=(totalAmt>0&&payRows)?('<div class="led-prog"><div class="led-prog-bar"><span style="width:'+pct+'%"></span></div><div class="led-prog-txt"><b>'+pct+'%</b> 결제 완료 <span class="led-mute">· '+won(paidAmt)+' / '+won(totalAmt)+'</span></div></div>'):'';
   var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+prog+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
   box.innerHTML='<div class="consult-card led-card">'+
-    '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
-    '<div class="led-title">내 내역</div>'+
+    '<div class="cc-eyebrow en-22" style="text-align:center;font-size:12px;margin-bottom:14px">My Records</div>'+
     paySec+
     '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
@@ -1235,12 +1234,25 @@ function doEditCashReceipt(tail){
     }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
   });
 }
-// [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서.
+// [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
 function showFittingTerms(docs){
-  var t=[]; (docs||[]).forEach(function(dc){ if(dc.terms&&dc.terms.length) t=dc.terms; });
-  if(!t.length){ mpAlert('동의 내용을 불러올 수 없어요.'); return; }
-  var html='<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+t.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>';
+  var fd=null; (docs||[]).forEach(function(dc){ if(!fd&&dc.terms&&dc.terms.length) fd=dc; });
+  if(!fd){ mpAlert('동의 내용을 불러올 수 없어요.'); return; }
+  var signedLine=fd.at?'<div style="text-align:left;font-size:12px;color:var(--light);margin:0 0 8px">서명 · <b style="color:var(--sub);font-weight:500">'+escapeHtml(fd.at)+'</b></div>':'';
+  var html=signedLine
+    +'<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+fd.terms.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>'
+    +'<div class="cc-sig" id="mp_ftSig"><span class="cc-sig-cap">Signature</span><div class="cc-sig-slot">'+(fd.sig?'<img class="cc-sig-img" alt="서명" src="'+escapeHtml(fd.sig)+'">':'<span class="cc-sig-ph">서명 불러오는 중…</span>')+'</div></div>';
   mpAlert({ title:'드레스 시착 동의 내용', bodyHtml:html, confirmText:'닫기' });
+  if(!fd.sig){   // 구버전 GAS(payload에 서명 미포함) 폴백 — 캐시 또는 1회 조회
+    var wrap=$('mp_ftSig'), slot=wrap&&wrap.querySelector('.cc-sig-slot');
+    if(slot){
+      if(_sigCache['시착']){ _sigImg(slot,_sigCache['시착']); }
+      else api({action:'getSignature', token:getToken(), type:'시착'}).then(function(r){
+        if(r&&r.ok&&r.dataUrl){ _sigCache['시착']=r.dataUrl; _sigImg(slot,r.dataUrl); }
+        else slot.innerHTML='<span class="cc-sig-ph">서명 기록을 찾지 못했어요.</span>';
+      }).catch(function(){ slot.innerHTML='<span class="cc-sig-ph">서명을 불러오지 못했어요.</span>'; });
+    }
+  }
 }
 // [①] 예식일 임시 고정(가예약) 상태 배너 — 검토 중/승인. hold=null이면 숨김.
 function renderHold(h){
@@ -1353,8 +1365,8 @@ function renderFitting(f, d){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
         + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
-    } else {                                              // 상담완료 이후 → 접힌 기록
-      collapsedCard(box, '드레스 시착 동의 완료', termsFull, '시착', true);   // 본계약서(계약완료)와 동일하게 기본 펼침
+    } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 — 중복 정리)
+      box.style.display='none'; box.innerHTML='';
     }
     return;
   }

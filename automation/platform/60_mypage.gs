@@ -67,6 +67,11 @@ function buildHoldState(r) {
 function buildLedgerState(r) {
   if (!r) return null;
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
+  // 노출 시점 — 계약서 요청 단계(시그 상담완료 · 스냅 촬영확정)부터. 그 전(시착 직후 등)엔 여정 카드가 보여주고 있어 중복이라 숨김. 예외 단계(취소 등·flow 밖)는 내역 있으면 기존대로 노출.
+  var _ledFlow = stageFlowFor(r.get('상품타입'));
+  var _ledCur = _ledFlow.indexOf(String(r.get('현재단계') || '').trim());
+  var _ledGate = _ledFlow.indexOf(isSnap ? '촬영확정' : '상담완료');
+  if (_ledGate >= 0 && _ledCur >= 0 && _ledCur < _ledGate) return null;
   var signed = String(r.get('계약상태') || '').trim() === '서명완료';
   var fitDone = String(r.get('시착동의상태') || '').trim() === '동의완료';
   var fitAt = String(r.get('시착동의일시') || '').trim();
@@ -96,7 +101,7 @@ function buildLedgerState(r) {
   var crTail = crTarget ? String(crTarget).replace(/[^0-9]/g, '').slice(-4) : '';
   // 서류 — 시착 동의서·계약서
   var documents = [];
-  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [] });   // [③] 내 내역에서 동의 내용 재열람용
+  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [], sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // [③] 내 내역에서 동의 내용 재열람용 — sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
   var clink = String(r.get('계약서링크') || '').trim();
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
   // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
