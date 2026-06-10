@@ -827,6 +827,13 @@ function doSubmit(){
         document.getElementById('modalPick').innerHTML=(SERVER.names||'')+' 님<br>'+dateStr+' · '+selTime;
         document.getElementById('modal').classList.add('show');
         restore();
+      } else if(res&&res.cancelled){   // [취소 동기화] 페이지를 열어둔 사이 취소됨 — 안내 후 마이페이지로
+        try{ localStorage.removeItem('me_state_v1'); }catch(e){}
+        var sumc=document.getElementById('summary');
+        sumc.textContent='이 예약은 취소된 상태예요. 마이페이지로 이동할게요…';
+        sumc.classList.remove('on'); sumc.style.color='var(--seal)';
+        sumc.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(function(){ location.href='/mypage.html'; }, 2000);
       } else {
         var sum=document.getElementById('summary');
         sum.textContent=(res&&res.error)?res.error:'신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.';
@@ -913,6 +920,12 @@ if(_hdw){
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:token})})
     .then(function(r){return r.json();})
     .then(function(s){
+      if(s&&s.cancelled){   // [취소 동기화] 취소된 예약 — 선택 화면 대신 취소 상태 안내 + 마이페이지로 전환
+        try{ localStorage.removeItem('me_state_v1'); }catch(e){}
+        fail('이 예약은 <b style="color:#6B2A24">취소된 상태</b>예요.<br>현재 상태는 마이페이지에서 확인하실 수 있어요.<br><br><span style="font-size:12px;color:#A39C8E">잠시 후 마이페이지로 이동합니다…</span>');
+        setTimeout(function(){ location.href='/mypage.html'; }, 2200);
+        return;
+      }
       if(!s||!s.ok){ fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
       s.token=token; s.me=!!me;
       var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};

@@ -697,6 +697,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
   if (!row) throw new Error('신청 정보를 찾을 수 없습니다.');
+  if (String(row.get('상태') || '').trim() === ST.CANCELLED) throw new Error('취소된 예약입니다. 다시 진행을 원하시면 카카오톡으로 문의해 주세요.');
   if (isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
   if (!dateKey || !time) throw new Error('날짜와 시간을 선택해 주세요.');
 
@@ -1858,6 +1859,12 @@ function _sessionToConsult(token) {
 function handleGetAvailability(body) {
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, error: a.error };
+  // [취소 동기화] 관리자/고객이 취소한 예약(또는 예외 단계 고객) — 새로고침해도 선택 화면 대신 취소 상태로 전환되게 플래그
+  var _bst = a.consult ? String(a.consult.get('상태') || '').trim() : '';
+  var _cst = a.cust ? String(a.cust.get('현재단계') || '').trim() : '';
+  if (_bst === ST.CANCELLED || STAGE_EXCEPTIONS.indexOf(_cst) !== -1) {
+    return { ok: false, cancelled: true, error: '취소된 예약입니다.' };
+  }
   var data = _cachedAvailability();   // 전역 캐시(캘린더 쿼리 생략) → 일정선택 페이지 로딩 가속
   var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
   var _hRec = a.cust ? _parseJsonSafe(a.cust.get('동의기록')).가예약 : null;   // [임시고정 연동] 재선택 방향 제한용
@@ -1876,6 +1883,12 @@ function handleSubmitSchedule(body) {
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, error: a.error };
   if (!a.consult) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
+  // [취소 동기화] 페이지를 열어둔 사이 취소된 경우 — 제출 시점에도 차단(프런트가 cancelled로 마이페이지 전환)
+  var _bst2 = String(a.consult.get('상태') || '').trim();
+  var _cst2 = a.cust ? String(a.cust.get('현재단계') || '').trim() : '';
+  if (_bst2 === ST.CANCELLED || STAGE_EXCEPTIONS.indexOf(_cst2) !== -1) {
+    return { ok: false, cancelled: true, error: '취소된 예약이라 일정을 선택할 수 없어요.' };
+  }
   var consultToken = String(a.consult.get('토큰') || '');
   return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null);
 }
