@@ -138,6 +138,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .raw{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;line-height:1.7;word-break:break-all}
 .raw-sub{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:var(--paper2);border-radius:7px;padding:8px 11px;margin-top:6px;line-height:1.65;word-break:break-all;border-left:2px solid var(--gold-soft,rgba(184,154,117,.28))}
 .raw-sub-h{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#9A7B4F);font-weight:600;margin-bottom:3px}
+.card.focus{outline:2px solid var(--gold);outline-offset:2px;transition:outline-color .3s}
 .raw b{color:var(--accent);font-weight:500}
 .mt{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deeper);background:none;border:none;cursor:pointer;padding:7px 0 2px}
 .mbody{display:none;margin-top:6px;border-top:1px dashed var(--gold-line);padding-top:8px}
@@ -446,7 +447,7 @@ function queueRow(it){
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'"'+holdAttr+'>'+esc(btnLbl)+'</button>'
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
-  return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'">'+
+  return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'" data-kind="'+esc(it.kind)+'">'+
     '<div class="ql"><div class="qn"><span class="qk">'+esc(it.kind)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
 }
@@ -461,8 +462,8 @@ function renderQueue(d){
   }
   $('queueWrap').innerHTML=html;
   // 바인딩: 행→상세 / 인라인 버튼→액션 / go 버튼→상세
-  $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home'); }); });
-  $('queueWrap').querySelectorAll('.qbtn[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); openDetail(b.getAttribute('data-go'),'home'); }); });
+  $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home',el.getAttribute('data-kind')); }); });
+  $('queueWrap').querySelectorAll('.qbtn[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); var row=b.closest('.qrow'); openDetail(b.getAttribute('data-go'),'home',row&&row.getAttribute('data-kind')); }); });
   $('queueWrap').querySelectorAll('.qbtn[data-act]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); onQueueAct(b.getAttribute('data-act'), b.getAttribute('data-code'), b.getAttribute('data-names'), b.getAttribute('data-snap')==='1', b); }); });
 }
 function onQueueAct(act,code,names,isSnap,el){
@@ -623,13 +624,21 @@ function doSearch(){
 }
 
 /* ════════ 상세 ════════ */
-function openDetail(code, origin){
+var KIND2CARD={ '계약발송':'contract','계약만료':'contract','현금영수증발행':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
+function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
     curDetail=d; renderDetail(d); show('detail');
-    setTimeout(function(){ var cur=document.querySelector('.card.cur'); if(cur){ var y=cur.getBoundingClientRect().top+window.pageYOffset-72; window.scrollTo({top:y<0?0:y,behavior:'smooth'}); } else window.scrollTo(0,0); }, 60);   // 진행 중인 단계 카드로 자동 스크롤
+    setTimeout(function(){
+      var target=null;
+      if(focusKind && KIND2CARD[focusKind]) target=document.querySelector('.card[data-k="'+KIND2CARD[focusKind]+'"]');   // 큐에서 온 일감의 카드로 바로
+      if(!target) target=document.querySelector('.card.cur');
+      if(target){ var y=target.getBoundingClientRect().top+window.pageYOffset-72; window.scrollTo({top:y<0?0:y,behavior:'smooth'});
+        if(focusKind){ target.classList.add('focus'); setTimeout(function(){ target.classList.remove('focus'); },2200); } }
+      else window.scrollTo(0,0);
+    }, 60);   // 진행 중인 단계(또는 큐 일감) 카드로 자동 스크롤
   }).catch(function(e){ toast('오류'); loadHome(); });
 }
 
@@ -704,7 +713,7 @@ function renderCard(k,d,isSnap){
   else if(k==='result') inner=cardResult(d,isSnap);
   if(k==='production') mirror=d.mirror?d.mirror.invitation:null;
   var cls='card'+(isCur(d.stage,k,isSnap)?' cur':'');
-  return '<div class="'+cls+'"><div class="card-h"><span class="ct">'+esc(m.t)+'</span></div>'+inner+mirrorToggle(k,mirror)+'</div>';
+  return '<div class="'+cls+'" data-k="'+esc(k)+'"><div class="card-h"><span class="ct">'+esc(m.t)+'</span></div>'+inner+mirrorToggle(k,mirror)+'</div>';
 }
 function btnsWrap(s){ return s?'<div class="actions">'+s+'</div>':''; }
 function ab(act,label,cls){ return '<button class="btn '+(cls||'btn-seal')+'" data-da="'+esc(act)+'">'+esc(label)+'</button>'; }

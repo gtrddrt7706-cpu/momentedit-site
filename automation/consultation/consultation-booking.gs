@@ -1986,6 +1986,7 @@ function doPost(e) {
       case 'changeWeddingHold':   return jsonOut(handleChangeWeddingHold(body));
       case 'cancelWeddingHold':   return jsonOut(handleCancelWeddingHold(body));
       case 'requestContract':    return jsonOut(handleRequestContract(body));
+      case 'requestContractResend': return jsonOut(handleRequestContractResend(body));
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       case 'signContract':       return jsonOut(handleSignContract(body));
       case 'getSignature':       return jsonOut(handleGetSignature(body));

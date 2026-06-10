@@ -983,7 +983,8 @@ function renderMyPage(d){
     }
     // [신청접수 하위상태] 시간 선택 후 승인 대기 / 변경 제안 — '일정 선택'에 머물지 않게
     if (d.stage === '신청접수' && d.consult) {
-      if (d.consult.status === '시간선택완료') { head = '디렉터가 일정을 확인하고 있어요'; sub = '확정되면 마이페이지와 메일로 알려드릴게요.'; }
+      if (d.consult.status === '신청접수' && d.consult.scheduleUrl) { head = '상담 일정을 선택해 주세요'; sub = '아래에서 원하시는 날짜·시간을 고르시면, 디렉터가 확인 후 확정해 드려요.'; }   // 기본 문구('곧 연락드립니다')가 카드 액션과 충돌하던 것 보정
+      else if (d.consult.status === '시간선택완료') { head = '디렉터가 일정을 확인하고 있어요'; sub = '확정되면 마이페이지와 메일로 알려드릴게요.'; }
       else if (d.consult.status === '변경제안') { head = '디렉터가 다른 시간을 제안했어요'; sub = '아래에서 수락하거나 다른 시간을 골라 주세요.'; }
     }
     // [상담완료] 고객 계약서 요청 전/후로 NOW 분기 ('준비 중' 고정 → 요청 유도/준비 중)
@@ -1185,7 +1186,8 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
 function renderPayOpenNote(d){
   var box=$('mp_payNote'); if(!box) return;
   var isSnap=(d.product==='웨딩스냅');
-  var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance;
+  var show=!d.isException && !!d.contract && !isSnap && !d.midpayment && !d.balance
+    && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1;   // 결제가 끝나 카드가 닫힌 결과물 단계에서 '45일 전 열려요'(미래형)가 되살아나지 않게
   if(!show){ box.innerHTML=''; box.style.display='none'; return; }
   box.innerHTML='<div class="consult-card" style="padding:15px 20px"><div style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all">중도금과 잔금 안내는 <b style="font-weight:500;color:var(--accent)">예식 45일 전</b>, 이 자리에서 가만히 열려요.<br>한 번에 치르셔도, 나누어 치르셔도 괜찮습니다. 그날까지는 마음만 가볍게 준비해 두세요.</div></div>';
   box.style.display='block';
@@ -1570,9 +1572,17 @@ function renderContractPayment(c, p, ctx){
   // ── 1) 서명 단계(미서명) — 계약금 미리보기로 "한 스텝"임을 안내 ──
   if (!signed){
     if (expired){
-      h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">디렉터에게 계약서 재발송을 요청해 주세요.</div>'
-         + '<div class="cc-actions">'+link+'</div></div>';
-      box.innerHTML=h; box.style.display='block'; return;
+      h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">아래 버튼으로 요청하시면 새 계약서를 보내드릴게요.</div>'
+         + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ctResend">계약서 재발송 요청</button>'+link+'</div></div>';
+      box.innerHTML=h; box.style.display='block';
+      var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
+        rs.disabled=true; rs.textContent='요청 중…';
+        api({action:'requestContractResend', token:getToken()}).then(function(r){
+          if(r&&r.ok){ rs.textContent='요청했어요 · 곧 보내드릴게요'; }
+          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청에 실패했습니다.'); }
+        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      });
+      return;
     }
     h += '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')

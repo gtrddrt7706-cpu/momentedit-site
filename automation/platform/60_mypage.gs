@@ -104,7 +104,8 @@ function buildLedgerState(r) {
   var documents = [];
   if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [], sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // [③] 내 내역에서 동의 내용 재열람용 — sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
   var clink = String(r.get('계약서링크') || '').trim();
-  if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
+  var _cStat = String(r.get('계약상태') || '').trim();
+  if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (_cStat === '발송' ? '서명 대기' : (_cStat || '—')), at: _ymdOf(r.get('계약서명일시')), url: clink });   // 내부값 '발송'을 고객어로
   // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
   if (!(signed || fitDone || fitAt || depConfirmed || receipts.length)) return null;
   return { total: ledgerTotal, paid: paid, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, cashTail: crTail, documents: documents };

@@ -404,6 +404,21 @@ function buildContractInfoState(r) {
   };
 }
 
+// [02-3b] 계약서 재발송 요청(고객) — 서명 기한 만료 화면의 버튼. 발송 자체는 관리자(adminSendContract)가 수행, 여기선 요청 기록+알림만.
+function handleRequestContractResend(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var cs = String(s.row.get('계약상태') || '').trim();
+  if (cs === '서명완료') return { ok: false, error: '이미 서명이 완료된 계약이에요.' };
+  if (cs !== '발송' && cs !== '미발송') return { ok: false, error: '재발송을 요청할 계약서가 없어요.' };
+  _recordHandler(code, '고객 계약서 재발송 요청');
+  try { notifyStudio('[플랫폼] 계약서 재발송 요청 (' + code + ')', code + ' · 고객이 만료된 계약서의 재발송을 요청했어요.'); } catch (e) {}
+  notifyKakao('admin.contractReq', code, { weddingDate: _ymdOf(s.row.get('예식일')) });   // 관리자: 계약서 발송 필요(기존 키 재사용)
+  return { ok: true };
+}
+
 // [02-3] 마이페이지 계약서 카드용 상태. 동의기록(내부 JSON) 비노출, 파생값·기한만.
 //   노출: 발송(서명 카드+카운트다운) 또는 서명완료(완료+계약서 보기). 미발송 → null.
 function buildContractState(r) {
