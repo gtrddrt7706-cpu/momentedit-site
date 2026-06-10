@@ -2704,7 +2704,8 @@ function updateInvPreview(){
 }
 function invStepDesign(box){
   var d=INVFLOW.draft, m=d.method;
-  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>';
+  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
+    +'<div class="cc-actions" style="margin:2px 0 12px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';   // 고르기 전에 먼저 훑어보게 상단 배치
   if(m==='offline') h+=designBlock('offline','직접 모시는 청첩장');
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   else if(m==='both'){
@@ -2712,8 +2713,7 @@ function invStepDesign(box){
     h+='<div class="inv-gate"><div class="inv-gate-q">온라인 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
-  // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨
-  h+='<div class="cc-actions" style="margin-top:10px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';
+  // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨 · 샘플 전체 둘러보기는 상단(제목 아래)으로 이동됨
   h+='<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
   box.innerHTML=h;
   bindDesign(box);
