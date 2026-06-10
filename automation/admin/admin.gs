@@ -596,7 +596,7 @@ function adminSearch(query) {
     var hay = (code + ' ' + g + ' ' + b).toLowerCase();
     var phoneN = phone.replace(/[\s\-]/g, '');
     if (hay.indexOf(query) !== -1 || (q && phoneN.indexOf(q) !== -1)) {
-      out.push({ code: code, names: _names(g, b), product: get(rv, '상품타입'), stage: get(rv, '현재단계') });
+      out.push({ code: code, names: _names(g, b), product: get(rv, '상품타입'), stage: get(rv, '현재단계'), wedding: _ymdOf(get(rv, '예식일')) });   // 예식일=동명이인 구분용
       if (out.length >= 30) break;
     }
   }

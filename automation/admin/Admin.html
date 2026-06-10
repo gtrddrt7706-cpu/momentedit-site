@@ -508,7 +508,7 @@ function doSearch(){
     var html='<div class="sect-h"><span class="tt">검색 결과</span><span class="ct">'+d.results.length+'</span></div>';
     if(!d.results.length) html+='<div class="empty">\''+esc(q)+'\' 결과가 없어요</div>';
     else html+=d.results.map(function(it){
-      return '<div class="qrow" data-code="'+esc(it.code)+'"><div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div><div class="qs">'+esc(it.stage||'')+' · '+esc(it.code)+'</div></div><span style="color:var(--label-soft)">›</span></div>';
+      return '<div class="qrow" data-code="'+esc(it.code)+'"><div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div><div class="qs">'+esc(it.stage||'')+' · '+esc(it.code)+(it.wedding?(' · 예식 '+esc(fmtDate(it.wedding))):'')+'</div></div><span style="color:var(--label-soft)">›</span></div>';
     }).join('');
     $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML='';
     $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'search'); }); });
