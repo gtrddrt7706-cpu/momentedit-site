@@ -85,8 +85,10 @@ function buildLedgerState(r) {
     // 시그: 예약금은 상담 예약 시 이미 결제됨 → 항상 '결제 완료'(입금상태는 계약금 충당 확인용 내부값이라, 그대로 '대기'로 보이면 또 내야 하는 줄 오해). 스냅: 계약금은 계약 시 결제 → 입금상태 그대로.
     if (isSnap) payments.push({ key: '예약금', label: '계약금', amount: amounts['계약금'], status: st(r.get('입금상태')), done: depConfirmed });
     else payments.push({ key: '예약금', label: '예약금', amount: PAYMENT.예약금, status: '결제 완료', done: true });
-    if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
-    payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
+    if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인',
+      dueLabel: _midDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전) });   // 납부 기한 인지용(미납 행에만 표시)
+    payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인',
+      dueLabel: _balanceDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전) });
   }
   // 결제 진행률 — 완료된 마일스톤 금액 합 / 총액. (작은 계약서 등 예약금이 계약금을 초과해 100%를 넘는 경우 방지)
   var paid = 0; payments.forEach(function (p) { if (p.done) paid += Number(p.amount) || 0; });

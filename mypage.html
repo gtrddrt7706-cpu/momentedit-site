@@ -546,6 +546,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지 -->
     <div class="consult-sec" id="mp_hold" style="display:none"></div>
 
+    <!-- 내 내역 (02-6) — 결제·현금영수증·서류 한곳에. 기본 접힘(펼쳐 보기) · 카드 상단 고정 -->
+    <div class="consult-sec" id="mp_ledger" style="display:none"></div>
+
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
     <!-- 드레스 시착 동의 (02-2) — 상담 다음·계약 전 -->
@@ -572,8 +575,6 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     <!-- 결과물 (05) — 예식완료/결과물전달 -->
     <div class="consult-sec" id="mp_result" style="display:none"></div>
 
-    <!-- 내 내역 (02-6) — 결제·현금영수증·서류 한곳에(단계 무관). 계약/시착/입금 중 하나라도 있으면 노출 -->
-    <div class="consult-sec" id="mp_ledger" style="display:none"></div>
 
     <!-- NEXT (잠금) -->
     <div class="next-sec" id="mp_upcoming"></div>
@@ -602,6 +603,8 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .led-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);padding:7px 0 1px;line-height:1.55}
     .led-note.led-warn{color:var(--seal)}
     .led-note .led-mute{color:var(--light)}
+.led-due{font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--light);margin:-4px 0 6px;text-align:left}
+.led-due b{color:var(--sub);font-weight:500}
     .led-editbtn{margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
     .led-editbtn:active{opacity:.7}
     .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
@@ -1127,31 +1130,12 @@ function applyCardStageView(d){
     if (mi >= 0 && cur < mi){ box.style.display = 'none'; }
   });
 
-  // [입금완료+] 완료된 지난 단계 카드는 접어 토글로만 펼침 — 제작/예식준비에 집중.
-  //   잔금 이후(잔금 확인·결과물 단계)엔 본계약서·중도금·잔금을 '본계약서 보기' 토글 안에 함께 묶고, 시착·계약금 카드만 화면에서 제거.
+  // [입금완료+] 완료된 지난 단계 카드는 화면에서 정리 — 기록 열람은 상단 '내 내역'(접이식) 하나로 일원화(중복 토글 제거).
   var paidIdx = sIdx('입금완료');
   if (paidIdx >= 0 && cur >= paidIdx) {
     var afterBalance = (d.balance && d.balance.confirmed) || ['예식완료','촬영완료','결과물전달'].indexOf(d.stage) >= 0;
-    var pastIds = afterBalance ? ['mp_contract','mp_midpayment','mp_balance'] : ['mp_fitting','mp_contract','mp_payment'];
-    if (afterBalance) { ['mp_fitting','mp_payment'].forEach(function(id){ var b=$(id); if (b) b.style.display='none'; }); }
-    var lblShow = afterBalance ? '본계약서 보기 ' : '계약 정보 보기 ';
-    var lblHide = afterBalance ? '본계약서 접기 ' : '계약 정보 접기 ';
-    var hasPast = pastIds.some(function(id){ var b=$(id); return b && b.style.display!=='none' && (b.innerHTML||'').trim()!==''; });
-    if (hasPast) {
-      pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
-      var anchor = $('mp_fitting') || $('mp_contract');
-      if (anchor && anchor.parentNode) {
-        var t = document.createElement('button');
-        t.type='button'; t.id='mp_pastToggle'; t.className='past-toggle';
-        t.innerHTML = lblShow + '<span class="pt-ar">▾</span>';
-        anchor.parentNode.insertBefore(t, anchor);
-        t.addEventListener('click', function(){
-          var open = t.classList.toggle('open');
-          pastIds.forEach(function(id){ var b=$(id); if (b && (b.innerHTML||'').trim()!=='') b.style.display = open?'block':'none'; });
-          t.innerHTML = (open?lblHide:lblShow)+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>';
-        });
-      }
-    }
+    var pastIds = afterBalance ? ['mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance'] : ['mp_fitting','mp_contract','mp_payment'];
+    pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
   }
 }
 
@@ -1201,7 +1185,8 @@ function renderLedger(l){
   if(!l){ box.innerHTML=''; box.style.display='none'; return; }
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
-    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span><span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span></div>';
+    var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
+    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span><span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span></div>'+dueTxt;
   }).join('');
   var recRows=(l.receipts&&l.receipts.length)
     ? l.receipts.map(function(r){ var done=!!r.num; return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s '+(done?'led-done':'led-soon')+'">'+(done?('발행 '+escapeHtml(r.num)):'발급 예정')+'</span></div>'; }).join('')
@@ -1214,22 +1199,20 @@ function renderLedger(l){
   // 서류 — 계약서는 외부 링크, 시착 동의서는 동의 내용 모달(③)
   var docRows=(l.documents&&l.documents.length)
     ? l.documents.map(function(dc){
-        var right = dc.url ? ('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>')
+        var right = (dc.label==='계약서' && window._contractFill) ? '<button type="button" class="led-linkbtn js-view-contract">보기</button>'
+                  : dc.url ? ('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기</a>')
                   : ((dc.terms&&dc.terms.length) ? '<button type="button" class="led-linkbtn" data-doc="fitting">보기</button>' : '');
         return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
       }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
-  // 결제 진행률 — 완료 금액 / 총액 막대
-  var paidAmt=Number(l.paid||0), totalAmt=Number(l.total||0);
-  var pct=totalAmt>0?Math.min(100,Math.round(paidAmt/totalAmt*100)):0;
-  var prog=(totalAmt>0&&payRows)?('<div class="led-prog"><div class="led-prog-bar"><span style="width:'+pct+'%"></span></div><div class="led-prog-txt"><b>'+pct+'%</b> 결제 완료 <span class="led-mute">· '+won(paidAmt)+' / '+won(totalAmt)+'</span></div></div>'):'';
-  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+prog+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
-  box.innerHTML='<div class="consult-card led-card">'+
+  var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
+  box.innerHTML='<details class="acc"><summary class="past-toggle">내 내역 보기 <span class="pt-ar">▾</span></summary>'+
+    '<div class="consult-card led-card">'+
     '<div class="cc-eyebrow en-22" style="text-align:center;font-size:12px;margin-bottom:14px">My Records</div>'+
     paySec+
     '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
-    '</div>';
+    '</div></details>';
   box.style.display='block';
   var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
   var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ showFittingTerms(l.documents); });
