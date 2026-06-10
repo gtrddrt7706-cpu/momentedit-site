@@ -108,9 +108,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 
 .btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}
 /* 진사 버튼 = '결정'의 자리 (로그인·재설정) */
-.btn-seal{background:var(--seal);color:#fff}
-.btn-seal:hover{background:#5A231E}
-.btn-seal:active{background:#511F1B}
+.btn-seal{background:#B89A75;color:#fff}   /* 프라이머리 = 브랜드 베이지(메일 CTA·모달 버튼과 통일) */
+.btn-seal:hover{background:#A8895F}
+.btn-seal:active{background:#9C7E55}
 .btn-seal:disabled{opacity:.55;cursor:not-allowed}
 /* 키보드 포커스 가시성(접근성) */
 .btn:focus-visible,.linkrow a:focus-visible,.foot-actions a:focus-visible,.codecard .copy:focus-visible,.kakao:focus-visible,.brand-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
@@ -226,8 +226,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .consult-card .cc-actions:empty{display:none}
-.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:var(--seal);color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
-.cc-btn:hover{background:#5A231E}
+.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:#B89A75;color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
+.cc-btn:hover{background:#A8895F}
+.cc-btn:active{background:#9C7E55}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
@@ -322,7 +323,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .dt-day.today::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold)}
 .dt-day.weekend{color:var(--sub)}
 .dt-day:hover:not(.past):not(.empty):not(.selected){background:var(--bg2);border-color:var(--gold)}
-.dt-day.selected{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
+.dt-day.selected{background:#B89A75;color:#fff;border-color:#B89A75;font-weight:500}
 .dt-day.selected.today::after{background:#fff}
 .trk-list{margin:12px 0 4px}
 .trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
@@ -364,7 +365,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .srv-opts{display:flex;flex-wrap:wrap;gap:7px}
 .srv-opts button{flex:0 1 auto;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);transition:all .14s;line-height:1.3}
 .srv-opts button:hover{border-color:var(--gold);color:var(--accent)}
-.srv-opts button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.srv-opts button.on{background:#B89A75;border-color:#B89A75;color:#fff;font-weight:500}
 #mp_svReview{font-family:var(--sans);font-weight:300;font-size:14px;line-height:1.65}
 #mp_svReview::placeholder{color:var(--label-soft);font-weight:300}
 .srv-consent{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
