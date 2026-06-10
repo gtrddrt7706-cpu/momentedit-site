@@ -38,7 +38,7 @@ export default async function middleware(req) {
     let html = await sr.text();
 
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    const names = esc(g) + ' ♥ ' + esc(b);
+    const names = esc(g) + ' &amp; ' + esc(b);   // 표지 표기(HUIJUN & MIKU)와 같은 무드 — 카톡에선 '이서준 & 정하윤'으로 보임
     const title = names + ' 결혼식에 초대합니다 · Moment Edit';
     const desc = names + ' 두 분의 결혼식에 진심으로 초대합니다.';
     html = html
