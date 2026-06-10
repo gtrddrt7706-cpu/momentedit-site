@@ -1475,7 +1475,7 @@ function renderContractReqForm(ctx){
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
     +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
-    +weddingSequenceRef('대표 시간만 정리한 요약 시간표예요. 시간대를 고르실 때 참고해 주세요. 세부 흐름과 도착·종료 시각은 방문 상담에서 함께 조정해 드려요.')
+    +weddingSequenceRef('대표 시간만 정리한 요약 시간표예요. 시간대를 고르실 때 참고해 주세요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
     +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
     +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddr)
