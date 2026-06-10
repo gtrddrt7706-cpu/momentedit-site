@@ -659,6 +659,11 @@ function _cashReceiptLedger(r) {
   out.push(item('예약금', isSnap ? '계약금' : '예약금', String(r.get('입금상태') || '').trim() === '확인', isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
   if (!isSnap) out.push(item('중도금', '중도금', String(r.get('중도금상태') || '').trim() === '확인', amounts ? amounts['중도금'] : 0));
   out.push(item('잔금', '잔금', String(r.get('잔금상태') || '').trim() === '확인', amounts ? amounts['잔금'] : 0));
+  // 추가 보정(과세 용역·10만원↑ 현금 의무발급) — 결제 '완료'된 건만 원장에(금액 0=미신청은 행 자체 생략). 총액 외 별도 매출이라 결제 진행률에는 미합산.
+  var _exAmt = Math.round(Number(r.get('추가보정금액')) || 0);
+  if (_exAmt > 0 && ['완료', '결제대기'].indexOf(String(r.get('추가보정상태') || '').trim()) !== -1) {
+    out.push(item('추가보정', '추가 보정', String(r.get('추가보정상태') || '').trim() === '완료', _exAmt));
+  }
   return out;
 }
 function buildPaymentState(r) {

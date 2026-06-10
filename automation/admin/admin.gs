@@ -263,6 +263,15 @@ function adminHome() {
       if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
         pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
       }
+      // 아카이브라도 추가 보정 현금영수증 미발행분은 큐 유지(의무발급·가산세 방지)
+      if (stage === '결과물전달') {
+        var _exArc = Math.round(Number(cget(rv, '추가보정금액')) || 0);
+        var _isuArc = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
+        if (String(cget(rv, '추가보정상태') || '').trim() === '완료' && _exArc > 0 && !_isuArc['추가보정']) {
+          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '추가 보정 현금영수증 발행 · ' + _exArc.toLocaleString() + '원',
+            badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 8, _wait: createdYmd });
+        }
+      }
       // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
       if (stage === '취소') {
         var _rbk = bookMap[code], _racct = _rbk ? String(bget(_rbk, '환불계좌') || '').trim() : '';
@@ -309,6 +318,12 @@ function adminHome() {
       pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
         badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
     });
+    // 추가 보정 현금영수증 — 결제 '완료'(확인)된 추가 보정 중 미발행분(과세 용역·10만원↑ 현금 의무발급)
+    var _exCrAmt = Math.round(Number(cget(rv, '추가보정금액')) || 0);
+    if (String(cget(rv, '추가보정상태') || '').trim() === '완료' && _exCrAmt > 0 && !_crIssued['추가보정']) {
+      pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '추가 보정 현금영수증 발행 · ' + _exCrAmt.toLocaleString() + '원',
+        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
+    }
     // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
     if (stage === '결과물전달') {
       if (추가보정 === '결제대기') pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
@@ -895,12 +910,13 @@ function adminIssueCashReceipt(code, kind, num) {
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
-  if (['예약금', '중도금', '잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '중도금', '잔금', '추가보정'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
   if (!num) return { ok: false, error: '발행번호(홈택스 승인번호)를 입력해 주세요.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
-  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : '잔금상태');
-  if (String(cust.get(stCol) || '').trim() !== '확인') return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
+  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
+  var stOk = (kind === '추가보정') ? '완료' : '확인';   // 추가 보정은 '완료'가 입금 확인 상태
+  if (String(cust.get(stCol) || '').trim() !== stOk) return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
   var amt = 0, led = _cashReceiptLedger(cust);
   for (var i = 0; i < led.length; i++) if (led[i].key === kind) amt = led[i].amount;
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -918,7 +934,7 @@ function adminUndoCashReceipt(code, kind) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
-  if (['예약금', '중도금', '잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '중도금', '잔금', '추가보정'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
