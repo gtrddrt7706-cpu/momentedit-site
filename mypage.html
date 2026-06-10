@@ -1058,6 +1058,8 @@ function renderMyPage(d){
     $('mp_stageNow').textContent = nowLabel;
     $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
     var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
+    // 제작중 부제: 실제 다음 할 일은 결제라 — 중도금·잔금 카드가 열리기 전(D-45·NEXT 자물쇠)엔 '중도금·잔금', 열리면 '예식 완료'
+    if (d.stage==='제작중' && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage)
                  : (atDelivered ? (surveyDone ? '모든 순간이 마무리됐어요 🤍' : '후기를 남기면 끝나요') : '마지막 단계예요');
     // 점만 (막대 없음)
