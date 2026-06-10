@@ -719,8 +719,11 @@ function cardProduction(d){
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
   else { raw+='<b>—</b>'; }
   if(d.stage==='제작중'&&inv&&inv.status!=='완료') raw+='<div class="cnote">🟡 고객이 청첩장을 만드는 중이에요</div>';
-  raw+='<div class="cnote">🍽 다이닝 · 📜 식순 — 준비 중 (곧)</div>';
-  return '<div class="raw">'+raw+'</div><div class="cnote">청첩장은 고객이 만들어요 (관리자는 보기 전용)</div>';
+  // 다이닝·식순 — 고객이 채운 상태 표시(데이터는 d.mirror.production.diningDraft/ritualDraft. 내용 상세 뷰는 추후)
+  var _prod=d.mirror?d.mirror.production:null, _tk=(_prod&&_prod.tracks)||{};
+  function _trks(s){ s=s||'시작전'; return s==='완료'?'<b style="color:var(--gold-deeper,#7a5f37)">완료</b>':(s==='진행중'?'<b style="color:#b5852a">진행 중</b>':'<span style="color:var(--label-soft)">시작 전</span>'); }
+  raw+='<div class="cnote">🍽 다이닝 '+_trks(_tk.dining)+' · 📜 식순 '+_trks(_tk.ritual)+'</div>';
+  return '<div class="raw">'+raw+'</div><div class="cnote">청첩장·다이닝·식순은 고객이 채워요 (관리자는 보기 전용)</div>';
 }
 function cardResult(d,isSnap){
   var r=d.raw||{}, stt=r['결과물상태']||'대기', raw='결과물 <b>'+esc(stt)+'</b>';
