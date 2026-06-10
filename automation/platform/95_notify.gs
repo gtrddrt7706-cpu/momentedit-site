@@ -41,6 +41,7 @@ var NOTIFY_EVENTS = {
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
   // ── 고객: 권장(안심) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
+  'cust.cashReceiptIssued':{ to: 'customer', need: false, desc: '현금영수증 발행됨' },
   'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
   'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' }

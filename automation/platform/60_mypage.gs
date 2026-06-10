@@ -45,8 +45,38 @@ function handleGetMyState(body) {
     production: buildProductionState(r),  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
     result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
+    ledger: buildLedgerState(r),  // [02-6] '내 내역' — 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };
+}
+
+// [02-6] '내 내역' 패널 — 결제(예약금/계약금·중도금·잔금)·현금영수증(발행된 것)·서류(시착동의서·계약서)를 진행 단계와 무관하게 한곳에 모아 노출.
+//   시착 동의·계약 서명·입금 중 하나라도 있으면 노출(그 전엔 내역이 없어 null). 결제 금액은 계약총액 기반(_journeyAmounts), 영수증은 _cashReceiptLedger 공통.
+function buildLedgerState(r) {
+  if (!r) return null;
+  var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
+  var signed = String(r.get('계약상태') || '').trim() === '서명완료';
+  var fitDone = String(r.get('시착동의상태') || '').trim() === '동의완료';
+  var fitAt = String(r.get('시착동의일시') || '').trim();
+  var depConfirmed = String(r.get('입금상태') || '').trim() === '확인';
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  function st(v) { v = String(v || '').trim(); return v === '확인' ? '입금 확인' : (v === '완료신호' ? '확인 중' : '대기'); }
+  // 결제 마일스톤
+  var payments = [];
+  payments.push({ key: '예약금', label: isSnap ? '계약금' : '예약금', amount: isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금, status: st(r.get('입금상태')), done: depConfirmed });
+  if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts ? amounts['중도금'] : 0, status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인' });
+  payments.push({ key: '잔금', label: '잔금', amount: amounts ? amounts['잔금'] : 0, status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인' });
+  // 현금영수증 — 발행 완료분만
+  var receipts = [];
+  _cashReceiptLedger(r).forEach(function (it) { if (it.issued) receipts.push({ label: it.label, amount: it.issued.금액 || it.amount, num: it.issued.번호, at: it.issued.at }); });
+  // 서류 — 시착 동의서·계약서
+  var documents = [];
+  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '' });
+  var clink = String(r.get('계약서링크') || '').trim();
+  if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
+  // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
+  if (!(signed || fitDone || fitAt || depConfirmed || receipts.length)) return null;
+  return { total: amounts ? amounts['총액'] : 0, productLabel: isSnap ? '웨딩스냅' : '시그니처', payments: payments, receipts: receipts, documents: documents };
 }
 
 // [02-1] 카드가 안 뜨는 "관리자 대기" 갭을 한 줄로(답답함 방지). 카드(상담·입금)가 이미 표시하는 구간은 빈값.

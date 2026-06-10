@@ -579,6 +579,32 @@ function _saveCashReceipt(cust, sheet, colOf, raw) {
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
 function _cashReceiptOf(r) { try { return String(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
+// 현금영수증 발행 원장 — 결제 마일스톤(예약금/계약금·중도금·잔금)별 {입금확인 여부·금액·발행기록}. 관리자 발행 큐·카드 + 마이페이지 '내 내역'이 공통으로 쓰는 단일 소스.
+//   의무발행업종 — 입금이 '확인'된 마일스톤은 현금영수증 발급 대상(미발급 20% 가산세). issued=발행완료 기록 / due=확인됐는데 미발행.
+function _cashReceiptLedger(r) {
+  if (!r) return [];
+  var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  var issued = {};
+  try { issued = _parseJsonSafe(r.get('동의기록')).영수증발행 || {}; } catch (e) {}
+  var target = _cashReceiptOf(r);   // 고객이 입력한 발급 대상(휴대폰/사업자번호). 빈값이면 자진발급(010-000-1234) 대상.
+  function item(key, label, confirmed, amount) {
+    var rec = issued[key] || null;
+    return {
+      key: key, label: label,
+      confirmed: !!confirmed,
+      amount: Math.round(Number(amount) || 0),
+      target: target,
+      issued: rec ? { 번호: String(rec.번호 || ''), 금액: Math.round(Number(rec.금액) || 0), 대상: String(rec.대상 || ''), at: String(rec.at || '') } : null,
+      due: (!!confirmed && !rec)
+    };
+  }
+  var out = [];
+  out.push(item('예약금', isSnap ? '계약금' : '예약금', String(r.get('입금상태') || '').trim() === '확인', isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
+  if (!isSnap) out.push(item('중도금', '중도금', String(r.get('중도금상태') || '').trim() === '확인', amounts ? amounts['중도금'] : 0));
+  out.push(item('잔금', '잔금', String(r.get('잔금상태') || '').trim() === '확인', amounts ? amounts['잔금'] : 0));
+  return out;
+}
 function buildPaymentState(r) {
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;   // 계약 서명 전 → 카드 없음

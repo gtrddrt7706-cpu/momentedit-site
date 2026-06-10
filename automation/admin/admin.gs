@@ -133,7 +133,8 @@ function adminCall(token, fn, args) {
       adminGetSignature: adminGetSignature, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
-      adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted
+      adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
@@ -320,6 +321,18 @@ function adminHome() {
       pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
+    // 현금영수증 발행 — 입금 '확인'된 마일스톤 중 미발행분(의무발행업종·미발급 20% 가산세 방지). 홈택스 발급 후 승인번호 기록 → 큐에서 사라짐.
+    var _crIssued = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
+    var _crAmt = _journeyAmounts(cget(rv, '계약총액'), product);
+    [['입금상태', '예약금', isSnap ? (_crAmt ? _crAmt['계약금'] : 0) : PAYMENT.예약금],
+     ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
+     ['잔금상태', '잔금', _crAmt ? _crAmt['잔금'] : 0]].forEach(function (cr) {
+      if (cr[0] === '중도금상태' && isSnap) return;   // 스냅은 중도금 없음
+      if (String(cget(rv, cr[0]) || '').trim() !== '확인' || _crIssued[cr[1]]) return;
+      var _won = cr[2] ? (' · ' + Math.round(cr[2]).toLocaleString() + '원') : '';
+      pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
+        badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
+    });
     // 예식/촬영 완료 — 시그(제작중&예식일 지남) / 스냅(입금완료&촬영일 지남)
     var eventStage = isSnap ? '입금완료' : '제작중';
     var dplus = (stage === eventStage && wedYmd) ? _dayDiff(today, wedYmd) : null;
@@ -469,7 +482,8 @@ function adminDetail(code) {
   d.priceSuggest = suggestContractTotal(product, d.pin.예식일);   // 계약 발송 모달 자동 제안(예식일→주말/공휴일→총액). null=예식일 미정
   var _rec = _parseJsonSafe(cust.get('동의기록'));
   d.contractReq = _rec.계약정보 || null;   // [02-2.5] 고객이 입력한 계약 정보(예식일·생년월일·주소). null=고객 요청 전
-  d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 번호(선택·결제 카드 입력) — 관리자 발급용
+  d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 발급 대상(고객 입력 휴대폰/사업자번호)
+  d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
@@ -827,6 +841,48 @@ function adminConfirmPayment(code) {
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
   _recordHandler(code, '입금 확인 → 입금완료');
   notifyKakao('cust.paymentConfirmed', code, { kind: '계약금' });   // 고객 안심 알림(카톡)
+  return { ok: true };
+}
+
+// [02-7] 현금영수증 발행 기록 — 입금 확인된 마일스톤(예약금/계약금·중도금·잔금)을 홈택스에서 발급한 뒤, 승인번호(발행번호)를 여기 기록.
+//   기록되면 발행 큐에서 사라지고 고객 '내 내역'에 발행완료로 표시. 금액은 원장에서 자동 산출(관리자는 번호만 입력).
+function adminIssueCashReceipt(code, kind, num) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  kind = String(kind || '').trim();
+  num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
+  if (['예약금', '중도금', '잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (!num) return { ok: false, error: '발행번호(홈택스 승인번호)를 입력해 주세요.' };
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : '잔금상태');
+  if (String(cust.get(stCol) || '').trim() !== '확인') return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
+  var amt = 0, led = _cashReceiptLedger(cust);
+  for (var i = 0; i < led.length; i++) if (led[i].key === kind) amt = led[i].amount;
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.영수증발행) rec.영수증발행 = {};
+  if (rec.영수증발행[kind] && String(rec.영수증발행[kind].번호 || '') === num) return { ok: true, already: true };
+  rec.영수증발행[kind] = { 금액: amt, 번호: num, 대상: _cashReceiptOf(cust), at: fmtKST(new Date()) };
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+  _recordHandler(code, '현금영수증 발행(' + kind + ' ' + num + ')');
+  notifyKakao('cust.cashReceiptIssued', code, { kind: kind, num: num, amount: amt });   // 고객 안내(카톡)
+  return { ok: true };
+}
+// [02-7b] 현금영수증 발행 취소(오기재·환불) — 기록 제거 → 다시 발행 대기로. 홈택스 실제 취소는 별도(자료 안내).
+function adminUndoCashReceipt(code, kind) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  kind = String(kind || '').trim();
+  if (['예약금', '중도금', '잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.영수증발행 || !rec.영수증발행[kind]) return { ok: true, already: true };
+  delete rec.영수증발행[kind];
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+  _recordHandler(code, '현금영수증 발행 취소(' + kind + ')');
   return { ok: true };
 }
 
