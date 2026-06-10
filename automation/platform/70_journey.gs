@@ -565,8 +565,8 @@ var PAYMENT = {
   예약금: 200000,
   계약금율: 0.1,       // 계약서 §4 · 계약금 10% (예약금으로 충당 → 계약 성립 시 추가 0원)
   중도금율: 0.4,       // 중도금 40% (+ 계약금 차액 합산)
-  중도금일수전: 30,    // 중도금 기한 = 예식 D-30
-  잔금일수전: 7        // 잔금 기한 = 예식 D-7 (라벨·카피 모두 이 값에서 파생)
+  중도금일수전: 149,   // 중도금 기한 = 예식 D-149(무료 취소 종료·일정 확정 시) — 위약금 전 구간이 기수령액으로 커버되도록(2026-06-12 결정)
+  잔금일수전: 9        // 잔금 기한 = 예식 D-9 (9~1일 전 위약 50% 구간을 잔금 수령으로 커버 · 라벨·카피 파생)
 };
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
@@ -739,7 +739,7 @@ function buildBalanceState(r) {
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
   // 시그: 중도금과 함께(예식 D-45 이내)·중도금 확인 후 노출. 스냅: 2단계 결제(20/80)라 입금완료부터 바로 노출(예식일·dday 무관).
-  if (!isSnap && bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= 45)) return null;
+  if (!isSnap && bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= PAYMENT.잔금일수전 + 15)) return null;
   return {
     status: bStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: bStatus === '확인',
@@ -749,7 +749,7 @@ function buildBalanceState(r) {
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
-    due: (dday != null && dday <= PAYMENT.잔금일수전),  // D-7 이내(부각)
+    due: (dday != null && dday <= PAYMENT.잔금일수전),  // 기한 이내(부각)
     dueLabel: _balanceDueLabel(),
     dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전)   // 잔금 마감일 = 예식 D-7 (YYYY-MM-DD)
   };
@@ -790,7 +790,7 @@ function adminConfirmBalance(code) {
   return { ok: true };
 }
 // ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
-// 중도금 = 총액 40% + 계약금 차액. 예식 D-30 마감(미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
+// 중도금 = 총액 40% + 계약금 차액. 예식 D-149 마감(무료 취소 종료 시·미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
 //   계약금이 예약금 충당(0원)이므로 계약 후 첫 실결제. 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
 function buildMidState(r) {
   if (!r) return null;
@@ -800,8 +800,8 @@ function buildMidState(r) {
   var mStatus = String(r.get('중도금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var dday = _balanceDDay(r.get('예식일'));
-  // 결제 시기(D-45 이내) 또는 진행/완료일 때만 카드 노출 — 그 전엔 NEXT 자물쇠(인지)만. (중도금 due D-30)
-  if (mStatus !== '완료신호' && mStatus !== '확인' && !(dday != null && dday <= 45)) return null;
+  // 결제 시기(기한 15일 전부터) 또는 진행/완료일 때만 카드 노출 — 그 전엔 NEXT 자물쇠(인지)만.
+  if (mStatus !== '완료신호' && mStatus !== '확인' && !(dday != null && dday <= PAYMENT.중도금일수전 + 15)) return null;
   return {
     status: mStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: mStatus === '확인',
@@ -811,9 +811,9 @@ function buildMidState(r) {
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,
-    due: (dday != null && dday <= PAYMENT.중도금일수전),  // D-30 이내(부각)
+    due: (dday != null && dday <= PAYMENT.중도금일수전),  // 기한 이내(부각)
     dueLabel: _midDueLabel(),
-    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전)   // 중도금 마감일 = 예식 D-30 (YYYY-MM-DD)
+    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전)   // 중도금 마감일 (YYYY-MM-DD)
   };
 }
 // 중도금 입금 신호(고객). 단계 전이 없음·멱등.
