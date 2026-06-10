@@ -37,7 +37,7 @@ function handleGetMyState(body) {
     kakao: (CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '', // 카톡 문의(미설정 시 빈값)
     consult: buildConsultState(String(r.get('개인코드') || '')),  // [P1.5 작업3] 상담/촬영 행 조인(없으면 null)
     fitting: buildFittingState(r),  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
-    contractInfo: buildContractInfoState(r),  // [02-2.5] 상담완료 — 계약 정보 입력/요청 카드(예식일·생년월일·주소)
+    contractInfo: buildContractInfoState(r),  // [02-2.5] 상담완료 · 계약 정보 입력/요청 카드(예식일·생년월일·주소)
     contract: buildContractState(r),  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
     payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
     midpayment: buildMidState(r),   // [02-4b] 중도금 카드용(결제 마일스톤·D-30). 계약 후 첫 실결제
@@ -45,8 +45,8 @@ function handleGetMyState(body) {
     production: buildProductionState(r),  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
     result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
-    ledger: buildLedgerState(r),  // [02-6] '내 내역' — 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
-    hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지만(없으면 null)
+    ledger: buildLedgerState(r),  // [02-6] '내 내역' · 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
+    hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };
 }
@@ -59,7 +59,7 @@ function buildHoldState(r) {
   if (!h || !h.date) return null;
   var st = String(h.status || '').trim();
   if (st !== '요청' && st !== '승인') return null;   // 반려=기록 삭제 → null
-  if (st === '승인' && h.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(h.expires)) return null;   // 14일 만료 — 점유 자동해제(_weddingOccupancy)와 화면 일치(배너 숨김)
+  if (st === '승인' && h.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(h.expires)) return null;   // 14일 만료 · 점유 자동해제(_weddingOccupancy)와 화면 일치(배너 숨김)
   return { date: String(h.date || ''), slot: String(h.slot || ''), status: st, expires: String(h.expires || '') };
 }
 
@@ -104,7 +104,7 @@ function buildLedgerState(r) {
   var crTail = crTarget ? String(crTarget).replace(/[^0-9]/g, '').slice(-4) : '';
   // 서류 — 시착 동의서·계약서
   var documents = [];
-  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [], sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // [③] 내 내역에서 동의 내용 재열람용 — sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
+  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [], sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // [③] 내 내역에서 동의 내용 재열람용 · sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
   var clink = String(r.get('계약서링크') || '').trim();
   var _cStat = String(r.get('계약상태') || '').trim();
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (_cStat === '발송' ? '서명 대기' : (_cStat || '—')), at: _ymdOf(r.get('계약서명일시')), url: clink });   // 내부값 '발송'을 고객어로
@@ -137,7 +137,7 @@ function buildConsultState(code) {
   var consultToken = String(cr.get('토큰') || '');
   var locked = (status === ST.APPROVED || status === ST.CONFIRMED);  // LOCKED_STATES
   var within = locked ? withinCancelDeadline(dateKey, time) : false; // 변경/취소 = 확정 + 24h 전(KST)
-  var picked = (status === ST.PICKED);                               // 시간선택완료(디렉터 확인 대기) — 확정 전이라 자유 변경/취소
+  var picked = (status === ST.PICKED);                               // 시간선택완료(디렉터 확인 대기) · 확정 전이라 자유 변경/취소
 
   return {
     status: status,                                  // 신청접수·시간선택완료·승인완료·확정·변경제안·취소

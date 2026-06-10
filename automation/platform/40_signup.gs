@@ -16,7 +16,7 @@ function handleSignup(body) {
 
   // 1) 허니팟(봇) — hp 채워져 있으면 조용히 성공인 척(행·메일·코드 없음)
   if (String(body.hp || '').trim()) {
-    Logger.log('  (signup honeypot 걸림 — 봇 의심, 기록·메일 생략)');
+    Logger.log('  (signup honeypot 걸림 · 봇 의심, 기록·메일 생략)');
     return { ok: true };
   }
 
@@ -121,7 +121,7 @@ function handleSignup(body) {
       '개인코드: ' + code + '\n상품: ' + product + '\n연락처: ' + phone + '\n이메일: ' + email,
       'NEWSIGNUP_' + code);
   } catch (e) {}
-  notifyKakao('admin.newSignup', code, { names: groom + '·' + bride, product: product, phone: phone });   // 관리자: 신규 신청 — 일정 잡기(카톡)
+  notifyKakao('admin.newSignup', code, { names: groom + '·' + bride, product: product, phone: phone });   // 관리자: 신규 신청 · 일정 잡기(카톡)
 
   return { ok: true, code: code };
 }

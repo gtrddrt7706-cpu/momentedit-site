@@ -94,7 +94,7 @@ function handleSaveProductionTrack(body) {
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
 function buildProductionState(r) {
   if (!r) return null;
-  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 — 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 · 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
   var stage = String(r.get('현재단계') || '').trim();
   if (PRODUCTION_STAGES.indexOf(stage) === -1) return null;
   var draft = _parseJsonSafe(r.get('제작임시저장'));
@@ -189,7 +189,7 @@ function handleSubmitResultSelection(body) {
     if (['보정중', '컨펌대기', '컨펌완료', '전달완료'].indexOf(cur) >= 0) return { ok: false, error: '보정이 시작되어 선택을 변경할 수 없어요. 변경은 문의해 주세요.' };
     touchCustomer(sheet, colOf, cust.num, { '선택사진': picks, '선택수': n, '선택확정일시': fmtKST(new Date()), '결과물상태': '선택완료' });
     try { notifyStudio('[플랫폼] 결과물 컷 선택 (' + code + ')', code + ' · ' + n + '컷 선택\n' + picks.slice(0, 800)); } catch (e) {}
-    notifyKakao('admin.resultPicked', code, { count: n });   // 관리자: 결과물(보정본) 선택됨 — 작업 착수(카톡)
+    notifyKakao('admin.resultPicked', code, { count: n });   // 관리자: 결과물(보정본) 선택됨 · 작업 착수(카톡)
     return { ok: true, 선택수: n };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -238,7 +238,7 @@ function handleExtraRetouchSignal(body) {
     if (payer) upd['추가보정입금자명'] = payer;
     touchCustomer(sheet, colOf, cust.num, upd);
     try { notifyStudio('[플랫폼] 추가 보정 입금 신호 (' + code + ')', code + (payer ? (' · 입금자 ' + payer) : '')); } catch (e) {}
-    notifyKakao('admin.extraSignal', code, { payer: payer });   // 관리자: 추가보정 입금신호 — 확인 필요(카톡)
+    notifyKakao('admin.extraSignal', code, { payer: payer });   // 관리자: 추가보정 입금신호 · 확인 필요(카톡)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -300,7 +300,7 @@ function adminConfirmExtra(code) {
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료' });
-  notifyKakao('cust.paymentConfirmed', code, { kind: '추가보정' });   // 고객 안심 알림(카톡) — 다른 입금확인과 일관
+  notifyKakao('cust.paymentConfirmed', code, { kind: '추가보정' });   // 고객 안심 알림(카톡) · 다른 입금확인과 일관
   return { ok: true };
 }
 

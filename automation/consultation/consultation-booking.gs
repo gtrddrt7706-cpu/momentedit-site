@@ -28,29 +28,29 @@
 // ⚠️ [...] placeholder 는 운영자가 직접 채웁니다. (임의 값 넣지 말 것)
 const CONFIG = {
   // [P1.5 작업5] 고객 상태메일 토글 — 기본 OFF(마이페이지가 상태를 대체). 켜려면 true.
-  SEND_CONFIRM_MAIL: true,                     // [고객 ON] 상담 확정 안내 (sendConfirmEmail) — 대면상담 확정 시 발송
+  SEND_CONFIRM_MAIL: true,                     // [고객 ON] 상담 확정 안내 (sendConfirmEmail) · 대면상담 확정 시 발송
   SEND_CHANGE_MAIL: false,                     // [고객 OFF·카톡] 변경제안 안내 (sendProposalEmail)
   SEND_CANCEL_MAIL: false,                     // [고객 OFF·카톡] 취소 안내 (sendCancelEmail)
   SEND_REMIND_MAIL: false,                     // [고객 OFF·카톡] 상담 D-1 리마인더 (sendReminderCustomer)
   SEND_CONTRACT_MAIL: false,                   // [고객 OFF·마이페이지+카톡] 계약서 도착 안내 (adminSendContract→고객)
   SEND_BALANCE_MAIL: false,                    // [고객 OFF·마이페이지+카톡] 잔금 안내 (70_journey 자동)
   SEND_ADMIN_MAIL: false,
-  SEND_DAILY_BRIEF: true,                      // [관리자 ON·직송] 아침 운영 브리핑·주간 영수증 점검 — SEND_ADMIN_MAIL(건별 알림)과 별개로 하루 1통만. 끄려면 false.
+  SEND_DAILY_BRIEF: true,                      // [관리자 ON·직송] 아침 운영 브리핑·주간 영수증 점검 · SEND_ADMIN_MAIL(건별 알림)과 별개로 하루 1통만. 끄려면 false.
                       // [관리자 전부 OFF·카톡] 신규신청·승인요청·확정·D-1브리핑·환불요청 + 오류알림(notifyStudio)까지 전부. true로 바꾸면 관리자 메일 전부 복구.
   // 참고 — 항상 발송(고객 ON): 신청 접수(sendSignupEmail) · 코드찾기/비번재설정(개인코드 안내). 둘은 토글 없이 상시 ON.
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
   DEPOSIT: 200000,                             // 예약금
-  ACCOUNT: '기업 000-000-00000',                // 입금 계좌 — ⚠️ 임시값(기업은행), 실제 계좌번호로 교체 필요
+  ACCOUNT: '기업 000-000-00000',                // 입금 계좌 · ⚠️ 임시값(기업은행), 실제 계좌번호로 교체 필요
   ACCOUNT_HOLDER: '모먼트에디트',                // ⚠️ 임시값(예금주)
-  EXEC_URL: 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec',  // 웹앱 /exec (mypage.html의 EXEC_URL과 동일) — webAppUrl()이 사용
+  EXEC_URL: 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec',  // 웹앱 /exec (mypage.html의 EXEC_URL과 동일) · webAppUrl()이 사용
   URL_VALID_DAYS: 7,                           // 전용 URL 유효기간
   CONFIRM_DEADLINE_HOURS: 24,                  // 변경·취소 기한 (상담 24시간 전까지)
-  STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 — 운영자 입력 예정
-  KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 — 운영자 입력 예정
+  STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 · 운영자 입력 예정
+  KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 · 운영자 입력 예정
   ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소(정본)
-  ADMIN_CC: [                                   // 운영자 알림 함께 받을 주소(미쿠·희준 개인메일 등) — 구글 전달 대신 코드가 직접 발송
+  ADMIN_CC: [                                   // 운영자 알림 함께 받을 주소(미쿠·희준 개인메일 등) · 구글 전달 대신 코드가 직접 발송
     'side.minds.1616@gmail.com',                //   미쿠
     'gtrddrt7706@gmail.com',                    //   희준
   ],
@@ -276,7 +276,7 @@ function handleAction(p) {
 function setCustomerStage(code, transition) {
   code = String(code || '').trim().toUpperCase();
   if (!code) return false;
-  var rowObj = findCustomerByCode(code);    // platform/20 — Customers 행
+  var rowObj = findCustomerByCode(code);    // platform/20 · Customers 행
   if (!rowObj) return false;
   var sheet = getCustomersSheet();           // platform/10
   var colOf = buildHeaderIndex(sheet);
@@ -284,12 +284,12 @@ function setCustomerStage(code, transition) {
   var MAP = {
     confirm:  isSnap ? '촬영확정' : '상담확정',
     fitting:  '시착',                        // [⑧] 시착 동의서 발송 → 상담확정→시착 (시그 전용)
-    complete: '상담완료',                    // 시그 전용(스냅 '촬영완료'는 event 전이로 — 아래)
+    complete: '상담완료',                    // 시그 전용(스냅 '촬영완료'는 event 전이로 · 아래)
     contract: '계약완료',                    // [02-3] 계약서 서명 완료 → 계약완료
     paid:     '입금완료',                    // [02-4] 계약금 입금 확인 → 입금완료
     produce:  '제작중',                      // [03] 제작 기초정보 시작 → 제작중
-    event:    isSnap ? '촬영완료' : '예식완료',  // [⑧관리자] 예식/촬영 완료 처리(제품 분기) — adminMarkEventDone
-    deliver:  '결과물전달',                  // [⑧관리자] 결과물 전달 완료 — adminMarkDelivered
+    event:    isSnap ? '촬영완료' : '예식완료',  // [⑧관리자] 예식/촬영 완료 처리(제품 분기) · adminMarkEventDone
+    deliver:  '결과물전달',                  // [⑧관리자] 결과물 전달 완료 · adminMarkDelivered
     cancel:   '취소'
   };
   var newStage = MAP[transition] || transition;
@@ -301,7 +301,7 @@ function setCustomerStage(code, transition) {
   if (transition !== 'cancel') {
     var _flow = stageFlowFor(String(rowObj.get('상품타입') || '').trim());
     var _ci = _flow.indexOf(cur), _ni = _flow.indexOf(newStage);
-    if (_ci !== -1 && _ni !== -1 && _ni < _ci) return true;   // 역행 무시 — 현재(더 진행된) 단계 유지
+    if (_ci !== -1 && _ni !== -1 && _ni < _ci) return true;   // 역행 무시 · 현재(더 진행된) 단계 유지
   }
   touchCustomer(sheet, colOf, rowObj.num, { '현재단계': newStage });    // platform/20
   return true;
@@ -331,7 +331,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
       writeCell(sheet, colOf, row.num, '상태', targetStatus);
       return infoPage('이미 확정된 예약입니다', coupleNames(row) + ' 님 · ' + prettyDate(dateKey) + ' · ' + time + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);
     }
-    if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 — 메일버튼·관리자 양쪽 보호(되살아남 방지)
+    if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 · 메일버튼·관리자 양쪽 보호(되살아남 방지)
       return infoPage('취소된 예약입니다', '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.', false);
     }
 
@@ -353,11 +353,11 @@ function actApprove(sheet, colOf, row, enteredStatus) {
       sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
     } catch (mailErr) {
       notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
-        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 — 수동 안내가 필요합니다.');
+        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 · 수동 안내가 필요합니다.');
     }
     try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
     setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ Customers 현재단계 → 상담/촬영확정
-    notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });  // 고객: 상담/촬영 확정(카톡 — 메일과 동시 구간)
+    notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });  // 고객: 상담/촬영 확정(카톡 · 메일과 동시 구간)
     return infoPage('승인 완료', coupleNames(row) + ' 님께 예약 확정 메일을 보냈습니다.<br>' + prettyDate(dateKey) + ' · ' + time + '<br>캘린더에도 일정이 등록되었습니다.', true);
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -434,7 +434,7 @@ function actCancel(sheet, colOf, r) {
     catch (mailErr) { notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
   }
   setCustomerStage(String(r.get('개인코드') || '').trim(), 'cancel');  // ★③ Customers 현재단계 → 취소(예외)
-  _releaseWeddingHoldOnCancel(String(r.get('개인코드') || '').trim()); // 가예약(요청/승인) 자동 해제 — 모든 actCancel 경유 취소 공통
+  _releaseWeddingHoldOnCancel(String(r.get('개인코드') || '').trim()); // 가예약(요청/승인) 자동 해제 · 모든 actCancel 경유 취소 공통
 }
 
 // ── 고객 셀프 취소 ──────────────────────────────────────────
@@ -543,7 +543,7 @@ function doCustomerCancel(sheet, colOf, row, p) {
   // 2) 운영자에게 송금 요청 메일 (계좌 포함)
   try { sendRefundRequestEmail(row, dateKey, time, acct); }
   catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
-  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });   // 관리자: 취소 — 환불 송금 필요(카톡)
+  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });   // 관리자: 취소 · 환불 송금 필요(카톡)
 
   // 3) 고객에게 취소 완료 메일
   var to = row.get('이메일');
@@ -657,7 +657,7 @@ function submitApplication(form, personalCode) {
   var detail = String(form.detail || '').trim();   // 화면 A(문의폼)의 상세 신청내용
 
   // 허니팟(봇 차단): 숨김 필드(_gotcha)에 값이 차 있으면 자동입력 봇 → 조용히 무시(성공인 척)
-  if (String(form.hp || '').trim()) { Logger.log('  (honeypot 걸림 — 봇 의심, 기록 생략)'); return { ok: true }; }
+  if (String(form.hp || '').trim()) { Logger.log('  (honeypot 걸림 · 봇 의심, 기록 생략)'); return { ok: true }; }
 
   if (!groom || !bride) throw new Error('성함을 입력해 주세요.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
@@ -761,7 +761,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
     writeCell(sheet, colOf, row.num, '그외가능시간대', flex);
     writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
     writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
-    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 — 승인 필요(카톡)
+    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡)
 
     var mailOk = false, mailErrMsg = '';
     try {
@@ -817,7 +817,7 @@ function submitProposal(token, sig, newDate, newTime, memo) {
 
   writeCell(sheet, colOf, row.num, '변경제안날짜', newDate);
   writeCell(sheet, colOf, row.num, '변경제안시간', newTime);
-  if (colOf['변경제안메모'] != null) writeCell(sheet, colOf, row.num, '변경제안메모', String(memo || ''));   // [Task12] 마이페이지 노출용(칼럼 있을 때만 — 없으면 무시)
+  if (colOf['변경제안메모'] != null) writeCell(sheet, colOf, row.num, '변경제안메모', String(memo || ''));   // [Task12] 마이페이지 노출용(칼럼 있을 때만 · 없으면 무시)
   writeCell(sheet, colOf, row.num, '상태', ST.PROPOSED);
 
   try {
@@ -838,7 +838,7 @@ function addProposalMemoColumn() {
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   if (colOf['변경제안메모'] != null) {
-    Logger.log('이미 있음 — 작업 없음. (열 ' + colOf['변경제안메모'] + ')');
+    Logger.log('이미 있음 · 작업 없음. (열 ' + colOf['변경제안메모'] + ')');
     return '이미 추가됨 (열 ' + colOf['변경제안메모'] + ')';
   }
   var afterCol = colOf['변경제안시간'];
@@ -881,7 +881,7 @@ function getAvailability() {
     var dCol = colOf['선택날짜'], tCol = colOf['선택시간'], sCol = colOf['상태'];
     var vals = sheet.getRange(SYS.DATA_START_ROW, 1, last - SYS.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
     vals.forEach(function (r) {
-      var st = String(r[sCol - 1]).trim();   // 수기 입력 공백 방지 — 마감 슬롯이 빈 슬롯으로 새는 것 차단(다른 비교부와 일관)
+      var st = String(r[sCol - 1]).trim();   // 수기 입력 공백 방지 · 마감 슬롯이 빈 슬롯으로 새는 것 차단(다른 비교부와 일관)
       if (LOCKED_STATES.indexOf(st) === -1) return;
       var dk = normalizeDateKey(r[dCol - 1]);
       var tm = String(r[tCol - 1]).trim();
@@ -927,7 +927,7 @@ function warmAvailCache() { try { var d = getAvailability(); CacheService.getScr
 function setupAvailWarmTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAvailCache') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('warmAvailCache').timeBased().everyMinutes(1).create();
-  return '가능일 캐시 워밍 트리거(1분) 등록 완료 — 콜드 로딩 제거';
+  return '가능일 캐시 워밍 트리거(1분) 등록 완료 · 콜드 로딩 제거';
 }
 
 // 확정 예약을 캘린더 일정으로 생성/갱신 (미쿠가 한눈에 봄)
@@ -1066,7 +1066,7 @@ function sectionLabel(txt) {
 
 function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) {
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
-    Logger.log('  (ADMIN_EMAIL 미설정 — 신규 신청 알림 건너뜀)'); return;
+    Logger.log('  (ADMIN_EMAIL 미설정 · 신규 신청 알림 건너뜀)'); return;
   }
   var names = groom + ' · ' + bride;
   var rows = infoRow('성함', esc(names)) + infoRow('연락처', telLink(phone)) + infoRow('이메일', mailLink(email));
@@ -1087,7 +1087,7 @@ function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) {
 // 메일② — 새 신청 알림 (시간선택완료, 미쿠) · [승인]/[변경제안] 버튼
 function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
-    Logger.log('  (ADMIN_EMAIL 미설정 — 미쿠 알림 건너뜀)'); return;
+    Logger.log('  (ADMIN_EMAIL 미설정 · 미쿠 알림 건너뜀)'); return;
   }
   var token = row.get('토큰');
   var approveUrl = actionUrl('approve', token);
@@ -1095,7 +1095,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
   // 하객 초과 등 상단 플래그
   var guestRaw = String(row.get('하객') || '');
   var flag = /초과/.test(guestRaw)
-    ? '<div style="text-align:center;margin:18px 0 0"><span style="display:inline-block;padding:5px 14px;background:#F7ECEA;border:1px solid #E4C9C5;border-radius:16px;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;color:#8C3F38;font-weight:600">⚠ 하객 권장 정원 초과 — ' + esc(guestRaw) + '</span></div>'
+    ? '<div style="text-align:center;margin:18px 0 0"><span style="display:inline-block;padding:5px 14px;background:#F7ECEA;border:1px solid #E4C9C5;border-radius:16px;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;color:#8C3F38;font-weight:600">⚠ 하객 권장 정원 초과 · ' + esc(guestRaw) + '</span></div>'
     : '';
   var scheduleRows =
     infoRow('성함', coupleNames(row)) +
@@ -1124,7 +1124,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
 
 // 메일③/⑤ — 예약 확정 (승인/수락, 고객) · ★완료 · 정확한 주소·준비안내
 function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
-  if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 확정 상태를 대체
+  if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   var cancelLine = token
     ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(cancelPageUrl(token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
@@ -1147,7 +1147,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
 
 // 취소 안내 (고객) — 예약 취소 시 발송. 차분한 안내 + 재예약/문의 경로.
 function sendCancelEmail(to, names, dateKey, time) {
-  if (!CONFIG.SEND_CANCEL_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 취소 상태를 대체
+  if (!CONFIG.SEND_CANCEL_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 취소 상태를 대체
   var when = dateKey ? (prettyDate(dateKey) + (time ? ' · ' + esc(time) : '')) : '';
   var inner =
     centerP(esc(names) + ' 님,<br>아래 상담 예약이 <b style="color:#6B2A24;font-weight:600">취소</b>되었습니다.') +
@@ -1206,7 +1206,7 @@ function sendStudioBriefEmail(row, dateKey, time) {
 
 // 메일④ — 시간 변경 제안 (변경제안, 고객) · [수락]/[다른 시간 보기]
 function sendProposalEmail(row, newDate, newTime, memo) {
-  if (!CONFIG.SEND_CHANGE_MAIL) return;  // [P1.5] 기본 OFF — 마이페이지가 변경제안을 대체
+  if (!CONFIG.SEND_CHANGE_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 변경제안을 대체
   var token = row.get('토큰');
   var acceptUrl = actionUrl('accept', token);
   var reselectUrl = actionUrl('reselect', token);
@@ -1302,12 +1302,12 @@ function placeValue() {
 // ============================ 헬퍼 (참고 .gs 패턴) ============================
 function getSheet() {
   var sh = SpreadsheetApp.getActive().getSheetByName(SYS.SHEET_NAME);
-  if (!sh) throw new Error("시트 없음: '" + SYS.SHEET_NAME + "' — setupConsultation()을 먼저 실행하세요.");
+  if (!sh) throw new Error("시트 없음: '" + SYS.SHEET_NAME + "' · setupConsultation()을 먼저 실행하세요.");
   return sh;
 }
 function getCalendar() {
   if (!CONFIG.CALENDAR_ID || CONFIG.CALENDAR_ID.charAt(0) === '[') {
-    Logger.log('  (CALENDAR_ID 미설정 — 캘린더 연동 생략)'); return null;
+    Logger.log('  (CALENDAR_ID 미설정 · 캘린더 연동 생략)'); return null;
   }
   try { return CalendarApp.getCalendarById(CONFIG.CALENDAR_ID); }
   catch (e) { Logger.log('  (캘린더 열기 실패: ' + e.message + ')'); return null; }
@@ -1320,7 +1320,7 @@ function diagnoseEmail() {
   // 1) 남은 일일 할당량 (0이면 한도 초과 → 메일 안 감)
   var quota = '?';
   try { quota = MailApp.getRemainingDailyQuota(); } catch (e) { quota = '확인 실패: ' + e.message; }
-  Logger.log('남은 Gmail 일일 할당량: ' + quota + '  (0이면 오늘 더 못 보냄 — 내일 리셋)');
+  Logger.log('남은 Gmail 일일 할당량: ' + quota + '  (0이면 오늘 더 못 보냄 · 내일 리셋)');
 
   // 2) ADMIN_EMAIL 설정 확인
   Logger.log('ADMIN_EMAIL: ' + CONFIG.ADMIN_EMAIL);
@@ -1336,7 +1336,7 @@ function diagnoseEmail() {
     Logger.log('❌ 테스트 메일 발송 실패: ' + ((sendErr && sendErr.message) || sendErr));
     Logger.log('   → 할당량이 0이거나 권한 문제일 수 있습니다.');
   }
-  return '진단 완료 — 실행 로그를 확인하세요.';
+  return '진단 완료 · 실행 로그를 확인하세요.';
 }
 
 
@@ -1363,7 +1363,7 @@ function cancelByRow() {
   var when = (r.get('선택날짜') ? prettyDate(r.get('선택날짜')) : '날짜미정') + ' ' + (r.get('선택시간') || '');
   Logger.log('취소 진행: ' + TARGET_ROW + '행 · ' + names + ' · ' + when);
   actCancel(sheet, colOf, r);
-  Logger.log('✅ 취소 완료 — 캘린더 일정 삭제 + 취소 메일 발송(이메일 있을 시) + 상태=취소');
+  Logger.log('✅ 취소 완료 · 캘린더 일정 삭제 + 취소 메일 발송(이메일 있을 시) + 상태=취소');
 }
 
 // ============================================================
@@ -1408,7 +1408,7 @@ function seedAvailabilityRange(startDate, endDate, dayFilter) {
     }
     d.setDate(d.getDate() + 1);
   }
-  var msg = '상담가능일 생성 완료 — 새로 ' + made + '일, 이미 있어 건너뜀 ' + skipped + '일';
+  var msg = '상담가능일 생성 완료 · 새로 ' + made + '일, 이미 있어 건너뜀 ' + skipped + '일';
   Logger.log(msg);
   return msg;
 }
@@ -1633,7 +1633,7 @@ function safeAttr(url) {
 // 관리자 알림 (참고 .gs notifyStudio · 24h dedup)
 function notifyStudio(subject, body, dedupKey) {
   try {
-    if (!CONFIG.SEND_ADMIN_MAIL) return;   // 관리자 메일 전부 OFF — 신규신청·오류알림 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+    if (!CONFIG.SEND_ADMIN_MAIL) return;   // 관리자 메일 전부 OFF · 신규신청·오류알림 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -1761,7 +1761,7 @@ function sendDailyReminders() {
 
 // 고객용 리마인더
 function sendReminderCustomer(row, dateKey, time) {
-  notifyKakao('cust.consultDayBefore', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });   // 상담 D-1 — 카톡(메일 OFF여도 발송)
+  notifyKakao('cust.consultDayBefore', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });   // 상담 D-1 · 카톡(메일 OFF여도 발송)
   if (!CONFIG.SEND_REMIND_MAIL) return;   // 메일은 토글 ON일 때만(기본 OFF)
   var to = row.get('이메일');
   if (!to) return;
@@ -1882,7 +1882,7 @@ function formatConsultationSheet() {
 // 마이페이지는 로그인 '세션토큰'(Customers 3열)을 보낸다. 상담 함수들은 '상담토큰'(상담예약 32열)을 기대한다.
 // 세션 → 개인코드 → 상담행 → 상담토큰 으로 잇는 어댑터(★4 두 축 공존의 실제 코드).
 function _sessionToConsult(token) {
-  var s = resolveSession(token);                 // platform/30 — Customers 세션 검증
+  var s = resolveSession(token);                 // platform/30 · Customers 세션 검증
   if (!s.ok) return { ok: false, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   var consult = code ? findRowByPersonalCode(code) : null;  // 상담예약 행(없으면 null·원자성 케이스)

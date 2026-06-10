@@ -30,7 +30,7 @@
   --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19;
   --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
   --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
-  --gold-bg:#FAF6EF;                 /* 골드 옅은 배경(선택칩·아이콘 원) — 정식 토큰화 */
+  --gold-bg:#FAF6EF;                 /* 골드 옅은 배경(선택칩·아이콘 원) · 정식 토큰화 */
   --gold-soft:rgba(184,154,117,.28); /* 골드 옅은 테두리 */
   --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05); /* index·schedule 카드와 동일 톤 */
   /* ── 시안 보조값 (03 팔레트 계열) ── */
@@ -43,7 +43,7 @@
   --gold-deep:#9A7B4F;    /* 진한 골드 (라벨·접근성) */
   --gold-deeper:#7A5F37;  /* 더 진한 골드 (버튼 텍스트) */
   --gold-btn-border:#C2A988; /* 아웃라인 버튼 테두리 */
-  --label-soft:#7C766A;   /* 연한 보조 라벨 — 가독성 위해 한 톤 진하게(여전히 최하위 위계) */
+  --label-soft:#7C766A;   /* 연한 보조 라벨 · 가독성 위해 한 톤 진하게(여전히 최하위 위계) */
   /* 폰트 */
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
@@ -814,7 +814,7 @@ function mpSignaturePad(opts){
     }
     function pos(e){ var r=cv.getBoundingClientRect(); var p=(e.touches&&e.touches[0])||e; return {x:p.clientX-r.left, y:p.clientY-r.top}; }
     function start(e){ e.preventDefault(); drawing=true; last=pos(e); }
-    function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; if(!drawn){ drawn=true; var h=$('mpSigHint'); if(h) h.textContent='✓ 서명됨 — 완료를 눌러주세요'; } }
+    function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; if(!drawn){ drawn=true; var h=$('mpSigHint'); if(h) h.textContent='✓ 서명됨 · 완료를 눌러주세요'; } }
     function up(){ drawing=false; }
     cv.addEventListener('mousedown',start); cv.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
     cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',up);
@@ -947,7 +947,7 @@ function stageLabel(code, product){
 }
 
 function renderMyPage(d){
-  var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 — 데스크톱 600px / 모바일 100%)
+  var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 · 데스크톱 600px / 모바일 100%)
   // 환영 — 이름 + '님'(작게)
   $('mp_names').innerHTML = escapeHtml(d.name || '고객') + ' <span class="nim">님</span>';
   $('mp_product').textContent = d.product || '';
@@ -1081,15 +1081,15 @@ function renderMyPage(d){
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
-    // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 프리필.
-    //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40). 미입력일 때만, 수정 가능.
-    if (d.production && d.production.base && !d.production.base.weddingTime && d.contract && d.contract.fill && d.contract.fill.weddingTime){
+    // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 채우고 날짜처럼 잠금(조정 불가).
+    //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40).
+    if (d.production && d.production.base && d.contract && d.contract.fill && d.contract.fill.weddingTime){
       var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
-      if (_wtMap[d.contract.fill.weddingTime]) d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime];
+      if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
     }
     renderProduction(d.production, d.invitation);                    // 제작 (03)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
-    renderLedger(d.ledger);                                          // 내 내역 (02-6) — 결제·현금영수증·서류
+    renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
   }
 
@@ -1098,7 +1098,7 @@ function renderMyPage(d){
   // 카톡
   var ka = $('mp_kakao');
   if (d.kakao){ ka.href = d.kakao; ka.textContent='카카오톡 문의'; ka.target='_blank'; ka.style.display='inline-flex'; }
-  else { ka.href='mailto:contact@momentedit.kr'; ka.textContent='카카오톡 문의'; ka.removeAttribute('target'); ka.style.display='inline-flex'; }   // KAKAO_URL(GAS) 설정 전 임시 폴백 — 라벨은 카카오톡 문의 고정
+  else { ka.href='mailto:contact@momentedit.kr'; ka.textContent='카카오톡 문의'; ka.removeAttribute('target'); ka.style.display='inline-flex'; }   // KAKAO_URL(GAS) 설정 전 임시 폴백 · 라벨은 카카오톡 문의 고정
 
   // 단계-카드 정합 — 상담박스 방문 후 숨김(#9) · 앞선 카드(강제 되돌리기 잔여) 흐림(#신규2) · 계약완료 섹션 묶음(#신규1)
   applyCardStageView(d);
@@ -1237,7 +1237,7 @@ function showFittingTerms(docs){
     +'<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+fd.terms.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>'
     +'<div class="cc-sig" id="mp_ftSig"><span class="cc-sig-cap">Signature</span><div class="cc-sig-slot">'+(fd.sig?'<img class="cc-sig-img" alt="서명" src="'+escapeHtml(fd.sig)+'">':'<span class="cc-sig-ph">서명 불러오는 중…</span>')+'</div></div>';
   mpAlert({ title:'드레스 시착 동의 내용', bodyHtml:html, confirmText:'닫기' });
-  if(!fd.sig){   // 구버전 GAS(payload에 서명 미포함) 폴백 — 캐시 또는 1회 조회
+  if(!fd.sig){   // 구버전 GAS(payload에 서명 미포함) 폴백 · 캐시 또는 1회 조회
     var wrap=$('mp_ftSig'), slot=wrap&&wrap.querySelector('.cc-sig-slot');
     if(slot){
       if(_sigCache['시착']){ _sigImg(slot,_sigCache['시착']); }
@@ -1340,7 +1340,7 @@ function renderConsult(c, product){
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) — GAS 페이지 우회
+    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
     if (c.canCancel) extra = CANCEL_PANEL;
   } else if (s === '변경제안'){
@@ -1384,7 +1384,7 @@ function renderFitting(f, d){
   if (!box) return;
   if (!f){ box.style.display='none'; box.innerHTML=''; return; }
   var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
-  if (f.signed){   // 완료 — 시착 단계엔 완료 안내(#4), 상담완료 이후엔 접힌 기록(시착만 펼쳐보기)
+  if (f.signed){   // 완료 · 시착 단계엔 완료 안내(#4), 상담완료 이후엔 접힌 기록(시착만 펼쳐보기)
     var idxDone = (d && d.stageList) ? d.stageList.indexOf('상담완료') : -1;
     var curIdx = (d && typeof d.stageIndex==='number') ? d.stageIndex : -1;
     var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
@@ -1399,7 +1399,7 @@ function renderFitting(f, d){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
         + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
-    } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 — 중복 정리)
+    } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
       box.style.display='none'; box.innerHTML='';
     }
     return;
@@ -1431,7 +1431,7 @@ var _contractTimer = null;
 function renderContractRequest(ctx){
   var box=$('mp_contract'); if(!box) return;
   var ci=(ctx&&ctx.contractInfo)||{};
-  if(ci.requested){   // 요청 완료 — 준비 중 + 입력 정보 수정
+  if(ci.requested){   // 요청 완료 · 준비 중 + 입력 정보 수정
     var wedTxt=(typeof fmtWedKo==='function' && fmtWedKo(ci.weddingDate))?fmtWedKo(ci.weddingDate):(ci.weddingDate||'');
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
       +'<div class="cc-title">계약서 요청 완료</div>'
@@ -1499,7 +1499,7 @@ function doRequestContract(){
   function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
   var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'),
-    groomAddrRoad:v('mp_ciGA_road'), groomAddrDetail:v('mp_ciGA_detail'), brideAddrRoad:v('mp_ciBA_road'), brideAddrDetail:v('mp_ciBA_detail'),   // 분리 원본 — 재수정 시 상세주소 칸 복원용
+    groomAddrRoad:v('mp_ciGA_road'), groomAddrDetail:v('mp_ciGA_detail'), brideAddrRoad:v('mp_ciBA_road'), brideAddrDetail:v('mp_ciBA_detail'),   // 분리 원본 · 재수정 시 상세주소 칸 복원용
     groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
@@ -1519,8 +1519,8 @@ function renderContractPayment(c, p, ctx){
   var payBox = $('mp_payment'); if (payBox){ payBox.style.display='none'; payBox.innerHTML=''; }   // 결제 카드는 병합 → 항상 비움
   if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; }
 
-  if (!c){   // 계약서 발송 전 — 진행 안내
-    if (ctx && ctx.contractInfo){ renderContractRequest(ctx); return; }   // [02-2.5] 상담완료 — 계약 정보 입력/요청 카드
+  if (!c){   // 계약서 발송 전 · 진행 안내
+    if (ctx && ctx.contractInfo){ renderContractRequest(ctx); return; }   // [02-2.5] 상담완료 · 계약 정보 입력/요청 카드
     if (ctx && /계약서/.test(String(ctx.waiting||''))){
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
         + '<div class="cc-title">계약, 이렇게 진행돼요</div>'
@@ -1658,7 +1658,7 @@ function _archiveSignedContract(sig, cb){
     fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
     window.addEventListener('message',onM);
     fr.src=contractSrc(window._contractFill&&window._contractFill.product); document.body.appendChild(fr);
-    setTimeout(function(){ fin(''); },2800);   // 안전망 — 못 만들면 보관 생략하고 서명 진행
+    setTimeout(function(){ fin(''); },2800);   // 안전망 · 못 만들면 보관 생략하고 서명 진행
   }catch(e){ fin(''); }
 }
 function doSignContract(){
@@ -1888,7 +1888,7 @@ function doPaySignal(){
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
 function collapsedCard(box, label, fullHtml, sigType, openByDefault){
   var sigBlock = sigType ? '<div class="cc-sig" data-sigtype="'+escapeHtml(sigType)+'"><span class="cc-sig-cap">Signature</span><div class="cc-sig-slot"><span class="cc-sig-ph">서명 불러오는 중…</span></div></div>' : '';
-  var op = !!openByDefault;   // 기본 펼침 — 계약 완료처럼 한 번에 보여줄 카드
+  var op = !!openByDefault;   // 기본 펼침 · 계약 완료처럼 한 번에 보여줄 카드
   box.innerHTML = '<div class="consult-card cc-done">'
     + '<div class="cc-done-row" role="button" tabindex="0"><span class="cc-done-check">✓</span><span class="cc-done-label">'+escapeHtml(label)+'</span><span class="cc-done-toggle">'+(op?'접기':'펼치기')+'</span></div>'
     + '<div class="cc-done-full" style="display:'+(op?'block':'none')+'">'+(fullHtml||'')+sigBlock+'</div></div>';
@@ -2077,7 +2077,7 @@ function _bindSurvey(res, nm, code){
 function renderResult(res, nm, code){
   var box=$('mp_result'); if(!box) return;
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
-  if(res.status==null){ return renderResultLegacy(res, box); }   // GAS 미배포 폴백 — 기존 동작 그대로(무회귀)
+  if(res.status==null){ return renderResultLegacy(res, box); }   // GAS 미배포 폴백 · 기존 동작 그대로(무회귀)
   var st = res.status;
   var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
   if(st==='대기'){
@@ -2131,7 +2131,7 @@ function renderResult(res, nm, code){
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>'
-      +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> — 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
+      +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
       +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
       +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
       +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
@@ -2147,7 +2147,7 @@ function renderResult(res, nm, code){
       +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
   } else if(st==='컨펌완료'){
     h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 — 곧 최종 전달돼요</div></div>';
+      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 곧 최종 전달돼요</div></div>';
   }
   // ③ 추가 보정·결제 패널 — 선택 이후(완료는 개요 ✓로 충분)
   if(picked) h+=_extraPanelHtml(res);
@@ -2367,6 +2367,19 @@ function fmtWedKo(ymd){
   var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
 }
+// 예식 시간 셀 — 계약 확정(weddingTimeLocked)이면 읽기전용 표시(날짜와 동일), 아니면 셀렉트.
+function wedTimeCell(b){
+  var LBL={'10:00':'오전 (10:00)','13:20':'오후 (13:20)','16:40':'늦은 오후 (16:40)'};
+  if(b.weddingTimeLocked && b.weddingTime){
+    return '<div><label class="pf-l">예식 시간</label>'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)" title="계약서에 확정된 예식 시간이에요">'
+        + '<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500">'+escapeHtml(LBL[b.weddingTime]||b.weddingTime)+'</span>'
+        + '<span style="font-size:10px;letter-spacing:.04em;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 8px;white-space:nowrap">계약 확정</span>'
+      + '</div>'
+      + '<input type="hidden" id="mp_wTime" value="'+escapeHtml(b.weddingTime)+'"></div>';
+  }
+  return '<div><label class="pf-l">예식 시간</label><select class="cc-input" id="mp_wTime">'+weddingTimeOptions(b.weddingTime||'')+'</select></div>';
+}
 // 예식 날짜 셀 — 계약서로 확정(weddingLocked)이면 읽기전용 표시, 아니면 기존 날짜 선택기.
 function wedDateCell(b){
   if(b.weddingLocked && /^\d{4}-\d{2}-\d{2}$/.test(b.weddingDate||'')){
@@ -2392,12 +2405,12 @@ function productionFormHtml(b, isEdit){
     + '<div class="pf"><label class="pf-l">신부</label>'
       + '<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+escapeHtml(b.brideKo||'')+'">'
       + '<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+escapeHtml(b.brideEn||'')+'"></div>'
-    + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요 — 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
+    + '<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     + '<div class="pf-cover" id="mp_cover"></div>'
     + '<label class="pf-l">이메일</label><input class="cc-input" id="mp_pEmail" type="email" placeholder="name@example.com" value="'+escapeHtml(b.email||'')+'">'
     + '<div class="pf2">'+wedDateCell(b)
-      + '<div><label class="pf-l">예식 시간</label><select class="cc-input" id="mp_wTime">'+weddingTimeOptions(b.weddingTime||'')+'</select></div></div>'
-    + (b.weddingLocked?'<div class="cc-note" style="margin:5px 0 0">예식 날짜는 <b>계약서에 확정된 날짜</b>예요. 변경이 필요하면 디렉터에게 문의해 주세요.</div>':'')
+      + wedTimeCell(b) + '</div>'
+    + ((b.weddingLocked||b.weddingTimeLocked)?'<div class="cc-note" style="margin:5px 0 0">예식 '+(b.weddingTimeLocked?'날짜·시간은':'날짜는')+' <b>계약서에 확정된 일정</b>이에요. 변경이 필요하면 디렉터에게 문의해 주세요.</div>':'')
     + weddingSequenceRef('고르신 예식 시간대의 대표 진행 시각이에요. 세부 시간은 예식이 가까워지면 디렉터가 다시 안내드려요.')
     + '<div class="cc-note">예식 장소는 모먼트 에디트 스튜디오로 안내돼요.</div>'
     + '<div class="cc-actions">'+(isEdit?'<button type="button" class="cc-btn-ghost" id="mp_cancelBase">취소</button>':'')+'<button type="button" class="cc-btn" id="mp_saveBase">'+(isEdit?'저장':'저장하고 시작')+'</button></div>'
@@ -2524,7 +2537,7 @@ function invStepMethod(box){
   });
 }
 function invStepParents(box){
-  var d=INVFLOW.draft; d._acctGate='Y';   // 계좌(마음 전하실 곳)는 필수 — 항상 노출
+  var d=INVFLOW.draft; d._acctGate='Y';   // 계좌(마음 전하실 곳)는 필수 · 항상 노출
   var OMIT='호칭 생략 (이름만 표시)', ETC='기타(직접입력)';
   var GT=['장남','차남','삼남','사남','외동아들','막내아들',OMIT], BT=['장녀','차녀','삼녀','사녀','외동딸','막내딸',OMIT];
   var BANKS=['국민','신한','우리','하나','농협','기업','SC제일','씨티','카카오뱅크','토스뱅크','케이뱅크','새마을금고','우체국','수협','부산','대구','경남','광주','전북','산업'];
@@ -2780,7 +2793,7 @@ function invStepDone(box, r){
       +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(url)+'">복사</button>'
       +'</div></div>';
   }
-  var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 — 카톡으로 보내세요.',u.online)
+  var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
             + linkCard('family','직접 모시는 청첩장','가족·가까운 분께 직접 전하세요.',u.family);
   if(!cards) cards='<div class="cc-note">표시할 링크가 없어요.</div>';
   var qr = mobileUrl ? '<div class="done-qr">'

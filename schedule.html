@@ -677,7 +677,7 @@ function initDatePicker(o){
       if(cur.getTime()===today.getTime()) btn.classList.add('today');
       if(cur.getDay()===0||cur.getDay()===6) btn.classList.add('weekend');
       if(cur<MIN){ btn.classList.add('past'); }
-      else if(o.isDisabled && o.isDisabled(fmt(cur))){ btn.classList.add('past'); btn.disabled=true; btn.title='진행이 어려운 날짜예요'; }   // 점유일(전 슬롯 마감) — 선택 불가
+      else if(o.isDisabled && o.isDisabled(fmt(cur))){ btn.classList.add('past'); btn.disabled=true; btn.title='진행이 어려운 날짜예요'; }   // 점유일(전 슬롯 마감) · 선택 불가
       else { (function(c){ btn.addEventListener('click', function(){ selected=c; if(hidden) hidden.value=fmt(c); if(triggerText) triggerText.textContent=fmtKo(c); trigger.classList.add('has-value'); close(); if(o.onPick) o.onPick(fmt(c)); }); })(cur); }
       if(selected&&cur.getTime()===selected.getTime()) btn.classList.add('selected');
       grid.appendChild(btn);
@@ -839,7 +839,7 @@ function meAlert(msg){
   var ov=document.getElementById('meAlert'), m=document.getElementById('meAlertMsg'), ok=document.getElementById('meAlertOk');
   function esc2(x){ return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   if(!ov||!m||!ok){ alert((msg&&typeof msg==='object')?[msg.lead].concat(msg.items||[]).join('\n'):msg); return; }
-  if(msg&&typeof msg==='object'){   // {lead, items[]} — 리드 한 줄 + 점 목록(안내 박스들과 동일한 결)
+  if(msg&&typeof msg==='object'){   // {lead, items[]} · 리드 한 줄 + 점 목록(안내 박스들과 동일한 결)
     var h='';
     if(msg.lead) h+='<div style="font-weight:500;color:var(--accent,#3A2D22);margin-bottom:'+((msg.items&&msg.items.length)?'7px':'0')+'">'+esc2(msg.lead)+'</div>';
     (msg.items||[]).forEach(function(it,i){ h+='<div style="display:flex;gap:7px'+(i?';margin-top:3px':'')+'"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>'+esc2(it)+'</span></div>'; });
@@ -892,7 +892,7 @@ function doSubmit(){
         document.getElementById('modalPick').innerHTML=(SERVER.names||'')+' 님<br>'+dateStr+' · '+selTime;
         document.getElementById('modal').classList.add('show');
         restore();
-      } else if(res&&res.cancelled){   // [취소 동기화] 페이지를 열어둔 사이 취소됨 — 안내 후 마이페이지로
+      } else if(res&&res.cancelled){   // [취소 동기화] 페이지를 열어둔 사이 취소됨 · 안내 후 마이페이지로
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}
         var sumc=document.getElementById('summary');
         sumc.textContent='이 예약은 취소된 상태예요. 마이페이지로 이동할게요…';
@@ -909,7 +909,7 @@ function doSubmit(){
     })
     .catch(function(){
       var sum=document.getElementById('summary');
-      sum.textContent='네트워크 오류 — 잠시 후 다시 시도해 주세요.';
+      sum.textContent='네트워크 오류 · 잠시 후 다시 시도해 주세요.';
       sum.classList.remove('on'); sum.style.color='var(--seal)';
       restore();
     });
@@ -946,7 +946,7 @@ renderCal();renderTime();updateSummary();
 //   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
 var _hdw=document.getElementById('holdDateWrap');
 if(_hdw){
-  var WT=null, _wtLoading=false, WSLOT_N=3;   // WT = {ymd:[닫힌 슬롯]} — 체크 시 1회 로드(실패하면 서버 검증이 최종 안전망)
+  var WT=null, _wtLoading=false, WSLOT_N=3;   // WT = {ymd:[닫힌 슬롯]} · 체크 시 1회 로드(실패하면 서버 검증이 최종 안전망)
   function _syncHoldSlots(){
     var d=(document.getElementById('holdDate')||{}).value||'';
     var sel=document.getElementById('holdSlot'); if(!sel) return;
@@ -970,7 +970,7 @@ if(_hdw){
       .catch(function(){ _wtLoading=false; });
   }
   _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
-  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 — 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
+  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 · 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
   var _chk=document.getElementById('holdChk');
   if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); _syncHoldRule(); }); if(_chk.checked) _loadWT(); }
 }
@@ -985,7 +985,7 @@ if(_hdw){
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:token})})
     .then(function(r){return r.json();})
     .then(function(s){
-      if(s&&s.cancelled){   // [취소 동기화] 취소된 예약 — 선택 화면 대신 취소 상태 안내 + 마이페이지로 전환
+      if(s&&s.cancelled){   // [취소 동기화] 취소된 예약 · 선택 화면 대신 취소 상태 안내 + 마이페이지로 전환
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}
         fail('이 예약은 <b style="color:#6B2A24">취소된 상태</b>예요.<br>현재 상태는 마이페이지에서 확인하실 수 있어요.<br><br><span style="font-size:12px;color:#A39C8E">잠시 후 마이페이지로 이동합니다…</span>');
         setTimeout(function(){ location.href='/mypage.html'; }, 2200);
@@ -999,7 +999,7 @@ if(_hdw){
       var ka=$('t_kakao'); if(ka&&s.kakao) ka.href=s.kakao;
       boot(s);
     })
-    .catch(function(){ fail('불러오기 실패 — 새로고침 해주세요.'); });
+    .catch(function(){ fail('불러오기 실패 · 새로고침 해주세요.'); });
 })();
 </script>
 </body>
