@@ -587,6 +587,14 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
 <!-- 하단 고정 선택 바 -->
 
 <!-- 확정 팝업 -->
+<!-- 브랜드 알림 모달 — OS alert 대체(중앙 정렬·베이지 버튼) -->
+<style>#meAlertOk:hover{background:#A8895F}#meAlertOk:active{background:#9C7E55}</style>
+<div id="meAlert" style="display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.32);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)">
+  <div style="background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:8px;max-width:340px;width:100%;padding:24px 20px 16px;box-shadow:0 14px 44px rgba(40,28,16,0.20)">
+    <div id="meAlertMsg" style="font-family:var(--serif-ko,serif);font-size:13.5px;color:var(--sub,#5A554C);line-height:1.8;word-break:keep-all;margin-bottom:16px;text-align:left"></div>
+    <button type="button" id="meAlertOk" style="display:block;width:100%;padding:13px 0;border:none;border-radius:6px;background:#B89A75;color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;letter-spacing:.04em;cursor:pointer;box-shadow:0 3px 10px rgba(184,154,117,0.28);transition:background .2s">확인</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-check">
@@ -797,6 +805,18 @@ function revealGuide(){
 }
 
 // 예식일 임시고정 요청 payload — 체크 + 날짜·슬롯 둘 다 있을 때만(관리자 승인 시 점유).
+// 브랜드 알림(OS alert 대체) — 중앙 모달. 실패 시 기본 alert 폴백.
+function meAlert(msg){
+  var ov=document.getElementById('meAlert'), m=document.getElementById('meAlertMsg'), ok=document.getElementById('meAlertOk');
+  if(!ov||!m||!ok){ alert(msg); return; }
+  m.innerHTML=String(msg).split('\n').map(function(x){return x.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}).join('<br>');
+  ov.style.display='flex';
+  function close(){ ov.style.display='none'; ok.removeEventListener('click',close); ov.removeEventListener('click',bg); document.removeEventListener('keydown',onKey); }
+  function bg(e){ if(e.target===ov) close(); }
+  function onKey(e){ if(e.key==='Escape'||e.key==='Enter') close(); }
+  ok.addEventListener('click',close); ov.addEventListener('click',bg); document.addEventListener('keydown',onKey);
+  try{ ok.focus(); }catch(e){}
+}
 function _holdPayload(){ var c=document.getElementById('holdChk'); if(!c||!c.checked) return null; var d=(document.getElementById('holdDate')||{}).value||'', s=(document.getElementById('holdSlot')||{}).value||''; return (d&&s)?{date:d,slot:s}:null; }
 // 신청 처리 (서버 전송 → 시트 기록 + 미쿠 알림 → 확정 팝업)
 // 입금 계좌 복사 — 첫 결제(예약금) 마찰 ↓. 마이페이지 결제 카드와 동일한 UX.
@@ -813,8 +833,8 @@ function doSubmit(){
   if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; } return; }
   var _hChk=document.getElementById('holdChk');
   if(_hChk&&_hChk.checked){
-    if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); alert('예식일 임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.\n상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.'); return; }
-    var _hDate=(document.getElementById('holdDate')||{}).value||'', _hSlot=(document.getElementById('holdSlot')||{}).value||''; if(!_hDate||!_hSlot){ var _hBox=document.getElementById('holdBox'); if(_hBox) _hBox.scrollIntoView({behavior:'smooth',block:'center'}); alert('예식일 임시 고정을 요청하시려면 예식 날짜와 시간을 모두 선택해 주세요.\n(원치 않으시면 체크를 해제해 주세요.)'); return; }
+    if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); meAlert('예식일 임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.\n상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.'); return; }
+    var _hDate=(document.getElementById('holdDate')||{}).value||'', _hSlot=(document.getElementById('holdSlot')||{}).value||''; if(!_hDate||!_hSlot){ var _hBox=document.getElementById('holdBox'); if(_hBox) _hBox.scrollIntoView({behavior:'smooth',block:'center'}); meAlert('예식일 임시 고정을 요청하시려면 예식 날짜와 시간을 모두 선택해 주세요.\n(원치 않으시면 체크를 해제해 주세요.)'); return; }
   }
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
