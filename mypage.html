@@ -2521,9 +2521,13 @@ function invStepParents(box){
     + paRow('신부 어머니','iv_bmb','iv_bma','brideMotherAccount')
     + '<div class="cc-note">은행을 고르고 계좌번호를 적어주세요. 빈 칸은 청첩장에 안 나와요.</div></div>' : '';
   var _accWhere = (function(){ var m=d.method, o='';
-    if(m==='offline'||m==='both') o+='<label class="inv-chk"><input type="checkbox" data-acc="family" '+(d.accountFamily==='Y'?'checked':'')+'> 오프라인 청첩장</label>';
-    if(m==='online'||m==='both') o+='<label class="inv-chk"><input type="checkbox" data-acc="online" '+(d.accountOnline==='Y'?'checked':'')+'> 온라인 청첩장</label><label class="inv-chk"><input type="checkbox" data-acc="live" '+(d.accountLive==='Y'?'checked':'')+'> 모바일 참석 화면</label>';
-    return o ? '<div class="inv-gate" style="margin-top:6px"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>' : '';
+    var offOn=(m==='offline'||m==='both'), onOn=(m==='online'||m==='both');
+    function chk(key,checked,label){ return '<label class="inv-chk"><input type="checkbox" data-acc="'+key+'" '+(checked?'checked':'')+'> '+label+'</label>'; }
+    function dim(label,why){ return '<label class="inv-chk" style="opacity:.45;cursor:default"><input type="checkbox" disabled> '+label+' <span style="font-size:11px;color:var(--label-soft)">('+why+')</span></label>'; }
+    o+= offOn ? chk('family', d.accountFamily==='Y', '오프라인 청첩장') : dim('오프라인 청첩장','1단계에서 오프라인 초대 선택 시');
+    o+= onOn ? chk('online', d.accountOnline==='Y', '온라인 청첩장') : dim('온라인 청첩장','1단계에서 온라인 초대 선택 시');
+    o+= onOn ? chk('live', d.accountLive==='Y', '모바일 참석 화면') : dim('모바일 참석 화면','온라인 초대에 함께 제공');
+    return '<div class="inv-gate" style="margin-top:6px"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>';
   })();
   var aF = '<div class="inv-fields">'
     +'<div class="inv-row">'+selOnly('iv_gb',BANKS,d.groomBank,'flex:0 0 124px;')+'<input class="cc-input" id="iv_ga" placeholder="신랑 계좌번호 (예: 110-315-175994)" value="'+escapeHtml(d.groomAccount||'')+'"></div>'+etcRow('iv_gb',d.groomBank,BANKS,'신랑 은행 직접 입력')
