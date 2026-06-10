@@ -1298,7 +1298,7 @@ function renderConsult(c, product){
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>드레스 시착을 하시면 예약금은 <b>시착 비용</b>으로 전환됩니다.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
          + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
-              : '상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드려요.')+'</span></div>'
+              : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
@@ -1358,7 +1358,8 @@ function renderFitting(f, d){
     var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
-                 + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">계약서 발송</span><span class="vg-v">요청하시면 <b>24시간 안에</b> 계약서를 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>3일 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
                  + '</div>';
