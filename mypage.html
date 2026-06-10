@@ -1117,7 +1117,7 @@ function renderMyPage(d){
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
-    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);   // 자물쇠(잠긴 단계)만 유지
+    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
   } else {
     // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
     var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
@@ -1143,7 +1143,7 @@ function renderMyPage(d){
         && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1;
     }
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
-    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);  // NEXT (잠금)
+    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
   }
 
   // 카톡
@@ -1190,22 +1190,43 @@ function applyCardStageView(d){
   }
 }
 
-function renderUpcoming(product, curIdx, stageList, contract, mid, bal){
+function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   var box = $('mp_upcoming');
+  // 최신 예식일 — 계약 확정 > 임시고정 > 예약 시 예정일 순으로 갱신되는 값(없으면 null)
+  var _wed = (d && d.production && d.production.base && d.production.base.weddingDate)
+          || (d && d.contract && d.contract.fill && d.contract.fill.weddingDate)
+          || (d && d.hold && d.hold.date) || (d && d.expectedWeddingDate) || '';
+  var _dd = null;
+  var _m = String(_wed||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (_m){ var _w=new Date(+_m[1],+_m[2]-1,+_m[3]); _w.setHours(0,0,0,0); var _t=new Date(); _t.setHours(0,0,0,0); _dd=Math.round((_w-_t)/86400000); }
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['중도금 · 잔금','예식 149일 전 · 9일 전','예식완료'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+  // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
+  //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
+  if (product !== '웨딩스냅'){
+    var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
+    var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
+    var prodAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='예식 준비') return i; return -1; })();
+    function insAt(i,row){ if(i<0||i>items.length) items.push(row); else items.splice(i,0,row); }
+    if (_dd != null && _dd <= 9){
+      if (needMid || needBal) insAt(prodAt, ['중도금 · 잔금','계약 시 함께 납부','예식완료']);
+    } else if (_dd != null && _dd <= 149){
+      if (needMid) insAt(prodAt, ['중도금','계약 시 함께 납부','예식완료']);
+      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 9일 전','예식완료']);
+    } else {   // 여유(또는 예식일 미정) — 시간 순: 중도금(149) → 예식 준비 → 잔금(9)
+      if (needMid) insAt(prodAt, ['중도금','예식 149일 전','예식완료']);
+      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 9일 전','예식완료']);
+    }
+  }
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
     items = items.filter(function(it){ var ti = list.indexOf(it[2]); return ti < 0 || curIdx < ti; });
   }
-  // 결제 마일스톤(중도금·잔금)은 인지용으로 계속 🔒 노출하되, 납부 확인되면 자동 제거(완료=✓처럼)
-  var midDone = !!(mid && mid.confirmed), balDone = !!(bal && bal.confirmed);
-  // 중도금/잔금 카드가 떠 있으면(=다음 단계가 이미 노출) NEXT 자물쇠는 제거 — 모순 방지. 카드 전(D-45 이전)에만 🔒.
-  items = items.filter(function(it){ if(it[0]==='중도금 · 잔금') return !balDone && !mid && !bal; return true; });
+  // (중도금·잔금은 위에서 카드 상태·예식일 기준으로 이미 동적 배치됨)
   // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
   if (contract && !contract.signed && !contract.expired){
     items = items.filter(function(it){ return it[0] !== '본 계약'; });
