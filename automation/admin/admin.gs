@@ -255,13 +255,27 @@ function weeklyReceiptAudit() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  // 상담 예약금 입금 확인(서명 전) 맵 — 예약금 영수증 기한은 '받은 날' 기준이라 계약 전 건도 잡는다
+  var bkPaid = {};
+  try {
+    var bs = getSheet(), bCol = buildHeaderIndex(bs), bLast = bs.getLastRow();   // 예약(Bookings) 시트
+    var bRows = (bLast >= SYS.DATA_START_ROW) ? bs.getRange(SYS.DATA_START_ROW, 1, bLast - SYS.DATA_START_ROW + 1, bs.getLastColumn()).getValues() : [];
+    bRows.forEach(function (bv) {
+      var bc = bCol['개인코드'] ? String(bv[bCol['개인코드'] - 1] || '').trim().toUpperCase() : '';
+      if (bc && bCol['입금확인'] && String(bv[bCol['입금확인'] - 1] || '').trim() === '확인') bkPaid[bc] = true;
+    });
+  } catch (e) { Logger.log('weeklyReceiptAudit: 예약 시트 조회 실패 — ' + (e && e.message)); }
   var dues = [], sum = 0;
   for (var i = 0; i < vals.length; i++) {
     var rv = vals[i];
     var rWrap = { get: function (h) { var c = colOf[h]; return c ? rv[c - 1] : ''; } };   // _cashReceiptLedger 재사용용 행 래퍼
     var names = _names(rWrap.get('신랑이름'), rWrap.get('신부이름'));
+    var codeUp = String(rWrap.get('개인코드') || '').trim().toUpperCase();
+    var stageEx = STAGE_EXCEPTIONS.indexOf(String(rWrap.get('현재단계') || '').trim()) !== -1;   // 취소·노쇼·미계약은 환불 흐름이라 제외
     _cashReceiptLedger(rWrap).forEach(function (it) {
-      if (!it.due) return;
+      var due = it.due;
+      if (!due && it.key === '예약금' && !it.issued && !stageEx && bkPaid[codeUp]) due = true;
+      if (!due) return;
       dues.push('  • ' + names + ' — ' + it.label + ' ' + Number(it.amount || 0).toLocaleString() + '원');
       sum += Number(it.amount || 0);
     });
@@ -380,7 +394,10 @@ function adminHome() {
      ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
      ['잔금상태', '잔금', _crAmt ? _crAmt['잔금'] : 0]].forEach(function (cr) {
       if (cr[0] === '중도금상태' && isSnap) return;   // 스냅은 중도금 없음
-      if (String(cget(rv, cr[0]) || '').trim() !== '확인' || _crIssued[cr[1]]) return;
+      var _crPaid = String(cget(rv, cr[0]) || '').trim() === '확인';
+      // 예약금은 '받은 날'부터 발급 기한(5일)이 기산 — 계약 서명 전이라도 상담 예약금 입금이 확인됐으면 발행 대기로
+      if (!_crPaid && cr[1] === '예약금' && bk && String(bget(bk, '입금확인') || '').trim() === '확인') _crPaid = true;
+      if (!_crPaid || _crIssued[cr[1]]) return;
       var _won = cr[2] ? (' · ' + Math.round(cr[2]).toLocaleString() + '원') : '';
       pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: cr[1] + ' 현금영수증 발행' + _won,
         badge: { level: 'yellow', text: '발행 대기' }, _urgent: false, _stage: 5, _wait: createdYmd });
