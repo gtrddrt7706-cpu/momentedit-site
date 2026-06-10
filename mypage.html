@@ -542,6 +542,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     </div>
 
     <!-- 상담/촬영 (P1.5) — 활성 카드. consult 있을 때만 표시 -->
+    <!-- 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지 -->
+    <div class="consult-sec" id="mp_hold" style="display:none"></div>
+
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
     <!-- 드레스 시착 동의 (02-2) — 상담 다음·계약 전 -->
@@ -593,6 +596,17 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     .led-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);padding:7px 0 1px;line-height:1.55}
     .led-note.led-warn{color:var(--seal)}
     .led-note .led-mute{color:var(--light)}
+    .led-editbtn{margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .led-editbtn:active{opacity:.7}
+    .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
+    /* 예식일 임시 고정 배너 (①) */
+    .hold-card{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:9px;border:1px solid var(--hairline,#E6E1D8);background:var(--bg2,#F7F4EE);margin-bottom:4px}
+    .hold-card.hold-ok{border-color:#cdb98a;background:#faf6ed}
+    .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0}
+    .hold-t{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);line-height:1.5}
+    .hold-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.65;margin-top:3px}
+    .hold-s b{font-weight:500;color:var(--accent)}
+    .hold-mute{color:var(--light)}
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
     details.cc-more>summary::-webkit-details-marker{display:none}
@@ -1046,9 +1060,10 @@ function renderMyPage(d){
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
-    ['mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+    ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance);   // 자물쇠(잠긴 단계)만 유지
   } else {
+    renderHold(d.hold);                                              // 예식일 임시 고정(가예약) 상태 (①)
     renderConsult(d.consult, d.product);                              // 상담/촬영 (P1.5)
     renderFitting(d.fitting, d);                                      // 드레스 시착 동의 (02-2)
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
@@ -1175,21 +1190,63 @@ function renderLedger(l){
   var recRows=(l.receipts&&l.receipts.length)
     ? l.receipts.map(function(r){ var done=!!r.num; return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s '+(done?'led-done':'led-soon')+'">'+(done?('발행 '+escapeHtml(r.num)):'발급 예정')+'</span></div>'; }).join('')
     : '<div class="led-empty">입금이 확인되면 현금영수증을 발급해 드려요</div>';
-  // 소득공제 번호 등록 안내 — 등록됨(끝 4자리) / 입금했는데 미등록(자진발급 경고)
+  // 소득공제 번호 등록 안내 — 등록됨(끝 4자리) / 입금했는데 미등록(자진발급 경고) + 상시 등록/변경 버튼(②)
   var crNote = l.cashTail
     ? '<div class="led-note">소득공제 번호 등록됨 <span class="led-mute">· 끝 '+escapeHtml(l.cashTail)+'</span></div>'
     : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급되어 소득공제는 어려워요</span></div>' : '');
+  var crEdit = '<button type="button" class="led-editbtn" id="mp_crEditBtn">'+(l.cashTail?'소득공제 번호 변경':'소득공제 번호 등록')+'</button>';
+  // 서류 — 계약서는 외부 링크, 시착 동의서는 동의 내용 모달(③)
   var docRows=(l.documents&&l.documents.length)
-    ? l.documents.map(function(dc){ var link=dc.url?('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>'):''; return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+link+'</span></div>'; }).join('')
+    ? l.documents.map(function(dc){
+        var right = dc.url ? ('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기 ↗</a>')
+                  : ((dc.terms&&dc.terms.length) ? '<button type="button" class="led-linkbtn" data-doc="fitting">보기</button>' : '');
+        return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
+      }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
   var paySec = payRows ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략
   box.innerHTML='<div class="consult-card led-card">'+
     '<div class="cc-eyebrow en-22" style="text-align:center">My Records</div>'+
     '<div class="led-title">내 내역</div>'+
     paySec+
-    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+'</div>'+
+    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     '</div>';
+  box.style.display='block';
+  var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
+  var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ showFittingTerms(l.documents); });
+}
+// [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
+function doEditCashReceipt(tail){
+  var cur=tail?('<br><span style="color:var(--light)">현재 등록 · 끝 '+escapeHtml(tail)+'</span>'):'';
+  mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:12.5px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
+    if(!ok) return;
+    var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
+    api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); }
+    }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  });
+}
+// [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서.
+function showFittingTerms(docs){
+  var t=[]; (docs||[]).forEach(function(dc){ if(dc.terms&&dc.terms.length) t=dc.terms; });
+  if(!t.length){ mpAlert('동의 내용을 불러올 수 없어요.'); return; }
+  var html='<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+t.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>';
+  mpAlert({ title:'드레스 시착 동의 내용', bodyHtml:html, confirmText:'닫기' });
+}
+// [①] 예식일 임시 고정(가예약) 상태 배너 — 검토 중/승인. hold=null이면 숨김.
+function renderHold(h){
+  var box=$('mp_hold'); if(!box) return;
+  if(!h){ box.innerHTML=''; box.style.display='none'; return; }
+  var labels={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
+  var dTxt=(typeof fmtWedKo==='function'&&fmtWedKo(h.date))?fmtWedKo(h.date):h.date;
+  var slotTxt=labels[h.slot]||h.slot||'';
+  var when=escapeHtml(dTxt)+(slotTxt?(' · '+escapeHtml(slotTxt)):'');
+  var approved=(h.status==='승인');
+  var expTxt=h.expires?((typeof fmtWedKo==='function'&&fmtWedKo(h.expires))?fmtWedKo(h.expires):h.expires):'';
+  var sub=approved
+    ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요'+(expTxt?(' <span class="hold-mute">· '+escapeHtml(expTxt)+'까지</span>'):'')+'. 본계약 시 이 날짜로 확정돼요.')
+    : ('<b>'+when+'</b><br>디렉터가 확인하고 있어요. 승인되면 알려드릴게요.<br><span class="hold-mute">상담 전이라면 사전 협의가 필요할 수 있어요.</span>');
+  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div></div></div>';
   box.style.display='block';
 }
 
