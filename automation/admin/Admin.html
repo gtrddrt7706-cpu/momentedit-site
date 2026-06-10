@@ -329,6 +329,7 @@ function prodLabel(p){ return snap(p)?'스냅':'시그'; }
 /* 시각 표기 — "YYYY-MM-DD HH:mm" → "M/D HH:mm"(올해 연도 생략) */
 function fmtDT(s){ var m=String(s||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/); if(!m) return esc(s||''); var yr=(+m[1]!==new Date().getFullYear())?(m[1]+'/'):''; return yr+(+m[2])+'/'+(+m[3])+' '+m[4]+':'+m[5]; }
 function fmtDate(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return esc(ymd||''); var d=new Date(+m[1],+m[2]-1,+m[3]); return (+m[2])+'/'+(+m[3])+'('+WD[d.getDay()]+')'; }
+function fmtCRTarget(s){ var n=String(s||'').replace(/[^0-9]/g,''); if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
 function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예식'; if(n>0) return w+' D-'+n; if(n<0) return w+' D+'+(-n); return w+' D-day'; }
 function consultLabel(n){ if(n==null) return ''; if(n===0) return '오늘'; if(n===1) return '내일'; if(n===2) return '모레'; if(n>2) return 'D-'+n; return 'D+'+(-n); }   // 대면상담까지 D-day(상담확정·촬영확정 그룹)
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
@@ -660,7 +661,7 @@ function cardPayment(d){
   if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
   if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
   // 현금영수증 — 발급 대상(고객 입력) + 마일스톤별 발행 상태(발행완료/발행대기)
-  if(d.cashReceipt) raw+='<br><span style="color:var(--label-soft)">현금영수증 발급대상 '+esc(d.cashReceipt)+'</span>';
+  if(d.cashReceipt) raw+='<br><span style="color:var(--label-soft)">현금영수증 발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</span>';
   (d.receipts||[]).forEach(function(it){
     if(it.issued) raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 현금영수증 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</span>';
     else if(it.due) raw+='<br><span style="color:#b5852a">• '+esc(it.label)+' 현금영수증 <b>발행 대기</b> ('+Number(it.amount||0).toLocaleString()+'원) · 홈택스 발급 후 번호 기록</span>';
@@ -671,11 +672,9 @@ function cardPayment(d){
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');   // 고객 입금 신호 → 통장 대조 후 확인
   if(bal==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');
-  // 현금영수증 발행/취소 — 입금 확인된 마일스톤 단위
-  (d.receipts||[]).forEach(function(it){
-    if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line');
-    else if(it.issued) b+=ab('undoReceipt:'+it.key, it.label+' 발행 취소','btn-ghost');
-  });
+  // 현금영수증 — 발행할 것(대기) 먼저, 발행 취소(드물게)는 뒤로
+  (d.receipts||[]).forEach(function(it){ if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line'); });
+  (d.receipts||[]).forEach(function(it){ if(it.issued) b+=ab('undoReceipt:'+it.key, it.label+' 발행 취소','btn-ghost'); });
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
 function cardProduction(d){

@@ -310,8 +310,10 @@ function adminHome() {
       if (sent) {
         var leftMs = sent.getTime() + CONTRACT.서명기한시간 * 3600 * 1000 - nowMs;
         if (leftMs < 24 * 3600 * 1000) {
-          var btxt = (leftMs <= 0) ? '계약 만료됨 · 재발송' : (leftMs < 12 * 3600 * 1000 ? ('서명 만료 ' + Math.max(1, Math.round(leftMs / 3600000)) + '시간') : '서명 만료 D-1');
-          pushQ({ code: code, names: names, product: product, kind: '계약만료', sub: btxt,
+          var _exp = (leftMs <= 0);
+          var btxt = _exp ? '만료됨' : (leftMs < 12 * 3600 * 1000 ? (Math.max(1, Math.round(leftMs / 3600000)) + '시간') : 'D-1');   // 배지=짧은 긴급 태그
+          var subtxt = _exp ? '계약 서명 기한이 지났어요 · 재발송' : '계약 서명 기한 임박 · 곧 만료';                                  // 부제=설명(배지와 중복 제거)
+          pushQ({ code: code, names: names, product: product, kind: '계약만료', sub: subtxt,
             badge: { level: 'red', text: btxt }, _urgent: true, _loss: 1, _wait: createdYmd });
         }
       }
