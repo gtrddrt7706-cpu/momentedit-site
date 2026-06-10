@@ -133,13 +133,14 @@ function buildConsultState(code) {
   var consultToken = String(cr.get('토큰') || '');
   var locked = (status === ST.APPROVED || status === ST.CONFIRMED);  // LOCKED_STATES
   var within = locked ? withinCancelDeadline(dateKey, time) : false; // 변경/취소 = 확정 + 24h 전(KST)
+  var picked = (status === ST.PICKED);                               // 시간선택완료(디렉터 확인 대기) — 확정 전이라 자유 변경/취소
 
   return {
     status: status,                                  // 신청접수·시간선택완료·승인완료·확정·변경제안·취소
     date: dateKey ? prettyDate(dateKey) : '',        // 표시용
     time: time,
-    canChange: within,
-    canCancel: within,
+    canChange: within || picked,
+    canCancel: within || picked,
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
     cancelUrl: (within && consultToken) ? cancelPageUrl(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',

@@ -617,7 +617,7 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
     details.cc-more>summary::-webkit-details-marker{display:none}
     .mp-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.30);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
     .mp-modal.open{display:flex}
-    .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:6px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease)}
+    .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:6px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease);max-height:88vh;overflow-y:auto}
     .mp-modal-title{font-family:var(--serif-ko,serif);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.5;margin-bottom:8px;word-break:keep-all}
     .mp-modal-body{font-family:var(--serif-ko,serif);font-size:13.5px;color:var(--sub,#5A554C);line-height:1.75;margin-bottom:20px;word-break:keep-all}
     .mp-modal-actions{display:flex;flex-direction:column;gap:8px}
@@ -1267,8 +1267,43 @@ function renderHold(h){
   var sub=approved
     ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요'+(expTxt?(' <span class="hold-mute">· '+escapeHtml(expTxt)+'까지</span>'):'')+'. 본계약 시 이 날짜로 확정돼요.')
     : ('<b>'+when+'</b><br>디렉터가 확인하고 있어요. 승인되면 알려드릴게요.<br><span class="hold-mute">상담 전이라면 사전 협의가 필요할 수 있어요.</span>');
-  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div></div></div>';
+  var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
+  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
+    +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" style="'+_hb+'" id="mp_holdCancel">고정 취소</button></div>'
+    +'</div></div>';
   box.style.display='block';
+  var _he=$('mp_holdEdit'); if(_he) _he.addEventListener('click', function(){ doHoldEdit(h); });
+  var _hc=$('mp_holdCancel'); if(_hc) _hc.addEventListener('click', doHoldCancel);
+}
+// [임시고정 셀프 관리] 변경 — 새 날짜·슬롯으로 재요청(디렉터 재확인 · 승인됐던 것도 '요청'으로 돌아감). 닫힌 슬롯은 선택 불가.
+function doHoldEdit(h){
+  var SLOTS=['09:00','12:20','15:40'], LABELS={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
+  var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+LABELS[t]+' '+t+'</option>';}).join('');
+  var bodyHtml='<div style="text-align:left">'
+    +'<div style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||''})
+    +'<div style="font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 140분</div><select id="mp_heSlot" class="cc-input">'+opts+'</select>'
+    +'<div class="cc-mini" style="margin-top:8px;color:var(--light);line-height:1.6;text-align:left">변경을 요청하시면 디렉터가 다시 확인한 뒤 안내드려요.</div></div>';
+  var p=mpModalOpen({ title:'예식일 변경', bodyHtml:bodyHtml, confirmText:'변경 요청', cancelText:'닫기' });
+  var taken={};
+  function _sync(d){ var sel=$('mp_heSlot'); if(!sel) return; var list=(d&&taken[d])||[]; [].forEach.call(sel.options,function(op){ if(!op.value) return; if(!op.getAttribute('data-label')) op.setAttribute('data-label',op.textContent); var t=list.indexOf(op.value)!==-1; op.disabled=t; op.textContent=op.getAttribute('data-label')+(t?' · 선택 불가':''); }); if(sel.value&&list.indexOf(sel.value)!==-1) sel.value=''; }
+  initDatePicker({wrap:'mphe_wrap',trigger:'mphe_trigger',text:'mphe_text',panel:'mphe_panel',grid:'mphe_grid',title:'mphe_title',prev:'mphe_prev',next:'mphe_next',hidden:'mp_heDate',onPick:_sync});
+  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ taken=r.taken||{}; var d=($('mp_heDate')||{}).value||''; if(d) _sync(d); } }).catch(function(){});
+  p.then(function(ok){
+    if(!ok) return;
+    var d=($('mp_heDate')||{}).value||'', t=($('mp_heSlot')||{}).value||'';
+    if(!d||!t){ mpAlert('예식 날짜와 시간을 모두 선택해 주세요.').then(function(){ doHoldEdit({date:d||((h&&h.date)||''),slot:t||((h&&h.slot)||'')}); }); return; }
+    api({action:'changeWeddingHold', token:getToken(), date:d, slot:t}).then(function(r){
+      if(r&&r.ok){ loadMyState(); }
+      else { mpAlert((r&&r.error)||'변경 요청에 실패했습니다.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
+    }).catch(function(){ mpAlert('변경 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  });
+}
+// [임시고정 셀프 관리] 취소 — 잡아둔 예식 일정 해제(언제든 재요청 가능)
+function doHoldCancel(){
+  mpModalOpen({ title:'예식일 임시 고정을 취소할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">잡아둔 예식 일정이 풀려요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'고정 취소', cancelText:'닫기' }).then(function(ok){
+    if(!ok) return;
+    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소에 실패했습니다.'); } }).catch(function(){ mpAlert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  });
 }
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
@@ -1284,12 +1319,22 @@ function renderConsult(c, product){
   // [Task9] cancelUrl 등 다른 GAS 링크 안전망 — webAppUrl()이 비공개 URL을 뱉어도 검증된 /exec로 강제 (Drive 오류 방지)
   function fixGas(u){ if(!u||typeof EXEC_URL==='undefined') return u||''; var q=u.indexOf('?'); return q>=0 ? EXEC_URL+u.slice(q) : u; }
   var body = '', cta = '', extra = '';
+  // 취소 패널(환불 계좌 입력) — 시간선택완료(대기)·확정 공용
+  var CANCEL_PANEL = '<div id="mp_cancelPanel" style="display:none;margin-top:12px;padding:15px 16px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);text-align:left">'
+    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 입력하신 계좌로 환불해 드려요. <span class="cc-mini">환불은 영업일 기준 수일이 걸릴 수 있어요.</span></div>'
+    + '<input type="text" class="cc-input" id="mp_refundAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주">'
+    + '<div id="mp_refundErr" class="cc-mini" style="text-align:left;color:var(--seal);min-height:14px;margin:7px 0 0"></div>'
+    + '<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_cancelConfirm">취소 확정</button></div>'
+    + '</div>';
 
   if (s === '신청접수'){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
     body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요.</div>';
+    // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
+    if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
+    if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
@@ -1304,12 +1349,7 @@ function renderConsult(c, product){
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) — GAS 페이지 우회
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
-    if (c.canCancel) extra = '<div id="mp_cancelPanel" style="display:none;margin-top:12px;padding:15px 16px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);text-align:left">'
-      + '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 입력하신 계좌로 환불해 드려요. <span class="cc-mini">환불은 영업일 기준 수일이 걸릴 수 있어요.</span></div>'
-      + '<input type="text" class="cc-input" id="mp_refundAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주">'
-      + '<div id="mp_refundErr" class="cc-mini" style="text-align:left;color:var(--seal);min-height:14px;margin:7px 0 0"></div>'
-      + '<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_cancelConfirm">취소 확정</button></div>'
-      + '</div>';
+    if (c.canCancel) extra = CANCEL_PANEL;
   } else if (s === '변경제안'){
     body = '<div class="cc-title">디렉터가 다른 시간을 제안했어요</div><div class="cc-sub">제안 · <b>'+escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)+'</b></div>'
          + (c.proposedNote ? '<div class="cc-note" style="text-align:center;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'"</div>' : '');

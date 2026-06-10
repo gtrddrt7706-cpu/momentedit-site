@@ -714,6 +714,16 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
     }
   }
 
+  // [임시고정 연동] 활성 가예약(요청/승인) 보유 시 상담일은 당기기만 허용 — '상담 7일 내 진행' 전제가 뒤로 밀리지 않게
+  if (row.get('선택날짜')) {
+    var _hc2 = findCustomerByCode(String(row.get('개인코드') || '').trim());
+    var _hr2 = _hc2 ? _parseJsonSafe(_hc2.get('동의기록')).가예약 : null;
+    if (_hr2 && (_hr2.status === '요청' || _hr2.status === '승인')
+        && _ymdNum(normalizeDateKey(dateKey)) > _ymdNum(normalizeDateKey(row.get('선택날짜')))) {
+      throw new Error('예식일 임시 고정 중에는 상담일을 지금보다 뒤로 옮길 수 없어요. 더 이른 날짜를 선택하시거나, 마이페이지에서 임시 고정을 취소한 뒤 변경해 주세요.');
+    }
+  }
+
   var flex = Array.isArray(flexArr) ? flexArr.join(', ') : String(flexArr || '');
 
   // [P1.5 작업6] Lock + 점유 재확인 — 동시 제출 직렬화 + 이미 확정된 슬롯 차단(더블 확정 0)
@@ -1850,7 +1860,10 @@ function handleGetAvailability(body) {
   if (!a.ok) return { ok: false, error: a.error };
   var data = _cachedAvailability();   // 전역 캐시(캘린더 쿼리 생략) → 일정선택 페이지 로딩 가속
   var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
+  var _hRec = a.cust ? _parseJsonSafe(a.cust.get('동의기록')).가예약 : null;   // [임시고정 연동] 재선택 방향 제한용
   return { ok: true, avail: data.avail, full: data.full,
+    currentDate: a.consult ? (normalizeDateKey(a.consult.get('선택날짜')) || '') : '',
+    holdActive: !!(_hRec && (_hRec.status === '요청' || _hRec.status === '승인')),
     slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN,
     names: names, depositStr: formatWon(CONFIG.DEPOSIT),
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
@@ -1883,6 +1896,19 @@ function handleCancelReservation(body) {
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
   if (acct) writeCell(sheet, colOf, r.num, '환불계좌', acct);   // 환불 계좌 기록(취소 처리 전)
   actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + 고객 취소메일 + setCustomerStage
+  // [임시고정 연동] 상담 취소 → 가예약(요청/승인)도 자동 해제(슬롯 반환). 이력은 처리이력에 남김.
+  try {
+    if (a.cust) {
+      var _rc2 = _parseJsonSafe(a.cust.get('동의기록'));
+      if (_rc2.가예약) {
+        var _hd2 = _rc2.가예약.date, _hs2 = _rc2.가예약.slot;
+        delete _rc2.가예약;
+        var _cs2 = getCustomersSheet(), _cc2 = buildHeaderIndex(_cs2);
+        touchCustomer(_cs2, _cc2, a.cust.num, { '동의기록': Object.keys(_rc2).length ? JSON.stringify(_rc2) : '' });
+        _recordHandler(String(a.cust.get('개인코드') || ''), '상담 취소 → 예식일 임시고정 자동 해제 · ' + (_hd2 || '') + ' ' + (_hs2 || ''));
+      }
+    }
+  } catch (e2) {}
   if (acct) {                  // 운영자에게 환불 송금 요청(계좌 포함)
     try { sendRefundRequestEmail(r, dateKey, time, acct); }
     catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', coupleNames(r) + ' · ' + e.message); }
@@ -1925,6 +1951,8 @@ function doPost(e) {
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
       // ── 02 여정(계약·입금) — 세션→Customers ──
       case 'weddingAvailability': return jsonOut(handleWeddingAvailability(body));
+      case 'changeWeddingHold':   return jsonOut(handleChangeWeddingHold(body));
+      case 'cancelWeddingHold':   return jsonOut(handleCancelWeddingHold(body));
       case 'requestContract':    return jsonOut(handleRequestContract(body));
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
       case 'signContract':       return jsonOut(handleSignContract(body));

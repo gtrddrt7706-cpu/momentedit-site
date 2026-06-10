@@ -761,6 +761,20 @@ function adminCancel(code, reason) {
   var r = row(sheet, colOf, cr.num);
   if (String(r.get('상태') || '').trim() === ST.CANCELLED) { _recordHandler(code, '취소(중복)'); return { ok: true }; }  // 멱등
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel)
+  // [임시고정 연동] 상담 취소 → 가예약(요청/승인)도 자동 해제(슬롯 반환)
+  try {
+    var _cu = findCustomerByCode(code);
+    if (_cu) {
+      var _rc = _parseJsonSafe(_cu.get('동의기록'));
+      if (_rc.가예약) {
+        var _hd = _rc.가예약.date, _hs = _rc.가예약.slot;
+        delete _rc.가예약;
+        var _cs = getCustomersSheet(), _cc = buildHeaderIndex(_cs);
+        touchCustomer(_cs, _cc, _cu.num, { '동의기록': Object.keys(_rc).length ? JSON.stringify(_rc) : '' });
+        _recordHandler(code, '상담 취소 → 예식일 임시고정 자동 해제 · ' + (_hd || '') + ' ' + (_hs || ''));
+      }
+    }
+  } catch (e) {}
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
   return { ok: true };
 }

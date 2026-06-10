@@ -667,6 +667,13 @@ const WD_KO = ['일','월','화','수','목','금','토'];
 function fmtDate(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+WD_KO[d.getDay()]+')'; }
 let viewY = today.getFullYear(), viewM = today.getMonth();
 let selDate = null, selTime = null;
+// [임시고정 연동] 활성 가예약 보유 시 — 상담일은 현재 일정보다 앞으로만(서버에도 동일 가드). 가능일을 현재 상담일 이하로 필터.
+if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.currentDate)){
+  var _hl=SERVER.currentDate.split('-'), _hlim=(+_hl[0])*10000+(+_hl[1])*100+(+_hl[2]);
+  SERVER.avail=(SERVER.avail||[]).filter(function(k){var a=String(k).split('-');return ((+a[0])*10000+(+a[1])*100+(+a[2]))<=_hlim;});
+  var _cg=document.getElementById('calGrid');
+  if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
+}
 // 첫 가능일이 있는 달로 달력을 연다
 if(SERVER.avail.length){
   const _ds = SERVER.avail.map(function(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);}).sort(function(a,b){return a-b;});
