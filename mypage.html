@@ -1478,8 +1478,8 @@ function renderContractReqForm(ctx){
     +weddingSequenceRef('대표 시간만 정리한 요약 시간표예요. 시간대를 고르실 때 참고해 주세요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
     +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
-    +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddr)
-    +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddr)
+    +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddrRoad||ci.groomAddr,ci.groomAddrDetail)
+    +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddrRoad||ci.brideAddr,ci.brideAddrDetail)
     +'<label class="pf-l" style="margin-top:8px">신랑 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제(연말정산·지출증빙)</b>를 받으시려면 번호를 적어 주세요. 미입력 시 국세청 지정번호로 자진발급되어 소득공제는 어려워요. · 예약금은 드레스 시착 또는 본계약 시, 중도금·잔금은 입금하실 때 발급.</div>'
@@ -1513,7 +1513,9 @@ function doRequestContract(){
   function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); if(de && r.indexOf(de)!==-1) de=''; return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세(이미 도로명에 포함된 동·호면 중복 제거)
   function birth(base){ var y=v(base+'_y'),m=v(base+'_m'),d=v(base+'_d'); return (y&&m&&d)?(y+'-'+m+'-'+d):''; }   // 년·월·일 → YYYY-MM-DD
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
-  var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'), groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+  var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'),
+    groomAddrRoad:v('mp_ciGA_road'), groomAddrDetail:v('mp_ciGA_detail'), brideAddrRoad:v('mp_ciBA_road'), brideAddrDetail:v('mp_ciBA_detail'),   // 분리 원본 — 재수정 시 상세주소 칸 복원용
+    groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
@@ -2313,11 +2315,11 @@ function dtPickerHtml(p, hiddenId, placeholder, opt){
     +'<div class="dt-cal-grid" id="'+p+'_grid"></div></div></div></div>';
 }
 // 주소 필드(다음 우편번호) — idBase_road(도로명·읽기) + _find(검색) + _jibun(지번) + _detail(상세)
-function addrFieldHtml(idBase, val){
-  val=val||'';
+function addrFieldHtml(idBase, val, detail){
+  val=val||''; detail=detail||'';
   return '<div style="display:flex;gap:8px;align-items:stretch"><input type="text" class="cc-input" id="'+idBase+'_road" readonly placeholder="주소 찾기를 눌러 주세요" value="'+escapeHtml(val)+'" style="flex:1 1 auto;min-width:0;width:auto;cursor:pointer;background:#fff"><button type="button" class="cc-btn-ghost" id="'+idBase+'_find" style="flex:0 0 auto;width:auto;white-space:nowrap;padding:0 16px">주소 찾기</button></div>'
     +'<div id="'+idBase+'_jibun" style="font-size:11px;color:var(--light);margin:3px 0 0;font-family:var(--serif-ko)"></div>'
-    +'<input type="text" class="cc-input" id="'+idBase+'_detail" autocomplete="off" placeholder="상세주소 (동·호 등)" style="margin-top:6px">';
+    +'<input type="text" class="cc-input" id="'+idBase+'_detail" autocomplete="off" placeholder="상세주소 (동·호 등)" value="'+escapeHtml(detail)+'" style="margin-top:6px">';
 }
 // 생년월일 — 년·월·일 드롭다운(달력보다 빠르고 오타 없음). doRequestContract가 YYYY-MM-DD로 합성.
 function birthSelectHtml(idBase, val){

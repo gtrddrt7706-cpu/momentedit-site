@@ -376,7 +376,10 @@ function handleRequestContract(body) {
     if (_cs === '발송' || _cs === '서명완료') return { ok: false, error: '이미 계약이 진행 중입니다.' };   // '미발송'(가입 기본값·만료 후)은 재요청 허용
     if (_weddingSlotTaken(sheet, colOf, wed, wT, code)) return { ok: false, error: '선택하신 예식 시간이 이미 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
     var rec = _parseJsonSafe(cust.get('동의기록'));
-    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA, weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
+    rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA,
+      groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 — 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
+      brideAddrRoad: String(info.brideAddrRoad || '').trim(), brideAddrDetail: String(info.brideAddrDetail || '').trim(),
+      weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
     var _cr = String(info.cashReceipt || '').replace(/[^0-9]/g, '').slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // 현금영수증 발급번호(선택) — 계약 충당분·중도금·잔금 발급에 공통 사용
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준·슬롯 점유 · 당사자 정보=계약서 자동기입용
     notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 — 발송 필요(카톡)
@@ -399,6 +402,8 @@ function buildContractInfoState(r) {
     weddingTime: ci ? (ci.weddingTime || '') : '',
     groomBirth: ci ? (ci.groomBirth || '') : '', brideBirth: ci ? (ci.brideBirth || '') : '',
     groomAddr: ci ? (ci.groomAddr || '') : '', brideAddr: ci ? (ci.brideAddr || '') : '',
+    groomAddrRoad: ci ? (ci.groomAddrRoad || '') : '', groomAddrDetail: ci ? (ci.groomAddrDetail || '') : '',
+    brideAddrRoad: ci ? (ci.brideAddrRoad || '') : '', brideAddrDetail: ci ? (ci.brideAddrDetail || '') : '',
     cashReceipt: _cashReceiptOf(r),
     requestedAt: ci ? (ci.requestedAt || '') : ''
   };
