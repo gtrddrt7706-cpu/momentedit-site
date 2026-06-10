@@ -888,20 +888,29 @@ function sendBalanceReminders() {
     if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
     if ((String(row[c('잔금상태') - 1] || '').trim() || '대기') === '확인') continue;
     if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
-    if (String(row[c('잔금리마인드') - 1] || '').trim()) continue;            // 이미 보냄
+    var flag = String(row[c('잔금리마인드') - 1] || '').trim();
     var dday = _balanceDDay(row[c('예식일') - 1]);
-    if (dday == null || dday > PAYMENT.잔금일수전) continue;                  // D-7 밖
+    if (dday == null) continue;
+    var stagePre = (!flag && dday <= PAYMENT.잔금일수전 + 15 && dday > PAYMENT.잔금일수전);
+    var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.잔금일수전);
+    if (!stagePre && !stageDue) continue;
     var email = String(row[c('이메일') - 1] || '').trim();
-    notifyKakao('cust.balanceDue', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });   // 잔금 안내 · 카톡(메일 OFF여도 발송)
-    if (CONFIG.SEND_BALANCE_MAIL && email) {                                  // 메일은 토글 ON일 때만(기본 OFF)
+    var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
+    var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
+    var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.잔금일수전);
+    notifyKakao(stageDue ? 'cust.balanceDue' : 'cust.balancePre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
+    if (CONFIG.SEND_BALANCE_MAIL && email) {
       try {
-        var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);   // 상품타입 전달 · 스냅 잔금(80%)/시그 잔금(50%) 분기 정확히
-        var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
-        GmailApp.sendEmail(email, '[Moment Edit] 잔금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
-          '예식이 다가옵니다.\n잔금 ' + amtTxt + '을 ' + _balanceDueLabel() + '까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+        if (stageDue) {
+          GmailApp.sendEmail(email, '[Moment Edit] 잔금 납부일 안내 (예식 D-' + dday + ')',
+            '예식이 코앞이에요.\n잔금 ' + amtTxt + '을 오늘(' + dueYmd + ')까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+        } else {
+          GmailApp.sendEmail(email, '[Moment Edit] 잔금 안내가 열렸어요 (납부일: ' + dueYmd + ')',
+            '예식이 다가옵니다.\n잔금 ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 9일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
+        }
       } catch (e) {}
     }
-    sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(fmtKST(new Date()));   // 알림 발송 → 1회 마킹(중복 방지)
+    sheet.getRange(P.DATA_START_ROW + i, c('잔금리마인드')).setValue(stageDue ? fmtKST(new Date()) : '예고');   // 알림 발송 → 1회 마킹(중복 방지)
   }
 }
 // [트리거·일1회] 예식 D-30 이내 + 중도금 미확인 + 미발송 → 중도금 리마인드 1회(잔금과 동일 패턴·컬럼 '중도금리마인드').
@@ -917,20 +926,30 @@ function sendMidReminders() {
     if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
     if ((String(row[c('중도금상태') - 1] || '').trim() || '대기') === '확인') continue;
     if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
-    if (String(row[c('중도금리마인드') - 1] || '').trim()) continue;                   // 이미 보냄
+    var flag = String(row[c('중도금리마인드') - 1] || '').trim();
     var dday = _balanceDDay(row[c('예식일') - 1]);
-    if (dday == null || dday > PAYMENT.중도금일수전) continue;                          // D-30 밖
+    if (dday == null) continue;
+    // 2단계: ① 예고(카드 열리는 D-164) ② 기한일(D-149). 임박 계약(이미 기한 안쪽)은 기한 단계만 1회.
+    var stagePre = (!flag && dday <= PAYMENT.중도금일수전 + 15 && dday > PAYMENT.중도금일수전);
+    var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.중도금일수전);
+    if (!stagePre && !stageDue) continue;
     var email = String(row[c('이메일') - 1] || '').trim();
-    notifyKakao('cust.midDue', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
+    var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
+    var amtTxt = amounts ? (Number(amounts['중도금']).toLocaleString() + '원') : '중도금';
+    var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.중도금일수전);
+    notifyKakao(stageDue ? 'cust.midDue' : 'cust.midPre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {                                            // 메일은 결제 리마인드 공통 토글
       try {
-        var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
-        var amtTxt = amounts ? (Number(amounts['중도금']).toLocaleString() + '원') : '중도금';
-        GmailApp.sendEmail(email, '[Moment Edit] 중도금 안내 (예식 ' + (dday >= 0 ? 'D-' + dday : '지남') + ')',
-          '예식이 다가옵니다.\n중도금 ' + amtTxt + '을 ' + (dday < PAYMENT.중도금일수전 ? '계약 시 안내드린 대로 바로' : _midDueLabel() + '까지') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+        if (stageDue) {
+          GmailApp.sendEmail(email, '[Moment Edit] 중도금 납부일 안내 (예식 D-' + dday + ')',
+            '무료 취소 기간이 끝나고 예식 일정이 확정되는 날이에요.\n중도금 ' + amtTxt + '을 ' + (dday < PAYMENT.중도금일수전 ? '계약 시 안내드린 대로 바로' : '오늘(' + dueYmd + ')까지') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+        } else {
+          GmailApp.sendEmail(email, '[Moment Edit] 중도금 안내가 열렸어요 (납부일: ' + dueYmd + ')',
+            '예식 준비가 본격적으로 시작될 시기예요.\n중도금 ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 149일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요. 미리 확인해 두세요.\n\nMoment Edit');
+        }
       } catch (e) {}
     }
-    sheet.getRange(P.DATA_START_ROW + i, c('중도금리마인드')).setValue(fmtKST(new Date()));
+    sheet.getRange(P.DATA_START_ROW + i, c('중도금리마인드')).setValue(stageDue ? fmtKST(new Date()) : '예고');
   }
 }
 

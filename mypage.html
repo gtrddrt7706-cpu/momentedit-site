@@ -1873,6 +1873,7 @@ function renderMid(p, bal){
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||'예식 149일 전');
+  var whyLine=(p.dueLabel==='계약 시 함께 납부')?'' :'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정되었어요. 준비 착수를 위한 중도금이에요.</div>';
   var near=(p.dday!=null && p.dday<=156);   // 기한(D-149) 7일 전부터 자동 펼침
   var balOpen=!!(bal && !bal.confirmed && bal.amount!=null && p.amount!=null);   // 잔금 함께 결제 가능
   var comboAmt=(p.amount||0)+(balOpen?bal.amount:0);
@@ -1907,7 +1908,7 @@ function renderMid(p, bal){
       + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
-    body='<div class="cc-title">'+head+'</div>'+amt+when+acct+combo;
+    body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_mCR', p.cashReceipt)
       + '<button type="button" class="cc-btn" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
