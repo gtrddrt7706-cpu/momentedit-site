@@ -1103,8 +1103,8 @@ function applyCardStageView(d){
 
   // #9 — 상담확정 박스(방문일·방문 전 안내·변경/취소)는 방문 전까지만.
   //   상담완료 이후이거나, 시착 단계 진입(드레스 시착 동의서 발송됨)이면 숨김 — 시착 카드가 다음 액션을 안내함.
-  var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착');
-  if ((visitDone >= 0 && cur >= visitDone) || (fitIdx >= 0 && cur >= fitIdx)) {
+  var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착'), shootDone = sIdx('촬영완료');   // 스냅: 촬영 끝나면 '촬영 예약 확정' 카드도 지난 정보 → 숨김(시그의 상담완료/시착 숨김과 동일 취지)
+  if ((visitDone >= 0 && cur >= visitDone) || (fitIdx >= 0 && cur >= fitIdx) || (shootDone >= 0 && cur >= shootDone)) {
     var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
   }
 
@@ -1284,7 +1284,9 @@ function renderConsult(c, product){
          + (isSnap ? '' :
               '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요.<br>직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 3벌)</em>.</span></div>'
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>드레스 시착을 하시면 예약금은 <b>시착 비용</b>으로 전환됩니다.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
-         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+L+'을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드려요.</span></div>'
+         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
+              ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
+              : '상담을 마친 뒤 <b>24시간 안에</b> 마이페이지로 보내드려요.')+'</span></div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';

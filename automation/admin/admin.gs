@@ -318,7 +318,7 @@ function adminHome() {
         }
       }
     }
-    // 입금 확인 — 입금상태=완료신호
+    // 입금 확인 — 입금상태=완료신호 (스냅: 계약 시 계약금 입금 신호. 시그: 계약 서명 시 예약금 충당으로 입금완료 자동 전이 → 여기 안 옴)
     if (입금 === '완료신호') {
       var sigDays = _dayDiff(today, _ymdOf(cget(rv, '입금완료신호')));
       pushQ({ code: code, names: names, product: product, kind: '입금확인', sub: '입금 확인',
