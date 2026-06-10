@@ -579,6 +579,26 @@ function _saveCashReceipt(cust, sheet, colOf, raw) {
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
 function _cashReceiptOf(r) { try { return String(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
+// [②] 현금영수증 발급 번호(소득공제용) 상시 등록/변경 — 결제 카드 밖(마이페이지 '내 내역')에서도 저장·수정. 빈값이면 등록 해제.
+function handleSaveCashReceipt(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var num = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 휴대폰/사업자번호 — 숫자만
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (String(rec.현금영수증 || '') === num) return { ok: true, already: true };
+    rec.현금영수증 = num;   // 빈값이면 등록 해제(자진발급 전환)
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
 // 현금영수증 발행 원장 — 결제 마일스톤(예약금/계약금·중도금·잔금)별 {입금확인 여부·금액·발행기록}. 관리자 발행 큐·카드 + 마이페이지 '내 내역'이 공통으로 쓰는 단일 소스.
 //   의무발행업종 — 입금이 '확인'된 마일스톤은 현금영수증 발급 대상(미발급 20% 가산세). issued=발행완료 기록 / due=확인됐는데 미발행.
 function _cashReceiptLedger(r) {

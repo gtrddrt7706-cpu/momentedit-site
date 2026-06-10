@@ -1929,6 +1929,7 @@ function doPost(e) {
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
       case 'midSignal':          return jsonOut(handleMidSignal(body));
       case 'balanceSignal':      return jsonOut(handleBalanceSignal(body));
+      case 'saveCashReceipt':    return jsonOut(handleSaveCashReceipt(body));
       case 'submitResultSelection': return jsonOut(handleSubmitResultSelection(body));
       case 'requestExtraRetouch':   return jsonOut(handleRequestExtraRetouch(body));
       case 'extraRetouchSignal':    return jsonOut(handleExtraRetouchSignal(body));

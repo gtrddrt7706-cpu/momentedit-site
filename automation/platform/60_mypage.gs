@@ -46,8 +46,20 @@ function handleGetMyState(body) {
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
     result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
     ledger: buildLedgerState(r),  // [02-6] '내 내역' — 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
+    hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지만(없으면 null)
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };
+}
+
+// [①] 예식일 임시 고정(가예약) — 고객에게 검토 중/승인 상태를 보여줌. 계약 서명 후엔 예식일이 계약에 확정되므로 숨김.
+function buildHoldState(r) {
+  if (!r) return null;
+  if (String(r.get('계약상태') || '').trim() === '서명완료') return null;
+  var h = _parseJsonSafe(r.get('동의기록')).가예약;
+  if (!h || !h.date) return null;
+  var st = String(h.status || '').trim();
+  if (st !== '요청' && st !== '승인') return null;   // 반려=기록 삭제 → null
+  return { date: String(h.date || ''), slot: String(h.slot || ''), status: st, expires: String(h.expires || '') };
 }
 
 // [02-6] '내 내역' 패널 — 결제(예약금/계약금·중도금·잔금)·현금영수증(발행된 것)·서류(시착동의서·계약서)를 진행 단계와 무관하게 한곳에 모아 노출.
@@ -78,7 +90,7 @@ function buildLedgerState(r) {
   var crTail = crTarget ? String(crTarget).replace(/[^0-9]/g, '').slice(-4) : '';
   // 서류 — 시착 동의서·계약서
   var documents = [];
-  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '' });
+  if (fitDone || fitAt) documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '', terms: (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.terms) ? FITTING_CONSENT.terms : [] });   // [③] 내 내역에서 동의 내용 재열람용
   var clink = String(r.get('계약서링크') || '').trim();
   if (signed || clink) documents.push({ label: '계약서', status: signed ? '서명 완료' : (String(r.get('계약상태') || '').trim() || '—'), at: _ymdOf(r.get('계약서명일시')), url: clink });
   // 보여줄 내역이 하나도 없으면(계약·시착·입금 전) 패널 자체를 숨김
