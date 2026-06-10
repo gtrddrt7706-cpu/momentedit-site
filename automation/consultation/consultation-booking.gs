@@ -719,8 +719,9 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
   if (row.get('선택날짜')) {
     var _hc2 = findCustomerByCode(String(row.get('개인코드') || '').trim());
     var _hr2 = _hc2 ? _parseJsonSafe(_hc2.get('동의기록')).가예약 : null;
+    var _newN = _dayNum(dateKey), _oldN = _dayNum(row.get('선택날짜'));
     if (_hr2 && (_hr2.status === '요청' || _hr2.status === '승인')
-        && _ymdNum(normalizeDateKey(dateKey)) > _ymdNum(normalizeDateKey(row.get('선택날짜')))) {
+        && _newN != null && _oldN != null && _newN > _oldN) {
       throw new Error('예식일 임시 고정 중에는 상담일을 지금보다 뒤로 옮길 수 없어요. 더 이른 날짜를 선택하시거나, 마이페이지에서 임시 고정을 취소한 뒤 변경해 주세요.');
     }
   }
@@ -756,10 +757,12 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
     if (hold && hold.date && hold.slot) {
       try {
         // [7일 규칙 백스톱] 상담일이 오늘(KST)+7일 이후면 임시고정 미적용(클라이언트가 먼저 안내·차단 — 우회 대비)
-        var _ck = String(normalizeDateKey(dateKey) || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        //   ※ dateKey는 'Y-M-D' 비패딩 — _dayNum으로 패딩 무관 비교(패딩 정규식을 쓰면 저장이 전부 스킵되는 버그)
+        var _ckN = _dayNum(dateKey);
         var _t7 = String(_kstYmd(new Date())).match(/^(\d{4})-(\d{2})-(\d{2})$/);
         var _lim7 = new Date(+_t7[1], +_t7[2] - 1, +_t7[3] + 7);
-        if (!_ck || new Date(+_ck[1], +_ck[2] - 1, +_ck[3]) > _lim7) throw new Error('hold-skip');
+        var _limN = _lim7.getFullYear() * 10000 + (_lim7.getMonth() + 1) * 100 + _lim7.getDate();
+        if (_ckN == null || _ckN > _limN) throw new Error('hold-skip');
         var _hc = String(row.get('개인코드') || '').trim(), _hd = String(hold.date).trim(), _hs = String(hold.slot).trim();
         if (_hc && WEDDING_SLOT.SLOTS.indexOf(_hs) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(_hd)) {
           var _cs = getCustomersSheet(), _cco = buildHeaderIndex(_cs), _cust = findCustomerByCode(_hc);
@@ -1537,6 +1540,11 @@ function normalizeDateKey(v) {
   var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   return m ? (parseInt(m[1], 10) + '-' + parseInt(m[2], 10) + '-' + parseInt(m[3], 10)) : '';
 }
+// ⚠️ normalizeDateKey는 '2026-6-7'처럼 비패딩 반환 — 정규식(\d{2}) 매칭·문자열 비교에 그대로 쓰면 안 됨. 아래 헬퍼 사용.
+// 'Y-M-D'(패딩 무관) → 비교용 정수 yyyymmdd. 실패 시 null.
+function _dayNum(v) { var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); return m ? (+m[1]) * 10000 + (+m[2]) * 100 + (+m[3]) : null; }
+// 'Y-M-D'(패딩 무관) → 'YYYY-MM-DD'. 실패 시 ''.
+function _padYmd(v) { var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (!m) return ''; function p(x) { return (String(x).length < 2 ? '0' : '') + x; } return m[1] + '-' + p(m[2]) + '-' + p(m[3]); }
 // [P1.5 ⚠️] new Date(y,mo,da,hh,mi)는 스크립트 타임존(appsscript.json "timeZone") 기준.
 //   P1.5 전제 = "Asia/Seoul"(KST). 변경/취소 24h 판정·캘린더 일정이 이 전제에 의존.
 function parseDateTime(dateKey, time) {
@@ -1874,7 +1882,7 @@ function handleGetAvailability(body) {
   var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
   var _hRec = a.cust ? _parseJsonSafe(a.cust.get('동의기록')).가예약 : null;   // [임시고정 연동] 재선택 방향 제한용
   return { ok: true, avail: data.avail, full: data.full,
-    currentDate: a.consult ? (normalizeDateKey(a.consult.get('선택날짜')) || '') : '',
+    currentDate: a.consult ? _padYmd(a.consult.get('선택날짜')) : '',
     holdActive: !!(_hRec && (_hRec.status === '요청' || _hRec.status === '승인')),
     slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN,
     names: names, depositStr: formatWon(CONFIG.DEPOSIT),
