@@ -504,7 +504,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">
             <div style="font-weight:500;margin-bottom:5px">원하시는 예식 날짜·시간을 달력에서 바로 선택하실 수 있어요.</div>
-            <div style="display:flex;gap:7px"><span>·</span><span>스튜디오 일정상 <b>진행이 어려운 날짜·시간</b>은 선택이 닫혀 있어요.</span></div>
+            <div style="display:flex;gap:7px"><span>·</span><span>날짜를 고르시면 <b>그 날 선택 가능한 시간</b>이 표시돼요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>디렉터 확인 후 확정되며, 일정 사정에 따라 <b>승인이 어려울 수</b> 있어요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우 적용돼요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>확정 일정은 <b>대면상담 전</b> 마이페이지에서 안내드려요.</span></div>
@@ -513,6 +513,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <div id="holdDateWrap"></div>
           <label class="deposit-payer-label" for="holdSlot" style="text-align:left;margin-top:10px">예식 시간 <span>· 140분</span></label>
           <select id="holdSlot" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff"><option value="">선택해 주세요</option><option value="09:00">오전 09:00</option><option value="12:20">오후 12:20</option><option value="15:40">늦은 오후 15:40</option></select>
+          <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 카카오톡으로 문의해 주시면 일정 조율을 도와드릴게요.</div>
         </div>
       </div>
     </div>
@@ -867,8 +868,7 @@ renderCal();renderTime();updateSummary();
 //   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
 var _hdw=document.getElementById('holdDateWrap');
 if(_hdw){
-  var WT=null, _wtLoading=false, WSLOT_N=3;   // WT = {ymd:[마감 슬롯]} — 체크 시 1회 로드(실패하면 서버 검증이 최종 안전망)
-  function _wtFull(ymd){ return !!(WT && WT[ymd] && WT[ymd].length>=WSLOT_N); }
+  var WT=null, _wtLoading=false, WSLOT_N=3;   // WT = {ymd:[닫힌 슬롯]} — 체크 시 1회 로드(실패하면 서버 검증이 최종 안전망)
   function _syncHoldSlots(){
     var d=(document.getElementById('holdDate')||{}).value||'';
     var sel=document.getElementById('holdSlot'); if(!sel) return;
@@ -881,6 +881,8 @@ if(_hdw){
       op.textContent=op.getAttribute('data-label')+(t?' · 선택 불가':'');
     });
     if(sel.value && takenList.indexOf(sel.value)!==-1) sel.value='';
+    var note=document.getElementById('holdSlotNote');
+    if(note){ var allClosed = d && takenList.length>=WSLOT_N; note.style.display=allClosed?'block':'none'; }
   }
   function _loadWT(){
     if(WT||_wtLoading) return; _wtLoading=true;
@@ -890,7 +892,7 @@ if(_hdw){
       .catch(function(){ _wtLoading=false; });
   }
   _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
-  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',isDisabled:_wtFull,onPick:_syncHoldSlots});
+  initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 — 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
   var _chk=document.getElementById('holdChk');
   if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); }); if(_chk.checked) _loadWT(); }
 }
