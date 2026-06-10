@@ -2912,7 +2912,7 @@ function renderDining(box){
     var ptn=['모먼트에디트 추천(큐레이션)','직접 섭외할게요','상담 때 함께 정할게요'];
     var f = (on==='Y') ? '<div class="inv-fields">'
         + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원</div>'
-        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 40" value="'+escapeHtml(d.headcount||'')+'">'
+        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
         + '<div class="inv-side-l" style="margin:14px 0 4px">식사 형태</div>'
         + meal.map(function(x){return _trkOpt(x,d.mealType,'mealType',x);}).join('')
         + '<div class="inv-side-l" style="margin:14px 0 4px">파트너사(다이닝 업체)</div>'
