@@ -715,6 +715,218 @@ function buildRefundQuote(r) {
   return q;
 }
 
+// ============================ 02-9 · 예식일 변경 (계약서 v1-1 §8① 단일 구현) ============================
+// 시그니처 전용 — 웨딩스냅은 촬영일 구조가 달라 미지원(기존 스냅 분기 불변 · 카카오톡 안내).
+// 규칙(8조①): ① 무상취소 기간(예식 150일 전까지 · dd>=150) = 횟수 무관 무상
+//             ② 예식 60일 전까지(dd>=60) = 1회(used 0)에 한해 무상
+//             ③ D-60 이후 또는 2회째부터 = 총 계약금액의 10% 변경 수수료
+// 경조사 등 부득이한 사유 1회 면제(8조① 단서)는 증빙 검토가 필요해 셀프 플로우 밖(카카오톡) — 화면 안내만.
+// used = 동의기록.변경이력 길이(이미 '적용된' 변경 횟수). dd = 현 예식일까지 남은 일수(오늘 KST 기준).
+function _changeFeeQuote(r, toYmd) {
+  var dd = _dayDiff(_ymdOf(r.get('예식일')), _kstYmd(new Date()));
+  var rec = _parseJsonSafe(r.get('동의기록'));
+  var used = (rec.변경이력 && rec.변경이력.length) || 0;
+  if (dd != null && dd >= 150) return { fee: 0, basis: '무상취소 기간 · 횟수 무관 무상', used: used, dd: dd };
+  if (dd != null && dd >= 60 && used === 0) return { fee: 0, basis: '60일 전 1회 무상', used: used, dd: dd };
+  var fee = Math.round((Number(r.get('계약총액')) || 0) * 0.1);
+  return { fee: fee, basis: '변경 수수료 10%', used: used, dd: dd };
+}
+// 공통 가드 — 서명완료 + 예식 전(dd>=1) + 시그니처 + 진행 중. 실패 {ok:false,error} / 통과 {ok:true,dd}.
+function _changeGuard(cust) {
+  if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅 촬영일 변경은 카카오톡으로 문의해 주세요.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 계약이에요. 카카오톡으로 문의해 주세요.' };
+  if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후에 예식일을 변경할 수 있어요.' };
+  var dd = _dayDiff(_ymdOf(cust.get('예식일')), _kstYmd(new Date()));
+  if (dd == null) return { ok: false, error: '예식일 정보를 찾을 수 없어요. 카카오톡으로 문의해 주세요.' };
+  if (dd < 1) return { ok: false, error: '예식 당일·이후에는 변경할 수 없어요. 카카오톡으로 문의해 주세요.' };
+  return { ok: true, dd: dd };
+}
+// 입력 검증 — toDate(YYYY-MM-DD · 실재하는 날짜 · 오늘 이후)·toSlot(화이트리스트). 실패 {ok:false,error} / 통과 {ok:true,toDate,toSlot}.
+//   13월·99일 같은 형식만 맞는 값은 톱레벨 예식일(돈 계산 기준)에 들어가면 안 되므로 달력 실존까지 검증.
+function _changeInput(body) {
+  var d = String((body && body.toDate) || '').trim(), t = String((body && body.toSlot) || '').trim();
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (!m) return { ok: false, error: '변경할 예식 날짜를 선택해 주세요.' };
+  var dt = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  if (dt.getUTCFullYear() !== +m[1] || dt.getUTCMonth() !== +m[2] - 1 || dt.getUTCDate() !== +m[3]) {
+    return { ok: false, error: '변경할 예식 날짜를 선택해 주세요.' };
+  }
+  if (WEDDING_SLOT.SLOTS.indexOf(t) === -1) return { ok: false, error: '변경할 예식 시간을 선택해 주세요.' };
+  if (_ymdNum(d) < _ymdNum(_kstYmd(new Date()))) return { ok: false, error: '예식일은 오늘 이후로 선택해 주세요.' };
+  return { ok: true, toDate: d, toSlot: t };
+}
+// [02-9] 변경 견적(고객) — 날짜·슬롯 선택 시 수수료 미리 확인(쓰기 없음). 슬롯 점유 검증 포함(요청 전 차단).
+function handleQuoteWeddingChange(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var cust = s.row;
+  var g = _changeGuard(cust); if (!g.ok) return g;
+  var inp = _changeInput(body); if (!inp.ok) return inp;
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  var fromDate = _ymdOf(cust.get('예식일')), fromSlot = (rec.계약정보 && rec.계약정보.weddingTime) || '';
+  if (inp.toDate === fromDate && inp.toSlot === fromSlot) return { ok: false, error: '지금 예식 일정과 같아요. 다른 날짜·시간을 선택해 주세요.' };
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var code = String(cust.get('개인코드') || '').trim();
+  if (_weddingSlotTaken(sheet, colOf, inp.toDate, inp.toSlot, code)) {
+    return { ok: false, error: '그 시간은 이미 다른 예약으로 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
+  }
+  var q = _changeFeeQuote(cust, inp.toDate);
+  return { ok: true, fee: q.fee, basis: q.basis, used: q.used, dd: q.dd,
+    account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
+    holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '' };
+}
+// [02-9] 변경 요청(고객) — 동의기록.변경요청 기록(기존 요청 있으면 덮어쓰기=재요청) + 관리자 알림. 적용은 관리자 확인(adminConfirmWeddingChange).
+//   fee>0이면 payerName 필수(수수료 입금 대조용). 멱등: 같은 to로 미처리 요청이 이미 있으면 already.
+function handleRequestWeddingChange(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var inp = _changeInput(body); if (!inp.ok) return inp;
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — s.row 스냅샷을 쓰면 그 사이 기록된 다른 키 유실
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var g = _changeGuard(cust); if (!g.ok) return g;
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    var fromDate = _ymdOf(cust.get('예식일')), fromSlot = (rec.계약정보 && rec.계약정보.weddingTime) || '';
+    if (inp.toDate === fromDate && inp.toSlot === fromSlot) return { ok: false, error: '지금 예식 일정과 같아요. 다른 날짜·시간을 선택해 주세요.' };
+    // 멱등 — 같은 일정으로 이미 요청(미처리)돼 있으면 그대로 OK(이중 클릭·새로고침)
+    if (rec.변경요청 && rec.변경요청.to && rec.변경요청.to.date === inp.toDate && rec.변경요청.to.slot === inp.toSlot) {
+      return { ok: true, already: true };
+    }
+    if (_weddingSlotTaken(sheet, colOf, inp.toDate, inp.toSlot, code)) {
+      return { ok: false, error: '그 시간이 방금 마감됐어요. 다른 날짜·시간을 선택해 주세요.' };
+    }
+    var q = _changeFeeQuote(cust, inp.toDate);           // 수수료는 '요청 시점' 기준으로 고정 기록(확인 사이 구간 이동 분쟁 방지)
+    var payer = String((body && body.payerName) || '').trim();
+    if (q.fee > 0 && !payer) return { ok: false, error: '변경 수수료 입금자명을 입력해 주세요.' };
+    rec.변경요청 = { from: { date: fromDate, slot: fromSlot }, to: { date: inp.toDate, slot: inp.toSlot },
+      fee: q.fee, basis: q.basis, payer: (q.fee > 0 ? payer : ''), at: fmtKST(new Date()) };
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+    _recordHandler(code, '고객 예식일 변경 요청 · ' + fromDate + (fromSlot ? (' ' + fromSlot) : '') + ' → ' + inp.toDate + ' ' + inp.toSlot
+      + (q.fee > 0 ? (' · 수수료 ' + q.fee + '원(입금자 ' + payer + ')') : ' · 무상'));
+    notifyKakao('admin.changeRequest', code, { from: fromDate + ' ' + fromSlot, to: inp.toDate + ' ' + inp.toSlot, fee: q.fee, payer: payer });
+    return { ok: true, fee: q.fee, basis: q.basis };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [02-9] 변경 요청 철회(고객) — 동의기록.변경요청 삭제(기존 예식일 유지). 멱등.
+function handleCancelWeddingChange(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — 변경요청 외 키 보존
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!rec.변경요청) return { ok: true, already: true };
+    var _t = rec.변경요청.to || {};
+    delete rec.변경요청;
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
+    _recordHandler(code, '고객 예식일 변경 요청 철회 · ' + (_t.date || '') + ' ' + (_t.slot || ''));
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [02-9] 변경 확인(관리자 · admin.gs FNS 등록) — 슬롯 재검증 후 적용: 예식일(톱레벨)·계약정보 갱신 + 변경이력 push + 요청 삭제
+//   + 중도금·잔금 리마인드 플래그 비움(새 예식일 기준 D-149·D-9 재안내). fee>0이면 영수증기준일.변경수수료 기록
+//   (영수증 대상 메모용 — 발행 큐 연동은 다음 단계, 여기선 받은 날 기산 기록만).
+function adminConfirmWeddingChange(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약(서명완료) 상태가 아니에요. 남은 변경 요청은 거절로 정리해 주세요.' };   // 강제 되돌리기 등으로 계약이 풀린 행 보호 — 예식일(돈 기준) 오기록 방지
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    var req = rec.변경요청;
+    if (!req || !req.to || !req.to.date) return { ok: false, error: '확인할 변경 요청이 없습니다.' };
+    if (_weddingSlotTaken(sheet, colOf, req.to.date, req.to.slot, code)) {
+      return { ok: false, error: '그 예식 시간이 방금 다른 예약으로 마감됐어요. 슬롯 마감 · 고객과 재조율이 필요해요.' };
+    }
+    var now = fmtKST(new Date());
+    var fee = Math.round(Number(req.fee) || 0);
+    rec.계약정보 = rec.계약정보 || {};
+    rec.계약정보.weddingDate = req.to.date;              // 계약서 표시·슬롯 점유(_weddingOccupancy)의 단일 기준 갱신
+    rec.계약정보.weddingTime = req.to.slot;
+    rec.변경이력 = rec.변경이력 || [];
+    rec.변경이력.push({ from: req.from || null, to: req.to, fee: fee, at: now });   // used(8조① 1회 무상) 산정 근거
+    delete rec.변경요청;
+    if (fee > 0) {
+      rec.영수증기준일 = rec.영수증기준일 || {};
+      rec.영수증기준일.변경수수료 = now;                 // 받은 날 기준(의무발급 5일 기한 기산 메모) — 발행 큐 연동까지는 하지 않음
+    }
+    var updCols = {
+      '예식일': req.to.date,                             // 돈 계산(중도금 D-149·잔금 D-9)·위약 구간·슬롯 점유의 톱레벨 기준
+      '동의기록': JSON.stringify(rec),
+      '중도금리마인드': '',                              // 새 예식일 기준 리마인드 재안내(기발송 마킹 리셋)
+      '잔금리마인드': ''
+    };
+    // 제작 base 동기화 — 제작 단계에서 base가 이미 저장된 고객의 일시 변경 시,
+    //   buildProductionState(80)·_ensureProductionBase(85 발행 promote)가 옛 base.weddingDate/Time을
+    //   우선해 청첩장·식순·다이닝 도착시간이 옛 일시로 남는 것 방지(시간은 계약 슬롯→본예식 +1h 매핑).
+    var prod = _parseJsonSafe(cust.get('제작임시저장'));
+    if (prod && prod.base) {
+      prod.base.weddingDate = req.to.date;
+      var mapT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(req.to.slot || '').trim()];
+      if (mapT) prod.base.weddingTime = mapT;
+      updCols['제작임시저장'] = JSON.stringify(prod);
+    }
+    touchCustomer(sheet, colOf, cust.num, updCols);
+    _recordHandler(code, '예식일 변경 적용 · ' + ((req.from && req.from.date) || '') + ((req.from && req.from.slot) ? (' ' + req.from.slot) : '') + ' → ' + req.to.date + ' ' + (req.to.slot || '')
+      + (fee > 0 ? (' · 수수료 ' + fee + '원(입금자 ' + (req.payer || '') + ')') : ' · 무상'));
+    notifyKakao('cust.changeConfirmed', code, { date: req.to.date, slot: req.to.slot, fee: fee });
+    return { ok: true, date: req.to.date, slot: req.to.slot, fee: fee };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [02-9] 변경 거절(관리자 · admin.gs FNS 등록) — 요청 삭제(기존 예식일 유지) + 사유 이력 + 고객 안내. 멱등.
+function adminDeclineWeddingChange(code, reason) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  reason = String(reason || '').trim();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!rec.변경요청) return { ok: true, already: true };
+    var _to = rec.변경요청.to || {};
+    delete rec.변경요청;
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
+    _recordHandler(code, '예식일 변경 거절 · ' + (_to.date || '') + ' ' + (_to.slot || '') + (reason ? (' · 사유: ' + reason) : ''));
+    notifyKakao('cust.changeDeclined', code, { date: _to.date, slot: _to.slot, reason: reason });
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [02-9] 마이페이지 변경 카드 상태 — 계약(서명완료)·시그니처·진행 중에만. request=대기 중 요청(없으면 null).
+//   used/history = 적용된 변경 횟수(변경이력 길이). eligible = 예식 전(전일까지)이라 셀프 변경 버튼 노출 가능.
+function buildChangeState(r) {
+  if (!r) return null;
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 시그니처 전용(스냅 분기 불변)
+  if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
+  if (STAGE_EXCEPTIONS.indexOf(String(r.get('현재단계') || '').trim()) !== -1) return null;
+  var rec = _parseJsonSafe(r.get('동의기록'));
+  var used = (rec.변경이력 && rec.변경이력.length) || 0;
+  var req = rec.변경요청 || null;
+  var dd = _dayDiff(_ymdOf(r.get('예식일')), _kstYmd(new Date()));
+  return {
+    request: req ? { from: req.from || null, to: req.to || null, fee: Math.round(Number(req.fee) || 0),
+                     basis: String(req.basis || ''), payer: String(req.payer || ''), at: String(req.at || '') } : null,
+    used: used,
+    history: used,
+    eligible: (dd != null && dd >= 1)
+  };
+}
+
 // [02-4] 계약금 입금 신호(고객) → 입금자명 + 입금완료신호 + 입금상태=완료신호.
 //   가드: 계약 서명완료 이후. 자동 진행 X — 관리자 통장 대조 승인(adminConfirmPayment)이 트리거.
 function handlePaymentSignal(body) {

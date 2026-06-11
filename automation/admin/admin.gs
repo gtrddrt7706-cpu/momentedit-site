@@ -134,7 +134,8 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
-      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
+      adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
@@ -211,6 +212,15 @@ function _dueWhen(n, md) {
   var tag = (n == null || n < 0) ? '' : (n === 0 ? '오늘' : (n === 1 ? '내일' : (n === 2 ? '내일모레' : 'D-' + n)));
   if (!tag) return md ? ' · ' + md : '';
   return ' · ' + tag + (md ? ' (' + md + ')' : '');
+}
+
+// 예식일 변경 표시용 — '11/27(토)'(+슬롯 라벨 '오후'). 변경확인 큐 카드의 from→to 짧은 표기.
+function _chgWhenLabel(ymd, slot) {
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return String(ymd || '');
+  var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
+  var lab = ({ '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후' })[String(slot || '').trim()] || '';
+  return (+m[2]) + '/' + (+m[3]) + '(' + w + ')' + (lab ? (' ' + lab) : '');
 }
 
 // 임시고정 표시용 — '2026.6.11(목) 오후 12:20'
@@ -521,8 +531,10 @@ function adminHome() {
     }
     // 상담완료 처리(시그) — 예약 승인/확정됨 & 시착 & 시착동의완료 & 상담일 지남
     if (!isSnap && stage === '시착' && bookingLocked && 시착 === '동의완료' && consultDue) {
-      pushQ({ code: code, names: names, product: product, kind: '상담완료', sub: '시착 완료 · 상담완료 처리',
-        badge: null, _urgent: false, _stage: 2, _wait: createdYmd });
+      var _fitN = (_parseJsonSafe(cget(rv, '동의기록')).시착 || {}).벌수;   // 벌수 미기록이면 상담완료 게이트에 막힘 — 카드에서 먼저 보이게
+      pushQ({ code: code, names: names, product: product, kind: '상담완료',
+        sub: (_fitN != null) ? ('시착 ' + _fitN + '벌 기록됨 · 상담완료 처리') : '상담완료 처리 · 시착 벌수 먼저 기록',
+        badge: (_fitN != null) ? null : { level: 'yellow', text: '벌수 미기록' }, _urgent: false, _stage: 2, _wait: createdYmd });
     }
     // 계약서 발송 — 시그(상담완료&시착동의완료&고객 계약요청완료) / 스냅(촬영확정) — & 계약 미발송
     var hasReq = isSnap ? true : (!!_parseJsonSafe(cget(rv, '동의기록')).계약정보 || /^\d{4}-\d{2}-\d{2}$/.test(_ymdOf(cget(rv, '예식일'))));   // 고객이 계약정보(예식일·인적사항) 입력/요청했나
@@ -548,9 +560,22 @@ function adminHome() {
     // 입금 확인 — 입금상태=완료신호 (스냅: 계약 시 계약금 입금 신호. 시그: 계약 서명 시 예약금 충당으로 입금완료 자동 전이 → 여기 안 옴)
     if (입금 === '완료신호') {
       var sigDays = _dayDiff(today, _ymdOf(cget(rv, '입금완료신호')));
-      pushQ({ code: code, names: names, product: product, kind: '입금확인', sub: '입금 확인',
+      pushQ({ code: code, names: names, product: product, kind: '입금확인', sub: '입금 확인' + (String(cget(rv, '입금자명') || '').trim() ? (' · 입금자 ' + String(cget(rv, '입금자명') || '').trim()) : ''),
         badge: (sigDays != null && sigDays >= 1) ? { level: 'yellow', text: '입금 신호 ' + sigDays + '일째' } : null,
         _urgent: false, _stage: 4, _wait: createdYmd });
+    }
+    // 예식일 변경 확인 — 동의기록.변경요청(고객 셀프 요청 · 02-9 계약 8조①). 확인(적용)/거절하면 사라짐.
+    var _chgReq = _crRec.변경요청;
+    if (_chgReq && _chgReq.to && _chgReq.to.date && 계약 === '서명완료') {
+      var _chgReqYmd = _ymdOf(_chgReq.at) || createdYmd;
+      var _chgDays = _dayDiff(today, _chgReqYmd);
+      var _chgFee = Math.round(Number(_chgReq.fee) || 0);
+      pushQ({ code: code, names: names, product: product, kind: '변경확인',
+        sub: '예식일 변경 확인 · ' + _chgWhenLabel((_chgReq.from && _chgReq.from.date) || '', '') + '→' + _chgWhenLabel(_chgReq.to.date, _chgReq.to.slot)
+           + ' · ' + (_chgFee > 0 ? ('수수료 ' + _chgFee.toLocaleString() + '원' + (_chgReq.payer ? ('(입금자 ' + _chgReq.payer + ')') : '')) : '무상'),
+        chg: { fd: (_chgReq.from && _chgReq.from.date) || '', fs: (_chgReq.from && _chgReq.from.slot) || '', td: _chgReq.to.date, ts: _chgReq.to.slot || '', fee: _chgFee, payer: _chgReq.payer || '' },
+        badge: (_chgDays != null && _chgDays >= 2) ? { level: 'yellow', text: '요청 ' + _chgDays + '일째' } : { level: 'yellow', text: '확인 대기' },
+        _urgent: false, _stage: 4, _wait: _chgReqYmd });
     }
     // 기한 경과 미납(신호도 없음) — 계약서 11조 최고(7일) 운영 리마인드. 입금 신호가 오면 아래 '확인' 카드로 대체됨.
     (function(){
@@ -573,16 +598,19 @@ function adminHome() {
     })();
     // 중도금·잔금 입금 신호 — 묶음 입금(임박 계약·한 번에 이체)이면 확인도 1건으로
     var _midSig = String(cget(rv, '중도금상태') || '').trim() === '완료신호';
+    var _won = function (n) { return (n > 0) ? (' · ' + Math.round(n).toLocaleString() + '원') : ''; };   // 큐에서 통장 대조 완결용(금액·입금자명 직표시)
+    var _pyr = function (h) { var v = String(cget(rv, h) || '').trim(); return v ? (' · 입금자 ' + v) : ''; };
     if (_midSig && 잔금 === '완료신호') {
-      pushQ({ code: code, names: names, product: product, kind: '중도금잔금확인', sub: '중도금·잔금 입금 확인 (한 번에 입금)',
+      pushQ({ code: code, names: names, product: product, kind: '중도금잔금확인',
+        sub: '중도금·잔금 입금 확인 (한 번에 입금)' + _won(_crAmt ? (_crAmt['중도금'] + _crAmt['잔금']) : 0) + _pyr('중도금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     } else {
     if (_midSig) {
-      pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인',
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인' + _won(_crAmt ? _crAmt['중도금'] : 0) + _pyr('중도금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
     if (잔금 === '완료신호') {
-      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
+      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인' + _won(_crAmt ? _crAmt['잔금'] : 0) + _pyr('잔금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
     }
@@ -739,6 +767,8 @@ function adminDetail(code) {
   d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
   if (d.hold && d.hold.status === '승인' && d.hold.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(d.hold.expires)) d.hold.expired = true;   // 14일 만료(점유 자동해제됨) — UI 표기용
+  d.changeReq = _rec.변경요청 || null;   // [02-9] 예식일 변경 요청(고객 셀프) — 계약 카드 확인/거절용. null=요청 없음
+  d.changeUsed = (_rec.변경이력 && _rec.변경이력.length) || 0;   // 적용된 변경 횟수(8조① 1회 무상 산정 근거)
   d.refundDone = String(_rec.환불완료 || '');   // 취소 환불 송금 완료 시각(있으면 완료). 환불계좌는 d.consult.refund
   d.refundQuote = buildRefundQuote(cust);   // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey) — 결제 카드 한 줄. 종료 단계·스냅·입금 전 null
   if (!d.refundQuote && STAGE_EXCEPTIONS.indexOf(stage) !== -1) {   // 종료(취소·노쇼·미계약) 고객 — 환불 송금 근거를 상세에서도(취소일 기준 고정, 환불송금 큐와 동일 계산)

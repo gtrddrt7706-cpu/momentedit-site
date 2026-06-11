@@ -26,6 +26,7 @@ var NOTIFY_EVENTS = {
   'admin.midSignal':      { to: 'admin', need: true,  desc: '중도금 입금신호 — 확인 필요' },
   'admin.balanceSignal':  { to: 'admin', need: true,  desc: '잔금 입금신호 — 확인 필요' },
   'admin.holdRequest':    { to: 'admin', need: true,  desc: '예식일 임시고정 요청 — 승인/거절 필요' },
+  'admin.changeRequest':  { to: 'admin', need: true,  desc: '예식일 변경 요청 — 슬롯 확인 후 적용/거절 필요' },
   // ── 관리자: 권장(업무 착수 신호) ──
   'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
@@ -43,6 +44,8 @@ var NOTIFY_EVENTS = {
   'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
   'cust.cashReceiptIssued':{ to: 'customer', need: false, desc: '현금영수증 발행됨' },
   'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
+  'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨' },
+  'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(D-149) — 입금' },
   'admin.dailyBrief':     { to: 'admin',    need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
