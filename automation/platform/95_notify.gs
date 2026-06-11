@@ -7,6 +7,8 @@
  *  - 고객(customer): 알림톡(승인된 템플릿 코드가 있을 때) → 실패 시 SMS 자동 대체.
  *                    템플릿 코드가 아직 없으면 같은 내용을 SMS로 발송(승인 전에도 운영 가능).
  *  - 관리자(admin):  SMS/LMS (템플릿 승인 불필요 · ADMIN_PHONE으로).
+ *                    [최소 발송 · 2026-06-11] 행동 게이트(need:true · 관리자가 처리해야 고객 진행이 풀리는 일)만 발송.
+ *                    안내성(need:false)은 기본 생략 — 아침 브리핑 메일·관리자 페이지에서 확인.
  *  - 베스트에포트: 발송 실패가 본 흐름(계약·입금·결과물)을 절대 막지 않는다(내부 try/catch).
  *
  * ★ 설정은 전부 Script Properties (코드 수정·재배포 없이 변경 가능) ★
@@ -16,6 +18,7 @@
  *   SOLAPI_SENDER     사전 등록한 발신번호(숫자만, 예: 01012345678) — SMS 발신용
  *   SOLAPI_PF_ID      카카오 채널 연동 후 발급되는 pfId — 알림톡 발신프로필
  *   ADMIN_PHONE       관리자(디렉터) 휴대폰(숫자만)
+ *   ADMIN_NOTIFY_INFO 'true'면 안내성(need:false) 관리자 알림도 발송. 기본(미설정)은 행동 게이트만.
  *   KAKAO_TEMPLATES   JSON 한 줄. 승인된 템플릿만 채우면 그 이벤트부터 알림톡 전환.
  *                     예: {"cust.consultConfirmed":"KA01TP아이디...","cust.contractArrived":"KA01TP..."}
  *
@@ -31,6 +34,11 @@ function _notifyEnabled() {
   try { return PropertiesService.getScriptProperties().getProperty('NOTIFY_ENABLED') === 'true'; }
   catch (e) { return false; }
 }
+// [관리자 알림 최소화] 안내성(need:false) 관리자 알림도 폰으로 받을지 — 기본 false(행동 게이트만)
+function _adminInfoOn() {
+  try { return PropertiesService.getScriptProperties().getProperty('ADMIN_NOTIFY_INFO') === 'true'; }
+  catch (e) { return false; }
+}
 
 // 시점별 이벤트 — to: 수신자 / need: 행동게이트(true)인지 안내(false) / desc: 용도
 var NOTIFY_EVENTS = {
@@ -43,7 +51,7 @@ var NOTIFY_EVENTS = {
   'admin.balanceSignal':  { to: 'admin', need: true,  desc: '잔금 입금신호 — 확인 필요' },
   'admin.holdRequest':    { to: 'admin', need: true,  desc: '예식일 임시고정 요청 — 승인/거절 필요' },
   'admin.changeRequest':  { to: 'admin', need: true,  desc: '예식일 변경 요청 — 슬롯 확인 후 적용/거절 필요' },
-  // ── 관리자: 권장(업무 착수 신호) ──
+  // ── 관리자: 권장(업무 착수 신호) — need:false는 기본 폰 발송 안 함(아침 브리핑 메일·관리자 페이지로 확인 · ADMIN_NOTIFY_INFO='true'로 복구) ──
   'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
   'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
@@ -121,6 +129,10 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
 
   if (to === 'admin') {
+    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 폰으로 — 관리자가 페이지에서 처리해야
+    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 메일 브리핑·관리자 페이지로 충분.
+    var meta = NOTIFY_EVENTS[event] || {};
+    if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
     if (!cfg.adminPhone) { Logger.log('[notify] ADMIN_PHONE 미설정 — 발송 생략'); return; }
     _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
     return;
@@ -366,6 +378,7 @@ function notifySetupCheck() {
   Logger.log('SOLAPI_SENDER = ' + (cfg.sender || '❌ 없음(발신번호 사전등록 필요)'));
   Logger.log('SOLAPI_PF_ID = ' + (cfg.pfId || '(없음 — 알림톡 미사용, 전부 SMS로 발송)'));
   Logger.log('ADMIN_PHONE = ' + (cfg.adminPhone || '❌ 없음(관리자 알림 불가)'));
+  Logger.log('ADMIN_NOTIFY_INFO = ' + (_adminInfoOn() ? 'true(안내성 알림도 발송)' : '(기본 — 행동 게이트만 발송)'));
   var keys = Object.keys(cfg.templates);
   Logger.log('KAKAO_TEMPLATES = ' + keys.length + '건 등록' + (keys.length ? (' (' + keys.join(', ') + ')') : ' — 전부 SMS로 발송됨'));
 }

@@ -1917,6 +1917,10 @@ function replayHeroAnimation(){
       <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
       <span class="me-fab-cap">상담</span>
     </button>
+    <button class="me-fab" id="meShareFab" aria-label="페이지 공유하기">
+      <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v10.5M12 3.5 8.5 7M12 3.5 15.5 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11H5.4A1.4 1.4 0 0 0 4 12.4v6.2A1.4 1.4 0 0 0 5.4 20h13.2a1.4 1.4 0 0 0 1.4-1.4v-6.2A1.4 1.4 0 0 0 18.6 11H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="me-fab-cap">공유</span>
+    </button>
   </div>
 
   <div class="me-adv-backdrop" id="meAdvBackdrop"></div>
@@ -2202,5 +2206,23 @@ function replayHeroAnimation(){
 })();
 </script>
 <!-- ══ /AI 상담사 위젯 ══ -->
+<script>
+/* 공유 — 모바일은 네이티브 공유 시트, PC는 링크 복사(캡션에 '복사됨' 피드백). 메인홈·예약 공용 동작. */
+(function(){
+  window.meShareSite = function(capEl){
+    var data = { title:'모먼트에디트', text:'양가 직계가족 25명까지 함께하는 프라이빗 마이크로웨딩 · 모먼트에디트', url:'https://momentedit.kr' };
+    function copied(){
+      if(!capEl) { try{ alert('링크가 복사됐어요 · momentedit.kr'); }catch(e){} return; }
+      var prev=capEl.textContent; capEl.textContent='복사됨';
+      setTimeout(function(){ capEl.textContent=prev; }, 1600);
+    }
+    if(navigator.share){ navigator.share(data).catch(function(){}); return; }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.url).then(copied).catch(function(){ try{ alert('momentedit.kr'); }catch(e){} }); return; }
+    try{ var t=document.createElement('textarea'); t.value=data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); copied(); }catch(e){ try{ alert('momentedit.kr'); }catch(_){ } }
+  };
+  var sf=document.getElementById('meShareFab');
+  if(sf) sf.addEventListener('click', function(){ meShareSite(sf.querySelector('.me-fab-cap')); });
+})();
+</script>
 </body>
 </html>
