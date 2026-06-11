@@ -406,12 +406,12 @@ function adminHome() {
             badge: _bdgArc, _urgent: _bdgArc.level === 'red', _stage: 8, _wait: createdYmd });
         }
       }
-      // 취소 고객의 기발행 현금영수증 — 환불하면 발행 취소(위약금 공제분은 공제 후 금액으로 재발행) 필요. 발행 취소 처리하면 사라짐.
-      if (stage === '취소') {
+      // 취소·노쇼·미계약 고객의 기발행 현금영수증 — 환불·공제가 생기면 발행 취소(공제 후 금액으로 재발행) 필요. 발행 취소 처리하면 사라짐.
+      if (STAGE_EXCEPTIONS.indexOf(stage) !== -1) {
         var _cxIss = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
-        var _cxKeys = Object.keys(_cxIss);
+        var _cxKeys = Object.keys(_cxIss).map(function (k) { return k === '중도금잔금' ? '중도금·잔금' : k; });
         if (_cxKeys.length) {
-          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '취소 건 영수증 정리(발행 취소 · 공제 후 재발행) · ' + _cxKeys.join('·'),
+          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: stage + ' 건 영수증 정리(발행 취소 · 공제 후 재발행) · ' + _cxKeys.join('·'),
             badge: { level: 'yellow', text: '환불 연동' }, _urgent: false, _stage: 9, _wait: createdYmd });
         }
       }
