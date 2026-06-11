@@ -42,10 +42,18 @@ check('C3 주말 요청 전부 마감 → 대안도 주말', _t.decide(ex({ date
 const c3 = { '10-9': '09:00', '10-16': '09:00', '10-23': '09:00' };
 check('D1 확정 3건 후 새 날짜 → 한도', _t.decide(ex({ date: '2027-12-25' }), {}, T, ctx(c3, true), '예약', L1), '정해져 있어요');
 check('D2 확정 3건 후 같은 날 재질문 → dedup(한도 아님)', _t.decide(ex({ date: '2027-10-09' }), {}, T, ctx(c3, true), '예약', L1), '이미');
-check('D3 같은 날 다른 타임 → 추가 확정 거부', _t.decide(ex({ date: '2027-10-09', slot: '12:20' }), {}, T, ctx({ '10-9': '09:00' }, true), '예약', L1), '디렉터가 함께 조율');
+check('D3 같은 날 다른 타임 → 추가 확정 거부', _t.decide(ex({ date: '2027-10-09', slot: '12:20' }), {}, T, ctx({ '10-9': '09:00' }, true), '예약', L1), '새로 확인해 주지 마세요');
 check('D4 같은 날 같은 타임 재확인 → 짧게 재확인', _t.decide(ex({ date: '2027-10-09', slot: '09:00' }), {}, T, ctx({ '10-9': '09:00' }, true), '예약', L1), '그대로');
 check('D5 CTA 후 새 날짜 → CTA 반복 금지', _t.decide(ex({ date: '2027-11-13', slot: '12:20' }), {}, T, ctx({ '10-9': '09:00' }, true), '예약', L1), '반복하지 말고');
 check('D6 CTA 후 희소성도 금지', _t.decide(ex({ date: '2027-11-13', slot: '12:20' }), {}, T, ctx({ '10-9': '09:00' }, true), '예약', L1), '희소성 멘트 금지');
+
+// ── D2. 수락(accept) — 날짜 재계산 금지·대행 약속 금지 ──
+const ctxLast = ctx({ '10-9': '15:40' }, true); ctxLast.last = { ko: '10월 9일', label: '늦은 오후 3시 40분' };
+check('D7 수락 → 기억한 일정 그대로 복창', _t.decide(ex({ intent: 'accept' }), {}, T, ctxLast, '예약', L1), '10월 9일 늦은 오후 3시 40분');
+check('D8 수락 → 대행 금지 명시', _t.decide(ex({ intent: 'accept' }), {}, T, ctxLast, '예약', L1), '신청을 처리할 수 없습니다');
+check('D9 수락(스케줄) → 임시 고정 입력란 안내', _t.decide(ex({ intent: 'accept' }), {}, T, ctxLast, '스케줄', L1s), '직접 선택해 신청');
+const ctxNone = ctx({}, false); ctxNone.last = null;
+check('D10 확정 이력 없는 수락 → 되묻기', _t.decide(ex({ intent: 'accept' }), {}, T, ctxNone, '예약', L1), '확인하세요');
 
 // ── E. 시기 검색 ──
 check('E1 시기+주말(L1 예약) → 후보 + 시간 되묻기', _t.decide(ex({ periodFrom: '2027-10-01', periodTo: '2027-10-31', weekendOnly: true }), {}, T, ctx(), '예약', L1), '후보 날짜로 제안');
