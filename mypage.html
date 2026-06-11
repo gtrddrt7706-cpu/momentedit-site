@@ -3128,6 +3128,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; }   // 재진입 시 지난 AI 추천 잔상 제거(칩 필터는 유지)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   renderTrkFlow($('mp_production'));
