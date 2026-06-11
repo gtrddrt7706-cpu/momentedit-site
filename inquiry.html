@@ -1496,5 +1496,21 @@ document.querySelectorAll('.stepper-item').forEach(item => {
     </div>
   </div>
 </div>
+<!-- ══ AI 상담 위젯 · 예약 페이지 (자유질문 + 예약 맥락 빠른질문 + 신비주의 스케줄 확인) ══ -->
+<script>
+window.ME_ADV_PAGE = {
+  page: '예약',
+  greeting: '안녕하세요, 모먼트에디트 상담 도우미예요. 상담 예약과 예식 준비, 궁금하신 점을 무엇이든 물어보세요.',
+  schedule: true,
+  chips: [
+    { label: '원하는 예식 날짜가 가능한지 확인하고 싶어요', sched: true },
+    { label: '상담 예약은 어떻게 진행되나요?' },
+    { label: '예약금은 얼마인가요? 환불되나요?' },
+    { label: '본계약까지 어떤 단계로 진행되나요?' }
+  ]
+};
+</script>
+<script src="/assets/advisor-kb.js"></script>
+<script src="/assets/advisor-widget.js"></script>
 </body>
 </html>
