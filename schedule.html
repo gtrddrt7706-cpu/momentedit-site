@@ -521,6 +521,20 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
           <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 안전하게 잡아드려요. 비용은 없어요.</span></div>
           <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>아직 미정이어도 괜찮아요. 대면 상담 후 <b style="font-weight:500;color:var(--sub)">본계약 요청 단계</b>에서 천천히 조율하실 수 있어요.</span></div>
         </div>
+        <!-- 97 · AI 스케줄 도우미 — 신비주의 가용성 확인(전체 캘린더 비공개, 단일 슬롯 안내). 임시 고정 입력 전, 항상 노출 -->
+        <div id="schedAi" style="background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:10px;padding:14px 15px;margin:13px 0 4px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--seal);flex:0 0 auto"></span>
+            <span style="font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent)">AI 스케줄 도우미</span>
+            <span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.1em;color:var(--gold);text-transform:uppercase">Date Check</span>
+          </div>
+          <div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all;margin-bottom:10px">예식일을 고정하시기 전에, 생각하고 계신 날짜가 예약 가능한지 먼저 확인해 보세요. 날짜를 알려주시면 바로 확인해 드려요.</div>
+          <div id="schedAiMsgs" style="display:none;max-height:240px;overflow-y:auto;overscroll-behavior:contain;margin-bottom:10px"></div>
+          <form id="schedAiForm" style="display:flex;gap:7px;align-items:center">
+            <input id="schedAiInput" type="text" placeholder="예: 내년 10월 둘째 주 토요일 가능해요?" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:9px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
+            <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
+          </form>
+        </div>
         <div id="holdRuleNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:10px 0 0 25px;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
           <div style="display:flex;gap:7px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요.</span></div>
@@ -535,20 +549,6 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우 적용돼요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>비용은 없고 확정도 아니에요. 예식일 확정은 <b>본계약 서명</b>으로 이루어져요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>날짜 변경·고정 취소는 <b>마이페이지</b>에서 언제든 하실 수 있어요.</span></div>
-          </div>
-          <!-- 97 · AI 스케줄 도우미 — 신비주의 가용성 확인(전체 캘린더 비공개, 단일 슬롯 안내) -->
-          <div id="schedAi" style="background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:10px;padding:13px 14px;margin-bottom:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <span style="width:7px;height:7px;border-radius:50%;background:var(--seal);flex:0 0 auto"></span>
-              <span style="font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent)">AI 스케줄 도우미</span>
-              <span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.1em;color:var(--gold);text-transform:uppercase">Date Check</span>
-            </div>
-            <div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all;margin-bottom:10px">생각하고 계신 예식 날짜를 알려주시면 예약이 가능한지 바로 확인해 드려요. 확인하신 날짜를 아래에 입력해 주세요.</div>
-            <div id="schedAiMsgs" style="display:none;max-height:240px;overflow-y:auto;overscroll-behavior:contain;margin-bottom:10px"></div>
-            <form id="schedAiForm" style="display:flex;gap:7px;align-items:center">
-              <input id="schedAiInput" type="text" placeholder="예: 내년 10월 둘째 주 토요일 가능해요?" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:9px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
-              <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
-            </form>
           </div>
           <label class="deposit-payer-label" for="holdDate" style="text-align:left">예식 날짜</label>
           <div id="holdDateWrap"></div>
