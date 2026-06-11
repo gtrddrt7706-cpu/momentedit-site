@@ -34,7 +34,7 @@ function grade(name, replies, isSched) {
   if (isSched) {
     replies.forEach((r, i) => {
       const slots = (r.match(SLOT_RE) || []);
-      if (slots.length >= 2 && /가능/.test(r)) issues.push((i + 1) + '번째 답변에 시간대 ' + slots.length + '개 노출(나열 의심)');
+      if (slots.length >= 2 && /확인돼|확인됩니다/.test(r)) issues.push((i + 1) + '번째 답변에 시간대 ' + slots.length + '개 노출(나열 의심)');
     });
   }
   report.push({ name: name, result: issues.length ? 'CHECK' : 'PASS', issues: issues.join(' · ') || '-' });
