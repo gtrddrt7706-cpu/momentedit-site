@@ -941,7 +941,7 @@ function prodTracksHtml(prod){
   if(!prod) return '<div class="cnote">🍽 다이닝 · 📜 식순 — 정보 없음</div>';
   var t=prod.tracks||{}, dd=prod.diningDraft||null, rd=prod.ritualDraft||null, h='';
   h+='<div class="cnote">🍽 다이닝 <b>'+esc(_tstat(t.dining))+'</b>';
-  if(dd){ if(dd.dining_on==='N'){ h+=' · 진행 안 함'; } else { var p=[]; if(dd.headcount)p.push('인원 '+esc(dd.headcount)); if(dd.mealType)p.push(esc(dd.mealType)); if(dd.partner)p.push(esc(dd.partner)); if(dd.entrustAgree==='Y')p.push('위탁동의✓'); if(p.length)h+=' · '+p.join(' · '); } }
+  if(dd){ if(dd.dining_on==='N'){ h+=' · 진행 안 함'; } else { var p=[]; var _vn=dd.venue||dd.venuePick||''; if(_vn)p.push(esc(_vn)); if(dd.headcount)p.push('인원 '+esc(dd.headcount)); if(dd.mealType)p.push(esc(dd.mealType)); if(dd.partner&&dd.partner!==_vn&&dd.partner!=='모먼트에디트 연계')p.push(esc(dd.partner)); if(dd.entrustAgree==='Y')p.push('위탁동의✓'); if(p.length)h+=' · '+p.join(' · '); } }
   h+='</div>';
   h+='<div class="cnote">📜 식순 <b>'+esc(_tstat(t.ritual))+'</b>';
   if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }

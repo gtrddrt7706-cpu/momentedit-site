@@ -3202,12 +3202,13 @@ function _dnPass(r,fl){
   if(fl.food && (r.f||[]).indexOf(fl.food)<0) return false;
   if(fl.group==='room' && r.g!=='room') return false;
   if(fl.group==='seats' && !(r.g==='room'||r.g==='seats')) return false;
-  if(fl.elderly===true && !r.eld) return false;   // 자연어 AI가 '어르신·좌식' 감지 시
+  if((fl.elderly===true||fl.elderly==='true') && !r.eld) return false;   // 어르신·좌식 — AI(boolean)·칩('true') 둘 다 허용
   return true;
 }
 // 자연어 AI(선택 층)는 v2에서 이 필터 객체(fl)를 생성해 같은 엔진에 주입 — 환각 없이 동일 결과.
 function dineFilterUI(d, wt){
   var fl=d._filters||{};
+  if(fl.elderly===true) fl.elderly='true';   // AI가 넣은 boolean을 칩 토글과 같은 문자열로 통일 — 칩에서 켜고 끌 수 있게
   function pills(label,ax,opts){
     return '<div class="dn-faxis"><span class="dn-flabel">'+escapeHtml(label)+'</span>'
       + opts.map(function(o){ var on=(fl[ax]||'')===o[0];
@@ -3218,7 +3219,8 @@ function dineFilterUI(d, wt){
     +pills('가격','price',[['low','저'],['mid','중'],['high','고']])
     +pills('거리','dist',[['10','차10분'],['15','차15분']])
     +pills('음식','food',[['한정식','한정식'],['한우·갈비','한우·갈비'],['곰탕·국밥','곰탕·국밥'],['족발·보쌈','족발·보쌈'],['뷔페','뷔페'],['카페','카페']])
-    +pills('단체','group',[['room','단독룸'],['seats','단체석']]);
+    +pills('단체','group',[['room','단독룸'],['seats','단체석']])
+    +pills('동행','elderly',[['true','어르신·좌식 우선']]);
   var arr=_DN_ARR[wt||'']||'';
   var list=DINE_DB.filter(function(r){return _dnPass(r,fl);});
   list.sort(function(a,b){ if(a.eld!==b.eld) return a.eld?-1:1; if(a.v!==b.v) return a.v?-1:1; return a.d-b.d; });
@@ -3288,7 +3290,7 @@ function renderDining(box){
     } else {
       var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
       var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(d.headcount||'').trim();
-      var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=Number(mm[2])+'월 '+Number(mm[3])+'일';
+      var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지
       var body2;
       if(R){
         var telD=(R.tel||'').replace(/[^0-9]/g,'');

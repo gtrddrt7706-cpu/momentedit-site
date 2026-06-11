@@ -42,7 +42,7 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'extra-retouch', label: '추가 보정은 얼마예요?', answer: '기본 보정 10장이 포함되며, 그 이상이 필요하시면 마이페이지에서 추가 보정을 신청하실 수 있습니다. 웨딩스냅 상품의 추가 보정은 컷당 20,000원입니다.' },
             { id: 'extra-fitting', label: '추가 시착 비용은요?', answer: '드레스·턱시도 시착은 기본 3벌이 제공됩니다. 4벌째부터는 1벌당 70,000원입니다.' },
             { id: 'extra-hairmakeup', label: '헤어 · 메이크업은 포함인가요?', answer: '헤어·메이크업은 외부에서 별도로 진행하시며, 완료 후 방문을 권장드립니다. 스튜디오에서는 간단한 수정만 도와드립니다.' },
-            { id: 'extra-dining', label: '식사 비용은 따로인가요?', answer: '네, 식사 비용은 선택하신 다이닝 파트너사에 별도로 지불하시는 항목입니다. 모먼트에디트는 파트너 제안과 예약 조율을 지원합니다.' },
+            { id: 'extra-dining', label: '식사 비용은 따로인가요?', answer: '네, 식사 비용은 선택하신 다이닝 파트너사에 별도로 지불하시는 항목입니다. 모먼트에디트는 파트너 제안과 예약 안내를 도와드립니다.' },
             { id: 'extra-host', label: '진행자(사회) 섭외 비용은요?', answer: '성우 나레이션과 식순 대본 가이드는 기본 포함이라 별도 진행자 없이도 충분히 진행됩니다. 전담 진행자 섭외를 원하시면 선택 옵션으로 가능하며, 비용은 상담에서 안내드립니다.' },
           ],
         },
@@ -72,6 +72,9 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'time-extend', label: '시간을 연장할 수 있나요?', answer: '하루 세 팀 운영 구조상 당일 시간 연장은 어렵습니다. 필요한 구성은 상담에서 미리 설계해 드립니다.', escalate: true },
         { id: 'time-arrive', label: '당일 몇 시에 도착하나요?', answer: '예약하신 시퀀스 시작 시간에 맞추어 도착하시면 됩니다. 정확한 시작 시간과 동선은 상담 확정 후 안내해 드립니다.', escalate: true },
         { id: 'time-money', label: '축의금은 어떻게 받나요?', answer: '모바일 청첩장의 "마음 전하실 곳"에 계좌를 직접 입력해 정중히 안내할 수 있습니다. 현장 접수 등 그 외 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'time-group', label: '단체사진(포토타임)은 찍나요?', answer: '네. Group Record 30분에 양가 모든 세대가 한자리에 모이는 단체 기록을 담습니다. 가족 구성에 맞춰 자연스럽게 진행해 드립니다.' },
+        { id: 'time-pyebaek', label: '폐백 · 함 같은 전통 절차도 되나요?', answer: '폐백 등 전통 절차의 진행 여부와 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'time-late', label: '예식이 지연되면 어떻게 되나요?', answer: '하루 세 팀 운영 구조라 정시 진행이 중요합니다. 당일 운영과 지연 관련 안내는 상담에서 도와드립니다.', escalate: true },
       ],
     },
     {
@@ -116,7 +119,7 @@ window.MOMENT_ADVISOR_KB = {
     {
       id: 'dining', label: '식사 · 다이닝',
       children: [
-        { id: 'dining-how', label: '예식 후 식사는 어떻게 하나요?', answer: '스튜디오 인근의 검증된 다이닝 파트너를 제안해 드리고, 장소가 결정되면 모먼트에디트의 이름으로 예약 조율까지 지원합니다.' },
+        { id: 'dining-how', label: '예식 후 식사는 어떻게 하나요?', answer: '스튜디오 인근의 검증된 다이닝 파트너를 제안해 드려요. 마이페이지에서 마음에 드는 곳을 고르시면 연락처와 예약 안내 문구까지 정리해 드리고, 예약이 어려우신 경우 디렉터가 도와드립니다.' },
         { id: 'dining-cost', label: '식사 비용은 누가 내나요?', answer: '식사 비용은 선택하신 파트너사에 별도로 지불하시는 항목입니다. 드시는 인원만큼만 내시면 되고, 보증인원 개념이 없습니다.' },
         { id: 'dining-menu', label: '어떤 메뉴 · 가격대인가요?', answer: '검증된 다이닝 파트너를 제안해 드립니다. 구체적인 메뉴와 가격대는 상담에서 함께 정리해 드립니다.', escalate: true },
         { id: 'dining-optional', label: '식사를 꼭 해야 하나요?', answer: '다이닝은 선택 항목입니다. 원하지 않으시면 진행하지 않으셔도 되고, 가족끼리 따로 식사 자리를 마련하셔도 됩니다.' },
@@ -147,6 +150,8 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'photo-keep', label: '데이터는 얼마나 보관해 주나요?', answer: '결과물은 인도 완료 후 6개월간 보관 후 삭제됩니다. 기간 내에 꼭 백업해 주세요.' },
             { id: 'photo-sns', label: 'SNS에 올려도 되나요?', answer: '두 분의 기록이니 자유롭게 간직하시면 됩니다. 스튜디오의 포트폴리오 활용·게시 가이드 등 세부 정책은 상담에서 안내드립니다.', escalate: true },
             { id: 'photo-portfolio', label: '촬영 결과물 미리 볼 수 있나요?', answer: '인스타그램 @moment_edit_official 과 홈페이지의 아카이브·청첩장 갤러리에서 톤과 무드를 미리 보실 수 있습니다.' },
+            { id: 'photo-format', label: '원본 파일 형식(JPG · RAW)은요?', answer: '원본 데이터 전체를 제공해 드립니다. 파일 형식 등 세부 사양은 상담에서 안내드립니다.', escalate: true },
+            { id: 'photo-reshoot', label: '재촬영이 되나요?', answer: '재촬영 관련 안내는 상담에서 도와드립니다.', escalate: true },
           ],
         },
         {
@@ -157,6 +162,8 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'video-length', label: '편집본 길이는 어느 정도예요?', answer: '편집본 길이 등 세부 사양은 상담에서 안내드립니다.', escalate: true },
           ],
         },
+        { id: 'result-album', label: '앨범 · 액자 · USB도 제작되나요?', answer: '실물 앨범·액자·USB 등 제작 옵션은 상담에서 안내드립니다.', escalate: true },
+        { id: 'result-other', label: '본식 외 촬영(데이트 · 커플 스냅)도 있나요?', answer: '본식 외 촬영 상품 관련은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -168,6 +175,8 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'invite-paper', label: '실물(종이) 청첩장은요?', answer: '실물 청첩장 관련 안내는 상담에서 도와드립니다.', escalate: true },
         { id: 'invite-edit', label: '수정은 몇 번까지 되나요?', answer: '마이페이지에서 직접 편집하는 방식이라 완성 전까지 자유롭게 다듬으실 수 있습니다. 마감 일정 등 세부 사항은 상담에서 안내드립니다.', escalate: true },
         { id: 'invite-lang', label: '영문 · 일문 청첩장도 되나요?', answer: '영문·일문 등 다국어 구성 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'invite-rsvp', label: '참석 여부(RSVP)를 받을 수 있나요?', answer: '참석 안내는 모바일 청첩장과 디지털 참석으로 도와드립니다. 참석 여부 집계 기능 등 세부는 상담에서 안내드립니다.', escalate: true },
+        { id: 'invite-send', label: '청첩장 발송도 대행해 주나요?', answer: '모바일 청첩장 링크를 직접 공유하시는 방식입니다. 발송 관련 추가 지원은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -183,6 +192,9 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'booking-duration', label: '방문 상담은 얼마나 걸리나요?', answer: '상담에서는 공간 안내와 일정·구성 협의, 원하시면 드레스 시착(기본 3벌)까지 진행됩니다. 소요 시간은 상담 예약 시 안내드립니다.', escalate: true },
         { id: 'booking-noconsult', label: '상담 없이 바로 예약할 수 있나요?', answer: '사전 문의서와 방문 상담을 거쳐 진행됩니다. 공간과 구성을 직접 보신 뒤 결정하시는 편이 안전하고, 일정 확인은 문의서 제출만으로도 먼저 도와드립니다.' },
         { id: 'booking-parents', label: '부모님과 함께 상담할 수 있나요?', answer: '네, 부모님 동반 상담을 권장드립니다. 어른 세대를 위한 안내도 함께 도와드립니다.' },
+        { id: 'booking-online', label: '비대면(온라인) 상담도 되나요?', answer: '비대면 상담 가능 여부는 상담 신청 시 안내드립니다. 공간과 구성을 직접 보시는 방문 상담을 기본으로 권장드립니다.', escalate: true },
+        { id: 'booking-visit', label: '계약 전에 공간만 둘러볼 수 있나요?', answer: '공간 견학·사전 방문 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'booking-hold', label: '날짜만 먼저 잡아둘 수 있나요?', answer: '희망 일자의 가능 여부는 사전 문의서 제출만으로 먼저 확인해 드립니다. 가예약 방식은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -203,13 +215,15 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'special-foreign', label: '외국인도 예약할 수 있나요?', answer: '국적과 무관하게 환영합니다. 디지털 참석으로 양국 가족이 함께하실 수 있습니다. 상담 가능 언어 등 세부는 상담에서 안내드립니다.', escalate: true },
         { id: 'special-remarriage', label: '재혼인데 괜찮을까요?', answer: '물론입니다. 어떤 시작이든 두 분의 자리를 정성껏 만들어 드립니다. 편하게 상담에서 말씀 나눠주세요.' },
         { id: 'special-pet', label: '반려동물 동반이 되나요?', answer: '반려동물 동반 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'special-religion', label: '성당 · 교회 등 종교 예식도 되나요?', answer: '종교 의식 수용 여부와 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'special-outdoor', label: '야외(스튜디오 밖) 촬영도 되나요?', answer: '야외 촬영 관련 안내는 상담에서 도와드립니다.', escalate: true },
       ],
     },
     {
       id: 'compare', label: '비교 · 고민',
       children: [
         { id: 'compare-hall', label: '일반 웨딩홀과 뭐가 다른가요?', answer: '항목마다 따로 청구하는 대신 하나의 통합 가격에 본질적인 항목만 담은 단일 패키지입니다. 140분 시그니처 시퀀스, 두 분만을 위한 프라이빗 공간, 디지털 참석, 다이닝 큐레이션이 함께합니다.' },
-        { id: 'compare-small', label: '다른 스몰웨딩 업체와는요?', answer: '단일 가격(주말 280만·평일 210만, VAT 포함), 하루 세 팀 운영, 140분 전용 시퀀스, 디지털 참석 시스템, 그리고 스냅·영상·청첩장·다이닝 조율까지 한 흐름으로 잇는 통합 구성이 모먼트에디트의 방식입니다.' },
+        { id: 'compare-small', label: '다른 스몰웨딩 업체와는요?', answer: '단일 가격(주말 280만·평일 210만, VAT 포함), 하루 세 팀 운영, 140분 전용 시퀀스, 디지털 참석 시스템, 그리고 스냅·영상·청첩장·다이닝 안내까지 한 흐름으로 잇는 통합 구성이 모먼트에디트의 방식입니다.' },
         { id: 'compare-self', label: '셀프 스몰웨딩이랑 고민돼요', answer: '셀프로 준비하면 공간·스냅·영상·청첩장·식사를 각각 알아보고 조율해야 합니다. 모먼트에디트는 그 과정을 하나의 흐름으로 통합해, 두 분은 그날에만 집중하실 수 있게 합니다.' },
         { id: 'compare-parents', label: '부모님은 큰 결혼식을 원하실 것 같아요', answer: '양가 어르신을 가까이서 정중하게 모시기 위해 인원을 절제한 구성입니다. 직접 오지 못하시는 분은 디지털 참석으로 함께하시며, 어른 세대를 위한 안내도 제공합니다. 부모님 동반 상담을 권장드립니다.' },
         { id: 'compare-weekday', label: '평일에 하면 하객분들께 실례 아닐까요?', answer: '평일도 주말과 동일한 시퀀스·퀄리티로 진행됩니다. 가까운 분들을 정성껏 모시는 자리라는 점에서, 평일의 여유가 오히려 장점이 되기도 합니다.' },
