@@ -1147,6 +1147,7 @@ function renderMyPage(d){
 
   // 개인코드
   var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
+  ensureLedFab(d);   // 우측 고정 '내 내역' 바로가기 — 영수증·서류 상시 접근(내역 있을 때만 표시)
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
@@ -1291,6 +1292,25 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
 }
 
 // [02-6] 내 내역 패널 — 결제·현금영수증·서류를 단계와 무관하게 한곳에. ledger=null이면 숨김(계약/시착/입금 전).
+// 우측 고정 '내 내역' 바로가기 — 영수증·서류·결제를 단계와 무관하게 한 번에(누르면 펼침+스크롤).
+//   카카오 채널 버튼(우측 중앙) 위에 자리. 내역이 없거나 종료 고객이면 숨김.
+function ensureLedFab(d){
+  var f=document.getElementById('mp_ledFab');
+  if(!(d&&d.ledger)||d.isException){ if(f) f.style.display='none'; return; }
+  if(!f){
+    f=document.createElement('button'); f.type='button'; f.id='mp_ledFab'; f.setAttribute('aria-label','내 내역 열기');
+    f.style.cssText='position:fixed;right:14px;top:calc(50% - 92px);z-index:90;width:50px;height:50px;border-radius:50%;background:rgba(250,250,248,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(176,141,87,.45);box-shadow:0 4px 14px rgba(28,27,25,.13);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0';
+    f.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3.5h9.5L19 7v13.5H6z" stroke="#7a6a4f" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 11h6M9 14.5h6" stroke="#7a6a4f" stroke-width="1.4" stroke-linecap="round"/></svg><span style="font-size:9px;letter-spacing:.08em;color:#7a6a4f;font-family:var(--serif-ko)">내역</span>';
+    f.addEventListener('click',function(){
+      var box=$('mp_ledger'); if(!box||box.style.display==='none') return;
+      var det=box.querySelector('details.acc'); if(det) det.open=true;
+      window.scrollTo({top:Math.max(0,box.offsetTop-10),behavior:'smooth'});
+    });
+    document.body.appendChild(f);
+  }
+  f.style.display='flex';
+}
+
 function renderLedger(l){
   var box=$('mp_ledger'); if(!box) return;
   if(!l){ box.innerHTML=''; box.style.display='none'; return; }
@@ -1305,7 +1325,7 @@ function renderLedger(l){
   // 소득공제 번호 등록 안내 — 등록됨(끝 4자리) / 입금했는데 미등록(자진발급 경고) + 상시 등록/변경 버튼(②)
   var crNote = l.cashTail
     ? '<div class="led-note">소득공제 번호 등록됨 <span class="led-mute">· 끝 '+escapeHtml(l.cashTail)+'</span></div>'
-    : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급되어 소득공제는 어려워요</span></div>' : '');
+    : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급으로 처리돼요. 번호를 등록하면 이후 발급분은 소득공제로 받고, 이미 발급된 건은 홈택스 "자진발급분 사용자 등록"으로 공제 신청할 수 있어요</span></div>' : '');
   var crEdit = '<button type="button" class="led-editbtn" id="mp_crEditBtn">'+(l.cashTail?'소득공제 번호 변경':'소득공제 번호 등록')+'</button>';
   // 서류 — 계약서는 외부 링크, 시착 동의서는 동의 내용 모달(③)
   var docRows=(l.documents&&l.documents.length)
