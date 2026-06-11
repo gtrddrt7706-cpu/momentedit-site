@@ -1877,8 +1877,6 @@ function replayHeroAnimation(){
 .me-adv-send:hover{opacity:.88;transform:translateY(-1px)}
 .me-adv-send:disabled{opacity:.4;cursor:default;transform:none}
 .me-adv-send svg{width:17px;height:17px}
-.me-adv-esclink{display:block;width:100%;text-align:center;background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:11px;color:var(--light);padding:8px 0 2px;letter-spacing:0.01em;transition:color .25s}
-.me-adv-esclink:hover{color:var(--seal)}
 .me-adv-note{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--light);text-align:center;margin-top:5px;opacity:.8}
 </style>
 
@@ -1916,7 +1914,6 @@ function replayHeroAnimation(){
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
         </button>
       </form>
-      <button class="me-adv-esclink" id="meAdvEscLink" type="button">원하는 답이 없으세요? 상담사에게 연결</button>
     </footer>
   </section>
 </div>
@@ -1933,8 +1930,7 @@ function replayHeroAnimation(){
       body=document.getElementById('meAdvBody'),
       form=document.getElementById('meAdvForm'),
       input=document.getElementById('meAdvInput'),
-      sendBtn=document.getElementById('meAdvSend'),
-      escLink=document.getElementById('meAdvEscLink');
+      sendBtn=document.getElementById('meAdvSend');
   var apiHistory=[];      // 자유질문 대화만 누적 (role/content)
   var started=false, sending=false, escShown=false;
   var nodes = KB.tree || (KB.chips ? [{ id:'all', label:'질문', children:KB.chips }] : []);
@@ -2047,7 +2043,6 @@ function replayHeroAnimation(){
 
   fab.addEventListener('click',open);
   closeBtn.addEventListener('click',close);
-  escLink.addEventListener('click',showEscalation);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&panel.classList.contains('open')) close(); });
 
   // 입력창 자동 높이
