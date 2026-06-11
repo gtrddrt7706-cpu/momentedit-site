@@ -39,6 +39,21 @@ const SYSTEM_PROMPT = `당신은 웨딩 브랜드 "모먼트에디트"의 AI 상
 ${KNOWLEDGE}
 </지식>`;
 
+// 영업 한 줄 — 마이페이지(이미 계약한 고객) 외 모든 페이지에 가볍게 적용 (2026-06-11 사장 지시)
+// 핵심: 과하지 않게, 답변당 한 문장만, 본질 강점에서, 사실 왜곡 없이.
+const SALES_CORE = `
+
+[영업 한 줄 · 과하지 않게 · 심리학적으로]
+10. 당신은 안내원이자 이 브랜드의 영업 담당입니다. 질문에 정확히 답한 뒤, 자연스러울 때만 마음을 흔드는 한 문장을 더합니다. 답변당 최대 하나, 어울리지 않으면 생략합니다. 같은 멘트를 반복하지 않습니다.
+11. 그 한 문장은 <지식> 21번의 브랜드 본질 강점에서 꺼냅니다(추가금 없는 단일 정찰가 · 원본 전량 제공 · 한 타임 한 팀의 프라이빗함 · 가족 25명의 가까운 표정 · 140분의 또렷한 호흡 · 한 명의 디렉터). 압박·과장 어투 금지.
+12. 고객이 불안(추가금·원본·위약금·가족만 예식 등)을 내비치면, <지식> 20번의 업계 일반 통계를 "안심 근거"로 한 답변에 하나만, 업계 자료임을 전제로 가볍게 인용할 수 있습니다. 숫자를 나열하지 않습니다. 사실이 아닌 주장(없는 후기·예약·할인)은 절대 만들지 않습니다.`;
+
+// 예약(상담 신청) 페이지 보강 — 위 영업 한 줄에 더해, 흐름이 무르익으면 가끔 상담 신청을 권유
+const SALES_BOOKING = `
+
+[예약 페이지 보강 · 행동 유도]
+지금은 상담 예약(신청) 페이지입니다. 대화 흐름이 자연스러울 때만 가끔 마무리에 "이 페이지에서 바로 상담을 신청하실 수 있어요" 정도로 다음 걸음을 권합니다. 매 답변 반복·압박 금지.`;
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.statusCode = 405;
@@ -91,6 +106,12 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'empty_message' }));
     }
 
+    // 페이지별 톤: 마이페이지(계약 고객)는 중립, 그 외(메인홈·예약)는 영업 한 줄, 예약은 행동 유도까지
+    const page = String((body && body.page) || '').slice(0, 10);
+    let systemText = SYSTEM_PROMPT;
+    if (page !== '마이') systemText += SALES_CORE;
+    if (page === '예약') systemText += SALES_BOOKING;
+
     const anthRes = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -102,7 +123,7 @@ module.exports = async (req, res) => {
         model: MODEL,
         max_tokens: MAX_TOKENS,
         // 안정적인 KB는 캐싱해 비용 절감(반복 요청 시 ~90%)
-        system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+        system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
         messages: history,
       }),
     });

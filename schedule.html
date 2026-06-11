@@ -518,8 +518,22 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         </label>
         <div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin:7px 0 0 25px;word-break:keep-all">
           <div style="display:flex;gap:7px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>예식 일정이 정해졌다면 날짜·시간을 미리 잡아둘 수 있어요.</span></div>
-          <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 안전하게 잡아드려요. 비용은 없어요.</span></div>
+          <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 잡아드려요. 그동안 같은 시간은 다른 예약을 받지 않고, 비용도 없어요.</span></div>
           <div style="display:flex;gap:7px;margin-top:3px"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>아직 미정이어도 괜찮아요. 대면 상담 후 <b style="font-weight:500;color:var(--sub)">본계약 요청 단계</b>에서 천천히 조율하실 수 있어요.</span></div>
+        </div>
+        <!-- 97 · AI 스케줄 도우미 — 신비주의 가용성 확인(전체 캘린더 비공개, 단일 슬롯 안내). 임시 고정 입력 전, 항상 노출 -->
+        <div id="schedAi" style="background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:10px;padding:14px 15px;margin:13px 0 4px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--seal);flex:0 0 auto"></span>
+            <span style="font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent)">AI 스케줄 도우미</span>
+            <span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.1em;color:var(--gold);text-transform:uppercase">Date Check</span>
+          </div>
+          <div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all;margin-bottom:10px">예식일을 고정하시기 전에, 생각하고 계신 날짜가 진행 가능한 일정인지 먼저 확인해 보세요. 날짜를 알려주시면 바로 확인해 드려요.</div>
+          <div id="schedAiMsgs" style="display:none;max-height:240px;overflow-y:auto;overscroll-behavior:contain;margin-bottom:10px"></div>
+          <form id="schedAiForm" style="display:flex;gap:7px;align-items:center">
+            <input id="schedAiInput" type="text" placeholder="예: 내년 10월 둘째 주 토요일 가능해요?" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:9px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
+            <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
+          </form>
         </div>
         <div id="holdRuleNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:10px 0 0 25px;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
@@ -529,11 +543,9 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">
             <div style="font-weight:500;margin-bottom:5px">원하시는 예식 날짜·시간을 자유롭게 선택해 주세요.</div>
-            <div style="display:flex;gap:7px"><span>·</span><span>요청하신 일정은 <b>디렉터가 직접 확인</b>한 뒤 승인 여부를 결정해요.</span></div>
-            <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>승인되면 그 날짜·시간을 <b>14일 동안</b> 잡아드리고, 그동안 같은 시간은 다른 예약을 받지 않아요.</span></div>
-            <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>선택하신 일시의 가능 여부는 <b>대면상담 전 마이페이지</b>로 안내드려요.</span></div>
+            <div style="display:flex;gap:7px"><span>·</span><span><b>디렉터가 직접 확인</b>한 뒤, 승인 여부를 <b>대면상담 전 마이페이지</b>로 안내드려요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우 적용돼요.</span></div>
-            <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>비용은 없고 확정도 아니에요. 예식일 확정은 <b>본계약 서명</b>으로 이루어져요.</span></div>
+            <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>확정은 아니에요. 예식일 확정은 <b>본계약 서명</b>으로 이루어져요.</span></div>
             <div style="display:flex;gap:7px;margin-top:3px"><span>·</span><span>날짜 변경·고정 취소는 <b>마이페이지</b>에서 언제든 하실 수 있어요.</span></div>
           </div>
           <label class="deposit-payer-label" for="holdDate" style="text-align:left">예식 날짜</label>
@@ -982,6 +994,41 @@ if(_hdw){
   initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 · 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
   var _chk=document.getElementById('holdChk');
   if(_chk){ _chk.addEventListener('change', function(){ if(this.checked) _loadWT(); _syncHoldRule(); }); if(_chk.checked) _loadWT(); }
+
+  // ── 97 · AI 스케줄 도우미 — 신비주의 가용성 확인. WT(점유 맵)를 서버 AI에 내부 전달, 단일 슬롯만 안내 ──
+  (function(){
+    var f=document.getElementById('schedAiForm'), inp=document.getElementById('schedAiInput'),
+        msgs=document.getElementById('schedAiMsgs'), btn=document.getElementById('schedAiSend');
+    if(!f||!inp||!msgs) return;
+    var hist=[], busy=false;
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+    function bub(t,who){
+      msgs.style.display='block';
+      var d=document.createElement('div');
+      d.style.cssText='max-width:92%;font-family:var(--serif-ko);font-size:12.5px;line-height:1.7;word-break:keep-all;white-space:pre-wrap;border-radius:11px;padding:9px 12px;margin:0 0 7px;'+(who==='me'?'margin-left:auto;background:var(--seal);color:#fff':'background:var(--bg2,#F5F3EF);color:var(--accent)');
+      d.textContent=t; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d;
+    }
+    function todayYmd(){ var n=new Date(); return n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2); }
+    f.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(busy) return;
+      var q=(inp.value||'').trim(); if(!q) return;
+      inp.value=''; bub(q,'me'); hist.push({role:'user',content:q});
+      busy=true; btn.disabled=true; btn.textContent='확인 중';
+      _loadWT();   // 점유 맵 미로드 시 로드 시작(아래 fetch와 병행, 없으면 빈 맵으로도 동작)
+      var typing=bub('일정을 확인하고 있어요…','bot');
+      fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd(),page:'스케줄'})})
+        .then(function(r){return r.json();})
+        .then(function(j){
+          typing.remove();
+          var t=(j&&j.reply)||'지금은 확인이 어려워요. 잠시 후 다시 시도해 주세요.';
+          bub(t,'bot'); hist.push({role:'assistant',content:t});
+        })
+        .catch(function(){ typing.remove(); bub('지금은 확인이 어려워요. 잠시 후 다시 시도해 주세요.','bot'); })
+        .then(function(){ busy=false; btn.disabled=false; btn.textContent='확인'; });
+    });
+  })();
 }
 }
 // ── 부트스트랩: 세션 토큰으로 getAvailability 호출 → SERVER 구성 → boot() ──

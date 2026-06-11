@@ -7,6 +7,8 @@
  *  - 고객(customer): 알림톡(승인된 템플릿 코드가 있을 때) → 실패 시 SMS 자동 대체.
  *                    템플릿 코드가 아직 없으면 같은 내용을 SMS로 발송(승인 전에도 운영 가능).
  *  - 관리자(admin):  SMS/LMS (템플릿 승인 불필요 · ADMIN_PHONE으로).
+ *                    [최소 발송 · 2026-06-11] 행동 게이트(need:true · 관리자가 처리해야 고객 진행이 풀리는 일)만 발송.
+ *                    안내성(need:false)은 기본 생략 — 아침 브리핑 메일·관리자 페이지에서 확인.
  *  - 베스트에포트: 발송 실패가 본 흐름(계약·입금·결과물)을 절대 막지 않는다(내부 try/catch).
  *
  * ★ 설정은 전부 Script Properties (코드 수정·재배포 없이 변경 가능) ★
@@ -16,6 +18,7 @@
  *   SOLAPI_SENDER     사전 등록한 발신번호(숫자만, 예: 01012345678) — SMS 발신용
  *   SOLAPI_PF_ID      카카오 채널 연동 후 발급되는 pfId — 알림톡 발신프로필
  *   ADMIN_PHONE       관리자(디렉터) 휴대폰(숫자만)
+ *   ADMIN_NOTIFY_INFO 'true'면 안내성(need:false) 관리자 알림도 발송. 기본(미설정)은 행동 게이트만.
  *   KAKAO_TEMPLATES   JSON 한 줄. 승인된 템플릿만 채우면 그 이벤트부터 알림톡 전환.
  *                     예: {"cust.consultConfirmed":"KA01TP아이디...","cust.contractArrived":"KA01TP..."}
  *
@@ -31,6 +34,11 @@ function _notifyEnabled() {
   try { return PropertiesService.getScriptProperties().getProperty('NOTIFY_ENABLED') === 'true'; }
   catch (e) { return false; }
 }
+// [관리자 알림 최소화] 안내성(need:false) 관리자 알림도 폰으로 받을지 — 기본 false(행동 게이트만)
+function _adminInfoOn() {
+  try { return PropertiesService.getScriptProperties().getProperty('ADMIN_NOTIFY_INFO') === 'true'; }
+  catch (e) { return false; }
+}
 
 // 시점별 이벤트 — to: 수신자 / need: 행동게이트(true)인지 안내(false) / desc: 용도
 var NOTIFY_EVENTS = {
@@ -43,13 +51,14 @@ var NOTIFY_EVENTS = {
   'admin.balanceSignal':  { to: 'admin', need: true,  desc: '잔금 입금신호 — 확인 필요' },
   'admin.holdRequest':    { to: 'admin', need: true,  desc: '예식일 임시고정 요청 — 승인/거절 필요' },
   'admin.changeRequest':  { to: 'admin', need: true,  desc: '예식일 변경 요청 — 슬롯 확인 후 적용/거절 필요' },
-  // ── 관리자: 권장(업무 착수 신호) ──
+  // ── 관리자: 권장(업무 착수 신호) — need:false는 기본 폰 발송 안 함(아침 브리핑 메일·관리자 페이지로 확인 · ADMIN_NOTIFY_INFO='true'로 복구) ──
   'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
   'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
   'admin.diningConsult':  { to: 'admin', need: false, desc: "다이닝 '상담 때 함께 정할게요' 선택 — 상담 의제 준비" },
+  'admin.refundAcct':     { to: 'admin', need: true,  desc: '환불 계좌 입력됨 — 송금 처리 필요' },
   'admin.dailyBrief':     { to: 'admin', need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   // ── 고객: 행동 필요 ──
   'cust.consultConfirmed':{ to: 'customer', need: false, desc: '상담 확정' },
@@ -113,16 +122,24 @@ function _nfProps() {
 /**
  * 실제 발송 — admin=SMS / customer=알림톡(템플릿 있으면)→SMS 대체.
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
+ * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
-function _kakaoSend(to, event, code, extra) {
+function _kakaoSend(to, event, code, extra, opts) {
   var cfg = _nfProps();
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
 
   if (to === 'admin') {
+    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 폰으로 — 관리자가 페이지에서 처리해야
+    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 메일 브리핑·관리자 페이지로 충분.
+    var meta = NOTIFY_EVENTS[event] || {};
+    if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
     if (!cfg.adminPhone) { Logger.log('[notify] ADMIN_PHONE 미설정 — 발송 생략'); return; }
     _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
     return;
   }
+
+  // [야간 보류] 고객 알림은 21시~익일 8시엔 보류 큐로 적재 → 아침 8시 트리거가 발송(정보성이라도 새벽 카톡 방지). 관리자 알림은 즉시.
+  if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return; }
 
   // customer — 개인코드로 연락처·이름 조회
   var cust = null;
@@ -173,13 +190,73 @@ function _solapiSend(cfg, message, ctx) {
   }
 }
 
-// 고객 알림 실패 → 처리이력 기록(베스트에포트 · 본 흐름 절대 불간섭)
+// 고객 알림 실패 → 처리이력 기록 + 일별 실패 카운터(아침 브리핑 집계용). 베스트에포트 · 본 흐름 절대 불간섭.
 function _notifyFailMark(ctx, why) {
   try {
     if (ctx && ctx.code && typeof _recordHandler === 'function') {
       _recordHandler(ctx.code, '[알림] ' + (ctx.event || '') + ' 발송 실패 · ' + String(why || '').slice(0, 80));
     }
   } catch (e) {}
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var k = 'NOTIFY_FAIL_' + _kstYmd(new Date());
+    p.setProperty(k, String((Number(p.getProperty(k)) || 0) + 1));
+  } catch (e2) {}
+}
+
+// 어제 알림 실패 건수(아침 브리핑용) — 읽는 김에 7일 지난 카운터 키 정리
+function notifyFailYesterday() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var yd = _shiftYmd(_kstYmd(new Date()), -1);
+    var n = Number(p.getProperty('NOTIFY_FAIL_' + yd)) || 0;
+    var all = p.getProperties();
+    for (var k in all) {
+      if (k.indexOf('NOTIFY_FAIL_') === 0) {
+        var d = k.slice('NOTIFY_FAIL_'.length);
+        if (_shiftYmd(d, 7) < _kstYmd(new Date())) p.deleteProperty(k);
+      }
+    }
+    return n;
+  } catch (e) { return 0; }
+}
+
+// ============================ 야간 보류 ============================
+// 21:00~익일 07:59(KST) 사이의 고객 알림은 보류 큐(Script Property JSON)에 쌓고, 아침 8시 트리거가 발송.
+function _nfIsNight() {
+  var h = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
+  return h >= 21 || h < 8;
+}
+function _nfHoldPush(event, code, extra) {
+  var lock = null;
+  try { lock = LockService.getScriptLock(); lock.waitLock(5000); } catch (e) { lock = null; }
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var arr = [];
+    try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e) { arr = []; }
+    if (arr.length >= 200) { Logger.log('[notify] 보류 큐 초과 — 폐기: ' + event); return; }
+    arr.push({ e: event, c: String(code || ''), x: extra || null, at: fmtKST(new Date()) });
+    p.setProperty('NOTIFY_HOLD', JSON.stringify(arr));
+    Logger.log('[notify] 야간 보류 적재(아침 8시 발송): ' + event + ' · ' + code);
+  } catch (e2) {
+    Logger.log('[notify] 보류 적재 실패: ' + (e2 && e2.message));
+  } finally { try { if (lock) lock.releaseLock(); } catch (e3) {} }
+}
+// [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
+function flushHeldNotifies() {
+  var lock = null, arr = [];
+  try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
+  try {
+    var p = PropertiesService.getScriptProperties();
+    try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e) { arr = []; }
+    p.deleteProperty('NOTIFY_HOLD');
+  } finally { try { if (lock) lock.releaseLock(); } catch (e2) {} }
+  if (!arr.length) { Logger.log('flushHeldNotifies: 보류 0건'); return; }
+  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — ' + arr.length + '건 폐기(로그만)'); return; }
+  arr.forEach(function (it) {
+    try { _kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }); } catch (e) {}
+  });
+  Logger.log('flushHeldNotifies: ' + arr.length + '건 발송 시도 완료');
 }
 
 // ============================ 문구 빌더 ============================
@@ -284,7 +361,8 @@ function _nfAdminText(event, code, x) {
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
     case 'admin.diningConsult':  return tag + ' 다이닝: 상담 때 함께 정하기로 함' + c + ' / 상담 의제로 준비';
-    case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건';
+    case 'admin.refundAcct':     return tag + ' 환불 계좌 입력 ' + (x.names || '') + c + (x.acct ? (' (' + x.acct + ')') : '') + ' / 송금 처리';
+    case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건' + (Number(x.fail) > 0 ? (' · 알림실패 ' + x.fail + '건') : '');
     default:                     return tag + ' 알림 ' + event + c;
   }
 }
@@ -300,6 +378,7 @@ function notifySetupCheck() {
   Logger.log('SOLAPI_SENDER = ' + (cfg.sender || '❌ 없음(발신번호 사전등록 필요)'));
   Logger.log('SOLAPI_PF_ID = ' + (cfg.pfId || '(없음 — 알림톡 미사용, 전부 SMS로 발송)'));
   Logger.log('ADMIN_PHONE = ' + (cfg.adminPhone || '❌ 없음(관리자 알림 불가)'));
+  Logger.log('ADMIN_NOTIFY_INFO = ' + (_adminInfoOn() ? 'true(안내성 알림도 발송)' : '(기본 — 행동 게이트만 발송)'));
   var keys = Object.keys(cfg.templates);
   Logger.log('KAKAO_TEMPLATES = ' + keys.length + '건 등록' + (keys.length ? (' (' + keys.join(', ') + ')') : ' — 전부 SMS로 발송됨'));
 }
@@ -312,9 +391,9 @@ function notifyTestAdminSms() {
   _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: '[모먼트에디트] 알림 연동 테스트입니다. 이 문자가 보이면 SMS 연동 성공!' });
 }
 
-// 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장)
+// 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장 · 야간 보류 무시하고 즉시)
 function notifyTestCustomerByCode(code) {
-  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' });
+  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }

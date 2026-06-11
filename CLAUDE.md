@@ -26,3 +26,22 @@
 ## 문구 규칙
 
 - 고객에게 노출되는 모든 문구(화면·메일·플레이스홀더·메타)에 전각 줄표(—)를 쓰지 않는다. 연결은 '·', 또는 문장을 나눈다. (2026-06-11 사용자 지시)
+
+## GAS 함수 안내 규칙 (2026-06-11 사용자 지시)
+
+사용자에게 GAS 함수 실행을 안내할 때는 **반드시 "어느 파일에 들어있는지"를 함께** 적는다.
+(GAS 편집기는 왼쪽에서 그 파일을 열어야 상단 드롭다운에 해당 파일의 함수가 보이기 때문)
+형식 예: "`95_notify` 파일을 열고 → `notifySetupCheck` 실행".
+
+### 실행 함수 위치표 (새 함수를 만들면 여기에 추가)
+
+| 함수 | 파일 | 용도 |
+|---|---|---|
+| `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) |
+| `notifyTestAdminSms` | 95_notify | 관리자 폰 테스트 문자 1건(실발송) |
+| `notifyTestCustomerByCode('코드')` | 95_notify | 고객 알림 테스트(실발송·야간보류 무시) |
+| `flushHeldNotifies` | 95_notify | 야간 보류 알림 즉시 발송(평소엔 8시 트리거 자동) |
+| `setupAllTriggers` | 70_journey | 자동 트리거 일괄 등록(재배포 후·트리거 변경 시 1회) |
+| `weeklyReceiptAudit` | admin | 영수증 미발행 점검(월요일 트리거 자동·수동 점검 가능) |
+| `purgeAdvisorLog` | consultation-booking | AI 상담사 질문 로그 90일 정리(주간 트리거 자동) |
+| `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |

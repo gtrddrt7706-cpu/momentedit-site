@@ -293,11 +293,13 @@ function sendMorningBrief() {
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
   var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  🔴 ' + it.names + ' — ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });
+  var _nFail = (typeof notifyFailYesterday === 'function') ? notifyFailYesterday() : 0;   // 어제 고객 알림 발송 실패(잔액·번호 오류 등) — 95_notify 카운터
   var body = '📅 오늘 상담 ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
     + '⚡ 처리할 일 ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
     + (urgentLines.length ? (urgentLines.join('\n') + '\n') : '')
+    + (_nFail > 0 ? ('\n📵 어제 알림 발송 실패 ' + _nFail + '건 — 솔라피 잔액·고객 연락처 확인\n') : '')
     + '\n관리자: https://momentedit.kr/admin.html';
-  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length });
+  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length, fail: _nFail });
   if (_briefMailOk()) {
     try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 — 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
   }
