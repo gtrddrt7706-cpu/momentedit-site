@@ -2690,8 +2690,11 @@ function productionDashHtml(t, inv, dd){
       + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
       + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
       + _edit + '</span>';
-  } else if(_dDone && dd && dd.dining_on==='N'){
-    dSub='🍽 다이닝 없이 진행 <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
+  } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
+    // 완료했지만 구체 식당 미선택(상담 때 정하기·직접 섭외) — 완료 표시는 유지
+    dSub='🍽 다이닝 · <b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b> <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
+  } else if(_dDone && dd && (dd.dining_on==='N' || dd.dining_on==='Y')){
+    dSub='🍽 '+(dd.dining_on==='N'?'다이닝 없이 진행':'다이닝 입력 완료')+' <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
   } else {
     dSub='🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>';
   }
