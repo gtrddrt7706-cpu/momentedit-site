@@ -27,14 +27,15 @@ check('A3 날짜 없는 check → 날짜 묻기', _t.decide(ex({}), {}, T, ctx()
 check('A4 과거 날짜', _t.decide(ex({ date: '2026-01-01' }), {}, T, ctx(), '예약', L1), '지났거나');
 check('A5 오늘 날짜', _t.decide(ex({ date: '2026-06-11' }), {}, T, ctx(), '예약', L1), '지났거나');
 
-// ── B. 시간 되묻기·확정 ──
-check('B1 날짜만(L1 예약) → 시간 되묻기', _t.decide(ex({ date: '2027-10-09' }), {}, T, ctx(), '예약', L1), '어느 시간대로');
-check('B2 날짜만(스케줄) → 바로 확정', _t.decide(ex({ date: '2027-10-09' }), {}, T, ctx(), '스케줄', L1s), '진행 가능한 일정으로 확인됨');
+// ── B. 시간 되묻기·확정 (니즈 먼저: 날짜만 말하면 항상 희망 시간대부터 질문) ──
+check('B1 날짜만(예약) → 시간대 먼저 질문', _t.decide(ex({ date: '2027-10-09' }), {}, T, ctx(), '예약', L1), '어느 시간대를 생각하고');
+check('B2 날짜만(스케줄) → 시간대 먼저 질문(오전 자동선택 금지)', _t.decide(ex({ date: '2027-10-09' }), {}, T, ctx(), '스케줄', L1s), '어느 시간대를 생각하고');
 check('B3 날짜+슬롯 → 확정 + 짧은 CTA', _t.decide(ex({ date: '2027-10-09', slot: '15:40' }), {}, T, ctx(), '예약', L1), '상담 전에 이 일정을 확정');
+check('B4 날짜+아무때나 → 묻지 않고 한 타임 확정', _t.decide(ex({ date: '2027-10-09', anySlot: true }), {}, T, ctx(), '스케줄', L1s), '진행 가능한 일정으로 확인됨');
 
 // ── C. 마감·대안 ──
 const tk = { '2027-10-09': ['09:00', '12:20', '15:40'], '2027-10-10': ['12:20'] };
-check('C1 전부 마감 → 대안 1건', _t.decide(ex({ date: '2027-10-09' }), tk, T, ctx(), '예약', L1), '대안으로');
+check('C1 전부 마감(아무때나) → 대안 1건', _t.decide(ex({ date: '2027-10-09', anySlot: true }), tk, T, ctx(), '예약', L1), '대안으로');
 check('C2 지정 슬롯만 마감 → 사실 + 같은 날 다른 타임', _t.decide(ex({ date: '2027-10-10', slot: '12:20' }), tk, T, ctx(), '예약', L1), '이미 확정된 일정이 있습니다');
 check('C3 주말 요청 전부 마감 → 대안도 주말', _t.decide(ex({ date: '2027-10-09', weekendOnly: true }), tk, T, ctx(), '예약', L1), function (s) { return /토요일|일요일/.test(s); });
 
@@ -56,7 +57,7 @@ const ctxNone = ctx({}, false); ctxNone.last = null;
 check('D10 확정 이력 없는 수락 → 되묻기', _t.decide(ex({ intent: 'accept' }), {}, T, ctxNone, '예약', L1), '확인하세요');
 
 // ── E. 시기 검색 ──
-check('E1 시기+주말(L1 예약) → 후보 + 시간 되묻기', _t.decide(ex({ periodFrom: '2027-10-01', periodTo: '2027-10-31', weekendOnly: true }), {}, T, ctx(), '예약', L1), '후보 날짜로 제안');
+check('E1 시기+주말 → 후보 곁들여 시간대 먼저 질문', _t.decide(ex({ periodFrom: '2027-10-01', periodTo: '2027-10-31', weekendOnly: true }), {}, T, ctx(), '예약', L1), '어느 시간대를 생각하고');
 check('E2 시기+슬롯 → 바로 확정', _t.decide(ex({ periodFrom: '2027-10-01', periodTo: '2027-10-31', weekendOnly: true, slot: '15:40' }), {}, T, ctx(), '예약', L1), '진행 가능한 일정으로 확인됨');
 check('E3 시기 전부 마감 → 없음 안내', _t.decide(ex({ periodFrom: '2027-10-08', periodTo: '2027-10-09', weekendOnly: true }), { '2027-10-09': ['09:00', '12:20', '15:40'] }, T, ctx(), '예약', L1), '찾지 못했습니다');
 check('E4 시기 from 과거 → 내일 이후로 보정', _t.decide(ex({ periodFrom: '2026-01-01', periodTo: '2026-07-31', weekendOnly: true, slot: '09:00' }), {}, T, ctx(), '예약', L1), function (s) { return /6월|7월/.test(s); });

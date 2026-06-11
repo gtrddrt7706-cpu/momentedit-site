@@ -104,6 +104,7 @@ const EXTRACT_PROMPT = `당신은 웨딩 예식일 상담 대화에서 고객의
 - periodFrom/periodTo: 구체 날짜 없이 시기만 말한 경우(예: "내년 10월", "내년 봄") 그 범위를 YYYY-MM-DD로. 해당 없으면 빈 문자열.
 - weekendOnly: 고객이 주말·토요일·일요일을 원한다고 했으면 true.
 - slot: 고객이 시간대를 말했으면 "09:00"(오전) | "12:20"(낮·점심) | "15:40"(늦은 오후·저녁 무렵) 중 하나. 없으면 빈 문자열.
+- anySlot: 고객이 "아무 시간이나 괜찮아요", "상관없어요", "편한 시간으로", "다 좋아요"처럼 시간대를 가리지 않겠다고 하면 true. 그 외엔 false.
 - 직전 대화 맥락을 활용합니다(예: 앞서 말한 날짜에 대해 "그날 오전은요?"라고 물으면 그 날짜 + slot "09:00").`;
 
 const EXTRACT_SCHEMA = {
@@ -115,8 +116,9 @@ const EXTRACT_SCHEMA = {
     periodTo: { type: 'string' },
     weekendOnly: { type: 'boolean' },
     slot: { type: 'string', enum: ['', '09:00', '12:20', '15:40'] },
+    anySlot: { type: 'boolean' },
   },
-  required: ['intent', 'date', 'periodFrom', 'periodTo', 'weekendOnly', 'slot'],
+  required: ['intent', 'date', 'periodFrom', 'periodTo', 'weekendOnly', 'slot', 'anySlot'],
   additionalProperties: false,
 };
 
@@ -206,7 +208,7 @@ module.exports = async (req, res) => {
       output_config: { format: { type: 'json_schema', schema: EXTRACT_SCHEMA } },
       messages: [{ role: 'user', content: '[오늘] ' + today + '\n\n[대화]\n' + convo + '\n\n고객의 마지막 메시지를 분석하세요.' }],
     });
-    let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '' };
+    let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '', anySlot: false };
     try { ex = Object.assign(ex, JSON.parse(textOf(ext))); } catch (e) {}
     ex.date = snapYear(ex.date, history);   // 연도 안정화: 직전 답변에 요일과 함께 안내한 날짜면 그 요일에 연도를 맞춤
 
@@ -260,29 +262,26 @@ function decide(ex, taken, today, ctx, page, lv) {
   let date = /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : '';
   const prefer = SLOTS.indexOf(ex.slot) !== -1 ? ex.slot : '';
 
-  // 시기만 말한 경우: 범위에서 후보 날짜를 서버가 고른다(주말 요청 시 주말만 · 단계별 1~3개)
+  // 시기만 말한 경우: 범위에서 후보 날짜 하나를 서버가 고른다(주말 요청 시 주말만)
   if (!date && /^\d{4}-\d{2}-\d{2}$/.test(ex.periodFrom)) {
     if (ctx.confirmedDates.length >= pol.checks) return limitMsg(pol.checks);
     const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
     const to = /^\d{4}-\d{2}-\d{2}$/.test(ex.periodTo) && ex.periodTo > from ? ex.periodTo : addDays(from, 60);
-    const wantN = (prefer || !pol.askSlot) ? pol.listDates : 1;
-    const cands = [];
+    let cand = '';
     let d = from;
-    for (let i = 0; i < 124 && d <= to && cands.length < wantN; i++) {
+    for (let i = 0; i < 124 && d <= to; i++) {
       const wd = dayOfWeek(d);
-      if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) cands.push(d);
+      if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) { cand = d; break; }
       d = addDays(d, 1);
     }
-    if (cands.length === 0) {
+    if (!cand) {
       return '말씀하신 시기에는 안내 가능한 일정을 찾지 못했습니다. 다른 시기를 알려주시면 확인해 드리겠다고 안내하세요.' + (pol.busy >= 2 ? BUSY_LINE[3] : '');
     }
-    // 시간대까지 말했거나 단계가 풀렸으면 바로 판정, 아니면 후보 하나만 제안하고 시간대를 되묻는다
-    if (!prefer && pol.askSlot) {
-      return '고객이 말한 시기에서는 ' + koDate(cands[0]) + '(' + WD_KO[dayOfWeek(cands[0])] + ')을 후보 날짜로 제안하세요. 가능 여부는 아직 말하지 말고, "이 날짜라면 어느 시간대로 확인해 드릴까요?"로 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
+    // 니즈 먼저(사장 지시): 시간대를 안 정했으면 특정 시간을 찍지 말고, 후보 날짜를 곁들여 희망 시간대를 먼저 여쭙니다.
+    if (!prefer && !ex.anySlot) {
+      return '고객이 말한 시기에서는 ' + koDate(cand) + '(' + WD_KO[dayOfWeek(cand)] + ') 같은 날을 후보로 보고 있습니다. 특정 시간의 가능 여부는 아직 말하지 말고, "그 시기라면 ' + koDate(cand) + '(' + WD_KO[dayOfWeek(cand)] + ') 같은 날이 있는데, 예식은 어느 시간대를 생각하고 계세요? 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 중에서 편하신 시간을 알려주시면 그 시간으로 확인해 드릴게요"처럼 희망 시간대를 먼저 여쭤보세요.';
     }
-    if (cands.length === 1) return okMsg(cands[0], prefer || freeSlot(taken, cands[0], ''), '', page, cta) + busyAt(cands[0]);
-    const listed = cands.map((c) => koDate(c) + '(' + WD_KO[dayOfWeek(c)] + ') ' + SLOT_LABEL[prefer || freeSlot(taken, c, '')]).join(' · ');
-    return '고객이 말한 시기에서 진행 가능한 일정으로 확인된 후보: ' + listed + '. 이 후보들만 안내하고,' + actionTxt(page, cta) + busyAt(cands[0]);
+    return okMsg(cand, prefer || freeSlot(taken, cand, ''), '', page, cta) + busyAt(cand);
   }
 
   if (!date) {
@@ -295,9 +294,9 @@ function decide(ex, taken, today, ctx, page, lv) {
   const key = dateKey(date);
   if (ctx.confirmedDates.length >= pol.checks && !(key in ctx.confirmed)) return limitMsg(pol.checks);
 
-  // 신비주의 핵심: 같은 날짜에 이미 한 타임을 확인해 줬는데 다른 타임을 또 물으면, 그날 전체가 빈 게
-  //   드러나므로 추가 확정을 하지 않고 "임시 고정 후 디렉터 조율"로 한 번만 안내(단계가 풀린 L4+는 예외).
-  if ((key in ctx.confirmed) && !pol.listSlots) {
+  // 신비주의: 같은 날짜에 이미 한 타임을 확인해 줬으면, 다른 타임을 또 물어도(또는 다시 물어도) 추가 확정 없이
+  //   "임시 고정 후 디렉터 조율"로 한 번만 안내. (니즈 질문보다 먼저 — 이미 안내한 날짜는 되묻지 않음)
+  if (key in ctx.confirmed) {
     const already = ctx.confirmed[key];
     if (!prefer || prefer !== already) {
       return '고객은 이미 ' + koDate(date) + ' ' + SLOT_LABEL[already] + ' 타임을 안내받았습니다. 다른 시간대의 가능 여부는 새로 확인해 주지 마세요. "그 날은 ' + SLOT_LABEL[already] + '으로 안내드렸고, 다른 시간대 조율은 디렉터가 함께 도와드려요" 취지로 한두 문장만 답하세요. 직전에도 같은 안내를 했다면 그보다 더 짧게, 표현을 바꿔서 답하세요. 영업·희소성 멘트와 임시 고정 절차 설명은 반복하지 마세요.';
@@ -305,16 +304,10 @@ function decide(ex, taken, today, ctx, page, lv) {
     return '고객이 이미 안내받은 ' + koDate(date) + ' ' + SLOT_LABEL[already] + ' 타임을 다시 확인하는 상황입니다. "네, ' + koDate(date) + ' ' + SLOT_LABEL[already] + '으로 안내드린 일정 그대로예요" 정도로 짧게만 확인하세요. 영업·희소성 멘트 반복 금지.';
   }
 
-  // ④ 시간 단위 확인(L1~L2 예약 페이지): 날짜만 말하면 가능 여부 전에 시간대를 되묻는다
-  if (!prefer && pol.askSlot && freeSlot(taken, date, '')) {
-    return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')의 시간대를 아직 말하지 않았습니다. 가능 여부는 아직 말하지 말고, "어느 시간대로 확인해 드릴까요?"라고 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
-  }
-  // 단계가 풀리면(L4+) 그 날짜의 가능한 타임 전부 안내 가능
-  if (!prefer && pol.listSlots) {
-    const free = SLOTS.filter((s) => (taken[date] || []).indexOf(s) === -1);
-    if (free.length > 0) {
-      return '안내할 일정: ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ') 진행 가능한 타임: ' + free.map((s) => SLOT_LABEL[s]).join(' · ') + '. 이 날짜의 이 타임들만 안내하고,' + actionTxt(page, cta) + busyAt(date);
-    }
+  // 니즈 먼저(사장 지시): 날짜만 말하고 시간대를 안 정했으면, 가능 여부를 말하기 전에 희망 시간대부터 여쭌다.
+  //   모든 페이지·모든 예약율 단계 공통. 멋대로 오전을 찍지 않는다. "아무 때나"(anySlot)면 묻지 않고 한 타임을 고른다.
+  if (!prefer && !ex.anySlot) {
+    return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')에 대해 희망 시간대를 아직 말하지 않았습니다. 특정 타임(오전 등)의 가능 여부를 먼저 단정하지 말고, "이 날은 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임으로 모시는데, 어느 시간대를 생각하고 계세요? 편하신 시간을 알려주시면 그 시간으로 가능한지 확인해 드릴게요"처럼 희망 시간대를 먼저 여쭤보세요.';
   }
 
   let slot = freeSlot(taken, date, prefer), note = '';
