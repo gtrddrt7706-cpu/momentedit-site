@@ -2679,22 +2679,28 @@ function productionDashHtml(t, inv, dd){
   }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
+  var _dDone=(t.dining||'')==='완료';
+  var _edit='<a href="#" id="mp_diningStart" style="color:var(--gold-deep);text-decoration:none">수정</a>';
+  var dSub;
+  if(_dDone && dd && dd.dining_on==='Y' && dd.venue){
+    // 완료 + 식당 선택 → 예약처 다시보기(전화·지도·수정) 한 줄만
+    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
+    dSub='🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
+      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
+      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
+      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
+      + _edit + '</span>';
+  } else if(_dDone && dd && dd.dining_on==='N'){
+    dSub='🍽 다이닝 없이 진행 <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
+  } else {
+    dSub='🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>';
+  }
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
     + '</div>'
-    // 다이닝 = 서브 안내(필수 아님) — 예식 후 식사 자리는 선택 사항이라 메인 트랙에서 분리
-    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>'+(((t.dining||'')==='완료')?' <span class="trk-ok">✓</span>':'')+'</div>';
-  // 다이닝 완료 + 식당 선택 시 — 예약처 다시보기(전화·지도) 한 줄
-  if((t.dining||'')==='완료' && dd && dd.dining_on==='Y' && dd.venue){
-    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
-    tracks += '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'
-      + '🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
-      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
-      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
-      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
-      + '</span></div>';
-  }
+    // 다이닝 = 서브 안내(선택). 완료 시엔 예약처 다시보기로 대체(중복 방지).
+    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+dSub+'</div>';
   var allDone = (ist==='완료') && ((t.ritual||'')==='완료');   // 다이닝은 선택(완료 조건 제외)
   if(allDone){
     // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
@@ -3278,7 +3284,7 @@ function dineFilterUI(d, wt){
     (r.m||[]).forEach(function(x){tags.push(x);});
     if(r.al===true) tags.push('주류');
     if(r.pk==='good') tags.push('주차넉넉');
-    if(r.bs&&arr&&arr>=r.bs&&arr<=r.be) tags.push('⚠ 이 시간대 브레이크');
+    if(r.bs&&arr&&arr>=r.bs&&arr<=r.be) tags.push(r.be==='23:59'?'⚠ 저녁엔 영업 종료':'⚠ 이 시간대 브레이크');
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
