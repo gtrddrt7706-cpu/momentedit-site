@@ -1077,7 +1077,7 @@ function renderMyPage(d){
                          && d.midpayment.dday != null && d.midpayment.dday <= 9);
     if (d.stage === '입금완료' && _comboPending) {
       head = '중도금·잔금을 입금해 주세요';
-      sub  = '입금이 확인되면 예식 준비(청첩장·다이닝·식순)가 열려요.';
+      sub  = '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';
     }
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
     else if (d.production && d.stage === '입금완료') {
@@ -1087,7 +1087,7 @@ function renderMyPage(d){
     // [제작 완료·예식 대기] 셋 다 완료면 NOW를 '준비 끝' 톤으로 (멈춘 느낌 방지)
     if (d.stage === '제작중' && d.production && d.production.tracks) {
       var _tk = d.production.tracks;
-      if (_tk.invitation==='완료' && _tk.dining==='완료' && _tk.ritual==='완료') {
+      if (_tk.invitation==='완료' && _tk.ritual==='완료') {
         head = '예식 준비가 끝났어요';
         sub  = (d.midpayment && !d.midpayment.confirmed) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
              : ((d.balance && !d.balance.confirmed) ? '이제 잔금만 입금하시면 끝이에요.' : '예식날 정성껏 준비해서 뵐게요.');
@@ -1254,7 +1254,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (product !== '웨딩스냅'){
@@ -2254,7 +2254,7 @@ function renderProduction(p, inv){
   box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
-  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
+  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
 }
 
@@ -2681,9 +2681,10 @@ function productionDashHtml(t, inv, dd){
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('다이닝', t.dining||'시작전', 'mp_diningStart', null)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-    + '</div>';
+    + '</div>'
+    // 다이닝 = 서브 안내(필수 아님) — 예식 후 식사 자리는 선택 사항이라 메인 트랙에서 분리
+    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>'+(((t.dining||'')==='완료')?' <span class="trk-ok">✓</span>':'')+'</div>';
   // 다이닝 완료 + 식당 선택 시 — 예약처 다시보기(전화·지도) 한 줄
   if((t.dining||'')==='완료' && dd && dd.dining_on==='Y' && dd.venue){
     var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
@@ -2694,21 +2695,21 @@ function productionDashHtml(t, inv, dd){
       + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
       + '</span></div>';
   }
-  var allDone = (ist==='완료') && ((t.dining||'')==='완료') && ((t.ritual||'')==='완료');
+  var allDone = (ist==='완료') && ((t.ritual||'')==='완료');   // 다이닝은 선택(완료 조건 제외)
   if(allDone){
     // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
-      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·다이닝·식순 모두 완료 · 펼쳐서 수정</span></summary>'
+      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·식순 완료 · 펼쳐서 수정</span></summary>'
       + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title">예식 준비</div>'
-    + '<div class="cc-sub">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
+    + '<div class="cc-sub">청첩장과 식순을 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
+    + '<div class="cc-note" style="text-align:center">두 가지를 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
     + ''
     + '</div>';
 }
@@ -3218,7 +3219,22 @@ var DINE_DB = [
   {n:'메종드테라스', th:'cafe', d:11, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
   {n:'나인블럭 FARM 고양', th:'cafe', d:13, p:'mid', f:['카페'], m:['정원'], al:false, g:'ask', eld:true, pk:'good', bs:null, be:null, tel:'031-965-0990', v:false},
   {n:'경성빵공장 서오릉점', th:'cafe', d:12, p:'low', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'02-356-7826', v:false},
-  {n:'리비토 향동', th:'cafe', d:3, p:'mid', f:['카페'], m:[], al:true, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false}
+  {n:'리비토 향동', th:'cafe', d:3, p:'mid', f:['카페'], m:[], al:true, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
+  {n:'연화수 한정식', th:'formal', d:18, p:'high', f:['한정식'], m:['모던'], al:null, g:'room', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'원당골', th:'formal', d:18, p:'mid', f:['한정식'], m:['정원'], al:null, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
+  {n:'김명주뜰안채밥상 원당점', th:'formal', d:18, p:'mid', f:['한정식'], m:[], al:null, g:'room', eld:true, pk:'good', bs:null, be:null, tel:'', v:false},
+  {n:'한짝 원흥점', th:'formal', d:10, p:'high', f:['한우·갈비'], m:['모던'], al:true, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'031-964-2200', v:false},
+  {n:'착한우리한우정육식당', th:'casual', d:12, p:'mid', f:['한우·갈비'], m:[], al:true, g:'room', eld:true, pk:'good', bs:null, be:null, tel:'031-965-9261', v:false},
+  {n:'곰작골가마솥곰탕', th:'casual', d:12, p:'mid', f:['곰탕·국밥'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'명동칼국수 고양원흥점', th:'casual', d:10, p:'low', f:['족발·보쌈'], m:[], al:null, g:'ask', eld:true, pk:'ok', bs:'14:30', be:'17:00', tel:'', v:false},
+  {n:'가장맛있는족발 삼송점', th:'casual', d:10, p:'mid', f:['족발·보쌈'], m:[], al:true, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'민쿡다시마', th:'casual', d:18, p:'mid', f:['뷔페'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'디오름', th:'cafe', d:12, p:'mid', f:['카페'], m:['모던','뷰'], al:false, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'0507-1469-1780', v:false},
+  {n:'신디스 삼송', th:'cafe', d:10, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'37.5 고양삼송점', th:'cafe', d:10, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'good', bs:'16:00', be:'17:00', tel:'', v:false},
+  {n:'소란 원흥', th:'cafe', d:8, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'good', bs:'15:30', be:'23:59', tel:'0507-1399-4140', v:false},
+  {n:'라플란드 원흥점', th:'cafe', d:9, p:'low', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:'good', bs:null, be:null, tel:'', v:false},
+  {n:'서오릉카페', th:'cafe', d:12, p:'mid', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false}
 ];
 var _DN_PRICE={low:'~2만',mid:'2~4만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
@@ -3278,7 +3294,7 @@ function dineFilterUI(d, wt){
     + (d._aiSummary?'<div class="dn-ai-res"><div class="r-cap">Curated for You</div><div class="r-line">'+escapeHtml(d._aiSummary)+'</div></div>':'')
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
-  var vnote = list.some(function(r){return !r.v;}) ? '<div class="cc-note" style="margin:2px 0 8px">거리·가격대는 대략의 안내예요. 정확한 메뉴·좌석은 예약 전화에서 확인해 주세요.</div>' : '';
+  var vnote = '<div class="cc-note" style="margin:2px 0 8px;padding:9px 11px;border:1px solid var(--gold-soft,rgba(184,154,117,.35));border-radius:8px;background:var(--gold-bg,#faf6ef)">아래 정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 반드시 식당에 직접 전화로 확인해 주세요.</div>';
   var aiHint = d._aiSummary ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">추천에 맞춰 조건을 맞췄어요. 아래 칩을 눌러 바꿀 수 있어요.</div>' : '';
   return aiBox + aiHint + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
 }
@@ -3340,7 +3356,7 @@ function renderDining(box){
           + callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
-          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
+          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 안내된 정보는 변동될 수 있으니 통화에서 꼭 확인해 주세요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
       } else {
         body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
           + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
