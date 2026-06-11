@@ -189,6 +189,10 @@ module.exports = async (req, res) => {
     history.forEach((m) => {
       if (m.role !== 'assistant') return;
       if (/임시\s*고정|상담을?\s*신청|서둘러|먼저\s*닿는|많지\s*않/.test(m.content)) ctaGiven = true;
+      // 되묻기(희망 시간대 질문)·여러 타임 나열은 확정이 아님 → 집계 제외(오전 자동확정 오인 방지)
+      if (/어느\s*시간대|생각하고\s*계세요|편하신\s*시간/.test(m.content)) return;
+      const _labels = m.content.match(/오전\s*9시|오후\s*12시\s*20분|늦은\s*오후\s*3시\s*40분/g) || [];
+      if (_labels.length >= 2) return;   // 한 메시지에 타임이 2개 이상이면 나열/안내, 단일 확정 아님
       if (/진행\s*가능|확인돼요|확인됩니다|가능해요/.test(m.content)) {
         const re = /(\d{1,2})월\s*(\d{1,2})일[\s\S]{0,40}?(오전\s*9시|오후\s*12시\s*20분|늦은\s*오후\s*3시\s*40분)/g; let g;
         while ((g = re.exec(m.content)) !== null) {
