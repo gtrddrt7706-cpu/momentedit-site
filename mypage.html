@@ -1245,6 +1245,12 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   if (contract && !contract.signed && !contract.expired){
     items = items.filter(function(it){ return it[0] !== '본 계약'; });
   }
+  // [제작 카드 열림] '예식 준비'도 지금 할 일이면 잠금 목록에서 제외 — 열린 카드와 자물쇠 동시 표시 모순 방지(묶음 결제 잠금 중엔 유지)
+  var _du=arguments[6]||{};
+  var _comboHoldU=!!(_du.stage==='입금완료'&&_du.midpayment&&!_du.midpayment.confirmed&&_du.balance&&!_du.balance.confirmed&&_du.midpayment.dday!=null&&_du.midpayment.dday<=9);
+  if (_du.production && (_du.stage==='입금완료'||_du.stage==='제작중') && !_comboHoldU){
+    items = items.filter(function(it){ return it[0] !== '예식 준비'; });
+  }
   if (!items.length){ box.innerHTML = ''; box.style.display = 'none'; return; }   // 남은 게 없으면(결과물전달 등) NEXT 숨김
   box.style.display = '';
   var lock = '<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';

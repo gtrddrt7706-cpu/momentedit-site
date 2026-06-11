@@ -958,17 +958,20 @@ function sendBalanceReminders() {
     if (!stagePre && !stageDue) continue;
     var email = String(row[c('이메일') - 1] || '').trim();
     var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
-    var amtTxt = amounts ? (Number(amounts['잔금']).toLocaleString() + '원') : '잔금';
+    var _isSnapRow = String(row[c('상품타입') - 1] || '').trim() === '웨딩스냅';
+    var _comboRem = !_isSnapRow && String(row[c('중도금상태') - 1] || '').trim() !== '확인';   // 중도금도 미납(임박 묶음) → 합산 1통
+    var _payL = _comboRem ? '중도금·잔금' : '잔금';
+    var amtTxt = amounts ? (Number(_comboRem ? (amounts['중도금'] + amounts['잔금']) : amounts['잔금']).toLocaleString() + '원') : '잔금';
     var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.잔금일수전);
     notifyKakao(stageDue ? 'cust.balanceDue' : 'cust.balancePre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {
       try {
         if (stageDue) {
-          GmailApp.sendEmail(email, '[Moment Edit] 잔금 납부일 안내 (예식 D-' + dday + ')',
-            '예식이 코앞이에요.\n잔금 ' + amtTxt + '을 오늘(' + dueYmd + ')까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+          GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 납부일 안내 (예식 D-' + dday + ')',
+            '예식이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 오늘(' + dueYmd + ')까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
         } else {
-          GmailApp.sendEmail(email, '[Moment Edit] 잔금 안내가 열렸어요 (납부일: ' + dueYmd + ')',
-            '예식이 다가옵니다.\n잔금 ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 9일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
+          GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 안내가 열렸어요 (납부일: ' + dueYmd + ')',
+            '예식이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 9일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
         }
       } catch (e) {}
     }
@@ -991,6 +994,7 @@ function sendMidReminders() {
     var flag = String(row[c('중도금리마인드') - 1] || '').trim();
     var dday = _balanceDDay(row[c('예식일') - 1]);
     if (dday == null) continue;
+    if (dday <= PAYMENT.잔금일수전 && String(row[c('잔금상태') - 1] || '').trim() !== '확인') continue;   // 임박 묶음 구간 — 잔금 리마인더가 '중도금·잔금' 합산 1통으로 보냄(중복 2통 방지)
     // 2단계: ① 예고(카드 열리는 D-164) ② 기한일(D-149). 임박 계약(이미 기한 안쪽)은 기한 단계만 1회.
     var stagePre = (!flag && dday <= PAYMENT.중도금일수전 + 15 && dday > PAYMENT.중도금일수전);
     var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.중도금일수전);
