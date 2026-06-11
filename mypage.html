@@ -1219,6 +1219,7 @@ function applyCardStageView(d){
     pastIds = pastIds.filter(function(id){
       if (id==='mp_midpayment') return !(d.midpayment && !d.midpayment.confirmed);
       if (id==='mp_balance')    return !(d.balance && !d.balance.confirmed);
+      if (id==='mp_contract')   return !(d.change && (d.change.request || d.change.eligible));   // [02-9] 예식일 변경 진입점·요청 상태는 예식 전까지 유지(제작중부터는 접힌 한 줄)
       return true;
     });
     pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
@@ -1381,7 +1382,7 @@ function renderHold(h){
   var when=escapeHtml(dTxt)+(slotTxt?(' · '+escapeHtml(slotTxt)):'');
   var approved=(h.status==='승인');
   var sub=approved
-    ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요.<br>대면 상담 후 <b>본계약을 진행하시면</b> 이 날짜로 확정돼요.')
+    ? ('<b>'+when+'</b><br>'+(h.expires&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(h.expires))+'까지</b> 안전하게 잡아두었어요.'):'이 날짜를 안전하게 잡아두었어요.')+'<br>대면 상담 후 <b>본계약을 진행하시면</b> 이 날짜로 확정돼요.')
     : ('<b>'+when+'</b><br>디렉터가 확인하고 있어요. 승인되면 알려드릴게요.<br><span class="hold-mute">상담 전이라면 사전 협의가 필요할 수 있어요.</span>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
   box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
@@ -1512,7 +1513,7 @@ function renderFitting(f, d){
     var curIdx = (d && typeof d.stageIndex==='number') ? d.stageIndex : -1;
     var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
     var cntLine = (f.벌수!=null) ? '<div class="cc-sub">진행한 시착 · <b>'+escapeHtml(f.벌수)+'벌</b>'+(Number(f.벌수)>3?(' (추가 '+(Number(f.벌수)-3)+'벌 × 70,000원 별도)'):'')+'</div>' : '';
-    var termsFull = signedLine + cntLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+    var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
@@ -1521,7 +1522,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
-        + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
+        + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
       box.style.display='none'; box.innerHTML='';
@@ -1670,11 +1671,27 @@ function renderContractPayment(c, p, ctx){
   // ── 완료: 서명 + 계약금 확인 모두 끝 → 접기 ──
   if (signed && p && p.confirmed){
     var a0 = p.amounts;
+    // [02-9] 예식일 변경(계약 8조①) — 서명 후~예식 전(서버 eligible). 요청 대기 중이면 상태+철회, 아니면 고스트 버튼.
+    var chg = ctx && ctx.change, chgHtml = '';
+    if (chg && chg.request && chg.request.to && chg.request.to.date){
+      var _rq = chg.request, _lab = {'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
+      chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' '+escapeHtml(_lab[_rq.to.slot]||_rq.to.slot)):'')+'</b></div>'
+        + '<div class="cc-sub cc-mini">'+(_rq.fee>0?('변경 수수료 '+fmtWon(_rq.fee)+(_rq.payer?(' · 입금자 '+escapeHtml(_rq.payer)):'')+' · 디렉터 확인 후 적용돼요'):'무상 변경 · 디렉터 확인 후 적용돼요')+'</div>'
+        + '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgCancel">변경 요청 철회</button></div>';
+    } else if (chg && chg.eligible){
+      chgHtml = '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgOpen">예식일 변경</button></div>';
+    }
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
              + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
              + (a0?'<div class="cc-sub cc-mini">다음 결제 · '+(a0.중도금>0?('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · '):'')+'잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
-             + (link?'<div class="cc-actions">'+link+'</div>':'');
-    collapsedCard(box, '계약 완료', full, '계약', true);   // 본계약서는 기본 펼침(두 번 클릭 방지)
+             + (link?'<div class="cc-actions">'+link+'</div>':'')
+             + chgHtml;
+    // 기본 펼침(두 번 클릭 방지) — 단, 제작 단계부터는 접힌 한 줄(지난 카드 정리 취지 유지 · 변경 요청 대기 중엔 항상 펼침)
+    var _stIdx=(ctx&&typeof ctx.stageIndex==='number')?ctx.stageIndex:-1, _prodIdx=(ctx&&ctx.stageList||[]).indexOf('제작중');
+    var _chgPending=!!(chg&&chg.request&&chg.request.to);
+    collapsedCard(box, '계약 완료', full, '계약', _chgPending || _prodIdx<0 || _stIdx<0 || _stIdx<_prodIdx);
+    var _co=$('mp_chgOpen'); if(_co) _co.addEventListener('click', function(){ renderChangeWizard(ctx); });
+    var _cc2=$('mp_chgCancel'); if(_cc2) _cc2.addEventListener('click', doCancelWeddingChange);
     return;
   }
 
@@ -1717,7 +1734,7 @@ function renderContractPayment(c, p, ctx){
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
     h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
-       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div></div>';
+       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
   var a = p.amounts;
@@ -1769,6 +1786,118 @@ function fmtRemain(s){
   var p=function(n){ return (n<10?'0':'')+n; };
   return (d>0?(d+'일 '):'')+p(h)+':'+p(m)+':'+p(sec);
 }
+// [02-9] 'M/D(요일)' 짧은 표기 — 변경 요청 상태·완료 화면용.
+function _chgMD(ymd){
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd||''); if(!m) return ymd||'';
+  var d=new Date(+m[1],+m[2]-1,+m[3]);
+  return (+m[2])+'/'+(+m[3])+'('+['일','월','화','수','목','금','토'][d.getDay()]+')';
+}
+// [02-9] 예식일 변경 위저드 — 계약 완료 카드의 '예식일 변경'. 달력·슬롯(계약 요청 폼 패턴 재사용)
+//   → 견적(quoteWeddingChange) → 수수료 있으면 계좌·입금자명 → 변경 요청(requestWeddingChange) → 완료 화면.
+function renderChangeWizard(ctx){
+  var box=$('mp_contract'); if(!box) return;
+  var fill=(ctx&&ctx.contract&&ctx.contract.fill)||{};
+  var curTxt=(typeof fmtWedKo==='function'&&fmtWedKo(fill.weddingDate))?fmtWedKo(fill.weddingDate):(fill.weddingDate||'');
+  box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Change</div>'
+    +'<div class="cc-title" style="text-align:center">예식일 변경</div>'
+    +'<div class="cc-sub" style="text-align:center">지금 예식일 · <b>'+escapeHtml(curTxt)+(fill.weddingTimeLabel?(' '+escapeHtml(fill.weddingTimeLabel)):'')+'</b></div>'
+    +'<div class="visit-guide" style="margin-top:12px">'
+    +'<div class="vg-row"><span class="vg-k">무상 변경</span><span class="vg-v">무료 취소 기간(예식 <b>150일 전</b>까지)에는 횟수 제한 없이 무상,<br>예식 <b>60일 전</b>까지는 <b>1회 무상</b>으로 변경할 수 있어요.</span></div>'
+    +'<div class="vg-row"><span class="vg-k">변경 수수료</span><span class="vg-v">그 이후의 변경이나 두 번째부터의 변경은<br>총 계약금액의 <b>10%</b>가 변경 수수료예요. <span class="vg-sub">(이용계약서 제8조)</span></span></div>'
+    +'<div class="vg-row"><span class="vg-k">경조사 면제</span><span class="vg-v vg-muted">본인·직계가족의 경조사 등 부득이한 사유가 증빙되면 시기와 관계없이 1회 면제돼요.<br>증빙 확인이 필요해 카카오톡으로 문의해 주세요.</span></div>'
+    +'</div>'
+    +'<label class="pf-l" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{})
+    +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<input type="hidden" id="mp_chgTime" value="">'
+    +'<div id="mp_chgQuote"></div>'
+    +'<div id="mp_chgErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
+    +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgSubmit" disabled>변경 요청하기</button>'
+    +'<div class="cc-note" style="text-align:center">변경 요청은 디렉터 확인 후 적용돼요.</div>'
+    +'<button type="button" class="cc-btn-ghost" id="mp_chgBack">돌아가기</button></div></div>';
+  box.style.display='block';
+  try{ box.scrollIntoView({block:'start',behavior:'smooth'}); }catch(e){}
+  var _av={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'늦은 오후'},taken:{}};
+  var _quote=null;   // 마지막 견적 {fee,basis,account,holder} · 요청 가능 여부의 기준
+  function _err(m){ var e=$('mp_chgErr'); if(e) e.textContent=m||''; }
+  function _setSubmit(on){ var b=$('mp_chgSubmit'); if(b) b.disabled=!on; }
+  function _renderSlots(ymd){
+    var sBox=$('mp_chgSlots'), row=$('mp_chgSlotRow'), note=$('mp_chgSlotNote'); if(!row) return;
+    if(sBox) sBox.style.display=ymd?'block':'none'; if(!ymd){ row.innerHTML=''; return; }
+    var td=(_av.taken&&_av.taken[ymd])||[], hid=$('mp_chgTime'), sel=(hid&&hid.value)||'';
+    if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
+    row.innerHTML=_av.slots.map(function(t){ var lab=(_av.labels&&_av.labels[t])||''; var tk=td.indexOf(t)!==-1;
+      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
+    if(note) note.textContent=(td.length>=_av.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_chgTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); _fetchQuote(); }); });
+    _resetQuote(); _fetchQuote();   // 날짜만 다시 고른 경우 — 기존 슬롯 유지면 즉시 재견적
+  }
+  function _resetQuote(){ _quote=null; var q=$('mp_chgQuote'); if(q) q.innerHTML=''; _setSubmit(false); _err(''); }
+  function _fetchQuote(){
+    var d=($('mp_chgDate')||{}).value||'', t=($('mp_chgTime')||{}).value||'';
+    if(!d||!t){ _resetQuote(); return; }
+    var q=$('mp_chgQuote'); if(q) q.innerHTML='<div class="cc-note" style="text-align:center;margin-top:10px">변경 수수료를 확인하고 있어요…</div>';
+    _setSubmit(false); _err('');
+    api({action:'quoteWeddingChange', token:getToken(), toDate:d, toSlot:t}).then(function(r){
+      // 선택이 그 사이 바뀌었으면 무시(늦게 도착한 응답이 화면을 덮지 않게)
+      if(d!==(($('mp_chgDate')||{}).value||'') || t!==(($('mp_chgTime')||{}).value||'')) return;
+      if(!r||!r.ok){ _resetQuote(); _err((r&&r.error)||'수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); return; }
+      _quote={fee:Math.round(Number(r.fee)||0), basis:String(r.basis||''), account:String(r.account||''), holder:String(r.holder||'')};
+      var h;
+      if(_quote.fee>0){
+        h='<div class="cc-sub" style="margin-top:10px"><b>'+fmtWon(_quote.fee)+'</b> <span class="cc-mini">· 변경 수수료 10% (총 계약금액 기준)</span></div>'
+         +(_quote.account?('<div style="margin:10px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+           +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">수수료 입금 계좌</div>'
+           +'<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(_quote.account)+'</div>'
+           +(_quote.holder?('<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_quote.holder)+'</div>'):'')
+           +'<button type="button" class="cc-btn-ghost" id="mp_chgAcctCopy" style="margin-top:10px">계좌 복사</button>'
+           +'<button type="button" class="cc-btn-ghost" id="mp_chgAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button></div>'):'')
+         +'<input type="text" class="cc-input" id="mp_chgPayer" placeholder="수수료 입금하신 분 성함" autocomplete="name" style="margin-top:8px">'
+         +'<div class="cc-note" style="text-align:left;margin:2px 0 0;color:var(--light);line-height:1.6">수수료 입금 후 변경을 요청해 주세요. 디렉터가 입금·일정을 확인한 뒤 적용돼요.</div>';
+      } else {
+        h='<div class="cc-sub" style="margin-top:10px">변경 수수료 · <b>무상</b>'+(_quote.basis?(' <span class="cc-mini">· '+escapeHtml(_quote.basis)+'</span>'):'')+'</div>';
+      }
+      if(q) q.innerHTML=h;
+      var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
+      bindAmtCopy('mp_chgAmtCopy', _quote.fee);
+      _setSubmit(true);
+    }).catch(function(){ _resetQuote(); _err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
+  }
+  initDatePicker({wrap:'mpchg_wrap',trigger:'mpchg_trigger',text:'mpchg_text',panel:'mpchg_panel',grid:'mpchg_grid',title:'mpchg_title',prev:'mpchg_prev',next:'mpchg_next',hidden:'mp_chgDate',onPick:_renderSlots});
+  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _av.taken=r.taken||{}; if(r.slots&&r.slots.length)_av.slots=r.slots; if(r.labels)_av.labels=r.labels; var dd=($('mp_chgDate')&&$('mp_chgDate').value)||''; if(dd)_renderSlots(dd); } }).catch(function(){});
+  var bk=$('mp_chgBack'); if(bk) bk.addEventListener('click', function(){ loadMyState(); });
+  var sb=$('mp_chgSubmit'); if(sb) sb.addEventListener('click', function(){
+    var d=($('mp_chgDate')||{}).value||'', t=($('mp_chgTime')||{}).value||'';
+    if(!d||!t){ _err('변경할 날짜와 시간을 선택해 주세요.'); return; }
+    if(!_quote){ _err('변경 수수료를 먼저 확인해 주세요.'); _fetchQuote(); return; }
+    var payer='';
+    if(_quote.fee>0){
+      payer=(($('mp_chgPayer')&&$('mp_chgPayer').value)||'').trim();
+      if(!payer){ _err('수수료 입금자명을 입력해 주세요.'); var pi=$('mp_chgPayer'); if(pi) pi.focus(); return; }
+    }
+    sb.disabled=true; sb.textContent='요청 중…';
+    function reset(){ sb.disabled=false; sb.textContent='변경 요청하기'; }
+    api({action:'requestWeddingChange', token:getToken(), toDate:d, toSlot:t, payerName:payer}).then(function(r){
+      if(r&&r.ok){
+        var lab=(_av.labels&&_av.labels[t])||t;
+        box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Change</div>'
+          +'<div class="cc-title">변경 요청을 받았어요</div>'
+          +'<div class="cc-sub"><b>'+escapeHtml(_chgMD(d))+' '+escapeHtml(lab)+'</b>'+((_quote&&_quote.fee>0)?('<br><span class="cc-mini">변경 수수료 '+fmtWon(_quote.fee)+' · 입금 확인 후 적용돼요</span>'):'')+'</div>'
+          +'<div class="cc-note" style="text-align:center">디렉터 확인 후 적용돼요 · 적용되면 카카오톡으로 알려드려요</div>'
+          +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgDoneOk">확인</button></div></div>';
+        var ok=$('mp_chgDoneOk'); if(ok) ok.addEventListener('click', function(){ loadMyState(); });
+      } else { _err((r&&r.error)||'요청에 실패했습니다.'); reset(); }
+    }).catch(function(){ _err('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  });
+}
+// [02-9] 변경 요청 철회 — 동의기록.변경요청 삭제(기존 예식일 유지). 언제든 다시 요청 가능.
+function doCancelWeddingChange(){
+  mpModalOpen({ title:'변경 요청을 철회할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">요청하신 예식일 변경이 취소되고 기존 예식일이 그대로 유지돼요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'요청 철회', cancelText:'닫기' }).then(function(ok){
+    if(!ok) return;
+    api({action:'cancelWeddingChange', token:getToken()}).then(function(r){
+      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회에 실패했습니다.'); }
+    }).catch(function(){ mpAlert('철회에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+  });
+}
 // [02-3] 서명본 자동 보관 — 채워진+서명된 계약서를 숨김 iframe으로 렌더해 자기완결 HTML로 직렬화. cb(html)·실패 시 cb(''). 베스트에포트(서명 흐름 방해 X).
 function _archiveSignedContract(sig, cb){
   var done=false, fr;
@@ -1818,7 +1947,7 @@ function renderPayment(p){
   var body='', cta='';
   if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
-         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var amt;
     if(a){
@@ -1872,7 +2001,7 @@ function renderBalance(p, mid){
   var near=(p.dday!=null && p.dday<=15 && !midUnpaid);   // 중도금 확인 후 + D-15 이내에만 자동 펼침(그 전엔 접힘 유지)
   var body='', cta='';
   if(p.status==='완료신호'){
-    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -1894,6 +2023,7 @@ function renderBalance(p, mid){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '<button type="button" class="cc-btn-ghost" id="mp_bAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button>'
       + '</div>'):'';
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
@@ -1912,6 +2042,16 @@ function renderBalance(p, mid){
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
   var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  bindAmtCopy('mp_bAmtCopy', p.amount);
+}
+// 금액 복사 — 이체 앱 금액칸용(숫자만). 계좌 복사와 한 쌍, 오타 입금 방지.
+function bindAmtCopy(id, amount){
+  var b=$(id); if(!b) return;
+  b.addEventListener('click', function(){
+    var t=String(Math.round(Number(amount)||0)); if(!t||t==='0') return;
+    var ok=function(){ b.textContent='복사됐습니다'; setTimeout(function(){ b.textContent='금액 복사'; },1500); };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
+  });
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
@@ -1948,7 +2088,7 @@ function renderMid(p, bal){
   var body='', cta='';
   if(p.status==='완료신호'){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
-    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -1975,6 +2115,7 @@ function renderMid(p, bal){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '<button type="button" class="cc-btn-ghost" id="mp_mAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
@@ -1993,6 +2134,7 @@ function renderMid(p, bal){
   var b=$('mp_mSignal'); if(b) b.addEventListener('click', doMidSignal);
   var cb=$('mp_mCombo'); if(cb) cb.addEventListener('change', function(){ var v=$('mp_mAmtV'), l=$('mp_mAmtL'); if(v) v.textContent=fmtWon(cb.checked?comboAmt:p.amount); if(l) l.textContent=cb.checked?'중도금·잔금':'중도금'; });
   var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  bindAmtCopy('mp_mAmtCopy', (typeof forceCombo!=='undefined'&&forceCombo&&typeof comboAmt!=='undefined')?comboAmt:p.amount);
 }
 function doMidSignal(){
   var payer=(($('mp_mPayer')&&$('mp_mPayer').value)||'').trim();
