@@ -79,7 +79,7 @@ function buildLedgerState(r) {
   var fitAt = String(r.get('시착동의일시') || '').trim();
   var depConfirmed = String(r.get('입금상태') || '').trim() === '확인';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
-  function st(v) { v = String(v || '').trim(); return v === '확인' ? '입금 확인' : (v === '완료신호' ? '확인 중' : '대기'); }
+  function st(v) { v = String(v || '').trim(); return v === '확인' ? '결제 완료' : (v === '완료신호' ? '확인 중' : '대기'); }   // 예약금 행('결제 완료')과 동사 통일 — 한 표 한 어휘
   // 결제 마일스톤 — 계약총액이 정해진 뒤(계약 발송~)에만 표기. 그 전엔 금액이 미정이라 결제 표를 만들지 않음(0원 행 방지).
   var payments = [];
   if (amounts) {

@@ -537,15 +537,19 @@ function adminHome() {
     (function(){
     var _wd = _ymdOf(cget(rv, '예식일')); if (!_wd) return;
     var _dd = _dayDiff(_wd, today);   // 예식까지 남은 일수
-    if (String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.중도금일수전 && _dd > 9) {
-      var _over = PAYMENT.중도금일수전 - _dd;
-      pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)',
-        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
+    if (String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.중도금일수전 && _dd > 9) {
+      var _over = PAYMENT.중도금일수전 - _dd;   // 0=기한 당일(고객 리마인더와 같은 날 관리자도 인지) · 1~=기한 경과
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인',
+        sub: _over === 0 ? '중도금 기한일(오늘) · 입금 확인 대기' : ('중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)'),
+        badge: _over === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
+        _urgent: _over > 0, _stage: 5, _wait: createdYmd });
     }
-    if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd < PAYMENT.잔금일수전) {
-      var _over2 = PAYMENT.잔금일수전 - _dd;
-      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 미납 D+' + _over2 + ' · 7일 최고 후 해제 절차(계약 11조)',
-        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 6, _wait: createdYmd });
+    if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.잔금일수전) {
+      var _over2 = PAYMENT.잔금일수전 - _dd;   // D-9 당일부터 노출 — 중도금 카드(>9)와 빈틈 없이 이어짐
+      pushQ({ code: code, names: names, product: product, kind: '잔금확인',
+        sub: _over2 === 0 ? '잔금 기한일(오늘) · 입금 확인 대기' : ('잔금 미납 D+' + _over2 + ' · 7일 최고 후 해제 절차(계약 11조)'),
+        badge: _over2 === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
+        _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
     }
     })();
     // 중도금 확인 — 중도금상태=완료신호 (계약 후 첫 실결제, D-30 구간)
@@ -992,6 +996,8 @@ function adminGetSignature(code, type) {
 function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };   // 만료 파기 트리거·고객 서명과 직렬화(재발송 직후 파기 경쟁 차단) + 동의기록 RMW 보호
+  try {
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   var stage = String(cust.get('현재단계') || '').trim();
@@ -1049,6 +1055,7 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
     }
   } catch (e) { Logger.log('계약서 발송 메일 실패: ' + (e && e.message)); }
   return { ok: true, sentAt: now };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
 // [02-4] 계약금 입금 확인(통장 대조 후) → 입금상태=확인 + 현재단계=입금완료. 자동 진행 아님(이 승인이 트리거).
