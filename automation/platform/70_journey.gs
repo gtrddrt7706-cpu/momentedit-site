@@ -730,7 +730,12 @@ function _cashReceiptLedger(r) {
     };
   }
   var out = [];
-  out.push(item('예약금', isSnap ? '계약금' : '예약금', String(r.get('입금상태') || '').trim() === '확인', isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
+  // 예약금 '받은 날'은 상담 예약 입금 — 계약(서명=입금상태 확인) 전이라도 Bookings 입금확인이면 발급 대상(기한 D+5는 받은 날 기산)
+  var _depCf = String(r.get('입금상태') || '').trim() === '확인';
+  if (!_depCf && !isSnap && typeof findRowByPersonalCode === 'function') {
+    try { var _bkD = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); if (_bkD && String(_bkD.get('입금확인') || '').trim() === '확인') _depCf = true; } catch (e) {}
+  }
+  out.push(item('예약금', isSnap ? '계약금' : '예약금', _depCf, isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
   // 묶음 입금(임박 계약): 중도금·잔금이 같은 확인일시로 기록됐으면 한 번의 이체 → 영수증도 1건(합산)으로
   var _mCf = String(r.get('중도금상태') || '').trim() === '확인', _bCf = String(r.get('잔금상태') || '').trim() === '확인';
   var _mAt = String(r.get('중도금확인일시') || '').trim(), _bAt = String(r.get('잔금확인일시') || '').trim();

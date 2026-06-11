@@ -1111,7 +1111,11 @@ function adminIssueCashReceipt(code, kind, num) {
     if (String(cust.get('중도금상태') || '').trim() !== '확인' || String(cust.get('잔금상태') || '').trim() !== '확인') return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (중도금·잔금)' };
   } else {
   var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
-  if (String(cust.get(stCol) || '').trim() !== stOk) return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
+  var _stPass = String(cust.get(stCol) || '').trim() === stOk;
+  if (!_stPass && kind === '예약금' && String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {   // 계약(서명) 전이라도 상담 예약금 입금이 확인됐으면 발급 가능 — 받은 날+5일 기한이 서명을 기다려주지 않음
+    try { var _bkI = findRowByPersonalCode(code); if (_bkI && String(_bkI.get('입금확인') || '').trim() === '확인') _stPass = true; } catch (e) {}
+  }
+  if (!_stPass) return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
   }
   var amt = 0, led = _cashReceiptLedger(cust);
   for (var i = 0; i < led.length; i++) if (led[i].key === kind) amt = led[i].amount;
