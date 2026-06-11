@@ -1420,7 +1420,10 @@ function adminMarkNoshow(code) {
     if (stage === '노쇼') return { ok: true, already: true, stage: stage, archived: true };   // ★EX 멱등(가드 함정 회피)
     if (['상담확정', '촬영확정', '시착'].indexOf(stage) === -1) return { ok: false, error: '상담/촬영 확정·시착 상태에서만 노쇼 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    touchCustomer(sheet, colOf, cust.num, { '현재단계': '노쇼' });
+    var _nRec = _parseJsonSafe(cust.get('동의기록'));
+    var _nUpd = { '현재단계': '노쇼' };
+    if (_nRec.가예약) { delete _nRec.가예약; _nUpd['동의기록'] = Object.keys(_nRec).length ? JSON.stringify(_nRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
+    touchCustomer(sheet, colOf, cust.num, _nUpd);
     _recordHandler(code, '노쇼 처리');
     return { ok: true, stage: '노쇼', archived: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -1440,7 +1443,10 @@ function adminMarkUncontracted(code) {
     var ci = flow.indexOf('계약완료'), si = flow.indexOf(stage);
     if (si < 0 || ci < 0 || si >= ci) return { ok: false, error: '계약 전 단계에서만 미계약 처리할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    touchCustomer(sheet, colOf, cust.num, { '현재단계': '미계약' });
+    var _uRec = _parseJsonSafe(cust.get('동의기록'));
+    var _uUpd = { '현재단계': '미계약' };
+    if (_uRec.가예약) { delete _uRec.가예약; _uUpd['동의기록'] = Object.keys(_uRec).length ? JSON.stringify(_uRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
+    touchCustomer(sheet, colOf, cust.num, _uUpd);
     _recordHandler(code, '미계약 처리');
     return { ok: true, stage: '미계약', archived: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }

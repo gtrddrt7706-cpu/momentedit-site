@@ -342,35 +342,47 @@ function handleChangeWeddingHold(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-  var rec = _parseJsonSafe(s.row.get('동의기록'));
-  if (!rec.가예약 || (rec.가예약.status !== '요청' && rec.가예약.status !== '승인')) return { ok: false, error: '변경할 임시 고정이 없습니다.' };
   var d = String((body && body.date) || '').trim(), t = String((body && body.slot) || '').trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return { ok: false, error: '예식 날짜를 선택해 주세요.' };
   if (WEDDING_SLOT.SLOTS.indexOf(t) === -1) return { ok: false, error: '예식 시간을 선택해 주세요.' };
   if (_ymdNum(d) < _ymdNum(_kstYmd(new Date()))) return { ok: false, error: '예식일은 오늘 이후로 선택해 주세요.' };
-  if (rec.가예약.date === d && rec.가예약.slot === t) return { ok: true, same: true };
-  if (_weddingSlotTaken(sheet, colOf, d, t, code)) return { ok: false, error: '그 시간은 지금 선택이 어려워요. 다른 시간을 선택해 주세요.' };
-  rec.가예약 = { date: d, slot: t, status: '요청', at: fmtKST(new Date()) };
-  touchCustomer(sheet, colOf, s.row.num, { '동의기록': JSON.stringify(rec) });
-  _recordHandler(code, '고객 예식일 임시고정 변경 요청 · ' + d + ' ' + t);
-  notifyKakao('admin.holdRequest', code, { date: d, slot: t });   // 관리자: 재승인 필요
-  return { ok: true };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — s.row 스냅샷을 쓰면 그 사이 관리자가 쓴 영수증발행 등이 통째 유실됨
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!rec.가예약 || (rec.가예약.status !== '요청' && rec.가예약.status !== '승인')) return { ok: false, error: '변경할 임시 고정이 없습니다.' };
+    if (rec.가예약.date === d && rec.가예약.slot === t) return { ok: true, same: true };
+    if (_weddingSlotTaken(sheet, colOf, d, t, code)) return { ok: false, error: '그 시간은 지금 선택이 어려워요. 다른 시간을 선택해 주세요.' };
+    rec.가예약 = { date: d, slot: t, status: '요청', at: fmtKST(new Date()) };
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+    _recordHandler(code, '고객 예식일 임시고정 변경 요청 · ' + d + ' ' + t);
+    notifyKakao('admin.holdRequest', code, { date: d, slot: t });   // 관리자: 재승인 필요
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // [임시고정 셀프 관리] 취소 — 가예약 제거(슬롯 반환) + 관리자 인지.
 function handleCancelWeddingHold(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
-  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-  var rec = _parseJsonSafe(s.row.get('동의기록'));
-  if (!rec.가예약) return { ok: true, already: true };
-  var _d = rec.가예약.date, _s2 = rec.가예약.slot;
-  delete rec.가예약;
-  touchCustomer(sheet, colOf, s.row.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
-  _recordHandler(code, '고객 예식일 임시고정 취소 · ' + (_d || '') + ' ' + (_s2 || ''));
-  notifyStudio('[플랫폼] 예식일 임시고정 고객 취소', code + ' · ' + (_d || '') + ' ' + (_s2 || ''));
-  return { ok: true };
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — 가예약 외 키(영수증발행 등) 보존
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (!rec.가예약) return { ok: true, already: true };
+    var _d = rec.가예약.date, _s2 = rec.가예약.slot;
+    delete rec.가예약;
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
+    _recordHandler(code, '고객 예식일 임시고정 취소 · ' + (_d || '') + ' ' + (_s2 || ''));
+    notifyStudio('[플랫폼] 예식일 임시고정 고객 취소', code + ' · ' + (_d || '') + ' ' + (_s2 || ''));
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 function handleRequestContract(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
