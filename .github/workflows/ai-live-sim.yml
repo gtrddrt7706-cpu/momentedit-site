@@ -1,0 +1,17 @@
+# AI 라이브 시뮬레이션 — 운영 서버의 상담·스케줄 AI에 멀티턴 시나리오를 보내 자동 채점.
+# 수동 실행 전용(workflow_dispatch). 로그에서 대화 원문과 채점표를 확인한다.
+name: AI Live Simulation
+on:
+  workflow_dispatch:
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run live simulation against production
+        run: node scripts/ai-live-sim-ci.js
