@@ -1,8 +1,11 @@
 # AI 라이브 시뮬레이션 — 운영 서버의 상담·스케줄 AI에 멀티턴 시나리오를 보내 자동 채점.
-# 수동 실행 전용(workflow_dispatch). 로그에서 대화 원문과 채점표를 확인한다.
+# 트리거: scripts/.sim-run 파일이 갱신된 푸시(어느 브랜치든). 로그에서 대화 원문과 채점표 확인.
 name: AI Live Simulation
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/.sim-run'
 
 jobs:
   simulate:

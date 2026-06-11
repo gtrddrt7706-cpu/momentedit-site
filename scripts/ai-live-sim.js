@@ -14,7 +14,7 @@
  */
 (async function () {
   const SLOT_RE = /(오전\s*9시|오후\s*12시\s*20분|늦은\s*오후\s*3시\s*40분)/g;
-  const CTA_RE = /임시\s*고정|상담을?\s*신청|서둘러/;
+  const CTA_RE = /서둘러|먼저\s*닿는|마음에\s*드시면|많지\s*않아/;   // 진짜 영업성 표현만(절차 안내는 제외)
   const today = new Date().toISOString().slice(0, 10);
 
   async function call(url, body) {
