@@ -141,11 +141,13 @@ function _kakaoSend(to, event, code, extra) {
     msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
   }
   // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
-  _solapiSend(cfg, msg);
+  _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
 }
 
-// 솔라피 v4 단건 발송 — HMAC-SHA256 인증
-function _solapiSend(cfg, message) {
+// 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
+//   실패는 고객 처리이력에 '[알림] … 발송 실패'로 남겨 상세에서 보이게(잔액 부족·번호 오류를 운영자가 알 수 있게).
+//   성공 이력 전체는 솔라피 콘솔 > 메시지 로그에서 조회.
+function _solapiSend(cfg, message, ctx) {
   try {
     var date = new Date().toISOString();
     var salt = Utilities.getUuid().replace(/-/g, '');
@@ -163,10 +165,21 @@ function _solapiSend(cfg, message) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
     } else {
       Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
+      _notifyFailMark(ctx, 'HTTP ' + codeN);
     }
   } catch (e) {
     Logger.log('[notify] 발송 예외: ' + (e && e.message));
+    _notifyFailMark(ctx, (e && e.message) || '예외');
   }
+}
+
+// 고객 알림 실패 → 처리이력 기록(베스트에포트 · 본 흐름 절대 불간섭)
+function _notifyFailMark(ctx, why) {
+  try {
+    if (ctx && ctx.code && typeof _recordHandler === 'function') {
+      _recordHandler(ctx.code, '[알림] ' + (ctx.event || '') + ' 발송 실패 · ' + String(why || '').slice(0, 80));
+    }
+  } catch (e) {}
 }
 
 // ============================ 문구 빌더 ============================
