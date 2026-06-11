@@ -1807,5 +1807,233 @@ function replayHeroAnimation(){
   targets.forEach(fadeInImage);
 })();
 </script>
+
+<!-- ══ AI 상담사 위젯 (메인홈 v1) ══ -->
+<style>
+.me-adv,.me-adv *{box-sizing:border-box}
+.me-adv-fab{position:fixed;right:22px;bottom:22px;z-index:95;display:inline-flex;align-items:center;gap:9px;padding:13px 20px 13px 17px;border:none;border-radius:40px;background:var(--seal);color:#fff;cursor:pointer;font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.02em;box-shadow:0 6px 20px rgba(107,42,36,0.28),0 2px 6px rgba(28,27,25,0.12);transition:transform .3s var(--ease),box-shadow .3s var(--ease),opacity .3s var(--ease)}
+.me-adv-fab:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(107,42,36,0.34)}
+.me-adv-fab svg{width:19px;height:19px;flex:0 0 auto}
+.me-adv-fab.hide{opacity:0;pointer-events:none;transform:translateY(8px)}
+@media(max-width:680px){.me-adv-fab{right:16px;bottom:16px;padding:12px 18px 12px 15px;font-size:13px}}
+
+.me-adv-panel{position:fixed;right:22px;bottom:22px;z-index:150;width:380px;max-width:calc(100vw - 32px);height:600px;max-height:calc(100dvh - 44px);background:var(--bg);border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 50px rgba(28,27,25,0.18),0 4px 14px rgba(28,27,25,0.08);display:flex;flex-direction:column;overflow:hidden;opacity:0;visibility:hidden;transform:translateY(14px) scale(0.98);transform-origin:bottom right;transition:opacity .32s var(--ease),transform .32s var(--ease),visibility .32s var(--ease)}
+.me-adv-panel.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+@media(max-width:680px){.me-adv-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88dvh;max-height:88dvh;border-radius:16px 16px 0 0}}
+
+.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:17px 18px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.me-adv-head-t{display:flex;align-items:center;gap:10px}
+.me-adv-seal{width:26px;height:26px;border-radius:50%;background:var(--seal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif-ko);font-size:11px;font-weight:500;flex:0 0 auto}
+.me-adv-title{font-family:var(--serif-ko);font-size:15px;font-weight:500;color:var(--accent);letter-spacing:0.01em;line-height:1.2}
+.me-adv-title small{display:block;font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--gold);letter-spacing:0.06em;margin-top:1px}
+.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light);padding:6px;line-height:0;border-radius:6px;transition:color .25s,background .25s}
+.me-adv-close:hover{color:var(--accent);background:rgba(28,27,25,0.05)}
+.me-adv-close svg{width:18px;height:18px}
+
+.me-adv-body{flex:1 1 auto;overflow-y:auto;padding:18px 16px 8px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.me-adv-msg{max-width:86%;font-size:13.5px;line-height:1.72;white-space:pre-wrap;word-break:keep-all;border-radius:13px;padding:11px 14px}
+.me-adv-msg.bot{align-self:flex-start;background:var(--bg2);color:var(--accent);border-bottom-left-radius:4px}
+.me-adv-msg.me{align-self:flex-end;background:var(--seal);color:#fff;border-bottom-right-radius:4px}
+.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2);border-radius:13px;border-bottom-left-radius:4px}
+.me-adv-typing i{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.5;animation:meAdvBlink 1.2s infinite}
+.me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}
+@keyframes meAdvBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+.me-adv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+.me-adv-chip{font-family:var(--sans);font-size:12.5px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:30px;padding:8px 13px;cursor:pointer;transition:border-color .25s,color .25s,background .25s;line-height:1.2}
+.me-adv-chip:hover{border-color:var(--gold);color:var(--gold)}
+.me-adv-chips-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;margin:6px 0 -2px}
+
+.me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}
+.me-adv-esc-t{font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.6;margin-bottom:11px}
+.me-adv-esc-btns{display:flex;flex-direction:column;gap:8px}
+.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .25s,transform .25s,background .25s}
+.me-adv-esc-btn.primary{background:var(--seal);color:#fff}
+.me-adv-esc-btn.primary:hover{opacity:.88;transform:translateY(-1px)}
+.me-adv-esc-btn.kakao{background:#FEE500;color:#181600;font-weight:500}
+.me-adv-esc-btn.kakao:hover{opacity:.9;transform:translateY(-1px)}
+.me-adv-esc-hours{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--light);text-align:center;margin-top:9px;letter-spacing:0.04em}
+
+.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border);padding:11px 12px;background:var(--bg)}
+.me-adv-form{display:flex;align-items:flex-end;gap:8px}
+.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border);border-radius:11px;padding:10px 12px;font-family:var(--sans);font-size:13.5px;color:var(--text);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .25s}
+.me-adv-input:focus{border-color:var(--gold)}
+.me-adv-send{flex:0 0 auto;width:40px;height:40px;border:none;border-radius:50%;background:var(--seal);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}
+.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}
+.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}
+.me-adv-send svg{width:17px;height:17px}
+.me-adv-esclink{display:block;width:100%;text-align:center;background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:11px;color:var(--light);padding:8px 0 2px;letter-spacing:0.01em;transition:color .25s}
+.me-adv-esclink:hover{color:var(--seal)}
+.me-adv-note{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--light);text-align:center;margin-top:5px;opacity:.8}
+</style>
+
+<div class="me-adv">
+  <button class="me-adv-fab" id="meAdvFab" aria-label="상담 도우미 열기">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>상담 도우미</span>
+  </button>
+
+  <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="false">
+    <header class="me-adv-head">
+      <div class="me-adv-head-t">
+        <span class="me-adv-seal">M</span>
+        <span class="me-adv-title">상담 도우미<small>Moment Edit</small></span>
+      </div>
+      <button class="me-adv-close" id="meAdvClose" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+    <div class="me-adv-body" id="meAdvBody"></div>
+    <footer class="me-adv-foot">
+      <form class="me-adv-form" id="meAdvForm">
+        <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>
+        <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <button class="me-adv-esclink" id="meAdvEscLink" type="button">원하는 답이 없으세요? 상담사에게 연결</button>
+    </footer>
+  </section>
+</div>
+
+<script src="/assets/advisor-kb.js"></script>
+<script>
+(function(){
+  var KB = window.MOMENT_ADVISOR_KB;
+  if(!KB){ return; }
+  var fab=document.getElementById('meAdvFab'),
+      panel=document.getElementById('meAdvPanel'),
+      closeBtn=document.getElementById('meAdvClose'),
+      body=document.getElementById('meAdvBody'),
+      form=document.getElementById('meAdvForm'),
+      input=document.getElementById('meAdvInput'),
+      sendBtn=document.getElementById('meAdvSend'),
+      escLink=document.getElementById('meAdvEscLink');
+  var apiHistory=[];      // 자유질문 대화만 누적 (role/content)
+  var started=false, sending=false, escShown=false;
+
+  function scrollDown(){ body.scrollTop=body.scrollHeight; }
+  function addMsg(text,who){
+    var d=document.createElement('div');
+    d.className='me-adv-msg '+(who==='me'?'me':'bot');
+    d.textContent=text;
+    body.appendChild(d); scrollDown(); return d;
+  }
+  function addTyping(){
+    var d=document.createElement('div');
+    d.className='me-adv-typing';
+    d.innerHTML='<i></i><i></i><i></i>';
+    body.appendChild(d); scrollDown(); return d;
+  }
+  function addChips(){
+    var label=document.createElement('div');
+    label.className='me-adv-chips-label'; label.textContent='자주 묻는 질문';
+    body.appendChild(label);
+    var wrap=document.createElement('div'); wrap.className='me-adv-chips';
+    KB.chips.forEach(function(c){
+      var b=document.createElement('button');
+      b.className='me-adv-chip'; b.type='button'; b.textContent=c.label;
+      b.addEventListener('click',function(){ onChip(c); });
+      wrap.appendChild(b);
+    });
+    body.appendChild(wrap); scrollDown();
+  }
+  function onChip(c){
+    addMsg(c.label,'me');
+    addMsg(c.answer,'bot');
+  }
+  function showEscalation(){
+    if(escShown) return; escShown=true;
+    var box=document.createElement('div'); box.className='me-adv-esc';
+    var t=document.createElement('div'); t.className='me-adv-esc-t';
+    t.textContent='더 정확한 안내가 필요하시군요. 디렉터가 직접 도와드릴게요.';
+    box.appendChild(t);
+    var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
+    var a=document.createElement('a');
+    a.className='me-adv-esc-btn primary'; a.href=KB.escalation.inquiryUrl;
+    a.textContent='사전 문의서 작성하기';
+    btns.appendChild(a);
+    if(KB.escalation.kakaoUrl){
+      var k=document.createElement('a');
+      k.className='me-adv-esc-btn kakao'; k.href=KB.escalation.kakaoUrl;
+      k.target='_blank'; k.rel='noopener'; k.textContent='카카오톡으로 문의';
+      btns.appendChild(k);
+    }
+    box.appendChild(btns);
+    if(KB.escalation.hours){
+      var h=document.createElement('div'); h.className='me-adv-esc-hours';
+      h.textContent='상담 가능 '+KB.escalation.hours;
+      box.appendChild(h);
+    }
+    body.appendChild(box); scrollDown();
+  }
+
+  function open(){
+    panel.classList.add('open'); fab.classList.add('hide');
+    if(!started){
+      started=true;
+      addMsg(KB.greeting,'bot');
+      addChips();
+    }
+    setTimeout(function(){ input.focus(); },300);
+  }
+  function close(){ panel.classList.remove('open'); fab.classList.remove('hide'); }
+
+  fab.addEventListener('click',open);
+  closeBtn.addEventListener('click',close);
+  escLink.addEventListener('click',showEscalation);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&panel.classList.contains('open')) close(); });
+
+  // 입력창 자동 높이
+  input.addEventListener('input',function(){
+    input.style.height='auto';
+    input.style.height=Math.min(input.scrollHeight,96)+'px';
+  });
+  input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
+  });
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(sending) return;
+    var q=input.value.trim();
+    if(!q) return;
+    input.value=''; input.style.height='auto';
+    addMsg(q,'me');
+    apiHistory.push({role:'user',content:q});
+    ask();
+  });
+
+  function ask(){
+    sending=true; sendBtn.disabled=true;
+    var typing=addTyping();
+    fetch('/api/advisor',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({messages:apiHistory})
+    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok,status:r.status,j:j}; }); })
+      .then(function(res){
+        typing.remove();
+        var j=res.j||{};
+        if(res.ok && j.reply){
+          addMsg(j.reply,'bot');
+          apiHistory.push({role:'assistant',content:j.reply});
+          if(j.escalate) showEscalation();
+        } else {
+          // 키 미설정·오류 등: 우아한 폴백
+          addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.','bot');
+          showEscalation();
+        }
+      }).catch(function(){
+        typing.remove();
+        addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.','bot');
+        showEscalation();
+      }).then(function(){
+        sending=false; sendBtn.disabled=false;
+      });
+  }
+})();
+</script>
+<!-- ══ /AI 상담사 위젯 ══ -->
 </body>
 </html>
