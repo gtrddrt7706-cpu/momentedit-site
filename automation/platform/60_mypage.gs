@@ -93,11 +93,8 @@ function buildHoldState(r) {
 function buildLedgerState(r) {
   if (!r) return null;
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
-  // 노출 시점 — 계약서 요청 단계(시그 상담완료 · 스냅 촬영확정)부터. 그 전(시착 직후 등)엔 여정 카드가 보여주고 있어 중복이라 숨김. 예외 단계(취소 등·flow 밖)는 내역 있으면 기존대로 노출.
-  var _ledFlow = stageFlowFor(r.get('상품타입'));
-  var _ledCur = _ledFlow.indexOf(String(r.get('현재단계') || '').trim());
-  var _ledGate = _ledFlow.indexOf(isSnap ? '촬영확정' : '상담완료');
-  if (_ledGate >= 0 && _ledCur >= 0 && _ledCur < _ledGate) return null;
+  // 노출 시점 — 단계 게이트 없음. 예약금 입금 확인(=현금영수증 대상) 시점부터 내역이 생기므로,
+  //   아래 '내용 있음' 검사(서명·시착·입금·영수증)만으로 충분. 빈 내역이면 카드 자체가 안 뜬다. (2026-06-11 사용자 지시: 첫 접속부터 영수증 확인 가능하게)
   var signed = String(r.get('계약상태') || '').trim() === '서명완료';
   var fitDone = String(r.get('시착동의상태') || '').trim() === '동의완료';
   var fitAt = String(r.get('시착동의일시') || '').trim();
