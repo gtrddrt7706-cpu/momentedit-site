@@ -971,6 +971,22 @@ function sendMidReminders() {
   }
 }
 
+// [동시성] 트리거가 동의기록 1칸에 '플래그만' 찍을 때 — 메일 발송(루프 내 수십 초) 중 다른 핸들러가 같은 행의
+//   다른 키(계약정보·영수증발행·홀드 승인 등)를 써도 유실되지 않도록, 쓰기 직전에 그 셀을 '재읽기→병합→쓰기'(짧은 락).
+//   mutate(fresh)는 최신 동의기록 객체에 플래그만 추가한다(통째 교체 금지). 반환: 기록 성공 여부.
+function _stampConsentKey(sheet, colOf, rowNum, mutate) {
+  var col = colOf['동의기록']; if (!col) return false;
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) { return false; }
+  try {
+    var cell = sheet.getRange(rowNum, col);
+    var fresh = _parseJsonSafe(cell.getValue());     // 스냅샷이 아닌 '지금 시점' 값 — 그 사이 기록된 키 보존
+    mutate(fresh);
+    cell.setValue(JSON.stringify(fresh));
+    return true;
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
 // [트리거·일1회] 임시고정 만료 D-3 — 고객에게 1회 안내(메일 직송+카톡 키). 가예약.expiryNoticed로 중복 방지.
 function sendHoldExpiryNotices() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -996,8 +1012,9 @@ function sendHoldExpiryNotices() {
           '잡아두신 예식 일정(' + h.date + ')의 임시 고정이 ' + h.expires + '에 해제될 예정이에요.\n계속 진행을 원하시면 상담·본계약을 진행해 주시고, 일정 조율이 필요하시면 카카오톡으로 편하게 말씀해 주세요.\n\nMoment Edit');
       } catch (e) {}
     }
-    h.expiryNoticed = fmtKST(new Date());
-    sheet.getRange(P.DATA_START_ROW + i, c('동의기록')).setValue(JSON.stringify(rec));
+    _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 홀드 승인/거절·계약정보 보존
+      if (fresh.가예약) fresh.가예약.expiryNoticed = fmtKST(new Date());        // 그 사이 거절(가예약 삭제)됐으면 통지 마킹 생략(정상)
+    });
     try { _recordHandler(code, '임시고정 만료 D-' + left + ' 안내 발송'); } catch (e2) {}
   }
 }
@@ -1034,8 +1051,9 @@ function sendArchiveExpiryNotices() {
           '이용계약서 제12조 제3항에 따른 안내입니다.\n\nMoment Edit');
       } catch (e) {}
     }
-    rec.보관만료통지 = fmtKST(new Date());
-    sheet.getRange(P.DATA_START_ROW + i, c('동의기록')).setValue(JSON.stringify(rec));
+    _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 영수증발행·계약정보 보존
+      fresh.보관만료통지 = fmtKST(new Date());
+    });
     try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
   }
 }
