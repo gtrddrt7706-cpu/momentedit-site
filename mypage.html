@@ -417,6 +417,21 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-fpill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:5px 11px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;line-height:1}
 .dn-fpill.on{border-color:var(--gold);background:var(--gold-bg,#faf6ef);color:var(--accent)}
 .dn-count{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:2px 0 8px}
+/* 다이닝 컨시어지 — 자연어 추천을 브랜드 카드로(도구 느낌 제거) */
+.dn-ai{margin:0 0 14px;padding:16px 14px 14px;border:1px solid var(--gold-soft,rgba(184,154,117,.35));border-radius:12px;background:linear-gradient(180deg,#fff,var(--gold-bg,#faf6ef));box-shadow:0 6px 18px rgba(28,27,25,.05)}
+.dn-ai-eyebrow{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F);text-align:center}
+.dn-ai-rule{width:26px;height:1px;background:var(--gold,#B89A75);margin:8px auto;opacity:.6}
+.dn-ai-title{font-family:var(--serif-ko);font-size:14.5px;color:var(--accent);text-align:center;line-height:1.5}
+.dn-ai-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);text-align:center;margin:3px 0 11px}
+.dn-ai .cc-input{background:#fff}
+.dn-ai-sgg{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
+.dn-ai-sgg button{border:1px solid var(--border);background:#fff;border-radius:999px;padding:6px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;line-height:1.4}
+.dn-ai-sgg button:hover{border-color:var(--gold);color:var(--accent)}
+.dn-ai-res{margin-top:12px;padding-top:11px;border-top:1px dashed var(--gold-soft,rgba(184,154,117,.45));text-align:center}
+.dn-ai-res .r-cap{font-family:var(--serif);font-style:italic;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F);margin-bottom:5px}
+.dn-ai-res .r-line{font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);line-height:1.75}
+.dn-dots::after{content:'';display:inline-block;width:18px;text-align:left;animation:dnDots 1.2s steps(4,end) infinite}
+@keyframes dnDots{0%{content:''}25%{content:'·'}50%{content:'··'}75%{content:'···'}}
 .inv-prev{margin:14px 0;padding:18px 16px;border:1px dashed var(--border);border-radius:8px;text-align:center;background:var(--gold-bg,#faf6ef)}
 .ivp-names{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
 .ivp-title{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:8px}
@@ -3127,7 +3142,9 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; render(box); }); });   // 다이닝 취향칩 토글
-  var _aib=$('dn_aiBtn'); if(_aib){ _aib.addEventListener('click',function(){ collect(); var t=(($('dn_aiText')&&$('dn_aiText').value)||'').trim(), er=$('dn_aiErr'); TRKFLOW.draft._aiText=t; if(!t){ if(er)er.textContent='원하는 조건을 적어 주세요.'; return; } _aib.disabled=true; _aib.textContent='추천 받는 중…'; fetch('/api/dining-match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).then(function(_rr){return _rr.json();}).then(function(r){ if(r&&r.ok&&r.filters){ TRKFLOW.draft._filters=r.filters; TRKFLOW.draft._aiSummary=r.summary||''; render(box); } else { _aib.disabled=false; _aib.textContent='AI 추천 받기'; if(er)er.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.'; } }).catch(function(){ _aib.disabled=false; _aib.textContent='AI 추천 받기'; if(er)er.textContent='지금은 아래에서 직접 골라 주세요.'; }); }); }   // 다이닝 자연어 AI(선택 층) — Vercel /api/dining-match (메인홈과 같은 키)
+  var _aib=$('dn_aiBtn'); if(_aib){ var _aiGo=function(){ collect(); var t=(($('dn_aiText')&&$('dn_aiText').value)||'').trim(), er=$('dn_aiErr'); TRKFLOW.draft._aiText=t; if(!t){ if(er)er.textContent='원하시는 자리를 한 줄 적어주시면 골라드릴게요.'; return; } _aib.disabled=true; _aib.innerHTML='어울리는 곳을 고르는 중<span class="dn-dots"></span>'; fetch('/api/dining-match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).then(function(_rr){return _rr.json();}).then(function(r){ if(r&&r.ok&&r.filters){ TRKFLOW.draft._filters=r.filters; TRKFLOW.draft._aiSummary=r.summary||''; render(box); } else { _aib.disabled=false; _aib.textContent='추천 받기'; if(er)er.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.'; } }).catch(function(){ _aib.disabled=false; _aib.textContent='추천 받기'; if(er)er.textContent='지금은 아래에서 직접 골라 주세요.'; }); };
+    _aib.addEventListener('click',_aiGo);
+    Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ var t=$('dn_aiText'); if(t) t.value=el.getAttribute('data-sgg'); _aiGo(); }); }); }   // 다이닝 컨시어지(자연어 선택 층) — Vercel /api/dining-match (메인홈과 같은 키)
   Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ if(e.type==='checkbox') return; e.addEventListener('input',collect); });
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
   var exit=$('trk_exit'); if(exit) exit.addEventListener('click', exitTrkFlow);
@@ -3236,12 +3253,17 @@ function dineFilterUI(d, wt){
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0">고른 조건에 맞는 곳이 없어요. 필터를 줄이거나 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div>';
-  var aiBox='<div style="margin:0 0 12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--gold-bg,#faf6ef)">'
-    + '<div class="inv-side-l" style="margin:0 0 6px">말로 찾기 <span style="color:var(--label-soft)">(선택)</span></div>'
-    + '<textarea class="cc-input" id="dn_aiText" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:52px;margin-bottom:6px">'+escapeHtml(d._aiText||'')+'</textarea>'
-    + '<button type="button" class="cc-btn-ghost" id="dn_aiBtn" style="width:auto;padding:7px 16px">AI 추천 받기</button>'
-    + (d._aiSummary?'<div class="cc-note" style="margin-top:7px;color:var(--gold-deep)">'+escapeHtml(d._aiSummary)+'</div>':'')
-    + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px"></div>'
+  var sgg=['어르신 좌식이 편한 정갈한 한정식','조용한 카페에서 다과만 가볍게','부담 없는 가격에 든든한 식사'];
+  var aiBox='<div class="dn-ai">'
+    + '<div class="dn-ai-eyebrow">Dining Curation</div>'
+    + '<div class="dn-ai-rule"></div>'
+    + '<div class="dn-ai-title">원하시는 자리를 한 줄로 적어주세요</div>'
+    + '<div class="dn-ai-sub">분위기·가격·동행을 읽고 어울리는 곳만 추려드려요 <span style="color:var(--label-soft)">(선택)</span></div>'
+    + '<textarea class="cc-input" id="dn_aiText" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:54px;margin-bottom:8px">'+escapeHtml(d._aiText||'')+'</textarea>'
+    + (d._aiSummary?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
+    + '<button type="button" class="cc-btn" id="dn_aiBtn" style="margin:0">추천 받기</button>'
+    + (d._aiSummary?'<div class="dn-ai-res"><div class="r-cap">Curated for You</div><div class="r-line">'+escapeHtml(d._aiSummary)+'</div></div>':'')
+    + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var vnote = list.some(function(r){return !r.v;}) ? '<div class="cc-note" style="margin:2px 0 8px">거리·가격대는 대략의 안내예요. 정확한 메뉴·좌석은 예약 전화에서 확인해 주세요.</div>' : '';
   return aiBox + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
