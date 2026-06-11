@@ -172,6 +172,7 @@ function adminSetFittingCount(code, n) {
   try {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    if (String(cust.get('시착동의상태') || '').trim() !== '동의완료') return { ok: false, error: '시착 동의 서명 후에 벌수를 기록할 수 있어요.' };   // 서명 전 기록 차단 — handleSignFittingconsent가 시착 객체를 통째 교체하므로 유실 방지
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var rec = _parseJsonSafe(cust.get('동의기록'));
     rec.시착 = rec.시착 || {};
@@ -1281,7 +1282,7 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException) {
     { cols: ['잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], at: isSnap ? '촬영완료' : '제작중' }, // 잔금(제작/촬영 단계 마일스톤)
     { cols: ['제작임시저장', 'eventId', '제작상태'], at: '제작중' },
     { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], at: isSnap ? '촬영완료' : '예식완료' },
-    { cols: ['설문상태', '설문응답', '설문일시'], at: '결과물전달' }
+    { cols: ['설문상태', '설문응답', '설문일시'], at: '결과물전달', consent: ['결과물전달일', '보관만료통지'] }
   ];
   var upd = {}, consentKeys = [];
   groups.forEach(function (g) {

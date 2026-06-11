@@ -77,6 +77,7 @@ function handleSignFittingConsent(body) {
     var now = fmtKST(new Date());
     var sigSaved = _saveSignature(code, '시착', (body && body.signature), now, FITTING_CONSENT.version);  // 손글씨 서명 저장
     var prev = _parseJsonSafe(cust.get('동의기록'));     // 기존 기록(없으면 {}) 위에 병합
+    var _prevFit = prev.시착 || {};                      // 기존 시착 객체 — 벌수 등 서명 외 기록 보존
     prev.시착 = {
       type: '시착동의',
       version: FITTING_CONSENT.version,
@@ -88,6 +89,7 @@ function handleSignFittingConsent(body) {
       termsHash: _termsHash(FITTING_CONSENT.terms),      // 동의한 정확한 약관 문구의 지문
       signatureSaved: sigSaved                           // 손글씨 서명 이미지 저장 여부(Signatures 시트)
     };
+    if (_prevFit.벌수 != null) { prev.시착.벌수 = _prevFit.벌수; prev.시착.벌수기록 = _prevFit.벌수기록 || now; }   // 서명 전 기록된 벌수 보존(가드로 막지만 이중 안전)
     touchCustomer(sheet, colOf, cust.num, {
       '시착동의일시': now,
       '시착동의상태': '동의완료',
@@ -818,6 +820,7 @@ function adminConfirmBalance(code) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };   // 종료 고객 입금확인 차단(영수증 큐 오생성 방지)
   if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '잔금' });   // 고객 안심 알림(카톡)
@@ -884,6 +887,7 @@ function adminConfirmMid(code) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };   // 종료 고객 입금확인 차단(영수증 큐 오생성 방지)
   if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '중도금상태': '확인', '중도금확인일시': fmtKST(new Date()) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '중도금' });   // 고객 안심 알림(카톡)

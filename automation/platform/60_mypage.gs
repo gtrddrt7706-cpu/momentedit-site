@@ -54,6 +54,7 @@ function handleGetMyState(body) {
 // [①] 예식일 임시 고정(가예약) — 고객에게 검토 중/승인 상태를 보여줌. 계약 서명 후엔 예식일이 계약에 확정되므로 숨김.
 function buildHoldState(r) {
   if (!r) return null;
+  if (STAGE_EXCEPTIONS.indexOf(String(r.get('현재단계') || '').trim()) !== -1) return null;   // 취소·노쇼·미계약 → 가예약 배너 숨김(셀프취소 경로가 가예약 키를 안 지워도 화면 정합)
   if (String(r.get('계약상태') || '').trim() === '서명완료') return null;
   var h = _parseJsonSafe(r.get('동의기록')).가예약;
   if (!h || !h.date) return null;
