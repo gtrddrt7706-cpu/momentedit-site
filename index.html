@@ -1850,7 +1850,7 @@ function replayHeroAnimation(){
 
 .me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg);border-bottom:1px solid var(--hairline)}
 .me-adv-head-t{display:flex;align-items:center;gap:13px}
-.me-adv-seal{width:42px;height:42px;border-radius:50%;background:var(--seal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:17px;font-weight:500;flex:0 0 auto;box-shadow:0 5px 14px rgba(107,42,36,0.26)}
+.me-adv-seal{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--seal);border:1px solid rgba(107,42,36,0.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;font-weight:500;letter-spacing:0.04em;flex:0 0 auto;box-shadow:0 2px 9px rgba(28,27,25,0.06)}
 .me-adv-titles{display:flex;flex-direction:column;line-height:1.1}
 .me-adv-eyebrow{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
 .me-adv-title{font-family:var(--serif-ko);font-size:19px;font-weight:500;color:var(--accent);letter-spacing:0.01em;line-height:1.15}
@@ -1858,7 +1858,7 @@ function replayHeroAnimation(){
 .me-adv-close:hover{color:var(--accent);background:rgba(28,27,25,0.05)}
 .me-adv-close svg{width:18px;height:18px}
 
-.me-adv-body{flex:1 1 auto;overflow-y:auto;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
 .me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px}
 .me-adv-msg.bot{align-self:flex-start;background:var(--bg2);color:var(--accent);border-bottom-left-radius:4px}
 .me-adv-msg.me{align-self:flex-end;background:var(--seal);color:#fff;border-bottom-right-radius:4px}
@@ -1867,9 +1867,10 @@ function replayHeroAnimation(){
 .me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}
 @keyframes meAdvBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 
-.me-adv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
-.me-adv-chip{font-family:var(--sans);font-size:13px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:30px;padding:9px 15px;cursor:pointer;transition:border-color .25s,color .25s,background .25s;line-height:1.2}
-.me-adv-chip:hover{border-color:var(--gold);color:var(--gold)}
+.me-adv-chips{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.me-adv-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);background:none;border:none;border-bottom:1px solid var(--hairline);border-radius:0;padding:15px 2px;cursor:pointer;transition:color .22s var(--ease),padding-left .22s var(--ease);line-height:1.45;word-break:keep-all}
+.me-adv-chip:last-child{border-bottom:none}
+.me-adv-chip:hover{color:var(--gold);padding-left:8px}
 .me-adv-chips-label{font-family:var(--serif);font-style:italic;font-size:11.5px;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;margin:6px 0 -2px}
 .me-adv-nav{display:flex;flex-direction:column;gap:9px;margin-top:2px}
 .me-adv-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:11px;color:var(--light);line-height:1.5}
@@ -1877,8 +1878,8 @@ function replayHeroAnimation(){
 .me-adv-crumb button:hover{text-decoration:underline}
 .me-adv-crumb .sep{color:var(--light);opacity:.55}
 .me-adv-crumb .cur{color:var(--sub)}
-.me-adv-chip.cat{padding-right:12px;font-weight:500}
-.me-adv-chip.cat::after{content:'›';margin-left:7px;color:var(--gold);font-size:14px;line-height:1}
+.me-adv-chip.cat::after{content:'›';color:var(--gold);font-size:19px;line-height:1;flex:0 0 auto;transition:transform .22s var(--ease)}
+.me-adv-chip.cat:hover::after{transform:translateX(3px)}
 
 .me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:30px;padding:9px 16px;cursor:pointer;transition:background .25s,border-color .25s;line-height:1.4}
 .me-adv-escoffer:hover{background:rgba(107,42,36,0.05);border-color:var(--seal)}
@@ -1923,7 +1924,7 @@ function replayHeroAnimation(){
   <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">
     <header class="me-adv-head">
       <div class="me-adv-head-t">
-        <span class="me-adv-seal">M</span>
+        <span class="me-adv-seal">ME</span>
         <span class="me-adv-titles">
           <span class="me-adv-eyebrow">AI Wedding Concierge</span>
           <span class="me-adv-title">상담 도우미</span>
@@ -2077,10 +2078,30 @@ function replayHeroAnimation(){
     if(node.escalate){ offerEscalation(); }
   }
 
+  var _lockY=0, _locked=false;
+  // 모바일: body를 고정해 배경 스크롤 완전 차단(iOS는 overflow:hidden만으론 새어나감).
+  // 데스크톱(부분 드로어): overflow:hidden만 — body 고정 시 배경이 위로 튀어 보이므로 제외.
+  function lockScroll(){
+    document.documentElement.style.overflow='hidden';
+    if(window.innerWidth<=680){
+      _lockY=window.scrollY||window.pageYOffset||0;
+      var b=document.body;
+      b.style.position='fixed'; b.style.top=(-_lockY)+'px'; b.style.left='0'; b.style.right='0'; b.style.width='100%';
+      _locked=true;
+    }
+  }
+  function unlockScroll(){
+    document.documentElement.style.overflow='';
+    if(_locked){
+      var b=document.body;
+      b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';
+      window.scrollTo(0,_lockY); _locked=false;
+    }
+  }
   function open(){
     panel.classList.add('open'); stackEl.classList.add('hide');
     if(backdrop) backdrop.classList.add('open');
-    document.documentElement.style.overflow='hidden';   // 배경 스크롤 잠금
+    lockScroll();
     if(!started){
       started=true;
       addMsg(KB.greeting,'bot');
@@ -2091,7 +2112,7 @@ function replayHeroAnimation(){
   function close(){
     panel.classList.remove('open'); stackEl.classList.remove('hide');
     if(backdrop) backdrop.classList.remove('open');
-    document.documentElement.style.overflow='';
+    unlockScroll();
   }
   if(backdrop) backdrop.addEventListener('click',close);
 
