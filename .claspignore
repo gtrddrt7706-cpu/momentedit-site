@@ -2,10 +2,12 @@
 # 목적: R3n9Mr(플랫폼/상담/관리자) 프로젝트 파일만 push.
 #       레터/게스트레터(AKfycbwW)는 '별도 GAS 프로젝트'라 여기서 push 금지.
 
-# ── 다른 프로젝트(AKfycbwW) ──
+# ── 다른 프로젝트(AKfycbwW)·저장소 보관용 백업 ──
 form-to-couple.gs
 guest-letter-webhook.gs
 guest-letter-email.gs
+archive/**
+가족청첩장빌드.gs
 
 # ── GAS 코드 아님(디자인 목업 HTML) ──
 consultation/ScreenA_apply.html
