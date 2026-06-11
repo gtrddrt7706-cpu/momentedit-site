@@ -23,6 +23,7 @@ const rateGate = require('./_ratelimit');
 
 const SLOTS = ['09:00', '12:20', '15:40'];
 const SLOT_LABEL = { '09:00': '오전 9시', '12:20': '오후 12시 20분', '15:40': '늦은 오후 3시 40분' };
+const SLOT_BY_LABEL = { '오전 9시': '09:00', '오후 12시 20분': '12:20', '늦은 오후 3시 40분': '15:40' };
 const WD_KO = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
 // ── ⑤ 주말 예약율 비례 신비주의 6단계 (사장 지시 2026-06-11) ──
@@ -176,13 +177,19 @@ module.exports = async (req, res) => {
     let taken = normalizeTaken(body && body.taken);
     if (Object.keys(taken).length === 0) taken = normalizeTaken(await fetchAvailability());
 
-    // ② 이미 답해준 서로 다른 날짜 수 — 어시스턴트 답변 속 "M월 D일"을 코드로 집계(모델 재량 아님)
-    const answered = new Set();
+    // 반복 방지·신비주의: 대화 기록에서 "이미 확정 안내한 날짜→타임"과 "이미 CTA/희소성을 안내했는지"를 코드로 집계.
+    //   - confirmed: 같은 날짜에 또 다른 타임을 확인해 주면 그날이 비었다는 게 드러나므로, 추가 확정을 막는다.
+    //   - ctaGiven: 임시 고정·상담 신청·희소성 멘트를 한 번 했으면 다음 답변에선 반복하지 않는다.
+    const confirmed = {}; let ctaGiven = false;
     history.forEach((m) => {
       if (m.role !== 'assistant') return;
-      const re = /(\d{1,2})월\s*(\d{1,2})일/g; let g;
-      while ((g = re.exec(m.content)) !== null) answered.add(Number(g[1]) + '-' + Number(g[2]));
+      if (/임시\s*고정|상담을?\s*신청|서둘러|먼저\s*닿는|많지\s*않/.test(m.content)) ctaGiven = true;
+      if (/진행\s*가능|확인돼요|확인됩니다|가능해요/.test(m.content)) {
+        const re = /(\d{1,2})월\s*(\d{1,2})일[\s\S]{0,40}?(오전\s*9시|오후\s*12시\s*20분|늦은\s*오후\s*3시\s*40분)/g; let g;
+        while ((g = re.exec(m.content)) !== null) confirmed[Number(g[1]) + '-' + Number(g[2])] = SLOT_BY_LABEL[g[3].replace(/\s+/g, ' ')];
+      }
     });
+    const ctx = { confirmed: confirmed, confirmedDates: Object.keys(confirmed), ctaGiven: ctaGiven };
 
     // ── 1차 호출: 날짜 추출 ──
     const convo = history.map((m) => (m.role === 'user' ? '고객' : '도우미') + ': ' + m.content).join('\n');
@@ -199,7 +206,7 @@ module.exports = async (req, res) => {
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
     const lv = levelFor(taken, today, page);   // ⑤ 주말 예약율 6단계 · 클라이언트 비노출(로그만)
     try { console.log('sched_level', lv.n, lv.ratio.toFixed(2), page); } catch (e) {}
-    const verdict = decide(ex, taken, today, answered, page, lv);
+    const verdict = decide(ex, taken, today, ctx, page, lv);
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
     const rep = await callClaude(apiKey, {
@@ -221,11 +228,11 @@ module.exports = async (req, res) => {
   }
 };
 
-// ── 판정: 추출 결과 + 점유 맵 + 단계 정책 → AI에게 줄 한 건의 지시문 ──
-function decide(ex, taken, today, answered, page, lv) {
-  const pol = lv.p;
-  // 혼잡 멘트: 전역 단계와 "그 달"의 실제 혼잡도 중 높은 쪽 — 10월이 몰려 있으면 전체가 한가해도 솔직한 임박 안내
-  const busyAt = function (ymd) { return BUSY_LINE[Math.max(pol.busy, monthBusyTier(taken, ymd))]; };
+// ── 판정: 추출 결과 + 점유 맵 + 단계 정책 + 대화 상태 → AI에게 줄 한 건의 지시문 ──
+function decide(ex, taken, today, ctx, page, lv) {
+  const pol = lv.p, cta = ctx.ctaGiven;
+  // 혼잡·희소성 멘트: 이미 한 번 안내했으면(cta) 반복하지 않음. 아니면 전역 단계와 "그 달" 혼잡도 중 높은 쪽.
+  const busyAt = function (ymd) { return cta ? '' : BUSY_LINE[Math.max(pol.busy, monthBusyTier(taken, ymd))]; };
   if (ex.intent === 'other') {
     return '스케줄 확인 요청이 아닙니다. 예식일 확인 전용 창구임을 짧게 안내하고, 궁금한 예식 날짜가 있으면 알려달라고 하세요.';
   }
@@ -237,7 +244,7 @@ function decide(ex, taken, today, answered, page, lv) {
 
   // 시기만 말한 경우: 범위에서 후보 날짜를 서버가 고른다(주말 요청 시 주말만 · 단계별 1~3개)
   if (!date && /^\d{4}-\d{2}-\d{2}$/.test(ex.periodFrom)) {
-    if (answered.size >= pol.checks) return limitMsg(pol.checks);
+    if (ctx.confirmedDates.length >= pol.checks) return limitMsg(pol.checks);
     const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
     const to = /^\d{4}-\d{2}-\d{2}$/.test(ex.periodTo) && ex.periodTo > from ? ex.periodTo : addDays(from, 60);
     const wantN = (prefer || !pol.askSlot) ? pol.listDates : 1;
@@ -255,9 +262,9 @@ function decide(ex, taken, today, answered, page, lv) {
     if (!prefer && pol.askSlot) {
       return '고객이 말한 시기에서는 ' + koDate(cands[0]) + '(' + WD_KO[dayOfWeek(cands[0])] + ')을 후보 날짜로 제안하세요. 가능 여부는 아직 말하지 말고, "이 날짜라면 어느 시간대로 확인해 드릴까요?"로 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
     }
-    if (cands.length === 1) return okMsg(cands[0], prefer || freeSlot(taken, cands[0], ''), '', page) + busyAt(cands[0]);
+    if (cands.length === 1) return okMsg(cands[0], prefer || freeSlot(taken, cands[0], ''), '', page, cta) + busyAt(cands[0]);
     const listed = cands.map((c) => koDate(c) + '(' + WD_KO[dayOfWeek(c)] + ') ' + SLOT_LABEL[prefer || freeSlot(taken, c, '')]).join(' · ');
-    return '고객이 말한 시기에서 진행 가능한 일정으로 확인된 후보: ' + listed + '. 이 후보들만 안내하고, ' + actionTxt(page) + busyAt(cands[0]);
+    return '고객이 말한 시기에서 진행 가능한 일정으로 확인된 후보: ' + listed + '. 이 후보들만 안내하고,' + actionTxt(page, cta) + busyAt(cands[0]);
   }
 
   if (!date) {
@@ -268,7 +275,17 @@ function decide(ex, taken, today, answered, page, lv) {
   }
   // ② 한도: 새 날짜이고 단계별 한도를 넘었으면 차단(같은 날짜의 추가 질문·시간대 변경은 허용)
   const key = dateKey(date);
-  if (answered.size >= pol.checks && !answered.has(key)) return limitMsg(pol.checks);
+  if (ctx.confirmedDates.length >= pol.checks && !(key in ctx.confirmed)) return limitMsg(pol.checks);
+
+  // 신비주의 핵심: 같은 날짜에 이미 한 타임을 확인해 줬는데 다른 타임을 또 물으면, 그날 전체가 빈 게
+  //   드러나므로 추가 확정을 하지 않고 "임시 고정 후 디렉터 조율"로 한 번만 안내(단계가 풀린 L4+는 예외).
+  if ((key in ctx.confirmed) && !pol.listSlots) {
+    const already = ctx.confirmed[key];
+    if (!prefer || prefer !== already) {
+      return '고객은 이미 ' + koDate(date) + ' ' + SLOT_LABEL[already] + ' 타임을 안내받았습니다. 다른 시간대의 가능 여부는 새로 확인해 주지 마세요. "그 날은 ' + SLOT_LABEL[already] + '으로 안내드렸어요. 시간대는 임시 고정을 신청해 두시면 디렉터가 함께 조율해 드려요" 취지로 한 번만, 한두 문장으로 담백하게 답하세요. 영업·희소성 멘트는 반복하지 마세요.';
+    }
+    return '고객이 이미 안내받은 ' + koDate(date) + ' ' + SLOT_LABEL[already] + ' 타임을 다시 확인하는 상황입니다. "네, ' + koDate(date) + ' ' + SLOT_LABEL[already] + '으로 안내드린 일정 그대로예요" 정도로 짧게만 확인하세요. 영업·희소성 멘트 반복 금지.';
+  }
 
   // ④ 시간 단위 확인(L1~L2 예약 페이지): 날짜만 말하면 가능 여부 전에 시간대를 되묻는다
   if (!prefer && pol.askSlot && freeSlot(taken, date, '')) {
@@ -278,7 +295,7 @@ function decide(ex, taken, today, answered, page, lv) {
   if (!prefer && pol.listSlots) {
     const free = SLOTS.filter((s) => (taken[date] || []).indexOf(s) === -1);
     if (free.length > 0) {
-      return '안내할 일정: ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ') 진행 가능한 타임: ' + free.map((s) => SLOT_LABEL[s]).join(' · ') + '. 이 날짜의 이 타임들만 안내하고, ' + actionTxt(page) + busyAt(date);
+      return '안내할 일정: ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ') 진행 가능한 타임: ' + free.map((s) => SLOT_LABEL[s]).join(' · ') + '. 이 날짜의 이 타임들만 안내하고,' + actionTxt(page, cta) + busyAt(date);
     }
   }
 
@@ -288,7 +305,7 @@ function decide(ex, taken, today, answered, page, lv) {
     slot = freeSlot(taken, date, '');
     if (slot) note = '고객이 말한 ' + SLOT_LABEL[prefer] + ' 타임은 이미 확정된 일정이 있습니다. 그 사실을 먼저 알리고 아래 타임을 안내하세요.\n';
   }
-  if (slot) return okMsg(date, slot, note, page) + busyAt(date);
+  if (slot) return okMsg(date, slot, note, page, cta) + busyAt(date);
   // 그 날짜 전부 마감 → 가까운 대안 하나(주말 요청이면 주말 우선)
   const wantWeekend = ex.weekendOnly || dayOfWeek(date) === 0 || dayOfWeek(date) === 6;
   let alt = '', altSlot = '';
@@ -307,16 +324,18 @@ function decide(ex, taken, today, answered, page, lv) {
   return m + busyAt(date);
 }
 
-function actionTxt(page) {
+// 행동 안내: 이미 한 번 안내했으면(cta) 반복하지 않고 일정만 담백하게. 첫 안내도 한 문장으로 짧게.
+function actionTxt(page, cta) {
+  if (cta) return ' 임시 고정·상담 신청 안내는 앞서 했으니 반복하지 말고, 일정만 한 문장으로 담백하게 확인하세요.';
   return (page === '예약')
-    ? '이어서 "대면상담을 신청하시면 예약 단계에서 이 일정을 임시 고정으로 신청하실 수 있고, 디렉터 확인을 거쳐 대면상담 전에 정확한 예식 일자를 확정받으실 수 있어요"로, 상담 신청을 서두르도록 부드럽게 유도하세요.'
-    : '아래 예식일 임시 고정에 이 날짜로 신청해 두시면 디렉터가 최종 확인 후 14일간 잡아드린다고 덧붙이세요.';
+    ? ' 이어서 한 문장으로만 "대면상담을 신청하시면 상담 전에 이 일정을 확정받으실 수 있어요" 정도를 짧게 덧붙이세요.'
+    : ' 한 문장으로 "아래 임시 고정에 신청해 두시면 디렉터가 확인 후 잡아드려요"만 짧게 덧붙이세요.';
 }
-function okMsg(date, slot, note, page) {
+function okMsg(date, slot, note, page, cta) {
   const wd = dayOfWeek(date), month = Number(date.slice(5, 7));
-  const scarcity = (wd === 0 || wd === 6 || month === 4 || month === 5 || (month >= 9 && month <= 11));
+  const scarcity = !cta && (wd === 0 || wd === 6 || month === 4 || month === 5 || (month >= 9 && month <= 11));
   return note
-    + '안내할 일정: ' + koDate(date) + '(' + WD_KO[wd] + ') ' + SLOT_LABEL[slot] + ' 타임 → 진행 가능한 일정으로 확인됨. 이 한 건만 안내하고, ' + actionTxt(page)
+    + '안내할 일정: ' + koDate(date) + '(' + WD_KO[wd] + ') ' + SLOT_LABEL[slot] + ' 타임 → 진행 가능한 일정으로 확인됨. 이 한 건만 안내하고,' + actionTxt(page, cta)
     + (scarcity ? ' 희소성 한 줄 허용.' : ' 희소성 멘트 금지.');
 }
 function limitMsg(n) {
