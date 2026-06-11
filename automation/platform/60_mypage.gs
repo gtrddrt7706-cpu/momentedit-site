@@ -46,6 +46,7 @@ function handleGetMyState(body) {
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
     result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
     ledger: buildLedgerState(r),  // [02-6] '내 내역' · 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
+    refund: buildRefundQuote(r),  // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey). 서명완료 또는 예약금 입금 후에만 · 취소·노쇼·미계약은 null
     hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
   };

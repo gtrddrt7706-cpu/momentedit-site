@@ -643,6 +643,78 @@ function _journeyAmounts(total, product) {
   };
 }
 
+// ============================ 02-8 · 환불 예상액 (계약서 v1-1 §7·§9·§4⑧ 단일 구현) ============================
+// 시그니처 전용 — 웨딩스냅 계약서는 위약 구조가 달라 null. r=Customers 행 래퍼 · asOfYmd=기준일(YYYY-MM-DD · 없으면 오늘 KST).
+//   기수령액(paid) = 입금 '확인'된 것만(완료신호 제외): 예약금 200,000(Customers 입금상태=확인, 계약 전엔 Bookings 입금확인 폴백)
+//                   + 중도금·잔금(각 상태=확인 시 _journeyAmounts 금액).
+//   시착 공제(4조⑧) = 진행 벌수 × 70,000원(최대 200,000원=예약금). 동의완료인데 벌수 미기록이면 공제 0으로 계산 + needCount 플래그.
+//   분기: ① 계약 전(서명 전) → 위약금 없음 · 시착비만 공제(시착동의 v3 비례 원칙)
+//        ② 청약철회(7조①) → 계약 성립일부터 15일 이내 + 예식 전일(dd>=1)까지 · 전액 환급에서 시착비만 공제 · 위약금 표보다 우선(4조④ 단서)
+//        ③ 무상취소(7조②) → 예식일 150일 전까지(dd>=150) · 전액 환급에서 시착비만 공제
+//        ④ 위약금(9조②) → 총 계약금액 기준 D-149~60 10% · 59~30 20% · 29~10 40% · 9~1 50% · 당일 이후 70%.
+//           이 구간에선 시착비를 추가 차감하지 않는다(9조⑤ 위약금에 흡수 · 중복 공제 금지 — fitDeduct는 표시용으로만 반환).
+//   반환: {paid, fitCount, fitDeduct, needCount, penalty, rate, rule, refund, dd, asOf}
+//        / {pending:true}(계약 후 총액·예식일 미정 — 견적 불가) / null(스냅·행 없음).
+function _refundQuote(r, asOfYmd) {
+  if (!r) return null;
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 시그니처 전용
+  var asOf = _ymdOf(asOfYmd) || _kstYmd(new Date());
+
+  // 기수령액 — 예약금(상담 시 입금). 계약 전엔 Customers 입금상태가 비어 있으므로 Bookings 입금확인으로 폴백(_cashReceiptLedger와 동일 패턴).
+  var depConfirmed = String(r.get('입금상태') || '').trim() === '확인';
+  if (!depConfirmed && typeof findRowByPersonalCode === 'function') {
+    try {
+      var bk = findRowByPersonalCode(String(r.get('개인코드') || '').trim());
+      if (bk && String(bk.get('입금확인') || '').trim() === '확인') depConfirmed = true;
+    } catch (e) {}
+  }
+  var paid = depConfirmed ? PAYMENT.예약금 : 0;
+
+  // 시착 공제(4조⑧) — 관리자가 기록한 실제 벌수(동의기록.시착.벌수) 기준. 1벌당 70,000원 · 최대 200,000원.
+  var _fit = _parseJsonSafe(r.get('동의기록')).시착 || {};
+  var fitCount = (_fit.벌수 != null && _fit.벌수 !== '' && !isNaN(Number(_fit.벌수))) ? Number(_fit.벌수) : null;
+  var needCount = (fitCount == null) && String(r.get('시착동의상태') || '').trim() === '동의완료';   // 시착했는데 벌수 미기록 → 산정 보류 플래그
+  var fitDeduct = Math.min((fitCount || 0) * FITTING_CONSENT.추가벌비용, PAYMENT.예약금);
+
+  function out(rule, rate, penalty, refund, dd) {   // paid는 클로저 — 중도금·잔금 가산 후 호출돼도 최신값
+    return { paid: paid, fitCount: (fitCount == null ? 0 : fitCount), fitDeduct: fitDeduct, needCount: needCount,
+             penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd, asOf: asOf };
+  }
+
+  // ① 계약 전(계약상태!=서명완료) — 위약금 없음. 예약금에서 시착비만 공제(시착 전 취소는 전액 환불).
+  if (String(r.get('계약상태') || '').trim() !== '서명완료') return out('계약 전', 0, 0, paid - fitDeduct, null);
+
+  // 계약 후 — 총액·예식일이 있어야 구간 산정 가능. 미정(이례 데이터)이면 견적 보류.
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  if (!amounts) return { pending: true };
+  if (String(r.get('중도금상태') || '').trim() === '확인') paid += amounts.중도금;
+  if (String(r.get('잔금상태') || '').trim() === '확인') paid += amounts.잔금;
+  var dd = _dayDiff(_ymdOf(r.get('예식일')), asOf);   // 예식까지 남은 일수(D-dd · 0=당일 · 음수=지남)
+  if (dd == null) return { pending: true };
+
+  // ② 7조① 청약철회 — 계약 성립일부터 15일 이내, 예식 용역 개시 전(예식 전일=dd>=1)까지.
+  var signYmd = _ymdOf(r.get('계약서명일시'));
+  if (signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) return out('청약철회(7조)', 0, 0, paid - fitDeduct, dd);
+  // ③ 7조② 무상취소 — 예식일 150일 전까지 위약금 없이 해제.
+  if (dd >= 150) return out('무상취소(7조)', 0, 0, paid - fitDeduct, dd);
+  // ④ 9조② 위약금 — 총 계약금액 기준 시기별 요율. 시착비는 위약금에 흡수(9조⑤) → 추가 차감 없음.
+  var rate = dd >= 60 ? 0.1 : dd >= 30 ? 0.2 : dd >= 10 ? 0.4 : dd >= 1 ? 0.5 : 0.7;
+  var penalty = Math.round(amounts.총액 * rate);
+  return out('위약금 ' + Math.round(rate * 100) + '%(9조)', rate, penalty, paid - penalty, dd);
+}
+
+// [02-8] 노출 게이트 — 마이페이지(getMyState.refund)·관리자 상세(adminDetail.refundQuote) 공용.
+//   돈이 들어온 뒤에만(계약 서명완료 또는 예약금 입금 확인). 취소·노쇼·미계약(종료) 단계는 null
+//   — 취소 건의 실제 환불은 관리자 환불송금 큐가 취소일시 기준 _refundQuote로 따로 계산.
+function buildRefundQuote(r) {
+  if (!r) return null;
+  if (STAGE_EXCEPTIONS.indexOf(String(r.get('현재단계') || '').trim()) !== -1) return null;
+  var q = _refundQuote(r, null);
+  if (!q) return null;                                                                       // 스냅 등
+  if (String(r.get('계약상태') || '').trim() !== '서명완료' && !(q.paid > 0)) return null;   // 계약 전엔 예약금 입금(확인) 후에만
+  return q;
+}
+
 // [02-4] 계약금 입금 신호(고객) → 입금자명 + 입금완료신호 + 입금상태=완료신호.
 //   가드: 계약 서명완료 이후. 자동 진행 X — 관리자 통장 대조 승인(adminConfirmPayment)이 트리거.
 function handlePaymentSignal(body) {

@@ -422,7 +422,17 @@ function adminHome() {
         if (_racct && !_rdone) {
           var _rcd = _rbk ? _ymdOf(bget(_rbk, '취소일시')) : '';
           var _rdays = _dayDiff(today, _rcd);
-          pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: '예약금 환불 송금 필요',
+          var _rsub = '예약금 환불 송금 필요';
+          try {   // [02-8] 송금액 견적(계약서 7조·9조·4조⑧ · _refundQuote) — 기준일=취소일시(없으면 오늘). 스냅·산정 불가면 기본 문구 유지.
+            var _rq = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, _rcd || today);
+            if (_rq && _rq.needCount) _rsub += ' · 시착 벌수 기록 후 산정';
+            else if (_rq && !_rq.pending && _rq.refund != null) {
+              _rsub += ' · ' + Number(_rq.refund).toLocaleString() + '원';
+              if (_rq.penalty > 0) _rsub += '(위약금 ' + Math.round((_rq.rate || 0) * 100) + '% 공제)';
+              else if (_rq.fitCount > 0) _rsub += '(시착 ' + _rq.fitCount + '벌 공제)';
+            }
+          } catch (e) {}
+          pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
             badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
             _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
         }
@@ -730,6 +740,7 @@ function adminDetail(code) {
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
   if (d.hold && d.hold.status === '승인' && d.hold.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(d.hold.expires)) d.hold.expired = true;   // 14일 만료(점유 자동해제됨) — UI 표기용
   d.refundDone = String(_rec.환불완료 || '');   // 취소 환불 송금 완료 시각(있으면 완료). 환불계좌는 d.consult.refund
+  d.refundQuote = buildRefundQuote(cust);   // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey) — 결제 카드 한 줄. 종료 단계·스냅·입금 전 null
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {

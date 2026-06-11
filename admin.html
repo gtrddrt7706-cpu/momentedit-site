@@ -881,6 +881,17 @@ function cardPayment(d){
     if(bal.status==='완료신호'&&!_mbBoth) b+=ab('confirmBalance','잔금 입금 확인','btn-line');
     else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>';
   }
+  // [02-8] 환불 예상(d.refundQuote · 계약서 7조·9조·4조⑧ 서버 계산) — 지금 취소하면 한 줄. 벌수 미기록이면 산정 불가 경고.
+  if(d.refundQuote && !d.refundQuote.pending){
+    var rq=d.refundQuote;
+    raw+='<div class="cnote">지금 취소하면 · '+(rq.needCount
+      ? '<b style="color:#b3261e">벌수 기록 필요</b> <span style="color:var(--label-soft)">(시착 카드에서 기록하면 환불액이 계산돼요)</span>'
+      : ('환불 예상 <b>'+Number(rq.refund||0).toLocaleString()+'원</b>'
+        +(rq.rule?(' · '+esc(rq.rule)):'')
+        +(rq.penalty>0?(' · 위약금 '+Number(rq.penalty).toLocaleString()+'원'+(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 비용은 위약금에 흡수'):'')):(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 공제 '+Number(rq.fitDeduct||0).toLocaleString()+'원'):''))
+        +' · 기수령 '+Number(rq.paid||0).toLocaleString()+'원'))
+      +'</div>';
+  }
   // 현금영수증 — 발급대상 + 마일스톤별 발행 상태(원장 d.receipts). 발행할 것 먼저, 발행 취소는 뒤로.
   var rcpt='';
   if(d.cashReceipt) rcpt+='<div style="color:var(--label-soft)">발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</div>';
