@@ -259,6 +259,8 @@ function handleSignContract(body) {
       }
     } catch (e) { Logger.log('계약서 자동 보관 실패: ' + (e && e.message)); }
     var isSnapC = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
+    // [A-5] 서명 = 계약 점유로 전환 — 잔존 가예약이 별도 점유·만료 알림 대상으로 남지 않게 상태만 바꿔 보존(이력)
+    if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now; }
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
       setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
@@ -1035,6 +1037,17 @@ function _cashReceiptLedger(r) {
   if (_exAmt > 0 && ['완료', '결제대기'].indexOf(String(r.get('추가보정상태') || '').trim()) !== -1) {
     out.push(item('추가보정', '추가 보정', String(r.get('추가보정상태') || '').trim() === '완료', _exAmt));
   }
+  // [B-6] 고아 발행기록 — 발행 뒤 확인 구성이 바뀌어(콤보↔개별 등) 현재 원장 키와 어긋난 기록도 노출.
+  //   숨기면 발행 취소 경로가 사라져 정리 불가 → orphan 플래그로 카드에 표시(취소 후 현행 기준 재발행 안내).
+  var _outKeys = {}; out.forEach(function (o) { _outKeys[o.key] = true; });
+  Object.keys(issued).forEach(function (k) {
+    if (_outKeys[k]) return;
+    var _rec = issued[k] || {};
+    out.push({ key: k, label: ({ '중도금잔금': '중도금·잔금' }[k] || k), confirmed: false,
+      amount: Math.round(Number(_rec.금액) || 0), target: target,
+      issued: { 번호: String(_rec.번호 || ''), 금액: Math.round(Number(_rec.금액) || 0), 대상: String(_rec.대상 || ''), at: String(_rec.at || '') },
+      due: false, orphan: true });
+  });
   return out;
 }
 function buildPaymentState(r) {

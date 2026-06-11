@@ -45,6 +45,10 @@ module.exports = async (req, res) => {
     res.statusCode = 405; res.setHeader('Allow', 'POST');
     return res.end(JSON.stringify({ error: 'method_not_allowed' }));
   }
+  if (!require('./_ratelimit')(req, 4, 30)) {   // 비용 가드 — 상위 모델이라 더 보수적(분당 4·6시간 30)
+    res.statusCode = 429; res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.end(JSON.stringify({ error: 'rate_limited' }));
+  }
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     res.statusCode = 503; res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -117,7 +121,7 @@ module.exports = async (req, res) => {
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
-    req.on('data', (c) => { raw += c; if (raw.length > 40000) req.destroy(); });
+    req.on('data', (c) => { raw += c; if (raw.length > 40000) { req.destroy(); reject(new Error('payload_too_large')); } });
     req.on('end', () => { try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { reject(e); } });
     req.on('error', reject);
   });

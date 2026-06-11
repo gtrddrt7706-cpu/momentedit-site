@@ -20,6 +20,7 @@ const MAX_HISTORY = 12;         // 누적 대화 턴 상한
 const MAX_TOKENS = 700;         // 응답 토큰 상한
 
 const KNOWLEDGE = require('./_kb');
+const rateGate = require('./_ratelimit');
 
 const SYSTEM_PROMPT = `당신은 웨딩 브랜드 "모먼트에디트"의 AI 상담 도우미입니다. 예비 부부의 질문에 따뜻하고 단정하게 답합니다.
 
@@ -43,6 +44,12 @@ module.exports = async (req, res) => {
     res.statusCode = 405;
     res.setHeader('Allow', 'POST');
     return res.end(JSON.stringify({ error: 'method_not_allowed' }));
+  }
+
+  if (!rateGate(req, 8, 100)) {   // 비용 가드 — 같은 IP 분당 8회·6시간 100회 초과 시 차단(프론트는 상담 연결로 폴백)
+    res.statusCode = 429;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.end(JSON.stringify({ error: 'rate_limited', escalate: true }));
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -74,6 +81,9 @@ module.exports = async (req, res) => {
         content: m.content.slice(0, MAX_MSG_LEN).trim(),
       }))
       .filter((m) => m.content.length > 0);
+
+    // 모델 규칙: 첫 메시지는 user여야 함 — slice로 잘린 히스토리가 assistant로 시작하면 앞을 버린다
+    while (history.length > 0 && history[0].role !== 'user') history.shift();
 
     if (history.length === 0 || history[history.length - 1].role !== 'user') {
       res.statusCode = 400;
@@ -145,7 +155,7 @@ function readJson(req) {
     let raw = '';
     req.on('data', (c) => {
       raw += c;
-      if (raw.length > 20000) req.destroy(); // 과대 payload 차단
+      if (raw.length > 20000) { req.destroy(); reject(new Error('payload_too_large')); } // 과대 payload 차단 — reject로 즉시 종료(타임아웃 대기 방지)
     });
     req.on('end', () => {
       try {

@@ -1,20 +1,36 @@
 /**
- * 95_notify.gs — 카톡 알림톡 훅 (채널 추상화)
+ * 95_notify.gs — 카톡 알림톡 + SMS 발송 (솔라피 Solapi 연동)
  * ------------------------------------------------------------------
- * 여정의 각 시점에서 notifyKakao(event, code, extra)를 호출한다.
- * 지금은 발송부가 비어 있어 "로그만" 남긴다(카톡 계정·알림톡 템플릿 준비 전).
- * 카톡 연동 시 → NOTIFY.ENABLED=true + _kakaoSend()만 구현하면, 훅 위치는 그대로.
+ * 여정의 각 시점에서 notifyKakao(event, code, extra)를 호출한다(훅 35곳).
  *
- * 설계 원칙
- *  - 베스트에포트: 알림 실패가 본 흐름(계약·입금·결과물)을 절대 막지 않는다(내부 try/catch).
- *  - 단일 진입점: 모든 알림이 notifyKakao 한 곳을 지난다 → 나중에 발송부 1곳만 연결.
- *  - 이벤트 카탈로그(NOTIFY_EVENTS): 시점별 수신자(admin/customer)·용도. 문구는 3단계에서 템플릿화.
+ * 발송 정책
+ *  - 고객(customer): 알림톡(승인된 템플릿 코드가 있을 때) → 실패 시 SMS 자동 대체.
+ *                    템플릿 코드가 아직 없으면 같은 내용을 SMS로 발송(승인 전에도 운영 가능).
+ *  - 관리자(admin):  SMS/LMS (템플릿 승인 불필요 · ADMIN_PHONE으로).
+ *  - 베스트에포트: 발송 실패가 본 흐름(계약·입금·결과물)을 절대 막지 않는다(내부 try/catch).
+ *
+ * ★ 설정은 전부 Script Properties (코드 수정·재배포 없이 변경 가능) ★
+ *   NOTIFY_ENABLED    'true'면 실발송. 그 외(미설정 포함)는 로그만.
+ *   SOLAPI_API_KEY    솔라피 콘솔 > API Key
+ *   SOLAPI_API_SECRET 〃 API Secret
+ *   SOLAPI_SENDER     사전 등록한 발신번호(숫자만, 예: 01012345678) — SMS 발신용
+ *   SOLAPI_PF_ID      카카오 채널 연동 후 발급되는 pfId — 알림톡 발신프로필
+ *   ADMIN_PHONE       관리자(디렉터) 휴대폰(숫자만)
+ *   KAKAO_TEMPLATES   JSON 한 줄. 승인된 템플릿만 채우면 그 이벤트부터 알림톡 전환.
+ *                     예: {"cust.consultConfirmed":"KA01TP아이디...","cust.contractArrived":"KA01TP..."}
+ *
+ * 템플릿 신청 문안: automation/알림톡_템플릿_신청문안.md (변수명까지 이 파일과 1:1)
+ * 테스트: notifySetupCheck() → notifyTestAdminSms() → notifyTestCustomerByCode('개인코드')
  */
 
 var NOTIFY = {
-  ENABLED: false,   // 카톡 연동 전 false — 호출돼도 실제 발송 안 함(로그만). 연동 후 true.
   LOG: true         // 훅 호출을 Logger에 기록(디버깅/검증용)
 };
+
+function _notifyEnabled() {
+  try { return PropertiesService.getScriptProperties().getProperty('NOTIFY_ENABLED') === 'true'; }
+  catch (e) { return false; }
+}
 
 // 시점별 이벤트 — to: 수신자 / need: 행동게이트(true)인지 안내(false) / desc: 용도
 var NOTIFY_EVENTS = {
@@ -33,12 +49,17 @@ var NOTIFY_EVENTS = {
   'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
+  'admin.diningConsult':  { to: 'admin', need: false, desc: "다이닝 '상담 때 함께 정할게요' 선택 — 상담 의제 준비" },
+  'admin.dailyBrief':     { to: 'admin', need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   // ── 고객: 행동 필요 ──
   'cust.consultConfirmed':{ to: 'customer', need: false, desc: '상담 확정' },
   'cust.timeProposed':    { to: 'customer', need: true,  desc: '상담 시간 변경 제안 — 수락 필요' },
   'cust.fittingRequest':  { to: 'customer', need: true,  desc: '시착 동의 요청 — 서명 필요' },
   'cust.contractArrived': { to: 'customer', need: true,  desc: '계약서 도착 — 72시간 내 서명' },
-  'cust.balanceDue':      { to: 'customer', need: true,  desc: '잔금 안내 — 입금' },
+  'cust.balanceDue':      { to: 'customer', need: true,  desc: '잔금 안내(기한 도래) — 입금' },
+  'cust.balancePre':      { to: 'customer', need: false, desc: '잔금 사전 안내(기한 전 리마인드)' },
+  'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
+  'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
   // ── 고객: 권장(안심) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
@@ -47,8 +68,6 @@ var NOTIFY_EVENTS = {
   'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
-  'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(D-149) — 입금' },
-  'admin.dailyBrief':     { to: 'admin',    need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' },
   'cust.archiveExpiring': { to: 'customer', need: true,  desc: '결과물 보관 만료 임박 — 다운로드 안내' }
@@ -58,7 +77,7 @@ var NOTIFY_EVENTS = {
  * 알림 훅 — 여정 각 시점에서 호출. 절대 throw 하지 않음(본 흐름 보호).
  * @param {string} event  NOTIFY_EVENTS 키
  * @param {string} code   고객 개인코드(고객 알림 시 수신번호 조회용 · 관리자 알림 시 참고)
- * @param {Object=} extra 부가정보(금액·D-day·이름 등) — 문구 템플릿/디버깅용
+ * @param {Object=} extra 부가정보(금액·D-day·이름 등) — 문구 변수용
  */
 function notifyKakao(event, code, extra) {
   try {
@@ -68,24 +87,221 @@ function notifyKakao(event, code, extra) {
       Logger.log('[notifyKakao] ' + event + ' → ' + meta.to + (meta.need ? '(행동필요)' : '(안내)')
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
     }
-    if (!NOTIFY.ENABLED) return;          // 카톡 연동 전 — 로그만 남기고 종료
+    if (!_notifyEnabled()) return;        // 발송 OFF — 로그만 남기고 종료
     _kakaoSend(meta.to, event, code, extra);
   } catch (e) {
     try { Logger.log('[notifyKakao] 예외(무시): ' + (e && e.message)); } catch (_) {}
   }
 }
 
+// ============================ 발송부 (솔라피) ============================
+
+function _nfProps() {
+  var p = PropertiesService.getScriptProperties();
+  var tpls = {};
+  try { tpls = JSON.parse(p.getProperty('KAKAO_TEMPLATES') || '{}'); } catch (e) { tpls = {}; }
+  return {
+    key: String(p.getProperty('SOLAPI_API_KEY') || '').trim(),
+    secret: String(p.getProperty('SOLAPI_API_SECRET') || '').trim(),
+    sender: String(p.getProperty('SOLAPI_SENDER') || '').replace(/[^0-9]/g, ''),
+    pfId: String(p.getProperty('SOLAPI_PF_ID') || '').trim(),
+    adminPhone: String(p.getProperty('ADMIN_PHONE') || '').replace(/[^0-9]/g, ''),
+    templates: tpls
+  };
+}
+
 /**
- * 실제 카톡(알림톡) 발송 — ★카톡 계정·템플릿 준비되면 여기만 구현★.
- *  - to==='admin'    → 운영자 번호(고정)로 발송. code는 참고용.
- *  - to==='customer' → code로 고객 휴대폰 조회 후 발송.
- * 지금은 미구현(NOTIFY.ENABLED=false 라 호출되지 않음).
+ * 실제 발송 — admin=SMS / customer=알림톡(템플릿 있으면)→SMS 대체.
+ * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
  */
 function _kakaoSend(to, event, code, extra) {
-  // TODO(카톡 연동):
-  //   1) 수신번호: admin=운영자번호 / customer=findCustomerByCode(code).연락처
-  //   2) event → 알림톡 템플릿코드 + 치환변수(extra·이름·금액·링크) 매핑
-  //   3) 알림톡 API(예: 카카오 비즈메시지/대행사) 호출. 실패 시 SMS 대체 검토.
+  var cfg = _nfProps();
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
+
+  if (to === 'admin') {
+    if (!cfg.adminPhone) { Logger.log('[notify] ADMIN_PHONE 미설정 — 발송 생략'); return; }
+    _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
+    return;
+  }
+
+  // customer — 개인코드로 연락처·이름 조회
+  var cust = null;
+  try { cust = findCustomerByCode(String(code || '').trim()); } catch (e) {}
+  if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return; }
+  var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
+  if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략'); return; }
+  var name = _nfCoupleName(cust);
+
+  var m = _nfCustomerMsg(event, name, extra);   // { vars, text }
+  if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return; }
+
+  var tplId = String(cfg.templates[event] || '').trim();
+  var msg = { to: phone, from: cfg.sender, text: m.text };   // text = 알림톡 실패 시 SMS 대체 문구
+  if (tplId && cfg.pfId) {
+    msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
+  }
+  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
+  _solapiSend(cfg, msg);
+}
+
+// 솔라피 v4 단건 발송 — HMAC-SHA256 인증
+function _solapiSend(cfg, message) {
+  try {
+    var date = new Date().toISOString();
+    var salt = Utilities.getUuid().replace(/-/g, '');
+    var sigBytes = Utilities.computeHmacSha256Signature(date + salt, cfg.secret);
+    var signature = sigBytes.map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+    var resp = UrlFetchApp.fetch('https://api.solapi.com/messages/v4/send', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { Authorization: 'HMAC-SHA256 apiKey=' + cfg.key + ', date=' + date + ', salt=' + salt + ', signature=' + signature },
+      payload: JSON.stringify({ message: message }),
+      muteHttpExceptions: true
+    });
+    var codeN = resp.getResponseCode();
+    if (codeN >= 200 && codeN < 300) {
+      Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
+    } else {
+      Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
+    }
+  } catch (e) {
+    Logger.log('[notify] 발송 예외: ' + (e && e.message));
+  }
+}
+
+// ============================ 문구 빌더 ============================
+// 알림톡 변수(vars)는 automation/알림톡_템플릿_신청문안.md 의 #{변수명}과 1:1.
+// text는 템플릿 미승인·알림톡 실패 시 나가는 SMS 문구(자유 문구).
+
+function _nfCoupleName(cust) {
+  var g = String(cust.get('신랑이름') || '').trim(), b = String(cust.get('신부이름') || '').trim();
+  return (g && b) ? (g + '·' + b) : (g || b || '고객');
+}
+function _nfDate(ymd) {   // '2026-06-17' → '2026년 6월 17일'
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? (m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일') : String(ymd || '');
+}
+function _nfWon(n) { n = Number(n || 0); return n.toLocaleString ? n.toLocaleString('ko-KR') : String(n); }
+
+var NF_MYPAGE = 'momentedit.kr/mypage.html';
+
+function _nfCustomerMsg(event, name, x) {
+  x = x || {};
+  var d;
+  switch (event) {
+    case 'cust.consultConfirmed':
+      d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 상담 일정이 확정되었습니다. ' + d + '에 뵙겠습니다. 변경이 필요하시면 마이페이지에서 가능해요. ' + NF_MYPAGE };
+    case 'cust.consultDayBefore':
+      d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 내일 ' + d + ' 상담이 예정되어 있어요. 편안히 오시면 됩니다.' };
+    case 'cust.timeProposed':
+      d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 상담 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 확인 후 수락해 주세요. ' + NF_MYPAGE };
+    case 'cust.fittingRequest':
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 마이페이지에서 내용 확인 후 서명해 주세요. ' + NF_MYPAGE };
+    case 'cust.contractArrived':
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 72시간 안에 마이페이지에서 확인 후 서명해 주세요. ' + NF_MYPAGE };
+    case 'cust.paymentConfirmed':
+      return { vars: { '#{이름}': name, '#{항목}': String(x.kind || '결제') },
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '결제') + ' 입금이 확인되었습니다. 감사합니다. 자세한 내역은 마이페이지에서 보실 수 있어요. ' + NF_MYPAGE };
+    case 'cust.cashReceiptIssued':
+      return { vars: { '#{이름}': name, '#{항목}': String(x.kind || ''), '#{금액}': _nfWon(x.amount) },
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '') + ' 현금영수증(' + _nfWon(x.amount) + '원)이 발행되었습니다. 승인번호는 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
+    case 'cust.midPre':
+    case 'cust.midDue':
+      return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
+        text: '[모먼트에디트] ' + name + '님, 중도금 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+    case 'cust.balancePre':
+    case 'cust.balanceDue':
+      return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
+        text: '[모먼트에디트] ' + name + '님, 잔금 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+    case 'cust.resultDelivered':
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 결과물이 준비되었습니다. 마이페이지에서 확인·다운로드해 주세요. ' + NF_MYPAGE };
+    case 'cust.holdGranted':
+      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 자리를 비워둘게요.' };
+    case 'cust.holdReleased':
+      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 궁금한 점은 카카오톡 채널로 문의해 주세요.' };
+    case 'cust.holdExpiring':
+      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d, '#{남은일}': String(x.left != null ? x.left : '') },
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 상담을 확정하시면 자리가 유지됩니다.' };
+    case 'cust.changeConfirmed':
+      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      return { vars: { '#{이름}': name, '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 자세한 내용은 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+    case 'cust.changeDeclined':
+      return { vars: { '#{이름}': name, '#{사유}': String(x.reason || '요청하신 일정 진행이 어려워요') },
+        text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 어려워 보류되었습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. ' + NF_MYPAGE };
+    case 'cust.archiveExpiring':
+      return { vars: { '#{이름}': name, '#{만료일}': _nfDate(x.expires) },
+        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 그 전에 마이페이지에서 다운로드해 주세요. ' + NF_MYPAGE };
+    default:
+      return null;
+  }
+}
+
+// 관리자 SMS — 짧고 행동 중심(템플릿 승인 불필요)
+function _nfAdminText(event, code, x) {
+  x = x || {};
+  var tag = '[모먼트에디트]';
+  var c = code ? (' · ' + code) : '';
+  switch (event) {
+    case 'admin.newSignup':      return tag + ' 신규 신청 ' + (x.names || '') + ' (' + (x.product || '') + ')' + c + ' / 일정 잡기';
+    case 'admin.slotPicked':     return tag + ' 상담 슬롯 선택 ' + (x.names || '') + ' ' + (x.date || '') + ' ' + (x.time || '') + c + ' / 승인 필요';
+    case 'admin.contractReq':    return tag + ' 계약서 요청' + c + ' (예식 ' + (x.weddingDate || '-') + ') / 발송 필요';
+    case 'admin.depositSignal':  return tag + ' 계약금 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
+    case 'admin.midSignal':      return tag + ' 중도금 입금신호' + c + ' (입금자 ' + (x.payer || '-') + (x.withBalance ? ' · 잔금 동시' : '') + ') / 확인 필요';
+    case 'admin.balanceSignal':  return tag + ' 잔금 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
+    case 'admin.holdRequest':    return tag + ' 임시고정 요청' + c + ' ' + (x.date || '') + ' ' + (x.slot || '') + ' / 승인·거절';
+    case 'admin.changeRequest':  return tag + ' 예식일 변경 요청' + c + ' ' + (x.from || '') + ' → ' + (x.to || '') + (x.fee ? (' · 수수료 ' + _nfWon(x.fee) + '원(입금자 ' + (x.payer || '-') + ')') : ' · 무상') + ' / 확인 필요';
+    case 'admin.fittingSigned':  return tag + ' 시착 동의 서명 완료' + c + ' / 상담완료 처리';
+    case 'admin.contractSigned': return tag + ' 계약 서명 완료' + c + ' (' + (x.product || '') + ')';
+    case 'admin.resultPicked':   return tag + ' 보정본 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 작업 착수';
+    case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
+    case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
+    case 'admin.diningConsult':  return tag + ' 다이닝: 상담 때 함께 정하기로 함' + c + ' / 상담 의제로 준비';
+    case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건';
+    default:                     return tag + ' 알림 ' + event + c;
+  }
+}
+
+// ============================ 점검·테스트 ============================
+
+// 1) 설정 점검 — 발송 없이 현재 설정 상태만 로그로 출력 (실행 후 Ctrl+Enter 로그 확인)
+function notifySetupCheck() {
+  var cfg = _nfProps();
+  Logger.log('NOTIFY_ENABLED = ' + _notifyEnabled());
+  Logger.log('SOLAPI_API_KEY = ' + (cfg.key ? '설정됨(' + cfg.key.slice(0, 4) + '…)' : '❌ 없음'));
+  Logger.log('SOLAPI_API_SECRET = ' + (cfg.secret ? '설정됨' : '❌ 없음'));
+  Logger.log('SOLAPI_SENDER = ' + (cfg.sender || '❌ 없음(발신번호 사전등록 필요)'));
+  Logger.log('SOLAPI_PF_ID = ' + (cfg.pfId || '(없음 — 알림톡 미사용, 전부 SMS로 발송)'));
+  Logger.log('ADMIN_PHONE = ' + (cfg.adminPhone || '❌ 없음(관리자 알림 불가)'));
+  var keys = Object.keys(cfg.templates);
+  Logger.log('KAKAO_TEMPLATES = ' + keys.length + '건 등록' + (keys.length ? (' (' + keys.join(', ') + ')') : ' — 전부 SMS로 발송됨'));
+}
+
+// 2) 관리자 SMS 테스트 — ADMIN_PHONE으로 1건 실발송(요금 발생)
+function notifyTestAdminSms() {
+  var cfg = _nfProps();
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('SOLAPI 설정 누락 — notifySetupCheck() 먼저'); return; }
+  if (!cfg.adminPhone) { Logger.log('ADMIN_PHONE 미설정'); return; }
+  _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: '[모먼트에디트] 알림 연동 테스트입니다. 이 문자가 보이면 SMS 연동 성공!' });
+}
+
+// 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장)
+function notifyTestCustomerByCode(code) {
+  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' });
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }

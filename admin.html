@@ -907,7 +907,7 @@ function cardPayment(d){
   var rcpt='';
   if(d.cashReceipt) rcpt+='<div style="color:var(--label-soft)">발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</div>';
   (d.receipts||[]).forEach(function(it){
-    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원</div>';
+    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 — '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원'+(it.orphan?' <span style="color:#b3261e">· 확인 구성이 바뀐 기록 — 발행 취소 후 현행 기준으로 재발행</span>':'')+'</div>';
     else if(it.due) rcpt+='<div style="color:#b5852a">• '+esc(it.label)+' <b>발행 대기</b> '+Number(it.amount||0).toLocaleString()+'원 <span style="color:var(--label-soft)">· 홈택스 발급 후 번호 기록</span></div>';
   });
   var rcptBlock = rcpt ? '<div class="raw-sub"><div class="raw-sub-h">현금영수증</div>'+rcpt+'</div>' : '';
@@ -1133,11 +1133,14 @@ function doConfirmMid(code,names){ openModal({ title:'중도금을 확인 처리
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names,d){
   var r=(d&&d.raw)||{}, noReto=!!(d&&d.raw&&!r['보정본폴더']), noConfirm=(!!d&&d.raw&&r['결과물상태']!=='컨펌완료'&&!noReto);
+  // [B-2] 미수금 경고 — 잔금(시그는 중도금 포함)·추가보정 미확인이면 명시 확인 후에만 전달(force). 큐에서 바로 누른 경우(d 없음)는 서버 가드가 막고 상세로 유도.
+  var unpaid=[]; if(d&&d.raw){ if(!snap(d.product)&&r['중도금상태']!=='확인')unpaid.push('중도금'); if(r['잔금상태']!=='확인')unpaid.push('잔금'); if(r['추가보정상태']==='결제대기')unpaid.push('추가 보정'); }
+  var warnPay = unpaid.length?('⚠ 미수금: '+unpaid.join('·')+' 입금 확인 전이에요 — 받을 돈이 남은 채 전달돼요'):'';
   var warn = noReto?'⚠ 보정본이 아직 등록되지 않았어요 — 빈 채로 전달돼요'
            : (noConfirm?'⚠ 고객 컨펌 전이에요 — 확인 후 전달을 권해요':'');
-  openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!warn,
-    text:b(names)+(warn?li(warn):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
-    yes:warn?'그래도 전달':'전달 완료', onYes:function(){ runAct(['adminMarkDelivered',code],code,warn?'그래도 전달':'전달 완료'); } }); }
+  openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!(warn||warnPay),
+    text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
+    yes:(warn||warnPay)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay)?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
@@ -1296,7 +1299,9 @@ function renderArchive(d){
     if(!_arcQuery) html+='<div class="qhead">최근 종료 '+d.results.length+'명'+(d.total>d.results.length?(' (전체 '+d.total+')'):'')+'</div>';
     html+=d.results.map(function(r){
       var done=r.endType==='완료';
-      return '<div class="arow" data-code="'+esc(r.code)+'"><span class="endchip '+(done?'done':'stopped')+'">'+(done?'✓':'✕')+' '+esc(r.endTypeLabel)+'</span>'+
+      var rb=r.rcptDue?'<span class="endchip" style="background:#fdf3e0;color:#b5852a;border:1px solid #ecd9b0">영수증 미발행</span>'
+            :(r.rcptFix?'<span class="endchip" style="background:#fbeaea;color:#b3261e;border:1px solid #efc9c5">영수증 정리</span>':'');
+      return '<div class="arow" data-code="'+esc(r.code)+'"><span class="endchip '+(done?'done':'stopped')+'">'+(done?'✓':'✕')+' '+esc(r.endTypeLabel)+'</span>'+rb+
         '<span class="an">'+esc(r.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(r.product))+'</span></span>'+
         (r.modified?'<span class="ad">종료 '+esc(fmtDT(r.modified))+'</span>':'')+'</div>';
     }).join('');

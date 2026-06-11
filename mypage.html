@@ -1077,7 +1077,7 @@ function renderMyPage(d){
                          && d.midpayment.dday != null && d.midpayment.dday <= 9);
     if (d.stage === '입금완료' && _comboPending) {
       head = '중도금·잔금을 입금해 주세요';
-      sub  = '입금이 확인되면 예식 준비(청첩장·다이닝·식순)가 열려요.';
+      sub  = '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';
     }
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
     else if (d.production && d.stage === '입금완료') {
@@ -1087,7 +1087,7 @@ function renderMyPage(d){
     // [제작 완료·예식 대기] 셋 다 완료면 NOW를 '준비 끝' 톤으로 (멈춘 느낌 방지)
     if (d.stage === '제작중' && d.production && d.production.tracks) {
       var _tk = d.production.tracks;
-      if (_tk.invitation==='완료' && _tk.dining==='완료' && _tk.ritual==='완료') {
+      if (_tk.invitation==='완료' && _tk.ritual==='완료') {
         head = '예식 준비가 끝났어요';
         sub  = (d.midpayment && !d.midpayment.confirmed) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
              : ((d.balance && !d.balance.confirmed) ? '이제 잔금만 입금하시면 끝이에요.' : '예식날 정성껏 준비해서 뵐게요.');
@@ -1254,7 +1254,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·다이닝·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (product !== '웨딩스냅'){
@@ -2251,10 +2251,10 @@ function renderProduction(p, inv){
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
-  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
+  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
 }
 
@@ -2668,7 +2668,7 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv){
+function productionDashHtml(t, inv, dd){
   t=t||{}; inv=inv||{};
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
   function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어서 하기' : '시작하기'); }
@@ -2681,24 +2681,35 @@ function productionDashHtml(t, inv){
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('다이닝', t.dining||'시작전', 'mp_diningStart', null)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-    + '</div>';
-  var allDone = (ist==='완료') && ((t.dining||'')==='완료') && ((t.ritual||'')==='완료');
+    + '</div>'
+    // 다이닝 = 서브 안내(필수 아님) — 예식 후 식사 자리는 선택 사항이라 메인 트랙에서 분리
+    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>'+(((t.dining||'')==='완료')?' <span class="trk-ok">✓</span>':'')+'</div>';
+  // 다이닝 완료 + 식당 선택 시 — 예약처 다시보기(전화·지도) 한 줄
+  if((t.dining||'')==='완료' && dd && dd.dining_on==='Y' && dd.venue){
+    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
+    tracks += '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'
+      + '🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
+      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
+      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
+      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
+      + '</span></div>';
+  }
+  var allDone = (ist==='완료') && ((t.ritual||'')==='완료');   // 다이닝은 선택(완료 조건 제외)
   if(allDone){
     // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
-      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·다이닝·식순 모두 완료 · 펼쳐서 수정</span></summary>'
+      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·식순 완료 · 펼쳐서 수정</span></summary>'
       + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title">예식 준비</div>'
-    + '<div class="cc-sub">세 가지를 함께 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
+    + '<div class="cc-sub">청첩장과 식순을 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">셋 다 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
+    + '<div class="cc-note" style="text-align:center">두 가지를 완료하면 예식 준비가 끝나요. 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
     + ''
     + '</div>';
 }
@@ -3160,27 +3171,13 @@ function bindTrk(box, render, collect, opt){
     saveTrkDraft(false); TRKFLOW.step++; render(box);
   });
 }
-// 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. 회차(본예식 시간)에 맞춰 큐레이션 노출.
-var DINE_FORMAL=[
-  ['갈비도락 서오릉점','차로 10분 · 소양념갈비 4만 원대 · 한돈 2만 원대','대형 단체 룸 · 그릴링 서비스 · 브레이크 타임 없음'],
-  ['한우만 서오릉점','차로 10분 · 한우 생등심 5~6만 원대','최상급 한우 · 프라이빗 개별 룸'],
-  ['목향 강매동','차로 12분 · 한정식 코스 3~7만 원대','한옥 정원 조망 · 단독 룸'],
-  ['복옥정 서오릉본점','차로 10분 · 보리굴비·불고기 정식 2~3만 원대','모던하고 정갈한 공간'],
-  ['카페 스탠포드','차로 12분 · 호텔 주말 뷔페 7~8만 원대','4성급 호텔 서비스 · 단체 수용 용이']
-];
-var DINE_CAFE=[
-  ['경성빵공장 서오릉점','차로 8분 · 팥빵·건강빵','어르신 선호 · 넓은 야외 정원'],
-  ['카페 기와','차로 10분 · 카페·디저트','정통 한옥 마당 · 프라이빗 개별 공간'],
-  ['나인블럭 FARM 고양','차로 12분 · 카페·브런치','웅장한 층고 · 대규모 하객 수용'],
-  ['씨디에프 (CDF)','차로 10분 · 갤러리형 럭셔리 카페','단독 구역 협의 가능'],
-  ['리비토','향동 안 차로 2분 · 화덕피자·브런치','이동 편의 최상']
-];
-// 본예식 시간 → 식사 회차 안내·추천 목록 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
+// 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. (식당 카드는 DINE_DB 칩 필터가 단일 출처)
+// 본예식 시간 → 식사 회차 안내 문구 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
 function _dineSlot(wt){
-  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.', list:DINE_FORMAL};
-  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 갈비도락, 또는 여유로운 카페·브런치 파티가 잘 맞아요.', list:[DINE_FORMAL[0]].concat(DINE_CAFE)};
-  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.', list:DINE_FORMAL};
-  return {lead:'예식 시간대에 맞춰 디렉터가 직접 검증해 둔 연계 식당·카페예요.', list:DINE_FORMAL.concat(DINE_CAFE)};
+  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.'};
+  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요.'};
+  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.'};
+  return {lead:'예식 시간대에 맞춰 디렉터가 직접 검증해 둔 연계 식당·카페예요.'};
 }
 // [다이닝 v1] 구조화 식당 DB(필터 속성) — 칩 필터 엔진의 토대.
 //  ※ 속성은 디렉터 전화검증 후 v:true 로 전환(현재 전부 미검증 → 카드에 '확인 필요' 표기).
@@ -3208,11 +3205,28 @@ var DINE_DB = [
   {n:'메종드테라스', th:'cafe', d:11, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
   {n:'나인블럭 FARM 고양', th:'cafe', d:13, p:'mid', f:['카페'], m:['정원'], al:false, g:'ask', eld:true, pk:'good', bs:null, be:null, tel:'031-965-0990', v:false},
   {n:'경성빵공장 서오릉점', th:'cafe', d:12, p:'low', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'02-356-7826', v:false},
-  {n:'리비토 향동', th:'cafe', d:3, p:'mid', f:['카페'], m:[], al:true, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false}
+  {n:'리비토 향동', th:'cafe', d:3, p:'mid', f:['카페'], m:[], al:true, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
+  {n:'연화수 한정식', th:'formal', d:18, p:'high', f:['한정식'], m:['모던'], al:null, g:'room', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'원당골', th:'formal', d:18, p:'mid', f:['한정식'], m:['정원'], al:null, g:'ask', eld:true, pk:'ok', bs:null, be:null, tel:'', v:false},
+  {n:'김명주뜰안채밥상 원당점', th:'formal', d:18, p:'mid', f:['한정식'], m:[], al:null, g:'room', eld:true, pk:'good', bs:null, be:null, tel:'', v:false},
+  {n:'한짝 원흥점', th:'formal', d:10, p:'high', f:['한우·갈비'], m:['모던'], al:true, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'031-964-2200', v:false},
+  {n:'착한우리한우정육식당', th:'casual', d:12, p:'mid', f:['한우·갈비'], m:[], al:true, g:'room', eld:true, pk:'good', bs:null, be:null, tel:'031-965-9261', v:false},
+  {n:'곰작골가마솥곰탕', th:'casual', d:12, p:'mid', f:['곰탕·국밥'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'명동칼국수 고양원흥점', th:'casual', d:10, p:'low', f:['족발·보쌈'], m:[], al:null, g:'ask', eld:true, pk:'ok', bs:'14:30', be:'17:00', tel:'', v:false},
+  {n:'가장맛있는족발 삼송점', th:'casual', d:10, p:'mid', f:['족발·보쌈'], m:[], al:true, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'민쿡다시마', th:'casual', d:18, p:'mid', f:['뷔페'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'디오름', th:'cafe', d:12, p:'mid', f:['카페'], m:['모던','뷰'], al:false, g:'ask', eld:false, pk:'ok', bs:null, be:null, tel:'0507-1469-1780', v:false},
+  {n:'신디스 삼송', th:'cafe', d:10, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'37.5 고양삼송점', th:'cafe', d:10, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'good', bs:'16:00', be:'17:00', tel:'', v:false},
+  {n:'소란 원흥', th:'cafe', d:8, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:true, pk:'good', bs:'15:30', be:'23:59', tel:'0507-1399-4140', v:false},
+  {n:'라플란드 원흥점', th:'cafe', d:9, p:'low', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:'good', bs:null, be:null, tel:'', v:false},
+  {n:'서오릉카페', th:'cafe', d:12, p:'mid', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false}
 ];
 var _DN_PRICE={low:'~2만',mid:'2~4만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
 var _DN_ARR={'10:00':'11:50','13:20':'15:00','16:40':'18:10'};   // 본예식 → 식사 도착 기준
+function _dnFind(nm){ for(var i=0;i<DINE_DB.length;i++){ if(DINE_DB[i].n===nm) return DINE_DB[i]; } return null; }
+function _dnMapUrl(nm){ return 'https://map.naver.com/p/search/'+encodeURIComponent(nm); }
 function _dnPass(r,fl){
   if(fl.theme && r.th!==fl.theme) return false;
   if(fl.price && r.p!==fl.price) return false;
@@ -3250,7 +3264,9 @@ function dineFilterUI(d, wt){
     (r.m||[]).forEach(function(x){tags.push(x);});
     if(r.al===true) tags.push('주류');
     if(r.pk==='good') tags.push('주차넉넉');
-    if(r.bs&&arr&&arr>=r.bs&&arr<=r.be) tags.push('⚠ 이 시간대 브레이크');
+    if(r.bs&&arr){ var _bm=function(t){var p=String(t).split(':');return (+p[0])*60+(+p[1]||0);}, _ba=_bm(arr), _bs2=_bm(r.bs), _be2=_bm(r.be||r.bs);
+      if(_ba>=_bs2&&_ba<=_be2) tags.push('⚠ 이 시간대 브레이크');
+      else if(_ba<_bs2&&(_bs2-_ba)<=90) tags.push('⚠ 도착 '+(_bs2-_ba)+'분 뒤 브레이크'); }   // 식사 중 브레이크에 걸리는 경우(90분 미만 여유)도 경고
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
@@ -3266,8 +3282,9 @@ function dineFilterUI(d, wt){
     + (d._aiSummary?'<div class="dn-ai-res"><div class="r-cap">Curated for You</div><div class="r-line">'+escapeHtml(d._aiSummary)+'</div></div>':'')
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
-  var vnote = list.some(function(r){return !r.v;}) ? '<div class="cc-note" style="margin:2px 0 8px">거리·가격대는 대략의 안내예요. 정확한 메뉴·좌석은 예약 전화에서 확인해 주세요.</div>' : '';
-  return aiBox + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
+  var vnote = '<div class="cc-note" style="margin:2px 0 8px;padding:9px 11px;border:1px solid var(--gold-soft,rgba(184,154,117,.35));border-radius:8px;background:var(--gold-bg,#faf6ef)">아래 정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 반드시 식당에 직접 전화로 확인해 주세요.</div>';
+  var aiHint = d._aiSummary ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">추천에 맞춰 조건을 맞췄어요. 아래 칩을 눌러 바꿀 수 있어요.</div>' : '';
+  return aiBox + aiHint + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
@@ -3278,7 +3295,7 @@ function renderDining(box){
     else { d.venue=''; if(d.venuePick) d.partner=d.venuePick; }
   }
   function collect(){
-    if($('trk_dHead')) d.headcount=($('trk_dHead').value||'').trim();
+    if($('trk_dHead')){ var _hv=($('trk_dHead').value||'').replace(/[^0-9]/g,''); if(_hv){ _hv=String(Math.min(Math.max(parseInt(_hv,10)||0,1),200)); } d.headcount=_hv; }
     if($('dn_aiText')) d._aiText=$('dn_aiText').value;
     if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
     syncVenue();
@@ -3287,12 +3304,9 @@ function renderDining(box){
   if(TRKFLOW.step===0){
     var on=d.dining_on||'';
     var slot=_dineSlot((TRKFLOW.base&&TRKFLOW.base.weddingTime)||'');
-    function vCard(v){ var sel=(d.venuePick===v[0]);
-      return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(v[0])+'">'+escapeHtml(v[0])
-        +'<small>'+escapeHtml(v[1])+'</small><small>'+escapeHtml(v[2])+'</small></label>'; }
     var f = (on==='Y') ? '<div class="inv-fields">'
         + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원 <span style="color:var(--label-soft)">(선택)</span></div>'
-        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
+        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
         + '<div class="inv-side-l" style="margin:14px 0 4px">식사 장소</div>'
         + '<div class="cc-note" style="margin:0 0 8px">'+escapeHtml(slot.lead)+' 예식 후 가까운 연계 식당·카페로 이동해 식사해요.</div>'
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
@@ -3312,21 +3326,22 @@ function renderDining(box){
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
       var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
-      var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(d.headcount||'').trim();
+      var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 숫자만 — '25명' 입력 시 '25명 명' 방지
       var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지
       var body2;
       if(R){
         var telD=(R.tel||'').replace(/[^0-9]/g,'');
         var callLine=telD
-          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 4px;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
-          : '<div class="cc-note" style="margin:10px 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
+          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+        var mapLine='<a class="cc-btn-ghost" href="'+_dnMapUrl(R.n)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')+'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?';
         body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
           + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · 식사 도착 '+arr2+' 기준':'')+'</div>'
-          + callLine
+          + callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
-          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
+          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 안내된 정보는 변동될 수 있으니 통화에서 꼭 확인해 주세요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
       } else {
         body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
           + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
