@@ -1105,10 +1105,11 @@ function openSendContract(code,names,d){
       runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
-// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → 문서 버전별(v1.1 서명자는 보존본, 그 외 현행 v1.2)
+// 상품·문서 버전별 계약서 경로 — 구버전 서명자(v1.1/snap-v1.0)는 archive 보존본, 그 외 현행(v1.2/snap-v1.1)
 function contractPath(product, docVersion){
-  if(/스냅|snap/i.test(String(product||''))) return '/contract/snap-v1-0.html';
-  return String(docVersion||'')==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
+  var v=String(docVersion||'');
+  if(/스냅|snap/i.test(String(product||''))) return v==='snap-v1.0' ? '/contract/archive/snap-v1-0.html' : '/contract/snap-v1-0.html';
+  return v==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

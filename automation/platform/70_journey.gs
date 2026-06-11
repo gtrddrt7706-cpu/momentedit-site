@@ -180,7 +180,8 @@ function handleGetSignature(body) {
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
   version: '계약서명-v1',
-  docVersion: 'v1.2',               // 계약서 '문서' 버전 — 서명 시 동의기록.계약.docVersion으로 스냅샷, 열람은 그 버전 문서로
+  docVersion: 'v1.2',               // 계약서 '문서' 버전(시그니처) — 서명 시 동의기록.계약.docVersion으로 스냅샷, 열람은 그 버전 문서로
+  snapDocVersion: 'snap-v1.1',      // 웨딩스냅 계약서 문서 버전 — 동일 메커니즘(구버전 서명자는 archive 보존본으로 열람)
   서명기한시간: 72,                 // 발송 +72h 안에 서명
   리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
   effectNotice: '서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.',
@@ -230,7 +231,7 @@ function handleSignContract(body) {
     prev.계약 = {
       type: '계약서명',
       version: CONTRACT.version,
-      docVersion: CONTRACT.docVersion,                   // 서명한 계약서 문서 버전(16조③ 버전 고정의 데이터 짝)
+      docVersion: (String(cust.get('상품타입') || '').trim() === '웨딩스냅') ? CONTRACT.snapDocVersion : CONTRACT.docVersion,   // 서명한 계약서 문서 버전(16조③ 버전 고정의 데이터 짝)
       signedAt: now,
       code: code,
       sentAt: String(cust.get('계약서발송일시') || ''),
@@ -471,6 +472,7 @@ function buildContractState(r) {
   }
   // [02-3 Phase2] 마이페이지 인뷰어(openContractView)가 v1-1 계약서를 고객 정보로 채우도록 표시 필드만 노출(동의기록 JSON 원본은 비노출).
   var _rec = _parseJsonSafe(r.get('동의기록'));
+  var _isSnapR = String(r.get('상품타입') || '').trim() === '웨딩스냅';
   var _ci = (_rec && _rec.계약정보) || {};
   out.fill = {
     groom: String(r.get('신랑이름') || ''),
@@ -487,7 +489,8 @@ function buildContractState(r) {
     weddingTime: _ci.weddingTime || '',
     weddingTimeLabel: (WEDDING_SLOT.LABELS && WEDDING_SLOT.LABELS[_ci.weddingTime]) || '',
     total: Math.round(Number(r.get('계약총액')) || 0),
-    docVersion: signed ? (((_rec && _rec.계약) || {}).docVersion || 'v1.1') : CONTRACT.docVersion   // 서명자=서명 당시 문서(기록 없는 구서명자는 v1.1 보존본), 미서명=현행
+    docVersion: signed ? (((_rec && _rec.계약) || {}).docVersion || (_isSnapR ? 'snap-v1.0' : 'v1.1'))
+                       : (_isSnapR ? CONTRACT.snapDocVersion : CONTRACT.docVersion)   // 서명자=서명 당시 문서(기록 없는 구서명자는 각 v1.1/snap-v1.0 보존본), 미서명=현행
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
   };
   return out;

@@ -706,10 +706,11 @@ const TOKEN_KEY = 'me_token';
 
 // ── 공통 유틸 ──────────────────────────────────
 function $(id){ return document.getElementById(id); }
-// 상품별 계약서 경로 — 웨딩스냅 → snap-v1-0, 그 외(시그니처) → 서명한 문서 버전별(v1.1 서명자는 보존본, 그 외 현행 v1.2)
+// 상품·문서 버전별 계약서 경로 — 구버전 서명자(v1.1/snap-v1.0)는 archive 보존본, 그 외 현행(v1.2/snap-v1.1)
 function contractSrc(product, docVersion){
-  if(/스냅|snap/i.test(String(product||''))) return '/contract/snap-v1-0.html';
-  return String(docVersion||'')==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
+  var v=String(docVersion||'');
+  if(/스냅|snap/i.test(String(product||''))) return v==='snap-v1.0' ? '/contract/archive/snap-v1-0.html' : '/contract/snap-v1-0.html';
+  return v==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
