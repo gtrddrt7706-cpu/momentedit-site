@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://momentedit.kr/">
 <meta property="og:site_name" content="Moment Edit">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:image" content="https://momentedit.kr/assets/og/og-seal.png">
+<meta property="og:image" content="https://momentedit.kr/assets/og/og-seal.png?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Moment Edit · Private Wedding Studio · Focus on the Essence, Record the Truth.">
@@ -27,7 +27,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="모먼트에디트 · 프라이빗 웨딩 스튜디오">
 <meta name="twitter:description" content="단 한 팀을 위한 스몰웨딩. 촬영과 예식을 하나로, 두 사람의 시간을 기록합니다.">
-<meta name="twitter:image" content="https://momentedit.kr/assets/og/og-seal.png">
+<meta name="twitter:image" content="https://momentedit.kr/assets/og/og-seal.png?v=2">
 <!-- canonical -->
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 <!-- 사이트 등록 후 verification 메타 태그를 여기에 추가하세요 -->
@@ -36,7 +36,7 @@
 <meta name="msapplication-TileColor" content="#FAFAF8">
 <meta name="format-detection" content="telephone=no, email=no, address=no, date=no">
 <meta property="og:image:type" content="image/png">
-<meta property="og:image:secure_url" content="https://momentedit.kr/assets/og/og-seal.png">
+<meta property="og:image:secure_url" content="https://momentedit.kr/assets/og/og-seal.png?v=2">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='8' y='8' width='84' height='84' rx='3' fill='%236B2A24' fill-opacity='0.94'/%3E%3Ctext x='50' y='50' text-anchor='middle' dominant-baseline='central' font-family='Noto Serif KR,Nanum Myeongjo,Apple SD Gothic Neo,Georgia,serif' font-weight='500' font-size='60' fill='%23FFFFFF' fill-opacity='0.94'%3E本%3C/text%3E%3C/svg%3E">
 <!-- ═══ FAVICON · 모든 페이지 공통 (인장 本 디자인) ═══ -->
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -60,7 +60,7 @@
     "width": 1800,
     "height": 500
   },
-  "image": "https://momentedit.kr/assets/og/og-seal.png",
+  "image": "https://momentedit.kr/assets/og/og-seal.png?v=2",
   "email": "contact@momentedit.kr",
   "slogan": "Focus on the Essence, Record the Truth.",
   "foundingDate": "2026",
@@ -79,7 +79,7 @@
   "description": "경기 고양 향동 프라이빗 웨딩 스튜디오. 양가 직계가족 25명까지 함께하는 마이크로웨딩. 촬영·영상·청첩장·다이닝 안내가 통합된 140분 시그니처 시퀀스.",
   "url": "https://momentedit.kr",
   "image": [
-    "https://momentedit.kr/assets/og/og-seal.png"
+    "https://momentedit.kr/assets/og/og-seal.png?v=2"
   ],
   "logo": "https://momentedit.kr/logo.png",
   "email": "contact@momentedit.kr",
@@ -244,7 +244,7 @@
 {
   "@context": "https://schema.org",
   "@type": "ImageObject",
-  "contentUrl": "https://momentedit.kr/assets/og/og-seal.png",
+  "contentUrl": "https://momentedit.kr/assets/og/og-seal.png?v=2",
   "name": "Moment Edit · Private Wedding Studio",
   "caption": "서울 근교 프라이빗 스몰웨딩 스튜디오 모먼트에디트",
   "creator": {"@id": "https://momentedit.kr/#organization"},
@@ -2210,7 +2210,7 @@ function replayHeroAnimation(){
 /* 공유 — 모바일은 네이티브 공유 시트, PC는 링크 복사(캡션에 '복사됨' 피드백). 메인홈·예약 공용 동작. */
 (function(){
   window.meShareSite = function(capEl){
-    var data = { title:'모먼트에디트', text:'양가 직계가족 25명까지 함께하는 프라이빗 마이크로웨딩 · 모먼트에디트', url:'https://momentedit.kr' };
+    var data = { url:'https://momentedit.kr' };   // 글 없이 링크만 — 카톡 등에서 문구가 메시지로 같이 입력되지 않게 (2026-06-12 사용자 지시)
     function copied(){
       if(!capEl) { try{ alert('링크가 복사됐어요 · momentedit.kr'); }catch(e){} return; }
       var prev=capEl.textContent; capEl.textContent='복사됨';
