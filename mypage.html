@@ -2985,6 +2985,7 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; render(box); }); });   // 다이닝 취향칩 토글
+  var _aib=$('dn_aiBtn'); if(_aib){ _aib.addEventListener('click',function(){ collect(); var t=(($('dn_aiText')&&$('dn_aiText').value)||'').trim(), er=$('dn_aiErr'); TRKFLOW.draft._aiText=t; if(!t){ if(er)er.textContent='원하는 조건을 적어 주세요.'; return; } _aib.disabled=true; _aib.textContent='추천 받는 중…'; api({action:'diningMatch', token:getToken(), text:t}).then(function(r){ if(r&&r.ok&&r.filters){ TRKFLOW.draft._filters=r.filters; TRKFLOW.draft._aiSummary=r.summary||''; render(box); } else { _aib.disabled=false; _aib.textContent='AI 추천 받기'; if(er)er.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.'; } }).catch(function(){ _aib.disabled=false; _aib.textContent='AI 추천 받기'; if(er)er.textContent='지금은 아래에서 직접 골라 주세요.'; }); }); }   // 다이닝 자연어 AI(선택 층)
   Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ if(e.type==='checkbox') return; e.addEventListener('input',collect); });
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
   var exit=$('trk_exit'); if(exit) exit.addEventListener('click', exitTrkFlow);
@@ -3059,6 +3060,7 @@ function _dnPass(r,fl){
   if(fl.food && (r.f||[]).indexOf(fl.food)<0) return false;
   if(fl.group==='room' && r.g!=='room') return false;
   if(fl.group==='seats' && !(r.g==='room'||r.g==='seats')) return false;
+  if(fl.elderly===true && !r.eld) return false;   // 자연어 AI가 '어르신·좌식' 감지 시
   return true;
 }
 // 자연어 AI(선택 층)는 v2에서 이 필터 객체(fl)를 생성해 같은 엔진에 주입 — 환각 없이 동일 결과.
@@ -3091,7 +3093,14 @@ function dineFilterUI(d, wt){
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0">고른 조건에 맞는 곳이 없어요. 필터를 줄이거나 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div>';
-  return chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + cards;
+  var aiBox='<div style="margin:0 0 12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--gold-bg,#faf6ef)">'
+    + '<div class="inv-side-l" style="margin:0 0 6px">말로 찾기 <span style="color:var(--label-soft)">(선택)</span></div>'
+    + '<textarea class="cc-input" id="dn_aiText" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:52px;margin-bottom:6px">'+escapeHtml(d._aiText||'')+'</textarea>'
+    + '<button type="button" class="cc-btn-ghost" id="dn_aiBtn" style="width:auto;padding:7px 16px">AI 추천 받기</button>'
+    + (d._aiSummary?'<div class="cc-note" style="margin-top:7px;color:var(--gold-deep)">'+escapeHtml(d._aiSummary)+'</div>':'')
+    + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px"></div>'
+    + '</div>';
+  return aiBox + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + cards;
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
@@ -3103,6 +3112,7 @@ function renderDining(box){
   }
   function collect(){
     if($('trk_dHead')) d.headcount=($('trk_dHead').value||'').trim();
+    if($('dn_aiText')) d._aiText=$('dn_aiText').value;
     if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
     syncVenue();
   }

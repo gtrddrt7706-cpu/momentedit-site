@@ -2003,6 +2003,7 @@ function doPost(e) {
       case 'submitSurvey':          return jsonOut(handleSubmitSurvey(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
+      case 'diningMatch':        return jsonOut(handleDiningMatch(body));   // 다이닝 자연어 AI 추천(선택 층)
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
