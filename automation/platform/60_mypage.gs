@@ -49,7 +49,29 @@ function handleGetMyState(body) {
     refund: buildRefundQuote(r),  // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey). 서명완료 또는 예약금 입금 후에만 · 취소·노쇼·미계약은 null
     change: buildChangeState(r),  // [02-9] 예식일 변경(계약서 8조① · 70_journey). 서명완료·시그니처만 · {request,used,history,eligible}(없으면 null)
     hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
+    refundBank: buildRefundBankState(r),  // [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 카드(없으면 null)
     waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
+  };
+}
+
+// [환불 안전망] 종료 고객 환불 계좌 제출 상태 — 수령분이 있고 환불 미완료면 노출.
+//   계좌는 Bookings.환불계좌에 저장(셀프 취소·관리자 환불송금 큐와 단일 소스).
+function buildRefundBankState(r) {
+  if (!r) return null;
+  var stage = String(r.get('현재단계') || '').trim();
+  if (STAGE_EXCEPTIONS.indexOf(stage) === -1) return null;
+  if (_parseJsonSafe(r.get('동의기록')).환불완료) return null;          // 이미 송금 완료
+  var bk = null; try { bk = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); } catch (e) {}
+  var paid = String(r.get('입금상태') || '').trim() === '확인' || (bk && String(bk.get('입금확인') || '').trim() === '확인');
+  if (!paid) return null;                                               // 수령분 없음 — 환불 카드 불요
+  var q = null; try { q = _refundQuote(r, _kstYmd(new Date())); } catch (e) {}
+  var refund = (q && !q.pending && q.refund != null) ? Math.round(Number(q.refund)) : null;
+  if (refund != null && refund <= 0 && !(q && q.needCount)) return null;   // 공제로 환불액 0원
+  return {
+    acct: bk ? String(bk.get('환불계좌') || '').trim() : '',
+    refund: refund,
+    needCount: !!(q && q.needCount),
+    fitCount: q ? Math.round(Number(q.fitCount) || 0) : 0
   };
 }
 

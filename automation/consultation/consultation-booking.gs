@@ -2033,6 +2033,8 @@ function doPost(e) {
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
       case 'diningMatch':        return jsonOut(handleDiningMatch(body));   // 다이닝 자연어 AI 추천(선택 층)
+      case 'saveRefundAccount':  return jsonOut(handleSaveRefundAccount(body));   // [환불 안전망] 종료 고객 환불 계좌 셀프 제출
+      case 'advisorLog':         return jsonOut(handleAdvisorLog(body));    // AI 상담사 질문 로그(익명·마스킹) — KB 개선 근거
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
@@ -2053,4 +2055,38 @@ function doPost(e) {
 }
 function jsonOut(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================ AI 상담사 질문 로그 ============================
+// 메인홈 위젯이 자유질문을 보낼 때마다 질문만 익명 적재(답변·IP 미저장) — 자주 묻는 것을 보고 KB·FAQ를 보강하는 근거.
+// 개인정보 방어: 전화·이메일·긴 숫자열 마스킹 후 저장, 300자 컷, 90일 후 자동 정리(purgeAdvisorLog · 주간 트리거).
+function _maskPII(s) {
+  return String(s || '')
+    .replace(/01[016789][ -]?\d{3,4}[ -]?\d{4}/g, '01*-****-****')
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '***@***')
+    .replace(/\d{6,}/g, function (m) { return m.slice(0, 2) + '****'; });
+}
+function handleAdvisorLog(body) {
+  try {
+    var q = String((body && body.q) || '').trim().slice(0, 300);
+    if (!q) return { ok: true };
+    var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('상담사질문로그'); sh.appendRow(['시각', '질문(마스킹)', '상담연결']); }
+    if (sh.getLastRow() > 5000) return { ok: true };   // 폭주 가드 — 시트 무한 증식 방지(정리 전 상한)
+    sh.appendRow([fmtKST(new Date()), _maskPII(q), (body && body.escalate) ? 'Y' : '']);
+  } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
+  return { ok: true };
+}
+// [트리거·매주 월 4시] 90일 지난 질문 로그 삭제(보관기간 최소화)
+function purgeAdvisorLog() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
+  var n = 0;
+  for (var i = 0; i < vals.length; i++) {
+    var d = new Date(vals[i][0]);
+    if (!isNaN(d.getTime()) && d < cutoff) n++; else break;   // 시각 오름차순 적재 — 앞에서부터 연속 삭제
+  }
+  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAdvisorLog: ' + n + '건 삭제'); }
 }

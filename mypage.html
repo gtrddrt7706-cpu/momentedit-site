@@ -1159,6 +1159,7 @@ function renderMyPage(d){
   if (d.isException){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
+    renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
   } else {
     // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
     var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
@@ -1439,6 +1440,34 @@ function doHoldCancel(){
 }
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
+// [환불 안전망] 종료(취소·노쇼·미계약) 고객 — 환불 계좌 셀프 제출 카드. 계좌는 서버(Bookings.환불계좌)로 저장돼 관리자 환불 카드와 연동.
+function renderRefundBank(rb){
+  var old=document.getElementById('mp_refundBank'); if(old) old.remove();
+  if(!rb) return;
+  var host=$('mp_exception'); if(!host) return;
+  var amt = rb.needCount ? '환불 금액은 시착 벌수 확인 후 정확히 안내드려요.'
+          : (rb.refund!=null ? ('환불 예정 금액 · <b>'+Number(rb.refund).toLocaleString()+'원</b>'+(rb.fitCount>0?(' <span class="cc-mini">(시착 '+Number(rb.fitCount)+'벌 공제 반영)</span>'):'')) : '환불 금액은 확인 후 안내드려요.');
+  var box=document.createElement('div');
+  box.id='mp_refundBank';
+  box.style.cssText='margin:16px auto 0;max-width:420px;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);text-align:left';
+  box.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-bottom:6px">환불 계좌 안내</div>'
+    +'<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">'+amt+'<br>'+(rb.acct?'입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.':'환불 받으실 계좌를 남겨주시면 송금해 드릴게요.')+'</div>'
+    +'<input type="text" class="cc-input" id="mp_rbAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주" value="'+escapeHtml(rb.acct||'')+'">'
+    +'<div id="mp_rbMsg" class="cc-mini" style="text-align:left;min-height:14px;margin:7px 0 0"></div>'
+    +'<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_rbSave">'+(rb.acct?'계좌 변경':'계좌 저장')+'</button></div>';
+  host.appendChild(box);
+  $('mp_rbSave').addEventListener('click',function(){
+    var v=($('mp_rbAcct').value||'').trim(), btn=$('mp_rbSave'), msg=$('mp_rbMsg');
+    if(v.length<5){ msg.style.color='var(--seal)'; msg.textContent='은행명·계좌번호·예금주를 함께 적어 주세요.'; return; }
+    btn.disabled=true; btn.textContent='저장 중…';
+    api({action:'saveRefundAccount', token:getToken(), acct:v}).then(function(r){
+      if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경'; }
+      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'; btn.textContent='계좌 저장'; }
+      btn.disabled=false;
+    }).catch(function(){ msg.style.color='var(--seal)'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; btn.disabled=false; btn.textContent='계좌 저장'; });
+  });
+}
+
 function renderConsult(c, product){
   var box = $('mp_consult');
   if (!c || !c.status){ box.style.display='none'; return; }
@@ -1463,7 +1492,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
-    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요.</div>';
+    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요. 확정되면 문자(카카오톡)로도 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
@@ -1477,6 +1506,7 @@ function renderConsult(c, product){
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
               : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
+         + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 문자(카카오톡)로도 알려드려요.</span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
@@ -2679,22 +2709,31 @@ function productionDashHtml(t, inv, dd){
   }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
+  var _dDone=(t.dining||'')==='완료';
+  var _edit='<a href="#" id="mp_diningStart" style="color:var(--gold-deep);text-decoration:none">수정</a>';
+  var dSub;
+  if(_dDone && dd && dd.dining_on==='Y' && dd.venue){
+    // 완료 + 식당 선택 → 예약처 다시보기(전화·지도·수정) 한 줄만
+    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
+    dSub='🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
+      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
+      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
+      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
+      + _edit + '</span>';
+  } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
+    // 완료했지만 구체 식당 미선택(상담 때 정하기·직접 섭외) — 완료 표시는 유지
+    dSub='🍽 다이닝 · <b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b> <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
+  } else if(_dDone && dd && (dd.dining_on==='N' || dd.dining_on==='Y')){
+    dSub='🍽 '+(dd.dining_on==='N'?'다이닝 없이 진행':'다이닝 입력 완료')+' <span class="trk-ok">✓</span> <span style="margin-left:6px">'+_edit+'</span>';
+  } else {
+    dSub='🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>';
+  }
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
     + '</div>'
-    // 다이닝 = 서브 안내(필수 아님) — 예식 후 식사 자리는 선택 사항이라 메인 트랙에서 분리
-    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">🍽 예식 후 식사 자리가 필요하시면 <a href="#" id="mp_diningStart" style="color:var(--gold-deep)">다이닝 안내 보기</a>'+(((t.dining||'')==='완료')?' <span class="trk-ok">✓</span>':'')+'</div>';
-  // 다이닝 완료 + 식당 선택 시 — 예약처 다시보기(전화·지도) 한 줄
-  if((t.dining||'')==='완료' && dd && dd.dining_on==='Y' && dd.venue){
-    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
-    tracks += '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'
-      + '🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
-      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
-      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
-      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
-      + '</span></div>';
-  }
+    // 다이닝 = 서브 안내(선택). 완료 시엔 예약처 다시보기로 대체(중복 방지).
+    + '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+dSub+'</div>';
   var allDone = (ist==='완료') && ((t.ritual||'')==='완료');   // 다이닝은 선택(완료 조건 제외)
   if(allDone){
     // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
@@ -3119,6 +3158,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; }   // 재진입 시 지난 AI 추천 잔상 제거(칩 필터는 유지)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   renderTrkFlow($('mp_production'));
@@ -3264,9 +3304,10 @@ function dineFilterUI(d, wt){
     (r.m||[]).forEach(function(x){tags.push(x);});
     if(r.al===true) tags.push('주류');
     if(r.pk==='good') tags.push('주차넉넉');
-    if(r.bs&&arr){ var _bm=function(t){var p=String(t).split(':');return (+p[0])*60+(+p[1]||0);}, _ba=_bm(arr), _bs2=_bm(r.bs), _be2=_bm(r.be||r.bs);
-      if(_ba>=_bs2&&_ba<=_be2) tags.push('⚠ 이 시간대 브레이크');
-      else if(_ba<_bs2&&(_bs2-_ba)<=90) tags.push('⚠ 도착 '+(_bs2-_ba)+'분 뒤 브레이크'); }   // 식사 중 브레이크에 걸리는 경우(90분 미만 여유)도 경고
+    // 브레이크/조기마감 경고 — 분 단위. be==='23:59'는 '조기 영업종료'(소란 등), 그 외는 실제 브레이크.
+    if(r.bs&&arr){ var _bm=function(t){var p=String(t).split(':');return (+p[0])*60+(+p[1]||0);}, _ba=_bm(arr), _bs2=_bm(r.bs), _be2=_bm(r.be||r.bs), _isClose=(r.be==='23:59');
+      if(_ba>=_bs2 && (_isClose||_ba<=_be2)) tags.push(_isClose?'⚠ 저녁엔 영업 종료':'⚠ 이 시간대 브레이크');
+      else if(_ba<_bs2 && (_bs2-_ba)<=90) tags.push('⚠ 도착 '+(_bs2-_ba)+'분 뒤 '+(_isClose?'영업 종료':'브레이크')); }   // 도착 직후 닫히는 경우(90분 미만)도 경고
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';

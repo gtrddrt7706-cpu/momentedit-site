@@ -293,11 +293,13 @@ function sendMorningBrief() {
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
   var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  🔴 ' + it.names + ' — ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });
+  var _nFail = (typeof notifyFailYesterday === 'function') ? notifyFailYesterday() : 0;   // 어제 고객 알림 발송 실패(잔액·번호 오류 등) — 95_notify 카운터
   var body = '📅 오늘 상담 ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
     + '⚡ 처리할 일 ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
     + (urgentLines.length ? (urgentLines.join('\n') + '\n') : '')
+    + (_nFail > 0 ? ('\n📵 어제 알림 발송 실패 ' + _nFail + '건 — 솔라피 잔액·고객 연락처 확인\n') : '')
     + '\n관리자: https://momentedit.kr/admin.html';
-  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length });
+  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length, fail: _nFail });
   if (_briefMailOk()) {
     try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 — 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
   }
@@ -446,6 +448,30 @@ function adminHome() {
           pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
             badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
             _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
+        }
+      }
+      // [환불 안전망] 노쇼·미계약 — 관리자 처리 종료라 환불계좌 입력 경로가 없어 큐에서 빠지던 구멍.
+      //   예약금(또는 그 이상) 수령분이 있고 환불액>0이면 리마인드(계좌 없으면 '계좌 요청 필요' 라벨). 환불 완료 처리하면 사라짐.
+      if (stage === '노쇼' || stage === '미계약') {
+        var _rbk2 = bookMap[code];
+        var _rdone2 = !!_parseJsonSafe(cget(rv, '동의기록')).환불완료;
+        var _rPaid2 = (_rbk2 && String(bget(_rbk2, '입금확인') || '').trim() === '확인') || String(cget(rv, '입금상태') || '').trim() === '확인';
+        if (_rPaid2 && !_rdone2) {
+          var _racct2 = _rbk2 ? String(bget(_rbk2, '환불계좌') || '').trim() : '';
+          var _rsub2 = stage + ' 처리 · 예약금 환불 확인', _show2 = true;
+          try {
+            var _rq2 = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, today);
+            if (_rq2 && _rq2.needCount) _rsub2 += ' · 시착 벌수 기록 후 산정';
+            else if (_rq2 && !_rq2.pending && _rq2.refund != null) {
+              if (Number(_rq2.refund) <= 0) _show2 = false;   // 공제로 환불액 0원 — 송금할 게 없어 큐 생략(상세 환불 산정에는 그대로 표시)
+              else _rsub2 += ' · ' + Number(_rq2.refund).toLocaleString() + '원' + (_rq2.fitCount > 0 ? ('(시착 ' + _rq2.fitCount + '벌 공제)') : '');
+            }
+          } catch (e) {}
+          if (_show2) {
+            if (!_racct2) _rsub2 += ' · 환불 계좌 요청 필요(카톡)';
+            pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub2,
+              badge: { level: 'yellow', text: '환불 확인' }, _urgent: false, _loss: 2, _stage: 9, _wait: createdYmd });
+          }
         }
       }
       return;  // 끝남 → 제외(아카이브)
@@ -599,6 +625,15 @@ function adminHome() {
         sub: _over2 === 0 ? (_ovLbl + ' 기한일(오늘) · 입금 확인 대기' + _ovAmt) : (_ovLbl + ' 미납 D+' + _over2 + _ovAmt + ' · 7일 최고 후 해제 절차(계약 11조)'),
         badge: _over2 === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
+    }
+    // [B-7 보완] 잔금은 이미 확인됐는데 중도금만 미납인 역순 케이스가 D-9 안쪽으로 들어오면
+    //   위 두 분기(중도금 _dd>9 · 잔금 '대기')를 모두 비켜가 카드가 0장이 됨 — 중도금 단독 카드로 메움
+    if (!isSnap && String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim()
+        && String(cget(rv, '잔금상태') || '').trim() === '확인' && _dd != null && _dd <= 9) {
+      var _overM = PAYMENT.중도금일수전 - _dd;
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인',
+        sub: '중도금 미납 D+' + _overM + ' (잔금은 확인됨) · 7일 최고 후 해제 절차(계약 11조)',
+        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
     }
     })();
     // 중도금·잔금 입금 신호 — 묶음 입금(임박 계약·한 번에 이체)이면 확인도 1건으로
@@ -932,10 +967,14 @@ function adminArchive(query, filter) {
       if (hay.indexOf(query) === -1 && !(q && phoneN.indexOf(q) !== -1)) continue;
     }
     var draft = _parseJsonSafe(get(rv, '제작임시저장'));
-    // [B-1 연동] 영수증 상태 뱃지 — 완료 종료인데 미발행(발행 필요) / 중단 종료인데 기발행(취소·공제 후 재발행 정리 필요)
-    var _ledA = []; try { _ledA = _cashReceiptLedger({ get: function (h) { var c = colOf[h]; return c ? rv[c - 1] : ''; } }); } catch (e) { _ledA = []; }
-    var _rcptDueA = false, _rcptIssuedA = false;
-    _ledA.forEach(function (it) { if (it.due) _rcptDueA = true; if (it.issued) _rcptIssuedA = true; });
+    // [B-1 연동] 영수증 상태 뱃지 — 중단 종료는 기발행 여부만 JSON 직독(행마다 Bookings 스캔 방지),
+    //   완료 종료만 원장 산출(이때 입금상태='확인'이라 예약금 Bookings 폴백을 타지 않음 → 빠름)
+    var _issuedA = _parseJsonSafe(get(rv, '동의기록')).영수증발행 || {};
+    var _rcptIssuedA = false; for (var _ik in _issuedA) { if (_issuedA.hasOwnProperty(_ik)) { _rcptIssuedA = true; break; } }
+    var _rcptDueA = false;
+    if (endType === '완료') {
+      try { _cashReceiptLedger({ get: function (h) { var c = colOf[h]; return c ? rv[c - 1] : ''; } }).forEach(function (it) { if (it.due) _rcptDueA = true; }); } catch (e) {}
+    }
     out.push({
       code: code, names: _names(g, b), product: get(rv, '상품타입').trim(),
       stage: stage, endType: endType, endTypeLabel: stage,
@@ -1334,7 +1373,7 @@ function adminMarkDelivered(code, force) {
     if (String(cust.get('잔금상태') || '').trim() !== '확인') _unpaid.push('잔금');
     if (String(cust.get('추가보정상태') || '').trim() === '결제대기') _unpaid.push('추가 보정');
     if (_unpaid.length && force !== true) {
-      return { ok: false, needForce: true, error: '미수금이 있어요: ' + _unpaid.join('·') + ' 미확인. 입금 확인 후 전달하거나, 경고를 확인하고 그래도 전달을 선택해 주세요.' };
+      return { ok: false, needForce: true, error: '미수금이 있어요: ' + _unpaid.join('·') + ' 미확인. 입금 확인 후 전달하거나, 고객 상세의 결과물 카드에서 경고를 확인하고 그래도 전달을 선택해 주세요.' };
     }
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var _dRec = _parseJsonSafe(cust.get('동의기록'));
