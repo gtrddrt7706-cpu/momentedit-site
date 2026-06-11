@@ -1940,6 +1940,8 @@ function doPost(e) {
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
+      // ── 97 · AI 상담 인계 (Vercel /api/handoff → 관리자 카드) ──
+      case 'aiHandoff':          return jsonOut(handleAiHandoff(body));
       // ── ⑧ 관리자 (momentedit.kr/admin → fetch). 인증=토큰. adminCall이 게이트웨이 ──
       case 'adminLogin':  return jsonOut(adminLogin(body.id, body.pw));
       case 'adminLogout': return jsonOut(adminLogout(body.token));

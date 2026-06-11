@@ -217,6 +217,24 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .login-wrap input:focus{border-color:var(--gold)}
 .login-err{font-family:var(--serif-ko);font-size:12px;color:var(--seal);min-height:16px;margin:4px 0 10px}
 .login-wrap .btn{margin-top:4px}
+/* 97 · AI 상담 인계 카드 */
+.aih-sect{margin:0 0 18px}
+.aih-card{background:#fff;border:1px solid #e3ddd2;border-left:3px solid #6B2A24;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer}
+.aih-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aih-cat{font-size:11.5px;font-weight:700;color:#6B2A24;background:#f6ece6;border:1px solid #e7cfc4;padding:3px 10px;border-radius:20px}
+.aih-conf{font-size:10.5px;font-weight:700;color:#fff;padding:3px 9px;border-radius:20px}
+.aih-conf.h{background:#2e7d32}.aih-conf.m{background:#b8860b}.aih-conf.l{background:#b23b3b}
+.aih-meta{font-size:10.5px;color:#9a9183;margin-left:auto}
+.aih-sum{font-size:12.5px;color:#3a342b;line-height:1.6;margin-top:7px;word-break:keep-all}
+.aih-body{display:none;margin-top:10px}
+.aih-card.open .aih-body{display:block}
+.aih-lab{font-size:9.5px;font-weight:800;letter-spacing:.1em;color:#a89a86;margin:10px 0 4px;text-transform:uppercase}
+.aih-reply{background:#faf7f1;border:1px solid #ece3d4;border-left:3px solid #B89A75;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:keep-all}
+.aih-rat{background:#fbfaf7;border:1px dashed #ddd6c8;border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.7;color:#5a5347;white-space:pre-wrap;word-break:keep-all}
+.aih-convo{background:#f7f6f3;border:1px solid #e8e4db;border-radius:8px;padding:10px 12px;font-size:11.5px;line-height:1.65;color:#6b6457;white-space:pre-wrap;max-height:180px;overflow-y:auto}
+.aih-acts{display:flex;gap:8px;margin-top:12px}
+.aih-btn{flex:0 0 auto;font-size:12px;padding:8px 14px;border-radius:7px;border:1px solid #d8cfc0;background:#fff;color:#3a342b;cursor:pointer}
+.aih-btn.p{background:#6B2A24;color:#fff;border-color:#6B2A24}
 </style>
 </head>
 <body>
@@ -249,6 +267,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
       <input type="text" id="q" placeholder="개인코드·이름·연락처 검색" autocomplete="off">
       <button id="btnSearch">검색</button>
     </div>
+    <div id="aiHandoffWrap"></div>
     <div id="queueWrap"></div>
     <div id="pipeWrap"></div>
   </section>
@@ -392,7 +411,7 @@ function loadHome(){
   gas('adminHome').then(function(d){
     if(!d||!d.ok){ authFail(); return; }
     setWho(d.name); setTopbar(true);
-    curHome=d; renderQueue(d); renderPipeline(d); show('home');
+    curHome=d; renderQueue(d); renderPipeline(d); show('home'); loadAiHandoffs();
   }).catch(function(e){ authFail(); });
 }
 var curHome=null;
@@ -434,6 +453,49 @@ function onQueueAct(act,code,names,isSnap){
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
+}
+
+/* ── 97 · AI 상담 인계 — 홈 상단 카드 (AI가 못 푼 문의를 브리핑으로 미리 보고 응대) ── */
+function loadAiHandoffs(){
+  var w=$('aiHandoffWrap'); if(!w) return;
+  gas('adminListAiHandoffs').then(function(d){
+    if(!d||!d.ok||!d.items||!d.items.length){ w.innerHTML=''; return; }
+    var html='<div class="aih-sect"><div class="sect-h"><span class="ic">🤖</span><span class="tt">AI 상담 인계</span><span class="ct">'+d.pending+'</span></div>';
+    html+=d.items.map(aihCard).join('')+'</div>';
+    w.innerHTML=html;
+    w.querySelectorAll('.aih-card').forEach(function(el){
+      el.addEventListener('click',function(e){ if(e.target.closest('.aih-btn')) return; el.classList.toggle('open'); });
+    });
+    w.querySelectorAll('[data-aih-copy]').forEach(function(b){
+      b.addEventListener('click',function(e){ e.stopPropagation();
+        var t=b.getAttribute('data-aih-copy');
+        (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){ b.textContent='복사됨 ✓'; setTimeout(function(){ b.textContent='답변 복사'; },1500); }).catch(function(){ prompt('복사해 주세요', t); });
+      });
+    });
+    w.querySelectorAll('[data-aih-done]').forEach(function(b){
+      b.addEventListener('click',function(e){ e.stopPropagation();
+        if(!confirm('이 인계를 처리 완료로 표시할까요?')) return;
+        gas('adminResolveAiHandoff', b.getAttribute('data-aih-done')).then(function(r){
+          if(r&&r.ok){ loadAiHandoffs(); } else { alert((r&&r.error)||'처리에 실패했어요.'); }
+        });
+      });
+    });
+  }).catch(function(){ w.innerHTML=''; });
+}
+function aihCard(it){
+  var confCls=it.confidence==='높음'?'h':(it.confidence==='낮음'?'l':'m');
+  return '<div class="aih-card">'+
+    '<div class="aih-top"><span class="aih-cat">'+esc(it.category)+'</span>'+
+    (it.confidence?'<span class="aih-conf '+confCls+'">확신도 '+esc(it.confidence)+'</span>':'')+
+    '<span class="aih-meta">'+esc(it.page)+' · '+esc(it.customer)+' · '+fmtDT(it.at)+'</span></div>'+
+    '<div class="aih-sum">'+esc(it.summary)+'</div>'+
+    '<div class="aih-body">'+
+    '<div class="aih-lab">AI 제안 답변 · 관리자 전용</div><div class="aih-reply">'+esc(it.suggestedReply)+'</div>'+
+    '<div class="aih-lab">근거 · 확인사항</div><div class="aih-rat">'+esc(it.rationale)+'</div>'+
+    (it.conversation?('<div class="aih-lab">대화 내용</div><div class="aih-convo">'+esc(it.conversation)+'</div>'):'')+
+    '<div class="aih-acts"><button class="aih-btn p" data-aih-copy="'+esc(it.suggestedReply)+'">답변 복사</button>'+
+    '<button class="aih-btn" data-aih-done="'+esc(it.id)+'">처리 완료</button></div>'+
+    '</div></div>';
 }
 
 function renderPipeline(d){
