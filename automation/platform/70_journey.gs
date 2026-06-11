@@ -864,12 +864,23 @@ function adminConfirmWeddingChange(code) {
       rec.영수증기준일 = rec.영수증기준일 || {};
       rec.영수증기준일.변경수수료 = now;                 // 받은 날 기준(의무발급 5일 기한 기산 메모) — 발행 큐 연동까지는 하지 않음
     }
-    touchCustomer(sheet, colOf, cust.num, {
+    var updCols = {
       '예식일': req.to.date,                             // 돈 계산(중도금 D-149·잔금 D-9)·위약 구간·슬롯 점유의 톱레벨 기준
       '동의기록': JSON.stringify(rec),
       '중도금리마인드': '',                              // 새 예식일 기준 리마인드 재안내(기발송 마킹 리셋)
       '잔금리마인드': ''
-    });
+    };
+    // 제작 base 동기화 — 제작 단계에서 base가 이미 저장된 고객의 일시 변경 시,
+    //   buildProductionState(80)·_ensureProductionBase(85 발행 promote)가 옛 base.weddingDate/Time을
+    //   우선해 청첩장·식순·다이닝 도착시간이 옛 일시로 남는 것 방지(시간은 계약 슬롯→본예식 +1h 매핑).
+    var prod = _parseJsonSafe(cust.get('제작임시저장'));
+    if (prod && prod.base) {
+      prod.base.weddingDate = req.to.date;
+      var mapT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(req.to.slot || '').trim()];
+      if (mapT) prod.base.weddingTime = mapT;
+      updCols['제작임시저장'] = JSON.stringify(prod);
+    }
+    touchCustomer(sheet, colOf, cust.num, updCols);
     _recordHandler(code, '예식일 변경 적용 · ' + ((req.from && req.from.date) || '') + ((req.from && req.from.slot) ? (' ' + req.from.slot) : '') + ' → ' + req.to.date + ' ' + (req.to.slot || '')
       + (fee > 0 ? (' · 수수료 ' + fee + '원(입금자 ' + (req.payer || '') + ')') : ' · 무상'));
     notifyKakao('cust.changeConfirmed', code, { date: req.to.date, slot: req.to.slot, fee: fee });
