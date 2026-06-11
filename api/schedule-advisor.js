@@ -9,6 +9,8 @@
 //      서버 코드가 그 날짜만 판정한 뒤, 2차 호출이 판정 결과만 받아 답변을 작성한다.
 //      → 프롬프트 주입으로도 전체 현황이 샐 수 없음.
 //   ④ 시간대 축소: 한 날짜에 3타임이 있어도 타임 "하나만" 안내(고객이 말한 시간대 우선).
+//   ⑤ 예약율 비례 완화: 주말 예약율이 오를수록 ②~④를 6단계로 자동 완화(아래 LEVELS).
+//      꽉 찬 캘린더는 숨길 게 아니라 자랑거리 → 혼잡(마감 임박) 멘트도 단계별 허용.
 //
 // 입력: { messages:[{role,content}...], taken?:{ 'YYYY-MM-DD':[slot,...] }, today?:'YYYY-MM-DD' }
 //   - taken은 로그인된 schedule.html이 전달. 없으면(비로그인 inquiry) GAS에서 서버측 조회.
@@ -17,12 +19,80 @@
 const MODEL = 'claude-haiku-4-5';
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 400, MAX_HISTORY = 10;
-const MAX_DATE_CHECKS = 3;          // ② 대화당 서로 다른 날짜 확인 한도
 const rateGate = require('./_ratelimit');
 
 const SLOTS = ['09:00', '12:20', '15:40'];
 const SLOT_LABEL = { '09:00': '오전 9시', '12:20': '오후 12시 20분', '15:40': '늦은 오후 3시 40분' };
 const WD_KO = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+
+// ── ⑤ 주말 예약율 비례 신비주의 6단계 (사장 지시 2026-06-11) ──
+// 기준: 향후 180일 주말(토·일) 슬롯 점유율. 한가할수록 가리고(승인제), 찰수록 자동으로 푼다.
+//   checks    대화당 서로 다른 날짜 확인 한도
+//   askSlot   날짜만 말하면 시간대를 되물을지 (예약 페이지만 · 스케줄 페이지는 항상 바로 답)
+//   listSlots 한 날짜의 가능한 타임을 모두 나열해도 되는지
+//   listDates 시기 질문에 제안할 후보 날짜 수
+//   busy      혼잡(마감 임박) 멘트 단계
+const LEVELS = [
+  { min: 0.00, checks: 3,  askSlot: true,  listSlots: false, listDates: 1, busy: 0 },   // L1 한가
+  { min: 0.10, checks: 4,  askSlot: true,  listSlots: false, listDates: 1, busy: 0 },   // L2
+  { min: 0.25, checks: 5,  askSlot: false, listSlots: false, listDates: 1, busy: 1 },   // L3
+  { min: 0.40, checks: 6,  askSlot: false, listSlots: true,  listDates: 1, busy: 2 },   // L4
+  { min: 0.60, checks: 8,  askSlot: false, listSlots: true,  listDates: 2, busy: 3 },   // L5
+  { min: 0.80, checks: 99, askSlot: false, listSlots: true,  listDates: 3, busy: 3 },   // L6 사실상 오픈
+];
+const BUSY_LINE = {
+  0: ' 혼잡 멘트 금지.',
+  1: ' 원하면 "최근 문의가 늘고 있어요" 정도의 가벼운 혼잡 멘트 한 줄 허용.',
+  2: ' 원하면 "주말 일정이 빠르게 확정되고 있어요" 같은 혼잡 멘트 한 줄 허용.',
+  3: ' "이 시기는 남은 일정이 많지 않아요"처럼 마감 임박을 분명히 알리는 한 줄 권장.',
+};
+// ── 수요 가중치 (연구 기반 2026-06 · 한국 예식 수요 분포) ──
+// 월: 실제 예식 거행일 기준 5·10월 최성수기, 4·11월 그다음, 9월 성수기, 3·6월 준성수기,
+//     12월 중간, 1·2·7·8월 비수기(평소의 1/3 수준). 통계청 혼인통계·웨딩업계 자료 종합.
+const MONTH_W = { 1: 0.35, 2: 0.35, 3: 0.65, 4: 0.90, 5: 1.00, 6: 0.65, 7: 0.30, 8: 0.30, 9: 0.80, 10: 1.00, 11: 0.90, 12: 0.50 };
+// 요일: 토요일 선호가 뚜렷, 일요일은 그 2/3 수준. 평일은 산정에서 제외(사장 지시).
+const DAY_W = { 6: 1.0, 0: 0.65 };
+// 타임: 점심(12:20) 최선호 · 늦은 오후(15:40) · 오전(09:00) 순(주말 오후 선호 조사 기반)
+const SLOT_W = { '09:00': 0.6, '12:20': 1.0, '15:40': 0.85 };
+
+// 가치 가중 판매율: "팔릴 만한 자리(성수기 토요일 점심일수록 큼)" 중 얼마나 팔렸는지.
+// 10월 토요일 점심이 차면 크게, 2월 일요일 오전이 비어 있어도 거의 안 깎인다 → 현실적 혼잡도.
+function weightedRatio(taken, startYmd, days, onlyYm) {
+  let cap = 0, sold = 0, d = startYmd;
+  for (let i = 0; i < days; i++) {
+    if (!onlyYm || d.slice(0, 7) === onlyYm) {
+      const dw = DAY_W[dayOfWeek(d)];
+      if (dw) {
+        const mw = MONTH_W[Number(d.slice(5, 7))] || 0.5;
+        const t = taken[d] || [];
+        for (const s of SLOTS) {
+          const w = mw * dw * SLOT_W[s];
+          cap += w;
+          if (t.indexOf(s) !== -1) sold += w;
+        }
+      }
+    }
+    d = addDays(d, 1);
+  }
+  return cap ? sold / cap : 0;
+}
+function levelFor(taken, today, page) {
+  // 1년치 — 어느 시점이든 다음 성수기가 포함되도록. 향후 6개월은 가중 1.5배(임박 수요가 더 중요)
+  const near = weightedRatio(taken, addDays(today, 1), 183);
+  const far = weightedRatio(taken, addDays(today, 184), 182);
+  const ratio = Math.min(1, (near * 1.5 + far) / 2.5);
+  let idx = 0;
+  for (let i = 0; i < LEVELS.length; i++) if (ratio >= LEVELS[i].min) idx = i;
+  if (page === '스케줄' && idx < LEVELS.length - 1) idx++;   // 예약금 납부 고객은 한 단계 완화
+  const p = Object.assign({}, LEVELS[idx]);
+  if (page === '스케줄') p.askSlot = false;   // 스케줄 페이지는 시간 셀렉트가 타임 현황을 보여주므로 되묻지 않음
+  return { n: idx + 1, ratio: ratio, p: p };
+}
+// 질문한 날짜가 속한 "그 달"의 가중 판매율 → 그 달이 실제로 몰려 있으면 혼잡 멘트만 상향
+function monthBusyTier(taken, ymd) {
+  const r = weightedRatio(taken, ymd.slice(0, 7) + '-01', 31, ymd.slice(0, 7));
+  return r >= 0.6 ? 3 : r >= 0.4 ? 2 : r >= 0.25 ? 1 : 0;
+}
 
 // ── 1차: 날짜 추출 전용 (가용성 데이터 없음 · JSON만) ──
 const EXTRACT_PROMPT = `당신은 웨딩 예식일 상담 대화에서 고객의 마지막 메시지가 무엇을 요청하는지 분석해 JSON으로만 답하는 추출기입니다.
@@ -122,7 +192,9 @@ module.exports = async (req, res) => {
 
     // ── 서버 판정 (AI는 이 결과만 본다) ──
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
-    const verdict = decide(ex, taken, today, answered, page);
+    const lv = levelFor(taken, today, page);   // ⑤ 주말 예약율 6단계 · 클라이언트 비노출(로그만)
+    try { console.log('sched_level', lv.n, lv.ratio.toFixed(2), page); } catch (e) {}
+    const verdict = decide(ex, taken, today, answered, page, lv);
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
     const rep = await callClaude(apiKey, {
@@ -144,8 +216,11 @@ module.exports = async (req, res) => {
   }
 };
 
-// ── 판정: 추출 결과 + 점유 맵 → AI에게 줄 한 건의 지시문 ──
-function decide(ex, taken, today, answered, page) {
+// ── 판정: 추출 결과 + 점유 맵 + 단계 정책 → AI에게 줄 한 건의 지시문 ──
+function decide(ex, taken, today, answered, page, lv) {
+  const pol = lv.p;
+  // 혼잡 멘트: 전역 단계와 "그 달"의 실제 혼잡도 중 높은 쪽 — 10월이 몰려 있으면 전체가 한가해도 솔직한 임박 안내
+  const busyAt = function (ymd) { return BUSY_LINE[Math.max(pol.busy, monthBusyTier(taken, ymd))]; };
   if (ex.intent === 'other') {
     return '스케줄 확인 요청이 아닙니다. 예식일 확인 전용 창구임을 짧게 안내하고, 궁금한 예식 날짜가 있으면 알려달라고 하세요.';
   }
@@ -155,22 +230,29 @@ function decide(ex, taken, today, answered, page) {
   let date = /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : '';
   const prefer = SLOTS.indexOf(ex.slot) !== -1 ? ex.slot : '';
 
-  // 시기만 말한 경우: 범위에서 후보 날짜 하나를 서버가 고른다(주말 요청 시 주말만)
+  // 시기만 말한 경우: 범위에서 후보 날짜를 서버가 고른다(주말 요청 시 주말만 · 단계별 1~3개)
   if (!date && /^\d{4}-\d{2}-\d{2}$/.test(ex.periodFrom)) {
-    if (answered.size >= MAX_DATE_CHECKS) return limitMsg();
+    if (answered.size >= pol.checks) return limitMsg(pol.checks);
     const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
     const to = /^\d{4}-\d{2}-\d{2}$/.test(ex.periodTo) && ex.periodTo > from ? ex.periodTo : addDays(from, 60);
+    const wantN = (prefer || !pol.askSlot) ? pol.listDates : 1;
+    const cands = [];
     let d = from;
-    for (let i = 0; i < 124 && d <= to; i++) {
+    for (let i = 0; i < 124 && d <= to && cands.length < wantN; i++) {
       const wd = dayOfWeek(d);
-      if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) {
-        // 시간대까지 말했으면 바로 판정, 아니면 후보 날짜만 제안하고 시간대를 되묻는다(시간 단위 확인)
-        if (prefer) return okMsg(d, prefer, '', page);
-        return '고객이 말한 시기에서는 ' + koDate(d) + '(' + WD_KO[wd] + ')을 후보 날짜로 제안하세요. 가능 여부는 아직 말하지 말고, "이 날짜라면 어느 시간대로 확인해 드릴까요?"로 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
-      }
+      if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) cands.push(d);
       d = addDays(d, 1);
     }
-    return '말씀하신 시기에는 안내 가능한 일정을 찾지 못했습니다. 다른 시기를 알려주시면 확인해 드리겠다고 안내하세요.';
+    if (cands.length === 0) {
+      return '말씀하신 시기에는 안내 가능한 일정을 찾지 못했습니다. 다른 시기를 알려주시면 확인해 드리겠다고 안내하세요.' + (pol.busy >= 2 ? BUSY_LINE[3] : '');
+    }
+    // 시간대까지 말했거나 단계가 풀렸으면 바로 판정, 아니면 후보 하나만 제안하고 시간대를 되묻는다
+    if (!prefer && pol.askSlot) {
+      return '고객이 말한 시기에서는 ' + koDate(cands[0]) + '(' + WD_KO[dayOfWeek(cands[0])] + ')을 후보 날짜로 제안하세요. 가능 여부는 아직 말하지 말고, "이 날짜라면 어느 시간대로 확인해 드릴까요?"로 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
+    }
+    if (cands.length === 1) return okMsg(cands[0], prefer || freeSlot(taken, cands[0], ''), '', page) + busyAt(cands[0]);
+    const listed = cands.map((c) => koDate(c) + '(' + WD_KO[dayOfWeek(c)] + ') ' + SLOT_LABEL[prefer || freeSlot(taken, c, '')]).join(' · ');
+    return '고객이 말한 시기에서 진행 가능한 일정으로 확인된 후보: ' + listed + '. 이 후보들만 안내하고, ' + actionTxt(page) + busyAt(cands[0]);
   }
 
   if (!date) {
@@ -179,14 +261,20 @@ function decide(ex, taken, today, answered, page) {
   if (date <= today) {
     return '고객이 말한 ' + koDate(date) + '은 이미 지났거나 오늘입니다. 정중히 미래의 날짜를 알려달라고 안내하세요.';
   }
-  // ② 한도: 새 날짜이고 이미 3개를 답했으면 차단(같은 날짜의 추가 질문·시간대 변경은 허용)
+  // ② 한도: 새 날짜이고 단계별 한도를 넘었으면 차단(같은 날짜의 추가 질문·시간대 변경은 허용)
   const key = dateKey(date);
-  if (answered.size >= MAX_DATE_CHECKS && !answered.has(key)) return limitMsg();
+  if (answered.size >= pol.checks && !answered.has(key)) return limitMsg(pol.checks);
 
-  // ④ 시간 단위 확인(사장 지시): 날짜만 말하고 시간대가 없으면, 가능 여부를 말하기 전에
-  //   "어느 시간대로 확인해 드릴까요?"로 되묻는다(그 날에 확인 가능한 타임이 하나라도 있을 때만).
-  if (!prefer && freeSlot(taken, date, '')) {
+  // ④ 시간 단위 확인(L1~L2 예약 페이지): 날짜만 말하면 가능 여부 전에 시간대를 되묻는다
+  if (!prefer && pol.askSlot && freeSlot(taken, date, '')) {
     return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')의 시간대를 아직 말하지 않았습니다. 가능 여부는 아직 말하지 말고, "어느 시간대로 확인해 드릴까요?"라고 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
+  }
+  // 단계가 풀리면(L4+) 그 날짜의 가능한 타임 전부 안내 가능
+  if (!prefer && pol.listSlots) {
+    const free = SLOTS.filter((s) => (taken[date] || []).indexOf(s) === -1);
+    if (free.length > 0) {
+      return '안내할 일정: ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ') 진행 가능한 타임: ' + free.map((s) => SLOT_LABEL[s]).join(' · ') + '. 이 날짜의 이 타임들만 안내하고, ' + actionTxt(page) + busyAt(date);
+    }
   }
 
   let slot = freeSlot(taken, date, prefer), note = '';
@@ -195,7 +283,7 @@ function decide(ex, taken, today, answered, page) {
     slot = freeSlot(taken, date, '');
     if (slot) note = '고객이 말한 ' + SLOT_LABEL[prefer] + ' 타임은 이미 확정된 일정이 있습니다. 그 사실을 먼저 알리고 아래 타임을 안내하세요.\n';
   }
-  if (slot) return okMsg(date, slot, note, page);
+  if (slot) return okMsg(date, slot, note, page) + busyAt(date);
   // 그 날짜 전부 마감 → 가까운 대안 하나(주말 요청이면 주말 우선)
   const wantWeekend = ex.weekendOnly || dayOfWeek(date) === 0 || dayOfWeek(date) === 6;
   let alt = '', altSlot = '';
@@ -211,21 +299,23 @@ function decide(ex, taken, today, answered, page) {
   let m = '고객이 말한 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')은 이미 진행이 확정된 일정이 있어 어렵습니다.';
   if (alt) m += ' 대안으로 ' + koDate(alt) + '(' + WD_KO[dayOfWeek(alt)] + ') ' + SLOT_LABEL[altSlot] + ' 타임 한 건만 "진행 가능한 일정으로 확인돼요"로 안내하세요.';
   else m += ' 대안은 안내하지 말고, 다른 시기를 알려주시면 확인해 드리겠다고 하세요.';
-  return m;
+  return m + busyAt(date);
 }
 
+function actionTxt(page) {
+  return (page === '예약')
+    ? '이어서 "대면상담을 신청하시면 예약 단계에서 이 일정을 임시 고정으로 신청하실 수 있고, 디렉터 확인을 거쳐 대면상담 전에 정확한 예식 일자를 확정받으실 수 있어요"로, 상담 신청을 서두르도록 부드럽게 유도하세요.'
+    : '아래 예식일 임시 고정에 이 날짜로 신청해 두시면 디렉터가 최종 확인 후 14일간 잡아드린다고 덧붙이세요.';
+}
 function okMsg(date, slot, note, page) {
   const wd = dayOfWeek(date), month = Number(date.slice(5, 7));
   const scarcity = (wd === 0 || wd === 6 || month === 4 || month === 5 || (month >= 9 && month <= 11));
-  const action = (page === '예약')
-    ? '이어서 "대면상담을 신청하시면 예약 단계에서 이 일정을 임시 고정으로 신청하실 수 있고, 디렉터 확인을 거쳐 대면상담 전에 정확한 예식 일자를 확정받으실 수 있어요"로, 상담 신청을 서두르도록 부드럽게 유도하세요.'
-    : '아래 예식일 임시 고정에 이 날짜로 신청해 두시면 디렉터가 최종 확인 후 14일간 잡아드린다고 덧붙이세요.';
   return note
-    + '안내할 일정: ' + koDate(date) + '(' + WD_KO[wd] + ') ' + SLOT_LABEL[slot] + ' 타임 → 진행 가능한 일정으로 확인됨. 이 한 건만 안내하고, ' + action
+    + '안내할 일정: ' + koDate(date) + '(' + WD_KO[wd] + ') ' + SLOT_LABEL[slot] + ' 타임 → 진행 가능한 일정으로 확인됨. 이 한 건만 안내하고, ' + actionTxt(page)
     + (scarcity ? ' 희소성 한 줄 허용.' : ' 희소성 멘트 금지.');
 }
-function limitMsg() {
-  return '이 대화에서 이미 세 개의 날짜를 확인해 드렸습니다. 새 날짜 확인은 더 하지 말고, "한 번의 상담에서는 세 개 날짜까지 확인을 도와드리고 있어요. 확인해 드린 날짜 중 마음에 드시는 날짜로 임시 고정을 신청해 두시면 디렉터가 최종 확인 후 안내드릴게요"의 취지로 정중히 마무리하세요. 새 날짜를 더 물어보라는 말은 하지 마세요.';
+function limitMsg(n) {
+  return '이 대화에서 이미 ' + n + '개의 날짜를 확인해 드렸습니다. 새 날짜 확인은 더 하지 말고, "한 번의 상담에서 확인해 드릴 수 있는 날짜 수가 정해져 있어요. 확인해 드린 날짜 중 마음에 드시는 날짜로 임시 고정을 신청해 두시면 디렉터가 최종 확인 후 안내드릴게요"의 취지로 정중히 마무리하세요. 새 날짜를 더 물어보라는 말은 하지 마세요.';
 }
 
 function freeSlot(taken, ymd, prefer) {
