@@ -554,6 +554,29 @@ function doCustomerCancel(sheet, colOf, row, p) {
     '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
 }
 
+// [취소 환불 예상] 예약금(200,000) 기준 시착 벌수 비례 공제 — 시착동의 v3·계약서 4조⑧과 동일 규칙(cancel.html 표시용).
+//   Customers 행(개인코드 매칭)의 동의기록.시착.벌수 → fitDeduct=min(벌수×70,000, 200,000) · amount=예약금-공제.
+//   needCount = 시착 동의완료인데 벌수 미기록(공제 0으로 계산하되 화면은 '벌수 확인 후 안내'). 행 없거나 시착 전이면 공제 0(전액 환불).
+//   베스트에포트 — 산정 실패해도 취소 흐름은 절대 막지 않는다(호출부 try/catch 짝).
+function _consultRefundQuote(code) {
+  var unit = (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.추가벌비용) || 70000;     // 1벌당 시착비(70_journey 단일 출처)
+  var dep = (typeof PAYMENT !== 'undefined' && PAYMENT.예약금) || Number(CONFIG.DEPOSIT) || 200000;
+  var q = { amount: dep, fitCount: 0, fitDeduct: 0, needCount: false };
+  code = String(code || '').trim();
+  if (!code || typeof findCustomerByCode !== 'function') return q;
+  var cust = null;
+  try { cust = findCustomerByCode(code); } catch (e) {}
+  if (!cust) return q;                                                                            // Customers 행 없음(원자성 실패) → 공제 0
+  if (String(cust.get('시착동의상태') || '').trim() !== '동의완료') return q;                      // 시착 전 → 전액 환불
+  var fit = _parseJsonSafe(cust.get('동의기록')).시착 || {};
+  var cnt = (fit.벌수 != null && fit.벌수 !== '' && !isNaN(Number(fit.벌수))) ? Number(fit.벌수) : null;
+  if (cnt == null) { q.needCount = true; return q; }                                              // 시착했는데 벌수 미기록 → 산정 보류
+  q.fitCount = cnt;
+  q.fitDeduct = Math.min(cnt * unit, 200000);
+  q.amount = Math.max(0, dep - q.fitDeduct);
+  return q;
+}
+
 // [자사몰 취소] 이메일 '여기' → momentedit.kr/cancel 가 token·sig로 호출(GAS HTML/구글 Drive 오류 우회). 정보조회 + 취소 처리 2종.
 function handleEmailCancelInfo(body) {
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
@@ -565,9 +588,12 @@ function handleEmailCancelInfo(body) {
   if (status === ST.CANCELLED) return { ok: true, state: 'cancelled', names: coupleNames(row) };
   if (LOCKED_STATES.indexOf(status) === -1) return { ok: true, state: 'none', names: coupleNames(row) };
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
-  return { ok: true, state: withinCancelDeadline(dateKey, time) ? 'ok' : 'expired',
+  var out = { ok: true, state: withinCancelDeadline(dateKey, time) ? 'ok' : 'expired',
     names: coupleNames(row), date: prettyDate(dateKey), time: String(time || ''), deadlineLabel: deadlineLabel(),
     kakao: (CONFIG.KAKAO_URL && CONFIG.KAKAO_URL.charAt(0) !== '[') ? CONFIG.KAKAO_URL : '' };
+  // [환불 예상] 예약금-시착 공제(계약서 4조⑧) — cancel.html 금액 박스용. 실패해도 취소 안내는 그대로(베스트에포트).
+  try { out.refund = _consultRefundQuote(String(row.get('개인코드') || '').trim()); } catch (e) {}
+  return out;
 }
 function handleEmailCancel(body) {
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
@@ -1987,6 +2013,9 @@ function doPost(e) {
       case 'weddingAvailability': return jsonOut(handleWeddingAvailability(body));
       case 'changeWeddingHold':   return jsonOut(handleChangeWeddingHold(body));
       case 'cancelWeddingHold':   return jsonOut(handleCancelWeddingHold(body));
+      case 'quoteWeddingChange':   return jsonOut(handleQuoteWeddingChange(body));   // [02-9] 예식일 변경(계약 후 셀프)
+      case 'requestWeddingChange': return jsonOut(handleRequestWeddingChange(body));
+      case 'cancelWeddingChange':  return jsonOut(handleCancelWeddingChange(body));
       case 'requestContract':    return jsonOut(handleRequestContract(body));
       case 'requestContractResend': return jsonOut(handleRequestContractResend(body));
       case 'signFittingConsent': return jsonOut(handleSignFittingConsent(body));
