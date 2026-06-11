@@ -491,7 +491,7 @@ function serveCancelD(token, row) {
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
     '<div class="t">예약을 취소하시겠어요?</div>' +
     '<div class="card"><div class="ey">Reservation</div><div class="dt">' + prettyDate(dateKey) + ' · ' + esc(time) + '</div></div>' +
-    '<div class="notice">취소 시 예약금 ' + depositTxt + '은 입력하신 계좌로 환불해 드립니다.<br>환불은 영업일 기준 수일이 소요될 수 있습니다.</div>' +
+    '<div class="notice">취소 시 예약금 ' + depositTxt + '은 입력하신 계좌로 환불해 드립니다.<br>드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 70,000원) 차감 후 환불됩니다.<br>환불은 영업일 기준 수일이 소요될 수 있습니다.</div>' +
     '<div class="fld"><span class="lbl">환불 계좌</span>' +
     '<input id="acct" type="text" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">' +
     '<div class="hint">예: 국민 123456-78-901234 정희준</div></div>' +
@@ -1136,7 +1136,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
       ['장소', placeValue()],
       ['소요 시간', '약 ' + CONFIG.SLOT_DURATION_MIN + '분 · 두 분 함께 방문 권장'],
       ['준비물', '특별한 준비물은 없습니다. 편하게 와 주세요.'],
-      ['변경 · 취소', '상담 ' + deadlineLabel() + ' 전까지 가능하며, 이후 예약금은 반환되지 않습니다.']
+      ['변경 · 취소', '상담 ' + deadlineLabel() + ' 전까지 가능합니다. 이후 변경은 카카오톡으로 문의해 주세요. 드레스 시착 전 취소는 예약금이 전액 환불됩니다.']
     ]) +
     emailBtnOutline(gcalUrl('Moment Edit 상담 · ' + names, dateKey, time, CONFIG.SLOT_DURATION_MIN), '내 캘린더에 추가') +
     smallP('일정 변경이 필요하시면 받으셨던 전용 링크에서 다시 선택하시거나, <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 문의해 주세요.') +

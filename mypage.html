@@ -1596,7 +1596,7 @@ function renderContractPayment(c, p, ctx){
         + '<div class="visit-guide vg-center" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면 <b>24시간 안에</b> 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
         + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요.<br>서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요.<br>서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
-        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우,<br>미계약으로 취소되면 예약금은 드레스 시착 비용으로 전환되어 환불되지 않아요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
         + '</div></div>';
       box.style.display='block'; return;
     }
