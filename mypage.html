@@ -2251,7 +2251,7 @@ function renderProduction(p, inv){
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{});
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(){ startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
@@ -2668,7 +2668,7 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv){
+function productionDashHtml(t, inv, dd){
   t=t||{}; inv=inv||{};
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
   function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어서 하기' : '시작하기'); }
@@ -2684,6 +2684,16 @@ function productionDashHtml(t, inv){
       + row('다이닝', t.dining||'시작전', 'mp_diningStart', null)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
     + '</div>';
+  // 다이닝 완료 + 식당 선택 시 — 예약처 다시보기(전화·지도) 한 줄
+  if((t.dining||'')==='완료' && dd && dd.dining_on==='Y' && dd.venue){
+    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
+    tracks += '<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'
+      + '🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
+      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
+      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
+      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a>'
+      + '</span></div>';
+  }
   var allDone = (ist==='완료') && ((t.dining||'')==='완료') && ((t.ritual||'')==='완료');
   if(allDone){
     // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
@@ -3213,6 +3223,8 @@ var DINE_DB = [
 var _DN_PRICE={low:'~2만',mid:'2~4만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
 var _DN_ARR={'10:00':'11:50','13:20':'15:00','16:40':'18:10'};   // 본예식 → 식사 도착 기준
+function _dnFind(nm){ for(var i=0;i<DINE_DB.length;i++){ if(DINE_DB[i].n===nm) return DINE_DB[i]; } return null; }
+function _dnMapUrl(nm){ return 'https://map.naver.com/p/search/'+encodeURIComponent(nm); }
 function _dnPass(r,fl){
   if(fl.theme && r.th!==fl.theme) return false;
   if(fl.price && r.p!==fl.price) return false;
@@ -3267,7 +3279,8 @@ function dineFilterUI(d, wt){
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var vnote = list.some(function(r){return !r.v;}) ? '<div class="cc-note" style="margin:2px 0 8px">거리·가격대는 대략의 안내예요. 정확한 메뉴·좌석은 예약 전화에서 확인해 주세요.</div>' : '';
-  return aiBox + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
+  var aiHint = d._aiSummary ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">추천에 맞춰 조건을 맞췄어요. 아래 칩을 눌러 바꿀 수 있어요.</div>' : '';
+  return aiBox + aiHint + chips + '<div class="dn-count">추천 '+list.length+'곳'+(arr?' · 식사 도착 '+arr+' 기준':'')+'</div>' + vnote + cards;
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
@@ -3278,7 +3291,7 @@ function renderDining(box){
     else { d.venue=''; if(d.venuePick) d.partner=d.venuePick; }
   }
   function collect(){
-    if($('trk_dHead')) d.headcount=($('trk_dHead').value||'').trim();
+    if($('trk_dHead')){ var _hv=($('trk_dHead').value||'').replace(/[^0-9]/g,''); if(_hv){ _hv=String(Math.min(Math.max(parseInt(_hv,10)||0,1),200)); } d.headcount=_hv; }
     if($('dn_aiText')) d._aiText=$('dn_aiText').value;
     if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
     syncVenue();
@@ -3292,7 +3305,7 @@ function renderDining(box){
         +'<small>'+escapeHtml(v[1])+'</small><small>'+escapeHtml(v[2])+'</small></label>'; }
     var f = (on==='Y') ? '<div class="inv-fields">'
         + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원 <span style="color:var(--label-soft)">(선택)</span></div>'
-        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
+        + '<input class="cc-input" id="trk_dHead" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
         + '<div class="inv-side-l" style="margin:14px 0 4px">식사 장소</div>'
         + '<div class="cc-note" style="margin:0 0 8px">'+escapeHtml(slot.lead)+' 예식 후 가까운 연계 식당·카페로 이동해 식사해요.</div>'
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
@@ -3318,12 +3331,13 @@ function renderDining(box){
       if(R){
         var telD=(R.tel||'').replace(/[^0-9]/g,'');
         var callLine=telD
-          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 4px;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
-          : '<div class="cc-note" style="margin:10px 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
+          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+        var mapLine='<a class="cc-btn-ghost" href="'+_dnMapUrl(R.n)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')+'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?';
         body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
           + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · 식사 도착 '+arr2+' 기준':'')+'</div>'
-          + callLine
+          + callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
           + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
