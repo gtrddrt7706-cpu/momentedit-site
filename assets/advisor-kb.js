@@ -72,6 +72,9 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'time-extend', label: '시간을 연장할 수 있나요?', answer: '하루 세 팀 운영 구조상 당일 시간 연장은 어렵습니다. 필요한 구성은 상담에서 미리 설계해 드립니다.', escalate: true },
         { id: 'time-arrive', label: '당일 몇 시에 도착하나요?', answer: '예약하신 시퀀스 시작 시간에 맞추어 도착하시면 됩니다. 정확한 시작 시간과 동선은 상담 확정 후 안내해 드립니다.', escalate: true },
         { id: 'time-money', label: '축의금은 어떻게 받나요?', answer: '모바일 청첩장의 "마음 전하실 곳"에 계좌를 직접 입력해 정중히 안내할 수 있습니다. 현장 접수 등 그 외 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'time-group', label: '단체사진(포토타임)은 찍나요?', answer: '네. Group Record 30분에 양가 모든 세대가 한자리에 모이는 단체 기록을 담습니다. 가족 구성에 맞춰 자연스럽게 진행해 드립니다.' },
+        { id: 'time-pyebaek', label: '폐백 · 함 같은 전통 절차도 되나요?', answer: '폐백 등 전통 절차의 진행 여부와 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'time-late', label: '예식이 지연되면 어떻게 되나요?', answer: '하루 세 팀 운영 구조라 정시 진행이 중요합니다. 당일 운영과 지연 관련 안내는 상담에서 도와드립니다.', escalate: true },
       ],
     },
     {
@@ -147,6 +150,8 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'photo-keep', label: '데이터는 얼마나 보관해 주나요?', answer: '결과물은 인도 완료 후 6개월간 보관 후 삭제됩니다. 기간 내에 꼭 백업해 주세요.' },
             { id: 'photo-sns', label: 'SNS에 올려도 되나요?', answer: '두 분의 기록이니 자유롭게 간직하시면 됩니다. 스튜디오의 포트폴리오 활용·게시 가이드 등 세부 정책은 상담에서 안내드립니다.', escalate: true },
             { id: 'photo-portfolio', label: '촬영 결과물 미리 볼 수 있나요?', answer: '인스타그램 @moment_edit_official 과 홈페이지의 아카이브·청첩장 갤러리에서 톤과 무드를 미리 보실 수 있습니다.' },
+            { id: 'photo-format', label: '원본 파일 형식(JPG · RAW)은요?', answer: '원본 데이터 전체를 제공해 드립니다. 파일 형식 등 세부 사양은 상담에서 안내드립니다.', escalate: true },
+            { id: 'photo-reshoot', label: '재촬영이 되나요?', answer: '재촬영 관련 안내는 상담에서 도와드립니다.', escalate: true },
           ],
         },
         {
@@ -157,6 +162,8 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'video-length', label: '편집본 길이는 어느 정도예요?', answer: '편집본 길이 등 세부 사양은 상담에서 안내드립니다.', escalate: true },
           ],
         },
+        { id: 'result-album', label: '앨범 · 액자 · USB도 제작되나요?', answer: '실물 앨범·액자·USB 등 제작 옵션은 상담에서 안내드립니다.', escalate: true },
+        { id: 'result-other', label: '본식 외 촬영(데이트 · 커플 스냅)도 있나요?', answer: '본식 외 촬영 상품 관련은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -168,6 +175,8 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'invite-paper', label: '실물(종이) 청첩장은요?', answer: '실물 청첩장 관련 안내는 상담에서 도와드립니다.', escalate: true },
         { id: 'invite-edit', label: '수정은 몇 번까지 되나요?', answer: '마이페이지에서 직접 편집하는 방식이라 완성 전까지 자유롭게 다듬으실 수 있습니다. 마감 일정 등 세부 사항은 상담에서 안내드립니다.', escalate: true },
         { id: 'invite-lang', label: '영문 · 일문 청첩장도 되나요?', answer: '영문·일문 등 다국어 구성 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'invite-rsvp', label: '참석 여부(RSVP)를 받을 수 있나요?', answer: '참석 안내는 모바일 청첩장과 디지털 참석으로 도와드립니다. 참석 여부 집계 기능 등 세부는 상담에서 안내드립니다.', escalate: true },
+        { id: 'invite-send', label: '청첩장 발송도 대행해 주나요?', answer: '모바일 청첩장 링크를 직접 공유하시는 방식입니다. 발송 관련 추가 지원은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -183,6 +192,9 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'booking-duration', label: '방문 상담은 얼마나 걸리나요?', answer: '상담에서는 공간 안내와 일정·구성 협의, 원하시면 드레스 시착(기본 3벌)까지 진행됩니다. 소요 시간은 상담 예약 시 안내드립니다.', escalate: true },
         { id: 'booking-noconsult', label: '상담 없이 바로 예약할 수 있나요?', answer: '사전 문의서와 방문 상담을 거쳐 진행됩니다. 공간과 구성을 직접 보신 뒤 결정하시는 편이 안전하고, 일정 확인은 문의서 제출만으로도 먼저 도와드립니다.' },
         { id: 'booking-parents', label: '부모님과 함께 상담할 수 있나요?', answer: '네, 부모님 동반 상담을 권장드립니다. 어른 세대를 위한 안내도 함께 도와드립니다.' },
+        { id: 'booking-online', label: '비대면(온라인) 상담도 되나요?', answer: '비대면 상담 가능 여부는 상담 신청 시 안내드립니다. 공간과 구성을 직접 보시는 방문 상담을 기본으로 권장드립니다.', escalate: true },
+        { id: 'booking-visit', label: '계약 전에 공간만 둘러볼 수 있나요?', answer: '공간 견학·사전 방문 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'booking-hold', label: '날짜만 먼저 잡아둘 수 있나요?', answer: '희망 일자의 가능 여부는 사전 문의서 제출만으로 먼저 확인해 드립니다. 가예약 방식은 상담에서 안내드립니다.', escalate: true },
       ],
     },
     {
@@ -203,6 +215,8 @@ window.MOMENT_ADVISOR_KB = {
         { id: 'special-foreign', label: '외국인도 예약할 수 있나요?', answer: '국적과 무관하게 환영합니다. 디지털 참석으로 양국 가족이 함께하실 수 있습니다. 상담 가능 언어 등 세부는 상담에서 안내드립니다.', escalate: true },
         { id: 'special-remarriage', label: '재혼인데 괜찮을까요?', answer: '물론입니다. 어떤 시작이든 두 분의 자리를 정성껏 만들어 드립니다. 편하게 상담에서 말씀 나눠주세요.' },
         { id: 'special-pet', label: '반려동물 동반이 되나요?', answer: '반려동물 동반 관련 안내는 상담에서 도와드립니다.', escalate: true },
+        { id: 'special-religion', label: '성당 · 교회 등 종교 예식도 되나요?', answer: '종교 의식 수용 여부와 방식은 상담에서 함께 정리해 드립니다.', escalate: true },
+        { id: 'special-outdoor', label: '야외(스튜디오 밖) 촬영도 되나요?', answer: '야외 촬영 관련 안내는 상담에서 도와드립니다.', escalate: true },
       ],
     },
     {
