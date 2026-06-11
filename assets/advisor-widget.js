@@ -6,7 +6,9 @@
 //   chips: [{ label:'질문', sched:true? }], ← 빠른질문. sched:true면 신비주의 스케줄 확인으로 라우팅
 //   schedule: true|false,                   ← 예식일 가능 여부 질문을 /api/schedule-advisor로 자동 라우팅
 //   customer: function(){return {name,stage,code}|null}  ← (마이) 인계 시 고객 식별 정보
+//   kakaoUrl: 'URL' | function(){return 'URL'}  ← (선택) 카카오 문의 링크 재정의(마이=GAS KAKAO_URL·미설정 시 KB→메일 폴백)
 // }
+// 카톡 문의 동선: 별도 버튼 없이 이 위젯 안에서 — 드로어 하단 상시 링크 + AI가 못 풀 때 에스컬레이션 박스.
 // 선택: /assets/advisor-kb.js 가 먼저 로드되면 escalation 설정(카카오 URL·상담시간)을 공유.
 (function () {
   var CFG = window.ME_ADV_PAGE || {};
@@ -57,8 +59,14 @@
     + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .25s,transform .25s}'
     + '.me-adv-esc-btn.kakao{background:#FEE500;color:#181600;font-weight:500}'
     + '.me-adv-esc-btn.kakao:hover{opacity:.9;transform:translateY(-1px)}'
+    + '.me-adv-esc-btn.mail{background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border:1px solid var(--border,#DDD8D1)}'
+    + '.me-adv-esc-btn.mail:hover{opacity:.9;transform:translateY(-1px)}'
     + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10.5px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
     + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
+    + '.me-adv-foot-kakao{display:block;text-align:center;margin-top:11px;font-family:var(--serif-ko,serif);font-size:11.5px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .25s}'
+    + '.me-adv-foot-kakao u{text-decoration:underline;text-decoration-color:rgba(117,112,95,0.45);text-underline-offset:3px}'
+    + '.me-adv-foot-kakao:hover{color:var(--seal,#6B2A24)}'
+    + '.me-adv-foot-kakao:hover u{text-decoration-color:rgba(107,42,36,0.5)}'
     + '.me-adv-form{display:flex;align-items:flex-end;gap:8px}'
     + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .25s}'
     + '.me-adv-input:focus{border-color:var(--gold,#B89A75)}'
@@ -90,6 +98,7 @@
     + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
     + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></button>'
     + '    </form>'
+    + '    <a class="me-adv-foot-kakao" id="meAdvKakao" href="#" rel="noopener">해결이 안 되면 <u>카카오톡 문의</u></a>'
     + '  </footer>'
     + '</section>';
   document.body.appendChild(wrap);
@@ -98,7 +107,7 @@
       panel = document.getElementById('meAdvPanel'), backdrop = document.getElementById('meAdvBackdrop'),
       closeBtn = document.getElementById('meAdvClose'), body = document.getElementById('meAdvBody'),
       form = document.getElementById('meAdvForm'), input = document.getElementById('meAdvInput'),
-      sendBtn = document.getElementById('meAdvSend');
+      sendBtn = document.getElementById('meAdvSend'), kakaoA = document.getElementById('meAdvKakao');
 
   var started = false, sending = false, escShown = false, handoffSent = false;
   var transcript = [];
@@ -115,6 +124,21 @@
     var d = document.createElement('div');
     d.className = 'me-adv-typing'; d.innerHTML = '<i></i><i></i><i></i>';
     place(d); scrollDown(); return d;
+  }
+
+  // ── 카카오 문의 링크 — CFG.kakaoUrl(문자열|함수) → KB escalation → 메일 폴백 순.
+  //    (마이) d.kakao는 비동기로 와서 캐시에 저장되므로, 열 때·누를 때마다 다시 읽는다.
+  function kakaoInfo() {
+    var u = '';
+    try { u = (typeof CFG.kakaoUrl === 'function') ? CFG.kakaoUrl() : (CFG.kakaoUrl || ''); } catch (e) { u = ''; }
+    u = String(u || ESC.kakaoUrl || 'mailto:contact@momentedit.kr');
+    return { href: u, mail: u.indexOf('mailto:') === 0 };
+  }
+  function refreshKakaoLink() {
+    var k = kakaoInfo();
+    kakaoA.href = k.href;
+    kakaoA.innerHTML = k.mail ? '해결이 안 되면 <u>이메일 문의</u>' : '해결이 안 되면 <u>카카오톡 문의</u>';
+    if (k.mail) kakaoA.removeAttribute('target'); else kakaoA.setAttribute('target', '_blank');
   }
 
   // ── 에스컬레이션: 자동으로 들이밀지 않고 버튼으로 · 누르면 관리자 인계 + 카카오 안내 ──
@@ -137,17 +161,19 @@
   function showEscalation() {
     if (escShown) return; escShown = true;
     doHandoff();
+    var ki = kakaoInfo();
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
-    t.textContent = '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
+    t.textContent = ki.mail
+      ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
+      : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
     box.appendChild(t);
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
-    if (ESC.kakaoUrl) {
-      var k = document.createElement('a');
-      k.className = 'me-adv-esc-btn kakao'; k.href = ESC.kakaoUrl;
-      k.target = '_blank'; k.rel = 'noopener'; k.textContent = '카카오톡으로 상담하기';
-      btns.appendChild(k);
-    }
+    var k = document.createElement('a');
+    k.className = 'me-adv-esc-btn ' + (ki.mail ? 'mail' : 'kakao'); k.href = ki.href;
+    if (!ki.mail) k.target = '_blank';
+    k.rel = 'noopener'; k.textContent = ki.mail ? '이메일로 문의하기' : '카카오톡으로 상담하기';
+    btns.appendChild(k);
     box.appendChild(btns);
     if (ESC.hours) {
       var h = document.createElement('div'); h.className = 'me-adv-esc-hours';
@@ -272,6 +298,7 @@
     panel.classList.add('open'); stackEl.classList.add('hide');
     backdrop.classList.add('open');
     lockScroll();
+    refreshKakaoLink();
     if (!started) {
       started = true;
       addMsg(CFG.greeting || '안녕하세요, 모먼트에디트 상담 도우미예요. 궁금하신 점을 무엇이든 물어보세요.', 'bot');
@@ -287,6 +314,9 @@
   fab.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
+  refreshKakaoLink();
+  // 카톡으로 넘어갈 때도 디렉터에게 대화 인계(있을 때만) — 고객이 같은 말을 두 번 안 하게.
+  kakaoA.addEventListener('click', function () { refreshKakaoLink(); doHandoff(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
 
   input.addEventListener('input', function () {
