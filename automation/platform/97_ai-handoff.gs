@@ -95,3 +95,31 @@ function adminResolveAiHandoff(id) {
   }
   return { ok: false, error: '해당 인계를 찾을 수 없습니다.' };
 }
+
+/** 스케줄 AI 서버측 점유 맵 조회 (공개 엔드포인트 · doPost action='aiAvailability')
+ * Vercel /api/schedule-advisor 가 비로그인(예약 페이지) 요청을 받을 때 호출한다.
+ * 응답은 날짜·마감 슬롯만(이름 등 개인정보 없음). 점유 판정은 70_journey의 _weddingOccupancy와 동일 기준.
+ * 보안: AI_HANDOFF_SECRET 설정 시 body.secret 일치 필수(aiHandoff와 같은 키 공유).
+ */
+function handleAiAvailability(body) {
+  try {
+    var secret = '';
+    try { secret = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (e) {}
+    if (secret && _aihStr((body && body.secret), 80) !== secret) return { ok: false, error: 'unauthorized' };
+
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var last = sheet.getLastRow(), taken = {};
+    if (last >= P.DATA_START_ROW) {
+      var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'];
+      var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+      vals.forEach(function (row) {
+        var occ = _weddingOccupancy(row[wCol - 1], row[cCol - 1], String(row[stCol - 1] || '').trim(), row[recCol - 1]);
+        if (!occ) return;
+        (taken[occ.date] = taken[occ.date] || []); if (taken[occ.date].indexOf(occ.slot) === -1) taken[occ.date].push(occ.slot);
+      });
+    }
+    return { ok: true, taken: taken };
+  } catch (err) {
+    return { ok: true, taken: {} };   // 조회 실패 시에도 AI는 빈 맵으로 동작(안내 자체는 가능)
+  }
+}
