@@ -2294,7 +2294,7 @@ function _surveySchema(isSnap){
     {k:'result',q:'결과물(스냅·본식영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
-    {k:'dining',q:'다이닝(추천·예약 조율)은요?',o:[['good','추천·조율 만족'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'dining',q:'다이닝(식당 추천·안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
     {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
   ];
@@ -3141,7 +3141,8 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; render(box); }); });   // 다이닝 취향칩 토글
+  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; render(box); }); });   // 다이닝 취향칩 토글(수동 조정 시 추천 요약 해제 — 모순 방지)
+  var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
   var _aib=$('dn_aiBtn'); if(_aib){ var _aiGo=function(){ collect(); var t=(($('dn_aiText')&&$('dn_aiText').value)||'').trim(), er=$('dn_aiErr'); TRKFLOW.draft._aiText=t; if(!t){ if(er)er.textContent='원하시는 자리를 한 줄 적어주시면 골라드릴게요.'; return; } _aib.disabled=true; _aib.innerHTML='어울리는 곳을 고르는 중<span class="dn-dots"></span>'; fetch('/api/dining-match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).then(function(_rr){return _rr.json();}).then(function(r){ if(r&&r.ok&&r.filters){ TRKFLOW.draft._filters=r.filters; TRKFLOW.draft._aiSummary=r.summary||''; render(box); } else { _aib.disabled=false; _aib.textContent='추천 받기'; if(er)er.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.'; } }).catch(function(){ _aib.disabled=false; _aib.textContent='추천 받기'; if(er)er.textContent='지금은 아래에서 직접 골라 주세요.'; }); };
     _aib.addEventListener('click',_aiGo);
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ var t=$('dn_aiText'); if(t) t.value=el.getAttribute('data-sgg'); _aiGo(); }); }); }   // 다이닝 컨시어지(자연어 선택 층) — Vercel /api/dining-match (메인홈과 같은 키)
@@ -3252,14 +3253,14 @@ function dineFilterUI(d, wt){
     if(r.bs&&arr&&arr>=r.bs&&arr<=r.be) tags.push('⚠ 이 시간대 브레이크');
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
-  }).join('') : '<div class="cc-note" style="margin:6px 0">고른 조건에 맞는 곳이 없어요. 필터를 줄이거나 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div>';
+  }).join('') : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
   var sgg=['어르신 좌식이 편한 정갈한 한정식','조용한 카페에서 다과만 가볍게','부담 없는 가격에 든든한 식사'];
   var aiBox='<div class="dn-ai">'
     + '<div class="dn-ai-eyebrow">Dining Curation</div>'
     + '<div class="dn-ai-rule"></div>'
     + '<div class="dn-ai-title">원하시는 자리를 한 줄로 적어주세요</div>'
     + '<div class="dn-ai-sub">분위기·가격·동행을 읽고 어울리는 곳만 추려드려요 <span style="color:var(--label-soft)">(선택)</span></div>'
-    + '<textarea class="cc-input" id="dn_aiText" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:54px;margin-bottom:8px">'+escapeHtml(d._aiText||'')+'</textarea>'
+    + '<textarea class="cc-input" id="dn_aiText" maxlength="200" enterkeyhint="search" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:54px;margin-bottom:8px">'+escapeHtml(d._aiText||'')+'</textarea>'
     + (d._aiSummary?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
     + '<button type="button" class="cc-btn" id="dn_aiBtn" style="margin:0">추천 받기</button>'
     + (d._aiSummary?'<div class="dn-ai-res"><div class="r-cap">Curated for You</div><div class="r-line">'+escapeHtml(d._aiSummary)+'</div></div>':'')
