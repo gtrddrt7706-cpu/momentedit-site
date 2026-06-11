@@ -2081,14 +2081,13 @@ function replayHeroAnimation(){
           apiHistory.push({role:'assistant',content:j.reply});
           if(j.escalate) showEscalation();
         } else {
-          // 키 미설정·오류 등: 우아한 폴백 (괄호 안은 임시 진단 코드)
-          var code=(res.status||'?')+(j&&j.error?(' '+j.error):'');
-          addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요. (코드 '+code+')','bot');
+          // 키 미설정·오류 등: 우아한 폴백
+          addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.','bot');
           showEscalation();
         }
       }).catch(function(){
         typing.remove();
-        addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요. (코드 network)','bot');
+        addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.','bot');
         showEscalation();
       }).then(function(){
         sending=false; sendBtn.disabled=false;
