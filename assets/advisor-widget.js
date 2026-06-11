@@ -101,7 +101,7 @@
       sendBtn = document.getElementById('meAdvSend');
 
   var started = false, sending = false, escShown = false, handoffSent = false;
-  var advHist = [], schedHist = [], transcript = [];
+  var transcript = [];
   var mode = 'adv';   // 'adv'(/api/advisor) | 'sched'(/api/schedule-advisor 신비주의 스케줄)
 
   function place(el) { body.appendChild(el); }
@@ -161,6 +161,16 @@
   function dateish(s) {
     return /(\d{1,4}\s*(년|월|일|주))|내년|올해|내후년|다음\s*달|이번\s*달|봄|여름|가을|겨울|상반기|하반기|중순|월말|월초|주말|평일|(월|화|수|목|금|토|일)요일|공휴일|연휴|크리스마스|성탄/.test(s);
   }
+  function slotish(s) {   // 시간대만 짧게 답할 때(예: "오후 12시 20분") 스케줄 흐름 유지
+    return /(오전|오후|아침|점심|낮|저녁|늦은\s*오후|새벽|정오|\d{1,2}\s*시|\d{1,2}\s*:\s*\d{2}|시간대|타임)/.test(s);
+  }
+  function affirmish(s) {   // 짧은 수긍("네 그걸로 할게요")도 스케줄 흐름 유지
+    s = s.trim();
+    return s.length <= 16 && /(네|예|응|넵|좋아|좋습니다|그래|그걸로|이걸로|그날|확정|그렇게|할게|할께|괜찮|맞아|예약할)/.test(s);
+  }
+  function offTopicish(s) {   // 명백히 다른 주제면 일반 상담으로 전환
+    return /(가격|비용|얼마|금액|예약금|계약금|중도금|잔금|환불|취소|수수료|주차|식사|식대|다이닝|메이크업|메이크|드레스|헤어|청첩장|영상|스냅|반려|결제|계좌|입금|보증|문의서|연락처|환불)/.test(s);
+  }
   function schedish(s) {
     if (/(예식\s*일|예식\s*날짜|예식일정)/.test(s) && /(가능|확인|예약|잡|비)/.test(s)) return true;
     if (dateish(s) && /(가능|예약|비어|잡을|잡아|돼요|되나요|될까)/.test(s) && !/상담\s*(예약|일정|시간)/.test(s)) return true;
@@ -174,36 +184,36 @@
   function send(q, forceSched) {
     if (sending) return;
     addMsg(q, 'me'); transcript.push({ role: 'user', content: q });
-    var useSched = !!CFG.schedule && (forceSched || schedish(q) || (mode === 'sched' && dateish(q)));
+    // 스케줄 모드는 "끈적하게" 유지: 한번 일정 흐름에 들어가면 날짜·시간대·짧은 수긍은 계속 스케줄로,
+    // 명백히 다른 주제(가격·환불 등)일 때만 일반 상담으로 빠진다 → 시간대만 답해도 시원한 확정 안내가 나옴.
+    var stay = mode === 'sched' && !offTopicish(q) && (dateish(q) || slotish(q) || affirmish(q));
+    var useSched = !!CFG.schedule && (forceSched || schedish(q) || stay);
     mode = useSched ? 'sched' : 'adv';
     sending = true; sendBtn.disabled = true;
     var typing = addTyping();
     if (useSched) {
-      schedHist.push({ role: 'user', content: q });
+      // 컨텍스트 연속성: 통합 transcript를 넘겨, 앞서 말한 날짜가 다른 엔진을 거쳤어도 유지되게 한다.
       fetch('/api/schedule-advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: schedHist.slice(-10), today: todayYmd(), page: PAGE }) })
+        body: JSON.stringify({ messages: transcript.slice(-12), today: todayYmd(), page: PAGE }) })
         .then(function (r) { return r.json(); })
         .then(function (j) {
           typing.remove();
           var t = (j && j.reply) || '지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.';
           addMsg(t, 'bot');
-          schedHist.push({ role: 'assistant', content: t });
           transcript.push({ role: 'assistant', content: t });
         })
         .catch(function () { typing.remove(); addMsg('지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.', 'bot'); })
         .then(function () { sending = false; sendBtn.disabled = false; });
       return;
     }
-    advHist.push({ role: 'user', content: q });
     fetch('/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: advHist, page: PAGE }) })
+      body: JSON.stringify({ messages: transcript.slice(-14), page: PAGE }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
       .then(function (res) {
         typing.remove();
         var j = res.j || {};
         if (res.ok && j.reply) {
           addMsg(j.reply, 'bot');
-          advHist.push({ role: 'assistant', content: j.reply });
           transcript.push({ role: 'assistant', content: j.reply });
           if (j.escalate) offerEscalation();
         } else {
