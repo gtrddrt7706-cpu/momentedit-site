@@ -1044,8 +1044,15 @@ function renderMyPage(d){
       if (d.contractInfo.requested) { head = '계약서를 준비하고 있어요'; sub = '요청하신 정보로 작성해 24시간 안에 보내드릴게요.'; }
       else { head = '계약서 요청만 남았어요'; sub = '아래에서 예식일·생년월일·주소를 입력하고 요청해 주세요.'; }
     }
+    // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선
+    var _comboPending = (d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed
+                         && d.midpayment.dday != null && d.midpayment.dday <= 9);
+    if (d.stage === '입금완료' && _comboPending) {
+      head = '중도금·잔금을 입금해 주세요';
+      sub  = '입금이 확인되면 예식 준비(청첩장·다이닝·식순)가 열려요.';
+    }
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
-    if (d.production && d.stage === '입금완료') {
+    else if (d.production && d.stage === '입금완료') {
       head = '제작 정보를 입력해 주세요';
       sub  = '아래에서 입력하시면 예식 준비가 시작됩니다.';
     }
@@ -1102,6 +1109,7 @@ function renderMyPage(d){
     var cur = (idx<0?0:idx);
     var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
+    if (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님)
     $('mp_stageNow').textContent = nowLabel;
     $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
     var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
@@ -1138,7 +1146,8 @@ function renderMyPage(d){
       var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
       if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
     }
-    renderProduction(d.production, d.invitation);                    // 제작 (03)
+    var _comboHold = (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9);
+    renderProduction(_comboHold ? null : d.production, d.invitation);                    // 제작 (03) — 임박 묶음결제 입금 전엔 잠금(NEXT 자물쇠와 일치)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
     // 시착 동의서 문서 뷰어용 메타 보관(서명 당시 버전 전문 포함) — '보기'에서 사용
     window._fittingDoc = (d.ledger && d.ledger.documents || []).filter(function(x){ return x.label==='시착 동의서'; })[0] || null;
@@ -1822,9 +1831,11 @@ function renderBalance(p, mid){
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
-    var balDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
+    var _bPast=(p.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(p.dueDate):false;
+    var balDateTxt=(p.dueDate&&!_bPast&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
     var balDue, balTag;
     if(balDateTxt){ balDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; balTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
+    else if(_bPast){ balDue='<b>지금 바로</b>'; balTag=''; }
     else { balDue=dueLabel+'까지'; balTag=''; }
     var when='<div class="cc-note">'+(
         p.due?(balDue+' 입금 부탁드려요'+balTag)
@@ -1900,9 +1911,11 @@ function renderMid(p, bal){
     var midDue, midTag;   // 날짜 있으면 '날짜까지'+라벨꼬리, 없으면 라벨만(중복 방지)
     if(midDateTxt){ midDue='<b>'+escapeHtml(midDateTxt)+'</b>까지'; midTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
     else { midDue=dueLabel+'까지'; midTag=''; }
-    var balDateTxt=(bal&&bal.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
+    var _balPast=(bal&&bal.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(bal.dueDate):false;
+    var balDateTxt=(bal&&bal.dueDate&&!_balPast&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
     var comboDue, comboTag;
     if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag=' <span class="cc-mini">· 예식 9일 전</span>'; }
+    else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한(D-9)이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
     else { comboDue='예식 9일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
         forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요'+comboTag)
