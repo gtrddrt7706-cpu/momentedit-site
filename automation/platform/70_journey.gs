@@ -110,9 +110,11 @@ function buildFittingState(r) {
   var signed = (status === '동의완료') || !!signedAt;
   var requested = (status === '동의요청');
   if (!signed && !(stage === '시착' && requested)) return null;  // 아직 안내 전 → 카드 없음
+  var _fitCnt = (_parseJsonSafe(r.get('동의기록')).시착 || {}).벌수;
   return {
     signed: signed,                 // 서명 완료 여부
     signedAt: signedAt,             // 서명 일시(표시용)
+    벌수: (_fitCnt != null ? Number(_fitCnt) : null),   // 관리자가 기록한 실제 시착 벌수(비례 공제 근거·고객 확인용)
     version: FITTING_CONSENT.version,
     title: FITTING_CONSENT.title,
     terms: FITTING_CONSENT.terms,

@@ -112,6 +112,7 @@ function buildLedgerState(r) {
     documents.push({ label: '시착 동의서', status: fitDone ? '동의 완료' : '진행 중', at: _ymdOf(fitAt), url: '',
       version: _fitVer, signedAt: fitAt,
       groom: String(r.get('신랑이름') || ''), bride: String(r.get('신부이름') || ''),
+      count: (_fitRec.벌수 != null ? Number(_fitRec.벌수) : null),   // 기록된 시착 벌수(공제 산정 근거)
       terms: _fitTerms, sig: getSignatureDataUrl(String(r.get('개인코드') || ''), '시착') });   // 문서 뷰어(fitting.html)용 메타 포함
   }   // [③] 내 내역에서 동의 내용 재열람용 · sig=손글씨 서명 dataUrl 동봉(팝업에서 로딩 없이 즉시 표시)
   var clink = String(r.get('계약서링크') || '').trim();

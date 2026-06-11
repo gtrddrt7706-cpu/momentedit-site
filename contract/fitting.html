@@ -57,6 +57,7 @@ ol.terms li{margin:9px 0}
       <tr><td>고객 (신랑 · 신부)</td><td id="fNames">마이페이지에서 자동 표시됩니다.</td></tr>
       <tr><td>동의 일시</td><td id="fAt">·</td></tr>
       <tr><td>적용 금액</td><td>예약금 200,000원 · 기본 시착 3벌 · 4벌째부터 1벌당 70,000원</td></tr>
+      <tr id="fCntRow" style="display:none"><td>진행한 시착</td><td id="fCnt">·</td></tr>
     </table>
 
     <div class="sec-h">동의 내용</div>
@@ -94,6 +95,11 @@ ol.terms li{margin:9px 0}
     var nm=(g||b)?(g+(g&&b?' · ':'')+b):'';
     if(nm){ document.getElementById('fNames').textContent=nm; document.getElementById('fSigName').textContent=nm; }
     if(d.signedAt){ document.getElementById('fAt').textContent=esc(d.signedAt); }
+    if(d.count!=null && d.count!==''){
+      var n=Number(d.count)||0, ded=Math.min(n*70000,200000);
+      document.getElementById('fCntRow').style.display='';
+      document.getElementById('fCnt').textContent=n+'벌 (시착 비용 기준 '+ded.toLocaleString()+'원'+(n>3?(' · 추가 '+(n-3)+'벌 별도'):'')+')';
+    }
     if(d.terms && d.terms.length){
       var ol=document.getElementById('fTerms'); ol.innerHTML='';
       d.terms.forEach(function(t){ var li=document.createElement('li'); li.textContent=t; ol.appendChild(li); });

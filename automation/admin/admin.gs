@@ -134,7 +134,7 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
-      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
@@ -155,8 +155,33 @@ function adminFittingDoc(code) {
     version: ver, terms: terms,
     groom: String(cust.get('신랑이름') || ''), bride: String(cust.get('신부이름') || ''),
     signedAt: String(cust.get('시착동의일시') || ''),
-    signImage: getSignatureDataUrl(code, '시착') || ''
+    signImage: getSignatureDataUrl(code, '시착') || '',
+    count: (rec.벌수 != null ? Number(rec.벌수) : null),               // 기록된 시착 벌수(공제·증빙용)
+    countAt: String(rec.벌수기록 || '')
   } };
+}
+
+// [02-2] 시착 벌수 기록 — 벌수 비례 공제(계약서 4조⑧·시착동의 v3)의 산정 근거. 동의기록.시착.벌수에 저장(이력 포함).
+//   환불 계산: 공제 = min(벌수×70,000, 200,000) / 4벌째부터는 추가 시착비(1벌당 70,000원) 별도 청구 대상.
+function adminSetFittingCount(code, n) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var cnt = Math.floor(Number(n));
+  if (!(cnt >= 0 && cnt <= 9)) return { ok: false, error: '벌수는 0~9 사이 숫자로 입력해 주세요.' };
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    rec.시착 = rec.시착 || {};
+    var prev = (rec.시착.벌수 != null) ? Number(rec.시착.벌수) : null;
+    rec.시착.벌수 = cnt;
+    rec.시착.벌수기록 = fmtKST(new Date());
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+    _recordHandler(code, '시착 벌수 기록: ' + cnt + '벌' + (prev != null && prev !== cnt ? ' (이전 ' + prev + '벌)' : ''));
+    return { ok: true, count: cnt, deduct: Math.min(cnt * 70000, 200000), extra: Math.max(0, cnt - 3) * 70000 };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
 // ── 웹앱 진입 (doGet ?admin=1) — 셸만 서빙(로그인은 클라이언트 토큰). 접근=모든 사용자 배포. ──
