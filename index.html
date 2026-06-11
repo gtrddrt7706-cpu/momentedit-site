@@ -1939,6 +1939,9 @@ function replayHeroAnimation(){
       input=document.getElementById('meAdvInput'),
       sendBtn=document.getElementById('meAdvSend');
   var apiHistory=[];      // 자유질문 대화만 누적 (role/content)
+  var transcript=[];      // 핸드오프용 — 칩·자유질문 모두 기록(관리자 브리핑 근거)
+  var PAGE='메인';         // 유입 페이지(메인). 예약·마이페이지 위젯에서 각각 다르게 설정.
+  var handoffSent=false;
   var started=false, sending=false, escShown=false;
   var nodes = KB.tree || (KB.chips ? [{ id:'all', label:'질문', children:KB.chips }] : []);
   var navEl=null, stack=[]; // stack: 현재 파고든 카테고리 경로
@@ -1958,11 +1961,20 @@ function replayHeroAnimation(){
     d.innerHTML='<i></i><i></i><i></i>';
     place(d); scrollDown(); return d;
   }
+  // 관리자에게 대화 브리핑 자동 전달(에스컬레이션 시 1회). 고객에겐 결과 비노출.
+  function doHandoff(){
+    if(handoffSent || transcript.length===0) return; handoffSent=true;
+    try{
+      fetch('/api/handoff',{ method:'POST', headers:{'content-type':'application/json'},
+        body:JSON.stringify({ messages:transcript.slice(-16), page:PAGE }) }).catch(function(){});
+    }catch(e){}
+  }
   function showEscalation(){
     if(escShown) return; escShown=true;
+    doHandoff();   // 디렉터에게 대화 브리핑 자동 전달
     var box=document.createElement('div'); box.className='me-adv-esc';
     var t=document.createElement('div'); t.className='me-adv-esc-t';
-    t.textContent='더 정확한 안내가 필요하시군요. 디렉터가 직접 도와드릴게요.';
+    t.textContent='디렉터에게 바로 전달했어요. 빠른 답변을 위해 아래에 연락처를 남겨주세요.';
     box.appendChild(t);
     var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
     var a=document.createElement('a');
@@ -2029,6 +2041,8 @@ function replayHeroAnimation(){
   function onLeaf(node){
     addMsg(node.label,'me');
     addMsg(node.answer,'bot');
+    transcript.push({role:'user',content:node.label});
+    transcript.push({role:'assistant',content:node.answer});
     if(node.escalate){ showEscalation(); }
   }
 
@@ -2080,6 +2094,7 @@ function replayHeroAnimation(){
     input.value=''; input.style.height='auto';
     addMsg(q,'me');
     apiHistory.push({role:'user',content:q});
+    transcript.push({role:'user',content:q});
     ask();
   });
 
@@ -2097,6 +2112,7 @@ function replayHeroAnimation(){
         if(res.ok && j.reply){
           addMsg(j.reply,'bot');
           apiHistory.push({role:'assistant',content:j.reply});
+          transcript.push({role:'assistant',content:j.reply});
           if(j.escalate) showEscalation();
         } else {
           // 키 미설정·오류 등: 우아한 폴백
