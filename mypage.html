@@ -842,8 +842,9 @@ function mpSignaturePad(opts){
     var ov=$('mpModal'); if(!ov){ resolve(null); return; }
     var t=$('mpModalTitle'), b=$('mpModalBody'), a=$('mpModalActions');
     t.textContent=opts.title||'서명'; t.style.display='';
+    var _cks=opts.checkLabels||(opts.checkLabel?[opts.checkLabel]:[]);   // 중요조항 확인 체크 — 영역별 복수 지원(설명의무 입증 강화)
     b.innerHTML=(opts.body?('<div style="font-size:13px;color:var(--sub,#5A554C);line-height:1.6;margin-bottom:12px;word-break:keep-all">'+escapeHtml(opts.body)+'</div>'):'')
-      +(opts.checkLabel?('<label id="mpSigCheckRow" style="display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;padding:11px 13px;background:var(--bg2,#F5F3EF);border:1px solid var(--border,#E3DDD4);border-radius:9px;font-size:12.5px;line-height:1.6;color:var(--text,#3A2F25);cursor:pointer;word-break:keep-all"><input type="checkbox" id="mpSigCheck" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#6B2A24"><span>'+escapeHtml(opts.checkLabel)+'</span></label>'):'')
+      +_cks.map(function(c,i){ return '<label class="mpSigCheckRow" style="display:flex;align-items:flex-start;gap:9px;margin:0 0 8px;padding:11px 13px;background:var(--bg2,#F5F3EF);border:1px solid var(--border,#E3DDD4);border-radius:9px;font-size:12.5px;line-height:1.6;color:var(--text,#3A2F25);cursor:pointer;word-break:keep-all"><input type="checkbox" class="mpSigCheckBox" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#6B2A24"><span>'+escapeHtml(c)+'</span></label>'; }).join('')
       +'<canvas id="mpSigCanvas" class="mp-sig-canvas" aria-label="서명 입력 영역"></canvas>'
       +'<div class="mp-sig-hint" id="mpSigHint">위 칸에 손가락(또는 마우스)으로 서명해 주세요</div>';
     b.style.display='';
@@ -864,7 +865,7 @@ function mpSignaturePad(opts){
     cv.addEventListener('mousedown',start); cv.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
     cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',up);
     var prim=document.createElement('button'); prim.type='button'; prim.className='mp-modal-btn mp-modal-btn-primary'; prim.textContent=opts.confirmText||'서명 완료';
-    prim.addEventListener('click',function(){ var chk=$('mpSigCheck'); if(opts.checkLabel && chk && !chk.checked){ var rr=$('mpSigCheckRow'); if(rr) rr.style.borderColor='var(--seal,#6B2A24)'; var hc=$('mpSigHint'); if(hc){ hc.textContent='먼저 위 중요조항 확인에 체크해 주세요'; hc.style.color='var(--seal,#6B2A24)'; } return; } if(!drawn){ var h=$('mpSigHint'); if(h){ h.textContent='먼저 위 칸에 서명해 주세요'; h.style.color='var(--seal,#6B2A24)'; } return; } finish(cv.toDataURL('image/png')); });
+    prim.addEventListener('click',function(){ var rows=b.querySelectorAll('.mpSigCheckRow'), miss=null; for(var i=0;i<rows.length;i++){ var bx=rows[i].querySelector('.mpSigCheckBox'); rows[i].style.borderColor=(bx&&!bx.checked)?'var(--seal,#6B2A24)':'var(--border,#E3DDD4)'; if(bx&&!bx.checked&&!miss) miss=rows[i]; } if(miss){ var hc=$('mpSigHint'); if(hc){ hc.textContent=(rows.length>1?'먼저 위 확인 항목에 모두 체크해 주세요':'먼저 위 중요조항 확인에 체크해 주세요'); hc.style.color='var(--seal,#6B2A24)'; } try{ miss.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(_e){} return; } if(!drawn){ var h=$('mpSigHint'); if(h){ h.textContent='먼저 위 칸에 서명해 주세요'; h.style.color='var(--seal,#6B2A24)'; } return; } finish(cv.toDataURL('image/png')); });
     var clr=document.createElement('button'); clr.type='button'; clr.className='mp-modal-btn mp-modal-btn-ghost'; clr.textContent='지우기';
     clr.addEventListener('click',function(){ ctx.clearRect(0,0,cv.width,cv.height); drawn=false; var h=$('mpSigHint'); if(h){ h.textContent='위 칸에 손가락(또는 마우스)으로 서명해 주세요'; h.style.color=''; } });
     var cancel=document.createElement('button'); cancel.type='button'; cancel.className='mp-modal-btn mp-modal-btn-ghost'; cancel.textContent='취소';
@@ -1730,7 +1731,11 @@ function _archiveSignedContract(sig, cb){
 }
 function doSignContract(){
   var _sd=new Date(), _sdY=_sd.getFullYear()+'-'+('0'+(_sd.getMonth()+1)).slice(-2)+'-'+('0'+_sd.getDate()).slice(-2);
-  mpSignaturePad({ title:'계약서 서명', body:'서명하면 오늘('+_sdY+') 날짜로 계약이 성립해요. 성립 후에도 제7조 청약철회·무상취소, 제9조 위약금 규정은 그대로 적용돼요.', checkLabel:'본인은 대금(제4조)·위약금(제9조)·청약철회(제7조)·저작권(제13조)·개인정보(제14조) 등 중요 조항을 확인하였습니다.', confirmText:'동의하고 서명' }).then(function(sig){
+  mpSignaturePad({ title:'계약서 서명', body:'서명하면 오늘('+_sdY+') 날짜로 계약이 성립해요. 성립 후에도 제7조 청약철회·무상취소, 제9조 위약금 규정은 그대로 적용돼요.', checkLabels:[
+      '대금의 구성과 지급 일정을 확인했습니다. 중도금 납입 후에는 제9조에 따른 해제만 가능합니다. (제4조)',
+      '시기별 위약금 표와 청약철회·무상취소 기간을 확인했습니다. (제7조·제9조)',
+      '저작권·초상권 사용(옵트인)과 개인정보 처리를 확인했습니다. (제13조·제14조)'
+    ], confirmText:'동의하고 서명' }).then(function(sig){
     if(!sig) return;
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
