@@ -73,6 +73,9 @@ module.exports = async (req, res) => {
       }))
       .filter((m) => m.content.length > 0);
 
+    // 모델 규칙: 첫 메시지는 user여야 함 — slice로 잘린 히스토리가 assistant로 시작하면 앞을 버린다
+    while (history.length > 0 && history[0].role !== 'user') history.shift();
+
     if (history.length === 0 || history[history.length - 1].role !== 'user') {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
