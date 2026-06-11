@@ -3121,7 +3121,7 @@ function renderDining(box){
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
         + _trkOpt('직접 섭외할게요', d.venuePick, 'venuePick', '직접 섭외할게요', '원하시는 곳이 따로 있다면')
         + _trkOpt('상담 때 함께 정할게요', d.venuePick, 'venuePick', '상담 때 함께 정할게요', '디렉터와 같이 보고 천천히')
-        + '<div class="cc-note">주차·맛·프라이빗 룸까지 디렉터가 직접 검증한 리스트예요. 장소를 정하시면 예약과 룸·좌석 요청은 디렉터가 대신 진행해 드려요.</div>'
+        + '<div class="cc-note">주차·맛·프라이빗 룸까지 디렉터가 직접 검증한 리스트예요. 마음에 드는 곳을 고르면 다음 화면에서 전화번호와 예약 안내 문구를 보여드려요. 직접 예약하시면 됩니다.</div>'
         + '</div>' : '';
     var body='<div class="inv-gate"><div class="inv-gate-q">예식 후 다이닝(식사·다과)을 진행하시나요?</div><span class="inv-yn"><button type="button" data-gate="dining_on" data-gv="Y" class="'+(on==='Y'?'on':'')+'">네</button><button type="button" data-gate="dining_on" data-gv="N" class="'+(on==='N'?'on':'')+'">아니요</button></span></div>'+f;
     box.innerHTML=trkShell(1,'다이닝, 어떻게 준비할까요?','예식 후 식사 자리예요. 모두 나중에 바꿀 수 있어요.',body,false);
@@ -3134,13 +3134,29 @@ function renderDining(box){
       box.innerHTML=trkShell(2,'다이닝 없이 진행해요','이 단계는 완료로 표시돼요. 언제든 다시 켤 수 있어요.','',true);
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
-      var pickedTxt = d.venue ? (d.venue+' · 예약은 디렉터가 대신 진행해 드려요') : (d.venuePick||'장소 미정');
-      var body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
-        + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(pickedTxt)+'</div>'
-        + '<div class="cc-note">인원·메뉴 디테일은 상담에서 함께 다듬어요.</div>'
-        + '<label class="inv-chk" style="display:flex;gap:8px;align-items:flex-start;margin-top:12px"><input type="checkbox" id="trk_agree" '+(d.entrustAgree==='Y'?'checked':'')+' style="margin-top:3px"><span>예약 진행에 필요한 정보(성함·인원·시간)를 연계 식당·협력사에 전달하는 것에 동의합니다.</span></label>';
+      var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
+      var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(d.headcount||'').trim();
+      var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=Number(mm[2])+'월 '+Number(mm[3])+'일';
+      var body2;
+      if(R){
+        var telD=(R.tel||'').replace(/[^0-9]/g,'');
+        var callLine=telD
+          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 4px;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
+          : '<div class="cc-note" style="margin:10px 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')+'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?';
+        body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
+          + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · 식사 도착 '+arr2+' 기준':'')+'</div>'
+          + callLine
+          + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
+          + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
+          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
+      } else {
+        body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
+          + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
+          + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 골라 예약해요.':'원하시는 곳을 직접 정해 예약하시면 돼요. 도움이 필요하면 디렉터에게 요청해 주세요.')+'</div>';
+      }
       box.innerHTML=trkShell(2,'마지막으로 확인할게요',null,body2,true);
-      bindTrk(box,renderDining,collect,{ last:true, validate:function(){ if(!($('trk_agree')&&$('trk_agree').checked)) return '협력사 정보 위탁에 동의해 주세요.'; } });
+      bindTrk(box,renderDining,collect,{ last:true });
     }
   }
 }
