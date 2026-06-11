@@ -741,6 +741,14 @@ function adminDetail(code) {
   if (d.hold && d.hold.status === '승인' && d.hold.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(d.hold.expires)) d.hold.expired = true;   // 14일 만료(점유 자동해제됨) — UI 표기용
   d.refundDone = String(_rec.환불완료 || '');   // 취소 환불 송금 완료 시각(있으면 완료). 환불계좌는 d.consult.refund
   d.refundQuote = buildRefundQuote(cust);   // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey) — 결제 카드 한 줄. 종료 단계·스냅·입금 전 null
+  if (!d.refundQuote && STAGE_EXCEPTIONS.indexOf(stage) !== -1) {   // 종료(취소·노쇼·미계약) 고객 — 환불 송금 근거를 상세에서도(취소일 기준 고정, 환불송금 큐와 동일 계산)
+    try {
+      var _rbk2 = findRowByPersonalCode(code);
+      var _rAsOf = _rbk2 ? _ymdOf(_rbk2.get('취소일시')) : '';
+      var _rq2 = _refundQuote(cust, _rAsOf || null);
+      if (_rq2 && !_rq2.pending) { _rq2.closed = true; _rq2.asOfLabel = _rAsOf ? ('취소일 ' + _rAsOf + ' 기준') : '오늘 기준'; d.refundQuote = _rq2; }
+    } catch (e) {}
+  }
 
   // raw 척추 — 각 축 정확값(거울이 null이어도 항상)
   d.raw = {
@@ -1200,6 +1208,8 @@ function adminMarkConsultDone(code) {
     if (stage === '상담완료') return { ok: true, already: true, stage: stage };
     if (stage !== '시착') return { ok: false, error: '시착 단계에서 상담완료로 넘길 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (String(cust.get('시착동의상태') || '').trim() !== '동의완료') return { ok: false, error: '고객이 시착 동의서에 서명한 뒤 상담완료로 넘길 수 있어요.' };
+    var _fitRecMC = _parseJsonSafe(cust.get('동의기록')).시착 || {};
+    if (_fitRecMC.벌수 == null) return { ok: false, error: '시착 벌수를 먼저 기록해 주세요. (시착 카드에서 입력 · 안 입으셨으면 0벌) 환불 산정의 근거가 돼요.' };   // [필수화] 벌수 없으면 환불 계산 불가 → 상담완료 게이트에서 강제
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
     return { ok: true, stage: '상담완료' };

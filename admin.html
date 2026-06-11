@@ -884,7 +884,7 @@ function cardPayment(d){
   // [02-8] 환불 예상(d.refundQuote · 계약서 7조·9조·4조⑧ 서버 계산) — 지금 취소하면 한 줄. 벌수 미기록이면 산정 불가 경고.
   if(d.refundQuote && !d.refundQuote.pending){
     var rq=d.refundQuote;
-    raw+='<div class="cnote">지금 취소하면 · '+(rq.needCount
+    raw+='<div class="cnote">'+(rq.closed?('환불 산정('+esc(rq.asOfLabel||'')+') · '):'지금 취소하면 · ')+(rq.needCount
       ? '<b style="color:#b3261e">벌수 기록 필요</b> <span style="color:var(--label-soft)">(시착 카드에서 기록하면 환불액이 계산돼요)</span>'
       : ('환불 예상 <b>'+Number(rq.refund||0).toLocaleString()+'원</b>'
         +(rq.rule?(' · '+esc(rq.rule)):'')
@@ -1085,11 +1085,12 @@ function doIssueReceipt(code,names,kind,d){
   var extra='<div class="field"><label>발행 금액</label><div style="'+ro+'"><b>'+amt.toLocaleString()+'원</b></div></div>'+
     '<div class="field"><label>발급 대상</label><div style="'+ro+'">'+(tgt?esc(fmtCRTarget(tgt)):'미입력 — 자진발급(010-000-1234)')+'</div></div>'+
     '<div class="field"><label>발행번호 (홈택스 승인번호)</label><input id="crNum" inputmode="numeric" autocomplete="off" placeholder="홈택스 발급 후 승인번호 입력"></div>';
-  openModal({ title:kind+' 현금영수증 발행', text:b(names)+li('홈택스에서 발급한 뒤 승인번호를 기록해요')+li('기록하면 발행 대기에서 사라지고 고객 내역에 표시돼요'),
+  var kLabel=(it&&it.label)||({'중도금잔금':'중도금·잔금'}[kind]||kind);
+  openModal({ title:kLabel+' 현금영수증 발행', text:b(names)+li('홈택스에서 발급한 뒤 승인번호를 기록해요')+li('기록하면 발행 대기에서 사라지고 고객 내역에 표시돼요'),
     extra:extra, yes:'발행 완료', init:function(){ var i=$('crNum'); if(i) i.focus(); },
     onYes:function(){ var num=(($('crNum')&&$('crNum').value)||'').trim(); if(!num){ mErr('발행번호를 입력해 주세요.'); return; } runAct(['adminIssueCashReceipt',code,kind,num],code,'발행 완료'); } });
 }
-function doUndoReceipt(code,names,kind){ openModal({ title:kind+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
+function doUndoReceipt(code,names,kind){ var kLabel={'중도금잔금':'중도금·잔금'}[kind]||kind; openModal({ title:kLabel+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
 function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)||''; openModal({ title:'예약금 환불을 완료했나요?', text:b(names)+li('환불 계좌 '+acct)+li('이 고객이 환불 송금 대기에서 사라져요')+li('실제 송금은 통장에서 직접 하셔야 해요'), yes:'환불 완료', onYes:function(){ runAct(['adminMarkRefunded',code],code,'환불 완료'); } }); }
 function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까요?', text:b(names)+li('고객 화면에 \"보정 중\"으로 표시돼요'), yes:'보정 착수', onYes:function(){ runAct(['adminStartRetouch',code],code,'보정 착수'); } }); }
 function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li((h.date||'')+' '+lab+' '+(h.slot||''))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }

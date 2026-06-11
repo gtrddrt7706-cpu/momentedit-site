@@ -1209,6 +1209,12 @@ function applyCardStageView(d){
   if (paidIdx >= 0 && cur >= paidIdx) {
     var afterBalance = (d.balance && d.balance.confirmed) || ['예식완료','촬영완료','결과물전달'].indexOf(d.stage) >= 0;
     var pastIds = afterBalance ? ['mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance'] : ['mp_fitting','mp_contract','mp_payment'];
+    // [B-3] 미납 결제 카드는 '지난 카드'가 아님 — 잔금 선확인·예식완료 이후라도 미확인 중도금·잔금 카드는 유지(리마인더 메일·관리자 미납 카드와 정합)
+    pastIds = pastIds.filter(function(id){
+      if (id==='mp_midpayment') return !(d.midpayment && !d.midpayment.confirmed);
+      if (id==='mp_balance')    return !(d.balance && !d.balance.confirmed);
+      return true;
+    });
     pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
   }
 }
@@ -1301,7 +1307,7 @@ function renderLedger(l){
   // [02-8] 환불 예상 — 지금 취소하면(계약서 7조·9조·4조⑧ 서버 계산 · l.refundQuote). 접힌 한 줄, 펼치면 산정 근거.
   var rq=l.refundQuote, refundSec='';
   if(rq){
-    var rqHead = rq.needCount ? escapeHtml('시착 벌수 확인 후 안내') : ('환불 예상 <b>'+escapeHtml(won(rq.refund))+'</b>');
+    var rqHead = rq.needCount ? '시착 벌수 확인 후 안내' : won(rq.refund);   // 텍스트만 — 아래에서 1회 이스케이프
     var rqBits=[];
     if(rq.rule) rqBits.push(rq.rule);
     if(rq.needCount) rqBits.push('진행하신 시착 벌수가 기록되면 금액을 보여드려요');
@@ -1313,7 +1319,7 @@ function renderLedger(l){
     }
     rqBits.push('오늘 기준 예상이며, 실제 환불액은 취소 시점에 확정돼요');
     refundSec='<details class="led-refund"><summary>취소·환불 기준 보기 <span class="pt-ar">▾</span></summary>'+
-      '<div class="led-refund-b" style="margin-bottom:4px">'+escapeHtml('지금 취소하시는 경우 환불 예상 · ')+'<b>'+escapeHtml(rqHead)+'</b></div>'+
+      '<div class="led-refund-b" style="margin-bottom:4px">지금 취소하시는 경우 · <b>'+escapeHtml(rqHead)+'</b></div>'+
       '<div class="led-refund-b">'+rqBits.map(function(x){ return escapeHtml(x); }).join(' · ')+'</div></details>';
   }
   box.innerHTML='<details class="acc"><summary class="past-toggle">내 내역 보기 <span class="pt-ar">▾</span></summary>'+
