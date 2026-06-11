@@ -1889,6 +1889,8 @@ function replayHeroAnimation(){
 .me-adv-esc-btn.primary:hover{opacity:.88;transform:translateY(-1px)}
 .me-adv-esc-btn.kakao{background:#FEE500;color:#181600;font-weight:500}
 .me-adv-esc-btn.kakao:hover{opacity:.9;transform:translateY(-1px)}
+.me-adv-esc-btn.ghost{background:none;color:var(--light);font-size:12px;padding:4px;text-decoration:underline;text-underline-offset:3px}
+.me-adv-esc-btn.ghost:hover{color:var(--seal)}
 .me-adv-esc-hours{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--light);text-align:center;margin-top:9px;letter-spacing:0.04em}
 
 .me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border);padding:14px 16px;background:var(--bg)}
@@ -2003,18 +2005,27 @@ function replayHeroAnimation(){
     doHandoff();   // 디렉터에게 대화 브리핑 자동 전달
     var box=document.createElement('div'); box.className='me-adv-esc';
     var t=document.createElement('div'); t.className='me-adv-esc-t';
-    t.textContent='디렉터에게 바로 전달했어요. 빠른 답변을 위해 아래에 연락처를 남겨주세요.';
+    t.textContent=KB.escalation.kakaoUrl
+      ? '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.'
+      : '디렉터에게 바로 전달했어요. 빠른 답변을 위해 아래에 연락처를 남겨주세요.';
     box.appendChild(t);
     var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
-    var a=document.createElement('a');
-    a.className='me-adv-esc-btn primary'; a.href=KB.escalation.inquiryUrl;
-    a.textContent='사전 문의서 작성하기';
-    btns.appendChild(a);
     if(KB.escalation.kakaoUrl){
       var k=document.createElement('a');
       k.className='me-adv-esc-btn kakao'; k.href=KB.escalation.kakaoUrl;
-      k.target='_blank'; k.rel='noopener'; k.textContent='카카오톡으로 문의';
+      k.target='_blank'; k.rel='noopener'; k.textContent='카카오톡으로 상담하기';
       btns.appendChild(k);
+      if(KB.escalation.inquiryUrl){
+        var a2=document.createElement('a');
+        a2.className='me-adv-esc-btn ghost'; a2.href=KB.escalation.inquiryUrl;
+        a2.textContent='또는 사전 문의서 작성';
+        btns.appendChild(a2);
+      }
+    } else {
+      var a=document.createElement('a');
+      a.className='me-adv-esc-btn primary'; a.href=KB.escalation.inquiryUrl;
+      a.textContent='사전 문의서 작성하기';
+      btns.appendChild(a);
     }
     box.appendChild(btns);
     if(KB.escalation.hours){
