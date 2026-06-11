@@ -2095,7 +2095,12 @@ function replayHeroAnimation(){
     if(_locked){
       var b=document.body;
       b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';
-      window.scrollTo(0,_lockY); _locked=false;
+      // 복원은 즉시(jump) — html{scroll-behavior:smooth} 때문에 부드럽게 휙 스크롤되던 버그 방지
+      var html=document.documentElement, prevSB=html.style.scrollBehavior;
+      html.style.scrollBehavior='auto';
+      window.scrollTo(0,_lockY);
+      html.style.scrollBehavior=prevSB;
+      _locked=false;
     }
   }
   function open(){
