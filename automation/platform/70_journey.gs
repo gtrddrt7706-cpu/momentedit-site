@@ -1405,9 +1405,30 @@ function sendArchiveExpiryNotices() {
 
 // ★ 통합 트리거 설치기 — 1회 실행하면 자동화 전부 등록(멱등: 같은 핸들러 기존 트리거 정리 후 재생성).
 //   새 자동화가 추가되면 이 목록에 한 줄 넣고 다시 실행. 실행 결과로 설치 현황 문자열 반환.
+// [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 — Bookings.환불계좌에 기록(관리자 환불송금 큐와 단일 소스) + 관리자 알림.
+function handleSaveRefundAccount(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '환불 계좌는 예약 종료 후 입력할 수 있어요.' };
+  if (_parseJsonSafe(cust.get('동의기록')).환불완료) return { ok: false, error: '이미 환불이 완료된 예약이에요.' };
+  var acct = String((body && body.acct) || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (acct.length < 5) return { ok: false, error: '은행명·계좌번호·예금주를 함께 적어 주세요. (예: 국민 123456-78-901234 홍길동)' };
+  var bk = findRowByPersonalCode(code);
+  if (!bk) return { ok: false, error: '예약 정보를 찾을 수 없어요. 카카오톡 채널로 알려주시면 처리해 드릴게요.' };
+  var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+  writeCell(sheet, colOf, bk.num, '환불계좌', acct);
+  _recordHandler(code, '환불 계좌 고객 입력');
+  notifyKakao('admin.refundAcct', code, { names: _names(cust.get('신랑이름'), cust.get('신부이름')), acct: acct });
+  return { ok: true };
+}
+
 function setupAllTriggers() {
   var plan = [
     { fn: 'expireUnsignedContracts', hour: 3,  label: '계약서 72h 만료 자동 파기' },
+    { fn: 'flushHeldNotifies',       hour: 8,  label: '야간 보류 알림 아침 발송' },
     { fn: 'sendDailyReminders',      hour: 9,  label: '상담 D-1 리마인드(고객+운영자)' },
     { fn: 'sendMorningBrief',        hour: 9,  label: '아침 운영 브리핑' },
     { fn: 'sendHoldExpiryNotices',   hour: 9,  label: '임시고정 만료 D-3 안내' },
@@ -1415,6 +1436,7 @@ function setupAllTriggers() {
     { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
     { fn: 'sendArchiveExpiryNotices', hour: 11, label: '결과물 보관 만료 7일 전 통지' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
+    { fn: 'purgeAdvisorLog',         hour: 4,  weekly: true, label: '상담사 질문 로그 90일 정리(월)' },
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
   ];
   var names = plan.map(function (p) { return p.fn; });

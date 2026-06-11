@@ -50,6 +50,7 @@ var NOTIFY_EVENTS = {
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
   'admin.diningConsult':  { to: 'admin', need: false, desc: "다이닝 '상담 때 함께 정할게요' 선택 — 상담 의제 준비" },
+  'admin.refundAcct':     { to: 'admin', need: true,  desc: '환불 계좌 입력됨 — 송금 처리 필요' },
   'admin.dailyBrief':     { to: 'admin', need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   // ── 고객: 행동 필요 ──
   'cust.consultConfirmed':{ to: 'customer', need: false, desc: '상담 확정' },
@@ -113,8 +114,9 @@ function _nfProps() {
 /**
  * 실제 발송 — admin=SMS / customer=알림톡(템플릿 있으면)→SMS 대체.
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
+ * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
-function _kakaoSend(to, event, code, extra) {
+function _kakaoSend(to, event, code, extra, opts) {
   var cfg = _nfProps();
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
 
@@ -123,6 +125,9 @@ function _kakaoSend(to, event, code, extra) {
     _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
     return;
   }
+
+  // [야간 보류] 고객 알림은 21시~익일 8시엔 보류 큐로 적재 → 아침 8시 트리거가 발송(정보성이라도 새벽 카톡 방지). 관리자 알림은 즉시.
+  if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return; }
 
   // customer — 개인코드로 연락처·이름 조회
   var cust = null;
@@ -173,13 +178,73 @@ function _solapiSend(cfg, message, ctx) {
   }
 }
 
-// 고객 알림 실패 → 처리이력 기록(베스트에포트 · 본 흐름 절대 불간섭)
+// 고객 알림 실패 → 처리이력 기록 + 일별 실패 카운터(아침 브리핑 집계용). 베스트에포트 · 본 흐름 절대 불간섭.
 function _notifyFailMark(ctx, why) {
   try {
     if (ctx && ctx.code && typeof _recordHandler === 'function') {
       _recordHandler(ctx.code, '[알림] ' + (ctx.event || '') + ' 발송 실패 · ' + String(why || '').slice(0, 80));
     }
   } catch (e) {}
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var k = 'NOTIFY_FAIL_' + _kstYmd(new Date());
+    p.setProperty(k, String((Number(p.getProperty(k)) || 0) + 1));
+  } catch (e2) {}
+}
+
+// 어제 알림 실패 건수(아침 브리핑용) — 읽는 김에 7일 지난 카운터 키 정리
+function notifyFailYesterday() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var yd = _shiftYmd(_kstYmd(new Date()), -1);
+    var n = Number(p.getProperty('NOTIFY_FAIL_' + yd)) || 0;
+    var all = p.getProperties();
+    for (var k in all) {
+      if (k.indexOf('NOTIFY_FAIL_') === 0) {
+        var d = k.slice('NOTIFY_FAIL_'.length);
+        if (_shiftYmd(d, 7) < _kstYmd(new Date())) p.deleteProperty(k);
+      }
+    }
+    return n;
+  } catch (e) { return 0; }
+}
+
+// ============================ 야간 보류 ============================
+// 21:00~익일 07:59(KST) 사이의 고객 알림은 보류 큐(Script Property JSON)에 쌓고, 아침 8시 트리거가 발송.
+function _nfIsNight() {
+  var h = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
+  return h >= 21 || h < 8;
+}
+function _nfHoldPush(event, code, extra) {
+  var lock = null;
+  try { lock = LockService.getScriptLock(); lock.waitLock(5000); } catch (e) { lock = null; }
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var arr = [];
+    try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e) { arr = []; }
+    if (arr.length >= 200) { Logger.log('[notify] 보류 큐 초과 — 폐기: ' + event); return; }
+    arr.push({ e: event, c: String(code || ''), x: extra || null, at: fmtKST(new Date()) });
+    p.setProperty('NOTIFY_HOLD', JSON.stringify(arr));
+    Logger.log('[notify] 야간 보류 적재(아침 8시 발송): ' + event + ' · ' + code);
+  } catch (e2) {
+    Logger.log('[notify] 보류 적재 실패: ' + (e2 && e2.message));
+  } finally { try { if (lock) lock.releaseLock(); } catch (e3) {} }
+}
+// [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
+function flushHeldNotifies() {
+  var lock = null, arr = [];
+  try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
+  try {
+    var p = PropertiesService.getScriptProperties();
+    try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e) { arr = []; }
+    p.deleteProperty('NOTIFY_HOLD');
+  } finally { try { if (lock) lock.releaseLock(); } catch (e2) {} }
+  if (!arr.length) { Logger.log('flushHeldNotifies: 보류 0건'); return; }
+  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — ' + arr.length + '건 폐기(로그만)'); return; }
+  arr.forEach(function (it) {
+    try { _kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }); } catch (e) {}
+  });
+  Logger.log('flushHeldNotifies: ' + arr.length + '건 발송 시도 완료');
 }
 
 // ============================ 문구 빌더 ============================
@@ -284,7 +349,8 @@ function _nfAdminText(event, code, x) {
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
     case 'admin.diningConsult':  return tag + ' 다이닝: 상담 때 함께 정하기로 함' + c + ' / 상담 의제로 준비';
-    case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건';
+    case 'admin.refundAcct':     return tag + ' 환불 계좌 입력 ' + (x.names || '') + c + (x.acct ? (' (' + x.acct + ')') : '') + ' / 송금 처리';
+    case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건' + (Number(x.fail) > 0 ? (' · 알림실패 ' + x.fail + '건') : '');
     default:                     return tag + ' 알림 ' + event + c;
   }
 }
@@ -312,9 +378,9 @@ function notifyTestAdminSms() {
   _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: '[모먼트에디트] 알림 연동 테스트입니다. 이 문자가 보이면 SMS 연동 성공!' });
 }
 
-// 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장)
+// 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장 · 야간 보류 무시하고 즉시)
 function notifyTestCustomerByCode(code) {
-  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' });
+  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
