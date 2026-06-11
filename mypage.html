@@ -3473,5 +3473,27 @@ $('resetForm').addEventListener('submit', function(e){
 // HTML escape
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 </script>
+<!-- ══ AI 상담 위젯 · 마이페이지 (자유질문 · 개인화는 2단계에서 확장) ══ -->
+<script>
+window.ME_ADV_PAGE = {
+  page: '마이',
+  greeting: '안녕하세요, 모먼트에디트 상담 도우미예요. 진행 중인 예약·계약과 관련해 궁금하신 점을 물어보세요.',
+  schedule: false,
+  chips: [
+    { label: '잔금은 언제까지 입금하나요?' },
+    { label: '예식일을 변경하고 싶어요' },
+    { label: '결과물은 언제 받을 수 있나요?' }
+  ],
+  customer: function(){
+    try {
+      var c = JSON.parse(localStorage.getItem('me_state_v1') || 'null');
+      var d = c && c.d;
+      return d ? { name: d.name || '', stage: d.stage || '', code: d.code || '' } : null;
+    } catch (e) { return null; }
+  }
+};
+</script>
+<script src="/assets/advisor-kb.js"></script>
+<script src="/assets/advisor-widget.js"></script>
 </body>
 </html>

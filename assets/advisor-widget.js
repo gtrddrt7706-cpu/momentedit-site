@@ -1,0 +1,296 @@
+// 모먼트에디트 · 공용 AI 상담 위젯 (inquiry.html 예약 페이지 · mypage.html)
+// 메인홈(index.html) 위젯과 같은 우측 중앙 아이콘(FAB) + 우측 드로어 디자인.
+// 페이지별 설정: window.ME_ADV_PAGE = {
+//   page: '예약'|'마이',                    ← /api/handoff 인계 브리핑에 표기
+//   greeting: '첫 인사',
+//   chips: [{ label:'질문', sched:true? }], ← 빠른질문. sched:true면 신비주의 스케줄 확인으로 라우팅
+//   schedule: true|false,                   ← 예식일 가능 여부 질문을 /api/schedule-advisor로 자동 라우팅
+//   customer: function(){return {name,stage,code}|null}  ← (마이) 인계 시 고객 식별 정보
+// }
+// 선택: /assets/advisor-kb.js 가 먼저 로드되면 escalation 설정(카카오 URL·상담시간)을 공유.
+(function () {
+  var CFG = window.ME_ADV_PAGE || {};
+  var KB = window.MOMENT_ADVISOR_KB || null;
+  var ESC = (KB && KB.escalation) || { kakaoUrl: 'https://pf.kakao.com/_momentedit', hours: '평일 10시 - 18시' };
+  var PAGE = CFG.page || '예약';
+
+  var css = ''
+    + '.me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;transform:translateY(-50%);transition:opacity .55s var(--ease,ease),transform .55s var(--ease,ease)}'
+    + '.me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}'
+    + '.me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}'
+    + '.me-fab-ico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.07);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(28,27,25,0.05);box-shadow:0 3px 12px rgba(28,27,25,0.05);color:var(--seal,#6B2A24);transition:transform .3s,box-shadow .3s,background .3s}'
+    + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);background:rgba(250,250,248,0.42);box-shadow:0 8px 20px rgba(28,27,25,0.10)}'
+    + '.me-fab-ico svg{width:22px;height:22px}'
+    + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
+    + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
+    + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
+    + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);box-shadow:-26px 0 72px rgba(28,27,25,0.20);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
+    + '.me-adv-panel.open{transform:translateX(0)}'
+    + '@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}.me-adv-input{font-size:16px}}'
+    + '.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg,#FAFAF8);border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18))}'
+    + '.me-adv-head-t{display:flex;align-items:center;gap:13px}'
+    + '.me-adv-seal{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--seal,#6B2A24);border:1px solid rgba(107,42,36,0.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif,Georgia,serif);font-size:15px;font-weight:500;letter-spacing:0.04em;flex:0 0 auto;box-shadow:0 2px 9px rgba(28,27,25,0.06)}'
+    + '.me-adv-titles{display:flex;flex-direction:column;line-height:1.1}'
+    + '.me-adv-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold,#B89A75);margin-bottom:4px}'
+    + '.me-adv-title{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em;line-height:1.15}'
+    + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .25s,background .25s}'
+    + '.me-adv-close:hover{color:var(--accent,#3A2D22);background:rgba(28,27,25,0.05)}'
+    + '.me-adv-close svg{width:18px;height:18px}'
+    + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
+    + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
+    + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
+    + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
+    + '.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2,#F5F3EF);border-radius:13px;border-bottom-left-radius:4px}'
+    + '.me-adv-typing i{width:6px;height:6px;border-radius:50%;background:var(--gold,#B89A75);opacity:.5;animation:meAdvBlink 1.2s infinite}'
+    + '.me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}'
+    + '@keyframes meAdvBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}'
+    + '.me-adv-chips{display:flex;flex-direction:column;gap:0;margin-top:8px}'
+    + '.me-adv-chips-label{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11.5px;letter-spacing:0.08em;color:var(--gold,#B89A75);text-transform:uppercase;margin:6px 0 -2px}'
+    + '.me-adv-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;font-family:var(--serif-ko,serif);font-size:15px;font-weight:400;color:var(--accent,#3A2D22);background:none;border:none;border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18));border-radius:0;padding:15px 2px;cursor:pointer;transition:color .22s,padding-left .22s;line-height:1.45;word-break:keep-all}'
+    + '.me-adv-chip:last-child{border-bottom:none}'
+    + '.me-adv-chip:hover{color:var(--gold,#B89A75);padding-left:8px}'
+    + '.me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko,serif);font-size:12.5px;color:var(--seal,#6B2A24);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:30px;padding:9px 16px;cursor:pointer;transition:background .25s,border-color .25s;line-height:1.4}'
+    + '.me-adv-escoffer:hover{background:rgba(107,42,36,0.05);border-color:var(--seal,#6B2A24)}'
+    + '.me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}'
+    + '.me-adv-esc-t{font-family:var(--serif-ko,serif);font-size:13px;color:var(--accent,#3A2D22);line-height:1.6;margin-bottom:11px}'
+    + '.me-adv-esc-btns{display:flex;flex-direction:column;gap:8px}'
+    + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .25s,transform .25s}'
+    + '.me-adv-esc-btn.kakao{background:#FEE500;color:#181600;font-weight:500}'
+    + '.me-adv-esc-btn.kakao:hover{opacity:.9;transform:translateY(-1px)}'
+    + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10.5px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
+    + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
+    + '.me-adv-form{display:flex;align-items:flex-end;gap:8px}'
+    + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .25s}'
+    + '.me-adv-input:focus{border-color:var(--gold,#B89A75)}'
+    + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:var(--seal,#6B2A24);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}'
+    + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
+    + '.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}'
+    + '.me-adv-send svg{width:17px;height:17px}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  var wrap = document.createElement('div');
+  wrap.innerHTML = ''
+    + '<div class="me-fab-stack" id="meAdvStack">'
+    + '  <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기" type="button">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
+    + '  </button>'
+    + '</div>'
+    + '<div class="me-adv-backdrop" id="meAdvBackdrop"></div>'
+    + '<section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">'
+    + '  <header class="me-adv-head">'
+    + '    <div class="me-adv-head-t">'
+    + '      <span class="me-adv-seal">ME</span>'
+    + '      <span class="me-adv-titles"><span class="me-adv-eyebrow">AI Wedding Concierge</span><span class="me-adv-title">상담 도우미</span></span>'
+    + '    </div>'
+    + '    <button class="me-adv-close" id="meAdvClose" aria-label="닫기" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>'
+    + '  </header>'
+    + '  <div class="me-adv-body" id="meAdvBody"></div>'
+    + '  <footer class="me-adv-foot">'
+    + '    <form class="me-adv-form" id="meAdvForm">'
+    + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
+    + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></button>'
+    + '    </form>'
+    + '  </footer>'
+    + '</section>';
+  document.body.appendChild(wrap);
+
+  var fab = document.getElementById('meAdvFab'), stackEl = document.getElementById('meAdvStack'),
+      panel = document.getElementById('meAdvPanel'), backdrop = document.getElementById('meAdvBackdrop'),
+      closeBtn = document.getElementById('meAdvClose'), body = document.getElementById('meAdvBody'),
+      form = document.getElementById('meAdvForm'), input = document.getElementById('meAdvInput'),
+      sendBtn = document.getElementById('meAdvSend');
+
+  var started = false, sending = false, escShown = false, handoffSent = false;
+  var advHist = [], schedHist = [], transcript = [];
+  var mode = 'adv';   // 'adv'(/api/advisor) | 'sched'(/api/schedule-advisor 신비주의 스케줄)
+
+  function place(el) { body.appendChild(el); }
+  function scrollDown() { body.scrollTop = body.scrollHeight; }
+  function addMsg(t, who) {
+    var d = document.createElement('div');
+    d.className = 'me-adv-msg ' + who; d.textContent = t;
+    place(d); scrollDown(); return d;
+  }
+  function addTyping() {
+    var d = document.createElement('div');
+    d.className = 'me-adv-typing'; d.innerHTML = '<i></i><i></i><i></i>';
+    place(d); scrollDown(); return d;
+  }
+
+  // ── 에스컬레이션: 자동으로 들이밀지 않고 버튼으로 · 누르면 관리자 인계 + 카카오 안내 ──
+  function offerEscalation() {
+    if (escShown || body.querySelector('.me-adv-escoffer')) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'me-adv-escoffer';
+    b.textContent = '더 정확한 답이 필요하신가요? 디렉터에게 연결하기';
+    b.addEventListener('click', function () { b.remove(); showEscalation(); });
+    place(b); scrollDown();
+  }
+  function doHandoff() {
+    if (handoffSent || transcript.length === 0) return; handoffSent = true;
+    var payload = { messages: transcript.slice(-16), page: PAGE };
+    try { var c = (typeof CFG.customer === 'function') ? CFG.customer() : null; if (c) payload.customer = c; } catch (e) {}
+    try {
+      fetch('/api/handoff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) }).catch(function () {});
+    } catch (e) {}
+  }
+  function showEscalation() {
+    if (escShown) return; escShown = true;
+    doHandoff();
+    var box = document.createElement('div'); box.className = 'me-adv-esc';
+    var t = document.createElement('div'); t.className = 'me-adv-esc-t';
+    t.textContent = '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
+    box.appendChild(t);
+    var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
+    if (ESC.kakaoUrl) {
+      var k = document.createElement('a');
+      k.className = 'me-adv-esc-btn kakao'; k.href = ESC.kakaoUrl;
+      k.target = '_blank'; k.rel = 'noopener'; k.textContent = '카카오톡으로 상담하기';
+      btns.appendChild(k);
+    }
+    box.appendChild(btns);
+    if (ESC.hours) {
+      var h = document.createElement('div'); h.className = 'me-adv-esc-hours';
+      h.textContent = '상담 가능 ' + ESC.hours;
+      box.appendChild(h);
+    }
+    place(box); scrollDown();
+  }
+
+  // ── 신비주의 스케줄 라우팅(예약 페이지) — 예식일 가능 여부 질문은 schedule-advisor로 ──
+  function dateish(s) {
+    return /(\d{1,4}\s*(년|월|일|주))|내년|올해|내후년|다음\s*달|이번\s*달|봄|여름|가을|겨울|상반기|하반기|중순|월말|월초|주말|평일|(월|화|수|목|금|토|일)요일|공휴일|연휴|크리스마스|성탄/.test(s);
+  }
+  function schedish(s) {
+    if (/(예식\s*일|예식\s*날짜|예식일정)/.test(s) && /(가능|확인|예약|잡|비)/.test(s)) return true;
+    if (dateish(s) && /(가능|예약|비어|잡을|잡아|돼요|되나요|될까)/.test(s) && !/상담\s*(예약|일정|시간)/.test(s)) return true;
+    return false;
+  }
+  function todayYmd() {
+    var n = new Date();
+    return n.getFullYear() + '-' + ('0' + (n.getMonth() + 1)).slice(-2) + '-' + ('0' + n.getDate()).slice(-2);
+  }
+
+  function send(q, forceSched) {
+    if (sending) return;
+    addMsg(q, 'me'); transcript.push({ role: 'user', content: q });
+    var useSched = !!CFG.schedule && (forceSched || schedish(q) || (mode === 'sched' && dateish(q)));
+    mode = useSched ? 'sched' : 'adv';
+    sending = true; sendBtn.disabled = true;
+    var typing = addTyping();
+    if (useSched) {
+      schedHist.push({ role: 'user', content: q });
+      fetch('/api/schedule-advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ messages: schedHist.slice(-10), today: todayYmd(), page: PAGE }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          typing.remove();
+          var t = (j && j.reply) || '지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.';
+          addMsg(t, 'bot');
+          schedHist.push({ role: 'assistant', content: t });
+          transcript.push({ role: 'assistant', content: t });
+        })
+        .catch(function () { typing.remove(); addMsg('지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.', 'bot'); })
+        .then(function () { sending = false; sendBtn.disabled = false; });
+      return;
+    }
+    advHist.push({ role: 'user', content: q });
+    fetch('/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messages: advHist, page: PAGE }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+      .then(function (res) {
+        typing.remove();
+        var j = res.j || {};
+        if (res.ok && j.reply) {
+          addMsg(j.reply, 'bot');
+          advHist.push({ role: 'assistant', content: j.reply });
+          transcript.push({ role: 'assistant', content: j.reply });
+          if (j.escalate) offerEscalation();
+        } else {
+          try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
+          addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');
+          showEscalation();
+        }
+      })
+      .catch(function () {
+        typing.remove();
+        addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.', 'bot');
+        showEscalation();
+      })
+      .then(function () { sending = false; sendBtn.disabled = false; });
+  }
+
+  function renderChips() {
+    var chips = Array.isArray(CFG.chips) ? CFG.chips : [];
+    if (!chips.length) return;
+    var lab = document.createElement('div'); lab.className = 'me-adv-chips-label'; lab.textContent = 'Quick Questions';
+    place(lab);
+    var box = document.createElement('div'); box.className = 'me-adv-chips';
+    chips.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'me-adv-chip'; b.textContent = c.label;
+      b.addEventListener('click', function () { send(c.label, !!c.sched); });
+      box.appendChild(b);
+    });
+    place(box); scrollDown();
+  }
+
+  // ── 열기/닫기 + 모바일 배경 스크롤 잠금(index.html 위젯과 동일 동작) ──
+  var _lockY = 0, _locked = false;
+  function lockScroll() {
+    document.documentElement.style.overflow = 'hidden';
+    if (window.innerWidth <= 680) {
+      _lockY = window.scrollY || window.pageYOffset || 0;
+      var b = document.body;
+      b.style.position = 'fixed'; b.style.top = (-_lockY) + 'px'; b.style.left = '0'; b.style.right = '0'; b.style.width = '100%';
+      _locked = true;
+    }
+  }
+  function unlockScroll() {
+    document.documentElement.style.overflow = '';
+    if (_locked) {
+      var b = document.body;
+      b.style.position = ''; b.style.top = ''; b.style.left = ''; b.style.right = ''; b.style.width = '';
+      var html = document.documentElement, prevSB = html.style.scrollBehavior;
+      html.style.scrollBehavior = 'auto';
+      window.scrollTo(0, _lockY);
+      html.style.scrollBehavior = prevSB;
+      _locked = false;
+    }
+  }
+  function open() {
+    panel.classList.add('open'); stackEl.classList.add('hide');
+    backdrop.classList.add('open');
+    lockScroll();
+    if (!started) {
+      started = true;
+      addMsg(CFG.greeting || '안녕하세요, 모먼트에디트 상담 도우미예요. 궁금하신 점을 무엇이든 물어보세요.', 'bot');
+      renderChips();
+    }
+    setTimeout(function () { if (window.innerWidth > 680) input.focus(); }, 480);
+  }
+  function close() {
+    panel.classList.remove('open'); stackEl.classList.remove('hide');
+    backdrop.classList.remove('open');
+    unlockScroll();
+  }
+  fab.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
+
+  input.addEventListener('input', function () {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 96) + 'px';
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var q = input.value.trim();
+    if (!q || sending) return;
+    input.value = ''; input.style.height = 'auto';
+    send(q, false);
+  });
+})();
