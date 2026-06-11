@@ -194,7 +194,7 @@ var CONTRACT = {
   snapDocVersion: 'snap-v1.1',      // 웨딩스냅 계약서 문서 버전 — 동일 메커니즘(구버전 서명자는 archive 보존본으로 열람)
   서명기한시간: 72,                 // 발송 +72h 안에 서명
   리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
-  effectNotice: '서명하면 계약의 효력이 발생하며, 이후에는 취소·파기가 불가합니다.',
+  effectNotice: '서명하면 계약이 성립해요. 서명 자체는 되돌릴 수 없지만, 제7조 청약철회·무상취소는 그대로 가능해요.',
   reviewNote: '서명 전 계약 내용을 충분히 확인해 주세요. 기한이 지나면 계약서는 자동 파기됩니다.'
 };
 
@@ -731,8 +731,16 @@ function _cashReceiptLedger(r) {
   }
   var out = [];
   out.push(item('예약금', isSnap ? '계약금' : '예약금', String(r.get('입금상태') || '').trim() === '확인', isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
-  if (!isSnap) out.push(item('중도금', '중도금', String(r.get('중도금상태') || '').trim() === '확인', amounts ? amounts['중도금'] : 0));
-  out.push(item('잔금', '잔금', String(r.get('잔금상태') || '').trim() === '확인', amounts ? amounts['잔금'] : 0));
+  // 묶음 입금(임박 계약): 중도금·잔금이 같은 확인일시로 기록됐으면 한 번의 이체 → 영수증도 1건(합산)으로
+  var _mCf = String(r.get('중도금상태') || '').trim() === '확인', _bCf = String(r.get('잔금상태') || '').trim() === '확인';
+  var _mAt = String(r.get('중도금확인일시') || '').trim(), _bAt = String(r.get('잔금확인일시') || '').trim();
+  var _combo = !isSnap && _mCf && _bCf && _mAt && _mAt === _bAt;
+  if (_combo) {
+    out.push(item('중도금잔금', '중도금·잔금', true, amounts ? (amounts['중도금'] + amounts['잔금']) : 0));
+  } else {
+    if (!isSnap) out.push(item('중도금', '중도금', _mCf, amounts ? amounts['중도금'] : 0));
+    out.push(item('잔금', '잔금', _bCf, amounts ? amounts['잔금'] : 0));
+  }
   // 추가 보정(과세 용역·10만원↑ 현금 의무발급) — 결제 '완료'된 건만 원장에(금액 0=미신청은 행 자체 생략). 총액 외 별도 매출이라 결제 진행률에는 미합산.
   var _exAmt = Math.round(Number(r.get('추가보정금액')) || 0);
   if (_exAmt > 0 && ['완료', '결제대기'].indexOf(String(r.get('추가보정상태') || '').trim()) !== -1) {
@@ -903,6 +911,25 @@ function adminConfirmMid(code) {
   if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '중도금상태': '확인', '중도금확인일시': fmtKST(new Date()) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '중도금' });   // 고객 안심 알림(카톡)
+  return { ok: true };
+}
+// 관리자 중도금·잔금 묶음 확인 — 임박 계약(D-9 이내)에서 고객이 한 번에 입금(withBalance)한 경우 1클릭 처리.
+//   같은 확인일시(now)로 기록 → 영수증 원장도 '중도금·잔금' 1건으로 합쳐짐(_cashReceiptLedger 콤보 판정 짝).
+function adminConfirmMidBalance(code) {
+  code = String(code || '').trim().toUpperCase();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };
+  var midOk = String(cust.get('중도금상태') || '').trim() === '확인';
+  var balOk = String(cust.get('잔금상태') || '').trim() === '확인';
+  if (midOk && balOk) return { ok: true, already: true };
+  var now = fmtKST(new Date());
+  var upd = {};
+  if (!midOk) { upd['중도금상태'] = '확인'; upd['중도금확인일시'] = now; }
+  if (!balOk) { upd['잔금상태'] = '확인'; upd['잔금확인일시'] = now; }
+  touchCustomer(sheet, colOf, cust.num, upd);
+  notifyKakao('cust.paymentConfirmed', code, { kind: '중도금·잔금' });
   return { ok: true };
 }
 

@@ -134,7 +134,7 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
-      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount
+      adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
@@ -454,10 +454,19 @@ function adminHome() {
     var _crIssued = _crRec.영수증발행 || {};
     var _crStamp = _crRec.영수증기준일 || {};
     var _crAmt = _journeyAmounts(cget(rv, '계약총액'), product);
+    var _qMAt = String(cget(rv, '중도금확인일시') || '').trim(), _qBAt = String(cget(rv, '잔금확인일시') || '').trim();
+    var _qCombo = !isSnap && String(cget(rv, '중도금상태') || '').trim() === '확인' && String(cget(rv, '잔금상태') || '').trim() === '확인' && _qMAt && _qMAt === _qBAt;
+    if (_qCombo && !_crIssued['중도금잔금']) {   // 묶음 입금 → 영수증도 1건(합산 금액·받은날=확인일시)
+      var _bdgC = _crDueBadge(_qMAt, today);
+      var _wonC = _crAmt ? (' · ' + Math.round(_crAmt['중도금'] + _crAmt['잔금']).toLocaleString() + '원') : '';
+      pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: '중도금·잔금 현금영수증 발행' + _wonC,
+        badge: _bdgC, _urgent: _bdgC.level === 'red', _stage: 5, _wait: createdYmd });
+    }
     [['입금상태', '예약금', isSnap ? (_crAmt ? _crAmt['계약금'] : 0) : PAYMENT.예약금],
      ['중도금상태', '중도금', _crAmt ? _crAmt['중도금'] : 0],
      ['잔금상태', '잔금', _crAmt ? _crAmt['잔금'] : 0]].forEach(function (cr) {
       if (cr[0] === '중도금상태' && isSnap) return;   // 스냅은 중도금 없음
+      if (_qCombo && (cr[1] === '중도금' || cr[1] === '잔금')) return;   // 묶음이면 개별 카드 생략(위 합산 1건)
       var _crPaid = String(cget(rv, cr[0]) || '').trim() === '확인';
       // 예약금은 '받은 날'부터 발급 기한(5일)이 기산 — 계약 서명 전이라도 상담 예약금 입금이 확인됐으면 발행 대기로
       if (!_crPaid && cr[1] === '예약금' && bk && String(bget(bk, '입금확인') || '').trim() === '확인') _crPaid = true;
@@ -552,15 +561,20 @@ function adminHome() {
         _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
     }
     })();
-    // 중도금 확인 — 중도금상태=완료신호 (계약 후 첫 실결제, D-30 구간)
-    if (String(cget(rv, '중도금상태') || '').trim() === '완료신호') {
+    // 중도금·잔금 입금 신호 — 묶음 입금(임박 계약·한 번에 이체)이면 확인도 1건으로
+    var _midSig = String(cget(rv, '중도금상태') || '').trim() === '완료신호';
+    if (_midSig && 잔금 === '완료신호') {
+      pushQ({ code: code, names: names, product: product, kind: '중도금잔금확인', sub: '중도금·잔금 입금 확인 (한 번에 입금)',
+        badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
+    } else {
+    if (_midSig) {
       pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인',
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
-    // 잔금 확인 — 잔금상태=완료신호 (단계 무관, 제작~예식 구간에서 발생)
     if (잔금 === '완료신호') {
       pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인',
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
+    }
     }
     // 예식/촬영 완료 — 시그(제작중&예식일 지남) / 스냅(입금완료&촬영일 지남)
     var eventStage = isSnap ? '입금완료' : '제작중';
@@ -1088,13 +1102,17 @@ function adminIssueCashReceipt(code, kind, num) {
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
-  if (['예약금', '중도금', '잔금', '추가보정'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
   if (!num) return { ok: false, error: '발행번호(홈택스 승인번호)를 입력해 주세요.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
-  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
   var stOk = (kind === '추가보정') ? '완료' : '확인';   // 추가 보정은 '완료'가 입금 확인 상태
+  if (kind === '중도금잔금') {   // 묶음 발행 — 두 마일스톤 모두 확인이어야
+    if (String(cust.get('중도금상태') || '').trim() !== '확인' || String(cust.get('잔금상태') || '').trim() !== '확인') return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (중도금·잔금)' };
+  } else {
+  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
   if (String(cust.get(stCol) || '').trim() !== stOk) return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (' + kind + ')' };
+  }
   var amt = 0, led = _cashReceiptLedger(cust);
   for (var i = 0; i < led.length; i++) if (led[i].key === kind) amt = led[i].amount;
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -1112,7 +1130,7 @@ function adminUndoCashReceipt(code, kind) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
-  if (['예약금', '중도금', '잔금', '추가보정'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);

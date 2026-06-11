@@ -1471,7 +1471,7 @@ function renderFitting(f, d){
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">계약서 발송</span><span class="vg-v">요청하시면 <b>24시간 안에</b> 계약서를 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
-                 + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 도착 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
@@ -2181,7 +2181,7 @@ function renderResult(res, nm, code){
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
-    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
+    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요. 🤍</div>';
     var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     var inner='';
@@ -2206,7 +2206,7 @@ function renderResult(res, nm, code){
     + '</div>';
   // 보관 안심 — 다운로드할 결과물이 생겼고 + 보관 기간이 설정돼 있을 때만(막연한 약속 방지)
   if((res.원본 || hasReto) && _eta(DOWNLOAD_KEEP)){
-    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 다운로드 후에도 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 안전하게 보관해요. 천천히 받으셔도 괜찮아요. 🤍</div>';
+    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요. 🤍</div>';
   }
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
@@ -2222,7 +2222,7 @@ function renderResult(res, nm, code){
   // ④ 보정본 확인(컨펌) 패널 — 컨펌대기면 '확인'이 최우선이라 ③ 추가결제보다 위에 둔다.
   if(st==='컨펌대기' && res.보정본){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 더 손볼 컷이 있으면 <b>③ 추가 보정</b>으로 알려 주세요.</div>'
+      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬는 <b>무료 재보정은 1회</b>(14일 안) 카카오톡으로, 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)으로 알려 주세요.</div>'
       +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
       +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
   } else if(st==='컨펌완료'){
@@ -2256,7 +2256,7 @@ function doSubmitSelection(){
   else send();
 }
 function doConfirmRetouch(){
-  mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n더 손볼 컷이 있으면 취소하고 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){
+  mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷 수정은 무료 재보정 1회(14일 안·카카오톡), 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){
     if(!ok) return;
     var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
