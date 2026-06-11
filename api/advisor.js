@@ -164,6 +164,14 @@ module.exports = async (req, res) => {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    // 진단: 런타임에 ANTHROPIC/API 관련 env 키 이름이 보이는지(값은 로깅 안 함)
+    try {
+      console.error('advisor_unconfigured', JSON.stringify({
+        present: 'ANTHROPIC_API_KEY' in process.env,
+        empty: process.env.ANTHROPIC_API_KEY === '',
+        keys: Object.keys(process.env).filter(function (k) { return /ANTHROP|API_KEY/i.test(k); }),
+      }));
+    } catch (e) {}
     // 키 미설정: 프론트가 1단 즉답·상담연결로 우아하게 폴백하도록 신호
     res.statusCode = 503;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
