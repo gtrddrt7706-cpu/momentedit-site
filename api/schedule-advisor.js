@@ -155,7 +155,7 @@ function decide(ex, taken, today, answered, page) {
   let date = /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : '';
   const prefer = SLOTS.indexOf(ex.slot) !== -1 ? ex.slot : '';
 
-  // 시기만 말한 경우: 범위에서 가능한 날짜 하나를 서버가 고른다(주말 요청 시 주말만)
+  // 시기만 말한 경우: 범위에서 후보 날짜 하나를 서버가 고른다(주말 요청 시 주말만)
   if (!date && /^\d{4}-\d{2}-\d{2}$/.test(ex.periodFrom)) {
     if (answered.size >= MAX_DATE_CHECKS) return limitMsg();
     const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
@@ -164,7 +164,9 @@ function decide(ex, taken, today, answered, page) {
     for (let i = 0; i < 124 && d <= to; i++) {
       const wd = dayOfWeek(d);
       if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) {
-        return okMsg(d, freeSlot(taken, d, prefer), '', page);
+        // 시간대까지 말했으면 바로 판정, 아니면 후보 날짜만 제안하고 시간대를 되묻는다(시간 단위 확인)
+        if (prefer) return okMsg(d, prefer, '', page);
+        return '고객이 말한 시기에서는 ' + koDate(d) + '(' + WD_KO[wd] + ')을 후보 날짜로 제안하세요. 가능 여부는 아직 말하지 말고, "이 날짜라면 어느 시간대로 확인해 드릴까요?"로 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
       }
       d = addDays(d, 1);
     }
@@ -180,6 +182,12 @@ function decide(ex, taken, today, answered, page) {
   // ② 한도: 새 날짜이고 이미 3개를 답했으면 차단(같은 날짜의 추가 질문·시간대 변경은 허용)
   const key = dateKey(date);
   if (answered.size >= MAX_DATE_CHECKS && !answered.has(key)) return limitMsg();
+
+  // ④ 시간 단위 확인(사장 지시): 날짜만 말하고 시간대가 없으면, 가능 여부를 말하기 전에
+  //   "어느 시간대로 확인해 드릴까요?"로 되묻는다(그 날에 확인 가능한 타임이 하나라도 있을 때만).
+  if (!prefer && freeSlot(taken, date, '')) {
+    return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')의 시간대를 아직 말하지 않았습니다. 가능 여부는 아직 말하지 말고, "어느 시간대로 확인해 드릴까요?"라고 되물으세요. 시간대는 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임입니다.';
+  }
 
   let slot = freeSlot(taken, date, prefer), note = '';
   if (!slot && prefer) {
@@ -210,7 +218,7 @@ function okMsg(date, slot, note, page) {
   const wd = dayOfWeek(date), month = Number(date.slice(5, 7));
   const scarcity = (wd === 0 || wd === 6 || month === 4 || month === 5 || (month >= 9 && month <= 11));
   const action = (page === '예약')
-    ? '상담 예약을 완료하시면 예약 단계에서 이 날짜를 임시 고정으로 신청하실 수 있고, 디렉터가 최종 확인 후 14일간 잡아드린다고 덧붙이세요.'
+    ? '이어서 "대면상담을 신청하시면 예약 단계에서 이 일정을 임시 고정으로 신청하실 수 있고, 디렉터 확인을 거쳐 대면상담 전에 정확한 예식 일자를 확정받으실 수 있어요"로, 상담 신청을 서두르도록 부드럽게 유도하세요.'
     : '아래 예식일 임시 고정에 이 날짜로 신청해 두시면 디렉터가 최종 확인 후 14일간 잡아드린다고 덧붙이세요.';
   return note
     + '안내할 일정: ' + koDate(date) + '(' + WD_KO[wd] + ') ' + SLOT_LABEL[slot] + ' 타임 → 진행 가능한 일정으로 확인됨. 이 한 건만 안내하고, ' + action
