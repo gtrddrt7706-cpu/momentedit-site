@@ -448,6 +448,30 @@ function adminHome() {
             _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
         }
       }
+      // [환불 안전망] 노쇼·미계약 — 관리자 처리 종료라 환불계좌 입력 경로가 없어 큐에서 빠지던 구멍.
+      //   예약금(또는 그 이상) 수령분이 있고 환불액>0이면 리마인드(계좌 없으면 '계좌 요청 필요' 라벨). 환불 완료 처리하면 사라짐.
+      if (stage === '노쇼' || stage === '미계약') {
+        var _rbk2 = bookMap[code];
+        var _rdone2 = !!_parseJsonSafe(cget(rv, '동의기록')).환불완료;
+        var _rPaid2 = (_rbk2 && String(bget(_rbk2, '입금확인') || '').trim() === '확인') || String(cget(rv, '입금상태') || '').trim() === '확인';
+        if (_rPaid2 && !_rdone2) {
+          var _racct2 = _rbk2 ? String(bget(_rbk2, '환불계좌') || '').trim() : '';
+          var _rsub2 = stage + ' 처리 · 예약금 환불 확인', _show2 = true;
+          try {
+            var _rq2 = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, today);
+            if (_rq2 && _rq2.needCount) _rsub2 += ' · 시착 벌수 기록 후 산정';
+            else if (_rq2 && !_rq2.pending && _rq2.refund != null) {
+              if (Number(_rq2.refund) <= 0) _show2 = false;   // 공제로 환불액 0원 — 송금할 게 없어 큐 생략(상세 환불 산정에는 그대로 표시)
+              else _rsub2 += ' · ' + Number(_rq2.refund).toLocaleString() + '원' + (_rq2.fitCount > 0 ? ('(시착 ' + _rq2.fitCount + '벌 공제)') : '');
+            }
+          } catch (e) {}
+          if (_show2) {
+            if (!_racct2) _rsub2 += ' · 환불 계좌 요청 필요(카톡)';
+            pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub2,
+              badge: { level: 'yellow', text: '환불 확인' }, _urgent: false, _loss: 2, _stage: 9, _wait: createdYmd });
+          }
+        }
+      }
       return;  // 끝남 → 제외(아카이브)
     }
 
