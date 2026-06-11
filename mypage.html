@@ -1312,7 +1312,8 @@ function renderLedger(l){
       rqBits.push('받으신 금액 '+won(rq.paid)+' 기준');
     }
     rqBits.push('오늘 기준 예상이며, 실제 환불액은 취소 시점에 확정돼요');
-    refundSec='<details class="led-refund"><summary>지금 취소하면 · '+rqHead+' <span class="pt-ar">▾</span></summary>'+
+    refundSec='<details class="led-refund"><summary>취소·환불 기준 보기 <span class="pt-ar">▾</span></summary>'+
+      '<div class="led-refund-b" style="margin-bottom:4px">'+escapeHtml('지금 취소하시는 경우 환불 예상 · ')+'<b>'+escapeHtml(rqHead)+'</b></div>'+
       '<div class="led-refund-b">'+rqBits.map(function(x){ return escapeHtml(x); }).join(' · ')+'</div></details>';
   }
   box.innerHTML='<details class="acc"><summary class="past-toggle">내 내역 보기 <span class="pt-ar">▾</span></summary>'+
