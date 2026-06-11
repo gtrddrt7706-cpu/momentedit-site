@@ -1049,7 +1049,7 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
         htmlBody: '<div style="font-family:sans-serif;line-height:1.7;color:#3a2f25">'
           + '<p>안녕하세요, 모먼트에디트입니다.</p>'
           + '<p>요청하신 <b>계약서가 마이페이지에 도착</b>했어요. 내용을 확인하시고 <b>72시간 안에</b> 서명해 주세요.</p>'
-          + '<p style="margin:18px 0"><a href="https://momentedit.kr/mypage.html" style="background:#6B2A24;color:#fff;padding:11px 20px;border-radius:6px;text-decoration:none">마이페이지에서 계약서 보기</a></p>'
+          + '<p style="margin:18px 0"><a href="https://momentedit.kr/mypage.html" style="background:#4E3F31;color:#fff;padding:11px 20px;border-radius:6px;text-decoration:none">마이페이지에서 계약서 보기</a></p>'
           + '<p style="color:#8a7f70;font-size:13px">기한이 지나면 계약서는 자동 파기되며, 디렉터에게 재발송을 요청하실 수 있어요.</p></div>'
       });
     }
