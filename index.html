@@ -1843,6 +1843,14 @@ function replayHeroAnimation(){
 .me-adv-chip{font-family:var(--sans);font-size:12.5px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:30px;padding:8px 13px;cursor:pointer;transition:border-color .25s,color .25s,background .25s;line-height:1.2}
 .me-adv-chip:hover{border-color:var(--gold);color:var(--gold)}
 .me-adv-chips-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;margin:6px 0 -2px}
+.me-adv-nav{display:flex;flex-direction:column;gap:9px;margin-top:2px}
+.me-adv-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:11px;color:var(--light);line-height:1.5}
+.me-adv-crumb button{background:none;border:none;cursor:pointer;font-size:11px;color:var(--gold);padding:0;font-family:var(--sans);line-height:1.4}
+.me-adv-crumb button:hover{text-decoration:underline}
+.me-adv-crumb .sep{color:var(--light);opacity:.55}
+.me-adv-crumb .cur{color:var(--sub)}
+.me-adv-chip.cat{padding-right:12px;font-weight:500}
+.me-adv-chip.cat::after{content:'›';margin-left:7px;color:var(--gold);font-size:14px;line-height:1}
 
 .me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}
 .me-adv-esc-t{font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.6;margin-bottom:11px}
@@ -1911,36 +1919,23 @@ function replayHeroAnimation(){
       escLink=document.getElementById('meAdvEscLink');
   var apiHistory=[];      // 자유질문 대화만 누적 (role/content)
   var started=false, sending=false, escShown=false;
+  var nodes = KB.tree || (KB.chips ? [{ id:'all', label:'질문', children:KB.chips }] : []);
+  var navEl=null, stack=[]; // stack: 현재 파고든 카테고리 경로
 
+  // 메시지·답변은 항상 하단 탐색 메뉴(navEl) 위에 쌓는다.
+  function place(d){ if(navEl){ body.insertBefore(d,navEl); } else { body.appendChild(d); } }
   function scrollDown(){ body.scrollTop=body.scrollHeight; }
   function addMsg(text,who){
     var d=document.createElement('div');
     d.className='me-adv-msg '+(who==='me'?'me':'bot');
     d.textContent=text;
-    body.appendChild(d); scrollDown(); return d;
+    place(d); scrollDown(); return d;
   }
   function addTyping(){
     var d=document.createElement('div');
     d.className='me-adv-typing';
     d.innerHTML='<i></i><i></i><i></i>';
-    body.appendChild(d); scrollDown(); return d;
-  }
-  function addChips(){
-    var label=document.createElement('div');
-    label.className='me-adv-chips-label'; label.textContent='자주 묻는 질문';
-    body.appendChild(label);
-    var wrap=document.createElement('div'); wrap.className='me-adv-chips';
-    KB.chips.forEach(function(c){
-      var b=document.createElement('button');
-      b.className='me-adv-chip'; b.type='button'; b.textContent=c.label;
-      b.addEventListener('click',function(){ onChip(c); });
-      wrap.appendChild(b);
-    });
-    body.appendChild(wrap); scrollDown();
-  }
-  function onChip(c){
-    addMsg(c.label,'me');
-    addMsg(c.answer,'bot');
+    place(d); scrollDown(); return d;
   }
   function showEscalation(){
     if(escShown) return; escShown=true;
@@ -1965,7 +1960,55 @@ function replayHeroAnimation(){
       h.textContent='상담 가능 '+KB.escalation.hours;
       box.appendChild(h);
     }
-    body.appendChild(box); scrollDown();
+    place(box); scrollDown();
+  }
+
+  function currentLevel(){
+    return stack.length ? (stack[stack.length-1].children||[]) : nodes;
+  }
+  function renderNav(){
+    if(!navEl){ navEl=document.createElement('div'); navEl.className='me-adv-nav'; body.appendChild(navEl); }
+    navEl.innerHTML='';
+    if(stack.length){
+      var crumb=document.createElement('div'); crumb.className='me-adv-crumb';
+      var home=document.createElement('button'); home.type='button'; home.textContent='처음';
+      home.addEventListener('click',function(){ stack=[]; renderNav(); });
+      crumb.appendChild(home);
+      stack.forEach(function(n,i){
+        var sep=document.createElement('span'); sep.className='sep'; sep.textContent='›'; crumb.appendChild(sep);
+        if(i<stack.length-1){
+          var b=document.createElement('button'); b.type='button'; b.textContent=n.label;
+          b.addEventListener('click',function(){ stack=stack.slice(0,i+1); renderNav(); });
+          crumb.appendChild(b);
+        } else {
+          var cur=document.createElement('span'); cur.className='cur'; cur.textContent=n.label; crumb.appendChild(cur);
+        }
+      });
+      navEl.appendChild(crumb);
+    } else {
+      var label=document.createElement('div'); label.className='me-adv-chips-label'; label.textContent='무엇이 궁금하세요?';
+      navEl.appendChild(label);
+    }
+    var wrap=document.createElement('div'); wrap.className='me-adv-chips';
+    currentLevel().forEach(function(node){
+      var isCat=!!(node.children && node.children.length);
+      var b=document.createElement('button'); b.type='button';
+      b.className='me-adv-chip'+(isCat?' cat':'');
+      b.textContent=node.label;
+      b.addEventListener('click',function(){
+        if(isCat){ stack.push(node); renderNav(); }
+        else { onLeaf(node); }
+      });
+      wrap.appendChild(b);
+    });
+    navEl.appendChild(wrap);
+    body.appendChild(navEl); // 탐색 메뉴는 항상 맨 아래로
+    scrollDown();
+  }
+  function onLeaf(node){
+    addMsg(node.label,'me');
+    addMsg(node.answer,'bot');
+    if(node.escalate){ showEscalation(); }
   }
 
   function open(){
@@ -1973,7 +2016,7 @@ function replayHeroAnimation(){
     if(!started){
       started=true;
       addMsg(KB.greeting,'bot');
-      addChips();
+      renderNav();
     }
     setTimeout(function(){ input.focus(); },300);
   }
