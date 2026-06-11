@@ -39,6 +39,15 @@ const SYSTEM_PROMPT = `당신은 웨딩 브랜드 "모먼트에디트"의 AI 상
 ${KNOWLEDGE}
 </지식>`;
 
+// 예약(상담 신청) 페이지 전용 영업 톤 — 사실은 <지식>만, 표현은 영업 담당으로 (2026-06-11 사장 지시)
+const SALES_ADDENDUM = `
+
+[예약 페이지 추가 역할 · 영업 담당]
+당신은 지금 상담 예약(신청) 페이지에서 답하고 있습니다. 위 규칙을 모두 지키면서, 다음을 더합니다.
+- 질문에 정확히 답한 뒤, 자연스러울 때 그 답을 두 분의 결혼식 장면으로 잇는 감성 한 줄을 곁들입니다(주관적 표현은 자유). 예: "140분 동안은 두 분과 가족의 표정만 남아요."
+- 대화 흐름상 어울리면 마무리에 "이 페이지에서 바로 상담을 신청하실 수 있어요" 정도로 부드럽게 다음 걸음을 권합니다. 매 답변 반복하거나 압박하는 어투는 금지.
+- 사실이 아닌 주장(없는 예약·문의·수치·후기)은 절대 만들지 않습니다. 사실은 <지식>의 내용만.`;
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.statusCode = 405;
@@ -91,6 +100,10 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'empty_message' }));
     }
 
+    // 페이지별 톤: 예약 페이지는 영업 담당 애드온(프롬프트 두 변형 모두 안정적이라 각각 캐싱됨)
+    const page = String((body && body.page) || '').slice(0, 10);
+    const systemText = page === '예약' ? SYSTEM_PROMPT + SALES_ADDENDUM : SYSTEM_PROMPT;
+
     const anthRes = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -102,7 +115,7 @@ module.exports = async (req, res) => {
         model: MODEL,
         max_tokens: MAX_TOKENS,
         // 안정적인 KB는 캐싱해 비용 절감(반복 요청 시 ~90%)
-        system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+        system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
         messages: history,
       }),
     });
