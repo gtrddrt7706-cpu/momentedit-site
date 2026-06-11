@@ -462,7 +462,7 @@
       apply(cached); clearTimeout(failsafe); reveal(); rendered = true;
     }
 
-    fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + (forceFresh ? '&fresh=1' : ''))
+    fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=' + (location.pathname.indexOf('/i-family/') !== -1 ? 'family' : 'online') + (forceFresh ? '&fresh=1' : ''))
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.ok && data.couple) {

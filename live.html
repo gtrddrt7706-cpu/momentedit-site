@@ -1979,7 +1979,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
 
   // 시트에서 부부 정보 fetch (캐시 없으면 지금 렌더, 있으면 캐시만 갱신)
   try {
-    const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + (forceFresh ? '&fresh=1' : '');
+    const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live' + (forceFresh ? '&fresh=1' : '');
     const res = await fetch(url);
     const data = await res.json();
 

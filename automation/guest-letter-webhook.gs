@@ -83,15 +83,17 @@ function doGet(e) {
 
       // ── 캐시(CacheService): 같은 eventId 응답을 재사용해 시트 읽기 생략 → 응답 빨라짐 ──
       //    편집 직후 즉시 확인하려면 URL 끝에 &fresh=1 (캐시 무시).
+      // view = 호출 화면(online=온라인 청첩장 /i/ · family=오프라인 /i-family/ · live=라이브). 계좌 표시 게이트를 화면별로 적용.
+      const view = String((e.parameter.view || '')).trim().toLowerCase();
       const cache = CacheService.getScriptCache();
-      const cacheKey = 'couple_' + eventId;
+      const cacheKey = 'couple_' + eventId + '_' + (view || 'def');   // view별 계좌 노출이 다르므로 캐시 분리
       const skipCache = String((e.parameter.fresh || '')) === '1';
       if (!skipCache) {
         const hit = cache.get(cacheKey);
         if (hit) return jsonResponse(JSON.parse(hit));
       }
 
-      const couple = getCoupleByEventIdFull(eventId);
+      const couple = getCoupleByEventIdFull(eventId, view);
       const payload = couple ? { ok: true, couple: couple } : { ok: false, error: 'COUPLE_NOT_FOUND' };
       if (couple) {
         try { cache.put(cacheKey, JSON.stringify(payload), COUPLE_CACHE_TTL); } catch (_e) {}
@@ -224,7 +226,17 @@ function getCoupleByEventId(eventId) {
  *  - 시간/날짜 정규화 처리
  *  - 빈 값은 빈 문자열로 통일
  */
-function getCoupleByEventIdFull(eventId) {
+// 호출 화면(view)의 계좌 표시 토글이 'Y'인지 — 'N'(숨김)이면 계좌를 응답에서 비워 옵트아웃을 데이터 레벨에서도 지킨다.
+//   view 미지정(레거시 직접 호출) — 어느 화면에도 표시 안 하는 계좌만 제외(하나라도 'Y'면 포함). 클라 미배포 구간 안전.
+function _acctVisibleForView(c, view) {
+  function yes(v) { return String(v || '').trim().toUpperCase() === 'Y'; }
+  if (view === 'online') return yes(c.accountOnline);
+  if (view === 'family') return yes(c.accountFamily);
+  if (view === 'live')   return yes(c.accountLive);
+  return yes(c.accountOnline) || yes(c.accountFamily) || yes(c.accountLive);
+}
+
+function getCoupleByEventIdFull(eventId, view) {
   const sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_COUPLES);
   if (!sheet) throw new Error('Couples 시트를 찾을 수 없습니다.');
 
@@ -266,6 +278,12 @@ function getCoupleByEventIdFull(eventId) {
 
       couple[header] = value;
     });
+
+    // 계좌 옵트아웃 — 이 화면(view)에서 계좌를 숨기기로 한 경우 계좌 6필드를 응답에서도 비운다(화면-데이터 일치).
+    if (!_acctVisibleForView(couple, view)) {
+      ['groomAccount', 'brideAccount', 'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount']
+        .forEach(function (k) { if (k in couple) couple[k] = ''; });
+    }
 
     return couple;
   }
