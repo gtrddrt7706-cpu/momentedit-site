@@ -334,6 +334,7 @@ function weeklyReceiptAudit() {
     var names = _names(rWrap.get('신랑이름'), rWrap.get('신부이름'));
     var codeUp = String(rWrap.get('개인코드') || '').trim().toUpperCase();
     var stageEx = STAGE_EXCEPTIONS.indexOf(String(rWrap.get('현재단계') || '').trim()) !== -1;   // 취소·노쇼·미계약은 환불 흐름이라 제외
+    if (stageEx) continue;   // [B-1] 종료(환불 흐름) 고객의 미발행분은 '발행 필요'가 아니라 정리 대상 — 주간 집계에서 제외(기발행 정리는 큐 카드가 담당)
     _cashReceiptLedger(rWrap).forEach(function (it) {
       var due = it.due;
       if (!due && it.key === '예약금' && !it.issued && !stageEx && bkPaid[codeUp]) due = true;
@@ -590,10 +591,23 @@ function adminHome() {
     }
     if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.잔금일수전) {
       var _over2 = PAYMENT.잔금일수전 - _dd;   // D-9 당일부터 노출 — 중도금 카드(>9)와 빈틈 없이 이어짐
-      pushQ({ code: code, names: names, product: product, kind: '잔금확인',
-        sub: _over2 === 0 ? '잔금 기한일(오늘) · 입금 확인 대기' : ('잔금 미납 D+' + _over2 + ' · 7일 최고 후 해제 절차(계약 11조)'),
+      // [B-7] D-9 이내 중도금까지 통미납이면 합산 1카드 — 고객 화면(묶음 입금 안내)·확인 처리(중도금잔금확인)와 짝
+      var _midAlso = !isSnap && String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim();
+      var _ovLbl = _midAlso ? '중도금·잔금' : '잔금';
+      var _ovAmt = (_midAlso && _crAmt) ? (' · ' + Math.round(_crAmt['중도금'] + _crAmt['잔금']).toLocaleString() + '원 (한 번에 입금 안내됨)') : '';
+      pushQ({ code: code, names: names, product: product, kind: _midAlso ? '중도금잔금확인' : '잔금확인',
+        sub: _over2 === 0 ? (_ovLbl + ' 기한일(오늘) · 입금 확인 대기' + _ovAmt) : (_ovLbl + ' 미납 D+' + _over2 + _ovAmt + ' · 7일 최고 후 해제 절차(계약 11조)'),
         badge: _over2 === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
+    }
+    // [B-7 보완] 잔금은 이미 확인됐는데 중도금만 미납인 역순 케이스가 D-9 안쪽으로 들어오면
+    //   위 두 분기(중도금 _dd>9 · 잔금 '대기')를 모두 비켜가 카드가 0장이 됨 — 중도금 단독 카드로 메움
+    if (!isSnap && String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim()
+        && String(cget(rv, '잔금상태') || '').trim() === '확인' && _dd != null && _dd <= 9) {
+      var _overM = PAYMENT.중도금일수전 - _dd;
+      pushQ({ code: code, names: names, product: product, kind: '중도금확인',
+        sub: '중도금 미납 D+' + _overM + ' (잔금은 확인됨) · 7일 최고 후 해제 절차(계약 11조)',
+        badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
     }
     })();
     // 중도금·잔금 입금 신호 — 묶음 입금(임박 계약·한 번에 이체)이면 확인도 1건으로
@@ -927,11 +941,21 @@ function adminArchive(query, filter) {
       if (hay.indexOf(query) === -1 && !(q && phoneN.indexOf(q) !== -1)) continue;
     }
     var draft = _parseJsonSafe(get(rv, '제작임시저장'));
+    // [B-1 연동] 영수증 상태 뱃지 — 중단 종료는 기발행 여부만 JSON 직독(행마다 Bookings 스캔 방지),
+    //   완료 종료만 원장 산출(이때 입금상태='확인'이라 예약금 Bookings 폴백을 타지 않음 → 빠름)
+    var _issuedA = _parseJsonSafe(get(rv, '동의기록')).영수증발행 || {};
+    var _rcptIssuedA = false; for (var _ik in _issuedA) { if (_issuedA.hasOwnProperty(_ik)) { _rcptIssuedA = true; break; } }
+    var _rcptDueA = false;
+    if (endType === '완료') {
+      try { _cashReceiptLedger({ get: function (h) { var c = colOf[h]; return c ? rv[c - 1] : ''; } }).forEach(function (it) { if (it.due) _rcptDueA = true; }); } catch (e) {}
+    }
     out.push({
       code: code, names: _names(g, b), product: get(rv, '상품타입').trim(),
       stage: stage, endType: endType, endTypeLabel: stage,
       wedYmd: _ymdOf(draft.base && draft.base.weddingDate),
-      modified: get(rv, '최종수정').trim()
+      modified: get(rv, '최종수정').trim(),
+      rcptDue: (endType === '완료' && _rcptDueA),       // 영수증 미발행(발행 필요 · 가산세 방지)
+      rcptFix: (endType === '중단' && _rcptIssuedA)     // 기발행 정리 필요(환불 연동 취소·재발행)
     });
   }
   out.sort(function (a, b) { return (b.modified || '').localeCompare(a.modified || ''); });   // 종료일 desc
@@ -1070,12 +1094,12 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   if (String(cust.get('계약상태') || '').trim() === '서명완료') {   // 이미 서명된 계약 — 재발송 시 서명상태 다운그레이드(고객 결제카드 소실) 방지
     return { ok: false, error: '이미 서명이 완료된 계약입니다. 다시 보내려면 강제 단계 변경으로 초기화 후 진행해 주세요.' };
   }
-  if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') {   // 스냅: 예약 미승인(신청·시간선택·변경제안)이면 차단 — 현재단계가 최고수위로만 남은 경우 조기 발송 방지
-    var _bk = findRowByPersonalCode(code), _bs = _bk ? String(_bk.get('상태') || '').trim() : '';
-    if (_bs === ST.APPLIED || _bs === ST.PICKED || _bs === ST.PROPOSED) {
-      return { ok: false, error: '촬영 예약을 먼저 승인/확정한 뒤에 계약서를 보낼 수 있어요. (예약 상태: ' + _bs + ')' };
-    }
-  } else {   // 시그니처: 고객이 계약 정보(예식일·생년월일·주소)를 입력/요청해야 발송 — 빈 계약서·예식일 미설정(중도금·잔금 D-day 깨짐) 방지
+  // [A-2] 예약 미승인(신청·시간선택·변경제안)이면 상품 무관 차단 — 현재단계가 최고수위로만 남은 경우 조기 발송 방지(시착 보내기와 동일 게이트)
+  var _bk = findRowByPersonalCode(code), _bs = _bk ? String(_bk.get('상태') || '').trim() : '';
+  if (_bs === ST.APPLIED || _bs === ST.PICKED || _bs === ST.PROPOSED) {
+    return { ok: false, error: '상담(촬영) 예약을 먼저 승인/확정한 뒤에 계약서를 보낼 수 있어요. (예약 상태: ' + _bs + ')' };
+  }
+  if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {   // 시그니처: 고객이 계약 정보(예식일·생년월일·주소)를 입력/요청해야 발송 — 빈 계약서·예식일 미설정(중도금·잔금 D-day 깨짐) 방지
     var _rec = _parseJsonSafe(cust.get('동의기록'));
     if (!_rec.계약정보 && !/^\d{4}-\d{2}-\d{2}$/.test(String(cust.get('예식일') || '').trim())) {
       return { ok: false, error: '고객이 아직 계약 정보(예식일·인적사항)를 입력하지 않았어요. 고객이 마이페이지에서 입력(요청)하면 발송할 수 있어요.' };
@@ -1305,7 +1329,7 @@ function adminMarkEventDone(code) {
 }
 
 // 4. 결과물 전달 완료 — 예식완료/촬영완료 + 원본 필수 → 결과물전달(후기 대기, 아카이브는 후기 마감 후)
-function adminMarkDelivered(code) {
+function adminMarkDelivered(code, force) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
@@ -1316,12 +1340,21 @@ function adminMarkDelivered(code) {
     if (stage === '결과물전달') return { ok: true, already: true, stage: stage };
     if (['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };
+    // [B-2] 미수금 가드 — 잔금(시그는 중도금 포함)·추가보정 미확인 상태로 결과물을 내보내는 사고 방지. 의도적 전달은 force(상세 카드 경고 확인)로만.
+    var _isSnapD = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
+    var _unpaid = [];
+    if (!_isSnapD && String(cust.get('중도금상태') || '').trim() !== '확인') _unpaid.push('중도금');
+    if (String(cust.get('잔금상태') || '').trim() !== '확인') _unpaid.push('잔금');
+    if (String(cust.get('추가보정상태') || '').trim() === '결제대기') _unpaid.push('추가 보정');
+    if (_unpaid.length && force !== true) {
+      return { ok: false, needForce: true, error: '미수금이 있어요: ' + _unpaid.join('·') + ' 미확인. 입금 확인 후 전달하거나, 고객 상세의 결과물 카드에서 경고를 확인하고 그래도 전달을 선택해 주세요.' };
+    }
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var _dRec = _parseJsonSafe(cust.get('동의기록'));
     _dRec.결과물전달일 = fmtKST(new Date());                     // 인도 완료일(계약서 12조③ 보관 6개월 기산 · 만료 통지 기준)
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     setCustomerStage(code, 'deliver');
-    _recordHandler(code, '결과물 전달 완료');
+    _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
     notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 — 다운로드 안내(가장 중요)
     return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 — 고객 후기 제출/운영자 넘기기 시 아카이브
   } finally { try { lock.releaseLock(); } catch (e) {} }

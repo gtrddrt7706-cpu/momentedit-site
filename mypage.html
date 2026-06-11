@@ -3177,27 +3177,13 @@ function bindTrk(box, render, collect, opt){
     saveTrkDraft(false); TRKFLOW.step++; render(box);
   });
 }
-// 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. 회차(본예식 시간)에 맞춰 큐레이션 노출.
-var DINE_FORMAL=[
-  ['갈비도락 서오릉점','차로 10분 · 소양념갈비 4만 원대 · 한돈 2만 원대','대형 단체 룸 · 그릴링 서비스 · 브레이크 타임 없음'],
-  ['한우만 서오릉점','차로 10분 · 한우 생등심 5~6만 원대','최상급 한우 · 프라이빗 개별 룸'],
-  ['목향 강매동','차로 12분 · 한정식 코스 3~7만 원대','한옥 정원 조망 · 단독 룸'],
-  ['복옥정 서오릉본점','차로 10분 · 보리굴비·불고기 정식 2~3만 원대','모던하고 정갈한 공간'],
-  ['카페 스탠포드','차로 12분 · 호텔 주말 뷔페 7~8만 원대','4성급 호텔 서비스 · 단체 수용 용이']
-];
-var DINE_CAFE=[
-  ['경성빵공장 서오릉점','차로 8분 · 팥빵·건강빵','어르신 선호 · 넓은 야외 정원'],
-  ['카페 기와','차로 10분 · 카페·디저트','정통 한옥 마당 · 프라이빗 개별 공간'],
-  ['나인블럭 FARM 고양','차로 12분 · 카페·브런치','웅장한 층고 · 대규모 하객 수용'],
-  ['씨디에프 (CDF)','차로 10분 · 갤러리형 럭셔리 카페','단독 구역 협의 가능'],
-  ['리비토','향동 안 차로 2분 · 화덕피자·브런치','이동 편의 최상']
-];
-// 본예식 시간 → 식사 회차 안내·추천 목록 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
+// 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. (식당 카드는 DINE_DB 칩 필터가 단일 출처)
+// 본예식 시간 → 식사 회차 안내 문구 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
 function _dineSlot(wt){
-  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.', list:DINE_FORMAL};
-  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 갈비도락, 또는 여유로운 카페·브런치 파티가 잘 맞아요.', list:[DINE_FORMAL[0]].concat(DINE_CAFE)};
-  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.', list:DINE_FORMAL};
-  return {lead:'예식 시간대에 맞춰 디렉터가 직접 검증해 둔 연계 식당·카페예요.', list:DINE_FORMAL.concat(DINE_CAFE)};
+  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.'};
+  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요.'};
+  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.'};
+  return {lead:'예식 시간대에 맞춰 디렉터가 직접 검증해 둔 연계 식당·카페예요.'};
 }
 // [다이닝 v1] 구조화 식당 DB(필터 속성) — 칩 필터 엔진의 토대.
 //  ※ 속성은 디렉터 전화검증 후 v:true 로 전환(현재 전부 미검증 → 카드에 '확인 필요' 표기).
@@ -3284,7 +3270,10 @@ function dineFilterUI(d, wt){
     (r.m||[]).forEach(function(x){tags.push(x);});
     if(r.al===true) tags.push('주류');
     if(r.pk==='good') tags.push('주차넉넉');
-    if(r.bs&&arr&&arr>=r.bs&&arr<=r.be) tags.push(r.be==='23:59'?'⚠ 저녁엔 영업 종료':'⚠ 이 시간대 브레이크');
+    // 브레이크/조기마감 경고 — 분 단위. be==='23:59'는 '조기 영업종료'(소란 등), 그 외는 실제 브레이크.
+    if(r.bs&&arr){ var _bm=function(t){var p=String(t).split(':');return (+p[0])*60+(+p[1]||0);}, _ba=_bm(arr), _bs2=_bm(r.bs), _be2=_bm(r.be||r.bs), _isClose=(r.be==='23:59');
+      if(_ba>=_bs2 && (_isClose||_ba<=_be2)) tags.push(_isClose?'⚠ 저녁엔 영업 종료':'⚠ 이 시간대 브레이크');
+      else if(_ba<_bs2 && (_bs2-_ba)<=90) tags.push('⚠ 도착 '+(_bs2-_ba)+'분 뒤 '+(_isClose?'영업 종료':'브레이크')); }   // 도착 직후 닫히는 경우(90분 미만)도 경고
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
@@ -3322,9 +3311,6 @@ function renderDining(box){
   if(TRKFLOW.step===0){
     var on=d.dining_on||'';
     var slot=_dineSlot((TRKFLOW.base&&TRKFLOW.base.weddingTime)||'');
-    function vCard(v){ var sel=(d.venuePick===v[0]);
-      return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(v[0])+'">'+escapeHtml(v[0])
-        +'<small>'+escapeHtml(v[1])+'</small><small>'+escapeHtml(v[2])+'</small></label>'; }
     var f = (on==='Y') ? '<div class="inv-fields">'
         + '<div class="inv-side-l" style="margin:12px 0 5px">예상 인원 <span style="color:var(--label-soft)">(선택)</span></div>'
         + '<input class="cc-input" id="trk_dHead" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'">'
@@ -3347,7 +3333,7 @@ function renderDining(box){
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
       var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
-      var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(d.headcount||'').trim();
+      var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 숫자만 — '25명' 입력 시 '25명 명' 방지
       var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지
       var body2;
       if(R){

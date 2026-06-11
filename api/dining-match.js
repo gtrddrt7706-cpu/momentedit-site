@@ -48,10 +48,16 @@ const SCHEMA = {
   additionalProperties: false
 };
 
+const rateGate = require('./_ratelimit');
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.statusCode = 405; res.setHeader('Allow', 'POST');
     return res.end(JSON.stringify({ ok: false, error: 'method_not_allowed' }));
+  }
+  if (!rateGate(req, 6, 60)) {   // 비용 가드 — 같은 IP 분당 6회·6시간 60회(정상 사용은 닿지 않음)
+    res.statusCode = 429; res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.end(JSON.stringify({ ok: false, error: '요청이 잠시 많아요. 1분 뒤 다시 시도하시거나 아래에서 직접 골라 주세요.' }));
   }
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -117,7 +123,7 @@ module.exports = async (req, res) => {
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
-    req.on('data', (c) => { raw += c; if (raw.length > 20000) req.destroy(); });
+    req.on('data', (c) => { raw += c; if (raw.length > 20000) { req.destroy(); reject(new Error('payload_too_large')); } });
     req.on('end', () => { try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { reject(e); } });
     req.on('error', reject);
   });

@@ -108,11 +108,17 @@ function handleSaveProductionTrack(body) {
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     d[track + 'Draft'] = (body && body.draft) || {};
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    // 다이닝 '상담 때 함께 정할게요' 완료 — 디렉터 액션 필요(상담 의제) → 완료 전환 시점에 1회 관리자 알림
+    if (track === 'dining' && body && body.done && !_wasDone
+        && String((((body && body.draft) || {}).venuePick) || '').trim() === '상담 때 함께 정할게요') {
+      notifyKakao('admin.diningConsult', code);
+    }
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }

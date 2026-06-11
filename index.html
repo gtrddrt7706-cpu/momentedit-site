@@ -2,7 +2,7 @@
 <html lang="ko-KR" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <script src="/shared/analytics.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1222,6 +1222,12 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
 <!-- AI 상담 검색 — 카카오 직접 문의 대신 AI가 먼저 답한다(카톡은 AI가 못 풀 때만 상담 도우미 안에서 노출) -->
 <style>
 .faq-ask{margin:48px auto 0;max-width:480px;text-align:center}
+.faq-ask-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.faq-ask-head{font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--accent);letter-spacing:0.01em;margin-bottom:18px;word-break:keep-all}
+.faq-ask-eg{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.faq-eg{font-family:var(--sans);font-size:12.5px;color:var(--sub);background:var(--bg2);border:1px solid var(--border);border-radius:30px;padding:7px 14px;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+.faq-eg:hover{color:var(--seal);border-color:var(--gold);background:#fff}
+@media(max-width:680px){.faq-ask-head{font-size:14.5px;margin-bottom:14px}.faq-eg{font-size:12px;padding:6px 12px}}
 .faq-ask-form{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:40px;padding:6px 6px 6px 18px;transition:border-color .25s,box-shadow .25s}
 .faq-ask-form:focus-within{border-color:var(--gold);box-shadow:0 4px 16px rgba(184,154,117,0.14)}
 .faq-ask-ic{width:18px;height:18px;color:var(--light);flex:0 0 auto}
@@ -1229,16 +1235,22 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
 .faq-ask-input::placeholder{color:var(--light)}
 .faq-ask-btn{flex:0 0 auto;border:none;cursor:pointer;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:0.02em;padding:9px 20px;border-radius:30px;transition:opacity .25s,transform .25s}
 .faq-ask-btn:hover{opacity:.88;transform:translateY(-1px)}
-.faq-ask-note{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--light);letter-spacing:0.02em;margin:14px 0 0}
-@media(max-width:680px){.faq-ask{margin:36px auto 0}.faq-ask-input{font-size:13.5px}.faq-ask-btn{padding:8px 15px;font-size:12.5px}}
+@media(max-width:680px){.faq-ask{margin:36px auto 0}.faq-ask-input{font-size:16px}.faq-ask-btn{padding:8px 15px;font-size:12.5px}}
 </style>
 <div class="faq-ask">
+  <div class="faq-ask-eyebrow">Ask the Concierge</div>
+  <div class="faq-ask-head">궁금한 건 무엇이든, AI가 바로 답해드려요</div>
   <form class="faq-ask-form" id="faqAskForm" role="search">
     <svg class="faq-ask-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-3.4-3.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     <input class="faq-ask-input" id="faqAskInput" type="text" placeholder="궁금한 점을 검색해 보세요" aria-label="AI 상담 검색" autocomplete="off">
     <button class="faq-ask-btn" type="submit">묻기</button>
   </form>
-  <p class="faq-ask-note">찾으시는 답이 없으면 무엇이든 물어보세요 · AI 상담 도우미가 바로 답해드려요</p>
+  <div class="faq-ask-eg">
+    <button type="button" class="faq-eg" data-q="전체 비용이 얼마예요?">가격</button>
+    <button type="button" class="faq-eg" data-q="평일과 주말은 뭐가 달라요?">평일·주말 차이</button>
+    <button type="button" class="faq-eg" data-q="계약 후 취소하면 환불되나요?">환불 규정</button>
+    <button type="button" class="faq-eg" data-q="상담은 어떻게 신청하나요?">예약 절차</button>
+  </div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
@@ -1818,28 +1830,25 @@ function replayHeroAnimation(){
 <!-- ══ AI 상담사 위젯 (메인홈 v1) ══ -->
 <style>
 .me-adv,.me-adv *{box-sizing:border-box}
-.me-fab-stack{position:fixed;right:22px;bottom:22px;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s var(--ease)}
-.me-fab-stack.reveal{opacity:1;visibility:visible;transform:translateY(0)}
-.me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)}
+.me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;opacity:0;visibility:hidden;transform:translateY(-50%) translateX(12px);transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s var(--ease)}
+.me-fab-stack.reveal{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
+.me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}
 .me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
-.me-fab-ico{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.68);backdrop-filter:saturate(180%) blur(12px);-webkit-backdrop-filter:saturate(180%) blur(12px);border:1px solid rgba(28,27,25,0.10);box-shadow:0 4px 14px rgba(28,27,25,0.10);color:var(--seal);transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.me-fab:hover .me-fab-ico{transform:translateY(-2px);box-shadow:0 8px 20px rgba(28,27,25,0.16)}
+.me-fab-ico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.07);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(28,27,25,0.05);box-shadow:0 3px 12px rgba(28,27,25,0.05);color:var(--seal);transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s var(--ease)}
+.me-fab:hover .me-fab-ico{transform:translateY(-2px);background:rgba(250,250,248,0.42);box-shadow:0 8px 20px rgba(28,27,25,0.10)}
 .me-fab-ico svg{width:22px;height:22px}
-.me-fab-cap{font-family:var(--serif);font-size:9.5px;letter-spacing:0.14em;color:var(--sub);text-transform:uppercase;line-height:1}
-.me-fab.primary .me-fab-ico{background:var(--seal);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(107,42,36,0.30)}
-.me-fab.primary:hover .me-fab-ico{box-shadow:0 10px 24px rgba(107,42,36,0.36)}
-.me-fab.primary .me-fab-cap{color:var(--seal)}
-@media(max-width:680px){.me-fab-stack{right:16px;bottom:16px;gap:11px}.me-fab-ico{width:44px;height:44px}.me-fab-ico svg{width:20px;height:20px}}
+.me-fab-cap{display:none}
+@media(max-width:680px){.me-fab-stack{right:14px;gap:12px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}
 
 .me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s var(--ease),visibility .42s var(--ease)}
 .me-adv-backdrop.open{opacity:1;visibility:visible}
 .me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg);border-left:1px solid var(--border);box-shadow:-26px 0 72px rgba(28,27,25,0.20);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s var(--ease);will-change:transform}
 .me-adv-panel.open{transform:translateX(0)}
-@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}}
+@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}.me-adv-input,.faq-ask-input{font-size:16px}input,textarea,select{font-size:16px}}
 
 .me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg);border-bottom:1px solid var(--hairline)}
 .me-adv-head-t{display:flex;align-items:center;gap:13px}
-.me-adv-seal{width:42px;height:42px;border-radius:50%;background:var(--seal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:17px;font-weight:500;flex:0 0 auto;box-shadow:0 5px 14px rgba(107,42,36,0.26)}
+.me-adv-seal{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--seal);border:1px solid rgba(107,42,36,0.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;font-weight:500;letter-spacing:0.04em;flex:0 0 auto;box-shadow:0 2px 9px rgba(28,27,25,0.06)}
 .me-adv-titles{display:flex;flex-direction:column;line-height:1.1}
 .me-adv-eyebrow{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
 .me-adv-title{font-family:var(--serif-ko);font-size:19px;font-weight:500;color:var(--accent);letter-spacing:0.01em;line-height:1.15}
@@ -1847,7 +1856,7 @@ function replayHeroAnimation(){
 .me-adv-close:hover{color:var(--accent);background:rgba(28,27,25,0.05)}
 .me-adv-close svg{width:18px;height:18px}
 
-.me-adv-body{flex:1 1 auto;overflow-y:auto;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
 .me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px}
 .me-adv-msg.bot{align-self:flex-start;background:var(--bg2);color:var(--accent);border-bottom-left-radius:4px}
 .me-adv-msg.me{align-self:flex-end;background:var(--seal);color:#fff;border-bottom-right-radius:4px}
@@ -1856,9 +1865,10 @@ function replayHeroAnimation(){
 .me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}
 @keyframes meAdvBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 
-.me-adv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
-.me-adv-chip{font-family:var(--sans);font-size:13px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:30px;padding:9px 15px;cursor:pointer;transition:border-color .25s,color .25s,background .25s;line-height:1.2}
-.me-adv-chip:hover{border-color:var(--gold);color:var(--gold)}
+.me-adv-chips{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.me-adv-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);background:none;border:none;border-bottom:1px solid var(--hairline);border-radius:0;padding:15px 2px;cursor:pointer;transition:color .22s var(--ease),padding-left .22s var(--ease);line-height:1.45;word-break:keep-all}
+.me-adv-chip:last-child{border-bottom:none}
+.me-adv-chip:hover{color:var(--gold);padding-left:8px}
 .me-adv-chips-label{font-family:var(--serif);font-style:italic;font-size:11.5px;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;margin:6px 0 -2px}
 .me-adv-nav{display:flex;flex-direction:column;gap:9px;margin-top:2px}
 .me-adv-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:11px;color:var(--light);line-height:1.5}
@@ -1866,8 +1876,8 @@ function replayHeroAnimation(){
 .me-adv-crumb button:hover{text-decoration:underline}
 .me-adv-crumb .sep{color:var(--light);opacity:.55}
 .me-adv-crumb .cur{color:var(--sub)}
-.me-adv-chip.cat{padding-right:12px;font-weight:500}
-.me-adv-chip.cat::after{content:'›';margin-left:7px;color:var(--gold);font-size:14px;line-height:1}
+.me-adv-chip.cat::after{content:'›';color:var(--gold);font-size:19px;line-height:1;flex:0 0 auto;transition:transform .22s var(--ease)}
+.me-adv-chip.cat:hover::after{transform:translateX(3px)}
 
 .me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:30px;padding:9px 16px;cursor:pointer;transition:background .25s,border-color .25s;line-height:1.4}
 .me-adv-escoffer:hover{background:rgba(107,42,36,0.05);border-color:var(--seal)}
@@ -1879,6 +1889,8 @@ function replayHeroAnimation(){
 .me-adv-esc-btn.primary:hover{opacity:.88;transform:translateY(-1px)}
 .me-adv-esc-btn.kakao{background:#FEE500;color:#181600;font-weight:500}
 .me-adv-esc-btn.kakao:hover{opacity:.9;transform:translateY(-1px)}
+.me-adv-esc-btn.ghost{background:none;color:var(--light);font-size:12px;padding:4px;text-decoration:underline;text-underline-offset:3px}
+.me-adv-esc-btn.ghost:hover{color:var(--seal)}
 .me-adv-esc-hours{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--light);text-align:center;margin-top:9px;letter-spacing:0.04em}
 
 .me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border);padding:14px 16px;background:var(--bg)}
@@ -1889,7 +1901,6 @@ function replayHeroAnimation(){
 .me-adv-send:hover{opacity:.88;transform:translateY(-1px)}
 .me-adv-send:disabled{opacity:.4;cursor:default;transform:none}
 .me-adv-send svg{width:17px;height:17px}
-.me-adv-note{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--light);text-align:center;margin-top:5px;opacity:.8}
 </style>
 
 <div class="me-adv">
@@ -1902,7 +1913,7 @@ function replayHeroAnimation(){
       <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor"/></svg></span>
       <span class="me-fab-cap">인스타</span>
     </a>
-    <button class="me-fab primary" id="meAdvFab" aria-label="상담 도우미 열기">
+    <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기">
       <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
       <span class="me-fab-cap">상담</span>
     </button>
@@ -1912,7 +1923,7 @@ function replayHeroAnimation(){
   <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">
     <header class="me-adv-head">
       <div class="me-adv-head-t">
-        <span class="me-adv-seal">M</span>
+        <span class="me-adv-seal">ME</span>
         <span class="me-adv-titles">
           <span class="me-adv-eyebrow">AI Wedding Concierge</span>
           <span class="me-adv-title">상담 도우미</span>
@@ -1994,17 +2005,13 @@ function replayHeroAnimation(){
     doHandoff();   // 디렉터에게 대화 브리핑 자동 전달
     var box=document.createElement('div'); box.className='me-adv-esc';
     var t=document.createElement('div'); t.className='me-adv-esc-t';
-    t.textContent='디렉터에게 바로 전달했어요. 빠른 답변을 위해 아래에 연락처를 남겨주세요.';
+    t.textContent='디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
     box.appendChild(t);
     var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
-    var a=document.createElement('a');
-    a.className='me-adv-esc-btn primary'; a.href=KB.escalation.inquiryUrl;
-    a.textContent='사전 문의서 작성하기';
-    btns.appendChild(a);
     if(KB.escalation.kakaoUrl){
       var k=document.createElement('a');
       k.className='me-adv-esc-btn kakao'; k.href=KB.escalation.kakaoUrl;
-      k.target='_blank'; k.rel='noopener'; k.textContent='카카오톡으로 문의';
+      k.target='_blank'; k.rel='noopener'; k.textContent='카카오톡으로 상담하기';
       btns.appendChild(k);
     }
     box.appendChild(btns);
@@ -2066,10 +2073,35 @@ function replayHeroAnimation(){
     if(node.escalate){ offerEscalation(); }
   }
 
+  var _lockY=0, _locked=false;
+  // 모바일: body를 고정해 배경 스크롤 완전 차단(iOS는 overflow:hidden만으론 새어나감).
+  // 데스크톱(부분 드로어): overflow:hidden만 — body 고정 시 배경이 위로 튀어 보이므로 제외.
+  function lockScroll(){
+    document.documentElement.style.overflow='hidden';
+    if(window.innerWidth<=680){
+      _lockY=window.scrollY||window.pageYOffset||0;
+      var b=document.body;
+      b.style.position='fixed'; b.style.top=(-_lockY)+'px'; b.style.left='0'; b.style.right='0'; b.style.width='100%';
+      _locked=true;
+    }
+  }
+  function unlockScroll(){
+    document.documentElement.style.overflow='';
+    if(_locked){
+      var b=document.body;
+      b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';
+      // 복원은 즉시(jump) — html{scroll-behavior:smooth} 때문에 부드럽게 휙 스크롤되던 버그 방지
+      var html=document.documentElement, prevSB=html.style.scrollBehavior;
+      html.style.scrollBehavior='auto';
+      window.scrollTo(0,_lockY);
+      html.style.scrollBehavior=prevSB;
+      _locked=false;
+    }
+  }
   function open(){
     panel.classList.add('open'); stackEl.classList.add('hide');
     if(backdrop) backdrop.classList.add('open');
-    document.documentElement.style.overflow='hidden';   // 배경 스크롤 잠금
+    lockScroll();
     if(!started){
       started=true;
       addMsg(KB.greeting,'bot');
@@ -2080,7 +2112,7 @@ function replayHeroAnimation(){
   function close(){
     panel.classList.remove('open'); stackEl.classList.remove('hide');
     if(backdrop) backdrop.classList.remove('open');
-    document.documentElement.style.overflow='';
+    unlockScroll();
   }
   if(backdrop) backdrop.addEventListener('click',close);
 
@@ -2102,6 +2134,10 @@ function replayHeroAnimation(){
       if(q){ input.value=q; if(faqInput) faqInput.value=''; form.requestSubmit(); }
     });
   }
+  // FAQ 예시 질문 칩 → 상담 도우미 열고 그 질문을 2단으로 바로 전송
+  Array.prototype.forEach.call(document.querySelectorAll('.faq-eg'),function(b){
+    b.addEventListener('click',function(){ var q=b.getAttribute('data-q')||''; open(); if(q){ input.value=q; form.requestSubmit(); } });
+  });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&panel.classList.contains('open')) close(); });
 
   // 입력창 자동 높이
