@@ -1020,7 +1020,7 @@ if(_hdw){
       _loadWT();   // 점유 맵 미로드 시 로드 시작(아래 fetch와 병행, 없으면 빈 맵으로도 동작)
       var typing=bub('일정을 확인하고 있어요…','bot');
       fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},
-        body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd()})})
+        body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd(),page:'스케줄'})})
         .then(function(r){return r.json();})
         .then(function(j){
           typing.remove();
