@@ -99,7 +99,7 @@ module.exports = async (req, res) => {
       try {
         const r = await fetch(hook, {
           method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ action: 'aiHandoff', page: page, customer: customer || null, conversation: history, brief: brief, at: new Date().toISOString() }),
+          body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: customer || null, conversation: history, brief: brief, at: new Date().toISOString() }),
         });
         delivered = r.ok;
       } catch (e) { console.error('handoff_forward_fail', e && e.message); }
