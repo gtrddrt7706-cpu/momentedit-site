@@ -49,6 +49,7 @@ var NOTIFY_EVENTS = {
   'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
+  'admin.diningConsult':  { to: 'admin', need: false, desc: "다이닝 '상담 때 함께 정할게요' 선택 — 상담 의제 준비" },
   'admin.dailyBrief':     { to: 'admin', need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   // ── 고객: 행동 필요 ──
   'cust.consultConfirmed':{ to: 'customer', need: false, desc: '상담 확정' },
@@ -269,6 +270,7 @@ function _nfAdminText(event, code, x) {
     case 'admin.resultPicked':   return tag + ' 보정본 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 작업 착수';
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
+    case 'admin.diningConsult':  return tag + ' 다이닝: 상담 때 함께 정하기로 함' + c + ' / 상담 의제로 준비';
     case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건';
     default:                     return tag + ' 알림 ' + event + c;
   }
