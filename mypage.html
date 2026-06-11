@@ -1375,7 +1375,7 @@ function renderHold(h){
   var when=escapeHtml(dTxt)+(slotTxt?(' · '+escapeHtml(slotTxt)):'');
   var approved=(h.status==='승인');
   var sub=approved
-    ? ('<b>'+when+'</b><br>이 날짜를 안전하게 잡아두었어요.<br>대면 상담 후 <b>본계약을 진행하시면</b> 이 날짜로 확정돼요.')
+    ? ('<b>'+when+'</b><br>'+(h.expires&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(h.expires))+'까지</b> 안전하게 잡아두었어요.'):'이 날짜를 안전하게 잡아두었어요.')+'<br>대면 상담 후 <b>본계약을 진행하시면</b> 이 날짜로 확정돼요.')
     : ('<b>'+when+'</b><br>디렉터가 확인하고 있어요. 승인되면 알려드릴게요.<br><span class="hold-mute">상담 전이라면 사전 협의가 필요할 수 있어요.</span>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
   box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'⏳')+'</span><div class="hold-body"><div class="hold-t">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
@@ -1506,7 +1506,7 @@ function renderFitting(f, d){
     var curIdx = (d && typeof d.stageIndex==='number') ? d.stageIndex : -1;
     var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
     var cntLine = (f.벌수!=null) ? '<div class="cc-sub">진행한 시착 · <b>'+escapeHtml(f.벌수)+'벌</b>'+(Number(f.벌수)>3?(' (추가 '+(Number(f.벌수)-3)+'벌 × 70,000원 별도)'):'')+'</div>' : '';
-    var termsFull = signedLine + cntLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
+    var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
@@ -1515,7 +1515,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
-        + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
+        + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
       box.style.display='none'; box.innerHTML='';
@@ -1711,7 +1711,7 @@ function renderContractPayment(c, p, ctx){
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
     h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
-       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div></div>';
+       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
   var a = p.amounts;
@@ -1812,7 +1812,7 @@ function renderPayment(p){
   var body='', cta='';
   if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
-         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var amt;
     if(a){
@@ -1866,7 +1866,7 @@ function renderBalance(p, mid){
   var near=(p.dday!=null && p.dday<=15 && !midUnpaid);   // 중도금 확인 후 + D-15 이내에만 자동 펼침(그 전엔 접힘 유지)
   var body='', cta='';
   if(p.status==='완료신호'){
-    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -1942,7 +1942,7 @@ function renderMid(p, bal){
   var body='', cta='';
   if(p.status==='완료신호'){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
-    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'</div>';
+    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
