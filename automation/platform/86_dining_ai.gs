@@ -9,7 +9,7 @@
  * [재사용] resolveSession(30) · _sessionMsg.
  */
 var DINING_AI_MODEL = 'claude-haiku-4-5';                      // 단순 매칭이라 Haiku로 충분(빠르고 저렴)
-var DINING_AI_FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '족발·보쌈', '뷔페', '카페'];
+var DINING_AI_FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '중식', '해물·생선', '뷔페', '카페'];
 
 function handleDiningMatch(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -26,7 +26,7 @@ function handleDiningMatch(body) {
     + '식당 이름을 지어내지 말고, 각 값은 반드시 보기 중에서만 고른다. 언급이 없는 항목은 "none". '
     + '어르신·부모님·연세·좌식 같은 언급이 있으면 elderly=true. '
     + 'summary는 고객에게 보여줄 한 문장(존댓말, 전각 줄표 사용 금지).\n'
-    + 'theme: formal(정찬·한정식·한우·갈비) | casual(국밥·곰탕·족발·뷔페 등 편한 식사) | cafe(카페·브런치·다과) | none\n'
+    + 'theme: formal(정찬·한정식·한우·갈비) | casual(국밥·샤브·면·중식·생선·족발·뷔페 등 편한 식사) | cafe(카페·브런치·다과) | none\n'
     + 'price: low(저렴) | mid(보통) | high(고급) | none\n'
     + 'dist: "10"(가까운 곳) | "15" | none\n'
     + 'food: ' + DINING_AI_FOODS.join(' | ') + ' | none\n'
