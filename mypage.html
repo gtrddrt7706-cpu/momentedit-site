@@ -412,7 +412,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .trk-chip.on .tc-box{background:var(--gold);border-color:var(--gold)}
 /* 다이닝 v1 — 식당 칩 필터(취향 선택) */
 .dn-faxis{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px}
-.dn-flabel{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-right:2px;min-width:30px}
+.dn-flabel{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-right:2px;min-width:30px}.dn-fhint{font-family:var(--serif-ko);font-size:10.5px;color:var(--label-soft);margin-left:6px;white-space:nowrap}
 .dn-fpill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:5px 11px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;line-height:1}
 .dn-fpill.on{border-color:var(--gold);background:var(--gold-bg,#faf6ef);color:var(--accent)}
 .dn-count{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:2px 0 8px}
@@ -3427,14 +3427,15 @@ function _dnPass(r,fl){
 function dineFilterUI(d, wt){
   var fl=d._filters||{};
   if(fl.elderly===true) fl.elderly='true';   // AI가 넣은 boolean을 칩 토글과 같은 문자열로 통일 — 칩에서 켜고 끌 수 있게
-  function pills(label,ax,opts){
+  function pills(label,ax,opts,hint){
     return '<div class="dn-faxis"><span class="dn-flabel">'+escapeHtml(label)+'</span>'
       + opts.map(function(o){ var on=(fl[ax]||'')===o[0];
           return '<button type="button" class="dn-fpill'+(on?' on':'')+'" data-ax="'+escapeHtml(ax)+'" data-fv="'+escapeHtml(o[0])+'">'+escapeHtml(o[1])+'</button>'; }).join('')
+      + (hint?'<span class="dn-fhint">'+escapeHtml(hint)+'</span>':'')
       + '</div>';
   }
   var chips=pills('테마','theme',[['formal','정찬'],['casual','캐주얼'],['cafe','카페']])
-    +pills('가격','price',[['low','저'],['mid','중'],['high','고']])
+    +pills('가격','price',[['low','~2만'],['mid','2~4만'],['high','5만+']],'1인 기준')
     +pills('거리','dist',[['10','차10분'],['15','차15분']])
     +pills('음식','food',[['한정식','한정식'],['한우·갈비','한우·갈비'],['곰탕·국밥','곰탕·국밥'],['족발·보쌈','족발·보쌈'],['뷔페','뷔페'],['카페','카페']])
     +pills('단체','group',[['room','단독룸'],['seats','단체석']])
