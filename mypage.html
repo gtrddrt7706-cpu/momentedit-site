@@ -1427,7 +1427,7 @@ function renderLedger(l){
   // 소득공제 번호 등록 안내 — 등록됨(끝 4자리) / 입금했는데 미등록(자진발급 경고) + 상시 등록/변경 버튼(②)
   var crNote = l.cashTail
     ? '<div class="led-note">소득공제 번호 등록됨 <span class="led-mute">· 끝 '+escapeHtml(l.cashTail)+'</span></div>'
-    : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급으로 처리돼요. 번호를 등록하면 이후 발급분은 소득공제로 받고, 이미 발급된 건은 홈택스 "자진발급분 사용자 등록"으로 공제 신청할 수 있어요</span></div>' : '');
+    : ((l.receipts&&l.receipts.length) ? '<div class="led-note led-warn">소득공제 번호 미등록 <span class="led-mute">· 자진발급으로 처리돼요. 등록하면 이후 발급분은 소득공제로, 지난 발급분은 홈택스(자진발급분 사용자 등록)에서 신청할 수 있어요</span></div>' : '');
   var crEdit = '<button type="button" class="led-editbtn" id="mp_crEditBtn">'+(l.cashTail?'소득공제 번호 변경':'소득공제 번호 등록')+'</button>';
   // 서류 — 계약서는 외부 링크, 시착 동의서는 동의 내용 모달(③)
   var docRows=(l.documents&&l.documents.length)
@@ -1455,7 +1455,7 @@ function renderLedger(l){
       +'<div class="led-due">'+_hnote+'</div></div>';
   }
   // 중도금·잔금 안내가 열리기 전(D-45 이전)엔 결제 섹션 끝에 한 줄로 안내 — 예전 독립 박스 대체(한 곳에만).
-  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 무료 취소 기간이 끝나는 <b>예식 149일 전</b>에, 잔금은 <b>예식 9일 전</b>까지로 마이페이지에 가만히 열려요. 그날까지는 마음만 가볍게 준비해 두세요.</div>' : '';
+  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 149일 전</b>, 잔금은 <b>예식 9일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
   // [02-8] 환불 예상 — 지금 취소하면(계약서 7조·9조·4조⑧ 서버 계산 · l.refundQuote). 접힌 한 줄, 펼치면 산정 근거.
   var rq=l.refundQuote, refundSec='';
@@ -1630,7 +1630,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
-    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 확정을 안내드려요. 확정되면 메일과 카카오톡으로 알려드려요.</div>';
+    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
@@ -1639,7 +1639,7 @@ function renderConsult(c, product){
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + (isSnap ? '' :
               '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요.<br>직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 2벌)</em>.</span></div>'
-            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>드레스 시착 후 계약을 진행하지 않으시면 진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 차감돼요.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
+            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>시착 후 계약하지 않으시면 진행한 벌수만큼(1벌당 50,000원) 차감돼요.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
          + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
               : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
@@ -1703,7 +1703,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">계약서 발송</span><span class="vg-v">요청하시면 <b>24시간 안에</b> 계약서를 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
-                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">미계약으로 취소되면<br>진행한 시착 벌수만큼(1벌당 50,000원) 공제 후 환불돼요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
         + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
@@ -1769,7 +1769,7 @@ function renderContractReqForm(ctx){
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
     +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
-    +weddingSequenceRef('대표 시간만 정리한 요약 시간표예요. 시간대를 고르실 때 참고해 주세요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
+    +weddingSequenceRef('시간대를 고르실 때 참고할 요약 시간표예요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<button type="button" class="seq-open-btn" data-seq-open="full" style="margin-top:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#fff" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>시간대별 전체 진행 시간표 보기</button>'
     +'<label class="pf-l" style="margin-top:8px">신랑 생년월일</label>'+birthSelectHtml('mp_ciGB',ci.groomBirth)
     +'<label class="pf-l" style="margin-top:8px">신부 생년월일</label>'+birthSelectHtml('mp_ciBB',ci.brideBirth)
@@ -1777,7 +1777,7 @@ function renderContractReqForm(ctx){
     +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddrRoad||ci.brideAddr,ci.brideAddrDetail)
     +'<label class="pf-l" style="margin-top:8px">신랑 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제(연말정산·지출증빙)</b>를 받으시려면 번호를 적어 주세요. 미입력 시 국세청 지정번호로 자진발급되어 소득공제는 어려워요. · 예약금은 드레스 시착 또는 본계약 시, 중도금·잔금은 입금하실 때 발급.</div>'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요. 미입력 시 자진발급되어 소득공제는 어려워요.</div>'
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -1837,7 +1837,7 @@ function renderContractPayment(c, p, ctx){
         + '<div class="visit-guide vg-center" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면 <b>24시간 안에</b> 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
         + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요.<br>서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요.<br>서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
-        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">미계약으로 취소되면<br>진행한 시착 벌수만큼(1벌당 50,000원) 공제 후 환불돼요.</span></div>'
         + '</div></div>';
       box.style.display='block'; return;
     }
@@ -1929,7 +1929,7 @@ function renderContractPayment(c, p, ctx){
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
     h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
-       + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div></div>';
+       + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
   var a = p.amounts;
@@ -2148,7 +2148,7 @@ function renderPayment(p){
   var body='', cta='';
   if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
-         + '<div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
+         + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
   } else {
     var amt;
     if(a){
@@ -2202,7 +2202,7 @@ function renderBalance(p, mid){
   var near=(p.dday!=null && p.dday<=15 && !midUnpaid);   // 중도금 확인 후 + D-15 이내에만 자동 펼침(그 전엔 접힘 유지)
   var body='', cta='';
   if(p.status==='완료신호'){
-    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
+    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -2284,7 +2284,7 @@ function renderMid(p, bal){
   var body='', cta='';
   if(p.status==='완료신호'){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
-    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">입금 정보를 확인하고 있어요.'+(p.payerName?(' (입금자 '+escapeHtml(p.payerName)+')'):'')+'<br>보통 영업일 1~2일 안에 확인하고 알려드려요.</div>';
+    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -2453,7 +2453,7 @@ function _resultWaitHtml(res){
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐'+(_eta(DELIVERY_ETA.retouch)?(' <b>'+DELIVERY_ETA.retouch+'</b> 뒤'):' 정성껏')+' 전해드려요.</span></div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?(' <b>'+DELIVERY_ETA.video+'</b> 뒤'):'')+' 전해드려요.</span></div>')
     +'</div>'
-    +'<div class="cc-note">각 결과물은 준비되는 대로 <b>하나씩</b> 마이페이지에 올라와요. 다 됐을 때까지 기다리지 않으셔도 돼요. 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+    +'<div class="cc-note">결과물은 준비되는 대로 <b>하나씩</b> 올라와요 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
 }
 // 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
 function _surveySchema(isSnap){
