@@ -314,9 +314,21 @@ function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
   }
   return null;
 }
+// [운영 블록 · 2026-06-12] 관리자가 막아둔 날짜·타임(휴무·개인 일정) — Script Properties 'WEDDING_BLOCKS'
+//   형식: { 'YYYY-MM-DD': ['09:00','12:20','15:40'] } (3타임 전부면 전일 휴무). 관리자 페이지 '날짜 막기'에서 편집.
+function _weddingBlocks() {
+  try {
+    var raw = PropertiesService.getScriptProperties().getProperty('WEDDING_BLOCKS');
+    var o = raw ? JSON.parse(raw) : {};
+    return (o && typeof o === 'object') ? o : {};
+  } catch (e) { return {}; }
+}
+
 // 같은 (예식일·슬롯)을 다른 고객이 점유(서명완료 또는 임시고정 승인)했나 — 요청·서명 시 더블부킹 차단.
 function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
   if (!ymd || !slot) return false;
+  var _blk = _weddingBlocks()[ymd];
+  if (_blk && _blk.indexOf(slot) !== -1) return true;   // 운영 블록(휴무)도 점유로 — 요청·서명 가드 공통
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return false;
   var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'], codeCol = colOf['개인코드'];
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
@@ -345,6 +357,11 @@ function handleWeddingAvailability(body) {
         if (!occ) return;
         (taken[occ.date] = taken[occ.date] || []); if (taken[occ.date].indexOf(occ.slot) === -1) taken[occ.date].push(occ.slot);
       });
+    }
+    var _bk = _weddingBlocks();
+    for (var _bd in _bk) {
+      (taken[_bd] = taken[_bd] || []);
+      _bk[_bd].forEach(function (t) { if (taken[_bd].indexOf(t) === -1) taken[_bd].push(t); });
     }
     return { ok: true, taken: taken, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
   } catch (e) { return { ok: true, taken: {}, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS }; }
