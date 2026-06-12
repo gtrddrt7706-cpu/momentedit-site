@@ -2051,7 +2051,7 @@ function renderChangeWizard(ctx){
            +'<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(_quote.account)+'</div>'
            +(_quote.holder?('<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_quote.holder)+'</div>'):'')
            +'<button type="button" class="cc-btn-ghost" id="mp_chgAcctCopy" style="margin-top:10px">계좌 복사</button>'
-           +'<button type="button" class="cc-btn-ghost" id="mp_chgAmtCopy" style="margin-top:10px">금액 복사</button></div>'):'')
+           +'</div>'):'')
          +'<input type="text" class="cc-input" id="mp_chgPayer" placeholder="수수료 입금하신 분 성함" autocomplete="name" style="margin-top:8px">'
          +'<div class="cc-note" style="text-align:left;margin:2px 0 0;color:var(--light);line-height:1.6">수수료 입금 후 변경을 요청해 주세요. 디렉터가 입금·일정을 확인한 뒤 적용돼요.</div>';
       } else {
@@ -2059,7 +2059,6 @@ function renderChangeWizard(ctx){
       }
       if(q) q.innerHTML=h;
       var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
-      bindAmtCopy('mp_chgAmtCopy', _quote.fee);
       _setSubmit(true);
     }).catch(function(){ _resetQuote(); _err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
   }
@@ -2224,7 +2223,6 @@ function renderBalance(p, mid){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="margin-top:10px">계좌 복사</button>'
-      + '<button type="button" class="cc-btn-ghost" id="mp_bAmtCopy" style="margin-top:10px">금액 복사</button>'
       + '</div>'):'';
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
@@ -2243,16 +2241,6 @@ function renderBalance(p, mid){
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
   var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
-  bindAmtCopy('mp_bAmtCopy', p.amount);
-}
-// 금액 복사 — 이체 앱 금액칸용(숫자만). 계좌 복사와 한 쌍, 오타 입금 방지.
-function bindAmtCopy(id, amount){
-  var b=$(id); if(!b) return;
-  b.addEventListener('click', function(){
-    var t=String(Math.round(Number(amount)||0)); if(!t||t==='0') return;
-    var ok=function(){ b.textContent='복사됐습니다'; setTimeout(function(){ b.textContent='금액 복사'; },1500); };
-    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
-  });
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
@@ -2322,7 +2310,6 @@ function renderMid(p, bal){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
-      + '<button type="button" class="cc-btn-ghost" id="mp_mAmtCopy" style="margin-top:10px">금액 복사</button>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
@@ -2341,7 +2328,6 @@ function renderMid(p, bal){
   var b=$('mp_mSignal'); if(b) b.addEventListener('click', doMidSignal);
   var cb=$('mp_mCombo'); if(cb) cb.addEventListener('change', function(){ var v=$('mp_mAmtV'), l=$('mp_mAmtL'); if(v) v.textContent=fmtWon(cb.checked?comboAmt:p.amount); if(l) l.textContent=cb.checked?'중도금·잔금':'중도금'; });
   var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
-  bindAmtCopy('mp_mAmtCopy', (typeof forceCombo!=='undefined'&&forceCombo&&typeof comboAmt!=='undefined')?comboAmt:p.amount);
 }
 function doMidSignal(){
   var payer=(($('mp_mPayer')&&$('mp_mPayer').value)||'').trim();
