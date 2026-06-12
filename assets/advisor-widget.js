@@ -8,6 +8,7 @@
 //   customer: function(){return {name,stage,code}|null}  ← (마이) 인계 시 고객 식별 정보
 //   kakaoUrl: 'URL' | function(){return 'URL'}  ← (선택) 카카오 문의 링크 재정의(마이=GAS KAKAO_URL·미설정 시 KB→메일 폴백)
 //   share: { url:'https://…' }                  ← (선택) 공유 FAB 추가 — 링크만 공유(모바일 네이티브 시트·PC 복사, 메인홈과 동일 동작)
+//   booking: { url:'/inquiry.html' }             ← (선택) 예약(상담 신청) 바로가기 FAB 추가(달력 아이콘 · 스택 맨 위)
 // }
 // 카톡 문의 동선: 별도 버튼 없이 이 위젯 안에서 — 드로어 하단 상시 링크 + AI가 못 풀 때 에스컬레이션 박스.
 // 선택: /assets/advisor-kb.js 가 먼저 로드되면 escalation 설정(카카오 URL·상담시간)을 공유.
@@ -80,9 +81,14 @@
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
+  var BOOK = (CFG.booking && CFG.booking.url) ? CFG.booking.url : null;
   var wrap = document.createElement('div');
   wrap.innerHTML = ''
     + '<div class="me-fab-stack" id="meAdvStack">'
+    + (BOOK ? (''
+    + '  <a class="me-fab" href="' + BOOK + '" aria-label="상담 예약하기">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 14.5l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    + '  </a>') : '')
     + '  <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기" type="button">'
     + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
     + '  </button>'
