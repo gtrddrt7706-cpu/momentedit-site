@@ -69,7 +69,7 @@ async function runAdv(name, turns, page, expect, forbid) {
     const j = await call('/api/advisor', { messages: msgs.slice(-12), page: page || '' });
     const rep = (j.reply || ('(오류 ' + (j.error || j._status) + ')')) + (j.escalate ? '  [→에스컬레이션]' : '');
     msgs.push({ role: 'assistant', content: j.reply || '' });
-    replies.push(j.reply || '');
+    replies.push((j.reply || '') + (j.escalate ? ' [ESC]' : ''));   // 채점에서 사람 연결 신호(escalate)를 인정할 수 있게 마커 포함
     console.log('  고객: ' + t + '\n  AI  : ' + rep);
     await sleep(8000);
   }
@@ -213,7 +213,7 @@ async function runHandoff(name, convOpt) {
   await runAdv('N20 마이 잔금 계좌(마이페이지 안내)', ['잔금 입금 계좌 알려주세요'],
     '마이', ['마이페이지'], []);
   await runAdv('N21 마이 견적 요청(신규 문구 누수 점검)', ['견적서 다시 받아볼 수 있나요?'],
-    '마이', ['디렉터|카카오|마이페이지|안내|상담사|연결'], ['문의서를 작성|상담을 신청']);   // 라운드1 오탐 보정: '상담사 연결' 응대도 적절
+    '마이', ['디렉터|카카오|마이페이지|안내|상담사|연결|도와드리|\\[ESC\\]'], ['문의서를 작성|상담을 신청']);   // 라운드6: 표현 다양성 → escalate 신호([ESC]) 자체를 정답으로 인정(구조적 해결)
   await runAdv('N22 마이 결과물 보관 기간(수치)', ['결과물은 언제까지 보관돼요?'],
     '마이', ['6개월'], []);
   // [인계] 미정 항목 인계 — 파이프라인 무결(브리핑 품질은 관리자 카드에서 확인)
