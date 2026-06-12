@@ -927,7 +927,8 @@ function show(viewId){
     mn.classList.toggle('centered', viewId==='loginView'||viewId==='forgotView'||viewId==='resetView');
     if (viewId !== 'mypageView') mn.classList.remove('wide');   // mypage의 wide(제작단계)는 renderMyPage가 관리
   }
-  window.scrollTo({top:0});
+  if (viewId !== window._curView) window.scrollTo({top:0});   // 뷰가 실제로 바뀔 때만 — 백그라운드 갱신(silent) 재표시가 읽던 위치를 위로 튕기지 않게 (2026-06-13 증상 수정)
+  window._curView = viewId;
 }
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
 function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
