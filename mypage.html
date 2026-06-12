@@ -3478,7 +3478,22 @@ var DINE_DB = [
   {n:'더프롬나드', th:'cafe', d:2, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
   {n:'아타라카페', th:'cafe', d:1, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
   {n:'뱅센숲', th:'cafe', d:6, p:'mid', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
-  {n:'산다화', th:'cafe', d:15, p:'mid', f:['카페'], m:['한옥'], al:false, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false}
+  {n:'산다화', th:'cafe', d:15, p:'mid', f:['카페'], m:['한옥'], al:false, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  // ── 카카오 심화수집(3,973) 승격분 · 향동 도보권 클러스터 + 단체·연회형(디렉터 확인 전 v:false) ──
+  {n:'굿테이블', th:'casual', d:1, p:'low', f:['뷔페'], m:[], al:false, g:'seats', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'밥짓는부엌', th:'casual', d:1, p:'low', f:['뷔페'], m:[], al:false, g:'seats', eld:true, pk:null, bs:null, be:null, tel:'02-3271-7133', v:false},
+  {n:'런치업', th:'casual', d:3, p:'low', f:['뷔페'], m:[], al:false, g:'seats', eld:true, pk:null, bs:null, be:null, tel:'070-4027-3565', v:false},
+  {n:'온기키친', th:'casual', d:3, p:'low', f:['뷔페'], m:[], al:false, g:'seats', eld:true, pk:null, bs:null, be:null, tel:'070-7734-5252', v:false},
+  {n:'만월회관 메리그라운드향동점', th:'casual', d:1, p:'mid', f:['한우·갈비'], m:[], al:true, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'향릉숯불돼지갈비', th:'casual', d:2, p:'mid', f:['한우·갈비'], m:[], al:true, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'02-3159-7832', v:false},
+  {n:'화곡수육 향동직영점', th:'casual', d:3, p:'mid', f:['족발·보쌈'], m:[], al:true, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'070-4799-4646', v:false},
+  {n:'들꽃쌈밥', th:'casual', d:2, p:'low', f:['족발·보쌈'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'02-3159-6009', v:false},
+  {n:'유평리생선집 메리그라운드향동점', th:'casual', d:1, p:'mid', f:['해물·생선'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'금석오리', th:'casual', d:2, p:'mid', f:['오리·백숙'], m:[], al:true, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'0502-5552-6605', v:false},
+  {n:'달맞이농원', th:'casual', d:3, p:'mid', f:['오리·백숙'], m:['정원'], al:true, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'02-372-7288', v:false},
+  {n:'카페516', th:'cafe', d:2, p:'mid', f:['카페'], m:['모던'], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'꽈배기까페', th:'cafe', d:2, p:'low', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'031-994-5530', v:false},
+  {n:'서오릉제빵소', th:'cafe', d:6, p:'mid', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'070-4384-2500', v:false}
 ];
 var _DN_PRICE={low:'~2만',mid:'2~4만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
@@ -3510,7 +3525,7 @@ function dineFilterUI(d, wt){
     +[['formal','정찬'],['casual','캐주얼'],['cafe','카페']].map(function(o){ var on=(fl.theme||'')===o[0];
         return '<button type="button" class="dn-segbtn'+(on?' on':'')+'" data-ax="theme" data-fv="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div>';
   var chips=themeSeg
-    +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
+    +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
     +'<button type="button" class="dn-fmore" id="dn_det">세부 조건'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'
     +'<div class="dn-fdetail'+(detOpen?' open':'')+'">'
       +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~4만')+pill('price','high','5만+'))
