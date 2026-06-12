@@ -9,7 +9,7 @@
  * [재사용] resolveSession(30) · _sessionMsg.
  */
 var DINING_AI_MODEL = 'claude-haiku-4-5';                      // 단순 매칭이라 Haiku로 충분(빠르고 저렴)
-var DINING_AI_FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '중식', '해물·생선', '뷔페', '카페'];
+var DINING_AI_FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '오리·백숙', '중식', '해물·생선', '뷔페', '카페'];
 
 function handleDiningMatch(body) {
   var s = resolveSession(String((body && body.token) || '').trim());

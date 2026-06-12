@@ -18,7 +18,7 @@ const KAKAO_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json';
 const STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(index.html 지도와 동일 좌표)
 const RADIUS = 7000;                               // 차 10~15분 생활권
 const MAX_MSG_LEN = 400, MAX_TURNS = 10, MAX_TOKENS = 500;
-const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '중식', '해물·생선', '뷔페', '카페'];
+const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '오리·백숙', '중식', '해물·생선', '뷔페', '카페'];
 const FALLBACK_QUERY = { kids: '키즈카페', afterparty: '맥주집', attraction: '가볼만한곳' };
 
 const SYS =
