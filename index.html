@@ -2132,6 +2132,7 @@ function replayHeroAnimation(){
       started=true;
       addMsg(KB.greeting,'bot');
       renderNav();
+      requestAnimationFrame(function(){ body.scrollTop=0; });   // 열릴 때 인사말부터 보이게(맨 아래로 가려지지 않게)
     }
     setTimeout(function(){ if(window.innerWidth>680) input.focus(); },480);
   }
