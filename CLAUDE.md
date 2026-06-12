@@ -45,6 +45,8 @@
 | `weeklyReceiptAudit` | admin | 영수증 미발행 점검(월요일 트리거 자동·수동 점검 가능) |
 | `purgeAdvisorLog` | consultation-booking | AI 상담사 질문 로그 90일 정리(주간 트리거 자동) |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
+| `sendHoldExpiryNotices` | 70_journey | 임시고정 만료 D-3 안내 + 가예약 캘린더 백필·만료 정리(일1회 트리거 자동·수동 1회 실행 가능) |
+| `setupAvailWarmTrigger` | consultation-booking | 상담가능일 캐시 워밍 트리거 등록(1회 — 일정 페이지 첫 방문 가속) |
 
 ## 나중에 할 일 메모 규칙 (2026-06-12 사용자 지시)
 

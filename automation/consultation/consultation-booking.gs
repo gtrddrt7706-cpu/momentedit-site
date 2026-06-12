@@ -406,6 +406,7 @@ function _releaseWeddingHoldOnCancel(code) {
     var rec = _parseJsonSafe(cust.get('동의기록'));
     if (!rec.가예약) return;
     var _hd = rec.가예약.date, _hs = rec.가예약.slot;
+    if (typeof _holdCalDelete === 'function') _holdCalDelete(rec.가예약);
     delete rec.가예약;
     var cs = getCustomersSheet(), cc = buildHeaderIndex(cs);
     touchCustomer(cs, cc, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
