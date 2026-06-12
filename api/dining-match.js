@@ -17,7 +17,7 @@ const MODEL = 'claude-haiku-4-5';
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 500;        // 입력 길이 상한(비용·어뷰징 가드)
 const MAX_TOKENS = 400;
-const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '중식', '해물·생선', '뷔페', '카페'];
+const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '오리·백숙', '중식', '해물·생선', '뷔페', '카페'];
 
 const SYS =
   '너는 결혼식 후 하객 식사 자리(다이닝)를 찾는 한국 고객의 자연어 요청을 아래 필터 값으로만 변환한다. '
