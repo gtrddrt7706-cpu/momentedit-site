@@ -93,6 +93,21 @@ module.exports = async (req, res) => {
     let raw = ''; await new Promise((rs, rj) => { req.on('data', (c) => { raw += c; if (raw.length > 60000) rj(new Error('too_large')); }); req.on('end', rs); req.on('error', rj); });
     let body = {}; try { body = raw ? JSON.parse(raw) : {}; } catch (e) { return out(400, { ok: false, error: 'bad_json' }); }
 
+    // [무료 진단] probe — Claude 미호출. 카카오 키 주입·도달 상태만 보고(배포 점검용 · 키 값은 노출하지 않음)
+    if (body.probe === true) {
+      const keyPresent = !!process.env.KAKAO_REST_KEY;
+      let kakaoHttp = null;
+      if (keyPresent) {
+        try {
+          const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 4000);
+          const r2 = await fetch(KAKAO_URL + '?query=' + encodeURIComponent('카페') + '&x=' + STUDIO.x + '&y=' + STUDIO.y + '&radius=1000&size=1',
+            { headers: { Authorization: 'KakaoAK ' + process.env.KAKAO_REST_KEY }, signal: ctl.signal });
+          clearTimeout(t); kakaoHttp = r2.status;
+        } catch (e) { kakaoHttp = 'fetch_fail'; }
+      }
+      return out(200, { ok: true, keyPresent, kakaoHttp });
+    }
+
     let history = Array.isArray(body.messages) ? body.messages : [];
     history = history
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
