@@ -535,6 +535,10 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
             <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
           </form>
         </div>
+        <button type="button" class="seq-open-btn" data-seq-open="trim" style="margin:0 0 4px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:none;color:var(--seal);border:1px solid var(--seal);border-radius:8px;padding:11px;font-family:var(--serif-ko);font-size:13px;cursor:pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          시간대별 전체 진행 시간표 보기
+        </button>
         <div id="holdRuleNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:10px 0 0 25px;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
           <div style="display:flex;gap:7px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요.</span></div>
@@ -1058,5 +1062,6 @@ if(_hdw){
     .catch(function(){ fail('불러오기 실패 · 새로고침 해주세요.'); });
 })();
 </script>
+<script src="/assets/sequence-modal.js" defer></script>
 </body>
 </html>
