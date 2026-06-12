@@ -1830,8 +1830,7 @@ function renderContractPayment(c, p, ctx){
     h += '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
-       + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'')
-       + '<div class="cc-note cc-mini" style="color:var(--light);margin-top:-4px">※ 서명 자체는 되돌릴 수 없지만, 제7조 청약철회·무상취소는 그대로 가능해요.</div>';
+       + (c.effectNotice?'<div class="cc-note">'+escapeHtml(c.effectNotice)+'</div>':'');
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
        : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>';
