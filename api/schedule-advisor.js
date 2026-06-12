@@ -163,6 +163,14 @@ module.exports = async (req, res) => {
   try {
     const body = await readJson(req);
 
+    // [무료 진단] 가용성 라우팅 생존 핑 — Claude 호출 없이 GAS aiAvailability 도달만 확인(시뮬 가드용).
+    //   availSource: 'gas'(정상 점유 맵 수신) | 'unknown'(라우팅 누락·시크릿 불일치·조회 실패 = fail-closed 신호)
+    if (body && body.probe === true) {
+      const got = await fetchAvailability();
+      res.statusCode = 200; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
+      return res.end(JSON.stringify({ ok: true, availSource: got === null ? 'unknown' : 'gas', takenDates: got ? Object.keys(got).length : 0 }));
+    }
+
     let history = Array.isArray(body && body.messages) ? body.messages : [];
     history = history
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
