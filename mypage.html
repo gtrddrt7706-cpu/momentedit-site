@@ -233,6 +233,9 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;background:#4E3F31;color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}
 .cc-btn:hover{background:#3A2D22}
 .cc-btn:active{background:#9C7E55}
+.cc-btn.cc-btn-seal{background:var(--seal)}   /* 진사 포인트 CTA — 결정적 액션(서명·계약요청·입금신호·추천)만, 화면당 1개 */
+.cc-btn.cc-btn-seal:hover{background:#511F1A}
+.cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
@@ -1796,7 +1799,7 @@ function renderContractReqForm(ctx){
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
-    +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ciSubmit">계약서 요청하기</button>'
+    +'<div class="cc-actions"><button type="button" class="cc-btn cc-btn-seal" id="mp_ciSubmit">계약서 요청하기</button>'
     +'<div class="cc-note" style="text-align:center">계약서를 요청하시면 <b>24시간 안에</b> 보내드려요.</div></div></div>';
   box.style.display='block';
   var _wedAvail={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'늦은 오후'},taken:{}};
@@ -1915,7 +1918,7 @@ function renderContractPayment(c, p, ctx){
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
        : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>';
     h += '<div class="cc-actions">'+link
-       + '<button type="button" class="cc-btn" id="mp_signContract">계약서 서명하기</button>'
+       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
     box.innerHTML=h; box.style.display='block';
     var sign=$('mp_signContract'); if (sign) sign.addEventListener('click', doSignContract);
@@ -1959,7 +1962,7 @@ function renderContractPayment(c, p, ctx){
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
-     + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
+     + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금 완료</button>'
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
@@ -2162,7 +2165,7 @@ function renderPayment(p){
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
-        + '<button type="button" class="cc-btn" id="mp_paySignal">입금 완료</button>'
+        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금 완료</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
   }
   if(a && a.잔금){ body += '<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>'; }
@@ -2218,7 +2221,7 @@ function renderBalance(p, mid){
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_bCR', p.cashReceipt)
-      + '<button type="button" class="cc-btn" id="mp_bSignal">입금했어요</button>'
+      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
   if(p.status==='완료신호' || near){
@@ -2302,7 +2305,7 @@ function renderMid(p, bal){
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_mCR', p.cashReceipt)
-      + '<button type="button" class="cc-btn" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
+      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
   if(p.status==='완료신호' || near || forceCombo){
@@ -3478,7 +3481,7 @@ function dineFilterUI(d, wt){
     + '<div class="dn-ai-sub">분위기·가격·동행을 읽고 어울리는 곳만 추려드려요 <span style="color:var(--label-soft)">(선택)</span></div>'
     + '<textarea class="cc-input" id="dn_aiText" maxlength="200" enterkeyhint="search" placeholder="예: 시부모님 좌식 편한 정갈한 한정식, 너무 비싸지 않게" style="min-height:54px;margin-bottom:8px">'+escapeHtml(d._aiText||'')+'</textarea>'
     + (d._aiSummary?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
-    + '<button type="button" class="cc-btn" id="dn_aiBtn" style="margin:0">추천 받기</button>'
+    + '<button type="button" class="cc-btn cc-btn-seal" id="dn_aiBtn" style="margin:0">추천 받기</button>'
     + (d._aiSummary?'<div class="dn-ai-res"><div class="r-cap">Curated for You</div><div class="r-line">'+escapeHtml(d._aiSummary)+'</div></div>':'')
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
