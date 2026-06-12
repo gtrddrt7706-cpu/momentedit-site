@@ -600,7 +600,11 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
     var amt=Number(d.total)||0;   // 개인화 · 제4조·요약 카드 공통(예식일·적용 총액)
     var kind=amt===2800000?'주말·공휴일 기준':(amt===2100000?'평일 기준':(amt===600000?'웨딩스냅':''));
     var ps=[];
-    if(d.weddingDate){ var _w=String(d.weddingDate), _mm=_w.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(_mm){ var _dd=new Date(+_mm[1],+_mm[2]-1,+_mm[3]), _WD=['일','월','화','수','목','금','토']; _w=(+_mm[1])+'년 '+(+_mm[2])+'월 '+(+_mm[3])+'일 ('+_WD[_dd.getDay()]+')'; } var _wt=d.weddingTime?(' · '+(d.weddingTimeLabel?d.weddingTimeLabel+' ':'')+d.weddingTime):''; ps.push('예식 일시 '+_w+_wt); }
+    if(d.weddingDate){ var _w=String(d.weddingDate), _mm=_w.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(_mm){ var _dd=new Date(+_mm[1],+_mm[2]-1,+_mm[3]), _WD=['일','월','화','수','목','금','토']; _w=(+_mm[1])+'년 '+(+_mm[2])+'월 '+(+_mm[3])+'일 ('+_WD[_dd.getDay()]+')'; }
+      var _SB={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}, _LB={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'};   // 계약 슬롯 → 본예식 시간 표기 통일
+      var _wtv=String(d.weddingTime||'').slice(0,5); if(_SB[_wtv]) _wtv=_SB[_wtv];
+      var _wt=_wtv?(' · '+(_LB[_wtv]?_LB[_wtv]+' ':(d.weddingTimeLabel?d.weddingTimeLabel+' ':''))+_wtv):'';
+      ps.push('예식 일시 '+_w+_wt); }
     if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
     if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='내 계약 · '+_pj; }
     if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 신부 대표갈음
