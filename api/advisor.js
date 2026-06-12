@@ -143,8 +143,10 @@ module.exports = async (req, res) => {
       .join('')
       .trim();
 
-    // 안전망: 전각 줄표 → 가운뎃점, 마크다운 굵게(**) 제거, 이메일 안내 문장 제거(외부 채널 유도 금지)
+    // 안전망: 전각 줄표 → 가운뎃점, 마크다운 굵게(**)·머리표(#) 제거, 목록 머리기호(- · *)는 가운뎃점으로
     text = text.replace(/—/g, '·').replace(/\*\*/g, '');
+    text = text.replace(/^[ \t]*#{1,6}[ \t]+/gm, '');            // 마크다운 제목 #
+    text = text.replace(/^[ \t]*[-*][ \t]+/gm, '· ');            // 목록 머리기호 - * → ·
     if (/contact@momentedit\.kr/i.test(text)) {
       text = text.split(/\n+/).filter(function (line) { return !/contact@momentedit\.kr/i.test(line); }).join('\n').trim();
     }

@@ -228,7 +228,8 @@ module.exports = async (req, res) => {
       system: [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: '[대화]\n' + convo + '\n\n[확인 결과]\n' + verdict + '\n\n위 확인 결과만 사용해 고객의 마지막 메시지에 답하세요.' }],
     });
-    let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '');
+    let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '')
+      .replace(/^[ \t]*#{1,6}[ \t]+/gm, '').replace(/^[ \t]*[-*][ \t]+/gm, '· ');
     if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';
 
     res.statusCode = 200;
