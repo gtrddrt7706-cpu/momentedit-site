@@ -75,6 +75,9 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .qk.qk-warn{background:var(--redbg);color:var(--red);border-color:transparent}
 .qbadge.yellow{background:var(--yellowbg);color:var(--yellow)}
 .qbtn{flex:none;background:var(--seal);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--serif-ko);font-size:12.5px;font-weight:500;cursor:pointer;min-height:38px}
+.qfit{display:flex;align-items:center;gap:6px}
+.qfit-in{width:54px;text-align:center;padding:9px 4px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;color:var(--accent);background:#fff;outline:none}
+.qfit-in:focus{border-color:var(--gold)}
 .qbtn.go{background:#fff;border:1px solid var(--gold-deep);color:var(--gold-deeper)}
 .qbtn:active{opacity:.85}
 /* 결과물 관리 — 진행 스텝 스트립(원본›선택›보정›전달) */
@@ -266,7 +269,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <div class="topbar">
   <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
-  <button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
+  <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">⛔</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
   <button class="tb" id="btnRefresh" title="새로고침" style="display:none">↻</button>
   <button class="tb" id="btnLogout" title="로그아웃" style="display:none">⏏</button>
 </div>
@@ -450,6 +453,53 @@ $('btnRefresh').addEventListener('click', loadHome);
 (function(){ var bh=$('brandHome'); if(!bh) return; var go=function(){ if(TOKEN) loadHome(); };   // 로고 클릭 → 관리자 홈(로그인 상태에서만)
   bh.addEventListener('click', go); bh.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); })();
 $('btnArchive').addEventListener('click', function(){ openArchive(); });
+$('btnBlocks').addEventListener('click', openBlocksModal);
+
+/* ── 운영 블록(날짜 막기 · 휴무) — 막은 날짜·타임은 고객 달력에 '마감'으로, 요청·서명도 서버에서 차단 ── */
+function _bkRow(b){
+  var LAB={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
+  var t=(b.slots&&b.slots.length===3)?'전일':(b.slots||[]).map(function(x){return LAB[x]||x;}).join('·');
+  return '<div class="kv" style="align-items:center;justify-content:space-between;padding:7px 2px;border-bottom:1px dashed var(--border)">'
+    +'<span style="font-size:13px">'+esc(fmtDate(b.date))+' <span style="color:var(--label-soft)">· '+esc(t)+'</span></span>'
+    +'<button class="btn btn-line btn-sm" data-bkdel="'+esc(b.date)+'">해제</button></div>';
+}
+function _bkRender(blocks){
+  var box=$('bkList'); if(!box) return;
+  box.innerHTML=(blocks&&blocks.length)?blocks.map(_bkRow).join(''):'<div style="font-size:12.5px;color:var(--label-soft);padding:6px 0">막아둔 날짜가 없어요</div>';
+  box.querySelectorAll('[data-bkdel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      b.disabled=true; b.textContent='해제 중';
+      gas('adminRemoveWeddingBlock', b.getAttribute('data-bkdel')).then(function(r){
+        if(r&&r.ok) _bkRender(r.blocks); else { b.disabled=false; b.textContent='해제'; mErr((r&&r.error)||'해제 실패'); }
+      }).catch(function(){ b.disabled=false; b.textContent='해제'; });
+    });
+  });
+}
+function openBlocksModal(){
+  openModal({
+    title:'날짜 막기 · 휴무 관리',
+    text:li('막은 날짜·타임은 고객 달력에 마감으로 보여요')+li('계약 요청·임시고정·서명도 서버에서 차단돼요'),
+    extra:'<div id="bkList" style="max-height:180px;overflow-y:auto;margin-bottom:12px">불러오는 중…</div>'
+      +'<div class="kv" style="align-items:center;gap:8px;flex-wrap:wrap"><input type="date" id="bkDate" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px">'
+      +'<label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" class="bkSlot" value="09:00" checked>오전</label>'
+      +'<label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" class="bkSlot" value="12:20" checked>오후</label>'
+      +'<label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" class="bkSlot" value="15:40" checked>늦은 오후</label></div>',
+    yes:'이 날짜 막기',
+    init:function(){ gas('adminListWeddingBlocks').then(function(r){ if(r&&r.ok) _bkRender(r.blocks); }).catch(function(){}); },
+    onYes:function(){
+      var d=($('bkDate')&&$('bkDate').value)||'';
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){ mErr('날짜를 선택해 주세요'); return; }
+      var slots=[].map.call(document.querySelectorAll('.bkSlot:checked'),function(c){return c.value;});
+      if(!slots.length){ mErr('막을 타임을 하나 이상 선택해 주세요'); return; }
+      mBusy(true);
+      gas('adminSetWeddingBlock', d, slots).then(function(r){
+        mBusy(false,'이 날짜 막기');
+        if(r&&r.ok){ _bkRender(r.blocks); $('bkDate').value=''; mErr(''); }
+        else mErr((r&&r.error)||'저장 실패');
+      }).catch(function(e){ mBusy(false,'이 날짜 막기'); mErr('오류: '+((e&&e.message)||e)); });
+    }
+  });
+}
 $('btnBack').addEventListener('click', goBack);
 $('btnArcBack').addEventListener('click', loadHome);
 $('btnSearch').addEventListener('click', doSearch);
@@ -460,7 +510,7 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
-function setTopbar(on){ ['btnArchive','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
+function setTopbar(on){ ['btnBlocks','btnArchive','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
@@ -516,6 +566,11 @@ function queueRow(it){
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
+  // [벌수 인라인 기록] 상담완료 대기인데 벌수 미기록이면 큐에서 바로 적고 저장 → 저장되면 상담완료 모달로 이어짐 (2026-06-12 사용자 지시)
+  if(it.kind==='상담완료' && it.badge && it.badge.text==='벌수 미기록'){
+    btn = '<span class="qfit"><input class="qfit-in" inputmode="numeric" maxlength="1" placeholder="벌수" aria-label="시착 벌수">'
+        + '<button class="qbtn" data-fitsave="'+esc(it.code)+'" data-names="'+esc(it.names)+'">저장</button></span>';
+  }
   return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'" data-kind="'+esc(it.kind)+'">'+
     '<div class="ql"><div class="qn"><span class="qk'+(it.kind==='현금영수증취소'?' qk-warn':'')+'">'+esc(chipLabel)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
@@ -534,6 +589,23 @@ function renderQueue(d){
   $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home',el.getAttribute('data-kind')); }); });
   $('queueWrap').querySelectorAll('.qbtn[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); var row=b.closest('.qrow'); openDetail(b.getAttribute('data-go'),'home',row&&row.getAttribute('data-kind')); }); });
   $('queueWrap').querySelectorAll('.qbtn[data-act]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); onQueueAct(b.getAttribute('data-act'), b.getAttribute('data-code'), b.getAttribute('data-names'), b.getAttribute('data-snap')==='1', b); }); });
+  // 벌수 인라인 저장 — 행 클릭(상세 이동)과 분리(stopPropagation) · Enter로도 저장
+  $('queueWrap').querySelectorAll('.qfit').forEach(function(w){
+    w.addEventListener('click', function(e){ e.stopPropagation(); });
+    var inp=w.querySelector('.qfit-in'), b=w.querySelector('[data-fitsave]');
+    if(!inp||!b) return;
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); b.click(); } });
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var code=b.getAttribute('data-fitsave'), names=b.getAttribute('data-names')||'', v=(inp.value||'').trim();
+      if(!/^[0-9]$/.test(v)){ inp.style.borderColor='var(--seal)'; inp.placeholder='0~9'; inp.focus(); return; }
+      b.disabled=true; b.textContent='저장 중';
+      gas('adminSetFittingCount', code, Number(v)).then(function(r){
+        if(r&&r.ok){ doConsultDone(code, names, v); loadHome(); }   // 저장 완료 → 프리필된 상담완료 모달 + 배지 갱신
+        else { b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; openModal({ title:'벌수 기록 실패', text:li((r&&r.error)||'잠시 후 다시 시도해 주세요.'), yes:'확인', onYes:function(){ closeModal(); } }); }
+      }).catch(function(){ b.disabled=false; b.textContent='저장'; });
+    });
+  });
 }
 function onQueueAct(act,code,names,isSnap,el){
   if(act==='approve') doApprove(code,names);

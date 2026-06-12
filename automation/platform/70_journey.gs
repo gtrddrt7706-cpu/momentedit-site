@@ -273,6 +273,22 @@ function handleSignContract(body) {
     if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
       try { if (prev.가예약.eventId && typeof getCalendar === 'function') { var _hev = getCalendar().getEventById(prev.가예약.eventId); if (_hev) _hev.setTitle(_hev.getTitle().replace('[가예약]', '[예식확정]')); } } catch (e) {}   // 캘린더 표시도 확정으로
     }
+    try {   // 가예약 이벤트가 없던 서명(과거 데이터·수동 발송 경유) — [예식확정] 이벤트 직접 생성해 캘린더 공백 방지
+      if (!prev.가예약 || !prev.가예약.eventId) {
+        var _calS = (typeof getCalendar === 'function') ? getCalendar() : null;
+        var _wdS = _ymdOf(cust.get('예식일')) || ((prev.계약정보 || {}).weddingDate || '');
+        var _wtS = (prev.계약정보 && prev.계약정보.weddingTime) || '';
+        var _mS = String(_wdS).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (_calS && _mS) {
+          var _nmS = ''; try { _nmS = (typeof customerNames === 'function') ? customerNames(cust) : ''; } catch (e) {}
+          if (!_nmS) _nmS = String(cust.get('신랑이름') || '') || code;
+          var _evS = _calS.createAllDayEvent('[예식확정] ' + _nmS + (_wtS ? (' · ' + _wtS) : ''), new Date(+_mS[1], +_mS[2] - 1, +_mS[3]));
+          try { _evS.setDescription('본계약 서명 확정 · 개인코드 ' + code); } catch (e) {}
+          prev.가예약 = prev.가예약 || { date: _wdS, slot: _wtS };
+          prev.가예약.eventId = _evS.getId(); prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
+        }
+      }
+    } catch (e) { Logger.log('예식확정 캘린더 생성 실패: ' + (e && e.message)); }
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
       setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
@@ -314,9 +330,21 @@ function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
   }
   return null;
 }
+// [운영 블록 · 2026-06-12] 관리자가 막아둔 날짜·타임(휴무·개인 일정) — Script Properties 'WEDDING_BLOCKS'
+//   형식: { 'YYYY-MM-DD': ['09:00','12:20','15:40'] } (3타임 전부면 전일 휴무). 관리자 페이지 '날짜 막기'에서 편집.
+function _weddingBlocks() {
+  try {
+    var raw = PropertiesService.getScriptProperties().getProperty('WEDDING_BLOCKS');
+    var o = raw ? JSON.parse(raw) : {};
+    return (o && typeof o === 'object') ? o : {};
+  } catch (e) { return {}; }
+}
+
 // 같은 (예식일·슬롯)을 다른 고객이 점유(서명완료 또는 임시고정 승인)했나 — 요청·서명 시 더블부킹 차단.
 function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
   if (!ymd || !slot) return false;
+  var _blk = _weddingBlocks()[ymd];
+  if (_blk && _blk.indexOf(slot) !== -1) return true;   // 운영 블록(휴무)도 점유로 — 요청·서명 가드 공통
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return false;
   var wCol = colOf['예식일'], cCol = colOf['계약상태'], stCol = colOf['현재단계'], recCol = colOf['동의기록'], codeCol = colOf['개인코드'];
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
@@ -345,6 +373,11 @@ function handleWeddingAvailability(body) {
         if (!occ) return;
         (taken[occ.date] = taken[occ.date] || []); if (taken[occ.date].indexOf(occ.slot) === -1) taken[occ.date].push(occ.slot);
       });
+    }
+    var _bk = _weddingBlocks();
+    for (var _bd in _bk) {
+      (taken[_bd] = taken[_bd] || []);
+      _bk[_bd].forEach(function (t) { if (taken[_bd].indexOf(t) === -1) taken[_bd].push(t); });
     }
     return { ok: true, taken: taken, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
   } catch (e) { return { ok: true, taken: {}, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS }; }
@@ -433,6 +466,15 @@ function handleRequestContract(body) {
       _holdCalDelete(rec.가예약);
       delete rec.가예약;
       try { _recordHandler(code, '계약 요청 일정(' + wed + ' ' + wT + ')과 달라 임시고정 자동 해제 · ' + (_ohd || '') + ' ' + (_ohs || '')); } catch (e) {}
+    }
+    // [캘린더·점유 연동] 계약서 요청 = 그 일정 선점 — 가예약(승인)으로 자동 등록해 더블부킹 차단 + 구글 캘린더 [가예약] 표시(서명 시 [예식확정] 전환 · 14일 미서명 시 자동 만료).
+    if (!rec.가예약) {
+      rec.가예약 = { date: wed, slot: wT, status: '승인', requestedAt: fmtKST(new Date()), approvedAt: fmtKST(new Date()), expires: _shiftYmd(_kstYmd(new Date()), 14), source: '계약요청' };
+      _holdCalCreate(cust, rec.가예약);
+      try { _recordHandler(code, '계약 요청 일정 자동 선점(가예약 승인) · ' + wed + ' ' + wT); } catch (e) {}
+    } else {   // 같은 날짜·슬롯의 기존 가예약 — 미승인이면 승격, 이벤트 없으면 백필
+      if (rec.가예약.status !== '승인') { rec.가예약.status = '승인'; rec.가예약.approvedAt = fmtKST(new Date()); rec.가예약.expires = rec.가예약.expires || _shiftYmd(_kstYmd(new Date()), 14); }
+      if (!rec.가예약.eventId) _holdCalCreate(cust, rec.가예약);
     }
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA,
       groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 · 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
@@ -1073,12 +1115,28 @@ function buildPaymentState(r) {
   var confirmed = iStatus === '확인';
   // [③-4] 계약완료·입금완료=항상 노출 / 제작중+ 이후엔 '확인' 완료분만 접힌 카드 유지(시착·계약과 일관)
   if (['계약완료', '입금완료'].indexOf(stage) === -1 && !confirmed) return null;
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  // [임박 계약 일괄 수납] 기한이 이미 닥친 결제는 계약금과 한 번에 받는다(쪼개 받기 방지 · 계약서 §4④).
+  //   D-149 이내 성립 → +중도금 · D-9 이내 → +잔금까지(사실상 전액). 이미 '확인'된 단계는 제외. 법적 구조(10/40/50)는 그대로, 수납만 묶음.
+  var bundle = [];
+  if (String(r.get('상품타입') || '').trim() !== '웨딩스냅' && amounts) {
+    var _dd = _balanceDDay(r.get('예식일'));
+    if (_dd != null && _dd <= PAYMENT.중도금일수전 && String(r.get('중도금상태') || '').trim() !== '확인') bundle.push('중도금');
+    if (_dd != null && _dd <= PAYMENT.잔금일수전 && String(r.get('잔금상태') || '').trim() !== '확인') bundle.push('잔금');
+  }
+  var bundleTotal = amounts ? (amounts.납부액
+    + (bundle.indexOf('중도금') !== -1 ? amounts.중도금 : 0)
+    + (bundle.indexOf('잔금') !== -1 ? amounts.잔금 : 0)) : null;
   return {
     status: iStatus,                          // 대기 / 완료신호 / 확인
     confirmed: confirmed,
     payerName: String(r.get('입금자명') || '').trim(),
     cashReceipt: _cashReceiptOf(r),
-    amounts: _journeyAmounts(r.get('계약총액'), r.get('상품타입')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
+    amounts: amounts,                         // {계약금,납부액,중도금,잔금,...} 또는 null
+    bundle: bundle,                           // 계약 시 함께 받는 마일스톤(임박 계약) — []면 평시
+    bundleTotal: bundleTotal,                 // 이번에 입금할 합계(납부액+묶음) 또는 null
+    midConfirmed: String(r.get('중도금상태') || '').trim() === '확인',
+    balConfirmed: String(r.get('잔금상태') || '').trim() === '확인',
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
   };

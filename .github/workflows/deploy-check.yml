@@ -1,0 +1,24 @@
+# 배포 검증 유틸 — 라이브(momentedit.kr) 정적 파일에 기대 문자열이 있는지 확인 (수동 실행)
+name: Deploy Check
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/.deploy-check-run'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check live admin.html formula
+        run: |
+          curl -sSL https://momentedit.kr/admin.html -o live-admin.html
+          echo "── 시착 공제 공식 ──"
+          grep -o 'ded=Math.min(fc\*[0-9]*,[0-9]*)' live-admin.html || echo "패턴 미발견"
+          echo "── 안내 문구 ──"
+          grep -o '벌수×[0-9,]*원 공제' live-admin.html || true
+          grep -o '1벌 [0-9,]*원 · 별도 청구' live-admin.html || true
+          echo "── 결제 요약 예약금 상수 ──"
+          grep -o '_RES=[0-9]*' live-admin.html || true
+          echo "── 옛 공식(70000/200000) 잔존 여부 ──"
+          if grep -q 'fc\*70000' live-admin.html; then echo "❌ 옛 공식 발견"; exit 1; else echo "✅ 옛 공식 없음"; fi

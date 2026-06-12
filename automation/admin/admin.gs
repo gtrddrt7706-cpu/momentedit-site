@@ -171,7 +171,7 @@ function adminCall(token, fn, args) {
     var FNS = {
       adminHome: adminHome, adminDetail: adminDetail, adminArchive: adminArchive, adminSearch: adminSearch, adminSaveMemo: adminSaveMemo,
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
-      adminGetSignature: adminGetSignature, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
+      adminGetSignature: adminGetSignature, adminListWeddingBlocks: adminListWeddingBlocks, adminSetWeddingBlock: adminSetWeddingBlock, adminRemoveWeddingBlock: adminRemoveWeddingBlock, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
@@ -201,6 +201,37 @@ function adminFittingDoc(code) {
     count: (rec.벌수 != null ? Number(rec.벌수) : null),               // 기록된 시착 벌수(공제·증빙용)
     countAt: String(rec.벌수기록 || '')
   } };
+}
+
+// ============================ 운영 블록 (날짜 막기 · 2026-06-12) ============================
+// 휴무·개인 일정 등으로 예식 슬롯을 통째로 막는다 — Script Properties 'WEDDING_BLOCKS'.
+// 반영 범위: 마이페이지 계약요청·예식일변경·임시고정 달력(weddingAvailability) + 요청·서명 서버 가드(_weddingSlotTaken).
+function adminListWeddingBlocks() {
+  _requireAdmin();
+  var bk = _weddingBlocks(), out = [];
+  for (var d in bk) out.push({ date: d, slots: bk[d] });
+  out.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  return { ok: true, blocks: out };
+}
+function adminSetWeddingBlock(date, slots) {
+  _requireAdmin();
+  date = String(date || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: '날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)' };
+  var ALL = ['09:00', '12:20', '15:40'];
+  var list = (Array.isArray(slots) ? slots : []).filter(function (t) { return ALL.indexOf(t) !== -1; });
+  if (!list.length) list = ALL.slice();   // 타임 미지정 = 전일 휴무
+  var bk = _weddingBlocks();
+  bk[date] = list;
+  PropertiesService.getScriptProperties().setProperty('WEDDING_BLOCKS', JSON.stringify(bk));
+  _recordHandler('-', '운영 블록 설정: ' + date + ' · ' + (list.length === 3 ? '전체' : list.join(',')));
+  return { ok: true, blocks: adminListWeddingBlocks().blocks };
+}
+function adminRemoveWeddingBlock(date) {
+  _requireAdmin();
+  date = String(date || '').trim();
+  var bk = _weddingBlocks();
+  if (bk[date]) { delete bk[date]; PropertiesService.getScriptProperties().setProperty('WEDDING_BLOCKS', JSON.stringify(bk)); _recordHandler('-', '운영 블록 해제: ' + date); }
+  return { ok: true, blocks: adminListWeddingBlocks().blocks };
 }
 
 // [02-2] 시착 벌수 기록 — 벌수 비례 공제(계약서 4조⑧·시착동의 v3)의 산정 근거. 동의기록.시착.벌수에 저장(이력 포함).
@@ -1229,11 +1260,19 @@ function adminConfirmPayment(code) {
   var rec0 = _parseJsonSafe(cust.get('동의기록'));
   rec0.영수증기준일 = rec0.영수증기준일 || {};
   rec0.영수증기준일.예약금 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용 · 스냅 계약금 포함)
-  touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인', '동의기록': JSON.stringify(rec0) });
+  var patch = { '입금상태': '확인', '동의기록': JSON.stringify(rec0) };
+  // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인 — buildPaymentState.bundle과 같은 기준(D-149/D-9 · 시그니처)
+  var bundled = [];
+  if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
+    var _ddc = _balanceDDay(cust.get('예식일'));
+    if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = fmtKST(new Date()); bundled.push('중도금'); }
+    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = fmtKST(new Date()); bundled.push('잔금'); }
+  }
+  touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
-  _recordHandler(code, '입금 확인 → 입금완료');
-  notifyKakao('cust.paymentConfirmed', code, { kind: '계약금' });   // 고객 안심 알림(카톡)
-  return { ok: true };
+  _recordHandler(code, '입금 확인 → 입금완료' + (bundled.length ? (' (일괄: 계약금·' + bundled.join('·') + ')') : ''));
+  notifyKakao('cust.paymentConfirmed', code, { kind: bundled.length ? ('계약금·' + bundled.join('·')) : '계약금' });   // 고객 안심 알림(카톡)
+  return { ok: true, bundled: bundled };
 }
 
 // [02-7] 현금영수증 발행 기록 — 입금 확인된 마일스톤(예약금/계약금·중도금·잔금)을 홈택스에서 발급한 뒤, 승인번호(발행번호)를 여기 기록.
