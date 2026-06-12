@@ -75,6 +75,9 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .qk.qk-warn{background:var(--redbg);color:var(--red);border-color:transparent}
 .qbadge.yellow{background:var(--yellowbg);color:var(--yellow)}
 .qbtn{flex:none;background:var(--seal);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--serif-ko);font-size:12.5px;font-weight:500;cursor:pointer;min-height:38px}
+.qfit{display:flex;align-items:center;gap:6px}
+.qfit-in{width:54px;text-align:center;padding:9px 4px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;color:var(--accent);background:#fff;outline:none}
+.qfit-in:focus{border-color:var(--gold)}
 .qbtn.go{background:#fff;border:1px solid var(--gold-deep);color:var(--gold-deeper)}
 .qbtn:active{opacity:.85}
 /* 결과물 관리 — 진행 스텝 스트립(원본›선택›보정›전달) */
@@ -516,6 +519,11 @@ function queueRow(it){
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
+  // [벌수 인라인 기록] 상담완료 대기인데 벌수 미기록이면 큐에서 바로 적고 저장 → 저장되면 상담완료 모달로 이어짐 (2026-06-12 사용자 지시)
+  if(it.kind==='상담완료' && it.badge && it.badge.text==='벌수 미기록'){
+    btn = '<span class="qfit"><input class="qfit-in" inputmode="numeric" maxlength="1" placeholder="벌수" aria-label="시착 벌수">'
+        + '<button class="qbtn" data-fitsave="'+esc(it.code)+'" data-names="'+esc(it.names)+'">저장</button></span>';
+  }
   return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'" data-kind="'+esc(it.kind)+'">'+
     '<div class="ql"><div class="qn"><span class="qk'+(it.kind==='현금영수증취소'?' qk-warn':'')+'">'+esc(chipLabel)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
@@ -534,6 +542,23 @@ function renderQueue(d){
   $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home',el.getAttribute('data-kind')); }); });
   $('queueWrap').querySelectorAll('.qbtn[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); var row=b.closest('.qrow'); openDetail(b.getAttribute('data-go'),'home',row&&row.getAttribute('data-kind')); }); });
   $('queueWrap').querySelectorAll('.qbtn[data-act]').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); onQueueAct(b.getAttribute('data-act'), b.getAttribute('data-code'), b.getAttribute('data-names'), b.getAttribute('data-snap')==='1', b); }); });
+  // 벌수 인라인 저장 — 행 클릭(상세 이동)과 분리(stopPropagation) · Enter로도 저장
+  $('queueWrap').querySelectorAll('.qfit').forEach(function(w){
+    w.addEventListener('click', function(e){ e.stopPropagation(); });
+    var inp=w.querySelector('.qfit-in'), b=w.querySelector('[data-fitsave]');
+    if(!inp||!b) return;
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); b.click(); } });
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var code=b.getAttribute('data-fitsave'), names=b.getAttribute('data-names')||'', v=(inp.value||'').trim();
+      if(!/^[0-9]$/.test(v)){ inp.style.borderColor='var(--seal)'; inp.placeholder='0~9'; inp.focus(); return; }
+      b.disabled=true; b.textContent='저장 중';
+      gas('adminSetFittingCount', code, Number(v)).then(function(r){
+        if(r&&r.ok){ doConsultDone(code, names, v); loadHome(); }   // 저장 완료 → 프리필된 상담완료 모달 + 배지 갱신
+        else { b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; openModal({ title:'벌수 기록 실패', text:li((r&&r.error)||'잠시 후 다시 시도해 주세요.'), yes:'확인', onYes:function(){ closeModal(); } }); }
+      }).catch(function(){ b.disabled=false; b.textContent='저장'; });
+    });
+  });
 }
 function onQueueAct(act,code,names,isSnap,el){
   if(act==='approve') doApprove(code,names);
