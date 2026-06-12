@@ -22,6 +22,13 @@ jobs:
           grep -o '_RES=[0-9]*' live-admin.html || true
           echo "── 옛 공식(70000/200000) 잔존 여부 ──"
           if grep -q 'fc\*70000' live-admin.html; then echo "❌ 옛 공식 발견"; exit 1; else echo "✅ 옛 공식 없음"; fi
+      - name: Concierge Kakao key diagnostics (probe)
+        run: |
+          P=$(curl -sSL -X POST https://www.momentedit.kr/api/after-concierge -H 'content-type: application/json' -d '{"probe":true}')
+          echo "probe: $P"
+          echo "$P" | grep -q '"keyPresent":true' || { echo "❌ KAKAO_REST_KEY가 함수에 주입 안 됨(Vercel env 저장값 비었거나 미적용)"; exit 1; }
+          echo "$P" | grep -q '"kakaoHttp":200' || { echo "❌ 카카오 응답 비정상(401=키 오류) ↑ kakaoHttp 확인"; exit 1; }
+          echo "✅ 키 주입 + 카카오 200"
       - name: After-Wedding Concierge end-to-end (Kakao grounding)
         run: |
           echo "── 키즈 니즈 → 카카오 지도 검색 ──"
