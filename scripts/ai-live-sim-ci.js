@@ -8,6 +8,16 @@ const CTA_RE = /서둘러|먼저\s*닿는|마음에\s*드시면|많지\s*않아/
 const today = new Date().toISOString().slice(0, 10);
 const report = [];
 
+// 부분 실행 필터 — scripts/.sim-run 에 'ONLY=정규식'을 적으면 이름이 일치하는 시나리오만 실행한다.
+// 예: "round7 ONLY=N5|E11"  → 재검 비용을 풀배터리의 1/10 이하로(전체 77종 풀런은 베이스라인·최종 확인용으로만).
+let ONLY = null;
+try {
+  const runFile = require('fs').readFileSync(__dirname + '/.sim-run', 'utf8');
+  const m = runFile.match(/ONLY=(\S+)/);
+  if (m) { ONLY = new RegExp(m[1]); console.log('부분 실행 모드: ' + m[1]); }
+} catch (e) {}
+function skipBy(name) { return ONLY && !ONLY.test(name); }
+
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
 async function call(path, body) {
@@ -47,6 +57,7 @@ function grade(name, replies, isSched, expect, forbid) {
 }
 
 async function runSched(name, turns, page, expect, forbid) {
+  if (skipBy(name)) return;
   const msgs = []; const replies = [];
   console.log('\n══ [스케줄] ' + name + ' ══');
   for (const t of turns) {
@@ -62,6 +73,7 @@ async function runSched(name, turns, page, expect, forbid) {
 }
 
 async function runAdv(name, turns, page, expect, forbid) {
+  if (skipBy(name)) return;
   const msgs = []; const replies = [];
   console.log('\n══ [상담] ' + name + ' (page=' + (page || '메인') + ') ══');
   for (const t of turns) {
@@ -77,6 +89,7 @@ async function runAdv(name, turns, page, expect, forbid) {
 }
 
 async function runHandoff(name, convOpt) {
+  if (skipBy(name)) return;
   console.log('\n══ [인계] ' + name + ' ══');
   const conv = convOpt || [
     { role: 'user', content: '계약서 위약금 조항이 정확히 어떻게 되나요? 내년 9월 예식인데 7월에 취소하면 얼마 떼나요?' },
