@@ -1985,6 +1985,15 @@ function replayHeroAnimation(){
   // 메시지·답변은 항상 하단 탐색 메뉴(navEl) 위에 쌓는다.
   function place(d){ if(navEl){ body.insertBefore(d,navEl); } else { body.appendChild(d); } }
   function scrollDown(){ body.scrollTop=body.scrollHeight; }
+  // 질문 버블을 본문 맨 위로 — 답이 길어도 '질문 + 답 시작'이 스크롤 없이 바로 보이게
+  function scrollQTop(qEl){
+    if(!qEl) return;
+    requestAnimationFrame(function(){
+      var top = qEl.getBoundingClientRect().top - body.getBoundingClientRect().top;
+      body.scrollTop = body.scrollTop + top - 6;
+    });
+  }
+  var pendingQEl=null;
   function addMsg(text,who){
     var d=document.createElement('div');
     d.className='me-adv-msg '+(who==='me'?'me':'bot');
@@ -2081,11 +2090,12 @@ function replayHeroAnimation(){
     scrollDown();
   }
   function onLeaf(node){
-    addMsg(node.label,'me');
+    var qEl=addMsg(node.label,'me');
     addMsg(node.answer,'bot');
     transcript.push({role:'user',content:node.label});
     transcript.push({role:'assistant',content:node.answer});
     if(node.escalate){ offerEscalation(); }
+    scrollQTop(qEl);   // 질문을 상단으로 — 답 시작이 바로 보이게
   }
 
   var _lockY=0, _locked=false;
@@ -2171,7 +2181,7 @@ function replayHeroAnimation(){
     var q=input.value.trim();
     if(!q) return;
     input.value=''; input.style.height='auto';
-    addMsg(q,'me');
+    pendingQEl=addMsg(q,'me');
     apiHistory.push({role:'user',content:q});
     transcript.push({role:'user',content:q});
     ask();
@@ -2198,12 +2208,14 @@ function replayHeroAnimation(){
           transcript.push({role:'assistant',content:j.reply});
           logQ(lastQ, !!j.escalate);
           if(j.escalate) offerEscalation();
+          scrollQTop(pendingQEl);   // 질문을 상단으로 — 답 시작이 바로 보이게
         } else {
           // 키 미설정·오류 등: 우아한 폴백. 진단 코드는 화면 노출 대신 콘솔로(고객 문구 오염 방지)
           try{ console.warn('advisor fallback', (res.status||'?'), (j&&j.error)||''); }catch(e){}
           addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.','bot');
           logQ(lastQ, true);
           showEscalation();
+          scrollQTop(pendingQEl);
         }
       }).catch(function(){
         typing.remove();
@@ -2211,6 +2223,7 @@ function replayHeroAnimation(){
         addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.','bot');
         logQ(lastQ, true);
         showEscalation();
+        scrollQTop(pendingQEl);
       }).then(function(){
         sending=false; sendBtn.disabled=false;
       });
