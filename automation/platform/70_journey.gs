@@ -13,16 +13,16 @@
 
 // 드레스 시착 동의서 — 마이페이지 표시 + 동의 기록의 단일 출처(문구·금액 한 곳에서만 정의).
 var FITTING_CONSENT = {
-  version: '시착동의-v3',   // v3(2026-06-12): 계약 미진행 시에도 벌수 비례 공제로 통일(약관 심사 — 전액 몰취 문언은 계약서 4조⑧ 비례 원칙과 모순·과중 위험). 서명 시점 스냅샷이라 구버전 서명자는 그 버전 유지
+  version: '시착동의-v4',   // v4(2026-06-12): 무상 시착 2벌·시착비 1벌당 50,000원·예약금 100,000원으로 개정. 서명 시점 스냅샷이라 구버전 서명자는 그 버전 유지
   title: '드레스 시착 동의서',
-  기본벌수: 3,
-  추가벌비용: 70000,   // 4벌째부터 1벌당
-  예약금: 200000,
+  기본벌수: 2,
+  추가벌비용: 50000,   // 3벌째부터 1벌당
+  예약금: 100000,
   terms: [
-    '드레스 시착은 3벌까지 포함됩니다. (4벌째부터 1벌당 70,000원)',
-    '예약금 200,000원은 계약을 진행하시면 계약금의 일부로 전환됩니다.',
-    '드레스 시착 후 계약을 진행하지 않으시면, 실제 진행한 벌수만큼(1벌당 70,000원 · 최대 200,000원) 예약금이 시착 비용으로 공제되고 나머지는 전액 환불됩니다. (시착 전 취소는 전액 환불)',
-    '계약을 진행하신 뒤 청약철회(이용계약서 제7조 제1항의 기간 내)나 무상취소(예식 150일 전까지)로 전액 환급을 받으시는 경우에도, 시착이 이미 진행되었다면 진행한 벌수만큼(1벌당 70,000원 · 최대 200,000원) 시착 비용으로 공제되고 나머지는 전액 환급됩니다. (이용계약서 제4조 제8항 · 제7조, 「전자상거래법」 제17조 제2항 제5호)'
+    '드레스 시착은 2벌까지 포함됩니다. (3벌째부터 1벌당 50,000원)',
+    '예약금 100,000원은 계약을 진행하시면 계약금의 일부로 전환됩니다.',
+    '드레스 시착 후 계약을 진행하지 않으시면, 실제 진행한 벌수만큼(1벌당 50,000원 · 최대 100,000원) 예약금이 시착 비용으로 공제되고 나머지는 전액 환불됩니다. (시착 전 취소는 전액 환불)',
+    '계약을 진행하신 뒤 청약철회(이용계약서 제7조 제1항의 기간 내)나 무상취소(예식 150일 전까지)로 전액 환급을 받으시는 경우에도, 시착이 이미 진행되었다면 진행한 벌수만큼(1벌당 50,000원 · 최대 100,000원) 시착 비용으로 공제되고 나머지는 전액 환급됩니다. (이용계약서 제4조 제8항 · 제7조, 「전자상거래법」 제17조 제2항 제5호)'
   ],
   gateNotice: '서명하면 드레스 시착이 진행됩니다.',
   reviewNote: '서명 후에도 계약서 서명 전까지 다시 확인하실 수 있습니다.',
@@ -42,7 +42,13 @@ var FITTING_TERMS_BY_VERSION = {
     '드레스 시착 후 계약을 진행하지 않으시면 예약금은 시착비로 전환되어 환불되지 않습니다. (시착 전 취소는 전액 환불)',
     '계약을 진행하신 뒤 청약철회(이용계약서 제7조 제1항의 기간 내)나 무상취소(예식 150일 전까지)로 전액 환급을 받으시는 경우에도, 시착이 이미 진행되었다면 진행한 벌수만큼(1벌당 70,000원 · 최대 200,000원) 시착 비용으로 공제되고 나머지는 전액 환급됩니다. (이용계약서 제4조 제8항 · 제7조)'
   ],
-  '시착동의-v3': FITTING_CONSENT.terms
+  '시착동의-v3': [
+    '드레스 시착은 3벌까지 포함됩니다. (4벌째부터 1벌당 70,000원)',
+    '예약금 200,000원은 계약을 진행하시면 계약금의 일부로 전환됩니다.',
+    '드레스 시착 후 계약을 진행하지 않으시면, 실제 진행한 벌수만큼(1벌당 70,000원 · 최대 200,000원) 예약금이 시착 비용으로 공제되고 나머지는 전액 환불됩니다. (시착 전 취소는 전액 환불)',
+    '계약을 진행하신 뒤 청약철회(이용계약서 제7조 제1항의 기간 내)나 무상취소(예식 150일 전까지)로 전액 환급을 받으시는 경우에도, 시착이 이미 진행되었다면 진행한 벌수만큼(1벌당 70,000원 · 최대 200,000원) 시착 비용으로 공제되고 나머지는 전액 환급됩니다. (이용계약서 제4조 제8항 · 제7조, 「전자상거래법」 제17조 제2항 제5호)'
+  ],
+  '시착동의-v4': FITTING_CONSENT.terms
 };
 
 // [02-2] 드레스 시착 동의 서명(고객) → 시착동의일시 + 동의기록 + 시착동의상태=동의완료.
@@ -112,20 +118,24 @@ function buildFittingState(r) {
   var signed = (status === '동의완료') || !!signedAt;
   var requested = (status === '동의요청');
   if (!signed && !(stage === '시착' && requested)) return null;  // 아직 안내 전 → 카드 없음
-  var _fitCnt = (_parseJsonSafe(r.get('동의기록')).시착 || {}).벌수;
+  var _fitRec = _parseJsonSafe(r.get('동의기록')).시착 || {};
+  var _fitCnt = _fitRec.벌수;
+  // 서명자 = 서명 '당시' 버전·문구·금액으로 재현(스냅샷 우선 · 기록 없는 구서명자는 v3 시절 값 보존). 미서명자 = 현행(v4).
+  var _sv = signed ? String(_fitRec.version || '시착동의-v3') : FITTING_CONSENT.version;
+  var _terms = (signed && FITTING_TERMS_BY_VERSION[_sv]) ? FITTING_TERMS_BY_VERSION[_sv] : FITTING_CONSENT.terms;
   return {
     signed: signed,                 // 서명 완료 여부
     signedAt: signedAt,             // 서명 일시(표시용)
     벌수: (_fitCnt != null ? Number(_fitCnt) : null),   // 관리자가 기록한 실제 시착 벌수(비례 공제 근거·고객 확인용)
-    version: FITTING_CONSENT.version,
+    version: _sv,
     title: FITTING_CONSENT.title,
-    terms: FITTING_CONSENT.terms,
+    terms: _terms,
     gateNotice: FITTING_CONSENT.gateNotice,
     reviewNote: FITTING_CONSENT.reviewNote,
     nextNotice: FITTING_CONSENT.nextNotice,
-    기본벌수: FITTING_CONSENT.기본벌수,
-    추가벌비용: FITTING_CONSENT.추가벌비용,
-    예약금: FITTING_CONSENT.예약금
+    기본벌수: signed ? (_fitRec.기본벌수 != null ? Number(_fitRec.기본벌수) : 3) : FITTING_CONSENT.기본벌수,
+    추가벌비용: signed ? (_fitRec.추가벌비용 != null ? Number(_fitRec.추가벌비용) : 70000) : FITTING_CONSENT.추가벌비용,
+    예약금: signed ? (_fitRec.예약금 != null ? Number(_fitRec.예약금) : 200000) : FITTING_CONSENT.예약금
   };
 }
 
@@ -190,8 +200,8 @@ function handleGetSignature(body) {
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
   version: '계약서명-v1',
-  docVersion: 'v1.2',               // 계약서 '문서' 버전(시그니처) — 서명 시 동의기록.계약.docVersion으로 스냅샷, 열람은 그 버전 문서로
-  snapDocVersion: 'snap-v1.1',      // 웨딩스냅 계약서 문서 버전 — 동일 메커니즘(구버전 서명자는 archive 보존본으로 열람)
+  docVersion: 'v1.3',               // 계약서 '문서' 버전(시그니처) — v1.3(2026-06-12): 예약금 100,000·계약금 잔액 납입·시착 2벌/5만. 서명 시 동의기록.계약.docVersion 스냅샷, 열람은 그 버전 문서로
+  snapDocVersion: 'snap-v1.2',      // 웨딩스냅 계약서 문서 버전 — snap-v1.2(2026-06-12): 추가 착용 1벌당 50,000원. 구버전 서명자는 archive 보존본으로 열람
   서명기한시간: 72,                 // 발송 +72h 안에 서명
   리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
   effectNotice: '서명하면 계약이 성립해요. 계약 내용을 충분히 확인하신 뒤 진행해 주세요.',
@@ -272,12 +282,11 @@ function handleSignContract(body) {
     touchCustomer(sheet, colOf, cust.num, {
       '계약서명일시': now,
       '계약상태': '서명완료',
-      '입금상태': '확인',                                  // 시그니처: 계약금 = 예약금으로 충당(계약 성립 시 추가 0원) → 자동 확인
       '동의기록': JSON.stringify(prev)
     });
-    setCustomerStage(code, 'paid');                       // 시그니처: 서명 = 계약 성립 + 계약금(예약금 충당) → 입금완료(제작 준비)로 자동 진행
-    notifyKakao('admin.contractSigned', code, { product: '시그니처', autoPaid: true });   // 관리자: 계약 서명 완료(카톡)
-    return { ok: true, signedAt: now, autoPaid: true };
+    setCustomerStage(code, 'contract');                   // 시그니처: 서명 → 계약완료(계약금 잔액 입금 카드 노출 · 예약금 100,000원 차감)
+    notifyKakao('admin.contractSigned', code, { product: '시그니처' });   // 관리자: 계약 서명 완료(카톡)
+    return { ok: true, signedAt: now };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
   }
@@ -605,12 +614,13 @@ function suggestContractTotal(product, weddingYmd) {
 }
 
 // ============================ 02-4 · 계약금 입금 ============================
-// 계약금 = 총액 20%(예약금 차감 후 납부) · 잔금 = 총액 80%(예식 N일 전, 1차는 안내 카피만).
+// 시그니처: 계약금 10%(예약금 100,000원 차감 후 잔액을 계약 시 납부) → 중도금 40% → 잔금 50%.
+// 웨딩스냅: 계약금 20%(계약 시) · 잔금 80%.
 //   ★ 잔금 시점은 PAYMENT.잔금일수전 단일 출처 — 7→14 수정 시 여기 한 곳만 고치면 전체 반영.
 var PAYMENT = {
-  예약금: 200000,
-  계약금율: 0.1,       // 계약서 §4 · 계약금 10% (예약금으로 충당 → 계약 성립 시 추가 0원)
-  중도금율: 0.4,       // 중도금 40% (+ 계약금 차액 합산)
+  예약금: 100000,
+  계약금율: 0.1,       // 계약서 §4 · 계약금 10% (예약금 100,000원 차감 후 잔액을 계약 성립 시 납부)
+  중도금율: 0.4,       // 중도금 40%
   중도금일수전: 149,   // 중도금 기한 = 예식 D-149(무료 취소 종료·일정 확정 시) — 위약금 전 구간이 기수령액으로 커버되도록(2026-06-12 결정)
   잔금일수전: 9        // 잔금 기한 = 예식 D-9 (9~1일 전 위약 50% 구간을 잔금 수령으로 커버 · 라벨·카피 파생)
 };
@@ -626,7 +636,7 @@ function _midDuePast(r) {
 function _midDueLabelFor(r) { return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
 function _midDueDateFor(r) { return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
 
-// 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50·예약금 충당), 웨딩스냅=2단계(계약금20%·잔금80%, 중도금/충당 없음).
+// 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50 · 계약금은 예약금 100,000원 차감 후 잔액 납부), 웨딩스냅=2단계(계약금20%·잔금80%).
 function _journeyAmounts(total, product) {
   var t = Math.round(Number(String(total == null ? '' : total).replace(/[,원\s]/g, '')) || 0);   // 시트 문자 금액('3,500,000') 방어 · 그 외 문자는 기존대로 0→null(표 비노출)
   if (t <= 0) return null;
@@ -637,13 +647,12 @@ function _journeyAmounts(total, product) {
   var 계약금 = Math.round(t * PAYMENT.계약금율);            // 10%
   var 중도금기본 = Math.round(t * PAYMENT.중도금율);        // 40%
   var 잔금 = t - 계약금 - 중도금기본;                       // 나머지(=50%, 반올림 흡수)
-  var 차액 = Math.max(0, 계약금 - PAYMENT.예약금);          // 예약금으로 못 덮은 계약금 → 중도금 합산
   return {
     총액: t,
     계약금: 계약금,                                         // 명목 10%
     예약금: PAYMENT.예약금,
-    납부액: 0,                                              // 계약 성립 시 추가 납부(예약금 충당·차액 이연) = 0원
-    중도금: 중도금기본 + 차액,                              // 40% + 계약금 차액
+    납부액: Math.max(0, 계약금 - PAYMENT.예약금),           // 계약 성립 시 납부 = 계약금 - 예약금(충당 잔액)
+    중도금: 중도금기본,                                     // 40%
     중도금시점: _midDueLabel(),
     잔금: 잔금,                                             // 50%
     잔금시점: _balanceDueLabel()
@@ -652,9 +661,9 @@ function _journeyAmounts(total, product) {
 
 // ============================ 02-8 · 환불 예상액 (계약서 v1-1 §7·§9·§4⑧ 단일 구현) ============================
 // 시그니처 전용 — 웨딩스냅 계약서는 위약 구조가 달라 null. r=Customers 행 래퍼 · asOfYmd=기준일(YYYY-MM-DD · 없으면 오늘 KST).
-//   기수령액(paid) = 입금 '확인'된 것만(완료신호 제외): 예약금 200,000(Customers 입금상태=확인, 계약 전엔 Bookings 입금확인 폴백)
+//   기수령액(paid) = 입금 '확인'된 것만(완료신호 제외): 예약금 100,000(계약 전엔 Bookings 입금확인 폴백) + 계약금 잔액(서명 후 입금상태=확인 시)
 //                   + 중도금·잔금(각 상태=확인 시 _journeyAmounts 금액).
-//   시착 공제(4조⑧) = 진행 벌수 × 70,000원(최대 200,000원=예약금). 동의완료인데 벌수 미기록이면 공제 0으로 계산 + needCount 플래그.
+//   시착 공제(4조⑧) = 진행 벌수 × 50,000원(최대 100,000원=예약금). 동의완료인데 벌수 미기록이면 공제 0으로 계산 + needCount 플래그.
 //   분기: ① 계약 전(서명 전) → 위약금 없음 · 시착비만 공제(시착동의 v3 비례 원칙)
 //        ② 청약철회(7조①) → 계약 성립일부터 15일 이내 + 예식 전일(dd>=1)까지 · 전액 환급에서 시착비만 공제 · 위약금 표보다 우선(4조④ 단서)
 //        ③ 무상취소(7조②) → 예식일 150일 전까지(dd>=150) · 전액 환급에서 시착비만 공제
@@ -677,7 +686,7 @@ function _refundQuote(r, asOfYmd) {
   }
   var paid = depConfirmed ? PAYMENT.예약금 : 0;
 
-  // 시착 공제(4조⑧) — 관리자가 기록한 실제 벌수(동의기록.시착.벌수) 기준. 1벌당 70,000원 · 최대 200,000원.
+  // 시착 공제(4조⑧) — 관리자가 기록한 실제 벌수(동의기록.시착.벌수) 기준. 1벌당 50,000원 · 최대 100,000원(FITTING_CONSENT·PAYMENT 단일 출처).
   var _fit = _parseJsonSafe(r.get('동의기록')).시착 || {};
   var fitCount = (_fit.벌수 != null && _fit.벌수 !== '' && !isNaN(Number(_fit.벌수))) ? Number(_fit.벌수) : null;
   var needCount = (fitCount == null) && String(r.get('시착동의상태') || '').trim() === '동의완료';   // 시착했는데 벌수 미기록 → 산정 보류 플래그
@@ -694,6 +703,7 @@ function _refundQuote(r, asOfYmd) {
   // 계약 후 — 총액·예식일이 있어야 구간 산정 가능. 미정(이례 데이터)이면 견적 보류.
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   if (!amounts) return { pending: true };
+  if (String(r.get('입금상태') || '').trim() === '확인') paid += amounts.납부액;   // 계약금 잔액(계약 시 납부 · 예약금 차감분)
   if (String(r.get('중도금상태') || '').trim() === '확인') paid += amounts.중도금;
   if (String(r.get('잔금상태') || '').trim() === '확인') paid += amounts.잔금;
   var dd = _dayDiff(_ymdOf(r.get('예식일')), asOf);   // 예식까지 남은 일수(D-dd · 0=당일 · 음수=지남)
@@ -1154,8 +1164,8 @@ function adminConfirmBalance(code) {
   return { ok: true };
 }
 // ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
-// 중도금 = 총액 40% + 계약금 차액. 예식 D-149 마감(무료 취소 종료 시·미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
-//   계약금이 예약금 충당(0원)이므로 계약 후 첫 실결제. 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
+// 중도금 = 총액 40%. 예식 D-149 마감(무료 취소 종료 시·미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
+//   계약금(잔액)은 계약 시 별도 납부(02-4). 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
 function buildMidState(r) {
   if (!r) return null;
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 2단계(계약금·잔금) · 중도금 없음

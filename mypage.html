@@ -741,8 +741,14 @@ function $(id){ return document.getElementById(id); }
 // 상품·문서 버전별 계약서 경로 — 구버전 서명자(v1.1/snap-v1.0)는 archive 보존본, 그 외 현행(v1.2/snap-v1.1)
 function contractSrc(product, docVersion){
   var v=String(docVersion||'');
-  if(/스냅|snap/i.test(String(product||''))) return v==='snap-v1.0' ? '/contract/archive/snap-v1-0.html' : '/contract/snap-v1-0.html';
-  return v==='v1.1' ? '/contract/archive/v1-1.html' : '/contract/v1-1.html';
+  if(/스냅|snap/i.test(String(product||''))){
+    if(v==='snap-v1.0') return '/contract/archive/snap-v1-0.html';
+    if(v==='snap-v1.1') return '/contract/archive/snap-v1-1.html';
+    return '/contract/snap-v1-0.html';   // 현행(snap-v1.2)
+  }
+  if(v==='v1.1') return '/contract/archive/v1-1.html';
+  if(v==='v1.2') return '/contract/archive/v1-2.html';
+  return '/contract/v1-1.html';   // 현행(v1.3)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -813,7 +819,8 @@ function openFittingView(){
   pbtn.style.cssText='border:1px solid var(--border,#e6e0d8);background:#fff;border-radius:6px;padding:8px 14px;margin-right:8px;font-family:var(--serif-ko,serif);font-size:13px;color:var(--sub,#6b5d4d);cursor:pointer';
   pbtn.addEventListener('click',function(){ try{ var w=fr.contentWindow; w.focus(); w.print(); }catch(e){} });
   var rg=document.createElement('div'); rg.style.cssText='display:flex;align-items:center'; rg.appendChild(pbtn); rg.appendChild(x);
-  var fr=document.createElement('iframe'); fr.src='/contract/fitting.html'; fr.title='드레스 시착 동의서';
+  var _fv=(window._lastFitVersion||''); var _fsrc=(_fv && _fv!=='시착동의-v4') ? '/contract/archive/fitting-v3.html' : '/contract/fitting.html';   // 서명 당시 버전 보존본
+  var fr=document.createElement('iframe'); fr.src=_fsrc; fr.title='드레스 시착 동의서';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
@@ -1015,7 +1022,7 @@ function loadMyState(opts){
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
 var STAGE_LABEL = {
   '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
-  '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'입금 확인',
+  '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 입금',
   '제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달'
 };
 function stageLabel(code, product){
@@ -1075,6 +1082,17 @@ function renderMyPage(d){
     if (d.stage === '상담완료' && d.contractInfo) {
       if (d.contractInfo.requested) { head = '계약서를 준비하고 있어요'; sub = '요청하신 정보로 작성해 24시간 안에 보내드릴게요.'; }
       else { head = '계약서 요청만 남았어요'; sub = '아래에서 예식일·생년월일·주소를 입력하고 요청해 주세요.'; }
+    }
+    // [계약완료] 서명 후 계약금 잔액 입금 대기 — 입금이 유일한 할 일 (확인 중이면 안내만)
+    if (d.stage === '계약완료' && d.payment && !d.payment.confirmed) {
+      if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
+      else {
+        var _pa = d.payment.amounts;
+        head = '계약금 입금만 남았어요';
+        sub = (_pa && Number(_pa.납부액) > 0)
+          ? ('계약금 잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_pa.예약금 || 100000) + ' 차감)을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.')
+          : '아래 안내에 따라 계약금을 입금해 주시면, 확인 후 예식 준비가 시작돼요.';
+      }
     }
     // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선
     var _comboPending = (d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed
@@ -1260,7 +1278,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['계약금','서명 후 잔액 입금 · 예약금 10만 원 차감','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (product !== '웨딩스냅'){
@@ -1569,8 +1587,8 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + (isSnap ? '' :
-              '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요.<br>직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 3벌)</em>.</span></div>'
-            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>드레스 시착 후 계약을 진행하지 않으시면 진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 차감돼요.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
+              '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요.<br>직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 2벌)</em>.</span></div>'
+            + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>드레스 시착 후 계약을 진행하지 않으시면 진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 차감돼요.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
          + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
               : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
@@ -1621,19 +1639,20 @@ function renderFitting(f, d){
   var box = $('mp_fitting');
   if (!box) return;
   if (!f){ box.style.display='none'; box.innerHTML=''; return; }
+  window._lastFitVersion = f.version || '';   // 동의서 문서 뷰어 버전 분기용(서명 당시 보존본 열람)
   var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
   if (f.signed){   // 완료 · 시착 단계엔 완료 안내(#4), 상담완료 이후엔 접힌 기록(시착만 펼쳐보기)
     var idxDone = (d && d.stageList) ? d.stageList.indexOf('상담완료') : -1;
     var curIdx = (d && typeof d.stageIndex==='number') ? d.stageIndex : -1;
     var signedLine = f.signedAt ? '<div class="cc-sub">서명 · <b>'+escapeHtml(f.signedAt)+'</b></div>' : '';
-    var cntLine = (f.벌수!=null) ? '<div class="cc-sub">진행한 시착 · <b>'+escapeHtml(f.벌수)+'벌</b>'+(Number(f.벌수)>3?(' (추가 '+(Number(f.벌수)-3)+'벌 × 70,000원 별도)'):'')+'</div>' : '';
+    var cntLine = (f.벌수!=null) ? '<div class="cc-sub">진행한 시착 · <b>'+escapeHtml(f.벌수)+'벌</b>'+(Number(f.벌수)>Number(f.기본벌수||2)?(' (추가 '+(Number(f.벌수)-Number(f.기본벌수||2))+'벌 × '+fmtWon(f.추가벌비용||50000)+' 별도)'):'')+'</div>' : '';
     var termsFull = signedLine + '<ul class="cc-terms">'+terms+'</ul>' + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
     if (idxDone < 0 || curIdx < 0 || curIdx < idxDone){   // 시착 단계(계약 전) → 완료 안내 노출
       var notice = '<div class="visit-guide vg-center" style="margin-top:12px">'
                  + '<div class="vg-row"><span class="vg-k">계약서 요청</span><span class="vg-v">상담을 마치면 마이페이지에 <b>계약서 요청</b> 단계가 열려요.<br><b>예식일·생년월일·주소</b>를 입력해 계약서를 요청해 주세요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">계약서 발송</span><span class="vg-v">요청하시면 <b>24시간 안에</b> 계약서를 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
-                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
+                 + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
                  + '</div>';
       box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
         + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
@@ -1767,7 +1786,7 @@ function renderContractPayment(c, p, ctx){
         + '<div class="visit-guide vg-center" style="margin-top:12px">'
         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면 <b>24시간 안에</b> 보내드리고,<br>발송되면 <b>카카오톡</b>으로 알려드려요.</span></div>'
         + '<div class="vg-row"><span class="vg-k">'+((ctx&&ctx.product==='웨딩스냅')?'서명·계약금':'서명')+'</span><span class="vg-v">'+((ctx&&ctx.product==='웨딩스냅')?'계약서 서명과 <b>계약금</b>은 한 번에 진행돼요.<br>서명 후 <b>72시간 안에</b> 마무리해 주세요.':'계약서에 서명하시면 본 계약이 확정돼요.<br>서명은 <b>72시간 안에</b> 마무리해 주세요.')+'</span></div>'
-        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 70,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
+        + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">드레스 시착을 진행하신 경우, 미계약으로 취소되면<br>진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 공제되고 나머지는 환불돼요.</span></div>'
         + '</div></div>';
       box.style.display='block'; return;
     }
@@ -1855,7 +1874,7 @@ function renderContractPayment(c, p, ctx){
   // 시그니처: 계약금은 예약금으로 충당(납부액 0) → '입금해 주세요(0원)'·계좌·입금완료 대신 충당 완료 안내 + 디렉터 확인 대기
   if (a && Number(a.납부액) <= 0){
     h += '<div class="cc-title" style="margin-top:8px">계약금은 예약금으로 충당돼요</div>'
-       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||200000)+'으로 충당</span><br>디렉터가 확인하면 제작 단계가 열려요.</div>'
+       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 제작 단계가 열려요.</div>'
        + ((a.중도금>0||a.잔금)?('<div class="cc-note" style="margin-top:6px">다음 결제 · '+(a.중도금>0?('중도금 '+fmtWon(a.중도금)+' '+escapeHtml(a.중도금시점||'')+' · '):'')+'잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점||'')+'</div>'):'')
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
