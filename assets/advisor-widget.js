@@ -7,6 +7,9 @@
 //   schedule: true|false,                   ← 예식일 가능 여부 질문을 /api/schedule-advisor로 자동 라우팅
 //   customer: function(){return {name,stage,code}|null}  ← (마이) 인계 시 고객 식별 정보
 //   kakaoUrl: 'URL' | function(){return 'URL'}  ← (선택) 카카오 문의 링크 재정의(마이=GAS KAKAO_URL·미설정 시 KB→메일 폴백)
+//   share: { url:'https://…' }                  ← (선택) 공유 FAB 추가 — 링크만 공유(모바일 네이티브 시트·PC 복사, 메인홈과 동일 동작)
+//   booking: { url:'/inquiry.html' }             ← (선택) 예약(상담 신청) 바로가기 FAB 추가(달력 아이콘 · 스택 맨 위)
+//   sequence: 'trim'|'full'                      ← (선택) 진행 시간표 FAB 추가(시계 아이콘) — sequence-modal.js 로드 필요
 // }
 // 카톡 문의 동선: 별도 버튼 없이 이 위젯 안에서 — 드로어 하단 상시 링크 + AI가 못 풀 때 에스컬레이션 박스.
 // 선택: /assets/advisor-kb.js 가 먼저 로드되면 escalation 설정(카카오 URL·상담시간)을 공유.
@@ -20,10 +23,12 @@
     + '.me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;transform:translateY(-50%);transition:opacity .55s var(--ease,ease),transform .55s var(--ease,ease)}'
     + '.me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}'
     + '.me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}'
-    + '.me-fab-ico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.07);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(28,27,25,0.05);box-shadow:0 3px 12px rgba(28,27,25,0.05);color:var(--seal,#6B2A24);transition:transform .3s,box-shadow .3s,background .3s}'
-    + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);background:rgba(250,250,248,0.42);box-shadow:0 8px 20px rgba(28,27,25,0.10)}'
+    /* 누끼 아이콘 — 원형 배경 없이 선 아이콘만(터치 영역 50px 유지) · 메인홈과 동일 */
+    + '.me-fab-ico{width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none;color:var(--seal,#6B2A24);opacity:.85;transition:transform .3s var(--ease,ease),opacity .3s var(--ease,ease)}'
+    + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}'
     + '.me-fab-ico svg{width:22px;height:22px}'
-    + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
+    + '@media(max-width:680px){.me-fab-stack{right:6px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
+    /* 아이콘은 항상 노출(누끼) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);box-shadow:-26px 0 72px rgba(28,27,25,0.20);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
@@ -76,12 +81,27 @@
     + '.me-adv-send svg{width:17px;height:17px}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
+  var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
+  var BOOK = (CFG.booking && CFG.booking.url) ? CFG.booking.url : null;
+  var SEQ = CFG.sequence ? ((CFG.sequence === 'trim' || (CFG.sequence && CFG.sequence.mode === 'trim')) ? 'trim' : 'full') : null;   // 진행 시간표 FAB — sequence-modal.js가 [data-seq-open] 클릭을 받아 모달을 엶
   var wrap = document.createElement('div');
   wrap.innerHTML = ''
     + '<div class="me-fab-stack" id="meAdvStack">'
+    + (BOOK ? (''
+    + '  <a class="me-fab" href="' + BOOK + '" aria-label="상담 예약하기">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 14.5l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    + '  </a>') : '')
+    + (SEQ ? (''
+    + '  <button class="me-fab" id="meAdvSeq" type="button" data-seq-open="' + SEQ + '" aria-label="예식 진행 시간표 보기">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    + '  </button>') : '')
     + '  <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기" type="button">'
     + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
     + '  </button>'
+    + (SHARE ? (''
+    + '  <button class="me-fab" id="meAdvShare" aria-label="페이지 공유하기" type="button">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v10.5M12 3.5 8.5 7M12 3.5 15.5 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11H5.4A1.4 1.4 0 0 0 4 12.4v6.2A1.4 1.4 0 0 0 5.4 20h13.2a1.4 1.4 0 0 0 1.4-1.4v-6.2A1.4 1.4 0 0 0 18.6 11H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    + '  </button>') : '')
     + '</div>'
     + '<div class="me-adv-backdrop" id="meAdvBackdrop"></div>'
     + '<section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">'
@@ -274,6 +294,7 @@
   // ── 열기/닫기 + 모바일 배경 스크롤 잠금(index.html 위젯과 동일 동작) ──
   var _lockY = 0, _locked = false;
   function lockScroll() {
+    var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바(데스크톱)만 보정 · 모바일 팬텀 거터 방지
     document.documentElement.style.overflow = 'hidden';
     if (window.innerWidth <= 680) {
       _lockY = window.scrollY || window.pageYOffset || 0;
@@ -283,7 +304,7 @@
     }
   }
   function unlockScroll() {
-    document.documentElement.style.overflow = '';
+    document.documentElement.style.overflow = ''; document.documentElement.style.paddingRight = '';
     if (_locked) {
       var b = document.body;
       b.style.position = ''; b.style.top = ''; b.style.left = ''; b.style.right = ''; b.style.width = '';
@@ -311,12 +332,40 @@
     backdrop.classList.remove('open');
     unlockScroll();
   }
+  // 특정 화면에서 아이콘 스택 숨김(예: 마이페이지 로그인 뷰) — CFG.hideOn()이 true인 동안 비노출
+  if (typeof CFG.hideOn === 'function') {
+    var syncHide = function () {
+      var h = false; try { h = !!CFG.hideOn(); } catch (e) {}
+      stackEl.style.display = h ? 'none' : '';
+      if (h && panel.classList.contains('open')) close();
+    };
+    syncHide();
+    setInterval(syncHide, 600);
+  }
+
   fab.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
   refreshKakaoLink();
   // 카톡으로 넘어갈 때도 디렉터에게 대화 인계(있을 때만) — 고객이 같은 말을 두 번 안 하게.
   kakaoA.addEventListener('click', function () { refreshKakaoLink(); doHandoff(); });
+
+  // ── 공유 FAB(옵션 · CFG.share.url) — 링크만 공유(모바일 네이티브 시트·PC 복사). 복사 시 아이콘이 1.6초 체크로 바뀜. ──
+  var shareBtn = document.getElementById('meAdvShare');
+  if (shareBtn) {
+    var _shIco = shareBtn.querySelector('.me-fab-ico');
+    var _shSvg = _shIco.innerHTML;
+    function shareCopied() {
+      _shIco.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      setTimeout(function () { _shIco.innerHTML = _shSvg; }, 1600);
+    }
+    shareBtn.addEventListener('click', function () {
+      var data = { url: SHARE.url };   // 글 없이 링크만 — 카톡 등에서 문구가 메시지로 같이 입력되지 않게(메인홈과 동일)
+      if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data.url).then(shareCopied).catch(function () {}); return; }
+      try { var t = document.createElement('textarea'); t.value = data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); shareCopied(); } catch (e) {}
+    });
+  }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
 
   input.addEventListener('input', function () {

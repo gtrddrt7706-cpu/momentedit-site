@@ -70,14 +70,15 @@ var NOTIFY_EVENTS = {
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
-  // ── 고객: 권장(안심) ──
-  'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
-  'cust.cashReceiptIssued':{ to: 'customer', need: false, desc: '현금영수증 발행됨' },
-  'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
-  'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨' },
+  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 — 마이페이지에서 계약 진행 요청(예식일·정보 입력)' },
+  // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
+  'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
+  'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
+  'cust.holdGranted':     { to: 'customer', need: false, off: true, desc: '예식일 임시고정 승인됨' },
+  'cust.changeConfirmed': { to: 'customer', need: false, off: true, desc: '예식일 변경 적용됨' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
-  'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
+  'cust.holdReleased':    { to: 'customer', need: false, off: true, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' },
   'cust.archiveExpiring': { to: 'customer', need: true,  desc: '결과물 보관 만료 임박 — 다운로드 안내' }
 };
@@ -92,6 +93,7 @@ function notifyKakao(event, code, extra) {
   try {
     var meta = NOTIFY_EVENTS[event];
     if (!meta) { if (NOTIFY.LOG) Logger.log('[notifyKakao] ⚠️ 미등록 이벤트: ' + event); return; }
+    if (meta.off) { if (NOTIFY.LOG) Logger.log('[notifyKakao] 발송 안 함(off · 2026-06-12 사용자 결정): ' + event); return; }
     if (NOTIFY.LOG) {
       Logger.log('[notifyKakao] ' + event + ' → ' + meta.to + (meta.need ? '(행동필요)' : '(안내)')
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
@@ -148,6 +150,10 @@ function _kakaoSend(to, event, code, extra, opts) {
   var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
   if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략'); return; }
   var name = _nfCoupleName(cust);
+
+  // 상품별 단어 — 스냅은 '상담'→'촬영', '예식'→'촬영' (확정·D-1·제안·잔금 문구가 두 상품 공용이라 단어만 분기)
+  extra = extra || {};
+  if (extra.snap == null) { try { extra.snap = (String(cust.get('상품타입') || '').trim() === '웨딩스냅'); } catch (e) { extra.snap = false; } }
 
   var m = _nfCustomerMsg(event, name, extra);   // { vars, text }
   if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return; }
@@ -271,7 +277,11 @@ function _nfDate(ymd) {   // '2026-06-17' → '2026년 6월 17일'
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? (m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일') : String(ymd || '');
 }
-function _nfWon(n) { n = Number(n || 0); return n.toLocaleString ? n.toLocaleString('ko-KR') : String(n); }
+function _nfWon(n) {
+  var v = Number(String(n == null ? 0 : n).replace(/[,원\s]/g, ''));   // 시트 문자 금액('300,000원') 방어 · 못 읽으면 0 (고객 문자 'NaN원' 방지)
+  if (!isFinite(v)) v = 0;
+  return v.toLocaleString ? v.toLocaleString('ko-KR') : String(v);
+}
 
 var NF_MYPAGE = 'momentedit.kr/mypage.html';
 
@@ -281,61 +291,64 @@ function _nfCustomerMsg(event, name, x) {
   switch (event) {
     case 'cust.consultConfirmed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
-      return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 상담 일정이 확정되었습니다. ' + d + '에 뵙겠습니다. 변경이 필요하시면 마이페이지에서 가능해요. ' + NF_MYPAGE };
+      return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 일정이 확정되었습니다(' + d + '). 이 시간은 두 분만을 위해 비워둡니다. 변경은 마이페이지에서 가능해요. ' + NF_MYPAGE };
     case 'cust.consultDayBefore':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
-      return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 내일 ' + d + ' 상담이 예정되어 있어요. 편안히 오시면 됩니다.' };
+      return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, 내일 ' + d + ' ' + (x.snap ? '촬영' : '상담') + '이 예정되어 있어요. 편안히 오시면 됩니다. 내일 뵙겠습니다.' };
     case 'cust.timeProposed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
-      return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 상담 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 확인 후 수락해 주세요. ' + NF_MYPAGE };
+      return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
+        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
+    case 'cust.consultDone':
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 마이페이지에서 내용 확인 후 서명해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 3벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
     case 'cust.contractArrived':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 72시간 안에 마이페이지에서 확인 후 서명해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 안내드린 내용 그대로 담았습니다. 72시간 안에 마이페이지에서 차분히 확인 후 서명해 주세요(기한 경과 시 자동 파기). ' + NF_MYPAGE };
     case 'cust.paymentConfirmed':
       return { vars: { '#{이름}': name, '#{항목}': String(x.kind || '결제') },
-        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '결제') + ' 입금이 확인되었습니다. 감사합니다. 자세한 내역은 마이페이지에서 보실 수 있어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '결제') + ' 입금이 확인되었습니다. 감사합니다. 받은 마음 그대로 정성껏 준비하겠습니다. 내역은 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
     case 'cust.cashReceiptIssued':
       return { vars: { '#{이름}': name, '#{항목}': String(x.kind || ''), '#{금액}': _nfWon(x.amount) },
-        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '') + ' 현금영수증(' + _nfWon(x.amount) + '원)이 발행되었습니다. 승인번호는 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '') + ' 현금영수증(' + _nfWon(x.amount) + '원)이 발행되었습니다. 승인번호와 발행 내역은 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
     case 'cust.midPre':
     case 'cust.midDue':
       return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 중도금 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + NF_MYPAGE };
     case 'cust.balancePre':
     case 'cust.balanceDue':
-      return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 잔금 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+      return { vars: { '#{이름}': name, '#{행사}': (x.snap ? '촬영' : '예식'), '#{디데이}': String(x.dday != null ? x.dday : '') },
+        text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(' + (x.snap ? '촬영' : '예식') + ' ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 남은 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
     case 'cust.resultDelivered':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 결과물이 준비되었습니다. 마이페이지에서 확인·다운로드해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + NF_MYPAGE };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 자리를 비워둘게요.' };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + NF_MYPAGE };
     case 'cust.holdReleased':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 궁금한 점은 카카오톡 채널로 문의해 주세요.' };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 마음이 정해지시면 마이페이지에서 언제든 다시 요청하실 수 있어요. ' + NF_MYPAGE };
     case 'cust.holdExpiring':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d, '#{남은일}': String(x.left != null ? x.left : '') },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 상담을 확정하시면 자리가 유지됩니다.' };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 기간이 지나면 자리는 자동으로 풀립니다. 상담을 확정하시면 그대로 유지돼요. ' + NF_MYPAGE };
     case 'cust.changeConfirmed':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 자세한 내용은 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 이후 안내는 새 날짜 기준으로 정리해 두었어요. ' + NF_MYPAGE };
     case 'cust.changeDeclined':
       return { vars: { '#{이름}': name, '#{사유}': String(x.reason || '요청하신 일정 진행이 어려워요') },
-        text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 어려워 보류되었습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 죄송하게도 요청하신 예식일 변경을 진행하지 못했습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. 가능한 방향을 함께 찾아보겠습니다. ' + NF_MYPAGE };
     case 'cust.archiveExpiring':
       return { vars: { '#{이름}': name, '#{만료일}': _nfDate(x.expires) },
-        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 그 전에 마이페이지에서 다운로드해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 파일이 삭제될 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + NF_MYPAGE };
     default:
       return null;
   }

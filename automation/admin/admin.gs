@@ -80,7 +80,20 @@ function setAdminAccount(id, pw, name, role) {
   return '계정 등록됨: ' + id + ' (' + name + ')';
 }
 
-// 로그인 — 아이디·비번 검증 → 토큰 발급. (인증 자체이므로 토큰 불필요 · 디스패처 밖에서 직접 호출)
+// [다중 기기 토큰 · 2026-06-12] 로그인토큰 칸에 JSON 배열 [{t:토큰,e:만료}] 최근 5개 보관.
+//   기존(단일 토큰 덮어쓰기) 구조에서는 폰·다른 브라우저로 로그인하는 순간 기존 기기가
+//   '세션 만료'로 풀리던 문제("됐다가 안 됨")가 있었음. 레거시 단일 문자열도 그대로 인식.
+function _parseTokens(cell) {
+  var s = String(cell || '').trim();
+  if (!s) return [];
+  if (s.charAt(0) === '[') { try { var a = JSON.parse(s); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  return [{ t: s, e: '' }];   // 레거시 단일 토큰(만료는 토큰만료 칸 기준)
+}
+function _liveTokens(list, legacyExpiry) {
+  return (list || []).filter(function (it) { return it && it.t && !tokenExpired(it.e || legacyExpiry); });
+}
+
+// 로그인 — 아이디·비번 검증 → 토큰 발급(기기 5대까지 동시 유지). (인증 자체이므로 토큰 불필요 · 디스패처 밖에서 직접 호출)
 function adminLogin(id, pw) {
   id = String(id || '').trim();
   if (!id || !pw) return { ok: false, error: '아이디와 비밀번호를 입력해 주세요.' };
@@ -89,14 +102,31 @@ function adminLogin(id, pw) {
   var sh = _adminSheet(), colOf = buildHeaderIndex(sh);
   var token = makeToken();
   var expiry = fmtKST(new Date(Date.now() + (P.TOKEN_VALID_DAYS || 14) * 86400 * 1000));
-  sh.getRange(r.num, colOf['로그인토큰']).setValue(token);
-  sh.getRange(r.num, colOf['토큰만료']).setValue(expiry);
+  var list = _liveTokens(_parseTokens(r.get('로그인토큰')), r.get('토큰만료'));
+  list.push({ t: token, e: expiry });
+  if (list.length > 5) list = list.slice(-5);
+  sh.getRange(r.num, colOf['로그인토큰']).setValue(JSON.stringify(list));
+  sh.getRange(r.num, colOf['토큰만료']).setValue(expiry);   // 표시용(가장 최근 만료)
   return { ok: true, token: token, name: String(r.get('이름') || id) };
 }
 
 function adminLogout(token) {
-  var r = token ? _findAdminRow('로그인토큰', String(token).trim(), false) : null;
-  if (r) { var sh = _adminSheet(), colOf = buildHeaderIndex(sh); sh.getRange(r.num, colOf['로그인토큰']).setValue(''); sh.getRange(r.num, colOf['토큰만료']).setValue(''); }
+  token = String(token || '').trim();
+  if (!token) return { ok: true };
+  var sh = _adminSheet(); if (!sh) return { ok: true };
+  var colOf = buildHeaderIndex(sh), last = sh.getLastRow();
+  if (!colOf['로그인토큰'] || last < 2) return { ok: true };
+  var vals = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], 2 + i);
+    var list = _parseTokens(r.get('로그인토큰'));
+    var kept = list.filter(function (it) { return it.t !== token; });
+    if (kept.length !== list.length) {
+      sh.getRange(r.num, colOf['로그인토큰']).setValue(kept.length ? JSON.stringify(kept) : '');
+      if (!kept.length) sh.getRange(r.num, colOf['토큰만료']).setValue('');
+      break;
+    }
+  }
   return { ok: true };
 }
 
@@ -104,10 +134,21 @@ function adminLogout(token) {
 function _resolveAdmin(token) {
   token = String(token || '').trim();
   if (!token) return { ok: false };
-  var r = _findAdminRow('로그인토큰', token, false);
-  if (!r) return { ok: false };
-  if (tokenExpired(r.get('토큰만료'))) return { ok: false, reason: 'expired' };
-  return { ok: true, id: String(r.get('아이디') || ''), name: String(r.get('이름') || ''), role: String(r.get('역할') || '') };
+  var sh = _adminSheet(); if (!sh) return { ok: false };
+  var colOf = buildHeaderIndex(sh), last = sh.getLastRow();
+  if (!colOf['로그인토큰'] || last < 2) return { ok: false };
+  var vals = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], 2 + i);
+    var list = _parseTokens(r.get('로그인토큰'));
+    for (var k = 0; k < list.length; k++) {
+      if (list[k] && list[k].t === token) {
+        if (tokenExpired(list[k].e || r.get('토큰만료'))) return { ok: false, reason: 'expired' };
+        return { ok: true, id: String(r.get('아이디') || ''), name: String(r.get('이름') || ''), role: String(r.get('역할') || '') };
+      }
+    }
+  }
+  return { ok: false };
 }
 
 // 동작 가드 — 디스패처가 이미 검증(_AUTHED)했으면 통과 / 아니면 토큰 OR 편집기 소유자(폴백).
@@ -1292,6 +1333,7 @@ function adminMarkConsultDone(code) {
     if (_fitRecMC.벌수 == null) return { ok: false, error: '시착 벌수를 먼저 기록해 주세요. (시착 카드에서 입력 · 안 입으셨으면 0벌) 환불 산정의 근거가 돼요.' };   // [필수화] 벌수 없으면 환불 계산 불가 → 상담완료 게이트에서 강제
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
+    notifyKakao('cust.consultDone', code);   // 고객: 다음 단계(마이페이지 계약 진행 요청) 안내 — 없으면 여기서 여정 정체(카톡)
     return { ok: true, stage: '상담완료' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
