@@ -1260,11 +1260,19 @@ function adminConfirmPayment(code) {
   var rec0 = _parseJsonSafe(cust.get('동의기록'));
   rec0.영수증기준일 = rec0.영수증기준일 || {};
   rec0.영수증기준일.예약금 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용 · 스냅 계약금 포함)
-  touchCustomer(sheet, colOf, cust.num, { '입금상태': '확인', '동의기록': JSON.stringify(rec0) });
+  var patch = { '입금상태': '확인', '동의기록': JSON.stringify(rec0) };
+  // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인 — buildPaymentState.bundle과 같은 기준(D-149/D-9 · 시그니처)
+  var bundled = [];
+  if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
+    var _ddc = _balanceDDay(cust.get('예식일'));
+    if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = fmtKST(new Date()); bundled.push('중도금'); }
+    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = fmtKST(new Date()); bundled.push('잔금'); }
+  }
+  touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
-  _recordHandler(code, '입금 확인 → 입금완료');
-  notifyKakao('cust.paymentConfirmed', code, { kind: '계약금' });   // 고객 안심 알림(카톡)
-  return { ok: true };
+  _recordHandler(code, '입금 확인 → 입금완료' + (bundled.length ? (' (일괄: 계약금·' + bundled.join('·') + ')') : ''));
+  notifyKakao('cust.paymentConfirmed', code, { kind: bundled.length ? ('계약금·' + bundled.join('·')) : '계약금' });   // 고객 안심 알림(카톡)
+  return { ok: true, bundled: bundled };
 }
 
 // [02-7] 현금영수증 발행 기록 — 입금 확인된 마일스톤(예약금/계약금·중도금·잔금)을 홈택스에서 발급한 뒤, 승인번호(발행번호)를 여기 기록.
