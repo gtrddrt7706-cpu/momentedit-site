@@ -106,8 +106,24 @@ async function runHandoff(name, convOpt) {
   await sleep(8000);
 }
 
+// [가드] 가용성 라우팅 생존 핑 — GAS aiAvailability가 죽어 빈 맵=전부 가능으로 가장하면(더블부킹 누수) 즉시 빨간 실패.
+//   2026-06-12 더블부킹 사건 교훈: 라우팅 누락은 채점 키워드로 못 잡으니 결정적 핑으로 가장 먼저 끊는다.
+async function runAvailabilityGuard() {
+  console.log('\n══ [가드] G0 가용성 라우팅 생존 핑 ══');
+  const j = await call('/api/schedule-advisor', { probe: true });
+  console.log('  응답: ' + JSON.stringify(j));
+  const issues = [];
+  if (!(j && j.ok === true)) issues.push('probe 응답 ok 아님(' + (j && (j.error || j._status)) + ')');
+  else if (j.availSource !== 'gas') issues.push('가용성 출처=' + j.availSource + ' → GAS aiAvailability 라우팅 누락·시크릿 불일치·조회 실패(빈 맵 가장 = 더블부킹 위험). consultation-booking 라우터 case·AI_HANDOFF_SECRET 점검 필요');
+  report.push({ name: 'G0 가용성 라우팅 생존', result: issues.length ? 'CHECK' : 'PASS', issues: issues.join(' · ') || ('출처 gas · 점유일수 ' + (j && j.takenDates)) });
+  await sleep(2000);
+}
+
 (async function () {
   console.log('대상: ' + BASE + ' · 오늘: ' + today);
+
+  // ══ 가드: 점유 조회 백엔드가 살아있는지 먼저(더블부킹 누수 자동 감지) ══
+  await runAvailabilityGuard();
 
   // ══ 신규: 관리자 인계 GAS 전달 확인(방금 연결한 백엔드 검증) ══
   await runHandoff('H1 관리자 인계 → GAS 전달(🤖 카드 생성)');
