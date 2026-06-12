@@ -41,7 +41,7 @@ const CONFIG = {
   SLOT_DURATION_MIN: 40,                       // 상담 길이(분)
   SLOTS_WEEKDAY: ['11:30', '14:50', '18:10', '19:30'],  // 평일 슬롯 (19:30 = 직장인 야간 상담)
   SLOTS_WEEKEND: ['18:20'],                    // 주말 슬롯 (저녁 1타임)
-  DEPOSIT: 200000,                             // 예약금
+  DEPOSIT: 100000,                             // 예약금
   ACCOUNT: '기업 000-000-00000',                // 입금 계좌 · ⚠️ 임시값(기업은행), 실제 계좌번호로 교체 필요
   ACCOUNT_HOLDER: '모먼트에디트',                // ⚠️ 임시값(예금주)
   EXEC_URL: 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec',  // 웹앱 /exec (mypage.html의 EXEC_URL과 동일) · webAppUrl()이 사용
@@ -492,7 +492,7 @@ function serveCancelD(token, row) {
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
     '<div class="t">예약을 취소하시겠어요?</div>' +
     '<div class="card"><div class="ey">Reservation</div><div class="dt">' + prettyDate(dateKey) + ' · ' + esc(time) + '</div></div>' +
-    '<div class="notice">취소 시 예약금 ' + depositTxt + '은 입력하신 계좌로 환불해 드립니다.<br>드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 70,000원) 차감 후 환불됩니다.<br>환불은 영업일 기준 수일이 소요될 수 있습니다.</div>' +
+    '<div class="notice">취소 시 예약금 ' + depositTxt + '은 입력하신 계좌로 환불해 드립니다.<br>드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불됩니다.<br>환불은 영업일 기준 수일이 소요될 수 있습니다.</div>' +
     '<div class="fld"><span class="lbl">환불 계좌</span>' +
     '<input id="acct" type="text" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">' +
     '<div class="hint">예: 국민 123456-78-901234 정희준</div></div>' +
@@ -555,13 +555,13 @@ function doCustomerCancel(sheet, colOf, row, p) {
     '취소가 정상 처리되었습니다.<br><br>입력해 주신 계좌로 예약금을 환불해 드리겠습니다.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모시겠습니다.', true);
 }
 
-// [취소 환불 예상] 예약금(200,000) 기준 시착 벌수 비례 공제 — 시착동의 v3·계약서 4조⑧과 동일 규칙(cancel.html 표시용).
-//   Customers 행(개인코드 매칭)의 동의기록.시착.벌수 → fitDeduct=min(벌수×70,000, 200,000) · amount=예약금-공제.
+// [취소 환불 예상] 예약금(100,000) 기준 시착 벌수 비례 공제 — 시착동의 v4·계약서 4조⑧과 동일 규칙(cancel.html 표시용).
+//   Customers 행(개인코드 매칭)의 동의기록.시착.벌수 → fitDeduct=min(벌수×50,000, 100,000) · amount=예약금-공제.
 //   needCount = 시착 동의완료인데 벌수 미기록(공제 0으로 계산하되 화면은 '벌수 확인 후 안내'). 행 없거나 시착 전이면 공제 0(전액 환불).
 //   베스트에포트 — 산정 실패해도 취소 흐름은 절대 막지 않는다(호출부 try/catch 짝).
 function _consultRefundQuote(code) {
-  var unit = (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.추가벌비용) || 70000;     // 1벌당 시착비(70_journey 단일 출처)
-  var dep = (typeof PAYMENT !== 'undefined' && PAYMENT.예약금) || Number(CONFIG.DEPOSIT) || 200000;
+  var unit = (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.추가벌비용) || 50000;     // 1벌당 시착비(70_journey 단일 출처)
+  var dep = (typeof PAYMENT !== 'undefined' && PAYMENT.예약금) || Number(CONFIG.DEPOSIT) || 100000;
   var q = { amount: dep, fitCount: 0, fitDeduct: 0, needCount: false };
   code = String(code || '').trim();
   if (!code || typeof findCustomerByCode !== 'function') return q;
@@ -573,7 +573,7 @@ function _consultRefundQuote(code) {
   var cnt = (fit.벌수 != null && fit.벌수 !== '' && !isNaN(Number(fit.벌수))) ? Number(fit.벌수) : null;
   if (cnt == null) { q.needCount = true; return q; }                                              // 시착했는데 벌수 미기록 → 산정 보류
   q.fitCount = cnt;
-  q.fitDeduct = Math.min(cnt * unit, 200000);
+  q.fitDeduct = Math.min(cnt * unit, dep);
   q.amount = Math.max(0, dep - q.fitDeduct);
   return q;
 }
