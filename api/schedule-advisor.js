@@ -180,7 +180,12 @@ module.exports = async (req, res) => {
 
     // 가용성: 로그인 클라이언트(schedule.html)가 준 taken 우선, 없으면 GAS 서버측 조회(비로그인 inquiry)
     let taken = normalizeTaken(body && body.taken);
-    if (Object.keys(taken).length === 0) taken = normalizeTaken(await fetchAvailability());
+    let availUnknown = false;
+    if (Object.keys(taken).length === 0) {
+      const got = await fetchAvailability();
+      if (got === null) availUnknown = true;   // 점유 조회 불가 — '가능' 단정 금지(더블부킹 방지)
+      else taken = normalizeTaken(got);
+    }
 
     // 반복 방지·신비주의: 대화 기록에서 "이미 확정 안내한 날짜→타임"과 "이미 CTA/희소성을 안내했는지"를 코드로 집계.
     //   - confirmed: 같은 날짜에 또 다른 타임을 확인해 주면 그날이 비었다는 게 드러나므로, 추가 확정을 막는다.
@@ -220,7 +225,11 @@ module.exports = async (req, res) => {
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
     const lv = levelFor(taken, today, page);   // ⑤ 주말 예약율 6단계 · 클라이언트 비노출(로그만)
     try { console.log('sched_level', lv.n, lv.ratio.toFixed(2), page); } catch (e) {}
-    const verdict = decide(ex, taken, today, ctx, page, lv);
+    let verdict = decide(ex, taken, today, ctx, page, lv);
+    // [fail-closed] 점유 조회 불가 상태에서 특정 날짜를 '가능'으로 단정하면 더블부킹 위험 — 안전 안내로 대체
+    if (availUnknown && ex && ex.date) {
+      verdict = '지금은 일정 확인 시스템 연결이 잠시 원활하지 않다. 이 날짜가 가능한지 단정하지 말고, "잠시 후 다시 물어봐 주시면 바로 확인해 드리겠다"고 정중히 안내하라. 가능·마감 어느 쪽도 말하지 마라.';
+    }
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
     const rep = await callClaude(apiKey, {
@@ -394,10 +403,11 @@ async function fetchAvailability() {
       body: JSON.stringify({ action: 'aiAvailability', secret: process.env.HANDOFF_SECRET || undefined }),
     });
     clearTimeout(t);
-    if (!r.ok) return {};
+    if (!r.ok) return null;
     const j = await r.json();
-    return (j && j.ok && j.taken) || {};
-  } catch (e) { return {}; }
+    if (!j || j.ok !== true || !j.taken) return null;   // 라우팅 누락·시크릿 불일치·조회 실패 = 불명(fail-closed)
+    return j.taken;
+  } catch (e) { return null; }
 }
 
 // 연도 안정화 — 1차 추출이 후속 턴에서 연도를 다르게 잡는 사고 방지(예: '내년 10월 9일 토요일' 안내 후

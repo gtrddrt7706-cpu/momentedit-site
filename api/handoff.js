@@ -105,7 +105,8 @@ module.exports = async (req, res) => {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: customer || null, conversation: history, brief: brief, at: new Date().toISOString() }),
         });
-        delivered = r.ok;
+        let jj = null; try { jj = await r.json(); } catch (e) {}
+        delivered = !!(r.ok && jj && jj.ok === true && jj.id);   // GAS는 미지의 action에도 200을 주므로 ok·id까지 확인(라우팅 누락 감지)
       } catch (e) { console.error('handoff_forward_fail', e && e.message); }
     }
 
