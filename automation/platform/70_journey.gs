@@ -260,7 +260,9 @@ function handleSignContract(body) {
     } catch (e) { Logger.log('계약서 자동 보관 실패: ' + (e && e.message)); }
     var isSnapC = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
     // [A-5] 서명 = 계약 점유로 전환 — 잔존 가예약이 별도 점유·만료 알림 대상으로 남지 않게 상태만 바꿔 보존(이력)
-    if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now; }
+    if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
+      try { if (prev.가예약.eventId && typeof getCalendar === 'function') { var _hev = getCalendar().getEventById(prev.가예약.eventId); if (_hev) _hev.setTitle(_hev.getTitle().replace('[가예약]', '[예식확정]')); } } catch (e) {}   // 캘린더 표시도 확정으로
+    }
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
       setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
@@ -358,6 +360,7 @@ function handleChangeWeddingHold(body) {
     if (!rec.가예약 || (rec.가예약.status !== '요청' && rec.가예약.status !== '승인')) return { ok: false, error: '변경할 임시 고정이 없습니다.' };
     if (rec.가예약.date === d && rec.가예약.slot === t) return { ok: true, same: true };
     if (_weddingSlotTaken(sheet, colOf, d, t, code)) return { ok: false, error: '그 시간은 지금 선택이 어려워요. 다른 시간을 선택해 주세요.' };
+    _holdCalDelete(rec.가예약);   // 기존 승인분 캘린더 이벤트 정리(새 일정은 재승인 시 생성)
     rec.가예약 = { date: d, slot: t, status: '요청', at: fmtKST(new Date()) };
     touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
     _recordHandler(code, '고객 예식일 임시고정 변경 요청 · ' + d + ' ' + t);
@@ -379,6 +382,7 @@ function handleCancelWeddingHold(body) {
     var rec = _parseJsonSafe(cust.get('동의기록'));
     if (!rec.가예약) return { ok: true, already: true };
     var _d = rec.가예약.date, _s2 = rec.가예약.slot;
+    _holdCalDelete(rec.가예약);
     delete rec.가예약;
     touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
     _recordHandler(code, '고객 예식일 임시고정 취소 · ' + (_d || '') + ' ' + (_s2 || ''));
@@ -417,6 +421,7 @@ function handleRequestContract(body) {
     // [임시고정 연동] 요청한 예식 일정이 잡아둔 가예약과 다르면 — 이제 요청이 기준이므로 가예약 자동 해제(다른 슬롯이 몰래 점유로 남지 않게). 같으면 서명 전까지 슬롯 보호용으로 유지.
     if (rec.가예약 && (rec.가예약.date !== wed || rec.가예약.slot !== wT)) {
       var _ohd = rec.가예약.date, _ohs = rec.가예약.slot;
+      _holdCalDelete(rec.가예약);
       delete rec.가예약;
       try { _recordHandler(code, '계약 요청 일정(' + wed + ' ' + wT + ')과 달라 임시고정 자동 해제 · ' + (_ohd || '') + ' ' + (_ohs || '')); } catch (e) {}
     }
@@ -1332,7 +1337,33 @@ function _stampConsentKey(sheet, colOf, rowNum, mutate) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// [임시고정 캘린더] 승인된 가예약을 구글 캘린더 종일 이벤트로 — 미쿠가 캘린더만 봐도 점유가 보이게.
+//   생성: 승인 시(eventId를 hold에 저장 — 호출자가 rec 저장). 삭제: 해제·거절·만료·노쇼·미계약·일정변경 시(멱등).
+//   캘린더 실패는 흐름을 막지 않음(점유의 진실은 시트 _weddingSlotTaken — 캘린더는 가시화 전용).
+function _holdCalCreate(cust, hold) {
+  try {
+    if (!hold || !hold.date || hold.eventId) return;
+    var cal = (typeof getCalendar === 'function') ? getCalendar() : null; if (!cal) return;
+    var m = String(hold.date).match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return;
+    var names = '';
+    try { names = (typeof customerNames === 'function') ? customerNames(cust) : ''; } catch (e) {}
+    if (!names) names = String(cust.get('신랑이름') || '') || String(cust.get('개인코드') || '');
+    var ev = cal.createAllDayEvent('[가예약] ' + names + (hold.slot ? (' · ' + hold.slot) : ''), new Date(+m[1], +m[2] - 1, +m[3]));
+    try { ev.setDescription('예식일 임시고정(14일 보호) · 개인코드 ' + String(cust.get('개인코드') || '').trim() + ' · 본계약 시 [예식확정]으로 전환, 해제/만료 시 자동 삭제'); } catch (e) {}
+    hold.eventId = ev.getId();
+  } catch (e) { Logger.log('가예약 캘린더 생성 실패: ' + (e && e.message)); }
+}
+function _holdCalDelete(hold) {
+  try {
+    if (!hold || !hold.eventId) return;
+    var cal = (typeof getCalendar === 'function') ? getCalendar() : null; if (!cal) return;
+    var ev = cal.getEventById(hold.eventId); if (ev) ev.deleteEvent();
+    delete hold.eventId;
+  } catch (e) { Logger.log('가예약 캘린더 삭제 실패: ' + (e && e.message)); }
+}
+
 // [트리거·일1회] 임시고정 만료 D-3 — 고객에게 1회 안내(메일 직송+카톡 키). 가예약.expiryNoticed로 중복 방지.
+//   + 캘린더 정리/백필: 만료된 홀드의 이벤트 삭제, 승인됐는데 이벤트 없는 홀드(헬퍼 도입 전 승인분) 생성.
 function sendHoldExpiryNotices() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
@@ -1345,9 +1376,19 @@ function sendHoldExpiryNotices() {
     if (STAGE_EXCEPTIONS.indexOf(stage) !== -1) continue;
     if (String(row[c('계약상태') - 1] || '').trim() === '서명완료') continue;          // 계약되면 홀드는 의미 종료
     var rec = _parseJsonSafe(row[c('동의기록') - 1]); var h = rec.가예약;
-    if (!h || h.status !== '승인' || !h.expires || h.expiryNoticed) continue;
+    if (!h || h.status !== '승인' || !h.expires) continue;
     var left = _dayDiff(h.expires, today);
-    if (left == null || left < 0 || left > 3) continue;                                 // 만료 D-3 ~ D-0
+    if (left != null && left < 0) {                                                     // 만료 — 점유는 lazy 해제됨(_weddingOccupancy), 캘린더 이벤트만 정리
+      if (h.eventId) { _holdCalDelete(h); _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) { if (fresh.가예약) delete fresh.가예약.eventId; }); }
+      continue;
+    }
+    if (h.status === '승인' && !h.eventId) {                                            // 백필 — 캘린더 동기화 도입 전 승인분도 이벤트 생성
+      var _bfCust = { get: function (hh) { var cc2 = c(hh); return cc2 ? row[cc2 - 1] : ''; } };
+      _holdCalCreate(_bfCust, h);
+      if (h.eventId) { (function (eid) { _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) { if (fresh.가예약 && !fresh.가예약.eventId) fresh.가예약.eventId = eid; }); })(h.eventId); }
+    }
+    if (h.expiryNoticed) continue;
+    if (left == null || left > 3) continue;                                             // 만료 D-3 ~ D-0
     var code = String(row[c('개인코드') - 1] || '').trim();
     notifyKakao('cust.holdExpiring', code, { date: h.date, slot: h.slot, left: left });
     var email = String(row[c('이메일') - 1] || '').trim();

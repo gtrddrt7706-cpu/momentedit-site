@@ -76,6 +76,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   font-family:var(--serif);font-style:italic;font-size:13px;color:var(--light);
   transition:all 0.4s var(--ease);position:relative;z-index:2}
 .step.active .step-dot{border-color:var(--seal);background:var(--seal);color:#fff}
+input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인장색) — 파란 기본색 대체, 마이페이지와 통일 */
 .step.done .step-dot{border-color:var(--gold);background:var(--gold);color:#fff}
 .step-name{font-size:10px;letter-spacing:0.1em;color:var(--light);font-weight:400;
   transition:color 0.4s var(--ease)}
@@ -564,6 +565,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
       <div class="deposit-label">Reservation Deposit</div>
       <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
       <div class="deposit-note">상담 예약금은 본 계약 시 계약금의 일부로 전환됩니다.</div>
+      <div class="deposit-note" style="font-size:12px;color:var(--light,#A39C8E);margin-top:4px">계약을 진행하지 않으시고 드레스 시착도 하지 않으셨다면 예약금은 전액 환불해 드려요.</div>
       <div class="deposit-acct">
         <span class="acct-label">입금 계좌</span>
         <span class="acct-no" id="t_account"></span>
@@ -773,7 +775,7 @@ function renderCal(){
     if(isAvail(d)){
       el.classList.add('avail');
       if(selDate && key(selDate)===key(d)) el.classList.add('sel');
-      el.onclick=()=>{selDate=d;selTime=null;renderCal();renderTime();updateSummary();
+      el.onclick=()=>{window.__schedTouched=true;selDate=d;selTime=null;renderCal();renderTime();updateSummary();
         setTimeout(()=>{document.getElementById('timeHead').scrollIntoView({behavior:'smooth',block:'center'});},150);};
     } else {
       el.classList.add('off');
@@ -1041,30 +1043,52 @@ if(_hdw){
 }
 }
 // ── 부트스트랩: 세션 토큰으로 getAvailability 호출 → SERVER 구성 → boot() ──
+//   체감속도: ① 직전 캐시(localStorage, 10분)로 달력 즉시 그림 → ② 서버 응답으로 갱신.
+//   GAS 콜드스타트가 길어도 빈 달력이 멈춰 보이지 않게 로딩 안내·타임아웃 처리.
 (function(){
   function $(i){return document.getElementById(i);}
   function fail(msg){ document.body.innerHTML='<div style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'+msg+'<br><br><a href="/mypage.html" style="color:#9A7F5F;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></div>'; }
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }
+  var CACHE_KEY='me_sched_avail_v1', painted=false;
+  function applyHead(s){ var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};
+    set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder);
+    var _cpy=$('acctCopyBtn'); if(_cpy) _cpy.style.display=(s.account?'':'none');
+    var ka=$('t_kakao'); if(ka&&s.kakao) ka.href=s.kakao; }
+  // 로딩 안내(달력 위) — 응답 오면 제거
+  var note=document.createElement('div'); note.id='calLoadNote';
+  note.style.cssText='font-family:var(--serif-ko);font-size:12px;color:#A39C8E;text-align:center;margin:0 0 8px;line-height:1.6';
+  note.textContent='상담 가능일을 불러오고 있어요…';
+  var _cg0=$('calGrid'); if(_cg0&&_cg0.parentNode) _cg0.parentNode.insertBefore(note,_cg0);
+  var slowT=setTimeout(function(){ if($('calLoadNote')) $('calLoadNote').textContent='거의 다 됐어요. 잠시만 기다려 주세요…'; },5000);
+  function clearNote(){ clearTimeout(slowT); var n=$('calLoadNote'); if(n&&n.parentNode) n.parentNode.removeChild(n); }
+  // ① 캐시 즉시 표시(있으면)
+  try{ var c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(c&&c.at&&(Date.now()-c.at)<600000&&c.data&&c.data.ok){ var cs=c.data; cs.token=token; cs.me=!!me; applyHead(cs); boot(cs); painted=true; clearNote(); }
+  }catch(e){}
+  // ② 서버 응답(타임아웃 25초)
+  var done=false;
+  var killer=setTimeout(function(){ if(done)return; done=true; if(!painted){ clearNote(); fail('일정을 불러오는 데 시간이 너무 걸려요.<br>잠시 후 새로고침 해주세요.'); } },25000);
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:token})})
     .then(function(r){return r.json();})
     .then(function(s){
-      if(s&&s.cancelled){   // [취소 동기화] 취소된 예약 · 선택 화면 대신 취소 상태 안내 + 마이페이지로 전환
-        try{ localStorage.removeItem('me_state_v1'); }catch(e){}
+      if(done)return; done=true; clearTimeout(killer); clearNote();
+      if(s&&s.cancelled){ try{ localStorage.removeItem('me_state_v1'); localStorage.removeItem(CACHE_KEY); }catch(e){}
         fail('이 예약은 <b style="color:#6B2A24">취소된 상태</b>예요.<br>현재 상태는 마이페이지에서 확인하실 수 있어요.<br><br><span style="font-size:12px;color:#A39C8E">잠시 후 마이페이지로 이동합니다…</span>');
-        setTimeout(function(){ location.href='/mypage.html'; }, 2200);
-        return;
-      }
-      if(!s||!s.ok){ fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
+        setTimeout(function(){ location.href='/mypage.html'; }, 2200); return; }
+      if(!s||!s.ok){ if(!painted) fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at:Date.now(), data:s})); }catch(e){}
       s.token=token; s.me=!!me;
-      var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};
-      set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder);
-      var _cpy=$('acctCopyBtn'); if(_cpy) _cpy.style.display=(s.account?'':'none');   // 계좌 미설정이면 복사 버튼 숨김
-      var ka=$('t_kakao'); if(ka&&s.kakao) ka.href=s.kakao;
-      boot(s);
+      if(!painted){ applyHead(s); boot(s); }   // 캐시로 이미 그렸으면 재그리기 보류(사용자 선택 보존)
+      else if(!window.__schedTouched){          // 아직 손 안 댔고 최신과 다르면 조용히 갱신
+        try{ var prev=JSON.parse(localStorage.getItem('me_sched_shown')||'null'); }catch(e){ prev=null; }
+        var sig=JSON.stringify({a:s.avail,f:s.full});
+        if(sig!==(window.__schedShownSig||'')){ applyHead(s); boot(s); }
+      }
+      window.__schedShownSig=JSON.stringify({a:s.avail,f:s.full});
     })
-    .catch(function(){ fail('불러오기 실패 · 새로고침 해주세요.'); });
+    .catch(function(){ if(done)return; done=true; clearTimeout(killer); clearNote(); if(!painted) fail('불러오기 실패 · 새로고침 해주세요.'); });
 })();
 </script>
 <script src="/assets/sequence-modal.js" defer></script>

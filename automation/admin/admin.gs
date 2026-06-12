@@ -1477,6 +1477,7 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException) {
   // ※ 동의기록.영수증발행(홈택스 발행 기록)은 의도적 보존 — 세무 증빙. 취소는 adminUndoCashReceipt로만.
   if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
     var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (consentKeys.indexOf('가예약') !== -1 && rec.가예약 && typeof _holdCalDelete === 'function') _holdCalDelete(rec.가예약);   // 캘린더 이벤트도 함께 정리
     consentKeys.forEach(function (k) { delete rec[k]; });
     upd['동의기록'] = Object.keys(rec).length ? JSON.stringify(rec) : '';
   }
@@ -1567,6 +1568,7 @@ function adminGrantWeddingHold(code) {
   if (_weddingSlotTaken(sheet, colOf, hold.date, hold.slot, code)) return { ok: false, error: '그 예식 시간이 이미 다른 예약으로 마감됐어요.' };
   var exp = new Date(); exp.setDate(exp.getDate() + 14);
   hold.status = '승인'; hold.grantedAt = fmtKST(new Date()); hold.expires = _kstYmd(exp);
+  if (typeof _holdCalCreate === 'function') _holdCalCreate(cust, hold);   // 구글 캘린더 종일 이벤트(가시화 · eventId는 가예약에 저장)
   touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
   _recordHandler(code, '예식일 임시고정 승인 · ' + hold.date + ' ' + hold.slot);
   notifyKakao('cust.holdGranted', code, { date: hold.date, slot: hold.slot });
@@ -1582,6 +1584,7 @@ function adminDeclineWeddingHold(code) {
   var rec = _parseJsonSafe(cust.get('동의기록'));
   if (!rec.가예약) return { ok: true, already: true };
   var _d = rec.가예약.date, _s = rec.가예약.slot;
+  if (typeof _holdCalDelete === 'function') _holdCalDelete(rec.가예약);
   delete rec.가예약;
   touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(rec).length ? JSON.stringify(rec) : '' });
   _recordHandler(code, '예식일 임시고정 거절/해제 · ' + (_d || '') + ' ' + (_s || ''));
@@ -1603,7 +1606,7 @@ function adminMarkNoshow(code) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var _nRec = _parseJsonSafe(cust.get('동의기록'));
     var _nUpd = { '현재단계': '노쇼' };
-    if (_nRec.가예약) { delete _nRec.가예약; _nUpd['동의기록'] = Object.keys(_nRec).length ? JSON.stringify(_nRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
+    if (_nRec.가예약) { if (typeof _holdCalDelete === 'function') _holdCalDelete(_nRec.가예약); delete _nRec.가예약; _nUpd['동의기록'] = Object.keys(_nRec).length ? JSON.stringify(_nRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
     touchCustomer(sheet, colOf, cust.num, _nUpd);
     _recordHandler(code, '노쇼 처리');
     return { ok: true, stage: '노쇼', archived: true };
@@ -1626,7 +1629,7 @@ function adminMarkUncontracted(code) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var _uRec = _parseJsonSafe(cust.get('동의기록'));
     var _uUpd = { '현재단계': '미계약' };
-    if (_uRec.가예약) { delete _uRec.가예약; _uUpd['동의기록'] = Object.keys(_uRec).length ? JSON.stringify(_uRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
+    if (_uRec.가예약) { if (typeof _holdCalDelete === 'function') _holdCalDelete(_uRec.가예약); delete _uRec.가예약; _uUpd['동의기록'] = Object.keys(_uRec).length ? JSON.stringify(_uRec) : ''; }   // 가예약 정리(취소와 일관 · 잔존 슬롯/배너 방지)
     touchCustomer(sheet, colOf, cust.num, _uUpd);
     _recordHandler(code, '미계약 처리');
     return { ok: true, stage: '미계약', archived: true };
