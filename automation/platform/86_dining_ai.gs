@@ -94,5 +94,8 @@ function handleDiningMatch(body) {
   if (['room', 'seats'].indexOf(parsed.group) >= 0) f.group = parsed.group;
   if (parsed.elderly === true) f.elderly = true;
 
-  return { ok: true, filters: f, summary: String(parsed.summary || '').slice(0, 120) };
+  // 고객 노출 문구 세이프넷 — 전각 줄표(—→·)·이모지·마크다운(**·#) 제거(advisor.js와 동일 원칙 · CLAUDE.md 하드룰).
+  var sum = String(parsed.summary || '').replace(/—/g, '·').replace(/\*\*/g, '').replace(/[#`]/g, '')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\uFE0F]/gu, '').replace(/\s{2,}/g, ' ').trim().slice(0, 120);
+  return { ok: true, filters: f, summary: sum };
 }
