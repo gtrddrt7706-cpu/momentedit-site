@@ -17,7 +17,7 @@ const MODEL = 'claude-haiku-4-5';
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 500;        // 입력 길이 상한(비용·어뷰징 가드)
 const MAX_TOKENS = 400;
-const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '족발·보쌈', '뷔페', '카페'];
+const FOODS = ['한정식', '한우·갈비', '곰탕·국밥', '샤브·전골', '면·만두', '족발·보쌈', '중식', '해물·생선', '뷔페', '카페'];
 
 const SYS =
   '너는 결혼식 후 하객 식사 자리(다이닝)를 찾는 한국 고객의 자연어 요청을 아래 필터 값으로만 변환한다. '
@@ -26,7 +26,7 @@ const SYS =
   + '★식사 자리와 무관한 요청(가격 문의·예약 방법·일반 질문 등)이면 모든 값을 none, elderly=false 로 두고 '
   + 'summary에 "다이닝(식사 자리) 조건을 알려주시면 맞춰드릴게요." 라고만 적는다. 절대 일반 질문에 답하지 않는다. '
   + 'summary는 고객에게 보여줄 한 문장(존댓말, 전각 줄표 사용 금지).\n'
-  + 'theme: formal(정찬·한정식·한우·갈비) | casual(국밥·곰탕·족발·뷔페 등 편한 식사) | cafe(카페·브런치·다과) | none\n'
+  + 'theme: formal(정찬·한정식·한우·갈비) | casual(국밥·샤브·면·중식·생선·족발·뷔페 등 편한 식사) | cafe(카페·브런치·다과) | none\n'
   + 'price: low(저렴) | mid(보통) | high(고급) | none\n'
   + 'dist: "10"(가까운 곳) | "15" | none\n'
   + 'food: ' + FOODS.join(' | ') + ' | none\n'
