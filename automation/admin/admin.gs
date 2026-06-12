@@ -465,8 +465,8 @@ function adminHome() {
         var _cxIss = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
         var _cxKeys = Object.keys(_cxIss).map(function (k) { return k === '중도금잔금' ? '중도금·잔금' : k; });
         if (_cxKeys.length) {
-          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: stage + ' 건 영수증 정리(발행 취소 · 공제 후 재발행) · ' + _cxKeys.join('·'),
-            badge: { level: 'yellow', text: '환불 연동' }, _urgent: false, _stage: 9, _wait: createdYmd });
+          pushQ({ code: code, names: names, product: product, kind: '현금영수증취소', sub: stage + ' 건 영수증 발행취소 후 재발행(환불·공제 반영) · ' + _cxKeys.join('·'),
+            badge: { level: 'red', text: '발행취소·재발행' }, _urgent: false, _stage: 9, _wait: createdYmd });
         }
       }
       // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
@@ -598,7 +598,8 @@ function adminHome() {
         badge: { level: 'yellow', text: '상담일' }, _urgent: true, _stage: 2, _wait: createdYmd });
     }
     // 상담완료 처리(시그) — 예약 승인/확정됨 & 시착 & 시착동의완료 & 상담일 지남
-    if (!isSnap && stage === '시착' && bookingLocked && 시착 === '동의완료' && consultDue) {
+    // [홈 인라인] 시착 동의완료(=대면상담·시착 끝남)면 상담일 게이트 없이 바로 노출 — 벌수+상담완료를 홈에서 처리
+    if (!isSnap && stage === '시착' && bookingLocked && 시착 === '동의완료') {
       var _fitN = (_parseJsonSafe(cget(rv, '동의기록')).시착 || {}).벌수;   // 벌수 미기록이면 상담완료 게이트에 막힘 — 카드에서 먼저 보이게
       pushQ({ code: code, names: names, product: product, kind: '상담완료',
         sub: (_fitN != null) ? ('시착 ' + _fitN + '벌 기록됨 · 상담완료 처리') : '상담완료 처리 · 시착 벌수 먼저 기록',

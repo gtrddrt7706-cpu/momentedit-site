@@ -26,6 +26,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
 ::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -1339,22 +1343,50 @@ function ensureLedFab(d){
 // 청첩장 샘플 바로가기 FAB — 제작 단계(청첩장 작업 중)에만 우측 스택에 등장, 완료·단계 종료 시 사라짐.
 function ensureInviteFab(d){
   var existing=document.getElementById('mp_inviteFab');
-  var inv = d && d.production && d.production.tracks && d.production.tracks.invitation;
-  var inProd = !!(d && d.production) && (d.stage==='입금완료' || d.stage==='제작중');
-  var show = inProd && inv!=='완료';   // 제작 단계에서 청첩장 작업이 끝나기 전까지만
+  var show = !!INVFLOW.active;   // 청첩장 '제작/이어서' 클릭 후 위저드가 열린 동안에만(다른 단계·결제 화면에선 숨김)
   if(!show){ if(existing) existing.style.display='none'; return; }
   var stack=document.getElementById('meAdvStack');
   if(!stack){ setTimeout(function(){ ensureInviteFab(d); }, 300); return; }   // 위젯 로드 전이면 재시도
   if(!existing){
-    existing=document.createElement('a');
-    existing.id='mp_inviteFab'; existing.className='me-fab'; existing.href='/invitation-gallery.html'; existing.target='_blank'; existing.rel='noopener';
+    existing=document.createElement('button');
+    existing.type='button'; existing.id='mp_inviteFab'; existing.className='me-fab';
     existing.setAttribute('aria-label','청첩장 샘플 보기');
     existing.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 8.5l8 4.5 8-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-    stack.insertBefore(existing, stack.firstChild);   // 내역 아이콘과 함께 챗 위에
+    existing.addEventListener('click', openInviteSamples);   // 새 탭 대신 인페이지 샘플 모달
+    stack.insertBefore(existing, stack.firstChild);
   } else if(existing.parentNode!==stack){
     stack.insertBefore(existing, stack.firstChild);
   }
   existing.style.display='flex';
+}
+// 청첩장 샘플 — 새 사이트(새 탭) 대신, 페이지 위에 적절한 크기의 깔끔한 모달로 샘플 갤러리를 보여준다.
+function openInviteSamples(){
+  var old=document.getElementById('mp_invSample'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='mp_invSample'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','청첩장 샘플');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(28,27,25,.55);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;transition:opacity .22s ease';
+  var box=document.createElement('div');
+  box.style.cssText='width:100%;max-width:430px;height:86vh;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';
+  var bar=document.createElement('div');
+  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border,#e6e0d8)';
+  var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F)">Invitation Samples</span><br><span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span>';
+  var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.innerHTML='&#10005;';
+  x.style.cssText='border:none;background:transparent;font-size:18px;color:var(--sub,#6b5d4d);cursor:pointer;padding:4px 8px;line-height:1';
+  bar.appendChild(ttl); bar.appendChild(x);
+  var fr=document.createElement('iframe'); fr.src='/invitation-gallery.html'; fr.title='청첩장 샘플';
+  fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#2f2820';
+  var foot=document.createElement('div');
+  foot.style.cssText='flex:0 0 auto;padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#e6e0d8);text-align:center';
+  foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
+  box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
+  ov.appendChild(box);
+  function done(){ ov.style.opacity='0'; document.body.style.overflow=_prev; setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  function esc(e){ if(e.key==='Escape') done(); }
+  x.addEventListener('click', done);
+  ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
+  document.addEventListener('keydown', esc);
+  var _prev=document.body.style.overflow; document.body.style.overflow='hidden';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
 function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')) box.classList.add('open'); }
 function closeLedModal(){ var box=$('mp_ledger'); if(box) box.classList.remove('open'); }
@@ -1819,7 +1851,19 @@ function renderContractPayment(c, p, ctx){
     // 기본 펼침(두 번 클릭 방지) — 단, 제작 단계부터는 접힌 한 줄(지난 카드 정리 취지 유지 · 변경 요청 대기 중엔 항상 펼침)
     var _stIdx=(ctx&&typeof ctx.stageIndex==='number')?ctx.stageIndex:-1, _prodIdx=(ctx&&ctx.stageList||[]).indexOf('제작중');
     var _chgPending=!!(chg&&chg.request&&chg.request.to);
-    collapsedCard(box, '계약 완료', full, '계약', _chgPending || _prodIdx<0 || _stIdx<0 || _stIdx<_prodIdx);
+    var _openByDefault = _chgPending || _prodIdx<0 || _stIdx<0 || _stIdx<_prodIdx;
+    if(!_openByDefault){
+      // [중복 제거] 제작 단계부터는 '계약 완료' 상태 카드를 띄우지 않음(계약 정보·계약서는 '내 내역'에서 확인).
+      //   단, 예식일 변경(액션)은 유실되면 안 되므로 변경 가능할 때만 작은 단독 카드로 유지.
+      if(chgHtml){
+        box.innerHTML='<div class="consult-card" style="text-align:center"><div class="cc-eyebrow en-22">Change</div>'+chgHtml+'</div>';
+        box.style.display='block';
+        var _co0=$('mp_chgOpen'); if(_co0) _co0.addEventListener('click', function(){ renderChangeWizard(ctx); });
+        var _cc0=$('mp_chgCancel'); if(_cc0) _cc0.addEventListener('click', doCancelWeddingChange);
+      } else { box.style.display='none'; box.innerHTML=''; }
+      return;
+    }
+    collapsedCard(box, '계약 완료', full, '계약', true);
     var _co=$('mp_chgOpen'); if(_co) _co.addEventListener('click', function(){ renderChangeWizard(ctx); });
     var _cc2=$('mp_chgCancel'); if(_cc2) _cc2.addEventListener('click', doCancelWeddingChange);
     return;
@@ -1845,8 +1889,7 @@ function renderContractPayment(c, p, ctx){
     h += '<div class="cc-title">계약서를 확인하고 서명해 주세요</div>'
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
-       + (c.effectNotice?'<div class="cc-note cc-warn">'+escapeHtml(c.effectNotice)+'</div>':'')
-       + '<div class="cc-note cc-mini" style="color:var(--light);margin-top:-4px">※ 서명 자체는 되돌릴 수 없지만, 제7조 청약철회·무상취소는 그대로 가능해요.</div>';
+       + (c.effectNotice?'<div class="cc-note">'+escapeHtml(c.effectNotice)+'</div>':'');
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
        : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>';
@@ -2056,7 +2099,7 @@ function doSignContract(){
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
     _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
       api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
-        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요. 모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
+        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
         else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
       }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
     });
@@ -2185,7 +2228,13 @@ function bindAmtCopy(id, amount){
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
-  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="'+escapeHtml(val||'')+'" style="margin-bottom:4px">'
+  val=String(val||'').trim();
+  // 예약 단계에서 이미 등록됐으면 간결 표시(입력칸 생략) — 계약금·중도금·잔금에서 다시 안 적어도 됨. 변경은 '내 내역'에서.
+  if(val){
+    var tail=val.length>=4?val.slice(-4):val;
+    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증 소득공제 번호 <b>등록됨</b> <span style="color:var(--label-soft)">· 끝 '+escapeHtml(tail)+' · 이 번호로 발급돼요</span></div>';
+  }
+  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
 }
 function doBalanceSignal(){
@@ -2855,6 +2904,7 @@ function startInvFlow(inv, base){
 function exitInvFlow(){ saveInvDraft().then(function(){ INVFLOW.active=false; loadMyState(); }); }   // #8 나가기도 저장
 function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
 function renderInvFlow(box){
+  try{ ensureInviteFab(); }catch(e){}
   if(!box) return;
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);

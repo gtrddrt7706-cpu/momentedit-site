@@ -740,7 +740,7 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt) {
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -788,6 +788,17 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold) {
     writeCell(sheet, colOf, row.num, '그외가능시간대', flex);
     writeCell(sheet, colOf, row.num, '기타희망시간', String(etc || '').slice(0, 60));
     writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
+    // [현금영수증] 예약 단계에서 발급 번호 등록 — 동의기록.현금영수증(계약금·중도금·잔금 공유). 빈값/자진발급은 미설정 유지.
+    try {
+      var _crIn = String(cashReceipt == null ? '' : cashReceipt).replace(/[^0-9]/g, '').slice(0, 30);
+      if (_crIn) {
+        var _crCust = findCustomerByCode(String(row.get('개인코드') || '').trim());
+        if (_crCust) {
+          var _crCs = getCustomersSheet(), _crCo = buildHeaderIndex(_crCs), _crRec = _parseJsonSafe(_crCust.get('동의기록'));
+          if (String(_crRec.현금영수증 || '') !== _crIn) { _crRec.현금영수증 = _crIn; touchCustomer(_crCs, _crCo, _crCust.num, { '동의기록': JSON.stringify(_crRec) }); }
+        }
+      }
+    } catch (e) { Logger.log('현금영수증 예약등록 실패: ' + (e && e.message)); }
     notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡)
 
     var mailOk = false, mailErrMsg = '';
@@ -1951,7 +1962,7 @@ function handleSubmitSchedule(body) {
     return { ok: false, cancelled: true, error: '취소된 예약이라 일정을 선택할 수 없어요.' };
   }
   var consultToken = String(a.consult.get('토큰') || '');
-  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null);
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt);
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.

@@ -9,6 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
   :root{--bg:#EDEBE6;--bg2:#F5F3EF;--accent:#3A2D22;--sub:#5A554C;--gold:#B89A75;--gold-deep:#9A7B4F;--border:#DDD8D1;
     --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif}

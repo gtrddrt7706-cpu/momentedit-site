@@ -24,6 +24,10 @@
 <link rel="canonical" href="https://momentedit.kr/privacy.html">
 
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --hover-lift:-1px;
