@@ -297,7 +297,7 @@ function _nfCustomerMsg(event, name, x) {
         text: '[모먼트에디트] ' + name + '님, 상담 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착 기준과 비용 안내 문서입니다. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 3벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
     case 'cust.contractArrived':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 상담에서 말씀 나눈 내용 그대로 담았습니다. 72시간 안에 마이페이지에서 차분히 확인 후 서명해 주세요(기한 경과 시 자동 파기). ' + NF_MYPAGE };
@@ -317,11 +317,11 @@ function _nfCustomerMsg(event, name, x) {
         text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 예식 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
     case 'cust.resultDelivered':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 마이페이지에서 확인·다운로드해 주세요. 보관 기간 안에 꼭 받아주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + NF_MYPAGE };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요.' };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + NF_MYPAGE };
     case 'cust.holdReleased':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
@@ -339,7 +339,7 @@ function _nfCustomerMsg(event, name, x) {
         text: '[모먼트에디트] ' + name + '님, 죄송하게도 요청하신 예식일 변경을 진행하지 못했습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. 가능한 방향을 함께 찾아보겠습니다. ' + NF_MYPAGE };
     case 'cust.archiveExpiring':
       return { vars: { '#{이름}': name, '#{만료일}': _nfDate(x.expires) },
-        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 다시 받기 어려울 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 파일이 삭제될 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + NF_MYPAGE };
     default:
       return null;
   }
