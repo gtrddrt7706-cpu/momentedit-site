@@ -101,7 +101,7 @@ const EXTRACT_PROMPT = `당신은 웨딩 예식일 상담 대화에서 고객의
 - intent: 특정 날짜나 시기의 예식 예약 가능 여부를 묻거나 확인을 원하면 "check". 직전에 안내받은 일정을 수락·확정하는 의사("네 그걸로 할게요", "그 날짜로 진행할게요", "좋아요 확정이요")면 "accept". 날짜를 전혀 말하지 않고 "언제 가능해요?", "가능한 날짜 알려줘"처럼 전체 현황을 물으면 "open". 스케줄과 무관한 질문(가격·환불·상담 등)이나 인사면 "other".
 - date: 고객이 말한 구체적 날짜 하나를 YYYY-MM-DD로. 여러 날짜를 말했으면 가장 이른 것 하나만. [오늘]을 기준으로 "내년", "다음 달", "10월 둘째 주 토요일" 같은 상대 표현을 정확히 계산합니다("내년"은 [오늘]의 연도+1). 구체 날짜가 없으면 빈 문자열.
 - 후속 턴 주의: 직전 도우미 답변에 이미 특정 날짜가 언급되었고 고객이 시간대·수긍 등 후속 답을 하는 경우, 반드시 그 날짜(같은 연도)를 그대로 사용합니다. 연도를 바꾸지 마세요.
-- periodFrom/periodTo: 구체 날짜 없이 시기만 말한 경우(예: "내년 10월", "내년 봄") 그 범위를 YYYY-MM-DD로. 해당 없으면 빈 문자열.
+- periodFrom/periodTo: 구체 날짜 없이 시기만 말한 경우(예: "내년 10월", "내년 봄") 그 범위를 YYYY-MM-DD로. "초여름(6월)", "늦봄(5월)", "초가을(9월)", "늦가을(11월)", "연말(12월)", "이른 봄(3월)" 같은 계절·절기 표현도 반드시 대략의 월 범위로 변환합니다. 해당 없으면 빈 문자열.
 - weekendOnly: 고객이 주말·토요일·일요일을 원한다고 했으면 true.
 - slot: 고객이 시간대를 말했으면 "09:00"(오전) | "12:20"(낮·점심) | "15:40"(늦은 오후·저녁 무렵) 중 하나. 없으면 빈 문자열.
 - anySlot: 고객이 "아무 시간이나 괜찮아요", "상관없어요", "편한 시간으로", "다 좋아요"처럼 시간대를 가리지 않겠다고 하면 true. 그 외엔 false.
@@ -273,11 +273,16 @@ function decide(ex, taken, today, ctx, page, lv) {
     const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
     const to = /^\d{4}-\d{2}-\d{2}$/.test(ex.periodTo) && ex.periodTo > from ? ex.periodTo : addDays(from, 60);
     let cand = '';
-    let d = from;
-    for (let i = 0; i < 124 && d <= to; i++) {
-      const wd = dayOfWeek(d);
-      if ((!ex.weekendOnly || wd === 0 || wd === 6) && freeSlot(taken, d, prefer)) { cand = d; break; }
-      d = addDays(d, 1);
+    // 시기만 말한 경우 주말(토·일)을 우선 후보로 — 주말 요청이면 주말만, 아니면 주말 먼저 보고 없을 때 평일(사장 지시: 니즈 우선·주말 우선 후보)
+    for (const weekendPass of (ex.weekendOnly ? [true] : [true, false])) {
+      let d = from;
+      for (let i = 0; i < 124 && d <= to; i++) {
+        const wd = dayOfWeek(d);
+        const isWeekend = wd === 0 || wd === 6;
+        if ((weekendPass ? isWeekend : !isWeekend) && freeSlot(taken, d, prefer)) { cand = d; break; }
+        d = addDays(d, 1);
+      }
+      if (cand) break;
     }
     if (!cand) {
       return '말씀하신 시기에는 안내 가능한 일정을 찾지 못했습니다. 다른 시기를 알려주시면 확인해 드리겠다고 안내하세요.' + (pol.busy >= 2 ? BUSY_LINE[3] : '');
