@@ -1,6 +1,6 @@
 /* 모먼트에디트 · 140분 시그니처 시퀀스 "진행 시간표" 모달 (공용)
- * 사용: 트리거 요소에 data-seq-open="full"(상세) | "trim"(간결) + <script src="/assets/sequence-modal.js"></script>
- * 세 타임(오전·오후·늦은 오후)을 탭으로 전환해 보는 고객용 진행 시간표.
+ * 사용: 트리거 요소에 data-seq-open="full"(상세) | "trim"(간결) | "snap"(평일 웨딩스냅 흐름) + <script src="/assets/sequence-modal.js"></script>
+ * 세 타임(오전·오후·늦은 오후)을 탭으로 전환해 보는 고객용 진행 시간표. snap은 고정 시각 없이 60~90분 흐름만.
  *  - 고객이 알아야 할 정보만 노출. 홀 정리·다음 예식 준비 같은 내부 운영은 제외(관리자 영역).
  *  - 본예식 세부(개식·서약·예물 등)는 "본식" 한 블록으로만(사장 지시).
  *  - trim(예약 페이지): 시간·순서만 간결히 · full(스케줄·마이): 상세 설명까지.
@@ -24,6 +24,13 @@
     ['가족·지인 단체 촬영', '30분', ['10:30', '13:50', '17:10'], '양가 가족과 가까운 분들이 한자리에 모여 단체 기록을 남겨요.'],
     ['마무리·배웅', '20분', ['11:00', '14:20', '17:40'], '입구에서 하객분들과 따뜻하게 인사 나누고, 두 분은 편하게 환복하며 마무리해요.'],
   ];
+  // 평일 웨딩스냅(60~90분) 진행 흐름 — 고정 시각표가 없어 순서·소요만 안내. [순서, 소요, 상세]
+  var SNAP_ROWS = [
+    ['도착·준비 정돈', '10~15분', '착장과 메이크업을 정돈하고, 두 공간의 촬영 동선을 안내받아요.'],
+    ['캔들존 촬영', '30~35분', '따뜻한 캔들 무드의 첫 번째 존에서 촬영을 시작해요.'],
+    ['화이트존 촬영', '30~35분', '밝고 깨끗한 두 번째 존에서 분위기를 바꿔 담아요.'],
+    ['마무리·환복', '5~10분', '촬영을 마무리하고 편하게 환복하며 마치는 시간이에요.'],
+  ];
 
   var css = ''
     + '.meseq-ov{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(28,27,25,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transition:opacity .28s ease}'
@@ -43,7 +50,8 @@
     + '.meseq-tabs{flex:0 0 auto;display:flex;gap:6px;padding:16px 24px 14px}'
     + '.meseq-tab{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:11px;padding:10px 4px;cursor:pointer;font-family:var(--serif-ko,serif);color:var(--sub,#5A554C);line-height:1.25;transition:all .2s}'
     + '.meseq-tab b{display:block;font-size:13px;font-weight:500}.meseq-tab span{display:block;font-size:10px;color:var(--light,#75705F);margin-top:2px}'
-    + '.meseq-tab.on{background:var(--seal,#6B2A24);border-color:var(--seal,#6B2A24);color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'
+    + '.meseq-tab.on{background:#4E3F31;border-color:#4E3F31;color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'   /* 마이페이지 .cc-btn과 같은 색 */
+    + '.meseq-tab.on:hover{background:#3A2D22;border-color:#3A2D22}.meseq-tab.on:active{background:#9C7E55;border-color:#9C7E55}'
     + '.meseq-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:6px 24px 20px;-webkit-overflow-scrolling:touch}'
     + '.meseq-tl{position:relative;margin:6px 0 0;padding-left:64px}'
     + '.meseq-tl::before{content:"";position:absolute;left:63px;top:8px;bottom:18px;width:1px;background:var(--border,#DDD8D1)}'
@@ -60,6 +68,9 @@
     + '.meseq-it.compact{padding:9px 0 9px 18px}'
     + '.meseq-it.compact::before{top:14px}'
     + '@media(max-width:380px){.meseq-tl{padding-left:56px}.meseq-tl::before{left:55px}.meseq-clk{left:-56px;width:46px;font-size:12px}}'
+    /* 스냅 모드 — 고정 시각이 없어 왼쪽 시계 칸 없이 흐름만 */
+    + '.meseq-tl.snap{padding-left:10px}.meseq-tl.snap::before{left:9px}'
+    + '@media(max-width:380px){.meseq-tl.snap{padding-left:10px}.meseq-tl.snap::before{left:9px}}'
     /* 시간표 열기 버튼(예약·스케줄·마이 공용) — 마이페이지 .cc-btn과 같은 색·효과 */
     + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#4E3F31;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
     + '.seq-open-btn:hover{background:#3A2D22}.seq-open-btn:active{background:#9C7E55}';
@@ -82,6 +93,7 @@
   document.body.appendChild(ov);
 
   var tabsEl = ov.querySelector('#meseqTabs'), bodyEl = ov.querySelector('#meseqBody'), noteEl = ov.querySelector('.meseq-note');
+  var titleEl = ov.querySelector('.meseq-title'), eyebrowEl = ov.querySelector('.meseq-eyebrow'), footEl = ov.querySelector('.meseq-foot');
   var curSlot = 0, mode = 'full';
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
   function renderTabs() {
@@ -90,6 +102,18 @@
     }).join('');
   }
   function renderBody() {
+    if (mode === 'snap') {   // 스냅: 고정 시각 없이 흐름(순서·소요·설명)만
+      var sItems = SNAP_ROWS.map(function (r) {
+        return '<div class="meseq-it">'
+          + '<div class="meseq-nm">' + esc(r[0]) + '<span class="meseq-dur">' + esc(r[1]) + '</span></div>'
+          + '<div class="meseq-ds">' + esc(r[2]) + '</div>'
+          + '</div>';
+      }).join('');
+      sItems += '<div class="meseq-end">촬영 마무리 · 총 60~90분</div>';
+      bodyEl.innerHTML = '<div class="meseq-tl snap">' + sItems + '</div>';
+      bodyEl.scrollTop = 0;
+      return;
+    }
     var full = (mode === 'full');
     var items = ROWS.map(function (r) {
       return '<div class="meseq-it' + (r[4] ? ' hl' : '') + (full ? '' : ' compact') + '">'
@@ -103,10 +127,22 @@
     bodyEl.scrollTop = 0;
   }
   function open(m) {
-    mode = (m === 'trim') ? 'trim' : 'full';
-    noteEl.textContent = (mode === 'trim')
-      ? '세 타임 모두 같은 140분 흐름이고 시작 시간만 달라요. 시간대를 골라 한눈에 살펴보세요.'
-      : '세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.';
+    mode = (m === 'snap') ? 'snap' : (m === 'trim') ? 'trim' : 'full';
+    if (mode === 'snap') {
+      eyebrowEl.textContent = 'The Private Snap';
+      titleEl.textContent = '웨딩스냅 진행 흐름';
+      noteEl.textContent = '평일 원하시는 시간에 맞춰 60~90분 동안 진행돼요. 두 분만을 위한 프라이빗 촬영이라 대기 없이 바로 시작해요.';
+      footEl.textContent = '소요 시간은 진행 상황에 따라 조금 달라질 수 있어요. 원본 사진 전량과 보정본은 마이페이지로 전해드려요.';
+      tabsEl.style.display = 'none';
+    } else {
+      eyebrowEl.textContent = 'The 140 Signature';
+      titleEl.textContent = '예식 진행 시간표';
+      noteEl.textContent = (mode === 'trim')
+        ? '세 타임 모두 같은 140분 흐름이고 시작 시간만 달라요. 시간대를 골라 한눈에 살펴보세요.'
+        : '세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.';
+      footEl.innerHTML = '시작 시각 기준이에요. 대기 공간이 없어, 하객분들께는 <b style="font-weight:500;color:var(--sub,#5A554C)">하객 입장 시간</b>에 맞춰 오시도록 안내해 주세요. 세부 식순은 계약 후 직접 설계하실 수 있어요.';
+      tabsEl.style.display = '';
+    }
     renderTabs(); renderBody();
     ov.classList.add('show');
     document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
