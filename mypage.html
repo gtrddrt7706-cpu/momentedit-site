@@ -1441,9 +1441,8 @@ function renderLedger(l){
   // [임시고정 상시 확인] 예식일 임시 고정 — 계약 서명 전까지 픽스된 날짜·시간을 수시로 확인(14일 보호 · 만료일 표기).
   var holdSec='';
   if(l.hold && l.hold.date){
-    var _hsl={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
     var _hwhen=(typeof fmtWedKo==='function'&&fmtWedKo(l.hold.date))?fmtWedKo(l.hold.date):l.hold.date;
-    var _hslot=_hsl[l.hold.slot]||l.hold.slot||'';
+    var _hslot=(typeof wedTimeKo==='function')?wedTimeKo(l.hold.slot):(l.hold.slot||'');
     var _hok=(l.hold.status==='승인');
     var _hexp=(_hok && l.hold.expires && typeof fmtWedKo==='function' && fmtWedKo(l.hold.expires)) ? fmtWedKo(l.hold.expires) : '';
     var _hpre=_hexp ? ('<b>'+escapeHtml(_hexp)+'까지</b> 잡아두고, ') : '';
@@ -1528,9 +1527,8 @@ function showFittingTerms(docs){
 function renderHold(h){
   var box=$('mp_hold'); if(!box) return;
   if(!h){ box.innerHTML=''; box.style.display='none'; return; }
-  var labels={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
   var dTxt=(typeof fmtWedKo==='function'&&fmtWedKo(h.date))?fmtWedKo(h.date):h.date;
-  var slotTxt=labels[h.slot]||h.slot||'';
+  var slotTxt=(typeof wedTimeKo==='function')?wedTimeKo(h.slot):(h.slot||'');
   var when=escapeHtml(dTxt)+(slotTxt?(' · '+escapeHtml(slotTxt)):'');
   var approved=(h.status==='승인');
   var sub=approved
@@ -1741,7 +1739,7 @@ function renderContractRequest(ctx){
   var box=$('mp_contract'); if(!box) return;
   var ci=(ctx&&ctx.contractInfo)||{};
   if(ci.requested){   // 요청 완료 · 준비 중 + 입력 정보 수정
-    var wedTxt=(typeof fmtWedKo==='function' && fmtWedKo(ci.weddingDate))?fmtWedKo(ci.weddingDate):(ci.weddingDate||'');
+    var wedTxt=(typeof fmtWedKoT==='function')?fmtWedKoT(ci.weddingDate,ci.weddingTime):(ci.weddingDate||'');
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
       +'<div class="cc-title">계약서 요청 완료</div>'
       +'<div class="cc-sub" style="text-align:center">예식일 <b>'+escapeHtml(wedTxt)+'</b> · 요청 접수 완료<br>계약서를 <b>24시간 안에</b> 보내드릴게요.</div>'
@@ -1859,8 +1857,8 @@ function renderContractPayment(c, p, ctx){
     // [02-9] 예식일 변경(계약 8조①) — 서명 후~예식 전(서버 eligible). 요청 대기 중이면 상태+철회, 아니면 고스트 버튼.
     var chg = ctx && ctx.change, chgHtml = '';
     if (chg && chg.request && chg.request.to && chg.request.to.date){
-      var _rq = chg.request, _lab = {'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
-      chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' '+escapeHtml(_lab[_rq.to.slot]||_rq.to.slot)):'')+'</b></div>'
+      var _rq = chg.request;
+      chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
         + '<div class="cc-sub cc-mini">'+(_rq.fee>0?('변경 수수료 '+fmtWon(_rq.fee)+(_rq.payer?(' · 입금자 '+escapeHtml(_rq.payer)):'')+' · 디렉터 확인 후 적용돼요'):'무상 변경 · 디렉터 확인 후 적용돼요')+'</div>'
         + '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgCancel">변경 요청 철회</button></div>';
     } else if (chg && chg.eligible){
@@ -2002,7 +2000,7 @@ function renderChangeWizard(ctx){
   var curTxt=(typeof fmtWedKo==='function'&&fmtWedKo(fill.weddingDate))?fmtWedKo(fill.weddingDate):(fill.weddingDate||'');
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Change</div>'
     +'<div class="cc-title" style="text-align:center">예식일 변경</div>'
-    +'<div class="cc-sub" style="text-align:center">지금 예식일 · <b>'+escapeHtml(curTxt)+(fill.weddingTimeLabel?(' '+escapeHtml(fill.weddingTimeLabel)):'')+'</b></div>'
+    +'<div class="cc-sub" style="text-align:center">지금 예식일 · <b>'+escapeHtml(curTxt)+(fill.weddingTime?(' · '+escapeHtml(wedTimeKo(fill.weddingTime))):(fill.weddingTimeLabel?(' '+escapeHtml(fill.weddingTimeLabel)):''))+'</b></div>'
     +'<div class="visit-guide" style="margin-top:12px">'
     +'<div class="vg-row"><span class="vg-k">무상 변경</span><span class="vg-v">무료 취소 기간(예식 <b>150일 전</b>까지)에는 횟수 제한 없이 무상,<br>예식 <b>60일 전</b>까지는 <b>1회 무상</b>으로 변경할 수 있어요.</span></div>'
     +'<div class="vg-row"><span class="vg-k">변경 수수료</span><span class="vg-v">그 이후의 변경이나 두 번째부터의 변경은<br>총 계약금액의 <b>10%</b>가 변경 수수료예요. <span class="vg-sub">(이용계약서 제8조)</span></span></div>'
@@ -2079,10 +2077,10 @@ function renderChangeWizard(ctx){
     function reset(){ sb.disabled=false; sb.textContent='변경 요청하기'; }
     api({action:'requestWeddingChange', token:getToken(), toDate:d, toSlot:t, payerName:payer}).then(function(r){
       if(r&&r.ok){
-        var lab=(_av.labels&&_av.labels[t])||t;
+        var lab=wedTimeKo(t)||(_av.labels&&_av.labels[t])||t;
         box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Change</div>'
           +'<div class="cc-title">변경 요청을 받았어요</div>'
-          +'<div class="cc-sub"><b>'+escapeHtml(_chgMD(d))+' '+escapeHtml(lab)+'</b>'+((_quote&&_quote.fee>0)?('<br><span class="cc-mini">변경 수수료 '+fmtWon(_quote.fee)+' · 입금 확인 후 적용돼요</span>'):'')+'</div>'
+          +'<div class="cc-sub"><b>'+escapeHtml(_chgMD(d))+' · '+escapeHtml(lab)+'</b>'+((_quote&&_quote.fee>0)?('<br><span class="cc-mini">변경 수수료 '+fmtWon(_quote.fee)+' · 입금 확인 후 적용돼요</span>'):'')+'</div>'
           +'<div class="cc-note" style="text-align:center">디렉터 확인 후 적용돼요 · 적용되면 카카오톡으로 알려드려요</div>'
           +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgDoneOk">확인</button></div></div>';
         var ok=$('mp_chgDoneOk'); if(ok) ok.addEventListener('click', function(){ loadMyState(); });
@@ -2828,6 +2826,19 @@ function fmtWedKo(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
   var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
+}
+// 예식 시간 표시 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 같은 본예식 기준 라벨로 통일.
+//   예약·계약은 날짜와 시간이 한 몸 — 예식 일정이 나오는 모든 곳에서 같은 표기를 쓴다.
+function wedTimeKo(t){
+  t=String(t||'').slice(0,5); if(!t) return '';
+  var BASE={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(BASE[t]) t=BASE[t];   // 계약 슬롯 → 본예식 시간
+  var LAB={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'};
+  return (LAB[t]?LAB[t]+' ':'')+t;
+}
+// 날짜 + 시간 한 줄 — fmtWedKo(날짜) · wedTimeKo(시간). 시간이 없으면 날짜만.
+function fmtWedKoT(ymd,t){
+  var d=fmtWedKo(ymd)||String(ymd||''), wt=wedTimeKo(t);
+  return d+(d&&wt?' · '+wt:wt);
 }
 // 예식 140분 시퀀스 진행 시간표 — 계약요청 슬롯 선택·제작 폼 공통 참고 박스(.schedule-ref CSS 재사용).
 function weddingSequenceRef(intro){
