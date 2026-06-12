@@ -273,6 +273,22 @@ function handleSignContract(body) {
     if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
       try { if (prev.가예약.eventId && typeof getCalendar === 'function') { var _hev = getCalendar().getEventById(prev.가예약.eventId); if (_hev) _hev.setTitle(_hev.getTitle().replace('[가예약]', '[예식확정]')); } } catch (e) {}   // 캘린더 표시도 확정으로
     }
+    try {   // 가예약 이벤트가 없던 서명(과거 데이터·수동 발송 경유) — [예식확정] 이벤트 직접 생성해 캘린더 공백 방지
+      if (!prev.가예약 || !prev.가예약.eventId) {
+        var _calS = (typeof getCalendar === 'function') ? getCalendar() : null;
+        var _wdS = _ymdOf(cust.get('예식일')) || ((prev.계약정보 || {}).weddingDate || '');
+        var _wtS = (prev.계약정보 && prev.계약정보.weddingTime) || '';
+        var _mS = String(_wdS).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (_calS && _mS) {
+          var _nmS = ''; try { _nmS = (typeof customerNames === 'function') ? customerNames(cust) : ''; } catch (e) {}
+          if (!_nmS) _nmS = String(cust.get('신랑이름') || '') || code;
+          var _evS = _calS.createAllDayEvent('[예식확정] ' + _nmS + (_wtS ? (' · ' + _wtS) : ''), new Date(+_mS[1], +_mS[2] - 1, +_mS[3]));
+          try { _evS.setDescription('본계약 서명 확정 · 개인코드 ' + code); } catch (e) {}
+          prev.가예약 = prev.가예약 || { date: _wdS, slot: _wtS };
+          prev.가예약.eventId = _evS.getId(); prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
+        }
+      }
+    } catch (e) { Logger.log('예식확정 캘린더 생성 실패: ' + (e && e.message)); }
     if (isSnapC) {                                        // 스냅: 계약금 20%를 계약 시 별도 입금(예약금 충당 없음) → 계약완료에서 입금 대기
       touchCustomer(sheet, colOf, cust.num, { '계약서명일시': now, '계약상태': '서명완료', '동의기록': JSON.stringify(prev) });
       setCustomerStage(code, 'contract');                 // 서명 → 계약완료(계약금 입금 카드 노출)
@@ -433,6 +449,15 @@ function handleRequestContract(body) {
       _holdCalDelete(rec.가예약);
       delete rec.가예약;
       try { _recordHandler(code, '계약 요청 일정(' + wed + ' ' + wT + ')과 달라 임시고정 자동 해제 · ' + (_ohd || '') + ' ' + (_ohs || '')); } catch (e) {}
+    }
+    // [캘린더·점유 연동] 계약서 요청 = 그 일정 선점 — 가예약(승인)으로 자동 등록해 더블부킹 차단 + 구글 캘린더 [가예약] 표시(서명 시 [예식확정] 전환 · 14일 미서명 시 자동 만료).
+    if (!rec.가예약) {
+      rec.가예약 = { date: wed, slot: wT, status: '승인', requestedAt: fmtKST(new Date()), approvedAt: fmtKST(new Date()), expires: _shiftYmd(_kstYmd(new Date()), 14), source: '계약요청' };
+      _holdCalCreate(cust, rec.가예약);
+      try { _recordHandler(code, '계약 요청 일정 자동 선점(가예약 승인) · ' + wed + ' ' + wT); } catch (e) {}
+    } else {   // 같은 날짜·슬롯의 기존 가예약 — 미승인이면 승격, 이벤트 없으면 백필
+      if (rec.가예약.status !== '승인') { rec.가예약.status = '승인'; rec.가예약.approvedAt = fmtKST(new Date()); rec.가예약.expires = rec.가예약.expires || _shiftYmd(_kstYmd(new Date()), 14); }
+      if (!rec.가예약.eventId) _holdCalCreate(cust, rec.가예약);
     }
     rec.계약정보 = { groomBirth: gB, brideBirth: bB, groomAddr: gA, brideAddr: bA,
       groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 · 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
