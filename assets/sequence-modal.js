@@ -1,111 +1,116 @@
-/* 모먼트에디트 · 140분 시그니처 시퀀스 "전체 진행 시간표" 모달 (공용)
- * 사용: 트리거 요소에 data-seq-open="full"(전체 · 내부 운영 포함) 또는 "trim"(고객 흐름만) 지정.
- *       <button data-seq-open="full">진행 시간표</button>  +  <script src="/assets/sequence-modal.js"></script>
- * 자동으로 모달을 1개 생성하고, data-seq-open 요소 클릭 시 해당 모드로 연다.
- * 사실 정보성 시간표 — 세 타임(오전·오후·늦은 오후)을 탭으로 전환해 본다. 모바일에서도 또렷한 HTML/CSS 표.
- * 본예식 세부(개식·서약·예물 등)는 "메인 본식" 한 블록으로만 표기(사장 지시).
+/* 모먼트에디트 · 140분 시그니처 시퀀스 "진행 시간표" 모달 (공용)
+ * 사용: 트리거 요소에 data-seq-open="full"(상세) | "trim"(간결) + <script src="/assets/sequence-modal.js"></script>
+ * 세 타임(오전·오후·늦은 오후)을 탭으로 전환해 보는 고객용 진행 시간표.
+ *  - 고객이 알아야 할 정보만 노출. 홀 정리·다음 예식 준비 같은 내부 운영은 제외(관리자 영역).
+ *  - 본예식 세부(개식·서약·예물 등)는 "본식" 한 블록으로만(사장 지시).
+ *  - trim(예약 페이지): 시간·순서만 간결히 · full(스케줄·마이): 상세 설명까지.
+ *  - 모바일에서도 또렷한 HTML/CSS · 타임라인 마커.
  */
 (function () {
   if (window.__meSeqInit) return; window.__meSeqInit = true;
 
   var SLOTS = [
-    { key: 'am', tab: '오전', sub: '9시 시작' },
-    { key: 'pm', tab: '오후', sub: '12시 20분 시작' },
-    { key: 'ev', tab: '늦은 오후', sub: '3시 40분 시작' },
+    { key: 'am', tab: '오전', sub: '9시 시작', end: '11:20' },
+    { key: 'pm', tab: '오후', sub: '12시 20분 시작', end: '14:40' },
+    { key: 'ev', tab: '늦은 오후', sub: '3시 40분 시작', end: '18:00' },
   ];
-  // [순서, 소요, [오전, 오후, 늦은오후], 상세, 내부운영?]
+  // 고객 진행 흐름만 — [순서, 소요, [오전, 오후, 늦은오후 시작시각], 상세, 하이라이트?]
   var ROWS = [
-    ['도착 및 환복', '20분', ['09:00 ~ 09:20', '12:20 ~ 12:40', '15:40 ~ 16:00'], '도착 즉시 드레스 착장·화장 수정'],
-    ['캔들존 스냅', '20분', ['09:20 ~ 09:40', '12:40 ~ 13:00', '16:00 ~ 16:20'], '캔들존에서 두 분의 스냅 촬영'],
-    ['화이트존 스냅', '20분', ['09:40 ~ 10:00', '13:00 ~ 13:20', '16:20 ~ 16:40'], '화이트존에서 두 분의 스냅 촬영'],
-    ['하객 입장', '20분', ['09:40 ~ 10:00', '13:00 ~ 13:20', '16:20 ~ 16:40'], '캔들존 하객 입장·웰컴 와인·어르신 좌석 안내 (스냅과 동시 진행)'],
-    ['신랑·신부 입장', '5분', ['10:00 ~ 10:05', '13:20 ~ 13:25', '16:40 ~ 16:45'], '예식 시작·오프닝'],
-    ['메인 본식', '25분', ['10:05 ~ 10:30', '13:25 ~ 13:50', '16:45 ~ 17:10'], '서약·편지·예물·세리머니 등 본식 진행'],
-    ['가족·지인 촬영', '30분', ['10:30 ~ 11:00', '13:50 ~ 14:20', '17:10 ~ 17:40'], '가족·지인 단체 사진 촬영'],
-    ['퇴실 및 배웅', '10분', ['11:00 ~ 11:10', '14:20 ~ 14:30', '17:40 ~ 17:50'], '홀 입구에서 감사 인사·배웅'],
-    ['신랑·신부 환복', '10분', ['11:10 ~ 11:20', '14:30 ~ 14:40', '17:50 ~ 18:00'], '개인 옷으로 환복·소지품 정리'],
-    ['홀 정리', '30분', ['11:20 ~ 11:50', '14:40 ~ 15:10', '18:00 ~ 18:30'], '홀 클리닝·다음 예식 준비', true],
-    ['예약 답사', '30분', ['11:50 ~ 12:20', '15:10 ~ 15:40', '18:30 ~ 19:00'], '상담 고객 홀 투어·상담', true],
+    ['신랑·신부 도착', '20분', ['09:00', '12:20', '15:40'], '도착 후 드레스 착장과 메이크업 정돈으로 예식을 준비해요.'],
+    ['단독 스냅 촬영', '40분', ['09:20', '12:40', '16:00'], '하객과 분리된 캔들존·화이트존에서 두 분만의 화보 같은 스냅을 담아요.'],
+    ['하객 입장', '20분', ['09:40', '13:00', '16:20'], '하객분들이 입장하며 웰컴 와인과 좌석 안내를 받는 시간이에요.', true],
+    ['신랑·신부 입장', '5분', ['10:00', '13:20', '16:40'], '예식의 시작, 두 분이 함께 입장해요.'],
+    ['본식', '25분', ['10:05', '13:25', '16:45'], '서약·편지·예물·와인 세리머니 등으로 채워지는 예식의 중심이에요.'],
+    ['가족·지인 단체 촬영', '30분', ['10:30', '13:50', '17:10'], '양가 가족과 가까운 분들이 한자리에 모여 단체 기록을 남겨요.'],
+    ['마무리·배웅', '20분', ['11:00', '14:20', '17:40'], '입구에서 하객분들과 따뜻하게 인사 나누고, 두 분은 편하게 환복하며 마무리해요.'],
   ];
 
   var css = ''
-    + '.meseq-ov{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(28,27,25,0.46);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}'
-    + '.meseq-ov.open{display:flex}'
-    + '@media(min-width:600px){.meseq-ov{align-items:center}}'
-    + '.meseq{background:var(--bg,#FAFAF8);width:100%;max-width:560px;max-height:90vh;max-height:90dvh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -10px 50px rgba(28,27,25,0.25);transform:translateY(6%);transition:transform .3s cubic-bezier(0.16,1,0.3,1)}'
+    + '.meseq-ov{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(28,27,25,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transition:opacity .28s ease}'
+    + '.meseq-ov.show{display:flex}.meseq-ov.open{opacity:1}'
+    + '@media(min-width:600px){.meseq-ov{align-items:center;padding:24px}}'
+    + '.meseq{background:var(--bg,#FAFAF8);width:100%;max-width:540px;max-height:92vh;max-height:92dvh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -12px 60px rgba(28,27,25,0.3);transform:translateY(100%);transition:transform .34s cubic-bezier(0.16,1,0.3,1)}'
     + '.meseq-ov.open .meseq{transform:translateY(0)}'
-    + '@media(min-width:600px){.meseq{border-radius:14px}}'
-    + '.meseq-head{flex:0 0 auto;padding:20px 22px 0;position:relative}'
-    + '.meseq-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold,#B89A75);margin-bottom:5px}'
-    + '.meseq-title{font-family:var(--serif-ko,serif);font-size:18px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em}'
-    + '.meseq-note{font-family:var(--serif-ko,serif);font-size:11.5px;font-weight:300;color:var(--light,#75705F);line-height:1.7;margin-top:6px;word-break:keep-all}'
-    + '.meseq-x{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px}'
-    + '.meseq-x:hover{background:rgba(28,27,25,0.05);color:var(--accent,#3A2D22)}.meseq-x svg{width:18px;height:18px}'
-    + '.meseq-tabs{flex:0 0 auto;display:flex;gap:6px;padding:14px 22px 12px}'
-    + '.meseq-tab{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:9px;padding:9px 4px;cursor:pointer;font-family:var(--serif-ko,serif);color:var(--sub,#5A554C);line-height:1.25;transition:all .2s}'
+    + '@media(min-width:600px){.meseq{border-radius:16px;transform:translateY(16px) scale(0.98)}.meseq-ov.open .meseq{transform:translateY(0) scale(1)}}'
+    + '.meseq-head{flex:0 0 auto;padding:22px 24px 0;position:relative}'
+    + '.meseq-grip{display:none}'
+    + '@media(max-width:599px){.meseq-grip{display:block;width:38px;height:4px;border-radius:3px;background:var(--border,#DDD8D1);margin:0 auto 14px}}'
+    + '.meseq-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold,#B89A75);margin-bottom:5px}'
+    + '.meseq-title{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em}'
+    + '.meseq-note{font-family:var(--serif-ko,serif);font-size:11.5px;font-weight:300;color:var(--light,#75705F);line-height:1.7;margin-top:7px;word-break:keep-all}'
+    + '.meseq-x{position:absolute;top:18px;right:18px;background:var(--bg2,#F1EEE9);border:none;cursor:pointer;color:var(--sub,#5A554C);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:0;transition:background .2s}'
+    + '.meseq-x:hover{background:var(--bg3,#E8E3DC);color:var(--accent,#3A2D22)}.meseq-x svg{width:16px;height:16px}'
+    + '.meseq-tabs{flex:0 0 auto;display:flex;gap:6px;padding:16px 24px 14px}'
+    + '.meseq-tab{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:11px;padding:10px 4px;cursor:pointer;font-family:var(--serif-ko,serif);color:var(--sub,#5A554C);line-height:1.25;transition:all .2s}'
     + '.meseq-tab b{display:block;font-size:13px;font-weight:500}.meseq-tab span{display:block;font-size:10px;color:var(--light,#75705F);margin-top:2px}'
-    + '.meseq-tab.on{background:var(--seal,#6B2A24);border-color:var(--seal,#6B2A24);color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.8)}'
-    + '.meseq-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:4px 22px 22px;-webkit-overflow-scrolling:touch}'
-    + '.meseq-row{display:grid;grid-template-columns:92px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--hairline,rgba(28,27,25,0.12))}'
-    + '.meseq-row:last-child{border-bottom:none}'
-    + '.meseq-time{font-family:var(--serif-ko,serif);font-size:12.5px;font-weight:500;color:var(--seal,#6B2A24);letter-spacing:-0.01em;white-space:nowrap;padding-top:1px}'
-    + '.meseq-dur{display:block;font-size:10.5px;font-weight:300;color:var(--light,#75705F);margin-top:2px}'
-    + '.meseq-name{font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;color:var(--accent,#3A2D22)}'
-    + '.meseq-desc{font-family:var(--serif-ko,serif);font-size:12px;font-weight:300;color:var(--sub,#5A554C);line-height:1.65;margin-top:3px;word-break:keep-all}'
-    + '.meseq-div{margin:16px 0 4px;font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold,#B89A75);display:flex;align-items:center;gap:8px}'
-    + '.meseq-div::after{content:"";flex:1;height:1px;background:var(--hairline,rgba(28,27,25,0.12))}'
-    + '.meseq-row.internal .meseq-name{color:var(--light,#75705F);font-weight:400}.meseq-row.internal .meseq-time{color:var(--light,#75705F)}'
-    + '.meseq-foot{flex:0 0 auto;padding:12px 22px 18px;border-top:1px solid var(--hairline,rgba(28,27,25,0.12));font-family:var(--serif-ko,serif);font-size:11px;font-weight:300;color:var(--light,#75705F);line-height:1.7;word-break:keep-all}';
+    + '.meseq-tab.on{background:var(--seal,#6B2A24);border-color:var(--seal,#6B2A24);color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'
+    + '.meseq-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:6px 24px 20px;-webkit-overflow-scrolling:touch}'
+    + '.meseq-tl{position:relative;margin:6px 0 0;padding-left:64px}'
+    + '.meseq-tl::before{content:"";position:absolute;left:63px;top:8px;bottom:18px;width:1px;background:var(--border,#DDD8D1)}'
+    + '.meseq-it{position:relative;padding:11px 0 13px}'
+    + '.meseq-it::before{content:"";position:absolute;left:-5px;top:16px;width:9px;height:9px;border-radius:50%;background:var(--bg,#FAFAF8);border:1.5px solid var(--gold,#B89A75)}'
+    + '.meseq-it.hl::before{background:var(--seal,#6B2A24);border-color:var(--seal,#6B2A24)}'
+    + '.meseq-clk{position:absolute;left:-64px;top:13px;width:52px;text-align:right;font-family:var(--serif-ko,serif);font-size:13px;font-weight:500;color:var(--seal,#6B2A24);letter-spacing:-0.02em}'
+    + '.meseq-nm{font-family:var(--serif-ko,serif);font-size:14.5px;font-weight:500;color:var(--accent,#3A2D22);display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}'
+    + '.meseq-dur{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11px;font-weight:400;color:var(--gold,#B89A75);letter-spacing:0.02em}'
+    + '.meseq-ds{font-family:var(--serif-ko,serif);font-size:12px;font-weight:300;color:var(--sub,#5A554C);line-height:1.7;margin-top:4px;word-break:keep-all}'
+    + '.meseq-end{position:relative;padding:8px 0 2px;font-family:var(--serif-ko,serif);font-size:12px;color:var(--light,#75705F)}'
+    + '.meseq-end::before{content:"";position:absolute;left:-5px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--border,#DDD8D1)}'
+    + '.meseq-foot{flex:0 0 auto;padding:13px 24px 20px;border-top:1px solid var(--hairline,rgba(28,27,25,0.1));font-family:var(--serif-ko,serif);font-size:11px;font-weight:300;color:var(--light,#75705F);line-height:1.7;word-break:keep-all}'
+    + '.meseq-it.compact{padding:9px 0}'
+    + '@media(max-width:380px){.meseq-tl{padding-left:56px}.meseq-tl::before{left:55px}.meseq-clk{left:-56px;width:46px;font-size:12px}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var ov = document.createElement('div'); ov.className = 'meseq-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '140분 진행 시간표');
   ov.innerHTML = ''
     + '<div class="meseq">'
     + '  <div class="meseq-head">'
+    + '    <div class="meseq-grip"></div>'
     + '    <div class="meseq-eyebrow">The 140 Signature</div>'
-    + '    <div class="meseq-title">140분 진행 시간표</div>'
-    + '    <div class="meseq-note" id="meseqNote"></div>'
-    + '    <button class="meseq-x" id="meseqX" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>'
+    + '    <div class="meseq-title">예식 진행 시간표</div>'
+    + '    <div class="meseq-note">세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.</div>'
+    + '    <button class="meseq-x" id="meseqX" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
     + '  </div>'
     + '  <div class="meseq-tabs" id="meseqTabs"></div>'
     + '  <div class="meseq-body" id="meseqBody"></div>'
-    + '  <div class="meseq-foot">예식 시작 기준 시간이에요. 하객분께는 대기 공간이 없어 <b style="font-weight:500;color:var(--sub,#5A554C)">하객 입장 시간</b>에 맞춰 오시도록 안내해 주세요. 세부 식순은 계약 후 마이페이지에서 직접 설계하실 수 있습니다.</div>'
+    + '  <div class="meseq-foot">시작 시각 기준이에요. 대기 공간이 없어, 하객분들께는 <b style="font-weight:500;color:var(--sub,#5A554C)">하객 입장 시간</b>에 맞춰 오시도록 안내해 주세요. 세부 식순은 계약 후 직접 설계하실 수 있어요.</div>'
     + '</div>';
   document.body.appendChild(ov);
 
-  var tabsEl = ov.querySelector('#meseqTabs'), bodyEl = ov.querySelector('#meseqBody'), noteEl = ov.querySelector('#meseqNote');
-  var curSlot = 0, mode = 'trim';
-
+  var tabsEl = ov.querySelector('#meseqTabs'), bodyEl = ov.querySelector('#meseqBody'), noteEl = ov.querySelector('.meseq-note');
+  var curSlot = 0, mode = 'full';
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
-
   function renderTabs() {
     tabsEl.innerHTML = SLOTS.map(function (s, i) {
       return '<button class="meseq-tab' + (i === curSlot ? ' on' : '') + '" data-i="' + i + '"><b>' + s.tab + '</b><span>' + s.sub + '</span></button>';
     }).join('');
   }
   function renderBody() {
-    var html = '', dividerDone = false;
-    ROWS.forEach(function (r) {
-      var internal = r[4];
-      if (internal && mode !== 'full') return;   // 추린 모드에선 내부 운영 숨김
-      if (internal && !dividerDone) { html += '<div class="meseq-div">예식 후 · 홀 운영</div>'; dividerDone = true; }
-      html += '<div class="meseq-row' + (internal ? ' internal' : '') + '">'
-        + '<div class="meseq-time">' + esc(r[2][curSlot]) + '<span class="meseq-dur">' + esc(r[1]) + '</span></div>'
-        + '<div><div class="meseq-name">' + esc(r[0]) + '</div><div class="meseq-desc">' + esc(r[3]) + '</div></div>'
+    var full = (mode === 'full');
+    var items = ROWS.map(function (r) {
+      return '<div class="meseq-it' + (r[4] ? ' hl' : '') + (full ? '' : ' compact') + '">'
+        + '<span class="meseq-clk">' + esc(r[2][curSlot]) + '</span>'
+        + '<div class="meseq-nm">' + esc(r[0]) + '<span class="meseq-dur">' + esc(r[1]) + '</span></div>'
+        + (full ? ('<div class="meseq-ds">' + esc(r[3]) + '</div>') : '')
         + '</div>';
-    });
-    bodyEl.innerHTML = html; bodyEl.scrollTop = 0;
+    }).join('');
+    items += '<div class="meseq-end"><span class="meseq-clk" style="position:absolute">' + esc(SLOTS[curSlot].end) + '</span>예식 마무리</div>';
+    bodyEl.innerHTML = '<div class="meseq-tl">' + items + '</div>';
+    bodyEl.scrollTop = 0;
   }
   function open(m) {
-    mode = (m === 'full') ? 'full' : 'trim';
-    noteEl.textContent = (mode === 'full')
-      ? '세 타임 모두 같은 흐름으로 진행되며 시간만 다릅니다. 예식 후 홀 운영까지 전체 일정이에요.'
-      : '세 타임 모두 같은 흐름으로 진행되며 시간만 다릅니다. 원하시는 시간대를 골라 보세요.';
+    mode = (m === 'trim') ? 'trim' : 'full';
+    noteEl.textContent = (mode === 'trim')
+      ? '세 타임 모두 같은 140분 흐름이고 시작 시간만 달라요. 시간대를 골라 한눈에 살펴보세요.'
+      : '세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.';
     renderTabs(); renderBody();
-    ov.classList.add('open'); document.documentElement.style.overflow = 'hidden';
+    ov.classList.add('show'); document.documentElement.style.overflow = 'hidden';
+    requestAnimationFrame(function () { ov.classList.add('open'); });
   }
-  function close() { ov.classList.remove('open'); document.documentElement.style.overflow = ''; }
-
+  function close() {
+    ov.classList.remove('open'); document.documentElement.style.overflow = '';
+    setTimeout(function () { ov.classList.remove('show'); }, 320);
+  }
   tabsEl.addEventListener('click', function (e) {
     var t = e.target.closest('.meseq-tab'); if (!t) return;
     curSlot = +t.getAttribute('data-i'); renderTabs(); renderBody();
