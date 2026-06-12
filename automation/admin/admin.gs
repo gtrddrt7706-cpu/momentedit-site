@@ -1292,6 +1292,7 @@ function adminMarkConsultDone(code) {
     if (_fitRecMC.벌수 == null) return { ok: false, error: '시착 벌수를 먼저 기록해 주세요. (시착 카드에서 입력 · 안 입으셨으면 0벌) 환불 산정의 근거가 돼요.' };   // [필수화] 벌수 없으면 환불 계산 불가 → 상담완료 게이트에서 강제
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
+    notifyKakao('cust.consultDone', code);   // 고객: 다음 단계(마이페이지 계약 진행 요청) 안내 — 없으면 여기서 여정 정체(카톡)
     return { ok: true, stage: '상담완료' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }

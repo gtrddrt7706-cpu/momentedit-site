@@ -70,6 +70,7 @@ var NOTIFY_EVENTS = {
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
+  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 — 마이페이지에서 계약 진행 요청(예식일·정보 입력)' },
   // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
   'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
@@ -300,6 +301,9 @@ function _nfCustomerMsg(event, name, x) {
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
       return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
+    case 'cust.consultDone':
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 3벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
