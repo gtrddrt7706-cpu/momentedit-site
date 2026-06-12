@@ -1491,21 +1491,5 @@ window.ME_ADV_PAGE = {
 <script src="/assets/advisor-kb.js"></script>
 <script src="/assets/advisor-widget.js"></script>
 <script src="/assets/sequence-modal.js" defer></script>
-<script>
-/* 누끼 상단바 — 최상단 숨김, 위로 스크롤 시 표시 (메인홈과 동일 컨셉) */
-(function(){
-  var nav=document.querySelector('nav'); if(!nav) return;
-  var lastTriggerY=window.scrollY, ticking=false, TH=80, TOP=80;
-  function update(){
-    var y=window.scrollY;
-    if(y<=TOP){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; }
-    else { var d=y-lastTriggerY;
-      if(d>TH){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
-      else if(d<-TH){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; } }
-    ticking=false;
-  }
-  window.addEventListener('scroll',function(){ if(!ticking){ window.requestAnimationFrame(update); ticking=true; } },{passive:true});
-})();
-</script>
 </body>
 </html>
