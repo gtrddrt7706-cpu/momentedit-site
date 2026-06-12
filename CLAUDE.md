@@ -45,3 +45,7 @@
 | `weeklyReceiptAudit` | admin | 영수증 미발행 점검(월요일 트리거 자동·수동 점검 가능) |
 | `purgeAdvisorLog` | consultation-booking | AI 상담사 질문 로그 90일 정리(주간 트리거 자동) |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
+
+## 나중에 할 일 메모 규칙 (2026-06-12 사용자 지시)
+
+사용자가 "메모해놔 / 체크리스트에 남겨줘 / 나중에 하자"고 하면 루트 **`나중에할일_체크리스트.md`** 에 추가한다 — 흩어두지 말고 항상 이 한 파일(단일 보관처). 완료 항목은 `[x]` 체크. (SEO 상세는 `PLAN_SEO_체크리스트.md`가 별도 관리되며 통합 파일에서 링크)
