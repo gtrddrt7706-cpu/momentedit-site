@@ -271,7 +271,11 @@ function _nfDate(ymd) {   // '2026-06-17' → '2026년 6월 17일'
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? (m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일') : String(ymd || '');
 }
-function _nfWon(n) { n = Number(n || 0); return n.toLocaleString ? n.toLocaleString('ko-KR') : String(n); }
+function _nfWon(n) {
+  var v = Number(String(n == null ? 0 : n).replace(/[,원\s]/g, ''));   // 시트 문자 금액('300,000원') 방어 · 못 읽으면 0 (고객 문자 'NaN원' 방지)
+  if (!isFinite(v)) v = 0;
+  return v.toLocaleString ? v.toLocaleString('ko-KR') : String(v);
+}
 
 var NF_MYPAGE = 'momentedit.kr/mypage.html';
 
