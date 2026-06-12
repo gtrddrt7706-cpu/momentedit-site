@@ -9,6 +9,15 @@
  */
 var AW_STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(사이트 지도와 동일 좌표)
 
+/** [설정 우회] 스크립트 속성 화면 없이 키 저장 — 아래 key 값에 카카오 REST API 키를 붙여넣고 이 함수를 1회 실행.
+ *  저장 후엔 key 값을 다시 '여기에...'로 되돌려도 됨(속성은 유지됨). */
+function aw_setKey() {
+  var key = '여기에_REST_API_키_붙여넣기';
+  if (!key || key.indexOf('여기에') === 0) throw new Error('함수 안의 key 값에 카카오 REST API 키를 붙여넣은 뒤 다시 실행해 주세요.');
+  PropertiesService.getScriptProperties().setProperty('KAKAO_REST_KEY', key.trim());
+  Logger.log('KAKAO_REST_KEY 저장 완료 ✓ 이제 auditDineDb → collectDinePool 순서로 실행하세요.');
+}
+
 function _awKey_() {
   var k = PropertiesService.getScriptProperties().getProperty('KAKAO_REST_KEY');
   if (!k) throw new Error('스크립트 속성에 KAKAO_REST_KEY를 먼저 등록해 주세요. (프로젝트 설정 → 스크립트 속성)');
