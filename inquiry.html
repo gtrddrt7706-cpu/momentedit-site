@@ -163,7 +163,7 @@
 </head>
 <body>
 
-<nav class="nav-hidden">
+<nav>
   <div class="nav-in">
     <a href="./index.html" class="nav-mark">
       <span>MOMENT</span>
@@ -1498,7 +1498,7 @@ window.ME_ADV_PAGE = {
   var lastTriggerY=window.scrollY, ticking=false, TH=80, TOP=80;
   function update(){
     var y=window.scrollY;
-    if(y<=TOP){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
+    if(y<=TOP){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; }
     else { var d=y-lastTriggerY;
       if(d>TH){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
       else if(d<-TH){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; } }

@@ -148,7 +148,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 </head>
 <body>
 
-<nav class="nav-hidden">
+<nav>
   <div class="nav-in">
     <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
     <a href="./inquiry.html" class="nav-back"><span class="arrow">←</span> 상담 페이지로</a>
@@ -469,7 +469,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   var lastTriggerY=window.scrollY, ticking=false, TH=80, TOP=80;
   function update(){
     var y=window.scrollY;
-    if(y<=TOP){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
+    if(y<=TOP){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; }
     else { var d=y-lastTriggerY;
       if(d>TH){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
       else if(d<-TH){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; } }
