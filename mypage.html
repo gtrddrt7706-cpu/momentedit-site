@@ -1087,11 +1087,16 @@ function renderMyPage(d){
     if (d.stage === '계약완료' && d.payment && !d.payment.confirmed) {
       if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
       else {
-        var _pa = d.payment.amounts;
+        var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
+        if (_pb.length && d.payment.bundleTotal != null) {
+          head = '결제만 남았어요';
+          sub = '예식이 가까워 계약금과 ' + _pb.join('·') + '을 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + '을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.';
+        } else {
         head = '계약금 입금만 남았어요';
         sub = (_pa && Number(_pa.납부액) > 0)
           ? ('계약금 잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_pa.예약금 || 100000) + ' 차감)을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.')
           : '아래 안내에 따라 계약금을 입금해 주시면, 확인 후 예식 준비가 시작돼요.';
+        }
       }
     }
     // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선
@@ -1159,7 +1164,7 @@ function renderMyPage(d){
     var cur = (idx<0?0:idx);
     var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
-    if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel='계약금 입금';   // 서명은 끝났고 남은 건 입금 — 제목·자물쇠와 매치
+    if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel=(d.payment.bundle&&d.payment.bundle.length)?('계약금·'+d.payment.bundle.join('·')+' 입금'):'계약금 입금';   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
     if (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님)
     $('mp_stageNow').textContent = nowLabel;
     $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
@@ -1286,8 +1291,21 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   if (product !== '웨딩스냅'){
     var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
     var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
+    // [임박 계약 일괄 수납] 계약금 카드가 열렸고 묶음에 포함됐으면(서버 bundle) 그 결제는 카드에서 받으므로 자물쇠에서 제외
+    var _pbU = (d && d.payment && d.payment.bundle) || [];
+    if (_pbU.indexOf('중도금') !== -1 || (d && d.payment && d.payment.midConfirmed)) needMid = false;
+    if (_pbU.indexOf('잔금') !== -1 || (d && d.payment && d.payment.balConfirmed)) needBal = false;
     var prodAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='예식 준비') return i; return -1; })();
     function insAt(i,row){ if(i<0||i>items.length) items.push(row); else items.splice(i,0,row); }
+    // 서명 전(계약금 행이 아직 목록에 있음) — 예식일 기간에 따라 계약금 행에 결제를 병합해 한 항목으로
+    var _depAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='계약금') return i; return -1; })();
+    if (_depAt !== -1 && _dd != null && _dd <= 9){
+      items[_depAt] = ['계약금 · 중도금 · 잔금','서명 후 한 번에 납부 · 예약금 10만 원 차감','입금완료'];
+      needMid = false; needBal = false;   // 병합됐으니 별도 행 없음
+    } else if (_depAt !== -1 && _dd != null && _dd <= 149){
+      items[_depAt] = ['계약금 · 중도금','서명 후 한 번에 납부 · 예약금 10만 원 차감','입금완료'];
+      needMid = false;   // 잔금은 아래에서 D-9 행으로
+    }
     if (_dd != null && _dd <= 9){
       if (needMid || needBal) insAt(prodAt, ['중도금 · 잔금','계약 시 함께 납부','예식완료']);
     } else if (_dd != null && _dd <= 149){
@@ -1849,7 +1867,7 @@ function renderContractPayment(c, p, ctx){
     }
     var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
              + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
-             + (a0?'<div class="cc-sub cc-mini">다음 결제 · '+(a0.중도금>0?('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)+' · '):'')+'잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)+'</div>':'')
+             + (a0?(function(){ var _rest=[]; if(a0.중도금>0&&!p.midConfirmed)_rest.push('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)); if(!p.balConfirmed)_rest.push('잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)); return _rest.length?('<div class="cc-sub cc-mini">다음 결제 · '+_rest.join(' · ')+'</div>'):'<div class="cc-sub cc-mini">모든 결제가 완료됐어요</div>'; })():'')
              + chgHtml;   // '계약서 보기' 버튼·서명 미리보기는 표시하지 않음 — 내 내역 아이콘과 중복 (2026-06-13 사용자 지시)
     // 기본 펼침(두 번 클릭 방지) — 단, 제작 단계부터는 접힌 한 줄(지난 카드 정리 취지 유지 · 변경 요청 대기 중엔 항상 펼침)
     var _stIdx=(ctx&&typeof ctx.stageIndex==='number')?ctx.stageIndex:-1, _prodIdx=(ctx&&ctx.stageList||[]).indexOf('제작중');
@@ -1922,8 +1940,15 @@ function renderContractPayment(c, p, ctx){
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
+  var _pb2 = p.bundle || [];
   var amt = a
-    ? '<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'
+    ? ((_pb2.length && p.bundleTotal != null)
+       ? ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(p.bundleTotal)+'</b>'
+          + '<br><span class="cc-mini">계약금 '+fmtWon(a.납부액)+'(예약금 '+fmtWon(a.예약금)+' 차감)'
+          + (_pb2.indexOf('중도금')!==-1?(' + 중도금 '+fmtWon(a.중도금)):'')
+          + (_pb2.indexOf('잔금')!==-1?(' + 잔금 '+fmtWon(a.잔금)):'')+'</span>'
+          + '<br><span class="cc-mini">예식이 가까워 함께 안내드려요. 한 번에 입금하시면 돼요.</span></div>')
+       : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
   var acct = p.account ? ('<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'

@@ -1115,12 +1115,28 @@ function buildPaymentState(r) {
   var confirmed = iStatus === '확인';
   // [③-4] 계약완료·입금완료=항상 노출 / 제작중+ 이후엔 '확인' 완료분만 접힌 카드 유지(시착·계약과 일관)
   if (['계약완료', '입금완료'].indexOf(stage) === -1 && !confirmed) return null;
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  // [임박 계약 일괄 수납] 기한이 이미 닥친 결제는 계약금과 한 번에 받는다(쪼개 받기 방지 · 계약서 §4④).
+  //   D-149 이내 성립 → +중도금 · D-9 이내 → +잔금까지(사실상 전액). 이미 '확인'된 단계는 제외. 법적 구조(10/40/50)는 그대로, 수납만 묶음.
+  var bundle = [];
+  if (String(r.get('상품타입') || '').trim() !== '웨딩스냅' && amounts) {
+    var _dd = _balanceDDay(r.get('예식일'));
+    if (_dd != null && _dd <= PAYMENT.중도금일수전 && String(r.get('중도금상태') || '').trim() !== '확인') bundle.push('중도금');
+    if (_dd != null && _dd <= PAYMENT.잔금일수전 && String(r.get('잔금상태') || '').trim() !== '확인') bundle.push('잔금');
+  }
+  var bundleTotal = amounts ? (amounts.납부액
+    + (bundle.indexOf('중도금') !== -1 ? amounts.중도금 : 0)
+    + (bundle.indexOf('잔금') !== -1 ? amounts.잔금 : 0)) : null;
   return {
     status: iStatus,                          // 대기 / 완료신호 / 확인
     confirmed: confirmed,
     payerName: String(r.get('입금자명') || '').trim(),
     cashReceipt: _cashReceiptOf(r),
-    amounts: _journeyAmounts(r.get('계약총액'), r.get('상품타입')),                            // {계약금,납부액,잔금,잔금시점,...} 또는 null
+    amounts: amounts,                         // {계약금,납부액,중도금,잔금,...} 또는 null
+    bundle: bundle,                           // 계약 시 함께 받는 마일스톤(임박 계약) — []면 평시
+    bundleTotal: bundleTotal,                 // 이번에 입금할 합계(납부액+묶음) 또는 null
+    midConfirmed: String(r.get('중도금상태') || '').trim() === '확인',
+    balConfirmed: String(r.get('잔금상태') || '').trim() === '확인',
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
   };
