@@ -3314,7 +3314,7 @@ function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
   return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
-function exitTrkFlow(){ saveTrkDraft(false).then(function(){ TRKFLOW.active=false; loadMyState(); }); }   // 나가기도 저장
+function exitTrkFlow(){ TRKFLOW.active=false; show('loading'); saveTrkDraft(false).then(function(){ loadMyState(); }); }   // 누르는 즉시 진사 스피너 → 저장·재조회(멈춘 듯 무피드백 방지)
 function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else renderDining(box); }
 function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
