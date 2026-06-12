@@ -74,8 +74,28 @@ async function runAdv(name, turns, page, expect, forbid) {
   grade(name, replies, false, expect, forbid);
 }
 
+async function runHandoff(name) {
+  console.log('\n══ [인계] ' + name + ' ══');
+  const conv = [
+    { role: 'user', content: '계약서 위약금 조항이 정확히 어떻게 되나요? 내년 9월 예식인데 7월에 취소하면 얼마 떼나요?' },
+    { role: 'assistant', content: '정확한 위약금은 계약서 기준이라, 디렉터가 확인해 안내드릴게요.' },
+    { role: 'user', content: '네 확인해서 알려주세요' },
+  ];
+  const j = await call('/api/handoff', { messages: conv, page: '예약', customer: { name: '시뮬테스트', stage: '상담', code: 'SIMTST' } });
+  console.log('  응답: ' + JSON.stringify(j));
+  const issues = [];
+  if (!(j && j.ok === true)) issues.push('handoff 응답 ok 아님(' + (j && (j.error || j._status)) + ')');
+  if (!(j && j.delivered === true)) issues.push('GAS 전달 실패(delivered=false) → 웹훅 URL·새 버전 재배포·시크릿 점검 필요');
+  report.push({ name: name, result: issues.length ? 'CHECK' : 'PASS', issues: issues.join(' · ') || '-' });
+  await sleep(8000);
+}
+
 (async function () {
   console.log('대상: ' + BASE + ' · 오늘: ' + today);
+
+  // ══ 신규: 관리자 인계 GAS 전달 확인(방금 연결한 백엔드 검증) ══
+  await runHandoff('H1 관리자 인계 → GAS 전달(🤖 카드 생성)');
+
 
   // ══ 스케줄 AI — 흐름·신비주의·니즈 우선 ══
   await runSched('S1 기본 흐름(날짜→시간→수긍)', ['내년 10월 둘째 주 토요일 가능해요?', '늦은 오후요', '네 그걸로 할게요'],
