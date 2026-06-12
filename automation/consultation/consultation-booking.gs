@@ -2046,6 +2046,9 @@ function doPost(e) {
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
       case 'diningMatch':        return jsonOut(handleDiningMatch(body));   // 다이닝 자연어 AI 추천(선택 층)
       case 'saveRefundAccount':  return jsonOut(handleSaveRefundAccount(body));   // [환불 안전망] 종료 고객 환불 계좌 셀프 제출
+      // ── 97 · AI 상담 인계·가용성 (Vercel /api/handoff·/api/schedule-advisor → 이 웹앱) ──
+      case 'aiHandoff':          return jsonOut(handleAiHandoff(body));
+      case 'aiAvailability':     return jsonOut(handleAiAvailability(body));   // 97 · 스케줄 AI 서버측 점유 맵(가예약 포함 · _weddingOccupancy 기준)
       case 'advisorLog':         return jsonOut(handleAdvisorLog(body));    // AI 상담사 질문 로그(익명·마스킹) — KB 개선 근거
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
