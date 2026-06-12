@@ -13,6 +13,7 @@
   - www / non-www, http / https 도 대표 URL 1개로 통일
   - Vercel이므로 `vercel.json`에 redirects 몇 줄 추가하면 끝 · 비용 0원
   - 내부 링크에서 `index.html`로 거는 링크 전부 제거
+  - ⚠️ URL 구조를 바꾸는 김에 다른 주소도 손댄다면: 알림톡 템플릿 12종 버튼 링크(`momentedit.kr/mypage.html` 고정 · 바꾸면 카카오 재검수)와 GAS `NF_MYPAGE`도 같이 — 상세는 루트 `나중에할일_체크리스트.md`
 
 - [ ] **momentedit.com 방어 구매**
   - 타인 선점 방지 + 향후 글로벌 확장 대비

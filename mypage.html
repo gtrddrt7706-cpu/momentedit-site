@@ -1155,7 +1155,6 @@ function renderMyPage(d){
   // 개인코드
   var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
   ensureLedFab(d);   // 우측 고정 '내 내역' 바로가기 — 영수증·서류 상시 접근(내역 있을 때만 표시)
-  ensureInviteFab(d);   // 우측 고정 '청첩장 샘플' 바로가기 — 제작 단계(청첩장 작업 중)에만 표시
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
@@ -1315,26 +1314,6 @@ function ensureLedFab(d){
     stack.insertBefore(existing, stack.firstChild);   // 챗 아이콘 위에
   } else if(existing.parentNode!==stack){
     stack.insertBefore(existing, stack.firstChild);   // 위젯이 늦게 떠 body에 붙었던 경우 스택으로 이동
-  }
-  existing.style.display='flex';
-}
-// 청첩장 샘플 바로가기 FAB — 제작 단계(청첩장 작업 중)에만 우측 스택에 등장, 완료·단계 종료 시 사라짐.
-function ensureInviteFab(d){
-  var existing=document.getElementById('mp_inviteFab');
-  var inv = d && d.production && d.production.tracks && d.production.tracks.invitation;
-  var inProd = !!(d && d.production) && (d.stage==='입금완료' || d.stage==='제작중');
-  var show = inProd && inv!=='완료';   // 제작 단계에서 청첩장 작업이 끝나기 전까지만
-  if(!show){ if(existing) existing.style.display='none'; return; }
-  var stack=document.getElementById('meAdvStack');
-  if(!stack){ setTimeout(function(){ ensureInviteFab(d); }, 300); return; }   // 위젯 로드 전이면 재시도
-  if(!existing){
-    existing=document.createElement('a');
-    existing.id='mp_inviteFab'; existing.className='me-fab'; existing.href='/invitation-gallery.html'; existing.target='_blank'; existing.rel='noopener';
-    existing.setAttribute('aria-label','청첩장 샘플 보기');
-    existing.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 8.5l8 4.5 8-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-    stack.insertBefore(existing, stack.firstChild);   // 내역 아이콘과 함께 챗 위에
-  } else if(existing.parentNode!==stack){
-    stack.insertBefore(existing, stack.firstChild);
   }
   existing.style.display='flex';
 }
