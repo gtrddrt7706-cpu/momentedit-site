@@ -294,7 +294,7 @@
   // ── 열기/닫기 + 모바일 배경 스크롤 잠금(index.html 위젯과 동일 동작) ──
   var _lockY = 0, _locked = false;
   function lockScroll() {
-    document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+    var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바(데스크톱)만 보정 · 모바일 팬텀 거터 방지
     document.documentElement.style.overflow = 'hidden';
     if (window.innerWidth <= 680) {
       _lockY = window.scrollY || window.pageYOffset || 0;
@@ -304,7 +304,7 @@
     }
   }
   function unlockScroll() {
-    document.documentElement.style.overflow = ''; document.documentElement.style.scrollbarGutter = '';
+    document.documentElement.style.overflow = ''; document.documentElement.style.paddingRight = '';
     if (_locked) {
       var b = document.body;
       b.style.position = ''; b.style.top = ''; b.style.left = ''; b.style.right = ''; b.style.width = '';

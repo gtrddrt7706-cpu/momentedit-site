@@ -162,12 +162,12 @@
   function open(m) {
     applyMode(m);
     ov.classList.add('show');
-    document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+    var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바만 보정 · 모바일 팬텀 거터 방지
     document.documentElement.style.overflow = 'hidden';
     requestAnimationFrame(function () { ov.classList.add('open'); });
   }
   function close() {
-    ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.scrollbarGutter = '';
+    ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.paddingRight = '';
     setTimeout(function () { ov.classList.remove('show'); }, 320);
   }
   prodEl.addEventListener('click', function (e) {
