@@ -103,5 +103,22 @@ check('H3 슬롯 마감 안내 시 열린 타임으로 집계', JSON.stringify(r
 r = parse([{ role: 'assistant', content: '생각하고 계신 날짜나 시기를 알려주시면 확인해 드릴게요.' }]);
 check('H4 안내문만 있으면 미집계', JSON.stringify(r.confirmed), '{}');
 
+// ── I. 시기 질문 주말 우선 후보 (2026-06-12 · 라운드2 발견: 절기 기간에서 평일을 먼저 찍던 문제) ──
+(function(){
+  const ctxI = ctx();
+  const out1 = _t.decide(ex({ date:'', periodFrom:'2027-06-01', periodTo:'2027-06-30' }), {}, T, ctxI, '예약', L1);
+  const m1 = out1.match(/(\d{1,2})월 (\d{1,2})일/);
+  check('I1 시기 질문 → 주말 우선 후보', m1 ? _t.dayOfWeek('2027-06-' + ('0'+m1[2]).slice(-2)) : -1, function(wd){ return wd === 0 || wd === 6; });
+  const takenWk = {};
+  for (let d = new Date(Date.UTC(2027,5,1)), i = 0; i < 30; i++, d = new Date(d.getTime()+86400000)) {
+    if (d.getUTCDay() === 0 || d.getUTCDay() === 6) takenWk[d.toISOString().slice(0,10)] = ['09:00','12:20','15:40'];
+  }
+  const out2 = _t.decide(ex({ date:'', periodFrom:'2027-06-01', periodTo:'2027-06-30' }), takenWk, T, ctx(), '예약', _t.levelFor(takenWk, T, '예약'));
+  const m2 = out2.match(/(\d{1,2})월 (\d{1,2})일/);
+  check('I2 주말 전부 마감 → 평일 폴백', m2 ? _t.dayOfWeek('2027-06-' + ('0'+m2[2]).slice(-2)) : -1, function(wd){ return wd >= 1 && wd <= 5; });
+  const out3 = _t.decide(ex({ date:'', periodFrom:'2027-06-01', periodTo:'2027-06-30', weekendOnly:true }), takenWk, T, ctx(), '예약', _t.levelFor(takenWk, T, '예약'));
+  check('I3 주말 명시+주말 마감 → 평일로 새지 않음', out3, '찾지 못');
+})();
+
 console.log('\n결과: ' + (n - fails) + '/' + n + ' 통과' + (fails ? ' · 실패 ' + fails + '건' : ''));
 process.exit(fails ? 1 : 0);
