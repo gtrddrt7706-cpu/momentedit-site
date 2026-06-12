@@ -74,15 +74,9 @@ async function runAdv(name, turns, page, expect, forbid) {
   grade(name, replies, false, expect, forbid);
 }
 
-<<<<<<< HEAD
-async function runHandoff(name) {
-  console.log('\n══ [인계] ' + name + ' ══');
-  const conv = [
-=======
 async function runHandoff(name, convOpt) {
   console.log('\n══ [인계] ' + name + ' ══');
   const conv = convOpt || [
->>>>>>> origin/main
     { role: 'user', content: '계약서 위약금 조항이 정확히 어떻게 되나요? 내년 9월 예식인데 7월에 취소하면 얼마 떼나요?' },
     { role: 'assistant', content: '정확한 위약금은 계약서 기준이라, 디렉터가 확인해 안내드릴게요.' },
     { role: 'user', content: '네 확인해서 알려주세요' },
