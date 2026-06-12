@@ -352,7 +352,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
 <div class="page-bg">
 <header>
 <!-- NAV -->
-<nav>
+<nav class="nav-hidden">
 <div class="nav-in">
   <a href="/" onclick="event.preventDefault(); replayHeroAnimation();" class="nav-logo-link" aria-label="페이지 최상단으로"><span class="nav-wordmark">MOMENT<span class="nav-wordmark-dot" aria-hidden="true"></span>EDIT</span></a>
   <ul class="nav-links">
@@ -1653,9 +1653,9 @@ function toggleEssay(btn){
     }
 
     if (y <= TOP_OFFSET){
-      // 최상단: 항상 표시
-      if (nav.classList.contains('nav-hidden')){
-        nav.classList.remove('nav-hidden');
+      // 최상단: 항상 숨김 — 메뉴바는 위로 스크롤할 때만 표시 (2026-06-12 사용자 지시 · PC/모바일 공통)
+      if (!nav.classList.contains('nav-hidden')){
+        nav.classList.add('nav-hidden');
       }
       lastTriggerY = y;
     } else {
