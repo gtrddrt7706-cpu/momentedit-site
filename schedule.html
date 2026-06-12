@@ -584,7 +584,7 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
       <div class="deposit-payer" style="margin-top:16px">
         <label class="deposit-payer-label" for="depCR">현금영수증 발급 번호 <span>· 소득공제용</span></label>
         <input type="tel" id="depCR" inputmode="numeric" maxlength="20" autocomplete="tel" placeholder="휴대폰 또는 사업자번호" oninput="this.value=this.value.replace(/[^0-9]/g,'');var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin-top:9px">
+        <label style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin-top:9px">
           <input type="checkbox" id="depCRNone" onchange="var i=document.getElementById('depCR');i.disabled=this.checked;if(this.checked){i.value='';i.style.opacity=.5;}else{i.style.opacity=1;}var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
           <span>소득공제 없이 발급할게요 <span style="color:var(--light);font-weight:300">· 번호 미등록</span></span>
         </label>
