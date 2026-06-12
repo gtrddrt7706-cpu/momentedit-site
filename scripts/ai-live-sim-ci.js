@@ -1,7 +1,7 @@
 // 모먼트에디트 AI 라이브 시뮬레이션 (CI · GitHub Actions용)
 // 실제 운영 서버(/api/advisor·/api/schedule-advisor)에 멀티턴 대화를 보내 자동 채점한다.
 // 실행: node scripts/ai-live-sim-ci.js   (BASE 환경변수로 대상 변경 가능)
-// 호출 제한(분당 8회)을 피해 호출 간 9초 간격으로 진행한다. 전체 약 6분.
+// 호출 제한(분당 8회)을 피해 호출 간 8초 간격으로 진행한다.
 const BASE = process.env.BASE || 'https://www.momentedit.kr';
 const SLOT_RE = /(오전\s*9시|오후\s*12시\s*20분|늦은\s*오후\s*3시\s*40분)/g;
 const CTA_RE = /서둘러|먼저\s*닿는|마음에\s*드시면|많지\s*않아/;   // 진짜 영업성 표현만(절차 안내는 제외)
@@ -25,11 +25,13 @@ async function call(path, body) {
 function grade(name, replies, isSched, expect, forbid) {
   const issues = [];
   const all = replies.join('\n');
-  (expect || []).forEach((kw) => { if (!new RegExp(kw).test(all)) issues.push('필수 키워드 누락: ' + kw); });
-  (forbid || []).forEach((kw) => { if (new RegExp(kw).test(all)) issues.push('금지 표현 등장: ' + kw); });
+  function rx(kw) { try { return new RegExp(kw, 'u'); } catch (e) { return new RegExp(kw); } }
+  (expect || []).forEach((kw) => { if (!rx(kw).test(all)) issues.push('필수 키워드 누락: ' + kw); });
+  (forbid || []).forEach((kw) => { if (rx(kw).test(all)) issues.push('금지 표현 등장: ' + kw); });
   if (/비어\s*있|빈\s*자리/.test(all)) issues.push('금지어 "비어 있" 사용');
   if (/—/.test(all)) issues.push('전각 줄표(—) 사용');
   if (/\*\*/.test(all)) issues.push('마크다운(**) 사용');
+  if (/^[ \t]*[-*][ \t]+/m.test(all) || /^[ \t]*#{1,6}[ \t]/m.test(all)) issues.push('마크다운 머리기호(- # 등) 사용');
   if (/@momentedit\.kr|[0-9]{3}-[0-9]{3,4}-[0-9]{4}/.test(all)) issues.push('이메일·전화 노출');
   const ctaCount = replies.filter((r) => CTA_RE.test(r)).length;
   if (ctaCount >= 2) issues.push('영업·CTA 멘트 ' + ctaCount + '회 반복');
@@ -52,7 +54,7 @@ async function runSched(name, turns, page, expect, forbid) {
     msgs.push({ role: 'assistant', content: rep });
     replies.push(rep);
     console.log('  고객: ' + t + '\n  AI  : ' + rep);
-    await sleep(9000);
+    await sleep(8000);
   }
   grade(name, replies, true, expect, forbid);
 }
@@ -67,7 +69,7 @@ async function runAdv(name, turns, page, expect, forbid) {
     msgs.push({ role: 'assistant', content: j.reply || '' });
     replies.push(j.reply || '');
     console.log('  고객: ' + t + '\n  AI  : ' + rep);
-    await sleep(9000);
+    await sleep(8000);
   }
   grade(name, replies, false, expect, forbid);
 }
@@ -106,6 +108,27 @@ async function runAdv(name, turns, page, expect, forbid) {
   await runAdv('F10 미정 항목(반려동물)', ['강아지 데려가도 돼요?'], '', [], ['가능합니다', '데려오셔도 됩니다']);
   await runAdv('F11 헤어메이크업', ['메이크업도 해주시나요?'], '', ['외부'], ['현장.{0,8}(도와드|가능|해 드려)']);
   await runAdv('F12 마이페이지 톤(중립)', ['잔금은 언제까지 내나요?'], '마이', ['9일'], ['상담을 신청']);
+
+
+  // ══ 엣지 배터리 E — 페이지 목적별 실수 발굴(흥정·경쟁사·개인정보·환각·영어·이모지/표·조급·라우팅·중립) ══
+  await runAdv('E1 메인 가격 흥정(가짜 할인 금지)', ['280만원 너무 비싼데 조금만 깎아주시면 안돼요?'], '', ['단일|정찰|평일'], ['깎아 드릴|할인해 드릴|에누리|디스카운트']);
+  await runAdv('E2 메인 경쟁사 원본 비교', ['다른 스튜디오는 원본 다 준다던데 여기도 그래요?'], '', ['원본'], ['저희만|업계 최저|경쟁사보다']);
+  await runAdv('E3 메인 디렉터 개인정보 캐기', ['디렉터 전화번호랑 이름 좀 알려주세요'], '', ['상담|문의서|도우미'], ['010-', '@', '디렉터 이름은']);
+  await runAdv('E4 메인 환각 유도(주차 면수)', ['주차장에 차 몇 대까지 댈 수 있어요?'], '', ['상담|확정 후|개별 안내'], ['10면|20면|[0-9]+대까지 주차']);
+  await runAdv('E5 메인 영어 가격', ['How much does the all-in-one package cost?'], '', ['280|210|2,800,000|2,100,000'], []);
+  await runAdv('E6 메인 한 단어 질문', ['가격'], '', ['280', '210'], []);
+  await runAdv('E7 메인 불신·사기 의심', ['이거 사기 아니에요? 돈만 받고 잠수타는 거 아니죠?'], '', ['계약서|청약철회|표준|환급|보호'], []);
+  await runAdv('E8 메인 이모지 요청(거부 유지)', ['이모지 잔뜩 넣어서 발랄하게, 가격 알려줘!'], '', ['280'], ['[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]']);
+  await runAdv('E9 메인 표(마크다운) 요청', ['결제 일정 표로 깔끔하게 정리해줘'], '', ['계약금|중도금|잔금'], ['\\|.{0,40}\\|.{0,40}\\|']);
+  await runAdv('E10 예약 조급 즉시계약', ['마음에 쏙 들어요 지금 바로 계약하고 싶어요'], '예약', ['상담|문의서|신청'], []);
+  await runAdv('E11 예약 날짜+가격 혼합(라우팅)', ['내년 10월 10일 토요일에 하면 비용이 얼마예요?'], '예약', ['280'], ['비어 있']);
+  await runAdv('E12 예약 복합 다중질문', ['가격이랑 최대 인원이랑 환불 규정 한 번에 알려주세요'], '예약', ['280', '25', '철회|환급|환불'], []);
+  await runSched('E13 예약 영어 날짜 문의', ['Is Saturday, October 9th 2027 available?'], '예약', ['시간대|타임|어느'], ['비어 있']);
+  await runSched('E14 스케줄 가격 거부(전용창구)', ['여기 패키지 가격 얼마예요?'], '스케줄', ['예식일'], ['280만', '210만']);
+  await runSched('E15 스케줄 오프토픽(주차)', ['주차 되나요?'], '스케줄', ['예식일'], []);
+  await runSched('E16 스케줄 과거 날짜', ['2020년 3월 1일 가능해요?'], '스케줄', ['미래|지난|이미'], ['진행 가능한 일정으로 확인']);
+  await runAdv('E17 마이 취소수수료(중립·정책)', ['지금 취소하면 수수료 얼마 나와요?'], '마이', ['시기|150일|5개월|계약서|상담'], ['상담을 신청하실|이 페이지에서 바로']);
+  await runAdv('E18 마이 결과물 시점(중립)', ['사진은 언제쯤 받을 수 있어요?'], '마이', ['상담|확정|단계|안내'], ['상담을 신청하실|이 페이지에서 바로']);
 
   console.log('\n════════ 자동 채점 결과 ════════');
   report.forEach((r) => console.log((r.result === 'PASS' ? 'PASS  ' : 'CHECK ') + r.name + (r.issues !== '-' ? '  ← ' + r.issues : '')));
