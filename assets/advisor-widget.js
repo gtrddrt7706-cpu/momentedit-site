@@ -27,7 +27,7 @@
     + '.me-fab-ico{width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none;color:var(--seal,#6B2A24);opacity:.85;transition:transform .3s var(--ease,ease),opacity .3s var(--ease,ease)}'
     + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}'
     + '.me-fab-ico svg{width:22px;height:22px}'
-    + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
+    + '@media(max-width:680px){.me-fab-stack{right:6px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
     /* 아이콘은 항상 노출(누끼) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
