@@ -7,10 +7,20 @@ const ROOT = path.join(__dirname, '..', '..');
 let pass = 0, fail = 0; const fails = [];
 function check(n, ok, d) { if (ok) { pass++; } else { fail++; fails.push(n + (d ? " → " + d : "")); console.log("  FAIL " + n + (d ? " → " + d : "")); } }
 
-// ① AI enum 추출 (86_dining_ai.gs)
-const gas = fs.readFileSync(path.join(ROOT, 'automation/platform/86_dining_ai.gs'), 'utf8');
-const mEnum = gas.match(/DINING_AI_FOODS\s*=\s*\[([^\]]*)\]/);
-const aiFoods = mEnum ? mEnum[1].match(/'([^']+)'/g).map(s => s.slice(1, -1)) : [];
+// ① AI enum 추출 (86_dining_ai.gs + Vercel dining-match·after-concierge — 세 곳 모두 동일해야 함)
+const srcs = [
+  ['86_dining_ai.gs', 'automation/platform/86_dining_ai.gs', /DINING_AI_FOODS\s*=\s*\[([^\]]*)\]/],
+  ['dining-match.js', 'api/dining-match.js', /FOODS\s*=\s*\[([^\]]*)\]/],
+  ['after-concierge.js', 'api/after-concierge.js', /FOODS\s*=\s*\[([^\]]*)\]/],
+];
+let aiFoods = null;
+srcs.forEach(([nm, p, re]) => {
+  const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
+  const mm = src.match(re);
+  const foods = mm ? mm[1].match(/'([^']+)'/g).map(s => s.slice(1, -1)) : [];
+  if (aiFoods === null) aiFoods = foods;
+  check(nm + ' FOODS 일치(' + foods.length + '종)', JSON.stringify(foods) === JSON.stringify(aiFoods));
+});
 
 // ② DINE_DB 음식 태그 추출 (mypage.html · f:[...])
 const mp = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
