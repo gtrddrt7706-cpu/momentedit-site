@@ -3324,7 +3324,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; }   // 재진입 시 지난 AI 대화·추천 잔상 제거(칩 필터는 유지)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널 상태 모두 초기화(2026-06-13 사용자 지시)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   renderTrkFlow($('mp_production'));
