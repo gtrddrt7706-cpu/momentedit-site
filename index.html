@@ -1833,11 +1833,7 @@ function replayHeroAnimation(){
 .me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;opacity:0;visibility:hidden;transform:translateY(-50%) translateX(12px);transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s var(--ease)}
 .me-fab-stack.reveal{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
 .me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}
-/* 스크롤 중엔 조용히 비켜나고, 멈추면 전체가 한 호흡으로 천천히 차오르듯 — 시차 없이 고요하게 */
-.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .9s cubic-bezier(0.22,1,0.36,1),transform .9s cubic-bezier(0.22,1,0.36,1)}
-.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .28s ease,transform .28s ease}
-.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto}
-@media (prefers-reduced-motion:reduce){.me-fab-stack .me-fab,.me-fab-stack.scrolling .me-fab{opacity:1;transform:none;transition:none;pointer-events:auto}}
+/* 아이콘은 항상 노출(누끼라 거슬림 없음) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
 .me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 /* 누끼 아이콘 — 원형 배경 없이 선 아이콘만(아이콘 크기·터치 영역 50px 유지) · 이미지 위 가독용 옅은 빛 번짐 */
 .me-fab-ico{width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none;color:var(--seal);opacity:.85;filter:drop-shadow(0 1px 5px rgba(250,250,248,0.9));transition:transform .3s var(--ease),opacity .3s var(--ease)}
@@ -2126,19 +2122,8 @@ function replayHeroAnimation(){
   }
   if(backdrop) backdrop.addEventListener('click',close);
 
-  // 스크롤을 조금 내리면 서서히 등장 (히어로 상단에선 숨김)
-  // + 스크롤이 움직이는 동안엔 아이콘을 잠시 비켜두고, 멈추면(280ms) 위에서부터 하나씩 복귀
-  var _fabIdle=null, _fabLastY=window.scrollY||0;
-  function onScroll(){
-    var y=window.scrollY;
-    stackEl.classList.toggle('reveal', y > 480);
-    if (Math.abs(y-_fabLastY) > 6){   // 미세 떨림(러버밴드·앵커 보정)은 무시
-      stackEl.classList.add('scrolling');
-      clearTimeout(_fabIdle);
-      _fabIdle=setTimeout(function(){ stackEl.classList.remove('scrolling'); }, 280);
-    }
-    _fabLastY=y;
-  }
+  // 스크롤을 조금 내리면 서서히 등장 (히어로 상단에선 숨김) — 이후엔 항상 노출
+  function onScroll(){ stackEl.classList.toggle('reveal', window.scrollY > 480); }
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
 

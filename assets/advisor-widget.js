@@ -26,11 +26,7 @@
     + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}'
     + '.me-fab-ico svg{width:22px;height:22px}'
     + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
-    /* 스크롤 중엔 조용히 비켜나고, 멈추면 전체가 한 호흡으로 천천히 차오르듯 — 메인홈과 동일(시차 없음) */
-    + '.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .9s cubic-bezier(0.22,1,0.36,1),transform .9s cubic-bezier(0.22,1,0.36,1)}'
-    + '.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .28s ease,transform .28s ease}'
-    + '.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto}'
-    + '@media (prefers-reduced-motion:reduce){.me-fab-stack .me-fab,.me-fab-stack.scrolling .me-fab{opacity:1;transform:none;transition:none;pointer-events:auto}}'
+    /* 아이콘은 항상 노출(누끼) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);box-shadow:-26px 0 72px rgba(28,27,25,0.20);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
@@ -346,18 +342,6 @@
       try { var t = document.createElement('textarea'); t.value = data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); shareCopied(); } catch (e) {}
     });
   }
-
-  // ── 스크롤 중엔 아이콘을 잠시 비켜두고, 멈추면(280ms) 위에서부터 하나씩 복귀 — 메인홈과 동일 호흡 ──
-  var _fabIdle = null, _fabLastY = window.scrollY || 0;
-  window.addEventListener('scroll', function () {
-    var y = window.scrollY;
-    if (Math.abs(y - _fabLastY) > 6) {   // 미세 떨림(러버밴드·앵커 보정)은 무시
-      stackEl.classList.add('scrolling');
-      clearTimeout(_fabIdle);
-      _fabIdle = setTimeout(function () { stackEl.classList.remove('scrolling'); }, 280);
-    }
-    _fabLastY = y;
-  }, { passive: true });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
 
   input.addEventListener('input', function () {
