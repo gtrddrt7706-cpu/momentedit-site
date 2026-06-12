@@ -16,6 +16,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
 <!-- 이메일 '여기' 취소링크 전용 자사몰 페이지 — GAS /exec HTML(구글 Drive 오류) 우회. token·sig로 GAS api 호출(마이페이지와 동일 방식). 폰트는 스케줄·마이페이지와 동일 구글폰트 로드(미로드 시 시스템 serif로 떨어져 보이던 문제). -->
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
   *{margin:0;padding:0;box-sizing:border-box}
   :root{--bg:#FAFAF8;--bg2:#F5F3EF;--accent:#3A2D22;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--seal:#6B2A24;--border:#DDD8D1;--serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;--sans:'Noto Sans KR',-apple-system,sans-serif}
   html,body{background:var(--bg);color:var(--accent);font-family:var(--sans);font-weight:300;font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh;word-break:keep-all}

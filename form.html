@@ -19,6 +19,10 @@
   <meta http-equiv="refresh" content="0; url=https://docs.google.com/forms/d/e/1FAIpQLScOqdtYiQNm_u7Pc3ZIeASzY15CwGJIdqRrEZzbguqeg9uIPQ/viewform">
   <script>location.replace("https://docs.google.com/forms/d/e/1FAIpQLScOqdtYiQNm_u7Pc3ZIeASzY15CwGJIdqRrEZzbguqeg9uIPQ/viewform");</script>
   <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
     html,body{margin:0;height:100%}
     body{display:flex;align-items:center;justify-content:center;background:#FAFAF8;color:#3d3d3a;font-family:'Noto Serif KR',serif;text-align:center;padding:24px}
     .ey{font-family:'Cormorant Garamond',serif;letter-spacing:.28em;font-size:13px;color:#B89A75}

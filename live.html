@@ -13,6 +13,10 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
 html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
 @media (prefers-color-scheme: dark) {
   html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }

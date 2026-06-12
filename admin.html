@@ -14,6 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="Moment Edit · 관리자">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
 ::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -68,6 +72,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .qrow .qs{font-family:var(--serif-ko);font-size:12px;color:var(--light);margin-top:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .qbadge{font-family:var(--serif-ko);font-size:10.5px;font-weight:500;border-radius:9px;padding:1px 8px;flex:none}
 .qbadge.red{background:var(--redbg);color:var(--red)}
+.qk.qk-warn{background:var(--redbg);color:var(--red);border-color:transparent}
 .qbadge.yellow{background:var(--yellowbg);color:var(--yellow)}
 .qbtn{flex:none;background:var(--seal);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--serif-ko);font-size:12.5px;font-weight:500;cursor:pointer;min-height:38px}
 .qbtn.go{background:#fff;border:1px solid var(--gold-deep);color:var(--gold-deeper)}
@@ -502,7 +507,9 @@ var curHome=null;
 function queueRow(it){
   var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
+  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소' };
+  var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var chgAttr=it.chg?(' data-cfd="'+esc(it.chg.fd||'')+'" data-cfs="'+esc(it.chg.fs||'')+'" data-ctd="'+esc(it.chg.td||'')+'" data-cts="'+esc(it.chg.ts||'')+'" data-cfee="'+esc(String(it.chg.fee||0))+'" data-cpy="'+esc(it.chg.payer||'')+'"'):'';
@@ -510,7 +517,7 @@ function queueRow(it){
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
   return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'" data-kind="'+esc(it.kind)+'">'+
-    '<div class="ql"><div class="qn"><span class="qk">'+esc(it.kind)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
+    '<div class="ql"><div class="qn"><span class="qk'+(it.kind==='현금영수증취소'?' qk-warn':'')+'">'+esc(chipLabel)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
 }
 function renderQueue(d){
@@ -689,7 +696,7 @@ function doSearch(){
 }
 
 /* ════════ 상세 ════════ */
-var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
+var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
 function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';

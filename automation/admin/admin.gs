@@ -465,8 +465,8 @@ function adminHome() {
         var _cxIss = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
         var _cxKeys = Object.keys(_cxIss).map(function (k) { return k === '중도금잔금' ? '중도금·잔금' : k; });
         if (_cxKeys.length) {
-          pushQ({ code: code, names: names, product: product, kind: '현금영수증발행', sub: stage + ' 건 영수증 정리(발행 취소 · 공제 후 재발행) · ' + _cxKeys.join('·'),
-            badge: { level: 'yellow', text: '환불 연동' }, _urgent: false, _stage: 9, _wait: createdYmd });
+          pushQ({ code: code, names: names, product: product, kind: '현금영수증취소', sub: stage + ' 건 영수증 발행취소 후 재발행(환불·공제 반영) · ' + _cxKeys.join('·'),
+            badge: { level: 'red', text: '발행취소·재발행' }, _urgent: false, _stage: 9, _wait: createdYmd });
         }
       }
       // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
