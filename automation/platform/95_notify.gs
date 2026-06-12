@@ -70,14 +70,14 @@ var NOTIFY_EVENTS = {
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
-  // ── 고객: 권장(안심) ──
-  'cust.paymentConfirmed':{ to: 'customer', need: false, desc: '입금 확인됨' },
-  'cust.cashReceiptIssued':{ to: 'customer', need: false, desc: '현금영수증 발행됨' },
-  'cust.holdGranted':     { to: 'customer', need: false, desc: '예식일 임시고정 승인됨' },
-  'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨' },
+  // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
+  'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
+  'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
+  'cust.holdGranted':     { to: 'customer', need: false, off: true, desc: '예식일 임시고정 승인됨' },
+  'cust.changeConfirmed': { to: 'customer', need: false, off: true, desc: '예식일 변경 적용됨' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
-  'cust.holdReleased':    { to: 'customer', need: false, desc: '예식일 임시고정 해제됨' },
+  'cust.holdReleased':    { to: 'customer', need: false, off: true, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' },
   'cust.archiveExpiring': { to: 'customer', need: true,  desc: '결과물 보관 만료 임박 — 다운로드 안내' }
 };
@@ -92,6 +92,7 @@ function notifyKakao(event, code, extra) {
   try {
     var meta = NOTIFY_EVENTS[event];
     if (!meta) { if (NOTIFY.LOG) Logger.log('[notifyKakao] ⚠️ 미등록 이벤트: ' + event); return; }
+    if (meta.off) { if (NOTIFY.LOG) Logger.log('[notifyKakao] 발송 안 함(off · 2026-06-12 사용자 결정): ' + event); return; }
     if (NOTIFY.LOG) {
       Logger.log('[notifyKakao] ' + event + ' → ' + meta.to + (meta.need ? '(행동필요)' : '(안내)')
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
