@@ -59,7 +59,10 @@
     + '.meseq-foot{flex:0 0 auto;padding:13px 24px 20px;border-top:1px solid var(--hairline,rgba(28,27,25,0.1));font-family:var(--serif-ko,serif);font-size:11px;font-weight:300;color:var(--light,#75705F);line-height:1.7;word-break:keep-all}'
     + '.meseq-it.compact{padding:9px 0 9px 18px}'
     + '.meseq-it.compact::before{top:14px}'
-    + '@media(max-width:380px){.meseq-tl{padding-left:56px}.meseq-tl::before{left:55px}.meseq-clk{left:-56px;width:46px;font-size:12px}}';
+    + '@media(max-width:380px){.meseq-tl{padding-left:56px}.meseq-tl::before{left:55px}.meseq-clk{left:-56px;width:46px;font-size:12px}}'
+    /* 시간표 열기 버튼(예약·스케줄·마이 공용) — 마이페이지 .cc-btn과 같은 색·효과 */
+    + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#4E3F31;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
+    + '.seq-open-btn:hover{background:#3A2D22}.seq-open-btn:active{background:#9C7E55}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var ov = document.createElement('div'); ov.className = 'meseq-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '140분 진행 시간표');
@@ -105,11 +108,13 @@
       ? '세 타임 모두 같은 140분 흐름이고 시작 시간만 달라요. 시간대를 골라 한눈에 살펴보세요.'
       : '세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.';
     renderTabs(); renderBody();
-    ov.classList.add('show'); document.documentElement.style.overflow = 'hidden';
+    ov.classList.add('show');
+    document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+    document.documentElement.style.overflow = 'hidden';
     requestAnimationFrame(function () { ov.classList.add('open'); });
   }
   function close() {
-    ov.classList.remove('open'); document.documentElement.style.overflow = '';
+    ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.scrollbarGutter = '';
     setTimeout(function () { ov.classList.remove('show'); }, 320);
   }
   tabsEl.addEventListener('click', function (e) {

@@ -1356,6 +1356,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     body.style.left = '';
     body.style.right = '';
     body.style.overflow = '';
+    document.documentElement.style.scrollbarGutter = '';
   }
 
   function openMenu(){
@@ -1365,6 +1366,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     menu.setAttribute('aria-hidden', 'false');
     menu.classList.add('open');
     body.classList.add('menu-open');
+    document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
     // 스크롤 위치 고정 (iOS Safari 대응)
     body.style.position = 'fixed';
     body.style.top = '-' + scrollY + 'px';
@@ -1377,6 +1379,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     menu.setAttribute('aria-hidden', 'true');
     menu.classList.remove('open');
     body.classList.remove('menu-open');
+    document.documentElement.style.scrollbarGutter = '';
     body.style.position = '';
     body.style.top = '';
     body.style.left = '';
@@ -1700,6 +1703,7 @@ function toggleEssay(btn){
         document.body.style.left = '';
         document.body.style.right = '';
         document.body.style.overflow = '';
+        document.documentElement.style.scrollbarGutter = '';
         return;
       }
       if (window.scrollY === lastY && !isMenuOpen) {
@@ -2087,6 +2091,7 @@ function replayHeroAnimation(){
   // 모바일: body를 고정해 배경 스크롤 완전 차단(iOS는 overflow:hidden만으론 새어나감).
   // 데스크톱(부분 드로어): overflow:hidden만 — body 고정 시 배경이 위로 튀어 보이므로 제외.
   function lockScroll(){
+    document.documentElement.style.scrollbarGutter='stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
     document.documentElement.style.overflow='hidden';
     if(window.innerWidth<=680){
       _lockY=window.scrollY||window.pageYOffset||0;
@@ -2096,7 +2101,7 @@ function replayHeroAnimation(){
     }
   }
   function unlockScroll(){
-    document.documentElement.style.overflow='';
+    document.documentElement.style.overflow=''; document.documentElement.style.scrollbarGutter='';
     if(_locked){
       var b=document.body;
       b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';
