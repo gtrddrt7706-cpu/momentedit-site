@@ -1159,6 +1159,7 @@ function renderMyPage(d){
     var cur = (idx<0?0:idx);
     var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
+    if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel='계약금 입금';   // 서명은 끝났고 남은 건 입금 — 제목·자물쇠와 매치
     if (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님)
     $('mp_stageNow').textContent = nowLabel;
     $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
@@ -1281,6 +1282,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['계약금','서명 후 잔액 입금 · 예약금 10만 원 차감','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
+  if (d && d.payment) items = items.filter(function(r){ return r[0]!=='계약금'; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 — 제거
   if (product !== '웨딩스냅'){
     var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
     var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
