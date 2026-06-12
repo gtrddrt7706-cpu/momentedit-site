@@ -1220,6 +1220,7 @@ function renderMyPage(d){
       // [임시고정 상시 확인] 배너는 상담완료부터 숨으므로(혼선 방지), 계약 서명 전까지는 내 내역에서 픽스 날짜를 이어서 보여줌. GAS가 서명완료·만료 시 hold를 자동으로 끊음.
       d.ledger.hold = d.hold || null;
     }
+    window._mpStateD = d;                                            // 내 내역 모달에서 예식일 변경 위저드 진입용 전체 상태
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
   }
@@ -1438,6 +1439,20 @@ function renderLedger(l){
         return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
       }).join('')
     : '<div class="led-empty">아직 등록된 서류가 없어요</div>';
+  // [예식일 변경 진입] 서명 후 — 계약 완료 카드 제거에 따라 변경 진입·요청 상태는 여기(내 내역)로 (2026-06-13).
+  var chgSec='';
+  (function(){
+    var _d=window._mpStateD||{}, _chg=_d.change, _fill=(_d.contract&&_d.contract.fill)||{};
+    if(!_chg || !_fill.weddingDate) return;
+    var _when=(typeof fmtWedKoT==='function')?fmtWedKoT(_fill.weddingDate,_fill.weddingTime):_fill.weddingDate;
+    var _rq=_chg.request;
+    var _st=_rq&&_rq.to ? '<span class="led-s led-soon">변경 확인 중</span>' : '<span class="led-s led-done">확정</span>';
+    chgSec='<div class="led-sec"><div class="led-h">예식 일정</div>'
+      +'<div class="led-row"><span class="led-k">예식일</span><span class="led-v">'+escapeHtml(_when)+'</span>'+_st+'</div>'
+      +(_rq&&_rq.to ? '<div class="led-due">요청하신 변경 · '+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+' · 디렉터 확인 후 적용돼요</div><button type="button" class="led-editbtn" id="mp_ledChgCancel">변경 요청 철회</button>'
+                     : (_chg.eligible ? '<button type="button" class="led-editbtn" id="mp_ledChgOpen">예식일 변경</button>' : ''))
+      +'</div>';
+  })();
   // [임시고정 상시 확인] 예식일 임시 고정 — 계약 서명 전까지 픽스된 날짜·시간을 수시로 확인(14일 보호 · 만료일 표기).
   var holdSec='';
   if(l.hold && l.hold.date){
@@ -1482,7 +1497,7 @@ function renderLedger(l){
     '<div class="cc-eyebrow en-22" style="text-align:center;font-size:12px;margin-bottom:16px">My Records</div>'+
     holdSec+
     paySec+
-    '<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
+    chgSec+'<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     refundSec+
     '</div>';
@@ -1490,6 +1505,8 @@ function renderLedger(l){
   box.addEventListener('click', function(e){ if(e.target===box) closeLedModal(); });
   var xb=$('mp_ledClose'); if(xb) xb.addEventListener('click', closeLedModal);
   var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
+  var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){ closeLedModal(); renderChangeWizard(window._mpStateD||{}); var _b=$('mp_contract'); if(_b&&_b.scrollIntoView) _b.scrollIntoView({behavior:'smooth',block:'start'}); });
+  var lx=$('mp_ledChgCancel'); if(lx) lx.addEventListener('click', function(){ closeLedModal(); doCancelWeddingChange(); });
   var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } });
 }
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
@@ -1861,31 +1878,15 @@ function renderContractPayment(c, p, ctx){
       chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
         + '<div class="cc-sub cc-mini">'+(_rq.fee>0?('변경 수수료 '+fmtWon(_rq.fee)+(_rq.payer?(' · 입금자 '+escapeHtml(_rq.payer)):'')+' · 디렉터 확인 후 적용돼요'):'무상 변경 · 디렉터 확인 후 적용돼요')+'</div>'
         + '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgCancel">변경 요청 철회</button></div>';
-    } else if (chg && chg.eligible){
-      chgHtml = '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgOpen">예식일 변경</button></div>';
     }
-    var full = '<div class="cc-sub"><span class="trk-ok">✓</span> 서명'+(c.signedAt?(' · <b>'+escapeHtml(c.signedAt)+'</b>'):'')+'</div>'
-             + '<div class="cc-sub"><span class="trk-ok">✓</span> '+((a0&&a0.납부액>0)?('계약금 입금 확인'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')):'예약금으로 충당 · 추가 납부 없음')+'</div>'
-             + (a0?(function(){ var _rest=[]; if(a0.중도금>0&&!p.midConfirmed)_rest.push('중도금 '+fmtWon(a0.중도금)+' '+escapeHtml(a0.중도금시점)); if(!p.balConfirmed)_rest.push('잔금 '+fmtWon(a0.잔금)+' '+escapeHtml(a0.잔금시점)); return _rest.length?('<div class="cc-sub cc-mini">다음 결제 · '+_rest.join(' · ')+'</div>'):'<div class="cc-sub cc-mini">모든 결제가 완료됐어요</div>'; })():'')
-             + chgHtml;   // '계약서 보기' 버튼·서명 미리보기는 표시하지 않음 — 내 내역 아이콘과 중복 (2026-06-13 사용자 지시)
-    // 기본 펼침(두 번 클릭 방지) — 단, 제작 단계부터는 접힌 한 줄(지난 카드 정리 취지 유지 · 변경 요청 대기 중엔 항상 펼침)
-    var _stIdx=(ctx&&typeof ctx.stageIndex==='number')?ctx.stageIndex:-1, _prodIdx=(ctx&&ctx.stageList||[]).indexOf('제작중');
+    // [중복 제거 · 확정] 완료된 '계약 완료' 카드는 단계와 무관하게 띄우지 않는다 — 서명·결제 내역은 전부 '내 내역'에 있음 (2026-06-13 사용자 지시 3회).
+    //   예식일 변경 진입은 '내 내역 > 예식 일정'으로 이동. 변경 요청 '대기 중'(액션 필요)만 작은 카드로 유지.
     var _chgPending=!!(chg&&chg.request&&chg.request.to);
-    var _openByDefault = _chgPending || _prodIdx<0 || _stIdx<0 || _stIdx<_prodIdx;
-    if(!_openByDefault){
-      // [중복 제거] 제작 단계부터는 '계약 완료' 상태 카드를 띄우지 않음(계약 정보·계약서는 '내 내역'에서 확인).
-      //   단, 예식일 변경(액션)은 유실되면 안 되므로 변경 가능할 때만 작은 단독 카드로 유지.
-      if(chgHtml){
-        box.innerHTML='<div class="consult-card" style="text-align:center"><div class="cc-eyebrow en-22">Change</div>'+chgHtml+'</div>';
-        box.style.display='block';
-        var _co0=$('mp_chgOpen'); if(_co0) _co0.addEventListener('click', function(){ renderChangeWizard(ctx); });
-        var _cc0=$('mp_chgCancel'); if(_cc0) _cc0.addEventListener('click', doCancelWeddingChange);
-      } else { box.style.display='none'; box.innerHTML=''; }
-      return;
-    }
-    collapsedCard(box, '계약 완료', full, null, true);
-    var _co=$('mp_chgOpen'); if(_co) _co.addEventListener('click', function(){ renderChangeWizard(ctx); });
-    var _cc2=$('mp_chgCancel'); if(_cc2) _cc2.addEventListener('click', doCancelWeddingChange);
+    if(_chgPending){
+      box.innerHTML='<div class="consult-card" style="text-align:center"><div class="cc-eyebrow en-22">Change</div>'+chgHtml+'</div>';
+      box.style.display='block';
+      var _cc0=$('mp_chgCancel'); if(_cc0) _cc0.addEventListener('click', doCancelWeddingChange);
+    } else { box.style.display='none'; box.innerHTML=''; }
     return;
   }
 
@@ -2137,12 +2138,7 @@ function renderPayment(p){
   var box=$('mp_payment'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   var a = p.amounts;
-  if(p.confirmed){   // 완료 → 접기
-    var full = '<div class="cc-sub">입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>'
-             + (a ? '<div class="cc-sub cc-mini">납부 '+fmtWon(a.납부액)+(a.잔금?(' · 잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점)):'')+'</div>' : '');
-    collapsedCard(box, '입금 확인 완료', full);
-    return;
-  }
+  if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   var body='', cta='';
   if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
@@ -2184,11 +2180,7 @@ function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원';
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
-  if(p.confirmed){
-    if(mid && mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 중도금과 함께 확인 → 중도금 카드에 '중도금·잔금'으로 통합 → 잔금 숨김
-    collapsedCard(box, '잔금 입금 완료', '<div class="cc-sub">잔금 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>', null, true);
-    return;
-  }
+  if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   // 중도금도 함께 입금신호(같이 입금) → 중도금 카드가 '중도금·잔금 입금 확인 중'으로 통합 표시 → 잔금 카드는 숨김(중복 방지)
   if(p.status==='완료신호' && mid && mid.status==='완료신호' && !mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }
   var midUnpaid = !(mid && mid.confirmed);
@@ -2266,11 +2258,7 @@ function doBalanceSignal(){
 function renderMid(p, bal){
   var box=$('mp_midpayment'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
-  if(p.confirmed){
-    var _md=!!(bal && bal.confirmed);   // 중도금+잔금 모두 확인 → 한 카드로 통합(스타일은 기존 박스형 유지)
-    collapsedCard(box, (_md?'중도금·잔금':'중도금')+' 입금 완료', '<div class="cc-sub">'+(_md?'중도금·잔금':'중도금')+' 입금 확인됨'+(p.payerName?(' · 입금자 '+escapeHtml(p.payerName)):'')+'</div>', null, true);
-    return;
-  }
+  if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||'예식 149일 전');
@@ -3517,13 +3505,9 @@ function renderDining(box){
     var slot=_dineSlot((TRKFLOW.base&&TRKFLOW.base.weddingTime)||'');
     var body='<div class="cc-note" style="text-align:left;margin:0 0 10px">'+escapeHtml(slot.lead)+' 예식 후 가까운 곳으로 이동해 식사하시면 돼요. 디렉터가 직접 검증한 곳들이라 참고만 하셔도 좋아요.</div>'
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
-        + _trkOpt('직접 섭외할게요', d.venuePick, 'venuePick', '직접 섭외할게요', '원하시는 곳이 따로 있다면')
-        + _trkOpt('상담 때 함께 정할게요', d.venuePick, 'venuePick', '상담 때 함께 정할게요', '디렉터와 같이 보고 천천히')
-        + _trkOpt('다이닝 없이 진행할게요', d.venuePick, 'venuePick', '다이닝 없이 진행할게요', '따로 식사 자리는 안 둘게요');
+        ;   // 하단 고정 옵션(직접 섭외·상담 때·다이닝 없이) 제거 — 식당 카드만(2026-06-13 사용자 지시). 옛 저장값은 아래 분기로 계속 표시.
     box.innerHTML=trkShell(1,'예식 후 식사 자리, 안내해 드릴게요','마음에 드는 곳을 고르면 전화·예약 안내를 보여드려요. 꼭 정하지 않으셔도 괜찮아요.',body,false);
-    bindTrk(box,renderDining,collect,{ validate:function(){
-      if(!d.venuePick) return "마음에 드는 곳을 고르거나, 아래 중 하나를 골라 주세요.";
-    } });
+    bindTrk(box,renderDining,collect,{});   // 선택 없이 다음 → '장소 미정' 안내(직접 예약 안내)로 진행
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
       box.innerHTML=trkShell(2,'다이닝 없이 진행해요','따로 식사 자리는 두지 않기로 했어요. 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
