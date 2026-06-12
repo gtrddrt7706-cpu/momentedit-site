@@ -3576,6 +3576,11 @@ window.ME_ADV_PAGE = {
       return d ? { name: d.name || '', stage: d.stage || '', code: d.code || '' } : null;
     } catch (e) { return null; }
   },
+  // 로그인 화면에서는 우측 아이콘 스택 비노출(그 섹션이 보이는 동안만 숨김)
+  hideOn: function(){
+    var v = document.getElementById('loginView');
+    return !!(v && v.offsetParent !== null);
+  },
   // 카톡 문의 링크 — GAS KAKAO_URL(getMyState d.kakao·캐시) 우선, 미설정 시 메일 폴백(구 하단 버튼과 동일 규칙)
   kakaoUrl: function(){
     try {

@@ -79,6 +79,12 @@
   var wrap = document.createElement('div');
   wrap.innerHTML = ''
     + '<div class="me-fab-stack" id="meAdvStack">'
+    + '  <a class="me-fab" href="/mypage.html" aria-label="마이페이지">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 19a6.5 6.5 0 0 1 13 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>'
+    + '  </a>'
+    + '  <a class="me-fab" href="https://www.instagram.com/moment_edit_official" target="_blank" rel="noopener" aria-label="인스타그램">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor"/></svg></span>'
+    + '  </a>'
     + '  <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기" type="button">'
     + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
     + '  </button>'
@@ -311,6 +317,17 @@
     backdrop.classList.remove('open');
     unlockScroll();
   }
+  // 특정 화면에서 아이콘 스택 숨김(예: 마이페이지 로그인 뷰) — CFG.hideOn()이 true인 동안 비노출
+  if (typeof CFG.hideOn === 'function') {
+    var syncHide = function () {
+      var h = false; try { h = !!CFG.hideOn(); } catch (e) {}
+      stackEl.style.display = h ? 'none' : '';
+      if (h && panel.classList.contains('open')) close();
+    };
+    syncHide();
+    setInterval(syncHide, 600);
+  }
+
   fab.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
