@@ -446,6 +446,8 @@ function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):'';
 function setTopbar(on){ ['btnArchive','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+// 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
+function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
 function doLogin(){
   var id=$('lgId').value.trim(), pw=$('lgPw').value;
   if(!id||!pw){ $('lgErr').textContent='아이디·비밀번호를 입력해 주세요.'; return; }
@@ -459,19 +461,29 @@ function doLogin(){
 function doLogout(){ try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
 
 /* ════════ 홈 ════════ */
+var _homeRetried=false;
 function loadHome(){
   _lastQuery=''; _origin='home';
   $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
   show('loading');
   gas('adminHome').then(function(d){
-    if(!d||!d.ok){ authFail(); return; }
+    if(!d||!d.ok){
+      // 진짜 인증 실패(토큰 무효·만료)만 로그아웃. GAS 일시 오류는 토큰 보존(netFail).
+      if(d && /로그인이 필요|만료|권한/.test(String(d.error||''))) authFail();
+      else netFail(d && d.error);
+      return;
+    }
+    _homeRetried=false;
     setWho(d.name); setTopbar(true);
     curHome=d;
     // 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
     try{ renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }
     catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
     show('home');
-  }).catch(function(e){ authFail(); });
+  }).catch(function(e){
+    if(!_homeRetried){ _homeRetried=true; setTimeout(loadHome, 1200); return; }   // 일시 네트워크 오류 1회 자동 재시도
+    _homeRetried=false; netFail();
+  });
 }
 var curHome=null;
 
