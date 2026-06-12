@@ -412,8 +412,21 @@
       <div class="schedule-ref" aria-label="140분 시퀀스 진행 시간표 (요약)">
         <div class="schedule-ref-head">
           <span class="schedule-ref-tag">Reference</span>
-          <span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);letter-spacing:0.06em;font-weight:400;margin-left:4px">· 요약</span></span>
+          <span class="schedule-ref-title"><span id="seqRefTitle">140분 시퀀스 진행 시간표</span> <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);letter-spacing:0.06em;font-weight:400;margin-left:4px">· 요약</span></span>
         </div>
+        <style>
+        .seqref-sw{display:flex;gap:6px;margin:-2px 0 13px}
+        .seqref-sw button{flex:1;border:1px solid var(--border);background:none;border-radius:8px;padding:8px 4px;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--sub);transition:all .2s}
+        .seqref-sw button.on{background:#4E3F31;border-color:#4E3F31;color:#fff}
+        .snaprow{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:10px 2px;border-top:1px dashed var(--hairline);font-family:var(--serif-ko)}
+        .snaprow b{font-size:12.5px;font-weight:500;color:var(--accent)}
+        .snaprow span{font-family:var(--serif);font-style:italic;font-size:11.5px;color:var(--gold);letter-spacing:0.04em}
+        </style>
+        <div class="seqref-sw" role="tablist" aria-label="상품별 진행 안내 선택">
+          <button type="button" class="on" id="seqSwSig">시그니처 140분</button>
+          <button type="button" id="seqSwSnap">평일 웨딩스냅</button>
+        </div>
+        <div id="seqRefSig">
         <div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);letter-spacing:0.01em;line-height:1.7;margin:-4px 0 14px;padding-bottom:12px;border-bottom:1px dashed var(--hairline);word-break:keep-all">대표 시간만 정리한 요약 시간표입니다. 실제 세부 식순은 계약 후 마이페이지에서 직접 설계하실 수 있습니다.</div>
         <div class="schedule-ref-table">
           <div class="ref-row">
@@ -452,6 +465,35 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#fff" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           시간대별 전체 진행 시간표 보기
         </button>
+        </div>
+        <div id="seqRefSnap" style="display:none">
+        <div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);letter-spacing:0.01em;line-height:1.7;margin:-4px 0 6px;padding-bottom:12px;word-break:keep-all">평일 60~90분, 원하시는 시간에 맞춰 진행되는 두 분만의 프라이빗 촬영이에요. 고정 시각표 없이 아래 흐름으로 흘러갑니다.</div>
+        <div class="snaprow"><b>도착·준비 정돈</b><span>10~15분</span></div>
+        <div class="snaprow"><b>캔들존 촬영</b><span>30~35분</span></div>
+        <div class="snaprow"><b>화이트존 촬영</b><span>30~35분</span></div>
+        <div class="snaprow"><b>마무리·환복</b><span>5~10분</span></div>
+        <div class="schedule-ref-foot">
+          <span class="accent">Note</span>하객 없이 두 분만 진행되는 프라이빗 촬영이에요. 원본 사진 전량과 보정본을 전해드립니다.
+        </div>
+        <button type="button" class="seq-open-btn" data-seq-open="snap" style="margin-top:13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#fff" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          스냅 진행 흐름 자세히 보기
+        </button>
+        </div>
+        <script>
+        (function(){
+          var sig=document.getElementById('seqSwSig'), snap=document.getElementById('seqSwSnap');
+          var pSig=document.getElementById('seqRefSig'), pSnap=document.getElementById('seqRefSnap'), ttl=document.getElementById('seqRefTitle');
+          function sel(isSnap){
+            sig.classList.toggle('on',!isSnap); snap.classList.toggle('on',isSnap);
+            pSig.style.display=isSnap?'none':''; pSnap.style.display=isSnap?'':'none';
+            if(ttl) ttl.textContent=isSnap?'웨딩스냅 진행 흐름':'140분 시퀀스 진행 시간표';
+            var fab=document.getElementById('meAdvSeq'); if(fab) fab.setAttribute('data-seq-open', isSnap?'snap':'trim');   // 우측 시계 아이콘도 선택 상품의 시간표를 열도록
+          }
+          sig.addEventListener('click',function(){sel(false);});
+          snap.addEventListener('click',function(){sel(true);});
+        })();
+        </script>
       </div>
 
     </div>
