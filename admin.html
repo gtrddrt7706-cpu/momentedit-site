@@ -466,7 +466,11 @@ function loadHome(){
   gas('adminHome').then(function(d){
     if(!d||!d.ok){ authFail(); return; }
     setWho(d.name); setTopbar(true);
-    curHome=d; renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); show('home');
+    curHome=d;
+    // 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
+    try{ renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }
+    catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
+    show('home');
   }).catch(function(e){ authFail(); });
 }
 var curHome=null;
@@ -603,12 +607,13 @@ function renderPipeline(d){
 }
 function tabBtn(f,label,n,cur){ return '<div class="ptab'+(cur===f?' active':'')+'" data-f="'+f+'">'+esc(label)+'<span class="pc">'+(n||0)+'</span></div>'; }
 function renderPipeBody(d, filter){
+  var pl=(d&&d.pipeline)||{};   // 응답에 pipeline이 없어도 홈이 죽지 않게(부분 렌더 방어)
   var html='';
   if(filter==='전체'){
-    html+='<div class="psub">시그니처</div>'+pipeSection(d.pipeline['시그니처'],'시그니처');
-    html+='<div class="psub">웨딩스냅</div>'+pipeSection(d.pipeline['웨딩스냅'],'웨딩스냅');
+    html+='<div class="psub">시그니처</div>'+pipeSection(pl['시그니처'],'시그니처');
+    html+='<div class="psub">웨딩스냅</div>'+pipeSection(pl['웨딩스냅'],'웨딩스냅');
   } else {
-    html+=pipeSection(d.pipeline[filter], filter);
+    html+=pipeSection(pl[filter], filter);
   }
   $('pipeBody').innerHTML=html;
   bindPipe();
