@@ -21,8 +21,9 @@
     + '.me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;transform:translateY(-50%);transition:opacity .55s var(--ease,ease),transform .55s var(--ease,ease)}'
     + '.me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}'
     + '.me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}'
-    + '.me-fab-ico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.07);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(28,27,25,0.05);box-shadow:0 3px 12px rgba(28,27,25,0.05);color:var(--seal,#6B2A24);transition:transform .3s,box-shadow .3s,background .3s}'
-    + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);background:rgba(250,250,248,0.42);box-shadow:0 8px 20px rgba(28,27,25,0.10)}'
+    /* 누끼 아이콘 — 원형 배경 없이 선 아이콘만(터치 영역 50px 유지) · 메인홈과 동일 */
+    + '.me-fab-ico{width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none;color:var(--seal,#6B2A24);opacity:.85;filter:drop-shadow(0 1px 5px rgba(250,250,248,0.9));transition:transform .3s,opacity .3s}'
+    + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}'
     + '.me-fab-ico svg{width:22px;height:22px}'
     + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
     /* 스크롤 중엔 잠시 비켜나고, 멈추면 위에서부터 하나씩 서서히 — 메인홈과 동일 호흡 */
