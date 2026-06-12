@@ -1443,28 +1443,5 @@ window.ME_ADV_PAGE = {
 </script>
 <script src="/assets/advisor-kb.js"></script>
 <script src="/assets/advisor-widget.js"></script>
-<script>
-/* 공유 버튼 — 위젯이 만든 우측 스택(#meAdvStack)에 같은 .me-fab 스타일로 주입(챗 아이콘 위). 모바일=네이티브 공유, PC=링크 복사. */
-(function(){
-  function share(){
-    var data = { url:'https://momentedit.kr' };   // 글 없이 링크만 — 카톡 등에서 문구가 메시지로 같이 입력되지 않게 (2026-06-12 사용자 지시)
-    if(navigator.share){ navigator.share(data).catch(function(){}); return; }
-    var done=function(){ try{ alert('링크가 복사됐어요 · momentedit.kr'); }catch(e){} };
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.url).then(done).catch(done); return; }
-    try{ var t=document.createElement('textarea'); t.value=data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); }catch(e){ done(); }
-  }
-  function inject(tries){
-    var stack=document.getElementById('meAdvStack');
-    if(!stack){ if((tries||0)<20) setTimeout(function(){ inject((tries||0)+1); }, 250); return; }
-    if(document.getElementById('meShareFab')) return;
-    var btn=document.createElement('button');
-    btn.type='button'; btn.id='meShareFab'; btn.className='me-fab'; btn.setAttribute('aria-label','페이지 공유하기');
-    btn.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v10.5M12 3.5 8.5 7M12 3.5 15.5 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11H5.4A1.4 1.4 0 0 0 4 12.4v6.2A1.4 1.4 0 0 0 5.4 20h13.2a1.4 1.4 0 0 0 1.4-1.4v-6.2A1.4 1.4 0 0 0 18.6 11H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-    btn.addEventListener('click', share);
-    stack.appendChild(btn);   // 챗 아이콘 아래(메인홈과 동일하게 맨 밑)
-  }
-  inject(0);
-})();
-</script>
 </body>
 </html>
