@@ -2,6 +2,9 @@
 name: Deploy Check
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/.deploy-check-run'
 jobs:
   check:
     runs-on: ubuntu-latest
