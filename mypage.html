@@ -2849,17 +2849,17 @@ function updateCover(){
 function productionDashHtml(t, inv, dd){
   t=t||{}; inv=inv||{};
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
-  function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어서 하기' : '시작하기'); }
+  function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어하기' : '시작하기'); }
   function row(name, st, btnId, label){
     var done = (st==='완료');
     return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
       + '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';
   }
   var ist = inv.status || '시작전';
-  var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어서 하기' : '시작하기');
+  var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어하기' : '시작하기');
   var _dDone=(t.dining||'')==='완료';
-  // 다이닝 = 청첩장·식순과 동일한 행(선택 항목) — 시작 전 '안내 보기' · 완료 '완료 · 수정' (2026-06-13 사용자 지시)
-  var dLabel=_dDone?'완료 · 수정':'안내 보기';
+  // 다이닝 = 청첩장·식순과 동일한 행(선택 항목) — 시작 전 '안내보기' · 완료 '완료 · 수정' (2026-06-13 사용자 지시)
+  var dLabel=_dDone?'완료 · 수정':'안내보기';
   var dNote='';
   if(_dDone && dd && dd.dining_on==='Y' && dd.venue){
     var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
