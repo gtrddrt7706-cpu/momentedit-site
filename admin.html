@@ -793,7 +793,7 @@ function cardConsult(d,isSnap){
   else if(d.stage==='촬영확정'){ b+=ab('noshow','노쇼 처리','btn-danger'); }
   if(d.hold && d.hold.date && d.hold.slot){   // 예식일 임시고정(가예약) — 요청이면 승인/거절, 승인됨이면 해제
     var _hl={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[d.hold.slot]||'';
-    raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">예식일 임시고정 '+(d.hold.status==='승인'?(d.hold.expired?'(기한 만료 · 점유 해제됨)':'(승인됨'+(d.hold.expires?' · '+esc(fmtDate(d.hold.expires))+' 자동해제':'')+')'):'요청')+'</span> · '+esc(fmtDate(d.hold.date))+' '+esc(_hl+' '+d.hold.slot);
+    raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">예식일 '+esc(fmtDate(d.hold.date))+' '+esc(_hl+' '+d.hold.slot)+' · 임시고정 '+(d.hold.status==='승인'?(d.hold.expired?'기한 만료(점유 해제됨)':'승인됨'+(d.hold.expires?' ('+esc(fmtDate(d.hold.expires))+'까지 보호·자동해제)':'')):'요청')+'</span>';
     if(d.hold.status==='요청'){ b+=ab('grantHold','임시고정 승인')+ab('declineHold','거절','btn-ghost'); }
     else if(d.hold.status==='승인'){ b+=ab('declineHold','임시고정 해제','btn-ghost'); }
   }
