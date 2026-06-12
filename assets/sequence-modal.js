@@ -71,6 +71,10 @@
     /* 스냅 모드 — 고정 시각이 없어 왼쪽 시계 칸 없이 흐름만 */
     + '.meseq-tl.snap{padding-left:10px}.meseq-tl.snap::before{left:9px}'
     + '@media(max-width:380px){.meseq-tl.snap{padding-left:10px}.meseq-tl.snap::before{left:9px}}'
+    /* 상품 전환(예약 페이지 trim·snap에서만) — 시그니처 140분 / 평일 웨딩스냅 */
+    + '.meseq-prod{flex:0 0 auto;display:flex;gap:6px;padding:14px 24px 0}'
+    + '.meseq-prod button{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:8px;padding:9px 4px;cursor:pointer;font-family:var(--serif-ko,serif);font-size:12.5px;color:var(--sub,#5A554C);transition:all .2s}'
+    + '.meseq-prod button.on{background:#4E3F31;border-color:#4E3F31;color:#fff}'
     /* 시간표 열기 버튼(예약·스케줄·마이 공용) — 마이페이지 .cc-btn과 같은 색·효과 */
     + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#4E3F31;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
     + '.seq-open-btn:hover{background:#3A2D22}.seq-open-btn:active{background:#9C7E55}';
@@ -86,6 +90,7 @@
     + '    <div class="meseq-note">세 타임 모두 같은 140분 흐름으로 진행되고, 시작 시간만 달라요. 원하시는 시간대를 골라 보세요.</div>'
     + '    <button class="meseq-x" id="meseqX" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
     + '  </div>'
+    + '  <div class="meseq-prod" id="meseqProd" style="display:none"></div>'
     + '  <div class="meseq-tabs" id="meseqTabs"></div>'
     + '  <div class="meseq-body" id="meseqBody"></div>'
     + '  <div class="meseq-foot">시작 시각 기준이에요. 대기 공간이 없어, 하객분들께는 <b style="font-weight:500;color:var(--sub,#5A554C)">하객 입장 시간</b>에 맞춰 오시도록 안내해 주세요. 세부 식순은 계약 후 직접 설계하실 수 있어요.</div>'
@@ -94,6 +99,7 @@
 
   var tabsEl = ov.querySelector('#meseqTabs'), bodyEl = ov.querySelector('#meseqBody'), noteEl = ov.querySelector('.meseq-note');
   var titleEl = ov.querySelector('.meseq-title'), eyebrowEl = ov.querySelector('.meseq-eyebrow'), footEl = ov.querySelector('.meseq-foot');
+  var prodEl = ov.querySelector('#meseqProd');
   var curSlot = 0, mode = 'full';
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
   function renderTabs() {
@@ -126,7 +132,15 @@
     bodyEl.innerHTML = '<div class="meseq-tl">' + items + '</div>';
     bodyEl.scrollTop = 0;
   }
-  function open(m) {
+  // 예약 페이지(trim·snap)에서만 모달 안 상품 전환 토글 노출 — 우측 아이콘으로 열어도 둘 다 볼 수 있게
+  function renderProd() {
+    if (mode === 'full') { prodEl.style.display = 'none'; return; }
+    prodEl.style.display = 'flex';
+    prodEl.innerHTML = ''
+      + '<button type="button" data-pm="trim"' + (mode !== 'snap' ? ' class="on"' : '') + '>시그니처 140분</button>'
+      + '<button type="button" data-pm="snap"' + (mode === 'snap' ? ' class="on"' : '') + '>평일 웨딩스냅</button>';
+  }
+  function applyMode(m) {
     mode = (m === 'snap') ? 'snap' : (m === 'trim') ? 'trim' : 'full';
     if (mode === 'snap') {
       eyebrowEl.textContent = 'The Private Snap';
@@ -143,7 +157,10 @@
       footEl.innerHTML = '시작 시각 기준이에요. 대기 공간이 없어, 하객분들께는 <b style="font-weight:500;color:var(--sub,#5A554C)">하객 입장 시간</b>에 맞춰 오시도록 안내해 주세요. 세부 식순은 계약 후 직접 설계하실 수 있어요.';
       tabsEl.style.display = '';
     }
-    renderTabs(); renderBody();
+    renderProd(); renderTabs(); renderBody();
+  }
+  function open(m) {
+    applyMode(m);
     ov.classList.add('show');
     document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
     document.documentElement.style.overflow = 'hidden';
@@ -153,6 +170,10 @@
     ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.scrollbarGutter = '';
     setTimeout(function () { ov.classList.remove('show'); }, 320);
   }
+  prodEl.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-pm]'); if (!t) return;
+    applyMode(t.getAttribute('data-pm'));
+  });
   tabsEl.addEventListener('click', function (e) {
     var t = e.target.closest('.meseq-tab'); if (!t) return;
     curSlot = +t.getAttribute('data-i'); renderTabs(); renderBody();
