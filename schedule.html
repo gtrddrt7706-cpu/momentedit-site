@@ -581,6 +581,16 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
         <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="예) 정하윤" oninput="var _h=document.getElementById('depPayerHint');if(_h)_h.style.color=''">
         <div class="deposit-payer-hint" id="depPayerHint">입금하실 때 표시될 성함과 같으면 확인이 빨라져요.</div>
       </div>
+      <div class="deposit-payer" style="margin-top:16px">
+        <label class="deposit-payer-label" for="depCR">현금영수증 발급 번호 <span>· 소득공제용</span></label>
+        <input type="tel" id="depCR" inputmode="numeric" maxlength="20" autocomplete="tel" placeholder="휴대폰 또는 사업자번호" oninput="this.value=this.value.replace(/[^0-9]/g,'');var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin-top:9px">
+          <input type="checkbox" id="depCRNone" onchange="var i=document.getElementById('depCR');i.disabled=this.checked;if(this.checked){i.value='';i.style.opacity=.5;}else{i.style.opacity=1;}var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
+          <span>소득공제 없이 발급할게요 <span style="color:var(--light);font-weight:300">· 번호 미등록</span></span>
+        </label>
+        <div class="deposit-payer-hint">한 번 등록하면 계약금·중도금·잔금까지 같은 번호로 자동 발급돼요. 현금영수증은 의무 발급이며, 소득공제를 받으시려면 번호가 필요해요.</div>
+        <div class="deposit-payer-hint" id="depCRErr" style="display:none;color:var(--seal)">현금영수증 번호를 입력하시거나, 소득공제 없이 발급에 체크해 주세요.</div>
+      </div>
     </div>
 
     <div class="card">
@@ -904,6 +914,11 @@ function doSubmit(){
   if(!selDate||!selTime) return;
   var _payerEl=document.getElementById('depPayer');
   if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; } return; }
+  var _crEl=document.getElementById('depCR'), _crNone=document.getElementById('depCRNone');
+  var _crVal=(_crEl?_crEl.value:'').replace(/[^0-9]/g,'');
+  if(!(_crNone&&_crNone.checked)){
+    if(_crVal.length<10){ var _ce=document.getElementById('depCRErr'); if(_ce)_ce.style.display=''; if(_crEl){_crEl.focus();_crEl.scrollIntoView({behavior:'smooth',block:'center'});} return; }
+  }
   var _hChk=document.getElementById('holdChk');
   if(_hChk&&_hChk.checked){
     if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); meAlert({lead:'선택하신 상담일이 오늘로부터 7일 이후예요.',items:['임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.','상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.']}); return; }
@@ -919,7 +934,7 @@ function doSubmit(){
   const payer=(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();
   const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,hold:_holdPayload()})})
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((document.getElementById('depCRNone')&&document.getElementById('depCRNone').checked)?'':((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,'')),hold:_holdPayload()})})
     .then(function(r){return r.json();})
     .then(function(res){
       if(res&&res.ok){

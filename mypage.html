@@ -2059,7 +2059,7 @@ function doSignContract(){
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
     _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
       api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
-        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요. 모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
+        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
         else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
       }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
     });
@@ -2188,7 +2188,13 @@ function bindAmtCopy(id, amount){
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
-  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="'+escapeHtml(val||'')+'" style="margin-bottom:4px">'
+  val=String(val||'').trim();
+  // 예약 단계에서 이미 등록됐으면 간결 표시(입력칸 생략) — 계약금·중도금·잔금에서 다시 안 적어도 됨. 변경은 '내 내역'에서.
+  if(val){
+    var tail=val.length>=4?val.slice(-4):val;
+    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증 소득공제 번호 <b>등록됨</b> <span style="color:var(--label-soft)">· 끝 '+escapeHtml(tail)+' · 이 번호로 발급돼요</span></div>';
+  }
+  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
 }
 function doBalanceSignal(){
