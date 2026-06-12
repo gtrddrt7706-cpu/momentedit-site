@@ -48,11 +48,11 @@ html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:14.5px;line-height:1.95;letter-spacing:0;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,250,248,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(221,216,209,0.5)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:none;transition:transform 1.05s cubic-bezier(0.22,1,0.36,1),opacity 0.95s ease}nav.nav-hidden{transform:translateY(-100%);opacity:0}
 .nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
-.nav-back{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:var(--sub);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.3s}
+.nav-back{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:#5A4A3C;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.3s}
 .nav-back:hover{color:var(--accent)}
 .nav-back .arrow{transition:transform 0.3s}
 .nav-back:hover .arrow{transform:translateX(-3px)}
@@ -148,7 +148,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 </head>
 <body>
 
-<nav>
+<nav class="nav-hidden">
   <div class="nav-in">
     <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
     <a href="./inquiry.html" class="nav-back"><span class="arrow">←</span> 상담 페이지로</a>
@@ -462,5 +462,21 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.34);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
 </footer>
 
+<script>
+/* 누끼 상단바 — 최상단 숨김, 위로 스크롤 시 표시 (메인홈과 동일 컨셉) */
+(function(){
+  var nav=document.querySelector('nav'); if(!nav) return;
+  var lastTriggerY=window.scrollY, ticking=false, TH=80, TOP=80;
+  function update(){
+    var y=window.scrollY;
+    if(y<=TOP){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
+    else { var d=y-lastTriggerY;
+      if(d>TH){ if(!nav.classList.contains('nav-hidden')) nav.classList.add('nav-hidden'); lastTriggerY=y; }
+      else if(d<-TH){ if(nav.classList.contains('nav-hidden')) nav.classList.remove('nav-hidden'); lastTriggerY=y; } }
+    ticking=false;
+  }
+  window.addEventListener('scroll',function(){ if(!ticking){ window.requestAnimationFrame(update); ticking=true; } },{passive:true});
+})();
+</script>
 </body>
 </html>
