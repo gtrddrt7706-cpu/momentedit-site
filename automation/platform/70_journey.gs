@@ -985,7 +985,7 @@ function handlePaymentSignal(body) {
 //   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
 // 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
 function _saveCashReceipt(cust, sheet, colOf, raw) {
-  var cr = String(raw || '').trim().slice(0, 40);
+  var cr = String(raw || '').replace(/[^0-9]/g, '').slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일
   if (!cr) return;
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
