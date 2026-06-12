@@ -22,3 +22,23 @@ jobs:
           grep -o '_RES=[0-9]*' live-admin.html || true
           echo "── 옛 공식(70000/200000) 잔존 여부 ──"
           if grep -q 'fc\*70000' live-admin.html; then echo "❌ 옛 공식 발견"; exit 1; else echo "✅ 옛 공식 없음"; fi
+      - name: After-Wedding Concierge end-to-end (Kakao grounding)
+        run: |
+          echo "── 키즈 니즈 → 카카오 지도 검색 ──"
+          R=$(curl -sSL -X POST https://www.momentedit.kr/api/after-concierge \
+            -H 'content-type: application/json' \
+            -d '{"messages":[{"role":"user","content":"애 둘 데리고 갈 만한 키즈카페 있을까요? 인원은 어른 4명 아이 2명이요"}]}')
+          echo "$R" | head -c 1200; echo
+          echo "$R" | grep -q '"ok":true' || { echo "❌ ok 아님"; exit 1; }
+          if echo "$R" | grep -q '"source":"kakao"'; then
+            echo "$R" | grep -q '"places":\[\{' && echo "✅ 카카오 지도 실업체 카드 수신" || { echo "❌ places 비어있음"; exit 1; }
+          elif echo "$R" | grep -q '"ask":"[^"]'; then
+            echo "ℹ️ AI가 니즈 후속질문 단계(정상) — 2턴째로 재시도"
+            R2=$(curl -sSL -X POST https://www.momentedit.kr/api/after-concierge \
+              -H 'content-type: application/json' \
+              -d '{"messages":[{"role":"user","content":"애 둘 데리고 갈 키즈카페요"},{"role":"assistant","content":"몇 분이서 가세요?"},{"role":"user","content":"어른 4명 아이 2명이요"}]}')
+            echo "$R2" | head -c 1200; echo
+            echo "$R2" | grep -q '"places":\[\{' && echo "✅ 2턴째 지도 카드 수신" || { echo "❌ 2턴에도 places 없음(KAKAO_REST_KEY 점검)"; exit 1; }
+          else
+            echo "❌ kakao 검색 미작동(mapDown? KAKAO_REST_KEY 점검)"; exit 1
+          fi
