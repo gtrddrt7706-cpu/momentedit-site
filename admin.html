@@ -829,12 +829,12 @@ function cardFitting(d){
     var fc=(cs&&cs.벌수!=null)?Number(cs.벌수):null;
     var calc='';
     if(fc!=null){
-      var ded=Math.min(fc*70000,200000), ref=200000-ded, ext=Math.max(0,fc-3)*70000;
+      var ded=Math.min(fc*50000,100000), ref=100000-ded, ext=Math.max(0,fc-2)*50000;
       calc='<div class="cnote" style="margin-top:4px">공제 '+ded.toLocaleString()+'원 · 미계약 취소 시 환불 <b>'+ref.toLocaleString()+'원</b>'
-          +(ext?(' · <b style="color:#8a2b22">추가 시착비 '+ext.toLocaleString()+'원</b> (4벌째부터 1벌 70,000원 · 별도 청구)'):'')
+          +(ext?(' · <b style="color:#8a2b22">추가 시착비 '+ext.toLocaleString()+'원</b> (3벌째부터 1벌 50,000원 · 별도 청구)'):'')
           +(cs.벌수기록?(' · 기록 '+esc(String(cs.벌수기록).slice(0,16))):'')+'</div>';
     } else {
-      calc='<div class="cnote" style="margin-top:4px">시착이 끝나면 실제 입어본 벌수를 기록해 주세요. 미계약 취소 환불(벌수×70,000원 공제)과 추가 시착비(4벌째부터)의 근거가 돼요.</div>';
+      calc='<div class="cnote" style="margin-top:4px">시착이 끝나면 실제 입어본 벌수를 기록해 주세요. 미계약 취소 환불(벌수×50,000원 공제)과 추가 시착비(3벌째부터)의 근거가 돼요.</div>';
     }
     cntUI='<div class="kv" style="margin-top:10px;align-items:center"><span class="k">시착 벌수</span><span class="v">'
         +'<input id="ft_cnt" type="number" min="0" max="9" step="1" value="'+(fc!=null?fc:'')+'" placeholder="벌" style="width:64px;padding:6px 8px;border:1px solid var(--border,#ddd);border-radius:6px;font-size:13px"> '
@@ -903,7 +903,7 @@ function cardPayment(d){
   var r=d.raw||{}, pay=r['입금상태']||'대기', raw='입금 <b>'+esc(pay)+'</b>';
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
   if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
-  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-7)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID0=Math.round(_T*0.4),_BAL=_T-_DEP-_MID0,_RES=200000,_GAP=Math.max(0,_DEP-_RES),_MID=_MID0+_GAP; raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 충당·추가 0) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
+  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-7)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)

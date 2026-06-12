@@ -4,7 +4,7 @@
  * 실행: node automation/tests/refund-quote.test.js
  * 방식: 실제 소스(70_journey.gs · admin.gs · 00_platform-config.gs)에서 함수를 그대로 추출해
  *       vm 샌드박스(GAS 전역 스텁)에서 실행 — 계약서 v1-1 제7조·제9조·제4조⑧ 케이스 검증.
- * 기준 케이스(주말 총액 2,800,000 = 계약금 280,000 / 중도금 1,200,000 / 잔금 1,400,000):
+ * 기준 케이스(주말 총액 2,800,000 = 계약금 280,000(예약금 100,000 차감 → 계약 시 180,000 납부) / 중도금 1,120,000 / 잔금 1,400,000):
  *   ① 계약 전 2벌 → 60,000  ② 철회 14일째(2벌) → 60,000  ③ D-200 무상취소 paid 140만 → 1,260,000
  *   ④ D-100 위약 10%(28만) → 1,120,000  ⑤ D-5 50% paid 280만 → 1,400,000  ⑥ 당일 70%
  *   ⑦ 총액 미정 → {pending:true}  ⑧ 벌수 미기록 → needCount
@@ -96,7 +96,7 @@ function addDays(ymd, n) {
 }
 const ASOF = '2026-06-11';
 const TOTAL = 2800000;          // 주말·공휴일 (계약서 4조①)
-const MID = 1200000;            // 40% + 계약금 차액 80,000 (4조③)
+const MID = 1120000;            // 40% (계약금 잔액은 계약 시 별도 납부 · 4조③)
 const BAL = 1400000;            // 50%
 const bookingPaid = () => row({ 입금확인: '확인' });
 // 서명 오래전(철회기한 경과) 시그니처 공통 필드
@@ -110,33 +110,33 @@ function signedBase(extra) {
 
 console.log('\n[1] _refundQuote — 계약서 v1-1 7조·9조·4조⑧ 케이스');
 
-// ① 계약 전 · 2벌 → 예약금 20만 - 14만 = 6만 (4조⑧ 비례 공제 · Bookings 입금확인 폴백 경유)
+// ① 계약 전 · 2벌 → 예약금 10만 - 10만 = 0원 (4조⑧ 비례 공제 · Bookings 입금확인 폴백 경유)
 ctx.findRowByPersonalCode = bookingPaid;
 let q = ctx._refundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '',
   시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }), 개인코드: 'TQ01' }), ASOF);
 check('① 계약 전 2벌: rule', q.rule === '계약 전', JSON.stringify(q));
-check('① 계약 전 2벌: paid 200,000(Bookings 폴백)', q.paid === 200000, 'paid=' + q.paid);
-check('① 계약 전 2벌: fitDeduct 140,000', q.fitDeduct === 140000 && q.fitCount === 2, JSON.stringify(q));
-check('① 계약 전 2벌: refund 60,000 · penalty 0', q.refund === 60000 && q.penalty === 0 && !q.needCount, 'refund=' + q.refund);
+check('① 계약 전 2벌: paid 100,000(Bookings 폴백)', q.paid === 100000, 'paid=' + q.paid);
+check('① 계약 전 2벌: fitDeduct 100,000(상한)', q.fitDeduct === 100000 && q.fitCount === 2, JSON.stringify(q));
+check('① 계약 전 2벌: refund 0 · penalty 0', q.refund === 0 && q.penalty === 0 && !q.needCount, 'refund=' + q.refund);
 
-// ② 청약철회(7조①) — 서명 14일째 · D-100(위약 표 구간이어도 철회가 우선 · 4조④ 단서) · paid 20만 · 2벌 6만
+// ② 청약철회(7조①) — 서명 14일째 · D-100(위약 표 구간이어도 철회가 우선 · 4조④ 단서) · paid 28만(예약금 10만+계약금 잔액 18만) · 2벌 공제 10만
 ctx.findRowByPersonalCode = () => null;
 q = ctx._refundQuote(row(signedBase({ 계약서명일시: '2026-06-01 10:00', 예식일: addDays('2026-06-15', 100) })), '2026-06-15');
 check('② 철회 14일째: rule 청약철회(7조)', q.rule === '청약철회(7조)', JSON.stringify(q));
-check('② 철회 14일째: refund 60,000 (paid 20만 - 시착 2벌 14만)', q.paid === 200000 && q.refund === 60000 && q.penalty === 0, 'paid=' + q.paid + ' refund=' + q.refund);
+check('② 철회 14일째: refund 180,000 (paid 28만 - 시착 2벌 10만)', q.paid === 280000 && q.refund === 180000 && q.penalty === 0, 'paid=' + q.paid + ' refund=' + q.refund);
 
-// ③ 무상취소(7조②) — D-200 · paid 140만(예약금+중도금) · 2벌 → 126만
+// ③ 무상취소(7조②) — D-200 · paid 140만(계약금 28만+중도금 112만) · 2벌 공제 10만 → 130만
 q = ctx._refundQuote(row(signedBase({ 중도금상태: '확인', 예식일: addDays(ASOF, 200) })), ASOF);
 check('③ D-200 무상취소: rule', q.rule === '무상취소(7조)', JSON.stringify(q));
-check('③ D-200 무상취소: paid 1,400,000', q.paid === 200000 + MID, 'paid=' + q.paid);
-check('③ D-200 무상취소: refund 1,260,000', q.refund === 1260000 && q.penalty === 0, 'refund=' + q.refund);
+check('③ D-200 무상취소: paid 1,400,000', q.paid === 280000 + MID, 'paid=' + q.paid);
+check('③ D-200 무상취소: refund 1,300,000', q.refund === 1300000 && q.penalty === 0, 'refund=' + q.refund);
 
 // ④ 위약금 10%(9조②) — D-100 · 위약 28만 · paid 140만 → 112만 · 시착비 추가 차감 없음(9조⑤ 흡수)
 q = ctx._refundQuote(row(signedBase({ 중도금상태: '확인', 예식일: addDays(ASOF, 100) })), ASOF);
 check('④ D-100: rule 위약금 10%(9조) · rate 0.1', q.rule === '위약금 10%(9조)' && q.rate === 0.1, JSON.stringify(q));
 check('④ D-100: penalty 280,000', q.penalty === 280000, 'penalty=' + q.penalty);
 check('④ D-100: refund 1,120,000 (시착 2벌 공제 중복 적용 금지)', q.refund === 1120000, 'refund=' + q.refund);
-check('④ D-100: fitDeduct는 표시용으로 유지', q.fitDeduct === 140000 && q.fitCount === 2, JSON.stringify(q));
+check('④ D-100: fitDeduct는 표시용으로 유지', q.fitDeduct === 100000 && q.fitCount === 2, JSON.stringify(q));
 
 // ⑤ 위약금 50% — D-5 · paid 280만(전액) → 140만
 q = ctx._refundQuote(row(signedBase({ 중도금상태: '확인', 잔금상태: '확인', 예식일: addDays(ASOF, 5) })), ASOF);
@@ -157,7 +157,7 @@ ctx.findRowByPersonalCode = bookingPaid;
 q = ctx._refundQuote(row({ 상품타입: '시그니처', 현재단계: '상담완료', 계약상태: '', 입금상태: '',
   시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: '2026-06-01 11:00' } }), 개인코드: 'TQ08' }), ASOF);
 check('⑧ 벌수 미기록: needCount=true', q.needCount === true, JSON.stringify(q));
-check('⑧ 벌수 미기록: 공제 0 · refund 200,000', q.fitDeduct === 0 && q.fitCount === 0 && q.refund === 200000, 'refund=' + q.refund);
+check('⑧ 벌수 미기록: 공제 0 · refund 100,000', q.fitDeduct === 0 && q.fitCount === 0 && q.refund === 100000, 'refund=' + q.refund);
 
 console.log('\n[2] 경계·게이트 검증');
 ctx.findRowByPersonalCode = () => null;
@@ -189,7 +189,7 @@ check('게이트: 계약 전 + 입금 미확인 → null',
 ctx.findRowByPersonalCode = bookingPaid;
 q = ctx.buildRefundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '',
   시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 1 } }), 개인코드: 'TQ' }));
-check('게이트: 계약 전 + 예약금 확인 → 견적(1벌 공제 130,000)', !!q && q.refund === 130000, JSON.stringify(q));
+check('게이트: 계약 전 + 예약금 확인 → 견적(1벌 공제 후 50,000)', !!q && q.refund === 50000, JSON.stringify(q));
 ctx.findRowByPersonalCode = () => null;
 q = ctx.buildRefundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })));
 check('게이트: 서명완료 → 견적', !!q && q.rule === '위약금 10%(9조)', JSON.stringify(q));

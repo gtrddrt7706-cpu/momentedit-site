@@ -142,25 +142,25 @@ function base(dd, used, extra) {
 function setCust(fields) { ctx.CUST = { data: Object.assign({}, fields), row: { num: 2, get: h => (ctx.CUST.data[h] != null ? ctx.CUST.data[h] : '') } }; ctx.SLOT_TAKEN = false; ctx.NOTIFIED = []; ctx.HISTORY = []; }
 function consent() { return JSON.parse(String(ctx.CUST.data['동의기록'] || '{}')); }
 
-console.log('\n[0] _consultRefundQuote — 상담 취소 환불 예상 (예약금 200,000 · 시착 4조⑧ 공제 · cancel.html)');
+console.log('\n[0] _consultRefundQuote — 상담 취소 환불 예상 (예약금 100,000 · 시착 4조⑧ 공제 · cancel.html)');
 ctx.CUST = null;   // Customers 행 없음(원자성 실패)
 let cq = ctx._consultRefundQuote('NOROW1');
-check('Customers 행 없음 → 전액 200,000 · 공제 0', cq.amount === 200000 && cq.fitDeduct === 0 && cq.fitCount === 0 && !cq.needCount, JSON.stringify(cq));
+check('Customers 행 없음 → 전액 100,000 · 공제 0', cq.amount === 100000 && cq.fitDeduct === 0 && cq.fitCount === 0 && !cq.needCount, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ01', 시착동의상태: '대기', 동의기록: '' });
 cq = ctx._consultRefundQuote('TQ01');
-check('시착 전(동의 전) → 전액 환불', cq.amount === 200000 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
+check('시착 전(동의 전) → 전액 환불', cq.amount === 100000 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ02', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 0 } }) });
 cq = ctx._consultRefundQuote('TQ02');
-check('시착 0벌 → 전액 환불(공제 0)', cq.amount === 200000 && cq.fitCount === 0 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
+check('시착 0벌 → 전액 환불(공제 0)', cq.amount === 100000 && cq.fitCount === 0 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ03', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }) });
 cq = ctx._consultRefundQuote('TQ03');
-check('시착 2벌 → 공제 140,000 · 환불 60,000', cq.amount === 60000 && cq.fitCount === 2 && cq.fitDeduct === 140000, JSON.stringify(cq));
+check('시착 2벌 → 공제 100,000(상한) · 환불 0', cq.amount === 0 && cq.fitCount === 2 && cq.fitDeduct === 100000, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ04', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 4 } }) });
 cq = ctx._consultRefundQuote('TQ04');
-check('시착 4벌 → 공제 상한 200,000 · 환불 0', cq.amount === 0 && cq.fitDeduct === 200000, JSON.stringify(cq));
+check('시착 4벌 → 공제 상한 100,000 · 환불 0', cq.amount === 0 && cq.fitDeduct === 100000, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ05', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: 'x' } }) });
 cq = ctx._consultRefundQuote('TQ05');
-check('동의완료 + 벌수 미기록 → needCount(공제 0 유지)', cq.needCount === true && cq.fitDeduct === 0 && cq.amount === 200000, JSON.stringify(cq));
+check('동의완료 + 벌수 미기록 → needCount(공제 0 유지)', cq.needCount === true && cq.fitDeduct === 0 && cq.amount === 100000, JSON.stringify(cq));
 
 console.log('\n[1] _changeFeeQuote — 계약서 8조① 경계 (오늘 ' + TODAY + ' 기준)');
 let q = ctx._changeFeeQuote(row(base(150, 0)), addDays(TODAY, 200));

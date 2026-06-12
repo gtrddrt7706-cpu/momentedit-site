@@ -204,7 +204,7 @@ function adminFittingDoc(code) {
 }
 
 // [02-2] 시착 벌수 기록 — 벌수 비례 공제(계약서 4조⑧·시착동의 v3)의 산정 근거. 동의기록.시착.벌수에 저장(이력 포함).
-//   환불 계산: 공제 = min(벌수×70,000, 200,000) / 4벌째부터는 추가 시착비(1벌당 70,000원) 별도 청구 대상.
+//   환불 계산: 공제 = min(벌수×50,000, 100,000) / 3벌째부터는 추가 시착비(1벌당 50,000원) 별도 청구 대상.
 function adminSetFittingCount(code, n) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -223,7 +223,7 @@ function adminSetFittingCount(code, n) {
     rec.시착.벌수기록 = fmtKST(new Date());
     touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
     _recordHandler(code, '시착 벌수 기록: ' + cnt + '벌' + (prev != null && prev !== cnt ? ' (이전 ' + prev + '벌)' : ''));
-    return { ok: true, count: cnt, deduct: Math.min(cnt * 70000, 200000), extra: Math.max(0, cnt - 3) * 70000 };
+    return { ok: true, count: cnt, deduct: Math.min(cnt * 50000, 100000), extra: Math.max(0, cnt - 2) * 50000 };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
