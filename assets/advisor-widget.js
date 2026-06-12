@@ -26,13 +26,10 @@
     + '.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}'
     + '.me-fab-ico svg{width:22px;height:22px}'
     + '@media(max-width:680px){.me-fab-stack{right:14px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
-    /* 스크롤 중엔 잠시 비켜나고, 멈추면 위에서부터 하나씩 서서히 — 메인홈과 동일 호흡 */
-    + '.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .5s var(--ease,ease),transform .5s var(--ease,ease)}'
-    + '.me-fab-stack .me-fab:nth-child(2){transition-delay:.07s}'
-    + '.me-fab-stack .me-fab:nth-child(3){transition-delay:.14s}'
-    + '.me-fab-stack .me-fab:nth-child(4){transition-delay:.21s}'
-    + '.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(9px);pointer-events:none;transition:opacity .22s ease,transform .22s ease;transition-delay:0s}'
-    + '.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto;transition-delay:0s}'
+    /* 스크롤 중엔 조용히 비켜나고, 멈추면 전체가 한 호흡으로 천천히 차오르듯 — 메인홈과 동일(시차 없음) */
+    + '.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .9s cubic-bezier(0.22,1,0.36,1),transform .9s cubic-bezier(0.22,1,0.36,1)}'
+    + '.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .28s ease,transform .28s ease}'
+    + '.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto}'
     + '@media (prefers-reduced-motion:reduce){.me-fab-stack .me-fab,.me-fab-stack.scrolling .me-fab{opacity:1;transform:none;transition:none;pointer-events:auto}}'
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'

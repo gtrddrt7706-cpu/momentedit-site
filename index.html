@@ -1833,13 +1833,10 @@ function replayHeroAnimation(){
 .me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;opacity:0;visibility:hidden;transform:translateY(-50%) translateX(12px);transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s var(--ease)}
 .me-fab-stack.reveal{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
 .me-fab-stack.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-50%) translateX(8px)}
-/* 스크롤 중엔 잠시 비켜나고, 멈추면 아이콘이 위에서부터 하나씩 서서히 — 본문 읽기 방해 최소화 */
-.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .5s var(--ease),transform .5s var(--ease)}
-.me-fab-stack .me-fab:nth-child(2){transition-delay:.07s}
-.me-fab-stack .me-fab:nth-child(3){transition-delay:.14s}
-.me-fab-stack .me-fab:nth-child(4){transition-delay:.21s}
-.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(9px);pointer-events:none;transition:opacity .22s ease,transform .22s ease;transition-delay:0s}
-.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto;transition-delay:0s}
+/* 스크롤 중엔 조용히 비켜나고, 멈추면 전체가 한 호흡으로 천천히 차오르듯 — 시차 없이 고요하게 */
+.me-fab-stack .me-fab{opacity:1;transform:none;transition:opacity .9s cubic-bezier(0.22,1,0.36,1),transform .9s cubic-bezier(0.22,1,0.36,1)}
+.me-fab-stack.scrolling .me-fab{opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .28s ease,transform .28s ease}
+.me-fab-stack:hover .me-fab{opacity:1;transform:none;pointer-events:auto}
 @media (prefers-reduced-motion:reduce){.me-fab-stack .me-fab,.me-fab-stack.scrolling .me-fab{opacity:1;transform:none;transition:none;pointer-events:auto}}
 .me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 /* 누끼 아이콘 — 원형 배경 없이 선 아이콘만(아이콘 크기·터치 영역 50px 유지) · 이미지 위 가독용 옅은 빛 번짐 */
