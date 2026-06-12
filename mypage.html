@@ -773,8 +773,8 @@ function openContractView(){
   ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
-  var prevOverflow=document.body.style.overflow; document.documentElement.style.scrollbarGutter='stable'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.scrollbarGutter=''; }
+  var prevOverflow=document.body.style.overflow; var _sbw=window.innerWidth-document.documentElement.clientWidth; if(_sbw>0) document.documentElement.style.paddingRight=_sbw+'px'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.paddingRight=''; }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -813,8 +813,8 @@ function openFittingView(){
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
-  var prevOverflow=document.body.style.overflow; document.documentElement.style.scrollbarGutter='stable'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.scrollbarGutter=''; }
+  var prevOverflow=document.body.style.overflow; var _sbw=window.innerWidth-document.documentElement.clientWidth; if(_sbw>0) document.documentElement.style.paddingRight=_sbw+'px'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.paddingRight=''; }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;

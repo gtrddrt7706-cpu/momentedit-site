@@ -263,7 +263,7 @@
 /* ═══ MOBILE MENU · "Menu" 텍스트 전용 트리거 (The Row · Issey Miyake · Aura 어휘) ═══ */
 .nav-toggle{display:none;flex-direction:column;background:transparent;border:none;padding:8px 10px;margin:0;cursor:pointer;color:#43382E;font-family:var(--serif);-webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none;outline:none;line-height:1;-webkit-text-fill-color:#43382E;min-height:44px;min-width:44px;align-items:center;justify-content:center;gap:3px}
 .nav-toggle:focus{outline:none}
-.nav-toggle-seal{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--seal);-webkit-text-fill-color:var(--seal);line-height:1;transition:color 0.35s var(--ease),transform 0.35s var(--ease)}.nav-toggle:active .nav-toggle-seal{transform:scale(0.94)}.nav-toggle-label{font-family:var(--serif);font-style:normal;font-size:8px;font-weight:500;letter-spacing:0.24em;text-indent:0.24em;color:#6B5A48;-webkit-text-fill-color:#6B5A48;text-transform:uppercase;transition:color 0.35s var(--ease),letter-spacing 0.4s var(--ease);position:relative;display:inline-block;padding-bottom:1px}.nav-toggle:active .nav-toggle-label{color:var(--gold);-webkit-text-fill-color:var(--gold);letter-spacing:0.18em;transform:scale(0.96)}
+.nav-toggle-seal{font-family:var(--serif-ko,serif);font-size:16px;font-weight:500;color:var(--seal);-webkit-text-fill-color:var(--seal);line-height:1;transition:color 0.35s var(--ease),transform 0.35s var(--ease)}.nav-toggle:active .nav-toggle-seal{transform:scale(0.94)}.nav-toggle-label{font-family:var(--serif);font-style:normal;font-size:8px;font-weight:500;letter-spacing:0.24em;text-indent:0.24em;color:#6B5A48;-webkit-text-fill-color:#6B5A48;text-transform:uppercase;transition:color 0.35s var(--ease),letter-spacing 0.4s var(--ease);position:relative;display:inline-block;padding-bottom:1px}.nav-toggle:active .nav-toggle-label{color:var(--gold);-webkit-text-fill-color:var(--gold);letter-spacing:0.18em;transform:scale(0.96)}
 .nav-toggle-label::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);opacity:0;transform:scaleX(0);transform-origin:left center;transition:opacity 0.4s var(--ease),transform 0.45s var(--ease)}
 .nav-toggle[aria-expanded="true"] .nav-toggle-label{color:var(--gold);-webkit-text-fill-color:var(--gold);letter-spacing:0.14em;opacity:0}
 .nav-toggle[aria-expanded="true"]{pointer-events:none}
@@ -1357,7 +1357,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     body.style.left = '';
     body.style.right = '';
     body.style.overflow = '';
-    document.documentElement.style.scrollbarGutter = '';
+    document.documentElement.style.paddingRight = '';
   }
 
   function openMenu(){
@@ -1367,7 +1367,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     menu.setAttribute('aria-hidden', 'false');
     menu.classList.add('open');
     body.classList.add('menu-open');
-    document.documentElement.style.scrollbarGutter = 'stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+    var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바(데스크톱)만 폭 보정 · 모바일은 팬텀 거터 없음
     // 스크롤 위치 고정 (iOS Safari 대응)
     body.style.position = 'fixed';
     body.style.top = '-' + scrollY + 'px';
@@ -1380,7 +1380,7 @@ body.menu-open .nav-logo{opacity:0;pointer-events:none;transition:opacity 0.3s v
     menu.setAttribute('aria-hidden', 'true');
     menu.classList.remove('open');
     body.classList.remove('menu-open');
-    document.documentElement.style.scrollbarGutter = '';
+    document.documentElement.style.paddingRight = '';
     body.style.position = '';
     body.style.top = '';
     body.style.left = '';
@@ -1704,7 +1704,7 @@ function toggleEssay(btn){
         document.body.style.left = '';
         document.body.style.right = '';
         document.body.style.overflow = '';
-        document.documentElement.style.scrollbarGutter = '';
+        document.documentElement.style.paddingRight = '';
         return;
       }
       if (window.scrollY === lastY && !isMenuOpen) {
@@ -2092,7 +2092,7 @@ function replayHeroAnimation(){
   // 모바일: body를 고정해 배경 스크롤 완전 차단(iOS는 overflow:hidden만으론 새어나감).
   // 데스크톱(부분 드로어): overflow:hidden만 — body 고정 시 배경이 위로 튀어 보이므로 제외.
   function lockScroll(){
-    document.documentElement.style.scrollbarGutter='stable';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+    var _sbw2=window.innerWidth-document.documentElement.clientWidth; if(_sbw2>0) document.documentElement.style.paddingRight=_sbw2+'px';   // 실제 스크롤바만 보정
     document.documentElement.style.overflow='hidden';
     if(window.innerWidth<=680){
       _lockY=window.scrollY||window.pageYOffset||0;
@@ -2102,7 +2102,7 @@ function replayHeroAnimation(){
     }
   }
   function unlockScroll(){
-    document.documentElement.style.overflow=''; document.documentElement.style.scrollbarGutter='';
+    document.documentElement.style.overflow=''; document.documentElement.style.paddingRight='';
     if(_locked){
       var b=document.body;
       b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';

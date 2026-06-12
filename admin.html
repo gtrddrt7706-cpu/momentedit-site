@@ -1239,8 +1239,8 @@ function openContractViewer(d, ov2){
   var fr=document.createElement('iframe'); fr.src=contractPath(d.product, fillData.signed && d.consent && d.consent.contract && d.consent.contract.docVersion); fr.title='계약서 미리보기'; fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
-  var prevOv=document.body.style.overflow; document.documentElement.style.scrollbarGutter='stable'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOv; document.documentElement.style.scrollbarGutter=''; }
+  var prevOv=document.body.style.overflow; var _sbw=window.innerWidth-document.documentElement.clientWidth; if(_sbw>0) document.documentElement.style.paddingRight=_sbw+'px'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
+  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOv; document.documentElement.style.paddingRight=''; }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){ if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return; if(ev.data && ev.data.type==='momentedit:contractReady'){ fr.contentWindow.postMessage({type:'momentedit:contractFill', data:fillData}, location.origin); setTimeout(function(){ fr.style.opacity='1'; },70); } }
   x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg);
