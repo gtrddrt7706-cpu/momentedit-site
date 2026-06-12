@@ -50,7 +50,8 @@ function grade(name, replies, isSched, expect, forbid) {
   if (isSched) {
     replies.forEach((r, i) => {
       const slots = (r.match(SLOT_RE) || []);
-      if (slots.length >= 2 && /확인돼|확인됩니다/.test(r)) issues.push((i + 1) + '번째 답변에 시간대 ' + slots.length + '개 노출(나열 의심)');
+      const menuAsk = /편하신 시간|어느 시간대|시간대가 있|생각하고 계세요/.test(r);   // 니즈 질문의 3타임 메뉴 안내는 가용성 나열이 아님(v2 베이스라인 R6 오탐)
+      if (slots.length >= 2 && /확인돼|확인됩니다/.test(r) && !(slots.length === 3 && menuAsk)) issues.push((i + 1) + '번째 답변에 시간대 ' + slots.length + '개 노출(나열 의심)');
     });
   }
   report.push({ name: name, result: issues.length ? 'CHECK' : 'PASS', issues: issues.join(' · ') || '-' });
