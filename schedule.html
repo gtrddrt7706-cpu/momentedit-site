@@ -235,6 +235,8 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   box-shadow:0 1px 2px rgba(28,27,25,0.03),0 8px 30px rgba(28,27,25,0.04)}
 .deposit::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.holdcard{margin-bottom:18px;padding:22px 22px 20px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:left;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(28,27,25,0.03),0 8px 30px rgba(28,27,25,0.04)}
+.holdcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .deposit-label{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:0.2em;
   color:var(--gold);text-transform:uppercase;margin-bottom:14px}
 .deposit-amt{font-family:var(--serif);font-size:34px;font-weight:500;color:var(--accent);
@@ -496,22 +498,9 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
   <!-- 안내 (선택 후) -->
   <div class="guide" id="guide">
 
-    <div class="deposit">
-      <div class="deposit-label">Reservation Deposit</div>
-      <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
-      <div class="deposit-note">상담 예약금은 본 계약 시 계약금의 일부로 전환됩니다.</div>
-      <div class="deposit-acct">
-        <span class="acct-label">입금 계좌</span>
-        <span class="acct-no" id="t_account"></span>
-        <span class="muted">예금주 <span id="t_holder"></span></span>
-        <button type="button" class="acct-copy-btn" id="acctCopyBtn" onclick="copyAcct()">계좌 복사</button>
-      </div>
-      <div class="deposit-payer">
-        <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제 입금하실 분</span></label>
-        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="예) 정하윤" oninput="var _h=document.getElementById('depPayerHint');if(_h)_h.style.color=''">
-        <div class="deposit-payer-hint" id="depPayerHint">입금하실 때 표시될 성함과 같으면 확인이 빨라져요.</div>
-      </div>
-      <div class="deposit-payer" id="holdWrap">
+    <!-- 예식일 임시 고정 · AI 스케줄 도우미 — 입금 박스와 분리한 독립 카드 -->
+    <div class="holdcard">
+      <div id="holdWrap" style="text-align:left">
         <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:left">
           <input type="checkbox" id="holdChk" style="margin-top:3px" onchange="document.getElementById('holdBox').style.display=this.checked?'block':'none'">
           <span>예식일을 먼저 고정해 둘까요? <span style="color:var(--light);font-weight:300">· 선택사항</span></span>
@@ -569,6 +558,22 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
             <div class="schedule-ref-foot"><span class="accent">Note</span>대기 공간이 없으니, 하객분들은 <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 오시도록 안내해 주세요.</div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="deposit">
+      <div class="deposit-label">Reservation Deposit</div>
+      <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
+      <div class="deposit-note">상담 예약금은 본 계약 시 계약금의 일부로 전환됩니다.</div>
+      <div class="deposit-acct">
+        <span class="acct-label">입금 계좌</span>
+        <span class="acct-no" id="t_account"></span>
+        <span class="muted">예금주 <span id="t_holder"></span></span>
+        <button type="button" class="acct-copy-btn" id="acctCopyBtn" onclick="copyAcct()">계좌 복사</button>
+      </div>
+      <div class="deposit-payer">
+        <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제 입금하실 분</span></label>
+        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="예) 정하윤" oninput="var _h=document.getElementById('depPayerHint');if(_h)_h.style.color=''">
+        <div class="deposit-payer-hint" id="depPayerHint">입금하실 때 표시될 성함과 같으면 확인이 빨라져요.</div>
       </div>
     </div>
 
