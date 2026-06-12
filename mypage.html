@@ -2051,7 +2051,7 @@ function renderChangeWizard(ctx){
            +'<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(_quote.account)+'</div>'
            +(_quote.holder?('<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_quote.holder)+'</div>'):'')
            +'<button type="button" class="cc-btn-ghost" id="mp_chgAcctCopy" style="margin-top:10px">계좌 복사</button>'
-           +'<button type="button" class="cc-btn-ghost" id="mp_chgAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button></div>'):'')
+           +'<button type="button" class="cc-btn-ghost" id="mp_chgAmtCopy" style="margin-top:10px">금액 복사</button></div>'):'')
          +'<input type="text" class="cc-input" id="mp_chgPayer" placeholder="수수료 입금하신 분 성함" autocomplete="name" style="margin-top:8px">'
          +'<div class="cc-note" style="text-align:left;margin:2px 0 0;color:var(--light);line-height:1.6">수수료 입금 후 변경을 요청해 주세요. 디렉터가 입금·일정을 확인한 뒤 적용돼요.</div>';
       } else {
@@ -2224,7 +2224,7 @@ function renderBalance(p, mid){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="margin-top:10px">계좌 복사</button>'
-      + '<button type="button" class="cc-btn-ghost" id="mp_bAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button>'
+      + '<button type="button" class="cc-btn-ghost" id="mp_bAmtCopy" style="margin-top:10px">금액 복사</button>'
       + '</div>'):'';
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
@@ -2322,7 +2322,7 @@ function renderMid(p, bal){
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
-      + '<button type="button" class="cc-btn-ghost" id="mp_mAmtCopy" style="margin-top:10px;margin-left:8px">금액 복사</button>'
+      + '<button type="button" class="cc-btn-ghost" id="mp_mAmtCopy" style="margin-top:10px">금액 복사</button>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
