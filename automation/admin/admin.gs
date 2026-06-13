@@ -1262,11 +1262,12 @@ function adminConfirmPayment(code) {
   rec0.영수증기준일.예약금 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용 · 스냅 계약금 포함)
   var patch = { '입금상태': '확인', '동의기록': JSON.stringify(rec0) };
   // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인 — buildPaymentState.bundle과 같은 기준(D-149/D-9 · 시그니처)
-  var bundled = [];
+  //   ※ 중도금·잔금 확인일시는 '같은 now'로 찍어야 _cashReceiptLedger 콤보(중도금·잔금 1건 합산) 판정(_mAt===_bAt)이 성립. fmtKST가 분 단위라 new Date() 두 번이면 분 경계서 갈릴 수 있음.
+  var bundled = [], _bNow = fmtKST(new Date());
   if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
     var _ddc = _balanceDDay(cust.get('예식일'));
-    if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = fmtKST(new Date()); bundled.push('중도금'); }
-    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = fmtKST(new Date()); bundled.push('잔금'); }
+    if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = _bNow; bundled.push('중도금'); }
+    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = _bNow; bundled.push('잔금'); }
   }
   touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
