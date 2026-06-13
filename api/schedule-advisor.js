@@ -228,6 +228,7 @@ module.exports = async (req, res) => {
     let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '', anySlot: false };
     try { ex = Object.assign(ex, JSON.parse(textOf(ext))); } catch (e) {}
     ex.date = snapYear(ex.date, history);   // 연도 안정화: 직전 답변에 요일과 함께 안내한 날짜면 그 요일에 연도를 맞춤
+    ex.date = snapWeekday(ex.date, history);   // 요일 정합: "첫째 주 토요일"이 일요일 날짜로 추출되는 사고 방지(2026-06-13 라이브 S2 실사례)
 
     // ── 서버 판정 (AI는 이 결과만 본다) ──
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
@@ -247,6 +248,7 @@ module.exports = async (req, res) => {
     });
     let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '')
       .replace(/^[ \t]*#{1,6}[ \t]+/gm, '').replace(/^[ \t]*[-*][ \t]+/gm, '· ');
+    text = fixWeekdayText(text, ex.date);   // 표기 정합: 모델이 고객 문구의 잘못된 요일을 따라 적으면 실제 요일로 교정(규칙 7-2 백스톱)
     if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';
 
     res.statusCode = 200;
@@ -439,6 +441,33 @@ function snapYear(date, history) {
     if (dayOfWeek(cand) === wdWant) return cand;
   }
   return date;
+}
+// 요일 정합 가드 — 고객이 마지막 메시지에서 요일 하나를 명시했는데("11월 첫째 주 토요일") 추출 날짜의 실제
+//   요일이 어긋나면(실사례: 2027-11-07은 일요일) ±3일 안에서 그 요일인 날로 스냅한다. 고객이 "11월 7일"처럼
+//   일(日) 숫자나 ISO 날짜를 직접 말했으면 날짜를 존중해 손대지 않고, 요일을 2개 이상 말했으면 판단을 보류한다.
+function snapWeekday(date, history) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+  let lastUser = '';
+  for (let i = history.length - 1; i >= 0; i--) { if (history[i].role === 'user') { lastUser = history[i].content; break; } }
+  const wds = (lastUser.match(/[월화수목금토일]요일/g) || []).map((s) => s.charAt(0));
+  const uniq = wds.filter((c, i) => wds.indexOf(c) === i);
+  if (uniq.length !== 1) return date;
+  if (/\d{1,2}\s*일(?!요일)/.test(lastUser) || /\d{4}-\d{1,2}-\d{1,2}/.test(lastUser)) return date;
+  const want = ['일', '월', '화', '수', '목', '금', '토'].indexOf(uniq[0]);
+  if (want === -1 || dayOfWeek(date) === want) return date;
+  for (const off of [1, -1, 2, -2, 3, -3]) {
+    const cand = addDays(date, off);
+    if (dayOfWeek(cand) === want) return cand;
+  }
+  return date;
+}
+// 답변 표기 정합 — 본문 속 "M월 D일 X요일"이 판정 날짜(ex.date)의 실제 요일과 다르면 실제 요일로 바꿔 쓴다.
+//   (답변 모델이 고객이 잘못 말한 요일을 그대로 따라 적는 사고의 코드 백스톱 · ex.date와 월·일이 같은 표기만 교정)
+function fixWeekdayText(text, date) {
+  if (!text || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return text;
+  const mo = Number(date.slice(5, 7)), da = Number(date.slice(8, 10)), wd = WD_KO[dayOfWeek(date)];
+  const re = new RegExp('(' + mo + '월\\s*' + da + '일[^월화수목금토일\\n]{0,6})[월화수목금토일]요일', 'g');
+  return text.replace(re, function (all, pre) { return pre + wd; });
 }
 function dayOfWeek(ymd) { return new Date(ymd + 'T00:00:00Z').getUTCDay(); }
 function addDays(ymd, n) {
