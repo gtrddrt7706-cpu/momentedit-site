@@ -581,7 +581,7 @@ function renderQueue(d){
   var u=d.queue.urgent||[], n=d.queue.normal||[], html='';
   html+='<div class="sect-h"><span class="ic">⚡</span><span class="tt">처리할 일</span><span class="ct">'+(d.counts.total)+(d.counts.urgent?' · <b>🔴'+d.counts.urgent+' 급함</b>':'')+'</span></div>';
   if(!d.counts.total){
-    html+='<div class="empty">✓ 처리할 일이 없어요 — 다 됐어요</div>';
+    html+='<div class="empty">✓ 처리할 일이 없어요 · 다 됐어요</div>';
   } else {
     if(u.length){ html+='<div class="qhead red">🔴 급한 것 ('+u.length+')</div>'+u.map(queueRow).join(''); }
     if(n.length){ html+='<div class="qhead">그 외 ('+n.length+')</div>'+n.map(queueRow).join(''); }
@@ -646,14 +646,14 @@ function renderSurvey(d){
   var wrap=$('surveyWrap'); if(!wrap) return;
   var sv=d.survey||{n:0,q:{},recent:[]};
   var html='<div class="sect-h"><span class="ic">📊</span><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
-  if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요 — 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
+  if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요. 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
   // 브랜드 약속 3축 이행률
   html+='<div class="sv-pillars">';
-  SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'—')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
+  SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'-')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
   html+='</div>';
   // 추천 의향 + 종합 한 줄
   var rec=_svPct(sv.q.recommend,['definitely','maybe']), ov=_svPct(sv.q.overall,['very','satisfied']);
-  html+='<div class="sv-sum">추천 의향 <b>'+(rec?rec.pct+'%':'—')+'</b> · 종합 만족 <b>'+(ov?ov.pct+'%':'—')+'</b></div>';
+  html+='<div class="sv-sum">추천 의향 <b>'+(rec?rec.pct+'%':'-')+'</b> · 종합 만족 <b>'+(ov?ov.pct+'%':'-')+'</b></div>';
   // 문항별 분포 막대
   html+='<div class="sv-qs">';
   SURVEY_ORDER.forEach(function(k){ var q=sv.q[k]; if(!q) return; var meta=SURVEY_Q[k]; var tot=0,v; for(v in q){ if(q.hasOwnProperty(v)) tot+=q[v]; } if(!tot) return;
@@ -674,7 +674,7 @@ function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
   var html='<div class="sect-h"><span class="ic">🎞️</span><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
-  if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요 — 예식완료부터 여기에 표시되고, 후기까지 끝나면 아카이브로 이동해요</div>'; }
+  if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요. 예식완료부터 여기에 표시되고, 후기까지 끝나면 아카이브로 이동해요</div>'; }
   else { html+=list.map(resultRow).join(''); }
   wrap.innerHTML=html;
   wrap.querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'home'); }); });
