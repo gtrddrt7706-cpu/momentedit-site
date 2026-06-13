@@ -2494,7 +2494,7 @@ function _surveySchema(isSnap){
     {k:'result',q:'결과물(스냅·본식영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
-    {k:'dining',q:'다이닝(식당 추천·안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
     {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
   ];
@@ -2903,9 +2903,9 @@ function productionDashHtml(t, inv, dd){
       + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
       + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
   } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
-    dNote='🍽 다이닝 · <b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b>';
+    dNote='🍽 애프터 웨딩 · <b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b>';
   } else if(_dDone && dd && dd.dining_on==='N'){
-    dNote='🍽 다이닝 없이 진행하기로 했어요';
+    dNote='🍽 애프터 웨딩 안내 없이 진행하기로 했어요';
   }
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
@@ -2925,9 +2925,9 @@ function productionDashHtml(t, inv, dd){
   return '<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title">예식 준비</div>'
-    + '<div class="cc-sub">청첩장·식순·다이닝을 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
+    + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(다이닝은 선택). 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
+    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
     + ''
     + '</div>';
 }
@@ -3671,7 +3671,7 @@ function renderDining(box){
     bindTrk(box,renderDining,collect,{});   // 선택 없이 다음 → '장소 미정' 안내(직접 예약 안내)로 진행
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
-      box.innerHTML=trkShell(2,'다이닝 없이 진행해요','따로 식사 자리는 두지 않기로 했어요. 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
+      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','따로 식사 자리는 두지 않기로 했어요. 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
       var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
