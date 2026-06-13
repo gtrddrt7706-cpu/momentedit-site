@@ -1424,6 +1424,7 @@ form.addEventListener('submit', (e) => {
 });
 
 function meDoSubmit(){
+  if (submitBtn.disabled) return;   // 재진입 가드 — 확인 모달 연타·중복 호출 시 이중 제출 방지(모달은 display:none으로 실클릭은 이미 차단)
   submitBtn.disabled = true;
   submitBtn.classList.add('loading');
   submitBtn.querySelector('.btn-text').textContent = '전송 중...';

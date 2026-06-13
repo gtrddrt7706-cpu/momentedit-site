@@ -24,3 +24,14 @@ node scripts/audit/render-check.mjs
 - 자체적으로 `python3 -m http.server 8111`을 띄우고 끝나면 종료한다.
 
 > 화면 동작(플로우 클릭·텍스트 검증)·퍼즈·계약서 채움 같은 **건별 점검**은 커맨드 프롬프트 지시에 따라 그때그때 puppeteer로 수행한다. 이 스크립트는 매번 동일한 "바닥 점검"만 담당.
+
+## func-check.mjs
+실제 클릭·제출로 **기능(폼·버튼·검증) 정상/실패/멱등 경로**를 확인한다.
+현재 대상: `inquiry.html` 문의 폼(메인 전환 경로) — 빈 제출 차단 · 유효 제출→이메일확인→POST→성공화면 ·
+허니팟 payload 노출 · 비번 불일치·하객 상한 차단 · 전화 자동포맷 · 확인 모달 연타 이중제출 멱등.
+
+```bash
+node scripts/audit/func-check.mjs
+```
+- puppeteer 없으면 통째로 건너뜀(`/tmp/dz/node_modules`도 자동 탐색). `script.google.com`은 목 응답.
+- 마이페이지·관리자의 상태별 액션 클릭은 `/tmp/dz` 목 하네스(`mp.js`·`adm.js`)로 그때그때 수행(시트 시드가 필요해 repo 상주 X).
