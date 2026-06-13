@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'api', 'schedule-advisor.js'), 'utf8');
 const tmp = path.join(require('os').tmpdir(), '_sa_test_' + Date.now() + '.js');
-fs.writeFileSync(tmp, src + '\nmodule.exports._t = { decide, levelFor, monthBusyTier, weightedRatio, freeSlot, addDays, dayOfWeek, SLOT_BY_LABEL, snapWeekday, fixWeekdayText };\n');
+fs.writeFileSync(tmp, src + '\nmodule.exports._t = { decide, levelFor, monthBusyTier, weightedRatio, freeSlot, addDays, dayOfWeek, SLOT_BY_LABEL, snapWeekday, fixWeekdayText, snapNextYearWord };\n');
 fs.copyFileSync(path.join(__dirname, '..', 'api', '_ratelimit.js'), path.join(require('os').tmpdir(), '_ratelimit.js'));
 const { _t } = require(tmp);
 
@@ -132,6 +132,11 @@ check('H4 안내문만 있으면 미집계', JSON.stringify(r.confirmed), '{}');
   check('J7 답변 속 잘못된 요일 표기 교정', _t.fixWeekdayText('11월 7일 토요일 오전 9시는 진행 가능한 일정으로 확인돼요.', '2027-11-07'), function(s){ return s.indexOf('11월 7일 일요일') !== -1 && s.indexOf('토요일') === -1; });
   check('J8 올바른 표기는 그대로', _t.fixWeekdayText('11월 6일 토요일 오전 9시는 진행 가능한 일정으로 확인돼요.', '2027-11-06'), '11월 6일 토요일');
   check('J9 다른 날짜 표기는 손대지 않음', _t.fixWeekdayText('10월 9일 토요일 일정과 11월 6일 토요일 중 고르세요.', '2027-11-06'), '10월 9일 토요일');
+  // 내년 연도 가드 + 합성(2026-06-13 라이브 재검 실사례: "내년 11월 첫째 주 토요일"이 2026-11-07(토)로 추출 → 요일은 맞아 요일 가드 침묵)
+  check('J10 내년인데 올해 연도로 추출 → +1년', _t.snapNextYearWord('2026-11-07', u('내년 11월 첫째 주 토요일 가능해요?'), '2026-06-13'), '2027-11-07');
+  check('J11 합성: 연도 가드 후 요일 스냅 → 2027-11-06', _t.snapWeekday(_t.snapNextYearWord('2026-11-07', u('내년 11월 첫째 주 토요일 가능해요?'), '2026-06-13'), u('내년 11월 첫째 주 토요일 가능해요?')), '2027-11-06');
+  check('J12 "올해" 동반 언급 → 보류', _t.snapNextYearWord('2026-11-07', u('올해 말고 내년 11월이요'), '2026-06-13'), '2026-11-07');
+  check('J13 이미 내년으로 추출 → 그대로', _t.snapNextYearWord('2027-11-06', u('내년 11월 첫째 주 토요일 가능해요?'), '2026-06-13'), '2027-11-06');
 })();
 
 console.log('\n결과: ' + (n - fails) + '/' + n + ' 통과' + (fails ? ' · 실패 ' + fails + '건' : ''));

@@ -228,7 +228,8 @@ module.exports = async (req, res) => {
     let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '', anySlot: false };
     try { ex = Object.assign(ex, JSON.parse(textOf(ext))); } catch (e) {}
     ex.date = snapYear(ex.date, history);   // 연도 안정화: 직전 답변에 요일과 함께 안내한 날짜면 그 요일에 연도를 맞춤
-    ex.date = snapWeekday(ex.date, history);   // 요일 정합: "첫째 주 토요일"이 일요일 날짜로 추출되는 사고 방지(2026-06-13 라이브 S2 실사례)
+    ex.date = snapNextYearWord(ex.date, history, today);   // "내년"이라 했는데 올해 연도로 추출되는 사고 방지(2026-06-13 S2 실사례: 내년 11월 첫째 주 토요일→2026-11-07)
+    ex.date = snapWeekday(ex.date, history);   // 요일 정합: 연도 보정 후 요일이 어긋나면 ±3일 내 그 요일로(위 두 가드와 합성되어 2027-11-06 도출)
 
     // ── 서버 판정 (AI는 이 결과만 본다) ──
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
@@ -441,6 +442,20 @@ function snapYear(date, history) {
     if (dayOfWeek(cand) === wdWant) return cand;
   }
   return date;
+}
+// 내년 연도 가드 — 고객이 "내년"이라고 말했는데 추출 연도가 올해면 +1년(추출기가 "내년 N월 첫째 주 □요일"
+//   같은 주차 계산을 가끔 올해 달력으로 함 · 2026-06-13 라이브 S2 실사례). "올해·금년"이 같이 있으면 보류.
+//   +1년 뒤 요일이 어긋나는 건 바로 뒤의 snapWeekday가 맞춘다(합성 설계).
+function snapNextYearWord(date, history, today) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+  let lastUser = '';
+  for (let i = history.length - 1; i >= 0; i--) { if (history[i].role === 'user') { lastUser = history[i].content; break; } }
+  if (!/내년/.test(lastUser) || /올해|금년/.test(lastUser)) return date;
+  const ty = Number(String(today).slice(0, 4));
+  if (Number(date.slice(0, 4)) !== ty) return date;   // 이미 내년 이상으로 추출됐으면 그대로
+  const cand = String(ty + 1) + date.slice(4);
+  if (new Date(cand + 'T00:00:00Z').toISOString().slice(0, 10) !== cand) return date;   // 2/29 등 무효 날짜 방지
+  return cand;
 }
 // 요일 정합 가드 — 고객이 마지막 메시지에서 요일 하나를 명시했는데("11월 첫째 주 토요일") 추출 날짜의 실제
 //   요일이 어긋나면(실사례: 2027-11-07은 일요일) ±3일 안에서 그 요일인 날로 스냅한다. 고객이 "11월 7일"처럼
