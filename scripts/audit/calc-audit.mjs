@@ -103,5 +103,48 @@ check('D2 잔금 라벨', sb._balanceDueLabel(), (s) => String(s).indexOf('9일'
 check('D3 PAYMENT 상수', [sb.PAYMENT.예약금, sb.PAYMENT.계약금율, sb.PAYMENT.중도금율], [100000, 0.1, 0.4]);
 check('D4 시착 상수(기본 2벌·5만)', [sb.FITTING_CONSENT.기본벌수, sb.FITTING_CONSENT.추가벌비용], [2, 50000]);
 
+// ── E. buildPaymentState 묶음 수납(§4④ 임박 계약 일괄) — bundleTotal = 납부액 + (D≤149 중도금) + (D≤9 잔금) ──
+function pay({ dd, mid = '', bal = '', stage = '계약완료' }) {
+  return sb.buildPaymentState(row({
+    상품타입: '시그니처', 계약상태: '서명완료', 현재단계: stage, 계약총액: 2800000,
+    예식일: ymdShift(today, dd), 입금상태: '대기', 중도금상태: mid, 잔금상태: bal,
+    입금자명: '민준', 동의기록: '{}',
+  }));
+}
+check('E1 D-200(여유) → 묶음 없음·납부액만', (function () { const p = pay({ dd: 200 }); return [p.bundle.length, p.bundleTotal]; })(), [0, 180000]);
+check('E2 D-100(중도금 임박) → +중도금', (function () { const p = pay({ dd: 100 }); return [p.bundle.indexOf('중도금') !== -1, p.bundle.indexOf('잔금') !== -1, p.bundleTotal]; })(), [true, false, 1300000]);
+check('E3 D-5(전액 임박) → +중도금+잔금=총액−예약금', (function () { const p = pay({ dd: 5 }); return [p.bundle.length, p.bundleTotal]; })(), [2, 2700000]);
+check('E4 경계 D-149 → 중도금 포함', pay({ dd: 149 }).bundle.indexOf('중도금') !== -1, true);
+check('E5 경계 D-150 → 중도금 제외', pay({ dd: 150 }).bundle.indexOf('중도금'), -1);
+check('E6 경계 D-9 → 잔금 포함', pay({ dd: 9 }).bundle.indexOf('잔금') !== -1, true);
+check('E7 D-100+중도금 이미 확인 → 묶음에서 제외', pay({ dd: 100, mid: '확인' }).bundle.indexOf('중도금'), -1);
+check('E8 묶음 합 = 총액 − 예약금(D-5)', pay({ dd: 5 }).bundleTotal, 2800000 - 100000);
+
+// ── F. _cashReceiptLedger(현금영수증 원장) — 발급 대상·합산·과세 추가매출 ──
+function led(extra) {
+  bookingsDeposit = '';
+  return sb._cashReceiptLedger(row(Object.assign({
+    상품타입: '시그니처', 계약총액: 2800000, 입금상태: '확인', 개인코드: 'T1',
+    중도금상태: '', 잔금상태: '', 중도금확인일시: '', 잔금확인일시: '',
+    추가보정금액: 0, 추가보정상태: '', 동의기록: JSON.stringify({ 현금영수증: '01012345678' }),
+  }, extra || {})));
+}
+const lg1 = led();
+check('F1 일반 원장 키', lg1.map((x) => x.key), ['예약금', '중도금', '잔금']);
+check('F2 예약금 발급 대상·금액', [lg1[0].target, lg1[0].amount, lg1[0].confirmed], ['01012345678', 100000, true]);
+check('F3 중도금·잔금 금액', [lg1[1].amount, lg1[2].amount], [1120000, 1400000]);
+const lgCombo = led({ 중도금상태: '확인', 잔금상태: '확인', 중도금확인일시: '2026-06-01 10:00', 잔금확인일시: '2026-06-01 10:00' });
+check('F4 같은 확인일시 → 중도금·잔금 합산 1건', (function () { const c = lgCombo.find((x) => x.key === '중도금잔금'); return c ? c.amount : 'none'; })(), 2520000);
+check('F5 합산 시 개별 중도금/잔금 행 없음', lgCombo.filter((x) => x.key === '중도금' || x.key === '잔금').length, 0);
+const lgEx = led({ 추가보정금액: 300000, 추가보정상태: '완료' });
+check('F6 추가보정 완료 → 별도 행(과세 매출)', (function () { const e = lgEx.find((x) => x.key === '추가보정'); return e ? [e.amount, e.confirmed] : 'none'; })(), [300000, true]);
+check('F7 추가보정 미신청(0원) → 행 생략', led({ 추가보정금액: 0 }).some((x) => x.key === '추가보정'), false);
+const lgSnap = sb._cashReceiptLedger(row({ 상품타입: '웨딩스냅', 계약총액: 900000, 입금상태: '확인', 동의기록: '{}', 개인코드: 'S1' }));
+check('F8 스냅 원장 → 계약금(20%) 행', (function () { const c = lgSnap.find((x) => x.label === '계약금'); return c ? c.amount : 'none'; })(), 180000);
+
+// ── G. 발급 대상 파싱 _cashReceiptOf ──
+check('G1 발급 대상 추출', sb._cashReceiptOf(row({ 동의기록: JSON.stringify({ 현금영수증: '2208612345' }) })), '2208612345');
+check('G2 미입력 → 빈 문자열(자진발급 대상)', sb._cashReceiptOf(row({ 동의기록: '{}' })), '');
+
 console.log('\n결과: ' + (n - fails) + '/' + n + (fails ? ' · 실패 ' + fails : ' 전부 통과'));
 process.exit(fails ? 1 : 0);
