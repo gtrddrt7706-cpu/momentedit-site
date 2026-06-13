@@ -3606,7 +3606,7 @@ function dineFilterUI(d, wt){
     return '<label class="inv-opt'+(sel?' sel':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)
       +'<small>'+escapeHtml(meta)+'</small><small>'+escapeHtml(tags.join(' · '))+'</small></label>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
-  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄여보시거나, 아래 \'상담 때 함께 정할게요\'를 골라 주세요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
+  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
   var sgg=['양가 어른들 모시고 식사','아이와 함께 갈 곳','친구들과 뒷풀이 자리','조용한 카페에서 다과','근처 볼거리나 산책','부담 없는 가격에 든든한 식사'];
   var chat=d._chat||[];
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
