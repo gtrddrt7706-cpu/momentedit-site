@@ -147,6 +147,14 @@ module.exports = async (req, res) => {
     text = text.replace(/—/g, '·').replace(/\*\*/g, '');
     text = text.replace(/^[ \t]*#{1,6}[ \t]+/gm, '');            // 마크다운 제목 #
     text = text.replace(/^[ \t]*[-*][ \t]+/gm, '· ');            // 목록 머리기호 - * → ·
+    // 요일 표기 정합 — "YYYY년 M월 D일 X요일"의 X가 실제 요일과 다르면 교정(고객이 잘못 말한 요일을
+    //   답변이 그대로 따라 적는 사고 방지 · 2026-06-13 E11 실사례: 2027-10-10은 일요일인데 "토요일" 복창)
+    text = text.replace(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일(\s*\(?)([월화수목금토일])요일/g, function (all, y, mo, da, gap, w) {
+      const d = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(da)));
+      if (d.getUTCFullYear() !== Number(y) || d.getUTCMonth() !== Number(mo) - 1) return all;   // 무효 날짜는 손대지 않음
+      const real = ['일', '월', '화', '수', '목', '금', '토'][d.getUTCDay()];
+      return (w === real) ? all : (y + '년 ' + Number(mo) + '월 ' + Number(da) + '일' + gap + real + '요일');
+    });
     if (/contact@momentedit\.kr/i.test(text)) {
       text = text.split(/\n+/).filter(function (line) { return !/contact@momentedit\.kr/i.test(line); }).join('\n').trim();
     }
