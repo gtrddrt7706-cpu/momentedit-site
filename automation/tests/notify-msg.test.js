@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'platform', '95_notify.gs'), 'utf8');
+const src2 = src;
 
 // GAS 전역 스텁 — 발송 없이 문구·게이트 로직만 평가
 let HOUR = 12;
@@ -57,6 +58,64 @@ Object.keys(api.NOTIFY_EVENTS).concat(['unknown.event']).forEach(function (ev) {
   [undefined, {}, FULL].forEach(function (x) { try { api.notifyKakao(ev, 'ME-001', x); } catch (e) { threw++; } });
 });
 check('notifyKakao 무예외', threw === 0, threw + '건 예외');
+
+
+// ⑤ 스냅 단어 분기 — 공용 이벤트가 스냅 고객에겐 '촬영'(상담·예식 아님)으로
+[['cust.consultConfirmed','#{유형}'],['cust.consultDayBefore','#{유형}'],['cust.timeProposed','#{유형}']].forEach(function(c){
+  const sig = api._nfCustomerMsg(c[0], '하윤·민준', FULL);
+  const snp = api._nfCustomerMsg(c[0], '하윤·민준', Object.assign({}, FULL, { snap: true }));
+  check(c[0]+' 시그=상담', sig.vars[c[1]] === '상담' && sig.text.indexOf('상담') !== -1, JSON.stringify(sig.vars));
+  check(c[0]+' 스냅=촬영', snp.vars[c[1]] === '촬영' && snp.text.indexOf('촬영') !== -1 && snp.text.indexOf('상담') === -1, snp.text);
+});
+['cust.balancePre','cust.balanceDue'].forEach(function(ev){
+  const sig = api._nfCustomerMsg(ev, '하윤·민준', FULL);
+  const snp = api._nfCustomerMsg(ev, '하윤·민준', Object.assign({}, FULL, { snap: true }));
+  check(ev+' 시그=예식', sig.vars['#{행사}'] === '예식', JSON.stringify(sig.vars));
+  check(ev+' 스냅=촬영', snp.vars['#{행사}'] === '촬영' && snp.text.indexOf('예식') === -1, snp.text);
+});
+
+// ⑥ off 이벤트 발송 차단 — NOTIFY_ENABLED=true·고객 조회 성공이어도 fetch 0회
+(function(){
+  let sent = 0;
+  const props = { getProperty: function(k){ return ({ NOTIFY_ENABLED:'true', SOLAPI_API_KEY:'k', SOLAPI_API_SECRET:'s', SOLAPI_SENDER:'01000000000', SOLAPI_PF_ID:'KA01PFTEST', ADMIN_PHONE:'01000000000' })[k] || null; }, setProperty(){}, deleteProperty(){}, getProperties(){ return {}; } };
+  const row = { get: function(k){ return ({ '연락처':'01012345678', '신랑이름':'민준', '신부이름':'하윤', '상품타입':'시그니처' })[k] || ''; } };
+  const api2 = new Function('PropertiesService','Logger','Utilities','LockService','UrlFetchApp','fmtKST','findCustomerByCode','_recordHandler','_kstYmd','_shiftYmd',
+    src2 + '\n;return {NOTIFY_EVENTS:NOTIFY_EVENTS, notifyKakao:notifyKakao};')(
+    { getScriptProperties: function(){ return props; } }, { log(){} },
+    { formatDate: function(d,tz,f){ return f==='H' ? '12' : '2026-06-11'; }, getUuid: function(){ return 'u'; }, computeHmacSha256Signature: function(){ return [0]; } },
+    { getScriptLock: function(){ return { waitLock(){}, releaseLock(){} }; } },
+    { fetch: function(){ sent++; return { getResponseCode: function(){ return 200; }, getContentText: function(){ return ''; } }; } },
+    function(){ return '2026-06-11 12:00'; }, function(){ return row; }, function(){}, function(){ return '2026-06-11'; }, function(y){ return y; });
+  Object.keys(api2.NOTIFY_EVENTS).forEach(function(ev){
+    if (ev.indexOf('cust.') !== 0) return;
+    sent = 0;
+    api2.notifyKakao(ev, 'ME-001', FULL);
+    const off = !!api2.NOTIFY_EVENTS[ev].off;
+    check(ev + (off ? ' off→발송 0회' : ' on→발송 1회'), sent === (off ? 0 : 1), '발송 ' + sent + '회');
+  });
+})();
+
+// ⑦ md 템플릿 ↔ vars 1:1 — 등록 12종+발송안함 5종 본문 변수가 코드 vars와 정확히 일치
+(function(){
+  const md = fs.readFileSync(path.join(__dirname, '..', '알림톡_템플릿_신청문안.md'), 'utf8');
+  const sec = md.split('## 1. 등록 템플릿')[1].split('## 2. 승인 후')[0];
+  const re = /### T\d+[^\n]*— `([^`]+)`[^\n]*\n[^\n]*\n```\n([\s\S]*?)```/g;
+  let m, seen = 0;
+  while ((m = re.exec(sec))) {
+    seen++;
+    const evs = m[1].split('·').map(function(s){ return s.replace(/`/g,'').trim(); });
+    const bodyVars = (m[2].match(/#\{[^}]+\}/g) || []).filter(function(v,i,a){ return a.indexOf(v) === i; }).sort();
+    evs.forEach(function(ev){
+      const built = api._nfCustomerMsg(ev, '하윤·민준', Object.assign({}, FULL, { snap: false }));
+      check('md↔코드 ' + ev + ' 빌더 존재', !!built);
+      if (!built) return;
+      const codeVars = Object.keys(built.vars).sort();
+      check('md↔코드 ' + ev + ' 변수 일치', JSON.stringify(bodyVars) === JSON.stringify(codeVars), 'md=' + bodyVars + ' 코드=' + codeVars);
+      check('md ' + ev + ' 본문 전각줄표 없음', m[2].indexOf('—') === -1);
+    });
+  }
+  check('md 템플릿 블록 17종 파싱(12+5)', seen === 17, seen + '종');
+})();
 
 console.log('\n────────────────────────────────────');
 console.log('PASS ' + pass + ' · FAIL ' + fail);

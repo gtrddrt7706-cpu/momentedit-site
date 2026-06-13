@@ -1302,7 +1302,7 @@ function buildPayload(){
   var hp    = (document.getElementById('hp_website') || {}).value || '';   // 허니팟(봇 차단) · 사람은 비워둠
 
   var lines = [];
-  var push = function(label, val){ lines.push(label + ': ' + (val && String(val).trim() ? val : '—')); };
+  var push = function(label, val){ lines.push(label + ': ' + (val && String(val).trim() ? val : '미입력')); };
   var picked = function(name){ var el = form.querySelector('input[name="'+name+'"]:checked'); return el ? el.value : ''; };
 
   var referralVal = picked('referral');

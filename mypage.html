@@ -3338,7 +3338,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널 상태 모두 초기화(2026-06-13 사용자 지시)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널(세부조건·가볼곳) 모두 초기화(2026-06-13 사용자 지시)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   renderTrkFlow($('mp_production'));
@@ -3381,6 +3381,7 @@ function bindTrk(box, render, collect, opt){
   var _dncF=$('dncForm'); if(_dncF){
     var _dncGo=function(text){
       var inp=$('dncInput'), er=$('dn_aiErr'), btn=$('dncSend');
+      if(btn&&btn.disabled) return;   // 전송 중 Enter 연타·이중 제출 가드(버튼 disable만으론 form submit이 안 막힘)
       var t=String(text||((inp&&inp.value)||'')).trim();
       if(!t){ if(er)er.textContent='누구와 함께 보내실지 한 줄 들려주세요.'; return; }
       collect();
@@ -3479,7 +3480,7 @@ var DINE_DB = [
   {n:'청담한식 서오릉본점', th:'formal', d:8, p:'mid', f:['한정식'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'02-357-1100', v:false},
   {n:'복옥정 서오릉본점', th:'formal', d:8, p:'mid', f:['한정식'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'0507-1469-5945', v:false},
   {n:'선운산풍천장어 서오능본점', th:'casual', d:7, p:'high', f:['해물·생선'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'02-353-0582', v:false},
-  {n:'유평리백숙집 향동점', th:'casual', d:1, p:'mid', f:['샤브·전골'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
+  {n:'유평리백숙집 향동점', th:'casual', d:1, p:'mid', f:['오리·백숙'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
   {n:'시골마루장작구이 서오릉점', th:'casual', d:6, p:'mid', f:['한우·갈비'], m:['정원'], al:null, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'02-336-5292', v:false},
   {n:'대성포갈비 향동점', th:'casual', d:3, p:'mid', f:['한우·갈비'], m:[], al:null, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'', v:false},
   {n:'은성곰탕', th:'casual', d:6, p:'low', f:['곰탕·국밥'], m:[], al:null, g:'ask', eld:true, pk:null, bs:null, be:null, tel:'', v:false},
@@ -3566,8 +3567,8 @@ function dineFilterUI(d, wt){
   var themeSeg='<div class="dn-flabel">어떤 자리인가요?</div><div class="dn-seg">'
     +[['formal','정찬'],['casual','캐주얼'],['cafe','카페']].map(function(o){ var on=(fl.theme||'')===o[0];
         return '<button type="button" class="dn-segbtn'+(on?' on':'')+'" data-ax="theme" data-fv="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div>';
-  var headNum=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 예식 하객수(있으면) — 자동 선택은 안 하고 힌트로만(처음엔 빈 상태 유지)
-  var headHint=headNum?' <span class="dn-fhint">예식 하객 약 '+escapeHtml(headNum)+'명</span>':'';
+  var headNum=(String(d.headcount||'').match(/\d+/)||[''])[0]; if(!(Number(headNum)>0)) headNum='';   // 예식 하객수(있으면) — 힌트로만. 0·비숫자는 무표시
+  var headHint=headNum?' <span class="dn-fhint">· 예식 하객 약 '+escapeHtml(headNum)+'명</span>':'';
   var chips=themeSeg
     +block('인원'+headHint,pill('headN','s','소규모 ~10')+pill('headN','m','중 10~20')+pill('headN','l','대 20~40')+pill('headN','xl','대형 40+'))
     +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
