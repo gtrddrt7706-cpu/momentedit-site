@@ -3367,6 +3367,8 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
     + '<div class="inv-nav">'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(lastLabel||(last?'완료':'다음'))+'</button></div>'
     + '</div>';
 }
+// [애프터웨딩 수요 로깅] 고객이 누른 니즈·인원·필터를 개인정보 없이 적재(GAS '애프터수요로그' · 90일 자동정리). 어디부터 검증·보강할지 데이터 근거.
+function logAwDemand(p){ try{ api(Object.assign({action:'awDemandLog', token:getToken()}, p||{})); }catch(e){} }   // fire-and-forget(실패 무시)
 function bindTrk(box, render, collect, opt){
   opt=opt||{};
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
@@ -3376,7 +3378,7 @@ function bindTrk(box, render, collect, opt){
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
   var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?true:DN_UI.det; DN_UI.det=!opn; render(box); }); }   // 세부 조건 펼침/접기(기본 펼침과 동일 기준)
   var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; render(box); }); }   // 리스트 전체 보기
-  Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ TRKFLOW.draft._filters=Object.assign({},p.set); TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; render(box); } }); });   // 원탭 프리셋 — 필터 교체
+  Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ TRKFLOW.draft._filters=Object.assign({},p.set); TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
   var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); }); }   // 가볼 만한 곳 펼침/접기
   var _dncF=$('dncForm'); if(_dncF){
     var _dncGo=function(text){
@@ -3394,6 +3396,7 @@ function bindTrk(box, render, collect, opt){
             var say=(r.reply||'')+(r.ask?(' '+r.ask):'');
             d2._chat=d2._chat.concat([{role:'assistant',content:say}]).slice(-10);
             if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters); }
+            logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
             else if(r.source==='kakao'){ d2._places=[]; d2._chat=d2._chat.concat([{role:'assistant',content:'조건에 맞는 곳을 지도에서 찾지 못했어요. 조금 다르게 말씀해 주시면 다시 찾아볼게요.'}]).slice(-10); }
             else if(r.mapDown){ d2._chat=d2._chat.concat([{role:'assistant',content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요.'}]).slice(-10); }
@@ -3640,11 +3643,11 @@ function dineFilterUI(d, wt){
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션 섹션(기본 접힘)
   var attrItems=DN_ATTRACTIONS.map(function(a){
     return '<a class="dn-attr-item" href="https://map.naver.com/p/search/'+encodeURIComponent(a.n)+'" target="_blank" rel="noopener">'
-      +'<div class="n">'+escapeHtml(a.n)+'<span>'+escapeHtml(a.t+' · '+a.d)+'</span></div>'
+      +'<div class="n">'+escapeHtml(a.n)+'<span>'+escapeHtml(a.t+' · 예상 '+a.d)+'</span></div>'
       +'<div class="d">'+escapeHtml(a.desc)+'</div></a>';
   }).join('');
   var attr='<div class="dn-attr"><div class="dn-attr-h" id="dn_attr_h"><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기 ▴':'펼치기 ▾')+'</span></div>'
-    +(DN_UI.attr?'<div class="dn-attr-list">'+attrItems+'<div class="dn-fine" style="margin-top:2px">산책·사진 코스예요. 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
+    +(DN_UI.attr?'<div class="dn-attr-list">'+attrItems+'<div class="dn-fine" style="margin-top:2px">산책·사진 코스예요. 거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
   return aiBox + orDiv + head + aiHint + presetRow + chips + fine + cards + attr;
 }
 function renderDining(box){

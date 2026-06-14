@@ -2050,6 +2050,7 @@ function doPost(e) {
       case 'aiHandoff':          return jsonOut(handleAiHandoff(body));
       case 'aiAvailability':     return jsonOut(handleAiAvailability(body));   // 97 · 스케줄 AI 서버측 점유 맵(가예약 포함 · _weddingOccupancy 기준)
       case 'advisorLog':         return jsonOut(handleAdvisorLog(body));    // AI 상담사 질문 로그(익명·마스킹) — KB 개선 근거
+      case 'awDemandLog':        return jsonOut(handleAwDemandLog(body));   // 애프터웨딩 수요 로그(익명·니즈/인원/필터) — 검증·보강 우선순위 근거
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
@@ -2092,6 +2093,20 @@ function handleAdvisorLog(body) {
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
+// [애프터웨딩 수요 로깅] 고객이 누른 니즈(프리셋·AI 카테고리)·인원·필터를 개인정보 없이 적재.
+//   저장: '애프터수요로그' 시트 [시각, 소스, 카테고리, 테마, 음식, 인원]. 이름·연락처·토큰 등 식별정보 미저장. 90일 자동정리(purgeAwDemandLog).
+function handleAwDemandLog(body) {
+  try {
+    var src = String((body && body.source) || '').slice(0, 16);
+    if (!src) return { ok: true };
+    var clean = function (v, n) { return String(v == null ? '' : v).replace(/[\r\n\t]/g, ' ').slice(0, n || 40); };
+    var sh = SpreadsheetApp.getActive().getSheetByName('애프터수요로그');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('애프터수요로그'); sh.appendRow(['시각', '소스', '카테고리/프리셋', '테마', '음식', '인원']); }
+    if (sh.getLastRow() > 8000) return { ok: true };   // 폭주 가드
+    sh.appendRow([fmtKST(new Date()), src, clean((body && (body.category || body.label)), 40), clean(body && body.theme, 16), clean(body && body.food, 24), clean(body && body.head, 8)]);
+  } catch (e) { try { Logger.log('awDemandLog 실패: ' + (e && e.message)); } catch (_) {} }
+  return { ok: true };
+}
 // [트리거·매주 월 4시] 90일 지난 질문 로그 삭제(보관기간 최소화)
 function purgeAdvisorLog() {
   var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
@@ -2104,4 +2119,15 @@ function purgeAdvisorLog() {
     if (!isNaN(d.getTime()) && d < cutoff) n++; else break;   // 시각 오름차순 적재 — 앞에서부터 연속 삭제
   }
   if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAdvisorLog: ' + n + '건 삭제'); }
+  try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
+}
+// 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
+function purgeAwDemandLog() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('애프터수요로그');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
+  var n = 0;
+  for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
+  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAwDemandLog: ' + n + '건 삭제'); }
 }
