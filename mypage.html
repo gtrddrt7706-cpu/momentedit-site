@@ -3697,9 +3697,10 @@ function renderDining(box){
       var _vp=String(d.venuePick||'').trim();
       if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
         mpConfirm({ title:'예약 전에 안내드려요',
-          bodyHtml:'<div style="text-align:left;line-height:1.8">'
-            +'매장 사정에 따라 <b>영업시간·메뉴·가격·단체석·주차</b>가 조금씩 달라질 수 있어요. 예약 전에 식당으로 한 번 확인해 주시면 더 안심하고 가실 수 있어요.'
-            +'<div style="margin-top:11px;font-size:12.5px;color:var(--light,#75705F)">예약이 번거로우시면 디렉터가 함께 도와드릴게요.</div>'
+          bodyHtml:'<div style="text-align:left;line-height:1.7">'
+            +'<div style="display:flex;gap:7px;margin-bottom:7px"><span style="color:var(--gold,#B89A75)">·</span><span>영업시간·메뉴·가격·단체석·주차는 매장 사정에 따라 달라질 수 있어요.</span></div>'
+            +'<div style="display:flex;gap:7px;margin-bottom:7px"><span style="color:var(--gold,#B89A75)">·</span><span>예약 전 식당에 한 번 확인해 주시면 더 안심돼요.</span></div>'
+            +'<div style="display:flex;gap:7px"><span style="color:var(--gold,#B89A75)">·</span><span>예약이 번거로우시면 디렉터가 함께 도와드릴게요.</span></div>'
             +'</div>',
           yes:'확인했어요', no:'이전' }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지
         return;
