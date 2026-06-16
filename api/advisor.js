@@ -11,7 +11,9 @@
 //   cancel.html·contract/*·mypage.html·platform-config) 기준. 가격·정책 변경 시 함께 갱신.
 //   옛 카카오 챗봇 자료(momentedit-docs/kakao-chatbot)는 수치가 달라 참조만, 인용 금지.
 
-const MODEL = 'claude-haiku-4-5';
+// 모델은 page별로 선택(아래 호출부): 메인홈·예약은 Sonnet 4.6(응대 품질↑), 마이페이지는 Haiku 4.5(계약 후·실무·비용)
+const MODEL_SALES = 'claude-sonnet-4-6';
+const MODEL_MYPAGE = 'claude-haiku-4-5';
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
 // 어뷰징·비용 가드
@@ -112,6 +114,19 @@ module.exports = async (req, res) => {
     if (page !== '마이') systemText += SALES_CORE;
     if (page === '예약') systemText += SALES_BOOKING;
 
+    // 마이페이지(계약 후·실무)는 Haiku 유지, 그 외(메인홈·예약)는 Sonnet 4.6
+    const model = (page === '마이') ? MODEL_MYPAGE : MODEL_SALES;
+    const reqBody = {
+      model: model,
+      max_tokens: MAX_TOKENS,
+      // 안정적인 KB는 캐싱해 비용 절감(반복 요청 시 ~90%)
+      system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
+      messages: history,
+    };
+    if (model === MODEL_SALES) {   // Sonnet: 실시간 채팅이라 사고(thinking) 없이 낮은 effort로 빠르고 저렴하게(Haiku엔 effort 미지원)
+      reqBody.thinking = { type: 'disabled' };
+      reqBody.output_config = { effort: 'low' };
+    }
     const anthRes = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -119,13 +134,7 @@ module.exports = async (req, res) => {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        // 안정적인 KB는 캐싱해 비용 절감(반복 요청 시 ~90%)
-        system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
-        messages: history,
-      }),
+      body: JSON.stringify(reqBody),
     });
 
     if (!anthRes.ok) {

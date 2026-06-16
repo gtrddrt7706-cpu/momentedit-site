@@ -16,7 +16,7 @@
 //   - taken은 로그인된 schedule.html이 전달. 없으면(비로그인 inquiry) GAS에서 서버측 조회.
 // 환경변수: ANTHROPIC_API_KEY(필수) · HANDOFF_WEBHOOK_URL(선택, GAS 가용성 조회) · HANDOFF_SECRET(선택)
 
-const MODEL = 'claude-haiku-4-5';
+const MODEL = 'claude-sonnet-4-6';   // 예약·스케줄 접점 — 응대 품질↑(마이페이지 2곳은 Haiku 유지)
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 400, MAX_HISTORY = 10;
 const rateGate = require('./_ratelimit');
@@ -221,8 +221,9 @@ module.exports = async (req, res) => {
     const convo = history.map((m) => (m.role === 'user' ? '고객' : '도우미') + ': ' + m.content).join('\n');
     const ext = await callClaude(apiKey, {
       model: MODEL, max_tokens: 250,
+      thinking: { type: 'disabled' },   // Sonnet: 추출은 분류 작업 → 사고 없이 낮은 effort로 빠르게
       system: [{ type: 'text', text: EXTRACT_PROMPT, cache_control: { type: 'ephemeral' } }],
-      output_config: { format: { type: 'json_schema', schema: EXTRACT_SCHEMA } },
+      output_config: { format: { type: 'json_schema', schema: EXTRACT_SCHEMA }, effort: 'low' },
       messages: [{ role: 'user', content: '[오늘] ' + today + '\n\n[대화]\n' + convo + '\n\n고객의 마지막 메시지를 분석하세요.' }],
     });
     let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '', anySlot: false };
@@ -244,6 +245,8 @@ module.exports = async (req, res) => {
     // ── 2차 호출: 판정 결과로 답변 작성 ──
     const rep = await callClaude(apiKey, {
       model: MODEL, max_tokens: 400,
+      thinking: { type: 'disabled' },   // Sonnet: 실시간 응대 → 사고 없이 낮은 effort로 빠르고 저렴하게
+      output_config: { effort: 'low' },
       system: [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: '[대화]\n' + convo + '\n\n[확인 결과]\n' + verdict + '\n\n위 확인 결과만 사용해 고객의 마지막 메시지에 답하세요.' }],
     });
