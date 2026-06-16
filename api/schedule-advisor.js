@@ -16,7 +16,7 @@
 //   - taken은 로그인된 schedule.html이 전달. 없으면(비로그인 inquiry) GAS에서 서버측 조회.
 // 환경변수: ANTHROPIC_API_KEY(필수) · HANDOFF_WEBHOOK_URL(선택, GAS 가용성 조회) · HANDOFF_SECRET(선택)
 
-const MODEL = 'claude-sonnet-4-6';   // 예약·스케줄 접점 — 고객 상담 5곳 Sonnet 4.6 통일
+const MODEL = 'claude-sonnet-4-6';   // 예약·스케줄 접점(예비 고객) — Sonnet 4.6
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 400, MAX_HISTORY = 10;
 const rateGate = require('./_ratelimit');
