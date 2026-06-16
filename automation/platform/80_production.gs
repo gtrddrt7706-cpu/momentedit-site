@@ -114,10 +114,15 @@ function handleSaveProductionTrack(body) {
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
-    // 다이닝 '상담 때 함께 정할게요' 완료 — 디렉터 액션 필요(상담 의제) → 완료 전환 시점에 1회 관리자 알림
-    if (track === 'dining' && body && body.done && !_wasDone
-        && String((((body && body.draft) || {}).venuePick) || '').trim() === '상담 때 함께 정할게요') {
-      notifyKakao('admin.diningConsult', code);
+    // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
+    //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
+    //   '특정 식당을 못 정한 채 마무리'를 신호로. 식당을 골랐거나 다이닝 안 함(N)이면 발사 안 함.
+    if (track === 'dining' && body && body.done && !_wasDone) {
+      var _ddr = (body && body.draft) || {};
+      var _vp = String(_ddr.venuePick || '').trim();
+      if (_ddr.dining_on !== 'N' && (!_vp || _vp === '장소 미정' || _vp === '상담 때 함께 정할게요')) {
+        notifyKakao('admin.diningConsult', code);
+      }
     }
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
