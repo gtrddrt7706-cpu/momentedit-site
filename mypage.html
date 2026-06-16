@@ -119,10 +119,10 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold-deep);letter-spacing:.03em}
 
 .btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}
-/* 진사 버튼 = '결정'의 자리 (로그인·재설정) */
-.btn-seal{background:#4E3F31;color:#fff}   /* 프라이머리 = 다크 모카 · 호버 에스프레소 (2026-06-11 사용자 선택. 메일 CTA는 강제 다크 호환 때문에 베이지 유지) */
-.btn-seal:hover{background:#3A2D22}
-.btn-seal:active{background:#9C7E55}
+/* 진사 버튼 = '결정'의 자리 (로그인·코드찾기·재설정) */
+.btn-seal{background:var(--seal,#6B2A24);color:#fff}   /* 프라이머리 = 진사(인장색) · 호버 더 짙게 (2026-06-16 사용자 선택 — 마이페이지 결정적 액션 진사로 통일) */
+.btn-seal:hover{background:#5B1E18}
+.btn-seal:active{background:#5B1E18}
 .btn-seal:disabled{opacity:.55;cursor:not-allowed}
 /* 키보드 포커스 가시성(접근성) */
 .btn:focus-visible,.linkrow a:focus-visible,.foot-actions a:focus-visible,.codecard .copy:focus-visible,.brand-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
