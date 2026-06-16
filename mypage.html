@@ -700,6 +700,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .mp-modal-btn{padding:13px 18px;border-radius:6px;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
     .mp-modal-btn-primary{background:#4E3F31;color:#fff;letter-spacing:.04em;box-shadow:0 3px 10px rgba(78,63,49,0.28)}
     .mp-modal-btn-primary:hover{background:#3A2D22}
+.mp-modal-btn-seal{background:var(--seal,#6B2A24);color:#fff;letter-spacing:.04em;box-shadow:0 3px 10px rgba(107,42,36,0.28)}
+.mp-modal-btn-seal:hover{background:#5B1E18}
     .mp-modal-btn-ghost{background:transparent;color:var(--light,#75705F);border-color:var(--border,#DDD8D1)}
     .mp-modal-btn:active{opacity:0.82}
     .mp-sig-canvas{width:100%;height:210px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:4px;touch-action:none;display:block;cursor:crosshair}
@@ -894,7 +896,7 @@ function mpModalOpen(o){
     a.innerHTML=''; var done=false;
     function close(v){ if(done) return; done=true; ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
     var prim=document.createElement('button');
-    prim.type='button'; prim.className='mp-modal-btn mp-modal-btn-primary'; prim.textContent=o.confirmText||'확인';
+    prim.type='button'; prim.className='mp-modal-btn '+(o.confirmSeal?'mp-modal-btn-seal':'mp-modal-btn-primary'); prim.textContent=o.confirmText||'확인';
     prim.addEventListener('click',function(){ close(true); });
     a.appendChild(prim);
     if(o.cancel!==false){
@@ -910,7 +912,7 @@ function mpModalOpen(o){
     try{ prim.focus(); }catch(_){}
   });
 }
-function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소' }); }
+function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소', confirmSeal:o.confirmSeal }); }
 function mpAlert(m){ var o=(m&&typeof m==='object')?m:{body:String(m==null?'':m)}; o.cancel=false; if(!o.confirmText)o.confirmText='확인'; return mpModalOpen(o); }
 // ── 손글씨 서명패드 (시착·본계약 공용) → Promise<dataURL PNG | null> ──
 function mpSignaturePad(opts){
@@ -3696,13 +3698,9 @@ function renderDining(box){
     bindTrk(box,renderDining,collect,{ confirmNext: function(go){
       var _vp=String(d.venuePick||'').trim();
       if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
-        mpConfirm({ title:'예약 전 꼭 확인해 주세요',
-          bodyHtml:'<div style="text-align:left;line-height:1.75">'
-            +'<b style="color:var(--accent)">안내 정보는 매장 사정에 따라 달라질 수 있어요.</b><br>'
-            +'영업시간·메뉴·가격·단체석·주차는 예약 전 식당에 <b>직접 전화로 확인</b>해 주세요.'
-            +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#E3DDD4);font-size:12px;color:var(--light,#75705F)">모먼트에디트는 식당 안내만 도와드려요. 예약·이용 책임은 식당에 있습니다.</div>'
-            +'</div>',
-          yes:'확인했어요', no:'이전' }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지
+        mpConfirm({ title:'예약 전에 안내드려요',
+          bodyHtml:'<div style="text-align:left;line-height:1.75">영업시간·메뉴·가격·단체석·주차는 달라질 수 있으니, 예약 전 식당에 한 번 확인해 주세요.</div>',
+          yes:'확인했어요', no:'이전', confirmSeal:true }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지 · 확인 버튼 진사색
         return;
       }
       go();

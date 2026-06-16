@@ -12,7 +12,7 @@
 //
 // 의존성 없음(전역 fetch). 키는 코드·저장소에 두지 않는다.
 
-const MODEL = 'claude-sonnet-4-6';   // 마이페이지 애프터웨딩 컨시어지 — 5곳 통일 격상
+const MODEL = 'claude-opus-4-8';   // 마이페이지 애프터웨딩 컨시어지(계약 고객) — Opus 4.8로 최상위 응대
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const KAKAO_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json';
 const STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(index.html 지도와 동일 좌표)
