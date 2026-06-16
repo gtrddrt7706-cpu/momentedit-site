@@ -11,9 +11,10 @@
 //   cancel.html·contract/*·mypage.html·platform-config) 기준. 가격·정책 변경 시 함께 갱신.
 //   옛 카카오 챗봇 자료(momentedit-docs/kakao-chatbot)는 수치가 달라 참조만, 인용 금지.
 
-// 모델: 메인홈·예약(예비 고객)은 Sonnet 4.6, 마이페이지(계약 고객)는 Opus 4.8로 최상위 응대. 실시간 채팅이라 thinking 비활성 + effort low.
+// 모델: 고객 상담 접점은 Sonnet 4.6. 실시간 채팅이라 thinking 비활성 + effort low.
+//   (마이페이지는 실시간 상태 그라운딩을 붙인 뒤 Opus 재격상 검토 · 그래서 상수·분기는 남겨둠)
 const MODEL_PUBLIC = 'claude-sonnet-4-6';
-const MODEL_MYPAGE = 'claude-opus-4-8';
+const MODEL_MYPAGE = 'claude-sonnet-4-6';   // 마이페이지(계약 고객): 현재 Sonnet. 그라운딩 후 Opus 재격상 시 이 값만 교체
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
 // 어뷰징·비용 가드
@@ -115,7 +116,7 @@ module.exports = async (req, res) => {
     if (page === '예약') systemText += SALES_BOOKING;
 
     const reqBody = {
-      model: (page === '마이') ? MODEL_MYPAGE : MODEL_PUBLIC,   // 마이페이지(계약 고객)=Opus 4.8 / 그 외=Sonnet 4.6
+      model: (page === '마이') ? MODEL_MYPAGE : MODEL_PUBLIC,   // 현재 둘 다 Sonnet 4.6 (마이는 그라운딩 후 Opus 재격상 대비 분기 유지)
       max_tokens: MAX_TOKENS,
       thinking: { type: 'disabled' },     // 실시간 채팅 → 사고 단계 없이 즉답
       output_config: { effort: 'low' },   // 낮은 effort로 빠르고 저렴하게(품질은 모델 자체로 확보)
