@@ -3878,6 +3878,41 @@ window.ME_ADV_PAGE = {
       return d ? { name: d.name || '', stage: d.stage || '', code: d.code || '' } : null;
     } catch (e) { return null; }
   },
+  // (그라운딩) AI에 넘길 '이 고객의 현재 상황' 안전 요약 — 진행·결제·예식일만. 계좌·서명·토큰 등 민감정보 제외.
+  state: function(){
+    try {
+      var c = JSON.parse(localStorage.getItem('me_state_v1') || 'null');
+      var d = c && c.d;
+      if (!d) return null;
+      var won = function(n){ return (n==null) ? '' : (Number(n).toLocaleString('ko-KR') + '원'); };
+      var L = [];
+      if (d.name) L.push('호칭: ' + d.name);
+      var prod = d.product || (d.ledger && d.ledger.productLabel) || '';
+      if (prod) L.push('상품: ' + prod);
+      if (d.stage) {
+        var pos = (d.stageList && d.stageList.length && d.stageIndex != null)
+          ? (' (전체 ' + d.stageList.length + '단계 중 ' + (d.stageIndex + 1) + '번째)') : '';
+        L.push('현재 단계: ' + d.stage + (d.isException ? ' (예외 상태)' : '') + pos);
+      }
+      if (d.nextAction) L.push('지금 할 일: ' + String(d.nextAction).trim());
+      var base = d.production && d.production.base;
+      var wd = (base && base.weddingDate) ? String(base.weddingDate).trim() : '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(wd)) {
+        var wt = (base.weddingTime && /^\d{2}:\d{2}$/.test(base.weddingTime)) ? (' ' + base.weddingTime) : '';
+        var diff = Math.round((new Date(wd + 'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
+        var dl = diff > 0 ? ('D-' + diff) : (diff === 0 ? 'D-day' : (-diff) + '일 지남');
+        L.push((d.product === '웨딩스냅' ? '촬영일' : '예식일') + ': ' + wd + wt + ' (' + dl + ')');
+      }
+      if (d.ledger && Array.isArray(d.ledger.payments) && d.ledger.payments.length) {
+        var pays = d.ledger.payments.map(function (p) {
+          return (p.label || p.key || '') + (p.amount != null ? (' ' + won(p.amount)) : '') + ' ' + (p.done ? '완료' : (p.status || '대기'));
+        });
+        L.push('결제: ' + pays.join(' · '));
+        if (d.ledger.total != null) L.push('총액 ' + won(d.ledger.total) + ' · 납부 ' + won(d.ledger.paid || 0));
+      }
+      return L.length ? L.join('\n') : null;
+    } catch (e) { return null; }
+  },
   // 로그인 화면에서는 우측 아이콘 스택 비노출(그 섹션이 보이는 동안만 숨김)
   hideOn: function(){
     var v = document.getElementById('loginView');
