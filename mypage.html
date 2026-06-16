@@ -3653,7 +3653,8 @@ function dineFilterUI(d, wt){
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var orDiv='<div class="dn-or"><span>또는, 직접 골라보기</span></div>';
-  var head='<div class="dn-head"><span class="dn-head-t">디렉터 검증 리스트</span><span class="dn-head-c">추천 '+list.length+'곳'+(arr?' · 도착 '+arr+' 기준':'')+'</span></div>';
+  var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
+  var head='<div class="dn-head"><span class="dn-head-t">디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트</span><span class="dn-head-c">'+(_dnVerifiedN>0?'검증 '+_dnVerifiedN+'곳 · ':'')+'추천 '+list.length+'곳'+(arr?' · 도착 '+arr+' 기준':'')+'</span></div>';
   var fine='<div class="dn-fine">정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션 섹션(기본 접힘)
