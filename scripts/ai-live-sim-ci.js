@@ -73,13 +73,15 @@ async function runSched(name, turns, page, expect, forbid) {
   grade(name, replies, true, expect, forbid);
 }
 
-async function runAdv(name, turns, page, expect, forbid) {
+async function runAdv(name, turns, page, expect, forbid, state) {
   if (skipBy(name)) return;
   const msgs = []; const replies = [];
   console.log('\n══ [상담] ' + name + ' (page=' + (page || '메인') + ') ══');
   for (const t of turns) {
     msgs.push({ role: 'user', content: t });
-    const j = await call('/api/advisor', { messages: msgs.slice(-12), page: page || '' });
+    const body = { messages: msgs.slice(-12), page: page || '' };
+    if (state) body.state = state;   // (마이) 실시간 상태 그라운딩 검증용 — 실데이터로 개인 질문에 답하는지
+    const j = await call('/api/advisor', body);
     const rep = (j.reply || ('(오류 ' + (j.error || j._status) + ')')) + (j.escalate ? '  [→에스컬레이션]' : '');
     msgs.push({ role: 'assistant', content: j.reply || '' });
     replies.push((j.reply || '') + (j.escalate ? ' [ESC]' : ''));   // 채점에서 사람 연결 신호(escalate)를 인정할 수 있게 마커 포함
@@ -182,6 +184,10 @@ async function runAvailabilityGuard() {
   await runSched('E16 스케줄 과거 날짜', ['2020년 3월 1일 가능해요?'], '스케줄', ['미래|지난|이미'], ['진행 가능한 일정으로 확인']);
   await runAdv('E17 마이 취소수수료(중립·정책)', ['지금 취소하면 수수료 얼마 나와요?'], '마이', ['시기|150일|5개월|계약서|상담|예식일|확인이 필요|\\[ESC\\]'], ['상담을 신청하실|이 페이지에서 바로']);   // 풀런2 오탐 보정: 단계 되묻기("예식일이 언제")·에스컬레이션도 정답
   await runAdv('E18 마이 결과물 시점(중립)', ['사진은 언제쯤 받을 수 있어요?'], '마이', ['상담|확정|단계|안내'], ['상담을 신청하실|이 페이지에서 바로']);
+  // [그라운딩] 로그인 고객 실시간 상태를 주입했을 때, 개인 질문에 실데이터로 즉답하는지(에스컬레이션 punt가 아니라)
+  await runAdv('GR1 마이 그라운딩 잔금(실데이터 즉답)', ['내 잔금 얼마 남았고 언제까지 내요?'], '마이',
+    ['140만|1,?400,?000'], ['확인이 필요|확인해야 정확|계약 상태나 예식일을 확인'],
+    '호칭: 하윤 · 민준\n상품: 시그니처\n현재 단계: 입금완료 (전체 9단계 중 6번째)\n지금 할 일: 중도금·잔금 입금\n예식일: 2026-10-01 14:00 (D-45)\n결제: 예약금 100,000원 완료 · 계약금 280,000원 완료 · 잔금 1,400,000원 대기 (예식 9일 전)\n총액 2,800,000원 · 납부 380,000원');
 
 
   // ══ 라운드2 배터리 R — 신규 각도(추가금 트집·결과물 권리·식대 정직·보증인원·예약금 불안·다중 날짜·주말 전체요구·통화 요구·종교·도발) ══
