@@ -3627,7 +3627,8 @@ function dineFilterUI(d, wt){
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</label>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
   : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
-  var sgg=['양가 어른들 모시고 식사','아이와 함께 갈 곳','친구들과 뒷풀이 자리','조용한 카페에서 다과','근처 볼거리나 산책','부담 없는 가격에 든든한 식사'];
+  // AI 칩 = 아래 식당 리스트로는 못 보여주는 '식사 외' 시나리오만(키즈·뒷풀이·볼거리 → 카카오 지도). 식사 자리(어른정찬·다과 등)는 바로 아래 프리셋·필터가 즉시 처리 → 중복 제거(2026-06-16 사용자 지시)
+  var sgg=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리','근처 볼거리·산책'];
   var chat=d._chat||[];
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
   var placeCards='';
@@ -3676,8 +3677,7 @@ function renderDining(box){
     else { d.venue=''; if(d.venuePick) d.partner=d.venuePick; }
   }
   function collect(){
-    if($('dn_aiText')) d._aiText=$('dn_aiText').value;
-    if($('trk_agree')) d.entrustAgree=$('trk_agree').checked?'Y':'N';
+    // (정리 2026-06-16) dn_aiText·trk_agree 읽기 제거 — 현재 UI에 없는 옛 엘리먼트라 _aiText·entrustAgree가 늘 비어 있던 죽은 코드(어디서도 안 읽힘).
     d.dining_on = (d.venuePick==='다이닝 없이 진행할게요') ? 'N' : 'Y';   // 게이트 제거 — 선택으로 자동 판정
     syncVenue();
   }
