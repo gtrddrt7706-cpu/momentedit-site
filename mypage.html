@@ -3697,10 +3697,7 @@ function renderDining(box){
       var _vp=String(d.venuePick||'').trim();
       if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
         mpConfirm({ title:'예약 전에 안내드려요',
-          bodyHtml:'<div style="text-align:left;line-height:1.7">'
-            +'<div style="display:flex;gap:7px;margin-bottom:7px"><span style="color:var(--gold,#B89A75)">·</span><span>영업시간·메뉴·가격·단체석·주차는 달라질 수 있어요</span></div>'
-            +'<div style="display:flex;gap:7px"><span style="color:var(--gold,#B89A75)">·</span><span>예약 전 식당에 한 번 확인해 주세요</span></div>'
-            +'</div>',
+          bodyHtml:'<div style="text-align:left;line-height:1.75">영업시간·메뉴·가격·단체석·주차는 달라질 수 있으니, 예약 전 식당에 한 번 확인해 주세요.</div>',
           yes:'확인했어요', no:'이전' }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지
         return;
       }
