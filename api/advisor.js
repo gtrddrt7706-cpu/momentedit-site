@@ -21,6 +21,7 @@ const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 600;        // 사용자 1발 입력 길이 상한
 const MAX_HISTORY = 12;         // 누적 대화 턴 상한
 const MAX_TOKENS = 700;         // 응답 토큰 상한
+const MAX_STATE_LEN = 1800;     // 마이페이지 그라운딩 상태 요약 길이 상한
 
 const KNOWLEDGE = require('./_kb');
 const rateGate = require('./_ratelimit');
@@ -56,6 +57,13 @@ const SALES_BOOKING = `
 
 [예약 페이지 보강 · 행동 유도]
 지금은 상담 예약(신청) 페이지입니다. 대화 흐름이 자연스러울 때만 가끔 마무리에 "이 페이지에서 바로 상담을 신청하실 수 있어요" 정도로 다음 걸음을 권합니다. 매 답변 반복·압박 금지.`;
+
+// 마이페이지 그라운딩 — 로그인 고객의 실시간 상태(단계·결제·예식일 등)를 받았을 때만 시스템 프롬프트에 더한다(개인 질문 즉답 · 환각 0).
+const MYPAGE_STATE_RULE = `
+
+[개인 상황 응대 · 마이페이지]
+10. 아래 시스템 메시지의 [이 고객의 현재 상황 · 실제 데이터]는 지금 로그인한 이 고객의 진짜 데이터입니다. 고객이 '제/내/우리'처럼 본인의 상황(현재 단계, 다음 할 일, 결제 상태·금액, 예식일·남은 일수)을 물으면, 그 데이터에 적힌 사실로만 정확히 답합니다. 금액·날짜·단계는 데이터의 값을 그대로 인용합니다.
+11. 그 데이터에 없는 개인 정보는 추측하거나 지어내지 않습니다. 데이터로 답할 수 없는 개인 요청은 아는 일반 정책만 짧게 안내한 뒤 답변 끝에 [[ESCALATE]]로 디렉터 연결을 안내합니다. 가격·환불 규정 등 일반 질문은 <지식>을 사용합니다.`;
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -111,17 +119,26 @@ module.exports = async (req, res) => {
 
     // 페이지별 톤: 마이페이지(계약 고객)는 중립, 그 외(메인홈·예약)는 영업 한 줄, 예약은 행동 유도까지
     const page = String((body && body.page) || '').slice(0, 10);
+    // 마이페이지 그라운딩: 로그인 고객의 실시간 상태 요약(단계·결제·예식일 등)을 받으면 개인 질문에 실데이터로 즉답한다.
+    const state = (body && typeof body.state === 'string') ? body.state.slice(0, MAX_STATE_LEN).trim() : '';
+    const grounded = (page === '마이') && state.length > 0;
+
     let systemText = SYSTEM_PROMPT;
     if (page !== '마이') systemText += SALES_CORE;
     if (page === '예약') systemText += SALES_BOOKING;
+    if (grounded) systemText += MYPAGE_STATE_RULE;   // 규칙은 매 요청 동일 → 캐시 블록에 포함
+
+    // 캐싱: 안정적인 KB·규칙만 캐시(반복 요청 시 ~90% 절감). 고객별 상태는 매번 달라지므로
+    //   별도 블록(비캐시)으로 분리 — 캐시 무효화·고객 간 교차오염을 막는다(prefix 캐시 규칙).
+    const sysBlocks = [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }];
+    if (grounded) sysBlocks.push({ type: 'text', text: '[이 고객의 현재 상황 · 실제 데이터]\n' + state });
 
     const reqBody = {
       model: (page === '마이') ? MODEL_MYPAGE : MODEL_PUBLIC,   // 현재 둘 다 Sonnet 4.6 (마이는 그라운딩 후 Opus 재격상 대비 분기 유지)
       max_tokens: MAX_TOKENS,
       thinking: { type: 'disabled' },     // 실시간 채팅 → 사고 단계 없이 즉답
       output_config: { effort: 'low' },   // 낮은 effort로 빠르고 저렴하게(품질은 모델 자체로 확보)
-      // 안정적인 KB는 캐싱해 비용 절감(반복 요청 시 ~90%)
-      system: [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }],
+      system: sysBlocks,
       messages: history,
     };
     const anthRes = await fetch(API_URL, {

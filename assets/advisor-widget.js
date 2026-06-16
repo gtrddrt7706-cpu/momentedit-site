@@ -252,8 +252,11 @@
         .then(function () { sending = false; sendBtn.disabled = false; });
       return;
     }
+    var advBody = { messages: transcript.slice(-14), page: PAGE };
+    // (마이) 로그인 고객의 실시간 상태를 함께 전송 → AI가 개인 질문에 실데이터로 답(전송 시점에 최신값으로 읽음)
+    try { if (typeof CFG.state === 'function') { var _s = CFG.state(); if (_s) advBody.state = String(_s).slice(0, 1800); } } catch (e) {}
     fetch('/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: transcript.slice(-14), page: PAGE }) })
+      body: JSON.stringify(advBody) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
       .then(function (res) {
         typing.remove();
