@@ -3697,7 +3697,11 @@ function renderDining(box){
       var _vp=String(d.venuePick||'').trim();
       if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
         mpConfirm({ title:'예약 전 꼭 확인해 주세요',
-          bodyHtml:'안내해 드리는 <b>연락처·지도·영업시간·메뉴·가격·단체석·주차</b>는 매장 사정에 따라 달라질 수 있어요. 예약·방문 전 식당에 <b>직접 전화로 확인</b>해 주세요.<br><br>모먼트에디트는 식당 소개·안내만 도와드리며, 예약 성사·이용에 대한 책임은 해당 식당에 있습니다.',
+          bodyHtml:'<div style="text-align:left;line-height:1.75">'
+            +'<b style="color:var(--accent)">안내 정보는 매장 사정에 따라 달라질 수 있어요.</b><br>'
+            +'영업시간·메뉴·가격·단체석·주차는 예약 전 식당에 <b>직접 전화로 확인</b>해 주세요.'
+            +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#E3DDD4);font-size:12px;color:var(--light,#75705F)">모먼트에디트는 식당 안내만 도와드려요. 예약·이용 책임은 식당에 있습니다.</div>'
+            +'</div>',
           yes:'확인했어요', no:'이전' }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지
         return;
       }
