@@ -3426,7 +3426,9 @@ function bindTrk(box, render, collect, opt){
         if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
         TRKFLOW.active=false; loadMyState();
       }); return; }
-    saveTrkDraft(false); TRKFLOW.step++; render(box);
+    var _go=function(){ saveTrkDraft(false); TRKFLOW.step++; render(box); };
+    if(opt.confirmNext){ opt.confirmNext(_go); return; }   // 다음 진행 전 확인(예: 다이닝 예약정보 면책 팝업) — true일 때만 _go
+    _go();
   });
 }
 // 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. (식당 카드는 DINE_DB 칩 필터가 단일 출처)
@@ -3690,7 +3692,21 @@ function renderDining(box){
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
         ;   // 하단 고정 옵션(직접 섭외·상담 때·다이닝 없이) 제거 — 식당 카드만(2026-06-13 사용자 지시). 옛 저장값은 아래 분기로 계속 표시.
     box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','식사·카페·아이 동반·뒷풀이·볼거리까지. 꼭 정하지 않으셔도 괜찮아요.',body,false);
-    bindTrk(box,renderDining,collect,{});   // 선택 없이 다음 → '장소 미정' 안내(직접 예약 안내)로 진행
+    // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
+    bindTrk(box,renderDining,collect,{ confirmNext: function(go){
+      var _vp=String(d.venuePick||'').trim();
+      if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
+        mpConfirm({ title:'예약 전 꼭 확인해 주세요',
+          bodyHtml:'<div style="text-align:left;line-height:1.75">'
+            +'<b style="color:var(--accent)">안내 정보는 매장 사정에 따라 달라질 수 있어요.</b><br>'
+            +'영업시간·메뉴·가격·단체석·주차는 예약 전 식당에 <b>직접 전화로 확인</b>해 주세요.'
+            +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#E3DDD4);font-size:12px;color:var(--light,#75705F)">모먼트에디트는 식당 안내만 도와드려요. 예약·이용 책임은 식당에 있습니다.</div>'
+            +'</div>',
+          yes:'확인했어요', no:'이전' }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지
+        return;
+      }
+      go();
+    } });
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
       box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','따로 식사 자리는 두지 않기로 했어요. 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');

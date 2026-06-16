@@ -1985,8 +1985,8 @@ function replayHeroAnimation(){
   var nodes = KB.tree || (KB.chips ? [{ id:'all', label:'질문', children:KB.chips }] : []);
   var navEl=null, stack=[]; // stack: 현재 파고든 카테고리 경로
 
-  // 메시지·답변은 항상 하단 탐색 메뉴(navEl) 위에 쌓는다.
-  function place(d){ if(navEl){ body.insertBefore(d,navEl); } else { body.appendChild(d); } }
+  // 메뉴(navEl)는 인사 바로 아래(상단)에 두고, 대화·답변은 그 아래로 쌓는다 — 질문 메뉴가 위·대화가 아래.
+  function place(d){ body.appendChild(d); }
   function scrollDown(){ body.scrollTop=body.scrollHeight; }
   // 질문 버블을 본문 맨 위로 — 답이 길어도 '질문 + 답 시작'이 스크롤 없이 바로 보이게
   function scrollQTop(qEl){
@@ -2089,8 +2089,12 @@ function replayHeroAnimation(){
       wrap.appendChild(b);
     });
     navEl.appendChild(wrap);
-    body.appendChild(navEl); // 탐색 메뉴는 항상 맨 아래로
-    scrollDown();
+    // navEl은 생성 시(인사 바로 다음=상단)에 한 번 들어간 위치 그대로 둔다 — 맨 아래로 옮기지 않음(대화가 메뉴 아래로 쌓이게)
+    requestAnimationFrame(function(){   // 카테고리 탐색 시 메뉴가 대화에 묻히지 않게 상단으로 보정
+      if(!navEl) return;
+      var top = navEl.getBoundingClientRect().top - body.getBoundingClientRect().top;
+      body.scrollTop = body.scrollTop + top - 6;
+    });
   }
   function onLeaf(node){
     var qEl=addMsg(node.label,'me');
