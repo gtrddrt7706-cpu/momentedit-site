@@ -3627,8 +3627,9 @@ function dineFilterUI(d, wt){
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</label>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
   : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
-  // AI 칩 = 아래 식당 리스트로는 못 보여주는 '식사 외' 시나리오만(키즈·뒷풀이·볼거리 → 카카오 지도). 식사 자리(어른정찬·다과 등)는 바로 아래 프리셋·필터가 즉시 처리 → 중복 제거(2026-06-16 사용자 지시)
-  var sgg=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리','근처 볼거리·산책'];
+  // AI 칩 = 아래 식당 리스트로는 못 보여주는 '식사 외' 시나리오만(키즈·뒷풀이 → 카카오 지도). 식사 자리는 아래 프리셋·필터가 처리.
+  // '볼거리'는 칩에서 뺌(2026-06-16): 이 동네는 볼거리 지도 데이터가 약해 라이브 검색이 빈약 → 디렉터 큐레이션 '예식 후 가볼 만한 곳' 섹션이 담당(키즈카페·펍은 지도에 잘 잡혀 칩 유지).
+  var sgg=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리'];
   var chat=d._chat||[];
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
   var placeCards='';
