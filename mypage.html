@@ -3564,10 +3564,11 @@ function _dnCapNote(r,headN){
 // [A] 1인 가격대 × 인원(headN 버킷) → 총 예상비용 범위. 인원 선택 시에만 표시(추정이라 '약'). 식당별 정확 견적은 통화로.
 var _DN_PPR={low:[15000,20000],mid:[25000,40000],high:[50000,80000]};
 var _DN_HMID={s:8,m:15,l:30,xl:45};
-function _dnBudget(price,headN){
-  var pr=_DN_PPR[price], hd=_DN_HMID[headN]; if(!pr||!hd) return '';
+function _dnBudget(price,headN,actualN){
+  var pr=_DN_PPR[price]; if(!pr) return '';
+  var hd=(Number(actualN)>0)?Number(actualN):_DN_HMID[headN]; if(!hd) return '';   // 실제 하객수 알면 그 숫자로 더 정확히, 없으면 인원 버킷 중앙값
   var lo=Math.round(pr[0]*hd/10000), hi=Math.round(pr[1]*hd/10000);
-  return '약 '+lo+'~'+hi+'만원';
+  return hd+'명 약 '+lo+'~'+hi+'만원';   // '1인 가격(~2만)'과 안 헷갈리게 '몇 명 총액'임을 명시(2026-06-16 사용자 지시)
 }
 // 자연어 AI(선택 층)는 v2에서 이 필터 객체(fl)를 생성해 같은 엔진에 주입 — 환각 없이 동일 결과.
 function dineFilterUI(d, wt){
@@ -3619,7 +3620,7 @@ function dineFilterUI(d, wt){
     if(r.bs&&arr){ var _bm=function(t){var p=String(t).split(':');return (+p[0])*60+(+p[1]||0);}, _ba=_bm(arr), _bs2=_bm(r.bs), _be2=_bm(r.be||r.bs), _isClose=(r.be==='23:59');
       if(_ba>=_bs2 && (_isClose||_ba<=_be2)) tags.push(_isClose?'⚠ 저녁엔 영업 종료':'⚠ 이 시간대 브레이크');
       else if(_ba<_bs2 && (_bs2-_ba)<=90) tags.push('⚠ 도착 '+(_bs2-_ba)+'분 뒤 '+(_isClose?'영업 종료':'브레이크')); }   // 도착 직후 닫히는 경우(90분 미만)도 경고
-    var _bud=_dnBudget(r.p, fl.headN);                                  // [A] 인원 선택 시 총 예상비용
+    var _bud=_dnBudget(r.p, fl.headN, headNum);                          // [A] 인원 선택 시 총 예상비용(실제 하객수 알면 그 숫자로)
     var _badge=(r.pick?'<span class="dn-badge dn-pick">디렉터 추천</span>':'')+(r.v?'<span class="dn-badge dn-verified">확인 ✓</span>':'');   // [B][C]
     var _rec=(r.pick&&r.rec)?'<small class="dn-rec">'+escapeHtml(r.rec)+'</small>':'';   // [B] 추천 한줄
     var _vf=r.v?'<small class="dn-vf">디렉터 확인'+(r.vdate?(' · '+escapeHtml(r.vdate)):'')+(r.vnote?(' · '+escapeHtml(r.vnote)):'')+'</small>':'';   // [C] 검증 상세
