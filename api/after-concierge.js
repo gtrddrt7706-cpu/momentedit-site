@@ -12,7 +12,7 @@
 //
 // 의존성 없음(전역 fetch). 키는 코드·저장소에 두지 않는다.
 
-const MODEL = 'claude-haiku-4-5';
+const MODEL = 'claude-sonnet-4-6';   // 마이페이지 애프터웨딩 컨시어지 — 5곳 통일 격상
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const KAKAO_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json';
 const STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(index.html 지도와 동일 좌표)
@@ -122,7 +122,8 @@ module.exports = async (req, res) => {
       method: 'POST',
       headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, system: SYS,
-        output_config: { format: { type: 'json_schema', schema: SCHEMA } }, messages: history })
+        thinking: { type: 'disabled' },   // Sonnet: 실시간 채팅 → 사고 없이 낮은 effort
+        output_config: { format: { type: 'json_schema', schema: SCHEMA }, effort: 'low' }, messages: history })
     });
     if (!r.ok) return out(502, { ok: false, error: 'ai_unavailable' });
     const data = await r.json();

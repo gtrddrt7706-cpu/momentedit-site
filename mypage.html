@@ -3706,9 +3706,11 @@ function renderDining(box){
           ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
           : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
         var mapLine='<a class="cc-btn-ghost" href="'+_dnMapUrl(R.n)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
-        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')+'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?';
-        body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
-          + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · 식사 도착 '+arr2+' 기준':'')+'</div>'
+        var isCafe=(R.th==='cafe');   // 카페 픽이면 '식사·룸' 대신 '차·디저트/방문'으로 멘트·라벨 맞춤(2026-06-16)
+        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
+          + (isCafe ? '단체로 차·디저트 자리를 예약하고 싶어요. 단체석·주차 가능할까요?' : '단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?');
+        body2='<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
+          + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · '+(isCafe?'도착':'식사 도착')+' '+arr2+' 기준':'')+'</div>'
           + callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
