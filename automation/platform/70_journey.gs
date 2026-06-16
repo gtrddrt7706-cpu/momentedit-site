@@ -1562,12 +1562,7 @@ function setupAllTriggers() {
   Logger.log(msg);
   return msg;
 }
-
-function setupBalanceReminderTrigger() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'sendBalanceReminders') ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('sendBalanceReminders').timeBased().everyDays(1).atHour(10).create();
-  return '잔금 리마인드 트리거(매일 10시) 등록 완료';
-}
+// setupBalanceReminderTrigger 제거(2026-06-16): setupAllTriggers가 sendBalanceReminders를 동일 등록 → 중복 셋업 경로 정리. 트리거 등록은 setupAllTriggers 하나로 일원화.
 // [1회 실행] Customers에 잔금·예식일 컬럼 추가(멱등).
 function addBalanceColumns() {
   var sheet = getCustomersSheet();

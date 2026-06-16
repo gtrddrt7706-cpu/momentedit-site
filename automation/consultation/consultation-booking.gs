@@ -960,13 +960,9 @@ function _cachedAvailability() {
   return data;
 }
 function _bustAvailCache() { try { CacheService.getScriptCache().remove(AVAIL_CACHE_KEY); } catch (e) {} }
-// (선택·권장) 가능일 캐시 워밍 — 1분 트리거로 항상 데워두면 '첫 방문'도 즉시. setupAvailWarmTrigger() 1회 실행.
+// 가능일 캐시 워밍 — 1분 트리거로 항상 데워두면 '첫 방문'도 즉시. 트리거 등록은 setupAllTriggers(warmAvailCache 포함)로 일원화.
 function warmAvailCache() { try { var d = getAvailability(); CacheService.getScriptCache().put(AVAIL_CACHE_KEY, JSON.stringify(d), 90); } catch (e) {} }
-function setupAvailWarmTrigger() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAvailCache') ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('warmAvailCache').timeBased().everyMinutes(1).create();
-  return '가능일 캐시 워밍 트리거(1분) 등록 완료 · 콜드 로딩 제거';
-}
+// setupAvailWarmTrigger 제거(2026-06-16): setupAllTriggers가 warmAvailCache를 동일 빈도(1분)로 등록 → 중복 셋업 경로 정리.
 
 // 확정 예약을 캘린더 일정으로 생성/갱신 (미쿠가 한눈에 봄)
 function syncCalendarEvent(sheet, colOf, rowNum, dateKey, time, names, phone) {
