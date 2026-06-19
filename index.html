@@ -1747,40 +1747,29 @@ function toggleEssay(btn){
 })();
 </script>
 <script>
-/* 휠 잠금 자동 복구 안전망 - 휠 굴렸는데 페이지가 안 움직이면 body 잠금 강제 해제 */
+/* 휠 잠금 자동 복구 안전망 - 휠 굴렸는데 페이지가 안 움직이면 모든 스크롤 잠금 강제 해제
+   (모바일 메뉴=body fixed/menu-open, 데스크톱 상담 드로어=html overflow:hidden 까지 전부 포괄) */
 (function(){
-  var lastY = window.scrollY;
-  var stuckCount = 0;
+  var lastY = window.scrollY, stuckCount = 0;
+  function anyOverlayOpen(){
+    return document.body.classList.contains('menu-open')
+      || !!document.querySelector('.me-adv-panel.open')
+      || !!document.querySelector('.mobile-menu.open');
+  }
+  function clearAllLocks(){
+    var b=document.body, h=document.documentElement;
+    b.classList.remove('menu-open');
+    b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width=''; b.style.overflow='';
+    h.style.overflow=''; h.style.paddingRight='';   // ← 데스크톱 드로어가 건 html 잠금까지 해제(기존 누락분)
+  }
   window.addEventListener('wheel', function(){
     setTimeout(function(){
-      // body가 menu-open이 아닌데 position:fixed이거나, scroll이 안 움직이면 stuck
-      var isMenuOpen = document.body.classList.contains('menu-open');
-      var isFixed = document.body.style.position === 'fixed';
-      if (!isMenuOpen && isFixed) {
-        // 메뉴는 닫혔는데 body가 여전히 잠겨있음 → 즉시 해제
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.overflow = '';
-        document.documentElement.style.paddingRight = '';
-        return;
-      }
-      if (window.scrollY === lastY && !isMenuOpen) {
-        stuckCount++;
-        if (stuckCount >= 3) {
-          // 3번 연속 휠 굴려도 안 움직이면 body 잠금 강제 해제
-          document.body.classList.remove('menu-open');
-          document.body.style.position = '';
-          document.body.style.top = '';
-          document.body.style.left = '';
-          document.body.style.right = '';
-          document.body.style.overflow = '';
-          stuckCount = 0;
-        }
-      } else {
-        stuckCount = 0;
-      }
+      if (anyOverlayOpen()) { lastY = window.scrollY; stuckCount = 0; return; }   // 정상적으로 열린 오버레이는 건드리지 않음
+      var b=document.body, h=document.documentElement;
+      var locked = b.style.position==='fixed' || b.style.overflow==='hidden' || h.style.overflow==='hidden';
+      if (locked) { clearAllLocks(); stuckCount = 0; lastY = window.scrollY; return; }   // 오버레이 없는데 잠겨있음 → 즉시 해제
+      if (window.scrollY === lastY) { if (++stuckCount >= 3) { clearAllLocks(); stuckCount = 0; } }   // 3연속 휠에도 미동 → 최후 해제
+      else stuckCount = 0;
       lastY = window.scrollY;
     }, 50);
   }, { passive: true });
