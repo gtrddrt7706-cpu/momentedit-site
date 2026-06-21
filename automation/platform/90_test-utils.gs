@@ -115,6 +115,43 @@ function testLoginRoundTrip() {
   return state;
 }
 
+// ── [진단] 비밀번호 재설정·로그인 문제 추적 (편집기 실행) ──
+//   사용법: GAS 편집기에서 30_auth-core 또는 아무 파일에서 pwDiag('개인코드','테스트할비번') 실행 → 로그 확인.
+//   "저장된 해시가 그 비번을 통과하는가"를 시트 실제값으로 검증한다. (원문 비번은 로그에 안 남김)
+//   verifyOK=true  → 백엔드 정상. 로그인 실패는 프론트가 보낸 비번이 다른 것(자동완성 등) 또는 다른 행.
+//   verifyOK=false → 저장된 해시가 그 비번과 불일치(재설정이 다른 값/행에 저장됐거나 옛 해시 잔존).
+function pwDiag(code, testPw) {
+  code = String(code || '').trim().toUpperCase();
+  var L = ['[pwDiag] code=' + code];
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  L.push('비번해시 컬럼번호: ' + (colOf['비번해시'] || '❌ 헤더 못 찾음'));
+  // 같은 개인코드 행이 몇 개인지(중복 시 재설정/로그인이 다른 행을 볼 수 있음)
+  var last = sheet.getLastRow(), cCode = colOf['개인코드'], rows = [];
+  if (cCode && last >= P.DATA_START_ROW) {
+    var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+    for (var i = 0; i < vals.length; i++) {
+      if (String(vals[i][cCode - 1] || '').trim().toUpperCase() === code) rows.push(P.DATA_START_ROW + i);
+    }
+  }
+  L.push('개인코드 일치 행: ' + (rows.length ? rows.join(', ') : '없음') + (rows.length > 1 ? '  ⚠ 중복! (재설정/로그인이 다른 행을 볼 수 있음)' : ''));
+  var r = findCustomerByCode(code);
+  if (!r) { L.push('findCustomerByCode: 못 찾음'); Logger.log(L.join('\n')); return L.join('\n'); }
+  L.push('findCustomerByCode 행: ' + r.num);
+  var stored = String(r.get('비번해시') || '');
+  var parts = stored.split('$');
+  L.push('저장해시: ' + (stored ? (parts[0] + '$' + parts[1] + '$' + (parts[2] || '').slice(0, 6) + '…$len' + (parts[3] || '').length + ' (전체 ' + stored.length + '자, 조각 ' + parts.length + ')') : '❌ 비어있음'));
+  if (testPw != null && testPw !== '') {
+    L.push('verifyPassword(테스트비번): ' + verifyPassword(String(testPw), stored));
+    // 같은 비번으로 새 해시를 만들어 형식 비교(라운드·구조 일치 확인)
+    var fresh = hashPassword(String(testPw));
+    L.push('지금 같은 비번 새 해시 형식: ' + fresh.split('$').slice(0, 2).join('$') + '$… (저장과 라운드 일치? ' + (parts[1] === fresh.split('$')[1]) + ')');
+  } else {
+    L.push('(testPw 미지정 — pwDiag("코드","비번")으로 비번까지 넣으면 통과 여부 확인)');
+  }
+  Logger.log(L.join('\n'));
+  return L.join('\n');
+}
+
 // ── [관리자] 등록 계정 확인 (편집기 실행) — 비번해시는 표시하지 않음 ──
 function adminSmokeTest() {
   var sh = _adminSheet();
