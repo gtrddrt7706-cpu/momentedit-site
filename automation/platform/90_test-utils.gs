@@ -115,11 +115,28 @@ function testLoginRoundTrip() {
   return state;
 }
 
-// ★★ 여기 두 값만 바꾸고 이 함수(pwDiagRun)를 실행하세요 → 로그 확인 ★★
-//   (GAS 드롭다운으로 함수를 그냥 실행하면 인자가 안 들어가 'code=' 빈 채로 나옵니다.)
+// ★★ [복구] 두 값만 바꾸고 이 함수(pwFixRun)를 실행 → 그 비번으로 즉시 로그인 가능 ★★
+//   재설정이 꼬여 로그인 안 될 때 응급 복구. 비번해시를 직접 바르게 설정하고 검증까지 한다.
+function pwFixRun() {
+  var 개인코드 = 'X6W7PC';        // ← 본인 개인코드
+  var 새비밀번호 = '960612';      // ← 앞으로 쓸 비밀번호
+  return pwSet(개인코드, 새비밀번호);
+}
+function pwSet(code, newPw) {
+  code = String(code || '').trim().toUpperCase();
+  var r = findCustomerByCode(code);
+  if (!r) { var m0 = '❌ 개인코드 못 찾음: ' + code; Logger.log(m0); return m0; }
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  touchCustomer(sheet, colOf, r.num, { '비번해시': hashPassword(String(newPw)) });
+  var ok = verifyPassword(String(newPw), findCustomerByCode(code).get('비번해시'));
+  var msg = '✅ ' + code + ' (행 ' + r.num + ') 비밀번호 설정 완료 · 검증=' + ok + (ok ? ' → 이제 그 비번으로 로그인하세요.' : ' (검증 실패 — 알려주세요)');
+  Logger.log(msg); return msg;
+}
+
+// ★★ [진단] 두 값만 바꾸고 pwDiagRun 실행 → 로그 확인 ★★
 function pwDiagRun() {
   var 개인코드 = 'X6W7PC';            // ← 본인 개인코드
-  var 새비밀번호 = '여기에_새비밀번호'; // ← 재설정 때 정한 비밀번호로 바꾸기
+  var 새비밀번호 = '여기에_새비밀번호'; // ← 확인할 비밀번호
   return pwDiag(개인코드, 새비밀번호);
 }
 
