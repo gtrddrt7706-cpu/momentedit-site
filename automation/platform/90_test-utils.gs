@@ -115,6 +115,31 @@ function testLoginRoundTrip() {
   return state;
 }
 
+// ★★ [계정 점검] 모든 고객 계정 나열 — 개인코드·이메일·단계·생성시각·비번설정 여부 (중복/엉뚱한 연동 추적) ★★
+//   acctDump() 그냥 실행. 같은 이메일에 여러 코드가 있으면 재설정이 어느 걸 고르는지 보임.
+function acctDump() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), last = sheet.getLastRow();
+  if (last < P.DATA_START_ROW) { Logger.log('계정 없음'); return '계정 없음'; }
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var g = function (rv, h) { var c = colOf[h]; return c ? String(rv[c - 1] == null ? '' : rv[c - 1]).trim() : ''; };
+  var L = ['[acctDump] 총 ' + vals.length + '행'];
+  for (var i = 0; i < vals.length; i++) {
+    var rv = vals[i];
+    L.push('  행' + (P.DATA_START_ROW + i)
+      + ' · 코드=' + g(rv, '개인코드')
+      + ' · 이메일=' + g(rv, '이메일')
+      + ' · 단계=' + (g(rv, '현재단계') || '(빈값)')
+      + ' · 생성=' + g(rv, '생성일시')
+      + ' · 이름=' + (g(rv, '신랑이름') + '·' + g(rv, '신부이름'))
+      + ' · 비번=' + (g(rv, '비번해시') ? 'O' : 'X'));
+  }
+  // 같은 이메일이 어느 코드로 재설정되는지
+  var emails = {};
+  for (var j = 0; j < vals.length; j++) { var e = g(vals[j], '이메일').toLowerCase(); if (e) (emails[e] = emails[e] || []).push(g(vals[j], '개인코드')); }
+  Object.keys(emails).forEach(function (e) { if (emails[e].length > 1) L.push('  ⚠ 중복이메일 ' + e + ' → 코드: ' + emails[e].join(', ') + ' (재설정은 findLatestCustomerByEmail이 고른 1개로 감)'); });
+  Logger.log(L.join('\n')); return L.join('\n');
+}
+
 // ★★ [재설정 추적] 재설정을 한 번 한 뒤 이 함수(resetDbgRun) 실행 → 폼이 보낸 비번이 입력값과 같은지 확정 ★★
 //   '테스트비번'을 재설정 때 입력한 값으로 바꾸고 실행. fp가 같으면 폼이 그 값을 보낸 것(저장/로그인 쪽 문제),
 //   다르면 폼이 다른 값을 보낸 것(자동완성 등 입력칸 오염 확정).
