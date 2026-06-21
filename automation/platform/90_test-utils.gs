@@ -115,6 +115,22 @@ function testLoginRoundTrip() {
   return state;
 }
 
+// ★★ [재설정 추적] 재설정을 한 번 한 뒤 이 함수(resetDbgRun) 실행 → 폼이 보낸 비번이 입력값과 같은지 확정 ★★
+//   '테스트비번'을 재설정 때 입력한 값으로 바꾸고 실행. fp가 같으면 폼이 그 값을 보낸 것(저장/로그인 쪽 문제),
+//   다르면 폼이 다른 값을 보낸 것(자동완성 등 입력칸 오염 확정).
+function resetDbgRun() {
+  var 테스트비번 = '960612';   // ← 방금 재설정 때 입력했다고 생각하는 값
+  return resetDbg(테스트비번);
+}
+function resetDbg(testPw) {
+  var v = PropertiesService.getScriptProperties().getProperty('DBG_RESET') || '(없음 — 새 코드 재배포 후 재설정을 한 번 해야 기록됨)';
+  var fp = _stretch(String(testPw || ''), 'FPSALT2026', 2).slice(0, 16);
+  var same = v.indexOf('fp=' + fp) >= 0;
+  var msg = '[resetDbg]\n  마지막 재설정이 받은 값: ' + v + '\n  테스트비번 길이=' + String(testPw || '').length + ' fp=' + fp
+    + '\n  → ' + (same ? '✅ 일치: 폼은 그 비번을 정상 전송함(문제는 저장/로그인 쪽).' : '❌ 불일치: 폼이 다른 값을 전송함(자동완성·제안비번이 입력칸을 덮어씀 확정).');
+  Logger.log(msg); return msg;
+}
+
 // ★★ [복구] 두 값만 바꾸고 이 함수(pwFixRun)를 실행 → 그 비번으로 즉시 로그인 가능 ★★
 //   재설정이 꼬여 로그인 안 될 때 응급 복구. 비번해시를 직접 바르게 설정하고 검증까지 한다.
 function pwFixRun() {
