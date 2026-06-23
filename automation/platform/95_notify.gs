@@ -285,6 +285,8 @@ function _nfWon(n) {
   if (!isFinite(v)) v = 0;
   return v.toLocaleString ? v.toLocaleString('ko-KR') : String(v);
 }
+// 디데이 표기 방어 — 정상 0 이상 정수만 'D-N', 그 외(음수=예식일 과거 오입력 · null · NaN)는 '예정'. (고객 문자 'D--3'·'D-NaN' 방지)
+function _nfDday(d) { return (typeof d === 'number' && isFinite(d) && d >= 0) ? ('D-' + d) : '예정'; }
 
 var NF_MYPAGE = 'momentedit.kr/mypage.html';
 
@@ -327,11 +329,11 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.midPre':
     case 'cust.midDue':
       return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + _nfDday(x.dday) + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + NF_MYPAGE };
     case 'cust.balancePre':
     case 'cust.balanceDue':
       return { vars: { '#{이름}': name, '#{행사}': (x.snap ? '촬영' : '예식'), '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(' + (x.snap ? '촬영' : '예식') + ' ' + (x.dday != null ? ('D-' + x.dday) : '예정') + '). 남은 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(' + (x.snap ? '촬영' : '예식') + ' ' + _nfDday(x.dday) + '). 남은 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
     case 'cust.resultDelivered':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + NF_MYPAGE };
