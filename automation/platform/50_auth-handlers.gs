@@ -94,9 +94,6 @@ function handleDoResetPw(body) {
   if (pw !== pw2) throw new Error('비밀번호가 일치하지 않습니다.');
   var pwErr = pwPolicyError(pw);
   if (pwErr) throw new Error(pwErr);
-  // [임시 진단] 재설정이 '실제로 받은' 비번의 길이+지문(원문 아님)을 기록 → resetDbg('테스트비번')로 비교.
-  //   같으면 폼이 그 비번을 보낸 것, 다르면 자동완성 등으로 다른 값이 전송된 것. 원인 확정 후 이 줄 제거.
-  try { PropertiesService.getScriptProperties().setProperty('DBG_RESET', code + '|len=' + pw.length + '|fp=' + _stretch(pw, 'FPSALT2026', 2).slice(0, 16) + '|' + fmtKST(new Date())); } catch (e) {}
 
   var rowObj = findCustomerByCode(code);
   if (!rowObj) throw new Error('대상을 찾을 수 없습니다.');
