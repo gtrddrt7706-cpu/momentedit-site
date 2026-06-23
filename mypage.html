@@ -1976,7 +1976,7 @@ function renderContractPayment(c, p, ctx){
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
     h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
-       + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div></div>';
+       + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
   var a = p.amounts;
@@ -2190,7 +2190,7 @@ function renderPayment(p){
   var body='', cta='';
   if(p.status==='완료신호'){
     body = '<div class="cc-title">입금 확인 중</div>'
-         + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
+         + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var amt;
     if(a){
@@ -2240,7 +2240,7 @@ function renderBalance(p, mid){
   var near=(p.dday!=null && p.dday<=15 && !midUnpaid);   // 중도금 확인 후 + D-15 이내에만 자동 펼침(그 전엔 접힘 유지)
   var body='', cta='';
   if(p.status==='완료신호'){
-    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
+    body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
@@ -2318,7 +2318,7 @@ function renderMid(p, bal){
   var body='', cta='';
   if(p.status==='완료신호'){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
-    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인해서 알려드려요.</div>';
+    body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+' · '):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
