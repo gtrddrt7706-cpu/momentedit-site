@@ -43,7 +43,9 @@ function _adminInfoOn() {
 // 시점별 이벤트 — to: 수신자 / need: 행동게이트(true)인지 안내(false) / desc: 용도
 var NOTIFY_EVENTS = {
   // ── 관리자: 직접 눌러야 다음 스텝(행동 게이트) ──
-  'admin.newSignup':      { to: 'admin', need: true,  desc: '신규 신청 — 일정 잡기' },
+  // [2026-06-23] newSignup은 행동 게이트 아님 → need:false(폰 생략). 신청 직후 다음 차례는 고객(마이페이지에서 상담 슬롯 선택)이고,
+  //   관리자 첫 행동(승인)은 고객이 슬롯을 고른 뒤 admin.slotPicked부터 발생. 신규 신청은 아침 브리핑·관리자 페이지 큐로 확인(ADMIN_NOTIFY_INFO='true'면 복구).
+  'admin.newSignup':      { to: 'admin', need: false, desc: '신규 신청 접수(폰 생략 · 다음 행동=고객 슬롯 선택 · 관리자 게이트는 slotPicked부터)' },
   'admin.slotPicked':     { to: 'admin', need: true,  desc: '상담 슬롯 선택됨 — 승인 필요' },
   'admin.contractReq':    { to: 'admin', need: true,  desc: '계약서 요청됨 — 발송 필요' },
   'admin.depositSignal':  { to: 'admin', need: true,  desc: '계약금 입금신호 — 확인 필요' },
