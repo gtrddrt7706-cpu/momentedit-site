@@ -364,16 +364,16 @@ function sendMorningBrief() {
   var byKind = {};
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
-  var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  🔴 ' + it.names + ' — ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });
+  var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  - ' + it.names + ' · ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });   // 이모지·기호 없이 텍스트(plain-text 메일에서 BMP 밖 이모지가 깨짐)
   var _nFail = (typeof notifyFailYesterday === 'function') ? notifyFailYesterday() : 0;   // 어제 고객 알림 발송 실패(잔액·번호 오류 등) — 95_notify 카운터
-  var body = '📅 오늘 상담 ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
-    + '⚡ 처리할 일 ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
+  var body = '[오늘 상담] ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
+    + '[처리할 일] ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
     + (urgentLines.length ? (urgentLines.join('\n') + '\n') : '')
-    + (_nFail > 0 ? ('\n📵 어제 알림 발송 실패 ' + _nFail + '건 — 솔라피 잔액·고객 연락처 확인\n') : '')
+    + (_nFail > 0 ? ('\n[주의] 어제 알림 발송 실패 ' + _nFail + '건 · 솔라피 잔액·고객 연락처 확인\n') : '')
     + '\n관리자: https://momentedit.kr/admin.html';
   notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length, fail: _nFail });
   if (_briefMailOk()) {
-    try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 — 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
+    try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 · 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
   }
 }
 
@@ -413,7 +413,7 @@ function weeklyReceiptAudit() {
       var due = it.due;
       if (!due && it.key === '예약금' && !it.issued && !stageEx && bkPaid[codeUp]) due = true;
       if (!due) return;
-      dues.push('  • ' + names + ' — ' + it.label + ' ' + Number(it.amount || 0).toLocaleString() + '원');
+      dues.push('  - ' + names + ' · ' + it.label + ' ' + Number(it.amount || 0).toLocaleString() + '원');
       sum += Number(it.amount || 0);
     });
   }
