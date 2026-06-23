@@ -1272,7 +1272,7 @@ function adminConfirmPayment(code) {
   touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
   _recordHandler(code, '입금 확인 → 입금완료' + (bundled.length ? (' (일괄: 계약금·' + bundled.join('·') + ')') : ''));
-  notifyKakao('cust.paymentConfirmed', code, { kind: bundled.length ? ('계약금·' + bundled.join('·')) : '계약금' });   // 고객 안심 알림(카톡)
+  notifyKakao('cust.depositToProduction', code);   // [2026-06-23] 계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · paymentConfirmed(off·안심만)를 대체해 여정 정체 방지
   return { ok: true, bundled: bundled };
 }
 
@@ -1374,7 +1374,15 @@ function adminMarkConsultDone(code) {
     if (_fitRecMC.벌수 == null) return { ok: false, error: '시착 벌수를 먼저 기록해 주세요. (시착 카드에서 입력 · 안 입으셨으면 0벌) 환불 산정의 근거가 돼요.' };   // [필수화] 벌수 없으면 환불 계산 불가 → 상담완료 게이트에서 강제
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
-    notifyKakao('cust.consultDone', code);   // 고객: 다음 단계(마이페이지 계약 진행 요청) 안내 — 없으면 여기서 여정 정체(카톡)
+    notifyKakao('cust.consultDone', code);   // 고객: 다음 단계(마이페이지 계약 진행 요청) 안내 · 없으면 여기서 여정 정체(카톡)
+    try {   // [2026-06-23] 상담완료는 카톡+메일 둘 다(중요 단계 · 사용자 결정). best-effort — 실패해도 처리는 완료.
+      var _cdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
+      _notifyCustomerEmail(code, '[Moment Edit] 상담이 마무리되었습니다 · 다음 단계 안내', '상담이 마무리되었습니다',
+        centerP(esc(_cdNm) + ' 님,<br>상담에 함께해 주셔서 감사합니다.') +
+        centerP('다음 단계로 마이페이지에서<br>예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요.') +
+        emailBtn(P.MYPAGE_URL, 'My Page') +
+        smallP('확인 후 이용계약서를 보내드립니다.'));
+    } catch (e) {}
     return { ok: true, stage: '상담완료' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -1464,8 +1472,16 @@ function adminMarkDelivered(code, force) {
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     setCustomerStage(code, 'deliver');
     _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
-    notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 — 다운로드 안내(가장 중요)
-    return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 — 고객 후기 제출/운영자 넘기기 시 아카이브
+    notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡)
+    try {   // [2026-06-23] 결과물 전달은 카톡+메일 둘 다(다운로드 링크를 메일에도 남겨 6개월 내 찾기 쉽게). best-effort.
+      var _rdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
+      _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
+        centerP(esc(_rdNm) + ' 님,<br>두 분의 시간이 담긴 결과물이 준비되었습니다.') +
+        centerP('전달일부터 6개월 보관됩니다.<br>마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요.') +
+        emailBtn(P.MYPAGE_URL, 'My Page') +
+        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.'));
+    } catch (e) {}
+    return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 · 고객 후기 제출/운영자 넘기기 시 아카이브
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 

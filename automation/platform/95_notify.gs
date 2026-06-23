@@ -54,9 +54,9 @@ var NOTIFY_EVENTS = {
   'admin.holdRequest':    { to: 'admin', need: true,  desc: '예식일 임시고정 요청 — 승인/거절 필요' },
   'admin.changeRequest':  { to: 'admin', need: true,  desc: '예식일 변경 요청 — 슬롯 확인 후 적용/거절 필요' },
   // ── 관리자: 권장(업무 착수 신호) — need:false는 기본 폰 발송 안 함(아침 브리핑 메일·관리자 페이지로 확인 · ADMIN_NOTIFY_INFO='true'로 복구) ──
-  'admin.fittingSigned':  { to: 'admin', need: false, desc: '시착 동의 서명 완료 — 상담완료 처리' },
+  'admin.fittingSigned':  { to: 'admin', need: true,  desc: '시착 동의 서명 완료 · 상담완료 처리(2026-06-23 켬)' },
   'admin.contractSigned': { to: 'admin', need: false, desc: '계약 서명 완료' },
-  'admin.resultPicked':   { to: 'admin', need: false, desc: '결과물(보정본) 선택됨 — 작업 착수' },
+  'admin.resultPicked':   { to: 'admin', need: true,  desc: '결과물(보정본) 선택됨 · 작업 착수(2026-06-23 켬)' },
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
   'admin.diningConsult':  { to: 'admin', need: false, desc: '다이닝 장소 미정으로 완료 — 디렉터 추천·예약 도움 필요' },
@@ -72,17 +72,18 @@ var NOTIFY_EVENTS = {
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
-  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 — 마이페이지에서 계약 진행 요청(예식일·정보 입력)' },
+  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 · 마이페이지에서 계약 진행 요청(예식일·정보 입력) · 카톡+메일' },
+  'cust.depositToProduction':{ to: 'customer', need: true, desc: '계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · 2026-06-23 신규' },
   // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
   'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
   'cust.holdGranted':     { to: 'customer', need: false, off: true, desc: '예식일 임시고정 승인됨' },
-  'cust.changeConfirmed': { to: 'customer', need: false, off: true, desc: '예식일 변경 적용됨' },
+  'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨(2026-06-23 켬 · 요청 결과 통보)' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
   'cust.holdReleased':    { to: 'customer', need: false, off: true, desc: '예식일 임시고정 해제됨' },
   'cust.consultDayBefore':{ to: 'customer', need: false, desc: '상담 하루 전 안내' },
-  'cust.archiveExpiring': { to: 'customer', need: true,  desc: '결과물 보관 만료 임박 — 다운로드 안내' }
+  'cust.archiveExpiring': { to: 'customer', need: true,  off: true, desc: '결과물 보관 만료 임박 · 다운로드 안내(2026-06-23 카톡 끔 · 메일로만 = sendArchiveExpiryNotices가 메일 발송)' }
 };
 
 /**
@@ -306,6 +307,11 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.consultDone':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
+    case 'cust.depositToProduction':
+      return { vars: { '#{이름}': name },
+        text: x.snap
+          ? '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. 이제 촬영 준비를 시작할게요. 일정에 맞춰 차근차근 안내드리겠습니다. ' + NF_MYPAGE
+          : '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. 다음 단계로 마이페이지에서 제작 정보를 입력해 주세요. 입력해 주시면 제작이 시작됩니다. ' + NF_MYPAGE };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 2벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
@@ -409,6 +415,21 @@ function notifyTestAdminSms() {
 // 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장 · 야간 보류 무시하고 즉시)
 function notifyTestCustomerByCode(code) {
   _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
+}
+
+// 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
+//   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
+//   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
+function _notifyCustomerEmail(code, subject, headline, innerHtml) {
+  try {
+    var cust = findCustomerByCode(String(code || '').trim());
+    if (!cust) { Logger.log('[notify] 고객 메일 — 고객 조회 실패: ' + code); return; }
+    var to = String(cust.get('이메일') || '').trim();
+    if (!to || to.indexOf('@') < 0) { Logger.log('[notify] 고객 메일 — 이메일 없음/형식오류: ' + code); return; }
+    if (typeof emailShell !== 'function') { Logger.log('[notify] 고객 메일 — emailShell 미정의'); return; }
+    GmailApp.sendEmail(to, subject, '', { htmlBody: emailShell(headline, innerHtml), name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
+    Logger.log('[notify] 고객 메일 발송 → ' + to + ' · ' + subject);
+  } catch (e) { try { Logger.log('[notify] 고객 메일 실패(무시): ' + (e && e.message)); } catch (_) {} }
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }

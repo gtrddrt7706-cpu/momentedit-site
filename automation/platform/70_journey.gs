@@ -1318,7 +1318,7 @@ function sendBalanceReminders() {
   for (var i = 0; i < vals.length; i++) {
     var row = vals[i];
     if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
-    if ((String(row[c('잔금상태') - 1] || '').trim() || '대기') === '확인') continue;
+    if (['완료신호', '확인'].indexOf(String(row[c('잔금상태') - 1] || '').trim()) !== -1) continue;   // [2026-06-23] 입금 신호(완료신호)만 보내도 리마인더 멈춤 — '이미 냈는데 또 내라' 방지(관리자 확인 전이라도)
     if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
     var flag = String(row[c('잔금리마인드') - 1] || '').trim();
     var dday = _balanceDDay(row[c('예식일') - 1]);
@@ -1359,7 +1359,7 @@ function sendMidReminders() {
     var row = vals[i];
     if (String(row[c('상품타입') - 1] || '').trim() === '웨딩스냅') continue;          // 스냅은 중도금 없음
     if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
-    if ((String(row[c('중도금상태') - 1] || '').trim() || '대기') === '확인') continue;
+    if (['완료신호', '확인'].indexOf(String(row[c('중도금상태') - 1] || '').trim()) !== -1) continue;   // [2026-06-23] 입금 신호(완료신호)만 보내도 리마인더 멈춤 — '이미 냈는데 또 내라' 방지(관리자 확인 전이라도)
     if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
     var flag = String(row[c('중도금리마인드') - 1] || '').trim();
     var dday = _balanceDDay(row[c('예식일') - 1]);
