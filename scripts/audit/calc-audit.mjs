@@ -1,6 +1,8 @@
 // 라운드2 — GAS 돈 계산 오프라인 검증 (계약서 v1-1 §4·§7·§8·§9를 기대값으로)
 import { loadGas } from './gas-lint.mjs';
 
+process.env.TZ = process.env.TZ || 'Asia/Seoul';   // GAS 운영 TZ 재현 — _balanceDDay(로컬 Date)와 _kstYmd(KST) 기준을 일치시킨다. 없으면 UTC 낮 시간대 실행 시 D-day가 하루 어긋나 E4/E6 등 경계 케이스가 거짓 실패한다(실제 코드는 정상).
+
 const { sandbox: sb, errors } = loadGas();
 if (errors.length) { console.log('로드 실패', errors); process.exit(1); }
 
