@@ -103,18 +103,19 @@ function findLatestCustomerByEmail(email) {
   var last = sheet.getLastRow();
   if (!cEmail || last < P.DATA_START_ROW) return null;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
-  var bestActive = null, bestActiveKey = '', bestAny = null, bestAnyKey = '';
+  var DEAD = ['취소', '노쇼'];   // 완전 종료 건만 재설정 대상에서 제외. 미계약(상담만·계약 전)은 '살아있는 최근 건'이라 포함
+  var bestLive = null, bestLiveKey = '', bestAny = null, bestAnyKey = '';
   for (var i = 0; i < vals.length; i++) {
     if (String(vals[i][cEmail - 1] == null ? '' : vals[i][cEmail - 1]).trim().toLowerCase() !== email) continue;
     var createdKey = String(cCreated ? (vals[i][cCreated - 1] || '') : '') + ('00000' + i).slice(-5); // 시각 동률이면 시트 뒤쪽(나중 추가)이 최신
     var rowObj = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
     if (createdKey >= bestAnyKey) { bestAnyKey = createdKey; bestAny = rowObj; }
     var stage = String(cStage ? (vals[i][cStage - 1] || '') : '').trim();
-    if (STAGE_EXCEPTIONS.indexOf(stage) === -1) {                       // 활성(취소·노쇼·미계약 아님)
-      if (createdKey >= bestActiveKey) { bestActiveKey = createdKey; bestActive = rowObj; }
+    if (DEAD.indexOf(stage) === -1) {                                  // 취소·노쇼가 아닌 '가장 최근' 가입 건
+      if (createdKey >= bestLiveKey) { bestLiveKey = createdKey; bestLive = rowObj; }
     }
   }
-  return bestActive || bestAny;                                          // 활성 우선, 없으면 전체 최신
+  return bestLive || bestAny;                                          // [2026-06-22] 활성 우선 → 최신 우선으로 변경: 같은 이메일 다계정 시 가장 최근(취소·노쇼 제외) 가입건으로 재설정(다계정 혼선 방지)
 }
 
 // ============================ Customers 쓰기 (최종수정 자동 갱신) ============================
