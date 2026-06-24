@@ -12,3 +12,4 @@ desktop.ini
 # 점검 도구 임시 설치(puppeteer 등) — 정적 사이트라 평소 의존성 없음. 실수 커밋 방지.
 node_modules/
 package-lock.json
+package.json
