@@ -432,7 +432,7 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
 //   기본 대상 '전체' = 5직원 모두 공유. 핵심수치는 1차 차단 후 재확인(force) 시에만 추가.
 function aiTeachPrompt(target, ctxLine, cb){ target=target||'전체';
-  var t=prompt('직원에게 알려줄 올바른 내용을 적어주세요. (대상: '+target+' · 최대 5분 뒤 반영)'+(ctxLine?('\n\n'+ctxLine):''),'');
+  var t=prompt('직원에게 알려줄 올바른 내용을 적어주세요. (대상: '+target+' · 최대 2분 뒤 반영)'+(ctxLine?('\n\n'+ctxLine):''),'');
   if(t===null||!t.trim()) return; t=t.trim();
   var doAdd=function(force){ gas('aiKbNoteAdd',target,t,force).then(function(r){ if(r&&r.ok){ if(cb)cb(true,t); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); else { if(cb)cb(false); } } else { alert((r&&r.error)||'추가 실패'); if(cb)cb(false); } }); };
   doAdd(false); }
@@ -605,7 +605,7 @@ function openAiTeam(){
        +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')+'</td></tr>'; }).join('')+'</table>';
       bd.innerHTML=h;
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
-  function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 5분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
+  function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
      +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div>'
@@ -666,7 +666,7 @@ function openAiTeam(){
       SURF.forEach(function(s){ aiAsk(s,q).then(function(rep){ var row=out.querySelector('[data-s="'+s+'"]'); if(!row) return;
         row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button></div><div class="impAns" style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
         var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(!ok) return; b.textContent='🔁 교육 후 확인'; b.disabled=false;
-          b.onclick=function(){ b.disabled=true; b.textContent='확인 중…'; aiAsk(s,q).then(function(rep2){ var ans=row.querySelector('.impAns'); if(ans) ans.innerHTML='<div style="opacity:.5;text-decoration:line-through">교육 전: '+esc(rep)+'</div><div style="margin-top:3px;color:#2e7d32">교육 후: '+esc(rep2)+'</div><div style="margin-top:2px;font-size:10px;color:#b0a896">반영까지 최대 5분 — 안 바뀌었으면 잠시 뒤 다시 눌러보세요.</div>'; b.disabled=false; b.textContent='🔁 다시 확인'; }); };
+          b.onclick=function(){ b.disabled=true; b.textContent='확인 중…'; aiAsk(s,q).then(function(rep2){ var ans=row.querySelector('.impAns'); if(ans) ans.innerHTML='<div style="opacity:.5;text-decoration:line-through">교육 전: '+esc(rep)+'</div><div style="margin-top:3px;color:#2e7d32">교육 후: '+esc(rep2)+'</div><div style="margin-top:2px;font-size:10px;color:#b0a896">반영까지 최대 2분 — 안 바뀌었으면 잠시 뒤 다시 눌러보세요.</div>'; b.disabled=false; b.textContent='🔁 다시 확인'; }); };
         }); });
       }); }); };
     document.getElementById('impRun').addEventListener('click', run);
@@ -699,6 +699,7 @@ function openAiTeam(){
         h+=(r.topStuck&&r.topStuck.length)?('<div id="repStuck">'+r.topStuck.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
         h+='<div style="margin-top:14px;font-size:13px;font-weight:600;color:#9a7b00">🟡 자주 애매한 질문 TOP</div>';
         h+=(r.topVague&&r.topVague.length)?('<div id="repVague">'+r.topVague.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
+        h+='<div style="margin-top:12px;font-size:10px;color:#b0a896">막힘/애매 구분·접점은 GAS 재배포 시점부터 채워져요. 그 이전 질문은 정상·기타로 집계됩니다.</div>';
         rb.innerHTML=h;
         Array.prototype.forEach.call(rb.querySelectorAll('.repAsk'),function(b){ b.addEventListener('click',function(){ gotoCheck(b.getAttribute('data-q')); }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });

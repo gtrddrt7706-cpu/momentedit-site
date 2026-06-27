@@ -9,7 +9,7 @@ module.exports = async function getKbNotes(surface) {
     if (!hook || !/^https:\/\//.test(hook)) return '';
     const now = Date.now();
     const hit = _c[surface];
-    if (hit && (now - hit.at) < 300000) return hit.notes;
+    if (hit && (now - hit.at) < 120000) return hit.notes;   // 2분 캐시 — 교육 반영을 빠르게(효과 확인 UX) · 비용 영향 미미
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);
     let notes = '';
