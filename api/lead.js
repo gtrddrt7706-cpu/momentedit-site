@@ -11,18 +11,20 @@ module.exports = async (req, res) => {
   try {
     const body = await readJson(req);
     const name = String((body && body.name) || '').trim().slice(0, 40);
-    const phone = String((body && body.phone) || '').trim().slice(0, 20);
+    let channel = String((body && body.channel) || '문자').trim(); if (channel !== '이메일') channel = '문자';
+    const contact = String((body && body.contact) || (body && body.phone) || '').trim().slice(0, 60);
     const consent = !!(body && body.consent);
     const surface = String((body && body.surface) || '메인').slice(0, 10);
     const context = String((body && body.context) || '').slice(0, 200);
-    if (!name || phone.replace(/[^0-9]/g, '').length < 9) { res.statusCode = 400; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'invalid', message: '이름과 연락처를 정확히 입력해 주세요.' })); }
+    const validContact = (channel === '이메일') ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact) : (contact.replace(/[^0-9]/g, '').length >= 9);
+    if (!name || !validContact) { res.statusCode = 400; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'invalid', message: '이름과 ' + (channel === '이메일' ? '이메일' : '휴대폰 번호') + '을(를) 정확히 입력해 주세요.' })); }
     if (!consent) { res.statusCode = 400; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'consent_required', message: '개인정보 수집·이용 동의가 필요해요.' })); }
 
     let ok = false;
     try {
       const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 5000);
       try {
-        const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'leadCapture', name, phone, consent: true, surface, context }), signal: ctl.signal });
+        const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'leadCapture', name, channel, contact, consent: true, surface, context }), signal: ctl.signal });
         let j = null; try { j = await r.json(); } catch (e) {}
         ok = !!(r.ok && j && j.ok === true);
       } finally { clearTimeout(t); }

@@ -2134,30 +2134,38 @@ function replayHeroAnimation(){
     var wrap=document.createElement('div'); wrap.className='me-adv-lead';
     wrap.style.cssText='margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)';
     var toggle=document.createElement('button'); toggle.type='button';
-    toggle.textContent='📝 연락처 남기고 콜백 받기';
+    toggle.textContent='📝 문자·이메일로 답변 받기';
     toggle.style.cssText='width:100%;padding:9px;border:1px solid #d9cfc1;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;color:#3a2f25';
     wrap.appendChild(toggle);
     var form=document.createElement('div'); form.style.cssText='display:none;margin-top:8px';
     var lastQ='';
     try{ for(var i=transcript.length-1;i>=0;i--){ if(transcript[i].role==='user'){ lastQ=String(transcript[i].content||'').slice(0,160); break; } } }catch(e){}
-    form.innerHTML='<input class="me-lead-name" placeholder="성함" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
-     +'<input class="me-lead-phone" type="tel" inputmode="numeric" placeholder="연락처(휴대폰)" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
-     +'<label style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#75705f;margin-bottom:8px;line-height:1.5"><input type="checkbox" class="me-lead-consent" style="margin-top:2px"><span>상담 연락을 위한 개인정보(성함·연락처) 수집·이용에 동의합니다. 목적: 상담 회신 · 보유: 1년 · <a href="/privacy.html" target="_blank" rel="noopener" style="color:#6B2A24">자세히</a></span></label>'
+    form.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:6px">전화하지 않아요. 고르신 방법으로 <b>글로</b> 답변드려요.</div>'
+     +'<div class="me-lead-ch" style="display:flex;gap:6px;margin-bottom:6px"><button type="button" data-ch="문자" style="flex:1;padding:8px;border:1px solid #6B2A24;background:#6B2A24;color:#fff;border-radius:7px;font-size:13px;cursor:pointer">문자</button><button type="button" data-ch="이메일" style="flex:1;padding:8px;border:1px solid #d9cfc1;background:#fff;color:#3a2f25;border-radius:7px;font-size:13px;cursor:pointer">이메일</button></div>'
+     +'<input class="me-lead-name" placeholder="성함" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<input class="me-lead-contact" type="tel" inputmode="numeric" placeholder="휴대폰 번호" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<label style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#75705f;margin-bottom:8px;line-height:1.5"><input type="checkbox" class="me-lead-consent" style="margin-top:2px"><span>상담 회신을 위한 개인정보(성함·연락처) 수집·이용에 동의합니다. 목적: 상담 회신 · 보유: 1년 · <a href="/privacy.html" target="_blank" rel="noopener" style="color:#6B2A24">자세히</a></span></label>'
      +'<button class="me-lead-send" type="button" style="width:100%;padding:10px;border:none;background:#6B2A24;color:#fff;border-radius:7px;font-size:14px;cursor:pointer">남기기</button>'
      +'<div class="me-lead-msg" style="font-size:12px;margin-top:6px;text-align:center"></div>';
     wrap.appendChild(form);
     toggle.addEventListener('click',function(){ form.style.display=(form.style.display==='none')?'block':'none'; });
+    var channel='문자', contactEl=form.querySelector('.me-lead-contact');
+    Array.prototype.forEach.call(form.querySelectorAll('.me-lead-ch button'),function(cb){ cb.addEventListener('click',function(){ channel=cb.getAttribute('data-ch');
+      Array.prototype.forEach.call(form.querySelectorAll('.me-lead-ch button'),function(o){ var on=o===cb; o.style.background=on?'#6B2A24':'#fff'; o.style.color=on?'#fff':'#3a2f25'; o.style.borderColor=on?'#6B2A24':'#d9cfc1'; });
+      if(channel==='이메일'){ contactEl.type='email'; contactEl.removeAttribute('inputmode'); contactEl.placeholder='이메일 주소'; } else { contactEl.type='tel'; contactEl.setAttribute('inputmode','numeric'); contactEl.placeholder='휴대폰 번호'; }
+      contactEl.value=''; }); });
     form.querySelector('.me-lead-send').addEventListener('click',function(){
       var nm=form.querySelector('.me-lead-name').value.trim();
-      var ph=form.querySelector('.me-lead-phone').value.trim();
+      var ct=contactEl.value.trim();
       var cs=form.querySelector('.me-lead-consent').checked;
       var msg=form.querySelector('.me-lead-msg');
-      if(!nm||ph.replace(/[^0-9]/g,'').length<9){ msg.style.color='#b00'; msg.textContent='성함과 연락처를 정확히 입력해 주세요.'; return; }
+      var okCt=(channel==='이메일')?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ct):(ct.replace(/[^0-9]/g,'').length>=9);
+      if(!nm||!okCt){ msg.style.color='#b00'; msg.textContent='성함과 '+(channel==='이메일'?'이메일':'휴대폰 번호')+'을(를) 정확히 입력해 주세요.'; return; }
       if(!cs){ msg.style.color='#b00'; msg.textContent='개인정보 수집·이용 동의가 필요해요.'; return; }
       var sendBtn=form.querySelector('.me-lead-send'); sendBtn.disabled=true; sendBtn.textContent='보내는 중…'; msg.style.color='#75705f'; msg.textContent='';
-      fetch('/api/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,phone:ph,consent:true,surface:(typeof PAGE!=='undefined'?PAGE:'메인'),context:lastQ})})
+      fetch('/api/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,channel:channel,contact:ct,consent:true,surface:(typeof PAGE!=='undefined'?PAGE:'메인'),context:lastQ})})
         .then(function(r){return r.json().catch(function(){return {};});})
-        .then(function(j){ if(j&&j.ok){ form.innerHTML='<div style="text-align:center;color:#3a2f25;font-size:13px;padding:6px 0">남겨주셔서 감사합니다. 디렉터가 곧 연락드릴게요.</div>'; }
+        .then(function(j){ if(j&&j.ok){ form.innerHTML='<div style="text-align:center;color:#3a2f25;font-size:13px;padding:6px 0">남겨주셔서 감사합니다. '+(channel==='이메일'?'이메일':'문자')+'로 답변드릴게요.</div>'; }
           else { sendBtn.disabled=false; sendBtn.textContent='남기기'; msg.style.color='#b00'; msg.textContent=(j&&j.message)||'잠시 후 다시 시도해 주세요.'; } })
         .catch(function(){ sendBtn.disabled=false; sendBtn.textContent='남기기'; msg.style.color='#b00'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; });
     });

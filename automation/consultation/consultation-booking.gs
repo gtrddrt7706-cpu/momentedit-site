@@ -2097,21 +2097,24 @@ function handleAdvisorLog(body) {
   return { ok: true };
 }
 
-// [문의 리드 — 콜백 요청] 챗봇에서 고객이 동의 후 남긴 이름·연락처를 적재 + 관리자 즉시 SMS. 동의 없으면 거절.
-//   시트 '문의리드' [시각, 이름, 연락처, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
+// [문의 리드 — 글로 답변] 챗봇에서 고객이 동의 후 남긴 이름·연락처(문자/이메일)를 적재 + 관리자 즉시 SMS. 전화 아님(선택 채널로 글 회신).
+//   시트 '문의리드' [시각, 이름, 연락처, 방법, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
 function handleLeadCapture(body) {
   try {
     var name = String((body && body.name) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
-    var phone = String((body && body.phone) || '').replace(/[^0-9\-+ ]/g, '').trim().slice(0, 20);
-    if (!name || phone.replace(/[^0-9]/g, '').length < 9) return { ok: false, error: '이름과 연락처를 정확히 입력해 주세요.' };
+    var channel = String((body && body.channel) || '문자').trim();
+    if (channel !== '이메일') channel = '문자';
+    var contact = String((body && body.contact) || (body && body.phone) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 60);
+    var valid = (channel === '이메일') ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact) : (contact.replace(/[^0-9]/g, '').length >= 9);
+    if (!name || !valid) return { ok: false, error: '이름과 ' + (channel === '이메일' ? '이메일' : '휴대폰 번호') + '을(를) 정확히 입력해 주세요.' };
     if (!(body && body.consent)) return { ok: false, error: '개인정보 수집·이용 동의가 필요해요.' };
     var surface = String((body && body.surface) || '메인').slice(0, 10);
     var ctx = _maskPII(String((body && body.context) || '')).slice(0, 200);
     var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
-    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '접점', '맥락', '동의', '상태', '처리일시']); }
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '방법', '접점', '맥락', '동의', '상태', '처리일시']); }
     if (sh.getLastRow() > 5000) return { ok: true };
-    sh.appendRow([fmtKST(new Date()), name, phone, surface, ctx, '동의', '신규', '']);
-    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(콜백): ' + name + ' ' + phone + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
+    sh.appendRow([fmtKST(new Date()), name, contact, channel, surface, ctx, '동의', '신규', '']);
+    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(' + channel + '로 회신): ' + name + ' ' + contact + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
     return { ok: true };
   } catch (e) { return { ok: false, error: (e && e.message) || String(e) }; }
 }
@@ -2119,11 +2122,11 @@ function handleLeadCapture(body) {
 function adminListLeads() {
   var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || sh.getLastRow() < 2) return { ok: true, items: [], pending: 0 };
-  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues();
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
   var items = [], pending = 0;
   for (var i = vals.length - 1; i >= 0; i--) {
-    var st = String(vals[i][6] || '신규'); if (st !== '완료') pending++;
-    if (items.length < 50) items.push({ at: String(vals[i][0]), name: String(vals[i][1]), phone: String(vals[i][2]), surface: String(vals[i][3]), context: String(vals[i][4]), status: st, row: i + 2 });
+    var st = String(vals[i][7] || '신규'); if (st !== '완료') pending++;
+    if (items.length < 50) items.push({ at: String(vals[i][0]), name: String(vals[i][1]), contact: String(vals[i][2]), channel: String(vals[i][3] || '문자'), surface: String(vals[i][4]), context: String(vals[i][5]), status: st, row: i + 2 });
   }
   return { ok: true, items: items, pending: pending };
 }
@@ -2131,7 +2134,7 @@ function adminListLeads() {
 function adminResolveLead(row) {
   row = Number(row) || 0; var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || row < 2 || row > sh.getLastRow()) return { ok: false, error: '대상을 찾을 수 없어요.' };
-  sh.getRange(row, 7).setValue('완료'); sh.getRange(row, 8).setValue(fmtKST(new Date()));
+  sh.getRange(row, 8).setValue('완료'); sh.getRange(row, 9).setValue(fmtKST(new Date()));
   return { ok: true };
 }
 // 1년 지난 리드 정리(개인정보 최소화) — purgeAdvisorLog(주간 트리거)에서 함께 호출.
