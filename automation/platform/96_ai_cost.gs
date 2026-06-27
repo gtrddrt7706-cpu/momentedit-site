@@ -183,7 +183,12 @@ function aiQuestionLog() {   // adminCall
 function aiQuestionReport(days) {   // adminCall
   try {
     days = Math.min(Math.max(Number(days) || 7, 1), 90);
-    var base = { ok: true, days: days, total: 0, stuck: 0, vague: 0, normal: 0, bySurface: [], topStuck: [], topVague: [] };
+    var base = { ok: true, days: days, total: 0, stuck: 0, vague: 0, normal: 0, bySurface: [], topStuck: [], topVague: [], kakaoClicks: 0 };
+    var since0 = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
+    try {   // 카톡 상담 연결 수(영업 전환 신호 · 기간 내)
+      var ksh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
+      if (ksh && ksh.getLastRow() > 1) { var kv = ksh.getRange(2, 1, ksh.getLastRow() - 1, 1).getValues(); for (var ki = kv.length - 1; ki >= 0; ki--) { var kd = new Date(kv[ki][0]); if (isNaN(kd.getTime())) continue; if (kd >= since0) base.kakaoClicks++; else break; } }
+    } catch (e) {}
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
     if (!sh || sh.getLastRow() < 2) return base;
     var n = Math.min(sh.getLastRow() - 1, 5000);

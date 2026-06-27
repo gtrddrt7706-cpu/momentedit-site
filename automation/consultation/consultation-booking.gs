@@ -2050,7 +2050,8 @@ function doPost(e) {
       case 'aiKbNotes':          return jsonOut(handleAiKbNotes(body));     // 96 · AI 교육(운영자 보충지식) 조회 — 챗봇이 접점별로 가져감
       case 'aiFacts':            return jsonOut(handleAiFacts(body));       // 96 · 핵심정보 단일 진실원 조회 — 챗봇이 최신·최우선 사실로 주입
       case 'aiSafetyAlert':      return jsonOut(handleAiSafetyAlert(body)); // 96 · GitHub Actions 안전 백업 점검 실패 알림(시크릿 보호)
-      case 'leadCapture':        return jsonOut(handleLeadCapture(body));   // 문의 리드(콜백 요청) — 동의 후 이름·연락처 적재 + 관리자 SMS
+      case 'leadCapture':        return jsonOut(handleLeadCapture(body));   // 문의 리드(글 회신) — 동의 후 이름·연락처 적재 + 관리자 SMS
+      case 'leadClick':          return jsonOut(handleLeadClick(body));     // 카톡 상담 연결 집계(개인정보 없음 · 영업 전환 신호)
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
@@ -2137,6 +2138,26 @@ function adminResolveLead(row) {
   sh.getRange(row, 8).setValue('완료'); sh.getRange(row, 9).setValue(fmtKST(new Date()));
   return { ok: true };
 }
+// 카톡 상담 연결 집계(개인정보 없음) — 시트 '카톡연결' [시각, 접점]. 영업 전환 신호로만 사용.
+function handleLeadClick(body) {
+  try {
+    var surface = String((body && body.surface) || '메인').slice(0, 10);
+    var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('카톡연결'); sh.appendRow(['시각', '접점']); }
+    if (sh.getLastRow() > 20000) return { ok: true };
+    sh.appendRow([fmtKST(new Date()), surface]);
+  } catch (e) {}
+  return { ok: true };
+}
+// 90일 지난 카톡연결 로그 정리 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
+function purgeKakaoClicks() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), n = 0;
+  for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
+  if (n > 0) sh.deleteRows(2, n);
+}
 // 1년 지난 리드 정리(개인정보 최소화) — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeLeads() {
   var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
@@ -2175,6 +2196,7 @@ function purgeAdvisorLog() {
   try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
   try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
+  try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {
