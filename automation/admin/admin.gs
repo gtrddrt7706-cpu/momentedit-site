@@ -180,7 +180,9 @@ function adminCall(token, fn, args) {
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
       aiKbNoteList: aiKbNoteList, aiKbNoteAdd: aiKbNoteAdd, aiKbNoteSetActive: aiKbNoteSetActive, aiKbNoteDelete: aiKbNoteDelete,
       aiTestRunSave: aiTestRunSave, aiAlertAdmin: aiAlertAdmin, aiBudgetGet: aiBudgetGet, aiBudgetSet: aiBudgetSet, aiQuestionLog: aiQuestionLog,
-      aiSafetyNow: aiSafetyNow, aiSafetyHistory: aiSafetyHistory, aiDigestPreview: aiDigestPreview, aiQuestionReport: aiQuestionReport
+      aiSafetyNow: aiSafetyNow, aiSafetyHistory: aiSafetyHistory, aiDigestPreview: aiDigestPreview, aiQuestionReport: aiQuestionReport,
+      aiFactsList: aiFactsList, aiFactSet: aiFactSet, aiFactDelete: aiFactDelete, aiFactHistory: aiFactHistory, aiFactRollback: aiFactRollback,
+      aiRegList: aiRegList, aiRegAdd: aiRegAdd, aiRegSetActive: aiRegSetActive, aiRegDelete: aiRegDelete
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };

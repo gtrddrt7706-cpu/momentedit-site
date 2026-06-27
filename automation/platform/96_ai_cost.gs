@@ -257,6 +257,11 @@ function aiDailySafetyCheck() {   // 트리거(aiDaily) + adminCall(aiSafetyNow)
   ];
   var pass = 0, fails = [], reachable = 0;
   for (var i = 0; i < T.length; i++) { var x = T[i].run(); if (x.code >= 200 && x.code < 500 && x.j) { reachable++; var good = false; try { good = T[i].ok(x); } catch (e) {} if (good) pass++; else fails.push(T[i].name); } }
+  // 🛡️ 자라나는 회귀셋 — 고친 건들도 매일 함께 점검(비용 가드: 최대 12건)
+  try {
+    var regs = _regRows_().filter(function (r) { return String(r[5]) === 'Y'; }).slice(0, 12);
+    for (var j = 0; j < regs.length; j++) { var rc = regs[j]; var rx = _aiSurfacePost_(String(rc[1]), String(rc[2])); if (rx.code >= 200 && rx.code < 500 && rx.j) { reachable++; var ok2 = false; try { ok2 = _regGrade_(String(rc[3]), String(rc[4]), rx); } catch (e) {} if (ok2) pass++; else fails.push('회귀:' + String(rc[2]).slice(0, 14)); } }
+  } catch (e) {}
   if (reachable === 0) return { ok: false, unreachable: true, error: '엔드포인트 접근 불가(서버측 자동점검 제한일 수 있어요 — 관리자 화면 🧪로 점검하세요).' };
   var sh = _aiSafetySheet_(), prev = null;
   if (sh.getLastRow() > 1) { var l = sh.getRange(sh.getLastRow(), 1, 1, 4).getValues()[0]; prev = { pass: Number(l[1]) || 0, total: Number(l[2]) || 0 }; }
@@ -299,4 +304,94 @@ function aiDaily() {
   try { if (typeof aiHandoffNightFlush === 'function') aiHandoffNightFlush(); } catch (e) {}   // 🌙 야간 보류 인계 아침 발송
   try { if (typeof aiHandoffReminder === 'function') aiHandoffReminder(); } catch (e) {}
   try { aiDailyDigest(true); } catch (e) {}
+}
+
+// ============================ 🎯 핵심정보 단일 진실원 (관리자 편집·이력·롤백 · API 라이브 주입) ============================
+//  가격·일정·정책 등 자주 바뀌는 핵심 사실을 코드(_kb.js) 대신 여기 한 곳에서 관리. API가 라이브로 읽어 "최신·최우선" 사실로 주입.
+//  시트 '핵심정보' [키, 값, 설명, 수정일, 수정자] · '핵심정보이력' [시각, 키, 이전값, 새값, 수정자]
+function _factsSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('핵심정보'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('핵심정보'); sh.appendRow(['키', '값', '설명', '수정일', '수정자']); } return sh; }
+function _factsHistSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('핵심정보이력'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('핵심정보이력'); sh.appendRow(['시각', '키', '이전값', '새값', '수정자']); } return sh; }
+function _factsRows_() { var sh = _factsSheet_(); var n = sh.getLastRow() - 1; return n > 0 ? sh.getRange(2, 1, n, 5).getValues() : []; }
+function aiFactsList() {   // adminCall
+  return { ok: true, facts: _factsRows_().map(function (r) { return { key: String(r[0]), value: String(r[1]), desc: String(r[2] || ''), at: String(r[3] || ''), who: String(r[4] || '') }; }) };
+}
+function aiFactSet(key, value, desc) {   // adminCall — 추가/수정(변경 시 이력 적재)
+  key = String(key || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
+  value = String(value == null ? '' : value).replace(/[\r\n\t]/g, ' ').trim().slice(0, 300);
+  desc = String(desc || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 120);
+  if (!key) return { ok: false, error: '항목 이름(키)이 비었어요.' };
+  if (!value) return { ok: false, error: '값이 비었어요.' };
+  var sh = _factsSheet_(), rows = _factsRows_(), who = '관리자';
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]) === key) {
+      var old = String(rows[i][1]);
+      if (old === value && String(rows[i][2]) === desc) return { ok: true, unchanged: true };
+      if (old !== value) _factsHistSheet_().appendRow([fmtKST(new Date()), key, old, value, who]);
+      sh.getRange(i + 2, 2).setValue(value); sh.getRange(i + 2, 3).setValue(desc || rows[i][2]); sh.getRange(i + 2, 4).setValue(fmtKST(new Date())); sh.getRange(i + 2, 5).setValue(who);
+      return { ok: true, updated: true };
+    }
+  }
+  if (rows.length >= 80) return { ok: false, error: '핵심정보가 너무 많아요(80개 상한).' };
+  _factsHistSheet_().appendRow([fmtKST(new Date()), key, '', value, who]);
+  sh.appendRow([key, value, desc, fmtKST(new Date()), who]);
+  return { ok: true, created: true };
+}
+function aiFactDelete(key) {   // adminCall
+  key = String(key || '').trim(); var sh = _factsSheet_(), rows = _factsRows_();
+  for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === key) { _factsHistSheet_().appendRow([fmtKST(new Date()), key, String(rows[i][1]), '(삭제)', '관리자']); sh.deleteRows(i + 2, 1); return { ok: true }; } }
+  return { ok: false, error: '항목을 찾을 수 없어요.' };
+}
+function aiFactHistory(key) {   // adminCall — 최근 이력(키 지정 시 해당 키만) 최대 20건 최신순
+  key = String(key || '').trim(); var sh = _factsHistSheet_(); if (sh.getLastRow() < 2) return { ok: true, history: [] };
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues(), out = [];
+  for (var i = v.length - 1; i >= 0; i--) { if (key && String(v[i][1]) !== key) continue; out.push({ at: String(v[i][0]), key: String(v[i][1]), prev: String(v[i][2]), next: String(v[i][3]), who: String(v[i][4]) }); if (out.length >= 20) break; }
+  return { ok: true, history: out };
+}
+function aiFactRollback(key) {   // adminCall — 해당 키를 직전 값으로 되돌림
+  key = String(key || '').trim(); var hist = aiFactHistory(key).history || [];
+  if (!hist.length) return { ok: false, error: '되돌릴 이력이 없어요.' };
+  if (hist[0].prev === '') return { ok: false, error: '직전 값이 없어요(최초 생성 건).' };
+  return aiFactSet(key, hist[0].prev, '');
+}
+function handleAiFacts(body) {   // doPost action='aiFacts' — 챗봇용 활성 핵심정보 블록(키: 값)
+  try {
+    var rows = _factsRows_(), out = [];
+    for (var i = 0; i < rows.length; i++) { var k = String(rows[i][0]), v = String(rows[i][1]); if (k && v) out.push('- ' + k + ': ' + v); }
+    return { ok: true, facts: out.join('\n') };
+  } catch (e) { return { ok: true, facts: '' }; }
+}
+
+// ============================ 🛡️ 자라나는 회귀 안전망 (고친 건을 영구 테스트로 고정 — 다신 안 깨짐) ============================
+//  시트 'AI_회귀셋' [id, 접점, 질문, 기대유형, 기대값, 활성, 추가일]
+//  기대유형: 금지(답에 기대값 정규식이 있으면 실패) · 필수(없으면 실패) · escalate(escalate=true 아니면 실패) · ok(ok=true 아니면 실패)
+function _regSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_회귀셋'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_회귀셋'); sh.appendRow(['id', '접점', '질문', '기대유형', '기대값', '활성', '추가일']); } return sh; }
+function _regRows_() { var sh = _regSheet_(); var n = sh.getLastRow() - 1; return n > 0 ? sh.getRange(2, 1, n, 7).getValues() : []; }
+function aiRegList() { return { ok: true, cases: _regRows_().map(function (r) { return { id: String(r[0]), surface: String(r[1]), q: String(r[2]), type: String(r[3]), val: String(r[4] || ''), active: String(r[5]) === 'Y', at: String(r[6] || '') }; }) }; }
+function aiRegAdd(surface, q, type, val) {   // adminCall
+  surface = String(surface || '메인').trim(); q = String(q || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 200);
+  type = String(type || '필수').trim(); val = String(val || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 120);
+  if (!q) return { ok: false, error: '질문이 비었어요.' };
+  if (['금지', '필수', 'escalate', 'ok'].indexOf(type) < 0) type = '필수';
+  if ((type === '금지' || type === '필수') && !val) return { ok: false, error: '기대값(답에 있어야/없어야 할 표현)이 필요해요.' };
+  if (_regRows_().length >= 60) return { ok: false, error: '회귀셋이 가득 찼어요(60개).' };
+  _regSheet_().appendRow(['R' + (new Date()).getTime().toString(36), surface, q, type, val, 'Y', fmtKST(new Date())]);
+  return { ok: true };
+}
+function aiRegSetActive(id, on) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 6).setValue(on ? 'Y' : ''); return { ok: true }; } } return { ok: false, error: '없음' }; }
+function aiRegDelete(id) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } } return { ok: false, error: '없음' }; }
+function _aiSurfacePost_(surface, q) {   // 회귀/점검용 — 접점→엔드포인트 매핑(test:true)
+  var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  if (surface === '예약') return _aiPost_('/api/schedule-advisor', { messages: [{ role: 'user', content: q }], today: today, page: '예약', test: true });
+  if (surface === '애프터') return _aiPost_('/api/after-concierge', { messages: [{ role: 'user', content: q }], test: true });
+  if (surface === '핸드오프') return _aiPost_('/api/handoff', { messages: [{ role: 'user', content: q }, { role: 'assistant', content: '상담사를 연결해 드릴게요' }], page: '메인', customer: { name: '점검', code: 'CHK', stage: '상담' }, test: true });
+  if (surface === '마이' || surface === '마이페이지') return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '마이', test: true });
+  return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '메인', test: true });
+}
+function _regGrade_(type, val, x) {
+  var rep = _aiRep_(x.j);
+  if (type === 'escalate') return !!(x.j && x.j.escalate === true);
+  if (type === 'ok') return !!(x.j && x.j.ok === true);
+  var re = null; try { re = new RegExp(val); } catch (e) {}
+  var has = re ? re.test(rep) : (rep.indexOf(val) >= 0);
+  return (type === '필수') ? has : !has;   // 금지 = 기대값이 없어야 통과
 }

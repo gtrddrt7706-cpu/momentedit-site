@@ -586,11 +586,12 @@ function openAiTeam(){
   box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
   document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
   ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
-  var TABS=[['명단','👥'],['교육','📚'],['개선','💡'],['리포트','📊'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
+  var TABS=[['명단','👥'],['핵심정보','🎯'],['교육','📚'],['개선','💡'],['리포트','📊'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
   TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]+' '+t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
     if(name==='명단') return rRoster();
+    if(name==='핵심정보') return rFacts();
     if(name==='교육') return rEdu();
     if(name==='개선') return rImprove();
     if(name==='리포트') return rReport();
@@ -605,6 +606,28 @@ function openAiTeam(){
        +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')+'</td></tr>'; }).join('')+'</table>';
       bd.innerHTML=h;
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
+  // 🎯 핵심정보 — 가격·일정·정책의 단일 진실원. 여기서 고치면 재배포 없이 5직원 모두 최대 2분 내 반영. 변경은 이력에 남아 되돌리기 가능.
+  function rFacts(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:6px">가격·일정·정책 등 <b>핵심 사실</b> — 여기서 고치면 <b>재배포 없이</b> 5직원 모두 최대 2분 내 반영돼요. 잘못 넣으면 고객에게 그대로 나가니 신중히 · 변경은 이력에 남아 되돌릴 수 있어요.</div>'
+     +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 280만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
+     +'<div style="display:flex;gap:6px;margin-bottom:8px"><input id="fDesc" placeholder="메모(선택) — 근거·출처" style="flex:1;padding:6px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px"><button id="fAdd" style="padding:6px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">저장</button></div>'
+     +'<div id="fList"></div><div id="fHist"></div>';
+    document.getElementById('fAdd').addEventListener('click',function(){ var k=document.getElementById('fKey').value.trim(), v=document.getElementById('fVal').value.trim(), d=document.getElementById('fDesc').value.trim(); if(!k||!v){ alert('항목과 값을 모두 입력하세요.'); return; }
+      if(!confirm('"'+k+'" = "'+v+'" 으로 저장할까요?\n고객 답변에 바로 쓰입니다.')) return;
+      gas('aiFactSet',k,v,d).then(function(r){ if(r&&r.ok){ document.getElementById('fKey').value=''; document.getElementById('fVal').value=''; document.getElementById('fDesc').value=''; loadFacts(); } else alert((r&&r.error)||'저장 실패'); }); });
+    loadFacts(); }
+  function loadFacts(){ var el=document.getElementById('fList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+    gas('aiFactsList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var fs=r.facts||[]; if(!fs.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 핵심정보가 없어요. 위에서 추가하세요. (없으면 기존 코드 기본값이 쓰입니다)</div>'; return; }
+      el.innerHTML=fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><div style="display:flex;align-items:center;gap:8px"><b style="color:#3a2f25;min-width:90px">'+esc(f.key)+'</b><span style="flex:1;color:#6B2A24;font-weight:600">'+esc(f.value)+'</span><button class="fEd" data-k="'+esc(f.key)+'" data-v="'+esc(f.value)+'" data-d="'+esc(f.desc)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">수정</button><button class="fHs" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">이력</button><button class="fDel" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'+(f.desc?'<div style="font-size:10px;color:#b0a896;margin-top:2px">📝 '+esc(f.desc)+' · '+esc(f.at)+'</div>':'<div style="font-size:10px;color:#cfc7b8;margin-top:2px">'+esc(f.at)+'</div>')+'</div>'; }).join('');
+      Array.prototype.forEach.call(el.querySelectorAll('.fEd'),function(b){ b.addEventListener('click',function(){ document.getElementById('fKey').value=b.getAttribute('data-k'); document.getElementById('fVal').value=b.getAttribute('data-v'); document.getElementById('fDesc').value=b.getAttribute('data-d'); document.getElementById('fVal').focus(); }); });
+      Array.prototype.forEach.call(el.querySelectorAll('.fDel'),function(b){ b.addEventListener('click',function(){ var k=b.getAttribute('data-k'); if(confirm('"'+k+'" 삭제할까요? (삭제하면 기존 코드 기본값으로 돌아갑니다)')) gas('aiFactDelete',k).then(loadFacts); }); });
+      Array.prototype.forEach.call(el.querySelectorAll('.fHs'),function(b){ b.addEventListener('click',function(){ showFactHist(b.getAttribute('data-k')); }); });
+    }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+  function showFactHist(key){ var el=document.getElementById('fHist'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px;margin-top:8px">이력 불러오는 중…</div>';
+    gas('aiFactHistory',key).then(function(r){ var h=(r&&r.history)||[]; if(!h.length){ el.innerHTML='<div style="font-size:12px;color:#9a9183;margin-top:8px">"'+esc(key)+'" 변경 이력이 없어요.</div>'; return; }
+      el.innerHTML='<div style="margin-top:10px;border-top:1px dashed #e0d8cc;padding-top:8px"><div style="font-size:12px;color:#75705f;margin-bottom:4px">"'+esc(key)+'" 변경 이력 <button id="fRb" style="margin-left:6px;padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">↩ 직전 값으로 되돌리기</button></div>'
+       +h.map(function(x){ return '<div style="font-size:11px;color:#5a554c;padding:3px 0">'+esc(x.at)+' · '+esc(x.prev||'(없음)')+' → <b>'+esc(x.next)+'</b></div>'; }).join('')+'</div>';
+      var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){ if(confirm('"'+key+'"을 직전 값으로 되돌릴까요?')) gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else alert((rr&&rr.error)||'되돌리기 실패'); }); });
+    }); }
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
@@ -647,7 +670,8 @@ function openAiTeam(){
      +'<div id="impOut" style="margin-bottom:16px"></div>'
      +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">💡 교육 후보 (실제 고객 질문)</div>'
      +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 막힘(상담사로 넘김) · 🟡 애매(답했지만 자신 없음) · ×N = 나온 횟수. 옆 📚로 전 직원에게 가르치면 다음부턴 스스로 처리해요. (종합 통계는 📊 리포트)</div>'
-     +'<div id="impCand"></div></div>';
+     +'<div id="impCand"></div></div>'
+     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px;margin-top:14px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🛡️ 회귀셋 <span style="font-size:11px;font-weight:400;color:#9a9183">— 고친 건을 영구 점검(매일 자동). 다신 안 깨짐</span></div><div style="font-size:11px;color:#9a9183;margin-bottom:8px">📊 리포트에서 📌로 추가해요. 필수=답에 꼭 있어야 할 표현 · 금지=있으면 안 되는 표현.</div><div id="impReg"></div></div>';
     // ⓪ 자동 안전망 — 매일 9시 자동 점검(위반 시에만 문자). 여기서 지금 바로도 가능.
     var health=document.getElementById('impHealth');
     var renderHealth=function(){ health.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600;color:#3a2f25">🛡️ 자동 안전망</span><span style="font-size:11px;color:#9a9183">매일 9시 자동 · 위반/하락 시에만 문자</span><span style="margin-left:auto"></span><button id="impSafe" style="padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">지금 안전점검</button><button id="impDig" style="margin-left:6px;padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📨 요약 보기</button></div><div id="impHealthBody" style="margin-top:8px;font-size:12px;color:#75705f">최근 점검 불러오는 중…</div>';
@@ -679,7 +703,16 @@ function openAiTeam(){
       Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
     }).catch(function(){ cand.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; });
+    loadReg();
   }
+  function loadReg(){ var el=document.getElementById('impReg'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+    gas('aiRegList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var cs=r.cases||[]; if(!cs.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 고정된 회귀 케이스가 없어요.</div>'; return; }
+      el.innerHTML=cs.map(function(c){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:12px;'+(c.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:34px">'+esc(c.surface)+'</span><span style="flex:1;color:#3a2f25">'+esc(c.q)+' <span style="color:#9a9183">['+esc(c.type)+(c.val?(':'+esc(c.val)):'')+']</span></span><button data-ron="'+esc(c.id)+'" data-on="'+(c.active?'0':'1')+'" style="padding:3px 7px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(c.active?'끄기':'켜기')+'</button><button data-rdel="'+esc(c.id)+'" style="padding:3px 7px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
+      Array.prototype.forEach.call(el.querySelectorAll('[data-ron]'),function(b){ b.addEventListener('click',function(){ gas('aiRegSetActive',b.getAttribute('data-ron'),b.getAttribute('data-on')==='1').then(loadReg); }); });
+      Array.prototype.forEach.call(el.querySelectorAll('[data-rdel]'),function(b){ b.addEventListener('click',function(){ if(confirm('이 회귀 케이스를 삭제할까요?')) gas('aiRegDelete',b.getAttribute('data-rdel')).then(loadReg); }); });
+    }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+  function pinReg(surface,q,btn){ var val=prompt('이 질문의 답에 꼭 들어가야 할 표현을 적으세요(필수 검증). 매일 자동 점검돼요.\n예) 280  ·  주차  ·  환불\n\n질문: '+q,'');
+    if(val===null||!val.trim()) return; gas('aiRegAdd', surface||'메인', q, '필수', val.trim()).then(function(r){ if(r&&r.ok){ if(btn){ btn.textContent='✓ 고정'; btn.disabled=true; } } else alert((r&&r.error)||'고정 실패'); }); }
   // 📊 고객질문 종합 리포트 — 기간별 막힘/애매/정상 + 접점별 + 자주 막힌/애매한 질문 TOP. 막힌·애매한 질문은 그 자리에서 📚교육·🩺점검.
   var _repDays=7;
   function gotoCheck(q){ show('개선'); var el=document.getElementById('impQ'); if(el){ el.value=q; var b=document.getElementById('impRun'); if(b) b.click(); } }
@@ -688,7 +721,7 @@ function openAiTeam(){
      +'<div id="repBody"><div style="color:#9a9183;font-size:12px">불러오는 중…</div></div>';
     var sel=document.getElementById('repDays'); sel.value=String(_repDays); sel.addEventListener('change',function(){ _repDays=Number(sel.value)||7; load(); });
     var pill=function(emoji,label,n,tot,col){ var pc=tot>0?Math.round(n/tot*100):0; return '<div style="flex:1;min-width:84px;background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:9px 10px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+n+'</div><div style="font-size:11px;color:#75705f">'+emoji+' '+label+(tot>0?(' · '+pc+'%'):'')+'</div></div>'; };
-    var qrow=function(it){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(Number(it.count)>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+it.count+'</span>':'')+(it.surface?'<span style="font-size:10px;color:#bcb3a4">'+esc(it.surface)+'</span>':'')+'<button class="repAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="repEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; };
+    var qrow=function(it){ var s=it.surface||'메인'; return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(Number(it.count)>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+it.count+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(s)+'</span><button class="repAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="repEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button><button class="repPin" data-q="'+esc(it.q)+'" data-s="'+esc(s)+'" title="회귀셋에 고정 — 매일 자동 점검" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📌</button></div>'; };
     var load=function(){ var rb=document.getElementById('repBody'); rb.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
       gas('aiQuestionReport',_repDays).then(function(r){ if(!r||!r.ok){ rb.innerHTML='<div style="color:#b00;font-size:12px">불러오지 못했어요.</div>'; return; }
         if(!r.total){ rb.innerHTML='<div style="color:#9a9183;font-size:12px">이 기간에 쌓인 고객 질문이 없어요. (질문 적재는 GAS 재배포 후부터 채워집니다)</div>'; return; }
@@ -703,6 +736,7 @@ function openAiTeam(){
         rb.innerHTML=h;
         Array.prototype.forEach.call(rb.querySelectorAll('.repAsk'),function(b){ b.addEventListener('click',function(){ gotoCheck(b.getAttribute('data-q')); }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
+        Array.prototype.forEach.call(rb.querySelectorAll('.repPin'),function(b){ b.addEventListener('click',function(){ pinReg(b.getAttribute('data-s'),b.getAttribute('data-q'),b); }); });
       }).catch(function(){ rb.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); };
     load();
   }

@@ -133,6 +133,7 @@ module.exports = async (req, res) => {
     const sysBlocks = [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }];
     if (grounded) sysBlocks.push({ type: 'text', text: '[이 고객의 현재 상황 · 실제 데이터]\n' + state });
     // 운영자 보충지식(교육) — 핵심 KB 뒤에 별도 블록(비캐시)으로. 핵심 정책은 못 덮음.
+    try { const facts = await require('./_facts')(); if (facts) sysBlocks.push({ type: 'text', text: '[운영 핵심정보 — 최신·최우선. 아래 값이 위 지식과 다르면 반드시 아래 값을 따른다]\n' + facts }); } catch (e) {}
     try { const kbNotes = await require('./_kbnotes')(page || '메인'); if (kbNotes) sysBlocks.push({ type: 'text', text: '[운영자 보충지식 — 아래 내용은 참고용. 가격·계약·환불 등 핵심 정책과 충돌하면 위 핵심을 우선한다]\n' + kbNotes }); } catch (e) {}
 
     const reqBody = {

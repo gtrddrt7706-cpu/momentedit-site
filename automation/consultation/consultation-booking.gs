@@ -2048,6 +2048,7 @@ function doPost(e) {
       case 'awDemandLog':        return jsonOut(handleAwDemandLog(body));   // 애프터웨딩 수요 로그(익명·니즈/인원/필터) — 검증·보강 우선순위 근거
       case 'aiCostLog':          return jsonOut(handleAiCostLog(body));     // 96 · AI 토큰 비용 로그(접점별) — 관리자 24시간 집계 근거
       case 'aiKbNotes':          return jsonOut(handleAiKbNotes(body));     // 96 · AI 교육(운영자 보충지식) 조회 — 챗봇이 접점별로 가져감
+      case 'aiFacts':            return jsonOut(handleAiFacts(body));       // 96 · 핵심정보 단일 진실원 조회 — 챗봇이 최신·최우선 사실로 주입
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));

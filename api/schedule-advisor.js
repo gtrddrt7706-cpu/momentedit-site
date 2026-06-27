@@ -245,6 +245,7 @@ module.exports = async (req, res) => {
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
     const repSys = [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }];
+    try { const fct = await require('./_facts')(); if (fct) repSys.push({ type: 'text', text: '[운영 핵심정보 — 최신·최우선. 위 지식과 다르면 아래를 따른다]\n' + fct }); } catch (e) {}
     try { const n = await require('./_kbnotes')('예약'); if (n) repSys.push({ type: 'text', text: '[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n }); } catch (e) {}
     const rep = await callClaude(apiKey, {
       model: MODEL, max_tokens: 400,

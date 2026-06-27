@@ -119,6 +119,7 @@ module.exports = async (req, res) => {
     const userTurns = history.filter((m) => m.role === 'user').length;
 
     let sysA = SYS;   // 운영자 보충지식(교육) — 핵심 뒤에 참고용으로
+    try { const fct = await require('./_facts')(); if (fct) sysA += '\n\n[운영 핵심정보 — 최신·최우선. 위 지식과 다르면 아래를 따른다]\n' + fct; } catch (e) {}
     try { const n = await require('./_kbnotes')('애프터'); if (n) sysA += '\n\n[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n; } catch (e) {}
     const r = await fetch(API_URL, {
       method: 'POST',
