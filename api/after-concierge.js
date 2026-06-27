@@ -129,7 +129,7 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) return out(502, { ok: false, error: 'ai_unavailable' });
     const data = await r.json();
-    try { await require('./_costlog')('애프터', MODEL, data.usage); } catch (e) {}
+    if (!(body && body.test)) { try { await require('./_costlog')('애프터', MODEL, data.usage); } catch (e) {} }
     let parsed = {};
     try { parsed = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) { return out(502, { ok: false, error: 'ai_parse' }); }
 

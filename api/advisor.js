@@ -194,7 +194,7 @@ module.exports = async (req, res) => {
       escalate = true;
     }
 
-    try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {}
+    if (!(body && body.test)) { try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {} }
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
