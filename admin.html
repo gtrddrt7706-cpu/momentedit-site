@@ -447,11 +447,13 @@ function openAiCost(){
     gas('aiCostSummary24h').then(function(r){
       if(!r||!r.ok){ bodyEl.innerHTML='<div style="color:#b00;font-size:13px">불러오지 못했습니다. ('+esc((r&&r.error)||'오류')+')</div>'; return; }
       var d=r.day||{}, rows=(d.bySurface||[]);
+      // 5곳을 항상 고정 순서로 표시(미사용은 ₩0) — "어디에 얼마" 분리가 한눈에
+      var SURF=['메인','마이페이지','예약','애프터','핸드오프'];
+      var byName={}; rows.forEach(function(s){ byName[s.surface]=s; });
       var h='<div style="font-size:12px;color:#75705f;margin-bottom:10px">최근 24시간 · 접점별 (환율 약 '+(Number(r.rate)||0).toLocaleString('ko-KR')+'원 기준 추정)</div>';
       h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
       h+='<tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:6px 4px;font-weight:500">접점</th><th style="padding:6px 4px;font-weight:500;text-align:right">금액</th><th style="padding:6px 4px;font-weight:500;text-align:right">호출</th></tr>';
-      if(!rows.length){ h+='<tr><td colspan="3" style="padding:14px 4px;color:#9a9183;text-align:center">최근 24시간 사용 내역이 없어요.</td></tr>'; }
-      rows.forEach(function(s){ h+='<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25">'+esc(s.surface)+'</td><td style="padding:8px 4px;text-align:right;color:#3a2f25">'+_won(s.krw)+'</td><td style="padding:8px 4px;text-align:right;color:#75705f">'+(Number(s.calls)||0)+'</td></tr>'; });
+      SURF.forEach(function(name){ var s=byName[name]||{krw:0,calls:0}; var dim=(s.calls?'':'color:#bcb3a4;'); h+='<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;'+dim+'">'+esc(name)+'</td><td style="padding:8px 4px;text-align:right;color:#3a2f25;'+dim+'">'+_won(s.krw)+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;'+dim+'">'+(Number(s.calls)||0)+'</td></tr>'; });
       h+='<tr style="border-top:2px solid #e0d8cc;font-weight:700"><td style="padding:9px 4px;color:#3a2f25">합계</td><td style="padding:9px 4px;text-align:right;color:#6B2A24">'+_won(d.total)+'</td><td style="padding:9px 4px;text-align:right;color:#75705f">'+(Number(d.calls)||0)+'</td></tr>';
       h+='</table>';
       var m=r.month||{};
