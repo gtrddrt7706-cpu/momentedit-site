@@ -95,7 +95,7 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
   });
 })();
 
-// ⑦ md 템플릿 ↔ vars 1:1 — 등록 12종+발송안함 5종 본문 변수가 코드 vars와 정확히 일치
+// ⑦ md 템플릿 ↔ vars 1:1 — 등록 14종+발송안함 4종 본문 변수가 코드 vars와 정확히 일치
 (function(){
   const md = fs.readFileSync(path.join(__dirname, '..', '알림톡_템플릿_신청문안.md'), 'utf8');
   const sec = md.split('## 1. 등록 템플릿')[1].split('## 2. 승인 후')[0];
@@ -114,7 +114,7 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
       check('md ' + ev + ' 본문 전각줄표 없음', m[2].indexOf('—') === -1);
     });
   }
-  check('md 템플릿 블록 17종 파싱(12+5)', seen === 17, seen + '종');
+  check('md 템플릿 블록 18종 파싱(14+4)', seen === 18, seen + '종');
 })();
 
 console.log('\n────────────────────────────────────');
