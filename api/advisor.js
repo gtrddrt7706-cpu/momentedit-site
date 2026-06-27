@@ -132,6 +132,8 @@ module.exports = async (req, res) => {
     //   별도 블록(비캐시)으로 분리 — 캐시 무효화·고객 간 교차오염을 막는다(prefix 캐시 규칙).
     const sysBlocks = [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }];
     if (grounded) sysBlocks.push({ type: 'text', text: '[이 고객의 현재 상황 · 실제 데이터]\n' + state });
+    // 운영자 보충지식(교육) — 핵심 KB 뒤에 별도 블록(비캐시)으로. 핵심 정책은 못 덮음.
+    try { const kbNotes = await require('./_kbnotes')(page || '메인'); if (kbNotes) sysBlocks.push({ type: 'text', text: '[운영자 보충지식 — 아래 내용은 참고용. 가격·계약·환불 등 핵심 정책과 충돌하면 위 핵심을 우선한다]\n' + kbNotes }); } catch (e) {}
 
     const reqBody = {
       model: (page === '마이') ? MODEL_MYPAGE : MODEL_PUBLIC,   // 현재 둘 다 Sonnet 4.6 (마이는 그라운딩 후 Opus 재격상 대비 분기 유지)

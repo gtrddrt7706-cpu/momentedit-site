@@ -243,11 +243,13 @@ module.exports = async (req, res) => {
     }
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
+    const repSys = [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }];
+    try { const n = await require('./_kbnotes')('예약'); if (n) repSys.push({ type: 'text', text: '[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n }); } catch (e) {}
     const rep = await callClaude(apiKey, {
       model: MODEL, max_tokens: 400,
       thinking: { type: 'disabled' },   // Sonnet: 실시간 응대 → 사고 없이 낮은 effort로 빠르고 저렴하게
       output_config: { effort: 'low' },
-      system: [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }],
+      system: repSys,
       messages: [{ role: 'user', content: '[대화]\n' + convo + '\n\n[확인 결과]\n' + verdict + '\n\n위 확인 결과만 사용해 고객의 마지막 메시지에 답하세요.' }],
     });
     let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '')

@@ -270,8 +270,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
   <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">⛔</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
-  <button class="tb" id="btnAiTest" title="AI 테스트(5접점 자동)" style="display:none">🧪</button>
-  <button class="tb" id="btnAiCost" title="AI 비용(최근 24시간)" style="display:none">💰</button>
+  <button class="tb" id="btnAiTeam" title="AI 직원실(명단·교육·테스트·인건비·인계)" style="display:none">🤖</button>
   <button class="tb" id="btnRefresh" title="새로고침" style="display:none">↻</button>
   <button class="tb" id="btnLogout" title="로그아웃" style="display:none">⏏</button>
 </div>
@@ -530,8 +529,60 @@ function openAiTest(){
       rows.push('<div style="border-top:1px solid #f0ebe3;padding:8px 0">[<b>'+mark+'</b>] <b>'+esc(it.surface)+'·'+esc(it.axis)+'</b> '+esc(it.q)+(j.escalate?' <span style="color:#6B2A24">[에스컬]</span>':'')+'<div style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div></div>');
       done++; render('실행 중… ('+done+'/'+list.length+')');
     }); }); }, Promise.resolve());
-    seq.then(function(){ $a('aitRun').disabled=false; out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+' (검토는 답 보고 판단)</div>'+rows.join('')+'<div style="margin-top:10px;font-size:11px;color:#b0a896">실제 비용은 💰에서 확인 · 추정 ≈₩'+(list.length*70).toLocaleString('ko-KR')+'</div>'; });
+    seq.then(function(){ $a('aitRun').disabled=false;
+      gas('aiTestRunSave', pass, gradable).then(function(rs){
+        var cmp=''; if(rs&&rs.ok&&rs.prev){ cmp=' <span style="font-weight:400;color:#9a9183">· 지난번 '+rs.prev.pass+'/'+rs.prev.total+(pass>rs.prev.pass?' ▲':(pass<rs.prev.pass?' ▼':' ='))+'</span>'; }
+        var fail=gradable-pass;
+        var alertBtn=fail>0?' <button id="aitAlert" style="margin-left:6px;padding:3px 9px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">📱 문제 문자 알림</button>':'';
+        out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+' (검토는 답 보고 판단)'+cmp+alertBtn+'</div>'+rows.join('')+'<div style="margin-top:10px;font-size:11px;color:#b0a896">실제 비용은 💰 인건비에서 확인 · 추정 ≈₩'+(list.length*70).toLocaleString('ko-KR')+'</div>';
+        var ab=document.getElementById('aitAlert'); if(ab) ab.addEventListener('click',function(){ gas('aiAlertAdmin','테스트 '+pass+'/'+gradable+' 통과 · 문제 '+fail+'건 확인 필요').then(function(r){ alert(r&&r.ok?'관리자 문자 발송됨':('실패: '+((r&&r.error)||'설정 확인'))); }); });
+      }).catch(function(){ out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+'</div>'+rows.join(''); });
+    });
   });
+}
+
+// 🤖 AI 직원실 — 명단·교육·인계기록 + 테스트·인건비 통합 허브
+function openAiTeam(){
+  var old=document.getElementById('ad_aiTeam'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='ad_aiTeam';
+  ov.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto';
+  var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:10px;max-width:600px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)';
+  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600">🤖 AI 직원실</span><button id="atmClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
+  var tabs=document.createElement('div'); tabs.style.cssText='display:flex;gap:4px;padding:10px 12px 0;flex-wrap:wrap';
+  var bd=document.createElement('div'); bd.style.cssText='padding:16px;min-height:120px';
+  box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
+  document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
+  ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
+  var TABS=[['명단','👥'],['교육','📚'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
+  TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]+' '+t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
+  function show(name){
+    Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
+    if(name==='명단') return rRoster();
+    if(name==='교육') return rEdu();
+    if(name==='인계기록') return rHandoff();
+    if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">🧪 테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
+    if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">💰 인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
+  }
+  function rRoster(){ var R=[['메인 상담','홈 방문 예비고객 상담','Sonnet 4.6'],['마이 비서','계약 고객 마이페이지 상담','Sonnet 4.6'],['예약 담당','날짜·시간 예약 상담','Sonnet 4.6'],['애프터 컨시어지','식당·애프터 추천','Sonnet 4.6'],['인계 비서','상담사 연결 브리핑','Opus 4.8']];
+    bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:10px">우리 AI 직원 5명</div><table style="width:100%;border-collapse:collapse;font-size:13px">'+R.map(function(x){ return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;color:#9a9183;text-align:right;font-size:11px">'+esc(x[2])+'</td></tr>'; }).join('')+'</table>'; }
+  function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 (즉시 반영 · 가격·계약 등 핵심은 추가 불가)</div>'
+     +'<div style="display:flex;gap:6px;margin-bottom:8px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option>전체</option><option>메인</option><option>마이</option><option>예약</option><option>애프터</option></select>'
+     +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
+     +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div><div id="eduList"></div>';
+    document.getElementById('eduAdd').addEventListener('click',function(){ var t=document.getElementById('eduTx').value.trim(); if(!t) return; gas('aiKbNoteAdd',document.getElementById('eduTg').value,t).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; loadEdu(); } else alert((r&&r.error)||'추가 실패'); }); });
+    loadEdu(); }
+  function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+    gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var ns=r.notes||[]; if(!ns.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 등록된 교육이 없어요.</div>'; return; }
+      el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:center;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+esc(n.text)+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
+      Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
+      Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
+    }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+  function rHandoff(){ bd.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+    gas('adminListAiHandoffs').then(function(r){ if(r&&r.ok===false){ bd.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var arr=(r&&(r.items||r.list||r.handoffs))||(Array.isArray(r)?r:[]);
+      if(!arr.length){ bd.innerHTML='<div style="color:#9a9183;font-size:12px">상담사 연결(인계) 기록이 없어요.</div>'; return; }
+      bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">AI가 못 풀어 넘긴 건 (최근)</div>'+arr.slice(0,30).map(function(x){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><b>'+esc(x.category||x.cat||'문의')+'</b> <span style="color:#9a9183;font-size:11px">'+esc(x.at||x['시각']||'')+'</span><div style="color:#5a554c;margin-top:2px">'+esc(x.summary||x['요약']||x.suggestedReply||'')+'</div></div>'; }).join('');
+    }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+  show('명단');
 }
 function gasRaw(fn){
   var args = Array.prototype.slice.call(arguments,1);
@@ -569,8 +620,7 @@ $('btnRefresh').addEventListener('click', loadHome);
   bh.addEventListener('click', go); bh.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); })();
 $('btnArchive').addEventListener('click', function(){ openArchive(); });
 $('btnBlocks').addEventListener('click', openBlocksModal);
-$('btnAiCost').addEventListener('click', openAiCost);
-$('btnAiTest').addEventListener('click', openAiTest);
+$('btnAiTeam').addEventListener('click', openAiTeam);
 
 /* ── 운영 블록(날짜 막기 · 휴무) — 막은 날짜·타임은 고객 달력에 '마감'으로, 요청·서명도 서버에서 차단 ── */
 function _bkRow(b){
@@ -627,7 +677,7 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
-function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTest','btnAiCost','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
+function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTeam','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)

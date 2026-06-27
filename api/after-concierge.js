@@ -118,10 +118,12 @@ module.exports = async (req, res) => {
     if (!history.length || history[history.length - 1].role !== 'user') return out(400, { ok: false, error: 'empty_message' });
     const userTurns = history.filter((m) => m.role === 'user').length;
 
+    let sysA = SYS;   // 운영자 보충지식(교육) — 핵심 뒤에 참고용으로
+    try { const n = await require('./_kbnotes')('애프터'); if (n) sysA += '\n\n[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n; } catch (e) {}
     const r = await fetch(API_URL, {
       method: 'POST',
       headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, system: SYS,
+      body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, system: sysA,
         thinking: { type: 'disabled' },   // Sonnet: 실시간 채팅 → 사고 없이 낮은 effort
         output_config: { format: { type: 'json_schema', schema: SCHEMA }, effort: 'low' }, messages: history })
     });
