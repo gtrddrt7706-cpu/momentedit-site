@@ -88,3 +88,25 @@ function purgeAiCostLog() {
     if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeAiCostLog: ' + del + '건 삭제'); }
   } catch (e) { try { Logger.log('purgeAiCostLog 실패: ' + (e && e.message)); } catch (_) {} }
 }
+
+// ============================ AI 테스트 시나리오 (관리자 편집·영구) ============================
+//  관리자 페이지 🧪 버튼이 쓰는 커스텀 테스트 질문. 한 줄에 하나: "접점|질문"
+//  (접점 = 메인 / 마이 / 예약 / 애프터 / 핸드오프). 내장 4축 시나리오에 더해 함께 실행됨.
+function _aiTestSheet_() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('AI_테스트시나리오');
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_테스트시나리오'); sh.appendRow(['접점|질문  (접점=메인/마이/예약/애프터/핸드오프 · 한 줄에 하나)']); }
+  return sh;
+}
+function aiTestScenarios() {   // adminCall — 저장된 커스텀 시나리오 텍스트 반환
+  var sh = _aiTestSheet_(); var n = sh.getLastRow() - 1, lines = [];
+  if (n > 0) { var v = sh.getRange(2, 1, n, 1).getValues(); for (var i = 0; i < v.length; i++) { var s = String(v[i][0] || '').trim(); if (s) lines.push(s); } }
+  return { ok: true, text: lines.join('\n') };
+}
+function aiTestScenariosSave(text) {   // adminCall — 커스텀 시나리오 저장(최대 50줄 · "접점|질문" 형식만)
+  var sh = _aiTestSheet_();
+  if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);
+  var lines = String(text || '').split('\n').map(function (s) { return s.trim(); })
+    .filter(function (s) { return s && s.indexOf('|') > 0; }).slice(0, 50);
+  if (lines.length) sh.getRange(2, 1, lines.length, 1).setValues(lines.map(function (s) { return [s]; }));
+  return { ok: true, count: lines.length };
+}
