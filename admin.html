@@ -608,40 +608,72 @@ function openAiTeam(){
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
      +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:10px">기본은 <b>전체</b> — 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꾸세요. · 고친 뒤엔 <b>💡 개선</b> 탭에서 전 직원이 제대로 답하는지 한 번에 확인하세요.</div>'
+     +'<div style="margin-bottom:6px"><input id="eduMemo" placeholder="메모(선택) — 왜 추가했는지 · 출처 등" style="width:100%;padding:5px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px;box-sizing:border-box"></div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">기본은 <b>전체</b> — 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꾸세요. · 고친 뒤엔 <b>💡 개선</b> 탭에서 전 직원이 제대로 답하는지 확인하세요.</div>'
+     +'<input id="eduSearch" placeholder="🔍 등록된 교육 검색" style="width:100%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px;box-sizing:border-box;margin-bottom:8px">'
      +'<div id="eduList"></div>';
-    document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(); if(!t) return;
-      var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; loadEdu(); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); };
+    document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(), memo=document.getElementById('eduMemo').value.trim(); if(!t) return;
+      var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); };
       doAdd(false); });
+    document.getElementById('eduSearch').addEventListener('input',function(){ renderEdu(); });
     loadEdu(); }
+  var _eduNotes=[];
+  // 상충 의심 — 같은 대상(또는 전체와 겹침)끼리 의미 있는 단어를 2개 이상 공유하면 ⚠️(모순·중복 점검용)
+  function _eduConflicts(ns){ var act=ns.filter(function(n){return n.active;}); var flag={};
+    var toks=function(s){ return (String(s).toLowerCase().match(/[가-힣a-z0-9]{2,}/g)||[]); };
+    for(var i=0;i<act.length;i++){ for(var j=i+1;j<act.length;j++){ var a=act[i],b=act[j];
+      var overlap=(a.target===b.target)||a.target==='전체'||b.target==='전체'; if(!overlap) continue;
+      var ta=toks(a.text), tb=toks(b.text), shared=0; for(var k=0;k<ta.length;k++){ if(tb.indexOf(ta[k])>=0) shared++; }
+      if(shared>=2){ flag[a.id]=1; flag[b.id]=1; } } }
+    return flag; }
+  function renderEdu(){ var el=document.getElementById('eduList'); if(!el) return; var q=(document.getElementById('eduSearch')&&document.getElementById('eduSearch').value||'').trim().toLowerCase();
+    var ns=_eduNotes.filter(function(n){ return !q || (n.text+' '+n.target+' '+(n.memo||'')).toLowerCase().indexOf(q)>=0; });
+    if(!ns.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">'+(q?'검색 결과가 없어요.':'아직 등록된 교육이 없어요.')+'</div>'; return; }
+    var cf=_eduConflicts(_eduNotes);
+    el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:flex-start;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px;margin-top:2px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+(cf[n.id]?'<span title="비슷한 교육이 있어요 — 모순·중복 확인" style="cursor:help">⚠️</span> ':'')+esc(n.text)+(n.memo?'<div style="font-size:10px;color:#b0a896;margin-top:2px">📝 '+esc(n.memo)+'</div>':'')+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
+    Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
+    Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
+  }
   function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
-    gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var ns=r.notes||[]; if(!ns.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 등록된 교육이 없어요.</div>'; return; }
-      el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:center;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+esc(n.text)+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
-      Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
-      Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
+    gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } _eduNotes=r.notes||[]; renderEdu();
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
-  // 💡 개선 — 자기개선 루프: ① 전 직원에게 한 질문 동시에 물어보고 어디가 틀린지 한눈에(비슷한 곳 점검) ② 실제 고객이 못 푼 질문을 교육 후보로 한 탭 교육
+  // 💡 개선 — 자기개선 루프: ⓪ 자동 안전망 상태·수동 점검 ① 전 직원 일괄 점검+교육 효과 확인 ② 실제 고객 질문(빈도) 교육 후보
   function rImprove(){
-    bd.innerHTML='<div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🩺 전 직원 점검</div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:6px">같은 질문을 4명(메인·마이·예약·애프터)에게 동시에 물어봐요. 다르게/틀리게 답하는 직원을 찾아 그 자리에서 가르칩니다.</div>'
+    bd.innerHTML='<div id="impHealth" style="background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:10px 12px;margin-bottom:14px"></div>'
+     +'<div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🩺 전 직원 점검</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:6px">같은 질문을 4명(메인·마이·예약·애프터)에게 동시에 물어봐요. 틀리게 답하는 직원을 찾아 그 자리에서 가르치고, 교육 효과도 바로 확인합니다.</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:6px"><input id="impQ" placeholder="예) 주차 되나요?" style="flex:1;padding:7px 9px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><button id="impRun" style="padding:7px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">전 직원에게</button></div>'
      +'<div id="impOut" style="margin-bottom:16px"></div>'
      +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">💡 교육 후보 (실제 고객 질문)</div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 = AI가 못 풀어 상담사로 넘긴 질문. 옆 📚로 올바른 답을 전 직원에게 가르치면 다음부턴 스스로 처리해요.</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 = AI가 못 풀어 상담사로 넘긴 질문 · ×N = 같은 질문이 나온 횟수(많을수록 먼저 교육). 옆 📚로 전 직원에게 가르치면 다음부턴 스스로 처리해요.</div>'
      +'<div id="impCand"></div></div>';
+    // ⓪ 자동 안전망 — 매일 9시 자동 점검(위반 시에만 문자). 여기서 지금 바로도 가능.
+    var health=document.getElementById('impHealth');
+    var renderHealth=function(){ health.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600;color:#3a2f25">🛡️ 자동 안전망</span><span style="font-size:11px;color:#9a9183">매일 9시 자동 · 위반/하락 시에만 문자</span><span style="margin-left:auto"></span><button id="impSafe" style="padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">지금 안전점검</button><button id="impDig" style="margin-left:6px;padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📨 요약 보기</button></div><div id="impHealthBody" style="margin-top:8px;font-size:12px;color:#75705f">최근 점검 불러오는 중…</div>';
+      document.getElementById('impSafe').addEventListener('click',function(){ var b=this; b.disabled=true; b.textContent='점검 중…(20~30초)'; document.getElementById('impHealthBody').textContent='안전점검 실행 중… 레드라인 4개를 확인합니다.';
+        gas('aiSafetyNow').then(function(r){ b.disabled=false; b.textContent='지금 안전점검'; if(r&&r.unreachable){ document.getElementById('impHealthBody').innerHTML='<span style="color:#9a7b00">서버측 자동점검이 막혀 있어요. 🧪 테스트 탭에서 브라우저로 점검해 주세요.</span>'; return; } loadHealth(); }).catch(function(){ b.disabled=false; b.textContent='지금 안전점검'; }); });
+      document.getElementById('impDig').addEventListener('click',function(){ var hb=document.getElementById('impHealthBody'); hb.textContent='요약 불러오는 중…'; gas('aiDigestPreview').then(function(r){ hb.innerHTML='<div style="padding:6px 8px;background:#fff;border-radius:5px;border:1px solid #f0ebe3">'+esc((r&&r.text)||'요약 없음')+'</div><div style="margin-top:4px;font-size:10px;color:#b0a896">매일 아침 이 한 줄을 관리자 문자로 받아요.</div>'; }); });
+      loadHealth(); };
+    var loadHealth=function(){ var hb=document.getElementById('impHealthBody'); if(!hb) return; gas('aiSafetyHistory').then(function(r){ if(!r||!r.ok||!r.rows||!r.rows.length){ hb.innerHTML='아직 자동 점검 기록이 없어요. <b>지금 안전점검</b>으로 바로 확인할 수 있어요.'; return; }
+        var last=r.rows[0]; var bad=last.total-last.pass; var col=bad>0?'#b00':'#2e7d32';
+        hb.innerHTML='<span style="color:'+col+';font-weight:600">최근 '+last.pass+'/'+last.total+'</span> <span style="color:#9a9183">'+esc(String(last.at).slice(5,16))+'</span>'+(bad>0?(' · <span style="color:#b00">실패: '+esc(last.fails)+'</span>'):' · 이상 없음')
+         +'<div style="margin-top:5px;font-size:11px;color:#bcb3a4">'+r.rows.map(function(x){ var b=x.total-x.pass; return '<span title="'+esc(x.at)+(x.fails?(' · '+esc(x.fails)):'')+'" style="display:inline-block;margin-right:4px;color:'+(b>0?'#b00':'#9bbf9b')+'">'+(b>0?'✕':'●')+'</span>'; }).join('')+' <span style="color:#cfc7b8">(최근→과거)</span></div>'; }); };
+    renderHealth();
     var SURF=['메인','마이','예약','애프터'];
     var run=function(){ var q=document.getElementById('impQ').value.trim(); if(!q) return; var out=document.getElementById('impOut');
       out.innerHTML=SURF.map(function(s){ return '<div data-s="'+s+'" style="border-top:1px solid #f0ebe3;padding:7px 0;font-size:13px"><b style="color:#6B2A24">'+s+'</b> <span style="color:#9a9183">물어보는 중…</span></div>'; }).join('');
       SURF.forEach(function(s){ aiAsk(s,q).then(function(rep){ var row=out.querySelector('[data-s="'+s+'"]'); if(!row) return;
-        row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" data-s="'+s+'" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button></div><div style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
-        var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }); });
+        row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button></div><div class="impAns" style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
+        var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(!ok) return; b.textContent='🔁 교육 후 확인'; b.disabled=false;
+          b.onclick=function(){ b.disabled=true; b.textContent='확인 중…'; aiAsk(s,q).then(function(rep2){ var ans=row.querySelector('.impAns'); if(ans) ans.innerHTML='<div style="opacity:.5;text-decoration:line-through">교육 전: '+esc(rep)+'</div><div style="margin-top:3px;color:#2e7d32">교육 후: '+esc(rep2)+'</div><div style="margin-top:2px;font-size:10px;color:#b0a896">반영까지 최대 5분 — 안 바뀌었으면 잠시 뒤 다시 눌러보세요.</div>'; b.disabled=false; b.textContent='🔁 다시 확인'; }); };
+        }); });
       }); }); };
     document.getElementById('impRun').addEventListener('click', run);
     document.getElementById('impQ').addEventListener('keydown',function(e){ if(e.key==='Enter') run(); });
     var cand=document.getElementById('impCand'); cand.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiQuestionLog').then(function(r){ if(!r||!r.ok){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">질문 로그를 불러오지 못했어요.</div>'; return; } var items=r.items||[]; if(!items.length){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">아직 쌓인 고객 질문이 없어요.</div>'; return; }
-      items.sort(function(a,b){ return (b.escalate?1:0)-(a.escalate?1:0); });   // 못 푼 것(🔴) 먼저
-      cand.innerHTML=items.slice(0,40).map(function(it,i){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+(it.escalate?'<span title="상담사 연결됨">🔴</span>':'<span style="opacity:.3">·</span>')+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span><span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; }).join('');
+      items.sort(function(a,b){ var e=(b.escalate?1:0)-(a.escalate?1:0); return e!==0?e:((b.count||0)-(a.count||0)); });   // 못 푼 것(🔴) → 빈도 많은 것
+      cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+(it.escalate?'<span title="상담사 연결됨">🔴</span>':'<span style="opacity:.3">·</span>')+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; }).join('');
       Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
     }).catch(function(){ cand.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; });
@@ -660,6 +692,7 @@ function openAiTeam(){
           +'<div style="font-size:11px;color:#75705f;margin-top:3px">👤 '+esc(cust)+'</div>'
           +'<div style="color:#5a554c;margin-top:3px">'+esc(x.summary||x.suggestedReply||'')+'</div>'
           +(x.suggestedReply?'<details style="margin-top:4px"><summary style="font-size:11px;color:#6B2A24;cursor:pointer">제안 답변·근거 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#faf7f2;border-radius:6px;font-size:12px;color:#3a2f25;white-space:pre-wrap">'+esc(x.suggestedReply)+(x.rationale?'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0d8cc;color:#75705f">'+esc(x.rationale)+'</div>':'')+'</div></details>':'')
+          +(x.conversation?'<details style="margin-top:4px"><summary style="font-size:11px;color:#9a9183;cursor:pointer">고객 대화 원문 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#f4f1ea;border-radius:6px;font-size:12px;color:#5a554c;white-space:pre-wrap;max-height:220px;overflow:auto">'+esc(x.conversation)+'</div></details>':'')
           +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>'
           +(x.id?'<button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button>':'')+'</div>'
           +'</div>'; }).join('');

@@ -1544,6 +1544,7 @@ function setupAllTriggers() {
     { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-9 리마인드' },
     { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
     { fn: 'sendArchiveExpiryNotices', hour: 11, label: '결과물 보관 만료 7일 전 통지' },
+    { fn: 'aiDaily',                 hour: 9,  label: 'AI 직원실 일일 안전점검·요약·인계 24h 리마인드' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
     { fn: 'purgeAdvisorLog',         hour: 4,  weekly: true, label: '상담사 질문 로그 90일 정리(월)' },
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
