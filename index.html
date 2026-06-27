@@ -2340,10 +2340,10 @@ function replayHeroAnimation(){
   var sc=document.querySelector('.jr-showcase'); if(!sc) return;
   var shots=sc.querySelectorAll('.jr-shot'), steps=sc.querySelectorAll('.jr-step');
   var n=shots.length; if(!n||steps.length!==n) return;
-  var cur=0, timer=null, DUR=4600;
+  var cur=0, timer=null, DUR=5400;
   sc.style.setProperty('--jr-dur', (DUR/1000)+'s');
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function show(i){ cur=((i%n)+n)%n; for(var k=0;k<n;k++){ var on=k===cur; shots[k].classList.toggle('on',on); steps[k].classList.toggle('on',on); } }
+  function show(i){ cur=((i%n)+n)%n; for(var k=0;k<n;k++){ var on=k===cur; shots[k].classList.toggle('on',on); steps[k].classList.toggle('on',on); var b=steps[k].querySelector('.jr-step-btn'); if(b) b.setAttribute('aria-pressed', on?'true':'false'); } }
   function stop(){ if(timer){ clearInterval(timer); timer=null; } }
   function play(){ if(reduce) return; stop(); timer=setInterval(function(){ show(cur+1); }, DUR); }
   for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ show(idx); play(); }); })(k); }
