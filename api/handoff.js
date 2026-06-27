@@ -91,6 +91,7 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'upstream_error' }));
     }
     const data = await anthRes.json();
+    try { await require('./_costlog')('핸드오프', MODEL, data.usage); } catch (e) {}
     let brief = {};
     try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
     // 안전망: 전각 줄표 제거

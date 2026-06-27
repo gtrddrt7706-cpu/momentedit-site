@@ -270,6 +270,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
   <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">⛔</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
+  <button class="tb" id="btnAiCost" title="AI 비용(최근 24시간)" style="display:none">💰</button>
   <button class="tb" id="btnRefresh" title="새로고침" style="display:none">↻</button>
   <button class="tb" id="btnLogout" title="로그아웃" style="display:none">⏏</button>
 </div>
@@ -420,6 +421,48 @@ function openFittingDoc(code){
 }
 
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
+
+// AI 비용 — 💰 버튼 클릭 시에만 오버레이로 띄움(메인 로딩엔 영향 없음). GAS aiCostSummary24h 집계를 원화로 표시.
+function _won(n){ return '₩' + (Number(n)||0).toLocaleString('ko-KR'); }
+function openAiCost(){
+  var old=document.getElementById('ad_aiCost'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='ad_aiCost';
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 14px;overflow:auto';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:10px;max-width:480px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden';
+  var bar=document.createElement('div');
+  bar.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2';
+  bar.innerHTML='<span style="font-size:15px;color:#3a2f25;font-weight:600">💰 AI 비용</span>';
+  var btns=document.createElement('span');
+  var bRef=document.createElement('button'); bRef.textContent='↻ 새로고침'; bRef.style.cssText='margin-right:8px;padding:6px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:6px;font-size:12px;cursor:pointer';
+  var bCls=document.createElement('button'); bCls.textContent='닫기'; bCls.style.cssText='padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer';
+  btns.appendChild(bRef); btns.appendChild(bCls); bar.appendChild(btns);
+  var bodyEl=document.createElement('div'); bodyEl.style.cssText='padding:16px';
+  box.appendChild(bar); box.appendChild(bodyEl); ov.appendChild(box); document.body.appendChild(ov);
+  var close=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); };
+  bCls.addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  var load=function(){
+    bodyEl.innerHTML='<div style="text-align:center;color:#75705f;padding:24px 0;font-size:13px">불러오는 중…</div>';
+    gas('aiCostSummary24h').then(function(r){
+      if(!r||!r.ok){ bodyEl.innerHTML='<div style="color:#b00;font-size:13px">불러오지 못했습니다. ('+esc((r&&r.error)||'오류')+')</div>'; return; }
+      var d=r.day||{}, rows=(d.bySurface||[]);
+      var h='<div style="font-size:12px;color:#75705f;margin-bottom:10px">최근 24시간 · 접점별 (환율 약 '+(Number(r.rate)||0).toLocaleString('ko-KR')+'원 기준 추정)</div>';
+      h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
+      h+='<tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:6px 4px;font-weight:500">접점</th><th style="padding:6px 4px;font-weight:500;text-align:right">금액</th><th style="padding:6px 4px;font-weight:500;text-align:right">호출</th></tr>';
+      if(!rows.length){ h+='<tr><td colspan="3" style="padding:14px 4px;color:#9a9183;text-align:center">최근 24시간 사용 내역이 없어요.</td></tr>'; }
+      rows.forEach(function(s){ h+='<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25">'+esc(s.surface)+'</td><td style="padding:8px 4px;text-align:right;color:#3a2f25">'+_won(s.krw)+'</td><td style="padding:8px 4px;text-align:right;color:#75705f">'+(Number(s.calls)||0)+'</td></tr>'; });
+      h+='<tr style="border-top:2px solid #e0d8cc;font-weight:700"><td style="padding:9px 4px;color:#3a2f25">합계</td><td style="padding:9px 4px;text-align:right;color:#6B2A24">'+_won(d.total)+'</td><td style="padding:9px 4px;text-align:right;color:#75705f">'+(Number(d.calls)||0)+'</td></tr>';
+      h+='</table>';
+      var m=r.month||{};
+      h+='<div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e0d8cc;display:flex;justify-content:space-between;font-size:13px"><span style="color:#75705f">이번 달 합계</span><span style="color:#3a2f25;font-weight:600">'+_won(m.total)+' <span style="color:#9a9183;font-weight:400">('+(Number(m.calls)||0)+'회)</span></span></div>';
+      h+='<div style="margin-top:10px;font-size:11px;color:#b0a896">추정치예요. 정확한 청구액은 Anthropic 콘솔 기준 · 업데이트 '+esc(r.updatedAt||'')+'</div>';
+      bodyEl.innerHTML=h;
+    }).catch(function(){ bodyEl.innerHTML='<div style="color:#b00;font-size:13px">네트워크 오류로 불러오지 못했습니다.</div>'; });
+  };
+  bRef.addEventListener('click', load);
+  load();
+}
 function gasRaw(fn){
   var args = Array.prototype.slice.call(arguments,1);
   if(fn==='adminLogin')  return api({ action:'adminLogin',  id:args[0], pw:args[1] });
@@ -456,6 +499,7 @@ $('btnRefresh').addEventListener('click', loadHome);
   bh.addEventListener('click', go); bh.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); })();
 $('btnArchive').addEventListener('click', function(){ openArchive(); });
 $('btnBlocks').addEventListener('click', openBlocksModal);
+$('btnAiCost').addEventListener('click', openAiCost);
 
 /* ── 운영 블록(날짜 막기 · 휴무) — 막은 날짜·타임은 고객 달력에 '마감'으로, 요청·서명도 서버에서 차단 ── */
 function _bkRow(b){
@@ -512,7 +556,7 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
-function setTopbar(on){ ['btnBlocks','btnArchive','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
+function setTopbar(on){ ['btnBlocks','btnArchive','btnAiCost','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)

@@ -505,7 +505,9 @@ async function callClaude(apiKey, payload) {
     console.error('sched_advisor_upstream', r.status, (await safeText(r)).slice(0, 300));
     throw new Error('upstream_' + r.status);
   }
-  return r.json();
+  const data = await r.json();
+  try { await require('./_costlog')('예약', payload.model, data.usage); } catch (e) {}
+  return data;
 }
 function textOf(data) {
   return ((data && data.content) || []).filter((b) => b.type === 'text').map((b) => b.text).join('');
