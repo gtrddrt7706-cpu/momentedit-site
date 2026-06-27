@@ -163,17 +163,48 @@ function aiQuestionLog() {   // adminCall
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
     if (!sh || sh.getLastRow() < 2) return { ok: true, items: [] };
     var n = Math.min(sh.getLastRow() - 1, 600);
-    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 3).getValues();
+    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 5).getValues();
     var map = {}, order = [];
     for (var i = vals.length - 1; i >= 0; i--) {   // 최신순 순회
       var q = String(vals[i][1] || '').trim(); if (!q) continue;
+      var esc = String(vals[i][2]) === 'Y'; var flag = String(vals[i][3] || (esc ? '막힘' : '정상')); var sf = String(vals[i][4] || '');
       var key = q.toLowerCase().replace(/\s+/g, '');
-      if (!map[key]) { map[key] = { at: String(vals[i][0]), q: q, escalate: false, count: 0 }; order.push(key); }   // 첫 등장(=최신) 시각 보존
+      if (!map[key]) { map[key] = { at: String(vals[i][0]), q: q, escalate: false, flag: '정상', surface: sf, count: 0 }; order.push(key); }   // 첫 등장(=최신) 보존
       map[key].count++;
-      if (String(vals[i][2]) === 'Y') map[key].escalate = true;
+      if (esc || flag === '막힘') { map[key].escalate = true; map[key].flag = '막힘'; }
+      else if (flag === '애매' && map[key].flag !== '막힘') { map[key].flag = '애매'; }
     }
     var items = order.slice(0, 60).map(function (k) { return map[k]; });   // 같은 질문 합산(빈도수)
     return { ok: true, items: items };
+  } catch (e) { return { ok: false, error: String(e && e.message) }; }
+}
+
+// 📊 고객질문 종합 리포트 — 최근 days일. 막힘(AI가 못 풀어 연결)·애매(답했지만 자신 없음)·정상을 집계 + 접점별 + 자주 막힌/애매한 질문 TOP.
+function aiQuestionReport(days) {   // adminCall
+  try {
+    days = Math.min(Math.max(Number(days) || 7, 1), 90);
+    var base = { ok: true, days: days, total: 0, stuck: 0, vague: 0, normal: 0, bySurface: [], topStuck: [], topVague: [] };
+    var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
+    if (!sh || sh.getLastRow() < 2) return base;
+    var n = Math.min(sh.getLastRow() - 1, 5000);
+    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 5).getValues();
+    var since = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
+    var total = 0, stuck = 0, vague = 0, normal = 0, surf = {}, sMap = {}, vMap = {};
+    for (var i = 0; i < vals.length; i++) {
+      var d = new Date(vals[i][0]); if (isNaN(d.getTime()) || d < since) continue;
+      var q = String(vals[i][1] || '').trim(); if (!q) continue;
+      var esc = String(vals[i][2]) === 'Y'; var flag = String(vals[i][3] || (esc ? '막힘' : '정상')); var sf = String(vals[i][4] || '기타') || '기타';
+      total++; surf[sf] = (surf[sf] || 0) + 1;
+      var key = q.toLowerCase().replace(/\s+/g, '');
+      if (esc || flag === '막힘') { stuck++; if (!sMap[key]) sMap[key] = { q: q, count: 0, surface: sf }; sMap[key].count++; }
+      else if (flag === '애매') { vague++; if (!vMap[key]) vMap[key] = { q: q, count: 0, surface: sf }; vMap[key].count++; }
+      else normal++;
+    }
+    var top = function (m) { return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.count - a.count; }).slice(0, 15); };
+    base.total = total; base.stuck = stuck; base.vague = vague; base.normal = normal;
+    base.bySurface = Object.keys(surf).map(function (k) { return { surface: k, count: surf[k] }; }).sort(function (a, b) { return b.count - a.count; });
+    base.topStuck = top(sMap); base.topVague = top(vMap);
+    return base;
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
 

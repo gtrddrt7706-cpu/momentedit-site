@@ -586,13 +586,14 @@ function openAiTeam(){
   box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
   document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
   ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
-  var TABS=[['명단','👥'],['교육','📚'],['개선','💡'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
+  var TABS=[['명단','👥'],['교육','📚'],['개선','💡'],['리포트','📊'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
   TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]+' '+t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
     if(name==='명단') return rRoster();
     if(name==='교육') return rEdu();
     if(name==='개선') return rImprove();
+    if(name==='리포트') return rReport();
     if(name==='인계기록') return rHandoff();
     if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">🧪 테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
     if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">💰 인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
@@ -645,7 +646,7 @@ function openAiTeam(){
      +'<div style="display:flex;gap:6px;margin-bottom:6px"><input id="impQ" placeholder="예) 주차 되나요?" style="flex:1;padding:7px 9px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><button id="impRun" style="padding:7px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">전 직원에게</button></div>'
      +'<div id="impOut" style="margin-bottom:16px"></div>'
      +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">💡 교육 후보 (실제 고객 질문)</div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 = AI가 못 풀어 상담사로 넘긴 질문 · ×N = 같은 질문이 나온 횟수(많을수록 먼저 교육). 옆 📚로 전 직원에게 가르치면 다음부턴 스스로 처리해요.</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 막힘(상담사로 넘김) · 🟡 애매(답했지만 자신 없음) · ×N = 나온 횟수. 옆 📚로 전 직원에게 가르치면 다음부턴 스스로 처리해요. (종합 통계는 📊 리포트)</div>'
      +'<div id="impCand"></div></div>';
     // ⓪ 자동 안전망 — 매일 9시 자동 점검(위반 시에만 문자). 여기서 지금 바로도 가능.
     var health=document.getElementById('impHealth');
@@ -672,11 +673,37 @@ function openAiTeam(){
     document.getElementById('impQ').addEventListener('keydown',function(e){ if(e.key==='Enter') run(); });
     var cand=document.getElementById('impCand'); cand.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiQuestionLog').then(function(r){ if(!r||!r.ok){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">질문 로그를 불러오지 못했어요.</div>'; return; } var items=r.items||[]; if(!items.length){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">아직 쌓인 고객 질문이 없어요.</div>'; return; }
-      items.sort(function(a,b){ var e=(b.escalate?1:0)-(a.escalate?1:0); return e!==0?e:((b.count||0)-(a.count||0)); });   // 못 푼 것(🔴) → 빈도 많은 것
-      cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+(it.escalate?'<span title="상담사 연결됨">🔴</span>':'<span style="opacity:.3">·</span>')+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; }).join('');
+      var rank=function(it){ return it.escalate||it.flag==='막힘'?2:(it.flag==='애매'?1:0); };
+      items.sort(function(a,b){ var e=rank(b)-rank(a); return e!==0?e:((b.count||0)-(a.count||0)); });   // 막힘(🔴) → 애매(🟡) → 빈도순
+      cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; var mk=(it.escalate||it.flag==='막힘')?'<span title="상담사 연결됨(막힘)">🔴</span>':(it.flag==='애매'?'<span title="답했지만 자신 없음(애매)">🟡</span>':'<span style="opacity:.3">·</span>'); return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+mk+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; }).join('');
       Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
     }).catch(function(){ cand.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; });
+  }
+  // 📊 고객질문 종합 리포트 — 기간별 막힘/애매/정상 + 접점별 + 자주 막힌/애매한 질문 TOP. 막힌·애매한 질문은 그 자리에서 📚교육·🩺점검.
+  var _repDays=7;
+  function gotoCheck(q){ show('개선'); var el=document.getElementById('impQ'); if(el){ el.value=q; var b=document.getElementById('impRun'); if(b) b.click(); } }
+  function rReport(){ bd.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:13px;font-weight:600;color:#3a2f25">📊 고객질문 종합</span><span style="margin-left:auto;font-size:11px;color:#9a9183">기간</span>'
+     +'<select id="repDays" style="padding:4px 6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="90">최근 90일</option></select></div>'
+     +'<div id="repBody"><div style="color:#9a9183;font-size:12px">불러오는 중…</div></div>';
+    var sel=document.getElementById('repDays'); sel.value=String(_repDays); sel.addEventListener('change',function(){ _repDays=Number(sel.value)||7; load(); });
+    var pill=function(emoji,label,n,tot,col){ var pc=tot>0?Math.round(n/tot*100):0; return '<div style="flex:1;min-width:84px;background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:9px 10px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+n+'</div><div style="font-size:11px;color:#75705f">'+emoji+' '+label+(tot>0?(' · '+pc+'%'):'')+'</div></div>'; };
+    var qrow=function(it){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(Number(it.count)>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+it.count+'</span>':'')+(it.surface?'<span style="font-size:10px;color:#bcb3a4">'+esc(it.surface)+'</span>':'')+'<button class="repAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="repEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; };
+    var load=function(){ var rb=document.getElementById('repBody'); rb.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+      gas('aiQuestionReport',_repDays).then(function(r){ if(!r||!r.ok){ rb.innerHTML='<div style="color:#b00;font-size:12px">불러오지 못했어요.</div>'; return; }
+        if(!r.total){ rb.innerHTML='<div style="color:#9a9183;font-size:12px">이 기간에 쌓인 고객 질문이 없어요. (질문 적재는 GAS 재배포 후부터 채워집니다)</div>'; return; }
+        var h='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+pill('💬','전체',r.total,0,'#3a2f25')+pill('🔴','막힘',r.stuck,r.total,'#b00')+pill('🟡','애매',r.vague,r.total,'#9a7b00')+pill('✅','정상',r.normal,r.total,'#2e7d32')+'</div>';
+        h+='<div style="font-size:11px;color:#9a9183;margin-bottom:6px">🔴 막힘 = AI가 못 풀어 상담사로 넘김 · 🟡 애매 = 답은 했지만 자신 없이 얼버무림(개선 1순위)</div>';
+        if(r.bySurface&&r.bySurface.length){ h+='<div style="margin:10px 0 4px;font-size:12px;color:#75705f">접점별 질문 수</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">'+r.bySurface.map(function(s){ return '<span style="font-size:12px;background:#f4f1ea;border-radius:6px;padding:3px 9px;color:#5a554c">'+esc(s.surface)+' <b>'+s.count+'</b></span>'; }).join('')+'</div>'; }
+        h+='<div style="margin-top:14px;font-size:13px;font-weight:600;color:#b00">🔴 자주 막힌 질문 TOP</div>';
+        h+=(r.topStuck&&r.topStuck.length)?('<div id="repStuck">'+r.topStuck.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
+        h+='<div style="margin-top:14px;font-size:13px;font-weight:600;color:#9a7b00">🟡 자주 애매한 질문 TOP</div>';
+        h+=(r.topVague&&r.topVague.length)?('<div id="repVague">'+r.topVague.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
+        rb.innerHTML=h;
+        Array.prototype.forEach.call(rb.querySelectorAll('.repAsk'),function(b){ b.addEventListener('click',function(){ gotoCheck(b.getAttribute('data-q')); }); });
+        Array.prototype.forEach.call(rb.querySelectorAll('.repEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
+      }).catch(function(){ rb.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); };
+    load();
   }
   function rHandoff(){ bd.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     var cfColor=function(c){ return /높/.test(c)?'#2e7d32':(/낮/.test(c)?'#b00':'#9a7b00'); };

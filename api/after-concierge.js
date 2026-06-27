@@ -156,6 +156,8 @@ module.exports = async (req, res) => {
       source = 'db';                                                  // 프론트가 DINE_DB 필터로 노출
     }
 
+    if (!(body && body.test)) { try { await require('./_qlog')('애프터', history[history.length - 1].content, { reply: reply }); } catch (e) {} }
+
     return out(200, { ok: true, intent: parsed.intent === 'offtopic' ? 'offtopic' : 'place',
       category: cat, reply, ask, filters: f, places, source, mapDown });
   } catch (err) {

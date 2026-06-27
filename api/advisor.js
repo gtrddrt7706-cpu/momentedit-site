@@ -194,7 +194,10 @@ module.exports = async (req, res) => {
       escalate = true;
     }
 
-    if (!(body && body.test)) { try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {} }
+    if (!(body && body.test)) {
+      try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {}
+      try { await require('./_qlog')(page === '마이' ? '마이' : '메인', history[history.length - 1].content, { escalate, reply: text }); } catch (e) {}
+    }
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

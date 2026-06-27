@@ -2274,9 +2274,8 @@ function replayHeroAnimation(){
     ask();
   });
 
-  // 질문 로그(익명) — 자주 묻는 것을 보고 지식·FAQ를 보강하기 위한 적재. 질문만 보내고 GAS가 전화·이메일 마스킹 후 저장(90일 보관).
-  var LOG_URL='https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';   // mypage EXEC_URL과 동일 — GAS 재배포로 URL이 바뀌면 함께 갱신
-  function logQ(q,esc){ try{ fetch(LOG_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'advisorLog',q:q,escalate:!!esc})}).catch(function(){}); }catch(e){} }
+  // 질문 로그(익명) — 서버(/api/advisor)에서 접점·구분(정상/애매/막힘)까지 함께 적재하므로 클라이언트 로깅은 비활성(중복 방지).
+  function logQ(){ /* 서버측 _qlog 로 일원화 — 중복 적재 방지 */ }
   function ask(){
     sending=true; sendBtn.disabled=true;
     var typing=addTyping();
