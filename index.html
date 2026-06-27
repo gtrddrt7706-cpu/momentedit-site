@@ -2126,7 +2126,42 @@ function replayHeroAnimation(){
       h.textContent='상담 가능 '+KB.escalation.hours;
       box.appendChild(h);
     }
+    addLeadCapture(box);   // 연락처 남기고 콜백 받기(동의 기반) — 영업 전환·후속의 출발점
     place(box); scrollDown();
+  }
+  // 문의 리드(콜백) — 카톡이 부담스러운 분이 이름·연락처를 남기면 디렉터가 직접 연락. 동의 필수.
+  function addLeadCapture(box){
+    var wrap=document.createElement('div'); wrap.className='me-adv-lead';
+    wrap.style.cssText='margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)';
+    var toggle=document.createElement('button'); toggle.type='button';
+    toggle.textContent='📝 연락처 남기고 콜백 받기';
+    toggle.style.cssText='width:100%;padding:9px;border:1px solid #d9cfc1;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;color:#3a2f25';
+    wrap.appendChild(toggle);
+    var form=document.createElement('div'); form.style.cssText='display:none;margin-top:8px';
+    var lastQ='';
+    try{ for(var i=transcript.length-1;i>=0;i--){ if(transcript[i].role==='user'){ lastQ=String(transcript[i].content||'').slice(0,160); break; } } }catch(e){}
+    form.innerHTML='<input class="me-lead-name" placeholder="성함" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<input class="me-lead-phone" type="tel" inputmode="numeric" placeholder="연락처(휴대폰)" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<label style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#75705f;margin-bottom:8px;line-height:1.5"><input type="checkbox" class="me-lead-consent" style="margin-top:2px"><span>상담 연락을 위한 개인정보(성함·연락처) 수집·이용에 동의합니다. 목적: 상담 회신 · 보유: 1년 · <a href="/privacy.html" target="_blank" rel="noopener" style="color:#6B2A24">자세히</a></span></label>'
+     +'<button class="me-lead-send" type="button" style="width:100%;padding:10px;border:none;background:#6B2A24;color:#fff;border-radius:7px;font-size:14px;cursor:pointer">남기기</button>'
+     +'<div class="me-lead-msg" style="font-size:12px;margin-top:6px;text-align:center"></div>';
+    wrap.appendChild(form);
+    toggle.addEventListener('click',function(){ form.style.display=(form.style.display==='none')?'block':'none'; });
+    form.querySelector('.me-lead-send').addEventListener('click',function(){
+      var nm=form.querySelector('.me-lead-name').value.trim();
+      var ph=form.querySelector('.me-lead-phone').value.trim();
+      var cs=form.querySelector('.me-lead-consent').checked;
+      var msg=form.querySelector('.me-lead-msg');
+      if(!nm||ph.replace(/[^0-9]/g,'').length<9){ msg.style.color='#b00'; msg.textContent='성함과 연락처를 정확히 입력해 주세요.'; return; }
+      if(!cs){ msg.style.color='#b00'; msg.textContent='개인정보 수집·이용 동의가 필요해요.'; return; }
+      var sendBtn=form.querySelector('.me-lead-send'); sendBtn.disabled=true; sendBtn.textContent='보내는 중…'; msg.style.color='#75705f'; msg.textContent='';
+      fetch('/api/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,phone:ph,consent:true,surface:(typeof PAGE!=='undefined'?PAGE:'메인'),context:lastQ})})
+        .then(function(r){return r.json().catch(function(){return {};});})
+        .then(function(j){ if(j&&j.ok){ form.innerHTML='<div style="text-align:center;color:#3a2f25;font-size:13px;padding:6px 0">남겨주셔서 감사합니다. 디렉터가 곧 연락드릴게요.</div>'; }
+          else { sendBtn.disabled=false; sendBtn.textContent='남기기'; msg.style.color='#b00'; msg.textContent=(j&&j.message)||'잠시 후 다시 시도해 주세요.'; } })
+        .catch(function(){ sendBtn.disabled=false; sendBtn.textContent='남기기'; msg.style.color='#b00'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; });
+    });
+    box.appendChild(wrap);
   }
 
   function currentLevel(){

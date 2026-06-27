@@ -2050,6 +2050,7 @@ function doPost(e) {
       case 'aiKbNotes':          return jsonOut(handleAiKbNotes(body));     // 96 · AI 교육(운영자 보충지식) 조회 — 챗봇이 접점별로 가져감
       case 'aiFacts':            return jsonOut(handleAiFacts(body));       // 96 · 핵심정보 단일 진실원 조회 — 챗봇이 최신·최우선 사실로 주입
       case 'aiSafetyAlert':      return jsonOut(handleAiSafetyAlert(body)); // 96 · GitHub Actions 안전 백업 점검 실패 알림(시크릿 보호)
+      case 'leadCapture':        return jsonOut(handleLeadCapture(body));   // 문의 리드(콜백 요청) — 동의 후 이름·연락처 적재 + 관리자 SMS
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
@@ -2095,6 +2096,53 @@ function handleAdvisorLog(body) {
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
+
+// [문의 리드 — 콜백 요청] 챗봇에서 고객이 동의 후 남긴 이름·연락처를 적재 + 관리자 즉시 SMS. 동의 없으면 거절.
+//   시트 '문의리드' [시각, 이름, 연락처, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
+function handleLeadCapture(body) {
+  try {
+    var name = String((body && body.name) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
+    var phone = String((body && body.phone) || '').replace(/[^0-9\-+ ]/g, '').trim().slice(0, 20);
+    if (!name || phone.replace(/[^0-9]/g, '').length < 9) return { ok: false, error: '이름과 연락처를 정확히 입력해 주세요.' };
+    if (!(body && body.consent)) return { ok: false, error: '개인정보 수집·이용 동의가 필요해요.' };
+    var surface = String((body && body.surface) || '메인').slice(0, 10);
+    var ctx = _maskPII(String((body && body.context) || '')).slice(0, 200);
+    var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '접점', '맥락', '동의', '상태', '처리일시']); }
+    if (sh.getLastRow() > 5000) return { ok: true };
+    sh.appendRow([fmtKST(new Date()), name, phone, surface, ctx, '동의', '신규', '']);
+    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(콜백): ' + name + ' ' + phone + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
+    return { ok: true };
+  } catch (e) { return { ok: false, error: (e && e.message) || String(e) }; }
+}
+// 관리자 — 리드 목록(adminCall · 최신순 최대 50 · pending=미처리 수)
+function adminListLeads() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || sh.getLastRow() < 2) return { ok: true, items: [], pending: 0 };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues();
+  var items = [], pending = 0;
+  for (var i = vals.length - 1; i >= 0; i--) {
+    var st = String(vals[i][6] || '신규'); if (st !== '완료') pending++;
+    if (items.length < 50) items.push({ at: String(vals[i][0]), name: String(vals[i][1]), phone: String(vals[i][2]), surface: String(vals[i][3]), context: String(vals[i][4]), status: st, row: i + 2 });
+  }
+  return { ok: true, items: items, pending: pending };
+}
+// 관리자 — 리드 처리완료(adminCall · 행번호)
+function adminResolveLead(row) {
+  row = Number(row) || 0; var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || row < 2 || row > sh.getLastRow()) return { ok: false, error: '대상을 찾을 수 없어요.' };
+  sh.getRange(row, 7).setValue('완료'); sh.getRange(row, 8).setValue(fmtKST(new Date()));
+  return { ok: true };
+}
+// 1년 지난 리드 정리(개인정보 최소화) — purgeAdvisorLog(주간 트리거)에서 함께 호출.
+function purgeLeads() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 365);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), n = 0;
+  for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
+  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeLeads: ' + n + '건 삭제'); }
+}
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈(프리셋·AI 카테고리)·인원·필터를 개인정보 없이 적재.
 //   저장: '애프터수요로그' 시트 [시각, 소스, 카테고리, 테마, 음식, 인원]. 이름·연락처·토큰 등 식별정보 미저장. 90일 자동정리(purgeAwDemandLog).
 function handleAwDemandLog(body) {
@@ -2123,6 +2171,7 @@ function purgeAdvisorLog() {
   if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAdvisorLog: ' + n + '건 삭제'); }
   try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
+  try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {
