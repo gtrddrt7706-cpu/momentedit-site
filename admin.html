@@ -429,6 +429,14 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   if(surface==='애프터') return p('/api/after-concierge',{messages:U,test:true});
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
+// 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
+//   기본 대상 '전체' = 5직원 모두 공유. 핵심수치는 1차 차단 후 재확인(force) 시에만 추가.
+function aiTeachPrompt(target, ctxLine, cb){ target=target||'전체';
+  var t=prompt('직원에게 알려줄 올바른 내용을 적어주세요. (대상: '+target+' · 최대 5분 뒤 반영)'+(ctxLine?('\n\n'+ctxLine):''),'');
+  if(t===null||!t.trim()) return; t=t.trim();
+  var doAdd=function(force){ gas('aiKbNoteAdd',target,t,force).then(function(r){ if(r&&r.ok){ if(cb)cb(true,t); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); else { if(cb)cb(false); } } else { alert((r&&r.error)||'추가 실패'); if(cb)cb(false); } }); };
+  doAdd(false); }
+
 // AI 비용 — 💰 버튼 클릭 시에만 오버레이로 띄움(메인 로딩엔 영향 없음). GAS aiCostSummary24h 집계를 원화로 표시.
 function _won(n){ return '₩' + (Number(n)||0).toLocaleString('ko-KR'); }
 function openAiCost(){
@@ -551,10 +559,8 @@ function openAiTest(){
       rows.push('<div style="border-top:1px solid #f0ebe3;padding:8px 0">[<b>'+mark+'</b>] <b>'+esc(it.surface)+'·'+esc(it.axis)+'</b> '+esc(it.q)+(j.escalate?' <span style="color:#6B2A24">[에스컬]</span>':'')+eduBtn+'<div style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div></div>');
       done++; render('실행 중… ('+done+'/'+list.length+')');
     }); }); }, Promise.resolve());
-    var KBT={'메인':'메인','마이':'마이','예약':'예약','애프터':'애프터','핸드오프':'전체'};
-    var wireEdu=function(){ Array.prototype.forEach.call(out.querySelectorAll('.aitEdu'),function(b){ b.addEventListener('click',function(){ var surf=b.getAttribute('data-surf'), q=b.getAttribute('data-q'); var tg=KBT[surf]||'전체';
-      var t=prompt('이 답이 틀렸다면, 직원에게 알려줄 올바른 내용을 적어주세요.\n(질문: '+q+')\n대상: '+tg+' · 최대 5분 뒤 반영','');
-      if(t===null||!t.trim()) return; var doAdd=function(force){ gas('aiKbNoteAdd',tg,t.trim(),force).then(function(r){ if(r&&r.ok){ b.textContent='✓ 교육됨'; b.disabled=true; } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요?')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); }; doAdd(false);
+    var wireEdu=function(){ Array.prototype.forEach.call(out.querySelectorAll('.aitEdu'),function(b){ b.addEventListener('click',function(){ var surf=b.getAttribute('data-surf'), q=b.getAttribute('data-q');
+      aiTeachPrompt('전체','질문: '+q+' ('+surf+'에서 틀림 · 전 직원에게 공유)',function(ok){ if(ok){ b.textContent='✓ 교육됨(전원)'; b.disabled=true; } });
     }); }); };
     seq.then(function(){ $a('aitRun').disabled=false;
       gas('aiTestRunSave', pass, gradable).then(function(rs){
@@ -580,12 +586,13 @@ function openAiTeam(){
   box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
   document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
   ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
-  var TABS=[['명단','👥'],['교육','📚'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
+  var TABS=[['명단','👥'],['교육','📚'],['개선','💡'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
   TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]+' '+t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
     if(name==='명단') return rRoster();
     if(name==='교육') return rEdu();
+    if(name==='개선') return rImprove();
     if(name==='인계기록') return rHandoff();
     if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">🧪 테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
     if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">💰 인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
@@ -598,19 +605,14 @@ function openAiTeam(){
       bd.innerHTML=h;
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 5분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
-     +'<div style="display:flex;gap:6px;margin-bottom:6px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option>전체</option><option>메인</option><option>마이</option><option>예약</option><option>애프터</option></select>'
+     +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
      +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div>'
-     +'<div id="eduList" style="margin-bottom:12px"></div>'
-     +'<div style="border-top:1px dashed #e0d8cc;padding-top:10px"><div style="font-size:12px;color:#75705f;margin-bottom:6px">교육 반영 확인 — 직원에게 직접 물어보기</div>'
-     +'<div style="display:flex;gap:6px"><select id="eduTsTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option>메인</option><option>마이</option><option>예약</option><option>애프터</option></select>'
-     +'<input id="eduTsQ" placeholder="예) 주차 되나요?" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
-     +'<button id="eduTsBtn" style="padding:6px 12px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:12px;cursor:pointer">보내기</button></div>'
-     +'<div id="eduTsOut" style="margin-top:6px;font-size:13px;color:#5a554c"></div></div>';
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:10px">기본은 <b>전체</b> — 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꾸세요. · 고친 뒤엔 <b>💡 개선</b> 탭에서 전 직원이 제대로 답하는지 한 번에 확인하세요.</div>'
+     +'<div id="eduList"></div>';
     document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(); if(!t) return;
       var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; loadEdu(); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); };
       doAdd(false); });
-    document.getElementById('eduTsBtn').addEventListener('click',function(){ var s=document.getElementById('eduTsTg').value, q=document.getElementById('eduTsQ').value.trim(); if(!q) return; var o=document.getElementById('eduTsOut'); o.textContent='물어보는 중…'; aiAsk(s,q).then(function(rep){ o.textContent='AI: '+rep; }); });
     loadEdu(); }
   function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var ns=r.notes||[]; if(!ns.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 등록된 교육이 없어요.</div>'; return; }
@@ -618,6 +620,32 @@ function openAiTeam(){
       Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
       Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+  // 💡 개선 — 자기개선 루프: ① 전 직원에게 한 질문 동시에 물어보고 어디가 틀린지 한눈에(비슷한 곳 점검) ② 실제 고객이 못 푼 질문을 교육 후보로 한 탭 교육
+  function rImprove(){
+    bd.innerHTML='<div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🩺 전 직원 점검</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:6px">같은 질문을 4명(메인·마이·예약·애프터)에게 동시에 물어봐요. 다르게/틀리게 답하는 직원을 찾아 그 자리에서 가르칩니다.</div>'
+     +'<div style="display:flex;gap:6px;margin-bottom:6px"><input id="impQ" placeholder="예) 주차 되나요?" style="flex:1;padding:7px 9px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><button id="impRun" style="padding:7px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">전 직원에게</button></div>'
+     +'<div id="impOut" style="margin-bottom:16px"></div>'
+     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">💡 교육 후보 (실제 고객 질문)</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 = AI가 못 풀어 상담사로 넘긴 질문. 옆 📚로 올바른 답을 전 직원에게 가르치면 다음부턴 스스로 처리해요.</div>'
+     +'<div id="impCand"></div></div>';
+    var SURF=['메인','마이','예약','애프터'];
+    var run=function(){ var q=document.getElementById('impQ').value.trim(); if(!q) return; var out=document.getElementById('impOut');
+      out.innerHTML=SURF.map(function(s){ return '<div data-s="'+s+'" style="border-top:1px solid #f0ebe3;padding:7px 0;font-size:13px"><b style="color:#6B2A24">'+s+'</b> <span style="color:#9a9183">물어보는 중…</span></div>'; }).join('');
+      SURF.forEach(function(s){ aiAsk(s,q).then(function(rep){ var row=out.querySelector('[data-s="'+s+'"]'); if(!row) return;
+        row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" data-s="'+s+'" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button></div><div style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
+        var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }); });
+      }); }); };
+    document.getElementById('impRun').addEventListener('click', run);
+    document.getElementById('impQ').addEventListener('keydown',function(e){ if(e.key==='Enter') run(); });
+    var cand=document.getElementById('impCand'); cand.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
+    gas('aiQuestionLog').then(function(r){ if(!r||!r.ok){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">질문 로그를 불러오지 못했어요.</div>'; return; } var items=r.items||[]; if(!items.length){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">아직 쌓인 고객 질문이 없어요.</div>'; return; }
+      items.sort(function(a,b){ return (b.escalate?1:0)-(a.escalate?1:0); });   // 못 푼 것(🔴) 먼저
+      cand.innerHTML=items.slice(0,40).map(function(it,i){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+(it.escalate?'<span title="상담사 연결됨">🔴</span>':'<span style="opacity:.3">·</span>')+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span><span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button></div>'; }).join('');
+      Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
+      Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
+    }).catch(function(){ cand.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; });
+  }
   function rHandoff(){ bd.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     var cfColor=function(c){ return /높/.test(c)?'#2e7d32':(/낮/.test(c)?'#b00':'#9a7b00'); };
     gas('adminListAiHandoffs').then(function(r){ if(r&&r.ok===false){ bd.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var arr=(r&&(r.items||r.list||r.handoffs))||(Array.isArray(r)?r:[]);
@@ -632,8 +660,10 @@ function openAiTeam(){
           +'<div style="font-size:11px;color:#75705f;margin-top:3px">👤 '+esc(cust)+'</div>'
           +'<div style="color:#5a554c;margin-top:3px">'+esc(x.summary||x.suggestedReply||'')+'</div>'
           +(x.suggestedReply?'<details style="margin-top:4px"><summary style="font-size:11px;color:#6B2A24;cursor:pointer">제안 답변·근거 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#faf7f2;border-radius:6px;font-size:12px;color:#3a2f25;white-space:pre-wrap">'+esc(x.suggestedReply)+(x.rationale?'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0d8cc;color:#75705f">'+esc(x.rationale)+'</div>':'')+'</div></details>':'')
-          +(x.id?'<div style="text-align:right;margin-top:5px"><button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button></div>':'')
+          +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>'
+          +(x.id?'<button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button>':'')+'</div>'
           +'</div>'; }).join('');
+      Array.prototype.forEach.call(bd.querySelectorAll('.hEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','이 건에서 나온 문의: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }); }); });
       Array.prototype.forEach.call(bd.querySelectorAll('.hRes'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 인계를 처리완료로 표시할까요?')) return; b.disabled=true; b.textContent='처리 중…'; gas('adminResolveAiHandoff',b.getAttribute('data-id')).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; alert((rr&&rr.error)||'실패'); } }); }); });
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   show('명단');

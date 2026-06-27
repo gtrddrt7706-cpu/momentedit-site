@@ -154,6 +154,26 @@ function handleAiKbNotes(body) {
   } catch (e) { return { ok: true, notes: '' }; }
 }
 
+// ⑦ 교육 후보 — 실제 고객 질문 로그('상담사질문로그') 최신순. 상담연결(Y)=AI가 못 푼 것 → 우선 교육 대상.
+//   질문은 이미 개인정보 마스킹되어 적재됨(_maskPII). 관리자가 보고 한 탭으로 교육으로 잇는 용도.
+function aiQuestionLog() {   // adminCall
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
+    if (!sh || sh.getLastRow() < 2) return { ok: true, items: [] };
+    var n = Math.min(sh.getLastRow() - 1, 400);
+    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 3).getValues();
+    var items = [], seen = {};
+    for (var i = vals.length - 1; i >= 0; i--) {   // 최신순
+      var q = String(vals[i][1] || '').trim(); if (!q) continue;
+      var key = q.toLowerCase().replace(/\s+/g, '');
+      if (seen[key]) continue; seen[key] = 1;   // 같은 질문 중복 제거
+      items.push({ at: String(vals[i][0]), q: q, escalate: String(vals[i][2]) === 'Y' });
+      if (items.length >= 60) break;
+    }
+    return { ok: true, items: items };
+  } catch (e) { return { ok: false, error: String(e && e.message) }; }
+}
+
 // ============================ AI 테스트 이력 + 관리자 알림 ============================
 // ③ 테스트 결과 이력 — 매 실행 요약 저장, 직전 대비 비교용. 시트 'AI_테스트이력' [시각, 통과, 전체]
 function _aiTestHistSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_테스트이력'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_테스트이력'); sh.appendRow(['시각', '통과', '전체']); } return sh; }
