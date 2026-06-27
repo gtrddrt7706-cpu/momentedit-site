@@ -310,10 +310,12 @@ function _nfCustomerMsg(event, name, x) {
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
     case 'cust.depositToProduction':
-      return { vars: { '#{이름}': name },
-        text: x.snap
-          ? '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. 이제 촬영 준비를 시작할게요. 일정에 맞춰 차근차근 안내드리겠습니다. ' + NF_MYPAGE
-          : '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. 다음 단계로 마이페이지에서 제작 정보를 입력해 주세요. 입력해 주시면 제작이 시작됩니다. ' + NF_MYPAGE };
+      // 상품별 다음 안내가 달라 #{안내} 변수로 분기(알림톡 T18 · SMS 대체문구는 동일 결과)
+      var depGuide = x.snap
+        ? '이제 촬영 준비를 시작할게요. 일정에 맞춰 차근차근 안내드리겠습니다.'
+        : '다음 단계로 마이페이지에서 제작 정보를 입력해 주세요. 입력해 주시면 제작이 시작됩니다.';
+      return { vars: { '#{이름}': name, '#{안내}': depGuide },
+        text: '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. ' + depGuide + ' ' + NF_MYPAGE };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 2벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
