@@ -62,15 +62,30 @@ function handleAiHandoff(body) {
   }
 }
 
-/** 🔴 새 인계 즉시 관리자 SMS — 60초 버스트 가드(연속 인계 폭주 시 1통으로 억제). aiAlertAdmin(96_ai_cost) 재사용. */
+/** 🔴 새 인계 관리자 SMS — 주간(08~22시)은 즉시(60초 버스트 가드), 야간(22~08시)은 보류 → 아침 9시 aiDaily가 모아 알림(새벽 문자 방지). */
 function _aihNotifyNew(category, summary, customer) {
   try {
     var p = PropertiesService.getScriptProperties();
+    var hour = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
+    if (hour >= 22 || hour < 8) {   // 야간 보류 — 카운트만 누적, 발송은 아침에
+      p.setProperty('AI_HANDOFF_NIGHT_PENDING', String((Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0)) + 1));
+      return;
+    }
     var now = new Date().getTime(), last = Number(p.getProperty('AI_LAST_HANDOFF_ALERT') || 0);
     if (now - last < 60000) return;   // 1분 내 중복 발송 억제
     p.setProperty('AI_LAST_HANDOFF_ALERT', String(now));
     if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📋 새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
   } catch (e) {}
+}
+
+/** 🌙 야간 보류 인계 아침 발송 — aiDaily(9시)가 호출. 밤사이 들어온 새 인계 건수를 한 통으로. */
+function aiHandoffNightFlush() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
+    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🌙 밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지 📋에서 확인해 주세요.'); }
+    return { ok: true, flushed: n };
+  } catch (e) { return { ok: false }; }
 }
 
 /** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 호출. 대기 상태로 24시간 넘긴 건이 있으면 1통. */
