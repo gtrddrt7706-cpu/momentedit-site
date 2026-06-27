@@ -2346,11 +2346,11 @@ function replayHeroAnimation(){
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   function show(i){ cur=((i%n)+n)%n; for(var k=0;k<n;k++){ var on=k===cur; shots[k].classList.toggle('on',on); steps[k].classList.toggle('on',on); var b=steps[k].querySelector('.jr-step-btn'); if(b) b.setAttribute('aria-pressed', on?'true':'false'); } }
   function stop(){ if(timer){ clearInterval(timer); timer=null; } }
-  function play(){ if(reduce) return; stop(); timer=setInterval(function(){ show(cur+1); }, DUR); }
+  function play(){ stop(); timer=setInterval(function(){ show(cur+1); }, DUR); }
   for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ show(idx); play(); }); })(k); }
   sc.addEventListener('mouseenter', stop);
   sc.addEventListener('mouseleave', play);
-  if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ play(); } else { stop(); } }); }, {threshold:.35}); io.observe(sc); }
+  if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ play(); io.unobserve(e.target); } }); }, {threshold:.3}); io.observe(sc); }
   else play();
   show(0);
 })();
