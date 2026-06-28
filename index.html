@@ -2111,8 +2111,9 @@ function replayHeroAnimation(){
     doHandoff();   // 디렉터에게 대화 브리핑 자동 전달
     var box=document.createElement('div'); box.className='me-adv-esc';
     var t=document.createElement('div'); t.className='me-adv-esc-t';
-    t.textContent='디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
+    t.textContent='디렉터에게 바로 전달했어요. 아래에 간단히 남겨주시면 미리 준비해서 카톡으로 답해드려요.';
     box.appendChild(t);
+    addInquiryForm(box);   // 카톡 상담 전 간단 정보 기입(성함·연락처·문의 · 동의) — 저장 + 관리자 알림
     var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
     if(KB.escalation.kakaoUrl){
       var k=document.createElement('a');
@@ -2128,6 +2129,35 @@ function replayHeroAnimation(){
       box.appendChild(h);
     }
     place(box); scrollDown();
+  }
+  // 카톡 상담 전 정보 기입 — 성함·연락처·문의(선택)·동의. /api/lead 로 저장 + 관리자 알림. 전화 아님(카톡·문자로 회신).
+  function addInquiryForm(box){
+    var lastQ='';
+    try{ for(var i=transcript.length-1;i>=0;i--){ if(transcript[i].role==='user'){ lastQ=String(transcript[i].content||'').slice(0,160); break; } } }catch(e){}
+    var wrap=document.createElement('div'); wrap.style.cssText='margin:8px 0 4px;padding:10px;border:1px solid #eee5d9;border-radius:9px;background:#faf7f2';
+    wrap.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:7px">📝 상담 신청 (전화하지 않아요 · 카톡/문자로 답해드려요)</div>'
+     +'<input class="me-iq-name" placeholder="성함" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<input class="me-iq-phone" type="tel" inputmode="numeric" placeholder="연락처(휴대폰)" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;margin-bottom:6px">'
+     +'<textarea class="me-iq-msg" placeholder="문의 내용(선택)" style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9cfc1;border-radius:7px;font-size:14px;height:54px;margin-bottom:6px">'+(lastQ?lastQ.replace(/</g,'&lt;'):'')+'</textarea>'
+     +'<label style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#75705f;margin-bottom:8px;line-height:1.5"><input type="checkbox" class="me-iq-consent" style="margin-top:2px"><span>상담 회신을 위한 개인정보(성함·연락처) 수집·이용에 동의합니다. 목적: 상담 회신 · 보유: 1년 · <a href="/privacy.html" target="_blank" rel="noopener" style="color:#6B2A24">자세히</a></span></label>'
+     +'<button class="me-iq-send" type="button" style="width:100%;padding:10px;border:none;background:#6B2A24;color:#fff;border-radius:7px;font-size:14px;cursor:pointer">상담 신청</button>'
+     +'<div class="me-iq-feed" style="font-size:12px;margin-top:6px;text-align:center"></div>';
+    box.appendChild(wrap);
+    wrap.querySelector('.me-iq-send').addEventListener('click',function(){
+      var nm=wrap.querySelector('.me-iq-name').value.trim();
+      var ph=wrap.querySelector('.me-iq-phone').value.trim();
+      var mg=wrap.querySelector('.me-iq-msg').value.trim()||lastQ;
+      var cs=wrap.querySelector('.me-iq-consent').checked;
+      var fb=wrap.querySelector('.me-iq-feed');
+      if(!nm||ph.replace(/[^0-9]/g,'').length<9){ fb.style.color='#b00'; fb.textContent='성함과 연락처를 정확히 입력해 주세요.'; return; }
+      if(!cs){ fb.style.color='#b00'; fb.textContent='개인정보 수집·이용 동의가 필요해요.'; return; }
+      var sb=wrap.querySelector('.me-iq-send'); sb.disabled=true; sb.textContent='신청 중…'; fb.style.color='#75705f'; fb.textContent='';
+      fetch('/api/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm,channel:'문자',contact:ph,consent:true,surface:(typeof PAGE!=='undefined'?PAGE:'메인'),context:mg})})
+        .then(function(r){return r.json().catch(function(){return {};});})
+        .then(function(j){ if(j&&j.ok){ wrap.innerHTML='<div style="text-align:center;color:#3a2f25;font-size:13px;padding:6px 0">접수됐어요. 곧 답해드릴게요.<br>지금 바로 카톡으로 이어가셔도 좋아요.</div>'; }
+          else { sb.disabled=false; sb.textContent='상담 신청'; fb.style.color='#b00'; fb.textContent=(j&&j.message)||'잠시 후 다시 시도해 주세요.'; } })
+        .catch(function(){ sb.disabled=false; sb.textContent='상담 신청'; fb.style.color='#b00'; fb.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; });
+    });
   }
   // 카톡 상담 연결 집계 — 개인정보 없이 '몇 명이 카톡 상담으로 넘어갔나'만(영업 전환 신호). 이탈 전 전송되게 sendBeacon.
   function logKakaoClick(){
