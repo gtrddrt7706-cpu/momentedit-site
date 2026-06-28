@@ -156,6 +156,17 @@ function handleAiKbNotes(body) {
   } catch (e) { return { ok: true, notes: '' }; }
 }
 
+// 질문 해결 표시 — 교육 후 '확인됨'으로 목록에서 치움. 시트 'AI_질문해결' [키, 질문, 해결시각].
+//   삭제가 아니라 '해결시각' 기록 → 같은 질문이 그 이후 다시 막히면(새 발생) 자동으로 목록에 다시 뜸(놓침 방지).
+function _aiQResolveSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_질문해결'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_질문해결'); sh.appendRow(['키', '질문', '해결시각']); } return sh; }
+function _resolvedMap_() { var sh = _aiQResolveSheet_(); var n = sh.getLastRow() - 1, m = {}; if (n > 0) { var v = sh.getRange(2, 1, n, 3).getValues(); for (var i = 0; i < v.length; i++) { var d = new Date(v[i][2]); m[String(v[i][0])] = isNaN(d.getTime()) ? 0 : d.getTime(); } } return m; }
+function aiQuestionResolve(q) {   // adminCall — 이 질문을 '해결'로 표시(목록에서 치움)
+  q = String(q || '').trim(); if (!q) return { ok: false, error: '질문이 비었어요.' };
+  var key = q.toLowerCase().replace(/\s+/g, ''), sh = _aiQResolveSheet_(), n = sh.getLastRow() - 1;
+  if (n > 0) { var ids = sh.getRange(2, 1, n, 1).getValues(); for (var i = 0; i < ids.length; i++) { if (String(ids[i][0]) === key) { sh.getRange(i + 2, 3).setValue(fmtKST(new Date())); return { ok: true, updated: true }; } } }
+  sh.appendRow([key, q.slice(0, 200), fmtKST(new Date())]); return { ok: true };
+}
+
 // ⑦ 교육 후보 — 실제 고객 질문 로그('상담사질문로그') 최신순. 상담연결(Y)=AI가 못 푼 것 → 우선 교육 대상.
 //   질문은 이미 개인정보 마스킹되어 적재됨(_maskPII). 관리자가 보고 한 탭으로 교육으로 잇는 용도.
 function aiQuestionLog() {   // adminCall
@@ -174,7 +185,8 @@ function aiQuestionLog() {   // adminCall
       if (esc || flag === '막힘') { map[key].escalate = true; map[key].flag = '막힘'; }
       else if (flag === '애매' && map[key].flag !== '막힘') { map[key].flag = '애매'; }
     }
-    var items = order.slice(0, 60).map(function (k) { return map[k]; });   // 같은 질문 합산(빈도수)
+    var resolved = _resolvedMap_();
+    var items = order.filter(function (k) { var rt = resolved[k]; return !(rt && new Date(map[k].at).getTime() <= rt); }).slice(0, 60).map(function (k) { return map[k]; });   // 해결 표시(이후 재발 없음) 제외
     return { ok: true, items: items };
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
@@ -201,11 +213,13 @@ function aiQuestionReport(days) {   // adminCall
       var esc = String(vals[i][2]) === 'Y'; var flag = String(vals[i][3] || (esc ? '막힘' : '정상')); var sf = String(vals[i][4] || '기타') || '기타';
       total++; surf[sf] = (surf[sf] || 0) + 1;
       var key = q.toLowerCase().replace(/\s+/g, '');
-      if (esc || flag === '막힘') { stuck++; if (!sMap[key]) sMap[key] = { q: q, count: 0, surface: sf }; sMap[key].count++; }
-      else if (flag === '애매') { vague++; if (!vMap[key]) vMap[key] = { q: q, count: 0, surface: sf }; vMap[key].count++; }
+      var at0 = String(vals[i][0]);
+      if (esc || flag === '막힘') { stuck++; if (!sMap[key]) sMap[key] = { q: q, count: 0, surface: sf, at: at0 }; sMap[key].count++; sMap[key].at = at0; }
+      else if (flag === '애매') { vague++; if (!vMap[key]) vMap[key] = { q: q, count: 0, surface: sf, at: at0 }; vMap[key].count++; vMap[key].at = at0; }
       else normal++;
     }
-    var top = function (m) { return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.count - a.count; }).slice(0, 15); };
+    var resolved = _resolvedMap_();   // 해결 표시(이후 재발 없음) 질문은 TOP 목록에서 제외(통계 수치는 유지)
+    var top = function (m) { return Object.keys(m).filter(function (k) { var rt = resolved[k]; return !(rt && new Date(m[k].at).getTime() <= rt); }).map(function (k) { return m[k]; }).sort(function (a, b) { return b.count - a.count; }).slice(0, 15); };
     base.total = total; base.stuck = stuck; base.vague = vague; base.normal = normal;
     base.bySurface = Object.keys(surf).map(function (k) { return { surface: k, count: surf[k] }; }).sort(function (a, b) { return b.count - a.count; });
     base.topStuck = top(sMap); base.topVague = top(vMap);
