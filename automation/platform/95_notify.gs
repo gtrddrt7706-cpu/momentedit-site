@@ -167,9 +167,11 @@ function _kakaoSend(to, event, code, extra, opts) {
     msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
   }
   // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
-  //   솔라피가 알림톡 실패 시 자동으로 SMS 대체발송까지 하므로 고객은 거의 항상 수신. 진짜 안전망은
-  //   '솔라피 전송 자체가 막히는 것(잔액 0·발신번호 문제)'을 막는 것 → 관리자 이메일 경고(notifyBalanceCheck·_notifyFailMark).
-  _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+  //   솔라피가 알림톡 실패 시 자동으로 SMS 대체발송까지 하므로, 정상 접수되면 고객은 거의 항상 수신.
+  var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+  // [고객 메일 폴백 · 2026-06-28] 솔라피 전송 자체가 실패(미접수: 잔액0·번호오류·API장애)했을 때만,
+  //   카톡도 문자도 못 받은 고객에게 메일 1통(중요 알림 한정). 정상 발송 시엔 보내지 않음(과발송 방지).
+  if (sent === false) { try { _nfCustomerEmailFallback(event, String(code || '').trim(), name, m); } catch (e) {} }
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -191,13 +193,15 @@ function _solapiSend(cfg, message, ctx) {
     var codeN = resp.getResponseCode();
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
-    } else {
-      Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
-      _notifyFailMark(ctx, 'HTTP ' + codeN);
+      return true;
     }
+    Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
+    _notifyFailMark(ctx, 'HTTP ' + codeN);
+    return false;
   } catch (e) {
     Logger.log('[notify] 발송 예외: ' + (e && e.message));
     _notifyFailMark(ctx, (e && e.message) || '예외');
+    return false;
   }
 }
 
@@ -513,6 +517,44 @@ function _nfAdminEmail(subject, bodyHtml) {
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// ============================ 고객 메일 폴백 (솔라피 전송 실패 시에만) ============================
+// 솔라피 전송이 미접수(잔액0·번호오류·API장애)면 카톡도 문자도 못 받은 것 → 그 고객에게 메일 1통.
+//   정상 발송 시엔 호출 안 됨(_kakaoSend가 sent===false일 때만 호출 · 과발송 방지).
+//   상담완료(consultDone)·결과물전달(resultDelivered)은 admin.gs에서 이미 메일 → 아래 맵에서 제외(중복 방지).
+var NF_CUST_FALLBACK = {
+  'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요' },
+  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다' },
+  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안' },
+  'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요' },
+  'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요' },
+  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '다음 단계를 안내드려요' },
+  'cust.midPre':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내' },
+  'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내' },
+  'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내' },
+  'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내' },
+  'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박' },
+  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용' },
+  'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류' }
+};
+
+// SMS 대체문구(m.text)에서 태그·URL을 떼고 본문화 + 마이페이지 버튼. emailShell·centerP·emailBtn·esc 재사용. 실패는 무시.
+function _nfCustomerEmailFallback(event, code, name, m) {
+  try {
+    var meta = NF_CUST_FALLBACK[event];
+    if (!meta) return;   // 폴백 대상 아닌 이벤트는 생략(이미 메일 보내는 건·소소한 건)
+    if (typeof _notifyCustomerEmail !== 'function' || typeof centerP !== 'function' || typeof emailBtn !== 'function') return;
+    var body = String((m && m.text) || '')
+      .replace(/^\[모먼트에디트\]\s*/, '')
+      .replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '')
+      .trim();
+    if (!body) body = (name || '고객') + '님께 안내드립니다.';
+    var safeBody = (typeof esc === 'function') ? esc(body) : body;
+    var inner = centerP(safeBody) + emailBtn('https://momentedit.kr/mypage.html', '마이페이지 열기');
+    _notifyCustomerEmail(code, '[Moment Edit] ' + meta.subj, meta.head, inner);
+    Logger.log('[notify] 전송실패 → 고객 메일 폴백 발송: ' + event + ' · ' + code);
+  } catch (e) { try { Logger.log('[notify] 고객 메일 폴백 실패(무시): ' + (e && e.message)); } catch (_) {} }
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
