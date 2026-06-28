@@ -332,6 +332,7 @@ function aiDaily() {
   try { aiDailySafetyCheck(); } catch (e) {}
   try { if (typeof aiHandoffNightFlush === 'function') aiHandoffNightFlush(); } catch (e) {}   // 🌙 야간 보류 인계 아침 발송
   try { if (typeof aiHandoffReminder === 'function') aiHandoffReminder(); } catch (e) {}
+  try { if (typeof notifyBalanceCheck === 'function') notifyBalanceCheck(); } catch (e) {}     // 💰 솔라피 잔액 임계 이하면 관리자 메일 경고(95_notify)
   try { aiDailyDigest(true); } catch (e) {}
 }
 
