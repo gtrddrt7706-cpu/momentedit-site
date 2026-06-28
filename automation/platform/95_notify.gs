@@ -195,6 +195,7 @@ function _solapiSend(cfg, message, ctx) {
     var codeN = resp.getResponseCode();
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
+      try { _solapiLogSend(message); } catch (e) {}   // 발송 건수 집계용(관리자 💰 문자비)
       return true;
     }
     Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
@@ -525,15 +526,53 @@ function _nfAdminEmail(subject, bodyHtml) {
 //   GAS GmailApp이라 솔라피와 무관하게 발송됨. 이메일이 없는 고객은 호출 측에서 건너뜀.
 function _nfCustomerEmailFallback(to, name, event, text) {
   try {
-    var body = (name ? (name + ' 님,<br><br>') : '') + String(text || '').replace(/\n/g, '<br>')
-      + '<br><br><span style="color:#9a9183;font-size:12px">문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.</span>';
-    var html = (typeof emailShell === 'function')
-      ? emailShell('안내 말씀', (typeof centerP === 'function') ? centerP(body) : ('<p>' + body + '</p>'))
-      : body;
-    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(body).replace(/<[^>]+>/g, ' '),
+    var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
+    var kakao = (typeof CONFIG !== 'undefined' && CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '';
+    var greet = name ? (safe(name) + ' 님,<br>') : '';
+    // 기존 고객 메일 관례와 동일: emailShell(로고·푸터) + centerP(본문) + smallP(보조·카톡 문의)
+    var inner = (typeof centerP === 'function')
+      ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
+      : ('<p>' + greet + safe(text) + '</p>');
+    if (typeof smallP === 'function') {
+      inner += smallP('문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.'
+        + (kakao ? (' 문의는 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 주세요.') : ''));
+    }
+    var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
+    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(text || '').slice(0, 500),
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 고객 이메일 대체 발송 → ' + to + ' · ' + event);
   } catch (e) { try { Logger.log('[notify] 고객 이메일 대체 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// ============================ 문자/알림톡 사용량 (관리자 💰) ============================
+//  발송 1건당 종류만 적재(개인정보 없음) → 관리자 페이지에서 잔액 + 이번달 건수·추정비용 표시.
+//  시트 '문자발송로그' [시각, 종류]. 종류 = SMS / LMS / 알림톡. 추정단가는 SOLAPI_PRICE(스크립트 속성 JSON)로 조정.
+function _solapiLogSend(message) {
+  var kind = (message && message.kakaoOptions) ? '알림톡' : ((String(message.text || '').length > 45) ? 'LMS' : 'SMS');
+  var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문자발송로그'); sh.appendRow(['시각', '종류']); }
+  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분)
+  sh.appendRow([new Date(), kind]);
+}
+// 관리자: 솔라피 잔액 + 이번달/24h 발송 건수·추정비용 (adminCall fn='solapiUsageSummary')
+function solapiUsageSummary() {
+  var tz = 'Asia/Seoul';
+  var price = { SMS: 20, LMS: 50, '알림톡': 15 };   // 추정 단가(원) — 실제는 솔라피 콘솔 기준
+  try { var pj = JSON.parse(PropertiesService.getScriptProperties().getProperty('SOLAPI_PRICE') || '{}'); for (var k in pj) price[k] = Number(pj[k]) || price[k]; } catch (e) {}
+  var base = { ok: true, balance: _solapiBalance(), month: { count: 0, krw: 0, by: {} }, day: { count: 0 } };
+  var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+  if (!sh || sh.getLastRow() < 2) return base;
+  var n = Math.min(sh.getLastRow() - 1, 20000);
+  var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 2).getValues();
+  var now = new Date(), dayCut = new Date(now.getTime() - 24 * 3600 * 1000), thisMonth = Utilities.formatDate(now, tz, 'yyyy-MM');
+  for (var i = 0; i < vals.length; i++) {
+    var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (isNaN(t.getTime())) continue;
+    var kind = String(vals[i][1] || 'SMS');
+    if (Utilities.formatDate(t, tz, 'yyyy-MM') === thisMonth) { base.month.count++; base.month.by[kind] = (base.month.by[kind] || 0) + 1; base.month.krw += (price[kind] || 20); }
+    if (t >= dayCut) base.day.count++;
+  }
+  base.month.krw = Math.round(base.month.krw);
+  return base;
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
