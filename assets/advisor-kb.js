@@ -240,7 +240,7 @@ window.MOMENT_ADVISOR_KB = {
   // kakaoUrl은 운영 채널 확정 시 교체. 비워두면 카카오 버튼은 숨김.
   escalation: {
     inquiryUrl: '/inquiry.html',
-    kakaoUrl: 'https://pf.kakao.com/_momentedit',  // ← 실제 채널 URL 확인 필요(미개설이면 사전 문의서로 폴백)
+    kakaoUrl: 'https://pf.kakao.com/_CfxcxlX/chat',  // 모먼트에디트 채널 채팅 URL(2026-06-28 확정 · 검색ID @momentedit)
     hours: '평일 10시 - 18시',
   },
 };

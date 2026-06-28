@@ -16,7 +16,7 @@
 (function () {
   var CFG = window.ME_ADV_PAGE || {};
   var KB = window.MOMENT_ADVISOR_KB || null;
-  var ESC = (KB && KB.escalation) || { kakaoUrl: 'https://pf.kakao.com/_momentedit', hours: '평일 10시 - 18시' };
+  var ESC = (KB && KB.escalation) || { kakaoUrl: 'https://pf.kakao.com/_CfxcxlX/chat', hours: '평일 10시 - 18시' };
   var PAGE = CFG.page || '예약';
 
   var css = ''

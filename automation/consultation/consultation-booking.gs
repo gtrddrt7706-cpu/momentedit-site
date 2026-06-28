@@ -48,7 +48,7 @@ const CONFIG = {
   URL_VALID_DAYS: 7,                           // 전용 URL 유효기간
   CONFIRM_DEADLINE_HOURS: 24,                  // 변경·취소 기한 (상담 24시간 전까지)
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 · 운영자 입력 예정
-  KAKAO_URL: '[카카오톡 채널 URL]',             // 문의 경로 · 운영자 입력 예정
+  KAKAO_URL: 'https://pf.kakao.com/_CfxcxlX/chat', // 모먼트에디트 채널 채팅 URL(2026-06-28 확정)
   ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소(정본)
   ADMIN_CC: [                                   // 운영자 알림 함께 받을 주소(미쿠·희준 개인메일 등) · 구글 전달 대신 코드가 직접 발송
     'side.minds.1616@gmail.com',                //   미쿠
