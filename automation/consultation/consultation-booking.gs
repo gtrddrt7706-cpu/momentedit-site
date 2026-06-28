@@ -2116,6 +2116,16 @@ function handleLeadCapture(body) {
     if (sh.getLastRow() > 5000) return { ok: true };
     sh.appendRow([fmtKST(new Date()), name, contact, channel, surface, ctx, '동의', '신규', '']);
     try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(' + channel + '로 회신): ' + name + ' ' + contact + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
+    // 고객 접수 확인 문자(거래성 안내 · 전화 아님). ScriptProperty 'LEAD_CONFIRM_SMS'='N'이면 끔.
+    try {
+      var confOff = PropertiesService.getScriptProperties().getProperty('LEAD_CONFIRM_SMS') === 'N';
+      if (!confOff && channel === '문자' && typeof _nfProps === 'function' && typeof _solapiSend === 'function') {
+        var cfg2 = _nfProps();
+        if (cfg2 && cfg2.key && cfg2.secret && cfg2.sender) {
+          _solapiSend(cfg2, { to: contact.replace(/[^0-9]/g, ''), from: cfg2.sender, text: '[모먼트에디트] 상담 신청이 접수됐어요. 확인 후 카카오톡·문자로 답해드릴게요. 감사합니다.' });
+        }
+      }
+    } catch (e) {}
     return { ok: true };
   } catch (e) { return { ok: false, error: (e && e.message) || String(e) }; }
 }
