@@ -166,12 +166,14 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (tplId && cfg.pfId) {
     msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
   }
-  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
-  //   솔라피가 알림톡 실패 시 자동으로 SMS 대체발송까지 하므로, 정상 접수되면 고객은 거의 항상 수신.
+  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환.
+  //   알림톡 실패 시 솔라피가 SMS로 자동대체. 단 '솔라피 자체가 막히면(잔액 0 등)' 문자도 못 가므로,
+  //   전송 실패 시 고객 이메일이 있으면 같은 내용을 이메일로 대체 발송(실패할 때만 → 스팸 아님 · 중요 안내 유실 방지).
   var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
-  // [고객 메일 폴백 · 2026-06-28] 솔라피 전송 자체가 실패(미접수: 잔액0·번호오류·API장애)했을 때만,
-  //   카톡도 문자도 못 받은 고객에게 메일 1통(중요 알림 한정). 정상 발송 시엔 보내지 않음(과발송 방지).
-  if (sent === false) { try { _nfCustomerEmailFallback(event, String(code || '').trim(), name, m); } catch (e) {} }
+  if (!sent) {
+    var custEmail = String(cust.get('이메일') || '').trim();
+    if (custEmail) _nfCustomerEmailFallback(custEmail, name, event, m.text);
+  }
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -193,6 +195,7 @@ function _solapiSend(cfg, message, ctx) {
     var codeN = resp.getResponseCode();
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
+      try { _solapiLogSend(message); } catch (e) {}   // 발송 건수 집계용(관리자 💰 문자비)
       return true;
     }
     Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
@@ -519,42 +522,57 @@ function _nfAdminEmail(subject, bodyHtml) {
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
-// ============================ 고객 메일 폴백 (솔라피 전송 실패 시에만) ============================
-// 솔라피 전송이 미접수(잔액0·번호오류·API장애)면 카톡도 문자도 못 받은 것 → 그 고객에게 메일 1통.
-//   정상 발송 시엔 호출 안 됨(_kakaoSend가 sent===false일 때만 호출 · 과발송 방지).
-//   상담완료(consultDone)·결과물전달(resultDelivered)은 admin.gs에서 이미 메일 → 아래 맵에서 제외(중복 방지).
-var NF_CUST_FALLBACK = {
-  'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요' },
-  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다' },
-  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안' },
-  'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요' },
-  'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요' },
-  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '다음 단계를 안내드려요' },
-  'cust.midPre':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내' },
-  'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내' },
-  'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내' },
-  'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내' },
-  'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박' },
-  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용' },
-  'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류' }
-};
-
-// SMS 대체문구(m.text)에서 태그·URL을 떼고 본문화 + 마이페이지 버튼. emailShell·centerP·emailBtn·esc 재사용. 실패는 무시.
-function _nfCustomerEmailFallback(event, code, name, m) {
+// 고객 알림이 솔라피로 못 나갔을 때(잔액 0·장애) 같은 내용을 '고객 이메일'로 대체 발송 — 전송 실패 시에만 호출(스팸 아님).
+//   GAS GmailApp이라 솔라피와 무관하게 발송됨. 이메일이 없는 고객은 호출 측에서 건너뜀.
+function _nfCustomerEmailFallback(to, name, event, text) {
   try {
-    var meta = NF_CUST_FALLBACK[event];
-    if (!meta) return;   // 폴백 대상 아닌 이벤트는 생략(이미 메일 보내는 건·소소한 건)
-    if (typeof _notifyCustomerEmail !== 'function' || typeof centerP !== 'function' || typeof emailBtn !== 'function') return;
-    var body = String((m && m.text) || '')
-      .replace(/^\[모먼트에디트\]\s*/, '')
-      .replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '')
-      .trim();
-    if (!body) body = (name || '고객') + '님께 안내드립니다.';
-    var safeBody = (typeof esc === 'function') ? esc(body) : body;
-    var inner = centerP(safeBody) + emailBtn('https://momentedit.kr/mypage.html', '마이페이지 열기');
-    _notifyCustomerEmail(code, '[Moment Edit] ' + meta.subj, meta.head, inner);
-    Logger.log('[notify] 전송실패 → 고객 메일 폴백 발송: ' + event + ' · ' + code);
-  } catch (e) { try { Logger.log('[notify] 고객 메일 폴백 실패(무시): ' + (e && e.message)); } catch (_) {} }
+    var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
+    var kakao = (typeof CONFIG !== 'undefined' && CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '';
+    var greet = name ? (safe(name) + ' 님,<br>') : '';
+    // 기존 고객 메일 관례와 동일: emailShell(로고·푸터) + centerP(본문) + smallP(보조·카톡 문의)
+    var inner = (typeof centerP === 'function')
+      ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
+      : ('<p>' + greet + safe(text) + '</p>');
+    if (typeof smallP === 'function') {
+      inner += smallP('문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.'
+        + (kakao ? (' 문의는 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 주세요.') : ''));
+    }
+    var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
+    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(text || '').slice(0, 500),
+      { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
+    Logger.log('[notify] 고객 이메일 대체 발송 → ' + to + ' · ' + event);
+  } catch (e) { try { Logger.log('[notify] 고객 이메일 대체 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// ============================ 문자/알림톡 사용량 (관리자 💰) ============================
+//  발송 1건당 종류만 적재(개인정보 없음) → 관리자 페이지에서 잔액 + 이번달 건수·추정비용 표시.
+//  시트 '문자발송로그' [시각, 종류]. 종류 = SMS / LMS / 알림톡. 추정단가는 SOLAPI_PRICE(스크립트 속성 JSON)로 조정.
+function _solapiLogSend(message) {
+  var kind = (message && message.kakaoOptions) ? '알림톡' : ((String(message.text || '').length > 45) ? 'LMS' : 'SMS');
+  var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문자발송로그'); sh.appendRow(['시각', '종류']); }
+  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분)
+  sh.appendRow([new Date(), kind]);
+}
+// 관리자: 솔라피 잔액 + 이번달/24h 발송 건수·추정비용 (adminCall fn='solapiUsageSummary')
+function solapiUsageSummary() {
+  var tz = 'Asia/Seoul';
+  var price = { SMS: 20, LMS: 50, '알림톡': 15 };   // 추정 단가(원) — 실제는 솔라피 콘솔 기준
+  try { var pj = JSON.parse(PropertiesService.getScriptProperties().getProperty('SOLAPI_PRICE') || '{}'); for (var k in pj) price[k] = Number(pj[k]) || price[k]; } catch (e) {}
+  var base = { ok: true, balance: _solapiBalance(), month: { count: 0, krw: 0, by: {} }, day: { count: 0 } };
+  var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+  if (!sh || sh.getLastRow() < 2) return base;
+  var n = Math.min(sh.getLastRow() - 1, 20000);
+  var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 2).getValues();
+  var now = new Date(), dayCut = new Date(now.getTime() - 24 * 3600 * 1000), thisMonth = Utilities.formatDate(now, tz, 'yyyy-MM');
+  for (var i = 0; i < vals.length; i++) {
+    var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (isNaN(t.getTime())) continue;
+    var kind = String(vals[i][1] || 'SMS');
+    if (Utilities.formatDate(t, tz, 'yyyy-MM') === thisMonth) { base.month.count++; base.month.by[kind] = (base.month.by[kind] || 0) + 1; base.month.krw += (price[kind] || 20); }
+    if (t >= dayCut) base.day.count++;
+  }
+  base.month.krw = Math.round(base.month.krw);
+  return base;
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }

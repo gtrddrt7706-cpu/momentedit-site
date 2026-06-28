@@ -459,8 +459,8 @@ function openAiCost(){
   ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
   var load=function(){
     bodyEl.innerHTML='<div style="text-align:center;color:#75705f;padding:24px 0;font-size:13px">불러오는 중…</div>';
-    Promise.all([gas('aiCostSummary24h'),gas('aiBudgetGet').catch(function(){return null;})]).then(function(res){
-      var r=res[0], bg=res[1];
+    Promise.all([gas('aiCostSummary24h'),gas('aiBudgetGet').catch(function(){return null;}),gas('solapiUsageSummary').catch(function(){return null;})]).then(function(res){
+      var r=res[0], bg=res[1], sp=res[2];
       if(!r||!r.ok){ bodyEl.innerHTML='<div style="color:#b00;font-size:13px">불러오지 못했습니다. ('+esc((r&&r.error)||'오류')+')</div>'; return; }
       var budget=(bg&&bg.ok)?(Number(bg.krw)||0):0;
       var d=r.day||{}, rows=(d.bySurface||[]);
@@ -486,6 +486,17 @@ function openAiCost(){
       else if(near){ h+='<div style="margin-top:6px;font-size:11px;color:#9a7b00">예산의 80%를 넘었어요.</div>'; }
       h+='</div>';
       h+='<div style="margin-top:10px;font-size:11px;color:#b0a896">추정치예요. 정확한 청구액은 Anthropic 콘솔 기준 · 업데이트 '+esc(r.updatedAt||'')+'</div>';
+      // 📨 문자·알림톡 (솔라피)
+      if(sp&&sp.ok){
+        var balCol=(sp.balance!=null&&Number(sp.balance)<5000)?'#b00':'#3a2f25';
+        var sm=sp.month||{}; var byTxt=Object.keys(sm.by||{}).map(function(k){return k+' '+sm.by[k];}).join(' · ');
+        h+='<div style="margin-top:16px;padding-top:12px;border-top:1px dashed #e0d8cc"><div style="font-size:12px;font-weight:600;color:#3a2f25;margin-bottom:6px">📨 문자·알림톡 (솔라피)</div>';
+        h+='<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#75705f">잔액</span><span style="color:'+balCol+';font-weight:600">'+(sp.balance!=null?_won(sp.balance):'조회 실패')+'</span></div>';
+        h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px"><span style="color:#75705f">이번 달 발송</span><span style="color:#3a2f25">'+(Number(sm.count)||0)+'건 <span style="color:#9a9183;font-weight:400">(추정 '+_won(sm.krw)+')</span></span></div>';
+        h+='<div style="font-size:10px;color:#b0a896;margin-top:3px">'+(byTxt?esc(byTxt)+' · ':'')+'최근 24시간 '+((sp.day&&sp.day.count)||0)+'건 · 발송 단가는 추정(콘솔 기준 상이)</div>';
+        if(sp.balance!=null&&Number(sp.balance)<5000) h+='<div style="margin-top:6px;font-size:11px;color:#b00">⚠️ 잔액이 적어요 — 충전/자동충전을 확인하세요.</div>';
+        h+='</div>';
+      }
       bodyEl.innerHTML=h;
       var bb=document.getElementById('aicBudget'); if(bb) bb.addEventListener('click',function(){ var v=prompt('월 예산을 원화로 입력하세요 (0 = 해제)', budget||10000); if(v===null) return; var n=Math.max(0,Math.floor(Number(String(v).replace(/[^0-9]/g,''))||0)); gas('aiBudgetSet',n).then(function(rs){ if(rs&&rs.ok) load(); else alert((rs&&rs.error)||'설정 실패'); }); });
       var al=document.getElementById('aicAlert'); if(al) al.addEventListener('click',function(){ gas('aiAlertAdmin','이번 달 AI 비용이 예산('+_won(budget)+')을 넘었어요. 현재 '+_won(mTotal)).then(function(rs){ alert(rs&&rs.ok?'관리자 문자 발송됨':('실패: '+((rs&&rs.error)||'설정 확인'))); }); });

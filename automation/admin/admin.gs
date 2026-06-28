@@ -183,7 +183,8 @@ function adminCall(token, fn, args) {
       aiSafetyNow: aiSafetyNow, aiSafetyHistory: aiSafetyHistory, aiDigestPreview: aiDigestPreview, aiQuestionReport: aiQuestionReport,
       aiFactsList: aiFactsList, aiFactSet: aiFactSet, aiFactDelete: aiFactDelete, aiFactHistory: aiFactHistory, aiFactRollback: aiFactRollback,
       aiRegList: aiRegList, aiRegAdd: aiRegAdd, aiRegSetActive: aiRegSetActive, aiRegDelete: aiRegDelete,
-      adminListLeads: adminListLeads, adminResolveLead: adminResolveLead, aiQuestionResolve: aiQuestionResolve
+      adminListLeads: adminListLeads, adminResolveLead: adminResolveLead, aiQuestionResolve: aiQuestionResolve,
+      solapiUsageSummary: solapiUsageSummary
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
