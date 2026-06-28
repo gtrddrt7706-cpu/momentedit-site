@@ -118,15 +118,19 @@ module.exports = async (req, res) => {
     if (!history.length || history[history.length - 1].role !== 'user') return out(400, { ok: false, error: 'empty_message' });
     const userTurns = history.filter((m) => m.role === 'user').length;
 
+    let sysA = SYS;   // 운영자 보충지식(교육) — 핵심 뒤에 참고용으로
+    try { const fct = await require('./_facts')(); if (fct) sysA += '\n\n[운영 핵심정보 — 최신·최우선. 위 지식과 다르면 아래를 따른다]\n' + fct; } catch (e) {}
+    try { const n = await require('./_kbnotes')('애프터'); if (n) sysA += '\n\n[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n; } catch (e) {}
     const r = await fetch(API_URL, {
       method: 'POST',
       headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, system: SYS,
+      body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, system: sysA,
         thinking: { type: 'disabled' },   // Sonnet: 실시간 채팅 → 사고 없이 낮은 effort
         output_config: { format: { type: 'json_schema', schema: SCHEMA }, effort: 'low' }, messages: history })
     });
     if (!r.ok) return out(502, { ok: false, error: 'ai_unavailable' });
     const data = await r.json();
+    if (!(body && body.test)) { try { await require('./_costlog')('애프터', MODEL, data.usage); } catch (e) {} }
     let parsed = {};
     try { parsed = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) { return out(502, { ok: false, error: 'ai_parse' }); }
 
@@ -152,6 +156,8 @@ module.exports = async (req, res) => {
     } else if (parsed.intent !== 'offtopic' && (cat === 'dining' || cat === 'cafe')) {
       source = 'db';                                                  // 프론트가 DINE_DB 필터로 노출
     }
+
+    if (!(body && body.test)) { try { await require('./_qlog')('애프터', history[history.length - 1].content, { reply: reply }); } catch (e) {} }
 
     return out(200, { ok: true, intent: parsed.intent === 'offtopic' ? 'offtopic' : 'place',
       category: cat, reply, ask, filters: f, places, source, mapDown });

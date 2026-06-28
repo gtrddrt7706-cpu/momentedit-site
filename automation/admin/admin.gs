@@ -176,7 +176,14 @@ function adminCall(token, fn, args) {
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
-      adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange
+      adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
+      aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
+      aiKbNoteList: aiKbNoteList, aiKbNoteAdd: aiKbNoteAdd, aiKbNoteSetActive: aiKbNoteSetActive, aiKbNoteDelete: aiKbNoteDelete,
+      aiTestRunSave: aiTestRunSave, aiAlertAdmin: aiAlertAdmin, aiBudgetGet: aiBudgetGet, aiBudgetSet: aiBudgetSet, aiQuestionLog: aiQuestionLog,
+      aiSafetyNow: aiSafetyNow, aiSafetyHistory: aiSafetyHistory, aiDigestPreview: aiDigestPreview, aiQuestionReport: aiQuestionReport,
+      aiFactsList: aiFactsList, aiFactSet: aiFactSet, aiFactDelete: aiFactDelete, aiFactHistory: aiFactHistory, aiFactRollback: aiFactRollback,
+      aiRegList: aiRegList, aiRegAdd: aiRegAdd, aiRegSetActive: aiRegSetActive, aiRegDelete: aiRegDelete,
+      adminListLeads: adminListLeads, adminResolveLead: adminResolveLead, aiQuestionResolve: aiQuestionResolve
     };
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };

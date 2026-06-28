@@ -2046,6 +2046,12 @@ function doPost(e) {
       case 'aiAvailability':     return jsonOut(handleAiAvailability(body));   // 97 · 스케줄 AI 서버측 점유 맵(가예약 포함 · _weddingOccupancy 기준)
       case 'advisorLog':         return jsonOut(handleAdvisorLog(body));    // AI 상담사 질문 로그(익명·마스킹) — KB 개선 근거
       case 'awDemandLog':        return jsonOut(handleAwDemandLog(body));   // 애프터웨딩 수요 로그(익명·니즈/인원/필터) — 검증·보강 우선순위 근거
+      case 'aiCostLog':          return jsonOut(handleAiCostLog(body));     // 96 · AI 토큰 비용 로그(접점별) — 관리자 24시간 집계 근거
+      case 'aiKbNotes':          return jsonOut(handleAiKbNotes(body));     // 96 · AI 교육(운영자 보충지식) 조회 — 챗봇이 접점별로 가져감
+      case 'aiFacts':            return jsonOut(handleAiFacts(body));       // 96 · 핵심정보 단일 진실원 조회 — 챗봇이 최신·최우선 사실로 주입
+      case 'aiSafetyAlert':      return jsonOut(handleAiSafetyAlert(body)); // 96 · GitHub Actions 안전 백업 점검 실패 알림(시크릿 보호)
+      case 'leadCapture':        return jsonOut(handleLeadCapture(body));   // 문의 리드(글 회신) — 동의 후 이름·연락처 적재 + 관리자 SMS
+      case 'leadClick':          return jsonOut(handleLeadClick(body));     // 카톡 상담 연결 집계(개인정보 없음 · 영업 전환 신호)
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
@@ -2082,11 +2088,94 @@ function handleAdvisorLog(body) {
     var q = String((body && body.q) || '').trim().slice(0, 300);
     if (!q) return { ok: true };
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
-    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('상담사질문로그'); sh.appendRow(['시각', '질문(마스킹)', '상담연결']); }
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('상담사질문로그'); sh.appendRow(['시각', '질문(마스킹)', '상담연결', '구분', '접점']); }
     if (sh.getLastRow() > 5000) return { ok: true };   // 폭주 가드 — 시트 무한 증식 방지(정리 전 상한)
-    sh.appendRow([fmtKST(new Date()), _maskPII(q), (body && body.escalate) ? 'Y' : '']);
+    var esc = (body && body.escalate) ? 'Y' : '';
+    var flag = String((body && body.flag) || (esc ? '막힘' : '정상')).slice(0, 6);   // 정상·애매·막힘 (애매=AI가 답했지만 자신 없음)
+    var surface = String((body && body.surface) || '').slice(0, 8);
+    sh.appendRow([fmtKST(new Date()), _maskPII(q), esc, flag, surface]);
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
+}
+
+// [문의 리드 — 글로 답변] 챗봇에서 고객이 동의 후 남긴 이름·연락처(문자/이메일)를 적재 + 관리자 즉시 SMS. 전화 아님(선택 채널로 글 회신).
+//   시트 '문의리드' [시각, 이름, 연락처, 방법, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
+function handleLeadCapture(body) {
+  try {
+    var name = String((body && body.name) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
+    var channel = String((body && body.channel) || '문자').trim();
+    if (channel !== '이메일') channel = '문자';
+    var contact = String((body && body.contact) || (body && body.phone) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 60);
+    var valid = (channel === '이메일') ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact) : (contact.replace(/[^0-9]/g, '').length >= 9);
+    if (!name || !valid) return { ok: false, error: '이름과 ' + (channel === '이메일' ? '이메일' : '휴대폰 번호') + '을(를) 정확히 입력해 주세요.' };
+    if (!(body && body.consent)) return { ok: false, error: '개인정보 수집·이용 동의가 필요해요.' };
+    var surface = String((body && body.surface) || '메인').slice(0, 10);
+    var ctx = _maskPII(String((body && body.context) || '')).slice(0, 200);
+    var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '방법', '접점', '맥락', '동의', '상태', '처리일시']); }
+    if (sh.getLastRow() > 5000) return { ok: true };
+    sh.appendRow([fmtKST(new Date()), name, contact, channel, surface, ctx, '동의', '신규', '']);
+    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(' + channel + '로 회신): ' + name + ' ' + contact + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
+    // 고객 접수 확인 문자(거래성 안내 · 전화 아님). ScriptProperty 'LEAD_CONFIRM_SMS'='N'이면 끔.
+    try {
+      var confOff = PropertiesService.getScriptProperties().getProperty('LEAD_CONFIRM_SMS') === 'N';
+      if (!confOff && channel === '문자' && typeof _nfProps === 'function' && typeof _solapiSend === 'function') {
+        var cfg2 = _nfProps();
+        if (cfg2 && cfg2.key && cfg2.secret && cfg2.sender) {
+          _solapiSend(cfg2, { to: contact.replace(/[^0-9]/g, ''), from: cfg2.sender, text: '[모먼트에디트] 상담 신청이 접수됐어요. 확인 후 카카오톡·문자로 답해드릴게요. 감사합니다.' });
+        }
+      }
+    } catch (e) {}
+    return { ok: true };
+  } catch (e) { return { ok: false, error: (e && e.message) || String(e) }; }
+}
+// 관리자 — 리드 목록(adminCall · 최신순 최대 50 · pending=미처리 수)
+function adminListLeads() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || sh.getLastRow() < 2) return { ok: true, items: [], pending: 0 };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
+  var items = [], pending = 0;
+  for (var i = vals.length - 1; i >= 0; i--) {
+    var st = String(vals[i][7] || '신규'); if (st !== '완료') pending++;
+    if (items.length < 50) items.push({ at: String(vals[i][0]), name: String(vals[i][1]), contact: String(vals[i][2]), channel: String(vals[i][3] || '문자'), surface: String(vals[i][4]), context: String(vals[i][5]), status: st, row: i + 2 });
+  }
+  return { ok: true, items: items, pending: pending };
+}
+// 관리자 — 리드 처리완료(adminCall · 행번호)
+function adminResolveLead(row) {
+  row = Number(row) || 0; var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || row < 2 || row > sh.getLastRow()) return { ok: false, error: '대상을 찾을 수 없어요.' };
+  sh.getRange(row, 8).setValue('완료'); sh.getRange(row, 9).setValue(fmtKST(new Date()));
+  return { ok: true };
+}
+// 카톡 상담 연결 집계(개인정보 없음) — 시트 '카톡연결' [시각, 접점]. 영업 전환 신호로만 사용.
+function handleLeadClick(body) {
+  try {
+    var surface = String((body && body.surface) || '메인').slice(0, 10);
+    var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('카톡연결'); sh.appendRow(['시각', '접점']); }
+    if (sh.getLastRow() > 20000) return { ok: true };
+    sh.appendRow([fmtKST(new Date()), surface]);
+  } catch (e) {}
+  return { ok: true };
+}
+// 90일 지난 카톡연결 로그 정리 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
+function purgeKakaoClicks() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), n = 0;
+  for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
+  if (n > 0) sh.deleteRows(2, n);
+}
+// 1년 지난 리드 정리(개인정보 최소화) — purgeAdvisorLog(주간 트리거)에서 함께 호출.
+function purgeLeads() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 365);
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), n = 0;
+  for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
+  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeLeads: ' + n + '건 삭제'); }
 }
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈(프리셋·AI 카테고리)·인원·필터를 개인정보 없이 적재.
 //   저장: '애프터수요로그' 시트 [시각, 소스, 카테고리, 테마, 음식, 인원]. 이름·연락처·토큰 등 식별정보 미저장. 90일 자동정리(purgeAwDemandLog).
@@ -2115,6 +2204,9 @@ function purgeAdvisorLog() {
   }
   if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAdvisorLog: ' + n + '건 삭제'); }
   try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
+  try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
+  try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
+  try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {

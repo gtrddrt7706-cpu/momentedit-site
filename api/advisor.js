@@ -58,6 +58,14 @@ const SALES_BOOKING = `
 [예약 페이지 보강 · 행동 유도]
 지금은 상담 예약(신청) 페이지입니다. 대화 흐름이 자연스러울 때만 가끔 마무리에 "이 페이지에서 바로 상담을 신청하실 수 있어요" 정도로 다음 걸음을 권합니다. 매 답변 반복·압박 금지.`;
 
+// 마이페이지 전담 비서 페르소나 — 마이페이지(이미 계약한 고객)의 모든 응답에 적용. 영업이 아니라 '전담 케어'로 특화.
+const MYPAGE_PERSONA = `
+
+[마이페이지 전담 비서 · 성격]
+- 당신은 이미 모먼트에디트와 함께하기로 한 이 고객만을 위한 따뜻한 전담 비서입니다. 새 고객을 설득하는 영업이 아니라, 이미 계약한 분이 안심하고 준비하도록 돕는 역할입니다.
+- 영업·희소성·"서둘러 신청"·상담 신청 권유를 하지 않습니다(이미 계약한 고객입니다). 대신 다음 할 일·일정·준비를 차분히 안내하고, 불안은 사실로 가라앉힙니다.
+- 말투는 메인 상담보다 한 톤 더 개인적이고 살뜰하게. 고객의 여정(다음 단계)을 먼저 헤아려 어울릴 때만 한 문장 덧붙입니다(과하지 않게).`;
+
 // 마이페이지 그라운딩 — 로그인 고객의 실시간 상태(단계·결제·예식일 등)를 받았을 때만 시스템 프롬프트에 더한다(개인 질문 즉답 · 환각 0).
 const MYPAGE_STATE_RULE = `
 
@@ -126,12 +134,16 @@ module.exports = async (req, res) => {
     let systemText = SYSTEM_PROMPT;
     if (page !== '마이') systemText += SALES_CORE;
     if (page === '예약') systemText += SALES_BOOKING;
+    if (page === '마이') systemText += MYPAGE_PERSONA;   // 전담 비서 특화(영업 아님) — 그라운딩 유무와 무관하게 항상
     if (grounded) systemText += MYPAGE_STATE_RULE;   // 규칙은 매 요청 동일 → 캐시 블록에 포함
 
     // 캐싱: 안정적인 KB·규칙만 캐시(반복 요청 시 ~90% 절감). 고객별 상태는 매번 달라지므로
     //   별도 블록(비캐시)으로 분리 — 캐시 무효화·고객 간 교차오염을 막는다(prefix 캐시 규칙).
     const sysBlocks = [{ type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }];
     if (grounded) sysBlocks.push({ type: 'text', text: '[이 고객의 현재 상황 · 실제 데이터]\n' + state });
+    // 운영자 보충지식(교육) — 핵심 KB 뒤에 별도 블록(비캐시)으로. 핵심 정책은 못 덮음.
+    try { const facts = await require('./_facts')(); if (facts) sysBlocks.push({ type: 'text', text: '[운영 핵심정보 — 최신·최우선. 아래 값이 위 지식과 다르면 반드시 아래 값을 따른다]\n' + facts }); } catch (e) {}
+    try { const kbNotes = await require('./_kbnotes')(page || '메인'); if (kbNotes) sysBlocks.push({ type: 'text', text: '[운영자 보충지식 — 아래 내용은 참고용. 가격·계약·환불 등 핵심 정책과 충돌하면 위 핵심을 우선한다]\n' + kbNotes }); } catch (e) {}
 
     const reqBody = {
       model: (page === '마이') ? MODEL_MYPAGE : MODEL_PUBLIC,   // 현재 둘 다 Sonnet 4.6 (마이는 그라운딩 후 Opus 재격상 대비 분기 유지)
@@ -190,6 +202,11 @@ module.exports = async (req, res) => {
     if (!text) {
       text = '죄송합니다. 정확한 안내를 위해 상담사 연결을 도와드릴게요.';
       escalate = true;
+    }
+
+    if (!(body && body.test)) {
+      try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {}
+      try { await require('./_qlog')(page === '마이' ? '마이페이지' : '메인', history[history.length - 1].content, { escalate, reply: text }); } catch (e) {}
     }
 
     res.statusCode = 200;

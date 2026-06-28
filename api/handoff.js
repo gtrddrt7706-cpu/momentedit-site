@@ -91,6 +91,7 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'upstream_error' }));
     }
     const data = await anthRes.json();
+    if (!(body && body.test)) { try { await require('./_costlog')('핸드오프', MODEL, data.usage); } catch (e) {} }
     let brief = {};
     try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
     // 안전망: 전각 줄표 제거
@@ -99,7 +100,7 @@ module.exports = async (req, res) => {
     // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 성공 처리.
     let delivered = false;
     const hook = process.env.HANDOFF_WEBHOOK_URL;
-    if (hook && /^https:\/\//.test(hook)) {
+    if (hook && /^https:\/\//.test(hook) && !(body && body.test)) {   // 관리자 테스트는 관리자 인계 목록에 안 남김
       try {
         const r = await fetch(hook, {
           method: 'POST', headers: { 'content-type': 'application/json' },

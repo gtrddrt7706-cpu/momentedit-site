@@ -1534,6 +1534,25 @@ function handleSaveRefundAccount(body) {
   return { ok: true };
 }
 
+// [주간 트리거] 전체 스프레드시트(모든 시트 탭)를 'ME_백업' 폴더에 날짜 사본으로 복사 · 최근 8주만 보관.
+//   첫 실행 시 Drive 권한 승인 필요. 구글 자체 백업 위의 추가 안전망(사람 손 안 감).
+function weeklyBackup() {
+  try {
+    var ss = SpreadsheetApp.getActive();
+    var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+    var folderName = 'ME_백업';
+    var it = DriveApp.getFoldersByName(folderName);
+    var folder = it.hasNext() ? it.next() : DriveApp.createFolder(folderName);
+    DriveApp.getFileById(ss.getId()).makeCopy('[백업] ' + ss.getName() + ' ' + stamp, folder);
+    // 최근 8개만 유지(오래된 사본 휴지통으로)
+    var files = folder.getFiles(), arr = [];
+    while (files.hasNext()) arr.push(files.next());
+    arr.sort(function (a, b) { return b.getDateCreated().getTime() - a.getDateCreated().getTime(); });
+    for (var i = 8; i < arr.length; i++) { try { arr[i].setTrashed(true); } catch (e) {} }
+    Logger.log('weeklyBackup 완료: ' + stamp + ' · 보관 ' + Math.min(arr.length + 1, 8) + '개');
+    return { ok: true, at: stamp };
+  } catch (e) { Logger.log('weeklyBackup 실패: ' + (e && e.message)); return { ok: false, error: String(e && e.message) }; }
+}
 function setupAllTriggers() {
   var plan = [
     { fn: 'expireUnsignedContracts', hour: 3,  label: '계약서 72h 만료 자동 파기' },
@@ -1544,6 +1563,8 @@ function setupAllTriggers() {
     { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-9 리마인드' },
     { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
     { fn: 'sendArchiveExpiryNotices', hour: 11, label: '결과물 보관 만료 7일 전 통지' },
+    { fn: 'aiDaily',                 hour: 9,  label: 'AI 직원실 일일 안전점검·요약·인계 24h 리마인드' },
+    { fn: 'weeklyBackup',            hour: 5,  weekly: true, label: '주간 데이터 백업(스프레드시트 사본·최근 8주 보관)' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
     { fn: 'purgeAdvisorLog',         hour: 4,  weekly: true, label: '상담사 질문 로그 90일 정리(월)' },
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }

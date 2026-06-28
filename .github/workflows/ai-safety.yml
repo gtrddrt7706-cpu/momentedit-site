@@ -1,0 +1,29 @@
+name: AI 안전점검(일일 백업)
+
+# GAS 자동 안전점검이 막힐 때를 대비한 클라우드 백업.
+# 매일 라이브 엔드포인트에 레드라인 점검을 돌리고, 실패 시 GAS 웹훅(시크릿 보호)으로 관리자 SMS를 트리거한다.
+#
+# 필요한 레포 시크릿 (Settings → Secrets and variables → Actions):
+#   GAS_EXEC_URL      ← GAS /exec URL (Vercel HANDOFF_WEBHOOK_URL과 동일)
+#   AI_SAFETY_SECRET  ← GAS ScriptProperty 'AI_SAFETY_SECRET' 과 같은 임의 문자열
+#   SITE_BASE         ← (선택) 기본 https://momentedit.kr
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 매일 00:00 UTC = 09:00 KST
+  workflow_dispatch: {}
+
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: AI 레드라인 점검
+        run: node scripts/ci/ai-safety.mjs
+        env:
+          SITE_BASE: ${{ secrets.SITE_BASE }}
+          GAS_EXEC_URL: ${{ secrets.GAS_EXEC_URL }}
+          AI_SAFETY_SECRET: ${{ secrets.AI_SAFETY_SECRET }}

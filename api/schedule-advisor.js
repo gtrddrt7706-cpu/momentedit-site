@@ -162,6 +162,7 @@ module.exports = async (req, res) => {
   }
   try {
     const body = await readJson(req);
+    const isTest = !!(body && body.test);   // 관리자 테스트 호출 — 비용 로그에서 제외
 
     // [무료 진단] 가용성 라우팅 생존 핑 — Claude 호출 없이 GAS aiAvailability 도달만 확인(시뮬 가드용).
     //   availSource: 'gas'(정상 점유 맵 수신) | 'unknown'(라우팅 누락·시크릿 불일치·조회 실패 = fail-closed 신호)
@@ -225,7 +226,7 @@ module.exports = async (req, res) => {
       system: [{ type: 'text', text: EXTRACT_PROMPT, cache_control: { type: 'ephemeral' } }],
       output_config: { format: { type: 'json_schema', schema: EXTRACT_SCHEMA }, effort: 'low' },
       messages: [{ role: 'user', content: '[오늘] ' + today + '\n\n[대화]\n' + convo + '\n\n고객의 마지막 메시지를 분석하세요.' }],
-    });
+    }, isTest);
     let ex = { intent: 'other', date: '', periodFrom: '', periodTo: '', weekendOnly: false, slot: '', anySlot: false };
     try { ex = Object.assign(ex, JSON.parse(textOf(ext))); } catch (e) {}
     ex.date = snapYear(ex.date, history);   // 연도 안정화: 직전 답변에 요일과 함께 안내한 날짜면 그 요일에 연도를 맞춤
@@ -243,17 +244,22 @@ module.exports = async (req, res) => {
     }
 
     // ── 2차 호출: 판정 결과로 답변 작성 ──
+    const repSys = [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }];
+    try { const fct = await require('./_facts')(); if (fct) repSys.push({ type: 'text', text: '[운영 핵심정보 — 최신·최우선. 위 지식과 다르면 아래를 따른다]\n' + fct }); } catch (e) {}
+    try { const n = await require('./_kbnotes')('예약'); if (n) repSys.push({ type: 'text', text: '[운영자 보충지식 — 참고용 · 가격·계약 등 핵심 정책과 충돌하면 핵심 우선]\n' + n }); } catch (e) {}
     const rep = await callClaude(apiKey, {
       model: MODEL, max_tokens: 400,
       thinking: { type: 'disabled' },   // Sonnet: 실시간 응대 → 사고 없이 낮은 effort로 빠르고 저렴하게
       output_config: { effort: 'low' },
-      system: [{ type: 'text', text: REPLY_PROMPT, cache_control: { type: 'ephemeral' } }],
+      system: repSys,
       messages: [{ role: 'user', content: '[대화]\n' + convo + '\n\n[확인 결과]\n' + verdict + '\n\n위 확인 결과만 사용해 고객의 마지막 메시지에 답하세요.' }],
-    });
+    }, isTest);
     let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '')
       .replace(/^[ \t]*#{1,6}[ \t]+/gm, '').replace(/^[ \t]*[-*][ \t]+/gm, '· ');
     text = fixWeekdayText(text, ex.date);   // 표기 정합: 모델이 고객 문구의 잘못된 요일을 따라 적으면 실제 요일로 교정(규칙 7-2 백스톱)
     if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';
+
+    if (!isTest) { try { await require('./_qlog')('예약', history[history.length - 1].content, { reply: text }); } catch (e) {} }
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -495,7 +501,7 @@ function addDays(ymd, n) {
 function koDate(ymd) { return Number(ymd.slice(5, 7)) + '월 ' + Number(ymd.slice(8, 10)) + '일'; }
 function dateKey(ymd) { return Number(ymd.slice(5, 7)) + '-' + Number(ymd.slice(8, 10)); }
 
-async function callClaude(apiKey, payload) {
+async function callClaude(apiKey, payload, isTest) {
   const r = await fetch(API_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -505,7 +511,9 @@ async function callClaude(apiKey, payload) {
     console.error('sched_advisor_upstream', r.status, (await safeText(r)).slice(0, 300));
     throw new Error('upstream_' + r.status);
   }
-  return r.json();
+  const data = await r.json();
+  if (!isTest) { try { await require('./_costlog')('예약', payload.model, data.usage); } catch (e) {} }
+  return data;
 }
 function textOf(data) {
   return ((data && data.content) || []).filter((b) => b.type === 'text').map((b) => b.text).join('');

@@ -55,10 +55,52 @@ function handleAiHandoff(body) {
     var lock = LockService.getScriptLock();
     try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
     try { _aihSheet().appendRow(row); } finally { try { lock.releaseLock(); } catch (e) {} }
+    try { _aihNotifyNew(row[4], brief.summary || '', custTxt); } catch (e) {}   // 🔴 새 인계 즉시 관리자 알림
     return { ok: true, id: id };
   } catch (err) {
     return { ok: false, error: (err && err.message) || String(err) };
   }
+}
+
+/** 🔴 새 인계 관리자 SMS — 주간(08~22시)은 즉시(60초 버스트 가드), 야간(22~08시)은 보류 → 아침 9시 aiDaily가 모아 알림(새벽 문자 방지). */
+function _aihNotifyNew(category, summary, customer) {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var hour = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
+    if (hour >= 22 || hour < 8) {   // 야간 보류 — 카운트만 누적, 발송은 아침에
+      p.setProperty('AI_HANDOFF_NIGHT_PENDING', String((Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0)) + 1));
+      return;
+    }
+    var now = new Date().getTime(), last = Number(p.getProperty('AI_LAST_HANDOFF_ALERT') || 0);
+    if (now - last < 60000) return;   // 1분 내 중복 발송 억제
+    p.setProperty('AI_LAST_HANDOFF_ALERT', String(now));
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📋 새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
+  } catch (e) {}
+}
+
+/** 🌙 야간 보류 인계 아침 발송 — aiDaily(9시)가 호출. 밤사이 들어온 새 인계 건수를 한 통으로. */
+function aiHandoffNightFlush() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
+    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🌙 밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지 📋에서 확인해 주세요.'); }
+    return { ok: true, flushed: n };
+  } catch (e) { return { ok: false }; }
+}
+
+/** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 호출. 대기 상태로 24시간 넘긴 건이 있으면 1통. */
+function aiHandoffReminder() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, old: 0 };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
+  var cutoff = new Date(new Date().getTime() - 24 * 3600 * 1000), old = 0;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][2]).trim() !== '대기') continue;
+    var d = new Date(vals[i][1]);
+    if (!isNaN(d.getTime()) && d < cutoff) old++;
+  }
+  if (old > 0) { try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('⏰ 미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지 📋에서 확인해 주세요.'); } catch (e) {} }
+  return { ok: true, old: old };
 }
 
 /** 관리자 — 대기 목록 (adminCall 경유 · 최신순 최대 30건) */
