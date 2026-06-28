@@ -166,10 +166,14 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (tplId && cfg.pfId) {
     msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
   }
-  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
-  //   솔라피가 알림톡 실패 시 자동으로 SMS 대체발송까지 하므로 고객은 거의 항상 수신. 진짜 안전망은
-  //   '솔라피 전송 자체가 막히는 것(잔액 0·발신번호 문제)'을 막는 것 → 관리자 이메일 경고(notifyBalanceCheck·_notifyFailMark).
-  _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환.
+  //   알림톡 실패 시 솔라피가 SMS로 자동대체. 단 '솔라피 자체가 막히면(잔액 0 등)' 문자도 못 가므로,
+  //   전송 실패 시 고객 이메일이 있으면 같은 내용을 이메일로 대체 발송(실패할 때만 → 스팸 아님 · 중요 안내 유실 방지).
+  var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+  if (!sent) {
+    var custEmail = String(cust.get('이메일') || '').trim();
+    if (custEmail) _nfCustomerEmailFallback(custEmail, name, event, m.text);
+  }
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -191,13 +195,15 @@ function _solapiSend(cfg, message, ctx) {
     var codeN = resp.getResponseCode();
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
-    } else {
-      Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
-      _notifyFailMark(ctx, 'HTTP ' + codeN);
+      return true;
     }
+    Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
+    _notifyFailMark(ctx, 'HTTP ' + codeN);
+    return false;
   } catch (e) {
     Logger.log('[notify] 발송 예외: ' + (e && e.message));
     _notifyFailMark(ctx, (e && e.message) || '예외');
+    return false;
   }
 }
 
@@ -513,6 +519,21 @@ function _nfAdminEmail(subject, bodyHtml) {
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// 고객 알림이 솔라피로 못 나갔을 때(잔액 0·장애) 같은 내용을 '고객 이메일'로 대체 발송 — 전송 실패 시에만 호출(스팸 아님).
+//   GAS GmailApp이라 솔라피와 무관하게 발송됨. 이메일이 없는 고객은 호출 측에서 건너뜀.
+function _nfCustomerEmailFallback(to, name, event, text) {
+  try {
+    var body = (name ? (name + ' 님,<br><br>') : '') + String(text || '').replace(/\n/g, '<br>')
+      + '<br><br><span style="color:#9a9183;font-size:12px">문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.</span>';
+    var html = (typeof emailShell === 'function')
+      ? emailShell('안내 말씀', (typeof centerP === 'function') ? centerP(body) : ('<p>' + body + '</p>'))
+      : body;
+    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(body).replace(/<[^>]+>/g, ' '),
+      { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
+    Logger.log('[notify] 고객 이메일 대체 발송 → ' + to + ' · ' + event);
+  } catch (e) { try { Logger.log('[notify] 고객 이메일 대체 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
