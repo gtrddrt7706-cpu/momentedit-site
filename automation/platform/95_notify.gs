@@ -168,6 +168,10 @@ function _kakaoSend(to, event, code, extra, opts) {
   }
   // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환
   _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+
+  // [이메일 백업 · 2026-06-28] 중요 알림은 카톡/SMS와 함께 메일도 1통 — 카카오톡 미사용·수신거부 고객 안전망.
+  //   best-effort(throw 안 함). 이미 메일 보내는 상담완료·결과물전달은 NF_EMAIL_ALSO에서 제외(중복 방지).
+  try { _nfEmailAlso(event, String(code || '').trim(), name, m); } catch (e) {}
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -434,6 +438,35 @@ function _notifyCustomerEmail(code, subject, headline, innerHtml) {
     GmailApp.sendEmail(to, subject, '', { htmlBody: emailShell(headline, innerHtml), name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 고객 메일 발송 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 고객 메일 실패(무시): ' + (e && e.message)); } catch (_) {} }
+}
+
+// [이메일 백업 대상 · 2026-06-28] 중요·기한·결제 알림만 메일 병행(카톡 못 받는 고객 안전망).
+//   상담완료(consultDone)·결과물전달(resultDelivered)은 admin.gs에서 이미 메일 발송 → 여기 제외(중복 방지).
+var NF_EMAIL_ALSO = {
+  'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요', btn: '마이페이지 열기' },
+  'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요', btn: '동의서 확인·서명' },
+  'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요', btn: '계약서 확인·서명' },
+  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '다음 단계를 안내드려요', btn: '마이페이지 열기' },
+  'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
+  'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' }
+};
+
+// 중요 알림 메일 1통(카톡과 함께) — SMS 대체문구(m.text)에서 태그·URL을 떼고 본문화 + 마이페이지 버튼.
+//   emailShell·centerP·emailBtn·esc 는 같은 GAS 프로젝트(consultation-booking)의 것을 재사용. 실패는 무시(본 흐름 보호).
+function _nfEmailAlso(event, code, name, m) {
+  try {
+    var meta = NF_EMAIL_ALSO[event];
+    if (!meta) return;
+    if (typeof _notifyCustomerEmail !== 'function' || typeof centerP !== 'function' || typeof emailBtn !== 'function') return;
+    var body = String((m && m.text) || '')
+      .replace(/^\[모먼트에디트\]\s*/, '')
+      .replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '')
+      .trim();
+    if (!body) body = (name || '고객') + '님께 안내드립니다.';
+    var safeBody = (typeof esc === 'function') ? esc(body) : body;
+    var inner = centerP(safeBody) + emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
+    _notifyCustomerEmail(code, '[Moment Edit] ' + meta.subj, meta.head, inner);
+  } catch (e) { try { Logger.log('[notify] 메일 백업 실패(무시): ' + (e && e.message)); } catch (_) {} }
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
