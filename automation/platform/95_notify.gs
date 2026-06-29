@@ -627,17 +627,17 @@ function purgeNfTrack() {
 // 이벤트별 메일 제목·헤드라인·버튼 라벨(브랜드 메일 다듬기). 없으면 제너릭.
 var NF_EMAIL_TITLE = {
   'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요' },
-  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다' },
-  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안', btn: '마이페이지에서 확인' },
+  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다', nobtn: true },   // 리마인드 — CTA 없이 깔끔하게
+  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안', btn: '시간 확인·선택' },
   'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요', btn: '동의서 확인·서명' },
   'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요', btn: '계약서 확인·서명' },
-  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '다음 단계를 안내드려요' },
+  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '계약금이 확인되었어요', btn: '다음 단계 확인' },
   'cust.midPre':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
   'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
   'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
   'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
   'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박', btn: '상담 확정하러 가기' },
-  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용' },
+  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용', btn: '변경 내용 확인' },
   'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
   'cust.consultDone':         { subj: '상담이 마무리되었습니다', head: '상담이 마무리되었어요', btn: '계약 진행하기' },
   'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' }
@@ -658,7 +658,7 @@ function _nfCustomerEmailFallback(to, name, event, text) {
     var inner = (typeof centerP === 'function')
       ? centerP((hasGreet ? '' : (name ? (safe(name) + '님,<br>') : '')) + safe(body).replace(/\n/g, '<br>'))
       : ('<p>' + safe(body) + '</p>');
-    if (typeof emailBtn === 'function') inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
+    if (typeof emailBtn === 'function' && !meta.nobtn) inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
     if (typeof smallP === 'function') {
       inner += smallP('카카오톡 안내가 어려워 이메일로 전해드려요.'
         + (kakao ? (' 궁금한 점은 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 문의해 주세요.') : ''));
