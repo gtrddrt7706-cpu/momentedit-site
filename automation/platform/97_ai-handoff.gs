@@ -88,19 +88,82 @@ function aiHandoffNightFlush() {
   } catch (e) { return { ok: false }; }
 }
 
-/** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 호출. 대기 상태로 24시간 넘긴 건이 있으면 1통. */
+/** 🧹 오래된 대기 인계 자동 만료 — aiDaily가 리마인드 '전에' 호출(미처리 카운트를 항상 손쓸 수 있는 건으로만 유지).
+ *  비로그인 방문자 인계는 연락 불가라 짧게(기본 3일), 로그인 고객 인계는 연락 가능하니 길게(기본 14일) 두고 '만료' 처리.
+ *  임계는 ScriptProperty AIH_EXPIRE_ANON_DAYS / AIH_EXPIRE_CUST_DAYS로 조정 가능.
+ *  forceDays(숫자)를 주면 고객/비로그인 구분·기본값 무시하고 그 일수 기준으로 일괄 만료.
+ *    → 초기 정리용: aiHandoffAutoExpire(0) 한 번 실행하면 '지금 대기 중인 전체'를 만료시켜 0에서 시작.
+ */
+var AIH_EXPIRE_ANON_DAYS = 3;    // 비로그인 방문자 인계 자동 만료(일)
+var AIH_EXPIRE_CUST_DAYS = 14;   // 로그인 고객 인계 자동 만료(일)
+function aiHandoffAutoExpire(forceDays) {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0 };
+  var forced = (typeof forceDays === 'number' && isFinite(forceDays));
+  var p = PropertiesService.getScriptProperties();
+  var anonD = forced ? forceDays : (Number(p.getProperty('AIH_EXPIRE_ANON_DAYS')) || AIH_EXPIRE_ANON_DAYS);
+  var custD = forced ? forceDays : (Number(p.getProperty('AIH_EXPIRE_CUST_DAYS')) || AIH_EXPIRE_CUST_DAYS);
+  var now = new Date().getTime(), nowStr = _aihNow();
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
+  try {
+    var n = sh.getLastRow() - 1;
+    var data = sh.getRange(2, 1, n, AIH_HEADERS.length).getValues();   // ID,접수일시,상태,...,고객(idx6),...,처리일시(idx11)
+    var statusCol = [], doneCol = [], expired = 0;
+    for (var i = 0; i < n; i++) {
+      var status = String(data[i][2]).trim(), doneAt = data[i][11];
+      if (status === '대기') {
+        var d = new Date(data[i][1]);
+        var isAnon = /비로그인/.test(String(data[i][6] || ''));
+        var ttl = (isAnon ? anonD : custD) * 86400000;
+        if (!isNaN(d.getTime()) && (now - d.getTime()) >= ttl) { status = '만료'; doneAt = nowStr; expired++; }
+      }
+      statusCol.push([status]); doneCol.push([doneAt]);
+    }
+    if (expired > 0) { sh.getRange(2, 3, n, 1).setValues(statusCol); sh.getRange(2, 12, n, 1).setValues(doneCol); }
+    Logger.log('aiHandoffAutoExpire: ' + expired + '건 만료(anon ' + anonD + 'd · cust ' + custD + 'd' + (forced ? ' · forced' : '') + ')');
+    return { ok: true, expired: expired };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+/** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 자동 만료 '뒤'에 호출. 대기 24시간 경과 건이 있으면 1통.
+ *  단순 숫자 대신 '가장 오래된 며칠 전 · 로그인 고객 몇 건'까지 담아 행동 가능하게(익명 다수면 신경 덜 써도 됨을 바로 인지). */
 function aiHandoffReminder() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, old: 0 };
-  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
-  var cutoff = new Date(new Date().getTime() - 24 * 3600 * 1000), old = 0;
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
+  var now = new Date().getTime(), cutoff = now - 24 * 3600 * 1000;
+  var old = 0, custOld = 0, oldestDays = 0;
   for (var i = 0; i < vals.length; i++) {
     if (String(vals[i][2]).trim() !== '대기') continue;
-    var d = new Date(vals[i][1]);
-    if (!isNaN(d.getTime()) && d < cutoff) old++;
+    var d = new Date(vals[i][1]); if (isNaN(d.getTime()) || d.getTime() >= cutoff) continue;
+    old++;
+    if (!/비로그인/.test(String(vals[i][6] || ''))) custOld++;
+    var days = Math.floor((now - d.getTime()) / 86400000); if (days > oldestDays) oldestDays = days;
   }
-  if (old > 0) { try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('⏰ 미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지 📋에서 확인해 주세요.'); } catch (e) {} }
-  return { ok: true, old: old };
+  if (old > 0) {
+    var msg = '⏰ 미처리 인계 ' + old + '건(24h 경과 · 가장 오래된 ' + oldestDays + '일 전'
+      + (custOld > 0 ? (' · 로그인 고객 ' + custOld + '건') : ' · 모두 비로그인') + '). 관리자 페이지 📋에서 확인해 주세요.';
+    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin(msg); } catch (e) {}
+  }
+  return { ok: true, old: old, custOld: custOld, oldestDays: oldestDays };
+}
+
+/** 🧹 오래된 완료/만료 인계 행 삭제(기본 90일) — 주간 purge(purgeAdvisorLog)가 함께 호출. 대기 건은 절대 삭제 안 함. */
+function purgeAiHandoff() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return;
+  var cutoff = new Date().getTime() - 90 * 86400000;
+  var n = sh.getLastRow() - 1;
+  var vals = sh.getRange(2, 1, n, AIH_HEADERS.length).getValues();   // 상태(idx2) · 처리일시(idx11) · 접수일시(idx1)
+  var del = 0;   // 위에서부터 연속 삭제(접수 오름차순) — 종결(완료/만료) & 기준일 경과만
+  for (var i = 0; i < n; i++) {
+    var status = String(vals[i][2]).trim();
+    if (status !== '완료' && status !== '만료') break;
+    var ref = new Date(vals[i][11] || vals[i][1]);   // 처리일시 우선, 없으면 접수일시
+    if (!isNaN(ref.getTime()) && ref.getTime() < cutoff) del++; else break;
+  }
+  if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeAiHandoff: ' + del + '건 삭제'); }
 }
 
 /** 관리자 — 대기 목록 (adminCall 경유 · 최신순 최대 30건) */

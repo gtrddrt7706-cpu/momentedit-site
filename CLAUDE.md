@@ -57,7 +57,9 @@
 | `aiDaily` | 96_ai_cost | 매일 9시 트리거 — 안전점검 + 인계 24h 리마인드 + 일일요약 SMS 일괄(setupAllTriggers가 등록) |
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). 위반/하락 시에만 관리자 SMS(트리거 자동·수동 가능). 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS 발송 |
-| `aiHandoffReminder` | 97_ai-handoff | 미처리 인계 24시간 경과 건이 있으면 관리자 SMS 1통(aiDaily가 호출) |
+| `aiHandoffReminder` | 97_ai-handoff | 미처리 인계 24시간 경과 건이 있으면 관리자 SMS 1통(가장 오래된 며칠·로그인고객 건수 포함 · aiDaily가 호출) |
+| `aiHandoffAutoExpire` | 97_ai-handoff | 오래된 '대기' 인계 자동 만료(비로그인 3일·로그인 고객 14일 · `AIH_EXPIRE_ANON_DAYS`/`AIH_EXPIRE_CUST_DAYS`로 조정). aiDaily가 리마인드 전에 호출. **`aiHandoffAutoExpire(0)` 1회 실행 = 현재 대기 전체 즉시 만료(초기 정리)** |
+| `purgeAiHandoff` | 97_ai-handoff | 종결(완료/만료) 인계 행 90일 정리(purgeAdvisorLog가 함께 호출 · 대기 건은 절대 삭제 안 함) |
 | `aiHandoffNightFlush` | 97_ai-handoff | 야간(22~08시) 보류된 새 인계를 아침 9시에 한 통으로 발송(aiDaily가 호출) |
 | `handleAiCostLog` | 96_ai_cost | AI 토큰 비용 1건 적재(doPost action='aiCostLog' · Vercel 챗봇이 호출) |
 | `purgeAiCostLog` | 96_ai_cost | AI 비용 로그 35일 정리(purgeAdvisorLog가 함께 호출 · 별도 트리거 불필요) |

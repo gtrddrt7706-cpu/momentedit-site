@@ -331,6 +331,7 @@ function aiDigestPreview() { return aiDailyDigest(false); }   // adminCall — �
 function aiDaily() {
   try { aiDailySafetyCheck(); } catch (e) {}
   try { if (typeof aiHandoffNightFlush === 'function') aiHandoffNightFlush(); } catch (e) {}   // 🌙 야간 보류 인계 아침 발송
+  try { if (typeof aiHandoffAutoExpire === 'function') aiHandoffAutoExpire(); } catch (e) {}   // 🧹 오래된 대기 인계 자동 만료(비로그인 3일·고객 14일) — 리마인드 전에
   try { if (typeof aiHandoffReminder === 'function') aiHandoffReminder(); } catch (e) {}
   try { if (typeof notifyBalanceCheck === 'function') notifyBalanceCheck(); } catch (e) {}     // 💰 솔라피 잔액 임계 이하면 관리자 메일 경고(95_notify)
   try { aiDailyDigest(true); } catch (e) {}
