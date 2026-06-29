@@ -129,14 +129,6 @@ function _nfProps() {
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
  * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
-// [중요 알림 · 카톡+이메일 항상 함께] 카톡 못 받는 고객 안전망. consultDone·resultDelivered는 admin.gs서 이미 메일 → 제외.
-//   여기 없는 소소한 건(하루전·사전리마인드 등)은 카톡만, 카톡 못 보낸 경우에만 이메일.
-var NF_EMAIL_IMPORTANT = {
-  'cust.consultConfirmed': 1, 'cust.timeProposed': 1, 'cust.fittingRequest': 1,
-  'cust.contractArrived': 1, 'cust.depositToProduction': 1, 'cust.midDue': 1,
-  'cust.balanceDue': 1, 'cust.holdExpiring': 1, 'cust.changeConfirmed': 1, 'cust.changeDeclined': 1
-};
-
 function _kakaoSend(to, event, code, extra, opts) {
   var cfg = _nfProps();
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
@@ -179,13 +171,13 @@ function _kakaoSend(to, event, code, extra, opts) {
     var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
     sentKakao = (sent !== false);
   }
-  // 이메일: 중요 알림(NF_EMAIL_IMPORTANT)은 카톡과 함께 '항상' / 카톡을 못 보낸 경우(템플릿 미승인·전송실패)도 발송.
-  //   잔액·전송성공과 무관하게 중요건은 메일이 같이 가므로, 카톡 못 받는 고객도 안 놓침(예전 '솔라피 실패 시에만'의 사각지대 해소).
+  // 이메일: 카톡을 못 보낸 경우(템플릿 미승인 → 솔라피 미발송 · 또는 전송 실패)에만 발송 = '실패 시에만'.
+  //   카톡이 정상 발송되면 이메일은 보내지 않음(중복 없음). 요즘 거의 다 카톡을 써서 카톡으로 사실상 전원 도달.
   //   consultDone·resultDelivered는 admin.gs에서 이미 메일 → 중복 방지로 제외.
   try {
     var emailedElsewhere = (event === 'cust.consultDone' || event === 'cust.resultDelivered');
     var custEmail = String(cust.get('이메일') || '').trim();
-    if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && (NF_EMAIL_IMPORTANT[event] || !sentKakao)) {
+    if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
       _nfCustomerEmailFallback(custEmail, name, event, m.text);
     }
   } catch (e) {}
@@ -553,7 +545,7 @@ function _nfCustomerEmailFallback(to, name, event, text) {
       ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
       : ('<p>' + greet + safe(text) + '</p>');
     if (typeof smallP === 'function') {
-      inner += smallP('이 안내는 카카오톡과 이메일로 함께 보내드려요.'
+      inner += smallP('카카오톡 안내가 어려워 이메일로 전해드려요.'
         + (kakao ? (' 궁금한 점은 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 문의해 주세요.') : ''));
     }
     var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
