@@ -576,3 +576,29 @@ function solapiUsageSummary() {
 }
 
 function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
+
+// [테스트 전용] 승인난 알림톡 6종을 한 번에 테스트 계정으로 발송 — 운영 트리거와 무관(수동 실행만).
+//   서로 다른 템플릿 6개(T04·T05·T08·T09·T10·T15)를 각 변수 채워 순차 발송. skipHold로 야간에도 즉시.
+//   code 인자 없이 ▶실행하면 ZZ_TEST_CODE(기본 'HTV4WN') 사용. 다른 코드로 보내려면 ZZ_kakaoTestAll('코드').
+var ZZ_TEST_CODE = 'HTV4WN';
+function ZZ_kakaoTestAll(code) {
+  var c = String(code || ZZ_TEST_CODE).trim();
+  var seq = [
+    ['cust.fittingRequest',  {}],                          // T04 #{이름}
+    ['cust.contractArrived', {}],                          // T05 #{이름}
+    ['cust.midPre',          { dday: 30 }],                // T08 #{이름}#{디데이}
+    ['cust.balancePre',      { snap: false, dday: 7 }],    // T09 #{이름}#{행사}#{디데이}
+    ['cust.resultDelivered', {}],                          // T10 #{이름}
+    ['cust.changeDeclined',  {}]                           // T15 #{이름}#{사유}
+  ];
+  for (var i = 0; i < seq.length; i++) {
+    try {
+      _kakaoSend('customer', seq[i][0], c, seq[i][1], { skipHold: true });
+      Logger.log('[ZZ] 발송 시도: ' + seq[i][0]);
+    } catch (e) {
+      Logger.log('[ZZ] 실패: ' + seq[i][0] + ' · ' + (e && e.message));
+    }
+    Utilities.sleep(1500);   // 솔라피 연속 호출 간격
+  }
+  Logger.log('[ZZ] 6종 발송 완료 → ' + c);
+}
