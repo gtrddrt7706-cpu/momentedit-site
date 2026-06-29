@@ -624,26 +624,50 @@ function purgeNfTrack() {
   } catch (e) {}
 }
 
-// 고객 알림이 솔라피로 못 나갔을 때(잔액 0·장애) 같은 내용을 '고객 이메일'로 대체 발송 — 전송 실패 시에만 호출(스팸 아님).
-//   GAS GmailApp이라 솔라피와 무관하게 발송됨. 이메일이 없는 고객은 호출 측에서 건너뜀.
+// 이벤트별 메일 제목·헤드라인·버튼 라벨(브랜드 메일 다듬기). 없으면 제너릭.
+var NF_EMAIL_TITLE = {
+  'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요' },
+  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다' },
+  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안', btn: '마이페이지에서 확인' },
+  'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요', btn: '동의서 확인·서명' },
+  'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요', btn: '계약서 확인·서명' },
+  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '다음 단계를 안내드려요' },
+  'cust.midPre':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
+  'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
+  'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
+  'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
+  'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박', btn: '상담 확정하러 가기' },
+  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용' },
+  'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
+  'cust.consultDone':         { subj: '상담이 마무리되었습니다', head: '상담이 마무리되었어요', btn: '계약 진행하기' },
+  'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' }
+};
+
+// 고객 알림이 카톡으로 못 나갔을 때(템플릿없음·전송실패·전달실패) 같은 내용을 '고객 이메일'로 발송.
+//   SMS 문구(text)에서 태그([모먼트에디트])·끝 URL·시작 '이름님,'을 정리 → 깔끔한 본문 + 마이페이지 버튼 + 이벤트별 제목.
+//   GAS GmailApp이라 솔라피와 무관하게 발송. 이메일 없는 고객은 호출 측에서 건너뜀.
 function _nfCustomerEmailFallback(to, name, event, text) {
   try {
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
     var kakao = (typeof CONFIG !== 'undefined' && CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '';
-    var greet = name ? (safe(name) + ' 님,<br>') : '';
-    // 기존 고객 메일 관례와 동일: emailShell(로고·푸터) + centerP(본문) + smallP(보조·카톡 문의)
+    var meta = NF_EMAIL_TITLE[event] || { subj: '안내드립니다', head: '모먼트에디트 안내' };
+    // 본문 정리: 태그·끝 URL 제거. 'OOO님,'으로 시작하면 그게 인사라 그대로 두고, 아니면 인사 한 줄 추가.
+    var body = String(text || '').replace(/^\[모먼트에디트\]\s*/, '').replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '').trim();
+    if (!body) body = (name || '고객') + '님께 안내드립니다.';
+    var hasGreet = /^[^\s,]{1,20}\s*[·][^\s,]{1,20}\s*님|^[^\s,]{1,20}\s*님/.test(body);
     var inner = (typeof centerP === 'function')
-      ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
-      : ('<p>' + greet + safe(text) + '</p>');
+      ? centerP((hasGreet ? '' : (name ? (safe(name) + '님,<br>') : '')) + safe(body).replace(/\n/g, '<br>'))
+      : ('<p>' + safe(body) + '</p>');
+    if (typeof emailBtn === 'function') inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
     if (typeof smallP === 'function') {
       inner += smallP('카카오톡 안내가 어려워 이메일로 전해드려요.'
         + (kakao ? (' 궁금한 점은 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 문의해 주세요.') : ''));
     }
-    var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
-    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(text || '').slice(0, 500),
+    var html = (typeof emailShell === 'function') ? emailShell(meta.head, inner) : inner;
+    GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500),
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
-    Logger.log('[notify] 고객 이메일 대체 발송 → ' + to + ' · ' + event);
-  } catch (e) { try { Logger.log('[notify] 고객 이메일 대체 실패: ' + (e && e.message)); } catch (_) {} }
+    Logger.log('[notify] 고객 이메일 → ' + to + ' · ' + event);
+  } catch (e) { try { Logger.log('[notify] 고객 이메일 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
 // ============================ 문자/알림톡 사용량 (관리자 💰) ============================
