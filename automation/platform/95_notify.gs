@@ -462,8 +462,8 @@ function notifyTestKakao(phone, event) {
   if (!cfg.pfId) { Logger.log('SOLAPI_PF_ID(카카오 채널 pfId) 미설정 — 카톡 발송 불가'); return; }
   if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
   var tplId = String(cfg.templates[event] || '').trim();
-  if (!tplId || tplId.charAt(0) === '[' || /^KA01(TP|PF)|같은ID|\.\.\./.test(tplId)) {   // 빈값·임시 placeholder만 거름(실제 코드는 임의 문자열)
-    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → setKakaoTemplates()로 승인 템플릿코드 등록해야 카톡 발송. (지금은 이메일로 대체됨)');
+  if (!tplId || tplId.charAt(0) === '[' || /같은ID|\.\.\./.test(tplId)) {   // 빈값·md placeholder('KA01TP...'·'같은ID')만 거름. 실제 코드는 'KA01TP260627…' 형식이라 통과.
+    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → importKakaoTemplates() 또는 setKakaoTemplates()로 등록해야 카톡 발송. (지금은 이메일로 대체됨)');
     return;
   }
   var m = _nfCustomerMsg(event, '테스트', { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 });
