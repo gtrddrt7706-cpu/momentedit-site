@@ -649,7 +649,6 @@ var NF_EMAIL_TITLE = {
 function _nfCustomerEmailFallback(to, name, event, text) {
   try {
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
-    var kakao = (typeof CONFIG !== 'undefined' && CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '';
     var meta = NF_EMAIL_TITLE[event] || { subj: '안내드립니다', head: '모먼트에디트 안내' };
     // 본문 정리: 태그·끝 URL 제거. 'OOO님,'으로 시작하면 그게 인사라 그대로 두고, 아니면 인사 한 줄 추가.
     var body = String(text || '').replace(/^\[모먼트에디트\]\s*/, '').replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '').trim();
@@ -660,8 +659,11 @@ function _nfCustomerEmailFallback(to, name, event, text) {
       : ('<p>' + safe(body) + '</p>');
     if (typeof emailBtn === 'function' && !meta.nobtn) inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
     if (typeof smallP === 'function') {
-      inner += smallP('카카오톡 안내가 어려워 이메일로 전해드려요.'
-        + (kakao ? (' 궁금한 점은 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 문의해 주세요.') : ''));
+      // 카톡으로 닿지 않아 보내는 메일 → 다시 카톡으로 안내하면 모순(카톡 없는 고객은 막힘).
+      //   항상 닿는 채널(마이페이지·메일 회신)로만 문의를 유도한다.
+      inner += smallP('카카오톡으로 닿지 않아 이메일로 보내드려요. 문의는 '
+        + '<a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>'
+        + '에서 또는 이 메일에 회신해 주시면 됩니다.');
     }
     var html = (typeof emailShell === 'function') ? emailShell(meta.head, inner) : inner;
     GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500),
