@@ -1997,8 +1997,13 @@ function handleAcceptProposal(body) {
 
 function doPost(e) {
   try {
-    var body = {};
-    try { body = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { body = {}; }
+    var raw = {};
+    try { raw = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { raw = {}; }
+    // 솔라피 전달결과 리포트(배열, 또는 messageId/statusCode 형태이며 action 없음) → 전달 실패 시 고객 이메일(95_notify)
+    if ((Array.isArray(raw) && raw.length) || (raw && (raw.messageId || raw.statusCode) && !raw.action)) {
+      return jsonOut(typeof handleSolapiReport === 'function' ? handleSolapiReport(raw) : { ok: false, error: 'no handler' });
+    }
+    var body = Array.isArray(raw) ? {} : raw;
     var action = String((body && body.action) || '').trim();
     switch (action) {
       // ── 통합 플랫폼 ──
@@ -2209,6 +2214,7 @@ function purgeAdvisorLog() {
   try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
   try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
   try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
+  try { if (typeof purgeNfTrack === 'function') purgeNfTrack(); } catch (e) {}       // 95 · 알림톡추적(전달결과 매칭) 7일 정리
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {

@@ -80,7 +80,8 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
   let sent = 0;
   const tplMap = {};
   Object.keys(api.NOTIFY_EVENTS).forEach(function(ev){ if (ev.indexOf('cust.') === 0) tplMap[ev] = 'KA01TPTEST'; });
-  const props = { getProperty: function(k){ return ({ NOTIFY_ENABLED:'true', SOLAPI_API_KEY:'k', SOLAPI_API_SECRET:'s', SOLAPI_SENDER:'01000000000', SOLAPI_PF_ID:'KA01PFTEST', ADMIN_PHONE:'01000000000', KAKAO_TEMPLATES: JSON.stringify(tplMap) })[k] || null; }, setProperty(){}, deleteProperty(){}, getProperties(){ return {}; } };
+  // SOLAPI_BAL_CHK_AT=현재시각 → _nfMaybeBalanceCheck throttle로 잔액 API 미호출(발송 fetch만 카운트)
+  const props = { getProperty: function(k){ return ({ NOTIFY_ENABLED:'true', SOLAPI_API_KEY:'k', SOLAPI_API_SECRET:'s', SOLAPI_SENDER:'01000000000', SOLAPI_PF_ID:'KA01PFTEST', ADMIN_PHONE:'01000000000', KAKAO_TEMPLATES: JSON.stringify(tplMap), SOLAPI_BAL_CHK_AT: String(new Date().getTime()) })[k] || null; }, setProperty(){}, deleteProperty(){}, getProperties(){ return {}; } };
   const row = { get: function(k){ return ({ '연락처':'01012345678', '신랑이름':'민준', '신부이름':'하윤', '상품타입':'시그니처' })[k] || ''; } };
   const api2 = new Function('PropertiesService','Logger','Utilities','LockService','UrlFetchApp','fmtKST','findCustomerByCode','_recordHandler','_kstYmd','_shiftYmd',
     src2 + '\n;return {NOTIFY_EVENTS:NOTIFY_EVENTS, notifyKakao:notifyKakao};')(

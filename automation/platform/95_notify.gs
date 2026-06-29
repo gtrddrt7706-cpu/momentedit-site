@@ -103,6 +103,7 @@ function notifyKakao(event, code, extra) {
     }
     if (!_notifyEnabled()) return;        // 발송 OFF — 로그만 남기고 종료
     _kakaoSend(meta.to, event, code, extra);
+    try { _nfMaybeBalanceCheck(); } catch (e) {}   // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고
   } catch (e) {
     try { Logger.log('[notifyKakao] 예외(무시): ' + (e && e.message)); } catch (_) {}
   }
@@ -203,6 +204,7 @@ function _solapiSend(cfg, message, ctx) {
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
       try { _solapiLogSend(message); } catch (e) {}   // 발송 건수 집계용(관리자 💰 문자비)
+      try { if (ctx && ctx.code) _nfTrackSend(resp, ctx, message); } catch (e) {}   // 전달결과 웹훅 매칭용 messageId↔code 기록(고객 알림톡)
       return true;
     }
     Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
@@ -500,7 +502,7 @@ function _solapiBalance() {
 function notifyBalanceCheck() {
   try {
     var p = PropertiesService.getScriptProperties();
-    var thr = Number(p.getProperty('SOLAPI_LOW_BALANCE')) || 5000;
+    var thr = Number(p.getProperty('SOLAPI_LOW_BALANCE')) || 3000;   // 자동충전 임계(5000)보다 낮게 → 자동충전 실패 시에만(헛경고X), 0 전에 버퍼 두고 경고
     var bal = _solapiBalance();
     if (bal == null) return;
     Logger.log('[notify] 솔라피 잔액 = ' + bal + '원 (임계 ' + thr + ')');
@@ -531,6 +533,95 @@ function _nfAdminEmail(subject, bodyHtml) {
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고(일일 aiDaily 외 보조 · 하루 1통 가드는 notifyBalanceCheck가 함).
+function _nfMaybeBalanceCheck() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var last = Number(p.getProperty('SOLAPI_BAL_CHK_AT') || 0);
+    var now = new Date().getTime();
+    if (now - last < 3600000) return;   // 1시간 throttle
+    p.setProperty('SOLAPI_BAL_CHK_AT', String(now));
+    if (typeof notifyBalanceCheck === 'function') notifyBalanceCheck();
+  } catch (e) {}
+}
+
+// ============================ 전달결과 웹훅 (전달 실패 시 고객 이메일) ============================
+// 알림톡은 '접수 성공(2xx)' 후 실제 전달 성공/실패가 비동기로 통보됨(솔라피 리포트 웹훅 → 이 웹앱 /exec로 POST).
+//   발송 성공 시 messageId↔code↔text를 '알림톡추적' 시트에 기록 → 리포트가 '실패'면 그 고객에게 이메일(카톡 미수신 커버).
+//   ★보수적: '명확한 실패'만 이메일. 성공/불명확은 발송 안 함(카톡 받은 고객에 오발송 방지). 형식은 로그로 확인·튜닝 가능.
+// 설정: 솔라피 콘솔 > 설정 > 리포트(전달결과) 웹훅 URL = 이 웹앱 배포 /exec 주소.
+var NF_TRACK_SHEET = '알림톡추적';
+function _nfTrackSheet() {
+  var ss = SpreadsheetApp.getActive();
+  var sh = ss.getSheetByName(NF_TRACK_SHEET);
+  if (!sh) { sh = ss.insertSheet(NF_TRACK_SHEET); sh.appendRow(['messageId', '시각', 'code', 'event', 'text', '상태']); sh.setFrozenRows(1); }
+  return sh;
+}
+// 발송 성공 시 messageId 기록(고객 알림톡만 · ctx.code 있을 때). 실패 시 그대로 보낼 text도 보관.
+function _nfTrackSend(resp, ctx, message) {
+  var mid = '';
+  try { var j = JSON.parse(resp.getContentText()); mid = String(j.messageId || (j.groupInfo && j.groupInfo.groupId) || j.groupId || '').trim(); } catch (e) {}
+  if (!mid) return;
+  var sh = _nfTrackSheet();
+  if (sh.getLastRow() > 20000) return;
+  sh.appendRow([mid, new Date(), String(ctx.code || ''), String(ctx.event || ''), String((message && message.text) || '').slice(0, 1000), '발송']);
+}
+// 솔라피 전달결과 리포트 처리(doPost가 배열/리포트 형태 감지 시 호출). 명확한 실패만 고객 이메일.
+function handleSolapiReport(raw) {
+  try {
+    Logger.log('[notify] 솔라피 리포트 수신: ' + String(JSON.stringify(raw)).slice(0, 700));
+    var arr = Array.isArray(raw) ? raw : [raw];
+    var sh = SpreadsheetApp.getActive().getSheetByName(NF_TRACK_SHEET);
+    if (!sh || sh.getLastRow() < 2) return { ok: true, emailed: 0, note: '추적 없음' };
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();   // messageId,시각,code,event,text,상태
+    var failKw = /fail|error|reject|undeliver|expire|실패|거부|미수신|차단|반려|오류|만료|없는/i;
+    var failCodes = { '3008': 1, '3014': 1, '4040': 1, '5000': 1, '6000': 1 };   // 알려진 실패코드(테스트 후 보강)
+    var okKw = /성공|완료|정상|delivered|complete|sent/i;
+    var emailed = 0;
+    arr.forEach(function (r) {
+      try {
+        var mid = String((r && (r.messageId || r.messageid || r.mid)) || '').trim();
+        if (!mid) return;
+        var sc = String((r && (r.statusCode || r.status)) || '').trim();
+        var msg = String((r && (r.statusMessage || r.reason || r.statusMsg)) || '');
+        var failed = (sc && failCodes[sc]) || failKw.test(msg);
+        var success = (sc === '4000') || okKw.test(msg);
+        for (var i = rows.length - 1; i >= 0; i--) {
+          if (String(rows[i][0]).trim() !== mid) continue;
+          var st = String(rows[i][5]).trim();
+          if (st === '완료' || st === '이메일') return;   // 이미 처리
+          if (failed) {
+            var code = String(rows[i][2]).trim(), event = String(rows[i][3]).trim(), text = String(rows[i][4]);
+            try {
+              var cust = findCustomerByCode(code);
+              var to = cust ? String(cust.get('이메일') || '').trim() : '';
+              var name = cust ? _nfCoupleName(cust) : '';
+              if (to && to.indexOf('@') > 0 && text) { _nfCustomerEmailFallback(to, name, event, text); emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+            } catch (e) {}
+            sh.getRange(i + 2, 6).setValue('이메일');
+          } else {
+            sh.getRange(i + 2, 6).setValue(success ? '완료' : '확인');   // 불명확은 '확인'(이메일 안 함 · 후속 리포트 재처리 가능)
+          }
+          return;
+        }
+      } catch (e) {}
+    });
+    return { ok: true, emailed: emailed };
+  } catch (e) { Logger.log('[notify] 리포트 처리 실패: ' + (e && e.message)); return { ok: false, error: (e && e.message) }; }
+}
+// [정리] 알림톡추적 7일 경과분 삭제 — purgeAdvisorLog(주간)가 함께 호출(별도 트리거 불필요).
+function purgeNfTrack() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName(NF_TRACK_SHEET);
+    if (!sh || sh.getLastRow() < 2) return;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+    var vals = sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues();   // 시각 열(append 순)
+    var del = 0;
+    for (var i = 0; i < vals.length; i++) { var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (!isNaN(t.getTime()) && t < cutoff) del++; else break; }
+    if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeNfTrack: ' + del + '건 삭제'); }
+  } catch (e) {}
 }
 
 // 고객 알림이 솔라피로 못 나갔을 때(잔액 0·장애) 같은 내용을 '고객 이메일'로 대체 발송 — 전송 실패 시에만 호출(스팸 아님).
