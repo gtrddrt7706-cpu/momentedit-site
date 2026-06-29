@@ -50,8 +50,7 @@ const CONFIG = {
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 · 운영자 입력 예정
   KAKAO_URL: 'https://pf.kakao.com/_CfxcxlX/chat', // 모먼트에디트 채널 채팅 URL(2026-06-28 확정)
   ADMIN_EMAIL: 'huijun@momentedit.kr',          // 알림 받을 주소(정본) · 2026-06-29 contact@→huijun@ 변경(희준 업무메일)
-  ADMIN_CC: [                                   // 운영자 알림 함께 받을 주소 · 구글 전달 대신 코드가 직접 발송
-    'side.minds.1616@gmail.com',                //   미쿠
+  ADMIN_CC: [                                   // 비움 · 2026-06-29 미쿠는 CC 대신 huijun@ Gmail 전달(forwarding)로 수신 → GAS 메일 쿼터 절약(1통=1명)
   ],
   CALENDAR_ID: 'c_c6c2f76cd17c85e3ddfa4ded4ca3634b9fd3de774222171c0c30a850a0cfbf00@group.calendar.google.com',
 };
