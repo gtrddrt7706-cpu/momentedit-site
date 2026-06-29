@@ -99,7 +99,22 @@ function aiHandoffReminder() {
     var d = new Date(vals[i][1]);
     if (!isNaN(d.getTime()) && d < cutoff) old++;
   }
-  if (old > 0) { try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('⏰ 미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지 📋에서 확인해 주세요.'); } catch (e) {} }
+  if (old <= 0) return { ok: true, old: 0 };
+  // [노이즈 억제 2026-06-28] 같은 대기 건이 매일 9시마다 영원히 리마인드되던 문제 → 건수가 변하지 않으면
+  //   최대 3일에 1통만. 건수가 늘면 즉시 알림(새 미처리 신호는 놓치지 않음).
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var lastAt = Number(p.getProperty('AIH_REMIND_AT') || 0);
+    var lastCnt = Number(p.getProperty('AIH_REMIND_CNT'));
+    var now = new Date().getTime();
+    if (old === lastCnt && (now - lastAt) < 3 * 24 * 3600 * 1000) {
+      Logger.log('aiHandoffReminder: 건수 동일(' + old + ') · 3일 내 발송함 → 생략');
+      return { ok: true, old: old, skipped: true };
+    }
+    p.setProperty('AIH_REMIND_AT', String(now));
+    p.setProperty('AIH_REMIND_CNT', String(old));
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('⏰ 미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지 📋에서 확인해 주세요.');
+  } catch (e) {}
   return { ok: true, old: old };
 }
 

@@ -272,6 +272,9 @@ function _nfHoldPush(event, code, extra) {
 }
 // [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
 function flushHeldNotifies() {
+  // [버그수정 2026-06-28] OFF면 큐를 비우지 말고 그대로 유지 — 예전엔 큐를 먼저 지우고 OFF면 폐기라
+  //   발송 OFF 상태로 아침이 오면 밤사이 보류된 고객 알림이 영구 소실됐다. 다시 켜지면 그때 발송.
+  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — 보류 큐 유지(미발송)'); return; }
   var lock = null, arr = [];
   try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
   try {
@@ -280,7 +283,6 @@ function flushHeldNotifies() {
     p.deleteProperty('NOTIFY_HOLD');
   } finally { try { if (lock) lock.releaseLock(); } catch (e2) {} }
   if (!arr.length) { Logger.log('flushHeldNotifies: 보류 0건'); return; }
-  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — ' + arr.length + '건 폐기(로그만)'); return; }
   arr.forEach(function (it) {
     try { _kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }); } catch (e) {}
   });
@@ -498,6 +500,8 @@ function notifyBalanceCheck() {
     if (bal >= thr) return;
     var k = 'SOLAPI_BAL_WARN_' + _kstYmd(new Date());
     if (p.getProperty(k)) return;           // 하루 1통
+    // [중복 억제] 오늘 '발송 실패' 경고 메일이 이미 갔으면(대개 잔액부족이 원인) 잔액경고는 생략 — 같은 날 같은 취지 2통 방지
+    if (p.getProperty('NOTIFY_FAILMAIL_' + _kstYmd(new Date()))) { p.setProperty(k, '1'); Logger.log('[notify] 잔액경고 생략(오늘 실패경고 이미 발송)'); return; }
     p.setProperty(k, '1');
     _nfAdminEmail('[Moment Edit] 솔라피 잔액 부족 경고',
       '솔라피 잔액이 ' + _nfWon(bal) + '원으로 임계(' + _nfWon(thr) + '원) 아래입니다.<br>'
@@ -551,8 +555,21 @@ function _solapiLogSend(message) {
   var kind = (message && message.kakaoOptions) ? '알림톡' : ((String(message.text || '').length > 45) ? 'LMS' : 'SMS');
   var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
   if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문자발송로그'); sh.appendRow(['시각', '종류']); }
-  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분)
+  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분 · purgeSmsLog가 주간 정리)
   sh.appendRow([new Date(), kind]);
+}
+// [정리] 문자발송로그 180일 경과분 삭제 — purgeAdvisorLog(주간 트리거)가 함께 호출(별도 트리거 불필요).
+//   append-only(위→아래 오래된 것) 가정. 20000행 상한 도달로 적재가 멈추는 것 방지.
+function purgeSmsLog() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+    if (!sh || sh.getLastRow() < 2) return;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 180);
+    var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
+    var del = 0;
+    for (var i = 0; i < vals.length; i++) { var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (!isNaN(t.getTime()) && t < cutoff) del++; else break; }
+    if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeSmsLog: ' + del + '건 삭제'); }
+  } catch (e) { try { Logger.log('purgeSmsLog 실패: ' + (e && e.message)); } catch (_) {} }
 }
 // 관리자: 솔라피 잔액 + 이번달/24h 발송 건수·추정비용 (adminCall fn='solapiUsageSummary')
 function solapiUsageSummary() {
