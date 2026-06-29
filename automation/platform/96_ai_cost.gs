@@ -346,6 +346,7 @@ function aiMorningReport() {
   try {
     thr = Number(PropertiesService.getScriptProperties().getProperty('SOLAPI_LOW_BALANCE')) || 3000;
     if (typeof _solapiBalance === 'function') bal = _solapiBalance();
+    if (bal != null) bal = Math.round(bal);   // 솔라피 잔액 소수점 제거(표시용)
   } catch (e) {}
 
   // 2) 표시 문자열
