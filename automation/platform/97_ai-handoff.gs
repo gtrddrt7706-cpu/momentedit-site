@@ -103,6 +103,27 @@ function aiHandoffReminder() {
   return { ok: true, old: old };
 }
 
+/** [점검·읽기 전용] 현재 '대기' 인계 전체를 읽기 좋은 텍스트로 로그/반환 — 80건이 진짜 질문인지 테스트인지
+ *  한눈에 보고 답변 검토용. 각 건: 번호·접수일시·페이지/분류·고객·질문요약·AI 제안답변(앞부분). 발송·변경 없음.
+ *  실행 후 로그(Ctrl+Enter) 복사 → 진짜 건은 답변 작성, 테스트면 clearAllPendingAiHandoff로 정리.
+ */
+function dumpPendingAiHandoff() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, pending: 0, text: '대기 인계 없음' };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
+  var lines = [], n = 0;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][2]).trim() !== '대기') continue;
+    n++;
+    lines.push(n + '. [' + vals[i][1] + '] ' + (vals[i][3] || '') + '/' + (vals[i][4] || '') + ' · 고객: ' + (vals[i][6] || '-')
+      + '\n   Q: ' + String(vals[i][7] || '').slice(0, 240)
+      + '\n   A(제안): ' + String(vals[i][8] || '').slice(0, 240));
+  }
+  var text = '대기 인계 ' + n + '건\n\n' + lines.join('\n\n');
+  Logger.log(text.slice(0, 45000));
+  return { ok: true, pending: n, text: text };
+}
+
 /** [일괄 정리 · 수동 1회] 현재 '대기' 인계 전부를 '일괄정리'로 표시 — 행은 보존하되 미처리 카운트에서 제거.
  *  쌓인 테스트/오래된 대기 건을 한 번에 비울 때 사용(예: 80건). 처리일시 기록.
  *  ※ 실제 응대가 필요한 건은 관리자 페이지 📋에서 개별 '완료'를 권장(이 함수는 전부 일괄 처리).
