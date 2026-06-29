@@ -338,7 +338,7 @@ function _nfCustomerMsg(event, name, x) {
         text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
     case 'cust.consultDone':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 진행하신 상담이 완료되었습니다. 함께해 주셔서 감사합니다. 다음 단계는 마이페이지에서 예식일과 기본 정보를 입력해 주시면 진행되며, 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
     case 'cust.depositToProduction':
       // 상품별 다음 안내가 달라 #{안내} 변수로 분기(알림톡 T18 · SMS 대체문구는 동일 결과)
       var depGuide = x.snap
@@ -660,7 +660,7 @@ var NF_EMAIL_TITLE = {
   'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박', btn: '상담 확정하러 가기' },
   'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용', btn: '변경 내용 확인' },
   'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
-  'cust.consultDone':         { subj: '상담이 마무리되었습니다', head: '상담이 마무리되었어요', btn: '계약 진행하기' },
+  'cust.consultDone':         { subj: '상담이 완료되었습니다', head: '상담이 완료되었어요', btn: '다음 단계 입력' },
   'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' }
 };
 
