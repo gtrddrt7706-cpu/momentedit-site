@@ -228,3 +228,11 @@ function handleAiAvailability(body) {
     return { ok: false, error: 'unavailable' };   // 조회 실패 = 불명 — 빈 맵(전부 가능)으로 가장하지 않는다(더블부킹 방지 · Vercel이 안전 안내로 처리)
   }
 }
+
+/** [1회 정리용] 지금 '대기'인 인계 전체를 즉시 만료 처리(초기 청소) — ▶실행하면 로그에 만료 건수 표시.
+ *  운영 트리거와 무관(수동 실행만). 평소 자동 정리는 aiDaily가 호출하는 aiHandoffAutoExpire(기본 TTL)가 맡는다. */
+function ZZ_clearHandoff() {
+  var r = aiHandoffAutoExpire(0);   // forceDays=0 → 기간 무관 현재 대기 전체 만료
+  Logger.log('ZZ_clearHandoff 결과: ' + JSON.stringify(r));
+  return r;
+}
