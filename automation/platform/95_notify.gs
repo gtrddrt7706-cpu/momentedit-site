@@ -525,7 +525,7 @@ function _nfAdminEmail(subject, bodyHtml, opts) {
   try {
     var p = PropertiesService.getScriptProperties();
     var to = String(p.getProperty('ADMIN_ALERT_EMAIL') || '').trim()
-      || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'contact@momentedit.kr');
+      || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'huijun@momentedit.kr');
     var head = (opts && opts.head) ? opts.head : String(subject).replace(/^\[Moment Edit\]\s*/, '');
     // opts.raw=true면 bodyHtml을 그대로 본문에 넣음(섹션 레이아웃 등). 아니면 한 문단(centerP)으로 감쌈.
     var inner = (opts && opts.raw) ? bodyHtml : ((typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'));
