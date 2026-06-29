@@ -451,6 +451,28 @@ function notifyTestCustomerByCode(code) {
   _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
 }
 
+// 3-1) 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만, SMS 대체 끔).
+//   사용: notifyTestKakao('01073497706')  ·  이벤트 지정: notifyTestKakao('01073497706','cust.contractArrived')
+//   KAKAO_TEMPLATES에 그 이벤트 템플릿ID가 매핑돼 있어야 카톡으로 나감(없으면 로그로 알려줌).
+function notifyTestKakao(phone, event) {
+  var cfg = _nfProps();
+  phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
+  event = event || 'cust.consultConfirmed';
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('SOLAPI 설정 누락 — notifySetupCheck() 먼저'); return; }
+  if (!cfg.pfId) { Logger.log('SOLAPI_PF_ID(카카오 채널 pfId) 미설정 — 카톡 발송 불가'); return; }
+  if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
+  var tplId = String(cfg.templates[event] || '').trim();
+  if (!tplId || tplId.indexOf('KA01') !== 0) {
+    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → KAKAO_TEMPLATES에 승인된 템플릿ID 넣어야 카톡 발송. (지금은 이메일로 대체됨)');
+    return;
+  }
+  var m = _nfCustomerMsg(event, '테스트', { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 });
+  if (!m) { Logger.log('문구 빌더 없는 이벤트: ' + event); return; }
+  var r = _solapiSend(cfg, { to: phone, from: cfg.sender, text: m.text, kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } }, { code: 'TEST', event: event });
+  Logger.log('카톡 테스트(' + event + ' · tpl ' + tplId + ') → ' + phone + ' : ' + (r !== false ? '솔라피 접수 성공(2xx) — 폰에서 카톡 도착 확인' : '실패 — 위 로그/솔라피 콘솔 확인'));
+  return r;
+}
+
 // 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
