@@ -74,10 +74,13 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
   check(ev+' 스냅=촬영', snp.vars['#{행사}'] === '촬영' && snp.text.indexOf('예식') === -1, snp.text);
 });
 
-// ⑥ off 이벤트 발송 차단 — NOTIFY_ENABLED=true·고객 조회 성공이어도 fetch 0회
+// ⑥ off 이벤트 발송 차단 + 새 모델(카톡 우선) — 템플릿 매핑된 비-off 고객 이벤트는 알림톡 1회(fetch), off는 0회.
+//   (2026-06-29 SMS 제거: 템플릿 없으면 솔라피 미발송→이메일 → fetch 0. 그래서 테스트는 KAKAO_TEMPLATES 매핑 상태로 알림톡 발송을 검증)
 (function(){
   let sent = 0;
-  const props = { getProperty: function(k){ return ({ NOTIFY_ENABLED:'true', SOLAPI_API_KEY:'k', SOLAPI_API_SECRET:'s', SOLAPI_SENDER:'01000000000', SOLAPI_PF_ID:'KA01PFTEST', ADMIN_PHONE:'01000000000' })[k] || null; }, setProperty(){}, deleteProperty(){}, getProperties(){ return {}; } };
+  const tplMap = {};
+  Object.keys(api.NOTIFY_EVENTS).forEach(function(ev){ if (ev.indexOf('cust.') === 0) tplMap[ev] = 'KA01TPTEST'; });
+  const props = { getProperty: function(k){ return ({ NOTIFY_ENABLED:'true', SOLAPI_API_KEY:'k', SOLAPI_API_SECRET:'s', SOLAPI_SENDER:'01000000000', SOLAPI_PF_ID:'KA01PFTEST', ADMIN_PHONE:'01000000000', KAKAO_TEMPLATES: JSON.stringify(tplMap) })[k] || null; }, setProperty(){}, deleteProperty(){}, getProperties(){ return {}; } };
   const row = { get: function(k){ return ({ '연락처':'01012345678', '신랑이름':'민준', '신부이름':'하윤', '상품타입':'시그니처' })[k] || ''; } };
   const api2 = new Function('PropertiesService','Logger','Utilities','LockService','UrlFetchApp','fmtKST','findCustomerByCode','_recordHandler','_kstYmd','_shiftYmd',
     src2 + '\n;return {NOTIFY_EVENTS:NOTIFY_EVENTS, notifyKakao:notifyKakao};')(

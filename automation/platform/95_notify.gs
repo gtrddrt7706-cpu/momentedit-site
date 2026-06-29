@@ -129,6 +129,14 @@ function _nfProps() {
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
  * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
+// [중요 알림 · 카톡+이메일 항상 함께] 카톡 못 받는 고객 안전망. consultDone·resultDelivered는 admin.gs서 이미 메일 → 제외.
+//   여기 없는 소소한 건(하루전·사전리마인드 등)은 카톡만, 카톡 못 보낸 경우에만 이메일.
+var NF_EMAIL_IMPORTANT = {
+  'cust.consultConfirmed': 1, 'cust.timeProposed': 1, 'cust.fittingRequest': 1,
+  'cust.contractArrived': 1, 'cust.depositToProduction': 1, 'cust.midDue': 1,
+  'cust.balanceDue': 1, 'cust.holdExpiring': 1, 'cust.changeConfirmed': 1, 'cust.changeDeclined': 1
+};
+
 function _kakaoSend(to, event, code, extra, opts) {
   var cfg = _nfProps();
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
@@ -161,19 +169,26 @@ function _kakaoSend(to, event, code, extra, opts) {
   var m = _nfCustomerMsg(event, name, extra);   // { vars, text }
   if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return; }
 
+  // [SMS 미사용 · 2026-06-29] 고객 알림은 카톡(알림톡) + 이메일만. SMS는 안 보냄 → 발신번호(개인번호) 화면 노출 0.
+  //   알림톡에 disableSms:true → 카톡 실패해도 SMS 대체발송 안 함. from은 솔라피 식별용(고객 비노출).
   var tplId = String(cfg.templates[event] || '').trim();
-  var msg = { to: phone, from: cfg.sender, text: m.text };   // text = 알림톡 실패 시 SMS 대체 문구
+  var sentKakao = false;
   if (tplId && cfg.pfId) {
-    msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
+    var msg = { to: phone, from: cfg.sender, text: m.text,
+      kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } };
+    var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+    sentKakao = (sent !== false);
   }
-  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환.
-  //   알림톡 실패 시 솔라피가 SMS로 자동대체. 단 '솔라피 자체가 막히면(잔액 0 등)' 문자도 못 가므로,
-  //   전송 실패 시 고객 이메일이 있으면 같은 내용을 이메일로 대체 발송(실패할 때만 → 스팸 아님 · 중요 안내 유실 방지).
-  var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
-  if (!sent) {
+  // 이메일: 중요 알림(NF_EMAIL_IMPORTANT)은 카톡과 함께 '항상' / 카톡을 못 보낸 경우(템플릿 미승인·전송실패)도 발송.
+  //   잔액·전송성공과 무관하게 중요건은 메일이 같이 가므로, 카톡 못 받는 고객도 안 놓침(예전 '솔라피 실패 시에만'의 사각지대 해소).
+  //   consultDone·resultDelivered는 admin.gs에서 이미 메일 → 중복 방지로 제외.
+  try {
+    var emailedElsewhere = (event === 'cust.consultDone' || event === 'cust.resultDelivered');
     var custEmail = String(cust.get('이메일') || '').trim();
-    if (custEmail) _nfCustomerEmailFallback(custEmail, name, event, m.text);
-  }
+    if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && (NF_EMAIL_IMPORTANT[event] || !sentKakao)) {
+      _nfCustomerEmailFallback(custEmail, name, event, m.text);
+    }
+  } catch (e) {}
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -538,8 +553,8 @@ function _nfCustomerEmailFallback(to, name, event, text) {
       ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
       : ('<p>' + greet + safe(text) + '</p>');
     if (typeof smallP === 'function') {
-      inner += smallP('문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.'
-        + (kakao ? (' 문의는 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 주세요.') : ''));
+      inner += smallP('이 안내는 카카오톡과 이메일로 함께 보내드려요.'
+        + (kakao ? (' 궁금한 점은 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 문의해 주세요.') : ''));
     }
     var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
     GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(text || '').slice(0, 500),
