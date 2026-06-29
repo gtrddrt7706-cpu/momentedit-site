@@ -121,15 +121,11 @@ function setupAwAudit() {
   Logger.log('월간 자동 검증 트리거 등록 완료 ✓ (매월 1일 09시 · 미발견 발생 시 관리자 SMS)');
 }
 
-/** 관리자 알림 — 95_notify의 솔라피 발송 재사용(설정 있으면 SMS, 없으면 로그만). 88을 독립 동작시키기 위해 try로 감쌈. */
+/** 관리자 알림 — [메일 전용 전환 · 2026-06-29] 95_notify의 _nfAdminLineEmail로 메일 발송(문자비 0). 88을 독립 동작시키기 위해 try로 감쌈. */
 function _awNotifyAdmin_(text) {
   try {
-    var cfg = _nfProps();
-    if (cfg && cfg.key && cfg.secret && cfg.sender && cfg.adminPhone) {
-      _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: text });
-      Logger.log('[aw] 관리자 SMS 발송: ' + text); return;
-    }
-  } catch (e) { Logger.log('[aw] SMS 발송 경로 없음(' + e + ')'); }
+    if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(text); Logger.log('[aw] 관리자 메일 발송: ' + text); return; }
+  } catch (e) { Logger.log('[aw] 메일 발송 경로 없음(' + e + ')'); }
   Logger.log('[aw] (알림 미발송 · 설정 누락) ' + text);
 }
 

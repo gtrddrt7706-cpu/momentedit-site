@@ -135,12 +135,12 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
 
   if (to === 'admin') {
-    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 폰으로 — 관리자가 페이지에서 처리해야
-    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 메일 브리핑·관리자 페이지로 충분.
+    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 알림 — 관리자가 페이지에서 처리해야
+    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 아침보고·관리자 페이지로 충분.
+    // [메일 전용 전환 · 2026-06-29] 문자비 0 — 관리자 알림은 SMS 대신 메일로(운영자 개인메일 cc). 이 메일에 폰 알람을 걸면 즉시 확인.
     var meta = NOTIFY_EVENTS[event] || {};
     if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
-    if (!cfg.adminPhone) { Logger.log('[notify] ADMIN_PHONE 미설정 — 발송 생략'); return; }
-    _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
+    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_nfAdminText(event, code, extra));
     return;
   }
 
@@ -519,7 +519,8 @@ function notifyBalanceCheck() {
   } catch (e) { Logger.log('[notify] 잔액경고 실패: ' + (e && e.message)); }
 }
 
-// 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침.
+// 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침. 운영자 개인메일(ADMIN_CC)도 함께 받게 cc.
+//   [2026-06-29] 관리자 알림을 '메일 전용'으로 전환 — 문자비 0. 이 메일에 폰 알림(알람)을 걸어두면 즉시 확인 가능.
 function _nfAdminEmail(subject, bodyHtml, opts) {
   try {
     var p = PropertiesService.getScriptProperties();
@@ -529,10 +530,30 @@ function _nfAdminEmail(subject, bodyHtml, opts) {
     // opts.raw=true면 bodyHtml을 그대로 본문에 넣음(섹션 레이아웃 등). 아니면 한 문단(centerP)으로 감쌈.
     var inner = (opts && opts.raw) ? bodyHtml : ((typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'));
     var html = (typeof emailShell === 'function') ? emailShell(head, inner) : bodyHtml;
-    GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '),
-      { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
-    Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);
+    var sendOpts = { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') };
+    try { var cc = (typeof adminCc === 'function') ? adminCc() : ''; if (cc) sendOpts.cc = cc; } catch (e0) {}
+    GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '), sendOpts);
+    Logger.log('[notify] 관리자 메일 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
+//   text 예: '[모먼트에디트] 신규 신청 … / 일정 잡기'  ·  '📋 새 인계: …'  ·  '🛡️ 안전점검 …'
+function _nfAdminLineEmail(text) {
+  try {
+    var raw = String(text || '').trim();
+    if (!raw) return;
+    var body = raw.replace(/^\[[^\]]{1,20}\]\s*/, '');     // 앞 태그([모먼트에디트]·[AI 직원실]) 제거
+    var parts = body.split(' / ');
+    var head;
+    if (parts.length > 1) head = parts[parts.length - 1].trim();        // 액션('일정 잡기'·'승인 필요' 등)
+    else if (body.indexOf(':') > -1) head = body.split(':')[0].trim();  // '📋 새 인계'
+    else head = '모먼트에디트 알림';
+    var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
+    var inner = (typeof centerP === 'function') ? centerP(safe(body)) : ('<p>' + safe(body) + '</p>');
+    if (typeof emailBtn === 'function') inner += emailBtn('https://momentedit.kr/admin.html', '관리자 페이지 열기');
+    _nfAdminEmail('[Moment Edit] ' + body.slice(0, 60), inner, { raw: true, head: head });
+  } catch (e) { try { Logger.log('[notify] 관리자 라인메일 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
 // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고(일일 aiDaily 외 보조 · 하루 1통 가드는 notifyBalanceCheck가 함).

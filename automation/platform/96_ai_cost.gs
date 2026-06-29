@@ -241,13 +241,13 @@ function aiTestRunSave(pass, total) {   // adminCall — 이번 결과 저장 + 
 function aiBudgetGet() { return { ok: true, krw: Number(PropertiesService.getScriptProperties().getProperty('AI_MONTH_BUDGET_KRW') || 0) }; }
 function aiBudgetSet(krw) { PropertiesService.getScriptProperties().setProperty('AI_MONTH_BUDGET_KRW', String(Math.max(0, Math.round(Number(krw) || 0)))); return { ok: true }; }
 
-// ④ 문제 시 관리자 문자 알림 — 기존 SOLAPI 발송(_solapiSend·_nfProps) 재사용. ADMIN_PHONE으로.
-function aiAlertAdmin(text) {   // adminCall — 실문자 발송(요금 발생)
+// ④ 관리자 알림 — [메일 전용 전환 · 2026-06-29] 문자비 0. 95_notify의 _nfAdminLineEmail로 메일 발송(운영자 개인메일 cc).
+//   이 메일에 폰 알람을 걸어두면 문자처럼 즉시 확인 가능. (구: ADMIN_PHONE SMS)
+function aiAlertAdmin(text) {   // adminCall
   try {
-    var cfg = _nfProps();
-    if (!cfg.key || !cfg.secret || !cfg.sender || !cfg.adminPhone) return { ok: false, error: '알림 설정 누락(SOLAPI/ADMIN_PHONE)' };
-    _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: ('[AI 직원실] ' + String(text || '')).slice(0, 300) });
-    return { ok: true };
+    if (typeof _nfAdminLineEmail !== 'function') return { ok: false, error: '메일 함수 없음(_nfAdminLineEmail)' };
+    _nfAdminLineEmail('[AI 직원실] ' + String(text || ''));
+    return { ok: true, email: true };
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
 
@@ -374,19 +374,13 @@ function aiMorningReport() {
   var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'
     + '<div>' + rowHtml + '</div>'
     + ((typeof emailBtn === 'function') ? emailBtn('https://momentedit.kr/admin.html', '관리자 페이지 열기') : '');
-  try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+  // [메일 전용 · 2026-06-29] 아침보고는 메일 1통으로 끝(문자비 0). 핵심 요약은 메일 제목·상단에 담김.
+  var summary = '인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : '')
+    + ' · 안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-'))
+    + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? '⚠️' : '')));
+  try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
 
-  // 4) 문자(핵심만 1통 · aiAlertAdmin이 '[AI 직원실]' 접두)
-  var bits = [];
-  bits.push('인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : ''));
-  if (night > 0) bits.push('밤새 ' + night);
-  bits.push('안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-')));
-  bits.push('잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? '⚠️' : ''))));
-  if (failY > 0) bits.push('어제실패 ' + failY);
-  var sms = '🌅 아침보고 · ' + bits.join(' · ') + '. 자세한 건 메일을 확인해 주세요.';
-  try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin(sms); } catch (e) {}
-
-  return { ok: true, sms: sms };
+  return { ok: true, summary: summary };
 }
 function aiMorningPreview() { return aiMorningReport(); }   // adminCall/수동 — 지금 보고 1통 발송(테스트)
 
