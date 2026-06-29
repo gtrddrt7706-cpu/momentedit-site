@@ -2207,6 +2207,7 @@ function purgeAdvisorLog() {
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
   try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
   try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
+  try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {

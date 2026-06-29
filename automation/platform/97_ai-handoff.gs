@@ -103,6 +103,54 @@ function aiHandoffReminder() {
   return { ok: true, old: old };
 }
 
+/** [일괄 정리 · 수동 1회] 현재 '대기' 인계 전부를 '일괄정리'로 표시 — 행은 보존하되 미처리 카운트에서 제거.
+ *  쌓인 테스트/오래된 대기 건을 한 번에 비울 때 사용(예: 80건). 처리일시 기록.
+ *  ※ 실제 응대가 필요한 건은 관리자 페이지 📋에서 개별 '완료'를 권장(이 함수는 전부 일괄 처리).
+ */
+function clearAllPendingAiHandoff() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, cleared: 0 };
+  var n = sh.getLastRow() - 1;
+  var st = sh.getRange(2, 3, n, 1).getValues();   // 상태 열
+  var now = _aihNow(), cleared = 0;
+  for (var i = 0; i < n; i++) {
+    if (String(st[i][0]).trim() === '대기') {
+      sh.getRange(i + 2, 3).setValue('일괄정리');
+      sh.getRange(i + 2, 12).setValue(now);
+      cleared++;
+    }
+  }
+  Logger.log('clearAllPendingAiHandoff: ' + cleared + '건 정리(일괄정리)');
+  return { ok: true, cleared: cleared };
+}
+
+/** [자동 정리 · 주간] '대기'로 N일(기본 30 · 스크립트 속성 AIH_EXPIRE_DAYS로 조정) 넘긴 인계를 '만료'로 표시.
+ *  → 미처리 카운트에서 빠져 aiHandoffReminder가 오래된 건으로 매일 알림 보내는 누적을 막음. 행은 보존(감사용).
+ *  purgeAdvisorLog(주간 트리거)가 함께 호출 — 별도 트리거 불필요.
+ */
+function purgeAiHandoff() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+    if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0 };
+    var days = Number(PropertiesService.getScriptProperties().getProperty('AIH_EXPIRE_DAYS')) || 30;
+    var cutoff = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
+    var n = sh.getLastRow() - 1;
+    var rows = sh.getRange(2, 1, n, 3).getValues();   // ID, 접수일시, 상태
+    var now = _aihNow(), expired = 0;
+    for (var i = 0; i < n; i++) {
+      if (String(rows[i][2]).trim() !== '대기') continue;
+      var d = new Date(rows[i][1]);
+      if (!isNaN(d.getTime()) && d < cutoff) {
+        sh.getRange(i + 2, 3).setValue('만료');
+        sh.getRange(i + 2, 12).setValue(now);
+        expired++;
+      }
+    }
+    if (expired) Logger.log('purgeAiHandoff: ' + expired + '건 만료(' + days + '일 경과)');
+    return { ok: true, expired: expired };
+  } catch (e) { Logger.log('purgeAiHandoff 실패: ' + (e && e.message)); return { ok: false }; }
+}
+
 /** 관리자 — 대기 목록 (adminCall 경유 · 최신순 최대 30건) */
 function adminListAiHandoffs() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
