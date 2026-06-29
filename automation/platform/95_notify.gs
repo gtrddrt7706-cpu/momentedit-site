@@ -462,8 +462,8 @@ function notifyTestKakao(phone, event) {
   if (!cfg.pfId) { Logger.log('SOLAPI_PF_ID(카카오 채널 pfId) 미설정 — 카톡 발송 불가'); return; }
   if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
   var tplId = String(cfg.templates[event] || '').trim();
-  if (!tplId || tplId.indexOf('KA01') !== 0) {
-    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → KAKAO_TEMPLATES에 승인된 템플릿ID 넣어야 카톡 발송. (지금은 이메일로 대체됨)');
+  if (!tplId || tplId.charAt(0) === '[' || /^KA01(TP|PF)|같은ID|\.\.\./.test(tplId)) {   // 빈값·임시 placeholder만 거름(실제 코드는 임의 문자열)
+    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → setKakaoTemplates()로 승인 템플릿코드 등록해야 카톡 발송. (지금은 이메일로 대체됨)');
     return;
   }
   var m = _nfCustomerMsg(event, '테스트', { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 });
@@ -471,6 +471,33 @@ function notifyTestKakao(phone, event) {
   var r = _solapiSend(cfg, { to: phone, from: cfg.sender, text: m.text, kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } }, { code: 'TEST', event: event });
   Logger.log('카톡 테스트(' + event + ' · tpl ' + tplId + ') → ' + phone + ' : ' + (r !== false ? '솔라피 접수 성공(2xx) — 폰에서 카톡 도착 확인' : '실패 — 위 로그/솔라피 콘솔 확인'));
   return r;
+}
+
+// 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
+//   미승인/미정 이벤트는 ''로 두면 그 이벤트만 이메일로 대체. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
+function setKakaoTemplates() {
+  var map = {
+    'cust.consultConfirmed':    '',   // T01 상담확정
+    'cust.consultDayBefore':    '',   // T02 하루전
+    'cust.timeProposed':        '',   // T03 시간변경
+    'cust.fittingRequest':      '',   // T04 시착동의서
+    'cust.contractArrived':     '',   // T05 계약서도착
+    'cust.depositToProduction': '',   // T18 계약금확인
+    'cust.midPre':              '',   // T08 중도금
+    'cust.midDue':              '',   // T08 중도금(같은 코드)
+    'cust.balancePre':          '',   // T09 잔금
+    'cust.balanceDue':          '',   // T09 잔금(같은 코드)
+    'cust.resultDelivered':     '',   // T10 결과물
+    'cust.holdExpiring':        '',   // T13 임시고정만료
+    'cust.changeConfirmed':     '',   // T14 예식일변경적용
+    'cust.changeDeclined':      '',   // T15 예식일변경보류
+    'cust.consultDone':         ''    // T17 상담완료(승인 후 채우기)
+  };
+  var clean = {};
+  Object.keys(map).forEach(function (k) { var v = String(map[k] || '').trim(); if (v) clean[k] = v; });
+  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(clean));
+  Logger.log('KAKAO_TEMPLATES 저장 완료: ' + Object.keys(clean).length + '건 → ' + JSON.stringify(clean));
+  return clean;
 }
 
 // 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
