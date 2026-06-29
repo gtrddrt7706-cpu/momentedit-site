@@ -473,6 +473,29 @@ function notifyTestKakao(phone, event) {
   return r;
 }
 
+// 3-1b) 승인·매핑된 카톡 템플릿을 '전부' 지정 번호로 1건씩 테스트 발송(중복 템플릿ID는 1회만).
+//   사용: notifyTestKakaoAll('01073497706')
+function notifyTestKakaoAll(phone) {
+  var cfg = _nfProps();
+  phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
+  if (!cfg.key || !cfg.secret || !cfg.sender || !cfg.pfId) { Logger.log('SOLAPI/pfId 설정 누락'); return; }
+  if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
+  var sample = { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 };
+  var seen = {}, ok = 0, fail = 0, sent = [], miss = [];
+  Object.keys(cfg.templates).forEach(function (event) {
+    var tplId = String(cfg.templates[event] || '').trim();
+    if (!tplId || tplId.charAt(0) === '[' || /같은ID|\.\.\./.test(tplId) || seen[tplId]) return;   // 빈값·placeholder·중복ID 제외
+    seen[tplId] = true;
+    var m = _nfCustomerMsg(event, '테스트', sample);
+    if (!m) { miss.push(event); return; }
+    var r = _solapiSend(cfg, { to: phone, from: cfg.sender, text: m.text, kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } }, { code: 'TEST', event: event });
+    if (r !== false) { ok++; sent.push(event); } else { fail++; }
+    Utilities.sleep(400);   // 연속 발송 간 짧은 간격
+  });
+  Logger.log('카톡 전체 테스트 → ' + phone + ' : 접수성공 ' + ok + ' · 실패 ' + fail + (miss.length ? (' · 빌더없음 ' + miss.join(',')) : '') + '\n발송: ' + (sent.join(', ') || '없음(매핑 확인 — importKakaoTemplates 먼저)'));
+  return { ok: ok, fail: fail };
+}
+
 // 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
 //   미승인/미정 이벤트는 ''로 두면 그 이벤트만 이메일로 대체. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
 function setKakaoTemplates() {
