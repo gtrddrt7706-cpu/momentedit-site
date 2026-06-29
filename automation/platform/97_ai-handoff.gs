@@ -88,7 +88,32 @@ function aiHandoffNightFlush() {
   } catch (e) { return { ok: false }; }
 }
 
-/** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 호출. 대기 상태로 24시간 넘긴 건이 있으면 1통. */
+/** [읽기 전용] 현재 '대기' 인계 수와 그중 24h 경과 수 — 아침보고(aiMorningReport)가 발송 없이 집계용으로 호출. */
+function aiHandoffStatus() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { pending: 0, overdue: 0 };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
+  var cutoff = new Date(new Date().getTime() - 24 * 3600 * 1000), pending = 0, overdue = 0;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][2]).trim() !== '대기') continue;
+    pending++;
+    var d = new Date(vals[i][1]);
+    if (!isNaN(d.getTime()) && d < cutoff) overdue++;
+  }
+  return { pending: pending, overdue: overdue };
+}
+
+/** [읽기+초기화] 밤사이 보류된 새 인계 수를 읽고 카운터를 0으로 — 아침보고가 1회 소비. (구 aiHandoffNightFlush의 집계만) */
+function aiHandoffNightTake() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
+    if (n > 0) p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0');
+    return n;
+  } catch (e) { return 0; }
+}
+
+/** 🔴 미처리 인계 24h 리마인드 — (구) aiDaily 직접호출용. 현재는 aiMorningReport로 통합. 수동/하위호환 유지. */
 function aiHandoffReminder() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, old: 0 };

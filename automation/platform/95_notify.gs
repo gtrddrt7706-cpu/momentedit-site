@@ -520,15 +520,15 @@ function notifyBalanceCheck() {
 }
 
 // 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침.
-function _nfAdminEmail(subject, bodyHtml) {
+function _nfAdminEmail(subject, bodyHtml, opts) {
   try {
     var p = PropertiesService.getScriptProperties();
     var to = String(p.getProperty('ADMIN_ALERT_EMAIL') || '').trim()
       || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'contact@momentedit.kr');
-    var head = String(subject).replace(/^\[Moment Edit\]\s*/, '');
-    var html = (typeof emailShell === 'function')
-      ? emailShell(head, (typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'))
-      : bodyHtml;
+    var head = (opts && opts.head) ? opts.head : String(subject).replace(/^\[Moment Edit\]\s*/, '');
+    // opts.raw=true면 bodyHtml을 그대로 본문에 넣음(섹션 레이아웃 등). 아니면 한 문단(centerP)으로 감쌈.
+    var inner = (opts && opts.raw) ? bodyHtml : ((typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'));
+    var html = (typeof emailShell === 'function') ? emailShell(head, inner) : bodyHtml;
     GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '),
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);

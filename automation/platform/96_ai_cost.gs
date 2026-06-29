@@ -275,7 +275,7 @@ function _aiPost_(path, body) {
   } catch (e) { return { code: 0, j: null, err: String(e && e.message) }; }
 }
 function _aiRep_(j) { return String((j && j.reply) || ''); }
-function aiDailySafetyCheck() {   // 트리거(aiDaily) + adminCall(aiSafetyNow)
+function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + adminCall(aiSafetyNow)
   var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   var PHONE = /01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/;
   var T = [
@@ -297,7 +297,8 @@ function aiDailySafetyCheck() {   // 트리거(aiDaily) + adminCall(aiSafetyNow)
   sh.appendRow([fmtKST(new Date()), pass, reachable, fails.join(', ')]);
   if (sh.getLastRow() > 201) sh.deleteRows(2, sh.getLastRow() - 201);
   var regress = !!(prev && pass < prev.pass);
-  if (fails.length > 0 || regress) { try { aiAlertAdmin('🛡️ 안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
+  // silent(아침보고 통합)일 땐 개별 문자 생략 — 결과는 보고 메일/문자에 합쳐서 한 번에 나간다.
+  if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('🛡️ 안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
   return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, at: today };
 }
 function aiSafetyNow() { return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
@@ -327,14 +328,67 @@ function aiDailyDigest(send) {
 }
 function aiDigestPreview() { return aiDailyDigest(false); }   // adminCall — 요약 미리보기(발송 안 함)
 
-// 🔴 매일 1회(트리거) — 안전점검 → 인계 24h 리마인드 → 일일요약 SMS. 70_journey setupAllTriggers가 등록.
-function aiDaily() {
-  try { aiDailySafetyCheck(); } catch (e) {}
-  try { if (typeof aiHandoffNightFlush === 'function') aiHandoffNightFlush(); } catch (e) {}   // 🌙 야간 보류 인계 아침 발송
-  try { if (typeof aiHandoffReminder === 'function') aiHandoffReminder(); } catch (e) {}
-  try { if (typeof notifyBalanceCheck === 'function') notifyBalanceCheck(); } catch (e) {}     // 💰 솔라피 잔액 임계 이하면 관리자 메일 경고(95_notify)
-  try { aiDailyDigest(true); } catch (e) {}
+// 🔴 매일 1회(트리거) — 아침 운영 보고를 메일 1통 + 문자 1통으로 통합 발송. 70_journey setupAllTriggers가 등록.
+function aiDaily() { try { aiMorningReport(); } catch (e) {} }
+
+// 🌅 아침 운영 보고 통합 — 안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 한 번에 모아
+//   관리자에게 '메일 1통(섹션 상세) + 문자 1통(핵심 요약)'으로 보낸다. (구: 항목별로 따로 문자·메일이 흩어지던 걸 통합)
+//   ※ 솔라피 잔액 '긴급' 경고(0 되기 전)는 _nfMaybeBalanceCheck(시간당)가 별도로 즉시 처리 — 이 보고와 무관.
+function aiMorningReport() {
+  var ymd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  // 1) 수집 (발송 없음)
+  var digest = ''; try { digest = String((aiDailyDigest(false) || {}).text || '').replace(/^\[AI 일일요약\]\s*/, '').replace(/^최근 24h ·\s*/, ''); } catch (e) {}
+  var safety = {}; try { safety = aiDailySafetyCheck(true) || {}; } catch (e) { safety = {}; }       // silent: 개별 문자 안 쏨
+  var ho = { pending: 0, overdue: 0 }; try { if (typeof aiHandoffStatus === 'function') ho = aiHandoffStatus(); } catch (e) {}
+  var night = 0; try { if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake(); } catch (e) {}
+  var failY = 0; try { if (typeof notifyFailYesterday === 'function') failY = notifyFailYesterday(); } catch (e) {}
+  var bal = null, thr = 3000;
+  try {
+    thr = Number(PropertiesService.getScriptProperties().getProperty('SOLAPI_LOW_BALANCE')) || 3000;
+    if (typeof _solapiBalance === 'function') bal = _solapiBalance();
+  } catch (e) {}
+
+  // 2) 표시 문자열
+  var won = function (n) { return (typeof _nfWon === 'function') ? _nfWon(n) : String(n); };
+  var balLow = (bal != null && bal < thr);
+  var safetyStr = safety.unreachable ? '점검 불가(서버 제한)'
+    : (safety.pass != null ? (safety.pass + '/' + safety.total + (safety.fails && safety.fails.length ? (' · 실패: ' + safety.fails.join(', ')) : ' · 이상 없음') + (safety.regress ? ' · 점수 하락' : '')) : '정보 없음');
+  var balStr = (bal == null) ? '확인 불가' : (won(bal) + '원' + (balLow ? (' · ⚠️ 임계 ' + won(thr) + '원 아래') : ''));
+
+  // 3) 이메일(섹션 레이아웃 · 경고 항목은 붉은 톤)
+  var rows = [];
+  rows.push(['📋 미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
+  if (night > 0) rows.push(['🌙 밤사이 새 인계', night + '건', true]);
+  if (digest) rows.push(['💬 최근 24시간 요약', digest, false]);
+  rows.push(['🛡️ 안전점검', safetyStr, !!((safety.fails && safety.fails.length) || safety.regress)]);
+  rows.push(['💳 솔라피 잔액', balStr, balLow]);
+  if (failY > 0) rows.push(['⚠️ 어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
+
+  var rowHtml = rows.map(function (r) {
+    var warn = r[2];
+    return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
+      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + r[0] + '</div>'
+      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + r[1] + '</div>'
+      + '</div>';
+  }).join('');
+  var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'
+    + '<div>' + rowHtml + '</div>'
+    + ((typeof emailBtn === 'function') ? emailBtn('https://momentedit.kr/admin.html', '관리자 페이지 열기') : '');
+  try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+
+  // 4) 문자(핵심만 1통 · aiAlertAdmin이 '[AI 직원실]' 접두)
+  var bits = [];
+  bits.push('인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : ''));
+  if (night > 0) bits.push('밤새 ' + night);
+  bits.push('안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-')));
+  bits.push('잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? '⚠️' : ''))));
+  if (failY > 0) bits.push('어제실패 ' + failY);
+  var sms = '🌅 아침보고 · ' + bits.join(' · ') + '. 자세한 건 메일을 확인해 주세요.';
+  try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin(sms); } catch (e) {}
+
+  return { ok: true, sms: sms };
 }
+function aiMorningPreview() { return aiMorningReport(); }   // adminCall/수동 — 지금 보고 1통 발송(테스트)
 
 // ============================ 🎯 핵심정보 단일 진실원 (관리자 편집·이력·롤백 · API 라이브 주입) ============================
 //  가격·일정·정책 등 자주 바뀌는 핵심 사실을 코드(_kb.js) 대신 여기 한 곳에서 관리. API가 라이브로 읽어 "최신·최우선" 사실로 주입.
