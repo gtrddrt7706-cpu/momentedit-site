@@ -74,7 +74,7 @@ function _aihNotifyNew(category, summary, customer) {
     var now = new Date().getTime(), last = Number(p.getProperty('AI_LAST_HANDOFF_ALERT') || 0);
     if (now - last < 60000) return;   // 1분 내 중복 발송 억제
     p.setProperty('AI_LAST_HANDOFF_ALERT', String(now));
-    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📋 새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
   } catch (e) {}
 }
 
@@ -83,7 +83,7 @@ function aiHandoffNightFlush() {
   try {
     var p = PropertiesService.getScriptProperties();
     var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
-    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🌙 밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지 📋에서 확인해 주세요.'); }
+    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지에서 확인해 주세요.'); }
     return { ok: true, flushed: n };
   } catch (e) { return { ok: false }; }
 }
@@ -138,7 +138,7 @@ function aiHandoffReminder() {
     }
     p.setProperty('AIH_REMIND_AT', String(now));
     p.setProperty('AIH_REMIND_CNT', String(old));
-    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('⏰ 미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지 📋에서 확인해 주세요.');
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지에서 확인해 주세요.');
   } catch (e) {}
   return { ok: true, old: old };
 }

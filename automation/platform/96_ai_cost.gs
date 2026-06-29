@@ -263,7 +263,7 @@ function handleAiSafetyAlert(body) {
     var secret = ''; try { secret = PropertiesService.getScriptProperties().getProperty('AI_SAFETY_SECRET') || ''; } catch (e) {}
     if (!secret || String((body && body.secret) || '') !== secret) return { ok: false, error: 'unauthorized' };
     var msg = String((body && body.text) || '안전점검 실패').replace(/[\r\n\t]/g, ' ').slice(0, 200);
-    try { aiAlertAdmin('🛡️[자동점검] ' + msg); } catch (e) {}
+    try { aiAlertAdmin('[자동점검] ' + msg); } catch (e) {}
     return { ok: true };
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
@@ -298,7 +298,7 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
   if (sh.getLastRow() > 201) sh.deleteRows(2, sh.getLastRow() - 201);
   var regress = !!(prev && pass < prev.pass);
   // silent(아침보고 통합)일 땐 개별 문자 생략 — 결과는 보고 메일/문자에 합쳐서 한 번에 나간다.
-  if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('🛡️ 안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
+  if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
   return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, at: today };
 }
 function aiSafetyNow() { return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
@@ -337,7 +337,7 @@ function aiDaily() { try { aiMorningReport(); } catch (e) {} }
 function aiMorningReport() {
   var ymd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   // 1) 수집 (발송 없음)
-  var digest = ''; try { digest = String((aiDailyDigest(false) || {}).text || '').replace(/^\[AI 일일요약\]\s*/, '').replace(/^최근 24h ·\s*/, ''); } catch (e) {}
+  var digest = ''; try { digest = String((aiDailyDigest(false) || {}).text || '').replace(/^\[AI 일일요약\]\s*/, '').replace(/^최근 24h ·\s*/, '').replace(/ · 안전 \d+\/\d+/, ''); } catch (e) {}   // 안전은 전용 행에 있어 중복 제거
   var safety = {}; try { safety = aiDailySafetyCheck(true) || {}; } catch (e) { safety = {}; }       // silent: 개별 문자 안 쏨
   var ho = { pending: 0, overdue: 0 }; try { if (typeof aiHandoffStatus === 'function') ho = aiHandoffStatus(); } catch (e) {}
   var night = 0; try { if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake(); } catch (e) {}
@@ -354,16 +354,16 @@ function aiMorningReport() {
   var balLow = (bal != null && bal < thr);
   var safetyStr = safety.unreachable ? '점검 불가(서버 제한)'
     : (safety.pass != null ? (safety.pass + '/' + safety.total + (safety.fails && safety.fails.length ? (' · 실패: ' + safety.fails.join(', ')) : ' · 이상 없음') + (safety.regress ? ' · 점수 하락' : '')) : '정보 없음');
-  var balStr = (bal == null) ? '확인 불가' : (won(bal) + '원' + (balLow ? (' · ⚠️ 임계 ' + won(thr) + '원 아래') : ''));
+  var balStr = (bal == null) ? '확인 불가' : (won(bal) + '원' + (balLow ? (' · 임계 ' + won(thr) + '원 아래') : ''));
 
   // 3) 이메일(섹션 레이아웃 · 경고 항목은 붉은 톤)
   var rows = [];
-  rows.push(['📋 미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
-  if (night > 0) rows.push(['🌙 밤사이 새 인계', night + '건', true]);
-  if (digest) rows.push(['💬 최근 24시간 요약', digest, false]);
-  rows.push(['🛡️ 안전점검', safetyStr, !!((safety.fails && safety.fails.length) || safety.regress)]);
-  rows.push(['💳 솔라피 잔액', balStr, balLow]);
-  if (failY > 0) rows.push(['⚠️ 어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
+  rows.push(['미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
+  if (night > 0) rows.push(['밤사이 새 인계', night + '건', true]);
+  if (digest) rows.push(['최근 24시간 요약', digest, false]);
+  rows.push(['안전점검', safetyStr, !!((safety.fails && safety.fails.length) || safety.regress)]);
+  rows.push(['솔라피 잔액', balStr, balLow]);
+  if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
 
   var rowHtml = rows.map(function (r) {
     var warn = r[2];
@@ -378,7 +378,7 @@ function aiMorningReport() {
   // [메일 전용 · 2026-06-29] 아침보고는 메일 1통으로 끝(문자비 0). 핵심 요약은 메일 제목·상단에 담김.
   var summary = '인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : '')
     + ' · 안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-'))
-    + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? '⚠️' : '')));
+    + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? ' 부족' : '')));
   try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
 
   return { ok: true, summary: summary };
