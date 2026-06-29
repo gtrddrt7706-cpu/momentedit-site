@@ -334,13 +334,17 @@ function aiDaily() { try { aiMorningReport(); } catch (e) {} }
 // 🌅 아침 운영 보고 통합 — 안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 한 번에 모아
 //   관리자에게 '메일 1통(섹션 상세) + 문자 1통(핵심 요약)'으로 보낸다. (구: 항목별로 따로 문자·메일이 흩어지던 걸 통합)
 //   ※ 솔라피 잔액 '긴급' 경고(0 되기 전)는 _nfMaybeBalanceCheck(시간당)가 별도로 즉시 처리 — 이 보고와 무관.
-function aiMorningReport() {
+function aiMorningReport(preview) {
   var ymd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   // 1) 수집 (발송 없음)
   var digest = ''; try { digest = String((aiDailyDigest(false) || {}).text || '').replace(/^\[AI 일일요약\]\s*/, '').replace(/^최근 24h ·\s*/, '').replace(/ · 안전 \d+\/\d+/, ''); } catch (e) {}   // 안전은 전용 행에 있어 중복 제거
   var safety = {}; try { safety = aiDailySafetyCheck(true) || {}; } catch (e) { safety = {}; }       // silent: 개별 문자 안 쏨
   var ho = { pending: 0, overdue: 0 }; try { if (typeof aiHandoffStatus === 'function') ho = aiHandoffStatus(); } catch (e) {}
-  var night = 0; try { if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake(); } catch (e) {}
+  // preview(미리보기)면 밤사이 카운터를 '읽기만'(리셋 X) — 미리보기가 그날 진짜 보고의 밤사이 수를 소비하지 않게.
+  var night = 0; try {
+    if (preview) night = Number(PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
+    else if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake();
+  } catch (e) {}
   var failY = 0; try { if (typeof notifyFailYesterday === 'function') failY = notifyFailYesterday(); } catch (e) {}
   var bal = null, thr = 3000;
   try {
@@ -383,7 +387,7 @@ function aiMorningReport() {
 
   return { ok: true, summary: summary };
 }
-function aiMorningPreview() { return aiMorningReport(); }   // adminCall/수동 — 지금 보고 1통 발송(테스트)
+function aiMorningPreview() { return aiMorningReport(true); }   // adminCall/수동 — 지금 보고 1통 발송(테스트 · 밤사이 카운터 소비 안 함)
 
 // ============================ 🎯 핵심정보 단일 진실원 (관리자 편집·이력·롤백 · API 라이브 주입) ============================
 //  가격·일정·정책 등 자주 바뀌는 핵심 사실을 코드(_kb.js) 대신 여기 한 곳에서 관리. API가 라이브로 읽어 "최신·최우선" 사실로 주입.
