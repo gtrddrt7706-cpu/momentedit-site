@@ -500,6 +500,42 @@ function setKakaoTemplates() {
   return clean;
 }
 
+// 3-3) ★자동 등록 — 솔라피의 알림톡 템플릿 목록을 불러와 이름(T##)으로 이벤트에 자동 매핑 후 KAKAO_TEMPLATES 저장.
+//   템플릿 이름이 'T01 …' 'T05 …' 형식이어야 자동 인식 · 승인(APPROVED/승인)만 매핑 · 1회 실행이면 끝.
+//   응답 형식이 예상과 다르면 원문을 로그로 남김(그걸 보여주면 맞춰줌).
+function importKakaoTemplates() {
+  var cfg = _nfProps();
+  if (!cfg.key || !cfg.secret) { Logger.log('SOLAPI 키 누락 — notifySetupCheck() 먼저'); return; }
+  var T2E = {
+    '1': ['cust.consultConfirmed'], '2': ['cust.consultDayBefore'], '3': ['cust.timeProposed'],
+    '4': ['cust.fittingRequest'], '5': ['cust.contractArrived'], '8': ['cust.midPre', 'cust.midDue'],
+    '9': ['cust.balancePre', 'cust.balanceDue'], '10': ['cust.resultDelivered'], '13': ['cust.holdExpiring'],
+    '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction']
+  };
+  var date = new Date().toISOString();
+  var salt = Utilities.getUuid().replace(/-/g, '');
+  var sig = Utilities.computeHmacSha256Signature(date + salt, cfg.secret).map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+  var auth = 'HMAC-SHA256 apiKey=' + cfg.key + ', date=' + date + ', salt=' + salt + ', signature=' + sig;
+  var resp = UrlFetchApp.fetch('https://api.solapi.com/kakao/v2/templates?limit=100', { method: 'get', headers: { Authorization: auth }, muteHttpExceptions: true });
+  var hc = resp.getResponseCode(), txt = resp.getContentText();
+  if (hc < 200 || hc >= 300) { Logger.log('템플릿 목록 조회 실패 HTTP ' + hc + ' · ' + String(txt).slice(0, 400)); return; }
+  var data; try { data = JSON.parse(txt); } catch (e) { Logger.log('JSON 파싱 실패: ' + String(txt).slice(0, 400)); return; }
+  var list = data.templateList || data.data || data.list || (Array.isArray(data) ? data : []);
+  if (!list || !list.length) { Logger.log('템플릿 0건 — 응답 원문: ' + String(txt).slice(0, 500)); return; }
+  var map = {}, matched = [], skipped = [];
+  list.forEach(function (t) {
+    var name = String(t.name || t.templateName || ''), id = String(t.templateId || t.id || ''), st = String(t.status || t.inspectionStatus || '').toUpperCase();
+    var mm = name.match(/T0*(\d+)/i);
+    if (!mm || !T2E[mm[1]] || !id) { skipped.push(name + (st ? ('(' + st + ')') : '')); return; }
+    if (st && st.indexOf('APPROV') < 0 && st.indexOf('승인') < 0) { skipped.push(name + '(' + st + ')'); return; }
+    T2E[mm[1]].forEach(function (ev) { map[ev] = id; });
+    matched.push(name + '→' + id);
+  });
+  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(map));
+  Logger.log('KAKAO_TEMPLATES 저장: ' + Object.keys(map).length + '개 이벤트\n[매핑] ' + (matched.join(' · ') || '없음') + '\n[제외] ' + (skipped.join(' · ') || '없음'));
+  return map;
+}
+
 // 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
