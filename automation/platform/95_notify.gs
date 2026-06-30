@@ -510,6 +510,12 @@ function addKakaoTemplate(event, templateId) {
   return m;
 }
 
+// 3-1d) [실행용 래퍼] GAS 실행(▷)은 인자를 못 넘김 → 인자 박은 함수를 만들어 바로 실행.
+//   T17(상담완료) 매핑 추가: addT17 실행  ·  T17 카톡 테스트: testKakaoT17 실행
+function addT17() { return addKakaoTemplate('cust.consultDone', 'KA01TP260612112333511yHo1QiOBlDb'); }
+function testKakaoT17() { return notifyTestKakao('01073497706', 'cust.consultDone'); }
+function testKakaoAll() { return notifyTestKakaoAll('01073497706'); }
+
 // 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
 //   ⚠️ 전체 덮어쓰기라 1개만 추가할 땐 addKakaoTemplate()을 쓸 것. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
 function setKakaoTemplates() {
