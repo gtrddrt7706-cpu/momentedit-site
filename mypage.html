@@ -1248,6 +1248,7 @@ function renderMyPage(d){
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
+    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 플래그 OFF면 무동작(라이브 영향 0)
     // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 채우고 날짜처럼 잠금(조정 불가).
     //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40).
     if (d.production && d.production.base && d.contract && d.contract.fill && d.contract.fill.weddingTime){
@@ -2387,6 +2388,73 @@ function doPaySignal(){
     else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
   }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
 }
+
+// ============================ 카드결제 (토스페이먼츠) · 프론트 — 사전 구축 · 기능 플래그 OFF면 전부 비활성 ============================
+// 서버 cardPayConfig 가 enabled:false면 버튼도 안 뜨고 SDK도 안 불러옴(라이브 무영향). 오픈 후 키 교체+ON 하면 결제버튼 자동 노출.
+// 흐름: 카드버튼 → 토스 SDK 결제창 → successUrl(?me_pay=1) 복귀 → cardConfirm(서버 금액검증·토스 승인·기록).
+var meCardPay = (function(){
+  var cfg=null, ready=false, returnDone=false;
+  var TOSS_SDK='https://js.tosspayments.com/v1/payment';
+  var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'} ];
+  function loadSdk(cb){
+    if(window.TossPayments){ cb(); return; }
+    var s=document.createElement('script'); s.src=TOSS_SDK;
+    s.onload=function(){ cb(); };
+    s.onerror=function(){ try{ mpAlert('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); }catch(e){} };
+    document.head.appendChild(s);
+  }
+  function newOrderId(){ return 'ME'+Date.now()+Math.floor(Math.random()*1e6); }
+  function pay(milestone, amount){
+    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요.'); return; }
+    if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터에게 문의해 주세요.'); return; }
+    loadSdk(function(){
+      try{
+        try{ sessionStorage.setItem('me_pay_milestone', milestone); }catch(e){}
+        var base=location.origin+location.pathname;
+        window.TossPayments(cfg.clientKey).requestPayment('카드',{
+          amount: amount, orderId: newOrderId(), orderName: '모먼트에디트 '+milestone,
+          successUrl: base+'?me_pay=1', failUrl: base+'?me_pay=0'
+        });
+      }catch(e){ mpAlert('결제 진행 중 오류가 발생했어요.'); }
+    });
+  }
+  function attachOne(item){
+    var el=$(item.btn); if(!el || !el.parentNode) return;
+    if(el.parentNode.querySelector('.me-card-pay')) return;   // 중복 방지(재렌더)
+    api({action:'cardPayConfig', token:getToken(), milestone:item.m}).then(function(d){
+      if(!d||!d.ok||!d.enabled||!(d.amount>0)) return;
+      var b=document.createElement('button');
+      b.type='button'; b.className='cc-btn me-card-pay'; b.style.marginTop='8px';
+      b.textContent='카드로 결제 ('+fmtWon(d.amount)+')';
+      b.addEventListener('click', function(){ pay(item.m, d.amount); });
+      el.parentNode.insertBefore(b, el.nextSibling);
+    }).catch(function(){});
+  }
+  function init(){
+    if(ready){ MAP.forEach(attachOne); return; }   // 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
+    api({action:'cardPayConfig', token:getToken()}).then(function(d){
+      if(!d||!d.ok||!d.enabled||!d.clientKey) return;   // 플래그 OFF → 아무것도 안 함(라이브 무영향)
+      cfg=d; ready=true; MAP.forEach(attachOne);
+    }).catch(function(){});
+  }
+  function handleReturn(){
+    if(returnDone) return;
+    var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+    if(!q.get('paymentKey') && q.get('me_pay')==null) return;   // 토스 복귀가 아니면 무시(평소 무동작)
+    returnDone=true;
+    var milestone=''; try{ milestone=sessionStorage.getItem('me_pay_milestone')||''; }catch(e){}
+    var clean=function(){ try{ sessionStorage.removeItem('me_pay_milestone'); }catch(e){} try{ history.replaceState(null,'',location.origin+location.pathname); }catch(e){} };
+    if(q.get('me_pay')==='0'){ mpAlert('결제가 취소되었어요.'); clean(); return; }
+    var paymentKey=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
+    if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }
+    api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
+      if(d&&d.ok){ mpAlert('결제가 완료되었어요. 감사합니다.'); } else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터에게 문의해 주세요.'); }
+      clean(); try{ loadMyState(); }catch(e){}
+    }).catch(function(){ mpAlert('결제 확인 중 오류가 발생했어요.'); clean(); });
+  }
+  function afterRender(){ try{ handleReturn(); }catch(e){} try{ init(); }catch(e){} }
+  return { afterRender:afterRender, init:init, handleReturn:handleReturn, pay:pay };
+})();
 
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
 function collapsedCard(box, label, fullHtml, sigType, openByDefault){
