@@ -2393,7 +2393,7 @@ function doPaySignal(){
 // 서버 cardPayConfig 가 enabled:false면 버튼도 안 뜨고 SDK도 안 불러옴(라이브 무영향). 오픈 후 키 교체+ON 하면 결제버튼 자동 노출.
 // 흐름: 카드버튼 → 토스 SDK 결제창 → successUrl(?me_pay=1) 복귀 → cardConfirm(서버 금액검증·토스 승인·기록).
 var meCardPay = (function(){
-  var cfg=null, ready=false, returnDone=false;
+  var cfg=null, ready=false, returnDone=false, checked=false;
   var TOSS_SDK='https://js.tosspayments.com/v1/payment';
   var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'} ];
   function loadSdk(cb){
@@ -2431,7 +2431,9 @@ var meCardPay = (function(){
     }).catch(function(){});
   }
   function init(){
-    if(ready){ MAP.forEach(attachOne); return; }   // 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
+    if(ready){ MAP.forEach(attachOne); return; }   // 활성 상태 — 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
+    if(checked) return;                              // 이미 확인했고 비활성(OFF) → 추가 호출 안 함(페이지당 1회만)
+    checked=true;
     api({action:'cardPayConfig', token:getToken()}).then(function(d){
       if(!d||!d.ok||!d.enabled||!d.clientKey) return;   // 플래그 OFF → 아무것도 안 함(라이브 무영향)
       cfg=d; ready=true; MAP.forEach(attachOne);
