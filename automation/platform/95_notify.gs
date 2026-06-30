@@ -496,8 +496,22 @@ function notifyTestKakaoAll(phone) {
   return { ok: ok, fail: fail };
 }
 
+// 3-1c) 템플릿 1개만 안전 추가(기존 매핑 유지·merge) — 나중에 승인난 1건을 끼워넣을 때.
+//   사용: addKakaoTemplate('cust.consultDone', 'KA01TP...')  ·  값 ''면 해당 이벤트 제거
+function addKakaoTemplate(event, templateId) {
+  var p = PropertiesService.getScriptProperties();
+  var m = {}; try { m = JSON.parse(p.getProperty('KAKAO_TEMPLATES') || '{}'); } catch (e) { m = {}; }
+  event = String(event || '').trim();
+  templateId = String(templateId || '').trim();
+  if (!event) { Logger.log('이벤트명이 비었어요(예: cust.consultDone)'); return; }
+  if (templateId) m[event] = templateId; else delete m[event];
+  p.setProperty('KAKAO_TEMPLATES', JSON.stringify(m));
+  Logger.log('KAKAO_TEMPLATES ' + (templateId ? '추가/수정' : '제거') + ': ' + event + (templateId ? (' → ' + templateId) : '') + ' · 총 ' + Object.keys(m).length + '개 → ' + JSON.stringify(m));
+  return m;
+}
+
 // 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
-//   미승인/미정 이벤트는 ''로 두면 그 이벤트만 이메일로 대체. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
+//   ⚠️ 전체 덮어쓰기라 1개만 추가할 땐 addKakaoTemplate()을 쓸 것. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
 function setKakaoTemplates() {
   var map = {
     'cust.consultConfirmed':    '',   // T01 상담확정
