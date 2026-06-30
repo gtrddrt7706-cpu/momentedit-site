@@ -2032,6 +2032,8 @@ function doPost(e) {
       case 'paymentSignal':      return jsonOut(handlePaymentSignal(body));
       case 'midSignal':          return jsonOut(handleMidSignal(body));
       case 'balanceSignal':      return jsonOut(handleBalanceSignal(body));
+      case 'cardConfirm':        return jsonOut(handleCardConfirm(body));    // 98 · 카드결제 승인(토스) — 기능 플래그 OFF면 자동 차단
+      case 'cardPayConfig':      return jsonOut(handleCardPayConfig(body));  // 98 · 카드결제 설정 조회(플래그 OFF면 enabled:false)
       case 'saveCashReceipt':    return jsonOut(handleSaveCashReceipt(body));
       case 'submitResultSelection': return jsonOut(handleSubmitResultSelection(body));
       case 'requestExtraRetouch':   return jsonOut(handleRequestExtraRetouch(body));
