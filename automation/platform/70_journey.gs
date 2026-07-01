@@ -1558,7 +1558,6 @@ function setupAllTriggers() {
     { fn: 'expireUnsignedContracts', hour: 3,  label: '계약서 72h 만료 자동 파기' },
     { fn: 'flushHeldNotifies',       hour: 8,  label: '야간 보류 알림 아침 발송' },
     { fn: 'sendDailyReminders',      hour: 9,  label: '상담 D-1 리마인드(고객+운영자)' },
-    { fn: 'sendMorningBrief',        hour: 9,  label: '아침 운영 브리핑' },
     { fn: 'sendHoldExpiryNotices',   hour: 9,  label: '임시고정 만료 D-3 안내' },
     { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-9 리마인드' },
     { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
@@ -1570,7 +1569,8 @@ function setupAllTriggers() {
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
   ];
   var names = plan.map(function (p) { return p.fn; });
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (names.indexOf(t.getHandlerFunction()) !== -1) ScriptApp.deleteTrigger(t); });
+  var purge = names.concat(['sendMorningBrief']);   // 통합·폐지된 구 트리거(아침 브리핑→aiMorningReport)도 함께 제거
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (purge.indexOf(t.getHandlerFunction()) !== -1) ScriptApp.deleteTrigger(t); });
   var out = [];
   plan.forEach(function (p) {
     var b = ScriptApp.newTrigger(p.fn).timeBased();

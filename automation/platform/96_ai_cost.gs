@@ -360,8 +360,16 @@ function aiMorningReport(preview) {
     : (safety.pass != null ? (safety.pass + '/' + safety.total + (safety.fails && safety.fails.length ? (' · 실패: ' + safety.fails.join(', ')) : ' · 이상 없음') + (safety.regress ? ' · 점수 하락' : '')) : '정보 없음');
   var balStr = (bal == null) ? '확인 불가' : (won(bal) + '원' + (balLow ? (' · 임계 ' + won(thr) + '원 아래') : ''));
 
-  // 3) 이메일(섹션 레이아웃 · 경고 항목은 붉은 톤)
+  // 2-1) 아침 브리핑(오늘 상담·처리할 일) — admin.gs morningBriefData 통합(구 '오늘 브리핑' 메일 대체)
+  var brief = null; try { if (typeof morningBriefData === 'function') brief = morningBriefData(); } catch (e) {}
+
+  // 3) 이메일(섹션 레이아웃 · 경고 항목은 붉은 톤). 오늘 할 일이 위, 운영 상태가 아래.
   var rows = [];
+  if (brief) {
+    rows.push(['오늘 상담', brief.todays && brief.todays.length ? (brief.todays.length + '건 · ' + brief.todays.join(' / ')) : '없음', false]);
+    var todo = (brief.total || 0) + '건' + (brief.urgent ? (' · 급함 ' + brief.urgent) : '') + (brief.kindLine ? (' · ' + brief.kindLine) : '');
+    rows.push(['처리할 일', todo + (brief.urgentNames && brief.urgentNames.length ? ('\n' + brief.urgentNames.join(' / ')) : ''), (brief.urgent || 0) > 0]);
+  }
   rows.push(['미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
   if (night > 0) rows.push(['밤사이 새 인계', night + '건', true]);
   if (digest) rows.push(['최근 24시간 요약', digest, false]);
@@ -373,7 +381,7 @@ function aiMorningReport(preview) {
     var warn = r[2];
     return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
       + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + r[0] + '</div>'
-      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + r[1] + '</div>'
+      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + String(r[1]).replace(/\n/g, '<br>') + '</div>'
       + '</div>';
   }).join('');
   var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'
