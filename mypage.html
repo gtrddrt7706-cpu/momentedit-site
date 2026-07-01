@@ -244,6 +244,10 @@ footer .slogan{font-family:var(--serif);font-style:italic;font-size:10px;color:v
 .cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
+/* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
+.me-pay-alt{display:flex;flex-direction:column;gap:8px}
+.me-pay-or{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:0}
+.me-pay-or::before,.me-pay-or::after{content:"";flex:1;height:1px;background:var(--border)}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
@@ -2423,11 +2427,14 @@ var meCardPay = (function(){
     if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;   // 같은 마일스톤 버튼만 중복 방지(F-1 · 같은 컨테이너 다중 대응)
     api({action:'cardPayConfig', token:getToken(), milestone:item.m}).then(function(d){
       if(!d||!d.ok||!d.enabled||!(d.amount>0)) return;
+      var wrap=document.createElement('div'); wrap.className='me-pay-alt';
+      var or=document.createElement('div'); or.className='me-pay-or'; or.textContent='또는';   // 대안 결제수단 구분선
       var b=document.createElement('button');
-      b.type='button'; b.className='cc-btn me-card-pay'; b.setAttribute('data-m', item.m); b.style.marginTop='8px';
+      b.type='button'; b.className='cc-btn me-card-pay'; b.setAttribute('data-m', item.m);   // 브라운=보조(진사 이체가 주) · 요금상 이체 우선 위계 유지
       b.textContent='카드로 결제 ('+fmtWon(d.amount)+')';
       b.addEventListener('click', function(){ pay(item.m, d.amount); });
-      el.parentNode.insertBefore(b, el.nextSibling);
+      wrap.appendChild(or); wrap.appendChild(b);
+      el.parentNode.insertBefore(wrap, el.nextSibling);   // 계좌이체 CTA 바로 아래(cc-actions gap 8px 리듬 유지)
     }).catch(function(){});
   }
   function init(){
