@@ -2413,18 +2413,18 @@ var meCardPay = (function(){
         var base=location.origin+location.pathname;
         window.TossPayments(cfg.clientKey).requestPayment('카드',{
           amount: amount, orderId: newOrderId(), orderName: '모먼트에디트 '+milestone,
-          successUrl: base+'?me_pay=1', failUrl: base+'?me_pay=0'
+          successUrl: base+'?me_pay=1&m='+encodeURIComponent(milestone), failUrl: base+'?me_pay=0'   // milestone을 URL에도 실어 sessionStorage 유실 대비(F-2)
         });
       }catch(e){ mpAlert('결제 진행 중 오류가 발생했어요.'); }
     });
   }
   function attachOne(item){
     var el=$(item.btn); if(!el || !el.parentNode) return;
-    if(el.parentNode.querySelector('.me-card-pay')) return;   // 중복 방지(재렌더)
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;   // 같은 마일스톤 버튼만 중복 방지(F-1 · 같은 컨테이너 다중 대응)
     api({action:'cardPayConfig', token:getToken(), milestone:item.m}).then(function(d){
       if(!d||!d.ok||!d.enabled||!(d.amount>0)) return;
       var b=document.createElement('button');
-      b.type='button'; b.className='cc-btn me-card-pay'; b.style.marginTop='8px';
+      b.type='button'; b.className='cc-btn me-card-pay'; b.setAttribute('data-m', item.m); b.style.marginTop='8px';
       b.textContent='카드로 결제 ('+fmtWon(d.amount)+')';
       b.addEventListener('click', function(){ pay(item.m, d.amount); });
       el.parentNode.insertBefore(b, el.nextSibling);
@@ -2444,7 +2444,8 @@ var meCardPay = (function(){
     var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
     if(!q.get('paymentKey') && q.get('me_pay')==null) return;   // 토스 복귀가 아니면 무시(평소 무동작)
     returnDone=true;
-    var milestone=''; try{ milestone=sessionStorage.getItem('me_pay_milestone')||''; }catch(e){}
+    var milestone=q.get('m')||'';   // URL 우선(F-2) → 없으면 sessionStorage
+    if(!milestone){ try{ milestone=sessionStorage.getItem('me_pay_milestone')||''; }catch(e){} }
     var clean=function(){ try{ sessionStorage.removeItem('me_pay_milestone'); }catch(e){} try{ history.replaceState(null,'',location.origin+location.pathname); }catch(e){} };
     if(q.get('me_pay')==='0'){ mpAlert('결제가 취소되었어요.'); clean(); return; }
     var paymentKey=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);

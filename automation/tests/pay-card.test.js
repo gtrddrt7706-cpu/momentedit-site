@@ -73,6 +73,7 @@ const code = [
   extractFunction(SRC_ADMIN, '_confirmDepositCore'),
   extractFunction(SRC_ADMIN, 'adminConfirmPayment'),
   extractFunction(SRC_CARD, '_payCfg'),
+  extractFunction(SRC_CARD, '_payPreValidate'),
   extractFunction(SRC_CARD, '_payExpectedAmount'),
   extractFunction(SRC_CARD, '_payMarkCard'),
   extractFunction(SRC_CARD, '_payLog'),
@@ -86,7 +87,8 @@ let AUTHED = true;           // _requireAdmin 스텁 게이트
 let PROPS = {};              // ScriptProperties
 let TOSS_RESULT = { ok: true, data: {} };   // _tossConfirm 스텁 결과(네트워크 대체)
 let TOKMAP = {};             // 세션 토큰 → 개인코드
-let kakaoLog = [], handlerLog = [], payLog = [];
+let kakaoLog = [], handlerLog = [], payLog = [], adminAlerts = [];
+let tossCalls = 0;           // 토스 청구(=돈 캡처) 호출 횟수 추적
 
 function makeRow(codeVal) {
   if (!DB[codeVal]) return null;
@@ -117,8 +119,10 @@ const sandbox = {
     return { ok: false, reason: 'invalid' };
   },
   _sessionMsg: function () { return '세션이 만료되었습니다.'; },
-  // 토스 네트워크 스텁(실제 confirm 대체)
-  _tossConfirm: function () { return TOSS_RESULT; },
+  // 토스 네트워크 스텁(실제 confirm 대체) — 호출 횟수 추적(청구 전 차단 검증용)
+  _tossConfirm: function () { tossCalls++; return TOSS_RESULT; },
+  // 관리자 경보 스텁(B-1)
+  aiAlertAdmin: function (t) { adminAlerts.push(t); return { ok: true }; },
   // GAS 서비스 스텁
   fmtKST: function () { return 'NOW'; },   // 번들 확인일시 동일값(콤보 판정) 목적상 상수면 충분
   LockService: { getScriptLock: function () { return { waitLock: function () {}, releaseLock: function () {} }; } },
@@ -149,7 +153,8 @@ function newCust(code, over) {
   kakaoLog = []; handlerLog = []; payLog = [];
   return code;
 }
-function reset() { DB = {}; AUTHED = true; PROPS = {}; TOSS_RESULT = { ok: true, data: {} }; TOKMAP = {}; kakaoLog = []; handlerLog = []; payLog = []; }
+function reset() { DB = {}; AUTHED = true; PROPS = {}; TOSS_RESULT = { ok: true, data: {} }; TOKMAP = {}; kakaoLog = []; handlerLog = []; payLog = []; adminAlerts = []; tossCalls = 0; }
+function payOn() { PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x'; }
 function run(fn) { return vm.runInContext(fn, ctx); }
 
 console.log('\n[카드결제 시뮬레이션] 코어 분리(SYNC-1·2·3) 검증\n');
@@ -288,6 +293,63 @@ sandbox.__rec = DB.G1.동의기록;
 check('G1 결제수단 중도금=카드 → 원장 제외',
   run('_parseJsonSafe(__rec).결제수단.중도금') === '카드' &&
   run('_cashReceiptLedger(findCustomerByCode("G1"))').find(x => x.key === '중도금').due === false);
+
+/* ═══ H. 사전검증(B-2) · 기록실패 경보(B-1) ═══ */
+console.log('H. 사전검증·경보');
+// H1 계약금인데 미서명 → 토스 청구 전 차단(돈 안 받음)
+reset(); newCust('H1', { 계약상태: '대기' }); TOKMAP.tokH1 = 'H1'; payOn();
+sandbox.__b = { token: 'tokH1', milestone: '계약금', paymentKey: 'pk_h1', orderId: 'MEH1', amount: 250000 };
+var rh1 = run('handleCardConfirm(__b)');
+check('H1 미서명 계약금 → 청구 전 차단 · toss 미호출 · 입금 대기', rh1.ok === false && tossCalls === 0 && DB.H1.입금상태 === '대기');
+// H2 중도금인데 진행종료(취소) → 청구 전 차단
+reset(); newCust('H2', { 현재단계: '취소' }); TOKMAP.tokH2 = 'H2'; payOn();
+sandbox.__b = { token: 'tokH2', milestone: '중도금', paymentKey: 'pk_h2', orderId: 'MEH2', amount: 1400000 };
+var rh2 = run('handleCardConfirm(__b)');
+check('H2 취소건 중도금 → 청구 전 차단 · toss 미호출', rh2.ok === false && tossCalls === 0 && DB.H2.중도금상태 === '대기');
+// H3 토스 승인됐으나 기록 실패 → 관리자 경보(수동 보정) · recorded:false
+reset(); newCust('H3', { 현재단계: '입금완료', 입금상태: '확인', 예식일: ymdFromToday(120) }); TOKMAP.tokH3 = 'H3'; payOn();
+run('adminConfirmBalance = function(){ return { ok:false, error:"시뮬 강제 기록실패" }; };');   // 기록 실패 강제
+sandbox.__b = { token: 'tokH3', milestone: '잔금', paymentKey: 'pk_h3', orderId: 'MEH3', amount: 1750000 };
+var rh3 = run('handleCardConfirm(__b)');
+check('H3 청구 성공+기록 실패 → recorded:false · 관리자 경보 1건', rh3.ok === true && rh3.recorded === false && tossCalls === 1 && adminAlerts.length === 1);
+check('H3 경보 문구에 코드·단계·금액 포함', /H3/.test(adminAlerts[0]) && /잔금/.test(adminAlerts[0]) && /1750000/.test(adminAlerts[0]));
+
+/* ═══ I. 퍼즈 — 극단·랜덤 입력에도 예외 0 · 유효할 때만 성공 ═══ */
+console.log('I. 퍼즈(600회)');
+var fuzzThrows = 0, fuzzBadSuccess = 0, fuzzOkCount = 0;
+var MILES = ['계약금', '중도금', '잔금', '', '계약금 ', 'X', '중도금\n', null, undefined, '예약금'];
+var AMTS = [0, -1, 250000, 1400000, 1750000, 999999, 1e12, NaN, '250000', 3500000];
+var STATES = ['서명완료', '대기', '취소', '노쇼', '미계약'];
+var STAGES = ['계약완료', '입금완료', '제작중', '취소', '예식완료'];
+// LCG로 결정적 랜덤(Math.random 미사용 · 재현 가능)
+var seed = 12345; function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+function pick(a) { return a[Math.floor(rnd() * a.length)]; }
+for (var it = 0; it < 600; it++) {
+  reset();
+  var on = rnd() < 0.7; if (on) payOn();
+  var validTok = rnd() < 0.8;
+  var cc = 'FZ' + it;
+  newCust(cc, { 계약상태: pick(STATES), 현재단계: pick(STAGES), 입금상태: rnd() < 0.3 ? '확인' : '대기',
+    중도금상태: rnd() < 0.2 ? '확인' : '대기', 잔금상태: rnd() < 0.2 ? '확인' : '대기',
+    상품타입: rnd() < 0.5 ? '시그니처' : '웨딩스냅', 계약총액: pick([0, 3500000, 1500000, -5, 'abc']),
+    예식일: rnd() < 0.5 ? ymdFromToday(Math.floor(rnd() * 400) - 20) : '' });
+  if (validTok) TOKMAP['t' + it] = cc;
+  var mile = pick(MILES), amt = pick(AMTS);
+  sandbox.__b = { token: validTok ? ('t' + it) : 'bad', milestone: mile, paymentKey: rnd() < 0.9 ? 'pk' + it : '', orderId: rnd() < 0.9 ? 'o' + it : '', amount: amt };
+  var res;
+  try { res = run('handleCardConfirm(__b)'); } catch (e) { fuzzThrows++; continue; }
+  if (res && res.ok && res.recorded) {
+    fuzzOkCount++;
+    // 성공했다면 반드시: 플래그 ON · 유효세션 · 유효 마일스톤 · 서버기대금액과 일치 · 상태가 확인으로 바뀜
+    var okCust = makeRow(cc);
+    var exp = run('_payExpectedAmount(findCustomerByCode("' + cc + '"), "' + String(mile).trim() + '")');
+    var stCol = mile === '계약금' ? '입금상태' : (mile === '중도금' ? '중도금상태' : '잔금상태');
+    if (!on || !validTok || ['계약금', '중도금', '잔금'].indexOf(mile) === -1 || amt !== exp || DB[cc][stCol] !== '확인') fuzzBadSuccess++;
+  }
+}
+check('I 퍼즈 600회 예외 0', fuzzThrows === 0, 'throws=' + fuzzThrows);
+check('I 퍼즈 잘못된 성공 0(유효할 때만 확인)', fuzzBadSuccess === 0, 'badSuccess=' + fuzzBadSuccess);
+check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount > 0, 'ok=' + fuzzOkCount);
 
 /* ── 결과 ── */
 console.log('\n' + '─'.repeat(36));

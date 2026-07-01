@@ -75,6 +75,17 @@ function _payLog(row) {
   } catch (e) {}
 }
 
+// [B-2] 토스 청구 전 사전검증 — 기록 함수(_confirmDepositCore·adminConfirmMid/Balance)의 게이트를 부작용 없이 앞당겨 확인.
+//   계약금: 계약 서명완료 필수 / 중도금·잔금: 진행종료(취소·노쇼·미계약) 아님. 통과 시 ''(빈문자).
+function _payPreValidate(cust, milestone) {
+  if (milestone === '계약금') {
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') return '계약 서명 완료 후 결제할 수 있어요.';
+  } else {
+    if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
+  }
+  return '';
+}
+
 /** 카드결제 승인 수신 (doPost action='cardConfirm') */
 function handleCardConfirm(body) {
   var cfg = _payCfg();
@@ -114,6 +125,13 @@ function handleCardConfirm(body) {
       return { ok: false, error: '결제 금액이 일치하지 않습니다. 다시 시도해 주세요.' };
     }
 
+    // [사전검증·B-2] 토스 청구(=돈 캡처) 전에 '기록 가능 상태'인지 확인 → 청구 후 기록실패(돈 받고 미반영)를 최소화.
+    var preErr = _payPreValidate(cust, milestone);
+    if (preErr) {
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, result: '실패', memo: '사전검증:' + preErr });
+      return { ok: false, error: preErr };
+    }
+
     // 토스 승인
     var t = _tossConfirm(cfg, paymentKey, orderId, amount);
     if (!t.ok) {
@@ -140,8 +158,11 @@ function handleCardConfirm(body) {
         if (milestone === '중도금' || milestone === '잔금') _payMarkCard(code, milestone);
         else if (milestone === '계약금' && String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금');
       } catch (e) {}
+    } else {
+      // ★B-1 돈은 받았는데(토스 승인 완료) 기록 실패 — 상태 미반영 방치 방지. 관리자에게 즉시 SMS(수동 보정).
+      try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🔴카드결제 기록실패·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + amount + '원 | order ' + orderId + ' | ' + ((rec && rec.error) || '')); } catch (e) {}
     }
-    _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요)' });
+    _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요·관리자SMS)' });
     return { ok: true, recorded: !!(rec && rec.ok) };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
