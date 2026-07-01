@@ -647,14 +647,23 @@ function notifyBalanceCheck() {
   } catch (e) { Logger.log('[notify] 잔액경고 실패: ' + (e && e.message)); }
 }
 
+// 관리자 메일 이모지 제거 — 그림문자·변형선택자만 제거(→ · 화살표·중점, 한글·영문·숫자는 보존).
+//   관리자 알림 규칙: 이모지 없이 깔끔하게(2026-06-29 사용자 지시). 제목·문구에 새 이모지가 섞여도 자동으로 걸러짐.
+function _noEmoji(s) {
+  return String(s == null ? '' : s)
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+    .replace(/\s{2,}/g, ' ').trim();
+}
+
 // 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침. 운영자 개인메일(ADMIN_CC)도 함께 받게 cc.
 //   [2026-06-29] 관리자 알림을 '메일 전용'으로 전환 — 문자비 0. 이 메일에 폰 알림(알람)을 걸어두면 즉시 확인 가능.
 function _nfAdminEmail(subject, bodyHtml, opts) {
   try {
+    subject = _noEmoji(subject);
     var p = PropertiesService.getScriptProperties();
     var to = String(p.getProperty('ADMIN_ALERT_EMAIL') || '').trim()
       || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'huijun@momentedit.kr');
-    var head = (opts && opts.head) ? opts.head : String(subject).replace(/^\[Moment Edit\]\s*/, '');
+    var head = _noEmoji((opts && opts.head) ? opts.head : String(subject).replace(/^\[Moment Edit\]\s*/, ''));
     // opts.raw=true면 bodyHtml을 그대로 본문에 넣음(섹션 레이아웃 등). 아니면 한 문단(centerP)으로 감쌈.
     var inner = (opts && opts.raw) ? bodyHtml : ((typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'));
     var html = (typeof emailShell === 'function') ? emailShell(head, inner) : bodyHtml;
@@ -669,7 +678,7 @@ function _nfAdminEmail(subject, bodyHtml, opts) {
 //   text 예: '[모먼트에디트] 신규 신청 … / 일정 잡기'  ·  '📋 새 인계: …'  ·  '🛡️ 안전점검 …'
 function _nfAdminLineEmail(text) {
   try {
-    var raw = String(text || '').trim();
+    var raw = _noEmoji(String(text || '').trim());   // 이모지 제거(관리자 알림 규칙)
     if (!raw) return;
     var body = raw.replace(/^\[[^\]]{1,20}\]\s*/, '');     // 앞 태그([모먼트에디트]·[AI 직원실]) 제거
     var parts = body.split(' / ');

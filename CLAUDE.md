@@ -85,6 +85,7 @@
 - 발송 경로: `95_notify`의 `_nfAdminLineEmail(text)`(짧은 1건) · `_nfAdminEmail(subject, html, opts)`(상세). 둘 다 `ADMIN_EMAIL`(contact@momentedit.kr) 수신 + `ADMIN_CC`(미쿠·희준 개인메일) cc.
 - `aiAlertAdmin`·`_kakaoSend`의 admin 분기·`_awNotifyAdmin_` 전부 위 메일 함수로 라우팅. SMS(`_solapiSend`+ADMIN_PHONE)는 고객 알림톡·`notifyTestAdminSms`(수동 테스트)만 사용.
 - 사용자는 이 메일에 폰 푸시 알람을 걸어 즉시 확인(문자 대체). 고객 알림톡은 종전대로 솔라피 사용.
+- **이모지 없이**: 관리자 메일 제목·문구엔 이모지를 쓰지 않는다. `95_notify`의 `_noEmoji()`가 `_nfAdminEmail`·`_nfAdminLineEmail`·`notifyStudio` 진입점에서 그림문자·변형선택자를 자동 제거(→ · 화살표·중점·한글은 보존). 새 문구에 이모지가 섞여도 자동으로 걸러짐.
 
 ## 나중에 할 일 메모 규칙 (2026-06-12 사용자 지시)
 

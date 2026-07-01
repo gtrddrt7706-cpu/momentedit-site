@@ -1672,7 +1672,9 @@ function notifyStudio(subject, body, dedupKey) {
       if (c.get(dedupKey)) return;
       c.put(dedupKey, '1', 86400);
     }
-    GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, subject, body, { name: SYS.FROM_NAME, cc: adminCc() });
+    var _sub = (typeof _noEmoji === 'function') ? _noEmoji(subject) : subject;   // 관리자 메일 이모지 제거
+    var _bod = (typeof _noEmoji === 'function') ? _noEmoji(body) : body;
+    GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, _sub, _bod, { name: SYS.FROM_NAME, cc: adminCc() });
   } catch (_n) {}
 }
 
