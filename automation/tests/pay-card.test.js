@@ -217,7 +217,7 @@ sandbox.__b = { token: 'tokC3', milestone: '계약금', paymentKey: 'pk_2', orde
 var rc3 = run('handleCardConfirm(__b)');
 check('C3 정상 계약금 250k 결제 → ok · 입금=확인 · recorded', rc3.ok === true && rc3.recorded === true && DB.C3.입금상태 === '확인');
 sandbox.__rec = DB.C3.동의기록;
-check('C3 결제수단 마커 예약금=카드', run('_parseJsonSafe(__rec).결제수단.예약금') === '카드');
+check('C3 시그니처 계약금은 결제수단 마커 미세팅(예약금=이체 상담예약금 보존)', !run('(_parseJsonSafe(__rec).결제수단 || {}).예약금'));
 // C3b 임박이라도 카드 계약금은 번들 안 됨(핸들러 경유 재확인)
 reset(); newCust('C3b', { 예식일: ymdFromToday(5) }); TOKMAP.tokC3b = 'C3b';
 PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x';
@@ -253,11 +253,24 @@ reset(); newCust('F1'); run('adminConfirmPayment("F1")');
 var led1 = run('_cashReceiptLedger(findCustomerByCode("F1"))');
 var yeF1 = led1.find(x => x.key === '예약금');
 check('F1 계좌이체 계약금: 예약금 due=true · card 미표시', yeF1 && yeF1.due === true && !yeF1.card);
-// F2 카드 계약금 확인 → 예약금 due=false, card=true
-reset(); newCust('F2'); run('_confirmDepositCore("F2", { bundle: false, via: "카드" })'); run('_payMarkCard("F2", "예약금")');
-var led2 = run('_cashReceiptLedger(findCustomerByCode("F2"))');
-var yeF2 = led2.find(x => x.key === '예약금');
-check('F2 카드 계약금: 예약금 due=false · card=true(현금영수증 큐 제외)', yeF2 && yeF2.due === false && yeF2.card === true);
+// F2 ★시그니처★ 카드 계약금 → 원장 '예약금'(계좌이체 상담예약금 10만)은 건드리지 않음(현금영수증 대상 유지)
+//    핸들러 경유로 마커 로직까지 실제 검증(handleCardConfirm이 시그니처 계약금엔 마킹 안 함).
+reset(); newCust('F2'); TOKMAP.tokF2 = 'F2';
+PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x';
+sandbox.__b = { token: 'tokF2', milestone: '계약금', paymentKey: 'pk_f2', orderId: 'MEF2', amount: 250000 };
+run('handleCardConfirm(__b)');
+var yeF2 = run('_cashReceiptLedger(findCustomerByCode("F2"))').find(x => x.key === '예약금');
+check('F2 ★시그니처 카드 계약금: 예약금(이체 상담예약금)은 due=true 유지 · card 미표시(가산세 방지)', yeF2 && yeF2.due === true && !yeF2.card);
+sandbox.__rec = DB.F2.동의기록;
+check('F2 시그니처 계약금엔 결제수단 마커 미세팅', !run('(_parseJsonSafe(__rec).결제수단 || {}).예약금'));
+// F2B ★웨딩스냅★ 카드 계약금(=20% 전액=원장 예약금 항목) → due=false, card=true(정합)
+reset(); newCust('F2B', { 상품타입: '웨딩스냅', 계약총액: 1500000, 중도금상태: '', 예식일: ymdFromToday(60) }); TOKMAP.tokF2B = 'F2B';
+PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x';
+var snapDep = run('_journeyAmounts(1500000, "웨딩스냅")').납부액;   // 20% = 300,000
+sandbox.__b = { token: 'tokF2B', milestone: '계약금', paymentKey: 'pk_f2b', orderId: 'MEF2B', amount: snapDep };
+var rf2b = run('handleCardConfirm(__b)');
+var yeF2b = run('_cashReceiptLedger(findCustomerByCode("F2B"))').find(x => x.key === '예약금');
+check('F2B 스냅 카드 계약금: 예약금 due=false · card=true(매출전표 제외)', rf2b.ok === true && yeF2b && yeF2b.due === false && yeF2b.card === true);
 // F3 기존 고객(결제수단 키 자체 없음) 원장 무영향 — 계좌이체 확인분은 그대로 due
 reset(); newCust('F3', { 입금상태: '확인', 중도금상태: '확인' });
 var led3 = run('_cashReceiptLedger(findCustomerByCode("F3"))');

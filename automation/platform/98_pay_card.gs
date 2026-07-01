@@ -129,9 +129,18 @@ function handleCardConfirm(body) {
     if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
     else rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
-    // [SYNC-3] 카드=매출전표 → 이 마일스톤을 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정).
-    //   원장 키: 계약금→'예약금'(입금상태 기준), 중도금→'중도금', 잔금→'잔금'.
-    if (rec && rec.ok) { try { _payMarkCard(code, milestone === '계약금' ? '예약금' : milestone); } catch (e) {} }
+    // [SYNC-3] 카드=매출전표 → 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정). ★원장에 항목이 있는 결제분만 마킹★
+    //   · 중도금·잔금 → 동명 원장 키.
+    //   · 계약금은 상품별로 다름:
+    //       - 웨딩스냅: 계약금=20% 전액이 원장 '예약금' 항목과 같은 돈 → 마킹.
+    //       - 시그니처: 카드로 내는 건 '납부액'(계약금 10% - 상담예약금 10만)인데 원장에 별도 항목이 없고,
+    //                  원장 '예약금'(10만)은 계약 전 계좌이체로 낸 상담 예약금(카드 대상 아님·정당한 현금영수증 대상)이라 절대 건드리면 안 됨 → 마킹 안 함.
+    if (rec && rec.ok) {
+      try {
+        if (milestone === '중도금' || milestone === '잔금') _payMarkCard(code, milestone);
+        else if (milestone === '계약금' && String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금');
+      } catch (e) {}
+    }
     _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요)' });
     return { ok: true, recorded: !!(rec && rec.ok) };
   } finally { try { lock.releaseLock(); } catch (e) {} }
