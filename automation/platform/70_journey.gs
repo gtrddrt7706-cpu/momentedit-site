@@ -1058,18 +1058,21 @@ function _cashReceiptLedger(r) {
   if (!r) return [];
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
-  var issued = {};
-  try { issued = _parseJsonSafe(r.get('동의기록')).영수증발행 || {}; } catch (e) {}
+  var issued = {}, paidBy = {};
+  try { var _rec98 = _parseJsonSafe(r.get('동의기록')); issued = _rec98.영수증발행 || {}; paidBy = _rec98.결제수단 || {}; } catch (e) {}
   var target = _cashReceiptOf(r);   // 고객이 입력한 발급 대상(휴대폰/사업자번호). 빈값이면 자진발급(010-000-1234) 대상.
   function item(key, label, confirmed, amount) {
     var rec = issued[key] || null;
+    // [SYNC-3] 카드결제분은 매출전표(카드사) 발급 → 현금영수증 의무발급 대상 아님(이중발급 방지). 결제수단은 카드결제 경로에서만 세팅(계좌이체=미세팅).
+    var byCard = (paidBy[key] === '카드') || (key === '중도금잔금' && paidBy['중도금'] === '카드' && paidBy['잔금'] === '카드');
     return {
       key: key, label: label,
       confirmed: !!confirmed,
       amount: Math.round(Number(amount) || 0),
       target: target,
+      card: byCard || undefined,     // true면 프론트·관리자 큐에서 '카드(매출전표)'로 표시하고 현금영수증 대상서 제외
       issued: rec ? { 번호: String(rec.번호 || ''), 금액: Math.round(Number(rec.금액) || 0), 대상: String(rec.대상 || ''), at: String(rec.at || '') } : null,
-      due: (!!confirmed && !rec)
+      due: (!!confirmed && !rec && !byCard)   // 카드는 due(현금영수증 미발행 경고)에서 제외
     };
   }
   var out = [];

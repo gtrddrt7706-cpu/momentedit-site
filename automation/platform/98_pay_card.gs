@@ -53,6 +53,19 @@ function _tossConfirm(cfg, paymentKey, orderId, amount) {
   }
 }
 
+// 카드결제 마커 — 해당 원장 키를 '카드(매출전표)'로 표시해 현금영수증 발급 큐에서 제외.
+//   확인 직후(같은 락 안) 동의기록을 최신으로 다시 읽어 결제수단만 병합 → 코어가 쓴 영수증기준일 등 다른 키 보존.
+function _payMarkCard(code, ledgerKey) {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code);
+  if (!cust) return;
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.결제수단) rec.결제수단 = {};
+  if (rec.결제수단[ledgerKey] === '카드') return;
+  rec.결제수단[ledgerKey] = '카드';
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+}
+
 function _payLog(row) {
   try {
     var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(PAY_LOG_SHEET);
@@ -108,11 +121,17 @@ function handleCardConfirm(body) {
       return { ok: false, error: '결제 승인에 실패했습니다. ' + (t.error || '') };
     }
 
-    // 성공 → 기존 관리자확인 로직 재사용(기록·단계전이·고객 안심알림 일관)
+    // 성공 → 확인 기록(기록·단계전이·고객 안심알림 일관).
+    //   ★ 계약금은 관리자 함수(adminConfirmPayment)를 직접 부르면 안 됨 — ① _requireAdmin() 가드로 즉시 throw
+    //     ② 임박 시 중도금·잔금까지 자동 번들(카드는 계약금만 실결제라 미결제분이 확인됨). → 가드·번들 없는 코어를 bundle:false로 호출.
+    //   중도금·잔금 확인함수(adminConfirmMid/Balance)는 가드 없음·STAGE_EXCEPTIONS 차단·안심알림까지 카드에 그대로 맞음 → 재사용.
     var rec;
-    if (milestone === '계약금') rec = (typeof adminConfirmPayment === 'function') ? adminConfirmPayment(code) : { ok: false };
+    if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
     else rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
+    // [SYNC-3] 카드=매출전표 → 이 마일스톤을 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정).
+    //   원장 키: 계약금→'예약금'(입금상태 기준), 중도금→'중도금', 잔금→'잔금'.
+    if (rec && rec.ok) { try { _payMarkCard(code, milestone === '계약금' ? '예약금' : milestone); } catch (e) {} }
     _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요)' });
     return { ok: true, recorded: !!(rec && rec.ok) };
   } finally { try { lock.releaseLock(); } catch (e) {} }

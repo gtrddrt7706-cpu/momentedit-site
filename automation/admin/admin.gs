@@ -1255,6 +1255,16 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
 // [02-4] 계약금 입금 확인(통장 대조 후) → 입금상태=확인 + 현재단계=입금완료. 자동 진행 아님(이 승인이 트리거).
 function adminConfirmPayment(code) {
   _requireAdmin();
+  return _confirmDepositCore(code, { bundle: true });   // 관리자: 통장 일괄 수납(임박) 번들 ON — 기존 동작 그대로
+}
+
+// [02-4·코어] 계약금 입금 확인 코어 — 가드 없음(호출측이 인증 책임). 관리자 승인·카드결제가 공유.
+//   opts.bundle : 임박(D-149/D-9) 시 중도금·잔금까지 함께 '확인' 할지. 관리자=통장 일괄수납이라 true.
+//                 카드는 계약금 금액만 실제 결제되므로 반드시 false(미결제 마일스톤이 확인되는 것 방지).
+//   opts.via    : 처리이력에 남길 경로 표기(예: '카드'). 관리자 경로는 생략.
+function _confirmDepositCore(code, opts) {
+  opts = opts || {};
+  var viaTag = opts.via ? ('·' + opts.via) : '';
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
@@ -1262,7 +1272,7 @@ function adminConfirmPayment(code) {
     return { ok: false, error: '계약 서명 완료 후 입금 확인이 가능합니다.' };
   }
   if (String(cust.get('입금상태') || '').trim() === '확인') {
-    _recordHandler(code, '입금 확인(중복)'); return { ok: true, already: true };
+    _recordHandler(code, '입금 확인(중복)' + viaTag); return { ok: true, already: true };
   }
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var rec0 = _parseJsonSafe(cust.get('동의기록'));
@@ -1271,15 +1281,16 @@ function adminConfirmPayment(code) {
   var patch = { '입금상태': '확인', '동의기록': JSON.stringify(rec0) };
   // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인 — buildPaymentState.bundle과 같은 기준(D-149/D-9 · 시그니처)
   //   ※ 중도금·잔금 확인일시는 '같은 now'로 찍어야 _cashReceiptLedger 콤보(중도금·잔금 1건 합산) 판정(_mAt===_bAt)이 성립. fmtKST가 분 단위라 new Date() 두 번이면 분 경계서 갈릴 수 있음.
+  //   ※ 카드결제(opts.bundle=false)는 계약금 금액만 승인되므로 절대 번들하지 않는다(미결제분 확인 방지). 임박 일괄은 프론트 '일괄결제' 옵션으로 별도 처리.
   var bundled = [], _bNow = fmtKST(new Date());
-  if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
+  if (opts.bundle && String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
     var _ddc = _balanceDDay(cust.get('예식일'));
     if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = _bNow; bundled.push('중도금'); }
     if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = _bNow; bundled.push('잔금'); }
   }
   touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
-  _recordHandler(code, '입금 확인 → 입금완료' + (bundled.length ? (' (일괄: 계약금·' + bundled.join('·') + ')') : ''));
+  _recordHandler(code, '입금 확인 → 입금완료' + viaTag + (bundled.length ? (' (일괄: 계약금·' + bundled.join('·') + ')') : ''));
   notifyKakao('cust.depositToProduction', code);   // [2026-06-23] 계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · paymentConfirmed(off·안심만)를 대체해 여정 정체 방지
   return { ok: true, bundled: bundled };
 }
