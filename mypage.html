@@ -560,11 +560,11 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
   <section class="view" id="loginView">
     <div class="eyebrow">My Page</div>
     <h1 class="title">로그인</h1>
-    <p class="subtitle">개인코드와 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
+    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
-        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="latin" autocapitalize="characters" maxlength="6">
-        <label for="li_code">개인코드 (6자)</label>
+        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80">
+        <label for="li_code">개인코드 (6자) 또는 이메일</label>
       </div>
       <div class="field">
         <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password">
@@ -1051,9 +1051,10 @@ function softLoginNote(msg){ showErr('li_err', msg); }
 $('loginForm').addEventListener('submit', function(e){
   e.preventDefault();
   hideErr('li_err');
-  var code = $('li_code').value.trim().toUpperCase();
+  var code = $('li_code').value.trim();
+  if (code.indexOf('@') === -1) code = code.toUpperCase();   // 개인코드만 대문자화 · 이메일은 그대로
   var pw = $('li_pw').value;
-  if (!code || !pw){ showErr('li_err','개인코드와 비밀번호를 입력해 주세요.'); return; }
+  if (!code || !pw){ showErr('li_err','개인코드(또는 이메일)와 비밀번호를 입력해 주세요.'); return; }
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }

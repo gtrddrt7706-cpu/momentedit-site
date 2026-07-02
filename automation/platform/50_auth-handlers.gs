@@ -1,7 +1,7 @@
 /**
  * Moment Edit · 통합 플랫폼 (Phase 1) — T5 인증 핸들러 (action 분기 대상)
  * ──────────────────────────────────────────────────────────────────────────
- *  login      : 코드+비번 → 해시 대조 → 토큰 발급(갱신) → { ok, token }
+ *  login      : 코드(또는 이메일)+비번 → 해시 대조 → 토큰 발급(갱신) → { ok, token }
  *  autologin  : 메일 링크의 토큰 → 유효·미만료 검사 → { ok, token }
  *  verify     : 토큰 유효성·만료 검사 (모든 조회의 전제) → { ok }
  *  findCode   : 이메일 → 등록 시 코드 재발송 (존재 여부 노출 최소화) → { ok }
@@ -12,13 +12,16 @@
  */
 
 // ── login ─────────────────────────────────────────────
+//   code 자리에 이메일도 허용: '@' 포함이면 이메일로 최신 활성 계정 조회(코드찾기·재설정과 같은 기준)
 function handleLogin(body) {
-  var code = String((body && body.code) || '').trim().toUpperCase();
+  var id = String((body && body.code) || '').trim();
   var pw = String((body && body.pw) || '');
-  if (!code || !pw) throw new Error('개인코드와 비밀번호를 입력해 주세요.');
+  if (!id || !pw) throw new Error('개인코드(또는 이메일)와 비밀번호를 입력해 주세요.');
 
-  var rowObj = findCustomerByCode(code);
-  var FAIL = '개인코드 또는 비밀번호가 올바르지 않습니다.';
+  var rowObj = (id.indexOf('@') !== -1)
+    ? findLatestCustomerByEmail(id)
+    : findCustomerByCode(id.toUpperCase());
+  var FAIL = '개인코드(이메일) 또는 비밀번호가 올바르지 않습니다.';
   if (!rowObj) { Utilities.sleep(200); throw new Error(FAIL); }          // 존재 여부 노출 줄임
   if (!verifyPassword(pw, rowObj.get('비번해시'))) { Utilities.sleep(200); throw new Error(FAIL); }
 
