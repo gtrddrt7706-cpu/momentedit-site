@@ -1554,7 +1554,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <!-- ════════════════════════════════════════════════════════════════
            VIMEO 자동 연결 시스템 (v3.2 시트 연동)
            
-           Couples 시트의 vimeoId / vimeoHash 열(N · O)에 값 입력 시
+           Couples 시트의 vimeoId / vimeoHash 열(3행 헤더명 기준)에 값 입력 시
            이 placeholder가 자동으로 iframe으로 교체됩니다.
            값이 비어있으면 이 placeholder가 그대로 표시됩니다.
            ════════════════════════════════════════════════════════════════ -->
@@ -2261,7 +2261,7 @@ function updateEnvelopeBlock(item, info){
 // ═══════════════════════════════════════════════════════════════
 // VIMEO PLAYER · 시트에서 가져온 vimeoId로 iframe 첨부
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 예식 당일 시트 N열(vimeoId)에 ID 입력 → 페이지 새로고침 시 자동 송출
+// 시트 vimeoId 열에 ID 입력 → 자동 송출(폴링·재방문 시). 열 위치 무관, 3행 헤더명 기준
 // vimeoId 비어있으면 Preview 플레이스홀더 유지
 // ═══════════════════════════════════════════════════════════════
 function attachVimeoPlayer(vimeoId, vimeoHash){
