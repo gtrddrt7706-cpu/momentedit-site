@@ -434,7 +434,7 @@ function vimeoGuardDaily() {
   notifyStudio('[Moment Edit] 예식 임박 영상 미등록 ' + missing.length + '건',
     '3일 안 예식인데 Couples 시트에 vimeoId가 비어 있습니다. D-3 사전등록 확인이 필요합니다.\n\n' +
     missing.join('\n') +
-    '\n\n등록 순서: Vimeo 라이브 이벤트 생성 → 시트 vimeoId(N열)·vimeoHash(O열) 입력 → live.html?e=예식ID&fresh=1 열어 확인',
+    '\n\n등록 순서: Vimeo 라이브 이벤트 생성 → 시트 vimeoId·vimeoHash 열 입력 → live.html?e=예식ID&fresh=1 열어 확인',
     'vimeo_guard_' + today);
   Logger.log('[vimeoGuard] 경고 메일 발송: ' + missing.join(' / '));
 }
@@ -1227,7 +1227,8 @@ function ensureSheetHeaders() {
     'famInvTitle', 'famInvSubKo', 'digInvTitle', 'digInvSubKo',
     'digPullQuote', 'digGroomBio', 'digBrideBio',
     'accountOnline', 'accountLive', 'accountFamily',
-    'groomChildTitle', 'brideChildTitle'
+    'groomChildTitle', 'brideChildTitle',
+    'vimeoId', 'vimeoHash'   // 본식 라이브 영상(D-3 사전등록 · live.html 플레이어가 getCouple로 읽음)
   ];
 
   var ss = SpreadsheetApp.getActive();
