@@ -1995,8 +1995,11 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
     if (!rendered) {
       applyCoupleInfo(data.couple);
-      attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
     }
+    // 캐시로 먼저 그렸어도 최신 응답에 영상(vimeoId)이 생겼으면 즉시 부착.
+    // attachVimeoPlayer는 이미 부착됐거나 vimeoId 없으면 no-op → 항상 호출해도 안전.
+    // (기존엔 rendered=true면 건너뛰어 하객이 새로고침을 2번 해야 영상이 보였음)
+    attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
   } catch (err) {
     console.error('[Live] Failed to load couple info:', err);
   } finally {
@@ -2005,6 +2008,26 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       document.body.classList.add('couple-ready');
     }
   }
+
+  // 안전망 폴링 — placeholder인 채로 화면을 열어둔 하객도 시트에 vimeoId가 입력되면
+  // 새로고침 없이 자동 시작("예식 시각에 시작됩니다" 약속 이행).
+  // 사전 등록(D-3) SOP대로 운영하면 발동할 일 없음. 90초 간격 · 최대 80회(약 2시간) · 부착 즉시 중단.
+  (function pollUntilVideo(){
+    if (!document.getElementById('playerPlaceholder')) return;
+    let tries = 0;
+    const timer = setInterval(async () => {
+      if (!document.getElementById('playerPlaceholder') || ++tries > 80) { clearInterval(timer); return; }
+      try {
+        const r = await fetch(COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live');
+        const d = await r.json();
+        if (d.ok && d.couple && d.couple.vimeoId) {
+          try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
+          attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
+          clearInterval(timer);
+        }
+      } catch (_) {}
+    }, 90000);
+  })();
 })();
 
 // ═══════════════════════════════════════════════════════════════

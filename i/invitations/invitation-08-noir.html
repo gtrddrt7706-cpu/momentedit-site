@@ -1185,7 +1185,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg)}
         편지와 함께 이 안에 온전히 담았습니다.<br>
         먼 곳에서도, 가장 가까운 자리로 모십니다.
       </p>
-      <a class="live-btn" href="live.html?e=test-couple" aria-label="디지털 참석 페이지 입장">
+      <a class="live-btn" href="/live.html?e=test-couple" aria-label="디지털 참석 페이지 입장">
         <span>Enter Live Page</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
@@ -1278,6 +1278,9 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg)}
     var params = new URLSearchParams(window.location.search);
     var eventId = params.get('e');
     if(eventId) document.documentElement.setAttribute('data-event', eventId);
+    // 예식 ID 자동 전달 — 다른 7종과 동일하게 Enter(live-btn)에 ?e= 반영
+    var liveBtn = document.querySelector('.live-btn');
+    if(liveBtn) liveBtn.href = '/live.html?e=' + encodeURIComponent(eventId || 'test-couple');
   } catch(_){}
 
   // 모바일에서는 URL Scheme (앱 직접 호출)

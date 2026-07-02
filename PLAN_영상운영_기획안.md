@@ -85,6 +85,8 @@
 
 ## 3. 발견된 기술 리스크 & 개선 항목 (우선순위)
 
+> 2026-07-02 적용 현황: P1-a·P1-b·P2-a·P2-b **적용 완료**(헤드리스 브라우저 시나리오 검증 5/5 통과). 추가로 noir(08) 청첩장에 eventId 전달 코드 누락 발견·수정. P3 2건은 보류(결정 시 진행). P2-b만 form-to-couple GAS 재배포 필요.
+
 - **P1-a. 하객 "재로딩 2회" 버그** — `live.html`: localStorage 캐시로 먼저 렌더하면(`rendered=true`) 이후 fetch로 새 vimeoId가 와도 **그 방문에선 영상을 붙이지 않음**. 당일 입력 시 하객이 두 번 새로고침해야 보임. → fetch 후 `영상 미부착 && vimeoId 있음`이면 즉시 `attachVimeoPlayer` 호출(3줄). 사전 등록으로 가도 안전망으로 필수.
 - **P1-b. 갤러리 쇼케이스 8종 Enter 404** — `i/invitations/invitation-0X.html`의 `live.html?e=…` 상대경로가 `/i/invitations/live.html`(없음)로 감. → `/live.html`로 절대경로화(8파일). 실계약 고객용 `i/cover-0X.html`은 이미 정상.
 - **P2-a. placeholder 자동 시작 안 됨** — "예식 시각에 시작됩니다"라고 약속하지만 폴링이 없어 하객이 직접 새로고침해야 함. → placeholder 상태면 90초 간격 재조회(fresh 아님·일반 fetch)로 자동 전환. 사전 등록 SOP를 지키면 발동할 일 없지만 약속 이행용 안전망.

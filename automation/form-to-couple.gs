@@ -259,11 +259,16 @@ function onCoupleFormSubmit(e) {
       }
     });
 
-    // 4) 캐시 무효화 — webhook 측 getCouple 캐시(같은 키)를 즉시 삭제 → 재제출 즉시 반영.
+    // 4) 캐시 무효화 — webhook 측 getCouple 캐시를 즉시 삭제 → 재제출 즉시 반영.
     //    ⚠️ 두 .gs가 같은 Apps Script 프로젝트에 있어야 ScriptCache 공유됨.
+    //    webhook v3.4부터 view별 키(couple_<id>_<view>)로 저장 → 4개 view 키 전부 + 구버전 키 삭제.
     try {
-      CacheService.getScriptCache().remove(CFG.CACHE_KEY_PREFIX + eventId);
-      Logger.log('  (캐시 무효화 OK: ' + CFG.CACHE_KEY_PREFIX + eventId + ')');
+      var _cacheKeys = ['def', 'online', 'family', 'live'].map(function (v) {
+        return CFG.CACHE_KEY_PREFIX + eventId + '_' + v;
+      });
+      _cacheKeys.push(CFG.CACHE_KEY_PREFIX + eventId); // 구버전(무접미) 키
+      CacheService.getScriptCache().removeAll(_cacheKeys);
+      Logger.log('  (캐시 무효화 OK: ' + _cacheKeys.join(', ') + ')');
     } catch (_c) {
       Logger.log('  (캐시 무효화 실패: ' + _c.message + ')');
     }
