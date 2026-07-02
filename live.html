@@ -1964,7 +1964,8 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   }
 
   const cacheKey = 'me_couple_' + eventId;   // 청첩장 커버(hydrate)와 캐시 공유
-  let rendered = false;
+  let rendered = false;      // 캐시로 이미 그렸는지(couple-ready 표시 판단용)
+  let infoApplied = false;   // 부부 정보가 화면에 한 번이라도 적용됐는지(폴링 더미 방지용)
 
   // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
   if (!forceFresh) {
@@ -1977,15 +1978,27 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
         clearTimeout(failsafeTimer);
         document.body.classList.add('couple-ready');
         rendered = true;
+        infoApplied = true;
       }
     } catch (_) {}
   }
 
   // 시트에서 부부 정보 fetch (캐시 없으면 지금 렌더, 있으면 캐시만 갱신)
+  // 네트워크·서버 일시 오류 시 2.5초·6초 뒤 자동 재시도(총 3회)
+  // 예식 시각 하객 동시 접속 폭주로 서버가 순간 밀려도 하객 조작 없이 자동 복구.
   try {
     const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live' + (forceFresh ? '&fresh=1' : '');
-    const res = await fetch(url);
-    const data = await res.json();
+    let data = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(url);
+        data = await res.json();
+        break;
+      } catch (netErr) {
+        if (attempt === 2) throw netErr;
+        await new Promise(r => setTimeout(r, attempt === 0 ? 2500 : 6000));
+      }
+    }
 
     if (!data.ok) {
       console.warn('[Live] Couple not found:', eventId, data.error);
@@ -1995,6 +2008,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
     if (!rendered) {
       applyCoupleInfo(data.couple);
+      infoApplied = true;
     }
     // 캐시로 먼저 그렸어도 최신 응답에 영상(vimeoId)이 생겼으면 즉시 부착.
     // attachVimeoPlayer는 이미 부착됐거나 vimeoId 없으면 no-op → 항상 호출해도 안전.
@@ -2011,22 +2025,35 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
 
   // 안전망 폴링 — placeholder인 채로 화면을 열어둔 하객도 시트에 vimeoId가 입력되면
   // 새로고침 없이 자동 시작("예식 시각에 시작됩니다" 약속 이행).
-  // 사전 등록(D-3) SOP대로 운영하면 발동할 일 없음. 90초 간격 · 최대 80회(약 2시간) · 부착 즉시 중단.
+  // 초기 fetch가 실패한 하객도 이 폴링이 이어받아 자동 복구.
+  // 처음 3회는 짧게(15·30·60초) 그 뒤 90초 간격, 최대 80회(약 2시간) · 부착 즉시 중단.
   (function pollUntilVideo(){
     if (!document.getElementById('playerPlaceholder')) return;
+    const firstDelays = [15000, 30000, 60000];
     let tries = 0;
-    const timer = setInterval(async () => {
-      if (!document.getElementById('playerPlaceholder') || ++tries > 80) { clearInterval(timer); return; }
+    async function tick(){
+      if (!document.getElementById('playerPlaceholder') || tries > 80) return;
       try {
         const r = await fetch(COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live');
         const d = await r.json();
-        if (d.ok && d.couple && d.couple.vimeoId) {
-          try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
-          attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
-          clearInterval(timer);
+        if (d.ok && d.couple) {
+          // 초기 fetch가 실패했던 하객도 폴링 성공 시 부부 정보 채움(더미 방지)
+          if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; }
+          if (d.couple.vimeoId) {
+            try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
+            attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
+            return;
+          }
         }
       } catch (_) {}
-    }, 90000);
+      schedule();
+    }
+    function schedule(){
+      const wait = firstDelays[tries] || 90000;
+      tries++;
+      setTimeout(tick, wait);
+    }
+    schedule();
   })();
 })();
 

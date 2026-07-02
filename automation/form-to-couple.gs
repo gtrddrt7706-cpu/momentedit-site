@@ -397,6 +397,57 @@ function notifyStudio(subject, body, dedupKey) {
   } catch (_n) {}
 }
 
+// ===================== 영상(vimeoId) 사전등록 가드 =====================
+// 디지털 참석(digitalAttendance=Y) 예식이 3일 안(오늘 포함)인데 vimeoId가 비어 있으면
+// 매일 아침 메일 경고 → D-3 사전등록 SOP(PLAN_영상운영_기획안.md) 누락을 시스템이 잡아줌.
+// 설치: setupVimeoGuard() 1회 실행(매일 07시 트리거). 수동 점검: vimeoGuardDaily() 직접 실행.
+function vimeoGuardDaily() {
+  var sheet = SpreadsheetApp.getActive().getSheetByName(CFG.SHEET_NAME);
+  if (!sheet) return;
+  var colOf = buildHeaderIndex(sheet);
+  var need = ['eventId', 'weddingDate', 'vimeoId'];
+  for (var i = 0; i < need.length; i++) {
+    if (!colOf[need[i]]) { Logger.log('[vimeoGuard] 헤더 없음: ' + need[i] + ' (점검 불가)'); return; }
+  }
+  var last = sheet.getLastRow();
+  if (last < CFG.DATA_START_ROW) { Logger.log('[vimeoGuard] 데이터 없음'); return; }
+  var rows = sheet.getRange(CFG.DATA_START_ROW, 1, last - CFG.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var tz = 'Asia/Seoul';
+  var today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+  var limit = Utilities.formatDate(new Date(Date.now() + 3 * 86400000), tz, 'yyyy-MM-dd');
+  var g = function (row, h) { var c = colOf[h]; return c ? row[c - 1] : ''; };
+  var missing = [];
+  rows.forEach(function (row) {
+    var id = String(g(row, 'eventId')).trim();
+    if (!id || id === 'test-couple') return;
+    var da = String(g(row, 'digitalAttendance') || '').trim().toUpperCase();
+    if (colOf['digitalAttendance'] && da === 'N') return;   // 디지털 참석 안 하는 예식은 제외
+    var d = g(row, 'weddingDate');
+    var ds = (d instanceof Date) ? Utilities.formatDate(d, tz, 'yyyy-MM-dd')
+                                 : String(d || '').trim().slice(0, 10).replace(/[./]/g, '-');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
+    if (ds < today || ds > limit) return;                   // 오늘~3일 안 예식만
+    if (String(g(row, 'vimeoId')).trim()) return;           // 이미 등록됨
+    missing.push(ds + ' · ' + id);
+  });
+  if (!missing.length) { Logger.log('[vimeoGuard] 이상 없음(3일 안 미등록 0건)'); return; }
+  notifyStudio('[Moment Edit] 예식 임박 영상 미등록 ' + missing.length + '건',
+    '3일 안 예식인데 Couples 시트에 vimeoId가 비어 있습니다. D-3 사전등록 확인이 필요합니다.\n\n' +
+    missing.join('\n') +
+    '\n\n등록 순서: Vimeo 라이브 이벤트 생성 → 시트 vimeoId(N열)·vimeoHash(O열) 입력 → live.html?e=예식ID&fresh=1 열어 확인',
+    'vimeo_guard_' + today);
+  Logger.log('[vimeoGuard] 경고 메일 발송: ' + missing.join(' / '));
+}
+
+// vimeoGuardDaily 매일 07시 자동 실행 트리거 등록(중복 방지 · 1회만 실행하면 됨)
+function setupVimeoGuard() {
+  ScriptApp.getProjectTriggers()
+    .filter(function (t) { return t.getHandlerFunction() === 'vimeoGuardDaily'; })
+    .forEach(function (t) { ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('vimeoGuardDaily').timeBased().everyDays(1).atHour(7).create();
+  Logger.log('[vimeoGuard] 매일 07시 트리거 등록 완료');
+}
+
 // ===================== 부부 URL 자동 이메일 =====================
 function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl, weddingDate, weddingTime) {
   var _seen = {};
