@@ -1566,7 +1566,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--gol
         이 안에 온전히 담겨 있습니다.
       </div>
 
-      <a href="live.html?e=test-couple" class="join-btn" aria-label="디지털 참석 페이지 입장">
+      <a href="/live.html?e=test-couple" class="join-btn" aria-label="디지털 참석 페이지 입장">
         <span>Enter Live Page</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
@@ -1679,7 +1679,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--gol
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('e') || 'test-couple';
   const enterBtn = document.querySelector('.join-btn');
-  if (enterBtn) enterBtn.href = 'live.html?e=' + encodeURIComponent(eventId);
+  if (enterBtn) enterBtn.href = '/live.html?e=' + encodeURIComponent(eventId);
 
   document.querySelectorAll('details.env-acc-item').forEach(d => {
     d.addEventListener('toggle', () => {

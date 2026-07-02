@@ -74,7 +74,7 @@ function _aihNotifyNew(category, summary, customer) {
     var now = new Date().getTime(), last = Number(p.getProperty('AI_LAST_HANDOFF_ALERT') || 0);
     if (now - last < 60000) return;   // 1분 내 중복 발송 억제
     p.setProperty('AI_LAST_HANDOFF_ALERT', String(now));
-    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📋 새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
   } catch (e) {}
 }
 
@@ -83,87 +83,133 @@ function aiHandoffNightFlush() {
   try {
     var p = PropertiesService.getScriptProperties();
     var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
-    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🌙 밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지 📋에서 확인해 주세요.'); }
+    if (n > 0) { p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0'); if (typeof aiAlertAdmin === 'function') aiAlertAdmin('밤사이 새 인계 ' + n + '건이 들어왔어요. 관리자 페이지에서 확인해 주세요.'); }
     return { ok: true, flushed: n };
   } catch (e) { return { ok: false }; }
 }
 
-/** 🧹 오래된 대기 인계 자동 만료 — aiDaily가 리마인드 '전에' 호출(미처리 카운트를 항상 손쓸 수 있는 건으로만 유지).
- *  비로그인 방문자 인계는 연락 불가라 짧게(기본 3일), 로그인 고객 인계는 연락 가능하니 길게(기본 14일) 두고 '만료' 처리.
- *  임계는 ScriptProperty AIH_EXPIRE_ANON_DAYS / AIH_EXPIRE_CUST_DAYS로 조정 가능.
- *  forceDays(숫자)를 주면 고객/비로그인 구분·기본값 무시하고 그 일수 기준으로 일괄 만료.
- *    → 초기 정리용: aiHandoffAutoExpire(0) 한 번 실행하면 '지금 대기 중인 전체'를 만료시켜 0에서 시작.
- */
-var AIH_EXPIRE_ANON_DAYS = 3;    // 비로그인 방문자 인계 자동 만료(일)
-var AIH_EXPIRE_CUST_DAYS = 14;   // 로그인 고객 인계 자동 만료(일)
-function aiHandoffAutoExpire(forceDays) {
+/** [읽기 전용] 현재 '대기' 인계 수와 그중 24h 경과 수 — 아침보고(aiMorningReport)가 발송 없이 집계용으로 호출. */
+function aiHandoffStatus() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
-  if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0 };
-  var forced = (typeof forceDays === 'number' && isFinite(forceDays));
-  var p = PropertiesService.getScriptProperties();
-  var anonD = forced ? forceDays : (Number(p.getProperty('AIH_EXPIRE_ANON_DAYS')) || AIH_EXPIRE_ANON_DAYS);
-  var custD = forced ? forceDays : (Number(p.getProperty('AIH_EXPIRE_CUST_DAYS')) || AIH_EXPIRE_CUST_DAYS);
-  var now = new Date().getTime(), nowStr = _aihNow();
-  var lock = LockService.getScriptLock();
-  try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
-  try {
-    var n = sh.getLastRow() - 1;
-    var data = sh.getRange(2, 1, n, AIH_HEADERS.length).getValues();   // ID,접수일시,상태,...,고객(idx6),...,처리일시(idx11)
-    var statusCol = [], doneCol = [], expired = 0;
-    for (var i = 0; i < n; i++) {
-      var status = String(data[i][2]).trim(), doneAt = data[i][11];
-      if (status === '대기') {
-        var d = new Date(data[i][1]);
-        var isAnon = /비로그인/.test(String(data[i][6] || ''));
-        var ttl = (isAnon ? anonD : custD) * 86400000;
-        if (!isNaN(d.getTime()) && (now - d.getTime()) >= ttl) { status = '만료'; doneAt = nowStr; expired++; }
-      }
-      statusCol.push([status]); doneCol.push([doneAt]);
-    }
-    if (expired > 0) { sh.getRange(2, 3, n, 1).setValues(statusCol); sh.getRange(2, 12, n, 1).setValues(doneCol); }
-    Logger.log('aiHandoffAutoExpire: ' + expired + '건 만료(anon ' + anonD + 'd · cust ' + custD + 'd' + (forced ? ' · forced' : '') + ')');
-    return { ok: true, expired: expired };
-  } finally { try { lock.releaseLock(); } catch (e) {} }
+  if (!sh || sh.getLastRow() < 2) return { pending: 0, overdue: 0 };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
+  var cutoff = new Date(new Date().getTime() - 24 * 3600 * 1000), pending = 0, overdue = 0;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][2]).trim() !== '대기') continue;
+    pending++;
+    var d = new Date(vals[i][1]);
+    if (!isNaN(d.getTime()) && d < cutoff) overdue++;
+  }
+  return { pending: pending, overdue: overdue };
 }
 
-/** 🔴 미처리 인계 24h 리마인드 — 트리거(aiDaily)에서 자동 만료 '뒤'에 호출. 대기 24시간 경과 건이 있으면 1통.
- *  단순 숫자 대신 '가장 오래된 며칠 전 · 로그인 고객 몇 건'까지 담아 행동 가능하게(익명 다수면 신경 덜 써도 됨을 바로 인지). */
+/** [읽기+초기화] 밤사이 보류된 새 인계 수를 읽고 카운터를 0으로 — 아침보고가 1회 소비. (구 aiHandoffNightFlush의 집계만) */
+function aiHandoffNightTake() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
+    if (n > 0) p.setProperty('AI_HANDOFF_NIGHT_PENDING', '0');
+    return n;
+  } catch (e) { return 0; }
+}
+
+/** 🔴 미처리 인계 24h 리마인드 — (구) aiDaily 직접호출용. 현재는 aiMorningReport로 통합. 수동/하위호환 유지. */
 function aiHandoffReminder() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, old: 0 };
-  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
-  var now = new Date().getTime(), cutoff = now - 24 * 3600 * 1000;
-  var old = 0, custOld = 0, oldestDays = 0;
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
+  var cutoff = new Date(new Date().getTime() - 24 * 3600 * 1000), old = 0;
   for (var i = 0; i < vals.length; i++) {
     if (String(vals[i][2]).trim() !== '대기') continue;
-    var d = new Date(vals[i][1]); if (isNaN(d.getTime()) || d.getTime() >= cutoff) continue;
-    old++;
-    if (!/비로그인/.test(String(vals[i][6] || ''))) custOld++;
-    var days = Math.floor((now - d.getTime()) / 86400000); if (days > oldestDays) oldestDays = days;
+    var d = new Date(vals[i][1]);
+    if (!isNaN(d.getTime()) && d < cutoff) old++;
   }
-  if (old > 0) {
-    var msg = '⏰ 미처리 인계 ' + old + '건(24h 경과 · 가장 오래된 ' + oldestDays + '일 전'
-      + (custOld > 0 ? (' · 로그인 고객 ' + custOld + '건') : ' · 모두 비로그인') + '). 관리자 페이지 📋에서 확인해 주세요.';
-    try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin(msg); } catch (e) {}
-  }
-  return { ok: true, old: old, custOld: custOld, oldestDays: oldestDays };
+  if (old <= 0) return { ok: true, old: 0 };
+  // [노이즈 억제 2026-06-28] 같은 대기 건이 매일 9시마다 영원히 리마인드되던 문제 → 건수가 변하지 않으면
+  //   최대 3일에 1통만. 건수가 늘면 즉시 알림(새 미처리 신호는 놓치지 않음).
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var lastAt = Number(p.getProperty('AIH_REMIND_AT') || 0);
+    var lastCnt = Number(p.getProperty('AIH_REMIND_CNT'));
+    var now = new Date().getTime();
+    if (old === lastCnt && (now - lastAt) < 3 * 24 * 3600 * 1000) {
+      Logger.log('aiHandoffReminder: 건수 동일(' + old + ') · 3일 내 발송함 → 생략');
+      return { ok: true, old: old, skipped: true };
+    }
+    p.setProperty('AIH_REMIND_AT', String(now));
+    p.setProperty('AIH_REMIND_CNT', String(old));
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('미처리 인계 ' + old + '건(24시간 경과). 관리자 페이지에서 확인해 주세요.');
+  } catch (e) {}
+  return { ok: true, old: old };
 }
 
-/** 🧹 오래된 완료/만료 인계 행 삭제(기본 90일) — 주간 purge(purgeAdvisorLog)가 함께 호출. 대기 건은 절대 삭제 안 함. */
-function purgeAiHandoff() {
+/** [점검·읽기 전용] 현재 '대기' 인계 전체를 읽기 좋은 텍스트로 로그/반환 — 80건이 진짜 질문인지 테스트인지
+ *  한눈에 보고 답변 검토용. 각 건: 번호·접수일시·페이지/분류·고객·질문요약·AI 제안답변(앞부분). 발송·변경 없음.
+ *  실행 후 로그(Ctrl+Enter) 복사 → 진짜 건은 답변 작성, 테스트면 clearAllPendingAiHandoff로 정리.
+ */
+function dumpPendingAiHandoff() {
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
-  if (!sh || sh.getLastRow() < 2) return;
-  var cutoff = new Date().getTime() - 90 * 86400000;
-  var n = sh.getLastRow() - 1;
-  var vals = sh.getRange(2, 1, n, AIH_HEADERS.length).getValues();   // 상태(idx2) · 처리일시(idx11) · 접수일시(idx1)
-  var del = 0;   // 위에서부터 연속 삭제(접수 오름차순) — 종결(완료/만료) & 기준일 경과만
-  for (var i = 0; i < n; i++) {
-    var status = String(vals[i][2]).trim();
-    if (status !== '완료' && status !== '만료') break;
-    var ref = new Date(vals[i][11] || vals[i][1]);   // 처리일시 우선, 없으면 접수일시
-    if (!isNaN(ref.getTime()) && ref.getTime() < cutoff) del++; else break;
+  if (!sh || sh.getLastRow() < 2) return { ok: true, pending: 0, text: '대기 인계 없음' };
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
+  var lines = [], n = 0;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][2]).trim() !== '대기') continue;
+    n++;
+    lines.push(n + '. [' + vals[i][1] + '] ' + (vals[i][3] || '') + '/' + (vals[i][4] || '') + ' · 고객: ' + (vals[i][6] || '-')
+      + '\n   Q: ' + String(vals[i][7] || '').slice(0, 240)
+      + '\n   A(제안): ' + String(vals[i][8] || '').slice(0, 240));
   }
-  if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeAiHandoff: ' + del + '건 삭제'); }
+  var text = '대기 인계 ' + n + '건\n\n' + lines.join('\n\n');
+  Logger.log(text.slice(0, 45000));
+  return { ok: true, pending: n, text: text };
+}
+
+/** [일괄 정리 · 수동 1회] 현재 '대기' 인계 전부를 '일괄정리'로 표시 — 행은 보존하되 미처리 카운트에서 제거.
+ *  쌓인 테스트/오래된 대기 건을 한 번에 비울 때 사용(예: 80건). 처리일시 기록.
+ *  ※ 실제 응대가 필요한 건은 관리자 페이지 📋에서 개별 '완료'를 권장(이 함수는 전부 일괄 처리).
+ */
+function clearAllPendingAiHandoff() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, cleared: 0 };
+  var n = sh.getLastRow() - 1;
+  var st = sh.getRange(2, 3, n, 1).getValues();   // 상태 열
+  var now = _aihNow(), cleared = 0;
+  for (var i = 0; i < n; i++) {
+    if (String(st[i][0]).trim() === '대기') {
+      sh.getRange(i + 2, 3).setValue('일괄정리');
+      sh.getRange(i + 2, 12).setValue(now);
+      cleared++;
+    }
+  }
+  Logger.log('clearAllPendingAiHandoff: ' + cleared + '건 정리(일괄정리)');
+  return { ok: true, cleared: cleared };
+}
+
+/** [자동 정리 · 주간] '대기'로 N일(기본 30 · 스크립트 속성 AIH_EXPIRE_DAYS로 조정) 넘긴 인계를 '만료'로 표시.
+ *  → 미처리 카운트에서 빠져 aiHandoffReminder가 오래된 건으로 매일 알림 보내는 누적을 막음. 행은 보존(감사용).
+ *  purgeAdvisorLog(주간 트리거)가 함께 호출 — 별도 트리거 불필요.
+ */
+function purgeAiHandoff() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
+    if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0 };
+    var days = Number(PropertiesService.getScriptProperties().getProperty('AIH_EXPIRE_DAYS')) || 30;
+    var cutoff = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
+    var n = sh.getLastRow() - 1;
+    var rows = sh.getRange(2, 1, n, 3).getValues();   // ID, 접수일시, 상태
+    var now = _aihNow(), expired = 0;
+    for (var i = 0; i < n; i++) {
+      if (String(rows[i][2]).trim() !== '대기') continue;
+      var d = new Date(rows[i][1]);
+      if (!isNaN(d.getTime()) && d < cutoff) {
+        sh.getRange(i + 2, 3).setValue('만료');
+        sh.getRange(i + 2, 12).setValue(now);
+        expired++;
+      }
+    }
+    if (expired) Logger.log('purgeAiHandoff: ' + expired + '건 만료(' + days + '일 경과)');
+    return { ok: true, expired: expired };
+  } catch (e) { Logger.log('purgeAiHandoff 실패: ' + (e && e.message)); return { ok: false }; }
 }
 
 /** 관리자 — 대기 목록 (adminCall 경유 · 최신순 최대 30건) */
@@ -227,12 +273,4 @@ function handleAiAvailability(body) {
   } catch (err) {
     return { ok: false, error: 'unavailable' };   // 조회 실패 = 불명 — 빈 맵(전부 가능)으로 가장하지 않는다(더블부킹 방지 · Vercel이 안전 안내로 처리)
   }
-}
-
-/** [1회 정리용] 지금 '대기'인 인계 전체를 즉시 만료 처리(초기 청소) — ▶실행하면 로그에 만료 건수 표시.
- *  운영 트리거와 무관(수동 실행만). 평소 자동 정리는 aiDaily가 호출하는 aiHandoffAutoExpire(기본 TTL)가 맡는다. */
-function ZZ_clearHandoff() {
-  var r = aiHandoffAutoExpire(0);   // forceDays=0 → 기간 무관 현재 대기 전체 만료
-  Logger.log('ZZ_clearHandoff 결과: ' + JSON.stringify(r));
-  return r;
 }

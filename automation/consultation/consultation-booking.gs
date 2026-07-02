@@ -49,10 +49,8 @@ const CONFIG = {
   CONFIRM_DEADLINE_HOURS: 24,                  // 변경·취소 기한 (상담 24시간 전까지)
   STUDIO_ADDRESS: '[정확한 도로명 주소]',        // 확정 메일에만 · 운영자 입력 예정
   KAKAO_URL: 'https://pf.kakao.com/_CfxcxlX/chat', // 모먼트에디트 채널 채팅 URL(2026-06-28 확정)
-  ADMIN_EMAIL: 'contact@momentedit.kr',         // 알림 받을 주소(정본)
-  ADMIN_CC: [                                   // 운영자 알림 함께 받을 주소(미쿠·희준 개인메일 등) · 구글 전달 대신 코드가 직접 발송
-    'side.minds.1616@gmail.com',                //   미쿠
-    'gtrddrt7706@gmail.com',                    //   희준
+  ADMIN_EMAIL: 'huijun@momentedit.kr',          // 알림 받을 주소(정본) · 2026-06-29 contact@→huijun@ 변경(희준 업무메일)
+  ADMIN_CC: [                                   // 비움 · 2026-06-29 미쿠는 CC 대신 huijun@ Gmail 전달(forwarding)로 수신 → GAS 메일 쿼터 절약(1통=1명)
   ],
   CALENDAR_ID: 'c_c6c2f76cd17c85e3ddfa4ded4ca3634b9fd3de774222171c0c30a850a0cfbf00@group.calendar.google.com',
 };
@@ -1674,7 +1672,9 @@ function notifyStudio(subject, body, dedupKey) {
       if (c.get(dedupKey)) return;
       c.put(dedupKey, '1', 86400);
     }
-    GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, subject, body, { name: SYS.FROM_NAME, cc: adminCc() });
+    var _sub = (typeof _noEmoji === 'function') ? _noEmoji(subject) : subject;   // 관리자 메일 이모지 제거
+    var _bod = (typeof _noEmoji === 'function') ? _noEmoji(body) : body;
+    GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, _sub, _bod, { name: SYS.FROM_NAME, cc: adminCc() });
   } catch (_n) {}
 }
 
@@ -1997,8 +1997,13 @@ function handleAcceptProposal(body) {
 
 function doPost(e) {
   try {
-    var body = {};
-    try { body = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { body = {}; }
+    var raw = {};
+    try { raw = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { raw = {}; }
+    // 솔라피 전달결과 리포트(배열, 또는 messageId/statusCode 형태이며 action 없음) → 전달 실패 시 고객 이메일(95_notify)
+    if ((Array.isArray(raw) && raw.length) || (raw && (raw.messageId || raw.statusCode) && !raw.action)) {
+      return jsonOut(typeof handleSolapiReport === 'function' ? handleSolapiReport(raw) : { ok: false, error: 'no handler' });
+    }
+    var body = Array.isArray(raw) ? {} : raw;
     var action = String((body && body.action) || '').trim();
     switch (action) {
       // ── 통합 플랫폼 ──
@@ -2209,7 +2214,9 @@ function purgeAdvisorLog() {
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
   try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
   try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
-  try { purgeAiHandoff(); } catch (e) {}     // 97 · 종결(완료/만료) 인계 행 90일 정리(대기 건은 보존)
+  try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
+  try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
+  try { if (typeof purgeNfTrack === 'function') purgeNfTrack(); } catch (e) {}       // 95 · 알림톡추적(전달결과 매칭) 7일 정리
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {

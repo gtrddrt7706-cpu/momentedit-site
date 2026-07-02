@@ -103,6 +103,7 @@ function notifyKakao(event, code, extra) {
     }
     if (!_notifyEnabled()) return;        // 발송 OFF — 로그만 남기고 종료
     _kakaoSend(meta.to, event, code, extra);
+    try { _nfMaybeBalanceCheck(); } catch (e) {}   // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고
   } catch (e) {
     try { Logger.log('[notifyKakao] 예외(무시): ' + (e && e.message)); } catch (_) {}
   }
@@ -134,12 +135,12 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
 
   if (to === 'admin') {
-    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 폰으로 — 관리자가 페이지에서 처리해야
-    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 메일 브리핑·관리자 페이지로 충분.
+    // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 알림 — 관리자가 페이지에서 처리해야
+    // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 아침보고·관리자 페이지로 충분.
+    // [메일 전용 전환 · 2026-06-29] 문자비 0 — 관리자 알림은 SMS 대신 메일로(운영자 개인메일 cc). 이 메일에 폰 알람을 걸면 즉시 확인.
     var meta = NOTIFY_EVENTS[event] || {};
     if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
-    if (!cfg.adminPhone) { Logger.log('[notify] ADMIN_PHONE 미설정 — 발송 생략'); return; }
-    _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: _nfAdminText(event, code, extra) });
+    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_nfAdminText(event, code, extra));
     return;
   }
 
@@ -161,19 +162,26 @@ function _kakaoSend(to, event, code, extra, opts) {
   var m = _nfCustomerMsg(event, name, extra);   // { vars, text }
   if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return; }
 
+  // [SMS 미사용 · 2026-06-29] 고객 알림은 카톡(알림톡) + 이메일만. SMS는 안 보냄 → 발신번호(개인번호) 화면 노출 0.
+  //   알림톡에 disableSms:true → 카톡 실패해도 SMS 대체발송 안 함. from은 솔라피 식별용(고객 비노출).
   var tplId = String(cfg.templates[event] || '').trim();
-  var msg = { to: phone, from: cfg.sender, text: m.text };   // text = 알림톡 실패 시 SMS 대체 문구
+  var sentKakao = false;
   if (tplId && cfg.pfId) {
-    msg.kakaoOptions = { pfId: cfg.pfId, templateId: tplId, variables: m.vars };
+    var msg = { to: phone, from: cfg.sender, text: m.text,
+      kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } };
+    var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
+    sentKakao = (sent !== false);
   }
-  // 템플릿 미승인 상태면 kakaoOptions 없이 SMS로 발송 → 승인 후 KAKAO_TEMPLATES에 코드만 넣으면 알림톡 전환.
-  //   알림톡 실패 시 솔라피가 SMS로 자동대체. 단 '솔라피 자체가 막히면(잔액 0 등)' 문자도 못 가므로,
-  //   전송 실패 시 고객 이메일이 있으면 같은 내용을 이메일로 대체 발송(실패할 때만 → 스팸 아님 · 중요 안내 유실 방지).
-  var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
-  if (!sent) {
+  // 이메일: 카톡을 못 보낸 경우(템플릿 미승인 → 솔라피 미발송 · 또는 전송 실패)에만 발송 = '실패 시에만'.
+  //   카톡이 정상 발송되면 이메일은 보내지 않음(중복 없음). 요즘 거의 다 카톡을 써서 카톡으로 사실상 전원 도달.
+  //   consultDone·resultDelivered는 admin.gs에서 이미 메일 → 중복 방지로 제외.
+  try {
+    var emailedElsewhere = (event === 'cust.consultDone' || event === 'cust.resultDelivered');
     var custEmail = String(cust.get('이메일') || '').trim();
-    if (custEmail) _nfCustomerEmailFallback(custEmail, name, event, m.text);
-  }
+    if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
+      _nfCustomerEmailFallback(custEmail, name, event, m.text);
+    }
+  } catch (e) {}
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -196,6 +204,7 @@ function _solapiSend(cfg, message, ctx) {
     if (codeN >= 200 && codeN < 300) {
       Logger.log('[notify] 발송 OK → ' + message.to + (message.kakaoOptions ? ' (알림톡)' : ' (SMS)'));
       try { _solapiLogSend(message); } catch (e) {}   // 발송 건수 집계용(관리자 💰 문자비)
+      try { if (ctx && ctx.code) _nfTrackSend(resp, ctx, message); } catch (e) {}   // 전달결과 웹훅 매칭용 messageId↔code 기록(고객 알림톡)
       return true;
     }
     Logger.log('[notify] 발송 실패 HTTP ' + codeN + ' · ' + String(resp.getContentText()).slice(0, 300));
@@ -272,6 +281,9 @@ function _nfHoldPush(event, code, extra) {
 }
 // [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
 function flushHeldNotifies() {
+  // [버그수정 2026-06-28] OFF면 큐를 비우지 말고 그대로 유지 — 예전엔 큐를 먼저 지우고 OFF면 폐기라
+  //   발송 OFF 상태로 아침이 오면 밤사이 보류된 고객 알림이 영구 소실됐다. 다시 켜지면 그때 발송.
+  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — 보류 큐 유지(미발송)'); return; }
   var lock = null, arr = [];
   try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
   try {
@@ -280,7 +292,6 @@ function flushHeldNotifies() {
     p.deleteProperty('NOTIFY_HOLD');
   } finally { try { if (lock) lock.releaseLock(); } catch (e2) {} }
   if (!arr.length) { Logger.log('flushHeldNotifies: 보류 0건'); return; }
-  if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — ' + arr.length + '건 폐기(로그만)'); return; }
   arr.forEach(function (it) {
     try { _kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }); } catch (e) {}
   });
@@ -327,7 +338,7 @@ function _nfCustomerMsg(event, name, x) {
         text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
     case 'cust.consultDone':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 상담에 함께해 주셔서 감사합니다. 다음 단계로 마이페이지에서 예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요. 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 진행하신 상담이 완료되었습니다. 함께해 주셔서 감사합니다. 다음 단계는 마이페이지에서 예식일과 기본 정보를 입력해 주시면 진행되며, 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
     case 'cust.depositToProduction':
       // 상품별 다음 안내가 달라 #{안내} 변수로 분기(알림톡 T18 · SMS 대체문구는 동일 결과)
       var depGuide = x.snap
@@ -440,6 +451,134 @@ function notifyTestCustomerByCode(code) {
   _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
 }
 
+// 3-1) 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만, SMS 대체 끔).
+//   사용: notifyTestKakao('01073497706')  ·  이벤트 지정: notifyTestKakao('01073497706','cust.contractArrived')
+//   KAKAO_TEMPLATES에 그 이벤트 템플릿ID가 매핑돼 있어야 카톡으로 나감(없으면 로그로 알려줌).
+function notifyTestKakao(phone, event) {
+  var cfg = _nfProps();
+  phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
+  event = event || 'cust.consultConfirmed';
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('SOLAPI 설정 누락 — notifySetupCheck() 먼저'); return; }
+  if (!cfg.pfId) { Logger.log('SOLAPI_PF_ID(카카오 채널 pfId) 미설정 — 카톡 발송 불가'); return; }
+  if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
+  var tplId = String(cfg.templates[event] || '').trim();
+  if (!tplId || tplId.charAt(0) === '[' || /같은ID|\.\.\./.test(tplId)) {   // 빈값·md placeholder('KA01TP...'·'같은ID')만 거름. 실제 코드는 'KA01TP260627…' 형식이라 통과.
+    Logger.log('템플릿 매핑 없음/임시값: ' + event + ' = "' + tplId + '" → importKakaoTemplates() 또는 setKakaoTemplates()로 등록해야 카톡 발송. (지금은 이메일로 대체됨)');
+    return;
+  }
+  var m = _nfCustomerMsg(event, '테스트', { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 });
+  if (!m) { Logger.log('문구 빌더 없는 이벤트: ' + event); return; }
+  var r = _solapiSend(cfg, { to: phone, from: cfg.sender, text: m.text, kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } }, { code: 'TEST', event: event });
+  Logger.log('카톡 테스트(' + event + ' · tpl ' + tplId + ') → ' + phone + ' : ' + (r !== false ? '솔라피 접수 성공(2xx) — 폰에서 카톡 도착 확인' : '실패 — 위 로그/솔라피 콘솔 확인'));
+  return r;
+}
+
+// 3-1b) 승인·매핑된 카톡 템플릿을 '전부' 지정 번호로 1건씩 테스트 발송(중복 템플릿ID는 1회만).
+//   사용: notifyTestKakaoAll('01073497706')
+function notifyTestKakaoAll(phone) {
+  var cfg = _nfProps();
+  phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
+  if (!cfg.key || !cfg.secret || !cfg.sender || !cfg.pfId) { Logger.log('SOLAPI/pfId 설정 누락'); return; }
+  if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
+  var sample = { date: '2026-07-01', time: '19:30', snap: false, kind: '중도금', amount: 300000, dday: 9, expires: '2026-12-01', slot: '12:20', reason: '테스트', left: 2 };
+  var seen = {}, ok = 0, fail = 0, sent = [], miss = [];
+  Object.keys(cfg.templates).forEach(function (event) {
+    var tplId = String(cfg.templates[event] || '').trim();
+    if (!tplId || tplId.charAt(0) === '[' || /같은ID|\.\.\./.test(tplId) || seen[tplId]) return;   // 빈값·placeholder·중복ID 제외
+    seen[tplId] = true;
+    var m = _nfCustomerMsg(event, '테스트', sample);
+    if (!m) { miss.push(event); return; }
+    var r = _solapiSend(cfg, { to: phone, from: cfg.sender, text: m.text, kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } }, { code: 'TEST', event: event });
+    if (r !== false) { ok++; sent.push(event); } else { fail++; }
+    Utilities.sleep(400);   // 연속 발송 간 짧은 간격
+  });
+  Logger.log('카톡 전체 테스트 → ' + phone + ' : 접수성공 ' + ok + ' · 실패 ' + fail + (miss.length ? (' · 빌더없음 ' + miss.join(',')) : '') + '\n발송: ' + (sent.join(', ') || '없음(매핑 확인 — importKakaoTemplates 먼저)'));
+  return { ok: ok, fail: fail };
+}
+
+// 3-1c) 템플릿 1개만 안전 추가(기존 매핑 유지·merge) — 나중에 승인난 1건을 끼워넣을 때.
+//   사용: addKakaoTemplate('cust.consultDone', 'KA01TP...')  ·  값 ''면 해당 이벤트 제거
+function addKakaoTemplate(event, templateId) {
+  var p = PropertiesService.getScriptProperties();
+  var m = {}; try { m = JSON.parse(p.getProperty('KAKAO_TEMPLATES') || '{}'); } catch (e) { m = {}; }
+  event = String(event || '').trim();
+  templateId = String(templateId || '').trim();
+  if (!event) { Logger.log('이벤트명이 비었어요(예: cust.consultDone)'); return; }
+  if (templateId) m[event] = templateId; else delete m[event];
+  p.setProperty('KAKAO_TEMPLATES', JSON.stringify(m));
+  Logger.log('KAKAO_TEMPLATES ' + (templateId ? '추가/수정' : '제거') + ': ' + event + (templateId ? (' → ' + templateId) : '') + ' · 총 ' + Object.keys(m).length + '개 → ' + JSON.stringify(m));
+  return m;
+}
+
+// 3-1d) [실행용 래퍼] GAS 실행(▷)은 인자를 못 넘김 → 인자 박은 함수를 만들어 바로 실행.
+//   T17(상담완료) 매핑 추가: addT17 실행  ·  T17 카톡 테스트: testKakaoT17 실행
+function addT17() { return addKakaoTemplate('cust.consultDone', 'KA01TP260612112333511yHo1QiOBlDb'); }
+function testKakaoT17() { return notifyTestKakao('01073497706', 'cust.consultDone'); }
+function testKakaoAll() { return notifyTestKakaoAll('01073497706'); }
+
+// 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
+//   ⚠️ 전체 덮어쓰기라 1개만 추가할 땐 addKakaoTemplate()을 쓸 것. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
+function setKakaoTemplates() {
+  var map = {
+    'cust.consultConfirmed':    '',   // T01 상담확정
+    'cust.consultDayBefore':    '',   // T02 하루전
+    'cust.timeProposed':        '',   // T03 시간변경
+    'cust.fittingRequest':      '',   // T04 시착동의서
+    'cust.contractArrived':     '',   // T05 계약서도착
+    'cust.depositToProduction': '',   // T18 계약금확인
+    'cust.midPre':              '',   // T08 중도금
+    'cust.midDue':              '',   // T08 중도금(같은 코드)
+    'cust.balancePre':          '',   // T09 잔금
+    'cust.balanceDue':          '',   // T09 잔금(같은 코드)
+    'cust.resultDelivered':     '',   // T10 결과물
+    'cust.holdExpiring':        '',   // T13 임시고정만료
+    'cust.changeConfirmed':     '',   // T14 예식일변경적용
+    'cust.changeDeclined':      '',   // T15 예식일변경보류
+    'cust.consultDone':         ''    // T17 상담완료(승인 후 채우기)
+  };
+  var clean = {};
+  Object.keys(map).forEach(function (k) { var v = String(map[k] || '').trim(); if (v) clean[k] = v; });
+  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(clean));
+  Logger.log('KAKAO_TEMPLATES 저장 완료: ' + Object.keys(clean).length + '건 → ' + JSON.stringify(clean));
+  return clean;
+}
+
+// 3-3) ★자동 등록 — 솔라피의 알림톡 템플릿 목록을 불러와 이름(T##)으로 이벤트에 자동 매핑 후 KAKAO_TEMPLATES 저장.
+//   템플릿 이름이 'T01 …' 'T05 …' 형식이어야 자동 인식 · 승인(APPROVED/승인)만 매핑 · 1회 실행이면 끝.
+//   응답 형식이 예상과 다르면 원문을 로그로 남김(그걸 보여주면 맞춰줌).
+function importKakaoTemplates() {
+  var cfg = _nfProps();
+  if (!cfg.key || !cfg.secret) { Logger.log('SOLAPI 키 누락 — notifySetupCheck() 먼저'); return; }
+  var T2E = {
+    '1': ['cust.consultConfirmed'], '2': ['cust.consultDayBefore'], '3': ['cust.timeProposed'],
+    '4': ['cust.fittingRequest'], '5': ['cust.contractArrived'], '8': ['cust.midPre', 'cust.midDue'],
+    '9': ['cust.balancePre', 'cust.balanceDue'], '10': ['cust.resultDelivered'], '13': ['cust.holdExpiring'],
+    '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction']
+  };
+  var date = new Date().toISOString();
+  var salt = Utilities.getUuid().replace(/-/g, '');
+  var sig = Utilities.computeHmacSha256Signature(date + salt, cfg.secret).map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+  var auth = 'HMAC-SHA256 apiKey=' + cfg.key + ', date=' + date + ', salt=' + salt + ', signature=' + sig;
+  var resp = UrlFetchApp.fetch('https://api.solapi.com/kakao/v2/templates?limit=100', { method: 'get', headers: { Authorization: auth }, muteHttpExceptions: true });
+  var hc = resp.getResponseCode(), txt = resp.getContentText();
+  if (hc < 200 || hc >= 300) { Logger.log('템플릿 목록 조회 실패 HTTP ' + hc + ' · ' + String(txt).slice(0, 400)); return; }
+  var data; try { data = JSON.parse(txt); } catch (e) { Logger.log('JSON 파싱 실패: ' + String(txt).slice(0, 400)); return; }
+  var list = data.templateList || data.data || data.list || (Array.isArray(data) ? data : []);
+  if (!list || !list.length) { Logger.log('템플릿 0건 — 응답 원문: ' + String(txt).slice(0, 500)); return; }
+  var map = {}, matched = [], skipped = [];
+  list.forEach(function (t) {
+    var name = String(t.name || t.templateName || ''), id = String(t.templateId || t.id || ''), st = String(t.status || t.inspectionStatus || '').toUpperCase();
+    var mm = name.match(/T0*(\d+)/i);
+    if (!mm || !T2E[mm[1]] || !id) { skipped.push(name + (st ? ('(' + st + ')') : '')); return; }
+    if (st && st.indexOf('APPROV') < 0 && st.indexOf('승인') < 0) { skipped.push(name + '(' + st + ')'); return; }
+    T2E[mm[1]].forEach(function (ev) { map[ev] = id; });
+    matched.push(name + '→' + id);
+  });
+  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(map));
+  Logger.log('KAKAO_TEMPLATES 저장: ' + Object.keys(map).length + '개 이벤트\n[매핑] ' + (matched.join(' · ') || '없음') + '\n[제외] ' + (skipped.join(' · ') || '없음'));
+  return map;
+}
+
 // 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
@@ -491,13 +630,15 @@ function _solapiBalance() {
 function notifyBalanceCheck() {
   try {
     var p = PropertiesService.getScriptProperties();
-    var thr = Number(p.getProperty('SOLAPI_LOW_BALANCE')) || 5000;
+    var thr = Number(p.getProperty('SOLAPI_LOW_BALANCE')) || 3000;   // 자동충전 임계(5000)보다 낮게 → 자동충전 실패 시에만(헛경고X), 0 전에 버퍼 두고 경고
     var bal = _solapiBalance();
     if (bal == null) return;
     Logger.log('[notify] 솔라피 잔액 = ' + bal + '원 (임계 ' + thr + ')');
     if (bal >= thr) return;
     var k = 'SOLAPI_BAL_WARN_' + _kstYmd(new Date());
     if (p.getProperty(k)) return;           // 하루 1통
+    // [중복 억제] 오늘 '발송 실패' 경고 메일이 이미 갔으면(대개 잔액부족이 원인) 잔액경고는 생략 — 같은 날 같은 취지 2통 방지
+    if (p.getProperty('NOTIFY_FAILMAIL_' + _kstYmd(new Date()))) { p.setProperty(k, '1'); Logger.log('[notify] 잔액경고 생략(오늘 실패경고 이미 발송)'); return; }
     p.setProperty(k, '1');
     _nfAdminEmail('[Moment Edit] 솔라피 잔액 부족 경고',
       '솔라피 잔액이 ' + _nfWon(bal) + '원으로 임계(' + _nfWon(thr) + '원) 아래입니다.<br>'
@@ -506,42 +647,187 @@ function notifyBalanceCheck() {
   } catch (e) { Logger.log('[notify] 잔액경고 실패: ' + (e && e.message)); }
 }
 
-// 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침.
-function _nfAdminEmail(subject, bodyHtml) {
+// 관리자 메일 이모지 제거 — 그림문자·변형선택자만 제거(→ · 화살표·중점, 한글·영문·숫자는 보존).
+//   관리자 알림 규칙: 이모지 없이 깔끔하게(2026-06-29 사용자 지시). 제목·문구에 새 이모지가 섞여도 자동으로 걸러짐.
+function _noEmoji(s) {
+  return String(s == null ? '' : s)
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+    .replace(/\s{2,}/g, ' ').trim();
+}
+
+// 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침. 운영자 개인메일(ADMIN_CC)도 함께 받게 cc.
+//   [2026-06-29] 관리자 알림을 '메일 전용'으로 전환 — 문자비 0. 이 메일에 폰 알림(알람)을 걸어두면 즉시 확인 가능.
+function _nfAdminEmail(subject, bodyHtml, opts) {
   try {
+    subject = _noEmoji(subject);
     var p = PropertiesService.getScriptProperties();
     var to = String(p.getProperty('ADMIN_ALERT_EMAIL') || '').trim()
-      || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'contact@momentedit.kr');
-    var head = String(subject).replace(/^\[Moment Edit\]\s*/, '');
-    var html = (typeof emailShell === 'function')
-      ? emailShell(head, (typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'))
-      : bodyHtml;
-    GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '),
-      { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
-    Logger.log('[notify] 관리자 경고 메일 → ' + to + ' · ' + subject);
+      || ((typeof CONFIG !== 'undefined' && CONFIG.ADMIN_EMAIL) ? CONFIG.ADMIN_EMAIL : 'huijun@momentedit.kr');
+    var head = _noEmoji((opts && opts.head) ? opts.head : String(subject).replace(/^\[Moment Edit\]\s*/, ''));
+    // opts.raw=true면 bodyHtml을 그대로 본문에 넣음(섹션 레이아웃 등). 아니면 한 문단(centerP)으로 감쌈.
+    var inner = (opts && opts.raw) ? bodyHtml : ((typeof centerP === 'function') ? centerP(bodyHtml) : ('<p>' + bodyHtml + '</p>'));
+    var html = (typeof emailShell === 'function') ? emailShell(head, inner) : bodyHtml;
+    var sendOpts = { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') };
+    try { var cc = (typeof adminCc === 'function') ? adminCc() : ''; if (cc) sendOpts.cc = cc; } catch (e0) {}
+    GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '), sendOpts);
+    Logger.log('[notify] 관리자 메일 → ' + to + ' · ' + subject);
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
-// 고객 알림이 솔라피로 못 나갔을 때(잔액 0·장애) 같은 내용을 '고객 이메일'로 대체 발송 — 전송 실패 시에만 호출(스팸 아님).
-//   GAS GmailApp이라 솔라피와 무관하게 발송됨. 이메일이 없는 고객은 호출 측에서 건너뜀.
+// 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
+//   text 예: '[모먼트에디트] 신규 신청 … / 일정 잡기'  ·  '📋 새 인계: …'  ·  '🛡️ 안전점검 …'
+function _nfAdminLineEmail(text) {
+  try {
+    var raw = _noEmoji(String(text || '').trim());   // 이모지 제거(관리자 알림 규칙)
+    if (!raw) return;
+    var body = raw.replace(/^\[[^\]]{1,20}\]\s*/, '');     // 앞 태그([모먼트에디트]·[AI 직원실]) 제거
+    var parts = body.split(' / ');
+    var head;
+    if (parts.length > 1) head = parts[parts.length - 1].trim();        // 액션('일정 잡기'·'승인 필요' 등)
+    else if (body.indexOf(':') > -1) head = body.split(':')[0].trim();  // '📋 새 인계'
+    else head = '모먼트에디트 알림';
+    var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
+    var inner = (typeof centerP === 'function') ? centerP(safe(body)) : ('<p>' + safe(body) + '</p>');
+    if (typeof emailBtn === 'function') inner += emailBtn('https://momentedit.kr/admin.html', '관리자 페이지 열기');
+    _nfAdminEmail('[Moment Edit] ' + body.slice(0, 60), inner, { raw: true, head: head });
+  } catch (e) { try { Logger.log('[notify] 관리자 라인메일 실패: ' + (e && e.message)); } catch (_) {} }
+}
+
+// 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고(일일 aiDaily 외 보조 · 하루 1통 가드는 notifyBalanceCheck가 함).
+function _nfMaybeBalanceCheck() {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var last = Number(p.getProperty('SOLAPI_BAL_CHK_AT') || 0);
+    var now = new Date().getTime();
+    if (now - last < 3600000) return;   // 1시간 throttle
+    p.setProperty('SOLAPI_BAL_CHK_AT', String(now));
+    if (typeof notifyBalanceCheck === 'function') notifyBalanceCheck();
+  } catch (e) {}
+}
+
+// ============================ 전달결과 웹훅 (전달 실패 시 고객 이메일) ============================
+// 알림톡은 '접수 성공(2xx)' 후 실제 전달 성공/실패가 비동기로 통보됨(솔라피 리포트 웹훅 → 이 웹앱 /exec로 POST).
+//   발송 성공 시 messageId↔code↔text를 '알림톡추적' 시트에 기록 → 리포트가 '실패'면 그 고객에게 이메일(카톡 미수신 커버).
+//   ★보수적: '명확한 실패'만 이메일. 성공/불명확은 발송 안 함(카톡 받은 고객에 오발송 방지). 형식은 로그로 확인·튜닝 가능.
+// 설정: 솔라피 콘솔 > 설정 > 리포트(전달결과) 웹훅 URL = 이 웹앱 배포 /exec 주소.
+var NF_TRACK_SHEET = '알림톡추적';
+function _nfTrackSheet() {
+  var ss = SpreadsheetApp.getActive();
+  var sh = ss.getSheetByName(NF_TRACK_SHEET);
+  if (!sh) { sh = ss.insertSheet(NF_TRACK_SHEET); sh.appendRow(['messageId', '시각', 'code', 'event', 'text', '상태']); sh.setFrozenRows(1); }
+  return sh;
+}
+// 발송 성공 시 messageId 기록(고객 알림톡만 · ctx.code 있을 때). 실패 시 그대로 보낼 text도 보관.
+function _nfTrackSend(resp, ctx, message) {
+  var mid = '';
+  try { var j = JSON.parse(resp.getContentText()); mid = String(j.messageId || (j.groupInfo && j.groupInfo.groupId) || j.groupId || '').trim(); } catch (e) {}
+  if (!mid) return;
+  var sh = _nfTrackSheet();
+  if (sh.getLastRow() > 20000) return;
+  sh.appendRow([mid, new Date(), String(ctx.code || ''), String(ctx.event || ''), String((message && message.text) || '').slice(0, 1000), '발송']);
+}
+// 솔라피 전달결과 리포트 처리(doPost가 배열/리포트 형태 감지 시 호출). 명확한 실패만 고객 이메일.
+function handleSolapiReport(raw) {
+  try {
+    Logger.log('[notify] 솔라피 리포트 수신: ' + String(JSON.stringify(raw)).slice(0, 700));
+    var arr = Array.isArray(raw) ? raw : [raw];
+    var sh = SpreadsheetApp.getActive().getSheetByName(NF_TRACK_SHEET);
+    if (!sh || sh.getLastRow() < 2) return { ok: true, emailed: 0, note: '추적 없음' };
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();   // messageId,시각,code,event,text,상태
+    var failKw = /fail|error|reject|undeliver|expire|실패|거부|미수신|차단|반려|오류|만료|없는/i;
+    var failCodes = { '3008': 1, '3014': 1, '4040': 1, '5000': 1, '6000': 1 };   // 알려진 실패코드(테스트 후 보강)
+    var okKw = /성공|완료|정상|delivered|complete|sent/i;
+    var emailed = 0;
+    arr.forEach(function (r) {
+      try {
+        var mid = String((r && (r.messageId || r.messageid || r.mid)) || '').trim();
+        if (!mid) return;
+        var sc = String((r && (r.statusCode || r.status)) || '').trim();
+        var msg = String((r && (r.statusMessage || r.reason || r.statusMsg)) || '');
+        var failed = (sc && failCodes[sc]) || failKw.test(msg);
+        var success = (sc === '4000') || okKw.test(msg);
+        for (var i = rows.length - 1; i >= 0; i--) {
+          if (String(rows[i][0]).trim() !== mid) continue;
+          var st = String(rows[i][5]).trim();
+          if (st === '완료' || st === '이메일') return;   // 이미 처리
+          if (failed) {
+            var code = String(rows[i][2]).trim(), event = String(rows[i][3]).trim(), text = String(rows[i][4]);
+            try {
+              var cust = findCustomerByCode(code);
+              var to = cust ? String(cust.get('이메일') || '').trim() : '';
+              var name = cust ? _nfCoupleName(cust) : '';
+              if (to && to.indexOf('@') > 0 && text) { _nfCustomerEmailFallback(to, name, event, text); emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+            } catch (e) {}
+            sh.getRange(i + 2, 6).setValue('이메일');
+          } else {
+            sh.getRange(i + 2, 6).setValue(success ? '완료' : '확인');   // 불명확은 '확인'(이메일 안 함 · 후속 리포트 재처리 가능)
+          }
+          return;
+        }
+      } catch (e) {}
+    });
+    return { ok: true, emailed: emailed };
+  } catch (e) { Logger.log('[notify] 리포트 처리 실패: ' + (e && e.message)); return { ok: false, error: (e && e.message) }; }
+}
+// [정리] 알림톡추적 7일 경과분 삭제 — purgeAdvisorLog(주간)가 함께 호출(별도 트리거 불필요).
+function purgeNfTrack() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName(NF_TRACK_SHEET);
+    if (!sh || sh.getLastRow() < 2) return;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+    var vals = sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues();   // 시각 열(append 순)
+    var del = 0;
+    for (var i = 0; i < vals.length; i++) { var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (!isNaN(t.getTime()) && t < cutoff) del++; else break; }
+    if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeNfTrack: ' + del + '건 삭제'); }
+  } catch (e) {}
+}
+
+// 이벤트별 메일 제목·헤드라인·버튼 라벨(브랜드 메일 다듬기). 없으면 제너릭.
+var NF_EMAIL_TITLE = {
+  'cust.consultConfirmed':    { subj: '상담 일정이 확정되었습니다', head: '상담이 확정되었어요' },
+  'cust.consultDayBefore':    { subj: '내일 일정 안내', head: '내일 뵙겠습니다', nobtn: true },   // 리마인드 — CTA 없이 깔끔하게
+  'cust.timeProposed':        { subj: '시간 변경을 제안드렸어요', head: '시간 변경 제안', btn: '시간 확인·선택' },
+  'cust.fittingRequest':      { subj: '드레스 시착 동의서가 도착했어요', head: '시착 동의서가 도착했어요', btn: '동의서 확인·서명' },
+  'cust.contractArrived':     { subj: '이용계약서가 도착했어요', head: '계약서가 도착했어요', btn: '계약서 확인·서명' },
+  'cust.depositToProduction': { subj: '계약금 입금이 확인되었습니다', head: '계약금이 확인되었어요', btn: '다음 단계 확인' },
+  'cust.midPre':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
+  'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
+  'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
+  'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
+  'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박', btn: '상담 확정하러 가기' },
+  'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용', btn: '변경 내용 확인' },
+  'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
+  'cust.consultDone':         { subj: '상담이 완료되었습니다', head: '상담이 완료되었어요', btn: '다음 단계 입력' },
+  'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' }
+};
+
+// 고객 알림이 카톡으로 못 나갔을 때(템플릿없음·전송실패·전달실패) 같은 내용을 '고객 이메일'로 발송.
+//   SMS 문구(text)에서 태그([모먼트에디트])·끝 URL·시작 '이름님,'을 정리 → 깔끔한 본문 + 마이페이지 버튼 + 이벤트별 제목.
+//   GAS GmailApp이라 솔라피와 무관하게 발송. 이메일 없는 고객은 호출 측에서 건너뜀.
 function _nfCustomerEmailFallback(to, name, event, text) {
   try {
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
-    var kakao = (typeof CONFIG !== 'undefined' && CONFIG.KAKAO_URL && String(CONFIG.KAKAO_URL).charAt(0) !== '[') ? CONFIG.KAKAO_URL : '';
-    var greet = name ? (safe(name) + ' 님,<br>') : '';
-    // 기존 고객 메일 관례와 동일: emailShell(로고·푸터) + centerP(본문) + smallP(보조·카톡 문의)
+    var meta = NF_EMAIL_TITLE[event] || { subj: '안내드립니다', head: '모먼트에디트 안내' };
+    // 본문 정리: 태그·끝 URL 제거. 'OOO님,'으로 시작하면 그게 인사라 그대로 두고, 아니면 인사 한 줄 추가.
+    var body = String(text || '').replace(/^\[모먼트에디트\]\s*/, '').replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '').trim();
+    if (!body) body = (name || '고객') + '님께 안내드립니다.';
+    var hasGreet = /^[^\s,]{1,20}\s*[·][^\s,]{1,20}\s*님|^[^\s,]{1,20}\s*님/.test(body);
     var inner = (typeof centerP === 'function')
-      ? centerP(greet + safe(String(text || '')).replace(/\n/g, '<br>'))
-      : ('<p>' + greet + safe(text) + '</p>');
+      ? centerP((hasGreet ? '' : (name ? (safe(name) + '님,<br>') : '')) + safe(body).replace(/\n/g, '<br>'))
+      : ('<p>' + safe(body) + '</p>');
+    if (typeof emailBtn === 'function' && !meta.nobtn) inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
     if (typeof smallP === 'function') {
-      inner += smallP('문자 발송이 일시적으로 지연되어 이메일로 안내드립니다.'
-        + (kakao ? (' 문의는 <a href="' + (typeof safeAttr === 'function' ? safeAttr(kakao) : kakao) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 편하게 주세요.') : ''));
+      // 카톡으로 닿지 않아 보내는 메일 → 다시 카톡으로 안내하면 모순(카톡 없는 고객은 막힘).
+      //   항상 닿는 채널(마이페이지·메일 회신)로만 문의를 유도한다.
+      inner += smallP('카카오톡으로 닿지 않아 이메일로 보내드려요. 문의는 '
+        + '<a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>'
+        + '에서 또는 이 메일에 회신해 주시면 됩니다.');
     }
-    var html = (typeof emailShell === 'function') ? emailShell('모먼트에디트 안내', inner) : inner;
-    GmailApp.sendEmail(to, '[Moment Edit] 안내 말씀', String(text || '').slice(0, 500),
+    var html = (typeof emailShell === 'function') ? emailShell(meta.head, inner) : inner;
+    GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500),
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
-    Logger.log('[notify] 고객 이메일 대체 발송 → ' + to + ' · ' + event);
-  } catch (e) { try { Logger.log('[notify] 고객 이메일 대체 실패: ' + (e && e.message)); } catch (_) {} }
+    Logger.log('[notify] 고객 이메일 → ' + to + ' · ' + event);
+  } catch (e) { try { Logger.log('[notify] 고객 이메일 실패: ' + (e && e.message)); } catch (_) {} }
 }
 
 // ============================ 문자/알림톡 사용량 (관리자 💰) ============================
@@ -551,8 +837,21 @@ function _solapiLogSend(message) {
   var kind = (message && message.kakaoOptions) ? '알림톡' : ((String(message.text || '').length > 45) ? 'LMS' : 'SMS');
   var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
   if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문자발송로그'); sh.appendRow(['시각', '종류']); }
-  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분)
+  if (sh.getLastRow() > 20000) return;   // 폭주 가드(수년치 · 그 전에 충분 · purgeSmsLog가 주간 정리)
   sh.appendRow([new Date(), kind]);
+}
+// [정리] 문자발송로그 180일 경과분 삭제 — purgeAdvisorLog(주간 트리거)가 함께 호출(별도 트리거 불필요).
+//   append-only(위→아래 오래된 것) 가정. 20000행 상한 도달로 적재가 멈추는 것 방지.
+function purgeSmsLog() {
+  try {
+    var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
+    if (!sh || sh.getLastRow() < 2) return;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 180);
+    var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
+    var del = 0;
+    for (var i = 0; i < vals.length; i++) { var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t); if (!isNaN(t.getTime()) && t < cutoff) del++; else break; }
+    if (del > 0) { sh.deleteRows(2, del); Logger.log('purgeSmsLog: ' + del + '건 삭제'); }
+  } catch (e) { try { Logger.log('purgeSmsLog 실패: ' + (e && e.message)); } catch (_) {} }
 }
 // 관리자: 솔라피 잔액 + 이번달/24h 발송 건수·추정비용 (adminCall fn='solapiUsageSummary')
 function solapiUsageSummary() {

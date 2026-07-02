@@ -40,8 +40,10 @@
 | `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) |
 | `notifyTestAdminSms` | 95_notify | 관리자 폰 테스트 문자 1건(실발송) |
 | `notifyTestCustomerByCode('코드')` | 95_notify | 고객 알림 테스트(실발송·야간보류 무시) |
+| `notifyTestKakao('번호'[,'이벤트'])` | 95_notify | 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만·SMS 대체 끔). 템플릿ID 미매핑이면 로그로 안내 |
 | `flushHeldNotifies` | 95_notify | 야간 보류 알림 즉시 발송(평소엔 8시 트리거 자동) |
-| `notifyBalanceCheck` | 95_notify | 솔라피 잔액이 임계(`SOLAPI_LOW_BALANCE`·기본 5000원) 이하면 관리자에게 GAS 이메일 경고 1통(하루 1통). aiDaily가 매일 호출 · 수동 실행도 가능. 솔라피 안 거치는 메일이라 잔액 0이어도 발송됨 |
+| `notifyBalanceCheck` | 95_notify | 솔라피 잔액이 임계(`SOLAPI_LOW_BALANCE`·기본 3000원·자동충전 5000보다 낮게) 이하면 관리자에게 GAS 이메일 경고 1통(하루 1통). aiDaily 매일 + 발송 활동 시 시간당 1회(_nfMaybeBalanceCheck) 호출. 솔라피 안 거치는 메일이라 잔액 0이어도 발송됨 |
+| `handleSolapiReport` | 95_notify | 솔라피 전달결과 리포트 웹훅 처리(doPost가 배열/messageId 형태 감지 시 호출). 알림톡 '전달 실패'면 그 고객에게 이메일(카톡 미수신 커버). 발송 시 `알림톡추적` 시트에 messageId↔code 기록 · purgeNfTrack가 7일 정리. ★솔라피 콘솔에 리포트 웹훅 URL=/exec 등록 필요 |
 | `solapiUsageSummary` | 95_notify | 문자·알림톡 잔액+이번달/24h 발송 건수·추정비용(관리자 💰 패널·adminCall) |
 | `setupAllTriggers` | 70_journey | 자동 트리거 일괄 등록(재배포 후·트리거 변경 시 1회) |
 | `weeklyBackup` | 70_journey | 전체 스프레드시트를 'ME_백업' 폴더에 주간 날짜 사본·최근 8주 보관(첫 실행 시 Drive 권한 승인 · setupAllTriggers가 매주 등록) |
@@ -54,13 +56,19 @@
 | `aiQuestionReport` | 96_ai_cost | 고객질문 종합 리포트(기간별 막힘/애매/정상·접점별·자주 막힌·애매한 질문 TOP) — 관리자 📊리포트 탭(adminCall) |
 | `aiFactSet`·`aiFactsList`·`aiFactHistory`·`aiFactRollback`·`aiFactDelete` | 96_ai_cost | 핵심정보 단일 진실원(가격·일정·정책) 편집·이력·롤백 — 관리자 🎯핵심정보 탭(adminCall). API가 `handleAiFacts`(doPost action='aiFacts')로 라이브 주입 |
 | `aiRegAdd`·`aiRegList`·`aiRegSetActive`·`aiRegDelete` | 96_ai_cost | 회귀셋(고친 건 영구 점검) 관리 — 📊리포트 📌로 추가·💡개선 탭서 관리(adminCall). aiDailySafetyCheck가 매일 함께 점검 |
-| `aiDaily` | 96_ai_cost | 매일 9시 트리거 — 안전점검 + 인계 24h 리마인드 + 일일요약 SMS 일괄(setupAllTriggers가 등록) |
-| `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). 위반/하락 시에만 관리자 SMS(트리거 자동·수동 가능). 서버 fetch 막히면 점검불가 반환 |
-| `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS 발송 |
-| `aiHandoffReminder` | 97_ai-handoff | 미처리 인계 24시간 경과 건이 있으면 관리자 SMS 1통(가장 오래된 며칠·로그인고객 건수 포함 · aiDaily가 호출) |
-| `aiHandoffAutoExpire` | 97_ai-handoff | 오래된 '대기' 인계 자동 만료(비로그인 3일·로그인 고객 14일 · `AIH_EXPIRE_ANON_DAYS`/`AIH_EXPIRE_CUST_DAYS`로 조정). aiDaily가 리마인드 전에 호출. **`aiHandoffAutoExpire(0)` 1회 실행 = 현재 대기 전체 즉시 만료(초기 정리)** |
-| `purgeAiHandoff` | 97_ai-handoff | 종결(완료/만료) 인계 행 90일 정리(purgeAdvisorLog가 함께 호출 · 대기 건은 절대 삭제 안 함) |
-| `aiHandoffNightFlush` | 97_ai-handoff | 야간(22~08시) 보류된 새 인계를 아침 9시에 한 통으로 발송(aiDaily가 호출) |
+| `aiDaily` | 96_ai_cost | 매일 9시 트리거 — `aiMorningReport()` 1개만 호출(setupAllTriggers가 등록) |
+| `aiMorningReport` | 96_ai_cost | ★아침 운영 보고 통합 — **오늘 상담·처리할 일**(admin `morningBriefData`)+안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 모아 **관리자에게 메일 1통(섹션 상세 · 제목에 핵심요약)**으로. aiDaily가 호출. (구 `sendMorningBrief` 별도 메일 폐지·통합) 솔라피 잔액 '긴급' 경고(0 전)는 _nfMaybeBalanceCheck가 별도 즉시 처리 |
+| `morningBriefData` | admin | (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op) |
+| `aiMorningPreview` | 96_ai_cost | 지금 아침보고 1통 즉시 발송(테스트·수동). aiMorningReport와 동일 |
+| `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
+| `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |
+| `aiHandoffStatus` | 97_ai-handoff | (읽기 전용) 현재 '대기' 인계 수·그중 24h 경과 수 반환 — aiMorningReport 집계용 |
+| `aiHandoffNightTake` | 97_ai-handoff | (읽기+초기화) 밤사이 보류 새 인계 수 읽고 카운터 0으로 — aiMorningReport가 1회 소비 |
+| `aiHandoffReminder` | 97_ai-handoff | (구) 미처리 인계 24h 리마인드 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
+| `aiHandoffNightFlush` | 97_ai-handoff | (구) 야간 보류 새 인계 아침 발송 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
+| `dumpPendingAiHandoff` | 97_ai-handoff | 현재 '대기' 인계 전체를 로그로 출력(번호·일시·고객·질문요약·AI제안답변). 읽기 전용·발송 없음. 80건 진짜/테스트 판단·답변 검토용(관리자 페이지는 30건만 보임) |
+| `clearAllPendingAiHandoff` | 97_ai-handoff | 현재 '대기' 인계 전부를 '일괄정리'로 표시(행 보존·미처리 카운트서 제거). 쌓인 테스트/오래된 건 한 번에 비울 때 수동 1회 |
+| `purgeAiHandoff` | 97_ai-handoff | '대기' 30일(AIH_EXPIRE_DAYS) 경과 인계를 '만료' 표시 → 미처리 알림 누적 방지. purgeAdvisorLog(주간)가 함께 호출 · 별도 트리거 불필요 |
 | `handleAiCostLog` | 96_ai_cost | AI 토큰 비용 1건 적재(doPost action='aiCostLog' · Vercel 챗봇이 호출) |
 | `purgeAiCostLog` | 96_ai_cost | AI 비용 로그 35일 정리(purgeAdvisorLog가 함께 호출 · 별도 트리거 불필요) |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
@@ -70,7 +78,17 @@
 | `awMonthlyAudit` | 88_place_audit | 월간 검증 본체(트리거 자동·수동 1회 실행 가능). 폐업·상호변경 의심 발견 시 ADMIN_PHONE으로 알림 |
 | `collectDinePool` | 88_place_audit | 스튜디오 반경 7km 업종 스윕으로 후보 식당·카페 대량 수집 → AW_장소후보 시트(검토 O → 사이트 승격) |
 | `collectDinePoolDeep` | 88_place_audit | 후보 최대 수집(3×3 격자 셀별 스윕 — 기본 수집의 2~3배). 3~5분·6분 한도 전 자동 종료 |
+| `vimeoGuardDaily` | form-to-couple(부부폼 GAS·별도 프로젝트) | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 경고 메일(하루 1통·수동 점검 가능). D-3 영상 사전등록 SOP 누락 방지 |
+| `setupVimeoGuard` | form-to-couple(부부폼 GAS·별도 프로젝트) | vimeoGuardDaily 매일 07시 트리거 등록(1회·중복 자동 정리) |
+
+## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
+
+관리자(운영자)에게 가는 모든 알림은 **문자 대신 메일**로 보낸다(문자비 0). 실시간 업무신호·AI 인계·아침보고·잔액경고·월간검증 전부 메일.
+- 발송 경로: `95_notify`의 `_nfAdminLineEmail(text)`(짧은 1건) · `_nfAdminEmail(subject, html, opts)`(상세). 둘 다 `ADMIN_EMAIL`(contact@momentedit.kr) 수신 + `ADMIN_CC`(미쿠·희준 개인메일) cc.
+- `aiAlertAdmin`·`_kakaoSend`의 admin 분기·`_awNotifyAdmin_` 전부 위 메일 함수로 라우팅. SMS(`_solapiSend`+ADMIN_PHONE)는 고객 알림톡·`notifyTestAdminSms`(수동 테스트)만 사용.
+- 사용자는 이 메일에 폰 푸시 알람을 걸어 즉시 확인(문자 대체). 고객 알림톡은 종전대로 솔라피 사용.
+- **이모지 없이**: 관리자 메일 제목·문구엔 이모지를 쓰지 않는다. `95_notify`의 `_noEmoji()`가 `_nfAdminEmail`·`_nfAdminLineEmail`·`notifyStudio` 진입점에서 그림문자·변형선택자를 자동 제거(→ · 화살표·중점·한글은 보존). 새 문구에 이모지가 섞여도 자동으로 걸러짐.
 
 ## 나중에 할 일 메모 규칙 (2026-06-12 사용자 지시)
 
-사용자가 "메모해놔 / 체크리스트에 남겨줘 / 나중에 하자"고 하면 루트 **`나중에할일_체크리스트.md`** 에 추가한다 — 흩어두지 말고 항상 이 한 파일(단일 보관처). 완료 항목은 `[x]` 체크. (SEO 상세는 `PLAN_SEO_체크리스트.md`가 별도 관리되며 통합 파일에서 링크)
+사용자가 "메모해놔 / 체크리스트에 남겨줘 / 나중에 하자"고 하면 루트 **`나중에할일_체크리스트.md`** 에 추가한다 — 흩어두지 말고 항상 이 한 파일(단일 보관처). 완료 항목은 `[x]` 체크. (SEO 상세는 `docs/plans/PLAN_SEO_체크리스트.md`가 별도 관리되며 통합 파일에서 링크)

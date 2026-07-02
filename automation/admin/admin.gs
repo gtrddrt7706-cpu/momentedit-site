@@ -345,15 +345,14 @@ function _resultSub(x) {
 function _briefMailOk() {
   try { return CONFIG.SEND_DAILY_BRIEF !== false && CONFIG.ADMIN_EMAIL && String(CONFIG.ADMIN_EMAIL).charAt(0) !== '['; } catch (e) { return false; }
 }
-// [트리거·매일 9시] 아침 운영 브리핑 — 오늘 상담 일정 + 처리할 일 요약을 메일 1통으로(접속 안 해도 하루가 보임).
-//   처리할 일이 0이고 오늘 상담도 없으면 발송 생략(노이즈 방지).
-function sendMorningBrief() {
+// [데이터] 아침 브리핑 소스 — 오늘 상담 일정 + 처리할 일 큐. 발송 안 함(읽기 전용).
+//   2026-06-29 통합: aiMorningReport가 이 데이터를 읽어 '아침 운영 보고' 메일 1통에 합쳐 보냄(개별 브리핑 메일 폐지).
+function morningBriefData() {
   var d;
   _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
   try { d = adminHome(); } finally { _AUTHED = false; }
-  if (!d || !d.ok) return;
+  if (!d || !d.ok) return null;
   var today = d.today;
-  // 오늘 상담(승인/확정) — 상담예약 시트에서 직접
   var bs = getSheet(), bc = buildHeaderIndex(bs), bLast = bs.getLastRow();
   var todays = [];
   if (bLast >= SYS.DATA_START_ROW) {
@@ -368,22 +367,15 @@ function sendMorningBrief() {
     todays.sort();
   }
   var q = d.queue.urgent.concat(d.queue.normal);
-  if (!q.length && !todays.length) { Logger.log('sendMorningBrief: 비어 있음 — 발송 생략'); return; }
   var byKind = {};
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
-  var urgentLines = d.queue.urgent.slice(0, 8).map(function (it) { return '  - ' + it.names + ' · ' + it.kind + (it.badge ? (' (' + it.badge.text + ')') : ''); });   // 이모지·기호 없이 텍스트(plain-text 메일에서 BMP 밖 이모지가 깨짐)
-  var _nFail = (typeof notifyFailYesterday === 'function') ? notifyFailYesterday() : 0;   // 어제 고객 알림 발송 실패(잔액·번호 오류 등) — 95_notify 카운터
-  var body = '[오늘 상담] ' + (todays.length ? (todays.length + '건\n  ' + todays.join('\n  ')) : '없음') + '\n\n'
-    + '[처리할 일] ' + d.counts.total + '건' + (d.counts.urgent ? (' (급함 ' + d.counts.urgent + ')') : '') + (kindLine ? ('\n  ' + kindLine) : '') + '\n'
-    + (urgentLines.length ? (urgentLines.join('\n') + '\n') : '')
-    + (_nFail > 0 ? ('\n[주의] 어제 알림 발송 실패 ' + _nFail + '건 · 솔라피 잔액·고객 연락처 확인\n') : '')
-    + '\n관리자: https://momentedit.kr/admin.html';
-  notifyKakao('admin.dailyBrief', '', { total: d.counts.total, urgent: d.counts.urgent, consults: todays.length, fail: _nFail });
-  if (_briefMailOk()) {
-    try { GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Moment Edit] 오늘 브리핑 · 상담 ' + todays.length + '건 · 처리할 일 ' + d.counts.total + '건', body, { name: 'Moment Edit', cc: (typeof adminCc === 'function' ? adminCc() : '') }); } catch (e) { Logger.log('브리핑 메일 실패: ' + (e && e.message)); }
-  }
+  return { todays: todays, total: d.counts.total, urgent: d.counts.urgent, kindLine: kindLine,
+    urgentNames: d.queue.urgent.slice(0, 6).map(function (it) { return it.names + '·' + it.kind; }) };
 }
+
+// (구) 아침 브리핑 개별 메일 — 2026-06-29 aiMorningReport로 통합(중복 제거). 트리거에서 제거 · 하위호환 no-op.
+function sendMorningBrief() { return; }
 
 // 현금영수증 발급 기한 배지 — 받은 날(확인일)부터 5일(의무발행). 3일 경과부터 빨강, 5일 넘으면 '기한 경과'.
 function _crDueBadge(baseStr, todayYmd) {

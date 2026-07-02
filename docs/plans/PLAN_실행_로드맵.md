@@ -1,7 +1,7 @@
 # 실행 로드맵 — 디테일~큰틀 전부 (턴키)
 
 **원칙:** *직접 수정(라이브 동작 변경)* 전, **셋팅·준비 가능한 건 전부 완료**해 둠. 아래 배치별로 "go" 주면 즉시 실행.
-**참고 문서:** `REPORT_mypage_review.md` · `REPORT_admin_mypage_2차검토.md` · `REPORT_아키텍처_검토.md` · `PLAN_잔금_여정_설계.md` · `SETUP_clasp_배포자동화.md`
+**참고 문서:** `../reports/REPORT_mypage_review.md` · `../reports/REPORT_admin_mypage_2차검토.md` · `../reports/REPORT_아키텍처_검토.md` · `PLAN_잔금_여정_설계.md` · `../guides/SETUP_clasp_배포자동화.md`
 
 ---
 
@@ -9,7 +9,7 @@
 - ✅ `shared/tokens.css` — 디자인 토큰 정본(각 페이지 :root 통합용, 아직 미연결)
 - ✅ `shared/core.js` — 공통 유틸(api·esc·qp·copy·token, `window.ME` 격리, 아직 미연결)
 - ✅ `.clasp.json` · `.claspignore` — GAS 배포 자동화 스캐폴드(R3n9Mr만 push하도록 제외목록 포함)
-- ✅ `SETUP_clasp_배포자동화.md` — 안전 셋업 가이드(pull→비교→push)
+- ✅ `../guides/SETUP_clasp_배포자동화.md` — 안전 셋업 가이드(pull→비교→push)
 - ✅ 본 로드맵
 
 > 위 파일들은 **아무 페이지도 아직 안 씀** → 지금 main에 있어도 라이브는 그대로.
@@ -51,7 +51,7 @@
 
 ---
 
-### 배치 E — 폭·비즈니스 (최종 종합검토 신규 · 참고: `REPORT_최종_종합검토.md`)
+### 배치 E — 폭·비즈니스 (최종 종합검토 신규 · 참고: `../reports/REPORT_최종_종합검토.md`)
 | 항목 | 내용 | 파일 |
 |---|---|---|
 | E1 | **애널리틱스 1개**(GA4/Plausible) 전 페이지 + 핵심 이벤트(상담신청·일정신청·청첩장발행) | 전 페이지 |
@@ -73,6 +73,6 @@
 
 ## §4. "go" 방법
 - `"배치 A 해줘"` / `"B1 해줘"` / `"잔금 구현"` / `"C2 설계"` 처럼 집어주면 그 배치만 실행·반영(필요 시 GAS 파일·재배포 안내 동봉).
-- clasp(C1)은 준비 끝 — 가이드(`SETUP_clasp_배포자동화.md`)대로 한 번만 돌려보고 막히면 알려줘.
+- clasp(C1)은 준비 끝 — 가이드(`../guides/SETUP_clasp_배포자동화.md`)대로 한 번만 돌려보고 막히면 알려줘.
 
 > 정리하면: **준비는 다 됐고**, 라이브를 바꾸는 "직접 수정"만 네 신호를 기다리는 상태예요.
