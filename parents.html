@@ -154,6 +154,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 </div>
 
 <div class="tools" aria-label="읽기 도구">
+  <button type="button" id="listenBtn" aria-label="소리로 듣기" hidden>듣기</button>
   <button type="button" id="fontMinus" aria-label="글자 작게">가&#8722;</button>
   <button type="button" id="fontPlus" aria-label="글자 크게">가&#43;</button>
   <button type="button" id="printBtn" aria-label="인쇄하기">인쇄</button>
@@ -253,6 +254,45 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   document.getElementById('fontMinus').addEventListener('click',function(){if(idx>0){idx--;apply();}});
   document.getElementById('fontPlus').addEventListener('click',function(){if(idx<SIZES.length-1){idx++;apply();}});
   document.getElementById('printBtn').addEventListener('click',function(){window.print();});
+
+  /* 듣기: 기기 내장 한국어 음성으로 편지 낭독 (지원 기기에서만 버튼 노출) */
+  var synth=window.speechSynthesis;
+  var btn=document.getElementById('listenBtn');
+  if(synth&&window.SpeechSynthesisUtterance){
+    btn.hidden=false;
+    var speaking=false;
+    function koVoice(){
+      try{
+        var vs=synth.getVoices()||[];
+        for(var i=0;i<vs.length;i++){if((vs[i].lang||'').toLowerCase().indexOf('ko')===0)return vs[i];}
+      }catch(e){}
+      return null;
+    }
+    function stopRead(){try{synth.cancel();}catch(e){}speaking=false;btn.textContent='듣기';}
+    function startRead(){
+      var parts=[];
+      var nodes=document.querySelectorAll('#letter p, #letter .part-title, #letter .choice-list li, #letter .sign-from');
+      for(var i=0;i<nodes.length;i++){
+        var t=(nodes[i].textContent||'').replace(/\s+/g,' ').trim();
+        if(t)parts.push(t);
+      }
+      if(!parts.length)return;
+      try{synth.cancel();}catch(e){}
+      var v=koVoice();
+      var remaining=parts.length;
+      for(var j=0;j<parts.length;j++){
+        var u=new SpeechSynthesisUtterance(parts[j]);
+        u.lang='ko-KR';if(v)u.voice=v;u.rate=0.95;u.pitch=1;
+        u.onend=u.onerror=function(){remaining--;if(remaining<=0){speaking=false;btn.textContent='듣기';}};
+        synth.speak(u);
+      }
+      speaking=true;btn.textContent='멈춤';
+    }
+    btn.addEventListener('click',function(){speaking?stopRead():startRead();});
+    document.addEventListener('visibilitychange',function(){if(document.hidden)stopRead();});
+    window.addEventListener('pagehide',stopRead);
+    if(typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
+  }
 })();
 </script>
 
