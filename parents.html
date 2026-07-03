@@ -255,11 +255,29 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   document.getElementById('fontPlus').addEventListener('click',function(){if(idx<SIZES.length-1){idx++;apply();}});
   document.getElementById('printBtn').addEventListener('click',function(){window.print();});
 
-  /* 듣기: 기기 내장 한국어 음성으로 편지 낭독 (지원 기기에서만 버튼 노출) */
+  /* 듣기: 녹음 음원이 있으면 음원 재생, 없으면 기기 내장 한국어 음성으로 낭독 */
+  var AUDIO_SRC='/assets/audio/parents-letter.mp3';
+  var audioEl=null,audioMode=false;
   var synth=window.speechSynthesis;
   var btn=document.getElementById('listenBtn');
+  function setupAudioMode(){
+    audioMode=true;btn.hidden=false;
+    btn.addEventListener('click',function(){
+      if(!audioEl){audioEl=new Audio(AUDIO_SRC);audioEl.preload='auto';
+        audioEl.addEventListener('ended',function(){btn.textContent='듣기';});
+        audioEl.addEventListener('error',function(){btn.textContent='듣기';});}
+      if(audioEl.paused){audioEl.play();btn.textContent='멈춤';}
+      else{audioEl.pause();btn.textContent='듣기';}
+    });
+    document.addEventListener('visibilitychange',function(){if(document.hidden&&audioEl&&!audioEl.paused){audioEl.pause();btn.textContent='듣기';}});
+  }
+  try{
+    fetch(AUDIO_SRC,{method:'HEAD'}).then(function(r){
+      if(r&&r.ok){setupAudioMode();}
+    }).catch(function(){});
+  }catch(e){}
   if(synth&&window.SpeechSynthesisUtterance){
-    btn.hidden=false;
+    if(!audioMode)btn.hidden=false;
     var speaking=false;
     function koVoice(){
       try{
@@ -288,7 +306,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
       }
       speaking=true;btn.textContent='멈춤';
     }
-    btn.addEventListener('click',function(){speaking?stopRead():startRead();});
+    btn.addEventListener('click',function(){if(audioMode)return;speaking?stopRead():startRead();});
     document.addEventListener('visibilitychange',function(){if(document.hidden)stopRead();});
     window.addEventListener('pagehide',stopRead);
     if(typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
