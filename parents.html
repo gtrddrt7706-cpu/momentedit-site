@@ -106,27 +106,30 @@ footer{text-align:center;padding:36px 28px;background:var(--footer-bg);margin-to
 
 /* Print: A4 한 장 */
 @media print{
+  @page{size:A4;margin:10mm 14mm}
   nav,.tools,footer{display:none}
-  body{background:#fff;color:#000;font-size:10pt}
-  .hero{padding:0 0 10pt}
+  body{background:#fff;color:#000;font-size:9pt}
+  .hero{padding:0 0 6pt}
   .hero-label{display:none}
-  .hero-title{font-size:16pt;color:#000;margin-bottom:4pt}
-  .hero-sub{font-size:10pt;color:#333;margin-bottom:8pt}
+  .hero-title{font-size:14pt;color:#000;margin-bottom:2pt}
+  .hero-sub{font-size:9pt;color:#333;margin-bottom:5pt}
+  .hero-divider{margin:0 auto}
   main{padding:0;max-width:none}
-  .letter{font-size:10pt !important;line-height:1.72;color:#222}
-  .letter p{margin-bottom:0.8em}
+  .letter{font-size:9pt !important;line-height:1.5;color:#222}
+  .letter p{margin-bottom:0.5em}
   .letter strong{color:#000}
-  .greeting{padding:6pt 0 0}
-  .part{padding:8pt 0 0;margin-top:6pt;border-top-color:#ccc;page-break-inside:avoid}
-  .part-head{margin-bottom:5pt}
+  .greeting{padding:4pt 0 0}
+  .part{padding:4pt 0 0;margin-top:3pt;border-top-color:#ccc;page-break-inside:avoid}
+  .part-head{margin-bottom:3pt}
   .part-num{color:#666}
   .part-title{color:#000}
-  .choice-list li{margin-bottom:0.3em}
+  .choice-list{margin:2pt 0 0.55em}
+  .choice-list li{margin-bottom:0.2em}
   .choice-list li::before{color:#666}
-  .closing{padding:8pt 0 0;margin-top:6pt;border-top-color:#ccc}
-  .sign{margin-top:10pt}
+  .closing{padding:5pt 0 0;margin-top:4pt;border-top-color:#ccc}
+  .sign{margin-top:6pt}
   .sign .sign-name{color:#000}
-  .contact-box{margin-top:8pt;background:none;border:1px solid #ccc;page-break-inside:avoid}
+  .contact-box{margin-top:5pt;padding:6pt 9pt;background:none;border:1px solid #ccc;page-break-inside:avoid;font-size:8.5pt;line-height:1.6}
   .contact-box a{color:#000;border-bottom:none}
 }
 
@@ -166,6 +169,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   <div class="greeting">
     <p>안녕하십니까. 귀한 자녀분의 혼사를 맡게 된 <strong>모먼트에디트</strong>입니다. 예식을 준비하는 사람으로서, 두 분 어른께 먼저 인사드리는 것이 도리라 생각하여 이 글을 올립니다.</p>
     <p>한 사람을 오늘까지 길러 혼사에 이르게 하신 그 세월을, 저희가 감히 다 알지 못합니다. 다만 그 시간의 무게를 알기에, 이 예식을 가볍게 만들지 않겠다는 말씀을 먼저 드리고 싶습니다.</p>
+    <p>이 글은 무엇을 권하려는 글이 아닙니다. 두 분께서 궁금해하실 것들을 미리 정리해 드리는 안내입니다.</p>
   </div>
 
   <section class="part">
@@ -174,7 +178,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
       <h2 class="part-title">인원을 절제하는 이유</h2>
     </div>
     <p>모먼트에디트의 예식은 양가의 가장 가까운 분들을 모시는 자리입니다. 하객이 많은 자리에서는 인사가 스쳐 지나가기 쉽습니다. 저희는 인원을 절제하는 대신, 오신 모든 분과 눈을 맞추고 이야기를 나눌 수 있는 호흡을 마련합니다.</p>
-    <p>혼주께서 한 분 한 분께 직접 감사를 전하실 수 있는 여유. 저희가 인원을 절제하는 이유는 소홀함이 아니라 <strong>정중함</strong>에 있습니다.</p>
+    <p>그날 혼주께서는 오신 모든 분과 눈을 맞추고 인사를 나누신 뒤, 서두르지 않고 배웅하시게 됩니다. 저희가 인원을 절제하는 이유는 소홀함이 아니라 <strong>정중함</strong>에 있습니다.</p>
   </section>
 
   <section class="part">
@@ -184,6 +188,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
     </div>
     <p>작은 예식이라 하여 격식을 덜어내지 않습니다. <strong>어른께 드리는 예와 인사</strong>를 갖춘 정갈한 본식으로 진행하며, 예식 전체에 넉넉한 시간을 두어 서두르지 않습니다.</p>
     <p>양가의 모든 세대가 한 자리에 모여 남기는 <strong>가족 기록</strong>의 시간도 따로 마련되어 있습니다. 점점 드물어지는 순간이기에, 가장 정성을 들이는 순서 가운데 하나입니다.</p>
+    <p>혼주에게는 혼주의 품격을, 주인공에게는 주인공의 시간을. 저희가 예식을 준비하며 지키는 문장입니다.</p>
   </section>
 
   <section class="part">
@@ -200,7 +205,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
       <span class="part-num">四</span>
       <h2 class="part-title">축하의 마음</h2>
     </div>
-    <p>축하의 마음은 <strong>청첩장과 함께 정중히</strong> 안내되고, 받습니다. 청첩장에 마음 전하실 곳을 함께 적어 드리며, 온라인 참석 자리에도 마음을 전하실 수 있는 길을 마련해 두었습니다. 형식이 달라도, 함께해 주신 모든 마음은 소중히 받습니다.</p>
+    <p>축하의 마음은 <strong>청첩장과 함께 정중히 안내드리고, 감사히 받습니다.</strong> 청첩장에 마음 전하실 곳을 함께 적어 드리며, 온라인 참석 자리에도 마음을 전하실 수 있는 길을 마련해 두었습니다. 형식이 달라도, 함께해 주신 모든 마음은 소중히 받습니다.</p>
   </section>
 
   <section class="part">
@@ -212,13 +217,15 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
     <ul class="choice-list">
       <li>예식 순서 가운데 어른께서 함께해 주실 자리에 대한 상의</li>
       <li>가까운 어른을 어느 분까지 모실지에 대한 상의</li>
-      <li>예식 공간을 미리 둘러보시는 방문 <em>(신랑신부와 함께 오시면 언제든 정중히 모시겠습니다)</em></li>
+      <li>예식 뒤에 친지와 지인분들께 따로 인사드리는 자리를 마련할지에 대한 상의</li>
       <li>이 안내를 인쇄물로 받아 보시는 것</li>
       <li>궁금하신 점을 직접 물어보시는 것 <em>(아래 연락처)</em></li>
+      <li>예식 공간을 미리 둘러보시는 방문 <em>(신랑신부와 함께 오시면 언제든 정중히 모시겠습니다)</em></li>
     </ul>
   </section>
 
   <div class="closing">
+    <p>이 형식은 두 분께서 길러오신 자녀가 오래 고민하여 마음에 둔 방식입니다. 그 마음이 어른께 잘 전해지도록 돕는 것이 저희의 역할입니다.</p>
     <p>결혼의 형식에 정답은 없다고 생각합니다. <strong>모든 결정은 온전히 두 분과 어른의 몫입니다.</strong> 저희는 다만, 어느 쪽을 택하시든 그 자리가 소홀하지 않도록 준비하는 사람들입니다.</p>
     <p>궁금하신 점은 언제든 편히 물어봐 주십시오. 정성껏 답해 드리겠습니다.</p>
 
