@@ -60,6 +60,7 @@ var NOTIFY_EVENTS = {
   'admin.extraSignal':    { to: 'admin', need: true,  desc: '추가보정 입금신호 — 확인 필요' },
   'admin.cancelRefund':   { to: 'admin', need: true,  desc: '예약 취소 — 환불 송금 필요' },
   'admin.diningConsult':  { to: 'admin', need: false, desc: '다이닝 장소 미정으로 완료 — 디렉터 추천·예약 도움 필요' },
+  'admin.finalConfirm':   { to: 'admin', need: true,  desc: '예식 최종 확정 제출(인원·음료·특이사항) — 당일 준비 반영 · 스탠딩 추가요금은 잔금 합산' },
   'admin.refundAcct':     { to: 'admin', need: true,  desc: '환불 계좌 입력됨 — 송금 처리 필요' },
   'admin.dailyBrief':     { to: 'admin', need: false, desc: '아침 운영 브리핑(오늘 상담·처리할 일 요약)' },
   // ── 고객: 행동 필요 ──
@@ -416,6 +417,11 @@ function _nfAdminText(event, code, x) {
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
     case 'admin.diningConsult':  return tag + ' 다이닝: 식당을 못 정한 채 마무리' + c + ' / 디렉터가 추천·예약 도와줄 것';
+    case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + c + ' / 하객 ' + (x.head || '-') + '명'
+      + (Number(x.standing) > 0 ? (' (스탠딩 ' + x.standing + ' · 추가 ' + _nfWon(x.fee) + '원 잔금 합산 청구)') : '')
+      + ' · ' + (x.drink || '음료 미선택')
+      + (Number(x.soft) > 0 ? (' · 논알콜 ' + x.soft + '잔') : '')
+      + (x.note ? (' · ' + x.note) : '') + ' / 당일 준비 반영';
     case 'admin.refundAcct':     return tag + ' 환불 계좌 입력 ' + (x.names || '') + c + (x.acct ? (' (' + x.acct + ')') : '') + ' / 송금 처리';
     case 'admin.dailyBrief':     return tag + ' 오늘 브리핑 / 처리할 일 ' + (x.total != null ? x.total : '-') + '건(긴급 ' + (x.urgent != null ? x.urgent : '-') + ') · 오늘 상담 ' + (x.consults != null ? x.consults : '-') + '건' + (Number(x.fail) > 0 ? (' · 알림실패 ' + x.fail + '건') : '');
     default:                     return tag + ' 알림 ' + event + c;
