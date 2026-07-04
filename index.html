@@ -2281,25 +2281,24 @@ a.ig-handle:hover {
   font-family: var(--serif-ko);
   font-size: 14px;
   font-weight: 500;
-  color: var(--accent);
+  color: #F5F1E9;
   text-decoration: none;
   letter-spacing: 0.03em;
   padding: 11px 26px;
-  border: 1px solid rgba(184, 154, 117, 0.5);
+  background: var(--seal);
+  border: 1px solid var(--seal);
   border-radius: 3px;
-  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+  transition: opacity 0.3s var(--ease);
 }
 .journal-guide-link .arrow {
-  color: var(--gold);
+  color: #F5F1E9;
   transition: transform 0.3s var(--ease);
   display: inline-block;
 }
 .journal-guide-link:hover {
-  background: var(--accent);
-  color: #F5F1E9;
+  opacity: 0.9;
 }
 .journal-guide-link:hover .arrow {
-  color: #F5F1E9;
   transform: translateX(3px);
 }
 @media (max-width: 760px) {
