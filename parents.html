@@ -68,8 +68,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 
 /* 읽기 도구: 글자 크기 · 인쇄 */
 .tools{max-width:var(--max);margin:0 auto;padding:0 28px 8px;display:flex;justify-content:flex-end;gap:8px}
-.tools button{font-family:var(--serif-ko);font-size:13px;font-weight:400;color:#F5F1E9;background:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:0.04em;min-width:48px;min-height:42px;transition:opacity 0.25s}
-.tools button:hover{opacity:0.88}
+.tools button{font-family:var(--serif-ko);font-size:13px;font-weight:400;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:0.04em;min-width:48px;min-height:42px;transition:color 0.25s,border-color 0.25s}
+.tools button:hover{color:var(--accent);border-color:var(--gold)}
 @media(max-width:680px){.tools{padding:0 22px 6px}}
 
 /* Letter */
@@ -97,7 +97,7 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
 .contact-box{margin-top:26px;padding:20px 22px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;font-size:0.9em;line-height:1.95;color:var(--sub)}
 .contact-box strong{color:var(--accent);font-weight:500}
 .contact-box a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--gold)}
-.contact-ask{display:block;margin:16px auto 2px;padding:13px 26px;background:var(--accent);color:#F5F1E9;font-family:var(--serif-ko);font-size:0.94em;font-weight:400;letter-spacing:0.04em;border:none;border-radius:4px;cursor:pointer;min-height:46px;transition:opacity 0.25s}
+.contact-ask{display:block;margin:16px auto 2px;padding:13px 26px;background:var(--seal);color:#F5F1E9;font-family:var(--serif-ko);font-size:0.94em;font-weight:400;letter-spacing:0.04em;border:none;border-radius:4px;cursor:pointer;min-height:46px;transition:opacity 0.25s}
 .contact-ask:hover{opacity:0.9}
 
 /* Footer */
