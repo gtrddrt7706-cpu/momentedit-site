@@ -2262,6 +2262,54 @@ a.ig-handle:hover {
     padding-top: 12px;
   }
 }
+.journal-guide {
+  text-align: center;
+  margin-top: 52px;
+  padding-top: 40px;
+  border-top: 1px solid var(--hairline);
+}
+.journal-guide-lead {
+  font-family: var(--serif-ko);
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--sub);
+  letter-spacing: 0.02em;
+  margin: 0 0 16px;
+}
+.journal-guide-link {
+  display: inline-block;
+  font-family: var(--serif-ko);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  padding: 11px 26px;
+  border: 1px solid rgba(184, 154, 117, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+.journal-guide-link .arrow {
+  color: var(--gold);
+  transition: transform 0.3s var(--ease);
+  display: inline-block;
+}
+.journal-guide-link:hover {
+  background: var(--accent);
+  color: #F5F1E9;
+}
+.journal-guide-link:hover .arrow {
+  color: #F5F1E9;
+  transform: translateX(3px);
+}
+@media (max-width: 760px) {
+  .journal-guide {
+    margin-top: 40px;
+    padding-top: 32px;
+  }
+  .journal-guide-lead { font-size: 12.5px; }
+  .journal-guide-link { font-size: 13px; padding: 10px 22px; }
+}
 .divider-mini {
   text-align: center;
   padding: 48px 0;
@@ -5635,7 +5683,6 @@ body {
         <p>이것이 제가 하는 일입니다.</p>
         <p>혼주에게는 혼주의 품격을, 주인공에게는 주인공의 시간을.</p>
         <div class="journal-sign">Kawana Miku</div>
-        <a href="parents.html" style="display:inline-block;margin-top:20px;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(184,154,117,0.35);padding-bottom:2px;letter-spacing:0.02em">이 이야기를 부모님과 나누고 싶으시면 · 어른께 드리는 안내 →</a>
       </div>
       <div class="journal-footer">양가가 가까이 머무는 자리, 25명 착석.</div>
       <button class="journal-card-btn" onclick="toggleEssay(this)">
@@ -5675,6 +5722,10 @@ body {
         <span class="btn-text-close">Close <span class="arrow">×</span></span>
       </button>
     </article>
+  </div>
+  <div class="journal-guide reveal">
+    <p class="journal-guide-lead">부모님과 이 마음을 나누고 싶으신가요</p>
+    <a href="parents.html" class="journal-guide-link">어른께 드리는 안내 보기 <span class="arrow">→</span></a>
   </div>
 </div>
 </section>
