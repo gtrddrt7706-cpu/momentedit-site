@@ -877,6 +877,17 @@ body.menu-open nav {
   margin: 18px 0 0;
   line-height: 1;
 }
+/* 히어로 한 줄 가치제안 — 17ms 원형성 보강(무엇을 파는 곳인지) · 디졸브 시 로고와 함께 퇴장 */
+.hero-logo-tagline {
+  font-family: var(--serif-ko);
+  font-size: clamp(12px, 1.6vw, 14.5px);
+  font-weight: 300;
+  color: rgba(245, 241, 233, 0.88);
+  letter-spacing: 0.14em;
+  margin: 26px 0 0;
+  line-height: 1.6;
+  word-break: keep-all;
+}
 .hero-logo-hair {
   width: 100%;
   height: 1px;
@@ -2042,6 +2053,16 @@ a.ig-handle:hover {
   font-size: 12px;
   color: var(--light);
   margin-top: 14px;
+}
+/* CTA 위험 역전 한 줄 — 예약금 전액 환불 안심(전환 법칙 STEP 2) */
+.cta-assure {
+  font-family: var(--serif-ko);
+  font-size: 11.5px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+  margin-top: 10px;
+  word-break: keep-all;
 }
 .step {
   display: grid;
@@ -4887,6 +4908,7 @@ body {
   <div class="hero-logo-wordmark">MOMENT EDIT</div>
   <div class="hero-logo-hair hl-short"></div>
   <div class="hero-logo-eyebrow">PRIVATE WEDDING STUDIO</div>
+  <div class="hero-logo-tagline">양가 가족 25명 · 140분의 프라이빗 웨딩</div>
 </div>
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
   <div class="hero-veil" aria-hidden="true"></div>
@@ -4956,6 +4978,7 @@ body {
   <p class="t-emph">형식보다 본질에 머무는 것.<br>가장 깊은 예우입니다.</p>
   <br>
   <p class="t-body">전통의 정중함과 현대의 절제, 그 사이에서 균형을 찾습니다.<br>두 분의 결혼이 의무가 아닌 기쁨으로 남도록, 가장 두 분다운 기록을 완성합니다.</p>
+  <p class="t-note" style="margin-top:18px">모든 구성은 필수 추가 비용 없는 단일 정찰가로 안내합니다.</p>
 </div>
 <!-- ABOUT PHOTO -->
 <div class="photo-placeholder half" style="height:420px;margin:48px 0;border-radius:8px">
@@ -5180,111 +5203,6 @@ body {
 </div>
 <div class="photo-placeholder half" style="height:360px;margin:24px 0 0;border-radius:8px">
   <img class="ph-img" src="/assets/home/dining.jpg" alt="예식 후 가족이 함께하는 애프터 웨딩 다이닝" loading="lazy" onerror="this.style.display='none'">
-</div>
-<div class="divider-line"></div>
-<!-- STANDARD INVESTMENT -->
-<div class="reveal">
-  <div class="price-block">
-    <h2 class="price-title" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">투명한 올인원 패키지</h2>
-    <div class="price-title">Standard Investment</div>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장·웨딩스냅·본식·디지털참석·영상·가족스냅·다이닝 안내<br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
-    <div class="price-row">
-      <div><div class="price-label">Weekend &amp; Holiday</div><div class="price-value">&#8361;2,800,000</div></div>
-      <div><div class="price-label">Weekday Special</div><div class="price-value">&#8361;2,100,000</div></div>
-    </div>
-    <div class="price-note" style="margin-top:14px">
-      <span>✓ VAT 포함 · 보증인원 없음</span>
-    </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--gold);letter-spacing:0.04em">최대 하루 세 팀 한정 &middot; 주말·공휴일 조기 마감</div>
-    <!-- INCLUDED VS OPTIONAL — 추가비용 투명성 -->
-    <div class="transparency-block">
-      <div class="transparency-head">
-        <div class="transparency-eyebrow">Transparency</div>
-        <div class="transparency-sub">포함되는 항목과 선택 항목을 명확히 구분합니다</div>
-      </div>
-      <div class="transparency-cols">
-        <div class="transparency-col included">
-          <div class="transparency-col-label">Included <span class="ko">· 포함</span></div>
-          <ul class="transparency-list">
-            <li>140분 시그니처 시퀀스</li>
-            <li>두 공간 사용 <span class="li-meta">Candle · White</span></li>
-            <li>웨딩스냅 원본 전체 <span class="li-meta">+ 보정 10장</span></li>
-            <li>본식영상 데이터 + 수정본</li>
-            <li>모바일청첩장</li>
-            <li>드레스 시착 <span class="li-meta">상담 당일 · 기본 2벌</span></li>
-            <li>핑거 푸드 · 음료</li>
-            <li>성우 나레이션</li>
-          </ul>
-        </div>
-        <div class="transparency-col optional">
-          <div class="transparency-col-label">Optional <span class="ko">· 별도</span></div>
-          <ul class="transparency-list">
-            <li>다이닝 식사 <span class="li-meta">파트너사 결제</span></li>
-            <li>추가 보정 <span class="li-price">₩20,000<span class="li-meta">/컷</span></span></li>
-            <li>추가 시착 <span class="li-price">₩50,000<span class="li-meta">/벌 · 3벌째부터</span></span></li>
-            <li>헤어 · 메이크업 <span class="li-meta">외부 진행</span></li>
-            <li>부케 (생화) <span class="li-meta">외부 주문</span></li>
-            <li>추가 의상 <span class="li-meta">선택</span></li>
-            <li>와인 · 케이크 커스텀 <span class="li-meta">선택</span></li>
-            <li>디지털 참석 <span class="li-meta">의무 아님</span></li>
-          </ul>
-        </div>
-      </div>
-      <p class="transparency-foot">선택 항목 비용은 상담 시 명확히 안내드립니다.</p>
-    </div>
-  </div>
-</div>
-<!-- WHY WEEKDAY — 평일결혼식이 자연스러운 이유 -->
-<div class="reveal">
-  <div style="margin:36px 0;padding:32px 36px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
-      <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing:-0.01em;margin:0">왜 평일이 더 자연스러운가</h3>
-    </div>
-    <p class="t-body" style="margin:0 0 14px;font-size:13.5px;line-height:1.95">양가 직계가족 25명 규모의 마이크로웨딩에서는, 평일이 오히려 더 자연스러운 선택입니다. 가까운 가족만 모이기에 평일 일정 부담이 적고, 원하는 날짜를 여유롭게 잡아 차분한 하루를 보낼 수 있습니다.</p>
-    <p class="t-body" style="margin:0;font-size:13.5px;line-height:1.95">평일을 택하며 생긴 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>
-  </div>
-</div>
-<!-- ARCHIVE OPENING HONOR -->
-<div class="reveal">
-  <div class="price-block highlight">
-    <div class="price-title">Archive Opening Honor</div>
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 한정</div>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">브랜드의 시작을 함께해 주시는 부부를 위한 예우입니다</p>
-    <p style="font-size:12px;color:var(--light);margin-bottom:20px">두 분의 기록이 모먼트에디트의 첫 아카이브에 정중히 담깁니다.</p>
-    <div style="font-size:14px;color:var(--accent);font-weight:400;margin-bottom:16px">보정 셀렉트 컷 +10장 추가 제공</div>
-    <div class="price-note">가격은 Standard Investment와 동일하게 적용됩니다</div>
-  </div>
-</div>
-<div class="divider-line"></div>
-<!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
-<div class="reveal">
-  <div class="snap-block">
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
-    <h3 class="sec-label">Weekday Editorial Snap</h3>
-    <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
-    <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다.<br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
-    <div class="photo-placeholder half" style="height:340px;margin:20px 0 4px;border-radius:8px">
-      <img class="ph-img" src="/assets/home/snap.jpg" alt="평일 웨딩스냅 · 화이트존 에디토리얼 촬영 예시" loading="lazy" onerror="this.style.display='none'">
-    </div>
-    <ul class="snap-list">
-      <li><span class="li-label">All Original</span><span>원본 전체 전달 (300컷~)</span></li>
-      <li><span class="li-label">Curated Selection</span><span>보정 셀렉트 컷 10장 포함</span></li>
-      <li><span class="li-label">Additional Retouch</span><span>추가 보정 1컷당 &#8361;20,000</span></li>
-      <li><span class="li-label">Styling</span><span>드레스 시착 2벌(무료) · 착용 1벌 포함 (추가 착용 1벌당 &#8361;50,000 · 최대 2벌)</span></li>
-    </ul>
-    <div style="text-align:center;margin-top:24px">
-      <div style="font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
-      <div class="t-note">VAT 포함 &middot; 평일(월~금) 한정 운영</div>
-      <div style="margin-top:14px;padding:12px 18px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.7;max-width:460px;margin-left:auto;margin-right:auto;word-break:keep-all">
-        본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.<br>운영 초기를 함께해 주시는 부부께 드리는 오프닝 예우입니다.
-      </div>
-    </div>
-  </div>
-</div>
-<div class="cta-block">
-  <a href="./inquiry.html" class="cta-btn" target="_blank" rel="noopener">Start Your Narrative</a>
-  <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
@@ -5599,6 +5517,114 @@ body {
 
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
+<!-- INVESTMENT · 가격(가치 스택 완성 후 제시 · 전환 법칙 STEP 9) -->
+<section id="invest"><!-- STANDARD INVESTMENT -->
+<div class="reveal">
+  <div class="price-block">
+    <h2 class="price-title" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">투명한 올인원 패키지</h2>
+    <div class="price-title">Standard Investment</div>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장·웨딩스냅·본식·디지털참석·영상·가족스냅·다이닝 안내<br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
+    <div class="price-row">
+      <div><div class="price-label">Weekend &amp; Holiday</div><div class="price-value">&#8361;2,800,000</div></div>
+      <div><div class="price-label">Weekday Special</div><div class="price-value">&#8361;2,100,000</div></div>
+    </div>
+    <div class="price-note" style="margin-top:14px">
+      <span>✓ VAT 포함 · 보증인원 없음</span>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--gold);letter-spacing:0.04em">최대 하루 세 팀 한정 &middot; 주말·공휴일 조기 마감</div>
+    <!-- INCLUDED VS OPTIONAL — 추가비용 투명성 -->
+    <div class="transparency-block">
+      <div class="transparency-head">
+        <div class="transparency-eyebrow">Transparency</div>
+        <div class="transparency-sub">포함되는 항목과 선택 항목을 명확히 구분합니다</div>
+      </div>
+      <div class="transparency-cols">
+        <div class="transparency-col included">
+          <div class="transparency-col-label">Included <span class="ko">· 포함</span></div>
+          <ul class="transparency-list">
+            <li>140분 시그니처 시퀀스</li>
+            <li>두 공간 사용 <span class="li-meta">Candle · White</span></li>
+            <li>웨딩스냅 원본 전체 <span class="li-meta">+ 보정 10장</span></li>
+            <li>본식영상 데이터 + 수정본</li>
+            <li>모바일청첩장</li>
+            <li>드레스 시착 <span class="li-meta">상담 당일 · 기본 2벌</span></li>
+            <li>핑거 푸드 · 음료</li>
+            <li>성우 나레이션</li>
+          </ul>
+        </div>
+        <div class="transparency-col optional">
+          <div class="transparency-col-label">Optional <span class="ko">· 별도</span></div>
+          <ul class="transparency-list">
+            <li>다이닝 식사 <span class="li-meta">파트너사 결제</span></li>
+            <li>추가 보정 <span class="li-price">₩20,000<span class="li-meta">/컷</span></span></li>
+            <li>추가 시착 <span class="li-price">₩50,000<span class="li-meta">/벌 · 3벌째부터</span></span></li>
+            <li>헤어 · 메이크업 <span class="li-meta">외부 진행</span></li>
+            <li>부케 (생화) <span class="li-meta">외부 주문</span></li>
+            <li>추가 의상 <span class="li-meta">선택</span></li>
+            <li>와인 · 케이크 커스텀 <span class="li-meta">선택</span></li>
+            <li>디지털 참석 <span class="li-meta">의무 아님</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="transparency-foot">선택 항목 비용은 상담 시 명확히 안내드립니다.</p>
+    </div>
+  </div>
+</div>
+<!-- WHY WEEKDAY — 평일결혼식이 자연스러운 이유 -->
+<div class="reveal">
+  <div style="margin:36px 0;padding:32px 36px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
+      <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing:-0.01em;margin:0">왜 평일이 더 자연스러운가</h3>
+    </div>
+    <p class="t-body" style="margin:0 0 14px;font-size:13.5px;line-height:1.95">양가 직계가족 25명 규모의 마이크로웨딩에서는, 평일이 오히려 더 자연스러운 선택입니다. 가까운 가족만 모이기에 평일 일정 부담이 적고, 원하는 날짜를 여유롭게 잡아 차분한 하루를 보낼 수 있습니다.</p>
+    <p class="t-body" style="margin:0;font-size:13.5px;line-height:1.95">평일을 택하며 생긴 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>
+  </div>
+</div>
+<!-- ARCHIVE OPENING HONOR -->
+<div class="reveal">
+  <div class="price-block highlight">
+    <div class="price-title">Archive Opening Honor</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 한정</div>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">브랜드의 시작을 함께해 주시는 부부를 위한 예우입니다</p>
+    <p style="font-size:12px;color:var(--light);margin-bottom:20px">두 분의 기록이 모먼트에디트의 첫 아카이브에 정중히 담깁니다.</p>
+    <div style="font-size:14px;color:var(--accent);font-weight:400;margin-bottom:16px">보정 셀렉트 컷 +10장 추가 제공</div>
+    <div class="price-note">가격은 Standard Investment와 동일하게 적용됩니다</div>
+  </div>
+</div>
+<div class="divider-line"></div>
+<!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
+<div class="reveal">
+  <div class="snap-block">
+    <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
+    <h3 class="sec-label">Weekday Editorial Snap</h3>
+    <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
+    <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다.<br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
+    <div class="photo-placeholder half" style="height:340px;margin:20px 0 4px;border-radius:8px">
+      <img class="ph-img" src="/assets/home/snap.jpg" alt="평일 웨딩스냅 · 화이트존 에디토리얼 촬영 예시" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <ul class="snap-list">
+      <li><span class="li-label">All Original</span><span>원본 전체 전달 (300컷~)</span></li>
+      <li><span class="li-label">Curated Selection</span><span>보정 셀렉트 컷 10장 포함</span></li>
+      <li><span class="li-label">Additional Retouch</span><span>추가 보정 1컷당 &#8361;20,000</span></li>
+      <li><span class="li-label">Styling</span><span>드레스 시착 2벌(무료) · 착용 1벌 포함 (추가 착용 1벌당 &#8361;50,000 · 최대 2벌)</span></li>
+    </ul>
+    <div style="text-align:center;margin-top:24px">
+      <div style="font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
+      <div class="t-note">VAT 포함 &middot; 평일(월~금) 한정 운영</div>
+      <div style="margin-top:14px;padding:12px 18px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.7;max-width:460px;margin-left:auto;margin-right:auto;word-break:keep-all">
+        본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.<br>운영 초기를 함께해 주시는 부부께 드리는 오프닝 예우입니다.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cta-block">
+  <a href="./inquiry.html" class="cta-btn" target="_blank" rel="noopener">Start Your Narrative</a>
+  <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 전액 환불됩니다</div>
+</div>
+</section>
+<div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
 <!-- JOURNEY · 진행 시스템(통제감·명확성) · 마이페이지 = 손안의 진행실 -->
 <section id="journey">
 <div class="reveal">
@@ -5633,6 +5659,7 @@ body {
 <div class="cta-block reveal">
   <a href="./inquiry.html" class="cta-btn" target="_blank" rel="noopener">Start Your Narrative</a>
   <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 전액 환불됩니다</div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
@@ -5918,6 +5945,10 @@ body {
       <div class="terms-label">예약 및 환불</div>
       <div class="terms-value">예약금 결제 확인 시 예약이 확정되며, 상담 <strong>24시간 전</strong>까지 일정 변경이 가능합니다. 이후 변경은 카카오톡으로 문의해 주세요.</div>
     </div>
+    <div class="terms-row">
+      <div class="terms-label">계약 기준</div>
+      <div class="terms-value">모든 진행 조건은 <strong>표준 계약서</strong>에 명시되며, 계약 후에는 마이페이지에서 금액과 일정, 서류를 언제든 확인하실 수 있습니다.</div>
+    </div>
   </div>
   <p class="t-note" style="margin-bottom:36px">* 당일에는 예약된 시퀀스 시간에 맞춰 도착해 주시기 바랍니다. 도착 후 의상 착장을 마치면 Private Snap 촬영부터 순차적으로 진행됩니다.</p>
 </div>
@@ -5930,6 +5961,7 @@ body {
 <div class="cta-block">
   <a href="./inquiry.html" class="cta-btn" target="_blank" rel="noopener">Start Your Narrative</a>
   <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 전액 환불됩니다</div>
 </div>
 <!-- ACCESS -->
 <div class="access-wrap">
