@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>모먼트에디트 스마트스토어 상세페이지 원본 (860px)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:860px;margin:0 auto;background:#FAFAF8;color:#1C1B19;font-family:'Noto Serif KR',serif;font-weight:300;-webkit-font-smoothing:antialiased;word-break:keep-all}
+.slice{width:860px;overflow:hidden;position:relative}
+.eyebrow{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;letter-spacing:0.3em;color:#B89A75;text-transform:uppercase}
+h2{font-family:'Noto Serif KR',serif;font-weight:400;color:#3A2D22}
+.body{font-size:25px;line-height:2;color:#4A463E;font-weight:300}
+.gold{color:#B89A75}.seal{color:#6B2A24}
+.hair{width:56px;height:1px;background:#B89A75;margin:34px auto}
+img.full{width:860px;display:block}
+/* S1 커버 */
+#s01{height:1180px;background:#1a120e}
+#s01 img{position:absolute;inset:0;width:860px;height:1180px;object-fit:cover;object-position:50% 88%;opacity:0.9}
+#s01 .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,12,9,0.2),rgba(20,12,9,0.06) 38%,rgba(20,12,9,0.72) 80%)}
+#s01 .tx{position:absolute;left:0;right:0;bottom:92px;text-align:center;color:#F5F1E9}
+#s01 .wm{font-family:'Cormorant Garamond',serif;font-size:30px;letter-spacing:0.34em;color:#EBDBBF;margin-bottom:30px}
+#s01 h2{font-size:52px;line-height:1.6;color:#F5F1E9;font-weight:300;letter-spacing:0.05em}
+#s01 .sum{margin-top:44px;font-size:24px;line-height:2.1;color:rgba(245,241,233,0.9);letter-spacing:0.06em}
+/* 공통 텍스트 슬라이스 */
+.pad{padding:110px 80px;text-align:center}
+.label-top{margin-bottom:26px}
+.pad h2{font-size:42px;line-height:1.75;letter-spacing:0.03em}
+.pad .body{margin-top:36px;font-size:25px}
+/* S3 다크 */
+#s03{background:#241812;color:#EFE7DA}
+#s03 h2{color:#F5F1E9}
+#s03 .body{color:rgba(239,231,218,0.85)}
+#s03 .num{font-family:'Cormorant Garamond',serif;font-size:120px;font-weight:300;color:#B89A75;line-height:1;margin:26px 0 8px}
+#s03 .num small{font-size:34px;letter-spacing:0.1em}
+/* S4·S5 공간 */
+.zone .cap{padding:64px 80px 96px;text-align:center}
+.zone .cap h2{font-size:36px}
+.zone .cap .body{margin-top:22px}
+/* S6 포함 구성 */
+.tbl{margin:52px auto 0;width:700px;text-align:left;border-top:1px solid rgba(28,27,25,0.25)}
+.tbl .row{display:flex;justify-content:space-between;gap:30px;padding:24px 6px;border-bottom:1px solid rgba(28,27,25,0.12);font-size:24px}
+.tbl .row b{font-weight:500;color:#3A2D22}
+.tbl .row span{color:#75705F;font-size:21px;text-align:right}
+.tbl-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;letter-spacing:0.2em;color:#B89A75;text-transform:uppercase;margin:64px 0 6px;text-align:left}
+/* S7 타임라인 */
+.tl{margin:56px auto 0;width:640px;text-align:left}
+.tl .it{display:flex;gap:36px;padding:26px 0;border-bottom:1px solid rgba(28,27,25,0.12);align-items:baseline}
+.tl .t{font-family:'Cormorant Garamond',serif;font-size:44px;color:#B89A75;width:96px;flex:0 0 auto;text-align:right}
+.tl .t small{font-size:20px;letter-spacing:0.08em}
+.tl .n{font-size:26px;font-weight:500;color:#3A2D22}
+.tl .d{font-size:21px;color:#75705F;margin-top:6px;line-height:1.8}
+/* S9 가격 */
+.price-card{margin:56px auto 0;width:700px;border:1px solid #DDD8D1;background:#fff;padding:56px 48px}
+.price-row{display:flex;justify-content:space-between;align-items:baseline;padding:26px 8px;border-bottom:1px solid rgba(28,27,25,0.1)}
+.price-row .k{font-size:26px;color:#3A2D22;font-weight:400}
+.price-row .k small{display:block;font-size:19px;color:#9C948A;margin-top:6px}
+.price-row .v{font-family:'Cormorant Garamond',serif;font-size:46px;color:#6B2A24}
+.price-row .v small{font-size:22px;font-family:'Noto Serif KR',serif;color:#75705F}
+.price-note{margin-top:34px;font-size:21px;color:#75705F;line-height:2;text-align:center}
+/* S11 규정 */
+.rule{margin:48px auto 0;width:700px;text-align:left;font-size:22px;line-height:2;color:#4A463E}
+.rule .rt{font-weight:500;color:#3A2D22;font-size:24px;margin:34px 0 10px}
+.rule ul{list-style:none}
+.rule li{position:relative;padding-left:22px;margin-bottom:8px}
+.rule li::before{content:'·';position:absolute;left:4px;color:#B89A75;font-weight:600}
+/* S12 */
+#s12{background:#241812;color:#F5F1E9;text-align:center;padding:130px 80px}
+#s12 .ideo{font-family:'Noto Serif KR',serif;font-size:88px;font-weight:200;color:#B89A75;margin-bottom:36px}
+#s12 h2{color:#F5F1E9;font-size:40px;line-height:1.8}
+#s12 .body{color:rgba(245,241,233,0.82);margin-top:30px;font-size:24px}
+#s12 .wm{margin-top:70px;font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:0.34em;color:#EBDBBF}
+.imgcap{position:absolute;left:0;right:0;bottom:0;padding:40px 60px 34px;background:linear-gradient(180deg,transparent,rgba(20,12,9,0.66));color:#F5F1E9;text-align:left}
+.imgcap .e{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;letter-spacing:0.22em;color:#EBDBBF;text-transform:uppercase}
+.imgcap .k{font-size:30px;font-weight:400;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- S1 · 후킹 커버 -->
+<section class="slice" id="s01">
+  <img src="/assets/home/hero.jpg" alt="">
+  <div class="ov"></div>
+  <div class="tx">
+    <div class="wm">MOMENT EDIT</div>
+    <h2>양가 가족만 모시는,<br>140분의 프라이빗 웨딩</h2>
+    <div class="sum">
+      양가 직계가족 25명까지 · 단독 예식<br>
+      촬영 원본 전체 · 본식영상 · 모바일청첩장 포함<br>
+      필수 추가 비용 없는 하나의 가격
+    </div>
+  </div>
+</section>
+
+<!-- S2 · 공감 -->
+<section class="slice pad" id="s02">
+  <div class="eyebrow label-top">A Long Day · 결혼식의 현실</div>
+  <h2>다섯 시간의 하루,<br>스쳐 지나가는 인사</h2>
+  <div class="hair"></div>
+  <p class="body">새벽부터 시작된 준비, 밀려드는 하객,<br>정신없이 지나가는 본식.<br>정작 두 사람에게 남는 것이 피로와 아쉬움이라면,<br>결혼식의 순서가 잘못된 것인지도 모릅니다.</p>
+  <p class="body" style="margin-top:30px;color:#3A2D22">저희는 그 하루를 처음부터 다시 설계했습니다.</p>
+</section>
+
+<!-- S3 · 해결 선언 -->
+<section class="slice pad" id="s03">
+  <div class="eyebrow label-top">The 140 Signature</div>
+  <h2>하루 세 팀,<br>예식 시간에는 오직 한 팀</h2>
+  <div class="num">140<small>min</small></div>
+  <p class="body">불필요한 대기와 반복을 걷어내고<br>가장 선명한 순간만 남긴 시그니처 시퀀스.<br>예식이 진행되는 동안 스튜디오는<br>온전히 두 분의 가족만을 위해 열립니다.</p>
+</section>
+
+<!-- S4 · 캔들존 -->
+<section class="slice zone" id="s04">
+  <div style="position:relative">
+    <img class="full" src="/assets/home/ceremony.jpg" alt="" style="height:640px;object-fit:cover">
+    <div class="imgcap"><div class="e">Candle Zone</div><div class="k">캔들존 · 촛불의 온기 속 본식</div></div>
+  </div>
+  <div class="cap">
+    <p class="body">따뜻한 촛불이 감싸는 공간에서 본식이 진행됩니다.<br>가까이 모신 가족의 표정 하나하나가 기록에 남습니다.</p>
+  </div>
+</section>
+
+<!-- S5 · 화이트존 -->
+<section class="slice zone" id="s05">
+  <div style="position:relative">
+    <img class="full" src="/assets/home/zone-white.jpg" alt="" style="height:640px;object-fit:cover">
+    <div class="imgcap"><div class="e">Editorial White</div><div class="k">화이트존 · 여백과 빛의 기록</div></div>
+  </div>
+  <div class="cap">
+    <p class="body">빛과 여백이 인물의 선을 살리는 촬영 공간.<br>한 번의 예식에서 두 공간을 모두 사용합니다.</p>
+  </div>
+</section>
+
+<!-- S6 · 포함 구성 -->
+<section class="slice pad" id="s06" style="text-align:center">
+  <div class="eyebrow label-top">Transparency</div>
+  <h2>포함과 별도를<br>명확히 구분합니다</h2>
+  <div class="tbl">
+    <div class="tbl-title">Included · 포함</div>
+    <div class="row"><b>140분 시그니처 시퀀스</b><span>단독 예식</span></div>
+    <div class="row"><b>두 공간 사용</b><span>캔들존 · 화이트존</span></div>
+    <div class="row"><b>웨딩스냅 원본 전체</b><span>보정 10장 포함</span></div>
+    <div class="row"><b>본식영상</b><span>데이터 + 수정본</span></div>
+    <div class="row"><b>모바일청첩장</b><span>온라인 · 오프라인 두 편</span></div>
+    <div class="row"><b>디지털 참석</b><span>비공개 온라인 생중계</span></div>
+    <div class="row"><b>드레스 시착</b><span>상담 당일 · 기본 2벌</span></div>
+    <div class="row"><b>성우 나레이션 · 식순 가이드</b><span>기본 포함</span></div>
+    <div class="row"><b>핑거 푸드 · 음료</b><span>기본 포함</span></div>
+    <div class="tbl-title">Optional · 별도</div>
+    <div class="row"><b>다이닝 식사</b><span>파트너사에 직접 결제</span></div>
+    <div class="row"><b>추가 보정</b><span>1컷 20,000원</span></div>
+    <div class="row"><b>추가 시착</b><span>1벌 50,000원 · 3벌째부터</span></div>
+    <div class="row"><b>헤어 · 메이크업</b><span>외부 진행</span></div>
+    <div class="row"><b>부케(생화)</b><span>외부 주문</span></div>
+  </div>
+</section>
+
+<!-- S7 · 타임라인 + 절차 -->
+<section class="slice pad" id="s07">
+  <div class="eyebrow label-top">The 140 Sequence</div>
+  <h2>140분의 순서</h2>
+  <div class="tl">
+    <div class="it"><div class="t">20<small>min</small></div><div><div class="n">Getting Ready</div><div class="d">의상 착장과 컨디션 정돈. 가장 편안한 상태에서 시작합니다.</div></div></div>
+    <div class="it"><div class="t">40<small>min</small></div><div><div class="n">Private Snap</div><div class="d">하객 시선에서 분리된 두 공간 연속 촬영. 기록의 밀도가 가장 높은 구간입니다.</div></div></div>
+    <div class="it"><div class="t">30<small>min</small></div><div><div class="n">The Ceremony</div><div class="d">성우 나레이션과 함께, 두 분이 설계한 식순으로 진행되는 본식.</div></div></div>
+    <div class="it"><div class="t">30<small>min</small></div><div><div class="n">Group Record</div><div class="d">양가의 모든 세대가 한 자리에 모이는 가족 기록의 시간.</div></div></div>
+    <div class="it"><div class="t">20<small>min</small></div><div><div class="n">Farewell</div><div class="d">서두르지 않는 배웅, 여운 있는 마무리.</div></div></div>
+  </div>
+  <p class="body" style="margin-top:56px;font-size:22px;color:#75705F">구매 후 1영업일 이내에 담당 디렉터가 연락드려<br>예식 희망일과 세부 구성을 함께 확정합니다.<br>희망 예식 시기를 구매 요청사항에 남겨 주세요.</p>
+</section>
+
+<!-- S8 · 가족·디지털 참석 -->
+<section class="slice zone" id="s08">
+  <div style="position:relative">
+    <img class="full" src="/assets/home/gallery-03.jpg" alt="" style="height:640px;object-fit:cover">
+    <div class="imgcap"><div class="e">With Family</div><div class="k">가까운 가족과, 멀리 계신 분들과</div></div>
+  </div>
+  <div class="cap">
+    <p class="body">직접 모시지 못하는 분들께는<br>비공개 온라인 참석(디지털 참석)으로 자리를 마련해 드립니다.<br>거리가 멀어 못 오신 분이 결례가 되지 않는 예식입니다.</p>
+  </div>
+</section>
+
+<!-- S9 · 가격 -->
+<section class="slice pad" id="s09">
+  <div class="eyebrow label-top">Standard Investment</div>
+  <h2>하나의 가격에<br>본질만 담았습니다</h2>
+  <div class="price-card">
+    <div class="price-row"><div class="k">평일 결혼식<small>월요일~금요일</small></div><div class="v">2,100,000<small> 원</small></div></div>
+    <div class="price-row" style="border-bottom:none"><div class="k">주말 · 공휴일 결혼식<small>토요일 · 일요일 · 법정 공휴일</small></div><div class="v">2,800,000<small> 원</small></div></div>
+  </div>
+  <p class="price-note">VAT 포함 · 보증인원과 식대 개념이 없습니다<br>필수 추가 비용 없이, 위 금액이 전부입니다</p>
+</section>
+
+<!-- S10 · 신뢰 블록 -->
+<section class="slice pad" id="s10" style="background:#F5F3EF">
+  <div class="eyebrow label-top">Our Promise</div>
+  <h2>숨기지 않는 것이<br>저희의 방식입니다</h2>
+  <div class="hair"></div>
+  <p class="body">모먼트에디트는 2027년 정식 오픈을 앞두고<br>사전 예약을 받고 있는 프라이빗 웨딩 스튜디오입니다.<br>아직 쌓인 후기 대신, 모든 조건을 숨김없이 보여드리는 것으로<br>신뢰를 만들어 가고 있습니다.</p>
+  <p class="body" style="margin-top:34px">모든 진행 조건은 표준 계약서에 명시되며<br>계약 후에는 전용 마이페이지에서 일정 · 금액 · 서류를<br>언제든 직접 확인하실 수 있습니다.</p>
+</section>
+
+<!-- S11 · 환불·변경 규정 -->
+<section class="slice pad" id="s11">
+  <div class="eyebrow label-top">Cancellation Policy</div>
+  <h2>취소 · 변경 규정</h2>
+  <div class="rule">
+    <div class="rt">청약철회</div>
+    <ul>
+      <li>결제(계약) 후 15일 이내 청약철회가 가능합니다. 드레스 시착을 진행한 경우 시착 실비(1벌 50,000원)를 공제한 금액이 환급됩니다.</li>
+    </ul>
+    <div class="rt">무상취소</div>
+    <ul>
+      <li>예식일 약 150일 전까지는 위약금 없이 취소하실 수 있습니다.</li>
+    </ul>
+    <div class="rt">시기별 위약금 (총 결제금액 기준 · 소비자분쟁해결기준과 동일)</div>
+    <ul>
+      <li>예식 149~60일 전 취소: 10%</li>
+      <li>예식 59~30일 전 취소: 20%</li>
+      <li>예식 29~10일 전 취소: 40%</li>
+      <li>예식 9~1일 전 취소: 50%</li>
+      <li>예식 당일 취소: 70%</li>
+    </ul>
+    <div class="rt">예식일 변경</div>
+    <ul>
+      <li>예식 150일 전까지 횟수 제한 없이 무상 변경, 이후에는 예식 60일 전까지 1회 무상 변경이 가능합니다.</li>
+    </ul>
+    <p style="margin-top:30px;font-size:20px;color:#9C948A">환불은 네이버페이 결제 취소 절차로 처리되며, 정확한 적용 기준은 표준 계약서를 따릅니다.</p>
+  </div>
+</section>
+
+<!-- S12 · 마무리 CTA -->
+<section class="slice" id="s12">
+  <div class="ideo">本</div>
+  <h2>본질을 기록하다</h2>
+  <p class="body">궁금하신 점은 톡톡으로 편히 문의해 주세요.<br>1영업일 이내에 정성껏 답변드립니다.</p>
+  <div class="wm">MOMENT EDIT</div>
+</section>
+
+</body>
+</html>
