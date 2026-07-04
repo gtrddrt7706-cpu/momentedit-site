@@ -352,6 +352,12 @@
   }
 
   fab.addEventListener('click', open);
+  // 외부에서 상담 도우미 열기: window.meAdvOpen() 또는 [data-adv-open] 요소 클릭
+  window.meAdvOpen = open;
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-adv-open]') : null;
+    if (t) { e.preventDefault(); open(); }
+  });
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
   refreshKakaoLink();
