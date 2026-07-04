@@ -50,8 +50,8 @@
     + '.meseq-tabs{flex:0 0 auto;display:flex;gap:6px;padding:16px 24px 14px}'
     + '.meseq-tab{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:11px;padding:10px 4px;cursor:pointer;font-family:var(--serif-ko,serif);color:var(--sub,#5A554C);line-height:1.25;transition:all .2s}'
     + '.meseq-tab b{display:block;font-size:13px;font-weight:500}.meseq-tab span{display:block;font-size:10px;color:var(--light,#75705F);margin-top:2px}'
-    + '.meseq-tab.on{background:#4E3F31;border-color:#4E3F31;color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'   /* 마이페이지 .cc-btn과 같은 색 */
-    + '.meseq-tab.on:hover{background:#3A2D22;border-color:#3A2D22}.meseq-tab.on:active{background:#9C7E55;border-color:#9C7E55}'
+    + '.meseq-tab.on{background:#6B2A24;border-color:#6B2A24;color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'   /* 진사(seal) */
+    + '.meseq-tab.on:hover{background:#571F1A;border-color:#571F1A}.meseq-tab.on:active{background:#7A322B;border-color:#7A322B}'
     + '.meseq-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:6px 24px 20px;-webkit-overflow-scrolling:touch}'
     + '.meseq-tl{position:relative;margin:6px 0 0;padding-left:64px}'
     + '.meseq-tl::before{content:"";position:absolute;left:63px;top:8px;bottom:18px;width:1px;background:var(--border,#DDD8D1)}'
