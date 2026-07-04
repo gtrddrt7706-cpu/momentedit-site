@@ -3,10 +3,10 @@
  * ──────────────────────────────────────────────────────────────────────────
  * 입금완료 후 진입. 공통 기초정보(이름 한/영·예식일시)를 제작임시저장(16열 JSON)에 저장.
  *   이메일은 입력받지 않고 계정 이메일(Customers '이메일')을 자동 재사용 — 청첩장 Couples 시드용.
- * 3트랙(청첩장·다이닝·식순) 상태 대시보드 — 1차: 다이닝·식순=자리(준비중), 청첩장 상세=04.
+ * 4트랙(청첩장·다이닝·식순·최종확정) 상태 대시보드 — 청첩장 상세=04. 최종확정=인원(초과 스탠딩 요금)·음료·특이사항.
  *
  * [두 층위] 제작상태(Customers 13)·현재단계=제작중(여정). 단계 전이는 setCustomerStage('produce') 단일점.
- * [저장] 제작임시저장 JSON = { base:{...}, tracks:{invitation,dining,ritual}, invitationDraft:{...}(04) }.
+ * [저장] 제작임시저장 JSON = { base:{...}, tracks:{invitation,dining,ritual,final}, invitationDraft:{...}(04), diningDraft, ritualDraft, finalDraft }.
  *        04 발행 때 base/invitationDraft → Couples 로 promote.
  * [재사용] resolveSession(30) · getCustomersSheet/buildHeaderIndex · findCustomerByCode/touchCustomer(20)
  *          · _parseJsonSafe(70) · fmtKST · setCustomerStage(consultation)
@@ -90,7 +90,10 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
   return prodDraft.base;
 }
 
-// [03] 다이닝·식순 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
+// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(착석 25 · 초과는 스탠딩 1인 50,000원 · 최대 30명)
+var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
+
+// [03] 다이닝·식순·최종확정 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
 //   handleSaveInvitationDraft 와 같은 패턴. done=true 면 완료, 아니면 진행중(이미 완료면 완료 유지).
 function handleSaveProductionTrack(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -98,7 +101,22 @@ function handleSaveProductionTrack(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
-  if (track !== 'dining' && track !== 'ritual') return { ok: false, error: '알 수 없는 항목입니다.' };
+  if (track !== 'dining' && track !== 'ritual' && track !== 'final') return { ok: false, error: '알 수 없는 항목입니다.' };
+  // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
+  if (track === 'final') {
+    var fdr = (body && body.draft) || {};
+    var _h = parseInt(String(fdr.headcount || '').replace(/[^0-9]/g, ''), 10) || 0;
+    if (body && body.done) {
+      if (_h < 1) return { ok: false, error: '총 하객 수를 입력해 주세요.' };
+      if (_h > FINAL_CONFIRM.최대) return { ok: false, error: '하객은 최대 ' + FINAL_CONFIRM.최대 + '명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.' };
+      if (!String(fdr.drink || '').trim()) return { ok: false, error: '건배·웰컴 음료를 골라 주세요.' };
+    }
+    fdr.headcount = _h ? String(_h) : '';
+    fdr.standing = Math.max(0, Math.min(_h, FINAL_CONFIRM.최대) - FINAL_CONFIRM.착석);
+    fdr.extraFee = fdr.standing * FINAL_CONFIRM.초과단가;
+    if (String(fdr.drink || '').indexOf('논알콜') === 0) fdr.softCount = '';   // 전원 논알콜이면 잔 수 구분 무의미
+    body.draft = fdr;
+  }
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -123,6 +141,18 @@ function handleSaveProductionTrack(body) {
       if (_ddr.dining_on !== 'N' && (!_vp || _vp === '장소 미정' || _vp === '상담 때 함께 정할게요')) {
         notifyKakao('admin.diningConsult', code);
       }
+    }
+    // 최종 확정 완료 → 관리자 메일 1통(인원·스탠딩 추가요금·음료·논알콜·특이사항). 잔금 합산·당일 준비 반영 신호.
+    if (track === 'final' && body && body.done && !_wasDone) {
+      var _f = (body && body.draft) || {};
+      notifyKakao('admin.finalConfirm', code, {
+        head: _f.headcount || '-',
+        standing: Number(_f.standing) || 0,
+        fee: Number(_f.extraFee) || 0,
+        drink: String(_f.drink || ''),
+        soft: parseInt(String(_f.softCount || '').replace(/[^0-9]/g, ''), 10) || 0,
+        note: (String(_f.allergy || '').trim() || String(_f.cake || '').trim() || String(_f.videoLink || '').trim()) ? '특이사항 있음(관리자 페이지 확인)' : ''
+      });
     }
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -156,10 +186,13 @@ function buildProductionState(r) {
     tracks: {
       invitation: t.invitation || '시작전',    // 04 청첩장에서 갱신
       dining: t.dining || '시작전',            // 다이닝 위저드에서 갱신
-      ritual: t.ritual || '시작전'             // 식순 위저드에서 갱신
+      ritual: t.ritual || '시작전',            // 식순 위저드에서 갱신
+      final: t.final || '시작전'               // 최종 확정 위저드에서 갱신(인원·음료·특이사항)
     },
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
-    ritualDraft: draft.ritualDraft || null     // 식순 입력 이어하기용
+    ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
+    finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
+    finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }
 

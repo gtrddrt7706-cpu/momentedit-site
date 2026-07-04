@@ -2543,11 +2543,13 @@ function renderProduction(p, inv){
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null);
+  if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
+  var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){ startTrkFlow('final', p.finalDraft||{}, p.base||{}); });
 }
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
@@ -2973,8 +2975,11 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv, dd){
+function productionDashHtml(t, inv, dd, fd, base){
   t=t||{}; inv=inv||{};
+  // 예식까지 남은 날 — 최종 확정 안내(D-30부터 강조 · 기한은 잔금과 같은 예식 9일 전)
+  var _dLeft=null;
+  try{ var _wd=base&&base.weddingDate; if(_wd){ var _w=new Date(String(_wd).slice(0,10)+'T00:00:00'); if(!isNaN(_w)) _dLeft=Math.ceil((_w-new Date())/86400000); } }catch(e){}
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
   function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어하기' : '시작하기'); }
   function row(name, st, btnId, label){
@@ -2999,27 +3004,43 @@ function productionDashHtml(t, inv, dd){
   } else if(_dDone && dd && dd.dining_on==='N'){
     dNote='🍽 애프터 웨딩 안내 없이 진행하기로 했어요';
   }
+  // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
+  var _fDone=(t.final||'')==='완료';
+  var fNote='';
+  if(_fDone && fd && fd.headcount){
+    var _stand=Number(fd.standing)||0;
+    fNote='🥂 최종 확정 · <b style="color:var(--accent)">하객 '+escapeHtml(String(fd.headcount))+'명</b>'
+      + (_stand>0 ? (' · 스탠딩 '+_stand+'명, 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금과 함께 안내)') : '')
+      + (fd.drink ? (' · '+escapeHtml(fd.drink)) : '')
+      + ((Number(fd.softCount)||0)>0 ? (' · 논알콜 '+escapeHtml(String(fd.softCount))+'잔') : '');
+  } else if(!_fDone){
+    fNote='🥂 인원·음료·특이사항은 <b>예식 9일 전까지</b> 확정해 주세요'
+      + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');
+  }
+  var notes=[dNote,fNote].filter(Boolean).join('<br>');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
       + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel)
+      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null)
     + '</div>'
-    + (dNote?('<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+dNote+'</div>'):'');
-  var allDone = (ist==='완료') && ((t.ritual||'')==='완료');   // 다이닝은 선택(완료 조건 제외)
+    + (notes?('<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+notes+'</div>'):'');
+  // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
+  var allDone = (ist==='완료') && ((t.ritual||'')==='완료') && (_fDone || _dLeft==null || _dLeft>30);
   if(allDone){
-    // 셋 다 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
+    // 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
-      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">청첩장·식순 완료 · 펼쳐서 수정</span></summary>'
+      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">'+(_fDone?'청첩장·식순·최종 확정 완료':'청첩장·식순 완료')+' · 펼쳐서 수정</span></summary>'
       + '<div style="margin-top:10px">'+tracks+'<div class="cc-note" style="text-align:center">완료한 뒤에도 언제든 다시 고칠 수 있어요.</div></div>'
       + '</details></div>';
   }
   return '<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title">예식 준비</div>'
-    + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비해요. 순서는 자유롭고, 급할 것 없어요.</div>'
+    + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비하고, 예식이 다가오면 인원·음료를 최종 확정해요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 완료한 뒤에도 언제든 다시 고칠 수 있어요.</div>'
+    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 최종 확정은 예식 9일 전까지 해주시면 돼요.</div>'
     + ''
     + '</div>';
 }
@@ -3425,7 +3446,8 @@ function renderInvQR(url){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'식순', steps:3 } };
+var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'식순', steps:3 }, final:{ label:'최종 확정', steps:3 } };
+var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
@@ -3441,7 +3463,7 @@ function saveTrkDraft(done){
   return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
 function exitTrkFlow(){ TRKFLOW.active=false; show('loading'); saveTrkDraft(false).then(function(){ loadMyState(); }); }   // 누르는 즉시 진사 스피너 → 저장·재조회(멈춘 듯 무피드백 방지)
-function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else renderDining(box); }
+function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }
 function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
 }
@@ -3836,7 +3858,7 @@ function renderRitual(box){
     if($('trk_songA')) d.songArtist=($('trk_songA').value||'').trim();
     if($('trk_timeline')) d.timeline=($('trk_timeline').value||'').trim();
   }
-  var EVENTS=['개식','환영 인사','주례','혼인 서약','예물 교환','부모님께 편지','내빈 인사','와인 세리머니','축가','케이크 커팅','성장 영상','이벤트 영상'];
+  var EVENTS=['개식','환영 인사','주례','혼인 서약','예물 교환','부모님께 편지','내빈 인사','와인 세리머니','건배 제의','축가','케이크 커팅','성장 영상','이벤트 영상'];   // 건배 제의: 순서만 여기서 고르고, 음료 종류·잔 수는 '최종 확정'에서(인원 확정과 함께)
   if(TRKFLOW.step===0){
     var mc=['직접 섭외한 사회자','사회자 없이 진행','모먼트에디트에 섭외 요청'];
     var body='<div class="inv-side-l" style="margin:6px 0 4px">사회자</div>'
@@ -3869,6 +3891,60 @@ function renderRitual(box){
       + '<div class="cc-note">성장·이벤트 영상 파일은 상담 때 또는 별도 링크로 전달해 주세요. (여기선 받지 않아요)</div>';
     box.innerHTML=trkShell(3,'축가·마무리','거의 다 됐어요. 완료하면 대시보드로 돌아가요.',body,true);
     bindTrk(box,renderRitual,collect,{ last:true });
+  }
+}
+// ── 최종 확정 위저드 — 인원(초과 스탠딩 요금 자동계산)·음료(논알콜 포함)·특이사항. 기한: 예식 9일 전(잔금과 동일) ──
+function _finCalcHtml(n){
+  var P=MP_FINAL_POLICY;
+  if(!n) return '<span class="cc-mini" style="color:var(--label-soft)">인원을 입력하면 좌석·추가 요금을 바로 계산해 드려요.</span>';
+  if(n>P.max) return '<span style="color:var(--seal)">최대 '+P.max+'명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.</span>';
+  if(n>P.seats) return '착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · 추가 요금 <b>'+((n-P.seats)*P.unit).toLocaleString()+'원</b> (잔금과 함께 안내드려요)';
+  return '전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
+}
+function renderFinal(box){
+  var d=TRKFLOW.draft, P=MP_FINAL_POLICY;
+  function collect(){
+    if($('trk_head')) d.headcount=($('trk_head').value||'').replace(/[^0-9]/g,'');
+    if($('trk_soft')) d.softCount=($('trk_soft').value||'').replace(/[^0-9]/g,'');
+    if($('trk_allergy')) d.allergy=($('trk_allergy').value||'').trim();
+    if($('trk_cake')) d.cake=($('trk_cake').value||'').trim();
+    if($('trk_video')) d.videoLink=($('trk_video').value||'').trim();
+  }
+  if(TRKFLOW.step===0){
+    var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">총 하객 수 (두 분 제외)</div>'
+      + '<input class="cc-input" id="trk_head" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'" style="margin-bottom:0"></div>'
+      + '<div class="cc-note" style="text-align:left" id="trk_calc">'+_finCalcHtml(parseInt(d.headcount||'',10)||0)+'</div>'
+      + '<div class="cc-note" style="text-align:left"><span class="cc-mini">착석 '+P.seats+'명 기본 · 초과는 스탠딩으로 1인 '+P.unit.toLocaleString()+'원 · 최대 '+P.max+'명 (계약 기준)</span></div>';
+    box.innerHTML=trkShell(1,'몇 분을 모시나요?','최종 인원이에요. 좌석·잔·다과 준비의 기준이 돼요.',body,false);
+    bindTrk(box,renderFinal,collect,{ validate:function(){ var n=parseInt(d.headcount||'',10)||0; if(!n) return '총 하객 수를 입력해 주세요.'; if(n>P.max) return '최대 '+P.max+'명까지예요. 조정이 어려우시면 디렉터에게 문의해 주세요.'; } });
+    var hi=$('trk_head'); if(hi) hi.addEventListener('input',function(){ var c=$('trk_calc'); if(c) c.innerHTML=_finCalcHtml(parseInt((hi.value||'').replace(/[^0-9]/g,''),10)||0); });
+  } else if(TRKFLOW.step===1){
+    var isSoftAll = String(d.drink||'').indexOf('논알콜')===0;
+    var body='<div class="inv-side-l" style="margin:6px 0 4px">건배·웰컴 음료</div>'
+      + _trkOpt('샴페인', d.drink, 'drink', '샴페인')
+      + _trkOpt('와인', d.drink, 'drink', '와인')
+      + _trkOpt('논알콜 스파클링(전원)', d.drink, 'drink', '논알콜 스파클링(전원)', '아이·운전 하객이 많다면 추천 · 준비가 가장 간단해요')
+      + (d.drink && !isSoftAll
+        ? '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">논알콜 필요 잔 수 <span style="color:var(--label-soft)">(운전·임신·미성년 등 · 없으면 0)</span></div>'
+          + '<input class="cc-input" id="trk_soft" inputmode="numeric" autocomplete="off" placeholder="0" value="'+escapeHtml(d.softCount||'')+'" style="margin-bottom:0">'
+          + '<div class="cc-note" style="text-align:left"><span class="cc-mini">논알콜도 똑같은 잔·똑같은 모습으로 조용히 준비해 드려요. 잔 수만 알려주시면 돼요.</span></div></div>'
+        : '')
+      + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">알레르기·식음 특이사항 <span style="color:var(--label-soft)">(선택)</span></div>'
+      + '<textarea class="cc-input" id="trk_allergy" placeholder="예: 하객 중 견과 알레르기 1분" style="min-height:64px;margin-bottom:0">'+escapeHtml(d.allergy||'')+'</textarea></div>';
+    box.innerHTML=trkShell(2,'건배와 환영의 잔, 무엇으로 할까요?','웰컴 음료와 건배 모두 이 선택으로 준비해요.',body,false);
+    bindTrk(box,renderFinal,collect,{ validate:function(){ if(!d.drink) return '음료를 골라 주세요.'; } });
+  } else {
+    var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">케이크 커스텀 문구 <span style="color:var(--label-soft)">(선택)</span></div>'
+      + '<input class="cc-input" id="trk_cake" autocomplete="off" placeholder="예: Our Best Day · 비우면 기본 디자인" value="'+escapeHtml(d.cake||'')+'">'
+      + '<div class="inv-side-l" style="margin:10px 0 5px">성장·이벤트 영상 링크 <span style="color:var(--label-soft)">(식순에 넣은 경우)</span></div>'
+      + '<input class="cc-input" id="trk_video" autocomplete="off" placeholder="드라이브·유튜브 링크" value="'+escapeHtml(d.videoLink||'')+'" style="margin-bottom:0"></div>'
+      + '<div class="inv-side-l" style="margin:14px 0 4px">디지털 참석(온라인 중계)</div>'
+      + _trkOpt('진행해요', d.digital, 'digital', '진행해요')
+      + _trkOpt('안 해요', d.digital, 'digital', '안 해요')
+      + _trkOpt('아직 미정', d.digital, 'digital', '아직 미정')
+      + '<div class="cc-note" style="text-align:left">확정 후에도 예식 9일 전까지는 언제든 다시 수정할 수 있어요.</div>';
+    box.innerHTML=trkShell(3,'마지막 확인이에요','비워도 되는 항목은 편하게 넘어가세요.',body,true,'확정 저장');
+    bindTrk(box,renderFinal,collect,{ last:true });
   }
 }
 

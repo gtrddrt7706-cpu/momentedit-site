@@ -734,8 +734,8 @@ function cardProduction(d){
   // 다이닝·식순 — 고객이 채운 상태 표시(데이터는 d.mirror.production.diningDraft/ritualDraft. 내용 상세 뷰는 추후)
   var _prod=d.mirror?d.mirror.production:null, _tk=(_prod&&_prod.tracks)||{};
   function _trks(s){ s=s||'시작전'; return s==='완료'?'<b style="color:var(--gold-deeper,#7a5f37)">완료</b>':(s==='진행중'?'<b style="color:#b5852a">진행 중</b>':'<span style="color:var(--label-soft)">시작 전</span>'); }
-  raw+='<div class="cnote">🍽 다이닝 '+_trks(_tk.dining)+' · 📜 식순 '+_trks(_tk.ritual)+'</div>';
-  return '<div class="raw">'+raw+'</div>'+_prodTrackDetail(_prod)+'<div class="cnote">청첩장·다이닝·식순은 고객이 채워요 (관리자는 보기 전용)</div>';
+  raw+='<div class="cnote">🍽 다이닝 '+_trks(_tk.dining)+' · 📜 식순 '+_trks(_tk.ritual)+' · 🥂 최종확정 '+_trks(_tk.final)+'</div>';
+  return '<div class="raw">'+raw+'</div>'+_prodTrackDetail(_prod)+'<div class="cnote">청첩장·다이닝·식순·최종확정은 고객이 채워요 (관리자는 보기 전용)</div>';
 }
 // 다이닝·식순 — 고객이 위저드에서 고른 내용을 관리자가 읽기 좋게 표시(예식 진행·다이닝 조율에 사용). 값은 대부분 한글 그대로.
 function _prodTrackDetail(prod){
@@ -764,6 +764,19 @@ function _prodTrackDetail(prod){
     rh+=L('반주', esc(rd.accompaniment||''));
     if(rd.timeline) rh+='<div><span style="color:var(--label-soft)">타임라인</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rd.timeline)+'</span></div>';
     out+='<div class="raw-sub"><div class="raw-sub-h">📜 식순</div>'+rh+'</div>';
+  }
+  var fd=prod.finalDraft;
+  if(fd && (fd.headcount||fd.drink||fd.allergy||fd.cake||fd.videoLink||fd.digital)){
+    var fh='';
+    fh+=L('총 하객', fd.headcount?esc(String(fd.headcount))+'명':'');
+    fh+=L('스탠딩', Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'');
+    fh+=L('음료', esc(fd.drink||''));
+    fh+=L('논알콜 잔 수', Number(fd.softCount)>0?esc(String(fd.softCount)):'');
+    fh+=L('알레르기·특이사항', esc(fd.allergy||''));
+    fh+=L('케이크 커스텀', esc(fd.cake||''));
+    fh+=L('영상 링크', esc(fd.videoLink||''));
+    fh+=L('디지털 참석', esc(fd.digital||''));
+    out+='<div class="raw-sub"><div class="raw-sub-h">🥂 최종 확정</div>'+fh+'</div>';
   }
   return out;
 }
