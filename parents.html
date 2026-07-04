@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+
+<!-- ═══ FAVICON · 모든 페이지 공통 (인장 本 디자인) ═══ -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<title>어른께 드리는 안내 · 모먼트에디트 Moment Edit</title>
+<meta property="og:title" content="어른께 드리는 안내 · 모먼트에디트">
+<meta property="og:description" content="두 분 어른께, 예식을 준비하는 마음을 먼저 말씀드립니다.">
+<meta property="og:image" content="https://momentedit.kr/assets/og/og-espresso.png?v=5">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="description" content="가족 중심 예식의 의미와 전통 예우, 모먼트에디트의 형식을 두 분 어른께 정중히 말씀드리는 안내입니다.">
+<link rel="canonical" href="https://momentedit.kr/parents.html">
+
+<!-- 서체: 카톡 인앱 브라우저 고려, 비차단 로딩 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
+
+<style>
+/* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙 */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  color-scheme:light;
+  --bg:#FAFAF8;--bg2:#F5F3EF;
+  --text:#1C1B19;--sub:#4A463E;--light:#75705F;
+  --gold:#B89A75;
+  --accent:#3A2D22;--seal:#6B2A24;
+  --border:#DDD8D1;--footer-bg:#1A1714;
+  --hairline:rgba(28,27,25,0.18);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --max:640px;
+  /* 어른 세대 가독 기준: 본문 크기·행간이 핵심 변수 */
+  --letter-size:17.5px;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);font-weight:300;font-size:15px;line-height:2;letter-spacing:0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(to bottom,rgba(250,250,248,0.92),rgba(250,250,248,0))}
+.nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
+.nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
+@media(max-width:680px){.nav-in{padding:12px 20px}.nav-mark{font-size:11px;letter-spacing:0.28em}}
+
+/* Hero */
+.hero{padding:120px 28px 36px;text-align:center;max-width:var(--max);margin:0 auto}
+.hero-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.22em;color:var(--gold);margin-bottom:22px;text-transform:uppercase}
+.hero-title{font-family:var(--serif-ko);font-size:27px;font-weight:400;color:var(--accent);letter-spacing:0.06em;margin-bottom:10px;line-height:1.5}
+.hero-sub{font-family:var(--serif-ko);font-size:14.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;margin-bottom:24px}
+.hero-divider{width:36px;height:1px;background:var(--gold);margin:0 auto}
+@media(max-width:680px){.hero{padding:100px 22px 30px}.hero-title{font-size:23px}.hero-sub{font-size:13.5px}}
+
+/* 읽기 도구: 글자 크기 · 인쇄 */
+.tools{max-width:var(--max);margin:0 auto;padding:0 28px 8px;display:flex;justify-content:flex-end;gap:8px}
+.tools button{font-family:var(--serif-ko);font-size:13px;font-weight:400;color:#F5F1E9;background:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:0.04em;min-width:48px;min-height:42px;transition:opacity 0.25s}
+.tools button:hover{opacity:0.88}
+@media(max-width:680px){.tools{padding:0 22px 6px}}
+
+/* Letter */
+main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
+.letter{font-size:var(--letter-size);line-height:2;color:var(--sub);font-weight:300}
+.letter p{margin-bottom:1.15em}
+.letter strong{color:var(--accent);font-weight:500}
+.greeting{padding:26px 0 6px}
+
+.part{padding:26px 0 4px;border-top:1px solid var(--hairline);margin-top:16px}
+.part-head{display:flex;align-items:baseline;gap:13px;margin-bottom:14px}
+.part-num{font-family:var(--serif);font-style:italic;font-size:1.05em;font-weight:400;color:var(--gold);letter-spacing:0.04em;line-height:1;flex-shrink:0}
+.part-title{font-family:var(--serif-ko);font-size:1.06em;font-weight:500;color:var(--accent);letter-spacing:0.03em;line-height:1.5}
+
+.choice-list{list-style:none;margin:4px 0 1.15em;padding:0}
+.choice-list li{position:relative;padding-left:20px;margin-bottom:0.55em}
+.choice-list li::before{content:'·';position:absolute;left:6px;top:0;color:var(--gold);font-weight:600}
+.choice-list li em{font-style:normal;color:var(--light);font-size:0.88em}
+
+/* 맺음·서명 */
+.closing{padding:30px 0 0;border-top:1px solid var(--hairline);margin-top:16px}
+.sign{margin-top:30px;text-align:right}
+.sign .sign-from{font-size:0.92em;color:var(--light);margin-bottom:4px}
+.sign .sign-name{font-family:var(--serif);font-style:italic;font-size:1.25em;color:var(--accent);letter-spacing:0.08em}
+.contact-box{margin-top:26px;padding:20px 22px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;font-size:0.9em;line-height:1.95;color:var(--sub)}
+.contact-box strong{color:var(--accent);font-weight:500}
+.contact-box a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--gold)}
+.contact-ask{display:block;margin:16px auto 2px;padding:13px 26px;background:var(--accent);color:#F5F1E9;font-family:var(--serif-ko);font-size:0.94em;font-weight:400;letter-spacing:0.04em;border:none;border-radius:4px;cursor:pointer;min-height:46px;transition:opacity 0.25s}
+.contact-ask:hover{opacity:0.9}
+
+/* Footer */
+footer{text-align:center;padding:36px 28px;background:var(--footer-bg);margin-top:56px}
+.f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 auto}
+.f-copy{font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:14px;letter-spacing:0.04em;line-height:1.85;word-break:keep-all}
+.f-copy a{color:inherit;text-decoration:none}
+
+/* Print: A4 한 장 */
+@media print{
+  @page{size:A4;margin:10mm 14mm}
+  nav,.tools,footer{display:none}
+  body{background:#fff;color:#000;font-size:9pt}
+  .hero{padding:0 0 6pt}
+  .hero-label{display:none}
+  .hero-title{font-size:14pt;color:#000;margin-bottom:2pt}
+  .hero-sub{font-size:9pt;color:#333;margin-bottom:5pt}
+  .hero-divider{margin:0 auto}
+  main{padding:0;max-width:none}
+  .letter{font-size:9pt !important;line-height:1.5;color:#222}
+  .letter p{margin-bottom:0.5em}
+  .letter strong{color:#000}
+  .greeting{padding:4pt 0 0}
+  .part{padding:4pt 0 0;margin-top:3pt;border-top-color:#ccc;page-break-inside:avoid}
+  .part-head{margin-bottom:3pt}
+  .part-num{color:#666}
+  .part-title{color:#000}
+  .choice-list{margin:2pt 0 0.55em}
+  .choice-list li{margin-bottom:0.2em}
+  .choice-list li::before{color:#666}
+  .closing{padding:5pt 0 0;margin-top:4pt;border-top-color:#ccc}
+  .sign{margin-top:6pt}
+  .sign .sign-name{color:#000}
+  .contact-box{margin-top:5pt;padding:6pt 9pt;background:none;border:1px solid #ccc;page-break-inside:avoid;font-size:8.5pt;line-height:1.6}
+  .contact-box a{color:#000;border-bottom:none}
+  .contact-ask{display:none}
+}
+
+html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
+@media(prefers-color-scheme:dark){html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}}
+:where(a,button,[tabindex]):focus{outline:none}
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
+::selection{background:rgba(107,42,36,0.18);color:var(--accent)}
+/* 편지 화면엔 떠다니는 채팅 아이콘은 숨기고(하단 버튼으로 연다), 우측에는 공유 버튼만 남긴다 */
+#meAdvFab{display:none!important}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">A Letter to the Honored Family</div>
+  <h1 class="hero-title">어른께 드리는 안내</h1>
+  <div class="hero-sub">어른을 더 정중하게 모시기 위하여</div>
+  <div class="hero-divider"></div>
+</div>
+
+<div class="tools" aria-label="읽기 도구">
+  <button type="button" id="listenBtn" aria-label="소리로 듣기" hidden>듣기</button>
+  <button type="button" id="fontMinus" aria-label="글자 작게">가&#8722;</button>
+  <button type="button" id="fontPlus" aria-label="글자 크게">가&#43;</button>
+  <button type="button" id="printBtn" aria-label="인쇄하기">인쇄</button>
+</div>
+
+<main>
+<div class="letter" id="letter">
+
+  <div class="greeting">
+    <p>안녕하십니까. 귀한 자녀분의 혼사를 맡게 된 <strong>모먼트에디트</strong>입니다. 예식을 준비하는 사람으로서, 두 분 어른께 먼저 인사드리는 것이 도리라 생각하여 이 글을 올립니다.</p>
+    <p>한 사람을 오늘까지 길러 혼사에 이르게 하신 그 세월을, 저희가 감히 다 알지 못합니다. 다만 그 시간의 무게를 알기에, 이 예식을 가볍게 만들지 않겠다는 말씀을 먼저 드리고 싶습니다.</p>
+    <p>두 분께서 궁금해하실 것들을 미리 정리해 드린 안내입니다. 천천히 살펴봐 주십시오.</p>
+  </div>
+
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">一</span>
+      <h2 class="part-title">인원을 절제하는 이유</h2>
+    </div>
+    <p>모먼트에디트의 예식은 양가의 가장 가까운 분들을 모시는 자리입니다. 하객이 많은 자리에서는 인사가 스쳐 지나가기 쉽습니다. 저희는 인원을 절제하는 대신, 오신 모든 분과 눈을 맞추고 이야기를 나눌 수 있는 호흡을 마련합니다.</p>
+    <p>그날 혼주께서는 오신 모든 분과 눈을 맞추고 인사를 나누신 뒤, 서두르지 않고 배웅하시게 됩니다. 저희가 인원을 절제하는 이유는 소홀함이 아니라 <strong>정중함</strong>에 있습니다.</p>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">二</span>
+      <h2 class="part-title">갖출 것은 갖춘 예식</h2>
+    </div>
+    <p>작은 예식이라 하여 격식을 덜어내지 않습니다. <strong>어른께 드리는 예와 인사</strong>를 갖춘 정갈한 본식으로 진행하며, 예식 전체에 넉넉한 시간을 두어 서두르지 않습니다.</p>
+    <p>양가의 모든 세대가 한 자리에 모여 남기는 <strong>가족 기록</strong>의 시간도 따로 마련되어 있습니다. 점점 드물어지는 순간이기에, 가장 정성을 들이는 순서 가운데 하나입니다.</p>
+    <p>혼주에게는 혼주의 품격을, 주인공에게는 주인공의 시간을. 저희가 예식을 준비하며 지키는 문장입니다.</p>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">三</span>
+      <h2 class="part-title">오시지 못하는 분들께</h2>
+    </div>
+    <p>거리가 멀거나 건강이 여의치 않아 직접 오시지 못하는 분들께는, 외부에 공개되지 않는 <strong>온라인 참석</strong> 자리를 따로 마련해 드립니다. 예식을 처음부터 끝까지 함께 보실 수 있고, 축하의 말씀도 전하실 수 있습니다.</p>
+    <p>직접 모시는 자리를 대신하려는 것이 아니라, 오시지 못하는 분이 결례가 되지 않도록 마련한 배려입니다.</p>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">四</span>
+      <h2 class="part-title">축하의 마음</h2>
+    </div>
+    <p>축하의 마음은 <strong>청첩장과 함께 정중히 안내드리고, 감사히 받습니다.</strong> 청첩장에 마음 전하실 곳을 함께 적어 드리며, 온라인 참석 자리에도 마음을 전하실 수 있는 길을 마련해 두었습니다. 형식이 달라도, 함께해 주신 모든 마음은 소중히 받습니다.</p>
+  </section>
+
+  <div class="closing">
+    <p>이 형식은 자녀분이 오래 고민하여 마음에 둔 방식입니다. 그 마음이 어른께 잘 전해지도록 돕는 것이 저희의 역할입니다.</p>
+    <p>결혼의 형식에 정답은 없다고 생각합니다. <strong>모든 결정은 온전히 두 분과 어른의 몫입니다.</strong> 저희는 다만, 어느 쪽을 택하시든 그 자리가 소홀하지 않도록 준비하는 사람들입니다.</p>
+    <p>예식 공간을 미리 둘러보고 싶으시면, 신랑신부와 함께 오시는 자리를 언제든 정중히 마련해 드립니다. 궁금하신 점은 아래에서 편히 물어봐 주십시오. 정성껏 답해 드리겠습니다.</p>
+
+    <div class="sign">
+      <div class="sign-from">두 분 어른께 · 예식을 맡은 사람이</div>
+      <div class="sign-name">Moment Edit</div>
+    </div>
+
+    <div class="contact-box">
+      <strong>모먼트에디트 · Private Wedding Studio</strong><br>
+      경기 고양시 덕양구 향동동
+      <button type="button" class="contact-ask" data-adv-open>궁금한 점 물어보기</button>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>
+  <img class="f-footer-logo" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio" loading="lazy" decoding="async">
+  <div class="f-copy"><a href="mailto:contact@momentedit.kr">contact@momentedit.kr</a></div>
+  <div class="f-copy">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
+</footer>
+
+<script>
+(function(){
+  var SIZES=[15.5,17.5,19.5,21.5];
+  var KEY='meParentsFont';
+  var idx=1;
+  try{var saved=parseInt(localStorage.getItem(KEY),10);if(saved>=0&&saved<SIZES.length)idx=saved;}catch(e){}
+  function apply(){document.documentElement.style.setProperty('--letter-size',SIZES[idx]+'px');try{localStorage.setItem(KEY,idx);}catch(e){}}
+  apply();
+  document.getElementById('fontMinus').addEventListener('click',function(){if(idx>0){idx--;apply();}});
+  document.getElementById('fontPlus').addEventListener('click',function(){if(idx<SIZES.length-1){idx++;apply();}});
+  document.getElementById('printBtn').addEventListener('click',function(){window.print();});
+
+  /* 듣기: 녹음 음원이 있으면 음원 재생, 없으면 기기 내장 한국어 음성으로 낭독 */
+  var AUDIO_SRC='/assets/audio/parents-letter.mp3';
+  var audioEl=null,audioMode=false;
+  var synth=window.speechSynthesis;
+  var btn=document.getElementById('listenBtn');
+  function setupAudioMode(){
+    audioMode=true;btn.hidden=false;
+    btn.addEventListener('click',function(){
+      if(!audioEl){audioEl=new Audio(AUDIO_SRC);audioEl.preload='auto';
+        audioEl.addEventListener('ended',function(){btn.textContent='듣기';});
+        audioEl.addEventListener('error',function(){btn.textContent='듣기';});}
+      if(audioEl.paused){audioEl.play();btn.textContent='멈춤';}
+      else{audioEl.pause();btn.textContent='듣기';}
+    });
+    document.addEventListener('visibilitychange',function(){if(document.hidden&&audioEl&&!audioEl.paused){audioEl.pause();btn.textContent='듣기';}});
+  }
+  try{
+    fetch(AUDIO_SRC,{method:'HEAD'}).then(function(r){
+      if(r&&r.ok){setupAudioMode();}
+    }).catch(function(){});
+  }catch(e){}
+  if(synth&&window.SpeechSynthesisUtterance){
+    if(!audioMode)btn.hidden=false;
+    var speaking=false;
+    function koVoice(){
+      try{
+        var vs=synth.getVoices()||[];
+        for(var i=0;i<vs.length;i++){if((vs[i].lang||'').toLowerCase().indexOf('ko')===0)return vs[i];}
+      }catch(e){}
+      return null;
+    }
+    function stopRead(){try{synth.cancel();}catch(e){}speaking=false;btn.textContent='듣기';}
+    function startRead(){
+      var parts=[];
+      var nodes=document.querySelectorAll('#letter p, #letter .part-title, #letter .choice-list li, #letter .sign-from');
+      for(var i=0;i<nodes.length;i++){
+        var t=(nodes[i].textContent||'').replace(/\s+/g,' ').trim();
+        if(t)parts.push(t);
+      }
+      if(!parts.length)return;
+      try{synth.cancel();}catch(e){}
+      var v=koVoice();
+      var remaining=parts.length;
+      for(var j=0;j<parts.length;j++){
+        var u=new SpeechSynthesisUtterance(parts[j]);
+        u.lang='ko-KR';if(v)u.voice=v;u.rate=0.95;u.pitch=1;
+        u.onend=u.onerror=function(){remaining--;if(remaining<=0){speaking=false;btn.textContent='듣기';}};
+        synth.speak(u);
+      }
+      speaking=true;btn.textContent='멈춤';
+    }
+    btn.addEventListener('click',function(){if(audioMode)return;speaking?stopRead():startRead();});
+    document.addEventListener('visibilitychange',function(){if(document.hidden)stopRead();});
+    window.addEventListener('pagehide',stopRead);
+    if(typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
+  }
+})();
+</script>
+
+<!-- AI 상담 도우미: 편지 하단 '궁금한 점 물어보기' 버튼으로만 열림(떠다니는 아이콘 숨김) -->
+<script>
+window.ME_ADV_PAGE = {
+  page: '어른 안내',
+  greeting: '안녕하세요, 모먼트에디트 상담 도우미입니다.\n예식에 대해 궁금하신 점을 편히 물어봐 주세요. 정성껏 안내해 드리겠습니다.',
+  chips: [
+    { label: '예식은 어떻게 진행되나요?' },
+    { label: '오지 못하는 사람도 함께할 수 있나요?' },
+    { label: '축의는 어떻게 전하나요?' }
+  ],
+  share: { url: 'https://momentedit.kr/parents.html' }   // 우측 공유 FAB — 이 안내문 링크 공유
+};
+</script>
+<script src="/assets/advisor-kb.js"></script>
+<script src="/assets/advisor-widget.js"></script>
+
+</body>
+</html>
