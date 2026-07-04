@@ -877,15 +877,15 @@ body.menu-open nav {
   margin: 18px 0 0;
   line-height: 1;
 }
-/* 히어로 한 줄 가치제안 — 17ms 원형성 보강(무엇을 파는 곳인지) · 디졸브 시 로고와 함께 퇴장 */
-.hero-logo-tagline {
+/* 티저 서브 라인 — 가치제안 한 줄(히어로 무드 보존 위해 티저로 이동 · 2026-07-04) */
+.hero-tease-sub {
+  display: block;
+  margin-top: 16px;
   font-family: var(--serif-ko);
-  font-size: clamp(12px, 1.6vw, 14.5px);
+  font-size: clamp(11.5px, 1.3vw, 13px);
   font-weight: 300;
-  color: rgba(245, 241, 233, 0.88);
-  letter-spacing: 0.14em;
-  margin: 26px 0 0;
-  line-height: 1.6;
+  color: var(--light);
+  letter-spacing: 0.16em;
   word-break: keep-all;
 }
 .hero-logo-hair {
@@ -4908,7 +4908,6 @@ body {
   <div class="hero-logo-wordmark">MOMENT EDIT</div>
   <div class="hero-logo-hair hl-short"></div>
   <div class="hero-logo-eyebrow">PRIVATE WEDDING STUDIO</div>
-  <div class="hero-logo-tagline">양가 가족만 모시는, 140분의 프라이빗 웨딩</div>
 </div>
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
   <div class="hero-veil" aria-hidden="true"></div>
@@ -4916,7 +4915,7 @@ body {
 <script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm)return;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1;var veil=clamp(y/(vh*1.5));hero.style.setProperty('--heroVeil',veil.toFixed(3));if(logo){var lo=1-clamp((y-vh*0.5)/(vh*0.9));logo.style.setProperty('opacity',lo.toFixed(3),'important');if(y>0)logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px)','important');else logo.style.removeProperty('transform');}if(scr){scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
-  <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다</p>
+  <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
 </div>
 <script>(function(){var el=document.querySelector('.hero-tease-line');if(!el)return;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm){el.style.opacity=1;return;}var t=false;function u(){t=false;var r=el.getBoundingClientRect(),vh=window.innerHeight||1,c=r.top+r.height/2,dist=Math.abs(c-vh/2),e=Math.max(0,Math.min(1,(dist-vh*0.17)/(vh*0.25))),o=1-e;el.style.opacity=o.toFixed(3);el.style.transform='translateY('+((c<vh/2?-1:1)*e*8).toFixed(1)+'px)';}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO PHOTO · 진사 커튼이 걷히며 등장 -->
