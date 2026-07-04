@@ -417,7 +417,7 @@ function _nfAdminText(event, code, x) {
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
     case 'admin.diningConsult':  return tag + ' 다이닝: 식당을 못 정한 채 마무리' + c + ' / 디렉터가 추천·예약 도와줄 것';
-    case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + c + ' / 하객 ' + (x.head || '-') + '명'
+    case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + (x.changed ? '(변경·재확인)' : '') + c + ' / 하객 ' + (x.head || '-') + '명'
       + (Number(x.standing) > 0 ? (' (스탠딩 ' + x.standing + ' · 추가 ' + _nfWon(x.fee) + '원 잔금 합산 청구)') : '')
       + ' · ' + (x.drink || '음료 미선택')
       + (Number(x.soft) > 0 ? (' · 논알콜 ' + x.soft + '잔') : '')

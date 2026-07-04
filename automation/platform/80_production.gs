@@ -127,6 +127,7 @@ function handleSaveProductionTrack(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var d = _parseJsonSafe(cust.get('제작임시저장'));
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
+    var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
     d[track + 'Draft'] = (body && body.draft) || {};
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
@@ -142,17 +143,27 @@ function handleSaveProductionTrack(body) {
         notifyKakao('admin.diningConsult', code);
       }
     }
-    // 최종 확정 완료 → 관리자 메일 1통(인원·스탠딩 추가요금·음료·논알콜·특이사항). 잔금 합산·당일 준비 반영 신호.
-    if (track === 'final' && body && body.done && !_wasDone) {
+    // 최종 확정 완료 → 관리자 메일(인원·스탠딩 추가요금·음료·논알콜·특이사항). 잔금 합산·당일 준비 반영 신호.
+    //   최초 완료 + 완료 후 재수정(인원·음료·잔수 변경) 모두 통지 — 요금·준비가 달라지므로.
+    if (track === 'final' && body && body.done) {
       var _f = (body && body.draft) || {};
-      notifyKakao('admin.finalConfirm', code, {
-        head: _f.headcount || '-',
-        standing: Number(_f.standing) || 0,
-        fee: Number(_f.extraFee) || 0,
-        drink: String(_f.drink || ''),
-        soft: parseInt(String(_f.softCount || '').replace(/[^0-9]/g, ''), 10) || 0,
-        note: (String(_f.allergy || '').trim() || String(_f.cake || '').trim() || String(_f.videoLink || '').trim()) ? '특이사항 있음(관리자 페이지 확인)' : ''
-      });
+      var _changed = !!_prevFinal && (
+        String(_prevFinal.headcount || '') !== String(_f.headcount || '') ||
+        String(_prevFinal.drink || '') !== String(_f.drink || '') ||
+        (Number(_prevFinal.softCount) || 0) !== (Number(_f.softCount) || 0) ||
+        String(_prevFinal.allergy || '').trim() !== String(_f.allergy || '').trim()   // 알레르기=식음 안전(계약 ⑧ 고지의무) 변경도 재통지
+      );
+      if (!_wasDone || _changed) {
+        notifyKakao('admin.finalConfirm', code, {
+          head: _f.headcount || '-',
+          standing: Number(_f.standing) || 0,
+          fee: Number(_f.extraFee) || 0,
+          drink: String(_f.drink || ''),
+          soft: parseInt(String(_f.softCount || '').replace(/[^0-9]/g, ''), 10) || 0,
+          note: (String(_f.allergy || '').trim() || String(_f.cake || '').trim() || String(_f.videoLink || '').trim()) ? '특이사항 있음(관리자 페이지 확인)' : '',
+          changed: (_wasDone && _changed)   // 완료 후 변경분(요금·준비 재확인 필요)
+        });
+      }
     }
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
