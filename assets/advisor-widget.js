@@ -84,6 +84,7 @@
   var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
   var BOOK = (CFG.booking && CFG.booking.url) ? CFG.booking.url : null;
   var SEQ = CFG.sequence ? ((CFG.sequence === 'trim' || (CFG.sequence && CFG.sequence.mode === 'trim')) ? 'trim' : 'full') : null;   // 진행 시간표 FAB — sequence-modal.js가 [data-seq-open] 클릭을 받아 모달을 엶
+  var GUIDE = (CFG.guide && CFG.guide.url) ? CFG.guide.url : null;   // 어른께 드리는 안내(부모님 안내문) FAB
   var wrap = document.createElement('div');
   wrap.innerHTML = ''
     + '<div class="me-fab-stack" id="meAdvStack">'
@@ -95,6 +96,10 @@
     + '  <button class="me-fab" id="meAdvSeq" type="button" data-seq-open="' + SEQ + '" aria-label="예식 진행 시간표 보기">'
     + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
     + '  </button>') : '')
+    + (GUIDE ? (''
+    + '  <a class="me-fab" href="' + GUIDE + '" aria-label="어른께 드리는 안내 보기">'
+    + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4.5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 9h8M8 12.5h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>'
+    + '  </a>') : '')
     + '  <button class="me-fab" id="meAdvFab" aria-label="상담 도우미 열기" type="button">'
     + '    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
     + '  </button>'
