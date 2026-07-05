@@ -6002,7 +6002,7 @@ body {
       if (isAnchor){
         e.preventDefault();
         var target = document.querySelector(href);
-        closeMenu(true); // scroll 복원 skip
+        closeMenu(); // 원래 보던 위치로 즉시 복원(최상단 로고로 튀는 것 방지) — 이후 목표로만 부드럽게 이동
         // 메뉴가 완전히 닫힌 후(opacity 0.3s transition) target으로 부드럽게 이동
         setTimeout(function(){
           if (target){
