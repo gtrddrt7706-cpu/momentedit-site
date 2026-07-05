@@ -1128,6 +1128,18 @@ body.menu-open .nav-logo {
   background: var(--bg3);
   border-radius: 0;
 }
+/* 큰 화면(데스크톱 대형·TV): 풀블리드 사진이 얇은 띠로 잘려 보이지 않게 키워 세로 크롭 완화·몰입감 */
+@media (min-width: 1200px) {
+  .photo-placeholder.full {
+    height: 82vh;
+  }
+}
+/* 와이드·울트라와이드(16:9 이상, TV 연결 등): 가로가 넓어 object-fit:cover 세로 크롭이 커짐 → 더 키워 인물이 덜 잘리게 */
+@media (min-width: 1200px) and (min-aspect-ratio: 16 / 9) {
+  .photo-placeholder.full {
+    height: 88vh;
+  }
+}
 .hero-tease {
   position: relative;
   left: 50%;
