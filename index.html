@@ -6339,12 +6339,21 @@ function toggleEssay(btn){
   var TOP_OFFSET = 80;          // 최상단 영역은 항상 표시
   var pinnedUntil = 0;          // 내비 항목 클릭 이동 중엔 내비 고정(표시 유지)
 
-  // 내비 항목(페이지 내 앵커)을 누르면 이동하는 동안·직후에도 내비를 계속 보이게 고정
+  // 내비 항목(페이지 내 앵커)을 누르면 그 자리로 이동하는 '동안'만 내비를 유지.
+  // 사용자가 직접 스크롤하는 순간(아래) 고정을 즉시 풀어 원래대로 숨김이 동작하게 함.
   function pinNav(){
-    pinnedUntil = Date.now() + 1200;
+    pinnedUntil = Date.now() + 1500;  // 이동 안전 상한(사용자 스크롤 시 즉시 해제)
     nav.classList.remove('nav-hidden');
     lastTriggerY = window.scrollY;
   }
+  function unpin(){ pinnedUntil = 0; }  // 고정만 해제(누적 기준 lastTriggerY는 보존 → 아래로 스크롤 시 정상 숨김)
+  // 사용자 능동 스크롤 = 고정 해제 (프로그램 이동과 구분되는 입력만)
+  window.addEventListener('wheel', unpin, { passive: true });
+  window.addEventListener('touchmove', unpin, { passive: true });
+  window.addEventListener('keydown', function(e){
+    // 방향키·스페이스·PageUp/Down·Home/End 등 스크롤 유발 키
+    if ([' ','ArrowUp','ArrowDown','PageUp','PageDown','Home','End','Spacebar'].indexOf(e.key) !== -1) unpin();
+  });
   function bindPin(root){
     if (!root) return;
     root.addEventListener('click', function(e){
@@ -6401,11 +6410,6 @@ function toggleEssay(btn){
   }
 
   window.addEventListener('scroll', function(){
-    // 내비 고정 중 스크롤이 이어지면(부드러운 이동이 길어도) 고정을 연장 →
-    // 이동이 멈춘 뒤 잠깐만 유지하다 자연스럽게 해제
-    if (pinnedUntil && Date.now() < pinnedUntil){
-      pinnedUntil = Date.now() + 400;
-    }
     if (!ticking){
       window.requestAnimationFrame(update);
       ticking = true;
