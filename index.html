@@ -1441,7 +1441,7 @@ section {
 .divider-line {
   width: 40px;
   height: 1px;
-  background: var(--gold);
+  background: transparent;
   margin: 56px 0;
 }
 .t-body {
@@ -6136,6 +6136,10 @@ body {
         const t = link.getAttribute('target');
         if (!t || t === '_self') {
           sessionStorage.setItem(KEY, String(window.scrollY));
+          // 되돌아올 때 강제 리로드가 필요 없는 안전한 페이지(마이페이지·상담)인지 표시
+          // → 안전 페이지면 bfcache 그대로 복원(상단 깜빡임·스크롤 튐 방지)
+          const href = link.getAttribute('href') || '';
+          sessionStorage.setItem('me_bfsafe', /(^|\/)(mypage|inquiry)\.html/.test(href) ? '1' : '0');
         }
       });
     });
@@ -6167,9 +6171,14 @@ body {
   // 메인 페이지에 누적되어 색감이 변하는 문제 차단. sessionStorage의 스크롤 위치는
   // 보존되므로 reload 후에도 doRestore가 정상 동작.
   window.addEventListener('pageshow', function(e){
-    if (e.persisted) {
-      window.location.reload();
-    }
+    if (!e.persisted) return;
+    // 마이페이지·상담 등 iframe 없는 안전한 페이지에서 돌아온 경우엔 리로드 없이
+    // bfcache 상태(스크롤 위치 포함)를 그대로 살려 깜빡임·튐을 없앤다.
+    const safe = sessionStorage.getItem('me_bfsafe') === '1';
+    sessionStorage.removeItem('me_bfsafe');
+    if (safe) { sessionStorage.removeItem(KEY); return; }
+    // 청첩장 갤러리 등 iframe·theme-color 잔여상태가 있는 페이지에서 돌아온 경우만 리로드
+    window.location.reload();
   });
 })();
 
