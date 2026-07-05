@@ -1389,10 +1389,10 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약','서명으로 확정','계약완료'],['계약금','서명 후 잔액 입금 · 예약금 10만 원 차감','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에 · 예약금 10만 원 차감','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
-  if (d && d.payment) items = items.filter(function(r){ return r[0]!=='계약금'; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 — 제거
+  if (d && d.payment) items = items.filter(function(r){ return r[0].indexOf('계약금')===-1; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 제거(본 계약·계약금 병합 라벨 포함)
   if (product !== '웨딩스냅'){
     var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
     var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
@@ -1403,6 +1403,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     var prodAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='예식 준비') return i; return -1; })();
     function insAt(i,row){ if(i<0||i>items.length) items.push(row); else items.splice(i,0,row); }
     // 서명 전(계약금 행이 아직 목록에 있음) — 예식일 기간에 따라 계약금 행에 결제를 병합해 한 항목으로
+    // 병합 라벨('본 계약 · 계약금')은 '계약금' 단독과 다르므로 이 블록은 안 탐 → 임박 시에도 중도금·잔금은 아래에서 각자 행으로 배치(사라짐 방지)
     var _depAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='계약금') return i; return -1; })();
     if (_depAt !== -1 && _dd != null && _dd <= 9){
       items[_depAt] = ['계약금 · 중도금 · 잔금','서명 후 한 번에 납부 · 예약금 10만 원 차감','입금완료'];
@@ -1427,9 +1428,9 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     items = items.filter(function(it){ var ti = list.indexOf(it[2]); return ti < 0 || curIdx < ti; });
   }
   // (중도금·잔금은 위에서 카드 상태·예식일 기준으로 이미 동적 배치됨)
-  // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
+  // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외(병합 라벨 '본 계약 · 계약금' 포함 — 스냅·시그 공통)
   if (contract && !contract.signed && !contract.expired){
-    items = items.filter(function(it){ return it[0] !== '본 계약'; });
+    items = items.filter(function(it){ return it[0].indexOf('본 계약') === -1; });
   }
   // [제작 카드 열림] '예식 준비'도 지금 할 일이면 잠금 목록에서 제외 — 열린 카드와 자물쇠 동시 표시 모순 방지(묶음 결제 잠금 중엔 유지)
   var _du=arguments[6]||{};
