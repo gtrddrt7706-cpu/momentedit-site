@@ -1353,6 +1353,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     var prodAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='예식 준비') return i; return -1; })();
     function insAt(i,row){ if(i<0||i>items.length) items.push(row); else items.splice(i,0,row); }
     // 서명 전(계약금 행이 아직 목록에 있음) — 예식일 기간에 따라 계약금 행에 결제를 병합해 한 항목으로
+    // 병합 라벨('본 계약 · 계약금')은 '계약금' 단독과 다르므로 이 블록은 안 탐 → 임박 시에도 중도금·잔금은 아래에서 각자 행으로 배치(사라짐 방지)
     var _depAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='계약금') return i; return -1; })();
     if (_depAt !== -1 && _dd != null && _dd <= 9){
       items[_depAt] = ['계약금 · 중도금 · 잔금','서명 후 한 번에 납부 · 예약금 10만 원 차감','입금완료'];
@@ -1377,9 +1378,9 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     items = items.filter(function(it){ var ti = list.indexOf(it[2]); return ti < 0 || curIdx < ti; });
   }
   // (중도금·잔금은 위에서 카드 상태·예식일 기준으로 이미 동적 배치됨)
-  // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외
+  // [계약서 발송됨] '본 계약'은 지금 할 일(Contract 카드)이므로 NEXT 잠금에서 제외(병합 라벨 '본 계약 · 계약금' 포함 — 스냅·시그 공통)
   if (contract && !contract.signed && !contract.expired){
-    items = items.filter(function(it){ return it[0] !== '본 계약'; });
+    items = items.filter(function(it){ return it[0].indexOf('본 계약') === -1; });
   }
   // [제작 카드 열림] '예식 준비'도 지금 할 일이면 잠금 목록에서 제외 — 열린 카드와 자물쇠 동시 표시 모순 방지(묶음 결제 잠금 중엔 유지)
   var _du=arguments[6]||{};
