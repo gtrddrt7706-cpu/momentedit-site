@@ -6325,12 +6325,39 @@ function toggleEssay(btn){
   var ticking = false;
   var TRIGGER_THRESHOLD = 80;  // 마지막 변경 시점부터 누적 80px 이상
   var TOP_OFFSET = 80;          // 최상단 영역은 항상 표시
+  var pinnedUntil = 0;          // 내비 항목 클릭 이동 중엔 내비 고정(표시 유지)
+
+  // 내비 항목(페이지 내 앵커)을 누르면 이동하는 동안·직후에도 내비를 계속 보이게 고정
+  function pinNav(){
+    pinnedUntil = Date.now() + 1200;
+    nav.classList.remove('nav-hidden');
+    lastTriggerY = window.scrollY;
+  }
+  function bindPin(root){
+    if (!root) return;
+    root.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (a) pinNav();
+    });
+  }
+  bindPin(nav);
+  bindPin(document.getElementById('mobileMenu'));
 
   function update(){
     var y = window.scrollY;
 
     // 모바일 메뉴 열려있으면 nav 상태 변경 안 함
     if (document.body.classList.contains('menu-open')){
+      ticking = false;
+      return;
+    }
+
+    // 내비 클릭 이동 중: 계속 표시 유지
+    if (Date.now() < pinnedUntil){
+      if (nav.classList.contains('nav-hidden')){
+        nav.classList.remove('nav-hidden');
+      }
+      lastTriggerY = y;
       ticking = false;
       return;
     }
@@ -6362,6 +6389,11 @@ function toggleEssay(btn){
   }
 
   window.addEventListener('scroll', function(){
+    // 내비 고정 중 스크롤이 이어지면(부드러운 이동이 길어도) 고정을 연장 →
+    // 이동이 멈춘 뒤 잠깐만 유지하다 자연스럽게 해제
+    if (pinnedUntil && Date.now() < pinnedUntil){
+      pinnedUntil = Date.now() + 400;
+    }
     if (!ticking){
       window.requestAnimationFrame(update);
       ticking = true;
