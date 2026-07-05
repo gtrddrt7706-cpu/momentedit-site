@@ -542,7 +542,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 <body>
 
 <div class="topbar">
-  <a href="./mypage.html" class="brand-link" aria-label="Moment Edit · 새로고침">
+  <a href="./index.html" class="brand-link" aria-label="이전 페이지로 돌아가기" onclick="var r=document.referrer;if(r&&r.indexOf(location.origin+'/')===0&&r!==location.href){history.back();return false;}return true;">
     <img class="brand-img" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT · Private Wedding Studio"
          onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block'">
     <span id="brandFallback" class="brand-fallback" style="display:none">
