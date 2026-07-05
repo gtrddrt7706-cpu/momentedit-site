@@ -161,15 +161,7 @@
     if (k.mail) kakaoA.removeAttribute('target'); else kakaoA.setAttribute('target', '_blank');
   }
 
-  // ── 에스컬레이션: 자동으로 들이밀지 않고 버튼으로 · 누르면 관리자 인계 + 카카오 안내 ──
-  function offerEscalation() {
-    if (escShown || body.querySelector('.me-adv-escoffer')) return;
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'me-adv-escoffer';
-    b.textContent = '더 정확한 답이 필요하신가요? 디렉터에게 연결하기';
-    b.addEventListener('click', function () { b.remove(); showEscalation(); });
-    place(b); scrollDown();
-  }
+  // ── 에스컬레이션: 답 못 푸는 경우 중간 버튼 없이 바로 카톡 상담 연결(showEscalation)을 띄운다(2026-07-05 사용자 지시) ──
   function doHandoff() {
     if (handoffSent || transcript.length === 0) return; handoffSent = true;
     var payload = { messages: transcript.slice(-16), page: PAGE };
@@ -264,7 +256,7 @@
         if (res.ok && j.reply) {
           addMsg(j.reply, 'bot');
           transcript.push({ role: 'assistant', content: j.reply });
-          if (j.escalate) offerEscalation();
+          if (j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
         } else {
           try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
           addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');

@@ -7041,16 +7041,7 @@ function replayHeroAnimation(){
     d.innerHTML='<i></i><i></i><i></i>';
     place(d); scrollDown(); return d;
   }
-  // 답이 부족할 때: 자동으로 들이밀지 않고, 답변 끝에 '디렉터에게 연결' 버튼을 둔다(누르면 전달+안내).
-  function offerEscalation(){
-    if(escShown) return;
-    if(body.querySelector('.me-adv-escoffer')) return;   // 중복 버튼 방지
-    var b=document.createElement('button');
-    b.type='button'; b.className='me-adv-escoffer';
-    b.textContent='더 정확한 답이 필요하신가요? 디렉터에게 연결하기';
-    b.addEventListener('click',function(){ b.remove(); showEscalation(); });
-    place(b); scrollDown();
-  }
+  // 답 못 푸는 경우: 중간 버튼 없이 바로 카톡 상담 연결(showEscalation)을 띄운다(2026-07-05 사용자 지시).
   // 관리자에게 대화 브리핑 자동 전달(에스컬레이션 시 1회). 고객에겐 결과 비노출.
   function doHandoff(){
     if(handoffSent || transcript.length===0) return; handoffSent=true;
@@ -7172,7 +7163,7 @@ function replayHeroAnimation(){
     addMsg(node.answer,'bot');
     transcript.push({role:'user',content:node.label});
     transcript.push({role:'assistant',content:node.answer});
-    if(node.escalate){ offerEscalation(); }
+    if(node.escalate){ showEscalation(); }   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
     scrollQTop(qEl);   // 질문을 상단으로 — 답 시작이 바로 보이게
   }
 
@@ -7285,7 +7276,7 @@ function replayHeroAnimation(){
           apiHistory.push({role:'assistant',content:j.reply});
           transcript.push({role:'assistant',content:j.reply});
           logQ(lastQ, !!j.escalate);
-          if(j.escalate) offerEscalation();
+          if(j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
           scrollQTop(pendingQEl);   // 질문을 상단으로 — 답 시작이 바로 보이게
         } else {
           // 키 미설정·오류 등: 우아한 폴백. 진단 코드는 화면 노출 대신 콘솔로(고객 문구 오염 방지)
