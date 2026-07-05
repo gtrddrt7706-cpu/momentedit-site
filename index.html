@@ -1235,6 +1235,14 @@ body.menu-open .nav-logo {
   opacity: 0;
   transition: opacity 0.7s var(--ease);
 }
+/* 풀블리드 밴드는 넓은 화면에서 세로가 크게 잘려 주제(인물)가 밀려남 → 인물 위치로 초점 이동 */
+.hero-photo .ph-img { object-position: center 74%; }
+.photo-placeholder.full:not(.hero-photo) .ph-img { object-position: center 46%; }
+/* 넓은 화면(데스크톱·TV·34"): 100vw 밴드가 지나치게 납작해지지 않도록 폭 기반 높이로 확대 */
+@media (min-width: 1280px) {
+  .hero-photo { height: 42vw !important; max-height: 90vh; }
+  .photo-placeholder.full:not(.hero-photo) { height: 34vw !important; max-height: 80vh; }
+}
 .ph-img.loaded {
   opacity: 1;
 }
