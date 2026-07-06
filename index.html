@@ -6,7 +6,8 @@
 <script src="/shared/analytics.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- black-translucent: 홈 화면 앱에서 상태바 완전 투명 고정(콘텐츠가 상태바 뒤까지 풀블리드) · 사파리에선 무시됨. 시계·배터리는 항상 흰색이 됨(히어로 마우브 위에선 잘 보임) -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Moment Edit">
 <meta name="color-scheme" content="light only">
 <meta name="supported-color-schemes" content="light only">
@@ -376,7 +377,8 @@ nav.nav-hidden {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 46px;
+  /* 상태바 안전영역만큼 위 여백 추가 — black-translucent(풀블리드) 홈앱에서 로고·메뉴가 시계에 가리지 않게 */
+  padding: calc(20px + env(safe-area-inset-top)) 46px 20px;
 }
 .nav-logo {
   height: 31px;
@@ -554,7 +556,7 @@ body.menu-open .nav-wordmark {
 /* ═══ MOBILE MENU · 닫기 버튼 (오버레이 우상단) ═══ */
 .mobile-menu-close {
   position: absolute;
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top));
   right: 16px;
   display: inline-flex;
   align-items: center;
@@ -2773,7 +2775,7 @@ footer {
     transform: translateY(0);
   }
   .nav-in {
-    padding: 14px 22px;
+    padding: calc(14px + env(safe-area-inset-top)) 22px 14px;
   }
   .nav-logo {
     height: 23.5px !important;
