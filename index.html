@@ -362,8 +362,8 @@ nav {
   z-index: 100;
   background: none;
   transition:
-    transform 0.65s var(--ease-ink),
-    opacity 0.55s ease;
+    transform 0.9s var(--ease-ink),
+    opacity 0.7s ease;
 }
 nav.nav-hidden {
   transform: translateY(-100%);
@@ -6395,7 +6395,7 @@ function toggleEssay(btn){
   if (!nav) return;
   var lastTriggerY = window.scrollY;
   var ticking = false;
-  var TRIGGER_THRESHOLD = 80;  // 마지막 변경 시점부터 누적 80px 이상
+  var TRIGGER_THRESHOLD = 120;  // 마지막 변경 시점부터 누적 120px 이상(작은 스크롤엔 반응 안 해 '촐싹거림' 방지 · 우아하게)
   var TOP_OFFSET = 80;          // 최상단 영역은 항상 표시
   var pinnedUntil = 0;          // 내비 항목 클릭 이동 중엔 내비 고정(표시 유지)
 
