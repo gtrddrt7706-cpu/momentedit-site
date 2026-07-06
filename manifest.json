@@ -1,0 +1,11 @@
+{
+  "name": "Moment Edit",
+  "short_name": "Moment Edit",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6f2b24",
+  "theme_color": "#faf9f8",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
