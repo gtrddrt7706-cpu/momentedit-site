@@ -77,8 +77,8 @@
     + '.meseq-prod button{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:8px;padding:9px 4px;cursor:pointer;font-family:var(--serif-ko,serif);font-size:12.5px;color:var(--sub,#5A554C);transition:all .2s}'
     + '.meseq-prod button.on{background:#4E3F31;border-color:#4E3F31;color:#fff}'
     /* 시간표 열기 버튼(예약·스케줄·마이 공용) — 마이페이지 .cc-btn과 같은 색·효과 */
-    + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#4E3F31;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
-    + '.seq-open-btn:hover{background:#3A2D22}.seq-open-btn:active{background:#9C7E55}';
+    + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#6B2A24;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
+    + '.seq-open-btn:hover{background:#571f1a}.seq-open-btn:active{background:#4a1a15}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var ov = document.createElement('div'); ov.className = 'meseq-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '140분 진행 시간표');
