@@ -1472,14 +1472,17 @@ phoneInput.addEventListener('input', (e) => {
 });
 
 /* ═══════════════════════════════════════════════
-   폼 임시저장·복원 · 개인정보 처리방침(새 탭)으로 갔다 와도 작성 내용 유지
-   (2026-07-06 수정) sessionStorage 사용 — 탭을 닫으면 자동 소멸 → "페이지 끄면 리셋".
-   홈(←Home) 클릭 시엔 명시적으로 초안 삭제 → "홈으로 나가면 리셋". 새로고침·뒤로가기는 유지.
-   ─ 비밀번호는 보안상 저장하지 않음(다시 입력)
+   폼 임시저장·복원 — 개인정보 처리방침으로 갔다 '뒤로' 왔을 때만 작성 내용·스크롤 유지.
+   (2026-07-06 재설계) "개인정보 detour 전용" — 상시 자동저장 안 함.
+   · 스냅샷은 개인정보 링크를 누르고 떠날 때만 1회 기록.
+   · 돌아오면 즉시 복원하고 곧바로 스냅샷을 삭제(1회 소비) → 이후 새로고침·재접속엔 안 남음.
+   · 홈으로 나가거나·창을 닫거나·다른 곳으로 이동하면 스냅샷을 지운다 → "홈·닫기 = 초기화".
+     (iOS Safari가 sessionStorage를 복구해도 떠날 때 지우므로 데이터가 남지 않음)
+   · 비밀번호는 보안상 저장하지 않음(다시 입력)
    ═══════════════════════════════════════════════ */
 (function(){
   var KEY = 'me_inq_draft_v1';
-  var MAX_AGE = 7 * 24 * 60 * 60 * 1000;   // 7일
+  var MAX_AGE = 2 * 60 * 60 * 1000;   // 2시간 — 개인정보 왕복은 잠깐. 그보다 오래된 스냅샷은 폐기.
   var formEl = document.getElementById('inquiryForm');
   if (!formEl) return;
   // 브라우저 자동 스크롤 복원을 끈다(우리가 저장값으로 직접 맞춤 — Safari가 최상단으로 되돌리는 것 방지).
@@ -1517,22 +1520,13 @@ phoneInput.addEventListener('input', (e) => {
     return out;
   }
 
-  var saveTimer = null;
-  function save(){
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(function(){
-      var snap = collect();
-      // 실제 작성 내용이 있을 때만 저장(빈 폼에서 스크롤만 한 경우 초안 생성 안 함)
-      if (Object.keys(snap.data).length === 0) return;
-      try { sessionStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
-    }, 300);
-  }
-  // 즉시 저장(디바운스 없이) — 개인정보 처리방침 등으로 페이지를 떠나기 직전 현재 상태·스크롤 위치를 확실히 보존.
+  // 개인정보 처리방침으로 떠나기 직전 1회만 저장(상시 자동저장 없음).
   function saveNow(){
     var snap = collect();
     if (Object.keys(snap.data).length === 0) return;
     try { sessionStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
   }
+  function purge(){ try { sessionStorage.removeItem(KEY); } catch(_e){} }
 
   // 저장해 둔 스크롤 위치로 이동. 화면을 잠깐 가린 채 즉시 이동 → 노출하므로
   // '최상단에서 아래로 빠르게 훑는' 정신없는 움직임이 보이지 않고 바로 그 자리에서 나타난다.
@@ -1557,13 +1551,12 @@ phoneInput.addEventListener('input', (e) => {
     var raw;
     try { raw = sessionStorage.getItem(KEY); } catch(_e){ return; }
     if (!raw) return;
+    // 읽는 즉시 삭제(1회 소비) — 복원은 이번 '뒤로가기' 한 번만, 이후 재접속엔 안 남게.
+    purge();
     var saved;
     try { saved = JSON.parse(raw); } catch(_e){ return; }
     if (!saved || !saved.data) return;
-    if (saved.at && (Date.now() - saved.at) > MAX_AGE){
-      try { sessionStorage.removeItem(KEY); } catch(_e){}
-      return;
-    }
+    if (saved.at && (Date.now() - saved.at) > MAX_AGE) return;
     var data = saved.data;
     // 1) 값 먼저 채우기(조건부 필드가 열릴 때 이미 값이 있어 자동 포커스로 튀지 않게)
     Object.keys(data).forEach(function(key){
@@ -1596,27 +1589,25 @@ phoneInput.addEventListener('input', (e) => {
     applyScroll(saved.scrollY || 0);
   }
 
+  // 최초 진입(개인정보에서 '뒤로' 새로 로드된 경우 포함)에 복원 시도 → 있으면 채우고 소비(삭제).
   restore();
-  // 복원 후에 리스너 연결(복원 중 재저장 루프 방지)
-  formEl.addEventListener('input', save);
-  formEl.addEventListener('change', save);
-  window.addEventListener('scroll', save, { passive: true });   // 스크롤 위치도 (작성 내용 있을 때만) 저장
 
-  var cleared = false;   // 홈으로 나가며 초안을 리셋했는지(그 뒤 pagehide 재저장 방지)
+  var goingPrivacy = false;   // 개인정보 처리방침으로 떠나는 중인지(그때만 스냅샷 유지)
 
-  // 홈으로 나갈 때는 작성 중이던 초안을 리셋한다("홈으로 나가면 리셋").
-  Array.prototype.forEach.call(document.querySelectorAll('a.nav-back, a.success-home'), function(a){
-    a.addEventListener('click', function(){ cleared = true; try { sessionStorage.removeItem(KEY); } catch(_e){} });
+  // 개인정보 처리방침 링크(같은 탭 전환)를 누를 때만 현재 상태·스크롤을 1회 저장.
+  Array.prototype.forEach.call(document.querySelectorAll('a[href*="privacy.html"]'), function(a){
+    if (a.classList.contains('nav-back') || a.classList.contains('success-home')) return;
+    a.addEventListener('click', function(){ goingPrivacy = true; saveNow(); });
   });
 
-  // 페이지를 떠나기 직전(개인정보 처리방침 등 같은 탭 전환 포함) 현재 상태·스크롤을 항상 즉시 저장.
-  // pagehide는 iOS Safari에서 bfcache로 넘어갈 때도 확실히 발생 → 클릭 핸들러보다 안전.
-  // 단, 홈으로 나가며 리셋한 경우엔 다시 저장하지 않는다.
-  window.addEventListener('pagehide', function(){ if (!cleared) saveNow(); });
+  // 페이지를 떠날 때: 개인정보로 가는 게 아니면(홈·창닫기·다른 이동) 스냅샷을 지운다 → "홈·닫기 = 초기화".
+  // iOS Safari가 sessionStorage를 복구해도 떠날 때 지워 두므로 데이터가 남지 않는다.
+  window.addEventListener('pagehide', function(){ if (!goingPrivacy) purge(); });
 
-  // 뒤로가기로 돌아왔을 때 복원. bfcache 복원(persisted)이라도 iOS Safari가 입력값을 비우는
-  // 경우가 있어, 스크롤만이 아니라 sessionStorage에서 데이터까지 다시 채운다(restore 재실행).
+  // 개인정보에서 '뒤로' 돌아왔을 때. bfcache 복원(persisted)이면 스크립트가 재실행되지 않으므로
+  // 여기서 복원(데이터·스크롤)한다. 복원 후 소비(삭제)되어 다음 이동엔 남지 않는다.
   window.addEventListener('pageshow', function(e){
+    goingPrivacy = false;
     if (e.persisted) restore();
   });
 })();
