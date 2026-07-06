@@ -1036,20 +1036,6 @@ body.menu-open .nav-logo {
   opacity: var(--heroVeil, 0);
   pointer-events: none;
 }
-/* veil을 CSS 스크롤 타임라인으로 구동 — 지원 브라우저(크로미엄·사파리)에선 컴포지터(GPU)에서 돌아 메인스레드와 무관하게 매끄럽게.
-   미지원(파이어폭스 정식판)은 위 opacity:var(--heroVeil)(JS)로 자동 폴백. 모션 최소화 선호 시 비활성(현행 JS 동작과 동일). */
-@keyframes heroVeilRise { from { opacity: 0; } to { opacity: 1; } }
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .hero-veil {
-      animation-name: heroVeilRise;
-      animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); /* smoothstep 근사 — 튐 없는 부드러운 이징 */
-      animation-timeline: scroll(root block);
-      animation-range: 0 160vh; /* 첫 1.6 화면높이 스크롤에 걸쳐 걷힘(기존 JS와 동일) */
-    }
-  }
-}
 .hero::before {
   content: "";
   position: absolute;
