@@ -1086,7 +1086,7 @@ body.menu-open .nav-logo {
   align-items: center;
   gap: 8px;
   opacity: 0;
-  animation: heroFade 1s ease 1.4s forwards;
+  animation: heroFade 1.1s ease 2.6s forwards;   /* 처음엔 숨겼다 히어로가 자리잡은 뒤 늦게 등장 */
 }
 .hero-scroll span {
   font-size: 9px;
@@ -1100,7 +1100,7 @@ body.menu-open .nav-logo {
   background: linear-gradient(to bottom, rgba(245, 240, 232, 0.5), transparent);
   transform: scaleY(0);
   transform-origin: top center;
-  animation: heroScrollDraw 1.4s var(--ease) 1.8s forwards;
+  animation: heroScrollDraw 1.4s var(--ease) 3s forwards;
   position: relative;
   overflow: hidden;
 }
@@ -5034,7 +5034,7 @@ body {
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
   <div class="hero-veil" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm)return;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1;var vr=clamp(y/(vh*1.6));var veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeil',veil.toFixed(3));if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((y-vh*0.5)/(vh*0.9));logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm)return;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1;var vr=clamp(y/(vh*1.6));var veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeil',veil.toFixed(3));if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((y-vh*0.5)/(vh*0.9));logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
