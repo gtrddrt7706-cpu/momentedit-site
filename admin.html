@@ -430,12 +430,54 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
-//   기본 대상 '전체' = 5직원 모두 공유. 핵심수치는 1차 차단 후 재확인(force) 시에만 추가.
-function aiTeachPrompt(target, ctxLine, cb){ target=target||'전체';
-  var t=prompt('직원에게 알려줄 올바른 내용을 적어주세요. (대상: '+target+' · 최대 2분 뒤 반영)'+(ctxLine?('\n\n'+ctxLine):''),'');
-  if(t===null||!t.trim()) return; t=t.trim();
-  var doAdd=function(force){ gas('aiKbNoteAdd',target,t,force).then(function(r){ if(r&&r.ok){ if(cb)cb(true,t); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); else { if(cb)cb(false); } } else { alert((r&&r.error)||'추가 실패'); if(cb)cb(false); } }); };
-  doAdd(false); }
+//   (2026-07-06 개편) prompt() → 편집 모달: ① AI 제안답변을 그대로 미리 채워 수정 가능 ② 어느 직원(접점)에게 가르칠지 선택.
+//   대상: 전체(5명 공유) · 메인 · 마이 · 예약 · 애프터. prefill=미리 채울 내용(인계 제안답변 등). 핵심수치는 1차 차단 후 재확인(force).
+function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
+  var TARGETS=['전체','메인','마이','예약','애프터'], sel={}; sel[target]=true;
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:36px 14px;overflow:auto';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:10px;max-width:520px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden';
+  function chips(){ return TARGETS.map(function(t){ var on=!!sel[t]; return '<button type="button" class="teachTg" data-t="'+t+'" style="padding:6px 13px;border:1px solid '+(on?'#6B2A24':'#d9cfc1')+';background:'+(on?'#6B2A24':'#fff')+';color:'+(on?'#fff':'#5a554c')+';border-radius:999px;font-size:12px;cursor:pointer">'+t+'</button>'; }).join(''); }
+  box.innerHTML='<div style="padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2;font-size:15px;color:#3a2f25;font-weight:600">📚 AI 교육</div>'
+    +'<div style="padding:16px">'
+    +(ctxLine?'<div style="font-size:12px;color:#75705f;background:#f7f3ec;border-radius:7px;padding:8px 10px;margin-bottom:10px;white-space:pre-wrap">'+esc(ctxLine)+'</div>':'')
+    +'<div style="font-size:12px;color:#75705f;margin-bottom:5px">가르칠 내용 <span style="color:#b0a896">(AI가 앞으로 이대로 답해요 · 자유롭게 수정)</span></div>'
+    +'<textarea id="teachText" style="width:100%;box-sizing:border-box;height:160px;padding:10px;border:1px solid #d9cfc1;border-radius:8px;font-size:13px;line-height:1.65;resize:vertical">'+esc(prefill||'')+'</textarea>'
+    +'<div style="font-size:12px;color:#75705f;margin:12px 0 6px">어느 직원에게 가르칠까요? <span style="color:#b0a896">(여러 명 선택 가능 · 전체=5명 공유)</span></div>'
+    +'<div id="teachTgs" style="display:flex;flex-wrap:wrap;gap:6px">'+chips()+'</div>'
+    +'<div id="teachFeed" style="font-size:12px;color:#b00;margin-top:8px;min-height:15px"></div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button id="teachCancel" style="flex:1;padding:10px;border:1px solid #d9cfc1;background:#fff;border-radius:7px;font-size:13px;cursor:pointer">취소</button><button id="teachSave" style="flex:2;padding:10px;border:none;background:#6B2A24;color:#fff;border-radius:7px;font-size:13px;cursor:pointer">교육하기</button></div>'
+    +'</div>';
+  ov.appendChild(box); document.body.appendChild(ov);
+  var close=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); };
+  ov.addEventListener('click',function(e){ if(e.target===ov){ close(); if(cb)cb(false); } });
+  document.getElementById('teachCancel').addEventListener('click',function(){ close(); if(cb)cb(false); });
+  var tgWrap=document.getElementById('teachTgs');
+  tgWrap.addEventListener('click',function(e){ var b=e.target&&e.target.getAttribute&&e.target.getAttribute('data-t')?e.target:(e.target.closest&&e.target.closest('.teachTg')); if(!b) return;
+    var t=b.getAttribute('data-t');
+    if(t==='전체'){ sel={'전체':true}; }
+    else { delete sel['전체']; if(sel[t]) delete sel[t]; else sel[t]=true; if(!Object.keys(sel).length) sel[t]=true; }
+    tgWrap.innerHTML=chips();
+  });
+  document.getElementById('teachSave').addEventListener('click',function(){
+    var t=(document.getElementById('teachText').value||'').trim(), feed=document.getElementById('teachFeed'), btn=this;
+    if(!t){ feed.style.color='#b00'; feed.textContent='가르칠 내용을 적어주세요.'; return; }
+    var targets=Object.keys(sel); if(!targets.length) targets=['전체'];
+    btn.disabled=true; btn.textContent='교육 중…'; feed.style.color='#75705f'; feed.textContent='';
+    var i=0;
+    var doOne=function(force){
+      if(i>=targets.length){ close(); if(cb)cb(true,t); return; }
+      gas('aiKbNoteAdd',targets[i],t,force).then(function(r){
+        if(r&&r.ok){ i++; doOne(false); }
+        else if(r&&r.blocked){ btn.disabled=false; btn.textContent='교육하기';
+          if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 가르칠까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')){ btn.disabled=true; btn.textContent='교육 중…'; doOne(true); }
+          else { if(cb)cb(false); } }
+        else { feed.style.color='#b00'; feed.textContent=((targets.length>1?('['+targets[i]+'] '):'')+((r&&r.error)||'추가 실패')); btn.disabled=false; btn.textContent='교육하기'; }
+      });
+    };
+    doOne(false);
+  }); }
 
 // AI 비용 — 💰 버튼 클릭 시에만 오버레이로 띄움(메인 로딩엔 영향 없음). GAS aiCostSummary24h 집계를 원화로 표시.
 function _won(n){ return '₩' + (Number(n)||0).toLocaleString('ko-KR'); }
@@ -789,10 +831,10 @@ function openAiTeam(){
           +'<div style="color:#5a554c;margin-top:3px">'+esc(x.summary||x.suggestedReply||'')+'</div>'
           +(x.suggestedReply?'<details style="margin-top:4px"><summary style="font-size:11px;color:#6B2A24;cursor:pointer">제안 답변·근거 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#faf7f2;border-radius:6px;font-size:12px;color:#3a2f25;white-space:pre-wrap">'+esc(x.suggestedReply)+(x.rationale?'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0d8cc;color:#75705f">'+esc(x.rationale)+'</div>':'')+'</div></details>':'')
           +(x.conversation?'<details style="margin-top:4px"><summary style="font-size:11px;color:#9a9183;cursor:pointer">고객 대화 원문 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#f4f1ea;border-radius:6px;font-size:12px;color:#5a554c;white-space:pre-wrap;max-height:220px;overflow:auto">'+esc(x.conversation)+'</div></details>':'')
-          +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>'
+          +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" data-ans="'+esc(x.suggestedReply||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>'
           +(x.id?'<button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button>':'')+'</div>'
           +'</div>'; }).join('');
-      Array.prototype.forEach.call(bd.querySelectorAll('.hEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','이 건에서 나온 문의: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }); }); });
+      Array.prototype.forEach.call(bd.querySelectorAll('.hEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 문의: '+b.getAttribute('data-q'),function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }, b.getAttribute('data-ans')); }); });
       Array.prototype.forEach.call(bd.querySelectorAll('.hRes'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 인계를 처리완료로 표시할까요?')) return; b.disabled=true; b.textContent='처리 중…'; gas('adminResolveAiHandoff',b.getAttribute('data-id')).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; alert((rr&&rr.error)||'실패'); } }); }); });
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   show('명단');
