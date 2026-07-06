@@ -1839,14 +1839,14 @@ section {
   font-weight: 400;
   flex: 0 0 auto;
 }
-.snap-list .li-label .li-ko {   /* 영문 라벨 아래 한글 글로스(한 눈에 이해) */
-  display: block;
+.snap-list .li-label .li-ko {   /* 영문 라벨 우측에 한글 병기(같은 줄) */
   font-family: var(--serif-ko);
   font-size: 11px;
   font-weight: 300;
   color: var(--light);
   letter-spacing: 0.02em;
-  margin-top: 2px;
+  margin-left: 6px;
+  white-space: nowrap;
 }
 .snap-list .snap-val {
   text-align: right;
@@ -5723,10 +5723,10 @@ body {
       <img class="ph-img" src="/assets/home/snap.jpg" alt="평일 웨딩스냅 · 화이트존 에디토리얼 촬영 예시" loading="lazy" onerror="this.style.display='none'">
     </div>
     <ul class="snap-list">
-      <li><span class="li-label">All Original<span class="li-ko">원본 전량</span></span><span>원본 전체 전달 (300컷~)</span></li>
-      <li><span class="li-label">Curated Selection<span class="li-ko">셀렉트 보정</span></span><span>보정 셀렉트 컷 10장 포함</span></li>
-      <li><span class="li-label">Additional Retouch<span class="li-ko">추가 보정</span></span><span>추가 보정 1컷당 &#8361;20,000</span></li>
-      <li><span class="li-label">Styling<span class="li-ko">의상 스타일링</span></span><span class="snap-val">드레스 시착 2벌 무료 · 착용 1벌 포함<span class="li-sub">추가 착용 1벌당 &#8361;50,000 (최대 2벌)</span></span></li>
+      <li><span class="li-label">All Original<span class="li-ko">· 원본 전체</span></span><span>원본 전체 전달 (300컷~)</span></li>
+      <li><span class="li-label">Curated Selection<span class="li-ko">· 엄선 보정본</span></span><span>보정 셀렉트 컷 10장 포함</span></li>
+      <li><span class="li-label">Additional Retouch<span class="li-ko">· 추가 보정</span></span><span>추가 보정 1컷당 &#8361;20,000</span></li>
+      <li><span class="li-label">Styling<span class="li-ko">· 의상 스타일링</span></span><span class="snap-val">드레스 시착 2벌 무료 · 착용 1벌 포함<span class="li-sub">추가 착용 1벌당 &#8361;50,000 (최대 2벌)</span></span></li>
     </ul>
     <div style="text-align:center;margin-top:24px">
       <div style="font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
@@ -5787,8 +5787,7 @@ body {
 <div class="reveal">
   <div class="sec-label">DIRECTOR · 디렉터</div>
   <div style="margin:20px 0 4px">
-    <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent)">Kawana Miku</div>
-    <div style="font-size:12px;color:var(--light);letter-spacing:0.04em">川名 美玖</div>
+    <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent)">Kawana Miku<span style="font-size:12px;font-weight:400;color:var(--light);letter-spacing:0.04em;margin-left:10px">川名 美玖</span></div>
   </div>
   <div class="director-quote">
     <p>한국에서 웨딩 디렉터로 일해 오며, 한 분 한 분의 표정과 마음이 가까이 머무는 자리를 한국의 예우와 일본의 미학 사이에서 정성스럽게 마련해 왔습니다.</p>
