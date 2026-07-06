@@ -7230,6 +7230,18 @@ function replayHeroAnimation(){
         body:JSON.stringify({ messages:transcript.slice(-16), page:PAGE }) }).catch(function(){});
     }catch(e){}
   }
+  // 메인: 날짜 가능여부 질문 → 예약 페이지(스케줄 AI)로 유도하는 CTA 버튼. 상담사(카톡) 연결 대신.
+  function showBookingLink(){
+    var box=document.createElement('div'); box.className='me-adv-esc';
+    var t=document.createElement('div'); t.className='me-adv-esc-t';
+    t.textContent='예약 페이지에서 원하시는 날짜의 가능 여부를 바로 확인하실 수 있어요.';
+    box.appendChild(t);
+    var btns=document.createElement('div'); btns.className='me-adv-esc-btns';
+    var a=document.createElement('a'); a.className='me-adv-esc-btn kakao'; a.href='/inquiry.html';
+    a.textContent='예약 페이지에서 날짜 확인하기';
+    btns.appendChild(a); box.appendChild(btns);
+    place(box); scrollDown();
+  }
   function showEscalation(){
     if(escShown) return; escShown=true;
     doHandoff();   // 디렉터에게 대화 브리핑 자동 전달(고객 비노출 · 카톡 문의 시 대비)
@@ -7427,7 +7439,8 @@ function replayHeroAnimation(){
           apiHistory.push({role:'assistant',content:j.reply});
           transcript.push({role:'assistant',content:j.reply});
           logQ(lastQ, !!j.escalate);
-          if(j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
+          if(j.toBooking) showBookingLink();   // 날짜 확인 → 예약 페이지 스케줄 AI로 유도(카톡 연결보다 우선)
+          else if(j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
           scrollQTop(pendingQEl);   // 질문을 상단으로 — 답 시작이 바로 보이게
         } else {
           // 키 미설정·오류 등: 우아한 폴백. 진단 코드는 화면 노출 대신 콘솔로(고객 문구 오염 방지)
