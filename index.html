@@ -4397,13 +4397,15 @@ a.access-link:hover::after {
     padding: 16px 0;
   }
 }
-html,
-body {
-  background-color: #1a1714 !important;
-  color: #1c1b19 !important;
+/* 최상단 캔버스(html 배경)는 iOS 상태바 세이프에어리어에 그대로 비침 → 예전엔 #1a1714(거의 검정)라
+   로드/스크롤업 때 '검은 띠'로 보였음. 히어로 상단 마우브로 맞춰 상단이 배경과 어우러지게(검정 제거). */
+html {
+  background-color: #6f2b24 !important;
   overscroll-behavior-y: none;
 }
 body {
+  background-color: #fafaf8 !important;
+  color: #1c1b19 !important;
   min-height: 100vh;
   min-height: 100svh;
 }
@@ -4413,11 +4415,15 @@ body {
   min-height: 100svh;
 }
 @media (prefers-color-scheme: dark) {
-  html,
-  body {
-    background-color: #1a1714 !important;
-    color: #1c1b19 !important;
+  /* color-scheme:light only 여도 이 미디어쿼리는 적용됨 → 예전엔 html/body를 #1a1714(거의 검정)로 칠해
+     iOS 상태바 세이프에어리어가 '검은 띠'로 보였음. 라이트값과 동일하게 맞춰 상단이 항상 배경과 어우러지게(검정 제거). */
+  html {
+    background-color: #6f2b24 !important;   /* 히어로 상단 마우브 · 최상단(로드 시) 세이프에어리어와 자연스럽게 */
     overscroll-behavior-y: none;
+  }
+  body {
+    background-color: #fafaf8 !important;   /* 본문 크림 · 스크롤 중 상단 세이프에어리어와 어우러짐 */
+    color: #1c1b19 !important;
   }
   .page-bg {
     background-color: #fafaf8;
