@@ -7295,7 +7295,7 @@ function replayHeroAnimation(){
   function currentLevel(){
     return stack.length ? (stack[stack.length-1].children||[]) : nodes;
   }
-  function renderNav(){
+  function renderNav(skipScroll){
     if(!navEl){ navEl=document.createElement('div'); navEl.className='me-adv-nav'; body.appendChild(navEl); }
     navEl.innerHTML='';
     if(stack.length){
@@ -7332,7 +7332,7 @@ function replayHeroAnimation(){
     });
     navEl.appendChild(wrap);
     // navEl은 생성 시(인사 바로 다음=상단)에 한 번 들어간 위치 그대로 둔다 — 맨 아래로 옮기지 않음(대화가 메뉴 아래로 쌓이게)
-    requestAnimationFrame(function(){   // 카테고리 탐색 시 메뉴가 대화에 묻히지 않게 상단으로 보정
+    if(!skipScroll) requestAnimationFrame(function(){   // 카테고리 탐색 시 메뉴가 대화에 묻히지 않게 상단으로 보정(첫 열기·질문동반 시엔 생략)
       if(!navEl) return;
       var top = navEl.getBoundingClientRect().top - body.getBoundingClientRect().top;
       body.scrollTop = body.scrollTop + top - 6;
@@ -7373,15 +7373,15 @@ function replayHeroAnimation(){
       _locked=false;
     }
   }
-  function open(){
+  function open(keepScroll){
     panel.classList.add('open'); stackEl.classList.add('hide');
     if(backdrop) backdrop.classList.add('open');
     lockScroll();
     if(!started){
       started=true;
       addMsg(KB.greeting,'bot');
-      renderNav();
-      requestAnimationFrame(function(){ body.scrollTop=0; });   // 열릴 때 인사말부터 보이게(맨 아래로 가려지지 않게)
+      renderNav(true);   // 첫 렌더는 nav 상단보정 생략(질문과 함께 열 때 스크롤 튕김 방지)
+      if(!keepScroll) requestAnimationFrame(function(){ body.scrollTop=0; });   // 일반 열기만 인사말부터. 질문·칩으로 열 땐 질문·답으로 스크롤 유지
     }
     setTimeout(function(){ if(window.innerWidth>680) input.focus(); },480);
   }
@@ -7406,13 +7406,13 @@ function replayHeroAnimation(){
     faqForm.addEventListener('submit',function(e){
       e.preventDefault();
       var q=(faqInput&&faqInput.value||'').trim();
-      open();
+      open(!!q);   // 질문이 있으면 상단 강제 스크롤 끄고 열기 → 질문·답이 바로 보이게
       if(q){ input.value=q; if(faqInput) faqInput.value=''; form.requestSubmit(); }
     });
   }
   // FAQ 예시 질문 칩 → 상담 도우미 열고 그 질문을 2단으로 바로 전송
   Array.prototype.forEach.call(document.querySelectorAll('.faq-eg'),function(b){
-    b.addEventListener('click',function(){ var q=b.getAttribute('data-q')||''; open(); if(q){ input.value=q; form.requestSubmit(); } });
+    b.addEventListener('click',function(){ var q=b.getAttribute('data-q')||''; open(!!q); if(q){ input.value=q; form.requestSubmit(); } });
   });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&panel.classList.contains('open')) close(); });
 
