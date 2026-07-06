@@ -4413,15 +4413,17 @@ body {
   min-height: 100vh;
   min-height: 100svh;
 }
-/* 상태바 세이프에어리어 전용 평평한 흰 판(노치 높이만). iOS 프로스트가 이 '평평한 단색 흰색'을
-   블러해도 결과가 그대로 흰색 → 뿌연 블러가 안 보임. 노치 없는 기기(env=0)에선 높이 0이라 안 보임. */
+/* 상태바 세이프에어리어 전용 어두운 판(노치 높이만).
+   iOS 26 scroll edge effect(프로스트)는 웹으로 못 끄지만, 이 영역이 어두우면(#1a1714) 프로스트가 얹혀도 안 보임.
+   이 고정 요소가 상단 tint 샘플링 대상이라 색도 어둡게 잡힘. 노치 없는 기기(env=0)면 높이 0이라 안 보임.
+   (연구 확인: 밝은색은 프로스트가 항상 보임 → 어둡게가 유일한 '프로스트 안 보임' 방법) */
 .statusbar-fill {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: env(safe-area-inset-top, 0px);
-  background: #fafaf8;
+  background: #1a1714;
   z-index: 190;
   pointer-events: none;
 }
