@@ -32,8 +32,9 @@
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 <!-- 사이트 등록 후 verification 메타 태그를 여기에 추가하세요 -->
 <link rel="manifest" href="/manifest.json">
-<!-- 페이지는 color-scheme:light only이라 다크 변형(검정)은 홈화면 웹앱 런치 시 '검은 화면 번쩍'만 유발 → 라이트 단일값으로 통일 -->
-<meta name="theme-color" content="#faf9f8">
+<!-- 페이지는 color-scheme:light only. 단일 theme-color만 두면 다크모드 사파리가 상단 툴바를 '검정' 기본값으로 칠함(스크롤 올릴 때 상단 검은 띠) → 라이트/다크 둘 다 같은 크림값으로 지정해 항상 배경과 어우러지게(검정 방지) -->
+<meta name="theme-color" content="#faf9f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#faf9f8" media="(prefers-color-scheme: dark)">
 <meta name="msapplication-TileColor" content="#FAFAF8">
 <meta name="format-detection" content="telephone=no, email=no, address=no, date=no">
 <meta property="og:image:type" content="image/png">
