@@ -1365,7 +1365,7 @@ function buildPayload(){
 }
 
 function showSuccess(code){
-  try { localStorage.removeItem('me_inq_draft_v1'); } catch(_e){}  // 제출 완료 → 임시저장 초안 삭제
+  try { sessionStorage.removeItem('me_inq_draft_v1'); } catch(_e){}  // 제출 완료 → 임시저장 초안 삭제
   formWrap.style.display = 'none';
   heroEl.style.display = 'none';
 
@@ -1470,9 +1470,10 @@ phoneInput.addEventListener('input', (e) => {
 });
 
 /* ═══════════════════════════════════════════════
-   폼 임시저장·복원 · 개인정보 처리방침 등으로 이동했다 돌아와도
-   작성 내용이 사라지지 않게 (localStorage · 새 탭/새로고침/뒤로가기 모두 커버)
-   ─ 비밀번호는 보안상 저장하지 않음(다시 입력) · 7일 후 만료
+   폼 임시저장·복원 · 개인정보 처리방침(새 탭)으로 갔다 와도 작성 내용 유지
+   (2026-07-06 수정) sessionStorage 사용 — 탭을 닫으면 자동 소멸 → "페이지 끄면 리셋".
+   홈(←Home) 클릭 시엔 명시적으로 초안 삭제 → "홈으로 나가면 리셋". 새로고침·뒤로가기는 유지.
+   ─ 비밀번호는 보안상 저장하지 않음(다시 입력)
    ═══════════════════════════════════════════════ */
 (function(){
   var KEY = 'me_inq_draft_v1';
@@ -1517,19 +1518,19 @@ phoneInput.addEventListener('input', (e) => {
       var snap = collect();
       // 실제 작성 내용이 있을 때만 저장(빈 폼에서 스크롤만 한 경우 초안 생성 안 함)
       if (Object.keys(snap.data).length === 0) return;
-      try { localStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
+      try { sessionStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
     }, 300);
   }
 
   function restore(){
     var raw;
-    try { raw = localStorage.getItem(KEY); } catch(_e){ return; }
+    try { raw = sessionStorage.getItem(KEY); } catch(_e){ return; }
     if (!raw) return;
     var saved;
     try { saved = JSON.parse(raw); } catch(_e){ return; }
     if (!saved || !saved.data) return;
     if (saved.at && (Date.now() - saved.at) > MAX_AGE){
-      try { localStorage.removeItem(KEY); } catch(_e){}
+      try { sessionStorage.removeItem(KEY); } catch(_e){}
       return;
     }
     var data = saved.data;
@@ -1575,6 +1576,12 @@ phoneInput.addEventListener('input', (e) => {
   formEl.addEventListener('input', save);
   formEl.addEventListener('change', save);
   window.addEventListener('scroll', save, { passive: true });   // 스크롤 위치도 (작성 내용 있을 때만) 저장
+
+  // 홈으로 나갈 때는 작성 중이던 초안을 리셋한다("홈으로 나가면 리셋").
+  //   개인정보 처리방침 링크는 target="_blank"(새 탭)이라 이 탭이 안 닫혀 데이터가 그대로 유지된다("처리방침 갔다오면 남음").
+  Array.prototype.forEach.call(document.querySelectorAll('a.nav-back, a.success-home'), function(a){
+    a.addEventListener('click', function(){ try { sessionStorage.removeItem(KEY); } catch(_e){} });
+  });
 })();
 
 </script>
