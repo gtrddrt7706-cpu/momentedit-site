@@ -1482,6 +1482,8 @@ phoneInput.addEventListener('input', (e) => {
   var MAX_AGE = 7 * 24 * 60 * 60 * 1000;   // 7일
   var formEl = document.getElementById('inquiryForm');
   if (!formEl) return;
+  // 브라우저 자동 스크롤 복원을 끈다(우리가 저장값으로 직접 맞춤 — Safari가 최상단으로 되돌리는 것 방지).
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(_e){}
   var dtTrigger = document.getElementById('dtTrigger');
   var dtTriggerText = document.getElementById('dtTriggerText');
 
@@ -1530,6 +1532,19 @@ phoneInput.addEventListener('input', (e) => {
     try { sessionStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
   }
 
+  // 저장해 둔 스크롤 위치로 이동 — 폰트·이미지 로딩으로 레이아웃이 밀리므로 여러 차례 다시 맞춘다.
+  function applyScroll(sy){
+    if (!sy || sy <= 0) return;
+    var doScroll = function(){ window.scrollTo(0, sy); };
+    requestAnimationFrame(function(){ doScroll(); requestAnimationFrame(doScroll); });
+    setTimeout(doScroll, 120);
+    setTimeout(doScroll, 400);
+  }
+  // 마지막으로 저장된 스크롤 값(bfcache 복원 시 값은 이미 살아있고 스크롤만 다시 맞추면 됨).
+  function savedScrollY(){
+    try { var s = JSON.parse(sessionStorage.getItem(KEY) || 'null'); return (s && s.scrollY) || 0; } catch(_e){ return 0; }
+  }
+
   function restore(){
     var raw;
     try { raw = sessionStorage.getItem(KEY); } catch(_e){ return; }
@@ -1570,13 +1585,7 @@ phoneInput.addEventListener('input', (e) => {
       if (el.value) el.dispatchEvent(new Event('input', {bubbles:true}));
     });
     // 4) 스크롤 위치 복원 — 최상단이 아니라 작성하던 그 자리로.
-    //    폰트·이미지 로딩으로 레이아웃이 밀리므로 몇 차례 다시 맞춤.
-    var sy = saved.scrollY || 0;
-    if (sy > 0){
-      var restoreScroll = function(){ window.scrollTo(0, sy); };
-      requestAnimationFrame(function(){ restoreScroll(); requestAnimationFrame(restoreScroll); });
-      window.addEventListener('load', function(){ setTimeout(restoreScroll, 60); });
-    }
+    applyScroll(saved.scrollY || 0);
   }
 
   restore();
@@ -1585,14 +1594,21 @@ phoneInput.addEventListener('input', (e) => {
   formEl.addEventListener('change', save);
   window.addEventListener('scroll', save, { passive: true });   // 스크롤 위치도 (작성 내용 있을 때만) 저장
 
+  var cleared = false;   // 홈으로 나가며 초안을 리셋했는지(그 뒤 pagehide 재저장 방지)
+
   // 홈으로 나갈 때는 작성 중이던 초안을 리셋한다("홈으로 나가면 리셋").
   Array.prototype.forEach.call(document.querySelectorAll('a.nav-back, a.success-home'), function(a){
-    a.addEventListener('click', function(){ try { sessionStorage.removeItem(KEY); } catch(_e){} });
+    a.addEventListener('click', function(){ cleared = true; try { sessionStorage.removeItem(KEY); } catch(_e){} });
   });
-  // 개인정보 처리방침 링크(같은 탭 전환)는 떠나기 직전 현재 상태·스크롤을 즉시 저장 → 뒤로 오면 그대로 복원.
-  Array.prototype.forEach.call(document.querySelectorAll('a[href*="privacy.html"]'), function(a){
-    if (a.classList.contains('nav-back') || a.classList.contains('success-home')) return;
-    a.addEventListener('click', saveNow);
+
+  // 페이지를 떠나기 직전(개인정보 처리방침 등 같은 탭 전환 포함) 현재 상태·스크롤을 항상 즉시 저장.
+  // pagehide는 iOS Safari에서 bfcache로 넘어갈 때도 확실히 발생 → 클릭 핸들러보다 안전.
+  // 단, 홈으로 나가며 리셋한 경우엔 다시 저장하지 않는다.
+  window.addEventListener('pagehide', function(){ if (!cleared) saveNow(); });
+
+  // 뒤로가기로 돌아왔을 때 복원. bfcache 복원(persisted)이면 입력값은 이미 살아있으므로 스크롤만 다시 맞춘다.
+  window.addEventListener('pageshow', function(e){
+    if (e.persisted) applyScroll(savedScrollY());
   });
 })();
 
