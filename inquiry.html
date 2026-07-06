@@ -1484,6 +1484,8 @@ phoneInput.addEventListener('input', (e) => {
   if (!formEl) return;
   // 브라우저 자동 스크롤 복원을 끈다(우리가 저장값으로 직접 맞춤 — Safari가 최상단으로 되돌리는 것 방지).
   try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(_e){}
+  // 위치를 잡는 동안 화면을 잠깐 가리는 클래스(최상단→아래로 훑는 모습이 안 보이게).
+  try { var _st = document.createElement('style'); _st.textContent = 'body.me-restoring{opacity:0!important}'; (document.head || document.documentElement).appendChild(_st); } catch(_e){}
   var dtTrigger = document.getElementById('dtTrigger');
   var dtTriggerText = document.getElementById('dtTriggerText');
 
@@ -1532,19 +1534,25 @@ phoneInput.addEventListener('input', (e) => {
     try { sessionStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
   }
 
-  // 저장해 둔 스크롤 위치로 이동 — 폰트·이미지 로딩으로 레이아웃이 밀리므로 여러 차례 다시 맞춘다.
+  // 저장해 둔 스크롤 위치로 이동. 화면을 잠깐 가린 채 즉시 이동 → 노출하므로
+  // '최상단에서 아래로 빠르게 훑는' 정신없는 움직임이 보이지 않고 바로 그 자리에서 나타난다.
   function applyScroll(sy){
     if (!sy || sy <= 0) return;
+    var html = document.documentElement, body = document.body;
+    var prevBehav = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';     // 부드러운 스크롤 애니메이션 끔 → 즉시 이동
+    body.classList.add('me-restoring');      // 위치 잡는 동안 잠깐 가림
     var doScroll = function(){ window.scrollTo(0, sy); };
-    requestAnimationFrame(function(){ doScroll(); requestAnimationFrame(doScroll); });
-    setTimeout(doScroll, 120);
-    setTimeout(doScroll, 400);
+    var revealed = false;
+    var reveal = function(){ if (revealed) return; revealed = true; body.classList.remove('me-restoring'); html.style.scrollBehavior = prevBehav; };
+    doScroll();
+    requestAnimationFrame(function(){
+      doScroll();
+      requestAnimationFrame(function(){ doScroll(); reveal(); });
+    });
+    setTimeout(doScroll, 250);   // 폰트·이미지 늦게 로드 시 노출 뒤 조용히 한 번 보정
+    setTimeout(reveal, 500);     // 안전장치(rAF가 안 돌아도 반드시 노출)
   }
-  // 마지막으로 저장된 스크롤 값(bfcache 복원 시 값은 이미 살아있고 스크롤만 다시 맞추면 됨).
-  function savedScrollY(){
-    try { var s = JSON.parse(sessionStorage.getItem(KEY) || 'null'); return (s && s.scrollY) || 0; } catch(_e){ return 0; }
-  }
-
   function restore(){
     var raw;
     try { raw = sessionStorage.getItem(KEY); } catch(_e){ return; }
@@ -1606,9 +1614,10 @@ phoneInput.addEventListener('input', (e) => {
   // 단, 홈으로 나가며 리셋한 경우엔 다시 저장하지 않는다.
   window.addEventListener('pagehide', function(){ if (!cleared) saveNow(); });
 
-  // 뒤로가기로 돌아왔을 때 복원. bfcache 복원(persisted)이면 입력값은 이미 살아있으므로 스크롤만 다시 맞춘다.
+  // 뒤로가기로 돌아왔을 때 복원. bfcache 복원(persisted)이라도 iOS Safari가 입력값을 비우는
+  // 경우가 있어, 스크롤만이 아니라 sessionStorage에서 데이터까지 다시 채운다(restore 재실행).
   window.addEventListener('pageshow', function(e){
-    if (e.persisted) applyScroll(savedScrollY());
+    if (e.persisted) restore();
   });
 })();
 
