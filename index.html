@@ -1152,13 +1152,14 @@ body.menu-open .nav-logo {
   left: 50%;
   transform: translateX(-50%);
   width: 100vw;
-  min-height: 150vh;
-  min-height: 150dvh;
+  min-height: 184vh;
+  min-height: 184dvh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;      /* 문구는 위 여백 유지, 아래 여백만 1.5배 */
   justify-content: center;
   text-align: center;
-  padding: 0 28px;
+  padding: 69vh 28px 0;
+  padding: 69dvh 28px 0;
   background: var(--bg);
 }
 .hero-tease-line {
@@ -2716,7 +2717,8 @@ footer {
     padding: 80px 20px 60px;
   }
   .hero-tease {
-    min-height: 130dvh;
+    min-height: 158dvh;
+    padding-top: 57dvh;
   }
   .hero-logo {
     width: min(300px, 78vw);
