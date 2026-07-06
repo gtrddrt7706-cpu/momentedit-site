@@ -1502,7 +1502,7 @@ phoneInput.addEventListener('input', (e) => {
         if (el.value !== '') data['v|' + (el.id || el.name)] = el.value;
       }
     });
-    var out = { at: Date.now(), data: data };
+    var out = { at: Date.now(), data: data, scrollY: window.scrollY || window.pageYOffset || 0 };
     // 커스텀 날짜 선택기: 화면에 보이는 날짜 텍스트도 함께 보존(hidden 값은 위에서 저장됨)
     if (dtTrigger && dtTrigger.classList.contains('has-value') && dtTriggerText){
       out.dtText = dtTriggerText.textContent;
@@ -1514,7 +1514,10 @@ phoneInput.addEventListener('input', (e) => {
   function save(){
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(function(){
-      try { localStorage.setItem(KEY, JSON.stringify(collect())); } catch(_e){}
+      var snap = collect();
+      // 실제 작성 내용이 있을 때만 저장(빈 폼에서 스크롤만 한 경우 초안 생성 안 함)
+      if (Object.keys(snap.data).length === 0) return;
+      try { localStorage.setItem(KEY, JSON.stringify(snap)); } catch(_e){}
     }, 300);
   }
 
@@ -1557,12 +1560,21 @@ phoneInput.addEventListener('input', (e) => {
     formEl.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]):not([type="password"]), textarea, select').forEach(function(el){
       if (el.value) el.dispatchEvent(new Event('input', {bubbles:true}));
     });
+    // 4) 스크롤 위치 복원 — 최상단이 아니라 작성하던 그 자리로.
+    //    폰트·이미지 로딩으로 레이아웃이 밀리므로 몇 차례 다시 맞춤.
+    var sy = saved.scrollY || 0;
+    if (sy > 0){
+      var restoreScroll = function(){ window.scrollTo(0, sy); };
+      requestAnimationFrame(function(){ restoreScroll(); requestAnimationFrame(restoreScroll); });
+      window.addEventListener('load', function(){ setTimeout(restoreScroll, 60); });
+    }
   }
 
   restore();
   // 복원 후에 리스너 연결(복원 중 재저장 루프 방지)
   formEl.addEventListener('input', save);
   formEl.addEventListener('change', save);
+  window.addEventListener('scroll', save, { passive: true });   // 스크롤 위치도 (작성 내용 있을 때만) 저장
 })();
 
 </script>
