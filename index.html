@@ -1636,6 +1636,20 @@ section {
   margin-bottom: 8px;
   transition: color 0.35s var(--ease);
 }
+.seq-name-ko {
+  font-family: var(--serif-ko);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+.seq-name-ko::before {
+  content: "·";
+  margin: 0 7px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+.br-mo { display: none; }
 .seq-desc {
   font-size: 13px;
   color: var(--sub);
@@ -1771,6 +1785,8 @@ section {
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
 }
 .snap-list li:last-child {
   border-bottom: none;
@@ -1778,6 +1794,18 @@ section {
 .snap-list .li-label {
   color: var(--accent);
   font-weight: 400;
+  flex: 0 0 auto;
+}
+.snap-list .snap-val {
+  text-align: right;
+  word-break: keep-all;
+}
+.snap-list .li-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--light);
+  letter-spacing: 0.01em;
 }
 .faq-item {
   border-bottom: 1px solid var(--border);
@@ -2798,6 +2826,7 @@ footer {
     gap: 14px;
     padding: 24px 0;
   }
+  .br-mo { display: inline; }
   .seq-time {
     font-size: 26px;
   }
@@ -5161,35 +5190,35 @@ body {
   <div class="seq-item">
     <div class="seq-time">20<span>min</span></div>
     <div>
-      <div class="seq-name">Getting Ready</div>
+      <div class="seq-name">Getting Ready<span class="seq-name-ko">준비</span></div>
       <div class="seq-desc">의상 착장과 컨디션 정돈을 마치는 시퀀스의 첫 단계입니다. 가장 편안한 상태에서 기록이 시작됩니다.</div>
     </div>
   </div>
   <div class="seq-item">
     <div class="seq-time">40<span>min</span></div>
     <div>
-      <div class="seq-name">Private Snap</div>
+      <div class="seq-name">Private Snap<span class="seq-name-ko">단독 스냅</span></div>
       <div class="seq-desc">하객의 시선으로부터 보호된 채 진행되는 정돈과 몰입의 시간입니다. 캔들존과 화이트존,<br>두 공간을 연속으로 전환하며 쉼 없이 이어지는 집중 촬영으로 기록의 밀도가 가장 높은 구간입니다.</div>
     </div>
   </div>
   <div class="seq-item seq-item--core">
     <div class="seq-time">30<span>min</span></div>
     <div>
-      <div class="seq-name">The Ceremony <span class="seq-tag">Creative Freedom</span></div>
+      <div class="seq-name">The Ceremony<span class="seq-name-ko">본식</span></div>
       <div class="seq-desc">두 분의 기획이 실현되는 순간. 성우의 정중한 나레이션과 함께 두 분이 설계한 식순으로 자유롭게 채워지는 시간입니다.</div>
     </div>
   </div>
   <div class="seq-item">
     <div class="seq-time">30<span>min</span></div>
     <div>
-      <div class="seq-name">Group Record</div>
+      <div class="seq-name">Group Record<span class="seq-name-ko">단체 기록</span></div>
       <div class="seq-desc">양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간입니다.<br>캔들존과 화이트존 두 공간에서, 따뜻한 무드와 에디토리얼 무드로 자연스럽게 이어지는 시간.</div>
     </div>
   </div>
   <div class="seq-item">
     <div class="seq-time">20<span>min</span></div>
     <div>
-      <div class="seq-name">Farewell</div>
+      <div class="seq-name">Farewell<span class="seq-name-ko">배웅</span></div>
       <div class="seq-desc">서두르지 않는 배웅과 여유로운 마무리. 예식의 마지막 순간까지 온전한 품격을 유지합니다.</div>
     </div>
   </div>
@@ -5627,13 +5656,14 @@ body {
       <li><span class="li-label">All Original</span><span>원본 전체 전달 (300컷~)</span></li>
       <li><span class="li-label">Curated Selection</span><span>보정 셀렉트 컷 10장 포함</span></li>
       <li><span class="li-label">Additional Retouch</span><span>추가 보정 1컷당 &#8361;20,000</span></li>
-      <li><span class="li-label">Styling</span><span>드레스 시착 2벌(무료) · 착용 1벌 포함 (추가 착용 1벌당 &#8361;50,000 · 최대 2벌)</span></li>
+      <li><span class="li-label">Styling</span><span class="snap-val">드레스 시착 2벌 무료 · 착용 1벌 포함<span class="li-sub">추가 착용 1벌당 &#8361;50,000 (최대 2벌)</span></span></li>
     </ul>
     <div style="text-align:center;margin-top:24px">
       <div style="font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
       <div class="t-note">VAT 포함 &middot; 평일(월~금) 한정 운영</div>
-      <div style="margin-top:14px;padding:12px 18px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.7;max-width:460px;margin-left:auto;margin-right:auto;word-break:keep-all">
-        본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.<br>운영 초기를 함께해 주시는 부부께 드리는 오프닝 예우입니다.
+      <div style="margin-top:14px;padding:14px 20px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.8;max-width:420px;margin-left:auto;margin-right:auto;word-break:keep-all;text-wrap:balance">
+        <span style="display:block">본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.</span>
+        <span style="display:block;margin-top:6px">운영 초기를 함께해 주시는 부부께 드리는 오프닝 예우입니다.</span>
       </div>
     </div>
   </div>
@@ -5675,7 +5705,7 @@ body {
     </ol>
   </div>
 </div>
-<div class="reveal"><p class="t-emph" style="margin-top:44px;text-align:center;word-break:keep-all;letter-spacing:0.01em">좋은 예식은 당일이 아니라, 준비하는 동안에도 정중합니다.</p></div>
+<div class="reveal"><p class="t-emph" style="margin-top:44px;text-align:center;word-break:keep-all;letter-spacing:0.01em">좋은 예식은 당일이 아니라,<br class="br-mo">준비하는 동안에도 정중합니다.</p></div>
 <div class="cta-block reveal">
   <a href="./inquiry.html" class="cta-btn" target="_blank" rel="noopener">Start Your Narrative</a>
   <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
