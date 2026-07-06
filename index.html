@@ -1001,8 +1001,9 @@ body.menu-open .nav-logo {
 }
 /* 히어로 배경 — B 페이퍼 그레인: 따뜻한 그라데이션 + 종이 결 질감 + 하단 비네트(맨 끝은 페이지 배경으로 페더링해 다음 섹션과 경계선 없음) */
 .hero {
+  /* 글로우를 로고 뒤(중앙)로 내려 상단(상태바 구간)은 깔끔한 #6f2b24로 유지 — 위쪽 뿌연 흰빛 제거 */
   background:
-    radial-gradient(100% 62% at 50% 32%, rgba(170, 76, 64, 0.38) 0%, rgba(170, 76, 64, 0) 60%),
+    radial-gradient(95% 55% at 50% 48%, rgba(170, 76, 64, 0.34) 0%, rgba(170, 76, 64, 0) 62%),
     linear-gradient(180deg, #6f2b24 0%, #571f19 50%, #45160f 100%);
 }
 .hero::before {
@@ -1012,8 +1013,8 @@ body.menu-open .nav-logo {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(150% 120% at 50% 28%, rgba(255, 232, 205, 0.07) 0%, transparent 40%),
-    radial-gradient(140% 125% at 50% 44%, transparent 50%, rgba(36, 9, 8, 0.5) 100%);
+    radial-gradient(120% 85% at 50% 50%, rgba(255, 232, 205, 0.05) 0%, transparent 46%),
+    radial-gradient(140% 125% at 50% 46%, transparent 52%, rgba(36, 9, 8, 0.5) 100%);
 }
 .hero::after {
   content: "";
