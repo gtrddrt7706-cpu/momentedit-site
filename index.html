@@ -4413,6 +4413,18 @@ body {
   min-height: 100vh;
   min-height: 100svh;
 }
+/* 상태바 세이프에어리어 전용 평평한 흰 판(노치 높이만). iOS 프로스트가 이 '평평한 단색 흰색'을
+   블러해도 결과가 그대로 흰색 → 뿌연 블러가 안 보임. 노치 없는 기기(env=0)에선 높이 0이라 안 보임. */
+.statusbar-fill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: #fafaf8;
+  z-index: 190;
+  pointer-events: none;
+}
 .page-bg {
   background-color: #fafaf8;
   min-height: 100vh;
@@ -4960,6 +4972,8 @@ body {
 </script>
 </head>
 <body itemscope itemtype="https://schema.org/WebPage">
+<!-- 상태바 세이프에어리어 전용 평평한 흰 판 · iOS 프로스트가 '평평한 단색'을 블러해봤자 그대로 흰색이라 뿌연 블러가 안 보임(변화하는 히어로/사진을 블러하던 것 차단) -->
+<div class="statusbar-fill" aria-hidden="true"></div>
 <div class="page-bg">
 <header>
 <!-- NAV -->
