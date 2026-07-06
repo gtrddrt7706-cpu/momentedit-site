@@ -33,13 +33,16 @@ const WD_KO = ['일요일', '월요일', '화요일', '수요일', '목요일', 
 //   listSlots 한 날짜의 가능한 타임을 모두 나열해도 되는지
 //   listDates 시기 질문에 제안할 후보 날짜 수
 //   busy      혼잡(마감 임박) 멘트 단계
+// ※ 실제 활성 레버는 checks(날짜 한도)·busy(혼잡 멘트)뿐. askSlot·listSlots·listDates는 표시용(로직은 하드코딩).
+// (2026-07-06 윈윈 튜닝) 한가 구간의 '감추는 희소성'(과한 날짜 한도)을 완화 — 고객 답답함↓·전환↑.
+//   '정직한 희소성'(진짜 혼잡 시 busy 멘트·승인제 화법·디렉터 최종확인)은 그대로 → 바쁠 땐 여전히 귀하게.
 const LEVELS = [
-  { min: 0.00, checks: 3,  askSlot: true,  listSlots: false, listDates: 1, busy: 0 },   // L1 한가
-  { min: 0.10, checks: 4,  askSlot: true,  listSlots: false, listDates: 1, busy: 0 },   // L2
-  { min: 0.25, checks: 5,  askSlot: false, listSlots: false, listDates: 1, busy: 1 },   // L3
-  { min: 0.40, checks: 6,  askSlot: false, listSlots: true,  listDates: 1, busy: 2 },   // L4
-  { min: 0.60, checks: 8,  askSlot: false, listSlots: true,  listDates: 2, busy: 3 },   // L5
-  { min: 0.80, checks: 99, askSlot: false, listSlots: true,  listDates: 3, busy: 3 },   // L6 사실상 오픈
+  { min: 0.00, checks: 5,  askSlot: false, listSlots: true, listDates: 2, busy: 0 },   // L1 한가
+  { min: 0.10, checks: 5,  askSlot: false, listSlots: true, listDates: 2, busy: 0 },   // L2
+  { min: 0.25, checks: 6,  askSlot: false, listSlots: true, listDates: 2, busy: 1 },   // L3
+  { min: 0.40, checks: 7,  askSlot: false, listSlots: true, listDates: 2, busy: 2 },   // L4
+  { min: 0.60, checks: 9,  askSlot: false, listSlots: true, listDates: 3, busy: 3 },   // L5
+  { min: 0.80, checks: 99, askSlot: false, listSlots: true, listDates: 3, busy: 3 },   // L6 사실상 오픈
 ];
 const BUSY_LINE = {
   0: ' 혼잡 멘트 금지.',
@@ -343,10 +346,14 @@ function decide(ex, taken, today, ctx, page, lv) {
     return '고객이 이미 안내받은 ' + koDate(date) + ' ' + SLOT_LABEL[already] + ' 타임을 다시 확인하는 상황입니다. "네, ' + koDate(date) + ' ' + SLOT_LABEL[already] + '으로 안내드린 일정 그대로예요" 정도로 짧게만 확인하세요. 영업·희소성 멘트 반복 금지.';
   }
 
-  // 니즈 먼저(사장 지시): 날짜만 말하고 시간대를 안 정했으면, 가능 여부를 말하기 전에 희망 시간대부터 여쭌다.
-  //   모든 페이지·모든 예약율 단계 공통. 멋대로 오전을 찍지 않는다. "아무 때나"(anySlot)면 묻지 않고 한 타임을 고른다.
+  // 니즈 먼저(사장 지시)는 유지하되, 답답함 제거(2026-07-06 윈윈): 날짜만 말하면 '되묻기만' 하지 않는다.
+  //   그 날이 가능하면 먼저 "진행 가능한 일정으로 확인돼요"로 분명히 안심시키고(모호성·반발 제거), 이어서 희망 시간대를 여쭙는다(니즈 우선 유지).
+  //   전부 마감이면 되묻지 말고 아래 대안 안내로 넘어간다. anySlot("아무 때나")이면 이 블록을 건너뛰고 한 타임을 고른다.
   if (!prefer && !ex.anySlot) {
-    return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')에 대해 희망 시간대를 아직 말하지 않았습니다. 특정 타임(오전 등)의 가능 여부를 먼저 단정하지 말고, "이 날은 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임으로 모시는데, 어느 시간대를 생각하고 계세요? 편하신 시간을 알려주시면 그 시간으로 가능한지 확인해 드릴게요"처럼 희망 시간대를 먼저 여쭤보세요.';
+    const dayFree = SLOTS.some(function (s) { return (taken[date] || []).indexOf(s) === -1; });
+    if (dayFree) {
+      return '고객이 ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')에 희망 시간대를 아직 말하지 않았습니다. 먼저 "네, ' + koDate(date) + '(' + WD_KO[dayOfWeek(date)] + ')은 진행 가능한 일정으로 확인돼요"처럼 그 날짜가 가능함을 분명히 안심시켜 드린 뒤, 이어서 "예식은 오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분 세 타임으로 모시는데, 어느 시간대가 편하세요?"처럼 희망 시간대를 여쭤보세요. 특정 타임의 가능 여부는 시간대를 들은 뒤에 확인합니다. 없는 시간대를 지어내지 마세요.' + busyAt(date);
+    }
   }
 
   let slot = freeSlot(taken, date, prefer), note = '';
@@ -389,7 +396,8 @@ function okMsg(date, slot, note, page, cta) {
     + (scarcity ? ' 희소성 한 줄 허용.' : ' 희소성 멘트 금지.');
 }
 function limitMsg(n) {
-  return '이 대화에서 이미 ' + n + '개의 날짜를 확인해 드렸습니다. 새 날짜 확인은 더 하지 말고, "한 번의 상담에서 확인해 드릴 수 있는 날짜 수가 정해져 있어요. 확인해 드린 날짜 중 마음에 드시는 날짜로 임시 고정을 신청해 두시면 디렉터가 최종 확인 후 안내드릴게요"의 취지로 정중히 마무리하세요. 새 날짜를 더 물어보라는 말은 하지 마세요.';
+  // (2026-07-06 윈윈) '한도가 정해져 있어요'(통제·반발) → '임시 고정하면 디렉터가 함께 조율'(도움·다음 걸음)로 리프레임. 압박 금지.
+  return '이 대화에서 이미 ' + n + '개의 날짜를 확인해 드렸습니다. 새 날짜를 더 확인해 주지는 말되, 딱딱하게 끊지 말고 따뜻하게: "여러 날짜가 고민되시면, 확인해 드린 날짜 중 마음이 가장 가는 날로 예식일 임시 고정을 신청해 두시면 디렉터가 최종 확인 후 다른 후보까지 함께 조율해 드려요" 취지로 다음 걸음을 안내하세요. 한도·제한을 강조하거나 압박하는 말투는 쓰지 마세요.';
 }
 
 function freeSlot(taken, ymd, prefer) {
