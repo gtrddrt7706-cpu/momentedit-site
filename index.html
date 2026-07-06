@@ -2,7 +2,8 @@
 <html lang="ko-KR" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- viewport-fit=cover 제거: 콘텐츠를 상태바 뒤로 밀지 않음 → 상태바는 독립된 흰 영역이 되고 iOS 가독성 블러가 원천적으로 안 생김(사용자 요청: 흰색·블러 완전 제거) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script src="/shared/analytics.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4406,9 +4407,7 @@ html {
   overscroll-behavior-y: none;
 }
 body {
-  /* body 배경은 상단 상태바 세이프에어리어에만 비침(본문은 .page-bg·이미지가 덮음).
-     밝은색이면 iOS가 그 위에 흰 블러를 깖 → 히어로 마우브로 어둡게 유지해 흰 블러도 검은 띠도 없이 상단이 히어로와 이어짐. */
-  background-color: #6f2b24 !important;
+  background-color: #fafaf8 !important;
   color: #1c1b19 !important;
   min-height: 100vh;
   min-height: 100svh;
@@ -4426,7 +4425,7 @@ body {
     overscroll-behavior-y: none;
   }
   body {
-    background-color: #6f2b24 !important;   /* 상태바 세이프에어리어 마우브 → 흰 블러 방지 · 본문은 .page-bg */
+    background-color: #fafaf8 !important;
     color: #1c1b19 !important;
   }
   .page-bg {
