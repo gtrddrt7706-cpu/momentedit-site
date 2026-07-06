@@ -58,6 +58,13 @@ const SALES_BOOKING = `
 [예약 페이지 보강 · 행동 유도]
 지금은 상담 예약(신청) 페이지입니다. 대화 흐름이 자연스러울 때만 가끔 마무리에 "이 페이지에서 바로 상담을 신청하실 수 있어요" 정도로 다음 걸음을 권합니다. 매 답변 반복·압박 금지.`;
 
+// 메인(홈) 전용 — 예식일 '가능 여부' 질문은 이 창구에서 확정 확인이 안 되므로, 상담사 연결이 아니라 예약 페이지의 날짜 확인(스케줄 AI)으로 유도한다.
+const MAIN_SCHEDULE_HINT = `
+
+[예식일 날짜 확인 유도 · 메인 전용]
+- 고객이 특정 날짜·시기의 예식 가능 여부("○월 ○일 되나요?", "그 주 토요일 비어요?", "언제 가능해요?")를 물으면, 이 창구에서는 실제 일정을 확정 확인할 수 없습니다. 상담사 연결([[ESCALATE]])을 쓰지 말고, "예약 페이지에서 원하시는 날짜의 가능 여부를 바로 확인하실 수 있어요"처럼 1~2문장으로 따뜻하게 안내한 뒤, 답변 맨 끝에 정확히 [[BOOKING]] 토큰을 한 번 붙입니다(버튼은 시스템이 띄웁니다).
+- 단, 날짜 '계산 방식'(예: 잔금은 예식 9일 전, D-9 등) 같은 개념·정책 질문은 종전대로 <지식>으로 끝까지 답하고 어떤 토큰도 붙이지 않습니다. 실제 '그날 가능한가'를 확인해야 하는 요청만 [[BOOKING]] 대상입니다.`;
+
 // 마이페이지 전담 비서 페르소나 — 마이페이지(이미 계약한 고객)의 모든 응답에 적용. 영업이 아니라 '전담 케어'로 특화.
 const MYPAGE_PERSONA = `
 
@@ -134,6 +141,7 @@ module.exports = async (req, res) => {
     let systemText = SYSTEM_PROMPT;
     if (page !== '마이') systemText += SALES_CORE;
     if (page === '예약') systemText += SALES_BOOKING;
+    if (page !== '마이' && page !== '예약') systemText += MAIN_SCHEDULE_HINT;   // 메인(홈): 날짜 가능여부는 예약 페이지 스케줄 AI로 유도
     if (page === '마이') systemText += MYPAGE_PERSONA;   // 전담 비서 특화(영업 아님) — 그라운딩 유무와 무관하게 항상
     if (grounded) systemText += MYPAGE_STATE_RULE;   // 규칙은 매 요청 동일 → 캐시 블록에 포함
 
@@ -194,14 +202,19 @@ module.exports = async (req, res) => {
       text = text.split(/\n+/).filter(function (line) { return !/contact@momentedit\.kr/i.test(line); }).join('\n').trim();
     }
 
-    let escalate = false;
+    let escalate = false, toBooking = false;
+    if (text.includes('[[BOOKING]]')) {   // 메인: 날짜 확인 → 예약 페이지 스케줄 AI로 유도(상담사 연결 대신 버튼)
+      toBooking = true;
+      text = text.replace(/\[\[BOOKING\]\]/g, '').trim();
+    }
     if (text.includes('[[ESCALATE]]')) {
       escalate = true;
       text = text.replace(/\[\[ESCALATE\]\]/g, '').trim();
     }
+    if (toBooking) escalate = false;   // 날짜 유도가 상담사 연결보다 우선(둘 다 붙어도 예약 페이지로)
     if (!text) {
       text = '죄송합니다. 정확한 안내를 위해 상담사 연결을 도와드릴게요.';
-      escalate = true;
+      escalate = true; toBooking = false;
     }
 
     if (!(body && body.test)) {
@@ -212,7 +225,7 @@ module.exports = async (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
-    return res.end(JSON.stringify({ reply: text, escalate }));
+    return res.end(JSON.stringify({ reply: text, escalate, toBooking }));
   } catch (err) {
     console.error('advisor_exception', err && err.message);
     res.statusCode = 500;
