@@ -362,8 +362,8 @@ nav {
   z-index: 100;
   background: none;
   transition:
-    transform 0.4s var(--ease-ink),
-    opacity 0.35s ease;
+    transform 0.65s var(--ease-ink),
+    opacity 0.55s ease;
 }
 nav.nav-hidden {
   transform: translateY(-100%);
@@ -1038,6 +1038,20 @@ body.menu-open .nav-logo {
   background: linear-gradient(to top, #fafaf8 0%, #fafaf8 50%, rgba(250, 250, 248, 0.6) 80%, rgba(250, 250, 248, 0) 100%);
   opacity: var(--heroVeil, 0);
   pointer-events: none;
+}
+/* veil을 CSS 스크롤 타임라인(GPU 컴포지터)으로 구동 — iOS 관성 스크롤 중에도 뚝뚝 끊김 없이 매끄럽게.
+   미지원(파이어폭스 정식판)은 위 opacity:var(--heroVeil)(JS)로 자동 폴백. 로드 시 번쩍임 없음(로컬 프레임 검증 완료). */
+@keyframes heroVeilRise { from { opacity: 0; } to { opacity: 1; } }
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-veil {
+      animation-name: heroVeilRise;
+      animation-fill-mode: both;
+      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); /* smoothstep 근사 — JS와 동일 곡선 */
+      animation-timeline: scroll(root block);
+      animation-range: 0 160vh; /* 기존 JS(y/1.6vh)와 동일 구간 */
+    }
+  }
 }
 .hero::before {
   content: "";
