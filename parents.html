@@ -57,6 +57,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 .nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
+.nav-back{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:#5A4A3C;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.3s}
+.nav-back:hover{color:var(--accent)}
+.nav-back .arrow{display:inline-block;transition:transform 0.3s}
+.nav-back:hover .arrow{transform:translateX(-3px)}
 @media(max-width:680px){.nav-in{padding:12px 20px}.nav-mark{font-size:11px;letter-spacing:0.28em}}
 
 /* Hero */
@@ -152,6 +156,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 <nav>
   <div class="nav-in">
     <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
+    <a href="./index.html" class="nav-back" aria-label="이전 페이지로 돌아가기" onclick="var r=document.referrer; if(history.length>1 && r && r.indexOf(location.origin)===0){ history.back(); return false; } return true;"><span class="arrow" aria-hidden="true">&larr;</span>뒤로</a>
   </div>
 </nav>
 
