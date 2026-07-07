@@ -290,7 +290,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .btn:hover:not(:disabled) .ar{transform:translateX(4px)}
 .btn:disabled{opacity:0.32;cursor:not-allowed}
 .btn.loading{opacity:0.8;cursor:wait}
-.btn.loading .ar{animation:spin 0.9s linear infinite;transform-origin:center}
+.btn.loading .ar{opacity:0}.btn.loading span::after{content:'';animation:meDots 1.6s infinite}@keyframes meDots{0%,100%{content:''}25%{content:' ·'}50%{content:' · ·'}75%{content:' · · ·'}}
 @keyframes spin{to{transform:rotate(360deg)}}
 .confirm-note{font-size:11px;color:var(--light);line-height:1.7;margin-top:16px;
   letter-spacing:0.02em;font-family:var(--serif-ko);font-weight:300}
@@ -929,7 +929,7 @@ function doSubmit(){
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
-  btn.querySelector('span').textContent='신청 중...';
+  btn.querySelector('span').textContent='신청 중';
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
