@@ -4415,17 +4415,22 @@ a.access-link:hover::after {
     padding: 16px 0;
   }
 }
-/* 최상단 캔버스(html/body 배경)는 iOS 상태바 세이프에어리어에 그대로 비침. 흰색(크림)으로 둠(사용자 선택: 마우브보다 흰색). 본문 크림은 .page-bg가 담당. */
+/* 최상단 캔버스(html/body 배경) = iOS 상태바 세이프에어리어 색의 원천.
+   첫 화면(히어로)에선 마우브 → 히어로를 지나면 JS가 html에 .me-top-cream 붙여 크림으로 전환(스크롤별 상단 색). 본문은 .page-bg가 담당. */
 html {
-  background-color: #fafaf8 !important;
+  background-color: #6f2b24 !important;
   overscroll-behavior-y: none;
 }
 body {
-  /* body 배경은 상단 상태바 세이프에어리어에만 비침(본문은 .page-bg가 덮음). 히어로 마우브. */
-  background-color: #fafaf8 !important;
+  background-color: #6f2b24 !important;
   color: #1c1b19 !important;
   min-height: 100vh;
   min-height: 100svh;
+}
+/* 히어로를 지나면 상단(캔버스)을 크림으로 — JS가 스크롤 위치로 토글. 특이성이 높아 위 !important를 이김 */
+html.me-top-cream,
+html.me-top-cream body {
+  background-color: #fafaf8 !important;
 }
 .page-bg {
   background-color: #fafaf8;
@@ -4436,11 +4441,11 @@ body {
   /* color-scheme:light only 여도 이 미디어쿼리는 적용됨 → 예전엔 html/body를 #1a1714(거의 검정)로 칠해
      iOS 상태바 세이프에어리어가 '검은 띠'로 보였음. 라이트값과 동일하게 맞춰 상단이 항상 배경과 어우러지게(검정 제거). */
   html {
-    background-color: #fafaf8 !important;
+    background-color: #6f2b24 !important;
     overscroll-behavior-y: none;
   }
   body {
-    background-color: #fafaf8 !important;   /* 상태바 세이프에어리어 흰색 · 본문은 .page-bg */
+    background-color: #6f2b24 !important;   /* 첫 화면 마우브 · 히어로 지나면 html.me-top-cream이 크림으로 · 본문은 .page-bg */
     color: #1c1b19 !important;
   }
   .page-bg {
@@ -6131,6 +6136,17 @@ body {
 </footer>
 </div>
 <script>
+// ═══ 상단 상태바 색: 첫 화면(히어로)=마우브 · 히어로를 지나면 크림으로 (html.me-top-cream 토글) ═══
+(function(){
+  var de = document.documentElement;
+  function upd(){
+    // 히어로 대부분을 지나면(뷰포트 70% 스크롤) 상단 캔버스를 크림으로 전환
+    de.classList.toggle('me-top-cream', window.scrollY > window.innerHeight * 0.7);
+  }
+  window.addEventListener('scroll', upd, { passive: true });
+  window.addEventListener('resize', upd, { passive: true });
+  upd();
+})();
 // ═══ MOBILE MENU · 햄버거 토글 + 풀스크린 오버레이 제어 ═══
 (function(){
   var toggle = document.getElementById('navToggle');
