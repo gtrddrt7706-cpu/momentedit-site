@@ -2788,6 +2788,8 @@ footer {
   /* 모바일: 상단 fixed 메뉴바 제거 → iOS가 '상단 고정 크롬'으로 인식 안 해 프로스트 없이 투명 유지(마이페이지와 동일). 메뉴는 우측 고정 스택의 '메뉴' 버튼으로 이동 · mobileMenu 오버레이는 nav 안에 있지만 자체 position:fixed라 정상 동작 */
   nav {
     position: static !important;
+    /* transform(있으면 identity라도)이 걸리면 그 안의 position:fixed 메뉴가 뷰포트가 아닌 nav에 갇혀 위치가 깨짐 → 제거 */
+    transform: none !important;
   }
   .nav-in {
     display: none !important;
