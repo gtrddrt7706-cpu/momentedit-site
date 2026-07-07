@@ -44,8 +44,8 @@
     + '.me-adv-close:hover{color:var(--accent,#3A2D22);background:rgba(28,27,25,0.05)}'
     + '.me-adv-close svg{width:18px;height:18px}'
     + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
-    /* 인사말·메뉴를 입력창 쪽(아래)으로 정렬 — 대화가 길어져 넘치면 auto가 0으로 접혀 정상 스크롤 (2026-07-07 사용자 지시) */
-    + '.me-adv-body>:first-child{margin-top:auto}'
+    /* 메뉴는 위, 인사말 버블만 하단(입력창 쪽)으로 — 넘치면 auto가 0으로 접혀 정상 채팅 스크롤 (2026-07-07 사용자 지시) */
+    + '.me-adv-greet{margin-top:auto}'
     + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
     + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
     + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
@@ -324,8 +324,10 @@
     refreshKakaoLink();
     if (!started) {
       started = true;
-      addMsg(CFG.greeting || '안녕하세요, 모먼트에디트 상담 도우미예요. 궁금하신 점을 무엇이든 물어보세요.', 'bot');
-      renderChips();
+      renderChips();   // 메뉴(칩)를 위에
+      var g = addMsg(CFG.greeting || '안녕하세요, 모먼트에디트 상담 도우미예요. 궁금하신 점을 무엇이든 물어보세요.', 'bot');
+      g.classList.add('me-adv-greet');   // 인사말 버블은 하단(입력창 위)에 정렬
+      body.scrollTop = 0;   // 첫 화면은 메뉴부터 보이게
     }
     setTimeout(function () { if (window.innerWidth > 680) input.focus(); }, 480);
   }
