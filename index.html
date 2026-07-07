@@ -6975,6 +6975,7 @@ function replayHeroAnimation(){
   color: var(--gold);
   padding-left: 8px;
 }
+.me-adv-greet{margin-top:auto}   /* 메뉴는 위·인사말 버블만 하단(입력창 쪽)으로 — 넘치면 auto가 0으로 접혀 정상 스크롤 (2026-07-07) */
 .me-adv-chips-label {
   font-family: var(--serif);
   font-style: italic;
@@ -7212,7 +7213,6 @@ function replayHeroAnimation(){
   <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">
     <header class="me-adv-head">
       <div class="me-adv-head-t">
-        <span class="me-adv-seal">ME</span>
         <span class="me-adv-titles">
           <span class="me-adv-eyebrow">AI Wedding Concierge</span>
           <span class="me-adv-title">상담 도우미</span>
@@ -7421,9 +7421,10 @@ function replayHeroAnimation(){
     lockScroll();
     if(!started){
       started=true;
-      addMsg(KB.greeting,'bot');
-      renderNav(true);   // 첫 렌더는 nav 상단보정 생략(질문과 함께 열 때 스크롤 튕김 방지)
-      if(!keepScroll) requestAnimationFrame(function(){ body.scrollTop=0; });   // 일반 열기만 인사말부터. 질문·칩으로 열 땐 질문·답으로 스크롤 유지
+      renderNav(true);   // 메뉴를 위에 (첫 렌더는 nav 상단보정 생략 — 스크롤 튕김 방지)
+      var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에
+      g.classList.add('me-adv-greet');
+      if(!keepScroll) requestAnimationFrame(function(){ body.scrollTop=0; });   // 첫 화면은 메뉴부터. 질문·칩으로 열 땐 질문·답으로 스크롤 유지
     }
     setTimeout(function(){ if(window.innerWidth>680) input.focus(); },480);
   }
