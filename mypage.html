@@ -156,7 +156,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .now-refresh svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .now .now-label{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--seal);margin-bottom:14px}
 .now .now-head{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);line-height:1.6}
-.now .now-sub{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:10px}
+.now .now-sub{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:10px;white-space:pre-line}
 
 /* ── 진행바 (막대 없음 · 점만) ── */
 .progress{margin-bottom:24px;padding:0 2px}
@@ -1176,7 +1176,7 @@ function renderMyPage(d){
     }
     // [신청접수 하위상태] 시간 선택 후 승인 대기 / 변경 제안 — '일정 선택'에 머물지 않게
     if (d.stage === '신청접수' && d.consult) {
-      if (d.consult.status === '신청접수' && d.consult.scheduleUrl) { head = '상담 일정을 선택해 주세요'; sub = '아래에서 원하시는 날짜·시간을 고르시면, 디렉터가 확인 후 확정해 드려요.'; }   // 기본 문구('곧 연락드립니다')가 카드 액션과 충돌하던 것 보정
+      if (d.consult.status === '신청접수' && d.consult.scheduleUrl) { head = '상담 일정을 선택해 주세요'; sub = '아래에서 원하시는 날짜·시간을 고르시면,\n디렉터가 확인 후 확정해 드려요.'; }   // 기본 문구('곧 연락드립니다')가 카드 액션과 충돌하던 것 보정
       else if (d.consult.status === '시간선택완료') { head = '디렉터가 일정을 확인하고 있어요'; sub = '확정되면 메일과 카카오톡으로 알려드릴게요.'; }
       else if (d.consult.status === '변경제안') { head = '디렉터가 다른 시간을 제안했어요'; sub = '아래에서 수락하거나 다른 시간을 골라 주세요.'; }
     }
@@ -1746,7 +1746,7 @@ function renderConsult(c, product){
 
   if (s === '신청접수'){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
-    cta  = url ? '<a class="cc-btn" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
+    cta  = url ? '<a class="cc-btn cc-btn-seal" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
     body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
