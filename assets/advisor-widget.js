@@ -31,8 +31,8 @@
     /* 아이콘은 항상 노출(누끼) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
-    + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);box-shadow:-26px 0 72px rgba(28,27,25,0.20);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
-    + '.me-adv-panel.open{transform:translateX(0)}'
+    + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
+    + '.me-adv-panel.open{transform:translateX(0);box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
     + '@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}.me-adv-input{font-size:16px}}'
     + '.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg,#FAFAF8);border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18))}'
     + '.me-adv-head-t{display:flex;align-items:center;gap:13px}'
