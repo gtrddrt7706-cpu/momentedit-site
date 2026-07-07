@@ -4427,11 +4427,7 @@ body {
   min-height: 100vh;
   min-height: 100svh;
 }
-/* 히어로를 지나면 상단(캔버스)을 크림으로 — JS가 스크롤 위치로 토글. 특이성이 높아 위 !important를 이김 */
-html.me-top-cream,
-html.me-top-cream body {
-  background-color: #fafaf8 !important;
-}
+/* 스크롤에 따라 JS가 html/body 배경을 마우브↔크림 사이에서 연속 보간(인라인 !important)해 상단 상태바 색을 부드럽게 전환 */
 .page-bg {
   background-color: #fafaf8;
   min-height: 100vh;
@@ -6138,14 +6134,42 @@ html.me-top-cream body {
 <script>
 // ═══ 상단 상태바 색: 첫 화면(히어로)=마우브 · 히어로를 지나면 크림으로 (html.me-top-cream 토글) ═══
 (function(){
-  var de = document.documentElement;
-  function upd(){
-    // 히어로 대부분을 지나면(뷰포트 70% 스크롤) 상단 캔버스를 크림으로 전환
-    de.classList.toggle('me-top-cream', window.scrollY > window.innerHeight * 0.7);
+  var de = document.documentElement, body = document.body;
+  var hero = document.querySelector('.hero');
+  // 스크롤 비율(히어로 높이 기준)별 '실제 최상단 화면색' 측정값 → 상태바가 화면과 동일하게 보이도록 그대로 추종(티 안 나게)
+  var STOPS = [
+    [0.00, 111, 43, 36],
+    [0.30, 116, 52, 45],
+    [0.45, 138, 85, 79],
+    [0.60, 152, 110, 104],
+    [0.75, 161, 129, 124],
+    [0.88, 182, 162, 158],
+    [1.00, 250, 250, 248]
+  ];
+  var ticking = false;
+  function colorAt(f){
+    if (f <= STOPS[0][0]) return [STOPS[0][1], STOPS[0][2], STOPS[0][3]];
+    for (var i = 1; i < STOPS.length; i++){
+      if (f <= STOPS[i][0]){
+        var a = STOPS[i-1], b = STOPS[i], t = (f - a[0]) / (b[0] - a[0]);
+        return [Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t), Math.round(a[3]+(b[3]-a[3])*t)];
+      }
+    }
+    var L = STOPS[STOPS.length-1]; return [L[1], L[2], L[3]];
   }
+  function paint(){
+    ticking = false;
+    var h = hero ? hero.offsetHeight : window.innerHeight;
+    var f = h ? window.scrollY / h : 0;
+    var c = colorAt(f);
+    var col = 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+    de.style.setProperty('background-color', col, 'important');
+    body.style.setProperty('background-color', col, 'important');
+  }
+  function upd(){ if (!ticking){ ticking = true; requestAnimationFrame(paint); } }
   window.addEventListener('scroll', upd, { passive: true });
   window.addEventListener('resize', upd, { passive: true });
-  upd();
+  paint();
 })();
 // ═══ MOBILE MENU · 햄버거 토글 + 풀스크린 오버레이 제어 ═══
 (function(){
