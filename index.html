@@ -6159,6 +6159,12 @@ body {
   }
   function paint(){
     ticking = false;
+    // 메뉴 열림 중엔 스크롤 잠금(body fixed)으로 scrollY=0이 되어 색이 마우브로 튐 → 크림 고정하고 갱신 skip
+    if (document.body.classList.contains('menu-open')){
+      de.style.setProperty('background-color', '#fafaf8', 'important');
+      body.style.setProperty('background-color', '#fafaf8', 'important');
+      return;
+    }
     var h = hero ? hero.offsetHeight : window.innerHeight;
     var f = h ? window.scrollY / h : 0;
     var c = colorAt(f);
