@@ -2,8 +2,8 @@
 <html lang="ko-KR" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<!-- viewport-fit=cover 미사용: 콘텐츠가 상태바 뒤로 안 붙어 상단이 별도의 흰 상태바 영역이 됨(사용자 선택: 흰색 상태바). iOS 프로스트는 흰 톤으로 옅게 남음(제거 불가) -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- viewport-fit=cover: 콘텐츠가 상태바 뒤까지 이어져 마이페이지처럼 '투명 상태바'가 됨. 프로스트는 상단 fixed 메뉴바(고정 크롬)가 유발하므로, 모바일에선 그 메뉴바를 제거해 마이페이지처럼 투명 유지 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <script src="/shared/analytics.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2785,8 +2785,12 @@ footer {
     display: inline-flex;
     transform: translateY(0);
   }
+  /* 모바일: 상단 fixed 메뉴바 제거 → iOS가 '상단 고정 크롬'으로 인식 안 해 프로스트 없이 투명 유지(마이페이지와 동일). 메뉴는 우측 고정 스택의 '메뉴' 버튼으로 이동 · mobileMenu 오버레이는 nav 안에 있지만 자체 position:fixed라 정상 동작 */
+  nav {
+    position: static !important;
+  }
   .nav-in {
-    padding: calc(14px + env(safe-area-inset-top)) 22px 14px;
+    display: none !important;
   }
   .nav-logo {
     height: 23.5px !important;
@@ -6727,6 +6731,12 @@ function replayHeroAnimation(){
 .me-fab-cap {
   display: none;
 }
+/* '메뉴' fab은 모바일 전용(데스크탑은 상단 nav-links를 그대로 사용) */
+@media (min-width: 681px) {
+  .me-fab-menu {
+    display: none !important;
+  }
+}
 @media (max-width: 680px) {
   .me-fab-stack {
     right: 6px;
@@ -7200,6 +7210,10 @@ function replayHeroAnimation(){
 
 <div class="me-adv">
   <div class="me-fab-stack" id="meFabStack">
+    <button class="me-fab me-fab-menu" type="button" onclick="var t=document.getElementById('navToggle'); if(t) t.click();" aria-label="전체 메뉴 열기">
+      <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <span class="me-fab-cap">메뉴</span>
+    </button>
     <a class="me-fab" href="/mypage.html" aria-label="마이페이지">
       <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 19a6.5 6.5 0 0 1 13 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
       <span class="me-fab-cap">MY</span>
