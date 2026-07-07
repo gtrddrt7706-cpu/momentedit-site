@@ -4415,15 +4415,14 @@ a.access-link:hover::after {
     padding: 16px 0;
   }
 }
-/* 최상단 캔버스(html/body 배경)는 iOS 상태바 세이프에어리어에 그대로 비침(특히 스크롤 0·툴바 펼침 때).
-   모바일 상단 메뉴바 제거로 프로스트가 안 생기므로, 히어로 마우브로 맞춰 첫 화면 상단이 히어로와 이어져 투명하게 보임. 본문 크림은 .page-bg가 담당. */
+/* 최상단 캔버스(html/body 배경)는 iOS 상태바 세이프에어리어에 그대로 비침. 흰색(크림)으로 둠(사용자 선택: 마우브보다 흰색). 본문 크림은 .page-bg가 담당. */
 html {
-  background-color: #6f2b24 !important;
+  background-color: #fafaf8 !important;
   overscroll-behavior-y: none;
 }
 body {
   /* body 배경은 상단 상태바 세이프에어리어에만 비침(본문은 .page-bg가 덮음). 히어로 마우브. */
-  background-color: #6f2b24 !important;
+  background-color: #fafaf8 !important;
   color: #1c1b19 !important;
   min-height: 100vh;
   min-height: 100svh;
@@ -4437,11 +4436,11 @@ body {
   /* color-scheme:light only 여도 이 미디어쿼리는 적용됨 → 예전엔 html/body를 #1a1714(거의 검정)로 칠해
      iOS 상태바 세이프에어리어가 '검은 띠'로 보였음. 라이트값과 동일하게 맞춰 상단이 항상 배경과 어우러지게(검정 제거). */
   html {
-    background-color: #6f2b24 !important;
+    background-color: #fafaf8 !important;
     overscroll-behavior-y: none;
   }
   body {
-    background-color: #6f2b24 !important;   /* 상태바 세이프에어리어 마우브(히어로와 이어짐) · 본문은 .page-bg */
+    background-color: #fafaf8 !important;   /* 상태바 세이프에어리어 흰색 · 본문은 .page-bg */
     color: #1c1b19 !important;
   }
   .page-bg {
