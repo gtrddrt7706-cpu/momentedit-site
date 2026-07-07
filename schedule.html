@@ -416,6 +416,14 @@ footer{text-align:center;padding:34px 22px 40px;background:#1A1714;margin-top:44
   .greet-title{font-size:24px}.greet-sub{font-size:15px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
   .deposit{margin:0 0 18px}
 }
+/* 우측 진행 시간표 FAB — 메인/예약 페이지와 동일한 누끼 아이콘(me-fab) */
+.me-fab-stack{position:fixed;right:22px;top:50%;z-index:95;display:flex;flex-direction:column;align-items:center;gap:13px;transform:translateY(-50%)}
+.me-fab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.me-fab-ico{width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none;color:var(--seal,#6B2A24);opacity:.85;transition:transform .3s var(--ease,ease),opacity .3s var(--ease,ease)}
+.me-fab:hover .me-fab-ico{transform:translateY(-2px);opacity:1}
+.me-fab-ico svg{width:22px;height:22px}
+.me-fab-cap{font-family:var(--serif-ko,serif);font-size:10px;letter-spacing:0.02em;color:var(--seal,#6B2A24);opacity:.75}
+@media(max-width:680px){.me-fab-stack{right:6px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}
 </style>
 </head>
 <body>
@@ -532,10 +540,6 @@ footer{text-align:center;padding:34px 22px 40px;background:#1A1714;margin-top:44
             <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
           </form>
         </div>
-        <button type="button" class="seq-open-btn" data-seq-open="full" style="margin:0 0 4px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          시간대별 전체 진행 시간표 보기
-        </button>
         <div id="holdRuleNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:10px 0 0 25px;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
           <div style="display:flex;gap:7px"><span>·</span><span>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요.</span></div>
@@ -1112,6 +1116,13 @@ if(_hdw){
     .catch(function(){ if(done)return; done=true; clearTimeout(killer); clearNote(); if(!painted) fail('불러오기 실패 · 새로고침 해주세요.'); });
 })();
 </script>
+<!-- 우측 진행 시간표 FAB(시계 아이콘) — 클릭 시 sequence-modal.js가 전체 시간표 모달을 엶 -->
+<div class="me-fab-stack">
+  <button class="me-fab" type="button" data-seq-open="full" aria-label="예식 진행 시간표 보기">
+    <span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="me-fab-cap">시간표</span>
+  </button>
+</div>
 <script src="/assets/sequence-modal.js" defer></script>
 </body>
 </html>
