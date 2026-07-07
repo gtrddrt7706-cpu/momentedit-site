@@ -44,6 +44,8 @@
     + '.me-adv-close:hover{color:var(--accent,#3A2D22);background:rgba(28,27,25,0.05)}'
     + '.me-adv-close svg{width:18px;height:18px}'
     + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
+    /* 인사말·메뉴를 입력창 쪽(아래)으로 정렬 — 대화가 길어져 넘치면 auto가 0으로 접혀 정상 스크롤 (2026-07-07 사용자 지시) */
+    + '.me-adv-body>:first-child{margin-top:auto}'
     + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
     + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
     + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
