@@ -1828,7 +1828,7 @@ function renderFitting(f, d){
     return;
   }
   var body = '<div class="cc-title">'+escapeHtml(f.title || '드레스 시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
-           + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice)+'</div>' : '');   // [③-2] 계약서 24h 예고
+           + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice).replace('시착 후, ','시착 후,<br>')+'</div>' : '');   // [③-2] 계약서 24h 예고(첫 구절 뒤 줄내림 고정)
   var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
            + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
            + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
