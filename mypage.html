@@ -65,7 +65,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --ease:cubic-bezier(0.16,1,0.3,1);
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all;min-height:100vh;display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* 영문 라벨 자간 보정 유틸 — letter-spacing 만큼 padding-left (중앙정렬 시 왼쪽 쏠림 방지) */
 .en{font-family:var(--serif)}
@@ -84,7 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .topsub{font-family:var(--serif);font-size:8px;color:var(--label-soft);margin-top:7px}
 
 /* ── 레이아웃 ── */
-main{flex:1;width:100%;max-width:430px;margin:0 auto;padding:22px 22px 60px}
+main{width:100%;max-width:430px;margin:0 auto;padding:22px 22px 36px}
 /* 콘텐츠 적은 화면(로그인·코드찾기·재설정)은 세로 중앙 — 풋터까지 한 화면에 */
 main.centered{display:block;flex:none;padding-top:12vh;padding-bottom:14vh}
 /* 제작 단계부터 좌우 여유 — 데스크톱만 확장, 모바일은 100% 유지 */
@@ -817,9 +817,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="linkrow"><a id="rs_back">← 로그인으로 돌아가기</a></div>
   </section>
 </main>
-
-<footer>
-</footer>
 
 <script>
 /* ═══════════════════════════════════════════════
