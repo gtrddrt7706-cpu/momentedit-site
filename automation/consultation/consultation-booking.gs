@@ -1158,9 +1158,6 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
 function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
   if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
-  var cancelLine = token
-    ? smallP('예약 취소가 필요하시면 <a href="' + safeAttr(cancelPageUrl(token)) + '" style="color:#6B2A24;font-weight:500">여기</a>에서 진행하실 수 있습니다. (상담 ' + deadlineLabel() + ' 전까지)')
-    : '';
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -1171,8 +1168,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
       ['변경 · 취소', '상담 ' + deadlineLabel() + ' 전까지 가능합니다. 이후 변경은 카카오톡으로 문의해 주세요. 드레스 시착 전 취소는 예약금이 전액 환불됩니다.']
     ]) +
     emailBtnOutline(gcalUrl('Moment Edit 상담 · ' + names, dateKey, time, CONFIG.SLOT_DURATION_MIN), '내 캘린더에 추가') +
-    smallP('일정 변경이 필요하시면 받으셨던 전용 링크에서 다시 선택하시거나, <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 문의해 주세요.') +
-    cancelLine;
+    smallP('일정 변경은 <a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>에서 하실 수 있습니다.');
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 확정되었습니다 · ' + prettyDate(dateKey) + ' ' + time, '',
     { htmlBody: emailShell(head, inner), name: SYS.FROM_NAME });
 }
