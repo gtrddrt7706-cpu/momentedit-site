@@ -1876,7 +1876,7 @@ function renderContractReqForm(ctx){
   var preWed=ci.weddingDate||hd.date||'', preSlot=ci.weddingTime||hd.slot||'';
   var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
     +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">확인</div>'
-    +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml(ci.groom||'')+' · '+escapeHtml(ci.bride||'')+'</b><br>연락처 '+escapeHtml(ci.phone||'—')+' · 이메일 '+escapeHtml(ci.email||'—')+'</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml(ci.groom||'')+' · '+escapeHtml(ci.bride||'')+'</b><br>연락처 '+escapeHtml(ci.phone||'미입력')+' · 이메일 '+escapeHtml(ci.email||'미입력')+'</div>'
     +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px">정보가 다르면 카카오톡으로 알려 주세요.</div></div>';
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Contract</div>'
     +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
