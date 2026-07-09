@@ -6396,9 +6396,21 @@ body {
     // bfcache 상태(스크롤 위치 포함)를 그대로 살려 깜빡임·튐을 없앤다.
     const safe = sessionStorage.getItem('me_bfsafe') === '1';
     sessionStorage.removeItem('me_bfsafe');
-    if (safe) { sessionStorage.removeItem(KEY); return; }
+    if (safe) {
+      // bfcache 복원이 스크롤을 최상단으로 되돌리는 브라우저(scrollRestoration=manual) 대비:
+      // bfcache에만 의존하지 않고 저장 위치로 능동 복원(진사 상단은 me-restoring으로 가림)
+      const yv = parseInt(sessionStorage.getItem(KEY) || '0', 10);
+      if (yv > 300) document.documentElement.classList.add('me-restoring');
+      doRestore();
+      return;
+    }
     // 청첩장 갤러리 등 iframe·theme-color 잔여상태가 있는 페이지에서 돌아온 경우만 리로드
     window.location.reload();
+  });
+  // 안전망: 어떤 경로로든 me-restoring이 안 풀려 히어로가 계속 숨는 사고 방지(항상 노출 복구)
+  window.addEventListener('load', function(){
+    var h = document.documentElement;
+    if (h.classList.contains('me-restoring')) { h.style.background=''; h.classList.remove('me-restoring'); }
   });
 })();
 
