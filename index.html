@@ -1006,7 +1006,8 @@ body.menu-open .nav-logo {
     radial-gradient(95% 55% at 50% 48%, rgba(170, 76, 64, 0.34) 0%, rgba(170, 76, 64, 0) 62%),
     linear-gradient(180deg, #6f2b24 0%, #571f19 50%, #45160f 100%);
 }
-/* 뒤로가기 복원(스크롤 하단) 중에는 히어로 진사 배경이 첫 페인트에 번쩍이지 않게 숨김 — doRestore가 클래스 제거 후 정상 노출 */
+/* 뒤로가기 복원(스크롤 하단) 중에는 진사 첫 페인트 번쩍임 차단 — 상단 상태바색(html/body 배경)을 크림 고정 + 히어로 숨김. doRestore가 클래스 제거 후 정상 노출 */
+html.me-restoring, html.me-restoring body { background-color: #fafaf8 !important; }
 html.me-restoring .hero { visibility: hidden; }
 .hero::before {
   content: "";
@@ -6224,8 +6225,8 @@ body {
   }
   function paint(){
     ticking = false;
-    // 메뉴 열림 중엔 스크롤 잠금(body fixed)으로 scrollY=0이 되어 색이 마우브로 튐 → 크림 고정하고 갱신 skip
-    if (document.body.classList.contains('menu-open')){
+    // 메뉴 열림(scrollY=0 튐) 또는 뒤로가기 복원 중(첫 페인트 scrollY=0)엔 마우브로 튀지 않게 크림 고정하고 갱신 skip
+    if (document.body.classList.contains('menu-open') || de.classList.contains('me-restoring')){
       de.style.setProperty('background-color', '#fafaf8', 'important');
       body.style.setProperty('background-color', '#fafaf8', 'important');
       return;
