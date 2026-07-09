@@ -5030,6 +5030,11 @@ body {
 </script>
 </head>
 <body itemscope itemtype="https://schema.org/WebPage">
+<script>
+/* 뒤로가기(청첩장 등) 복원 시 진사(마우브) 캔버스 번쩍임 방지 — 스크롤 내려간 상태로 돌아오면
+   첫 페인트 전에 초기 캔버스를 크림으로 깔고, 복원(doRestore) 완료 후 원복해 히어로 커튼은 유지 */
+(function(){try{var y=parseInt(sessionStorage.getItem('me_home_scroll')||'0',10);if(y>300){document.documentElement.style.background='#FAFAF8';document.documentElement.setAttribute('data-restore-bg','1');}}catch(e){}})();
+</script>
 <div class="page-bg">
 <header>
 <!-- NAV -->
@@ -6314,6 +6319,8 @@ body {
       window.scrollTo(0, pos);
       html.style.scrollBehavior = prevBehavior;
       sessionStorage.removeItem(KEY);
+      // 진사 번쩍임 방지용 임시 크림 캔버스 원복(스크롤 내려간 상태라 히어로 마우브는 위로 올라가야 다시 보임)
+      if (html.getAttribute('data-restore-bg')) { html.style.background=''; html.removeAttribute('data-restore-bg'); }
     });
   }
   
