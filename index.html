@@ -6352,10 +6352,11 @@ body {
         const t = link.getAttribute('target');
         if (!t || t === '_self') {
           sessionStorage.setItem(KEY, String(window.scrollY));
-          // 되돌아올 때 강제 리로드가 필요 없는 안전한 페이지(마이페이지·상담)인지 표시
-          // → 안전 페이지면 bfcache 그대로 복원(상단 깜빡임·스크롤 튐 방지)
+          // 되돌아올 때 강제 리로드가 필요 없는 안전한 페이지(마이페이지·상담·청첩장)인지 표시
+          // → 안전 페이지면 bfcache 그대로 복원(상단 진사 번쩍임·스크롤 튐 방지)
+          //   청첩장: 홈·청첩장 theme-color가 모두 크림 고정이라 리로드 없이 복원해도 색 오염 없음
           const href = link.getAttribute('href') || '';
-          sessionStorage.setItem('me_bfsafe', /(^|\/)(mypage|inquiry|parents)\.html/.test(href) ? '1' : '0');
+          sessionStorage.setItem('me_bfsafe', /(^|\/)(mypage|inquiry|parents|invitation-gallery)\.html/.test(href) ? '1' : '0');
         }
       });
     });
