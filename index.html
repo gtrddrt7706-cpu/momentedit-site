@@ -1006,9 +1006,9 @@ body.menu-open .nav-logo {
     radial-gradient(95% 55% at 50% 48%, rgba(170, 76, 64, 0.34) 0%, rgba(170, 76, 64, 0) 62%),
     linear-gradient(180deg, #6f2b24 0%, #571f19 50%, #45160f 100%);
 }
-/* 뒤로가기 복원(스크롤 하단) 중에는 진사 첫 페인트 번쩍임 차단 — 상단 상태바색(html/body 배경)을 크림 고정 + 히어로 숨김. doRestore가 클래스 제거 후 정상 노출 */
+/* 뒤로가기 복원 중: 상단 상태바색(캔버스) 크림 고정 + 콘텐츠 가림(opacity) → 스크롤이 저장 위치에 정착한 뒤 한 번에 노출(정신없는 스크롤·진사 번쩍임 동시 차단). doRestore가 정착 후 클래스 제거 */
 html.me-restoring, html.me-restoring body { background-color: #fafaf8 !important; }
-html.me-restoring .hero { visibility: hidden; }
+html.me-restoring body { opacity: 0 !important; }
 .hero::before {
   content: "";
   position: absolute;
@@ -6364,20 +6364,33 @@ body {
   }
   
   function doRestore(){
-    const y = sessionStorage.getItem(KEY);
+    var y = sessionStorage.getItem(KEY);
     if (y === null) return;
-    const pos = parseInt(y, 10);
-    const html = document.documentElement;
-    const prevBehavior = html.style.scrollBehavior;
-    html.style.scrollBehavior = 'auto';
-    window.scrollTo(0, pos);
-    requestAnimationFrame(()=>{
-      window.scrollTo(0, pos);
+    var pos = parseInt(y, 10) || 0;
+    var html = document.documentElement;
+    var prevBehavior = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';   // 부드러운 스크롤 끔 → 즉시 이동
+    sessionStorage.removeItem(KEY);        // 1회 소비(이번 뒤로가기만)
+    var tries = 0, done = false;
+    function reveal(){
+      if (done) return; done = true;
       html.style.scrollBehavior = prevBehavior;
-      sessionStorage.removeItem(KEY);
-      // 진사 번쩍임 방지용 임시 크림 캔버스·히어로 숨김 원복(스크롤 내려간 상태라 히어로는 위로 올라가야 다시 보임)
+      // 복원 가림(크림 캔버스·콘텐츠 opacity) 해제 → 저장 위치 그대로 한 번에 노출
       if (html.classList.contains('me-restoring')) { html.style.background=''; html.classList.remove('me-restoring'); }
-    });
+    }
+    // 이미지·폰트가 늦게 로드되면 페이지 높이가 아직 안 자라 scrollTo가 clamp됨(최상단으로 튐)
+    // → 목표 위치에 실제로 도달할 때까지(또는 한계까지) 매 프레임 재시도한 뒤 노출
+    function settle(){
+      if (done) return;
+      window.scrollTo(0, pos);
+      tries++;
+      if (Math.abs((window.scrollY || window.pageYOffset || 0) - pos) <= 2 || tries >= 60){ reveal(); return; }
+      requestAnimationFrame(settle);
+    }
+    settle();
+    // 최종 안전망: 매우 늦게 로드되는 경우 대비(항상 노출·재보정 보장)
+    window.addEventListener('load', function(){ if (!done){ window.scrollTo(0, pos); reveal(); } }, { once: true });
+    setTimeout(function(){ if (!done){ window.scrollTo(0, pos); reveal(); } }, 1000);
   }
   
   if (document.readyState === 'loading') {
