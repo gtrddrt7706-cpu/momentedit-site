@@ -1006,6 +1006,8 @@ body.menu-open .nav-logo {
     radial-gradient(95% 55% at 50% 48%, rgba(170, 76, 64, 0.34) 0%, rgba(170, 76, 64, 0) 62%),
     linear-gradient(180deg, #6f2b24 0%, #571f19 50%, #45160f 100%);
 }
+/* 뒤로가기 복원(스크롤 하단) 중에는 히어로 진사 배경이 첫 페인트에 번쩍이지 않게 숨김 — doRestore가 클래스 제거 후 정상 노출 */
+html.me-restoring .hero { visibility: hidden; }
 .hero::before {
   content: "";
   position: absolute;
@@ -5039,7 +5041,7 @@ body {
 <script>
 /* 뒤로가기(청첩장 등) 복원 시 진사(마우브) 캔버스 번쩍임 방지 — 스크롤 내려간 상태로 돌아오면
    첫 페인트 전에 초기 캔버스를 크림으로 깔고, 복원(doRestore) 완료 후 원복해 히어로 커튼은 유지 */
-(function(){try{var y=parseInt(sessionStorage.getItem('me_home_scroll')||'0',10);if(y>300){document.documentElement.style.background='#FAFAF8';document.documentElement.setAttribute('data-restore-bg','1');}}catch(e){}})();
+(function(){try{var y=parseInt(sessionStorage.getItem('me_home_scroll')||'0',10);if(y>300){var h=document.documentElement;h.style.background='#FAFAF8';h.classList.add('me-restoring');}}catch(e){}})();
 </script>
 <div class="page-bg">
 <header>
@@ -6371,8 +6373,8 @@ body {
       window.scrollTo(0, pos);
       html.style.scrollBehavior = prevBehavior;
       sessionStorage.removeItem(KEY);
-      // 진사 번쩍임 방지용 임시 크림 캔버스 원복(스크롤 내려간 상태라 히어로 마우브는 위로 올라가야 다시 보임)
-      if (html.getAttribute('data-restore-bg')) { html.style.background=''; html.removeAttribute('data-restore-bg'); }
+      // 진사 번쩍임 방지용 임시 크림 캔버스·히어로 숨김 원복(스크롤 내려간 상태라 히어로는 위로 올라가야 다시 보임)
+      if (html.classList.contains('me-restoring')) { html.style.background=''; html.classList.remove('me-restoring'); }
     });
   }
   
