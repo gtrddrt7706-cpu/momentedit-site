@@ -5036,13 +5036,13 @@ body {
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://momentedit.kr"},{"@type":"ListItem","position":2,"name":"청첩장 갤러리","item":"https://momentedit.kr/invitation-gallery.html"},{"@type":"ListItem","position":3,"name":"상담 문의","item":"https://momentedit.kr/inquiry.html"}]}
 </script>
-</head>
-<body itemscope itemtype="https://schema.org/WebPage">
 <script>
-/* 뒤로가기(청첩장 등) 복원 시 진사(마우브) 캔버스 번쩍임 방지 — 스크롤 내려간 상태로 돌아오면
-   첫 페인트 전에 초기 캔버스를 크림으로 깔고, 복원(doRestore) 완료 후 원복해 히어로 커튼은 유지 */
+/* 뒤로가기(청첩장 등) 복원 시 진사(마우브) 첫 페인트·상단 상태바 샘플링 방지 — 스크롤 내려간 상태로
+   돌아오면 첫 페인트 전(head 끝)에 캔버스를 크림으로 깔고 히어로를 숨김. doRestore가 복원 후 원복 */
 (function(){try{var y=parseInt(sessionStorage.getItem('me_home_scroll')||'0',10);if(y>300){var h=document.documentElement;h.style.background='#FAFAF8';h.classList.add('me-restoring');}}catch(e){}})();
 </script>
+</head>
+<body itemscope itemtype="https://schema.org/WebPage">
 <div class="page-bg">
 <header>
 <!-- NAV -->
