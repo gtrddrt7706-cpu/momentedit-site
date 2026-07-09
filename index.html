@@ -4011,6 +4011,65 @@ footer {
   letter-spacing: 0.06em;
   margin-bottom: 36px;
 }
+/* 편지 본문 미리보기(페이드) + 펼쳐 읽기 — 홈 쇼케이스 공간 절약(감동은 도입부로 스침) */
+.dm-body.dm-collapsed {
+  max-height: 150px;
+  overflow: hidden;
+  margin-bottom: 0;
+  position: relative;
+}
+.dm-body.dm-collapsed::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 88px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
+  pointer-events: none;
+}
+.dm-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 16px auto 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--serif-ko);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--seal);
+  letter-spacing: 0.04em;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.25s;
+}
+.dm-more .dm-more-t {
+  border-bottom: 1px solid rgba(107, 42, 36, 0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.25s;
+}
+.dm-more::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.2px solid currentColor;
+  border-bottom: 1.2px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 3px;
+  transition: transform 0.28s var(--ease);
+}
+.dm-more[aria-expanded="true"]::after {
+  transform: rotate(-135deg);
+  margin-bottom: -1px;
+}
+.dm-more:hover {
+  color: var(--accent);
+}
+.dm-more:hover .dm-more-t {
+  border-color: var(--accent);
+}
 .dm-foot-quote {
   font-family: var(--serif);
   font-style: italic;
@@ -5596,7 +5655,7 @@ body {
       <span class="dm-from-name">엄마</span>
     </div>
 
-    <div class="dm-body">
+    <div class="dm-body dm-collapsed" id="dmLetterBody">
       하윤이에게.<br><br>
       네가 태어나고 처음 집에 왔던 밤,<br>
       엄마는 네 숨소리를 한참이나 듣고 있었다.<br>
@@ -5609,6 +5668,19 @@ body {
       평생 말하지 못했던 그 한마디를,<br>
       오늘 여기에 남긴다.
     </div>
+
+    <button type="button" class="dm-more" id="dmLetterToggle" aria-expanded="false" aria-controls="dmLetterBody"><span class="dm-more-t">편지 전문 펼쳐보기</span></button>
+    <script>
+    (function(){
+      var b=document.getElementById('dmLetterToggle'), body=document.getElementById('dmLetterBody');
+      if(!b||!body) return;
+      b.addEventListener('click',function(){
+        var collapsed=body.classList.toggle('dm-collapsed');
+        b.setAttribute('aria-expanded', collapsed?'false':'true');
+        b.querySelector('.dm-more-t').textContent = collapsed?'편지 전문 펼쳐보기':'접기';
+      });
+    })();
+    </script>
 
     <div class="dm-sign">엄마가.</div>
 
