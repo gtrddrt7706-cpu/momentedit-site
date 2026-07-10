@@ -194,7 +194,9 @@ function buildProductionState(r) {
     email: entered ? (b.email || '') : String(r.get('이메일') || ''),
     weddingDate: lockedWed || b.weddingDate || '',          // 계약 확정일 우선(없으면 제작폼 입력값)
     weddingTime: b.weddingTime || '',
-    weddingLocked: !!lockedWed                              // true면 제작폼에서 날짜 읽기전용(계약서 기준)
+    weddingLocked: !!lockedWed,                             // true면 제작폼에서 날짜 읽기전용(계약서 기준)
+    // 문의 때 적은 예상 하객 수 — 최종확정 위저드 프리필용(수정 가능 · 1~99만 유효)
+    expectedGuests: (function () { try { if (typeof findRowByPersonalCode !== 'function') return ''; var bk = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); var g = bk ? String(bk.get('하객') || '').replace(/[^0-9]/g, '') : ''; return (Number(g) > 0 && Number(g) < 100) ? g : ''; } catch (e) { return ''; } })()
   };
   var t = draft.tracks || {};
   return {

@@ -1548,9 +1548,9 @@ function renderLedger(l){
           +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">입금 계좌</div>'
           +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
           +(_balS.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_balS.holder)+'</div>':'')
-          +'<button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="margin-top:9px">계좌 복사</button></div>'):'')
+          +'<div style="display:flex;gap:8px;margin-top:9px"><button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(_balS.amount!=null?_balS.amount:'')+'" style="flex:1">금액 복사</button></div></div>'):'')
         +(_balS.extraPending?_finalGateHtml():'')
-        +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+        +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
         +cashReceiptField('mp_lbCR', l.cashTail)
         +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
         +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>'
@@ -2114,9 +2114,9 @@ function renderContractPayment(c, p, ctx){
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button></div>') : '';
+      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String((_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:''))+'" style="flex:1">금액 복사</button></div></div>') : '';
   h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
-     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
+     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
@@ -2316,10 +2316,10 @@ function renderPayment(p){
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder ? '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>' : '')
-      + '<button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(a?a.납부액:'')+'" style="flex:1">금액 복사</button></div>'
       + '</div>' ) : '';
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
-    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
         + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
@@ -2337,6 +2337,33 @@ function renderPayment(p){
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
+// [입금자명 칩] 계약서의 신랑·신부 이름 원탭 입력(부모님 입금 등 직접 입력도 그대로 가능)
+function _payerChipsHtml(target){
+  var f=(((window._mpStateD||{}).contract)||{}).fill||{};
+  var names=[]; if(f.groom) names.push(f.groom); if(f.bride&&f.bride!==f.groom) names.push(f.bride);
+  if(!names.length) return '';
+  return '<div style="display:flex;gap:6px;margin:-4px 0 10px">'+names.map(function(n){
+    return '<button type="button" data-payer-chip data-target="'+escapeHtml(target)+'" data-name="'+escapeHtml(n)+'" style="background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent">'+escapeHtml(n)+'</button>';
+  }).join('')+'</div>';
+}
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-payer-chip]'):null;
+  if(!t) return;
+  var el=$(t.getAttribute('data-target')); if(!el) return;
+  el.value=t.getAttribute('data-name')||'';
+  try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(err){}
+});
+// [금액 복사] 계좌 옆 금액 원탭 복사(이체 앱 금액 오타 방지) — data-copy-amt(고정) 또는 data-copy-from(요소 텍스트 숫자)
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-amt],[data-copy-from]'):null;
+  if(!t) return;
+  var v=String(t.getAttribute('data-copy-amt')||'');
+  var srcId=t.getAttribute('data-copy-from');
+  if(srcId){ var el=$(srcId); if(el) v=String(el.textContent||''); }
+  v=v.replace(/[^0-9]/g,''); if(!v) return;
+  var done=function(){ t.textContent='복사됐습니다'; setTimeout(function(){ t.textContent='금액 복사'; },1500); };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
+});
 // [최종확정 소프트 게이트] 잔금 결제 전 인원 미확정이면 — 먼저 확정 유도(강제 아님 · 3걸음 위저드로 이동).
 function _finalGateHtml(){
   var hasProd = !!((window._mpStateD||{}).production);
@@ -2391,10 +2418,10 @@ function renderBalance(p, mid){
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(p.amount!=null?p.amount:'')+'" style="flex:1">금액 복사</button></div>'
       + '</div>'):'';
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
-    cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+    cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
       + cashReceiptField('mp_bCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -2473,11 +2500,11 @@ function renderMid(p, bal){
       + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
       + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
+      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-from="mp_mAmtV" style="flex:1">금액 복사</button></div>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
-    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_mPayer')
       + cashReceiptField('mp_mCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -3648,6 +3675,7 @@ function startTrkFlow(track, draft, base){
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
   if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널(세부조건·가볼곳) 모두 초기화(2026-06-13 사용자 지시)
   if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
+  if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   renderTrkFlow($('mp_production'));
@@ -4360,7 +4388,8 @@ function renderFinal(box){
   }
   if(TRKFLOW.step===0){
     var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">총 하객 수 (두 분 제외)</div>'
-      + '<input class="cc-input" id="trk_head" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'" style="margin-bottom:0"></div>'
+      + '<input class="cc-input" id="trk_head" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'" style="margin-bottom:0">'
+      + ((d._fromInquiry&&String(d.headcount||'')===String(d._fromInquiry))?'<div class="cc-note" style="text-align:left;margin:6px 0 0">문의 때 <b>'+escapeHtml(d._fromInquiry)+'명</b>으로 적어주셨어요. 달라졌으면 고쳐 주세요.</div>':'')+'</div>'
       + '<div class="cc-note" style="text-align:left" id="trk_calc">'+_finCalcHtml(parseInt(d.headcount||'',10)||0)+'</div>'
       + '<div class="cc-note" style="text-align:left"><span class="cc-mini">착석 '+P.seats+'명 기본 · 초과는 스탠딩으로 1인 '+P.unit.toLocaleString()+'원 · 최대 '+P.max+'명 (계약 기준)</span></div>';
     box.innerHTML=trkShell(1,'몇 분을 모시나요?','최종 인원이에요. 좌석·잔·다과 준비의 기준이 돼요.',body,false);

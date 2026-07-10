@@ -51,6 +51,7 @@ export function makeSandbox() {
       base64Encode: (s) => Buffer.from(s).toString('base64'), base64EncodeWebSafe: (s) => Buffer.from(s).toString('base64url'),
       newBlob: (data, type, name) => ({ getBytes: () => Buffer.from(String(data)), getDataAsString: () => String(data), getName: () => name }),
       computeDigest: (a, s) => Array.from(crypto.createHash('sha256').update(String(s), 'utf8').digest()).map((b) => (b > 127 ? b - 256 : b)),
+      computeHmacSha256Signature: (s, key) => Array.from(crypto.createHmac('sha256', String(key)).update(String(s), 'utf8').digest()).map((b) => (b > 127 ? b - 256 : b)),
       DigestAlgorithm: { MD5: 'md5', SHA_1: 'sha1', SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' } },
     Logger: { log() {} },
     Session: { getScriptTimeZone: () => 'Asia/Seoul', getActiveUser: () => ({ getEmail: () => 'sim@test' }) },

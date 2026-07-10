@@ -157,6 +157,7 @@ function doGet(e) {
   var p = (e && e.parameter) || {};
   try {
     if (p.admin === '1') return serveAdmin(e);       // [관리자 v1] 구글 로그인 + Admins 화이트리스트
+    if (p.action === 'payconfirm') return servePayConfirm(p);   // [메일 원클릭] 입금 확인(서명·14일·멱등)
     if (p.action) return handleAction(p);            // 메일 버튼(승인/변경/수락/재선택)
     if (p.page === 'schedule' && p.token) return serveScheduleB(p.token, p.me === '1'); // 화면 B (me=1: 마이페이지 진입)
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
@@ -1675,6 +1676,26 @@ function notifyStudio(subject, body, dedupKey) {
 }
 
 // 액션 결과/안내 페이지 (브랜드 톤 · 모바일)
+// [메일 원클릭] 입금 확인 — 관리자 신호 메일의 '입금 확인 처리' 버튼(95_notify가 서명 링크 생성).
+//   통장 대조 후 메일에서 한 탭으로 확인 처리. 서명(HMAC)+만료 14일+멱등(이미 확인이면 안내만).
+function servePayConfirm(p) {
+  var code = String((p && p.code) || '').trim().toUpperCase();
+  var m = String((p && p.m) || '').trim();   // deposit=계약금 / mid / bal / midbal(함께입금)
+  var exp = String((p && p.exp) || '');
+  var label = { deposit: '계약금', mid: '중도금', bal: '잔금', midbal: '중도금·잔금' }[m];
+  if (!code || !label || !verifySig(code, 'payconfirm:' + m + ':' + exp, String((p && p.sig) || ''))) {
+    return infoPage('유효하지 않은 링크입니다', '링크가 올바르지 않아요. 관리자 페이지에서 처리해 주세요.', false);
+  }
+  if (!(Number(exp) > Date.now())) return infoPage('링크 유효기간이 지났습니다', '보안을 위해 링크는 14일간만 유효해요. 관리자 페이지에서 처리해 주세요.', false);
+  var r;
+  if (m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
+  else if (m === 'mid') r = adminConfirmMid(code);
+  else if (m === 'bal') r = adminConfirmBalance(code);
+  else r = adminConfirmMidBalance(code);
+  if (r && r.ok && r.already) return infoPage('이미 확인 처리되어 있어요', code + ' · ' + label + ' — 추가로 할 일이 없어요.', true);
+  if (r && r.ok) return infoPage('입금 확인 완료', code + ' · ' + label + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.', true);
+  return infoPage('처리하지 못했어요', String((r && r.error) || '') + '<br>관리자 페이지에서 처리해 주세요.', false);
+}
 function infoPage(title, bodyHtml, ok) {
   var color = ok ? '#2E6B43' : '#6B2A24';
   var html =

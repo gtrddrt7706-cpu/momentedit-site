@@ -141,7 +141,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     // [메일 전용 전환 · 2026-06-29] 문자비 0 — 관리자 알림은 SMS 대신 메일로(운영자 개인메일 cc). 이 메일에 폰 알람을 걸면 즉시 확인.
     var meta = NOTIFY_EVENTS[event] || {};
     if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
-    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_nfAdminText(event, code, extra));
+    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra));
     return;
   }
 
@@ -682,7 +682,17 @@ function _nfAdminEmail(subject, bodyHtml, opts) {
 
 // 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
 //   text 예: '[모먼트에디트] 신규 신청 … / 일정 잡기'  ·  '📋 새 인계: …'  ·  '🛡️ 안전점검 …'
-function _nfAdminLineEmail(text) {
+// [메일 원클릭] 입금신호 3종 메일에 '입금 확인 처리' 버튼(doGet action=payconfirm · HMAC 서명 · 14일 유효 · 멱등)
+function _nfPayConfirmAction(event, code, extra) {
+  try {
+    if (['admin.depositSignal', 'admin.midSignal', 'admin.balanceSignal'].indexOf(event) === -1) return null;
+    if (typeof sign !== 'function' || typeof webAppUrl !== 'function') return null;
+    var m = (event === 'admin.depositSignal') ? 'deposit' : (event === 'admin.balanceSignal') ? 'bal' : ((extra && extra.withBalance) ? 'midbal' : 'mid');
+    var exp = String(Date.now() + 14 * 86400000);
+    return { url: webAppUrl() + '?action=payconfirm&code=' + encodeURIComponent(String(code || '').trim().toUpperCase()) + '&m=' + m + '&exp=' + exp + '&sig=' + encodeURIComponent(sign(String(code || '').trim().toUpperCase(), 'payconfirm:' + m + ':' + exp)), label: '입금 확인 처리' };
+  } catch (e) { return null; }
+}
+function _nfAdminLineEmail(text, action) {
   try {
     var raw = _noEmoji(String(text || '').trim());   // 이모지 제거(관리자 알림 규칙)
     if (!raw) return;
@@ -694,6 +704,7 @@ function _nfAdminLineEmail(text) {
     else head = '모먼트에디트 알림';
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
     var inner = (typeof centerP === 'function') ? centerP(safe(body)) : ('<p>' + safe(body) + '</p>');
+    if (action && action.url && typeof emailBtn === 'function') inner += emailBtn(action.url, action.label || '처리하기');   // 원클릭 액션(입금 확인 등) — 관리자 페이지 버튼보다 앞
     if (typeof emailBtn === 'function') inner += emailBtn('https://momentedit.kr/admin.html', '관리자 페이지 열기');
     _nfAdminEmail('[Moment Edit] ' + body.slice(0, 60), inner, { raw: true, head: head });
   } catch (e) { try { Logger.log('[notify] 관리자 라인메일 실패: ' + (e && e.message)); } catch (_) {} }
