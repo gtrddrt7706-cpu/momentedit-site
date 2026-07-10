@@ -1528,11 +1528,27 @@ function renderLedger(l){
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
-    var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기(메인에 결제 안내 카드 펼침 · 카드결제 버튼 포함) — 접힘 가로줄 대체(2026-07-10)
-    var stat=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호')
+    var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기: 모달 안에서 결제 안내 펼침(계좌·입금했어요·카드결제) — 2026-07-10 사용자 지시
+    var _canBal=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호');
+    var stat=_canBal
       ? '<span class="led-s"><button type="button" class="led-linkbtn" id="mp_ledBalView">보기</button></span>'
       : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
-    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span>'+stat+'</div>'+dueTxt;
+    var panel='';
+    if(_canBal){
+      panel='<div id="mp_ledBalPanel" style="display:none">'
+        +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'
+        +(_balS.account?('<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+          +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">입금 계좌</div>'
+          +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
+          +(_balS.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_balS.holder)+'</div>':'')
+          +'<button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="margin-top:9px">계좌 복사</button></div>'):'')
+        +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+        +cashReceiptField('mp_lbCR', l.cashTail)
+        +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
+        +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>'
+        +'</div></div>';
+    }
+    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span>'+stat+'</div>'+dueTxt+panel;
   }).join('');
   var recRows=(l.receipts&&l.receipts.length)
     ? l.receipts.map(function(r){ var done=!!r.num; return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s '+(done?'led-done':'led-soon')+'">'+(done?('발행 '+escapeHtml(r.num)):'발급 예정')+'</span></div>'; }).join('')
@@ -1620,7 +1636,28 @@ function renderLedger(l){
   var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){ closeLedModal(); renderChangeWizard(window._mpStateD||{}); var _b=$('mp_contract'); if(_b&&_b.scrollIntoView) _b.scrollIntoView({behavior:'smooth',block:'start'}); });
   var lx=$('mp_ledChgCancel'); if(lx) lx.addEventListener('click', function(){ closeLedModal(); doCancelWeddingChange(); });
   var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } });
-  var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', openBalanceGuide);
+  var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', function(){
+    var pn=$('mp_ledBalPanel'); if(!pn) return;
+    var open=pn.style.display!=='none';
+    pn.style.display=open?'none':'block';
+    bv.textContent=open?'보기':'접기';
+    if(!open){ try{ if(window.meCardPay) meCardPay.init(); }catch(e){} try{ pn.scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){} }   // 카드결제 버튼 자동 부착(켜져 있으면)
+  });
+  var lbc=$('mp_lbAcctCopy'); if(lbc) lbc.addEventListener('click', function(){
+    var _b=(window._mpStateD||{}).balance, t=String((_b&&_b.account)||''); if(!t) return;
+    var ok=function(){ lbc.textContent='복사됐습니다'; setTimeout(function(){ lbc.textContent='계좌 복사'; },1500); };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
+  });
+  var lbs=$('mp_lbSignal'); if(lbs) lbs.addEventListener('click', function(){
+    var payer=(($('mp_lbPayer')&&$('mp_lbPayer').value)||'').trim();
+    if(!payer){ mpAlert('입금자명을 입력해 주세요.'); return; }
+    lbs.disabled=true; lbs.textContent='처리 중…';
+    function reset(){ lbs.disabled=false; lbs.textContent='입금했어요'; }
+    var cr=(($('mp_lbCR')&&$('mp_lbCR').value)||'').trim();
+    api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
+    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+  });
 }
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
 function doEditCashReceipt(tail){
@@ -2292,18 +2329,6 @@ function renderPayment(p){
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
-// [내 내역 > 잔금 보기] 메인에 잔금 결제 안내 카드를 강제로 펼치고 스크롤(카드결제 버튼도 자동 부착).
-//   D-9 이내(중도금·잔금 합계 흡수) 상태면 통합 카드(중도금)로 안내.
-function openBalanceGuide(){
-  window._balForceOpen=true;
-  var d=window._mpStateD||{};
-  try{ renderBalance(d.balance, d.midpayment); }catch(e){}
-  try{ if(window.meCardPay) meCardPay.init(); }catch(e){}
-  if(typeof closeLedModal==='function') closeLedModal();
-  var el=$('mp_balance');
-  if(!el || getComputedStyle(el).display==='none') el=$('mp_midpayment');
-  if(el){ try{ el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} }
-}
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
@@ -2348,8 +2373,8 @@ function renderBalance(p, mid){
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
-  if(p.status==='완료신호' || near || window._balForceOpen){
-    // 가까워짐·입금 신호·'내 내역 > 잔금 보기' → 펼친 활성 카드
+  if(p.status==='완료신호' || near){
+    // 가까워짐·입금 신호 → 펼친 활성 카드 (평소 진입은 '내 내역 > 잔금 보기' 인라인 패널)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
     // 평소엔 메인에 안 띄움 — 잔금 안내 진입은 '내 내역 > 잔금 보기'로(접힘 가로줄 제거 · 2026-07-10 사용자 지시)
@@ -2473,7 +2498,7 @@ var meCardPay = (function(){
   var cfg=null, ready=false, returnDone=false, checked=false;
   var PREVIEW=(function(){ try{ return new URLSearchParams(location.search).get('preview_card')==='1'; }catch(e){ return false; } })();   // ?preview_card=1 → 배치 미리보기(결제 없음 · 라이브 무해)
   var TOSS_SDK='https://js.tosspayments.com/v1/payment';
-  var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'} ];
+  var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'}, {btn:'mp_lbSignal', m:'잔금'} ];   // mp_lbSignal=내 내역 인라인 잔금 패널
   function loadSdk(cb, onFail){
     if(window.TossPayments){ cb(); return; }
     var s=document.createElement('script'); s.src=TOSS_SDK;
