@@ -1279,7 +1279,13 @@ function _confirmDepositCore(code, opts) {
   if (opts.bundle && String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
     var _ddc = _balanceDDay(cust.get('예식일'));
     if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = _bNow; bundled.push('중도금'); }
-    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') { patch['잔금상태'] = '확인'; patch['잔금확인일시'] = _bNow; bundled.push('잔금'); }
+    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') {
+      patch['잔금상태'] = '확인'; patch['잔금확인일시'] = _bNow; bundled.push('잔금');
+      var _dX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };   // [잔금 스냅샷] 번들 확인도 동일 고정
+      var _dAm = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));
+      rec0.잔금확정금액 = Math.round((_dAm ? Number(_dAm['잔금']) || 0 : 0) + (_dX.amount || 0));
+      patch['동의기록'] = JSON.stringify(rec0);
+    }
   }
   touchCustomer(sheet, colOf, cust.num, patch);
   setCustomerStage(code, 'paid');                            // 현재단계 → 입금완료
