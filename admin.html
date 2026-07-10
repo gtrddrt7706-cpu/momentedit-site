@@ -998,9 +998,9 @@ function queueRow(it){
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
 }
 function renderQueue(d){
-  var u=d.queue.urgent||[], n=d.queue.normal||[], html='';
-  html+='<div class="sect-h"><span class="ic">⚡</span><span class="tt">처리할 일</span><span class="ct">'+(d.counts.total)+(d.counts.urgent?' · <b>🔴'+d.counts.urgent+' 급함</b>':'')+'</span></div>';
-  if(!d.counts.total){
+  var u=d.queue.urgent||[], n=d.queue.normal||[], html='', ct=d.counts||{}, ctTotal=Number(ct.total)||0, ctUrgent=Number(ct.urgent)||0;
+  html+='<div class="sect-h"><span class="ic">⚡</span><span class="tt">처리할 일</span><span class="ct">'+ctTotal+(ctUrgent?' · <b>🔴'+ctUrgent+' 급함</b>':'')+'</span></div>';
+  if(!ctTotal){
     html+='<div class="empty">✓ 처리할 일이 없어요 · 다 됐어요</div>';
   } else {
     if(u.length){ html+='<div class="qhead red">🔴 급한 것 ('+u.length+')</div>'+u.map(queueRow).join(''); }
