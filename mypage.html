@@ -2191,14 +2191,19 @@ function renderChangeWizard(ctx, host){
   var inline=!!host;   // 내 내역 모달 안 인라인 렌더(2026-07-10 사용자 지시 — 창 안에서 해결)
   var fill=(ctx&&ctx.contract&&ctx.contract.fill)||{};
   var curTxt=(typeof fmtWedKo==='function'&&fmtWedKo(fill.weddingDate))?fmtWedKo(fill.weddingDate):(fill.weddingDate||'');
+  var _kakao=(window.ME_ADV_PAGE&&ME_ADV_PAGE.kakaoUrl)?ME_ADV_PAGE.kakaoUrl():'mailto:contact@momentedit.kr';
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Change</div>'
     +'<div class="cc-title" style="text-align:center">예식일 변경</div>'
     +'<div class="cc-sub" style="text-align:center">지금 예식일 · <b>'+escapeHtml(curTxt)+(fill.weddingTime?(' · '+escapeHtml(wedTimeKo(fill.weddingTime))):(fill.weddingTimeLabel?(' '+escapeHtml(fill.weddingTimeLabel)):''))+'</b></div>'
-    +'<div class="visit-guide" style="margin-top:12px">'
+    // 무상 변경·경조사 면제는 기본 노출 안 함(잦은 변경 유도 방지) → 접이식 안에서 '찾아서' 보고 문의(2026-07-10 사용자 지시)
+    +'<details class="chg-guide" style="margin-top:12px">'
+    +'<summary style="cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#9a7b3f);padding:8px 2px;text-align:center;list-style:none;text-decoration:underline;text-underline-offset:3px">변경 규정 자세히</summary>'
+    +'<div class="visit-guide" style="margin-top:8px">'
     +'<div class="vg-row"><span class="vg-k">무상 변경</span><span class="vg-v">무료 취소 기간(예식 <b>150일 전</b>까지)에는 횟수 제한 없이 무상,<br>예식 <b>60일 전</b>까지는 <b>1회 무상</b>으로 변경할 수 있어요.</span></div>'
     +'<div class="vg-row"><span class="vg-k">변경 수수료</span><span class="vg-v">그 이후의 변경이나 두 번째부터의 변경은<br>총 계약금액의 <b>10%</b>가 변경 수수료예요. <span class="vg-sub">(이용계약서 제8조)</span></span></div>'
-    +'<div class="vg-row"><span class="vg-k">경조사 면제</span><span class="vg-v vg-muted">본인·직계가족의 경조사 등 부득이한 사유가 증빙되면 시기와 관계없이 1회 면제돼요.<br>증빙 확인이 필요해 카카오톡으로 문의해 주세요.</span></div>'
-    +'</div>'
+    +'<div class="vg-row"><span class="vg-k">경조사 면제</span><span class="vg-v vg-muted">본인·직계가족의 경조사 등 부득이한 사유가 증빙되면 시기와 관계없이 1회 면제돼요.</span></div>'
+    +'<div style="text-align:center;margin-top:8px"><a href="'+escapeHtml(_kakao)+'" target="_blank" rel="noopener" class="cc-btn-ghost" style="display:inline-block;width:auto;padding:8px 18px">무상 변경·면제 문의하기</a></div>'
+    +'</div></details>'
     +'<label class="pf-l" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{})
     +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_chgTime" value="">'
