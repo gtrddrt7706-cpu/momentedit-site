@@ -1602,7 +1602,7 @@ function renderLedger(l){
     chgSec='<div class="led-sec"><div class="led-h">예식 일정</div>'
       +'<div class="led-row"><span class="led-k">예식일</span><span class="led-v">'+escapeHtml(_when)+'</span>'+_st+'</div>'
       +(_rq&&_rq.to ? '<div class="led-due">요청하신 변경 · '+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+' · 디렉터 확인 후 적용돼요</div><button type="button" class="led-editbtn" id="mp_ledChgCancel">변경 요청 철회</button>'
-                     : (_chg.eligible ? '<button type="button" class="led-editbtn" id="mp_ledChgOpen">예식일 변경</button>' : ''))
+                     : (_chg.eligible ? '<button type="button" class="led-editbtn" id="mp_ledChgOpen">예식일 변경</button><div id="mp_ledChgPanel" style="display:none"></div>' : ''))
       +'</div>';
   })();
   // [임시고정 상시 확인] 예식일 임시 고정 — 계약 서명 전까지 픽스된 날짜·시간을 수시로 확인(14일 보호 · 만료일 표기).
@@ -1657,7 +1657,13 @@ function renderLedger(l){
   box.addEventListener('click', function(e){ if(e.target===box) closeLedModal(); });
   var xb=$('mp_ledClose'); if(xb) xb.addEventListener('click', closeLedModal);
   var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
-  var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){ closeLedModal(); renderChangeWizard(window._mpStateD||{}); var _b=$('mp_contract'); if(_b&&_b.scrollIntoView) _b.scrollIntoView({behavior:'smooth',block:'start'}); });
+  var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){
+    var pn=$('mp_ledChgPanel'); if(!pn) return;
+    var open=pn.style.display!=='none';
+    if(open){ pn.style.display='none'; pn.innerHTML=''; lc.textContent='예식일 변경'; return; }
+    lc.textContent='닫기';
+    renderChangeWizard(window._mpStateD||{}, pn);   // 모달 안 인라인(창 밖 이동 없음)
+  });
   var lx=$('mp_ledChgCancel'); if(lx) lx.addEventListener('click', function(){ closeLedModal(); doCancelWeddingChange(); });
   var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } });
   var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', function(){
@@ -2171,8 +2177,9 @@ function _chgMD(ymd){
 }
 // [02-9] 예식일 변경 위저드 — 계약 완료 카드의 '예식일 변경'. 달력·슬롯(계약 요청 폼 패턴 재사용)
 //   → 견적(quoteWeddingChange) → 수수료 있으면 계좌·입금자명 → 변경 요청(requestWeddingChange) → 완료 화면.
-function renderChangeWizard(ctx){
-  var box=$('mp_contract'); if(!box) return;
+function renderChangeWizard(ctx, host){
+  var box=host||$('mp_contract'); if(!box) return;
+  var inline=!!host;   // 내 내역 모달 안 인라인 렌더(2026-07-10 사용자 지시 — 창 안에서 해결)
   var fill=(ctx&&ctx.contract&&ctx.contract.fill)||{};
   var curTxt=(typeof fmtWedKo==='function'&&fmtWedKo(fill.weddingDate))?fmtWedKo(fill.weddingDate):(fill.weddingDate||'');
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Change</div>'
@@ -2192,7 +2199,7 @@ function renderChangeWizard(ctx){
     +'<div class="cc-note" style="text-align:center">변경 요청은 디렉터 확인 후 적용돼요.</div>'
     +'<button type="button" class="cc-btn-ghost" id="mp_chgBack">돌아가기</button></div></div>';
   box.style.display='block';
-  try{ box.scrollIntoView({block:'start',behavior:'smooth'}); }catch(e){}
+  try{ box.scrollIntoView({block:inline?'nearest':'start',behavior:'smooth'}); }catch(e){}
   var _av={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'늦은 오후'},taken:{}};
   var _quote=null;   // 마지막 견적 {fee,basis,account,holder} · 요청 가능 여부의 기준
   function _err(m){ var e=$('mp_chgErr'); if(e) e.textContent=m||''; }
@@ -2240,7 +2247,10 @@ function renderChangeWizard(ctx){
   }
   initDatePicker({wrap:'mpchg_wrap',trigger:'mpchg_trigger',text:'mpchg_text',panel:'mpchg_panel',grid:'mpchg_grid',title:'mpchg_title',prev:'mpchg_prev',next:'mpchg_next',hidden:'mp_chgDate',onPick:_renderSlots});
   api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _av.taken=r.taken||{}; if(r.slots&&r.slots.length)_av.slots=r.slots; if(r.labels)_av.labels=r.labels; var dd=($('mp_chgDate')&&$('mp_chgDate').value)||''; if(dd)_renderSlots(dd); } }).catch(function(){});
-  var bk=$('mp_chgBack'); if(bk) bk.addEventListener('click', function(){ loadMyState(); });
+  var bk=$('mp_chgBack'); if(bk) bk.addEventListener('click', function(){
+    if(inline){ box.style.display='none'; box.innerHTML=''; var lo=$('mp_ledChgOpen'); if(lo) lo.textContent='예식일 변경'; }   // 패널만 닫고 내 내역 유지
+    else loadMyState();
+  });
   var sb=$('mp_chgSubmit'); if(sb) sb.addEventListener('click', function(){
     var d=($('mp_chgDate')||{}).value||'', t=($('mp_chgTime')||{}).value||'';
     if(!d||!t){ _err('변경할 날짜와 시간을 선택해 주세요.'); return; }
