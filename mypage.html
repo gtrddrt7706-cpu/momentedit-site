@@ -1545,7 +1545,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedM
 
 function renderLedger(l){
   var box=$('mp_ledger'); if(!box) return;
-  if(!l){ box.className='consult-sec'; box.innerHTML=''; box.style.display='none'; return; }
+  if(!l){ if(box.classList.contains('open')) closeLedModal(); box.className='consult-sec'; box.innerHTML=''; box.style.display='none'; return; }   // 열린 채 사라지면 _mpLock이 남아 화면이 굳음 → 먼저 정식으로 닫기
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
@@ -1642,7 +1642,13 @@ function renderLedger(l){
       '<div class="led-refund-b">'+rqBits.map(function(x){ return escapeHtml(x); }).join(' · ')+'</div></details>';
   }
   // 모달 창 — 우측 FAB(내역)으로 연다. 상단 인라인 토글은 제거(요청). 닫기=X·배경·Esc.
-  box.className='mp-modal';
+  // ★재렌더 보존 — 캐시 로그인 뒤 silent 새로고침(loadMyState)이 열린 모달을 덮어쓰면
+  //   open 클래스가 지워져 모달만 사라지고 _mpLock(body fixed)은 남아 화면 전체가 굳는다(2026-07-10 실기기 버그).
+  //   → 열림 상태와 펼쳐둔 패널(예식일 변경·잔금 보기)을 기억해 재렌더 후 복원한다.
+  var wasOpen=box.classList.contains('open');
+  var _pc=$('mp_ledChgPanel'), chgWasOpen=!!(wasOpen && _pc && _pc.style.display!=='none');
+  var _pb=$('mp_ledBalPanel'), balWasOpen=!!(wasOpen && _pb && _pb.style.display!=='none');
+  box.className='mp-modal'+(wasOpen?' open':'');
   box.style.display='';
   box.innerHTML='<div class="mp-modal-card led-modal-card led-card" role="dialog" aria-modal="true" aria-label="내 내역">'+
     '<button type="button" class="led-modal-x" id="mp_ledClose" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>'+
@@ -1653,8 +1659,8 @@ function renderLedger(l){
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     refundSec+
     '</div>';
-  // 배경 클릭(카드 바깥)·X 닫기
-  box.addEventListener('click', function(e){ if(e.target===box) closeLedModal(); });
+  // 배경 클릭(카드 바깥)·X 닫기 — onclick 할당(재렌더마다 리스너 누적 방지)
+  box.onclick=function(e){ if(e.target===box) closeLedModal(); };
   var xb=$('mp_ledClose'); if(xb) xb.addEventListener('click', closeLedModal);
   var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
   var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){
@@ -1688,6 +1694,9 @@ function renderLedger(l){
       if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
     }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
   });
+  // ★재렌더 복원 — 펼쳐뒀던 패널을 새 상태 기준으로 다시 연다(예식일 변경 위저드·잔금 결제 안내)
+  if(chgWasOpen && lc){ lc.textContent='닫기'; var _rpn=$('mp_ledChgPanel'); if(_rpn) renderChangeWizard(window._mpStateD||{}, _rpn); }
+  if(balWasOpen && bv){ var _rbp=$('mp_ledBalPanel'); if(_rbp){ _rbp.style.display='block'; bv.textContent='접기'; try{ if(window.meCardPay) meCardPay.init(); }catch(e){} } }
 }
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
 function doEditCashReceipt(tail){
