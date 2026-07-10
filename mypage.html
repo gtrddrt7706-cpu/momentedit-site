@@ -1549,7 +1549,7 @@ function renderLedger(l){
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
-    if(p.extra&&!p.done) dueTxt+='<div class="led-due">인원 추가 '+won(p.extra.amount)+' 포함 (스탠딩 '+p.extra.standing+'명)</div>';   // 최종확정 추가 요금 산식
+    // 인원 추가 상세는 '보기' 패널의 미니 명세표(_bx)로 일원화 — 헤더 총액과 중복 표기 제거(2026-07-10)
     var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기: 모달 안에서 결제 안내 펼침(계좌·입금했어요·카드결제) — 2026-07-10 사용자 지시
     var _canBal=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호');
     var stat=_canBal
@@ -1557,7 +1557,12 @@ function renderLedger(l){
       : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
     var panel='';
     if(_canBal){
-      var _bx=(_balS.extra&&_balS.baseAmount!=null)?('<div class="cc-note" style="text-align:center;margin:0 0 10px">잔금 '+fmtWon(_balS.baseAmount)+' + 인원 추가 '+fmtWon(_balS.extra.amount)+' = <b>'+fmtWon(_balS.amount)+'</b></div>'):'';
+      var _bx=(_balS.extra&&_balS.baseAmount!=null)?(
+          '<div style="margin:0 2px 12px;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.5">'
+        + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>잔금</span><span>'+fmtWon(_balS.baseAmount)+'</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>인원 추가 · 스탠딩 '+escapeHtml(String(_balS.extra.standing))+'명</span><span>+'+fmtWon(_balS.extra.amount)+'</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:1px solid var(--hairline,#e6e0d8);color:var(--accent);font-weight:600"><span>합계</span><span>'+fmtWon(_balS.amount)+'</span></div>'
+        + '</div>'):'';
       panel='<div id="mp_ledBalPanel" style="display:none">'
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
         +(_balS.account?('<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
@@ -2478,7 +2483,7 @@ function cashReceiptField(id, val){
   // 예약 단계에서 이미 등록됐으면 간결 표시(입력칸 생략) — 계약금·중도금·잔금에서 다시 안 적어도 됨. 변경은 '내 내역'에서.
   if(val){
     var tail=val.length>=4?val.slice(-4):val;
-    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증 소득공제 번호 <b>등록됨</b> <span style="color:var(--label-soft)">· 끝 '+escapeHtml(tail)+' · 이 번호로 발급돼요</span></div>';
+    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
   return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
@@ -2644,15 +2649,27 @@ var meCardPay = (function(){
     }, '카드로 결제 (미리보기)');
     el.parentNode.insertBefore(wrap, el.nextSibling);
   }
+  var standby=false;   // 플래그 OFF(오픈 전) → 카드 버튼을 '준비 중'으로 노출(레이아웃 완성 · 오픈 시 실결제로 자동 전환)
+  function standbyAttach(item){   // 오픈 전 스탠바이 — 버튼은 보이되 누르면 '준비 중' 안내(계좌이체로 유도)
+    var el=$(item.btn); if(!el || !el.parentNode) return;
+    if(isMultiPay(el)) return;
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;
+    var wrap=buildWrap(item.m, function(){
+      mpAlert({ title:'카드결제 준비 중', body:'카드결제는 오픈에 맞춰 열려요.\n지금은 계좌이체로 진행해 주세요.', confirmText:'확인' });
+    }, '카드로 결제 (준비 중)');
+    var btn=wrap.querySelector('.me-card-pay'); if(btn){ btn.setAttribute('aria-disabled','true'); btn.style.opacity='.72'; }
+    el.parentNode.insertBefore(wrap, el.nextSibling);
+  }
   function init(){
     if(PREVIEW){ MAP.forEach(previewAttach); return; }   // 미리보기 — 재렌더마다 버튼 재부착
     if(ready){ MAP.forEach(attachOne); return; }   // 활성 상태 — 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
-    if(checked) return;                              // 이미 확인했고 비활성(OFF) → 추가 호출 안 함(페이지당 1회만)
+    if(standby){ MAP.forEach(standbyAttach); return; }   // 스탠바이 — 재렌더마다 준비중 버튼 재부착
+    if(checked) return;                              // 이미 확인함 → 추가 호출 안 함(페이지당 1회만)
     checked=true;
     api({action:'cardPayConfig', token:getToken()}).then(function(d){
-      if(!d||!d.ok||!d.enabled||!d.clientKey) return;   // 플래그 OFF → 아무것도 안 함(라이브 무영향)
-      cfg=d; ready=true; MAP.forEach(attachOne);
-    }).catch(function(){});
+      if(d&&d.ok&&d.enabled&&d.clientKey){ cfg=d; ready=true; MAP.forEach(attachOne); }   // 플래그 ON → 실결제 버튼
+      else { standby=true; MAP.forEach(standbyAttach); }                                    // 플래그 OFF → 준비 중 버튼 노출
+    }).catch(function(){ standby=true; MAP.forEach(standbyAttach); });
   }
   function handleReturn(){
     if(returnDone) return;
