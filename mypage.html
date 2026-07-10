@@ -2048,8 +2048,9 @@ function renderContractPayment(c, p, ctx){
     box.innerHTML=h; box.style.display='block'; return;
   }
   var _pb2 = p.bundle || [];
+  var _bundleActive = !!(_pb2.length && p.bundleTotal != null);   // 계약금+중도금(±잔금) 묶음 안내 상태 — 카드는 단일 단계만 지원하므로 이 경우 카드버튼 숨김
   var amt = a
-    ? ((_pb2.length && p.bundleTotal != null)
+    ? (_bundleActive
        ? ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(p.bundleTotal)+'</b>'
           + '<br><span class="cc-mini">계약금 '+fmtWon(a.납부액)+'(예약금 '+fmtWon(a.예약금)+' 차감)'
           + (_pb2.indexOf('중도금')!==-1?(' + 중도금 '+fmtWon(a.중도금)):'')
@@ -2066,7 +2067,7 @@ function renderContractPayment(c, p, ctx){
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
-     + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
+     + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
@@ -2487,8 +2488,10 @@ var meCardPay = (function(){
     wrap.appendChild(or); wrap.appendChild(b);
     return wrap;
   }
+  function isMultiPay(el){ return el.getAttribute('data-combo')==='1' || el.getAttribute('data-bundle')==='1'; }   // 묶음/combo(다중 마일스톤 한 번에) — 카드는 단일 단계만 지원 → 카드버튼 미노출(계좌이체로)
   function attachOne(item){
     var el=$(item.btn); if(!el || !el.parentNode) return;
+    if(isMultiPay(el)) return;   // 묶음/combo면 카드 미지원(금액 정합 · 계좌이체로)
     if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;   // 같은 마일스톤 버튼만 중복 방지(F-1 · 같은 컨테이너 다중 대응)
     api({action:'cardPayConfig', token:getToken(), milestone:item.m}).then(function(d){
       if(!d||!d.ok||!d.enabled||!(d.amount>0)) return;
@@ -2498,6 +2501,7 @@ var meCardPay = (function(){
   }
   function previewAttach(item){   // ?preview_card=1 — 서버·토스 없이 배치만 렌더(결제 없음 · 라이브 무해)
     var el=$(item.btn); if(!el || !el.parentNode) return;
+    if(isMultiPay(el)) return;   // 라이브와 동일하게 묶음/combo면 미리보기도 카드 숨김
     if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;
     var wrap=buildWrap(item.m, function(){
       mpAlert({ title:'미리보기 모드', body:'화면 배치를 보기 위한 미리보기예요.\n실제 카드결제는 오픈 후 열려요.', confirmText:'확인' });
