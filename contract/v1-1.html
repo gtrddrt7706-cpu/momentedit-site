@@ -607,9 +607,9 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       ps.push('예식 일시 '+_w+_wt); }
     if(kind) ps.push(kind); if(amt) ps.push('총 계약금액 '+amt.toLocaleString('ko-KR')+'원');
     if(ps.length){ var _pj=ps.join(' · '); var _m4=document.getElementById('art4-mine'); if(_m4) _m4.textContent=_pj; var _ms=document.getElementById('sum-mine'); if(_ms) _ms.textContent='내 계약 · '+_pj; }
-    if(d.signed){   // 서명 완료 → 중요조항 ✓ · 갑 대표 손글씨 서명 · 신부 대표갈음
-      var cb=document.querySelector('.check-line .box');
-      if(cb){ cb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cb.textContent='✓'; }
+    if(d.signed){   // 서명 완료 → 중요조항 전 항목 ✓(서명 시 3개 모두 확인 필수) · 갑 대표 손글씨 서명 · 신부 대표갈음
+      var cbs=document.querySelectorAll('.check-line .box');
+      for(var _c=0;_c<cbs.length;_c++){ cbs[_c].style.cssText='display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border:1.5px solid #C0271E;border-radius:3px;flex-shrink:0;margin-top:4px;background:#C0271E;color:#fff;font-size:11px;line-height:1'; cbs[_c].textContent='✓'; }
       var gs=document.getElementById('sigGroom');
       if(gs){ gs.innerHTML = d.signImage ? '<img src="'+d.signImage+'" alt="신랑 전자서명" style="height:38px;max-width:150px;object-fit:contain;vertical-align:middle">' : '✓ 전자서명 완료'; }
       var bs=document.getElementById('sigBride'); if(bs) bs.textContent='(대표 서명으로 갈음)';
