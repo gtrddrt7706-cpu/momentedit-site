@@ -249,7 +249,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .me-pay-or{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:0}
 .me-pay-or::before,.me-pay-or::after{content:"";flex:1;height:1px;background:var(--border)}
 /* 카드=보조 위계: 진사 채움 '입금했어요'가 主, 카드는 골드 아웃라인으로 한 단계 물러남(계좌이체 우선·수수료 관점). */
-.me-card-pay.cc-btn{background:#fff;border:1px solid var(--gold);color:var(--accent)}
+.me-card-pay.cc-btn{background:#fff;border:1px solid var(--gold);color:var(--accent);padding:13px 0}   /* 테두리 1px×2 보정 — 진사 버튼(46px)과 총높이 일치 */
 .me-card-pay.cc-btn:hover{background:#FAF6EF;border-color:#9A7B3F}
 .me-card-pay.cc-btn:active{background:#F3EAD9}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
@@ -2473,10 +2473,12 @@ var meCardPay = (function(){
       try{
         try{ sessionStorage.setItem('me_pay_milestone', milestone); }catch(e){}
         var base=location.origin+location.pathname;
-        window.TossPayments(cfg.clientKey).requestPayment('카드',{
+        var pr=window.TossPayments(cfg.clientKey).requestPayment('카드',{
           amount: amount, orderId: newOrderId(), orderName: '모먼트에디트 '+milestone,
           successUrl: base+'?me_pay=1&m='+encodeURIComponent(milestone), failUrl: base+'?me_pay=0'   // milestone을 URL에도 실어 sessionStorage 유실 대비(F-2)
         });
+        // 결제창을 그냥 닫으면 promise reject(USER_CANCEL) — catch 없으면 버튼이 '여는 중…'으로 영구잠김
+        if(pr&&pr.catch) pr.catch(function(err){ if(!(err&&err.code==='USER_CANCEL')) mpAlert('결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); reset(); });
       }catch(e){ mpAlert('결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); reset(); }
     }, reset);
   }
