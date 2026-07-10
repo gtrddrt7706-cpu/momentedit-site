@@ -2919,14 +2919,14 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>커피 한 잔은 카카오톡으로 곧 보내드릴게요.</b> ☕</div></div>';
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>스타벅스 커피 2잔은 카카오톡으로 곧 보내드릴게요.</b> ☕<br><span class="cc-mini">사용기한 안에 여유롭게 즐겨 주세요.</span></div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
   return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">🤍 두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>끝까지 남겨주시면 감사의 마음으로 커피 한 잔, 보내드릴게요. ☕</div>'
+    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>끝까지 남겨주시면 감사의 마음으로 스타벅스 커피 2잔, 보내드릴게요. ☕</div>'
     + body
     +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
