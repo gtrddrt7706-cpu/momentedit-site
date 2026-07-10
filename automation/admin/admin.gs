@@ -925,7 +925,8 @@ function adminDetail(code) {
     계약서명일시: String(cust.get('계약서명일시') || ''),
     시착동의일시: String(cust.get('시착동의일시') || ''),
     입금완료신호: String(cust.get('입금완료신호') || ''),
-    입금자명: String(cust.get('입금자명') || '')
+    입금자명: String(cust.get('입금자명') || ''),
+    결제수단: _rec.결제수단 || {}   // 카드결제 마커(98_pay_card) — 관리자 화면 '카드' 뱃지·환불 주의 표기용
   };
 
   // 거울 — 고객이 보는 카드(buildXState(r)). product-aware는 cards로 게이트.
