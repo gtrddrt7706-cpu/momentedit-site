@@ -2,7 +2,7 @@
 //   대상: inquiry.html 문의 폼(메인 전환 경로) — 빈 제출 차단 / 유효 제출→이메일확인→POST→성공화면 /
 //         허니팟 payload 노출 / 비번 불일치·하객 상한 차단 / 전화 자동포맷 / 이중제출 멱등.
 //   사용: node scripts/audit/func-check.mjs
-//   puppeteer 없으면 통째로 건너뛴다(설치 안내). script.google.com은 목(mock) 응답.
+//   puppeteer 우선, 없으면 playwright(전역 포함) 폴백. 둘 다 없으면 건너뜀. script.google.com은 목(mock) 응답.
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -11,28 +11,63 @@ import { createRequire } from 'node:module';
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const PORT = 8137;
 const require = createRequire(import.meta.url);
+
+let kind = null, browser = null;
 let puppeteer = null;
-for (const p of ['puppeteer', '/tmp/dz/node_modules/puppeteer']) { try { puppeteer = require(p); break; } catch {} }
-if (!puppeteer) { console.log('puppeteer 없음 — 기능 점검 건너뜀(npm i puppeteer 또는 /tmp/dz 하네스).'); process.exit(0); }
+for (const p of ['puppeteer', '/tmp/dz/node_modules/puppeteer']) { try { puppeteer = require(p); kind = 'pptr'; break; } catch {} }
+let pwChromium = null;
+if (!kind) {
+  for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pwChromium = require(p).chromium; kind = 'pw'; break; } catch {} }
+}
+if (!kind) { console.log('puppeteer/playwright 없음 — 기능 점검 건너뜀.'); process.exit(0); }
 
 const srv = spawn('python3', ['-m', 'http.server', String(PORT)], { cwd: SITE, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 800));
-const browser = await puppeteer.launch({ args: ['--no-sandbox', '--ignore-certificate-errors'] });
+browser = kind === 'pptr'
+  ? await puppeteer.launch({ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--ignore-certificate-errors'] })
+  : await pwChromium.launch();
+
 let fails = [];
 const ok = (c, m) => { if (!c) fails.push(m); console.log((c ? '  ok ' : '  ✗ ') + m); };
 
 let lastPost = null;
-async function fresh() {
-  const page = await browser.newPage();
-  page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
-  await page.setRequestInterception(true);
-  page.on('request', req => {
-    const u = req.url();
-    if (/fonts\.|picsum|instagram|gstatic|google\.com\/(?!macros)/.test(u) && !u.includes('localhost')) return req.abort();
-    if (u.includes('script.google.com')) { try { lastPost = JSON.parse(req.postData() || '{}'); } catch { lastPost = null; } return req.respond({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/json', body: JSON.stringify({ ok: true, code: 'ME-FUNC1' }) }); }
-    req.continue();
-  });
-  await page.goto(`http://localhost:${PORT}/inquiry.html`, { waitUntil: 'networkidle0', timeout: 30000 });
+// gasReply: (post) => ({ delayMs, body }) — 기본: 즉시 {ok:true,code:'ME-FUNC1'}
+async function fresh(gasReply) {
+  const reply = gasReply || (() => ({ delayMs: 0, body: JSON.stringify({ ok: true, code: 'ME-FUNC1' }) }));
+  let page;
+  if (kind === 'pptr') {
+    page = await browser.newPage();
+    page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
+    await page.setRequestInterception(true);
+    page.on('request', req => {
+      const u = req.url();
+      if (u.includes('script.google.com')) {
+        try { lastPost = JSON.parse(req.postData() || '{}'); } catch { lastPost = null; }
+        const r = reply(lastPost);
+        return setTimeout(() => req.respond({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/json', body: r.body }), r.delayMs || 0);
+      }
+      if (!u.includes('localhost')) return req.abort();
+      req.continue();
+    });
+    await page.goto(`http://localhost:${PORT}/inquiry.html`, { waitUntil: 'networkidle0', timeout: 30000 });
+  } else {
+    page = await browser.newPage();
+    page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
+    await page.route('**/*', async route => {
+      const req = route.request();
+      const u = req.url();
+      if (u.includes('script.google.com')) {
+        if (req.method() === 'OPTIONS') return route.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': '*' }, body: '' });
+        try { lastPost = JSON.parse(req.postData() || '{}'); } catch { lastPost = null; }
+        const r = reply(lastPost);
+        if (r.delayMs) await new Promise(x => setTimeout(x, r.delayMs));
+        return route.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/json', body: r.body });
+      }
+      if (!u.includes('localhost')) return route.abort();   // 외부(폰트·SDK) 차단 — 샌드박스 프록시 지연 방지
+      return route.continue();
+    });
+    await page.goto(`http://localhost:${PORT}/inquiry.html`, { waitUntil: 'networkidle', timeout: 30000 });
+  }
   return page;
 }
 // 모든 필수 칸을 유효하게 채운다(필수 라디오 5+3종 포함). date_type=fixed면 날짜 채움.
@@ -98,20 +133,11 @@ const confirmYes = (page) => page.evaluate(() => { const b = [...document.queryS
   await page.close(); }
 
 // T7 이중 제출 멱등 — 확인 모달 '맞습니다' 연타 시 POST 1회(느린 응답 모사)
-{ const page = await browser.newPage();
-  page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
-  let posts = 0;
-  await page.setRequestInterception(true);
-  page.on('request', req => {
-    const u = req.url();
-    if (/fonts\.|picsum|instagram|gstatic|google\.com\/(?!macros)/.test(u) && !u.includes('localhost')) return req.abort();
-    if (u.includes('script.google.com')) { posts++; return setTimeout(() => req.respond({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/json', body: JSON.stringify({ ok: true, code: 'ME-FUNC1' }) }), 500); }
-    req.continue();
-  });
-  await page.goto(`http://localhost:${PORT}/inquiry.html`, { waitUntil: 'networkidle0' });
+{ let posts = 0;
+  const page = await fresh(() => { posts++; return { delayMs: 500, body: JSON.stringify({ ok: true, code: 'ME-FUNC1' }) }; });
   await fillValid(page); await submit(page); await new Promise(r => setTimeout(r, 300));
   await page.evaluate(() => { const b = [...document.querySelectorAll('button,a')].find(x => /맞습니다/.test(x.textContent)); if (b) { b.click(); b.click(); b.click(); } });
-  await new Promise(r => setTimeout(r, 250));
+  await new Promise(r => setTimeout(r, 900));
   ok(posts === 1, 'T7 제출 버튼 연타 → POST 1회(멱등) (실제 ' + posts + '회)');
   await page.close(); }
 
