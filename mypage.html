@@ -243,6 +243,17 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .cc-btn.cc-btn-seal:hover{background:#511F1A}
 .cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
+/* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
+.acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
+.acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
+.acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
+.acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--seal);color:var(--seal);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}
+.acct-copy-btn:active{background:var(--bg2)}
+.acct-copy-btn svg{width:14px;height:14px}
+.acct-amt-wrap{margin-top:9px;text-align:center}
+.acct-amt-link{background:none;border:none;font-family:var(--serif-ko);font-size:12px;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.acct-amt-link u{text-decoration-color:var(--gold);text-underline-offset:3px}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 /* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
 .me-pay-alt{display:flex;flex-direction:column;gap:8px}
@@ -1565,11 +1576,7 @@ function renderLedger(l){
         + '</div>'):'';
       panel='<div id="mp_ledBalPanel" style="display:none">'
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
-        +(_balS.account?('<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-          +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">입금 계좌</div>'
-          +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
-          +(_balS.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_balS.holder)+'</div>':'')
-          +'<div style="display:flex;gap:8px;margin-top:9px"><button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(_balS.amount!=null?_balS.amount:'')+'" style="flex:1">금액 복사</button></div></div>'):'')
+        +(_balS.account?_acctBox(_balS.account, _balS.holder, '입금 계좌', (_balS.amount!=null)?_acctAmt('data-copy-amt="'+String(_balS.amount)+'"','입금액 '+fmtWon(_balS.amount)+' 복사'):''):'')
         +(_balS.extraPending?_finalGateHtml():'')
         +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
         +cashReceiptField('mp_lbCR', l.cashTail)
@@ -2146,11 +2153,8 @@ function renderContractPayment(c, p, ctx){
           + '<br><span class="cc-mini">예식이 가까워 함께 안내드려요. 한 번에 입금하시면 돼요.</span></div>')
        : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
-  var acct = p.account ? ('<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String((_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:''))+'" style="flex:1">금액 복사</button></div></div>') : '';
+  var _amtV=(_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:null);
+  var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
   h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
@@ -2243,12 +2247,7 @@ function renderChangeWizard(ctx, host){
       var h;
       if(_quote.fee>0){
         h='<div class="cc-sub" style="margin-top:10px"><b>'+fmtWon(_quote.fee)+'</b> <span class="cc-mini">· 변경 수수료 10% (총 계약금액 기준)</span></div>'
-         +(_quote.account?('<div style="margin:10px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-           +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">수수료 입금 계좌</div>'
-           +'<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(_quote.account)+'</div>'
-           +(_quote.holder?('<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_quote.holder)+'</div>'):'')
-           +'<button type="button" class="cc-btn-ghost" id="mp_chgAcctCopy" style="margin-top:10px">계좌 복사</button>'
-           +'</div>'):'')
+         +(_quote.account?_acctBox(_quote.account, _quote.holder, '수수료 입금 계좌', (_quote.fee>0)?_acctAmt('data-copy-amt="'+String(_quote.fee)+'"','수수료 '+fmtWon(_quote.fee)+' 복사'):''):'')
          +'<input type="text" class="cc-input" id="mp_chgPayer" placeholder="수수료 입금하신 분 성함" autocomplete="name" style="margin-top:8px">'
          +'<div class="cc-note" style="text-align:left;margin:2px 0 0;color:var(--light);line-height:1.6">수수료 입금 후 변경을 요청해 주세요. 디렉터가 입금·일정을 확인한 뒤 적용돼요.</div>';
       } else {
@@ -2351,13 +2350,7 @@ function renderPayment(p){
     } else {
       amt = '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
     }
-    var acct = p.account ? (
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder ? '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>' : '')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(a?a.납부액:'')+'" style="flex:1">금액 복사</button></div>'
-      + '</div>' ) : '';
+    var acct = _acctBox(p.account, p.holder, '입금 계좌', (a&&a.납부액!=null)?_acctAmt('data-copy-amt="'+String(a.납부액)+'"','입금액 '+fmtWon(a.납부액)+' 복사'):'');
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
@@ -2376,6 +2369,26 @@ function renderPayment(p){
   });
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
+// [입금 계좌 박스 · 공용] B안 — 번호를 주인공으로, 슬림 '계좌번호 복사' 버튼 + 금액은 보조 링크(계약금·중도금·잔금·수수료·추가보정 공통)
+var _ACCT_COPY_SVG='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.6"/></svg>';
+function _acctBox(account, holder, label, amtHtml){
+  if(!account) return '';
+  return '<div class="acct-box">'
+    + '<div class="acct-eyebrow">'+escapeHtml(label||'입금 계좌')+'</div>'
+    + '<div class="acct-num">'+escapeHtml(account)+'</div>'
+    + (holder?'<div class="acct-holder">예금주 '+escapeHtml(holder)+'</div>':'')
+    + '<button type="button" class="acct-copy-btn" data-copy-acct="'+escapeHtml(account)+'">'+_ACCT_COPY_SVG+'<span class="acct-copy-txt">계좌번호 복사</span></button>'
+    + (amtHtml||'') + '</div>';
+}
+function _acctAmt(attr, label){ return '<div class="acct-amt-wrap"><button type="button" class="acct-amt-link" '+attr+'><u>'+label+'</u></button></div>'; }
+// [계좌 복사] 전역 위임 — data-copy-acct 값(계좌 문자열) 복사 + 버튼 피드백
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-acct]'):null; if(!t) return;
+  var v=String(t.getAttribute('data-copy-acct')||''); if(!v) return;
+  var sp=t.querySelector('.acct-copy-txt');
+  var done=function(){ if(sp){ sp.textContent='복사됐습니다'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
+});
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
 // [입금자명 칩] 계약서의 신랑·신부 이름 원탭 입력(부모님 입금 등 직접 입력도 그대로 가능)
 function _payerChipsHtml(target){
@@ -2453,13 +2466,7 @@ function renderBalance(p, mid){
       : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
       : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
-    var acct=p.account?(
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(p.amount!=null?p.amount:'')+'" style="flex:1">금액 복사</button></div>'
-      + '</div>'):'';
+    var acct=_acctBox(p.account, p.holder, '입금 계좌', (p.amount!=null)?_acctAmt('data-copy-amt="'+String(p.amount)+'"','입금액 '+fmtWon(p.amount)+' 복사'):'');
     body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
       + cashReceiptField('mp_bCR', p.cashReceipt)
@@ -2535,13 +2542,7 @@ function renderMid(p, bal){
       : near?(midDue+' 보내주세요'+midTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
       : (midDue+' 보내주세요'+midTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
-    var acct=p.account?(
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-from="mp_mAmtV" style="flex:1">금액 복사</button></div>'
-      + '</div>'):'';
+    var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_mPayer')
@@ -2701,11 +2702,7 @@ var meCardPay = (function(){
       +   '<div class="cc-eyebrow en-22">Contract</div>'
       +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
       +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
-      +   '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      +     '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      +     '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">기업 000-000-00000</div>'
-      +     '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 모먼트에디트</div>'
-      +     '<button type="button" class="cc-btn-ghost" style="margin-top:10px">계좌 복사</button></div>'
+      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="110000"','입금액 110,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
       +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
@@ -2860,10 +2857,7 @@ function _extraPanelHtml(res){
     h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
   } else if(ex.status==='신청'||ex.status==='견적'){
     h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
-      + (ex.account?('<div style="margin:12px 0 2px;padding:13px 15px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:center">'
-        + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-        + '<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(ex.account)+'</div>'
-        + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')+'</div>'):'')
+      + (ex.account?_acctBox(ex.account, ex.holder, '입금 계좌', (ex.금액)?_acctAmt('data-copy-amt="'+String(ex.금액)+'"','입금액 '+fmtWon(ex.금액)+' 복사'):''):'')
       + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
       + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
       + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
