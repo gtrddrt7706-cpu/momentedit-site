@@ -2459,13 +2459,13 @@ var meCardPay = (function(){
     if(window.TossPayments){ cb(); return; }
     var s=document.createElement('script'); s.src=TOSS_SDK;
     s.onload=function(){ cb(); };
-    s.onerror=function(){ try{ mpAlert('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); }catch(e){} };
+    s.onerror=function(){ try{ mpAlert('결제 모듈을 불러오지 못했어요. 잠시 후 다시 시도하거나 계좌이체로 진행해 주세요.'); }catch(e){} };
     document.head.appendChild(s);
   }
   function newOrderId(){ return 'ME'+Date.now()+Math.floor(Math.random()*1e6); }
   function pay(milestone, amount){
     if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요.'); return; }
-    if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터에게 문의해 주세요.'); return; }
+    if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요.'); return; }
     loadSdk(function(){
       try{
         try{ sessionStorage.setItem('me_pay_milestone', milestone); }catch(e){}
@@ -2474,7 +2474,7 @@ var meCardPay = (function(){
           amount: amount, orderId: newOrderId(), orderName: '모먼트에디트 '+milestone,
           successUrl: base+'?me_pay=1&m='+encodeURIComponent(milestone), failUrl: base+'?me_pay=0'   // milestone을 URL에도 실어 sessionStorage 유실 대비(F-2)
         });
-      }catch(e){ mpAlert('결제 진행 중 오류가 발생했어요.'); }
+      }catch(e){ mpAlert('결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); }
     });
   }
   function buildWrap(m, onClick){   // 카드 버튼 1개 조립(라이브·미리보기 공용)
@@ -2522,13 +2522,13 @@ var meCardPay = (function(){
     var milestone=q.get('m')||'';   // URL 우선(F-2) → 없으면 sessionStorage
     if(!milestone){ try{ milestone=sessionStorage.getItem('me_pay_milestone')||''; }catch(e){} }
     var clean=function(){ try{ sessionStorage.removeItem('me_pay_milestone'); }catch(e){} try{ history.replaceState(null,'',location.origin+location.pathname); }catch(e){} };
-    if(q.get('me_pay')==='0'){ mpAlert('결제가 취소되었어요.'); clean(); return; }
+    if(q.get('me_pay')==='0'){ mpAlert('결제를 취소했어요. 필요하면 언제든 다시 하실 수 있어요.'); clean(); return; }
     var paymentKey=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
     if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }
     api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
-      if(d&&d.ok){ mpAlert('결제가 완료되었어요. 감사합니다.'); } else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터에게 문의해 주세요.'); }
+      if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?milestone+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); } else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터가 바로 확인해 드릴게요.'); }
       clean(); try{ loadMyState(); }catch(e){}
-    }).catch(function(){ mpAlert('결제 확인 중 오류가 발생했어요.'); clean(); });
+    }).catch(function(){ mpAlert('결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean(); });
   }
   function afterRender(){ try{ handleReturn(); }catch(e){} try{ init(); }catch(e){} }
   return { afterRender:afterRender, init:init, handleReturn:handleReturn, pay:pay };
