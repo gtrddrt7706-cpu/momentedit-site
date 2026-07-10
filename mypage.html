@@ -248,6 +248,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .me-pay-alt{display:flex;flex-direction:column;gap:8px}
 .me-pay-or{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:0}
 .me-pay-or::before,.me-pay-or::after{content:"";flex:1;height:1px;background:var(--border)}
+/* 카드=보조 위계: 진사 채움 '입금했어요'가 主, 카드는 골드 아웃라인으로 한 단계 물러남(계좌이체 우선·수수료 관점). */
+.me-card-pay.cc-btn{background:#fff;border:1px solid var(--gold);color:var(--accent)}
+.me-card-pay.cc-btn:hover{background:#FAF6EF;border-color:#9A7B3F}
+.me-card-pay.cc-btn:active{background:#F3EAD9}
 .consult-card .cc-terms{text-align:left;margin:14px 0 0;padding:0 0 0 18px;list-style:disc}
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
@@ -2062,7 +2066,7 @@ function renderContractPayment(c, p, ctx){
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
-     + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금 완료</button>'
+     + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
@@ -2265,7 +2269,7 @@ function renderPayment(p){
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
-        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금 완료</button>'
+        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
   }
   if(a && a.잔금){ body += '<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>'; }
@@ -2435,7 +2439,7 @@ function doPaySignal(){
   var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
   if(!payer){ mpAlert('입금자명을 입력해 주세요.'); return; }
   var btn=$('mp_paySignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금 완료'; } }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_payerCR')&&$('mp_payerCR').value)||'').trim();
   api({action:'paymentSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
     if(d&&d.ok){ loadMyState(); }
