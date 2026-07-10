@@ -2866,8 +2866,11 @@ function _surveySchema(isSnap){
     {k:'result',q:'결과물(셀렉트 컷)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'styling',q:'스타일링(드레스)은요?',o:[['great','만족'],['ok','보통'],['poor','아쉬웠어요']]},
     {k:'transparency',q:'추가 비용 안내는 투명했나요?',o:[['kept','투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
+    {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','그 외']]},
+    {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','그 외']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
-    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
+    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
   ];
   return [
     {k:'pace',q:'140분의 호흡은 어떠셨어요?',pillar:1,o:[['good','딱 좋았어요 · 매 순간 또렷'],['short','조금 짧게 느껴졌어요'],['long','조금 벅찼어요']]},
@@ -2877,8 +2880,11 @@ function _surveySchema(isSnap){
     {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
     {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','그 외']]},
+    {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','그 외']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
-    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
+    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
   ];
 }
 // ③ 추가 보정 패널 HTML(완료면 ''). 진행 중·전달 후 양쪽에서 재사용.
@@ -2911,17 +2917,17 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>커피 한 잔은 카카오톡으로 곧 보내드릴게요.</b> ☕</div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
   return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">🤍 두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.</div>'
+    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>끝까지 남겨주시면 감사의 마음으로 커피 한 잔, 보내드릴게요. ☕</div>'
     + body
-    +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간 · 한마디 <span class="srv-opt-tag">선택</span></div>'
-    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="자유롭게 남겨 주세요 (선택)"></textarea>'
+    +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
+    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
     +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
     +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button></div>';
