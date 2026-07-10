@@ -157,7 +157,10 @@ function handleCardConfirm(body) {
       try {
         if (milestone === '중도금' || milestone === '잔금') _payMarkCard(code, milestone);
         else if (milestone === '계약금' && String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금');
+        else if (milestone === '계약금') _payMarkCard(code, '계약금');   // 시그니처 계약금 — 원장 키 아님(영수증 영향 0) · 관리자 '카드' 뱃지·환불 주의 표기용
       } catch (e) {}
+      // 관리자 인지용 메일 1통 — 카드는 자동 확정이라 업무신호·큐가 없어 돈 들어온 걸 모를 수 있음(처리 필요 없음 명시)
+      try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드 결제 확인 · ' + code + ' · ' + milestone + ' ' + Number(amount).toLocaleString() + '원 · 자동 반영됨(처리할 일 없음)'); } catch (e) {}
     } else {
       // ★B-1 돈은 받았는데(토스 승인 완료) 기록 실패 — 상태 미반영 방치 방지. 관리자에게 즉시 SMS(수동 보정).
       try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🔴카드결제 기록실패·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + amount + '원 | order ' + orderId + ' | ' + ((rec && rec.error) || '')); } catch (e) {}
