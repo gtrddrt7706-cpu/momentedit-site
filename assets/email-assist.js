@@ -13,7 +13,7 @@
     'hanmial.net':'hanmail.net','hanmail.com':'hanmail.net','hanmali.net':'hanmail.net','daum.com':'daum.net','duam.net':'daum.net',
     'nate.net':'nate.com','kakao.net':'kakao.com','icloud.co':'icloud.com','iclould.com':'icloud.com'};   // 흔한 오타 → 교정(운영하며 추가)
 
-  var css='.me-ea-panel{position:fixed;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:8px;box-shadow:0 10px 32px rgba(40,28,16,.12);overflow:hidden;z-index:2147483000;display:none}'
+  var css='.me-ea-panel{position:absolute;top:0;left:0;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:8px;box-shadow:0 10px 32px rgba(40,28,16,.12);overflow:hidden;z-index:2147483000;display:none}'
     +'.me-ea-panel.open{display:block;animation:meEaIn .18s cubic-bezier(.16,1,.3,1)}'
     +'@keyframes meEaIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}'
     +'@media(prefers-reduced-motion:reduce){.me-ea-panel.open{animation:none}}'
@@ -33,13 +33,19 @@
   function getPanel(){ if(!panel){ panel=document.createElement('div'); panel.className='me-ea-panel'; document.body.appendChild(panel); } return panel; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function close(){ if(!panel) return; panel.classList.remove('open'); panel.innerHTML=''; items=[]; if(cur) cur.setAttribute('aria-expanded','false'); cur=null; }
-  function vpH(){ return (window.visualViewport&&window.visualViewport.height)||window.innerHeight; }
+  // 문서 좌표 absolute — 스크롤과 한 몸으로 움직여 추적 지연·튐 없음(iOS 키보드+fixed 좌표 뒤틀림 회피)
   function place(input){
     var r=input.getBoundingClientRect(), p=getPanel();
-    p.style.left=r.left+'px'; p.style.width=r.width+'px';
-    var below=vpH()-r.bottom;
-    if(below<260){ p.style.top='auto'; p.style.bottom=(window.innerHeight-r.top+6)+'px'; }   // 위로(키보드 가림 방지)
-    else { p.style.bottom='auto'; p.style.top=(r.bottom+6)+'px'; }
+    var sx=window.scrollX||document.documentElement.scrollLeft||0, sy=window.scrollY||document.documentElement.scrollTop||0;
+    p.style.left=(r.left+sx)+'px'; p.style.width=r.width+'px';
+    var vv=window.visualViewport;
+    var vTop=vv?vv.offsetTop:0, vH=vv?vv.height:window.innerHeight;   // 키보드 반영된 실제 보이는 영역
+    var below=(vTop+vH)-r.bottom, above=r.top-vTop;
+    var up=(below<240 && above>below);   // 아래 부족 + 위가 더 넓을 때만 위로
+    var list=p.querySelector('.me-ea-list');
+    if(list) list.style.maxHeight=Math.max(120, Math.min(218, (up?above:below)-46))+'px';   // 남는 공간만큼 축소(잘림 방지)
+    if(up){ p.style.top=(r.top+sy-p.offsetHeight-6)+'px'; }
+    else { p.style.top=(r.bottom+sy+6)+'px'; }
   }
   function pick(input, d){
     var at=input.value.indexOf('@');
@@ -59,8 +65,8 @@
     p.innerHTML='<div class="me-ea-cap">Select Address</div><div class="me-ea-list" role="listbox">'+list.map(function(d,i){
       return '<div class="me-ea-item'+(i===idx?' on':'')+'" role="option" aria-selected="'+(i===idx)+'" data-d="'+d+'"><span class="u">'+esc(user)+'@</span><span class="d">'+d+'</span></div>';
     }).join('')+'</div>';
-    place(input);
     p.classList.add('open');
+    place(input);   // open 뒤 배치 — 위로 열 때 패널 높이를 실측해 정확히 붙임
     cur=input; input.setAttribute('aria-expanded','true');
     items=[].slice.call(p.querySelectorAll('.me-ea-item'));
     items.forEach(function(el){
@@ -105,7 +111,7 @@
     if(!t || t.tagName!=='INPUT') return;
     if(t.type==='email' || t.hasAttribute('data-email-assist')){ attach(t); render(t); }
   });
-  // 열려 있는 동안 스크롤·리사이즈 → 위치 추적
-  ['scroll','resize'].forEach(function(ev){ window.addEventListener(ev, function(){ if(panel&&panel.classList.contains('open')&&cur) place(cur); }, {passive:true}); });
+  // 스크롤은 absolute라 자동 추종(리스너 불필요). 리사이즈·키보드 개폐 때만 1회 재배치.
+  window.addEventListener('resize', function(){ if(panel&&panel.classList.contains('open')&&cur) place(cur); }, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ if(panel&&panel.classList.contains('open')&&cur) place(cur); });
 })();
