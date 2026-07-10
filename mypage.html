@@ -398,7 +398,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .srv-skip:hover{color:var(--sub)}
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
-.inv-head{margin-bottom:4px}
+.inv-head{margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.wiz-exit{background:none;border:none;padding:2px 0;font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--light);cursor:pointer;text-decoration:underline;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
+.wiz-exit:hover{color:var(--accent)}
 .inv-step-n{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em}
 .inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
@@ -1526,7 +1528,11 @@ function renderLedger(l){
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
-    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span><span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span></div>'+dueTxt;
+    var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기(메인에 결제 안내 카드 펼침 · 카드결제 버튼 포함) — 접힘 가로줄 대체(2026-07-10)
+    var stat=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호')
+      ? '<span class="led-s"><button type="button" class="led-linkbtn" id="mp_ledBalView">보기</button></span>'
+      : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
+    return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span>'+stat+'</div>'+dueTxt;
   }).join('');
   var recRows=(l.receipts&&l.receipts.length)
     ? l.receipts.map(function(r){ var done=!!r.num; return '<div class="led-row"><span class="led-k">'+escapeHtml(r.label)+'</span><span class="led-v">'+won(r.amount)+'</span><span class="led-s '+(done?'led-done':'led-soon')+'">'+(done?('발행 '+escapeHtml(r.num)):'발급 예정')+'</span></div>'; }).join('')
@@ -1614,6 +1620,7 @@ function renderLedger(l){
   var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){ closeLedModal(); renderChangeWizard(window._mpStateD||{}); var _b=$('mp_contract'); if(_b&&_b.scrollIntoView) _b.scrollIntoView({behavior:'smooth',block:'start'}); });
   var lx=$('mp_ledChgCancel'); if(lx) lx.addEventListener('click', function(){ closeLedModal(); doCancelWeddingChange(); });
   var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } });
+  var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', openBalanceGuide);
 }
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
 function doEditCashReceipt(tail){
@@ -2285,6 +2292,18 @@ function renderPayment(p){
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
+// [내 내역 > 잔금 보기] 메인에 잔금 결제 안내 카드를 강제로 펼치고 스크롤(카드결제 버튼도 자동 부착).
+//   D-9 이내(중도금·잔금 합계 흡수) 상태면 통합 카드(중도금)로 안내.
+function openBalanceGuide(){
+  window._balForceOpen=true;
+  var d=window._mpStateD||{};
+  try{ renderBalance(d.balance, d.midpayment); }catch(e){}
+  try{ if(window.meCardPay) meCardPay.init(); }catch(e){}
+  if(typeof closeLedModal==='function') closeLedModal();
+  var el=$('mp_balance');
+  if(!el || getComputedStyle(el).display==='none') el=$('mp_midpayment');
+  if(el){ try{ el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} }
+}
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
@@ -2329,13 +2348,12 @@ function renderBalance(p, mid){
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
   }
-  if(p.status==='완료신호' || near){
-    // 가까워짐(또는 입금 신호) → 펼친 활성 카드 (그 전엔 접힘 = 재촉 X)
+  if(p.status==='완료신호' || near || window._balForceOpen){
+    // 가까워짐·입금 신호·'내 내역 > 잔금 보기' → 펼친 활성 카드
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
-    // 평소 → '계약 정보 보기'와 동일한 얇은 줄 토글로 통일. 펼치면 잔금 카드.
-    box.innerHTML='<details class="acc"><summary class="past-toggle">잔금 결제 안내 <span class="pt-ar">▾</span></summary>'
-      +'<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div></details>';
+    // 평소엔 메인에 안 띄움 — 잔금 안내 진입은 '내 내역 > 잔금 보기'로(접힘 가로줄 제거 · 2026-07-10 사용자 지시)
+    box.style.display='none'; box.innerHTML=''; return;
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
@@ -3178,6 +3196,13 @@ function startInvFlow(inv, base){
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
 function exitInvFlow(){ saveInvDraft().then(function(){ INVFLOW.active=false; loadMyState(); }); }   // #8 나가기도 저장
+// [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit]'):null;
+  if(!t) return;
+  if(typeof INVFLOW!=='undefined' && INVFLOW.active){ show('loading'); exitInvFlow(); }
+  else if(typeof TRKFLOW!=='undefined' && TRKFLOW.active){ exitTrkFlow(); }
+});
 function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
@@ -3202,7 +3227,7 @@ function invStepMethod(box){
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / 4</span></div>'
+    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
     +names
     +'<div class="inv-gate" style="margin:16px 0 4px"><div class="inv-gate-q">어떻게 초대하실래요?</div></div>'
@@ -3280,7 +3305,7 @@ function invStepParents(box){
     + _accWhere
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span></div>'
+    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     +'<div class="inv-q">혼주 · 마음 전하실 곳</div><div class="inv-sub">계좌는 필수, 나머지는 선택이에요.</div>'
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
@@ -3416,7 +3441,7 @@ function updateInvPreview(){
 }
 function invStepDesign(box){
   var d=INVFLOW.draft, m=d.method;
-  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
+  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
     +'<div class="cc-actions" style="margin:2px 0 12px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';   // 고르기 전에 먼저 훑어보게 상단 배치
   if(m==='offline') h+=designBlock('offline','직접 모시는 청첩장');
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
@@ -3441,7 +3466,7 @@ function invStepConfirm(box){
   else if(m==='offline') sm='직접 모시는 청첩장 · '+dz(d.designFamily);
   else if(m==='online') sm='온라인(모바일 참석) 청첩장 · '+dz(d.designOnline);
   else sm=((d._onlineSame!=='N')||(d.designOnline===d.designFamily)) ? ('온라인·오프라인 모두 '+dz(d.designFamily)) : ('오프라인 '+dz(d.designFamily)+' · 온라인 '+dz(d.designOnline));
-  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span></div>'
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
     +'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>'
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
@@ -3592,7 +3617,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
     : '<button type="button" class="cc-btn-ghost" id="trk_exit">나가기</button>';
   return '<div class="consult-card inv-wrap">'
-    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span></div>'
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
