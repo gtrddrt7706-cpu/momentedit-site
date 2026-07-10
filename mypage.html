@@ -1576,7 +1576,7 @@ function renderLedger(l){
         + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>인원 추가 · 스탠딩 '+escapeHtml(String(_balS.extra.standing))+'명</span><span>+'+fmtWon(_balS.extra.amount)+'</span></div>'
         + '<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:1px solid var(--hairline,#e6e0d8);color:var(--accent);font-weight:600"><span>합계</span><span>'+fmtWon(_balS.amount)+'</span></div>'
         + '</div>'):'';
-      var _lbHard = _balS.extraPending && !!((window._mpStateD||{}).production);   // 하드 게이트 — 인원 확정 전 결제 차단
+      var _lbHard = _balS.extraPending && !!((window._mpStateD||{}).production) && !_balS.due;   // 하드 게이트 — 여유 있을 때만(마감 임박 시 선택제로 해제)
       panel='<div id="mp_ledBalPanel" style="display:none">'
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
         + (_lbHard ? _finalGateHtml(true) : (
@@ -2476,7 +2476,7 @@ function renderBalance(p, mid){
       : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
       : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
-    if(p.extraPending && !!((window._mpStateD||{}).production)){   // 하드 게이트 — 인원 확정 전 결제 차단(2번 결제 방지 · 확정 흐름 있을 때만)
+    if(p.extraPending && !!((window._mpStateD||{}).production) && !p.due){   // 하드 게이트 — 여유 있을 때만(마감 D-9 전). 마감 임박 시 자동 해제 → 선택제(기본 잔금 먼저 결제 가능)
       body='<div class="cc-title">'+head+'</div>'+amt+when+_finalGateHtml(true); cta='';
     } else {
       var acct=_acctBox(p.account, p.holder, '입금 계좌', (p.amount!=null)?_acctAmt('data-copy-amt="'+String(p.amount)+'"','입금액 '+fmtWon(p.amount)+' 복사'):'');
@@ -2491,8 +2491,18 @@ function renderBalance(p, mid){
     // 가까워짐·입금 신호 → 펼친 활성 카드 (평소 진입은 '내 내역 > 잔금 보기' 인라인 패널)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
-    // 평소엔 메인에 안 띄움 — 잔금 안내 진입은 '내 내역 > 잔금 보기'로(접힘 가로줄 제거 · 2026-07-10 사용자 지시)
-    box.style.display='none'; box.innerHTML=''; return;
+    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 상시 노출(아이콘 클릭 없이) — 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로.
+    var _mini = balDateTxt ? ('<b>'+escapeHtml(balDateTxt)+'</b>까지') : (dueLabel+'까지');
+    box.innerHTML='<div class="consult-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'
+      +'<div style="text-align:left"><div style="font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)">Balance</div>'
+      +'<div style="font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);margin-top:3px">잔금 '+_mini+' <span class="cc-mini">· '+dueLabel+'</span></div></div>'
+      +'<button type="button" class="cc-btn-ghost" id="mp_bMiniView" style="width:auto;flex:0 0 auto;padding:8px 15px">보기</button></div></div>';
+    box.style.display='block';
+    var mv=$('mp_bMiniView'); if(mv) mv.addEventListener('click', function(){
+      if(typeof openLedModal==='function'){ try{ openLedModal(); }catch(e){} }
+      setTimeout(function(){ var v=$('mp_ledBalView'); if(v) v.click(); var pp=$('mp_ledBalPanel'); if(pp&&pp.scrollIntoView){ try{ pp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } }, 80);
+    });
+    return;
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
