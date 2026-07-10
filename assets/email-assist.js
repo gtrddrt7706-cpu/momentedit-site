@@ -70,17 +70,26 @@
     cur=input; input.setAttribute('aria-expanded','true');
     items=[].slice.call(p.querySelectorAll('.me-ea-item'));
     items.forEach(function(el){
-      ['mousedown','touchstart'].forEach(function(ev){ el.addEventListener(ev, function(e){ e.preventDefault(); pick(input, el.getAttribute('data-d')); }, {passive:false}); });   // blur 경합 방지 · 즉시 선택
+      el.addEventListener('mousedown', function(e){ e.preventDefault(); pick(input, el.getAttribute('data-d')); });   // 데스크톱 — blur 전 선택(경합 방지)
+      // 터치 — 탭/스크롤 구분: 닿는 순간 선택하지 않고, 8px 미만 움직임+손 뗌만 선택. 드래그는 리스트 스크롤로 통과(passive).
+      var tx=0, ty=0, moved=false;
+      el.addEventListener('touchstart', function(e){ var t=e.touches[0]; tx=t.clientX; ty=t.clientY; moved=false; }, {passive:true});
+      el.addEventListener('touchmove', function(e){ var t=e.touches[0]; if(Math.abs(t.clientX-tx)>8 || Math.abs(t.clientY-ty)>8) moved=true; }, {passive:true});
+      el.addEventListener('touchend', function(e){ if(moved) return; e.preventDefault(); pick(input, el.getAttribute('data-d')); }, {passive:false});   // 탭만 선택(고스트 클릭 억제)
     });
   }
   function checkTypo(input){
     var v=input.value, at=v.indexOf('@');
     var dom=at>=0?v.slice(at+1).toLowerCase().trim():'';
     var fix=TYPO[dom];
-    var host=input.closest('.field')||input.parentNode;
-    var hint=host?host.querySelector('.me-ea-typo'):null;
+    var hint=input.__meEAHint && input.__meEAHint.isConnected ? input.__meEAHint : null;   // 입력칸별 소유(인접 이메일 칸과 공유 오염 방지)
     if(!fix){ if(hint) hint.style.display='none'; return; }
-    if(!hint){ hint=document.createElement('div'); hint.className='me-ea-typo'; host.appendChild(hint); }
+    if(!hint){
+      hint=document.createElement('div'); hint.className='me-ea-typo'; input.__meEAHint=hint;
+      var fld=input.closest('.field');
+      if(fld) fld.appendChild(hint);                                   // 플로팅 라벨 구조(input+label 인접 셀렉터) 보존
+      else input.parentNode.insertBefore(hint, input.nextSibling);     // 일반 폼 — 입력칸 바로 아래(멀리 안 떨어짐)
+    }
     hint.innerHTML='혹시 <b>@'+esc(fix)+'</b> 아닐까요? 누르면 바꿔드려요.';
     hint.style.display='block';
     hint.querySelector('b').addEventListener('click', function(){
@@ -92,15 +101,15 @@
   function attach(input){
     if(input.__meEA) return; input.__meEA=1;
     var composing=false;
-    input.setAttribute('aria-autocomplete','list'); input.setAttribute('aria-expanded','false');
+    input.setAttribute('role','combobox'); input.setAttribute('aria-autocomplete','list'); input.setAttribute('aria-expanded','false');
     input.addEventListener('compositionstart', function(){ composing=true; });
     input.addEventListener('compositionend', function(){ composing=false; idx=0; render(input); });
-    input.addEventListener('input', function(){ if(composing) return; idx=0; render(input); var h=(input.closest('.field')||input.parentNode); var t=h&&h.querySelector('.me-ea-typo'); if(t&&t.style.display!=='none') checkTypo(input); });
+    input.addEventListener('input', function(){ if(composing) return; idx=0; render(input); var t=input.__meEAHint; if(t&&t.style.display!=='none') checkTypo(input); });
     input.addEventListener('blur', function(){ setTimeout(function(){ if(cur===input) close(); }, 150); checkTypo(input); });
     input.addEventListener('keydown', function(e){
       if(!panel || !panel.classList.contains('open') || cur!==input) return;
-      if(e.key==='ArrowDown'){ e.preventDefault(); idx=Math.min(idx+1, items.length-1); render(input); }
-      else if(e.key==='ArrowUp'){ e.preventDefault(); idx=Math.max(idx-1, 0); render(input); }
+      if(e.key==='ArrowDown'){ e.preventDefault(); idx=Math.min(idx+1, items.length-1); render(input); var on1=panel.querySelector('.me-ea-item.on'); if(on1&&on1.scrollIntoView) on1.scrollIntoView({block:'nearest'}); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); idx=Math.max(idx-1, 0); render(input); var on2=panel.querySelector('.me-ea-item.on'); if(on2&&on2.scrollIntoView) on2.scrollIntoView({block:'nearest'}); }
       else if(e.key==='Enter'){ if(items[idx]){ e.preventDefault(); pick(input, items[idx].getAttribute('data-d')); } }
       else if(e.key==='Escape'){ close(); }
     });
