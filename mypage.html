@@ -1528,6 +1528,7 @@ function renderLedger(l){
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
+    if(p.extra&&!p.done) dueTxt+='<div class="led-due">인원 추가 '+won(p.extra.amount)+' 포함 (스탠딩 '+p.extra.standing+'명)</div>';   // 최종확정 추가 요금 산식
     var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기: 모달 안에서 결제 안내 펼침(계좌·입금했어요·카드결제) — 2026-07-10 사용자 지시
     var _canBal=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호');
     var stat=_canBal
@@ -1535,8 +1536,9 @@ function renderLedger(l){
       : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
     var panel='';
     if(_canBal){
+      var _bx=(_balS.extra&&_balS.baseAmount!=null)?('<div class="cc-note" style="text-align:center;margin:0 0 10px">잔금 '+fmtWon(_balS.baseAmount)+' + 인원 추가 '+fmtWon(_balS.extra.amount)+' = <b>'+fmtWon(_balS.amount)+'</b></div>'):'';
       panel='<div id="mp_ledBalPanel" style="display:none">'
-        +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'
+        +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
         +(_balS.account?('<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
           +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">입금 계좌</div>'
           +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
@@ -2347,7 +2349,9 @@ function renderBalance(p, mid){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
-    var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
+    var _xBrk=(p.extra&&p.baseAmount!=null)?('<br><span class="cc-mini">잔금 '+fmtWon(p.baseAmount)+' + 인원 추가 '+fmtWon(p.extra.amount)+' (스탠딩 '+p.extra.standing+'명)</span>'):'';   // 최종확정 인원 추가 요금 산식(서버 합산)
+    var _xPend=p.extraPending?'<br><span class="cc-mini">최종 인원 확정 시 추가 요금이 있으면 잔금에 합산돼요.</span>':'';
+    var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+_xBrk+_xPend+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
     var _bPast=(p.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(p.dueDate):false;
     var balDateTxt=(p.dueDate&&!_bPast&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';

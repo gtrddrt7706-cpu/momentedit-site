@@ -109,7 +109,10 @@ function buildLedgerState(r) {
     else payments.push({ key: '예약금', label: '예약금', amount: PAYMENT.예약금, status: '결제 완료', done: true });
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인',
       dueLabel: _midDueLabelFor(r), dueDate: _midDueDateFor(r) });   // 납부 기한 인지용(미납 행에만 표시) · 임박 계약(기한 과거)이면 '계약 시 함께 납부'
-    payments.push({ key: '잔금', label: '잔금', amount: amounts['잔금'], status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인',
+    var _bx = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(r) : { amount: 0 };   // 최종확정 인원 추가 요금 — 잔금과 단일 출처
+    var _bxFee = (String(r.get('잔금상태') || '').trim() !== '확인') ? _bx.amount : 0;
+    payments.push({ key: '잔금', label: '잔금', amount: Number(amounts['잔금']) + _bxFee, status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인',
+      extra: _bxFee > 0 ? { standing: _bx.standing, amount: _bxFee } : null,
       dueLabel: _balanceDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전) });
   }
   // 결제 진행률 — 완료된 마일스톤 금액 합 / 총액. (작은 계약서 등 예약금이 계약금을 초과해 100%를 넘는 경우 방지)

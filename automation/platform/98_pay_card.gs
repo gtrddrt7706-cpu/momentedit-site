@@ -30,7 +30,10 @@ function _payExpectedAmount(cust, milestone) {
   if (!a) return null;
   if (milestone === '계약금') return Number(a.납부액) || 0;   // 계약 성립 시 납부액(예약금 차감 후 잔액)
   if (milestone === '중도금') return Number(a.중도금) || 0;
-  if (milestone === '잔금')   return Number(a.잔금) || 0;
+  if (milestone === '잔금') {   // 최종확정 인원 추가 요금 합산 — buildBalanceState와 단일 출처(화면·카드 금액 일치)
+    var _bx = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
+    return (Number(a.잔금) || 0) + (String(cust.get('잔금상태') || '').trim() !== '확인' ? _bx.amount : 0);
+  }
   return null;
 }
 
