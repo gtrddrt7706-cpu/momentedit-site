@@ -3361,7 +3361,7 @@ function invStepMethod(box){
     +opt('self','개인적으로 제작할게요','우리 디자인 없이')
     +qr
     +opt('none','청첩장 없이','')
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_exit">나가기</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
+    +'<div class="inv-nav"><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'</div>';
   function collectNames(){
     [['groomKo','mp_gKo'],['groomEn','mp_gEn'],['brideKo','mp_bKo'],['brideEn','mp_bEn']].forEach(function(p){
@@ -3373,7 +3373,6 @@ function invStepMethod(box){
   updateCover();
   Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
-  $('iv_exit').addEventListener('click', function(){ collectNames(); exitInvFlow(); });
   $('iv_next').addEventListener('click', function(){
     collectNames();
     var mm=INVFLOW.draft.method;
@@ -3740,7 +3739,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
   var m=TRK_META[TRKFLOW.track];
   var navLeft = (TRKFLOW.step>0)
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
-    : '<button type="button" class="cc-btn-ghost" id="trk_exit">나가기</button>';
+    : '';
   return '<div class="consult-card inv-wrap">'
     + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
@@ -3797,7 +3796,6 @@ function bindTrk(box, render, collect, opt){
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ _dncGo(el.getAttribute('data-sgg')); }); });
   }
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
-  var exit=$('trk_exit'); if(exit) exit.addEventListener('click', exitTrkFlow);
   var next=$('trk_next'); if(next) next.addEventListener('click',function(){
     collect();
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
