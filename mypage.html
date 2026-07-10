@@ -619,7 +619,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
-        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80">
+        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" data-email-assist>
         <label for="li_code">개인코드 (6자) 또는 이메일</label>
       </div>
       <div class="field">
@@ -4466,6 +4466,7 @@ window.ME_ADV_PAGE = {
 </script>
 <script src="/assets/advisor-kb.js"></script>
 <script src="/assets/advisor-widget.js"></script>
+<script src="/assets/email-assist.js" defer></script>
 <script src="/assets/sequence-modal.js" defer></script>
 </body>
 </html>
