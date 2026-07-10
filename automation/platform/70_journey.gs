@@ -1086,11 +1086,15 @@ function _cashReceiptLedger(r) {
   var _mCf = String(r.get('중도금상태') || '').trim() === '확인', _bCf = String(r.get('잔금상태') || '').trim() === '확인';
   var _mAt = String(r.get('중도금확인일시') || '').trim(), _bAt = String(r.get('잔금확인일시') || '').trim();
   var _combo = !isSnap && _mCf && _bCf && _mAt && _mAt === _bAt;
+  // [잔금 합산 정합] 확인건=확정 시점 스냅샷(잔금확정금액 · 없으면 기본=구데이터 보존) / 미확인 표시용=기본+현재 인원 추가금
+  var _bSnap = 0; try { _bSnap = Math.round(Number(_rec98.잔금확정금액) || 0); } catch (e) {}
+  var _bXn = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(r) : { amount: 0 };
+  var _balAmt = _bCf ? (_bSnap || (amounts ? amounts['잔금'] : 0)) : ((amounts ? amounts['잔금'] : 0) + (_bXn.amount || 0));
   if (_combo) {
-    out.push(item('중도금잔금', '중도금·잔금', true, amounts ? (amounts['중도금'] + amounts['잔금']) : 0));
+    out.push(item('중도금잔금', '중도금·잔금', true, (amounts ? amounts['중도금'] : 0) + _balAmt));
   } else {
     if (!isSnap) out.push(item('중도금', '중도금', _mCf, amounts ? amounts['중도금'] : 0));
-    out.push(item('잔금', '잔금', _bCf, amounts ? amounts['잔금'] : 0));
+    out.push(item('잔금', '잔금', _bCf, _balAmt));
   }
   // 추가 보정(과세 용역·10만원↑ 현금 의무발급) — 결제 '완료'된 건만 원장에(금액 0=미신청은 행 자체 생략). 총액 외 별도 매출이라 결제 진행률에는 미합산.
   var _exAmt = Math.round(Number(r.get('추가보정금액')) || 0);
@@ -1241,7 +1245,12 @@ function adminConfirmBalance(code) {
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };   // 종료 고객 입금확인 차단(영수증 큐 오생성 방지)
   if (String(cust.get('잔금상태') || '').trim() === '확인') return { ok: true, already: true };
-  touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()) });
+  // [잔금 스냅샷] 확정 시점의 합산 잔금(기본+인원 추가)을 동의기록에 고정 — 이후 인원 변경이 영수증·표시 금액을 흔들지 않게
+  var _bAm = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));
+  var _bX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
+  var _bRec = _parseJsonSafe(cust.get('동의기록'));
+  _bRec.잔금확정금액 = Math.round((_bAm ? Number(_bAm['잔금']) || 0 : 0) + (_bX.amount || 0));
+  touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()), '동의기록': JSON.stringify(_bRec) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '잔금' });   // 고객 안심 알림(카톡)
   return { ok: true };
 }
@@ -1326,7 +1335,14 @@ function adminConfirmMidBalance(code) {
   var now = fmtKST(new Date());
   var upd = {};
   if (!midOk) { upd['중도금상태'] = '확인'; upd['중도금확인일시'] = now; }
-  if (!balOk) { upd['잔금상태'] = '확인'; upd['잔금확인일시'] = now; }
+  if (!balOk) {
+    upd['잔금상태'] = '확인'; upd['잔금확인일시'] = now;
+    var _cAm = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));   // [잔금 스냅샷] 콤보 확인도 동일 고정
+    var _cX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
+    var _cRec = _parseJsonSafe(cust.get('동의기록'));
+    _cRec.잔금확정금액 = Math.round((_cAm ? Number(_cAm['잔금']) || 0 : 0) + (_cX.amount || 0));
+    upd['동의기록'] = JSON.stringify(_cRec);
+  }
   touchCustomer(sheet, colOf, cust.num, upd);
   notifyKakao('cust.paymentConfirmed', code, { kind: '중도금·잔금' });
   return { ok: true };

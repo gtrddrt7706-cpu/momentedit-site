@@ -1139,6 +1139,7 @@ function stageLabel(code, product){
 }
 
 function renderMyPage(d){
+  window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
   var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 · 데스크톱 600px / 모바일 100%)
   // 환영 — 이름 + '님'(작게)
   $('mp_names').innerHTML = escapeHtml(d.name || '고객') + ' <span class="nim">님</span>';
@@ -1307,6 +1308,11 @@ function renderMyPage(d){
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 플래그 OFF면 무동작(라이브 영향 0)
+    // [게이트 복귀] '최종 확정 먼저 하기'로 갔다가 완료되면 잔금 카드로 스크롤(한 번만)
+    if(window._afterFinalToBal && d.production && d.production.tracks && d.production.tracks.final==='완료'){
+      window._afterFinalToBal=false;
+      setTimeout(function(){ var _bb=$('mp_balance'); if(_bb && getComputedStyle(_bb).display!=='none'){ try{ _bb.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } },200);
+    }
     // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 채우고 날짜처럼 잠금(조정 불가).
     //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40).
     if (d.production && d.production.base && d.contract && d.contract.fill && d.contract.fill.weddingTime){
@@ -1327,7 +1333,6 @@ function renderMyPage(d){
       // [임시고정 상시 확인] 배너는 상담완료부터 숨으므로(혼선 방지), 계약 서명 전까지는 내 내역에서 픽스 날짜를 이어서 보여줌. GAS가 서명완료·만료 시 hold를 자동으로 끊음.
       d.ledger.hold = d.hold || null;
     }
-    window._mpStateD = d;                                            // 내 내역 모달에서 예식일 변경 위저드 진입용 전체 상태
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
   }
@@ -1544,6 +1549,7 @@ function renderLedger(l){
           +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
           +(_balS.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_balS.holder)+'</div>':'')
           +'<button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="margin-top:9px">계좌 복사</button></div>'):'')
+        +(_balS.extraPending?_finalGateHtml():'')
         +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'
         +cashReceiptField('mp_lbCR', l.cashTail)
         +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
@@ -2331,6 +2337,22 @@ function renderPayment(p){
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
+// [최종확정 소프트 게이트] 잔금 결제 전 인원 미확정이면 — 먼저 확정 유도(강제 아님 · 3걸음 위저드로 이동).
+function _finalGateHtml(){
+  var hasProd = !!((window._mpStateD||{}).production);
+  return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
+    +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>최종 확정을 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
+    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기 (1분)</button>':'')
+    +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 이후 인원 추가분은 따로 안내드려요.</div></div>';
+}
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-bal-final]'):null;
+  if(!t) return;
+  var d=window._mpStateD||{}, pr=d.production||{};
+  if(typeof closeLedModal==='function'){ try{ closeLedModal(); }catch(err){} }
+  window._afterFinalToBal=true;   // 최종확정 완료 후 잔금으로 복귀 스크롤
+  try{ startTrkFlow('final', pr.finalDraft||{}, pr.base||{}); }catch(err){}
+});
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
@@ -2371,7 +2393,7 @@ function renderBalance(p, mid){
       + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
       + '<button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="margin-top:10px">계좌 복사</button>'
       + '</div>'):'';
-    body='<div class="cc-title">'+head+'</div>'+amt+when+acct;
+    body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_bCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
@@ -2454,7 +2476,7 @@ function renderMid(p, bal){
       + '<button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="margin-top:10px">계좌 복사</button>'
       + '</div>'):'';
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
-    body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo;
+    body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_mCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'

@@ -695,8 +695,11 @@ function cardPayment(d){
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   // 중도금·잔금 — 계약금 이후 결제 마일스톤(상태 표시 + 신호 오면 확인 버튼)
   var mid=r['중도금상태']||'', bal=r['잔금상태']||'';
-  if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+(pb['중도금']==='카드'?cardTag:'')+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
-  if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+(pb['잔금']==='카드'?cardTag:'')+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
+  var mb=d.mirror||{};   // 기대 금액(서버 합산 · 통장 대조용) — 잔금은 최종확정 인원 추가 포함
+  var _mAmt=(mb.midpayment&&mb.midpayment.amount!=null)?(' · '+Number(mb.midpayment.amount).toLocaleString()+'원'):'';
+  var _bAmt=(mb.balance&&mb.balance.amount!=null)?(' · '+Number(mb.balance.amount).toLocaleString()+'원'+(mb.balance.extra?' <span style="color:var(--label-soft)">(인원추가 '+Number(mb.balance.extra.amount).toLocaleString()+'원 포함)</span>':'')):'';
+  if(mid&&mid!=='대기') raw+='<br>중도금 <b>'+esc(mid)+'</b>'+_mAmt+(pb['중도금']==='카드'?cardTag:'')+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'');
+  if(bal&&bal!=='대기') raw+='<br>잔금 <b>'+esc(bal)+'</b>'+_bAmt+(pb['잔금']==='카드'?cardTag:'')+(r['잔금입금자명']?(' · 입금자 '+esc(r['잔금입금자명'])):'');
   if(pb['계약금']==='카드'||pb['예약금']==='카드'||pb['중도금']==='카드'||pb['잔금']==='카드') raw+='<br><span style="color:#b5852a;font-size:11px">카드 결제분 환불·취소는 계좌 환불이 아니라 토스 결제취소로 처리하세요.</span>';
   // 현금영수증 — 결제 상태와 시각 분리(별도 서브 블록: 발급대상 + 마일스톤별 발행 상태)
   var rcpt='';

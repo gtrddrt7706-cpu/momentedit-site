@@ -154,6 +154,12 @@ function handleSaveProductionTrack(body) {
         String(_prevFinal.allergy || '').trim() !== String(_f.allergy || '').trim()   // 알레르기=식음 안전(계약 ⑧ 고지의무) 변경도 재통지
       );
       if (!_wasDone || _changed) {
+        // [차액 경보] 잔금이 이미 확인된 뒤 인원 추가요금이 달라지면 — 자동 합산 동결 상태라 수동 정산 필요(관리자 메일)
+        var _balPaid5 = String(cust.get('잔금상태') || '').trim() === '확인';
+        var _feePrev5 = Number((_prevFinal || {}).extraFee) || 0, _feeNow5 = Number(_f.extraFee) || 0;
+        if (_balPaid5 && _feeNow5 !== _feePrev5) {
+          try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('최종확정 변경 · 잔금 기결제 · 인원 추가요금 ' + _feePrev5.toLocaleString() + '원 → ' + _feeNow5.toLocaleString() + '원 · 차액 정산 필요 · ' + code); } catch (e) {}
+        }
         notifyKakao('admin.finalConfirm', code, {
           head: _f.headcount || '-',
           standing: Number(_f.standing) || 0,
