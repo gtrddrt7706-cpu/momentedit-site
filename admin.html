@@ -1057,9 +1057,12 @@ var SURVEY_Q = {
   shoot:{t:'촬영 몰입',o:{great:'몰입',ok:'무난',poor:'아쉬움'}},
   styling:{t:'스타일링',o:{great:'만족',ok:'보통',poor:'아쉬움'}},
   overall:{t:'종합 만족',o:{very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}},
-  recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'}}
+  recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'}},
+  source:{t:'유입 경로',o:{insta:'인스타그램',friend:'지인소개',search:'검색',sns:'유튜브·블로그',etc:'그외'}},
+  reason:{t:'결정 이유',o:{mood:'감성·분위기',allinone:'올인원',price:'가격·투명성',review:'후기·평판',etc:'그외'}},
+  gap:{t:'놓친 부분(안전망)',o:{none:'없음',minor:'사소',some:'있음'}}
 };
-var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','overall','recommend'];
+var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','source','reason','overall','recommend','gap'];
 var SURVEY_PILLARS=[{k:'pace',label:'140분 적절',good:['good']},{k:'transparency',label:'투명성 약속 이행',good:['kept','mostly']},{k:'family',label:'가족 만족',good:['great']}];
 function _svPct(q,goods){ if(!q) return null; var tot=0,hit=0,v; for(v in q){ if(q.hasOwnProperty(v)){ tot+=q[v]; if(goods.indexOf(v)>=0) hit+=q[v]; } } return tot?{pct:Math.round(hit/tot*100),n:tot}:null; }
 function renderSurvey(d){
@@ -1067,6 +1070,9 @@ function renderSurvey(d){
   var sv=d.survey||{n:0,q:{},recent:[]};
   var html='<div class="sect-h"><span class="ic">📊</span><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
   if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요. 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
+  // [안전망] 개선 신호 — '놓친 부분 있었음' 부각
+  var _gq=sv.q.gap||{}; var _gapN=(Number(_gq.minor)||0)+(Number(_gq.some)||0);
+  if(_gapN){ html+='<div style="margin:8px 0 12px;padding:9px 12px;border:1px solid #d8b06a;border-radius:8px;background:#fdf6ec;color:#8a5a1a;font-size:12.5px;line-height:1.5">개선 신호 · 고객이 <b>놓친 부분 있었음</b>으로 답한 설문 <b>'+_gapN+'건</b> — 아래 문항 분포·후기에서 확인하세요</div>'; }
   // 브랜드 약속 3축 이행률
   html+='<div class="sv-pillars">';
   SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'-')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
@@ -1086,7 +1092,7 @@ function renderSurvey(d){
   // 공개 동의 후기
   var revs=(sv.recent||[]).filter(function(x){ return x.review; });
   if(revs.length){ html+='<div class="sv-rev-h">후기 ('+revs.length+')</div>';
-    html+=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
+    html+=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+(x.gap&&x.gap!=='none'?' <b style="color:#8a5a1a">개선의견</b>':'')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
   }
   wrap.innerHTML=html;
 }

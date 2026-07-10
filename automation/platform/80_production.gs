@@ -376,8 +376,26 @@ function handleSubmitSurvey(body) {
     var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
     var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });
+    // 관리자 메일 — 핵심 신호 한글화 + 개선 신호(안전망) 부각 + 커피쿠폰 발송 리마인드
+    var _L = {
+      overall: { very: '매우만족', satisfied: '만족', neutral: '보통', low: '아쉬움' },
+      recommend: { definitely: '꼭추천', maybe: '추천할만', unsure: '모르겠음' },
+      gap: { none: '없음', minor: '사소하게 있음', some: '있음' },
+      source: { insta: '인스타그램', friend: '지인소개', search: '검색', sns: '유튜브·블로그', etc: '그외' },
+      reason: { mood: '감성·분위기', allinone: '올인원', price: '가격·투명성', review: '후기·평판', etc: '그외' }
+    };
+    var _lab = function (kk, vv) { return (_L[kk] && _L[kk][vv]) || vv || '-'; };
+    var gapFlag = (clean.gap && clean.gap !== 'none') ? ('\n[개선 신호] 놓친 부분: ' + _lab('gap', clean.gap) + (review ? ' (후기 확인)' : '')) : '';
+    var headLine = '만족 ' + _lab('overall', clean.overall) + ' · 추천 ' + _lab('recommend', clean.recommend)
+      + '\n유입 ' + _lab('source', clean.source) + ' · 결정 ' + _lab('reason', clean.reason);
     var sum = ''; for (k in clean) { if (clean.hasOwnProperty(k)) sum += k + '=' + clean[k] + '  '; }
-    try { notifyStudio('[플랫폼] 만족도 설문 (' + code + ')', code + ' · ' + product + '\n' + sum + (review ? ('\n후기' + (reviewPublic ? '(공개동의)' : '') + ': ' + review) : '')); } catch (e) {}
+    try {
+      notifyStudio('[플랫폼] 만족도 설문 (' + code + ')',
+        code + ' · ' + product + '\n' + headLine + gapFlag
+        + '\n커피쿠폰 발송 대상 (완주 감사 · 카톡 기프티콘)'
+        + (review ? ('\n후기' + (reviewPublic ? '(공개동의)' : '') + ': ' + review) : '')
+        + '\n\n(전체) ' + sum);
+    } catch (e) {}
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
