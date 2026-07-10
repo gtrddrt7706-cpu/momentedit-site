@@ -885,8 +885,8 @@ function openContractView(){
   ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
-  var prevOverflow=document.body.style.overflow; var _sbw=window.innerWidth-document.documentElement.clientWidth; if(_sbw>0) document.documentElement.style.paddingRight=_sbw+'px'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.paddingRight=''; }
+  _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
+  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -926,8 +926,8 @@ function openFittingView(){
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
-  var prevOverflow=document.body.style.overflow; var _sbw=window.innerWidth-document.documentElement.clientWidth; if(_sbw>0) document.documentElement.style.paddingRight=_sbw+'px'; document.body.style.overflow='hidden';   // 스크롤바가 사라져도 폭을 유지해 배경 밀림 방지
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=prevOverflow; document.documentElement.style.paddingRight=''; }
+  _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
+  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -944,6 +944,22 @@ document.addEventListener('click', function(e){
   var b=(e.target&&e.target.closest)?e.target.closest('.js-view-contract'):null;
   if(b){ e.preventDefault(); openContractView(); }
 });
+// ── iOS 안전 배경 스크롤 잠금 (overflow:hidden만으론 iOS Safari 터치 스크롤이 안 막힘 → position:fixed body 고정) · 중첩 카운터 ──
+var _mpLockN=0, _mpLockY=0;
+function _mpLock(){
+  if(_mpLockN++ > 0) return;
+  _mpLockY = window.scrollY || window.pageYOffset || 0;
+  var sbw = window.innerWidth - document.documentElement.clientWidth; if(sbw>0) document.documentElement.style.paddingRight = sbw+'px';
+  var b=document.body;
+  b.style.position='fixed'; b.style.top=(-_mpLockY)+'px'; b.style.left='0'; b.style.right='0'; b.style.width='100%'; b.style.overflow='hidden';
+}
+function _mpUnlock(){
+  if(_mpLockN<=0) return; if(--_mpLockN>0) return;
+  var b=document.body;
+  b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width=''; b.style.overflow='';
+  document.documentElement.style.paddingRight='';
+  var html=document.documentElement, prev=html.style.scrollBehavior; html.style.scrollBehavior='auto'; window.scrollTo(0,_mpLockY); html.style.scrollBehavior=prev;
+}
 // ── 커스텀 모달 (브라우저 confirm/alert 대체) ── mpConfirm({title,body,yes,no})→Promise<bool> · mpAlert(msg)
 function mpModalOpen(o){
   o = o || {};
@@ -956,7 +972,7 @@ function mpModalOpen(o){
     else if(o.body){ b.innerHTML=String(o.body).split('\n').map(function(x){return escapeHtml(x);}).join('<br>'); b.style.display=''; }
     else { b.innerHTML=''; b.style.display='none'; }
     a.innerHTML=''; var done=false;
-    function close(v){ if(done) return; done=true; ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
+    function close(v){ if(done) return; done=true; ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
     var prim=document.createElement('button');
     prim.type='button'; prim.className='mp-modal-btn '+(o.confirmSeal?'mp-modal-btn-seal':'mp-modal-btn-primary'); prim.textContent=o.confirmText||'확인';
     prim.addEventListener('click',function(){ close(true); });
@@ -970,7 +986,7 @@ function mpModalOpen(o){
     }
     function onKey(e){ if(e.key==='Escape' && o.cancel!==false) close(false); }
     document.addEventListener('keydown',onKey);
-    ov.classList.add('open'); ov.setAttribute('aria-hidden','false');
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
     try{ prim.focus(); }catch(_){}
   });
 }
@@ -990,7 +1006,7 @@ function mpSignaturePad(opts){
       +'<div class="mp-sig-hint" id="mpSigHint">위 칸에 손가락(또는 마우스)으로 서명해 주세요</div>';
     b.style.display='';
     a.innerHTML=''; var done=false;
-    function finish(v){ if(done)return; done=true; window.removeEventListener('resize',resize); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
+    function finish(v){ if(done)return; done=true; window.removeEventListener('resize',resize); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
     var cv=$('mpSigCanvas'), ctx=cv.getContext('2d'), drawn=false, drawing=false, last=null, saved=null;
     function resize(){
       var img=drawn?ctx.getImageData(0,0,cv.width,cv.height):null;
@@ -1012,7 +1028,7 @@ function mpSignaturePad(opts){
     var cancel=document.createElement('button'); cancel.type='button'; cancel.className='mp-modal-btn mp-modal-btn-ghost'; cancel.textContent='취소';
     cancel.addEventListener('click',function(){ finish(null); });
     a.appendChild(prim); a.appendChild(clr); a.appendChild(cancel);
-    ov.classList.add('open'); ov.setAttribute('aria-hidden','false');
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
     window.addEventListener('resize',resize);
     setTimeout(resize,40);
   });
@@ -1514,17 +1530,17 @@ function openInviteSamples(){
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
-  function done(){ ov.style.opacity='0'; document.body.style.overflow=_prev; setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  function done(){ ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
   function esc(e){ if(e.key==='Escape') done(); }
   x.addEventListener('click', done);
   ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
   document.addEventListener('keydown', esc);
-  var _prev=document.body.style.overflow; document.body.style.overflow='hidden';
+  _mpLock();
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
-function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')) box.classList.add('open'); }
-function closeLedModal(){ var box=$('mp_ledger'); if(box) box.classList.remove('open'); }
+function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); } }
+function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); } }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
 
 function renderLedger(l){

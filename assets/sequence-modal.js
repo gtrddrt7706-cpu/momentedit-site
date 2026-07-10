@@ -160,15 +160,25 @@
     }
     renderProd(); renderTabs(); renderBody();
   }
+  // iOS 안전 배경 스크롤 잠금 — overflow:hidden만으론 iOS Safari 터치 스크롤이 안 막힘 → position:fixed body 고정
+  var _lockY = 0, _locked = false;
   function open(m) {
     applyMode(m);
     ov.classList.add('show');
     var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바만 보정 · 모바일 팬텀 거터 방지
     document.documentElement.style.overflow = 'hidden';
+    _lockY = window.scrollY || window.pageYOffset || 0;
+    var b = document.body;
+    b.style.position = 'fixed'; b.style.top = (-_lockY) + 'px'; b.style.left = '0'; b.style.right = '0'; b.style.width = '100%'; _locked = true;
     requestAnimationFrame(function () { ov.classList.add('open'); });
   }
   function close() {
     ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.paddingRight = '';
+    if (_locked) {
+      var b = document.body;
+      b.style.position = ''; b.style.top = ''; b.style.left = ''; b.style.right = ''; b.style.width = '';
+      var html = document.documentElement, prev = html.style.scrollBehavior; html.style.scrollBehavior = 'auto'; window.scrollTo(0, _lockY); html.style.scrollBehavior = prev; _locked = false;
+    }
     setTimeout(function () { ov.classList.remove('show'); }, 320);
   }
   prodEl.addEventListener('click', function (e) {
