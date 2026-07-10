@@ -506,7 +506,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-or::before,.dn-or::after{content:'';flex:1;height:1px;background:var(--border)}
 .dn-or span{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);white-space:nowrap}
 .dn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 11px}
-.dn-head-t{font-family:var(--serif-ko);font-size:13.5px;letter-spacing:.02em;color:var(--accent)}
+.dn-head-t{font-family:var(--serif-ko);font-size:13.5px;letter-spacing:.02em;color:var(--accent);white-space:nowrap;flex-shrink:0}
 .dn-head-c{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);white-space:nowrap}
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
@@ -3382,10 +3382,10 @@ function invStepMethod(box){
   function nv(k){ var v=(d[k]!=null&&String(d[k])!=='')?d[k]:((INVFLOW.base||{})[k]||''); return escapeHtml(String(v)); }
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
     +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+nv('groomKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('groomEn')+'"></div>'
+    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
     +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+nv('brideKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('brideEn')+'"></div>'
+    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
     +'<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
@@ -4079,7 +4079,7 @@ function dineFilterUI(d, wt){
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
   var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
   var head='<div class="dn-head"><span class="dn-head-t">디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
-  var care='<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객들이 가장 아쉬워하는 건 자리·주차·식사예요. 그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요.</div>';   // [심리] 호스트 불안(자리·주차·식사 질) 대신 걱정해 둠 신호 · 2026-07-10
+  var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객들이 가장 아쉬워하는 건 자리·주차·식사예요. 그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요.</div>':'';   // [심리] 호스트 불안(자리·주차·식사 질) 대신 걱정해 둠 신호 · 결과 0곳이면 모순이라 숨김
   var fine='<div class="dn-fine">정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션 섹션(기본 접힘)
@@ -4090,7 +4090,7 @@ function dineFilterUI(d, wt){
   }).join('');
   var attr='<div class="dn-attr"><div class="dn-attr-h" id="dn_attr_h"><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기 ▴':'펼치기 ▾')+'</span></div>'
     +(DN_UI.attr?'<div class="dn-attr-list">'+attrItems+'<div class="dn-fine" style="margin-top:2px">산책·사진 코스예요. 거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
-  return aiBox + orDiv + head + care + aiHint + presetRow + chips + fine + cards + attr;
+  return aiBox + orDiv + head + care + aiHint + presetRow + chips + cards + fine + attr;   // 면책(fine)은 카드 뒤 — 조건 → 카드 → 주의 순으로 읽히게
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
