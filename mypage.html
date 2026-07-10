@@ -2534,9 +2534,43 @@ var meCardPay = (function(){
       clean(); try{ loadMyState(); }catch(e){}
     }).catch(function(){ mpAlert('결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean(); });
   }
+  function demo(){   // ?preview_card=1 — 로그인·결제단계 없이도 마이페이지 안에서 카드 배치를 보도록 데모 카드 1장 주입(파라미터 있을 때만·라이브 무해)
+    if(!PREVIEW) return;
+    var main=document.querySelector('main'); if(!main) return;
+    if(document.getElementById('mp_preview_demo')) return;
+    var sec=document.createElement('section');
+    sec.id='mp_preview_demo';
+    sec.style.cssText='display:block;max-width:520px;margin:0 auto 8px;padding:16px 14px 4px';
+    sec.innerHTML =
+      '<div style="border:1px dashed var(--gold);border-radius:12px;padding:6px 6px 2px;background:#FCFAF5">'
+      + '<div style="text-align:center;font-family:var(--serif);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9a7b3f;padding:8px 0 10px">Card Payment Preview · 실제 결제 아님</div>'
+      + '<div class="consult-sec" style="display:block"><div class="consult-card">'
+      +   '<div class="cc-eyebrow en-22">Contract</div>'
+      +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
+      +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
+      +   '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+      +     '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
+      +     '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">기업 000-000-00000</div>'
+      +     '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 모먼트에디트</div>'
+      +     '<button type="button" class="cc-btn-ghost" style="margin-top:10px">계좌 복사</button></div>'
+      +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
+      +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
+      +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
+      + '</div></div></div>';
+    main.insertBefore(sec, main.firstChild);
+    try{ previewAttach({btn:'mp_demoSignal', m:'계약금'}); }catch(e){}   // 실제 카드 버튼 로직 그대로 붙여 동일하게 렌더
+  }
   function afterRender(){ try{ handleReturn(); }catch(e){} try{ init(); }catch(e){} }
-  return { afterRender:afterRender, init:init, handleReturn:handleReturn, pay:pay };
+  return { afterRender:afterRender, init:init, handleReturn:handleReturn, pay:pay, demo:demo };
 })();
+if(window.meCardPay){   // 미리보기 파라미터면 로그인 여부와 무관하게 데모 카드 표시
+  try{
+    if(new URLSearchParams(location.search).get('preview_card')==='1'){
+      var _demoRun=function(){ try{ meCardPay.demo(); }catch(e){} };
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', _demoRun); else _demoRun();
+    }
+  }catch(e){}
+}
 
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
 function collapsedCard(box, label, fullHtml, sigType, openByDefault){
