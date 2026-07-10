@@ -1163,6 +1163,22 @@ function _shiftYmd(weddingYmd, deltaDays) {
   return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
 }
 // 마이페이지 잔금 카드 상태. 계약 서명완료 + 제작 단계에서 노출(확인이면 접힘).
+// [잔금 합산] 최종확정(제작 트랙) 완료본의 스탠딩 초과 요금 — 잔금 단일 출처.
+//   buildBalanceState(화면)·_payExpectedAmount(카드 금액검증)·buildLedgerState(내 내역)가 전부 이 함수를 씀 → 어긋남 원천 차단.
+//   잔금 '확인' 후의 재확정 변경분은 합산하지 않음(차액은 디렉터 안내) — 호출부에서 상태 확인.
+function _balanceExtraInfo(r) {
+  var out = { finalDone: false, standing: 0, amount: 0 };
+  try {
+    if (!r || String(r.get('상품타입') || '').trim() === '웨딩스냅') return out;
+    var d = _parseJsonSafe(r.get('제작임시저장'));
+    if (!(d.tracks && d.tracks.final === '완료')) return out;
+    out.finalDone = true;
+    var f = d.finalDraft || {};
+    out.standing = Number(f.standing) || 0;
+    out.amount = Math.max(0, Number(f.extraFee) || 0);
+  } catch (e) {}
+  return out;
+}
 function buildBalanceState(r) {
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
@@ -1174,12 +1190,17 @@ function buildBalanceState(r) {
   var dday = _balanceDDay(r.get('예식일'));
   // 시그: 중도금과 함께(예식 D-45 이내)·중도금 확인 후 노출. 스냅: 2단계 결제(20/80)라 입금완료부터 바로 노출(예식일·dday 무관).
   if (!isSnap && bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= PAYMENT.잔금일수전 + 15)) return null;
+  var _x = _balanceExtraInfo(r);
+  var _xFee = (bStatus !== '확인') ? _x.amount : 0;   // 확인 후엔 합산 동결(차액은 디렉터 안내)
   return {
     status: bStatus,                                   // 대기 / 완료신호 / 확인
     confirmed: bStatus === '확인',
     payerName: String(r.get('잔금입금자명') || '').trim(),
     cashReceipt: _cashReceiptOf(r),
-    amount: amounts ? amounts['잔금'] : null,          // 잔금액(총액 80%) 또는 null
+    amount: amounts ? (Number(amounts['잔금']) + _xFee) : null,   // 잔금 + 최종확정 인원 추가 요금(합산 총액)
+    baseAmount: amounts ? amounts['잔금'] : null,      // 기본 잔금(산식 표기용)
+    extra: _xFee > 0 ? { standing: _x.standing, amount: _xFee } : null,   // 인원 추가 내역
+    extraPending: (!isSnap && !_x.finalDone && bStatus !== '확인') || false,   // 최종확정 전 안내 한 줄용
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
