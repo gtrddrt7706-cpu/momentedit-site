@@ -392,7 +392,7 @@ function handleSubmitSurvey(body) {
     try {
       notifyStudio('[플랫폼] 만족도 설문 (' + code + ')',
         code + ' · ' + product + '\n' + headLine + gapFlag
-        + '\n스타벅스 2잔 발송 대상 (완주 감사 · 카톡 선물하기) · 연락처 ' + String(cust.get('연락처') || '')
+        + '\n스타벅스 2잔 발송 대상 (완주 감사) · 관리자 상세에서 커피쿠폰 발급 버튼으로 바코드 등록 → 고객 마이페이지 표시 · 연락처 ' + String(cust.get('연락처') || '')
         + (review ? ('\n후기' + (reviewPublic ? '(공개동의)' : '') + ': ' + review) : '')
         + '\n\n(전체) ' + sum);
     } catch (e) {}

@@ -1531,6 +1531,10 @@ function cardResult(d,isSnap){
     b+='<div class="gate">✓ 전달 완료'+(svS==='완료'?' · 후기 완료':(svS==='건너뜀'?' · 후기 넘김':' · 후기 작성 대기'))+'</div>';
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(svS!=='완료'&&svS!=='건너뜀') b+=ab('skipSurvey','후기 넘기기 (설문 생략)','btn-line');
+    // 커피쿠폰 — 후기 완주 고객에게 바코드 발급(마이페이지 표시). 발급됨이면 회수 가능.
+    var cpS=r['쿠폰상태']||'';
+    if(cpS==='발급') b+='<div class="gate">☕ 커피쿠폰 발급됨 · 고객 마이페이지에 표시 중</div>'+ab('revokeCoupon','커피쿠폰 회수','btn-line');
+    else if(svS==='완료') b+=ab('issueCoupon','커피쿠폰 발급 (바코드)','btn-line');
   }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
 }
@@ -1587,6 +1591,8 @@ function onDetailAct(act,d){
   else if(act==='markRefunded') doMarkRefunded(code,names,d);
   else if(act==='startRetouch') doStartRetouch(code,names);
   else if(act==='skipSurvey') doSkipSurvey(code,names);
+  else if(act==='issueCoupon') doIssueCoupon(code,names);
+  else if(act==='revokeCoupon') doRevokeCoupon(code,names);
   else if(act==='confirmChange') doConfirmChange(code,names,d);
   else if(act==='declineChange') doDeclineChange(code,names,d);
 }
@@ -1695,6 +1701,68 @@ function doDelivered(code,names,d){
     yes:(warn||warnPay)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay)?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
+/* 커피쿠폰 — 바코드 이미지(1~2장)를 base64로 압축해 발급. 구글 시트 셀 5만자 한계 → 이미지 합계 4.6만자 이내로 자동 축소. */
+var _cpnImgs=[];
+function doIssueCoupon(code,names){
+  _cpnImgs=[];
+  var today=new Date(); var dflt=new Date(today.getTime()+60*24*3600*1000);   // 기본 사용기한 60일 뒤
+  function ymd(dt){ return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2); }
+  var extra='<div class="field"><label>바코드 이미지 (1~2장 · 스타벅스 기프티콘 캡처)</label>'
+    +'<input type="file" id="cpnFile" accept="image/*" multiple></div>'
+    +'<div id="cpnPrev" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"></div>'
+    +'<div class="field"><label>선물 이름</label><input type="text" id="cpnTitle" value="스타벅스 커피 2잔" maxlength="40"></div>'
+    +'<div class="field"><label>사용기한</label><input type="date" id="cpnExp" value="'+ymd(dflt)+'"></div>'
+    +'<div id="cpnStat" style="font-size:12px;color:#8a7">·</div>';
+  openModal({ title:'커피쿠폰을 발급할까요?', text:b(names)+li('고객 마이페이지에 바코드가 표시돼요')+li('아직 안 썼으면 나중에 회수할 수 있어요'),
+    extra:extra, yes:'발급', onYes:function(){
+      if(!_cpnImgs.length){ mErr('바코드 이미지를 먼저 올려주세요.'); return; }
+      var title=($('cpnTitle')&&$('cpnTitle').value||'').trim()||'스타벅스 커피 2잔';
+      var exp=($('cpnExp')&&$('cpnExp').value||'').trim();
+      runAct(['adminIssueCoupon',code,_cpnImgs.slice(),exp,title],code,'발급');
+    },
+    init:function(){
+      var f=$('cpnFile'); if(!f) return;
+      f.addEventListener('change', function(){
+        var files=Array.prototype.slice.call(f.files||[]).slice(0,2);
+        if(!files.length) return;
+        $('cpnStat').textContent='이미지 압축 중…';
+        var budget = files.length>1 ? 22000 : 44000;   // 셀 5만자 한계 대비 이미지당 예산(base64 글자수)
+        Promise.all(files.map(function(file){ return _cpnCompress(file, budget); })).then(function(arr){
+          _cpnImgs=arr.filter(Boolean);
+          var pv=$('cpnPrev'); pv.innerHTML=_cpnImgs.map(function(s){ return '<img src="'+s+'" style="width:88px;height:88px;object-fit:contain;border:1px solid #e6e0d8;border-radius:8px;background:#fff">'; }).join('');
+          $('cpnStat').textContent=_cpnImgs.length?('준비됨 · '+_cpnImgs.length+'장'):'이미지를 읽지 못했어요';
+        }).catch(function(){ $('cpnStat').textContent='이미지 처리 오류 · 다시 시도해 주세요'; });
+      });
+    } });
+}
+// 파일 → 캔버스 축소 → JPEG. 목표 글자수 이내가 될 때까지 해상도·품질을 낮춰 재시도.
+function _cpnCompress(file, budget){
+  return new Promise(function(resolve){
+    var fr=new FileReader();
+    fr.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+        function tryOut(maxW,q){
+          var scale=Math.min(1, maxW/w); var cw=Math.max(1,Math.round(w*scale)), ch=Math.max(1,Math.round(h*scale));
+          var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+          var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cw,ch); ctx.drawImage(img,0,0,cw,ch);
+          return cv.toDataURL('image/jpeg', q);
+        }
+        var widths=[900,760,640,520,420], qs=[0.82,0.72,0.62,0.5];
+        var out='';
+        for(var i=0;i<widths.length;i++){ for(var j=0;j<qs.length;j++){ var d=tryOut(widths[i],qs[j]); if(d.length<budget){ out=d; break; } } if(out) break; }
+        if(!out){ out=tryOut(360,0.42); if(out.length>=budget) out=''; }   // 그래도 크면 실패 처리
+        resolve(out||'');
+      };
+      img.onerror=function(){ resolve(''); };
+      img.src=fr.result;
+    };
+    fr.onerror=function(){ resolve(''); };
+    fr.readAsDataURL(file);
+  });
+}
+function doRevokeCoupon(code,names){ openModal({ title:'커피쿠폰을 회수할까요?', danger:true, text:b(names)+li('고객 마이페이지에서 바코드가 사라져요')+li('이미 사용한 쿠폰이면 회수 의미가 없어요'), yes:'회수', onYes:function(){ runAct(['adminRevokeCoupon',code],code,'회수'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }

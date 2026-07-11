@@ -697,6 +697,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <!-- 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지 -->
     <div class="consult-sec" id="mp_hold" style="display:none"></div>
 
+    <!-- 커피쿠폰 (후기 완주 보상) — 관리자가 발급 시 바코드 표시 · 없으면 숨김 -->
+    <div class="consult-sec" id="mp_coupon" style="display:none"></div>
+
     <!-- 내 내역 (02-6) — 결제·현금영수증·서류 한곳에. 기본 접힘(펼쳐 보기) · 카드 상단 고정 -->
     <div class="consult-sec" id="mp_ledger" style="display:none"></div>
 
@@ -730,6 +733,16 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="next-sec" id="mp_upcoming"></div>
     <style>
     .merged-head{margin:22px 0 2px;text-align:center;font-size:13px;letter-spacing:0.06em;color:var(--accent);font-weight:500}
+    /* 커피쿠폰 (후기 완주 보상) */
+    .cpn-card{text-align:center;padding:22px 20px 20px}
+    .cpn-eyebrow{font-family:var(--serif-ko);font-size:11px;letter-spacing:.14em;color:var(--gold-deep);font-weight:500;text-transform:uppercase;margin-bottom:8px}
+    .cpn-title{font-family:var(--serif-ko);font-size:18px;font-weight:500;color:var(--accent);margin-bottom:8px}
+    .cpn-desc{font-family:var(--serif-ko);font-size:13px;line-height:1.6;color:var(--sub);margin-bottom:16px}
+    .cpn-barcode{margin:12px auto;max-width:320px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+    .cpn-barcode img{display:block;width:100%;height:auto;border-radius:4px}
+    .cpn-exp{font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin-top:14px}
+    .cpn-exp b{font-weight:600}
+    .cpn-note{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:8px;opacity:.85}
     /* 내 내역 패널 (02-6) */
     .led-card{text-align:left;padding:20px 20px 16px}
     .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
@@ -1371,6 +1384,7 @@ function renderMyPage(d){
       // [임시고정 상시 확인] 배너는 상담완료부터 숨으므로(혼선 방지), 계약 서명 전까지는 내 내역에서 픽스 날짜를 이어서 보여줌. GAS가 서명완료·만료 시 hold를 자동으로 끊음.
       d.ledger.hold = d.hold || null;
     }
+    renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
   }
@@ -1564,6 +1578,32 @@ function openInviteSamples(){
 function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); } }
 function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); } }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
+
+// 커피쿠폰 (후기 완주 보상) — 관리자가 발급하면 바코드 이미지·사용기한 표시. 없으면 카드 숨김.
+function renderCoupon(c){
+  var box=$('mp_coupon'); if(!box) return;
+  if(!c || !c.images || !c.images.length){ box.style.display='none'; box.innerHTML=''; return; }
+  var title=escapeHtml(c.title||'스타벅스 커피 2잔');
+  var imgs=c.images.map(function(src){
+    var safe=String(src||''); if(safe.indexOf('data:image/')!==0) return '';   // data URI만 허용(안전)
+    return '<div class="cpn-barcode"><img src="'+safe.replace(/"/g,'&quot;')+'" alt="바코드" loading="lazy"></div>';
+  }).join('');
+  var expTxt='';
+  if(c.expiry && /^\d{4}-\d{2}-\d{2}$/.test(c.expiry)){
+    expTxt='<div class="cpn-exp">사용기한 <b>'+escapeHtml(fmtWedKo(c.expiry)||c.expiry)+'</b>까지</div>';
+  }
+  box.style.display='';
+  box.className='consult-sec';
+  box.innerHTML=
+    '<div class="consult-card cpn-card">'
+    +'<div class="cpn-eyebrow">후기 감사 선물</div>'
+    +'<div class="cpn-title">'+title+'</div>'
+    +'<div class="cpn-desc">두 분의 소중한 후기, 진심으로 감사드려요.<br>아래 바코드를 매장에서 보여주시면 돼요.</div>'
+    +imgs
+    +expTxt
+    +'<div class="cpn-note">화면 밝기를 높이면 바코드가 더 잘 인식돼요.</div>'
+    +'</div>';
+}
 
 function renderLedger(l){
   var box=$('mp_ledger'); if(!box) return;
@@ -2919,7 +2959,7 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>스타벅스 커피 2잔은 카카오톡으로 곧 보내드릴게요.</b> ☕<br><span class="cc-mini">사용기한 안에 여유롭게 즐겨 주세요.</span></div></div>';
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>스타벅스 커피 2잔은 이 마이페이지로 보내드려요.</b> ☕<br><span class="cc-mini">준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.</span></div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
