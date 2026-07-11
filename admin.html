@@ -1711,13 +1711,15 @@ function doIssueCoupon(code,names){
     +'<input type="file" id="cpnFile" accept="image/*" multiple></div>'
     +'<div id="cpnPrev" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"></div>'
     +'<div class="field"><label>선물 이름</label><input type="text" id="cpnTitle" value="스타벅스 커피 2잔" maxlength="40"></div>'
-    +'<div class="field"><label>사용기한</label><input type="date" id="cpnExp" value="'+ymd(dflt)+'"></div>'
+    +'<div class="field"><label>사용기한 (스타벅스 쿠폰에 적힌 유효기간 그대로)</label><input type="date" id="cpnExp" value="'+ymd(dflt)+'">'
+    +'<div style="font-size:11.5px;color:#8a7a63;margin-top:4px">고객 마이페이지에 「사용기한 ○○까지」로 표시돼요 · 연장이 안 되니 실제 기한을 정확히 넣어주세요.</div></div>'
     +'<div id="cpnStat" style="font-size:12px;color:#8a7">·</div>';
   openModal({ title:'커피쿠폰을 발급할까요?', text:b(names)+li('고객 마이페이지에 바코드가 표시돼요')+li('아직 안 썼으면 나중에 회수할 수 있어요'),
     extra:extra, yes:'발급', onYes:function(){
       if(!_cpnImgs.length){ mErr('바코드 이미지를 먼저 올려주세요.'); return; }
       var title=($('cpnTitle')&&$('cpnTitle').value||'').trim()||'스타벅스 커피 2잔';
       var exp=($('cpnExp')&&$('cpnExp').value||'').trim();
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(exp)){ mErr('사용기한을 입력해 주세요. (쿠폰에 적힌 유효기간)'); return; }
       runAct(['adminIssueCoupon',code,_cpnImgs.slice(),exp,title],code,'발급');
     },
     init:function(){
