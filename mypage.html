@@ -3468,7 +3468,15 @@ function startInvFlow(inv, base){
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
-function exitInvFlow(){ saveInvDraft().then(function(){ INVFLOW.active=false; loadMyState(); }); }   // #8 나가기도 저장
+function exitInvFlow(){   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  show('loading');
+  saveInvDraft().then(function(r){
+    if(r&&r.ok){ INVFLOW.active=false; loadMyState(); return; }
+    show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitInvFlow(); } else { INVFLOW.active=false; show('loading'); loadMyState(); } });
+  });
+}
 // [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit]'):null;
@@ -4048,7 +4056,15 @@ function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
   return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
-function exitTrkFlow(){ TRKFLOW.active=false; show('loading'); saveTrkDraft(false).then(function(){ loadMyState(); }); }   // 누르는 즉시 진사 스피너 → 저장·재조회(멈춘 듯 무피드백 방지)
+function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  TRKFLOW.active=false; show('loading');
+  saveTrkDraft(false).then(function(r){
+    if(r&&r.ok){ loadMyState(); return; }
+    TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitTrkFlow(); } else { TRKFLOW.active=false; show('loading'); loadMyState(); } });
+  });
+}
 function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }
 function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
@@ -4869,7 +4885,7 @@ $('resetForm').addEventListener('submit', function(e){
       if (d.token) setToken(d.token);
       cleanUrl();
       if (d.token) loadMyState();
-      else { show('loginView'); softLoginNote('비밀번호가 변경되었습니다. 다시 로그인해 주세요.'); }
+      else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
     } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('rs_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Reset'; });
