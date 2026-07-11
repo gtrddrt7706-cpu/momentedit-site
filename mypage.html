@@ -589,6 +589,18 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .inv-eg-name{font-family:var(--serif-ko);font-size:11px;color:var(--sub);text-align:center;margin-top:7px;letter-spacing:.02em}
 .inv-eg-full{display:block;text-align:center;margin-top:11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9A7F5F);text-decoration:none}
 .inv-eg-full:hover{color:var(--accent)}
+/* 예시·전체 청첩장 창모드 뷰어 — preview.html 프레임 톤을 페이지 안 모달로(새탭 이동 대체) */
+.pv-modal{position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(40,32,24,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.pv-modal.open{display:flex}
+.pv-modal-card{width:min(430px,94vw);max-height:88vh;display:flex;flex-direction:column;background:var(--bg2,#F5F3EF);border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 60px rgba(28,27,25,.30);overflow:hidden;animation:mpPop .22s var(--ease,ease)}
+.pv-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px 11px;border-bottom:1px solid var(--hairline,#E6E1D8)}
+.pv-modal-cap{font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv-modal-x{flex-shrink:0;border:none;background:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);cursor:pointer;padding:6px 2px 6px 10px;-webkit-tap-highlight-color:transparent}
+.pv-modal-x:hover{color:var(--accent)}
+.pv-modal-body{overflow-y:auto;padding:14px;flex:1;overscroll-behavior:contain}
+.pv-modal-frame{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(28,27,25,.05),0 10px 30px rgba(28,27,25,.10);min-height:180px}
+.pv-modal-frame img{display:block;width:100%;height:auto}
+.pv-modal-err{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-align:center;padding:46px 20px;line-height:1.8}
 /* 청첩장 완성 화면 — 프리미엄 */
 .done-wrap{text-align:center;animation:doneIn .6s var(--ease) both}
 .done-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F)}
@@ -3373,6 +3385,34 @@ document.addEventListener('click', function(e){
   if(typeof INVFLOW!=='undefined' && INVFLOW.active){ show('loading'); exitInvFlow(); }
   else if(typeof TRKFLOW!=='undefined' && TRKFLOW.active){ exitTrkFlow(); }
 });
+// [창모드 뷰어] 예시·전체 청첩장 이미지 — 새탭(preview.html) 대신 페이지 안 모달로(2026-07-11 사용자 지시)
+function mpImgView(src,title){
+  var m=$('pvModal');
+  if(!m){
+    m=document.createElement('div'); m.className='pv-modal'; m.id='pvModal';
+    m.innerHTML='<div class="pv-modal-card" role="dialog" aria-modal="true"><div class="pv-modal-head"><span class="pv-modal-cap" id="pvCap"></span><button type="button" class="pv-modal-x" id="pvX">닫기 ✕</button></div><div class="pv-modal-body" id="pvBody"></div></div>';
+    document.body.appendChild(m);
+    function close(){ m.classList.remove('open'); document.body.style.overflow=''; }
+    m.addEventListener('click', function(ev){ if(ev.target===m) close(); });
+    $('pvX').addEventListener('click', close);
+    document.addEventListener('keydown', function(ev){ if(ev.key==='Escape'&&m.classList.contains('open')){ close(); } });
+  }
+  $('pvCap').textContent=title||'미리보기';
+  var im=new Image(); im.alt=title||'미리보기'; im.decoding='async';
+  im.onerror=function(){ $('pvBody').innerHTML='<div class="pv-modal-err">이미지를 불러오지 못했어요.\n잠시 후 다시 시도해 주세요.</div>'; };
+  im.src=src;
+  var fr=document.createElement('div'); fr.className='pv-modal-frame'; fr.appendChild(im);
+  var bd=$('pvBody'); bd.innerHTML=''; bd.appendChild(fr); bd.scrollTop=0;
+  m.classList.add('open'); document.body.style.overflow='hidden';
+}
+document.addEventListener('click', function(e){
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;   // 새탭 의도(수정키)는 브라우저 기본 동작 유지
+  var a=(e.target&&e.target.closest)?e.target.closest('a[href*="/preview.html?"]'):null;
+  if(!a) return;
+  e.preventDefault();
+  try{ var u=new URL(a.getAttribute('href'), location.origin); mpImgView(u.searchParams.get('img')||'', u.searchParams.get('t')||''); }
+  catch(err){ location.href=a.href; }   // 파싱 실패 시 기존 새탭 경로로
+});
 function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
@@ -3616,7 +3656,7 @@ function invStepDesign(box){
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   else if(m==='both'){
     h+=designBlock('offline','직접 모시는 청첩장(오프라인)');
-    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
+    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 청첩장 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
   // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨 · 샘플 전체 둘러보기는 상단(제목 아래)으로 이동됨
