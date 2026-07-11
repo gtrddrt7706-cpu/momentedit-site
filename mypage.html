@@ -4036,7 +4036,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널(세부조건·가볼곳) 모두 초기화(2026-06-13 사용자 지시)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
   if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
@@ -4059,7 +4059,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
     : '';
   return '<div class="consult-card inv-wrap">'
-    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span>'+(last?'':'<button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button>')+'</div>'
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
