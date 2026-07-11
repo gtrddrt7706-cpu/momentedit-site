@@ -743,6 +743,32 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .cpn-exp{font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin-top:14px}
     .cpn-exp b{font-weight:600}
     .cpn-note{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:8px;opacity:.85}
+    /* 좌석 배치도 편집 */
+    .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:6px;padding:6px;margin:14px 0 8px}
+    .seat-room{display:flex;gap:10px;align-items:flex-start}
+    .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+    .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center}
+    .seat-tbl{border:1px solid var(--border);border-radius:12px;padding:9px 8px 8px;background:#FCFBF9}
+    .seat-tbl-h{display:flex;align-items:center;gap:5px;margin-bottom:7px}
+    .seat-no{width:19px;height:19px;flex-shrink:0;border-radius:50%;background:var(--accent);color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center}
+    .seat-nm{flex:1;min-width:0;border:none;border-bottom:1px solid var(--border);background:transparent;font-family:var(--serif-ko);font-size:12.5px;font-weight:500;color:var(--accent);padding:2px 2px 3px}
+    .seat-nm:focus{outline:none;border-bottom-color:var(--gold-deep)}
+    .seat-x{flex-shrink:0;border:none;background:transparent;color:var(--light);font-size:12px;cursor:pointer;padding:2px 4px;line-height:1}
+    .seat-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+    .seat-dot{width:15px;flex-shrink:0;text-align:center;font-size:10px;color:var(--light)}
+    .seat-inp{flex:1;min-width:0;border:1px solid var(--border);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:12px;color:var(--sub);padding:5px 7px}
+    .seat-inp:focus{outline:none;border-color:var(--gold-deep)}
+    .seat-inp::placeholder{color:var(--light);font-style:normal}
+    .seat-tbl-f{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+    .seat-mini{flex:1;min-width:0;border:1px solid var(--border);background:#fff;border-radius:6px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:5px 3px;cursor:pointer;white-space:nowrap}
+    .seat-mini:active{background:var(--bg2)}
+    .seat-addtbl{border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
+    .seat-actions{display:flex;gap:8px;justify-content:center;margin-top:16px}
+    .seat-share{margin-top:16px;border-top:1px dashed var(--border);padding-top:16px;text-align:center}
+    .seat-share-h{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)}
+    .seat-share-sub{font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);margin:6px 0 12px}
+    .seat-share-url{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);word-break:break-all;background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:10px}
+    .seat-share-btns{display:flex;gap:8px;justify-content:center}
     /* 내 내역 패널 (02-6) */
     .led-card{text-align:left;padding:20px 20px 16px}
     .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
@@ -2869,17 +2895,19 @@ function weddingTimeOptions(sel){
 // 기초정보 입력 화면 제거 — 이름은 청첩장 위저드 1단계에서 입력(청첩장에만 쓰임), 예식 일시·이메일은 서버가 계약·계정값으로 자동 구성.
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; SEATFLOW.active=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
+  if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null);
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){ startTrkFlow('final', p.finalDraft||{}, p.base||{}); });
+  var se=$('mp_seatStart'); if(se) se.addEventListener('click', function(){ startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken); });
 }
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
@@ -3308,7 +3336,7 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv, dd, fd, base, rd){
+function productionDashHtml(t, inv, dd, fd, base, rd, sd){
   t=t||{}; inv=inv||{};
   // 예식까지 남은 날 — 최종 확정 안내(D-30부터 강조 · 기한은 잔금과 같은 예식 9일 전)
   var _dLeft=null;
@@ -3358,12 +3386,22 @@ function productionDashHtml(t, inv, dd, fd, base, rd){
     if(_re.indexOf('song')>=0 && !((rd.details&&rd.details.song&&rd.details.song.title||'').trim())) _pend++;
     rNote='📜 식순 · <b style="color:var(--accent)">'+_rc+'순서 · '+_rm+'분</b>'+(rd.host==='mc'?' · 사회자 진행':'')+(_pend?(' · <b style="color:var(--seal)">채울 것 '+_pend+'개</b>'):'');
   }
-  var notes=[rNote,dNote,fNote].filter(Boolean).join('<br>');
+  // 좌석 배치도 — 최종 확정(인원)이 끝나야 자리 기준이 잡혀 열림. 완료 시 공유 링크 준비 요약.
+  var _seatDone=(t.seat||'')==='완료';
+  var seNote='';
+  if(_fDone && _seatDone && sd && sd.tables){
+    var _tc=sd.tables.length, _nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim()) _nm++; }); });
+    seNote='🪑 좌석 배치 · <b style="color:var(--accent)">'+_tc+'개 테이블 · '+_nm+'명</b> · 하객 공유 링크 준비됨';
+  } else if(_fDone && !_seatDone){
+    seNote='🪑 테이블 자리를 미리 정하면, 하객에게 보낼 <b>좌석 안내 링크</b>가 만들어져요 (선택)';
+  }
+  var notes=[rNote,dNote,fNote,seNote].filter(Boolean).join('<br>');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
       + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel)
       + row('최종 확정', t.final||'시작전', 'mp_finalStart', null)
+      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기')) : '')
     + '</div>'
     + (notes?('<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+notes+'</div>'):'');
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
@@ -3789,6 +3827,121 @@ function renderInvQR(url){
     }catch(e){}
   }
   qd.innerHTML='<div class="cc-note" style="text-align:left">QR 이미지는 준비 중이에요. 인쇄물엔 아래 주소를 넣어 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
+}
+// 지정 컨테이너에 QR 렌더(seat 공유 등 범용). 미배치 폴백은 주소 텍스트.
+function renderQRInto(qid, svid, url){
+  var qd=$(qid); if(!qd) return;
+  if(window.QRCode){
+    try{
+      qd.innerHTML='';
+      new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
+      var sv=svid?$(svid):null;
+      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
+      return;
+    }catch(e){}
+  }
+  qd.innerHTML='<div class="cc-note" style="text-align:left">QR은 준비 중이에요. 아래 주소를 전달해 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
+}
+
+// ── 좌석 배치도 (최종 확정 완료 후) — 탭으로 이름 채우기 + 좌우 배치 미리보기. 완료 시 공개 링크·QR 발급 → 하객 전달 ──
+var SEATFLOW = { active:false, tables:[], token:'' };
+function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/seat.html?t='+encodeURIComponent(token); }
+// 하객 수로 초기 테이블 자동 배치(5인 기준 · 좌/우 반씩 · 좌측이 적게 = 사용자 예시 2L/3R). 모르면 4테이블.
+function autoSeatTables(headcount){
+  var n=parseInt(String(headcount||'').replace(/[^0-9]/g,''),10)||0;
+  var per=5, cnt=n?Math.max(2,Math.min(12,Math.ceil(n/per))):4;
+  var lc=Math.floor(cnt/2);   // 좌측 테이블 수(적은 쪽)
+  var out=[];
+  for(var i=0;i<cnt;i++){ out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:['','','','',''] }); }
+  return out;
+}
+function startSeatFlow(seatDraft, finalDraft, token){
+  INVFLOW.active=false; if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;
+  var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
+  SEATFLOW={ active:true, tables:tbls, token:token||'' };
+  renderSeat($('mp_production'));
+  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+}
+function collectSeats(box){
+  box=box||$('mp_production'); if(!box) return;
+  Array.prototype.forEach.call(box.querySelectorAll('[data-seat-nm]'),function(el){ var ti=+el.getAttribute('data-ti'); if(SEATFLOW.tables[ti]) SEATFLOW.tables[ti].name=el.value; });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
+}
+function saveSeat(done){ return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done}); }
+function exitSeatFlow(){ SEATFLOW.active=false; show('loading'); saveSeat(false).then(function(){ loadMyState(); }).catch(function(){ loadMyState(); }); }
+function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
+function seatSharePanelHtml(token){
+  var url=seatUrl(token);
+  return '<div class="seat-share">'
+    +'<div class="seat-share-h">✓ 배치가 저장됐어요</div>'
+    +'<div class="seat-share-sub">아래 링크·QR을 <b>오프라인으로 모시는 하객</b>께 전달하면, 열어서 자기 자리를 바로 확인해요.</div>'
+    +'<div class="seat-share-url" id="seat_url">'+escapeHtml(url)+'</div>'
+    +'<div class="seat-share-btns"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
+    +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="seat_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
+    +'</div>';
+}
+function wireSeatShare(box, token){
+  var url=seatUrl(token);
+  var cp=$('seat_copy'); if(cp) cp.addEventListener('click', function(){
+    var done=function(){ cp.textContent='복사됐어요'; setTimeout(function(){ cp.textContent='링크 복사'; },1500); };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ legacyCopy(url); done(); }); } else { legacyCopy(url); done(); } }catch(e){ legacyCopy(url); done(); }
+  });
+  ensureQR(function(){ renderQRInto('seat_qr','seat_qrsave',url); });
+}
+function renderSeat(box){
+  if(!box) return; var s=SEATFLOW;
+  function tblCard(t, idx){
+    var seats=(t.seats||[]).map(function(nm,si){
+      return '<div class="seat-row"><span class="seat-dot">'+(si+1)+'</span>'
+        +'<input class="seat-inp" data-seat data-ti="'+idx+'" data-si="'+si+'" value="'+escapeHtml(nm||'')+'" placeholder="빈자리" maxlength="24" autocomplete="off"></div>';
+    }).join('');
+    return '<div class="seat-tbl">'
+      +'<div class="seat-tbl-h"><span class="seat-no">'+(idx+1)+'</span>'
+        +'<input class="seat-nm" data-seat-nm data-ti="'+idx+'" value="'+escapeHtml(t.name||'')+'" placeholder="테이블 이름" maxlength="24" autocomplete="off">'
+        +'<button type="button" class="seat-x" data-seat-del="'+idx+'" title="테이블 삭제">✕</button></div>'
+      + seats
+      +'<div class="seat-tbl-f">'
+        +'<button type="button" class="seat-mini" data-seat-add="'+idx+'">+ 자리</button>'
+        +'<button type="button" class="seat-mini" data-seat-less="'+idx+'">− 자리</button>'
+        +'<button type="button" class="seat-mini" data-seat-move="'+idx+'">'+(t.side==='R'?'← 좌측':'우측 →')+'</button>'
+      +'</div></div>';
+  }
+  var L='', R='';
+  s.tables.forEach(function(t,i){ var h=tblCard(t,i); if(t.side==='R') R+=h; else L+=h; });
+  box.innerHTML='<div class="consult-card" style="text-align:left">'
+    +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
+    +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
+    +'<div class="cc-sub" style="text-align:center">이름만 채우면 돼요 · 빈자리는 그대로 두셔도 괜찮아요.</div>'
+    +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
+    +'<div class="seat-room">'
+      +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button></div>'
+      +'<div class="seat-col"><div class="seat-colh">우측</div>'+R+'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button></div>'
+    +'</div>'
+    +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
+    +'<div class="seat-actions"><button type="button" class="cc-btn-ghost" data-seat-savedraft style="width:auto;padding:11px 16px">임시 저장</button>'
+      +'<button type="button" class="cc-btn" data-seat-done style="width:auto;padding:11px 16px">배치 완료 · 공유 링크</button></div>'
+    + (s.token ? seatSharePanelHtml(s.token) : '')
+    +'</div>';
+  box.style.display='block';
+  bindSeat(box);
+  if(s.token) wireSeatShare(box, s.token);
+}
+function bindSeat(box){
+  function each(sel,fn){ Array.prototype.forEach.call(box.querySelectorAll(sel),function(el){ el.addEventListener('click',fn); }); }
+  each('[data-seat-add]',function(){ collectSeats(box); var i=+this.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<12) SEATFLOW.tables[i].seats.push(''); renderSeat(box); });
+  each('[data-seat-less]',function(){ collectSeats(box); var i=+this.getAttribute('data-seat-less'); var st=SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats; if(st&&st.length>1) st.pop(); renderSeat(box); });
+  each('[data-seat-move]',function(){ collectSeats(box); var i=+this.getAttribute('data-seat-move'); if(SEATFLOW.tables[i]) SEATFLOW.tables[i].side=(SEATFLOW.tables[i].side==='R')?'L':'R'; renderSeat(box); });
+  each('[data-seat-del]',function(){ collectSeats(box); var i=+this.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(i,1); renderSeat(box); });
+  each('[data-seat-newtbl]',function(){ collectSeats(box); if(SEATFLOW.tables.length<20){ var side=this.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); });
+  each('[data-seat-exit]',function(){ collectSeats(box); exitSeatFlow(); });
+  each('[data-seat-savedraft]',function(){ var btn=this; collectSeats(box); btn.textContent='저장 중…'; btn.disabled=true; saveSeat(false).then(function(){ btn.textContent='저장됐어요'; setTimeout(function(){ if($('seat_err')){ btn.textContent='임시 저장'; btn.disabled=false; } },1400); }).catch(function(){ btn.textContent='임시 저장'; btn.disabled=false; _seatErr('저장에 실패했어요. 다시 시도해 주세요.'); }); });
+  each('[data-seat-done]',function(){ var btn=this; collectSeats(box); _seatErr('');
+    var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
+    if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
+    btn.textContent='만드는 중…'; btn.disabled=true;
+    saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW.token=r.seatToken||SEATFLOW.token; renderSeat(box); var sp=box.querySelector('.seat-share'); if(sp){ try{ sp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } } else { btn.textContent='배치 완료 · 공유 링크'; btn.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
+      .catch(function(){ btn.textContent='배치 완료 · 공유 링크'; btn.disabled=false; _seatErr('저장에 실패했어요. 다시 시도해 주세요.'); });
+  });
 }
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──

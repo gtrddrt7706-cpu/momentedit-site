@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<title>좌석 안내 · Moment Edit</title>
+<meta property="og:title" content="MOMENT EDIT · 좌석 안내">
+<meta property="og:description" content="예식 좌석을 확인해 보세요.">
+<style>
+:root{
+  --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
+  --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --card-white:#FFFFFF; --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%}
+.wrap{max-width:440px;margin:0 auto}
+.brand{text-align:center;font-size:11px;letter-spacing:.22em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:18px}
+.card{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:22px 18px 20px;box-shadow:var(--card-shadow)}
+.head{text-align:center;margin-bottom:6px}
+.couple{font-size:20px;font-weight:500;letter-spacing:.02em}
+.heart{color:var(--gold);margin:0 8px}
+.date{font-size:12.5px;color:var(--sub);margin-top:5px}
+.lead{text-align:center;font-size:12.5px;line-height:1.6;color:var(--sub);margin:14px 0 4px}
+.find{margin:14px 0 4px}
+.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:14px;color:var(--accent);padding:11px 12px}
+.find input:focus{outline:none;border-color:var(--gold-deep)}
+.find-res{min-height:18px;text-align:center;font-size:12.5px;color:var(--gold-deep);margin-top:8px}
+.find-res b{color:var(--seal);font-weight:600}
+.stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:6px;padding:6px;margin:16px 0 8px}
+.room{display:flex;gap:10px;align-items:flex-start}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center}
+.tbl{border:1px solid var(--border);border-radius:12px;padding:10px 9px 9px;background:#FCFBF9}
+.tbl-h{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.tbl-no{width:19px;height:19px;flex-shrink:0;border-radius:50%;background:var(--accent);color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center}
+.tbl-nm{font-size:12.5px;font-weight:500}
+.seat{font-size:12px;color:var(--sub);padding:5px 8px;border-radius:6px;background:#fff;border:1px solid var(--border);margin-bottom:4px}
+.seat:last-child{margin-bottom:0}
+.seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
+.tbl.hit{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,154,117,.25)}
+.foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
+.state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
+.state .sm{font-size:12px;color:var(--light);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Moment Edit</div>
+  <div id="root"><div class="state">좌석 안내를 불러오는 중이에요…</div></div>
+</div>
+<script>
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+function fmtDate(ymd){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
+  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
+  return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
+}
+function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+
+var TABLES=[];   // 렌더된 테이블(하이라이트용)
+function render(seat){
+  var names=(seat.groom||'')+((seat.groom&&seat.bride)?'':'')+'';
+  var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
+  var date=fmtDate(seat.date);
+  var tables=(seat.tables||[]);
+  TABLES=tables;
+  function tblCard(t, gidx){
+    var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
+    var rows=seats.length ? seats.map(function(nm,si){ return '<div class="seat" data-seat data-g="'+gidx+'">'+esc(nm)+'</div>'; }).join('')
+                          : '<div class="seat" style="color:var(--light);border-style:dashed">준비 중</div>';
+    return '<div class="tbl" data-tbl="'+gidx+'"><div class="tbl-h"><span class="tbl-no">'+(gidx+1)+'</span><span class="tbl-nm">'+esc(t.name||('테이블 '+(gidx+1)))+'</span></div>'+rows+'</div>';
+  }
+  var L='', R='';
+  tables.forEach(function(t,i){ var h=tblCard(t,i); if(String(t.side||'L')==='R') R+=h; else L+=h; });
+  var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
+    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="seat" style="border-style:dashed;color:var(--light)">—</div>')+'</div>'
+    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="seat" style="border-style:dashed;color:var(--light)">—</div>')+'</div></div>';
+  $('root').innerHTML =
+    '<div class="card">'
+    +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="lead">두 분의 결혼을 축하합니다.<br>아래에서 성함을 검색하시면 자리를 안내해 드려요.</div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
+    + room
+    +'<div class="foot">자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
+    +'</div>';
+  var q=$('q'); if(q) q.addEventListener('input', function(){ findSeat(q.value); });
+}
+function findSeat(v){
+  v=String(v||'').trim();
+  var seatEls=document.querySelectorAll('[data-seat]'), tblEls=document.querySelectorAll('[data-tbl]');
+  seatEls.forEach(function(el){ el.classList.remove('hit'); });
+  tblEls.forEach(function(el){ el.classList.remove('hit'); });
+  $('fr').innerHTML='';
+  if(!v) return;
+  var lc=v.toLowerCase(), hitG=-1, first=null;
+  seatEls.forEach(function(el){
+    var nm=(el.textContent||'').trim().toLowerCase();
+    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); if(hitG<0){ hitG=+el.getAttribute('data-g'); first=el; } }
+  });
+  if(hitG>=0){
+    var tb=document.querySelector('[data-tbl="'+hitG+'"]'); if(tb) tb.classList.add('hit');
+    var t=TABLES[hitG]||{};
+    $('fr').innerHTML='<b>'+esc(t.name||('테이블 '+(hitG+1)))+'</b> 자리예요 · '+(hitG+1)+'번 테이블';
+    if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+  } else {
+    $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
+  }
+}
+(function boot(){
+  var t=qp('t');
+  if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
+  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.ok && d.seat){ render(d.seat); }
+      else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+    })
+    .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });
+})();
+</script>
+</body>
+</html>

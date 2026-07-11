@@ -1486,15 +1486,26 @@ function prodTracksHtml(prod){
   h+='<div class="cnote">🥂 최종확정 <b>'+esc(_tstat(t.final))+'</b>';
   if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+' · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산)'); if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
   h+='</div>';
-  if(dd||rd||fd) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd)+'</div>';
+  var sd=prod.seatDraft||null;
+  if(t.seat||sd){
+    h+='<div class="cnote">🪑 좌석배치 <b>'+esc(_tstat(t.seat))+'</b>';
+    if(sd&&sd.tables&&sd.tables.length){ var _tc=sd.tables.length,_nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_nm++; }); }); h+=' · '+_tc+'개 테이블 · '+_nm+'명'; }
+    h+='</div>';
+  }
+  if(dd||rd||fd||sd) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken)+'</div>';
   return h;
 }
-function prodTrackDetail(dd,rd,fd){
+function prodTrackDetail(dd,rd,fd,sd,seatToken){
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   var h='';
   if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
   if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   if(fd){ h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake)+row('영상 링크',fd.videoLink)+row('디지털 참석',fd.digital); }
+  if(sd&&sd.tables&&sd.tables.length){
+    h+='<div class="grp-l">좌석 배치 (당일 세팅용)</div>';
+    sd.tables.forEach(function(tb,i){ var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row((i+1)+'. '+(tb.name||('테이블 '+(i+1)))+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
+    if(seatToken) h+=row('하객 공유 링크', 'momentedit.kr/seat.html?t='+seatToken);
+  }
   return h||'<div class="cnote">내용 없음</div>';
 }
 function cardResult(d,isSnap){

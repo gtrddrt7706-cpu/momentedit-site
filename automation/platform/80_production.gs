@@ -101,7 +101,7 @@ function handleSaveProductionTrack(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
-  if (track !== 'dining' && track !== 'ritual' && track !== 'final') return { ok: false, error: '알 수 없는 항목입니다.' };
+  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat') return { ok: false, error: '알 수 없는 항목입니다.' };
   // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
   if (track === 'final') {
     var fdr = (body && body.draft) || {};
@@ -116,6 +116,24 @@ function handleSaveProductionTrack(body) {
     fdr.extraFee = fdr.standing * FINAL_CONFIRM.초과단가;
     if (String(fdr.drink || '').indexOf('논알콜') === 0) fdr.softCount = '';   // 전원 논알콜이면 잔 수 구분 무의미
     body.draft = fdr;
+  }
+  // 좌석 배치도: 저장 전 정규화(테이블·좌석 수·문자열 길이 상한 → 시트 셀·표시 안전). 개인정보 최소화(이름만).
+  if (track === 'seat') {
+    var sdr = (body && body.draft) || {};
+    var _tbls = (Object.prototype.toString.call(sdr.tables) === '[object Array]') ? sdr.tables : [];
+    var outT = [];
+    for (var ti = 0; ti < _tbls.length && outT.length < 20; ti++) {
+      var _t = _tbls[ti] || {};
+      var _seats = (Object.prototype.toString.call(_t.seats) === '[object Array]') ? _t.seats : [];
+      var _os = [];
+      for (var si = 0; si < _seats.length && _os.length < 12; si++) _os.push(String(_seats[si] || '').slice(0, 24));
+      outT.push({
+        name: String(_t.name || '').slice(0, 24),
+        side: (String(_t.side || 'L') === 'R') ? 'R' : 'L',
+        seats: _os
+      });
+    }
+    body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };
   }
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
@@ -133,6 +151,15 @@ function handleSaveProductionTrack(body) {
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
+    var _seatToken = '';
+    if (track === 'seat') {
+      _seatToken = String(cust.get('좌석공유토큰') || '').trim();
+      if (body && body.done && !_seatToken) {
+        _seatToken = 'S' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
+        touchCustomer(sheet, colOf, cust.num, { '좌석공유토큰': _seatToken });
+      }
+    }
     // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
     //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
     //   '특정 식당을 못 정한 채 마무리'를 신호로. 식당을 골랐거나 다이닝 안 함(N)이면 발사 안 함.
@@ -171,8 +198,35 @@ function handleSaveProductionTrack(body) {
         });
       }
     }
-    return { ok: true };
+    return (track === 'seat') ? { ok: true, seatToken: _seatToken } : { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [좌석 배치도] 공개 조회 — seat.html이 토큰으로 호출(무인증·읽기 전용). 이름·측·좌석만 반환(연락처·금액 등 비노출).
+//   토큰은 좌석공유토큰 열 역조회. 없거나 배치 비었으면 not found. 개인정보 최소(하객 이름·부부 이름·예식일).
+function handleSeatView(body) {
+  var token = String((body && body.t) || '').trim();
+  if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
+  var cust = _findCustomerBy('좌석공유토큰', token, false);
+  if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
+  var d = _parseJsonSafe(cust.get('제작임시저장'));
+  var sd = d.seatDraft || {};
+  var tables = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
+  if (!tables.length) return { ok: false, error: '아직 배치가 없어요.' };
+  var out = tables.map(function (t) {
+    t = t || {};
+    var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
+    return { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+  });
+  return {
+    ok: true,
+    seat: {
+      groom: String(cust.get('신랑이름') || ''),
+      bride: String(cust.get('신부이름') || ''),
+      date: _ymdOf(cust.get('예식일')) || '',
+      tables: out
+    }
+  };
 }
 
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
@@ -206,11 +260,14 @@ function buildProductionState(r) {
       invitation: t.invitation || '시작전',    // 04 청첩장에서 갱신
       dining: t.dining || '시작전',            // 다이닝 위저드에서 갱신
       ritual: t.ritual || '시작전',            // 식순 위저드에서 갱신
-      final: t.final || '시작전'               // 최종 확정 위저드에서 갱신(인원·음료·특이사항)
+      final: t.final || '시작전',              // 최종 확정 위저드에서 갱신(인원·음료·특이사항)
+      seat: t.seat || '시작전'                 // 좌석 배치도(최종 확정 완료 후 열림)
     },
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
+    seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
+    seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
     finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }
