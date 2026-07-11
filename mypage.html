@@ -3753,7 +3753,7 @@ function invStepDone(box, r){
     var _ed0=$('iv_edit'); if(_ed0) _ed0.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); }); return;
   }
   var u=(r&&r.urls)||{};
-  var mobileUrl = u.online || u.live || '';   // 모바일 참석(스캔용): 온라인 청첩장 우선
+  var mobileUrl = u.live || '';   // 모바일 참석 QR = 라이브 입장(live.html) 전용. 온라인 청첩장(u.online)을 넣으면 스캔 시 청첩장으로 가버림(2026-07-11 버그 수정 · 서버 _invUrls가 셋을 구분해 반환)
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
   var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold,#B89A75)">&amp;</span> ':'')+escapeHtml(b))
