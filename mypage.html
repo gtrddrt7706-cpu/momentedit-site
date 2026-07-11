@@ -4380,7 +4380,7 @@ function dineFilterUI(d, wt){
         : '<div class="dn-ai-slim-q">예식 후, 누구와 어떻게 보내실지 한 줄만 적어 주시면 어울리는 곳을 찾아드려요.</div>')
     + placeCards
     + ((hasChat&&!d._aiNoRes)?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')   // 못 찾은 직후엔 제안 칩 재노출 — 막다른 답 방지
-    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="예: 애 둘과 갈 만한 곳?" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
+    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var orDiv='<div class="dn-or"><span>또는, 직접 골라보기</span></div>';
