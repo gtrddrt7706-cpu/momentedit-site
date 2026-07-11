@@ -426,7 +426,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
 /* [찜] 별표·모아보기 — 다이닝 후보 저장(draft._favs · 계정 저장이라 부부 공용) */
 .inv-opt.dn-hasstar{position:relative;padding-right:44px}
-.dn-star{position:absolute;top:7px;right:6px;width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:19px;line-height:1;color:#D8D2C6;padding:0}
+.dn-star{position:absolute;top:7px;right:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;font-size:19px;line-height:1;color:#D8D2C6;padding:0;user-select:none;-webkit-user-select:none}
 .dn-star.on{color:var(--gold,#B89A75)}
 .dnc-pl{position:relative;padding-right:40px}
 .dnc-pl .dn-star{top:6px;right:4px}
@@ -436,8 +436,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dn-favbox .fh .c{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft)}
 .dn-favbox .fsub{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin:0 0 9px;line-height:1.6}
 .dn-fav{position:relative;border:1px solid var(--border);border-radius:9px;background:#fff;padding:10px 34px 10px 12px;margin-bottom:8px;text-align:left}
-.dn-fav .n{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent)}
-.dn-fav .m{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);margin-top:2px}
+.dn-fav .n{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);overflow-wrap:anywhere}
+.dn-fav .m{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);margin-top:2px;overflow-wrap:anywhere}
 .dn-fav .a{display:flex;gap:12px;margin-top:6px}
 .dn-fav .a a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#9a7b3f);text-decoration:none}
 .dn-fav .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:none;background:none;color:var(--light);font-size:13px;cursor:pointer;padding:0}
@@ -4113,10 +4113,13 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
-  // [찜] 별표 토글(카드 선택과 분리 — stopPropagation) · 리스트 카드/지도 결과/모아보기 ✕ · 목록 공유
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favn]'),function(el){ el.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); collect(); if(_dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favn'),m:el.getAttribute('data-favm')||'',src:'db'})){ saveTrkDraft(false); } render(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ el.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, p=(d3._places||[])[+el.getAttribute('data-favp')]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; if(_dnFavToggle(d3,{n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:p.phone||'',url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:'kakao'})){ saveTrkDraft(false); } render(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); render(box); }); });
+  // [찜] 별표 토글(카드 선택과 분리 — span role=button: label 활성화 전달 안 받음 + stopPropagation) · 재렌더 후 앵커 기준 스크롤 유지(튐 방지)
+  var _dnFindByAttr=function(attr,val){ var all=box.querySelectorAll('['+attr+']'); for(var i=0;i<all.length;i++){ if(all[i].getAttribute(attr)===val) return all[i]; } return null; };
+  var _dnRerenderKeep=function(find){ var a=find(), top=a?a.getBoundingClientRect().top:null; render(box); if(top!=null){ var b2=find(); if(b2){ var dl=b2.getBoundingClientRect().top-top; if(dl) window.scrollBy(0,dl); } } };
+  var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ fn(e); } }); };
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favn]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var _n=el.getAttribute('data-favn'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favn',_n); }); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; if(_dnFavToggle(d3,{n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:p.phone||'',url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:'kakao'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favp',_pi); }); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); _dnRerenderKeep(function(){ return box.querySelector('.dn-favbox')||box.querySelector('.dn-head'); }); }); });
   var _fsh=$('dn_favShare'); if(_fsh){ _fsh.addEventListener('click',function(){
     var txt=_dnFavShareText(TRKFLOW.draft);
     var done=function(){ _fsh.textContent='복사됐어요 · 카톡에 붙여넣기 해주세요'; setTimeout(function(){ _fsh.textContent='카카오톡·문자로 목록 보내기'; },2200); };
@@ -4394,7 +4397,7 @@ function dineFilterUI(d, wt){
     var _vf=r.v?'<small class="dn-vf">디렉터 확인'+(r.vdate?(' · '+escapeHtml(r.vdate)):'')+(r.vnote?(' · '+escapeHtml(r.vnote)):'')+'</small>':'';   // [C] 검증 상세
     var _fav=_dnFavHas(d,r.n);
     return '<label class="inv-opt dn-hasstar'+(sel?' sel':'')+(r.pick?' dn-haspick':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'
-      +'<button type="button" class="dn-star'+(_fav?' on':'')+'" data-favn="'+escapeHtml(r.n)+'" data-favm="'+escapeHtml(meta)+'" aria-label="'+(_fav?'찜 해제':'찜하기')+'" aria-pressed="'+_fav+'">'+(_fav?'★':'☆')+'</button>'
+      +'<span class="dn-star'+(_fav?' on':'')+'" role="button" tabindex="0" data-favn="'+escapeHtml(r.n)+'" data-favm="'+escapeHtml(meta)+'" aria-label="'+(_fav?'찜 해제':'찜하기')+'" aria-pressed="'+_fav+'">'+(_fav?'★':'☆')+'</span>'
       +escapeHtml(r.n)+_badge
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</label>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
@@ -4410,7 +4413,7 @@ function dineFilterUI(d, wt){
       + d._places.map(function(p,pi){
           var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):'';
           var _pf=_dnFavHas(d,p.name);
-          return '<div class="dnc-pl"><button type="button" class="dn-star'+(_pf?' on':'')+'" data-favp="'+pi+'" aria-label="'+(_pf?'찜 해제':'찜하기')+'" aria-pressed="'+_pf+'">'+(_pf?'★':'☆')+'</button>'
+          return '<div class="dnc-pl"><span class="dn-star'+(_pf?' on':'')+'" role="button" tabindex="0" data-favp="'+pi+'" aria-label="'+(_pf?'찜 해제':'찜하기')+'" aria-pressed="'+_pf+'">'+(_pf?'★':'☆')+'</span>'
             + '<div class="dnc-pl-n">'+escapeHtml(p.name)+(p.cat?' <span>'+escapeHtml(p.cat)+'</span>':'')+'</div>'
             + '<div class="dnc-pl-m">'+escapeHtml([km,p.addr].filter(Boolean).join(' · '))+'</div>'
             + '<div class="dnc-pl-a">'+(p.phone?('<a href="tel:'+escapeHtml(p.phone.replace(/[^0-9]/g,''))+'">전화</a>'):'')
