@@ -4094,12 +4094,13 @@ function bindTrk(box, render, collect, opt){
         .then(function(_rr){return _rr.json();})
         .then(function(r){
           if(r&&r.ok){
+            d2._aiNoRes=false;   // 새 응답 도착 — 지난 '못 찾음' 제안 상태 해제
             var say=(r.reply||'')+(r.ask?(' '+r.ask):'');
             d2._chat=d2._chat.concat([{role:'assistant',content:say}]).slice(-10);
             if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters); }
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
-            else if(r.source==='kakao'){ d2._places=[]; d2._chat=d2._chat.concat([{role:'assistant',content:'조건에 맞는 곳을 지도에서 찾지 못했어요. 조금 다르게 말씀해 주시면 다시 찾아볼게요.'}]).slice(-10); }
+            else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒷풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
             else if(r.mapDown){ d2._chat=d2._chat.concat([{role:'assistant',content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요.'}]).slice(-10); }
             else { d2._places=[]; }
             render(box);
@@ -4350,7 +4351,7 @@ function dineFilterUI(d, wt){
         ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'+msgs+'</div>'
         : '<div class="dn-ai-slim-q">예식 후, 누구와 어떻게 보내실지 한 줄만 적어 주시면 어울리는 곳을 찾아드려요.</div>')
     + placeCards
-    + (hasChat?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
+    + ((hasChat&&!d._aiNoRes)?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')   // 못 찾은 직후엔 제안 칩 재노출 — 막다른 답 방지
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="예: 애 둘과 갈 만한 곳?" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + (chat.length?'<div class="dn-ai-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요 <span class="ar" aria-hidden="true">↓</span></div>':'')   // 결과가 아래 리스트로 나온다는 안내(대화 시작 후 상시)
