@@ -763,7 +763,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .cpn-note{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:8px;opacity:.85}
     /* 좌석 배치도 편집 — 원형 테이블 · 탭해서 이름 입력 · 좌우 지그재그 */
     .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:14px 0 6px}
-    .seat-room{display:flex;gap:6px;align-items:flex-start}
+    .seat-room{display:flex;gap:2px;align-items:stretch}
+    .seat-aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
+    .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
     .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:20px;align-items:center}
     .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
     .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
@@ -3907,11 +3909,9 @@ function renderQRInto(qid, svid, url){
 // ── 좌석 배치도 (최종 확정 완료 후) — 탭으로 이름 채우기 + 좌우 배치 미리보기. 완료 시 공개 링크·QR 발급 → 하객 전달 ──
 var SEATFLOW = { active:false, tables:[], token:'' };
 function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/seat.html?t='+encodeURIComponent(token); }
-// 하객 수로 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 4명 기본, 인원 많으면 자동 증가(30명이면 5명씩 = 올림(인원/6)).
+// 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 4명(초기 셋팅). 필요하면 자리 추가로 테이블당 최대 5명까지.
 function autoSeatTables(headcount){
-  var n=parseInt(String(headcount||'').replace(/[^0-9]/g,''),10)||0;
-  var cnt=6, per=n?Math.max(4,Math.min(10,Math.ceil(n/cnt))):4;   // 4~10석/테이블
-  var lc=Math.floor(cnt/2);   // 좌측 3
+  var cnt=6, per=4, lc=Math.floor(cnt/2);   // 6테이블 · 4석 기본 · 좌측 3
   var out=[]; for(var i=0;i<cnt;i++){ var seats=[]; for(var k=0;k<per;k++) seats.push(''); out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats }); }
   return out;
 }
@@ -3950,7 +3950,7 @@ function wireSeatShare(box, token){
 }
 // 원형 테이블 좌석 위치(자리 i / n개 · 12시부터 시계방향).
 function _seatPos(n, i, r){ var a=(-90 + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
-function _seatZig(row, side){ var base=13; var s=(row%2===0)?1:-1; return (side==='R'? -s : s)*base; }   // 좌우 3개씩 살짝 지그재그(홀 느낌)
+function _seatZig(row, side){ var base=30; var s=(row%2===0)?1:-1; return (side==='R'? -s : s)*base; }   // 좌우 3개씩 지그재그(홀 느낌)
 function commitSeatEdit(box){
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
@@ -3989,8 +3989,9 @@ function renderSeat(box){
     +'<div class="cc-sub" style="text-align:center">자리(동그라미)를 눌러 이름을 채워요 · 빈자리는 그대로 두셔도 괜찮아요.</div>'
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
     +'<div class="seat-room">'
-      +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button></div>'
-      +'<div class="seat-col"><div class="seat-colh">우측</div>'+R+'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button></div>'
+      +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button>':'')+'</div>'
+      +'<div class="seat-aisle" aria-hidden="true"><span>버진로드</span></div>'
+      +'<div class="seat-col"><div class="seat-colh">우측</div>'+R+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button>':'')+'</div>'
     +'</div>'
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
     +'<div class="seat-actions"><button type="button" class="cc-btn-ghost" data-seat-savedraft style="width:auto;padding:11px 16px">임시 저장</button>'
@@ -4009,11 +4010,11 @@ function bindSeat(box){
     var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
     if(!el || !SEATFLOW.active) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<12) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<5) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var st=SEATFLOW.tables[j]&&SEATFLOW.tables[j].seats; if(st&&st.length>1) st.pop(); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var m=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[m]) SEATFLOW.tables[m].side=(SEATFLOW.tables[m].side==='R')?'L':'R'; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<20){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
     if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장에 실패했어요. 다시 시도해 주세요.'); }); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
