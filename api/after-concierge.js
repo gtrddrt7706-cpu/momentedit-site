@@ -151,7 +151,10 @@ module.exports = async (req, res) => {
     let places = [], mapDown = false, source = 'none';
     if (parsed.intent !== 'offtopic' && (cat === 'kids' || cat === 'afterparty' || cat === 'attraction') && !ask) {
       const q = clean(parsed.query).slice(0, 40) || FALLBACK_QUERY[cat];
-      const got = await kakaoSearch(q);
+      let got = await kakaoSearch(q);
+      if (!got.down && (!got.places || !got.places.length) && q !== FALLBACK_QUERY[cat]) {
+        got = await kakaoSearch(FALLBACK_QUERY[cat]);   // 모델 검색어(예산·수식어 섞임 등)가 0건이면 업종 기본어로 1회 재검색 — 빈손 응답 최소화
+      }
       places = got.places; mapDown = got.down; source = got.down ? 'none' : 'kakao';
     } else if (parsed.intent !== 'offtopic' && (cat === 'dining' || cat === 'cafe')) {
       source = 'db';                                                  // 프론트가 DINE_DB 필터로 노출

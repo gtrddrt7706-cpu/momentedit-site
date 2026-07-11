@@ -111,8 +111,8 @@ function handleDoResetPw(body) {
 
 // 세션 실패 사유 → 사용자 메시지
 function _sessionMsg(reason) {
-  if (reason === 'expired') return '로그인이 만료되었습니다. 다시 로그인해 주세요.';
-  return '로그인이 필요합니다. 개인코드와 비밀번호로 로그인해 주세요.';
+  if (reason === 'expired') return '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.';
+  return '로그인이 필요해요. 개인코드와 비밀번호로 로그인해 주세요.';
 }
 
 // ============================ 인증 메일 ============================

@@ -29,6 +29,8 @@
 <style>
 /* iOS 입력 포커스 자동확대(줌) 방지 — 입력 폰트 16px 보장. 손가락 수동 확대(접근성)는 유지(viewport 안 건드림) */
 input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select{font-size:16px!important}
+/* 예시문구(placeholder)는 힌트답게 한 톤 작게 — 좁은 화면에서 긴 예시(계좌·링크·AI 질문) 잘림 완화. 입력 폰트는 16px 그대로라 iOS 줌 방지 유지 */
+input::placeholder,textarea::placeholder{font-size:13.5px}
 
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
@@ -95,6 +97,13 @@ main.wide{max-width:600px}
   .inv-row{flex-direction:column;gap:8px}
   .inv-row>input,.inv-row>select{flex:1 1 100% !important;width:100%}
   .pf2{flex-direction:column;gap:6px}
+  /* 터치 타깃 보강 — 칩·프리셋·저장칩·카드 내 링크를 손가락 크기로(데스크톱 밀도는 유지) */
+  .dn-fpill,.dn-ai-sgg button{padding:9px 14px}
+  .dn-preset button{padding:10px 15px}
+  .wiz-exit{padding:9px 15px}
+  .dnc-pl-a a{padding:6px 2px;display:inline-block}
+  /* 리스트 헤더 카운트('검증 N곳 · 예식 후 15:00 도착 기준')가 길어 좁은 화면에선 줄바꿈 허용 — 넘침·잘림 방지 */
+  .dn-head-c{white-space:normal;text-align:right;line-height:1.5}
 }
 .view{display:none;animation:fade .5s var(--ease)}
 .view.show{display:block}
@@ -243,6 +252,17 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .cc-btn.cc-btn-seal:hover{background:#511F1A}
 .cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
+/* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
+.acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
+.acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
+.acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
+.acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--seal);color:var(--seal);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}
+.acct-copy-btn:active{background:var(--bg2)}
+.acct-copy-btn svg{width:14px;height:14px}
+.acct-amt-wrap{margin-top:9px;text-align:center}
+.acct-amt-link{background:none;border:none;font-family:var(--serif-ko);font-size:12px;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.acct-amt-link u{text-decoration-color:var(--gold);text-underline-offset:3px}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 /* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
 .me-pay-alt{display:flex;flex-direction:column;gap:8px}
@@ -399,8 +419,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.wiz-exit{background:none;border:none;padding:2px 0;font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--light);cursor:pointer;text-decoration:underline;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
-.wiz-exit:hover{color:var(--accent)}
+.wiz-exit{background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
+.wiz-exit:hover{color:var(--accent);border-color:var(--gold-btn-border);background:var(--card-bg)}
 .inv-step-n{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em}
 .inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
@@ -486,7 +506,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-or::before,.dn-or::after{content:'';flex:1;height:1px;background:var(--border)}
 .dn-or span{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);white-space:nowrap}
 .dn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 11px}
-.dn-head-t{font-family:var(--serif-ko);font-size:13.5px;letter-spacing:.02em;color:var(--accent)}
+.dn-head-t{font-family:var(--serif-ko);font-size:13.5px;letter-spacing:.02em;color:var(--accent);white-space:nowrap;flex-shrink:0}
 .dn-head-c{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);white-space:nowrap}
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
@@ -523,11 +543,13 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-ai{margin:0 0 4px;padding:20px 17px 17px;border:1px solid var(--gold-soft,rgba(184,154,117,.4));border-radius:14px;background:linear-gradient(180deg,#fffdfa,#fff);box-shadow:0 4px 18px rgba(107,42,36,.05)}
 .dn-ai-eyebrow{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F);text-align:center}
 .dn-ai-rule{width:28px;height:1px;background:var(--gold,#B89A75);margin:9px auto 12px;opacity:.6}
+.dn-ai-slim{padding:16px 16px 15px}
+.dn-ai-slim-q{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-align:center;line-height:1.65;margin:9px 4px 12px}
 .dn-ai-title{font-family:var(--serif-ko);font-size:14.5px;color:var(--accent);text-align:center;line-height:1.5}
 .dn-ai-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);text-align:center;margin:3px 0 11px}
 .dn-ai .cc-input{background:#fff}
 .dn-ai-sgg{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
-.dn-ai-sgg button{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;line-height:1.4}.dnc-msgs{display:flex;flex-direction:column;gap:9px;min-height:120px;max-height:46vh;overflow-y:auto;margin:4px 0 12px;text-align:left}.dnc-m{max-width:90%;font-family:var(--serif-ko);font-size:13.5px;line-height:1.75;border-radius:14px;padding:11px 14px;word-break:keep-all;white-space:pre-wrap}.dnc-b{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent);border-bottom-left-radius:4px}.dnc-u{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}.dnc-form{display:flex;gap:8px;align-items:stretch;margin-top:6px}.dnc-form .cc-input{padding:13px 14px;font-size:13.5px}.dnc-form .cc-btn{font-size:13px}.dnc-pl-cap{font-family:var(--serif-ko);font-size:10.5px;color:var(--label-soft);margin:8px 0 5px;text-align:left}.dnc-pl{border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px;text-align:left;background:#fff}.dnc-pl-n{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);overflow-wrap:anywhere}.dnc-pl-n span{font-size:10.5px;font-weight:300;color:var(--label-soft);margin-left:5px}.dnc-pl-m{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);margin-top:2px;overflow-wrap:anywhere}.dnc-pl-a{display:flex;gap:12px;margin-top:6px}.dnc-pl-a a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#9a7b3f);text-decoration:none}.dnc-db-cap{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:4px 0 6px;text-align:left}.dn-badge{display:inline-block;font-family:var(--serif-ko);font-size:9.5px;font-weight:500;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:middle;line-height:1.5}.dn-pick{background:var(--seal,#6B2A24);color:#fff}.dn-verified{background:var(--gold-soft,rgba(184,154,117,.18));color:var(--gold-deep,#9a7b3f);border:1px solid var(--gold-line,rgba(184,154,117,.45))}.inv-opt small.dn-rec{color:var(--seal,#6B2A24);font-weight:400;margin-top:3px}.inv-opt small.dn-vf{color:var(--gold-deep,#9a7b3f)}.inv-opt.dn-haspick{border-color:var(--gold,#B89A75)}
+.dn-ai-sgg button{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;line-height:1.4}.dnc-msgs{display:flex;flex-direction:column;gap:9px;min-height:120px;max-height:46vh;overflow-y:auto;margin:4px 0 12px;text-align:left}.dnc-m{max-width:90%;font-family:var(--serif-ko);font-size:13.5px;line-height:1.75;border-radius:14px;padding:11px 14px;word-break:keep-all;white-space:pre-wrap}.dnc-b{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent);border-bottom-left-radius:4px}.dnc-u{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}.dnc-form{display:flex;gap:8px;align-items:stretch;margin-top:6px}.dnc-form .cc-input{padding:13px 14px;flex:1;min-width:0}.dnc-form .cc-btn{font-size:13px}.dnc-pl-cap{font-family:var(--serif-ko);font-size:10.5px;color:var(--label-soft);margin:8px 0 5px;text-align:left}.dnc-pl{border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px;text-align:left;background:#fff}.dnc-pl-n{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);overflow-wrap:anywhere}.dnc-pl-n span{font-size:10.5px;font-weight:300;color:var(--label-soft);margin-left:5px}.dnc-pl-m{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--sub);margin-top:2px;overflow-wrap:anywhere}.dnc-pl-a{display:flex;gap:12px;margin-top:6px}.dnc-pl-a a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#9a7b3f);text-decoration:none}.dnc-db-cap{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:4px 0 6px;text-align:left}.dn-badge{display:inline-block;font-family:var(--serif-ko);font-size:9.5px;font-weight:500;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:middle;line-height:1.5}.dn-pick{background:var(--seal,#6B2A24);color:#fff}.dn-verified{background:var(--gold-soft,rgba(184,154,117,.18));color:var(--gold-deep,#9a7b3f);border:1px solid var(--gold-line,rgba(184,154,117,.45))}.inv-opt small.dn-rec{color:var(--seal,#6B2A24);font-weight:400;margin-top:3px}.inv-opt small.dn-vf{color:var(--gold-deep,#9a7b3f)}.inv-opt.dn-haspick{border-color:var(--gold,#B89A75)}
 .dn-ai-sgg button:hover{border-color:var(--gold);color:var(--accent)}
 .dn-ai-res{margin-top:12px;padding-top:11px;border-top:1px dashed var(--gold-soft,rgba(184,154,117,.45));text-align:center}
 .dn-ai-res .r-cap{font-family:var(--serif);font-style:italic;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F);margin-bottom:5px}
@@ -575,6 +597,18 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .inv-eg-name{font-family:var(--serif-ko);font-size:11px;color:var(--sub);text-align:center;margin-top:7px;letter-spacing:.02em}
 .inv-eg-full{display:block;text-align:center;margin-top:11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9A7F5F);text-decoration:none}
 .inv-eg-full:hover{color:var(--accent)}
+/* 예시·전체 청첩장 창모드 뷰어 — preview.html 프레임 톤을 페이지 안 모달로(새탭 이동 대체) */
+.pv-modal{position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(40,32,24,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.pv-modal.open{display:flex}
+.pv-modal-card{width:min(430px,94vw);max-height:88vh;display:flex;flex-direction:column;background:var(--bg2,#F5F3EF);border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 60px rgba(28,27,25,.30);overflow:hidden;animation:mpPop .22s var(--ease,ease)}
+.pv-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px 11px;border-bottom:1px solid var(--hairline,#E6E1D8)}
+.pv-modal-cap{font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv-modal-x{flex-shrink:0;border:none;background:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);cursor:pointer;padding:6px 2px 6px 10px;-webkit-tap-highlight-color:transparent}
+.pv-modal-x:hover{color:var(--accent)}
+.pv-modal-body{overflow-y:auto;padding:14px;flex:1;overscroll-behavior:contain}
+.pv-modal-frame{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(28,27,25,.05),0 10px 30px rgba(28,27,25,.10);min-height:180px}
+.pv-modal-frame img{display:block;width:100%;height:auto}
+.pv-modal-err{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-align:center;padding:46px 20px;line-height:1.8}
 /* 청첩장 완성 화면 — 프리미엄 */
 .done-wrap{text-align:center;animation:doneIn .6s var(--ease) both}
 .done-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep,#9A7F5F)}
@@ -683,6 +717,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <!-- 예식일 임시 고정(가예약) 상태 — 검토 중/승인. 계약 서명 전까지 -->
     <div class="consult-sec" id="mp_hold" style="display:none"></div>
 
+    <!-- 커피쿠폰 (후기 완주 보상) — 관리자가 발급 시 바코드 표시 · 없으면 숨김 -->
+    <div class="consult-sec" id="mp_coupon" style="display:none"></div>
+
     <!-- 내 내역 (02-6) — 결제·현금영수증·서류 한곳에. 기본 접힘(펼쳐 보기) · 카드 상단 고정 -->
     <div class="consult-sec" id="mp_ledger" style="display:none"></div>
 
@@ -716,6 +753,47 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="next-sec" id="mp_upcoming"></div>
     <style>
     .merged-head{margin:22px 0 2px;text-align:center;font-size:13px;letter-spacing:0.06em;color:var(--accent);font-weight:500}
+    /* 커피쿠폰 (후기 완주 보상) */
+    .cpn-card{text-align:center;padding:22px 20px 20px}
+    .cpn-eyebrow{font-family:var(--serif-ko);font-size:11px;letter-spacing:.14em;color:var(--gold-deep);font-weight:500;text-transform:uppercase;margin-bottom:8px}
+    .cpn-title{font-family:var(--serif-ko);font-size:18px;font-weight:500;color:var(--accent);margin-bottom:8px}
+    .cpn-desc{font-family:var(--serif-ko);font-size:13px;line-height:1.6;color:var(--sub);margin-bottom:16px}
+    .cpn-barcode{margin:12px auto;max-width:320px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+    .cpn-barcode img{display:block;width:100%;height:auto;border-radius:4px}
+    .cpn-exp{font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin-top:14px}
+    .cpn-exp b{font-weight:600}
+    .cpn-note{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:8px;opacity:.85}
+    /* 좌석 배치도 편집 — 원형 테이블 · 탭해서 이름 입력 · 좌우 지그재그 */
+    .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:14px 0 6px}
+    .seat-room{display:flex;gap:2px;align-items:stretch}
+    .seat-aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
+    .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
+    .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:20px;align-items:center}
+    .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
+    .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
+    .rt{position:relative;width:150px;height:150px;flex-shrink:0}
+    .rt::before{content:'';position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+    .rt-no{position:absolute;left:calc(50% - 33px);top:calc(50% - 33px);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
+    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--accent);text-align:center;width:60px;line-height:1.2;cursor:pointer;padding:0;word-break:keep-all}
+    .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
+    .rt-cin:focus{outline:none}
+    .rs-slot{position:absolute;transform:translate(-50%,-50%)}
+    .rs{max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
+    .rs.empty{color:var(--light);border-style:dashed;background:var(--bg2);padding:3px 8px;font-size:11px}
+    .rs:active{border-color:var(--gold-deep)}
+    .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:10.5px;text-align:center;color:var(--accent);padding:3px 4px}
+    .rs-edit:focus{outline:none}
+    .rt-ctl{display:flex;gap:4px;margin-top:6px;justify-content:center}
+    .rt-mini{width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:7px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+    .rt-mini:active{background:var(--bg2)}
+    .rt-mini.rt-del{color:var(--light)}
+    .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
+    .seat-actions{display:flex;gap:8px;justify-content:center;margin-top:16px}
+    .seat-share{margin-top:16px;border-top:1px dashed var(--border);padding-top:16px;text-align:center}
+    .seat-share-h{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)}
+    .seat-share-sub{font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);margin:6px 0 12px}
+    .seat-share-url{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);word-break:break-all;background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:10px}
+    .seat-share-btns{display:flex;gap:8px;justify-content:center}
     /* 내 내역 패널 (02-6) */
     .led-card{text-align:left;padding:20px 20px 16px}
     .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
@@ -1135,7 +1213,7 @@ $('loginForm').addEventListener('submit', function(e){
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
-    else { showErr('li_err', (d&&d.error)||'로그인에 실패했습니다.'); }
+    else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('li_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Login'; });
 });
@@ -1357,6 +1435,7 @@ function renderMyPage(d){
       // [임시고정 상시 확인] 배너는 상담완료부터 숨으므로(혼선 방지), 계약 서명 전까지는 내 내역에서 픽스 날짜를 이어서 보여줌. GAS가 서명완료·만료 시 hold를 자동으로 끊음.
       d.ledger.hold = d.hold || null;
     }
+    renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
   }
@@ -1551,13 +1630,39 @@ function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contain
 function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); } }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
 
+// 커피쿠폰 (후기 완주 보상) — 관리자가 발급하면 바코드 이미지·사용기한 표시. 없으면 카드 숨김.
+function renderCoupon(c){
+  var box=$('mp_coupon'); if(!box) return;
+  if(!c || !c.images || !c.images.length){ box.style.display='none'; box.innerHTML=''; return; }
+  var title=escapeHtml(c.title||'스타벅스 커피 2잔');
+  var imgs=c.images.map(function(src){
+    var safe=String(src||''); if(safe.indexOf('data:image/')!==0) return '';   // data URI만 허용(안전)
+    return '<div class="cpn-barcode"><img src="'+safe.replace(/"/g,'&quot;')+'" alt="바코드" loading="lazy"></div>';
+  }).join('');
+  var expTxt='';
+  if(c.expiry && /^\d{4}-\d{2}-\d{2}$/.test(c.expiry)){
+    expTxt='<div class="cpn-exp">사용기한 <b>'+escapeHtml(fmtWedKo(c.expiry)||c.expiry)+'</b>까지</div>';
+  }
+  box.style.display='';
+  box.className='consult-sec';
+  box.innerHTML=
+    '<div class="consult-card cpn-card">'
+    +'<div class="cpn-eyebrow">후기 감사 선물</div>'
+    +'<div class="cpn-title">'+title+'</div>'
+    +'<div class="cpn-desc">두 분의 소중한 후기, 진심으로 감사드려요.<br>아래 바코드를 매장에서 보여주시면 돼요.</div>'
+    +imgs
+    +expTxt
+    +'<div class="cpn-note">화면 밝기를 높이면 바코드가 더 잘 인식돼요.</div>'
+    +'</div>';
+}
+
 function renderLedger(l){
   var box=$('mp_ledger'); if(!box) return;
   if(!l){ if(box.classList.contains('open')) closeLedModal(); box.className='consult-sec'; box.innerHTML=''; box.style.display='none'; return; }   // 열린 채 사라지면 _mpLock이 남아 화면이 굳음 → 먼저 정식으로 닫기
   function won(n){ return (Number(n||0)).toLocaleString()+'원'; }
   var payRows=(l.payments||[]).map(function(p){
     var dueTxt=(!p.done && p.dueLabel)?('<div class="led-due">'+(p.dueDate&&typeof fmtWedKo==='function'?('<b>'+escapeHtml(fmtWedKo(p.dueDate))+'</b>까지 · '):'')+escapeHtml(p.dueLabel)+'</div>'):'';
-    if(p.extra&&!p.done) dueTxt+='<div class="led-due">인원 추가 '+won(p.extra.amount)+' 포함 (스탠딩 '+p.extra.standing+'명)</div>';   // 최종확정 추가 요금 산식
+    // 인원 추가 상세는 '보기' 패널의 미니 명세표(_bx)로 일원화 — 헤더 총액과 중복 표기 제거(2026-07-10)
     var _balS=(window._mpStateD||{}).balance;   // '잔금 대기' → 보기: 모달 안에서 결제 안내 펼침(계좌·입금했어요·카드결제) — 2026-07-10 사용자 지시
     var _canBal=(!p.done && p.label==='잔금' && _balS && !_balS.confirmed && _balS.status!=='완료신호');
     var stat=_canBal
@@ -1565,19 +1670,21 @@ function renderLedger(l){
       : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
     var panel='';
     if(_canBal){
-      var _bx=(_balS.extra&&_balS.baseAmount!=null)?('<div class="cc-note" style="text-align:center;margin:0 0 10px">잔금 '+fmtWon(_balS.baseAmount)+' + 인원 추가 '+fmtWon(_balS.extra.amount)+' = <b>'+fmtWon(_balS.amount)+'</b></div>'):'';
+      var _bx=(_balS.extra&&_balS.baseAmount!=null)?(
+          '<div style="margin:0 2px 12px;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.5">'
+        + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>잔금</span><span>'+fmtWon(_balS.baseAmount)+'</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>인원 추가 · 스탠딩 '+escapeHtml(String(_balS.extra.standing))+'명</span><span>+'+fmtWon(_balS.extra.amount)+'</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:1px solid var(--hairline,#e6e0d8);color:var(--accent);font-weight:600"><span>합계</span><span>'+fmtWon(_balS.amount)+'</span></div>'
+        + '</div>'):'';
+      var _lbHard = _balS.extraPending && !!((window._mpStateD||{}).production) && !_balS.due;   // 하드 게이트 — 여유 있을 때만(마감 임박 시 선택제로 해제)
       panel='<div id="mp_ledBalPanel" style="display:none">'
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
-        +(_balS.account?('<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-          +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px">입금 계좌</div>'
-          +'<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(_balS.account)+'</div>'
-          +(_balS.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_balS.holder)+'</div>':'')
-          +'<div style="display:flex;gap:8px;margin-top:9px"><button type="button" class="cc-btn-ghost" id="mp_lbAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(_balS.amount!=null?_balS.amount:'')+'" style="flex:1">금액 복사</button></div></div>'):'')
-        +(_balS.extraPending?_finalGateHtml():'')
-        +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
-        +cashReceiptField('mp_lbCR', l.cashTail)
-        +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
-        +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>'
+        + (_lbHard ? _finalGateHtml(true) : (
+            (_balS.account?_acctBox(_balS.account, _balS.holder, '입금 계좌', (_balS.amount!=null)?_acctAmt('data-copy-amt="'+String(_balS.amount)+'"','입금액 '+fmtWon(_balS.amount)+' 복사'):''):'')
+          +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
+          +cashReceiptField('mp_lbCR', l.cashTail)
+          +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
+          +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>' ))
         +'</div></div>';
     }
     return '<div class="led-row"><span class="led-k">'+escapeHtml(p.label)+'</span><span class="led-v">'+won(p.amount)+'</span>'+stat+'</div>'+dueTxt+panel;
@@ -1699,8 +1806,8 @@ function renderLedger(l){
     function reset(){ lbs.disabled=false; lbs.textContent='입금했어요'; }
     var cr=(($('mp_lbCR')&&$('mp_lbCR').value)||'').trim();
     api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
   // ★재렌더 복원 — 펼쳐뒀던 패널을 새 상태 기준으로 다시 연다(예식일 변경 위저드·잔금 결제 안내)
   if(chgWasOpen && lc){ lc.textContent='닫기'; var _rpn=$('mp_ledChgPanel'); if(_rpn) renderChangeWizard(window._mpStateD||{}, _rpn); }
@@ -1713,8 +1820,8 @@ function doEditCashReceipt(tail){
     if(!ok) return;
     var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
     api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); }
-    }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
@@ -1775,15 +1882,15 @@ function doHoldEdit(h){
     if(!d||!t){ mpAlert('예식 날짜와 시간을 모두 선택해 주세요.').then(function(){ doHoldEdit({date:d||((h&&h.date)||''),slot:t||((h&&h.slot)||'')}); }); return; }
     api({action:'changeWeddingHold', token:getToken(), date:d, slot:t}).then(function(r){
       if(r&&r.ok){ loadMyState(); }
-      else { mpAlert((r&&r.error)||'변경 요청에 실패했습니다.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
-    }).catch(function(){ mpAlert('변경 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      else { mpAlert((r&&r.error)||'변경 요청이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
+    }).catch(function(){ mpAlert('변경 요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [임시고정 셀프 관리] 취소 — 잡아둔 예식 일정 해제(언제든 재요청 가능)
 function doHoldCancel(){
   mpModalOpen({ title:'예식일 임시 고정을 취소할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">잡아둔 예식 일정이 풀려요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'고정 취소', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
-    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소에 실패했습니다.'); } }).catch(function(){ mpAlert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); } }).catch(function(){ mpAlert('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 
@@ -1812,7 +1919,7 @@ function renderRefundBank(rb){
     btn.disabled=true; btn.textContent='저장 중…';
     api({action:'saveRefundAccount', token:getToken(), acct:v}).then(function(r){
       if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경'; }
-      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'; btn.textContent='계좌 저장'; }
+      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'; btn.textContent='계좌 저장'; }
       btn.disabled=false;
     }).catch(function(){ msg.style.color='var(--seal)'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; btn.disabled=false; btn.textContent='계좌 저장'; });
   });
@@ -1888,13 +1995,13 @@ function doCancelRes(){
   var btn=$('mp_cancelConfirm'); if(btn){ btn.disabled=true; btn.textContent='취소 처리 중…'; }
   function reset(msg){ if(errEl) errEl.textContent=msg||''; if(btn){ btn.disabled=false; btn.textContent='취소 확정'; } }
   api({action:'cancelReservation', token:getToken(), acct:acct}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소에 실패했습니다.'); }
-  }).catch(function(){ reset('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); }
+  }).catch(function(){ reset('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 function doAcceptProp(){
   api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락에 실패했습니다.'); }
-  }).catch(function(){ mpAlert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); }
+  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
@@ -1941,8 +2048,8 @@ function doSignFitting(){
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
     api({action:'signFittingConsent', token:getToken(), signature:sig}).then(function(d){
       if (d && d.ok){ loadMyState(); }
-      else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 
@@ -2032,8 +2139,8 @@ function doRequestContract(){
   var btn=$('mp_ciSubmit'); if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 요청하기'; } }
   api({action:'requestContract', token:getToken(), info:info}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청에 실패했습니다.'); reset(); }
-  }).catch(function(){ fail('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ fail('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // [02-3+02-4 병합] 본 계약 + 계약금을 한 카드로 — 어차피 한 번에 진행. 서명 → 같은 카드에서 계약금 → 완료 시 접힘.
@@ -2100,8 +2207,8 @@ function renderContractPayment(c, p, ctx){
         rs.disabled=true; rs.textContent='요청 중…';
         api({action:'requestContractResend', token:getToken()}).then(function(r){
           if(r&&r.ok){ rs.textContent='요청했어요 · 곧 보내드릴게요'; }
-          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청에 실패했습니다.'); }
-        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
+        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
       });
       return;
     }
@@ -2149,11 +2256,8 @@ function renderContractPayment(c, p, ctx){
           + '<br><span class="cc-mini">예식이 가까워 함께 안내드려요. 한 번에 입금하시면 돼요.</span></div>')
        : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
-  var acct = p.account ? ('<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String((_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:''))+'" style="flex:1">금액 복사</button></div></div>') : '';
+  var _amtV=(_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:null);
+  var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
   h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
@@ -2251,12 +2355,7 @@ function renderChangeWizard(ctx, host){
       var h;
       if(_quote.fee>0){
         h='<div class="cc-sub" style="margin-top:10px"><b>'+fmtWon(_quote.fee)+'</b> <span class="cc-mini">· 변경 수수료 10% (총 계약금액 기준)</span></div>'
-         +(_quote.account?('<div style="margin:10px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-           +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">수수료 입금 계좌</div>'
-           +'<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(_quote.account)+'</div>'
-           +(_quote.holder?('<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(_quote.holder)+'</div>'):'')
-           +'<button type="button" class="cc-btn-ghost" id="mp_chgAcctCopy" style="margin-top:10px">계좌 복사</button>'
-           +'</div>'):'')
+         +(_quote.account?_acctBox(_quote.account, _quote.holder, '수수료 입금 계좌', (_quote.fee>0)?_acctAmt('data-copy-amt="'+String(_quote.fee)+'"','수수료 '+fmtWon(_quote.fee)+' 복사'):''):'')
          +'<input type="text" class="cc-input" id="mp_chgPayer" placeholder="수수료 입금하신 분 성함" autocomplete="name" style="margin-top:8px">'
          +'<div class="cc-note" style="text-align:left;margin:2px 0 0;color:var(--light);line-height:1.6">수수료 입금 후 변경을 요청해 주세요. 디렉터가 입금·일정을 확인한 뒤 적용돼요.</div>';
       } else {
@@ -2293,8 +2392,8 @@ function renderChangeWizard(ctx, host){
           +'<div class="cc-note" style="text-align:center">디렉터 확인 후 적용돼요 · 적용되면 카카오톡으로 알려드려요</div>'
           +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgDoneOk">확인</button></div></div>';
         var ok=$('mp_chgDoneOk'); if(ok) ok.addEventListener('click', function(){ loadMyState(); });
-      } else { _err((r&&r.error)||'요청에 실패했습니다.'); reset(); }
-    }).catch(function(){ _err('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      } else { _err((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ _err('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 // [02-9] 변경 요청 철회 — 동의기록.변경요청 삭제(기존 예식일 유지). 언제든 다시 요청 가능.
@@ -2302,8 +2401,8 @@ function doCancelWeddingChange(){
   mpModalOpen({ title:'변경 요청을 철회할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">요청하신 예식일 변경이 취소되고 기존 예식일이 그대로 유지돼요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'요청 철회', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
     api({action:'cancelWeddingChange', token:getToken()}).then(function(r){
-      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회에 실패했습니다.'); }
-    }).catch(function(){ mpAlert('철회에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회가 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ mpAlert('철회가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [02-3] 서명본 자동 보관 — 채워진+서명된 계약서를 숨김 iframe으로 렌더해 자기완결 HTML로 직렬화. cb(html)·실패 시 cb(''). 베스트에포트(서명 흐름 방해 X).
@@ -2335,8 +2434,8 @@ function doSignContract(){
     _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
       api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
         if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
-        else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-      }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+        else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
+      }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
     });
   });
 }
@@ -2359,13 +2458,7 @@ function renderPayment(p){
     } else {
       amt = '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
     }
-    var acct = p.account ? (
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder ? '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>' : '')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_acctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(a?a.납부액:'')+'" style="flex:1">금액 복사</button></div>'
-      + '</div>' ) : '';
+    var acct = _acctBox(p.account, p.holder, '입금 계좌', (a&&a.납부액!=null)?_acctAmt('data-copy-amt="'+String(a.납부액)+'"','입금액 '+fmtWon(a.납부액)+' 복사'):'');
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
@@ -2384,6 +2477,26 @@ function renderPayment(p){
   });
 }
 function fmtWon(n){ n=Number(n)||0; try{ return n.toLocaleString('ko-KR')+'원'; }catch(e){ return n+'원'; } }
+// [입금 계좌 박스 · 공용] B안 — 번호를 주인공으로, 슬림 '계좌번호 복사' 버튼 + 금액은 보조 링크(계약금·중도금·잔금·수수료·추가보정 공통)
+var _ACCT_COPY_SVG='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.6"/></svg>';
+function _acctBox(account, holder, label, amtHtml){
+  if(!account) return '';
+  return '<div class="acct-box">'
+    + '<div class="acct-eyebrow">'+escapeHtml(label||'입금 계좌')+'</div>'
+    + '<div class="acct-num">'+escapeHtml(account)+'</div>'
+    + (holder?'<div class="acct-holder">예금주 '+escapeHtml(holder)+'</div>':'')
+    + '<button type="button" class="acct-copy-btn" data-copy-acct="'+escapeHtml(account)+'">'+_ACCT_COPY_SVG+'<span class="acct-copy-txt">계좌번호 복사</span></button>'
+    + (amtHtml||'') + '</div>';
+}
+function _acctAmt(attr, label){ return '<div class="acct-amt-wrap"><button type="button" class="acct-amt-link" '+attr+'><u>'+label+'</u></button></div>'; }
+// [계좌 복사] 전역 위임 — data-copy-acct 값(계좌 문자열) 복사 + 버튼 피드백
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-acct]'):null; if(!t) return;
+  var v=String(t.getAttribute('data-copy-acct')||''); if(!v) return;
+  var sp=t.querySelector('.acct-copy-txt');
+  var done=function(){ if(sp){ sp.textContent='복사됐습니다'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
+});
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
 // [입금자명 칩] 계약서의 신랑·신부 이름 원탭 입력(부모님 입금 등 직접 입력도 그대로 가능)
 function _payerChipsHtml(target){
@@ -2413,8 +2526,15 @@ document.addEventListener('click', function(e){
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
 });
 // [최종확정 소프트 게이트] 잔금 결제 전 인원 미확정이면 — 먼저 확정 유도(강제 아님 · 3걸음 위저드로 이동).
-function _finalGateHtml(){
+function _finalGateHtml(hard){
   var hasProd = !!((window._mpStateD||{}).production);
+  if(hard && hasProd){   // 하드 게이트 — 인원 확정 먼저(2번 결제 방지). 확정 흐름 있을 때만 사용
+    return '<div style="margin:12px 0 2px;padding:14px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
+      +'<div class="cc-sub" style="margin:0">인원을 먼저 확정해 주세요.<br>확정하면 <b>추가 요금까지 합쳐 한 번에</b> 결제돼요.</div>'
+      +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기 (1분)</button>'
+      +'<div class="cc-note" style="margin:8px 0 0;color:var(--light)">두 번 결제되지 않도록 도와드리는 단계예요.</div></div>';
+  }
+  // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
     +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>최종 확정을 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
     +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기 (1분)</button>':'')
@@ -2461,25 +2581,35 @@ function renderBalance(p, mid){
       : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
       : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
-    var acct=p.account?(
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_bAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-amt="'+String(p.amount!=null?p.amount:'')+'" style="flex:1">금액 복사</button></div>'
-      + '</div>'):'';
-    body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
-    cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
-      + cashReceiptField('mp_bCR', p.cashReceipt)
-      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
-      + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
+    if(p.extraPending && !!((window._mpStateD||{}).production) && !p.due){   // 하드 게이트 — 여유 있을 때만(마감 D-9 전). 마감 임박 시 자동 해제 → 선택제(기본 잔금 먼저 결제 가능)
+      body='<div class="cc-title">'+head+'</div>'+amt+when+_finalGateHtml(true); cta='';
+    } else {
+      var acct=_acctBox(p.account, p.holder, '입금 계좌', (p.amount!=null)?_acctAmt('data-copy-amt="'+String(p.amount)+'"','입금액 '+fmtWon(p.amount)+' 복사'):'');
+      body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
+      cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
+        + cashReceiptField('mp_bCR', p.cashReceipt)
+        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
+        + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
+    }
   }
   if(p.status==='완료신호' || near){
     // 가까워짐·입금 신호 → 펼친 활성 카드 (평소 진입은 '내 내역 > 잔금 보기' 인라인 패널)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
+  } else if(p.dday!=null && p.dday<=30){
+    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로.
+    var _mini = balDateTxt ? ('<b>'+escapeHtml(balDateTxt)+'</b>까지') : (dueLabel+'까지');
+    box.innerHTML='<div class="consult-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'
+      +'<div style="text-align:left"><div style="font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)">Balance</div>'
+      +'<div style="font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);margin-top:3px">잔금 '+_mini+' <span class="cc-mini">· '+dueLabel+'</span></div></div>'
+      +'<button type="button" class="cc-btn-ghost" id="mp_bMiniView" style="width:auto;flex:0 0 auto;padding:8px 15px">보기</button></div></div>';
+    box.style.display='block';
+    var mv=$('mp_bMiniView'); if(mv) mv.addEventListener('click', function(){
+      if(typeof openLedModal==='function'){ try{ openLedModal(); }catch(e){} }
+      setTimeout(function(){ var v=$('mp_ledBalView'); if(v) v.click(); var pp=$('mp_ledBalPanel'); if(pp&&pp.scrollIntoView){ try{ pp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } }, 80);
+    });
+    return;
   } else {
-    // 평소엔 메인에 안 띄움 — 잔금 안내 진입은 '내 내역 > 잔금 보기'로(접힘 가로줄 제거 · 2026-07-10 사용자 지시)
-    box.style.display='none'; box.innerHTML=''; return;
+    box.style.display='none'; box.innerHTML=''; return;   // D-30 이전엔 메인에 안 띄움(너무 이른 노출 방지)
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
@@ -2491,7 +2621,7 @@ function cashReceiptField(id, val){
   // 예약 단계에서 이미 등록됐으면 간결 표시(입력칸 생략) — 계약금·중도금·잔금에서 다시 안 적어도 됨. 변경은 '내 내역'에서.
   if(val){
     var tail=val.length>=4?val.slice(-4):val;
-    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증 소득공제 번호 <b>등록됨</b> <span style="color:var(--label-soft)">· 끝 '+escapeHtml(tail)+' · 이 번호로 발급돼요</span></div>';
+    return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
   return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
@@ -2503,8 +2633,8 @@ function doBalanceSignal(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_bCR')&&$('mp_bCR').value)||'').trim();
   api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 // [02-4b] 중도금 카드 — 결제 마일스톤(D-149). 잔금 '함께 결제'(합계)·잔금 기한(D-9) 이내 합계 자동 흡수.
 function renderMid(p, bal){
@@ -2543,13 +2673,7 @@ function renderMid(p, bal){
       : near?(midDue+' 보내주세요'+midTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
       : (midDue+' 보내주세요'+midTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
-    var acct=p.account?(
-        '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      + '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">'+escapeHtml(p.account)+'</div>'
-      + (p.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(p.holder)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="cc-btn-ghost" id="mp_mAcctCopy" style="flex:1">계좌 복사</button><button type="button" class="cc-btn-ghost" data-copy-from="mp_mAmtV" style="flex:1">금액 복사</button></div>'
-      + '</div>'):'';
+    var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_mPayer')
@@ -2577,8 +2701,8 @@ function doMidSignal(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_mCR')&&$('mp_mCR').value)||'').trim();
   api({action:'midSignal', token:getToken(), payerName:payer, withBalance:combo, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doPaySignal(){
   var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
@@ -2588,8 +2712,8 @@ function doPaySignal(){
   var cr=(($('mp_payerCR')&&$('mp_payerCR').value)||'').trim();
   api({action:'paymentSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
     if(d&&d.ok){ loadMyState(); }
-    else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // ============================ 카드결제 (토스페이먼츠) · 프론트 — 사전 구축 · 기능 플래그 OFF면 전부 비활성 ============================
@@ -2610,7 +2734,7 @@ var meCardPay = (function(){
   function newOrderId(){ return 'ME'+Date.now()+Math.floor(Math.random()*1e6); }
   function pay(milestone, amount, btn){
     var reset=function(){ if(btn){ btn.disabled=false; btn.textContent='카드로 결제'; } };   // 실패 시에만 복구(성공하면 토스로 리다이렉트되어 페이지가 떠남)
-    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요.'); return; }
+    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요. 잠시 후 다시 열어 주세요.'); return; }
     if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요.'); return; }
     if(btn){ btn.disabled=true; btn.textContent='결제창 여는 중…'; }   // 더블탭 방지 · 반응감
     loadSdk(function(){
@@ -2657,15 +2781,27 @@ var meCardPay = (function(){
     }, '카드로 결제 (미리보기)');
     el.parentNode.insertBefore(wrap, el.nextSibling);
   }
+  var standby=false;   // 플래그 OFF(오픈 전) → 카드 버튼을 '준비 중'으로 노출(레이아웃 완성 · 오픈 시 실결제로 자동 전환)
+  function standbyAttach(item){   // 오픈 전 스탠바이 — 버튼은 보이되 누르면 '준비 중' 안내(계좌이체로 유도)
+    var el=$(item.btn); if(!el || !el.parentNode) return;
+    if(isMultiPay(el)) return;
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;
+    var wrap=buildWrap(item.m, function(){
+      mpAlert({ title:'카드결제 준비 중', body:'카드결제는 오픈에 맞춰 열려요.\n지금은 계좌이체로 진행해 주세요.', confirmText:'확인' });
+    }, '카드로 결제 (준비 중)');
+    var btn=wrap.querySelector('.me-card-pay'); if(btn){ btn.setAttribute('aria-disabled','true'); btn.style.opacity='.72'; }
+    el.parentNode.insertBefore(wrap, el.nextSibling);
+  }
   function init(){
     if(PREVIEW){ MAP.forEach(previewAttach); return; }   // 미리보기 — 재렌더마다 버튼 재부착
     if(ready){ MAP.forEach(attachOne); return; }   // 활성 상태 — 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
-    if(checked) return;                              // 이미 확인했고 비활성(OFF) → 추가 호출 안 함(페이지당 1회만)
+    if(standby){ MAP.forEach(standbyAttach); return; }   // 스탠바이 — 재렌더마다 준비중 버튼 재부착
+    if(checked) return;                              // 이미 확인함 → 추가 호출 안 함(페이지당 1회만)
     checked=true;
     api({action:'cardPayConfig', token:getToken()}).then(function(d){
-      if(!d||!d.ok||!d.enabled||!d.clientKey) return;   // 플래그 OFF → 아무것도 안 함(라이브 무영향)
-      cfg=d; ready=true; MAP.forEach(attachOne);
-    }).catch(function(){});
+      if(d&&d.ok&&d.enabled&&d.clientKey){ cfg=d; ready=true; MAP.forEach(attachOne); }   // 플래그 ON → 실결제 버튼
+      else { standby=true; MAP.forEach(standbyAttach); }                                    // 플래그 OFF → 준비 중 버튼 노출
+    }).catch(function(){ standby=true; MAP.forEach(standbyAttach); });
   }
   function handleReturn(){
     if(returnDone) return;
@@ -2697,11 +2833,7 @@ var meCardPay = (function(){
       +   '<div class="cc-eyebrow en-22">Contract</div>'
       +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
       +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
-      +   '<div style="margin:14px 0 2px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      +     '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-      +     '<div style="font-family:var(--serif-ko);font-size:15.5px;font-weight:600;color:var(--accent)">기업 000-000-00000</div>'
-      +     '<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 모먼트에디트</div>'
-      +     '<button type="button" class="cc-btn-ghost" style="margin-top:10px">계좌 복사</button></div>'
+      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="110000"','입금액 110,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
       +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
@@ -2793,17 +2925,19 @@ function weddingTimeOptions(sel){
 // 기초정보 입력 화면 제거 — 이름은 청첩장 위저드 1단계에서 입력(청첩장에만 쓰임), 예식 일시·이메일은 서버가 계약·계정값으로 자동 구성.
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; SEATFLOW.active=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
+  if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null);
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null);
   box.style.display='block';
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ startTrkFlow('ritual', p.ritualDraft||{}, p.base||{}); });
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){ startTrkFlow('final', p.finalDraft||{}, p.base||{}); });
+  var se=$('mp_seatStart'); if(se) se.addEventListener('click', function(){ startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken); });
 }
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
@@ -2832,8 +2966,11 @@ function _surveySchema(isSnap){
     {k:'result',q:'결과물(셀렉트 컷)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'styling',q:'스타일링(드레스)은요?',o:[['great','만족'],['ok','보통'],['poor','아쉬웠어요']]},
     {k:'transparency',q:'추가 비용 안내는 투명했나요?',o:[['kept','투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
+    {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','그 외']]},
+    {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','그 외']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
-    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
+    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
   ];
   return [
     {k:'pace',q:'140분의 호흡은 어떠셨어요?',pillar:1,o:[['good','딱 좋았어요 · 매 순간 또렷'],['short','조금 짧게 느껴졌어요'],['long','조금 벅찼어요']]},
@@ -2843,8 +2980,11 @@ function _surveySchema(isSnap){
     {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
     {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','그 외']]},
+    {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','그 외']]},
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
-    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]}
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
+    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
   ];
 }
 // ③ 추가 보정 패널 HTML(완료면 ''). 진행 중·전달 후 양쪽에서 재사용.
@@ -2856,10 +2996,7 @@ function _extraPanelHtml(res){
     h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
   } else if(ex.status==='신청'||ex.status==='견적'){
     h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b></div>'
-      + (ex.account?('<div style="margin:12px 0 2px;padding:13px 15px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:center">'
-        + '<div style="font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">입금 계좌</div>'
-        + '<div style="font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)">'+escapeHtml(ex.account)+'</div>'
-        + (ex.holder?'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px">예금주 '+escapeHtml(ex.holder)+'</div>':'')+'</div>'):'')
+      + (ex.account?_acctBox(ex.account, ex.holder, '입금 계좌', (ex.금액)?_acctAmt('data-copy-amt="'+String(ex.금액)+'"','입금액 '+fmtWon(ex.금액)+' 복사'):''):'')
       + '<div class="cc-note">위 계좌로 입금 후 알려 주세요.</div>'
       + '<input type="text" class="cc-input" id="mp_exPayer" placeholder="입금하신 분 성함" autocomplete="name" value="'+escapeHtml(ex.payerName||'')+'">'
       + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
@@ -2880,17 +3017,17 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기 감사합니다</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.</div></div>';
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>스타벅스 커피 2잔은 이 마이페이지로 보내드려요.</b> ☕<br><span class="cc-mini">준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.</span></div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
   return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">🤍 두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.</div>'
+    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>끝까지 남겨주시면 감사의 마음으로 스타벅스 커피 2잔, 보내드릴게요. ☕</div>'
     + body
-    +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간 · 한마디 <span class="srv-opt-tag">선택</span></div>'
-    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="자유롭게 남겨 주세요 (선택)"></textarea>'
+    +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
+    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
     +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
     +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button></div>';
@@ -3000,8 +3137,8 @@ function doSubmitSelection(){
   function send(){ if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
     api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); }); }
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); }); }
   var inc=pcEl?(+(pcEl.getAttribute('data-inc')||10)):10, n=_resCount(picks);
   if(n>inc){ mpConfirm({ title:'이대로 제출할까요?', body:'고르신 '+n+'컷 = 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷이에요.\n추가 '+(n-inc)+'컷은 다음 ③ 단계에서 결제 안내를 드려요.', yes:'네, 제출할게요', no:'다시 고를게요' }).then(function(ok){ if(ok) send(); }); }
   else send();
@@ -3012,8 +3149,8 @@ function doConfirmRetouch(){
     var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
     api({action:'confirmRetouch', token:getToken()}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 function doSubmitSurvey(res){
@@ -3030,8 +3167,8 @@ function doSubmitSurvey(res){
   var btn=$('mp_svSubmit'); if(btn){ btn.disabled=true; btn.textContent='보내는 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='후기 보내기'; } }
   api({action:'submitSurvey', token:getToken(), answers:answers, review:review, reviewPublic:pub}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doRequestExtra(){
   var qty=Math.floor(Number(($('mp_exQty')&&$('mp_exQty').value)||0));
@@ -3039,8 +3176,8 @@ function doRequestExtra(){
   var btn=$('mp_exReq'); if(btn){ btn.disabled=true; btn.textContent='신청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='추가 보정 신청'; } }
   api({action:'requestExtraRetouch', token:getToken(), qty:qty}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('신청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('신청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doExtraSignal(){
   var payer=(($('mp_exPayer')&&$('mp_exPayer').value)||'').trim();
@@ -3048,8 +3185,8 @@ function doExtraSignal(){
   var btn=$('mp_exSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   api({action:'extraRetouchSignal', token:getToken(), payerName:payer}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 // 구버전(결과물 status 없음) 폴백 — 셀렉트 백엔드 배포 전까지 기존 카드 그대로(①④⑤ 링크, ②③ 자리).
 function renderResultLegacy(res, box){
@@ -3229,7 +3366,7 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv, dd, fd, base, rd){
+function productionDashHtml(t, inv, dd, fd, base, rd, sd){
   t=t||{}; inv=inv||{};
   // 예식까지 남은 날 — 최종 확정 안내(D-30부터 강조 · 기한은 잔금과 같은 예식 9일 전)
   var _dLeft=null;
@@ -3279,12 +3416,22 @@ function productionDashHtml(t, inv, dd, fd, base, rd){
     if(_re.indexOf('song')>=0 && !((rd.details&&rd.details.song&&rd.details.song.title||'').trim())) _pend++;
     rNote='📜 식순 · <b style="color:var(--accent)">'+_rc+'순서 · '+_rm+'분</b>'+(rd.host==='mc'?' · 사회자 진행':'')+(_pend?(' · <b style="color:var(--seal)">채울 것 '+_pend+'개</b>'):'');
   }
-  var notes=[rNote,dNote,fNote].filter(Boolean).join('<br>');
+  // 좌석 배치도 — 최종 확정(인원)이 끝나야 자리 기준이 잡혀 열림. 완료 시 공유 링크 준비 요약.
+  var _seatDone=(t.seat||'')==='완료';
+  var seNote='';
+  if(_fDone && _seatDone && sd && sd.tables){
+    var _tc=sd.tables.length, _nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim()) _nm++; }); });
+    seNote='🪑 좌석 배치 · <b style="color:var(--accent)">'+_tc+'개 테이블 · '+_nm+'명</b> · 하객 공유 링크 준비됨';
+  } else if(_fDone && !_seatDone){
+    seNote='🪑 테이블 자리를 미리 정하면, 하객에게 보낼 <b>좌석 안내 링크</b>가 만들어져요 (선택)';
+  }
+  var notes=[rNote,dNote,fNote,seNote].filter(Boolean).join('<br>');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
       + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel)
       + row('최종 확정', t.final||'시작전', 'mp_finalStart', null)
+      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기')) : '')
     + '</div>'
     + (notes?('<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+notes+'</div>'):'');
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
@@ -3315,19 +3462,58 @@ function startInvFlow(inv, base){
   var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
   if(!dr.method) st='method';
   else if((dr.method==='self'||dr.method==='none') && (st==='parents'||st==='design')) st='confirm';
+  var _pu=dr.invitationUrls||{}, _hasPub=!!(_pu.online||_pu.family||_pu.live);
+  if(inv && inv.published && _hasPub) st='done';              // 발행됨 · 수정 → 확인 단계가 아니라 완성 화면(링크·QR)부터(2026-07-11 사용자 지시)
+  else if(st==='done' && !_hasPub) st='confirm';              // 저장된 done인데 링크가 없으면 안전하게 확인 단계로
   var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
-function exitInvFlow(){ saveInvDraft().then(function(){ INVFLOW.active=false; loadMyState(); }); }   // #8 나가기도 저장
+function exitInvFlow(){   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  show('loading');
+  saveInvDraft().then(function(r){
+    if(r&&r.ok){ INVFLOW.active=false; loadMyState(); return; }
+    show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitInvFlow(); } else { INVFLOW.active=false; show('loading'); loadMyState(); } });
+  });
+}
 // [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit]'):null;
   if(!t) return;
   if(typeof INVFLOW!=='undefined' && INVFLOW.active){ show('loading'); exitInvFlow(); }
   else if(typeof TRKFLOW!=='undefined' && TRKFLOW.active){ exitTrkFlow(); }
+});
+// [창모드 뷰어] 예시·전체 청첩장 이미지 — 새탭(preview.html) 대신 페이지 안 모달로(2026-07-11 사용자 지시)
+function mpImgView(src,title){
+  var m=$('pvModal');
+  if(!m){
+    m=document.createElement('div'); m.className='pv-modal'; m.id='pvModal';
+    m.innerHTML='<div class="pv-modal-card" role="dialog" aria-modal="true"><div class="pv-modal-head"><span class="pv-modal-cap" id="pvCap"></span><button type="button" class="pv-modal-x" id="pvX">닫기 ✕</button></div><div class="pv-modal-body" id="pvBody"></div></div>';
+    document.body.appendChild(m);
+    function close(){ m.classList.remove('open'); document.body.style.overflow=''; }
+    m.addEventListener('click', function(ev){ if(ev.target===m) close(); });
+    $('pvX').addEventListener('click', close);
+    document.addEventListener('keydown', function(ev){ if(ev.key==='Escape'&&m.classList.contains('open')){ close(); } });
+  }
+  $('pvCap').textContent=title||'미리보기';
+  var im=new Image(); im.alt=title||'미리보기'; im.decoding='async';
+  im.onerror=function(){ $('pvBody').innerHTML='<div class="pv-modal-err">이미지를 불러오지 못했어요.\n잠시 후 다시 시도해 주세요.</div>'; };
+  im.src=src;
+  var fr=document.createElement('div'); fr.className='pv-modal-frame'; fr.appendChild(im);
+  var bd=$('pvBody'); bd.innerHTML=''; bd.appendChild(fr); bd.scrollTop=0;
+  m.classList.add('open'); document.body.style.overflow='hidden';
+}
+document.addEventListener('click', function(e){
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;   // 새탭 의도(수정키)는 브라우저 기본 동작 유지
+  var a=(e.target&&e.target.closest)?e.target.closest('a[href*="/preview.html?"]'):null;
+  if(!a) return;
+  e.preventDefault();
+  try{ var u=new URL(a.getAttribute('href'), location.origin); mpImgView(u.searchParams.get('img')||'', u.searchParams.get('t')||''); }
+  catch(err){ location.href=a.href; }   // 파싱 실패 시 기존 새탭 경로로
 });
 function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft}).catch(function(){}); }
 function renderInvFlow(box){
@@ -3336,6 +3522,7 @@ function renderInvFlow(box){
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);
   else if(INVFLOW.step==='design') invStepDesign(box);
+  else if(INVFLOW.step==='done') invStepDone(box,{ok:true,urls:INVFLOW.draft.invitationUrls||{},eventId:INVFLOW.draft.eventId||''});   // 발행됨 재진입 — 저장된 링크로 완성 화면 복원(재발행 불필요)
   else invStepConfirm(box);
 }
 function invStepMethod(box){
@@ -3345,10 +3532,10 @@ function invStepMethod(box){
   function nv(k){ var v=(d[k]!=null&&String(d[k])!=='')?d[k]:((INVFLOW.base||{})[k]||''); return escapeHtml(String(v)); }
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
     +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+nv('groomKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('groomEn')+'"></div>'
+    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
     +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+nv('brideKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름 (성 제외)" value="'+nv('brideEn')+'"></div>'
+    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
     +'<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
@@ -3363,7 +3550,7 @@ function invStepMethod(box){
     +opt('self','개인적으로 제작할게요','우리 디자인 없이')
     +qr
     +opt('none','청첩장 없이','')
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_exit">나가기</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
+    +'<div class="inv-nav"><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'</div>';
   function collectNames(){
     [['groomKo','mp_gKo'],['groomEn','mp_gEn'],['brideKo','mp_bKo'],['brideEn','mp_bEn']].forEach(function(p){
@@ -3375,7 +3562,6 @@ function invStepMethod(box){
   updateCover();
   Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
-  $('iv_exit').addEventListener('click', function(){ collectNames(); exitInvFlow(); });
   $('iv_next').addEventListener('click', function(){
     collectNames();
     var mm=INVFLOW.draft.method;
@@ -3573,7 +3759,7 @@ function invStepDesign(box){
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   else if(m==='both'){
     h+=designBlock('offline','직접 모시는 청첩장(오프라인)');
-    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
+    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 청첩장 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
   // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨 · 샘플 전체 둘러보기는 상단(제목 아래)으로 이동됨
@@ -3605,9 +3791,12 @@ function doPublishInv(box){
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
   var dr=INVFLOW.draft, sendDraft=(dr.method==='self'&&!dr.selfQR)?Object.assign({},dr,{method:'none'}):dr;   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X)
   api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
-    if(r&&r.ok) invStepDone(box, r);
-    else reset((r&&r.error)||'발행에 실패했습니다.');
-  }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
+    if(r&&r.ok){
+      if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
+      invStepDone(box, r);
+    }
+    else reset((r&&r.error)||'발행이 안 됐어요. 한 번 더 눌러 주세요.');
+  }).catch(function(){ reset('발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
 }
 // (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.
 //   디자인별 예시 이미지는 3단계(디자인 선택)의 각 섹션에 인라인으로 계속 노출.
@@ -3630,7 +3819,7 @@ function invStepDone(box, r){
     var _ed0=$('iv_edit'); if(_ed0) _ed0.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); }); return;
   }
   var u=(r&&r.urls)||{};
-  var mobileUrl = u.online || u.live || '';   // 모바일 참석(스캔용): 온라인 청첩장 우선
+  var mobileUrl = u.live || '';   // 모바일 참석 QR = 라이브 입장(live.html) 전용. 온라인 청첩장(u.online)을 넣으면 스캔 시 청첩장으로 가버림(2026-07-11 버그 수정 · 서버 _invUrls가 셋을 구분해 반환)
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
   var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold,#B89A75)">&amp;</span> ':'')+escapeHtml(b))
@@ -3712,6 +3901,143 @@ function renderInvQR(url){
   }
   qd.innerHTML='<div class="cc-note" style="text-align:left">QR 이미지는 준비 중이에요. 인쇄물엔 아래 주소를 넣어 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
 }
+// 지정 컨테이너에 QR 렌더(seat 공유 등 범용). 미배치 폴백은 주소 텍스트.
+function renderQRInto(qid, svid, url){
+  var qd=$(qid); if(!qd) return;
+  if(window.QRCode){
+    try{
+      qd.innerHTML='';
+      new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
+      var sv=svid?$(svid):null;
+      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
+      return;
+    }catch(e){}
+  }
+  qd.innerHTML='<div class="cc-note" style="text-align:left">QR은 준비 중이에요. 아래 주소를 전달해 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
+}
+
+// ── 좌석 배치도 (최종 확정 완료 후) — 탭으로 이름 채우기 + 좌우 배치 미리보기. 완료 시 공개 링크·QR 발급 → 하객 전달 ──
+var SEATFLOW = { active:false, tables:[], token:'' };
+function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/seat.html?t='+encodeURIComponent(token); }
+// 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 4명(초기 셋팅). 필요하면 자리 추가로 테이블당 최대 5명까지.
+function autoSeatTables(headcount){
+  var cnt=6, per=4, lc=Math.floor(cnt/2);   // 6테이블 · 4석 기본 · 좌측 3
+  var out=[]; for(var i=0;i<cnt;i++){ var seats=[]; for(var k=0;k<per;k++) seats.push(''); out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats }); }
+  return out;
+}
+function startSeatFlow(seatDraft, finalDraft, token){
+  INVFLOW.active=false; if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;
+  var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
+  SEATFLOW={ active:true, tables:tbls, token:token||'' };
+  renderSeat($('mp_production'));
+  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+}
+function collectSeats(box){
+  box=box||$('mp_production'); if(!box) return;
+  Array.prototype.forEach.call(box.querySelectorAll('[data-seat-nm]'),function(el){ var ti=+el.getAttribute('data-ti'); if(SEATFLOW.tables[ti]) SEATFLOW.tables[ti].name=el.value; });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
+}
+function saveSeat(done){ return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done}); }
+function exitSeatFlow(){ SEATFLOW.active=false; show('loading'); saveSeat(false).then(function(){ loadMyState(); }).catch(function(){ loadMyState(); }); }
+function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
+function seatSharePanelHtml(token){
+  var url=seatUrl(token);
+  return '<div class="seat-share">'
+    +'<div class="seat-share-h">✓ 배치가 저장됐어요</div>'
+    +'<div class="seat-share-sub">아래 링크·QR을 <b>오프라인으로 모시는 하객</b>께 전달하면, 열어서 자기 자리를 바로 확인해요.</div>'
+    +'<div class="seat-share-url" id="seat_url">'+escapeHtml(url)+'</div>'
+    +'<div class="seat-share-btns"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
+    +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="seat_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
+    +'</div>';
+}
+function wireSeatShare(box, token){
+  var url=seatUrl(token);
+  var cp=$('seat_copy'); if(cp) cp.addEventListener('click', function(){
+    var done=function(){ cp.textContent='복사됐어요'; setTimeout(function(){ cp.textContent='링크 복사'; },1500); };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ legacyCopy(url); done(); }); } else { legacyCopy(url); done(); } }catch(e){ legacyCopy(url); done(); }
+  });
+  ensureQR(function(){ renderQRInto('seat_qr','seat_qrsave',url); });
+}
+// 원형 테이블 좌석 위치(자리 i / n개 · 12시부터 시계방향).
+function _seatPos(n, i, r){ var a=(-90 + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
+function _seatZig(row, side){ var base=30; var s=(row%2===0)?1:-1; return (side==='R'? -s : s)*base; }   // 좌우 3개씩 지그재그(홀 느낌)
+function commitSeatEdit(box){
+  box=box||$('mp_production'); if(!box) return;
+  var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
+  if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
+  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ SEATFLOW.tables[ed.ti].seats[ed.si]=inp.value; }
+  SEATFLOW.edit=null;
+}
+function renderSeat(box){
+  if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
+  function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
+  function tableEl(t, ti, row){
+    var n=t.seats.length, seats='';
+    for(var si=0; si<n; si++){
+      var p=_seatPos(n, si, 54), nm=t.seats[si]||'';
+      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
+      else { var f=String(nm).trim(); seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?escapeHtml(nm):'+')+'</button></div>'; }
+    }
+    var center = isEd(ti,'name')
+      ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
+      : '<button type="button" class="rt-c" data-seat-edit data-ti="'+ti+'" data-si="name">'+escapeHtml(t.name||('테이블 '+(ti+1)))+'</button>';
+    return '<div class="rt-wrap" style="transform:translateX('+_seatZig(row,t.side)+'px)">'
+      +'<div class="rt"><span class="rt-no">'+(ti+1)+'</span>'+seats+center+'</div>'
+      +'<div class="rt-ctl">'
+        +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
+        +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
+        +'<button type="button" class="rt-mini" data-seat-move="'+ti+'" title="좌우 이동">'+(t.side==='R'?'←':'→')+'</button>'
+        +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
+      +'</div></div>';
+  }
+  var L='', R='', li=0, ri=0;
+  s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++); else L+=tableEl(t,i,li++); });
+  box.innerHTML='<div class="consult-card" style="text-align:left">'
+    +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
+    +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
+    +'<div class="cc-sub" style="text-align:center">자리(동그라미)를 눌러 이름을 채워요 · 빈자리는 그대로 두셔도 괜찮아요.</div>'
+    +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
+    +'<div class="seat-room">'
+      +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button>':'')+'</div>'
+      +'<div class="seat-aisle" aria-hidden="true"><span>버진로드</span></div>'
+      +'<div class="seat-col"><div class="seat-colh">우측</div>'+R+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button>':'')+'</div>'
+    +'</div>'
+    +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
+    +'<div class="seat-actions"><button type="button" class="cc-btn-ghost" data-seat-savedraft style="width:auto;padding:11px 16px">임시 저장</button>'
+      +'<button type="button" class="cc-btn" data-seat-done style="width:auto;padding:11px 16px">배치 완료 · 공유 링크</button></div>'
+    + (s.token ? seatSharePanelHtml(s.token) : '')
+    +'</div>';
+  box.style.display='block';
+  bindSeat(box);
+  if(s.token) wireSeatShare(box, s.token);
+  // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
+  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ var v=ei.value; ei.value=''; ei.value=v; }catch(e){} }
+}
+function bindSeat(box){
+  if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
+  box.addEventListener('click', function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
+    if(!el || !SEATFLOW.active) return;
+    if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<5) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var st=SEATFLOW.tables[j]&&SEATFLOW.tables[j].seats; if(st&&st.length>1) st.pop(); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var m=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[m]) SEATFLOW.tables[m].side=(SEATFLOW.tables[m].side==='R')?'L':'R'; renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
+    if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); }); return; }
+    if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
+      if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
+      var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
+      saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW.token=r.seatToken||SEATFLOW.token; renderSeat(box); var sp=box.querySelector('.seat-share'); if(sp){ try{ sp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } } else { b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
+        .catch(function(){ b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
+      return;
+    }
+  });
+  box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'){ e.preventDefault(); e.target.blur(); } });
+  box.addEventListener('blur', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')) commitSeatEdit(box); }, true);
+}
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
@@ -3721,7 +4047,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._filters; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 항상 깨끗한 상태로 — 지난 AI 대화·추천·칩 필터·패널(세부조건·가볼곳) 모두 초기화(2026-06-13 사용자 지시)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
   if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
@@ -3733,7 +4059,15 @@ function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
   return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
-function exitTrkFlow(){ TRKFLOW.active=false; show('loading'); saveTrkDraft(false).then(function(){ loadMyState(); }); }   // 누르는 즉시 진사 스피너 → 저장·재조회(멈춘 듯 무피드백 방지)
+function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  TRKFLOW.active=false; show('loading');
+  saveTrkDraft(false).then(function(r){
+    if(r&&r.ok){ loadMyState(); return; }
+    TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitTrkFlow(); } else { TRKFLOW.active=false; show('loading'); loadMyState(); } });
+  });
+}
 function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }
 function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
@@ -3742,9 +4076,9 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
   var m=TRK_META[TRKFLOW.track];
   var navLeft = (TRKFLOW.step>0)
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
-    : '<button type="button" class="cc-btn-ghost" id="trk_exit">나가기</button>';
+    : '';
   return '<div class="consult-card inv-wrap">'
-    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span>'+(last?'':'<button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button>')+'</div>'
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
@@ -3761,61 +4095,57 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
-  var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?true:DN_UI.det; DN_UI.det=!opn; render(box); }); }   // 세부 조건 펼침/접기(기본 펼침과 동일 기준)
+  var _daskai=$('dn_askai'); if(_daskai){ _daskai.addEventListener('click',function(){ var inp=$('dncInput'); if(inp){ try{inp.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){} inp.focus(); } }); }   // 빈 결과 → AI 입력으로 유도(막다른 길 방지)
+  var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
   var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; render(box); }); }   // 리스트 전체 보기
   Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ TRKFLOW.draft._filters=Object.assign({},p.set); TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
   var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); }); }   // 가볼 만한 곳 펼침/접기
   var _dncF=$('dncForm'); if(_dncF){
     var _dncGo=function(text){
-      var inp=$('dncInput'), er=$('dn_aiErr'), btn=$('dncSend');
-      if(btn&&btn.disabled) return;   // 전송 중 Enter 연타·이중 제출 가드(버튼 disable만으론 form submit이 안 막힘)
+      var d2=TRKFLOW.draft;
+      if(d2._sending) return;   // 전송 중 재진입(Enter 연타·칩 연타) 방지
+      var inp=$('dncInput'), er=$('dn_aiErr');
       var t=String(text||((inp&&inp.value)||'')).trim();
       if(!t){ if(er)er.textContent='누구와 함께 보내실지 한 줄 들려주세요.'; return; }
       collect();
-      var d2=TRKFLOW.draft; d2._chat=(d2._chat||[]).concat([{role:'user',content:t}]).slice(-10);
+      d2._chat=(d2._chat||[]).concat([{role:'user',content:t}]).slice(-10);
+      d2._sending=true; d2._pendingTyping=true; d2._aiNoRes=false;
       if(inp){ inp.value=''; }
-      // 고객 글은 진사 말풍선(우)으로 즉시 올리고, AI 답변 자리(좌)에 점점점 표시(응답 오면 재렌더로 교체)
-      var _mg=$('dncMsgs'), _typing=null;
-      if(_mg){
-        var _oc=_mg.querySelector('.dnc-cue'); if(_oc) _oc.parentNode.removeChild(_oc);   // 이전 안내는 새 대화 아래로 재배치(순서 유지)
-        var _ub=document.createElement('div'); _ub.className='dnc-m dnc-u'; _ub.textContent=t; _mg.appendChild(_ub);
-        _typing=document.createElement('div'); _typing.className='dnc-m dnc-b dnc-typing'; _typing.setAttribute('aria-label','답변 준비 중'); _typing.innerHTML='<span class="td"></span><span class="td"></span><span class="td"></span>'; _mg.appendChild(_typing);
-        _mg.scrollTop=_mg.scrollHeight;
-      }
-      var _rmTyping=function(){ if(_typing&&_typing.parentNode) _typing.parentNode.removeChild(_typing); };
-      if(btn){ btn.disabled=true; }
+      render(box);   // 고객 진사 말풍선 + AI 점점점을 렌더로 즉시(첫 메시지 슬림 뷰에서도 동작)
+      var mg0=$('dncMsgs'); if(mg0) mg0.scrollTop=mg0.scrollHeight;
       fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat})})
         .then(function(_rr){return _rr.json();})
         .then(function(r){
+          d2._sending=false; d2._pendingTyping=false;
           if(r&&r.ok){
+            d2._aiNoRes=false;   // 새 응답 도착 — 지난 '못 찾음' 제안 상태 해제
             var say=(r.reply||'')+(r.ask?(' '+r.ask):'');
             d2._chat=d2._chat.concat([{role:'assistant',content:say}]).slice(-10);
             if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters); }
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
-            else if(r.source==='kakao'){ d2._places=[]; d2._chat=d2._chat.concat([{role:'assistant',content:'조건에 맞는 곳을 지도에서 찾지 못했어요. 조금 다르게 말씀해 주시면 다시 찾아볼게요.'}]).slice(-10); }
+            else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒷풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
             else if(r.mapDown){ d2._chat=d2._chat.concat([{role:'assistant',content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요.'}]).slice(-10); }
             else { d2._places=[]; }
             render(box);
             var mg=$('dncMsgs'); if(mg) mg.scrollTop=mg.scrollHeight;
           } else {
-            _rmTyping(); if(btn){ btn.disabled=false; btn.textContent='보내기'; }
+            render(box);
             var er2=$('dn_aiErr'); if(er2) er2.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.';
           }
         })
-        .catch(function(){ _rmTyping(); var b=$('dncSend'); if(b){ b.disabled=false; b.textContent='보내기'; } var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
+        .catch(function(){ d2._sending=false; d2._pendingTyping=false; render(box); var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
     };
     _dncF.addEventListener('submit',function(e){ e.preventDefault(); _dncGo(); });
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ _dncGo(el.getAttribute('data-sgg')); }); });
   }
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
-  var exit=$('trk_exit'); if(exit) exit.addEventListener('click', exitTrkFlow);
   var next=$('trk_next'); if(next) next.addEventListener('click',function(){
     collect();
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
     if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
       saveTrkDraft(true).then(function(r){
-        if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
+        if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
         TRKFLOW.active=false; loadMyState();
       }); return; }
     var _go=function(){ saveTrkDraft(false); TRKFLOW.step++; render(box); };
@@ -3913,7 +4243,7 @@ var DINE_DB = [
   {n:'꽈배기까페', th:'cafe', d:2, p:'low', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'031-994-5530', v:false},
   {n:'서오릉제빵소', th:'cafe', d:6, p:'mid', f:['카페'], m:[], al:false, g:'ask', eld:false, pk:null, bs:null, be:null, tel:'070-4384-2500', v:false}
 ];
-var _DN_PRICE={low:'~2만',mid:'2~4만',high:'5만+'};
+var _DN_PRICE={low:'~2만',mid:'2~5만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
 var _DN_ARR={'10:00':'11:50','13:20':'15:00','16:40':'18:10'};   // 본예식 → 식사 도착 기준
 var DN_UI={det:null,all:false,attr:false};   // 리스트 UI 상태(세부조건 펼침·전체 보기·가볼곳 펼침) — 화면용이라 draft에 저장 안 함
@@ -3971,26 +4301,26 @@ function dineFilterUI(d, wt){
   function pill(ax,v,label){ var on=(fl[ax]||'')===v;
     return '<button type="button" class="dn-fpill'+(on?' on':'')+'" data-ax="'+escapeHtml(ax)+'" data-fv="'+escapeHtml(v)+'">'+escapeHtml(label)+'</button>'; }
   function block(rawLabel,inner,last){ return '<div class="dn-fblk"'+(last?' style="margin-bottom:0"':'')+'><div class="dn-flabel">'+rawLabel+'</div><div class="dn-fwrap">'+inner+'</div></div>'; }
-  // 테마·인원=항상 노출 · 음식=줄바꿈 칩(짤림 없음) · 가격/거리/단체/주차/어르신=세부 조건 접이식
-  var detN=['price','dist','group','parking','elderly'].filter(function(k){return fl[k];}).length;
-  var detOpen=(DN_UI.det===null)?true:DN_UI.det;   // 기본 펼침(처음 화면부터 세부 조건 보이게) · 사용자가 접으면 그 상태 유지
+  // 빠른 길만 항상 노출: 테마(정찬·캐주얼·카페)+인원 · 음식·가격·거리·단체·주차·동행은 '조건 더 좁히기' 접이식(기본 접힘)
+  var detN=['food','price','dist','group','parking','elderly'].filter(function(k){return fl[k];}).length;
+  var detOpen=(DN_UI.det===null)?false:DN_UI.det;   // 기본 접힘(빠른 길=프리셋·테마·인원만 먼저) · 사용자가 펼치면 그 상태 유지 · 프리셋/AI가 세부값 걸면 배지로 표시
   var themeSeg='<div class="dn-flabel">어떤 자리인가요?</div><div class="dn-seg">'
     +[['formal','정찬'],['casual','캐주얼'],['cafe','카페']].map(function(o){ var on=(fl.theme||'')===o[0];
         return '<button type="button" class="dn-segbtn'+(on?' on':'')+'" data-ax="theme" data-fv="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div>';
   var headNum=(String(d.headcount||'').match(/\d+/)||[''])[0]; if(!(Number(headNum)>0)) headNum='';   // 예식 하객수(있으면) — 힌트로만. 0·비숫자는 무표시
   var headHint=headNum?' <span class="dn-fhint">· 예식 하객 약 '+escapeHtml(headNum)+'명</span>':'';
   var chips=themeSeg
-    +block('인원'+headHint,pill('headN','s','소규모 ~10')+pill('headN','m','중 10~20')+pill('headN','l','대 20~40')+pill('headN','xl','대형 40+'))
-    +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
-    +'<button type="button" class="dn-fmore" id="dn_det">세부 조건'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'
+    +block('인원'+headHint,pill('headN','s','소규모 ~10')+pill('headN','m','중 11~20')+pill('headN','l','대 21~40')+pill('headN','xl','대형 40+'))
+    +'<button type="button" class="dn-fmore" id="dn_det">조건 더 좁히기'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'
     +'<div class="dn-fdetail'+(detOpen?' open':'')+'">'
-      +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~4만')+pill('price','high','5만+'))
+      +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
+      +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~5만')+pill('price','high','5만+'))
       +block('거리',pill('dist','10','차로 10분 내')+pill('dist','15','차로 15분 내'))
       +block('단체',pill('group','room','단독룸')+pill('group','seats','단체석'))
       +block('주차',pill('parking','good','주차 넉넉'))
       +block('동행',pill('elderly','true','어르신·좌식 우선'),true)
     +'</div>';
-  var presetRow='<div class="dn-preset-cap">이런 자리 찾으세요?</div><div class="dn-preset">'
+  var presetRow='<div class="dn-preset-cap">상황으로 빠르게 고르기</div><div class="dn-preset">'
     +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')+'</div>';
   var arr=_DN_ARR[wt||'']||'';
   var bigGroup=(fl.headN==='l'||fl.headN==='xl');   // 대단체 — 단체석·뷔페를 위로
@@ -4021,7 +4351,7 @@ function dineFilterUI(d, wt){
     return '<label class="inv-opt'+(sel?' sel':'')+(r.pick?' dn-haspick':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'+escapeHtml(r.n)+_badge
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</label>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
-  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:6px 14px">조건 초기화</button>';
+  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:10px 16px">조건 초기화</button><button type="button" class="cc-btn-ghost" id="dn_askai" style="width:auto;padding:10px 16px">말로 찾아볼까요?</button></div>';
   // AI 칩 = 아래 식당 리스트로는 못 보여주는 '식사 외' 시나리오만(키즈·뒷풀이 → 카카오 지도). 식사 자리는 아래 프리셋·필터가 처리.
   // '볼거리'는 칩에서 뺌(2026-06-16): 이 동네는 볼거리 지도 데이터가 약해 라이브 검색이 빈약 → 디렉터 큐레이션 '예식 후 가볼 만한 곳' 섹션이 담당(키즈카페·펍은 지도에 잘 잡혀 칩 유지).
   var sgg=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리'];
@@ -4029,31 +4359,35 @@ function dineFilterUI(d, wt){
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
   var placeCards='';
   if(d._places && d._places.length){
-    placeCards='<div class="dnc-pl-cap">카카오맵 등록 정보 · 예약·이용 전 전화로 확인해 주세요</div>'
+    placeCards='<div class="dnc-pl-cap">지도에서 찾은 곳 · 아래 식사 리스트와 별개예요 · 예약·이용 전 전화로 확인해 주세요</div>'
       + d._places.map(function(p){
           var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):'';
           return '<div class="dnc-pl"><div class="dnc-pl-n">'+escapeHtml(p.name)+(p.cat?' <span>'+escapeHtml(p.cat)+'</span>':'')+'</div>'
             + '<div class="dnc-pl-m">'+escapeHtml([km,p.addr].filter(Boolean).join(' · '))+'</div>'
             + '<div class="dnc-pl-a">'+(p.phone?('<a href="tel:'+escapeHtml(p.phone.replace(/[^0-9]/g,''))+'">전화</a>'):'')
-            + ((p.url&&/^https?:\/\//i.test(p.url))?('<a href="'+escapeHtml(p.url)+'" target="_blank" rel="noopener">카카오맵</a>'):'')+'</div></div>';   // http(s)만 허용 — javascript: 등 위험 스킴 차단(심층 방어)
+            + '<a href="'+_dnMapUrl(p.name)+'" target="_blank" rel="noopener">지도</a></div></div>';   // 지도는 사이트 기본(네이버)으로 통일 — 앱 왔다갔다 방지
         }).join('');
   }
-  var aiBox='<div class="dn-ai">'
+  var hasChat=chat.length>0;
+  var aiBox='<div class="dn-ai'+(hasChat?'':' dn-ai-slim')+'">'
     + '<div class="dn-ai-eyebrow">After Wedding Concierge</div>'
-    + '<div class="dn-ai-rule"></div>'
-    + '<div class="dnc-msgs" id="dncMsgs">'
-    + '<div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'
-    + msgs
-    + (chat.length?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요 <span class="ar" aria-hidden="true">↓</span></div>':'')   // 안내를 대화창 안(마지막 메시지)으로 — 바로 보이게
-    + '</div>'
+    + (hasChat
+        ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'
+          + msgs
+          + (d._pendingTyping?'<div class="dnc-m dnc-b dnc-typing" aria-label="답변 준비 중"><span class="td"></span><span class="td"></span><span class="td"></span></div>':'')
+          + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요 <span class="ar" aria-hidden="true">↓</span></div>':'')
+          + '</div>'
+        : '<div class="dn-ai-slim-q">예식 후, 누구와 어떻게 보내실지 한 줄만 적어 주시면 어울리는 곳을 찾아드려요.</div>')
     + placeCards
-    + (chat.length?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
-    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="예: 애 둘 데리고 갈 만한 곳 있을까요?" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
+    + ((hasChat&&!d._aiNoRes)?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')   // 못 찾은 직후엔 제안 칩 재노출 — 막다른 답 방지
+    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="예: 애 둘과 갈 만한 곳?" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var orDiv='<div class="dn-or"><span>또는, 직접 골라보기</span></div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
-  var head='<div class="dn-head"><span class="dn-head-t">디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트</span><span class="dn-head-c">'+(_dnVerifiedN>0?'검증 '+_dnVerifiedN+'곳 · ':'')+'추천 '+list.length+'곳'+(arr?' · 도착 '+arr+' 기준':'')+'</span></div>';
+  var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
+  var head='<div class="dn-head"><span class="dn-head-t">디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
+  var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객들이 가장 아쉬워하는 건 자리·주차·식사예요. 그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요.</div>':'';   // [심리] 호스트 불안(자리·주차·식사 질) 대신 걱정해 둠 신호 · 결과 0곳이면 모순이라 숨김
   var fine='<div class="dn-fine">정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션 섹션(기본 접힘)
@@ -4064,7 +4398,7 @@ function dineFilterUI(d, wt){
   }).join('');
   var attr='<div class="dn-attr"><div class="dn-attr-h" id="dn_attr_h"><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기 ▴':'펼치기 ▾')+'</span></div>'
     +(DN_UI.attr?'<div class="dn-attr-list">'+attrItems+'<div class="dn-fine" style="margin-top:2px">산책·사진 코스예요. 거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
-  return aiBox + orDiv + head + aiHint + presetRow + chips + fine + cards + attr;
+  return aiBox + orDiv + head + care + aiHint + presetRow + chips + cards + fine + attr;   // 면책(fine)은 카드 뒤 — 조건 → 카드 → 주의 순으로 읽히게
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
@@ -4085,7 +4419,7 @@ function renderDining(box){
     var body='<div class="cc-note" style="text-align:left;margin:0 0 12px">'+escapeHtml(slot.lead)+'</div>'
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
         ;   // 하단 고정 옵션(직접 섭외·상담 때·다이닝 없이) 제거 — 식당 카드만(2026-06-13 사용자 지시). 옛 저장값은 아래 분기로 계속 표시.
-    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','식사·카페·아이 동반·뒷풀이·볼거리까지. 꼭 정하지 않으셔도 괜찮아요.',body,false);
+    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒷풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false);
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
     bindTrk(box,renderDining,collect,{ confirmNext: function(go){
       var _vp=String(d.venuePick||'').trim();
@@ -4099,7 +4433,7 @@ function renderDining(box){
     } });
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
-      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','따로 식사 자리는 두지 않기로 했어요. 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
+      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
       var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
@@ -4115,7 +4449,8 @@ function renderDining(box){
         var isCafe=(R.th==='cafe');   // 카페 픽이면 '식사·룸' 대신 '차·디저트/방문'으로 멘트·라벨 맞춤(2026-06-16)
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
           + (isCafe ? '단체로 차·디저트 자리를 예약하고 싶어요. 단체석·주차 가능할까요?' : '단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?');
-        body2='<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
+        body2='<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래로 예약만 마치면, 그날의 마지막 순간까지 준비가 끝나요.</div>'   // [심리] 선택 확언+첫 식탁 프레임+완결감 · 2026-07-10
+          +'<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
           + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · '+(isCafe?'도착':'식사 도착')+' '+arr2+' 기준':'')+'</div>'
           + callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
@@ -4532,7 +4867,7 @@ $('forgotForm').addEventListener('submit', function(e){
         ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸습니다. 메일함을 확인해 주세요.'
         : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸습니다. 메일함을 확인해 주세요.';
       ok.classList.add('show');
-    } else { showErr('fg_err',(d&&d.error)||'요청에 실패했습니다.'); }
+    } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
   }).catch(function(){ showErr('fg_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Send'; });
 });
@@ -4552,8 +4887,8 @@ $('resetForm').addEventListener('submit', function(e){
       if (d.token) setToken(d.token);
       cleanUrl();
       if (d.token) loadMyState();
-      else { show('loginView'); softLoginNote('비밀번호가 변경되었습니다. 다시 로그인해 주세요.'); }
-    } else { showErr('rs_err',(d&&d.error)||'재설정에 실패했습니다.'); }
+      else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
+    } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('rs_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Reset'; });
 });

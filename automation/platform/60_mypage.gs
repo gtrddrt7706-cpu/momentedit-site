@@ -45,6 +45,7 @@ function handleGetMyState(body) {
     production: buildProductionState(r),  // [03] 제작 화면(기초정보·3트랙). 입금완료/제작중에 노출
     invitation: buildInvitationState(r),  // [04] 청첩장 트랙(draft·발행 결과). 제작 단계에 노출
     result: buildResultState(r),  // [05] 결과물 단계(예식완료/결과물전달). 링크 표시(읽기). 없으면 null
+    coupon: buildCouponState(r),  // [보상] 커피쿠폰 — 관리자가 발급하면 마이페이지에 바코드 표시(없으면 null)
     ledger: buildLedgerState(r),  // [02-6] '내 내역' · 결제·현금영수증·서류를 단계와 무관하게 한곳에(없으면 null)
     refund: buildRefundQuote(r),  // [02-8] 지금 취소 시 환불 예상(계약서 7조·9조·4조⑧ · 70_journey). 서명완료 또는 예약금 입금 후에만 · 취소·노쇼·미계약은 null
     change: buildChangeState(r),  // [02-9] 예식일 변경(계약서 8조① · 70_journey). 서명완료·시그니처만 · {request,used,history,eligible}(없으면 null)
@@ -88,6 +89,21 @@ function buildHoldState(r) {
   return { date: String(h.date || ''), slot: String(h.slot || ''), status: st, expires: String(h.expires || '') };
 }
 
+// [보상] 커피쿠폰 — 관리자가 발급한 바코드 이미지(base64)·기한을 마이페이지에 표시. 상태 '발급'일 때만 노출.
+function buildCouponState(r) {
+  if (!r) return null;
+  if (String(r.get('쿠폰상태') || '').trim() !== '발급') return null;
+  var data; try { data = JSON.parse(String(r.get('쿠폰데이터') || '') || '{}'); } catch (e) { data = {}; }
+  var imgs = (data.images && data.images.length) ? data.images : [];
+  if (!imgs.length) return null;
+  return {
+    title: String(data.title || '스타벅스 커피 2잔'),
+    images: imgs,                          // data:image/... base64 배열(바코드)
+    expiry: String(data.expiry || ''),     // YYYY-MM-DD 사용기한
+    issuedAt: String(data.issuedAt || ''),
+    note: String(data.note || '')
+  };
+}
 // [02-6] '내 내역' 패널 — 결제(예약금/계약금·중도금·잔금)·현금영수증(발행된 것)·서류(시착동의서·계약서)를 진행 단계와 무관하게 한곳에 모아 노출.
 //   시착 동의·계약 서명·입금 중 하나라도 있으면 노출(그 전엔 내역이 없어 null). 결제 금액은 계약총액 기반(_journeyAmounts), 영수증은 _cashReceiptLedger 공통.
 function buildLedgerState(r) {

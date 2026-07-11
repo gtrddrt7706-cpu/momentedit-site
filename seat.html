@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<title>좌석 안내 · Moment Edit</title>
+<meta property="og:title" content="MOMENT EDIT · 좌석 안내">
+<meta property="og:description" content="예식 좌석을 확인해 보세요.">
+<style>
+:root{
+  --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
+  --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --card-white:#FFFFFF; --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%}
+.wrap{max-width:440px;margin:0 auto}
+.brand{text-align:center;font-size:11px;letter-spacing:.22em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:18px}
+.card{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:22px 18px 20px;box-shadow:var(--card-shadow)}
+.head{text-align:center;margin-bottom:6px}
+.couple{font-size:20px;font-weight:500;letter-spacing:.02em}
+.heart{color:var(--gold);margin:0 8px}
+.date{font-size:12.5px;color:var(--sub);margin-top:5px}
+.lead{text-align:center;font-size:12.5px;line-height:1.6;color:var(--sub);margin:14px 0 4px}
+.find{margin:14px 0 4px}
+.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:14px;color:var(--accent);padding:11px 12px}
+.find input:focus{outline:none;border-color:var(--gold-deep)}
+.find-res{min-height:18px;text-align:center;font-size:12.5px;color:var(--gold-deep);margin-top:8px}
+.find-res b{color:var(--seal);font-weight:600}
+.stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:16px 0 6px}
+.room{display:flex;gap:2px;align-items:stretch}
+.aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
+.aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px;align-items:center}
+.colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-4px}
+.tbl{position:relative;width:150px;height:150px;flex-shrink:0}
+.tbl::before{content:'';position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+.tbl-no{position:absolute;left:calc(50% - 33px);top:calc(50% - 33px);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
+.tbl-nm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;text-align:center;font-size:11px;font-weight:500;color:var(--accent);line-height:1.2;word-break:keep-all}
+.seat{position:absolute;transform:translate(-50%,-50%);max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;color:var(--sub);padding:3px 7px;border-radius:11px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 2px rgba(28,27,25,.05)}
+.seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
+.tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
+.tbl-empty{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);font-size:10px;color:var(--light)}
+.foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
+.state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
+.state .sm{font-size:12px;color:var(--light);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Moment Edit</div>
+  <div id="root"><div class="state">좌석 안내를 불러오는 중이에요…</div></div>
+</div>
+<script>
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+function fmtDate(ymd){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
+  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
+  return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
+}
+function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+
+var TABLES=[];   // 렌더된 테이블(하이라이트용)
+function seatPos(n,i,r){ var a=(-90+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
+function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*30; }
+function render(seat){
+  var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
+  var date=fmtDate(seat.date);
+  var tables=(seat.tables||[]);
+  TABLES=tables;
+  function tblCard(t, gidx, row){
+    var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
+    var n=seats.length, chips='';
+    if(n){ seats.forEach(function(nm,i){ var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; }); }
+    else { chips='<div class="tbl-empty">준비 중</div>'; }
+    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+(gidx+1)+'</span><span class="tbl-nm">'+esc(t.name||('테이블 '+(gidx+1)))+'</span>'+chips+'</div>';
+  }
+  var L='', R='', li=0, ri=0;
+  tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++); else L+=tblCard(t,i,li++); });
+  var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
+    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
+    +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
+    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="colh">—</div>')+'</div></div>';
+  $('root').innerHTML =
+    '<div class="card">'
+    +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="lead">두 분의 결혼을 축하합니다.<br>아래에서 성함을 검색하시면 자리를 안내해 드려요.</div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
+    + room
+    +'<div class="foot">자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
+    +'</div>';
+  var q=$('q'); if(q) q.addEventListener('input', function(){ findSeat(q.value); });
+}
+function findSeat(v){
+  v=String(v||'').trim();
+  var seatEls=document.querySelectorAll('[data-seat]'), tblEls=document.querySelectorAll('[data-tbl]');
+  seatEls.forEach(function(el){ el.classList.remove('hit'); });
+  tblEls.forEach(function(el){ el.classList.remove('hit'); });
+  $('fr').innerHTML='';
+  if(!v) return;
+  var lc=v.toLowerCase(), hitG=-1, first=null;
+  seatEls.forEach(function(el){
+    var nm=(el.textContent||'').trim().toLowerCase();
+    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); if(hitG<0){ hitG=+el.getAttribute('data-g'); first=el; } }
+  });
+  if(hitG>=0){
+    var tb=document.querySelector('[data-tbl="'+hitG+'"]'); if(tb) tb.classList.add('hit');
+    var t=TABLES[hitG]||{};
+    $('fr').innerHTML='<b>'+esc(t.name||('테이블 '+(hitG+1)))+'</b> 자리예요 · '+(hitG+1)+'번 테이블';
+    if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+  } else {
+    $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
+  }
+}
+(function boot(){
+  var t=qp('t');
+  if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
+  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.ok && d.seat){ render(d.seat); }
+      else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+    })
+    .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });
+})();
+</script>
+</body>
+</html>
