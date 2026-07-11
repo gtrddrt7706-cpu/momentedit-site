@@ -35,18 +35,18 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find input:focus{outline:none;border-color:var(--gold-deep)}
 .find-res{min-height:18px;text-align:center;font-size:12.5px;color:var(--gold-deep);margin-top:8px}
 .find-res b{color:var(--seal);font-weight:600}
-.stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:6px;padding:6px;margin:16px 0 8px}
-.room{display:flex;gap:10px;align-items:flex-start}
-.col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center}
-.tbl{border:1px solid var(--border);border-radius:12px;padding:10px 9px 9px;background:#FCFBF9}
-.tbl-h{display:flex;align-items:center;gap:6px;margin-bottom:7px}
-.tbl-no{width:19px;height:19px;flex-shrink:0;border-radius:50%;background:var(--accent);color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center}
-.tbl-nm{font-size:12.5px;font-weight:500}
-.seat{font-size:12px;color:var(--sub);padding:5px 8px;border-radius:6px;background:#fff;border:1px solid var(--border);margin-bottom:4px}
-.seat:last-child{margin-bottom:0}
+.stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:16px 0 6px}
+.room{display:flex;gap:6px;align-items:flex-start}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px;align-items:center}
+.colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-4px}
+.tbl{position:relative;width:150px;height:150px;flex-shrink:0}
+.tbl::before{content:'';position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+.tbl-no{position:absolute;left:calc(50% - 33px);top:calc(50% - 33px);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
+.tbl-nm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;text-align:center;font-size:11px;font-weight:500;color:var(--accent);line-height:1.2;word-break:keep-all}
+.seat{position:absolute;transform:translate(-50%,-50%);max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;color:var(--sub);padding:3px 7px;border-radius:11px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 2px rgba(28,27,25,.05)}
 .seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
-.tbl.hit{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,154,117,.25)}
+.tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
+.tbl-empty{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);font-size:10px;color:var(--light)}
 .foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
 .state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
@@ -70,23 +70,25 @@ function fmtDate(ymd){
 function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
+function seatPos(n,i,r){ var a=(-90+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
+function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*13; }
 function render(seat){
-  var names=(seat.groom||'')+((seat.groom&&seat.bride)?'':'')+'';
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
   var date=fmtDate(seat.date);
   var tables=(seat.tables||[]);
   TABLES=tables;
-  function tblCard(t, gidx){
+  function tblCard(t, gidx, row){
     var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
-    var rows=seats.length ? seats.map(function(nm,si){ return '<div class="seat" data-seat data-g="'+gidx+'">'+esc(nm)+'</div>'; }).join('')
-                          : '<div class="seat" style="color:var(--light);border-style:dashed">준비 중</div>';
-    return '<div class="tbl" data-tbl="'+gidx+'"><div class="tbl-h"><span class="tbl-no">'+(gidx+1)+'</span><span class="tbl-nm">'+esc(t.name||('테이블 '+(gidx+1)))+'</span></div>'+rows+'</div>';
+    var n=seats.length, chips='';
+    if(n){ seats.forEach(function(nm,i){ var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; }); }
+    else { chips='<div class="tbl-empty">준비 중</div>'; }
+    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+(gidx+1)+'</span><span class="tbl-nm">'+esc(t.name||('테이블 '+(gidx+1)))+'</span>'+chips+'</div>';
   }
-  var L='', R='';
-  tables.forEach(function(t,i){ var h=tblCard(t,i); if(String(t.side||'L')==='R') R+=h; else L+=h; });
+  var L='', R='', li=0, ri=0;
+  tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++); else L+=tblCard(t,i,li++); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
-    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="seat" style="border-style:dashed;color:var(--light)">—</div>')+'</div>'
-    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="seat" style="border-style:dashed;color:var(--light)">—</div>')+'</div></div>';
+    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
+    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="colh">—</div>')+'</div></div>';
   $('root').innerHTML =
     '<div class="card">'
     +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
