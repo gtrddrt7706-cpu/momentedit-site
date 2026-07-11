@@ -36,7 +36,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find-res{min-height:18px;text-align:center;font-size:12.5px;color:var(--gold-deep);margin-top:8px}
 .find-res b{color:var(--seal);font-weight:600}
 .stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:16px 0 6px}
-.room{display:flex;gap:6px;align-items:flex-start}
+.room{display:flex;gap:2px;align-items:stretch}
+.aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
+.aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
 .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px;align-items:center}
 .colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-4px}
 .tbl{position:relative;width:150px;height:150px;flex-shrink:0}
@@ -71,7 +73,7 @@ function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
 function seatPos(n,i,r){ var a=(-90+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
-function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*13; }
+function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*30; }
 function render(seat){
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
   var date=fmtDate(seat.date);
@@ -88,6 +90,7 @@ function render(seat){
   tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++); else L+=tblCard(t,i,li++); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
     +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
+    +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
     +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="colh">—</div>')+'</div></div>';
   $('root').innerHTML =
     '<div class="card">'
