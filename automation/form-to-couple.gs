@@ -274,15 +274,15 @@ function onCoupleFormSubmit(e) {
     }
 
     // 5) URL
-    var liveUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';
+    var onlineUrl = designOnline ? (CFG.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + encodeURIComponent(eventId)) : '';
     var familyUrl = designFamily ? (CFG.SITE_BASE + '/i-family/family-' + designFamily + '.html?e=' + encodeURIComponent(eventId)) : '';
     // 라이브(입장) 페이지 — QR 대상. 디지털 참석/입장QR 선택 시에만(종이 청첩장에 넣어 공유용)
     var enterUrl = (makeOnline === 'Y') ? (CFG.SITE_BASE + '/live.html?e=' + encodeURIComponent(eventId)) : '';
-    Logger.log('[OK] %s · row %s\n  digital: %s\n  family: %s\n  live(QR): %s', eventId, rowNum, liveUrl || '(미발행)', familyUrl || '(미발행)', enterUrl || '(없음)');
+    Logger.log('[OK] %s · row %s\n  online(청첩장): %s\n  family: %s\n  live(QR): %s', eventId, rowNum, onlineUrl || '(미발행)', familyUrl || '(미발행)', enterUrl || '(없음)');
 
     // 6) 부부 자동 메일
     try {
-      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), liveUrl, familyUrl, enterUrl, g('결혼식 날짜'), g('결혼식 시간'));
+      sendCoupleEmail(g('신랑 이메일'), g('신부 이메일'), g('신랑 한글 이름'), g('신부 한글 이름'), onlineUrl, familyUrl, enterUrl, g('결혼식 날짜'), g('결혼식 시간'));
     } catch (mailErr) {
       Logger.log('  (이메일 발송 실패: ' + mailErr.message + ')');
       // silent 사고 차단 — 시트엔 정상인데 부부가 못 받는 경우를 즉시 인지
@@ -449,7 +449,7 @@ function setupVimeoGuard() {
 }
 
 // ===================== 부부 URL 자동 이메일 =====================
-function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, familyUrl, enterUrl, weddingDate, weddingTime) {
+function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, onlineUrl, familyUrl, enterUrl, weddingDate, weddingTime) {
   var _seen = {};
   var to = [groomEmail, brideEmail]
     .map(function (em) { return String(em || '').trim(); })
@@ -457,7 +457,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
     .filter(function (em) { var k = em.toLowerCase(); if (_seen[k]) return false; _seen[k] = 1; return true; })
     .join(',');
   if (!to) { Logger.log('  (수신 이메일 없음 — 메일 건너뜀)'); return; }
-  if (!liveUrl && !familyUrl && !enterUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
+  if (!onlineUrl && !familyUrl && !enterUrl) { Logger.log('  (URL 없음 — 메일 건너뜀)'); return; }
 
   // 라이브(입장) 페이지 링크 → QR 변환(있을 때만 · 실패해도 메일은 정상 발송)
   var qrBlob = null;
@@ -470,7 +470,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   }
 
   var opts = {
-    htmlBody: buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, !!qrBlob, weddingDate, weddingTime),
+    htmlBody: buildCoupleEmailHtml(groomName, brideName, onlineUrl, familyUrl, !!qrBlob, weddingDate, weddingTime),
     name: 'Moment Edit', from: CFG.STUDIO_EMAIL
   };
   if (qrBlob) {
@@ -480,7 +480,7 @@ function sendCoupleEmail(groomEmail, brideEmail, groomName, brideName, liveUrl, 
   GmailApp.sendEmail(to, '[Moment Edit] 두 분의 청첩장이 준비되었습니다', '', opts);
   Logger.log('  (이메일 발송 → ' + to + (qrBlob ? ' · QR 포함' : '') + ')');
 }
-function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, hasQr, weddingDate, weddingTime) {
+function buildCoupleEmailHtml(groomName, brideName, onlineUrl, familyUrl, hasQr, weddingDate, weddingTime) {
   var esc = function (s) { return String(s || '').replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
   var who = (groomName && brideName) ? (esc(groomName) + ' · ' + esc(brideName)) : '두 분';
   var when = String(weddingDate || '').trim();
@@ -493,7 +493,7 @@ function buildCoupleEmailHtml(groomName, brideName, liveUrl, familyUrl, hasQr, w
       '<a href="' + escUrl + '" style="display:inline-block;word-break:break-all;font-size:13px;color:#D8B48C;">' + escUrl + '</a></div>';
   };
   var links = '';
-  if (liveUrl) links += row('온라인 청첩장', '멀리 계신 하객용', liveUrl);
+  if (onlineUrl) links += row('온라인 청첩장', '멀리 계신 하객용', onlineUrl);
   if (familyUrl) links += row('오프라인 청첩장', '가족·가까운 분들께', familyUrl);
   var editNote = '내용을 고치고 싶으시면 <a href="' + CFG.SITE_BASE + '/form" style="color:#D8B48C;">momentedit.kr/form</a>에서 다시 작성해 주세요.<br>같은 성함·날짜로 제출하시면 자동으로 갱신됩니다.';
   return '' +
