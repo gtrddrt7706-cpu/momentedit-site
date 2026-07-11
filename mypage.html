@@ -534,11 +534,14 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-ai-res .r-line{font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);line-height:1.75}
 .dn-dots::after{content:'';display:inline-block;width:18px;text-align:left;animation:dnDots 1.2s steps(4,end) infinite}
 @keyframes dnDots{0%{content:''}25%{content:'·'}50%{content:'··'}75%{content:'···'}}
-.dnc-typing .dn-dots::after{width:30px;font-size:20px;letter-spacing:2px;color:var(--label-soft,#9a9182);vertical-align:middle}
-.dn-ai-cue{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9a7b3f);text-align:center;margin:9px 0 0;line-height:1.5}
-.dn-ai-cue .ar{display:inline-block;animation:dnCueAr 1.4s ease-in-out infinite}
+.dnc-typing{align-self:flex-start;padding:13px 16px}
+.dnc-typing .td{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--label-soft,#9a9182);margin:0 2.5px;vertical-align:middle;animation:tdBounce 1.3s infinite ease-in-out}
+.dnc-typing .td:nth-child(2){animation-delay:.18s}.dnc-typing .td:nth-child(3){animation-delay:.36s}
+@keyframes tdBounce{0%,70%,100%{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-4px)}}
+.dnc-cue{align-self:center;max-width:100%;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9a7b3f);text-align:center;line-height:1.55;padding:2px 6px 0}
+.dnc-cue .ar{display:inline-block;animation:dnCueAr 1.4s ease-in-out infinite}
 @keyframes dnCueAr{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-@media(prefers-reduced-motion:reduce){.dn-ai-cue .ar{animation:none}}
+@media(prefers-reduced-motion:reduce){.dnc-typing .td,.dnc-cue .ar{animation:none}}
 .inv-prev{margin:14px 0;padding:18px 16px;border:1px dashed var(--border);border-radius:8px;text-align:center;background:var(--gold-bg,#faf6ef)}
 .ivp-names{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
 .ivp-title{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:8px}
@@ -3774,8 +3777,9 @@ function bindTrk(box, render, collect, opt){
       // 고객 글은 진사 말풍선(우)으로 즉시 올리고, AI 답변 자리(좌)에 점점점 표시(응답 오면 재렌더로 교체)
       var _mg=$('dncMsgs'), _typing=null;
       if(_mg){
+        var _oc=_mg.querySelector('.dnc-cue'); if(_oc) _oc.parentNode.removeChild(_oc);   // 이전 안내는 새 대화 아래로 재배치(순서 유지)
         var _ub=document.createElement('div'); _ub.className='dnc-m dnc-u'; _ub.textContent=t; _mg.appendChild(_ub);
-        _typing=document.createElement('div'); _typing.className='dnc-m dnc-b dnc-typing'; _typing.setAttribute('aria-label','답변 준비 중'); _typing.innerHTML='<span class="dn-dots"></span>'; _mg.appendChild(_typing);
+        _typing=document.createElement('div'); _typing.className='dnc-m dnc-b dnc-typing'; _typing.setAttribute('aria-label','답변 준비 중'); _typing.innerHTML='<span class="td"></span><span class="td"></span><span class="td"></span>'; _mg.appendChild(_typing);
         _mg.scrollTop=_mg.scrollHeight;
       }
       var _rmTyping=function(){ if(_typing&&_typing.parentNode) _typing.parentNode.removeChild(_typing); };
@@ -4039,12 +4043,13 @@ function dineFilterUI(d, wt){
     + '<div class="dn-ai-rule"></div>'
     + '<div class="dnc-msgs" id="dncMsgs">'
     + '<div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'
-    + msgs + '</div>'
+    + msgs
+    + (chat.length?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요 <span class="ar" aria-hidden="true">↓</span></div>':'')   // 안내를 대화창 안(마지막 메시지)으로 — 바로 보이게
+    + '</div>'
     + placeCards
     + (chat.length?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="예: 애 둘 데리고 갈 만한 곳 있을까요?" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
-    + (chat.length?'<div class="dn-ai-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요 <span class="ar" aria-hidden="true">↓</span></div>':'')   // 결과가 아래 리스트로 나온다는 안내(대화 시작 후 상시)
     + '</div>';
   var orDiv='<div class="dn-or"><span>또는, 직접 골라보기</span></div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
