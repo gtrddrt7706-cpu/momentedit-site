@@ -3411,6 +3411,9 @@ function startInvFlow(inv, base){
   var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
   if(!dr.method) st='method';
   else if((dr.method==='self'||dr.method==='none') && (st==='parents'||st==='design')) st='confirm';
+  var _pu=dr.invitationUrls||{}, _hasPub=!!(_pu.online||_pu.family||_pu.live);
+  if(inv && inv.published && _hasPub) st='done';              // 발행됨 · 수정 → 확인 단계가 아니라 완성 화면(링크·QR)부터(2026-07-11 사용자 지시)
+  else if(st==='done' && !_hasPub) st='confirm';              // 저장된 done인데 링크가 없으면 안전하게 확인 단계로
   var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
@@ -3460,6 +3463,7 @@ function renderInvFlow(box){
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);
   else if(INVFLOW.step==='design') invStepDesign(box);
+  else if(INVFLOW.step==='done') invStepDone(box,{ok:true,urls:INVFLOW.draft.invitationUrls||{},eventId:INVFLOW.draft.eventId||''});   // 발행됨 재진입 — 저장된 링크로 완성 화면 복원(재발행 불필요)
   else invStepConfirm(box);
 }
 function invStepMethod(box){
@@ -3728,7 +3732,10 @@ function doPublishInv(box){
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
   var dr=INVFLOW.draft, sendDraft=(dr.method==='self'&&!dr.selfQR)?Object.assign({},dr,{method:'none'}):dr;   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X)
   api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
-    if(r&&r.ok) invStepDone(box, r);
+    if(r&&r.ok){
+      if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
+      invStepDone(box, r);
+    }
     else reset((r&&r.error)||'발행에 실패했습니다.');
   }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
 }
