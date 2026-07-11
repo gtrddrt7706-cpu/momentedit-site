@@ -556,8 +556,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-ai-res .r-line{font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);line-height:1.75}
 .dn-dots::after{content:'';display:inline-block;width:18px;text-align:left;animation:dnDots 1.2s steps(4,end) infinite}
 @keyframes dnDots{0%{content:''}25%{content:'·'}50%{content:'··'}75%{content:'···'}}
-.dnc-typing{opacity:.85}
-.dnc-typing .dn-dots::after{width:28px;font-size:18px;letter-spacing:2px;color:var(--label-soft,#9a9182)}
 .dn-ai-cue{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9a7b3f);text-align:center;margin:9px 0 0;line-height:1.5}
 .dn-ai-cue .ar{display:inline-block;animation:dnCueAr 1.4s ease-in-out infinite}
 @keyframes dnCueAr{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
@@ -4090,11 +4088,8 @@ function bindTrk(box, render, collect, opt){
       if(!t){ if(er)er.textContent='누구와 함께 보내실지 한 줄 들려주세요.'; return; }
       collect();
       var d2=TRKFLOW.draft; d2._chat=(d2._chat||[]).concat([{role:'user',content:t}]).slice(-10);
-      if(btn){ btn.disabled=true; btn.innerHTML='<span class="dn-dots" style="color:#fff"></span>'; }   // 정지 '…' → 움직이는 점(진행감)
+      if(btn){ btn.disabled=true; btn.innerHTML='<span class="dn-dots" style="color:#fff"></span>'; }   // 보내기 버튼(진사)만 움직이는 점(진행감) · 채팅 말풍선은 두지 않음
       if(inp){ inp.value=''; }
-      var _mg0=$('dncMsgs'), _typing=null;   // 채팅에 '입력 중' 말풍선(응답 오면 재렌더로 사라짐)
-      if(_mg0){ _typing=document.createElement('div'); _typing.className='dnc-m dnc-b dnc-typing'; _typing.innerHTML='<span class="dn-dots"></span>'; _mg0.appendChild(_typing); _mg0.scrollTop=_mg0.scrollHeight; }
-      var _rmTyping=function(){ if(_typing&&_typing.parentNode) _typing.parentNode.removeChild(_typing); };
       fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat})})
         .then(function(_rr){return _rr.json();})
         .then(function(r){
@@ -4110,11 +4105,11 @@ function bindTrk(box, render, collect, opt){
             render(box);
             var mg=$('dncMsgs'); if(mg) mg.scrollTop=mg.scrollHeight;
           } else {
-            _rmTyping(); if(btn){ btn.disabled=false; btn.textContent='보내기'; }
+            if(btn){ btn.disabled=false; btn.textContent='보내기'; }
             var er2=$('dn_aiErr'); if(er2) er2.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.';
           }
         })
-        .catch(function(){ _rmTyping(); var b=$('dncSend'); if(b){ b.disabled=false; b.textContent='보내기'; } var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
+        .catch(function(){ var b=$('dncSend'); if(b){ b.disabled=false; b.textContent='보내기'; } var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
     };
     _dncF.addEventListener('submit',function(e){ e.preventDefault(); _dncGo(); });
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ _dncGo(el.getAttribute('data-sgg')); }); });
