@@ -1210,7 +1210,7 @@ $('loginForm').addEventListener('submit', function(e){
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
-    else { showErr('li_err', (d&&d.error)||'로그인에 실패했습니다.'); }
+    else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('li_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Login'; });
 });
@@ -1803,8 +1803,8 @@ function renderLedger(l){
     function reset(){ lbs.disabled=false; lbs.textContent='입금했어요'; }
     var cr=(($('mp_lbCR')&&$('mp_lbCR').value)||'').trim();
     api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
   // ★재렌더 복원 — 펼쳐뒀던 패널을 새 상태 기준으로 다시 연다(예식일 변경 위저드·잔금 결제 안내)
   if(chgWasOpen && lc){ lc.textContent='닫기'; var _rpn=$('mp_ledChgPanel'); if(_rpn) renderChangeWizard(window._mpStateD||{}, _rpn); }
@@ -1817,8 +1817,8 @@ function doEditCashReceipt(tail){
     if(!ok) return;
     var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
     api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장에 실패했습니다.'); }
-    }).catch(function(){ mpAlert('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
@@ -1879,15 +1879,15 @@ function doHoldEdit(h){
     if(!d||!t){ mpAlert('예식 날짜와 시간을 모두 선택해 주세요.').then(function(){ doHoldEdit({date:d||((h&&h.date)||''),slot:t||((h&&h.slot)||'')}); }); return; }
     api({action:'changeWeddingHold', token:getToken(), date:d, slot:t}).then(function(r){
       if(r&&r.ok){ loadMyState(); }
-      else { mpAlert((r&&r.error)||'변경 요청에 실패했습니다.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
-    }).catch(function(){ mpAlert('변경 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      else { mpAlert((r&&r.error)||'변경 요청이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
+    }).catch(function(){ mpAlert('변경 요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [임시고정 셀프 관리] 취소 — 잡아둔 예식 일정 해제(언제든 재요청 가능)
 function doHoldCancel(){
   mpModalOpen({ title:'예식일 임시 고정을 취소할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">잡아둔 예식 일정이 풀려요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'고정 취소', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
-    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소에 실패했습니다.'); } }).catch(function(){ mpAlert('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); } }).catch(function(){ mpAlert('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 
@@ -1916,7 +1916,7 @@ function renderRefundBank(rb){
     btn.disabled=true; btn.textContent='저장 중…';
     api({action:'saveRefundAccount', token:getToken(), acct:v}).then(function(r){
       if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경'; }
-      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'; btn.textContent='계좌 저장'; }
+      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'; btn.textContent='계좌 저장'; }
       btn.disabled=false;
     }).catch(function(){ msg.style.color='var(--seal)'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; btn.disabled=false; btn.textContent='계좌 저장'; });
   });
@@ -1992,13 +1992,13 @@ function doCancelRes(){
   var btn=$('mp_cancelConfirm'); if(btn){ btn.disabled=true; btn.textContent='취소 처리 중…'; }
   function reset(msg){ if(errEl) errEl.textContent=msg||''; if(btn){ btn.disabled=false; btn.textContent='취소 확정'; } }
   api({action:'cancelReservation', token:getToken(), acct:acct}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소에 실패했습니다.'); }
-  }).catch(function(){ reset('취소에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); }
+  }).catch(function(){ reset('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 function doAcceptProp(){
   api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락에 실패했습니다.'); }
-  }).catch(function(){ mpAlert('수락에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); }
+  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
@@ -2045,8 +2045,8 @@ function doSignFitting(){
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
     api({action:'signFittingConsent', token:getToken(), signature:sig}).then(function(d){
       if (d && d.ok){ loadMyState(); }
-      else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 
@@ -2136,8 +2136,8 @@ function doRequestContract(){
   var btn=$('mp_ciSubmit'); if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 요청하기'; } }
   api({action:'requestContract', token:getToken(), info:info}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청에 실패했습니다.'); reset(); }
-  }).catch(function(){ fail('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ fail('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // [02-3+02-4 병합] 본 계약 + 계약금을 한 카드로 — 어차피 한 번에 진행. 서명 → 같은 카드에서 계약금 → 완료 시 접힘.
@@ -2204,8 +2204,8 @@ function renderContractPayment(c, p, ctx){
         rs.disabled=true; rs.textContent='요청 중…';
         api({action:'requestContractResend', token:getToken()}).then(function(r){
           if(r&&r.ok){ rs.textContent='요청했어요 · 곧 보내드릴게요'; }
-          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청에 실패했습니다.'); }
-        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
+        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
       });
       return;
     }
@@ -2389,8 +2389,8 @@ function renderChangeWizard(ctx, host){
           +'<div class="cc-note" style="text-align:center">디렉터 확인 후 적용돼요 · 적용되면 카카오톡으로 알려드려요</div>'
           +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgDoneOk">확인</button></div></div>';
         var ok=$('mp_chgDoneOk'); if(ok) ok.addEventListener('click', function(){ loadMyState(); });
-      } else { _err((r&&r.error)||'요청에 실패했습니다.'); reset(); }
-    }).catch(function(){ _err('요청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      } else { _err((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ _err('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 // [02-9] 변경 요청 철회 — 동의기록.변경요청 삭제(기존 예식일 유지). 언제든 다시 요청 가능.
@@ -2398,8 +2398,8 @@ function doCancelWeddingChange(){
   mpModalOpen({ title:'변경 요청을 철회할까요?', bodyHtml:'<div style="text-align:left;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all">요청하신 예식일 변경이 취소되고 기존 예식일이 그대로 유지돼요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'요청 철회', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
     api({action:'cancelWeddingChange', token:getToken()}).then(function(r){
-      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회에 실패했습니다.'); }
-    }).catch(function(){ mpAlert('철회에 실패했습니다. 잠시 후 다시 시도해 주세요.'); });
+      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회가 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ mpAlert('철회가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
   });
 }
 // [02-3] 서명본 자동 보관 — 채워진+서명된 계약서를 숨김 iframe으로 렌더해 자기완결 HTML로 직렬화. cb(html)·실패 시 cb(''). 베스트에포트(서명 흐름 방해 X).
@@ -2431,8 +2431,8 @@ function doSignContract(){
     _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
       api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
         if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
-        else { mpAlert((d && d.error) || '서명에 실패했습니다.'); reset(); }
-      }).catch(function(){ mpAlert('서명에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+        else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
+      }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
     });
   });
 }
@@ -2630,8 +2630,8 @@ function doBalanceSignal(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_bCR')&&$('mp_bCR').value)||'').trim();
   api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 // [02-4b] 중도금 카드 — 결제 마일스톤(D-149). 잔금 '함께 결제'(합계)·잔금 기한(D-9) 이내 합계 자동 흡수.
 function renderMid(p, bal){
@@ -2698,8 +2698,8 @@ function doMidSignal(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_mCR')&&$('mp_mCR').value)||'').trim();
   api({action:'midSignal', token:getToken(), payerName:payer, withBalance:combo, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doPaySignal(){
   var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
@@ -2709,8 +2709,8 @@ function doPaySignal(){
   var cr=(($('mp_payerCR')&&$('mp_payerCR').value)||'').trim();
   api({action:'paymentSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
     if(d&&d.ok){ loadMyState(); }
-    else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // ============================ 카드결제 (토스페이먼츠) · 프론트 — 사전 구축 · 기능 플래그 OFF면 전부 비활성 ============================
@@ -2731,7 +2731,7 @@ var meCardPay = (function(){
   function newOrderId(){ return 'ME'+Date.now()+Math.floor(Math.random()*1e6); }
   function pay(milestone, amount, btn){
     var reset=function(){ if(btn){ btn.disabled=false; btn.textContent='카드로 결제'; } };   // 실패 시에만 복구(성공하면 토스로 리다이렉트되어 페이지가 떠남)
-    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요.'); return; }
+    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요. 잠시 후 다시 열어 주세요.'); return; }
     if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요.'); return; }
     if(btn){ btn.disabled=true; btn.textContent='결제창 여는 중…'; }   // 더블탭 방지 · 반응감
     loadSdk(function(){
@@ -3134,8 +3134,8 @@ function doSubmitSelection(){
   function send(){ if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
     api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); }); }
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); }); }
   var inc=pcEl?(+(pcEl.getAttribute('data-inc')||10)):10, n=_resCount(picks);
   if(n>inc){ mpConfirm({ title:'이대로 제출할까요?', body:'고르신 '+n+'컷 = 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷이에요.\n추가 '+(n-inc)+'컷은 다음 ③ 단계에서 결제 안내를 드려요.', yes:'네, 제출할게요', no:'다시 고를게요' }).then(function(ok){ if(ok) send(); }); }
   else send();
@@ -3146,8 +3146,8 @@ function doConfirmRetouch(){
     var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
     api({action:'confirmRetouch', token:getToken()}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-    }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
   });
 }
 function doSubmitSurvey(res){
@@ -3164,8 +3164,8 @@ function doSubmitSurvey(res){
   var btn=$('mp_svSubmit'); if(btn){ btn.disabled=true; btn.textContent='보내는 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='후기 보내기'; } }
   api({action:'submitSurvey', token:getToken(), answers:answers, review:review, reviewPublic:pub}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doRequestExtra(){
   var qty=Math.floor(Number(($('mp_exQty')&&$('mp_exQty').value)||0));
@@ -3173,8 +3173,8 @@ function doRequestExtra(){
   var btn=$('mp_exReq'); if(btn){ btn.disabled=true; btn.textContent='신청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='추가 보정 신청'; } }
   api({action:'requestExtraRetouch', token:getToken(), qty:qty}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('신청에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('신청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doExtraSignal(){
   var payer=(($('mp_exPayer')&&$('mp_exPayer').value)||'').trim();
@@ -3182,8 +3182,8 @@ function doExtraSignal(){
   var btn=$('mp_exSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   api({action:'extraRetouchSignal', token:getToken(), payerName:payer}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리에 실패했습니다.'); reset(); }
-  }).catch(function(){ mpAlert('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'); reset(); });
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 // 구버전(결과물 status 없음) 폴백 — 셀렉트 백엔드 배포 전까지 기존 카드 그대로(①④⑤ 링크, ②③ 자리).
 function renderResultLegacy(res, box){
@@ -3784,8 +3784,8 @@ function doPublishInv(box){
       if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
       invStepDone(box, r);
     }
-    else reset((r&&r.error)||'발행에 실패했습니다.');
-  }).catch(function(){ reset('발행에 실패했습니다. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
+    else reset((r&&r.error)||'발행이 안 됐어요. 한 번 더 눌러 주세요.');
+  }).catch(function(){ reset('발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
 }
 // (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.
 //   디자인별 예시 이미지는 3단계(디자인 선택)의 각 섹션에 인라인으로 계속 노출.
@@ -4015,12 +4015,12 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
-    if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장에 실패했어요. 다시 시도해 주세요.'); }); return; }
+    if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); }); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
       var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
       saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW.token=r.seatToken||SEATFLOW.token; renderSeat(box); var sp=box.querySelector('.seat-share'); if(sp){ try{ sp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } } else { b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
-        .catch(function(){ b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr('저장에 실패했어요. 다시 시도해 주세요.'); });
+        .catch(function(){ b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
       return;
     }
   });
@@ -4130,7 +4130,7 @@ function bindTrk(box, render, collect, opt){
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
     if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
       saveTrkDraft(true).then(function(r){
-        if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
+        if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
         TRKFLOW.active=false; loadMyState();
       }); return; }
     var _go=function(){ saveTrkDraft(false); TRKFLOW.step++; render(box); };
@@ -4849,7 +4849,7 @@ $('forgotForm').addEventListener('submit', function(e){
         ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸습니다. 메일함을 확인해 주세요.'
         : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸습니다. 메일함을 확인해 주세요.';
       ok.classList.add('show');
-    } else { showErr('fg_err',(d&&d.error)||'요청에 실패했습니다.'); }
+    } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
   }).catch(function(){ showErr('fg_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Send'; });
 });
@@ -4870,7 +4870,7 @@ $('resetForm').addEventListener('submit', function(e){
       cleanUrl();
       if (d.token) loadMyState();
       else { show('loginView'); softLoginNote('비밀번호가 변경되었습니다. 다시 로그인해 주세요.'); }
-    } else { showErr('rs_err',(d&&d.error)||'재설정에 실패했습니다.'); }
+    } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('rs_err'); })
   .then(function(){ btn.disabled=false; btn.textContent='Reset'; });
 });
