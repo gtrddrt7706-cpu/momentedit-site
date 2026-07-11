@@ -184,6 +184,7 @@ function adminCall(token, fn, args) {
       aiFactsList: aiFactsList, aiFactSet: aiFactSet, aiFactDelete: aiFactDelete, aiFactHistory: aiFactHistory, aiFactRollback: aiFactRollback,
       aiRegList: aiRegList, aiRegAdd: aiRegAdd, aiRegSetActive: aiRegSetActive, aiRegDelete: aiRegDelete,
       adminListLeads: adminListLeads, adminResolveLead: adminResolveLead, aiQuestionResolve: aiQuestionResolve,
+      adminIssueCoupon: adminIssueCoupon, adminRevokeCoupon: adminRevokeCoupon,
       solapiUsageSummary: solapiUsageSummary
     };
     var f = FNS[fn];
@@ -926,6 +927,7 @@ function adminDetail(code) {
     시착동의일시: String(cust.get('시착동의일시') || ''),
     입금완료신호: String(cust.get('입금완료신호') || ''),
     입금자명: String(cust.get('입금자명') || ''),
+    쿠폰상태: String(cust.get('쿠폰상태') || ''),   // 커피쿠폰(후기 완주 보상) — 발급/회수. 발급 버튼·회수 버튼 게이트용
     결제수단: _rec.결제수단 || {}   // 카드결제 마커(98_pay_card) — 관리자 화면 '카드' 뱃지·환불 주의 표기용
   };
 
@@ -1504,6 +1506,45 @@ function adminMarkDelivered(code, force) {
 }
 
 // 4-1. 후기 넘기기 — 후기 미작성 고객을 수동 마감 → 설문상태=건너뜀 → 아카이브
+// [보상] 커피쿠폰 발급 — 관리자가 바코드 이미지(base64 data URI, 최대 2장)+사용기한 저장 → 고객 마이페이지에 표시
+function adminIssueCoupon(code, images, expiry, title) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var imgs = [];
+    if (Object.prototype.toString.call(images) === '[object Array]') {
+      for (var i = 0; i < images.length && imgs.length < 2; i++) {
+        var s = String(images[i] || '').trim();
+        if (s.indexOf('data:image/') === 0 && s.length < 40000) imgs.push(s);
+      }
+    }
+    if (!imgs.length) return { ok: false, error: '바코드 이미지를 첨부해 주세요(가벼운 이미지).' };
+    var data = { title: String(title || '스타벅스 커피 2잔').slice(0, 60), images: imgs, expiry: String(expiry || '').slice(0, 10), issuedAt: fmtKST(new Date()), note: '' };
+    var json = JSON.stringify(data);
+    if (json.length > 48000) return { ok: false, error: '이미지 용량이 커요. 더 작은 바코드 이미지로 올려 주세요.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '발급', '쿠폰데이터': json });
+    _recordHandler(code, '커피쿠폰 발급(' + imgs.length + '장' + (data.expiry ? (' · ~' + data.expiry) : '') + ')');
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+// [보상] 커피쿠폰 회수 — 고객이 아직 안 썼으면 마이페이지에서 내림
+function adminRevokeCoupon(code) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '회수', '쿠폰데이터': '' });
+    _recordHandler(code, '커피쿠폰 회수');
+    return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
 function adminSkipSurvey(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
