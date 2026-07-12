@@ -807,9 +807,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;align-items:center}   /* 상하 간격 압축(최소 동선만) — 컨트롤 줄이 테이블 사이 통로 역할 */
     .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
     .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
-    .rt{position:relative;width:150px;height:150px;flex-shrink:0}
-    .rt::before{content:'';position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
-    .rt-no{position:absolute;left:calc(50% - 33px);top:calc(50% - 33px);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
+    .rt{position:relative;width:var(--rt,150px);height:var(--rt,150px);flex-shrink:0;--seatR:calc(var(--rt,150px)*0.36)}   /* --rt=테이블 지름(원·자리·간격이 함께 스케일). 모바일은 작게(레이아웃 상자도 줄어 지그재그 여유 확보) */
+    .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.44);height:calc(var(--rt,150px)*0.44);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+    .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
     .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--accent);text-align:center;width:60px;line-height:1.2;cursor:pointer;padding:0;word-break:keep-all}
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
     .rt-cin:focus{outline:none}
@@ -824,10 +824,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt-mini:active{background:var(--bg2)}
     .rt-mini.rt-del{color:var(--light)}
     .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
-    /* 모바일(≤480px) 컴팩트: ①테이블 더 축소(scale 0.72·비율 유지, margin-bottom 음수로 축소분 세로 회수) ②룸폭 300px로 좁혀 좌우 열을 통로쪽으로 붙임 ③좌우 지그재그 최소(10px) ④상하 간격 최소동선(gap 6·컨트롤 여백 3). 컨트롤 버튼은 크기 유지(탭 편의) */
+    /* 모바일(≤480px) 컴팩트: ①테이블(--rt) 110px로 축소 → 레이아웃 상자도 줄어 지그재그 밀 여유 확보(원·자리 비율 유지) ②지그재그는 뚜렷하게(--zig 24, 일자 방지) ③상하 간격 최소동선(gap 6·컨트롤 여백 3). 컨트롤 버튼은 크기 유지(탭 편의) */
     @media(max-width:480px){
-      .seat-room{--zig:10px;max-width:300px;margin-left:auto;margin-right:auto}
-      .rt{transform:scale(0.72);transform-origin:top center;margin-bottom:-42px}
+      .seat-room{--zig:24px}
+      .rt{--rt:110px}
       .seat-col{gap:6px}
       .rt-ctl{margin-top:3px}
     }
@@ -4022,8 +4022,8 @@ function renderSeat(box){
   function tableEl(t, ti, row){
     var n=t.seats.length, seats='';
     for(var si=0; si<n; si++){
-      var p=_seatPos(n, si, 54), nm=t.seats[si]||'';
-      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
+      var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?escapeHtml(nm):'+')+'</button></div>'; }
     }
