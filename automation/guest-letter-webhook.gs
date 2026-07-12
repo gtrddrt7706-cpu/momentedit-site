@@ -227,13 +227,15 @@ function getCoupleByEventId(eventId) {
  *  - 빈 값은 빈 문자열로 통일
  */
 // 호출 화면(view)의 계좌 표시 토글이 'Y'인지 — 'N'(숨김)이면 계좌를 응답에서 비워 옵트아웃을 데이터 레벨에서도 지킨다.
-//   view 미지정(레거시 직접 호출) — 어느 화면에도 표시 안 하는 계좌만 제외(하나라도 'Y'면 포함). 클라 미배포 구간 안전.
+//   실제 클라(hydrate.js·live.html)는 항상 view를 넘긴다(online·family·live). 계좌는 그 화면 토글이 'Y'일 때만 포함.
+//   ★view 미지정 호출(og-inv 등 봇·미리보기)에는 계좌를 절대 안 준다 → eventId만 알면 계좌를 긁는 대량 수집 방지.
+//     (예전엔 view 없으면 '하나라도 Y면 포함'이라 계좌가 기본 노출됐음 → 보안 강화로 기본 비공개로 변경)
 function _acctVisibleForView(c, view) {
   function yes(v) { return String(v || '').trim().toUpperCase() === 'Y'; }
   if (view === 'online') return yes(c.accountOnline);
   if (view === 'family') return yes(c.accountFamily);
   if (view === 'live')   return yes(c.accountLive);
-  return yes(c.accountOnline) || yes(c.accountFamily) || yes(c.accountLive);
+  return false;   // view 미지정 → 계좌 비공개(기본 안전)
 }
 
 function getCoupleByEventIdFull(eventId, view) {
