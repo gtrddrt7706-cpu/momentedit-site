@@ -810,7 +810,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt{position:relative;width:var(--rt,150px);height:var(--rt,150px);flex-shrink:0;--seatR:calc(var(--rt,150px)*0.36)}   /* --rt=테이블 지름(원·자리·간격이 함께 스케일). 모바일은 작게(레이아웃 상자도 줄어 지그재그 여유 확보) */
     .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.44);height:calc(var(--rt,150px)*0.44);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
     .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
-    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--accent);line-height:1;padding:0;letter-spacing:.01em;pointer-events:none}   /* 테이블 번호 — 깔끔한 세리프 숫자 */
+    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif);font-size:18px;font-weight:600;color:#1c1b19;line-height:1;padding:0;letter-spacing:.01em;pointer-events:none}   /* 테이블 번호 — 중앙 검은색 세리프 숫자 */
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
@@ -4019,7 +4019,7 @@ function commitSeatEdit(box){
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
   function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
-  function tableEl(t, ti, row){
+  function tableEl(t, ti, row, dispNo){
     var n=t.seats.length, seats='';
     for(var si=0; si<n; si++){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
@@ -4027,7 +4027,7 @@ function renderSeat(box){
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?escapeHtml(nm):'+')+'</button></div>'; }
     }
-    var center = '<span class="rt-c">'+(ti+1)+'</span>';   // 중앙엔 깔끔한 숫자만(이름 입력 기능·검은 배지 삭제)
+    var center = '<span class="rt-c">'+(dispNo||(ti+1))+'</span>';   // 중앙엔 행 순서 번호(검은색)
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
     return '<div class="rt-wrap" style="'+tx+'">'
       +'<div class="rt" style="transform:translateX(var(--tx,0))">'+seats+center+'</div>'
@@ -4037,8 +4037,12 @@ function renderSeat(box){
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
       +'</div></div>';
   }
+  // 화면 위→아래 행 순서로 번호 매김(각 행 좌→우): 맨 위 두 테이블=1·2, 다음 행=3·4 …
+  var Ls=[], Rs=[]; s.tables.forEach(function(t,i){ (t.side==='R'?Rs:Ls).push(i); });
+  var num={}, nn=1, mr=Math.max(Ls.length, Rs.length);
+  for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   var L='', R='', li=0, ri=0;
-  s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++); else L+=tableEl(t,i,li++); });
+  s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
