@@ -155,7 +155,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 <script>
 var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:''};
-var mode='build'; var rhMode='auto';
+var mode='build'; var rhMode='auto'; var scriptOpen=false;
+window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
 window.setv=function(k,val){ S[k]=val; };
 window.settgl=function(k,cb){ S[k]=cb.checked; };
 
@@ -204,7 +205,19 @@ var COURSES={
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function narBox(t,end){return '<div class="nar"><span class="lb">성우 나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
-window.mockPlay=function(b){if(b.classList.contains('playing'))return;b.classList.add('playing');var o=b.innerHTML;b.innerHTML='재생 중… (실제 목소리 준비 중)';setTimeout(function(){b.classList.remove('playing');b.innerHTML=o;},1600);};
+var AUD=null, AUDBTN=null, AUDO='';
+function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null; }
+function _playSrc(b,src,label){
+  if(AUDBTN===b){ _stopAud(); return; }
+  _stopAud();
+  AUDBTN=b; AUDO=b.innerHTML; b.classList.add('playing'); b.innerHTML=label;
+  AUD=new Audio(src);
+  AUD.onended=_stopAud;
+  AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(_stopAud,1200); };
+  AUD.play().catch(function(){ b.innerHTML='탭하여 재생'; });
+}
+// 지금은 대표 샘플 목소리 1개를 모든 미리듣기에 재생(실제로 들리는 데모). 완성 후 순서별 실제 파일로 교체.
+window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
 
 var STEPS=[
  {k:'intro',title:'우리 예식, 우리가 만들어요'},
@@ -242,6 +255,7 @@ function render(){
   el.innerHTML=h;
   document.getElementById('prev').disabled=(idx===0);
   var nx=document.getElementById('next');
+  nx.style.display=(st.k==='course')?'none':'block';   // 코스 화면은 카드 버튼(바로완성/다듬기)으로 진행
   nx.textContent=(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
   window.scrollTo(0,0);
 }
@@ -254,7 +268,7 @@ function renderIntro(){
   h+='<div class="ipt"><span class="n">2</span>고를 때마다 나레이션을 미리 들어봐요.</div>';
   h+='<div class="ipt"><span class="n">3</span>완성하면 처음부터 끝까지 이어듣고, 당일 전에 연습해요.</div>';
   h+='</div>';
-  h+='<div class="sample"><div class="st">성우 목소리, 이런 느낌이에요</div><div class="sx">"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다."</div><button class="play" style="margin:0" onclick="mockPlay(this)">대표 목소리 들어보기</button></div>';
+  h+='<div class="sample"><div class="st">성우 목소리, 이런 느낌이에요</div><div class="sx">"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다."</div><button class="play" style="margin:0" onclick="mockPlay(this)">대표 목소리 들어보기</button><div style="font-size:10.5px;color:var(--light);margin-top:9px;line-height:1.6">실제 두 분의 예식에선 이 목소리로 모든 순서가 준비돼요.</div></div>';
   h+='<div class="banner">천천히 둘러보셔도 돼요. 저장해도 예식 9일 전까지 언제든 고칠 수 있어요.</div>';
   return h;
 }
@@ -386,7 +400,7 @@ function prep(){
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
   return p;
 }
-window.listenAll=function(b){ if(b.classList.contains('playing'))return; b.classList.add('playing'); var o=b.innerHTML; b.innerHTML='내 예식 나레이션 재생 중… (실제 목소리 준비 중)'; setTimeout(function(){b.classList.remove('playing');b.innerHTML=o;},2200); };
+window.listenAll=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
 window.copyScript=function(){
   var bs=fullBlocks(), lines=['우리 예식 대본 · 담백 코스',''];
   bs.forEach(function(b){ lines.push('['+b.n+']'); lines.push('성우: '+b.nar); if(b.end) lines.push('성우: '+b.end); if(b.self) lines.push('(직접: '+b.self+')'); lines.push(''); });
@@ -412,14 +426,15 @@ function renderDone(){
   h+='<div class="sec-l">두 분이 직접 하실 부분</div><div class="mine">';
   myParts().forEach(function(m){ h+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
   h+='</div>';
-  h+='<div class="sec-l">순서별 대본</div>';
-  bs.forEach(function(b){
+  h+='<div class="sec-l" style="cursor:pointer" onclick="toggleScript()">순서별 대본 <span style="color:var(--light);font-weight:400">'+(scriptOpen?'접기':'펼치기')+'</span></div>';
+  if(scriptOpen){ bs.forEach(function(b){
     h+='<div class="dblk'+(b.peak?' peak':'')+'"><div class="dblk-h"><span class="dblk-n">'+esc(b.n)+'</span>'+(b.peak?'<span class="dblk-t">감정 정점</span>':'')+'</div>';
     h+=narBox(b.nar,b.end);
     if(b.self) h+='<div class="self"><span class="who">직접 · '+esc(b.self)+'</span></div>';
     h+=playBtn();
     h+='</div>';
-  });
+  }); }
+  else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 성우 나레이션이 준비돼요. 눌러서 전체 대본을 펼쳐 보세요.</div>'; }
   h+='<button class="copy-btn" onclick="copyScript()">대본 텍스트 복사 (서로 공유용)</button>';
   h+='<div class="sec-l">음악, 세 곳만 정하면 돼요</div>';
   h+='<div class="wcard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
