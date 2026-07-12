@@ -554,6 +554,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-preset{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
 .dn-preset button{border:1px solid var(--gold-soft,rgba(184,154,117,.45));background:var(--gold-bg,#faf6ef);border-radius:999px;padding:8px 14px;font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);cursor:pointer;line-height:1.3}
 .dn-preset button:hover{border-color:var(--gold)}
+.dn-preset button.dn-preset-map{background:#fff}   /* '식사 외' 시나리오(키즈·뒷풀이) — 지도에서 찾아주는 칩. 프리셋(채움)과 달리 흰 배경으로 살짝 구분 */
+.dn-preset button.dn-preset-map::before{content:'⌕ ';color:var(--gold-deep,#9a7b3f);font-weight:600}
 .dn-attr{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
 .dn-attr-h{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .dn-attr-h .t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent)}
@@ -4123,7 +4125,7 @@ function bindTrk(box, render, collect, opt){
   var _dnFindByAttr=function(attr,val){ var all=box.querySelectorAll('['+attr+']'); for(var i=0;i<all.length;i++){ if(all[i].getAttribute(attr)===val) return all[i]; } return null; };
   var _dnRerenderKeep=function(find){ var a=find(), top=a?a.getBoundingClientRect().top:null; render(box); if(top!=null){ var b2=find(); if(b2){ var dl=b2.getBoundingClientRect().top-top; if(dl) window.scrollBy(0,dl); } } };
   var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ fn(e); } }); };
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favn]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var _n=el.getAttribute('data-favn'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favn',_n); }); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favcard]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favcard'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favcard',_n); }); }); });   // 카드 전체 = 찜 토글
   Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; if(_dnFavToggle(d3,{n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:p.phone||'',url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:'kakao'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favp',_pi); }); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); _dnRerenderKeep(function(){ return box.querySelector('.dn-favbox')||box.querySelector('.dn-head'); }); }); });
   var _fsh=$('dn_favShare'); if(_fsh){ _fsh.addEventListener('click',function(){
@@ -4313,10 +4315,18 @@ function _dnFavToggle(d,snap){
   d._favs=f; return true;
 }
 function _dnFavShareText(d){
-  var f=d._favs||[], L=['[모먼트에디트] 예식 후 자리 후보 '+f.length+'곳'];
-  for(var i=0;i<f.length;i++){ var v=f[i], r=_dnFind(v.n);
-    L.push((i+1)+'. '+v.n+(v.m?(' · '+v.m):'')+((r&&r.tel)||v.tel?(' · ☎ '+((r&&r.tel)||v.tel)):'')+'\n   지도 '+(v.url&&/^https?:/.test(v.url)?v.url:_dnMapUrl(v.n))); }
-  L.push('함께 보고 골라요 · momentedit.kr');
+  // 카톡·문자 공유 — 이름·정보·전화·지도를 항목별 줄바꿈 + 사이 빈 줄로 읽기 쉽게. 긴 지도 URL은 '지도' 라벨 뒤 한 줄로 분리.
+  var f=d._favs||[], L=['[모먼트에디트] 예식 후 함께 갈 자리 · 후보 '+f.length+'곳',''];
+  for(var i=0;i<f.length;i++){ var v=f[i], r=_dnFind(v.n), tel=(r&&r.tel)||v.tel||'';
+    var url=(v.url&&/^https?:/.test(v.url))?v.url:_dnMapUrl(v.n);
+    L.push((i+1)+'. '+v.n);
+    if(v.m) L.push('   '+v.m);
+    if(tel) L.push('   전화 '+tel);
+    L.push('   지도 '+url);
+    L.push('');   // 항목 사이 빈 줄
+  }
+  L.push('두 분이 함께 보고 골라요.');
+  L.push('momentedit.kr');
   return L.join('\n');
 }
 function _dnPass(r,fl){
@@ -4373,8 +4383,12 @@ function dineFilterUI(d, wt){
       +block('주차',pill('parking','good','주차 넉넉'))
       +block('동행',pill('elderly','true','어르신·좌식 우선'),true)
     +'</div>';
-  var presetRow='<div class="dn-preset-cap">상황으로 빠르게 고르기</div><div class="dn-preset">'
-    +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')+'</div>';
+  // 통합 컨셉 칩 — 식사 자리(프리셋·DB 필터)와 '식사 외' 시나리오(키즈·뒷풀이·지도검색)를 한 줄로. 어느 걸 눌러도 아래 리스트가 그 컨셉으로 채워짐(디렉터 추천 여부와 무관).
+  var _sggChips=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리'];
+  var presetRow='<div class="dn-preset-cap">이런 자리를 찾고 있어요</div><div class="dn-preset">'
+    +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')
+    +_sggChips.map(function(s){return '<button type="button" class="dn-preset-map" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')
+    +'</div>';
   var arr=_DN_ARR[wt||'']||'';
   var bigGroup=(fl.headN==='l'||fl.headN==='xl');   // 대단체 — 단체석·뷔페를 위로
   function _capScore(r){ return ((r.f||[]).indexOf('뷔페')>=0||r.g==='seats')?0:(r.g==='room'?2:1); }
@@ -4402,15 +4416,14 @@ function dineFilterUI(d, wt){
     var _rec=(r.pick&&r.rec)?'<small class="dn-rec">'+escapeHtml(r.rec)+'</small>':'';   // [B] 추천 한줄
     var _vf=r.v?'<small class="dn-vf">디렉터 확인'+(r.vdate?(' · '+escapeHtml(r.vdate)):'')+(r.vnote?(' · '+escapeHtml(r.vnote)):'')+'</small>':'';   // [C] 검증 상세
     var _fav=_dnFavHas(d,r.n);
-    return '<label class="inv-opt dn-hasstar'+(sel?' sel':'')+(r.pick?' dn-haspick':'')+'" data-trkopt="venuePick" data-v="'+escapeHtml(r.n)+'">'
-      +'<span class="dn-star'+(_fav?' on':'')+'" role="button" tabindex="0" data-favn="'+escapeHtml(r.n)+'" data-favm="'+escapeHtml(meta)+'" aria-label="'+(_fav?'찜 해제':'찜하기')+'" aria-pressed="'+_fav+'">'+(_fav?'★':'☆')+'</span>'
+    // 카드 전체가 찜(별표) 토글 — 클릭하면 담기고 다시 누르면 빠짐. 여러 곳 담아 '다음'에서 취합·대표 지정(단일 선택 없음). 찜하면 하이라이트.
+    return '<div class="inv-opt dn-hasstar'+(_fav?' sel':'')+(r.pick?' dn-haspick':'')+'" data-favcard="'+escapeHtml(r.n)+'" data-favm="'+escapeHtml(meta)+'" role="button" tabindex="0" aria-pressed="'+_fav+'" aria-label="'+escapeHtml(r.n)+' '+(_fav?'찜 해제':'찜하기')+'">'
+      +'<span class="dn-star'+(_fav?' on':'')+'" aria-hidden="true">'+(_fav?'★':'☆')+'</span>'
       +escapeHtml(r.n)+_badge
-      +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</label>';
+      +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</div>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
   : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:10px 16px">조건 초기화</button><button type="button" class="cc-btn-ghost" id="dn_askai" style="width:auto;padding:10px 16px">말로 찾아볼까요?</button></div>';
-  // AI 칩 = 아래 식당 리스트로는 못 보여주는 '식사 외' 시나리오만(키즈·뒷풀이 → 카카오 지도). 식사 자리는 아래 프리셋·필터가 처리.
-  // '볼거리'는 칩에서 뺌(2026-06-16): 이 동네는 볼거리 지도 데이터가 약해 라이브 검색이 빈약 → 디렉터 큐레이션 '예식 후 가볼 만한 곳' 섹션이 담당(키즈카페·펍은 지도에 잘 잡혀 칩 유지).
-  var sgg=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리'];
+  // (2026-07-12 통합) 시나리오 칩(키즈·뒷풀이)은 위 컨셉 칩 줄로 이동 · 지도 결과는 아래 리스트 영역에 노출 → AI와 리스트가 한 흐름.
   var chat=d._chat||[];
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
   var placeCards='';
@@ -4433,18 +4446,17 @@ function dineFilterUI(d, wt){
         ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'
           + msgs
           + (d._pendingTyping?'<div class="dnc-m dnc-b dnc-typing" aria-label="답변 준비 중"><span class="td"></span><span class="td"></span><span class="td"></span></div>':'')
-          + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 추천 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
+          + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
-        : '<div class="dn-ai-slim-q">예식 후, 누구와 어떻게 보내실지 한 줄만 적어 주시면 어울리는 곳을 찾아드려요.</div>')
-    + placeCards
-    + ((hasChat&&!d._aiNoRes)?'':'<div class="dn-ai-sgg">'+sgg.map(function(s){return '<button type="button" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')+'</div>')   // 못 찾은 직후엔 제안 칩 재노출 — 막다른 답 방지
+        : '<div class="dn-ai-slim-q">예식 후, 어떤 자리를 원하세요? 아래에서 골라도 되고, 편하게 한 줄 적어 주셔도 어울리는 곳을 찾아드려요.</div>')
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
-  var orDiv='<div class="dn-or"><span>또는, 직접 골라보기</span></div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
   var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
-  var head='<div class="dn-head"><span class="dn-head-t">디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
+  var _hasFilter=false; for(var _fk in fl){ if(fl[_fk]){ _hasFilter=true; break; } }   // 컨셉·필터가 걸려 있으면 '고른 조건에 맞는 곳'(디렉터 추천 여부와 무관하게 컨셉 리스트로 읽히게)
+  var _headT=_hasFilter?'고른 조건에 맞는 곳':('디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트');
+  var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
   var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객들이 가장 아쉬워하는 건 자리·주차·식사예요. 그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요.</div>':'';   // [심리] 호스트 불안(자리·주차·식사 질) 대신 걱정해 둠 신호 · 결과 0곳이면 모순이라 숨김
   var fine='<div class="dn-fine">정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
@@ -4456,24 +4468,8 @@ function dineFilterUI(d, wt){
   }).join('');
   var attr='<div class="dn-attr"><div class="dn-attr-h" id="dn_attr_h"><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기 ▴':'펼치기 ▾')+'</span></div>'
     +(DN_UI.attr?'<div class="dn-attr-list">'+attrItems+'<div class="dn-fine" style="margin-top:2px">산책·사진 코스예요. 거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
-  // [찜 모아보기] 별표로 담은 후보를 한곳에서 — 부부가 함께 보고 상의·공유(계정 저장이라 어느 기기서든 동일)
-  var favBox='';
-  var _fv=d._favs||[];
-  if(_fv.length){
-    favBox='<div class="dn-favbox"><div class="fh"><span class="t">★ 찜해 둔 곳 · '+_fv.length+'곳</span><span class="c">계정에 저장 · 함께 보여요</span></div>'
-      +'<div class="fsub">두 분이 같이 보고 골라 보세요. 카카오톡으로 목록을 보내 상의할 수도 있어요.</div>'
-      +_fv.map(function(v){
-        var r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
-        var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
-        return '<div class="dn-fav"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="찜 빼기">✕</button>'
-          +'<div class="n">'+escapeHtml(v.n)+'</div>'
-          +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
-          +'<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div></div>';
-      }).join('')
-      +'<button type="button" class="cc-btn-ghost dn-favshare" id="dn_favShare">카카오톡·문자로 목록 보내기</button>'
-      +'<div class="dn-fine" style="margin-top:7px">별표를 다시 누르면 목록에서 빠져요.</div></div>';
-  }
-  return aiBox + orDiv + favBox + head + care + aiHint + presetRow + chips + cards + fine + attr;   // 면책(fine)은 카드 뒤 — 조건 → 카드 → 주의 순으로 읽히게
+  // (2026-07-12) 통합 흐름: AI 입력(aiBox) → 컨셉 칩(presetRow, 식사+시나리오 한 줄) → 지도 결과(placeCards) → 커브레이션 리스트(head·chips·cards). '또는 직접 골라보기' 칸막이·step0 찜박스 제거.
+  return aiBox + presetRow + placeCards + head + care + aiHint + chips + cards + fine + attr;
 }
 function renderDining(box){
   var d=TRKFLOW.draft;
@@ -4544,6 +4540,7 @@ function renderDining(box){
         // ── 취합 뷰: 찜한 곳을 한곳에 모아 비교 → '여기로 예약할래요'로 대표 1곳 지정 → 그 자리에 예약 안내 펼침 ──
         var rep=String(d.venuePick||''), repInFav=false; for(var fi=0;fi<favs.length;fi++){ if(favs[fi].n===rep){ repInFav=true; break; } }
         if(!repInFav) rep='';   // 대표가 찜 목록에 없으면(별표 해제 등) 미지정 처리
+        if(!rep && favs.length===1){ rep=favs[0].n; d.venuePick=rep; }   // 한 곳만 찜했으면 자동 대표 지정(불필요한 클릭 생략) · 저장은 완료 시 collect가 venue 동기화
         var favHtml=favs.map(function(v){
           var isRep=(v.n===rep), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
           var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
