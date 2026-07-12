@@ -62,7 +62,15 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .crs-badge{font-size:9.5px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 9px}
 .crs.soon .crs-badge{background:var(--light)}
 .crs-desc{font-size:12px;color:var(--sub);margin-top:5px;word-break:keep-all}
-.crs-ex{font-size:11px;color:var(--light);margin-top:9px;line-height:1.7;word-break:keep-all}
+.crs-one{font-size:12.5px;color:var(--gold-deep);margin-top:6px;word-break:keep-all;font-weight:500}
+.crs-feel{font-size:11.5px;color:var(--sub);margin-top:11px;line-height:1.8;word-break:keep-all}
+.crs-feel b{color:var(--accent);font-weight:600}
+.crs-flowl{font-size:10px;letter-spacing:.08em;color:var(--gold-deep);margin:13px 0 7px;font-weight:600}
+.cflow{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.cflow-i{font-size:11px;color:var(--accent);background:var(--bg2);border-radius:7px;padding:4px 8px;white-space:nowrap}
+.cflow-a{color:var(--light);font-size:11px;margin:0 1px}
+.crs-cta{margin-top:14px;text-align:center;font-size:12.5px;font-weight:600;color:#fff;background:var(--seal);border-radius:9px;padding:11px}
+.crs.on .crs-cta{background:var(--gold-deep)}
 /* done cue */
 .cue .cr{display:flex;gap:12px;padding:11px 2px;border-bottom:1px solid var(--bg2)}
 .cue .cr:last-child{border-bottom:none}
@@ -158,9 +166,7 @@ function renderStep(k){
   var h='<div class="opts">';
   if(k==='course'){
     h='<div class="opts">';
-    h+=courseCard('damback','담백','추천','과한 연출 없이 정갈하게. 어른 하객이 많고 격식을 중시할 때.','입장 → 환영 → 서약 → 반지 → 성혼선언 → 편지 → 폐식·단체촬영');
-    h+=courseCard('gamdong','감동','준비 중','편지·서약을 정점으로 두는 눈물의 아크. 감정 표현이 풍부한 커플.','');
-    h+=courseCard('family','가족','준비 중','양가 가족이 주인공. 베일다운·부모 헌정 중심.','');
+    h+=courseCard('damback'); h+=courseCard('gamdong'); h+=courseCard('family');
     h+='</div>'; return h;
   }
   if(k==='entry'){ ['A','B','C'].forEach(function(v){ h+=oc('entry',v,v+' · '+ENTRY[v].d,'',ENTRY[v].nar); }); }
@@ -190,12 +196,29 @@ function renderStep(k){
   h+='</div>'; return h;
 }
 
-function courseCard(v,nm,badge,desc,ex){
-  var soon=(v!=='damback'); var on=S.course===v;
+var COURSES={
+  damback:{nm:'담백', badge:'추천', ready:true, min:'약 25분',
+    one:'과한 연출 없이, 꼭 필요한 순간만 정갈하게',
+    feel:'어른 하객이 많고, 담백하지만 진심이 깊게 남는 예식을 원하는 두 분께. 짧지만 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
+    flow:[['🚶','입장'],['🙏','첫인사'],['💍','혼인 서약'],['💍','반지'],['📜','성혼 선언'],['✉️','편지 낭독'],['📸','폐식·단체촬영']]},
+  gamdong:{nm:'감동', badge:'준비 중', ready:false, min:'약 29분',
+    one:'편지와 서약을 정점으로 두는, 눈물의 아크',
+    feel:'감정 표현이 풍부하고, 친구 하객도 함께하는 두 분께. 베일다운으로 시작해 편지에서 절정에 이르고, 하객이 다 함께 성혼선언을 읽는 벅찬 예식이에요.',
+    flow:[['🚶','입장'],['👰','베일다운'],['🙏','첫인사'],['💍','혼인 서약'],['💍','반지'],['✉️','편지 낭독'],['🌷','부모님 헌정'],['📜','성혼 선언·합송'],['📸','폐식']]},
+  family:{nm:'가족', badge:'준비 중', ready:false, min:'약 30분',
+    one:'양가 가족이 예식의 주인공',
+    feel:'가족 유대를 가장 소중히 여기는 두 분께. 부모님 덕담으로 문을 열고, 반지가 가족의 손을 도는 링워밍, 헌정까지 온 가족이 함께 완성하는 예식이에요.',
+    flow:[['🚶','입장'],['🗣','부모님 덕담'],['💍','혼인 서약'],['💞','링워밍'],['💍','반지'],['✉️','편지 낭독'],['🌷','부모님 헌정'],['📜','성혼 선언'],['📸','폐식']]}
+};
+function courseCard(v){
+  var c=COURSES[v], soon=!c.ready, on=S.course===v;
+  var flow=c.flow.map(function(f){return '<span class="cflow-i">'+f[0]+' '+esc(f[1])+'</span>';}).join('<span class="cflow-a">›</span>');
   var h='<div class="crs'+(on?' on':'')+(soon?' soon':'')+'" '+(soon?'':'onclick="pick(\'course\',\''+v+'\')"')+'>';
-  h+='<div class="crs-h"><span class="crs-nm">'+esc(nm)+'</span><span class="crs-badge">'+esc(badge)+'</span></div>';
-  h+='<div class="crs-desc">'+esc(desc)+'</div>';
-  if(ex && on) h+='<div class="crs-ex">이런 흐름이에요 · '+esc(ex)+'</div>';
+  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <span style="font-size:11px;color:var(--light);font-weight:400">· '+esc(c.min)+'</span></span><span class="crs-badge">'+esc(c.badge)+'</span></div>';
+  h+='<div class="crs-one">'+esc(c.one)+'</div>';
+  h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
+  h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
+  if(!soon) h+='<div class="crs-cta">'+(on?'✓ 이 코스로 진행 중':'이 코스로 시작하기')+'</div>';
   h+='</div>';
   return h;
 }
