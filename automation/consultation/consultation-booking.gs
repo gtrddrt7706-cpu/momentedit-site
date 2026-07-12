@@ -2128,6 +2128,11 @@ function handleAdvisorLog(body) {
 //   시트 '문의리드' [시각, 이름, 연락처, 방법, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
 function handleLeadCapture(body) {
   try {
+    // 무단 호출 차단 — Vercel /api/lead 만이 아는 공유키 확인(aiHandoff와 동일 키 재사용).
+    //   ScriptProperty 'AI_HANDOFF_SECRET' 가 설정돼 있으면 반드시 일치해야 접수(미설정 시 하위호환으로 통과).
+    var _leadSecret = '';
+    try { _leadSecret = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (e) {}
+    if (_leadSecret && String((body && body.secret) || '').slice(0, 80) !== _leadSecret) return { ok: false, error: 'unauthorized' };
     var name = String((body && body.name) || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
     var channel = String((body && body.channel) || '문자').trim();
     if (channel !== '이메일') channel = '문자';
@@ -2232,6 +2237,7 @@ function purgeAdvisorLog() {
   try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
   try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
+  try { if (typeof purgeStaleCustomers === 'function') purgeStaleCustomers(false); } catch (e) {}  // 20 · 미계약 6개월 경과 고객 개인정보 자동 익명화(처리방침 파기 약속 이행 · 계약/입금 이력은 보호)
   try { purgeKakaoClicks(); } catch (e) {}   // 카톡연결 로그 90일 정리
   try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
   try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
