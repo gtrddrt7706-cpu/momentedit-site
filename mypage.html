@@ -3994,8 +3994,8 @@ function wireSeatShare(box, token){
   });
   ensureQR(function(){ renderQRInto('seat_qr','seat_qrsave',url); });
 }
-// 원형 테이블 좌석 위치(자리 i / n개 · 12시부터 시계방향).
-function _seatPos(n, i, r){ var a=(-90 + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
+// 원형 테이블 좌석 위치(자리 i / n개). 짝수 인원은 반 칸 회전 → 맨 위(단상 쪽)가 '자리' 대신 '빈 공간'이 되어 대각으로 앉음(아무도 단상에 등지지 않게 · 양가 부모님 맨 앞 테이블 배려).
+function _seatPos(n, i, r){ var off=(n%2===0)?(180/(n||1)):0; var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
 function _seatZig(row, side){ var base=30; var s=(row%2===0)?1:-1; return (side==='R'? -s : s)*base; }   // 좌우 3개씩 지그재그(홀 느낌)
 function commitSeatEdit(box){
   box=box||$('mp_production'); if(!box) return;
@@ -4049,7 +4049,8 @@ function renderSeat(box){
   if(s.token) wireSeatShare(box, s.token);
   // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ var v=ei.value; ei.value=''; ei.value=v; }catch(e){}
-    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정 · Esc=취소
+    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시) · Esc=취소
+    ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit) renderSeat(box); },0); });   // ★포커스 벗어나면(배경·다른 자리·키보드 닫힘 등 무엇이든) 무조건 확정 — 가장 확실. 다른 자리 탭이면 그 핸들러가 이미 편집 전환하므로 !edit일 때만 렌더
   }
 }
 function bindSeat(box){
