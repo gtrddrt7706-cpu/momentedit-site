@@ -991,6 +991,7 @@ body.menu-open .nav-logo {
 .hero {
   min-height: 100vh;
   min-height: 100svh;
+  min-height: 100dvh; /* 동적 뷰포트 — 태블릿·모바일에서 툴바 상태와 무관하게 히어로가 항상 화면을 꽉 채워, 밑에 크림이 새어 보이는 현상 방지 */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1039,33 +1040,19 @@ html.me-restoring body { opacity: 0 !important; }
 /* 스크롤 시 진사가 아이보리로 옅어지는 베일(커튼이 걷히는 연출).
    ★불투명 크림 패널이 아래에서 위로 '올라오는' 방식(opacity 페이드 아님).
    불투명 크림을 진사 위에 얹으면 그대로 크림(반투명 때의 '마우브'가 안 생김) → 히어로 밑단이 스크롤 어느 지점에서도 항상 크림 = 다음 섹션(크림)과 경계에 하드 라인이 절대 안 생김.
-   패널 선두(위)만 부드럽게 투명해져 커튼 가장자리가 되고, 화면 크기(세로·가로·태블릿)엔 %·svh로 자동 적응. JS가 --heroVeilY(translateY) 갱신 */
+   패널 선두(위)만 부드럽게 투명해져 커튼 가장자리가 되고, 화면 크기(세로·가로·태블릿)엔 %·offsetHeight로 자동 적응.
+   ★구동은 JS(--heroVeilY, translateY)만 사용 — CSS 스크롤 타임라인(animation-timeline)은 일부 iPad Safari에서 상단에서 패널이 이미 다 올라온 상태로 오작동(로고만 남고 진사 사라짐)하여 제거. translateY는 컴포지터 가속이라 JS 구동도 매끄러움. */
 .hero-veil {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 150%;
+  height: 160%;
   z-index: 0;
-  background: linear-gradient(to top, #fafaf8 0%, #fafaf8 62%, rgba(250, 250, 248, 0) 100%);
-  transform: translateY(var(--heroVeilY, 100%)); /* 100% = 히어로 아래로 완전히 내려가 숨음(스크롤0: 진사 그대로) → 0%: 히어로를 크림으로 덮음 */
+  background: linear-gradient(to top, #fafaf8 0%, #fafaf8 58%, rgba(250, 250, 248, 0) 100%);
+  transform: translateY(var(--heroVeilY, 100%)); /* 100% = 히어로 아래로 완전히 내려가 숨음(스크롤0: 진사 그대로) → 0%: 히어로를 크림으로 덮음. 기본값 100%라 로드 시 진사 유지(번쩍임 없음) */
   will-change: transform;
   pointer-events: none;
-}
-/* veil을 CSS 스크롤 타임라인(GPU 컴포지터)으로 구동 — iOS 관성 스크롤 중에도 뚝뚝 끊김 없이 매끄럽게.
-   미지원(파이어폭스 정식판)은 위 transform:var(--heroVeilY)(JS)로 자동 폴백. 로드 시 번쩍임 없음. */
-@keyframes heroVeilRise { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .hero-veil {
-      animation-name: heroVeilRise;
-      animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); /* smoothstep 근사 — JS와 동일 곡선 */
-      animation-timeline: scroll(root block);
-      /* 히어로 높이의 0.7배 지점에서 크림 패널이 다 올라옴(70svh) — 진사가 화면 상단을 떠나기 전에 이미 크림이 꽉 참. 화면 크기(세로·가로·태블릿)에 svh로 자동 적응 */
-      animation-range: 0 70svh; /* JS(y/(hh*0.7))와 동일 구간 */
-    }
-  }
 }
 .hero::before {
   content: "";
@@ -5117,7 +5104,7 @@ body {
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
   <div class="hero-veil" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm)return;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1;var hh=hero.offsetHeight||vh;var vr=clamp(y/(hh*0.7));var veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((y-vh*0.5)/(vh*0.9));logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm)return;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1;var hh=hero.offsetHeight||vh;var vr=clamp(y/(hh*1.15));var veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
