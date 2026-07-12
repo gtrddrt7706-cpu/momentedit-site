@@ -824,12 +824,12 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt-mini:active{background:var(--bg2)}
     .rt-mini.rt-del{color:var(--light)}
     .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
-    /* 모바일(≤480px) 컴팩트: ①테이블(--rt) 110px로 축소 → 레이아웃 상자도 줄어 지그재그 밀 여유 확보(원·자리 비율 유지) ②지그재그는 뚜렷하게(--zig 24, 일자 방지) ③상하 간격 최소동선(gap 6·컨트롤 여백 3). 컨트롤 버튼은 크기 유지(탭 편의) */
+    /* 모바일(≤480px) 최대 컴팩트: ①테이블(--rt) 96px로 최대 축소(원·자리 비율 유지·이상하지 않은 선) ②지그재그 강하게(--zig 30). 지그재그는 테이블(.rt)에만 걸려 컨트롤은 열 중앙 정렬 → 통로에서 안 겹침 ③상하 최소동선(gap 4·컨트롤 여백 2). 컨트롤 버튼 크기 유지(탭 편의) */
     @media(max-width:480px){
-      .seat-room{--zig:24px}
-      .rt{--rt:110px}
-      .seat-col{gap:6px}
-      .rt-ctl{margin-top:3px}
+      .seat-room{--zig:30px}
+      .rt{--rt:96px}
+      .seat-col{gap:4px}
+      .rt-ctl{margin-top:2px}
     }
     /* PC(≥760px): 좌석 배치 카드만 예외적으로 넓게 브레이크아웃(main 430px 제약을 벗어나 뷰포트 중앙 정렬) → 좌우 지그재그를 크게. 모바일은 폭 그대로라 좌우 최소+수직 지퍼로 처리 */
     @media(min-width:760px){
@@ -4030,8 +4030,8 @@ function renderSeat(box){
     var center = isEd(ti,'name')
       ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
       : '<button type="button" class="rt-c" data-seat-edit data-ti="'+ti+'" data-si="name">'+escapeHtml(t.name||('테이블 '+(ti+1)))+'</button>';
-    return '<div class="rt-wrap" style="transform:translateX(calc(var(--zig,26px) * '+_seatZig(row,t.side)+'))">'
-      +'<div class="rt"><span class="rt-no">'+(ti+1)+'</span>'+seats+center+'</div>'
+    return '<div class="rt-wrap">'
+      +'<div class="rt" style="transform:translateX(calc(var(--zig,26px) * '+_seatZig(row,t.side)+'))"><span class="rt-no">'+(ti+1)+'</span>'+seats+center+'</div>'
       +'<div class="rt-ctl">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
