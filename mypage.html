@@ -810,7 +810,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt{position:relative;width:var(--rt,150px);height:var(--rt,150px);flex-shrink:0;--seatR:calc(var(--rt,150px)*0.36)}   /* --rt=테이블 지름(원·자리·간격이 함께 스케일). 모바일은 작게(레이아웃 상자도 줄어 지그재그 여유 확보) */
     .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.44);height:calc(var(--rt,150px)*0.44);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
     .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
-    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--accent);text-align:center;width:60px;line-height:1.2;cursor:pointer;padding:0;word-break:keep-all}
+    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--accent);text-align:center;width:60px;line-height:1.2;padding:0;word-break:keep-all;pointer-events:none}
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
@@ -826,7 +826,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
     /* 모바일(≤480px) 최대 컴팩트: ①테이블(--rt) 96px로 최대 축소(원·자리 비율 유지·이상하지 않은 선) ②지그재그 강하게(--zig 30). 지그재그는 테이블(.rt)에만 걸려 컨트롤은 열 중앙 정렬 → 통로에서 안 겹침 ③상하 최소동선(gap 4·컨트롤 여백 2). 컨트롤 버튼 크기 유지(탭 편의) */
     @media(max-width:480px){
-      .seat-room{--zig:30px}
+      .seat-room{--zig:26px}   /* 실효 이동: 통로쪽 26 · 바깥(가운데 테이블) 39(=26×1.5). 360~480px 넘침 없는 최대치 */
       .rt{--rt:96px}
       .seat-col{gap:4px}
       .rt-ctl{margin-top:2px}
@@ -4008,7 +4008,7 @@ function wireSeatShare(box, token){
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
 function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
-function _seatZig(row, side){ var s=(row%2===0)?1:-1; return (side==='R'? -s : s); }   // 좌우 지그재그 '부호'만(+1/-1) 반환 · 실제 폭은 CSS --zig(반응형: 모바일 26·PC 80)
+function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=even?1:1.5; var base=s*mag; return (side==='R'? -base : base); }   // 지그재그 배율(부호포함): 짝수행=통로쪽 1배, 홀수행(가운데 테이블)=바깥쪽 1.5배(바깥 여백 활용). 실제 폭은 CSS --zig × 이 값
 function commitSeatEdit(box){
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
@@ -4027,12 +4027,11 @@ function renderSeat(box){
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?escapeHtml(nm):'+')+'</button></div>'; }
     }
-    var center = isEd(ti,'name')
-      ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
-      : '<button type="button" class="rt-c" data-seat-edit data-ti="'+ti+'" data-si="name">'+escapeHtml(t.name||('테이블 '+(ti+1)))+'</button>';
-    return '<div class="rt-wrap">'
-      +'<div class="rt" style="transform:translateX(calc(var(--zig,26px) * '+_seatZig(row,t.side)+'))"><span class="rt-no">'+(ti+1)+'</span>'+seats+center+'</div>'
-      +'<div class="rt-ctl">'
+    var center = '<span class="rt-c">'+escapeHtml(t.name||('테이블 '+(ti+1)))+'</span>';   // 중앙은 편집 불가 정적 라벨(이름 입력 기능 삭제)
+    var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
+    return '<div class="rt-wrap" style="'+tx+'">'
+      +'<div class="rt" style="transform:translateX(var(--tx,0))"><span class="rt-no">'+(ti+1)+'</span>'+seats+center+'</div>'
+      +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
