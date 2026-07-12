@@ -3994,8 +3994,8 @@ function wireSeatShare(box, token){
   });
   ensureQR(function(){ renderQRInto('seat_qr','seat_qrsave',url); });
 }
-// 원형 테이블 좌석 위치(자리 i / n개). 짝수 인원은 반 칸 회전 → 맨 위(단상 쪽)가 '자리' 대신 '빈 공간'이 되어 대각으로 앉음(아무도 단상에 등지지 않게 · 양가 부모님 맨 앞 테이블 배려).
-function _seatPos(n, i, r){ var off=(n%2===0)?(180/(n||1)):0; var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
+// 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
+function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
 function _seatZig(row, side){ var base=30; var s=(row%2===0)?1:-1; return (side==='R'? -s : s)*base; }   // 좌우 3개씩 지그재그(홀 느낌)
 function commitSeatEdit(box){
   box=box||$('mp_production'); if(!box) return;
