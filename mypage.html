@@ -808,9 +808,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
     .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
     .rt{position:relative;width:var(--rt,150px);height:var(--rt,150px);flex-shrink:0;--seatR:calc(var(--rt,150px)*0.36)}   /* --rt=테이블 지름(원·자리·간격이 함께 스케일). 모바일은 작게(레이아웃 상자도 줄어 지그재그 여유 확보) */
-    .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.44);height:calc(var(--rt,150px)*0.44);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+    .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.46);height:calc(var(--rt,150px)*0.46);transform:translate(-50%,-50%);border-radius:50%;background:#2a2018;border:1.5px solid var(--gold);box-shadow:0 1px 3px rgba(42,32,24,.28)}   /* 테이블 번호 원판 — 진한 배경+골드 링(흰 숫자) */
     .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
-    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif);font-size:18px;font-weight:600;color:#1c1b19;line-height:1;padding:0;letter-spacing:.01em;pointer-events:none}   /* 테이블 번호 — 중앙 검은색 세리프 숫자 */
+    .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:calc(var(--rt,150px)*0.155);font-weight:500;color:#fff;line-height:1;padding:0;pointer-events:none;z-index:1}   /* 테이블 번호 — 원판 위 흰 숫자(또렷한 명조체 숫자) */
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
