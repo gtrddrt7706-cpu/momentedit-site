@@ -555,7 +555,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-preset button{border:1px solid var(--gold-soft,rgba(184,154,117,.45));background:var(--gold-bg,#faf6ef);border-radius:999px;padding:8px 14px;font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);cursor:pointer;line-height:1.3}
 .dn-preset button:hover{border-color:var(--gold)}
 .dn-preset button.dn-preset-map{background:#fff}   /* '식사 외' 시나리오(키즈·뒷풀이) — 지도에서 찾아주는 칩. 프리셋(채움)과 달리 흰 배경으로 살짝 구분 */
-.dn-preset button.dn-preset-map::before{content:'⌕ ';color:var(--gold-deep,#9a7b3f);font-weight:600}
 .dn-attr{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
 .dn-attr-h{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .dn-attr-h .t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent)}
@@ -4289,7 +4288,10 @@ var DN_UI={det:null,all:false,attr:false};   // 리스트 UI 상태(세부조건
 // 상황별 원탭 프리셋 — 누르면 여러 필터를 한 번에 세팅(AI 호출 없이 즉시). set을 _filters로 교체.
 var DN_PRESETS=[
   {label:'양가 어른 모시고 정찬', set:{theme:'formal',elderly:'true',group:'room'}},
+  {label:'상견례처럼 조용한 룸', set:{group:'room'}},          // 프라이빗·조용 니즈(단독룸 13곳)
   {label:'하객 많아 단체로', set:{group:'seats',headN:'l'}},
+  {label:'술 한잔 곁들여', set:{al:'yes'}},                      // 뒷풀이·어른 반주 니즈(확인된 20곳)
+  {label:'한옥·정원 감성', set:{mood:'정원'}},                   // 사진·감성 니즈(정원 10곳)
   {label:'가볍게 다과만', set:{theme:'cafe'}},
   {label:'아이와 함께 편하게', set:{theme:'casual',food:'뷔페'}},
   {label:'가까운 곳 위주', set:{dist:'10'}}
@@ -4338,6 +4340,8 @@ function _dnPass(r,fl){
   if(fl.group==='seats' && !(r.g==='room'||r.g==='seats')) return false;
   if((fl.elderly===true||fl.elderly==='true') && !r.eld) return false;   // 어르신·좌식 — AI(boolean)·칩('true') 둘 다 허용
   if(fl.parking==='good' && r.pk!=='good') return false;   // 주차 넉넉
+  if(fl.mood && (r.m||[]).indexOf(fl.mood)<0) return false;   // 분위기(한옥·정원·모던) — 사진·감성 니즈
+  if(fl.al==='yes' && r.al!==true) return false;   // 술 한잔 가능 — 확인된 곳만(미상 null은 제외해 오안내 방지)
   // 인원수(headN)는 하드 제외하지 않음 — 수용 인원 실측이 없어, 정렬·카드 안내로만 반영(_dnCapNote/정렬). 빈 결과 방지.
   return true;
 }
@@ -4365,7 +4369,7 @@ function dineFilterUI(d, wt){
     return '<button type="button" class="dn-fpill'+(on?' on':'')+'" data-ax="'+escapeHtml(ax)+'" data-fv="'+escapeHtml(v)+'">'+escapeHtml(label)+'</button>'; }
   function block(rawLabel,inner,last){ return '<div class="dn-fblk"'+(last?' style="margin-bottom:0"':'')+'><div class="dn-flabel">'+rawLabel+'</div><div class="dn-fwrap">'+inner+'</div></div>'; }
   // 빠른 길만 항상 노출: 테마(정찬·캐주얼·카페)+인원 · 음식·가격·거리·단체·주차·동행은 '조건 더 좁히기' 접이식(기본 접힘)
-  var detN=['food','price','dist','group','parking','elderly'].filter(function(k){return fl[k];}).length;
+  var detN=['food','price','dist','group','parking','elderly','mood','al'].filter(function(k){return fl[k];}).length;
   var detOpen=(DN_UI.det===null)?false:DN_UI.det;   // 기본 접힘(빠른 길=프리셋·테마·인원만 먼저) · 사용자가 펼치면 그 상태 유지 · 프리셋/AI가 세부값 걸면 배지로 표시
   var themeSeg='<div class="dn-flabel">어떤 자리인가요?</div><div class="dn-seg">'
     +[['formal','정찬'],['casual','캐주얼'],['cafe','카페']].map(function(o){ var on=(fl.theme||'')===o[0];
@@ -4380,7 +4384,9 @@ function dineFilterUI(d, wt){
       +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~5만')+pill('price','high','5만+'))
       +block('거리',pill('dist','10','차로 10분 내')+pill('dist','15','차로 15분 내'))
       +block('단체',pill('group','room','단독룸')+pill('group','seats','단체석'))
+      +block('분위기',pill('mood','한옥','한옥')+pill('mood','정원','정원')+pill('mood','모던','모던'))
       +block('주차',pill('parking','good','주차 넉넉'))
+      +block('한잔',pill('al','yes','술 한잔 가능'))
       +block('동행',pill('elderly','true','어르신·좌식 우선'),true)
     +'</div>';
   // 통합 컨셉 칩 — 식사 자리(프리셋·DB 필터)와 '식사 외' 시나리오(키즈·뒷풀이·지도검색)를 한 줄로. 어느 걸 눌러도 아래 리스트가 그 컨셉으로 채워짐(디렉터 추천 여부와 무관).
@@ -4442,12 +4448,12 @@ function dineFilterUI(d, wt){
   var aiBox='<div class="dn-ai'+(hasChat?'':' dn-ai-slim')+'">'
     + '<div class="dn-ai-eyebrow">After Wedding Concierge</div>'
     + (hasChat
-        ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 후의 시간까지 함께 그려드릴게요. 누구와 어떻게 보내실지 편하게 말씀해 주시면, 어울리는 곳을 찾아드릴게요.</div>'
+        ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식이 끝난 뒤의 시간까지 저희가 같이 챙겨드릴게요. 누구와 어떤 시간을 보내고 싶으신지 편하게 한마디 남겨 주시면, 그 마음에 어울리는 자리를 찾아드려요. \'어른들 모실 조용한 룸\'이나 \'아이랑 갈 실내 놀이터\'처럼요.</div>'
           + msgs
           + (d._pendingTyping?'<div class="dnc-m dnc-b dnc-typing" aria-label="답변 준비 중"><span class="td"></span><span class="td"></span><span class="td"></span></div>':'')
           + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
-        : '<div class="dn-ai-slim-q">예식 후, 어떤 자리를 원하세요? 아래에서 골라도 되고, 편하게 한 줄 적어 주셔도 어울리는 곳을 찾아드려요.</div>')
+        : '<div class="dn-ai-slim-q">예식이 끝난 뒤의 시간, 어디로 모실지도 은근히 고민이시죠. \'아이랑 편히 놀 곳\', \'어른들 모실 조용한 룸\', \'친구들과 늦게까지 뒷풀이\', \'사진 예쁜 카페\'처럼 떠오르는 대로 적어 주시면 딱 맞는 곳을 찾아드려요. 아래에서 골라 보셔도 돼요.</div>')
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
