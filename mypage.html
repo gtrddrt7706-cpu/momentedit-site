@@ -554,7 +554,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-preset{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
 .dn-preset button{border:1px solid var(--gold-soft,rgba(184,154,117,.45));background:var(--gold-bg,#faf6ef);border-radius:999px;padding:8px 14px;font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);cursor:pointer;line-height:1.3}
 .dn-preset button:hover{border-color:var(--gold)}
-.dn-preset button.dn-preset-map{background:#fff}   /* '식사 외' 시나리오(키즈·뒷풀이) — 지도에서 찾아주는 칩. 프리셋(채움)과 달리 흰 배경으로 살짝 구분 */
 .dn-attr{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
 .dn-attr-h{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .dn-attr-h .t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent)}
@@ -4302,7 +4301,9 @@ var DN_PRESETS=[
   {label:'한옥·정원 감성', set:{mood:'정원'}},                   // 사진·감성 니즈(정원 10곳)
   {label:'가볍게 다과만', set:{theme:'cafe'}},
   {label:'아이와 함께 편하게', set:{theme:'casual',food:'뷔페'}},
-  {label:'가까운 곳 위주', set:{dist:'10'}}
+  {label:'가까운 곳 위주', set:{dist:'10'}},
+  {label:'주차 걱정 없이', set:{parking:'good'}},              // 하객 차량 많은 예식 후 핵심(주차 넉넉 23곳) · 시나리오 칩 대체
+  {label:'고기·갈비로 든든히', set:{food:'한우·갈비'}}          // 단체 회식 스테디셀러 · 시나리오 칩 대체
 ];
 // 예식 후 가볼 만한 곳 — 향동 기준 디렉터 큐레이션(지도 검색이 빈약한 동네라 고정 추천). 거리·설명은 디렉터가 다듬을 수 있음.
 var DN_ATTRACTIONS=[
@@ -4397,11 +4398,9 @@ function dineFilterUI(d, wt){
       +block('한잔',pill('al','yes','술 한잔 가능'))
       +block('동행',pill('elderly','true','어르신·좌식 우선'),true)
     +'</div>';
-  // 통합 컨셉 칩 — 식사 자리(프리셋·DB 필터)와 '식사 외' 시나리오(키즈·뒷풀이·지도검색)를 한 줄로. 어느 걸 눌러도 아래 리스트가 그 컨셉으로 채워짐(디렉터 추천 여부와 무관).
-  var _sggChips=['아이 놀거리·키즈카페','친구들과 뒷풀이 자리'];
+  // 컨셉 칩 — 전부 고정형(누르면 아래 리스트가 그 조건으로 걸러짐). (2026-07-12) 지도검색 시나리오 칩(키즈·뒷풀이)은 삭제 · 그 자리는 고정 키워드로 대체. 키즈·뒷풀이는 위 AI 입력에 적으면 지도로 찾아줌.
   var presetRow='<div class="dn-preset-cap">이런 자리를 찾고 있어요</div><div class="dn-preset">'
     +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')
-    +_sggChips.map(function(s){return '<button type="button" class="dn-preset-map" data-sgg="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>';}).join('')
     +'</div>';
   var arr=_DN_ARR[wt||'']||'';
   var bigGroup=(fl.headN==='l'||fl.headN==='xl');   // 대단체 — 단체석·뷔페를 위로
