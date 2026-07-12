@@ -121,6 +121,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .wcard .wd{font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
 .special{margin-top:14px;text-align:center;font-size:11.5px;color:var(--gold-deep);border:1px dashed var(--border);border-radius:10px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold);color:var(--gold-deep);border-radius:10px;padding:12px;font-family:var(--serif);font-size:12.5px;font-weight:600;cursor:pointer}
+.editchips{display:flex;flex-wrap:wrap;gap:7px}
+.editchips span{font-size:11.5px;color:var(--sub);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer}
+.editchips span:active{background:var(--seal);color:#fff}
+.fillbadge{margin-top:14px;background:#FDF6F5;border:1px solid #E9D3D0;border-radius:11px;padding:11px 13px}
+.fillbadge .ft{font-size:12px;font-weight:600;color:var(--seal)}
+.fillbadge .fl{font-size:11px;color:var(--sub);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.fillbadge .fl span{background:#fff;border:1px solid #E9D3D0;border-radius:16px;padding:4px 10px;cursor:pointer;color:var(--seal)}
 /* rehearse */
 .rh-hd{text-align:center;padding:4px 0}
 .rh-hd .t{font-size:19px;font-weight:600}
@@ -234,7 +241,8 @@ function render(){
   }
   el.innerHTML=h;
   document.getElementById('prev').disabled=(idx===0);
-  document.getElementById('next').textContent=(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
+  var nx=document.getElementById('next');
+  nx.textContent=(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
   window.scrollTo(0,0);
 }
 
@@ -335,6 +343,15 @@ function courseCard(v){
 window.pick=function(key,v){ S[key]=v; render(); };
 window.go=function(d){ idx=Math.max(0,Math.min(STEPS.length-1,idx+d)); render(); };
 window.goDone=function(){ idx=STEPS.length-1; render(); };
+window.jumpTo=function(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } } };
+function fillBlanks(){
+  var b=[];
+  if(!S.vowText) b.push(['vow','서약문']);
+  if(!S.letterText) b.push(['letter','편지']);
+  if(S.welcome==='self' && !S.welcomeText) b.push(['welcome','인사말']);
+  if(!S.mEntry && !S.mPeak && !S.mClose) b.push(['done','음악']);
+  return b;
+}
 
 function fullBlocks(){
   var b=[];
@@ -387,6 +404,11 @@ function renderDone(){
   h+='<button class="listen-all" onclick="listenAll(this)">내 예식 나레이션 전체 이어듣기</button>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">리허설 공간 열기 · 당일 전에 연습하기</button>';
   h+='<div class="tot">'+COURSES[S.course].min+' · 본식 안에 여유 있게 들어가요</div>';
+  var fb=fillBlanks();
+  if(fb.length){ h+='<div class="fillbadge"><div class="ft">아직 비워둔 칸 '+fb.length+'개 · 나중에 채워도 돼요</div><div class="fl">'; fb.forEach(function(x){ h+='<span onclick="jumpTo(\''+x[0]+'\')">'+esc(x[1])+' 채우기</span>'; }); h+='</div></div>'; }
+  h+='<div class="sec-l">순서 수정하기</div><div class="editchips">';
+  [['entry','입장 멘트'],['welcome','환영'],['vow','서약'],['ring','반지'],['declare','성혼 선언'],['valley','사이 순서'],['letter','편지'],['bless','부모님 덕담']].forEach(function(e){ h+='<span onclick="jumpTo(\''+e[0]+'\')">'+esc(e[1])+'</span>'; });
+  h+='</div>';
   h+='<div class="sec-l">두 분이 직접 하실 부분</div><div class="mine">';
   myParts().forEach(function(m){ h+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
   h+='</div>';
