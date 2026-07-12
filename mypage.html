@@ -4040,21 +4040,26 @@ function renderSeat(box){
       +'<div class="seat-col"><div class="seat-colh">우측</div>'+R+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button>':'')+'</div>'
     +'</div>'
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
-    +'<div class="seat-actions"><button type="button" class="cc-btn-ghost" data-seat-savedraft style="width:auto;padding:11px 16px">임시 저장</button>'
-      +'<button type="button" class="cc-btn" data-seat-done style="width:auto;padding:11px 16px">배치 완료 · 공유 링크</button></div>'
+    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 공유 링크</button></div>'
+    +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
     + (s.token ? seatSharePanelHtml(s.token) : '')
     +'</div>';
   box.style.display='block';
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
   // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
-  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ var v=ei.value; ei.value=''; ei.value=v; }catch(e){} }
+  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ var v=ei.value; ei.value=''; ei.value=v; }catch(e){}
+    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정 · Esc=취소
+  }
 }
 function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
+    if(!SEATFLOW.active) return;
     var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
-    if(!el || !SEATFLOW.active) return;
+    // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
+    if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
+    if(!el) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<5) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var st=SEATFLOW.tables[j]&&SEATFLOW.tables[j].seats; if(st&&st.length>1) st.pop(); renderSeat(box); return; }
@@ -4524,14 +4529,15 @@ function renderDining(box){
     box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒷풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
     bindTrk(box,renderDining,collect,{
-      validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 별표(찜) 또는 한 곳 선택 유도
+      validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 담기 또는 한 곳 선택 유도
         if(!(d._favs&&d._favs.length) && !String(d.venuePick||'').trim())
           return '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요. 여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요.';
         return '';
       },
       confirmNext: function(go){
         var _vp=String(d.venuePick||'').trim();
-        var _showPhones=(_vp && _dnFind(_vp)) || (d._favs && d._favs.length);   // 실제 식당 선택 or 찜한 곳 존재 → 다음 페이지에 전화·지도 노출 → 면책 1회
+        var _restoN=(d._favs||[]).filter(function(v){return v.src!=='attr';}).length;   // 식당(예약 대상)만 — 가볼 곳만 담았으면 식당 예약 면책 불필요
+        var _showPhones=(_vp && _dnFind(_vp)) || _restoN;   // 실제 식당 선택 or 담은 식당 존재 → 다음 페이지에 전화·지도 노출 → 면책 1회
         if(_showPhones && !TRKFLOW._dineDisclaimerSeen){
           mpConfirm({ title:'예약 전에 안내드려요',
             bodyHtml:'<div style="text-align:left;line-height:1.75">영업시간·메뉴·가격·단체석·주차는 달라질 수 있으니, 예약 전 식당에 한 번 확인해 주세요.</div>',
