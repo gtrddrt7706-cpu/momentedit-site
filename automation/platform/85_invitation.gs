@@ -67,18 +67,28 @@ function _invResolveEventId(sheet, colOf, base, groomName, brideName) {
     if (gCol) gN = sheet.getRange(INV.DATA_START_ROW, gCol, n, 1).getValues();
     if (bCol) bN = sheet.getRange(INV.DATA_START_ROW, bCol, n, 1).getValues();
   }
-  var cand = base, suffix = 1;
-  while (true) {
-    var taken = false;
-    for (var i = 0; i < ids.length; i++) {
-      if (String(ids[i][0]).trim() !== cand) continue;
-      var rg = gN[i] ? String(gN[i][0]).trim() : '', rb = bN[i] ? String(bN[i][0]).trim() : '';
-      if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: cand, rowNum: INV.DATA_START_ROW + i };
-      taken = true; break;
-    }
-    if (!taken) return { eventId: cand, rowNum: lastRow + 1 };
-    suffix++; cand = base + '-' + suffix;
+  // 1) 기존 부부 재사용 — base가 결정적 접두인 행에서 이름 일치 시 '기존 id 그대로'(배포된 URL 불변·하위호환).
+  //    부부폼(form-to-couple) 경로와 동일 규칙 → 같은 부부면 어느 경로로 들어와도 같은 행에 수렴.
+  var existing = {};
+  for (var i = 0; i < ids.length; i++) {
+    var rid = String(ids[i][0]).trim();
+    if (!rid) continue;
+    existing[rid] = true;
+    if (rid !== base && rid.indexOf(base + '-') !== 0) continue;
+    var rg = gN[i] ? String(gN[i][0]).trim() : '', rb = bN[i] ? String(bN[i][0]).trim() : '';
+    if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: rid, rowNum: INV.DATA_START_ROW + i };
   }
+  // 2) 신규 부부 — 추측 불가 랜덤 접미(6자)로 새 id. eventId만 아는 외부인의 대량 열람 차단(시트 내 유일).
+  var cand = base + '-' + _invRandEventSuffix(), guard = 0;
+  while (existing[cand] && guard++ < 50) cand = base + '-' + _invRandEventSuffix();
+  return { eventId: cand, rowNum: lastRow + 1 };
+}
+// 예식ID 랜덤 접미(6자·혼동문자 제외) — 부부폼의 _randEventSuffix 복제(별도 프로젝트라 호출 불가).
+function _invRandEventSuffix() {
+  var A = 'abcdefghijkmnpqrstuvwxyz23456789', out = '', bytes;
+  try { bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, Utilities.getUuid() + ':' + new Date().getTime()); } catch (e) { bytes = null; }
+  for (var i = 0; i < 6; i++) { var r = bytes ? (bytes[i] & 0xff) : Math.floor(Math.random() * 256); out += A.charAt(r % A.length); }
+  return out;
 }
 function _invUrls(eventId, designOnline, designFamily, live) {
   var e = encodeURIComponent(eventId);

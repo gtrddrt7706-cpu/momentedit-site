@@ -329,25 +329,29 @@ function resolveEventId(sheet, colOf, base, groomName, brideName) {
     if (gCol) gNames = sheet.getRange(CFG.DATA_START_ROW, gCol, n, 1).getValues();
     if (bCol) bNames = sheet.getRange(CFG.DATA_START_ROW, bCol, n, 1).getValues();
   }
-  var candidate = base, suffix = 1;
-  while (true) {
-    var taken = false;
-    for (var i = 0; i < ids.length; i++) {
-      if (String(ids[i][0]).trim() !== candidate) continue;
-      var rg = gNames[i] ? String(gNames[i][0]).trim() : '', rb = bNames[i] ? String(bNames[i][0]).trim() : '';
-      if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: candidate, rowNum: CFG.DATA_START_ROW + i };
-      taken = true; break;
-    }
-    if (!taken) {
-      if (candidate !== base) {   // 다른 부부와 충돌해 접미사(-2 이상) 부여된 새 ID → 청첩장 URL이 바뀜
-        notifyStudio('[Moment Edit] ⚠️ 예식ID 충돌 — 접미사 부여',
-          '기존 base ID와 충돌해 새 ID에 접미사가 붙었습니다.\n  base: ' + base + '\n  새 ID: ' + candidate +
-          '\n  부부: ' + groomName + ' · ' + brideName + '\n\n청첩장 URL이 이 새 ID 기준입니다.');
-      }
-      return { eventId: candidate, rowNum: lastRow + 1 };
-    }
-    suffix++; candidate = base + '-' + suffix;
+  // 1) 기존 부부 재사용 — base가 결정적 접두인 행(레거시 짧은 id=base 또는 접미 포함)에서 이름 일치 시 '기존 id 그대로'.
+  //    → 재제출·수정 시 이미 배포된 청첩장 URL(기존 id)이 절대 안 바뀜(하위호환·기존 링크 보존).
+  var existing = {};
+  for (var i = 0; i < ids.length; i++) {
+    var rid = String(ids[i][0]).trim();
+    if (!rid) continue;
+    existing[rid] = true;
+    if (rid !== base && rid.indexOf(base + '-') !== 0) continue;   // base의 결정적 접두가 아니면 다른 부부
+    var rg = gNames[i] ? String(gNames[i][0]).trim() : '', rb = bNames[i] ? String(bNames[i][0]).trim() : '';
+    if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: rid, rowNum: CFG.DATA_START_ROW + i };
   }
+  // 2) 신규 부부 — 추측 불가 랜덤 접미(6자)로 새 id 생성. eventId(초성-초성-MMDD)만 아는 외부인의
+  //    대량 열람(부모 성함·계좌·라이브)을 차단. 시트 내 유일성 보장(희박한 충돌 시 재생성).
+  var candidate = base + '-' + _randEventSuffix(), guard = 0;
+  while (existing[candidate] && guard++ < 50) candidate = base + '-' + _randEventSuffix();
+  return { eventId: candidate, rowNum: lastRow + 1 };
+}
+// 예식ID 랜덤 접미(6자·혼동문자 l/o/0/1 제외) — 추측 방지용. computeDigest(UUID) 기반, 실패 시 Math.random 폴백.
+function _randEventSuffix() {
+  var A = 'abcdefghijkmnpqrstuvwxyz23456789', out = '', bytes;
+  try { bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, Utilities.getUuid() + ':' + new Date().getTime()); } catch (e) { bytes = null; }
+  for (var i = 0; i < 6; i++) { var r = bytes ? (bytes[i] & 0xff) : Math.floor(Math.random() * 256); out += A.charAt(r % A.length); }
+  return out;
 }
 // eventId 컬럼을 아래에서 위로 스캔해 마지막 실 데이터 행 위치 반환.
 // 빈 셀(공백·trim 후 빈 문자열) 무시 → 빈 행 다음에 쌓이는 문제 차단.
