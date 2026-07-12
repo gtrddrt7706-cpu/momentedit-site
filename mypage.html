@@ -824,6 +824,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt-mini:active{background:var(--bg2)}
     .rt-mini.rt-del{color:var(--light)}
     .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
+    /* 모바일(≤480px): 테이블(원+자리)이 폰 폭에 꽉 차 답답 → 통째로 축소(비율 유지). 컨트롤 버튼은 크기 유지(탭 편의). margin-bottom 음수로 축소분 세로 공간 회수 */
+    @media(max-width:480px){
+      .rt{transform:scale(0.8);transform-origin:top center;margin-bottom:-30px}
+    }
     /* PC(≥760px): 좌석 배치 카드만 예외적으로 넓게 브레이크아웃(main 430px 제약을 벗어나 뷰포트 중앙 정렬) → 좌우 지그재그를 크게. 모바일은 폭 그대로라 좌우 최소+수직 지퍼로 처리 */
     @media(min-width:760px){
       .seat-card{width:92vw;max-width:880px;position:relative;left:50%;transform:translateX(-50%)}
@@ -4028,7 +4032,6 @@ function renderSeat(box){
       +'<div class="rt-ctl">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
-        +'<button type="button" class="rt-mini" data-seat-move="'+ti+'" title="좌우 이동">'+(t.side==='R'?'←':'→')+'</button>'
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
       +'</div></div>';
   }
@@ -4062,14 +4065,13 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<5) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var st=SEATFLOW.tables[j]&&SEATFLOW.tables[j].seats; if(st&&st.length>1) st.pop(); renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var m=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[m]) SEATFLOW.tables[m].side=(SEATFLOW.tables[m].side==='R')?'L':'R'; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
