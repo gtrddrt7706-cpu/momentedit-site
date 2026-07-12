@@ -442,6 +442,12 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dn-fav .a a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#9a7b3f);text-decoration:none}
 .dn-fav .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:none;background:none;color:var(--light);font-size:13px;cursor:pointer;padding:0}
 .dn-favshare{display:block;width:100%;margin-top:2px}
+.dn-agg{padding-bottom:12px}
+.dn-agg.rep{border-color:var(--seal);background:#fffdf9;box-shadow:0 4px 16px rgba(107,42,36,.08)}
+.dn-agg .repbadge{display:inline-block;font-family:var(--serif-ko);font-size:10px;font-weight:500;color:#fff;background:var(--seal);border-radius:20px;padding:1px 8px;margin-right:6px;vertical-align:middle}
+.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal);border-radius:8px;background:#fff;color:var(--seal);font-family:var(--serif-ko);font-size:12.5px;cursor:pointer}
+.dn-repbtn:hover{background:var(--seal);color:#fff}
+.dn-aggbook{margin-top:10px;padding-top:11px;border-top:1px dashed var(--border)}
 .inv-opt.sel{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
 .inv-opt small{display:block;font-size:12px;color:var(--sub);font-weight:300;margin-top:3px}
 .inv-sub{margin:2px 0 8px 6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
@@ -4488,50 +4494,93 @@ function renderDining(box){
     var body='<div class="cc-note" style="text-align:left;margin:0 0 12px">'+escapeHtml(slot.lead)+'</div>'
         + dineFilterUI(d, (TRKFLOW.base&&TRKFLOW.base.weddingTime)||'')
         ;   // 하단 고정 옵션(직접 섭외·상담 때·다이닝 없이) 제거 — 식당 카드만(2026-06-13 사용자 지시). 옛 저장값은 아래 분기로 계속 표시.
-    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒷풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false);
+    var _favN0=(d._favs||[]).length;   // 찜한 곳 수 → '다음' 라벨을 '취합' 신호로(여러 곳 골랐음을 확인시켜 다음 페이지 취합 기대 형성)
+    var _nextLbl=_favN0?('찜한 '+_favN0+'곳 정리하기'):'다음';
+    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒷풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
-    bindTrk(box,renderDining,collect,{ confirmNext: function(go){
-      var _vp=String(d.venuePick||'').trim();
-      if(_vp && _dnFind(_vp) && !TRKFLOW._dineDisclaimerSeen){   // 실제 DINE_DB 식당일 때만(step1에 전화·지도 노출) · 세션당 1회
-        mpConfirm({ title:'예약 전에 안내드려요',
-          bodyHtml:'<div style="text-align:left;line-height:1.75">영업시간·메뉴·가격·단체석·주차는 달라질 수 있으니, 예약 전 식당에 한 번 확인해 주세요.</div>',
-          yes:'확인했어요', no:'이전', confirmSeal:true }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지 · 확인 버튼 진사색
-        return;
+    bindTrk(box,renderDining,collect,{
+      validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 별표(찜) 또는 한 곳 선택 유도
+        if(!(d._favs&&d._favs.length) && !String(d.venuePick||'').trim())
+          return '마음에 드는 곳을 별표(찜)해 두거나, 한 곳을 골라 주세요. 여러 곳을 찜해 두면 다음 화면에서 함께 비교할 수 있어요.';
+        return '';
+      },
+      confirmNext: function(go){
+        var _vp=String(d.venuePick||'').trim();
+        var _showPhones=(_vp && _dnFind(_vp)) || (d._favs && d._favs.length);   // 실제 식당 선택 or 찜한 곳 존재 → 다음 페이지에 전화·지도 노출 → 면책 1회
+        if(_showPhones && !TRKFLOW._dineDisclaimerSeen){
+          mpConfirm({ title:'예약 전에 안내드려요',
+            bodyHtml:'<div style="text-align:left;line-height:1.75">영업시간·메뉴·가격·단체석·주차는 달라질 수 있으니, 예약 전 식당에 한 번 확인해 주세요.</div>',
+            yes:'확인했어요', no:'이전', confirmSeal:true }).then(function(okk){ if(okk){ TRKFLOW._dineDisclaimerSeen=true; go(); } });   // '이전'·닫기면 step0 유지 · 확인 버튼 진사색
+          return;
+        }
+        go();
       }
-      go();
-    } });
+    });
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
       box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
       bindTrk(box,renderDining,collect,{ last:true });
     } else {
-      var R=null,i2; for(i2=0;i2<DINE_DB.length;i2++){ if(d.venue&&DINE_DB[i2].n===d.venue){ R=DINE_DB[i2]; break; } }
       var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 숫자만 — '25명' 입력 시 '25명 명' 방지
       var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지
-      var body2;
-      if(R){
-        var telD=(R.tel||'').replace(/[^0-9]/g,'');
+      // 예약 스크립트 블록(대표 1곳) — DINE_DB·카카오 찜 모두 지원. 전화·지도·통화 스크립트 한 세트.
+      var _bookBlock=function(nm,tel,url){
+        var R2=_dnFind(nm), telShow=(R2&&R2.tel)||tel||'', telD=String(telShow).replace(/[^0-9]/g,'');
+        var mUrl=(url&&/^https?:\/\//i.test(url))?url:_dnMapUrl(nm);
         var callLine=telD
-          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(R.tel)+'</a>'
+          ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(telShow)+'</a>'
           : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
-        var mapLine='<a class="cc-btn-ghost" href="'+_dnMapUrl(R.n)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
-        var isCafe=(R.th==='cafe');   // 카페 픽이면 '식사·룸' 대신 '차·디저트/방문'으로 멘트·라벨 맞춤(2026-06-16)
+        var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
+        var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
           + (isCafe ? '단체로 차·디저트 자리를 예약하고 싶어요. 단체석·주차 가능할까요?' : '단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?');
-        body2='<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래로 예약만 마치면, 그날의 마지막 순간까지 준비가 끝나요.</div>'   // [심리] 선택 확언+첫 식탁 프레임+완결감 · 2026-07-10
-          +'<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
-          + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · '+(isCafe?'도착':'식사 도착')+' '+arr2+' 기준':'')+'</div>'
-          + callLine + mapLine
+        return callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
           + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 안내된 정보는 변동될 수 있으니 통화에서 꼭 확인해 주세요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
+      };
+      var favs=d._favs||[];
+      if(favs.length){
+        // ── 취합 뷰: 찜한 곳을 한곳에 모아 비교 → '여기로 예약할래요'로 대표 1곳 지정 → 그 자리에 예약 안내 펼침 ──
+        var rep=String(d.venuePick||''), repInFav=false; for(var fi=0;fi<favs.length;fi++){ if(favs[fi].n===rep){ repInFav=true; break; } }
+        if(!repInFav) rep='';   // 대표가 찜 목록에 없으면(별표 해제 등) 미지정 처리
+        var favHtml=favs.map(function(v){
+          var isRep=(v.n===rep), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
+          var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
+          return '<div class="dn-fav dn-agg'+(isRep?' rep':'')+'"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="찜 빼기">✕</button>'
+            +'<div class="n">'+(isRep?'<span class="repbadge">여기로 예약</span>':'')+escapeHtml(v.n)+'</div>'
+            +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
+            +(isRep   // 대표는 아래 예약 블록에 전화·지도가 크게 나오므로 작은 링크 줄은 생략(중복 방지). 나머지는 결정 전 빠른 확인용으로 노출
+                ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div>'
+                : '<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div>'
+                  +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'">여기로 예약할래요</button>')
+            +'</div>';
+        }).join('');
+        var repNote=rep
+          ? '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래 <b>'+escapeHtml(rep)+'</b>로 예약만 마치면 준비가 끝나요. 다른 곳으로 바꾸려면 그 카드의 \'여기로 예약할래요\'를 누르세요.</div>'   // [심리] 첫 식탁·완결감 + 변경 방법 명시
+          : '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">두 분이 함께 보고, <b>예약할 한 곳</b>에서 \'여기로 예약할래요\'를 눌러 주세요. 나머지는 후보로 남겨 둬도 괜찮아요.</div>';
+        var body2=repNote+favHtml
+          +'<button type="button" class="cc-btn-ghost dn-favshare" id="dn_favShare" style="margin-top:4px">카카오톡·문자로 목록 보내기</button>'
+          +'<div class="dn-fine" style="margin-top:8px">✕로 목록에서 뺄 수 있어요. 예약 전 식당에 전화로 한 번 확인해 주세요.</div>';
+        box.innerHTML=trkShell(2,'찜한 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 닫기');
+        bindTrk(box,renderDining,collect,{ last:true });
       } else {
-        body2='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
-          + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
-          + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 골라 예약해요.':'원하시는 곳을 직접 정해 예약하시면 돼요. 도움이 필요하면 디렉터에게 요청해 주세요.')+'</div>';
+        // 단일 선택(카드 직접 선택 · 찜 없음) — 기존 단일 예약 안내 유지
+        var R=_dnFind(d.venue), body2b;
+        if(R){
+          var isCafe=(R.th==='cafe');
+          body2b='<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래로 예약만 마치면, 그날의 마지막 순간까지 준비가 끝나요.</div>'   // [심리] 선택 확언+첫 식탁 프레임+완결감 · 2026-07-10
+            +'<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
+            + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · '+(isCafe?'도착':'식사 도착')+' '+arr2+' 기준':'')+'</div>'
+            + _bookBlock(R.n,R.tel,'');
+        } else {
+          body2b='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
+            + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
+            + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 골라 예약해요.':'원하시는 곳을 직접 정해 예약하시면 돼요. 도움이 필요하면 디렉터에게 요청해 주세요.')+'</div>';
+        }
+        box.innerHTML=trkShell(2,'예약 안내',null,body2b,true,'저장하고 닫기');
+        bindTrk(box,renderDining,collect,{ last:true });
       }
-      box.innerHTML=trkShell(2,'예약 안내',null,body2,true,'저장하고 닫기');
-      bindTrk(box,renderDining,collect,{ last:true });
     }
   }
 }
