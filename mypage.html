@@ -4399,7 +4399,6 @@ function dineFilterUI(d, wt){
   if(!showAll && d.venuePick){ for(var ci=CAP;ci<list.length;ci++){ if(list[ci].n===d.venuePick){ showAll=true; break; } } }
   var shown=(showAll||list.length<=CAP+2)?list:list.slice(0,CAP);
   var cards = list.length ? shown.map(function(r){
-    var sel=(d.venuePick===r.n);
     var meta='차'+r.d+'분 · '+_DN_PRICE[r.p]+(r.f&&r.f.length?' · '+r.f.join('·'):'');
     var tags=[_DN_GROUP[r.g]];
     if(r.eld) tags.push('좌식');
