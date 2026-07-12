@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>식순 미리보기 · Moment Edit</title>
+<style>
+:root{
+  --bg:#FAF9F6; --card:#FFFFFF; --accent:#3A2D22; --sub:#5A554C; --light:#8A8375;
+  --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#E6E1D8; --bg2:#F3F0EA;
+  --serif:'Noto Serif KR','Nanum Myeongjo',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-height:1.7;-webkit-text-size-adjust:100%;padding:0 0 60px}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+.top{text-align:center;padding:30px 16px 18px}
+.eyebrow{font-size:10px;letter-spacing:.28em;color:var(--gold-deep);text-transform:uppercase}
+.title{font-size:22px;font-weight:600;margin-top:8px;letter-spacing:.01em}
+.desc{font-size:12.5px;color:var(--sub);margin-top:8px;word-break:keep-all}
+.banner{background:#FBF3E7;border:1px solid #EAD9BE;border-radius:10px;padding:10px 13px;font-size:11.5px;color:var(--gold-deep);margin:14px 0 4px;text-align:center;line-height:1.6}
+h2.sec{font-size:12px;letter-spacing:.05em;color:var(--gold-deep);margin:26px 0 10px;font-weight:600}
+/* 코스 카드 */
+.courses{display:flex;gap:9px}
+.crs{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:13px 10px;text-align:center;cursor:pointer;background:var(--card);transition:.18s;position:relative}
+.crs.on{border-color:var(--seal);background:#FDF6F5}
+.crs .nm{font-size:14px;font-weight:600}
+.crs .tg{font-size:10.5px;color:var(--light);margin-top:4px;word-break:keep-all;line-height:1.5}
+.crs.soon{opacity:.5}
+.crs.soon::after{content:'준비 중';position:absolute;top:6px;right:7px;font-size:8.5px;color:var(--light)}
+.crs.on .nm{color:var(--seal)}
+/* 옵션 */
+.opts{background:var(--bg2);border-radius:12px;padding:14px 14px 6px}
+.opt{margin-bottom:13px}
+.opt .lb{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.opt .lb small{font-weight:400;color:var(--light);font-size:10.5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border);background:var(--card);border-radius:20px;padding:6px 12px;font-size:11.5px;color:var(--sub);cursor:pointer;font-family:var(--serif);transition:.15s}
+.chip.on{background:var(--seal);border-color:var(--seal);color:#fff}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--accent)}
+.toggle input{display:none}
+.tk{width:38px;height:22px;border-radius:22px;background:var(--border);position:relative;transition:.2s;flex-shrink:0}
+.tk::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked + .tk{background:var(--seal)}
+.toggle input:checked + .tk::after{left:18px}
+/* 타임라인 */
+.tl{position:relative;padding-left:20px;margin-top:6px}
+.tl::before{content:'';position:absolute;left:5px;top:8px;bottom:14px;width:1.5px;background:var(--border)}
+.blk{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:11px}
+.blk::before{content:'';position:absolute;left:-18.5px;top:20px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid var(--bg)}
+.blk.fix::before{background:var(--seal)}
+.blk.peak{border-color:#E7C9A0;background:#FFFDF9}
+.blk.peak::before{background:var(--seal);box-shadow:0 0 0 3px rgba(184,154,117,.28)}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.bn{font-size:14.5px;font-weight:600}
+.btag{font-size:9.5px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 8px;white-space:nowrap}
+.btag.f{background:var(--sub)}.btag.p{background:var(--seal)}
+.nar{background:#F7F3EC;border-radius:8px;padding:10px 12px;margin-top:9px;font-size:12.5px;color:#4A3E30;line-height:1.75;word-break:keep-all}
+.nar .who{font-size:10px;color:var(--gold-deep);letter-spacing:.04em;display:block;margin-bottom:4px}
+.selfline{background:#F4F6F2;border-left:2px solid #9DB08A;border-radius:0 8px 8px 0;padding:9px 12px;margin-top:8px;font-size:11.5px;color:#465239;line-height:1.7}
+.selfline .who{color:#5E7148;font-size:10px;letter-spacing:.04em;display:block;margin-bottom:3px}
+.play{margin-top:9px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--gold-deep);cursor:pointer;font-family:var(--serif)}
+.mini{font-size:10.5px;color:var(--light);margin-top:8px;line-height:1.6}
+.verpick{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.verpick .chip{padding:4px 10px;font-size:10.5px}
+/* 준비물 */
+.prep{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px 4px}
+.pr{display:flex;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bg2);font-size:12.5px;align-items:baseline}
+.pr:last-child{border-bottom:none}
+.pr .dday{flex-shrink:0;font-size:10.5px;color:#fff;background:var(--gold-deep);border-radius:6px;padding:2px 7px;min-width:44px;text-align:center}
+.pr .txt{color:var(--accent)}
+.foot{text-align:center;font-size:11px;color:var(--light);margin-top:28px;line-height:1.7;word-break:keep-all}
+.tstamp{font-size:9.5px;color:#BDB6A8;text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="eyebrow">Moment Edit · Order of Service</div>
+  <div class="title">우리 예식, 미리 들어보기</div>
+  <div class="desc">코스를 고르고 순간을 더하면, 성우 나레이션 대본이 완성됩니다. 지금은 글로 미리보고, 실제 목소리는 준비되면 들려드려요.</div>
+</div>
+<div class="wrap">
+  <div class="banner">🔎 내부 미리보기 · 클릭하며 확인하는 시안이에요. 이 화면을 보며 고칠 부분을 체크해요.</div>
+
+  <h2 class="sec">1 · 어떤 분위기로 흐를까요</h2>
+  <div class="courses">
+    <div class="crs on" data-crs="damback"><div class="nm">담백</div><div class="tg">과한 연출 없이 정갈하게</div></div>
+    <div class="crs soon" data-crs="gamdong"><div class="nm">감동</div><div class="tg">편지·서약 중심 눈물의 아크</div></div>
+    <div class="crs soon" data-crs="family"><div class="nm">가족</div><div class="tg">양가 가족이 주인공</div></div>
+  </div>
+
+  <h2 class="sec">2 · 우리답게 다듬기</h2>
+  <div class="opts">
+    <div class="opt">
+      <div class="lb">입장 멘트 <small>느낌을 골라요</small></div>
+      <div class="chips" id="op_entry">
+        <span class="chip on" data-v="A">A · 서사형</span>
+        <span class="chip" data-v="B">B · 짧고 강하게</span>
+        <span class="chip" data-v="C">C · 격식+따뜻</span>
+      </div>
+    </div>
+    <div class="opt">
+      <div class="lb">환영 인사</div>
+      <div class="chips" id="op_welcome">
+        <span class="chip on" data-v="nar">나레이션에 맡기기</span>
+        <span class="chip" data-v="self">두 분이 직접</span>
+      </div>
+    </div>
+    <div class="opt">
+      <div class="lb">성혼 선언 <small>낭독 느낌</small></div>
+      <div class="chips" id="op_declare">
+        <span class="chip on" data-v="1">엄숙하게</span>
+        <span class="chip" data-v="2">따뜻하게</span>
+      </div>
+    </div>
+    <div class="opt">
+      <div class="lb">편지 낭독 대상</div>
+      <div class="chips" id="op_letter">
+        <span class="chip on" data-v="parent">부모님께</span>
+        <span class="chip" data-v="each">서로에게</span>
+      </div>
+    </div>
+    <div class="opt">
+      <div class="lb">사이 순서 <small>담백은 비움이 기본</small></div>
+      <div class="chips" id="op_valley">
+        <span class="chip on" data-v="none">없음</span>
+        <span class="chip" data-v="wine">와인 세리머니</span>
+        <span class="chip" data-v="cake">케이크 커팅</span>
+      </div>
+    </div>
+    <label class="toggle" style="margin-bottom:12px"><input type="checkbox" id="op_ring" checked><span class="tk"></span>반지 교환 넣기</label>
+    <label class="toggle" style="margin-bottom:12px"><input type="checkbox" id="op_video"><span class="tk"></span>성장 영상 (식전 상영)</label>
+    <label class="toggle" style="margin-bottom:14px"><input type="checkbox" id="op_bless"><span class="tk"></span>부모님 덕담 넣기</label>
+  </div>
+
+  <h2 class="sec">3 · 완성된 우리 예식</h2>
+  <div class="tl" id="timeline"></div>
+
+  <h2 class="sec">4 · 우리가 준비할 것</h2>
+  <div class="prep" id="prep"></div>
+
+  <div class="foot">저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요.<br>예식 9일 전까지 언제든 고칠 수 있어요.</div>
+  <div class="tstamp">order-preview · 코스 A(담백) 시안</div>
+</div>
+
+<script>
+var S = { entry:'A', welcome:'nar', declare:'1', letter:'parent', valley:'none', ring:true, video:false, bless:false };
+
+var ENTRY = {
+  A: "지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 마음으로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!",
+  B: "오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다. 이 자리의 모든 마음을 담아 맞이하겠습니다. 신랑 신부, 입장!",
+  C: "두 사람이 오래 기다려 온 순간입니다. 서로의 손을 잡고, 평생 함께 걸을 첫 걸음을 내딛습니다. 하객 여러분, 큰 마음으로 맞아 주십시오. 신랑 신부, 입장!"
+};
+var DECLARE = {
+  '1': "오늘, 신랑 신부는 이 자리에 함께하신 모든 분을 증인으로, 서로의 평생이 되기로 하였습니다. 이 약속은 오늘부터 두 사람의 것이며, 신랑 신부, 이제 두 사람은 부부입니다.",
+  '2': "이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다. 오늘 이 자리에 함께하신 모든 분이, 그 증인입니다. 신랑 신부, 이제 두 사람은 부부입니다."
+};
+
+function blocks(){
+  var b = [];
+  if(S.video) b.push({k:'video',n:'성장 영상',tag:['식전','f'],nar:null,note:'하객 입장 중 상영 · 성우 멘트 없음 · 영상 파일 D-3 전달'});
+  b.push({k:'entry',n:'신랑·신부 입장',tag:['고정','f'],nar:ENTRY[S.entry],ver:'entry'});
+  if(S.welcome==='nar'){
+    b.push({k:'welcome',n:'환영·첫인사',tag:['고정','f'],nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다."});
+  } else {
+    b.push({k:'welcome',n:'환영·첫인사',tag:['고정','f'],nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:{who:'신랑신부 직접',t:'짧은 인사 한두 문장 (예: 바쁘신 중에 함께해 주셔서 감사합니다. 오늘을 오래 기억하겠습니다.)'}});
+  }
+  b.push({k:'vow',n:'혼인 서약',tag:['직접 낭독'],nar:"이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문 (D-7까지 작성)'},end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다."});
+  if(S.ring) b.push({k:'ring',n:'반지 교환',tag:['선택'],nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다."});
+  b.push({k:'declare',n:'성혼 선언',tag:['고정','f'],nar:DECLARE[S.declare],ver:'declare'});
+  if(S.valley==='wine') b.push({k:'wine',n:'와인 세리머니',tag:['선택'],nar:"지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다."});
+  if(S.valley==='cake') b.push({k:'cake',n:'케이크 커팅',tag:['선택'],nar:"오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다."});
+  var lt = S.letter==='each'
+    ? {intro:"이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.", who:'신랑신부 직접 낭독', prep:'서로에게 쓴 편지 (D-7까지)'}
+    : {intro:"세상에서 가장 먼저 두 사람을 사랑한 분들이, 오늘 이 자리에 계십니다. 한 번도 다 갚지 못한 마음을, 두 사람이 오늘 처음으로 소리 내어 전합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.", who:'신랑신부 직접 낭독', prep:'부모님께 드릴 편지 (D-7까지)'};
+  b.push({k:'letter',n:'편지 낭독',tag:['정점','p'],peak:true,nar:lt.intro,self:{who:lt.who,t:lt.prep},end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다."});
+  if(S.bless) b.push({k:'bless',n:'부모님 덕담',tag:['선택'],nar:"이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.",self:{who:'부모님 직접',t:'양가 부모님께 1~2분 덕담 부탁 (D-14 안내)'},end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다."});
+  b.push({k:'close',n:'폐식 · 단체촬영',tag:['고정','f'],nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 오늘의 이 마음은, 시간이 흘러도 두 사람이 서로에게 돌아올 자리가 되어 줄 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오."});
+  return b;
+}
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function verChips(kind){
+  if(kind==='entry') return '<div class="verpick">'+['A','B','C'].map(function(v){return '<span class="chip'+(S.entry===v?' on':'')+'" data-ver="entry" data-vv="'+v+'">'+v+'</span>';}).join('')+'</div>';
+  if(kind==='declare') return '<div class="verpick">'+[['1','엄숙'],['2','따뜻']].map(function(x){return '<span class="chip'+(S.declare===x[0]?' on':'')+'" data-ver="declare" data-vv="'+x[0]+'">'+x[1]+'</span>';}).join('')+'</div>';
+  return '';
+}
+
+function render(){
+  var bs = blocks(), html='';
+  bs.forEach(function(b){
+    var cls = 'blk'+(b.tag[1]==='f'?' fix':'')+(b.peak?' peak':'');
+    var tagcls = b.tag[1]==='f'?'f':(b.tag[1]==='p'?'p':'');
+    html += '<div class="'+cls+'">';
+    html += '<div class="bh"><span class="bn">'+esc(b.n)+'</span><span class="btag '+tagcls+'">'+esc(b.tag[0])+'</span></div>';
+    if(b.nar){
+      html += '<div class="nar"><span class="who">🔊 성우 나레이션</span>'+esc(b.nar)+(b.end?'<br><span style="color:var(--light)">…</span><br>'+esc(b.end):'')+'</div>';
+      html += verChips(b.ver);
+      html += '<button class="play" onclick="alert(\'실제 성우 목소리는 녹음 후 연결됩니다. 지금은 글로 미리보기예요.\')">🔊 들어보기 (준비 중)</button>';
+    }
+    if(b.self){
+      html += '<div class="selfline"><span class="who">🎙 '+esc(b.self.who)+'</span>'+esc(b.self.t)+'</div>';
+    }
+    if(b.note) html += '<div class="mini">'+esc(b.note)+'</div>';
+    html += '</div>';
+  });
+  document.getElementById('timeline').innerHTML = html;
+
+  // 준비물
+  var prep = [];
+  prep.push(['D-14','입장곡 고르기 (비우면 추천 무드로)']);
+  if(S.bless) prep.push(['D-14','양가 부모님께 덕담 부탁 (1~2분)']);
+  prep.push(['D-7','서로에게 쓴 혼인 서약문 준비']);
+  prep.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
+  if(S.welcome==='self') prep.push(['D-7','환영 인사말 한두 문장 준비']);
+  if(S.video) prep.push(['D-3','성장 영상 파일 전달']);
+  if(S.ring) prep.push(['당일','결혼반지 지참']);
+  document.getElementById('prep').innerHTML = prep.map(function(p){return '<div class="pr"><span class="dday">'+p[0]+'</span><span class="txt">'+esc(p[1])+'</span></div>';}).join('');
+}
+
+// 이벤트 바인딩
+function bindChips(id, key){
+  document.getElementById(id).addEventListener('click', function(e){
+    var c = e.target.closest('.chip'); if(!c) return;
+    S[key] = c.getAttribute('data-v');
+    [].forEach.call(this.querySelectorAll('.chip'), function(x){x.classList.toggle('on', x===c);});
+    render();
+  });
+}
+bindChips('op_entry','entry'); bindChips('op_welcome','welcome'); bindChips('op_declare','declare');
+bindChips('op_letter','letter'); bindChips('op_valley','valley');
+['ring','video','bless'].forEach(function(k){ document.getElementById('op_'+k).addEventListener('change', function(){ S[k]=this.checked; render(); }); });
+document.getElementById('timeline').addEventListener('click', function(e){
+  var c = e.target.closest('.chip[data-ver]'); if(!c) return;
+  S[c.getAttribute('data-ver')] = c.getAttribute('data-vv');
+  // sync top option chips
+  var top = document.getElementById('op_'+c.getAttribute('data-ver'));
+  if(top){ [].forEach.call(top.querySelectorAll('.chip'), function(x){ x.classList.toggle('on', x.getAttribute('data-v')===c.getAttribute('data-vv')); }); }
+  render();
+});
+render();
+</script>
+</body>
+</html>
