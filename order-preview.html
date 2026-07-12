@@ -106,6 +106,21 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .prep .dday{flex-shrink:0;font-size:10.5px;color:#fff;background:var(--gold-deep);border-radius:6px;padding:2px 8px;min-width:46px;text-align:center}
 .note{font-size:11px;color:var(--light);text-align:center;margin-top:18px;line-height:1.7;word-break:keep-all}
 .tot{text-align:center;font-size:12px;color:var(--sub);margin-top:4px}
+.ta{width:100%;border:1px solid var(--border);border-radius:9px;background:#fff;font-family:var(--serif);font-size:12.5px;color:var(--accent);padding:10px 12px;margin-top:10px;min-height:64px;line-height:1.7;resize:vertical}
+.ta:focus{outline:none;border-color:var(--gold-deep)}
+.tin{width:100%;border:1px solid var(--border);border-radius:9px;background:#fff;font-family:var(--serif);font-size:12.5px;color:var(--accent);padding:10px 12px;margin-top:8px}
+.tin:focus{outline:none;border-color:var(--gold-deep)}
+.tgl{display:flex;align-items:center;gap:8px;margin-top:11px;font-size:12px;color:var(--sub);cursor:pointer}
+.tgl input{display:none}
+.tgl .tk{width:36px;height:21px;border-radius:21px;background:var(--border);position:relative;transition:.2s;flex-shrink:0}
+.tgl .tk::after{content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tgl input:checked + .tk{background:var(--green)}
+.tgl input:checked + .tk::after{left:17px}
+.wcard{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:15px 16px;margin-top:11px}
+.wcard .wn{font-size:13.5px;font-weight:600}
+.wcard .wd{font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
+.special{margin-top:14px;text-align:center;font-size:11.5px;color:var(--gold-deep);border:1px dashed var(--border);border-radius:10px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
+.copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold);color:var(--gold-deep);border-radius:10px;padding:12px;font-family:var(--serif);font-size:12.5px;font-weight:600;cursor:pointer}
 /* rehearse */
 .rh-hd{text-align:center;padding:4px 0}
 .rh-hd .t{font-size:19px;font-weight:600}
@@ -131,8 +146,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
   </div>
 </div>
 <script>
-var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off'};
+var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
+       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:''};
 var mode='build'; var rhMode='auto';
+window.setv=function(k,val){ S[k]=val; };
+window.settgl=function(k,cb){ S[k]=cb.checked; };
 
 var ENTRY={
  A:{d:"서사형",nar:"지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 마음으로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!"},
@@ -259,10 +277,12 @@ function renderStep(k){
   else if(k==='welcome'){
     h+=oc('welcome','nar','나레이션에 맡기기','성우가 두 분을 대신해 따뜻하게 인사','먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.',null,null,null,true);
     h+=oc('welcome','self','두 분이 직접','짧게 직접 인사 (성우가 앞을 열어줌)','먼저, 두 사람이 준비한 첫 인사가 있습니다.',null,{who:'신랑신부',t:'짧은 인사 한두 문장'},'준비물 · 환영 인사말 한두 문장.<br>'+LATER);
+    if(S.welcome==='self') h+='<div class="wcard"><div class="wn">인사말 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea></div>';
   }
   else if(k==='vow'){
     h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
-    h+='<div class="banner">서약은 담백 코스의 핵심이라 항상 포함돼요. 어렵게 쓰지 않아도 돼요. 짧아도 진심이면 충분해요. 오열이 걱정되면 성우가 대신 읽어드릴 수도 있어요.</div>';
+    h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
+    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>오열이 걱정돼요. 성우가 대신 읽어 주세요</label></div>';
   }
   else if(k==='ring'){
     h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,'준비물 · 당일 결혼반지 지참',true);
@@ -274,7 +294,11 @@ function renderStep(k){
     h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.');
     h+=oc('valley','cake','케이크 커팅','밝은 한 호흡, 촬영으로 연결','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.');
   }
-  else if(k==='letter'){ ['parent','each'].forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); }); }
+  else if(k==='letter'){
+    ['parent','each'].forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); });
+    h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
+    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>오열이 걱정돼요. 성우가 대신 읽어 주세요</label></div>';
+  }
   else if(k==='bless'){
     h+=oc('bless','off','빼기','부모님 순서 없이 마무리로','',null,null,null,true);
     h+=oc('bless','on','넣기','양가 부모님이 짧게 말씀을 전해요','이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.','그 말씀, 두 사람이 오래 마음에 새기겠습니다.',{who:'부모님',t:'1~2분 덕담'},'준비물 · D-14 부모님께 덕담 부탁 (1~2분)');
@@ -346,6 +370,13 @@ function prep(){
   return p;
 }
 window.listenAll=function(b){ if(b.classList.contains('playing'))return; b.classList.add('playing'); var o=b.innerHTML; b.innerHTML='내 예식 나레이션 재생 중… (실제 목소리 준비 중)'; setTimeout(function(){b.classList.remove('playing');b.innerHTML=o;},2200); };
+window.copyScript=function(){
+  var bs=fullBlocks(), lines=['우리 예식 대본 · 담백 코스',''];
+  bs.forEach(function(b){ lines.push('['+b.n+']'); lines.push('성우: '+b.nar); if(b.end) lines.push('성우: '+b.end); if(b.self) lines.push('(직접: '+b.self+')'); lines.push(''); });
+  var txt=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('대본을 복사했어요. 서로에게 붙여넣어 공유하세요.');},function(){alert('복사에 실패했어요.');}); }
+  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
+};
 window.openRehearse=function(){ mode='rehearse'; render(); };
 window.closeRehearse=function(){ mode='build'; render(); };
 window.setRh=function(m){ rhMode=m; render(); };
@@ -367,9 +398,16 @@ function renderDone(){
     h+=playBtn();
     h+='</div>';
   });
+  h+='<button class="copy-btn" onclick="copyScript()">대본 텍스트 복사 (서로 공유용)</button>';
+  h+='<div class="sec-l">음악, 세 곳만 정하면 돼요</div>';
+  h+='<div class="wcard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
+  h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 (곡명·가수)" value="'+esc(S.mEntry)+'">';
+  h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악" value="'+esc(S.mPeak)+'">';
+  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악" value="'+esc(S.mClose)+'"></div>';
   h+='<div class="sec-l">우리가 준비할 것</div><div class="prep">';
   prep().forEach(function(p){ h+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
   h+='</div>';
+  h+='<div class="special" onclick="alert(\'목록에 없는 특별한 순서도 상담 때 함께 만들 수 있어요. 원하시면 디렉터에게 편하게 말씀해 주세요.\')">목록에 없는 특별한 순서를 원하시나요?<br>상담 때 함께 만들 수 있어요.</div>';
   h+='<div class="note">저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요.<br>예식 9일 전까지 언제든 고칠 수 있어요.</div>';
   h+='<div class="banner" style="text-align:center">내부 미리보기 시안 · 코스 A(담백)</div>';
   return h;
