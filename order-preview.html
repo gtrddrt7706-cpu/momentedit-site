@@ -23,6 +23,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:20px;font-weight:600;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
 .q-sub{font-size:12.5px;color:var(--sub);margin-top:9px;word-break:keep-all}
+.reassure{font-size:11px;color:var(--gold-deep);margin-top:10px;word-break:keep-all}
 .mini-run{font-size:10.5px;color:var(--gold-deep);background:#FBF3E7;border-radius:20px;padding:5px 12px;display:inline-block;margin-top:12px}
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:11px}
 .oc{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:15px 16px;cursor:pointer;transition:.18s}
@@ -30,6 +31,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .oc-nm{font-size:15px;font-weight:600}
 .oc.on .oc-nm{color:var(--seal)}
 .oc-desc{font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
+.oc-rec{font-size:10px;color:#fff;background:var(--gold);border-radius:20px;padding:1px 8px;margin-left:7px;vertical-align:middle}
 .nar{background:#F7F3EC;border-radius:9px;padding:11px 13px;margin-top:11px;font-size:12.5px;color:#4A3E30;line-height:1.8;word-break:keep-all}
 .nar .lb{font-size:10px;letter-spacing:.05em;color:var(--gold-deep);display:block;margin-bottom:5px;font-weight:600}
 .nar .end{color:var(--light)}
@@ -39,15 +41,20 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .self{background:#F3F6F0;border-left:2.5px solid #9DB08A;border-radius:0 9px 9px 0;padding:10px 13px;margin-top:11px;font-size:11.5px;color:#43502F;line-height:1.75}
 .self .who{color:var(--green);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
 .prep-hint{font-size:11px;color:var(--gold-deep);margin-top:10px;background:#FBF3E7;border-radius:8px;padding:8px 11px;word-break:keep-all}
+.prep-hint b{color:var(--seal)}
 .banner{background:#FBF3E7;border:1px solid #EAD9BE;border-radius:9px;padding:8px 12px;font-size:11px;color:var(--gold-deep);word-break:keep-all;line-height:1.6;margin-top:12px}
+.intro-lead{font-size:13px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
+.intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.ipt{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--accent)}
+.ipt .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--seal);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.sample{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center}
+.sample .st{font-size:11px;color:var(--gold-deep);font-weight:600}
+.sample .sx{font-size:12.5px;color:#4A3E30;line-height:1.8;margin:8px 0 12px;word-break:keep-all}
 /* course */
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:16px;transition:.18s;margin-bottom:11px}
-.crs.pick{cursor:pointer}
-.crs.on{border-color:var(--seal);background:#FDF6F5}
-.crs.soon{opacity:.62}
+.crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#FDF6F5}.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
-.crs-nm{font-size:17px;font-weight:600}
-.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
+.crs-nm{font-size:17px;font-weight:600}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--seal)}
 .crs-badge{font-size:9.5px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 9px}
 .crs.soon .crs-badge{background:var(--light)}
@@ -60,8 +67,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .cflow-a{color:var(--light);font-size:10px}
 .cdet{margin-top:15px;border-top:1px dashed var(--border);padding-top:13px}
 .cdet-l{font-size:10.5px;letter-spacing:.06em;color:var(--gold-deep);font-weight:600;margin-bottom:9px}
-.ev{padding:11px 0;border-bottom:1px solid var(--bg2)}
-.ev:last-child{border-bottom:none}
+.ev{padding:11px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
 .ev-n{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
 .ev-n .step{font-size:10px;color:#fff;background:var(--gold);border-radius:50%;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .ev-r{font-size:11.5px;color:var(--sub);margin-top:5px;line-height:1.65;word-break:keep-all}
@@ -70,49 +76,63 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .ev-fix{font-size:10.5px;color:var(--light);margin-top:5px;display:inline-block}
 .cta-row{display:flex;gap:8px;margin-top:15px}
 .cta-row button{flex:1;border:none;border-radius:10px;padding:13px 6px;font-family:var(--serif);font-size:12.5px;font-weight:600;cursor:pointer;word-break:keep-all;line-height:1.4}
-.cta-fast{background:var(--seal);color:#fff}
-.cta-detail{background:var(--bg2);color:var(--sub)}
-/* guest track */
+.cta-fast{background:var(--seal);color:#fff}.cta-detail{background:var(--bg2);color:var(--sub)}
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-x{font-size:12.5px;color:#4A3E30;line-height:1.8;word-break:keep-all}
-/* nav */
 .nav{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 72%,transparent);padding:12px 0 20px;display:flex;gap:10px}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--serif);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
-.btn-next{background:var(--seal);color:#fff}
-.btn-next:active{background:#571f1a}
+.btn-next{background:var(--seal);color:#fff}.btn-next:active{background:#571f1a}
 .btn:disabled{opacity:.4}
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
-.done-hd .t{font-size:20px;font-weight:600}
-.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
+.done-hd .t{font-size:20px;font-weight:600}.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
 .listen-all{margin:16px 0 6px;background:var(--seal);color:#fff;border:none;border-radius:12px;padding:15px;width:100%;font-family:var(--serif);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
 .listen-all.playing{background:var(--gold-deep)}
+.rehearse-btn{margin:9px 0 4px;background:#fff;color:var(--seal);border:1.5px solid var(--seal);border-radius:12px;padding:14px;width:100%;font-family:var(--serif);font-size:13.5px;font-weight:600;cursor:pointer}
 .sec-l{font-size:11px;letter-spacing:.06em;color:var(--gold-deep);font-weight:600;margin:24px 0 9px}
 .dblk{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:10px}
 .dblk.peak{border-color:#E7C9A0;background:#FFFDF9}
 .dblk-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.dblk-n{font-size:14px;font-weight:600}
-.dblk-t{font-size:10px;color:var(--light)}
+.dblk-n{font-size:14px;font-weight:600}.dblk-t{font-size:10px;color:var(--light)}
+.mine{background:#F3F6F0;border:1px solid #DCE6D2;border-radius:12px;padding:6px 4px}
+.mine .mr{display:flex;gap:11px;padding:10px 12px;border-bottom:1px solid #E6EDDD;align-items:baseline}
+.mine .mr:last-child{border-bottom:none}
+.mine .mn{font-size:12.5px;font-weight:600;color:var(--green);flex:0 0 92px;word-break:keep-all}
+.mine .mt{font-size:11.5px;color:#43502F;line-height:1.6;word-break:keep-all}
 .prep .pr{display:flex;gap:10px;padding:9px 2px;border-bottom:1px solid var(--bg2);font-size:12.5px;align-items:baseline}
 .prep .pr:last-child{border-bottom:none}
 .prep .dday{flex-shrink:0;font-size:10.5px;color:#fff;background:var(--gold-deep);border-radius:6px;padding:2px 8px;min-width:46px;text-align:center}
 .note{font-size:11px;color:var(--light);text-align:center;margin-top:18px;line-height:1.7;word-break:keep-all}
 .tot{text-align:center;font-size:12px;color:var(--sub);margin-top:4px}
+/* rehearse */
+.rh-hd{text-align:center;padding:4px 0}
+.rh-hd .t{font-size:19px;font-weight:600}
+.rh-hd .s{font-size:12px;color:var(--sub);margin-top:7px;word-break:keep-all;line-height:1.7}
+.rh-modes{display:flex;gap:8px;margin:16px 0 6px}
+.rh-modes button{flex:1;border:1px solid var(--border);background:#fff;border-radius:10px;padding:11px 4px;font-family:var(--serif);font-size:12px;color:var(--sub);cursor:pointer;font-weight:600}
+.rh-modes button.on{background:var(--seal);border-color:var(--seal);color:#fff}
+.rh-auto{background:var(--seal);color:#fff;border:none;border-radius:12px;padding:14px;width:100%;font-family:var(--serif);font-size:13.5px;font-weight:600;cursor:pointer;margin:6px 0 14px}
+.rh-blk{border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;position:relative}
+.rh-blk.active{border-color:var(--seal);background:#FDF6F5}
+.rh-n{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.rh-cue{font-size:11.5px;color:var(--green);background:#F1F5EC;border-radius:7px;padding:7px 10px;margin-top:8px;line-height:1.6;word-break:keep-all}
+.rh-cue b{color:var(--seal)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="prog"><div class="prog-bar"><div class="prog-fill" id="pf"></div></div><div class="prog-txt" id="pt"></div></div>
   <div class="stage" id="stage"></div>
-  <div class="nav">
+  <div class="nav" id="nav">
     <button class="btn btn-prev" id="prev">이전</button>
     <button class="btn btn-next" id="next">다음</button>
   </div>
 </div>
 <script>
 var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off'};
+var mode='build'; var rhMode='auto';
 
 var ENTRY={
  A:{d:"서사형",nar:"지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 마음으로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!"},
@@ -133,7 +153,6 @@ var GUEST=[
  ['시작 5분 전',"예식 시작 5분 전입니다. 하객 여러분께서는 지정된 좌석에 착석해 주시기 바랍니다."],
  ['시작 1분 전',"잠시 후 예식이 시작됩니다. 자리에 앉아 두 사람의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다."]
 ];
-
 var COURSES={
   damback:{nm:'담백', badge:'추천', ready:true, min:'약 25분',
     one:'과한 연출 없이, 꼭 필요한 순간만 정갈하게',
@@ -149,12 +168,10 @@ var COURSES={
       {n:'폐식·단체촬영', how:'성우가 따뜻하게 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아, 예식이 자연스럽게 마무리돼요.', fix:true}
     ],
     addable:'원하면 사이에 와인 세리머니·케이크 커팅, 또는 부모님 덕담을 하나 더할 수 있어요.'},
-  gamdong:{nm:'감동', badge:'준비 중', ready:false, min:'약 29분',
-    one:'편지와 서약을 정점으로 두는, 눈물의 아크',
+  gamdong:{nm:'감동', badge:'준비 중', ready:false, min:'약 29분', one:'편지와 서약을 정점으로 두는, 눈물의 아크',
     feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께. 베일다운으로 시작해 편지에서 절정에 이르고, 하객이 다 함께 성혼선언을 읽는 벅찬 예식이에요.',
     flow:['입장','베일다운','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언·합송','폐식']},
-  family:{nm:'가족', badge:'준비 중', ready:false, min:'약 30분',
-    one:'양가 가족이 예식의 주인공',
+  family:{nm:'가족', badge:'준비 중', ready:false, min:'약 30분', one:'양가 가족이 예식의 주인공',
     feel:'가족 유대를 가장 소중히 여기는 두 분께. 부모님 덕담으로 문을 열고, 반지가 가족의 손을 도는 링워밍, 헌정까지 온 가족이 함께 완성하는 예식이에요.',
     flow:['입장','부모님 덕담','혼인 서약','링워밍','반지','편지 낭독','부모님 헌정','성혼 선언','폐식']}
 };
@@ -165,7 +182,8 @@ function playBtn(){return '<button class="play" onclick="event.stopPropagation()
 window.mockPlay=function(b){if(b.classList.contains('playing'))return;b.classList.add('playing');var o=b.innerHTML;b.innerHTML='재생 중… (실제 목소리 준비 중)';setTimeout(function(){b.classList.remove('playing');b.innerHTML=o;},1600);};
 
 var STEPS=[
- {k:'course',title:'어떤 분위기로 흐를까요?',sub:'코스를 고르면 어떤 순서로 어떻게 진행되는지 자세히 보여드려요. 언제든 바꿀 수 있어요.'},
+ {k:'intro',title:'우리 예식, 우리가 만들어요'},
+ {k:'course',title:'어떤 분위기로 흐를까요?',sub:'코스를 고르면 어떤 순서로 어떻게 진행되는지 자세히 보여드려요.'},
  {k:'guest',title:'내 하객은 이렇게 맞이해요',sub:'예식 전, 하객이 자리에 앉는 동안 흐르는 안내예요. 두 분이 신경 쓰지 않아도 저희가 준비해요.'},
  {k:'entry',title:'입장, 어떻게 열까요?',sub:'세 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
  {k:'welcome',title:'첫인사는 누가 전할까요?',sub:'성우가 대신 전할 수도, 두 분이 직접 인사할 수도 있어요.'},
@@ -175,19 +193,25 @@ var STEPS=[
  {k:'valley',title:'사이에 한 호흡, 더할까요?',sub:'담백 코스는 비움이 기본이에요. 원하면 하나만 살짝 더해요.'},
  {k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  {k:'bless',title:'부모님 덕담, 넣을까요?',sub:'양가 부모님이 두 분에게 짧게 전하는 말씀이에요.'},
- {k:'done',title:'',sub:''}
+ {k:'done',title:''}
 ];
 var idx=0;
+var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
+var RECOTXT={entry:'대부분 A 서사형을 골라요',welcome:'대부분 성우에게 맡겨요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
 
 function render(){
+  if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
   document.getElementById('pf').style.width=((idx+1)/STEPS.length*100)+'%';
   document.getElementById('pt').textContent=(idx+1)+' / '+STEPS.length;
+  document.getElementById('nav').style.display='flex';
   var el=document.getElementById('stage'), h='';
   if(st.k==='done'){ h=renderDone(); }
+  else if(st.k==='intro'){ h=renderIntro(); }
   else {
-    h='<div class="q-title">'+esc(st.title)+'</div><div class="q-sub">'+esc(st.sub)+'</div>';
-    if(idx>1 && st.k!=='course') h+='<div class="mini-run">지금까지 '+curCount()+'개 순서 · '+COURSES[S.course].min+'</div>';
+    h='<div class="q-title">'+esc(st.title)+'</div>'+(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':'');
+    if(RECOTXT[st.k]) h+='<div class="reassure">'+esc(RECOTXT[st.k])+' · 언제든 바꿀 수 있어요.</div>';
+    if(idx>2 && st.k!=='guest') h+='<div class="mini-run">지금까지 '+blocks().length+'개 순서 · '+COURSES[S.course].min+'</div>';
     h+=renderStep(st.k);
   }
   el.innerHTML=h;
@@ -195,52 +219,65 @@ function render(){
   document.getElementById('next').textContent=(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
   window.scrollTo(0,0);
 }
-function curCount(){ return blocks().length; }
 
-function oc(key,v,nm,desc,nar,end,self,prep){
+function renderIntro(){
+  var h='<div class="q-title">우리 예식, 우리가 만들어요</div>';
+  h+='<div class="intro-lead">모먼트에디트는 사회자 없이, 훈련된 성우의 목소리로 예식을 처음부터 끝까지 이끌어요. 두 분은 순서를 직접 고르고, 미리 들어보고, 당일 전에 연습까지 할 수 있어요.</div>';
+  h+='<div class="intro-pts">';
+  h+='<div class="ipt"><span class="n">1</span>코스를 고르고, 순간을 우리답게 다듬어요.</div>';
+  h+='<div class="ipt"><span class="n">2</span>고를 때마다 나레이션을 미리 들어봐요.</div>';
+  h+='<div class="ipt"><span class="n">3</span>완성하면 처음부터 끝까지 이어듣고, 당일 전에 연습해요.</div>';
+  h+='</div>';
+  h+='<div class="sample"><div class="st">성우 목소리, 이런 느낌이에요</div><div class="sx">"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다."</div><button class="play" style="margin:0" onclick="mockPlay(this)">대표 목소리 들어보기</button></div>';
+  h+='<div class="banner">천천히 둘러보셔도 돼요. 저장해도 예식 9일 전까지 언제든 고칠 수 있어요.</div>';
+  return h;
+}
+
+function oc(key,v,nm,desc,nar,end,self,prep,rec){
   var on=S[key]===v;
   var h='<div class="oc'+(on?' on':'')+'" onclick="pick(\''+key+'\',\''+v+'\')">';
-  h+='<div class="oc-nm">'+esc(nm)+'</div>';
+  h+='<div class="oc-nm">'+esc(nm)+(rec?'<span class="oc-rec">추천</span>':'')+'</div>';
   if(desc) h+='<div class="oc-desc">'+esc(desc)+'</div>';
   if(nar){ h+=narBox(nar,end)+playBtn(); }
   if(self) h+='<div class="self"><span class="who">직접 · '+esc(self.who)+'</span>'+esc(self.t)+'</div>';
-  if(prep) h+='<div class="prep-hint">준비물 · '+esc(prep)+'</div>';
+  if(prep) h+='<div class="prep-hint">'+prep+'</div>';
   h+='</div>';
   return h;
 }
+var LATER='<b>지금 안 써도 돼요.</b> 나중에 채워도 되고, 상담 때 함께 다듬어요.';
 
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('gamdong')+courseCard('family')+'</div>'; }
   if(k==='guest'){
     var h='<div style="margin-top:18px">';
     GUEST.forEach(function(g){ h+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div>'+playBtn()+'</div>'; });
-    h+='<div class="banner">이 안내는 두 분이 프리미어로 만든 음악 위에 성우 목소리로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.</div></div>';
+    h+='<div class="banner">이 안내는 두 분이 준비한 음악 위에 성우 목소리로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.</div></div>';
     return h;
   }
   var h='<div class="opts">';
-  if(k==='entry'){ ['A','B','C'].forEach(function(v){ h+=oc('entry',v,v+' · '+ENTRY[v].d,'',ENTRY[v].nar); }); }
+  if(k==='entry'){ ['A','B','C'].forEach(function(v){ h+=oc('entry',v,v+' · '+ENTRY[v].d,'',ENTRY[v].nar,null,null,null,RECO.entry===v); }); }
   else if(k==='welcome'){
-    h+=oc('welcome','nar','나레이션에 맡기기','성우가 두 분을 대신해 따뜻하게 인사','먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.');
-    h+=oc('welcome','self','두 분이 직접','짧게 직접 인사 (성우가 앞을 열어줌)','먼저, 두 사람이 준비한 첫 인사가 있습니다.',null,{who:'신랑신부',t:'짧은 인사 한두 문장'},'환영 인사말 한두 문장 (D-7까지)');
+    h+=oc('welcome','nar','나레이션에 맡기기','성우가 두 분을 대신해 따뜻하게 인사','먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.',null,null,null,true);
+    h+=oc('welcome','self','두 분이 직접','짧게 직접 인사 (성우가 앞을 열어줌)','먼저, 두 사람이 준비한 첫 인사가 있습니다.',null,{who:'신랑신부',t:'짧은 인사 한두 문장'},'준비물 · 환영 인사말 한두 문장.<br>'+LATER);
   }
   else if(k==='vow'){
-    h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'서로에게 쓴 혼인 서약문 (D-7까지)');
-    h+='<div class="banner">서약은 담백 코스의 핵심이라 항상 포함돼요. 오열이 걱정되면 성우 대리 낭독도 선택할 수 있어요.</div>';
+    h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
+    h+='<div class="banner">서약은 담백 코스의 핵심이라 항상 포함돼요. 어렵게 쓰지 않아도 돼요. 짧아도 진심이면 충분해요. 오열이 걱정되면 성우가 대신 읽어드릴 수도 있어요.</div>';
   }
   else if(k==='ring'){
-    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,'당일 · 결혼반지 지참');
+    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,'준비물 · 당일 결혼반지 지참',true);
     h+=oc('ring','off','빼기','반지 교환 없이 성혼 선언으로 바로','');
   }
-  else if(k==='declare'){ ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',DECLARE[v].nar); }); }
+  else if(k==='declare'){ ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',DECLARE[v].nar,null,null,null,RECO.declare===v); }); }
   else if(k==='valley'){
-    h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요','');
+    h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요','',null,null,null,true);
     h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.');
     h+=oc('valley','cake','케이크 커팅','밝은 한 호흡, 촬영으로 연결','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.');
   }
-  else if(k==='letter'){ ['parent','each'].forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},LETTER[v].prep+' (D-7까지)'); }); }
+  else if(k==='letter'){ ['parent','each'].forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); }); }
   else if(k==='bless'){
-    h+=oc('bless','on','넣기','양가 부모님이 짧게 말씀을 전해요','이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.','그 말씀, 두 사람이 오래 마음에 새기겠습니다.',{who:'부모님',t:'1~2분 덕담'},'D-14 · 부모님께 덕담 부탁 (1~2분)');
-    h+=oc('bless','off','빼기','부모님 순서 없이 마무리로','');
+    h+=oc('bless','off','빼기','부모님 순서 없이 마무리로','',null,null,null,true);
+    h+=oc('bless','on','넣기','양가 부모님이 짧게 말씀을 전해요','이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.','그 말씀, 두 사람이 오래 마음에 새기겠습니다.',{who:'부모님',t:'1~2분 덕담'},'준비물 · D-14 부모님께 덕담 부탁 (1~2분)');
   }
   h+='</div>'; return h;
 }
@@ -275,23 +312,30 @@ window.pick=function(key,v){ S[key]=v; render(); };
 window.go=function(d){ idx=Math.max(0,Math.min(STEPS.length-1,idx+d)); render(); };
 window.goDone=function(){ idx=STEPS.length-1; render(); };
 
-// 완성 큐시트용 전체 블록(성우 멘트 전문 포함)
 function fullBlocks(){
   var b=[];
-  b.push({n:'신랑·신부 입장',nar:ENTRY[S.entry].nar});
-  if(S.welcome==='nar') b.push({n:'환영·첫인사',nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다."});
-  else b.push({n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사'});
-  b.push({n:'혼인 서약',nar:"이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 직접 서약 낭독',end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다."});
-  if(S.ring==='on') b.push({n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다."});
-  b.push({n:'성혼 선언',nar:DECLARE[S.declare].nar});
-  if(S.valley==='wine') b.push({n:'와인 세리머니',nar:"지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다."});
-  if(S.valley==='cake') b.push({n:'케이크 커팅',nar:"오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다."});
-  b.push({n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다."});
-  if(S.bless==='on') b.push({n:'부모님 덕담',nar:"이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.",self:'부모님 말씀',end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다."});
-  b.push({n:'폐식·단체촬영',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 오늘의 이 마음은, 시간이 흘러도 두 사람이 서로에게 돌아올 자리가 되어 줄 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오."});
+  b.push({n:'신랑·신부 입장',nar:ENTRY[S.entry].nar,cue:'성우 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'});
+  if(S.welcome==='nar') b.push({n:'환영·첫인사',nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.",cue:'성우가 인사 → 두 분은 정면 응시'});
+  else b.push({n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',cue:'성우 도입 끝 → 두 분이 준비한 인사말 시작'});
+  b.push({n:'혼인 서약',nar:"이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 직접 서약 낭독',end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'성우 도입 끝 → 서로를 보고 서약문 낭독 시작 · 다 읽으면 다음'});
+  if(S.ring==='on') b.push({n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.",cue:'멘트 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'});
+  b.push({n:'성혼 선언',nar:DECLARE[S.declare].nar,cue:'성우 선언 → 잠시 정적 · 두 분은 정면을 향해 서 있기'});
+  if(S.valley==='wine') b.push({n:'와인 세리머니',nar:"지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.",cue:'멘트 흐르는 동안 → 두 잔을 하나에 붓고 한 모금'});
+  if(S.valley==='cake') b.push({n:'케이크 커팅',nar:"오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.",cue:'멘트 흐르는 동안 → 함께 나이프 잡고 커팅 · 포즈'});
+  b.push({n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:'성우 도입 끝 → 편지 꺼내 낭독 시작 (가장 감정적인 순간) · 다 읽으면 다음'});
+  if(S.bless==='on') b.push({n:'부모님 덕담',nar:"이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.",self:'부모님 말씀',end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다.",cue:'성우 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음'});
+  b.push({n:'폐식·단체촬영',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 오늘의 이 마음은, 시간이 흘러도 두 사람이 서로에게 돌아올 자리가 되어 줄 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'성우 마무리 → 자리에서 그대로 가족·지인과 단체촬영'});
   return b;
 }
 function blocks(){ return fullBlocks(); }
+function myParts(){
+  var m=[];
+  if(S.welcome==='self') m.push(['환영 인사','짧은 인사말을 두 분이 직접 · D-7까지 준비']);
+  m.push(['혼인 서약','서로에게 쓴 서약문을 직접 낭독 · D-7까지 준비']);
+  m.push(['편지 낭독', (S.letter==='each'?'서로에게':'부모님께')+' 쓴 편지를 직접 낭독 · D-7까지 준비']);
+  if(S.bless==='on') m.push(['부모님 덕담','양가 부모님 말씀 · D-14 부탁 안내']);
+  return m;
+}
 function prep(){
   var p=[['D-14','입장곡 고르기']];
   if(S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
@@ -302,12 +346,19 @@ function prep(){
   return p;
 }
 window.listenAll=function(b){ if(b.classList.contains('playing'))return; b.classList.add('playing'); var o=b.innerHTML; b.innerHTML='내 예식 나레이션 재생 중… (실제 목소리 준비 중)'; setTimeout(function(){b.classList.remove('playing');b.innerHTML=o;},2200); };
+window.openRehearse=function(){ mode='rehearse'; render(); };
+window.closeRehearse=function(){ mode='build'; render(); };
+window.setRh=function(m){ rhMode=m; render(); };
 
 function renderDone(){
   var bs=fullBlocks();
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">담백 코스 · '+bs.length+'개 순서</div></div>';
   h+='<button class="listen-all" onclick="listenAll(this)">내 예식 나레이션 전체 이어듣기</button>';
+  h+='<button class="rehearse-btn" onclick="openRehearse()">리허설 공간 열기 · 당일 전에 연습하기</button>';
   h+='<div class="tot">'+COURSES[S.course].min+' · 본식 안에 여유 있게 들어가요</div>';
+  h+='<div class="sec-l">두 분이 직접 하실 부분</div><div class="mine">';
+  myParts().forEach(function(m){ h+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
+  h+='</div>';
   h+='<div class="sec-l">순서별 대본</div>';
   bs.forEach(function(b){
     h+='<div class="dblk'+(b.peak?' peak':'')+'"><div class="dblk-h"><span class="dblk-n">'+esc(b.n)+'</span>'+(b.peak?'<span class="dblk-t">감정 정점</span>':'')+'</div>';
@@ -322,6 +373,26 @@ function renderDone(){
   h+='<div class="note">저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요.<br>예식 9일 전까지 언제든 고칠 수 있어요.</div>';
   h+='<div class="banner" style="text-align:center">내부 미리보기 시안 · 코스 A(담백)</div>';
   return h;
+}
+
+function renderRehearse(){
+  document.getElementById('nav').style.display='none';
+  document.getElementById('pf').style.width='100%';
+  document.getElementById('pt').textContent='리허설 공간';
+  var bs=fullBlocks();
+  var h='<div class="rh-hd"><div class="t">리허설 공간</div><div class="s">완성된 우리 예식을 처음부터 끝까지 들으며 연습해요. 반복해 들으면, 당일이 처음이 아니게 돼요. "이 멘트가 끝나면 무엇을 할지" 초록 글을 함께 익혀요.</div></div>';
+  h+='<div class="rh-modes"><button class="'+(rhMode==='auto'?'on':'')+'" onclick="setRh(\'auto\')">자동 흐름 재생</button><button class="'+(rhMode==='block'?'on':'')+'" onclick="setRh(\'block\')">블록별 반복</button></div>';
+  if(rhMode==='auto') h+='<button class="rh-auto" onclick="listenAll(this)">처음부터 자동으로 이어 재생</button>';
+  bs.forEach(function(b,i){
+    h+='<div class="rh-blk"><div class="rh-n">'+(i+1)+'. '+esc(b.n)+(b.peak?' <span class="dblk-t">감정 정점</span>':'')+'</div>';
+    h+='<div class="rh-cue"><b>큐</b> · '+esc(b.cue)+'</div>';
+    h+='<button class="play" style="margin-top:9px" onclick="mockPlay(this)">'+(rhMode==='block'?'이 순서만 반복 듣기':'들어보기')+'</button>';
+    h+='</div>';
+  });
+  h+='<button class="rehearse-btn" style="margin-top:8px" onclick="closeRehearse()">완성 화면으로 돌아가기</button>';
+  h+='<div class="banner" style="text-align:center">실제 성우 목소리는 준비되면 연결돼요. 오프라인 연습용 다운로드도 제공될 예정이에요.</div>';
+  document.getElementById('stage').innerHTML=h;
+  window.scrollTo(0,0);
 }
 
 document.getElementById('next').addEventListener('click',function(){ if(idx<STEPS.length-1){idx++;render();}else{idx=0;render();} });
