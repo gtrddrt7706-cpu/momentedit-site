@@ -4299,8 +4299,8 @@ var DN_UI={det:null,all:false,attr:false};   // 리스트 UI 상태(세부조건
 var DN_PRESETS=[
   {label:'양가 어른 모시고 정찬', set:{theme:'formal',elderly:'true',group:'room'}},
   {label:'상견례처럼 조용한 룸', set:{group:'room'}},          // 프라이빗·조용 니즈(단독룸 13곳)
-  {label:'하객 많아 단체로', set:{group:'seats',headN:'l'}},
-  {label:'술 한잔 곁들여', set:{al:'yes'}},                      // 뒷풀이·어른 반주 니즈(확인된 20곳)
+  {label:'하객 많아 단체로', set:{group:'seats',headN:'l',noCafe:1}},   // 단체 '식사' 자리 — 카페 제외
+  {label:'술 한잔 곁들여', set:{al:'yes',noCafe:1}},              // 뒷풀이·어른 반주 니즈 · 식사 자리만(카페 제외)
   {label:'한옥·정원 감성', set:{mood:'한옥,정원'}},              // 사진·감성 니즈(한옥 4·정원 10 · OR) — 라벨과 필터 일치
   {label:'가볍게 다과만', set:{theme:'cafe'}},
   {label:'아이와 함께 편하게', set:{theme:'casual',food:'뷔페'}},
@@ -4354,6 +4354,7 @@ function _dnPass(r,fl){
   if(fl.parking==='good' && r.pk!=='good') return false;   // 주차 넉넉
   if(fl.mood){ var _mm=String(fl.mood).split(','); if(!_mm.some(function(x){return (r.m||[]).indexOf(x)>=0;})) return false; }   // 분위기(한옥·정원·모던) · 쉼표로 OR('한옥,정원'이면 둘 중 하나라도) — 사진·감성 니즈
   if(fl.al==='yes' && r.al!==true) return false;   // 술 한잔 가능 — 확인된 곳만(미상 null은 제외해 오안내 방지)
+  if(fl.noCafe && r.th==='cafe' && fl.theme!=='cafe') return false;   // 식사 자리만(카페 제외) — '술 한잔'·'단체' 프리셋용. 단, 사용자가 카페 테마를 직접 고르면 무시(모순 방지)
   // 인원수(headN)는 하드 제외하지 않음 — 수용 인원 실측이 없어, 정렬·카드 안내로만 반영(_dnCapNote/정렬). 빈 결과 방지.
   return true;
 }
