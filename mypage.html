@@ -801,12 +801,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .cpn-note{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:8px;opacity:.85}
     /* 좌석 배치도 편집 — 원형 테이블 · 탭해서 이름 입력 · 좌우 지그재그 */
     .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:14px 0 6px}
-    .seat-room{display:flex;gap:2px;align-items:stretch;--zig:26px}   /* --zig=테이블 좌우 지그재그 폭(모바일 기본 26px·넘침 방지). PC에선 카드가 넓어져 크게 */
-    /* 우측 열을 반 칸(104px) 내려 좌우가 지퍼처럼 엇갈리는 지그재그 — 헤더(좌측/우측)는 정렬 유지(margin은 첫 테이블에만). 좌우로 안 밀어도 지그재그가 강해져 모바일 폭에서도 안전 */
-    .seat-col-r .seat-colh + .rt-wrap{margin-top:104px}
+    .seat-room{display:flex;gap:2px;align-items:stretch;--zig:22px}   /* --zig=테이블 좌우 지그재그 폭. 좌우 대칭(우측은 부호 반전으로 미러) · 모바일 22px(360px폭 넘침 방지)·PC 80px */
     .seat-aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
     .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
-    .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:20px;align-items:center}
+    .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;align-items:center}   /* 상하 간격 압축(최소 동선만) — 컨트롤 줄이 테이블 사이 통로 역할 */
     .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
     .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
     .rt{position:relative;width:150px;height:150px;flex-shrink:0}
@@ -821,7 +819,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rs:active{border-color:var(--gold-deep)}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:10.5px;text-align:center;color:var(--accent);padding:3px 4px}
     .rs-edit:focus{outline:none}
-    .rt-ctl{display:flex;gap:4px;margin-top:6px;justify-content:center}
+    .rt-ctl{display:flex;gap:4px;margin-top:4px;justify-content:center}
     .rt-mini{width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:7px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
     .rt-mini:active{background:var(--bg2)}
     .rt-mini.rt-del{color:var(--light)}
