@@ -1526,29 +1526,40 @@ function sendArchiveExpiryNotices() {
     var row = vals[i];
     if (String(row[c('결과물상태') - 1] || '').trim() !== '전달완료') continue;
     var rec = _parseJsonSafe(row[c('동의기록') - 1]);
-    if (!rec.결과물전달일 || rec.보관만료통지) continue;
+    if (!rec.결과물전달일) continue;
     var p = String(rec.결과물전달일).slice(0, 10).split('-');
     if (p.length !== 3) continue;
     var exp = new Date(Number(p[0]), Number(p[1]) - 1 + 6, Number(p[2]));        // 전달일 +6개월 = 보관 만료일
     var expYmd = exp.getFullYear() + '-' + ('0' + (exp.getMonth() + 1)).slice(-2) + '-' + ('0' + exp.getDate()).slice(-2);
     var left = _dayDiff(expYmd, today);
-    if (left == null || left > 7) continue;                                      // 만료 7일 전부터(이미 지난 행도 1회는 안내)
+    if (left == null) continue;
     var code = String(row[c('개인코드') - 1] || '').trim();
-    notifyKakao('cust.archiveExpiring', code, { expires: expYmd, left: left });
-    var email = String(row[c('이메일') - 1] || '').trim();
-    if (email) {
-      var when = (left >= 0) ? (expYmd + '에 만료될 예정이에요') : (expYmd + '에 만료되었어요');
-      try {
-        GmailApp.sendEmail(email, '[Moment Edit] 결과물 보관 기간 안내 (' + expYmd + ')',
-          '전달드린 사진·영상의 보관 기간(전달일부터 6개월)이 ' + when + '.\n' +
-          '아직 내려받지 않으셨다면 미리 다운로드해 주세요. 만료 후에는 데이터가 삭제될 수 있고, 재발급이 어려울 수 있어요.\n' +
-          '이용계약서 제12조 제3항에 따른 안내입니다.\n\nMoment Edit');
-      } catch (e) {}
+    var rowNum = P.DATA_START_ROW + i;
+    // (1) 만료 7일 전~직후 1회 안내(메일·카톡) — 다운로드 유도
+    if (!rec.보관만료통지 && left <= 7) {
+      notifyKakao('cust.archiveExpiring', code, { expires: expYmd, left: left });
+      var email = String(row[c('이메일') - 1] || '').trim();
+      if (email) {
+        var when = (left >= 0) ? (expYmd + '에 만료될 예정이에요') : (expYmd + '에 만료되었어요');
+        try {
+          GmailApp.sendEmail(email, '[Moment Edit] 결과물 보관 기간 안내 (' + expYmd + ')',
+            '전달드린 사진·영상의 보관 기간(전달일부터 6개월)이 ' + when + '.\n' +
+            '아직 내려받지 않으셨다면 미리 다운로드해 주세요. 만료 후에는 접근이 종료되고, 재발급이 어려울 수 있어요.\n' +
+            '이용계약서 제12조 제3항에 따른 안내입니다.\n\nMoment Edit');
+        } catch (e) {}
+      }
+      _stampConsentKey(sheet, colOf, rowNum, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 영수증발행·계약정보 보존
+        fresh.보관만료통지 = fmtKST(new Date());
+      });
+      try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
     }
-    _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 영수증발행·계약정보 보존
-      fresh.보관만료통지 = fmtKST(new Date());
-    });
-    try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
+    // (2) 만료일 경과 시 1회 결과물 링크 자동 제거(처리방침 6개월 삭제 이행 · 마이페이지 노출 종료).
+    //   ★Drive 원본 파일 자체는 코드가 지우지 않음(오삭제 방지) → 관리자가 확인 후 수동 삭제. 링크만 데이터에서 비움.
+    if (!rec.결과물파기 && left <= 0) {
+      ['원본링크', '영상링크', '보정본폴더'].forEach(function (h) { if (colOf[h]) writeCell(sheet, colOf, rowNum, h, ''); });
+      _stampConsentKey(sheet, colOf, rowNum, function (fresh) { fresh.결과물파기 = fmtKST(new Date()); });
+      try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 링크 자동 제거'); } catch (e3) {}
+    }
   }
 }
 

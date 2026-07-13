@@ -192,23 +192,30 @@ function clearAllPendingAiHandoff() {
 function purgeAiHandoff() {
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
-    if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0 };
+    if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0, scrubbed: 0 };
     var days = Number(PropertiesService.getScriptProperties().getProperty('AIH_EXPIRE_DAYS')) || 30;
     var cutoff = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
     var n = sh.getLastRow() - 1;
-    var rows = sh.getRange(2, 1, n, 3).getValues();   // ID, 접수일시, 상태
-    var now = _aihNow(), expired = 0;
+    var rows = sh.getRange(2, 1, n, 11).getValues();   // ID~대화 (고객7·요약8·제안답변9·근거10·대화11 = PII)
+    var now = _aihNow(), expired = 0, scrubbed = 0;
     for (var i = 0; i < n; i++) {
-      if (String(rows[i][2]).trim() !== '대기') continue;
       var d = new Date(rows[i][1]);
-      if (!isNaN(d.getTime()) && d < cutoff) {
+      if (isNaN(d.getTime()) || d >= cutoff) continue;                   // 30일 이내 · 날짜 불명 → 유지
+      var status = String(rows[i][2]).trim();
+      if (status === '대기') {                                           // 미처리 → 만료 표시(연락정보는 이번 회차엔 보존 · 다음 회차에 파기)
         sh.getRange(i + 2, 3).setValue('만료');
         sh.getRange(i + 2, 12).setValue(now);
         expired++;
+        continue;
+      }
+      // 처리·만료된 오래된 건 → 고객 PII(이름·전화·질문·대화) 제거로 '30일 파기' 실이행. 통계용 분류·시각·상태는 보존.
+      if (String(rows[i][6] || '') !== '' || String(rows[i][10] || '') !== '') {
+        sh.getRange(i + 2, 7, 1, 5).setValues([['', '', '', '', '']]);   // 고객(7)~대화(11) 비움
+        scrubbed++;
       }
     }
-    if (expired) Logger.log('purgeAiHandoff: ' + expired + '건 만료(' + days + '일 경과)');
-    return { ok: true, expired: expired };
+    if (expired || scrubbed) Logger.log('purgeAiHandoff: 만료 ' + expired + '건 · PII파기 ' + scrubbed + '건 (' + days + '일 경과)');
+    return { ok: true, expired: expired, scrubbed: scrubbed };
   } catch (e) { Logger.log('purgeAiHandoff 실패: ' + (e && e.message)); return { ok: false }; }
 }
 

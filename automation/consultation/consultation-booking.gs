@@ -162,7 +162,8 @@ function doGet(e) {
     if (p.page === 'schedule' && p.token) return serveScheduleB(p.token, p.me === '1'); // 화면 B (me=1: 마이페이지 진입)
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
   } catch (err) {
-    return infoPage('문제가 발생했습니다', String(err && err.message || err), false);
+    try { Logger.log('doGet 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
+    return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.', false);   // 내부 예외 원문 비노출
   }
 }
 
@@ -2093,7 +2094,8 @@ function doPost(e) {
         return jsonOut({ ok: false, error: '알 수 없는 요청입니다.' });
     }
   } catch (err) {
-    return jsonOut({ ok: false, error: (err && err.message) ? err.message : String(err) });
+    try { Logger.log('doPost 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
+    return jsonOut({ ok: false, error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.' });   // 내부 예외 원문 비노출(정보노출 차단)
   }
 }
 function jsonOut(obj) {
@@ -2105,7 +2107,7 @@ function jsonOut(obj) {
 // 개인정보 방어: 전화·이메일·긴 숫자열 마스킹 후 저장, 300자 컷, 90일 후 자동 정리(purgeAdvisorLog · 주간 트리거).
 function _maskPII(s) {
   return String(s || '')
-    .replace(/01[016789][ -]?\d{3,4}[ -]?\d{4}/g, '01*-****-****')
+    .replace(/01[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/g, '01*-****-****')   // 구분자 공백·점·하이픈 모두(010.1234.5678 포함)
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '***@***')
     .replace(/\d{6,}/g, function (m) { return m.slice(0, 2) + '****'; });
 }
@@ -2203,10 +2205,10 @@ function purgeKakaoClicks() {
 function purgeLeads() {
   var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || sh.getLastRow() < 2) return;
-  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 365);
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 183);   // 처리방침 '문의 후 6개월'과 일치(구 365일 → 183일)
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), n = 0;
   for (var i = 0; i < vals.length; i++) { var d = new Date(vals[i][0]); if (!isNaN(d.getTime()) && d < cutoff) n++; else break; }
-  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeLeads: ' + n + '건 삭제'); }
+  if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeLeads: ' + n + '건 삭제(6개월 경과)'); }
 }
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈(프리셋·AI 카테고리)·인원·필터를 개인정보 없이 적재.
 //   저장: '애프터수요로그' 시트 [시각, 소스, 카테고리, 테마, 음식, 인원]. 이름·연락처·토큰 등 식별정보 미저장. 90일 자동정리(purgeAwDemandLog).
