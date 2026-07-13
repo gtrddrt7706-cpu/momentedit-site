@@ -58,7 +58,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 function api(payload){ return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}); }
 function q(name){ var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search); return m?decodeURIComponent(m[1].replace(/\+/g,' ')):''; }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 var TOKEN=q('token'), SIG=q('sig'), card=document.getElementById('card');
 function showMsg(eyebrow,title,desc,note){ card.innerHTML='<div class="eyebrow">'+esc(eyebrow)+'</div><div class="title">'+title+'</div>'+(desc?'<div class="desc">'+desc+'</div>':'')+(note?'<div class="note">'+note+'</div>':''); }
 if(!TOKEN||!SIG){ showMsg('안내','유효하지 않은 링크예요','받으신 메일의 링크로 다시 시도해 주세요.'); }

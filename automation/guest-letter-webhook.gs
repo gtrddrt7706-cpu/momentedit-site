@@ -402,6 +402,10 @@ function recipientLabelEn(recipient) {
   return 'Together';
 }
 
+// CSV·수식 인젝션 방어 — 하객 이름·편지가 = + - @ 탭·CR로 시작하면 작은따옴표로 텍스트 고정(HYPERLINK/IMPORTXML 유출·CSV 공격 차단).
+function _glDeFormula(value) {
+  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+}
 // 동시 제출 시 appendRow 경합 방지 — 락 획득 실패해도 데이터 손실보단 비잠금 기록이 안전
 function withRowLock(fn) {
   const lock = LockService.getScriptLock();
@@ -416,11 +420,11 @@ function appendMessage(data) {
   withRowLock(function () {
     sheet.appendRow([
       new Date(),
-      data.eventId,
-      data.groomName + ' · ' + data.brideName,
-      data.guestName,
-      data.relation || '(미기재)',
-      data.message,
+      _glDeFormula(data.eventId),
+      _glDeFormula(data.groomName + ' · ' + data.brideName),
+      _glDeFormula(data.guestName),
+      _glDeFormula(data.relation || '(미기재)'),
+      _glDeFormula(data.message),
       data.moderated ? '검수 대기' : '전송됨',
       recipientLabelKo(data.recipient),
     ]);
@@ -433,13 +437,13 @@ function appendModeration(data) {
   withRowLock(function () {
     sheet.appendRow([
       new Date(),
-      data.eventId || '',
-      data.guestName || '',
-      data.relation || '',
-      data.recipient || '',
-      data.message || '',
-      data.matchedWord || '',
-      data.category || '',
+      _glDeFormula(data.eventId || ''),
+      _glDeFormula(data.guestName || ''),
+      _glDeFormula(data.relation || ''),
+      _glDeFormula(data.recipient || ''),
+      _glDeFormula(data.message || ''),
+      _glDeFormula(data.matchedWord || ''),
+      _glDeFormula(data.category || ''),
       'BLOCKED',
     ]);
   });

@@ -69,7 +69,10 @@ function setAdminAccount(id, pw, name, role) {
     sh.getRange(ex.num, colOf['비번해시']).setValue(hash);
     sh.getRange(ex.num, colOf['이름']).setValue(name);
     sh.getRange(ex.num, colOf['역할']).setValue(role);
-    Logger.log('✅ 계정 갱신: ' + id + ' (' + name + ')');
+    // 비번 변경 시 기존 세션 토큰 전부 무효화 — 유출·구 세션이 새 비번 이후에도 살아있지 않게(재로그인 강제)
+    if (colOf['로그인토큰']) sh.getRange(ex.num, colOf['로그인토큰']).setValue('');
+    if (colOf['토큰만료']) sh.getRange(ex.num, colOf['토큰만료']).setValue('');
+    Logger.log('✅ 계정 갱신: ' + id + ' (' + name + ') · 기존 세션 토큰 초기화(재로그인 필요)');
     return '계정 갱신됨: ' + id + ' (' + name + ')';
   }
   var rowData = ADMIN_HEADERS.map(function (h) {
