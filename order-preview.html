@@ -116,6 +116,23 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .crs-legend .lg-d.pick{background:var(--gold)}
 .cta-go{width:100%;margin-top:12px;border:none;border-radius:11px;padding:14px;background:var(--seal);color:#fff;font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer}
 .cta-go:active{background:#571f1a}
+.vq{font-size:13.5px;font-weight:700;color:var(--accent);margin:2px 0 12px;word-break:keep-all}
+.mth{margin:13px 0 6px;padding:13px;background:#FBF6EF;border:1px solid #EDE3D3;border-radius:12px}
+.mth-l{font-size:10.5px;font-weight:600;color:var(--gold-deep);margin-bottom:9px;word-break:keep-all}
+.mcard{border:1.5px solid var(--border);background:#fff;border-radius:11px;padding:12px 13px;cursor:pointer;transition:.15s;margin-bottom:9px}
+.mcard:last-child{margin-bottom:0}
+.mcard.on{border-color:var(--seal);background:#FDF6F5}
+.mcard-n{font-size:13px;font-weight:600}.mcard.on .mcard-n{color:var(--seal)}
+.mcard-d{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
+.mth-how{font-size:11px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
+.copy-btn2{background:#fff;border:1px solid var(--gold);color:var(--gold-deep);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:11.5px;font-weight:600;cursor:pointer;margin-right:8px}
+.dub-link{font-size:11px;color:var(--gold-deep);text-decoration:underline;cursor:pointer}
+.mth-note{font-size:10.5px;color:var(--light);margin-top:8px}
+.uprow{display:flex;align-items:center;gap:10px;margin-top:11px}
+.upbtn{background:var(--seal);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+.upst{font-size:10.5px;color:var(--light);background:var(--bg2);border-radius:20px;padding:3px 10px}
+.upst.done{color:var(--green);background:#EEF3E8}
+.upkeep{font-size:10.5px;color:var(--gold-deep);margin-top:11px;background:#FBF3E7;border-radius:8px;padding:8px 11px;word-break:keep-all}
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-x{font-size:12.5px;color:#4A3E30;line-height:1.8;word-break:keep-all}
@@ -197,7 +214,18 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 </div>
 <script>
 var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
-       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:''};
+       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
+       guestVoice:'nar',guestMethod:''};
+window.setGuestVoice=function(v){ S.guestVoice=v; if(v==='nar') S.guestMethod=''; render(); };
+window.setGuestMethod=function(v){ S.guestMethod=v; render(); };
+window.copyGuestScript=function(){
+  var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
+  GUEST.forEach(function(g){ lines.push('['+g[0]+']'); lines.push(g[1]); lines.push(''); });
+  var txt=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('안내 대본을 복사했어요. 더빙 사이트에 붙여넣어 만들어 주세요.');},function(){alert('복사에 실패했어요.');}); }
+  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('안내 대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
+};
+window.mockUpload=function(b){ b.parentNode.innerHTML='<span class="upst done">올림 완료 · 검수 대기</span>'; };
 var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
 window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
 window.pickCourse=function(v){ S.course=v; crsOpen=v; render(); };
@@ -281,7 +309,7 @@ var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 var RECOTXT={entry:'대부분 A 서사형을 골라요',welcome:'대부분 성우에게 맡겨요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
 var MOMENT={
- guest:{ph:'식의 시작 · 하객 맞이',t:'실제 식은 여기서 시작돼요. 하객이 자리에 앉는 동안 성우 안내가 흘러요.',act:'두 분이 정하실 건 없어요. 이렇게 안내됩니다.',info:true},
+ guest:{ph:'식의 시작 · 하객 맞이',t:'실제 식은 여기서 시작돼요. 하객이 자리에 앉는 동안 안내가 흘러요.',act:'성우가 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
  entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'입장 멘트의 느낌을 골라주세요.'},
  welcome:{ph:'첫인사',t:'하객에게 감사 인사를 전하는 순간이에요.',act:'성우 대행 · 두 분 직접 중에 골라주세요.'},
  vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 오열 대비를 정해주세요.'},
@@ -373,9 +401,28 @@ var LATER='<b>지금 안 써도 돼요.</b> 나중에 채워도 되고, 상담 �
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('gamdong')+courseCard('family')+'</div>'; }
   if(k==='guest'){
-    var h='<div style="margin-top:18px">';
-    GUEST.forEach(function(g){ h+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div>'+playBtn()+'</div>'; });
-    h+='<div class="banner">이 안내는 두 분이 준비한 음악 위에 성우 목소리로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.</div></div>';
+    var cpl=S.guestVoice==='couple', mth=S.guestMethod;
+    var h='<div style="margin-top:16px">';
+    h+='<div class="vq">하객 맞이 안내, 누구 목소리로 할까요?</div>';
+    h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">성우 목소리<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요. 두 분이 정하실 건 없어요.</div></div>';
+    h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
+    if(cpl){
+      h+='<div class="mth"><div class="mth-l">방법을 골라주세요 · 어느 쪽이든 파일만 올리면 돼요</div>';
+      h+='<div class="mcard'+(mth==='rec'?' on':'')+'" onclick="setGuestMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">대본을 보고 폰으로 녹음해서 올려요.</div></div>';
+      h+='<div class="mcard'+(mth==='ai'?' on':'')+'" onclick="setGuestMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
+      if(mth==='rec') h+='<div class="mth-how">조용한 곳에서 대본을 그대로, 한 문장씩 또박또박 읽어 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
+      if(mth==='ai') h+='<div class="mth-how"><button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button><span class="dub-link">더빙 사이트(예: ElevenLabs)에서 만들기</span><div class="mth-note">복사한 대본으로 만든 파일을 아래 각 안내에 올려주세요.</div></div>';
+      h+='</div>';
+    }
+    GUEST.forEach(function(g,i){
+      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div>'+playBtn();
+      if(cpl && mth){
+        if(i<2){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
+        else { h+='<div class="upkeep">성우 목소리 권장 · 착석 안내는 또렷하게 전달돼요</div>'; }
+      }
+      h+='</div>';
+    });
+    h+='<div class="banner">'+(cpl?'올려주신 파일은 관리자가 받아 검수한 뒤, 당일 이 안내로 재생돼요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 성우 목소리로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div></div>';
     return h;
   }
   var h='<div class="opts">';
