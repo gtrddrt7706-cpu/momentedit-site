@@ -125,12 +125,18 @@ function handleSaveProductionTrack(body) {
     for (var ti = 0; ti < _tbls.length && outT.length < 20; ti++) {
       var _t = _tbls[ti] || {};
       var _seats = (Object.prototype.toString.call(_t.seats) === '[object Array]') ? _t.seats : [];
-      var _os = [];
-      for (var si = 0; si < _seats.length && _os.length < 12; si++) _os.push(String(_seats[si] || '').slice(0, 24));
+      var _drk = (Object.prototype.toString.call(_t.drinks) === '[object Array]') ? _t.drinks : [];
+      var _os = [], _od = [];
+      for (var si = 0; si < _seats.length && _os.length < 12; si++) {
+        _os.push(String(_seats[si] || '').slice(0, 24));
+        var _dv = String(_drk[si] || '');   // 자리별 음료: '' · N(논알콜) · A(알콜) · J(주스)
+        _od.push((_dv === 'N' || _dv === 'A' || _dv === 'J') ? _dv : '');
+      }
       outT.push({
         name: String(_t.name || '').slice(0, 24),
         side: (String(_t.side || 'L') === 'R') ? 'R' : 'L',
-        seats: _os
+        seats: _os,
+        drinks: _od
       });
     }
     body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };

@@ -1504,6 +1504,9 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
   if(sd&&sd.tables&&sd.tables.length){
     h+='<div class="grp-l">좌석 배치 (당일 세팅용)</div>';
     sd.tables.forEach(function(tb,i){ var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row((i+1)+'. '+(tb.name||('테이블 '+(i+1)))+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
+    // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
+    var _cA=0,_cN=0,_cJ=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='A')_cA++; else if(dv==='N')_cN++; else if(dv==='J')_cJ++; else _cU++; }); });
+    if(_cA+_cN+_cJ+_cU>0) h+=row('음료(자리별)','알콜 '+_cA+' · 논알콜 '+_cN+' · 주스 '+_cJ+' · 미정 '+_cU);
     if(seatToken) h+=row('하객 공유 링크', 'momentedit.kr/seat.html?t='+seatToken);
   }
   return h||'<div class="cnote">내용 없음</div>';

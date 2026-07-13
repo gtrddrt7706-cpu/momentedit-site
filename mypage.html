@@ -814,9 +814,22 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
-    .rs{max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
+    .rs{position:relative;max-width:74px;overflow:visible;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
+    .rs>.rs-nm{display:inline-block;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
     .rs.empty{color:var(--light);border-style:dashed;background:var(--bg2);padding:3px 8px;font-size:11px}
     .rs:active{border-color:var(--gold-deep)}
+    /* 자리별 음료 표시 — 화면 깔끔하게: 자리엔 작은 색점만(모서리), 상세·선택은 탭했을 때 상단 바에서 */
+    .rs-dk{position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--bg);box-shadow:0 0 0 .5px rgba(58,45,34,.14);pointer-events:none}
+    .dk-N{background:#5F9E86}   /* 논알콜 · 세이지그린 */
+    .dk-A{background:#9B4A57}   /* 알콜 · 와인 */
+    .dk-J{background:#E0912F}   /* 주스 · 앰버 */
+    .seat-drsum{text-align:center;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.7}
+    .seat-drsum .s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 3px 0 9px;vertical-align:middle}
+    .seat-drinkbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center;margin:10px auto 2px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:340px}
+    .sdb-label{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);width:100%;text-align:center;margin-bottom:1px}
+    .dk-chip{font-family:var(--serif-ko);font-size:12px;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+    .dk-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+    .dk-chip.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent)}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:10.5px;text-align:center;color:var(--accent);padding:3px 4px}
     .rs-edit:focus{outline:none}
     .rt-ctl{display:flex;gap:4px;margin-top:4px;justify-content:center}
@@ -3970,12 +3983,21 @@ function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} re
 // 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 4명(초기 셋팅). 필요하면 자리 추가로 테이블당 최대 5명까지.
 function autoSeatTables(headcount){
   var cnt=6, per=4, lc=Math.floor(cnt/2);   // 6테이블 · 4석 기본 · 좌측 3
-  var out=[]; for(var i=0;i<cnt;i++){ var seats=[]; for(var k=0;k<per;k++) seats.push(''); out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats }); }
+  var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }
   return out;
+}
+// 음료 배열을 좌석 배열과 항상 같은 길이로 정규화(값은 '' · 'N'논알콜 · 'A'알콜 · 'J'주스). 구 데이터(음료 없음)도 안전.
+function _seatNormDrinks(t){
+  if(!t) return;
+  if(Object.prototype.toString.call(t.seats)!=='[object Array]') t.seats=[];
+  var d=(Object.prototype.toString.call(t.drinks)==='[object Array]')?t.drinks:[];
+  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='N'||v==='A'||v==='J')?v:''); }
+  t.drinks=out;
 }
 function startSeatFlow(seatDraft, finalDraft, token){
   INVFLOW.active=false; if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;
   var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
+  tbls.forEach(function(t){ _seatNormDrinks(t); });   // 음료 배열 보정(구 데이터 호환)
   SEATFLOW={ active:true, tables:tbls, token:token||'' };
   renderSeat($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
@@ -4009,13 +4031,13 @@ function wireSeatShare(box, token){
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
 function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
 function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=even?1:1.9; var base=s*mag; return (side==='R'? -base : base); }   // 지그재그 배율(부호포함): 짝수행=통로쪽 1배, 홀수행(가운데 테이블)=바깥쪽 1.9배(바깥 끝까지). 실제 폭은 CSS --zig × 이 값
-function commitSeatEdit(box){
+function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태는 유지) — 음료 칩 선택 시 이름 보존용
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
   if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
   else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ SEATFLOW.tables[ed.ti].seats[ed.si]=inp.value; }
-  SEATFLOW.edit=null;
 }
+function commitSeatEdit(box){ _seatWriteEdit(box); SEATFLOW.edit=null; }
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
   function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
@@ -4025,7 +4047,8 @@ function renderSeat(box){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
-      else { var f=String(nm).trim(); seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?escapeHtml(nm):'+')+'</button></div>'; }
+      else { var f=String(nm).trim(); var dk=(t.drinks&&t.drinks[si])||''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 선택했을 때만
+        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     var center = '<span class="rt-c">'+(dispNo||(ti+1))+'</span>';   // 중앙엔 행 순서 번호(검은색)
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
@@ -4043,10 +4066,23 @@ function renderSeat(box){
   for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   var L='', R='', li=0, ri=0;
   s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
+  // 음료 집계(이름 있는 자리만) — 상단 한 줄. 지도는 색점만으로 깔끔.
+  var cA=0,cN=0,cJ=0,cU=0;
+  s.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')cA++; else if(dv==='N')cN++; else if(dv==='J')cJ++; else cU++; }); });
+  var sumHtml=(cA+cN+cJ+cU>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';
+  // 음료 선택 바 — 자리를 탭해 편집 중일 때만(이름 편집 제외). 지도 위 고정 위치라 지저분함 없음.
+  var barHtml='';
+  if(ed && ed.si!=='name'){
+    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; var edNo=num[ed.ti]||(ed.ti+1);
+    var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
+    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 테이블 · 이 자리 음료</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
+  }
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
-    +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름을 채워요.</div>'
+    +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
+    + sumHtml
+    + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
     +'<div class="seat-room">'
       +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button>':'')+'</div>'
@@ -4071,15 +4107,16 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done],[data-drink]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); if(SEATFLOW.tables[i]&&SEATFLOW.tables[i].seats.length<5) SEATFLOW.tables[i].seats.push(''); renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var st=SEATFLOW.tables[j]&&SEATFLOW.tables[j].seats; if(st&&st.length>1) st.pop(); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; if(tl&&tl.seats.length>1){ tl.seats.pop(); if(tl.drinks) tl.drinks.pop(); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''] }); } renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } renderSeat(box); } return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
     if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); }); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
@@ -4090,6 +4127,10 @@ function bindSeat(box){
       return;
     }
   });
+  // 음료 칩을 누를 때 이름 입력의 포커스가 풀리지 않게(blur→편집 닫힘 방지) — 포커스 유지 후 click 핸들러가 음료 적용
+  var _dkKeepFocus=function(e){ var c=e.target&&e.target.closest?e.target.closest('[data-drink]'):null; if(c) e.preventDefault(); };
+  box.addEventListener('pointerdown', _dkKeepFocus);
+  box.addEventListener('mousedown', _dkKeepFocus);
   box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'){ e.preventDefault(); e.target.blur(); } });
   box.addEventListener('blur', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')) commitSeatEdit(box); }, true);
 }
