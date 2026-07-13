@@ -60,6 +60,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .self .who{color:var(--green);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
 .prep-hint{font-size:11px;color:var(--gold-deep);margin-top:10px;background:#FBF3E7;border-radius:8px;padding:8px 11px;word-break:keep-all}
 .prep-hint b{color:var(--seal)}
+.proc{background:var(--bg2);border-radius:12px;padding:13px 15px}
+.proc-l{font-size:10.5px;font-weight:600;color:var(--gold-deep);margin-bottom:8px;letter-spacing:.03em}
+.proc-s{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--sub);padding:5px 0;word-break:keep-all;line-height:1.5}
+.proc-s .pn{flex-shrink:0;width:19px;height:19px;border-radius:50%;background:var(--gold);color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.dlabel{font-size:10px;letter-spacing:.05em;color:var(--gold-deep);font-weight:600;margin-top:4px}
 .banner{background:#FBF3E7;border:1px solid #EAD9BE;border-radius:9px;padding:8px 12px;font-size:11px;color:var(--gold-deep);word-break:keep-all;line-height:1.6;margin-top:12px}
 .intro-lead{font-size:13px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
 .intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
@@ -214,7 +219,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
   </div>
 </div>
 <script>
-var S={course:'damback',entry:'A',welcome:'nar',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
+var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
        guestVoice:'nar',guestMethod:''};
 window.setGuestVoice=function(v){ S.guestVoice=v; if(v==='nar') S.guestMethod=''; render(); };
@@ -305,7 +310,7 @@ var STEPS=[
  {k:'course',title:'어떤 분위기로 흐를까요?',sub:'세 코스를 한눈에 보고, 관심 가는 코스를 눌러 순서 상세를 확인하세요.'},
  {k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  {k:'entry',title:'입장, 어떻게 열까요?',sub:'세 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
- {k:'welcome',title:'첫인사는 누가 전할까요?',sub:'성우가 대신 전할 수도, 두 분이 직접 인사할 수도 있어요.'},
+ {k:'welcome',title:'두 분의 첫인사, 이렇게 진행돼요',sub:''},
  {k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 직접 읽는 순간이에요. 성우가 그 앞을 열어 드려요.'},
  {k:'ring',title:'반지 교환, 넣을까요?',sub:'서약의 증표로 반지를 나누는 순간. 원하는 대로 넣거나 빼세요.'},
  {k:'declare',title:'성혼 선언, 어떤 무게로?',sub:'부부가 되었음을 선언하는 순간. 성우의 톤을 골라요.'},
@@ -316,11 +321,11 @@ var STEPS=[
 ];
 var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
-var RECOTXT={entry:'대부분 A 서사형을 골라요',welcome:'대부분 성우에게 맡겨요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
+var RECOTXT={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
 var MOMENT={
  guest:{ph:'식의 시작 · 하객 맞이',t:'실제 식은 여기서 시작돼요. 하객이 자리에 앉는 동안 안내가 흘러요.',act:'성우가 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
  entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'입장 멘트의 느낌을 골라주세요.'},
- welcome:{ph:'첫인사',t:'하객에게 감사 인사를 전하는 순간이에요.',act:'성우 대행 · 두 분 직접 중에 골라주세요.'},
+ welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 감사 인사를 전하는 순간이에요.',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
  vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 오열 대비를 정해주세요.'},
  ring:{ph:'반지 교환',t:'약속의 증표를 손끝에 새기는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
  declare:{ph:'성혼 선언',t:'성우가 두 분이 부부가 되었음을 선언하는 순간이에요.',act:'선언의 톤을 골라주세요.'},
@@ -435,9 +440,14 @@ function renderStep(k){
   var h='<div class="opts">';
   if(k==='entry'){ ['A','B','C'].forEach(function(v){ h+=oc('entry',v,v+' · '+ENTRY[v].d,'',ENTRY[v].nar,null,null,null,RECO.entry===v); }); }
   else if(k==='welcome'){
-    h+=oc('welcome','nar','나레이션에 맡기기','성우가 두 분을 대신해 따뜻하게 인사','먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.',null,null,null,true);
-    h+=oc('welcome','self','두 분이 직접','짧게 직접 인사 (성우가 앞을 열어줌)','먼저, 두 사람이 준비한 첫 인사가 있습니다.',null,{who:'신랑신부',t:'짧은 인사 한두 문장'},'준비물 · 환영 인사말 한두 문장.<br>'+LATER);
-    if(S.welcome==='self') h+='<div class="wcard"><div class="wn">인사말 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea></div>';
+    h+='<div class="proc"><div class="proc-l">이렇게 진행돼요</div>';
+    h+='<div class="proc-s"><span class="pn">1</span>성우가 인사의 문을 열어줘요</div>';
+    h+='<div class="proc-s"><span class="pn">2</span>두 분이 하객에게 직접 짧게 인사해요 · 30초~1분</div>';
+    h+='<div class="proc-s"><span class="pn">3</span>성우가 따뜻하게 마무리해요</div></div>';
+    h+='<div class="dlabel">성우 도입 대본</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
+    h+='<div class="self"><span class="who">두 분이 직접</span>하객을 향해 짧게 인사해요. 한두 문장·목례면 충분하고, 부담되면 아주 짧아도 돼요. 진심만 담으면 됩니다.</div>';
+    h+='<div class="dlabel">성우 마무리 대본</div>'+narBox("여러분과 함께라서, 오늘이 더 빛납니다.",null)+playBtn();
+    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. 짧아도 진심이면 충분해요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea></div>';
   }
   else if(k==='vow'){
     h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
