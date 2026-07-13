@@ -1,7 +1,7 @@
 // 모먼트에디트 · 문의 리드(콜백 요청) 접수 (Vercel 서버리스)
 // 챗봇에서 고객이 동의 후 남긴 이름·연락처를 GAS로 전달 → '문의리드' 적재 + 관리자 즉시 SMS.
 //   고객 화면이라 동의(consent)가 없으면 거절. 연락처는 후속 연락 목적이라 마스킹하지 않고 저장(동의 기반).
-// 환경변수: HANDOFF_WEBHOOK_URL (GAS /exec URL · 없으면 503)
+// 환경변수: HANDOFF_WEBHOOK_URL (GAS /exec URL · 없으면 503) · HANDOFF_SECRET (GAS AI_HANDOFF_SECRET와 동일값 · leadCapture 무단 호출 차단용 공유키)
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.statusCode = 405; res.setHeader('Allow', 'POST'); return res.end(JSON.stringify({ error: 'method_not_allowed' })); }
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     try {
       const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 5000);
       try {
-        const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'leadCapture', name, channel, contact, consent: true, surface, context }), signal: ctl.signal });
+        const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'leadCapture', name, channel, contact, consent: true, surface, context, secret: process.env.HANDOFF_SECRET || undefined }), signal: ctl.signal });
         let j = null; try { j = await r.json(); } catch (e) {}
         ok = !!(r.ok && j && j.ok === true);
       } finally { clearTimeout(t); }

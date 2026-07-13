@@ -139,3 +139,71 @@ function customerNames(rowObj) {
   var b = String(rowObj.get('신부이름') || '').trim();
   return (g && b) ? (g + ' · ' + b) : (g || b || '고객');
 }
+
+// ============================ 개인정보 보유기간 자동 파기 ============================
+// 처리방침 약속: "상담 미진행·계약 없음 → 6개월 후 파기". 이를 실제로 이행하는 자동 익명화.
+//   ★안전 원칙:
+//     · 계약(서명완료)·입금(중도금/잔금 확인·완료신호) 이력이 조금이라도 있으면 절대 건드리지 않음
+//       (전자상거래법·세법상 법정 보관 의무 대상 → 파기 금지).
+//     · 행을 삭제하지 않고(설계 규칙: 행 직접삭제 금지) PII 컬럼만 복구 불가하게 비움(익명화).
+//     · 개인코드·상품타입·현재단계·생성일시는 통계·중복검사용으로 남김(그 자체로는 개인식별 불가).
+//   비활성 기준: 최종수정(없으면 생성일시)이 CUTOFF일(기본 183일=6개월) 이전.
+//   ScriptProperty 'CUSTOMER_PURGE_OFF'='Y' 이면 정지. 'CUSTOMER_PURGE_DAYS' 로 일수 조정 가능.
+//   실행: 주간 트리거(purgeAdvisorLog)가 함께 호출. 첫 도입 시 previewStaleCustomers()로 대상만 미리 확인 권장.
+var _CUST_PII_COLS = [
+  '비번해시', '로그인토큰', '토큰만료',
+  '신랑이름', '신부이름', '연락처', '이메일',
+  '동의기록', '입금자명', '잔금입금자명', '중도금입금자명', '추가보정입금자명',
+  '제작임시저장', '계약서링크', '쿠폰데이터', '선택사진', '설문응답',
+  '원본링크', '영상링크', '보정본폴더', '좌석공유토큰'
+];
+// 이 컬럼 중 하나라도 '보관 의무' 값이면 파기 제외(법정 보관 · 진행 중 계약 보호).
+function _custRetained(get) {
+  if (String(get('계약상태') || '').trim() === '서명완료') return true;
+  if (String(get('계약서명일시') || '').trim()) return true;
+  if (['완료신호', '확인'].indexOf(String(get('입금상태') || '').trim()) !== -1) return true;
+  if (String(get('중도금상태') || '').trim() === '확인') return true;
+  if (String(get('잔금상태') || '').trim() === '확인') return true;
+  if (String(get('계약총액') || '').trim()) return true;   // 관리자가 계약총액을 넣었다면 계약 성립 신호
+  return false;
+}
+function purgeStaleCustomers(dryRun) {
+  try { if (PropertiesService.getScriptProperties().getProperty('CUSTOMER_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' }; } catch (e) {}
+  var days = 183;
+  try { var d = parseInt(PropertiesService.getScriptProperties().getProperty('CUSTOMER_PURGE_DAYS'), 10); if (d >= 30) days = d; } catch (e) {}
+  var sheet = getCustomersSheet();
+  var colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+  if (last < P.DATA_START_ROW) return { ok: true, purged: 0 };
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
+  var rows = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, lastCol).getValues();
+  var purged = 0, samples = [];
+  for (var i = 0; i < rows.length; i++) {
+    var vals = rows[i];
+    var get = function (h) { var c = colOf[h]; return c ? vals[c - 1] : ''; };
+    if (!String(get('개인코드') || '').trim()) continue;                 // 빈 행
+    // 이미 익명화된 행(식별정보 전부 비었음) 건너뜀
+    if (!String(get('신랑이름') || '').trim() && !String(get('신부이름') || '').trim()
+      && !String(get('연락처') || '').trim() && !String(get('이메일') || '').trim()) continue;
+    if (_custRetained(get)) continue;                                     // 법정 보관 · 계약/입금 이력 → 보호
+    var lastAt = String(get('최종수정') || get('생성일시') || '').trim();
+    var when = lastAt ? new Date(lastAt.replace(' ', 'T')) : null;
+    if (!when || isNaN(when.getTime()) || when >= cutoff) continue;       // 아직 6개월 안 지남 · 날짜 불명
+    samples.push({ code: String(get('개인코드')), 최종수정: lastAt, 현재단계: String(get('현재단계') || '') });
+    if (dryRun) { purged++; continue; }
+    // ── 익명화: PII 컬럼 비우기 + 파기 표식 ──
+    for (var k = 0; k < _CUST_PII_COLS.length; k++) { var cc = colOf[_CUST_PII_COLS[k]]; if (cc) vals[cc - 1] = ''; }
+    var mark = '[자동파기 ' + fmtKST(new Date()) + '] 상담 미계약 6개월 경과 · 개인정보 삭제';
+    if (colOf['관리자메모']) vals[colOf['관리자메모'] - 1] = mark;
+    if (colOf['처리이력']) vals[colOf['처리이력'] - 1] = (String(get('처리이력') || '') + '\n' + mark).trim().slice(0, 4000);
+    if (colOf['현재단계']) vals[colOf['현재단계'] - 1] = '미계약';        // 진행바 예외로 정리(드롭다운 유효값)
+    if (colOf['최종수정']) vals[colOf['최종수정'] - 1] = fmtKST(new Date());
+    sheet.getRange(P.DATA_START_ROW + i, 1, 1, lastCol).setValues([vals]);
+    purged++;
+  }
+  Logger.log((dryRun ? '[DRY] ' : '') + 'purgeStaleCustomers: ' + purged + '건 (' + days + '일 경과·미계약) ' +
+    samples.slice(0, 20).map(function (s) { return s.code + '(' + s.최종수정 + ')'; }).join(', '));
+  return { ok: true, purged: purged, dryRun: !!dryRun, cutoffDays: days, samples: samples };
+}
+// 미리보기 — 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용).
+function previewStaleCustomers() { return purgeStaleCustomers(true); }
