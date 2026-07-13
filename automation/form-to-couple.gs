@@ -366,11 +366,16 @@ function findLastEventIdRow(sheet, idCol) {
   }
   return CFG.DATA_START_ROW - 1;
 }
+// CSV·수식 인젝션 방어 — 문자열이 = + - @ 또는 탭·CR로 시작하면 작은따옴표 프리픽스로 텍스트 고정.
+//   Sheets가 setValue 시 '=..'를 수식 평가 → HYPERLINK/IMPORTXML 유출·CSV 공격 벡터. 숫자·날짜는 통과.
+function _deFormula(value) {
+  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+}
 function writeCell(sheet, colOf, rowNum, header, value, force) {
   var c = colOf[header];
   if (!c) { Logger.log('  (헤더 없음, 건너뜀: ' + header + ')'); return; }
   if (value === '' && !force) return;   // 기본: 빈 값 스킵(점진적 입력 보존) · force=true면 빈 값도 기록(디자인·토글은 매 제출의 현재 의도 반영)
-  sheet.getRange(rowNum, c).setValue(value);
+  sheet.getRange(rowNum, c).setValue(_deFormula(value));
 }
 function pad2(s) {
   var n = parseInt(String(s || '').replace(/[^0-9]/g, ''), 10);
@@ -460,6 +465,13 @@ function setupVimeoGuard() {
 //   ScriptProperty 'COUPLE_PURGE_OFF'='Y' 이면 정지. previewCoupleData()로 사전 확인.
 function purgeCoupleData(dryRun) {
   if (PropertiesService.getScriptProperties().getProperty('COUPLE_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' };
+  // 동시 실행 방지(vimeoGuardDaily 트리거 + 수동 겹침) — 미리보기(dryRun)는 읽기 전용이라 잠그지 않음
+  var _lock = null;
+  if (!dryRun) {
+    _lock = LockService.getScriptLock();
+    try { _lock.waitLock(10000); } catch (e) { Logger.log('purgeCoupleData: 락 획득 실패 — 건너뜀'); return { ok: false, error: 'busy' }; }
+  }
+  try {
   var days = 183;
   var dprop = parseInt(PropertiesService.getScriptProperties().getProperty('COUPLE_PURGE_DAYS'), 10);
   if (dprop >= 30) days = dprop;
@@ -494,6 +506,7 @@ function purgeCoupleData(dryRun) {
   var modN = dryRun ? 0 : _purgeGuestSheet(ss, 'Moderation', expired, cutoff, toYmd, [2, 3, 5, 6]); // guestName·relation·message·matchedWord
   Logger.log((dryRun ? '[DRY] ' : '') + 'purgeCoupleData: Couples ' + cN + ' · Messages ' + mN + ' · Moderation ' + modN + ' (예식+' + days + '일 경과)');
   return { ok: true, couples: cN, messages: mN, moderation: modN, dryRun: !!dryRun };
+  } finally { if (_lock) { try { _lock.releaseLock(); } catch (e) {} } }
 }
 function previewCoupleData() { return purgeCoupleData(true); }
 // Messages/Moderation 공통 — eventId가 만료셋이거나 자체 시각(1열)+N일 경과면 지정 컬럼(0-based)만 비움. 반환=행수.

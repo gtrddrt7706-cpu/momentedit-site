@@ -169,6 +169,13 @@ function _custRetained(get) {
 }
 function purgeStaleCustomers(dryRun) {
   try { if (PropertiesService.getScriptProperties().getProperty('CUSTOMER_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' }; } catch (e) {}
+  // 동시 실행 방지(트리거+수동 겹침·다른 파기 잡과 경합) — 미리보기(dryRun)는 읽기 전용이라 잠그지 않음
+  var _lock = null;
+  if (!dryRun) {
+    _lock = LockService.getScriptLock();
+    try { _lock.waitLock(10000); } catch (e) { Logger.log('purgeStaleCustomers: 락 획득 실패(다른 파기 실행 중) — 건너뜀'); return { ok: false, error: 'busy' }; }
+  }
+  try {
   var days = 183;
   try { var d = parseInt(PropertiesService.getScriptProperties().getProperty('CUSTOMER_PURGE_DAYS'), 10); if (d >= 30) days = d; } catch (e) {}
   var sheet = getCustomersSheet();
@@ -191,14 +198,20 @@ function purgeStaleCustomers(dryRun) {
     if (!when || isNaN(when.getTime()) || when >= cutoff) continue;       // 아직 6개월 안 지남 · 날짜 불명
     samples.push({ code: String(get('개인코드')), 최종수정: lastAt, 현재단계: String(get('현재단계') || '') });
     if (dryRun) { purged++; continue; }
-    // ── 익명화: PII 컬럼 비우기 + 파기 표식 ──
-    for (var k = 0; k < _CUST_PII_COLS.length; k++) { var cc = colOf[_CUST_PII_COLS[k]]; if (cc) vals[cc - 1] = ''; }
+    // ── 익명화: 쓰기 직전 그 행만 재읽기 → 블록 읽기~쓰기 사이 동시 편집 보존 + 재검증(오파기 방지) ──
+    var rowNum = P.DATA_START_ROW + i;
+    var fresh = sheet.getRange(rowNum, 1, 1, lastCol).getValues()[0];
+    var fget = function (h) { var c = colOf[h]; return c ? fresh[c - 1] : ''; };
+    if (_custRetained(fget)) continue;                                    // 배치 중 계약·입금 발생 → 보호(재검증)
+    if (!String(fget('신랑이름') || '').trim() && !String(fget('신부이름') || '').trim()
+      && !String(fget('연락처') || '').trim() && !String(fget('이메일') || '').trim()) continue;   // 이미 익명화됨
+    for (var k = 0; k < _CUST_PII_COLS.length; k++) { var cc = colOf[_CUST_PII_COLS[k]]; if (cc) fresh[cc - 1] = ''; }
     var mark = '[자동파기 ' + fmtKST(new Date()) + '] 상담 미계약 6개월 경과 · 개인정보 삭제';
-    if (colOf['관리자메모']) vals[colOf['관리자메모'] - 1] = mark;
-    if (colOf['처리이력']) vals[colOf['처리이력'] - 1] = (String(get('처리이력') || '') + '\n' + mark).trim().slice(0, 4000);
-    if (colOf['현재단계']) vals[colOf['현재단계'] - 1] = '미계약';        // 진행바 예외로 정리(드롭다운 유효값)
-    if (colOf['최종수정']) vals[colOf['최종수정'] - 1] = fmtKST(new Date());
-    sheet.getRange(P.DATA_START_ROW + i, 1, 1, lastCol).setValues([vals]);
+    if (colOf['관리자메모']) fresh[colOf['관리자메모'] - 1] = mark;
+    if (colOf['처리이력']) fresh[colOf['처리이력'] - 1] = (String(fget('처리이력') || '') + '\n' + mark).trim().slice(0, 4000);
+    if (colOf['현재단계']) fresh[colOf['현재단계'] - 1] = '미계약';        // 진행바 예외로 정리(드롭다운 유효값)
+    if (colOf['최종수정']) fresh[colOf['최종수정'] - 1] = fmtKST(new Date());
+    sheet.getRange(rowNum, 1, 1, lastCol).setValues([fresh]);
     codes.push(String(get('개인코드') || '').trim().toUpperCase());
     purged++;
   }
@@ -211,6 +224,7 @@ function purgeStaleCustomers(dryRun) {
   Logger.log((dryRun ? '[DRY] ' : '') + 'purgeStaleCustomers: ' + purged + '건 (' + days + '일 경과·미계약) · 상담예약 ' + extra.bookings + '행 · 서명 ' + extra.signatures + '행 · ' +
     samples.slice(0, 20).map(function (s) { return s.code + '(' + s.최종수정 + ')'; }).join(', '));
   return { ok: true, purged: purged, bookings: extra.bookings, signatures: extra.signatures, dryRun: !!dryRun, cutoffDays: days, samples: samples };
+  } finally { if (_lock) { try { _lock.releaseLock(); } catch (e) {} } }
 }
 // 미리보기 — 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용).
 function previewStaleCustomers() { return purgeStaleCustomers(true); }

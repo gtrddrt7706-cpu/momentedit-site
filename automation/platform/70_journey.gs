@@ -787,7 +787,7 @@ function _changeFeeQuote(r, toYmd) {
   var used = (rec.변경이력 && rec.변경이력.length) || 0;
   if (dd != null && dd >= 150) return { fee: 0, basis: '무상취소 기간 · 횟수 무관 무상', used: used, dd: dd };
   if (dd != null && dd >= 60 && used === 0) return { fee: 0, basis: '60일 전 1회 무상', used: used, dd: dd };
-  var fee = Math.round((Number(r.get('계약총액')) || 0) * 0.1);
+  var fee = Math.round((Number(String(r.get('계약총액') || '').replace(/[,원\s]/g, '')) || 0) * 0.1);   // 콤마·원·공백 제거 후 숫자화(문자열 총액이 NaN→0 과소청구되던 것 방지)
   return { fee: fee, basis: '변경 수수료 10%', used: used, dd: dd };
 }
 // 공통 가드 — 서명완료 + 예식 전(dd>=1) + 시그니처 + 진행 중. 실패 {ok:false,error} / 통과 {ok:true,dd}.
@@ -1554,8 +1554,11 @@ function sendArchiveExpiryNotices() {
       try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
     }
     // (2) 만료일 경과 시 1회 결과물 링크 자동 제거(처리방침 6개월 삭제 이행 · 마이페이지 노출 종료).
+    //   ★계약서 12조③(만료 7일 전 통지 후 삭제) 이행 — 통지가 이전 실행에서 이미 기록됐고(rec.보관만료통지)
+    //     만료가 실제 지난(left<0) 경우에만 삭제. 같은 실행에서 통지+삭제가 겹치는 것과, 도입 첫 실행에
+    //     통지 없이 즉시 삭제되는 것을 함께 차단(rec는 이번 실행 stamp 전 시트값이라 방금 보낸 통지는 미반영).
     //   ★Drive 원본 파일 자체는 코드가 지우지 않음(오삭제 방지) → 관리자가 확인 후 수동 삭제. 링크만 데이터에서 비움.
-    if (!rec.결과물파기 && left <= 0) {
+    if (!rec.결과물파기 && rec.보관만료통지 && left < 0) {
       ['원본링크', '영상링크', '보정본폴더'].forEach(function (h) { if (colOf[h]) writeCell(sheet, colOf, rowNum, h, ''); });
       _stampConsentKey(sheet, colOf, rowNum, function (fresh) { fresh.결과물파기 = fmtKST(new Date()); });
       try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 링크 자동 제거'); } catch (e3) {}

@@ -51,7 +51,7 @@ function handleAiHandoff(body) {
       _aihStr(brief.rationale, 2400),
       _aihStr(convo.slice(-16).join('\n'), 6000),
       ''
-    ];
+    ].map(_deFormula);   // CSV·수식 인젝션 방어(선행 =,+,-,@ 텍스트 고정) — id·시각·상태는 트리거 안 됨
     var lock = LockService.getScriptLock();
     try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
     try { _aihSheet().appendRow(row); } finally { try { lock.releaseLock(); } catch (e) {} }

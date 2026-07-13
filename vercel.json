@@ -2,6 +2,17 @@
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ] || exit 0; git diff --quiet HEAD^ HEAD -- ':(exclude)automation' ':(exclude)*.md' ':(exclude).claspignore'",
   "routes": [
     {
+      "src": "/(.*)",
+      "headers": {
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=(), interest-cohort=()",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+      },
+      "continue": true
+    },
+    {
       "src": "^/i/(cover-\\d{2})\\.html$",
       "has": [
         {

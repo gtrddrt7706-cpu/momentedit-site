@@ -1479,10 +1479,16 @@ function buildHeaderIndex(sheet) {
   for (var i = 0; i < headers.length; i++) { var h = String(headers[i]).trim(); if (h) map[h] = i + 1; }
   return map;
 }
+// CSV·수식 인젝션 방어 — 문자열이 = + - @ 또는 탭·CR로 시작하면 작은따옴표를 앞에 붙여 텍스트로 고정.
+//   Google Sheets는 setValue 시 '=..'를 수식으로 평가 → 시트 내 HYPERLINK/IMPORTXML 유출·CSV 내보내기 공격의 벡터.
+//   숫자·날짜(Number/Date)는 그대로 통과. 선행 작은따옴표는 Sheets가 텍스트 마커로 소비(정상 이름·전화는 트리거 안 됨).
+function _deFormula(value) {
+  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+}
 function writeCell(sheet, colOf, rowNum, header, value) {
   var c = colOf[header];
   if (!c) { Logger.log('  (헤더 없음, 건너뜀: ' + header + ')'); return; }
-  sheet.getRange(rowNum, c).setValue(value);
+  sheet.getRange(rowNum, c).setValue(_deFormula(value));
 }
 // 토큰으로 행을 찾아 접근자 객체로 반환
 function findRowByToken(sheet, colOf, token) {
@@ -1688,11 +1694,16 @@ function servePayConfirm(p) {
     return infoPage('유효하지 않은 링크입니다', '링크가 올바르지 않아요. 관리자 페이지에서 처리해 주세요.', false);
   }
   if (!(Number(exp) > Date.now())) return infoPage('링크 유효기간이 지났습니다', '보안을 위해 링크는 14일간만 유효해요. 관리자 페이지에서 처리해 주세요.', false);
+  // 동시 클릭(더블클릭·프리페치) 시 확인처리 이중 실행 방지 — 락으로 직렬화하면 두 번째는 already 경로로 수렴
+  var _lock = LockService.getScriptLock();
+  try { _lock.waitLock(10000); } catch (e) { return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 링크를 다시 눌러 주세요.', false); }
   var r;
-  if (m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
-  else if (m === 'mid') r = adminConfirmMid(code);
-  else if (m === 'bal') r = adminConfirmBalance(code);
-  else r = adminConfirmMidBalance(code);
+  try {
+    if (m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
+    else if (m === 'mid') r = adminConfirmMid(code);
+    else if (m === 'bal') r = adminConfirmBalance(code);
+    else r = adminConfirmMidBalance(code);
+  } finally { try { _lock.releaseLock(); } catch (e) {} }
   if (r && r.ok && r.already) return infoPage('이미 확인 처리되어 있어요', code + ' · ' + label + ' — 추가로 할 일이 없어요.', true);
   if (r && r.ok) return infoPage('입금 확인 완료', code + ' · ' + label + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.', true);
   return infoPage('처리하지 못했어요', String((r && r.error) || '') + '<br>관리자 페이지에서 처리해 주세요.', false);
@@ -2121,7 +2132,7 @@ function handleAdvisorLog(body) {
     var esc = (body && body.escalate) ? 'Y' : '';
     var flag = String((body && body.flag) || (esc ? '막힘' : '정상')).slice(0, 6);   // 정상·애매·막힘 (애매=AI가 답했지만 자신 없음)
     var surface = String((body && body.surface) || '').slice(0, 8);
-    sh.appendRow([fmtKST(new Date()), _maskPII(q), esc, flag, surface]);
+    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, flag, _deFormula(surface)]);
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
@@ -2147,7 +2158,7 @@ function handleLeadCapture(body) {
     var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '방법', '접점', '맥락', '동의', '상태', '처리일시']); }
     if (sh.getLastRow() > 5000) return { ok: true };
-    sh.appendRow([fmtKST(new Date()), name, contact, channel, surface, ctx, '동의', '신규', '']);
+    sh.appendRow([fmtKST(new Date()), _deFormula(name), _deFormula(contact), channel, _deFormula(surface), _deFormula(ctx), '동의', '신규', '']);
     try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(' + channel + '로 회신): ' + name + ' ' + contact + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
     // 고객 접수 확인 문자(거래성 안내 · 전화 아님). ScriptProperty 'LEAD_CONFIRM_SMS'='N'이면 끔.
     try {
@@ -2216,11 +2227,11 @@ function handleAwDemandLog(body) {
   try {
     var src = String((body && body.source) || '').slice(0, 16);
     if (!src) return { ok: true };
-    var clean = function (v, n) { return String(v == null ? '' : v).replace(/[\r\n\t]/g, ' ').slice(0, n || 40); };
+    var clean = function (v, n) { return _deFormula(String(v == null ? '' : v).replace(/[\r\n\t]/g, ' ').slice(0, n || 40)); };
     var sh = SpreadsheetApp.getActive().getSheetByName('애프터수요로그');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('애프터수요로그'); sh.appendRow(['시각', '소스', '카테고리/프리셋', '테마', '음식', '인원']); }
     if (sh.getLastRow() > 8000) return { ok: true };   // 폭주 가드
-    sh.appendRow([fmtKST(new Date()), src, clean((body && (body.category || body.label)), 40), clean(body && body.theme, 16), clean(body && body.food, 24), clean(body && body.head, 8)]);
+    sh.appendRow([fmtKST(new Date()), _deFormula(src), clean((body && (body.category || body.label)), 40), clean(body && body.theme, 16), clean(body && body.food, 24), clean(body && body.head, 8)]);
   } catch (e) { try { Logger.log('awDemandLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
