@@ -77,10 +77,10 @@
     + '.me-adv-form{display:flex;align-items:flex-end;gap:8px}'
     + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .25s}'
     + '.me-adv-input:focus{border-color:var(--gold,#B89A75)}'
-    + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:var(--seal,#6B2A24);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}'
+    + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}'
     + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
     + '.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}'
-    + '.me-adv-send svg{width:18px;height:18px}';
+    + '.me-adv-send svg{width:20px;height:20px}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
@@ -122,7 +122,7 @@
     + '  <footer class="me-adv-foot">'
     + '    <form class="me-adv-form" id="meAdvForm">'
     + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
-    + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.4 3.1 2.3 10.6c-.6.24-.56 1.12.06 1.3l4.9 1.45 1.9 5.3c.2.55.94.62 1.24.12l2.35-3.85 4.65 3.45c.4.3.98.08 1.1-.4l3.4-13.5c.14-.56-.42-1.03-.95-.82Z" fill="#fff"/><path d="M8.1 13.6 17.5 6.4 9.6 15z" fill="var(--seal,#6B2A24)"/></svg></button>'
+    + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.8 11.3 20.3 4.2c.5-.2 1 .3.8.8l-4.7 15.2c-.15.5-.8.6-1.1.16l-3.4-4.8-3 2.4c-.3.24-.75.03-.76-.35l-.06-3.9-5.2-1.1c-.5-.1-.55-.8-.06-1Z" fill="var(--seal,#6B2A24)"/></svg></button>'
     + '    </form>'
     + '    <a class="me-adv-foot-kakao" id="meAdvKakao" href="#" rel="noopener">해결이 안 되면 <u>카카오톡 문의</u></a>'
     + '  </footer>'
