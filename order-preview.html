@@ -47,6 +47,17 @@ body{background:var(--bg);color:var(--accent);font-family:var(--serif);line-heig
 .intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
 .ipt{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--accent)}
 .ipt .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--seal);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.daymap{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 14px 14px}
+.daymap-t{font-size:11px;color:var(--gold-deep);font-weight:600;text-align:center;margin-bottom:13px;letter-spacing:.02em}
+.dmrow{display:flex;align-items:stretch;gap:6px}
+.dmph{flex:1;text-align:center;border-radius:10px;padding:10px 6px;border:1px solid var(--border);background:var(--bg2);position:relative}
+.dmph.on{border-color:var(--seal);background:#FDF6F5;box-shadow:0 2px 12px rgba(107,42,36,.08);flex:1.25}
+.dmph .ph-n{font-size:12px;font-weight:600;color:var(--sub);word-break:keep-all;line-height:1.4}
+.dmph.on .ph-n{color:var(--seal)}
+.dmph .ph-tm{font-size:10px;color:var(--light);margin-top:4px}
+.dmph.on .ph-tm{color:var(--gold-deep);font-weight:600}
+.dmph .ph-here{font-size:9px;color:#fff;background:var(--seal);border-radius:20px;padding:1px 7px;display:inline-block;margin-top:6px;letter-spacing:.02em}
+.dmnote{font-size:10.5px;color:var(--light);text-align:center;margin-top:11px;line-height:1.6;word-break:keep-all}
 .sample{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center}
 .sample .st{font-size:11px;color:var(--gold-deep);font-weight:600}
 .sample .sx{font-size:12.5px;color:#4A3E30;line-height:1.8;margin:8px 0 12px;word-break:keep-all}
@@ -263,6 +274,11 @@ function render(){
 function renderIntro(){
   var h='<div class="q-title">우리 예식, 우리가 만들어요</div>';
   h+='<div class="intro-lead">모먼트에디트는 사회자 없이, 훈련된 성우의 목소리로 예식을 처음부터 끝까지 이끌어요. 두 분은 순서를 직접 고르고, 미리 들어보고, 당일 전에 연습까지 할 수 있어요.</div>';
+  h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 이 순서예요</div><div class="dmrow">';
+  h+='<div class="dmph"><div class="ph-n">하객 맞이<br>웰컴</div><div class="ph-tm">예식 전</div></div>';
+  h+='<div class="dmph on"><div class="ph-n">본식</div><div class="ph-tm">약 30분</div><div class="ph-here">지금 만드는 부분</div></div>';
+  h+='<div class="dmph"><div class="ph-n">단체촬영<br>마무리</div><div class="ph-tm">예식 후</div></div>';
+  h+='</div><div class="dmnote">두 분이 지금 만드는 건 가운데 <b>본식(약 30분)</b>이에요. 하객 맞이와 마무리 촬영은 저희가 준비해 드려요.</div></div>';
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>코스를 고르고, 순간을 우리답게 다듬어요.</div>';
   h+='<div class="ipt"><span class="n">2</span>고를 때마다 나레이션을 미리 들어봐요.</div>';
