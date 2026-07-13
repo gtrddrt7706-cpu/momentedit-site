@@ -13,6 +13,14 @@
   function gtag() { dataLayer.push(arguments); }
   window.gtag = gtag;
   gtag('js', new Date());
-  gtag('config', GA_ID, { anonymize_ip: true });
+  // 개인정보: 자동로그인·비번재설정 토큰 등 민감 쿼리는 GA로 보내지 않는다.
+  //   GA4 기본 page_view는 쿼리 포함 전체 URL(page_location)을 전송하므로, 민감 파라미터를 뺀 URL로 대체.
+  var _loc = location.href;
+  try {
+    var _u = new URL(location.href);
+    ['token', 'code', 'sig', 'exp', 't', 'secret'].forEach(function (k) { _u.searchParams.delete(k); });
+    _loc = _u.href;
+  } catch (e) {}
+  gtag('config', GA_ID, { anonymize_ip: true, page_location: _loc });
   window.ME_track = function (name, params) { try { gtag('event', name, params || {}); } catch (e) {} };
 })();
