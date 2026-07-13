@@ -1,0 +1,19 @@
+# Vercel 정적 서버(vercel.json "handle":"filesystem")가 아래를 웹에 공개하지 않도록 배포에서 제외.
+#   이 파일들은 momentedit.kr 화면에서 참조되지 않는 소스·문서·빌드 자산이며,
+#   공개되면 백엔드 로직·시트 구조·내부 메모(개인정보 관리 문서 포함)가 그대로 노출됨.
+#   ※ api/ (서버리스 함수)·*.html·assets·i/·i-family/·contract/ 등 실제 웹 자산은 제외하지 않음.
+
+# GAS 백엔드 소스 (별도 GAS 프로젝트에서만 동작 · 웹 서빙 불필요)
+automation/
+
+# 내부 문서·계획·체크리스트 (선택 공유용 · 웹 공개 금지)
+docs/
+*.md
+
+# 빌드·감사 스크립트
+scripts/
+
+# 개발 설정
+.claude/
+.clasp.json
+.claspignore
