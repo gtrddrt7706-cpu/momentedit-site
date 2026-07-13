@@ -4069,7 +4069,7 @@ function renderSeat(box){
   // 음료 집계(이름 있는 자리만) — 상단 한 줄. 지도는 색점만으로 깔끔.
   var cA=0,cN=0,cJ=0,cU=0;
   s.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')cA++; else if(dv==='N')cN++; else if(dv==='J')cJ++; else cU++; }); });
-  var sumHtml=(cA+cN+cJ+cU>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';
+  var sumHtml=(cA+cN+cJ>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';   // 음료를 하나라도 고른 뒤에만 집계 노출(안 쓰는 부부에겐 안 보여 깔끔)
   // 음료 선택 바 — 자리를 탭해 편집 중일 때만(이름 편집 제외). 지도 위 고정 위치라 지저분함 없음.
   var barHtml='';
   if(ed && ed.si!=='name'){
