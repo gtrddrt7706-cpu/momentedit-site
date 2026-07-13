@@ -406,6 +406,7 @@ function notifyStudio(subject, body, dedupKey) {
 // 매일 아침 메일 경고 → D-3 사전등록 SOP(PLAN_영상운영_기획안.md) 누락을 시스템이 잡아줌.
 // 설치: setupVimeoGuard() 1회 실행(매일 07시 트리거). 수동 점검: vimeoGuardDaily() 직접 실행.
 function vimeoGuardDaily() {
+  try { purgeCoupleData(); } catch (e) { Logger.log('[purgeCoupleData] 실패: ' + (e && e.message)); }   // 예식 후 6개월 제3자 PII 파기(기존 일일 트리거에 얹음)
   var sheet = SpreadsheetApp.getActive().getSheetByName(CFG.SHEET_NAME);
   if (!sheet) return;
   var colOf = buildHeaderIndex(sheet);
@@ -449,7 +450,68 @@ function setupVimeoGuard() {
     .filter(function (t) { return t.getHandlerFunction() === 'vimeoGuardDaily'; })
     .forEach(function (t) { ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('vimeoGuardDaily').timeBased().everyDays(1).atHour(7).create();
-  Logger.log('[vimeoGuard] 매일 07시 트리거 등록 완료');
+  Logger.log('[vimeoGuard] 매일 07시 트리거 등록 완료 (vimeoGuardDaily가 purgeCoupleData도 함께 실행)');
+}
+
+// ===================== 개인정보 파기 · 예식 후 6개월 =====================
+// 예식일 + 6개월(기본 183일 · ScriptProperty COUPLE_PURGE_DAYS로 조정) 경과 예식의 제3자 PII를 익명화(행 보존).
+//   대상: Couples(부모성함·양측/부모 계좌·인사말·이메일·vimeo) · Messages(하객 이름·관계·편지) · Moderation(하객 이름·차단문).
+//   vimeoGuardDaily(매일 07시 트리거)가 첫 줄에서 호출 — 별도 트리거 불필요 · 멱등(이미 빈 컬럼은 재기록 안 함).
+//   ScriptProperty 'COUPLE_PURGE_OFF'='Y' 이면 정지. previewCoupleData()로 사전 확인.
+function purgeCoupleData(dryRun) {
+  if (PropertiesService.getScriptProperties().getProperty('COUPLE_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' };
+  var days = 183;
+  var dprop = parseInt(PropertiesService.getScriptProperties().getProperty('COUPLE_PURGE_DAYS'), 10);
+  if (dprop >= 30) days = dprop;
+  var tz = 'Asia/Seoul';
+  var cutoff = Utilities.formatDate(new Date(Date.now() - days * 86400000), tz, 'yyyy-MM-dd');   // 이 날짜 이전 예식 = 파기 대상
+  var toYmd = function (v) { return (v instanceof Date) ? Utilities.formatDate(v, tz, 'yyyy-MM-dd') : String(v || '').trim().slice(0, 10).replace(/[./]/g, '-'); };
+  var ss = SpreadsheetApp.getActive();
+  var expired = {}, cN = 0;
+
+  // 1) Couples — 예식일 경과 행의 제3자 PII 비우기 + 만료 eventId 수집
+  var cs = ss.getSheetByName(CFG.SHEET_NAME);
+  if (cs && cs.getLastRow() >= CFG.DATA_START_ROW) {
+    var colOf = buildHeaderIndex(cs), cWed = colOf['weddingDate'], cEid = colOf['eventId'];
+    if (cWed && cEid) {
+      var lastCol = cs.getLastColumn();
+      var rows = cs.getRange(CFG.DATA_START_ROW, 1, cs.getLastRow() - CFG.DATA_START_ROW + 1, lastCol).getValues();
+      var wipe = ['groomParents', 'brideParents', 'groomAccount', 'brideAccount', 'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount', 'invitationText', 'groomEmail', 'brideEmail', 'vimeoId', 'vimeoHash'];
+      for (var r = 0; r < rows.length; r++) {
+        var ds = toYmd(rows[r][cWed - 1]);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(ds) || ds >= cutoff) continue;   // 아직 6개월 안 지남 · 날짜 불명 → 유지
+        var eid = String(rows[r][cEid - 1] || '').trim();
+        if (eid) expired[eid] = true;
+        if (dryRun) { cN++; continue; }
+        var changed = false;
+        for (var w = 0; w < wipe.length; w++) { var wc = colOf[wipe[w]]; if (wc && String(rows[r][wc - 1] || '') !== '') { rows[r][wc - 1] = ''; changed = true; } }
+        if (changed) { cs.getRange(CFG.DATA_START_ROW + r, 1, 1, lastCol).setValues([rows[r]]); cN++; }
+      }
+    }
+  }
+  // 2·3) Messages·Moderation — 만료 예식(eventId)의 하객 PII 비우기 (매칭 실패 시 자체 기록시각+N일 fallback)
+  var mN = dryRun ? 0 : _purgeGuestSheet(ss, 'Messages', expired, cutoff, toYmd, [3, 4, 5]);      // guestName·relation·message
+  var modN = dryRun ? 0 : _purgeGuestSheet(ss, 'Moderation', expired, cutoff, toYmd, [2, 3, 5, 6]); // guestName·relation·message·matchedWord
+  Logger.log((dryRun ? '[DRY] ' : '') + 'purgeCoupleData: Couples ' + cN + ' · Messages ' + mN + ' · Moderation ' + modN + ' (예식+' + days + '일 경과)');
+  return { ok: true, couples: cN, messages: mN, moderation: modN, dryRun: !!dryRun };
+}
+function previewCoupleData() { return purgeCoupleData(true); }
+// Messages/Moderation 공통 — eventId가 만료셋이거나 자체 시각(1열)+N일 경과면 지정 컬럼(0-based)만 비움. 반환=행수.
+function _purgeGuestSheet(ss, name, expired, cutoff, toYmd, idxCols) {
+  var sh = ss.getSheetByName(name);
+  if (!sh || sh.getLastRow() < 2) return 0;
+  var lastCol = sh.getLastColumn();
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues(), n = 0;
+  for (var r = 0; r < vals.length; r++) {
+    var eid = String(vals[r][1] || '').trim();                 // 2열 = eventId
+    var hit = !!(eid && expired[eid]);
+    if (!hit) { var ts = toYmd(vals[r][0]); if (/^\d{4}-\d{2}-\d{2}$/.test(ts) && ts < cutoff) hit = true; }   // fallback: 자체 시각
+    if (!hit) continue;
+    var changed = false;
+    for (var k = 0; k < idxCols.length; k++) { var ci = idxCols[k]; if (ci < lastCol && String(vals[r][ci] || '') !== '') { vals[r][ci] = ''; changed = true; } }
+    if (changed) { sh.getRange(2 + r, 1, 1, lastCol).setValues([vals[r]]); n++; }
+  }
+  return n;
 }
 
 // ===================== 부부 URL 자동 이메일 =====================

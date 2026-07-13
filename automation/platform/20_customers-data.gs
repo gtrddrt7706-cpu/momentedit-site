@@ -177,7 +177,7 @@ function purgeStaleCustomers(dryRun) {
   if (last < P.DATA_START_ROW) return { ok: true, purged: 0 };
   var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
   var rows = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, lastCol).getValues();
-  var purged = 0, samples = [];
+  var purged = 0, samples = [], codes = [];
   for (var i = 0; i < rows.length; i++) {
     var vals = rows[i];
     var get = function (h) { var c = colOf[h]; return c ? vals[c - 1] : ''; };
@@ -199,11 +199,55 @@ function purgeStaleCustomers(dryRun) {
     if (colOf['현재단계']) vals[colOf['현재단계'] - 1] = '미계약';        // 진행바 예외로 정리(드롭다운 유효값)
     if (colOf['최종수정']) vals[colOf['최종수정'] - 1] = fmtKST(new Date());
     sheet.getRange(P.DATA_START_ROW + i, 1, 1, lastCol).setValues([vals]);
+    codes.push(String(get('개인코드') || '').trim().toUpperCase());
     purged++;
   }
-  Logger.log((dryRun ? '[DRY] ' : '') + 'purgeStaleCustomers: ' + purged + '건 (' + days + '일 경과·미계약) ' +
+  // ── 파기 완전화: 같은 개인코드의 다른 시트 PII도 함께 익명화(상담예약·서명이미지) ──
+  var extra = { bookings: 0, signatures: 0 };
+  if (!dryRun && codes.length) {
+    try { extra.bookings = _purgeBookingsPII(codes); } catch (e) { Logger.log('_purgeBookingsPII 실패: ' + (e && e.message)); }
+    try { extra.signatures = _purgeSignaturesPII(codes); } catch (e) { Logger.log('_purgeSignaturesPII 실패: ' + (e && e.message)); }
+  }
+  Logger.log((dryRun ? '[DRY] ' : '') + 'purgeStaleCustomers: ' + purged + '건 (' + days + '일 경과·미계약) · 상담예약 ' + extra.bookings + '행 · 서명 ' + extra.signatures + '행 · ' +
     samples.slice(0, 20).map(function (s) { return s.code + '(' + s.최종수정 + ')'; }).join(', '));
-  return { ok: true, purged: purged, dryRun: !!dryRun, cutoffDays: days, samples: samples };
+  return { ok: true, purged: purged, bookings: extra.bookings, signatures: extra.signatures, dryRun: !!dryRun, cutoffDays: days, samples: samples };
 }
 // 미리보기 — 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용).
 function previewStaleCustomers() { return purgeStaleCustomers(true); }
+
+// 상담예약(Bookings) 시트에서 주어진 개인코드들의 PII 컬럼을 비운다(행 보존). 반환=처리 행수.
+//   Customers 익명화와 짝 — 같은 SS·개인코드 키. 성함·연락처·이메일·환불계좌·토큰·자유메모 등 식별/민감 컬럼만 비움.
+function _purgeBookingsPII(codes) {
+  var sh = SpreadsheetApp.getActive().getSheetByName('상담예약');
+  if (!sh || sh.getLastRow() < 2) return 0;
+  var set = {}; for (var i = 0; i < codes.length; i++) if (codes[i]) set[codes[i]] = true;
+  var colOf = buildHeaderIndex(sh), cCode = colOf['개인코드'];
+  if (!cCode) return 0;
+  var lastCol = sh.getLastColumn();
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+  var wipe = ['성함(신랑)', '성함(신부)', '연락처', '이메일', '환불계좌', '토큰', '자유메모', '참고링크', '망설이는점', '준비상황', '중요하게여김', '기타희망시간'];
+  var n = 0;
+  for (var r = 0; r < vals.length; r++) {
+    var code = String(vals[r][cCode - 1] || '').trim().toUpperCase();
+    if (!code || !set[code]) continue;
+    var changed = false;
+    for (var w = 0; w < wipe.length; w++) { var c = colOf[wipe[w]]; if (c && String(vals[r][c - 1] || '') !== '') { vals[r][c - 1] = ''; changed = true; } }
+    if (changed) { sh.getRange(2 + r, 1, 1, lastCol).setValues([vals[r]]); n++; }
+  }
+  return n;
+}
+// Signatures 시트에서 주어진 개인코드들의 서명이미지(base64)를 비운다(행 보존). 반환=처리 행수.
+function _purgeSignaturesPII(codes) {
+  var sh = SpreadsheetApp.getActive().getSheetByName('Signatures');
+  if (!sh || sh.getLastRow() < 2) return 0;
+  var set = {}; for (var i = 0; i < codes.length; i++) if (codes[i]) set[codes[i]] = true;
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();   // [개인코드, 유형, 서명이미지]
+  var n = 0;
+  for (var r = 0; r < vals.length; r++) {
+    var code = String(vals[r][0] || '').trim().toUpperCase();
+    if (!code || !set[code] || !String(vals[r][2] || '')) continue;
+    sh.getRange(2 + r, 3).setValue('');   // 서명이미지 컬럼만 비움
+    n++;
+  }
+  return n;
+}

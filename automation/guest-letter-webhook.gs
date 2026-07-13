@@ -286,6 +286,10 @@ function getCoupleByEventIdFull(eventId, view) {
       ['groomAccount', 'brideAccount', 'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount']
         .forEach(function (k) { if (k in couple) couple[k] = ''; });
     }
+    // 라이브 영상 해시 — 라이브 화면(view='live')에서만 반환. 다른 호출(og봇·추측)에는 비워 무단 시청 차단(계좌와 동일 게이트).
+    if (view !== 'live') {
+      ['vimeoId', 'vimeoHash'].forEach(function (k) { if (k in couple) couple[k] = ''; });
+    }
 
     return couple;
   }
