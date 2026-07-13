@@ -434,7 +434,7 @@ function renderStep(k){
       h+='<div class="mcard'+(mth==='rec'?' on':'')+'" onclick="setGuestMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">대본을 보고 폰으로 녹음해서 올려요.</div></div>';
       h+='<div class="mcard'+(mth==='ai'?' on':'')+'" onclick="setGuestMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
       if(mth==='rec') h+='<div class="mth-how">조용한 곳에서 대본을 그대로, 한 문장씩 또박또박 읽어 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
-      if(mth==='ai') h+='<div class="mth-how"><button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button><span class="dub-link">더빙 사이트(예: ElevenLabs)에서 만들기</span><div class="mth-note">복사한 대본으로 만든 파일을 아래 각 안내에 올려주세요.</div></div>';
+      if(mth==='ai') h+='<div class="mth-how"><button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button><span class="dub-link">더빙 사이트(예: 타입캐스트 · ElevenLabs)에서 만들기</span><div class="mth-note">복사한 대본으로 만든 파일을 아래 각 안내에 올려주세요.</div></div>';
       h+='</div>';
     }
     GUEST.forEach(function(g,i){
