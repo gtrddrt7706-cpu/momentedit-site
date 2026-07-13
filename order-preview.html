@@ -17,10 +17,13 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em}
 .q-title,.intro-lead,.crs-nm,.nar,.sample .sx,.done-hd .t,.rh-hd .t,.dblk-n,.ev-n{font-family:var(--serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
-.prog{padding:16px 0 6px}
-.prog-bar{height:3px;background:var(--border);border-radius:3px;overflow:hidden}
-.prog-fill{height:100%;background:var(--seal);width:9%;transition:width .35s cubic-bezier(.4,0,.2,1)}
-.prog-txt{font-size:10px;letter-spacing:.15em;color:var(--gold-deep);text-transform:uppercase;margin-top:8px;text-align:center}
+.prog{padding:15px 0 6px}
+.prog-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
+.prog-now{font-size:12px;font-weight:700;color:var(--seal)}
+.prog-pct{font-size:11.5px;font-weight:700;color:var(--gold-deep);flex-shrink:0}
+.prog-bar{height:7px;background:var(--border);border-radius:7px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--seal));width:9%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.prog-next{font-size:10.5px;color:var(--light);margin-top:7px;text-align:right;word-break:keep-all}
 .stage{flex:1;padding:8px 0 12px;animation:fade .32s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:20px;font-weight:600;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
@@ -181,7 +184,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 </head>
 <body>
 <div class="wrap">
-  <div class="prog"><div class="prog-bar"><div class="prog-fill" id="pf"></div></div><div class="prog-txt" id="pt"></div></div>
+  <div class="prog">
+    <div class="prog-top"><span class="prog-now" id="pnow"></span><span class="prog-pct" id="ppct"></span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+    <div class="prog-next" id="pnext"></div>
+  </div>
   <div class="stage" id="stage"></div>
   <div class="nav" id="nav">
     <button class="btn btn-prev" id="prev">이전</button>
@@ -284,6 +291,7 @@ var MOMENT={
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요.',act:'누구에게 전할지 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
 };
+var PHASE={intro:'시작',course:'코스 고르기',guest:'식 전 · 하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',letter:'편지 낭독',bless:'부모님 덕담',done:'완성'};
 function momentBanner(k,mo){
   var order=['entry','welcome','vow','ring','declare','valley','letter','bless'];
   var pos=mo.info?'식 전':('식 순서 '+(order.indexOf(k)+1)+' / '+order.length);
@@ -298,8 +306,15 @@ function momentBanner(k,mo){
 function render(){
   if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
-  document.getElementById('pf').style.width=((idx+1)/STEPS.length*100)+'%';
-  document.getElementById('pt').textContent=(idx+1)+' / '+STEPS.length;
+  var pct=Math.round((idx+1)/STEPS.length*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pnow').textContent='지금 · '+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=pct+'%';
+  var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
+  if(st.k==='done') pnextEl.textContent='식 전 하객 맞이부터 폐식·촬영까지 완성';
+  else if(nx2 && nx2.k==='done') pnextEl.textContent='다음 · 폐식 · 단체촬영 안내, 그리고 완성';
+  else if(nx2) pnextEl.textContent='다음 · '+(PHASE[nx2.k]||nx2.title);
+  else pnextEl.textContent='';
   document.getElementById('nav').style.display='flex';
   var el=document.getElementById('stage'), h='';
   if(st.k==='done'){ h=renderDone(); }
