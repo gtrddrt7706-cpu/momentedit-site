@@ -266,7 +266,7 @@ window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','�
 var STEPS=[
  {k:'intro',title:'우리 예식, 우리가 만들어요'},
  {k:'course',title:'어떤 분위기로 흐를까요?',sub:'세 코스를 한눈에 보고, 관심 가는 코스를 눌러 순서 상세를 확인하세요.'},
- {k:'guest',title:'식 전, 이렇게 안내됩니다',sub:''},
+ {k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  {k:'entry',title:'입장, 어떻게 열까요?',sub:'세 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
  {k:'welcome',title:'첫인사는 누가 전할까요?',sub:'성우가 대신 전할 수도, 두 분이 직접 인사할 수도 있어요.'},
  {k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 직접 읽는 순간이에요. 성우가 그 앞을 열어 드려요.'},
@@ -281,7 +281,7 @@ var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 var RECOTXT={entry:'대부분 A 서사형을 골라요',welcome:'대부분 성우에게 맡겨요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
 var MOMENT={
- guest:{ph:'식 전 · 하객 맞이',t:'하객이 자리에 앉는 동안 성우 안내가 흘러요.',act:'두 분이 정하실 건 없어요. 이렇게 안내됩니다.',info:true},
+ guest:{ph:'식의 시작 · 하객 맞이',t:'실제 식은 여기서 시작돼요. 하객이 자리에 앉는 동안 성우 안내가 흘러요.',act:'두 분이 정하실 건 없어요. 이렇게 안내됩니다.',info:true},
  entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'입장 멘트의 느낌을 골라주세요.'},
  welcome:{ph:'첫인사',t:'하객에게 감사 인사를 전하는 순간이에요.',act:'성우 대행 · 두 분 직접 중에 골라주세요.'},
  vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 오열 대비를 정해주세요.'},
@@ -291,10 +291,10 @@ var MOMENT={
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요.',act:'누구에게 전할지 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'시작',course:'코스 고르기',guest:'식 전 · 하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',letter:'편지 낭독',bless:'부모님 덕담',done:'완성'};
+var PHASE={intro:'시작',course:'코스 고르기',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',letter:'편지 낭독',bless:'부모님 덕담',done:'완성'};
+var CEREMONY=['guest','entry','welcome','vow','ring','declare','valley','letter','bless']; // 실제 식 시작(하객 맞이)부터 순서
 function momentBanner(k,mo){
-  var order=['entry','welcome','vow','ring','declare','valley','letter','bless'];
-  var pos=mo.info?'식 전':('식 순서 '+(order.indexOf(k)+1)+' / '+order.length);
+  var pos='식 순서 '+(CEREMONY.indexOf(k)+1)+' / '+CEREMONY.length;
   var h='<div class="moment'+(mo.info?' info':'')+'">';
   h+='<div class="moment-h"><span class="moment-ph">'+esc(mo.ph)+'</span><span class="moment-pos">'+pos+'</span></div>';
   h+='<div class="moment-t">'+esc(mo.t)+'</div>';
@@ -306,12 +306,15 @@ function momentBanner(k,mo){
 function render(){
   if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
-  var pct=Math.round((idx+1)/STEPS.length*100);
+  var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
+  var pre=(st.k==='intro'||st.k==='course'), si=stops.indexOf(st.k);
+  var pct=pre?4:Math.round((si+1)/stops.length*100);
   document.getElementById('pf').style.width=pct+'%';
-  document.getElementById('pnow').textContent='지금 · '+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('pnow').textContent=(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=pre?'식 시작 전':(pct+'%');
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
-  if(st.k==='done') pnextEl.textContent='식 전 하객 맞이부터 폐식·촬영까지 완성';
+  if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
+  else if(st.k==='course') pnextEl.textContent='다음 · 여기서 실제 식이 시작돼요 · 하객 맞이';
   else if(nx2 && nx2.k==='done') pnextEl.textContent='다음 · 폐식 · 단체촬영 안내, 그리고 완성';
   else if(nx2) pnextEl.textContent='다음 · '+(PHASE[nx2.k]||nx2.title);
   else pnextEl.textContent='';
