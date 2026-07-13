@@ -115,7 +115,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .crs-flowl{font-size:10px;letter-spacing:.08em;color:var(--gold-deep);margin:13px 0 7px;font-weight:600}
 .cflow{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
 .cflow-i{font-size:11px;color:var(--accent);background:var(--bg2);border-radius:7px;padding:4px 9px;white-space:nowrap}
+.cflow-i.swap{color:var(--gold-deep);background:#FBF3E7;border:1px solid #EAD9BE;padding:3px 7px 3px 9px}
+.cf-x{display:inline-block;width:10px;height:10px;margin-left:4px;vertical-align:-1px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .cflow-a{color:var(--light);font-size:10px}
+.cflow-legend{font-size:10px;color:var(--gold-deep);margin-top:9px;display:flex;align-items:center;gap:5px;word-break:keep-all}
+.cflow-legend::before{content:'';flex-shrink:0;width:12px;height:12px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .crs-more{margin-top:12px;text-align:center;font-size:11px;font-weight:600;color:var(--gold-deep);background:var(--bg2);border-radius:8px;padding:8px}
 .cdet{margin-top:15px;border-top:1px dashed var(--border);padding-top:13px}
 .cdet-l{font-size:10.5px;letter-spacing:.06em;color:var(--gold-deep);font-weight:600;margin-bottom:9px}
@@ -627,11 +631,13 @@ function renderStep(k){
 function courseCard(v){
   var c=COURSES[v], soon=!c.ready, open=crsOpen===v;
   var flow='';
-  c.flow.forEach(function(f,i){ flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i">'+esc(f)+'</span>'; });
+  var _hasSwap=false;
+  c.flow.forEach(function(f,i){ var fixed=c.detail&&c.detail[i]&&c.detail[i].fix; if(!fixed)_hasSwap=true; flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i'+(fixed?'':' swap')+'">'+esc(f)+(fixed?'':'<span class="cf-x"></span>')+'</span>'; });
   var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
   h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+esc(c.min)+'</small></span>'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+'</div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
   h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
+  if(_hasSwap) h+='<div class="cflow-legend">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>';
   if(!open && !soon) h+='<div class="crs-more">눌러서 순서별 상세 보기</div>';
   if(soon) h+='<div class="crs-soon-note">지금은 담백 코스로 먼저 만들어 보실 수 있어요. 감동·가족 코스는 곧 열리며, 상담 때 함께 안내해 드려요.</div>';
   if(open && c.detail){
