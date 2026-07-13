@@ -80,7 +80,7 @@
     + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:var(--seal,#6B2A24);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}'
     + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
     + '.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}'
-    + '.me-adv-send svg{width:17px;height:17px}';
+    + '.me-adv-send svg{width:18px;height:18px}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
@@ -122,7 +122,7 @@
     + '  <footer class="me-adv-foot">'
     + '    <form class="me-adv-form" id="meAdvForm">'
     + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
-    + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></button>'
+    + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.4 3.1 2.3 10.6c-.6.24-.56 1.12.06 1.3l4.9 1.45 1.9 5.3c.2.55.94.62 1.24.12l2.35-3.85 4.65 3.45c.4.3.98.08 1.1-.4l3.4-13.5c.14-.56-.42-1.03-.95-.82Z" fill="#fff"/><path d="M8.1 13.6 17.5 6.4 9.6 15z" fill="var(--seal,#6B2A24)"/></svg></button>'
     + '    </form>'
     + '    <a class="me-adv-foot-kakao" id="meAdvKakao" href="#" rel="noopener">해결이 안 되면 <u>카카오톡 문의</u></a>'
     + '  </footer>'
