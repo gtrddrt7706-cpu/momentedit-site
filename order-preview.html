@@ -148,6 +148,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mcard-n{font-size:13px;font-weight:600}.mcard.on .mcard-n{color:var(--seal)}
 .mcard-d{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 .mth-how{font-size:11px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
+.mth-ai{font-size:10.5px;color:var(--gold-deep);background:#FBF3E7;border:1px solid #EAD9BE;border-radius:9px;padding:9px 12px;margin-top:11px;line-height:1.7;word-break:keep-all}
+.mth-ai .copy-btn2{margin-top:8px}
 .copy-btn2{background:#fff;border:1px solid var(--gold);color:var(--gold-deep);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:11.5px;font-weight:600;cursor:pointer;margin-right:8px}
 .dub-link{font-size:11px;color:var(--gold-deep);text-decoration:underline;cursor:pointer}
 .mth-note{font-size:10.5px;color:var(--light);margin-top:8px}
@@ -532,17 +534,15 @@ function renderStep(k){
     h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요. 두 분이 정하실 건 없어요.</div></div>';
     h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
     if(cpl){
-      h+='<div class="mth"><div class="mth-l">방법을 골라주세요 · 어느 쪽이든 파일만 올리면 돼요</div>';
-      h+='<div class="mcard'+(mth==='rec'?' on':'')+'" onclick="setGuestMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">대본을 보고 폰으로 녹음해서 올려요.</div></div>';
-      h+='<div class="mcard'+(mth==='ai'?' on':'')+'" onclick="setGuestMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
-      if(mth==='rec') h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요. 그대로 읽어도 좋고, 두 분 말로 자유롭게 바꿔도 돼요. 조용한 곳에서 한 문장씩 또박또박 읽어 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
-      if(mth==='ai') h+='<div class="mth-how"><button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button><span class="dub-link">더빙 사이트(예: 타입캐스트 · ElevenLabs)에서 만들기</span><div class="mth-note">복사한 대본으로 만든 파일을 아래 각 안내에 올려주세요.</div></div>';
+      h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
+      h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요. 그대로 읽어도 좋고, 두 분 말로 자유롭게 바꿔도 돼요. 조용한 곳에서 한 문장씩 또박또박 녹음해, 각 안내의 <b>파일 올리기</b>로 올려 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
+      h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · ElevenLabs 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';
       h+='</div>';
     }
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
       h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>'+playBtn();
-      if(cpl && mth){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
+      if(cpl){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
       h+='</div>';
     });
     h+='<div class="banner">'+(cpl?'올려주신 파일은 관리자가 받아 검수한 뒤, 당일 이 안내로 재생돼요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div>';
@@ -557,9 +557,9 @@ function renderStep(k){
     h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">전문 나레이션이 두 분의 입장을 이끌어요.</div></div>';
     h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
     if(ecpl){
-      h+='<div class="mth"><div class="mth-l">방법을 골라주세요 · 어느 쪽이든 파일만 올리면 돼요</div>';
-      h+='<div class="mcard'+(emth==='rec'?' on':'')+'" onclick="setEntryMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">아래 대본을 보고 폰으로 녹음해서 올려요.</div></div>';
-      h+='<div class="mcard'+(emth==='ai'?' on':'')+'" onclick="setEntryMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
+      h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
+      h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요.</div>';
+      h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · ElevenLabs 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>';
       h+='</div>';
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
     }
@@ -570,7 +570,7 @@ function renderStep(k){
       var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시':'전문 나레이션';
       h+='<div class="oc'+(on?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')"><div class="oc-nm">'+v+' · '+esc(ENTRY[v].d)+(RECO.entry===v?'<span class="oc-rec">추천</span>':'')+'</div>';
       h+='<div class="nar"><span class="lb">'+lbl+'</span>'+esc(txt)+'</div>'+playBtn();
-      if(on && ecpl && emth) h+='<div class="uprow"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></div>';
+      if(on && ecpl) h+='<div class="uprow"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></div>';
       h+='</div>';
     });
     h+='</div></div>';
