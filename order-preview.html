@@ -45,7 +45,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mini-run{font-size:10.5px;color:var(--gold-deep);background:#FBF3E7;border-radius:20px;padding:5px 12px;display:inline-block;margin-top:12px}
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:11px}
 .oc{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:15px 16px;cursor:pointer;transition:.18s}
-.oc.on{border-color:var(--seal);background:#FDF6F5;box-shadow:0 4px 18px rgba(107,42,36,.09)}
+.oc.on{border-color:var(--seal);background:#FAF6EF;box-shadow:0 4px 18px rgba(107,42,36,.09)}
 .oc-nm{font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px}
 .oc-nm::before{content:'';width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:.15s;background-repeat:no-repeat;background-position:center;background-size:12px}
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
@@ -70,6 +70,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .dlabel{font-size:10px;letter-spacing:.05em;color:var(--gold-deep);font-weight:600;margin-top:4px}
 .subq{font-size:11px;font-weight:600;color:var(--sub);margin:4px 0 -2px 4px}
 .lenhint{font-size:10.5px;color:var(--gold-deep);background:#FBF3E7;border-radius:8px;padding:7px 11px;margin-top:9px;word-break:keep-all;line-height:1.5}
+.exlist{margin-top:12px}
+.ex-t{font-size:10px;letter-spacing:.04em;color:var(--gold-deep);font-weight:600;margin-bottom:8px}
+.ex-i{font-size:11.5px;color:#4A3E30;background:#F7F3EC;border-left:2.5px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin-bottom:7px;line-height:1.75;word-break:keep-all;font-family:var(--serif)}
+.ex-n{font-size:10px;color:var(--light);margin-top:2px}
 .banner{background:#FBF3E7;border:1px solid #EAD9BE;border-radius:9px;padding:8px 12px;font-size:11px;color:var(--gold-deep);word-break:keep-all;line-height:1.6;margin-top:12px}
 .intro-lead{font-size:13px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
 .intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
@@ -84,7 +88,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .seqr .sq-n{font-size:12.5px;font-weight:600;color:var(--sub)}
 .seqr .sq-n small{font-size:10px;color:var(--light);font-weight:400;margin-left:5px}
 .seqr .sq-d{font-size:10.5px;color:var(--light);margin-top:2px;word-break:keep-all;line-height:1.5}
-.seqr.on{background:#FDF6F5;border:1px solid #EBD3D0;border-radius:10px;padding:10px;margin:3px 0}
+.seqr.on{background:#FAF6EF;border:1px solid #E8DEC9;border-radius:10px;padding:10px;margin:3px 0}
 .seqr.on .sq-tm{color:var(--seal)}
 .seqr.on .sq-n{color:var(--seal)}
 .seqr .sq-here{font-size:8.5px;color:#fff;background:var(--seal);border-radius:20px;padding:1px 7px;margin-left:6px;white-space:nowrap;vertical-align:middle}
@@ -99,7 +103,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .sample .sx{font-size:12.5px;color:#4A3E30;line-height:1.8;margin:8px 0 12px;word-break:keep-all}
 /* course */
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:16px;transition:.18s;margin-bottom:11px}
-.crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#FDF6F5}.crs.soon{opacity:.62}
+.crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#FAF6EF}.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
 .crs-nm{font-size:17px;font-weight:600}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--seal)}
@@ -136,7 +140,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mth-l{font-size:10.5px;font-weight:600;color:var(--gold-deep);margin-bottom:9px;word-break:keep-all}
 .mcard{border:1.5px solid var(--border);background:#fff;border-radius:11px;padding:12px 13px;cursor:pointer;transition:.15s;margin-bottom:9px}
 .mcard:last-child{margin-bottom:0}
-.mcard.on{border-color:var(--seal);background:#FDF6F5}
+.mcard.on{border-color:var(--seal);background:#FAF6EF}
 .mcard-n{font-size:13px;font-weight:600}.mcard.on .mcard-n{color:var(--seal)}
 .mcard-d{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 .mth-how{font-size:11px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
@@ -196,10 +200,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .editchips{display:flex;flex-wrap:wrap;gap:7px}
 .editchips span{font-size:11.5px;color:var(--sub);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer}
 .editchips span:active{background:var(--seal);color:#fff}
-.fillbadge{margin-top:14px;background:#FDF6F5;border:1px solid #E9D3D0;border-radius:11px;padding:11px 13px}
+.fillbadge{margin-top:14px;background:#FAF6EF;border:1px solid #E8DEC9;border-radius:11px;padding:11px 13px}
 .fillbadge .ft{font-size:12px;font-weight:600;color:var(--seal)}
 .fillbadge .fl{font-size:11px;color:var(--sub);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.fillbadge .fl span{background:#fff;border:1px solid #E9D3D0;border-radius:16px;padding:4px 10px;cursor:pointer;color:var(--seal)}
+.fillbadge .fl span{background:#fff;border:1px solid #E8DEC9;border-radius:16px;padding:4px 10px;cursor:pointer;color:var(--seal)}
 /* rehearse */
 .rh-hd{text-align:center;padding:4px 0}
 .rh-hd .t{font-size:19px;font-weight:600}
@@ -209,7 +213,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rh-modes button.on{background:var(--seal);border-color:var(--seal);color:#fff}
 .rh-auto{background:var(--seal);color:#fff;border:none;border-radius:12px;padding:14px;width:100%;font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;margin:6px 0 14px}
 .rh-blk{border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;position:relative}
-.rh-blk.active{border-color:var(--seal);background:#FDF6F5}
+.rh-blk.active{border-color:var(--seal);background:#FAF6EF}
 .rh-n{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
 .rh-cue{font-size:11.5px;color:var(--green);background:#F7F3EC;border-radius:7px;padding:7px 10px;margin-top:8px;line-height:1.6;word-break:keep-all}
 .rh-cue b{color:var(--seal)}
@@ -293,7 +297,7 @@ var GUEST=[
   "잠시 후 저희 예식이 시작됩니다. 자리에 앉아 저희의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다."]
 ];
 var COURSES={
-  damback:{nm:'담백', badge:'', ready:true, min:'약 25분',
+  damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
     one:'과한 연출 없이, 꼭 필요한 순간만 정갈하게',
     feel:'어른 하객이 많고, 담백하지만 진심이 깊게 남는 예식을 원하는 두 분께. 짧지만 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
@@ -364,6 +368,26 @@ var COURSES={
     addable:'축배·케이크는 이 코스의 시그니처예요. 세부 연출은 상담에서 함께 확정해요.'}
 };
 
+var EXVOW=[
+ "나는 오늘부터 당신의 가장 가까운 친구이자, 가장 든든한 편이 될게요. 좋은 날엔 함께 웃고, 힘든 날엔 먼저 손 내밀겠습니다.",
+ "화려한 약속보다, 매일의 작은 다정함을 지킬게요. 당신이 나를 선택한 오늘을, 평생 잊지 않겠습니다.",
+ "서로가 서로에게 집이 되어 주기로 해요. 어디에 있든 당신 곁이 나의 자리라는 걸, 늘 기억할게요."
+];
+var EXLETTER=[
+ "엄마, 아빠. 저를 이만큼 키워 주셔서 감사합니다. 받은 사랑을, 이제 제가 만든 가정에서 그대로 이어 갈게요. 오래오래 건강하세요.",
+ "무뚝뚝한 제가 이런 편지를 쓰는 걸 보면, 당신이 저를 얼마나 바꿔 놓았는지 알 것 같아요. 오늘부터, 조금씩 더 좋은 사람이 될게요.",
+ "고맙다는 말이 늘 늦는 저였습니다. 오늘은 꼭 전하고 싶어요. 곁에 있어 주셔서, 제가 여기까지 올 수 있었습니다."
+];
+var EXWEL=[
+ "바쁘신 중에 저희 두 사람의 시작을 함께해 주셔서 진심으로 감사합니다. 오늘 이 자리를, 오래 기억하겠습니다.",
+ "가까운 분들만 모신 자리라 저희에겐 더 특별합니다. 편하게, 오늘 하루 저희와 함께 즐겨 주세요."
+];
+function exBox(title,arr){
+  var h='<div class="exlist"><div class="ex-t">'+esc(title)+'</div>';
+  arr.forEach(function(t){ h+='<div class="ex-i">"'+esc(t)+'"</div>'; });
+  h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.</div></div>';
+  return h;
+}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function narBox(t,end){return '<div class="nar"><span class="lb">전문 나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
@@ -421,7 +445,9 @@ function momentBanner(k,mo){
   return h;
 }
 
+var _navKey='';
 function render(){
+  _stopAud();
   if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
   var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
@@ -453,7 +479,8 @@ function render(){
   var nx=document.getElementById('next');
   nx.style.display=(st.k==='course')?'none':'block';   // 코스 화면은 카드 버튼(바로완성/다듬기)으로 진행
   nx.textContent=(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
-  window.scrollTo(0,0);
+  var navKey=mode+':'+idx;
+  if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
 }
 
 function renderIntro(){
@@ -504,13 +531,13 @@ function renderStep(k){
       h+='<div class="mth"><div class="mth-l">방법을 골라주세요 · 어느 쪽이든 파일만 올리면 돼요</div>';
       h+='<div class="mcard'+(mth==='rec'?' on':'')+'" onclick="setGuestMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">대본을 보고 폰으로 녹음해서 올려요.</div></div>';
       h+='<div class="mcard'+(mth==='ai'?' on':'')+'" onclick="setGuestMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
-      if(mth==='rec') h+='<div class="mth-how">조용한 곳에서 대본을 그대로, 한 문장씩 또박또박 읽어 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
+      if(mth==='rec') h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요. 그대로 읽어도 좋고, 두 분 말로 자유롭게 바꿔도 돼요. 조용한 곳에서 한 문장씩 또박또박 읽어 주세요. 살짝 어설퍼도 두 분 목소리라 더 특별해요.</div>';
       if(mth==='ai') h+='<div class="mth-how"><button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button><span class="dub-link">더빙 사이트(예: 타입캐스트 · ElevenLabs)에서 만들기</span><div class="mth-note">복사한 대본으로 만든 파일을 아래 각 안내에 올려주세요.</div></div>';
       h+='</div>';
     }
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
-      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">두 분이 읽을 대본</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>'+playBtn();
+      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>'+playBtn();
       if(cpl && mth){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
       h+='</div>';
     });
@@ -533,9 +560,10 @@ function renderStep(k){
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
     }
     h+='<div class="dlabel" style="margin-top:16px">'+(ecpl?'두 분이 읽을 인사, 느낌을 골라주세요':'입장 멘트, 느낌을 골라주세요')+'</div>';
+    if(ecpl) h+='<div class="ex-n" style="margin:0 0 4px 2px">아래는 참고 예시예요. 마음에 드는 느낌을 고르고, 두 분 말로 자유롭게 바꿔도 좋아요.</div>';
     h+='<div class="opts" style="margin-top:10px">';
     ['A','B','C','D','E','F'].forEach(function(v){
-      var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'두 분이 읽을 대본':'전문 나레이션';
+      var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시':'전문 나레이션';
       h+='<div class="oc'+(on?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')"><div class="oc-nm">'+v+' · '+esc(ENTRY[v].d)+(RECO.entry===v?'<span class="oc-rec">추천</span>':'')+'</div>';
       h+='<div class="nar"><span class="lb">'+lbl+'</span>'+esc(txt)+'</div>'+playBtn();
       if(on && ecpl && emth) h+='<div class="uprow"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></div>';
@@ -553,12 +581,13 @@ function renderStep(k){
     h+='<div class="dlabel">나레이션 도입 대본</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
     h+='<div class="self"><span class="who">두 분이 직접</span>하객을 향해 짧게 인사해요. 한두 문장·목례면 충분하고, 부담되면 아주 짧아도 돼요. 진심만 담으면 됩니다.</div>';
     h+='<div class="dlabel">나레이션 마무리 대본</div>'+narBox("여러분과 함께라서, 오늘이 더 빛납니다.",null)+playBtn();
-    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. 짧아도 진심이면 충분해요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea></div>';
+    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. 짧아도 진심이면 충분해요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+exBox('이렇게 인사해도 좋아요 · 예시',EXWEL)+'</div>';
   }
   else if(k==='vow'){
     h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요. 너무 길면 감정이 흩어질 수 있어, 담백 코스는 짧아도 충분해요.</div>';
+    h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW);
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>오열이 걱정돼요. 나레이션이 대신 읽어 주세요</label></div>';
   }
   else if(k==='ring'){
@@ -584,6 +613,7 @@ function renderStep(k){
     ['parent','each'].forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); });
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
+    h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER);
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>오열이 걱정돼요. 나레이션이 대신 읽어 주세요</label></div>';
   }
   else if(k==='bless'){
@@ -744,9 +774,9 @@ function renderRehearse(){
     h+='</div>';
   });
   h+='<button class="rehearse-btn" style="margin-top:8px" onclick="closeRehearse()">완성 화면으로 돌아가기</button>';
-  h+='<div class="banner" style="text-align:center">실제 전문 나레이션는 준비되면 연결돼요. 오프라인 연습용 다운로드도 제공될 예정이에요.</div>';
+  h+='<div class="banner" style="text-align:center">실제 전문 나레이션은 준비되면 연결돼요. 오프라인 연습용 다운로드도 제공될 예정이에요.</div>';
   document.getElementById('stage').innerHTML=h;
-  window.scrollTo(0,0);
+  if(_navKey!=='rehearse'){ window.scrollTo(0,0); _navKey='rehearse'; }
 }
 
 document.getElementById('next').addEventListener('click',function(){ if(idx<STEPS.length-1){idx++;render();}else{idx=0;render();} });
