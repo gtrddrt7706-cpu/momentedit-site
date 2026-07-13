@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>식순 미리보기 · Moment Edit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAF9F6; --card:#FFFFFF; --accent:#3A2D22; --sub:#5A554C; --light:#8A8375;
   --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#E6E1D8; --bg2:#F3F0EA;
   --serif:'Noto Serif KR','Nanum Myeongjo',serif; --green:#5E7148;
-  --sans:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',Roboto,'Segoe UI',sans-serif;
+  --sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',Roboto,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -86,6 +89,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .seqr.on .sq-n{color:var(--seal)}
 .seqr .sq-here{font-size:8.5px;color:#fff;background:var(--seal);border-radius:20px;padding:1px 7px;margin-left:6px;white-space:nowrap;vertical-align:middle}
 .dmnote{font-size:10.5px;color:var(--light);text-align:center;margin-top:11px;line-height:1.6;word-break:keep-all}
+.prefacts{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px}
+.pf-t{font-size:11px;color:var(--gold-deep);font-weight:600;text-align:center;margin-bottom:11px;letter-spacing:.02em}
+.pf-i{font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all;padding:8px 0 8px 15px;position:relative;border-top:1px solid var(--bg2)}
+.pf-i:first-of-type{border-top:none}
+.pf-i::before{content:'';position:absolute;left:2px;top:15px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
 .sample{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center}
 .sample .st{font-size:11px;color:var(--gold-deep);font-weight:600}
 .sample .sx{font-size:12.5px;color:#4A3E30;line-height:1.8;margin:8px 0 12px;word-break:keep-all}
@@ -239,7 +247,7 @@ window.copyGuestScript=function(){
 window.mockUpload=function(b){ b.parentNode.innerHTML='<span class="upst done">올림 완료 · 검수 대기</span>'; };
 var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
 window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
-window.pickCourse=function(v){ S.course=v; crsOpen=v; render(); };
+window.pickCourse=function(v){ if(crsOpen===v){ crsOpen=''; } else { crsOpen=v; S.course=v; } render(); };
 window.setv=function(k,val){ S[k]=val; };
 window.settgl=function(k,cb){ S[k]=cb.checked; };
 
@@ -285,7 +293,7 @@ var GUEST=[
   "잠시 후 저희 예식이 시작됩니다. 자리에 앉아 저희의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다."]
 ];
 var COURSES={
-  damback:{nm:'담백', badge:'추천', ready:true, min:'약 25분',
+  damback:{nm:'담백', badge:'', ready:true, min:'약 25분',
     one:'과한 연출 없이, 꼭 필요한 순간만 정갈하게',
     feel:'어른 하객이 많고, 담백하지만 진심이 깊게 남는 예식을 원하는 두 분께. 짧지만 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
@@ -328,7 +336,32 @@ var COURSES={
       {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'가족 모두가 증인이 되는 공식 선언이에요.', pick:'엄숙하게 / 따뜻하게 / 가족 낭독'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 온 가족이 함께 단체 사진을 남겨요.', fx:'양가 모든 세대가 한 프레임에 담기는 순간이에요.', fix:true}
     ],
-    addable:'부모님 덕담 · 링 워밍 · 부모님 헌정은 이 코스의 시그니처 순서예요. 세부 연출은 상담에서 함께 확정해요.'}
+    addable:'부모님 덕담 · 링 워밍 · 부모님 헌정은 이 코스의 시그니처 순서예요. 세부 연출은 상담에서 함께 확정해요.'},
+  minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, min:'약 18분', one:'핵심만 남긴, 가장 짧고 담백한 예식',
+    feel:'군더더기 없이 두 사람의 약속만 또렷하게 남기고 싶은 두 분께. 짧은 걸 원하는 분도, 어른 하객이 많은 자리도 편안한 가장 간결한 코스예요.',
+    flow:['입장','혼인 서약','반지','성혼 선언','폐식'],
+    detail:[
+      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'군더더기 없이, 두 사람에게 바로 시선이 모이는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
+      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 짧게 직접 읽어요.', fx:'가장 핵심이 되는, 조용하고 진한 순간이에요.', pick:'오열 시 나레이션 대리'},
+      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 손끝에 새겨지는 순간이에요.', pick:'넣기 / 빼기'},
+      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'짧지만 또렷한 공식 선언으로 예식이 완성돼요.', pick:'전문 나레이션 / 하객 합송'},
+      {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'짧은 예식의 여운을 그대로 사진에 담아요.', fix:true}
+    ],
+    addable:'원하면 첫인사·편지를 하나 더할 수 있어요. 가장 짧게 두고 싶다면 이대로도 충분해요.'},
+  festive:{nm:'축하', badge:'밝고 활기', ready:true, min:'약 30분', one:'웃음과 축배가 함께하는, 밝고 활기찬 예식',
+    feel:'친구 하객이 많고, 무겁기보다 즐겁게 축하하고 싶은 두 분께. 축배와 케이크로 분위기를 띄우고, 편지로 따뜻하게 마무리하는 밝은 코스예요.',
+    flow:['입장','첫인사','혼인 서약','반지','성혼 선언','축배·케이크','편지 낭독','폐식'],
+    detail:[
+      {n:'신랑·신부 입장', how:'밝은 입장곡과 함께 문이 열리고, 두 분이 활기차게 걸어 들어와요.', fx:'첫 등장부터 분위기가 환하게 열리는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
+      {n:'환영·첫인사', how:'두 분이 하객에게 직접 밝게 인사해요.', fx:'가까운 사이라 웃음으로 자리가 금세 편해져요.', pick:'인사말 준비'},
+      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 읽어요.', fx:'밝은 분위기 속에서도 잠시 진지해지는 순간이에요.', pick:'오열 시 나레이션 대리'},
+      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는 순간이에요.', pick:'넣기 / 빼기'},
+      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.', fx:'다 함께 환호로 맞이하는 공식 하이라이트예요.', pick:'전문 나레이션 / 하객 합송'},
+      {n:'축배·케이크', how:'샴페인 잔을 함께 들거나 케이크를 자르며 다 함께 축하해요.', fx:'분위기가 가장 밝게 고조되는, 축제 같은 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
+      {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'밝은 예식을 따뜻하게 눌러 담는 마무리 정점이에요.', pick:'부모님께 / 서로에게'},
+      {n:'폐식·단체촬영', how:'나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'환한 에너지를 그대로 사진에 담아요.', fix:true}
+    ],
+    addable:'축배·케이크는 이 코스의 시그니처예요. 세부 연출은 상담에서 함께 확정해요.'}
 };
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -425,9 +458,9 @@ function render(){
 
 function renderIntro(){
   var h='<div class="q-title">우리 예식, 우리가 만들어요</div>';
-  h+='<div class="intro-lead">모먼트에디트는 사회자 없이, 전문 나레이션 목소리로 예식을 처음부터 끝까지 이끌어요. 두 분은 순서를 직접 고르고, 미리 들어보고, 당일 전에 연습까지 할 수 있어요.</div>';
+  h+='<div class="intro-lead">모먼트에디트는 사회자 없이, 전문 나레이션 목소리로 예식을 처음부터 끝까지 이끌어요. 두 분은 순서를 직접 고르고 미리 들어볼 수 있고, 당일 전에 마음껏 연습할 수 있는 공간까지 마련해 두었어요.</div>';
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
-  var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap',''],['30분','본식','The Ceremony','편지·서약·성혼선언 등 두 분이 설계하는 순서',true],['30분','단체 기록','Group Record',''],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap',''],['30분','본식','The Ceremony','두 분이 직접 고르고 다듬어 완성하는 시간',true],['30분','단체 기록','Group Record',''],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -435,9 +468,13 @@ function renderIntro(){
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>코스를 고르고, 순간을 우리답게 다듬어요.</div>';
   h+='<div class="ipt"><span class="n">2</span>고를 때마다 나레이션을 미리 들어봐요.</div>';
-  h+='<div class="ipt"><span class="n">3</span>완성하면 처음부터 끝까지 이어듣고, 당일 전에 연습해요.</div>';
+  h+='<div class="ipt"><span class="n">3</span>완성하면 처음부터 끝까지 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
   h+='</div>';
-  h+='<div class="sample"><div class="st">전문 나레이션, 이런 느낌이에요</div><div class="sx">"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다."</div><button class="play" style="margin:0" onclick="mockPlay(this)">대표 목소리 들어보기</button><div style="font-size:10.5px;color:var(--light);margin-top:9px;line-height:1.6">실제 두 분의 예식에선 이 목소리로 모든 순서가 준비돼요.</div></div>';
+  h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
+  h+='<div class="pf-i">가까운 스물다섯 분만 모시는 소규모라, 모두가 두 분 곁에서 함께해요.</div>';
+  h+='<div class="pf-i">정해진 정답은 없어요. 마음이 가는 대로 고르면, 그게 두 분다운 예식이에요.</div>';
+  h+='<div class="pf-i">지금 부담되는 건 비워 둬도 괜찮아요. 나머지는 상담에서 함께, 저희가 채워 드려요.</div>';
+  h+='</div>';
   h+='<div class="banner">천천히 둘러보셔도 돼요. 저장해도 예식 9일 전까지 언제든 고칠 수 있어요.</div>';
   return h;
 }
@@ -456,7 +493,7 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
 var LATER='<b>지금 안 써도 돼요.</b> 나중에 채워도 되고, 상담 때 함께 다듬어요.';
 
 function renderStep(k){
-  if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('gamdong')+courseCard('family')+'</div>'; }
+  if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='guest'){
     var cpl=S.guestVoice==='couple', mth=S.guestMethod;
     var h='<div style="margin-top:16px">';
@@ -562,7 +599,7 @@ function courseCard(v){
   var flow='';
   c.flow.forEach(function(f,i){ flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i">'+esc(f)+'</span>'; });
   var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
-  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+esc(c.min)+'</small></span><span class="crs-badge">'+esc(c.badge)+'</span></div>';
+  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+esc(c.min)+'</small></span>'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+'</div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
   h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
   if(!open && !soon) h+='<div class="crs-more">눌러서 순서별 상세 보기</div>';
