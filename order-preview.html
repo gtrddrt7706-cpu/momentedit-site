@@ -221,9 +221,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 <script>
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
-       guestVoice:'nar',guestMethod:''};
+       guestVoice:'nar',guestMethod:'',entryVoice:'nar',entryMethod:''};
 window.setGuestVoice=function(v){ S.guestVoice=v; if(v==='nar') S.guestMethod=''; render(); };
 window.setGuestMethod=function(v){ S.guestMethod=v; render(); };
+window.setEntryVoice=function(v){ S.entryVoice=v; if(v==='nar') S.entryMethod=''; render(); };
+window.setEntryMethod=function(v){ S.entryMethod=v; render(); };
 window.copyGuestScript=function(){
   var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
   GUEST.forEach(function(g){ lines.push('['+g[0]+']'); lines.push(g[2]); lines.push(''); });
@@ -239,9 +241,16 @@ window.setv=function(k,val){ S[k]=val; };
 window.settgl=function(k,cb){ S[k]=cb.checked; };
 
 var ENTRY={
- A:{d:"서사형",nar:"지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 마음으로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!"},
- B:{d:"짧고 강하게",nar:"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다. 이 자리의 모든 마음을 담아 맞이하겠습니다. 신랑 신부, 입장!"},
- C:{d:"격식과 따뜻함",nar:"두 사람이 오래 기다려 온 순간입니다. 서로의 손을 잡고, 평생 함께 걸을 첫 걸음을 내딛습니다. 하객 여러분, 큰 마음으로 맞아 주십시오. 신랑 신부, 입장!"}
+ A:{d:"서사형",nar:"지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 마음으로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!",
+    self:"지금까지 저희 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 함께해 주신 모든 분들께, 저희가 마음 깊이 감사드립니다."},
+ B:{d:"짧고 강하게",nar:"오늘, 두 사람이 함께 걸어갈 길이 여기서 시작됩니다. 이 자리의 모든 마음을 담아 맞이하겠습니다. 신랑 신부, 입장!",
+    self:"오늘, 저희 두 사람이 함께 걸어갈 길이 여기서 시작됩니다. 이 자리를 함께해 주셔서, 진심으로 감사합니다."},
+ C:{d:"격식과 따뜻함",nar:"두 사람이 오래 기다려 온 순간입니다. 서로의 손을 잡고, 평생 함께 걸을 첫 걸음을 내딛습니다. 하객 여러분, 큰 마음으로 맞아 주십시오. 신랑 신부, 입장!",
+    self:"저희 두 사람이 오래 기다려 온 순간입니다. 서로의 손을 잡고, 평생 함께 걸을 첫 걸음을 내딛습니다. 이 자리에 함께해 주신 모든 분들께 감사드립니다."},
+ D:{d:"감성·시적",nar:"오랜 계절을 지나, 두 사람이 서로에게 닿았습니다. 오늘 이 문이 열리면, 두 사람의 새로운 계절이 시작됩니다. 함께 그 처음을 맞아 주시기 바랍니다. 신랑 신부, 입장!",
+    self:"오랜 계절을 지나, 저희 두 사람이 서로에게 닿았습니다. 오늘 이 문이 열리면, 저희의 새로운 계절이 시작됩니다. 그 처음을 함께해 주셔서 감사합니다."},
+ E:{d:"감사·가족",nar:"오늘 이 자리에는, 두 사람을 여기까지 키워 온 사랑이 함께 있습니다. 그 사랑 앞에서, 두 사람이 평생의 약속을 향한 첫 걸음을 내딛습니다. 따뜻한 마음으로 맞아 주십시오. 신랑 신부, 입장!",
+    self:"오늘 이 자리에는, 저희를 여기까지 키워 온 사랑이 함께 있습니다. 그 사랑 앞에서, 저희가 평생의 약속을 향한 첫 걸음을 내딛습니다. 함께해 주신 모든 분들께 감사드립니다."}
 };
 var DECLARE={
  '1':{d:"엄숙하게",nar:"오늘, 신랑 신부는 이 자리에 함께하신 모든 분을 증인으로, 서로의 평생이 되기로 하였습니다. 이 약속은 오늘부터 두 사람의 것이며, 신랑 신부, 이제 두 사람은 부부입니다."},
@@ -324,7 +333,7 @@ var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bles
 var RECOTXT={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 엄숙하게를 골라요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요'};
 var MOMENT={
  guest:{ph:'식의 시작 · 하객 맞이',t:'실제 식은 여기서 시작돼요. 하객이 자리에 앉는 동안 안내가 흘러요.',act:'성우가 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
- entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'입장 멘트의 느낌을 골라주세요.'},
+ entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'성우 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
  welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 감사 인사를 전하는 순간이에요.',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
  vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 오열 대비를 정해주세요.'},
  ring:{ph:'반지 교환',t:'약속의 증표를 손끝에 새기는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
@@ -437,9 +446,33 @@ function renderStep(k){
     h+='<div class="banner">'+(cpl?'올려주신 파일은 관리자가 받아 검수한 뒤, 당일 이 안내로 재생돼요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 성우 목소리로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div></div>';
     return h;
   }
+  if(k==='entry'){
+    var ecpl=S.entryVoice==='couple', emth=S.entryMethod;
+    var h='<div style="margin-top:16px">';
+    h+='<div class="vq">입장 안내, 누구 목소리로 할까요?</div>';
+    h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">성우 목소리<span class="oc-rec">기본</span></div><div class="oc-desc">훈련된 성우가 두 분의 입장을 이끌어요.</div></div>';
+    h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
+    if(ecpl){
+      h+='<div class="mth"><div class="mth-l">방법을 골라주세요 · 어느 쪽이든 파일만 올리면 돼요</div>';
+      h+='<div class="mcard'+(emth==='rec'?' on':'')+'" onclick="setEntryMethod(\'rec\')"><div class="mcard-n">방법 1 · 직접 녹음</div><div class="mcard-d">아래 대본을 보고 폰으로 녹음해서 올려요.</div></div>';
+      h+='<div class="mcard'+(emth==='ai'?' on':'')+'" onclick="setEntryMethod(\'ai\')"><div class="mcard-n">방법 2 · AI 더빙</div><div class="mcard-d">목소리 샘플을 주면 대본대로 자동으로 읽어줘요.</div></div>';
+      h+='</div>';
+      h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 성우·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
+    }
+    h+='<div class="dlabel" style="margin-top:16px">'+(ecpl?'두 분이 읽을 인사, 느낌을 골라주세요':'입장 멘트, 느낌을 골라주세요')+'</div>';
+    h+='<div class="opts" style="margin-top:10px">';
+    ['A','B','C','D','E'].forEach(function(v){
+      var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'두 분이 읽을 대본':'성우 나레이션';
+      h+='<div class="oc'+(on?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')"><div class="oc-nm">'+v+' · '+esc(ENTRY[v].d)+(RECO.entry===v?'<span class="oc-rec">추천</span>':'')+'</div>';
+      h+='<div class="nar"><span class="lb">'+lbl+'</span>'+esc(txt)+'</div>'+playBtn();
+      if(on && ecpl && emth) h+='<div class="uprow"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></div>';
+      h+='</div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
   var h='<div class="opts">';
-  if(k==='entry'){ ['A','B','C'].forEach(function(v){ h+=oc('entry',v,v+' · '+ENTRY[v].d,'',ENTRY[v].nar,null,null,null,RECO.entry===v); }); }
-  else if(k==='welcome'){
+  if(k==='welcome'){
     h+='<div class="proc"><div class="proc-l">이렇게 진행돼요</div>';
     h+='<div class="proc-s"><span class="pn">1</span>성우가 인사의 문을 열어줘요</div>';
     h+='<div class="proc-s"><span class="pn">2</span>두 분이 하객에게 직접 짧게 인사해요 · 30초~1분</div>';
@@ -520,7 +553,8 @@ function fillBlanks(){
 
 function fullBlocks(){
   var b=[];
-  b.push({n:'신랑·신부 입장',nar:ENTRY[S.entry].nar,cue:'성우 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'});
+  var eCouple=S.entryVoice==='couple';
+  b.push({n:'신랑·신부 입장',nar:eCouple?ENTRY[S.entry].self:ENTRY[S.entry].nar,self:eCouple?'두 분 목소리로 인사 (녹음·AI)':null,cue:eCouple?'두 분 목소리 인사가 흐름 → 성우 "입장!" 큐·입장곡 → 손잡고 함께 입장':'성우 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'});
   if(S.welcome==='nar') b.push({n:'환영·첫인사',nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.",cue:'성우가 인사 → 두 분은 정면 응시'});
   else b.push({n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',cue:'성우 도입 끝 → 두 분이 준비한 인사말 시작'});
   b.push({n:'혼인 서약',nar:"이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:(S.oyeolVow?'성우가 대신 낭독 · 오열 대비':'두 분이 직접 서약 낭독'),end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:(S.oyeolVow?'성우 도입 끝 → 성우가 서약문을 대신 낭독 · 두 분은 서로 마주 보기':'성우 도입 끝 → 서로를 보고 서약문 낭독 시작 · 다 읽으면 다음')});
