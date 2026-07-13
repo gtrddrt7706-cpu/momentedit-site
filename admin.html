@@ -420,6 +420,68 @@ function openFittingDoc(code){
   }).catch(function(){ alert('동의서 데이터를 불러오지 못했습니다.'); });
 }
 
+// [좌석표 프린트] 현재 열린 상세(curDetail)의 좌석 배치를 인쇄용 A4 문서로 — 시각 배치도 + 음료 색점 + 테이블별 명단 + 음료 합계.
+//   당일 홀 세팅·케이터링 준비용. 새 창(iframe 오버레이)에서 인쇄=PDF 저장 가능. 하객 개인정보는 이름만(연락처·금액 비노출).
+function _seatChartPos(n,i,r){ var off=180/(n||1); var a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*r, y:Math.sin(a)*r }; }
+function _seatChartDoc(d){
+  var prod=(d&&d.mirror&&d.mirror.production)||{}, sd=prod.seatDraft||{};
+  var tables=(Object.prototype.toString.call(sd.tables)==='[object Array]')?sd.tables:[];
+  var names=esc(d.names||''), code=esc(d.code||''), wdate=(d.pin&&d.pin['예식일'])?esc(fmtDate(d.pin['예식일'])):'';
+  var DL={N:'논알콜',A:'알콜',J:'주스'};
+  // 편집기와 동일한 번호(위→아래 행 순서·각 행 좌→우)
+  var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String((t&&t.side)||'L')==='R'?Rs:Ls).push(i); });
+  var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
+  var cA=0,cN=0,cJ=0,cU=0,cT=0;
+  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='A')cA++; else if(dv==='N')cN++; else if(dv==='J')cJ++; else cU++; }); });
+  function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=((t.drinks||[])[i])||''; var u=_seatChartPos(n,i,46); var dot=dk?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }
+  var L='',R='';
+  tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
+  var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+(dk?(' · '+DL[dk]):'')); }); if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+'</b> '+parts.join('  |  ')+'</div>'; });
+  var totLine='음료 합계 · 알콜 '+cA+' · 논알콜 '+cN+' · 주스 '+cJ+' · 미정 '+cU+' · 총 '+cT+'명';
+  var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
+    +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
+    +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
+    +'.plg{font-weight:400;font-size:11.5px;color:#6b6257;margin-left:6px}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
+    +'.pstage{text-align:center;font-size:11px;letter-spacing:.12em;color:#8a8072;border:1px dashed #d8d1c4;border-radius:16px;padding:6px;margin:8px 0 10px}'
+    +'.proom{display:flex;gap:6px;align-items:flex-start;justify-content:center}.pcol{flex:1;max-width:340px;display:flex;flex-direction:column;gap:18px;align-items:center}'
+    +'.paisle{writing-mode:vertical-rl;font-size:9px;letter-spacing:.3em;color:#9a7b4f;padding:20px 3px 0}'
+    +'.ptbl{position:relative;width:150px;height:150px}'
+    +'.ptbl::before{content:"";position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#fcfbf9;border:1.5px solid #b89a75}'
+    +'.ptno{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:600;color:#6B2A24}'
+    +'.pseat{position:absolute;transform:translate(-50%,-50%);max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #ddd8d1;background:#fff;border-radius:11px;font-size:11px;padding:3px 8px}'
+    +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}'
+    +'.pd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px;vertical-align:middle}'
+    +'.pd-N,.dN{background:#5F9E86}.pd-A,.dA{background:#9B4A57}.pd-J,.dJ{background:#E0912F}'
+    +'.proster{margin-top:16px;border-top:1px solid #e3dccf;padding-top:10px}.proster h2{font-size:13px;margin:0 0 6px;color:#6b6257}'
+    +'.pr{font-size:12.5px;line-height:1.9;padding:2px 0;border-bottom:1px dotted #ece6da}.pr b{color:#6B2A24;margin-right:6px}'
+    +'@page{size:A4;margin:12mm}@media print{body{padding:0}.ptbl,.pseat{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+  var body='<h1>좌석 배치도</h1><div class="psub">'+(names||'—')+(wdate?(' · 예식 '+wdate):'')+(code?(' · '+code):'')+'</div>'
+    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dA"></i>알콜<i class="dN"></i>논알콜<i class="dJ"></i>주스</span></div>'
+    +'<div class="pstage">◈ 단상 · 신랑 신부</div>'
+    +'<div class="proom"><div class="pcol">'+(L||'<div style="color:#b3ad9f;font-size:12px">좌측 테이블 없음</div>')+'</div>'
+    +'<div class="paisle">버진로드</div><div class="pcol">'+(R||'<div style="color:#b3ad9f;font-size:12px">우측 테이블 없음</div>')+'</div></div>'
+    +'<div class="proster"><h2>테이블별 명단 · 음료</h2>'+(roster||'<div style="color:#b3ad9f;font-size:12px">입력된 이름이 없어요</div>')+'</div>';
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>좌석 배치도 '+(code||'')+'</title><style>'+css+'</style></head><body>'+body+'</body></html>';
+}
+function printSeatChart(){
+  var d=curDetail; var prod=(d&&d.mirror&&d.mirror.production)||{}; var sd=prod.seatDraft||{};
+  if(!sd.tables||!sd.tables.length){ alert('아직 좌석 배치가 없어요.'); return; }
+  var old=document.getElementById('ad_seatPrint'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='ad_seatPrint';
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column';
+  var bar=document.createElement('div');
+  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e6e0d8;background:#fff';
+  var ttl=document.createElement('span'); ttl.textContent='좌석표 · '+(d.names||'')+' · '+(d.code||''); ttl.style.cssText='font-size:14px;color:#3a2f25';
+  var pbtn=document.createElement('button'); pbtn.type='button'; pbtn.textContent='인쇄·저장'; pbtn.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 14px;margin-right:8px;font-size:13px;cursor:pointer';
+  var x=document.createElement('button'); x.type='button'; x.textContent='닫기'; x.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer';
+  var fr=document.createElement('iframe'); fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#fff';
+  var rg=document.createElement('div'); rg.appendChild(pbtn); rg.appendChild(x);
+  bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
+  fr.srcdoc=_seatChartDoc(d);
+  pbtn.addEventListener('click',function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
+  x.addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
+}
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
 // 접점에 질문 1개 보내 답만 받기(test:true → 비용·인계 오염 없음). 교육 반영 확인·테스트 공용.
 function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U=[{role:'user',content:q}];
@@ -1502,7 +1564,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
   if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   if(fd){ h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake)+row('영상 링크',fd.videoLink)+row('디지털 참석',fd.digital); }
   if(sd&&sd.tables&&sd.tables.length){
-    h+='<div class="grp-l">좌석 배치 (당일 세팅용)</div>';
+    h+='<div class="grp-l">좌석 배치 (당일 세팅용) <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printSeatChart()">🖨 좌석표 프린트</button></div>';
     sd.tables.forEach(function(tb,i){ var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row((i+1)+'. '+(tb.name||('테이블 '+(i+1)))+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
     var _cA=0,_cN=0,_cJ=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='A')_cA++; else if(dv==='N')_cN++; else if(dv==='J')_cJ++; else _cU++; }); });
