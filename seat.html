@@ -73,7 +73,9 @@ function fmtDate(ymd){
 function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
-function seatPos(n,i,r){ var a=(-90+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
+var NUM={};      // 배열 인덱스 → 행순서 표시 번호(검색 안내와 지도 번호 일치용)
+// 좌석 각도 = 편집기(mypage renderSeat)·관리자 프린트와 동일한 반 칸(180/n) 회전 공식 — 단상 쪽이 빈 공간이 되는 배치를 하객 지도도 그대로 재현
+function seatPos(n,i,r){ var off=180/(n||1); var a=(-90+off+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
 function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*30; }
 function render(seat){
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
@@ -85,11 +87,12 @@ function render(seat){
   var Ls=[], Rs=[]; tables.forEach(function(t,i){ (String(t.side||'L')==='R'?Rs:Ls).push(i); });
   var num={}, nn=1, mr=Math.max(Ls.length, Rs.length);
   for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
+  NUM=num;   // 검색 안내(findSeat)도 같은 행순서 번호를 쓰도록 보관
   function tblCard(t, gidx, row, no){
-    var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
-    var n=seats.length, chips='';
-    if(n){ seats.forEach(function(nm,i){ var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; }); }
-    else { chips='<div class="tbl-empty">준비 중</div>'; }
+    // 자리 위치 = 원본 배열 인덱스·전체 자리 수 기준(빈자리 압축 금지) — 편집기·인쇄 좌석표와 물리적 위치가 1:1로 일치. 빈자리는 표시만 생략.
+    var all=(t.seats||[]), n=all.length, chips='', any=false;
+    all.forEach(function(nm,i){ var f=String(nm||'').trim(); if(!f) return; any=true; var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(f)+'</div>'; });
+    if(!any){ chips='<div class="tbl-empty">준비 중</div>'; }
     var _custom=String(t.name||'').trim();
     var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : ('테이블 '+no);   // 기본명(테이블N)이면 행순서 번호로, 커스텀명이면 존중
     return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+no+'</span><span class="tbl-nm">'+nm+'</span>'+chips+'</div>';
@@ -97,9 +100,9 @@ function render(seat){
   var L='', R='', li=0, ri=0;
   tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++,num[i]); else L+=tblCard(t,i,li++,num[i]); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
-    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
+    +'<div class="col"><div class="colh">좌측</div>'+(L||'')+'</div>'
     +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
-    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="colh">—</div>')+'</div></div>';
+    +'<div class="col"><div class="colh">우측</div>'+(R||'')+'</div></div>';
   $('root').innerHTML =
     '<div class="card">'
     +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
@@ -125,7 +128,10 @@ function findSeat(v){
   if(hitG>=0){
     var tb=document.querySelector('[data-tbl="'+hitG+'"]'); if(tb) tb.classList.add('hit');
     var t=TABLES[hitG]||{};
-    $('fr').innerHTML='<b>'+esc(t.name||('테이블 '+(hitG+1)))+'</b> 자리예요 · '+(hitG+1)+'번 테이블';
+    var no=NUM[hitG]||(hitG+1);   // 지도·편집기·인쇄와 같은 행순서 번호(원시 인덱스 금지 — 좌우 섞이면 번호가 어긋났음)
+    var _c=String(t.name||'').trim();
+    var label=(_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 '+no);
+    $('fr').innerHTML='<b>'+esc(label)+'</b> 자리예요 · '+no+'번 테이블';
     if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
   } else {
     $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
