@@ -165,6 +165,19 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:#4A3E30;line-height:1.8;word-break:keep-all}
+.mclip{background:#FFFDF9;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
+.mclip .m-cap{font-family:var(--serif);font-size:12.5px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
+.m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
+@keyframes mdraw{to{stroke-dashoffset:0}}
+.m-in{opacity:0;animation:mfade .9s ease-out forwards}
+@keyframes mfade{to{opacity:1}}
+.m-spark{opacity:0;animation:mspark .8s ease-out forwards}
+@keyframes mspark{0%{opacity:0}35%{opacity:1}100%{opacity:.55}}
+.m-tilt{transform-origin:150px 96px;animation:mtilt 1.4s ease-in-out 2s forwards}
+@keyframes mtilt{to{transform:rotate(10deg)}}
+.m-fall{opacity:0;animation:mfall 1.8s ease-in 3.2s forwards}
+@keyframes mfall{0%{opacity:0;transform:translateY(-12px)}30%{opacity:1}100%{opacity:.85;transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}}
 .minitl{display:flex;gap:10px;align-items:center;border-top:1px solid var(--border);padding:8px 2px 0;font-size:11px;color:var(--light)}
 .minitl .mtl-t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .minitl b{color:var(--gold-deeper);font-weight:600;flex-shrink:0}
@@ -654,6 +667,51 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
 }
 var LATER='<b>지금 안 써도 돼요.</b> 나중에 채워도 되고, 상담 때 함께 다듬어요.';
 
+function clip(k){
+  var G='#B89A75', GD='#9A7B4F', C='#6B2A24';
+  var cap={vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'}[k];
+  var svg='';
+  if(k==='vow'){
+    svg='<svg viewBox="0 0 320 104" style="width:100%;height:auto">'
+    +'<path d="M28 58 C 58 36, 84 72, 112 54 S 166 32, 194 56 S 250 68, 278 48" fill="none" stroke="'+GD+'" stroke-width="2" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-duration:2s"/>'
+    +'<circle cx="287" cy="47" r="3.4" fill="'+C+'" class="m-in" style="animation-delay:2.05s"/>'
+    +'<path d="M64 82 H 256" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-delay:2.3s;animation-duration:.9s"/>'
+    +'</svg>';
+  }
+  if(k==='ring'){
+    svg='<svg viewBox="0 0 320 112" style="width:100%;height:auto">'
+    +'<circle cx="130" cy="54" r="34" fill="none" stroke="'+GD+'" stroke-width="2" pathLength="100" class="m-draw" style="animation-duration:1.5s"/>'
+    +'<circle cx="190" cy="54" r="34" fill="none" stroke="'+GD+'" stroke-width="2" pathLength="100" class="m-draw" style="animation-duration:1.5s;animation-delay:.35s"/>'
+    +'<ellipse cx="160" cy="54" rx="4.5" ry="15" fill="'+C+'" opacity="0" class="m-in" style="animation-delay:2s"/>'
+    +'<circle cx="160" cy="37" r="2.6" fill="'+G+'" class="m-spark" style="animation-delay:1.8s"/>'
+    +'</svg>';
+  }
+  if(k==='tribute'){
+    svg='<svg viewBox="0 0 320 116" style="width:100%;height:auto">'
+    +'<defs><radialGradient id="mglow"><stop offset="0%" stop-color="#F3E7CF"/><stop offset="100%" stop-color="#FFFDF9" stop-opacity="0"/></radialGradient></defs>'
+    +'<circle cx="270" cy="62" r="26" fill="url(#mglow)"/>'
+    +'<g class="m-tilt">'
+    +'<path d="M150 96 C 146 76, 138 66, 128 56 M150 96 C 152 72, 158 60, 168 50 M150 96 C 148 70, 140 52, 148 40" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-duration:1.6s"/>'
+    +'<circle cx="126" cy="52" r="5" fill="none" stroke="'+GD+'" stroke-width="1.6"/>'
+    +'<circle cx="170" cy="46" r="5" fill="'+C+'" opacity="0" class="m-in" style="animation-delay:2.7s"/>'
+    +'<circle cx="148" cy="36" r="5" fill="'+C+'" opacity="0" class="m-in" style="animation-delay:2.9s"/>'
+    +'</g>'
+    +'<ellipse cx="232" cy="72" rx="4" ry="2.4" fill="'+C+'" class="m-fall"/>'
+    +'</svg>';
+  }
+  if(k==='song'){
+    svg='<svg viewBox="0 0 320 104" style="width:100%;height:auto">'
+    +'<path d="M22 58 Q 58 28, 96 56 T 172 54 T 246 56 T 282 52" fill="none" stroke="'+GD+'" stroke-width="2" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-duration:2.4s"/>'
+    +'<circle cx="70" cy="76" r="2.6" fill="'+G+'" class="m-in" style="animation-delay:.9s"/>'
+    +'<circle cx="130" cy="80" r="2.6" fill="'+G+'" class="m-in" style="animation-delay:1.3s"/>'
+    +'<circle cx="196" cy="78" r="2.6" fill="'+G+'" class="m-in" style="animation-delay:1.7s"/>'
+    +'<circle cx="250" cy="80" r="2.6" fill="'+G+'" class="m-in" style="animation-delay:2.1s"/>'
+    +'<circle cx="290" cy="51" r="3.2" fill="'+C+'" class="m-in" style="animation-delay:2.6s"/>'
+    +'</svg>';
+  }
+  if(!svg) return '';
+  return '<div class="mclip">'+svg+'<div class="m-cap">'+esc(cap)+'</div></div>';
+}
 function diag(k){
   var G='#9A7B4F', GD='#7A5F37', A='#3A2D22', F='11px';
   var svg='';
@@ -831,6 +889,7 @@ function renderStep(k){
     h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. 짧아도 진심이면 충분해요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+exBox('이렇게 인사해도 좋아요 · 예시',EXWEL)+'</div>';
   }
   else if(k==='vow'){
+    h+=clip('vow');
     h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문');
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요. 너무 길면 감정이 흩어질 수 있어, 담백 코스는 짧아도 충분해요.</div>';
@@ -838,6 +897,7 @@ function renderStep(k){
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='ring'){
+    h+=clip('ring');
     h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,'준비물 · 당일 결혼반지 지참',true);
     h+=oc('ring','off','빼기','반지 없이 성혼 선언으로 바로 · 그만큼 선언의 무게가 더 깊게 남아요','');
   }
@@ -886,12 +946,14 @@ function renderStep(k){
     h+=oc('ringwarm','all','하객 전체','스물다섯 분 모두의 축복을 담아요 · 약 2분 더',RINGWARM.all.nar,null,null,'모든 진행은 나레이션이 안내해요 · 하객이 헤맬 걱정은 없어요');
   }
   else if(k==='tribute'){
+    h+=clip('tribute');
     ['flower','bow','hug'].forEach(function(v){
       var m=TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'헌정용 꽃은 저희가 준비해요 · 추가 비용은 상담에서 안내드려요':null);
     });
   }
   else if(k==='song'){
+    h+=clip('song');
     h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,null,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
     h+=oc('song','live','어쿠스틱 라이브 연주','저희가 연주자를 연결해요 · 추가 비용은 상담에서 안내드려요');
   }
