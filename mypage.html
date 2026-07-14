@@ -4099,7 +4099,7 @@ function renderSeat(box){
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
   // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
-  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ var v=ei.value; ei.value=''; ei.value=v; }catch(e){}
+  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ ei.select(); }catch(e){}   // 편집 진입 시 기존 텍스트 전체 선택 → 바로 타이핑하면 교체(기존 '테이블 N' 등 이름 바꾸기 편하게)
     ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시) · Esc=취소
     ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit) renderSeat(box); },0); });   // ★포커스 벗어나면(배경·다른 자리·키보드 닫힘 등 무엇이든) 무조건 확정 — 가장 확실. 다른 자리 탭이면 그 핸들러가 이미 편집 전환하므로 !edit일 때만 렌더
   }
