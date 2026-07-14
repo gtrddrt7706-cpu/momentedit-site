@@ -402,9 +402,10 @@ function recipientLabelEn(recipient) {
   return 'Together';
 }
 
-// CSV·수식 인젝션 방어 — 하객 이름·편지가 = + - @ 탭·CR로 시작하면 작은따옴표로 텍스트 고정(HYPERLINK/IMPORTXML 유출·CSV 공격 차단).
+// 수식 인젝션 방어 — 하객 이름·편지가 '='(또는 탭·CR)로 시작하면 작은따옴표로 텍스트 고정(HYPERLINK/IMPORTXML 유출 차단).
+//   Google Sheets는 '=' 시작만 수식 평가 → '+','-','@'는 프리픽스하지 않음(정상 데이터 오염 방지).
 function _glDeFormula(value) {
-  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+  return (typeof value === 'string' && /^[=\t\r]/.test(value)) ? ("'" + value) : value;
 }
 // 동시 제출 시 appendRow 경합 방지 — 락 획득 실패해도 데이터 손실보단 비잠금 기록이 안전
 function withRowLock(fn) {

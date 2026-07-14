@@ -670,7 +670,7 @@ function consentHtml(cs){
 }
 function cardContract(d,isSnap){
   var r=d.raw||{}, con=r['계약상태']||'미발송', raw='계약 <b>'+esc(con)+'</b>';
-  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
+  if(r['계약총액']) raw+=' · 총액 '+esc((Number(String(r['계약총액']).replace(/[^0-9]/g,''))||0).toLocaleString())+'원';
   if(r['계약서발송일시']) raw+='<br>발송 '+fmtDT(r['계약서발송일시']);
   if(r['계약서명일시']) raw+=' · 서명 '+fmtDT(r['계약서명일시']);
   if(r['계약서링크']) raw+='<br><span class="link-chip">📄 <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">계약서 열기</a></span>';
@@ -691,7 +691,7 @@ function cardPayment(d){
   var cardTag=' <span style="display:inline-block;padding:1px 7px;border:1px solid var(--gold,#B89A75);border-radius:10px;font-size:10px;color:var(--gold-deeper,#9a7b3f);vertical-align:1px">카드</span>';
   if(pb['계약금']==='카드'||pb['예약금']==='카드') raw+=cardTag;
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
-  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
+  if(r['계약총액']) raw+=' · 총액 '+esc((Number(String(r['계약총액']).replace(/[^0-9]/g,''))||0).toLocaleString())+'원';
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   // 중도금·잔금 — 계약금 이후 결제 마일스톤(상태 표시 + 신호 오면 확인 버튼)
   var mid=r['중도금상태']||'', bal=r['잔금상태']||'';

@@ -39,7 +39,7 @@ function handleAiCostLog(body) {
     if (!model || (inn + out + cw + cr) === 0) return { ok: true };
     var sh = _aiCostSheet_();
     if (sh.getLastRow() > 20000) return { ok: true };   // 폭주 가드(정리 전 상한)
-    sh.appendRow([new Date(), surface, model, inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr)]);
+    sh.appendRow([new Date(), _deFormula(surface), _deFormula(model), inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr)]);
   } catch (e) { try { Logger.log('aiCostLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
@@ -164,7 +164,7 @@ function aiQuestionResolve(q) {   // adminCall — 이 질문을 '해결'로 표
   q = String(q || '').trim(); if (!q) return { ok: false, error: '질문이 비었어요.' };
   var key = q.toLowerCase().replace(/\s+/g, ''), sh = _aiQResolveSheet_(), n = sh.getLastRow() - 1;
   if (n > 0) { var ids = sh.getRange(2, 1, n, 1).getValues(); for (var i = 0; i < ids.length; i++) { if (String(ids[i][0]) === key) { sh.getRange(i + 2, 3).setValue(fmtKST(new Date())); return { ok: true, updated: true }; } } }
-  sh.appendRow([key, q.slice(0, 200), fmtKST(new Date())]); return { ok: true };
+  sh.appendRow([_deFormula(key), _deFormula(q.slice(0, 200)), fmtKST(new Date())]); return { ok: true };   // 로그→재기록 시 수식 재무장 방지(getValue는 마커 제거 → key 매칭 영향 없음)
 }
 
 // ⑦ 교육 후보 — 실제 고객 질문 로그('상담사질문로그') 최신순. 상담연결(Y)=AI가 못 푼 것 → 우선 교육 대상.

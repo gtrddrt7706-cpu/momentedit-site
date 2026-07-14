@@ -568,7 +568,7 @@ function buildContractState(r) {
     weddingDate: _ymdOf(r.get('예식일')) || (_ci.weddingDate || ''),
     weddingTime: _ci.weddingTime || '',
     weddingTimeLabel: (WEDDING_SLOT.LABELS && WEDDING_SLOT.LABELS[_ci.weddingTime]) || '',
-    total: Math.round(Number(r.get('계약총액')) || 0),
+    total: _wonNum(r.get('계약총액')),   // 문자 금액('3,500,000') 방어 — 계약 프리필이 0원으로 보이던 것 수정
     docVersion: signed ? (((_rec && _rec.계약) || {}).docVersion || (_isSnapR ? 'snap-v1.0' : 'v1.1'))
                        : (_isSnapR ? CONTRACT.snapDocVersion : CONTRACT.docVersion)   // 서명자=서명 당시 문서(기록 없는 구서명자는 각 v1.1/snap-v1.0 보존본), 미서명=현행
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
@@ -678,9 +678,12 @@ function _midDuePast(r) {
 function _midDueLabelFor(r) { return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
 function _midDueDateFor(r) { return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
 
+// 금액 문자열 → 숫자(원). 시트에 '3,500,000'·'₩3,500,000'·'3,500,000원' 등 문자로 들어와도 숫자만 추출.
+//   숫자 외 문자를 전부 제거하므로 콤마·통화기호·'원'·공백·점 구분자를 모두 흡수(NaN→0 과소청구/0원표시 방지).
+function _wonNum(v) { var s = String(v == null ? '' : v).replace(/[^0-9]/g, ''); return s ? Number(s) : 0; }
 // 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50 · 계약금은 예약금 100,000원 차감 후 잔액 납부), 웨딩스냅=2단계(계약금20%·잔금80%).
 function _journeyAmounts(total, product) {
-  var t = Math.round(Number(String(total == null ? '' : total).replace(/[,원\s]/g, '')) || 0);   // 시트 문자 금액('3,500,000') 방어 · 그 외 문자는 기존대로 0→null(표 비노출)
+  var t = _wonNum(total);   // 시트 문자 금액('3,500,000'·'₩3.5M' 등) 방어 · 숫자 외 문자는 제거, 없으면 0→null(표 비노출)
   if (t <= 0) return null;
   if (String(product || '').trim() === '웨딩스냅') {        // 스냅 계약서 §4 · 2단계
     var dep = Math.round(t * 0.2);
@@ -787,7 +790,7 @@ function _changeFeeQuote(r, toYmd) {
   var used = (rec.변경이력 && rec.변경이력.length) || 0;
   if (dd != null && dd >= 150) return { fee: 0, basis: '무상취소 기간 · 횟수 무관 무상', used: used, dd: dd };
   if (dd != null && dd >= 60 && used === 0) return { fee: 0, basis: '60일 전 1회 무상', used: used, dd: dd };
-  var fee = Math.round((Number(String(r.get('계약총액') || '').replace(/[,원\s]/g, '')) || 0) * 0.1);   // 콤마·원·공백 제거 후 숫자화(문자열 총액이 NaN→0 과소청구되던 것 방지)
+  var fee = Math.round(_wonNum(r.get('계약총액')) * 0.1);   // 숫자만 추출 후 10%(문자열 총액이 NaN→0 과소청구되던 것 방지)
   return { fee: fee, basis: '변경 수수료 10%', used: used, dd: dd };
 }
 // 공통 가드 — 서명완료 + 예식 전(dd>=1) + 시그니처 + 진행 중. 실패 {ok:false,error} / 통과 {ok:true,dd}.
@@ -1535,8 +1538,8 @@ function sendArchiveExpiryNotices() {
     if (left == null) continue;
     var code = String(row[c('개인코드') - 1] || '').trim();
     var rowNum = P.DATA_START_ROW + i;
-    // (1) 만료 7일 전~직후 1회 안내(메일·카톡) — 다운로드 유도
-    if (!rec.보관만료통지 && left <= 7) {
+    // (1) 만료 7일 전~직후 1회 안내(메일·카톡) — 다운로드 유도. 이미 파기된 건엔 안내하지 않음(혼란 방지).
+    if (!rec.보관만료통지 && !rec.결과물파기 && left <= 7) {
       notifyKakao('cust.archiveExpiring', code, { expires: expYmd, left: left });
       var email = String(row[c('이메일') - 1] || '').trim();
       if (email) {
@@ -1553,12 +1556,12 @@ function sendArchiveExpiryNotices() {
       });
       try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
     }
-    // (2) 만료일 경과 시 1회 결과물 링크 자동 제거(처리방침 6개월 삭제 이행 · 마이페이지 노출 종료).
-    //   ★계약서 12조③(만료 7일 전 통지 후 삭제) 이행 — 통지가 이전 실행에서 이미 기록됐고(rec.보관만료통지)
-    //     만료가 실제 지난(left<0) 경우에만 삭제. 같은 실행에서 통지+삭제가 겹치는 것과, 도입 첫 실행에
-    //     통지 없이 즉시 삭제되는 것을 함께 차단(rec는 이번 실행 stamp 전 시트값이라 방금 보낸 통지는 미반영).
+    // (2) 만료 경과 + 통지 후 7일 지난 뒤 1회 결과물 링크 자동 제거(처리방침 6개월 삭제 이행 · 마이페이지 노출 종료).
+    //   ★계약서 12조③(만료 7일 전 통지 후 삭제) 이행 — 통지일(보관만료통지) 기준 7일이 지나야 삭제.
+    //     이로써 도입 첫 실행에 만료 지난 기존 건도 '통지 → 최소 7일 유예 → 삭제'를 보장(당일 통지+익일 삭제 방지).
     //   ★Drive 원본 파일 자체는 코드가 지우지 않음(오삭제 방지) → 관리자가 확인 후 수동 삭제. 링크만 데이터에서 비움.
-    if (!rec.결과물파기 && rec.보관만료통지 && left < 0) {
+    var _sinceNotice = rec.보관만료통지 ? _dayDiff(today, String(rec.보관만료통지).slice(0, 10)) : null;
+    if (!rec.결과물파기 && rec.보관만료통지 && left < 0 && _sinceNotice != null && _sinceNotice >= 7) {
       ['원본링크', '영상링크', '보정본폴더'].forEach(function (h) { if (colOf[h]) writeCell(sheet, colOf, rowNum, h, ''); });
       _stampConsentKey(sheet, colOf, rowNum, function (fresh) { fresh.결과물파기 = fmtKST(new Date()); });
       try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 링크 자동 제거'); } catch (e3) {}
