@@ -249,15 +249,17 @@ var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',
        veil:'father',ringwarm:'family',tribute:'flower',toast:'toast',
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
        guestVoice:'nar',guestMethod:'',entryVoice:'nar',entryMethod:'',declareWho:'narr',growth:'off',blessProxy:false,
-       tune:{entry:true}};
+       tune:{entry:true}, extra:{}, house:{}};
 window.setGuestVoice=function(v){ S.guestVoice=v; if(v==='nar') S.guestMethod=''; render(); };
 window.setGuestMethod=function(v){ S.guestMethod=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; if(v==='nar') S.entryMethod=''; render(); };
 window.setEntryMethod=function(v){ S.entryMethod=v; render(); };
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; render(); };
+window.setHouse=function(k,cb){ S.house[k]=cb.checked; render(); };
 window.copyGuestScript=function(){
   var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
   GUEST.forEach(function(g){ lines.push('['+g[0]+']'); lines.push(g[2]); lines.push(''); });
+  HOUSE.forEach(function(hh){ if(S.house[hh[0]]){ lines.push('['+hh[1]+']'); lines.push(hh[2]); lines.push(''); } });
   var txt=lines.join('\n');
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('안내 대본을 복사했어요. 더빙 사이트에 붙여넣어 만들어 주세요.');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('안내 대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
@@ -334,6 +336,11 @@ var GUEST=[
   "잠시 후 예식이 시작됩니다. 자리에 앉아 두 사람의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다.",
   "잠시 후 저희 예식이 시작됩니다. 자리에 앉아 저희의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다."]
 ];
+var HOUSE=[
+ ['unplug','휴대폰은 잠시, 눈과 마음으로','예식 중에는 휴대폰을 내려두고 눈으로 함께해 주세요. 모든 순간은 전문 촬영으로 담아 전해 드립니다.'],
+ ['photo','기념사진 순서 예고','예식이 끝나면 자리에서 그대로 단체 사진을 남깁니다. 끝까지 함께해 주세요.'],
+ ['move','식사 이동 안내','예식 후 식사 자리로 이동하는 동선을 안내해 드립니다.']
+];
 var COURSES={
   damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
     seq:['guest','entry','welcome','vow','ring','declare','valley','letter','bless'],
@@ -352,6 +359,7 @@ var COURSES={
     addable:'원하면 사이에 와인 세리머니·케이크 커팅, 또는 부모님 덕담을 하나 더할 수 있어요.'},
   gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 29분',
     seq:['guest','entry','veil','welcome','vow','ring','letter','tribute','declare'],
+    opt:[{k:'valley',at:6}],
     one:'편지와 서약을 정점으로 두는, 눈물의 아크',
     feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께. 베일 다운으로 시작해 편지에서 절정에 이르고, 하객이 다 함께 성혼 선언을 읽는 벅찬 예식이에요.',
     flow:['입장','베일 다운','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언·합송','폐식'],
@@ -369,6 +377,7 @@ var COURSES={
     addable:'베일 다운 · 부모님 헌정 · 하객 합송은 이 코스의 시그니처 순서예요. 다음 화면에서 하나씩 직접 고를 수 있어요.'},
   family:{nm:'가족', badge:'가족 참여', ready:true, min:'약 30분',
     seq:['guest','entry','bless','vow','ringwarm','ring','letter','tribute','declare'],
+    opt:[{k:'welcome',at:3}],
     one:'양가 가족이 예식의 주인공',
     feel:'가족 유대를 가장 소중히 여기는 두 분께. 부모님 덕담으로 문을 열고, 반지가 가족의 손을 도는 링 워밍, 헌정까지 온 가족이 함께 완성하는 예식이에요.',
     flow:['입장','부모님 덕담','혼인 서약','링 워밍','반지','편지 낭독','부모님 헌정','성혼 선언','폐식'],
@@ -386,6 +395,7 @@ var COURSES={
     addable:'부모님 덕담 · 링 워밍 · 부모님 헌정은 이 코스의 시그니처 순서예요. 다음 화면에서 하나씩 직접 고를 수 있어요.'},
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, min:'약 18분',
     seq:['guest','entry','vow','ring','declare'],
+    opt:[{k:'welcome',at:2},{k:'letter',at:5},{k:'bless',at:6}],
     one:'핵심만 남긴, 가장 짧고 담백한 예식',
     feel:'군더더기 없이 두 사람의 약속만 또렷하게 남기고 싶은 두 분께. 짧은 걸 원하는 분도, 어른 하객이 많은 자리도 편안한 가장 간결한 코스예요.',
     flow:['입장','혼인 서약','반지','성혼 선언','폐식'],
@@ -399,6 +409,7 @@ var COURSES={
     addable:'원하면 첫인사·편지를 하나 더할 수 있어요. 가장 짧게 두고 싶다면 이대로도 충분해요.'},
   festive:{nm:'축하', badge:'밝고 활기', ready:true, min:'약 30분',
     seq:['guest','entry','welcome','vow','ring','declare','toast','letter'],
+    opt:[{k:'bless',at:8}],
     one:'웃음과 축배가 함께하는, 밝고 활기찬 예식',
     feel:'친구 하객이 많고, 무겁기보다 즐겁게 축하하고 싶은 두 분께. 축배와 케이크로 분위기를 띄우고, 편지로 따뜻하게 마무리하는 밝은 코스예요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','축배·케이크','편지 낭독','폐식'],
@@ -416,23 +427,32 @@ var COURSES={
 };
 
 var EXVOW=[
- "나는 오늘부터 당신의 가장 가까운 친구이자, 가장 든든한 편이 될게요. 좋은 날엔 함께 웃고, 힘든 날엔 먼저 손 내밀겠습니다.",
- "화려한 약속보다, 매일의 작은 다정함을 지킬게요. 당신이 나를 선택한 오늘을, 평생 잊지 않겠습니다.",
- "서로가 서로에게 집이 되어 주기로 해요. 어디에 있든 당신 곁이 나의 자리라는 걸, 늘 기억할게요."
+ ["담백","나는 오늘부터 당신의 가장 가까운 친구이자, 가장 든든한 편이 될게요. 좋은 날엔 함께 웃고, 힘든 날엔 먼저 손 내밀겠습니다."],
+ ["담백","화려한 약속보다, 매일의 작은 다정함을 지킬게요. 당신이 나를 선택한 오늘을, 평생 잊지 않겠습니다."],
+ ["담백","서로가 서로에게 집이 되어 주기로 해요. 어디에 있든 당신 곁이 나의 자리라는 걸, 늘 기억할게요."],
+ ["눈물","작년 겨울, 아프던 밤에 제 손을 놓지 않던 당신을 기억합니다. 이제는 제가 그 손이 되겠습니다. 당신이 약해지는 모든 밤에, 제가 먼저 깨어 있을게요."],
+ ["다정","큰 소리로 사랑한다 말하기보다, 매일 아침 당신 몫의 물 한 잔을 먼저 떠 놓는 사람이 되겠습니다."],
+ ["유머+진심","당신의 아침잠과 길치까지 평생 책임지겠습니다. 대신 제 고집은, 당신 앞에서만 접을게요."],
+ ["짧게","당신 곁이 내 자리입니다. 오늘부터, 영원히."]
 ];
 var EXLETTER=[
- "엄마, 아빠. 저를 이만큼 키워 주셔서 감사합니다. 받은 사랑을, 이제 제가 만든 가정에서 그대로 이어 갈게요. 오래오래 건강하세요.",
- "무뚝뚝한 제가 이런 편지를 쓰는 걸 보면, 당신이 저를 얼마나 바꿔 놓았는지 알 것 같아요. 오늘부터, 조금씩 더 좋은 사람이 될게요.",
- "고맙다는 말이 늘 늦는 저였습니다. 오늘은 꼭 전하고 싶어요. 곁에 있어 주셔서, 제가 여기까지 올 수 있었습니다."
+ ["담백","엄마, 아빠. 저를 이만큼 키워 주셔서 감사합니다. 받은 사랑을, 이제 제가 만든 가정에서 그대로 이어 갈게요. 오래오래 건강하세요."],
+ ["눈물","엄마, 도시락 반찬이 늘 같다고 투정 부리던 열일곱의 저는 몰랐습니다. 그 반찬이 새벽 다섯 시의 부엌에서 나온다는 걸요. 이제 제가 누군가의 새벽이 되러 갑니다."],
+ ["눈물","아빠는 늘 표현이 서툰 분이었지만, 제 첫 출근 날 역까지 말없이 함께 걸어 주셨던 걸 잊은 적이 없습니다. 오늘도 그 걸음으로 저를 여기까지 데려다주셨네요. 이제 걱정 내려놓으셔도 돼요."],
+ ["서로에게","무뚝뚝한 제가 이런 편지를 쓰는 걸 보면, 당신이 저를 얼마나 바꿔 놓았는지 알 것 같아요. 오늘부터, 조금씩 더 좋은 사람이 될게요."],
+ ["담백","고맙다는 말이 늘 늦는 저였습니다. 오늘은 꼭 전하고 싶어요. 곁에 있어 주셔서, 제가 여기까지 올 수 있었습니다."]
 ];
 var EXWEL=[
  "바쁘신 중에 저희 두 사람의 시작을 함께해 주셔서 진심으로 감사합니다. 오늘 이 자리를, 오래 기억하겠습니다.",
  "가까운 분들만 모신 자리라 저희에겐 더 특별합니다. 편하게, 오늘 하루 저희와 함께 즐겨 주세요."
 ];
-function exBox(title,arr){
+function exBox(title,arr,guide){
   var h='<div class="exlist"><div class="ex-t">'+esc(title)+'</div>';
-  arr.forEach(function(t){ h+='<div class="ex-i">"'+esc(t)+'"</div>'; });
-  h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.</div></div>';
+  arr.forEach(function(t){
+    if(typeof t==='string'){ h+='<div class="ex-i">"'+esc(t)+'"</div>'; }
+    else { h+='<div class="ex-i"><span style="color:var(--gold-deeper);font-size:10.5px">'+esc(t[0])+'</span><br>"'+esc(t[1])+'"</div>'; }
+  });
+  h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.'+(guide?'<br>잘 쓰는 공식: 구체적인 기억 하나 → 약속 → 앞으로의 우리. 유행어·과장은 빼는 게 오래 남아요.':'')+'</div></div>';
   return h;
 }
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -472,8 +492,13 @@ var STEPDEF={
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
+function curSeq(){
+  var c=COURSES[S.course], s=c.seq.slice();
+  (c.opt||[]).forEach(function(o){ if(S.extra[o.k]) s.splice(Math.min(o.at,s.length),0,o.k); });
+  return s;
+}
 function buildSteps(){
-  var seq=COURSES[S.course].seq;
+  var seq=curSeq();
   CEREMONY=seq.slice();
   STEPS=[STEPDEF.intro,STEPDEF.course,STEPDEF.tune]
     .concat(seq.filter(function(k){return S.tune[k];}).map(function(k){return STEPDEF[k];}))
@@ -637,13 +662,14 @@ function rowVal(k){
   }
   return '';
 }
-window.tuneTgl=function(k){ S.tune[k]=!S.tune[k]; buildSteps(); render(); };
-window.tuneAll=function(on){ COURSES[S.course].seq.forEach(function(k){ S.tune[k]=on; }); buildSteps(); render(); };
+window.tuneTgl=function(k){ if(S.extra[k]){ delete S.extra[k]; delete S.tune[k]; } else { S.tune[k]=!S.tune[k]; } buildSteps(); render(); };
+window.tuneAll=function(on){ curSeq().forEach(function(k){ S.tune[k]=on; }); buildSteps(); render(); };
+window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]) S.tune[k]=true; else delete S.tune[k]; buildSteps(); render(); };
 
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
-    var seq=COURSES[S.course].seq, cnt=seq.filter(function(x){return S.tune[x];}).length;
+    var seq=curSeq(), cnt=seq.filter(function(x){return S.tune[x];}).length;
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요. <b>그대로 두셔도 완벽한 식순이 완성돼요. 보통 2~3개만 바꿔요.</b><br>직접 고르고 싶은 순간만 체크하세요. 나머지는 추천 그대로, 저희가 정성껏 준비해 둘게요.</div>';
     seq.forEach(function(x){
@@ -656,6 +682,19 @@ function renderStep(k){
       if(x!=='guest') h+=playBtn();
       h+='</div>';
     });
+    var opts=(COURSES[S.course].opt||[]).filter(function(o){return !S.extra[o.k];});
+    if(opts.length){
+      h+='<div class="sec-l" style="margin-top:20px">순간 더하기 · 이 코스에 없는 순서도 더할 수 있어요</div>';
+      opts.forEach(function(o){
+        var t=TUNE[o.k]; if(!t) return;
+        h+='<div class="oc" onclick="extraTgl(\''+o.k+'\')">';
+        h+='<div class="oc-nm">'+esc(t.n)+' <span style="font-size:11px;color:var(--gold-deeper);font-weight:400">더하기</span></div>';
+        h+='<div class="oc-desc">'+esc(t.c)+'</div>';
+        h+='</div>';
+      });
+    }
+    var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
+    if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 목록에서 체크를 풀면 도로 빠져요</div>'; }
     h+='<div class="reassure" style="margin-top:14px">'+(cnt===0?'하나도 체크하지 않아도 괜찮아요. 추천 그대로 완성되고, 완성 화면에서 언제든 바꿀 수 있어요.':'체크한 '+cnt+'개 순간만 하나씩 보여드려요. 나머지는 추천 그대로 완성돼요.')+'</div>';
     h+='<div style="text-align:center;margin-top:10px"><button class="copy-btn2" onclick="tuneAll('+(cnt<seq.length?'true':'false')+')">'+(cnt<seq.length?'전부 하나씩 볼게요':'전부 추천에 맡길게요')+'</button></div>';
     h+='</div>';
@@ -680,6 +719,10 @@ function renderStep(k){
       h+='</div>';
     });
     h+='<div class="banner">'+(cpl?'올려주신 파일은 저희가 받아 잡음·볼륨을 한 번 다듬고 검수한 뒤, 당일 이 안내로 재생돼요. 녹음이 조금 어설퍼도 걱정 마세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div>';
+    h+='<div class="dlabel" style="margin-top:16px">함께 안내하면 좋은 것들 · 체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
+    HOUSE.forEach(function(hh){
+      h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>';
+    });
     h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요? (선택)</label><div class="wd" style="margin-top:7px">하객이 자리를 찾는 동안 두 분의 성장 영상을 상영해요. 식전에 배치해 본식 30분은 그대로예요. 켜면 영상 파일을 D-3까지 전달해 주세요. (편지 배경 영상으로도 쓸 수 있어요)</div></div>';
     h+='</div>';
     return h;
@@ -725,7 +768,7 @@ function renderStep(k){
     h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요. 너무 길면 감정이 흩어질 수 있어, 담백 코스는 짧아도 충분해요.</div>';
-    h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW);
+    h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true);
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='ring'){
@@ -752,7 +795,7 @@ function renderStep(k){
     lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); });
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
-    h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER);
+    h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true);
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='bless'){
@@ -829,12 +872,12 @@ function applyCourse(v){
   S.valley='none'; S.letter='parent';
   S.bless=(v==='family')?'on':'off';
   S.veil='father'; S.ringwarm='family'; S.tribute='flower'; S.toast='toast';
-  S.tune={entry:true};
+  S.tune={entry:true}; S.extra={}; S.house={};
   buildSteps();
 }
 window.startCourse=function(v){ applyCourse(v); crsOpen=''; idx=2; render(); };
 window.jumpTo=function(k){
-  if(COURSES[S.course].seq.indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
+  if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
 };
 var editReturn=false;
@@ -900,12 +943,12 @@ var BLOCK={
 };
 function fullBlocks(){
   var b=[];
-  COURSES[S.course].seq.forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x) b.push(x); } });
+  curSeq().forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x) b.push(x); } });
   b.push({n:'폐식·단체촬영',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 오늘의 이 마음은, 시간이 흘러도 두 사람이 서로에게 돌아올 자리가 되어 줄 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'나레이션 마무리 → 자리에서 그대로 가족·지인과 단체촬영'});
   return b;
 }
 function blocks(){ return fullBlocks(); }
-function inSeq(k){ return COURSES[S.course].seq.indexOf(k)>-1; }
+function inSeq(k){ return curSeq().indexOf(k)>-1; }
 function estMin(){
   var base={damback:25,minimal:18,gamdong:29,family:30,festive:30}[S.course]||25, m=base;
   if(S.ring==='off') m-=1;
@@ -915,6 +958,9 @@ function estMin(){
   if(inSeq('ringwarm') && S.ringwarm==='all') m+=2;
   if(inSeq('toast') && S.toast==='both') m+=2;
   if(inSeq('letter') && S.letter==='both') m+=2;
+  var XM={welcome:1,letter:3,bless:2,valley:0};
+  Object.keys(S.extra).forEach(function(k){ if(S.extra[k]) m+=(XM[k]!==undefined?XM[k]:1); });
+  if(S.extra.valley && S.valley!=='none') m+=3;
   return '약 '+m+'분';
 }
 function myParts(){
@@ -939,10 +985,25 @@ function prep(){
   return p;
 }
 window.listenAll=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
-window.copyScript=function(){
-  var bs=fullBlocks(), lines=['우리 예식 대본 · '+COURSES[S.course].nm+' 코스',''];
-  bs.forEach(function(b){ lines.push('['+b.n+']'); lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end); if(b.self) lines.push('(직접: '+b.self+')'); lines.push(''); });
-  var txt=lines.join('\n');
+function scriptText(kind){
+  var bs=fullBlocks(), lines=['우리 예식 대본'+(kind==='mine'?' · 두 분 파트':'')+' · '+COURSES[S.course].nm+' 코스',''];
+  bs.forEach(function(b){
+    if(kind==='mine' && !b.self) return;
+    lines.push('['+b.n+']');
+    if(kind!=='mine'){ lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end); }
+    if(b.self) lines.push('직접: '+b.self);
+    if(kind==='mine' && b.cue) lines.push('큐: '+b.cue);
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+window.saveScriptTxt=function(){
+  var blob=new Blob([scriptText('all')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='우리예식대본_'+COURSES[S.course].nm+'코스.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+window.copyScript=function(kind){
+  var txt=scriptText(kind||'all');
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('대본을 복사했어요. 서로에게 붙여넣어 공유하세요.');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
 };
@@ -952,10 +1013,12 @@ window.setRh=function(m){ rhMode=m; render(); };
 
 function summaryRows(){
   var rows=[];
-  COURSES[S.course].seq.forEach(function(k){
+  curSeq().forEach(function(k){
     var t=TUNE[k]; if(!t) return;
     rows.push([t.n, rowVal(k), k]);
   });
+  var hn=HOUSE.filter(function(hh){return S.house[hh[0]];}).map(function(hh){return hh[1];});
+  if(hn.length) rows.push(['식전 안내 멘트', hn.join(' · '), 'guest']);
   rows.push(['식전 성장영상', S.growth==='on'?'상영':'없음', 'guest']);
   return rows;
 }
@@ -983,7 +1046,7 @@ function renderDone(){
     h+='</div>';
   }); }
   else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 전문 나레이션이 준비돼요. 눌러서 전체 대본을 펼쳐 보세요.</div>'; }
-  h+='<button class="copy-btn" onclick="copyScript()">대본 텍스트 복사 (서로 공유용)</button>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1" onclick="copyScript(\'mine\')">두 분 파트만 복사</button><button class="copy-btn" style="flex:1" onclick="saveScriptTxt()">파일로 저장</button></div>';
   h+='<div class="sec-l">음악, 세 곳만 정하면 돼요</div>';
   h+='<div class="wcard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
   h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 (곡명·가수)" value="'+esc(S.mEntry)+'">';
