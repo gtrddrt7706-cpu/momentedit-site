@@ -1306,7 +1306,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     var ok = false;
     try { ok = document.execCommand('copy'); } catch(_){}
     document.body.removeChild(ta);
-    showToast(ok ? (name + ' · 계좌번호 복사됨') : '복사 실패 — 수동으로 선택해 주세요');
+    showToast(ok ? (name + ' · 계좌번호 복사됨') : '복사 실패 · 수동으로 선택해 주세요');
   }
   document.querySelectorAll('.acc-copy').forEach(function(btn){
     btn.addEventListener('click', function(e){
