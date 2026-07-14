@@ -639,6 +639,7 @@ function renderStep(k){
       h+='<div class="oc-nm">'+esc(t.n)+'</div>';
       h+='<div class="oc-desc">추천 · '+esc(rowVal(x))+'</div>';
       h+='<div class="oc-desc" style="margin-top:3px">'+esc(t.c)+'</div>';
+      if(x!=='guest') h+=playBtn();
       h+='</div>';
     });
     h+='<div class="reassure" style="margin-top:14px">'+(cnt===0?'하나도 체크하지 않아도 괜찮아요. 추천 그대로 완성되고, 완성 화면에서 언제든 바꿀 수 있어요.':'체크한 '+cnt+'개 순간만 하나씩 보여드려요. 나머지는 추천 그대로 완성돼요.')+'</div>';
@@ -664,7 +665,7 @@ function renderStep(k){
       if(cpl){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
       h+='</div>';
     });
-    h+='<div class="banner">'+(cpl?'올려주신 파일은 관리자가 받아 검수한 뒤, 당일 이 안내로 재생돼요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div>';
+    h+='<div class="banner">'+(cpl?'올려주신 파일은 저희가 받아 잡음·볼륨을 한 번 다듬고 검수한 뒤, 당일 이 안내로 재생돼요. 녹음이 조금 어설퍼도 걱정 마세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div>';
     h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요? (선택)</label><div class="wd" style="margin-top:7px">하객이 자리를 찾는 동안 두 분의 성장 영상을 상영해요. 식전에 배치해 본식 30분은 그대로예요. 켜면 영상 파일을 D-3까지 전달해 주세요. (편지 배경 영상으로도 쓸 수 있어요)</div></div>';
     h+='</div>';
     return h;
@@ -677,7 +678,7 @@ function renderStep(k){
     h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
-      h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요.</div>';
+      h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요. 잡음·볼륨은 저희가 한 번 다듬어 드리니, 조금 어설퍼도 괜찮아요.</div>';
       h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · ElevenLabs 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>';
       h+='</div>';
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
