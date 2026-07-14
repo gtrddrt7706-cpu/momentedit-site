@@ -726,13 +726,15 @@ function _refundQuote(r, asOfYmd) {
       if (bk && String(bk.get('입금확인') || '').trim() === '확인') depConfirmed = true;
     } catch (e) {}
   }
-  var paid = depConfirmed ? PAYMENT.예약금 : 0;
-
-  // 시착 공제(4조⑧) — 관리자가 기록한 실제 벌수(동의기록.시착.벌수) 기준. 1벌당 50,000원 · 최대 100,000원(FITTING_CONSENT·PAYMENT 단일 출처).
+  // 시착 공제(4조⑧) — 실제 벌수(동의기록.시착.벌수) 기준. 예약금·1벌당 비용은 서명 당시 스냅샷(구버전 v1~v3 조건 보존) 우선, 없으면 현행 상수(buildFittingState와 동일 기준).
   var _fit = _parseJsonSafe(r.get('동의기록')).시착 || {};
+  var _signedFit = String(r.get('시착동의상태') || '').trim() === '동의완료';
+  var _depAmt = (_signedFit && _fit.예약금 != null && !isNaN(Number(_fit.예약금)) && Number(_fit.예약금) > 0) ? Number(_fit.예약금) : PAYMENT.예약금;
+  var _perBul = (_signedFit && _fit.추가벌비용 != null && !isNaN(Number(_fit.추가벌비용))) ? Number(_fit.추가벌비용) : FITTING_CONSENT.추가벌비용;
+  var paid = depConfirmed ? _depAmt : 0;
   var fitCount = (_fit.벌수 != null && _fit.벌수 !== '' && !isNaN(Number(_fit.벌수))) ? Number(_fit.벌수) : null;
-  var needCount = (fitCount == null) && String(r.get('시착동의상태') || '').trim() === '동의완료';   // 시착했는데 벌수 미기록 → 산정 보류 플래그
-  var fitDeduct = Math.min((fitCount || 0) * FITTING_CONSENT.추가벌비용, PAYMENT.예약금);
+  var needCount = (fitCount == null) && _signedFit;   // 시착했는데 벌수 미기록 → 산정 보류 플래그
+  var fitDeduct = Math.min((fitCount || 0) * _perBul, _depAmt);
 
   function out(rule, rate, penalty, refund, dd) {   // paid는 클로저 — 중도금·잔금 가산 후 호출돼도 최신값
     return { paid: paid, fitCount: (fitCount == null ? 0 : fitCount), fitDeduct: fitDeduct, needCount: needCount,
@@ -747,7 +749,11 @@ function _refundQuote(r, asOfYmd) {
   if (!amounts) return { pending: true };
   if (String(r.get('입금상태') || '').trim() === '확인') paid += amounts.납부액;   // 계약금 잔액(계약 시 납부 · 예약금 차감분)
   if (String(r.get('중도금상태') || '').trim() === '확인') paid += amounts.중도금;
-  if (String(r.get('잔금상태') || '').trim() === '확인') paid += amounts.잔금;
+  if (String(r.get('잔금상태') || '').trim() === '확인') {
+    // [잔금 합산 정합] 확정 스냅샷(기본+인원 추가요금)을 기수령액에 반영 — _cashReceiptLedger와 동일 기준. 스냅샷 없으면 기본액(구데이터 보존)
+    var _balSnap = 0; try { _balSnap = Math.round(Number(_parseJsonSafe(r.get('동의기록')).잔금확정금액) || 0); } catch (e) {}
+    paid += (_balSnap || amounts.잔금);
+  }
   var dd = _dayDiff(_ymdOf(r.get('예식일')), asOf);   // 예식까지 남은 일수(D-dd · 0=당일 · 음수=지남)
   if (dd == null) return { pending: true };
 
@@ -1371,14 +1377,18 @@ function sendBalanceReminders() {
     var _isSnapRow = String(row[c('상품타입') - 1] || '').trim() === '웨딩스냅';
     var _comboRem = !_isSnapRow && String(row[c('중도금상태') - 1] || '').trim() !== '확인';   // 중도금도 미납(임박 묶음) → 합산 1통
     var _payL = _comboRem ? '중도금·잔금' : '잔금';
-    var amtTxt = amounts ? (Number(_comboRem ? (amounts['중도금'] + amounts['잔금']) : amounts['잔금']).toLocaleString() + '원') : '잔금';
+    // [잔금 합산 정합] 최종확정 스탠딩 초과요금을 잔금에 포함 — 마이페이지 잔금 카드·카드결제 검증(_balanceExtraInfo 단일 출처)과 금액 일치
+    var _remR = { get: function (h) { var k = c(h); return k ? row[k - 1] : ''; } };
+    var _remX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(_remR) : { amount: 0 };
+    var _balRem = (amounts ? Number(amounts['잔금']) || 0 : 0) + (_remX.amount || 0);
+    var amtTxt = amounts ? (Number(_comboRem ? (Number(amounts['중도금']) || 0) + _balRem : _balRem).toLocaleString() + '원') : '잔금';
     var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.잔금일수전);
     notifyKakao(stageDue ? 'cust.balanceDue' : 'cust.balancePre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {
       try {
         if (stageDue) {
           GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 납부일 안내 (예식 D-' + dday + ')',
-            '예식이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 오늘(' + dueYmd + ')까지 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+            '예식이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 ' + (dday >= PAYMENT.잔금일수전 ? ('오늘(' + dueYmd + ')까지') : '지금 바로') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
         } else {
           GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 안내가 열렸어요 (납부일: ' + dueYmd + ')',
             '예식이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 9일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
