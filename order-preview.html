@@ -161,6 +161,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:12.5px;color:#4A3E30;line-height:1.8;word-break:keep-all}
+.minitl{display:flex;gap:10px;align-items:center;border-top:1px solid var(--border);padding:8px 2px 0;font-size:11px;color:var(--light)}
+.minitl .mtl-t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minitl b{color:var(--gold-deeper);font-weight:600;flex-shrink:0}
 .nav{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 72%,transparent);padding:12px 0 20px;display:flex;gap:10px}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
@@ -235,6 +238,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
     <div class="prog-next" id="pnext"></div>
   </div>
   <div class="stage" id="stage"></div>
+  <div class="minitl" id="minitl" style="display:none"></div>
   <div class="nav" id="nav">
     <button class="btn btn-prev" id="prev">이전</button>
     <button class="btn btn-next" id="next">다음</button>
@@ -450,7 +454,7 @@ window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','�
 
 var STEPDEF={
  intro:{k:'intro',title:'우리 예식, 우리가 만들어요'},
- course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'다섯 코스를 한눈에 보고, 마음 가는 코스를 눌러 순서 상세를 확인하세요.'},
+ course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'3분이면 식순이 완성돼요. 다섯 코스 중 마음 가는 하나를 눌러 상세를 보세요.'},
  tune:{k:'tune',title:'어떤 순간을 직접 고를까요?',sub:''},
  guest:{k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  entry:{k:'entry',title:'입장, 어떻게 열까요?',sub:'여섯 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
@@ -479,7 +483,7 @@ var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 function recoTxt(k){
   var c=S.course;
-  var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 25명이면 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요',veil:'대부분 아버지가 내려 주세요 · 어머니와의 이야기가 깊다면 어머니도 뭉클해요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸리지만 25명이라 가능한 특별함이에요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
+  var base={vow:'서약문이 안 써져도 괜찮아요 · 예시를 고르고 두 분 말로 두어 줄만 바꿔 보세요',entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 25명이면 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요',veil:'대부분 아버지가 내려 주세요 · 어머니와의 이야기가 깊다면 어머니도 뭉클해요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸리지만 25명이라 가능한 특별함이에요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
   var ov={
    gamdong:{declare:'이 코스는 하객 합송이 시그니처예요 · 스물다섯 분의 목소리가 하나로 모여요',letter:'이 코스는 부모님께, 그리고 서로에게 둘 다 읽는 분들이 많아요'},
    family:{bless:'가족 코스의 시그니처예요 · 대부분 예식의 문을 덕담으로 열어요',declare:'가족이 직접 선언하면 이 코스답게 깊어져요 · 나레이션도 좋아요'},
@@ -520,10 +524,10 @@ function render(){
   var st=STEPS[idx];
   var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
   var pre=(st.k==='intro'||st.k==='course'||st.k==='tune'), si=stops.indexOf(st.k);
-  var pct=pre?4:Math.round((si+1)/stops.length*100);
+  var pct=pre?(st.k==='tune'?78:4):Math.round((si+1)/stops.length*100);
   document.getElementById('pf').style.width=pct+'%';
-  document.getElementById('pnow').textContent=(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=pre?'식 시작 전':(pct+'%');
+  document.getElementById('pnow').textContent=(st.k==='tune')?'식순이 벌써 완성됐어요':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':pre?'식 시작 전':(pct+'%');
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음 · 이 코스에서 바꿀 순간 고르기';
@@ -550,8 +554,17 @@ function render(){
   var nx=document.getElementById('next');
   nx.style.display=(st.k==='course'&&!editReturn)?'none':'block';   // 코스 화면은 카드 버튼으로 진행(편집 복귀 중엔 노출)
   nx.textContent=editReturn?'저장 · 요약으로':(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
+  renderMiniTL(st.k);
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
+}
+function renderMiniTL(k){
+  var el=document.getElementById('minitl');
+  var show=(mode==='build' && k && ['intro','course','done'].indexOf(k)<0);
+  el.style.display=show?'flex':'none';
+  if(!show) return;
+  var names=fullBlocks().map(function(b){return b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');});
+  el.innerHTML='<span class="mtl-t">'+names.join(' › ')+'</span><b>'+estMin()+'</b>';
 }
 
 function renderIntro(){
@@ -570,6 +583,7 @@ function renderIntro(){
   h+='</div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
   h+='<div class="pf-i">가까운 스물다섯 분만 모시는 소규모라, 모두가 두 분 곁에서 함께해요.</div>';
+  h+='<div class="pf-i">사회 볼 친구 섭외도, 대본 걱정도 통째로 빼셔도 돼요. 진행은 처음부터 끝까지 저희 몫이에요.</div>';
   h+='<div class="pf-i">정해진 정답은 없어요. 마음이 가는 대로 고르면, 그게 두 분다운 예식이에요.</div>';
   h+='<div class="pf-i">지금 부담되는 건 비워 둬도 괜찮아요. 나머지는 상담에서 함께, 저희가 채워 드려요.</div>';
   h+='</div>';
@@ -631,7 +645,7 @@ function renderStep(k){
   if(k==='tune'){
     var seq=COURSES[S.course].seq, cnt=seq.filter(function(x){return S.tune[x];}).length;
     var h='<div style="margin-top:4px">';
-    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요. 아래는 이 코스에서 <b>두 분이 바꿀 수 있는 순간들</b>이에요. 직접 고르고 싶은 것만 체크하세요. 체크하지 않은 순간은 추천 그대로, 저희가 완성해 둘게요.</div>';
+    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요. <b>그대로 두셔도 완벽한 식순이 완성돼요. 보통 2~3개만 바꿔요.</b><br>직접 고르고 싶은 순간만 체크하세요. 나머지는 추천 그대로, 저희가 정성껏 준비해 둘게요.</div>';
     seq.forEach(function(x){
       var t=TUNE[x]; if(!t) return;
       var on=!!S.tune[x];
@@ -712,11 +726,11 @@ function renderStep(k){
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요. 너무 길면 감정이 흩어질 수 있어, 담백 코스는 짧아도 충분해요.</div>';
     h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW);
-    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>오열이 걱정돼요. 나레이션이 대신 읽어 주세요</label></div>';
+    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='ring'){
     h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,'준비물 · 당일 결혼반지 지참',true);
-    h+=oc('ring','off','빼기','반지 교환 없이 성혼 선언으로 바로','');
+    h+=oc('ring','off','빼기','반지 없이 성혼 선언으로 바로 · 그만큼 선언의 무게가 더 깊게 남아요','');
   }
   else if(k==='declare'){
     ['narr','chorus','family'].forEach(function(w){
@@ -739,13 +753,13 @@ function renderStep(k){
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
     h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER);
-    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>오열이 걱정돼요. 나레이션이 대신 읽어 주세요</label></div>';
+    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='bless'){
     var famOpen=(S.course==='family');
     var blessNar=famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.';
     var onCard=oc('bless','on','넣기',(famOpen?'예식의 문을 여는, 이 코스의 시그니처 순서예요':'양가 부모님이 짧게 말씀을 전해요'),blessNar,'그 말씀, 두 사람이 오래 마음에 새기겠습니다.',{who:'부모님',t:'1~2분 덕담'},'준비물 · D-14 부모님께 덕담 부탁 (1~2분)');
-    var offCard=oc('bless','off','빼기',(famOpen?'덕담 없이 서약으로 바로 이어져요':'부모님 순서 없이 마무리로'),'');
+    var offCard=oc('bless','off','빼기',(famOpen?'덕담 없이 서약으로 바로 이어져요':'부모님 순서 없이 마무리로 · 그만큼 편지의 여운이 길게 남아요'),'');
     h+=famOpen?(onCard+offCard):(offCard+onCard);
     if(S.bless==='on') h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.blessProxy?'checked':'')+' onchange="settgl(\'blessProxy\',this)"><span class="tk"></span>부모님이 부담되시면, 나레이션이 대신 전해 드려요</label><div class="wd" style="margin-top:7px">마이크 없이 짧은 인사만 하시거나, 미리 받은 말씀을 나레이션이 대독할 수 있어요.</div></div>';
   }
@@ -779,8 +793,9 @@ function courseCard(v){
   var _hasSwap=false;
   c.flow.forEach(function(f,i){ var fixed=c.detail&&c.detail[i]&&c.detail[i].fix; if(!fixed)_hasSwap=true; flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i'+(fixed?'':' swap')+'">'+esc(f)+(fixed?'':'<span class="cf-x"></span>')+'</span>'; });
   var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
-  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+esc(c.min)+'</small></span>'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+'</div>';
+  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span>'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+'</div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
+  if(v==='damback') h+='<div style="font-size:11px;color:var(--gold-deeper);margin-top:4px">가장 많이 선택하는 코스예요</div>';
   h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
   if(_hasSwap) h+='<div class="cflow-legend">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>';
   if(!open && !soon) h+='<div class="crs-more">눌러서 순서별 상세 보기</div>';
@@ -947,7 +962,7 @@ function summaryRows(){
 function renderDone(){
   var bs=fullBlocks();
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서</div></div>';
-  h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.<br>두 분은 연습한 대로, 서로만 바라보면 돼요.</div>';
+  h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.<br>두 분은 연습한 대로, 서로만 바라보면 돼요.<br>순서 하나하나 격식 있게, 처음부터 끝까지 저희가 함께합니다.</div>';
   h+='<button class="listen-all" onclick="listenAll(this)">내 예식 나레이션 전체 이어듣기</button>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">리허설 공간 열기 · 당일 전에 연습하기</button>';
   h+='<div class="tot">'+estMin()+' · 본식 30분 안에 여유 있게 들어가요</div>';
@@ -985,6 +1000,7 @@ function renderDone(){
 
 function renderRehearse(){
   document.getElementById('nav').style.display='none';
+  renderMiniTL(null);
   document.getElementById('pf').style.width='100%';
   document.getElementById('pnow').textContent='리허설 공간';
   document.getElementById('ppct').textContent='';
