@@ -73,7 +73,9 @@ function fmtDate(ymd){
 function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
-function seatPos(n,i,r){ var a=(-90+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
+var NUMS={};     // 배열 인덱스 → 행순서 표시 번호(지도 배지·검색 결과가 같은 번호를 쓰게)
+// 편집기(mypage)·좌석표 프린트와 동일한 반 칸(180/n) 회전 — 단상 쪽은 비우고 정면에 자리. 세 화면의 자리 위치 일치
+function seatPos(n,i,r){ var off=180/(n||1); var a=(-90+off+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
 function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*30; }
 function render(seat){
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
@@ -86,14 +88,15 @@ function render(seat){
   var num={}, nn=1, mr=Math.max(Ls.length, Rs.length);
   for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   function tblCard(t, gidx, row, no){
-    var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
-    var n=seats.length, chips='';
-    if(n){ seats.forEach(function(nm,i){ var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; }); }
-    else { chips='<div class="tbl-empty">준비 중</div>'; }
+    // 자리 위치 = 원본 인덱스 기준(빈자리 포함 전체 n) — 부부가 편집기에서 띄워 배치한 그대로. 빈자리는 그리지 않되 위치는 보존(프린트 세팅과 동일 지오메트리)
+    var all=(t.seats||[]), n=all.length, named=0, chips='';
+    all.forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm) return; named++; var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; });
+    if(!named){ chips='<div class="tbl-empty">준비 중</div>'; }
     var _custom=String(t.name||'').trim();
     var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : ('테이블 '+no);   // 기본명(테이블N)이면 행순서 번호로, 커스텀명이면 존중
     return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+no+'</span><span class="tbl-nm">'+nm+'</span>'+chips+'</div>';
   }
+  NUMS=num;   // 검색 결과(findSeat)도 지도 배지와 같은 행순서 번호를 쓰게 보관
   var L='', R='', li=0, ri=0;
   tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++,num[i]); else L+=tblCard(t,i,li++,num[i]); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
@@ -125,7 +128,10 @@ function findSeat(v){
   if(hitG>=0){
     var tb=document.querySelector('[data-tbl="'+hitG+'"]'); if(tb) tb.classList.add('hit');
     var t=TABLES[hitG]||{};
-    $('fr').innerHTML='<b>'+esc(t.name||('테이블 '+(hitG+1)))+'</b> 자리예요 · '+(hitG+1)+'번 테이블';
+    var _no=NUMS[hitG]||(hitG+1);   // 지도 배지·좌석표 프린트와 동일한 행순서 번호
+    var _c=String(t.name||'').trim();
+    var _label=(_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 '+_no);
+    $('fr').innerHTML='<b>'+esc(_label)+'</b> 자리예요 · '+_no+'번 테이블';
     if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
   } else {
     $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';

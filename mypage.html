@@ -4036,7 +4036,9 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
   if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
-  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ SEATFLOW.tables[ed.ti].seats[ed.si]=inp.value; }
+  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; _t.seats[ed.si]=inp.value;
+    if(!String(inp.value||'').trim() && _t.drinks) _t.drinks[ed.si]='';   // 이름을 지우면 음료도 함께 초기화(빈자리에 음료가 남아 집계·색점이 어긋나는 것 방지)
+  }
 }
 function commitSeatEdit(box){ _seatWriteEdit(box); SEATFLOW.edit=null; }
 function renderSeat(box){
@@ -4048,7 +4050,7 @@ function renderSeat(box){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
-      else { var f=String(nm).trim(); var dk=(t.drinks&&t.drinks[si])||''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 선택했을 때만
+      else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 이름 있는 자리만(구 데이터의 고아 음료가 빈자리에 떠서 집계와 어긋나는 것 방지)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     var center = '<span class="rt-c">'+(dispNo||(ti+1))+'</span>';   // 중앙엔 행 순서 번호(검은색)
@@ -4099,7 +4101,10 @@ function renderSeat(box){
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
   // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
-  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} } try{ ei.select(); }catch(e){}   // 편집 진입 시 기존 텍스트 전체 선택 → 바로 타이핑하면 교체(기존 '테이블 N' 등 이름 바꾸기 편하게)
+  var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
+    // 편집 '진입'일 때만 전체 선택(이름 바꾸기 편하게). 음료 칩으로 인한 재렌더면 캐럿을 끝으로 → 입력 중 이름이 다음 타이핑에 지워지지 않게
+    if(SEATFLOW._dkRe){ SEATFLOW._dkRe=false; try{ var _v=ei.value; ei.value=''; ei.value=_v; }catch(e){} }
+    else { try{ ei.select(); }catch(e){} }
     ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시) · Esc=취소
     ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit) renderSeat(box); },0); });   // ★포커스 벗어나면(배경·다른 자리·키보드 닫힘 등 무엇이든) 무조건 확정 — 가장 확실. 다른 자리 탭이면 그 핸들러가 이미 편집 전환하므로 !edit일 때만 렌더
   }
@@ -4117,7 +4122,7 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; if(tl&&tl.seats.length>1){ tl.seats.pop(); if(tl.drinks) tl.drinks.pop(); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } renderSeat(box); } return; }
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=true; renderSeat(box); } return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
     if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); }); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });

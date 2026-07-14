@@ -433,11 +433,12 @@ function _seatChartDoc(d){
   var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
   var cA=0,cN=0,cJ=0,cU=0,cT=0;
   tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='A')cA++; else if(dv==='N')cN++; else if(dv==='J')cJ++; else cU++; }); });
-  function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=((t.drinks||[])[i])||''; var u=_seatChartPos(n,i,46); var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }
+  function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=nm?(((t.drinks||[])[i])||''):''; var u=_seatChartPos(n,i,46); var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }   // 색점은 이름 있는 자리만(고아 음료가 빈자리에 찍혀 합계와 어긋나는 것 방지)
   var L='',R='';
   tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
-  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+(DL[dk]?(' · '+DL[dk]):'')); }); if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+'</b> '+parts.join('  |  ')+'</div>'; });
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+(DL[dk]?(' · '+DL[dk]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 커스텀 테이블명(혼주석 등)은 당일 세팅 명단에도 표기(하객 안내와 대조 가능하게)
+    if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join('  |  ')+'</div>'; });
   var totLine='음료 합계 · 알콜 '+cA+' · 논알콜 '+cN+' · 주스 '+cJ+' · 미정 '+cU+' · 총 '+cT+'명';
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
@@ -478,8 +479,9 @@ function printSeatChart(){
   var fr=document.createElement('iframe'); fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#fff';
   var rg=document.createElement('div'); rg.appendChild(pbtn); rg.appendChild(x);
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
+  var _ld=false; fr.onload=function(){ _ld=true; };   // srcdoc 로드 전 인쇄 클릭 → 빈 페이지 방지
   fr.srcdoc=_seatChartDoc(d);
-  pbtn.addEventListener('click',function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
+  pbtn.addEventListener('click',function(){ if(!_ld){ setTimeout(function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} },250); return; } try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
   x.addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
 }
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
@@ -1572,7 +1574,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
     sd.tables.map(function(tb,i){ return {tb:tb,no:_sNum[i]||(i+1)}; }).sort(function(a,b){ return a.no-b.no; }).forEach(function(o){ var tb=o.tb; var _def=/^테이블\s*\d+$/.test(String(tb.name||'').trim()); var _nm=(tb.name&&!_def)?tb.name:('테이블 '+o.no); var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row(o.no+'. '+_nm+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
     var _cA=0,_cN=0,_cJ=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='A')_cA++; else if(dv==='N')_cN++; else if(dv==='J')_cJ++; else _cU++; }); });
-    if(_cA+_cN+_cJ+_cU>0) h+=row('음료(자리별)','알콜 '+_cA+' · 논알콜 '+_cN+' · 주스 '+_cJ+' · 미정 '+_cU);
+    if(_cA+_cN+_cJ>0) h+=row('음료(자리별)','알콜 '+_cA+' · 논알콜 '+_cN+' · 주스 '+_cJ+' · 미정 '+_cU);   // 음료를 하나라도 고른 고객만(구 데이터가 전부 '미정'으로 뜨는 소음 방지 · mypage 집계와 같은 기준)
     if(seatToken) h+=row('하객 공유 링크', 'momentedit.kr/seat.html?t='+seatToken);
   }
   return h||'<div class="cnote">내용 없음</div>';
