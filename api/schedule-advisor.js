@@ -191,7 +191,7 @@ module.exports = async (req, res) => {
     }
 
     const today = /^\d{4}-\d{2}-\d{2}$/.test(String(body && body.today)) ? String(body.today)
-      : new Date().toISOString().slice(0, 10);
+      : new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);   // 클라이언트 미전달 시: 서버 UTC→KST(+9) 보정(자정~오전 9시 사이 하루 밀림 방지)
 
     // 가용성: 로그인 클라이언트(schedule.html)가 준 taken 우선, 없으면 GAS 서버측 조회(비로그인 inquiry)
     let taken = normalizeTaken(body && body.taken);
