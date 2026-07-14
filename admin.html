@@ -1565,7 +1565,11 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
   if(fd){ h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake)+row('영상 링크',fd.videoLink)+row('디지털 참석',fd.digital); }
   if(sd&&sd.tables&&sd.tables.length){
     h+='<div class="grp-l">좌석 배치 (당일 세팅용) <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printSeatChart()">🖨 좌석표 프린트</button></div>';
-    sd.tables.forEach(function(tb,i){ var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row((i+1)+'. '+(tb.name||('테이블 '+(i+1)))+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
+    // 번호 = 행 순서(좌 1·3·5 / 우 2·4·6) — seat.html·좌석표 프린트·편집기와 동일. 번호 오름차순 정렬로 프린트 명단과 일치
+    var _sLs=[],_sRs=[]; sd.tables.forEach(function(tb,i){ (String(tb.side||'L')==='R'?_sRs:_sLs).push(i); });
+    var _sNum={},_sNn=1,_sMr=Math.max(_sLs.length,_sRs.length);
+    for(var _sr=0;_sr<_sMr;_sr++){ if(_sr<_sLs.length)_sNum[_sLs[_sr]]=_sNn++; if(_sr<_sRs.length)_sNum[_sRs[_sr]]=_sNn++; }
+    sd.tables.map(function(tb,i){ return {tb:tb,no:_sNum[i]||(i+1)}; }).sort(function(a,b){ return a.no-b.no; }).forEach(function(o){ var tb=o.tb; var _def=/^테이블\s*\d+$/.test(String(tb.name||'').trim()); var _nm=(tb.name&&!_def)?tb.name:('테이블 '+o.no); var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row(o.no+'. '+_nm+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
     var _cA=0,_cN=0,_cJ=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='A')_cA++; else if(dv==='N')_cN++; else if(dv==='J')_cJ++; else _cU++; }); });
     if(_cA+_cN+_cJ+_cU>0) h+=row('음료(자리별)','알콜 '+_cA+' · 논알콜 '+_cN+' · 주스 '+_cJ+' · 미정 '+_cU);

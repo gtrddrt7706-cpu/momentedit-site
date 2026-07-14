@@ -80,15 +80,22 @@ function render(seat){
   var date=fmtDate(seat.date);
   var tables=(seat.tables||[]);
   TABLES=tables;
-  function tblCard(t, gidx, row){
+  // 테이블 번호 = 편집기·관리자 프린트와 동일한 '행 순서'(위→아래, 각 행 좌→우): 좌 1·3·5 / 우 2·4·6.
+  //   data-g/data-tbl(자리 검색 하이라이트용 내부 키)는 배열 인덱스 유지, 화면 표시 번호만 행순서 num[i]로.
+  var Ls=[], Rs=[]; tables.forEach(function(t,i){ (String(t.side||'L')==='R'?Rs:Ls).push(i); });
+  var num={}, nn=1, mr=Math.max(Ls.length, Rs.length);
+  for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
+  function tblCard(t, gidx, row, no){
     var seats=(t.seats||[]).filter(function(s){ return String(s||'').trim(); });
     var n=seats.length, chips='';
     if(n){ seats.forEach(function(nm,i){ var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; }); }
     else { chips='<div class="tbl-empty">준비 중</div>'; }
-    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+(gidx+1)+'</span><span class="tbl-nm">'+esc(t.name||('테이블 '+(gidx+1)))+'</span>'+chips+'</div>';
+    var _custom=String(t.name||'').trim();
+    var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : ('테이블 '+no);   // 기본명(테이블N)이면 행순서 번호로, 커스텀명이면 존중
+    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+no+'</span><span class="tbl-nm">'+nm+'</span>'+chips+'</div>';
   }
   var L='', R='', li=0, ri=0;
-  tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++); else L+=tblCard(t,i,li++); });
+  tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++,num[i]); else L+=tblCard(t,i,li++,num[i]); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
     +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
     +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
