@@ -1116,7 +1116,7 @@ function renderDone(){
   h+='<div class="menu-hd"><div class="mh-t">두 분의 예식</div><div class="mh-s">'+esc(COURSES[S.course].nm)+' 코스 · '+estMin()+'</div></div>';
   var _num=0;
   summaryRows().forEach(function(r){
-    var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='하객 맞이 안내');
+    var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='참여형 방명록'||r[0]==='하객 맞이 안내');
     var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10.5px">식전</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
     h+='<div class="sumrow">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">변경</button></div>';
   });
@@ -1135,7 +1135,7 @@ function renderDone(){
     h+='</div>';
   }); }
   else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 전문 나레이션이 준비돼요. 눌러서 전체 대본을 펼쳐 보세요.</div>'; }
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1" onclick="copyScript(\'mine\')">두 분 파트만 복사</button><button class="copy-btn" style="flex:1" onclick="saveScriptTxt()">파일로 저장</button></div>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'mine\')">두 분 파트만</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
   h+='<div class="sec-l">음악, 세 곳만 정하면 돼요</div>';
   h+='<div class="wcard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
   h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 (곡명·가수)" value="'+esc(S.mEntry)+'">';
