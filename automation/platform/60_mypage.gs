@@ -65,7 +65,9 @@ function buildRefundBankState(r) {
   var bk = null; try { bk = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); } catch (e) {}
   var paid = String(r.get('입금상태') || '').trim() === '확인' || (bk && String(bk.get('입금확인') || '').trim() === '확인');
   if (!paid) return null;                                               // 수령분 없음 — 환불 카드 불요
-  var q = null; try { q = _refundQuote(r, _kstYmd(new Date())); } catch (e) {}
+  // [환불 기준일 정합] 관리자 송금 큐(admin.gs)와 동일하게 '취소일' 기준으로 고정 — 오늘 기준이면 위약 구간이 넘어갈 때마다 고객 표시액이 실제 송금액과 벌어짐
+  var _cxYmd = ''; try { _cxYmd = _ymdOf(bk && bk.get('취소일시')); } catch (e) {}
+  var q = null; try { q = _refundQuote(r, _cxYmd || _kstYmd(new Date())); } catch (e) {}
   var refund = (q && !q.pending && q.refund != null) ? Math.round(Number(q.refund)) : null;
   if (refund != null && refund <= 0 && !(q && q.needCount)) return null;   // 공제로 환불액 0원
   return {
@@ -126,9 +128,12 @@ function buildLedgerState(r) {
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인',
       dueLabel: _midDueLabelFor(r), dueDate: _midDueDateFor(r) });   // 납부 기한 인지용(미납 행에만 표시) · 임박 계약(기한 과거)이면 '계약 시 함께 납부'
     var _bx = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(r) : { amount: 0 };   // 최종확정 인원 추가 요금 — 잔금과 단일 출처
-    var _bxFee = (String(r.get('잔금상태') || '').trim() !== '확인') ? _bx.amount : 0;
-    payments.push({ key: '잔금', label: '잔금', amount: Number(amounts['잔금']) + _bxFee, status: st(r.get('잔금상태')), done: String(r.get('잔금상태') || '').trim() === '확인',
-      extra: _bxFee > 0 ? { standing: _bx.standing, amount: _bxFee } : null,
+    var _bConf = String(r.get('잔금상태') || '').trim() === '확인';
+    // 확인 후에는 확정 스냅샷(기본+인원 추가)을 표시 — 현금영수증 원장(_cashReceiptLedger)과 같은 금액. 미확인은 기본+현재 추가금
+    var _balSnap2 = 0; try { _balSnap2 = Math.round(Number(_parseJsonSafe(r.get('동의기록')).잔금확정금액) || 0); } catch (e) {}
+    var _balShown = _bConf ? (_balSnap2 || (Number(amounts['잔금']) || 0)) : ((Number(amounts['잔금']) || 0) + (_bx.amount || 0));
+    payments.push({ key: '잔금', label: '잔금', amount: _balShown, status: st(r.get('잔금상태')), done: _bConf,
+      extra: (!_bConf && _bx.amount > 0) ? { standing: _bx.standing, amount: _bx.amount } : null,
       dueLabel: _balanceDueLabel(), dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전) });
   }
   // 결제 진행률 — 완료된 마일스톤 금액 합 / 총액. (작은 계약서 등 예약금이 계약금을 초과해 100%를 넘는 경우 방지)

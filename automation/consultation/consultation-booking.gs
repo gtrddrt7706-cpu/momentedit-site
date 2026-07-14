@@ -740,7 +740,7 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer) {
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -799,6 +799,14 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt) {
         }
       }
     } catch (e) { Logger.log('현금영수증 예약등록 실패: ' + (e && e.message)); }
+    // [입금자명] 예약금 입금자(본인 아닐 수 있음)를 Customers '입금자명'에 저장 — 관리자가 통장 입금과 신청자를 대조(카드결제 시 재기록됨)
+    try {
+      var _pyr = String(payer == null ? '' : payer).trim().replace(/[\r\n\t]+/g, ' ').slice(0, 20);
+      if (_pyr) {
+        var _pyCust = findCustomerByCode(String(row.get('개인코드') || '').trim());
+        if (_pyCust) { var _pyCs = getCustomersSheet(), _pyCo = buildHeaderIndex(_pyCs); if (_pyCo['입금자명']) touchCustomer(_pyCs, _pyCo, _pyCust.num, { '입금자명': _pyr }); }
+      }
+    } catch (e) { Logger.log('입금자명 예약등록 실패: ' + (e && e.message)); }
     notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡)
 
     var mailOk = false, mailErrMsg = '';
@@ -1987,7 +1995,7 @@ function handleSubmitSchedule(body) {
     return { ok: false, cancelled: true, error: '취소된 예약이라 일정을 선택할 수 없어요.' };
   }
   var consultToken = String(a.consult.get('토큰') || '');
-  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt);
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt, body.payer);
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
@@ -2106,7 +2114,13 @@ function doPost(e) {
     }
   } catch (err) {
     try { Logger.log('doPost 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
-    return jsonOut({ ok: false, error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.' });   // 내부 예외 원문 비노출(정보노출 차단)
+    // 의도적 사용자 안내(짧은 한글 문장)만 그대로 노출 → 만료·24h·정책·'로그인이 필요' 등이 제네릭에 묻히지 않게.
+    // 내부 JS 예외(영문·스택·코드기호)는 제네릭으로 차단(원문 비노출·정보노출 방지).
+    var _em = String((err && err.message) || '');
+    var _userMsg = (_em && _em.length <= 140 && /[가-힣]/.test(_em)
+      && !/[<>{}]|https?:|Error:|Exception|undefined|null|cannot |TypeError|ReferenceError| at /i.test(_em))
+      ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';
+    return jsonOut({ ok: false, error: _userMsg });
   }
 }
 function jsonOut(obj) {
