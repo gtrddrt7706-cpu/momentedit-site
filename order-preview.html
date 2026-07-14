@@ -27,7 +27,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prog-bar{height:7px;background:var(--border);border-radius:7px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--seal));width:9%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .prog-next{font-size:10.5px;color:var(--light);margin-top:7px;text-align:right;word-break:keep-all}
-.stage{flex:1;padding:8px 0 12px;animation:fade .32s ease}
+.stage{flex:1;padding:8px 0 12px;animation:fade .5s ease-out}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:21px;font-weight:600;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
 .q-sub{font-size:14px;color:var(--sub);margin-top:9px;word-break:keep-all}
@@ -104,7 +104,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:17px;transition:.18s;margin-bottom:14px}
 .crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#FAF6EF}.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
-.crs-nm{font-size:17px;font-weight:600}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
+.crs-nm{font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:.02em}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--seal)}
 .crs-badge{font-size:9.5px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 9px}
 .crs.soon .crs-badge{background:var(--light)}
@@ -152,7 +152,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .copy-btn2{background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:10px;padding:9px 13px;font-family:var(--sans);font-size:11.5px;font-weight:600;cursor:pointer;margin-right:8px}
 .dub-link{font-size:11px;color:var(--gold-deep);text-decoration:underline;cursor:pointer}
 .mth-note{font-size:10.5px;color:var(--light);margin-top:8px}
-.uprow{display:flex;align-items:center;gap:10px;margin-top:11px}
+.uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.upl-r{display:flex;align-items:center;gap:8px}
 .upbtn{background:var(--seal);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .upst{font-size:10.5px;color:var(--light);background:var(--bg2);border-radius:20px;padding:3px 10px}
 .upst.done{color:var(--green);background:#F3EEE1}
@@ -269,7 +270,7 @@ window.copyGuestScript=function(){
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('안내 대본을 복사했어요. 더빙 사이트에 붙여넣어 만들어 주세요.');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('안내 대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
 };
-window.mockUpload=function(b){ b.parentNode.innerHTML='<span class="upst done">올림 완료 · 검수 대기</span>'; };
+window.mockUpload=function(b){ b.parentNode.innerHTML='<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>'; };
 var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
 window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
 window.pickCourse=function(v){ if(crsOpen===v){ crsOpen=''; } else { crsOpen=v; S.course=v; } render(); };
@@ -719,8 +720,9 @@ function renderStep(k){
     }
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
-      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>'+playBtn();
-      if(cpl){ h+='<div class="uprow"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></div>'; }
+      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
+      if(cpl){ h+='<div class="uprow">'+playBtn()+'<span class="upl-r"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></span></div>'; }
+      else { h+=playBtn(); }
       h+='</div>';
     });
     h+='<div class="banner">'+(cpl?'올려주신 파일은 저희가 받아 잡음·볼륨을 한 번 다듬고 검수한 뒤, 당일 이 안내로 재생돼요. 녹음이 조금 어설퍼도 걱정 마세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요. 하객이 편안하게 자리를 찾는 시간이에요.')+'</div>';
@@ -752,7 +754,7 @@ function renderStep(k){
       var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시':'전문 나레이션';
       h+='<div class="oc'+(on?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')"><div class="oc-nm">'+v+' · '+esc(ENTRY[v].d)+'</div>';
       h+='<div class="nar"><span class="lb">'+lbl+'</span>'+esc(txt)+'</div>'+playBtn();
-      if(on && ecpl) h+='<div class="uprow"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></div>';
+      if(on && ecpl) h+='<div class="uprow"><span class="upl-r"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></span></div>';
       h+='</div>';
     });
     h+='</div></div>';
@@ -860,6 +862,7 @@ function courseCard(v){
     });
     if(c.addable) h+='<div class="banner">'+esc(c.addable)+'</div>';
     h+='<div class="crs-legend"><span class="lg"><span class="lg-d fix"></span>고정 순서는 저희가 준비</span><span class="lg"><span class="lg-d pick"></span>표시된 순서만 두 분이 선택</span></div>';
+    h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="event.stopPropagation();mockPlay(this)">이 코스의 나레이션 미리듣기</button></div>';
     h+='<button class="cta-go" onclick="event.stopPropagation();startCourse(\''+v+'\')">이 코스로 시작하기 · 딸깍 몇 번이면 완성돼요</button>';
     h+='</div>';
   }
