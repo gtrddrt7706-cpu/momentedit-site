@@ -70,6 +70,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .subq{font-size:11px;font-weight:600;color:var(--sub);margin:4px 0 -2px 4px}
 .lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
+.ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
+.ex-chip{border:1px solid var(--border);background:#fff;border-radius:16px;padding:4px 12px;font-size:12px;color:var(--sub);font-family:var(--sans);cursor:pointer}
+.ex-chip.on{border-color:var(--gold-deeper);color:var(--gold-deeper);background:#FAF6EF;font-weight:600}
 .ex-t{font-size:10px;letter-spacing:.04em;color:var(--gold-deep);font-weight:600;margin-bottom:8px}
 .ex-i{font-size:13px;color:#4A3E30;background:#F7F3EC;border-left:2.5px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin-bottom:7px;line-height:1.75;word-break:keep-all;font-family:var(--serif)}
 .ex-n{font-size:10px;color:var(--light);margin-top:2px}
@@ -452,13 +455,27 @@ var EXWEL=[
  "바쁘신 중에 저희 두 사람의 시작을 함께해 주셔서 진심으로 감사합니다. 오늘 이 자리를, 오래 기억하겠습니다.",
  "가까운 분들만 모신 자리라 저희에겐 더 특별합니다. 편하게, 오늘 하루 저희와 함께 즐겨 주세요."
 ];
+var exSel={};
+window.exPick=function(box,tag){ exSel[box]=tag; render(); };
 function exBox(title,arr,guide){
+  var tags=[],seen={};
+  arr.forEach(function(t){ if(typeof t!=='string' && !seen[t[0]]){ seen[t[0]]=1; tags.push(t[0]); } });
+  var cur=exSel[title]||tags[0];
   var h='<div class="exlist"><div class="ex-t">'+esc(title)+'</div>';
+  if(tags.length>1){
+    h+='<div class="ex-chips">';
+    tags.forEach(function(tg){ h+='<button class="ex-chip'+(tg===cur?' on':'')+'" onclick="exPick(\''+title+'\',\''+tg+'\')">'+esc(tg)+'</button>'; });
+    h+='</div>';
+  }
+  var shown=0;
   arr.forEach(function(t){
-    if(typeof t==='string'){ h+='<div class="ex-i">"'+esc(t)+'"</div>'; }
-    else { h+='<div class="ex-i"><span style="color:var(--gold-deeper);font-size:10.5px">'+esc(t[0])+'</span><br>"'+esc(t[1])+'"</div>'; }
+    if(typeof t==='string'){ h+='<div class="ex-i">"'+esc(t)+'"</div>'; return; }
+    if(tags.length>1 && t[0]!==cur) return;
+    if(shown>=2) return;
+    shown++;
+    h+='<div class="ex-i">"'+esc(t[1])+'"</div>';
   });
-  h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.'+(guide?'<br>잘 쓰는 공식: 구체적인 기억 하나 → 약속 → 앞으로의 우리. 유행어·과장은 빼는 게 오래 남아요.':'')+'</div></div>';
+  h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.'+(guide?'<br>잘 쓰는 공식: 구체적인 기억 하나 → 약속 → 앞으로의 우리.':'')+'</div></div>';
   return h;
 }
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -814,7 +831,7 @@ function renderStep(k){
     h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. 짧아도 진심이면 충분해요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+exBox('이렇게 인사해도 좋아요 · 예시',EXWEL)+'</div>';
   }
   else if(k==='vow'){
-    h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문.<br>'+LATER);
+    h+=oc('vow','ok','혼인 서약 · 직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','이제, 두 사람이 서로에게 건네는 약속의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문');
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요. 너무 길면 감정이 흩어질 수 있어, 담백 코스는 짧아도 충분해요.</div>';
     h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true);
@@ -841,7 +858,7 @@ function renderStep(k){
   }
   else if(k==='letter'){
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
-    lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); });
+    lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
