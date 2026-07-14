@@ -7,12 +7,15 @@ const fs = require('fs');
 const path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'platform', '95_notify.gs'), 'utf8');
 const src2 = src;
+// _nfWon는 70_journey.gs의 전역 _wonNum(금액 파서)에 의존 — 같은 GAS 프로젝트 전역이라 테스트에도 주입.
+const _wonNumSrc = (fs.readFileSync(path.join(__dirname, '..', 'platform', '70_journey.gs'), 'utf8')
+  .match(/function _wonNum\([^)]*\)\s*\{[^}]*\}/) || [''])[0];
 
 // GAS 전역 스텁 — 발송 없이 문구·게이트 로직만 평가
 let HOUR = 12;
 const PropertiesService = { getScriptProperties: () => ({ getProperty: () => null, setProperty() {}, deleteProperty() {}, getProperties: () => ({}) }) };
 const api = new Function('PropertiesService', 'Logger', 'Utilities', 'LockService', 'UrlFetchApp', 'fmtKST', 'findCustomerByCode', '_recordHandler', '_kstYmd', '_shiftYmd',
-  src + '\n;return {NOTIFY_EVENTS:NOTIFY_EVENTS,_nfCustomerMsg:_nfCustomerMsg,_nfAdminText:_nfAdminText,_nfWon:_nfWon,_nfIsNight:_nfIsNight,notifyKakao:notifyKakao};')(
+  _wonNumSrc + '\n' + src + '\n;return {NOTIFY_EVENTS:NOTIFY_EVENTS,_nfCustomerMsg:_nfCustomerMsg,_nfAdminText:_nfAdminText,_nfWon:_nfWon,_nfIsNight:_nfIsNight,notifyKakao:notifyKakao};')(
   PropertiesService, { log() {} },
   { formatDate: (d, tz, f) => (f === 'H' ? String(HOUR) : '2026-06-11'), getUuid: () => 'u', computeHmacSha256Signature: () => [0] },
   { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },

@@ -1487,11 +1487,12 @@ function buildHeaderIndex(sheet) {
   for (var i = 0; i < headers.length; i++) { var h = String(headers[i]).trim(); if (h) map[h] = i + 1; }
   return map;
 }
-// CSV·수식 인젝션 방어 — 문자열이 = + - @ 또는 탭·CR로 시작하면 작은따옴표를 앞에 붙여 텍스트로 고정.
-//   Google Sheets는 setValue 시 '=..'를 수식으로 평가 → 시트 내 HYPERLINK/IMPORTXML 유출·CSV 내보내기 공격의 벡터.
-//   숫자·날짜(Number/Date)는 그대로 통과. 선행 작은따옴표는 Sheets가 텍스트 마커로 소비(정상 이름·전화는 트리거 안 됨).
+// 수식 인젝션 방어 — 문자열이 '=' (또는 탭·CR)로 시작하면 작은따옴표를 앞에 붙여 텍스트로 고정.
+//   Google Sheets는 setValue 시 '='로 시작할 때만 수식으로 평가 → HYPERLINK/IMPORTXML 유출 벡터는 '=' 뿐.
+//   ('+','-','@' 선행은 Sheets에서 수식이 아님 → 프리픽스하지 않는다: '+82' 전화·'-'로 시작하는 메모 등 정상 데이터를
+//    텍스트('@') 서식 셀에서 오염시키던 것 방지. 숫자·날짜는 그대로 통과. 정상 이름/전화는 트리거 안 됨.)
 function _deFormula(value) {
-  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+  return (typeof value === 'string' && /^[=\t\r]/.test(value)) ? ("'" + value) : value;
 }
 function writeCell(sheet, colOf, rowNum, header, value) {
   var c = colOf[header];
@@ -2146,7 +2147,7 @@ function handleAdvisorLog(body) {
     var esc = (body && body.escalate) ? 'Y' : '';
     var flag = String((body && body.flag) || (esc ? '막힘' : '정상')).slice(0, 6);   // 정상·애매·막힘 (애매=AI가 답했지만 자신 없음)
     var surface = String((body && body.surface) || '').slice(0, 8);
-    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, flag, _deFormula(surface)]);
+    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, _deFormula(flag), _deFormula(surface)]);
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
@@ -2213,7 +2214,7 @@ function handleLeadClick(body) {
     var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('카톡연결'); sh.appendRow(['시각', '접점']); }
     if (sh.getLastRow() > 20000) return { ok: true };
-    sh.appendRow([fmtKST(new Date()), surface]);
+    sh.appendRow([fmtKST(new Date()), _deFormula(surface)]);
   } catch (e) {}
   return { ok: true };
 }

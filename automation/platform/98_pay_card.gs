@@ -73,7 +73,7 @@ function _payLog(row) {
   try {
     var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(PAY_LOG_SHEET);
     if (!sh) { sh = ss.insertSheet(PAY_LOG_SHEET); sh.appendRow(['시각', '개인코드', '단계', '금액', 'orderId', 'paymentKey', '결과', '메모']); sh.setFrozenRows(1); }
-    sh.appendRow([fmtKST(new Date()), row.code || '', row.milestone || '', row.amount || '', row.orderId || '', String(row.paymentKey || '').slice(0, 40), row.result || '', String(row.memo || '').slice(0, 200)]);
+    sh.appendRow([fmtKST(new Date()), _deFormula(row.code || ''), row.milestone || '', row.amount || '', _deFormula(row.orderId || ''), _deFormula(String(row.paymentKey || '').slice(0, 40)), row.result || '', _deFormula(String(row.memo || '').slice(0, 200))]);   // orderId·paymentKey·memo(외부·클라 입력) 수식 인젝션 방어
     if (sh.getLastRow() > 20000) sh.deleteRows(2, 1000);
   } catch (e) {}
 }

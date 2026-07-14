@@ -64,6 +64,7 @@ const code = [
   extractVarObject(SRC_JOURNEY, 'PAYMENT'),
   extractFunction(SRC_BOOKING, '_consultRefundQuote'),
   extractFunction(SRC_JOURNEY, '_parseJsonSafe'),
+  extractFunction(SRC_JOURNEY, '_wonNum'),
   extractFunction(SRC_JOURNEY, '_changeFeeQuote'),
   extractFunction(SRC_JOURNEY, '_changeGuard'),
   extractFunction(SRC_JOURNEY, '_changeInput'),

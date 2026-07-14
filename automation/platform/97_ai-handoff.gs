@@ -4,7 +4,7 @@
  * 브리핑 = { category 분류, summary 요약, suggestedReply 제안답변, rationale 근거·확인사항, confidence 확신도 } — 관리자 전용.
  *
  * 보안: 스크립트 속성 AI_HANDOFF_SECRET 설정 시 body.secret 일치 필수(미설정이면 공개 수신·길이 가드만).
- * 의존: 없음(독립 모듈). adminList/Resolve는 admin.gs FNS에 등록되어 adminCall 게이트(_requireAdmin) 안에서 호출됨.
+ * 의존: _deFormula(consultation-booking.gs · 시트 수식 인젝션 방어) — 같은 플랫폼 프로젝트 전역. adminList/Resolve는 admin.gs FNS에 등록되어 adminCall 게이트(_requireAdmin) 안에서 호출됨.
  */
 
 var AIH_SHEET = 'AI상담인계';

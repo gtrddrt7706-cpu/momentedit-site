@@ -57,6 +57,7 @@ const code = [
   extractFunction(SRC_JOURNEY, '_parseJsonSafe'),
   extractFunction(SRC_JOURNEY, '_balanceDueLabel'),
   extractFunction(SRC_JOURNEY, '_midDueLabel'),
+  extractFunction(SRC_JOURNEY, '_wonNum'),
   extractFunction(SRC_JOURNEY, '_journeyAmounts'),
   extractFunction(SRC_JOURNEY, '_shiftYmd'),
   extractFunction(SRC_JOURNEY, '_refundQuote'),

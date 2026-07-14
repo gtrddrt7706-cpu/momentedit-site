@@ -312,7 +312,7 @@ function _nfDate(ymd) {   // '2026-06-17' → '2026년 6월 17일'
   return m ? (m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일') : String(ymd || '');
 }
 function _nfWon(n) {
-  var v = Number(String(n == null ? 0 : n).replace(/[,원\s]/g, ''));   // 시트 문자 금액('300,000원') 방어 · 못 읽으면 0 (고객 문자 'NaN원' 방지)
+  var v = _wonNum(n);   // 숫자만 추출 · 시트 문자 금액('300,000원'·'₩3.5M')도 흡수(고객 문자 'NaN원' 방지). _wonNum: 70_journey
   if (!isFinite(v)) v = 0;
   return v.toLocaleString ? v.toLocaleString('ko-KR') : String(v);
 }

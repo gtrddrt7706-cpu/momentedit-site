@@ -366,10 +366,11 @@ function findLastEventIdRow(sheet, idCol) {
   }
   return CFG.DATA_START_ROW - 1;
 }
-// CSV·수식 인젝션 방어 — 문자열이 = + - @ 또는 탭·CR로 시작하면 작은따옴표 프리픽스로 텍스트 고정.
-//   Sheets가 setValue 시 '=..'를 수식 평가 → HYPERLINK/IMPORTXML 유출·CSV 공격 벡터. 숫자·날짜는 통과.
+// 수식 인젝션 방어 — 문자열이 '=' (또는 탭·CR)로 시작하면 작은따옴표 프리픽스로 텍스트 고정.
+//   Google Sheets는 '=' 시작만 수식 평가(HYPERLINK/IMPORTXML 유출 벡터). '+','-','@'는 Sheets 수식이 아니라
+//   프리픽스하지 않음('+82' 전화·'-' 메모 등 정상 데이터의 '@' 서식 셀 오염 방지). 숫자·날짜는 통과.
 function _deFormula(value) {
-  return (typeof value === 'string' && /^[=+\-@\t\r]/.test(value)) ? ("'" + value) : value;
+  return (typeof value === 'string' && /^[=\t\r]/.test(value)) ? ("'" + value) : value;
 }
 function writeCell(sheet, colOf, rowNum, header, value, force) {
   var c = colOf[header];
@@ -497,7 +498,7 @@ function purgeCoupleData(dryRun) {
         if (dryRun) { cN++; continue; }
         var changed = false;
         for (var w = 0; w < wipe.length; w++) { var wc = colOf[wipe[w]]; if (wc && String(rows[r][wc - 1] || '') !== '') { rows[r][wc - 1] = ''; changed = true; } }
-        if (changed) { cs.getRange(CFG.DATA_START_ROW + r, 1, 1, lastCol).setValues([rows[r]]); cN++; }
+        if (changed) { cs.getRange(CFG.DATA_START_ROW + r, 1, 1, lastCol).setValues([rows[r].map(_deFormula)]); cN++; }   // 재기록 시 지우지 않은 셀 수식 재무장 방지
       }
     }
   }
@@ -522,7 +523,7 @@ function _purgeGuestSheet(ss, name, expired, cutoff, toYmd, idxCols) {
     if (!hit) continue;
     var changed = false;
     for (var k = 0; k < idxCols.length; k++) { var ci = idxCols[k]; if (ci < lastCol && String(vals[r][ci] || '') !== '') { vals[r][ci] = ''; changed = true; } }
-    if (changed) { sh.getRange(2 + r, 1, 1, lastCol).setValues([vals[r]]); n++; }
+    if (changed) { sh.getRange(2 + r, 1, 1, lastCol).setValues([vals[r].map(_deFormula)]); n++; }   // 재기록 시 지우지 않은 셀 수식 재무장 방지
   }
   return n;
 }
