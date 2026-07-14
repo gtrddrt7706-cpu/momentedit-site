@@ -270,14 +270,12 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,guestbook:false,
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
-       guestVoice:'nar',guestMethod:'',entryVoice:'nar',entryMethod:'',declareWho:'narr',growth:'off',blessProxy:false,
-       tune:{entry:true}, extra:{}, house:{}};
-window.setGuestVoice=function(v){ S.guestVoice=v; if(v==='nar') S.guestMethod=''; render(); };
-window.setGuestMethod=function(v){ S.guestMethod=v; render(); };
-window.setEntryVoice=function(v){ S.entryVoice=v; if(v==='nar') S.entryMethod=''; render(); };
-window.setEntryMethod=function(v){ S.entryMethod=v; render(); };
-window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; render(); };
-window.setHouse=function(k,cb){ S.house[k]=cb.checked; render(); };
+       guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',blessProxy:false,
+       tune:{entry:true}, extra:{}, house:{}, up:{}};
+window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
+window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
+window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; };
+window.setHouse=function(k,cb){ S.house[k]=cb.checked; };
 window.copyGuestScript=function(){
   var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
   GUEST.forEach(function(g){ lines.push('['+g[0]+']'); lines.push(g[2]); lines.push(''); });
@@ -286,10 +284,10 @@ window.copyGuestScript=function(){
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){alert('안내 대본을 복사했어요. 더빙 사이트에 붙여넣어 만들어 주세요.');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('안내 대본을 복사했어요.');}catch(e){alert('복사에 실패했어요.');} }
 };
-window.mockUpload=function(b){ b.parentNode.innerHTML='<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>'; };
+window.mockUpload=function(k){ S.up[k]=true; render(); };
 var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
 window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
-window.pickCourse=function(v){ if(crsOpen===v){ crsOpen=''; } else { crsOpen=v; S.course=v; } render(); };
+window.pickCourse=function(v){ crsOpen=(crsOpen===v)?'':v; render(); };
 window.setv=function(k,val){ S[k]=val; };
 window.settgl=function(k,cb){ S[k]=cb.checked; };
 
@@ -491,19 +489,22 @@ function exBox(title,arr,guide){
   h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.'+(guide?'<br>잘 쓰는 공식: 구체적인 기억 하나 → 약속 → 앞으로의 우리.':'')+'</div></div>';
   return h;
 }
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function narBox(t,end){return '<div class="nar"><span class="lb">전문 나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
-var AUD=null, AUDBTN=null, AUDO='';
-function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null; }
+var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
+function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }
 function _playSrc(b,src,label){
-  if(AUDBTN===b){ _stopAud(); return; }
+  if(AUDBTN===b){
+    if(AUDWAIT){ AUDWAIT=false; b.innerHTML=label; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
+    _stopAud(); return;
+  }
   _stopAud();
   AUDBTN=b; AUDO=b.innerHTML; b.classList.add('playing'); b.innerHTML=label;
   AUD=new Audio(src);
   AUD.onended=_stopAud;
-  AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(_stopAud,1200); };
-  AUD.play().catch(function(){ b.innerHTML='탭하여 재생'; });
+  AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); };
+  AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; });
 }
 // 지금은 대표 샘플 목소리 1개를 모든 미리듣기에 재생(실제로 들리는 데모). 완성 후 순서별 실제 파일로 교체.
 window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
@@ -531,7 +532,8 @@ var STEPDEF={
 var STEPS=[], CEREMONY=[];
 function curSeq(){
   var c=COURSES[S.course], s=c.seq.slice();
-  (c.opt||[]).forEach(function(o){ if(S.extra[o.k]) s.splice(Math.min(o.at,s.length),0,o.k); });
+  var act=(c.opt||[]).filter(function(o){return S.extra[o.k];}).sort(function(a,b){return a.at-b.at;});
+  act.forEach(function(o,i){ s.splice(Math.min(o.at+i,s.length),0,o.k); });
   return s;
 }
 function buildSteps(){
@@ -615,7 +617,7 @@ function render(){
   pv.disabled=(idx===0&&!editReturn);
   pv.textContent=editReturn?'취소':'이전';
   var nx=document.getElementById('next');
-  nx.style.display=(st.k==='course'&&!editReturn)?'none':'block';   // 코스 화면은 카드 버튼으로 진행(편집 복귀 중엔 노출)
+  nx.style.display=(st.k==='course'&&!editReturn&&!courseStarted)?'none':'block';   // 코스 화면은 카드 버튼으로 진행(편집 복귀 중엔 노출)
   nx.textContent=editReturn?'저장 · 요약으로':(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?'처음으로':'다음');
   renderMiniTL(st.k);
   var navKey=mode+':'+idx;
@@ -665,7 +667,6 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   h+='</div>';
   return h;
 }
-var LATER='<b>지금 안 써도 돼요.</b> 나중에 채워도 되고, 상담 때 함께 다듬어요.';
 
 function clip(k){
   var G='#B89A75', GD='#9A7B4F', C='#6B2A24';
@@ -760,7 +761,6 @@ var TUNE={
  valley:{n:'사이 순서',c:'와인 세리머니 · 케이크 커팅을 살짝 더할 수 있어요'},
  toast:{n:'축배 · 케이크',c:'축배 · 케이크 · 둘 다 중 고를 수 있어요'},
  song:{n:'축가',c:'가족·지인이 직접 부르거나, 어쿠스틱 라이브 연주로 대신할 수 있어요'},
- flash:{n:'플래시 세리머니',c:'편지 낭독 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요'},
  letter:{n:'편지 낭독',c:'부모님께 · 서로에게, 누구에게 전할지 고를 수 있어요'},
  tribute:{n:'부모님 헌정',c:'꽃 · 큰절 · 포옹 중 어떻게 전할지 고를 수 있어요'},
  bless:{n:'부모님 덕담',c:'넣거나 빼고, 나레이션 대독도 가능해요'}
@@ -778,16 +778,15 @@ function rowVal(k){
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
    case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
-   case 'flash': return S.flash?'편지 때 하객 불빛':'없음';
    case 'tribute': return TRIBUTE.modes[S.tribute].d;
    case 'letter': return LETTER[S.letter].d+(S.oyeolLetter?' · 오열 시 나레이션 대리':'')+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
    case 'bless': return S.bless==='on'?('넣기'+(S.blessProxy?' · 나레이션 대독':'')):'빼기';
   }
   return '';
 }
-window.tuneTgl=function(k){ if(S.extra[k]){ delete S.extra[k]; delete S.tune[k]; } else { S.tune[k]=!S.tune[k]; } buildSteps(); render(); };
-window.tuneAll=function(on){ curSeq().forEach(function(k){ S.tune[k]=on; }); buildSteps(); render(); };
-window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]) S.tune[k]=true; else delete S.tune[k]; buildSteps(); render(); };
+window.tuneTgl=function(k){ if(S.extra[k]){ delete S.extra[k]; delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; } else { S.tune[k]=!S.tune[k]; } buildSteps(); render(); };
+window.tuneAll=function(on){ if(!on){ if(S.extra.bless) S.bless=(S.course==='family')?'on':'off'; S.extra={}; S.tune={}; } else { curSeq().forEach(function(k){ S.tune[k]=on; }); } buildSteps(); render(); };
+window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; } buildSteps(); render(); };
 
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
@@ -823,7 +822,7 @@ function renderStep(k){
     return h;
   }
   if(k==='guest'){
-    var cpl=S.guestVoice==='couple', mth=S.guestMethod;
+    var cpl=S.guestVoice==='couple';
     var h='<div style="margin-top:16px">';
     h+='<div class="vq">하객 맞이 안내, 누구 목소리로 할까요?</div>';
     h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요. 두 분이 정하실 건 없어요.</div></div>';
@@ -837,7 +836,7 @@ function renderStep(k){
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
       h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
-      if(cpl){ h+='<div class="uprow">'+playBtn()+'<span class="upl-r"><button class="upbtn" onclick="mockUpload(this)">파일 올리기</button><span class="upst">올리기 전</span></span></div>'; }
+      if(cpl){ h+='<div class="uprow">'+playBtn()+(S.up['g'+i]?'<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>':'<span class="upl-r"><button class="upbtn" onclick="mockUpload(\'g'+i+'\')">파일 올리기</button><span class="upst">올리기 전</span></span>')+'</div>'; }
       h+='</div>';
     });
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
@@ -852,7 +851,7 @@ function renderStep(k){
     return h;
   }
   if(k==='entry'){
-    var ecpl=S.entryVoice==='couple', emth=S.entryMethod;
+    var ecpl=S.entryVoice==='couple';
     var h='<div style="margin-top:16px">';
     h+='<div class="vq">입장 안내, 누구 목소리로 할까요?</div>';
     h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">전문 나레이션이 두 분의 입장을 이끌어요.</div></div>';
@@ -871,7 +870,7 @@ function renderStep(k){
       var on=S.entry===v, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시':'문이 열리기 직전에 흐르는 나레이션';
       h+='<div class="oc'+(on?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')"><div class="oc-nm">'+v+' · '+esc(ENTRY[v].d)+'</div>';
       h+='<div class="nar"><span class="lb">'+lbl+'</span>'+esc(txt)+'</div>'+(on?playBtn():'');
-      if(on && ecpl) h+='<div class="uprow"><span class="upl-r"><button class="upbtn" onclick="event.stopPropagation();mockUpload(this)">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></span></div>';
+      if(on && ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">올림 완료 · 검수 대기</span>':'<span class="upl-r"><button class="upbtn" onclick="event.stopPropagation();mockUpload(\'entry\')">이 인사로 파일 올리기</button><span class="upst">올리기 전</span></span>')+'</div>';
       h+='</div>';
     });
     h+='</div></div>';
@@ -999,7 +998,6 @@ function courseCard(v){
 }
 
 window.pick=function(key,v){ S[key]=v; render(); };
-window.go=function(d){ idx=Math.max(0,Math.min(STEPS.length-1,idx+d)); render(); };
 window.goDone=function(){ editReturn=false; idx=STEPS.length-1; render(); };
 function applyCourse(v){
   S.course=v;
@@ -1011,13 +1009,15 @@ function applyCourse(v){
   S.tune={entry:true}; S.extra={}; S.house={};
   buildSteps();
 }
-window.startCourse=function(v){ applyCourse(v); crsOpen=''; idx=2; render(); };
+var courseStarted=false;
+window.startCourse=function(v){ if(!courseStarted || v!==S.course){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
 window.jumpTo=function(k){
+  if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); } return; }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
 };
-var editReturn=false;
-window.editStep=function(k){ editReturn=true; jumpTo(k); };
+var editReturn=false, _editAdded=null;
+window.editStep=function(k){ editReturn=true; _editAdded=(curSeq().indexOf(k)>-1&&!S.tune[k])?k:null; jumpTo(k); };
 function fillBlanks(){
   var b=[];
   if(!S.vowText) b.push(['vow','서약문']);
@@ -1038,7 +1038,6 @@ var BLOCK={
     return {n:'베일 다운',nar:VEIL[S.veil].nar,self:(S.veil==='father'?'아버지':'어머니')+'가 베일을 내리고 손을 건네요',cue:'문이 열리기 직전, 문 앞에서 베일을 내리고 두 손을 이어 주기 → 문이 열리고 함께 입장'};
   },
   welcome:function(){
-    if(S.welcome==='nar') return {n:'환영·첫인사',nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.",cue:'나레이션이 인사 → 두 분은 정면 응시'};
     return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",cue:'나레이션 도입 끝 → 두 분이 준비한 인사말 시작 → 나레이션 마무리가 서약으로 이어줘요'};
   },
   vow:function(){
@@ -1086,7 +1085,6 @@ function fullBlocks(){
   b.push({n:'폐식·단체촬영',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 오늘의 이 마음은, 시간이 흘러도 두 사람이 서로에게 돌아올 자리가 되어 줄 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'나레이션 마무리 → 자리에서 그대로 가족·지인과 단체촬영'});
   return b;
 }
-function blocks(){ return fullBlocks(); }
 function inSeq(k){ return curSeq().indexOf(k)>-1; }
 function estMin(){
   var base={damback:25,minimal:18,gamdong:29,family:30,festive:30}[S.course]||25, m=base;
@@ -1097,9 +1095,8 @@ function estMin(){
   if(inSeq('ringwarm') && S.ringwarm==='all') m+=2;
   if(inSeq('toast') && S.toast==='both') m+=2;
   if(inSeq('letter') && S.letter==='both') m+=2;
-  var XM={welcome:1,letter:3,bless:2,valley:0,song:3};
+  var XM={welcome:1,letter:3,bless:0,valley:0,song:3};
   Object.keys(S.extra).forEach(function(k){ if(S.extra[k]) m+=(XM[k]!==undefined?XM[k]:1); });
-  if(S.extra.valley && S.valley!=='none') m+=3;
   return '약 '+m+'분';
 }
 function myParts(){
@@ -1179,7 +1176,8 @@ function renderDone(){
   var _num=0;
   summaryRows().forEach(function(r){
     var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='참여형 방명록'||r[0]==='하객 맞이 안내');
-    var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10.5px">식전</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
+    var isOff=(r[2]==='ring'&&S.ring!=='on')||(r[2]==='valley'&&S.valley==='none')||(r[2]==='bless'&&S.bless!=='on')||(r[2]==='veil'&&S.veil==='skip');
+    var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10.5px">식전</div>':isOff?'<div class="sr-n" style="color:var(--light)">·</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
     h+='<div class="sumrow">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">변경</button></div>';
   });
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
@@ -1199,7 +1197,7 @@ function renderDone(){
   else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 전문 나레이션이 준비돼요. 눌러서 전체 대본을 펼쳐 보세요.</div>'; }
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'mine\')">두 분 파트만</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
   h+='<div class="sec-l">음악, 세 곳만 정하면 돼요</div>';
-  h+='<div class="wcard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
+  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">비우면 두 분의 분위기에 맞춰 저희가 준비해요.</div>';
   h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 (곡명·가수)" value="'+esc(S.mEntry)+'">';
   h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악" value="'+esc(S.mPeak)+'">';
   h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악" value="'+esc(S.mClose)+'"></div>';
@@ -1235,8 +1233,9 @@ function renderRehearse(){
   if(_navKey!=='rehearse'){ window.scrollTo(0,0); _navKey='rehearse'; }
 }
 
-document.getElementById('next').addEventListener('click',function(){ if(editReturn){editReturn=false;goDone();return;} if(idx<STEPS.length-1){idx++;render();}else{idx=0;render();} });
-document.getElementById('prev').addEventListener('click',function(){ if(editReturn){editReturn=false;goDone();return;} if(idx>0){idx--;render();} });
+var _navLock=0;
+document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){editReturn=false;_editAdded=null;goDone();return;} if(idx<STEPS.length-1){idx++;render();}else{idx=0;render();} });
+document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editAdded){ delete S.tune[_editAdded]; _editAdded=null; buildSteps(); } editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 render();
 </script>
