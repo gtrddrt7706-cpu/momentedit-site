@@ -252,7 +252,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 </div>
 <script>
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
-       veil:'father',ringwarm:'family',tribute:'flower',toast:'toast',
+       veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,guestbook:false,
        welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
        guestVoice:'nar',guestMethod:'',entryVoice:'nar',entryMethod:'',declareWho:'narr',growth:'off',blessProxy:false,
        tune:{entry:true}, extra:{}, house:{}};
@@ -297,7 +297,7 @@ var DECLARE={
 };
 var DECLWHO={
  narr:{d:'전문 나레이션',desc:'나레이션이 두 사람의 성혼을 공식적으로 선언해요.'},
- chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션의 선창에 이어, 하객 스물다섯 분이 인쇄된 선언문을 함께 낭독해요.',nar:"이제, 이 자리에 함께하신 모든 분과 함께 선언하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'선언문 인쇄물은 저희가 지정 좌석에 미리 비치해요'},
+ chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션의 선창에 이어, 하객 스물다섯 분이 인쇄된 선언문을 함께 낭독해요.',nar:"모든 마음이 모였습니다. 이제, 이 자리에 함께하신 모든 분과 함께 이 예식을 선언으로 완성하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'선언문은 좌석 카드로 미리 비치하고, 나레이션이 먼저 안내해요 · 부담스러우면 언제든 나레이션 단독으로 바꿀 수 있어요'},
  family:{d:'가족이 낭독',desc:'양가 부모님, 또는 대표 한 분이 두 사람의 성혼을 직접 선언해요.',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 짧은 문장 권장'}
 };
 var LETTER={
@@ -306,8 +306,8 @@ var LETTER={
  both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑한 분들, 그리고 이제 서로의 평생이 될 두 사람. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
 };
 var VEIL={
- father:{d:'아버지가',nar:"입장의 걸음이 멈추는 곳에서, 아버지가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
- mother:{d:'어머니가',nar:"입장의 걸음이 멈추는 곳에서, 어머니가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
+ mother:{d:'어머니가',nar:"문이 열리기 전, 어머니가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
+ father:{d:'아버지가',nar:"문이 열리기 전, 아버지가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
  skip:{d:'생략',nar:''}
 };
 var RINGWARM={
@@ -349,7 +349,7 @@ var HOUSE=[
 ];
 var COURSES={
   damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
-    seq:['guest','entry','welcome','vow','ring','declare','valley','letter','bless'],
+    seq:['guest','entry','welcome','vow','ring','declare','letter','bless','valley'],
     one:'과한 연출 없이, 꼭 필요한 순간만 정갈하게',
     feel:'어른 하객이 많고, 담백하지만 진심이 깊게 남는 예식을 원하는 두 분께. 짧지만 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
@@ -364,14 +364,14 @@ var COURSES={
     ],
     addable:'원하면 사이에 와인 세리머니·케이크 커팅, 또는 부모님 덕담을 하나 더할 수 있어요.'},
   gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 29분',
-    seq:['guest','entry','veil','welcome','vow','ring','letter','tribute','declare'],
-    opt:[{k:'valley',at:6}],
+    seq:['guest','veil','entry','welcome','vow','ring','letter','tribute','declare'],
+    opt:[{k:'valley',at:9}],
     one:'편지와 서약을 정점으로 두는, 눈물의 아크',
     feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께. 베일 다운으로 시작해 편지에서 절정에 이르고, 하객이 다 함께 성혼 선언을 읽는 벅찬 예식이에요.',
-    flow:['입장','베일 다운','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언·합송','폐식'],
+    flow:['베일 다운','입장','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언·합송','폐식'],
     detail:[
-      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께(또는 아버지 에스코트로) 걸어 들어와요.', fx:'첫 등장부터 감정이 차오르는, 눈물의 문을 여는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'베일 다운', how:'입장의 끝, 신랑 앞에서 아버지(또는 어머니)가 신부의 베일을 내려 주고 손을 건네요. 입장과 이어지는 고정 순서예요.', fx:'부모의 마지막 배웅이 담기는, 입장 직후 가장 먼저 눈물이 터지는 순간이에요.', pick:'아버지 / 어머니 / 생략'},
+      {n:'베일 다운', how:'문이 열리기 직전, 어머니(또는 아버지)가 신부의 베일을 내려 주고 두 분의 손을 이어 줘요.', fx:'부모의 마지막 배웅이 담기는, 입장의 문을 여는 순간이에요. 드레스 오버베일 여부는 저희가 미리 함께 확인해요.', pick:'어머니 / 아버지 / 생략'},
+      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'첫 등장부터 감정이 차오르는, 눈물의 문을 여는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
       {n:'환영·첫인사', how:'두 분이 하객에게 직접 감사 인사를 전해요.', fx:'벅찬 마음을 함께 나누며 자리가 따뜻해져요.', pick:'인사말 준비'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.', fx:'편지와 함께 이 예식의 두 정점 중 하나예요.', pick:'오열 시 나레이션 대리'},
       {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 손끝에 새겨지는 순간이에요.', pick:'넣기 / 빼기'},
@@ -414,19 +414,19 @@ var COURSES={
     ],
     addable:'원하면 첫인사·편지를 하나 더할 수 있어요. 가장 짧게 두고 싶다면 이대로도 충분해요.'},
   festive:{nm:'축하', badge:'밝고 활기', ready:true, min:'약 30분',
-    seq:['guest','entry','welcome','vow','ring','declare','toast','letter'],
-    opt:[{k:'bless',at:8}],
+    seq:['guest','entry','welcome','vow','ring','declare','letter','toast'],
+    opt:[{k:'song',at:6},{k:'bless',at:6}],
     one:'웃음과 축배가 함께하는, 밝고 활기찬 예식',
     feel:'친구 하객이 많고, 무겁기보다 즐겁게 축하하고 싶은 두 분께. 축배와 케이크로 분위기를 띄우고, 편지로 따뜻하게 마무리하는 밝은 코스예요.',
-    flow:['입장','첫인사','혼인 서약','반지','성혼 선언','축배·케이크','편지 낭독','폐식'],
+    flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','축배·케이크','폐식'],
     detail:[
       {n:'신랑·신부 입장', how:'밝은 입장곡과 함께 문이 열리고, 두 분이 활기차게 걸어 들어와요.', fx:'첫 등장부터 분위기가 환하게 열리는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
       {n:'환영·첫인사', how:'두 분이 하객에게 직접 밝게 인사해요.', fx:'가까운 사이라 웃음으로 자리가 금세 편해져요.', pick:'인사말 준비'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 읽어요.', fx:'밝은 분위기 속에서도 잠시 진지해지는 순간이에요.', pick:'오열 시 나레이션 대리'},
       {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는 순간이에요.', pick:'넣기 / 빼기'},
       {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.', fx:'다 함께 환호로 맞이하는 공식 하이라이트예요.', pick:'전문 나레이션 / 하객 합송'},
-      {n:'축배·케이크', how:'샴페인 잔을 함께 들거나 케이크를 자르며 다 함께 축하해요.', fx:'분위기가 가장 밝게 고조되는, 축제 같은 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
-      {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'밝은 예식을 따뜻하게 눌러 담는 마무리 정점이에요.', pick:'부모님께 / 서로에게'},
+      {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'밝은 예식 한가운데, 마음이 가장 깊어지는 순간이에요.', pick:'부모님께 / 서로에게'},
+      {n:'축배·케이크', how:'작은 케이크를 자르고, 스물다섯 분 모두 잔을 들어 함께 축하해요.', fx:'감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
       {n:'폐식·단체촬영', how:'나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'환한 에너지를 그대로 사진에 담아요.', fix:true}
     ],
     addable:'축배·케이크는 이 코스의 시그니처예요. 다음 화면에서 하나씩 직접 고를 수 있어요.'}
@@ -490,8 +490,9 @@ var STEPDEF={
  ringwarm:{k:'ringwarm',title:'링 워밍, 어디까지 돌릴까요?',sub:''},
  ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:'서약의 증표로 반지를 나누는 순간. 원하는 대로 넣거나 빼세요.'},
  declare:{k:'declare',title:'성혼 선언, 누가 낭독할까요?',sub:''},
- valley:{k:'valley',title:'사이에 한 호흡, 더할까요?',sub:'담백 코스는 비움이 기본이에요. 원하면 하나만 살짝 더해요.'},
+ valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
+ song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''},
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'양가 부모님이 두 분에게 짧게 전하는 말씀이에요.'},
@@ -514,7 +515,7 @@ var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 function recoTxt(k){
   var c=S.course;
-  var base={vow:'서약문이 안 써져도 괜찮아요 · 예시를 고르고 두 분 말로 두어 줄만 바꿔 보세요',entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 25명이면 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'담백 코스에선 대부분 넣지 않아요',veil:'대부분 아버지가 내려 주세요 · 어머니와의 이야기가 깊다면 어머니도 뭉클해요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸리지만 25명이라 가능한 특별함이에요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
+  var base={vow:'서약문이 안 써져도 괜찮아요 · 예시를 고르고 두 분 말로 두어 줄만 바꿔 보세요',entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 25명이면 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요 · 오버베일이 있는 드레스여야 해요, 확인과 리허설은 저희가 챙겨요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸리지만 25명이라 가능한 특별함이에요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
   var ov={
    gamdong:{declare:'이 코스는 하객 합송이 시그니처예요 · 스물다섯 분의 목소리가 하나로 모여요',letter:'이 코스는 부모님께, 그리고 서로에게 둘 다 읽는 분들이 많아요'},
    family:{bless:'가족 코스의 시그니처예요 · 대부분 예식의 문을 덕담으로 열어요',declare:'가족이 직접 선언하면 이 코스답게 깊어져요 · 나레이션도 좋아요'},
@@ -531,13 +532,14 @@ var MOMENT={
  ringwarm:{ph:'링 워밍',t:'반지가 손에서 손으로 건네지며, 모두의 축복이 스며드는 순간이에요.',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
  ring:{ph:'반지 교환',t:'약속의 증표를 손끝에 새기는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
  declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 공식적으로 선언하는 순간이에요.',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
- valley:{ph:'사이 순서',t:'정점으로 가기 전, 한 호흡을 더할 수 있어요.',act:'없음이 기본 · 원하면 하나만 더해요.'},
+ valley:{ph:'축하 한 호흡',t:'마무리로 향하기 전, 축하의 한 호흡을 더할 수 있어요.',act:'없음이 기본 · 원하면 하나만 더해요.'},
  toast:{ph:'축배 · 케이크',t:'분위기가 가장 밝게 고조되는, 축제 같은 순간이에요.',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
+ song:{ph:'축가',t:'두 분을 위해 준비된 노래가 흐르는 순간이에요.',act:'누가 부를지 골라주세요.'},
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요.',act:'누구에게 전할지 골라주세요.'},
  tribute:{ph:'부모님 헌정',t:'키워 주신 사랑에, 두 분이 몸짓으로 감사를 전하는 순간이에요.',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',done:'완성'};
+var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',done:'완성'};
 function momentBanner(k,mo){
   var pos='식 순서 '+(CEREMONY.indexOf(k)+1)+' / '+CEREMONY.length;
   var h='<div class="moment'+(mo.info?' info':'')+'">';
@@ -643,11 +645,11 @@ function diag(k){
     +'<rect x="12" y="26" width="26" height="52" rx="4" fill="none" stroke="'+G+'" stroke-width="1.5"/><text x="25" y="96" text-anchor="middle" font-size="'+F+'" fill="'+A+'">문</text>'
     +'<path d="M48 52 H 118" stroke="'+G+'" stroke-width="1.2" stroke-dasharray="4 4" fill="none" marker-end="none"/>'
     +'<circle cx="132" cy="46" r="11" fill="none" stroke="'+GD+'" stroke-width="1.6"/><circle cx="172" cy="46" r="11" fill="none" stroke="'+GD+'" stroke-width="1.6"/>'
-    +'<text x="128" y="74" text-anchor="middle" font-size="'+F+'" fill="'+A+'">아버지</text><text x="176" y="74" text-anchor="middle" font-size="'+F+'" fill="'+A+'">신부</text>'
+    +'<text x="128" y="74" text-anchor="middle" font-size="'+F+'" fill="'+A+'">'+(S.veil==='father'?'아버지':'어머니')+'</text><text x="176" y="74" text-anchor="middle" font-size="'+F+'" fill="'+A+'">신부</text>'
     +'<path d="M172 32 q 0 -10 8 -12" stroke="'+G+'" stroke-width="1.2" fill="none"/>'
     +'<path d="M192 46 H 246" stroke="'+G+'" stroke-width="1.4" fill="none"/><path d="M246 46 l -7 -4 v 8 z" fill="'+G+'"/>'
     +'<circle cx="272" cy="46" r="11" fill="none" stroke="'+A+'" stroke-width="1.6"/><text x="272" y="74" text-anchor="middle" font-size="'+F+'" fill="'+A+'">신랑</text>'
-    +'<text x="160" y="108" text-anchor="middle" font-size="10.5" fill="'+GD+'">입장의 끝에서 베일을 내리고, 신랑에게 손을 건네요</text>'
+    +'<text x="160" y="108" text-anchor="middle" font-size="10.5" fill="'+GD+'">문이 열리기 전, 베일을 내리고 손을 이어 줘요</text>'
     +'</svg>';
   }
   if(k==='ringwarm'){
@@ -682,6 +684,8 @@ var TUNE={
  declare:{n:'성혼 선언',c:'나레이션 · 하객 합송 · 가족 낭독 중 고를 수 있어요'},
  valley:{n:'사이 순서',c:'와인 세리머니 · 케이크 커팅을 살짝 더할 수 있어요'},
  toast:{n:'축배 · 케이크',c:'축배 · 케이크 · 둘 다 중 고를 수 있어요'},
+ song:{n:'축가',c:'가족·지인이 직접 부르거나, 어쿠스틱 라이브 연주로 대신할 수 있어요'},
+ flash:{n:'플래시 세리머니',c:'편지 낭독 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요'},
  letter:{n:'편지 낭독',c:'부모님께 · 서로에게, 누구에게 전할지 고를 수 있어요'},
  tribute:{n:'부모님 헌정',c:'꽃 · 큰절 · 포옹 중 어떻게 전할지 고를 수 있어요'},
  bless:{n:'부모님 덕담',c:'넣거나 빼고, 나레이션 대독도 가능해요'}
@@ -698,8 +702,10 @@ function rowVal(k){
    case 'declare': return DECLWHO[S.declareWho].d+(S.declareWho==='narr'?' · '+DECLARE[S.declare].d:'');
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
+   case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
+   case 'flash': return S.flash?'편지 때 하객 불빛':'없음';
    case 'tribute': return TRIBUTE.modes[S.tribute].d;
-   case 'letter': return LETTER[S.letter].d+(S.oyeolLetter?' · 오열 시 나레이션 대리':'');
+   case 'letter': return LETTER[S.letter].d+(S.oyeolLetter?' · 오열 시 나레이션 대리':'')+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
    case 'bless': return S.bless==='on'?('넣기'+(S.blessProxy?' · 나레이션 대독':'')):'빼기';
   }
   return '';
@@ -765,6 +771,7 @@ function renderStep(k){
     HOUSE.forEach(function(hh){
       h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>';
     });
+    h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.guestbook?'checked':'')+' onchange="settgl(\'guestbook\',this)"><span class="tk"></span>참여형 방명록(폴라로이드·메시지 카드)을 둘까요?</label>';
     h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요? (선택)</label><div class="wd" style="margin-top:7px">하객이 자리를 찾는 동안 두 분의 성장 영상을 상영해요. 식전에 배치해 본식 30분은 그대로예요. 켜면 영상 파일을 D-3까지 전달해 주세요. (편지 배경 영상으로도 쓸 수 있어요)</div></div>';
     h+='</div>';
     return h;
@@ -835,6 +842,7 @@ function renderStep(k){
   else if(k==='letter'){
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
     lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep+'.<br>'+LATER,RECO.letter===v); });
+    if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     h+='<div class="lenhint">한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
     h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true);
@@ -850,14 +858,14 @@ function renderStep(k){
   }
   else if(k==='veil'){
     h+=diag('veil');
-    h+=oc('veil','father','아버지가','입장의 끝, 아버지가 베일을 내리고 신랑에게 손을 건네요',VEIL.father.nar);
-    h+=oc('veil','mother','어머니가','어머니가 베일을 내려 주시는, 뭉클한 변주예요',VEIL.mother.nar);
-    h+=oc('veil','skip','생략','베일 다운 없이 바로 첫인사로 이어져요','');
-    if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">동작은 어렵지 않아요. 당일 전 리허설에서 저희가 함께 맞춰 드려요.</div>';
+    h+=oc('veil','mother','어머니가','문이 열리기 전, 어머니가 베일을 내리고 두 분의 손을 이어 줘요',VEIL.mother.nar);
+    h+=oc('veil','father','아버지가','아버지가 내려 주시는, 뭉클한 변주예요',VEIL.father.nar);
+    h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요 · 오버베일이 없는 드레스면 자연스럽게 이 구성이 돼요','');
+    if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">드레스 오버베일 여부는 저희가 미리 함께 확인하고, 동작은 리허설에서 맞춰 드려요. 어려우면 어머니 동반 입장으로 바꿔도 뭉클해요.</div>';
   }
   else if(k==='ringwarm'){
     h+=diag('ringwarm');
-    h+=oc('ringwarm','family','가족만','양가 가족의 손만 거쳐요 · 짧고 편안한 기본',RINGWARM.family.nar,null,null,'반지 주머니는 저희가 준비해요 · 하객은 나레이션 안내대로 옆으로 전달만 하면 돼요');
+    h+=oc('ringwarm','family','가족만','양가 가족의 손만 거쳐요 · 짧고 편안한 기본',RINGWARM.family.nar,null,null,'반지는 파우치에 고정해 분실 걱정이 없어요 · 진행은 나레이션이 먼저 설명하고, 하객은 옆으로 전달만 하면 돼요');
     h+=oc('ringwarm','all','하객 전체','스물다섯 분 모두의 축복을 담아요 · 약 2분 더',RINGWARM.all.nar,null,null,'모든 진행은 나레이션이 안내해요 · 하객이 헤맬 걱정은 없어요');
   }
   else if(k==='tribute'){
@@ -865,6 +873,10 @@ function renderStep(k){
       var m=TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'헌정용 꽃은 저희가 준비해요 · 추가 비용은 상담에서 안내드려요':null);
     });
+  }
+  else if(k==='song'){
+    h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,null,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
+    h+=oc('song','live','어쿠스틱 라이브 연주','저희가 연주자를 연결해요 · 추가 비용은 상담에서 안내드려요');
   }
   else if(k==='toast'){
     ['toast','cake','both'].forEach(function(v){
@@ -916,7 +928,7 @@ function applyCourse(v){
   S.declare=(v==='festive')?'2':'1';
   S.valley='none'; S.letter='parent';
   S.bless=(v==='family')?'on':'off';
-  S.veil='father'; S.ringwarm='family'; S.tribute='flower'; S.toast='toast';
+  S.veil='mother'; S.ringwarm='family'; S.tribute='flower'; S.toast='toast'; S.song='family'; S.flash=false; S.guestbook=false;
   S.tune={entry:true}; S.extra={}; S.house={};
   buildSteps();
 }
@@ -944,7 +956,7 @@ var BLOCK={
   },
   veil:function(){
     if(S.veil==='skip') return null;
-    return {n:'베일 다운',nar:VEIL[S.veil].nar,self:(S.veil==='father'?'아버지':'어머니')+'가 베일을 내리고 손을 건네요',cue:'입장의 끝 → '+(S.veil==='father'?'아버지':'어머니')+'가 베일을 내리고 두 손을 이어 주기 → 두 분이 단상 앞으로'};
+    return {n:'베일 다운',nar:VEIL[S.veil].nar,self:(S.veil==='father'?'아버지':'어머니')+'가 베일을 내리고 손을 건네요',cue:'문이 열리기 직전, 문 앞에서 베일을 내리고 두 손을 이어 주기 → 문이 열리고 함께 입장'};
   },
   welcome:function(){
     if(S.welcome==='nar') return {n:'환영·첫인사',nar:"먼 길 마다않고 이 자리를 찾아 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다. 오늘 이 순간을 함께 나눌 수 있다는 것만으로, 두 사람에게는 더없이 큰 선물입니다.",cue:'나레이션이 인사 → 두 분은 정면 응시'};
@@ -971,11 +983,14 @@ var BLOCK={
     if(S.valley==='cake') return {n:'케이크 커팅',nar:"오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.",cue:'멘트 흐르는 동안 → 함께 나이프 잡고 커팅 · 포즈'};
     return null;
   },
+  song:function(){
+    return {n:'축가',nar:"이제, 두 사람을 위해 준비된 노래가 있습니다. 잠시, 음악에 마음을 맡겨 주시기 바랍니다.",self:S.song==='live'?'어쿠스틱 라이브 연주(저희가 연결·추가 비용 안내)':'가족·지인이 직접 노래',cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
+  },
   toast:function(){
     return {n:'축배 · 케이크',nar:TOAST[S.toast].nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue};
   },
   letter:function(){
-    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:(S.oyeolLetter?'나레이션이 대신 낭독 · 오열 대비':'두 분이 직접 편지 낭독'),end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:(S.oyeolLetter?'나레이션 도입 끝 → 나레이션이 편지를 대신 낭독 (가장 감정적인 순간) · 두 분은 마주 보기':'나레이션 도입 끝 → 편지 꺼내 낭독 시작 (가장 감정적인 순간) · 다 읽으면 다음')};
+    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:(S.oyeolLetter?'나레이션이 대신 낭독 · 오열 대비':'두 분이 직접 편지 낭독'),end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+(S.oyeolLetter?'나레이션 도입 끝 → 나레이션이 편지를 대신 낭독 (가장 감정적인 순간) · 두 분은 마주 보기':'나레이션 도입 끝 → 편지 꺼내 낭독 시작 (가장 감정적인 순간) · 다 읽으면 다음')};
   },
   tribute:function(){
     return {n:'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
@@ -1003,7 +1018,7 @@ function estMin(){
   if(inSeq('ringwarm') && S.ringwarm==='all') m+=2;
   if(inSeq('toast') && S.toast==='both') m+=2;
   if(inSeq('letter') && S.letter==='both') m+=2;
-  var XM={welcome:1,letter:3,bless:2,valley:0};
+  var XM={welcome:1,letter:3,bless:2,valley:0,song:3};
   Object.keys(S.extra).forEach(function(k){ if(S.extra[k]) m+=(XM[k]!==undefined?XM[k]:1); });
   if(S.extra.valley && S.valley!=='none') m+=3;
   return '약 '+m+'분';
@@ -1024,8 +1039,9 @@ function prep(){
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
   if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','환영 인사말 준비']);
   if(S.declareWho==='family') p.push(['D-14','성혼 선언 낭독하실 가족께 부탁']);
-  if(inSeq('veil') && S.veil!=='skip') p.push(['D-14','베일 다운 하실 분께 미리 말씀 (동작은 리허설서 함께)']);
-  if(S.growth==='on') p.push(['D-3','성장영상 파일 전달']);
+  if(inSeq('veil') && S.veil!=='skip'){ p.push(['D-14','베일 다운 하실 분께 미리 말씀 (동작은 리허설서 함께)']); p.push(['D-14','드레스 오버베일 여부 확인 (저희가 함께 챙겨요)']); }
+  if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
+  if(S.growth==='on') p.push(['D-3','성장영상 링크 전달']);
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
   return p;
 }
@@ -1065,6 +1081,7 @@ function summaryRows(){
       var hn=HOUSE.filter(function(hh){return S.house[hh[0]];}).map(function(hh){return hh[1];});
       if(hn.length) rows.push(['식전 안내 멘트', hn.join(' · '), 'guest']);
       if(S.growth==='on') rows.push(['식전 성장영상', '상영', 'guest']);
+      if(S.guestbook) rows.push(['참여형 방명록', '폴라로이드 · 메시지 카드', 'guest']);
     }
   });
   return rows;
@@ -1111,7 +1128,7 @@ function renderDone(){
   prep().forEach(function(p){ h+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
   h+='</div>';
   h+='<div class="special" onclick="alert(\'목록에 없는 특별한 순서도 상담 때 함께 만들 수 있어요. 원하시면 디렉터에게 편하게 말씀해 주세요.\')">목록에 없는 특별한 순서를 원하시나요?<br>상담 때 함께 만들 수 있어요.</div>';
-  h+='<div class="note">저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요.<br>예식 2주 전(D-14)까지 언제든 고칠 수 있어요.</div>';
+  h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.<br>저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요. 예식 2주 전(D-14)까지 언제든 고칠 수 있어요.</div>';
   h+='<div class="banner" style="text-align:center">내부 미리보기 시안 · '+esc(COURSES[S.course].nm)+' 코스</div>';
   return h;
 }
