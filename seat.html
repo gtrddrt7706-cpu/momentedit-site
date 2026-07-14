@@ -100,9 +100,9 @@ function render(seat){
   var L='', R='', li=0, ri=0;
   tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++,num[i]); else L+=tblCard(t,i,li++,num[i]); });
   var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
-    +'<div class="col"><div class="colh">좌측</div>'+(L||'<div class="colh">—</div>')+'</div>'
+    +'<div class="col"><div class="colh">좌측</div>'+(L||'')+'</div>'
     +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
-    +'<div class="col"><div class="colh">우측</div>'+(R||'<div class="colh">—</div>')+'</div></div>';
+    +'<div class="col"><div class="colh">우측</div>'+(R||'')+'</div></div>';
   $('root').innerHTML =
     '<div class="card">'
     +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'

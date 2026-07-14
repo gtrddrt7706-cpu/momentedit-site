@@ -812,7 +812,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.46);height:calc(var(--rt,150px)*0.46);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold);box-shadow:0 1px 3px rgba(58,45,34,.12)}   /* 테이블 번호 원판 — 크림 원판+골드 링(진사 숫자) */
     .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
     .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:calc(var(--rt,150px)*0.155);font-weight:500;color:#6B2A24;line-height:1;padding:0;pointer-events:none;z-index:1}   /* 테이블 번호 — 크림 원판 위 진사 숫자(또렷한 명조체 숫자) */
-    .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px}
+    .rt-c.rt-cbtn{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}   /* 번호를 탭하면 테이블 이름 편집 — 구 커스텀 이름 확인·수정 경로(seat.html·관리자에 노출되는 값) */
+    .rt-cnm{font-size:9px;font-weight:400;color:var(--sub);max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+    .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px;z-index:2}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
     .rs{position:relative;max-width:74px;overflow:visible;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
@@ -4009,7 +4011,15 @@ function collectSeats(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
 }
 function saveSeat(done){ return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done}); }
-function exitSeatFlow(){ SEATFLOW.active=false; show('loading'); saveSeat(false).then(function(){ loadMyState(); }).catch(function(){ loadMyState(); }); }
+function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
+  SEATFLOW.active=false; show('loading');
+  var _fail=function(msg){
+    SEATFLOW.active=true; show('mypageView'); renderSeat($('mp_production'));   // 편집 화면 복원(입력 보존)
+    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitSeatFlow(); } else { SEATFLOW.active=false; show('loading'); loadMyState(); } });
+  };
+  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } loadMyState(); }).catch(function(){ _fail(''); });
+}
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
 function seatSharePanelHtml(token){
   var url=seatUrl(token);
@@ -4053,13 +4063,18 @@ function renderSeat(box){
       else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 이름 있는 자리만(구 데이터의 고아 음료가 빈자리에 떠서 집계와 어긋나는 것 방지)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
-    var center = '<span class="rt-c">'+(dispNo||(ti+1))+'</span>';   // 중앙엔 행 순서 번호(검은색)
+    // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
+    var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
+    var center = isEd(ti,'name')
+      ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
+      : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+(_hasCn?'<span class="rt-cnm">'+escapeHtml(_cn)+'</span>':'')+'</button>';
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
     return '<div class="rt-wrap" style="'+tx+'">'
       +'<div class="rt" style="transform:translateX(var(--tx,0))">'+seats+center+'</div>'
       +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
+        +'<button type="button" class="rt-mini" data-seat-move="'+ti+'" title="좌우 이동">'+(t.side==='R'?'←':'→')+'</button>'
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
       +'</div></div>';
   }
@@ -4100,31 +4115,32 @@ function renderSeat(box){
   box.style.display='block';
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
-  // 편집 중이면 해당 입력에 포커스(캐럿 끝으로)
+  // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
-    // 편집 '진입'일 때만 전체 선택(이름 바꾸기 편하게). 음료 칩으로 인한 재렌더면 캐럿을 끝으로 → 입력 중 이름이 다음 타이핑에 지워지지 않게
-    if(SEATFLOW._dkRe){ SEATFLOW._dkRe=false; try{ var _v=ei.value; ei.value=''; ei.value=_v; }catch(e){} }
-    else { try{ ei.select(); }catch(e){} }
-    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시) · Esc=취소
-    ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit) renderSeat(box); },0); });   // ★포커스 벗어나면(배경·다른 자리·키보드 닫힘 등 무엇이든) 무조건 확정 — 가장 확실. 다른 자리 탭이면 그 핸들러가 이미 편집 전환하므로 !edit일 때만 렌더
+    if(SEATFLOW._edNew && !SEATFLOW._dkRe){ SEATFLOW._edNew=false; try{ ei.select(); }catch(e){} }
+    else { SEATFLOW._edNew=false; try{ var _v=ei.value; ei.value=''; ei.value=_v; }catch(e){} }
+    SEATFLOW._dkRe=false;
+    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing&&ev.keyCode!==229){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시·229 백스톱) · Esc=취소
+    // blur=확정. 단, 재렌더는 200ms 지연 + '아직 아무도 재렌더 안 했을 때만'(ei.isConnected) — 0ms 즉시 렌더가 mousedown~mouseup 사이 DOM을 갈아치워 다른 버튼의 첫 탭을 삼키던 문제 방지
+    ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });
   }
 }
 function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-savedraft],[data-seat-done],[data-drink]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
-    if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; SEATFLOW._edNew=true; renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var mv=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[mv]) SEATFLOW.tables[mv].side=(SEATFLOW.tables[mv].side==='R')?'L':'R'; renderSeat(box); return; }   // 좌우 이동 복원 — 삭제·재입력 없이 재배치(이름·음료 보존)
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; if(tl&&tl.seats.length>1){ tl.seats.pop(); if(tl.drinks) tl.drinks.pop(); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=true; renderSeat(box); } return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
-    if(el.hasAttribute('data-seat-savedraft')){ commitSeatEdit(box); var b1=el; b1.textContent='저장 중…'; b1.disabled=true; saveSeat(false).then(function(){ b1.textContent='저장됐어요'; setTimeout(function(){ if(b1.isConnected){ b1.textContent='임시 저장'; b1.disabled=false; } },1400); }).catch(function(){ b1.textContent='임시 저장'; b1.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); }); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
       var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
@@ -4137,7 +4153,7 @@ function bindSeat(box){
   var _dkKeepFocus=function(e){ var c=e.target&&e.target.closest?e.target.closest('[data-drink]'):null; if(c) e.preventDefault(); };
   box.addEventListener('pointerdown', _dkKeepFocus);
   box.addEventListener('mousedown', _dkKeepFocus);
-  box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'){ e.preventDefault(); e.target.blur(); } });
+  box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); e.target.blur(); } });   // 백스톱 — 한글 조합 중 Enter는 무시(입력 위 가드와 동일 기준 · 조합 중 blur로 마지막 글자 유실 방지)
   box.addEventListener('blur', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')) commitSeatEdit(box); }, true);
 }
 
@@ -4200,12 +4216,12 @@ function bindTrk(box, render, collect, opt){
   // [찜] 별표 토글(카드 선택과 분리 — span role=button: label 활성화 전달 안 받음 + stopPropagation) · 재렌더 후 앵커 기준 스크롤 유지(튐 방지)
   var _dnFindByAttr=function(attr,val){ var all=box.querySelectorAll('['+attr+']'); for(var i=0;i<all.length;i++){ if(all[i].getAttribute(attr)===val) return all[i]; } return null; };
   var _dnRerenderKeep=function(find){ var a=find(), top=a?a.getBoundingClientRect().top:null; render(box); if(top!=null){ var b2=find(); if(b2){ var dl=b2.getBoundingClientRect().top-top; if(dl) window.scrollBy(0,dl); } } };
-  var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ fn(e); } }); };
+  var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ fn(e); } }); };   // e.repeat 가드 — 키 꾹 누름 자동반복이 토글·POST·재렌더를 연사하지 않게
   Array.prototype.forEach.call(box.querySelectorAll('[data-favcard]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favcard'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favcard',_n); }); }); });   // 카드 전체 = 담기 토글
   // 가볼 곳(볼거리) 카드도 눌러서 담기 — 단, 카드 안 '지도' 링크 클릭은 담기로 안 먹게(링크 우선)
   Array.prototype.forEach.call(box.querySelectorAll('[data-favattr]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favattr'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favattr',_n); }); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; if(_dnFavToggle(d3,{n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:p.phone||'',url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:'kakao'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favp',_pi); }); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); _dnRerenderKeep(function(){ return box.querySelector('.dn-favbox')||box.querySelector('.dn-head'); }); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); _dnRerenderKeep(function(){ return box.querySelector('.dn-agg')||box.querySelector('.dn-aggspots')||box.querySelector('.dn-head'); }); }); });   // 앵커=현 취합 뷰 기준(.dn-favbox는 옛 step0 박스라 이제 없음)
   var _fsh=$('dn_favShare'); if(_fsh){ _fsh.addEventListener('click',function(){
     var txt=_dnFavShareText(TRKFLOW.draft);
     var done=function(){ _fsh.textContent='복사됐어요 · 카톡에 붙여넣기 해주세요'; setTimeout(function(){ _fsh.textContent='카카오톡·문자로 목록 보내기'; },2200); };
@@ -4238,7 +4254,8 @@ function bindTrk(box, render, collect, opt){
             d2._aiNoRes=false;   // 새 응답 도착 — 지난 '못 찾음' 제안 상태 해제
             var say=(r.reply||'')+(r.ask?(' '+r.ask):'');
             d2._chat=d2._chat.concat([{role:'assistant',content:say}]).slice(-10);
-            if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters); }
+            if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters);
+              if(r.filters.theme){ delete d2._filters.noCafe; if(r.filters.theme==='cafe') delete d2._filters.al; } }   // AI는 al·noCafe(프리셋 전용 키)를 못 다루므로, AI가 컨셉(theme)을 새로 잡으면 충돌 키를 해제 — '카페 가고 싶어요'가 잔존 al:yes에 걸려 0곳 되는 문제 방지
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
             else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒷풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
@@ -4401,7 +4418,7 @@ function _dnFavHas(d,nm){ var f=d._favs||[]; for(var i=0;i<f.length;i++){ if(f[i
 function _dnFavToggle(d,snap){
   var f=d._favs||[], i=-1;
   for(var k=0;k<f.length;k++){ if(f[k].n===snap.n){ i=k; break; } }
-  if(i>=0) f.splice(i,1);
+  if(i>=0){ f.splice(i,1); if(d.venuePick===snap.n){ d.venuePick=''; d.venue=''; } }   // 대표(여기로 예약)로 지정됐던 곳을 빼면 예약처 지정도 함께 해제 — 삭제한 식당이 예약 장소로 계속 저장·표시되던 버그 방지
   else { if(f.length>=10){ mpAlert('10곳까지 담을 수 있어요. 한 곳을 빼고 담아 주세요.'); return false; } f.push(snap); }
   d._favs=f; return true;
 }
@@ -4487,7 +4504,7 @@ function dineFilterUI(d, wt){
   list.sort(function(a,b){ if(!!b.pick!==!!a.pick) return a.pick?-1:1; if(bigGroup){ var cs=_capScore(a)-_capScore(b); if(cs) return cs; } if(a.eld!==b.eld) return a.eld?-1:1; if(a.v!==b.v) return a.v?-1:1; return a.d-b.d; });
   // 카드는 상위 8곳만 먼저 — 전체는 버튼으로(59곳 일괄 나열 방지). 이미 고른 곳이 잘리면 자동 전체 표시.
   var CAP=8, showAll=DN_UI.all;
-  if(!showAll && d.venuePick){ for(var ci=CAP;ci<list.length;ci++){ if(list[ci].n===d.venuePick){ showAll=true; break; } } }
+  if(!showAll && (d.venuePick || (d._favs&&d._favs.length))){ for(var ci=CAP;ci<list.length;ci++){ if(list[ci].n===d.venuePick || _dnFavHas(d,list[ci].n)){ showAll=true; break; } } }   // 담은 곳(_favs)이 상위 8곳 밖이면 자동 전체 표시 — 재진입 시 담은 카드가 안 보이던 문제
   var shown=(showAll||list.length<=CAP+2)?list:list.slice(0,CAP);
   var cards = list.length ? shown.map(function(r){
     var meta='차'+r.d+'분 · '+_DN_PRICE[r.p]+(r.f&&r.f.length?' · '+r.f.join('·'):'');
@@ -4572,7 +4589,15 @@ function renderDining(box){
   if(!d.venuePick) d.venuePick = d.venue || ((d.partner==='직접 섭외할게요'||d.partner==='상담 때 함께 정할게요')?d.partner:'');
   function syncVenue(){
     if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요' && d.venuePick!=='다이닝 없이 진행할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
-    else { d.venue=''; if(d.venuePick) d.partner=d.venuePick; }
+    else {
+      d.venue='';
+      if(d.venuePick) d.partner=d.venuePick;
+      else {   // 대표 미지정: 담아 둔 식당 후보가 있으면 관리자 화면에도 보이게 partner에 표시(운영자가 '아무것도 안 정한 고객'으로 오인해 헛접근하는 일 방지)
+        var _rn=(d._favs||[]).filter(function(v){return v&&v.src!=='attr';}).length;
+        if(_rn) d.partner='후보 '+_rn+'곳 비교 중';
+        else if(/^후보 \d+곳 비교 중$/.test(String(d.partner||''))) d.partner='';   // 후보를 다 비웠으면 우리가 쓴 표시만 정리(레거시 partner 값은 보존)
+      }
+    }
   }
   function collect(){
     // (정리 2026-06-16) dn_aiText·trk_agree 읽기 제거 — 현재 UI에 없는 옛 엘리먼트라 _aiText·entrustAgree가 늘 비어 있던 죽은 코드(어디서도 안 읽힘).
@@ -4587,6 +4612,10 @@ function renderDining(box){
         ;   // 하단 고정 옵션(직접 섭외·상담 때·다이닝 없이) 제거 — 식당 카드만(2026-06-13 사용자 지시). 옛 저장값은 아래 분기로 계속 표시.
     var _favN0=(d._favs||[]).length;   // 찜한 곳 수 → '다음' 라벨을 '취합' 신호로(여러 곳 골랐음을 확인시켜 다음 페이지 취합 기대 형성)
     var _nextLbl=_favN0?('담은 '+_favN0+'곳 정리하기'):'다음';
+    // '꼭 정하지 않으셔도 괜찮아요' 약속 이행 — 아무것도 안 담은 부부가 트랙을 완료할 출구('다이닝 없이' 옵션은 2026-06-13에 카드 목록에서 빠졌지만 완료 경로는 있어야 함)
+    if(!_favN0 && !String(d.venuePick||'').trim()){
+      body+='<div style="text-align:center;margin-top:16px"><button type="button" class="cc-btn-ghost" id="dn_skip" style="width:auto;padding:9px 18px;font-size:12px">이번엔 다이닝 없이 마무리할게요</button></div>';
+    }
     box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒷풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
     bindTrk(box,renderDining,collect,{
@@ -4608,6 +4637,7 @@ function renderDining(box){
         go();
       }
     });
+    var _dnsk=$('dn_skip'); if(_dnsk){ _dnsk.addEventListener('click',function(){ collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N'; saveTrkDraft(false); TRKFLOW.step=1; renderDining(box); }); }   // 안내 없이 진행 → step1 '없이 진행' 완료 화면으로
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
       box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
