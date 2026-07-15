@@ -125,6 +125,11 @@ function buildLedgerState(r) {
     // 시그: 예약금은 상담 예약 시 이미 결제됨 → 항상 '결제 완료'(입금상태는 계약금 충당 확인용 내부값이라, 그대로 '대기'로 보이면 또 내야 하는 줄 오해). 스냅: 계약금은 계약 시 결제 → 입금상태 그대로.
     if (isSnap) payments.push({ key: '예약금', label: '계약금', amount: amounts['계약금'], status: st(r.get('입금상태')), done: depConfirmed });
     else payments.push({ key: '예약금', label: '예약금', amount: PAYMENT.예약금, status: '결제 완료', done: true });
+    // [정합] 시그 '계약금 잔액'(계약금 - 예약금 충당분 · 계약 시 실입금) 행 — 이게 빠져 행 합계가 총액과 어긋나고 진행률이 과소였음. 입금상태가 이 금액의 확인 상태.
+    if (!isSnap) {
+      var _ctrRemain = Math.max(0, Number(amounts['계약금'] || 0) - Number(PAYMENT.예약금 || 0));
+      if (_ctrRemain > 0) payments.push({ key: '계약금', label: '계약금 잔액', amount: _ctrRemain, status: st(r.get('입금상태')), done: depConfirmed });
+    }
     if (!isSnap) payments.push({ key: '중도금', label: '중도금', amount: amounts['중도금'], status: st(r.get('중도금상태')), done: String(r.get('중도금상태') || '').trim() === '확인',
       dueLabel: _midDueLabelFor(r), dueDate: _midDueDateFor(r) });   // 납부 기한 인지용(미납 행에만 표시) · 임박 계약(기한 과거)이면 '계약 시 함께 납부'
     var _bx = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(r) : { amount: 0 };   // 최종확정 인원 추가 요금 — 잔금과 단일 출처

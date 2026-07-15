@@ -1203,7 +1203,18 @@ function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); }catch(e){} }
 // 마지막 getMyState 스냅샷 캐시 — 재방문 시 즉시 표시(stale-while-revalidate). 토큰에 묶고, 로그아웃/만료 시 자동 폐기.
 var STATE_CACHE_KEY = 'me_state_v1';
-function cacheState(d){ try{ localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:d })); }catch(e){} }
+function cacheState(d){ try{
+  // 빠른 첫 페인트 캐시엔 대용량 base64(시착 서명·쿠폰 바코드)를 제외 — localStorage 5MB 쿼터 초과로 캐시가 조용히 죽던 문제.
+  //   라이브 응답에는 그대로 있고, 캐시 페인트 상태에서 문서를 열면 뷰어의 1회 조회 폴백(getSignature)이 채움.
+  var c=d;
+  try{
+    var _big=(d&&d.ledger&&d.ledger.documents&&d.ledger.documents.some(function(x){return x&&x.sig;}))||(d&&d.coupon&&d.coupon.images&&d.coupon.images.length);
+    if(_big){ c=JSON.parse(JSON.stringify(d));
+      if(c.ledger&&c.ledger.documents) c.ledger.documents.forEach(function(x){ if(x&&x.sig) x.sig=''; });
+      if(c.coupon) c.coupon=null; }
+  }catch(e){ c=d; }
+  localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:c }));
+}catch(e){} }
 function readCachedState(){ try{ var c=JSON.parse(localStorage.getItem(STATE_CACHE_KEY)||'null'); if(c && c.t && c.t===getToken() && c.d) return c.d; }catch(e){} return null; }
 function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'; el.classList.add('show'); } }
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
@@ -1377,8 +1388,14 @@ function renderMyPage(d){
     var _comboPending = (d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed
                          && d.midpayment.dday != null && d.midpayment.dday <= 9);
     if (d.stage === '입금완료' && _comboPending) {
-      head = '중도금·잔금을 입금해 주세요';
-      sub  = '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';
+      // '완료신호'(입금 신고 후 관리자 확인 대기)면 독촉 대신 확인중 안내 — 이미 보낸 고객에게 '입금해 주세요'를 띄워 이중 입금을 유도하던 자기모순 방지
+      if (d.midpayment.status === '완료신호' && d.balance.status === '완료신호') {
+        head = '중도금·잔금 입금을 확인하고 있어요';
+        sub  = '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';
+      } else {
+        head = '중도금·잔금을 입금해 주세요';
+        sub  = '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';
+      }
     }
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
     else if (d.production && d.stage === '입금완료') {
@@ -2618,13 +2635,13 @@ function renderBalance(p, mid){
   if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   // 중도금도 함께 입금신호(같이 입금) → 중도금 카드가 '중도금·잔금 입금 확인 중'으로 통합 표시 → 잔금 카드는 숨김(중복 방지)
   if(p.status==='완료신호' && mid && mid.status==='완료신호' && !mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }
-  var midUnpaid = !(mid && mid.confirmed);
-  // 중도금 미확인 + D-7 이내 = 중도금 카드에서 '중도금·잔금 합계'로 흡수 → 잔금 별도 숨김(이미 잔금 신호면 유지)
-  if(midUnpaid && p.status!=='완료신호' && p.dday!=null && p.dday<=9){ box.style.display='none'; box.innerHTML=''; return; }
+  // '중도금 카드가 흡수'는 중도금 카드가 실제로 존재할 때만 성립 — 웨딩스냅(중도금 없음·mid=null)은 여기서 숨기면 기한 구간(D-9~)에 잔금 카드가 통째로 사라지던 버그
+  var midAbsorb = !!(mid && !mid.confirmed);
+  if(midAbsorb && p.status!=='완료신호' && p.dday!=null && p.dday<=9){ box.style.display='none'; box.innerHTML=''; return; }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||'예식 9일 전');
-  var near=(p.dday!=null && p.dday<=15 && !midUnpaid);   // 중도금 확인 후 + D-15 이내에만 자동 펼침(그 전엔 접힘 유지)
+  var near=(p.dday!=null && p.dday<=15 && !midAbsorb);   // (중도금 카드가 흡수 중이 아닐 때) D-15 이내 자동 펼침 — 스냅도 기한 임박 시 펼쳐지게
   var body='', cta='';
   if(p.status==='완료신호'){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';

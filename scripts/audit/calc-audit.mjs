@@ -132,9 +132,11 @@ function led(extra) {
   }, extra || {})));
 }
 const lg1 = led();
-check('F1 일반 원장 키', lg1.map((x) => x.key), ['예약금', '중도금', '잔금']);
+// (2026-07-15 정합) 시그 원장에 '계약금 잔액'(계약금 280,000 - 예약금 100,000 = 180,000 · 계약 시 실입금) 행 추가 — 현금영수증 의무발급 누락 수정 반영
+check('F1 일반 원장 키', lg1.map((x) => x.key), ['예약금', '계약금', '중도금', '잔금']);
 check('F2 예약금 발급 대상·금액', [lg1[0].target, lg1[0].amount, lg1[0].confirmed], ['01012345678', 100000, true]);
-check('F3 중도금·잔금 금액', [lg1[1].amount, lg1[2].amount], [1120000, 1400000]);
+check('F2b 계약금 잔액 금액·확인', [lg1[1].amount, lg1[1].confirmed], [180000, true]);
+check('F3 중도금·잔금 금액', [lg1[2].amount, lg1[3].amount], [1120000, 1400000]);
 const lgCombo = led({ 중도금상태: '확인', 잔금상태: '확인', 중도금확인일시: '2026-06-01 10:00', 잔금확인일시: '2026-06-01 10:00' });
 check('F4 같은 확인일시 → 중도금·잔금 합산 1건', (function () { const c = lgCombo.find((x) => x.key === '중도금잔금'); return c ? c.amount : 'none'; })(), 2520000);
 check('F5 합산 시 개별 중도금/잔금 행 없음', lgCombo.filter((x) => x.key === '중도금' || x.key === '잔금').length, 0);
