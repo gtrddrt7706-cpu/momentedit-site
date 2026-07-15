@@ -169,6 +169,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
+.tcap{margin-left:auto;flex-shrink:0;font-size:10.5px;color:var(--gold-deeper);background:#FBF8F2;border:1px solid #F0E7D7;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
 .flowst{display:flex;align-items:center;gap:7px;margin:2px 0 12px;font-size:11.5px;color:var(--light);flex-wrap:wrap}
 .flowst .fs-c{font-weight:700;color:#FFFDF9;background:var(--gold-deeper);border-radius:20px;padding:3px 11px;font-size:11.5px;letter-spacing:.01em}
 .flowst .fs-p{opacity:.75}
@@ -870,6 +871,16 @@ var TUNE={
  tribute:{n:'부모님 헌정',c:'꽃 · 큰절 · 포옹 중 어떻게 전할지 고를 수 있어요'},
  bless:{n:'부모님 덕담',c:'넣거나 빼고, 나레이션 대독도 가능해요'}
 };
+var TCAP={guest:'방식 선택',entry:'멘트 선택',veil:'넣고 빼기',welcome:'예시 확인',vow:'오열 대비 선택',ringwarm:'범위 선택',ring:'넣고 빼기',declare:'낭독 주체 선택',valley:'넣고 빼기',toast:'방식 선택',song:'방식 선택',letter:'대상 선택',tribute:'방식 선택',bless:'넣고 빼기'};
+var OFFTGL={ring:1,bless:1,veil:1,valley:1};
+function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
+window.quickOff=function(k){
+  if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
+  else if(k==='bless') S.bless=(S.bless==='on')?'off':'on';
+  else if(k==='veil') S.veil=(S.veil==='skip')?'mother':'skip';
+  else if(k==='valley') S.valley=(S.valley==='none')?'wine':'none';
+  render(); toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
+};
 function rowVal(k){
   switch(k){
    case 'guest': return S.guestVoice==='couple'?'두 분 목소리':'전문 나레이션';
@@ -904,9 +915,10 @@ function renderStep(k){
       var t=TUNE[x]; if(!t) return;
       var on=!!S.tune[x];
       h+='<div class="oc'+(on?' on':'')+'" onclick="tuneTgl(\''+x+'\')">';
-      h+='<div class="oc-nm">'+esc(t.n)+'</div>';
+      h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">'+(TCAP[x]||'선택')+'</span></div>';
       h+='<div class="oc-desc">추천 · '+esc(rowVal(x))+'</div>';
       h+='<div class="oc-desc" style="margin-top:3px">'+esc(t.c)+'</div>';
+      if(OFFTGL[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'이 순서 빼기':'이 순서 넣기')+'</button>';
       h+='</div>';
     });
     var opts=(COURSES[S.course].opt||[]).filter(function(o){return !S.extra[o.k];});
