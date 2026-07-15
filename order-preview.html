@@ -166,6 +166,16 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rowbtn.up{background:#F6F2EA}
 .rowbtn:active{transform:scale(.97)}
 .rowbtn.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
+.mc{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.18s;margin-bottom:11px}
+.mc.off{opacity:.6;background:#FAFAF8}
+.mc.open{border-color:var(--seal)}
+.mc-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mc-t{font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px;word-break:keep-all;min-width:0}
+.mc-s{font-size:12px;color:var(--light);margin-top:5px}
+.mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
+.mc.open .mc-chev{transform:rotate(90deg)}
+.mc-x{margin-top:11px}
+.mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
 .upst{font-size:11px;color:var(--light)}
 .upst.done{font-size:10px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
 .play-lnk{background:none;border:none;padding:8px 2px;font-family:var(--sans);font-size:12px;color:var(--gold-deeper);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
@@ -541,6 +551,7 @@ function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function narBox(t,end){return '<div class="nar"><span class="lb">전문 나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 var ICO_PLAY='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M8 5v14l11-7z"/></svg>';
 var ICO_UP='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19V7M6 13l6-6 6 6"/></svg>';
+var ICO_PLUS='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>';
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
 var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
 function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }
@@ -948,25 +959,20 @@ function renderStep(k){
     _disp.forEach(function(d){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
-      if(d.off){
-        h+='<div class="oc trow off" onclick="tprev(\''+x+'\')">';
-        h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">지금은 빠져 있어요</span></div>';
-        h+='<div class="oc-desc">'+esc(t.c)+'</div>';
-        if(_why) h+='<div class="oc-desc" style="margin-top:3px;color:var(--gold-deeper)">'+esc(_why)+'</div>';
-        h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">더하기</button>';
-        if(_tprev===x){ var pv2=clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요'+(MOMENT[x]?'<br><span style="color:var(--gold-deeper)">'+esc(MOMENT[x].t)+'</span>':'')+'</div></div>'; h+=pv2; }
+      var _off=d.off||(OFFTGL[x]&&!momOn(x));
+      var _open=(_tprev===x);
+      h+='<div class="mc trow'+(_off?' off':'')+(_open?' open':'')+'" onclick="tprev(\''+x+'\')">';
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div><span class="mc-chev">›</span></div>';
+      if(!_off && !OFFTGL[x]) h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
+      if(_open){
+        h+='<div class="mc-x">';
+        h+='<div class="mc-desc">'+esc(t.c)+(_why?' · '+esc(_why):'')+'</div>';
+        h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
+        if(d.off) h+='<button class="rowbtn up" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'이 자리에 넣기</button>';
+        else if(S.extra[x]) h+='<button class="rowbtn" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
+        else if(OFFTGL[x]) h+='<button class="rowbtn" style="margin-top:10px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'다시 넣기')+'</button>';
         h+='</div>';
-        return;
       }
-      var _off=(OFFTGL[x]&&!momOn(x));
-      h+='<div class="oc trow'+(_off?' off':'')+'" onclick="tprev(\''+x+'\')">';
-      h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>';
-      if(!_off && !OFFTGL[x]) h+='<div class="oc-desc">지금 · '+esc(rowVal(x))+'</div>';
-      h+='<div class="oc-desc" style="margin-top:3px">'+esc(t.c)+'</div>';
-      if(S.extra[x]&&_why) h+='<div class="oc-desc" style="margin-top:3px;color:var(--gold-deeper)">'+esc(_why)+'</div>';
-      if(S.extra[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">다시 빼기</button>';
-      else if(OFFTGL[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'빼기':'다시 넣기')+'</button>';
-      if(_tprev===x){ var pv=clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요'+(MOMENT[x]?'<br><span style="color:var(--gold-deeper)">'+esc(MOMENT[x].t)+'</span>':'')+'</div></div>'; h+=pv; }
       h+='</div>';
     });
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
