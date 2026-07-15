@@ -43,11 +43,10 @@ function handleSaveProductionBase(body) {
     var email = String((cust.get('이메일') || (draft.base && draft.base.email) || '')).trim();
     // 예식 일시도 폼에서 받지 않는다 — 계약 확정값(예식일 톱레벨 + 계약 슬롯→본예식 +1h)을 서버가 채움(청첩장·식순 단일 기준)
     var wDate = _ymdOf(cust.get('예식일')) || String((draft.base && draft.base.weddingDate) || base.weddingDate || '').trim();
-    var wTime = String((draft.base && draft.base.weddingTime) || base.weddingTime || '').trim();
-    if (!wTime) {
-      var _ci0 = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
-      wTime = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci0.weddingTime || '').trim()] || '';
-    }
+    // [승자 통일] 예식시간 = 계약 슬롯 매핑 우선(마이페이지 표시와 동일 기준) · 저장된 base는 폴백 — 구버전 폼 잔존값이 청첩장·식순에 옛 시간을 찍던 문제 방지
+    var _ci0 = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
+    var _ctrT0 = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci0.weddingTime || '').trim()] || '';
+    var wTime = _ctrT0 || String((draft.base && draft.base.weddingTime) || base.weddingTime || '').trim();
     draft.base = {
       groomKo: groomKo,
       brideKo: brideKo,
@@ -81,16 +80,18 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
   var bEn = String(iv.brideEn || b.brideEn || '').trim();
   var email = String((cust.get('이메일') || b.email || '')).trim();
   var wDate = _ymdOf(cust.get('예식일')) || String(b.weddingDate || '').trim();
-  var wTime = String(b.weddingTime || '').trim();
-  if (!wTime) {
-    var _ci = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
-    wTime = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci.weddingTime || '').trim()] || '';
-  }
+  // [승자 통일] 예식시간 = 계약 슬롯 매핑 우선 · 저장값 폴백(위 handleSaveProductionBase와 동일 기준)
+  var _ci = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
+  var _ctrT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci.weddingTime || '').trim()] || '';
+  var wTime = _ctrT || String(b.weddingTime || '').trim();
   prodDraft.base = { groomKo: gKo, brideKo: bKo, groomEn: gEn, brideEn: bEn, email: email, weddingDate: wDate, weddingTime: wTime, savedAt: fmtKST(new Date()) };
   return prodDraft.base;
 }
 
 // [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(착석 25 · 초과는 스탠딩 1인 50,000원 · 최대 30명)
+// ★단일 출처는 여기(실청구·검증). 값 변경 시 아래 5곳의 문구·상수도 반드시 함께 동기화(놓치면 계약서·안내와 청구액이 충돌):
+//   ① mypage.html MP_FINAL_POLICY(표시 기본값 · 서버 finalPolicy가 덮음) ② contract/v1-1.html 8조 법문구(고객이 서명하는 문서)
+//   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
 var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
 
 // [03] 다이닝·식순·최종확정 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.

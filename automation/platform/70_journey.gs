@@ -591,11 +591,13 @@ function expireUnsignedContracts() {
   if (!cCol || !sentCol) return 0;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   var n = 0, nowMs = Date.now();
+  var _expList = [], _codeCol = colOf['개인코드'], _nmCol = colOf['신랑이름'];   // 파기 대상 목록(관리자 알림용)
   for (var i = 0; i < vals.length; i++) {
     if (String(vals[i][cCol - 1] || '').trim() !== '발송') continue;
     var sentAt = _parseKstStr(vals[i][sentCol - 1]);
     if (!sentAt || nowMs <= sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) continue;
     var rowNum = P.DATA_START_ROW + i;
+    _expList.push(String((_codeCol ? vals[i][_codeCol - 1] : '') || '') + (_nmCol ? ('(' + String(vals[i][_nmCol - 1] || '') + ')') : ''));
     var upd = { '계약상태': '미발송', '계약서링크': '', '계약서발송일시': '' };
     if (histCol) {
       var prevHist = String(vals[i][histCol - 1] || '');
@@ -606,6 +608,9 @@ function expireUnsignedContracts() {
     n++;
   }
   Logger.log('expireUnsignedContracts: ' + n + '건 파기');
+  // [데드엔드 방지] 파기는 고객 화면을 '계약서 준비 중'으로 되돌리므로, 관리자가 몰라서 재발송이 늦으면 양쪽 무기한 대기.
+  //   파기 발생 시 관리자 메일 1통(대상 코드·이름) — 재발송 여부를 바로 판단하게. (관리자 알림=메일 전용 규칙 · _nfAdminLineEmail)
+  if (n > 0) { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('계약서 서명기한 경과 자동 파기 ' + n + '건: ' + _expList.join(', ') + ' · 고객 화면은 준비 중 상태로 돌아갔으니 재발송 여부를 확인해 주세요.'); } catch (e) {} }
   return n;
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -1082,6 +1087,11 @@ function _cashReceiptLedger(r) {
     try { var _bkD = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); if (_bkD && String(_bkD.get('입금확인') || '').trim() === '확인') _depCf = true; } catch (e) {}
   }
   out.push(item('예약금', isSnap ? '계약금' : '예약금', _depCf, isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
+  // [정합] 시그 '계약금 잔액'(계약금 - 예약금 · 계약 시 실입금 현금) — 원장에 없어 현금영수증 발급 대상·주간 점검에서 영구 누락되던 금액(의무발급 이행)
+  if (!isSnap && amounts) {
+    var _ctrRem = Math.max(0, Number(amounts['계약금'] || 0) - Number(PAYMENT.예약금 || 0));
+    if (_ctrRem > 0) out.push(item('계약금', '계약금 잔액', _depCf, _ctrRem));
+  }
   // 묶음 입금(임박 계약): 중도금·잔금이 같은 확인일시로 기록됐으면 한 번의 이체 → 영수증도 1건(합산)으로
   var _mCf = String(r.get('중도금상태') || '').trim() === '확인', _bCf = String(r.get('잔금상태') || '').trim() === '확인';
   var _mAt = String(r.get('중도금확인일시') || '').trim(), _bAt = String(r.get('잔금확인일시') || '').trim();
@@ -1120,8 +1130,10 @@ function buildPaymentState(r) {
   var stage = String(r.get('현재단계') || '').trim();
   var iStatus = String(r.get('입금상태') || '').trim() || '대기';
   var confirmed = iStatus === '확인';
-  // [③-4] 계약완료·입금완료=항상 노출 / 제작중+ 이후엔 '확인' 완료분만 접힌 카드 유지(시착·계약과 일관)
-  if (['계약완료', '입금완료'].indexOf(stage) === -1 && !confirmed) return null;
+  // [③-4→개정] 서명완료 + 미확인이면 단계와 무관하게 결제 카드 유지 — 관리자가 단계를 되돌리거나 강제 이동해도
+  //   고객이 계좌·입금신고·확인중 UI를 잃고 '준비 중' 데드엔드에 갇히지 않게. 단 취소·노쇼·미계약(예외 단계)은 청구 중단(숨김).
+  var _excP = (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(stage) !== -1);
+  if (_excP && !confirmed) return null;
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   // [임박 계약 일괄 수납] 기한이 이미 닥친 결제는 계약금과 한 번에 받는다(쪼개 받기 방지 · 계약서 §4④).
   //   D-149 이내 성립 → +중도금 · D-9 이내 → +잔금까지(사실상 전액). 이미 '확인'된 단계는 제외. 법적 구조(10/40/50)는 그대로, 수납만 묶음.

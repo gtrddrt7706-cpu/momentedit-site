@@ -831,7 +831,9 @@ function adminHome() {
     results: resultsList,
     pipeline: { 시그니처: buildPipe(P.PRODUCT_SIGNATURE), 웨딩스냅: buildPipe(P.PRODUCT_SNAP) },
     pipeCounts: { 시그니처: countPipe(pipe[P.PRODUCT_SIGNATURE]), 웨딩스냅: countPipe(pipe[P.PRODUCT_SNAP]) },
-    survey: surveyAgg
+    survey: surveyAgg,
+    stageFlow: { 시그니처: stageFlowFor(P.PRODUCT_SIGNATURE), 웨딩스냅: stageFlowFor(P.PRODUCT_SNAP) },   // 단계 목록 단일 출처(00_platform-config) 서빙 — admin.html 하드코딩 사본의 드리프트 방지
+    stageEx: (typeof STAGE_EXCEPTIONS !== 'undefined' ? STAGE_EXCEPTIONS : ['미계약', '취소', '노쇼'])
   };
 }
 
