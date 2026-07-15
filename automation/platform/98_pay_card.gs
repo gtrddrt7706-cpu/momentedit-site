@@ -26,6 +26,10 @@ function _payCfg() {
 
 // 마일스톤별 서버측 기대 금액(위변조 방지) — 계좌이체 카드와 동일 출처(_journeyAmounts) 사용.
 function _payExpectedAmount(cust, milestone) {
+  if (milestone === '추가보정') {   // 추가 보정(과세 매출) — 신청 시 확정된 추가보정금액(계약총액 산식과 무관·별도 항목이라 _journeyAmounts 불요)
+    var _ex = Math.round(Number(cust.get('추가보정금액')) || 0);
+    return _ex > 0 ? _ex : null;
+  }
   var a = (typeof _journeyAmounts === 'function') ? _journeyAmounts(cust.get('계약총액'), cust.get('상품타입')) : null;
   if (!a) return null;
   if (milestone === '계약금') return Number(a.납부액) || 0;   // 계약 성립 시 납부액(예약금 차감 후 잔액)
@@ -86,6 +90,9 @@ function _payPreValidate(cust, milestone) {
   if (milestone === '계약금') {
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return '계약 서명 완료 후 결제할 수 있어요.';
   }
+  if (milestone === '추가보정') {   // 신청(금액 확정)된 건만 결제 가능 — 대기(미신청)면 결제할 것이 없음
+    if (['신청', '견적', '결제대기'].indexOf(String(cust.get('추가보정상태') || '').trim()) === -1) return '추가 보정 신청 후 결제할 수 있어요.';
+  }
   return '';
 }
 
@@ -97,7 +104,7 @@ function handleCardConfirm(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var milestone = String((body && body.milestone) || '').trim();
-  if (['계약금', '중도금', '잔금'].indexOf(milestone) === -1) return { ok: false, error: '결제 단계가 올바르지 않습니다.' };
+  if (['계약금', '중도금', '잔금', '추가보정'].indexOf(milestone) === -1) return { ok: false, error: '결제 단계가 올바르지 않습니다.' };
   var paymentKey = String((body && body.paymentKey) || '').trim();
   var orderId = String((body && body.orderId) || '').trim();
   var amount = Math.round(Number((body && body.amount) || 0));
@@ -112,13 +119,16 @@ function handleCardConfirm(body) {
 
     // 멱등 — 이미 확인·신고된 단계면 재confirm 금지(이중청구 방지). _tossConfirm(=캡처) 전에 차단하므로 카드 캡처 안 됨.
     //   '완료신호'(계좌이체 이미 신고·확인 대기)도 포함 — 신고 후 다른 탭 카드결제로 같은 항목이 이중 청구되던 틈 차단(_bundleKeysFor의 open 기준과 동일).
-    var statusCol = milestone === '계약금' ? '입금상태' : (milestone === '중도금' ? '중도금상태' : '잔금상태');
+    //   추가보정은 상태모델이 다름 — '완료'=입금확인 완료 · '결제대기'=고객 입금신고(다른 마일스톤의 '완료신호'에 해당). 나머지는 확인/완료신호.
+    var statusCol = milestone === '계약금' ? '입금상태' : (milestone === '중도금' ? '중도금상태' : (milestone === '잔금' ? '잔금상태' : '추가보정상태'));
+    var _doneVal = (milestone === '추가보정') ? '완료' : '확인';
+    var _signalVal = (milestone === '추가보정') ? '결제대기' : '완료신호';
     var _mst = String(cust.get(statusCol) || '').trim();
-    if (_mst === '확인') {
+    if (_mst === _doneVal) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(이미확인)' });
       return { ok: true, already: true, alreadyMsg: '이미 결제가 확인된 항목이에요. 카드결제는 진행되지 않았어요.' };
     }
-    if (_mst === '완료신호') {
+    if (_mst === _signalVal) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(입금신고중)' });
       return { ok: true, already: true, alreadyMsg: '입금 신고가 접수되어 확인 중이에요. 중복 방지를 위해 카드결제는 진행되지 않았어요.' };
     }
@@ -155,7 +165,8 @@ function handleCardConfirm(body) {
     var rec;
     if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
-    else rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
+    else if (milestone === '잔금') rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
+    else rec = (typeof adminConfirmExtra === 'function') ? adminConfirmExtra(code) : { ok: false };   // 추가보정 — 가드 없음·'완료' 전이+안심알림, 카드에 그대로 맞음(80_production)
     // [SYNC-3] 카드=매출전표 → 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정). ★원장에 항목이 있는 결제분만 마킹★
     //   · 중도금·잔금 → 동명 원장 키.
     //   · 계약금은 상품별로 다름:
@@ -164,7 +175,7 @@ function handleCardConfirm(body) {
     //                  원장 '예약금'(10만)은 계약 전 계좌이체로 낸 상담 예약금(카드 대상 아님·정당한 현금영수증 대상)이라 절대 건드리면 안 됨 → 마킹 안 함.
     if (rec && rec.ok) {
       try {
-        if (milestone === '중도금' || milestone === '잔금') _payMarkCard(code, milestone);
+        if (milestone === '중도금' || milestone === '잔금' || milestone === '추가보정') _payMarkCard(code, milestone);   // 동명 원장 키(_cashReceiptLedger가 카드분 발급 큐서 제외)
         else if (milestone === '계약금' && String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금');
         else if (milestone === '계약금') _payMarkCard(code, '계약금');   // 시그니처 계약금 — 원장 키 아님(영수증 영향 0) · 관리자 '카드' 뱃지·환불 주의 표기용
       } catch (e) {}

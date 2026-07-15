@@ -1494,7 +1494,6 @@ function renderMyPage(d){
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
     renderBalance(d.balance, d.midpayment);                          // 잔금 (02-5)
-    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 플래그 OFF면 무동작(라이브 영향 0)
     // [게이트 복귀] '최종 확정 먼저 하기'로 갔다가 완료되면 잔금 카드로 스크롤(한 번만)
     if(window._afterFinalToBal && d.production && d.production.tracks && d.production.tracks.final==='완료'){
       window._afterFinalToBal=false;
@@ -1523,6 +1522,7 @@ function renderMyPage(d){
     renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
+    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 무동작). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
   // 카톡 — 하단 버튼 대신 우측 중앙 AI 상담 위젯에서 연결. URL은 ME_ADV_PAGE.kakaoUrl이 캐시(d.kakao)에서 읽음.
@@ -2839,7 +2839,7 @@ var meCardPay = (function(){
   var cfg=null, ready=false, returnDone=false, checked=false;
   var PREVIEW=(function(){ try{ return new URLSearchParams(location.search).get('preview_card')==='1'; }catch(e){ return false; } })();   // ?preview_card=1 → 배치 미리보기(결제 없음 · 라이브 무해)
   var TOSS_SDK='https://js.tosspayments.com/v1/payment';
-  var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'}, {btn:'mp_lbSignal', m:'잔금'} ];   // mp_lbSignal=내 내역 인라인 잔금 패널
+  var MAP=[ {btn:'mp_paySignal', m:'계약금'}, {btn:'mp_mSignal', m:'중도금'}, {btn:'mp_bSignal', m:'잔금'}, {btn:'mp_lbSignal', m:'잔금'}, {btn:'mp_exSignal', m:'추가보정'} ];   // mp_lbSignal=내 내역 인라인 잔금 패널 · mp_exSignal=결과물 추가 보정 결제(단일 마일스톤)
   function loadSdk(cb, onFail){
     if(window.TossPayments){ cb(); return; }
     var s=document.createElement('script'); s.src=TOSS_SDK;
