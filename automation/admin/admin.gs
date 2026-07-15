@@ -1285,6 +1285,10 @@ function _confirmDepositCore(code, opts) {
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  // 종료(취소·노쇼·미계약) 고객은 입금 확인 금지 — 카드결제·낡은 탭이 setCustomerStage('paid')로 여정을 되살리는 것 차단(adminConfirmMid/Balance와 동일 가드)
+  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) {
+    return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };
+  }
   if (String(cust.get('계약상태') || '').trim() !== '서명완료') {
     return { ok: false, error: '계약 서명 완료 후 입금 확인이 가능합니다.' };
   }
@@ -1335,7 +1339,7 @@ function adminIssueCashReceipt(code, kind, num) {
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
-  if (['예약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '계약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };   // '계약금'=시그 계약금 잔액(원장 행 · _cashReceiptLedger가 due 발행)
   if (!num) return { ok: false, error: '발행번호(홈택스 승인번호)를 입력해 주세요.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
@@ -1343,7 +1347,8 @@ function adminIssueCashReceipt(code, kind, num) {
   if (kind === '중도금잔금') {   // 묶음 발행 — 두 마일스톤 모두 확인이어야
     if (String(cust.get('중도금상태') || '').trim() !== '확인' || String(cust.get('잔금상태') || '').trim() !== '확인') return { ok: false, error: '입금 확인 후에 현금영수증을 발행할 수 있어요. (중도금·잔금)' };
   } else {
-  var stCol = (kind === '예약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
+  // 계약금 잔액은 계약 시 실입금분 → 입금상태(예약금과 동일 컬럼)가 확인이면 발급 대상
+  var stCol = (kind === '예약금' || kind === '계약금') ? '입금상태' : (kind === '중도금' ? '중도금상태' : (kind === '잔금' ? '잔금상태' : '추가보정상태'));
   var _stPass = String(cust.get(stCol) || '').trim() === stOk;
   if (!_stPass && kind === '예약금' && String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {   // 계약(서명) 전이라도 상담 예약금 입금이 확인됐으면 발급 가능 — 받은 날+5일 기한이 서명을 기다려주지 않음
     try { var _bkI = findRowByPersonalCode(code); if (_bkI && String(_bkI.get('입금확인') || '').trim() === '확인') _stPass = true; } catch (e) {}
@@ -1367,7 +1372,7 @@ function adminUndoCashReceipt(code, kind) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
-  if (['예약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
+  if (['예약금', '계약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);

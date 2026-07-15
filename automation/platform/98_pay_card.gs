@@ -81,10 +81,10 @@ function _payLog(row) {
 // [B-2] 토스 청구 전 사전검증 — 기록 함수(_confirmDepositCore·adminConfirmMid/Balance)의 게이트를 부작용 없이 앞당겨 확인.
 //   계약금: 계약 서명완료 필수 / 중도금·잔금: 진행종료(취소·노쇼·미계약) 아님. 통과 시 ''(빈문자).
 function _payPreValidate(cust, milestone) {
+  // 종료(취소·노쇼·미계약) 고객은 모든 마일스톤 결제 차단 — 계약금도 예외 없음(_confirmDepositCore가 setCustomerStage로 되살리기 전에 캡처 자체를 막음)
+  if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
   if (milestone === '계약금') {
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return '계약 서명 완료 후 결제할 수 있어요.';
-  } else {
-    if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
   }
   return '';
 }
@@ -110,11 +110,17 @@ function handleCardConfirm(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
 
-    // 멱등 — 이미 확인된 단계면 재confirm 금지(이중청구 방지)
+    // 멱등 — 이미 확인·신고된 단계면 재confirm 금지(이중청구 방지). _tossConfirm(=캡처) 전에 차단하므로 카드 캡처 안 됨.
+    //   '완료신호'(계좌이체 이미 신고·확인 대기)도 포함 — 신고 후 다른 탭 카드결제로 같은 항목이 이중 청구되던 틈 차단(_bundleKeysFor의 open 기준과 동일).
     var statusCol = milestone === '계약금' ? '입금상태' : (milestone === '중도금' ? '중도금상태' : '잔금상태');
-    if (String(cust.get(statusCol) || '').trim() === '확인') {
+    var _mst = String(cust.get(statusCol) || '').trim();
+    if (_mst === '확인') {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(이미확인)' });
-      return { ok: true, already: true };
+      return { ok: true, already: true, alreadyMsg: '이미 결제가 확인된 항목이에요. 카드결제는 진행되지 않았어요.' };
+    }
+    if (_mst === '완료신호') {
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(입금신고중)' });
+      return { ok: true, already: true, alreadyMsg: '입금 신고가 접수되어 확인 중이에요. 중복 방지를 위해 카드결제는 진행되지 않았어요.' };
     }
 
     // 금액 위변조 검증 — 서버 재계산값과 일치해야 함
@@ -165,10 +171,10 @@ function handleCardConfirm(body) {
       // 관리자 인지용 메일 1통 — 카드는 자동 확정이라 업무신호·큐가 없어 돈 들어온 걸 모를 수 있음(처리 필요 없음 명시)
       try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드 결제 확인 · ' + code + ' · ' + milestone + ' ' + Number(amount).toLocaleString() + '원 · 자동 반영됨(처리할 일 없음)'); } catch (e) {}
     } else {
-      // ★B-1 돈은 받았는데(토스 승인 완료) 기록 실패 — 상태 미반영 방치 방지. 관리자에게 즉시 SMS(수동 보정).
-      try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('🔴카드결제 기록실패·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + amount + '원 | order ' + orderId + ' | ' + ((rec && rec.error) || '')); } catch (e) {}
+      // ★B-1 돈은 받았는데(토스 승인 완료) 기록 실패 — 상태 미반영 방치 방지. 관리자에게 즉시 메일(수동 보정 · 관리자 알림=메일 전용).
+      try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('카드결제 기록실패·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + amount + '원 | order ' + orderId + ' | ' + ((rec && rec.error) || '')); } catch (e) {}   // aiAlertAdmin → _nfAdminLineEmail(메일) · 이모지 미사용(CLAUDE.md)
     }
-    _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요·관리자SMS)' });
+    _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: (rec && rec.ok) ? '기록OK' : '기록경고(수동확인 필요·관리자메일)' });
     return { ok: true, recorded: !!(rec && rec.ok) };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
