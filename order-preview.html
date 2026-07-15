@@ -942,7 +942,10 @@ function renderStep(k){
   if(k==='guest'){
     var cpl=S.guestVoice==='couple';
     var h='<div style="margin-top:16px">';
-    h+='<div class="vq">하객 맞이 안내, 누구 목소리로 할까요?</div>';
+    h+='<div class="proc"><div class="proc-l">이렇게 흘러요 · 하객이 자리를 찾는 동안 안내 네 번</div>';
+    GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
+    h+='</div>';
+    h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
     h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요. 두 분이 정하실 건 없어요.</div></div>';
     h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
     if(cpl){
