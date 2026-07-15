@@ -163,7 +163,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .upl-r{display:flex;align-items:center;gap:8px}
 .upbtn{background:var(--seal);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .upst{font-size:11px;color:var(--light)}
-.upst.done{font-size:10.5px;color:var(--green);background:#F3EEE1;border-radius:20px;padding:3px 10px}
+.upst.done{font-size:10.5px;color:var(--green);background:#F3EEE1;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
 .play-lnk{background:none;border:none;padding:8px 2px;font-family:var(--sans);font-size:12.5px;color:var(--gold-deep);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .upkeep{font-size:12px;color:var(--gold-deep);margin-top:11px;word-break:keep-all;line-height:1.6}
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
@@ -314,7 +314,12 @@ window.copyGuestScript=function(){
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('안내 대본을 복사했어요 · 더빙 사이트에 붙여넣어 주세요');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('안내 대본을 복사했어요');}catch(e){alert('복사에 실패했어요.');} }
 };
-window.mockUpload=function(k,btn){ if(btn){ btn.disabled=true; btn.textContent='올리는 중…'; } setTimeout(function(){ S.up[k]=true; render(); toast('올림 완료 · 저희가 검수 후 연락드려요'); },700); };
+window.mockUpload=function(k,btn){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.mp3,.m4a,.aac,.wav';
+  inp.onchange=function(){ if(inp.files&&inp.files.length){ S.up[k]=inp.files[0].name; _lazyPersist(); render(); toast('파일을 받았어요 · 검수 후 당일 이 안내로 재생돼요'); } };
+  inp.click();
+};
+function upNm(v){ return (typeof v==='string'&&v)?v:'올림 완료'; }
 window.unUpload=function(k){ delete S.up[k]; render(); };
 var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
 window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
@@ -978,7 +983,7 @@ function renderStep(k){
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
       h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
-      if(cpl){ h+='<div class="uprow"><button class="play-lnk" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>'+(S.up['g'+i]?'<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>':'<span class="upl-r"><button class="upbtn" onclick="mockUpload(\'g'+i+'\')">파일 올리기</button><span class="upst">올리기 전</span></span>')+'</div>'; }
+      if(cpl){ h+='<div class="uprow"><button class="play-lnk" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="play-lnk" style="font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="upbtn" onclick="mockUpload(\'g'+i+'\')">파일 올리기</button>')+'</div>'; }
       h+='</div>';
     });
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
@@ -1018,7 +1023,7 @@ function renderStep(k){
     (function(){
       var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
       h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn();
-      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">올림 완료 · 검수 대기</span>':'<span class="upl-r"><button class="upbtn" onclick="event.stopPropagation();mockUpload(\'entry\',this)">이 인사로 파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a · 20~30초면 충분해요</span></span>')+'</div>';
+      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="play-lnk" style="font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="upbtn" onclick="event.stopPropagation();mockUpload(\'entry\')">이 인사로 파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a · 20~30초면 충분해요</span></span>')+'</div>';
       h+='</div>';
     })();
     h+='</div></div>';
