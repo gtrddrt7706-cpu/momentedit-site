@@ -876,6 +876,16 @@ var TUNE={
  bless:{n:'부모님 덕담',c:'넣거나 빼고, 나레이션 대독도 가능해요'}
 };
 var TCAP={guest:'방식 선택',entry:'멘트 선택',veil:'넣고 빼기',welcome:'예시 확인',vow:'낭독 방식 선택',ringwarm:'범위 선택',ring:'넣고 빼기',declare:'낭독 주체 선택',valley:'넣고 빼기',toast:'방식 선택',song:'방식 선택',letter:'대상 선택',tribute:'방식 선택',bless:'넣고 빼기'};
+/* 코스별 선택 순서: 왜 기본에서 빠져 있는지 한 줄 이유(사용자 혼란 방지) */
+var OPTWHY={
+ minimal:{welcome:'미니멀은 가장 짧게 남기는 코스라 기본에서 빼 뒀어요 · 첫인사를 원하면 이 자리에 더해요',
+          letter:'가장 짧게 두려고 기본에서 빼 뒀어요 · 편지를 더하면 감정의 정점이 생겨요',
+          bless:'가장 짧게 두려고 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'},
+ family:{welcome:'이 코스는 부모님 덕담이 예식의 문을 열어서, 첫인사는 겹치지 않게 선택으로 뒀어요'},
+ gamdong:{valley:'감정 흐름이 끊기지 않도록 기본에서 빼 뒀어요 · 분위기 전환이 필요하면 더해요'},
+ festive:{song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때 더해요',
+          bless:'밝은 흐름을 가볍게 유지하려 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'}
+};
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
 var _tprev='';
@@ -921,10 +931,12 @@ function renderStep(k){
     _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
     _disp.forEach(function(d){
       var x=d.k, t=TUNE[x]; if(!t) return;
+      var _why=(OPTWHY[S.course]||{})[x]||'';
       if(d.off){
         h+='<div class="oc trow off" onclick="tprev(\''+x+'\')">';
         h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">지금은 빠져 있어요</span></div>';
         h+='<div class="oc-desc">'+esc(t.c)+'</div>';
+        if(_why) h+='<div class="oc-desc" style="margin-top:3px;color:var(--gold-deeper)">'+esc(_why)+'</div>';
         h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">이 자리에 더하기</button>';
         if(_tprev===x){ var pv2=clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요'+(MOMENT[x]?'<br><span style="color:var(--gold-deeper)">'+esc(MOMENT[x].t)+'</span>':'')+'</div></div>'; h+=pv2; }
         h+='</div>';
@@ -935,6 +947,7 @@ function renderStep(k){
       h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||'선택'))+'</span></div>';
       if(!_off) h+='<div class="oc-desc">지금 · '+esc(rowVal(x))+'</div>';
       h+='<div class="oc-desc" style="margin-top:3px">'+esc(t.c)+'</div>';
+      if(S.extra[x]&&_why) h+='<div class="oc-desc" style="margin-top:3px;color:var(--gold-deeper)">'+esc(_why)+'</div>';
       if(S.extra[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">더한 순서예요 · 다시 빼기</button>';
       else if(OFFTGL[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에 들어 있어요 · 빼기':'지금 빠져 있어요 · 다시 넣기')+'</button>';
       if(_tprev===x){ var pv=clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요'+(MOMENT[x]?'<br><span style="color:var(--gold-deeper)">'+esc(MOMENT[x].t)+'</span>':'')+'</div></div>'; h+=pv; }
