@@ -1066,6 +1066,7 @@ function renderStep(k){
       var m=TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'헌정용 꽃은 저희가 준비해요 · 추가 비용은 상담에서 안내드려요':null);
     });
+    h+='<div class="reassure" style="margin-top:12px">부모님은 자리에 앉아 계시다가 그대로 받으시면 돼요 · 답례 말씀은 따로 없어도 되고, 포옹만으로 충분해요. 타이밍은 당일 스태프가 옆에서 조용히 안내해 드려요.</div>';
   }
   else if(k==='song'){
     h+=clip('song');
@@ -1283,6 +1284,7 @@ function summaryRows(){
 function renderDone(){
   var bs=fullBlocks();
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서</div></div>';
+  if(_doneSaved) h+='<div class="banner" style="text-align:center">저장 완료! 디렉터가 식순을 확인하고 연락드려요 · 그때까지 하실 일은 없어요.<br>아래 「전체 대본 복사」로 서로에게 공유하고, 리허설 공간에서 미리 들어보셔도 좋아요 · D-14까지 언제든 고칠 수 있어요.</div>';
   h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.<br>두 분은 연습한 대로, 서로만 바라보면 돼요.<br>순서 하나하나 격식 있게, 처음부터 끝까지 저희가 함께합니다.</div>';
   h+='<button class="listen-all" onclick="listenAll(this)">내 예식 나레이션 전체 이어듣기</button>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">리허설 공간 열기 · 당일 전에 연습하기</button>';
