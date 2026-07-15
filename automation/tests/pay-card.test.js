@@ -24,6 +24,7 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const SRC_JOURNEY = fs.readFileSync(path.join(ROOT, 'automation/platform/70_journey.gs'), 'utf8');
 const SRC_ADMIN = fs.readFileSync(path.join(ROOT, 'automation/admin/admin.gs'), 'utf8');
 const SRC_CARD = fs.readFileSync(path.join(ROOT, 'automation/platform/98_pay_card.gs'), 'utf8');
+const SRC_PROD = fs.readFileSync(path.join(ROOT, 'automation/platform/80_production.gs'), 'utf8');
 const SRC_CONFIG = fs.readFileSync(path.join(ROOT, 'automation/platform/00_platform-config.gs'), 'utf8');
 
 /* ── 소스 추출기(refund-quote.test.js와 동일 방식) ── */
@@ -71,6 +72,7 @@ const code = [
   extractFunction(SRC_JOURNEY, '_cashReceiptLedger'),
   extractFunction(SRC_JOURNEY, 'adminConfirmMid'),
   extractFunction(SRC_JOURNEY, 'adminConfirmBalance'),
+  extractFunction(SRC_PROD, 'adminConfirmExtra'),
   extractFunction(SRC_ADMIN, '_confirmDepositCore'),
   extractFunction(SRC_ADMIN, 'adminConfirmPayment'),
   extractFunction(SRC_CARD, '_payCfg'),
@@ -387,6 +389,21 @@ var tossBefore = tossCalls;
 sandbox.__b = { token: 'tok_js', milestone: '잔금', paymentKey: 'pk_js', orderId: 'JS', amount: 1750000 };
 var rJs = run('handleCardConfirm(__b)');
 check('J2 잔금 완료신호(입금신고 중) → 카드 미캡처(already) · 이중결제 차단', rJs.ok === true && rJs.already === true && tossCalls === tossBefore && DB.J_SIGNAL.잔금상태 === '완료신호');
+
+// J3 추가보정 카드결제 — 별도 마일스톤(과세 매출). 신청됨만 결제 가능 · '완료'/'결제대기'면 이중결제 차단
+newCust('J_EX', { 현재단계: '결과물전달', 추가보정상태: '견적', 추가보정금액: 120000 }); TOKMAP.tok_ex = 'J_EX';
+check("J3a 추가보정 기대금액 = 추가보정금액", run('_payExpectedAmount(findCustomerByCode("J_EX"), "추가보정")') === 120000);
+sandbox.__b = { token: 'tok_ex', milestone: '추가보정', paymentKey: 'pk_ex', orderId: 'JEX', amount: 120000 };
+var rEx = run('handleCardConfirm(__b)');
+check('J3b 추가보정 카드결제 성공 → 추가보정상태=완료 · 카드 마킹', rEx.ok === true && rEx.recorded === true && DB.J_EX.추가보정상태 === '완료' && (JSON.parse(DB.J_EX.동의기록 || '{}').결제수단 || {})['추가보정'] === '카드');
+var tossEx = tossCalls;
+sandbox.__b = { token: 'tok_ex', milestone: '추가보정', paymentKey: 'pk_ex2', orderId: 'JEX2', amount: 120000 };
+var rExDup = run('handleCardConfirm(__b)');
+check('J3c 완료 후 추가보정 재결제 → already·미캡처(이중결제 차단)', rExDup.ok === true && rExDup.already === true && tossCalls === tossEx);
+newCust('J_EX0', { 현재단계: '결과물전달', 추가보정상태: '대기', 추가보정금액: 0 }); TOKMAP.tok_ex0 = 'J_EX0';
+sandbox.__b = { token: 'tok_ex0', milestone: '추가보정', paymentKey: 'pk', orderId: 'X0', amount: 120000 };
+var rEx0 = run('handleCardConfirm(__b)');
+check('J3d 미신청(대기) 추가보정 → 결제 차단', rEx0.ok === false);
 
 check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount >= 0, 'ok=' + fuzzOkCount);   // 퍼즈 성공은 우연 의존이라 하한 0 · 실질 해피패스는 위 I' 결정형이 보장
 
