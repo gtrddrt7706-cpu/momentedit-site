@@ -911,7 +911,7 @@ function renderStep(k){
   if(k==='tune'){
     var seq=curSeq(), cnt=seq.filter(function(x){return S.tune[x];}).length;
     var h='<div style="margin-top:4px">';
-    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요. <b>그대로 두셔도 완벽한 식순이 완성돼요.</b><br>이제 모든 순간을 하나씩 보며 우리답게 다듬어요. 각 순간의 우측 표시가 무엇을 고를 수 있는지 알려드려요 · 넣고 빼기형은 이 화면에서 바로 조정할 수 있어요.</div>';
+    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>그대로 둬도 완벽하고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
     seq.forEach(function(x){
       var t=TUNE[x]; if(!t) return;
       var on=!!S.tune[x];
