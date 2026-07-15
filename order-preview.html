@@ -170,6 +170,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
 .trow{cursor:default}
+.trow.off{opacity:.62;background:#FDFCF8}
+.trow.off .tcap{background:#F5F1E8;color:var(--light);border-color:#E8E1D3}
 .trow .oc-nm::before{display:none}
 .tcap{margin-left:auto;flex-shrink:0;font-size:10.5px;color:var(--gold-deeper);background:#FBF8F2;border:1px solid #F0E7D7;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
 .flowst{display:flex;align-items:center;gap:7px;margin:2px 0 12px;font-size:11.5px;color:var(--light);flex-wrap:wrap}
@@ -909,30 +911,30 @@ window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=t
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
-    var seq=curSeq(), cnt=seq.filter(function(x){return S.tune[x];}).length;
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>그대로 둬도 완벽하고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
-    seq.forEach(function(x){
-      var t=TUNE[x]; if(!t) return;
-      var on=!!S.tune[x];
+    var _base=COURSES[S.course].seq.slice();
+    var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
+    var _disp=_base.map(function(k){return {k:k,off:false};});
+    _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
+    _disp.forEach(function(d){
+      var x=d.k, t=TUNE[x]; if(!t) return;
+      if(d.off){
+        h+='<div class="oc trow off">';
+        h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">지금은 빠져 있어요</span></div>';
+        h+='<div class="oc-desc">'+esc(t.c)+'</div>';
+        h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">이 자리에 더하기</button>';
+        h+='</div>';
+        return;
+      }
       h+='<div class="oc trow">';
       h+='<div class="oc-nm">'+esc(t.n)+'<span class="tcap">'+(TCAP[x]||'선택')+'</span></div>';
       h+='<div class="oc-desc">지금 · '+esc(rowVal(x))+'</div>';
       h+='<div class="oc-desc" style="margin-top:3px">'+esc(t.c)+'</div>';
-      if(OFFTGL[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에 들어 있어요 · 빼기':'지금 빠져 있어요 · 다시 넣기')+'</button>';
+      if(S.extra[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">더한 순서예요 · 다시 빼기</button>';
+      else if(OFFTGL[x]) h+='<button class="copy-btn2" style="margin:9px 0 2px;padding:6px 13px;font-size:11px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에 들어 있어요 · 빼기':'지금 빠져 있어요 · 다시 넣기')+'</button>';
       h+='</div>';
     });
-    var opts=(COURSES[S.course].opt||[]).filter(function(o){return !S.extra[o.k];});
-    if(opts.length){
-      h+='<div class="sec-l" style="margin-top:20px">순서 더하기 · 이 코스에 없는 순서도 더할 수 있어요</div>';
-      opts.forEach(function(o){
-        var t=TUNE[o.k]; if(!t) return;
-        h+='<div class="oc" onclick="extraTgl(\''+o.k+'\')">';
-        h+='<div class="oc-nm">'+esc(t.n)+' <span style="font-size:11px;color:var(--gold-deeper);font-weight:400">더하기</span></div>';
-        h+='<div class="oc-desc">'+esc(t.c)+'</div>';
-        h+='</div>';
-      });
-    }
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
     if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 목록에서 체크를 풀면 도로 빠져요</div>'; }
     h+='<div class="reassure" style="margin-top:14px">다음을 누르면 이 순서들을 하나씩 보며 완성해요 · 완성 화면에서도 언제든 바꿀 수 있어요.</div>';
