@@ -171,11 +171,16 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc.open{border-color:var(--seal)}
 .mc-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mc-t{font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px;word-break:keep-all;min-width:0}
-.mc-s{font-size:12px;color:var(--light);margin-top:5px}
+.mc-e{font-size:12.5px;color:var(--sub);margin-top:6px;word-break:keep-all;line-height:1.55}
+.mc-s{font-size:11px;color:var(--light);margin-top:4px}
 .mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
+.fold{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);word-break:keep-all}
+.fold-x{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
+.fold.open .fold-x{transform:rotate(90deg)}
+.fold-b{padding:2px 0 0}
 .upst{font-size:11px;color:var(--light)}
 .upst.done{font-size:10px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
 .play-lnk{background:none;border:none;padding:8px 2px;font-family:var(--sans);font-size:12px;color:var(--gold-deeper);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
@@ -915,7 +920,8 @@ var OPTWHY={
 };
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
-var _tprev='';
+var _tprev=''; var _addOpen=false;
+window.addTgl=function(){ _addOpen=!_addOpen; render(); };
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
 window.quickOff=function(k){
   if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
@@ -963,10 +969,11 @@ function renderStep(k){
       var _open=(_tprev===x);
       h+='<div class="mc trow'+(_off?' off':'')+(_open?' open':'')+'" onclick="tprev(\''+x+'\')">';
       h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div><span class="mc-chev">›</span></div>';
+      h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && !OFFTGL[x]) h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       if(_open){
         h+='<div class="mc-x">';
-        h+='<div class="mc-desc">'+esc(t.c)+(_why?' · '+esc(_why):'')+'</div>';
+        if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
         h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
         if(d.off) h+='<button class="rowbtn up" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'이 자리에 넣기</button>';
         else if(S.extra[x]) h+='<button class="rowbtn" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
@@ -1004,12 +1011,17 @@ function renderStep(k){
     });
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 상담 때 전달하면, 저희가 잡음·볼륨을 다듬어 당일 재생해요 · 어설퍼도 편하게 녹음하세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요.')+'</div>';
-    h+='<div class="dlabel" style="margin-top:16px">함께 안내하면 좋은 것들 · 체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
-    HOUSE.forEach(function(hh){
-      h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>';
-    });
-    h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.guestbook?'checked':'')+' onchange="settgl(\'guestbook\',this)"><span class="tk"></span>참여형 방명록(폴라로이드·메시지 카드)을 둘까요?</label>';
-    h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요? (선택)</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 켜면 가로 mp4 3~4분을 D-3까지 링크로 전해 주세요.</div></div>';
+    var _hc=HOUSE.filter(function(hh){return S.house[hh[0]];}).length+(S.guestbook?1:0)+(S.growth==='on'?1:0);
+    h+='<div class="fold'+(_addOpen?' open':'')+'" onclick="addTgl()" style="margin-top:16px"><span>함께 안내하면 좋은 것들 (선택)'+(_hc?' · '+_hc+'개 켜짐':'')+'</span><span class="fold-x">›</span></div>';
+    if(_addOpen){
+      h+='<div class="fold-b"><div class="dlabel" style="margin-top:2px">체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
+      HOUSE.forEach(function(hh){
+        h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>';
+      });
+      h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.guestbook?'checked':'')+' onchange="settgl(\'guestbook\',this)"><span class="tk"></span>참여형 방명록(폴라로이드·메시지 카드)을 둘까요?</label>';
+      h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 켜면 가로 mp4 3~4분을 D-3까지 링크로 전해 주세요.</div></div>';
+      h+='</div>';
+    }
     h+='</div>';
     return h;
   }
