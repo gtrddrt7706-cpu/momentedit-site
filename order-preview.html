@@ -920,8 +920,9 @@ var OPTWHY={
 };
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
-var _tprev=''; var _addOpen=false;
-window.addTgl=function(){ _addOpen=!_addOpen; render(); };
+var _tprev=''; var _foldOpen={};
+window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
+function fold(key,title,inner){ var o=_foldOpen[key]; return '<div class="fold'+(o?' open':'')+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x">›</span></div>'+(o?'<div class="fold-b">'+inner+'</div>':''); }
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
 window.quickOff=function(k){
   if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
@@ -1014,16 +1015,11 @@ function renderStep(k){
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 상담 때 전달하면, 저희가 잡음·볼륨을 다듬어 당일 재생해요 · 어설퍼도 편하게 녹음하세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요.')+'</div>';
     var _hc=HOUSE.filter(function(hh){return S.house[hh[0]];}).length+(S.guestbook?1:0)+(S.growth==='on'?1:0);
-    h+='<div class="fold'+(_addOpen?' open':'')+'" onclick="addTgl()" style="margin-top:16px"><span>함께 안내하면 좋은 것들 (선택)'+(_hc?' · '+_hc+'개 켜짐':'')+'</span><span class="fold-x">›</span></div>';
-    if(_addOpen){
-      h+='<div class="fold-b"><div class="dlabel" style="margin-top:2px">체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
-      HOUSE.forEach(function(hh){
-        h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>';
-      });
-      h+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.guestbook?'checked':'')+' onchange="settgl(\'guestbook\',this)"><span class="tk"></span>참여형 방명록(폴라로이드·메시지 카드)을 둘까요?</label>';
-      h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 켜면 가로 mp4 3~4분을 D-3까지 링크로 전해 주세요.</div></div>';
-      h+='</div>';
-    }
+    var _gi='<div class="dlabel" style="margin-top:2px">체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
+    HOUSE.forEach(function(hh){ _gi+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.house[hh[0]]?'checked':'')+' onchange="setHouse(\''+hh[0]+'\',this)"><span class="tk"></span>'+esc(hh[1])+'</label>'; });
+    _gi+='<label class="tgl" style="margin-top:8px"><input type="checkbox" '+(S.guestbook?'checked':'')+' onchange="settgl(\'guestbook\',this)"><span class="tk"></span>참여형 방명록(폴라로이드·메시지 카드)을 둘까요?</label>';
+    _gi+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 켜면 가로 mp4 3~4분을 D-3까지 링크로 전해 주세요.</div></div>';
+    h+='<div style="margin-top:16px">'+fold('gAdd','함께 안내하면 좋은 것들 (선택)'+(_hc?' · '+_hc+'개 켜짐':''),_gi)+'</div>';
     h+='</div>';
     return h;
   }
@@ -1069,15 +1065,15 @@ function renderStep(k){
     h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
     h+='<div class="self"><span class="who">두 분이 직접</span>하객을 향해 짧게 인사해요. 한두 문장·목례면 충분하고, 부담되면 아주 짧아도 돼요. 진심만 담으면 됩니다.</div>';
     h+='<div class="dlabel">인사가 끝나면, 이 나레이션이 받아서 서약으로 이어줘요</div>'+narBox("여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",null);
-    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+exBox('이렇게 인사해도 좋아요 · 예시',EXWEL)+'</div>';
+    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 안 써도 돼요. 적어두면 대본과 리허설에 함께 보여드려요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL))+'</div>';
   }
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문');
     h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 되고, 여기 적어두면 대본·리허설에 함께 보여드려요. 짧아도 진심이면 충분해요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요 · 너무 길면 감정이 흩어져요.</div>';
-    h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요 · 떨린 목소리가 오히려 가장 진심으로 남아요.</div>';
-    h+=exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true);
+    h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>';
+    h+='<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true))+'</div>';
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label>';
     if(S.oyeolVow) h+='<div class="prep-hint">대신 읽어드릴 서약문은 D-7까지 저희에게만 살짝 전해 주세요 · 상대에게는 당일 그 순간까지 비밀로 지켜 드려요.</div>';
     h+='</div>';
@@ -1109,9 +1105,9 @@ function renderStep(k){
     lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:LETTER[v].prep},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요. 내용은 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);var c=document.getElementById(\'letterCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
-    h+='<div class="lenhint">글솜씨는 필요 없어요 · 기억 하나, 고마운 일 하나만 적어도 편지가 돼요. 아래 예시에서 골라 두어 줄만 두 분 이야기로 바꿔 보세요.</div>';
-    h+='<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요. 담백 코스는 1인·짧게 낭독을 권해요. 길면 정점이 늘어질 수 있어요.</div>';
-    h+=exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true);
+    
+    h+='<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>';
+    h+='<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true))+'</div>';
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
   }
   else if(k==='bless'){
@@ -1179,10 +1175,8 @@ function courseCard(v){
     h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
     h+='<div class="cdet"><div class="cdet-l">순서마다 이렇게 진행돼요</div>';
     c.detail.forEach(function(e,i){
-      h+='<div class="ev"><div class="ev-n"><span class="step">'+(i+1)+'</span>'+esc(e.n)+'</div>';
-      h+='<div class="ev-r"><span class="k">진행</span> '+esc(e.how)+'</div>';
-      h+='<div class="ev-r"><span class="k">느낌</span> '+esc(e.fx)+'</div>';
-      h+=(e.fix?'<span class="ev-fix">고정 순서</span>':'<span class="ev-pick">바꿀 수 있어요 · '+esc(e.pick)+'</span>');
+      h+='<div class="ev"><div class="ev-n"><span class="step">'+(i+1)+'</span>'+esc(e.n)+(e.fix?'<span class="ev-fix">고정</span>':'<span class="ev-pick">바꿀 수 있어요</span>')+'</div>';
+      h+='<div class="ev-r">'+esc(e.how)+'</div>';
       h+='</div>';
     });
     if(c.addable) h+='<div class="banner">'+esc(c.addable)+'</div>';
@@ -1371,7 +1365,7 @@ function renderDone(){
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서</div></div>';
   if(_restored&&!_doneSaved) h+='<div class="banner" style="text-align:center">전에 만들던 '+esc(COURSES[S.course].nm)+' 코스 식순을 불러왔어요 · 이어서 보실 수 있어요.</div>';
   if(_doneSaved) h+='<div class="banner" style="text-align:center">이 기기에 저장됐어요 · 상담 때 디렉터와 함께 확인해요.<br>기기에만 저장되니 「파일로 저장」으로 대본도 보관하고, 「전체 대본 복사」로 공유해 두세요 · D-14까지 언제든 고칠 수 있어요.</div>';
-  h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.<br>두 분은 서로만 바라보면 돼요 · 처음부터 끝까지 저희가 함께합니다.</div>';
+  h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.</div>';
   h+='<button class="listen-all" onclick="listenAll(this)">나레이션 목소리 미리듣기 · 샘플</button><div class="prep-hint" style="text-align:center;margin-top:6px">실제 두 분 예식의 나레이션은 확정 후 녹음되어 이곳에서 들을 수 있어요.</div>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 당일 전에 연습하기</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
