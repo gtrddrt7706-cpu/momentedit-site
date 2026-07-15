@@ -165,6 +165,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:#4A3E30;line-height:1.8;word-break:keep-all}
+.flowst{display:flex;align-items:center;gap:7px;margin:2px 0 12px;font-size:11.5px;color:var(--light);flex-wrap:wrap}
+.flowst .fs-c{font-weight:700;color:#FFFDF9;background:var(--gold-deeper);border-radius:20px;padding:3px 11px;font-size:11.5px;letter-spacing:.01em}
+.flowst .fs-p{opacity:.75}
+.flowst .fs-a{color:var(--gold);font-size:10px}
 .mclip{background:#FFFDF9;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12.5px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
 .m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
@@ -612,6 +616,7 @@ function render(){
   else {
     var mo=MOMENT[st.k];
     if(mo) h+=momentBanner(st.k,mo);
+    h+=flowStrip(st.k);
     h+='<div class="q-title">'+esc(st.title)+'</div>'+((st.sub&&!mo)?'<div class="q-sub">'+esc(st.sub)+'</div>':'');
     if(recoTxt(st.k)) h+='<div class="reassure">'+esc(recoTxt(st.k))+' · 언제든 바꿀 수 있어요.</div>';
     h+=renderStep(st.k);
@@ -626,6 +631,12 @@ function render(){
   renderMiniTL(st.k);
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
+}
+function flowStrip(k){
+  var i=CEREMONY.indexOf(k); if(i<0) return '';
+  var pv=(i>0)?PHASE[CEREMONY[i-1]]:'개식',
+      nx=(i<CEREMONY.length-1)?PHASE[CEREMONY[i+1]]:'폐식 · 단체촬영';
+  return '<div class="flowst"><span class="fs-p">'+esc(pv)+'</span><span class="fs-a">›</span><span class="fs-c">지금 · '+esc(PHASE[k]||'')+'</span><span class="fs-a">›</span><span class="fs-p">다음 '+esc(nx)+'</span></div>';
 }
 function renderMiniTL(k){
   var el=document.getElementById('minitl');
