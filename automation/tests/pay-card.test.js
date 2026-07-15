@@ -177,13 +177,20 @@ check('A1 중도금·잔금은 대기 유지', DB.A1.중도금상태 === '대기
 check('A1 단계=입금완료 · 알림 depositToProduction', DB.A1.현재단계 === '입금완료' && kakaoLog.some(k => k.event === 'cust.depositToProduction'));
 check('A1 bundled 없음', Array.isArray(r1.bundled) && r1.bundled.length === 0);
 
-// A2 관리자 계약금 확인 · 예식 임박(D-5) → 통장 일괄수납 번들 ON
-reset(); newCust('A2', { 예식일: ymdFromToday(5) });
+// A2 관리자 계약금 확인 · 예식 임박(D-5) — [스냅샷 우선] 고객이 신고한 수납묶음만 일괄 확정.
+//   확인 시점 D-day 재계산으로 미신고 금액을 오확정하던 동작은 제거(신고 없으면 계약금만).
+reset(); newCust('A2', { 예식일: ymdFromToday(5), 중도금상태: '완료신호', 잔금상태: '완료신호',
+  동의기록: JSON.stringify({ 수납묶음: { keys: ['중도금', '잔금'], at: 'x' } }) });
 var r2 = run('adminConfirmPayment("A2")');
-check('A2 관리자 계약금 확인(임박 D-5): 입금·중도금·잔금 전부 확인(일괄수납)',
+check('A2 신고 묶음 확인(임박 D-5): 입금·중도금·잔금 전부 확인(스냅샷 일괄수납)',
   DB.A2.입금상태 === '확인' && DB.A2.중도금상태 === '확인' && DB.A2.잔금상태 === '확인');
 check('A2 bundled=[중도금,잔금]', r2.bundled.join(',') === '중도금,잔금');
 check('A2 중도금·잔금 확인일시 동일(콤보 합산 정합)', DB.A2.중도금확인일시 === DB.A2.잔금확인일시);
+// A22 신고 없는 임박 확인 → 미신고 금액은 자동 확정 금지(TOCTOU 차단 · 개별 확인 버튼 경로는 별도)
+reset(); newCust('A22', { 예식일: ymdFromToday(5) });
+var r2b = run('adminConfirmPayment("A22")');
+check('A22 신고 없는 확인(임박 D-5): 계약금만 확인 · 중도금·잔금 대기 유지',
+  DB.A22.입금상태 === '확인' && DB.A22.중도금상태 === '대기' && DB.A22.잔금상태 === '대기' && r2b.bundled.length === 0);
 
 // A3 ★카드★ 계약금 확인 · 예식 임박(D-5) → 계약금만! (SYNC-2 핵심)
 reset(); newCust('A3', { 예식일: ymdFromToday(5) });

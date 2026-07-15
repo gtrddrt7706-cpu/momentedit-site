@@ -664,7 +664,16 @@ function adminHome() {
     // 입금 확인 — 입금상태=완료신호 (스냅: 계약 시 계약금 입금 신호. 시그: 계약 서명 시 예약금 충당으로 입금완료 자동 전이 → 여기 안 옴)
     if (입금 === '완료신호') {
       var sigDays = _dayDiff(today, _ymdOf(cget(rv, '입금완료신호')));
-      pushQ({ code: code, names: names, product: product, kind: '입금확인', sub: '입금 확인' + (String(cget(rv, '입금자명') || '').trim() ? (' · 입금자 ' + String(cget(rv, '입금자명') || '').trim()) : ''),
+      // [수납묶음] 신고 시점 스냅샷(동의기록.수납묶음)이 있으면 묶음 구성+합산 금액을 카드에 직표시 — 통장 대조할 총액을 큐에서 바로 알게
+      var _sbk = (_crRec.수납묶음 && _crRec.수납묶음.keys) || [];
+      var _sbTxt = '';
+      if (_sbk.length && _crAmt) {
+        var _sbSum = (Number(_crAmt['납부액']) || 0)
+          + (_sbk.indexOf('중도금') !== -1 ? (Number(_crAmt['중도금']) || 0) : 0)
+          + (_sbk.indexOf('잔금') !== -1 ? (Number(_crAmt['잔금']) || 0) : 0);
+        _sbTxt = ' · 계약금·' + _sbk.join('·') + ' 한 번에 ' + Math.round(_sbSum).toLocaleString() + '원 (확인 시 함께 확정)';
+      }
+      pushQ({ code: code, names: names, product: product, kind: '입금확인', sub: '입금 확인' + _sbTxt + (String(cget(rv, '입금자명') || '').trim() ? (' · 입금자 ' + String(cget(rv, '입금자명') || '').trim()) : ''),
         badge: (sigDays != null && sigDays >= 1) ? { level: 'yellow', text: '입금 신호 ' + sigDays + '일째' } : null,
         _urgent: false, _stage: 4, _wait: createdYmd });
     }
@@ -683,19 +692,21 @@ function adminHome() {
     }
     // 기한 경과 미납(신호도 없음) — 계약서 11조 최고(7일) 운영 리마인드. 입금 신호가 오면 아래 '확인' 카드로 대체됨.
     (function(){
-    var _wd = _ymdOf(cget(rv, '예식일')); if (!_wd) return;
+    if (계약 !== '서명완료') return;   // 결제 의무는 서명 후 발생 — 발송만 된 계약(예식일 기입됨)에 미납 카드가 뜨지 않게
+    var _wd = _ymdOf(cget(rv, '예식일')) || _ymdOf((_crRec.계약정보 || {}).weddingDate); if (!_wd) return;   // 예식일 셀 빈값(스냅 등)이면 동의기록 폴백
     var _dd = _dayDiff(_wd, today);   // 예식까지 남은 일수
-    if (String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.중도금일수전 && _dd > 9) {
+    var _pend = function (h) { var v = String(cget(rv, h) || '').trim(); return v === '' || v === '대기'; };   // 미납 = 빈값 포함(시트는 신호 전까지 빈칸 — '대기' 문자열만 보면 영구 미탐지)
+    if (!isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.중도금일수전 && _dd > PAYMENT.잔금일수전) {
       var _over = PAYMENT.중도금일수전 - _dd;   // 0=기한 당일(고객 리마인더와 같은 날 관리자도 인지) · 1~=기한 경과
       pushQ({ code: code, names: names, product: product, kind: '중도금확인',
         sub: _over === 0 ? '중도금 기한일(오늘) · 입금 확인 대기' : ('중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)'),
         badge: _over === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over > 0, _stage: 5, _wait: createdYmd });
     }
-    if (String(cget(rv, '잔금상태') || '').trim() === '대기' && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.잔금일수전) {
-      var _over2 = PAYMENT.잔금일수전 - _dd;   // D-9 당일부터 노출 — 중도금 카드(>9)와 빈틈 없이 이어짐
-      // [B-7] D-9 이내 중도금까지 통미납이면 합산 1카드 — 고객 화면(묶음 입금 안내)·확인 처리(중도금잔금확인)와 짝
-      var _midAlso = !isSnap && String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim();
+    if (_pend('잔금상태') && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.잔금일수전) {
+      var _over2 = PAYMENT.잔금일수전 - _dd;   // 기한 당일부터 노출 — 중도금 카드(기한 초과 구간)와 빈틈 없이 이어짐
+      // [B-7] 잔금 기한 이내 중도금까지 통미납이면 합산 1카드 — 고객 화면(묶음 입금 안내)·확인 처리(중도금잔금확인)와 짝
+      var _midAlso = !isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim();
       var _ovLbl = _midAlso ? '중도금·잔금' : '잔금';
       var _ovAmt = (_midAlso && _crAmt) ? (' · ' + Math.round(_crAmt['중도금'] + _crAmt['잔금']).toLocaleString() + '원 (한 번에 입금 안내됨)') : '';
       pushQ({ code: code, names: names, product: product, kind: _midAlso ? '중도금잔금확인' : '잔금확인',
@@ -703,10 +714,10 @@ function adminHome() {
         badge: _over2 === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
     }
-    // [B-7 보완] 잔금은 이미 확인됐는데 중도금만 미납인 역순 케이스가 D-9 안쪽으로 들어오면
-    //   위 두 분기(중도금 _dd>9 · 잔금 '대기')를 모두 비켜가 카드가 0장이 됨 — 중도금 단독 카드로 메움
-    if (!isSnap && String(cget(rv, '중도금상태') || '').trim() === '대기' && !String(cget(rv, '중도금입금신호') || '').trim()
-        && String(cget(rv, '잔금상태') || '').trim() === '확인' && _dd != null && _dd <= 9) {
+    // [B-7 보완] 잔금은 이미 확인됐는데 중도금만 미납인 역순 케이스가 잔금 기한 안쪽으로 들어오면
+    //   위 두 분기(중도금 기한 초과 구간 · 잔금 미납)를 모두 비켜가 카드가 0장이 됨 — 중도금 단독 카드로 메움
+    if (!isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim()
+        && String(cget(rv, '잔금상태') || '').trim() === '확인' && _dd != null && _dd <= PAYMENT.잔금일수전) {
       var _overM = PAYMENT.중도금일수전 - _dd;
       pushQ({ code: code, names: names, product: product, kind: '중도금확인',
         sub: '중도금 미납 D+' + _overM + ' (잔금은 확인됨) · 7일 최고 후 해제 절차(계약 11조)',
@@ -717,17 +728,23 @@ function adminHome() {
     var _midSig = String(cget(rv, '중도금상태') || '').trim() === '완료신호';
     var _won = function (n) { return (n > 0) ? (' · ' + Math.round(n).toLocaleString() + '원') : ''; };   // 큐에서 통장 대조 완결용(금액·입금자명 직표시)
     var _pyr = function (h) { var v = String(cget(rv, h) || '').trim(); return v ? (' · 입금자 ' + v) : ''; };
-    if (_midSig && 잔금 === '완료신호') {
+    // [수납묶음 정리] 계약금 신고(수납묶음 스냅샷)에 포함된 중도금·잔금은 위 '입금확인' 카드 1장이 담당(확인 시 함께 확정) — 한 이체에 카드 2장 중복 방지
+    var _depBk = (입금 === '완료신호') ? ((_crRec.수납묶음 && _crRec.수납묶음.keys) || []) : [];
+    var _midCovered = _depBk.indexOf('중도금') !== -1, _balCovered = _depBk.indexOf('잔금') !== -1;
+    // [잔금 합산 정합] 신고 금액 = 기본 잔금 + 최종확정 인원 추가(고객 카드와 동일 _balanceExtraInfo) — 기본액만 보이면 통장 이체액과 안 맞음
+    var _rvW = { get: function (h) { return cget(rv, h); } };
+    var _balX = (잔금 !== '확인' && typeof _balanceExtraInfo === 'function') ? (_balanceExtraInfo(_rvW).amount || 0) : 0;
+    if (_midSig && 잔금 === '완료신호' && !(_midCovered && _balCovered)) {
       pushQ({ code: code, names: names, product: product, kind: '중도금잔금확인',
-        sub: '중도금·잔금 입금 확인 (한 번에 입금)' + _won(_crAmt ? (_crAmt['중도금'] + _crAmt['잔금']) : 0) + _pyr('중도금입금자명'),
+        sub: '중도금·잔금 입금 확인 (한 번에 입금)' + _won(_crAmt ? (_crAmt['중도금'] + _crAmt['잔금'] + _balX) : 0) + _pyr('중도금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
-    } else {
-    if (_midSig) {
+    } else if (!(_midSig && 잔금 === '완료신호')) {
+    if (_midSig && !_midCovered) {
       pushQ({ code: code, names: names, product: product, kind: '중도금확인', sub: '중도금 입금 확인' + _won(_crAmt ? _crAmt['중도금'] : 0) + _pyr('중도금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
-    if (잔금 === '완료신호') {
-      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인' + _won(_crAmt ? _crAmt['잔금'] : 0) + _pyr('잔금입금자명'),
+    if (잔금 === '완료신호' && !_balCovered) {
+      pushQ({ code: code, names: names, product: product, kind: '잔금확인', sub: '잔금 입금 확인' + _won(_crAmt ? (_crAmt['잔금'] + _balX) : 0) + _pyr('잔금입금자명'),
         badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 4, _wait: createdYmd });
     }
     }
@@ -1226,7 +1243,7 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   }
   var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': linkStr };
   if (amt > 0) upd['계약총액'] = amt;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-7·중도금 D-30 산출 기준(계약에서 잠금)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-9·중도금 D-149 산출 기준(계약에서 잠금 · PAYMENT 단일 출처)
   if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1) {          // 예식 슬롯 반영(고객 요청분 확정 또는 관리자 변경)
     var _rec = _parseJsonSafe(cust.get('동의기록')); _rec.계약정보 = _rec.계약정보 || {};
     _rec.계약정보.weddingTime = wT; if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) _rec.계약정보.weddingDate = wed;
