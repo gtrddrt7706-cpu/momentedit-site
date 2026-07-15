@@ -244,8 +244,9 @@ module.exports = async (req, res) => {
     const lv = levelFor(taken, today, page);   // ⑤ 주말 예약율 6단계 · 클라이언트 비노출(로그만)
     try { console.log('sched_level', lv.n, lv.ratio.toFixed(2), page); } catch (e) {}
     let verdict = decide(ex, taken, today, ctx, page, lv);
-    // [fail-closed] 점유 조회 불가 상태에서 특정 날짜를 '가능'으로 단정하면 더블부킹 위험 — 안전 안내로 대체
-    if (availUnknown && ex && ex.date) {
+    // [fail-closed] 점유 조회 불가 상태에서 특정 날짜'나 시기 후보'를 '가능'으로 단정하면 더블부킹 위험 — 안전 안내로 대체.
+    //   ex.date(특정일)뿐 아니라 ex.periodFrom(시기 질문 → 서버가 후보일을 골라 '가능' 단정)도 함께 차단해야 한다.
+    if (availUnknown && ex && (ex.date || ex.periodFrom)) {
       verdict = '지금은 일정 확인 시스템 연결이 잠시 원활하지 않다. 이 날짜가 가능한지 단정하지 말고, "잠시 후 다시 물어봐 주시면 바로 확인해 드리겠다"고 정중히 안내하라. 가능·마감 어느 쪽도 말하지 마라.';
     }
 
@@ -425,7 +426,7 @@ function normalizeTaken(input) {
     const arr = Array.isArray(input[k]) ? input[k].filter((s) => SLOTS.indexOf(String(s)) !== -1) : [];
     if (arr.length === 0) continue;
     out[k] = arr;
-    if (++n >= 400) break;
+    if (++n >= 3000) break;   // 상한(메모리 가드) — 예약된 날짜를 조용히 누락해 '빈 자리'로 오판하지 않도록 넉넉히
   }
   return out;
 }
