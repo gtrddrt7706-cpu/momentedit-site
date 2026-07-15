@@ -1475,12 +1475,15 @@ function cardPayment(d){
   var r=d.raw||{}, pay=r['입금상태']||'대기', raw='입금 <b>'+esc(pay)+'</b>';
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
   if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
-  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-7)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
+  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-9)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
+  // [수납묶음] 고객이 계약금과 중도금·잔금을 한 번에 신고(완료신호)한 상태 — '입금 확인' 클릭 시 신고 묶음이 함께 확정됨을 미리 안내
+  if(pay==='완료신호'&&((r['중도금상태']||'')==='완료신호'||(d.mirror&&d.mirror.balance&&d.mirror.balance.status==='완료신호')))
+    b+='<div class="gate">한 번에 입금 신고된 건 · 입금 확인 시 신고된 중도금·잔금도 함께 확정돼요</div>';
   var mid=r['중도금상태']||'';
   if(mid){
     raw+='<div class="cnote">중도금 <b>'+esc(mid)+'</b>'+(r['중도금입금자명']?(' · 입금자 '+esc(r['중도금입금자명'])):'')+'</div>';
@@ -1768,7 +1771,7 @@ function doConsultDone(code,names,fitN){
     }
   });
 }
-function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
+function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
 function doConfirmBalance(code,names){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 — 제작 계속 가능'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
 function doConfirmMidBal(code,names){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요'), yes:'중도금·잔금 확인', onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
 function doConfirmMid(code,names){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 — 제작 계속 가능'), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }

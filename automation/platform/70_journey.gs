@@ -1201,7 +1201,7 @@ function buildPaymentState(r) {
 }
 
 // ============================ 02-5 · 잔금 (결제 마일스톤 — 단계 아님) ============================
-// 잔금 = 총액 80%. 예식 D-7 마감(미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
+// 잔금 = 총액(시그 50%·스냅 80%). 예식(촬영) D-잔금일수전(PAYMENT·현행 9일) 마감 · 미리 입금 가능. 상태: 대기→완료신호→확인(관리자 통장 대조).
 //   현재단계는 안 바꿈 → 제작 편집 계속 가능. 계좌는 계약금과 동일(CONFIG.ACCOUNT).
 function _balanceDDay(weddingDate) {
   var m = String(weddingDate || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
@@ -1316,7 +1316,7 @@ function buildMidState(r) {
   if (['입금완료', '제작중', '예식완료'].indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var mStatus = String(r.get('중도금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
-  var dday = _balanceDDay(r.get('예식일'));
+  var dday = _balanceDDay(_payWeddingYmd(r));   // 예식일 셀 빈값이면 동의기록 계약정보 폴백(잔금 카드와 동일 기준)
   // 결제 시기(기한 15일 전부터) 또는 진행/완료일 때만 카드 노출 — 그 전엔 NEXT 자물쇠(인지)만.
   if (mStatus !== '완료신호' && mStatus !== '확인' && !(dday != null && dday <= PAYMENT.중도금일수전 + 15)) return null;
   return {
@@ -1400,7 +1400,7 @@ function adminConfirmMidBalance(code) {
   return { ok: true };
 }
 
-// [트리거·일1회] 예식 D-7 이내 + 미확인 + 미발송 → 잔금 리마인드 메일 1회.
+// [트리거·일1회] 잔금 기한(PAYMENT.잔금일수전) 예고·기한 도래 + 미확인 + 미발송 → 잔금 리마인드 1회.
 function sendBalanceReminders() {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf['잔금상태'] || !colOf['잔금리마인드'] || !colOf['예식일']) return;   // 마이그레이션 전이면 중단
