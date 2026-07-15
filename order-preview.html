@@ -949,9 +949,9 @@ function rowVal(k){
   }
   return '';
 }
-window.tuneTgl=function(k){ if(S.extra[k]){ delete S.extra[k]; delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; } else { S.tune[k]=!S.tune[k]; } buildSteps(); render(); };
+window.tuneTgl=function(k){ if(S.extra[k]){ delete S.extra[k]; delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } else { S.tune[k]=!S.tune[k]; if(k==='valley') S.valley='wine'; } buildSteps(); render(); };
 window.tuneAll=function(on){ if(!on){ if(S.extra.bless) S.bless=(S.course==='family')?'on':'off'; S.extra={}; S.tune={}; } else { curSeq().forEach(function(k){ S.tune[k]=on; }); } buildSteps(); render(); };
-window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; } buildSteps(); render(); };
+window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; if(k==='valley') S.valley='wine'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
 
 function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
@@ -962,15 +962,17 @@ function renderStep(k){
     var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
     var _disp=_base.map(function(k){return {k:k,off:false};});
     _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
+    var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};
     _disp.forEach(function(d){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
-      var _open=(_tprev===x);
-      h+='<div class="mc trow'+(_off?' off':'')+(_open?' open':'')+'" onclick="tprev(\''+x+'\')">';
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div><span class="mc-chev">›</span></div>';
+      var _canExp=MCVIS[x]||OFFTGL[x]||d.off||S.extra[x];
+      var _open=(_tprev===x)&&_canExp;
+      h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'"'+(_canExp?' onclick="tprev(\''+x+'\')"':' style="cursor:default"')+'>';
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
-      if(!_off && !OFFTGL[x]) h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
+      if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       if(_open){
         h+='<div class="mc-x">';
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
