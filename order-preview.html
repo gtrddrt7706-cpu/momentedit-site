@@ -603,7 +603,7 @@ function render(){
   document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':pre?'식 시작 전':(pct+'%');
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
-  else if(st.k==='course') pnextEl.textContent='다음 · 이 코스에서 바꿀 순간 고르기';
+  else if(st.k==='course') pnextEl.textContent='다음 · 함께 볼 순간 확인(전체 기본)';
   else if(nx2 && nx2.k==='done' && st.k==='tune') pnextEl.textContent='다음 · 추천 그대로, 완성 보기';
   else if(nx2 && nx2.k==='done') pnextEl.textContent='다음 · 폐식 · 단체촬영 안내, 그리고 완성';
   else if(nx2 && nx2.k==='guest') pnextEl.textContent='다음 · 여기서 실제 식이 시작돼요 · 하객 맞이';
@@ -1045,7 +1045,8 @@ function applyCourse(v){
   S.valley='none'; S.letter='parent';
   S.bless=(v==='family')?'on':'off';
   S.veil='mother'; S.ringwarm='family'; S.tribute='flower'; S.toast='toast'; S.song='family'; S.flash=false; S.guestbook=false;
-  S.tune={entry:true}; S.extra={}; S.house={};
+  S.tune={}; S.extra={}; S.house={};
+  curSeq().forEach(function(k){ S.tune[k]=true; });   // 기본 = 모든 순간을 하나씩 보며 만들기 (2026-07-15 사용자 지시)
   buildSteps();
 }
 var courseStarted=false;
