@@ -162,8 +162,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
 .upl-r{display:flex;align-items:center;gap:8px}
 .upbtn{background:var(--seal);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
-.upst{font-size:10.5px;color:var(--light);background:var(--bg2);border-radius:20px;padding:3px 10px}
-.upst.done{color:var(--green);background:#F3EEE1}
+.upst{font-size:11px;color:var(--light)}
+.upst.done{font-size:10.5px;color:var(--green);background:#F3EEE1;border-radius:20px;padding:3px 10px}
+.play-lnk{background:none;border:none;padding:8px 2px;font-family:var(--sans);font-size:12.5px;color:var(--gold-deep);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .upkeep{font-size:12px;color:var(--gold-deep);margin-top:11px;word-break:keep-all;line-height:1.6}
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deep);font-weight:600;margin-bottom:6px}
@@ -977,7 +978,7 @@ function renderStep(k){
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
       h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
-      if(cpl){ h+='<div class="uprow">'+playBtn()+(S.up['g'+i]?'<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>':'<span class="upl-r"><button class="upbtn" onclick="mockUpload(\'g'+i+'\')">파일 올리기</button><span class="upst">올리기 전</span></span>')+'</div>'; }
+      if(cpl){ h+='<div class="uprow"><button class="play-lnk" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>'+(S.up['g'+i]?'<span class="upst done">올림 완료 · 검수 대기 · 잡음은 저희가 다듬어요</span>':'<span class="upl-r"><button class="upbtn" onclick="mockUpload(\'g'+i+'\')">파일 올리기</button><span class="upst">올리기 전</span></span>')+'</div>'; }
       h+='</div>';
     });
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
