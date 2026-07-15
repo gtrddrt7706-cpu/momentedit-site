@@ -1279,18 +1279,28 @@ function _confirmDepositCore(code, opts) {
   rec0.영수증기준일 = rec0.영수증기준일 || {};
   rec0.영수증기준일.예약금 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용 · 스냅 계약금 포함)
   var patch = { '입금상태': '확인', '동의기록': JSON.stringify(rec0) };
-  // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인 — buildPaymentState.bundle과 같은 기준(D-149/D-9 · 시그니처)
+  // [임박 계약 일괄 수납] 계약금과 함께 받은 중도금·잔금도 한 번에 확인.
+  //   기준(스냅샷 우선): ① 고객 신고 시점에 handlePaymentSignal이 고정한 동의기록.수납묶음.keys를 그대로 확정
+  //                     ② 스냅샷이 없으면(구데이터) '완료신호'로 신고된 마일스톤만.
+  //   확인 시점 D-day 재계산은 하지 않는다 — 신고 D-150 → 확인 D-149처럼 경계를 넘긴 확인이 '받지 않은 돈'을 오확정하고
+  //   영수증까지 오발급하던 문제 차단. 신고에 없던 금액은 개별 확인 버튼(adminConfirmMid 등)으로 처리(기능 손실 없음).
   //   ※ 중도금·잔금 확인일시는 '같은 now'로 찍어야 _cashReceiptLedger 콤보(중도금·잔금 1건 합산) 판정(_mAt===_bAt)이 성립. fmtKST가 분 단위라 new Date() 두 번이면 분 경계서 갈릴 수 있음.
   //   ※ 카드결제(opts.bundle=false)는 계약금 금액만 승인되므로 절대 번들하지 않는다(미결제분 확인 방지). 임박 일괄은 프론트 '일괄결제' 옵션으로 별도 처리.
   var bundled = [], _bNow = fmtKST(new Date());
-  if (opts.bundle && String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && typeof _balanceDDay === 'function' && typeof PAYMENT !== 'undefined') {
-    var _ddc = _balanceDDay(cust.get('예식일'));
-    if (_ddc != null && _ddc <= PAYMENT.중도금일수전 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = _bNow; bundled.push('중도금'); }
-    if (_ddc != null && _ddc <= PAYMENT.잔금일수전 && String(cust.get('잔금상태') || '').trim() !== '확인') {
+  if (opts.bundle && String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {
+    var _bk = (rec0.수납묶음 && rec0.수납묶음.keys && rec0.수납묶음.keys.length) ? rec0.수납묶음.keys.slice() : [];
+    if (!_bk.length) {
+      if (String(cust.get('중도금상태') || '').trim() === '완료신호') _bk.push('중도금');
+      if (String(cust.get('잔금상태') || '').trim() === '완료신호') _bk.push('잔금');
+    }
+    if (_bk.indexOf('중도금') !== -1 && String(cust.get('중도금상태') || '').trim() !== '확인') { patch['중도금상태'] = '확인'; patch['중도금확인일시'] = _bNow; bundled.push('중도금'); }
+    if (_bk.indexOf('잔금') !== -1 && String(cust.get('잔금상태') || '').trim() !== '확인') {
       patch['잔금상태'] = '확인'; patch['잔금확인일시'] = _bNow; bundled.push('잔금');
-      var _dX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };   // [잔금 스냅샷] 번들 확인도 동일 고정
-      var _dAm = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));
-      rec0.잔금확정금액 = Math.round((_dAm ? Number(_dAm['잔금']) || 0 : 0) + (_dX.amount || 0));
+      if (!(Number(rec0.잔금확정금액) > 0)) {   // [잔금 스냅샷] 번들 확인도 동일 고정(이미 고정돼 있으면 유지)
+        var _dX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
+        var _dAm = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));
+        rec0.잔금확정금액 = Math.round((_dAm ? Number(_dAm['잔금']) || 0 : 0) + (_dX.amount || 0));
+      }
       patch['동의기록'] = JSON.stringify(rec0);
     }
   }

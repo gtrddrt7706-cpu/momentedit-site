@@ -673,12 +673,36 @@ var PAYMENT = {
 };
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
-// 임박 계약(예식 149일 이내 성립) 대응 — 기한이 이미 지난 고객에겐 과거 날짜 대신 '계약 시 함께 납부'로 표기(계약서 4조④ 단서와 일치).
+// 상품별 어휘 — 스냅은 '예식'이 아니라 '촬영'(잔금 기한 라벨·리마인드 문구가 스냅 고객에게 어색하던 문제)
+function _payWordFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? '촬영' : '예식'; }
+function _balanceDueLabelFor(r) { return _payWordFor(r) + ' ' + PAYMENT.잔금일수전 + '일 전'; }
+// 결제 기준일 — 예식일 컬럼 우선 · 비어 있으면(스냅 등 계약정보 우회 경로) 동의기록.계약정보.weddingDate 폴백(dday=null로 카드 기한·리마인드가 통째 죽던 문제)
+function _payWeddingYmd(r) {
+  var d = _ymdOf(r.get('예식일')); if (d) return d;
+  try { return _ymdOf((_parseJsonSafe(r.get('동의기록')).계약정보 || {}).weddingDate) || ''; } catch (e) { return ''; }
+}
+// [임박 묶음 단일 판정] 계약금과 함께 받을 마일스톤 — '확인'은 물론 '완료신호'(이미 입금 신고·확인 대기)도 제외해 신고분 재청구 방지.
+//   buildPaymentState(청구 표시)·handlePaymentSignal(신고 시점 스냅샷)이 같은 함수를 쓴다(청구와 기록의 단일 기준).
+function _bundleKeysFor(r) {
+  var out = [];
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return out;
+  var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
+  if (!amounts) return out;
+  var _dd = _balanceDDay(_payWeddingYmd(r));
+  var _open = function (h) { var v = String(r.get(h) || '').trim(); return v !== '확인' && v !== '완료신호'; };
+  if (_dd != null && _dd <= PAYMENT.중도금일수전 && _open('중도금상태')) out.push('중도금');
+  if (_dd != null && _dd <= PAYMENT.잔금일수전 && _open('잔금상태')) out.push('잔금');
+  return out;
+}
+// 임박 계약(예식 149일 이내 성립) 대응 — '서명 시점에 이미 기한 경과'인 계약만 '계약 시 함께 납부'로 표기.
+//   계약 후 기한이 지난 단순 연체는 기한일·라벨을 유지(연체 사실이 화면에서 사라져 독촉 근거를 잃던 문제).
 function _midDuePast(r) {
   var d = _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전);
   if (!d) return false;
+  var signed = _ymdOf(r.get('계약서명일시'));
+  if (signed) return d < signed;   // 임박 계약 판정 = 기한일 < 서명일
   var today = _ymdOf(fmtKST(new Date()));
-  return today && d < today;   // 둘 다 YYYY-MM-DD 패딩이라 문자열 비교 안전
+  return today && d < today;   // 서명일 미기록(구데이터) 폴백 — 기존 동작 유지
 }
 function _midDueLabelFor(r) { return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
 function _midDueDateFor(r) { return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
@@ -1024,12 +1048,19 @@ function handlePaymentSignal(body) {
     if (String(cust.get('입금상태') || '').trim() === '확인') {
       return { ok: true, already: true };                    // 이미 관리자 확인 완료
     }
-    touchCustomer(sheet, colOf, cust.num, {
-      '입금자명': payer,
-      '입금완료신호': fmtKST(new Date()),
-      '입금상태': '완료신호'
-    });
-    _saveCashReceipt(cust, sheet, colOf, body && body.cashReceipt);   // 현금영수증 번호 저장(선택)
+    // [수납묶음 스냅샷] 신고 시점의 묶음 구성(화면 청구와 같은 _bundleKeysFor)을 동의기록에 고정 + 구성원 상태도 '완료신호'로.
+    //   → 관리자 확인은 이 스냅샷만 확정(확인 시점 D-day 재계산 금지 — 경계를 넘긴 확인이 미수령분을 오확정하던 문제 차단)
+    //   → 카드·내 내역이 신고분을 '확인 중'으로 표시(신고했는데 '대기·기한경과'로 보여 이중 입금 유도하던 문제 해소)
+    var _bk = (typeof _bundleKeysFor === 'function') ? _bundleKeysFor(cust) : [];
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    var _prevBk = (rec.수납묶음 && rec.수납묶음.keys) || [];   // 재신고 시 기존 스냅샷과 합집합(이미 완료신호가 된 구성원이 재계산에서 빠져 스냅샷이 비는 것 방지)
+    rec.수납묶음 = { keys: _prevBk.concat(_bk.filter(function (k) { return _prevBk.indexOf(k) === -1; })), at: fmtKST(new Date()) };
+    var _crIn = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 현금영수증(선택) — 같은 동의기록에 1회 쓰기(별도 _saveCashReceipt 호출이 이 쓰기를 덮던 순서 문제 방지)
+    if (_crIn) rec.현금영수증 = _crIn;
+    var upd = { '입금자명': payer, '입금완료신호': fmtKST(new Date()), '입금상태': '완료신호', '동의기록': JSON.stringify(rec) };
+    if (_bk.indexOf('중도금') !== -1) upd['중도금상태'] = '완료신호';
+    if (_bk.indexOf('잔금') !== -1) upd['잔금상태'] = '완료신호';
+    touchCustomer(sheet, colOf, cust.num, upd);
     notifyKakao('admin.depositSignal', code, { payer: payer });   // 관리자: 계약금 입금신호 · 확인 필요(카톡)
     return { ok: true };                                      // 자동 진행 X · 관리자 승인 대기
   } finally {
@@ -1146,18 +1177,17 @@ function buildPaymentState(r) {
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   // [임박 계약 일괄 수납] 기한이 이미 닥친 결제는 계약금과 한 번에 받는다(쪼개 받기 방지 · 계약서 §4④).
   //   D-149 이내 성립 → +중도금 · D-9 이내 → +잔금까지(사실상 전액). 이미 '확인'된 단계는 제외. 법적 구조(10/40/50)는 그대로, 수납만 묶음.
-  var bundle = [];
-  if (String(r.get('상품타입') || '').trim() !== '웨딩스냅' && amounts) {
-    var _dd = _balanceDDay(r.get('예식일'));
-    if (_dd != null && _dd <= PAYMENT.중도금일수전 && String(r.get('중도금상태') || '').trim() !== '확인') bundle.push('중도금');
-    if (_dd != null && _dd <= PAYMENT.잔금일수전 && String(r.get('잔금상태') || '').trim() !== '확인') bundle.push('잔금');
-  }
+  var bundle = _bundleKeysFor(r);   // 단일 판정 — '완료신호'(신고·확인 대기)도 제외해 신고분을 bundleTotal에 재합산·재청구하지 않음
   var bundleTotal = amounts ? (amounts.납부액
     + (bundle.indexOf('중도금') !== -1 ? amounts.중도금 : 0)
     + (bundle.indexOf('잔금') !== -1 ? amounts.잔금 : 0)) : null;
+  // 신고된 묶음 — 고객이 '입금했어요'를 누른 시점의 스냅샷(동의기록.수납묶음). 확인중 문구가 '계약금만 확인 중'으로 축소되지 않게 프론트에 전달.
+  var signaledBundle = [];
+  if (iStatus === '완료신호') { try { var _rp = _parseJsonSafe(r.get('동의기록')).수납묶음; if (_rp && _rp.keys && _rp.keys.length) signaledBundle = _rp.keys; } catch (e) {} }
   return {
     status: iStatus,                          // 대기 / 완료신호 / 확인
     confirmed: confirmed,
+    signaledBundle: signaledBundle,           // 신고 시점 묶음 구성(완료신호일 때만 · []면 계약금 단독 신고)
     payerName: String(r.get('입금자명') || '').trim(),
     cashReceipt: _cashReceiptOf(r),
     amounts: amounts,                         // {계약금,납부액,중도금,잔금,...} 또는 null
@@ -1212,7 +1242,8 @@ function buildBalanceState(r) {
   if (stages.indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var bStatus = String(r.get('잔금상태') || '').trim() || '대기';
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
-  var dday = _balanceDDay(r.get('예식일'));
+  var _wYmd = _payWeddingYmd(r);   // 예식일 비면 계약정보 폴백 — 스냅 dday=null로 기한·리마인드가 죽던 문제
+  var dday = _balanceDDay(_wYmd);
   // 시그: 중도금과 함께(예식 D-45 이내)·중도금 확인 후 노출. 스냅: 2단계 결제(20/80)라 입금완료부터 바로 노출(예식일·dday 무관).
   if (!isSnap && bStatus !== '확인' && String(r.get('중도금상태') || '').trim() !== '확인' && !(dday != null && dday <= PAYMENT.잔금일수전 + 15)) return null;
   var _x = _balanceExtraInfo(r);
@@ -1230,8 +1261,8 @@ function buildBalanceState(r) {
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
     due: (dday != null && dday <= PAYMENT.잔금일수전),  // 기한 이내(부각)
-    dueLabel: _balanceDueLabel(),
-    dueDate: _shiftYmd(r.get('예식일'), -PAYMENT.잔금일수전)   // 잔금 마감일 = 예식 D-7 (YYYY-MM-DD)
+    dueLabel: _balanceDueLabelFor(r),                  // 스냅은 '촬영 N일 전' 어휘
+    dueDate: _shiftYmd(_wYmd, -PAYMENT.잔금일수전)   // 잔금 마감일 = 예식(촬영) D-잔금일수전 (YYYY-MM-DD)
   };
 }
 // 잔금 입금 신호(고객). 단계 전이 없음·멱등.
@@ -1380,9 +1411,11 @@ function sendBalanceReminders() {
     var row = vals[i];
     if (String(row[c('계약상태') - 1] || '').trim() !== '서명완료') continue;
     if (['완료신호', '확인'].indexOf(String(row[c('잔금상태') - 1] || '').trim()) !== -1) continue;   // [2026-06-23] 입금 신호(완료신호)만 보내도 리마인더 멈춤 — '이미 냈는데 또 내라' 방지(관리자 확인 전이라도)
-    if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
+    if (['입금완료', '제작중', '촬영완료', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;   // '촬영완료'=스냅 전용 단계 — 스냅 잔금도 리마인드 대상
     var flag = String(row[c('잔금리마인드') - 1] || '').trim();
-    var dday = _balanceDDay(row[c('예식일') - 1]);
+    var _remR = { get: function (h) { var k = c(h); return k ? row[k - 1] : ''; } };
+    var _wYmd = _payWeddingYmd(_remR);                                              // 예식일 셀 빈값이면 동의기록 계약정보로 폴백(스냅 사각 방지)
+    var dday = _balanceDDay(_wYmd);
     if (dday == null) continue;
     var stagePre = (!flag && dday <= PAYMENT.잔금일수전 + 15 && dday > PAYMENT.잔금일수전);
     var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.잔금일수전);
@@ -1390,23 +1423,23 @@ function sendBalanceReminders() {
     var email = String(row[c('이메일') - 1] || '').trim();
     var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
     var _isSnapRow = String(row[c('상품타입') - 1] || '').trim() === '웨딩스냅';
-    var _comboRem = !_isSnapRow && String(row[c('중도금상태') - 1] || '').trim() !== '확인';   // 중도금도 미납(임박 묶음) → 합산 1통
+    var _comboRem = !_isSnapRow && ['확인', '완료신호'].indexOf(String(row[c('중도금상태') - 1] || '').trim()) === -1;   // 중도금도 미납(임박 묶음) → 합산 1통 · 완료신호(신고됨)도 청구 제외
     var _payL = _comboRem ? '중도금·잔금' : '잔금';
+    var _payW = _isSnapRow ? '촬영' : '예식';                                        // 스냅은 예식일 칸에 촬영일 — 어휘도 '촬영'
     // [잔금 합산 정합] 최종확정 스탠딩 초과요금을 잔금에 포함 — 마이페이지 잔금 카드·카드결제 검증(_balanceExtraInfo 단일 출처)과 금액 일치
-    var _remR = { get: function (h) { var k = c(h); return k ? row[k - 1] : ''; } };
     var _remX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(_remR) : { amount: 0 };
     var _balRem = (amounts ? Number(amounts['잔금']) || 0 : 0) + (_remX.amount || 0);
     var amtTxt = amounts ? (Number(_comboRem ? (Number(amounts['중도금']) || 0) + _balRem : _balRem).toLocaleString() + '원') : '잔금';
-    var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.잔금일수전);
+    var dueYmd = _shiftYmd(_wYmd, -PAYMENT.잔금일수전);
     notifyKakao(stageDue ? 'cust.balanceDue' : 'cust.balancePre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {
       try {
         if (stageDue) {
-          GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 납부일 안내 (예식 D-' + dday + ')',
-            '예식이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 ' + (dday >= PAYMENT.잔금일수전 ? ('오늘(' + dueYmd + ')까지') : '지금 바로') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+          GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 납부일 안내 (' + (dday >= 0 ? (_payW + ' D-' + dday) : '납부일 지남') + ')',
+            _payW + '이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 ' + (dday >= PAYMENT.잔금일수전 ? ('오늘(' + dueYmd + ')까지') : '지금 바로') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
         } else {
           GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 안내가 열렸어요 (납부일: ' + dueYmd + ')',
-            '예식이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 9일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
+            _payW + '이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (' + _payW + ' ' + PAYMENT.잔금일수전 + '일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
         }
       } catch (e) {}
     }
@@ -1427,9 +1460,11 @@ function sendMidReminders() {
     if (['완료신호', '확인'].indexOf(String(row[c('중도금상태') - 1] || '').trim()) !== -1) continue;   // [2026-06-23] 입금 신호(완료신호)만 보내도 리마인더 멈춤 — '이미 냈는데 또 내라' 방지(관리자 확인 전이라도)
     if (['입금완료', '제작중', '예식완료'].indexOf(String(row[c('현재단계') - 1] || '').trim()) === -1) continue;
     var flag = String(row[c('중도금리마인드') - 1] || '').trim();
-    var dday = _balanceDDay(row[c('예식일') - 1]);
+    var _remR = { get: function (h) { var k = c(h); return k ? row[k - 1] : ''; } };
+    var _wYmd = _payWeddingYmd(_remR);                                              // 예식일 셀 빈값이면 동의기록 계약정보로 폴백
+    var dday = _balanceDDay(_wYmd);
     if (dday == null) continue;
-    if (dday <= PAYMENT.잔금일수전 && String(row[c('잔금상태') - 1] || '').trim() !== '확인') continue;   // 임박 묶음 구간 — 잔금 리마인더가 '중도금·잔금' 합산 1통으로 보냄(중복 2통 방지)
+    if (dday <= PAYMENT.잔금일수전 && ['확인', '완료신호'].indexOf(String(row[c('잔금상태') - 1] || '').trim()) === -1) continue;   // 임박 묶음 구간 — 잔금 리마인더가 '중도금·잔금' 합산 1통으로 보냄(중복 2통 방지 · 잔금 완료신호면 중도금만 단독 리마인드)
     // 2단계: ① 예고(카드 열리는 D-164) ② 기한일(D-149). 임박 계약(이미 기한 안쪽)은 기한 단계만 1회.
     var stagePre = (!flag && dday <= PAYMENT.중도금일수전 + 15 && dday > PAYMENT.중도금일수전);
     var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.중도금일수전);
@@ -1437,16 +1472,16 @@ function sendMidReminders() {
     var email = String(row[c('이메일') - 1] || '').trim();
     var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
     var amtTxt = amounts ? (Number(amounts['중도금']).toLocaleString() + '원') : '중도금';
-    var dueYmd = _shiftYmd(row[c('예식일') - 1], -PAYMENT.중도금일수전);
+    var dueYmd = _shiftYmd(_wYmd, -PAYMENT.중도금일수전);
     notifyKakao(stageDue ? 'cust.midDue' : 'cust.midPre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {                                            // 메일은 결제 리마인드 공통 토글
       try {
         if (stageDue) {
-          GmailApp.sendEmail(email, '[Moment Edit] 중도금 납부일 안내 (예식 D-' + dday + ')',
+          GmailApp.sendEmail(email, '[Moment Edit] 중도금 납부일 안내 (' + (dday >= 0 ? ('예식 D-' + dday) : '납부일 지남') + ')',
             '무료 취소 기간이 끝나고 예식 일정이 확정되는 날이에요.\n중도금 ' + amtTxt + '을 ' + (dday < PAYMENT.중도금일수전 ? '계약 시 안내드린 대로 바로' : '오늘(' + dueYmd + ')까지') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
         } else {
           GmailApp.sendEmail(email, '[Moment Edit] 중도금 안내가 열렸어요 (납부일: ' + dueYmd + ')',
-            '예식 준비가 본격적으로 시작될 시기예요.\n중도금 ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 149일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요. 미리 확인해 두세요.\n\nMoment Edit');
+            '예식 준비가 본격적으로 시작될 시기예요.\n중도금 ' + amtTxt + '의 납부일은 ' + dueYmd + ' (예식 ' + PAYMENT.중도금일수전 + '일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요. 미리 확인해 두세요.\n\nMoment Edit');
         }
       } catch (e) {}
     }
