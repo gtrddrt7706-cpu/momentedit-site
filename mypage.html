@@ -1384,12 +1384,11 @@ function renderMyPage(d){
         }
       }
     }
-    // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선
-    var _comboPending = (d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed
-                         && d.midpayment.dday != null && d.midpayment.dday <= 9);
-    if (d.stage === '입금완료' && _comboPending) {
+    // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선(payPlan 단일 판정)
+    var _pp = payPlan(d);
+    if (_pp.hold) {
       // '완료신호'(입금 신고 후 관리자 확인 대기)면 독촉 대신 확인중 안내 — 이미 보낸 고객에게 '입금해 주세요'를 띄워 이중 입금을 유도하던 자기모순 방지
-      if (d.midpayment.status === '완료신호' && d.balance.status === '완료신호') {
+      if (_pp.bothSig) {
         head = '중도금·잔금 입금을 확인하고 있어요';
         sub  = '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';
       } else {
@@ -1407,8 +1406,12 @@ function renderMyPage(d){
       var _tk = d.production.tracks;
       if (_tk.invitation==='완료' && _tk.ritual==='완료') {
         head = '예식 준비가 끝났어요';
-        sub  = (d.midpayment && !d.midpayment.confirmed) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
-             : ((d.balance && !d.balance.confirmed) ? '이제 잔금만 입금하시면 끝이에요.' : '예식날 정성껏 준비해서 뵐게요.');
+        // 남은 결제만 정확히 — 신고(완료신호)된 몫은 '입금하라'가 아니라 '확인 중'으로(이중 입금 유도 방지)
+        var _needM = _pp.midOpen && !_pp.midSig, _needB = _pp.balOpen && !_pp.balSig;
+        sub  = (_needM && _needB) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
+             : (_needM ? '이제 중도금만 입금하시면 돼요.'
+             : (_needB ? '이제 잔금만 입금하시면 끝이에요.'
+             : ((_pp.midOpen || _pp.balOpen) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식날 정성껏 준비해서 뵐게요.')));
       }
     }
     // [결과물] 고객이 지금 할 일을 NOW에 반영 — 원본 도착(선택)·선택 완료(보정 중)·추가 보정 입금
@@ -1456,7 +1459,7 @@ function renderMyPage(d){
     var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
     if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel=(d.payment.bundle&&d.payment.bundle.length)?('계약금·'+d.payment.bundle.join('·')+' 입금'):'계약금 입금';   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
-    if (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님)
+    if (payPlan(d).hold) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님) — NOW·제작 잠금과 같은 payPlan 기준
     $('mp_stageNow').textContent = nowLabel;
     $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
     var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
@@ -1502,8 +1505,8 @@ function renderMyPage(d){
       var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
       if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
     }
-    var _comboHold = (d.stage==='입금완료' && d.midpayment && !d.midpayment.confirmed && d.balance && !d.balance.confirmed && d.midpayment.dday!=null && d.midpayment.dday<=9);
-    renderProduction(_comboHold ? null : d.production, d.invitation);                    // 제작 (03) — 임박 묶음결제 입금 전엔 잠금(NEXT 자물쇠와 일치)
+    var _comboHold = payPlan(d).hold;
+    renderProduction(_comboHold ? null : d.production, d.invitation);                    // 제작 (03) — 임박 묶음결제 입금 전엔 잠금(NEXT 자물쇠와 일치 · payPlan 단일 기준)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
     // 시착 동의서 문서 뷰어용 메타 보관(서명 당시 버전 전문 포함) — '보기'에서 사용
     window._fittingDoc = (d.ledger && d.ledger.documents || []).filter(function(x){ return x.label==='시착 동의서'; })[0] || null;
@@ -1569,15 +1572,37 @@ function applyCardStageView(d){
   }
 }
 
+// ── [결제 판정 단일화] 서버 결제 정책(d.payPolicy · 70_journey PAYMENT 서빙)과 결제 국면 판정을 한 곳으로 ──
+//   그동안 NOW·진행바·제작 잠금·NEXT가 리터럴 9/149와 짝별 가드로 각자 재추측하던 것을 이 두 함수로 통일.
+function _payDays(d){
+  var p=((d||window._mpStateD||{}).payPolicy)||{};
+  return { bal:(Number(p.balanceDays)>0?Number(p.balanceDays):9), mid:(Number(p.midDays)>0?Number(p.midDays):149) };
+}
+function _payWord(d){ return (((d||window._mpStateD||{}).product)==='웨딩스냅')?'촬영':'예식'; }   // 스냅은 예식일 자리에 촬영일 — 고객 문구 어휘
+function payPlan(d){
+  d=d||{}; var m=d.midpayment, b=d.balance, days=_payDays(d);
+  var midOpen=!!(m&&!m.confirmed), balOpen=!!(b&&!b.confirmed);
+  var midSig=!!(m&&m.status==='완료신호'), balSig=!!(b&&b.status==='완료신호');
+  var dd=(m&&m.dday!=null)?m.dday:((b&&b.dday!=null)?b.dday:null);
+  var combo=midOpen&&balOpen&&dd!=null&&dd<=days.bal;   // 임박 묶음 구간 — 중도금·잔금 동시 미확인 + 잔금 기한 이내
+  return { days:days, dday:dd, midOpen:midOpen, balOpen:balOpen, midSig:midSig, balSig:balSig,
+           combo:combo, bothSig:midSig&&balSig,
+           hold:(d.stage==='입금완료')&&combo };         // 묶음결제 대기 — NOW·진행바 제목·제작 잠금·NEXT가 같은 기준을 봄
+}
 function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   var box = $('mp_upcoming');
   // 최신 예식일 — 계약 확정 > 임시고정 > 예약 시 예정일 순으로 갱신되는 값(없으면 null)
   var _wed = (d && d.production && d.production.base && d.production.base.weddingDate)
           || (d && d.contract && d.contract.fill && d.contract.fill.weddingDate)
           || (d && d.hold && d.hold.date) || (d && d.expectedWeddingDate) || '';
+  var _pd = _payDays(d);
   var _dd = null;
-  var _m = String(_wed||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (_m){ var _w=new Date(+_m[1],+_m[2]-1,+_m[3]); _w.setHours(0,0,0,0); var _t=new Date(); _t.setHours(0,0,0,0); _dd=Math.round((_w-_t)/86400000); }
+  if (d && d.balance && d.balance.dday!=null) _dd = d.balance.dday;             // 서버 판정 우선(예식일 빈값 동의기록 폴백 포함)
+  else if (d && d.midpayment && d.midpayment.dday!=null) _dd = d.midpayment.dday;
+  if (_dd == null){
+    var _m = String(_wed||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (_m){ var _w=new Date(+_m[1],+_m[2]-1,+_m[3]); _w.setHours(0,0,0,0); var _t=new Date(); _t.setHours(0,0,0,0); _dd=Math.round((_w-_t)/86400000); }
+  }
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
@@ -1598,21 +1623,21 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
     // 서명 전(계약금 행이 아직 목록에 있음) — 예식일 기간에 따라 계약금 행에 결제를 병합해 한 항목으로
     // 병합 라벨('본 계약 · 계약금')은 '계약금' 단독과 다르므로 이 블록은 안 탐 → 임박 시에도 중도금·잔금은 아래에서 각자 행으로 배치(사라짐 방지)
     var _depAt = (function(){ for (var i=0;i<items.length;i++) if (items[i][0]==='계약금') return i; return -1; })();
-    if (_depAt !== -1 && _dd != null && _dd <= 9){
+    if (_depAt !== -1 && _dd != null && _dd <= _pd.bal){
       items[_depAt] = ['계약금 · 중도금 · 잔금','서명 후 한 번에 납부','입금완료'];
       needMid = false; needBal = false;   // 병합됐으니 별도 행 없음
-    } else if (_depAt !== -1 && _dd != null && _dd <= 149){
+    } else if (_depAt !== -1 && _dd != null && _dd <= _pd.mid){
       items[_depAt] = ['계약금 · 중도금','서명 후 한 번에 납부','입금완료'];
-      needMid = false;   // 잔금은 아래에서 D-9 행으로
+      needMid = false;   // 잔금은 아래에서 기한 행으로
     }
-    if (_dd != null && _dd <= 9){
+    if (_dd != null && _dd <= _pd.bal){
       if (needMid || needBal) insAt(prodAt, ['중도금 · 잔금','계약 시 함께 납부','예식완료']);
-    } else if (_dd != null && _dd <= 149){
+    } else if (_dd != null && _dd <= _pd.mid){
       if (needMid) insAt(prodAt, ['중도금','계약 시 함께 납부','예식완료']);
-      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 9일 전','예식완료']);
-    } else {   // 여유(또는 예식일 미정) — 시간 순: 중도금(149) → 예식 준비 → 잔금(9)
-      if (needMid) insAt(prodAt, ['중도금','예식 149일 전','예식완료']);
-      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 9일 전','예식완료']);
+      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 '+_pd.bal+'일 전','예식완료']);
+    } else {   // 여유(또는 예식일 미정) — 시간 순: 중도금 → 예식 준비 → 잔금
+      if (needMid) insAt(prodAt, ['중도금','예식 '+_pd.mid+'일 전','예식완료']);
+      if (needBal) insAt((needMid?prodAt+2:prodAt+1), ['잔금','예식 '+_pd.bal+'일 전','예식완료']);
     }
   }
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
@@ -1627,7 +1652,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   }
   // [제작 카드 열림] '예식 준비'도 지금 할 일이면 잠금 목록에서 제외 — 열린 카드와 자물쇠 동시 표시 모순 방지(묶음 결제 잠금 중엔 유지)
   var _du=arguments[6]||{};
-  var _comboHoldU=!!(_du.stage==='입금완료'&&_du.midpayment&&!_du.midpayment.confirmed&&_du.balance&&!_du.balance.confirmed&&_du.midpayment.dday!=null&&_du.midpayment.dday<=9);
+  var _comboHoldU=payPlan(_du).hold;   // 제작 잠금(_comboHold)·NOW와 같은 payPlan 단일 기준
   if (_du.production && (_du.stage==='입금완료'||_du.stage==='제작중') && !_comboHoldU){
     items = items.filter(function(it){ return it[0] !== '예식 준비'; });
   }
@@ -1817,7 +1842,8 @@ function renderLedger(l){
       +'<div class="led-due">'+_hnote+'</div></div>';
   }
   // 중도금·잔금 안내가 열리기 전(D-45 이전)엔 결제 섹션 끝에 한 줄로 안내 — 예전 독립 박스 대체(한 곳에만).
-  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 149일 전</b>, 잔금은 <b>예식 9일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
+  var _lpd = _payDays();
+  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 '+_lpd.mid+'일 전</b>, 잔금은 <b>예식 '+_lpd.bal+'일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
   // [02-8] 환불 예상 — 지금 취소하면(계약서 7조·9조·4조⑧ 서버 계산 · l.refundQuote). 접힌 한 줄, 펼치면 산정 근거.
   var rq=l.refundQuote, refundSec='';
@@ -2313,7 +2339,9 @@ function renderContractPayment(c, p, ctx){
   // 서명 완료 줄(✓·계약서 다시 보기)은 표시하지 않음 — 내 내역 아이콘에서 계약서 열람 가능해 중복 (2026-06-13 사용자 지시)
   if (!p){ h += '<div class="cc-sub">계약금 안내를 준비 중이에요.</div></div>'; box.innerHTML=h; box.style.display='block'; return; }
   if (p.status==='완료신호'){
-    h += '<div class="cc-title" style="margin-top:8px">계약금 입금 확인 중</div>'
+    // 신고 시점 묶음(수납묶음 스냅샷)까지 확인 중으로 — '계약금만 확인 중'으로 축소돼 중도금·잔금이 대기·기한경과로 보이던 문제 방지
+    var _sb=(p.signaledBundle||[]);
+    h += '<div class="cc-title" style="margin-top:8px">'+escapeHtml(_sb.length?('계약금·'+_sb.join('·')):'계약금')+' 입금 확인 중</div>'
        + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
@@ -2633,20 +2661,22 @@ function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
+  var _pd=_payDays(), _pw=_payWord();
   // 중도금도 함께 입금신호(같이 입금) → 중도금 카드가 '중도금·잔금 입금 확인 중'으로 통합 표시 → 잔금 카드는 숨김(중복 방지)
   if(p.status==='완료신호' && mid && mid.status==='완료신호' && !mid.confirmed){ box.style.display='none'; box.innerHTML=''; return; }
   // '중도금 카드가 흡수'는 중도금 카드가 실제로 존재할 때만 성립 — 웨딩스냅(중도금 없음·mid=null)은 여기서 숨기면 기한 구간(D-9~)에 잔금 카드가 통째로 사라지던 버그
-  var midAbsorb = !!(mid && !mid.confirmed);
-  if(midAbsorb && p.status!=='완료신호' && p.dday!=null && p.dday<=9){ box.style.display='none'; box.innerHTML=''; return; }
+  //   중도금이 이미 신고(완료신호)된 경우도 흡수 아님 — 중도금 카드는 '확인 중'만 보여줘 잔금 결제 경로가 사라지던 문제
+  var midAbsorb = !!(mid && !mid.confirmed && mid.status!=='완료신호');
+  if(midAbsorb && p.status!=='완료신호' && p.dday!=null && p.dday<=_pd.bal){ box.style.display='none'; box.innerHTML=''; return; }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
-  var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
-  var dueLabel=escapeHtml(p.dueLabel||'예식 9일 전');
-  var near=(p.dday!=null && p.dday<=15 && !midAbsorb);   // (중도금 카드가 흡수 중이 아닐 때) D-15 이내 자동 펼침 — 스냅도 기한 임박 시 펼쳐지게
+  var ddTxt=(p.dday!=null)?(p.dday>=0?(_pw+' D-'+p.dday):(_pw+' D+'+(-p.dday))):'';
+  var dueLabel=escapeHtml(p.dueLabel||(_pw+' '+_pd.bal+'일 전'));
+  var near=(p.dday!=null && p.dday<=_pd.bal+6 && !midAbsorb);   // (중도금 카드가 흡수 중이 아닐 때) 기한 6일 전부터 자동 펼침 — 스냅도 기한 임박 시 펼쳐지게
   var body='', cta='';
   if(p.status==='완료신호'){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
-    var head=p.due?'잔금 입금 안내':(near?'예식이 가까워졌어요':'잔금 안내');
+    var head=p.due?'잔금 입금 안내':(near?(_pw+'이 가까워졌어요'):'잔금 안내');
     var _xBrk=(p.extra&&p.baseAmount!=null)?('<br><span class="cc-mini">잔금 '+fmtWon(p.baseAmount)+' + 인원 추가 '+fmtWon(p.extra.amount)+' (스탠딩 '+p.extra.standing+'명)</span>'):'';   // 최종확정 인원 추가 요금 산식(서버 합산)
     var _xPend=p.extraPending?'<br><span class="cc-mini">최종 인원 확정 시 추가 요금이 있으면 잔금에 합산돼요.</span>':'';
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+_xBrk+_xPend+'</div>')
@@ -2722,14 +2752,16 @@ function renderMid(p, bal){
   var box=$('mp_midpayment'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
   if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
+  var _pd=_payDays();
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
   var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
-  var dueLabel=escapeHtml(p.dueLabel||'예식 149일 전');
+  var dueLabel=escapeHtml(p.dueLabel||('예식 '+_pd.mid+'일 전'));
   var whyLine=(p.dueLabel==='계약 시 함께 납부')?'' :'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정되었어요. 준비 착수를 위한 중도금이에요.</div>';
-  var near=(p.dday!=null && p.dday<=156);   // 기한(D-149) 7일 전부터 자동 펼침
-  var balOpen=!!(bal && !bal.confirmed && bal.amount!=null && p.amount!=null);   // 잔금 함께 결제 가능
+  var near=(p.dday!=null && p.dday<=_pd.mid+7);   // 기한 7일 전부터 자동 펼침
+  // 잔금 함께 결제 — 잔금이 이미 신고(완료신호)된 상태면 제외(신고분을 또 합산 청구해 이중 입금을 유도하던 문제)
+  var balOpen=!!(bal && !bal.confirmed && bal.status!=='완료신호' && bal.amount!=null && p.amount!=null);
   var comboAmt=(p.amount||0)+(balOpen?bal.amount:0);
-  var forceCombo=balOpen && (p.dday!=null && p.dday<=9);                          // 잔금 기한(D-9) 이내 → 합계 강제(따로 낼 이유 없음)
+  var forceCombo=balOpen && (p.dday!=null && p.dday<=_pd.bal);                    // 잔금 기한 이내 → 합계 강제(따로 낼 이유 없음)
   var body='', cta='';
   if(p.status==='완료신호'){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
@@ -2745,9 +2777,9 @@ function renderMid(p, bal){
     var _balPast=(bal&&bal.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(bal.dueDate):false;
     var balDateTxt=(bal&&bal.dueDate&&!_balPast&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
     var comboDue, comboTag;
-    if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag=' <span class="cc-mini">· 예식 9일 전</span>'; }
-    else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한(D-9)이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
-    else { comboDue='예식 9일 전까지'; comboTag=''; }
+    if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag=' <span class="cc-mini">· 예식 '+_pd.bal+'일 전</span>'; }
+    else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
+    else { comboDue='예식 '+_pd.bal+'일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
         forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요'+comboTag)
       : p.due?(midDue+' 입금 부탁드려요'+midTag)
@@ -3486,7 +3518,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
       + (fd.drink ? (' · '+escapeHtml(fd.drink)) : '')
       + ((Number(fd.softCount)||0)>0 ? (' · 논알콜 '+escapeHtml(String(fd.softCount))+'잔') : '');
   } else if(!_fDone){
-    fNote='🥂 인원·음료·특이사항은 <b>예식 9일 전까지</b> 확정해 주세요'
+    fNote='🥂 인원·음료·특이사항은 <b>예식 '+_payDays().bal+'일 전까지</b> 확정해 주세요'
       + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');
   }
   // 식순 완료 요약(순서·분·사회자·채울 것) — v2 draft 기준
@@ -3530,7 +3562,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
     + '<div class="cc-title">예식 준비</div>'
     + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비하고, 예식이 다가오면 인원·음료를 최종 확정해요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 최종 확정은 예식 9일 전까지 해주시면 돼요.</div>'
+    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 최종 확정은 예식 '+_payDays().bal+'일 전까지 해주시면 돼요.</div>'
     + ''
     + '</div>';
 }
@@ -4968,7 +5000,7 @@ function renderRitual(box){
     + cue
     + (todo?('<div class="r-todo"><div class="r-todo-t">함께 준비하면 좋은 것</div><ul>'+todo+'</ul></div>'):'')
     + '<button type="button" class="r-more" id="r_copy" style="color:var(--gold-deep)">대본 텍스트 복사</button>'
-    + '<div class="r-note">'+(d.host==='mc'?'이 대본을 사회자분께 전해 주세요. 읽기만 하면 되도록 완성돼 있어요.':'저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요. 이 대본 그대로 성우 나레이션이 준비돼요.')+' 예식 9일 전까지 언제든 고칠 수 있어요.</div>'
+    + '<div class="r-note">'+(d.host==='mc'?'이 대본을 사회자분께 전해 주세요. 읽기만 하면 되도록 완성돼 있어요.':'저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요. 이 대본 그대로 성우 나레이션이 준비돼요.')+' 예식 '+_payDays().bal+'일 전까지 언제든 고칠 수 있어요.</div>'
     + editHome;
   box.innerHTML=trkShell(no,nm.g+' · '+nm.b+'의 예식 대본이 완성됐어요',null,body,true,'완료');
   bindTrk(box,renderRitual,function(){},{ last:true });
@@ -5082,7 +5114,7 @@ function renderFinal(box){
       + _trkOpt('진행해요', d.digital, 'digital', '진행해요')
       + _trkOpt('안 해요', d.digital, 'digital', '안 해요')
       + _trkOpt('아직 미정', d.digital, 'digital', '아직 미정')
-      + '<div class="cc-note" style="text-align:left">확정 후에도 예식 9일 전까지는 언제든 다시 수정할 수 있어요.</div>';
+      + '<div class="cc-note" style="text-align:left">확정 후에도 예식 '+_payDays().bal+'일 전까지는 언제든 다시 수정할 수 있어요.</div>';
     box.innerHTML=trkShell(3,'마지막 확인이에요','비워도 되는 항목은 편하게 넘어가세요.',body,true,'확정 저장');
     bindTrk(box,renderFinal,collect,{ last:true });
   }

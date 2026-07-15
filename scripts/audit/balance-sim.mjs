@@ -83,11 +83,20 @@ rec = JSON.parse(row.get('동의기록') || '{}');
 const combo = ledBal('중도금잔금');
 ok(rec.잔금확정금액 === 1150000 && combo && combo.amount === 840000 + 1150000, 'S9 묶음확인 → 스냅샷+콤보 1,990,000', combo && combo.amount);
 
-// 10) 임박 번들(_confirmDepositCore) — 계약금 확인 시 잔금까지 일괄 + 스냅샷
+// 10) 임박 번들(_confirmDepositCore) — [스냅샷 우선] 고객 신고(handlePaymentSignal)가 고정한 수납묶음만 일괄 확정.
+//     확인 시점 D-day 재계산으로 '신고 없는 금액'을 오확정하던 TOCTOU(신고 D-150 → 확인 D-149) 제거 검증.
 freshRow({ 현재단계: '계약완료', 입금상태: '대기', 중도금상태: '대기', 예식일: ymdShift(8) }); setFinal(27);
+sb.handlePaymentSignal({ token: 't', payerName: '홍길동' });
+rec = JSON.parse(row.get('동의기록') || '{}');
+ok(row.get('중도금상태') === '완료신호' && row.get('잔금상태') === '완료신호'
+   && ((rec.수납묶음 || {}).keys || []).join() === '중도금,잔금', 'S10a 신고 → 수납묶음 스냅샷+구성원 완료신호', rec.수납묶음);
 sb._confirmDepositCore('ME-SIM1', { bundle: true });
 rec = JSON.parse(row.get('동의기록') || '{}');
-ok(row.get('잔금상태') === '확인' && rec.잔금확정금액 === 1150000, 'S10 임박 번들 확인 → 스냅샷 1,150,000', rec.잔금확정금액);
+ok(row.get('잔금상태') === '확인' && row.get('중도금상태') === '확인' && rec.잔금확정금액 === 1150000, 'S10b 확인 → 스냅샷 일괄 확정 + 1,150,000', rec.잔금확정금액);
+// 10c) 신고 없이 임박 확인 → 미신고 금액은 절대 자동 확정하지 않음(개별 확인 버튼 경로는 별도)
+freshRow({ 현재단계: '계약완료', 입금상태: '대기', 중도금상태: '대기', 예식일: ymdShift(8) }); setFinal(27);
+sb._confirmDepositCore('ME-SIM1', { bundle: true });
+ok(row.get('입금상태') === '확인' && row.get('중도금상태') === '대기' && row.get('잔금상태') === '대기', 'S10c 신고 없는 확인 → 계약금만(미신고분 오확정 금지)', { m: row.get('중도금상태'), b: row.get('잔금상태') });
 
 // 11) 인원 25명 이하 → 추가금 0(합산 없음)
 freshRow(); setFinal(24);
