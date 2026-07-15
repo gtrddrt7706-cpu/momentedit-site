@@ -1484,6 +1484,7 @@ function renderMyPage(d){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
+    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
     // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
     var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
@@ -2802,7 +2803,9 @@ function renderMid(p, bal){
   }
   box.style.display='block';
   var b=$('mp_mSignal'); if(b) b.addEventListener('click', doMidSignal);
-  var cb=$('mp_mCombo'); if(cb) cb.addEventListener('change', function(){ var v=$('mp_mAmtV'), l=$('mp_mAmtL'); if(v) v.textContent=fmtWon(cb.checked?comboAmt:p.amount); if(l) l.textContent=cb.checked?'중도금·잔금':'중도금'; });
+  var cb=$('mp_mCombo'); if(cb) cb.addEventListener('change', function(){ var v=$('mp_mAmtV'), l=$('mp_mAmtL'); if(v) v.textContent=fmtWon(cb.checked?comboAmt:p.amount); if(l) l.textContent=cb.checked?'중도금·잔금':'중도금';
+    // 카드는 단일 마일스톤만 결제 가능 → '잔금도 함께' 선택 시 중도금 카드버튼 숨김(화면은 합계, 카드는 중도금만 청구되던 불일치 차단 · 계좌이체로 유도)
+    var _cw=box.querySelector('.me-card-pay[data-m="중도금"]'); var _wrap=_cw&&_cw.closest?_cw.closest('.me-pay-alt'):null; if(_wrap) _wrap.style.display=cb.checked?'none':''; });
   var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function doMidSignal(){
@@ -2914,7 +2917,7 @@ var meCardPay = (function(){
     api({action:'cardPayConfig', token:getToken()}).then(function(d){
       if(d&&d.ok&&d.enabled&&d.clientKey){ cfg=d; ready=true; MAP.forEach(attachOne); }   // 플래그 ON → 실결제 버튼
       else { standby=true; MAP.forEach(standbyAttach); }                                    // 플래그 OFF → 준비 중 버튼 노출
-    }).catch(function(){ standby=true; MAP.forEach(standbyAttach); });
+    }).catch(function(){ checked=false; MAP.forEach(standbyAttach); });                     // 네트워크 실패는 일시적 — checked 해제해 다음 렌더에서 재확인(플래그 ON인데 세션 내내 '준비 중' 고착 방지). 이번엔 준비중 버튼만 임시 노출
   }
   function handleReturn(){
     if(returnDone) return;
@@ -2928,7 +2931,9 @@ var meCardPay = (function(){
     var paymentKey=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
     if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }
     api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
-      if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?milestone+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); } else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터가 바로 확인해 드릴게요.'); }
+      if(d&&d.ok&&d.already){ mpAlert({ title:'안내', body:(d.alreadyMsg||'이미 처리된 결제예요.'), confirmText:'확인' }); }   // 미캡처(이미 확인·입금신고중) — '결제 완료'로 오인시키지 않음
+      else if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?milestone+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); }
+      else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터가 바로 확인해 드릴게요.'); }
       clean(); try{ loadMyState(); }catch(e){}
     }).catch(function(){ mpAlert('결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean(); });
   }

@@ -316,6 +316,7 @@ var rh2 = run('handleCardConfirm(__b)');
 check('H2 취소건 중도금 → 청구 전 차단 · toss 미호출', rh2.ok === false && tossCalls === 0 && DB.H2.중도금상태 === '대기');
 // H3 토스 승인됐으나 기록 실패 → 관리자 경보(수동 보정) · recorded:false
 reset(); newCust('H3', { 현재단계: '입금완료', 입금상태: '확인', 예식일: ymdFromToday(120) }); TOKMAP.tokH3 = 'H3'; payOn();
+run('var __realACB = adminConfirmBalance;');   // 원본 보관(뒤 I'·J 블록 복원용 — 이 강제 실패가 런타임 전역을 오염시키던 것 정정)
 run('adminConfirmBalance = function(){ return { ok:false, error:"시뮬 강제 기록실패" }; };');   // 기록 실패 강제
 sandbox.__b = { token: 'tokH3', milestone: '잔금', paymentKey: 'pk_h3', orderId: 'MEH3', amount: 1750000 };
 var rh3 = run('handleCardConfirm(__b)');
@@ -357,7 +358,37 @@ for (var it = 0; it < 600; it++) {
 }
 check('I 퍼즈 600회 예외 0', fuzzThrows === 0, 'throws=' + fuzzThrows);
 check('I 퍼즈 잘못된 성공 0(유효할 때만 확인)', fuzzBadSuccess === 0, 'badSuccess=' + fuzzBadSuccess);
-check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount > 0, 'ok=' + fuzzOkCount);
+
+// I' 결정형 정상 표본 — 랜덤에 의존하지 않고 각 마일스톤 해피패스가 성공함을 보장(가드가 조여져도 회귀 감지 유지).
+//   ※ 예전 퍼즈의 '성공 표본'은 우연에 의존했고, 그중 하나는 종료(취소) 고객에 계약금이 통과되던 버그를 성공으로 세고 있었음 → 결정형으로 대체.
+run('adminConfirmBalance = __realACB;');   // H3의 강제 실패 패치 복원(잔금 해피패스 검증 가능)
+payOn();
+newCust('OK_DEP', { 현재단계: '계약완료', 입금상태: '대기' }); TOKMAP['tok_dep'] = 'OK_DEP';
+sandbox.__b = { token: 'tok_dep', milestone: '계약금', paymentKey: 'pk_d', orderId: 'OKD', amount: 250000 };
+var rOkD = run('handleCardConfirm(__b)');
+check("I' 계약금 해피패스 성공 · 입금상태=확인 · 단계 입금완료", rOkD.ok === true && rOkD.recorded === true && DB.OK_DEP.입금상태 === '확인' && DB.OK_DEP.현재단계 === '입금완료');
+newCust('OK_MID', { 현재단계: '제작중', 중도금상태: '대기' }); TOKMAP['tok_mid'] = 'OK_MID';
+sandbox.__b = { token: 'tok_mid', milestone: '중도금', paymentKey: 'pk_m', orderId: 'OKM', amount: 1400000 };
+var rOkM = run('handleCardConfirm(__b)');
+check("I' 중도금 해피패스 성공 · 중도금상태=확인", rOkM.ok === true && rOkM.recorded === true && DB.OK_MID.중도금상태 === '확인');
+newCust('OK_BAL', { 현재단계: '제작중', 잔금상태: '대기' }); TOKMAP['tok_bal'] = 'OK_BAL';
+sandbox.__b = { token: 'tok_bal', milestone: '잔금', paymentKey: 'pk_b', orderId: 'OKB', amount: 1750000 };
+var rOkB = run('handleCardConfirm(__b)');
+check("I' 잔금 해피패스 성공 · 잔금상태=확인", rOkB.ok === true && rOkB.recorded === true && DB.OK_BAL.잔금상태 === '확인');
+
+// J 신설 가드 회귀 — 종료 고객 부활 차단 · 입금신고(완료신호) 이중결제 차단
+newCust('J_CANCEL', { 현재단계: '취소', 계약상태: '서명완료', 입금상태: '대기' }); TOKMAP['tok_jc'] = 'J_CANCEL';
+sandbox.__b = { token: 'tok_jc', milestone: '계약금', paymentKey: 'pk_jc', orderId: 'JC', amount: 250000 };
+var tossJc = tossCalls;
+var rJc = run('handleCardConfirm(__b)');
+check('J1 취소 고객 계약금 카드 → 청구 전 차단·부활 없음', rJc.ok === false && rJc.recorded !== true && tossCalls === tossJc && DB.J_CANCEL.입금상태 !== '확인' && DB.J_CANCEL.현재단계 === '취소');
+newCust('J_SIGNAL', { 현재단계: '제작중', 잔금상태: '완료신호' }); TOKMAP['tok_js'] = 'J_SIGNAL';
+var tossBefore = tossCalls;
+sandbox.__b = { token: 'tok_js', milestone: '잔금', paymentKey: 'pk_js', orderId: 'JS', amount: 1750000 };
+var rJs = run('handleCardConfirm(__b)');
+check('J2 잔금 완료신호(입금신고 중) → 카드 미캡처(already) · 이중결제 차단', rJs.ok === true && rJs.already === true && tossCalls === tossBefore && DB.J_SIGNAL.잔금상태 === '완료신호');
+
+check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount >= 0, 'ok=' + fuzzOkCount);   // 퍼즈 성공은 우연 의존이라 하한 0 · 실질 해피패스는 위 I' 결정형이 보장
 
 /* ── 결과 ── */
 console.log('\n' + '─'.repeat(36));

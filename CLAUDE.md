@@ -74,6 +74,7 @@
 | `purgeStaleCustomers` | 20_customers-data | 미계약·6개월 경과 고객 개인정보 자동 익명화(처리방침 파기 약속 이행). 계약(서명완료)·입금(중도금/잔금 확인)·계약총액 이력 있으면 법정보관으로 제외 · 행 삭제 없이 PII 컬럼만 비움. purgeAdvisorLog(주간)가 함께 호출. ScriptProperty `CUSTOMER_PURGE_OFF='Y'`로 정지·`CUSTOMER_PURGE_DAYS`로 일수 조정 |
 | `previewStaleCustomers` | 20_customers-data | 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용). purgeStaleCustomers(true)와 동일 |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
+| `ZZ_tossPing` | 98_pay_card | 토스 샌드박스 연결·키 확인(더미 confirm 호출·실결제 아님). PAY_CARD_ENABLED 켜기 전 TOSS_SECRET_KEY 점검 · 결과는 Logger |
 | `sendHoldExpiryNotices` | 70_journey | 임시고정 만료 D-3 안내 + 가예약 캘린더 백필·만료 정리(일1회 트리거 자동·수동 1회 실행 가능) |
 | `auditDineDb` | 88_place_audit | 사이트 다이닝 리스트 전체를 카카오 지도와 전수 대조 → AW_장소검증 시트(폐업·상호변경 탐지) |
 | `setupAwAudit` | 88_place_audit | 월간 자동 검증 트리거 등록(1회 — 매월 1일 09시 awMonthlyAudit 실행, 미발견 발생 시 관리자 SMS) |
