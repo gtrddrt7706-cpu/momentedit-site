@@ -7,7 +7,7 @@
 <title>식순 미리보기 · Moment Edit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
   --bg:#FAFAF8; --card:#FFFFFF; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
@@ -1364,14 +1364,37 @@ var _navLock=0, _nl2=0;
 document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_nl2<400) return; _nl2=t; if(editReturn){editReturn=false;_editSnap=null;goDone();return;}
   var st0=STEPS[idx];
   if(idx<STEPS.length-1){idx++;render();}
-  else{ _doneSaved=true; _persist(); render(); } });
+  else{ _doneSaved=true; _persist(); render(); _embedSave(); } });
 var _doneSaved=false;
 function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,cs:courseStarted,sv:_doneSaved})); }catch(e){} }
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
-try{ var _sv=JSON.parse(localStorage.getItem('me_order')||'null'); if(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs){ for(var _k in _sv.S){ S[_k]=_sv.S[_k]; } if(!ENTRY[S.entry])S.entry='A'; if(!VEIL[S.veil])S.veil='mother'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self'; courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1); } }catch(e){}
+function _applySaved(_sv){
+  if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
+  for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
+  if(!ENTRY[S.entry])S.entry='A'; if(!VEIL[S.veil])S.veil='mother'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
+  courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1);
+  return true;
+}
+try{ _applySaved(JSON.parse(localStorage.getItem('me_order')||'null')); }catch(e){}
 render();
+// ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
+var EMBED=/[?&]embed=1/.test(window.location.search);
+function _embedSave(){
+  if(!EMBED) return;
+  try{ parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:fullBlocks().length, min:estMin()}}}, window.location.origin); }catch(e){}
+}
+if(EMBED){
+  window.addEventListener('message',function(ev){
+    if(ev.origin!==window.location.origin||!ev.data) return;
+    if(ev.data.type==='momentedit:orderFill'){
+      var d=ev.data.draft;
+      if(d&&d.S){ if(_applySaved({S:d.S,idx:99,cs:true,sv:true})){ _persist(); render(); } }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
+    }
+  });
+  try{ parent.postMessage({type:'momentedit:orderReady'},window.location.origin); }catch(e){}
+}
 </script>
 </body>
 </html>
