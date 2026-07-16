@@ -2086,6 +2086,7 @@ function doPost(e) {
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
       case 'seatView':           return jsonOut(handleSeatView(body));   // 좌석 배치도 공개 조회(무인증·토큰) — seat.html
+      case 'guideView':          return jsonOut(handleGuideView(body));  // 하객 안내 허브 공개 조회(무인증·토큰) — guide.html
 
       case 'saveRefundAccount':  return jsonOut(handleSaveRefundAccount(body));   // [환불 안전망] 종료 고객 환불 계좌 셀프 제출
       // ── 97 · AI 상담 인계·가용성 (Vercel /api/handoff·/api/schedule-advisor → 이 웹앱) ──

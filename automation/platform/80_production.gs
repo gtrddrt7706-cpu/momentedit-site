@@ -167,6 +167,13 @@ function handleSaveProductionTrack(body) {
         touchCustomer(sheet, colOf, cust.num, { '좌석공유토큰': _seatToken });
       }
     }
+    // 하객 안내 허브 공개 토큰 — 다이닝/좌석/최종 중 하나라도 완료되면 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
+    //   하객에게 보낼 안내가 생기는 시점(식당을 고르거나 자리를 정하거나)에 링크가 준비됨. 데이터 본체는 제작임시저장에 이미 있음.
+    var _guideToken = colOf['안내공유토큰'] ? String(cust.get('안내공유토큰') || '').trim() : '';   // 마이그레이션 전(열 없음)이면 발급 생략(에러 방지)
+    if (colOf['안내공유토큰'] && ['dining', 'seat', 'final'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
+      _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
+      touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
+    }
     // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
     //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
     //   '특정 식당을 못 정한 채 마무리'를 신호로. 식당을 골랐거나 다이닝 안 함(N)이면 발사 안 함.
@@ -205,7 +212,10 @@ function handleSaveProductionTrack(body) {
         });
       }
     }
-    return (track === 'seat') ? { ok: true, seatToken: _seatToken } : { ok: true };
+    var _res = { ok: true };
+    if (track === 'seat') _res.seatToken = _seatToken;
+    if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성
+    return _res;
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
@@ -234,6 +244,47 @@ function handleSeatView(body) {
       tables: out
     }
   };
+}
+
+// [하객 안내 허브] 공개 조회 — guide.html이 토큰으로 호출(무인증·읽기 전용). 하객에게 보여줄 안내만 반환.
+//   토큰은 안내공유토큰 열 역조회. 다이닝(담은 곳·대표)·좌석 유무·라이브(eventId) 링크 재료 · 부부 이름·예식일.
+//   개인정보 최소: 부부 이름·예식일·식당 공개정보(이름·메뉴·전화·지도)만. 좌석 명단은 여기서 안 내려주고 seat 토큰으로 이름 조회(seat.html·handleSeatView 재사용).
+function handleGuideView(body) {
+  var token = String((body && body.g) || '').trim();
+  if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
+  var cust = _findCustomerBy('안내공유토큰', token, false);
+  if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
+  var d = _parseJsonSafe(cust.get('제작임시저장'));
+  var dd = d.diningDraft || {};
+  var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
+  var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
+    v = v || {};
+    return { n: String(v.n || ''), m: String(v.m || ''), tel: String(v.tel || ''), url: (/^https?:/.test(String(v.url || '')) ? String(v.url) : '') };
+  };
+  var restos = _favs.filter(function (v) { return v && v.src !== 'attr'; }).map(_mapItem);
+  var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
+  var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || String(dd.venuePick || '').trim() !== '');
+  var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
+  return {
+    ok: true,
+    guide: {
+      groom: String(cust.get('신랑이름') || ''),
+      bride: String(cust.get('신부이름') || ''),
+      date: _ymdOf(cust.get('예식일')) || '',
+      dining: { on: diningOn, pick: String(dd.venuePick || '').trim(), restos: restos, spots: spots },
+      seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 있으면 guide가 '내 자리 찾기'로 seatView 재사용
+      eventId: String(cust.get('eventId') || '').trim(),                                       // 라이브·청첩장 링크 재료(청첩장 백엔드 키)
+      live: String(cust.get('eventId') || '').trim() ? true : false                            // 디지털 참석 여부는 청첩장 백엔드 소관 — 링크만 제공, 실제 노출은 guide에서 eventId로
+    }
+  };
+}
+// [1회 실행] Customers에 안내공유토큰 열 추가(멱등). setupCustomers 재실행 없이 안전하게 열만 append.
+function addGuideTokenColumn() {
+  var sheet = getCustomersSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  if (headers.indexOf('안내공유토큰') !== -1) return '안내공유토큰 열 이미 있음';
+  sheet.getRange(1, sheet.getLastColumn() + 1).setValue('안내공유토큰');
+  return '안내공유토큰 열 추가됨';
 }
 
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
@@ -275,6 +326,7 @@ function buildProductionState(r) {
     finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
     seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
+    guideToken: String(r.get('안내공유토큰') || ''),   // 하객 안내 허브 공개 링크·QR 키(다이닝/좌석 완료 시 발급)
     finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }

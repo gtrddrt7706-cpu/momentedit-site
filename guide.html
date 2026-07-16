@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin"><!-- 개인정보: URL의 안내 토큰이 Referer로 제3자에 새지 않게 origin만 전송 -->
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<title>하객 안내 · Moment Edit</title>
+<meta property="og:title" content="MOMENT EDIT · 하객 안내">
+<meta property="og:description" content="예식 안내를 확인해 보세요.">
+<style>
+:root{
+  --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F; --faint:#A49D8E;
+  --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF; --hair:#EAE5DD;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --card-white:#FFFFFF; --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%;line-height:1.7}
+.wrap{max-width:440px;margin:0 auto}
+.brand{text-align:center;font-family:var(--serif);font-size:12px;letter-spacing:.24em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:16px}
+.card{background:var(--card-white);border:1px solid var(--border);border-radius:10px;padding:0 18px;box-shadow:var(--card-shadow)}
+.hero{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--hair)}
+.hero .ek{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--gold-deep);letter-spacing:.02em}
+.hero .couple{font-size:23px;font-weight:500;letter-spacing:.02em;margin:8px 0 6px}
+.hero .heart{font-family:var(--serif);font-style:italic;color:var(--gold);margin:0 7px;font-weight:400}
+.hero .date{font-size:12.5px;color:var(--sub)}
+.sec{padding:20px 0;border-bottom:1px solid var(--hair)}
+.sec:last-child{border-bottom:0}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:13px}
+.sec-t{font-size:15.5px;font-weight:500;color:var(--accent)}
+.sec-n{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+.pick{background:var(--bg2);border:1px solid var(--gold);border-radius:9px;padding:13px 14px;margin-bottom:12px}
+.pick .pl{font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
+.pick .pn{font-size:15px;font-weight:500;color:var(--accent);margin-top:3px}
+
+.spot{padding:12px 0;border-top:1px solid var(--hair)}
+.spot:first-child{border-top:0}
+.spot .sn{font-size:14px;font-weight:500;color:var(--accent)}
+.spot .sm{font-size:12px;color:var(--gold-deep);margin-top:2px}
+.acts{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.act{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.act svg{width:12px;height:12px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
+.subh{font-size:11px;letter-spacing:.04em;color:var(--light);margin:16px 0 6px}
+
+.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
+.find input:focus{outline:none;border-color:var(--gold-deep)}
+.find-res{min-height:20px;text-align:center;font-size:13px;color:var(--gold-deep);margin-top:10px}
+.find-res b{color:var(--seal);font-weight:600}
+.find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
+.mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
+.privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
+
+.live-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:#fff;background:var(--accent);border-radius:9px;padding:13px 0}
+.live-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.6}
+.live-cap{font-size:11px;color:var(--light);text-align:center;margin-top:8px}
+
+.foot{text-align:center;padding:20px 0 4px}
+.foot .wm{font-family:var(--serif);font-size:14px;letter-spacing:.03em;color:var(--accent)}
+.foot .tag{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--faint);margin-top:5px}
+.state{text-align:center;padding:54px 20px;color:var(--sub);font-size:14px}
+.state .sm{font-size:12px;color:var(--light);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Moment Edit</div>
+  <div id="root"><div class="card"><div class="state">안내를 불러오는 중이에요…</div></div></div>
+</div>
+<script>
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+function fmtDate(ymd){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
+  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
+  return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
+}
+function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+function mapUrl(v){ return (v.url && /^https?:/.test(v.url)) ? v.url : ('https://map.kakao.com/?q='+encodeURIComponent(v.n||'')); }
+function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
+var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
+var ICON_TEL='<path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L20 13l1 4v2a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>';
+var ICON_LIVE='<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>';
+
+function spotHtml(v, withTel){
+  var acts='<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
+  if(withTel && v.tel) acts+='<a class="act" href="'+esc(telUrl(v.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>';
+  return '<div class="spot"><div class="sn">'+esc(v.n)+'</div>'+(v.m?'<div class="sm">'+esc(v.m)+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
+}
+function diningHtml(dn){
+  if(!dn || !dn.on) return '';
+  var h='<div class="sec"><div class="sec-h"><span class="sec-t">식사 · 애프터</span><span class="sec-n">Dining</span></div>';
+  if(dn.pick){ h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div></div>'; }
+  var restos=dn.restos||[], spots=dn.spots||[];
+  if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
+  if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
+  return h+'</div>';
+}
+function liveHtml(g){
+  if(!g.eventId) return '';
+  var url='/live.html?e='+encodeURIComponent(g.eventId);
+  return '<div class="sec"><div class="sec-h"><span class="sec-t">멀리 계신 분께</span><span class="sec-n">Live</span></div>'
+    +'<a class="live-btn" href="'+esc(url)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_LIVE+'</svg>예식 실시간 보기</a>'
+    +'<div class="live-cap">예식 시작 즈음 열려요. 열리기 전엔 안내 화면이 보일 수 있어요.</div></div>';
+}
+// 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용. 빠른 답(테이블 번호)만 인페이지 · 전체 배치도는 seat.html로.
+var SEAT=null;
+function seatFindHtml(){
+  return '<div class="sec"><div class="sec-h"><span class="sec-t">내 자리 찾기</span><span class="sec-n">Your Table</span></div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력하세요"><div class="find-res" id="fr"></div></div>'
+    +'<a class="mapall" id="seatAll" href="#" target="_blank" rel="noopener">전체 좌석 배치도 보기 ›</a>'
+    +'<div class="privacy">성함으로만 조회돼요. 전체 명단은 공개되지 않습니다.</div></div>';
+}
+function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1·3·5 / 우 2·4·6)
+  var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String(t.side||'L')==='R'?Rs:Ls).push(i); });
+  var num={},nn=1,mr=Math.max(Ls.length,Rs.length);
+  for(var rr=0;rr<mr;rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
+  return num;
+}
+function findSeat(v){
+  var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
+  if(!v || !SEAT){ fr.innerHTML=''; return; }
+  var lc=v.toLowerCase(), tables=SEAT.tables||[], num=seatRowNum(tables), hitI=-1;
+  for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]); for(var k=0;k<seats.length;k++){ if(String(seats[k]||'').trim().toLowerCase().indexOf(lc)>=0){ hitI=i; break; } } if(hitI>=0) break; }
+  if(hitI>=0){
+    var t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
+    var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
+    fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요';
+  } else { fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; }
+}
+function bindSeat(seatToken){
+  var all=$('seatAll'); if(all) all.setAttribute('href', '/seat.html?t='+encodeURIComponent(seatToken));
+  var q=$('q'); if(q) q.addEventListener('input', function(){ findSeat(q.value); });
+  // 좌석 본체는 기존 seatView로 별도 조회(단일 소스 · 명단은 guideView가 안 내려줌)
+  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if(d&&d.ok&&d.seat){ SEAT=d.seat; } })
+    .catch(function(){});
+}
+function render(g){
+  var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');
+  var date=fmtDate(g.date);
+  var hasSeat=!!g.seatToken;
+  $('root').innerHTML='<div class="card">'
+    +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +diningHtml(g.dining)
+    +(hasSeat?seatFindHtml():'')
+    +liveHtml(g)
+    +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
+    +'</div>';
+  if(hasSeat) bindSeat(g.seatToken);
+}
+(function boot(){
+  var g=qp('g');
+  if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
+  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'guideView', g:g}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.ok && d.guide){ render(d.guide); }
+      else { $('root').innerHTML=stateHtml((d&&d.error)||'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+    })
+    .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });
+})();
+</script>
+</body>
+</html>
