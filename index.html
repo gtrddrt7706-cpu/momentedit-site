@@ -1061,7 +1061,7 @@ html.me-restoring body { opacity: 0 !important; }
     rgba(184, 122, 100, 0.66) 77%,
     rgba(140, 70, 56, 0.38) 86%,
     rgba(111, 43, 36, 0.14) 93%,
-    rgba(111, 43, 36, 0) 100% /* rgb(111,43,36) = 히어로 진사 #6f2b24 — 히어로 배경색을 바꾸면 위 반투명 단계들도 같은 계열로 함께 조정 */
+    rgba(111, 43, 36, 0) 100% /* rgb(111,43,36) = 히어로 진사 #6f2b24 — 히어로 배경색을 바꾸면 이 반투명 단계들 + .hero-feather 스탑 + STOPS 테이블(재측정)도 같은 계열로 함께 조정 */
   );
   transform: translateY(var(--heroVeilY, 100%)); /* 100% = 히어로 아래로 완전히 내려가 숨음(스크롤0: 진사 그대로) → 0%: 히어로를 크림으로 덮음. 기본값 100%라 로드 시 진사 유지(번쩍임 없음) */
   will-change: transform;
@@ -1081,7 +1081,9 @@ html.me-restoring body { opacity: 0 !important; }
    다음 섹션(크림)과의 경계 하드라인이 베일 진행도와 무관하게 안 생김(실측: 페더를 베일 아래 두면 반투명 테라코타 구간에서 경계 ΔRGB 최대 ~100 → 위에 두면 ~0).
    모션 축소 설정(베일 정지)에서도 동일하게 경계를 부드럽게 만든다. 정지 화면에선 밑단의 은은한 새벽빛으로 보임.
    ★후반 잔류 방지: 베일이 충분히 올라와 밑단이 자체 크림이 되는 veil 0.45→0.65 구간에서 JS가 opacity 1→0 페이드
-   (안 빼면 히어로가 화면을 떠날 때 크림 베일 위 웜톤이 상단에 베이지 얼룩처럼 남음). JS 미동작 시 opacity 1 유지(경계 보호 우선). */
+   (안 빼면 히어로가 화면을 떠날 때 크림 베일 위 웜톤이 상단에 베이지 얼룩처럼 남음). JS 미동작 시 opacity 1 유지(경계 보호 우선).
+   ★페이드 상수 0.45/0.2는 베일 불투명 몸통 스탑(var(--bg) 40%)에서 유도된 값(밑단이 완전 크림이 되는 시점 veil≥0.6에 맞춰 소멸) —
+   베일의 40% 스탑을 바꾸면 이 상수도 재유도, 색을 바꾸면 베일·페더 두 그라데이션을 한 계열로 함께 조정. */
 .hero-feather {
   position: absolute;
   left: 0;
@@ -5134,7 +5136,7 @@ body {
   <div class="hero-veil" aria-hidden="true"></div>
   <div class="hero-feather" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fe.style.opacity=(1-clamp((veil-0.45)/0.2)).toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(tc){var cream=rm?(y>=hh):(veil>=0.5);if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fe.style.opacity=(1-clamp((veil-0.45)/0.2)).toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
@@ -6240,16 +6242,31 @@ body {
     [0.95, 242, 233, 225],
     [1.00, 250, 250, 248]
   ];
+  // 모션 축소(prefers-reduced-motion) 사용자용 실측 곡선 — 베일이 안 움직이므로 진사가 오래 유지되고,
+  // 밑단 정적 페더 구간(0.86~1.0)에서만 밝아짐. 일반 곡선을 그대로 쓰면 화면은 진사인데 상태바만 탄색으로 미리 밝아지는 어긋남 발생.
+  var STOPS_RM = [
+    [0.00, 111, 43, 36],
+    [0.60, 101, 40, 33],
+    [0.75, 86, 33, 25],
+    [0.86, 74, 25, 19],
+    [0.90, 81, 31, 23],
+    [0.94, 107, 54, 42],
+    [0.97, 159, 122, 106],
+    [0.99, 222, 210, 202],
+    [1.00, 250, 250, 248]
+  ];
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   var ticking = false;
   function colorAt(f){
-    if (f <= STOPS[0][0]) return [STOPS[0][1], STOPS[0][2], STOPS[0][3]];
-    for (var i = 1; i < STOPS.length; i++){
-      if (f <= STOPS[i][0]){
-        var a = STOPS[i-1], b = STOPS[i], t = (f - a[0]) / (b[0] - a[0]);
+    var T = RM ? STOPS_RM : STOPS;
+    if (f <= T[0][0]) return [T[0][1], T[0][2], T[0][3]];
+    for (var i = 1; i < T.length; i++){
+      if (f <= T[i][0]){
+        var a = T[i-1], b = T[i], t = (f - a[0]) / (b[0] - a[0]);
         return [Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t), Math.round(a[3]+(b[3]-a[3])*t)];
       }
     }
-    var L = STOPS[STOPS.length-1]; return [L[1], L[2], L[3]];
+    var L = T[T.length-1]; return [L[1], L[2], L[3]];
   }
   function paint(){
     ticking = false;
