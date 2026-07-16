@@ -1048,7 +1048,7 @@ function renderStep(k){
       h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w==='narr');
       if(sel&&w==='narr'){
         h+='<div class="subq">낭독 톤</div>';
-        ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',DECLARE[v].nar,null,null,null,RECO.declare===v); });
+        ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',S.declare===v?DECLARE[v].nar:null,null,null,null,RECO.declare===v); });
       }
     });
   }
@@ -1337,9 +1337,15 @@ function renderDone(){
   });
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
-  h+='<div class="sec-l">두 분이 직접 하실 부분</div><div class="mine">';
-  myParts().forEach(function(m){ h+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
-  h+='</div>';
+  // 유일한 필수 입력(음악)을 요약 바로 아래로
+  h+='<div class="sec-l">음악, 세 곡만 정하면 돼요</div>';
+  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">세 곡 모두 D-14까지 · 곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요. 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
+  h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 · 예: 어반자카파, 결혼해줄래" value="'+esc(S.mEntry)+'">';
+  h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
+  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악 (곡명·가수)" value="'+esc(S.mClose)+'"></div>';
+  // 리캡(직접 하실 부분)은 접기
+  var _mine=''; myParts().forEach(function(m){ _mine+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
+  h+=fold('doneMine','두 분이 직접 하실 부분','<div class="mine">'+_mine+'</div>');
   h+='<div class="sec-l" style="cursor:pointer" onclick="toggleScript()">순서별 대본 <span style="color:var(--light);font-weight:400">'+(scriptOpen?'접기':'펼치기')+'</span></div>';
   if(scriptOpen){ bs.forEach(function(b,i){
     h+='<div class="dblk'+(b.peak?' peak':'')+'"><div class="dblk-h"><span class="dblk-n">'+esc(b.n)+'</span>'+(b.peak?'<span class="dblk-t">감정 정점</span>':'')+'</div>';
@@ -1351,14 +1357,9 @@ function renderDone(){
   }); }
   else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 전문 나레이션이 준비돼요.</div>'; }
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'mine\')">두 분 파트만</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
-  h+='<div class="sec-l">음악, 세 곡만 정하면 돼요</div>';
-  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">세 곡 모두 D-14까지 · 곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요. 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
-  h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 · 예: 어반자카파, 결혼해줄래" value="'+esc(S.mEntry)+'">';
-  h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악 (곡명·가수)" value="'+esc(S.mClose)+'"></div>';
-  h+='<div class="sec-l">우리가 준비할 것</div><div class="prep">';
-  prep().forEach(function(p){ h+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
-  h+='</div>';
+  // 준비물(리캡)은 접기
+  var _prep=''; prep().forEach(function(p){ _prep+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
+  h+=fold('donePrep','당일까지 준비할 것 (D-14~당일)','<div class="prep">'+_prep+'</div>');
   h+='<div class="special" onclick="alert(\'목록에 없는 특별한 순서도 상담 때 함께 만들 수 있어요. 원하시면 디렉터에게 편하게 말씀해 주세요.\')">목록에 없는 특별한 순서를 원하시나요?<br>상담 때 함께 만들 수 있어요.</div>';
   h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.</div>';
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
