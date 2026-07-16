@@ -74,7 +74,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .intro-lead{font-size:14px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
 .intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
 .ipt{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--accent)}
-.ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--serif);font-weight:600;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .daymap{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 15px 13px}
 .daymap-t{font-size:11px;color:var(--gold-deeper);font-weight:600;text-align:center;margin-bottom:12px;letter-spacing:.02em}
 .seqr{display:flex;align-items:flex-start;gap:11px;padding:8px 2px;border-bottom:1px solid var(--bg2)}
@@ -122,7 +122,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .cdet-l{font-size:10px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin-bottom:9px}
 .ev{padding:11px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
 .ev-n{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
-.ev-n .step{font-size:11px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-btn);font-family:var(--serif);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ev-n .step{font-size:10.5px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-btn);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .ev-r{font-size:13px;color:var(--sub);margin-top:5px;line-height:1.65;word-break:keep-all}
 .ev-pick{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-left:auto;background:none;border:none;padding:0;display:inline-flex;align-items:center;gap:5px}
 .ev-pick::before{content:'';width:12px;height:12px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
@@ -259,7 +259,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .menu-hd .mh-t{font-size:18px;font-weight:600;letter-spacing:0;color:var(--accent)}
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
 .sumrow:first-of-type{border-top:none}
-.sr-n{flex:0 0 22px;font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center}
+.sr-n{flex:0 0 22px;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--gold-deeper);text-align:center}
 .sr-n.sr-off{font-family:var(--sans);font-size:10px;color:var(--light)}
 .sumrow.off .sr-l,.sumrow.off .sr-v{opacity:.5}
 .sumrow.off .sr-c{opacity:.5}
@@ -1077,6 +1077,7 @@ function renderStep(k){
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label>';
+    if(S.oyeolLetter) h+='<div class="prep-hint">대신 읽어드릴 편지는 D-7까지 저희에게 전해 주세요 · 그 순간 나레이션이 두 분 마음을 차분히 이어 읽어드려요.</div>';
     h+=writePtr('편지는');
   }
   else if(k==='bless'){
