@@ -236,9 +236,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prep .dday{flex-shrink:0;font-size:10px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 9px;min-width:46px;text-align:center}
 .note{font-size:12px;color:var(--light);text-align:center;margin-top:18px;line-height:1.7;word-break:keep-all}
 .tot{text-align:center;font-size:12px;color:var(--sub);margin-top:4px}
-.ta{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16pxKEEP;color:var(--accent);padding:10px 12px;margin-top:10px;min-height:64px;line-height:1.7;resize:vertical}
+.ta{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16px;color:var(--accent);padding:10px 12px;margin-top:10px;min-height:64px;line-height:1.7;resize:vertical}
 .ta:focus{outline:none;border-color:var(--gold-deeper)}
-.tin{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16pxKEEP;color:var(--accent);padding:10px 12px;margin-top:8px}
+.tin{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16px;color:var(--accent);padding:10px 12px;margin-top:8px}
 .tin:focus{outline:none;border-color:var(--gold-deeper)}
 .tgl{display:flex;align-items:center;gap:10px;margin-top:11px;min-height:44px;font-size:13px;color:var(--sub);cursor:pointer}
 .tgl input{display:none}
@@ -254,7 +254,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
 .menu-hd{font-family:var(--serif);text-align:center;padding:14px 14px 10px;border-bottom:1px solid #EDEBE6}
 .menu-hd .mh-t{font-size:18px;font-weight:600;letter-spacing:0;color:var(--accent)}
-.menu-hd .mh-s{font-size:12px;color:var(--gold-deeper);margin-top:4px;letter-spacing:0}
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
 .sumrow:first-of-type{border-top:none}
 .sr-n{flex:0 0 22px;font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center}
@@ -1127,8 +1126,7 @@ function courseCard(v){
   var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
   h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span><span style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+(soon?'':'<span class="crs-chev">›</span>')+'</span></div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
-  if(v==='damback') h+='<div style="font-size:11px;color:var(--gold-deeper);margin-top:4px">가장 많이 선택하는 코스예요</div>';
-  h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
+  h+='<div class="cflow" style="margin-top:11px">'+flow+'</div>';
   if(soon) h+='<div class="crs-soon-note">지금은 담백 코스로 먼저 만들어 보실 수 있어요. 감동·가족 코스는 곧 열리며, 상담 때 함께 안내해 드려요.</div>';
   if(open && c.detail){
     h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
