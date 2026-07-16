@@ -54,6 +54,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .self{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 14px;margin-top:11px;font-size:13px;color:var(--ink2);line-height:1.75}
 .self .who{color:var(--gold-deeper);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
 .prep-hint{font-size:12px;color:var(--gold-deeper);margin-top:9px;word-break:keep-all;line-height:1.6}
+.tip{background:#F3EEE6;border:1px solid #E7DFD2;border-radius:11px;padding:11px 13px;margin-top:12px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.tip b{color:var(--gold-deeper);font-weight:700;margin-right:3px}
 .prep-hint b{color:var(--accent)}
 .proc{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:13px 15px}
 .proc-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:8px;letter-spacing:.03em}
@@ -309,7 +311,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 <script>
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
-       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mPeak:'',mClose:'',
+       welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}};
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
@@ -536,6 +538,7 @@ var ICO_PLAY='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor
 var ICO_UP='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19V7M6 13l6-6 6 6"/></svg>';
 var ICO_PLUS='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>';
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
+function tip(t){return '<div class="tip"><b>팁</b> '+t+'</div>';}
 var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
 function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }
 function _playSrc(b,src,label){
@@ -1017,6 +1020,7 @@ function renderStep(k){
     });
     h+='</div>';
     h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞추고, 당일엔 문 앞에서 디렉터가 신호를 드려요 · 두 분은 손만 꼭 잡으면 돼요.</div>';
+    h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
     (function(){
       var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
       h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn();
@@ -1041,14 +1045,14 @@ function renderStep(k){
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
-    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 배우자가 대신 이어 읽어요</label>';
-    if(S.oyeolVow) h+='<div class="prep-hint">울컥해서 잇기 어려우면, 디렉터가 준비해 둔 서약문을 배우자에게 건네 대신 이어 읽어요 · 그 순간까지 상대에게는 비밀로 지켜 드려요.</div>';
+    h+=tip('울컥해서 못 읽을 것 같으면, "내가 멈추면 이어 읽어줘" 같은 사인을 배우자와 미리 정해 두세요 · 디렉터가 서약문을 준비해 둬, 그 순간 배우자가 대신 이어 읽을 수 있어요.');
     h+=writePtr('서약문은');
   }
   else if(k==='ring'){
     h+=clip('ring');
     h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,true);
     h+=oc('ring','off','빼기','반지 없이 성혼 선언으로 바로 이어져요','');
+    if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요 · 당황하지 않아도 돼요, 나머지는 자리에서 천천히.');
   }
   else if(k==='declare'){
     h+=clip('declare');
@@ -1071,8 +1075,7 @@ function renderStep(k){
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
-    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 배우자가 대신 이어 읽어요</label>';
-    if(S.oyeolLetter) h+='<div class="prep-hint">울컥해서 잇기 어려우면, 디렉터가 준비해 둔 편지를 배우자에게 건네 대신 이어 읽어요.</div>';
+    h+=tip('울컥해서 못 읽을 것 같으면, 배우자와 사인을 미리 정해 두세요 · 디렉터가 편지를 준비해 둬, 그 순간 배우자가 대신 이어 읽을 수 있어요.');
     h+=writePtr('편지는');
   }
   else if(k==='bless'){
@@ -1282,7 +1285,7 @@ function myParts(){
   return m;
 }
 function prep(){
-  var p=[['D-14','음악 2곡 정하기(편지 배경·마무리) · 입장곡은 저희가 추천']];
+  var p=[['D-14','음악 2곡 정하기(편지 배경·폐식) · 입장곡은 저희가 추천']];
   if(inSeq('bless') && S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
   p.push(['D-7','혼인 서약문 준비']);
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
@@ -1362,7 +1365,7 @@ function renderDone(){
   h+='<div class="sec-l">음악, 두 곡만 정하면 돼요</div>';
   h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
   h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악 (곡명·가수)" value="'+esc(S.mClose)+'">';
+  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="폐식·단체촬영 음악 (곡명·가수)" value="'+esc(S.mClose)+'">';
   h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 드려요.</div></div>';
   h+='<div class="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</div>';
   h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.</div>';
