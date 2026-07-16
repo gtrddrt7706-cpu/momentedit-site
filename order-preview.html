@@ -214,7 +214,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
 .mtl-rail .mtl-a{color:var(--border);flex-shrink:0;margin:0 7px;font-size:11px}
 .mtl-rail .mtl-now{background:var(--gold-deep);color:#fff;font-weight:600;border-radius:6px;padding:2px 9px;flex-shrink:0;font-size:11px}
-.nav{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 72%,transparent);padding:12px 0 calc(20px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.nav{padding:16px 0 calc(20px + env(safe-area-inset-bottom));display:flex;gap:10px}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
 .btn-next{background:var(--seal);color:#fff}.btn-next:active{background:#571f1a}
@@ -309,7 +309,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 <script>
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
-       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mEntry:'',mPeak:'',mClose:'',
+       welcomeText:'',vowText:'',letterText:'',oyeolVow:false,oyeolLetter:false,mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}};
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
@@ -693,7 +693,7 @@ function renderIntro(){
   h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요.</div></div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
   h+='<div class="pf-i">당일 진행은 나레이션과 디렉터가 맡아요. 두 분이 순서를 외우거나 진행할 일은 없어요.</div>';
-  h+='<div class="pf-i">두 분이 직접 준비하는 건 글(서약문·편지·인사말)과 음악 3곡 정도예요. 무엇을 언제까지인지는 완성 화면에 목록으로 정리돼요.</div>';
+  h+='<div class="pf-i">두 분이 직접 준비하는 건 글(서약문·편지·인사말)과 음악 2곡 정도예요. 무엇을 언제까지인지는 완성 화면에 목록으로 정리돼요.</div>';
   h+='<div class="pf-i">지금 정하기 어려운 건 비워 둬도 돼요. 비워 둔 부분은 상담에서 함께 정해요.</div>';
   h+='<div class="pf-i">저장하면 예식 2주 전(D-14)까지 언제든 고칠 수 있어요.</div>';
   h+='</div>';
@@ -1196,7 +1196,7 @@ function fillBlanks(){
   if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
   if(inSeq('letter') && !S.letterText) b.push(['write','편지']);
   if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['write','인사말']);
-  if(!S.mEntry && !S.mPeak && !S.mClose) b.push(['done','음악']);
+  if(!S.mPeak && !S.mClose) b.push(['done','음악']);
   return b;
 }
 
@@ -1282,7 +1282,7 @@ function myParts(){
   return m;
 }
 function prep(){
-  var p=[['D-14','음악 3곡 정하기(입장·편지 배경·마무리)']];
+  var p=[['D-14','음악 2곡 정하기(편지 배경·마무리) · 입장곡은 상담에서 함께']];
   if(inSeq('bless') && S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
   p.push(['D-7','혼인 서약문 준비']);
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
@@ -1359,11 +1359,11 @@ function renderDone(){
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
-  h+='<div class="sec-l">음악, 세 곡만 정하면 돼요</div>';
-  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">세 곡 모두 D-14까지 · 곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요. 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
-  h+='<input class="tin" oninput="setv(\'mEntry\',this.value)" placeholder="입장곡 · 예: 어반자카파, 결혼해줄래" value="'+esc(S.mEntry)+'">';
+  h+='<div class="sec-l">음악, 두 곡만 정하면 돼요</div>';
+  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
   h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악 (곡명·가수)" value="'+esc(S.mClose)+'"></div>';
+  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="마무리 음악 (곡명·가수)" value="'+esc(S.mClose)+'">';
+  h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 · 상담에서 함께 정해요.</div></div>';
   // 리캡(직접 하실 부분)은 접기
   var _mine=''; myParts().forEach(function(m){ _mine+='<div class="mr"><span class="mn">'+esc(m[0])+'</span><span class="mt">'+esc(m[1])+'</span></div>'; });
   h+=fold('doneMine','두 분이 직접 하실 부분','<div class="mine">'+_mine+'</div>');
