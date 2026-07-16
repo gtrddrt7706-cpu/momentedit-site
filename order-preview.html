@@ -32,14 +32,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .q-title{font-size:22px;font-weight:700;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
 .q-sub{font-size:14px;color:var(--sub);margin-top:9px;word-break:keep-all}
 .reassure{font-size:12px;color:var(--gold-deeper);margin-top:10px;word-break:keep-all}
-.moment{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:12px 14px;margin-bottom:15px}
-.moment.info{background:var(--bg2);border-color:var(--border)}
-.moment-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-.moment-ph{font-size:12px;font-weight:700;color:var(--accent)}
-.moment.info .moment-ph{color:var(--gold-deeper)}
-.moment-pos{font-size:11px;letter-spacing:.03em;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
-.moment-t{font-size:13px;color:var(--sub);word-break:keep-all;line-height:1.55}
-.mini-run{font-size:10px;color:var(--gold-deeper);background:#EEECE7;border-radius:20px;padding:5px 12px;display:inline-block;margin-top:12px}
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:12px}
 .oc{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.18s}
 .oc.on{border-color:var(--seal);background:#EEECE7}
@@ -71,7 +63,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
-.ex-chip{border:1px solid var(--border);background:#fff;border-radius:20px;padding:4px 12px;font-size:12px;color:var(--sub);font-family:var(--sans);cursor:pointer}
+.ex-chip{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:12px;color:var(--sub);font-family:var(--sans);cursor:pointer}
 .ex-chip.on{border-color:var(--seal);color:#fff;background:var(--seal);font-weight:600}
 .entry-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .oc .nar,.oc .self{background:none;border:none;border-radius:0;padding:9px 2px 0}
@@ -152,7 +144,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mth-note{font-size:10px;color:var(--light);margin-top:8px}
 .uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
 .upl-r{display:flex;align-items:center;gap:8px}
-.rowbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-btn);background:#fff;color:var(--gold-deeper);border-radius:20px;padding:8px 15px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.rowbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-btn);background:#fff;color:var(--gold-deeper);border-radius:20px;padding:11px 15px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
 .rowbtn.up{background:#F6F2EA}
 .rowbtn:active{transform:scale(.97)}
 .rowbtn.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
@@ -184,10 +176,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .trow.off .tcap{background:#EEECE7;color:var(--light);border-color:#E4E0D9}
 .trow .oc-nm::before{display:none}
 .tcap{margin-left:auto;flex-shrink:0;font-size:10px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
-.flowst{display:flex;align-items:center;gap:7px;margin:2px 0 12px;font-size:11px;color:var(--light);flex-wrap:wrap}
-.flowst .fs-c{font-weight:700;color:#FFFFFF;background:var(--gold-deeper);border-radius:20px;padding:3px 11px;font-size:11px;letter-spacing:.01em}
-.flowst .fs-p{opacity:.75}
-.flowst .fs-a{color:var(--gold);font-size:10px}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
 .m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
@@ -274,7 +262,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .sumrow.off .sr-c{opacity:.5}
 .sr-l{flex:0 0 88px;font-family:var(--serif);font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all;line-height:1.4}
 .sr-v{flex:1;font-size:13px;color:var(--sub);word-break:keep-all;line-height:1.5}
-.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:6px 12px}
+.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 13px}
 .sr-c:active{background:var(--bg2);color:var(--seal)}
 .fillbadge{margin-top:14px;background:#EEECE7;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px}
 .fillbadge .ft{font-size:12px;font-weight:600;color:var(--seal)}
@@ -613,14 +601,14 @@ function recoTxt(k){
 }
 var MOMENT={
  guest:{ph:'예식의 시작 · 하객 맞이',t:'실제 예식은 여기서 시작돼요. 하객이 자리에 앉는 동안 안내가 흘러요.',act:'나레이션이 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
- entry:{ph:'식이 열려요',t:'문이 열리고, 두 분이 손잡고 함께 입장하는 순간이에요.',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
- veil:{ph:'베일 다운',t:'입장의 끝, 부모님이 베일을 내리고 두 분의 손을 이어 주는 순간이에요.',act:'누가 내려 줄지 골라주세요. 동작은 리허설 때 함께 맞춰요.'},
+ entry:{ph:'식이 열려요',t:'문이 열리고 두 분이 함께 입장해요 · 멘트를 골라 첫 장면을 완성해요.',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
+ veil:{ph:'베일 다운',t:'입장 직전, 문이 열리기 전에 부모님이 베일을 내리고 두 분의 손을 이어 줘요.',act:'누가 내려 줄지 골라주세요. 동작은 리허설 때 함께 맞춰요.'},
  welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 감사 인사를 전하는 순간이에요.',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
  vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 낭독 방식을 정해주세요.'},
- ringwarm:{ph:'링 워밍',t:'링 워밍은 두 분의 반지를 가족·하객이 차례로 손에 쥐고, 마음속 축복을 담아 옆으로 전하는 순서예요.',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
- ring:{ph:'반지 교환',t:'약속의 증표를 손끝에 새기는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
+ ringwarm:{ph:'링 워밍',t:'두 분의 반지를 가족·하객이 손에서 손으로 쥐고, 축복을 담아 전해요.',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
+ ring:{ph:'반지 교환',t:'서약의 약속을 반지로 나누는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
  declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 공식적으로 선언하는 순간이에요.',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
- valley:{ph:'축하 한 호흡',t:'마무리로 향하기 전, 축하의 한 호흡을 더할 수 있어요.',act:'없음이 기본 · 원하면 하나만 더해요.'},
+ valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 폐식 전에 하나만 살짝 더해요.',act:'없음이 기본 · 원하면 하나만 더해요.'},
  toast:{ph:'축배 · 케이크',t:'분위기가 가장 밝게 고조되는, 축제 같은 순간이에요.',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
  song:{ph:'축가',t:'두 분을 위해 준비된 노래가 흐르는 순간이에요.',act:'누가 부를지 골라주세요.'},
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요.',act:'누구에게 전할지 골라주세요.'},
@@ -628,16 +616,6 @@ var MOMENT={
  bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
 };
 var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',done:'완성'};
-function momentBanner(k,mo){
-  var seqC=CEREMONY.filter(function(x){return x!=='guest';});
-  var pos=(k==='guest')?'식전':'식 순서 '+(seqC.indexOf(k)+1)+' / '+seqC.length;
-  var h='<div class="moment'+(mo.info?' info':'')+'">';
-  h+='<div class="moment-h"><span class="moment-ph">'+esc(mo.ph)+'</span><span class="moment-pos">'+pos+'</span></div>';
-  h+='<div class="moment-t">'+esc(mo.t)+'</div>';
-  h+=flowStrip(k).replace('class="flowst"','class="flowst" style="margin:10px 0 2px"');
-  h+='</div>';
-  return h;
-}
 
 var _navKey='';
 function render(){
@@ -680,12 +658,6 @@ function render(){
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
   if(courseStarted) _persist();
-}
-function flowStrip(k){
-  var i=CEREMONY.indexOf(k); if(i<0) return '';
-  var pv=(i>0)?PHASE[CEREMONY[i-1]]:'개식',
-      nx=(i<CEREMONY.length-1)?PHASE[CEREMONY[i+1]]:'폐식 · 단체촬영';
-  return '<div class="flowst"><span class="fs-p">'+esc(pv)+'</span><span class="fs-a">›</span><span class="fs-c">지금 · '+esc(PHASE[k]||'')+'</span><span class="fs-a">›</span><span class="fs-p">다음 '+esc(nx)+'</span></div>';
 }
 function renderMiniTL(k){
   var el=document.getElementById('minitl');
@@ -998,7 +970,7 @@ function renderStep(k){
     GUEST.forEach(function(g,i){
       var txt=cpl?g[2]:g[1];
       h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
-      if(cpl){ h+='<div class="uprow"><button class="rowbtn" onclick="event.stopPropagation();mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:6px 12px;font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>'; }
+      if(cpl){ h+='<div class="uprow"><button class="rowbtn" onclick="event.stopPropagation();mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>'; }
       h+='</div>';
     });
     if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
@@ -1022,7 +994,7 @@ function renderStep(k){
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요. 잡음·볼륨은 저희가 한 번 다듬어 드리니, 조금 어설퍼도 괜찮아요.</div>';
-      h+='<div style="margin-top:12px"></div>'+fold('entryAI','직접 녹음이 부담되면 · AI 더빙','<div style="font-size:12px;color:var(--gold-deeper);line-height:1.7">타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>');
+      h+='<div style="margin-top:12px">'+fold('entryAI','직접 녹음이 부담되면 · AI 더빙','<div style="font-size:12px;color:var(--gold-deeper);line-height:1.7">타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>')+'</div>';
       h+='</div>';
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
     }
@@ -1037,7 +1009,7 @@ function renderStep(k){
     (function(){
       var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
       h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn();
-      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:6px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
+      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
       h+='</div>';
     })();
     h+='</div></div>';
