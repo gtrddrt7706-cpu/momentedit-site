@@ -1343,9 +1343,7 @@ function renderDone(){
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서 · '+estMin()+'</div></div>';
   if(_restored&&!_doneSaved) h+='<div class="banner" style="text-align:center">전에 만들던 '+esc(COURSES[S.course].nm)+' 코스 식순을 불러왔어요 · 이어서 보실 수 있어요.</div>';
   if(_doneSaved) h+='<div class="banner" style="text-align:center">기기에만 저장돼요 · 「파일로 저장」·「전체 대본 복사」로 백업하고, D-14까지 언제든 고쳐요.</div>';
-  h+='<button class="listen-all" onclick="listenAll(this)">나레이션 목소리 미리듣기 · 샘플</button>';
-  h+='<div class="prep-hint" style="text-align:center;margin-top:6px">샘플 목소리예요 · 실제는 확정 후 녹음돼요.</div>';
-  h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 당일 전에 연습하기</button>';
+  h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 나레이션 미리듣기 · 당일 연습</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
   if(_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘지만 괜찮아요 · 넘치는 몇 분은 상담에서 조율해요</div>';
   var fb=fillBlanks();
