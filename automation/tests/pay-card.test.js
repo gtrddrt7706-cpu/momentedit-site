@@ -404,6 +404,11 @@ newCust('J_EX0', { 현재단계: '결과물전달', 추가보정상태: '대기'
 sandbox.__b = { token: 'tok_ex0', milestone: '추가보정', paymentKey: 'pk', orderId: 'X0', amount: 120000 };
 var rEx0 = run('handleCardConfirm(__b)');
 check('J3d 미신청(대기) 추가보정 → 결제 차단', rEx0.ok === false);
+newCust('J_EXX', { 현재단계: '취소', 추가보정상태: '견적', 추가보정금액: 120000 }); TOKMAP.tok_exx = 'J_EXX';
+var tossExx = tossCalls;
+sandbox.__b = { token: 'tok_exx', milestone: '추가보정', paymentKey: 'pk', orderId: 'XX', amount: 120000 };
+var rExx = run('handleCardConfirm(__b)');
+check('J3e 종료(취소) 고객 추가보정 카드 → 청구 전 차단·미확정', rExx.ok === false && tossCalls === tossExx && DB.J_EXX.추가보정상태 === '견적');
 
 check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount >= 0, 'ok=' + fuzzOkCount);   // 퍼즈 성공은 우연 의존이라 하한 0 · 실질 해피패스는 위 I' 결정형이 보장
 
