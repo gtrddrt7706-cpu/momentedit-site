@@ -148,7 +148,7 @@ function handleSaveProductionTrack(body) {
     body.draft = {
       venue: String(gir.venue || '').slice(0, 60),      // 예식장 이름
       addr: String(gir.addr || '').slice(0, 120),       // 주소
-      map: (/^https?:\/\//.test(String(gir.map || '')) ? String(gir.map).slice(0, 300) : ''),   // 지도 링크(http[s]만)
+      map: (/^https?:\/\//i.test(String(gir.map || '')) ? String(gir.map).slice(0, 300) : ''),   // 지도 링크(http[s]만·대소문자 무관)
       parking: String(gir.parking || '').slice(0, 200), // 주차 안내
       transit: String(gir.transit || '').slice(0, 200), // 대중교통
       dress: String(gir.dress || '').slice(0, 120),     // 드레스코드(선택)
@@ -181,12 +181,24 @@ function handleSaveProductionTrack(body) {
         touchCustomer(sheet, colOf, cust.num, { '좌석공유토큰': _seatToken });
       }
     }
-    // 하객 안내 허브 공개 토큰 — 다이닝/좌석/최종 중 하나라도 완료되면 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
-    //   하객에게 보낼 안내가 생기는 시점(식당을 고르거나 자리를 정하거나)에 링크가 준비됨. 데이터 본체는 제작임시저장에 이미 있음.
+    // 하객 안내 허브 공개 토큰 — 다이닝/좌석/안내정보 중 '하객에게 보여줄 내용이 실제로 있는' 완료에만 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
+    //   내용 검사: 다이닝 없이(N)·미정 문구만, 빈 좌석, 전부 빈 안내정보로는 발급 안 함 — 이름·날짜만 있는 빈 안내 링크가 배포되는 것 방지(final 제외와 같은 취지).
     var _guideToken = colOf['안내공유토큰'] ? String(cust.get('안내공유토큰') || '').trim() : '';   // 마이그레이션 전(열 없음)이면 발급 생략(에러 방지)
-    if (colOf['안내공유토큰'] && ['dining', 'seat', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {   // 하객 콘텐츠가 생기는 트랙만(final=인원확정은 하객 노출 없음 → 빈 안내 링크 방지)
-      _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
-      touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
+    if (colOf['안내공유토큰'] && ['dining', 'seat', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
+      var _gHas = false, _gd = (body && body.draft) || {};
+      if (track === 'dining') {
+        var _gvp = String(_gd.venuePick || '').trim();
+        _gHas = String(_gd.dining_on || '') !== 'N'
+          && ((((_gd._favs) || []).length > 0) || (_gvp && ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'].indexOf(_gvp) === -1));
+      } else if (track === 'seat') {
+        _gHas = ((_gd.tables) || []).some(function (t) { return ((t && t.seats) || []).some(function (s) { return String(s || '').trim(); }); });   // 이름 하나라도 있어야
+      } else if (track === 'guideinfo') {
+        _gHas = !!(String(_gd.venue || '') + String(_gd.addr || '') + String(_gd.map || '') + String(_gd.parking || '') + String(_gd.transit || '') + String(_gd.dress || '')).trim();
+      }
+      if (_gHas) {
+        _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
+        touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
+      }
     }
     // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
     //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
@@ -239,7 +251,11 @@ var GUIDE_EXPIRE_DAYS = 30;
 function _guideExpired(weddingYmd) {
   var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (!m) return false;
-  var wed = new Date(+m[1], +m[2] - 1, +m[3]); wed.setHours(0, 0, 0, 0);
+  if (typeof _dayDiff === 'function' && typeof _kstYmd === 'function') {   // 코드베이스 표준 KST 판정(admin.gs 헬퍼) — 프로젝트 타임존 설정과 무관하게 정확
+    var _dd = _dayDiff(String(weddingYmd).trim(), _kstYmd(new Date()));   // 예식까지 남은 일수(음수=지남)
+    return _dd != null && _dd < -GUIDE_EXPIRE_DAYS;
+  }
+  var wed = new Date(+m[1], +m[2] - 1, +m[3]); wed.setHours(0, 0, 0, 0);   // 폴백(헬퍼 부재) — 서버 타임존 기준
   var today = new Date(); today.setHours(0, 0, 0, 0);
   return (today - wed) > GUIDE_EXPIRE_DAYS * 86400000;
 }
@@ -253,6 +269,7 @@ function handleSeatView(body) {
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
+  if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };   // 부부의 '자리 찾기 허용' OFF — 이미 배포된 seat 링크·QR에도 즉시 적용(토글 약속 이행)
   var sd = d.seatDraft || {};
   var tables = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
   if (!tables.length) return { ok: false, error: '아직 배치가 없어요.' };
@@ -289,11 +306,13 @@ function handleGuideView(body) {
   var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
   var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
     v = v || {};
-    return { n: String(v.n || ''), m: String(v.m || ''), tel: String(v.tel || ''), url: (/^https?:/.test(String(v.url || '')) ? String(v.url) : '') };
+    return { n: String(v.n || ''), m: String(v.m || ''), tel: String(v.tel || ''), url: (/^https?:/i.test(String(v.url || '')) ? String(v.url) : '') };
   };
   var restos = _favs.filter(function (v) { return v && v.src !== 'attr'; }).map(_mapItem);
   var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
-  var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || String(dd.venuePick || '').trim() !== '');
+  var _pick = String(dd.venuePick || '').trim();   // 위저드 내부 선택지 문구는 하객에게 식당명이 아님 — 걸러냄('여기로 모여요 · 직접 섭외할게요' 노출 방지)
+  if (['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'].indexOf(_pick) !== -1) _pick = '';
+  var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || _pick !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
   return {
     ok: true,
@@ -303,7 +322,7 @@ function handleGuideView(body) {
       date: _ymdOf(cust.get('예식일')) || '',
       venue: { name: String(gi.venue || ''), addr: String(gi.addr || ''), map: String(gi.map || ''), parking: String(gi.parking || ''), transit: String(gi.transit || '') },   // 오시는 길(입력됐을 때만 표시)
       dress: String(gi.dress || ''),   // 드레스코드(선택)
-      dining: { on: diningOn, pick: String(dd.venuePick || '').trim(), restos: restos, spots: spots },
+      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots },
       seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
       live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)

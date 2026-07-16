@@ -120,9 +120,11 @@ function findSeat(v){
   tblEls.forEach(function(el){ el.classList.remove('hit'); });
   $('fr').innerHTML='';
   if(!v) return;
-  var lc=v.toLowerCase(), first=null, groups={};
+  var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };   // 공백(전각 포함) 제거 — '김 민수' 입력·저장 어느 쪽이든 매칭
+  var lc=norm(v), first=null, groups={};
+  if(!lc) return;
   seatEls.forEach(function(el){
-    var nm=(el.textContent||'').trim().toLowerCase();
+    var nm=norm(el.textContent);
     if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); groups[+el.getAttribute('data-g')]=1; if(!first) first=el; }
   });
   var gk=Object.keys(groups);
