@@ -86,6 +86,15 @@ setup({ 예식일: ymdShift(10) });
 const gt2 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
 ok(gt2.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt2.guide.live === false && gt2.guide.eventId === '', '14 기본: 자리찾기 ON · 라이브 OFF(eventId 비노출)');
 
+// 15) 'final'(인원 확정) 완료는 안내 토큰 발급 안 함 — 하객 노출 콘텐츠가 없어 빈 안내 링크 방지
+fresh();
+const rf = sb.handleSaveProductionTrack({ token: 't1', track: 'final', done: true, draft: { headcount: '28', drink: '스파클링' } });
+ok(rf.ok === true && !rf.guideToken && !DB.C1.안내공유토큰, '15 final 완료 → 안내 토큰 미발급(빈 링크 방지)');
+// 16) 반대로 dining 완료는 발급
+fresh();
+const rd = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: true, draft: { dining_on: 'Y', venuePick: '소반' } });
+ok(rd.ok === true && rd.guideToken && rd.guideToken[0] === 'G', '16 dining 완료 → 안내 토큰 발급');
+
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
 if (fail) process.exit(1);

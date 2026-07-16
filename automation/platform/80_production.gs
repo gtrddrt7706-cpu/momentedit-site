@@ -184,7 +184,7 @@ function handleSaveProductionTrack(body) {
     // 하객 안내 허브 공개 토큰 — 다이닝/좌석/최종 중 하나라도 완료되면 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
     //   하객에게 보낼 안내가 생기는 시점(식당을 고르거나 자리를 정하거나)에 링크가 준비됨. 데이터 본체는 제작임시저장에 이미 있음.
     var _guideToken = colOf['안내공유토큰'] ? String(cust.get('안내공유토큰') || '').trim() : '';   // 마이그레이션 전(열 없음)이면 발급 생략(에러 방지)
-    if (colOf['안내공유토큰'] && ['dining', 'seat', 'final', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
+    if (colOf['안내공유토큰'] && ['dining', 'seat', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {   // 하객 콘텐츠가 생기는 트랙만(final=인원확정은 하객 노출 없음 → 빈 안내 링크 방지)
       _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
       touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
     }
@@ -282,9 +282,9 @@ function handleGuideView(body) {
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
-  var gi0 = d.guideinfoDraft || {};
-  var _showSeat = gi0.showSeat !== false;   // 자리 찾기 노출 — 기본 ON(끄면 하객이 이름으로 자리 조회 불가)
-  var _showLive = gi0.showLive === true;    // 라이브 중계 — 기본 OFF(디지털 참석 켠 부부만 · eventId만으론 죽은 링크 방지)
+  var gi = d.guideinfoDraft || {};
+  var _showSeat = gi.showSeat !== false;   // 자리 찾기 노출 — 기본 ON(끄면 하객이 이름으로 자리 조회 불가)
+  var _showLive = gi.showLive === true;    // 라이브 중계 — 기본 OFF(디지털 참석 켠 부부만 · eventId만으론 죽은 링크 방지)
   var dd = d.diningDraft || {};
   var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
   var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
@@ -295,7 +295,6 @@ function handleGuideView(body) {
   var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || String(dd.venuePick || '').trim() !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
-  var gi = d.guideinfoDraft || {};
   return {
     ok: true,
     guide: {
@@ -361,7 +360,6 @@ function buildProductionState(r) {
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
     guideToken: String(r.get('안내공유토큰') || ''),   // 하객 안내 허브 공개 링크·QR 키(다이닝/좌석 완료 시 발급)
     guideinfoDraft: draft.guideinfoDraft || null,      // 하객 안내 정보(오시는 길·드레스코드) 이어하기·편집용
-    guideinfoDone: (t.guideinfo === '완료'),           // 안내 정보 저장 완료 여부
     finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }
