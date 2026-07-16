@@ -20,7 +20,7 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em}
 .q-title,.intro-lead,.crs-nm,.nar,.sample .sx,.done-hd .t,.rh-hd .t,.dblk-n,.ev-n{font-family:var(--serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
-.prog{padding:15px 0 6px;position:sticky;top:0;z-index:40;background:var(--bg)}
+.prog{padding:15px 0 0}
 .prog-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
 .prog-now{font-size:12px;font-weight:700;color:var(--accent)}
 .prog-pct{font-size:11px;font-weight:600;color:var(--gold-deeper);flex-shrink:0}
@@ -208,8 +208,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes mclinkr{to{transform:rotate(-9deg)}}
 .mclip.mstill .m-draw{animation:none;stroke-dashoffset:0}.mclip.mstill .m-in,.mclip.mstill .m-spark{animation:none;opacity:1}.mclip.mstill .m-tilt,.mclip.mstill .m-fall{animation:none}.mclip.mstill .m-walk{animation:none;transform:translateX(128px)}.mclip.mstill .m-bob{animation:none}.mclip.mstill .m-drop{animation:none;transform:translateY(14px)}.mclip.mstill .m-bow{animation:none;transform:rotate(-26deg)}.mclip.mstill .m-rise{animation:none;transform:translateY(-13px)}.mclip.mstill .m-trem{animation:none}.mclip.mstill .m-clinkl{animation:none;transform:rotate(9deg)}.mclip.mstill .m-clinkr{animation:none;transform:rotate(-9deg)}
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
-.minitl{margin:0 0 6px;padding:0 0 11px;border-bottom:1px solid var(--border)}
-.minitl .mtl-h{font-size:11px;font-weight:600;color:var(--gold-deeper);margin-bottom:7px;word-break:keep-all}
+.minitl{margin:8px 0 0;padding:0 0 11px;border-bottom:1px solid var(--border)}
 .mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mtl-rail::-webkit-scrollbar{display:none}
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
@@ -629,7 +628,7 @@ function render(){
   var pct=Math.max(2,Math.round((idx+1)/STEPS.length*100));
   document.getElementById('pf').style.width=pct+'%';
   document.getElementById('pnow').textContent=(st.k==='tune')?'기본 식순이 준비됐어요':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':('순서 '+(si+1)+' / '+stops.length);
+  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':('순서 '+(si+1)+' / '+stops.length+' · '+estMin());
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음 · 함께 볼 순간 확인(전체 기본)';
@@ -662,15 +661,18 @@ function render(){
   if(courseStarted) _persist();
 }
 function renderMiniTL(k){
-  var el=document.getElementById('minitl');
-  var show=(mode==='build' && k && ['intro','course','done'].indexOf(k)<0);
+  var el=document.getElementById('minitl'), pn=document.getElementById('pnext');
+  var blocks=(mode==='build' && k)?fullBlocks():[];
+  var cur=-1; for(var i=0;i<blocks.length;i++){ if(blocks[i].k===k){ cur=i; break; } }
+  var show=(cur>-1);   // 순서 레일은 현재 단계(알약)가 있는 본식 단계에서만
   el.style.display=show?'block':'none';
+  if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
-  var parts=fullBlocks().map(function(b){
+  var parts=blocks.map(function(b){
     var nm=b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');
     return (b.k===k)?'<span class="mtl-now">'+esc(nm)+'</span>':'<span class="mtl-i">'+esc(nm)+'</span>';
   });
-  el.innerHTML='<div class="mtl-h">우리 예식 순서 · '+estMin()+'</div><div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a">›</span>')+'</div>';
+  el.innerHTML='<div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a">›</span>')+'</div>';
   var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
   if(rail&&now&&typeof now.offsetLeft==='number'){ rail.scrollLeft=Math.max(0, now.offsetLeft-rail.clientWidth/2+now.offsetWidth/2); }
 }
