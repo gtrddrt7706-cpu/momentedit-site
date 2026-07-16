@@ -1038,8 +1038,10 @@ html.me-restoring body { opacity: 0 !important; }
 }
 /* 스크롤 시 진사가 아이보리로 옅어지는 베일(커튼이 걷히는 연출).
    ★불투명 크림 패널이 아래에서 위로 '올라오는' 방식(opacity 페이드 아님).
-   불투명 크림을 진사 위에 얹으면 그대로 크림(반투명 때의 '마우브'가 안 생김) → 히어로 밑단이 스크롤 어느 지점에서도 항상 크림 = 다음 섹션(크림)과 경계에 하드 라인이 절대 안 생김.
-   패널 선두(위)만 부드럽게 투명해져 커튼 가장자리가 되고, 화면 크기(세로·가로·태블릿)엔 %·offsetHeight로 자동 적응.
+   ★패널 선두(위) 가장자리는 '단계별 웜톤 그라데이션'(2026-07-16): 진사 → 로즈우드 → 테라코타 → 블러시 탄 → 샌드 → 아이보리 → 크림.
+   종전 크림→투명 단일 에지는 반투명 흰색이 진사 위에 얹혀 회색빛 '마우브' 한 색만 거쳐 훅 바뀌었음 →
+   반투명 구간을 전부 진사 계열 웜톤으로 직접 지정해, 스크롤에 따라 새벽빛처럼 순차적으로 밝아지고 마우브(회색끼)가 안 생김.
+   밑단(0~40%)은 항상 불투명 크림 → 히어로 밑이 스크롤 어느 지점에서도 다음 섹션(크림)과 경계 하드라인 없음. 화면 크기엔 %·offsetHeight로 자동 적응.
    ★구동은 JS(--heroVeilY, translateY)만 사용 — CSS 스크롤 타임라인(animation-timeline)은 일부 iPad Safari에서 상단에서 패널이 이미 다 올라온 상태로 오작동(로고만 남고 진사 사라짐)하여 제거. translateY는 컴포지터 가속이라 JS 구동도 매끄러움. */
 .hero-veil {
   position: absolute;
@@ -1048,7 +1050,18 @@ html.me-restoring body { opacity: 0 !important; }
   bottom: 0;
   height: 160%;
   z-index: 0;
-  background: linear-gradient(to top, #fafaf8 0%, #fafaf8 58%, rgba(250, 250, 248, 0) 100%);
+  background: linear-gradient(
+    to top,
+    #fafaf8 0%,
+    #fafaf8 40%,
+    #f5eee4 50%,
+    #ecdcc9 59%,
+    rgba(219, 172, 146, 0.94) 68%,
+    rgba(184, 122, 100, 0.66) 77%,
+    rgba(140, 70, 56, 0.38) 86%,
+    rgba(111, 43, 36, 0.14) 93%,
+    rgba(111, 43, 36, 0) 100%
+  );
   transform: translateY(var(--heroVeilY, 100%)); /* 100% = 히어로 아래로 완전히 내려가 숨음(스크롤0: 진사 그대로) → 0%: 히어로를 크림으로 덮음. 기본값 100%라 로드 시 진사 유지(번쩍임 없음) */
   will-change: transform;
   pointer-events: none;
