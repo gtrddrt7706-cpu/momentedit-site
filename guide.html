@@ -134,7 +134,7 @@ function liveHtml(g){
     +'<div class="live-cap">예식 시작 즈음 열려요. 열리기 전엔 안내 화면이 보일 수 있어요.</div></div>';
 }
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용. 빠른 답(테이블 번호)만 인페이지 · 전체 배치도는 seat.html로.
-var SEAT=null;
+var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
 function seatFindHtml(){
   return '<div class="sec"><div class="sec-h"><span class="sec-t">내 자리 찾기</span><span class="sec-n">Your Table</span></div>'
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력하세요"><div class="find-res" id="fr"></div></div>'
@@ -149,23 +149,29 @@ function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1�
 }
 function findSeat(v){
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
-  if(!v || !SEAT){ fr.innerHTML=''; return; }
-  var lc=v.toLowerCase(), tables=SEAT.tables||[], num=seatRowNum(tables), hitI=-1;
-  for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]); for(var k=0;k<seats.length;k++){ if(String(seats[k]||'').trim().toLowerCase().indexOf(lc)>=0){ hitI=i; break; } } if(hitI>=0) break; }
-  if(hitI>=0){
-    var t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
-    var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
-    fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요';
-  } else { fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; }
+  if(!v){ fr.innerHTML=''; return; }
+  if(SEAT_STATE==='loading'){ fr.textContent='좌석 안내를 불러오는 중이에요…'; return; }
+  if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 아래 전체 배치도로 확인해 주세요.'; return; }
+  var lc=v.toLowerCase(), tables=SEAT.tables||[], num=seatRowNum(tables), hits=[];
+  for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]), got=false;
+    for(var k=0;k<seats.length;k++){ if(String(seats[k]||'').trim().toLowerCase().indexOf(lc)>=0){ got=true; break; } }
+    if(got) hits.push(i);
+  }
+  if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
+  if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 더 입력해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지
+  var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
+  var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
+  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요';
 }
 function bindSeat(seatToken){
   var all=$('seatAll'); if(all) all.setAttribute('href', '/seat.html?t='+encodeURIComponent(seatToken));
   var q=$('q'); if(q) q.addEventListener('input', function(){ findSeat(q.value); });
+  SEAT_STATE='loading';
   // 좌석 본체는 기존 seatView로 별도 조회(단일 소스 · 명단은 guideView가 안 내려줌)
   fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken}) })
     .then(function(r){ return r.json(); })
-    .then(function(d){ if(d&&d.ok&&d.seat){ SEAT=d.seat; } })
-    .catch(function(){});
+    .then(function(d){ if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; } else { SEAT_STATE='fail'; } if(q&&q.value) findSeat(q.value); })   // 로드 후 이미 입력돼 있으면 재조회(타이핑이 먼저였던 경우)
+    .catch(function(){ SEAT_STATE='fail'; if(q&&q.value) findSeat(q.value); });
 }
 function render(g){
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');

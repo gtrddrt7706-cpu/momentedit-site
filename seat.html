@@ -120,22 +120,26 @@ function findSeat(v){
   tblEls.forEach(function(el){ el.classList.remove('hit'); });
   $('fr').innerHTML='';
   if(!v) return;
-  var lc=v.toLowerCase(), hitG=-1, first=null;
+  var lc=v.toLowerCase(), first=null, groups={};
   seatEls.forEach(function(el){
     var nm=(el.textContent||'').trim().toLowerCase();
-    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); if(hitG<0){ hitG=+el.getAttribute('data-g'); first=el; } }
+    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); groups[+el.getAttribute('data-g')]=1; if(!first) first=el; }
   });
-  if(hitG>=0){
-    var tb=document.querySelector('[data-tbl="'+hitG+'"]'); if(tb) tb.classList.add('hit');
-    var t=TABLES[hitG]||{};
-    var _no=NUMS[hitG]||(hitG+1);   // 지도 배지·좌석표 프린트와 동일한 행순서 번호
-    var _c=String(t.name||'').trim();
-    var _label=(_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 '+_no);
-    $('fr').innerHTML='<b>'+esc(_label)+'</b> 자리예요 · '+_no+'번 테이블';
+  var gk=Object.keys(groups);
+  if(!gk.length){ $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
+  gk.forEach(function(g){ var tb=document.querySelector('[data-tbl="'+g+'"]'); if(tb) tb.classList.add('hit'); });   // 매칭된 테이블 모두 강조(지도로 눈으로도 확인)
+  if(gk.length>1){   // 흔한 성·부분일치 → 텍스트로 한 자리만 단정하지 않음(엉뚱한 자리 방지). 지도엔 다 강조돼 있음.
+    $('fr').innerHTML='<b>'+esc(v)+'</b> 님이 여러 자리에서 검색돼요 · 성함을 더 입력해 주세요.';
     if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
-  } else {
-    $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
+    return;
   }
+  var hitG=+gk[0];
+  var t=TABLES[hitG]||{};
+  var _no=NUMS[hitG]||(hitG+1);   // 지도 배지·좌석표 프린트와 동일한 행순서 번호
+  var _c=String(t.name||'').trim();
+  var _label=(_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 '+_no);
+  $('fr').innerHTML='<b>'+esc(_label)+'</b> 자리예요 · '+_no+'번 테이블';
+  if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
 }
 (function boot(){
   var t=qp('t');
