@@ -1060,7 +1060,7 @@ function renderStep(k){
   else if(k==='letter'){
     h+=clip('letter');
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
-    lopts.forEach(function(v){ h+=oc('letter',v,LETTER[v].d,'',LETTER[v].nar,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
+    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요 · 마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);var c=document.getElementById(\'letterCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
     
@@ -1083,9 +1083,9 @@ function renderStep(k){
   }
   else if(k==='veil'){
     h+=diag('veil');
-    h+=oc('veil','mother','어머니가','',VEIL.mother.nar);
-    h+=oc('veil','father','아버지가','아버지가 내려 주시는, 뭉클한 변주예요',VEIL.father.nar);
-    h+=oc('veil','close','가까운 분이','어머니·아버지가 아니어도 좋아요 · 언니, 형제, 오래 곁을 지켜 준 분 등 가장 소중한 분이 내려 주시면 그 자체로 뭉클해요',VEIL.close.nar);
+    h+=oc('veil','mother','어머니가','',S.veil==='mother'?VEIL.mother.nar:null);
+    h+=oc('veil','father','아버지가','아버지가 내려 주시는, 뭉클한 변주예요',S.veil==='father'?VEIL.father.nar:null);
+    h+=oc('veil','close','가까운 분이','어머니·아버지가 아니어도 좋아요 · 언니, 형제, 오래 곁을 지켜 준 분 등 가장 소중한 분이 내려 주시면 뭉클해요',S.veil==='close'?VEIL.close.nar:null);
     h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요 · (오버베일: 얼굴 위로 넘겼다 내리는 겉베일)','');
     if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">오버베일 여부는 저희가 미리 확인하고, 동작은 리허설에서 맞춰요 · 어려우면 소중한 분과 동반 입장으로 바꿔도 뭉클해요.</div>';
   }
