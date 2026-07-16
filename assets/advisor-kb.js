@@ -152,7 +152,7 @@ window.MOMENT_ADVISOR_KB = {
             { id: 'photo-when', label: '사진은 언제 받나요?', answer: '결과물 수령 시점은 상담·계약 단계에서 정확히 안내해 드립니다.', escalate: true },
             { id: 'photo-keep', label: '데이터는 얼마나 보관해 주나요?', answer: '결과물은 인도 완료 후 6개월간 보관 후 삭제됩니다. 기간 내에 꼭 백업해 주세요.' },
             { id: 'photo-sns', label: 'SNS에 올려도 되나요?', answer: '두 분의 기록이니 자유롭게 간직하시면 됩니다. 스튜디오의 포트폴리오 활용·게시 가이드 등 세부 정책은 상담에서 안내드립니다.', escalate: true },
-            { id: 'photo-portfolio', label: '촬영 결과물 미리 볼 수 있나요?', answer: '인스타그램 @moment_edit_official 과 홈페이지의 아카이브·청첩장 갤러리에서 톤과 무드를 미리 보실 수 있습니다.' },
+            { id: 'photo-portfolio', label: '촬영 결과물 미리 볼 수 있나요?', answer: '인스타그램 @momentedit.kr 과 홈페이지의 아카이브·청첩장 갤러리에서 톤과 무드를 미리 보실 수 있습니다.' },
             { id: 'photo-format', label: '원본 파일 형식(JPG · RAW)은요?', answer: '원본 데이터 전체를 제공해 드립니다. 파일 형식 등 세부 사양은 상담에서 안내드립니다.', escalate: true },
             { id: 'photo-reshoot', label: '재촬영이 되나요?', answer: '재촬영 관련 안내는 상담에서 도와드립니다.', escalate: true },
           ],
