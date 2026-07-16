@@ -965,13 +965,17 @@ function renderStep(k){
       h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';
       h+='</div>';
     }
-    GUEST.forEach(function(g,i){
-      var txt=cpl?g[2]:g[1];
-      h+='<div class="gt"><div class="gt-t">'+esc(g[0])+(cpl?' <span class="gt-tag">참고 예시</span>':'')+'</div><div class="gt-x">'+esc(txt)+'</div>';
-      if(cpl){ h+='<div class="uprow"><button class="rowbtn" onclick="event.stopPropagation();mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>'; }
-      h+='</div>';
-    });
-    if(!cpl) h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
+    if(cpl){
+      GUEST.forEach(function(g,i){
+        h+='<div class="gt"><div class="gt-t">'+esc(g[0])+' <span class="gt-tag">참고 예시</span></div><div class="gt-x">'+esc(g[2])+'</div>';
+        h+='<div class="uprow"><button class="rowbtn" onclick="event.stopPropagation();mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>';
+        h+='</div>';
+      });
+    } else {
+      var _gs=''; GUEST.forEach(function(g){ _gs+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div></div>'; });
+      h+='<div style="margin-top:12px">'+fold('guestScripts','안내 문구 전문 보기',_gs)+'</div>';
+      h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
+    }
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 상담 때 전달하면, 저희가 잡음·볼륨을 다듬어 당일 재생해요 · 어설퍼도 편하게 녹음하세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요.')+'</div>';
     var _hc=HOUSE.filter(function(hh){return S.house[hh[0]];}).length+(S.guestbook?1:0)+(S.growth==='on'?1:0);
     var _gi='<div class="dlabel" style="margin-top:2px">체크만 하면 준비된 안내 음성으로 틀어드려요</div>';
