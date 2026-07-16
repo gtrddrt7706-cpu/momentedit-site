@@ -405,8 +405,8 @@ var HOUSE=[
 var COURSES={
   damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
     seq:['guest','entry','welcome','vow','ring','declare','letter','bless','valley'],
-    one:'어른 하객이 많은 두 분께 · 꼭 필요한 순간만 정갈하게',
-    feel:'어른 하객이 많고, 담백하지만 진심이 깊게 남길 원하는 두 분께 · 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
+    one:'어른 하객이 많은 두 분께 · 꼭 필요한 순간만',
+    feel:'담백하지만 진심이 깊게 남길 원하는 두 분께 · 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
     detail:[
       {n:'신랑·신부 입장', how:'나레이션의 안내에 이어 "신랑 신부, 입장!" 소리와 함께 문이 열리고, 두 분이 손을 잡고 함께 걸어 들어와요.', fx:'모두의 시선이 한 번에 문으로 쏠리며, 예식의 첫 감동이 터지는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
@@ -435,12 +435,12 @@ var COURSES={
       {n:'성혼 선언·합송', how:'나레이션의 선창에 이어, 하객 모두가 인쇄된 선언문을 함께 소리 내어 읽어요.', fx:'하객 전원의 목소리가 하나 되는, 집단적 벅참의 마지막 정점이에요.', pick:'하객 합송 / 가족 낭독 / 나레이션'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아요.', fix:true}
     ],
-    addable:'베일 다운·부모님 헌정·하객 합송이 이 코스의 시그니처예요 · 다음 화면에서 고를 수 있어요.'},
+    addable:'베일 다운·부모님 헌정·하객 합송이 이 코스의 시그니처예요.'},
   family:{nm:'가족', badge:'가족 참여', ready:true, min:'약 30분',
     seq:['guest','entry','bless','vow','ringwarm','ring','letter','tribute','declare'],
     opt:[{k:'welcome',at:3}],
     one:'가족이 주인공인 예식을 원하는 두 분께',
-    feel:'가족 유대를 소중히 여기는 두 분께 · 덕담·링 워밍·헌정까지 온 가족이 함께 완성하는 예식이에요.',
+    feel:'가족 유대를 소중히 여기는 두 분께 · 온 가족이 함께 완성하는 예식이에요.',
     flow:['입장','부모님 덕담','혼인 서약','링 워밍','반지','편지 낭독','부모님 헌정','성혼 선언','폐식'],
     detail:[
       {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'가족이 지켜보는 가운데 첫 걸음을 내딛는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
@@ -453,11 +453,11 @@ var COURSES={
       {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'가족 모두가 증인이 되는 공식 선언이에요.', pick:'엄숙하게 / 따뜻하게 / 가족 낭독'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 온 가족이 함께 단체 사진을 남겨요.', fx:'양가 모든 세대가 한 프레임에 담기는 순간이에요.', fix:true}
     ],
-    addable:'부모님 덕담·링 워밍·헌정이 이 코스의 시그니처예요 · 다음 화면에서 고를 수 있어요.'},
+    addable:'부모님 덕담·링 워밍·헌정이 이 코스의 시그니처예요.'},
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, min:'약 18분',
     seq:['guest','entry','vow','ring','declare'],
     opt:[{k:'welcome',at:2},{k:'letter',at:5},{k:'bless',at:6}],
-    one:'가장 짧게 원하는 두 분께 · 담백에서 첫인사·편지를 뺀 최단 코스',
+    one:'담백에서 첫인사·편지를 뺀 최단 코스',
     feel:'약속만 또렷하게 남기고 싶은 두 분께 · 어른 하객이 많은 자리에도 편안한 가장 간결한 코스예요.',
     flow:['입장','혼인 서약','반지','성혼 선언','폐식'],
     detail:[
@@ -484,7 +484,7 @@ var COURSES={
       {n:'축배·케이크', how:'작은 케이크를 자르고, 모두가 잔을 들어 함께 축하해요.', fx:'감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
       {n:'폐식·단체촬영', how:'나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'환한 에너지를 그대로 사진에 담아요.', fix:true}
     ],
-    addable:'축배·케이크가 이 코스의 시그니처예요 · 다음 화면에서 고를 수 있어요.'}
+    addable:'축배·케이크가 이 코스의 시그니처예요.'}
 };
 
 var EXVOW=[
@@ -991,7 +991,7 @@ function renderStep(k){
     h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
-      h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요. 잡음·볼륨은 저희가 한 번 다듬어 드리니, 조금 어설퍼도 괜찮아요.</div>';
+      h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 녹음해 올려 주세요. 잡음·볼륨은 저희가 한 번 다듬어 드려요.</div>';
       h+='<div style="margin-top:12px">'+fold('entryAI','직접 녹음이 부담되면 · AI 더빙','<div style="font-size:12px;color:var(--gold-deeper);line-height:1.7">타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>')+'</div>';
       h+='</div>';
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
@@ -1028,7 +1028,7 @@ function renderStep(k){
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:'서로에게 쓴 서약문'},'준비물 · 서로에게 쓴 서약문');
-    h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">당일까지 비밀로 둬도 돼요 · 적어두면 대본·리허설에 함께 보여드려요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
+    h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
     h+='<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>';
     h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>';
     h+='<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div>';
@@ -1053,7 +1053,7 @@ function renderStep(k){
     });
   }
   else if(k==='valley'){
-    h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요 · 순서 사이는 나레이션과 음악이 끊김 없이 이어 줘요','',null,null,null,true);
+    h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요','',null,null,null,true);
     h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징 · 실물 준비 순서라 추가 비용 안내가 있어요','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.');
     h+=oc('valley','cake','케이크 커팅','밝은 한 호흡, 촬영으로 연결 · 실물 준비 순서라 추가 비용 안내가 있어요','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.');
   }
@@ -1083,10 +1083,10 @@ function renderStep(k){
   }
   else if(k==='veil'){
     h+=diag('veil');
-    h+=oc('veil','mother','어머니가','문이 열리기 전, 어머니가 베일을 내리고 두 분의 손을 이어 줘요',VEIL.mother.nar);
+    h+=oc('veil','mother','어머니가','',VEIL.mother.nar);
     h+=oc('veil','father','아버지가','아버지가 내려 주시는, 뭉클한 변주예요',VEIL.father.nar);
     h+=oc('veil','close','가까운 분이','어머니·아버지가 아니어도 좋아요 · 언니, 형제, 오래 곁을 지켜 준 분 등 가장 소중한 분이 내려 주시면 그 자체로 뭉클해요',VEIL.close.nar);
-    h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요 · 드레스나 사정에 따라 자연스러운 선택이에요. (오버베일: 얼굴 위로 넘겼다 내리는 겉베일)','');
+    h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요 · (오버베일: 얼굴 위로 넘겼다 내리는 겉베일)','');
     if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">오버베일 여부는 저희가 미리 확인하고, 동작은 리허설에서 맞춰요 · 어려우면 소중한 분과 동반 입장으로 바꿔도 뭉클해요.</div>';
   }
   else if(k==='ringwarm'){
@@ -1319,7 +1319,7 @@ function renderDone(){
   var bs=fullBlocks();
   var h='<div class="done-hd"><div class="t">두 분의 예식이 완성됐어요</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서</div></div>';
   if(_restored&&!_doneSaved) h+='<div class="banner" style="text-align:center">전에 만들던 '+esc(COURSES[S.course].nm)+' 코스 식순을 불러왔어요 · 이어서 보실 수 있어요.</div>';
-  if(_doneSaved) h+='<div class="banner" style="text-align:center">이 기기에 저장됐어요 · 상담 때 디렉터와 함께 확인해요.<br>기기에만 저장되니 「파일로 저장」으로 대본도 보관하고, 「전체 대본 복사」로 공유해 두세요 · D-14까지 언제든 고칠 수 있어요.</div>';
+  if(_doneSaved) h+='<div class="banner" style="text-align:center">상담 때 디렉터와 함께 확인해요.<br>기기에만 저장되니 「파일로 저장」으로 대본도 보관하고, 「전체 대본 복사」로 공유해 두세요 · D-14까지 언제든 고칠 수 있어요.</div>';
   h+='<div class="q-sub" style="text-align:center;margin:2px 0 14px">당일, 문이 열리는 순간부터 마지막 사진까지 이 순서 그대로 흘러갑니다.</div>';
   h+='<button class="listen-all" onclick="listenAll(this)">나레이션 목소리 미리듣기 · 샘플</button><div class="prep-hint" style="text-align:center;margin-top:6px">실제 두 분 예식의 나레이션은 확정 후 녹음되어 이곳에서 들을 수 있어요.</div>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 당일 전에 연습하기</button>';
@@ -1328,7 +1328,6 @@ function renderDone(){
   var fb=fillBlanks();
   if(fb.length){ h+='<div class="fillbadge"><div class="ft">아직 비워둔 칸 '+fb.length+'개 · 나중에 채워도 돼요</div><div class="fl">'; fb.forEach(function(x){ h+='<span onclick="jumpTo(\''+x[0]+'\')">'+esc(x[1])+' 채우기</span>'; }); h+='</div></div>'; }
   h+='<div class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</div><div class="sumry">';
-  h+='<div class="menu-hd"><div class="mh-t">두 분의 예식</div></div>';
   var _num=0;
   summaryRows().forEach(function(r){
     var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='참여형 방명록'||r[0]==='하객 맞이 안내');
