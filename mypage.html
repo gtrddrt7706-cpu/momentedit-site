@@ -1391,7 +1391,7 @@ function renderMyPage(d){
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
           head = '결제만 남았어요';
-          sub = '예식이 가까워 계약금과 ' + _pb.join('·') + '을 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + '을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.';
+          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 예식 준비가 시작돼요.';
         } else {
         head = '계약금 입금만 남았어요';
         sub = (_pa && Number(_pa.납부액) > 0)
@@ -1804,7 +1804,7 @@ function renderLedger(l){
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
         + (_lbHard ? _finalGateHtml(true) : (
             (_balS.account?_acctBox(_balS.account, _balS.holder, '입금 계좌', (_balS.amount!=null)?_acctAmt('data-copy-amt="'+String(_balS.amount)+'"','입금액 '+fmtWon(_balS.amount)+' 복사'):''):'')
-          +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
+          +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'
           +cashReceiptField('mp_lbCR', l.cashTail)
           +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
           +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>' ))
@@ -2221,7 +2221,7 @@ function renderContractReqForm(ctx){
     +'<div class="cc-note" style="text-align:left;margin:10px 0 3px;color:var(--light);line-height:1.6">연락처 · 이메일은 <b style="color:var(--sub);font-weight:500">선택</b>이에요. 다만 이메일을 두 분 각각 남겨 두시면, 축하해 주신 분들이 남긴 편지가 <b style="color:var(--sub);font-weight:500">각자에게 직접</b> 도착해요.</div>'
     +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요. 미입력 시 자진발급되어 소득공제는 어려워요.</div>'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -2379,14 +2379,14 @@ function renderContractPayment(c, p, ctx){
           + '<br><span class="cc-mini">계약금 '+fmtWon(a.납부액)+'(예약금 '+fmtWon(a.예약금)+' 차감)'
           + (_pb2.indexOf('중도금')!==-1?(' + 중도금 '+fmtWon(a.중도금)):'')
           + (_pb2.indexOf('잔금')!==-1?(' + 잔금 '+fmtWon(a.잔금)):'')+'</span>'
-          + '<br><span class="cc-mini">예식이 가까워 함께 안내드려요. 한 번에 입금하시면 돼요.</span></div>')
+          + '<br><span class="cc-mini">예식이 가까워 한 번에 받아요.</span></div>')
        : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
   var _amtV=(_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:null);
   var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
   h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
-     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
-     + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
+     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
+     + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
@@ -2586,8 +2586,8 @@ function renderPayment(p){
     }
     var acct = _acctBox(p.account, p.holder, '입금 계좌', (a&&a.납부액!=null)?_acctAmt('data-copy-amt="'+String(a.납부액)+'"','입금액 '+fmtWon(a.납부액)+' 복사'):'');
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
-    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
-        + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
+        + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
         + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
@@ -2625,21 +2625,7 @@ document.addEventListener('click', function(e){
 });
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
 // [입금자명 칩] 계약서의 신랑·신부 이름 원탭 입력(부모님 입금 등 직접 입력도 그대로 가능)
-function _payerChipsHtml(target){
-  var f=(((window._mpStateD||{}).contract)||{}).fill||{};
-  var names=[]; if(f.groom) names.push(f.groom); if(f.bride&&f.bride!==f.groom) names.push(f.bride);
-  if(!names.length) return '';
-  return '<div style="display:flex;gap:6px;margin:-4px 0 10px">'+names.map(function(n){
-    return '<button type="button" data-payer-chip data-target="'+escapeHtml(target)+'" data-name="'+escapeHtml(n)+'" style="background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent">'+escapeHtml(n)+'</button>';
-  }).join('')+'</div>';
-}
-document.addEventListener('click', function(e){
-  var t=(e.target&&e.target.closest)?e.target.closest('[data-payer-chip]'):null;
-  if(!t) return;
-  var el=$(t.getAttribute('data-target')); if(!el) return;
-  el.value=t.getAttribute('data-name')||'';
-  try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(err){}
-});
+// 입금자명 추천 칩 제거(2026-07-16 사용자 지시) — 성함 입력칸만 유지
 // [금액 복사] 계좌 옆 금액 원탭 복사(이체 앱 금액 오타 방지) — data-copy-amt(고정) 또는 data-copy-from(요소 텍스트 숫자)
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-amt],[data-copy-from]'):null;
@@ -2686,7 +2672,7 @@ function renderBalance(p, mid){
   var midAbsorb = !!(mid && !mid.confirmed && mid.status!=='완료신호');
   if(midAbsorb && p.status!=='완료신호' && p.dday!=null && p.dday<=_pd.bal){ box.style.display='none'; box.innerHTML=''; return; }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
-  var ddTxt=(p.dday!=null)?(p.dday>=0?(_pw+' D-'+p.dday):(_pw+' D+'+(-p.dday))):'';
+  var ddTxt=(p.dday!=null&&p.dday>=0)?(_pw+' D-'+p.dday):'';   // 기한 지난 D+ 표기는 생략
   var dueLabel=escapeHtml(p.dueLabel||(_pw+' '+_pd.bal+'일 전'));
   var near=(p.dday!=null && p.dday<=_pd.bal+6 && !midAbsorb);   // (중도금 카드가 흡수 중이 아닐 때) 기한 6일 전부터 자동 펼침 — 스냅도 기한 임박 시 펼쳐지게
   var body='', cta='';
@@ -2706,15 +2692,14 @@ function renderBalance(p, mid){
     else { balDue=dueLabel+'까지'; balTag=''; }
     var when='<div class="cc-note">'+(
         p.due?(balDue+' 입금 부탁드려요'+balTag)
-      : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
-      : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
+      : (balDue+' 보내주세요'+balTag)
     )+'</div>';
     if(p.extraPending && !!((window._mpStateD||{}).production) && !p.due){   // 하드 게이트 — 여유 있을 때만(마감 D-9 전). 마감 임박 시 자동 해제 → 선택제(기본 잔금 먼저 결제 가능)
       body='<div class="cc-title">'+head+'</div>'+amt+when+_finalGateHtml(true); cta='';
     } else {
       var acct=_acctBox(p.account, p.holder, '입금 계좌', (p.amount!=null)?_acctAmt('data-copy-amt="'+String(p.amount)+'"','입금액 '+fmtWon(p.amount)+' 복사'):'');
       body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
-      cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
+      cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
         + cashReceiptField('mp_bCR', p.cashReceipt)
         + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
         + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -2752,7 +2737,7 @@ function cashReceiptField(id, val){
     return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
   return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
-    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
+    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>';
 }
 function doBalanceSignal(){
   var payer=(($('mp_bPayer')&&$('mp_bPayer').value)||'').trim();
@@ -2771,9 +2756,9 @@ function renderMid(p, bal){
   if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   var _pd=_payDays();
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
-  var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
+  var ddTxt=(p.dday!=null&&p.dday>=0)?('예식 D-'+p.dday):'';   // 기한 지난 D+ 표기는 생략(납부 안내 문구가 대신함)
   var dueLabel=escapeHtml(p.dueLabel||('예식 '+_pd.mid+'일 전'));
-  var whyLine=(p.dueLabel==='계약 시 함께 납부')?'' :'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정되었어요. 준비 착수를 위한 중도금이에요.</div>';
+  var whyLine='';   // 아래 forceCombo 확정 후 세팅 — 묶음 카드엔 중도금 설명 불필요(미니멀)
   var near=(p.dday!=null && p.dday<=_pd.mid+7);   // 기한 7일 전부터 자동 펼침
   // 잔금 함께 결제 — 잔금이 이미 신고(완료신호)된 상태면 제외(신고분을 또 합산 청구해 이중 입금을 유도하던 문제)
   var balOpen=!!(bal && !bal.confirmed && bal.status!=='완료신호' && bal.amount!=null && p.amount!=null);
@@ -2785,6 +2770,7 @@ function renderMid(p, bal){
     body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
+    whyLine=forceCombo?'':'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정됐어요.</div>';
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
     var midDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
@@ -2798,15 +2784,14 @@ function renderMid(p, bal){
     else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
     else { comboDue='예식 '+_pd.bal+'일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
-        forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요'+comboTag)
+        forceCombo?('예식이 가까워 함께 받아요 · '+comboDue+' 입금 부탁드려요'+comboTag)
       : p.due?(midDue+' 입금 부탁드려요'+midTag)
-      : near?(midDue+' 보내주세요'+midTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
-      : (midDue+' 보내주세요'+midTag+'<br>미리 입금하셔도 괜찮아요.')
+      : (midDue+' 보내주세요'+midTag)
     )+'</div>';
     var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
-    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_mPayer')
+    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_mCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -2978,7 +2963,7 @@ var meCardPay = (function(){
       +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
       +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="110000"','입금액 110,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
-      +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
+      +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
       + '</div></div></div>';
     main.insertBefore(sec, main.firstChild);
