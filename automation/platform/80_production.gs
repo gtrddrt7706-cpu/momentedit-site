@@ -470,6 +470,7 @@ function adminConfirmExtra(code) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 고객이에요. (취소·노쇼·미계약)' };   // 종료 고객 입금확인 차단(영수증 큐 오생성 방지 · adminConfirmMid/Balance·_confirmDepositCore와 동일 가드)
   if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: true, already: true };
   var rec0 = _parseJsonSafe(cust.get('동의기록'));
   rec0.영수증기준일 = rec0.영수증기준일 || {};
