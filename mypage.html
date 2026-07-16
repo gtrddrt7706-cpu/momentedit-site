@@ -858,6 +858,18 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-share-sub{font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);margin:6px 0 12px}
     .seat-share-url{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);word-break:break-all;background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:10px}
     .seat-share-btns{display:flex;gap:8px;justify-content:center}
+    /* 하객 안내 정보 편집(오시는 길·드레스코드) */
+    .gi-wrap{margin-top:16px;border-top:1px dashed var(--border);padding-top:14px}
+    .gi-sum{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);display:flex;align-items:center;gap:6px}
+    .gi-sum::-webkit-details-marker{display:none}
+    .gi-sub{font-weight:400;color:var(--sub);font-size:12px}
+    .gi-badge{font-size:10.5px;font-weight:400;color:var(--gold-deep);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2px 9px}
+    .gi-badge-o{color:var(--light)}
+    .gi-sum .pt-ar{margin-left:auto;color:var(--light);transition:transform .2s}
+    .gi-wrap[open] .gi-sum .pt-ar{transform:rotate(180deg)}
+    .gi-body{padding-top:14px}
+    .gi-row{margin-bottom:11px}
+    .gi-l{display:block;font-family:var(--serif-ko);font-size:12px;color:var(--light);margin:0 0 5px 2px}
     /* 내 내역 패널 (02-6) */
     .led-card{text-align:left;padding:20px 20px 16px}
     .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
@@ -3050,8 +3062,10 @@ function renderProduction(p, inv){
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null);
-  if(p.guideToken){ box.innerHTML += guideShareHtml(p.guideToken); }   // 하객 안내 허브 링크·미리보기·QR (다이닝/좌석 완료 시 서버가 토큰 발급)
+  box.innerHTML += guideInfoEditorHtml(p.guideinfoDraft||{});          // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
+  if(p.guideToken){ box.innerHTML += guideShareHtml(p.guideToken); }   // 하객 안내 허브 링크·미리보기·QR (다이닝/좌석/안내정보 완료 시 서버가 토큰 발급)
   box.style.display='block';
+  wireGuideInfoEditor(box);
   if(p.guideToken){ wireGuideShare(box, p.guideToken); }
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
@@ -3968,6 +3982,9 @@ function invStepDone(box, r){
   }
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
             + linkCard('family','직접 모시는 청첩장','가족·가까운 분께 직접 전하세요.',u.family);
+  // [Phase 2] 하객 안내 허브 링크 — 다이닝·자리·오시는 길이 준비됐으면 청첩장과 같은 화면에서 함께 전달(링크 하나로 통합)
+  var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
+  if(_gTok) cards += linkCard('family','하객 안내 · 식사·자리·오시는 길','예식 안내를 한 페이지로 · 오프라인 하객께 함께 전하세요.', guideUrl(_gTok));
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
     : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
@@ -4114,6 +4131,37 @@ function wireGuideShare(box, token){
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ legacyCopy(url); done(); }); } else { legacyCopy(url); done(); } }catch(e){ legacyCopy(url); done(); }
   });
   ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url); });
+}
+// [하객 안내 정보] 오시는 길·드레스코드 입력 — 접이식. 저장하면 guide.html에 섹션으로 반영(하객 페이지가 채워짐).
+function guideInfoEditorHtml(gi){
+  gi=gi||{};
+  var has=!!(gi.venue||gi.addr||gi.parking||gi.transit||gi.dress);
+  function row(id,label,val,ph){ return '<div class="gi-row"><label class="gi-l" for="'+id+'">'+label+'</label><input class="cc-input" id="'+id+'" type="text" autocomplete="off" value="'+escapeHtml(val||'')+'" placeholder="'+escapeHtml(ph||'')+'"></div>'; }
+  return '<details class="gi-wrap"'+(has?'':'')+'><summary class="gi-sum">하객 안내 정보 · <span class="gi-sub">오시는 길·드레스코드</span> '+(has?'<span class="gi-badge">입력됨</span>':'<span class="gi-badge gi-badge-o">비어 있음</span>')+' <span class="pt-ar">▾</span></summary>'
+    +'<div class="gi-body">'
+    +'<div class="cc-note" style="text-align:left;margin:0 0 12px">여기 적으면 하객 안내 페이지에 <b>오시는 길·주차·교통·드레스코드</b>로 그대로 보여요. 비워두면 그 칸은 안 나와요.</div>'
+    +row('gi_venue','예식장 이름',gi.venue,'예: 라비돌웨딩홀 3층 그랜드홀')
+    +row('gi_addr','주소',gi.addr,'예: 서울 강남구 테헤란로 000')
+    +row('gi_map','지도 링크 (선택)',gi.map,'카카오맵·네이버지도 링크')
+    +row('gi_parking','주차 안내',gi.parking,'예: 건물 지하 2시간 무료')
+    +row('gi_transit','대중교통',gi.transit,'예: 2호선 강남역 3번 출구 도보 5분')
+    +row('gi_dress','드레스코드 (선택)',gi.dress,'예: 세미정장 · 밝은 톤 환영')
+    +'<button type="button" class="cc-btn" id="gi_save" style="margin-top:6px">안내 정보 저장</button>'
+    +'<div class="cc-note" id="gi_msg" style="text-align:center;display:none;margin-top:8px"></div>'
+    +'</div></details>';
+}
+function wireGuideInfoEditor(box){
+  var btn=$('gi_save'); if(!btn) return;
+  btn.addEventListener('click', function(){
+    var draft={ venue:(($('gi_venue')||{}).value||'').trim(), addr:(($('gi_addr')||{}).value||'').trim(), map:(($('gi_map')||{}).value||'').trim(),
+      parking:(($('gi_parking')||{}).value||'').trim(), transit:(($('gi_transit')||{}).value||'').trim(), dress:(($('gi_dress')||{}).value||'').trim() };
+    btn.disabled=true; btn.textContent='저장 중…';
+    var msg=$('gi_msg');
+    api({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
+      if(r&&r.ok){ if(msg){ msg.textContent='저장됐어요. 하객 안내에 반영됐어요.'; msg.style.display='block'; msg.style.color='var(--gold-deep)'; } setTimeout(function(){ loadMyState(); }, 700); }
+      else { btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+  });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
 function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }

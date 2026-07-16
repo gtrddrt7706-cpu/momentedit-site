@@ -102,7 +102,7 @@ function handleSaveProductionTrack(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
-  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat') return { ok: false, error: '알 수 없는 항목입니다.' };
+  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo') return { ok: false, error: '알 수 없는 항목입니다.' };
   // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
   if (track === 'final') {
     var fdr = (body && body.draft) || {};
@@ -142,6 +142,18 @@ function handleSaveProductionTrack(body) {
     }
     body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };
   }
+  // 하객 안내 정보: 오시는 길·드레스코드 — 길이 상한만(표시는 guide.html이 esc). 개인정보 아님(예식장 공개정보).
+  if (track === 'guideinfo') {
+    var gir = (body && body.draft) || {};
+    body.draft = {
+      venue: String(gir.venue || '').slice(0, 60),      // 예식장 이름
+      addr: String(gir.addr || '').slice(0, 120),       // 주소
+      map: (/^https?:\/\//.test(String(gir.map || '')) ? String(gir.map).slice(0, 300) : ''),   // 지도 링크(http[s]만)
+      parking: String(gir.parking || '').slice(0, 200), // 주차 안내
+      transit: String(gir.transit || '').slice(0, 200), // 대중교통
+      dress: String(gir.dress || '').slice(0, 120)      // 드레스코드(선택)
+    };
+  }
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -170,7 +182,7 @@ function handleSaveProductionTrack(body) {
     // 하객 안내 허브 공개 토큰 — 다이닝/좌석/최종 중 하나라도 완료되면 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
     //   하객에게 보낼 안내가 생기는 시점(식당을 고르거나 자리를 정하거나)에 링크가 준비됨. 데이터 본체는 제작임시저장에 이미 있음.
     var _guideToken = colOf['안내공유토큰'] ? String(cust.get('안내공유토큰') || '').trim() : '';   // 마이그레이션 전(열 없음)이면 발급 생략(에러 방지)
-    if (colOf['안내공유토큰'] && ['dining', 'seat', 'final'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
+    if (colOf['안내공유토큰'] && ['dining', 'seat', 'final', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
       _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
       touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
     }
@@ -265,12 +277,15 @@ function handleGuideView(body) {
   var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || String(dd.venuePick || '').trim() !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
+  var gi = d.guideinfoDraft || {};
   return {
     ok: true,
     guide: {
       groom: String(cust.get('신랑이름') || ''),
       bride: String(cust.get('신부이름') || ''),
       date: _ymdOf(cust.get('예식일')) || '',
+      venue: { name: String(gi.venue || ''), addr: String(gi.addr || ''), map: String(gi.map || ''), parking: String(gi.parking || ''), transit: String(gi.transit || '') },   // 오시는 길(입력됐을 때만 표시)
+      dress: String(gi.dress || ''),   // 드레스코드(선택)
       dining: { on: diningOn, pick: String(dd.venuePick || '').trim(), restos: restos, spots: spots },
       seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       eventId: String(cust.get('eventId') || '').trim(),                                       // 라이브·청첩장 링크 재료(청첩장 백엔드 키)
@@ -327,6 +342,8 @@ function buildProductionState(r) {
     seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
     guideToken: String(r.get('안내공유토큰') || ''),   // 하객 안내 허브 공개 링크·QR 키(다이닝/좌석 완료 시 발급)
+    guideinfoDraft: draft.guideinfoDraft || null,      // 하객 안내 정보(오시는 길·드레스코드) 이어하기·편집용
+    guideinfoDone: (t.guideinfo === '완료'),           // 안내 정보 저장 완료 여부
     finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }

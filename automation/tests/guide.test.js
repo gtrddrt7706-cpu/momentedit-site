@@ -1,0 +1,66 @@
+/**
+ * Moment Edit · 하객 안내 허브(guide.html) 백엔드 검증 — 실서버 코드(gas-lint 샌드박스)로 구동.
+ *   handleGuideView(공개 조회·PII 최소) · handleSaveProductionTrack track='guideinfo'(오시는 길·드레스코드) · 안내공유토큰 발급.
+ * 실행: node automation/tests/guide.test.js
+ */
+import { loadGas } from '../../scripts/audit/gas-lint.mjs';
+
+const { sandbox: sb, errors } = loadGas();
+if (errors.length) { console.log('로드 실패', errors); process.exit(1); }
+
+let DB = {}, TOK = {};
+const makeRow = (c) => ({ get: (k) => (DB[c] && DB[c][k] !== undefined ? DB[c][k] : ''), num: c });
+sb.findCustomerByCode = (c) => (DB[c] ? makeRow(c) : null);
+sb._findCustomerBy = (col, val) => { for (const c in DB) { if (String(DB[c][col] || '') === val) return makeRow(c); } return null; };
+sb.resolveSession = (t) => (TOK[t] ? { ok: true, row: makeRow(TOK[t]) } : { ok: false, reason: 'x' });
+sb._sessionMsg = () => '세션';
+sb.getCustomersSheet = () => ({});
+sb.buildHeaderIndex = () => ({ '안내공유토큰': 99 });
+sb.touchCustomer = (s, co, n, patch) => Object.assign(DB[n], patch);
+sb.notifyKakao = () => {}; sb.notifyStudio = () => {}; sb._nfAdminLineEmail = () => {};
+sb.Utilities = { getUuid: () => 'abcdef0123456789abcdef0123456789' };
+
+let pass = 0, fail = 0;
+const ok = (c, m, d) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d !== undefined ? ('  →  ' + JSON.stringify(d)) : '')); } };
+const fresh = () => { DB = { C1: { 개인코드: 'C1', 상품타입: '시그니처', 현재단계: '제작중', 신랑이름: '정희준', 신부이름: '미쿠', 예식일: '2026-11-07', eventId: 'ev_abc', 안내공유토큰: '', 좌석공유토큰: 'Sxxxxxxxxxxxxxx1', 제작임시저장: '' } }; TOK = { t1: 'C1' }; };
+
+console.log('── 하객 안내 허브 ──');
+
+// 1) 안내 정보 저장 → 토큰 발급 + 정규화
+fresh();
+const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { venue: '라비돌웨딩홀', addr: '서울 강남구 테헤란로 000', map: 'https://map.kakao.com/x', parking: '지하 2시간 무료', transit: '2호선 강남역 3번 도보 5분', dress: '세미정장', evil: 'x' } });
+ok(r1.ok === true && r1.guideToken && r1.guideToken[0] === 'G', '1 guideinfo 저장 → 안내 토큰(G…) 발급');
+const gd = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
+ok(gd.venue === '라비돌웨딩홀' && gd.parking === '지하 2시간 무료' && gd.evil === undefined, '2 필드 저장 + 미지정 필드 제거');
+
+// 3) map은 http[s]만 · 길이 상한
+sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: false, draft: { venue: 'x', map: 'javascript:alert(1)', addr: 'a'.repeat(500) } });
+const gd2 = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
+ok(gd2.map === '' && gd2.addr.length === 120, '3 javascript: 지도 거부 · 주소 120자 상한');
+
+// 4) handleGuideView — 공개 조회로 오시는 길·다이닝·좌석·라이브 반환
+fresh();
+DB.C1.안내공유토큰 = 'Gyyyyyyyyyyyyyy1';
+DB.C1.제작임시저장 = JSON.stringify({
+  guideinfoDraft: { venue: '라비돌', addr: '주소', map: 'https://m/x', parking: '무료', transit: '도보 5분', dress: '세미정장' },
+  diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', m: '한정식', tel: '031-0', url: 'https://map/x', src: 'resto' }, { n: '카페', src: 'attr' }] },
+  seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김하객'] }] }
+});
+const gv = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
+ok(gv.ok && gv.guide.groom === '정희준' && gv.guide.date === '2026-11-07', '4 부부 이름·예식일');
+ok(gv.guide.venue.name === '라비돌' && gv.guide.venue.parking === '무료' && gv.guide.dress === '세미정장', '5 오시는 길·드레스코드 반환');
+ok(gv.guide.dining.on && gv.guide.dining.pick === '소반' && gv.guide.dining.restos.length === 1 && gv.guide.dining.spots.length === 1, '6 다이닝(대표·식사·가볼곳)');
+ok(gv.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gv.guide.eventId === 'ev_abc' && gv.guide.live === true, '7 좌석 토큰·라이브 링크 재료');
+ok(!JSON.stringify(gv).includes('제작임시저장') && !JSON.stringify(gv.guide).includes('_favs'), '8 내부 draft 원본 미노출(PII 최소)');
+
+// 9) 잘못된/빈 토큰 차단
+ok(sb.handleGuideView({ g: '' }).ok === false && sb.handleGuideView({ g: 'nope1234' }).ok === false, '9 빈·없는 토큰 → 실패');
+
+// 10) 알 수 없는 track 거부(라우팅 안전)
+fresh();
+ok(sb.handleSaveProductionTrack({ token: 't1', track: 'evil', done: true, draft: {} }).ok === false, '10 알 수 없는 track 거부');
+
+console.log('\n' + '─'.repeat(36));
+console.log('PASS ' + pass + ' · FAIL ' + fail);
+if (fail) process.exit(1);
+console.log('하객 안내 허브 검증 통과');

@@ -50,6 +50,10 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .act{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 .act svg{width:12px;height:12px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
 .subh{font-size:11px;letter-spacing:.04em;color:var(--light);margin:16px 0 6px}
+.info-row{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--hair);margin-top:10px}
+.info-row:first-of-type{margin-top:12px}
+.info-k{font-size:11.5px;color:var(--gold-deep);padding-top:1px}
+.info-v{font-size:12.5px;color:var(--sub);line-height:1.6}
 
 .find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
 .find input:focus{outline:none;border-color:var(--gold-deep)}
@@ -96,6 +100,22 @@ function spotHtml(v, withTel){
   var acts='<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
   if(withTel && v.tel) acts+='<a class="act" href="'+esc(telUrl(v.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>';
   return '<div class="spot"><div class="sn">'+esc(v.n)+'</div>'+(v.m?'<div class="sm">'+esc(v.m)+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
+}
+function venueHtml(v){
+  if(!v || (!v.name && !v.addr)) return '';
+  var h='<div class="sec"><div class="sec-h"><span class="sec-t">오시는 길</span><span class="sec-n">Directions</span></div>';
+  h+='<p class="addr">'+(v.name?'<b>'+esc(v.name)+'</b>':'')+(v.name&&v.addr?'<br>':'')+(v.addr?esc(v.addr):'')+'</p>';
+  var acts='';
+  if(v.map && /^https?:/.test(v.map)) acts+='<a class="act" href="'+esc(v.map)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
+  else if(v.addr) acts+='<a class="act" href="https://map.kakao.com/?q='+encodeURIComponent(v.addr)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
+  if(acts) h+='<div class="acts">'+acts+'</div>';
+  if(v.parking) h+='<div class="info-row"><span class="info-k">주차</span><span class="info-v">'+esc(v.parking)+'</span></div>';
+  if(v.transit) h+='<div class="info-row"><span class="info-k">대중교통</span><span class="info-v">'+esc(v.transit)+'</span></div>';
+  return h+'</div>';
+}
+function dressHtml(dress){
+  if(!dress) return '';
+  return '<div class="sec"><div class="sec-h"><span class="sec-t">드레스코드</span><span class="sec-n">Dress</span></div><p class="addr">'+esc(dress)+'</p></div>';
 }
 function diningHtml(dn){
   if(!dn || !dn.on) return '';
@@ -153,8 +173,10 @@ function render(g){
   var hasSeat=!!g.seatToken;
   $('root').innerHTML='<div class="card">'
     +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
-    +diningHtml(g.dining)
+    +venueHtml(g.venue)
     +(hasSeat?seatFindHtml():'')
+    +diningHtml(g.dining)
+    +dressHtml(g.dress)
     +liveHtml(g)
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
