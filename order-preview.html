@@ -116,7 +116,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .cflow-a{color:var(--light);font-size:10px}
 .cflow-legend{font-size:10px;color:var(--gold-deeper);margin-top:9px;display:flex;align-items:center;gap:5px;word-break:keep-all}
 .cflow-legend::before{content:'';flex-shrink:0;width:12px;height:12px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
-.crs-more{margin-top:12px;text-align:center;font-size:12px;font-weight:600;color:var(--gold-deeper);background:none;border:none;padding:6px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--gold-btn);cursor:pointer}
+.crs-chev{font-size:20px;line-height:1;color:var(--gold-btn);transition:transform .2s}
+.crs.on .crs-chev{transform:rotate(90deg)}
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
 .cdet-l{font-size:10px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin-bottom:9px}
 .ev{padding:11px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
@@ -916,7 +917,7 @@ window.tuneAll=function(on){ if(!on){ if(S.extra.bless) S.bless=(S.course==='fam
 window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; if(k==='valley') S.valley='wine'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
 
 function renderStep(k){
-  if(k==='course'){ return '<div style="margin-top:18px">'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
+  if(k==='course'){ return '<div style="margin-top:18px"><div class="cflow-legend" style="margin:0 2px 12px">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.<br><span style="font-size:12px;color:var(--light)">카드를 누르면 그 순간의 장면을 미리 볼 수 있어요</span></div>';
@@ -1124,12 +1125,10 @@ function courseCard(v){
   var _hasSwap=false;
   c.flow.forEach(function(f,i){ var fixed=c.detail&&c.detail[i]&&c.detail[i].fix; if(!fixed)_hasSwap=true; flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i'+(fixed?'':' swap')+'">'+esc(f)+'</span>'; });
   var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
-  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span>'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+'</div>';
+  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span><span style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+(soon?'':'<span class="crs-chev">›</span>')+'</span></div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
   if(v==='damback') h+='<div style="font-size:11px;color:var(--gold-deeper);margin-top:4px">가장 많이 선택하는 코스예요</div>';
   h+='<div class="crs-flowl">이렇게 흘러요</div><div class="cflow">'+flow+'</div>';
-  if(_hasSwap) h+='<div class="cflow-legend">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>';
-  if(!open && !soon) h+='<div class="crs-more">눌러서 순서별 상세 보기</div>';
   if(soon) h+='<div class="crs-soon-note">지금은 담백 코스로 먼저 만들어 보실 수 있어요. 감동·가족 코스는 곧 열리며, 상담 때 함께 안내해 드려요.</div>';
   if(open && c.detail){
     h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
