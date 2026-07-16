@@ -1102,7 +1102,7 @@ function openRitualBuilder(p){
       setTimeout(function(){ fr.style.opacity='1'; },70);
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
-      api({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
+      apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
         .then(function(r){ if(r&&r.ok){ saved=true; } else { alert((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
         .catch(function(){ alert('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
@@ -4126,10 +4126,44 @@ function collectSeats(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat-nm]'),function(el){ var ti=+el.getAttribute('data-ti'); if(SEATFLOW.tables[ti]) SEATFLOW.tables[ti].name=el.value; });
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
 }
+// [배포 시차 감지] 저장 응답의 에코(r.draft)와 보낸 draft를 구조 비교 — 구버전 GAS가 새 필드를 조용히 버리면(2026-07 음료 소실 사고 유형) 즉시 경고.
+//   값 정규화(길이 컷·불량값 빈값화)는 허용하고 '키·항목이 통째로 사라진 것'만 잡는다. 에코 없는 응답(에코 도입 전 서버)은 판단 보류(경고 없음).
+function _echoLostPaths(sent, echoed, path, out){
+  out=out||[]; path=path||'';
+  if(!sent || typeof sent!=='object') return out;
+  if(!echoed || typeof echoed!=='object'){ out.push(path||'draft'); return out; }
+  if(Object.prototype.toString.call(sent)==='[object Array]'){
+    for(var i=0;i<sent.length;i++){
+      if(sent[i]&&typeof sent[i]==='object') _echoLostPaths(sent[i], echoed[i], path+'['+i+']', out);
+      else if(echoed.length<=i) out.push(path+'['+i+']');
+    }
+    return out;
+  }
+  for(var k in sent){ if(!Object.prototype.hasOwnProperty.call(sent,k)) continue;
+    var p=path?path+'.'+k:k;
+    if(!(k in echoed)) out.push(p);
+    else if(sent[k]&&typeof sent[k]==='object') _echoLostPaths(sent[k], echoed[k], p, out);
+  }
+  return out;
+}
+function apiTrackSave(payload){
+  return api(payload).then(function(r){
+    try{
+      if(r && r.ok && r.draft && payload && payload.draft){
+        var lost=_echoLostPaths(payload.draft, r.draft);
+        if(lost.length && !window._echoWarned){ window._echoWarned=true;   // 세션당 1회(같은 원인으로 저장마다 반복 경고 방지)
+          try{ console.warn('[saveProductionTrack] 서버 미반영 필드(구버전 GAS 의심):', lost.join(', ')); }catch(e){}
+          mpAlert('입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요 · 바로 확인해 드릴게요.');
+        }
+      }
+    }catch(e){}
+    return r;
+  });
+}
 function saveSeat(done){
   // 저장 직전 고아 음료 정리 — 이름 없는 자리의 음료는 표시·집계에서 이미 제외되므로, 시트에 남아 나중에 엉뚱한 하객에게 붙는 것 방지(편집 중에는 보존 → '음료 먼저·이름 나중' 흐름 지원)
   SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
-  return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done});
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done});
 }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   SEATFLOW.active=false; show('loading');
@@ -4223,7 +4257,7 @@ function wireGuideInfoEditor(box){
       showSeat: !($('gi_showSeat')&&!$('gi_showSeat').checked), showLive: !!($('gi_showLive')&&$('gi_showLive').checked) };
     btn.disabled=true; btn.textContent='저장 중…';
     var msg=$('gi_msg');
-    api({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
+    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
       if(r&&r.ok){ if(msg){ msg.textContent='저장됐어요. 하객 안내에 반영됐어요.'; msg.style.display='block'; msg.style.color='var(--gold-deep)'; } setTimeout(function(){ loadMyState(); }, 700); }
       else { btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
     }).catch(function(){ btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
@@ -4370,7 +4404,7 @@ function startTrkFlow(track, draft, base){
 }
 function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
-  return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
 function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   TRKFLOW.active=false; show('loading');
