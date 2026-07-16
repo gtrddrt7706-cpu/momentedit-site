@@ -144,6 +144,7 @@ function findSeat(v){
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d && d.ok && d.seat){ render(d.seat); }
+      else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
       else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
     })
     .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });

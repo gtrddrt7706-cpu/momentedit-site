@@ -151,7 +151,9 @@ function handleSaveProductionTrack(body) {
       map: (/^https?:\/\//.test(String(gir.map || '')) ? String(gir.map).slice(0, 300) : ''),   // 지도 링크(http[s]만)
       parking: String(gir.parking || '').slice(0, 200), // 주차 안내
       transit: String(gir.transit || '').slice(0, 200), // 대중교통
-      dress: String(gir.dress || '').slice(0, 120)      // 드레스코드(선택)
+      dress: String(gir.dress || '').slice(0, 120),     // 드레스코드(선택)
+      showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
+      showLive: gir.showLive === true                   // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
     };
   }
   var lock = LockService.getScriptLock();
@@ -231,6 +233,17 @@ function handleSaveProductionTrack(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// 하객 공개 링크 자동 만료 — 예식 후 이 일수가 지나면 좌석·안내 링크를 닫는다(개인정보: 하객 이름이 무기한 노출되지 않게).
+//   예식일 미정이면 만료하지 않음(날짜가 없으면 기준이 없음). 서버 시각(KST) 기준.
+var GUIDE_EXPIRE_DAYS = 30;
+function _guideExpired(weddingYmd) {
+  var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return false;
+  var wed = new Date(+m[1], +m[2] - 1, +m[3]); wed.setHours(0, 0, 0, 0);
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  return (today - wed) > GUIDE_EXPIRE_DAYS * 86400000;
+}
+
 // [좌석 배치도] 공개 조회 — seat.html이 토큰으로 호출(무인증·읽기 전용). 이름·측·좌석만 반환(연락처·금액 등 비노출).
 //   토큰은 좌석공유토큰 열 역조회. 없거나 배치 비었으면 not found. 개인정보 최소(하객 이름·부부 이름·예식일).
 function handleSeatView(body) {
@@ -238,6 +251,7 @@ function handleSeatView(body) {
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   var cust = _findCustomerBy('좌석공유토큰', token, false);
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
+  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
   var sd = d.seatDraft || {};
   var tables = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
@@ -266,7 +280,11 @@ function handleGuideView(body) {
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   var cust = _findCustomerBy('안내공유토큰', token, false);
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
+  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
+  var gi0 = d.guideinfoDraft || {};
+  var _showSeat = gi0.showSeat !== false;   // 자리 찾기 노출 — 기본 ON(끄면 하객이 이름으로 자리 조회 불가)
+  var _showLive = gi0.showLive === true;    // 라이브 중계 — 기본 OFF(디지털 참석 켠 부부만 · eventId만으론 죽은 링크 방지)
   var dd = d.diningDraft || {};
   var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
   var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
@@ -287,9 +305,9 @@ function handleGuideView(body) {
       venue: { name: String(gi.venue || ''), addr: String(gi.addr || ''), map: String(gi.map || ''), parking: String(gi.parking || ''), transit: String(gi.transit || '') },   // 오시는 길(입력됐을 때만 표시)
       dress: String(gi.dress || ''),   // 드레스코드(선택)
       dining: { on: diningOn, pick: String(dd.venuePick || '').trim(), restos: restos, spots: spots },
-      seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 있으면 guide가 '내 자리 찾기'로 seatView 재사용
-      eventId: String(cust.get('eventId') || '').trim(),                                       // 라이브·청첩장 링크 재료(청첩장 백엔드 키)
-      live: String(cust.get('eventId') || '').trim() ? true : false                            // 디지털 참석 여부는 청첩장 백엔드 소관 — 링크만 제공, 실제 노출은 guide에서 eventId로
+      seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
+      eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
+      live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)
     }
   };
 }
