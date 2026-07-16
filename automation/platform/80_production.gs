@@ -242,6 +242,7 @@ function handleSaveProductionTrack(body) {
     var _res = { ok: true };
     if (track === 'seat') _res.seatToken = _seatToken;
     if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성
+    _res.draft = (body && body.draft) || {};   // ★배포 시차 감지용 에코백 — 서버가 실제 저장한(정규화된) draft를 그대로 돌려줌. 프론트가 '보낸 필드가 사라졌는지' 비교해, 구버전 GAS가 새 필드를 조용히 버리는 사고(2026-07 음료 소실)를 즉시 알아챔
     return _res;
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
