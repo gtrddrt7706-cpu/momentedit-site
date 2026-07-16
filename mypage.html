@@ -3102,11 +3102,11 @@ function renderProduction(p, inv){
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
     + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
-    + (p.guideToken ? guideShareHtml(p.guideToken) : '');              // 하객 안내 허브 링크·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급)
+    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken)) : '');   // 하객 안내 허브 링크·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
-  if(p.guideToken){ wireGuideShare(box, p.guideToken); }
+  if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
@@ -4027,7 +4027,7 @@ function invStepDone(box, r){
             + linkCard('family','직접 모시는 청첩장','가족·가까운 분께 직접 전하세요.',u.family);
   // [Phase 2] 하객 안내 허브 링크 — 다이닝·자리·오시는 길이 준비됐으면 청첩장과 같은 화면에서 함께 전달(링크 하나로 통합)
   var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
-  if(_gTok) cards += linkCard('family','하객 안내 · 식사·자리·오시는 길','예식 안내를 한 페이지로 · 오프라인 하객께 함께 전하세요.', guideUrl(_gTok));
+  if(_gTok && !_guideLinkClosed()) cards += linkCard('family','하객 안내 · 식사·자리·오시는 길','예식 안내를 한 페이지로 · 오프라인 하객께 함께 전하세요.', guideUrl(_gTok));   // 예식 +30일 지나면 서버가 닫으므로 카드도 숨김
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
     : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
@@ -4157,6 +4157,22 @@ function wireSeatShare(box, token){
 }
 // [하객 안내 허브] 공유 — 다이닝/좌석을 하나로 묶은 하객 링크. 미리보기(하객 눈으로 확인)+링크 복사+QR.
 function guideUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/guide.html?g='+encodeURIComponent(token); }
+// [만료 인지] 예식 후 30일이 지나면 서버(GUIDE_EXPIRE_DAYS=30 · _guideExpired)가 하객 페이지를 닫음 — 닫힌 링크를 공유 UI가 계속 권하지 않게 프론트도 같은 기준으로 판정.
+function _guideLinkClosed(base){
+  try{
+    var b=base||(((window._mpStateD||{}).production||{}).base)||{};
+    var m=String(b.weddingDate||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return false;
+    var w=new Date(+m[1],+m[2]-1,+m[3]); w.setHours(0,0,0,0);
+    var t=new Date(); t.setHours(0,0,0,0);
+    return Math.round((t-w)/86400000) > 30;   // 서버 _guideExpired(_dayDiff < -30)와 같은 경계 — 예식 +30일까지는 열림
+  }catch(e){ return false; }
+}
+function guideClosedHtml(){
+  return '<div class="seat-share">'
+    +'<div class="seat-share-h">하객 안내 링크가 닫혔어요</div>'
+    +'<div class="seat-share-sub">예식 후 30일이 지나 하객 안내 페이지를 자동으로 닫아 두었어요 · 좌석의 하객 성함 등 개인정보 보호를 위해서예요.</div>'
+    +'</div>';
+}
 function guideShareHtml(token){
   var url=guideUrl(token);
   return '<div class="seat-share">'
