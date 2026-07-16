@@ -4126,7 +4126,11 @@ function collectSeats(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat-nm]'),function(el){ var ti=+el.getAttribute('data-ti'); if(SEATFLOW.tables[ti]) SEATFLOW.tables[ti].name=el.value; });
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
 }
-function saveSeat(done){ return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done}); }
+function saveSeat(done){
+  // 저장 직전 고아 음료 정리 — 이름 없는 자리의 음료는 표시·집계에서 이미 제외되므로, 시트에 남아 나중에 엉뚱한 하객에게 붙는 것 방지(편집 중에는 보존 → '음료 먼저·이름 나중' 흐름 지원)
+  SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
+  return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done});
+}
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   SEATFLOW.active=false; show('loading');
   var _fail=function(msg){
@@ -4232,11 +4236,11 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
   if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
-  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; _t.seats[ed.si]=inp.value;
-    if(!String(inp.value||'').trim() && _t.drinks) _t.drinks[ed.si]='';   // 이름을 지우면 음료도 함께 초기화(빈자리에 음료가 남아 집계·색점이 어긋나는 것 방지)
+  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; var _prevNm=String(_t.seats[ed.si]||'').trim(); _t.seats[ed.si]=inp.value;
+    if(!String(inp.value||'').trim() && _prevNm && _t.drinks) _t.drinks[ed.si]='';   // '있던 이름을 지운' 경우만 음료도 초기화(하객 제거). 빈 자리에 음료를 먼저 고르는 흐름에선 지우지 않음 — 재렌더 커밋이 방금 고른 음료를 즉시 삭제하던 실버그 수정(2026-07-16). 미명명 고아 음료는 saveSeat가 저장 직전 정리
   }
 }
-function commitSeatEdit(box){ _seatWriteEdit(box); SEATFLOW.edit=null; }
+function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
   function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
@@ -4281,6 +4285,7 @@ function renderSeat(box){
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
     barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 테이블 · 이 자리 음료</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
   }
+  SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
@@ -4298,6 +4303,7 @@ function renderSeat(box){
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
     + (s.token ? seatSharePanelHtml(s.token) : '')
     +'</div>';
+  SEATFLOW._rendering=false;
   box.style.display='block';
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
@@ -4308,7 +4314,7 @@ function renderSeat(box){
     SEATFLOW._dkRe=false;
     ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing&&ev.keyCode!==229){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시·229 백스톱) · Esc=취소
     // blur=확정. 단, 재렌더는 200ms 지연 + '아직 아무도 재렌더 안 했을 때만'(ei.isConnected) — 0ms 즉시 렌더가 mousedown~mouseup 사이 DOM을 갈아치워 다른 버튼의 첫 탭을 삼키던 문제 방지
-    ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });
+    ei.addEventListener('blur',function(){ if(SEATFLOW._rendering||!ei.isConnected) return; commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });   // 재렌더로 제거되며 발사되는 blur는 무시(유령 커밋 방지)
   }
 }
 function bindSeat(box){
@@ -4322,10 +4328,14 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; SEATFLOW._edNew=true; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var mv=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[mv]) SEATFLOW.tables[mv].side=(SEATFLOW.tables[mv].side==='R')?'L':'R'; renderSeat(box); return; }   // 좌우 이동 복원 — 삭제·재입력 없이 재배치(이름·음료 보존)
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; if(tl&&tl.seats.length>1){ tl.seats.pop(); if(tl.drinks) tl.drinks.pop(); } renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; var _lessMsg='';
+      if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim()){ _emp=_q; break; } }   // 뒤에서부터 빈 자리 우선 제거 — 이름·음료가 찬 자리를 말없이 삭제하던 문제 방지
+        if(_emp===-1){ _lessMsg='빈 자리가 없어요 · 이름을 지운 자리부터 줄일 수 있어요.'; }
+        else { tl.seats.splice(_emp,1); if(tl.drinks) tl.drinks.splice(_emp,1); } }
+      renderSeat(box); if(_lessMsg) _seatErr(_lessMsg); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=true; renderSeat(box); } return; }
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭이 조용히 무시되던 것 수정 — 칩 바는 그 창에만 존재하므로 오적용 없음
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
@@ -4340,7 +4350,7 @@ function bindSeat(box){
   box.addEventListener('pointerdown', _dkKeepFocus);
   box.addEventListener('mousedown', _dkKeepFocus);
   box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); e.target.blur(); } });   // 백스톱 — 한글 조합 중 Enter는 무시(입력 위 가드와 동일 기준 · 조합 중 blur로 마지막 글자 유실 방지)
-  box.addEventListener('blur', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')) commitSeatEdit(box); }, true);
+  box.addEventListener('blur', function(e){ if(SEATFLOW._rendering) return; if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.target.isConnected) commitSeatEdit(box); }, true);   // 재렌더 제거 blur 무시 — 새 입력창과 편집 상태가 어긋나 방금 고른 음료·이름이 유실되던 실버그(2026-07-16)
 }
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
