@@ -38,6 +38,17 @@ function _payExpectedAmount(cust, milestone) {
     var _bx = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
     return (Number(a.잔금) || 0) + (String(cust.get('잔금상태') || '').trim() !== '확인' ? _bx.amount : 0);
   }
+  if (milestone === '중도금잔금') {   // 임박 묶음(중도금+잔금 한 번에) — renderMid comboAmt와 동일(잔금엔 인원 추가 합산)
+    var _bx2 = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(cust) : { amount: 0 };
+    return (Number(a.중도금) || 0) + (Number(a.잔금) || 0) + (String(cust.get('잔금상태') || '').trim() !== '확인' ? _bx2.amount : 0);
+  }
+  if (milestone === '계약금묶음') {   // 임박 계약 일괄(계약금+미수령 마일스톤) — buildPaymentState.bundleTotal과 동일 산식(_bundleKeysFor 단일 판정)
+    var _bk = (typeof _bundleKeysFor === 'function') ? _bundleKeysFor(cust) : [];
+    if (!_bk.length) return null;   // 묶음 구성원 없음(그 사이 신고·확인됨) → 단독 계약금으로 결제해야 함(금액불일치로 캡처 전 차단)
+    return (Number(a.납부액) || 0)
+      + (_bk.indexOf('중도금') !== -1 ? (Number(a.중도금) || 0) : 0)
+      + (_bk.indexOf('잔금') !== -1 ? (Number(a.잔금) || 0) : 0);
+  }
   return null;
 }
 
@@ -87,7 +98,7 @@ function _payLog(row) {
 function _payPreValidate(cust, milestone) {
   // 종료(취소·노쇼·미계약) 고객은 모든 마일스톤 결제 차단 — 계약금도 예외 없음(_confirmDepositCore가 setCustomerStage로 되살리기 전에 캡처 자체를 막음)
   if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
-  if (milestone === '계약금') {
+  if (milestone === '계약금' || milestone === '계약금묶음') {
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return '계약 서명 완료 후 결제할 수 있어요.';
   }
   if (milestone === '추가보정') {   // 신청(금액 확정)된 건만 결제 가능 — 대기(미신청)면 결제할 것이 없음
@@ -104,7 +115,7 @@ function handleCardConfirm(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var milestone = String((body && body.milestone) || '').trim();
-  if (['계약금', '중도금', '잔금', '추가보정'].indexOf(milestone) === -1) return { ok: false, error: '결제 단계가 올바르지 않습니다.' };
+  if (['계약금', '중도금', '잔금', '추가보정', '중도금잔금', '계약금묶음'].indexOf(milestone) === -1) return { ok: false, error: '결제 단계가 올바르지 않습니다.' };   // 묶음 2종=여러 마일스톤 한 번에(계좌이체 묶음과 동일 구성·기록)
   var paymentKey = String((body && body.paymentKey) || '').trim();
   var orderId = String((body && body.orderId) || '').trim();
   var amount = Math.round(Number((body && body.amount) || 0));
@@ -120,7 +131,19 @@ function handleCardConfirm(body) {
     // 멱등 — 이미 확인·신고된 단계면 재confirm 금지(이중청구 방지). _tossConfirm(=캡처) 전에 차단하므로 카드 캡처 안 됨.
     //   '완료신호'(계좌이체 이미 신고·확인 대기)도 포함 — 신고 후 다른 탭 카드결제로 같은 항목이 이중 청구되던 틈 차단(_bundleKeysFor의 open 기준과 동일).
     //   추가보정은 상태모델이 다름 — '완료'=입금확인 완료 · '결제대기'=고객 입금신고(다른 마일스톤의 '완료신호'에 해당). 나머지는 확인/완료신호.
-    var statusCol = milestone === '계약금' ? '입금상태' : (milestone === '중도금' ? '중도금상태' : (milestone === '잔금' ? '잔금상태' : '추가보정상태'));
+    //   중도금잔금(묶음)은 두 마일스톤 모두 열려 있어야(하나라도 확인·신고면 합계 청구가 이중이 됨) · 계약금묶음은 입금상태 기준(구성원 변화는 금액불일치가 차단).
+    if (milestone === '중도금잔금') {
+      var _cms = String(cust.get('중도금상태') || '').trim(), _cbs = String(cust.get('잔금상태') || '').trim();
+      if (_cms === '확인' || _cbs === '확인') {
+        _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(이미확인 포함)' });
+        return { ok: true, already: true, alreadyMsg: '이미 확인된 항목이 포함돼 있어요. 카드결제는 진행되지 않았어요. 남은 금액은 각 항목에서 결제해 주세요.' };
+      }
+      if (_cms === '완료신호' || _cbs === '완료신호') {
+        _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(입금신고중 포함)' });
+        return { ok: true, already: true, alreadyMsg: '입금 신고가 접수되어 확인 중인 항목이 있어요. 중복 방지를 위해 카드결제는 진행되지 않았어요.' };
+      }
+    } else {
+    var statusCol = (milestone === '계약금' || milestone === '계약금묶음') ? '입금상태' : (milestone === '중도금' ? '중도금상태' : (milestone === '잔금' ? '잔금상태' : '추가보정상태'));
     var _doneVal = (milestone === '추가보정') ? '완료' : '확인';
     var _signalVal = (milestone === '추가보정') ? '결제대기' : '완료신호';
     var _mst = String(cust.get(statusCol) || '').trim();
@@ -131,6 +154,7 @@ function handleCardConfirm(body) {
     if (_mst === _signalVal) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(입금신고중)' });
       return { ok: true, already: true, alreadyMsg: '입금 신고가 접수되어 확인 중이에요. 중복 방지를 위해 카드결제는 진행되지 않았어요.' };
+    }
     }
 
     // 금액 위변조 검증 — 서버 재계산값과 일치해야 함
@@ -166,6 +190,19 @@ function handleCardConfirm(body) {
     if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
     else if (milestone === '잔금') rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
+    else if (milestone === '중도금잔금') rec = (typeof adminConfirmMidBalance === 'function') ? adminConfirmMidBalance(code) : { ok: false };   // 계좌이체 묶음과 동일 기록 — 같은 확인일시(영수증 콤보)·잔금 스냅샷
+    else if (milestone === '계약금묶음') {
+      // 결제된 구성 = 계약금 + 금액검증 시점의 _bundleKeysFor(위 expected 산식과 동일 cust 스냅샷 → 청구·기록 정합)
+      var _bkPaid = (typeof _bundleKeysFor === 'function') ? _bundleKeysFor(cust) : [];
+      rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
+      if (rec && rec.ok && _bkPaid.length) {
+        var _rec2 = { ok: true };
+        if (_bkPaid.indexOf('중도금') !== -1 && _bkPaid.indexOf('잔금') !== -1) _rec2 = (typeof adminConfirmMidBalance === 'function') ? adminConfirmMidBalance(code) : { ok: false };
+        else if (_bkPaid.indexOf('중도금') !== -1) _rec2 = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
+        else if (_bkPaid.indexOf('잔금') !== -1) _rec2 = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
+        if (!(_rec2 && _rec2.ok)) rec = { ok: false, error: (_rec2 && _rec2.error) || '묶음 기록 실패(계약금은 확인됨)' };   // 부분 실패 → recorded:false → 관리자 수동보정 경보(B-1)
+      }
+    }
     else rec = (typeof adminConfirmExtra === 'function') ? adminConfirmExtra(code) : { ok: false };   // 추가보정 — 가드 없음·'완료' 전이+안심알림, 카드에 그대로 맞음(80_production)
     // [SYNC-3] 카드=매출전표 → 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정). ★원장에 항목이 있는 결제분만 마킹★
     //   · 중도금·잔금 → 동명 원장 키.
@@ -176,6 +213,12 @@ function handleCardConfirm(body) {
     if (rec && rec.ok) {
       try {
         if (milestone === '중도금' || milestone === '잔금' || milestone === '추가보정') _payMarkCard(code, milestone);   // 동명 원장 키(_cashReceiptLedger가 카드분 발급 큐서 제외)
+        else if (milestone === '중도금잔금') { _payMarkCard(code, '중도금'); _payMarkCard(code, '잔금'); }   // 콤보 원장(중도금잔금)도 둘 다 카드일 때 byCard=true → 발급 큐 제외
+        else if (milestone === '계약금묶음') {
+          if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금'); else _payMarkCard(code, '계약금');
+          if (typeof _bkPaid !== 'undefined' && _bkPaid.indexOf('중도금') !== -1) _payMarkCard(code, '중도금');
+          if (typeof _bkPaid !== 'undefined' && _bkPaid.indexOf('잔금') !== -1) _payMarkCard(code, '잔금');
+        }
         else if (milestone === '계약금' && String(cust.get('상품타입') || '').trim() === '웨딩스냅') _payMarkCard(code, '예약금');
         else if (milestone === '계약금') _payMarkCard(code, '계약금');   // 시그니처 계약금 — 원장 키 아님(영수증 영향 0) · 관리자 '카드' 뱃지·환불 주의 표기용
       } catch (e) {}
@@ -201,7 +244,8 @@ function handleCardPayConfig(body) {
   if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var milestone = String((body && body.milestone) || '').trim();
   var amount = _payExpectedAmount(cust, milestone);
-  return { ok: true, enabled: true, clientKey: cfg.clientKey, amount: amount || 0, orderName: '모먼트에디트 ' + (milestone || '결제') };
+  var _mLabel = ({ '중도금잔금': '중도금·잔금', '계약금묶음': '계약금 일괄' })[milestone] || milestone;   // 결제창·카드사 내역에 보일 이름(고객 어휘)
+  return { ok: true, enabled: true, clientKey: cfg.clientKey, amount: amount || 0, orderName: '모먼트에디트 ' + (_mLabel || '결제') };
 }
 
 /** [점검용] 토스 샌드박스 연결 확인 — 더미 paymentKey로 confirm 호출해 인증/연결만 본다(실결제 아님).

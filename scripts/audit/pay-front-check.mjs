@@ -163,8 +163,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     meCardPay.afterRender();
   });
   await sleep(150);
-  const g = await p.evaluate(() => [...document.querySelectorAll('.me-card-pay')].map(b => b.getAttribute('data-m')));
-  check('G1 묶음(계약금)·combo(중도금) 카드 미부착 — 잔금만 부착', g.length === 1 && g[0] === '잔금', JSON.stringify(g));
+  const g = await p.evaluate(() => [...document.querySelectorAll('.me-card-pay')].map(b => b.getAttribute('data-m')).sort());
+  check('G1 묶음/combo도 카드 부착 — 계약금묶음·잔금·중도금잔금', g.length === 3 && g.join(',') === ['계약금묶음','잔금','중도금잔금'].sort().join(','), JSON.stringify(g));
   await p.close();
 }
 

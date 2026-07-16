@@ -72,6 +72,11 @@ const code = [
   extractFunction(SRC_JOURNEY, '_cashReceiptLedger'),
   extractFunction(SRC_JOURNEY, 'adminConfirmMid'),
   extractFunction(SRC_JOURNEY, 'adminConfirmBalance'),
+  extractFunction(SRC_JOURNEY, 'adminConfirmMidBalance'),
+  extractFunction(SRC_JOURNEY, '_bundleKeysFor'),
+  extractFunction(SRC_JOURNEY, '_payWeddingYmd'),
+  extractFunction(SRC_ADMIN, '_ymdOf'),
+  extractFunction(SRC_ADMIN, '_kstYmd'),
   extractFunction(SRC_PROD, 'adminConfirmExtra'),
   extractFunction(SRC_ADMIN, '_confirmDepositCore'),
   extractFunction(SRC_ADMIN, 'adminConfirmPayment'),
@@ -409,6 +414,54 @@ var tossExx = tossCalls;
 sandbox.__b = { token: 'tok_exx', milestone: '추가보정', paymentKey: 'pk', orderId: 'XX', amount: 120000 };
 var rExx = run('handleCardConfirm(__b)');
 check('J3e 종료(취소) 고객 추가보정 카드 → 청구 전 차단·미확정', rExx.ok === false && tossCalls === tossExx && DB.J_EXX.추가보정상태 === '견적');
+
+/* ═══ K. 묶음 카드결제 — 중도금잔금(임박 combo) · 계약금묶음(임박 일괄) ═══ */
+console.log('K. 묶음 카드결제');
+// K1 중도금잔금 해피패스 — 둘 다 대기 → 합계 결제 → 둘 다 확인·같은 확인일시(영수증 콤보)·카드 마킹
+reset(); payOn();
+newCust('K1', { 현재단계: '제작중', 입금상태: '확인', 중도금상태: '대기', 잔금상태: '대기', 예식일: ymdFromToday(5) }); TOKMAP.tok_k1 = 'K1';
+check('K1a 기대금액 = 중도금+잔금(3,150,000)', run('_payExpectedAmount(findCustomerByCode("K1"), "중도금잔금")') === 1400000 + 1750000);
+sandbox.__b = { token: 'tok_k1', milestone: '중도금잔금', paymentKey: 'pk_k1', orderId: 'K1O', amount: 3150000 };
+var rK1 = run('handleCardConfirm(__b)');
+var _k1pay = JSON.parse(DB.K1.동의기록 || '{}').결제수단 || {};
+check('K1b 성공 → 중도금·잔금 모두 확인 + 같은 확인일시', rK1.ok === true && rK1.recorded === true && DB.K1.중도금상태 === '확인' && DB.K1.잔금상태 === '확인' && DB.K1.중도금확인일시 === DB.K1.잔금확인일시);
+check('K1c 카드 마킹 둘 다(콤보 원장 byCard)', _k1pay['중도금'] === '카드' && _k1pay['잔금'] === '카드');
+// K2 하나라도 신고·확인이면 미캡처 차단
+reset(); payOn();
+newCust('K2', { 현재단계: '제작중', 입금상태: '확인', 중도금상태: '대기', 잔금상태: '완료신호', 예식일: ymdFromToday(5) }); TOKMAP.tok_k2 = 'K2';
+var tossK2 = tossCalls;
+sandbox.__b = { token: 'tok_k2', milestone: '중도금잔금', paymentKey: 'pk', orderId: 'K2O', amount: 3150000 };
+var rK2 = run('handleCardConfirm(__b)');
+check('K2 잔금 완료신호 포함 → already·미캡처(이중결제 차단)', rK2.ok === true && rK2.already === true && tossCalls === tossK2 && DB.K2.중도금상태 === '대기');
+// K3 금액불일치 차단(중도금만 금액으로 묶음 시도)
+reset(); payOn();
+newCust('K3', { 현재단계: '제작중', 입금상태: '확인', 중도금상태: '대기', 잔금상태: '대기', 예식일: ymdFromToday(5) }); TOKMAP.tok_k3 = 'K3';
+sandbox.__b = { token: 'tok_k3', milestone: '중도금잔금', paymentKey: 'pk', orderId: 'K3O', amount: 1400000 };
+var rK3 = run('handleCardConfirm(__b)');
+check('K3 금액불일치 → 캡처 전 차단', rK3.ok === false && DB.K3.중도금상태 === '대기' && DB.K3.잔금상태 === '대기');
+// K4 계약금묶음 해피패스 — D-5·전부 대기 → 납부액+중도금+잔금 결제 → 셋 다 확인 + 단계 입금완료 + 카드 마킹
+reset(); payOn();
+newCust('K4', { 현재단계: '계약완료', 입금상태: '대기', 중도금상태: '대기', 잔금상태: '대기', 예식일: ymdFromToday(5) }); TOKMAP.tok_k4 = 'K4';
+var expK4 = run('_payExpectedAmount(findCustomerByCode("K4"), "계약금묶음")');
+check('K4a 기대금액 = 납부액+중도금+잔금(3,400,000)', expK4 === 250000 + 1400000 + 1750000);
+sandbox.__b = { token: 'tok_k4', milestone: '계약금묶음', paymentKey: 'pk_k4', orderId: 'K4O', amount: 3400000 };
+var rK4 = run('handleCardConfirm(__b)');
+var _k4pay = JSON.parse(DB.K4.동의기록 || '{}').결제수단 || {};
+check('K4b 성공 → 입금·중도금·잔금 확인 + 입금완료 전이', rK4.ok === true && rK4.recorded === true && DB.K4.입금상태 === '확인' && DB.K4.중도금상태 === '확인' && DB.K4.잔금상태 === '확인' && DB.K4.현재단계 === '입금완료');
+check('K4c 카드 마킹(계약금·중도금·잔금)', _k4pay['계약금'] === '카드' && _k4pay['중도금'] === '카드' && _k4pay['잔금'] === '카드');
+// K5 구성원 변화(잔금 기확인) → 기대금액엔 잔금 제외 → 프론트 구금액 결제 시 불일치 차단
+reset(); payOn();
+newCust('K5', { 현재단계: '계약완료', 입금상태: '대기', 중도금상태: '대기', 잔금상태: '확인', 예식일: ymdFromToday(5) }); TOKMAP.tok_k5 = 'K5';
+check('K5a 기대금액 = 납부액+중도금(잔금 제외)', run('_payExpectedAmount(findCustomerByCode("K5"), "계약금묶음")') === 250000 + 1400000);
+sandbox.__b = { token: 'tok_k5', milestone: '계약금묶음', paymentKey: 'pk', orderId: 'K5O', amount: 3400000 };
+var rK5 = run('handleCardConfirm(__b)');
+check('K5b 구성 변화 후 구금액 → 캡처 전 차단', rK5.ok === false && DB.K5.입금상태 === '대기');
+// K6 취소 고객 묶음 카드 → 차단(부활 방지 일관)
+reset(); payOn();
+newCust('K6', { 현재단계: '취소', 입금상태: '대기', 중도금상태: '대기', 잔금상태: '대기', 예식일: ymdFromToday(5) }); TOKMAP.tok_k6 = 'K6';
+sandbox.__b = { token: 'tok_k6', milestone: '중도금잔금', paymentKey: 'pk', orderId: 'K6O', amount: 3150000 };
+var rK6 = run('handleCardConfirm(__b)');
+check('K6 종료 고객 묶음 카드 → 청구 전 차단', rK6.ok === false && DB.K6.중도금상태 === '대기');
 
 check('I 퍼즈 정상 성공 표본 존재(>0)', fuzzOkCount >= 0, 'ok=' + fuzzOkCount);   // 퍼즈 성공은 우연 의존이라 하한 0 · 실질 해피패스는 위 I' 결정형이 보장
 

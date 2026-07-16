@@ -2820,8 +2820,10 @@ function renderMid(p, bal){
   box.style.display='block';
   var b=$('mp_mSignal'); if(b) b.addEventListener('click', doMidSignal);
   var cb=$('mp_mCombo'); if(cb) cb.addEventListener('change', function(){ var v=$('mp_mAmtV'), l=$('mp_mAmtL'); if(v) v.textContent=fmtWon(cb.checked?comboAmt:p.amount); if(l) l.textContent=cb.checked?'중도금·잔금':'중도금';
-    // 카드는 단일 마일스톤만 결제 가능 → '잔금도 함께' 선택 시 중도금 카드버튼 숨김(화면은 합계, 카드는 중도금만 청구되던 불일치 차단 · 계좌이체로 유도)
-    var _cw=box.querySelector('.me-card-pay[data-m="중도금"]'); var _wrap=_cw&&_cw.closest?_cw.closest('.me-pay-alt'):null; if(_wrap) _wrap.style.display=cb.checked?'none':''; });
+    // '잔금도 함께' 토글에 맞춰 카드버튼도 스왑 — 버튼의 data-combo를 갱신하고 기존 카드버튼을 떼고 재부착(resolveM이 중도금↔중도금잔금으로 해석 · 화면 합계와 카드 청구액 일치)
+    if(b) b.setAttribute('data-combo', cb.checked?'1':'');
+    var _cw=box.querySelector('.me-card-pay'); var _wrap=_cw&&_cw.closest?_cw.closest('.me-pay-alt'):null; if(_wrap&&_wrap.parentNode) _wrap.parentNode.removeChild(_wrap);
+    try{ if(window.meCardPay) meCardPay.init(); }catch(e){} });
   var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function doMidSignal(){
@@ -2893,22 +2895,29 @@ var meCardPay = (function(){
     wrap.appendChild(or); wrap.appendChild(b);
     return wrap;
   }
-  function isMultiPay(el){ return el.getAttribute('data-combo')==='1' || el.getAttribute('data-bundle')==='1'; }   // 묶음/combo(다중 마일스톤 한 번에) — 카드는 단일 단계만 지원 → 카드버튼 미노출(계좌이체로)
+  // 묶음/combo(다중 마일스톤 한 번에)도 카드 지원 — 버튼의 data 속성으로 결제 마일스톤을 해석(금액·기록은 서버가 계좌이체 묶음과 동일 구성으로 검증·확정)
+  function resolveM(item, el){
+    if(el.getAttribute('data-bundle')==='1') return '계약금묶음';   // 임박 계약 일괄(계약금+미수령)
+    if(el.getAttribute('data-combo')==='1') return '중도금잔금';    // 중도금·잔금 한 번에
+    return item.m;
+  }
+  var MLABEL={ '중도금잔금':'중도금·잔금', '계약금묶음':'계약금 일괄' };   // 고객 표시용(알림·aria)
+  function mLabel(m){ return MLABEL[m]||m; }
   function attachOne(item){
     var el=$(item.btn); if(!el || !el.parentNode) return;
-    if(isMultiPay(el)) return;   // 묶음/combo면 카드 미지원(금액 정합 · 계좌이체로)
-    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;   // 같은 마일스톤 버튼만 중복 방지(F-1 · 같은 컨테이너 다중 대응)
-    api({action:'cardPayConfig', token:getToken(), milestone:item.m}).then(function(d){
+    var m=resolveM(item, el);
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+m+'"]')) return;   // 같은 마일스톤 버튼만 중복 방지(F-1 · 같은 컨테이너 다중 대응)
+    api({action:'cardPayConfig', token:getToken(), milestone:m}).then(function(d){
       if(!d||!d.ok||!d.enabled||!(d.amount>0)) return;
-      var wrap=buildWrap(item.m, function(btn){ pay(item.m, d.amount, btn); }, item.m+' 카드로 '+fmtWon(d.amount)+' 결제');
+      var wrap=buildWrap(m, function(btn){ pay(m, d.amount, btn); }, mLabel(m)+' 카드로 '+fmtWon(d.amount)+' 결제');
       el.parentNode.insertBefore(wrap, el.nextSibling);   // 계좌이체 CTA 바로 아래(cc-actions gap 8px 리듬 유지)
     }).catch(function(){});
   }
   function previewAttach(item){   // ?preview_card=1 — 서버·토스 없이 배치만 렌더(결제 없음 · 라이브 무해)
     var el=$(item.btn); if(!el || !el.parentNode) return;
-    if(isMultiPay(el)) return;   // 라이브와 동일하게 묶음/combo면 미리보기도 카드 숨김
-    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;
-    var wrap=buildWrap(item.m, function(){
+    var m=resolveM(item, el);
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+m+'"]')) return;
+    var wrap=buildWrap(m, function(){
       mpAlert({ title:'미리보기 모드', body:'화면 배치를 보기 위한 미리보기예요.\n실제 카드결제는 오픈 후 열려요.', confirmText:'확인' });
     }, '카드로 결제 (미리보기)');
     el.parentNode.insertBefore(wrap, el.nextSibling);
@@ -2916,9 +2925,9 @@ var meCardPay = (function(){
   var standby=false;   // 플래그 OFF(오픈 전) → 카드 버튼을 '준비 중'으로 노출(레이아웃 완성 · 오픈 시 실결제로 자동 전환)
   function standbyAttach(item){   // 오픈 전 스탠바이 — 버튼은 보이되 누르면 '준비 중' 안내(계좌이체로 유도)
     var el=$(item.btn); if(!el || !el.parentNode) return;
-    if(isMultiPay(el)) return;
-    if(el.parentNode.querySelector('.me-card-pay[data-m="'+item.m+'"]')) return;
-    var wrap=buildWrap(item.m, function(){
+    var m=resolveM(item, el);
+    if(el.parentNode.querySelector('.me-card-pay[data-m="'+m+'"]')) return;
+    var wrap=buildWrap(m, function(){
       mpAlert({ title:'카드결제 준비 중', body:'카드결제는 오픈에 맞춰 열려요.\n지금은 계좌이체로 진행해 주세요.', confirmText:'확인' });
     }, '카드로 결제 (준비 중)');
     var btn=wrap.querySelector('.me-card-pay'); if(btn){ btn.setAttribute('aria-disabled','true'); btn.style.opacity='.72'; }
@@ -2948,7 +2957,7 @@ var meCardPay = (function(){
     if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }
     api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
       if(d&&d.ok&&d.already){ mpAlert({ title:'안내', body:(d.alreadyMsg||'이미 처리된 결제예요.'), confirmText:'확인' }); }   // 미캡처(이미 확인·입금신고중) — '결제 완료'로 오인시키지 않음
-      else if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?milestone+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); }
+      else if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?mLabel(milestone)+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); }
       else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터가 바로 확인해 드릴게요.'); }
       clean(); try{ loadMyState(); }catch(e){}
     }).catch(function(){ mpAlert('결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean(); });
@@ -3065,9 +3074,11 @@ function renderProduction(p, inv){
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null);
-  box.innerHTML += guideInfoEditorHtml(p.guideinfoDraft||{});          // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
-  if(p.guideToken){ box.innerHTML += guideShareHtml(p.guideToken); }   // 하객 안내 허브 링크·미리보기·QR (다이닝/좌석/안내정보 완료 시 서버가 토큰 발급)
+  // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
+  var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
+    + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
+    + (p.guideToken ? guideShareHtml(p.guideToken) : '');              // 하객 안내 허브 링크·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급)
+  box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
   if(p.guideToken){ wireGuideShare(box, p.guideToken); }
@@ -4036,7 +4047,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display=''; sv.addEventListener('click',function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }); }
+      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4139,7 +4150,7 @@ function wireGuideShare(box, token){
 // [하객 안내 정보] 오시는 길·드레스코드 입력 — 접이식. 저장하면 guide.html에 섹션으로 반영(하객 페이지가 채워짐).
 function guideInfoEditorHtml(gi){
   gi=gi||{};
-  var has=!!(gi.venue||gi.addr||gi.parking||gi.transit||gi.dress);
+  var has=!!(gi.venue||gi.addr||gi.map||gi.parking||gi.transit||gi.dress);   // map 포함 — 지도만 넣어도 '입력됨'(비어 있음 오표시로 재저장·문의 유발 방지)
   function row(id,label,val,ph){ return '<div class="gi-row"><label class="gi-l" for="'+id+'">'+label+'</label><input class="cc-input" id="'+id+'" type="text" autocomplete="off" value="'+escapeHtml(val||'')+'" placeholder="'+escapeHtml(ph||'')+'"></div>'; }
   return '<details class="gi-wrap"'+(has?' open':'')+'><summary class="gi-sum">하객 안내 정보 · <span class="gi-sub">오시는 길·드레스코드</span> '+(has?'<span class="gi-badge">입력됨</span>':'<span class="gi-badge gi-badge-o">비어 있음</span>')+' <span class="pt-ar">▾</span></summary>'
     +'<div class="gi-body">'

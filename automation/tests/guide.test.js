@@ -18,7 +18,7 @@ sb.getCustomersSheet = () => ({});
 sb.buildHeaderIndex = () => ({ '안내공유토큰': 99 });
 sb.touchCustomer = (s, co, n, patch) => Object.assign(DB[n], patch);
 sb.notifyKakao = () => {}; sb.notifyStudio = () => {}; sb._nfAdminLineEmail = () => {};
-sb.Utilities = { getUuid: () => 'abcdef0123456789abcdef0123456789' };
+sb.Utilities = { getUuid: () => 'abcdef0123456789abcdef0123456789', formatDate: (d) => new Date(d).toISOString().slice(0, 10) };   // formatDate 스텁 — _kstYmd(만료 판정)용 · ymdShift와 같은 UTC 기준이라 경계 테스트 결정적
 
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d !== undefined ? ('  →  ' + JSON.stringify(d)) : '')); } };
@@ -94,6 +94,29 @@ ok(rf.ok === true && !rf.guideToken && !DB.C1.안내공유토큰, '15 final 완�
 fresh();
 const rd = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: true, draft: { dining_on: 'Y', venuePick: '소반' } });
 ok(rd.ok === true && rd.guideToken && rd.guideToken[0] === 'G', '16 dining 완료 → 안내 토큰 발급');
+
+// ── 마지막점검 후속: 빈 안내 방지 · 내부 문구 필터 · showSeat 게이트 ──
+// 17) '다이닝 없이'(N)·미정 문구만으로 완료 → 토큰 미발급(빈 안내 링크 방지)
+fresh();
+const rn = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: true, draft: { dining_on: 'N', venuePick: '다이닝 없이 진행할게요' } });
+ok(rn.ok === true && !rn.guideToken && !DB.C1.안내공유토큰, '17a 다이닝 없음(N) 완료 → 토큰 미발급');
+fresh();
+const rp = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: true, draft: { dining_on: 'Y', venuePick: '상담 때 함께 정할게요' } });
+ok(rp.ok === true && !rp.guideToken, '17b 미정 문구만 → 토큰 미발급');
+// 18) 전부 빈 guideinfo 저장 → 토큰 미발급 · 빈 좌석 완료도 미발급
+fresh();
+const rg0 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { venue: '', addr: '', showSeat: true, showLive: false } });
+ok(rg0.ok === true && !rg0.guideToken, '18a 빈 안내정보 저장 → 토큰 미발급');
+fresh();
+const rs0 = sb.handleSaveProductionTrack({ token: 't1', track: 'seat', done: true, draft: { tables: [{ name: '테이블 1', side: 'L', seats: ['', ''] }] } });
+ok(rs0.ok === true && !rs0.guideToken, '18b 이름 없는 좌석 완료 → 토큰 미발급');
+// 19) 내부 선택지 문구는 하객에게 비노출 — pick 걸러짐 · 그것뿐이면 다이닝 섹션 자체 숨김
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '직접 섭외할게요', _favs: [] } } });
+const gvS = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
+ok(gvS.guide.dining.pick === '' && gvS.guide.dining.on === false, '19 위저드 문구(직접 섭외할게요) → pick 제거·다이닝 숨김');
+// 20) showSeat OFF → 직접 공유된 seat 링크도 닫힘(토글 약속 이행)
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
+ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === false, '20 자리찾기 OFF → seat.html 직접 링크도 비공개');
 
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
