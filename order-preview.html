@@ -271,7 +271,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .fillbadge .fl span{background:#fff;border:1px solid #E7E3DC;border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--seal)}
 /* rehearse */
 .rh-hd{text-align:center;padding:4px 0}
-.rh-hd .t{font-size:22px;font-weight:600}
+.rh-hd .t{font-size:22px;font-weight:700}
 .rh-hd .s{font-size:13px;color:var(--sub);margin-top:7px;word-break:keep-all;line-height:1.7}
 .rh-modes{display:flex;gap:8px;margin:16px 0 6px}
 .rh-modes button{flex:1;border:1px solid var(--border);background:#fff;border-radius:11px;padding:11px 4px;font-family:var(--sans);font-size:12px;color:var(--sub);cursor:pointer;font-weight:600}
@@ -917,7 +917,7 @@ window.tuneAll=function(on){ if(!on){ if(S.extra.bless) S.bless=(S.course==='fam
 window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; if(k==='valley') S.valley='wine'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
 
 function renderStep(k){
-  if(k==='course'){ return '<div style="margin-top:18px"><div class="cflow-legend" style="margin:0 2px 12px">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
+  if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.<br><span style="font-size:12px;color:var(--light)">카드를 누르면 그 순간의 장면을 미리 볼 수 있어요</span></div>';
@@ -964,7 +964,7 @@ function renderStep(k){
     h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
-      h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요. 어설퍼도 두 분 목소리라 더 특별해요.</div>';
+      h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
       h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';
       h+='</div>';
     }
@@ -1332,7 +1332,7 @@ function renderDone(){
   var fb=fillBlanks();
   if(fb.length){ h+='<div class="fillbadge"><div class="ft">아직 비워둔 칸 '+fb.length+'개 · 나중에 채워도 돼요</div><div class="fl">'; fb.forEach(function(x){ h+='<span onclick="jumpTo(\''+x[0]+'\')">'+esc(x[1])+' 채우기</span>'; }); h+='</div></div>'; }
   h+='<div class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</div><div class="sumry">';
-  h+='<div class="menu-hd"><div class="mh-t">두 분의 예식</div><div class="mh-s">'+esc(COURSES[S.course].nm)+' 코스 · '+estMin()+'</div></div>';
+  h+='<div class="menu-hd"><div class="mh-t">두 분의 예식</div></div>';
   var _num=0;
   summaryRows().forEach(function(r){
     var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='참여형 방명록'||r[0]==='하객 맞이 안내');
@@ -1382,7 +1382,7 @@ function renderRehearse(){
   var bs=fullBlocks();
   var h='<div class="rh-hd"><div class="t">연습 공간</div><div class="s">완성된 예식을 처음부터 끝까지 들으며 연습해요 · 반복해 들으면 당일이 낯설지 않아요. 다 못 외워도 나레이션이 순서마다 알려주고, 디렉터가 곁에서 신호를 드려요.</div></div>';
   h+='<div class="rh-modes"><button class="'+(rhMode==='auto'?'on':'')+'" onclick="setRh(\'auto\')">자동 흐름 재생</button><button class="'+(rhMode==='block'?'on':'')+'" onclick="setRh(\'block\')">순서별 반복</button></div>';
-  if(rhMode==='auto') h+='<button class="rh-auto" onclick="listenAll(this)">처음부터 자동으로 이어 재생</button>';
+  if(rhMode==='auto') h+='<button class="rh-auto" onclick="listenAll(this)">처음부터 이어 듣기</button>';
   bs.forEach(function(b,i){
     h+='<div class="rh-blk"><div class="rh-n">'+(i+1)+'. '+esc(b.n)+(b.peak?' <span class="dblk-t">감정 정점</span>':'')+'</div>';
     if(b.nar) h+='<div class="nar" style="margin-top:9px"><span class="lb">이 나레이션이 흐르고</span>'+esc(b.nar)+'</div>';
@@ -1390,7 +1390,7 @@ function renderRehearse(){
     if(_my) h+='<div class="self"><span class="who">내가 준비한 말</span>'+esc(_my)+'</div>';
     h+='<div class="rh-cue"><b>큐</b> · '+esc(b.cue)+'</div>';
     if(b.end) h+='<div class="prep-hint">이어서 나레이션이 마무리해요 · "'+esc(b.end)+'"</div>';
-    h+='<button class="play" style="margin-top:9px" onclick="mockPlay(this)">'+(rhMode==='block'?'샘플 목소리 듣기':'들어보기')+'</button>';
+    h+='<button class="play" style="margin-top:9px" onclick="mockPlay(this)">'+'들어보기'+'</button>';
     h+='</div>';
   });
   h+='<button class="rehearse-btn" style="margin-top:8px" onclick="closeRehearse()">완성 화면으로 돌아가기</button>';
