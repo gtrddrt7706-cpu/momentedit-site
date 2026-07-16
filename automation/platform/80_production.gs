@@ -171,14 +171,14 @@ function handleSaveProductionTrack(body) {
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
-    touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    var _upd = { '제작임시저장': JSON.stringify(d) };   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
     // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
     var _seatToken = '';
     if (track === 'seat') {
       _seatToken = String(cust.get('좌석공유토큰') || '').trim();
       if (body && body.done && !_seatToken) {
         _seatToken = 'S' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
-        touchCustomer(sheet, colOf, cust.num, { '좌석공유토큰': _seatToken });
+        _upd['좌석공유토큰'] = _seatToken;
       }
     }
     // 하객 안내 허브 공개 토큰 — 다이닝/좌석/안내정보 중 '하객에게 보여줄 내용이 실제로 있는' 완료에만 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
@@ -197,9 +197,10 @@ function handleSaveProductionTrack(body) {
       }
       if (_gHas) {
         _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
-        touchCustomer(sheet, colOf, cust.num, { '안내공유토큰': _guideToken });
+        _upd['안내공유토큰'] = _guideToken;
       }
     }
+    touchCustomer(sheet, colOf, cust.num, _upd);
     // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
     //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
     //   '특정 식당을 못 정한 채 마무리'를 신호로. 식당을 골랐거나 다이닝 안 함(N)이면 발사 안 함.
