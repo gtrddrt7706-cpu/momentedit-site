@@ -100,8 +100,7 @@ module.exports = async (req, res) => {
       console.error('advisor_unconfigured', JSON.stringify({
         present: 'ANTHROPIC_API_KEY' in process.env,
         empty: process.env.ANTHROPIC_API_KEY === '',
-        keys: Object.keys(process.env).filter(function (k) { return /ANTHROP|API_KEY/i.test(k); }),
-      }));
+      }));   // 진단 신호(있음/빈값)만 · env 변수 '이름' 열거는 정보 노출이라 제거
     } catch (e) {}
     // 키 미설정: 프론트가 1단 즉답·상담연결로 우아하게 폴백하도록 신호
     res.statusCode = 503;
