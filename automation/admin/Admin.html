@@ -670,7 +670,7 @@ function consentHtml(cs){
 }
 function cardContract(d,isSnap){
   var r=d.raw||{}, con=r['계약상태']||'미발송', raw='계약 <b>'+esc(con)+'</b>';
-  if(r['계약총액']) raw+=' · 총액 '+esc((Number(String(r['계약총액']).replace(/[^0-9]/g,''))||0).toLocaleString())+'원';
+  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
   if(r['계약서발송일시']) raw+='<br>발송 '+fmtDT(r['계약서발송일시']);
   if(r['계약서명일시']) raw+=' · 서명 '+fmtDT(r['계약서명일시']);
   if(r['계약서링크']) raw+='<br><span class="link-chip">📄 <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">계약서 열기</a></span>';
@@ -691,7 +691,7 @@ function cardPayment(d){
   var cardTag=' <span style="display:inline-block;padding:1px 7px;border:1px solid var(--gold,#B89A75);border-radius:10px;font-size:10px;color:var(--gold-deeper,#9a7b3f);vertical-align:1px">카드</span>';
   if(pb['계약금']==='카드'||pb['예약금']==='카드') raw+=cardTag;
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
-  if(r['계약총액']) raw+=' · 총액 '+esc((Number(String(r['계약총액']).replace(/[^0-9]/g,''))||0).toLocaleString())+'원';
+  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   // 중도금·잔금 — 계약금 이후 결제 마일스톤(상태 표시 + 신호 오면 확인 버튼)
   var mid=r['중도금상태']||'', bal=r['잔금상태']||'';
@@ -760,7 +760,37 @@ function _prodTrackDetail(prod){
     }
     out+='<div class="raw-sub"><div class="raw-sub-h">🍽 다이닝</div>'+dh+'</div>';
   }
-  if(rd && (rd.mc||(rd.events&&rd.events.length)||rd.timeline||rd.songTitle||rd.entryMusic)){
+  if(rd && rd._v===3 && rd.S){
+    // v3 = mypage 식순 빌더(order-preview 이식) 저장분 — {_v:3, S:고객 선택 전체, summary:{course,count,min,flow[]}}
+    var rs=rd.S, rsm=rd.summary||{}, rh3='';
+    var _fl=(rsm.flow&&rsm.flow.length)?rsm.flow.join('|'):'';           // 흐름에 있는 순간만 상세 표시(코스에 없는 기본값 노출 방지)
+    function _in(kw){ return !_fl || _fl.indexOf(kw)>-1; }
+    var _KO={entry:{A:'서사형',B:'짧고 강하게',C:'격식과 따뜻함',D:'감성·시적',E:'감사·가족',F:'이야기의 시작'},
+             letter:{parent:'부모님께',each:'서로에게',both:'부모님께·서로에게'},
+             veil:{mother:'어머니',father:'아버지',close:'가까운 분',skip:'생략'},
+             ringwarm:{family:'가족만',all:'하객 전체'}, tribute:{flower:'꽃 헌정(꽃 준비 필요)',bow:'절',hug:'포옹'},
+             toast:{toast:'축배',cake:'케이크 커팅',both:'축배+케이크'}, song:{family:'가족·지인 직접',live:'라이브 연주(연결 필요)'},
+             valley:{none:'없음',wine:'와인 세리머니(실물 준비)',cake:'케이크 커팅(실물 준비)'}};
+    function _ko(m,v){ return (_KO[m]&&_KO[m][v])||v||''; }
+    rh3+=L('코스', esc(String(rsm.course||''))+(rsm.count?(' · '+esc(String(rsm.count))+'개 순서'):'')+(rsm.min?(' · '+esc(String(rsm.min))):''));
+    if(_fl) rh3+='<div><span style="color:var(--label-soft)">순서 흐름</span><br><span style="color:var(--accent)">'+esc(rsm.flow.join(' → '))+'</span></div>';
+    rh3+=L('입장', esc(_ko('entry',rs.entry))+(rs.entryVoice==='couple'?' · 두 분 녹음(파일 수령 필요)':' · 나레이션'));
+    rh3+=L('성혼 선언', rs.declareWho==='chorus'?'하객 합송(선언문 인쇄)':(rs.declareWho==='family'?'가족 낭독':'나레이션'));
+    if(_in('베일')) rh3+=L('베일 다운', esc(_ko('veil',rs.veil)));
+    if(_in('링 워밍')) rh3+=L('링 워밍', esc(_ko('ringwarm',rs.ringwarm)));
+    if(_in('편지')) rh3+=L('편지 대상', esc(_ko('letter',rs.letter))+(rs.flash?' · 플래시 세리머니':''));
+    if(_in('헌정')) rh3+=L('부모님 헌정', esc(_ko('tribute',rs.tribute)));
+    if(_in('축배')) rh3+=L('축배·케이크', esc(_ko('toast',rs.toast))+' (실물 준비)');
+    if(_in('축가')) rh3+=L('축가', esc(_ko('song',rs.song)));
+    if(rs.valley&&rs.valley!=='none') rh3+=L('사이 순서', esc(_ko('valley',rs.valley)));
+    rh3+=L('음악(편지 배경)', esc(rs.mPeak||''))+L('음악(폐식)', esc(rs.mClose||''));
+    if(rs.growth==='on') rh3+=L('식전 성장영상', rs.growthLink?esc(rs.growthLink):'켬 · 링크 미첨부');
+    if(rs.vowText) rh3+='<div><span style="color:var(--label-soft)">서약문</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rs.vowText)+'</span></div>';
+    if(rs.letterText) rh3+='<div><span style="color:var(--label-soft)">편지</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rs.letterText)+'</span></div>';
+    if(rs.welcomeText) rh3+='<div><span style="color:var(--label-soft)">인사말</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rs.welcomeText)+'</span></div>';
+    out+='<div class="raw-sub"><div class="raw-sub-h">📜 식순 (새 빌더)</div>'+rh3+'</div>';
+  }
+  else if(rd && (rd.mc||(rd.events&&rd.events.length)||rd.timeline||rd.songTitle||rd.entryMusic)){
     var rh='';
     rh+=L('사회자', esc(rd.mc||''));
     rh+=L('입장곡', esc(rd.entryMusic||''));

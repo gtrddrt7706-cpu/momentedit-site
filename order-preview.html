@@ -1383,7 +1383,7 @@ render();
 var EMBED=/[?&]embed=1/.test(window.location.search);
 function _embedSave(){
   if(!EMBED) return;
-  try{ parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:fullBlocks().length, min:estMin()}}}, window.location.origin); }catch(e){}
+  try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
 }
 if(EMBED){
   window.addEventListener('message',function(ev){
