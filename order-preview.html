@@ -208,11 +208,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes mclinkr{to{transform:rotate(-9deg)}}
 .mclip.mstill .m-draw{animation:none;stroke-dashoffset:0}.mclip.mstill .m-in,.mclip.mstill .m-spark{animation:none;opacity:1}.mclip.mstill .m-tilt,.mclip.mstill .m-fall{animation:none}.mclip.mstill .m-walk{animation:none;transform:translateX(128px)}.mclip.mstill .m-bob{animation:none}.mclip.mstill .m-drop{animation:none;transform:translateY(14px)}.mclip.mstill .m-bow{animation:none;transform:rotate(-26deg)}.mclip.mstill .m-rise{animation:none;transform:translateY(-13px)}.mclip.mstill .m-trem{animation:none}.mclip.mstill .m-clinkl{animation:none;transform:rotate(9deg)}.mclip.mstill .m-clinkr{animation:none;transform:rotate(-9deg)}
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
-.minitl{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--border);padding:9px 2px 2px}
-.minitl .mtl-h{font-size:11px;font-weight:600;color:var(--gold-deeper);word-break:keep-all}
-.minitl .mtl-t{font-size:11px;line-height:1.7;color:var(--light);word-break:keep-all}
-.minitl .mtl-now{background:var(--gold-deep);color:#fff;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap}
-.minitl .mtl-a{color:var(--border)}
+.minitl{margin:0 0 6px;padding:0 0 11px;border-bottom:1px solid var(--border)}
+.minitl .mtl-h{font-size:11px;font-weight:600;color:var(--gold-deeper);margin-bottom:7px;word-break:keep-all}
+.mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mtl-rail::-webkit-scrollbar{display:none}
+.mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
+.mtl-rail .mtl-a{color:var(--border);flex-shrink:0;margin:0 7px;font-size:11px}
+.mtl-rail .mtl-now{background:var(--gold-deep);color:#fff;font-weight:600;border-radius:6px;padding:2px 9px;flex-shrink:0;font-size:11px}
 .nav{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 72%,transparent);padding:12px 0 calc(20px + env(safe-area-inset-bottom));display:flex;gap:10px}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
@@ -298,8 +300,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
     <div class="prog-next" id="pnext"></div>
   </div>
-  <div class="stage" id="stage"></div>
   <div class="minitl" id="minitl" style="display:none"></div>
+  <div class="stage" id="stage"></div>
   <div class="nav" id="nav">
     <button class="btn btn-prev" id="prev">이전</button>
     <button class="btn btn-next" id="next">다음</button>
@@ -662,13 +664,15 @@ function render(){
 function renderMiniTL(k){
   var el=document.getElementById('minitl');
   var show=(mode==='build' && k && ['intro','course','done'].indexOf(k)<0);
-  el.style.display=show?'flex':'none';
+  el.style.display=show?'block':'none';
   if(!show) return;
   var parts=fullBlocks().map(function(b){
     var nm=b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');
-    return (b.k===k)?'<b class="mtl-now">'+esc(nm)+'</b>':esc(nm);
+    return (b.k===k)?'<span class="mtl-now">'+esc(nm)+'</span>':'<span class="mtl-i">'+esc(nm)+'</span>';
   });
-  el.innerHTML='<div class="mtl-h">우리 예식 순서 · '+estMin()+'</div><div class="mtl-t">'+parts.join(' <span class="mtl-a">›</span> ')+'</div>';
+  el.innerHTML='<div class="mtl-h">우리 예식 순서 · '+estMin()+'</div><div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a">›</span>')+'</div>';
+  var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
+  if(rail&&now&&typeof now.offsetLeft==='number'){ rail.scrollLeft=Math.max(0, now.offsetLeft-rail.clientWidth/2+now.offsetWidth/2); }
 }
 
 function renderIntro(){
