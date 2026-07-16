@@ -354,7 +354,7 @@ var DECLARE={
  '2':{d:"따뜻하게",nar:"잠시, 두 사람이 함께 웃고 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다. 오늘 이 자리에 함께하신 모든 분이, 그 증인입니다. 신랑 신부, 이제 두 사람은 부부입니다."}
 };
 var DECLWHO={
- narr:{d:'전문 나레이션',desc:'나레이션이 두 사람의 성혼을 공식적으로 선언해요.'},
+ narr:{d:'나레이션',desc:'나레이션이 두 사람의 성혼을 공식적으로 선언해요.'},
  chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션의 선창에 이어, 하객 모두가 인쇄된 선언문을 함께 낭독해요.',nar:"모든 마음이 모였습니다. 이제, 이 자리에 계신 모든 분의 목소리로 이 예식을 선언으로 완성하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'선언문은 좌석 카드로 미리 비치하고, 나레이션이 먼저 안내해요 · 부담스러우면 언제든 나레이션 단독으로 바꿀 수 있어요'},
  family:{d:'가족이 낭독',desc:'양가 부모님, 또는 대표 한 분이 두 사람의 성혼을 직접 선언해요.',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
 };
@@ -412,7 +412,7 @@ var COURSES={
       {n:'환영·첫인사', how:'하객에게 감사 인사를 전해요. 나레이션이 대신 전하거나, 두 분이 직접 짧게 인사할 수 있어요.', fx:'따뜻하게 자리를 열어, 하객이 마음을 놓고 집중하게 돼요.', pick:'나레이션 대행 / 두 분 직접'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.', fx:'모두가 조용히 숨죽이는, 가장 깊고 진한 순간이에요.', pick:'울컥하면 나레이션이 대신 읽어드려요'},
       {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는, 촬영도 예쁜 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 공식적으로 선언해요.', fx:'예식의 공식 하이라이트. 어른들이 "제대로 된 예식이었다"고 느끼는 지점이에요.', pick:'전문 나레이션 / 하객 합송 / 가족 낭독'},
+      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 공식적으로 선언해요.', fx:'예식의 공식 하이라이트. 어른들이 "제대로 된 예식이었다"고 느끼는 지점이에요.', pick:'나레이션 / 하객 합송 / 가족 낭독'},
       {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'이 예식의 감정 정점. 편지 한 통에 온 하객이 함께 우는 순간이에요.', pick:'부모님께 / 서로에게'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아, 예식이 자연스럽게 마무리돼요.', fix:true}
     ],
@@ -463,7 +463,7 @@ var COURSES={
       {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'군더더기 없이, 두 사람에게 바로 시선이 모이는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 짧게 직접 읽어요.', fx:'가장 핵심이 되는, 조용하고 진한 순간이에요.', pick:'울컥하면 나레이션이 대신'},
       {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 손끝에 새겨지는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'짧지만 또렷한 공식 선언으로 예식이 완성돼요.', pick:'전문 나레이션 / 하객 합송'},
+      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'짧지만 또렷한 공식 선언으로 예식이 완성돼요.', pick:'나레이션 / 하객 합송'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'짧은 예식의 여운을 그대로 사진에 담아요.', fix:true}
     ],
     addable:'원하면 첫인사·편지를 더할 수 있어요.'},
@@ -478,7 +478,7 @@ var COURSES={
       {n:'환영·첫인사', how:'두 분이 하객에게 직접 밝게 인사해요.', fx:'가까운 사이라 웃음으로 자리가 금세 편해져요.', pick:'인사말 준비'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 읽어요.', fx:'밝은 분위기 속에서도 잠시 진지해지는 순간이에요.', pick:'울컥하면 나레이션이 대신'},
       {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.', fx:'다 함께 환호로 맞이하는 공식 하이라이트예요.', pick:'전문 나레이션 / 하객 합송'},
+      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.', fx:'다 함께 환호로 맞이하는 공식 하이라이트예요.', pick:'나레이션 / 하객 합송'},
       {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'밝은 예식 한가운데, 마음이 가장 깊어지는 순간이에요.', pick:'부모님께 / 서로에게'},
       {n:'축배·케이크', how:'작은 케이크를 자르고, 모두가 잔을 들어 함께 축하해요.', fx:'감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
       {n:'폐식·단체촬영', how:'나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'환한 에너지를 그대로 사진에 담아요.', fix:true}
@@ -530,7 +530,7 @@ function exBox(title,arr,guide,noHead){
   return h;
 }
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function narBox(t,end){return '<div class="nar"><span class="lb">전문 나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
+function narBox(t,end){return '<div class="nar"><span class="lb">나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 var ICO_PLAY='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M8 5v14l11-7z"/></svg>';
 var ICO_UP='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19V7M6 13l6-6 6 6"/></svg>';
 var ICO_PLUS='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>';
@@ -591,7 +591,7 @@ var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 function recoTxt(k){
   var c=S.course;
-  var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 소규모 예식이라 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸려요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
+  var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 나레이션으로 맡겨요 · 소규모 예식이라 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸려요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
   var ov={
    gamdong:{declare:'이 코스는 하객 합송이 시그니처예요 · 모두의 목소리가 하나로 모여요',letter:'이 코스는 부모님께, 그리고 서로에게 둘 다 읽는 분들이 많아요'},
    family:{bless:'가족 코스의 시그니처예요 · 1~2분(대여섯 문장) 원고 템플릿을 드려요',declare:'가족이 직접 선언하면 이 코스답게 깊어져요 · 나레이션도 좋아요'},
@@ -686,7 +686,7 @@ function renderIntro(){
   });
   h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요.</div></div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
-  h+='<div class="pf-i">당일 진행은 전문 나레이션과 디렉터가 맡아요. 두 분이 순서를 외우거나 진행할 일은 없어요.</div>';
+  h+='<div class="pf-i">당일 진행은 나레이션과 디렉터가 맡아요. 두 분이 순서를 외우거나 진행할 일은 없어요.</div>';
   h+='<div class="pf-i">두 분이 직접 준비하는 건 글(서약문·편지·인사말)과 음악 3곡 정도예요. 무엇을 언제까지인지는 완성 화면에 목록으로 정리돼요.</div>';
   h+='<div class="pf-i">지금 정하기 어려운 건 비워 둬도 돼요. 비워 둔 부분은 상담에서 함께 정해요.</div>';
   h+='<div class="pf-i">저장하면 예식 2주 전(D-14)까지 언제든 고칠 수 있어요.</div>';
@@ -896,7 +896,7 @@ window.quickOff=function(k){
 };
 function rowVal(k){
   switch(k){
-   case 'guest': return S.guestVoice==='couple'?'두 분 목소리':'전문 나레이션';
+   case 'guest': return S.guestVoice==='couple'?'두 분 목소리':'나레이션';
    case 'entry': return ENTRY[S.entry].d+(S.entryVoice==='couple'?' · 두 분 목소리':'');
    case 'veil': return VEIL[S.veil].d;
    case 'welcome': return '두 분이 직접 인사';
@@ -958,7 +958,7 @@ function renderStep(k){
     GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
     h+='</div>';
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요.</div></div>';
+    h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요.</div></div>';
     h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -977,7 +977,7 @@ function renderStep(k){
       h+='<div style="margin-top:12px">'+fold('guestScripts','안내 문구 전문 보기',_gs)+'</div>';
       h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
     }
-    h+='<div class="banner">'+(cpl?'담아 두신 파일은 상담 때 전달하면, 저희가 잡음·볼륨을 다듬어 당일 재생해요 · 어설퍼도 편하게 녹음하세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 전문 나레이션으로 흐르게 준비돼요.')+'</div>';
+    h+='<div class="banner">'+(cpl?'담아 두신 파일은 상담 때 전달하면, 저희가 잡음·볼륨을 다듬어 당일 재생해요 · 어설퍼도 편하게 녹음하세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 나레이션으로 흐르게 준비돼요.')+'</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
     h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
     if(S.growth==='on'){
@@ -994,7 +994,7 @@ function renderStep(k){
     var h='<div style="margin-top:16px">';
     h+=clip('entry');
     h+='<div class="vq" style="margin-top:16px">입장 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">전문 나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">전문 나레이션이 두 분의 입장을 이끌어요.</div></div>';
+    h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">나레이션이 두 분의 입장을 이끌어요.</div></div>';
     h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -1372,7 +1372,7 @@ function renderDone(){
     h+=playBtn();
     h+='</div>';
   }); }
-  else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 전문 나레이션이 준비돼요.</div>'; }
+  else { h+='<div class="note" style="margin-top:0;text-align:left">'+bs.length+'개 순서의 나레이션이 준비돼요.</div>'; }
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'mine\')">두 분 파트만</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
   // 준비물(리캡)은 접기
   var _prep=''; prep().forEach(function(p){ _prep+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
