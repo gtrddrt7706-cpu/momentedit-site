@@ -1328,7 +1328,7 @@ function renderDone(){
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
   return h;
 }
-window.resetAll=function(){ if(!confirm('지금까지 만든 식순을 지우고 처음부터 다시 만들까요?')) return; try{ localStorage.removeItem('me_order'); }catch(e){} location.reload(); };
+window.resetAll=function(){ if(!confirm('지금까지 만든 식순을 지우고 처음부터 다시 만들까요?')) return; try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); }catch(e){} window.location.reload(); };   // reset 직후 1회는 임베드 서버 초안 주입을 건너뜀(다시 만들기가 되돌아오는 문제 방지)
 
 function renderRehearse(){
   document.getElementById('nav').style.display='none';
@@ -1361,7 +1361,7 @@ function renderRehearse(){
 }
 
 var _navLock=0, _nl2=0;
-document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_nl2<400) return; _nl2=t; if(editReturn){editReturn=false;_editSnap=null;goDone();return;}
+document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_nl2<400) return; _nl2=t; if(editReturn){editReturn=false;_editSnap=null;_doneSaved=false;goDone();return;}   // 수정 확정 시 '저장됨' 해제 → 다시 저장하도록(서버본과 어긋남 방지)
   var st0=STEPS[idx];
   if(idx<STEPS.length-1){idx++;render();}
   else{ _doneSaved=true; _persist(); render(); _embedSave(); } });
@@ -1389,6 +1389,7 @@ if(EMBED){
   window.addEventListener('message',function(ev){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderFill'){
+      try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시
       var d=ev.data.draft;
       if(d&&d.S){ if(_applySaved({S:d.S,idx:99,cs:true,sv:true})){ _persist(); render(); } }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
     }

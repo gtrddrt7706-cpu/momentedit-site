@@ -1102,8 +1102,9 @@ function openRitualBuilder(p){
       setTimeout(function(){ fr.style.opacity='1'; },70);
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
-      saved=true;
-      api({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true}).catch(function(){});
+      api({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
+        .then(function(r){ if(r&&r.ok){ saved=true; } else { alert((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
+        .catch(function(){ alert('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
   }
   x.addEventListener('click',done);
