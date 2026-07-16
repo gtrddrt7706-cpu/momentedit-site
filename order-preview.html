@@ -210,7 +210,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
 .minitl{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--border);padding:9px 2px 2px}
 .minitl .mtl-h{font-size:11px;font-weight:600;color:var(--gold-deeper);word-break:keep-all}
-.minitl .mtl-t{font-size:11px;line-height:1.55;color:var(--light);word-break:keep-all}
+.minitl .mtl-t{font-size:11px;line-height:1.7;color:var(--light);word-break:keep-all}
+.minitl .mtl-now{background:var(--gold-deep);color:#fff;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.minitl .mtl-a{color:var(--border)}
 .nav{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 72%,transparent);padding:12px 0 calc(20px + env(safe-area-inset-bottom));display:flex;gap:10px}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
@@ -649,9 +651,9 @@ function render(){
   pv.disabled=(idx===0&&!editReturn);
   pv.textContent=editReturn?'취소':'이전';
   var nx=document.getElementById('next');
-  var _crsCTA=(st.k==='course'&&!editReturn&&!courseStarted&&crsOpen);
-  nx.style.display=(st.k==='course'&&!editReturn&&!courseStarted&&!crsOpen)?'none':'block';   // 코스 화면은 카드 버튼으로 진행(편집 복귀 중엔 노출)
-  nx.textContent=editReturn?'저장 · 요약으로':_crsCTA?('이 코스로 시작하기'):(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?(_doneSaved?'저장됨 · 상담 때 함께 봐요':'이대로 저장하기'):'다음');
+  // 코스 화면에서 카드가 열려 있으면 카드 안 '이 코스로 시작하기'가 유일한 CTA · 하단 '다음'은 숨겨 중복 제거 (편집 복귀 중엔 노출)
+  nx.style.display=(st.k==='course'&&!editReturn&&(crsOpen||!courseStarted))?'none':'block';
+  nx.textContent=editReturn?'저장 · 요약으로':(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?(_doneSaved?'저장됨 · 상담 때 함께 봐요':'이대로 저장하기'):'다음');
   renderMiniTL(st.k);
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
@@ -662,8 +664,11 @@ function renderMiniTL(k){
   var show=(mode==='build' && k && ['intro','course','done'].indexOf(k)<0);
   el.style.display=show?'flex':'none';
   if(!show) return;
-  var names=fullBlocks().map(function(b){return b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');});
-  el.innerHTML='<div class="mtl-h">우리 예식 순서 · '+estMin()+'</div><div class="mtl-t">'+names.join(' › ')+'</div>';
+  var parts=fullBlocks().map(function(b){
+    var nm=b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');
+    return (b.k===k)?'<b class="mtl-now">'+esc(nm)+'</b>':esc(nm);
+  });
+  el.innerHTML='<div class="mtl-h">우리 예식 순서 · '+estMin()+'</div><div class="mtl-t">'+parts.join(' <span class="mtl-a">›</span> ')+'</div>';
 }
 
 function renderIntro(){
@@ -1243,8 +1248,8 @@ var BLOCK={
 };
 function fullBlocks(){
   var b=[];
-  curSeq().forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x) b.push(x); } });
-  b.push({n:'폐식·단체촬영',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'나레이션 마무리와 함께 마무리 음악 시작 → 자리에서 그대로 가족·지인과 단체촬영'});
+  curSeq().forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x){ x.k=k; b.push(x); } } });
+  b.push({n:'폐식·단체촬영',k:'_close',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'나레이션 마무리와 함께 마무리 음악 시작 → 자리에서 그대로 가족·지인과 단체촬영'});
   return b;
 }
 function inSeq(k){ return curSeq().indexOf(k)>-1; }
