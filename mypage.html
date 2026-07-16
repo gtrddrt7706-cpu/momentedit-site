@@ -4264,7 +4264,7 @@ function renderSeat(box){
       +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
-        +'<button type="button" class="rt-mini" data-seat-move="'+ti+'" title="좌우 이동">'+(t.side==='R'?'←':'→')+'</button>'
+        // ★좌우 이동(→/←) 버튼 금지 — 2026-07-12 사용자 지시로 삭제(번호·이름 뒤섞임 + 좁은 폰에서 컨트롤 과밀). 2026-07-14 리뷰가 '기능 복원'으로 되살렸다가 2026-07-16 재삭제됨. 리뷰·복구에서 다시 추가하지 말 것
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
       +'</div></div>';
   }
@@ -4321,12 +4321,11 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; SEATFLOW._edNew=true; renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var mv=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[mv]) SEATFLOW.tables[mv].side=(SEATFLOW.tables[mv].side==='R')?'L':'R'; renderSeat(box); return; }   // 좌우 이동 복원 — 삭제·재입력 없이 재배치(이름·음료 보존)
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; var _lessMsg='';
       if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim()){ _emp=_q; break; } }   // 뒤에서부터 빈 자리 우선 제거 — 이름·음료가 찬 자리를 말없이 삭제하던 문제 방지
