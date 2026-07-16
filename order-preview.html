@@ -18,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em}
-.q-title,.intro-lead,.crs-nm,.nar,.sample .sx,.done-hd .t,.rh-hd .t,.dblk-n,.ev-n{font-family:var(--serif);letter-spacing:0}
+.q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.rh-hd .t,.ev-n{font-family:var(--serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
 .prog{padding:15px 0 0}
 .prog-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .oc.on .oc-nm{color:var(--seal)}
 .oc-desc{font-size:13px;color:var(--light);margin-top:3px;word-break:keep-all}
 .oc-rec{font-size:11px;color:var(--gold-deeper);font-weight:400;margin-left:auto;flex-shrink:0}
-.oc:active,.mcard:active,.crs:active{transform:scale(.985);transition:transform .12s}
+.oc:active,.crs:active{transform:scale(.985);transition:transform .12s}
 .ex-chip:active{transform:scale(.94)}
 .ex-chip{transition:transform .12s}
 .nar{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 13px;margin-top:11px;font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
@@ -97,9 +97,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .pf-i{font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all;padding:8px 0 8px 15px;position:relative;border-top:1px solid var(--bg2)}
 .pf-i:first-of-type{border-top:none}
 .pf-i::before{content:'';position:absolute;left:2px;top:15px;width:5px;height:5px;border-radius:50%;background:var(--light)}
-.sample{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center}
-.sample .st{font-size:11px;color:var(--gold-deeper);font-weight:600}
-.sample .sx{font-size:12px;color:var(--ink2);line-height:1.8;margin:8px 0 12px;word-break:keep-all}
 /* course */
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:17px;transition:.18s;margin-bottom:14px}
 .crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#EEECE7}.crs.soon{opacity:.62}
@@ -115,10 +112,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .cflow{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
 .cflow-i{font-size:11px;color:var(--accent);background:var(--bg2);border-radius:7px;padding:4px 9px;white-space:nowrap}
 .cflow-i.swap{padding-right:7px}
-.cf-x{display:inline-block;width:10px;height:10px;margin-left:4px;vertical-align:-1px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .cflow-a{color:var(--light);font-size:10px}
-.cflow-legend{font-size:10px;color:var(--gold-deeper);margin-top:9px;display:flex;align-items:center;gap:5px;word-break:keep-all}
-.cflow-legend::before{content:'';flex-shrink:0;width:12px;height:12px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .crs-chev{font-size:20px;line-height:1;color:var(--gold-btn);transition:transform .2s}
 .crs.on .crs-chev{transform:rotate(90deg)}
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
@@ -136,16 +130,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .vq{font-size:17px;font-weight:700;color:var(--accent);margin:2px 0 12px;word-break:keep-all}
 .mth{margin:13px 0 6px;padding:13px;background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px}
 .mth-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:9px;word-break:keep-all}
-.mcard{border:1.5px solid var(--border);background:#fff;border-radius:11px;padding:12px 13px;cursor:pointer;transition:.15s;margin-bottom:9px}
-.mcard:last-child{margin-bottom:0}
-.mcard.on{border-color:var(--seal);background:#EEECE7}
-.mcard-n{font-size:13px;font-weight:600}.mcard.on .mcard-n{color:var(--seal)}
-.mcard-d{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 .mth-how{font-size:12px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
 .mth-ai{font-size:12px;color:var(--gold-deeper);background:#FFFFFF;border:1px solid #E7E3DC;border-radius:12px;padding:9px 12px;margin-top:11px;line-height:1.7;word-break:keep-all}
 .mth-ai .copy-btn2{margin-top:8px}
 .copy-btn2{background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:9px 13px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;margin-right:8px}
-.mth-note{font-size:10px;color:var(--light);margin-top:8px}
 .uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
 .upl-r{display:flex;align-items:center;gap:8px}
 .rowbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-btn);background:#fff;color:var(--gold-deeper);border-radius:20px;padding:11px 15px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
@@ -169,16 +157,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .fold-b{padding:2px 0 0}
 .upst{font-size:11px;color:var(--light)}
 .upst.done{font-size:10px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
-.play-lnk{background:none;border:none;padding:8px 2px;font-family:var(--sans);font-size:12px;color:var(--gold-deeper);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .upkeep{font-size:12px;color:var(--gold-deeper);margin-top:11px;word-break:keep-all;line-height:1.6}
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
-.trow{cursor:pointer}
-.trow.off{opacity:.55;background:#FAFAF8;filter:grayscale(.9)}
-.trow.off .tcap{background:#EEECE7;color:var(--light);border-color:#E4E0D9}
-.trow .oc-nm::before{display:none}
 .tcap{margin-left:auto;flex-shrink:0;font-size:10px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
@@ -194,8 +177,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes mfall{0%{opacity:0;transform:translateY(-12px)}30%{opacity:1}100%{opacity:.85;transform:translateY(14px)}}
 .m-walk{animation:mwalk 2.6s cubic-bezier(.45,.02,.25,1) 1.2s forwards}
 @keyframes mwalk{from{transform:translateX(0)}to{transform:translateX(128px)}}
-.m-bob{}
-@keyframes mbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.7px)}}
 .m-drop{animation:mdrop 1.8s cubic-bezier(.4,.02,.3,1) 1s forwards}
 @keyframes mdrop{from{transform:translateY(0)}to{transform:translateY(14px)}}
 .m-bow{transform-box:fill-box;transform-origin:50% 100%;animation:mbow 2.1s ease-in-out .8s forwards}
@@ -224,16 +205,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
 .done-hd .t{font-size:22px;font-weight:700}.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
-.listen-all{margin:18px 0 6px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
-.listen-all::before{content:'';width:0;height:0;border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent currentColor;flex-shrink:0}
-.listen-all.playing{background:var(--gold-deep);color:#fff}
 .rehearse-btn{margin:10px 0 4px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
 .sec-l{font-size:11px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin:28px 0 10px}
-.dblk{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:10px}
-.dblk.peak{border-color:#E0DBD1;background:#FFFFFF}
-.dblk-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.dblk-n{font-size:14px;font-weight:600}.dblk-t{font-size:10px;color:var(--light)}
-.mine{background:#EEECE7;border:1px solid #E7E3DC;border-radius:12px;padding:6px 4px}
 .mine .mr{display:flex;gap:11px;padding:10px 12px;border-bottom:1px solid #E7E3DC;align-items:baseline}
 .mine .mr:last-child{border-bottom:none}
 .mine .mn{font-size:12px;font-weight:600;color:var(--gold-deeper);flex:0 0 92px;word-break:keep-all}
@@ -262,8 +235,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .special{margin-top:14px;text-align:center;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
-.menu-hd{font-family:var(--serif);text-align:center;padding:14px 14px 10px;border-bottom:1px solid #EDEBE6}
-.menu-hd .mh-t{font-size:18px;font-weight:600;letter-spacing:0;color:var(--accent)}
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
 .sumrow:first-of-type{border-top:none}
 .sr-n{flex:0 0 22px;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--gold-deeper);text-align:center}
@@ -282,9 +253,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rh-hd{text-align:center;padding:4px 0}
 .rh-hd .t{font-size:22px;font-weight:700}
 .rh-hd .s{font-size:13px;color:var(--sub);margin-top:7px;word-break:keep-all;line-height:1.7}
-.rh-modes{display:flex;gap:8px;margin:16px 0 6px}
-.rh-modes button{flex:1;border:1px solid var(--border);background:#fff;border-radius:11px;padding:11px 4px;font-family:var(--sans);font-size:12px;color:var(--sub);cursor:pointer;font-weight:600}
-.rh-modes button.on{background:var(--seal);border-color:var(--seal);color:#fff}
 .rh-auto{background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;margin:6px 0 14px}
 .rh-auto.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
 .rh-blk{border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;position:relative}
@@ -326,12 +294,11 @@ window.copyGuestScript=function(){
 };
 window.mockUpload=function(k){
   var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.mp3,.m4a,.aac,.wav';
-  inp.onchange=function(){ if(inp.files&&inp.files.length){ var f=inp.files[0]; if(f.type&&f.type.indexOf('audio')<0){ toast('음성 파일이 맞는지 확인해 주세요 · mp3·m4a'); return; } if(f.size>30*1024*1024){ toast('파일이 너무 커요 · 30MB 이하 음성으로 올려 주세요'); return; } S.up[k]=f.name; _persist(); render(); toast('파일을 담아 뒀어요 · 이 기기에 저장돼, 저희에게 함께 전달돼요'); } };
+  inp.onchange=function(){ if(inp.files&&inp.files.length){ var f=inp.files[0]; if(f.type&&f.type.indexOf('audio')<0){ toast('음성 파일이 맞는지 확인해 주세요 · mp3·m4a'); return; } if(f.size>30*1024*1024){ toast('파일이 너무 커요 · 30MB 이하 음성으로 올려 주세요'); return; } S.up[k]=f.name; _persist(); render(); toast('파일 이름을 담아 뒀어요 · 파일은 D-7까지 카톡·메일로 저희에게 보내 주세요'); } };
   inp.click();
 };
 function upNm(v){ return (typeof v==='string'&&v)?v:'올림 완료'; }
-var mode='build'; var rhMode='auto'; var scriptOpen=false; var crsOpen='';
-window.toggleScript=function(){ scriptOpen=!scriptOpen; render(); };
+var mode='build'; var crsOpen='';
 window.pickCourse=function(v){ crsOpen=(crsOpen===v)?'':v; render(); };
 var _pT; function _lazyPersist(){ clearTimeout(_pT); _pT=setTimeout(function(){ if(typeof courseStarted!=='undefined'&&courseStarted&&typeof _persist==='function') _persist(); },500); }
 window.toast=function(m){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:10px 18px;border-radius:20px;z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.textContent=m; t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },2200); };
@@ -592,7 +559,7 @@ function buildSteps(){
     .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
 }
 var idx=0;
-var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
+var RECO={declare:'1',letter:'parent'};
 function recoTxt(k){
   var c=S.course;
   var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 나레이션으로 맡겨요 · 소규모 예식이라 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸려요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
@@ -667,7 +634,7 @@ function renderMiniTL(k){
   var el=document.getElementById('minitl'), pn=document.getElementById('pnext');
   var blocks=(mode==='build' && k)?fullBlocks():[];
   var cur=-1; for(var i=0;i<blocks.length;i++){ if(blocks[i].k===k){ cur=i; break; } }
-  var show=(cur>-1);   // 순서 레일은 현재 단계(알약)가 있는 본식 단계에서만
+  var show=(cur>-1)||(mode==='build'&&k&&curSeq().indexOf(k)>-1);   // 본식 단계면 항상 레일 유지(빼기 상태여도 사라지지 않게)
   el.style.display=show?'block':'none';
   if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
@@ -706,7 +673,7 @@ function renderIntro(){
 function oc(key,v,nm,desc,nar,end,self,prep,rec){
   var on=S[key]===v;
   var h='<div class="oc'+(on?' on':'')+'" onclick="pick(\''+key+'\',\''+v+'\')">';
-  h+='<div class="oc-nm">'+esc(nm)+'</div>';
+  h+='<div class="oc-nm">'+esc(nm)+(rec?'<span class="oc-rec">기본</span>':'')+'</div>';
   if(desc) h+='<div class="oc-desc">'+esc(desc)+'</div>';
   if(nar){ h+=narBox(nar,end)+(on?playBtn():''); }
   if(self) h+='<div class="self"><span class="who">직접 · '+esc(self.who)+'</span>'+esc(self.t)+'</div>';
@@ -909,7 +876,7 @@ function rowVal(k){
    case 'entry': return ENTRY[S.entry].d+(S.entryVoice==='couple'?' · 두 분 목소리':'');
    case 'veil': return VEIL[S.veil].d;
    case 'welcome': return '두 분이 직접 인사';
-   case 'vow': return '직접 낭독'+(S.oyeolVow?' · 울컥하면 배우자가 이어받아요':'');
+   case 'vow': return '직접 낭독';
    case 'ringwarm': return RINGWARM[S.ringwarm].d;
    case 'ring': return S.ring==='on'?'넣기':'빼기';
    case 'declare': return DECLWHO[S.declareWho].d+(S.declareWho==='narr'?' · '+DECLARE[S.declare].d:'');
@@ -917,7 +884,7 @@ function rowVal(k){
    case 'toast': return TOAST[S.toast].d;
    case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
    case 'tribute': return TRIBUTE.modes[S.tribute].d;
-   case 'letter': return LETTER[S.letter].d+(S.oyeolLetter?' · 울컥하면 배우자가 이어받아요':'')+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
+   case 'letter': return LETTER[S.letter].d+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
    case 'bless': return S.bless==='on'?('넣기'+(S.blessProxy?' · 나레이션 대독':'')):'빼기';
   }
   return '';
@@ -1154,7 +1121,6 @@ function courseCard(v){
   h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span><span style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+(soon?'':'<span class="crs-chev">›</span>')+'</span></div>';
   h+='<div class="crs-one">'+esc(c.one)+'</div>';
   h+='<div class="cflow" style="margin-top:11px">'+flow+'</div>';
-  if(soon) h+='<div class="crs-soon-note">지금은 담백 코스로 먼저 만들어 보실 수 있어요. 감동·가족 코스는 곧 열리며, 준비되면 함께 안내해 드려요.</div>';
   if(open && c.detail){
     h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
     h+='<div class="cdet"><div class="cdet-l">순서마다 이렇게 진행돼요</div>';
@@ -1188,12 +1154,12 @@ function applyCourse(v){
 var courseStarted=false;
 window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
 window.jumpTo=function(k){
-  if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); } return; }
+  if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
 };
-var editReturn=false, _editAdded=null, _editSnap=null;
-window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); _editAdded=(curSeq().indexOf(k)>-1&&!S.tune[k])?k:null; jumpTo(k); };
+var editReturn=false, _editSnap=null;
+window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); jumpTo(k); };
 function fillBlanks(){
   var b=[];
   if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
@@ -1217,7 +1183,7 @@ var BLOCK={
     return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요'};
   },
   vow:function(){
-    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:(S.oyeolVow?'울컥하면 배우자가 대신 이어 낭독':'두 분이 직접 서약 낭독'),end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:(S.oyeolVow?'나레이션 도입 끝 → 서로 보고 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기':'나레이션 도입 끝 → 서로를 보고 서약문 낭독 시작 · 다 읽으면 다음')};
+    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 직접 서약 낭독',end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기'};
   },
   ringwarm:function(){
     return {n:'링 워밍',nar:RINGWARM[S.ringwarm].nar,self:(S.ringwarm==='all'?'하객 전체':'양가 가족')+'가 주머니를 손에서 손으로',cue:'나레이션 안내 → 반지 주머니가 손에서 손으로 → 마지막 분이 디렉터에게 → 디렉터가 반지를 꺼내 단상 옆 트레이에 준비 → 반지 교환 나레이션과 함께 두 분께 전달'};
@@ -1244,7 +1210,7 @@ var BLOCK={
     return {n:'축배 · 케이크',nar:TOAST[S.toast].nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue};
   },
   letter:function(){
-    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:(S.oyeolLetter?'울컥하면 배우자가 대신 이어 낭독':'두 분이 직접 편지 낭독'),end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+(S.oyeolLetter?'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 낭독 시작 · 울컥해서 잇기 어려우면 배우자가 대신 이어 낭독 (가장 감정적인 순간) → 끝나면 음악 페이드 아웃':'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 시작 (가장 감정적인 순간) → 끝나면 음악 페이드 아웃')};
+    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 음악 페이드 아웃'};
   },
   tribute:function(){
     return {n:'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
@@ -1275,15 +1241,6 @@ function estMin(){
   Object.keys(S.extra).forEach(function(k){ if(S.extra[k]) m+=(XM[k]!==undefined?XM[k]:1); });
   return '약 '+m+'분';
 }
-function myParts(){
-  var m=[];
-  if(inSeq('welcome') && S.welcome==='self') m.push(['환영 인사','짧은 인사말을 두 분이 직접 · D-7까지 준비']);
-  m.push(['혼인 서약', S.oyeolVow?'서약문 작성 · 울컥하면 배우자가 대신 이어 낭독 · D-7까지 준비':'서로에게 쓴 서약문을 직접 낭독 · D-7까지 준비']);
-  if(inSeq('letter')) m.push(['편지 낭독', LETTER[S.letter].d+' 쓴 편지'+(S.oyeolLetter?' · 울컥하면 배우자가 대신 이어 낭독':'를 직접 낭독')+' · D-7까지 준비']);
-  if(inSeq('tribute')) m.push(['부모님 헌정','당일 '+TRIBUTE.modes[S.tribute].d+'로 감사 전하기 · 꽃 등 준비물은 저희가']);
-  if(inSeq('bless') && S.bless==='on') m.push(['부모님 덕담', S.blessProxy?'양가 부모님 말씀 · 나레이션이 대독(부담 완화)':'양가 부모님 말씀 · D-14 부탁 안내']);
-  return m;
-}
 function prep(){
   var p=[['D-14','음악 2곡 정하기(편지 배경·폐식) · 입장곡은 저희가 추천']];
   if(inSeq('bless') && S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
@@ -1295,18 +1252,18 @@ function prep(){
   if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
   if(S.growth==='on') p.push(['D-3',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
   if(S.entryVoice==='couple') p.push(['D-7','입장 인사 녹음 파일 올리기(mp3/m4a)']);
+  if(S.guestVoice==='couple') p.push(['D-7','하객 맞이 안내 녹음 4개 올리기(mp3/m4a)']);
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
   return p;
 }
 window.listenAll=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
-function scriptText(kind){
-  var bs=fullBlocks(), lines=['우리 예식 대본'+(kind==='mine'?' · 두 분 파트':'')+' · '+COURSES[S.course].nm+' 코스 · '+estMin(),''];
+function scriptText(){
+  var bs=fullBlocks(), lines=['우리 예식 대본 · '+COURSES[S.course].nm+' 코스 · '+estMin(),''];
   var no=0;
   bs.forEach(function(b){
-    if(kind==='mine' && !b.self) return;
     no++;
     lines.push(no+'. '+b.n);
-    if(kind!=='mine'){ lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end); }
+    lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end);
     if(b.self) lines.push('직접: '+b.self);
     if(b.n.indexOf('서약')>-1) lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · D-7까지 적으면 여기 담겨요)');
     if(b.n.indexOf('편지')>-1) lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
@@ -1317,18 +1274,17 @@ function scriptText(kind){
   return lines.join('\n');
 }
 window.saveScriptTxt=function(){
-  var blob=new Blob([scriptText('all')],{type:'text/plain;charset=utf-8'});
+  var blob=new Blob([scriptText()],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download='우리예식대본_'+COURSES[S.course].nm+'코스.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
-window.copyScript=function(kind){
-  var txt=scriptText(kind||'all');
+window.copyScript=function(){
+  var txt=scriptText();
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요 · 서로에게 붙여넣어 공유하세요');},function(){alert('복사에 실패했어요.');}); }
   else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){alert('복사에 실패했어요.');} }
 };
 window.openRehearse=function(){ mode='rehearse'; render(); };
 window.closeRehearse=function(){ mode='build'; render(); };
-window.setRh=function(m){ rhMode=m; render(); };
 
 function summaryRows(){
   var rows=[];
@@ -1354,7 +1310,7 @@ function renderDone(){
   h+='<div class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</div><div class="sumry">';
   var _num=0;
   summaryRows().forEach(function(r){
-    var isPre=(r[0]==='식전 성장영상'||r[0]==='식전 안내 멘트'||r[0]==='참여형 방명록'||r[0]==='하객 맞이 안내');
+    var isPre=(r[2]==='guest');
     var isOff=(r[2]==='ring'&&S.ring!=='on')||(r[2]==='valley'&&S.valley==='none')||(r[2]==='bless'&&S.bless!=='on')||(r[2]==='veil'&&S.veil==='skip');
     var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10px">식전</div>':isOff?'<div class="sr-n sr-off">뺌</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
     h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">변경</button></div>';
@@ -1383,8 +1339,8 @@ function renderRehearse(){
   document.getElementById('pnext').textContent='';
   var bs=fullBlocks();
   var h='<div class="rh-hd"><div class="t">연습 공간</div><div class="s">완성된 예식을 처음부터 끝까지 들으며 연습해요 · 다 못 외워도 나레이션이 순서마다 알려주고, 디렉터가 곁에서 신호를 드려요.</div></div>';
-  h+='<div class="rh-modes"><button class="'+(rhMode==='auto'?'on':'')+'" onclick="setRh(\'auto\')">자동 흐름 재생</button><button class="'+(rhMode==='block'?'on':'')+'" onclick="setRh(\'block\')">순서별 반복</button></div>';
-  if(rhMode==='auto'){ h+='<button class="rh-auto" onclick="listenAll(this)">처음부터 이어 듣기</button>'; h+='<div class="prep-hint" style="text-align:center">나레이션 목소리 미리보기예요 · 서약·편지처럼 두 분이 직접 읽는 시간은 실제 예식에서 더해져요(전체 약 '+estMin().replace('약 ','')+'에 포함).</div>'; }
+  h+='<button class="rh-auto" style="margin-top:16px" onclick="listenAll(this)">처음부터 이어 듣기</button>';
+  { h+='<div class="prep-hint" style="text-align:center">나레이션 목소리 미리보기예요 · 서약·편지처럼 두 분이 직접 읽는 시간은 실제 예식에서 더해져요(전체 약 '+estMin().replace('약 ','')+'에 포함).</div>'; }
   bs.forEach(function(b,i){
     h+='<div class="rh-blk"><div class="rh-n">'+(i+1)+'. '+esc(b.n)+(b.peak?' <span class="dblk-t">감정 정점</span>':'')+'</div>';
     if(b.nar) h+='<div class="nar" style="margin-top:9px"><span class="lb">이 나레이션이 흐르고</span>'+esc(b.nar)+'</div>';
@@ -1395,7 +1351,7 @@ function renderRehearse(){
     h+='<button class="play" style="margin-top:9px" onclick="mockPlay(this)">'+'들어보기'+'</button>';
     h+='</div>';
   });
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript(\'all\')">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript()">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
   var _prep=''; prep().forEach(function(p){ _prep+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
   h+='<div class="sec-l" style="margin-top:18px">당일까지 준비할 것</div><div class="prep">'+_prep+'</div>';
   h+='<button class="rehearse-btn" style="margin-top:16px" onclick="closeRehearse()">완성 화면으로 돌아가기</button>';
@@ -1404,18 +1360,17 @@ function renderRehearse(){
   if(_navKey!=='rehearse'){ window.scrollTo(0,0); _navKey='rehearse'; }
 }
 
-var _navLock=0;
-document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){editReturn=false;_editAdded=null;_editSnap=null;goDone();return;}
+var _navLock=0, _nl2=0;
+document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_nl2<400) return; _nl2=t; if(editReturn){editReturn=false;_editSnap=null;goDone();return;}
   var st0=STEPS[idx];
-  if(st0&&st0.k==='course'&&!courseStarted&&crsOpen){ startCourse(crsOpen); return; }
   if(idx<STEPS.length-1){idx++;render();}
   else{ _doneSaved=true; _persist(); render(); } });
 var _doneSaved=false;
 function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,cs:courseStarted,sv:_doneSaved})); }catch(e){} }
-document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } _editAdded=null; buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
+document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
-try{ var _sv=JSON.parse(localStorage.getItem('me_order')||'null'); if(_sv&&_sv.S&&_sv.S.course&&_sv.cs){ S=_sv.S; courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1); } }catch(e){}
+try{ var _sv=JSON.parse(localStorage.getItem('me_order')||'null'); if(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs){ for(var _k in _sv.S){ S[_k]=_sv.S[_k]; } if(!ENTRY[S.entry])S.entry='A'; if(!VEIL[S.veil])S.veil='mother'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self'; courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1); } }catch(e){}
 render();
 </script>
 </body>
