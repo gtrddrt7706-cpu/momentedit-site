@@ -249,6 +249,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .wcard{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;margin-top:11px}
 .wcard .wn{font-size:13px;font-weight:600}
 .wcard .wd{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
+.wptr{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px;margin-top:12px;line-height:1.6;word-break:keep-all}
+.wptr b{font-weight:600}
+.wintro{font-size:12px;color:var(--light);margin:2px 2px 14px;line-height:1.65;word-break:keep-all}
 .special{margin-top:14px;text-align:center;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
@@ -571,6 +574,7 @@ var STEPDEF={
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
+ write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 두 분이 직접 읽는 글이에요.'},
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
@@ -585,13 +589,13 @@ function buildSteps(){
   CEREMONY=seq.slice();
   STEPS=[STEPDEF.intro,STEPDEF.course,STEPDEF.tune]
     .concat(seq.map(function(k){return STEPDEF[k];}))   // 전 순간 방문 고정 (2026-07-15 사용자 지시 · 건너뛰기 옵션 폐지)
-    .concat([STEPDEF.done]);
+    .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
 }
 var idx=0;
 var RECO={welcome:'nar',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',entry:'A'};
 function recoTxt(k){
   var c=S.course;
-  var base={vow:'서약문이 안 써져도 괜찮아요 · 예시를 고르고 두 분 말로 두어 줄만 바꿔 보세요',entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 소규모 예식이라 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸려요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
+  var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 전문 나레이션으로 맡겨요 · 소규모 예식이라 하객 합송도 특별해요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 약 2분 더 걸려요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
   var ov={
    gamdong:{declare:'이 코스는 하객 합송이 시그니처예요 · 모두의 목소리가 하나로 모여요',letter:'이 코스는 부모님께, 그리고 서로에게 둘 다 읽는 분들이 많아요'},
    family:{bless:'가족 코스의 시그니처예요 · 1~2분(대여섯 문장) 원고 템플릿을 드려요',declare:'가족이 직접 선언하면 이 코스답게 깊어져요 · 나레이션도 좋아요'},
@@ -615,7 +619,7 @@ var MOMENT={
  tribute:{ph:'부모님 헌정',t:'키워 주신 사랑에, 두 분이 몸짓으로 감사를 전하는 순간이에요.',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',done:'완성'};
+var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'};
 
 var _navKey='';
 function render(){
@@ -626,8 +630,8 @@ function render(){
   var pre=(st.k==='intro'||st.k==='course'||st.k==='tune'), si=stops.indexOf(st.k);
   var pct=Math.max(2,Math.round((idx+1)/STEPS.length*100));
   document.getElementById('pf').style.width=pct+'%';
-  document.getElementById('pnow').textContent=(st.k==='tune')?'기본 식순이 준비됐어요':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':pre?'예식 시작 전':('순서 '+(si+1)+' / '+stops.length);
+  document.getElementById('pnow').textContent=(st.k==='tune')?'기본 식순이 준비됐어요':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':('순서 '+(si+1)+' / '+stops.length);
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음 · 함께 볼 순간 확인(전체 기본)';
@@ -1027,18 +1031,14 @@ function renderStep(k){
     h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
     h+='<div class="self"><span class="who">두 분이 직접</span>한두 문장·목례면 충분해요.</div>';
     h+=fold('welNar2','인사 뒤 이어지는 나레이션',narBox("여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",null));
-    h+='<div class="wcard"><div class="wn">인사말 적어두기</div><div class="wd">지금 비워둬도 돼요 · 적어두면 대본·리허설에 함께 보여드려요. (준비 D-7)</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+    h+=writePtr('인사말은');
   }
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
-    h+='<div class="wcard"><div class="wn">서약문 적어두기 (선택)</div><div class="wd">당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
-    h+='<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>';
-    h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>';
-    h+='<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div>';
     h+='<label class="tgl"><input type="checkbox" '+(S.oyeolVow?'checked':'')+' onchange="settgl(\'oyeolVow\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label>';
     if(S.oyeolVow) h+='<div class="prep-hint">대신 읽어드릴 서약문은 D-7까지 저희에게만 살짝 전해 주세요 · 상대에게는 당일 그 순간까지 비밀로 지켜 드려요.</div>';
-    h+='</div>';
+    h+=writePtr('서약문은');
   }
   else if(k==='ring'){
     h+=clip('ring');
@@ -1066,11 +1066,8 @@ function renderStep(k){
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
-    h+='<div class="wcard"><div class="wn">편지 적어두기 (선택)</div><div class="wd">지금 안 써도 돼요 · 마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);var c=document.getElementById(\'letterCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
-    
-    h+='<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>';
-    h+='<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div>';
-    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label></div>';
+    h+='<label class="tgl"><input type="checkbox" '+(S.oyeolLetter?'checked':'')+' onchange="settgl(\'oyeolLetter\',this)"><span class="tk"></span>읽다가 울 것 같으면, 나레이션이 대신 읽어드려요</label>';
+    h+=writePtr('편지는');
   }
   else if(k==='bless'){
     var famOpen=(S.course==='family');
@@ -1117,7 +1114,27 @@ function renderStep(k){
       h+=oc('toast',v,TOAST[v].d,'',S.toast===v?TOAST[v].nar:null,null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요 · 추가 비용은 상담에서 안내드려요':null);
     });
   }
+  else if(k==='write'){
+    h+='<div class="wintro">지금 비워둬도 돼요 · D-7까지 채우면 대본·리허설에 함께 보여드려요.</div>';
+    if(inSeq('welcome') && S.welcome==='self'){
+      h+='<div class="wcard"><div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+    }
+    if(inSeq('vow')){
+      h+='<div class="wcard"><div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
+      h+='<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>';
+      h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>';
+      h+='<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
+    }
+    if(inSeq('letter')){
+      h+='<div class="wcard"><div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);var c=document.getElementById(\'letterCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
+      h+='<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>';
+      h+='<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
+    }
+  }
   h+='</div>'; return h;
+}
+function writePtr(lead){
+  return '<div class="wptr">'+esc(lead)+' 마지막 <b>글 적어두기</b>에서 한 번에 적어요 · 지금은 넘어가도 돼요</div>';
 }
 
 function courseCard(v){
@@ -1171,9 +1188,9 @@ var editReturn=false, _editAdded=null, _editSnap=null;
 window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); _editAdded=(curSeq().indexOf(k)>-1&&!S.tune[k])?k:null; jumpTo(k); };
 function fillBlanks(){
   var b=[];
-  if(!S.vowText) b.push(['vow','서약문']);
-  if(inSeq('letter') && !S.letterText) b.push(['letter','편지']);
-  if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['welcome','인사말']);
+  if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
+  if(inSeq('letter') && !S.letterText) b.push(['write','편지']);
+  if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['write','인사말']);
   if(!S.mEntry && !S.mPeak && !S.mClose) b.push(['done','음악']);
   return b;
 }
