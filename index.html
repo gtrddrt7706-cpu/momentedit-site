@@ -1041,7 +1041,9 @@ html.me-restoring body { opacity: 0 !important; }
    ★패널 선두(위) 가장자리는 '단계별 웜톤 그라데이션'(2026-07-16): 진사 → 로즈우드 → 테라코타 → 블러시 탄 → 샌드 → 아이보리 → 크림.
    종전 크림→투명 단일 에지는 반투명 흰색이 진사 위에 얹혀 회색빛 '마우브' 한 색만 거쳐 훅 바뀌었음 →
    반투명 구간을 전부 진사 계열 웜톤으로 직접 지정해, 스크롤에 따라 새벽빛처럼 순차적으로 밝아지고 마우브(회색끼)가 안 생김.
-   밑단(0~40%)은 항상 불투명 크림 → 히어로 밑이 스크롤 어느 지점에서도 다음 섹션(크림)과 경계 하드라인 없음. 화면 크기엔 %·offsetHeight로 자동 적응.
+   밑단(0~40%)은 불투명 크림(베일이 다 올라온 뒤 히어로가 완전한 크림이 되는 몸통). 다음 섹션과의 경계 하드라인 방지는 베일 위 .hero-feather가 담당.
+   화면 크기엔 %·offsetHeight로 자동 적응. ★주의: 베일은 히어로 아래로 최대 1.6×히어로높이만큼 뻗치는데, 밑 섹션(.hero-tease·.hero-photo)이
+   불투명 배경+transform으로 나중에 그려져 가려질 뿐이다 → 그 배경을 투명하게 바꾸거나 베일 z-index를 올리면 크림 밖 웜톤이 밑 섹션에 비쳐 보이게 됨.
    ★구동은 JS(--heroVeilY, translateY)만 사용 — CSS 스크롤 타임라인(animation-timeline)은 일부 iPad Safari에서 상단에서 패널이 이미 다 올라온 상태로 오작동(로고만 남고 진사 사라짐)하여 제거. translateY는 컴포지터 가속이라 JS 구동도 매끄러움. */
 .hero-veil {
   position: absolute;
@@ -1052,15 +1054,14 @@ html.me-restoring body { opacity: 0 !important; }
   z-index: 0;
   background: linear-gradient(
     to top,
-    #fafaf8 0%,
-    #fafaf8 40%,
+    var(--bg) 40%,
     #f5eee4 50%,
     #ecdcc9 59%,
     rgba(219, 172, 146, 0.94) 68%,
     rgba(184, 122, 100, 0.66) 77%,
     rgba(140, 70, 56, 0.38) 86%,
     rgba(111, 43, 36, 0.14) 93%,
-    rgba(111, 43, 36, 0) 100%
+    rgba(111, 43, 36, 0) 100% /* rgb(111,43,36) = 히어로 진사 #6f2b24 — 히어로 배경색을 바꾸면 위 반투명 단계들도 같은 계열로 함께 조정 */
   );
   transform: translateY(var(--heroVeilY, 100%)); /* 100% = 히어로 아래로 완전히 내려가 숨음(스크롤0: 진사 그대로) → 0%: 히어로를 크림으로 덮음. 기본값 100%라 로드 시 진사 유지(번쩍임 없음) */
   will-change: transform;
@@ -1073,6 +1074,20 @@ html.me-restoring body { opacity: 0 !important; }
   background:
     repeating-linear-gradient(0deg, rgba(58, 45, 34, 0.012) 0 1px, transparent 1px 3px),
     radial-gradient(120% 80% at 50% 108%, rgba(58, 45, 34, 0.05), transparent 62%);
+  pointer-events: none;
+}
+/* 밑단 웜톤 페더(2026-07-16): 히어로 마지막 ~14%를 진사 → 로즈우드 → 테라코타 → 샌드 → 크림으로 정적 페더링.
+   ★베일(.hero-veil)보다 나중 형제 = 항상 베일 위에 그려짐 → 히어로 맨 아랫줄이 스크롤 어느 지점에서든 정확히 크림(var(--bg))으로 끝나,
+   다음 섹션(크림)과의 경계 하드라인이 베일 진행도와 무관하게 안 생김(실측: 페더를 베일 아래 두면 반투명 테라코타 구간에서 경계 ΔRGB 최대 ~100 → 위에 두면 ~0).
+   모션 축소 설정(베일 정지)에서도 동일하게 경계를 부드럽게 만든다. 정지 화면에선 밑단의 은은한 새벽빛으로 보임. */
+.hero-feather {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14%;
+  z-index: 0;
+  background: linear-gradient(to bottom, rgba(111, 43, 36, 0) 0%, rgba(140, 70, 56, 0.18) 43%, rgba(196, 138, 110, 0.4) 71%, rgba(236, 220, 201, 0.75) 89%, var(--bg) 100%);
   pointer-events: none;
 }
 .hero-sub {
@@ -5115,6 +5130,7 @@ body {
 </div>
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
   <div class="hero-veil" aria-hidden="true"></div>
+  <div class="hero-feather" aria-hidden="true"></div>
 </div>
 <script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(tc){var cream=rm?(y>=hh):(veil>=0.5);if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
@@ -6209,13 +6225,17 @@ body {
   var de = document.documentElement, body = document.body;
   var hero = document.querySelector('.hero');
   // 스크롤 비율(히어로 높이 기준)별 '실제 최상단 화면색' 측정값 → 상태바가 화면과 동일하게 보이도록 그대로 추종(티 안 나게)
+  // ★2026-07-16 재측정: 베일 단계별 웜톤+밑단 페더 도입으로 최상단 색 곡선이 바뀜(구 값은 크림→투명 베일의 마우브 측정값).
+  //   베일·페더 그라데이션을 조정하면 이 표도 다시 측정해 갱신할 것(390×844 뷰포트 최상단 중앙 픽셀 기준).
   var STOPS = [
     [0.00, 111, 43, 36],
-    [0.30, 116, 52, 45],
-    [0.45, 138, 85, 79],
-    [0.60, 152, 110, 104],
-    [0.75, 161, 129, 124],
-    [0.88, 182, 162, 158],
+    [0.65, 106, 42, 35],
+    [0.70, 133, 70, 57],
+    [0.75, 170, 114, 95],
+    [0.80, 214, 171, 148],
+    [0.85, 235, 218, 199],
+    [0.90, 230, 213, 203],
+    [0.96, 229, 205, 192],
     [1.00, 250, 250, 248]
   ];
   var ticking = false;
