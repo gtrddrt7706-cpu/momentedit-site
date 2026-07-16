@@ -1079,9 +1079,11 @@ html.me-restoring body { opacity: 0 !important; }
 /* 밑단 웜톤 페더(2026-07-16): 히어로 마지막 ~14%를 진사 → 로즈우드 → 테라코타 → 샌드 → 크림으로 정적 페더링.
    ★베일(.hero-veil)보다 나중 형제 = 항상 베일 위에 그려짐 → 히어로 맨 아랫줄이 스크롤 어느 지점에서든 정확히 크림(var(--bg))으로 끝나,
    다음 섹션(크림)과의 경계 하드라인이 베일 진행도와 무관하게 안 생김(실측: 페더를 베일 아래 두면 반투명 테라코타 구간에서 경계 ΔRGB 최대 ~100 → 위에 두면 ~0).
-   모션 축소 설정(베일 정지)에서도 동일하게 경계를 부드럽게 만든다. 정지 화면에선 밑단의 은은한 새벽빛으로 보임.
-   ★후반 잔류 방지: 베일이 충분히 올라와 밑단이 자체 크림이 되는 veil 0.45→0.65 구간에서 JS가 opacity 1→0 페이드
-   (안 빼면 히어로가 화면을 떠날 때 크림 베일 위 웜톤이 상단에 베이지 얼룩처럼 남음). JS 미동작 시 opacity 1 유지(경계 보호 우선).
+   모션 축소 설정(베일 정지)에서도 동일하게 경계를 부드럽게 만든다.
+   ★노출 타이밍(2026-07-16 사용자 지적 '밑에가 보이는데?'): 정지 첫 화면에선 opacity 0(진사 풀스크린·밑 새어보임 없음).
+   스크롤 시작 시 JS가 y 0→0.1×히어로높이에서 페이드인 → 경계가 보이는 스크롤 중에만 페더가 존재.
+   ★후반 잔류 방지: 베일이 충분히 올라와 밑단이 자체 크림이 되는 veil 0.45→0.65 구간에서 opacity 다시 1→0
+   (안 빼면 히어로가 화면을 떠날 때 크림 베일 위 웜톤이 상단에 베이지 얼룩처럼 남음). JS 미동작 시 opacity 0 유지(구버전과 동일 동작).
    ★페이드 상수 0.45/0.2는 베일 불투명 몸통 스탑(var(--bg) 40%)에서 유도된 값(밑단이 완전 크림이 되는 시점 veil≥0.6에 맞춰 소멸) —
    베일의 40% 스탑을 바꾸면 이 상수도 재유도, 색을 바꾸면 베일·페더 두 그라데이션을 한 계열로 함께 조정. */
 .hero-feather {
@@ -1091,6 +1093,7 @@ html.me-restoring body { opacity: 0 !important; }
   bottom: 0;
   height: 14%;
   z-index: 0;
+  opacity: 0; /* 정지 첫 화면(스크롤 0)에선 완전 투명 = 진사 풀스크린(밑 새어보임 없음). 스크롤 시작 시 JS가 0.1×히어로높이 안에 페이드인 */
   background: linear-gradient(to bottom, rgba(111, 43, 36, 0) 0%, rgba(140, 70, 56, 0.18) 43%, rgba(196, 138, 110, 0.4) 71%, rgba(236, 220, 201, 0.75) 89%, var(--bg) 100%);
   pointer-events: none;
 }
@@ -5136,7 +5139,7 @@ body {
   <div class="hero-veil" aria-hidden="true"></div>
   <div class="hero-feather" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fe.style.opacity=(1-clamp((veil-0.45)/0.2)).toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fe.style.opacity=(clamp(y/(hh*0.1))*(1-clamp((veil-0.45)/0.2))).toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fe.style.opacity=clamp(y/(hh*0.1)).toFixed(3);}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
