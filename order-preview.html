@@ -251,7 +251,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .wcard .wd{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 .wptr{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px;margin-top:12px;line-height:1.6;word-break:keep-all}
 .wptr b{font-weight:600}
-.wintro{font-size:12px;color:var(--light);margin:2px 2px 14px;line-height:1.65;word-break:keep-all}
 .special{margin-top:14px;text-align:center;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
@@ -574,7 +573,7 @@ var STEPDEF={
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
- write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 두 분이 직접 읽는 글이에요.'},
+ write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 직접 읽는 글이에요 · 비워둬도 되고, D-7까지 채우면 대본에 담겨요.'},
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
@@ -1115,7 +1114,6 @@ function renderStep(k){
     });
   }
   else if(k==='write'){
-    h+='<div class="wintro">지금 비워둬도 돼요 · D-7까지 채우면 대본·리허설에 함께 보여드려요.</div>';
     if(inSeq('welcome') && S.welcome==='self'){
       h+='<div class="wcard"><div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
     }
