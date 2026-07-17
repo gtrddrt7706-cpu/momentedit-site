@@ -3570,43 +3570,24 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
       + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
       + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
   } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
-    dNote='<b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b>';
+    dNote='';   // 이름만 반복은 중복 — 서브라인 생략
   } else if(_dDone && dd && dd.dining_on==='N'){
-    dNote='안내 없이 진행';
+    dNote='';   // ✓만으로 충분
   }
   // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
   var _fDone=(t.final||'')==='완료';
   var fNote='';
-  if(_fDone && fd && fd.headcount){
-    var _stand=Number(fd.standing)||0;
-    fNote='<b style="color:var(--accent)">하객 '+escapeHtml(String(fd.headcount))+'명</b>'
-      + (_stand>0 ? (' · 스탠딩 '+_stand+'명, 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금과 함께 안내)') : '')
-      + (fd.drink ? (' · '+escapeHtml(fd.drink)) : '')
-      + ((Number(fd.softCount)||0)>0 ? (' · 논알콜 '+escapeHtml(String(fd.softCount))+'잔') : '');
+  if(_fDone && fd && (Number(fd.standing)||0)>0){
+    fNote='스탠딩 '+(Number(fd.standing)||0)+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b> 잔금과 함께 안내돼요';   // 비용 걸린 것만 · 인원·음료 반복은 생략
   } else if(!_fDone){
     fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요'
       + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');
   }
-  // 식순 완료 요약 — v3(order-preview 빌더) 우선 · 구 v2 draft 하위호환
+  // 식순 요약 서브라인 없음 — 본인이 만든 내용의 반복이라 ✓만으로 충분(2026-07-17 사용자 지시: 중복이면 안 넣음)
   var rNote='';
-  if((t.ritual||'')==='완료' && rd && rd._v===3 && rd.summary){
-    rNote='<b style="color:var(--accent)">'+escapeHtml(String(rd.summary.course||''))+' 코스</b> · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
-  }
-  else if((t.ritual||'')==='완료' && rd && rd._v===2){
-    var _rc=_rBlocks(rd).length, _rm=_rBudget(rd).total, _pend=0, _re=(rd.events||[]);
-    if(_re.indexOf('video')>=0 && !((rd.details&&rd.details.video&&rd.details.video.link||'').trim())) _pend++;
-    if(_re.indexOf('song')>=0 && !((rd.details&&rd.details.song&&rd.details.song.title||'').trim())) _pend++;
-    rNote='<b style="color:var(--accent)">'+_rc+'순서 · '+_rm+'분</b>'+(rd.host==='mc'?' · 사회자 진행':'')+(_pend?(' · <b style="color:var(--seal)">채울 것 '+_pend+'개</b>'):'');
-  }
-  // 좌석 배치도 — 최종 확정(인원)이 끝나야 자리 기준이 잡혀 열림. 완료 시 공유 링크 준비 요약.
+  // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
   var _seatDone=(t.seat||'')==='완료';
-  var seNote='';
-  if(_fDone && _seatDone && sd && sd.tables){
-    var _tc=sd.tables.length, _nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim()) _nm++; }); });
-    seNote='<b style="color:var(--accent)">'+_tc+'개 테이블 · '+_nm+'명</b> · 하객 공유 링크 준비됨';
-  } else if(_fDone && !_seatDone){
-    seNote='자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요 (선택)';
-  }
+  var seNote=(_fDone && !_seatDone)?'자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요 (선택)':'';
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, rNote)
