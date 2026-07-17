@@ -1108,11 +1108,11 @@ html.me-restoring body { opacity: 0 !important; }
    iOS 주소창 수축·바운스·미세 스크롤(백여 px)까지는 페더가 절대 안 켜져 '첫 화면 근처'가 항상 순수 진사.
    대가: 페이드인 구간에선 히어로 밑 경계가 덜 보호되지만(화면 하단·이동 중) 사용자 우선순위는 첫 화면 청결.
    ★0.5 완성은 '페더 완성 후 베일 도착 전 변화 공백 = 전환이 중간에 멈춰 보임'(2026-07-17 사용자 지적)을 없애려 베일 도착과 이어붙인 값.
-   ★후반 잔류 방지: 베일이 충분히 올라와 밑단이 자체 크림 근처가 되는 veil 0.5→0.65 구간에서 opacity 다시 1→0
-   (안 빼면 히어로가 화면을 떠날 때 크림 베일 위 웜톤이 상단에 베이지 얼룩처럼 남음). JS 미동작 시 opacity 0 유지(구버전과 동일 동작).
-   ★페이드 상수 0.5/0.15는 베일 불투명 몸통 스탑(var(--bg) 22%)에서 유도된 값 — 소멸 완료 0.65가 히어로 밑단이 화면을
-   떠나는 순간(y=1.0×높이 ↔ veil 0.65)과 일치해 잔류 없이 퇴장. 베일의 22% 스탑을 바꾸면 이 상수도 재유도,
-   색을 바꾸면 베일·페더 두 그라데이션을 한 계열로 함께 조정. */
+   ★후반 페이드아웃 없음(2026-07-17 제거): 예전엔 잔류 얼룩 방지로 veil 0.5→0.65에서 opacity 1→0을 뺐지만,
+   옅어지는 중간엔 경계 위(혼합색)와 아래(이음띠)가 미세하게 어긋나 픽셀-샤프한 경계가 '순간 딱 생기는 라인'으로 보였음(사용자 지적).
+   지금은 착지색 아이보리 통일+이즈아웃 꼬리라 100% 유지해도 잔류가 아닌 연속된 새벽빛 꼬리로 읽힘 → 경계 양쪽이 모든
+   스크롤에서 같은 색 = 선 성립 불가. ★이 페이드아웃을 다시 넣지 말 것 — 넣는 순간 핸드오프 라인 재발.
+   JS 미동작 시 opacity 0 유지(구버전과 동일 동작). 색을 바꾸면 베일·페더·이음띠를 한 계열로 함께 조정. */
 .hero-feather {
   position: absolute;
   left: 0;
@@ -1282,7 +1282,7 @@ html.me-restoring body { opacity: 0 !important; }
   /* 상단 이음띠(2026-07-17): 히어로 퇴장 무렵 베일 밑단 색(245,239,229)과 같은 웜 아이보리로 시작해 110px에 걸쳐 크림으로.
      페더가 옅어지는 핸드오프 구간(veil 0.5~0.65)에 경계 양쪽이 항상 같은 색으로 만나 '끝부분 살짝 선'이 성립 안 함 — 사용자 지적.
      마지막 스탑 색이 아래로 끝까지 연장되므로 배경은 여전히 전면 불투명(베일 오버행 가림 역할 유지). */
-  background: linear-gradient(to bottom, rgb(245, 239, 229) 0, rgb(248, 246, 240) 55px, var(--bg) 110px);
+  background: linear-gradient(to bottom, var(--stripTop, rgb(245, 239, 229)) 0, var(--bg) 110px); /* --stripTop = JS가 매 프레임 '경계 바로 위 실제 색'으로 갱신 — 어떤 스크롤에서도 경계 양쪽이 같은 색(라인 원천 차단). JS 미동작 시 아이보리 고정 */
 }
 .hero-tease-line {
   font-family: var(--serif-ko);
@@ -5196,7 +5196,7 @@ body {
   <div class="hero-veil" aria-hidden="true"></div>
   <div class="hero-feather" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fe.style.opacity=(clamp((y-hh*0.12)/(hh*0.38))*(1-clamp((veil-0.5)/0.15))).toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fe.style.opacity=clamp((y-hh*0.12)/(hh*0.38)).toFixed(3);}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}var te=null;/* .hero-tease는 이 스크립트보다 뒤에 있어 u() 안에서 지연 조회 *//* 베일 스탑 조견표(p 0.2~1.0, 0.1 간격)+진사 배경 합성 → 경계 위 실제 색 계산용. 베일 그라데이션을 바꾸면 함께 갱신 */var VL=[[250,250,248,1],[247,243,236,1],[241,231,218,1],[232,210,188,0.994],[215,165,139,0.916],[186,124,102,0.67],[146,76,61,0.42],[115,46,39,0.18],[111,43,36,0]];function seamCol(sp){var x=(Math.max(0.2,Math.min(1,sp))-0.2)/0.1,i=Math.min(7,Math.floor(x)),tt=x-i,A=VL[i],B=VL[i+1],a=A[3]+(B[3]-A[3])*tt,r=A[0]+(B[0]-A[0])*tt,g=A[1]+(B[1]-A[1])*tt,bl=A[2]+(B[2]-A[2])*tt;return [a*r+(1-a)*70,a*g+(1-a)*23,a*bl+(1-a)*16];}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0,fo=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}/* 이음띠 시작색 = 경계 위 실제 색(페더 불투명도×아이보리 착지 + 나머지×베일·배경 합성) → 경계 라인 원천 차단(2026-07-17 '순간 딱 라인' 지적) */if(!te){te=document.querySelector('.hero-tease');}if(te){var sc2=seamCol(1-veil),st=[Math.round(fo*245+(1-fo)*sc2[0]),Math.round(fo*239+(1-fo)*sc2[1]),Math.round(fo*229+(1-fo)*sc2[2])];te.style.setProperty('--stripTop','rgb('+st.join(',')+')');}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
@@ -6295,9 +6295,9 @@ body {
     [0.00, 111, 43, 36],
     [0.65, 102, 39, 31],
     [0.75, 134, 73, 58],
-    [0.85, 199, 150, 126],
-    [0.90, 215, 181, 158],
-    [0.95, 233, 213, 193],
+    [0.85, 197, 148, 125],
+    [0.90, 207, 170, 150],
+    [0.95, 220, 188, 166],
     [1.00, 245, 239, 229],
     [1.10, 250, 250, 248]
   ];
