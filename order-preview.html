@@ -150,6 +150,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-s{font-size:11px;color:var(--light);margin-top:4px}
 .mc-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .mc-act .rowbtn{padding:8px 12px;font-size:11.5px}
+.mc-min{font-size:10.5px;color:var(--light);font-weight:400;margin-left:6px;flex-shrink:0}
 .mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
@@ -919,6 +920,7 @@ function renderStep(k){
     var _disp=_base.map(function(k){return {k:k,off:false};});
     _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
     var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};
+    var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
     _disp.forEach(function(d){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
@@ -926,7 +928,7 @@ function renderStep(k){
       var _canExp=MCVIS[x]||OFFTGL[x]||d.off||S.extra[x];
       var _open=(_tprev===x)&&_canExp;
       h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'"'+(_canExp?' onclick="tprev(\''+x+'\')"':' style="cursor:default"')+'>';
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(!_off&&MMIN[x]?'<span class="mc-min">약 '+MMIN[x]+'분</span>':(!_off&&x==='guest'?'<span class="mc-min">식전</span>':''))+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       // 카드에서 바로: 이 순간의 진행 안내 듣기 + 순서 넣기/빼기(확장 없이도 보이게 · 2026-07-16 사용자 요청)
