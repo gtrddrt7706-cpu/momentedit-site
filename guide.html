@@ -163,8 +163,9 @@ function bindSeat(seatToken){
 }
 function isWeddingDay(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return false;
-  var n=new Date(); var t=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-  return t===ymd;   // 하객 기기 로컬 날짜 기준(국내 예식 · KST)
+  var k=new Date(Date.now()+9*3600*1000);   // 예식장 시간(KST) 고정 — 해외에서 여는 하객도 당일 기준이 맞음
+  var t=k.getUTCFullYear()+'-'+('0'+(k.getUTCMonth()+1)).slice(-2)+'-'+('0'+k.getUTCDate()).slice(-2);   // padStart 회피(구형 웹뷰 호환)
+  return t===ymd;
 }
 function render(g){
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');

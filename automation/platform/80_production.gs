@@ -167,16 +167,10 @@ function handleSaveProductionTrack(body) {
     }
     body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };
   }
-  // 하객 안내 정보: 오시는 길·드레스코드 — 길이 상한만(표시는 guide.html이 esc). 개인정보 아님(예식장 공개정보).
+  // 하객 안내 설정: 자리 찾기·라이브 토글만 — 오시는 길·드레스코드 입력 폐지(2026-07-17 사용자 지시 · 자체 홀 고정, 어른 하객 예우)
   if (track === 'guideinfo') {
     var gir = (body && body.draft) || {};
     body.draft = {
-      venue: String(gir.venue || '').slice(0, 60),      // 예식장 이름
-      addr: String(gir.addr || '').slice(0, 120),       // 주소
-      map: (/^https?:\/\//i.test(String(gir.map || '')) ? String(gir.map).slice(0, 300) : ''),   // 지도 링크(http[s]만·대소문자 무관)
-      parking: String(gir.parking || '').slice(0, 200), // 주차 안내
-      transit: String(gir.transit || '').slice(0, 200), // 대중교통
-      dress: String(gir.dress || '').slice(0, 120),     // 드레스코드(선택)
       showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
       showLive: gir.showLive === true                   // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
     };
@@ -220,7 +214,7 @@ function handleSaveProductionTrack(body) {
       } else if (track === 'seat') {
         _gHas = ((_gd.tables) || []).some(function (t) { return ((t && t.seats) || []).some(function (s) { return String(s || '').trim(); }); });   // 이름 하나라도 있어야
       } else if (track === 'guideinfo') {
-        _gHas = !!(String(_gd.venue || '') + String(_gd.addr || '') + String(_gd.map || '') + String(_gd.parking || '') + String(_gd.transit || '') + String(_gd.dress || '')).trim();
+        _gHas = (_gd.showLive === true);   // 입력 필드 폐지(2026-07-17) → '라이브 노출 켬'이 보여줄 내용. 자리·식사는 각자 트랙 완료로 발급
       }
       if (_gHas) {
         _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
