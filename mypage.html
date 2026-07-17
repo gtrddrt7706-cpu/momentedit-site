@@ -1032,6 +1032,16 @@ function contractSrc(product, docVersion){
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
+// [브라우저 뒤로가기 연동] 오버레이·위저드가 열려 있는 동안 뒤로가기(제스처 포함)는 페이지 이탈 대신 그 화면 닫기 — 습관적 뒤로가기로 메인에 튕기는 것 방지(2026-07-17 사용자 요청)
+//   열 때 히스토리 1층(pushState)+닫기 함수 등록 → popstate가 오면 등록된 닫기 실행 · 수동 닫기(✕·저장 후 나가기)는 bkDone()이 그 층을 소비해 히스토리 잔층을 안 남김.
+var _bkStack=[], _bkClosing=false, _bkFromPop=false;
+function bkOpen(closeFn){ _bkStack.push(closeFn||null); try{ history.pushState({meLayer:_bkStack.length},''); }catch(e){} }
+function bkDone(){ if(_bkFromPop||!_bkStack.length) return; _bkStack.pop(); _bkClosing=true; try{ history.back(); }catch(e){ _bkClosing=false; } }
+window.addEventListener('popstate', function(){
+  if(_bkClosing){ _bkClosing=false; return; }
+  if(!_bkStack.length) return;                       // 우리가 쌓은 층이 없으면 브라우저 기본 동작(페이지 이탈)
+  var c=_bkStack.pop(); _bkFromPop=true; try{ if(c) c(); }catch(e){} _bkFromPop=false;
+});
 function openContractView(){
   var old=$('mp_ctViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_ctViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','본 계약서');
@@ -1063,7 +1073,7 @@ function openContractView(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1075,6 +1085,7 @@ function openContractView(){
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   window.addEventListener('message',onMsg);
+  bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
   // 서명 완료인데 손글씨 이미지가 아직 없으면 기존 getSignature로 가져와 다시 채움(새 GAS 재배포 불요)
   if(window._contractFill && window._contractFill.signed && !window._contractFill.signImage){
     var _applySig=function(u){ if(!u) return; window._contractFill.signImage=u; _sigCache['계약']=u; try{ if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:window._contractFill}, location.origin); }catch(e){} };
@@ -1099,7 +1110,7 @@ function openRitualBuilder(p){
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
   var saved=false;
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
+  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1118,6 +1129,7 @@ function openRitualBuilder(p){
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   window.addEventListener('message',onMsg);
+  bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
 }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
 function openFittingView(){
@@ -1141,7 +1153,7 @@ function openFittingView(){
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1150,7 +1162,7 @@ function openFittingView(){
       setTimeout(function(){ fr.style.opacity='1'; },70);
     }
   }
-  x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg);
+  x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); bkOpen(done);   // 브라우저 뒤로가기 = 닫기
 }
 
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
@@ -1788,11 +1800,12 @@ function openInviteSamples(){
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
-  function done(){ ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  function done(){ bkDone(); ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
   function esc(e){ if(e.key==='Escape') done(); }
   x.addEventListener('click', done);
   ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
   document.addEventListener('keydown', esc);
+  bkOpen(done);   // 브라우저 뒤로가기 = 닫기
   _mpLock();
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
@@ -3642,10 +3655,12 @@ function startInvFlow(inv, base){
   var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
+  bkOpen(function(){ exitInvFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
 function exitInvFlow(){   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
   show('loading');
   saveInvDraft().then(function(r){
     if(r&&r.ok){ INVFLOW.active=false; loadMyState(); return; }
@@ -4123,6 +4138,7 @@ function startSeatFlow(seatDraft, finalDraft, token){
   var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
   tbls.forEach(function(t){ _seatNormDrinks(t); });   // 음료 배열 보정(구 데이터 호환)
   SEATFLOW={ active:true, tables:tbls, token:token||'' };
+  bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderSeat($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -4178,6 +4194,7 @@ function saveSeat(done){
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
 }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
+  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
   SEATFLOW.active=false; show('loading');
   var _fail=function(msg){
     SEATFLOW.active=true; show('mypageView'); renderSeat($('mp_production'));   // 편집 화면 복원(입력 보존)
@@ -4430,6 +4447,7 @@ function startTrkFlow(track, draft, base){
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
+  bkOpen(function(){ exitTrkFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderTrkFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -4438,6 +4456,7 @@ function saveTrkDraft(done){
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
 function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
   TRKFLOW.active=false; show('loading');
   saveTrkDraft(false).then(function(r){
     if(r&&r.ok){ loadMyState(); return; }
