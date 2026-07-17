@@ -374,6 +374,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .trk:last-child{border-bottom:none}
 .trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent);text-align:left}
+.trk-sub{font-size:11.5px;color:var(--label-soft);text-align:left;padding:6px 2px 10px;margin-top:-6px;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
@@ -3550,10 +3551,11 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
   try{ var _wd=base&&base.weddingDate; if(_wd){ var _w=new Date(String(_wd).slice(0,10)+'T00:00:00'); if(!isNaN(_w)) _dLeft=Math.ceil((_w-new Date())/86400000); } }catch(e){}
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
   function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어하기' : '시작하기'); }
-  function row(name, st, btnId, label){
+  function row(name, st, btnId, label, sub){
     var done = (st==='완료');
-    return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';
+    return '<div class="trk"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
+      + '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'
+      + (sub?'<div class="trk-sub">'+sub+'</div>':'');   // 요약은 해당 행 바로 아래(하단 뭉치 금지 · 2026-07-17)
   }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어하기' : '시작하기');
@@ -3563,57 +3565,56 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
   var dNote='';
   if(_dDone && dd && dd.dining_on==='Y' && dd.venue){
     var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
-    dNote='🍽 예약하실 곳 · <b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
+    dNote='<b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
       + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
       + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
       + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
   } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
-    dNote='🍽 애프터 웨딩 · <b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b>';
+    dNote='<b style="color:var(--accent)">'+escapeHtml(dd.venuePick)+'</b>';
   } else if(_dDone && dd && dd.dining_on==='N'){
-    dNote='🍽 애프터 웨딩 안내 없이 진행하기로 했어요';
+    dNote='안내 없이 진행';
   }
   // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
   var _fDone=(t.final||'')==='완료';
   var fNote='';
   if(_fDone && fd && fd.headcount){
     var _stand=Number(fd.standing)||0;
-    fNote='🥂 최종 확정 · <b style="color:var(--accent)">하객 '+escapeHtml(String(fd.headcount))+'명</b>'
+    fNote='<b style="color:var(--accent)">하객 '+escapeHtml(String(fd.headcount))+'명</b>'
       + (_stand>0 ? (' · 스탠딩 '+_stand+'명, 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금과 함께 안내)') : '')
       + (fd.drink ? (' · '+escapeHtml(fd.drink)) : '')
       + ((Number(fd.softCount)||0)>0 ? (' · 논알콜 '+escapeHtml(String(fd.softCount))+'잔') : '');
   } else if(!_fDone){
-    fNote='🥂 인원·음료·특이사항은 <b>예식 '+_payDays().bal+'일 전까지</b> 확정해 주세요'
+    fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요'
       + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');
   }
   // 식순 완료 요약 — v3(order-preview 빌더) 우선 · 구 v2 draft 하위호환
   var rNote='';
   if((t.ritual||'')==='완료' && rd && rd._v===3 && rd.summary){
-    rNote='📜 식순 · <b style="color:var(--accent)">'+escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''))+'</b>';
+    rNote='<b style="color:var(--accent)">'+escapeHtml(String(rd.summary.course||''))+' 코스</b> · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
   }
   else if((t.ritual||'')==='완료' && rd && rd._v===2){
     var _rc=_rBlocks(rd).length, _rm=_rBudget(rd).total, _pend=0, _re=(rd.events||[]);
     if(_re.indexOf('video')>=0 && !((rd.details&&rd.details.video&&rd.details.video.link||'').trim())) _pend++;
     if(_re.indexOf('song')>=0 && !((rd.details&&rd.details.song&&rd.details.song.title||'').trim())) _pend++;
-    rNote='📜 식순 · <b style="color:var(--accent)">'+_rc+'순서 · '+_rm+'분</b>'+(rd.host==='mc'?' · 사회자 진행':'')+(_pend?(' · <b style="color:var(--seal)">채울 것 '+_pend+'개</b>'):'');
+    rNote='<b style="color:var(--accent)">'+_rc+'순서 · '+_rm+'분</b>'+(rd.host==='mc'?' · 사회자 진행':'')+(_pend?(' · <b style="color:var(--seal)">채울 것 '+_pend+'개</b>'):'');
   }
   // 좌석 배치도 — 최종 확정(인원)이 끝나야 자리 기준이 잡혀 열림. 완료 시 공유 링크 준비 요약.
   var _seatDone=(t.seat||'')==='완료';
   var seNote='';
   if(_fDone && _seatDone && sd && sd.tables){
     var _tc=sd.tables.length, _nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim()) _nm++; }); });
-    seNote='🪑 좌석 배치 · <b style="color:var(--accent)">'+_tc+'개 테이블 · '+_nm+'명</b> · 하객 공유 링크 준비됨';
+    seNote='<b style="color:var(--accent)">'+_tc+'개 테이블 · '+_nm+'명</b> · 하객 공유 링크 준비됨';
   } else if(_fDone && !_seatDone){
-    seNote='🪑 테이블 자리를 미리 정하면, 하객에게 보낼 <b>좌석 안내 링크</b>가 만들어져요 (선택)';
+    seNote='자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요 (선택)';
   }
-  var notes=[rNote,dNote,fNote,seNote].filter(Boolean).join('<br>');
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-      + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel)
-      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null)
-      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기')) : '')
+      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, rNote)
+      + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel, dNote)
+      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null, fNote)
+      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), seNote) : '')
     + '</div>'
-    + (notes?('<div class="cc-note" style="text-align:left;margin:9px 2px 0;padding-top:9px;border-top:1px dashed var(--border)">'+notes+'</div>'):'');
+    + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
   var allDone = (ist==='완료') && ((t.ritual||'')==='완료') && (_fDone || _dLeft==null || _dLeft>30);
   if(allDone){
@@ -3629,7 +3630,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd){
     + '<div class="cc-title">예식 준비</div>'
     + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비하고, 예식이 다가오면 인원·음료를 최종 확정해요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">청첩장·식순을 완료하면 예식 준비가 끝나요(애프터 웨딩은 선택). 최종 확정은 예식 '+_payDays().bal+'일 전까지 해주시면 돼요.</div>'
+    + '<div class="cc-note" style="text-align:center">청첩장·식순이 끝나면 준비 완료 · 애프터 웨딩은 선택이에요.</div>'
     + ''
     + '</div>';
 }
