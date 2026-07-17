@@ -49,6 +49,7 @@ function handleSaveProductionBase(body) {
     var _ci0 = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
     var _ctrT0 = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci0.weddingTime || '').trim()] || '';
     var wTime = _ctrT0 || String((draft.base && draft.base.weddingTime) || base.weddingTime || '').trim();
+    var _obJ = JSON.stringify((function () { var o = draft.base ? JSON.parse(JSON.stringify(draft.base)) : {}; delete o.savedAt; return o; })());   // 확인서 해제 판정용(savedAt 제외 실변경만)
     draft.base = {
       groomKo: groomKo,
       brideKo: brideKo,
@@ -59,6 +60,8 @@ function handleSaveProductionBase(body) {
       weddingTime: wTime,
       savedAt: fmtKST(new Date())
     };
+    var _nbJ = JSON.stringify((function () { var o = JSON.parse(JSON.stringify(draft.base)); delete o.savedAt; return o; })());
+    if (draft.confirm && _obJ !== _nbJ) _prodConfirmVoid(draft);   // [예식 확인서] 기초정보(이름·일시) 실변경도 확인 해제
     var upd = { '제작임시저장': JSON.stringify(draft), '제작상태': '작성중' };
     if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
@@ -119,6 +122,21 @@ function _prodDraftLoadSafe(cust, code, notifyQ) {
   return { ok: false, res: { ok: false, error: '저장 데이터 점검이 필요해 잠시 저장을 멈췄어요. 스튜디오가 확인해 도와드릴게요.' } };
 }
 
+// [예식 확인서] 확인 해제 — 제작 내용이 '실제로' 바뀐 쓰기 경로가 호출(80·85 공용). 해제되면 고객·관리자 모두 '재확인 필요'.
+function _prodConfirmVoid(d) {
+  if (d && d.confirm) { delete d.confirm; d.confirmStale = true; }
+}
+// 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
+//   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
+function _prodUiStrip(json, track) {
+  try {
+    var o = JSON.parse(json);
+    for (var k in o) { if (k.charAt(0) === '_') delete o[k]; }
+    if (track === 'guideinfo') delete o.showSeat;
+    return JSON.stringify(o);
+  } catch (e) { return String(json); }
+}
+
 // [03] 다이닝·식순·최종확정 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
 //   handleSaveInvitationDraft 와 같은 패턴. done=true 면 완료, 아니면 진행중(이미 완료면 완료 유지).
 function handleSaveProductionTrack(body) {
@@ -176,6 +194,13 @@ function handleSaveProductionTrack(body) {
       reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
     };   // 라이브 노출은 청첩장 파트 결정(디지털 참석)에서 자동 파생 — 이중 토글 폐지(2026-07-17 사용자 지시)
   }
+  // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
+  var _cs = null;
+  if (track === 'confirm') {
+    _cs = ((body && body.draft) || {}).snap;
+    if (Object.prototype.toString.call(_cs) !== '[object Array]' || !_cs.length) return { ok: false, error: '확인할 내용이 없어요.' };
+    _cs = _cs.slice(0, 30).map(function (x) { return { k: String((x && x.k) || '').slice(0, 24), v: String((x && x.v) || '').slice(0, 300) }; });
+  }
   var _notifyQ = [];   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 finally(락 해제 직후)에서. finally 안 flush라 early return에도 유실 없음
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
@@ -190,10 +215,14 @@ function handleSaveProductionTrack(body) {
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
       if (((d.tracks || {}).ritual) !== '완료' || ((d.tracks || {}).final) !== '완료') return { ok: false, error: '식순과 최종 확정을 완료한 뒤 확인할 수 있어요.' };
-      var _cs = ((body && body.draft) || {}).snap;
-      if (Object.prototype.toString.call(_cs) !== '[object Array]' || !_cs.length) return { ok: false, error: '확인할 내용이 없어요.' };
-      _cs = _cs.slice(0, 30).map(function (x) { return { k: String((x && x.k) || '').slice(0, 24), v: String((x && x.v) || '').slice(0, 300) }; });
-      d.confirm = { at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), snap: _cs };
+      // core = 서버가 저장된 초안에서 직접 뽑은 핵심 수치 — 화면 텍스트(snap)만 믿지 않는 확인 기록(구버전 탭·변조 대비 · 관리자 대조용)
+      var _fd = d.finalDraft || {}, _rd = d.ritualDraft || {}, _dd = d.diningDraft || {}, _sd = d.seatDraft || {}, _tr = d.tracks || {};
+      var _tc = 0, _pn = 0;
+      if (Object.prototype.toString.call(_sd.tables) === '[object Array]') { _tc = _sd.tables.length; _sd.tables.forEach(function (t) { (((t || {}).seats) || []).forEach(function (v) { if (String(v || '').trim()) _pn++; }); }); }
+      d.confirm = { at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), snap: _cs,
+        core: { heads: String(_fd.headcount || ''), standing: Number(_fd.standing) || 0, extraFee: Number(_fd.extraFee) || 0, drink: String(_fd.drink || ''),
+          course: String((_rd.summary || {}).course || ''), venue: String(_dd.venue || _dd.venuePick || ''), seatTables: _tc, seatNames: _pn,
+          tracks: { invitation: _tr.invitation || '', dining: _tr.dining || '', ritual: _tr.ritual || '', final: _tr.final || '', seat: _tr.seat || '' } } };
       delete d.confirmStale;
       touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
       _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
@@ -201,8 +230,10 @@ function handleSaveProductionTrack(body) {
     }
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
+    var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
     d[track + 'Draft'] = (body && body.draft) || {};
-    if (d.confirm) { delete d.confirm; d.confirmStale = true; }   // [예식 확인서] 확인 후 수정 → 자동 해제(재확인 필요 · 면책 무결성)
+    // [예식 확인서] 확인 후 '내용 실변경'만 자동 해제(재확인 필요 · 면책 무결성) — 위저드 열고 그대로 나가기·_step 이동·자리찾기 토글은 확인 유지(재확인 피로 방지)
+    if (d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';

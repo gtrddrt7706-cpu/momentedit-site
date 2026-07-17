@@ -173,11 +173,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .tcap.fx{color:var(--sub);background:#F1F0ED;border-color:#E4E2DD;font-weight:500}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
-/* 장면+듣기 일체형 — 듣기 버튼이 장면 프레임 하단에 붙어 한 덩어리로(2026-07-17 사용자 요청: 플레이 버튼 따로 노는 느낌 개선) */
+/* 장면+듣기 일체형 — 듣기 버튼이 장면 프레임 하단에 붙어 한 덩어리로(2026-07-17 사용자 요청). 기본·재생중 스타일은 .rowbtn(.playing) 재사용, 여기선 프레임 결합 오버라이드만 */
 .mc-media .mclip{border-radius:12px 12px 0 0;border-bottom:0}
-.mc-play{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;border:1px solid var(--border);background:#FBFAF7;color:var(--gold-deeper);border-radius:0 0 12px 12px;padding:12px 0;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.01em;cursor:pointer;transition:.15s}
-.mc-play:active{opacity:.8}
-.mc-play.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
+.mc-play{display:flex;justify-content:center;width:100%;box-sizing:border-box;border-color:var(--border);background:#FBFAF7;border-radius:0 0 12px 12px;padding:12px 0}
 .m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
 @keyframes mdraw{to{stroke-dashoffset:0}}
 .m-in{opacity:0;animation:mfade .9s ease-out forwards}
@@ -896,7 +894,7 @@ var OPTWHY={
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
 var _tprev=''; var _foldOpen={};
-var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};   // 장면(클립·다이어그램) 있는 순간
+/* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
 function fold(key,title,inner){ var o=_foldOpen[key]; return '<div class="fold'+(o?' open':'')+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x">›</span></div>'+(o?'<div class="fold-b">'+inner+'</div>':''); }
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
@@ -950,21 +948,20 @@ function renderStep(k){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
-      var _canExp=true;   // 모든 카드 확장 — 확장 안에 장면(있으면)+이 순간 들어보기+판단 정보가 함께 열림(2026-07-17 사용자 요청: 듣기는 카드 열 때)
-      var _open=(_tprev===x)&&_canExp;
-      h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'"'+(_canExp?' onclick="tprev(\''+x+'\')"':' style="cursor:default"')+'>';
+      var _open=(_tprev===x);   // 모든 카드 확장 가능 — 확장 안에 장면(있으면)+이 순간 들어보기+판단 정보가 함께 열림(2026-07-17 사용자 요청)
+      h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'" onclick="tprev(\''+x+'\')">';
       var _min=_off?'':(_mm(x)?('약 '+_mm(x)+'분'):(x==='guest'?'식전':''));
-      // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
-      var _adj=!!(S.extra[x]||OFFTGL[x]||d.off);
-      var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
-      h+='<div class="mc-e">'+esc(t.c)+'</div>';
-      if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
-      // 카드 레벨엔 순서 넣기/빼기만 — 들어보기는 카드를 열면 장면과 함께(2026-07-17 사용자 요청)
+      // 카드 레벨엔 순서 넣기/빼기만 — 이 버튼 체인이 '조정 가능' 판정의 단일 출처(아래 알약 _adj가 이걸 따라 표시와 동작이 어긋나지 않음)
       var _tg='';
       if(d.off) _tg='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
       else if(S.extra[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
       else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
+      // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
+      var _adj=!!_tg;
+      var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div><span class="mc-chev">›</span></div>';
+      h+='<div class="mc-e">'+esc(t.c)+'</div>';
+      if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       if(_tg) h+='<div class="mc-act">'+_tg+'</div>';
       if(_open){
         h+='<div class="mc-x">';
@@ -972,7 +969,7 @@ function renderStep(k){
         // 장면과 듣기를 한 프레임으로 — 재생 바가 장면 박스 하단에 붙어 미디어 한 덩어리로 읽히게(2026-07-17 사용자 요청)
         h+='<div class="mc-media">'
           +(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>')
-          +'<button type="button" class="mc-play" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
+          +'<button type="button" class="rowbtn mc-play" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
           +'</div>';
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
         // 열었을 때 도움 정보: 이 단계에서 정하게 될 것 + 많이 고르는 선택(사회적 증거) — 나레이션·영상 외 판단 재료(2026-07-17 사용자 요청)
