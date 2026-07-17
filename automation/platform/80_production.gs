@@ -127,7 +127,7 @@ function handleSaveProductionTrack(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
-  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo') return { ok: false, error: '알 수 없는 항목입니다.' };
+  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo' && track !== 'confirm') return { ok: false, error: '알 수 없는 항목입니다.' };
   // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
   if (track === 'final') {
     var fdr = (body && body.draft) || {};
@@ -187,9 +187,22 @@ function handleSaveProductionTrack(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var _dl = _prodDraftLoadSafe(cust, code, _notifyQ); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(전 트랙 보호) · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
+    // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
+    if (track === 'confirm') {
+      if (((d.tracks || {}).ritual) !== '완료' || ((d.tracks || {}).final) !== '완료') return { ok: false, error: '식순과 최종 확정을 완료한 뒤 확인할 수 있어요.' };
+      var _cs = ((body && body.draft) || {}).snap;
+      if (Object.prototype.toString.call(_cs) !== '[object Array]' || !_cs.length) return { ok: false, error: '확인할 내용이 없어요.' };
+      _cs = _cs.slice(0, 30).map(function (x) { return { k: String((x && x.k) || '').slice(0, 24), v: String((x && x.v) || '').slice(0, 300) }; });
+      d.confirm = { at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), snap: _cs };
+      delete d.confirmStale;
+      touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+      _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
+      return { ok: true, confirm: d.confirm };
+    }
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
     d[track + 'Draft'] = (body && body.draft) || {};
+    if (d.confirm) { delete d.confirm; d.confirmStale = true; }   // [예식 확인서] 확인 후 수정 → 자동 해제(재확인 필요 · 면책 무결성)
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
@@ -421,6 +434,8 @@ function buildProductionState(r) {
     },
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
+    confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)
+    confirmStale: !!draft.confirmStale,        // 확인 후 수정됨 → 재확인 필요 표시
     finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
     seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
