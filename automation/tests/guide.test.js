@@ -119,6 +119,27 @@ ok(gvS.guide.dining.pick === '' && gvS.guide.dining.on === false, '19 위저드 
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
 ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === false, '20 자리찾기 OFF → seat.html 직접 링크도 비공개');
 
+// ── 예식 확인서(confirm) — 게이트·스냅샷 정규화·수정 시 해제 ──
+// 21) 식순·최종 확정 미완료 → 확인 거부
+fresh();
+DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '진행중', final: '완료' } });
+ok(sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'x' }] } }).ok === false, '21 식순 미완료 → 확인 거부');
+// 22) 완료 후 확인 → 스냅샷·시각 저장(+정규화: 길이 상한·미지정 필드 제거)
+fresh();
+DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' } });
+const rc = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순'.repeat(30), v: 'v'.repeat(500), evil: 'x' }] } });
+const dc = JSON.parse(DB.C1.제작임시저장);
+ok(rc.ok === true && rc.confirm && rc.confirm.at && dc.confirm.snap[0].k.length === 24 && dc.confirm.snap[0].v.length === 300 && dc.confirm.snap[0].evil === undefined, '22 확인 저장 · 스냅샷 상한·정규화');
+ok(dc.confirmDraft === undefined && (dc.tracks.confirm === undefined), '22b confirm은 트랙 아님(Draft·tracks 미기록)');
+// 23) 확인 후 트랙 수정 → 확인 해제(stale)
+const ri = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { reserveTime: '오후 2시' } });
+const dc2 = JSON.parse(DB.C1.제작임시저장);
+ok(ri.ok === true && dc2.confirm === undefined && dc2.confirmStale === true, '23 확인 후 수정 → 자동 해제(재확인 필요)');
+// 24) 재확인 → stale 해제
+const rc2 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'y' }] } });
+const dc3 = JSON.parse(DB.C1.제작임시저장);
+ok(rc2.ok === true && dc3.confirm && dc3.confirmStale === undefined, '24 재확인 → 확인 복구·stale 해제');
+
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
 if (fail) process.exit(1);

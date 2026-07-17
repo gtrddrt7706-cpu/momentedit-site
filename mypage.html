@@ -882,6 +882,12 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rsv-d summary::after{content:" ▾";color:var(--label-soft)}
     .rsv-d[open] summary::after{content:" ▴"}
     .rsv-b{padding:8px 0 2px}
+    .cf-l{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hairline,#eee7dc);text-align:left}
+    .cf-k{font-size:12px;color:var(--gold-deep);padding-top:1px}
+    .cf-v{font-size:12.5px;color:var(--accent);line-height:1.6;word-break:keep-all}
+    .cf-edit{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);text-align:left}
+    .cf-ok{margin-top:12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--gold-deeper,#7a5f37);text-align:left}
+    .cf-warn{margin-top:12px;background:#FBF3F1;border:1px solid var(--seal);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--seal);text-align:left}
     .gi-tg input{margin-top:2px;flex:0 0 auto}
     .gi-tg b{color:var(--accent);font-weight:500}
     .gi-tg-s{display:block;font-size:11px;color:var(--light)}
@@ -3122,10 +3128,12 @@ function renderProduction(p, inv){
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p.guideinfoDraft||{})
-    + guideHubHtml(p, inv);   // 하객 안내 = 접힌 한 블록(링크·QR·설정 · 2026-07-17 미니멀) — 하객 전달 노출은 청첩장 발행 화면의 안내 카드가 담당
+    + prodConfirmHtml(p, inv)   // 예식 확인서 — 전 파트 요약·마감 입력·확인(면책) 한 곳
+    + guideHubHtml(p, inv);   // 하객 안내 = 접힌 한 블록(링크·QR) — 하객 전달 노출은 청첩장 발행 화면의 안내 카드가 담당
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box, p.guideinfoDraft||{});
+  wireProdConfirm(box, p);
   if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
@@ -3579,46 +3587,24 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, gi){
   var _dDone=(t.dining||'')==='완료';
   // 다이닝 = 청첩장·식순과 동일한 행(선택 항목) — 시작 전 '안내보기' · 완료 '완료 · 수정' (2026-06-13 사용자 지시)
   var dLabel=_dDone?'완료 · 수정':'안내보기';
-  var dNote='';
-  if(_dDone && dd && dd.dining_on==='Y' && dd.venue){
-    var _R=_dnFind(dd.venue), _tel=(_R&&_R.tel)?_R.tel.replace(/[^0-9]/g,''):'';
-    dNote='<b style="color:var(--accent)">'+escapeHtml(dd.venue)+'</b>'+(dd.headcount?(' · '+escapeHtml(dd.headcount)+'명'):'')
-      + '<span style="display:inline-flex;gap:10px;margin-left:8px">'
-      + (_tel?'<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>':'')
-      + '<a href="'+_dnMapUrl(dd.venue)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
-  } else if(_dDone && dd && dd.dining_on==='Y' && dd.venuePick){
-    dNote='';   // 이름만 반복은 중복 — 서브라인 생략
-  } else if(_dDone && dd && dd.dining_on==='N'){
-    dNote='';   // ✓만으로 충분
-  }
+
   // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
   var _fDone=(t.final||'')==='완료';
   var fNote='';
-  if(_fDone && fd && (Number(fd.standing)||0)>0){
-    fNote='스탠딩 '+(Number(fd.standing)||0)+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b> 잔금과 함께 안내돼요';   // 비용 걸린 것만 · 인원·음료 반복은 생략
-  } else if(!_fDone){
+  if(!_fDone){
     fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요'
       + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');
   }
-  // 식순 요약 서브라인 없음 — 본인이 만든 내용의 반복이라 ✓만으로 충분(2026-07-17 사용자 지시: 중복이면 안 넣음)
-  var rNote='';
   // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
   var _seatDone=(t.seat||'')==='완료';
   var seNote=(_fDone && !_seatDone)?'자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요 (선택)':'';
-  // 예약 정보(시간·이름)는 애프터 웨딩 소속 · 자리 찾기 토글은 좌석 소속(2026-07-17 사용자 지시 · 저장은 기존 guideinfo 그대로)
-  var _rsvHas=!!((gi.reserveTime||'')+(gi.reserveName||''));
-  var _rsv=(_dDone && dd && dd.dining_on==='Y') ? ('<details class="rsv-d"><summary>예약 정보 · '+(_rsvHas?escapeHtml(((gi.reserveTime||'')+(gi.reserveTime&&gi.reserveName?' · ':'')+(gi.reserveName||''))):'적어두기')+'</summary>'
-    +'<div class="rsv-b"><div class="cc-note" style="text-align:left;margin:0 0 8px">적어두면 하객 안내에 보여요 · 예식이 끝나면 모두 같은 곳·같은 시간으로.</div>'
-    +'<div class="gi-row"><label class="gi-l" for="gi_rtime">예약 시간</label><input class="cc-input" id="gi_rtime" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
-    +'<div class="gi-row"><label class="gi-l" for="gi_rname">예약자 이름</label><input class="cc-input" id="gi_rname" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveName||'')+'" placeholder="예: 김신랑"></div>'
-    +'<button type="button" class="cc-btn-ghost" id="gi_save" style="width:auto;padding:8px 16px">저장</button><span class="cc-mini" id="gi_msg" style="display:none;margin-left:8px;color:var(--gold-deep)">저장됐어요</span></div></details>') : '';
-  var _seatTgl=(_fDone && _seatDone) ? ('<label class="gi-tg" style="margin-top:2px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>') : '';
+  // 행 = 이름+상태+버튼만(2026-07-17 사용자 지시 · 요약·마감 입력은 '예식 확인서'가 흡수). 행에는 미완료 기한·유도만 남김.
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, rNote)
-      + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel, ((dNote||'')+_rsv)||null)
-      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null, fNote)
-      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), ((seNote||'')+_seatTgl)||null) : '')
+      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
+      + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel)
+      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null, (_fDone?null:fNote))
+      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), (_seatDone?null:seNote)) : '')
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
@@ -4272,6 +4258,81 @@ function wireGuideShare(box, token){
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ legacyCopy(url); done(); }); } else { legacyCopy(url); done(); } }catch(e){ legacyCopy(url); done(); }
   });
   ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url); });
+}
+// [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
+//   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
+function prodConfirmHtml(p, inv){
+  p=p||{}; inv=inv||{};
+  var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
+  var _rDone=(t.ritual||'')==='완료', _fDone=(t.final||'')==='완료', _dDone=(t.dining||'')==='완료', _sDone=(t.seat||'')==='완료';
+  function line(k,v){ return '<div class="cf-l"><span class="cf-k">'+escapeHtml(k)+'</span><span class="cf-v">'+(v||'<span style="color:var(--label-soft)">미완료</span>')+'</span></div>'; }
+  // 파트별 요약(읽기 전용)
+  var L='';
+  L+=line('청첩장', (inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'');
+  var rv='';
+  if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
+    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
+  else if(_rDone){ rv='완료'; }
+  L+=line('식순', rv);
+  var dv='';
+  if(_dDone && dd.dining_on==='N'){ dv='안내 없이 진행'; }
+  else if(_dDone){
+    var _nm=dd.venue||((['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(String(dd.venuePick||''))===-1)?dd.venuePick:'');
+    if(_nm){ dv='<b>'+escapeHtml(_nm)+'</b>'+(dd.headcount?(' · '+escapeHtml(String(dd.headcount))+'명'):'');
+      var _R=(typeof _dnFind==='function')?_dnFind(_nm):null, _tel=(_R&&_R.tel)?String(_R.tel).replace(/[^0-9]/g,''):'';
+      dv+=' <span style="display:inline-flex;gap:8px;margin-left:6px">'+(_tel?('<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
+      if(gi.reserveTime||gi.reserveName) dv+='<br><span class="cc-mini">예약 · '+escapeHtml(((gi.reserveTime||'')+(gi.reserveTime&&gi.reserveName?' · ':'')+(gi.reserveName||'')))+'</span>';
+    } else dv='장소 미정 · 저희가 함께 챙길게요';
+  }
+  L+=line('애프터 웨딩', dv);
+  var fv='';
+  if(_fDone && fd.headcount){ fv='하객 '+escapeHtml(String(fd.headcount))+'명'+((Number(fd.standing)||0)>0?(' · 스탠딩 '+fd.standing+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b>(잔금과 함께)'):'')+(fd.drink?(' · '+escapeHtml(fd.drink)):'')+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):''); }
+  L+=line('최종 확정', fv);
+  var sv='';
+  if(_sDone && sd.tables){ var _tc=sd.tables.length,_pn=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_pn++; }); }); sv=_tc+'개 테이블 · '+_pn+'명 배치'; }
+  L+=line('좌석 배치', sv);
+  L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
+  // 마감 입력(예약 정보 · 자리 찾기) — 여기서만
+  var E='<div class="cf-edit">';
+  if(_dDone && dd.dining_on==='Y'){
+    E+='<div class="gi-row"><label class="gi-l" for="gi_rtime">식사 예약 시간</label><input class="cc-input" id="gi_rtime" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+      +'<div class="gi-row"><label class="gi-l" for="gi_rname">예약자 이름</label><input class="cc-input" id="gi_rname" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveName||'')+'" placeholder="예: 김신랑"></div>'
+      +'<div style="text-align:left"><button type="button" class="cc-btn-ghost" id="gi_save" style="width:auto;padding:8px 16px">예약 정보 저장</button><span class="cc-mini" id="gi_msg" style="display:none;margin-left:8px;color:var(--gold-deep)">저장됐어요</span></div>';
+  }
+  if(_fDone && _sDone){
+    E+='<label class="gi-tg" style="margin-top:10px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>';
+  }
+  E+='</div>';
+  if(E==='<div class="cf-edit"></div>') E='';
+  // 확인 상태·버튼
+  var C='';
+  if(p.confirm && p.confirm.at){
+    C='<div class="cf-ok">이 내용대로 진행을 확인하셨어요 · '+escapeHtml(String(p.confirm.at))+'</div>';
+  } else {
+    if(p.confirmStale) C+='<div class="cf-warn">확인 후 내용이 바뀌었어요 · 아래에서 다시 확인해 주세요.</div>';
+    if(_rDone && _fDone) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용대로 예식 진행을 확인합니다</button>'
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
+    else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
+  }
+  var badge=p.confirm?'<span class="gi-badge">확인함 · '+escapeHtml(String(p.confirm.at||'').slice(5,10).replace('-','월 ')+'일')+'</span>':(p.confirmStale?'<span class="gi-badge" style="color:var(--seal);border-color:var(--seal)">재확인 필요</span>':'<span class="gi-badge gi-badge-o">확인 전</span>');
+  return '<details class="gi-wrap" id="cf_wrap"'+((p.confirmStale)?' open':'')+'><summary class="gi-sum">예식 확인서 · <span class="gi-sub">전체 요약·확인</span> '+badge+' <span class="pt-ar">▾</span></summary>'
+    +'<div class="gi-body">'+L+E+C+'</div></details>';
+}
+function wireProdConfirm(box, p){
+  var btn=$('cf_go'); if(!btn) return;
+  btn.addEventListener('click', function(){
+    // 스냅샷 = 화면 요약 그대로(텍스트) — 확인 시점 기록(면책)
+    var snap=[]; (box.querySelectorAll('#cf_wrap .cf-l')||[]).forEach(function(el){
+      var k=(el.querySelector('.cf-k')||{}).textContent||'', v=(el.querySelector('.cf-v')||{}).textContent||'';
+      snap.push({k:String(k).trim(), v:String(v).replace(/\s+/g,' ').trim()});
+    });
+    if(!snap.length) return;
+    btn.disabled=true; btn.textContent='확인 저장 중…';
+    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true}).then(function(r){
+      if(r&&r.ok){ show('loading'); loadMyState(); }
+      else { btn.disabled=false; btn.textContent='위 내용대로 예식 진행을 확인합니다'; mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ btn.disabled=false; btn.textContent='위 내용대로 예식 진행을 확인합니다'; mpAlert('확인 저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+  });
 }
 // [하객 안내 허브] 제작 섹션 노출 최소화(2026-07-17 사용자 지시) — 접힌 한 블록에 링크·QR·설정을 모두 수납.
 //   하객에게 전달하는 노출은 청첩장 발행 화면의 '하객 안내' 카드가 담당(청첩장 파트에서 결정·전달).
