@@ -857,6 +857,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-share-h{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)}
     .seat-share-sub{font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);margin:6px 0 12px}
     .seat-share-url{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);word-break:break-all;background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:10px}
+    /* 하객 안내 부분 노출 현황 칩 — 하객 페이지 섹션 순서 그대로 ✓(열림)/비어 있음 */
+    .gd-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
+    .gd-chip{font-family:var(--serif-ko);font-size:11.5px;padding:5px 11px;border:1px dashed var(--border);border-radius:999px;color:var(--label-soft);background:#fff}
+    .gd-chip.on{border:1px solid var(--gold);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
     .seat-share-btns{display:flex;gap:8px;justify-content:center}
     /* 하객 안내 정보 편집(오시는 길·드레스코드) */
     .gi-wrap{margin-top:16px;border-top:1px dashed var(--border);padding-top:14px}
@@ -3102,7 +3106,7 @@ function renderProduction(p, inv){
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
     + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
-    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken)) : '');   // 하객 안내 허브 링크·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
+    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken, p)) : '');   // 하객 안내 허브 링크·부분노출 칩·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
@@ -4219,11 +4223,28 @@ function guideClosedHtml(){
     +'<div class="seat-share-sub">예식 후 30일이 지나 하객 안내 페이지를 자동으로 닫아 두었어요 · 좌석의 하객 성함 등 개인정보 보호를 위해서예요.</div>'
     +'</div>';
 }
-function guideShareHtml(token){
+// 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
+//   판정은 서버 발급 검사(_gHas)·guideView 노출 규칙과 같은 기준(다이닝 센티널 문구 제외 · 자리는 이름+토글 ON · 라이브는 켠 경우만 표기).
+function _guideSectionChips(p){
+  p=p||{}; var gi=p.guideinfoDraft||{}, dd=p.diningDraft||{};
+  var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
+  var vp=String(dd.venuePick||'').trim();
+  var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && ['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(vp)===-1));
+  var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
+  var seat=seatNames && gi.showSeat!==false;
+  var way=!!(String(gi.venue||'')+String(gi.addr||'')+String(gi.map||'')+String(gi.parking||'')+String(gi.transit||'')).trim();
+  var dress=!!String(gi.dress||'').trim();
+  var items=[['오시는 길',way],['내 자리 찾기',seat],['식사 안내',dining],['드레스코드',dress]];
+  if(gi.showLive===true) items.push(['라이브 중계',true]);
+  return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · 비어 있음')+'</span>'; }).join('')+'</div>';
+}
+function guideShareHtml(token, p){
   var url=guideUrl(token);
   return '<div class="seat-share">'
     +'<div class="seat-share-h">하객 안내 링크가 준비됐어요</div>'
     +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요. 채울수록 안내도 채워져요.</div>'
+    +_guideSectionChips(p)
+    +'<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini">비어 있는 부분은 하객 화면에 나오지 않아요 · 채우면 그 부분부터 열려요.</span></div>'
     +'<div class="seat-share-url" id="guide_url">'+escapeHtml(url)+'</div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="guide_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
     +'<div class="seat-share-btns" style="margin-top:12px"><a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" style="width:auto;padding:9px 16px;text-decoration:none">하객 눈으로 미리보기</a><button type="button" class="cc-btn-ghost" id="guide_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="guide_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
