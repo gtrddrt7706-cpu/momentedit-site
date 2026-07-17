@@ -32,7 +32,11 @@ function handleLogin(body) {
   //   토큰 회전(전 기기 로그아웃)은 비밀번호 재설정(doResetPw)이 담당 — 유출 대응 레버 유지.
   var _tok = String(rowObj.get('로그인토큰') || '').trim();
   if (_tok && !tokenExpired(rowObj.get('토큰만료'))) {
-    touchCustomer(sheet, colOf, rowObj.num, { '토큰만료': fmtKST(new Date(Date.now() + P.TOKEN_VALID_DAYS * 86400 * 1000)) });   // 슬라이딩 연장(로그인할 때마다 +30일)
+    // 슬라이딩 연장은 남은 기간이 절반(15일) 미만일 때만 시트에 씀 — 매 로그인 불필요한 쓰기 제거(대부분의 로그인이 읽기 전용이 됨)
+    var _expD = parseKSTString(rowObj.get('토큰만료'));
+    if (!_expD || (_expD.getTime() - Date.now()) < P.TOKEN_VALID_DAYS / 2 * 86400 * 1000) {
+      touchCustomer(sheet, colOf, rowObj.num, { '토큰만료': fmtKST(new Date(Date.now() + P.TOKEN_VALID_DAYS * 86400 * 1000)) });
+    }
     return { ok: true, token: _tok };
   }
   var t = issueToken(sheet, colOf, rowObj.num); // 없거나 만료 → 새 토큰 발급

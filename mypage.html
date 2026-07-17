@@ -3106,7 +3106,7 @@ function renderProduction(p, inv){
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
     + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
-    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken, p)) : '');   // 하객 안내 허브 링크·부분노출 칩·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
+    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken, p, inv)) : '');   // 하객 안내 허브 링크·부분노출 칩·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
@@ -4159,13 +4159,18 @@ function _echoLostPaths(sent, echoed, path, out){
   return out;
 }
 function apiTrackSave(payload){
+  // 전송 시점 스냅샷과 비교 — 라이브 객체(SEATFLOW.tables 등)는 응답 대기 중 사용자가 계속 편집해 오탐이 나므로.
+  // JSON 왕복 복사라 undefined 값 키도 전송본과 동일하게 떨어져 나감(구조 비교 기준 일치).
+  var _sent=null; try{ _sent=(payload&&payload.draft)?JSON.parse(JSON.stringify(payload.draft)):null; }catch(e){}
   return api(payload).then(function(r){
     try{
-      if(r && r.ok && r.draft && payload && payload.draft){
-        var lost=_echoLostPaths(payload.draft, r.draft);
+      if(r && r.ok && r.draft && _sent){
+        var lost=_echoLostPaths(_sent, r.draft);
         if(lost.length && !window._echoWarned){ window._echoWarned=true;   // 세션당 1회(같은 원인으로 저장마다 반복 경고 방지)
           try{ console.warn('[saveProductionTrack] 서버 미반영 필드(구버전 GAS 의심):', lost.join(', ')); }catch(e){}
-          mpAlert('입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요 · 바로 확인해 드릴게요.');
+          var _msg='입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요. 디렉터가 확인해 도와드릴게요.';
+          var _ov=document.getElementById('mp_obViewer');   // 식순 빌더 오버레이(z-index 9999)가 떠 있으면 모달(1000)이 가려짐 → 네이티브 알림으로
+          if(_ov){ try{ alert(_msg); }catch(e2){} } else { mpAlert(_msg); }
         }
       }
     }catch(e){}
@@ -4173,9 +4178,11 @@ function apiTrackSave(payload){
   });
 }
 function saveSeat(done){
-  // 저장 직전 고아 음료 정리 — 이름 없는 자리의 음료는 표시·집계에서 이미 제외되므로, 시트에 남아 나중에 엉뚱한 하객에게 붙는 것 방지(편집 중에는 보존 → '음료 먼저·이름 나중' 흐름 지원)
-  SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done});
+  // 페이로드는 깊은 복사 — 편집 중인 모델(SEATFLOW.tables)을 건드리지 않음(저장 후에도 '음료 먼저·이름 나중' 진행분 보존 · 저장 실패 시 유실 방지).
+  // 고아 음료(이름 없는 자리) 정리는 '배치 완료'(done) 페이로드에만 — 임시저장은 그대로 둬 이어하기에서 음료 먼저 흐름이 살아남게. 표시·집계·하객 화면은 어차피 이름 있는 자리만 노출.
+  var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
+  if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
 }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   SEATFLOW.active=false; show('loading');
@@ -4224,26 +4231,29 @@ function guideClosedHtml(){
     +'</div>';
 }
 // 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
-//   판정은 서버 발급 검사(_gHas)·guideView 노출 규칙과 같은 기준(다이닝 센티널 문구 제외 · 자리는 이름+토글 ON · 라이브는 켠 경우만 표기).
-function _guideSectionChips(p){
+//   판정은 하객 실노출 규칙(handleGuideView)과 동일: 다이닝 센티널 문구 제외 · 자리는 좌석토큰(배치 완료)+이름+토글 ON · 라이브는 켰고 청첩장 발행(eventId)까지 된 경우만 ✓.
+function _guideSectionChips(p, inv){
   p=p||{}; var gi=p.guideinfoDraft||{}, dd=p.diningDraft||{};
   var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
   var vp=String(dd.venuePick||'').trim();
   var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && ['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(vp)===-1));
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
-  var seat=seatNames && gi.showSeat!==false;
+  var seat=!!p.seatToken && seatNames && gi.showSeat!==false;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일
   var way=!!(String(gi.venue||'')+String(gi.addr||'')+String(gi.map||'')+String(gi.parking||'')+String(gi.transit||'')).trim();
   var dress=!!String(gi.dress||'').trim();
   var items=[['오시는 길',way],['내 자리 찾기',seat],['식사 안내',dining],['드레스코드',dress]];
-  if(gi.showLive===true) items.push(['라이브 중계',true]);
-  return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · 비어 있음')+'</span>'; }).join('')+'</div>';
+  if(gi.showLive===true){
+    var _liveReady=!!(inv&&inv.published&&inv.published.eventId);   // 라이브는 청첩장 발행(eventId)이 있어야 실제로 열림(죽은 링크 방지 규칙과 동일)
+    items.push(['라이브 중계',_liveReady,_liveReady?'':'청첩장 발행 후 열려요']);
+  }
+  return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · '+(it[2]||'비어 있음'))+'</span>'; }).join('')+'</div>';
 }
-function guideShareHtml(token, p){
+function guideShareHtml(token, p, inv){
   var url=guideUrl(token);
   return '<div class="seat-share">'
     +'<div class="seat-share-h">하객 안내 링크가 준비됐어요</div>'
     +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요. 채울수록 안내도 채워져요.</div>'
-    +_guideSectionChips(p)
+    +_guideSectionChips(p, inv)
     +'<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini">비어 있는 부분은 하객 화면에 나오지 않아요 · 채우면 그 부분부터 열려요.</span></div>'
     +'<div class="seat-share-url" id="guide_url">'+escapeHtml(url)+'</div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="guide_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
@@ -4298,6 +4308,7 @@ function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=eve
 function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태는 유지) — 음료 칩 선택 시 이름 보존용
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
+  var _k=inp.getAttribute('data-edk'); if(_k && _k!==(ed.ti+':'+ed.si)) return;   // 화면의 입력창이 '지금 편집 중인 자리'의 것일 때만 기록 — 자리 전환 직후 옛 입력값이 새 자리에 복제되는 것 방지
   if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
   else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; var _prevNm=String(_t.seats[ed.si]||'').trim(); _t.seats[ed.si]=inp.value;
     if(!String(inp.value||'').trim() && _prevNm && _t.drinks) _t.drinks[ed.si]='';   // '있던 이름을 지운' 경우만 음료도 초기화(하객 제거). 빈 자리에 음료를 먼저 고르는 흐름에선 지우지 않음 — 재렌더 커밋이 방금 고른 음료를 즉시 삭제하던 실버그 수정(2026-07-16). 미명명 고아 음료는 saveSeat가 저장 직전 정리
@@ -4306,20 +4317,21 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
 function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
+  if(ed) _seatWriteEdit(box);   // 재렌더 진입 시 입력 중이던 값을 먼저 모델에 반영 — 외부 재렌더(상태 갱신 등)가 타이핑 중 이름을 삼키지 않게(편집 상태는 유지)
   function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
   function tableEl(t, ti, row, dispNo){
     var n=t.seats.length, seats='';
     for(var si=0; si<n; si++){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
-      if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
+      if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 이름 있는 자리만(구 데이터의 고아 음료가 빈자리에 떠서 집계와 어긋나는 것 방지)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
     var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
     var center = isEd(ti,'name')
-      ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
+      ? '<input class="rt-cin" data-ed data-edk="'+ti+':name" value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
       : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+(_hasCn?'<span class="rt-cnm">'+escapeHtml(_cn)+'</span>':'')+'</button>';
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
     return '<div class="rt-wrap" style="'+tx+'">'
@@ -4391,8 +4403,8 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; SEATFLOW._edNew=true; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; var _lessMsg='';
-      if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim()){ _emp=_q; break; } }   // 뒤에서부터 빈 자리 우선 제거 — 이름·음료가 찬 자리를 말없이 삭제하던 문제 방지
-        if(_emp===-1){ _lessMsg='빈 자리가 없어요 · 이름을 지운 자리부터 줄일 수 있어요.'; }
+      if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim() && !((tl.drinks&&tl.drinks[_q])||'')){ _emp=_q; break; } }   // 뒤에서부터 '이름·음료 모두 빈' 자리만 제거 — 음료 먼저 골라둔 자리를 빈 자리로 오인해 삭제하지 않게
+        if(_emp===-1){ _lessMsg='빈 자리가 없어요 · 이름과 음료를 지운 자리부터 줄일 수 있어요.'; }
         else { tl.seats.splice(_emp,1); if(tl.drinks) tl.drinks.splice(_emp,1); } }
       renderSeat(box); if(_lessMsg) _seatErr(_lessMsg); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }

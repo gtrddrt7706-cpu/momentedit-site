@@ -27,6 +27,7 @@ function handleSaveProductionBase(body) {
   var brideKo = String(base.brideKo || '').trim();
   if (!groomKo || !brideKo) return { ok: false, error: '신랑·신부 이름을 입력해 주세요.' };
 
+  var _nqB = [];   // 손상 경고 메일 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
@@ -38,7 +39,7 @@ function handleSaveProductionBase(body) {
     var stage = String(cust.get('현재단계') || '').trim();
     if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var _dl0 = _prodDraftLoadSafe(cust, code); if (!_dl0.ok) return _dl0.res;   // 손상 셀 위 저장 금지(전 트랙 보호)
+    var _dl0 = _prodDraftLoadSafe(cust, code, _nqB); if (!_dl0.ok) return _dl0.res;   // 손상 셀 위 저장 금지(전 트랙 보호)
     var draft = _dl0.d;
     // 이메일은 폼에서 받지 않는다 — 계정 이메일 우선, 없으면 기존 저장값 유지(85 청첩장 Couples 시드가 계속 차도록)
     var email = String((cust.get('이메일') || (draft.base && draft.base.email) || '')).trim();
@@ -67,6 +68,7 @@ function handleSaveProductionBase(body) {
     return { ok: true };
   } finally {
     try { lock.releaseLock(); } catch (e) {}
+    _nqB.forEach(function (f) { try { f(); } catch (e) {} });   // 손상 경고 등 외부 I/O는 락 해제 후
   }
 }
 
@@ -98,7 +100,8 @@ var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
 // [손상 방어] 제작임시저장 셀이 깨졌으면(수동 편집·붙여넣기 사고 등) 그 위에 저장하지 않는다.
 //   _parseJsonSafe의 {} 폴백 위에 저장하면 좌석·청첩장·다이닝 전 트랙이 통째로 덮여 영구 유실되기 때문.
 //   반환: { ok:true, d } 또는 { ok:false, res }(고객 안내 + 관리자 메일 1시간 1회 · 셀 복구 유도).
-function _prodDraftLoadSafe(cust, code) {
+//   notifyQ(선택): 넘기면 경고 메일을 큐에 담아 호출부가 락 해제 후 발송(락 안 외부 I/O 방지) · 없으면 즉시 발송.
+function _prodDraftLoadSafe(cust, code, notifyQ) {
   var raw = String(cust.get('제작임시저장') || '').trim();
   if (!raw) return { ok: true, d: {} };
   try {
@@ -107,7 +110,11 @@ function _prodDraftLoadSafe(cust, code) {
   } catch (e) {}
   try {
     var c = CacheService.getScriptCache(), ck = 'draftCorrupt_' + code;
-    if (!c.get(ck)) { c.put(ck, '1', 3600); if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 임시저장 JSON 손상 · ' + code + ' · 저장 차단 중(전 트랙 보호) · Customers 시트에서 해당 셀 복구 필요'); }
+    if (!c.get(ck)) {
+      c.put(ck, '1', 3600);
+      var _send = function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 임시저장 JSON 손상 · ' + code + ' · 저장 차단 중(전 트랙 보호) · Customers 시트에서 해당 셀 복구 필요'); } catch (e3) {} };
+      if (notifyQ && notifyQ.push) notifyQ.push(_send); else _send();
+    }
   } catch (e2) {}
   return { ok: false, res: { ok: false, error: '저장 데이터 점검이 필요해 잠시 저장을 멈췄어요. 스튜디오가 확인해 도와드릴게요.' } };
 }
@@ -174,7 +181,7 @@ function handleSaveProductionTrack(body) {
       showLive: gir.showLive === true                   // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
     };
   }
-  var _notifyQ = [], _out = null;   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 락 해제 후
+  var _notifyQ = [];   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 finally(락 해제 직후)에서. finally 안 flush라 early return에도 유실 없음
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -183,7 +190,7 @@ function handleSaveProductionTrack(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
-    var _dl = _prodDraftLoadSafe(cust, code); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(전 트랙 보호)
+    var _dl = _prodDraftLoadSafe(cust, code, _notifyQ); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(전 트랙 보호) · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
@@ -259,18 +266,27 @@ function handleSaveProductionTrack(body) {
         }); });
       }
     }
-    // 좌석 공개 조회 캐시 무효화 — 좌석 저장·자리찾기 토글(guideinfo) 변경이 하객 화면에 즉시 반영되게(캐시 5분을 기다리지 않음)
+    // 좌석 공개 조회 캐시 무효화 — 좌석 저장·자리찾기 토글(guideinfo) 변경이 하객 화면에 즉시 반영되게(캐시 5분을 기다리지 않음).
+    //   remove만으론 '저장 전에 시트를 읽기 시작한 하객 요청'이 뒤늦게 put해 옛 데이터를 되살릴 수 있어(put-after-remove 레이스),
+    //   6분 톰스톤(seatv_inv_)을 함께 심는다 — handleSeatView가 톰스톤을 보면 캐시를 읽지도, 새로 넣지도 않음(TTL 300보다 길게).
     if (track === 'seat' || track === 'guideinfo') {
-      try { var _svTok = (track === 'seat') ? _seatToken : String(cust.get('좌석공유토큰') || '').trim(); if (_svTok) CacheService.getScriptCache().remove('seatv_' + _svTok); } catch (e) {}
+      try {
+        var _svTok = (track === 'seat') ? _seatToken : String(cust.get('좌석공유토큰') || '').trim();
+        if (_svTok) { var _svc2 = CacheService.getScriptCache(); _svc2.put('seatv_inv_' + _svTok, '1', 360); _svc2.remove('seatv_' + _svTok); }
+      } catch (e) {}
     }
     var _res = { ok: true };
     if (track === 'seat') _res.seatToken = _seatToken;
     if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성
-    _res.draft = (body && body.draft) || {};   // ★배포 시차 감지용 에코백 — 서버가 실제 저장한(정규화된) draft를 그대로 돌려줌. 프론트가 '보낸 필드가 사라졌는지' 비교해, 구버전 GAS가 새 필드를 조용히 버리는 사고(2026-07 음료 소실)를 즉시 알아챔
-    _out = _res;
-  } finally { try { lock.releaseLock(); } catch (e) {} }
-  _notifyQ.forEach(function (f) { try { f(); } catch (e) {} });   // 락 밖에서 발송 — 실패해도 저장 결과에는 영향 없음
-  return _out;
+    // ★배포 시차 감지용 에코백 — 실제 저장된 객체(d[track+'Draft'])를 돌려줘 프론트가 필드 소실을 즉시 감지(2026-07 음료 소실 사고 재발 방지).
+    //   서버 정규화가 있는 트랙(seat·final·guideinfo)만 상시 에코 — dining·ritual은 정규화 없이 원본 그대로 저장돼 소실 여지가 없고,
+    //   에코하면 자동저장(별 담기 등)마다 응답이 배로 커지므로 완료 저장 때만 에코(미래에 정규화가 생기면 그때도 감지됨).
+    if (track === 'seat' || track === 'final' || track === 'guideinfo' || (body && body.done)) _res.draft = d[track + 'Draft'] || {};
+    return _res;
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+    _notifyQ.forEach(function (f) { try { f(); } catch (e) {} });   // 락 해제 직후 발송(early return 포함 모든 경로) — 실패해도 저장 결과에는 영향 없음
+  }
 }
 
 // 하객 공개 링크 자동 만료 — 예식 후 이 일수가 지나면 좌석·안내 링크를 닫는다(개인정보: 하객 이름이 무기한 노출되지 않게).
@@ -295,8 +311,12 @@ function handleSeatView(body) {
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   // 예식 당일 하객 수십 명이 QR을 동시 스캔하는 버스트 대비 — ok 응답만 5분 캐시(GAS 동시실행 한도·시트 I/O 보호).
   //   좌석 저장·자리찾기 토글 변경은 handleSaveProductionTrack이 즉시 무효화(토글 약속 유지).
-  var _svc = null; try { _svc = CacheService.getScriptCache(); } catch (e) {}
-  if (_svc) { var _hit = _svc.get('seatv_' + token); if (_hit) { try { return JSON.parse(_hit); } catch (e) {} } }
+  //   톰스톤(seatv_inv_) 있으면 캐시를 읽지도 넣지도 않음 — 저장 직전 시작된 요청이 옛 데이터를 되넣는 레이스 차단.
+  var _svc = null, _fresh = false; try { _svc = CacheService.getScriptCache(); } catch (e) {}
+  if (_svc) {
+    try { _fresh = !!_svc.get('seatv_inv_' + token); } catch (e) {}
+    if (!_fresh) { var _hit = _svc.get('seatv_' + token); if (_hit) { try { return JSON.parse(_hit); } catch (e) {} } }
+  }
   var cust = _findCustomerBy('좌석공유토큰', token, false);
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
@@ -319,7 +339,7 @@ function handleSeatView(body) {
       tables: out
     }
   };
-  if (_svc) { try { _svc.put('seatv_' + token, JSON.stringify(_resp), 300); } catch (e) {} }   // 오류 응답은 캐시하지 않음(비공개·만료 전환 즉시 반영)
+  if (_svc && !_fresh) { try { _svc.put('seatv_' + token, JSON.stringify(_resp), 300); } catch (e) {} }   // 오류 응답은 캐시하지 않음 · 톰스톤 중엔 put도 금지(레이스 차단)
   return _resp;
 }
 
