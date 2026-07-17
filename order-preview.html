@@ -148,6 +148,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-t{font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px;word-break:keep-all;min-width:0}
 .mc-e{font-size:12.5px;color:var(--sub);margin-top:6px;word-break:keep-all;line-height:1.55}
 .mc-s{font-size:11px;color:var(--light);margin-top:4px}
+.mc-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mc-act .rowbtn{padding:8px 12px;font-size:11.5px}
 .mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
@@ -192,8 +194,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes mclinkr{to{transform:rotate(-9deg)}}
 .mclip.mstill .m-draw{animation:none;stroke-dashoffset:0}.mclip.mstill .m-in,.mclip.mstill .m-spark{animation:none;opacity:1}.mclip.mstill .m-tilt,.mclip.mstill .m-fall{animation:none}.mclip.mstill .m-walk{animation:none;transform:translateX(128px)}.mclip.mstill .m-bob{animation:none}.mclip.mstill .m-drop{animation:none;transform:translateY(14px)}.mclip.mstill .m-bow{animation:none;transform:rotate(-26deg)}.mclip.mstill .m-rise{animation:none;transform:translateY(-13px)}.mclip.mstill .m-trem{animation:none}.mclip.mstill .m-clinkl{animation:none;transform:rotate(9deg)}.mclip.mstill .m-clinkr{animation:none;transform:rotate(-9deg)}
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
-.minitl{margin:8px 0 0;padding:0 0 11px;border-bottom:1px solid var(--border)}
+.minitl{margin:8px 0 0;padding:6px 0 11px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:60;background:var(--bg,#FAFAF8)}   /* 진행 스트립이 스크롤을 따라옴(2026-07-16 사용자 요청 · 상단 고정 헤더 대체) */
 .mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mtl-rail .mtl-done{font-size:11px;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+.mtl-rail .mtl-done::before{content:'✓';font-size:10px}
+.mtl-rail button.mtl-i{background:none;border:none;padding:2px 2px;cursor:default}
 .mtl-rail::-webkit-scrollbar{display:none}
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
 .mtl-rail .mtl-a{color:var(--border);flex-shrink:0;margin:0 7px;font-size:11px}
@@ -509,7 +514,7 @@ function playBtn(){return '<button class="play" onclick="event.stopPropagation()
 function tip(t){return '<div class="tip"><b>팁</b> '+t+'</div>';}
 var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
 function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }
-function _playSrc(b,src,label){
+function _playSrc(b,src,label,fallback){
   if(AUDBTN===b){
     if(AUDWAIT){ AUDWAIT=false; b.innerHTML=label; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
     _stopAud(); return;
@@ -518,11 +523,16 @@ function _playSrc(b,src,label){
   AUDBTN=b; AUDO=b.innerHTML; b.classList.add('playing'); b.innerHTML=label;
   AUD=new Audio(src);
   AUD.onended=_stopAud;
-  AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); };
+  AUD.onerror=function(){
+    if(fallback && AUDBTN===b){ AUD=new Audio(fallback); AUD.onended=_stopAud; AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); }; b.innerHTML='재생 중… (샘플 목소리)'; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
+    b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200);
+  };
   AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; });
 }
 // 지금은 대표 샘플 목소리 1개를 모든 미리듣기에 재생(실제로 들리는 데모). 완성 후 순서별 실제 파일로 교체.
 window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
+// 순간별 듣기 — 순간 파일(m-<키>.mp3)이 준비되면 그걸, 아직이면 대표 샘플로 폴백. 실녹음 완성 시 파일만 추가하면 자동 전환.
+window.momPlay=function(b,k){ _playSrc(b,'/assets/narration/m-'+k+'.mp3','재생 중…','/assets/narration/sample-voice.mp3'); };
 
 var STEPDEF={
  intro:{k:'intro',title:'우리 예식, 우리가 만들어요'},
@@ -560,6 +570,8 @@ function buildSteps(){
     .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
 }
 var idx=0;
+var _maxIdx=0;   // 지나온 최대 단계(완료 표시·스트립 이동 허용 기준) — 저장·복원됨
+window.mtlGo=function(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ if(i>_maxIdx) return; _stopAud(); editReturn=false; idx=i; render(); return; } } };
 var RECO={declare:'1',letter:'parent'};
 function recoTxt(k){
   var c=S.course;
@@ -593,6 +605,7 @@ var _navKey='';
 function render(){
   _stopAud();
   if(mode==='rehearse'){ renderRehearse(); return; }
+  if(idx>_maxIdx) _maxIdx=idx;   // 지나온 최대 단계 갱신 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var st=STEPS[idx];
   var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
   var pre=(st.k==='intro'||st.k==='course'||st.k==='tune'), si=stops.indexOf(st.k);
@@ -639,9 +652,13 @@ function renderMiniTL(k){
   el.style.display=show?'block':'none';
   if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
+  // 완료(방문 끝) 단계는 ✓골드로 표시하고 탭하면 그 단계로 이동 · 아직 안 간 단계는 회색(탭 불가) — 진행 위치가 한눈에(2026-07-16 사용자 요청)
   var parts=blocks.map(function(b){
     var nm=b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');
-    return (b.k===k)?'<span class="mtl-now">'+esc(nm)+'</span>':'<span class="mtl-i">'+esc(nm)+'</span>';
+    if(b.k===k) return '<span class="mtl-now">'+esc(nm)+'</span>';
+    var si=-1; for(var q=0;q<STEPS.length;q++){ if(STEPS[q].k===b.k){ si=q; break; } }
+    var done=(si>-1 && si<=_maxIdx);   // 방문한 단계는 뒤로 돌아와 있어도 ✓·이동 가능(현재 단계는 위 mtl-now 분기)
+    return done?'<button type="button" class="mtl-done" onclick="mtlGo(\''+b.k+'\')">'+esc(nm)+'</button>':'<button type="button" class="mtl-i" disabled>'+esc(nm)+'</button>';
   });
   el.innerHTML='<div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a">›</span>')+'</div>';
   var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
@@ -653,7 +670,7 @@ function renderIntro(){
   h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 30분의 식순과 나레이션 대본이 만들어져요.</div>';
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
-  h+='<div class="ipt"><span class="n">2</span>고를 때마다 나레이션을 미리 들어봐요 · 사회자 없이, 이 목소리가 당일을 이끌어요.</div>';
+  h+='<div class="ipt"><span class="n">2</span>순간마다 진행 안내를 미리 들어보고 골라요 · 당일 진행은 준비된 안내와 디렉터가 챙겨요.</div>';   // 나레이션은 진행 수단(사회자 대체)이지 상품 핵심이 아님 — 2026-07-16 사용자 지시로 프레이밍 교정
   h+='<div class="ipt"><span class="n">3</span>완성본을 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
   h+='</div>';
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
@@ -912,13 +929,18 @@ function renderStep(k){
       h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
+      // 카드에서 바로: 이 순간의 진행 안내 듣기 + 순서 넣기/빼기(확장 없이도 보이게 · 2026-07-16 사용자 요청)
+      h+='<div class="mc-act">';
+      if(!_off) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>';
+      if(d.off) h+='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
+      else if(S.extra[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
+      else if(OFFTGL[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
+      h+='</div>';
       if(_open){
         h+='<div class="mc-x">';
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
         h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
-        if(d.off) h+='<button class="rowbtn up" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
-        else if(S.extra[x]) h+='<button class="rowbtn" style="margin-top:10px" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
-        else if(OFFTGL[x]) h+='<button class="rowbtn" style="margin-top:10px" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
+        // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
         h+='</div>';
       }
       h+='</div>';
@@ -1132,7 +1154,7 @@ function courseCard(v){
       h+='</div>';
     });
     if(c.addable) h+='<div class="banner">'+esc(c.addable)+'</div>';
-    h+='<div style="text-align:center;margin-top:12px"><button class="play" onclick="event.stopPropagation();mockPlay(this)">이 코스의 나레이션 미리듣기</button></div>';
+    // 코스 카드의 '나레이션 미리듣기' 버튼 제거 — 2026-07-16 사용자 지시(듣기는 각 순간 카드에서 개별로)
     h+='<button class="cta-go" onclick="event.stopPropagation();startCourse(\''+v+'\')">이 코스로 시작하기</button>';
     h+='</div>';
   }
@@ -1368,7 +1390,7 @@ document.getElementById('next').addEventListener('click',function(){ var t=Date.
   if(idx<STEPS.length-1){idx++;render();}
   else{ _doneSaved=true; _persist(); render(); _embedSave(); } });
 var _doneSaved=false;
-function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,cs:courseStarted,sv:_doneSaved})); }catch(e){} }
+function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,mx:_maxIdx,cs:courseStarted,sv:_doneSaved})); }catch(e){} }
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
@@ -1376,7 +1398,7 @@ function _applySaved(_sv){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
   for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
   if(!ENTRY[S.entry])S.entry='A'; if(!VEIL[S.veil])S.veil='mother'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
-  courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1);
+  courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1); _maxIdx=Math.min(Math.max(_sv.mx||0, idx), STEPS.length-1);
   return true;
 }
 try{ _applySaved(JSON.parse(localStorage.getItem('me_order')||'null')); }catch(e){}
