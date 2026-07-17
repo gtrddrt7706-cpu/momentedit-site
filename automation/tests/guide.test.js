@@ -1,6 +1,6 @@
 /**
  * Moment Edit · 하객 안내 허브(guide.html) 백엔드 검증 — 실서버 코드(gas-lint 샌드박스)로 구동.
- *   handleGuideView(공개 조회·PII 최소) · handleSaveProductionTrack track='guideinfo'(오시는 길·드레스코드) · 안내공유토큰 발급.
+ *   handleGuideView(공개 조회·PII 최소) · handleSaveProductionTrack track='guideinfo'(토글·식사 예약 정보) · 안내공유토큰 발급.
  * 실행: node automation/tests/guide.test.js
  */
 import { loadGas } from '../../scripts/audit/gas-lint.mjs';
@@ -26,29 +26,30 @@ const fresh = () => { DB = { C1: { 개인코드: 'C1', 상품타입: '시그니�
 
 console.log('── 하객 안내 허브 ──');
 
-// 1) 안내 정보 저장 → 토큰 발급 + 정규화
+// 1) 안내 설정 저장 — '라이브 켬'이 발급 사유(입력 필드 폐지 2026-07-17) + 토글·예약 정보만 정규화
 fresh();
-const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { venue: '라비돌웨딩홀', addr: '서울 강남구 테헤란로 000', map: 'https://map.kakao.com/x', parking: '지하 2시간 무료', transit: '2호선 강남역 3번 도보 5분', dress: '세미정장', evil: 'x' } });
-ok(r1.ok === true && r1.guideToken && r1.guideToken[0] === 'G', '1 guideinfo 저장 → 안내 토큰(G…) 발급');
+const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showLive: true, reserveTime: '오후 1시 30분', reserveName: '정희준', venue: '라비돌웨딩홀', evil: 'x' } });
+ok(r1.ok === true && r1.guideToken && r1.guideToken[0] === 'G', '1 라이브 켬 저장 → 안내 토큰(G…) 발급');
 const gd = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
-ok(gd.venue === '라비돌웨딩홀' && gd.parking === '지하 2시간 무료' && gd.evil === undefined, '2 필드 저장 + 미지정 필드 제거');
+ok(gd.reserveTime === '오후 1시 30분' && gd.reserveName === '정희준' && gd.venue === undefined && gd.evil === undefined, '2 토글·예약만 저장 + 폐지(venue)·미지정 필드 제거');
 
-// 3) map은 http[s]만 · 길이 상한
-sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: false, draft: { venue: 'x', map: 'javascript:alert(1)', addr: 'a'.repeat(500) } });
+// 3) 예약 정보 길이 상한
+sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: false, draft: { reserveTime: 'a'.repeat(100), reserveName: 'b'.repeat(100) } });
 const gd2 = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
-ok(gd2.map === '' && gd2.addr.length === 120, '3 javascript: 지도 거부 · 주소 120자 상한');
+ok(gd2.reserveTime.length === 40 && gd2.reserveName.length === 30, '3 예약 시간 40자·이름 30자 상한');
 
 // 4) handleGuideView — 공개 조회로 오시는 길·다이닝·좌석·라이브 반환
 fresh();
 DB.C1.안내공유토큰 = 'Gyyyyyyyyyyyyyy1';
 DB.C1.제작임시저장 = JSON.stringify({
-  guideinfoDraft: { venue: '라비돌', addr: '주소', map: 'https://m/x', parking: '무료', transit: '도보 5분', dress: '세미정장' },
+  guideinfoDraft: { reserveTime: '오후 1시', reserveName: '정희준' },
   diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', m: '한정식', tel: '031-0', url: 'https://map/x', src: 'resto' }, { n: '카페', src: 'attr' }] },
   seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김하객'] }] }
 });
 const gv = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
 ok(gv.ok && gv.guide.groom === '정희준' && gv.guide.date === '2026-11-07', '4 부부 이름·예식일');
-ok(gv.guide.venue.name === '라비돌' && gv.guide.venue.parking === '무료' && gv.guide.dress === '세미정장', '5 오시는 길·드레스코드 반환');
+ok(gv.guide.venue === undefined && gv.guide.dress === undefined, '5 오시는 길·드레스코드 미반환(섹션 폐지)');
+ok(gv.guide.dining.rtime === '오후 1시' && gv.guide.dining.rname === '정희준', '5b 식사 예약 시간·예약자 반환(종료 후 집결 안내)');
 ok(gv.guide.dining.on && gv.guide.dining.pick === '소반' && gv.guide.dining.restos.length === 1 && gv.guide.dining.spots.length === 1, '6 다이닝(대표·식사·가볼곳)');
 ok(gv.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gv.guide.live === false && gv.guide.eventId === '', '7 좌석 토큰(자리찾기 기본 ON) · 라이브 기본 OFF(eventId 비노출)');
 ok(!JSON.stringify(gv).includes('제작임시저장') && !JSON.stringify(gv.guide).includes('_favs'), '8 내부 draft 원본 미노출(PII 최소)');
@@ -105,7 +106,7 @@ const rp = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: tr
 ok(rp.ok === true && !rp.guideToken, '17b 미정 문구만 → 토큰 미발급');
 // 18) 전부 빈 guideinfo 저장 → 토큰 미발급 · 빈 좌석 완료도 미발급
 fresh();
-const rg0 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { venue: '', addr: '', showSeat: true, showLive: false } });
+const rg0 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: true, showLive: false, reserveTime: '오후 1시' } });
 ok(rg0.ok === true && !rg0.guideToken, '18a 빈 안내정보 저장 → 토큰 미발급');
 fresh();
 const rs0 = sb.handleSaveProductionTrack({ token: 't1', track: 'seat', done: true, draft: { tables: [{ name: '테이블 1', side: 'L', seats: ['', ''] }] } });

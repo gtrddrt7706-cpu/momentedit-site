@@ -172,7 +172,9 @@ function handleSaveProductionTrack(body) {
     var gir = (body && body.draft) || {};
     body.draft = {
       showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
-      showLive: gir.showLive === true                   // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
+      showLive: gir.showLive === true,                  // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
+      reserveTime: String(gir.reserveTime || '').slice(0, 40),   // 식사 예약 시간 — 하객 안내 식사 섹션에 표기(종료 후 집결 혼란 방지)
+      reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
     };
   }
   var _notifyQ = [];   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 finally(락 해제 직후)에서. finally 안 flush라 early return에도 유실 없음
@@ -368,9 +370,7 @@ function handleGuideView(body) {
       groom: String(cust.get('신랑이름') || ''),
       bride: String(cust.get('신부이름') || ''),
       date: _ymdOf(cust.get('예식일')) || '',
-      venue: { name: String(gi.venue || ''), addr: String(gi.addr || ''), map: String(gi.map || ''), parking: String(gi.parking || ''), transit: String(gi.transit || '') },   // 오시는 길(입력됐을 때만 표시)
-      dress: String(gi.dress || ''),   // 드레스코드(선택)
-      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots },
+      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots, rtime: String(gi.reserveTime || ''), rname: String(gi.reserveName || '') },   // 예약 시간·예약자 — 종료 후 별도 안내 없이 집결(오시는 길·드레스코드 섹션은 폐지 2026-07-17)
       seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
       live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)

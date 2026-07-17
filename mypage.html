@@ -1080,12 +1080,16 @@ function openRitualBuilder(p){
   var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','식순 만들기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
-  // 상단 '식순 만들기' 고정 바 제거(2026-07-16 사용자 지시 · 스크롤 따라다니는 헤더 대신 빌더 안 진행 스트립이 따라옴) — 닫기는 작은 플로팅 ✕로
-  var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
-  x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#e6e0d8);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#6b5d4d);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
+  var bar=document.createElement('div');
+  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border,#e6e0d8);background:#fff';
+  var ttl=document.createElement('span'); ttl.textContent='식순 만들기';
+  ttl.style.cssText='font-family:var(--serif-ko,serif);font-size:14px;color:var(--accent,#3a2f25)';
+  var x=document.createElement('button'); x.type='button'; x.textContent='닫기';
+  x.style.cssText='border:1px solid var(--border,#e6e0d8);background:#fff;border-radius:6px;padding:8px 16px;font-family:var(--serif-ko,serif);font-size:13px;color:var(--sub,#6b5d4d);cursor:pointer';
+  bar.appendChild(ttl); bar.appendChild(x);
   var fr=document.createElement('iframe'); fr.id='mp_obFrame'; fr.src='/order-preview.html?embed=1'; fr.title='식순 만들기';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
-  ov.appendChild(x); ov.appendChild(fr);
+  ov.appendChild(bar); ov.appendChild(fr);
   ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
@@ -3101,8 +3105,7 @@ function renderProduction(p, inv){
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
-    + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 설정(자리 찾기·라이브 노출 토글)
-    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken, p, inv)) : '');   // 하객 안내 허브 링크·부분노출 칩·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
+    + guideHubHtml(p, inv);   // 하객 안내 = 접힌 한 블록(링크·QR·설정 · 2026-07-17 미니멀) — 하객 전달 노출은 청첩장 발행 화면의 안내 카드가 담당
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
@@ -4244,9 +4247,8 @@ function _guideSectionChips(p, inv){
 }
 function guideShareHtml(token, p, inv){
   var url=guideUrl(token);
-  return '<div class="seat-share">'
-    +'<div class="seat-share-h">하객 안내 링크가 준비됐어요</div>'
-    +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요. 채울수록 안내도 채워져요.</div>'
+  return '<div class="seat-share" style="border:none;padding:0;margin:0">'
+    +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요.</div>'
     +_guideSectionChips(p, inv)
     +'<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini">비어 있는 부분은 하객 화면에 나오지 않아요 · 애프터 웨딩·좌석 배치를 완료하면 그 부분부터 열려요.</span></div>'
     +'<div class="seat-share-url" id="guide_url">'+escapeHtml(url)+'</div>'
@@ -4263,26 +4265,42 @@ function wireGuideShare(box, token){
   ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url); });
 }
 // [하객 안내 설정] 자리 찾기·라이브 노출 토글만 — 오시는 길은 청첩장의 식장 안내가 담당(자체 홀 고정), 드레스코드는 어른 하객 예우상 없음 (2026-07-17 사용자 지시)
-function guideInfoEditorHtml(gi){
+function guideSettingsInnerHtml(gi){
   gi=gi||{};
-  return '<details class="gi-wrap"><summary class="gi-sum">하객 안내 설정 · <span class="gi-sub">자리 찾기·라이브</span> <span class="pt-ar">▾</span></summary>'
-    +'<div class="gi-body">'
+  return '<div style="border-top:1px dashed var(--border);margin-top:14px;padding-top:12px">'
+    +'<div class="cc-note" style="text-align:left;margin:0 0 10px">식사 예약을 적어두면 하객 안내의 식사 부분에 함께 보여요 · 예식이 끝나면 따로 외치지 않아도 같은 곳·같은 시간으로 모여요.</div>'
+    +'<div class="gi-row"><label class="gi-l" for="gi_rtime">식사 예약 시간</label><input class="cc-input" id="gi_rtime" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+    +'<div class="gi-row"><label class="gi-l" for="gi_rname">예약자 이름</label><input class="cc-input" id="gi_rname" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveName||'')+'" placeholder="예: 김신랑"></div>'
     +'<label class="gi-tg"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 좌석 안내가 하객에게 안 보여요</span></label>'
     +'<label class="gi-tg"><input type="checkbox" id="gi_showLive"'+((gi.showLive===true)?' checked':'')+'> <b>예식 실시간 중계</b> 링크 노출 <span class="gi-tg-s">디지털 참석(라이브)을 준비한 경우만 켜세요</span></label>'
-    +'<button type="button" class="cc-btn" id="gi_save" style="margin-top:6px">설정 저장</button>'
+    +'<button type="button" class="cc-btn" id="gi_save" style="margin-top:6px">저장</button>'
     +'<div class="cc-note" id="gi_msg" style="text-align:center;display:none;margin-top:8px"></div>'
-    +'</div></details>';
+    +'</div>';
+}
+// [하객 안내 허브] 제작 섹션 노출 최소화(2026-07-17 사용자 지시) — 접힌 한 블록에 링크·QR·설정을 모두 수납.
+//   하객에게 전달하는 노출은 청첩장 발행 화면의 '하객 안내' 카드가 담당(청첩장 파트에서 결정·전달).
+function guideHubHtml(p, inv){
+  p=p||{};
+  var tok=p.guideToken||'';
+  var closed=!!tok && _guideLinkClosed(p.base);
+  var badge=tok?(closed?'<span class="gi-badge gi-badge-o">기간 종료</span>':'<span class="gi-badge">링크 준비됨</span>'):'<span class="gi-badge gi-badge-o">준비 전</span>';
+  var body= tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 <b>애프터 웨딩(다이닝)·좌석 배치</b>를 완료하면 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
+  body+=guideSettingsInnerHtml(p.guideinfoDraft||{});
+  return '<details class="gi-wrap"><summary class="gi-sum">하객 안내 · <span class="gi-sub">링크·QR·설정</span> '+badge+' <span class="pt-ar">▾</span></summary>'
+    +'<div class="gi-body">'+body+'</div></details>';
 }
 function wireGuideInfoEditor(box){
   var btn=$('gi_save'); if(!btn) return;
   btn.addEventListener('click', function(){
-    var draft={ showSeat: !($('gi_showSeat')&&!$('gi_showSeat').checked), showLive: !!($('gi_showLive')&&$('gi_showLive').checked) };
+    var draft={ showSeat: !($('gi_showSeat')&&!$('gi_showSeat').checked), showLive: !!($('gi_showLive')&&$('gi_showLive').checked),
+      reserveTime:(($('gi_rtime')||{}).value||'').trim(), reserveName:(($('gi_rname')||{}).value||'').trim() };
     btn.disabled=true; btn.textContent='저장 중…';
     var msg=$('gi_msg');
     apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
       if(r&&r.ok){ if(msg){ msg.textContent='저장됐어요. 하객 안내에 반영됐어요.'; msg.style.display='block'; msg.style.color='var(--gold-deep)'; } setTimeout(function(){ loadMyState(); }, 700); }
-      else { btn.disabled=false; btn.textContent='설정 저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ btn.disabled=false; btn.textContent='설정 저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+      else { btn.disabled=false; btn.textContent='저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ btn.disabled=false; btn.textContent='저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
@@ -4970,7 +4988,7 @@ function renderDining(box){
     }
   }
 }
-// ── 식순 빌더 (v2 · 하위호환) — 뼈대(고정) + 이중고정(형태 선택) + 자유 이벤트. 데이터=ritualDraft v2. ※나레이션은 진행 수단이지 상품 핵심 아님(2026-07-16) ──
+// ── 식순 빌더 (v2) — 나레이션 예식. 뼈대(고정) + 이중고정(형태 선택) + 자유 이벤트. 데이터=ritualDraft v2 ──
 // 선택 이벤트 카탈로그(단일 출처). m=예상 분, c=분위기, more=더보기 접힘, badge=뱃지, fixed='preEntrance'는 입장 직전 고정.
 var RITUAL_EV = [
   { k:'letter',  t:'편지·덕담',        m:3, c:'감동', more:false },
@@ -5067,7 +5085,7 @@ function renderRitual(box){
   var key=steps[TRKFLOW.step], no=TRKFLOW.step+1;
 
   if(key==='tone'){
-    var migNote = d._migrated ? '<div class="r-note" style="color:var(--seal)">식순 만들기가 새로워졌어요. 한 번만 다시 확인해 주세요.</div>' : ''; d._migrated=false;   // 1회 노출 후 해제
+    var migNote = d._migrated ? '<div class="r-note" style="color:var(--seal)">식순이 나레이션 예식으로 새로워졌어요. 한 번만 다시 확인해 주세요.</div>' : ''; d._migrated=false;   // 1회 노출 후 해제
     var sample = '<div class="r-prev"><span class="lb">'+voice+' 미리보기</span>"서로의 가장 좋은 친구이자 이제 평생의 동반자가 될 두 사람입니다."</div>';
     var toneOpt=[['차분','차분하고 감동적으로','편지·서약 중심의 깊은 시간'],['유쾌','밝고 유쾌하게','웃음이 있는 가벼운 시간'],['심플','담백하고 심플하게','꼭 필요한 순서만, 짧고 깊게']];
     var body=migNote

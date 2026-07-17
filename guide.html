@@ -42,6 +42,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .pick{background:var(--bg2);border:1px solid var(--gold);border-radius:9px;padding:13px 14px;margin-bottom:12px}
 .pick .pl{font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
 .pick .pn{font-size:15px;font-weight:500;color:var(--accent);margin-top:3px}
+.pick .rsv{font-size:12.5px;color:var(--gold-deep);margin-top:5px}
+.pick .rsv b{color:var(--seal);font-weight:600}
+.gather{font-size:12px;color:var(--sub);text-align:center;margin:-2px 0 12px}
 
 .spot{padding:12px 0;border-top:1px solid var(--hair)}
 .spot:first-child{border-top:0}
@@ -101,7 +104,11 @@ function spotHtml(v, withTel){
 function diningHtml(dn){
   if(!dn || !dn.on) return '';
   var h='<div class="sec"><div class="sec-h"><span class="sec-t">식사 · 애프터</span><span class="sec-n">Dining</span></div>';
-  if(dn.pick){ h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div></div>'; }
+  if(dn.pick){
+    var rsv=(dn.rtime?esc(dn.rtime):'')+((dn.rtime&&dn.rname)?' · ':'')+(dn.rname?'<b>'+esc(dn.rname)+'</b> 이름으로 예약':'');
+    h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div>'+(rsv?'<div class="rsv">'+rsv+'</div>':'')+'</div>';
+    h+='<div class="gather">예식과 단체 사진이 끝나면, 위 장소로 편히 이동해 주세요.</div>';
+  }
   var restos=dn.restos||[], spots=dn.spots||[];
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
   if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
