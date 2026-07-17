@@ -933,7 +933,7 @@ function renderStep(k){
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
-    h+='<div class="tune-hint">카드를 누르면 <b>그 순간의 장면과 안내 듣기</b>가 함께 열려요.<br><b>고정 진행</b>은 이 코스의 뼈대라 늘 함께해요 · 진행 방식은 다음 화면에서 하나씩 골라요. <b>뺄 수 있어요</b> 표시가 있는 순간만 넣고 빼요.</div>';   // 미리보기 안내 + 고정/조정 범례(2026-07-17 사용자 요청: 기능 정보 부족)
+    h+='<div class="tune-hint">카드를 누르면 <b>장면과 안내 듣기</b>가 열려요.<br><b>고정 진행</b>은 늘 함께해요 · <b>뺄 수 있어요</b> 표시만 넣고 빼요.</div>';   // 미리보기 안내 + 고정/조정 범례 — 미니멀 문구(2026-07-17 사용자 요청)
     var _base=COURSES[S.course].seq.slice();
     var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
     var _disp=_base.map(function(k){return {k:k,off:false};});
