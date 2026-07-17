@@ -173,6 +173,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .tcap.fx{color:var(--sub);background:#F1F0ED;border-color:#E4E2DD;font-weight:500}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
+/* 장면+듣기 일체형 — 듣기 버튼이 장면 프레임 하단에 붙어 한 덩어리로(2026-07-17 사용자 요청: 플레이 버튼 따로 노는 느낌 개선) */
+.mc-media .mclip{border-radius:12px 12px 0 0;border-bottom:0}
+.mc-play{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;border:1px solid var(--border);background:#FBFAF7;color:var(--gold-deeper);border-radius:0 0 12px 12px;padding:12px 0;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.01em;cursor:pointer;transition:.15s}
+.mc-play:active{opacity:.8}
+.mc-play.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
 .m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
 @keyframes mdraw{to{stroke-dashoffset:0}}
 .m-in{opacity:0;animation:mfade .9s ease-out forwards}
@@ -964,8 +969,11 @@ function renderStep(k){
       if(_open){
         h+='<div class="mc-x">';
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
-        h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
-        h+='<div style="text-align:center;margin-top:10px"><button type="button" class="rowbtn" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';   // 장면 바로 아래에서 안내 목소리 재생(2026-07-17)
+        // 장면과 듣기를 한 프레임으로 — 재생 바가 장면 박스 하단에 붙어 미디어 한 덩어리로 읽히게(2026-07-17 사용자 요청)
+        h+='<div class="mc-media">'
+          +(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>')
+          +'<button type="button" class="mc-play" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
+          +'</div>';
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
         // 열었을 때 도움 정보: 이 단계에서 정하게 될 것 + 많이 고르는 선택(사회적 증거) — 나레이션·영상 외 판단 재료(2026-07-17 사용자 요청)
         var _mi='';
