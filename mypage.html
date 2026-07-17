@@ -4043,7 +4043,7 @@ function invStepDone(box, r){
       +'<div class="done-qr-nm">모바일 참석 QR</div>'
       +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣으면, 하객이 스캔해 바로 입장해요.</div>'
       +'<div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-      +'<div><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:12px;display:none">QR 이미지 저장</button></div>'
+      +'<div style="text-align:center"><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:12px;display:none">QR 이미지 저장</button></div>'
       +'</div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap done-wrap">'
     +'<div class="done-eyebrow">Invitation Ready</div><div class="done-rule"></div>'
@@ -4083,7 +4083,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4097,7 +4097,7 @@ function renderQRInto(qid, svid, url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
       return;
     }catch(e){}
   }
@@ -4189,9 +4189,9 @@ function seatSharePanelHtml(token){
     +'<div class="seat-share-h">✓ 배치가 저장됐어요</div>'
     +'<div class="seat-share-sub">아래 링크·QR을 <b>오프라인으로 모시는 하객</b>께 전달하면, 열어서 자기 자리를 바로 확인해요.</div>'
     +'<div class="seat-share-url" id="seat_url">'+escapeHtml(url)+'</div>'
-    +'<div class="seat-share-btns"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="seat_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-    +'</div>';
+    +'<div class="seat-share-btns" style="margin-top:12px"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
+    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안)
 }
 function wireSeatShare(box, token){
   var url=seatUrl(token);
@@ -4225,9 +4225,9 @@ function guideShareHtml(token){
     +'<div class="seat-share-h">하객 안내 링크가 준비됐어요</div>'
     +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요. 채울수록 안내도 채워져요.</div>'
     +'<div class="seat-share-url" id="guide_url">'+escapeHtml(url)+'</div>'
-    +'<div class="seat-share-btns"><a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" style="width:auto;padding:9px 16px;text-decoration:none">하객 눈으로 미리보기</a><button type="button" class="cc-btn-ghost" id="guide_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="guide_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="guide_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-    +'</div>';
+    +'<div class="seat-share-btns" style="margin-top:12px"><a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" style="width:auto;padding:9px 16px;text-decoration:none">하객 눈으로 미리보기</a><button type="button" class="cc-btn-ghost" id="guide_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="guide_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
+    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안)
 }
 function wireGuideShare(box, token){
   var url=guideUrl(token);
