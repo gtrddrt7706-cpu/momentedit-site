@@ -27,7 +27,15 @@ function handleLogin(body) {
 
   var sheet = getCustomersSheet();
   var colOf = buildHeaderIndex(sheet);
-  var t = issueToken(sheet, colOf, rowObj.num); // 토큰 갱신(이전 무효화)
+  // [멀티기기 · 2026-07-16] 유효한 기존 토큰은 재사용(만료만 연장) — 부부가 폰·PC를 번갈아 로그인해도 서로 로그아웃되지 않게.
+  //   기기별 로그아웃은 원래 localStorage만 지우므로(서버 무효화 없음) 다른 기기에 영향 없음.
+  //   토큰 회전(전 기기 로그아웃)은 비밀번호 재설정(doResetPw)이 담당 — 유출 대응 레버 유지.
+  var _tok = String(rowObj.get('로그인토큰') || '').trim();
+  if (_tok && !tokenExpired(rowObj.get('토큰만료'))) {
+    touchCustomer(sheet, colOf, rowObj.num, { '토큰만료': fmtKST(new Date(Date.now() + P.TOKEN_VALID_DAYS * 86400 * 1000)) });   // 슬라이딩 연장(로그인할 때마다 +30일)
+    return { ok: true, token: _tok };
+  }
+  var t = issueToken(sheet, colOf, rowObj.num); // 없거나 만료 → 새 토큰 발급
   return { ok: true, token: t.token };
 }
 
