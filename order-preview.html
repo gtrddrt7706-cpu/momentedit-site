@@ -155,6 +155,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
+.tune-hint{font-size:12px;color:var(--gold-deeper);background:rgba(184,154,117,.09);border:1px solid rgba(184,154,117,.28);border-radius:9px;padding:8px 11px;margin:10px 0 12px;line-height:1.6;word-break:keep-all}
+.mc-info{font-size:12px;color:var(--sub);line-height:1.65;word-break:keep-all;background:var(--bg2,#F4EFE8);border-radius:8px;padding:8px 10px;margin-top:8px}
+.mc-info b{color:var(--gold-deeper)}
 .fold{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);word-break:keep-all}
 .fold-x{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .fold.open .fold-x{transform:rotate(90deg)}
@@ -197,9 +200,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
 .minitl{margin:8px 0 0;padding:6px 0 11px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:60;background:var(--bg,#FAFAF8)}   /* 진행 스트립이 스크롤을 따라옴(2026-07-16 사용자 요청 · 상단 고정 헤더 대체) */
 .mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.mtl-rail .mtl-done{font-size:11px;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+.mtl-rail .mtl-done{font-family:inherit;font-size:11px;line-height:inherit;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
 .mtl-rail .mtl-done::before{content:'✓';font-size:10px}
-.mtl-rail button.mtl-i{background:none;border:none;padding:2px 2px;cursor:default}
 .mtl-rail::-webkit-scrollbar{display:none}
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
 .mtl-rail .mtl-a{color:var(--border);flex-shrink:0;margin:0 7px;font-size:11px}
@@ -514,8 +516,8 @@ var ICO_PLUS='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke
 function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
 function tip(t){return '<div class="tip"><b>팁</b> '+t+'</div>';}
 var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
-function _stopAud(){ if(AUD){try{AUD.pause();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }
-function _playSrc(b,src,label,fallback){
+function _stopAud(){ if(AUD){try{AUD.onerror=null;AUD.onended=null;AUD.pause();AUD.removeAttribute('src');AUD.load();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }   // src 분리로 진행 중 다운로드까지 중단(버려진 오디오가 계속 버퍼링하지 않게 · 핸들러 먼저 해제해 유령 폴백 방지)
+function _playSrc(b,src,label,fallback,onFallback){
   if(AUDBTN===b){
     if(AUDWAIT){ AUDWAIT=false; b.innerHTML=label; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
     _stopAud(); return;
@@ -525,15 +527,21 @@ function _playSrc(b,src,label,fallback){
   AUD=new Audio(src);
   AUD.onended=_stopAud;
   AUD.onerror=function(){
-    if(fallback && AUDBTN===b){ AUD=new Audio(fallback); AUD.onended=_stopAud; AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); }; b.innerHTML='재생 중… (샘플 목소리)'; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
+    if(fallback && AUDBTN===b){ try{ if(onFallback) onFallback(); }catch(e0){} AUD=new Audio(fallback); AUD.onended=_stopAud; AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); }; b.innerHTML='재생 중… (샘플 목소리)'; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
     b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200);
   };
   AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; });
 }
 // 지금은 대표 샘플 목소리 1개를 모든 미리듣기에 재생(실제로 들리는 데모). 완성 후 순서별 실제 파일로 교체.
-window.mockPlay=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
+var NARR_SAMPLE='/assets/narration/sample-voice.mp3', NARR_SAMPLE_LBL='재생 중… (샘플 목소리)';   // 샘플 교체 시 여기 한 곳만
+window.mockPlay=function(b){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); };
 // 순간별 듣기 — 순간 파일(m-<키>.mp3)이 준비되면 그걸, 아직이면 대표 샘플로 폴백. 실녹음 완성 시 파일만 추가하면 자동 전환.
-window.momPlay=function(b,k){ _playSrc(b,'/assets/narration/m-'+k+'.mp3','재생 중…','/assets/narration/sample-voice.mp3'); };
+//   한 번 404 난 키는 세션 동안 기억해 재탐색 없이 바로 샘플 재생(탭마다 이중 요청 방지).
+var _momMiss={};
+window.momPlay=function(b,k){
+  if(_momMiss[k]){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); return; }
+  _playSrc(b,'/assets/narration/m-'+k+'.mp3','재생 중…',NARR_SAMPLE,function(){ if(navigator.onLine!==false) _momMiss[k]=1; });   // 오프라인 순간의 일시 오류는 세션 캐시에 안 남김
+};
 
 var STEPDEF={
  intro:{k:'intro',title:'우리 예식, 우리가 만들어요'},
@@ -571,8 +579,10 @@ function buildSteps(){
     .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
 }
 var idx=0;
-var _maxIdx=0;   // 지나온 최대 단계(완료 표시·스트립 이동 허용 기준) — 저장·복원됨
-window.mtlGo=function(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ if(i>_maxIdx) return; _stopAud(); editReturn=false; idx=i; render(); return; } } };
+var _seenK={};   // 방문한 단계 '키' 기록 — 코스 변경·순간 추가/제거로 STEPS 인덱스가 재구성돼도 ✓·이동 허용이 어긋나지 않게(인덱스 워터마크 금지). 저장·복원됨
+window.mtlGo=function(k){ if(!_seenK[k]) return; for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ _stopAud();
+  if(editReturn){ editReturn=false; _editSnap=null; _doneSaved=false; }   // 요약에서 수정 중 스트립 이동 = 변경 유지·재저장 필요로 전환(취소 스냅샷 폐기 · '저장됨' 오표시 방지)
+  idx=i; render(); return; } } };
 var RECO={declare:'1',letter:'parent'};
 function recoTxt(k){
   var c=S.course;
@@ -606,8 +616,8 @@ var _navKey='';
 function render(){
   _stopAud();
   if(mode==='rehearse'){ renderRehearse(); return; }
-  if(idx>_maxIdx) _maxIdx=idx;   // 지나온 최대 단계 갱신 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var st=STEPS[idx];
+  _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
   var pre=(st.k==='intro'||st.k==='course'||st.k==='tune'), si=stops.indexOf(st.k);
   var pct=Math.max(2,Math.round((idx+1)/STEPS.length*100));
@@ -654,12 +664,13 @@ function renderMiniTL(k){
   if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
   // 완료(방문 끝) 단계는 ✓골드로 표시하고 탭하면 그 단계로 이동 · 아직 안 간 단계는 회색(탭 불가) — 진행 위치가 한눈에(2026-07-16 사용자 요청)
+  var SHORT={entry:'입장',welcome:'첫인사',_close:'폐식',toast:'축배'};   // 키 기반 축약(문구 리네임에도 안전 — 문자열 replace 체인 대체)
   var parts=blocks.map(function(b){
-    var nm=b.n.replace('신랑·신부 입장','입장').replace('환영·첫인사','첫인사').replace('폐식·단체촬영','폐식').replace('축배 · 케이크','축배');
+    var nm=SHORT[b.k]||b.n;
     if(b.k===k) return '<span class="mtl-now">'+esc(nm)+'</span>';
-    var si=-1; for(var q=0;q<STEPS.length;q++){ if(STEPS[q].k===b.k){ si=q; break; } }
-    var done=(si>-1 && si<=_maxIdx);   // 방문한 단계는 뒤로 돌아와 있어도 ✓·이동 가능(현재 단계는 위 mtl-now 분기)
-    return done?'<button type="button" class="mtl-done" onclick="mtlGo(\''+b.k+'\')">'+esc(nm)+'</button>':'<button type="button" class="mtl-i" disabled>'+esc(nm)+'</button>';
+    var kk=(b.k==='_close')?'done':b.k;   // 폐식 블록은 STEPS에 없음 → 완성 단계로 매핑(완주 후 회색으로 남지 않게)
+    var done=!!_seenK[kk];   // 방문한 단계는 뒤로 돌아와 있어도 ✓·이동 가능(현재 단계는 위 mtl-now 분기) · 미방문은 원래대로 텍스트(span)
+    return done?'<button type="button" class="mtl-done" onclick="mtlGo(\''+kk+'\')">'+esc(nm)+'</button>':'<span class="mtl-i">'+esc(nm)+'</span>';
   });
   el.innerHTML='<div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a">›</span>')+'</div>';
   var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
@@ -879,6 +890,14 @@ var OPTWHY={
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
 var _tprev=''; var _foldOpen={};
+var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};   // 장면(클립·다이어그램) 있는 순간 — 카드 확장 대상(tune·mcListen 공용)
+// '이 순간 들어보기' — 장면이 있는 카드는 펼치면서(영상과 나란히) 재생 시작, 없는 카드는 제자리 재생(2026-07-17 사용자 요청: 듣기와 장면이 조화롭게 함께 열리게)
+window.mcListen=function(x){
+  var canExp=MCVIS[x]||((OPTWHY[S.course]||{})[x]);
+  if(canExp && _tprev!==x){ _tprev=x; render(); }
+  var btn=document.querySelector('.mc.open [data-mp="'+x+'"]')||document.querySelector('[data-mp="'+x+'"]');
+  if(btn) momPlay(btn,x);
+};
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
 function fold(key,title,inner){ var o=_foldOpen[key]; return '<div class="fold'+(o?' open':'')+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x">›</span></div>'+(o?'<div class="fold-b">'+inner+'</div>':''); }
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
@@ -914,26 +933,34 @@ function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
-    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.<br><span style="font-size:12px;color:var(--light)">카드를 누르면 그 순간의 장면을 미리 볼 수 있어요</span></div>';
+    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
+    h+='<div class="tune-hint">카드를 누르면 <b>그 순간의 장면</b>이, 이 순간 들어보기를 누르면 <b>안내 목소리</b>가 함께 열려요.</div>';   // 미리보기 안내 강조(2026-07-17 사용자 요청)
     var _base=COURSES[S.course].seq.slice();
     var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
     var _disp=_base.map(function(k){return {k:k,off:false};});
     _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
-    var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};
-    var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
+    var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — MCVIS는 전역(mcListen 공용). 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
+    var _mm=function(x){   // 연출 선택에 따라 분이 달라지는 순간은 현재 선택 기준으로(estMin 델타와 일치 — 칩과 총 시간이 어긋나지 않게)
+      if(x==='letter') return S.letter==='both'?5:3;
+      if(x==='ringwarm') return S.ringwarm==='all'?4:2;
+      if(x==='toast') return S.toast==='both'?4:2;
+      if(x==='veil') return S.veil==='skip'?0:1;
+      return MMIN[x]||0;
+    };
     _disp.forEach(function(d){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
-      var _canExp=MCVIS[x]||OFFTGL[x]||d.off||S.extra[x];
+      var _canExp=!!(MCVIS[x]||_why);   // 장면(클립·다이어그램)이나 설명 한 줄이 있는 카드만 확장 — 넣기/빼기가 카드 레벨로 나와 '빈 확장'이 된 카드는 화살표 제거(2026-07-17 정리)
       var _open=(_tprev===x)&&_canExp;
       h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'"'+(_canExp?' onclick="tprev(\''+x+'\')"':' style="cursor:default"')+'>';
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(!_off&&MMIN[x]?'<span class="mc-min">약 '+MMIN[x]+'분</span>':(!_off&&x==='guest'?'<span class="mc-min">식전</span>':''))+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
+      var _min=_off?'':(_mm(x)?('약 '+_mm(x)+'분'):(x==='guest'?'식전':''));
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       // 카드에서 바로: 이 순간의 진행 안내 듣기 + 순서 넣기/빼기(확장 없이도 보이게 · 2026-07-16 사용자 요청)
       h+='<div class="mc-act">';
-      if(!_off) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>';
+      h+='<button type="button" class="rowbtn" data-mp="'+x+'" onclick="event.stopPropagation();mcListen(\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>';   // 장면 있는 카드는 펼치며 재생(영상과 나란히) · 빠져 있는 순간도 듣고 결정
       if(d.off) h+='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
       else if(S.extra[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
       else if(OFFTGL[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
@@ -943,12 +970,17 @@ function renderStep(k){
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
         h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
+        // 열었을 때 도움 정보: 이 단계에서 정하게 될 것 + 많이 고르는 선택(사회적 증거) — 나레이션·영상 외 판단 재료(2026-07-17 사용자 요청)
+        var _mi='';
+        if(MOMENT[x]&&MOMENT[x].act) _mi+='<b>여기서 정할 것</b> · '+esc(MOMENT[x].act);
+        var _rc=recoTxt(x); if(_rc) _mi+=(_mi?'<br>':'')+'<b>많이 고르는 선택</b> · '+esc(_rc);
+        if(_mi) h+='<div class="mc-info">'+_mi+'</div>';
         h+='</div>';
       }
       h+='</div>';
     });
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
-    if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 목록에서 체크를 풀면 도로 빠져요</div>'; }
+    if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 카드의 순서에서 빼기를 누르면 도로 빠져요</div>'; }
     h+='</div>';
     return h;
   }
@@ -1156,7 +1188,7 @@ function courseCard(v){
       h+='</div>';
     });
     if(c.addable) h+='<div class="banner">'+esc(c.addable)+'</div>';
-    // 코스 카드의 '나레이션 미리듣기' 버튼 제거 — 2026-07-16 사용자 지시(듣기는 각 순간 카드에서 개별로)
+    // ★코스 카드 '나레이션 미리듣기' 버튼 재추가 금지 — 2026-07-16 사용자 지시로 삭제(듣기는 각 순간 카드에서 개별로). 리뷰·복구에서 되살리지 말 것
     h+='<button class="cta-go" onclick="event.stopPropagation();startCourse(\''+v+'\')">이 코스로 시작하기</button>';
     h+='</div>';
   }
@@ -1178,7 +1210,8 @@ function applyCourse(v){
   buildSteps();
 }
 var courseStarted=false;
-window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
+window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
+  } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
 window.jumpTo=function(k){
   if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
@@ -1282,7 +1315,7 @@ function prep(){
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
   return p;
 }
-window.listenAll=function(b){ _playSrc(b,'/assets/narration/sample-voice.mp3','재생 중… (샘플 목소리)'); };
+window.listenAll=function(b){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); };
 function scriptText(){
   var bs=fullBlocks(), lines=['우리 예식 대본 · '+COURSES[S.course].nm+' 코스 · '+estMin(),''];
   var no=0;
@@ -1392,7 +1425,7 @@ document.getElementById('next').addEventListener('click',function(){ var t=Date.
   if(idx<STEPS.length-1){idx++;render();}
   else{ _doneSaved=true; _persist(); render(); _embedSave(); } });
 var _doneSaved=false;
-function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,mx:_maxIdx,cs:courseStarted,sv:_doneSaved})); }catch(e){} }
+function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved})); }catch(e){} }
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
@@ -1400,7 +1433,10 @@ function _applySaved(_sv){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
   for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
   if(!ENTRY[S.entry])S.entry='A'; if(!VEIL[S.veil])S.veil='mother'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
-  courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1); _maxIdx=Math.min(Math.max(_sv.mx||0, idx), STEPS.length-1);
+  courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; buildSteps(); idx=Math.min(_sv.idx||0,STEPS.length-1);
+  _seenK={}; (_sv.sk||[]).forEach(function(_k){ _seenK[_k]=1; });
+  if(!_sv.sk && _sv.mx){ for(var _q=0;_q<=Math.min(_sv.mx,STEPS.length-1);_q++) _seenK[STEPS[_q].k]=1; }   // 구(mx 인덱스) 저장분 마이그레이션
+  if(!_sv.sk && _sv.sv){ STEPS.forEach(function(_s){ _seenK[_s.k]=1; }); }   // 완료 저장본(서버 초안 주입 포함)은 전 순간 방문이 보장됨('전 순간 방문 고정') → 재방문 고객의 스트립이 전부 회색이 되지 않게 전체 시드
   return true;
 }
 try{ _applySaved(JSON.parse(localStorage.getItem('me_order')||'null')); }catch(e){}
