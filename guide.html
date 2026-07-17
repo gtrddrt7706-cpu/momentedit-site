@@ -139,6 +139,7 @@ function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1�
 }
 function normName(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); }   // 공백(전각 포함) 제거 — '김 민수'로 입력해도 '김민수' 좌석을 찾게(양방향)
 function findSeat(v){
+  if(SEAT_STATE==='mine') return;   // 서버 검색 모드로 강등된 상태 — 결과 표시는 bindSeatServer가 전담(로컬 실패 문구로 덮지 않게)
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
   if(!v){ fr.innerHTML=''; return; }
   if(SEAT_STATE==='loading'){ fr.textContent='좌석 안내를 불러오는 중이에요…'; return; }
@@ -165,33 +166,56 @@ function bindSeat(seatToken, full){
     if(started) return; started=true; SEAT_STATE='loading';
     fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken}) })
       .then(function(r){ return r.json(); })
-      .then(function(d){ if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; } else { SEAT_STATE='fail'; } if(q.value) findSeat(q.value); })   // 로드 후 이미 입력돼 있으면 재조회(타이핑이 먼저였던 경우)
+      .then(function(d){
+        if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; }
+        else if(d&&d.mineOnly){   // 부부가 그 사이 '내 자리만'으로 전환(캐시 포함) — 죽은 검색 대신 서버 검색으로 강등
+          SEAT_STATE='mine'; if(all) all.style.display='none';
+          var _sv=bindSeatServer(seatToken, q); if(q.value) _sv(q.value); return;
+        }
+        else { SEAT_STATE='fail'; }
+        if(q.value) findSeat(q.value);
+      })   // 로드 후 이미 입력돼 있으면 재조회(타이핑이 먼저였던 경우)
       .catch(function(){ SEAT_STATE='fail'; if(q.value) findSeat(q.value); });
   }
   q.addEventListener('focus', startLoad);
   q.addEventListener('input', function(){ startLoad(); findSeat(q.value); });
 }
-// '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다. 타이핑 멈춘 뒤 1회 호출(연타 절약).
+// '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
+//   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
+function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
+  if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
+  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요';
+  if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
+  return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
+}
 function bindSeatServer(seatToken, q){
-  var tm=null, seq=0;
+  var tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
   function search(v){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
     if(!v){ fr.innerHTML=''; return; }
-    var my=++seq;
+    if(normName(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // 한 글자(성씨만)는 어차피 다수 매칭 — 호출 절약
+    if(last && last.q===v){ fr.innerHTML=last.html; return; }
+    var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
     fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken, q:v}) })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(my!==seq) return;   // 더 최신 검색이 나감 — 늦은 응답 무시(입력 역전 방지)
+        if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
+        if(d && d.ok && !d.hits && d.seat && d.seat.tables){   // 구버전 GAS(검색 미지원·전체 반환) — 받은 배치로 로컬 검색(GAS 재배포 전 시차 안전망)
+          var tables=d.seat.tables, num=seatRowNum(tables), lc=normName(v), hits0=[];
+          for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]), got=false;
+            for(var k=0;k<seats.length;k++){ if(normName(seats[k]).indexOf(lc)>=0){ got=true; break; } }
+            if(got){ var c=String(tables[i].name||'').trim(); hits0.push({ no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:('테이블 '+(num[i]||(i+1))) }); }
+          }
+          var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; return;
+        }
         if(!d || !d.ok){ fr.textContent=(d&&d.error)||'잠시 후 다시 시도해 주세요.'; return; }
-        var hits=d.hits||[];
-        if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
-        if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }
-        fr.innerHTML='<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요';
+        var h=seatHitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h;
       })
       .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요. 네트워크 상태를 확인해 주세요.'; });
   }
-  q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });
+  q.addEventListener('input', function(){ seq++; if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });   // 입력 즉시 이전 응답 무효화(지운 입력창 아래 잔상 방지)
+  return search;   // 모드 전환 직후 이미 입력된 값 즉시 검색용
 }
 function isWeddingDay(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return false;

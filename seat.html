@@ -156,25 +156,32 @@ function renderMineOnly(seat, t){
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
     +'<div class="foot">연락처 없이 성함과 테이블만 안내돼요.<br>자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
     +'</div>';
-  var q=$('q'), tm=null, seq=0;
+  // 검색·결과 규칙은 guide.html(bindSeatServer·seatHitsHtml)과 동일 — 문구·규칙 수정 시 두 파일 함께
+  var q=$('q'), tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
+  var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };
+  function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
+    if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
+    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블';
+    if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
+    return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
+  }
   function search(v){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
     if(!v){ fr.innerHTML=''; return; }
-    var my=++seq;
+    if(norm(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // 한 글자(성씨만)는 어차피 다수 매칭 — 호출 절약
+    if(last && last.q===v){ fr.innerHTML=last.html; return; }
+    var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
     fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t, q:v}) })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(my!==seq) return;   // 늦게 온 응답 무시(입력 역전 방지)
+        if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
         if(!d || !d.ok){ fr.textContent=(d&&d.error)||'잠시 후 다시 시도해 주세요.'; return; }
-        var hits=d.hits||[];
-        if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
-        if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 여러 자리에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }
-        fr.innerHTML='<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블';
+        var h=hitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h;
       })
-      .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요.'; });
+      .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요. 네트워크 상태를 확인해 주세요.'; });
   }
-  if(q) q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });
+  if(q) q.addEventListener('input', function(){ seq++; if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });   // 입력 즉시 이전 응답 무효화
 }
 (function boot(){
   var t=qp('t');

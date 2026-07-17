@@ -4280,10 +4280,12 @@ function wireGuideShare(box, token){
 // [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
 //   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
 function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
+var _cfReopen=false;   // 확인서 패널 안 컨트롤 저장 → 재렌더 후에도 패널을 접지 않기 위한 1회성 플래그
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
   var _rDone=(t.ritual||'')==='완료', _fDone=(t.final||'')==='완료', _dDone=(t.dining||'')==='완료', _sDone=(t.seat||'')==='완료';
+  var _cfOk=!!(p.confirm&&p.confirm.at);   // 확인됨 판정 단일화 — 배너·배지가 같은 기준을 쓰게(엇갈린 UI 방지)
   function line(k,v){ return '<div class="cf-l"><span class="cf-k">'+escapeHtml(k)+'</span><span class="cf-v">'+(v||'<span style="color:var(--label-soft)">미완료</span>')+'</span></div>'; }
   // 파트별 요약(읽기 전용)
   var L='';
@@ -4330,7 +4332,7 @@ function prodConfirmHtml(p, inv){
   var E=Ei?('<div class="cf-edit">'+Ei+'</div>'):'';
   // 확인 상태·버튼
   var C='';
-  if(p.confirm && p.confirm.at){
+  if(_cfOk){
     C='<div class="cf-ok">이 내용대로 진행을 확인하셨어요 · '+escapeHtml(String(p.confirm.at))+'</div>';
   } else {
     if(p.confirmStale) C+='<div class="cf-warn">확인 후 내용이 바뀌었어요 · 아래에서 다시 확인해 주세요.</div>';
@@ -4339,8 +4341,9 @@ function prodConfirmHtml(p, inv){
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
   }
   var _bm=String((p.confirm&&p.confirm.at)||'').match(/^\d{4}-(\d{2})-(\d{2})/);   // '07-17' 그대로 쓰지 않고 페이지 표기 관례(7월 17일)로
-  var badge=p.confirm?'<span class="gi-badge">확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')+'</span>':(p.confirmStale?'<span class="gi-badge" style="color:var(--seal);border-color:var(--seal)">재확인 필요</span>':'<span class="gi-badge gi-badge-o">확인 전</span>');
-  return '<details class="gi-wrap" id="cf_wrap"'+((p.confirmStale)?' open':'')+'><summary class="gi-sum">예식 확인서 · <span class="gi-sub">전체 요약·확인</span> '+badge+' <span class="pt-ar">▾</span></summary>'
+  var badge=_cfOk?'<span class="gi-badge">확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')+'</span>':(p.confirmStale?'<span class="gi-badge" style="color:var(--seal);border-color:var(--seal)">재확인 필요</span>':'<span class="gi-badge gi-badge-o">확인 전</span>');
+  var _open=(p.confirmStale||_cfReopen); _cfReopen=false;   // 패널 안 컨트롤(예약·토글·라디오) 저장 직후 재렌더에도 접히지 않게(1회 소비)
+  return '<details class="gi-wrap" id="cf_wrap"'+(_open?' open':'')+'><summary class="gi-sum">예식 확인서 · <span class="gi-sub">전체 요약·확인</span> '+badge+' <span class="pt-ar">▾</span></summary>'
     +'<div class="gi-body">'+L+E+C+'</div></details>';
 }
 function wireProdConfirm(box, p){
@@ -4353,11 +4356,18 @@ function wireProdConfirm(box, p){
       snap.push({k:String(k).trim(), v:String(v).replace(/\s+/g,' ').trim()});
     });
     if(!snap.length) return;
+    var t0=btn.textContent;   // 실패 복구용 원 라벨 캡처 — 문구 수정 시 렌더 한 곳만 고치면 됨
     btn.disabled=true; btn.textContent='확인 저장 중…';
-    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true}).then(function(r){
+    var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
+    if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
+    apiTrackSave(_pl).then(function(r){
       if(r&&r.ok){ show('loading'); loadMyState(); }
-      else { btn.disabled=false; btn.textContent='위 내용대로 예식 진행을 확인합니다'; mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ btn.disabled=false; btn.textContent='위 내용대로 예식 진행을 확인합니다'; mpAlert('확인 저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+      else {
+        btn.disabled=false; btn.textContent=t0;
+        var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
+        mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ show('loading'); loadMyState(); } });
+      }
+    }).catch(function(){ btn.disabled=false; btn.textContent=t0; mpAlert('확인 저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   });
 }
 // [하객 안내 허브] 제작 섹션 노출 최소화(2026-07-17 사용자 지시) — 접힌 한 블록에 링크·QR·설정을 모두 수납.
@@ -4396,15 +4406,20 @@ function wireGuideInfoEditor(box, gi){
   var btn=$('gi_save');
   if(btn) btn.addEventListener('click', function(){
     btn.disabled=true; btn.textContent='저장 중…';
-    save(function(okd){ btn.disabled=false; btn.textContent='예약 정보 저장'; var m=$('gi_msg'); if(okd){ if(m) m.style.display='inline'; setTimeout(function(){ loadMyState(); }, 700); } });
+    save(function(okd){ btn.disabled=false; btn.textContent='예약 정보 저장'; var m=$('gi_msg'); if(okd){ if(m) m.style.display='inline'; _cfReopen=true; setTimeout(function(){ loadMyState(); }, 700); } });
   });
+  // 토글·라디오는 바로 저장(버튼 없음). 저장 성공 시 재렌더 — 확인서 요약 줄·확인 배지(라디오 변경은 확인 해제)를 화면과 즉시 일치시킴.
   var st=$('gi_showSeat');
   if(st) st.addEventListener('change', function(){
     var _mr=$('gi_smrow'); if(_mr) _mr.style.display=st.checked?'':'none';   // 공개 범위는 자리 찾기 켠 경우에만 의미 있음
-    st.disabled=true; save(function(){ st.disabled=false; });
-  });   // 토글은 바로 저장(버튼 없음)
-  box.querySelectorAll('input[name="gi_seatMode"]').forEach(function(rd){
-    rd.addEventListener('change', function(){ save(function(){}); });   // 공개 범위도 바로 저장
+    st.disabled=true; save(function(okd){ st.disabled=false; if(okd){ _cfReopen=true; loadMyState(); } });
+  });
+  var _rds=box.querySelectorAll('input[name="gi_seatMode"]');
+  _rds.forEach(function(rd){
+    rd.addEventListener('change', function(){
+      _rds.forEach(function(x){ x.disabled=true; });   // 저장 중 잠금 — 연타로 저장이 겹쳐 마지막 선택과 다른 값이 남는 역전 방지
+      save(function(okd){ _rds.forEach(function(x){ x.disabled=false; }); if(okd){ _cfReopen=true; loadMyState(); } });
+    });
   });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).

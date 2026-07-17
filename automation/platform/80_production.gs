@@ -122,9 +122,23 @@ function _prodDraftLoadSafe(cust, code, notifyQ) {
   return { ok: false, res: { ok: false, error: '저장 데이터 점검이 필요해 잠시 저장을 멈췄어요. 스튜디오가 확인해 도와드릴게요.' } };
 }
 
+// 다이닝 위저드 내부 선택지 문구(식당명 아님) — 하객·요약 노출에서 걸러냄. 선택지 추가·수정 시 여기 한 곳만(mypage.html DN_PLACEHOLDER와 쌍)
+var DN_PLACEHOLDER = ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'];
+
 // [예식 확인서] 확인 해제 — 제작 내용이 '실제로' 바뀐 쓰기 경로가 호출(80·85 공용). 해제되면 고객·관리자 모두 '재확인 필요'.
 function _prodConfirmVoid(d) {
   if (d && d.confirm) { delete d.confirm; d.confirmStale = true; }
+}
+// [예식 확인서] 상태 지문(rev) — 제작 내용 전체의 결정적 해시. buildProductionState가 내려주고, 확인 요청이 되돌려 보내면
+//   대조해서 '배우자의 다른 탭이 이미 바꾼 옛 화면'의 확인을 거부한다(스냅샷=화면 텍스트라 내용 검증이 안 되는 빈틈을 버전 대조로 방어).
+//   상태 저장 없이 매번 계산 — 별도 카운터 관리·마이그레이션 불필요.
+function _prodStateRev(d) {
+  d = d || {};
+  var s = '';
+  try { s = JSON.stringify([d.base || {}, d.invitationDraft || {}, d.ritualDraft || {}, d.diningDraft || {}, d.finalDraft || {}, d.seatDraft || {}, d.guideinfoDraft || {}, d.tracks || {}, d.eventId || '', d.invitationUrls || null]); } catch (e) { return ''; }
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) { h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; }
+  return String(h);
 }
 // 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
 //   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
@@ -216,6 +230,8 @@ function handleSaveProductionTrack(body) {
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
       if (((d.tracks || {}).ritual) !== '완료' || ((d.tracks || {}).final) !== '완료') return { ok: false, error: '식순과 최종 확정을 완료한 뒤 확인할 수 있어요.' };
+      // 상태 지문 대조 — 배우자의 다른 탭이 먼저 수정했으면 옛 화면의 확인을 거부(새로고침 유도). 구버전 프런트(rev 미전송)는 검사 생략
+      if (body && body.rev != null && String(body.rev) !== _prodStateRev(d)) return { ok: false, error: '내용이 갱신됐어요. 화면을 새로고침한 뒤 다시 확인해 주세요.' };
       // core = 서버가 저장된 초안에서 직접 뽑은 핵심 수치 — 화면 텍스트(snap)만 믿지 않는 확인 기록(구버전 탭·변조 대비 · 관리자 대조용)
       var _fd = d.finalDraft || {}, _rd = d.ritualDraft || {}, _dd = d.diningDraft || {}, _sd = d.seatDraft || {}, _tr = d.tracks || {};
       var _tc = 0, _pn = 0;
@@ -256,7 +272,7 @@ function handleSaveProductionTrack(body) {
       if (track === 'dining') {
         var _gvp = String(_gd.venuePick || '').trim();
         _gHas = String(_gd.dining_on || '') !== 'N'
-          && ((((_gd._favs) || []).length > 0) || (_gvp && ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'].indexOf(_gvp) === -1));
+          && ((((_gd._favs) || []).length > 0) || (_gvp && DN_PLACEHOLDER.indexOf(_gvp) === -1));
       } else if (track === 'seat') {
         _gHas = ((_gd.tables) || []).some(function (t) { return ((t && t.seats) || []).some(function (s) { return String(s || '').trim(); }); });   // 이름 하나라도 있어야
       }
@@ -361,12 +377,16 @@ function handleSeatView(body) {
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
-  if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };   // 부부의 '자리 찾기 허용' OFF — 이미 배포된 seat 링크·QR에도 즉시 적용(토글 약속 이행)
+  if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };   // 부부의 '자리 찾기 허용' OFF — 이미 배포된 seat 링크·QR에도 즉시 적용(토글 약속 이행) ★게이트는 _seatFindByToken과 쌍 — 추가 시 양쪽 모두에
   // [좌석 공개 범위] 기본 '내 자리만' — 전체 배치도(명단)는 부부가 '전체 공개'를 켠 경우에만 내려준다.
   //   이미 배포된 seat 링크·QR에도 즉시 적용: 프론트(seat.html)가 mineOnly를 받으면 검색 전용 화면으로 전환(죽은 링크 없음).
   if (String((d.guideinfoDraft || {}).seatMode || 'mine') !== 'all') {
     var _mo = { ok: false, mineOnly: true, seat: { groom: String(cust.get('신랑이름') || ''), bride: String(cust.get('신부이름') || ''), date: _ymdOf(cust.get('예식일')) || '' } };
-    if (_svc && !_fresh) { try { _svc.put('seatv_' + token, JSON.stringify(_mo), 300); } catch (e) {} }   // 정상 상태 응답이라 캐시 — 모드 변경 시 저장 측 톰스톤이 즉시 무효화
+    if (_svc && !_fresh) { try {
+      _svc.put('seatv_' + token, JSON.stringify(_mo), 300);   // 정상 상태 응답이라 캐시 — 모드 변경 시 저장 측 톰스톤이 즉시 무효화
+      var _sdM = d.seatDraft || {}, _rawM = (Object.prototype.toString.call(_sdM.tables) === '[object Array]') ? _sdM.tables : [];
+      if (_rawM.length) _svc.put('seatf_' + token, JSON.stringify(_rawM.map(_seatFindSlim)), 300);   // 부팅이 읽은 데이터로 검색 캐시도 채움 — 첫 이름 검색이 시트 재조회 없이 히트
+    } catch (e) {} }
     return _mo;
   }
   var sd = d.seatDraft || {};
@@ -393,8 +413,22 @@ function handleSeatView(body) {
 // [좌석 이름 검색] '내 자리만' 모드의 서버 검색 — 하객 명단을 기기로 보내지 않고, 일치한 테이블 번호·이름만 답한다.
 //   seatView 액션에 q가 실려 오면 여기로(디스패처 무변경). 응답에 하객 이름은 절대 담지 않음(테이블 라벨만).
 //   원본 테이블은 seatf_ 키로 5분 캐시(예식 당일 검색 버스트 대비) · 저장 측 톰스톤(seatv_inv_)을 똑같이 존중.
+// [좌석 공용 헬퍼] 이름 정규화·행순서 번호·검색용 슬림 테이블 — seat.html·guide.html 프런트와 동일 규칙(수정 시 3면 함께)
+function _seatNorm(s) { return String(s || '').replace(/[\s　]+/g, '').toLowerCase(); }   // 공백(전각 포함) 제거 — 입력·저장 어느 쪽이든 매칭
+function _seatRowNum(tables) {   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
+  var Ls = [], Rs = [];
+  tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
+  var num = {}, nn = 1, mr = Math.max(Ls.length, Rs.length);
+  for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
+  return num;
+}
+function _seatFindSlim(t) {   // 검색에 필요한 최소만(음료 등 내부 필드 제외)
+  t = t || {};
+  var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
+  return { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+}
 function _seatFindByToken(token, q) {
-  q = String(q || '').replace(/[\s　]+/g, '').toLowerCase();   // 공백(전각 포함) 제거 — 편집기 저장·하객 입력 어느 쪽이든 매칭(seat.html·guide.html과 동일 규칙)
+  q = _seatNorm(q);   // seat.html·guide.html과 동일 정규화(_seatNorm 단일 출처)
   if (!q || q.length > 30) return { ok: false, error: '성함을 입력해 주세요.' };
   var _svc = null, _fresh = false, tables = null;
   try { _svc = CacheService.getScriptCache(); } catch (e) {}
@@ -403,6 +437,7 @@ function _seatFindByToken(token, q) {
     if (!_fresh) { var _hit = _svc.get('seatf_' + token); if (_hit) { try { tables = JSON.parse(_hit); } catch (e) {} } }
   }
   if (!tables) {
+    // ★접근 게이트(토큰 조회·만료·자리찾기 OFF)는 handleSeatView 본문과 쌍 — 게이트를 추가하면 반드시 양쪽 모두에
     var cust = _findCustomerBy('좌석공유토큰', token, false);
     if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
     if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };
@@ -410,27 +445,19 @@ function _seatFindByToken(token, q) {
     if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };
     var sd = d.seatDraft || {};
     var raw = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
-    tables = raw.map(function (t) {   // 검색에 필요한 최소만 캐시(음료 등 내부 필드 제외)
-      t = t || {};
-      var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
-      return { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
-    });
+    tables = raw.map(_seatFindSlim);
     if (_svc && !_fresh) { try { _svc.put('seatf_' + token, JSON.stringify(tables), 300); } catch (e) {} }
   }
   if (!tables.length) return { ok: false, error: '아직 배치가 없어요.' };
-  // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
-  var Ls = [], Rs = [];
-  tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
-  var num = {}, nn = 1, mr = Math.max(Ls.length, Rs.length);
-  for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
+  var num = _seatRowNum(tables);
   var hits = [];
   tables.forEach(function (t, i) {
-    var got = ((t && t.seats) || []).some(function (s) { var nm = String(s || '').replace(/[\s　]+/g, '').toLowerCase(); return nm && nm.indexOf(q) >= 0; });
+    var got = ((t && t.seats) || []).some(function (s) { var nm = _seatNorm(s); return nm && nm.indexOf(q) >= 0; });
     if (!got) return;
     var _no = num[i] || (i + 1), _c = String((t && t.name) || '').trim();
     hits.push({ no: _no, label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 ' + _no) });
   });
-  return { ok: true, hits: hits.slice(0, 5) };   // 상한 — 흔한 성 광범위 매칭이어도 응답 최소(이름은 원래 미포함)
+  return { ok: true, hits: hits.slice(0, 4) };   // 상한 4 — 프런트 규약: 1=단정 · 2~3=후보 나열 · 4(=3 초과)=성함 더 입력 요청. 이름은 원래 미포함
 }
 
 // [하객 안내 허브] 공개 조회 — guide.html이 토큰으로 호출(무인증·읽기 전용). 하객에게 보여줄 안내만 반환.
@@ -456,7 +483,7 @@ function handleGuideView(body) {
   var restos = _favs.filter(function (v) { return v && v.src !== 'attr'; }).map(_mapItem);
   var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
   var _pick = String(dd.venuePick || '').trim();   // 위저드 내부 선택지 문구는 하객에게 식당명이 아님 — 걸러냄('여기로 모여요 · 직접 섭외할게요' 노출 방지)
-  if (['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'].indexOf(_pick) !== -1) _pick = '';
+  if (DN_PLACEHOLDER.indexOf(_pick) !== -1) _pick = '';
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || _pick !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
   return {
@@ -521,6 +548,7 @@ function buildProductionState(r) {
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)
     confirmStale: !!draft.confirmStale,        // 확인 후 수정됨 → 재확인 필요 표시
+    rev: _prodStateRev(draft),                 // 상태 지문 — 확인 요청이 되돌려 보내 옛 화면 확인을 서버가 거부(다중 탭 안전)
     finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
     seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
