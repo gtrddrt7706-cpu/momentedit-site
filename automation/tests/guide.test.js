@@ -214,6 +214,13 @@ setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
 const sfC = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
 ok(sfC.ok === true && sfC.hits.length === 4, '33 다수 일치 상한 4(응답 최소·프런트 규약)');
 
+// 34) 예약 시간·예약자 — 다이닝 위저드 입력(diningDraft) 우선 · 구 guideinfo 저장분 폴백(2026-07-17 이동)
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { reserveTime: '옛값', reserveName: '옛이름' }, diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', src: 'resto' }], reserveTime: '오후 1시 30분', reserveName: '김신랑' } } });
+const gvR = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
+ok(gvR.guide.dining.rtime === '오후 1시 30분' && gvR.guide.dining.rname === '김신랑', '34a 다이닝 입력 우선');
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { reserveTime: '오후 1시' }, diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', src: 'resto' }] } } });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining.rtime === '오후 1시', '34b 다이닝에 없으면 구 저장분 폴백');
+
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
 if (fail) process.exit(1);

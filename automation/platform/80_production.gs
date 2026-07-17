@@ -492,7 +492,7 @@ function handleGuideView(body) {
       groom: String(cust.get('신랑이름') || ''),
       bride: String(cust.get('신부이름') || ''),
       date: _ymdOf(cust.get('예식일')) || '',
-      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots, rtime: String(gi.reserveTime || ''), rname: String(gi.reserveName || '') },   // 예약 시간·예약자 — 종료 후 별도 안내 없이 집결(오시는 길·드레스코드 섹션은 폐지 2026-07-17)
+      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots, rtime: String(dd.reserveTime || gi.reserveTime || '').slice(0, 40), rname: String(dd.reserveName || gi.reserveName || '').slice(0, 30) },   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 구 guideinfo 저장분 폴백. 종료 후 별도 안내 없이 집결
       seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       seatFull: (_showSeat && String(gi.seatMode || 'mine') === 'all'),   // 좌석 공개 범위 — true면 전체 배치도 링크 노출, false(기본)면 이름 검색만(서버 검색 · 명단 비전송)
       eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
