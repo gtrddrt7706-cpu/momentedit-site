@@ -155,7 +155,7 @@ var _CUST_PII_COLS = [
   '신랑이름', '신부이름', '연락처', '이메일',
   '동의기록', '입금자명', '잔금입금자명', '중도금입금자명', '추가보정입금자명',
   '제작임시저장', '계약서링크', '쿠폰데이터', '선택사진', '설문응답',
-  '원본링크', '영상링크', '보정본폴더', '좌석공유토큰'
+  '원본링크', '영상링크', '보정본폴더', '좌석공유토큰', '안내공유토큰'
 ];
 // 이 컬럼 중 하나라도 '보관 의무' 값이면 파기 제외(법정 보관 · 진행 중 계약 보호).
 function _custRetained(get) {
@@ -210,6 +210,7 @@ function purgeStaleCustomers(dryRun) {
     if (_custRetained(fget)) continue;                                    // 배치 중 계약·입금 발생 → 보호(재검증)
     if (_custAnonymized(fget)) continue;                                  // 배치 중 이미 익명화됨
     if (!_stale(fget)) continue;                                          // 배치 중 재활동(최종수정 갱신) → 보호(오파기 방지)
+    var _seatTok = String(fget('좌석공유토큰') || '').trim();   // 파기 후 좌석 공개조회 캐시도 함께 무효화(파기 약속 즉시 이행 — 캐시 5분 잔존 방지)
     for (var k = 0; k < _CUST_PII_COLS.length; k++) { var cc = colOf[_CUST_PII_COLS[k]]; if (cc) fresh[cc - 1] = ''; }
     var mark = '[자동파기 ' + fmtKST(new Date()) + '] 상담 미계약 6개월 경과 · 개인정보 삭제';
     if (colOf['관리자메모']) fresh[colOf['관리자메모'] - 1] = mark;
@@ -217,6 +218,7 @@ function purgeStaleCustomers(dryRun) {
     if (colOf['현재단계']) fresh[colOf['현재단계'] - 1] = '미계약';        // 진행바 예외로 정리(드롭다운 유효값)
     if (colOf['최종수정']) fresh[colOf['최종수정'] - 1] = fmtKST(new Date());
     sheet.getRange(rowNum, 1, 1, lastCol).setValues([fresh.map(_deFormula)]);   // 재기록 시 지우지 않은 셀의 수식(=,+..) 재무장 방지
+    if (_seatTok) { try { var _pc = CacheService.getScriptCache(); _pc.put('seatv_inv_' + _seatTok, '1', 360); _pc.remove('seatv_' + _seatTok); } catch (e) {} }   // 캐시에 남은 하객 명단 즉시 차단(톰스톤 포함)
     codes.push(String(fget('개인코드') || '').trim().toUpperCase());
     samples.push({ code: String(fget('개인코드')), 최종수정: '', 현재단계: '미계약' });   // 실제 파기 후에만 집계(로그 정확도)
     purged++;

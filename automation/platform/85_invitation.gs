@@ -134,6 +134,7 @@ function handleSaveInvitationDraft(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -141,13 +142,13 @@ function handleSaveInvitationDraft(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
-    var _dl = _prodDraftLoadSafe(cust, code); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼)
+    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
     d.invitationDraft = (body && body.draft) || {};
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
     return { ok: true };
-  } finally { try { lock.releaseLock(); } catch (e) {} }
+  } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
 }
 
 // [04] 청첩장 발행 → Couples(교차) 41열 기록 + eventId 배선 + tracks.invitation=완료. method='none'이면 발행 없이 완료.
@@ -157,6 +158,7 @@ function handlePublishInvitation(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
 
+  var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
   try { lock.waitLock(20000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
@@ -165,8 +167,8 @@ function handlePublishInvitation(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var _dl2 = _prodDraftLoadSafe(cust, code); if (!_dl2.ok) return _dl2.res;   // 손상 셀 위 저장 금지(80_production 헬퍼)
-    var d = _dl2.d;
+    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
+    var d = _dl.d;
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
@@ -207,7 +209,7 @@ function handlePublishInvitation(body) {
 
     // 캐시 무효화: webhook(별 프로젝트)의 ScriptCache는 여기서 못 지움 → 재발행 시 TTL만큼 지연 가능(신규는 무관).
     return { ok: true, eventId: eventId, urls: urls };
-  } finally { try { lock.releaseLock(); } catch (e) {} }
+  } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
 }
 
 // [04] 청첩장 미리보기 — draft를 Couples 같은 eventId 행에 기록(발행 전). ★발행과 동일 _invMakeEventId → 미리보기 행=발행 행(2개 X). tracks는 '완료'로 안 올림(미완료 유지) → 발행이 같은 행 덮어쓰며 '완료'로 승격.
@@ -217,6 +219,7 @@ function saveInvitationPreview(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
 
+  var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
   try { lock.waitLock(20000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
@@ -225,8 +228,8 @@ function saveInvitationPreview(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var _dl3 = _prodDraftLoadSafe(cust, code); if (!_dl3.ok) return _dl3.res;   // 손상 셀 위 저장 금지(80_production 헬퍼)
-    var d = _dl3.d;
+    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
+    var d = _dl.d;
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
@@ -258,7 +261,7 @@ function saveInvitationPreview(body) {
     touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d), 'eventId': eventId });
 
     return { ok: true, eventId: eventId, urls: urls };
-  } finally { try { lock.releaseLock(); } catch (e) {} }
+  } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
 }
 
 // [04] 마이페이지 청첩장 트랙 상태 — draft(이어쓰기) + 발행 결과(eventId·URL). 제작 단계에만.
