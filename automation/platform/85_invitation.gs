@@ -141,7 +141,8 @@ function handleSaveInvitationDraft(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
-    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var _dl = _prodDraftLoadSafe(cust, code); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼)
+    var d = _dl.d;
     d.invitationDraft = (body && body.draft) || {};
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
@@ -164,7 +165,8 @@ function handlePublishInvitation(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var _dl2 = _prodDraftLoadSafe(cust, code); if (!_dl2.ok) return _dl2.res;   // 손상 셀 위 저장 금지(80_production 헬퍼)
+    var d = _dl2.d;
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
@@ -223,7 +225,8 @@ function saveInvitationPreview(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var _dl3 = _prodDraftLoadSafe(cust, code); if (!_dl3.ok) return _dl3.res;   // 손상 셀 위 저장 금지(80_production 헬퍼)
+    var d = _dl3.d;
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
     var method = String(draft.method || '').trim();
