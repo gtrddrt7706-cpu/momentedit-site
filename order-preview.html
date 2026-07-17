@@ -170,6 +170,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
 .tcap{margin-left:auto;flex-shrink:0;font-size:10px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
+.tcap.fx{color:var(--sub);background:#F1F0ED;border-color:#E4E2DD;font-weight:500}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
 .mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
 .m-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:mdraw 1.8s ease-out forwards}
@@ -876,7 +877,7 @@ var TUNE={
  tribute:{n:'부모님 헌정',c:'부모님께 꽃과 감사를 전해요'},
  bless:{n:'부모님 덕담',c:'양가 부모님이 짧은 덕담으로 축복해요'}
 };
-var TCAP={guest:'방식',entry:'멘트',veil:'넣고 빼기',welcome:'예시',vow:'낭독 방식',ringwarm:'범위',ring:'넣고 빼기',declare:'낭독 주체',valley:'넣고 빼기',toast:'방식',song:'방식',letter:'대상',tribute:'방식',bless:'넣고 빼기'};
+/* (구)TCAP 선택종류 알약 폐지 — 2026-07-17 사용자 요청으로 알약을 고정/조정 축으로 교체. 선택 종류는 확장 안 '여기서 정할 것'(MOMENT[x].act)이 담당 */
 /* 코스별 선택 순서: 왜 기본에서 빠져 있는지 한 줄 이유(사용자 혼란 방지) */
 var OPTWHY={
  minimal:{welcome:'미니멀은 가장 짧게 남기는 코스라 기본에서 빼 뒀어요 · 첫인사를 원하면 이 자리에 더해요',
@@ -890,14 +891,7 @@ var OPTWHY={
 var OFFTGL={ring:1,bless:1,veil:1,valley:1};
 function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='veil'?S.veil!=='skip':k==='valley'?S.valley!=='none':true; }
 var _tprev=''; var _foldOpen={};
-var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};   // 장면(클립·다이어그램) 있는 순간 — 카드 확장 대상(tune·mcListen 공용)
-// '이 순간 들어보기' — 장면이 있는 카드는 펼치면서(영상과 나란히) 재생 시작, 없는 카드는 제자리 재생(2026-07-17 사용자 요청: 듣기와 장면이 조화롭게 함께 열리게)
-window.mcListen=function(x){
-  var canExp=MCVIS[x]||((OPTWHY[S.course]||{})[x]);
-  if(canExp && _tprev!==x){ _tprev=x; render(); }
-  var btn=document.querySelector('.mc.open [data-mp="'+x+'"]')||document.querySelector('[data-mp="'+x+'"]');
-  if(btn) momPlay(btn,x);
-};
+var MCVIS={entry:1,welcome:1,declare:1,letter:1,toast:1,vow:1,ring:1,tribute:1,song:1,veil:1,ringwarm:1};   // 장면(클립·다이어그램) 있는 순간
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
 function fold(key,title,inner){ var o=_foldOpen[key]; return '<div class="fold'+(o?' open':'')+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x">›</span></div>'+(o?'<div class="fold-b">'+inner+'</div>':''); }
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
@@ -934,12 +928,12 @@ function renderStep(k){
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
-    h+='<div class="tune-hint">카드를 누르면 <b>그 순간의 장면</b>이, 이 순간 들어보기를 누르면 <b>안내 목소리</b>가 함께 열려요.</div>';   // 미리보기 안내 강조(2026-07-17 사용자 요청)
+    h+='<div class="tune-hint">카드를 누르면 <b>그 순간의 장면과 안내 듣기</b>가 함께 열려요.<br><b>고정 진행</b>은 이 코스의 뼈대라 늘 함께해요 · 진행 방식은 다음 화면에서 하나씩 골라요. <b>뺄 수 있어요</b> 표시가 있는 순간만 넣고 빼요.</div>';   // 미리보기 안내 + 고정/조정 범례(2026-07-17 사용자 요청: 기능 정보 부족)
     var _base=COURSES[S.course].seq.slice();
     var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
     var _disp=_base.map(function(k){return {k:k,off:false};});
     _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
-    var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — MCVIS는 전역(mcListen 공용). 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
+    var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
     var _mm=function(x){   // 연출 선택에 따라 분이 달라지는 순간은 현재 선택 기준으로(estMin 델타와 일치 — 칩과 총 시간이 어긋나지 않게)
       if(x==='letter') return S.letter==='both'?5:3;
       if(x==='ringwarm') return S.ringwarm==='all'?4:2;
@@ -951,24 +945,27 @@ function renderStep(k){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
-      var _canExp=!!(MCVIS[x]||_why);   // 장면(클립·다이어그램)이나 설명 한 줄이 있는 카드만 확장 — 넣기/빼기가 카드 레벨로 나와 '빈 확장'이 된 카드는 화살표 제거(2026-07-17 정리)
+      var _canExp=true;   // 모든 카드 확장 — 확장 안에 장면(있으면)+이 순간 들어보기+판단 정보가 함께 열림(2026-07-17 사용자 요청: 듣기는 카드 열 때)
       var _open=(_tprev===x)&&_canExp;
       h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'"'+(_canExp?' onclick="tprev(\''+x+'\')"':' style="cursor:default"')+'>';
       var _min=_off?'':(_mm(x)?('약 '+_mm(x)+'분'):(x==='guest'?'식전':''));
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap">'+(_off?'지금은 빠져 있어요':(TCAP[x]||''))+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
+      // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
+      var _adj=!!(S.extra[x]||OFFTGL[x]||d.off);
+      var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div>'+(_canExp?'<span class="mc-chev">›</span>':'')+'</div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
-      // 카드에서 바로: 이 순간의 진행 안내 듣기 + 순서 넣기/빼기(확장 없이도 보이게 · 2026-07-16 사용자 요청)
-      h+='<div class="mc-act">';
-      h+='<button type="button" class="rowbtn" data-mp="'+x+'" onclick="event.stopPropagation();mcListen(\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>';   // 장면 있는 카드는 펼치며 재생(영상과 나란히) · 빠져 있는 순간도 듣고 결정
-      if(d.off) h+='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
-      else if(S.extra[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
-      else if(OFFTGL[x]) h+='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
-      h+='</div>';
+      // 카드 레벨엔 순서 넣기/빼기만 — 들어보기는 카드를 열면 장면과 함께(2026-07-17 사용자 요청)
+      var _tg='';
+      if(d.off) _tg='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
+      else if(S.extra[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
+      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
+      if(_tg) h+='<div class="mc-act">'+_tg+'</div>';
       if(_open){
         h+='<div class="mc-x">';
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
         h+=(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>');
+        h+='<div style="text-align:center;margin-top:10px"><button type="button" class="rowbtn" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';   // 장면 바로 아래에서 안내 목소리 재생(2026-07-17)
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
         // 열었을 때 도움 정보: 이 단계에서 정하게 될 것 + 많이 고르는 선택(사회적 증거) — 나레이션·영상 외 판단 재료(2026-07-17 사용자 요청)
         var _mi='';
