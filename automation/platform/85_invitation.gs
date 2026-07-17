@@ -144,7 +144,9 @@ function handleSaveInvitationDraft(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
+    var _oldInvJ = JSON.stringify(d.invitationDraft || {});
     d.invitationDraft = (body && body.draft) || {};
+    if (d.confirm && _prodUiStrip(_oldInvJ) !== _prodUiStrip(JSON.stringify(d.invitationDraft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
     return { ok: true };
@@ -169,15 +171,19 @@ function handlePublishInvitation(body) {
 
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
+    var _oldInvJ2 = JSON.stringify(d.invitationDraft || {});
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
+    if (d.confirm && _prodUiStrip(_oldInvJ2) !== _prodUiStrip(JSON.stringify(draft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     var method = String(draft.method || '').trim();
     // 기초정보 화면 없이 — 이름은 위저드 1단계(draft), 일시·이메일은 계약·계정값으로 서버가 base 구성
     var base = _ensureProductionBase(cust, d, draft);
 
     // 청첩장 없이 → 발행 없이 트랙 완료
     if (method === 'none') {
-      d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
+      d.tracks = d.tracks || {};
+      if (d.tracks.invitation !== '완료') _prodConfirmVoid(d);   // [예식 확인서] 청첩장 상태 변화(→완료)도 확인 해제
+      d.tracks.invitation = '완료';
       touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d) });
       return { ok: true, skipped: true };
     }
@@ -200,8 +206,10 @@ function handlePublishInvitation(body) {
     var urls = _invUrls(eventId, fields.designOnline, fields.designFamily, fields.digitalAttendance);
 
     // 배선 + draft/상태 저장 (Customers)
+    var _pubOld = JSON.stringify([d.eventId || '', d.invitationUrls || {}, (d.tracks || {}).invitation || '']);
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
+    if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls, d.tracks.invitation]) !== _pubOld) _prodConfirmVoid(d);   // [예식 확인서] 발행(상태·링크 변화)도 확인 해제 — 재발행 무변경은 유지
     var _updPub = { '제작임시저장': JSON.stringify(d), 'eventId': eventId };
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
@@ -230,8 +238,10 @@ function saveInvitationPreview(body) {
 
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
+    var _oldInvJ2 = JSON.stringify(d.invitationDraft || {});
     var draft = (body && body.draft) || d.invitationDraft || {};
     d.invitationDraft = draft;
+    if (d.confirm && _prodUiStrip(_oldInvJ2) !== _prodUiStrip(JSON.stringify(draft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     var method = String(draft.method || '').trim();
     // 기초정보 화면 없이 — 이름은 위저드 1단계(draft), 일시·이메일은 계약·계정값으로 서버가 base 구성
     var base = _ensureProductionBase(cust, d, draft);
@@ -256,7 +266,9 @@ function saveInvitationPreview(body) {
     var urls = _invUrls(eventId, fields.designOnline, fields.designFamily, fields.digitalAttendance);
 
     // 배선 저장 — ★ tracks.invitation은 '완료'면 유지, 아니면 '진행중'(미완료 유지. 발행이 '완료'로 올림)
+    var _wireOld = JSON.stringify([d.eventId || '', d.invitationUrls || {}]);
     d.eventId = eventId; d.invitationUrls = urls;
+    if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls]) !== _wireOld) _prodConfirmVoid(d);   // [예식 확인서] 배선(링크) 변화도 확인 해제 — 무변경 재배선은 유지
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d), 'eventId': eventId });
 

@@ -752,6 +752,8 @@ function _prodTrackDetail(prod){
   // [예식 확인서] 고객 확인 상태 — 확인됐으면 그 스냅샷이 운영 기준(라이브 초안 아님)
   if(prod.confirm && prod.confirm.at){
     var _ch=''; (prod.confirm.snap||[]).forEach(function(x){ _ch+=L(esc(String((x&&x.k)||'')), esc(String((x&&x.v)||''))); });
+    var _co=prod.confirm.core;   // 서버가 확인 시점 초안에서 직접 뽑은 수치 — 화면 스냅샷과 어긋나면 그 시점 데이터로 대조
+    if(_co){ _ch+='<div class="cnote">서버 기록 · 하객 '+esc(String(_co.heads||'-'))+'명 · 스탠딩 '+(Number(_co.standing)||0)+' · 추가 '+(Number(_co.extraFee)||0).toLocaleString()+'원'+(_co.drink?(' · '+esc(String(_co.drink))):'')+(_co.course?(' · '+esc(String(_co.course))+' 코스'):'')+' · 테이블 '+(Number(_co.seatTables)||0)+' · 배치 '+(Number(_co.seatNames)||0)+'명'+(_co.venue?(' · '+esc(String(_co.venue))):'')+'</div>'; }
     out+='<div class="raw-sub"><div class="raw-sub-h">예식 확인서 · 고객 확인 '+esc(String(prod.confirm.at))+'</div>'+_ch+'<div class="cnote">고객이 확인한 시점의 스냅샷 — 예식 준비는 이 내용 기준</div></div>';
   } else if(prod.confirmStale){
     out+='<div class="raw-sub"><div class="raw-sub-h" style="color:var(--seal,#6b2a24)">예식 확인서 · 재확인 필요</div><div class="cnote">확인 후 고객이 내용을 수정함 — 아래 상세는 수정된 최신 초안</div></div>';

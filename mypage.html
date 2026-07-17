@@ -876,12 +876,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .gi-row{margin-bottom:11px}
     .gi-l{display:block;font-family:var(--serif-ko);font-size:12px;color:var(--light);margin:0 0 5px 2px}
     .gi-tg{display:flex;align-items:flex-start;gap:8px;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:0 0 10px;cursor:pointer;line-height:1.5}
-    .rsv-d{margin-top:2px}
-    .rsv-d summary{list-style:none;cursor:pointer;font-size:11.5px;color:var(--gold-deep);padding:2px 0}
-    .rsv-d summary::-webkit-details-marker{display:none}
-    .rsv-d summary::after{content:" ▾";color:var(--label-soft)}
-    .rsv-d[open] summary::after{content:" ▴"}
-    .rsv-b{padding:8px 0 2px}
+    /* (구).rsv-* 예약 정보 접기 위젯 CSS 삭제 — 예식 확인서(cf-*)로 통합되며 마크업 소멸(2026-07-17 리뷰) */
     .cf-l{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hairline,#eee7dc);text-align:left}
     .cf-k{font-size:12px;color:var(--gold-deep);padding-top:1px}
     .cf-v{font-size:12.5px;color:var(--accent);line-height:1.6;word-break:keep-all}
@@ -1040,13 +1035,27 @@ function contractSrc(product, docVersion){
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
 // [브라우저 뒤로가기 연동] 오버레이·위저드가 열려 있는 동안 뒤로가기(제스처 포함)는 페이지 이탈 대신 그 화면 닫기 — 습관적 뒤로가기로 메인에 튕기는 것 방지(2026-07-17 사용자 요청)
 //   열 때 히스토리 1층(pushState)+닫기 함수 등록 → popstate가 오면 등록된 닫기 실행 · 수동 닫기(✕·저장 후 나가기)는 bkDone()이 그 층을 소비해 히스토리 잔층을 안 남김.
-var _bkStack=[], _bkClosing=false, _bkFromPop=false;
-function bkOpen(closeFn){ _bkStack.push(closeFn||null); try{ history.pushState({meLayer:_bkStack.length},''); }catch(e){} }
-function bkDone(){ if(_bkFromPop||!_bkStack.length) return; _bkStack.pop(); _bkClosing=true; try{ history.back(); }catch(e){ _bkClosing=false; } }
+var _bkStack=[], _bkClosing=false, _bkFromPop=false, _bkSeq=0;
+function bkOpen(closeFn, isModal){ var id=++_bkSeq; _bkStack.push({id:id, fn:closeFn||null, modal:!!isModal}); try{ history.pushState({meLayer:_bkStack.length},''); }catch(e){} return id; }
+// id를 넘기면 '그 층이 아직 맨 위일 때만' 소비 — 뒤로가기로 이미 닫힌 층·이중 호출·다른 층이 위에 있는 경우 전부 무해한 no-op(층 이중 소비로 페이지가 튕기는 사고 방지)
+function bkDone(id){
+  if(_bkFromPop||!_bkStack.length) return;
+  var top=_bkStack[_bkStack.length-1];
+  if(id!==undefined && top.id!==id) return;
+  _bkStack.pop(); _bkClosing=true; try{ history.back(); }catch(e){ _bkClosing=false; }
+}
+function bkKill(flow){ if(flow && flow._bk){ bkDone(flow._bk); flow._bk=null; } }   // 위저드 전환·강제 종료 시 그 흐름의 층 정리
+function bkAlive(id){ for(var i=0;i<_bkStack.length;i++){ if(_bkStack[i].id===id) return true; } return false; }   // 그 층이 아직 스택에 있나(뒤로가기로 진입한 실패 복귀 → 가드 재무장 판단)
 window.addEventListener('popstate', function(){
   if(_bkClosing){ _bkClosing=false; return; }
   if(!_bkStack.length) return;                       // 우리가 쌓은 층이 없으면 브라우저 기본 동작(페이지 이탈)
-  var c=_bkStack.pop(); _bkFromPop=true; try{ if(c) c(); }catch(e){} _bkFromPop=false;
+  var top=_bkStack[_bkStack.length-1];
+  var mm=document.getElementById('mpModal');
+  if(mm && mm.classList.contains('open') && !top.modal){   // 확인 대화상자(재시도 등)가 떠 있는 동안 뒤로가기는 무시 — 습관적 뒤로가기가 '저장 없이 나가기'로 새는 것 방지. 소비된 히스토리 층은 복원
+    try{ history.pushState({meLayer:_bkStack.length},''); }catch(e){}
+    return;
+  }
+  _bkStack.pop(); _bkFromPop=true; try{ if(top.fn) top.fn(); }catch(e){} _bkFromPop=false;
 });
 function openContractView(){
   var old=$('mp_ctViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
@@ -1079,7 +1088,7 @@ function openContractView(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1091,7 +1100,7 @@ function openContractView(){
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   window.addEventListener('message',onMsg);
-  bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
+  var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
   // 서명 완료인데 손글씨 이미지가 아직 없으면 기존 getSignature로 가져와 다시 채움(새 GAS 재배포 불요)
   if(window._contractFill && window._contractFill.signed && !window._contractFill.signImage){
     var _applySig=function(u){ if(!u) return; window._contractFill.signImage=u; _sigCache['계약']=u; try{ if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:window._contractFill}, location.origin); }catch(e){} };
@@ -1116,7 +1125,7 @@ function openRitualBuilder(p){
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
   var saved=false;
-  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1135,7 +1144,7 @@ function openRitualBuilder(p){
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   window.addEventListener('message',onMsg);
-  bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
+  var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
 }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
 function openFittingView(){
@@ -1159,7 +1168,7 @@ function openFittingView(){
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1168,7 +1177,7 @@ function openFittingView(){
       setTimeout(function(){ fr.style.opacity='1'; },70);
     }
   }
-  x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); bkOpen(done);   // 브라우저 뒤로가기 = 닫기
+  x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
 }
 
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
@@ -1238,7 +1247,7 @@ function mpSignaturePad(opts){
       +'<div class="mp-sig-hint" id="mpSigHint">위 칸에 손가락(또는 마우스)으로 서명해 주세요</div>';
     b.style.display='';
     a.innerHTML=''; var done=false;
-    function finish(v){ if(done)return; done=true; window.removeEventListener('resize',resize); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
+    function finish(v){ if(done)return; done=true; bkDone(_bkId); window.removeEventListener('resize',resize); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
     var cv=$('mpSigCanvas'), ctx=cv.getContext('2d'), drawn=false, drawing=false, last=null, saved=null;
     function resize(){
       var img=drawn?ctx.getImageData(0,0,cv.width,cv.height):null;
@@ -1261,6 +1270,7 @@ function mpSignaturePad(opts){
     cancel.addEventListener('click',function(){ finish(null); });
     a.appendChild(prim); a.appendChild(clr); a.appendChild(cancel);
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
+    var _bkId=bkOpen(function(){ finish(null); }, true);   // 뒤로가기 = 서명 취소(그리다 페이지 이탈 방지) · modal 표시로 대화상자 무시 규칙과 구분
     window.addEventListener('resize',resize);
     setTimeout(resize,40);
   });
@@ -1806,18 +1816,19 @@ function openInviteSamples(){
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
-  function done(){ bkDone(); ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  var _closed=false;
+  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
   function esc(e){ if(e.key==='Escape') done(); }
   x.addEventListener('click', done);
   ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
   document.addEventListener('keydown', esc);
-  bkOpen(done);   // 브라우저 뒤로가기 = 닫기
+  var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
   _mpLock();
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
-function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); } }
-function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); } }
+function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); box._bkId=bkOpen(closeLedModal); } }   // 뒤로가기 = 원장 닫기
+function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); bkDone(box._bkId); box._bkId=null; } }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
 
 // 커피쿠폰 (후기 완주 보상) — 관리자가 발급하면 바코드 이미지·사용기한 표시. 없으면 카드 숨김.
@@ -3120,7 +3131,7 @@ function weddingTimeOptions(sel){
 // 기초정보 입력 화면 제거 — 이름은 청첩장 위저드 1단계에서 입력(청첩장에만 쓰임), 예식 일시·이메일은 서버가 계약·계정값으로 자동 구성.
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; INVFLOW.active=false; TRKFLOW.active=false; SEATFLOW.active=false; return; }
+  if(!p){ box.style.display='none'; box.innerHTML=''; bkKill(INVFLOW); bkKill(TRKFLOW); bkKill(SEATFLOW); INVFLOW.active=false; TRKFLOW.active=false; SEATFLOW.active=false; return; }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
@@ -3630,7 +3641,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, gi){
 // ── 청첩장 입력 위저드 (04) — 입구 → 혼주·계좌 → [디자인·발행=다음 조각] ──
 var INVFLOW = { active:false, step:'method', draft:{} };
 function startInvFlow(inv, base){
-  if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;       // 한 번에 하나의 위저드만
+  if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; }       // 한 번에 하나의 위저드만 · 남은 뒤로가기 층도 함께 정리
   var dr = (inv && inv.draft) ? JSON.parse(JSON.stringify(inv.draft)) : {};
   var st = dr._step || 'method';                              // #8 마지막 단계 기억 → 재진입 복원
   if(!dr.method) st='method';
@@ -3641,18 +3652,20 @@ function startInvFlow(inv, base){
   var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
-  bkOpen(function(){ exitInvFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  INVFLOW._bk=bkOpen(function(){ exitInvFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderInvFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
 function exitInvFlow(){   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
-  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
+  if(INVFLOW._exiting) return; INVFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   show('loading');
   saveInvDraft().then(function(r){
-    if(r&&r.ok){ INVFLOW.active=false; loadMyState(); return; }
+    INVFLOW._exiting=false;
+    if(r&&r.ok){ bkKill(INVFLOW); INVFLOW.active=false; loadMyState(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    if(!bkAlive(INVFLOW._bk)) INVFLOW._bk=bkOpen(function(){ exitInvFlow(); });   // 뒤로가기로 나가다 실패한 경우 — 소비된 가드 재무장(다음 뒤로가기가 페이지 이탈이 되지 않게)
     mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitInvFlow(); } else { INVFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitInvFlow(); } else { bkKill(INVFLOW); INVFLOW.active=false; show('loading'); loadMyState(); } });
   });
 }
 // [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
@@ -3669,7 +3682,8 @@ function mpImgView(src,title){
     m=document.createElement('div'); m.className='pv-modal'; m.id='pvModal';
     m.innerHTML='<div class="pv-modal-card" role="dialog" aria-modal="true"><div class="pv-modal-head"><span class="pv-modal-cap" id="pvCap"></span><button type="button" class="pv-modal-x" id="pvX">닫기 ✕</button></div><div class="pv-modal-body" id="pvBody"></div></div>';
     document.body.appendChild(m);
-    function close(){ m.classList.remove('open'); document.body.style.overflow=''; }
+    function close(){ if(!m.classList.contains('open')) return; m.classList.remove('open'); document.body.style.overflow=''; bkDone(m._bkId); m._bkId=null; }
+    m._close=close;   // 재사용 싱글톤 — 열 때마다 뒤로가기 층을 새로 등록하기 위한 참조
     m.addEventListener('click', function(ev){ if(ev.target===m) close(); });
     $('pvX').addEventListener('click', close);
     document.addEventListener('keydown', function(ev){ if(ev.key==='Escape'&&m.classList.contains('open')){ close(); } });
@@ -3680,7 +3694,8 @@ function mpImgView(src,title){
   im.src=src;
   var fr=document.createElement('div'); fr.className='pv-modal-frame'; fr.appendChild(im);
   var bd=$('pvBody'); bd.innerHTML=''; bd.appendChild(fr); bd.scrollTop=0;
-  m.classList.add('open'); document.body.style.overflow='hidden';
+  if(!m.classList.contains('open')){ m.classList.add('open'); m._bkId=bkOpen(m._close); }   // 뒤로가기 = 이미지 뷰어 닫기(위저드 층 오소비 방지)
+  document.body.style.overflow='hidden';
 }
 document.addEventListener('click', function(e){
   if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;   // 새탭 의도(수정키)는 브라우저 기본 동작 유지
@@ -4120,11 +4135,11 @@ function _seatNormDrinks(t){
   t.drinks=out;
 }
 function startSeatFlow(seatDraft, finalDraft, token){
-  INVFLOW.active=false; if(typeof TRKFLOW!=='undefined') TRKFLOW.active=false;
+  bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; }
   var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
   tbls.forEach(function(t){ _seatNormDrinks(t); });   // 음료 배열 보정(구 데이터 호환)
   SEATFLOW={ active:true, tables:tbls, token:token||'' };
-  bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderSeat($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -4180,14 +4195,16 @@ function saveSeat(done){
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
 }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
-  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
+  if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   SEATFLOW.active=false; show('loading');
   var _fail=function(msg){
+    SEATFLOW._exiting=false;
     SEATFLOW.active=true; show('mypageView'); renderSeat($('mp_production'));   // 편집 화면 복원(입력 보존)
+    if(!bkAlive(SEATFLOW._bk)) SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSeatFlow(); } else { SEATFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; show('loading'); loadMyState(); } });
   };
-  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } loadMyState(); }).catch(function(){ _fail(''); });
+  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SEATFLOW._exiting=false; bkKill(SEATFLOW); loadMyState(); }).catch(function(){ _fail(''); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
 function seatSharePanelHtml(token){
@@ -4228,11 +4245,12 @@ function guideClosedHtml(){
 }
 // 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
 //   판정은 하객 실노출 규칙(handleGuideView)과 동일: 다이닝 센티널 문구 제외 · 자리는 좌석토큰(배치 완료)+이름+토글 ON · 라이브는 켰고 청첩장 발행(eventId)까지 된 경우만 ✓.
+var DN_PLACEHOLDER=['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'];   // venuePick 센티널(장소 아님) — 칩·확인서가 공용(중복 리터럴 드리프트 방지)
 function _guideSectionChips(p, inv){
   p=p||{}; var gi=p.guideinfoDraft||{}, dd=p.diningDraft||{};
   var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
   var vp=String(dd.venuePick||'').trim();
-  var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && ['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(vp)===-1));
+  var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && DN_PLACEHOLDER.indexOf(vp)===-1));
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
   var seat=!!p.seatToken && seatNames && gi.showSeat!==false;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일
   var items=[['내 자리 찾기',seat],['식사 안내',dining]];   // 오시는 길·드레스코드 섹션 폐지(2026-07-17) — 칩도 함께 제거
@@ -4261,6 +4279,7 @@ function wireGuideShare(box, token){
 }
 // [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
 //   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
+function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -4277,39 +4296,38 @@ function prodConfirmHtml(p, inv){
   var dv='';
   if(_dDone && dd.dining_on==='N'){ dv='안내 없이 진행'; }
   else if(_dDone){
-    var _nm=dd.venue||((['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(String(dd.venuePick||''))===-1)?dd.venuePick:'');
+    var _nm=dd.venue||((DN_PLACEHOLDER.indexOf(String(dd.venuePick||''))===-1)?dd.venuePick:'');
     if(_nm){ dv='<b>'+escapeHtml(_nm)+'</b>'+(dd.headcount?(' · '+escapeHtml(String(dd.headcount))+'명'):'');
       var _R=(typeof _dnFind==='function')?_dnFind(_nm):null, _tel=(_R&&_R.tel)?String(_R.tel).replace(/[^0-9]/g,''):'';
       dv+=' <span style="display:inline-flex;gap:8px;margin-left:6px">'+(_tel?('<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
       if(gi.reserveTime||gi.reserveName) dv+='<br><span class="cc-mini">예약 · '+escapeHtml(((gi.reserveTime||'')+(gi.reserveTime&&gi.reserveName?' · ':'')+(gi.reserveName||'')))+'</span>';
-    } else dv='장소 미정 · 저희가 함께 챙길게요';
+    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
   }
   L+=line('애프터 웨딩', dv);
   var fv='';
   if(_fDone && fd.headcount){ fv='하객 '+escapeHtml(String(fd.headcount))+'명'+((Number(fd.standing)||0)>0?(' · 스탠딩 '+fd.standing+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b>(잔금과 함께)'):'')+(fd.drink?(' · '+escapeHtml(fd.drink)):'')+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):''); }
   L+=line('최종 확정', fv);
   var sv='';
-  if(_sDone && sd.tables){ var _tc=sd.tables.length,_pn=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_pn++; }); }); sv=_tc+'개 테이블 · '+_pn+'명 배치';
+  if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+_seatPlacedCount(sd.tables)+'명 배치';
     sv+=' · '+((gi.showSeat===false)?'자리 찾기 꺼짐':((gi.seatMode==='all')?'전체 배치도 공개':'내 자리만 검색'));   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인
   }
   L+=line('좌석 배치', sv);
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
-  // 마감 입력(예약 정보 · 자리 찾기) — 여기서만
-  var E='<div class="cf-edit">';
+  // 마감 입력(예약 정보 · 자리 찾기) — 여기서만. 내용을 먼저 모으고 있을 때만 감싼다(문자열 센티널 비교는 래퍼 수정에 취약)
+  var Ei='';
   if(_dDone && dd.dining_on==='Y'){
-    E+='<div class="gi-row"><label class="gi-l" for="gi_rtime">식사 예약 시간</label><input class="cc-input" id="gi_rtime" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+    Ei+='<div class="gi-row"><label class="gi-l" for="gi_rtime">식사 예약 시간</label><input class="cc-input" id="gi_rtime" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
       +'<div class="gi-row"><label class="gi-l" for="gi_rname">예약자 이름</label><input class="cc-input" id="gi_rname" type="text" autocomplete="off" value="'+escapeHtml(gi.reserveName||'')+'" placeholder="예: 김신랑"></div>'
       +'<div style="text-align:left"><button type="button" class="cc-btn-ghost" id="gi_save" style="width:auto;padding:8px 16px">예약 정보 저장</button><span class="cc-mini" id="gi_msg" style="display:none;margin-left:8px;color:var(--gold-deep)">저장됐어요</span></div>';
   }
   if(_fDone && _sDone){
     var _smAll=(gi.seatMode==='all');
-    E+='<label class="gi-tg" style="margin-top:10px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>'
+    Ei+='<label class="gi-tg" style="margin-top:10px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>'
       +'<div class="gi-row" id="gi_smrow" style="margin-top:8px'+((gi.showSeat===false)?';display:none':'')+'"><span class="gi-l">좌석 공개 범위</span>'
       +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="mine"'+(_smAll?'':' checked')+'> 내 자리만 검색 <span class="gi-tg-s">하객은 본인 자리만 볼 수 있어요</span></label>'
       +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="all"'+(_smAll?' checked':'')+'> 전체 배치도 공개 <span class="gi-tg-s">가족이 서로 자리를 봐줄 수 있어요</span></label></div>';
   }
-  E+='</div>';
-  if(E==='<div class="cf-edit"></div>') E='';
+  var E=Ei?('<div class="cf-edit">'+Ei+'</div>'):'';
   // 확인 상태·버튼
   var C='';
   if(p.confirm && p.confirm.at){
@@ -4320,16 +4338,18 @@ function prodConfirmHtml(p, inv){
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
   }
-  var badge=p.confirm?'<span class="gi-badge">확인함 · '+escapeHtml(String(p.confirm.at||'').slice(5,10).replace('-','월 ')+'일')+'</span>':(p.confirmStale?'<span class="gi-badge" style="color:var(--seal);border-color:var(--seal)">재확인 필요</span>':'<span class="gi-badge gi-badge-o">확인 전</span>');
+  var _bm=String((p.confirm&&p.confirm.at)||'').match(/^\d{4}-(\d{2})-(\d{2})/);   // '07-17' 그대로 쓰지 않고 페이지 표기 관례(7월 17일)로
+  var badge=p.confirm?'<span class="gi-badge">확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')+'</span>':(p.confirmStale?'<span class="gi-badge" style="color:var(--seal);border-color:var(--seal)">재확인 필요</span>':'<span class="gi-badge gi-badge-o">확인 전</span>');
   return '<details class="gi-wrap" id="cf_wrap"'+((p.confirmStale)?' open':'')+'><summary class="gi-sum">예식 확인서 · <span class="gi-sub">전체 요약·확인</span> '+badge+' <span class="pt-ar">▾</span></summary>'
     +'<div class="gi-body">'+L+E+C+'</div></details>';
 }
 function wireProdConfirm(box, p){
   var btn=$('cf_go'); if(!btn) return;
   btn.addEventListener('click', function(){
-    // 스냅샷 = 화면 요약 그대로(텍스트) — 확인 시점 기록(면책)
+    // 스냅샷 = 화면 요약 그대로(텍스트) — 확인 시점 기록(면책). 전화·지도 같은 버튼 링크 단어는 기록에서 제외(기록은 사실만)
     var snap=[]; (box.querySelectorAll('#cf_wrap .cf-l')||[]).forEach(function(el){
-      var k=(el.querySelector('.cf-k')||{}).textContent||'', v=(el.querySelector('.cf-v')||{}).textContent||'';
+      var k=(el.querySelector('.cf-k')||{}).textContent||'', vEl=el.querySelector('.cf-v'), v='';
+      if(vEl){ var cl=vEl.cloneNode(true); Array.prototype.forEach.call(cl.querySelectorAll('a'),function(a){ if(a.parentNode) a.parentNode.removeChild(a); }); v=cl.textContent||''; }
       snap.push({k:String(k).trim(), v:String(v).replace(/\s+/g,' ').trim()});
     });
     if(!snap.length) return;
@@ -4366,14 +4386,17 @@ function wireGuideInfoEditor(box, gi){
   }
   function save(after){
     apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){
-      if(r&&r.ok){ if(after) after(true); }
+      if(r&&r.ok){ if(after) after(true);
+        // 이 저장으로 예식 확인서가 해제됐는데 화면은 '확인하셨어요'로 남아 있으면 즉시 갱신 — 고객은 확인됨·관리자는 재확인 필요로 갈라지는 상태 방지
+        if(r.confirmStale && document.querySelector('#cf_wrap .cf-ok')){ show('loading'); loadMyState(); }
+      }
       else { if(after) after(false); mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
     }).catch(function(){ if(after) after(false); mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   }
   var btn=$('gi_save');
   if(btn) btn.addEventListener('click', function(){
     btn.disabled=true; btn.textContent='저장 중…';
-    save(function(okd){ btn.disabled=false; btn.textContent='저장'; var m=$('gi_msg'); if(okd){ if(m) m.style.display='inline'; setTimeout(function(){ loadMyState(); }, 700); } });
+    save(function(okd){ btn.disabled=false; btn.textContent='예약 정보 저장'; var m=$('gi_msg'); if(okd){ if(m) m.style.display='inline'; setTimeout(function(){ loadMyState(); }, 700); } });
   });
   var st=$('gi_showSeat');
   if(st) st.addEventListener('change', function(){
@@ -4515,14 +4538,14 @@ var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'�
 var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
-  INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선)
+  bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
   if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
   if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
-  bkOpen(function(){ exitTrkFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderTrkFlow($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
@@ -4531,13 +4554,15 @@ function saveTrkDraft(done){
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
 function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
-  bkDone();   // 브라우저 뒤로가기 층 소비(뒤로가기로 온 경우는 no-op)
+  if(TRKFLOW._exiting) return; TRKFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   TRKFLOW.active=false; show('loading');
   saveTrkDraft(false).then(function(r){
-    if(r&&r.ok){ loadMyState(); return; }
+    TRKFLOW._exiting=false;
+    if(r&&r.ok){ bkKill(TRKFLOW); loadMyState(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
+    if(!bkAlive(TRKFLOW._bk)) TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
     mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitTrkFlow(); } else { TRKFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitTrkFlow(); } else { bkKill(TRKFLOW); TRKFLOW.active=false; show('loading'); loadMyState(); } });
   });
 }
 function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }
@@ -4634,7 +4659,7 @@ function bindTrk(box, render, collect, opt){
     if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
       saveTrkDraft(true).then(function(r){
         if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
-        TRKFLOW.active=false; loadMyState();
+        bkKill(TRKFLOW); TRKFLOW.active=false; loadMyState();   // 완료로 나가는 경로도 뒤로가기 층 소비 — 잔층이 남으면 다음 뒤로가기가 유령 저장(확인서 해제)을 일으킴
       }); return; }
     var _go=function(){ saveTrkDraft(false); TRKFLOW.step++; render(box); };
     if(opt.confirmNext){ opt.confirmNext(_go); return; }   // 다음 진행 전 확인(예: 다이닝 예약정보 면책 팝업) — true일 때만 _go
