@@ -121,12 +121,14 @@ function liveHtml(g){
     +'<a class="live-btn" href="'+esc(url)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_LIVE+'</svg>예식 실시간 보기</a>'
     +'<div class="live-cap">예식 시작 즈음 열려요. 열리기 전엔 안내 화면이 보일 수 있어요.</div></div>';
 }
-// 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용. 빠른 답(테이블 번호)만 인페이지 · 전체 배치도는 seat.html로.
+// 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
+//   공개 범위(부부 설정 seatFull): 전체 공개면 명단을 받아 즉시 검색 + 전체 배치도 링크 · '내 자리만'(기본)이면
+//   명단을 기기로 받지 않고 서버 검색(seatView+q)으로 본인 테이블만 답한다(프라이빗 웨딩 기본값 2026-07-17 사용자 지시).
 var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
-function seatFindHtml(){
+function seatFindHtml(full){
   return '<div class="sec"><div class="sec-h"><span class="sec-t">내 자리 찾기</span><span class="sec-n">Your Table</span></div>'
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력하세요"><div class="find-res" id="fr"></div></div>'
-    +'<a class="mapall" id="seatAll" href="#" target="_blank" rel="noopener">전체 좌석 배치도 보기 ›</a>'
+    +(full?'<a class="mapall" id="seatAll" href="#" target="_blank" rel="noopener">전체 좌석 배치도 보기 ›</a>':'')
     +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
 }
 function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1·3·5 / 우 2·4·6)
@@ -153,9 +155,10 @@ function findSeat(v){
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요';
 }
-function bindSeat(seatToken){
-  var all=$('seatAll'); if(all) all.setAttribute('href', '/seat.html?t='+encodeURIComponent(seatToken));
+function bindSeat(seatToken, full){
   var q=$('q'); if(!q) return;
+  if(!full){ bindSeatServer(seatToken, q); return; }   // '내 자리만' — 명단 비수신·서버 검색
+  var all=$('seatAll'); if(all) all.setAttribute('href', '/seat.html?t='+encodeURIComponent(seatToken));
   // 좌석 본체는 첫 사용 시 지연 조회 — 자리 찾기를 안 쓰는 하객은 GAS 호출 1회로 끝(예식 직전 동시 접속 부하 절반)
   var started=false;
   function startLoad(){
@@ -167,6 +170,28 @@ function bindSeat(seatToken){
   }
   q.addEventListener('focus', startLoad);
   q.addEventListener('input', function(){ startLoad(); findSeat(q.value); });
+}
+// '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다. 타이핑 멈춘 뒤 1회 호출(연타 절약).
+function bindSeatServer(seatToken, q){
+  var tm=null, seq=0;
+  function search(v){
+    var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
+    if(!v){ fr.innerHTML=''; return; }
+    var my=++seq;
+    fr.textContent='자리를 찾는 중이에요…';
+    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken, q:v}) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(my!==seq) return;   // 더 최신 검색이 나감 — 늦은 응답 무시(입력 역전 방지)
+        if(!d || !d.ok){ fr.textContent=(d&&d.error)||'잠시 후 다시 시도해 주세요.'; return; }
+        var hits=d.hits||[];
+        if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
+        if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }
+        fr.innerHTML='<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요';
+      })
+      .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요. 네트워크 상태를 확인해 주세요.'; });
+  }
+  q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });
 }
 function isWeddingDay(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return false;
@@ -181,12 +206,12 @@ function render(g){
   var today=isWeddingDay(g.date)?'<div class="today">오늘 두 분의 예식일이에요</div>':'';
   $('root').innerHTML='<div class="card">'
     +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+today+'</div>'
-    +(hasSeat?seatFindHtml():'')
+    +(hasSeat?seatFindHtml(!!g.seatFull):'')
     +diningHtml(g.dining)
     +liveHtml(g)
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
-  if(hasSeat) bindSeat(g.seatToken);
+  if(hasSeat) bindSeat(g.seatToken, !!g.seatFull);
 }
 (function boot(){
   var g=qp('g');

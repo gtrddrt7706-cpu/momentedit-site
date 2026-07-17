@@ -4289,7 +4289,9 @@ function prodConfirmHtml(p, inv){
   if(_fDone && fd.headcount){ fv='하객 '+escapeHtml(String(fd.headcount))+'명'+((Number(fd.standing)||0)>0?(' · 스탠딩 '+fd.standing+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b>(잔금과 함께)'):'')+(fd.drink?(' · '+escapeHtml(fd.drink)):'')+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):''); }
   L+=line('최종 확정', fv);
   var sv='';
-  if(_sDone && sd.tables){ var _tc=sd.tables.length,_pn=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_pn++; }); }); sv=_tc+'개 테이블 · '+_pn+'명 배치'; }
+  if(_sDone && sd.tables){ var _tc=sd.tables.length,_pn=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_pn++; }); }); sv=_tc+'개 테이블 · '+_pn+'명 배치';
+    sv+=' · '+((gi.showSeat===false)?'자리 찾기 꺼짐':((gi.seatMode==='all')?'전체 배치도 공개':'내 자리만 검색'));   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인
+  }
   L+=line('좌석 배치', sv);
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
   // 마감 입력(예약 정보 · 자리 찾기) — 여기서만
@@ -4300,7 +4302,11 @@ function prodConfirmHtml(p, inv){
       +'<div style="text-align:left"><button type="button" class="cc-btn-ghost" id="gi_save" style="width:auto;padding:8px 16px">예약 정보 저장</button><span class="cc-mini" id="gi_msg" style="display:none;margin-left:8px;color:var(--gold-deep)">저장됐어요</span></div>';
   }
   if(_fDone && _sDone){
-    E+='<label class="gi-tg" style="margin-top:10px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>';
+    var _smAll=(gi.seatMode==='all');
+    E+='<label class="gi-tg" style="margin-top:10px"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>'
+      +'<div class="gi-row" id="gi_smrow" style="margin-top:8px'+((gi.showSeat===false)?';display:none':'')+'"><span class="gi-l">좌석 공개 범위</span>'
+      +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="mine"'+(_smAll?'':' checked')+'> 내 자리만 검색 <span class="gi-tg-s">하객은 본인 자리만 볼 수 있어요</span></label>'
+      +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="all"'+(_smAll?' checked':'')+'> 전체 배치도 공개 <span class="gi-tg-s">가족이 서로 자리를 봐줄 수 있어요</span></label></div>';
   }
   E+='</div>';
   if(E==='<div class="cf-edit"></div>') E='';
@@ -4350,8 +4356,10 @@ function guideHubHtml(p, inv){
 function wireGuideInfoEditor(box, gi){
   gi=gi||{};
   function collect(){
+    var _sm=box.querySelector('input[name="gi_seatMode"]:checked');
     return {
       showSeat: $('gi_showSeat') ? $('gi_showSeat').checked : (gi.showSeat!==false),
+      seatMode: _sm ? _sm.value : (gi.seatMode==='all'?'all':'mine'),
       reserveTime: $('gi_rtime') ? ($('gi_rtime').value||'').trim() : String(gi.reserveTime||''),
       reserveName: $('gi_rname') ? ($('gi_rname').value||'').trim() : String(gi.reserveName||'')
     };
@@ -4368,7 +4376,13 @@ function wireGuideInfoEditor(box, gi){
     save(function(okd){ btn.disabled=false; btn.textContent='저장'; var m=$('gi_msg'); if(okd){ if(m) m.style.display='inline'; setTimeout(function(){ loadMyState(); }, 700); } });
   });
   var st=$('gi_showSeat');
-  if(st) st.addEventListener('change', function(){ st.disabled=true; save(function(){ st.disabled=false; }); });   // 토글은 바로 저장(버튼 없음)
+  if(st) st.addEventListener('change', function(){
+    var _mr=$('gi_smrow'); if(_mr) _mr.style.display=st.checked?'':'none';   // 공개 범위는 자리 찾기 켠 경우에만 의미 있음
+    st.disabled=true; save(function(){ st.disabled=false; });
+  });   // 토글은 바로 저장(버튼 없음)
+  box.querySelectorAll('input[name="gi_seatMode"]').forEach(function(rd){
+    rd.addEventListener('change', function(){ save(function(){}); });   // 공개 범위도 바로 저장
+  });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
 function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }

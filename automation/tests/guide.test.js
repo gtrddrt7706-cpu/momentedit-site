@@ -140,6 +140,45 @@ const rc2 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: 
 const dc3 = JSON.parse(DB.C1.제작임시저장);
 ok(rc2.ok === true && dc3.confirm && dc3.confirmStale === undefined, '24 재확인 → 확인 복구·stale 해제');
 
+// ── 좌석 공개 범위(seatMode) — 기본 '내 자리만' · 서버 검색(명단 비전송) ──
+// 25) 정규화 — 미지정·잡값은 'mine', 'all'만 전체 공개
+fresh();
+sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: {} });
+ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'mine', '25a seatMode 미지정 → mine(기본 프라이빗)');
+sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { seatMode: 'hack' } });
+ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'mine', '25b 잡값 → mine');
+sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { seatMode: 'all' } });
+ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'all', '25c all → 전체 공개');
+// 26) 기본 모드에서 전체 배치도 차단(mineOnly) — 명단(테이블) 미전송 · 'all'이면 종전대로 전체 반환
+setup({ 예식일: ymdShift(10) });
+const sv1 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' });
+ok(sv1.ok === false && sv1.mineOnly === true && sv1.seat && sv1.seat.groom === '정희준' && !JSON.stringify(sv1).includes('김하객'), '26a 기본(mine) → 전체 배치도 차단 · 하객 이름 미전송');
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { seatMode: 'all' } } });
+const sv2 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' });
+ok(sv2.ok === true && sv2.seat.tables.length === 1, '26b 전체 공개(all) → 종전대로 전체 배치 반환');
+// 27) guideView seatFull 플래그 — 기본 false · all이면 true · 자리찾기 OFF면 false
+setup({ 예식일: ymdShift(10) });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === false, '27a 기본 → seatFull false(검색만)');
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { seatMode: 'all' } } });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === true, '27b all → seatFull true(배치도 링크)');
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false, seatMode: 'all' } } });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === false, '27c 자리찾기 OFF → seatFull도 false');
+// 28) 서버 검색(seatView+q) — 일치 테이블 라벨만 답하고 하객 이름은 절대 미포함
+setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
+  { name: '테이블 1', side: 'L', seats: ['김하객', '이친구'] },
+  { name: '가족석', side: 'R', seats: ['김삼촌'] }
+] } } });
+const sf1 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '이친구' });
+ok(sf1.ok === true && sf1.hits.length === 1 && sf1.hits[0].no === 1 && sf1.hits[0].label === '테이블 1', '28a 단일 일치 → 행순서 번호·라벨');
+const sf2 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
+ok(sf2.ok === true && sf2.hits.length === 2 && sf2.hits[1].label === '가족석' && sf2.hits[1].no === 2, '28b 다중 일치(흔한 성) → 테이블 목록만 · 커스텀명 존중');
+const sf3 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '박없음' });
+ok(sf3.ok === true && sf3.hits.length === 0 && !JSON.stringify(sf3).includes('김하객'), '28c 불일치 → 빈 결과 · 응답에 하객 이름 없음');
+const sf4 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김 하객' });
+ok(sf4.ok === true && sf4.hits.length === 1, '28d 공백 섞인 입력도 매칭(정규화)');
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
+ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하객' }).ok === false, '28e 자리찾기 OFF → 검색도 차단');
+
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
 if (fail) process.exit(1);

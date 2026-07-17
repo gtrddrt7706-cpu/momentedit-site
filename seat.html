@@ -143,6 +143,39 @@ function findSeat(v){
   $('fr').innerHTML='<b>'+esc(_label)+'</b> 자리예요 · '+_no+'번 테이블';
   if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
 }
+// '내 자리만' 모드(부부 설정 · 기본값) — 전체 배치도 대신 이름 검색 전용 화면. 명단은 기기로 받지 않고
+//   서버 검색(seatView+q)으로 본인 테이블만 답한다. 이미 배포된 링크·QR도 이 화면으로 자연 전환(죽은 링크 없음).
+function renderMineOnly(seat, t){
+  seat=seat||{};
+  var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
+  var date=fmtDate(seat.date);
+  $('root').innerHTML =
+    '<div class="card">'
+    +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="lead">두 분의 결혼을 축하합니다.<br>성함을 검색하시면 자리를 안내해 드려요.</div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
+    +'<div class="foot">연락처 없이 성함과 테이블만 안내돼요.<br>자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
+    +'</div>';
+  var q=$('q'), tm=null, seq=0;
+  function search(v){
+    var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
+    if(!v){ fr.innerHTML=''; return; }
+    var my=++seq;
+    fr.textContent='자리를 찾는 중이에요…';
+    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t, q:v}) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(my!==seq) return;   // 늦게 온 응답 무시(입력 역전 방지)
+        if(!d || !d.ok){ fr.textContent=(d&&d.error)||'잠시 후 다시 시도해 주세요.'; return; }
+        var hits=d.hits||[];
+        if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
+        if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 여러 자리에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }
+        fr.innerHTML='<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블';
+      })
+      .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요.'; });
+  }
+  if(q) q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });
+}
 (function boot(){
   var t=qp('t');
   if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
@@ -150,6 +183,7 @@ function findSeat(v){
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d && d.ok && d.seat){ render(d.seat); }
+      else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면
       else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
       else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
     })
