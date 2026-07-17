@@ -857,12 +857,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-share-h{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)}
     .seat-share-sub{font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);margin:6px 0 12px}
     .seat-share-url{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);word-break:break-all;background:var(--bg2);border-radius:6px;padding:8px 10px;margin-bottom:10px}
-    /* 하객 안내 부분 노출 현황 칩 — 하객 페이지 섹션 순서 그대로 ✓(열림)/비어 있음 */
-    .gd-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
-    .gd-chip{font-family:var(--serif-ko);font-size:11.5px;padding:5px 11px;border:1px dashed var(--border);border-radius:999px;color:var(--label-soft);background:#fff}
-    .gd-chip.on{border:1px solid var(--gold);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
     .seat-share-btns{display:flex;gap:8px;justify-content:center}
-    /* 하객 안내 정보 편집(오시는 길·드레스코드) */
+    /* 하객 안내 설정(자리 찾기·라이브 토글) */
     .gi-wrap{margin-top:16px;border-top:1px dashed var(--border);padding-top:14px}
     .gi-sum{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);display:flex;align-items:center;gap:6px}
     .gi-sum::-webkit-details-marker{display:none}
@@ -1106,7 +1102,7 @@ function openRitualBuilder(p){
       setTimeout(function(){ fr.style.opacity='1'; },70);
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
-      apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
+      api({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
         .then(function(r){ if(r&&r.ok){ saved=true; } else { alert((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
         .catch(function(){ alert('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
@@ -1435,7 +1431,7 @@ function renderMyPage(d){
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
           head = '결제만 남았어요';
-          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 예식 준비가 시작돼요.';
+          sub = '예식이 가까워 계약금과 ' + _pb.join('·') + '을 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + '을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.';
         } else {
         head = '계약금 입금만 남았어요';
         sub = (_pa && Number(_pa.납부액) > 0)
@@ -1848,7 +1844,7 @@ function renderLedger(l){
         +'<div class="consult-card" style="margin:8px 0 6px;padding:16px 15px 14px">'+_bx
         + (_lbHard ? _finalGateHtml(true) : (
             (_balS.account?_acctBox(_balS.account, _balS.holder, '입금 계좌', (_balS.amount!=null)?_acctAmt('data-copy-amt="'+String(_balS.amount)+'"','입금액 '+fmtWon(_balS.amount)+' 복사'):''):'')
-          +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+          +'<div class="cc-actions" style="margin-top:12px"><input type="text" class="cc-input" id="mp_lbPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_lbPayer')
           +cashReceiptField('mp_lbCR', l.cashTail)
           +'<button type="button" class="cc-btn cc-btn-seal" id="mp_lbSignal">입금했어요</button>'
           +'<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div></div>' ))
@@ -2265,7 +2261,7 @@ function renderContractReqForm(ctx){
     +'<div class="cc-note" style="text-align:left;margin:10px 0 3px;color:var(--light);line-height:1.6">연락처 · 이메일은 <b style="color:var(--sub);font-weight:500">선택</b>이에요. 다만 이메일을 두 분 각각 남겨 두시면, 축하해 주신 분들이 남긴 편지가 <b style="color:var(--sub);font-weight:500">각자에게 직접</b> 도착해요.</div>'
     +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요. 미입력 시 자진발급되어 소득공제는 어려워요.</div>'
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -2423,14 +2419,14 @@ function renderContractPayment(c, p, ctx){
           + '<br><span class="cc-mini">계약금 '+fmtWon(a.납부액)+'(예약금 '+fmtWon(a.예약금)+' 차감)'
           + (_pb2.indexOf('중도금')!==-1?(' + 중도금 '+fmtWon(a.중도금)):'')
           + (_pb2.indexOf('잔금')!==-1?(' + 잔금 '+fmtWon(a.잔금)):'')+'</span>'
-          + '<br><span class="cc-mini">예식이 가까워 한 번에 받아요.</span></div>')
+          + '<br><span class="cc-mini">예식이 가까워 함께 안내드려요. 한 번에 입금하시면 돼요.</span></div>')
        : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
   var _amtV=(_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:null);
   var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
   h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
-     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
-     + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
+     + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
+     + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
@@ -2630,8 +2626,8 @@ function renderPayment(p){
     }
     var acct = _acctBox(p.account, p.holder, '입금 계좌', (a&&a.납부액!=null)?_acctAmt('data-copy-amt="'+String(a.납부액)+'"','입금액 '+fmtWon(a.납부액)+' 복사'):'');
     body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
-    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
-        + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
+    cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_payer')
+        + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
         + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal">입금했어요</button>'
         + '<div class="cc-note">입금이 확인되면 다음 단계로 진행돼요.</div>';
@@ -2669,7 +2665,21 @@ document.addEventListener('click', function(e){
 });
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
 // [입금자명 칩] 계약서의 신랑·신부 이름 원탭 입력(부모님 입금 등 직접 입력도 그대로 가능)
-// 입금자명 추천 칩 제거(2026-07-16 사용자 지시) — 성함 입력칸만 유지
+function _payerChipsHtml(target){
+  var f=(((window._mpStateD||{}).contract)||{}).fill||{};
+  var names=[]; if(f.groom) names.push(f.groom); if(f.bride&&f.bride!==f.groom) names.push(f.bride);
+  if(!names.length) return '';
+  return '<div style="display:flex;gap:6px;margin:-4px 0 10px">'+names.map(function(n){
+    return '<button type="button" data-payer-chip data-target="'+escapeHtml(target)+'" data-name="'+escapeHtml(n)+'" style="background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent">'+escapeHtml(n)+'</button>';
+  }).join('')+'</div>';
+}
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target.closest('[data-payer-chip]'):null;
+  if(!t) return;
+  var el=$(t.getAttribute('data-target')); if(!el) return;
+  el.value=t.getAttribute('data-name')||'';
+  try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(err){}
+});
 // [금액 복사] 계좌 옆 금액 원탭 복사(이체 앱 금액 오타 방지) — data-copy-amt(고정) 또는 data-copy-from(요소 텍스트 숫자)
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-amt],[data-copy-from]'):null;
@@ -2716,7 +2726,7 @@ function renderBalance(p, mid){
   var midAbsorb = !!(mid && !mid.confirmed && mid.status!=='완료신호');
   if(midAbsorb && p.status!=='완료신호' && p.dday!=null && p.dday<=_pd.bal){ box.style.display='none'; box.innerHTML=''; return; }
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
-  var ddTxt=(p.dday!=null&&p.dday>=0)?(_pw+' D-'+p.dday):'';   // 기한 지난 D+ 표기는 생략
+  var ddTxt=(p.dday!=null)?(p.dday>=0?(_pw+' D-'+p.dday):(_pw+' D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||(_pw+' '+_pd.bal+'일 전'));
   var near=(p.dday!=null && p.dday<=_pd.bal+6 && !midAbsorb);   // (중도금 카드가 흡수 중이 아닐 때) 기한 6일 전부터 자동 펼침 — 스냅도 기한 임박 시 펼쳐지게
   var body='', cta='';
@@ -2736,14 +2746,15 @@ function renderBalance(p, mid){
     else { balDue=dueLabel+'까지'; balTag=''; }
     var when='<div class="cc-note">'+(
         p.due?(balDue+' 입금 부탁드려요'+balTag)
-      : (balDue+' 보내주세요'+balTag)
+      : near?(balDue+' 보내주세요'+balTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (balDue+' 보내주세요'+balTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
     if(p.extraPending && !!((window._mpStateD||{}).production) && !p.due){   // 하드 게이트 — 여유 있을 때만(마감 D-9 전). 마감 임박 시 자동 해제 → 선택제(기본 잔금 먼저 결제 가능)
       body='<div class="cc-title">'+head+'</div>'+amt+when+_finalGateHtml(true); cta='';
     } else {
       var acct=_acctBox(p.account, p.holder, '입금 계좌', (p.amount!=null)?_acctAmt('data-copy-amt="'+String(p.amount)+'"','입금액 '+fmtWon(p.amount)+' 복사'):'');
       body='<div class="cc-title">'+head+'</div>'+amt+when+acct+(p.extraPending?_finalGateHtml():'');
-      cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+      cta='<input type="text" class="cc-input" id="mp_bPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_bPayer')
         + cashReceiptField('mp_bCR', p.cashReceipt)
         + '<button type="button" class="cc-btn cc-btn-seal" id="mp_bSignal">입금했어요</button>'
         + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -2781,7 +2792,7 @@ function cashReceiptField(id, val){
     return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
   return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
-    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>';
+    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6">현금영수증은 <b>의무 발급</b>돼요. <b>소득공제</b>를 받으시려면 번호를 적어 주세요(미입력 시 자진발급되어 소득공제는 어려워요). 입금 확인 후 발급해 드려요.</div>';
 }
 function doBalanceSignal(){
   var payer=(($('mp_bPayer')&&$('mp_bPayer').value)||'').trim();
@@ -2800,9 +2811,9 @@ function renderMid(p, bal){
   if(p.confirmed){ box.style.display='none'; box.innerHTML=''; return; }   // 완료 → 카드 제거(내역은 '내 내역'에서 · 중복 금지)
   var _pd=_payDays();
   var amtTxt=(p.amount!=null)?fmtWon(p.amount):null;
-  var ddTxt=(p.dday!=null&&p.dday>=0)?('예식 D-'+p.dday):'';   // 기한 지난 D+ 표기는 생략(납부 안내 문구가 대신함)
+  var ddTxt=(p.dday!=null)?(p.dday>=0?('예식 D-'+p.dday):('예식 D+'+(-p.dday))):'';
   var dueLabel=escapeHtml(p.dueLabel||('예식 '+_pd.mid+'일 전'));
-  var whyLine='';   // 아래 forceCombo 확정 후 세팅 — 묶음 카드엔 중도금 설명 불필요(미니멀)
+  var whyLine=(p.dueLabel==='계약 시 함께 납부')?'' :'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정되었어요. 준비 착수를 위한 중도금이에요.</div>';
   var near=(p.dday!=null && p.dday<=_pd.mid+7);   // 기한 7일 전부터 자동 펼침
   // 잔금 함께 결제 — 잔금이 이미 신고(완료신호)된 상태면 제외(신고분을 또 합산 청구해 이중 입금을 유도하던 문제)
   var balOpen=!!(bal && !bal.confirmed && bal.status!=='완료신호' && bal.amount!=null && p.amount!=null);
@@ -2814,7 +2825,6 @@ function renderMid(p, bal){
     body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
-    whyLine=forceCombo?'':'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정됐어요.</div>';
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
     var midDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
@@ -2828,14 +2838,15 @@ function renderMid(p, bal){
     else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
     else { comboDue='예식 '+_pd.bal+'일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
-        forceCombo?('예식이 가까워 함께 받아요 · '+comboDue+' 입금 부탁드려요'+comboTag)
+        forceCombo?('예식이 가까워 중도금·잔금을 함께 받아요.<br>'+comboDue+' 입금 부탁드려요'+comboTag)
       : p.due?(midDue+' 입금 부탁드려요'+midTag)
-      : (midDue+' 보내주세요'+midTag)
+      : near?(midDue+' 보내주세요'+midTag+'<br>편하실 때 미리 입금하셔도 괜찮아요.')
+      : (midDue+' 보내주세요'+midTag+'<br>미리 입금하셔도 괜찮아요.')
     )+'</div>';
     var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
     var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
-    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
+    cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'+_payerChipsHtml('mp_mPayer')
       + cashReceiptField('mp_mCR', p.cashReceipt)
       + '<button type="button" class="cc-btn cc-btn-seal" id="mp_mSignal" data-combo="'+(forceCombo?'1':'')+'">입금했어요</button>'
       + '<div class="cc-note">입금 확인 후 마이페이지에 반영돼요.</div>';
@@ -3007,7 +3018,7 @@ var meCardPay = (function(){
       +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
       +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="110000"','입금액 110,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
-      +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
+      +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 더 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
       + '</div></div></div>';
     main.insertBefore(sec, main.firstChild);
@@ -3105,12 +3116,12 @@ function renderProduction(p, inv){
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   var _dashHtml = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null)
-    + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 정보(오시는 길·드레스코드) 입력 — guide.html 섹션에 반영
-    + (p.guideToken ? (_guideLinkClosed(p.base) ? guideClosedHtml() : guideShareHtml(p.guideToken, p, inv)) : '');   // 하객 안내 허브 링크·부분노출 칩·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급 · 예식 +30일 지나면 닫힘 안내)
+    + guideInfoEditorHtml(p.guideinfoDraft||{})                        // 하객 안내 설정(자리 찾기·라이브 노출 토글)
+    + (p.guideToken ? guideShareHtml(p.guideToken) : '');              // 하객 안내 허브 링크·미리보기·QR (내용 있는 다이닝/좌석/안내정보 완료 시 서버가 토큰 발급)
   box.innerHTML = _dashHtml;
   box.style.display='block';
   wireGuideInfoEditor(box);
-  if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
+  if(p.guideToken){ wireGuideShare(box, p.guideToken); }
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
@@ -4016,8 +4027,6 @@ function invStepDone(box, r){
     if(!url) return '';
     var ic = (kind==='online')
       ? '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/>'
-      : (kind==='guide')
-      ? '<path d="M12 21s-6.5-5.5-6.5-10a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>'
       : '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/>';
     return '<div class="done-card">'
       +'<div class="done-card-top"><span class="done-card-ic"><svg viewBox="0 0 24 24">'+ic+'</svg></span><span class="done-card-nm">'+title+'</span></div>'
@@ -4029,17 +4038,11 @@ function invStepDone(box, r){
       +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(url)+'">복사</button>'
       +'</div></div>';
   }
-  // [Phase 2] 하객 안내 허브 링크 — 다이닝·자리·오시는 길이 준비됐으면 청첩장과 같은 화면에서 함께 전달(링크 하나로 통합)
-  var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
-  var _gClosed = _guideLinkClosed();             // 예식 +30일 지나면 서버가 닫음(GUIDE_EXPIRE_DAYS 동기)
-  var _gCard = !!_gTok && !_gClosed;             // 닫힌 뒤엔 카드 숨김
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
-            + linkCard('family','직접 모시는 청첩장', _gCard?'가족·가까운 분께 직접 전하세요 · 아래 <b>하객 안내</b>를 함께 보내면 좋아요.':'가족·가까운 분께 직접 전하세요.',u.family);
-  if(_gCard) cards += linkCard('guide','하객 안내 · 식사·자리·오시는 길','예식 안내를 한 페이지로 · 오프라인 하객께 청첩장과 함께 전하세요.', guideUrl(_gTok));
-  // 아직 안내 링크가 없으면 — 오프라인 청첩장 옆에 '채우면 여기에 나온다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청)
-  var guideHint = (!_gCard && u.family && !_gClosed)   // 닫힌(만료) 상태에선 예고도 하지 않음
-    ? '<div class="cc-note" style="text-align:left"><b>하객 안내</b> 링크가 준비되면 여기에 함께 나와요. 제작 화면에서 <b>식사(다이닝)·자리(좌석)·오시는 길(하객 안내 정보)</b>을 채우면 그 부분부터 채워져요.</div>'
-    : '';
+            + linkCard('family','직접 모시는 청첩장','가족·가까운 분께 직접 전하세요.',u.family);
+  // [Phase 2] 하객 안내 허브 링크 — 다이닝·자리가 준비됐으면 청첩장과 같은 화면에서 함께 전달(링크 하나로 통합)
+  var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
+  if(_gTok) cards += linkCard('family','하객 안내 · 식사·자리','예식 안내를 한 페이지로 · 오프라인 하객께 함께 전하세요.', guideUrl(_gTok));
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
     : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
@@ -4047,7 +4050,7 @@ function invStepDone(box, r){
       +'<div class="done-qr-nm">모바일 참석 QR</div>'
       +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣으면, 하객이 스캔해 바로 입장해요.</div>'
       +'<div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-      +'<div style="text-align:center"><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:12px;display:none">QR 이미지 저장</button></div>'
+      +'<div><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:12px;display:none">QR 이미지 저장</button></div>'
       +'</div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap done-wrap">'
     +'<div class="done-eyebrow">Invitation Ready</div><div class="done-rule"></div>'
@@ -4055,7 +4058,7 @@ function invStepDone(box, r){
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
-    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideHint+qr
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+qr
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
@@ -4087,7 +4090,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
+      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4101,7 +4104,7 @@ function renderQRInto(qid, svid, url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
+      if(sv){ sv.style.display=''; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
       return;
     }catch(e){}
   }
@@ -4138,52 +4141,7 @@ function collectSeats(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat-nm]'),function(el){ var ti=+el.getAttribute('data-ti'); if(SEATFLOW.tables[ti]) SEATFLOW.tables[ti].name=el.value; });
   Array.prototype.forEach.call(box.querySelectorAll('[data-seat]'),function(el){ var ti=+el.getAttribute('data-ti'), si=+el.getAttribute('data-si'); if(SEATFLOW.tables[ti]&&SEATFLOW.tables[ti].seats) SEATFLOW.tables[ti].seats[si]=el.value; });
 }
-// [배포 시차 감지] 저장 응답의 에코(r.draft)와 보낸 draft를 구조 비교 — 구버전 GAS가 새 필드를 조용히 버리면(2026-07 음료 소실 사고 유형) 즉시 경고.
-//   값 정규화(길이 컷·불량값 빈값화)는 허용하고 '키·항목이 통째로 사라진 것'만 잡는다. 에코 없는 응답(에코 도입 전 서버)은 판단 보류(경고 없음).
-function _echoLostPaths(sent, echoed, path, out){
-  out=out||[]; path=path||'';
-  if(!sent || typeof sent!=='object') return out;
-  if(!echoed || typeof echoed!=='object'){ out.push(path||'draft'); return out; }
-  if(Object.prototype.toString.call(sent)==='[object Array]'){
-    for(var i=0;i<sent.length;i++){
-      if(sent[i]&&typeof sent[i]==='object') _echoLostPaths(sent[i], echoed[i], path+'['+i+']', out);
-      else if(echoed.length<=i) out.push(path+'['+i+']');
-    }
-    return out;
-  }
-  for(var k in sent){ if(!Object.prototype.hasOwnProperty.call(sent,k)) continue;
-    var p=path?path+'.'+k:k;
-    if(!(k in echoed)) out.push(p);
-    else if(sent[k]&&typeof sent[k]==='object') _echoLostPaths(sent[k], echoed[k], p, out);
-  }
-  return out;
-}
-function apiTrackSave(payload){
-  // 전송 시점 스냅샷과 비교 — 라이브 객체(SEATFLOW.tables 등)는 응답 대기 중 사용자가 계속 편집해 오탐이 나므로.
-  // JSON 왕복 복사라 undefined 값 키도 전송본과 동일하게 떨어져 나감(구조 비교 기준 일치).
-  var _sent=null; try{ _sent=(payload&&payload.draft)?JSON.parse(JSON.stringify(payload.draft)):null; }catch(e){}
-  return api(payload).then(function(r){
-    try{
-      if(r && r.ok && r.draft && _sent){
-        var lost=_echoLostPaths(_sent, r.draft);
-        if(lost.length && !window._echoWarned){ window._echoWarned=true;   // 세션당 1회(같은 원인으로 저장마다 반복 경고 방지)
-          try{ console.warn('[saveProductionTrack] 서버 미반영 필드(구버전 GAS 의심):', lost.join(', ')); }catch(e){}
-          var _msg='입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요. 디렉터가 확인해 도와드릴게요.';
-          var _ov=document.getElementById('mp_obViewer');   // 식순 빌더 오버레이(z-index 9999)가 떠 있으면 모달(1000)이 가려짐 → 네이티브 알림으로
-          if(_ov){ try{ alert(_msg); }catch(e2){} } else { mpAlert(_msg); }
-        }
-      }
-    }catch(e){}
-    return r;
-  });
-}
-function saveSeat(done){
-  // 페이로드는 깊은 복사 — 편집 중인 모델(SEATFLOW.tables)을 건드리지 않음(저장 후에도 '음료 먼저·이름 나중' 진행분 보존 · 저장 실패 시 유실 방지).
-  // 고아 음료(이름 없는 자리) 정리는 '배치 완료'(done) 페이로드에만 — 임시저장은 그대로 둬 이어하기에서 음료 먼저 흐름이 살아남게. 표시·집계·하객 화면은 어차피 이름 있는 자리만 노출.
-  var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
-  if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
-}
+function saveSeat(done){ return api({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:SEATFLOW.tables}, done:!!done}); }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   SEATFLOW.active=false; show('loading');
   var _fail=function(msg){
@@ -4200,9 +4158,9 @@ function seatSharePanelHtml(token){
     +'<div class="seat-share-h">✓ 배치가 저장됐어요</div>'
     +'<div class="seat-share-sub">아래 링크·QR을 <b>오프라인으로 모시는 하객</b>께 전달하면, 열어서 자기 자리를 바로 확인해요.</div>'
     +'<div class="seat-share-url" id="seat_url">'+escapeHtml(url)+'</div>'
+    +'<div class="seat-share-btns"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="seat_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-    +'<div class="seat-share-btns" style="margin-top:12px"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
-    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안)
+    +'</div>';
 }
 function wireSeatShare(box, token){
   var url=seatUrl(token);
@@ -4214,51 +4172,15 @@ function wireSeatShare(box, token){
 }
 // [하객 안내 허브] 공유 — 다이닝/좌석을 하나로 묶은 하객 링크. 미리보기(하객 눈으로 확인)+링크 복사+QR.
 function guideUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/guide.html?g='+encodeURIComponent(token); }
-// [만료 인지] 예식 후 30일이 지나면 서버(GUIDE_EXPIRE_DAYS=30 · _guideExpired)가 하객 페이지를 닫음 — 닫힌 링크를 공유 UI가 계속 권하지 않게 프론트도 같은 기준으로 판정.
-function _guideLinkClosed(base){
-  try{
-    var b=base||(((window._mpStateD||{}).production||{}).base)||{};
-    var m=String(b.weddingDate||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return false;
-    var w=new Date(+m[1],+m[2]-1,+m[3]); w.setHours(0,0,0,0);
-    var t=new Date(); t.setHours(0,0,0,0);
-    return Math.round((t-w)/86400000) > 30;   // 서버 _guideExpired(_dayDiff < -30)와 같은 경계 — 예식 +30일까지는 열림
-  }catch(e){ return false; }
-}
-function guideClosedHtml(){
-  return '<div class="seat-share">'
-    +'<div class="seat-share-h">하객 안내 링크가 닫혔어요</div>'
-    +'<div class="seat-share-sub">예식 후 30일이 지나 하객 안내 페이지를 자동으로 닫아 두었어요 · 좌석의 하객 성함 등 개인정보 보호를 위해서예요.</div>'
-    +'</div>';
-}
-// 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
-//   판정은 하객 실노출 규칙(handleGuideView)과 동일: 다이닝 센티널 문구 제외 · 자리는 좌석토큰(배치 완료)+이름+토글 ON · 라이브는 켰고 청첩장 발행(eventId)까지 된 경우만 ✓.
-function _guideSectionChips(p, inv){
-  p=p||{}; var gi=p.guideinfoDraft||{}, dd=p.diningDraft||{};
-  var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
-  var vp=String(dd.venuePick||'').trim();
-  var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && ['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'].indexOf(vp)===-1));
-  var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
-  var seat=!!p.seatToken && seatNames && gi.showSeat!==false;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일
-  var way=!!(String(gi.venue||'')+String(gi.addr||'')+String(gi.map||'')+String(gi.parking||'')+String(gi.transit||'')).trim();
-  var dress=!!String(gi.dress||'').trim();
-  var items=[['오시는 길',way],['내 자리 찾기',seat],['식사 안내',dining],['드레스코드',dress]];
-  if(gi.showLive===true){
-    var _liveReady=!!(inv&&inv.published&&inv.published.eventId);   // 라이브는 청첩장 발행(eventId)이 있어야 실제로 열림(죽은 링크 방지 규칙과 동일)
-    items.push(['라이브 중계',_liveReady,_liveReady?'':'청첩장 발행 후 열려요']);
-  }
-  return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · '+(it[2]||'비어 있음'))+'</span>'; }).join('')+'</div>';
-}
-function guideShareHtml(token, p, inv){
+function guideShareHtml(token){
   var url=guideUrl(token);
   return '<div class="seat-share">'
     +'<div class="seat-share-h">하객 안내 링크가 준비됐어요</div>'
     +'<div class="seat-share-sub">식사·자리 안내를 <b>하나의 링크</b>로 모아, <b>오프라인으로 모시는 하객</b>께 전달하세요. 채울수록 안내도 채워져요.</div>'
-    +_guideSectionChips(p, inv)
-    +'<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini">비어 있는 부분은 하객 화면에 나오지 않아요 · 채우면 그 부분부터 열려요.</span></div>'
     +'<div class="seat-share-url" id="guide_url">'+escapeHtml(url)+'</div>'
+    +'<div class="seat-share-btns"><a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" style="width:auto;padding:9px 16px;text-decoration:none">하객 눈으로 미리보기</a><button type="button" class="cc-btn-ghost" id="guide_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="guide_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="guide_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-    +'<div class="seat-share-btns" style="margin-top:12px"><a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" style="width:auto;padding:9px 16px;text-decoration:none">하객 눈으로 미리보기</a><button type="button" class="cc-btn-ghost" id="guide_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="guide_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
-    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안)
+    +'</div>';
 }
 function wireGuideShare(box, token){
   var url=guideUrl(token);
@@ -4268,38 +4190,27 @@ function wireGuideShare(box, token){
   });
   ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url); });
 }
-// [하객 안내 정보] 오시는 길·드레스코드 입력 — 접이식. 저장하면 guide.html에 섹션으로 반영(하객 페이지가 채워짐).
+// [하객 안내 설정] 자리 찾기·라이브 노출 토글만 — 오시는 길은 청첩장의 식장 안내가 담당(자체 홀 고정), 드레스코드는 어른 하객 예우상 없음 (2026-07-17 사용자 지시)
 function guideInfoEditorHtml(gi){
   gi=gi||{};
-  var has=!!(gi.venue||gi.addr||gi.map||gi.parking||gi.transit||gi.dress);   // map 포함 — 지도만 넣어도 '입력됨'(비어 있음 오표시로 재저장·문의 유발 방지)
-  function row(id,label,val,ph){ return '<div class="gi-row"><label class="gi-l" for="'+id+'">'+label+'</label><input class="cc-input" id="'+id+'" type="text" autocomplete="off" value="'+escapeHtml(val||'')+'" placeholder="'+escapeHtml(ph||'')+'"></div>'; }
-  return '<details class="gi-wrap"'+(has?' open':'')+'><summary class="gi-sum">하객 안내 정보 · <span class="gi-sub">오시는 길·드레스코드</span> '+(has?'<span class="gi-badge">입력됨</span>':'<span class="gi-badge gi-badge-o">비어 있음</span>')+' <span class="pt-ar">▾</span></summary>'
+  return '<details class="gi-wrap"><summary class="gi-sum">하객 안내 설정 · <span class="gi-sub">자리 찾기·라이브</span> <span class="pt-ar">▾</span></summary>'
     +'<div class="gi-body">'
-    +'<div class="cc-note" style="text-align:left;margin:0 0 12px">여기 적으면 하객 안내 페이지에 <b>오시는 길·주차·교통·드레스코드</b>로 그대로 보여요. 비워두면 그 칸은 안 나와요.</div>'
-    +row('gi_venue','예식장 이름',gi.venue,'예: 라비돌웨딩홀 3층 그랜드홀')
-    +row('gi_addr','주소',gi.addr,'예: 서울 강남구 테헤란로 000')
-    +row('gi_map','지도 링크 (선택)',gi.map,'카카오맵·네이버지도 링크')
-    +row('gi_parking','주차 안내',gi.parking,'예: 건물 지하 2시간 무료')
-    +row('gi_transit','대중교통',gi.transit,'예: 2호선 강남역 3번 출구 도보 5분')
-    +row('gi_dress','드레스코드 (선택)',gi.dress,'예: 세미정장 · 밝은 톤 환영')
     +'<label class="gi-tg"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 좌석 안내가 하객에게 안 보여요</span></label>'
     +'<label class="gi-tg"><input type="checkbox" id="gi_showLive"'+((gi.showLive===true)?' checked':'')+'> <b>예식 실시간 중계</b> 링크 노출 <span class="gi-tg-s">디지털 참석(라이브)을 준비한 경우만 켜세요</span></label>'
-    +'<button type="button" class="cc-btn" id="gi_save" style="margin-top:6px">안내 정보 저장</button>'
+    +'<button type="button" class="cc-btn" id="gi_save" style="margin-top:6px">설정 저장</button>'
     +'<div class="cc-note" id="gi_msg" style="text-align:center;display:none;margin-top:8px"></div>'
     +'</div></details>';
 }
 function wireGuideInfoEditor(box){
   var btn=$('gi_save'); if(!btn) return;
   btn.addEventListener('click', function(){
-    var draft={ venue:(($('gi_venue')||{}).value||'').trim(), addr:(($('gi_addr')||{}).value||'').trim(), map:(($('gi_map')||{}).value||'').trim(),
-      parking:(($('gi_parking')||{}).value||'').trim(), transit:(($('gi_transit')||{}).value||'').trim(), dress:(($('gi_dress')||{}).value||'').trim(),
-      showSeat: !($('gi_showSeat')&&!$('gi_showSeat').checked), showLive: !!($('gi_showLive')&&$('gi_showLive').checked) };
+    var draft={ showSeat: !($('gi_showSeat')&&!$('gi_showSeat').checked), showLive: !!($('gi_showLive')&&$('gi_showLive').checked) };
     btn.disabled=true; btn.textContent='저장 중…';
     var msg=$('gi_msg');
-    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
+    api({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:draft, done:true}).then(function(r){
       if(r&&r.ok){ if(msg){ msg.textContent='저장됐어요. 하객 안내에 반영됐어요.'; msg.style.display='block'; msg.style.color='var(--gold-deep)'; } setTimeout(function(){ loadMyState(); }, 700); }
-      else { btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ btn.disabled=false; btn.textContent='안내 정보 저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+      else { btn.disabled=false; btn.textContent='설정 저장'; mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
+    }).catch(function(){ btn.disabled=false; btn.textContent='설정 저장'; mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
@@ -4308,30 +4219,28 @@ function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=eve
 function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태는 유지) — 음료 칩 선택 시 이름 보존용
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
-  var _k=inp.getAttribute('data-edk'); if(_k && _k!==(ed.ti+':'+ed.si)) return;   // 화면의 입력창이 '지금 편집 중인 자리'의 것일 때만 기록 — 자리 전환 직후 옛 입력값이 새 자리에 복제되는 것 방지
   if(ed.si==='name'){ if(SEATFLOW.tables[ed.ti]) SEATFLOW.tables[ed.ti].name=inp.value; }
-  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; var _prevNm=String(_t.seats[ed.si]||'').trim(); _t.seats[ed.si]=inp.value;
-    if(!String(inp.value||'').trim() && _prevNm && _t.drinks) _t.drinks[ed.si]='';   // '있던 이름을 지운' 경우만 음료도 초기화(하객 제거). 빈 자리에 음료를 먼저 고르는 흐름에선 지우지 않음 — 재렌더 커밋이 방금 고른 음료를 즉시 삭제하던 실버그 수정(2026-07-16). 미명명 고아 음료는 saveSeat가 저장 직전 정리
+  else if(SEATFLOW.tables[ed.ti]&&SEATFLOW.tables[ed.ti].seats){ var _t=SEATFLOW.tables[ed.ti]; _t.seats[ed.si]=inp.value;
+    if(!String(inp.value||'').trim() && _t.drinks) _t.drinks[ed.si]='';   // 이름을 지우면 음료도 함께 초기화(빈자리에 음료가 남아 집계·색점이 어긋나는 것 방지)
   }
 }
-function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
+function commitSeatEdit(box){ _seatWriteEdit(box); SEATFLOW.edit=null; }
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
-  if(ed) _seatWriteEdit(box);   // 재렌더 진입 시 입력 중이던 값을 먼저 모델에 반영 — 외부 재렌더(상태 갱신 등)가 타이핑 중 이름을 삼키지 않게(편집 상태는 유지)
   function isEd(ti,si){ return ed && ed.ti===ti && String(ed.si)===String(si); }
   function tableEl(t, ti, row, dispNo){
     var n=t.seats.length, seats='';
     for(var si=0; si<n; si++){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
-      if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
+      if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(모서리) — 이름 있는 자리만(구 데이터의 고아 음료가 빈자리에 떠서 집계와 어긋나는 것 방지)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
     var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
     var center = isEd(ti,'name')
-      ? '<input class="rt-cin" data-ed data-edk="'+ti+':name" value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
+      ? '<input class="rt-cin" data-ed value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
       : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+(_hasCn?'<span class="rt-cnm">'+escapeHtml(_cn)+'</span>':'')+'</button>';
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
     return '<div class="rt-wrap" style="'+tx+'">'
@@ -4339,7 +4248,7 @@ function renderSeat(box){
       +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
-        // ★좌우 이동(→/←) 버튼 금지 — 2026-07-12 사용자 지시로 삭제(번호·이름 뒤섞임 + 좁은 폰에서 컨트롤 과밀). 2026-07-14 리뷰가 '기능 복원'으로 되살렸다가 2026-07-16 재삭제됨. 리뷰·복구에서 다시 추가하지 말 것
+        +'<button type="button" class="rt-mini" data-seat-move="'+ti+'" title="좌우 이동">'+(t.side==='R'?'←':'→')+'</button>'
         +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
       +'</div></div>';
   }
@@ -4360,7 +4269,6 @@ function renderSeat(box){
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
     barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 테이블 · 이 자리 음료</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
   }
-  SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
@@ -4378,7 +4286,6 @@ function renderSeat(box){
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
     + (s.token ? seatSharePanelHtml(s.token) : '')
     +'</div>';
-  SEATFLOW._rendering=false;
   box.style.display='block';
   bindSeat(box);
   if(s.token) wireSeatShare(box, s.token);
@@ -4389,27 +4296,24 @@ function renderSeat(box){
     SEATFLOW._dkRe=false;
     ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing&&ev.keyCode!==229){ ev.preventDefault(); commitSeatEdit(box); renderSeat(box); } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; renderSeat(box); } });   // Enter=확정(한글 조합 중엔 무시·229 백스톱) · Esc=취소
     // blur=확정. 단, 재렌더는 200ms 지연 + '아직 아무도 재렌더 안 했을 때만'(ei.isConnected) — 0ms 즉시 렌더가 mousedown~mouseup 사이 DOM을 갈아치워 다른 버튼의 첫 탭을 삼키던 문제 방지
-    ei.addEventListener('blur',function(){ if(SEATFLOW._rendering||!ei.isConnected) return; commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });   // 재렌더로 제거되며 발사되는 blur는 무시(유령 커밋 방지)
+    ei.addEventListener('blur',function(){ commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });
   }
 }
 function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-move],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
     if(el.hasAttribute('data-seat-edit')){ commitSeatEdit(box); var ti=+el.getAttribute('data-ti'), sa=el.getAttribute('data-si'); SEATFLOW.edit={ ti:ti, si:(sa==='name'?'name':+sa) }; SEATFLOW._edNew=true; renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-move')){ commitSeatEdit(box); var mv=+el.getAttribute('data-seat-move'); if(SEATFLOW.tables[mv]) SEATFLOW.tables[mv].side=(SEATFLOW.tables[mv].side==='R')?'L':'R'; renderSeat(box); return; }   // 좌우 이동 복원 — 삭제·재입력 없이 재배치(이름·음료 보존)
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); } renderSeat(box); return; }
-    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; var _lessMsg='';
-      if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim() && !((tl.drinks&&tl.drinks[_q])||'')){ _emp=_q; break; } }   // 뒤에서부터 '이름·음료 모두 빈' 자리만 제거 — 음료 먼저 골라둔 자리를 빈 자리로 오인해 삭제하지 않게
-        if(_emp===-1){ _lessMsg='빈 자리가 없어요 · 이름과 음료를 지운 자리부터 줄일 수 있어요.'; }
-        else { tl.seats.splice(_emp,1); if(tl.drinks) tl.drinks.splice(_emp,1); } }
-      renderSeat(box); if(_lessMsg) _seatErr(_lessMsg); return; }
+    if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; if(tl&&tl.seats.length>1){ tl.seats.pop(); if(tl.drinks) tl.drinks.pop(); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭이 조용히 무시되던 것 수정 — 칩 바는 그 창에만 존재하므로 오적용 없음
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=true; renderSeat(box); } return; }
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
@@ -4424,7 +4328,7 @@ function bindSeat(box){
   box.addEventListener('pointerdown', _dkKeepFocus);
   box.addEventListener('mousedown', _dkKeepFocus);
   box.addEventListener('keydown', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); e.target.blur(); } });   // 백스톱 — 한글 조합 중 Enter는 무시(입력 위 가드와 동일 기준 · 조합 중 blur로 마지막 글자 유실 방지)
-  box.addEventListener('blur', function(e){ if(SEATFLOW._rendering) return; if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')&&e.target.isConnected) commitSeatEdit(box); }, true);   // 재렌더 제거 blur 무시 — 새 입력창과 편집 상태가 어긋나 방금 고른 음료·이름이 유실되던 실버그(2026-07-16)
+  box.addEventListener('blur', function(e){ if(e.target&&e.target.hasAttribute&&e.target.hasAttribute('data-ed')) commitSeatEdit(box); }, true);
 }
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
@@ -4445,7 +4349,7 @@ function startTrkFlow(track, draft, base){
 }
 function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
+  return api({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
 function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   TRKFLOW.active=false; show('loading');
