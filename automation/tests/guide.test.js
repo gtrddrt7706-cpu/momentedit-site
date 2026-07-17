@@ -26,12 +26,12 @@ const fresh = () => { DB = { C1: { 개인코드: 'C1', 상품타입: '시그니�
 
 console.log('── 하객 안내 허브 ──');
 
-// 1) 안내 설정 저장 — '라이브 켬'이 발급 사유(입력 필드 폐지 2026-07-17) + 토글·예약 정보만 정규화
+// 1) 안내 설정 저장 — 토큰은 다이닝·좌석 완료로만 발급(라이브는 청첩장 결정에서 파생 · 2026-07-17) + 예약 정보 정규화
 fresh();
-const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showLive: true, reserveTime: '오후 1시 30분', reserveName: '정희준', venue: '라비돌웨딩홀', evil: 'x' } });
-ok(r1.ok === true && r1.guideToken && r1.guideToken[0] === 'G', '1 라이브 켬 저장 → 안내 토큰(G…) 발급');
+const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { reserveTime: '오후 1시 30분', reserveName: '정희준', showLive: true, venue: '라비돌웨딩홀', evil: 'x' } });
+ok(r1.ok === true && !r1.guideToken, '1 guideinfo 저장은 토큰 발급 없음(다이닝·좌석만 발급)');
 const gd = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
-ok(gd.reserveTime === '오후 1시 30분' && gd.reserveName === '정희준' && gd.venue === undefined && gd.evil === undefined, '2 토글·예약만 저장 + 폐지(venue)·미지정 필드 제거');
+ok(gd.reserveTime === '오후 1시 30분' && gd.reserveName === '정희준' && gd.showLive === undefined && gd.venue === undefined && gd.evil === undefined, '2 자리토글·예약만 저장 + 폐지(showLive·venue)·미지정 필드 제거');
 
 // 3) 예약 정보 길이 상한
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: false, draft: { reserveTime: 'a'.repeat(100), reserveName: 'b'.repeat(100) } });
@@ -77,15 +77,15 @@ ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12a 예식 +29일
 setup({ 예식일: '' });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12b 예식일 미정 → 만료 안 함');
 
-// 13) 토글: 자리 찾기 OFF → seatToken 빈값 / 라이브 ON → live true
-setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false, showLive: true } } });
+// 13) 자리 찾기 OFF → seatToken 빈값 / 라이브 = 청첩장 method(online·both·self+QR)에서 파생
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false }, invitationDraft: { method: 'both' } } });
 const gt1 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
-ok(gt1.guide.seatToken === '' && gt1.guide.live === true && gt1.guide.eventId === 'ev_abc', '13 자리찾기 OFF→seatToken빈값 · 라이브 ON→live·eventId 노출');
+ok(gt1.guide.seatToken === '' && gt1.guide.live === true && gt1.guide.eventId === 'ev_abc', '13 자리찾기 OFF→seatToken빈값 · 청첩장 both→live·eventId 자동 노출');
 
-// 14) 기본값: 자리 찾기 ON(seatToken 있음) · 라이브 OFF(eventId 안 내려감·죽은 링크 방지)
-setup({ 예식일: ymdShift(10) });
+// 14) 기본값: 자리 찾기 ON · 라이브는 오프라인 전용(offline) 청첩장이면 자동 OFF
+setup({ 예식일: ymdShift(10), _prod: { invitationDraft: { method: 'offline' } } });
 const gt2 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
-ok(gt2.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt2.guide.live === false && gt2.guide.eventId === '', '14 기본: 자리찾기 ON · 라이브 OFF(eventId 비노출)');
+ok(gt2.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt2.guide.live === false && gt2.guide.eventId === '', '14 기본: 자리찾기 ON · 오프라인 전용→라이브 OFF(eventId 비노출)');
 
 // 15) 'final'(인원 확정) 완료는 안내 토큰 발급 안 함 — 하객 노출 콘텐츠가 없어 빈 안내 링크 방지
 fresh();
@@ -106,8 +106,8 @@ const rp = sb.handleSaveProductionTrack({ token: 't1', track: 'dining', done: tr
 ok(rp.ok === true && !rp.guideToken, '17b 미정 문구만 → 토큰 미발급');
 // 18) 전부 빈 guideinfo 저장 → 토큰 미발급 · 빈 좌석 완료도 미발급
 fresh();
-const rg0 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: true, showLive: false, reserveTime: '오후 1시' } });
-ok(rg0.ok === true && !rg0.guideToken, '18a 빈 안내정보 저장 → 토큰 미발급');
+const rg0 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: true, reserveTime: '오후 1시' } });
+ok(rg0.ok === true && !rg0.guideToken, '18a guideinfo 저장 → 토큰 미발급(다이닝·좌석 전용)');
 fresh();
 const rs0 = sb.handleSaveProductionTrack({ token: 't1', track: 'seat', done: true, draft: { tables: [{ name: '테이블 1', side: 'L', seats: ['', ''] }] } });
 ok(rs0.ok === true && !rs0.guideToken, '18b 이름 없는 좌석 완료 → 토큰 미발급');

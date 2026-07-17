@@ -172,10 +172,9 @@ function handleSaveProductionTrack(body) {
     var gir = (body && body.draft) || {};
     body.draft = {
       showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
-      showLive: gir.showLive === true,                  // 라이브 중계 노출(기본 OFF · 디지털 참석 켠 부부만)
       reserveTime: String(gir.reserveTime || '').slice(0, 40),   // 식사 예약 시간 — 하객 안내 식사 섹션에 표기(종료 후 집결 혼란 방지)
       reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
-    };
+    };   // 라이브 노출은 청첩장 파트 결정(디지털 참석)에서 자동 파생 — 이중 토글 폐지(2026-07-17 사용자 지시)
   }
   var _notifyQ = [];   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 finally(락 해제 직후)에서. finally 안 flush라 early return에도 유실 없음
   var lock = LockService.getScriptLock();
@@ -207,7 +206,7 @@ function handleSaveProductionTrack(body) {
     // 하객 안내 허브 공개 토큰 — 다이닝/좌석/안내정보 중 '하객에게 보여줄 내용이 실제로 있는' 완료에만 1회 발급(guide.html?g=…). 이미 있으면 유지(링크·QR 안정).
     //   내용 검사: 다이닝 없이(N)·미정 문구만, 빈 좌석, 전부 빈 안내정보로는 발급 안 함 — 이름·날짜만 있는 빈 안내 링크가 배포되는 것 방지(final 제외와 같은 취지).
     var _guideToken = colOf['안내공유토큰'] ? String(cust.get('안내공유토큰') || '').trim() : '';   // 마이그레이션 전(열 없음)이면 발급 생략(에러 방지)
-    if (colOf['안내공유토큰'] && ['dining', 'seat', 'guideinfo'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
+    if (colOf['안내공유토큰'] && ['dining', 'seat'].indexOf(track) !== -1 && body && body.done && !_guideToken) {
       var _gHas = false, _gd = (body && body.draft) || {};
       if (track === 'dining') {
         var _gvp = String(_gd.venuePick || '').trim();
@@ -215,8 +214,6 @@ function handleSaveProductionTrack(body) {
           && ((((_gd._favs) || []).length > 0) || (_gvp && ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'].indexOf(_gvp) === -1));
       } else if (track === 'seat') {
         _gHas = ((_gd.tables) || []).some(function (t) { return ((t && t.seats) || []).some(function (s) { return String(s || '').trim(); }); });   // 이름 하나라도 있어야
-      } else if (track === 'guideinfo') {
-        _gHas = (_gd.showLive === true);   // 입력 필드 폐지(2026-07-17) → '라이브 노출 켬'이 보여줄 내용. 자리·식사는 각자 트랙 완료로 발급
       }
       if (_gHas) {
         _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
@@ -351,7 +348,8 @@ function handleGuideView(body) {
   var d = _parseJsonSafe(cust.get('제작임시저장'));
   var gi = d.guideinfoDraft || {};
   var _showSeat = gi.showSeat !== false;   // 자리 찾기 노출 — 기본 ON(끄면 하객이 이름으로 자리 조회 불가)
-  var _showLive = gi.showLive === true;    // 라이브 중계 — 기본 OFF(디지털 참석 켠 부부만 · eventId만으론 죽은 링크 방지)
+  var _ivm = String((d.invitationDraft || {}).method || '');   // 라이브 = 청첩장 파트 결정에서 자동 파생(별도 토글 폐지 2026-07-17) — 온라인 포함(online·both) 또는 직접+QR이면 디지털 참석 준비
+  var _showLive = (_ivm === 'online' || _ivm === 'both' || (_ivm === 'self' && (d.invitationDraft || {}).selfQR)) ? true : false;
   var dd = d.diningDraft || {};
   var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
   var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
