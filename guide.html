@@ -31,6 +31,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .hero .ek{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--gold-deep);letter-spacing:.02em}
 .hero .couple{font-size:23px;font-weight:500;letter-spacing:.02em;margin:8px 0 6px}
 .hero .heart{font-family:var(--serif);font-style:italic;color:var(--gold);margin:0 7px;font-weight:400}
+.hero .today{display:inline-block;margin-top:10px;background:var(--gold-deep);color:#fff;font-size:12px;font-weight:600;border-radius:20px;padding:6px 14px;letter-spacing:.01em}
 .hero .date{font-size:12.5px;color:var(--sub)}
 .sec{padding:20px 0;border-bottom:1px solid var(--hair)}
 .sec:last-child{border-bottom:0}
@@ -50,10 +51,6 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .act{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 .act svg{width:12px;height:12px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
 .subh{font-size:11px;letter-spacing:.04em;color:var(--light);margin:16px 0 6px}
-.info-row{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--hair);margin-top:10px}
-.info-row:first-of-type{margin-top:12px}
-.info-k{font-size:11.5px;color:var(--gold-deep);padding-top:1px}
-.info-v{font-size:12.5px;color:var(--sub);line-height:1.6}
 
 .find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
 .find input:focus{outline:none;border-color:var(--gold-deep)}
@@ -164,12 +161,18 @@ function bindSeat(seatToken){
   q.addEventListener('focus', startLoad);
   q.addEventListener('input', function(){ startLoad(); findSeat(q.value); });
 }
+function isWeddingDay(ymd){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return false;
+  var n=new Date(); var t=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+  return t===ymd;   // 하객 기기 로컬 날짜 기준(국내 예식 · KST)
+}
 function render(g){
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');
   var date=fmtDate(g.date);
   var hasSeat=!!g.seatToken;
+  var today=isWeddingDay(g.date)?'<div class="today">오늘 두 분의 예식일이에요</div>':'';
   $('root').innerHTML='<div class="card">'
-    +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+today+'</div>'
     +(hasSeat?seatFindHtml():'')
     +diningHtml(g.dining)
     +liveHtml(g)
