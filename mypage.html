@@ -4080,8 +4080,8 @@ function invStepDone(box, r){
       +'<a class="cc-btn-ghost" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">열기</a>'
       +'<button type="button" class="cc-btn-ghost dl-share" data-url="'+escapeHtml(_gUrl)+'">공유</button>'
       +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(_gUrl)+'">복사</button>'
+      +'<button type="button" class="cc-btn-ghost" id="iv_gqrsave" style="display:none">저장</button>'
       +'</div>'
-      +'<div style="text-align:center"><button type="button" class="cc-btn-ghost" id="iv_gqrsave" style="width:auto;padding:7px 14px;margin-top:10px;display:none">QR 이미지 저장</button></div>'
       +'</div></details>'
     : '';
   // 아직 안내 링크가 없으면 — '채우면 청첩장 안에 생긴다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청 · 내장 구조로 문구 갱신)
@@ -4110,15 +4110,15 @@ function invStepDone(box, r){
   // 모바일 참석 QR도 접힘 — 하객 안내와 같은 구도·화면 간결(2026-07-17 사용자 요청). QR만 쓰는 구성(청첩장 카드 없음)은 펼친 채 시작
   var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+((!cards||_selfQR)?' open':'')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center">'
-      +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣어 주세요 · 하객이 스캔하면 바로 입장해요.</div>'
+      +'<div class="done-qr-sub">종이 청첩장·인쇄물에 넣어 주세요.</div>'
       +'<div style="margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(mobileUrl)+'" target="_blank" rel="noopener">'+escapeHtml(mobileUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'
       +'<a class="cc-btn-ghost" href="'+escapeHtml(mobileUrl)+'" target="_blank" rel="noopener">열기</a>'
       +'<button type="button" class="cc-btn-ghost dl-share" data-url="'+escapeHtml(mobileUrl)+'">공유</button>'
       +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(mobileUrl)+'">복사</button>'
+      +'<button type="button" class="cc-btn-ghost" id="iv_qrsave" style="display:none">저장</button>'
       +'</div>'
-      +'<div><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:10px;display:none">QR 이미지 저장</button></div>'
       +'</div></details>' : '';
   box.innerHTML='<div class="consult-card inv-wrap done-wrap">'
     +'<div class="done-eyebrow">Invitation Ready</div><div class="done-rule"></div>'
