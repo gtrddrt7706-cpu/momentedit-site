@@ -1287,6 +1287,28 @@ function mpToast(msg){
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translate(-50%,0)'; }); });
   t._h1=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translate(-50%,8px)'; },1600);
 }
+// QR 이미지 저장 — 모바일(iOS·인앱)에서 download 앵커가 무시되는 문제 대응: 공유 시트(사진 저장) → 다운로드 → 새 탭 순 폴백(2026-07-18)
+function qrSaveImage(host, fname){
+  var el=host.querySelector('canvas,img'); if(!el) return;
+  var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src;
+  var done=function(){ mpToast('QR 이미지가 저장됐어요'); };
+  try{
+    if(el.tagName==='CANVAS' && navigator.canShare && el.toBlob){
+      el.toBlob(function(bl){
+        try{
+          var f=new File([bl],fname,{type:'image/png'});
+          if(navigator.canShare({files:[f]})){ navigator.share({files:[f]}).then(done).catch(function(){}); return; }
+        }catch(e){}
+        _qrDl(src,fname); done();
+      },'image/png'); return;
+    }
+  }catch(e){}
+  _qrDl(src,fname); done();
+}
+function _qrDl(src,fname){
+  try{ var a=document.createElement('a'); a.style.cssText='position:fixed;left:-9999px;top:0'; a.href=src; a.download=fname; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+  catch(e){ try{ window.open(src,'_blank'); }catch(e2){} }
+}
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
@@ -4181,7 +4203,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.style.cssText='position:fixed;left:-9999px;top:0'; a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); mpToast('QR 이미지가 저장됐어요'); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ qrSaveImage(qd,'moment-edit-qr.png'); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4195,7 +4217,7 @@ function renderQRInto(qid, svid, url, fname){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.style.cssText='position:fixed;left:-9999px;top:0'; a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); mpToast('QR 이미지가 저장됐어요'); }; }
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ qrSaveImage(qd, fname||'moment-edit-seat-qr.png'); }; }
       return;
     }catch(e){}
   }
