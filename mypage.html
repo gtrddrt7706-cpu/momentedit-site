@@ -4088,6 +4088,16 @@ function invStepDone(box, r){
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
       : '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>';
   }
+  // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
+  var _kit='';
+  if(String(_dr0.method||'')==='self'){
+    var _kitLines=[(base.groomKo||'')+' · '+(base.brideKo||''), (g||b)?(g+(g&&b?' & ':'')+b):'', when].filter(Boolean);
+    _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar">▾</span></summary>'
+      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">종이 청첩장에 그대로 옮겨 적으세요 · 아래 QR과 함께 쓰면 돼요.</div>'
+      +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(escapeHtml).join('<br>')+'</div>'
+      +'<div class="done-acts" style="justify-content:center"><button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(_kitLines.join('\n'))+'">문구 복사</button></div>'
+      +'</div></details>';
+  }
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
     : (mobileUrl
@@ -4112,7 +4122,7 @@ function invStepDone(box, r){
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
-    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideFold+guideHint+qr   /* ★guideFold 삽입 유지 — 2026-07-18 병합에서 이 줄만 떨어져 하객 안내 접힘이 라이브에서 실종됐던 사고. 조립 줄 수정 시 guideFold 누락 금지 */
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+_kit+guideFold+guideHint+qr   /* ★guideFold 삽입 유지 — 2026-07-18 병합에서 이 줄만 떨어져 하객 안내 접힘이 라이브에서 실종됐던 사고. 조립 줄 수정 시 guideFold·_kit 누락 금지 */
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
