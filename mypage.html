@@ -4057,7 +4057,11 @@ function invStepDone(box, r){
       +'<a class="cc-btn-ghost" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">열기</a>'
       +'<button type="button" class="cc-btn-ghost dl-share" data-url="'+escapeHtml(url)+'">공유</button>'
       +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(url)+'">복사</button>'
-      +'</div></div>';
+      +'<button type="button" class="cc-btn-ghost dl-qr" data-kind="'+kind+'" data-url="'+escapeHtml(url)+'">QR</button>'
+      +'</div>'
+      // [QR 따로 받기 · 2026-07-18 사용자 제안] 웹 청첩장 구성도 엽서·인쇄물용 QR을 원하면 카드 안에서 바로 — 누를 때만 렌더
+      +'<div id="dcqr_'+kind+'" style="display:none;text-align:center;margin-top:10px"><div class="done-qr-frame"><div id="dcqr_'+kind+'_c" style="display:flex;justify-content:center;min-height:40px"></div></div><div><button type="button" class="cc-btn-ghost" id="dcqr_'+kind+'_s" style="width:auto;padding:7px 14px;margin-top:10px;display:none">QR 이미지 저장</button></div></div>'
+      +'</div>';
   }
   // [Phase 2] 하객 안내 허브 링크 — 다이닝·자리가 준비됐으면 청첩장과 같은 화면에서 함께 전달(링크 하나로 통합)
   var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
@@ -4131,6 +4135,11 @@ function invStepDone(box, r){
   var _ed=$('iv_edit'); if(_ed) _ed.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); window.scrollTo({top:Math.max(0,box.offsetTop-12)}); });   // 작성 내용 그대로 1단계부터 점검 → 재발행하면 같은 링크 갱신
   Array.prototype.forEach.call(box.querySelectorAll('.dl-share'),function(b){ b.addEventListener('click',function(){ var url=b.getAttribute('data-url'); if(navigator.share){ navigator.share({title:'청첩장에 초대합니다',url:url}).catch(function(){}); } else { invCopy(url,b); } }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dl-copy'),function(b){ b.addEventListener('click',function(){ invCopy(b.getAttribute('data-url'),b); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('.dl-qr'),function(b){ b.addEventListener('click',function(){
+    var k=b.getAttribute('data-kind'), bx=$('dcqr_'+k); if(!bx) return;
+    var show=bx.style.display==='none'; bx.style.display=show?'':'none';
+    if(show && !bx._qrDone){ bx._qrDone=true; ensureQR(function(){ renderQRInto('dcqr_'+k+'_c','dcqr_'+k+'_s',b.getAttribute('data-url'),'moment-edit-invite-qr.png'); }); }
+  }); });
   // QR은 각 접힘을 처음 열 때 1회 렌더(닫힌 채로는 안 그려 초기 로드 가볍게) · QR만 쓰는 구성은 펼침 시작이라 즉시 렌더
   var _qf=$('iv_qfold');
   if(_qf){ var _qgo=function(){ if(_qf._qrDone) return; _qf._qrDone=true; ensureQR(function(){ renderInvQR(mobileUrl); }); };
