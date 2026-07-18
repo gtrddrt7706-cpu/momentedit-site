@@ -1038,15 +1038,23 @@ function contractSrc(product, docVersion){
 (function(){
   var tracking=false, anchorY=null, pulled=0, bar=null;
   function atTop(){ return window.pageYOffset <= 2; }   // iOS 상단 바운스는 0 미만으로 내려가므로 그대로 참
+  // 마이페이지 안 모든 화면에서 동작(2026-07-18 사용자 지시) — 위저드·좌석 편집기 포함.
+  //   제외: 식순 빌더 등 전체 오버레이(제스처가 오버레이 안에서 발생 · 본문 스크롤 잠금 중)와 갱신 진행 중(중복 방지).
   function busy(){
     try{
-      if(typeof INVFLOW!=='undefined'&&INVFLOW.active) return true;
-      if(typeof TRKFLOW!=='undefined'&&TRKFLOW.active) return true;
-      if(typeof SEATFLOW!=='undefined'&&SEATFLOW.active) return true;
-      if(document.getElementById('mp_obViewer')) return true;   // 식순 빌더 오버레이
-      var mv=document.getElementById('mypageView'); if(!mv || mv.style.display==='none') return true;   // 마이페이지 화면일 때만
+      if(document.getElementById('mp_obViewer')) return true;   // 식순 빌더 iframe 오버레이
+      var cs=getComputedStyle(document.body); if(cs.overflow==='hidden') return true;   // 모달·오버레이가 본문 스크롤 잠금 중
+      var ld=document.getElementById('loading'); if(ld && ld.style.display!=='none' && ld.style.display!=='') return true;   // 갱신 중 재발동 방지
     }catch(e){ return true; }
     return false;
+  }
+  // 새로고침 직전 각 플로의 입력을 초안으로 수집 — 재렌더가 초안에서 값을 복원하므로 타이핑 중이던 내용이 유실되지 않음
+  function refreshNow(){
+    try{ if(typeof TRKFLOW!=='undefined'&&TRKFLOW.active&&TRKFLOW._collect) TRKFLOW._collect(); }catch(e){}
+    try{ if(typeof INVFLOW!=='undefined'&&INVFLOW.active&&INVFLOW._collect) INVFLOW._collect(); }catch(e){}
+    try{ if(typeof SEATFLOW!=='undefined'&&SEATFLOW.active&&SEATFLOW.edit&&typeof commitSeatEdit==='function'){ var bx=document.getElementById('mp_production'); if(bx) commitSeatEdit(bx); } }catch(e){}
+    try{ show('loading'); }catch(e){}
+    try{ loadMyState(); }catch(e2){}
   }
   function ensureBar(){
     if(bar) return bar;
@@ -1071,7 +1079,7 @@ function contractSrc(product, docVersion){
     var go=(pulled>70 && atTop() && !busy());
     tracking=false; anchorY=null; pulled=0;
     if(bar) bar.style.opacity='0';
-    if(go){ try{ show('loading'); }catch(e){} try{ loadMyState(); }catch(e2){} }
+    if(go) refreshNow();
   }, {passive:true});
 })();
 
@@ -3842,6 +3850,7 @@ function invStepMethod(box){
       if(d[p[0]]) (INVFLOW.base||(INVFLOW.base={}))[p[0]]=d[p[0]];   // 확인·완료 화면(표지 이름)도 같은 값 사용
     });
   }
+  INVFLOW._collect=collectNames;   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   ['mp_gEn','mp_bEn','mp_gKo','mp_bKo'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', function(){ collectNames(); updateCover(); }); });
   updateCover();
   Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
@@ -3919,6 +3928,7 @@ function invStepParents(box){
     if($('iv_gfa')) d.groomFatherAccount=paJoin('iv_gfb','iv_gfa'); if($('iv_gma')) d.groomMotherAccount=paJoin('iv_gmb','iv_gma');
     if($('iv_bfa')) d.brideFatherAccount=paJoin('iv_bfb','iv_bfa'); if($('iv_bma')) d.brideMotherAccount=paJoin('iv_bmb','iv_bma');
   }
+  INVFLOW._collect=collect;   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
@@ -4051,6 +4061,7 @@ function invStepDesign(box){
   box.innerHTML=h;
   bindDesign(box);
   $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
+  INVFLOW._collect=function(){ collectDesign(box); };   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ mpAlert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
   var gl=$('iv_gallery'); if(gl) gl.addEventListener('click', openGalleryPick);
 }
@@ -4730,6 +4741,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
 function logAwDemand(p){ try{ api(Object.assign({action:'awDemandLog', token:getToken()}, p||{})); }catch(e){} }   // fire-and-forget(실패 무시)
 function bindTrk(box, render, collect, opt){
   opt=opt||{};
+  TRKFLOW._collect=collect;   // 당겨서 새로고침이 현재 스텝 입력을 초안으로 수집할 때 사용(입력 유실 방지)
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
