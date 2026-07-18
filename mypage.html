@@ -1033,6 +1033,43 @@ function contractSrc(product, docVersion){
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
+// [하단 당겨서 새로고침] 스크롤 맨 아래에서 위로 더 당기면 상태 새로고침(2026-07-17 사용자 지시).
+//   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
+(function(){
+  var startY=null, pulled=0, bar=null;
+  function atBottom(){ return (window.innerHeight + window.pageYOffset) >= ((document.documentElement.scrollHeight||0) - 2); }
+  function busy(){
+    try{
+      if(typeof INVFLOW!=='undefined'&&INVFLOW.active) return true;
+      if(typeof TRKFLOW!=='undefined'&&TRKFLOW.active) return true;
+      if(typeof SEATFLOW!=='undefined'&&SEATFLOW.active) return true;
+      if(document.getElementById('mp_obViewer')) return true;   // 식순 빌더 오버레이
+      var mv=document.getElementById('mypageView'); if(!mv || mv.style.display==='none') return true;   // 마이페이지 화면일 때만
+    }catch(e){ return true; }
+    return false;
+  }
+  function ensureBar(){
+    if(bar) return bar;
+    bar=document.createElement('div');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;text-align:center;font-family:var(--serif-ko,serif);font-size:12px;color:var(--gold-deep,#9A7B4F);padding:12px 0 14px;background:linear-gradient(0deg,rgba(250,250,248,.96),rgba(250,250,248,0));transition:opacity .15s;opacity:0;pointer-events:none;z-index:900';
+    document.body.appendChild(bar); return bar;
+  }
+  document.addEventListener('touchstart', function(e){ if(!atBottom()||busy()){ startY=null; return; } startY=e.touches[0].clientY; pulled=0; }, {passive:true});
+  document.addEventListener('touchmove', function(e){
+    if(startY==null) return;
+    pulled=startY - e.touches[0].clientY;
+    if(pulled>12 && atBottom()){ var b=ensureBar(); b.style.opacity='1'; b.textContent=(pulled>70)?'놓으면 새로고침돼요':'위로 조금 더 당기면 새로고침'; }
+    else if(bar){ bar.style.opacity='0'; }
+  }, {passive:true});
+  document.addEventListener('touchend', function(){
+    if(startY==null) return;
+    var go=(pulled>70 && atBottom() && !busy());
+    startY=null; pulled=0;
+    if(bar) bar.style.opacity='0';
+    if(go){ try{ show('loading'); }catch(e){} try{ loadMyState(); }catch(e2){} }
+  }, {passive:true});
+})();
+
 // [브라우저 뒤로가기 연동] 오버레이·위저드가 열려 있는 동안 뒤로가기(제스처 포함)는 페이지 이탈 대신 그 화면 닫기 — 습관적 뒤로가기로 메인에 튕기는 것 방지(2026-07-17 사용자 요청)
 //   열 때 히스토리 1층(pushState)+닫기 함수 등록 → popstate가 오면 등록된 닫기 실행 · 수동 닫기(✕·저장 후 나가기)는 bkDone()이 그 층을 소비해 히스토리 잔층을 안 남김.
 var _bkStack=[], _bkClosing=false, _bkFromPop=false, _bkSeq=0;
