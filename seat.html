@@ -170,8 +170,11 @@ function renderMineOnly(seat, t){
       }
       return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span><span class="tbl-nm">'+(t.label?esc(t.label):('테이블 '+t.no))+'</span>'+chips+'</div>';
     }
-    var L='', R='';
-    for(var k=0;k<room.length;k++){ var h=(k===hit.hti); if(String(room[k].side||'L')==='R') R+=tblM(room[k],h); else L+=tblM(room[k],h); }
+    var L='', R='', li=0, ri=0;   // 지그재그 — 전체 배치도(render)와 같은 홀 모양(zig 재사용)
+    for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k], z=zig((String(t.side||'L')==='R')?ri++:li++, String(t.side||'L'));
+      var w='<div style="transform:translateX('+z+'px)">'+tblM(t,h)+'</div>';
+      if(String(t.side||'L')==='R') R+=w; else L+=w;
+    }
     return '<div class="stage" style="margin:16px 0 6px">&#9672; 단상 · 신랑 신부</div>'
       +'<div class="room"><div class="col">'+L+'</div><div class="aisle" aria-hidden="true"><span>버진로드</span></div><div class="col">'+R+'</div></div>'
       +'<div class="foot" style="margin-top:8px">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div>';

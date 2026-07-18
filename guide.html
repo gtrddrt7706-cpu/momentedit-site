@@ -218,8 +218,12 @@ function seatRoomHtml(hit){
     }
     return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>';
   }
-  var L='', R='';
-  for(var k=0;k<room.length;k++){ var h=(k===hit.hti); if(String(room[k].side||'L')==='R') R+=tbl(room[k],h); else L+=tbl(room[k],h); }
+  var L='', R='', li=0, ri=0;   // 지그재그 — seat.html 전체 배치도·좌석 편집기와 같은 홀 모양(행마다 좌우 엇갈림)
+  function zigX(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*22; }
+  for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k];
+    if(String(t.side||'L')==='R'){ R+='<div style="transform:translateX('+zigX(ri++,'R')+'px)">'+tbl(t,h)+'</div>'; }
+    else { L+='<div style="transform:translateX('+zigX(li++,'L')+'px)">'+tbl(t,h)+'</div>'; }
+  }
   return '<div class="mtb-wrap"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
     +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
     +'<div class="mtb-cap">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div></div>';
