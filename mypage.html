@@ -4441,7 +4441,16 @@ function prodConfirmHtml(p, inv){
   function line(k,v){ return '<div class="cf-l"><span class="cf-k">'+escapeHtml(k)+'</span><span class="cf-v">'+(v||'<span style="color:var(--label-soft)">미완료</span>')+'</span></div>'; }
   // 파트별 요약(읽기 전용)
   var L='';
-  L+=line('청첩장', (inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'');
+  // 예식 일시 — 확인서의 기준 정보(스냅샷에도 기록 · 2026-07-18 사용자 요청 상세화)
+  var _bw=p.base||{}, _wm=String(_bw.weddingDate||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+_bw.weddingTime):'')));
+  // 청첩장 — 구성·디자인 번호까지(발행됨 한 단어로는 무엇을 발행했는지 알 수 없음)
+  var _ivd=(inv.draft||{}), _im=String(_ivd.method||'');
+  var _imL=({online:'온라인',offline:'오프라인',both:'온라인·오프라인',self:'개인 제작',none:'청첩장 없이'})[_im]||'';
+  var _dz=[]; if(_ivd.designOnline&&(_im==='online'||_im==='both')) _dz.push('온라인 '+_ivd.designOnline); if(_ivd.designFamily&&(_im==='offline'||_im==='both')) _dz.push('오프라인 '+_ivd.designFamily);
+  var _ivv=(inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'';
+  if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+escapeHtml(_dz.join(' · '))+'</span>';
+  L+=line('청첩장', _ivv);
   var rv='';
   if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
