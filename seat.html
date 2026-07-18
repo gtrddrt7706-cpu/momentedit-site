@@ -25,6 +25,8 @@
 body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%}
 .wrap{max-width:440px;margin:0 auto}
 .brand{text-align:center;font-size:11px;letter-spacing:.22em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:18px}
+.backbar{margin:-8px 0 10px}
+.backbar button{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer}
 .card{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:22px 18px 20px;box-shadow:var(--card-shadow)}
 .head{text-align:center;margin-bottom:6px}
 .couple{font-size:20px;font-weight:500;letter-spacing:.02em}
@@ -59,12 +61,15 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 </head>
 <body>
 <div class="wrap">
+  <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로 가기</button></div>
   <div class="brand">Moment Edit</div>
   <div id="root"><div class="state">좌석 안내를 불러오는 중이에요…</div></div>
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 function $(id){ return document.getElementById(id); }
+// 뒤로 가기 — 하객 안내 등 다른 페이지에서 넘어온 경우만 표시(QR·새 탭 직접 진입은 돌아갈 곳이 없어 숨김)
+(function(){ try{ if(history.length>1 && document.referrer){ $('backBar').style.display='block'; $('backBtn').addEventListener('click', function(){ history.back(); }); } }catch(e){} })();
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
