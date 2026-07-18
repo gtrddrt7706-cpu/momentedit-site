@@ -4237,13 +4237,13 @@ function invStepDone(box, r){
   if(!_gCard && u.family){
     guideHint = _gClosed
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
-      : '<div class="cc-note" style="text-align:left">제작 화면의 <b>애프터 웨딩(식사)·좌석 배치</b> 중 하나만 완료해도, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';   // 발급 조건(80_production)=식사 또는 좌석 '내용 있는 완료' 1개 — '둘 다 필요'로 읽히던 문구·트랙 행 이름 불일치 정정(2026-07-18)
+      : '<div class="cc-note" style="text-align:left">제작 화면의 '+GUIDE_MAKE_COND+', 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';
   }
   // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
   var _kit='';
   if(String(_dr0.method||'')==='self'){
-    var _kitLines=[(base.groomKo||'')+' · '+(base.brideKo||''), (g||b)?(g+(g&&b?' & ':'')+b):'', when,
-      '본예식 15분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18)
+    var _kitLines=[[base.groomKo,base.brideKo].filter(Boolean).join(' · '), (g||b)?(g+(g&&b?' & ':'')+b):'', when,
+      '본예식 15분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18) · ★'15분' 수치는 i-family Arrival·weddingSequenceRef 참조표와 동기
     _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">종이 청첩장에 그대로 옮겨 적으세요 · 아래 QR과 함께 쓰면 돼요.</div>'
       +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(escapeHtml).join('<br>')+'</div>'
@@ -4587,8 +4587,11 @@ function guideHubHtml(p, inv){
   var tok=p.guideToken||'';
   var closed=!!tok && _guideLinkClosed(p.base);
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 <b>애프터 웨딩(식사)·좌석 배치</b> 중 하나만 완료해도 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
+// 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
+//   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
+var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나라도 내용을 채워 완료하면';
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 function wireGuideInfoEditor(box, gi){
   gi=gi||{};
