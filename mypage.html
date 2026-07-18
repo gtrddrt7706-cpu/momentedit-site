@@ -4115,7 +4115,7 @@ function invStepDone(box, r){
   Array.prototype.forEach.call(box.querySelectorAll('.dl-copy'),function(b){ b.addEventListener('click',function(){ invCopy(b.getAttribute('data-url'),b); }); });
   if(mobileUrl) ensureQR(function(){ renderInvQR(mobileUrl); });
   var _gf=$('iv_gfold');   // 하객 안내 QR은 접힘을 처음 열 때 1회 렌더(닫힌 채로는 안 그려 초기 로드 가볍게)
-  if(_gf) _gf.addEventListener('toggle', function(){ if(_gf.open && !_gf._qrDone){ _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl); }); } });
+  if(_gf) _gf.addEventListener('toggle', function(){ if(_gf.open && !_gf._qrDone){ _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); } });
 }
 function invCopy(text,btn){
   function done(){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent='복사됨'; setTimeout(function(){ btn.textContent=t; },1400); } }
@@ -4145,14 +4145,14 @@ function renderInvQR(url){
   qd.innerHTML='<div class="cc-note" style="text-align:left">QR 이미지는 준비 중이에요. 인쇄물엔 아래 주소를 넣어 주세요.<br><span class="cc-mini">'+escapeHtml(url)+'</span></div>';
 }
 // 지정 컨테이너에 QR 렌더(seat 공유 등 범용). 미배치 폴백은 주소 텍스트.
-function renderQRInto(qid, svid, url){
+function renderQRInto(qid, svid, url, fname){
   var qd=$(qid); if(!qd) return;
   if(window.QRCode){
     try{
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-seat-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); }; }
       return;
     }catch(e){}
   }
@@ -4317,7 +4317,7 @@ function wireGuideShare(box, token){
     var done=function(){ cp.textContent='복사됐어요'; setTimeout(function(){ cp.textContent='링크 복사'; },1500); };
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ legacyCopy(url); done(); }); } else { legacyCopy(url); done(); } }catch(e){ legacyCopy(url); done(); }
   });
-  ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url); });
+  ensureQR(function(){ renderQRInto('guide_qr','guide_qrsave',url,'moment-edit-guide-qr.png'); });
 }
 // [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
 //   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
