@@ -667,11 +667,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .done-acts{display:flex;gap:7px}
 .done-acts>*{flex:1;width:auto !important;min-height:44px;padding:9px 6px !important;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px}
 .done-qr{text-align:center;border:1px solid var(--border);border-radius:10px;padding:18px 16px 16px;background:#fff;margin-bottom:13px}
-.done-fold{border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:13px;padding:0 14px}
-.done-fold summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);padding:12px 2px}
-.done-fold summary::-webkit-details-marker{display:none}
-.done-fold[open] summary .pt-ar{transform:rotate(180deg);display:inline-block}
-.done-fold-b{padding:2px 2px 14px;text-align:left}
 .done-qr-nm{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent)}
 .done-qr-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:3px 0 13px}
 .done-qr-frame{display:inline-flex;padding:12px;background:#fff;border:1px solid var(--gold-soft,rgba(184,154,117,.3));border-radius:10px}
@@ -870,15 +865,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .gd-chip.on{border:1px solid var(--gold);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
     .seat-share-btns{display:flex;gap:8px;justify-content:center}
     /* 하객 안내 — 행별 컨트롤(예약 정보·자리 찾기 토글)·접힘 허브 */
-    .gi-wrap{margin-top:16px;border-top:1px dashed var(--border);padding-top:14px}
-    .gi-sum{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);display:flex;align-items:center;gap:6px}
-    .gi-sum::-webkit-details-marker{display:none}
-    .gi-sub{font-weight:400;color:var(--sub);font-size:12px}
-    .gi-badge{font-size:10.5px;font-weight:400;color:var(--gold-deep);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2px 9px}
-    .gi-badge-o{color:var(--light)}
-    .gi-sum .pt-ar{margin-left:auto;color:var(--light);transition:transform .2s}
-    .gi-wrap[open] .gi-sum .pt-ar{transform:rotate(180deg)}
-    .gi-body{padding-top:14px}
+    /* (구).gi-wrap/.gi-sum/.gi-badge 접이식 블록 CSS 삭제 — 확인서·하객 안내가 카드 안 행+패널로 재배치되며 마크업 소멸(2026-07-17 리뷰) */
     .gi-row{margin-bottom:11px}
     .gi-l{display:block;font-family:var(--serif-ko);font-size:12px;color:var(--light);margin:0 0 5px 2px}
     .gi-tg{display:flex;align-items:flex-start;gap:8px;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:0 0 10px;cursor:pointer;line-height:1.5}
@@ -886,7 +873,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .cf-l{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hairline,#eee7dc);text-align:left}
     .cf-k{font-size:12px;color:var(--gold-deep);padding-top:1px}
     .cf-v{font-size:12.5px;color:var(--accent);line-height:1.6;word-break:keep-all}
-    .cf-edit{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);text-align:left}
+    /* (구).cf-edit 마감 입력칸 CSS 삭제 — 입력이 다이닝 위저드·좌석 편집기로 이동하며 마크업 소멸(2026-07-17 리뷰) */
     .cf-ok{margin-top:12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--gold-deeper,#7a5f37);text-align:left}
     .cf-warn{margin-top:12px;background:#FBF3F1;border:1px solid var(--seal);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--seal);text-align:left}
     .gi-tg input{margin-top:2px;flex:0 0 auto}
@@ -3145,7 +3132,7 @@ function renderProduction(p, inv){
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   // 확인서·하객 안내도 같은 행 폼으로 카드 안(2026-07-17 사용자 지시) — productionDashHtml이 행+패널까지 조립
-  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p.guideinfoDraft||{}, p);
+  box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p);
   box.style.display='block';
   wireProdConfirm(box, p);
   if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
@@ -3153,7 +3140,13 @@ function renderProduction(p, inv){
   function _panelToggle(btnId, panelId){ var b=$(btnId), pn=$(panelId); if(!b||!pn) return; b.addEventListener('click', function(){ pn.style.display=(pn.style.display==='none')?'':'none'; }); }
   _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel');
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
-  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); startTrkFlow('dining', p.diningDraft||{}, p.base||{}); });
+  var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
+    var _dd0=p.diningDraft||{};
+    if(_dd0.reserveTime==null && _dd0.reserveName==null && p.guideinfoDraft && (p.guideinfoDraft.reserveTime||p.guideinfoDraft.reserveName)){
+      try{ _dd0=JSON.parse(JSON.stringify(_dd0)); }catch(_e){}   // 구(확인서 입력) 예약값을 위저드로 이관 — 새 입력칸에서 보이고·지울 수 있게(유령값 방지)
+      _dd0.reserveTime=String(p.guideinfoDraft.reserveTime||''); _dd0.reserveName=String(p.guideinfoDraft.reserveName||'');
+    }
+    startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){ startTrkFlow('final', p.finalDraft||{}, p.base||{}); });
   var se=$('mp_seatStart'); if(se) se.addEventListener('click', function(){ startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{}); });
@@ -3585,8 +3578,9 @@ function updateCover(){
   var g=coverName($('mp_gEn')&&$('mp_gEn').value), b=coverName($('mp_bEn')&&$('mp_bEn').value);
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
-function productionDashHtml(t, inv, dd, fd, base, rd, sd, gi, p){
-  gi=gi||{}; p=p||{};
+var _cfOpenNext=false;   // 확인 저장 직후 재렌더에서 확인서 패널을 열어 '확인하셨어요' 배너가 보이게(1회 소비)
+function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
+  p=p||{};
   t=t||{}; inv=inv||{};
   // 예식까지 남은 날 — 최종 확정 안내(D-30부터 강조 · 기한은 잔금과 같은 예식 9일 전)
   var _dLeft=null;
@@ -3622,7 +3616,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, gi, p){
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
-  var _cfPanelOpen=!!p.confirmStale;   // 재확인 필요면 처음부터 펼쳐 경고가 보이게
+  var _cfPanelOpen=!!p.confirmStale||_cfOpenNext; _cfOpenNext=false;   // 재확인 필요·확인 직후엔 처음부터 펼쳐 경고/확인 배너가 보이게
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
@@ -3636,7 +3630,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, gi, p){
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
-  var allDone = (ist==='완료') && ((t.ritual||'')==='완료') && (_fDone || _dLeft==null || _dLeft>30);
+  var allDone = (ist==='완료') && ((t.ritual||'')==='완료') && (_fDone || _dLeft==null || _dLeft>30) && !p.confirmStale && !_cfPanelOpen;   // 재확인 필요·확인 직후엔 접지 않음 — 접힌 '준비 완료 ✓'가 경고·확인 배너를 숨기지 않게
   if(allDone){
     // 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
@@ -4059,8 +4053,6 @@ function invStepDone(box, r){
   var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
   var _gClosed = _guideLinkClosed();             // 예식 +30일 지나면 서버가 닫음(GUIDE_EXPIRE_DAYS 동기)
   var _gCard = !!_gTok && !_gClosed;             // 닫힌 뒤엔 카드 숨김
-  // [구조 개편 2026-07-17 사용자 지시] 하객 안내는 직접 모시는 청첩장 '안에' 버튼으로 들어감(hydrate.js 주입) → 여기선 큰 단독 카드 대신
-  //   ① family 카드 설명에 내장 사실 명시 ② '안내만 따로 보내기'는 접힘(보조)으로 축소. ★하객 안내를 다시 3번째 큰 카드로 복원 금지.
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
             + linkCard('family','오프라인 청첩장 · 직접 모시는 분께', _gCard?'가족·가까운 분께 직접 전하세요 · 이 청첩장 안에 <b>하객 안내(식사·자리)</b> 버튼이 함께 들어 있어요.':'가족·가까운 분께 직접 전하세요.',u.family);
   var _gUrl=_gCard?guideUrl(_gTok):'';
@@ -4104,7 +4096,7 @@ function invStepDone(box, r){
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
-    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideFold+guideHint+qr
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideHint+qr
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
@@ -4252,7 +4244,7 @@ function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금�
   saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SEATFLOW._exiting=false; bkKill(SEATFLOW); loadMyState(); }).catch(function(){ _fail(''); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
-function seatSharePanelHtml(token, gi){
+function seatSharePanelHtml(token){
   var url=seatUrl(token);
   return '<div class="seat-share">'
     +'<div class="seat-share-h">✓ 배치가 저장됐어요</div>'
@@ -4297,7 +4289,7 @@ function _guideSectionChips(p, inv){
   var vp=String(dd.venuePick||'').trim();
   var dining=String(dd.dining_on||'')!=='N' && (favs>0 || (vp && DN_PLACEHOLDER.indexOf(vp)===-1));
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
-  var seat=!!p.seatToken && seatNames && gi.showSeat!==false;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일
+  var seat=!!p.seatToken && seatNames;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일((구)showSeat 게이트 폐지 2026-07-17)
   var items=[['내 자리 찾기',seat],['식사 안내',dining]];   // 오시는 길·드레스코드 섹션 폐지(2026-07-17) — 칩도 함께 제거
   var _liveOn=!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.live);   // 라이브 = 청첩장 파트 결정에서 파생(디지털 참석 Y로 발행 시 urls.live 생성 · 별도 토글 폐지 2026-07-17)
   if(_liveOn) items.push(['라이브 중계',true]);
@@ -4346,7 +4338,7 @@ function prodConfirmHtml(p, inv){
     if(_nm){ dv='<b>'+escapeHtml(_nm)+'</b>'+(dd.headcount?(' · '+escapeHtml(String(dd.headcount))+'명'):'');
       var _R=(typeof _dnFind==='function')?_dnFind(_nm):null, _tel=(_R&&_R.tel)?String(_R.tel).replace(/[^0-9]/g,''):'';
       dv+=' <span style="display:inline-flex;gap:8px;margin-left:6px">'+(_tel?('<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
-      var _rvT=String(dd.reserveTime||gi.reserveTime||''), _rvN=String(dd.reserveName||gi.reserveName||'');   // 다이닝 위저드 입력 우선(2026-07-17 이동) · 구 저장분 폴백
+      var _rvT=String((dd.reserveTime!=null)?dd.reserveTime:(gi.reserveTime||'')), _rvN=String((dd.reserveName!=null)?dd.reserveName:(gi.reserveName||''));   // 다이닝 값 우선 · 키 없을 때만 구 저장분 폴백(빈 값='지움' 존중 — GAS와 동일 규칙)
       if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvT+(_rvT&&_rvN?' · ':'')+_rvN))+'</span>';
     } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
   }
@@ -4387,7 +4379,7 @@ function wireProdConfirm(box, p){
     var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
     if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
     apiTrackSave(_pl).then(function(r){
-      if(r&&r.ok){ show('loading'); loadMyState(); }
+      if(r&&r.ok){ _cfOpenNext=true; show('loading'); loadMyState(); }   // 재렌더 후 패널 유지 — '확인하셨어요' 배너가 접힌 채 숨지 않게
       else {
         btn.disabled=false; btn.textContent=t0;
         var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
@@ -4408,27 +4400,30 @@ function guideHubHtml(p, inv){
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 function wireGuideInfoEditor(box, gi){
   gi=gi||{};
+  // ★'자리 찾기 허용(showSeat)' 토글 복원 금지 — 2026-07-17 사용자 지시로 폐지(좌석 공개는 seatMode 2안 단일 체크만)
   function collect(){
-    var mo=$('gi_mineOnly');
+    // 페이로드는 기준값(gi)에서만 — 좌석 편집 재렌더가 체크박스 DOM을 갈아치워도(클릭 도중 포함) 저장값이 화면과 어긋나지 않게(단일 진실원)
     return {
-      showSeat: true,   // 허용 토글 폐지(2026-07-17 · 2안 단일 체크) — 항상 노출, 범위만 선택
-      seatMode: mo ? (mo.checked?'mine':'all') : ((gi.seatMode==='mine')?'mine':'all'),   // 기본 '전체 배치도 공개'
-      reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선)
+      seatMode: (gi.seatMode==='mine')?'mine':'all',   // 기본 '전체 배치도 공개'
+      reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선·지움 존중)
       reserveName: String(gi.reserveName||'')
     };
   }
+  function syncBox(){ var cur=$('gi_mineOnly'); if(cur){ cur.checked=(gi.seatMode==='mine'); cur.disabled=!!gi._saving; } }   // 항상 id로 현재 노드 조회 — 재렌더로 분리된 옛 노드를 만지지 않음
   function save(after){
     apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){
       if(r&&r.ok){ if(after) after(true); }
       else { if(after) after(false); mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
     }).catch(function(){ if(after) after(false); mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   }
-  // 체크 즉시 저장(버튼 없음). 좌석 편집 재렌더가 잦아 기준값(gi)을 즉시 갱신 · 실패 시 원복 — 플로를 벗어나는 전체 재로딩은 하지 않음(나갈 때 loadMyState가 최신화).
+  // 체크 즉시 저장(버튼 없음). 저장 중 상태(gi._saving)는 gi에 둬 재렌더에도 잠금 유지(연타·역전 방지) — _saving은 collect()에 안 실려 서버로 안 감.
   var mo=$('gi_mineOnly');
   if(mo) mo.addEventListener('change', function(){
+    if(gi._saving){ syncBox(); return; }   // 이전 저장 진행 중 — 입력 무시하고 기준값으로 되돌림
+    var _prev=(gi.seatMode==='mine')?'mine':'all';
     gi.seatMode=mo.checked?'mine':'all';
-    mo.disabled=true; save(function(okd){ mo.disabled=false;
-      if(!okd){ mo.checked=!mo.checked; gi.seatMode=mo.checked?'mine':'all'; } });
+    gi._saving=true; syncBox();
+    save(function(okd){ gi._saving=false; if(!okd) gi.seatMode=_prev; syncBox(); });
   });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
@@ -4495,7 +4490,7 @@ function renderSeat(box){
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
     // 좌석 공개 설정 = 2안 단일 체크(2026-07-17 사용자 지시) — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'. 잘 보이게 편집기 상단에.
-    +'<label class="gi-tg" style="display:block;text-align:center;margin:0 0 10px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">기본은 전체 배치도 공개 · 체크하면 본인 자리만 보여요 · 바로 저장돼요</span></label>'
+    +'<label class="gi-tg" style="display:block;text-align:center;margin:0 0 10px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+((s.gi&&s.gi._saving)?' disabled':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">기본은 전체 배치도 공개 · 체크하면 본인 자리만 보여요 · 바로 저장돼요</span></label>'
     + sumHtml
     + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
@@ -4507,7 +4502,7 @@ function renderSeat(box){
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
     +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 공유 링크</button></div>'
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
-    + (s.token ? seatSharePanelHtml(s.token, s.gi) : '')
+    + (s.token ? seatSharePanelHtml(s.token) : '')
     +'</div>';
   SEATFLOW._rendering=false;
   box.style.display='block';

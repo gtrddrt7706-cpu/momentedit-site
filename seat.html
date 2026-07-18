@@ -49,6 +49,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .seat{position:absolute;transform:translate(-50%,-50%);max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;color:var(--sub);padding:3px 7px;border-radius:11px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 2px rgba(28,27,25,.05)}
 .seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600;z-index:2}
 .seat-dot{position:absolute;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#E9E2D5;border:1px solid var(--border)}   /* 익명 자리 점 — 검색 화면(내 자리만)에서 타인 자리 표시 */
+.seat-dot.hit{width:13px;height:13px;background:#F4ECDD;border-color:var(--gold);z-index:2}   /* 다중 일치 강조(이름 없음) */
 .tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
 .tbl-empty{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);font-size:10px;color:var(--light)}
 .foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
@@ -162,10 +163,11 @@ function renderMineOnly(seat, t){
   var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };
   function mineRoomHtml(hit){   // 홀 전체 배치(익명) — 위치는 다 보여주고 이름은 본인 것만(전체 배치도와 같은 지오메트리 · 2026-07-17)
     var room=(hit&&hit.room)||[]; if(!room.length) return '';
+    var one=((hit.mi||[]).length===1);   // 일치 자리 1개일 때만 이름 칩 — 부분 일치 다수면 이름 없이 강조만(타인 자리 오표기 방지)
     function tblM(t, isHit){
       var chips='', n=(t.occ||[]).length;
       for(var i=0;i<n;i++){ var p=seatPos(n,i,54), pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
-        if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+='<div class="seat hit" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>'; }
+        if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="seat hit" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="seat-dot hit" style="'+pos+'"></div>'); }
         else if(t.occ[i]){ chips+='<div class="seat-dot" style="'+pos+'"></div>'; }
       }
       return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span><span class="tbl-nm">'+(t.label?esc(t.label):('테이블 '+t.no))+'</span>'+chips+'</div>';
@@ -177,7 +179,7 @@ function renderMineOnly(seat, t){
     }
     return '<div class="stage" style="margin:16px 0 6px">&#9672; 단상 · 신랑 신부</div>'
       +'<div class="room"><div class="col">'+L+'</div><div class="aisle" aria-hidden="true"><span>버진로드</span></div><div class="col">'+R+'</div></div>'
-      +'<div class="foot" style="margin-top:8px">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div>';
+      +'<div class="foot" style="margin-top:8px">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>';
   }
   function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+홀 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';

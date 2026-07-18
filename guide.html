@@ -73,6 +73,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .gr-no{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:44px;text-align:center;font-family:var(--serif-ko);font-size:11px;font-weight:600;color:var(--accent);line-height:1.2;word-break:keep-all}
 .gr-dot{position:absolute;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#E9E2D5;border:1px solid var(--border)}
 .gr-me{position:absolute;transform:translate(-50%,-50%);max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:10.5px;padding:3px 8px;border-radius:11px;background:#F4ECDD;border:1px solid var(--gold);color:var(--accent);font-weight:600;z-index:2}
+.gr-dot.me{width:13px;height:13px;background:#F4ECDD;border-color:var(--gold);z-index:2}   /* 다중 일치 강조(이름 없음) */
 .mtb-cap{font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px}
 .find-res b{color:var(--seal);font-weight:600}
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
@@ -180,11 +181,13 @@ function findSeat(v){
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
-  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatRoomHtml(_roomLocal(tables, num, hitI, mi));
+  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc));
 }
-// 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버 응답과 같은 형태로(이름은 본인 것만 · 나머지는 점유 여부만 사용)
-function _roomLocal(tables, num, hitI, mi){
-  var own=String(((tables[hitI]||{}).seats||[])[mi[0]]||'');
+// 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버(_seatFindByToken) 응답과 같은 계약({no,label,side,occ}·★변경 시 GAS와 함께).
+//   이름은 '전체 성함 정확 일치 + 단일 자리'일 때만(서버와 동일 규칙 — 부분 검색으로 타인 실명 표기 방지)
+function _roomLocal(tables, num, hitI, mi, lc){
+  var _s0=String(((tables[hitI]||{}).seats||[])[mi[0]]||'');
+  var own=(mi.length===1 && normName(_s0)===lc) ? _s0 : '';
   return { hti:hitI, mi:mi, nm:own, room: tables.map(function(t,i){ var c=String((t&&t.name)||'').trim();
     return { no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:'', side:(String((t||{}).side||'L')==='R')?'R':'L',
       occ:((t&&t.seats)||[]).map(function(s){ return String(s||'').trim()?1:0; }) }; }) };
@@ -219,12 +222,13 @@ function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180
 // 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
 function seatRoomHtml(hit){
   var room=(hit&&hit.room)||[]; if(!room.length) return '';
+  var one=((hit.mi||[]).length===1);   // 일치 자리가 1개일 때만 이름 칩 — 동일 테이블 부분 일치가 여럿이면 이름 없이 강조만(타인 자리 오표기 방지)
   function tbl(t, isHit){
     var chips='';
     for(var i=0;i<(t.occ||[]).length;i++){
       var p=_mtPos(t.occ.length,i);
       var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
-      if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+='<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>'; }
+      if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="gr-dot me" style="'+pos+'"></div>'); }
       else if(t.occ[i]){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; }
     }
     return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>';
@@ -237,7 +241,7 @@ function seatRoomHtml(hit){
   }
   return '<div class="mtb-wrap"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
     +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
-    +'<div class="mtb-cap">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div></div>';
+    +'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div></div>';
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
@@ -266,7 +270,7 @@ function bindSeatServer(seatToken, q){
           }
           if(hits0.length===1){ var ht=tables[hIdx[0]]||{}, mi0=[];   // 단일 일치 → 홀 배치(익명)까지(서버 검색과 동일 규약)
             (ht.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi0.push(si); });
-            var rb=_roomLocal(tables, num, hIdx[0], mi0);
+            var rb=_roomLocal(tables, num, hIdx[0], mi0, lc);
             hits0[0].room=rb.room; hits0[0].hti=rb.hti; hits0[0].mi=mi0; hits0[0].nm=rb.nm;
           }
           var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; return;

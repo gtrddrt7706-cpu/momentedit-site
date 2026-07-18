@@ -203,7 +203,7 @@ function handleSaveProductionTrack(body) {
   if (track === 'guideinfo') {
     var gir = (body && body.draft) || {};
     body.draft = {
-      showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
+      // ★'자리 찾기 허용(showSeat)' 토글 복원 금지 — 2026-07-17 사용자 지시로 폐지(좌석 공개는 seatMode 2안 단일 체크만). 저장도 안 함(레거시 값은 _prodUiStrip이 비교에서 제외)
       seatMode: (String(gir.seatMode || '') === 'mine') ? 'mine' : 'all',   // 좌석 공개 범위 — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'(2안 단일 체크 · 2026-07-17 사용자 지시)
       reserveTime: String(gir.reserveTime || '').slice(0, 40),   // 식사 예약 시간 — 하객 안내 식사 섹션에 표기(종료 후 집결 혼란 방지)
       reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
@@ -377,7 +377,7 @@ function handleSeatView(body) {
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
-  if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };   // 부부의 '자리 찾기 허용' OFF — 이미 배포된 seat 링크·QR에도 즉시 적용(토글 약속 이행) ★게이트는 _seatFindByToken과 쌍 — 추가 시 양쪽 모두에
+  // (구)showSeat 허용 토글 게이트 제거 — 2026-07-17 2안 폐지. 레거시 false 저장분이 좌석 안내를 UI 없이 영구 차단하던 막다른길 해소. ★접근 게이트 추가 시 _seatFindByToken과 쌍으로
   // [좌석 공개 범위] 부부가 '내 자리만 검색'을 켠 경우에만 전체 배치도(명단) 차단 — 기본은 전체 공개(2026-07-17 사용자 지시).
   //   이미 배포된 seat 링크·QR에도 즉시 적용: 프론트(seat.html)가 mineOnly를 받으면 검색 전용 화면으로 전환(죽은 링크 없음).
   if (String((d.guideinfoDraft || {}).seatMode || '') === 'mine') {
@@ -442,8 +442,7 @@ function _seatFindByToken(token, q) {
     if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
     if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };
     var d = _parseJsonSafe(cust.get('제작임시저장'));
-    if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };
-    var sd = d.seatDraft || {};
+    var sd = d.seatDraft || {};   // (구)showSeat 게이트 제거 — handleSeatView와 동일(2026-07-17 2안 폐지)
     var raw = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
     tables = raw.map(_seatFindSlim);
     if (_svc && !_fresh) { try { _svc.put('seatf_' + token, JSON.stringify(tables), 300); } catch (e) {} }
@@ -464,8 +463,12 @@ function _seatFindByToken(token, q) {
     var _hi = hitIdx[0], _ht = tables[_hi] || {}, _mi = [];
     (_ht.seats || []).forEach(function (s, si) { var nm = _seatNorm(s); if (nm && nm.indexOf(q) >= 0) _mi.push(si); });
     hits[0].mi = _mi;
-    hits[0].nm = String((_ht.seats || [])[_mi[0]] || '');   // 본인 표시명(그 자리에 저장된 이름)
+    // 이름은 '전체 성함을 정확히 입력'한 단일 자리에만 — 부분 검색('김'·'김민')으로 타인 실명이 응답에 실리는 수집 통로 차단.
+    //   같은 테이블에 부분 일치가 여럿이면(mi 2+) 이름 없이 자리들만 강조(프런트가 전체 성함 재입력 유도).
+    var _exact = (_mi.length === 1) && (_seatNorm((_ht.seats || [])[_mi[0]]) === q);
+    hits[0].nm = _exact ? String((_ht.seats || [])[_mi[0]] || '') : '';
     hits[0].hti = _hi;                                      // room 배열에서 본인 테이블 위치
+    // ★room 형태({no,label,side,occ}) 변경 시 guide.html _roomLocal(구버전 GAS 폴백)도 함께 — 두 런타임이 같은 계약을 씀
     hits[0].room = tables.map(function (t, i) {
       var _c = String((t && t.name) || '').trim();
       return { no: num[i] || (i + 1), label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : '', side: (String((t || {}).side || 'L') === 'R') ? 'R' : 'L',
@@ -500,7 +503,7 @@ function handleGuideView(body) {
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
   var gi = d.guideinfoDraft || {};
-  var _showSeat = gi.showSeat !== false;   // 자리 찾기 노출 — 기본 ON(끄면 하객이 이름으로 자리 조회 불가)
+  // (구)showSeat 허용 토글 폐지(2026-07-17 2안) — 좌석 노출은 배치 유무 + seatMode만으로 결정
   var _ivm = String((d.invitationDraft || {}).method || '');   // 라이브 = 청첩장 파트 결정에서 자동 파생(별도 토글 폐지 2026-07-17) — 온라인 포함(online·both) 또는 직접+QR이면 디지털 참석 준비
   var _showLive = (_ivm === 'online' || _ivm === 'both' || (_ivm === 'self' && (d.invitationDraft || {}).selfQR)) ? true : false;
   var dd = d.diningDraft || {};
@@ -521,9 +524,11 @@ function handleGuideView(body) {
       groom: String(cust.get('신랑이름') || ''),
       bride: String(cust.get('신부이름') || ''),
       date: _ymdOf(cust.get('예식일')) || '',
-      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots, rtime: String(dd.reserveTime || gi.reserveTime || '').slice(0, 40), rname: String(dd.reserveName || gi.reserveName || '').slice(0, 30) },   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 구 guideinfo 저장분 폴백. 종료 후 별도 안내 없이 집결
-      seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
-      seatFull: (_showSeat && String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false(서버 검색 · 명단 비전송)
+      dining: { on: diningOn, pick: _pick, restos: restos, spots: spots,
+        rtime: String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40),   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
+        rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) },
+      seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
+      seatFull: (String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false(서버 검색 · 명단 비전송)
       eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
       live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)
     }

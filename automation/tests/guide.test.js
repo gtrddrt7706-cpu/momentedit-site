@@ -77,10 +77,10 @@ ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12a 예식 +29일
 setup({ 예식일: '' });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12b 예식일 미정 → 만료 안 함');
 
-// 13) 자리 찾기 OFF → seatToken 빈값 / 라이브 = 청첩장 method(online·both·self+QR)에서 파생
+// 13) (구)showSeat=false 레거시 저장분은 무시(허용 토글 폐지 2026-07-17) · 라이브 = 청첩장 method(online·both·self+QR)에서 파생
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false }, invitationDraft: { method: 'both' } } });
 const gt1 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
-ok(gt1.guide.seatToken === '' && gt1.guide.live === true && gt1.guide.eventId === 'ev_abc', '13 자리찾기 OFF→seatToken빈값 · 청첩장 both→live·eventId 자동 노출');
+ok(gt1.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt1.guide.live === true && gt1.guide.eventId === 'ev_abc', '13 (구)showSeat=false 무시(좌석 열림) · 청첩장 both→live·eventId 자동 노출');
 
 // 14) 기본값: 자리 찾기 ON · 라이브는 오프라인 전용(offline) 청첩장이면 자동 OFF
 setup({ 예식일: ymdShift(10), _prod: { invitationDraft: { method: 'offline' } } });
@@ -115,9 +115,9 @@ ok(rs0.ok === true && !rs0.guideToken, '18b 이름 없는 좌석 완료 → 토�
 setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '직접 섭외할게요', _favs: [] } } });
 const gvS = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
 ok(gvS.guide.dining.pick === '' && gvS.guide.dining.on === false, '19 위저드 문구(직접 섭외할게요) → pick 제거·다이닝 숨김');
-// 20) showSeat OFF → 직접 공유된 seat 링크도 닫힘(토글 약속 이행)
+// 20) (구)showSeat=false 레거시 저장분 — UI가 사라진 플래그가 좌석을 영구 차단하지 않게 무시(2026-07-17 폐지)
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
-ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === false, '20 자리찾기 OFF → seat.html 직접 링크도 비공개');
+ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === true, '20 (구)showSeat=false 무시 → seat 링크 정상(막다른길 해소)');
 
 // ── 예식 확인서(confirm) — 게이트·스냅샷 정규화·수정 시 해제 ──
 // 21) 식순·최종 확정 미완료 → 확인 거부
@@ -162,7 +162,7 @@ ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === true, '27a �
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { seatMode: 'mine' } } });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === false, '27b mine 체크 → seatFull false(검색만)');
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
-ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === false, '27c (구)자리찾기 OFF → seatFull도 false');
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === true, '27c (구)showSeat=false는 seatFull에 영향 없음(토글 폐지 · seatMode만 유효)');
 // 28) 서버 검색(seatView+q) — 일치 테이블 라벨만 답하고 하객 이름은 절대 미포함
 setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
   { name: '테이블 1', side: 'L', seats: ['김하객', '이친구'] },
@@ -181,7 +181,7 @@ ok(sf3.ok === true && sf3.hits.length === 0 && !JSON.stringify(sf3).includes('�
 const sf4 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김 하객' });
 ok(sf4.ok === true && sf4.hits.length === 1, '28d 공백 섞인 입력도 매칭(정규화)');
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
-ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하객' }).ok === false, '28e 자리찾기 OFF → 검색도 차단');
+ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하객' }).ok === true, '28e (구)showSeat=false 무시 → 검색 정상');
 
 // ── 확인 무결성 후속(2026-07-17 코드리뷰) — 실변경만 해제(_prodUiStrip) · 상태 지문(rev) · 청첩장 연동 해제 ──
 // 29) 무변경 재저장(위저드 열고 닫기·자동저장 에코)은 확인을 해제하지 않는다 · showSeat 토글만도 유지(스냅샷 비대상)
@@ -224,6 +224,20 @@ const gvR = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
 ok(gvR.guide.dining.rtime === '오후 1시 30분' && gvR.guide.dining.rname === '김신랑', '34a 다이닝 입력 우선');
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { reserveTime: '오후 1시' }, diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', src: 'resto' }] } } });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining.rtime === '오후 1시', '34b 다이닝에 없으면 구 저장분 폴백');
+
+// ── 3차 리뷰 반영 — 이름 노출 규칙·예약값 지움 존중 ──
+// 35) 이름은 '전체 성함 정확 입력'에만 — 부분 검색 단일 일치는 자리 강조만(타인 실명 수집 차단)
+setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [{ side: 'L', seats: ['최철수', '박영희'] }] } } });
+const sfP = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '최철' });
+ok(sfP.ok === true && sfP.hits.length === 1 && sfP.hits[0].nm === '' && JSON.stringify(sfP).indexOf('최철수') === -1, '35a 부분 일치 → 이름 미포함(수집 차단)');
+ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '최철수' }).hits[0].nm === '최철수', '35b 전체 성함 정확 일치 → 본인 이름 표시');
+// 36) 같은 테이블 부분 일치 여럿 → 이름 없이 자리들만(mi) — 타인 자리에 검색자 이름 오표기 방지
+setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [{ side: 'L', seats: ['김민수', '김민지'] }] } } });
+const sfM = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김민' });
+ok(sfM.hits.length === 1 && sfM.hits[0].mi.length === 2 && sfM.hits[0].nm === '' && JSON.stringify(sfM).indexOf('김민수') === -1, '36 동일 테이블 다중 일치 → 이름 없이 자리 강조만');
+// 37) 예약값 '지움' 존중 — 다이닝에 빈 문자열 저장이면 구 guideinfo 값으로 폴백하지 않음
+setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { reserveTime: '옛값' }, diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', src: 'resto' }], reserveTime: '' } } });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining.rtime === '', '37 다이닝에서 지운 예약값 → 유령 부활 없음');
 
 console.log('\n' + '─'.repeat(36));
 console.log('PASS ' + pass + ' · FAIL ' + fail);
