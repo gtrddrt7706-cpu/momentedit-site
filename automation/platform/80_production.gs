@@ -204,7 +204,7 @@ function handleSaveProductionTrack(body) {
     var gir = (body && body.draft) || {};
     body.draft = {
       showSeat: gir.showSeat !== false,                 // 자리 찾기 노출(기본 ON)
-      seatMode: (String(gir.seatMode || '') === 'all') ? 'all' : 'mine',   // 좌석 공개 범위 — 기본 '내 자리만'(프라이빗 웨딩 심리 · 전체 배치도는 부부가 명시적으로 켤 때만)
+      seatMode: (String(gir.seatMode || '') === 'mine') ? 'mine' : 'all',   // 좌석 공개 범위 — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'(2안 단일 체크 · 2026-07-17 사용자 지시)
       reserveTime: String(gir.reserveTime || '').slice(0, 40),   // 식사 예약 시간 — 하객 안내 식사 섹션에 표기(종료 후 집결 혼란 방지)
       reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
     };   // 라이브 노출은 청첩장 파트 결정(디지털 참석)에서 자동 파생 — 이중 토글 폐지(2026-07-17 사용자 지시)
@@ -378,9 +378,9 @@ function handleSeatView(body) {
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
   var d = _parseJsonSafe(cust.get('제작임시저장'));
   if ((d.guideinfoDraft || {}).showSeat === false) return { ok: false, error: '좌석 안내가 비공개로 설정됐어요.' };   // 부부의 '자리 찾기 허용' OFF — 이미 배포된 seat 링크·QR에도 즉시 적용(토글 약속 이행) ★게이트는 _seatFindByToken과 쌍 — 추가 시 양쪽 모두에
-  // [좌석 공개 범위] 기본 '내 자리만' — 전체 배치도(명단)는 부부가 '전체 공개'를 켠 경우에만 내려준다.
+  // [좌석 공개 범위] 부부가 '내 자리만 검색'을 켠 경우에만 전체 배치도(명단) 차단 — 기본은 전체 공개(2026-07-17 사용자 지시).
   //   이미 배포된 seat 링크·QR에도 즉시 적용: 프론트(seat.html)가 mineOnly를 받으면 검색 전용 화면으로 전환(죽은 링크 없음).
-  if (String((d.guideinfoDraft || {}).seatMode || 'mine') !== 'all') {
+  if (String((d.guideinfoDraft || {}).seatMode || '') === 'mine') {
     var _mo = { ok: false, mineOnly: true, seat: { groom: String(cust.get('신랑이름') || ''), bride: String(cust.get('신부이름') || ''), date: _ymdOf(cust.get('예식일')) || '' } };
     if (_svc && !_fresh) { try {
       _svc.put('seatv_' + token, JSON.stringify(_mo), 300);   // 정상 상태 응답이라 캐시 — 모드 변경 시 저장 측 톰스톤이 즉시 무효화
@@ -450,14 +450,23 @@ function _seatFindByToken(token, q) {
   }
   if (!tables.length) return { ok: false, error: '아직 배치가 없어요.' };
   var num = _seatRowNum(tables);
-  var hits = [];
+  var hits = [], hitIdx = [];
   tables.forEach(function (t, i) {
     var got = ((t && t.seats) || []).some(function (s) { var nm = _seatNorm(s); return nm && nm.indexOf(q) >= 0; });
     if (!got) return;
     var _no = num[i] || (i + 1), _c = String((t && t.name) || '').trim();
     hits.push({ no: _no, label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 ' + _no) });
+    hitIdx.push(i);
   });
-  return { ok: true, hits: hits.slice(0, 4) };   // 상한 4 — 프런트 규약: 1=단정 · 2~3=후보 나열 · 4(=3 초과)=성함 더 입력 요청. 이름은 원래 미포함
+  // 단일 테이블 일치 → 그 테이블의 자리 구성(이름·위치·본인 자리)을 함께 — 현장에서 명패·좌석표 없이 바로 찾아가게(2026-07-17 사용자 지시).
+  //   명단 노출은 '일치한 테이블 1개'(같은 테이블 일행)로만 한정 — 홀 전체 명단은 여전히 비전송('내 자리만' 원칙 유지).
+  if (hits.length === 1) {
+    var _ht = tables[hitIdx[0]] || {}, _mi = [];
+    (_ht.seats || []).forEach(function (s, si) { var nm = _seatNorm(s); if (nm && nm.indexOf(q) >= 0) _mi.push(si); });
+    hits[0].seats = (_ht.seats || []).map(function (s) { return String(s || ''); });   // 빈자리 포함(자리 위치 보존 — 프런트가 같은 지오메트리로 그림)
+    hits[0].mi = _mi;
+  }
+  return { ok: true, hits: hits.slice(0, 4) };   // 상한 4 — 프런트 규약: 1=단정+테이블 상세 · 2~3=후보 나열 · 4(=3 초과)=성함 더 입력 요청
 }
 
 // [하객 안내 허브] 공개 조회 — guide.html이 토큰으로 호출(무인증·읽기 전용). 하객에게 보여줄 안내만 반환.
@@ -494,7 +503,7 @@ function handleGuideView(body) {
       date: _ymdOf(cust.get('예식일')) || '',
       dining: { on: diningOn, pick: _pick, restos: restos, spots: spots, rtime: String(dd.reserveTime || gi.reserveTime || '').slice(0, 40), rname: String(dd.reserveName || gi.reserveName || '').slice(0, 30) },   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 구 guideinfo 저장분 폴백. 종료 후 별도 안내 없이 집결
       seatToken: ((_showSeat && seatTables.length) ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 토글 ON + 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
-      seatFull: (_showSeat && String(gi.seatMode || 'mine') === 'all'),   // 좌석 공개 범위 — true면 전체 배치도 링크 노출, false(기본)면 이름 검색만(서버 검색 · 명단 비전송)
+      seatFull: (_showSeat && String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false(서버 검색 · 명단 비전송)
       eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
       live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)
     }

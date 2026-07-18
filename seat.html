@@ -159,9 +159,17 @@ function renderMineOnly(seat, t){
   // 검색·결과 규칙은 guide.html(bindSeatServer·seatHitsHtml)과 동일 — 문구·규칙 수정 시 두 파일 함께
   var q=$('q'), tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
   var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };
-  function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
+  function mineTblHtml(hit){   // 일치한 테이블 1개의 자리 구성 — 본인 자리 강조(.hit) · 전체 배치도와 같은 지오메트리(seatPos)
+    var seats=(hit&&hit.seats)||[]; if(!seats.length) return '';
+    var n=seats.length, chips='';
+    seats.forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm) return; var p=seatPos(n,i,54);
+      chips+='<div class="seat'+(((hit.mi||[]).indexOf(i)>=0)?' hit':'')+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; });
+    if(!chips) return '';
+    return '<div class="stage" style="margin:16px auto 10px">&#9672; 단상 · 신랑 신부</div><div class="tbl" style="margin:0 auto"><span class="tbl-no">'+hit.no+'</span><span class="tbl-nm">'+esc(hit.label)+'</span>'+chips+'</div><div class="foot" style="margin-top:10px">표시된 자리가 내 자리예요 · 같은 테이블 일행과 함께 앉아요</div>';
+  }
+  function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블';
+    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블'+mineTblHtml(hits[0]);
     if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
     return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
   }

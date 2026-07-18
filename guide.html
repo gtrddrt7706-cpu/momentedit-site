@@ -58,6 +58,15 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
 .find input:focus{outline:none;border-color:var(--gold-deep)}
 .find-res{min-height:20px;text-align:center;font-size:13px;color:var(--gold-deep);margin-top:10px}
+/* 내 테이블 미니 배치 — 검색 일치 시 본인 테이블 전체(일행·자리 위치)를 그려 현장에서 명패 없이 바로 찾아가게(2026-07-17) */
+.mtb-wrap{margin:14px auto 2px;text-align:center}
+.mtb-stage{font-size:9.5px;letter-spacing:.2em;color:var(--gold-deep);opacity:.75;margin-bottom:6px}
+.mtb{position:relative;width:180px;height:180px;margin:0 auto}
+.mtb::before{content:'';position:absolute;left:50%;top:50%;width:72px;height:72px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
+.mtb-no{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:60px;text-align:center;font-family:var(--serif-ko);font-size:11.5px;font-weight:600;color:var(--accent);line-height:1.25;word-break:keep-all}
+.mseat{position:absolute;transform:translate(-50%,-50%);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 8px;border-radius:11px;background:#fff;border:1px solid var(--border)}
+.mseat.me{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
+.mtb-cap{font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:4px}
 .find-res b{color:var(--seal);font-weight:600}
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
@@ -154,7 +163,8 @@ function findSeat(v){
   if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 더 입력하시거나 아래 전체 배치도에서 확인해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지(동명이인은 배치도로)
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
-  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요';
+  var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
+  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatMiniHtml({ no:no, label:label, seats:(t.seats||[]), mi:mi });
 }
 function bindSeat(seatToken, full){
   var q=$('q'); if(!q) return;
@@ -182,9 +192,20 @@ function bindSeat(seatToken, full){
 }
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
-function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
+function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*60, y:Math.sin(a)*60 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
+function seatMiniHtml(hit){   // 일치한 테이블 1개의 자리 구성 — 본인 자리 강조 · 일행 이름까지(현장에서 명패 없이 바로 찾아가게 · 2026-07-17)
+  var seats=(hit&&hit.seats)||[]; if(!seats.length) return '';
+  var n=seats.length, chips='';
+  for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); if(!nm) continue;
+    var p=_mtPos(n,i), me=((hit.mi||[]).indexOf(i)>=0);
+    chips+='<div class="mseat'+(me?' me':'')+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>';
+  }
+  if(!chips) return '';
+  return '<div class="mtb-wrap"><div class="mtb-stage">&#9650; 단상 방향</div><div class="mtb"><span class="mtb-no">'+esc(hit.label)+'</span>'+chips+'</div><div class="mtb-cap">표시된 자리가 내 자리예요 · 같은 테이블 일행과 함께 앉아요</div></div>';
+}
+function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요';
+  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요'+seatMiniHtml(hits[0]);
   if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
   return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
 }
@@ -202,10 +223,14 @@ function bindSeatServer(seatToken, q){
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
         if(d && d.ok && !d.hits && d.seat && d.seat.tables){   // 구버전 GAS(검색 미지원·전체 반환) — 받은 배치로 로컬 검색(GAS 재배포 전 시차 안전망)
-          var tables=d.seat.tables, num=seatRowNum(tables), lc=normName(v), hits0=[];
+          var tables=d.seat.tables, num=seatRowNum(tables), lc=normName(v), hits0=[], hIdx=[];
           for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]), got=false;
             for(var k=0;k<seats.length;k++){ if(normName(seats[k]).indexOf(lc)>=0){ got=true; break; } }
-            if(got){ var c=String(tables[i].name||'').trim(); hits0.push({ no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:('테이블 '+(num[i]||(i+1))) }); }
+            if(got){ var c=String(tables[i].name||'').trim(); hits0.push({ no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:('테이블 '+(num[i]||(i+1))) }); hIdx.push(i); }
+          }
+          if(hits0.length===1){ var ht=tables[hIdx[0]]||{}, mi0=[];   // 단일 일치 → 내 테이블 배치까지(서버 검색과 동일 규약)
+            (ht.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi0.push(si); });
+            hits0[0].seats=(ht.seats||[]); hits0[0].mi=mi0;
           }
           var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; return;
         }

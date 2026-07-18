@@ -4219,16 +4219,6 @@ function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금�
   saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SEATFLOW._exiting=false; bkKill(SEATFLOW); loadMyState(); }).catch(function(){ _fail(''); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
-// 좌석 공개 설정(자리 찾기 허용 + 공개 범위) — 좌석 편집기 공유 패널 전용(2026-07-17 사용자 지시 · 확인서에서 이동)
-function _seatPrivHtml(gi){
-  gi=gi||{}; var _smAll=(gi.seatMode==='all');
-  return '<div style="text-align:left;margin-top:14px;border-top:1px dashed var(--border);padding-top:12px">'
-    +'<label class="gi-tg"><input type="checkbox" id="gi_showSeat"'+((gi.showSeat!==false)?' checked':'')+'> 하객이 <b>이름으로 자리 찾기</b> 허용 <span class="gi-tg-s">끄면 하객에게 안 보여요 · 바로 저장돼요</span></label>'
-    +'<div class="gi-row" id="gi_smrow" style="margin-top:8px'+((gi.showSeat===false)?';display:none':'')+'"><span class="gi-l">좌석 공개 범위</span>'
-    +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="mine"'+(_smAll?'':' checked')+'> 내 자리만 검색 <span class="gi-tg-s">하객은 본인 자리만 볼 수 있어요</span></label>'
-    +'<label class="gi-tg" style="margin:2px 0 0"><input type="radio" name="gi_seatMode" value="all"'+(_smAll?' checked':'')+'> 전체 배치도 공개 <span class="gi-tg-s">가족이 서로 자리를 봐줄 수 있어요</span></label></div>'
-    +'</div>';
-}
 function seatSharePanelHtml(token, gi){
   var url=seatUrl(token);
   return '<div class="seat-share">'
@@ -4237,8 +4227,7 @@ function seatSharePanelHtml(token, gi){
     +'<div class="seat-share-url" id="seat_url">'+escapeHtml(url)+'</div>'
     +'<div class="done-qr-frame" style="margin:12px auto 0"><div id="seat_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
     +'<div class="seat-share-btns" style="margin-top:12px"><button type="button" class="cc-btn-ghost" id="seat_copy" style="width:auto;padding:9px 16px">링크 복사</button><button type="button" class="cc-btn-ghost" id="seat_qrsave" style="width:auto;padding:9px 16px;display:none">QR 저장</button></div>'
-    +_seatPrivHtml(gi)
-    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안) · 공개 설정은 링크 바로 아래(그 링크가 보여줄 범위)
+    +'</div>';   // 버튼은 QR 아래 — 저장 대상(QR) 바로 밑에 액션(2026-07-16 사용자 제안) · 공개 설정 체크는 편집기 상단(2026-07-17 사용자 지시)
 }
 function wireSeatShare(box, token){
   var url=seatUrl(token);
@@ -4334,7 +4323,7 @@ function prodConfirmHtml(p, inv){
   L+=line('최종 확정', fv);
   var sv='';
   if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+_seatPlacedCount(sd.tables)+'명 배치';
-    sv+=' · '+((gi.showSeat===false)?'자리 찾기 꺼짐':((gi.seatMode==='all')?'전체 배치도 공개':'내 자리만 검색'));   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인
+    sv+=' · '+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인(기본=전체 공개 · 2026-07-17)
   }
   L+=line('좌석 배치', sv);
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
@@ -4387,10 +4376,10 @@ function guideHubHtml(p, inv){
 function wireGuideInfoEditor(box, gi){
   gi=gi||{};
   function collect(){
-    var _sm=box.querySelector('input[name="gi_seatMode"]:checked');
+    var mo=$('gi_mineOnly');
     return {
-      showSeat: $('gi_showSeat') ? $('gi_showSeat').checked : (gi.showSeat!==false),
-      seatMode: _sm ? _sm.value : (gi.seatMode==='all'?'all':'mine'),
+      showSeat: true,   // 허용 토글 폐지(2026-07-17 · 2안 단일 체크) — 항상 노출, 범위만 선택
+      seatMode: mo ? (mo.checked?'mine':'all') : ((gi.seatMode==='mine')?'mine':'all'),   // 기본 '전체 배치도 공개'
       reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선)
       reserveName: String(gi.reserveName||'')
     };
@@ -4401,23 +4390,12 @@ function wireGuideInfoEditor(box, gi){
       else { if(after) after(false); mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
     }).catch(function(){ if(after) after(false); mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   }
-  // 토글·라디오는 바로 저장(버튼 없음). 좌석 편집 재렌더가 잦아 기준값(gi)을 즉시 갱신 · 실패 시 원복 — 플로를 벗어나는 전체 재로딩은 하지 않음(나갈 때 loadMyState가 최신화).
-  var st=$('gi_showSeat');
-  if(st) st.addEventListener('change', function(){
-    var _mr=$('gi_smrow'); if(_mr) _mr.style.display=st.checked?'':'none';   // 공개 범위는 자리 찾기 켠 경우에만 의미 있음
-    gi.showSeat=st.checked;
-    st.disabled=true; save(function(okd){ st.disabled=false;
-      if(!okd){ st.checked=!st.checked; gi.showSeat=st.checked; var _m2=$('gi_smrow'); if(_m2) _m2.style.display=st.checked?'':'none'; } });
-  });
-  var _rds=box.querySelectorAll('input[name="gi_seatMode"]');
-  _rds.forEach(function(rd){
-    rd.addEventListener('change', function(){
-      var _prev=(gi.seatMode==='all')?'all':'mine';
-      gi.seatMode=rd.value;
-      _rds.forEach(function(x){ x.disabled=true; });   // 저장 중 잠금 — 연타로 저장이 겹쳐 마지막 선택과 다른 값이 남는 역전 방지
-      save(function(okd){ _rds.forEach(function(x){ x.disabled=false; });
-        if(!okd){ gi.seatMode=_prev; var _pv=box.querySelector('input[name="gi_seatMode"][value="'+_prev+'"]'); if(_pv) _pv.checked=true; } });
-    });
+  // 체크 즉시 저장(버튼 없음). 좌석 편집 재렌더가 잦아 기준값(gi)을 즉시 갱신 · 실패 시 원복 — 플로를 벗어나는 전체 재로딩은 하지 않음(나갈 때 loadMyState가 최신화).
+  var mo=$('gi_mineOnly');
+  if(mo) mo.addEventListener('change', function(){
+    gi.seatMode=mo.checked?'mine':'all';
+    mo.disabled=true; save(function(okd){ mo.disabled=false;
+      if(!okd){ mo.checked=!mo.checked; gi.seatMode=mo.checked?'mine':'all'; } });
   });
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
@@ -4483,6 +4461,8 @@ function renderSeat(box){
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
+    // 좌석 공개 설정 = 2안 단일 체크(2026-07-17 사용자 지시) — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'. 잘 보이게 편집기 상단에.
+    +'<label class="gi-tg" style="display:block;text-align:center;margin:0 0 10px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">기본은 전체 배치도 공개 · 체크하면 본인 자리만 보여요 · 바로 저장돼요</span></label>'
     + sumHtml
     + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
@@ -4499,7 +4479,8 @@ function renderSeat(box){
   SEATFLOW._rendering=false;
   box.style.display='block';
   bindSeat(box);
-  if(s.token){ wireSeatShare(box, s.token); wireGuideInfoEditor(box, s.gi||{}); }   // 공개 설정(자리 찾기·범위)은 좌석 공유 패널에서 편집(2026-07-17 이동)
+  if(s.token) wireSeatShare(box, s.token);
+  wireGuideInfoEditor(box, s.gi||{});   // 공개 범위 체크(편집기 상단) — 링크 발급 전에도 설정 저장 가능
   // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
     if(SEATFLOW._edNew && !SEATFLOW._dkRe){ SEATFLOW._edNew=false; try{ ei.select(); }catch(e){} }
