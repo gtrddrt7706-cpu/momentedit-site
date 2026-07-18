@@ -47,7 +47,8 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .tbl-no{position:absolute;left:calc(50% - 33px);top:calc(50% - 33px);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
 .tbl-nm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;text-align:center;font-size:11px;font-weight:500;color:var(--accent);line-height:1.2;word-break:keep-all}
 .seat{position:absolute;transform:translate(-50%,-50%);max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;color:var(--sub);padding:3px 7px;border-radius:11px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 2px rgba(28,27,25,.05)}
-.seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
+.seat.hit{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600;z-index:2}
+.seat-dot{position:absolute;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#E9E2D5;border:1px solid var(--border)}   /* 익명 자리 점 — 검색 화면(내 자리만)에서 타인 자리 표시 */
 .tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
 .tbl-empty{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);font-size:10px;color:var(--light)}
 .foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
@@ -159,17 +160,25 @@ function renderMineOnly(seat, t){
   // 검색·결과 규칙은 guide.html(bindSeatServer·seatHitsHtml)과 동일 — 문구·규칙 수정 시 두 파일 함께
   var q=$('q'), tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
   var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };
-  function mineTblHtml(hit){   // 일치한 테이블 1개의 자리 구성 — 본인 자리 강조(.hit) · 전체 배치도와 같은 지오메트리(seatPos)
-    var seats=(hit&&hit.seats)||[]; if(!seats.length) return '';
-    var n=seats.length, chips='';
-    seats.forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm) return; var p=seatPos(n,i,54);
-      chips+='<div class="seat'+(((hit.mi||[]).indexOf(i)>=0)?' hit':'')+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; });
-    if(!chips) return '';
-    return '<div class="stage" style="margin:16px auto 10px">&#9672; 단상 · 신랑 신부</div><div class="tbl" style="margin:0 auto"><span class="tbl-no">'+hit.no+'</span><span class="tbl-nm">'+esc(hit.label)+'</span>'+chips+'</div><div class="foot" style="margin-top:10px">표시된 자리가 내 자리예요 · 같은 테이블 일행과 함께 앉아요</div>';
+  function mineRoomHtml(hit){   // 홀 전체 배치(익명) — 위치는 다 보여주고 이름은 본인 것만(전체 배치도와 같은 지오메트리 · 2026-07-17)
+    var room=(hit&&hit.room)||[]; if(!room.length) return '';
+    function tblM(t, isHit){
+      var chips='', n=(t.occ||[]).length;
+      for(var i=0;i<n;i++){ var p=seatPos(n,i,54), pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+        if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+='<div class="seat hit" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>'; }
+        else if(t.occ[i]){ chips+='<div class="seat-dot" style="'+pos+'"></div>'; }
+      }
+      return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span><span class="tbl-nm">'+(t.label?esc(t.label):('테이블 '+t.no))+'</span>'+chips+'</div>';
+    }
+    var L='', R='';
+    for(var k=0;k<room.length;k++){ var h=(k===hit.hti); if(String(room[k].side||'L')==='R') R+=tblM(room[k],h); else L+=tblM(room[k],h); }
+    return '<div class="stage" style="margin:16px 0 6px">&#9672; 단상 · 신랑 신부</div>'
+      +'<div class="room"><div class="col">'+L+'</div><div class="aisle" aria-hidden="true"><span>버진로드</span></div><div class="col">'+R+'</div></div>'
+      +'<div class="foot" style="margin-top:8px">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div>';
   }
-  function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
+  function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+홀 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블'+mineTblHtml(hits[0]);
+    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블'+mineRoomHtml(hits[0]);
     if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
     return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
   }

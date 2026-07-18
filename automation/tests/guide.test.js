@@ -170,10 +170,12 @@ setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
 ] } } });
 const sf1 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '이친구' });
 ok(sf1.ok === true && sf1.hits.length === 1 && sf1.hits[0].no === 1 && sf1.hits[0].label === '테이블 1', '28a 단일 일치 → 행순서 번호·라벨');
-ok(JSON.stringify(sf1.hits[0].seats) === JSON.stringify(['김하객', '이친구']) && JSON.stringify(sf1.hits[0].mi) === '[1]', '28a2 단일 일치 → 내 테이블 자리 구성+본인 자리(현장 명패 없이 찾기)');
+ok(sf1.hits[0].room && sf1.hits[0].room.length === 2 && sf1.hits[0].hti === 0 && JSON.stringify(sf1.hits[0].mi) === '[1]' && sf1.hits[0].nm === '이친구', '28a2 단일 일치 → 홀 전체 배치(익명)+본인 테이블·자리·이름');
+ok(JSON.stringify(sf1.hits[0].room[0].occ) === '[1,1]' && sf1.hits[0].room[1].label === '가족석' && sf1.hits[0].seats === undefined, '28a3 room은 점유 여부·라벨만(이름 배열 없음)');
+ok(!JSON.stringify(sf1).includes('김하객') && !JSON.stringify(sf1).includes('김삼촌'), '28a4 응답 어디에도 타인 이름 없음(본인 이름만)');
 const sf2 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
 ok(sf2.ok === true && sf2.hits.length === 2 && sf2.hits[1].label === '가족석' && sf2.hits[1].no === 2, '28b 다중 일치(흔한 성) → 테이블 목록만 · 커스텀명 존중');
-ok(sf2.hits[0].seats === undefined && sf2.hits[1].seats === undefined, '28b2 다중 일치 → 자리 구성 미전송(테이블 특정 전 명단 최소)');
+ok(sf2.hits[0].room === undefined && sf2.hits[1].room === undefined, '28b2 다중 일치 → 홀 배치·자리 구성 미전송(테이블 특정 전 최소 응답)');
 const sf3 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '박없음' });
 ok(sf3.ok === true && sf3.hits.length === 0 && !JSON.stringify(sf3).includes('김하객'), '28c 불일치 → 빈 결과 · 응답에 하객 이름 없음');
 const sf4 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김 하객' });

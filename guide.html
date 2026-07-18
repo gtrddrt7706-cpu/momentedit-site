@@ -58,15 +58,20 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
 .find input:focus{outline:none;border-color:var(--gold-deep)}
 .find-res{min-height:20px;text-align:center;font-size:13px;color:var(--gold-deep);margin-top:10px}
-/* 내 테이블 미니 배치 — 검색 일치 시 본인 테이블 전체(일행·자리 위치)를 그려 현장에서 명패 없이 바로 찾아가게(2026-07-17) */
+/* 내 자리 홀 배치 — 검색 일치 시 홀 전체 테이블 위치를 그려 현장에서 넘버·명패 없이 바로 찾아가게(2026-07-17).
+   이름은 본인 것 하나만 · 나머지 자리는 익명 점(타인 명단 비노출) */
 .mtb-wrap{margin:14px auto 2px;text-align:center}
-.mtb-stage{font-size:9.5px;letter-spacing:.2em;color:var(--gold-deep);opacity:.75;margin-bottom:6px}
-.mtb{position:relative;width:180px;height:180px;margin:0 auto}
-.mtb::before{content:'';position:absolute;left:50%;top:50%;width:72px;height:72px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold)}
-.mtb-no{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:60px;text-align:center;font-family:var(--serif-ko);font-size:11.5px;font-weight:600;color:var(--accent);line-height:1.25;word-break:keep-all}
-.mseat{position:absolute;transform:translate(-50%,-50%);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 8px;border-radius:11px;background:#fff;border:1px solid var(--border)}
-.mseat.me{background:#F4ECDD;border-color:var(--gold);color:var(--accent);font-weight:600}
-.mtb-cap{font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:4px}
+.mtb-stage{font-size:9.5px;letter-spacing:.2em;color:var(--gold-deep);opacity:.75;margin-bottom:8px;border:1px dashed var(--border);border-radius:20px;padding:6px;max-width:300px;margin-left:auto;margin-right:auto}
+.gr-room{display:flex;gap:2px;align-items:stretch;max-width:330px;margin:0 auto}
+.gr-aisle{position:relative;width:12px;flex-shrink:0;border-radius:8px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
+.gr-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center}
+.gr-tbl{position:relative;width:118px;height:118px;flex-shrink:0}
+.gr-tbl::before{content:'';position:absolute;left:50%;top:50%;width:48px;height:48px;transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--border)}
+.gr-tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
+.gr-no{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:44px;text-align:center;font-family:var(--serif-ko);font-size:11px;font-weight:600;color:var(--accent);line-height:1.2;word-break:keep-all}
+.gr-dot{position:absolute;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#E9E2D5;border:1px solid var(--border)}
+.gr-me{position:absolute;transform:translate(-50%,-50%);max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:10.5px;padding:3px 8px;border-radius:11px;background:#F4ECDD;border:1px solid var(--gold);color:var(--accent);font-weight:600;z-index:2}
+.mtb-cap{font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px}
 .find-res b{color:var(--seal);font-weight:600}
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
@@ -164,7 +169,14 @@ function findSeat(v){
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
-  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatMiniHtml({ no:no, label:label, seats:(t.seats||[]), mi:mi });
+  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatRoomHtml(_roomLocal(tables, num, hitI, mi));
+}
+// 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버 응답과 같은 형태로(이름은 본인 것만 · 나머지는 점유 여부만 사용)
+function _roomLocal(tables, num, hitI, mi){
+  var own=String(((tables[hitI]||{}).seats||[])[mi[0]]||'');
+  return { hti:hitI, mi:mi, nm:own, room: tables.map(function(t,i){ var c=String((t&&t.name)||'').trim();
+    return { no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:'', side:(String((t||{}).side||'L')==='R')?'R':'L',
+      occ:((t&&t.seats)||[]).map(function(s){ return String(s||'').trim()?1:0; }) }; }) };
 }
 function bindSeat(seatToken, full){
   var q=$('q'); if(!q) return;
@@ -192,20 +204,29 @@ function bindSeat(seatToken, full){
 }
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
-function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*60, y:Math.sin(a)*60 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
-function seatMiniHtml(hit){   // 일치한 테이블 1개의 자리 구성 — 본인 자리 강조 · 일행 이름까지(현장에서 명패 없이 바로 찾아가게 · 2026-07-17)
-  var seats=(hit&&hit.seats)||[]; if(!seats.length) return '';
-  var n=seats.length, chips='';
-  for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); if(!nm) continue;
-    var p=_mtPos(n,i), me=((hit.mi||[]).indexOf(i)>=0);
-    chips+='<div class="mseat'+(me?' me':'')+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>';
+function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*41, y:Math.sin(a)*41 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
+// 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
+function seatRoomHtml(hit){
+  var room=(hit&&hit.room)||[]; if(!room.length) return '';
+  function tbl(t, isHit){
+    var chips='';
+    for(var i=0;i<(t.occ||[]).length;i++){
+      var p=_mtPos(t.occ.length,i);
+      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+='<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>'; }
+      else if(t.occ[i]){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; }
+    }
+    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>';
   }
-  if(!chips) return '';
-  return '<div class="mtb-wrap"><div class="mtb-stage">&#9650; 단상 방향</div><div class="mtb"><span class="mtb-no">'+esc(hit.label)+'</span>'+chips+'</div><div class="mtb-cap">표시된 자리가 내 자리예요 · 같은 테이블 일행과 함께 앉아요</div></div>';
+  var L='', R='';
+  for(var k=0;k<room.length;k++){ var h=(k===hit.hti); if(String(room[k].side||'L')==='R') R+=tbl(room[k],h); else L+=tbl(room[k],h); }
+  return '<div class="mtb-wrap"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
+    +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
+    +'<div class="mtb-cap">이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요</div></div>';
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요'+seatMiniHtml(hits[0]);
+  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요'+seatRoomHtml(hits[0]);
   if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
   return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
 }
@@ -228,9 +249,10 @@ function bindSeatServer(seatToken, q){
             for(var k=0;k<seats.length;k++){ if(normName(seats[k]).indexOf(lc)>=0){ got=true; break; } }
             if(got){ var c=String(tables[i].name||'').trim(); hits0.push({ no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:('테이블 '+(num[i]||(i+1))) }); hIdx.push(i); }
           }
-          if(hits0.length===1){ var ht=tables[hIdx[0]]||{}, mi0=[];   // 단일 일치 → 내 테이블 배치까지(서버 검색과 동일 규약)
+          if(hits0.length===1){ var ht=tables[hIdx[0]]||{}, mi0=[];   // 단일 일치 → 홀 배치(익명)까지(서버 검색과 동일 규약)
             (ht.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi0.push(si); });
-            hits0[0].seats=(ht.seats||[]); hits0[0].mi=mi0;
+            var rb=_roomLocal(tables, num, hIdx[0], mi0);
+            hits0[0].room=rb.room; hits0[0].hti=rb.hti; hits0[0].mi=mi0; hits0[0].nm=rb.nm;
           }
           var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; return;
         }

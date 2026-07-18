@@ -458,15 +458,21 @@ function _seatFindByToken(token, q) {
     hits.push({ no: _no, label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 ' + _no) });
     hitIdx.push(i);
   });
-  // 단일 테이블 일치 → 그 테이블의 자리 구성(이름·위치·본인 자리)을 함께 — 현장에서 명패·좌석표 없이 바로 찾아가게(2026-07-17 사용자 지시).
-  //   명단 노출은 '일치한 테이블 1개'(같은 테이블 일행)로만 한정 — 홀 전체 명단은 여전히 비전송('내 자리만' 원칙 유지).
+  // 단일 일치 → 홀 전체 배치(익명)+본인 자리·이름만 — 어느 테이블이 어디인지 보여 현장에서 넘버·명패 없이 바로 찾아가게(2026-07-17 사용자 지시).
+  //   이름은 검색한 본인 것 하나만 응답에 담고, 나머지 자리는 점유 여부(occ)만 — 타인 명단은 어떤 형태로도 비전송.
   if (hits.length === 1) {
-    var _ht = tables[hitIdx[0]] || {}, _mi = [];
+    var _hi = hitIdx[0], _ht = tables[_hi] || {}, _mi = [];
     (_ht.seats || []).forEach(function (s, si) { var nm = _seatNorm(s); if (nm && nm.indexOf(q) >= 0) _mi.push(si); });
-    hits[0].seats = (_ht.seats || []).map(function (s) { return String(s || ''); });   // 빈자리 포함(자리 위치 보존 — 프런트가 같은 지오메트리로 그림)
     hits[0].mi = _mi;
+    hits[0].nm = String((_ht.seats || [])[_mi[0]] || '');   // 본인 표시명(그 자리에 저장된 이름)
+    hits[0].hti = _hi;                                      // room 배열에서 본인 테이블 위치
+    hits[0].room = tables.map(function (t, i) {
+      var _c = String((t && t.name) || '').trim();
+      return { no: num[i] || (i + 1), label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : '', side: (String((t || {}).side || 'L') === 'R') ? 'R' : 'L',
+        occ: ((t && t.seats) || []).map(function (s) { return String(s || '').trim() ? 1 : 0; }) };   // 자리 점유만(이름 없음)
+    });
   }
-  return { ok: true, hits: hits.slice(0, 4) };   // 상한 4 — 프런트 규약: 1=단정+테이블 상세 · 2~3=후보 나열 · 4(=3 초과)=성함 더 입력 요청
+  return { ok: true, hits: hits.slice(0, 4) };   // 상한 4 — 프런트 규약: 1=단정+홀 배치 · 2~3=후보 나열 · 4(=3 초과)=성함 더 입력 요청
 }
 
 // [하객 안내 허브] 공개 조회 — guide.html이 토큰으로 호출(무인증·읽기 전용). 하객에게 보여줄 안내만 반환.
