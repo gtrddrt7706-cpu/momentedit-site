@@ -155,7 +155,7 @@ var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조
 function seatFindHtml(full){
   return '<div class="sec"><div class="sec-h"><span class="sec-t">내 자리 찾기</span><span class="sec-n">Your Table</span></div>'
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력하세요"><div class="find-res" id="fr"></div></div>'
-    +(full?'<a class="mapall" id="seatAll" href="#" target="_blank" rel="noopener">전체 좌석 배치도 보기 ›</a>':'')
+    +(full?'<div class="mtb-wrap" id="seatMap"></div>':'')   // 전체 공개면 별도 페이지 링크 대신 맵을 바로 인라인(2026-07-18 사용자 지시 · ★'전체 좌석 배치도 보기' 링크 복원 금지)
     +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
 }
 function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1·3·5 / 우 2·4·6)
@@ -168,7 +168,7 @@ function normName(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase()
 function findSeat(v){
   if(SEAT_STATE==='mine') return;   // 서버 검색 모드로 강등된 상태 — 결과 표시는 bindSeatServer가 전담(로컬 실패 문구로 덮지 않게)
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
-  if(!v){ fr.innerHTML=''; return; }
+  if(!v){ fr.innerHTML=''; renderFullMap(); return; }
   if(SEAT_STATE==='loading'){ fr.textContent='좌석 안내를 불러오는 중이에요…'; return; }
   if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 아래 전체 배치도로 확인해 주세요.'; return; }
   var lc=normName(v), tables=SEAT.tables||[], num=seatRowNum(tables), hits=[];
@@ -177,12 +177,14 @@ function findSeat(v){
     for(var k=0;k<seats.length;k++){ if(normName(seats[k]).indexOf(lc)>=0){ got=true; break; } }
     if(got) hits.push(i);
   }
-  if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
+  if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; renderFullMap(); return; }
   if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 더 입력하시거나 아래 전체 배치도에서 확인해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지(동명이인은 배치도로)
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
-  fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc));
+  var _rh=seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc)), _sm=$('seatMap');
+  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'; }
+  else fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+_rh;
 }
 // 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버(_seatFindByToken) 응답과 같은 계약({no,label,side,occ}·★변경 시 GAS와 함께).
 //   이름은 '전체 성함 정확 일치 + 단일 자리'일 때만(서버와 동일 규칙 — 부분 검색으로 타인 실명 표기 방지)
@@ -196,17 +198,16 @@ function _roomLocal(tables, num, hitI, mi, lc){
 function bindSeat(seatToken, full){
   var q=$('q'); if(!q) return;
   if(!full){ bindSeatServer(seatToken, q); return; }   // '내 자리만' — 명단 비수신·서버 검색
-  var all=$('seatAll'); if(all) all.setAttribute('href', '/seat.html?t='+encodeURIComponent(seatToken));
-  // 좌석 본체는 첫 사용 시 지연 조회 — 자리 찾기를 안 쓰는 하객은 GAS 호출 1회로 끝(예식 직전 동시 접속 부하 절반)
+  // 전체 공개 = 맵이 곧 콘텐츠 — 지연 없이 바로 조회해 검색 전에도 홀 배치(익명)가 보이게(2026-07-18 사용자 지시)
   var started=false;
   function startLoad(){
     if(started) return; started=true; SEAT_STATE='loading';
     fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken}) })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; }
+        if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; renderFullMap(); }
         else if(d&&d.mineOnly){   // 부부가 그 사이 '내 자리만'으로 전환(캐시 포함) — 죽은 검색 대신 서버 검색으로 강등
-          SEAT_STATE='mine'; if(all) all.style.display='none';
+          SEAT_STATE='mine'; var _sm0=$('seatMap'); if(_sm0) _sm0.style.display='none';
           var _sv=bindSeatServer(seatToken, q); if(q.value) _sv(q.value); return;
         }
         else { SEAT_STATE='fail'; }
@@ -216,6 +217,13 @@ function bindSeat(seatToken, full){
   }
   q.addEventListener('focus', startLoad);
   q.addEventListener('input', function(){ startLoad(); findSeat(q.value); });
+  startLoad();
+}
+// 전체 공개 인라인 맵(익명) — 검색 전 기본 화면·검색어 지우면 복귀
+function renderFullMap(){
+  var sm=$('seatMap'); if(!sm||!SEAT) return;
+  var tables=SEAT.tables||[], num=seatRowNum(tables);
+  sm.innerHTML=seatRoomHtml(_roomLocal(tables, num, -1, [], '\u0000'));
 }
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
@@ -254,7 +262,7 @@ function bindSeatServer(seatToken, q){
   var tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
   function search(v){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
-    if(!v){ fr.innerHTML=''; return; }
+    if(!v){ fr.innerHTML=''; renderFullMap(); return; }
     if(normName(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // 한 글자(성씨만)는 어차피 다수 매칭 — 호출 절약
     if(last && last.q===v){ fr.innerHTML=last.html; return; }
     var my=seq;
