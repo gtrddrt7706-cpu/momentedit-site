@@ -1275,6 +1275,16 @@ function mpSignaturePad(opts){
     setTimeout(resize,40);
   });
 }
+// 하단 잠깐 팝업(토스트) — 저장 등 완료 피드백(2026-07-18 사용자 요청). 1.6초 후 사라짐
+function mpToast(msg){
+  var t=document.getElementById('mpToast');
+  if(!t){ t=document.createElement('div'); t.id='mpToast';
+    t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,45,34,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 22px;border-radius:22px;z-index:12000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap';
+    document.body.appendChild(t); }
+  t.textContent=msg; clearTimeout(t._h1); clearTimeout(t._h2);
+  requestAnimationFrame(function(){ t.style.opacity='1'; });
+  t._h1=setTimeout(function(){ t.style.opacity='0'; },1600);
+}
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
@@ -4169,7 +4179,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됐어요'; setTimeout(function(){ sv.textContent=_t; },1400); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); mpToast('QR 이미지가 저장됐어요'); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4183,7 +4193,7 @@ function renderQRInto(qid, svid, url, fname){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됐어요'; setTimeout(function(){ sv.textContent=_t; },1400); }; }
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); mpToast('QR 이미지가 저장됐어요'); }; }
       return;
     }catch(e){}
   }
