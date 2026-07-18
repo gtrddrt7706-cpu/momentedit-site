@@ -4621,7 +4621,7 @@ function renderSeat(box){
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
     // 좌석 공개 설정 = 2안 단일 체크(2026-07-17 사용자 지시) — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'. 잘 보이게 편집기 상단에.
-    +'<label class="gi-tg" style="display:block;text-align:center;margin:0 0 10px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+((s.gi&&s.gi._saving)?' disabled':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">기본은 전체 배치도 공개 · 체크하면 본인 자리만 보여요 · 바로 저장돼요</span></label>'
+    +'<label class="gi-tg" style="display:block;text-align:center;margin:2px 0 12px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+((s.gi&&s.gi._saving)?' disabled':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">체크 즉시 저장돼요</span></label>'
     + sumHtml
     + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
