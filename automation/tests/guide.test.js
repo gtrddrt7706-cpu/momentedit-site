@@ -51,7 +51,7 @@ ok(gv.ok && gv.guide.groom === '정희준' && gv.guide.date === '2026-11-07', '4
 ok(gv.guide.venue === undefined && gv.guide.dress === undefined, '5 오시는 길·드레스코드 미반환(섹션 폐지)');
 ok(gv.guide.dining.rtime === '오후 1시' && gv.guide.dining.rname === '정희준', '5b 식사 예약 시간·예약자 반환(종료 후 집결 안내)');
 ok(gv.guide.dining.on && gv.guide.dining.pick === '소반' && gv.guide.dining.restos.length === 1 && gv.guide.dining.spots.length === 1, '6 다이닝(대표·식사·가볼곳)');
-ok(gv.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gv.guide.live === false && gv.guide.eventId === '', '7 좌석 토큰(자리찾기 기본 ON) · 라이브 기본 OFF(eventId 비노출)');
+ok(gv.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gv.guide.live === undefined && gv.guide.eventId === undefined, '7 좌석 토큰 반환 · 라이브 필드 미전송(하객 안내 라이브 섹션 삭제 2026-07-17)');
 ok(!JSON.stringify(gv).includes('제작임시저장') && !JSON.stringify(gv.guide).includes('_favs'), '8 내부 draft 원본 미노출(PII 최소)');
 
 // 9) 잘못된/빈 토큰 차단
@@ -77,15 +77,15 @@ ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12a 예식 +29일
 setup({ 예식일: '' });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12b 예식일 미정 → 만료 안 함');
 
-// 13) (구)showSeat=false 레거시 저장분은 무시(허용 토글 폐지 2026-07-17) · 라이브 = 청첩장 method(online·both·self+QR)에서 파생
+// 13) (구)showSeat=false 레거시 저장분은 무시(허용 토글 폐지 2026-07-17) · 라이브 필드는 어떤 청첩장 방식에서도 미전송(섹션 삭제)
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false }, invitationDraft: { method: 'both' } } });
 const gt1 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
-ok(gt1.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt1.guide.live === true && gt1.guide.eventId === 'ev_abc', '13 (구)showSeat=false 무시(좌석 열림) · 청첩장 both→live·eventId 자동 노출');
+ok(gt1.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt1.guide.live === undefined && gt1.guide.eventId === undefined, '13 (구)showSeat=false 무시(좌석 열림) · 온라인 포함(both)이어도 라이브 미전송');
 
-// 14) 기본값: 자리 찾기 ON · 라이브는 오프라인 전용(offline) 청첩장이면 자동 OFF
+// 14) 기본값: 좌석 토큰 반환 · eventId는 어떤 경우에도 하객 안내 응답에 없음(PII·링크 재료 최소)
 setup({ 예식일: ymdShift(10), _prod: { invitationDraft: { method: 'offline' } } });
 const gt2 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
-ok(gt2.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && gt2.guide.live === false && gt2.guide.eventId === '', '14 기본: 자리찾기 ON · 오프라인 전용→라이브 OFF(eventId 비노출)');
+ok(gt2.guide.seatToken === 'Sxxxxxxxxxxxxxx1' && !JSON.stringify(gt2).includes('ev_abc'), '14 기본: 좌석 토큰 반환 · eventId 미전송');
 
 // 15) 'final'(인원 확정) 완료는 안내 토큰 발급 안 함 — 하객 노출 콘텐츠가 없어 빈 안내 링크 방지
 fresh();

@@ -82,9 +82,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
 .privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
 
-.live-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:#fff;background:var(--accent);border-radius:9px;padding:13px 0}
-.live-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.6}
-.live-cap{font-size:11px;color:var(--light);text-align:center;margin-top:8px}
+/* ★라이브 섹션 복원 금지 — 2026-07-17 사용자 지시로 삭제(하객 안내=오프라인 하객용 · 라이브는 온라인 청첩장이 단일 창구) */
 
 .foot{text-align:center;padding:20px 0 4px}
 .foot .wm{font-family:var(--serif);font-size:14px;letter-spacing:.03em;color:var(--accent)}
@@ -116,7 +114,6 @@ function mapUrl(v){ return (v.url && /^https?:/i.test(v.url)) ? v.url : ('https:
 function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
 var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
 var ICON_TEL='<path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L20 13l1 4v2a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>';
-var ICON_LIVE='<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>';
 
 function spotHtml(v, withTel){
   var acts='<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
@@ -145,13 +142,7 @@ function diningHtml(dn){
   if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
   return h+'</div>';
 }
-function liveHtml(g){
-  if(!g.eventId) return '';
-  var url='/live.html?e='+encodeURIComponent(g.eventId);
-  return '<div class="sec"><div class="sec-h"><span class="sec-t">멀리 계신 분께</span><span class="sec-n">Live</span></div>'
-    +'<a class="live-btn" href="'+esc(url)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_LIVE+'</svg>예식 실시간 보기</a>'
-    +'<div class="live-cap">예식 시작 즈음 열려요. 열리기 전엔 안내 화면이 보일 수 있어요.</div></div>';
-}
+// ★라이브 섹션(liveHtml) 복원 금지 — 2026-07-17 사용자 지시로 삭제. 멀리 계신 분 안내는 온라인 청첩장(live.html 링크 포함)이 담당
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
 //   공개 범위(부부 설정 seatFull): 전체 공개면 명단을 받아 즉시 검색 + 전체 배치도 링크 · '내 자리만'(기본)이면
 //   명단을 기기로 받지 않고 서버 검색(seatView+q)으로 본인 테이블만 답한다(프라이빗 웨딩 기본값 2026-07-17 사용자 지시).
@@ -303,7 +294,6 @@ function render(g){
     +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+today+'</div>'
     +(hasSeat?seatFindHtml(!!g.seatFull):'')
     +diningHtml(g.dining)
-    +liveHtml(g)
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
   if(hasSeat) bindSeat(g.seatToken, !!g.seatFull);

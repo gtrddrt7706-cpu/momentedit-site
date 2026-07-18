@@ -504,8 +504,7 @@ function handleGuideView(body) {
   var d = _parseJsonSafe(cust.get('제작임시저장'));
   var gi = d.guideinfoDraft || {};
   // (구)showSeat 허용 토글 폐지(2026-07-17 2안) — 좌석 노출은 배치 유무 + seatMode만으로 결정
-  var _ivm = String((d.invitationDraft || {}).method || '');   // 라이브 = 청첩장 파트 결정에서 자동 파생(별도 토글 폐지 2026-07-17) — 온라인 포함(online·both) 또는 직접+QR이면 디지털 참석 준비
-  var _showLive = (_ivm === 'online' || _ivm === 'both' || (_ivm === 'self' && (d.invitationDraft || {}).selfQR)) ? true : false;
+  // ★라이브 파생·노출 복원 금지 — 2026-07-17 사용자 지시로 하객 안내에서 라이브 섹션 삭제(오프라인 하객용 페이지 · 라이브는 온라인 청첩장이 단일 창구)
   var dd = d.diningDraft || {};
   var _favs = (Object.prototype.toString.call(dd._favs) === '[object Array]') ? dd._favs : [];
   var _mapItem = function (v) {   // 하객 노출용 — 이름·메뉴·전화·지도만(내부 필드 제거)
@@ -528,9 +527,7 @@ function handleGuideView(body) {
         rtime: String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40),   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
         rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) },
       seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
-      seatFull: (String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false(서버 검색 · 명단 비전송)
-      eventId: (_showLive ? String(cust.get('eventId') || '').trim() : ''),                    // 라이브 켠 경우에만 링크 재료 전달
-      live: (_showLive && String(cust.get('eventId') || '').trim()) ? true : false             // 부부가 라이브 사용 ON + eventId 있을 때만(죽은 링크 방지)
+      seatFull: (String(gi.seatMode || '') !== 'mine')   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false. (eventId·live 필드 제거 2026-07-17 — 라이브 미전송)
     }
   };
 }
