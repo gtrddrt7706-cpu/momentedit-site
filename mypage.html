@@ -667,6 +667,11 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .done-acts{display:flex;gap:7px}
 .done-acts>*{flex:1;width:auto !important;min-height:44px;padding:9px 6px !important;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px}
 .done-qr{text-align:center;border:1px solid var(--border);border-radius:10px;padding:18px 16px 16px;background:#fff;margin-bottom:13px}
+.done-fold{border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:13px;padding:0 14px}
+.done-fold summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);padding:12px 2px}
+.done-fold summary::-webkit-details-marker{display:none}
+.done-fold[open] summary .pt-ar{transform:rotate(180deg);display:inline-block}
+.done-fold-b{padding:2px 2px 14px;text-align:left}
 .done-qr-nm{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent)}
 .done-qr-sub{font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);margin:3px 0 13px}
 .done-qr-frame{display:inline-flex;padding:12px;background:#fff;border:1px solid var(--gold-soft,rgba(184,154,117,.3));border-radius:10px}
@@ -4054,12 +4059,24 @@ function invStepDone(box, r){
   var _gTok=''; try{ _gTok=((window._mpStateD||{}).production||{}).guideToken||''; }catch(e){}
   var _gClosed = _guideLinkClosed();             // 예식 +30일 지나면 서버가 닫음(GUIDE_EXPIRE_DAYS 동기)
   var _gCard = !!_gTok && !_gClosed;             // 닫힌 뒤엔 카드 숨김
+  // [구조 개편 2026-07-17 사용자 지시] 하객 안내는 직접 모시는 청첩장 '안에' 버튼으로 들어감(hydrate.js 주입) → 여기선 큰 단독 카드 대신
+  //   ① family 카드 설명에 내장 사실 명시 ② '안내만 따로 보내기'는 접힘(보조)으로 축소. ★하객 안내를 다시 3번째 큰 카드로 복원 금지.
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
-            + linkCard('family','직접 모시는 청첩장', _gCard?'가족·가까운 분께 직접 전하세요 · 아래 <b>하객 안내</b>를 함께 보내면 좋아요.':'가족·가까운 분께 직접 전하세요.',u.family);
-  if(_gCard) cards += linkCard('guide','하객 안내 · 식사·자리','예식 안내를 한 페이지로 · 오프라인 하객께 청첩장과 함께 전하세요.', guideUrl(_gTok));
-  // 아직 안내 링크가 없으면 — 오프라인 청첩장 옆에 '채우면 여기에 나온다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청)
+            + linkCard('family','직접 모시는 청첩장', _gCard?'가족·가까운 분께 직접 전하세요 · 이 청첩장 안에 <b>하객 안내(식사·자리)</b> 버튼이 함께 들어 있어요.':'가족·가까운 분께 직접 전하세요.',u.family);
+  var _gUrl=_gCard?guideUrl(_gTok):'';
+  var guideFold = _gCard
+    ? '<details class="done-fold"><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
+      +'<div class="done-fold-b"><div class="done-card-sub">단체 공지 등으로 식사·자리 안내만 따로 전할 때 쓰세요. 청첩장에는 이미 들어 있어요.</div>'
+      +'<a class="done-url" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
+      +'<div class="done-acts">'
+      +'<a class="cc-btn-ghost" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">열기</a>'
+      +'<button type="button" class="cc-btn-ghost dl-share" data-url="'+escapeHtml(_gUrl)+'">공유</button>'
+      +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(_gUrl)+'">복사</button>'
+      +'</div></div></details>'
+    : '';
+  // 아직 안내 링크가 없으면 — '채우면 청첩장 안에 생긴다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청 · 내장 구조로 문구 갱신)
   var guideHint = (!_gCard && u.family && !_gClosed)   // 닫힌(만료) 상태에선 예고도 하지 않음
-    ? '<div class="cc-note" style="text-align:left"><b>하객 안내</b> 링크가 준비되면 여기에 함께 나와요. 제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 채우면 그 부분부터 채워져요.</div>'
+    ? '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 직접 모시는 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>'
     : '';
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
@@ -4068,7 +4085,14 @@ function invStepDone(box, r){
       +'<div class="done-qr-nm">모바일 참석 QR</div>'
       +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣으면, 하객이 스캔해 바로 입장해요.</div>'
       +'<div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div>'
-      +'<div style="text-align:center"><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:12px;display:none">QR 이미지 저장</button></div>'
+      // 링크도 함께 — QR을 넣기 어려운 전달(메시지 공지·이메일 등)엔 주소를 그대로 보내게(2026-07-17 사용자 요청)
+      +'<a class="done-url" style="margin-top:12px" href="'+escapeHtml(mobileUrl)+'" target="_blank" rel="noopener">'+escapeHtml(mobileUrl)+'</a>'
+      +'<div class="done-acts" style="justify-content:center">'
+      +'<a class="cc-btn-ghost" href="'+escapeHtml(mobileUrl)+'" target="_blank" rel="noopener">열기</a>'
+      +'<button type="button" class="cc-btn-ghost dl-share" data-url="'+escapeHtml(mobileUrl)+'">공유</button>'
+      +'<button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(mobileUrl)+'">복사</button>'
+      +'</div>'
+      +'<div style="text-align:center"><button type="button" class="cc-btn-ghost" id="iv_qrsave" style="width:auto;padding:7px 14px;margin-top:10px;display:none">QR 이미지 저장</button></div>'
       +'</div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap done-wrap">'
     +'<div class="done-eyebrow">Invitation Ready</div><div class="done-rule"></div>'
@@ -4076,7 +4100,7 @@ function invStepDone(box, r){
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
-    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideHint+qr
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideFold+guideHint+qr
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
