@@ -4028,9 +4028,9 @@ function invStepDone(box, r){
   }
   var u=(r&&r.urls)||{};
   var mobileUrl = u.live || '';   // 모바일 참석 QR = 라이브 입장(live.html) 전용. 온라인 청첩장(u.online)을 넣으면 스캔 시 청첩장으로 가버림(2026-07-11 버그 수정 · 서버 _invUrls가 셋을 구분해 반환)
-  // QR 노출 = 개인 제작(self)에서 'QR 받기'를 체크한 경우만(2026-07-17 사용자 지시) — 온라인·오프라인 웹 청첩장 구성은 라이브 링크가 청첩장 안에 있어 QR 중복 노출 안 함
+  // 라이브 QR도 접힘으로 '항상 제공'(2026-07-18 사용자 지시 — 웹 구성도 인쇄물에 라이브 QR을 쓸 수 있게) · 실물(self+QR 체크)·QR만 구성은 펼침 시작
   var _dr0=(typeof INVFLOW!=='undefined'&&INVFLOW.draft)||{};
-  if(String(_dr0.method||'')!=='self' || _dr0.selfQR!==true) mobileUrl='';
+  var _selfQR=(String(_dr0.method||'')==='self'&&_dr0.selfQR===true);
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
   var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold,#B89A75)">&amp;</span> ':'')+escapeHtml(b))
@@ -4108,7 +4108,7 @@ function invStepDone(box, r){
       ? '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.'
       : '청첩장은 <b>직접 준비하시는 구성</b>이에요.<br>필요한 게 생기면 언제든 다시 골라 만들 수 있어요.');
   // 모바일 참석 QR도 접힘 — 하객 안내와 같은 구도·화면 간결(2026-07-17 사용자 요청). QR만 쓰는 구성(청첩장 카드 없음)은 펼친 채 시작
-  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+(cards?'':' open')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
+  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+((!cards||_selfQR)?' open':'')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center">'
       +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣어 주세요 · 하객이 스캔하면 바로 입장해요.</div>'
       +'<div style="margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
