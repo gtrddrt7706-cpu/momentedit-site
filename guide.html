@@ -24,10 +24,11 @@
 }
 *{box-sizing:border-box}
 body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%;line-height:1.7}
-.wrap{max-width:440px;margin:0 auto}
+.wrap{max-width:440px;margin:0 auto;position:relative}
 .brand{text-align:center;font-family:var(--serif);font-size:12px;letter-spacing:.24em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:16px}
-.backbar{margin:-6px 0 10px}
-.backbar button{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer}
+.backbar{position:absolute;left:0;top:-4px}   /* 브랜드 줄과 같은 높이 왼쪽 — 홀로 뜬 알약이 상단 리듬을 깨던 것 통합(2026-07-18 사용자 지적) */
+.backbar button{font-family:var(--serif-ko);font-size:12.5px;color:var(--faint);background:transparent;border:none;padding:6px 8px;cursor:pointer}
+.backbar button:active{color:var(--gold-deep)}
 .card{background:var(--card-white);border:1px solid var(--border);border-radius:10px;padding:0 18px;box-shadow:var(--card-shadow)}
 .hero{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--hair)}
 .hero .ek{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--gold-deep);letter-spacing:.02em}
@@ -93,7 +94,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 </head>
 <body>
 <div class="wrap">
-  <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로 가기</button></div>
+  <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
   <div id="root"><div class="card"><div class="state">안내를 불러오는 중이에요…</div></div></div>
 </div>
