@@ -4407,8 +4407,7 @@ function _guideSectionChips(p, inv){
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
   var seat=!!p.seatToken && seatNames;   // 좌석토큰은 '배치 완료'에만 발급 — 하객 화면 노출 조건과 동일((구)showSeat 게이트 폐지 2026-07-17)
   var items=[['내 자리 찾기',seat],['식사 안내',dining]];   // 오시는 길·드레스코드 섹션 폐지(2026-07-17) — 칩도 함께 제거
-  var _liveOn=!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.live);   // 라이브 = 청첩장 파트 결정에서 파생(디지털 참석 Y로 발행 시 urls.live 생성 · 별도 토글 폐지 2026-07-17)
-  if(_liveOn) items.push(['라이브 중계',true]);
+  // ★'라이브 중계' 칩 재추가 금지 — 2026-07-18 사용자 지시로 제거(라이브는 온라인 청첩장·모바일 참석 QR 경로 전담 · 하객 안내는 식사·자리 전용. 페이지 쪽 라이브 섹션은 07-17에 이미 제거됨)
   return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · '+(it[2]||'비어 있음'))+'</span>'; }).join('')+'</div>';
 }
 function guideShareHtml(token, p, inv){
