@@ -261,7 +261,7 @@ function seatRoomHtml(hit){
   }
   return '<div class="mtb-wrap"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
     +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
-    +'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div></div>';
+    +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
