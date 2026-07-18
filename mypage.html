@@ -1033,15 +1033,11 @@ function contractSrc(product, docVersion){
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
-// [하단 당겨서 새로고침] 스크롤 맨 아래에서 위로 더 당기면 상태 새로고침(2026-07-17 사용자 지시).
+// [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
 (function(){
   var tracking=false, anchorY=null, pulled=0, bar=null;
-  function atBottom(){
-    // iOS 사파리는 주소창 수축으로 innerHeight가 실표시 높이와 어긋남 — visualViewport 우선 + 여유 40px(iOS 실기기에서 '거의 바닥'도 인정)
-    var vh=(window.visualViewport&&window.visualViewport.height)?window.visualViewport.height:window.innerHeight;
-    return (vh + window.pageYOffset) >= ((document.documentElement.scrollHeight||0) - 40);
-  }
+  function atTop(){ return window.pageYOffset <= 2; }   // iOS 상단 바운스는 0 미만으로 내려가므로 그대로 참
   function busy(){
     try{
       if(typeof INVFLOW!=='undefined'&&INVFLOW.active) return true;
@@ -1055,24 +1051,24 @@ function contractSrc(product, docVersion){
   function ensureBar(){
     if(bar) return bar;
     bar=document.createElement('div');
-    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;text-align:center;font-family:var(--serif-ko,serif);font-size:12px;color:var(--gold-deep,#9A7B4F);padding:12px 0 14px;background:linear-gradient(0deg,rgba(250,250,248,.96),rgba(250,250,248,0));transition:opacity .15s;opacity:0;pointer-events:none;z-index:900';
+    bar.style.cssText='position:fixed;left:0;right:0;top:0;text-align:center;font-family:var(--serif-ko,serif);font-size:12px;color:var(--gold-deep,#9A7B4F);padding:14px 0 12px;background:linear-gradient(180deg,rgba(250,250,248,.96),rgba(250,250,248,0));transition:opacity .15s;opacity:0;pointer-events:none;z-index:900';
     document.body.appendChild(bar); return bar;
   }
-  // 시작 시점이 바닥이 아니어도 됨 — 스크롤을 내리던 제스처의 연장으로 당기는 실사용 패턴 지원:
-  //   제스처 '도중' 바닥에 닿으면 그 지점(anchorY)부터 당김을 측정한다.
+  // 시작 시점이 맨 위가 아니어도 됨 — 위로 스크롤하던 제스처의 연장으로 당기는 실사용 패턴 지원:
+  //   제스처 '도중' 맨 위에 닿으면 그 지점(anchorY)부터 당김을 측정한다.
   document.addEventListener('touchstart', function(e){ tracking=!busy(); anchorY=null; pulled=0; }, {passive:true});
   document.addEventListener('touchmove', function(e){
     if(!tracking) return;
     var y=e.touches[0].clientY;
-    if(!atBottom()){ anchorY=null; pulled=0; if(bar) bar.style.opacity='0'; return; }
-    if(anchorY==null){ anchorY=y; return; }   // 바닥 도달 순간부터 측정
-    pulled=anchorY - y;
-    if(pulled>12){ var b=ensureBar(); b.style.opacity='1'; b.textContent=(pulled>70)?'놓으면 새로고침돼요':'위로 조금 더 당기면 새로고침'; }
+    if(!atTop()){ anchorY=null; pulled=0; if(bar) bar.style.opacity='0'; return; }
+    if(anchorY==null){ anchorY=y; return; }   // 맨 위 도달 순간부터 측정
+    pulled=y - anchorY;   // 아래로 당긴 거리
+    if(pulled>12){ var b=ensureBar(); b.style.opacity='1'; b.textContent=(pulled>70)?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침'; }
     else if(bar){ bar.style.opacity='0'; }
   }, {passive:true});
   document.addEventListener('touchend', function(){
     if(!tracking) return;
-    var go=(pulled>70 && atBottom() && !busy());
+    var go=(pulled>70 && atTop() && !busy());
     tracking=false; anchorY=null; pulled=0;
     if(bar) bar.style.opacity='0';
     if(go){ try{ show('loading'); }catch(e){} try{ loadMyState(); }catch(e2){} }
