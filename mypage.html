@@ -4112,7 +4112,7 @@ function invStepDone(box, r){
     +(names?'<div class="done-names">'+names+'</div>':'')
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
-    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideHint+qr
+    +(cards?('<div class="done-links">'+cards+'</div>'):'')+guideFold+guideHint+qr   /* ★guideFold 삽입 유지 — 2026-07-18 병합에서 이 줄만 떨어져 하객 안내 접힘이 라이브에서 실종됐던 사고. 조립 줄 수정 시 guideFold 누락 금지 */
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
