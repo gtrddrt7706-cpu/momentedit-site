@@ -3794,7 +3794,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     + '<div class="cc-title">예식 준비</div>'
     + '<div class="cc-sub">청첩장·식순·애프터 웨딩을 준비하고, 예식이 다가오면 인원·음료를 최종 확정해요.</div>'
     + tracks
-    + '<div class="cc-note" style="text-align:center">청첩장·식순이 끝나면 준비 완료 · 애프터 웨딩은 선택이에요.</div>'
+    + '<div class="cc-note" style="text-align:center">청첩장·식순이 끝나면 준비 완료 · 애프터 웨딩·좌석 배치도는 선택이에요.</div>'
     + ''
     + '</div>';
 }
@@ -4500,6 +4500,11 @@ function wireGuideShare(box, token){
 // [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
 //   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
 function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
+function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약·최종 확정 힌트 공용)
+  var c={A:0,N:0,J:0,U:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')c.A++; else if(dv==='N')c.N++; else if(dv==='J')c.J++; else c.U++; }); });
+  return c;
+}
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -4543,6 +4548,11 @@ function prodConfirmHtml(p, inv){
     sv+=' · '+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인(기본=전체 공개 · 2026-07-17)
   }
   L+=line('좌석 배치', sv);
+  // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
+  if(_sDone && _fDone && sd.tables && fd.headcount){
+    var _pl=_seatPlacedCount(sd.tables), _hn=parseInt(fd.headcount,10)||0;
+    if(_pl>0 && _hn>0 && _pl!==_hn) L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 최종 확정 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
+  }
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
   var C='';
@@ -4669,8 +4679,7 @@ function renderSeat(box){
   var L='', R='', li=0, ri=0;
   s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
   // 음료 집계(이름 있는 자리만) — 상단 한 줄. 지도는 색점만으로 깔끔.
-  var cA=0,cN=0,cJ=0,cU=0;
-  s.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')cA++; else if(dv==='N')cN++; else if(dv==='J')cJ++; else cU++; }); });
+  var _dc=seatDrinkCounts(s.tables), cA=_dc.A, cN=_dc.N, cJ=_dc.J, cU=_dc.U;   // 공용 집계(이름 있는 자리만) — 최종 확정 힌트와 같은 규칙
   var sumHtml=(cA+cN+cJ>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';   // 음료를 하나라도 고른 뒤에만 집계 노출(안 쓰는 부부에겐 안 보여 깔끔)
   // 음료 선택 바 — 자리를 탭해 편집 중일 때만(이름 편집 제외). 지도 위 고정 위치라 지저분함 없음.
   var barHtml='';
@@ -5640,7 +5649,7 @@ function renderFinal(box){
     if($('trk_soft')) d.softCount=($('trk_soft').value||'').replace(/[^0-9]/g,'');
     if($('trk_allergy')) d.allergy=($('trk_allergy').value||'').trim();
     if($('trk_cake')) d.cake=($('trk_cake').value||'').trim();
-    if($('trk_video')) d.videoLink=($('trk_video').value||'').trim();
+    // trk_video·digital 입력 폐지(2026-07-18 다이어트) — 값은 초안에 보존만(원본: 식순 영상 링크·청첩장 파생)
   }
   if(TRKFLOW.step===0){
     var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">총 하객 수 (두 분 제외)</div>'
@@ -5653,6 +5662,13 @@ function renderFinal(box){
     var hi=$('trk_head'); if(hi) hi.addEventListener('input',function(){ var c=$('trk_calc'); if(c) c.innerHTML=_finCalcHtml(parseInt((hi.value||'').replace(/[^0-9]/g,''),10)||0); });
   } else if(TRKFLOW.step===1){
     var isSoftAll = String(d.drink||'').indexOf('논알콜')===0;
+    // 좌석표 논알콜 칩 힌트 — 표시만(초안에 안 씀 · 자동 입력 없음). 위저드는 이동·나가기마다 자동 저장되므로,
+    // 값을 써넣으면 사용자가 입력한 적 없는 값이 서버로 가서 예식 확인서 무효화·잔금 재계산을 일으킬 수 있음(2026-07-18 검토). ★자동 프리필 금지.
+    // 집계는 논알콜(N) 칩만 — 주스(J)는 건배 잔 대체가 아닐 수 있어 별도(결정 대기함 기록).
+    var _softHint='';
+    try{ var _sdT=(((window._mpStateD||{}).production||{}).seatDraft||{}).tables;
+      if(_sdT){ var _hc=seatDrinkCounts(_sdT); if(_hc.N>0) _softHint='<div class="cc-note" style="text-align:left"><span class="cc-mini">좌석 배치도에 논알콜 칩을 '+_hc.N+'개 표시해 두셨어요. 참고해서 적어 주세요.</span></div>'; }
+    }catch(_e){}
     var body='<div class="inv-side-l" style="margin:6px 0 4px">건배·웰컴 음료</div>'
       + _trkOpt('샴페인', d.drink, 'drink', '샴페인')
       + _trkOpt('와인', d.drink, 'drink', '와인')
@@ -5660,6 +5676,7 @@ function renderFinal(box){
       + (d.drink && !isSoftAll
         ? '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">논알콜 필요 잔 수 <span style="color:var(--label-soft)">(운전·임신·미성년 등 · 없으면 0)</span></div>'
           + '<input class="cc-input" id="trk_soft" inputmode="numeric" autocomplete="off" placeholder="0" value="'+escapeHtml(d.softCount||'')+'" style="margin-bottom:0">'
+          + _softHint
           + '<div class="cc-note" style="text-align:left"><span class="cc-mini">논알콜도 똑같은 잔·똑같은 모습으로 조용히 준비해 드려요. 잔 수만 알려주시면 돼요.</span></div></div>'
         : '')
       + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">알레르기·식음 특이사항 <span style="color:var(--label-soft)">(선택)</span></div>'
@@ -5667,14 +5684,11 @@ function renderFinal(box){
     box.innerHTML=trkShell(2,'건배와 환영의 잔, 무엇으로 할까요?','웰컴 음료와 건배 모두 이 선택으로 준비해요.',body,false);
     bindTrk(box,renderFinal,collect,{ validate:function(){ if(!d.drink) return '음료를 골라 주세요.'; } });
   } else {
+    // [다이어트 2026-07-18] 영상 링크·디지털 참석 입력 제거 — 이중 입력이던 원본 위치로 일원화(영상 링크=식순 위저드 영상 카드 · 디지털 참석=청첩장 선택에서 자동 파생 85_invitation._invCouplesFields).
+    //   기존 저장값(d.videoLink·d.digital)은 초안에 그대로 보존·전송돼 하위호환(관리자 화면 표시)에 영향 없음. ★여기 입력칸 복원 금지.
     var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">케이크 커스텀 문구 <span style="color:var(--label-soft)">(선택)</span></div>'
-      + '<input class="cc-input" id="trk_cake" autocomplete="off" placeholder="예: Our Best Day · 비우면 기본 디자인" value="'+escapeHtml(d.cake||'')+'">'
-      + '<div class="inv-side-l" style="margin:10px 0 5px">성장·이벤트 영상 링크 <span style="color:var(--label-soft)">(식순에 넣은 경우)</span></div>'
-      + '<input class="cc-input" id="trk_video" autocomplete="off" placeholder="드라이브·유튜브 링크" value="'+escapeHtml(d.videoLink||'')+'" style="margin-bottom:0"></div>'
-      + '<div class="inv-side-l" style="margin:14px 0 4px">디지털 참석(온라인 중계)</div>'
-      + _trkOpt('진행해요', d.digital, 'digital', '진행해요')
-      + _trkOpt('안 해요', d.digital, 'digital', '안 해요')
-      + _trkOpt('아직 미정', d.digital, 'digital', '아직 미정')
+      + '<input class="cc-input" id="trk_cake" autocomplete="off" placeholder="예: Our Best Day · 비우면 기본 디자인" value="'+escapeHtml(d.cake||'')+'" style="margin-bottom:0"></div>'
+      + '<div class="cc-note" style="text-align:left">영상 링크는 식순의 영상 순서에서, 온라인 중계는 청첩장 선택에 따라 자동으로 준비돼요.</div>'
       + '<div class="cc-note" style="text-align:left">확정 후에도 예식 '+_payDays().bal+'일 전까지는 언제든 다시 수정할 수 있어요.</div>';
     box.innerHTML=trkShell(3,'마지막 확인이에요','비워도 되는 항목은 편하게 넘어가세요.',body,true,'확정 저장');
     bindTrk(box,renderFinal,collect,{ last:true });
