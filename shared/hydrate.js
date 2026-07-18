@@ -433,6 +433,32 @@
     if (subko && SUB[dn]) { var k = document.querySelector(SUB[dn]); if (k) k.textContent = subko; }
   }
 
+  // ─── 하객 안내 연결(가족 카드 전용 · 2026-07-17 사용자 제안) ─────────
+  // 직접 모시는 청첩장을 받은 하객이 그 자리에서 식사 안내·자리 찾기(guide.html)로 들어가게.
+  // 안내 링크는 애프터 웨딩·좌석을 완료해야 생기므로(청첩장 발행보다 늦는 게 보통) 열람 시점에 조회해, 준비된 경우에만 버튼을 심는다.
+  // 최종 apply() 이후에만 호출할 것 — body.innerHTML 교체가 주입 노드를 지우기 때문(init의 getCouple 체인 끝에서 호출).
+  var GUIDE_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
+  function injectGuideCta(eventId) {
+    if (location.pathname.indexOf('/i-family/') === -1 || !eventId) return;   // 온라인 커버(/i/)는 디지털 참석용 — 가족 카드에서만
+    fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok || !d.g) return;
+        if (document.getElementById('meGuideCta')) return;
+        var sec = document.createElement('section');
+        sec.id = 'meGuideCta';
+        sec.style.cssText = 'margin:56px 18px 64px;text-align:center';
+        sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid rgba(0,0,0,.14);border-radius:14px">'
+          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Guest Guide</div>'
+          + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
+          + '<a href="/guide.html?g=' + encodeURIComponent(d.g) + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
+          + '</div>';
+        var foot = document.querySelector('.inv-footer');
+        if (foot && foot.parentNode) foot.parentNode.insertBefore(sec, foot); else document.body.appendChild(sec);
+      })
+      .catch(function () {});
+  }
+
   function preconnectWebhook() {
     try {
       ['https://script.google.com', 'https://script.googleusercontent.com'].forEach(function (h) {
@@ -478,7 +504,7 @@
         }
       })
       .catch(function () { if (!rendered) apply(safeCache(cacheKey) || SAMPLE); })
-      .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } });
+      .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } injectGuideCta(eventId); });   // 주입은 최종 렌더 뒤(innerHTML 교체에 지워지지 않게)
   }
 
   function safeCache(key) {

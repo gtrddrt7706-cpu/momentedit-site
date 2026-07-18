@@ -437,6 +437,20 @@ function _seatFindByToken(token, q) {
 //   토큰은 안내공유토큰 열 역조회. 다이닝(담은 곳·대표)·좌석 유무·라이브(eventId) 링크 재료 · 부부 이름·예식일.
 //   개인정보 최소: 부부 이름·예식일·식당 공개정보(이름·메뉴·전화·지도)만. 좌석 명단은 여기서 안 내려주고 seat 토큰으로 이름 조회(seat.html·handleSeatView 재사용).
 function handleGuideView(body) {
+  // [가족 청첩장 연동 · 2026-07-17] eventId 프로브 — 직접 모시는 청첩장(i-family)이 열릴 때 '하객 안내 버튼을 보여줄지'만 조회.
+  //   안내 토큰이 이미 발급됐고(애프터 웨딩·좌석 완료로 보여줄 내용 있음) 만료 전일 때만 g 반환 · 그 외 {ok:false}=버튼 미노출.
+  //   본문 데이터는 안 내려줌(그건 g 토큰 경로) · 디스패처 무변경(action=guideView 재사용) · 5분 캐시(하객 다수 열람 대비).
+  if (body && body.byEvent && !body.g) {
+    var _ev = String(body.byEvent || '').trim();
+    if (!/^[a-z0-9-]{5,40}$/i.test(_ev)) return { ok: false };
+    var _gc = CacheService.getScriptCache(), _gk = 'gbe_' + _ev, _gv = _gc.get(_gk);
+    if (_gv) return _gv === '-' ? { ok: false } : { ok: true, g: _gv };
+    var _c2 = _findCustomerBy('eventId', _ev, false);
+    var _g2 = '';
+    if (_c2 && !_guideExpired(_ymdOf(_c2.get('예식일')))) _g2 = String(_c2.get('안내공유토큰') || '').trim();
+    try { _gc.put(_gk, _g2 || '-', 300); } catch (e) {}
+    return _g2 ? { ok: true, g: _g2 } : { ok: false };
+  }
   var token = String((body && body.g) || '').trim();
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   var cust = _findCustomerBy('안내공유토큰', token, false);
