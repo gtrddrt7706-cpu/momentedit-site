@@ -4149,7 +4149,7 @@ function invStepDone(box, r){
   if(_gf) _gf.addEventListener('toggle', function(){ if(_gf.open && !_gf._qrDone){ _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); } });
 }
 function invCopy(text,btn){
-  function done(){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent='복사됨'; setTimeout(function(){ btn.textContent=t; },1400); } }
+  function done(){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent='복사됐어요'; setTimeout(function(){ btn.textContent=t; },1400); } }
   if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(function(){ legacyCopy(text); done(); }); }
   else { legacyCopy(text); done(); }
 }
@@ -4169,7 +4169,7 @@ function renderInvQR(url){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:160,height:160,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=$('iv_qrsave');
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됨'; setTimeout(function(){ sv.textContent=_t; },1400); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download='moment-edit-qr.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됐어요'; setTimeout(function(){ sv.textContent=_t; },1400); }; }   // onclick=재렌더에도 1개 유지(addEventListener는 재렌더마다 누적 → N중 다운로드)
       return;
     }catch(e){}
   }
@@ -4183,7 +4183,7 @@ function renderQRInto(qid, svid, url, fname){
       qd.innerHTML='';
       new QRCode(qd,{text:url,width:150,height:150,correctLevel:(window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:0)});
       var sv=svid?$(svid):null;
-      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됨'; setTimeout(function(){ sv.textContent=_t; },1400); }; }
+      if(sv){ sv.style.display='inline-block'; sv.onclick=function(){ var el=qd.querySelector('canvas,img'); if(!el) return; var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src; var a=document.createElement('a'); a.href=src; a.download=(fname||'moment-edit-seat-qr.png'); document.body.appendChild(a); a.click(); document.body.removeChild(a); var _t=sv.textContent||'저장'; sv.textContent='저장됐어요'; setTimeout(function(){ sv.textContent=_t; },1400); }; }
       return;
     }catch(e){}
   }
