@@ -4237,7 +4237,7 @@ function invStepDone(box, r){
   if(!_gCard && u.family){
     guideHint = _gClosed
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
-      : '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>';
+      : '<div class="cc-note" style="text-align:left">제작 화면의 <b>애프터 웨딩(식사)·좌석 배치</b> 중 하나만 완료해도, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';   // 발급 조건(80_production)=식사 또는 좌석 '내용 있는 완료' 1개 — '둘 다 필요'로 읽히던 문구·트랙 행 이름 불일치 정정(2026-07-18)
   }
   // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
   var _kit='';
@@ -4587,7 +4587,7 @@ function guideHubHtml(p, inv){
   var tok=p.guideToken||'';
   var closed=!!tok && _guideLinkClosed(p.base);
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 <b>애프터 웨딩(다이닝)·좌석 배치</b>를 완료하면 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 <b>애프터 웨딩(식사)·좌석 배치</b> 중 하나만 완료해도 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 function wireGuideInfoEditor(box, gi){
