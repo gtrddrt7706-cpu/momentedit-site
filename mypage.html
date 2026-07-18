@@ -4062,12 +4062,12 @@ function invStepDone(box, r){
   // [구조 개편 2026-07-17 사용자 지시] 하객 안내는 직접 모시는 청첩장 '안에' 버튼으로 들어감(hydrate.js 주입) → 여기선 큰 단독 카드 대신
   //   ① family 카드 설명에 내장 사실 명시 ② '안내만 따로 보내기'는 접힘(보조)으로 축소. ★하객 안내를 다시 3번째 큰 카드로 복원 금지.
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
-            + linkCard('family','직접 모시는 청첩장', _gCard?'가족·가까운 분께 직접 전하세요 · 이 청첩장 안에 <b>하객 안내(식사·자리)</b> 버튼이 함께 들어 있어요.':'가족·가까운 분께 직접 전하세요.',u.family);
+            + linkCard('family','오프라인 청첩장 · 직접 모시는 분께', _gCard?'가족·가까운 분께 직접 전하세요 · 이 청첩장 안에 <b>하객 안내(식사·자리)</b> 버튼이 함께 들어 있어요.':'가족·가까운 분께 직접 전하세요.',u.family);
   var _gUrl=_gCard?guideUrl(_gTok):'';
   // 접힘 내부는 모바일 참석 QR 카드와 같은 구도(QR → 링크 → 열기·공유·복사 → QR 저장)로 통일 — 식장 인쇄물·테이블 안내판용 QR(2026-07-17 사용자 요청)
   var guideFold = _gCard
     ? '<details class="done-fold" id="iv_gfold"><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
-      +'<div class="done-fold-b" style="text-align:center"><div class="done-card-sub" style="text-align:center">단체 공지·인쇄물로 안내만 따로 전할 때 · 청첩장에는 이미 들어 있어요.</div>'
+      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">단체 공지·인쇄물로 안내만 따로 전할 때 · 청첩장에는 이미 들어 있어요.</div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'
@@ -4080,15 +4080,15 @@ function invStepDone(box, r){
     : '';
   // 아직 안내 링크가 없으면 — '채우면 청첩장 안에 생긴다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청 · 내장 구조로 문구 갱신)
   var guideHint = (!_gCard && u.family && !_gClosed)   // 닫힌(만료) 상태에선 예고도 하지 않음
-    ? '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 직접 모시는 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>'
+    ? '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>'
     : '';
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
     : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
   // 모바일 참석 QR도 접힘 — 하객 안내와 같은 구도·화면 간결(2026-07-17 사용자 요청). QR만 쓰는 구성(청첩장 카드 없음)은 펼친 채 시작
-  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+(cards?'':' open')+'><summary>모바일 참석 QR <span class="pt-ar">▾</span></summary>'
+  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+(cards?'':' open')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center">'
-      +'<div class="done-card-sub" style="text-align:center">종이 청첩장·식장 인쇄물에 넣으면, 하객이 스캔해 바로 입장해요.</div>'
+      +'<div class="done-qr-sub">종이 청첩장·식장 인쇄물에 넣어 주세요 · 하객이 스캔하면 바로 입장해요.</div>'
       +'<div style="margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(mobileUrl)+'" target="_blank" rel="noopener">'+escapeHtml(mobileUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'
