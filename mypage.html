@@ -670,6 +670,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .done-fold{border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:13px;padding:0 14px}
 .done-fold summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);padding:12px 2px}
 .done-fold summary::-webkit-details-marker{display:none}
+.done-fold summary::marker{content:none}   /* 브라우저 기본 ▶ 마커 제거(표준 속성 — list-style만으론 일부 브라우저에 남음 · 2026-07-17 사용자 지적) */
 .done-fold[open] summary .pt-ar{transform:rotate(180deg);display:inline-block}
 .done-fold-b{padding:2px 2px 14px;text-align:left}
 .done-qr-nm{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent)}
@@ -4027,6 +4028,9 @@ function invStepDone(box, r){
   }
   var u=(r&&r.urls)||{};
   var mobileUrl = u.live || '';   // 모바일 참석 QR = 라이브 입장(live.html) 전용. 온라인 청첩장(u.online)을 넣으면 스캔 시 청첩장으로 가버림(2026-07-11 버그 수정 · 서버 _invUrls가 셋을 구분해 반환)
+  // QR 노출 = 개인 제작(self)에서 'QR 받기'를 체크한 경우만(2026-07-17 사용자 지시) — 온라인·오프라인 웹 청첩장 구성은 라이브 링크가 청첩장 안에 있어 QR 중복 노출 안 함
+  var _dr0=(typeof INVFLOW!=='undefined'&&INVFLOW.draft)||{};
+  if(String(_dr0.method||'')!=='self' || _dr0.selfQR!==true) mobileUrl='';
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
   var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold,#B89A75)">&amp;</span> ':'')+escapeHtml(b))
@@ -4079,12 +4083,18 @@ function invStepDone(box, r){
       +'</div></details>'
     : '';
   // 아직 안내 링크가 없으면 — '채우면 청첩장 안에 생긴다'를 미리 알려 연결을 보이게(2026-07-16 사용자 요청 · 내장 구조로 문구 갱신)
-  var guideHint = (!_gCard && u.family && !_gClosed)   // 닫힌(만료) 상태에선 예고도 하지 않음
-    ? '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>'
-    : '';
+  // 만료(예식 +30일)면 아무것도 없이 숨기지 않고 닫힘을 알림 — 조용히 사라지면 오류로 보임(2026-07-17 사용자 문의로 개선)
+  var guideHint = '';
+  if(!_gCard && u.family){
+    guideHint = _gClosed
+      ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
+      : '<div class="cc-note" style="text-align:left">제작 화면에서 <b>식사(다이닝)·자리(좌석)</b>를 완료하면, 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</div>';
+  }
   var leadHtml = cards
     ? '아래 링크가 <b>그대로 완성된 청첩장</b>이에요.<br>따로 만드실 것 없이 이 링크를 공유하시면 돼요.'
-    : '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.';
+    : (mobileUrl
+      ? '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.'
+      : '청첩장은 <b>직접 준비하시는 구성</b>이에요.<br>필요한 게 생기면 언제든 다시 골라 만들 수 있어요.');
   // 모바일 참석 QR도 접힘 — 하객 안내와 같은 구도·화면 간결(2026-07-17 사용자 요청). QR만 쓰는 구성(청첩장 카드 없음)은 펼친 채 시작
   var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+(cards?'':' open')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center">'
