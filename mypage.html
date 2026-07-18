@@ -4068,7 +4068,7 @@ function invStepDone(box, r){
   var _gUrl=_gCard?guideUrl(_gTok):'';
   // 접힘 내부는 모바일 참석 QR 카드와 같은 구도(QR → 링크 → 열기·공유·복사 → QR 저장)로 통일 — 식장 인쇄물·테이블 안내판용 QR(2026-07-17 사용자 요청)
   var guideFold = _gCard
-    ? '<details class="done-fold" id="iv_gfold"><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
+    ? '<details class="done-fold" id="iv_gfold"'+(cards?'':' open')+'><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">단체 공지·인쇄물로 안내만 따로 전할 때 · 청첩장에는 이미 들어 있어요.</div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
@@ -4136,6 +4136,7 @@ function invStepDone(box, r){
   if(_qf){ var _qgo=function(){ if(_qf._qrDone) return; _qf._qrDone=true; ensureQR(function(){ renderInvQR(mobileUrl); }); };
     if(_qf.open) _qgo(); _qf.addEventListener('toggle', function(){ if(_qf.open) _qgo(); }); }
   var _gf=$('iv_gfold');
+  if(_gf){ var _ggo=function(){ if(_gf._qrDone) return; _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); }; if(_gf.open) _ggo(); }
   if(_gf) _gf.addEventListener('toggle', function(){ if(_gf.open && !_gf._qrDone){ _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); } });
 }
 function invCopy(text,btn){
