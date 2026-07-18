@@ -117,7 +117,8 @@ var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circ
 var ICON_TEL='<path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L20 13l1 4v2a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>';
 
 function guestMeta(m){ // 하객 노출용 소개 — 가격대(2~5만 등)는 부부 참고 정보라 걸러냄(2026-07-18 사용자 지시 · 거리·메뉴만)
-  return String(m||'').split('·').map(function(x){return x.trim();}).filter(function(x){return x && !/[0-9][0-9,.~\s-]*(만|원)|₩/.test(x);}).join(' · ');
+  // 숫자 없이 쓴 가격('만원'·'십만원대')도 함께 거름 — 한글 수사+만원 표기가 하객에게 새지 않게(2026-07-18 점검)
+  return String(m||'').split('·').map(function(x){return x.trim();}).filter(function(x){return x && !/[0-9][0-9,.~\s-]*(만|원)|₩|[일이삼사오육칠팔구십백천]*\s*만\s*원/.test(x);}).join(' · ');
 }
 function spotHtml(v, withTel){
   var acts='<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
@@ -134,10 +135,11 @@ function diningHtml(dn){
     var mi=-1; for(var i=0;i<restos.length;i++){ if(normName(restos[i].n)===normName(dn.pick)){ mi=i; break; } }
     var mv=(mi>=0)?restos.splice(mi,1)[0]:null;
     var rsv=(dn.rtime?esc(dn.rtime):'')+((dn.rtime&&dn.rname)?' · ':'')+(dn.rname?'<b>'+esc(dn.rname)+'</b> 이름으로 예약':'');
+    var _pm=mv?guestMeta(mv.m):'';   // 조건·표시에 한 번만 계산(spotHtml의 _m 패턴과 동일)
     var acts='<a class="act" href="'+esc(mapUrl(mv||{n:dn.pick}))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>'
       +((mv&&mv.tel)?'<a class="act" href="'+esc(telUrl(mv.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>':'');
     h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div>'
-      +((mv&&guestMeta(mv.m))?'<div class="pm">'+esc(guestMeta(mv.m))+'</div>':'')
+      +(_pm?'<div class="pm">'+esc(_pm)+'</div>':'')
       +(rsv?'<div class="rsv">'+rsv+'</div>':'')
       +'<div class="acts">'+acts+'</div></div>';
     h+='<div class="gather">예식과 단체 사진이 끝나면, 위 장소로 편히 이동해 주세요.</div>';

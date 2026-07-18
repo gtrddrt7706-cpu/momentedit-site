@@ -67,7 +67,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --mono:'Roboto Mono',ui-monospace,monospace;
   --ease:cubic-bezier(0.16,1,0.3,1);
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overscroll-behavior-y:contain}   /* 안드로이드 크롬 기본 당겨서-새로고침(전체 리로드)과 커스텀 상단 당김(loadMyState) 충돌 방지 */
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* 영문 라벨 자간 보정 유틸 — letter-spacing 만큼 padding-left (중앙정렬 시 왼쪽 쏠림 방지) */
@@ -1036,16 +1036,57 @@ function contractSrc(product, docVersion){
 // [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
 (function(){
-  var tracking=false, anchorY=null, pulled=0, bar=null;
+  var tracking=false, anchorY=null, pulled=0, bar=null, barState=0, allowed=null, startEl=null;
   function atTop(){ return window.pageYOffset <= 2; }   // iOS 상단 바운스는 0 미만으로 내려가므로 그대로 참
   // 마이페이지 안 모든 화면에서 동작(2026-07-18 사용자 지시) — 위저드·좌석 편집기 포함.
-  //   제외: 식순 빌더 등 전체 오버레이(제스처가 오버레이 안에서 발생 · 본문 스크롤 잠금 중)와 갱신 진행 중(중복 방지).
+  //   제외: ① 로그인·코드찾기·재설정 화면(미로그인 loadMyState가 로그인 화면으로 튕겨 재설정 입력을 날림)
+  //         ② 오버레이·모달 열림(_mpLockN + 잠금 안 쓰는 주소찾기·처리방침 오버레이 명시 확인)
+  //         ③ 갱신 진행 중  ④ 수집 훅 없는 화면에서 작성 중인 입력(시드값과 달라진 필드)이 있을 때
+  function overlayOpen(){
+    if(typeof _mpLockN!=='undefined' && _mpLockN>0) return true;   // mpModal 등 _mpLock 사용처 전부
+    if(document.getElementById('mp_obViewer')) return true;        // 식순 빌더 iframe 오버레이
+    var ao=document.getElementById('mp_addrOverlay'); if(ao && ao.style.display==='flex') return true;    // 주소 찾기(_mpLock 안 씀)
+    var po=document.getElementById('mp_privacyOverlay'); if(po && po.style.display==='flex') return true; // 처리방침(_mpLock 안 씀)
+    var cs=getComputedStyle(document.body); if(cs.overflow==='hidden') return true;   // 안전망: 다른 방식의 본문 잠금
+    return false;
+  }
+  // 수집 훅이 없는 화면의 입력 보호 — 제작 플로(#mp_production, refreshNow가 수집) 밖에서
+  // 렌더 시드값(defaultValue)과 달라진 입력이 있으면 새로고침을 보류(계약서 요청 폼·보정 컷 선택 등).
+  function dirtyOutsideFlows(){
+    var ae=document.activeElement;
+    if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName||'') && !(ae.closest && ae.closest('#mp_production'))) return true;   // 플로 밖에서 입력 중(키보드 열림) — 플로 안은 수집 훅이 지키므로 막지 않음
+    var els=document.querySelectorAll('#mypageView input, #mypageView textarea');
+    for(var i=0;i<els.length;i++){
+      var el=els[i];
+      if(el.closest && el.closest('#mp_production')) continue;
+      if(el.tagName==='INPUT'){
+        var t=String(el.type||'text').toLowerCase();
+        if(t==='checkbox'||t==='radio'){ if(el.checked!==el.defaultChecked) return true; continue; }
+        if(t==='button'||t==='submit'||t==='hidden'||t==='file') continue;
+      }
+      if(String(el.value||'')!==String(el.defaultValue||'')) return true;
+    }
+    return false;
+  }
   function busy(){
     try{
-      if(document.getElementById('mp_obViewer')) return true;   // 식순 빌더 iframe 오버레이
-      var cs=getComputedStyle(document.body); if(cs.overflow==='hidden') return true;   // 모달·오버레이가 본문 스크롤 잠금 중
-      var ld=document.getElementById('loading'); if(ld && ld.style.display!=='none' && ld.style.display!=='') return true;   // 갱신 중 재발동 방지
+      var mv=document.getElementById('mypageView');
+      if(!mv || !mv.classList.contains('show')) return true;   // 마이페이지 본문이 보일 때만
+      var ld=document.getElementById('loading'); if(ld && ld.style.display==='flex') return true;   // 갱신 중 재발동 방지
+      if(overlayOpen()) return true;
+      if(dirtyOutsideFlows()) return true;
     }catch(e){ return true; }
+    return false;
+  }
+  // 터치 시작 지점이 내부 스크롤 영역(채팅 목록 등)이면 그 스크롤 제스처를 새로고침으로 오인하지 않게 제외
+  function inInnerScroll(el){
+    try{
+      while(el && el!==document.body && el.nodeType===1){
+        var s=getComputedStyle(el);
+        if(/(auto|scroll)/.test(s.overflowY) && el.scrollHeight>el.clientHeight+4) return true;
+        el=el.parentElement;
+      }
+    }catch(e){}
     return false;
   }
   // 새로고침 직전 각 플로의 입력을 초안으로 수집 — 재렌더가 초안에서 값을 복원하므로 타이핑 중이던 내용이 유실되지 않음
@@ -1053,34 +1094,45 @@ function contractSrc(product, docVersion){
     try{ if(typeof TRKFLOW!=='undefined'&&TRKFLOW.active&&TRKFLOW._collect) TRKFLOW._collect(); }catch(e){}
     try{ if(typeof INVFLOW!=='undefined'&&INVFLOW.active&&INVFLOW._collect) INVFLOW._collect(); }catch(e){}
     try{ if(typeof SEATFLOW!=='undefined'&&SEATFLOW.active&&SEATFLOW.edit&&typeof commitSeatEdit==='function'){ var bx=document.getElementById('mp_production'); if(bx) commitSeatEdit(bx); } }catch(e){}
-    try{ show('loading'); }catch(e){}
-    try{ loadMyState(); }catch(e2){}
+    var prev=window._curView||'mypageView';
+    try{ show('loading'); loadMyState(); }
+    catch(e){ try{ show(prev); }catch(e2){} }   // 동기 실패 시 이전 화면 복귀(무한 '불러오는 중' 방지)
   }
+  window._mePullRefresh=refreshNow;   // 헤더 새로고침 버튼(mp_refresh)도 같은 경로 사용 — 두 경로 모두 입력 수집 후 갱신
   function ensureBar(){
     if(bar) return bar;
     bar=document.createElement('div');
     bar.style.cssText='position:fixed;left:0;right:0;top:0;text-align:center;font-family:var(--serif-ko,serif);font-size:12px;color:var(--gold-deep,#9A7B4F);padding:14px 0 12px;background:linear-gradient(180deg,rgba(250,250,248,.96),rgba(250,250,248,0));transition:opacity .15s;opacity:0;pointer-events:none;z-index:900';
     document.body.appendChild(bar); return bar;
   }
+  function setBar(state){   // 0 숨김 · 1 '조금 더' · 2 '놓으면' — 상태 바뀔 때만 DOM 접근(터치마다 재기록 방지)
+    if(state===barState) return; barState=state;
+    if(!state){ if(bar) bar.style.opacity='0'; return; }
+    var b=ensureBar(); b.style.opacity='1';
+    b.textContent=(state===2)?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침';
+  }
+  function endGesture(fire){
+    var go=fire && allowed===true && pulled>70 && atTop() && !busy();
+    tracking=false; anchorY=null; pulled=0; allowed=null; startEl=null; setBar(0);
+    if(go) refreshNow();
+  }
   // 시작 시점이 맨 위가 아니어도 됨 — 위로 스크롤하던 제스처의 연장으로 당기는 실사용 패턴 지원:
   //   제스처 '도중' 맨 위에 닿으면 그 지점(anchorY)부터 당김을 측정한다.
-  document.addEventListener('touchstart', function(e){ tracking=!busy(); anchorY=null; pulled=0; }, {passive:true});
+  //   busy()·내부 스크롤 판정은 제스처당 1회(allowed 캐시) — 매 터치·매 move마다 스타일 계산을 돌리지 않는다.
+  document.addEventListener('touchstart', function(e){ tracking=(e.touches.length===1); allowed=null; anchorY=null; pulled=0; startEl=e.target; }, {passive:true});
   document.addEventListener('touchmove', function(e){
     if(!tracking) return;
+    if(e.touches.length>1){ tracking=false; setBar(0); return; }   // 핀치 줌은 새로고침 아님
     var y=e.touches[0].clientY;
-    if(!atTop()){ anchorY=null; pulled=0; if(bar) bar.style.opacity='0'; return; }
+    if(!atTop()){ anchorY=null; pulled=0; setBar(0); return; }
     if(anchorY==null){ anchorY=y; return; }   // 맨 위 도달 순간부터 측정
     pulled=y - anchorY;   // 아래로 당긴 거리
-    if(pulled>12){ var b=ensureBar(); b.style.opacity='1'; b.textContent=(pulled>70)?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침'; }
-    else if(bar){ bar.style.opacity='0'; }
+    if(pulled>12 && allowed==null) allowed=(!busy() && !inInnerScroll(startEl));
+    if(allowed===false){ tracking=false; setBar(0); return; }
+    setBar(pulled>70?2:(pulled>12?1:0));
   }, {passive:true});
-  document.addEventListener('touchend', function(){
-    if(!tracking) return;
-    var go=(pulled>70 && atTop() && !busy());
-    tracking=false; anchorY=null; pulled=0;
-    if(bar) bar.style.opacity='0';
-    if(go) refreshNow();
-  }, {passive:true});
+  document.addEventListener('touchend', function(){ if(tracking) endGesture(true); }, {passive:true});
+  document.addEventListener('touchcancel', function(){ if(tracking) endGesture(false); }, {passive:true});   // 시스템 제스처·전화 등으로 끊겨도 바가 화면에 남지 않게
 })();
 
 // [브라우저 뒤로가기 연동] 오버레이·위저드가 열려 있는 동안 뒤로가기(제스처 포함)는 페이지 이탈 대신 그 화면 닫기 — 습관적 뒤로가기로 메인에 튕기는 것 방지(2026-07-17 사용자 요청)
@@ -1698,7 +1750,7 @@ function renderMyPage(d){
     renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
-    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 무동작). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
+    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
   // 카톡 — 하단 버튼 대신 우측 중앙 AI 상담 위젯에서 연결. URL은 ME_ADV_PAGE.kakaoUrl이 캐시(d.kakao)에서 읽음.
@@ -3215,7 +3267,14 @@ function weddingTimeOptions(sel){
 // 기초정보 입력 화면 제거 — 이름은 청첩장 위저드 1단계에서 입력(청첩장에만 쓰임), 예식 일시·이메일은 서버가 계약·계정값으로 자동 구성.
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  if(!p){ box.style.display='none'; box.innerHTML=''; bkKill(INVFLOW); bkKill(TRKFLOW); bkKill(SEATFLOW); INVFLOW.active=false; TRKFLOW.active=false; SEATFLOW.active=false; return; }
+  if(!p){
+    // 서버 상태가 제작 카드를 숨기는 순간(입금 홀드·단계 롤백)에도, 진행 중 편집은 강제 종료하지 않는다 —
+    // 새로고침 한 번에 위저드·좌석 편집이 통째로 닫히며 저장 안 된 초안이 날아가던 문제(2026-07-18 점검). 나가기는 기존 '저장 후 나가기' 경로로.
+    if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }
+    if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
+    if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
+    box.style.display='none'; box.innerHTML=''; return;
+  }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
@@ -3811,6 +3870,7 @@ function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
   if(!box) return;
+  INVFLOW._collect=null;   // 단계 전환마다 초기화 — 수집 훅이 필요한 단계는 각자 재할당(이전 단계의 낡은 클로저가 사라진 DOM을 읽는 것 방지)
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);
   else if(INVFLOW.step==='design') invStepDesign(box);
@@ -4776,7 +4836,7 @@ function bindTrk(box, render, collect, opt){
       collect();
       d2._chat=(d2._chat||[]).concat([{role:'user',content:t}]).slice(-10);
       d2._sending=true; d2._pendingTyping=true; d2._aiNoRes=false;
-      if(inp){ inp.value=''; }
+      if(inp){ inp.value=''; } d2._dncTyped='';   // 보낸 질문은 입력 보존 대상에서 해제
       render(box);   // 고객 진사 말풍선 + AI 점점점을 렌더로 즉시(첫 메시지 슬림 뷰에서도 동작)
       var mg0=$('dncMsgs'); if(mg0) mg0.scrollTop=mg0.scrollHeight;
       fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat})})
@@ -4804,6 +4864,7 @@ function bindTrk(box, render, collect, opt){
         .catch(function(){ d2._sending=false; d2._pendingTyping=false; render(box); var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
     };
     _dncF.addEventListener('submit',function(e){ e.preventDefault(); _dncGo(); });
+    var _dncInp=$('dncInput'); if(_dncInp){ _dncInp.addEventListener('input',function(){ TRKFLOW.draft._dncTyped=_dncInp.value; }); }   // 쓰다 만 질문 보존 — 응답 도착·필터 탭·당겨서 새로고침의 재렌더에도 입력이 남게(value 시드와 짝)
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ _dncGo(el.getAttribute('data-sgg')); }); });
   }
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
@@ -5089,7 +5150,7 @@ function dineFilterUI(d, wt){
           + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
         : '<div class="dn-ai-slim-q">예식 끝나고 어디로 모실지 고민되시죠. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 찾아드려요. 아래에서 골라도 돼요.</div>')
-    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
+    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
@@ -5636,7 +5697,7 @@ function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value
 $('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });
 
 // [새로고침] 진행 상황 수동 갱신 — loadMyState가 로딩 화면으로 피드백
-(function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){ loadMyState(); }); } })();
+(function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){ if(window._mePullRefresh){ _mePullRefresh(); } else { loadMyState(); } }); } })();   // 당겨서 새로고침과 같은 경로 — 위저드 입력 수집 후 갱신(버튼만 수집을 건너뛰던 우회로 봉합)
 
 // ── 코드찾기 / 비번재설정 요청 ─────────────────
 var forgotMode = 'findCode';

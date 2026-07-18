@@ -5,7 +5,7 @@
  *
  * 검증: A 플래그 ON → 3개 마일스톤 버튼 부착(라벨 '카드로 결제'·data-m·aria-label 금액·'또는' 래퍼)
  *       B 재렌더(afterRender 재호출) → 중복 부착 없음
- *       C 플래그 OFF → 버튼 0 + config 호출 1회만(페이지당 1회 가드)
+ *       C 플래그 OFF → 준비 중 스탠바이 버튼 3(비활성 표시) + config 호출 1회만(페이지당 1회 가드)
  *       D 토스 성공 복귀(?me_pay=1&m=..&paymentKey=..) → cardConfirm 호출(milestone=URL m) + 성공 알림 + loadMyState + URL 정리
  *       E 취소 복귀(?me_pay=0) → 취소 알림 · confirm 미호출
  *       F m 파라미터 없이 복귀(sessionStorage 폴백) → cardConfirm 호출
@@ -96,14 +96,14 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await p.close();
 }
 
-// ── C: 플래그 OFF → 버튼 0 · config 1회만 ──
+// ── C: 플래그 OFF → '준비 중' 스탠바이 버튼(비활성 표시) · config 1회만 ── (구 'OFF → 버튼 0'은 스탠바이 도입으로 폐지)
 {
   const p = await browser.newPage();
   await p.goto('file://' + file);
   await p.evaluate(() => { window.__cfg = { ok: true, enabled: false }; meCardPay.afterRender(); meCardPay.afterRender(); });
   await sleep(150);
-  const c = await p.evaluate(() => ({ btns: document.querySelectorAll('.me-card-pay').length, calls: window.__apiCalls.filter(x => x.action === 'cardPayConfig').length }));
-  check('C1 OFF → 버튼 0', c.btns === 0);
+  const c = await p.evaluate(() => ({ btns: document.querySelectorAll('.me-card-pay').length, sb: document.querySelectorAll('.me-card-pay[aria-disabled="true"]').length, calls: window.__apiCalls.filter(x => x.action === 'cardPayConfig').length }));
+  check('C1 OFF → 준비 중 버튼 3(전부 비활성 표시·중복 없음)', c.btns === 3 && c.sb === 3, JSON.stringify(c));
   check('C2 OFF → config 호출 1회(재호출 가드)', c.calls === 1, 'calls=' + c.calls);
   await p.close();
 }
