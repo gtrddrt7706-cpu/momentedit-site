@@ -42,7 +42,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .pick{background:var(--bg2);border:1px solid var(--gold);border-radius:9px;padding:13px 14px;margin-bottom:12px}
 .pick .pl{font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
 .pick .pn{font-size:15px;font-weight:500;color:var(--accent);margin-top:3px}
+.pick .pm{font-size:12px;color:var(--sub);margin-top:4px}
 .pick .rsv{font-size:12.5px;color:var(--gold-deep);margin-top:5px}
+.pick .acts{margin-top:11px}
 .pick .rsv b{color:var(--seal);font-weight:600}
 .gather{font-size:12px;color:var(--sub);text-align:center;margin:-2px 0 12px}
 
@@ -118,12 +120,21 @@ function spotHtml(v, withTel){
 function diningHtml(dn){
   if(!dn || !dn.on) return '';
   var h='<div class="sec"><div class="sec-h"><span class="sec-t">식사 · 애프터</span><span class="sec-n">Dining</span></div>';
+  var restos=(dn.restos||[]).slice(), spots=dn.spots||[];
   if(dn.pick){
+    // 선택 식당이 찜 목록에도 있으면 카드 하나로 합침 — 같은 이름 이중 노출 방지 + 소개·지도·전화를 '여기로 모여요' 안에서 바로(2026-07-17 사용자 지적)
+    var mi=-1; for(var i=0;i<restos.length;i++){ if(normName(restos[i].n)===normName(dn.pick)){ mi=i; break; } }
+    var mv=(mi>=0)?restos.splice(mi,1)[0]:null;
     var rsv=(dn.rtime?esc(dn.rtime):'')+((dn.rtime&&dn.rname)?' · ':'')+(dn.rname?'<b>'+esc(dn.rname)+'</b> 이름으로 예약':'');
-    h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div>'+(rsv?'<div class="rsv">'+rsv+'</div>':'')+'</div>';
+    var acts='<a class="act" href="'+esc(mapUrl(mv||{n:dn.pick}))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>'
+      +((mv&&mv.tel)?'<a class="act" href="'+esc(telUrl(mv.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>':'');
+    h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div>'
+      +((mv&&mv.m)?'<div class="pm">'+esc(mv.m)+'</div>':'')
+      +(rsv?'<div class="rsv">'+rsv+'</div>':'')
+      +'<div class="acts">'+acts+'</div></div>';
     h+='<div class="gather">예식과 단체 사진이 끝나면, 위 장소로 편히 이동해 주세요.</div>';
+    if(restos.length) h+='<div class="subh">함께 들르기 좋은 곳</div>';   // 픽이 있으면 나머지 찜은 보조로 구분(어디로 가야 하는지 흐려지지 않게)
   }
-  var restos=dn.restos||[], spots=dn.spots||[];
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
   if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
   return h+'</div>';
