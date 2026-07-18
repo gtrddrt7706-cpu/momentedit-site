@@ -445,10 +445,14 @@
       .then(function (d) {
         if (!d || !d.ok || !d.g) return;
         if (document.getElementById('meGuideCta')) return;
+        // 테두리는 배경 밝기에 적응 — 어두운 디자인(08 등)에서 검정 계열 테두리가 사라지지 않게
+        var _dark = false;
+        try { var _bc = (getComputedStyle(document.body).backgroundColor || '').match(/\d+/g); if (_bc && _bc.length >= 3) _dark = (0.299 * _bc[0] + 0.587 * _bc[1] + 0.114 * _bc[2]) < 128; } catch (e) {}
+        var _bd = _dark ? 'rgba(255,255,255,.28)' : 'rgba(0,0,0,.14)';
         var sec = document.createElement('section');
         sec.id = 'meGuideCta';
         sec.style.cssText = 'margin:56px 18px 64px;text-align:center';
-        sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid rgba(0,0,0,.14);border-radius:14px">'
+        sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
           + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Guest Guide</div>'
           + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
           + '<a href="/guide.html?g=' + encodeURIComponent(d.g) + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
