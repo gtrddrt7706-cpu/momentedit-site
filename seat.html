@@ -101,8 +101,8 @@ function render(seat){
     all.forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm) return; named++; var p=seatPos(n,i,54); chips+='<div class="seat" data-seat data-g="'+gidx+'" style="left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)">'+esc(nm)+'</div>'; });
     if(!named){ chips='<div class="tbl-empty">준비 중</div>'; }
     var _custom=String(t.name||'').trim();
-    var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : ('테이블 '+no);   // 기본명(테이블N)이면 행순서 번호로, 커스텀명이면 존중
-    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+no+'</span><span class="tbl-nm">'+nm+'</span>'+chips+'</div>';
+    var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : '';   // 번호중복 제거 2026-07-19: 기본명은 배지 번호로 충분 · 커스텀명만 가운데 텍스트로
+    return '<div class="tbl" data-tbl="'+gidx+'" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)"><span class="tbl-no">'+no+'</span>'+(nm?'<span class="tbl-nm">'+nm+'</span>':'')+chips+'</div>';
   }
   NUMS=num;   // 검색 결과(findSeat)도 지도 배지와 같은 행순서 번호를 쓰게 보관
   var L='', R='', li=0, ri=0;
@@ -147,8 +147,8 @@ function findSeat(v){
   var t=TABLES[hitG]||{};
   var _no=NUMS[hitG]||(hitG+1);   // 지도 배지·좌석표 프린트와 동일한 행순서 번호
   var _c=String(t.name||'').trim();
-  var _label=(_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 '+_no);
-  $('fr').innerHTML='<b>'+esc(_label)+'</b> 자리예요 · '+_no+'번 테이블';
+  var _isCustom=(_c && !/^테이블\s*\d+$/.test(_c));   // 번호중복 제거 2026-07-19: 기본명이면 'N번 테이블'만, 커스텀명이면 이름 · N번 테이블
+  $('fr').innerHTML=_isCustom ? ('<b>'+esc(_c)+'</b> 자리예요 · '+_no+'번 테이블') : ('<b>'+_no+'번 테이블</b> 자리예요');
   if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
 }
 // '내 자리만' 모드(부부 설정 · 기본값) — 전체 배치도 대신 이름 검색 전용 화면. 명단은 기기로 받지 않고
@@ -176,7 +176,8 @@ function renderMineOnly(seat, t){
         if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="seat hit" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="seat-dot hit" style="'+pos+'"></div>'); }
         else if(t.occ[i]){ chips+='<div class="seat-dot" style="'+pos+'"></div>'; }
       }
-      return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span><span class="tbl-nm">'+(t.label?esc(t.label):('테이블 '+t.no))+'</span>'+chips+'</div>';
+      var _lbl=String(t.label||'').trim(), _isC=(_lbl && !/^테이블\s*\d+$/.test(_lbl));   // 번호중복 제거 2026-07-19: 기본명은 배지 번호로 충분
+      return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span>'+(_isC?'<span class="tbl-nm">'+esc(_lbl)+'</span>':'')+chips+'</div>';
     }
     var L='', R='', li=0, ri=0;   // 지그재그 — 전체 배치도(render)와 같은 홀 모양(zig 재사용)
     for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k], z=zig((String(t.side||'L')==='R')?ri++:li++, String(t.side||'L'));
@@ -189,7 +190,7 @@ function renderMineOnly(seat, t){
   }
   function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+홀 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-    if(hits.length===1) return '<b>'+esc(hits[0].label)+'</b> 자리예요 · '+hits[0].no+'번 테이블'+mineRoomHtml(hits[0]);
+    if(hits.length===1){ var h0=hits[0], _lc=String(h0.label||'').trim(), _cc=(_lc && !/^테이블\s*\d+$/.test(_lc)); return (_cc ? ('<b>'+esc(_lc)+'</b> 자리예요 · '+h0.no+'번 테이블') : ('<b>'+h0.no+'번 테이블</b> 자리예요'))+mineRoomHtml(h0); }   // 번호중복 제거 2026-07-19
     if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
     return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
   }
