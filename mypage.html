@@ -3916,8 +3916,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
-  // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
-  var allDone = _coreDone && (_fDone ? (_seatDone && _cfOk) : (_dLeft==null || _dLeft>30)) && !p.confirmStale && !_cfPanelOpen;   // 재확인 필요·확인 직후엔 접지 않음. 확인서·좌석 게이트는 최종 확정 후에만(_fDone): 좌석 배치는 필수 준비라(2026-07-19 사용자 지시) 미완이면 '준비 완료 ✓'로 접지 않음 · 확정 전(D-30 이전)엔 종전대로 접힘
+  // ★예식 준비 카드 '완료 시 접힘' 폐지 — 2026-07-19 사용자 지시("예식 준비 부분이 어쩔 때는 접혀 있는데 항상 열려 있게 해줘"). 항상 펼친 상태로 렌더. 리뷰·복구에서 접힘(allDone 아코디언) 되살리지 말 것.
+  // (구 접힘 조건은 아래 참고용 주석으로만 보존: _coreDone && (_fDone ? (_seatDone && _cfOk) : (_dLeft==null || _dLeft>30)) && !p.confirmStale && !_cfPanelOpen)
+  var allDone = false;
   if(allDone){
     // 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
