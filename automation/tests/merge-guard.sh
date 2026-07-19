@@ -18,13 +18,18 @@ chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구�
 chk 'trk-tag' mypage.html 2                        # 선택 태그
 chk '_coreDone' mypage.html 3                      # 강조·접힘 공용 게이트
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
-chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 확정 2단계
+# (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
 chk 'rs-dk dk-' mypage.html 1                     # 자리별 음료 색점 복원(2026-07-19 · 스탭 프린트용)
 chk 'seat-privacy' mypage.html 1                   # 공개 방식 별도 카드(캔버스 아래)
 chk 'data-drink' mypage.html 3                     # 자리별 음료 칩 배선 복원
+# ── 2026-07-19 자리별 3음료 + 인원 자동계산(사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료")
+chk 'SEAT_DRINK_LABEL' mypage.html 1               # 자리별 3음료(샴페인/레드와인/논알콜 스파클링) 레지스트리 — 상단 대표음료 폐지
+chk '_seatNamedCount' mypage.html 2                # 최종 인원=이름 있는 자리 수 자동계산(별도 인원 입력 폐지)
+chk 'seat-fee' mypage.html 2                       # 캔버스 아래 인원·요금 자동 안내(25명 초과 경고)
+_ftop=$(grep -c 'class="seat-ftop"' mypage.html 2>/dev/null); _ftop=${_ftop:-0}; if [ "$_ftop" -gt 0 ]; then echo "REVERT? mypage.html: 폐지된 상단 인원/대표음료 블록(seat-ftop) 부활($_ftop)"; fail=1; else echo "ok mypage.html: 상단 인원/대표음료 블록 없음(자리별 3음료 유지)"; fi
 # ── 2026-07-19 담은 곳 = 하객 공개 분리(담기≠노출 · 대표+선택한 곳만 하객 노출)
 chk 'data-favshow' mypage.html 2                   # 담은 곳 하객 공개 토글 렌더+배선
 chk '_dnFavShowToggle' mypage.html 2               # 하객 공개 토글 헬퍼+호출
