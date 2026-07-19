@@ -410,18 +410,12 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .seat-fstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:2px 0 10px;font-size:12.5px;color:var(--sub)}   /* 통합 페이지 위 섹션: 확정 요약(인원·음료)+재수정 입구(2026-07-19 사용자 지시) */
 .seat-fstrip .sf-l{font-size:10.5px;letter-spacing:.1em;color:var(--label-soft);font-weight:600}
 .seat-fstrip .sf-b{width:auto;padding:5px 11px;font-size:11.5px}
-/* 최종 확정 초경량 상단(좌석 화면 · 인원+요금+대표음료 칩만 · 2026-07-19) */
-.seat-ftop{border:1px solid var(--border);border-radius:12px;background:var(--bg2,#F5F3EF);padding:11px 12px 12px;margin:0 0 12px;text-align:left}
-.seat-ftop .ft-row{display:flex;align-items:center;gap:8px}
-.seat-ftop .ft-l{font-size:10.5px;letter-spacing:.06em;color:var(--label-soft);font-weight:600;flex:0 0 auto}
-.seat-ftop .ft-head{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:8px 11px;text-align:center}
-.seat-ftop .ft-head:focus{outline:none;border-color:var(--gold-deep)}
-.seat-ftop .ft-u{font-size:12.5px;color:var(--sub);flex:0 0 auto}
-.seat-ftop .ft-calc{font-size:12px;color:var(--sub);margin:6px 2px 0;line-height:1.5;min-height:16px}
-.seat-ftop .ft-dl{font-size:10.5px;letter-spacing:.06em;color:var(--label-soft);font-weight:600;margin:11px 0 6px}
-.seat-ftop .ft-drinks{display:flex;flex-wrap:wrap;gap:7px}
-.fe-chip{border:1px solid var(--border);border-radius:999px;background:#fff;font-family:var(--serif-ko);font-size:13px;color:var(--sub);padding:8px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.fe-chip.on{border-color:var(--gold-deep);color:var(--gold-deeper,var(--accent));background:var(--gold-bg,#faf6ef);font-weight:500}
+/* 좌석 화면 인원·요금 안내(별도 인원 입력 폐지 · 이름 있는 자리 수로 자동 계산 · 2026-07-19 사용자 지시) */
+.seat-fee{text-align:center;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.6;margin:0 auto 10px;max-width:340px;padding:9px 12px;background:var(--bg2,#F5F3EF);border:1px solid var(--border);border-radius:12px}
+.seat-fee b{color:var(--accent);font-weight:600}
+.seat-fee.over{border-color:var(--seal)}
+.seat-fee.over b{color:var(--seal)}
+.seat-fee .sf-n{font-size:14px;color:var(--accent);font-weight:600}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
@@ -885,9 +879,12 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rs:active{border-color:var(--gold-deep)}
     /* 자리별 음료 표시 — 화면 깔끔하게: 자리엔 작은 색점만(모서리), 상세·선택은 탭했을 때 상단 바에서 */
     .rs-dk{position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--bg);box-shadow:0 0 0 .5px rgba(58,45,34,.14);pointer-events:none}   /* 모서리 배지(안쪽으로 붙임) — 5석·긴이름 시 360px 가로 넘침 방지 */
-    .dk-N{background:#5F9E86}   /* 논알콜 · 세이지그린 */
-    .dk-A{background:#9B4A57}   /* 알콜 · 와인 */
-    .dk-J{background:#E0912F}   /* 주스 · 앰버 */
+    .dk-N{background:#5F9E86}   /* 논알콜 스파클링 · 세이지그린 */
+    .dk-C{background:#C9A227}   /* 샴페인 · 골드 */
+    .dk-R{background:#9B4A57}   /* 레드와인 · 와인 */
+    .dk-U{background:#C9C2B6}   /* 미정 · 그레이(2026-07-19 자리별 3음료) */
+    .dk-A{background:#9B4A57}   /* (구)알콜 · 와인 — 구 데이터 호환 */
+    .dk-J{background:#E0912F}   /* (구)주스 · 앰버 — 구 데이터 호환 */
     .seat-drsum{text-align:center;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:12px;line-height:1.7}   /* 음료 범례 — 캔버스 아래로(2026-07-19 개편) */
     /* 공개 방식 별도 카드(캔버스 아래) — 2026-07-19 디자이너 개편(구 상단 체크박스 폐지) */
     .seat-privacy{margin:16px 0 4px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--bg2)}
@@ -2969,7 +2966,7 @@ document.addEventListener('click', function(e){
   var d=window._mpStateD||{}, pr=d.production||{};
   if(typeof closeLedModal==='function'){ try{ closeLedModal(); }catch(err){} }
   window._afterFinalToBal=true;   // 최종확정 완료 후 잔금으로 복귀 스크롤
-  try{ startTrkFlow('final', pr.finalDraft||{}, pr.base||{}); }catch(err){}
+  try{ startSeatFlow(pr.seatDraft, pr.finalDraft||{}, pr.seatToken, pr.guideinfoDraft||{}); }catch(err){}   // [통합 2026-07-19] 최종 확정=좌석 화면(인원 자동·자리별 3음료). ★옛 인원/음료 위저드(startTrkFlow('final')) 복원 금지
 });
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
@@ -3418,8 +3415,8 @@ function renderProduction(p, inv){
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
-    // [한 화면 통합 2026-07-19 사용자 지시] 인원·음료를 별도 1·2단계로 먼저 강제하지 않음 → 좌석 편집 한 화면으로 진입,
-    //   상단 요약 스트립을 탭해 인원·대표음료·논알콜수·알레르기를 인라인 수정(_seatFinEdit). ★별도 최종확정 위저드 진입 복원 금지.
+    // [한 화면 통합 2026-07-19 사용자 지시] 인원·음료를 별도 1·2단계로 먼저 강제하지 않음 → 좌석 편집 한 화면으로 진입.
+    //   인원=이름 있는 자리 수로 자동 · 음료=자리별 3선택(샴페인/레드와인/논알콜 스파클링). ★별도 최종확정 위저드·상단 인원/대표음료 입력 복원 금지.
     startSeatFlow(p.seatDraft, p.finalDraft||{}, p.seatToken, p.guideinfoDraft||{});
   });
   // 확정 저장 직후(_seatNext) → ③좌석 단계로 자동 연결(좌석 완료 후 재확정이어도 이어감) · 좌석 스트립 '인원·음료 수정'(_finalNext) → 확정 1단계로
@@ -4525,18 +4522,26 @@ function autoSeatTables(headcount){
   var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }
   return out;
 }
-// 음료 배열을 좌석 배열과 항상 같은 길이로 정규화(값은 '' · 'N'논알콜 · 'A'알콜 · 'J'주스). 구 데이터(음료 없음)도 안전.
+// 음료 배열을 좌석 배열과 항상 같은 길이로 정규화(값은 '' 미정 · 'C'샴페인 · 'R'레드와인 · 'N'논알콜 스파클링). 구 데이터(A알콜·J주스·없음)는 ''로 — 대표음료 마이그레이션(startSeatFlow)이 먼저 채움.
 function _seatNormDrinks(t){
   if(!t) return;
   if(Object.prototype.toString.call(t.seats)!=='[object Array]') t.seats=[];
   var d=(Object.prototype.toString.call(t.drinks)==='[object Array]')?t.drinks:[];
-  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='N'||v==='A'||v==='J')?v:''); }
+  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N')?v:''); }
   t.drinks=out;
 }
+// [자리별 3음료 · 2026-07-19 사용자 지시] 상단 대표음료 입력 폐지 → 자리마다 샴페인/레드와인/논알콜 스파클링 직접 선택.
+var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알콜 스파클링'}];
+var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링'};
+function _drinkCode(name){ name=String(name||''); if(name.indexOf('논알콜')>=0)return 'N'; if(name.indexOf('샴페인')>=0)return 'C'; if(name.indexOf('레드')>=0||name.indexOf('와인')>=0)return 'R'; return ''; }
 function startSeatFlow(seatDraft, finalDraft, token, gi){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; }
   var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
-  tbls.forEach(function(t){ _seatNormDrinks(t); });   // 음료 배열 보정(구 데이터 호환)
+  var _repCode=_drinkCode((finalDraft&&finalDraft.drink)||'');   // 구 데이터: 상단 대표음료 → 자리 기본값(빈·구코드)에 채워 자리별 3음료로 이관(2026-07-19)
+  tbls.forEach(function(t){
+    if(_repCode && t.seats){ for(var i=0;i<t.seats.length;i++){ if(String(t.seats[i]||'').trim()){ var dv=String((t.drinks&&t.drinks[i])||''); if(dv===''||dv==='A'||dv==='J'){ t.drinks=t.drinks||[]; t.drinks[i]=(dv==='N'?'N':_repCode); } } } }
+    _seatNormDrinks(t);
+  });   // 음료 배열 보정(구 데이터 호환) + 대표음료 자리별 이관
   SEATFLOW={ active:true, tables:tbls, token:token||'', gi:(gi||{}), fd:(finalDraft||{}) };   // gi = 공유 패널의 공개 설정(자리 찾기·범위) 기준값 · fd = 상단 확정 요약 스트립용(통합 2026-07-19)
   SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderSeat($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
@@ -4591,6 +4596,7 @@ function saveSeat(done){
   // 고아 음료(이름 없는 자리) 정리는 '배치 완료'(done) 페이로드에만 — 임시저장은 그대로 둬 이어하기에서 음료 먼저 흐름이 살아남게. 표시·집계·하객 화면은 어차피 이름 있는 자리만 노출.
   var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
   if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
+  _seatFinSave();   // 최종 인원=이름 있는 자리 수로 파생 저장(별도 인원 입력 폐지 2026-07-19) — 좌석 저장과 함께
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
 }
 function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
@@ -4678,9 +4684,9 @@ function wireGuideShare(box, token){
 // [예식 확인서] 전 파트 요약 + 마감 입력(예약 정보·자리 찾기) + 확인(면책) 한 곳 — 행은 순수하게, 정보는 여기서 (2026-07-17 사용자 제안)
 //   확인 시 스냅샷·일시가 서버에 남고, 이후 어떤 트랙이든 수정하면 자동 해제(재확인 필요) → 관리자는 확인된 스냅샷 기준으로 식을 준비.
 function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
-function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약·최종 확정 힌트 공용)
-  var c={A:0,N:0,J:0,U:0};
-  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')c.A++; else if(dv==='N')c.N++; else if(dv==='J')c.J++; else c.U++; }); });
+function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·U미정
+  var c={C:0,R:0,N:0,U:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else c.U++; }); });
   return c;
 }
 function prodConfirmHtml(p, inv){
@@ -5065,9 +5071,9 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
   box.innerHTML=h; box.style.display='block';
   var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
-function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약·최종 확정 힌트 공용)
-  var c={A:0,N:0,J:0,U:0};
-  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='A')c.A++; else if(dv==='N')c.N++; else if(dv==='J')c.J++; else c.U++; }); });
+function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·U미정
+  var c={C:0,R:0,N:0,U:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else c.U++; }); });
   return c;
 }
 function prodConfirmHtml(p, inv){
@@ -5203,19 +5209,20 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
   }
 }
 function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
-// [최종 확정 = 좌석 화면 상단 초경량 2026-07-19 사용자 지시] 총 하객 수(+착석/스탠딩/요금 문구) + 대표 음료 칩만.
-//   ★알레르기·논알콜 잔 수 입력 폐지 — 논알콜은 자리별 색점으로 표시(중복) · 저장 버튼·토글 없이 배경 자동 저장. 폼형 패널 복원 금지.
-function _seatFinEditHtml(fd){
-  fd=fd||{}; var n=parseInt(fd.headcount||'',10)||0;
-  var chip=function(v){ var on=(String(fd.drink||'')===v); return '<button type="button" class="fe-chip'+(on?' on':'')+'" data-fedrink="'+escapeHtml(v)+'">'+escapeHtml(v)+'</button>'; };
-  return '<div class="seat-ftop">'
-    +'<div class="ft-row"><span class="ft-l">최종 인원</span><input class="ft-head" id="fe_head" inputmode="numeric" autocomplete="off" placeholder="총 하객 수" value="'+escapeHtml(fd.headcount||'')+'"><span class="ft-u">명</span></div>'
-    +'<div class="ft-calc" id="fe_calc">'+_finCalcHtml(n)+'</div>'
-    +'<div class="ft-dl">건배·웰컴 음료</div><div class="ft-drinks">'+chip('샴페인')+chip('레드와인')+chip('논알콜 스파클링(전원)')+'</div>'
-    +'</div>';
+// [최종 확정 = 좌석 화면 통합 · 별도 인원/대표음료 입력 폐지 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료가 나오게"]
+//   ★별도 인원 입력·대표음료 칩·상단 seat-ftop 블록 복원 금지 — 인원=이름 있는 자리 수로 자동 계산 · 음료=자리별 3선택(샴페인/레드와인/논알콜 스파클링).
+function _seatNamedCount(){ var n=0; if(SEATFLOW&&SEATFLOW.tables) SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }
+// 이름 있는 자리 수 → 착석/스탠딩/추가요금 안내(별도 인원 입력 대체). 25명 초과 시 경고색.
+function _seatFeeHtml(n){
+  var P=MP_FINAL_POLICY;
+  if(!n) return '<span style="color:var(--label-soft)">자리에 이름을 넣으면 인원·요금을 자동으로 계산해 드려요.</span>';
+  var head='<span class="sf-n">현재 '+n+'명</span> · ';
+  if(n>P.max) return head+'<b>최대 '+P.max+'명까지</b> 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.';
+  if(n>P.seats) return head+'착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · 추가 요금 <b>'+((n-P.seats)*P.unit).toLocaleString()+'원</b> (잔금과 함께 안내드려요)';
+  return head+'전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
 }
-function _seatFinCollect(box){ if(!SEATFLOW||!SEATFLOW.fd) return; var h=box.querySelector('#fe_head'); if(h) SEATFLOW.fd.headcount=(h.value||'').replace(/[^0-9]/g,''); }
-function _seatFinSave(){ try{ if(SEATFLOW&&SEATFLOW.fd&&(SEATFLOW.fd.headcount||SEATFLOW.fd.drink)) apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:SEATFLOW.fd, done:!!(SEATFLOW.fd.headcount&&SEATFLOW.fd.drink)}).catch(function(){}); }catch(e){} }   // 배경 자동 저장(무음) — 인원·음료 둘 다면 완료 처리
+// 배경 자동 저장(무음) — 최종 인원=이름 있는 자리 수로 파생 · 스탠딩/추가요금도 함께 담아 관리자 화면과 일치. 이름 하나라도 있으면 완료 처리.
+function _seatFinSave(){ try{ if(!SEATFLOW) return; var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={}); fd.headcount=(n?String(n):''); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){}); }catch(e){} }
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
   if(ed) _seatWriteEdit(box);   // 재렌더 진입 시 입력 중이던 값을 먼저 모델에 반영 — 외부 재렌더(상태 갱신 등)가 타이핑 중 이름을 삼키지 않게(편집 상태는 유지)
@@ -5226,7 +5233,7 @@ function renderSeat(box){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
-      else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=(dk==='N')?'<i class="rs-dk dk-N"></i>':'';   // 색점은 예외(논알콜)만 — 기본(고른 음료)은 지도 깨끗하게 · 주스 폐지(2026-07-19)
+      else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=(dk==='C'||dk==='R'||dk==='N')?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료(샴페인/레드와인/논알콜 스파클링) · 미정은 색점 없음(2026-07-19 자리별 3음료)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
@@ -5250,18 +5257,17 @@ function renderSeat(box){
   for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   var L='', R='', li=0, ri=0;
   s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
-  // [좌석 편집기 재구성 · 2026-07-19 사용자 지시(디자이너 개편)] 상단 정리 · 자리별 음료 복원(스탭 A4 프린트가 색점·명단으로 현장 준비에 사용 — 이전 삭제 되돌림) · 음료 범례는 캔버스 아래 · 공개 방식은 캔버스 아래 별도 카드.
-  //   ★자리별 음료 칩·색점 복원됨 — admin.html printSeatChart가 t.drinks(A/N/J) 소비. 재삭제 금지.
-  // [음료 = 2단계에서 고른 잔이 자리 기본값 · 다른 잔만 표시 · 2026-07-19 사용자 지시] '없음/논알콜/알콜/주스' 일반명 대신 고른 음료명 그대로 · 기본은 안 눌러도 됨(대부분) · 예외만 톡톡.
-  var _fdDrink=String((s.fd&&s.fd.drink)||'').trim();   // 자리 기본값 = 이 잔
-  var _dc=seatDrinkCounts(s.tables), cN=_dc.N, cBase=_dc.U+_dc.A+_dc.J;   // 기본(고른 음료)=미표시+구'알콜'+구'주스'(주스 옵션 폐지 2026-07-19) · 예외=논알콜만
-  var legendHtml=((cBase+cN)>0) ? '<div class="seat-drsum"><span class="s-dot dk-A"></span>'+escapeHtml(_fdDrink||'기본')+' '+cBase+(cN?(' <span class="s-dot dk-N"></span>논알콜 '+cN):'')+'</div>' : '';   // 개수 합계(이름 있는 자리) — 캔버스 아래
-  var barHtml='';   // 자리 편집 중일 때만 뜨는 음료 선택 바(캔버스 위 고정)
+  // [자리별 3음료 · 2026-07-19 사용자 지시: "자리 클릭하면 3가지 음료(샴페인/레드와인/논알콜 스파클링)가 나오게"] 상단 대표음료 입력 폐지 → 자리마다 직접 선택 · 색점·명단으로 스탭 A4 프린트가 소비(admin.html · 재삭제 금지).
+  var _named=_seatNamedCount();   // 최종 인원=이름 있는 자리 수(별도 입력 폐지)
+  var _dc=seatDrinkCounts(s.tables);   // 이름 있는 자리만 · C샴페인/R레드와인/N논알콜 스파클링/U미정
+  var _lp=[]; if(_dc.C)_lp.push('<span class="s-dot dk-C"></span>샴페인 '+_dc.C); if(_dc.R)_lp.push('<span class="s-dot dk-R"></span>레드와인 '+_dc.R); if(_dc.N)_lp.push('<span class="s-dot dk-N"></span>논알콜 스파클링 '+_dc.N); if(_dc.U)_lp.push('<span class="s-dot dk-U"></span>미정 '+_dc.U);
+  var legendHtml=_lp.length ? '<div class="seat-drsum">'+_lp.join(' ')+'</div>' : '';   // 음료 개수 합계 — 캔버스 아래
+  var barHtml='';   // 자리 편집 중일 때만 뜨는 음료 선택 바(캔버스 위)
   if(ed && ed.si!=='name'){
-    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; if(cur==='A'||cur==='J')cur='';   // 구'알콜'(A)·구'주스'(J)=기본으로 취급(주스 폐지 2026-07-19) — 바에서도 '기본' 칩이 선택돼 보이게(색점·집계와 일치)
+    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; if(cur!=='C'&&cur!=='R'&&cur!=='N')cur='';   // 미정·구코드(A/J)=선택 없음
     var edNo=num[ed.ti]||(ed.ti+1);
-    var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
-    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 · 다른 잔이면</span>'+chip('', (_fdDrink||'기본'),'dk-A')+chip('N','논알콜','dk-N')+'</div>';   // 기본=고른 음료 · 예외=논알콜만(★주스 폐지 2026-07-19 · 복원 금지)
+    var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'"><span class="dot '+cls+'"></span>'+label+'</button>'; };
+    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 · 음료</span>'+chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+'</div>';   // 자리별 3음료(★복원 금지: 상단 대표음료·예외 방식으로 되돌리지 말 것)
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
   var _mine=(s.gi&&s.gi.seatMode==='mine'), _giDis=(s.gi&&s.gi._saving)?' style="opacity:.5;pointer-events:none"':'';
@@ -5272,8 +5278,7 @@ function renderSeat(box){
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">최종 확정 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
-    // [최종 확정 초경량 2026-07-19 사용자 지시] 좌석 화면 상단에 최종 인원 + 착석/스탠딩/요금 문구 + 대표음료 칩만 항상 노출(폼·토글·저장버튼 없음)
-    + _seatFinEditHtml(s.fd||{})
+    // [자리별 3음료 + 인원 자동계산 2026-07-19 사용자 지시] 별도 인원 입력·대표음료 칩 폐지 → 자리에 이름·음료를 넣으면 인원·요금 자동. 요금 안내는 캔버스 아래.
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center;margin-bottom:12px">자리를 눌러 <b>이름과 음료</b>를 정해요.</div>'
     + barHtml
@@ -5283,6 +5288,7 @@ function renderSeat(box){
       +'<div class="seat-aisle" aria-hidden="true"><span>버진로드</span></div>'
       +'<div class="seat-col seat-col-r"><div class="seat-colh">우측</div>'+R+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button>':'')+'</div>'
     +'</div>'
+    + '<div class="seat-fee'+(_named>MP_FINAL_POLICY.seats?' over':'')+'" id="seat_fee">'+_seatFeeHtml(_named)+'</div>'   // 인원·요금 자동 계산(이름 있는 자리 수) — 25명 초과 시 경고색
     + legendHtml   // 음료 범례 — 캔버스 아래(상단 이물감 제거)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
@@ -5295,9 +5301,7 @@ function renderSeat(box){
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
   wireGuideInfoEditor(box, s.gi||{});   // 공개 범위 체크(편집기 상단) — 링크 발급 전에도 설정 저장 가능
-  var _fh=box.querySelector('#fe_head'); if(_fh){   // 최종 인원 입력 — 타이핑 중 요금 문구 라이브 갱신 · 벗어날 때 배경 자동 저장(무음)
-    _fh.addEventListener('input',function(){ var c=box.querySelector('#fe_calc'); if(c) c.innerHTML=_finCalcHtml(parseInt((_fh.value||'').replace(/[^0-9]/g,''),10)||0); });
-    _fh.addEventListener('blur',function(){ _seatFinCollect(box); _seatFinSave(); }); }
+  // 최종 인원 입력창 폐지(2026-07-19) — 인원=이름 있는 자리 수로 자동 · 요금 안내(#seat_fee)는 재렌더 때 갱신 · 배경 저장은 saveSeat가 _seatFinSave로 함께 수행
   // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
     if(SEATFLOW._edNew && !SEATFLOW._dkRe){ SEATFLOW._edNew=false; try{ ei.select(); }catch(e){} }
@@ -5312,7 +5316,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-fedrink],[data-drink]'):null;   // data-drink 복원 2026-07-19 · data-fedrink=상단 대표음료 칩(초경량)
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;   // data-drink=자리별 3음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
@@ -5327,7 +5331,7 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // 자리별 음료 칩 복원 2026-07-19 · _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭 무시 방지
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
-    if(el.hasAttribute('data-fedrink')){ _seatFinCollect(box); if(SEATFLOW.fd) SEATFLOW.fd.drink=el.getAttribute('data-fedrink'); _seatFinSave(); renderSeat(box); return; }   // [초경량 2026-07-19] 대표음료 칩 → 배경 자동 저장(무음) + 재렌더(칩 강조). 저장버튼·토글 폐지
+    // ★상단 대표음료 칩(data-fedrink) 핸들러 폐지 — 2026-07-19 사용자 지시("고르고 인원 정하는 탭 전부 제거"). 음료는 자리별(data-drink)로만. 복원 금지.
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
       if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 배치 완료(done 저장·토큰 발급) 후 바로 오버레이 종료 — 공유 패널 폐지(2026-07-19). 이중 클릭·뒤로가기 재진입 방지
@@ -6237,46 +6241,11 @@ function _finCalcHtml(n){
   if(n>P.seats) return '착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · 추가 요금 <b>'+((n-P.seats)*P.unit).toLocaleString()+'원</b> (잔금과 함께 안내드려요)';
   return '전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
 }
+// [폐지·통합 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료"] 옛 최종 확정 위저드(별도 인원 입력·건배음료 라디오·논알콜 잔 수·알레르기)는 좌석 화면으로 통합.
+//   ★이 함수에 인원/음료/알레르기 폼을 다시 넣지 말 것 — 인원=이름 있는 자리 수 자동 · 음료=자리별 3선택(샴페인/레드와인/논알콜 스파클링). 잔여 진입은 좌석 화면으로 라우팅(백스톱).
 function renderFinal(box){
-  var d=TRKFLOW.draft, P=MP_FINAL_POLICY;
-  function collect(){
-    if($('trk_head')) d.headcount=($('trk_head').value||'').replace(/[^0-9]/g,'');
-    if($('trk_soft')) d.softCount=($('trk_soft').value||'').replace(/[^0-9]/g,'');
-    if($('trk_allergy')) d.allergy=($('trk_allergy').value||'').trim();
-    // trk_video·digital·cake 입력 폐지(2026-07-18) — 영상·디지털은 원본 위치로 일원화(식순 영상 링크·청첩장 파생),
-    // 케이크 커스텀 문구는 추가 옵션을 두지 않기로 해 제거(사용자 지시). 기존 저장값은 초안에 보존만.
-  }
-  if(TRKFLOW.step===0){
-    var body='<div class="inv-fields"><div class="inv-side-l" style="margin:6px 0 5px">총 하객 수 (두 분 제외)</div>'
-      + '<input class="cc-input" id="trk_head" inputmode="numeric" autocomplete="off" placeholder="예: 25" value="'+escapeHtml(d.headcount||'')+'" style="margin-bottom:0">'
-      + ((d._fromInquiry&&String(d.headcount||'')===String(d._fromInquiry))?'<div class="cc-note" style="text-align:left;margin:6px 0 0">문의 때 <b>'+escapeHtml(d._fromInquiry)+'명</b>으로 적어주셨어요. 달라졌으면 고쳐 주세요.</div>':'')+'</div>'
-      + '<div class="cc-note" style="text-align:left" id="trk_calc">'+_finCalcHtml(parseInt(d.headcount||'',10)||0)+'</div>'
-      + '<div class="cc-note" style="text-align:left"><span class="cc-mini">착석 '+P.seats+'명 기본 · 초과는 스탠딩으로 1인 '+P.unit.toLocaleString()+'원 · 최대 '+P.max+'명 (계약 기준)</span></div>';
-    box.innerHTML=trkShell(1,'몇 분을 모시나요?','최종 인원이에요. 좌석·잔·다과 준비의 기준이 돼요.',body,false);
-    bindTrk(box,renderFinal,collect,{ validate:function(){ var n=parseInt(d.headcount||'',10)||0; if(!n) return '총 하객 수를 입력해 주세요.'; if(n>P.max) return '최대 '+P.max+'명까지예요. 조정이 어려우시면 디렉터에게 문의해 주세요.'; } });
-    var hi=$('trk_head'); if(hi) hi.addEventListener('input',function(){ var c=$('trk_calc'); if(c) c.innerHTML=_finCalcHtml(parseInt((hi.value||'').replace(/[^0-9]/g,''),10)||0); });
-  } else {   // 마지막 단계(구 step 1) — step 값이 그 이상이어도 안전하게 여기로(옛 3단계 폐지)
-    var isSoftAll = String(d.drink||'').indexOf('논알콜')===0;
-    // (좌석 논알콜 칩 힌트 삭제 2026-07-19 — 자리별 음료 칩 폐지로 참조 대상이 사라짐. 논알콜 인원은 아래 '잔 수' 한 곳이 단일 원천.)
-    var body='<div class="inv-side-l" style="margin:6px 0 4px">건배·웰컴 음료</div>'
-      + _trkOpt('샴페인', d.drink, 'drink', '샴페인')
-      + _trkOpt('레드와인', d.drink, 'drink', '레드와인')
-      + _trkOpt('논알콜 스파클링(전원)', d.drink, 'drink', '논알콜 스파클링(전원)', '아이·운전 하객이 많다면 추천 · 준비가 가장 간단해요')
-      + (d.drink && !isSoftAll
-        ? '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">논알콜 필요 잔 수 <span style="color:var(--label-soft)">(운전·임신·미성년 등 · 없으면 0)</span></div>'
-          + '<input class="cc-input" id="trk_soft" inputmode="numeric" autocomplete="off" placeholder="0" value="'+escapeHtml(d.softCount||'')+'" style="margin-bottom:0">'
-          + '<div class="cc-note" style="text-align:left"><span class="cc-mini">논알콜도 똑같은 잔·똑같은 모습으로 조용히 준비해 드려요. 잔 수만 알려주시면 돼요.</span></div></div>'
-        : '')
-      + '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">알레르기·식음 특이사항 <span style="color:var(--label-soft)">(선택)</span></div>'
-      + '<textarea class="cc-input" id="trk_allergy" placeholder="예: 하객 중 견과 알레르기 1분" style="min-height:64px;margin-bottom:0">'+escapeHtml(d.allergy||'')+'</textarea></div>';
-    // [다이어트 2026-07-18] 옛 3단계(케이크 문구·영상 링크·디지털 참석) 폐지 → 이 단계가 마지막(확정 저장).
-    //   영상 링크=식순 위저드 영상 카드 · 디지털 참석=청첩장 선택 자동 파생(85_invitation._invCouplesFields) · 케이크 커스텀=추가 옵션 안 두기로(사용자 지시).
-    //   기존 저장값(d.cake·d.videoLink·d.digital)은 초안에 보존·전송돼 하위호환(관리자 화면 표시)에 영향 없음. ★입력칸 복원 금지.
-    // (2026-07-18 군더더기 정리) 옛 3단계 이관 안내문("영상 링크는 식순에서…")은 오픈 전·기존 고객 0이라 신규 고객에겐 맥락 없는 소음 → 제거. 이관 사실은 위 ★주석이 보존.
-    body+='<div class="cc-note" style="text-align:left;margin-top:12px">확정 후에도 예식 '+_payDays().bal+'일 전까지는 언제든 다시 수정할 수 있어요.</div>';
-    box.innerHTML=trkShell(2,'건배와 환영의 잔, 무엇으로 할까요?','',body,true,'확정 저장');   // 부제 제거 — 제목·필드 라벨('건배·웰컴 음료')이 같은 말 3회 반복이던 것 정리
-    bindTrk(box,renderFinal,collect,{ last:true, validate:function(){ if(!d.drink) return '음료를 골라 주세요.'; } });
-  }
+  var d=(window._mpStateD||{}).production||{};
+  startSeatFlow(d.seatDraft, (TRKFLOW&&TRKFLOW.draft)||d.finalDraft||{}, d.seatToken, d.guideinfoDraft||{});
 }
 
 // [수정] 탭 재포커스 자동 새로고침 제거 — 새로고침은 수동(NOW 카드 새로고침 버튼)·동작(서명·저장 등) 후에만 일어남.
