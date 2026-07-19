@@ -22,8 +22,10 @@ chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 �
 chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
-chk '자리별 음료 칩·색점·선택 바 삭제' mypage.html 1   # 자리별 음료 UI 제거(2026-07-19)·복원 금지
-# 음수 마커 — 통합 역전 시 분리된 옛 좌석 행이 되살아나면 감지(4차 역전 bd0ee33 재발 방지 2026-07-19)
+chk 'rs-dk dk-' mypage.html 1                     # 자리별 음료 색점 복원(2026-07-19 · 스탭 프린트용)
+chk 'seat-privacy' mypage.html 1                   # 공개 방식 별도 카드(캔버스 아래)
+chk 'data-drink' mypage.html 3                     # 자리별 음료 칩 배선 복원
+# 음수 마커 — 통합 역전 시 분리된 옛 좌석 행 부활 감지(bd0ee33 4차 역전류 조기 감지)
 _sep=$(grep -c "row('좌석 배치도', t.seat" mypage.html 2>/dev/null); _sep=${_sep:-0}; if [ "$_sep" -gt 0 ]; then echo "REVERT? mypage.html: 분리된 옛 좌석 배치도 행 부활($_sep)"; fail=1; else echo "ok mypage.html: 분리 좌석 행 없음(통합 유지)"; fi
 # ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
 chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
