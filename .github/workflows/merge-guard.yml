@@ -1,0 +1,25 @@
+# 병렬 세션 역전 자동 감지 — main push마다 merge-guard 실행(낡은 버퍼 통째 커밋이 다른 세션 수정을 조용히 되돌리면 RED).
+# 근거: CLAUDE.md '병렬 세션 병합 검증 규칙'. 실사고 다수(식순 AI·좌석·04호칭 등 반복 역전). 수동 실행에만 의존하던 걸 자동화.
+name: Merge Guard
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'mypage.html'
+      - 'order-preview.html'
+      - 'assets/ritual-data.js'
+      - 'api/_ritual-kb.js'
+      - 'automation/tests/merge-guard.sh'
+      - 'scripts/check-ritual-mirror.js'
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run merge-guard (마커 생존 + 식순 문안 단일 원천 정합)
+        run: sh automation/tests/merge-guard.sh

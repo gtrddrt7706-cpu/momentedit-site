@@ -162,10 +162,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
 .tune-hint{font-size:12px;color:var(--gold-deeper);background:rgba(184,154,117,.09);border:1px solid rgba(184,154,117,.28);border-radius:9px;padding:8px 11px;margin:10px 0 12px;line-height:1.6;word-break:keep-all}
 .mc-info{font-size:12px;color:var(--sub);line-height:1.65;word-break:keep-all;background:var(--bg2,#F4EFE8);border-radius:8px;padding:8px 10px;margin-top:8px}
-.pchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-.pchip{font-family:var(--sans);font-size:12.5px;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.pchip.on{border-color:var(--gold-deep);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
-.pchip.locked{cursor:default}
 .mc-info b{color:var(--gold-deeper)}
 .fold{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);word-break:keep-all}
 .fold-x{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
@@ -310,7 +306,8 @@ var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',
        veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
-       tune:{entry:true}, extra:{}, up:{}, photo:[]};   // photo=단체촬영 구도(고른 순서=촬영 순서 · 'c:'접두=직접 추가 · 전체 하객은 늘 포함이라 미저장) 2026-07-19
+       tune:{entry:true}, extra:{}, up:{}};
+var CLOSE_NAR="두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.";   // 폐식 나레이션 단일 출처(카드 미리듣기·fullBlocks 공용). 단체촬영 '구도'는 예식 준비로 분리(2026-07-19)
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; _lazyPersist(); render(); };
@@ -333,26 +330,7 @@ var _pT; function _lazyPersist(){ clearTimeout(_pT); _pT=setTimeout(function(){ 
 window.toast=function(m){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:10px 18px;border-radius:20px;z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.textContent=m; t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },2200); };
 window.setv=function(k,val){ S[k]=val; _lazyPersist(); };
 window.settgl=function(k,cb){ S[k]=cb.checked; _lazyPersist(); render(); };
-// ── 단체촬영 구도(폐식 카드) — 전체 하객은 늘 첫 컷, 부부가 추가 구도를 고른 순서대로 촬영. 총 12컷 상한(전체 하객+11). GAS 변경 없음(S에 통짜 저장) ──
-var PHOTO_OPTS=[{k:'parents',n:'양가 부모님과'},{k:'groomFam',n:'신랑 측 가족'},{k:'brideFam',n:'신부 측 가족'},{k:'friends',n:'친구들과'},{k:'work',n:'직장·지인과'}];
-var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
-function photoName(k){ if(String(k).indexOf('c:')===0) return String(k).slice(2); for(var i=0;i<PHOTO_OPTS.length;i++){ if(PHOTO_OPTS[i].k===k) return PHOTO_OPTS[i].n; } return k; }
-function photoLabels(){ return ['전체 하객'].concat((S.photo||[]).map(photoName)); }   // 전체 하객 + 고른 순서(촬영 순서)
-window.photoTgl=function(k){   // 프리셋 토글 · 커스텀 삭제 공용
-  S.photo=S.photo||[]; var i=S.photo.indexOf(k);
-  if(i>-1){ S.photo.splice(i,1); }
-  else { if(S.photo.length>=PHOTO_MAX){ toast('구도가 많아요 · 고른 순서대로 단체 기록 시간에 진행돼요'); return; } S.photo.push(k); }
-  _persist(); render();
-};
-window.photoAdd=function(){
-  var inp=document.getElementById('photoAddIn'); if(!inp) return;
-  var v=(inp.value||'').replace(/['"\\<>]/g,'').trim().slice(0,20);   // 따옴표·꺾쇠 제거(onclick 속성 주입 방지) + 20자
-  if(!v){ inp.value=''; return; }
-  S.photo=S.photo||[];
-  if(photoLabels().indexOf(v)>-1){ inp.value=''; toast('이미 담긴 구도예요'); return; }   // 프리셋·기존 커스텀과 중복 방지
-  if(S.photo.length>=PHOTO_MAX){ toast('구도가 많아요 · 고른 순서대로 단체 기록 시간에 진행돼요'); return; }
-  S.photo.push('c:'+v); inp.value=''; _persist(); render();
-};
+// 단체촬영 '구도' 선택은 예식 준비(mypage · guideinfoDraft.photo)로 이관(2026-07-19) — 식순 빌더는 폐식 나레이션만 담당
 
 var ENTRY={
  A:{d:"서사형",nar:"지금까지 두 사람은, 각자의 길을 걸어왔습니다. 오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다. 모두, 따뜻한 박수로 두 사람을 맞아 주시기 바랍니다. 신랑 신부, 입장!",
@@ -1039,22 +1017,17 @@ function renderStep(k){
       }
       h+='</div>';
     });
-    // 폐식·단체촬영 — 맨 마지막 고정(2026-07-18). 눌러서 단체촬영 구도 고르기 확장(2026-07-19 사용자 지시)
-    var _pOpen=(_tprev==='_close'), _pn=(S.photo||[]).length;
+    // 폐식·단체촬영 — 본식을 닫는 마지막 순간(고정). 눌러서 닫는 나레이션만 미리듣기 · 단체 사진 '구도'는 예식 준비의 '단체 사진'에서(2026-07-19 사용자 지시: 단체촬영은 본식 뒤 '단체 기록' 시간이라 식순과 분리)
+    var _pOpen=(_tprev==='_close');
     h+='<div class="mc'+(_pOpen?' open':'')+'" onclick="tprev(\'_close\')">'
       +'<div class="mc-hd"><div class="mc-t">폐식·단체촬영<span class="tcap fx">고정 진행</span></div><span class="mc-chev">›</span></div>'
       +'<div class="mc-e">나레이션이 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요</div>'
-      +'<div class="mc-s">지금 · 전체 하객'+(_pn?' + '+_pn+'컷':'')+'</div>';
+      +'<div class="mc-s">지금 · 나레이션 · 맨 마지막 고정</div>';
     if(_pOpen){
       h+='<div class="mc-x" onclick="event.stopPropagation()">';
-      h+='<div class="mc-info" style="margin-top:0">남기고 싶은 <b>단체 사진 구도</b>를 골라 두면, 당일 디렉터가 이 순서대로 안내해요 · <b>전체 하객</b>은 늘 포함돼요.</div>';
-      h+='<div class="pchips"><span class="pchip on locked">전체 하객</span>';
-      PHOTO_OPTS.forEach(function(o){ var on=(S.photo||[]).indexOf(o.k)>-1; h+='<span class="pchip'+(on?' on':'')+'" onclick="photoTgl(\''+o.k+'\')">'+(on?'✓ ':'')+esc(o.n)+'</span>'; });
-      h+='</div>';
-      var _cust=(S.photo||[]).filter(function(k){return String(k).indexOf('c:')===0;});
-      if(_cust.length){ h+='<div class="pchips">'; _cust.forEach(function(k){ h+='<span class="pchip on" onclick="photoTgl(\''+k+'\')">'+esc(photoName(k))+' ✕</span>'; }); h+='</div>'; }
-      h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="tin" id="photoAddIn" maxlength="20" placeholder="직접 추가 (예: 대학 동기)" style="margin-top:0;flex:1;min-width:0" onkeydown="if(event.key===\'Enter\'){event.preventDefault();photoAdd();}"><button type="button" class="rowbtn up" style="flex:0 0 auto;white-space:nowrap" onclick="photoAdd()">추가</button></div>';
-      h+='<div class="mc-info" style="margin-top:8px">고른 순서대로 찍어요 · 보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
+      h+='<div class="mc-media"><div class="mclip"><div style="padding:20px 14px;font-size:12.5px;line-height:1.8;color:var(--sub)">'+esc(CLOSE_NAR)+'</div></div>'
+        +'<button type="button" class="rowbtn mc-play" data-mp="_close" onclick="event.stopPropagation();momPlay(this,\'_close\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';
+      h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>단체 사진 구도</b>는 마이페이지 <b>예식 준비 · 단체 사진</b>에서 골라요 · 본식 뒤 단체 기록 시간에 진행돼요.</div>';
       h+='</div>';
     }
     h+='</div>';
@@ -1295,7 +1268,6 @@ var courseStarted=false;
 window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
   } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
 window.jumpTo=function(k){
-  if(k==='_close'){ _tprev='_close'; for(var _j=0;_j<STEPS.length;_j++){ if(STEPS[_j].k==='tune'){ idx=_j; mode='build'; render(); var _oc=document.querySelector('.mc.open'); if(_oc) _oc.scrollIntoView({behavior:'smooth',block:'center'}); return; } } return; }   // 폐식은 STEPS에 없음 → 다듬기 화면의 폐식 카드를 열어 이동(단체촬영 구도 편집)
   if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
@@ -1366,7 +1338,7 @@ var BLOCK={
 function fullBlocks(){
   var b=[];
   curSeq().forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x){ x.k=k; b.push(x); } } });
-  b.push({n:'폐식·단체촬영',k:'_close',nar:"두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주십시오.",cue:'나레이션 마무리와 함께 마무리 음악 시작 → 자리에서 그대로 단체촬영(순서: '+photoLabels().join(' → ')+')'});
+  b.push({n:'폐식·단체촬영',k:'_close',nar:CLOSE_NAR,cue:'나레이션 마무리와 함께 마무리 음악 시작 → 자리에서 그대로 단체촬영(구도는 예식 준비 · 단체 사진에서)'});   // 단체촬영 '구도'는 예식 준비로 분리(2026-07-19) — 식순 큐는 일반 안내만
   return b;
 }
 function inSeq(k){ return curSeq().indexOf(k)>-1; }
@@ -1457,7 +1429,7 @@ function renderDone(){
     var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10px">식전</div>':isOff?'<div class="sr-n sr-off">뺌</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
     h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">변경</button></div>';
   });
-  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">'+esc(photoLabels().join(' · '))+'</div><button class="sr-c" onclick="editStep(\'_close\')">변경</button></div>';
+  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
   h+='<div class="sec-l">음악, 두 곡만 정하면 돼요</div>';
@@ -1528,7 +1500,7 @@ render();
 var EMBED=/[?&]embed=1/.test(window.location.search);
 function _embedSave(){
   if(!EMBED) return;
-  try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;}), photo:photoLabels()}}}, window.location.origin); }catch(e){}
+  try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
 }
 if(EMBED){
   // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
@@ -1537,7 +1509,7 @@ if(EMBED){
   window._obExit=function(){
     if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
     var payload=null;
-    try{ if(courseStarted){ var _bs=fullBlocks(); payload={S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;}), photo:photoLabels()}}; } }catch(e){}
+    try{ if(courseStarted){ var _bs=fullBlocks(); payload={S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}; } }catch(e){}
     try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
   };
   var _cb=document.createElement('button'); _cb.type='button'; _cb.className='ob-exit'; _cb.id='obExit';
