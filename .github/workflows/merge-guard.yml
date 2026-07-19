@@ -1,8 +1,12 @@
 # 병렬 세션 역전 자동 감지 — main push마다 merge-guard 실행(낡은 버퍼 통째 커밋이 다른 세션 수정을 조용히 되돌리면 RED).
 # 근거: CLAUDE.md '병렬 세션 병합 검증 규칙'. 실사고 다수(식순 AI·좌석·04호칭 등 반복 역전). 수동 실행에만 의존하던 걸 자동화.
 name: Merge Guard
+# push(main) = 사후 감지(이미 반영됨) · pull_request(main) = 병합 전 차단용(브랜치 보호에서 required check로 지정 시).
+#   ★예방은 GitHub 브랜치 보호에서 이 체크를 '필수'로 + main 직접 push 금지(PR 필수)로 켜야 완성됨 — 파일만으론 차단 안 됨(사용자 설정 필요).
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
