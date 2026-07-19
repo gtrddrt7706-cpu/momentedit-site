@@ -4651,8 +4651,8 @@ function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 
 }
 // ── 스냅 사전기획(촬영 전 · '예식 준비' 앞 여정 스텝) — Private Snap(부부 단독) 중심. 좌석·단체사진과 같은 전용 화면(SNAPFLOW·저장 후 나가기). snap 트랙에 저장(2026-07-19 · marker: SNAP_PREP_FLOW) ──
 //   설계 원칙(딥리서치 검증): '강제 컷 목록'이 아니라 무드·성향을 전하는 영감 보드. 필수컷은 소수(≤3)로 제한, 포즈·동선은 촬영 중 디렉터가 리드. 세부 칩 라벨은 사장님 감수 대상.
-var SNAP_MOODS=['잔잔·따뜻','사랑스러운','시크·모던','클래식·격식','유쾌·발랄','드라마틱'];   // 두 공간 공통 무드칩(캔들존·화이트존) · 사장님 감수
-var SNAP_MUSTHAVES=['반지·손 디테일','뒷모습·베일','창가 자연광','함께 웃는 순간','서로 바라보기'];   // '꼭 담고 싶은 것' 후보(강제 아님·소수) · 사장님 감수
+var SNAP_MOODS=['필름 감성','내추럴·무보정','따뜻·몽환','미니멀·화보','시크·시네마틱','러블리·발랄'];   // 무드칩(캔들존·화이트존 공통) · 요즘 감성 반영(2026-07-19 · 웹검증 실패로 도메인 판단·사장님 감수 대상). 캔들존=필름/따뜻·몽환/시네마틱, 화이트존=미니멀·화보/내추럴 쪽이 잘 맞음
+var SNAP_MUSTHAVES=['반지·손 클로즈업','뒷모습·베일','창가 역광·실루엣','걸으며 무빙컷','이마 맞대기','백허그','함께 웃는 순간'];   // '꼭 담고 싶은 것'(강제 아님·최대 3) · 요즘 인스타 커플컷 반영(무빙·이마맞대기·백허그·실루엣) · 사장님 감수
 var SNAP_TONES=['자연스러운·캔디드','정적 에디토리얼','무빙·발랄'];   // 촬영 톤(단일 선택) · 사장님 감수
 var SNAP_COMFORTS=['리드 많이 해주세요','적당히','자유롭게 둘게요'];   // 카메라 앞 편안함(단일 선택) — 디렉터 리드 강도 참고
 var SNAP_MOOD_MAX=6, SNAP_MUST_MAX=3, SNAP_REF_MAX=5;
@@ -4685,7 +4685,7 @@ function renderSnapFlow(box){
   h+='<input class="cc-input" id="mp_snapMoodNote" maxlength="150" autocomplete="off" placeholder="원하는 무드를 한 줄로 (예: 잔잔하고 따뜻하게)" value="'+escapeHtml(D.moodNote||'')+'" style="margin-top:8px">';
   // 2) 영감 보드(레퍼런스 링크)
   h+='<div class="ph-sec">영감 보드 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="margin:2px 0 8px">똑같이 찍는 목록이 아니라 무드·조명·분위기를 읽어요. 핀터레스트·인스타 링크 3~5개면 충분해요.</div>';
+  h+='<div class="cc-note" style="margin:2px 0 8px">똑같이 찍는 목록이 아니라 무드·조명·분위기를 읽어요. 인스타에서 저장해둔 무드보드·핀터레스트 링크 3~5개면 충분해요.</div>';
   if(D.refs.length){ h+='<div class="ph-list">'; D.refs.forEach(function(u,i){ h+='<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="ph-del" data-srefdel="'+i+'" aria-label="빼기">✕</button></div>'; }); h+='</div>'; }
   if(D.refs.length<SNAP_REF_MAX){ h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapRef" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapRefBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>'; }
   // 3) 꼭 담고 싶은 것(소수)
