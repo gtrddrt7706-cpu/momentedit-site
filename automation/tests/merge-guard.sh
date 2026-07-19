@@ -44,6 +44,9 @@ chk '신원 번들' mypage.html 1                     # 식순 임베드 AI 신�
 # ── 2026-07-19 스냅사진 사전기획 파트(마이페이지 여정 스텝 · snap 트랙 · SNAPFLOW)
 chk 'SNAP_PREP_STEP' mypage.html 1                 # 진행바 합성 '스냅기획' 스텝 삽입
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
+chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
+# ★PROD_FS_OVERLAY·.mp-fs 마커 제거(2026-07-19) — 병렬 세션이 '제작 4종 전체화면 오버레이'를 커밋(cc57e38)했다가
+#   이후 스냅 카드 커밋(17bea03 등)에서 스스로 되돌려, origin/main 코드에도 없음. 코드 없는 마커라 제거. 그 세션이 오버레이를 다시 살리면 마커도 그때 함께 복원할 것.
 chk 'SNAP_PREP_NORMALIZE' automation/platform/80_production.gs 1   # 백엔드 snap 트랙 정규화
 chk "track !== 'snap'" automation/platform/80_production.gs 2      # snap 화이트리스트 + 확인해제 제외
 chk '스냅 기획 (촬영 전)' admin.html 1             # 관리자 상세 스냅 기획 블록

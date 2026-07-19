@@ -3354,7 +3354,6 @@ function renderProduction(p, inv){
     if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
     if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
     if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }
-    if(SNAPFLOW.active){ box.style.display='block'; renderSnapFlow(box); return; }   // 스냅 기획 편집 중(mp_production 슬롯 전개) — 배경 새로고침(p=null)에도 편집 유지
     box.style.display='none'; box.innerHTML=''; return;
   }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
@@ -4874,9 +4873,18 @@ function startSnapFlow(sd){
     toneStyle:String(sd.toneStyle||''), comfort:String(sd.comfort||''),
     propsNote:String(sd.propsNote||''), directorNote:String(sd.directorNote||'')
   } };
+  // 식순 빌더처럼 전체 화면 오버레이로 — 진행바·다른 카드를 덮어 집중도를 높인다(2026-07-19 사용자 지시 · marker: SNAP_PREP_OVERLAY). iframe 아님(같은 페이지 JS라 div 오버레이).
+  var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 44px';
+  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
+  body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  _mpLock();   // 배경 스크롤 잠금(식순·계약 뷰어와 동일)
   SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
-  renderSnapFlow($('mp_production'));
-  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+  renderSnapFlow(inner);
+  body.scrollTop=0;
 }
 function renderSnapFlow(box){
   if(!box) return; var D=SNAPFLOW.d||{};
@@ -4952,42 +4960,55 @@ function saveSnap(){
     propsNote:String(D.propsNote||''), directorNote:String(D.directorNote||'')
   }, done:_snapFilledD(D)});   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
 }
-function exitSnapFlow(){   // 좌석/단체사진과 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
+function exitSnapFlow(){   // 식순 빌더와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(SNAPFLOW._exiting) return;
   if(SNAPFLOW.d){ var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value; var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value; var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value; }   // 마지막 텍스트 반영
-  SNAPFLOW._exiting=true; SNAPFLOW.active=false; show('loading');
-  var _fail=function(msg){
-    SNAPFLOW._exiting=false; SNAPFLOW.active=true; show('mypageView'); renderSnapFlow($('mp_production'));
-    if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSnapFlow(); } else { bkKill(SNAPFLOW); SNAPFLOW.active=false; show('loading'); loadMyState(); } });
+  SNAPFLOW._exiting=true;
+  var _close=function(){
+    if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; }   // 층 소비(뒤로가기로 이미 닫혔으면 no-op)
+    var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+    _mpUnlock(); SNAPFLOW.active=false; SNAPFLOW._exiting=false;
+    show('loading'); loadMyState();
   };
-  saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SNAPFLOW._exiting=false; bkKill(SNAPFLOW); loadMyState(); }).catch(function(){ _fail(''); });
+  var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
+    SNAPFLOW._exiting=false;
+    if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
+    alert(msg||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.');
+  };
+  saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
 }
-function _snapSummary(sd){
-  sd=sd||{}; var parts=[];
-  var m=((sd.moodCandle)||[]).length+((sd.moodWhite)||[]).length; if(m) parts.push('무드 '+m+'개');
-  if(((sd.refs)||[]).length) parts.push('레퍼런스 '+sd.refs.length);
-  if(((sd.mustHaves)||[]).length) parts.push('원하는 컷 '+sd.mustHaves.length);
-  if(sd.toneStyle) parts.push(String(sd.toneStyle));
-  return parts.join(' · ');
+function _snapSummary(sd){   // 요약 = '결' 한 마디만 — 카운트 나열(무드 N개·컷 N)은 폼 진행바처럼 읽혀 제거(미니멀 · 2026-07-19 사용자 지시). 스타일 > 대표 무드 > 한 줄 메모 순
+  sd=sd||{};
+  if(sd.toneStyle) return String(sd.toneStyle);
+  var m=((sd.moodCandle)||[]).concat((sd.moodWhite)||[]);
+  if(m.length) return m.slice(0,2).join(' · ');
+  var mn=String(sd.moodNote||'').trim(); if(mn) return mn.length>18?(mn.slice(0,18)+'…'):mn;
+  if(((sd.mustHaves)||[]).length) return '원하는 컷 담음';
+  return '';
 }
 function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김(편집은 mp_production 슬롯에서)
   var box=$('mp_snap'); if(!box) return;
   if(!p || SNAPFLOW.active){ box.style.display='none'; box.innerHTML=''; return; }
-  var sd=p.snapDraft||{}, filled=_snapFilledD(sd), sum=_snapSummary(sd);
-  var h='<div class="consult-card" style="text-align:center">'
-    + '<div class="cc-eyebrow en-22">Snap Planning</div>'
-    + '<div class="cc-title">스냅 기획</div>'
-    + '<div class="cc-sub">촬영 전, 두 분이 원하는 스냅의 결을 살짝 남겨 주세요. 디렉터가 미리 읽고 준비해요.</div>';
+  var sd=p.snapDraft||{}, filled=_snapFilledD(sd), ess=_snapSummary(sd);
+  // 미니멀 원칙(2026-07-19 사용자 지시): 빈 상태만 초대용 큰 카드 · 채운 뒤엔 '예식 준비' 행과 같은 조밀한 한 줄(큰 빈 카드·가운데 알약의 어색함 해소 · 수정 버튼도 오른쪽으로 통일)
+  var h;
   if(filled){
-    h+='<div class="cc-note" style="text-align:center;margin-top:6px">남겨 주셨어요 <span class="trk-ok">✓</span>'+(sum?(' · '+escapeHtml(sum)):'')+'</div>'
-      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:10px;width:auto;padding:10px 18px">고치기</button>';
+    h='<div class="consult-card" style="padding-top:15px;padding-bottom:15px">'
+      + '<div class="trk has-sub" style="border-bottom:none">'
+      +   '<span class="trk-nm">스냅 기획 <span class="trk-tag">선택</span> <span class="trk-ok">✓</span></span>'
+      +   '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="mp_snapStart">수정</button>'
+      + '</div>'
+      + '<div class="trk-sub">'+(ess?escapeHtml(ess):'원하는 결을 남겨 주셨어요')+'</div>'
+      + '</div>';
   } else {
-    h+='<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
-      +'<div class="cc-note" style="text-align:center">선택이에요. 안 남겨도 촬영·준비에는 지장 없어요.</div>';
+    h='<div class="consult-card" style="text-align:center">'
+      + '<div class="cc-eyebrow en-22">Snap Planning</div>'
+      + '<div class="cc-title">스냅 기획</div>'
+      + '<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
+      + '<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
+      + '<div class="cc-note" style="text-align:center">선택이에요 · 안 남겨도 촬영엔 지장 없어요.</div>'
+      + '</div>';
   }
-  h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
