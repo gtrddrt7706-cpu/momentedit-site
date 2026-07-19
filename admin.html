@@ -1575,7 +1575,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi){
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
   var _pho=(gi&&gi.photo&&gi.photo.length)?('전체 하객 → '+gi.photo.join(' → ')):'';
   var _pfx=(gi&&gi.photoFx&&gi.photoFx.length)?gi.photoFx.join(' · '):'';
-  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('이벤트/연출',_pfx);
+  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx);   // photoFx 라벨 정리(2026-07-19 병렬 세션 반영)
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
   if(sd&&sd.tables&&sd.tables.length){
