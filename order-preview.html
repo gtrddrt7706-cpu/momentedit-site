@@ -305,7 +305,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 <script>
 var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        veil:'mother',ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
-       welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
+       welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',specialReq:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}};
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
@@ -1061,6 +1061,9 @@ function courseCard(v){
       h+='</div>';
     });
     if(c.addable) h+='<div class="banner">'+esc(c.addable)+'</div>';
+    // 목록 외 순서 요청 — 이벤트 목록을 훑는 바로 이 자리에서(요약 화면과 같은 S.specialReq · 2026-07-19 사용자 지시). 카드 토글로 클릭이 번지지 않게 stopPropagation.
+    h+='<div class="wcard" onclick="event.stopPropagation()" style="margin-top:12px"><div class="wd">이 목록에 없는 순서가 필요하신가요? 적어 주시면 디렉터가 확인하고 가능한 선에서 반영해 드려요.</div>';
+    h+='<input class="tin" oninput="setv(\'specialReq\',this.value)" placeholder="예: 국악 축하 연주를 넣고 싶어요" value="'+esc(S.specialReq||'')+'"></div>';
     // ★코스 카드 '나레이션 미리듣기' 버튼 재추가 금지 — 2026-07-16 사용자 지시로 삭제(듣기는 각 순간 카드에서 개별로). 리뷰·복구에서 되살리지 말 것
     h+='<button class="cta-go" onclick="event.stopPropagation();startCourse(\''+v+'\')">이 코스로 시작하기</button>';
     h+='</div>';
@@ -1253,12 +1256,14 @@ function renderDone(){
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
-  h+='<div class="sec-l">음악, 두 곡만 정하면 돼요</div>';
+  h+='<div class="sec-l">음악, 한 곡만 정하면 돼요</div>';
   h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
   h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="폐식·단체촬영 음악 (곡명·가수)" value="'+esc(S.mClose)+'">';
-  h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 드려요.</div></div>';
-  h+='<div class="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</div>';
+  // ★폐식·단체촬영 음악 입력칸 복원 금지 — 2026-07-19 사용자 지시로 편지·서약 한 곡만 받기로(폐식 음악은 저희가 준비 · 옛 mClose 저장값은 관리자 화면에 값 있을 때만 표시)
+  h+='<div class="prep-hint">입장곡과 폐식·단체촬영 음악은 고르신 멘트와 두 분의 분위기에 맞춰 저희가 준비해 드려요.</div></div>';
+  // 목록 외 순서 요청 — 알럿 안내(입력 채널 없음)에서 실제 입력칸으로 승격 · 발견 지점은 코스 카드(이벤트 목록 보는 자리)에도 동일 필드로(2026-07-19 사용자 지시)
+  h+='<div class="wcard"><div class="wd">목록에 없는 순서가 있나요? 적어 주시면 디렉터가 확인하고 가능한 선에서 반영해 드려요.</div>';
+  h+='<input class="tin" oninput="setv(\'specialReq\',this.value)" placeholder="예: 국악 축하 연주를 넣고 싶어요" value="'+esc(S.specialReq||'')+'"></div>';
   h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.</div>';
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
   return h;
