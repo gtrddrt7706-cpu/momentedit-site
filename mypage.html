@@ -3329,7 +3329,7 @@ function renderProduction(p, inv){
     if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }
     if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
     if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
-    if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }
+    // 단체 사진(PHOTOFLOW)은 전체화면 오버레이(mp_photoOverlay)로 독립 — renderProduction이 관여하지 않음(2026-07-19 오버레이 전환)
     box.style.display='none'; box.innerHTML=''; return;
   }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
@@ -4576,10 +4576,20 @@ var PHOTOFLOW = { active:false, sel:[], gi:null };
 function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자(GAS 정규화와 동일 규칙)
 function startPhotoFlow(gi){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
+  if(typeof SNAPFLOW!=='undefined'){ bkKill(SNAPFLOW); SNAPFLOW.active=false; var _so=$('mp_snapOverlay'); if(_so&&_so.parentNode) _so.parentNode.removeChild(_so); }
   PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}) };
+  // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
+  var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','단체 사진');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
+  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 44px';
+  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
+  body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  _mpLock();   // 배경 스크롤 잠금(식순·스냅과 동일)
   PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
-  renderPhoto($('mp_production'));
-  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+  renderPhoto(inner);
+  body.scrollTop=0;
 }
 function renderPhoto(box){
   if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
@@ -4655,16 +4665,21 @@ function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설�
     seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice(), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
   }, done:true});
 }
-function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
+function exitPhotoFlow(){   // 식순·스냅 오버레이와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true;
-  PHOTOFLOW.active=false; show('loading');
-  var _fail=function(msg){
-    PHOTOFLOW._exiting=false; PHOTOFLOW.active=true; show('mypageView'); renderPhoto($('mp_production'));
+  var _tearDown=function(){   // 오버레이·잠금·가드 정리(성공/저장없이나가기 공용)
+    if(PHOTOFLOW._bk!=null){ bkDone(PHOTOFLOW._bk); PHOTOFLOW._bk=null; }
+    var ov=$('mp_photoOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+    _mpUnlock(); PHOTOFLOW.active=false; PHOTOFLOW._exiting=false;
+  };
+  var _close=function(){ _tearDown(); show('loading'); loadMyState(); };
+  var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
+    PHOTOFLOW._exiting=false;
     if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitPhotoFlow(); } else { bkKill(PHOTOFLOW); PHOTOFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitPhotoFlow(); } else { _tearDown(); show('loading'); loadMyState(); } });
   };
-  savePhoto().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } PHOTOFLOW._exiting=false; bkKill(PHOTOFLOW); loadMyState(); }).catch(function(){ _fail(''); });
+  savePhoto().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail(''); });
 }
 // ── 스냅 사전기획(촬영 전 · '예식 준비' 앞 여정 스텝) — Private Snap(부부 단독) 중심. 좌석·단체사진과 같은 전용 화면(SNAPFLOW·저장 후 나가기). snap 트랙에 저장(2026-07-19 · marker: SNAP_PREP_FLOW) ──
 //   설계 원칙(딥리서치 검증): '강제 컷 목록'이 아니라 무드·성향을 전하는 영감 보드. 필수컷은 소수(≤3)로 제한, 포즈·동선은 촬영 중 디렉터가 리드. 세부 칩 라벨은 사장님 감수 대상.
