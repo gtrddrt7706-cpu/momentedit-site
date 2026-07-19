@@ -1326,7 +1326,9 @@ function _embedSave(){
 if(EMBED){
   // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
   document.body.classList.add('embed');
+  var _obExiting=false;
   window._obExit=function(){
+    if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
     var payload=null;
     try{ if(courseStarted){ var _bs=fullBlocks(); payload={S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}; } }catch(e){}
     try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
@@ -1335,10 +1337,11 @@ if(EMBED){
   _cb.textContent=courseStarted?'저장 후 나가기':'나가기';   // 복원 진입 시 첫 렌더가 버튼 생성보다 먼저라 라벨이 어긋나던 것 — 생성 시점에 즉시 동기화
   _cb.addEventListener('click',window._obExit);
   var _slot=document.getElementById('obExitSlot'); if(_slot) _slot.appendChild(_cb);
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape') window._obExit(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!e.repeat) window._obExit(); });
   window.addEventListener('message',function(ev){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
+    if(ev.data.type==='momentedit:orderExitReset'){ _obExiting=false; return; }   // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
     if(ev.data.type==='momentedit:orderFill'){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들(이름·코드·전화·예식일·D-day) — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시

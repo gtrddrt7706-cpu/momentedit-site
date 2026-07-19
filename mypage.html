@@ -1259,10 +1259,12 @@ function openRitualBuilder(p){
     }
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
+      // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
+      var _exFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReset'}, location.origin); }catch(e){} };
       if(d.data && d.data.S){
         apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-          .then(function(r){ if(r&&r.ok){ saved=true; done(); } else { alert((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })
-          .catch(function(){ alert('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
+          .then(function(r){ if(r&&r.ok){ saved=true; done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })
+          .catch(function(){ _exFail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
       } else { done(); }
       return;
     }
