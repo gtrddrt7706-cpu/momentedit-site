@@ -4762,21 +4762,18 @@ function wireGuideInfoEditor(box, gi){
     };
   }
   // 공개 방식 = 캔버스 아래 별도 카드의 라디오 2택(전체 공개 / 내 자리만 검색) — 2026-07-19 개편(구 상단 체크박스 폐지)
-  function syncBox(){ var on=(gi.seatMode==='mine'); Array.prototype.forEach.call(box.querySelectorAll('input[name="seatmode"]'),function(r){ r.checked=(r.value===(on?'mine':'all')); r.closest('.sp-opt')&&r.closest('.sp-opt').classList.toggle('on',r.checked); }); var wrap=box.querySelector('.seat-privacy'); if(wrap){ wrap.style.opacity=gi._saving?'.5':''; wrap.style.pointerEvents=gi._saving?'none':''; } }
-  function save(after){
-    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){
-      if(r&&r.ok){ if(after) after(true); }
-      else { if(after) after(false); mpAlert((r&&r.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ if(after) after(false); mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+  function syncBox(){ var on=(gi.seatMode==='mine'); Array.prototype.forEach.call(box.querySelectorAll('input[name="seatmode"]'),function(r){ r.checked=(r.value===(on?'mine':'all')); r.closest('.sp-opt')&&r.closest('.sp-opt').classList.toggle('on',r.checked); }); }   // 흐려짐(잠금) 제거 — 즉시적용+백그라운드 저장(2026-07-19)
+  function save(after){   // 조용히 저장 — 성공 콜백만, 실패는 콜백으로(알럿 없음)
+    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){ if(after) after(!!(r&&r.ok)); }).catch(function(){ if(after) after(false); });
   }
-  // 고르면 바로 저장(버튼 없음). 저장 중(gi._saving)엔 잠금(연타·역전 방지) — _saving은 collect()에 안 실려 서버로 안 감.
+  // [즉시적용 + 백그라운드 저장 · 2026-07-19 사용자 지시] 고르는 순간 강조가 바로 켜지고(대기·흐려짐 없음), 저장은 뒤에서 조용히. 실패했을 때만 되돌리고 토스트.
+  //   GAS 저장이 1~3초라 '저장 대기 잠금(흐려짐)'이 긴 로딩처럼 보이던 것 해소. 이진 토글이라 마지막 선택이 진실(연타 무해).
   Array.prototype.forEach.call(box.querySelectorAll('input[name="seatmode"]'),function(r){
     r.addEventListener('change', function(){
-      if(gi._saving){ syncBox(); return; }
       var _prev=(gi.seatMode==='mine')?'mine':'all', _next=(r.value==='mine')?'mine':'all';
-      if(_next===_prev){ syncBox(); return; }
-      gi.seatMode=_next; gi._saving=true; syncBox();
-      save(function(okd){ gi._saving=false; if(!okd) gi.seatMode=_prev; syncBox(); });
+      if(_next===_prev) return;
+      gi.seatMode=_next; syncBox();   // 즉시 반영
+      save(function(okd){ if(!okd && (gi.seatMode===_next)){ gi.seatMode=_prev; syncBox(); try{ mpToast('저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){} } });   // 실패 시에만 되돌림(그새 다른 선택 안 했을 때만)
     });
   });
 }
@@ -4803,7 +4800,7 @@ function renderSeat(box){
       var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
       var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
-      else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=dk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 음료 색점(이름 있는 자리만) — 복원 2026-07-19(스탭 A4 프린트가 읽음)
+      else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var dot=(dk==='N'||dk==='J')?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점은 예외(논알콜·주스)만 — 기본(고른 음료)은 지도 깨끗하게(2026-07-19 · 스탭 프린트는 명단에서 확인)
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'+')+dot+'</button></div>'; }
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
@@ -4829,13 +4826,16 @@ function renderSeat(box){
   s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
   // [좌석 편집기 재구성 · 2026-07-19 사용자 지시(디자이너 개편)] 상단 정리 · 자리별 음료 복원(스탭 A4 프린트가 색점·명단으로 현장 준비에 사용 — 이전 삭제 되돌림) · 음료 범례는 캔버스 아래 · 공개 방식은 캔버스 아래 별도 카드.
   //   ★자리별 음료 칩·색점 복원됨 — admin.html printSeatChart가 t.drinks(A/N/J) 소비. 재삭제 금지.
-  var _dc=seatDrinkCounts(s.tables), cA=_dc.A, cN=_dc.N, cJ=_dc.J, cU=_dc.U;   // 이름 있는 자리만
-  var legendHtml=(cA+cN+cJ>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+(cU>0?(' · 미정 '+cU):'')+'</div>' : '';   // 캔버스 아래 범례 — 하나라도 고른 뒤에만
+  // [음료 = 2단계에서 고른 잔이 자리 기본값 · 다른 잔만 표시 · 2026-07-19 사용자 지시] '없음/논알콜/알콜/주스' 일반명 대신 고른 음료명 그대로 · 기본은 안 눌러도 됨(대부분) · 예외만 톡톡.
+  var _fdDrink=String((s.fd&&s.fd.drink)||'').trim();   // 자리 기본값 = 이 잔
+  var _dc=seatDrinkCounts(s.tables), cN=_dc.N, cJ=_dc.J, cBase=_dc.U+_dc.A;   // 기본(고른 음료)=미표시+구'알콜' · 예외=논알콜/주스
+  var legendHtml=((cBase+cN+cJ)>0) ? '<div class="seat-drsum"><span class="s-dot dk-A"></span>'+escapeHtml(_fdDrink||'기본')+' '+cBase+(cN?(' <span class="s-dot dk-N"></span>논알콜 '+cN):'')+(cJ?(' <span class="s-dot dk-J"></span>주스 '+cJ):'')+'</div>' : '';   // 개수 합계(이름 있는 자리) — 캔버스 아래
   var barHtml='';   // 자리 편집 중일 때만 뜨는 음료 선택 바(캔버스 위 고정)
   if(ed && ed.si!=='name'){
-    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; var edNo=num[ed.ti]||(ed.ti+1);
+    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; if(cur==='A')cur='';   // 구'알콜'=기본으로 취급
+    var edNo=num[ed.ti]||(ed.ti+1);
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
-    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 · 이 자리 음료</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
+    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 · 다른 잔이면</span>'+chip('', (_fdDrink||'기본'),'dk-A')+chip('N','논알콜','dk-N')+chip('J','주스','dk-J')+'</div>';   // 기본=고른 음료 · 예외(논알콜·주스)만
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
   var _mine=(s.gi&&s.gi.seatMode==='mine'), _giDis=(s.gi&&s.gi._saving)?' style="opacity:.5;pointer-events:none"':'';
@@ -5825,7 +5825,7 @@ function renderFinal(box){
     // (좌석 논알콜 칩 힌트 삭제 2026-07-19 — 자리별 음료 칩 폐지로 참조 대상이 사라짐. 논알콜 인원은 아래 '잔 수' 한 곳이 단일 원천.)
     var body='<div class="inv-side-l" style="margin:6px 0 4px">건배·웰컴 음료</div>'
       + _trkOpt('샴페인', d.drink, 'drink', '샴페인')
-      + _trkOpt('와인', d.drink, 'drink', '와인')
+      + _trkOpt('레드와인', d.drink, 'drink', '레드와인')
       + _trkOpt('논알콜 스파클링(전원)', d.drink, 'drink', '논알콜 스파클링(전원)', '아이·운전 하객이 많다면 추천 · 준비가 가장 간단해요')
       + (d.drink && !isSoftAll
         ? '<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">논알콜 필요 잔 수 <span style="color:var(--label-soft)">(운전·임신·미성년 등 · 없으면 0)</span></div>'
