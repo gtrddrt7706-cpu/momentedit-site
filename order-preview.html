@@ -153,6 +153,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-act .rowbtn{padding:8px 12px;font-size:11.5px}
 .mc-min{font-size:10.5px;color:var(--light);font-weight:400;margin-left:6px;flex-shrink:0}
 .mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
+.mc-r{display:flex;align-items:center;gap:8px;flex-shrink:0}   /* 헤더 우측 묶음: ↑↓ + 화살표 */
+.mc-mv{display:inline-flex;gap:4px}
+.mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
+.mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
@@ -577,12 +581,27 @@ var STEPDEF={
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
-function curSeq(){
+function isOptK(k){ return (COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }
+function defaultOrd(){   // 코스 기본 순서 — seq + 선택 순서(opt)를 제자리(at)에 끼워 전 순간을 한 줄로
   var c=COURSES[S.course], s=c.seq.slice();
-  var act=(c.opt||[]).filter(function(o){return S.extra[o.k];}).sort(function(a,b){return a.at-b.at;});
+  var act=(c.opt||[]).slice().sort(function(a,b){return a.at-b.at;});
   act.forEach(function(o,i){ s.splice(Math.min(o.at+i,s.length),0,o.k); });
   return s;
 }
+function ordNow(){   // 표시·진행 순서의 단일 출처(2026-07-18 사용자 지시: 위에서부터가 실제 순서 · ↑↓로 조정 가능) — S.ord가 없으면 코스 기본
+  var def=defaultOrd();
+  if(!S.ord || Object.prototype.toString.call(S.ord)!=='[object Array]') return def;
+  var o=S.ord.filter(function(k){ return def.indexOf(k)>-1; });   // 코스에 없는 키 제거(코스 정의 변경·구 저장분 안전)
+  def.forEach(function(k,i){ if(o.indexOf(k)<0) o.splice(Math.min(i,o.length),0,k); });   // 누락 키는 기본 자리에 복원
+  return o;
+}
+function curSeq(){ return ordNow().filter(function(k){ return !isOptK(k)||S.extra[k]; }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만
+window.momMove=function(k,d){   // 순서 위/아래 이동 — 하객 맞이(식전 안내)는 맨 위 고정 · 폐식은 목록 밖 고정
+  var o=ordNow().slice(), i=o.indexOf(k), j=i+d;
+  if(i<1||j<1||j>=o.length) return;
+  var t=o[i]; o[i]=o[j]; o[j]=t; S.ord=o;
+  buildSteps(); _persist(); render();
+};
 function buildSteps(){
   var seq=curSeq();
   CEREMONY=seq.slice();
@@ -942,11 +961,8 @@ function renderStep(k){
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
-    h+='<div class="tune-hint">카드를 누르면 <b>장면과 안내 듣기</b>가 열려요.<br><b>고정 진행</b>은 늘 함께해요 · <b>뺄 수 있어요</b> 표시만 넣고 빼요.</div>';   // 미리보기 안내 + 고정/조정 범례 — 미니멀 문구(2026-07-17 사용자 요청)
-    var _base=COURSES[S.course].seq.slice();
-    var _opts=(COURSES[S.course].opt||[]).slice().sort(function(a,b){return a.at-b.at;});
-    var _disp=_base.map(function(k){return {k:k,off:false};});
-    _opts.forEach(function(o,oi){ _disp.splice(Math.min(o.at+oi,_disp.length),0,{k:o.k,off:!S.extra[o.k]}); });
+    h+='<div class="tune-hint">위에서 아래가 실제 진행 순서예요 · <b>↑↓</b>로 바꿀 수 있어요.<br>카드를 누르면 <b>장면과 안내 듣기</b>가 열려요 · <b>뺄 수 있어요</b> 표시만 넣고 빼요.</div>';   // 순서 조정 안내 추가(2026-07-18 사용자 지시) + 미리보기 안내
+    var _disp=ordNow().map(function(dk){return {k:dk,off:isOptK(dk)&&!S.extra[dk]};});   // 조정된 순서 그대로 위→아래(단일 출처 ordNow · 2026-07-18)
     var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
     var _mm=function(x){   // 연출 선택에 따라 분이 달라지는 순간은 현재 선택 기준으로(estMin 델타와 일치 — 칩과 총 시간이 어긋나지 않게)
       if(x==='letter') return S.letter==='both'?5:3;
@@ -955,7 +971,7 @@ function renderStep(k){
       if(x==='veil') return S.veil==='skip'?0:1;
       return MMIN[x]||0;
     };
-    _disp.forEach(function(d){
+    _disp.forEach(function(d,di){
       var x=d.k, t=TUNE[x]; if(!t) return;
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
@@ -970,7 +986,15 @@ function renderStep(k){
       // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
       var _adj=!!_tg;
       var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div><span class="mc-chev">›</span></div>';
+      // 순서 이동 ↑↓ — 위에서부터가 실제 진행 순서(2026-07-18 사용자 지시). 하객 맞이(식전)는 맨 위 고정이라 이동 없음
+      var _mv='';
+      if(x!=='guest'){
+        _mv='<span class="mc-mv" onclick="event.stopPropagation()">'
+          +((di>1)?'<button type="button" class="mvb" aria-label="순서 위로" onclick="momMove(\''+x+'\',-1)">↑</button>':'')
+          +((di<_disp.length-1)?'<button type="button" class="mvb" aria-label="순서 아래로" onclick="momMove(\''+x+'\',1)">↓</button>':'')
+          +'</span>';
+      }
+      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div><span class="mc-r">'+_mv+'<span class="mc-chev">›</span></span></div>';
       h+='<div class="mc-e">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       if(_tg) h+='<div class="mc-act">'+_tg+'</div>';
@@ -992,6 +1016,10 @@ function renderStep(k){
       }
       h+='</div>';
     });
+    // 폐식·단체촬영 — 맨 마지막 고정(코스 카드 칩에는 있는데 목록에 안 보이던 것 · 2026-07-18 사용자 지시로 추가)
+    h+='<div class="mc" style="cursor:default"><div class="mc-hd"><div class="mc-t">폐식·단체촬영<span class="tcap fx">고정 진행</span></div></div>'
+      +'<div class="mc-e">나레이션이 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요</div>'
+      +'<div class="mc-s">지금 · 나레이션 · 맨 마지막 고정</div></div>';
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
     if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 카드의 순서에서 빼기를 누르면 도로 빠져요</div>'; }
     h+='</div>';
@@ -1215,7 +1243,7 @@ function applyCourse(v){
   S.course=v;
   // 대표 순간 상태도 전부 추천값으로 리셋 — 이전에 빼 둔 반지 등이 남아 코스 카드 칩(반지 포함)과 빌더 활성이 어긋나던 것 수정(2026-07-18 사용자 지적).
   // 확인 팝업 약속("새 코스 추천으로 다시 세팅")과 일치 · 코스 고른 직후엔 카드에 보인 순간이 전부 켜져 있음.
-  S.entry='A'; S.welcome='self'; S.vow='ok'; S.ring='on';
+  S.entry='A'; S.welcome='self'; S.vow='ok'; S.ring='on'; S.ord=null;   // 순서 조정도 코스 기본으로 리셋
   S.declareWho=(v==='gamdong')?'chorus':'narr';
   S.declare=(v==='festive')?'2':'1';
   S.valley='none'; S.letter='parent';
