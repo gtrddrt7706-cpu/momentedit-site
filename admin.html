@@ -749,7 +749,7 @@ function openAiTeam(){
       var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){ if(confirm('"'+key+'"을 직전 값으로 되돌릴까요?')) gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else alert((rr&&rr.error)||'되돌리기 실패'); }); });
     }); }
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
-     +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option><option value="식순">식순</option></select>'
+     +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (전 접점 공유)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option><option value="식순">식순</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
      +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div>'
      +'<div style="margin-bottom:6px"><input id="eduMemo" placeholder="메모(선택) — 왜 추가했는지 · 출처 등" style="width:100%;padding:5px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px;box-sizing:border-box"></div>'
@@ -1571,7 +1571,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   var h='';
   if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
-  if(rd){ var _pho=(rd.summary&&rd.summary.photo&&rd.summary.photo.length>1)?rd.summary.photo.join(' → '):'';   // 단체촬영 구도(고른 순서=촬영 순서 · 전체 하객만이면 생략) 2026-07-19
+  if(rd){ var _pho=(rd.summary&&rd.summary.photo&&rd.summary.photo.length>1)?rd.summary.photo.join(' → '):'';   // 단체촬영 구도(고른 순서=촬영 순서 · 전체 하객만이면 생략) 2026-07-19 — bd0ee33 정당 작업 재적용
     h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline)+row('단체촬영 구도',_pho); }
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
