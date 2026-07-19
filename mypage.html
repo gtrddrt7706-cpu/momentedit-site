@@ -111,7 +111,7 @@ main.wide{max-width:600px}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* ── 로딩 ── */
-#loading{text-align:center;color:var(--light);min-height:calc(100vh - 280px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}
+#loading{text-align:center;color:var(--light);position:fixed;inset:0;z-index:40;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}   /* 로딩은 뷰포트 정중앙 — (구)min-height:calc(100vh-280px)는 헤더·푸터 가정으로 상단 쏠림·하단 빈 공간 났음(로딩 땐 푸터 없음). fixed+inset:0로 항상 중앙(2026-07-19 사용자 지적) */
 .spinner{width:9px;height:9px;background:var(--seal);border-radius:50%;margin:6px auto 22px;animation:meBreath 1.7s ease-in-out infinite}@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -182,6 +182,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
 .mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease)}
 .mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important}
+.mp-fs .seat-card{position:static!important;left:auto!important;transform:none!important;width:100%!important;max-width:880px!important}   /* 좌석 캔버스: 전체화면에선 vw 브레이크아웃(92vw·left:50%·translateX) 대신 컨테이너 %+margin:auto 중앙정렬 — vw(스크롤바 포함) vs 컨테이너(스크롤바 제외) 불일치로 실브라우저 스크롤바 있을 때 우측 쏠리던 것 해소(2026-07-19 사용자 지적) */
 @keyframes mpfsin{from{opacity:0}to{opacity:1}}
 
 /* 예외 상태 */
