@@ -842,6 +842,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .dk-A{background:#9B4A57}   /* 알콜 · 와인 */
     .dk-J{background:#E0912F}   /* 주스 · 앰버 */
     .seat-drsum{text-align:center;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.7}
+    .seat-drnote{text-align:center;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);margin:2px 0 4px;line-height:1.7;word-break:keep-all}   /* 음료=2단계 전원 선택 기준 안내(자리별 재선택 인상 제거 · 2026-07-19) */
+    .seat-drnote .s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:1px;margin:0 3px}
     .seat-drsum .s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 3px 0 9px;vertical-align:middle}
     .seat-drinkbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center;margin:10px auto 2px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:340px}
     .sdb-label{font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);width:100%;text-align:center;margin-bottom:1px}
@@ -4773,15 +4775,28 @@ function renderSeat(box){
   for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   var L='', R='', li=0, ri=0;
   s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
-  // 음료 집계(이름 있는 자리만) — 상단 한 줄. 지도는 색점만으로 깔끔.
-  var _dc=seatDrinkCounts(s.tables), cA=_dc.A, cN=_dc.N, cJ=_dc.J, cU=_dc.U;   // 공용 집계(이름 있는 자리만) — 최종 확정 힌트와 같은 규칙
-  var sumHtml=(cA+cN+cJ>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';   // 음료를 하나라도 고른 뒤에만 집계 노출(안 쓰는 부부에겐 안 보여 깔끔)
-  // 음료 선택 바 — 자리를 탭해 편집 중일 때만(이름 편집 제외). 지도 위 고정 위치라 지저분함 없음.
-  var barHtml='';
-  if(ed && ed.si!=='name'){
+  // 음료 = 2단계(최종 확정)에서 전원 공통으로 이미 정함(s.fd.drink) · 좌석 칩은 '기본과 다른 분만' 표시하는 운영 참고 —
+  //   과거엔 자리별로 다시 고르는 '미정 N' 잡일이 떠 2단계 선택이 무의미해 보였음(2026-07-19 사용자 지적). 이제 2단계 선택을 기준으로 프레이밍.
+  //   ★음료 baseline은 표시 전용 — SEATFLOW.tables.drinks에 절대 쓰지 말 것(좌석 편집기도 나가기 시 자동저장이라, 안 고른 값을 서버로 보내면 5763 ★자동 프리필 금지와 같은 오염). 값은 렌더 문자열에만.
+  var _fdDrink=String((s.fd&&s.fd.drink)||'').trim();
+  var _allSoft=_fdDrink.indexOf('논알콜')===0;   // 2단계 '논알콜 스파클링(전원)' — 전원 동일이라 자리별 음료 구분 자체가 없음
+  var _dc=seatDrinkCounts(s.tables), cA=_dc.A, cN=_dc.N, cJ=_dc.J, cU=_dc.U;   // 이름 있는 자리만(공용 규칙) — 표시엔 논알콜·주스 예외 수만 씀(알콜·미정은 '나머지 기본'으로 흡수)
+  var sumHtml='', barHtml='', _hideDrinkBar=false;
+  if(_allSoft){   // 전원 논알콜 — 자리별 음료 숨김(예외는 특이사항으로 · 각도1 검토)
+    sumHtml='<div class="seat-drnote">음료는 <b>전원 '+escapeHtml(_fdDrink)+'</b>으로 준비해 드려요. 아이 주스·제외가 있으면 <b>인원·음료 수정</b>의 특이사항에 남겨 주세요.</div>';
+    _hideDrinkBar=true;
+  } else if(_fdDrink){   // 알콜(샴페인·와인) — 전원 그 잔이 기본, 다른 분만 표시
+    var _exx=(cN+cJ>0)?('<span class="s-dot dk-N"></span>논알콜 '+cN+(cJ>0?(' · <span class="s-dot dk-J"></span>주스 '+cJ):'')+' 표시 · '):'';
+    sumHtml='<div class="seat-drnote">음료는 <b>전원 '+escapeHtml(_fdDrink)+'</b>이 기본이에요 · '+_exx+'다른 잔이 필요한 분만 자리를 눌러 표시하세요.</div>';
+  } else {   // 방어 — 2단계 음료 미선택(통합 여정 정상 경로엔 없음): 기존 집계 유지
+    sumHtml=(cA+cN+cJ>0) ? '<div class="seat-drsum">음료<span class="s-dot dk-A"></span>알콜 '+cA+'<span class="s-dot dk-N"></span>논알콜 '+cN+'<span class="s-dot dk-J"></span>주스 '+cJ+' · 미정 '+cU+'</div>' : '';
+  }
+  // 음료 선택 바 — 자리를 탭해 편집 중일 때만(이름 편집 제외). 전원 논알콜이면 숨김.
+  if(!_hideDrinkBar && ed && ed.si!=='name'){
     var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; var edNo=num[ed.ti]||(ed.ti+1);
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
-    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 테이블 · 이 자리 음료</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
+    var _barLbl=_fdDrink?(edNo+'번 테이블 · 기본과 다르면'):(edNo+'번 테이블 · 이 자리 음료');
+    barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+_barLbl+'</span>'+chip('','없음','')+chip('N','논알콜','dk-N')+chip('A','알콜','dk-A')+chip('J','주스','dk-J')+'</div>';
   }
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
@@ -4790,7 +4805,7 @@ function renderSeat(box){
     +(function(){ var fd=s.fd||{}; if(!fd.headcount&&!fd.drink) return '';
       return '<div class="seat-fstrip"><span class="sf-l">최종 확정</span><span>'+(fd.headcount?('<b>'+escapeHtml(String(fd.headcount))+'명</b>'):'')+(fd.drink?((fd.headcount?' · ':'')+escapeHtml(String(fd.drink))):'')+'</span><button type="button" class="cc-btn-ghost sf-b" data-seat-fedit>인원·음료 수정</button></div>'; })()
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
-    +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
+    +'<div class="cc-sub" style="text-align:center">'+(_hideDrinkBar?'자리를 눌러 이름을 정해요.':'자리를 눌러 이름을 정해요 · 음료는 기본과 다른 분만 표시하면 돼요.')+'</div>'
     // 좌석 공개 설정 = 2안 단일 체크(2026-07-17 사용자 지시) — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'. 잘 보이게 편집기 상단에.
     +'<label class="gi-tg" style="display:block;text-align:center;margin:2px 0 12px"><input type="checkbox" id="gi_mineOnly"'+((s.gi&&s.gi.seatMode==='mine')?' checked':'')+((s.gi&&s.gi._saving)?' disabled':'')+'> 하객에게 <b>내 자리만 검색</b>으로 공개 <span class="gi-tg-s">체크 즉시 저장돼요</span></label>'
     + sumHtml
