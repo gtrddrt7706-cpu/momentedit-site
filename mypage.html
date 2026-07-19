@@ -4906,14 +4906,8 @@ function startSnapFlow(sd){
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  // 상단 고정 바 — 제목 + 가벼운 ✕ 닫기(저장 후 나감). 카드 안 헤더의 낑긴 '저장 후 나가기'를 대체(중복 제거 · 2026-07-19 사용자 지시)
-  var head=document.createElement('div'); head.style.cssText='flex:0 0 auto;padding:13px 16px;border-bottom:1px solid var(--hairline,#EEE9E1);background:var(--bg,#FAFAF8)';
-  var headIn=document.createElement('div'); headIn.style.cssText='max-width:620px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px';
-  var ttl=document.createElement('span'); ttl.textContent='스냅 기획'; ttl.style.cssText='font-family:var(--serif-ko,serif);font-size:15px;font-weight:600;color:var(--accent,#3A2D22)';
-  var xbtn=document.createElement('button'); xbtn.type='button'; xbtn.setAttribute('aria-label','저장 후 닫기'); xbtn.textContent='✕'; xbtn.style.cssText='width:34px;height:34px;border:1px solid var(--border,#E6E1D8);background:var(--card-white,#fff);border-radius:999px;font-size:14px;color:var(--sub,#6b5d4d);cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent';
-  xbtn.addEventListener('click', function(){ exitSnapFlow(); });
-  headIn.appendChild(ttl); headIn.appendChild(xbtn); head.appendChild(headIn); ov.appendChild(head);
-  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 24px';
+  // 상단 고정 바·✕ 없음 — 종료는 하단 '저장하고 나가기'(+뒤로가기). 제목은 카드 안에 스크롤과 함께(2026-07-19 사용자 지시: 따라다니는 바·✕ 제거)
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 24px';
   var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
   body.appendChild(inner); ov.appendChild(body);
   // 하단 고정 저장 바 — 긴 폼에서 엄지로 바로 닿는 주 CTA(상단은 ✕만 · 2026-07-19 디자인 검토)
@@ -4933,6 +4927,8 @@ function renderSnapFlow(box){
   if(!box) return; var D=SNAPFLOW.d||{};
   function _chip(n,on,attr){ return '<span class="ph-chip'+(on?' fxon':'')+'" '+attr+'="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; }
   var h='<div class="consult-card" style="text-align:left">';
+  h+='<div class="cc-eyebrow en-22">Snap Planning</div>';
+  h+='<div class="cc-title" style="margin:0 0 8px">스냅 기획</div>';
   h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">촬영 전, 두 분이 원하는 결을 살짝 귀띔해 주세요. 전부 선택이라 안 채워도 괜찮아요. 남겨 주시면 촬영이 더 두 분다워져요.</div>';
   // 1) 무드 · 두 공간
   h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">무드 · 두 공간</div>';
