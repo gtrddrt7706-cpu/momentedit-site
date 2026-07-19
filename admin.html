@@ -1579,7 +1579,8 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
   var _pho=(gi&&gi.photo&&gi.photo.length)?('전체 하객 → '+gi.photo.join(' → ')):'';
   var _pfx=(gi&&gi.photoFx&&gi.photoFx.length)?gi.photoFx.join(' · '):'';
-  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx);
+  var _psu=(gi&&/^https?:\/\//i.test(String(gi.photoShareUrl||'')))?String(gi.photoShareUrl):'';   // 하객 사진 모으기 링크(부부 외부 앨범/오픈채팅)
+  if(_pho||_pfx||_psu) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx)+row('하객 사진 모으기',_psu);
   // 스냅 기획(촬영 전) — 부부가 남긴 무드·레퍼런스·원하는 컷·톤·요청. 강제 컷 목록이 아니라 영감·성향(디렉터가 현장에서 살림)
   if(sn){
     var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));

@@ -393,6 +393,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-sec{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);margin:20px 2px 0;padding-top:16px;border-top:1px solid var(--hairline,#EEE9E1)}
 .ph-chip.fxon{color:var(--gold-deeper);border-style:solid;border-color:var(--gold-deep);background:rgba(184,154,117,.10)}
 .ph-chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 0}
+.ph-qr{display:flex;justify-content:center;margin:12px 0 0}
+.ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
 .ph-chip{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ph-chip:active{background:rgba(184,154,117,.08)}
 .trk-sub{font-size:11.5px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
@@ -4573,9 +4575,10 @@ var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
+function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자(GAS 정규화와 동일 규칙)
 function startPhotoFlow(gi){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), gi:(gi||{}) };
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}) };
   PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderPhoto($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
@@ -4606,6 +4609,13 @@ function renderPhoto(box){
   h+='</div>';
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 폰 플래시 켜고 흔들기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. 건배·부케 던지기처럼 진행 중 순간은 사진작가가 흐름 속에서 담아요.</div>';
+  // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
+  var _psu=photoShareNorm(PHOTOFLOW.share);
+  h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
+  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="사진 모으는 링크 (카카오 오픈채팅·구글/아이클라우드 공유 앨범 등)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';
+  h+='<div class="cc-note" style="text-align:left;margin-top:8px">부부가 만든 <b>공유 앨범·오픈채팅</b> 링크를 넣으면, 하객 안내 페이지에 <b>사진 올리기</b> 버튼으로 들어가요. 아래 QR은 저장해 테이블 카드·현장 안내에 두면 하객이 바로 올려요.</div>';
+  h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
+  h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   function rerender(){ renderPhoto(box); }
@@ -4630,12 +4640,21 @@ function renderPhoto(box){
     fx.push(v); fxi.value=''; rerender(); }
   if(fxb) fxb.addEventListener('click', fxAdd);
   if(fxi) fxi.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); fxAdd(); } });
+  // 하객 사진 모으기 링크 — 입력 즉시 모델 반영(포커스 유지 위해 전체 재렌더 없이 QR만 갱신)
+  function photoShareQrRender(){
+    var u=photoShareNorm(PHOTOFLOW.share), qbox=$('mp_photoShareQr'), sv=$('mp_photoShareQrSave'); if(!qbox) return;
+    if(!u){ qbox.style.display='none'; qbox.innerHTML=''; if(sv) sv.style.display='none'; return; }
+    qbox.style.display='block'; ensureQR(function(){ renderQRInto('mp_photoShareQr','mp_photoShareQrSave',u,'moment-edit-photo-qr.png'); });
+  }
+  var psi=$('mp_photoShare');
+  if(psi) psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
+  photoShareQrRender();
   var ex=$('mp_photoExit'); if(ex) ex.addEventListener('click', exitPhotoFlow);
 }
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
-    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice()
+    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice(), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
   }, done:true});
 }
 function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
@@ -4901,7 +4920,8 @@ function wireGuideInfoEditor(box, gi){
       reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선·지움 존중)
       reserveName: String(gi.reserveName||''),
       photo: (gi.photo||[]).slice(),   // 단체 사진 구도 통과 — 좌석 공개설정 저장이 photo를 지우지 않게(guideinfo 트랙 전체 교체 · 2026-07-19)
-      photoFx: (gi.photoFx||[]).slice()   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19)
+      photoFx: (gi.photoFx||[]).slice(),   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19)
+      photoShareUrl: photoShareNorm(gi.photoShareUrl)   // 하객 사진 모으기 링크도 통과(2026-07-19)
     };
   }
   function syncBox(){ var cur=$('gi_mineOnly'); if(cur){ cur.checked=(gi.seatMode==='mine'); cur.disabled=!!gi._saving; } }   // 항상 id로 현재 노드 조회 — 재렌더로 분리된 옛 노드를 만지지 않음

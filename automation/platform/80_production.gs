@@ -135,7 +135,6 @@ function _prodConfirmVoid(d) {
 function _prodStateRev(d) {
   d = d || {};
   var s = '';
-  // ★snapDraft는 제외 — 스냅 사전기획은 '예식 확인서' 스냅샷에 포함되지 않으므로 rev(다중 탭 확인 대조)를 흔들면 안 된다(스냅 편집이 엉뚱한 '새로고침 후 확인'을 유발하지 않게 · 2026-07-19)
   try { s = JSON.stringify([d.base || {}, d.invitationDraft || {}, d.ritualDraft || {}, d.diningDraft || {}, d.finalDraft || {}, d.seatDraft || {}, d.guideinfoDraft || {}, d.tracks || {}, d.eventId || '', d.invitationUrls || null]); } catch (e) { return ''; }
   var h = 5381;
   for (var i = 0; i < s.length; i++) { h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; }
@@ -216,6 +215,9 @@ function handleSaveProductionTrack(body) {
     // 단체 사진 연출/이벤트(예: 폰 플래시 흔들기·플라워 샤워) — 사진작가·디렉터 전달용. 다중 선택+직접 추가. 최대 8개·각 24자. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _pfx = (Object.prototype.toString.call(gir.photoFx) === '[object Array]') ? gir.photoFx.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 8) : [];
     if (_pfx.length) body.draft.photoFx = _pfx;
+    // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
+    var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
+    if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;
   }
   // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 무드(두 공간별)·영감보드(링크)·꼭 담고 싶은 것·톤·편안함·소품·디렉터 메모. Private Snap(부부 단독) 중심.
   //   전 항목 선택 · 배열 상한·문자열 길이 esc · refs는 http/https 링크만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
@@ -552,7 +554,8 @@ function handleGuideView(body) {
         rtime: String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40),   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
         rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) },
       seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
-      seatFull: (String(gi.seatMode || '') !== 'mine')   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false. (eventId·live 필드 제거 2026-07-17 — 라이브 미전송)
+      seatFull: (String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false. (eventId·live 필드 제거 2026-07-17 — 라이브 미전송)
+      photoShare: (/^https?:\/\//i.test(String(gi.photoShareUrl || ''))) ? String(gi.photoShareUrl) : ''   // 하객 사진 모으기 링크 — guide가 '사진 올리기' 버튼으로 노출(부부 외부 앨범/오픈채팅 · http(s)만)
     }
   };
 }
