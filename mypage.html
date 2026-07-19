@@ -1265,7 +1265,14 @@ function openRitualBuilder(p){
     var d=ev.data||{};
     if(d.type==='momentedit:orderReady'){
       var rd=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null;
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd}, location.origin);
+      // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). ★식순 AI 신원주입 — 병렬 세션 역전 금지(반복 역전됨)
+      var _cb=(p&&p.production&&p.production.base)||(p&&p.base)||{};
+      var _wd=String(_cb.weddingDate||'').trim(), _ddn=null;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=Math.round((new Date(_wd+'T00:00:00')-new Date(new Date().toDateString()))/86400000);
+      var _ci=(p&&p.contractInfo)||{};
+      var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||''};
+      try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } } }catch(e2){}
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, cust:_cu}, location.origin);
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 '저장 후 나가기'(#obExit)가 살아났으므로 구석 플로팅 X는 숨김 — iframe 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -5963,7 +5970,8 @@ window.ME_ADV_PAGE = {
   // 로그인 화면에서는 우측 아이콘 스택 비노출(그 섹션이 보이는 동안만 숨김)
   hideOn: function(){
     var v = document.getElementById('loginView');
-    return !!(v && v.offsetParent !== null);
+    if (v && v.offsetParent !== null) return true;
+    return !!document.getElementById('mp_obViewer');   // 식순 빌더 오버레이 중엔 숨김 — 한 화면 한 상담사(기획 v3 §4-1)
   },
   // 카톡 문의 링크 — GAS KAKAO_URL(getMyState d.kakao·캐시) 우선, 미설정 시 메일 폴백(구 하단 버튼과 동일 규칙)
   kakaoUrl: function(){

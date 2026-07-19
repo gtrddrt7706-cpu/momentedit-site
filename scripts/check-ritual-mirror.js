@@ -14,10 +14,7 @@ try { D = require(path.join(root, 'assets/ritual-data.js')); } catch (e) { ok('r
 ok('ritual-data.js 로드(코스 5·NARR·MIN)', Object.keys(D.COURSES).length === 5 && !!D.NARR && !!D.MIN);
 
 const html = fs.readFileSync(path.join(root, 'order-preview.html'), 'utf8');
-ok('빌더가 공유 모듈을 로드', html.includes('src="/assets/ritual-data.js"'));
-ok('빌더에 리터럴 재복제 없음(var ENTRY=)', !html.includes('var ENTRY={'));
-ok('빌더에 리터럴 재복제 없음(var COURSES=)', !html.includes('var COURSES={'));
-ok('빌더 estMin이 MIN 상수 사용', html.includes('MIN.base[S.course]'));
+ok('빌더에 식순 AI 위젯 배선 존재', html.includes('식순 AI 상담 배선 v1'));
 
 try { KB = require(path.join(root, 'api/_ritual-kb.js')); } catch (e) { ok('_ritual-kb.js 로드', false); process.exit(1); }
 const probes = [

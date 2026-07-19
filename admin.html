@@ -491,6 +491,7 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   if(surface==='마이') return p('/api/advisor',{messages:U,page:'마이',state:'현재 단계: 입금완료 · 예식일: 2026-10-26',test:true});
   if(surface==='예약') return p('/api/schedule-advisor',{messages:U,today:today,page:'예약',test:true});
   if(surface==='애프터') return p('/api/after-concierge',{messages:U,test:true});
+  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
@@ -571,7 +572,7 @@ function openAiCost(){
       var budget=(bg&&bg.ok)?(Number(bg.krw)||0):0;
       var d=r.day||{}, rows=(d.bySurface||[]);
       // 5곳을 항상 고정 순서로 표시(미사용은 ₩0) — "어디에 얼마" 분리가 한눈에
-      var SURF=['메인','마이페이지','예약','애프터','핸드오프'];
+      var SURF=['메인','마이페이지','예약','애프터','핸드오프','식순','핸드오프:식순'];
       var byName={}; rows.forEach(function(s){ byName[s.surface]=s; });
       var h='<div style="font-size:12px;color:#75705f;margin-bottom:10px">최근 24시간 · 접점별 (환율 약 '+(Number(r.rate)||0).toLocaleString('ko-KR')+'원 기준 추정)</div>';
       h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
@@ -634,6 +635,7 @@ function openAiTest(){
     if(surface==='예약') return post('/api/schedule-advisor',{messages:[U(q)],today:today,page:'예약',test:true});
     if(surface==='애프터') return post('/api/after-concierge',{messages:[U(q)],test:true});
     if(surface==='핸드오프') return post('/api/handoff',{messages:[U(q),A('상담사를 연결해 드릴게요')],page:'메인',customer:{name:'테스트',code:'TEST01',stage:'입금완료'},test:true});
+    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
     return post('/api/advisor',{messages:[U(q)],page:'메인',test:true}); };
   var oldT=document.getElementById('ad_aiTest'); if(oldT&&oldT.parentNode) oldT.parentNode.removeChild(oldT);
   var ov=document.createElement('div'); ov.id='ad_aiTest';
@@ -641,7 +643,7 @@ function openAiTest(){
   var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:10px;max-width:560px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)';
   box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600">🧪 AI 테스트</span><button id="aitClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
   var bd=document.createElement('div'); bd.style.cssText='padding:16px';
-  var SURF=['메인','마이','예약','애프터','핸드오프'];
+  var SURF=['메인','마이','예약','애프터','핸드오프','식순'];
   var cbs=SURF.map(function(s){return '<label style="margin-right:10px;font-size:13px;color:#3a2f25"><input type="checkbox" class="aitSurf" value="'+s+'" checked> '+s+'</label>';}).join('');
   bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">테스트할 접점</div><div style="margin-bottom:12px">'+cbs+'</div>'
    +'<div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;font-size:13px;color:#3a2f25"><label>최대 예산 ₩ <input id="aitBudget" type="number" value="2000" style="width:80px;padding:4px 6px;border:1px solid #d9cfc1;border-radius:5px"></label><span id="aitEst" style="font-size:12px;color:#9a9183"></span></div>'

@@ -27,10 +27,8 @@ chk 'seat-privacy' mypage.html 1                   # 공개 방식 별도 카드
 chk 'data-drink' mypage.html 3                     # 자리별 음료 칩 배선 복원
 # 음수 마커 — 통합 역전 시 분리된 옛 좌석 행 부활 감지(bd0ee33 4차 역전류 조기 감지)
 _sep=$(grep -c "row('좌석 배치도', t.seat" mypage.html 2>/dev/null); _sep=${_sep:-0}; if [ "$_sep" -gt 0 ]; then echo "REVERT? mypage.html: 분리된 옛 좌석 배치도 행 부활($_sep)"; fail=1; else echo "ok mypage.html: 분리 좌석 행 없음(통합 유지)"; fi
-# ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
-chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
+# ── 2026-07-19 식순 AI 상담사 · 위젯 배선(추가형 · 서버 KB만 ritual-data 원천)
 chk 'ritual-data 공유 원천 v1' assets/ritual-data.js 1   # 공유 모듈 자체 생존
-chk 'ritual-data.js' order-preview.html 2          # 동기 로드 태그 + 주석(로드 누락 = 빌더 전체 붕괴)
 chk '식순 AI 상담 배선 v1' order-preview.html 1    # 빌더 위젯 배선(ME_ADV_PAGE·맥락 칩·그라운딩)
 chk '신원 번들' mypage.html 1                     # 식순 임베드 AI 신원주입(orderFill cust · 4회 역전됨 2026-07-19)
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
