@@ -135,6 +135,7 @@ function _prodConfirmVoid(d) {
 function _prodStateRev(d) {
   d = d || {};
   var s = '';
+  // ★snapDraft는 제외 — 스냅 사전기획은 '예식 확인서' 스냅샷에 포함되지 않으므로 rev(다중 탭 확인 대조)를 흔들면 안 된다(스냅 편집이 엉뚱한 '새로고침 후 확인'을 유발하지 않게 · 2026-07-19)
   try { s = JSON.stringify([d.base || {}, d.invitationDraft || {}, d.ritualDraft || {}, d.diningDraft || {}, d.finalDraft || {}, d.seatDraft || {}, d.guideinfoDraft || {}, d.tracks || {}, d.eventId || '', d.invitationUrls || null]); } catch (e) { return ''; }
   var h = 5381;
   for (var i = 0; i < s.length; i++) { h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; }
@@ -159,7 +160,7 @@ function handleSaveProductionTrack(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
-  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo' && track !== 'confirm') return { ok: false, error: '알 수 없는 항목입니다.' };
+  if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo' && track !== 'snap' && track !== 'confirm') return { ok: false, error: '알 수 없는 항목입니다.' };
   // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
   if (track === 'final') {
     var fdr = (body && body.draft) || {};
@@ -216,6 +217,23 @@ function handleSaveProductionTrack(body) {
     var _pfx = (Object.prototype.toString.call(gir.photoFx) === '[object Array]') ? gir.photoFx.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 8) : [];
     if (_pfx.length) body.draft.photoFx = _pfx;
   }
+  // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 무드(두 공간별)·영감보드(링크)·꼭 담고 싶은 것·톤·편안함·소품·디렉터 메모. Private Snap(부부 단독) 중심.
+  //   전 항목 선택 · 배열 상한·문자열 길이 esc · refs는 http/https 링크만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
+  if (track === 'snap') {
+    var snr = (body && body.draft) || {};
+    var _snArr = function (v, max, len) { return (Object.prototype.toString.call(v) === '[object Array]') ? v.map(function (x) { return String(x).slice(0, len); }).filter(function (x) { return x; }).slice(0, max) : []; };
+    body.draft = {
+      moodCandle: _snArr(snr.moodCandle, 6, 40),
+      moodWhite: _snArr(snr.moodWhite, 6, 40),
+      moodNote: String(snr.moodNote || '').slice(0, 300),
+      refs: _snArr(snr.refs, 5, 300).filter(function (u) { return /^https?:\/\//i.test(u); }),   // 링크만(http/https) · 최대 5
+      mustHaves: _snArr(snr.mustHaves, 3, 40),   // '강제 컷 목록' 아님 — 특별히 원하는 소수만(딥리서치 근거)
+      toneStyle: String(snr.toneStyle || '').slice(0, 40),
+      comfort: String(snr.comfort || '').slice(0, 40),
+      propsNote: String(snr.propsNote || '').slice(0, 300),
+      directorNote: String(snr.directorNote || '').slice(0, 500)
+    };
+  }
   // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
   var _cs = null;
   if (track === 'confirm') {
@@ -257,7 +275,7 @@ function handleSaveProductionTrack(body) {
     var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
     d[track + 'Draft'] = (body && body.draft) || {};
     // [예식 확인서] 확인 후 '내용 실변경'만 자동 해제(재확인 필요 · 면책 무결성) — 위저드 열고 그대로 나가기·_step 이동·자리찾기 토글은 확인 유지(재확인 피로 방지)
-    if (d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);
+    if (track !== 'snap' && d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);   // 스냅 사전기획은 예식 확인서 대상이 아니라 확인 해제 트리거에서 제외(2026-07-19)
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
@@ -343,7 +361,7 @@ function handleSaveProductionTrack(body) {
     // ★배포 시차 감지용 에코백 — 실제 저장된 객체(d[track+'Draft'])를 돌려줘 프론트가 필드 소실을 즉시 감지(2026-07 음료 소실 사고 재발 방지).
     //   서버 정규화가 있는 트랙(seat·final·guideinfo)만 상시 에코 — dining·ritual은 정규화 없이 원본 그대로 저장돼 소실 여지가 없고,
     //   에코하면 자동저장(별 담기 등)마다 응답이 배로 커지므로 완료 저장 때만 에코(미래에 정규화가 생기면 그때도 감지됨).
-    if (track === 'seat' || track === 'final' || track === 'guideinfo' || (body && body.done)) _res.draft = d[track + 'Draft'] || {};
+    if (track === 'seat' || track === 'final' || track === 'guideinfo' || track === 'snap' || (body && body.done)) _res.draft = d[track + 'Draft'] || {};
     return _res;
   } finally {
     try { lock.releaseLock(); } catch (e) {}
@@ -580,8 +598,10 @@ function buildProductionState(r) {
       dining: t.dining || '시작전',            // 다이닝 위저드에서 갱신
       ritual: t.ritual || '시작전',            // 식순 위저드에서 갱신
       final: t.final || '시작전',              // 최종 확정 위저드에서 갱신(인원·음료·특이사항)
-      seat: t.seat || '시작전'                 // 좌석 배치도(최종 확정 완료 후 열림)
+      seat: t.seat || '시작전',                // 좌석 배치도(최종 확정 완료 후 열림)
+      snap: t.snap || '시작전'                 // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝)
     },
+    snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)
