@@ -20,6 +20,7 @@ chk '_coreDone' mypage.html 3                      # 강조·접힘 공용 게�
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
+chk "var allDone = false" mypage.html 1            # 예식 준비 카드 항상 펼침(2026-07-19 사용자 지시 · 접힘 아코디언 부활 금지)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
 chk 'rs-dk dk-' mypage.html 1                     # 자리별 음료 색점 복원(2026-07-19 · 스탭 프린트용)
