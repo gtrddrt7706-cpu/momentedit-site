@@ -43,7 +43,7 @@ fresh();
 DB.C1.안내공유토큰 = 'Gyyyyyyyyyyyyyy1';
 DB.C1.제작임시저장 = JSON.stringify({
   guideinfoDraft: { reserveTime: '오후 1시', reserveName: '정희준' },
-  diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', m: '한정식', tel: '031-0', url: 'https://map/x', src: 'resto' }, { n: '카페', src: 'attr' }] },
+  diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', m: '한정식', tel: '031-0', url: 'https://map/x', src: 'resto' }, { n: '카페', src: 'attr', show: true }] },   // show:true = 하객 노출 선택(2026-07-19 담기≠노출 필터 반영)
   seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김하객'] }] }
 });
 const gv = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
