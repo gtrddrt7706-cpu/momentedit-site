@@ -19,5 +19,9 @@ chk 'trk-tag' mypage.html 2                        # 선택 태그
 chk '_coreDone' mypage.html 3                      # 강조·접힘 공용 게이트
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
 chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 확정 2단계
+# ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
+chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
+chk 'ritual-data 공유 원천 v1' assets/ritual-data.js 1   # 공유 모듈 자체 생존
+chk 'ritual-data.js' order-preview.html 2          # 동기 로드 태그 + 주석(로드 누락 = 빌더 전체 붕괴)
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
