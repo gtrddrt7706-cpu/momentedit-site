@@ -3880,7 +3880,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
-  var _cfPanelOpen=!!p.confirmStale||_cfOpenNext; _cfOpenNext=false;   // 재확인 필요·확인 직후엔 처음부터 펼쳐 경고/확인 배너가 보이게
+  var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
