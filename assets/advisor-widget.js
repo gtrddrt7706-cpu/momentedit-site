@@ -178,13 +178,23 @@
       fetch('/api/handoff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) }).catch(function () {});
     } catch (e) {}
   }
+  // 익명(비로그인) 모드 판정 — advExtra().embed가 false면 인계 대신 예약 유도(연락 불가 dead-end 방지 · 기획 v3 §6)
+  function isAnonMode() {
+    try { var x = (typeof CFG.advExtra === 'function') ? CFG.advExtra() : null; if (x && 'embed' in x) return !x.embed; } catch (e) {}
+    return false;
+  }
+  // 야간(KST) 클라이언트 폴백 — 서버가 night 플래그를 못 실은 오류 경로에서도 문구가 정직하게(서버값 있으면 우선)
+  function nightNowKST() { var h = new Date(new Date().getTime() + 9 * 3600 * 1000).getUTCHours(); return h >= 18 || h < 9; }
+  function escalateOrBook() {   // 오류/폴백 공용 — 익명이면 인계 금지·예약 유도
+    if (isAnonMode()) showBooking(); else showEscalation();
+  }
   function showEscalation() {
     if (escShown) return; escShown = true;
     doHandoff();
     var ki = kakaoInfo();
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
-    t.textContent = lastNight
+    t.textContent = (lastNight || nightNowKST())
       ? '문의를 디렉터에게 남겼어요. 내일 영업시간에 이어서 답해드려요.'
       : (ki.mail
       ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
@@ -216,6 +226,7 @@
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
     var a = document.createElement('a');
     a.className = 'me-adv-esc-btn kakao'; a.href = (CFG.booking && CFG.booking.url) || '/inquiry.html';
+    a.target = '_top';   // 임베드(iframe) 안에서도 예약 페이지가 전체 창으로 열리게(작은 오버레이에 갇히지 않게)
     a.textContent = '상담 예약 페이지로';
     btns.appendChild(a); box.appendChild(btns);
     place(box); scrollDown();
@@ -288,14 +299,17 @@
           if (j.toBooking) showBooking();     // (식순 독립 모드 등) 인계 대신 상담 예약 유도
         } else {
           try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
-          addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');
-          showEscalation();
+          // 오류 시엔 응답의 escalate/toBooking 플래그(코드마다 제각각)를 믿지 않고 클라 모드로만 판정 —
+          //   익명이면 인계 금지·예약 유도, 임베드면 인계(기획 v3 §6 · 익명 dead-end 인계 원천 차단).
+          var anon = isAnonMode();
+          addMsg(anon ? '지금은 자동 답변을 불러오지 못했어요. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');
+          escalateOrBook();
         }
       })
       .catch(function () {
         typing.remove();
-        addMsg('연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.', 'bot');
-        showEscalation();
+        addMsg(isAnonMode() ? '연결이 잠시 불안정합니다. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.', 'bot');
+        escalateOrBook();
       })
       .then(function () { sending = false; sendBtn.disabled = false; });
   }

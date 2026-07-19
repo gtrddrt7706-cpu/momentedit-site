@@ -1381,7 +1381,7 @@ function ritualAiState(){
     L.push('코스: '+c.nm+' · 현재 화면: '+(st.title||st.k||'시작'));
     try{ var rows=summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); if(rows.length) L.push('구성: '+rows.join(' → ')); }catch(e0){}
     L.push('시간 합: '+estMin());
-    try{ var bl=fillBlanks(); if(bl.length) L.push('아직 비어 있음: '+bl.map(function(b){return b[1];}).join(' · ')); }catch(e1){}
+    try{ var bl=fillBlanks(); if(bl.length) L.push('아직 미작성: '+bl.map(function(b){return b[1];}).join(' · ')); }catch(e1){}
     if(CUST){
       var who=[]; if(CUST.groom) who.push('신랑 '+CUST.groom); if(CUST.bride) who.push('신부 '+CUST.bride);
       var w=who.join(' · ');

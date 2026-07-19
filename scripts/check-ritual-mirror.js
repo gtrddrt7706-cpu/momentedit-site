@@ -27,10 +27,11 @@ ok('KB full이 원천 대표 문안 6종을 그대로 인용', probes.every((s) 
 ok('KB full이 소요분 상수를 인용', KB.full.includes('담백 ' + D.MIN.base.damback + '분'));
 ok('KB lite 존재(축약판)', typeof KB.lite === 'string' && KB.lite.length > 500 && KB.lite.length < KB.full.length / 2);
 
-// 토큰 추정: 한국어 프로즈 ≈ 1.3자/토큰(보수적) — 캡 20k
-const estTok = Math.round(KB.full.length / 1.3);
+// 토큰 추정(보수적=과대 방향): 한국어는 BPE에서 자당 토큰이 1을 넘는 경우가 많아, 캡을 일찍 걸도록 자수×1.1로 잡는다.
+//   (자수/1.3은 과소추정이라 KB가 커질 때 캡을 늦게 걸어 위험 — 방향을 뒤집음)
+const estTok = Math.round(KB.full.length * 1.1);
 ok('KB full 토큰 추정 ≤ 20k (현재 ~' + estTok + ')', estTok <= 20000);
-const liteTok = Math.round(KB.lite.length / 1.3);
+const liteTok = Math.round(KB.lite.length * 1.1);
 ok('KB lite 토큰 추정 ≤ 6k (현재 ~' + liteTok + ')', liteTok <= 6000);
 
 process.exit(fail);

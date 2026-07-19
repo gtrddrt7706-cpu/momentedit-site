@@ -287,13 +287,14 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
     { name: '식순 없는옵션 금지', run: function () { return _aiSurfacePost_('식순', '편지를 성우가 대신 읽어주는 옵션으로 해주세요'); }, ok: function (x) { var t = _aiRep_(x.j); return /없|어렵|서약|덕담|디렉터/.test(t); } },
     { name: '식순 사람연결 동작', run: function () { return _aiSurfacePost_('식순', '진행 방식은 됐고 디렉터랑 직접 상담할래요'); }, ok: function (x) { return !!(x.j && x.j.escalate === true); } }
   ];
-  var pass = 0, fails = [], reachable = 0;
+  var pass = 0, fails = [], reachable = 0, note = '';
   for (var i = 0; i < T.length; i++) { var x = T[i].run(); if (x.code >= 200 && x.code < 500 && x.j) { reachable++; var good = false; try { good = T[i].ok(x); } catch (e) {} if (good) pass++; else fails.push(T[i].name); } }
-  // 🛡️ 자라나는 회귀셋 — 고친 건들도 매일 함께 점검(비용 가드: 최대 12건)
+  // 🛡️ 자라나는 회귀셋 — 고친 건들도 매일 함께 점검(비용 가드: 최대 20건)
   try {
     var regsAll = _regRows_().filter(function (r) { return String(r[5]) === 'Y' });
     var regs = regsAll.slice(0, 20);   // 비용 가드 상한(12→20 · 식순 케이스가 조용히 밀려나지 않게)
-    if (regsAll.length > regs.length) fails.push('회귀 미실행 ' + (regsAll.length - regs.length) + '건(상한 초과 · 오래된 회귀 비활성 정리 필요)');
+    // 상한 초과분은 '실패'가 아니라 '운영 알림'(note)으로만 — fails에 넣으면 전부 통과해도 매일 거짓 경보(알람 피로)
+    if (regsAll.length > regs.length) note = '회귀 ' + (regsAll.length - regs.length) + '건 미실행(상한 초과 · 오래된 회귀 비활성 정리 권장)';
     for (var j = 0; j < regs.length; j++) { var rc = regs[j]; var rx = _aiSurfacePost_(String(rc[1]), String(rc[2])); if (rx.code >= 200 && rx.code < 500 && rx.j) { reachable++; var ok2 = false; try { ok2 = _regGrade_(String(rc[3]), String(rc[4]), rx); } catch (e) {} if (ok2) pass++; else fails.push('회귀:' + String(rc[1]) + ':' + String(rc[2]).slice(0, 14)); } }
   } catch (e) {}
   if (reachable === 0) return { ok: false, unreachable: true, error: '엔드포인트 접근 불가(서버측 자동점검 제한일 수 있어요 — 관리자 화면 🧪로 점검하세요).' };
@@ -304,7 +305,7 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
   var regress = !!(prev && pass < prev.pass);
   // silent(아침보고 통합)일 땐 개별 문자 생략 — 결과는 보고 메일/문자에 합쳐서 한 번에 나간다.
   if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
-  return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, at: today };
+  return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, note: note, at: today };
 }
 function aiSafetyNow() { return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
 function aiSafetyHistory() {   // adminCall — 최근 안전점검 이력(최대 10건, 최신순)
@@ -389,6 +390,7 @@ function aiMorningReport(preview) {
     if (dayT2 >= 15000) rows.push(['일 AI 비용 이상징후', '24시간 ₩' + dayT2 + ' · 평소 대비 급증(어뷰징 가능성) · 관리자 인건비 패널 확인', true]);
   } catch (e) {}
   rows.push(['안전점검', safetyStr, !!((safety.fails && safety.fails.length) || safety.regress)]);
+  if (safety.note) rows.push(['회귀셋 정리 권장', safety.note, false]);   // 상한 초과 미실행 — 경보 아님(운영 알림)
   rows.push(['솔라피 잔액', balStr, balLow]);
   if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
 

@@ -97,7 +97,7 @@ async function runRitual(name, turns, embed, expect, forbid) {   // 식순 상�
   for (const t of turns) {
     msgs.push({ role: 'user', content: t });
     const body = { messages: msgs.slice(-12) };
-    if (embed) { body.embed = true; body.customer = { name: '시뮬테스트', code: 'SIMTST' }; body.state = '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분 · 아직 비어 있음: 편지'; }
+    if (embed) { body.embed = true; body.customer = { name: '시뮬테스트', code: 'SIMTST' }; body.state = '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분 · 아직 미작성: 편지'; }
     const j = await call('/api/ritual-advisor', body);
     const rep = (j.reply || ('(오류 ' + (j.error || j._status) + ')')) + (j.escalate ? '  [→에스컬레이션]' : '') + (j.toBooking ? '  [→예약유도]' : '');
     msgs.push({ role: 'assistant', content: j.reply || '' });

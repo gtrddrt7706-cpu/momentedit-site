@@ -1250,8 +1250,9 @@ function openRitualBuilder(p){
       var _cb=(p&&p.production&&p.production.base)||(p&&p.base)||{};
       var _wd=String(_cb.weddingDate||'').trim(), _ddn=null;
       if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=Math.round((new Date(_wd+'T00:00:00')-new Date(new Date().toDateString()))/86400000);
-      var _cu={groom:_cb.groomKo||'', bride:_cb.brideKo||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:(p&&p.phone)||''};
-      try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; _cu.phone=_cu.phone||_ld.phone||''; } }catch(e2){}
+      var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
+      var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||''};
+      try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } } }catch(e2){}
       fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, cust:_cu}, location.origin);
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
