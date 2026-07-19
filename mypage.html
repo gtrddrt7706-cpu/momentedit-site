@@ -393,6 +393,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-sec{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);margin:20px 2px 0;padding-top:16px;border-top:1px solid var(--hairline,#EEE9E1)}
 .ph-chip.fxon{color:var(--gold-deeper);border-style:solid;border-color:var(--gold-deep);background:rgba(184,154,117,.10)}
 .ph-chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 0}
+.ph-qr{display:flex;justify-content:center;margin:12px 0 0}
+.ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
 .ph-chip{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ph-chip:active{background:rgba(184,154,117,.08)}
 .trk-sub{font-size:11.5px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
@@ -811,9 +813,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 
     <!-- 잔금 (02-5) — 결제 마일스톤. 계약 정보 아래. 평소 접힘 → 예식 D-15 자동 펼침 -->
     <div class="consult-sec" id="mp_balance" style="display:none"></div>
-
-    <!-- 스냅 기획 (03-0) — 촬영 전 사전기획 · '예식 준비'(제작) 앞. 시그니처 전용·선택. SNAPFLOW 편집은 mp_production 슬롯에서 전개 -->
-    <div class="consult-sec" id="mp_snap" style="display:none"></div>
 
     <!-- 제작 (03) — 입금완료 후: 기초정보 + 3트랙 -->
     <div class="consult-sec" id="mp_production" style="display:none"></div>
@@ -1581,7 +1580,7 @@ function loadMyState(opts){
 var STAGE_LABEL = {
   '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
   '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 입금',
-  '스냅기획':'스냅 기획','제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달'
+  '제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달'
 };
 function stageLabel(code, product){
   var k=String(code||'').trim();
@@ -1730,27 +1729,20 @@ function renderMyPage(d){
       if (atDelivered) idx = surveyDone ? list.length : (list.length-1);   // 전달 완료=후기 현재, 후기 제출=전부 완료
     }
     var cur = (idx<0?0:idx);
-    // [스냅 기획] 시그니처 여정 진행바에 '스냅기획' 합성 스텝을 '제작중' 앞에 삽입(표시 전용 · 백엔드 STAGE_FLOW 무변경 · '후기' 합성 스텝과 동일 방식 · marker: SNAP_PREP_STEP).
-    //   ★표시 전용(_dispList/_dispCur)만 쓴다 — 아래 cardMin·visitDone 등은 원본 cur/sIdx(=d.stageList 기준)를 그대로 써야 하므로 cur/idx/list를 건드리지 않는다.
-    var _dispList = list, _dispCur = cur;
-    if (list.length && d.product !== '웨딩스냅'){
-      var _snapAt = list.indexOf('제작중');
-      if (_snapAt >= 0){ _dispList = list.slice(); _dispList.splice(_snapAt, 0, '스냅기획'); _dispCur = (cur >= _snapAt) ? cur+1 : cur; }
-    }
     var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
     if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel=(d.payment.bundle&&d.payment.bundle.length)?('계약금·'+d.payment.bundle.join('·')+' 입금'):'계약금 입금';   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
     if (payPlan(d).hold) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님) — NOW·제작 잠금과 같은 payPlan 기준
     $('mp_stageNow').textContent = nowLabel;
-    $('mp_stageCount').textContent = _dispList.length ? ('STEP ' + Math.min(_dispCur+1, _dispList.length) + ' / ' + _dispList.length) : '';
-    var nextStage = (_dispCur+1 < _dispList.length) ? stageLabel(_dispList[_dispCur+1], d.product) : '';
+    $('mp_stageCount').textContent = list.length ? ('STEP ' + Math.min(cur+1, list.length) + ' / ' + list.length) : '';
+    var nextStage = (cur+1 < list.length) ? stageLabel(list[cur+1], d.product) : '';
     // 제작중 부제: 실제 다음 할 일은 결제라 — 중도금·잔금 카드가 열리기 전(D-45·NEXT 자물쇠)엔 '중도금·잔금', 열리면 '예식 완료'
     if (d.stage==='제작중' && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage)
                  : (atDelivered ? (surveyDone ? '모든 순간이 마무리됐어요 🤍' : '후기를 남기면 끝나요') : '마지막 단계예요');
     // 점만 (막대 없음)
-    $('mp_dots').innerHTML = _dispList.map(function(label,i){
-      var cls = (i<_dispCur?'done':(i===_dispCur?'current':'future'));
+    $('mp_dots').innerHTML = list.map(function(label,i){
+      var cls = (i<cur?'done':(i===cur?'current':'future'));
       return '<span class="dot '+cls+'" title="'+escapeHtml(stageLabel(label, d.product))+'"></span>';
     }).join('');
   }
@@ -1762,7 +1754,7 @@ function renderMyPage(d){
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
-    ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+    ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
@@ -1787,7 +1779,6 @@ function renderMyPage(d){
       if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
     }
     var _comboHold = payPlan(d).hold;
-    renderSnap(d.production);                                        // 스냅 기획 (03-0) — 촬영 전 사전기획 · '예식 준비' 앞(시그니처 전용·결제 잠금과 무관)
     renderProduction(_comboHold ? null : d.production, d.invitation);                    // 제작 (03) — 임박 묶음결제 입금 전엔 잠금(NEXT 자물쇠와 일치 · payPlan 단일 기준)
     renderResult(d.result, d.name, d.code);                          // 결과물 (05)
     // 시착 동의서 문서 뷰어용 메타 보관(서명 당시 버전 전문 포함) — '보기'에서 사용
@@ -3328,13 +3319,11 @@ function renderProduction(p, inv){
     if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
     if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
     if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }
-    if(SNAPFLOW.active){ box.style.display='block'; renderSnapFlow(box); return; }   // 스냅 기획 편집 중(mp_production 슬롯 전개) — 배경 새로고침(p=null)에도 편집 유지
     box.style.display='none'; box.innerHTML=''; return;
   }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
-  if(SNAPFLOW.active){ box.style.display='block'; renderSnapFlow(box); return; }  // 스냅 기획 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
@@ -4573,9 +4562,10 @@ var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
+function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자(GAS 정규화와 동일 규칙)
 function startPhotoFlow(gi){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), gi:(gi||{}) };
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}) };
   PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderPhoto($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
@@ -4606,6 +4596,13 @@ function renderPhoto(box){
   h+='</div>';
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 폰 플래시 켜고 흔들기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. 건배·부케 던지기처럼 진행 중 순간은 사진작가가 흐름 속에서 담아요.</div>';
+  // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
+  var _psu=photoShareNorm(PHOTOFLOW.share);
+  h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
+  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="사진 모으는 링크 (카카오 오픈채팅·구글/아이클라우드 공유 앨범 등)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';
+  h+='<div class="cc-note" style="text-align:left;margin-top:8px">부부가 만든 <b>공유 앨범·오픈채팅</b> 링크를 넣으면, 하객 안내 페이지에 <b>사진 올리기</b> 버튼으로 들어가요. 아래 QR은 저장해 테이블 카드·현장 안내에 두면 하객이 바로 올려요.</div>';
+  h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
+  h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   function rerender(){ renderPhoto(box); }
@@ -4630,12 +4627,21 @@ function renderPhoto(box){
     fx.push(v); fxi.value=''; rerender(); }
   if(fxb) fxb.addEventListener('click', fxAdd);
   if(fxi) fxi.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); fxAdd(); } });
+  // 하객 사진 모으기 링크 — 입력 즉시 모델 반영(포커스 유지 위해 전체 재렌더 없이 QR만 갱신)
+  function photoShareQrRender(){
+    var u=photoShareNorm(PHOTOFLOW.share), qbox=$('mp_photoShareQr'), sv=$('mp_photoShareQrSave'); if(!qbox) return;
+    if(!u){ qbox.style.display='none'; qbox.innerHTML=''; if(sv) sv.style.display='none'; return; }
+    qbox.style.display='block'; ensureQR(function(){ renderQRInto('mp_photoShareQr','mp_photoShareQrSave',u,'moment-edit-photo-qr.png'); });
+  }
+  var psi=$('mp_photoShare');
+  if(psi) psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
+  photoShareQrRender();
   var ex=$('mp_photoExit'); if(ex) ex.addEventListener('click', exitPhotoFlow);
 }
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
-    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice()
+    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice(), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
   }, done:true});
 }
 function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
@@ -4648,142 +4654,6 @@ function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 
       .then(function(again){ if(again){ exitPhotoFlow(); } else { bkKill(PHOTOFLOW); PHOTOFLOW.active=false; show('loading'); loadMyState(); } });
   };
   savePhoto().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } PHOTOFLOW._exiting=false; bkKill(PHOTOFLOW); loadMyState(); }).catch(function(){ _fail(''); });
-}
-// ── 스냅 사전기획(촬영 전 · '예식 준비' 앞 여정 스텝) — Private Snap(부부 단독) 중심. 좌석·단체사진과 같은 전용 화면(SNAPFLOW·저장 후 나가기). snap 트랙에 저장(2026-07-19 · marker: SNAP_PREP_FLOW) ──
-//   설계 원칙(딥리서치 검증): '강제 컷 목록'이 아니라 무드·성향을 전하는 영감 보드. 필수컷은 소수(≤3)로 제한, 포즈·동선은 촬영 중 디렉터가 리드. 세부 칩 라벨은 사장님 감수 대상.
-var SNAP_MOODS=['잔잔·따뜻','사랑스러운','시크·모던','클래식·격식','유쾌·발랄','드라마틱'];   // 두 공간 공통 무드칩(캔들존·화이트존) · 사장님 감수
-var SNAP_MUSTHAVES=['반지·손 디테일','뒷모습·베일','창가 자연광','함께 웃는 순간','서로 바라보기'];   // '꼭 담고 싶은 것' 후보(강제 아님·소수) · 사장님 감수
-var SNAP_TONES=['자연스러운·캔디드','정적 에디토리얼','무빙·발랄'];   // 촬영 톤(단일 선택) · 사장님 감수
-var SNAP_COMFORTS=['리드 많이 해주세요','적당히','자유롭게 둘게요'];   // 카메라 앞 편안함(단일 선택) — 디렉터 리드 강도 참고
-var SNAP_MOOD_MAX=6, SNAP_MUST_MAX=3, SNAP_REF_MAX=5;
-var SNAPFLOW = { active:false, d:null };
-function _snapFilledD(D){ D=D||{}; return !!(((D.moodCandle||[]).length)||((D.moodWhite||[]).length)||String(D.moodNote||'').trim()||((D.refs||[]).length)||((D.mustHaves||[]).length)||D.toneStyle||D.comfort||String(D.propsNote||'').trim()||String(D.directorNote||'').trim()); }
-function _snapToggle(arr, v, max, msg){ var i=arr.indexOf(v); if(i>-1){ arr.splice(i,1); return true; } if(arr.length>=max){ mpAlert(msg||'너무 많아요. 대표적인 것 위주로 골라 주세요.'); return false; } arr.push(v); return true; }
-function startSnapFlow(sd){
-  bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
-  sd=sd||{};
-  SNAPFLOW={ active:true, d:{
-    moodCandle:((sd.moodCandle)||[]).slice(), moodWhite:((sd.moodWhite)||[]).slice(), moodNote:String(sd.moodNote||''),
-    refs:((sd.refs)||[]).slice(), mustHaves:((sd.mustHaves)||[]).slice(),
-    toneStyle:String(sd.toneStyle||''), comfort:String(sd.comfort||''),
-    propsNote:String(sd.propsNote||''), directorNote:String(sd.directorNote||'')
-  } };
-  SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
-  renderSnapFlow($('mp_production'));
-  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
-}
-function renderSnapFlow(box){
-  if(!box) return; var D=SNAPFLOW.d||{};
-  function _chip(n,on,attr){ return '<span class="ph-chip'+(on?' fxon':'')+'" '+attr+'="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; }
-  var h='<div class="consult-card" style="text-align:left">';
-  h+='<div class="inv-head"><span class="inv-step-n">스냅 기획</span><button type="button" class="wiz-exit" id="mp_snapExit">저장 후 나가기</button></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">촬영 전, 두 분이 원하는 결을 살짝 귀띔해 주세요. 안 채워도 괜찮아요. 포즈·동선은 촬영 중 디렉터가 옆에서 함께 리드하니, 여기선 무엇을 좋아하는지만 알려 주시면 돼요.</div>';
-  // 1) 무드 · 두 공간
-  h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">무드 · 두 공간</div>';
-  h+='<div class="cc-note" style="margin:2px 0 0">캔들존 · 따뜻한 캔들 무드</div><div class="ph-chips" data-sgrp="mc">'+SNAP_MOODS.map(function(n){ return _chip(n, D.moodCandle.indexOf(n)>-1, 'data-smood'); }).join('')+'</div>';
-  h+='<div class="cc-note" style="margin:10px 0 0">화이트존 · 정갈한 에디토리얼</div><div class="ph-chips" data-sgrp="mw">'+SNAP_MOODS.map(function(n){ return _chip(n, D.moodWhite.indexOf(n)>-1, 'data-smood'); }).join('')+'</div>';
-  h+='<input class="cc-input" id="mp_snapMoodNote" maxlength="150" autocomplete="off" placeholder="원하는 무드를 한 줄로 (예: 잔잔하고 따뜻하게)" value="'+escapeHtml(D.moodNote||'')+'" style="margin-top:8px">';
-  // 2) 영감 보드(레퍼런스 링크)
-  h+='<div class="ph-sec">영감 보드 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="margin:2px 0 8px">똑같이 찍는 목록이 아니라 무드·조명·분위기를 읽어요. 핀터레스트·인스타 링크 3~5개면 충분해요.</div>';
-  if(D.refs.length){ h+='<div class="ph-list">'; D.refs.forEach(function(u,i){ h+='<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="ph-del" data-srefdel="'+i+'" aria-label="빼기">✕</button></div>'; }); h+='</div>'; }
-  if(D.refs.length<SNAP_REF_MAX){ h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapRef" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapRefBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>'; }
-  // 3) 꼭 담고 싶은 것(소수)
-  h+='<div class="ph-sec">꼭 담고 싶은 것 <span style="color:var(--label-soft);font-weight:400">· 선택 · 최대 3</span></div>';
-  h+='<div class="cc-note" style="margin:2px 0 0">특별히 원하는 컷·소품·연출이 있으면 딱 몇 개만 짚어 주세요. 나머지는 디렉터가 현장에서 살려요.</div>';
-  h+='<div class="ph-chips" style="margin-top:8px">';
-  SNAP_MUSTHAVES.forEach(function(n){ h+=_chip(n, D.mustHaves.indexOf(n)>-1, 'data-smust'); });
-  D.mustHaves.filter(function(n){ return SNAP_MUSTHAVES.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-smust="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
-  h+='</div>';
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapMust" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 반려견과 함께)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapMustBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  // 4) 편안함 · 톤
-  h+='<div class="ph-sec">편안함 · 톤 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="margin:2px 0 0">촬영 톤</div><div class="ph-chips" data-sgrp="tone">'+SNAP_TONES.map(function(n){ return _chip(n, D.toneStyle===n, 'data-stone'); }).join('')+'</div>';
-  h+='<div class="cc-note" style="margin:10px 0 0">카메라 앞이 어색하다면</div><div class="ph-chips" data-sgrp="comf">'+SNAP_COMFORTS.map(function(n){ return _chip(n, D.comfort===n, 'data-scomf'); }).join('')+'</div>';
-  // 5) 소품 · 의상 메모
-  h+='<div class="ph-sec">소품 · 의상 메모 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="margin:2px 0 8px">드레스 시착 2벌·착용 1벌이 포함돼요. 신랑 셔츠·바지·구두는 직접, 헤어·메이크업은 외부에서 준비하시면 돼요.</div>';
-  h+='<textarea class="cc-input" id="mp_snapProps" maxlength="300" placeholder="가져올 소품이나 의상 관련 메모가 있으면 적어 주세요." style="min-height:56px">'+escapeHtml(D.propsNote||'')+'</textarea>';
-  // 6) 디렉터에게 한마디
-  h+='<div class="ph-sec">디렉터에게 한마디 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<textarea class="cc-input" id="mp_snapDirector" maxlength="500" placeholder="특별히 원하는 것, 꺼리는 앵글, 꼭 피하고 싶은 것 무엇이든 편하게 남겨 주세요." style="min-height:62px">'+escapeHtml(D.directorNote||'')+'</textarea>';
-  h+='</div>';
-  box.innerHTML=h; box.style.display='block';
-  function collect(){   // 자유 텍스트는 rerender 전에 취합(포커스 유실·값 소실 방지 — 좌석/다이닝 위저드와 동일 패턴)
-    var mn=$('mp_snapMoodNote'); if(mn) D.moodNote=mn.value;
-    var pr=$('mp_snapProps'); if(pr) D.propsNote=pr.value;
-    var dr=$('mp_snapDirector'); if(dr) D.directorNote=dr.value;
-  }
-  function rerender(){ collect(); renderSnapFlow(box); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-sgrp="mc"] [data-smood]'), function(el){ el.addEventListener('click', function(){ if(_snapToggle(D.moodCandle, el.getAttribute('data-smood'), SNAP_MOOD_MAX)) rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-sgrp="mw"] [data-smood]'), function(el){ el.addEventListener('click', function(){ if(_snapToggle(D.moodWhite, el.getAttribute('data-smood'), SNAP_MOOD_MAX)) rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-smust]'), function(el){ el.addEventListener('click', function(){ if(_snapToggle(D.mustHaves, el.getAttribute('data-smust'), SNAP_MUST_MAX, '원하는 컷이 많아요. 대표적인 것 3개까지 골라 주세요.')) rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-stone]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-stone'); D.toneStyle=(D.toneStyle===v)?'':v; rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-scomf]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-scomf'); D.comfort=(D.comfort===v)?'':v; rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-srefdel]'), function(el){ el.addEventListener('click', function(){ D.refs.splice(+el.getAttribute('data-srefdel'),1); rerender(); }); });
-  var rin=$('mp_snapRef'), rbt=$('mp_snapRefBtn');
-  function addRef(){ if(!rin) return; var v=(rin.value||'').trim().slice(0,300); if(!v) return;
-    if(!/^https?:\/\//i.test(v)){ mpAlert('http로 시작하는 링크를 붙여넣어 주세요.'); return; }
-    if(D.refs.indexOf(v)>-1){ rin.value=''; mpAlert('이미 담긴 링크예요.'); return; }
-    if(D.refs.length>=SNAP_REF_MAX){ mpAlert('링크는 5개까지면 충분해요.'); return; }
-    D.refs.push(v); rin.value=''; rerender(); }
-  if(rbt) rbt.addEventListener('click', addRef);
-  if(rin) rin.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); addRef(); } });
-  var min0=$('mp_snapMust'), mbt=$('mp_snapMustBtn');
-  function addMust(){ if(!min0) return; var v=(min0.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
-    if(D.mustHaves.indexOf(v)>-1){ min0.value=''; mpAlert('이미 담긴 항목이에요.'); return; }
-    if(D.mustHaves.length>=SNAP_MUST_MAX){ mpAlert('원하는 컷이 많아요. 대표적인 것 3개까지 골라 주세요.'); return; }
-    D.mustHaves.push(v); min0.value=''; rerender(); }
-  if(mbt) mbt.addEventListener('click', addMust);
-  if(min0) min0.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); addMust(); } });
-  var ex=$('mp_snapExit'); if(ex) ex.addEventListener('click', exitSnapFlow);
-}
-function saveSnap(){
-  var D=SNAPFLOW.d||{};
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:{
-    moodCandle:(D.moodCandle||[]).slice(), moodWhite:(D.moodWhite||[]).slice(), moodNote:String(D.moodNote||''),
-    refs:(D.refs||[]).slice(), mustHaves:(D.mustHaves||[]).slice(), toneStyle:String(D.toneStyle||''), comfort:String(D.comfort||''),
-    propsNote:String(D.propsNote||''), directorNote:String(D.directorNote||'')
-  }, done:_snapFilledD(D)});   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
-}
-function exitSnapFlow(){   // 좌석/단체사진과 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
-  if(SNAPFLOW._exiting) return;
-  if(SNAPFLOW.d){ var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value; var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value; var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value; }   // 마지막 텍스트 반영
-  SNAPFLOW._exiting=true; SNAPFLOW.active=false; show('loading');
-  var _fail=function(msg){
-    SNAPFLOW._exiting=false; SNAPFLOW.active=true; show('mypageView'); renderSnapFlow($('mp_production'));
-    if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSnapFlow(); } else { bkKill(SNAPFLOW); SNAPFLOW.active=false; show('loading'); loadMyState(); } });
-  };
-  saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SNAPFLOW._exiting=false; bkKill(SNAPFLOW); loadMyState(); }).catch(function(){ _fail(''); });
-}
-function _snapSummary(sd){
-  sd=sd||{}; var parts=[];
-  var m=((sd.moodCandle)||[]).length+((sd.moodWhite)||[]).length; if(m) parts.push('무드 '+m+'개');
-  if(((sd.refs)||[]).length) parts.push('레퍼런스 '+sd.refs.length);
-  if(((sd.mustHaves)||[]).length) parts.push('원하는 컷 '+sd.mustHaves.length);
-  if(sd.toneStyle) parts.push(String(sd.toneStyle));
-  return parts.join(' · ');
-}
-function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김(편집은 mp_production 슬롯에서)
-  var box=$('mp_snap'); if(!box) return;
-  if(!p || SNAPFLOW.active){ box.style.display='none'; box.innerHTML=''; return; }
-  var sd=p.snapDraft||{}, filled=_snapFilledD(sd), sum=_snapSummary(sd);
-  var h='<div class="consult-card" style="text-align:center">'
-    + '<div class="cc-eyebrow en-22">Snap Planning</div>'
-    + '<div class="cc-title">스냅 기획</div>'
-    + '<div class="cc-sub">촬영 전, 두 분이 원하는 스냅의 결을 살짝 남겨 주세요. 디렉터가 미리 읽고 준비해요.</div>';
-  if(filled){
-    h+='<div class="cc-note" style="text-align:center;margin-top:6px">남겨 주셨어요 <span class="trk-ok">✓</span>'+(sum?(' · '+escapeHtml(sum)):'')+'</div>'
-      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:10px;width:auto;padding:10px 18px">고치기</button>';
-  } else {
-    h+='<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
-      +'<div class="cc-note" style="text-align:center">선택이에요. 안 남겨도 촬영·준비에는 지장 없어요.</div>';
-  }
-  h+='</div>';
-  box.innerHTML=h; box.style.display='block';
-  var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
 function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약·최종 확정 힌트 공용)
   var c={A:0,N:0,J:0,U:0};
@@ -4901,7 +4771,8 @@ function wireGuideInfoEditor(box, gi){
       reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선·지움 존중)
       reserveName: String(gi.reserveName||''),
       photo: (gi.photo||[]).slice(),   // 단체 사진 구도 통과 — 좌석 공개설정 저장이 photo를 지우지 않게(guideinfo 트랙 전체 교체 · 2026-07-19)
-      photoFx: (gi.photoFx||[]).slice()   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19)
+      photoFx: (gi.photoFx||[]).slice(),   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19)
+      photoShareUrl: photoShareNorm(gi.photoShareUrl)   // 하객 사진 모으기 링크도 통과(2026-07-19)
     };
   }
   function syncBox(){ var cur=$('gi_mineOnly'); if(cur){ cur.checked=(gi.seatMode==='mine'); cur.disabled=!!gi._saving; } }   // 항상 id로 현재 노드 조회 — 재렌더로 분리된 옛 노드를 만지지 않음

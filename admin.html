@@ -1561,17 +1561,10 @@ function prodTracksHtml(prod){
     if(sd&&sd.tables&&sd.tables.length){ var _tc=sd.tables.length,_nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_nm++; }); }); h+=' · '+_tc+'개 테이블 · '+_nm+'명'; }
     h+='</div>';
   }
-  // 스냅 기획(촬영 전 사전기획 · '예식 준비' 앞 · snapDraft) — 디렉터가 촬영 전 확인. 무드·레퍼런스·원하는 컷·톤·소품·요청.
-  var sn=prod.snapDraft||null;
-  if((t.snap&&t.snap!=='시작전')||sn){
-    h+='<div class="cnote">📸 스냅 기획 <b>'+esc(_tstat(t.snap))+'</b>';
-    if(sn){ var _ss=[]; var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); if(_ss.length)h+=' · '+_ss.join(' · '); }
-    h+='</div>';
-  }
-  if(dd||rd||fd||sd||sn) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정·스냅 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft,sn)+'</div>';
+  if(dd||rd||fd||sd) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft)+'</div>';
   return h;
 }
-function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
+function prodTrackDetail(dd,rd,fd,sd,seatToken,gi){
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   var h='';
   if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
@@ -1579,20 +1572,8 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
   var _pho=(gi&&gi.photo&&gi.photo.length)?('전체 하객 → '+gi.photo.join(' → ')):'';
   var _pfx=(gi&&gi.photoFx&&gi.photoFx.length)?gi.photoFx.join(' · '):'';
-  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx);
-  // 스냅 기획(촬영 전) — 부부가 남긴 무드·레퍼런스·원하는 컷·톤·요청. 강제 컷 목록이 아니라 영감·성향(디렉터가 현장에서 살림)
-  if(sn){
-    var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));
-    h+='<div class="grp-l">스냅 기획 (촬영 전)</div>'
-      +row('무드',_snMood.join(' / '))
-      +row('무드 메모',sn.moodNote)
-      +row('영감 링크',(sn.refs||[]).length?sn.refs.join('  '):'')
-      +row('꼭 담고 싶은 것',(sn.mustHaves||[]).length?sn.mustHaves.join(' · '):'')
-      +row('톤',sn.toneStyle)
-      +row('편안함',sn.comfort)
-      +row('소품·의상',sn.propsNote)
-      +row('디렉터에게',sn.directorNote);
-  }
+  var _psu=(gi&&/^https?:\/\//i.test(String(gi.photoShareUrl||'')))?String(gi.photoShareUrl):'';   // 하객 사진 모으기 링크(부부 외부 앨범/오픈채팅)
+  if(_pho||_pfx||_psu) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx)+row('하객 사진 모으기',_psu);
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
   if(sd&&sd.tables&&sd.tables.length){
