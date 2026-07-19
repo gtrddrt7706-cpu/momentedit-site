@@ -4789,28 +4789,30 @@ function exitSnapFlow(){   // 식순 빌더와 동일 — 저장 후 오버레�
   };
   saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
 }
-function _snapSummary(sd){
-  sd=sd||{}; var parts=[];
-  var m=((sd.moodCandle)||[]).length+((sd.moodWhite)||[]).length; if(m) parts.push('무드 '+m+'개');
-  if(((sd.refs)||[]).length) parts.push('레퍼런스 '+sd.refs.length);
-  if(((sd.mustHaves)||[]).length) parts.push('원하는 컷 '+sd.mustHaves.length);
-  if(sd.toneStyle) parts.push(String(sd.toneStyle));
-  return parts.join(' · ');
+function _snapSummary(sd){   // 요약 = '결' 한 마디만 — 카운트 나열(무드 N개·컷 N)은 폼 진행바처럼 읽혀 제거(미니멀 · 2026-07-19 사용자 지시). 스타일 > 대표 무드 > 한 줄 메모 순
+  sd=sd||{};
+  if(sd.toneStyle) return String(sd.toneStyle);
+  var m=((sd.moodCandle)||[]).concat((sd.moodWhite)||[]);
+  if(m.length) return m.slice(0,2).join(' · ');
+  var mn=String(sd.moodNote||'').trim(); if(mn) return mn.length>18?(mn.slice(0,18)+'…'):mn;
+  if(((sd.mustHaves)||[]).length) return '원하는 컷 담음';
+  return '';
 }
 function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김(편집은 mp_production 슬롯에서)
   var box=$('mp_snap'); if(!box) return;
   if(!p || SNAPFLOW.active){ box.style.display='none'; box.innerHTML=''; return; }
-  var sd=p.snapDraft||{}, filled=_snapFilledD(sd), sum=_snapSummary(sd);
+  var sd=p.snapDraft||{}, filled=_snapFilledD(sd), ess=_snapSummary(sd);
+  // 미니멀 원칙(2026-07-19 사용자 지시): 채운 뒤엔 소개 문구를 빼 조용하게 · 요약은 카운트 대신 '결' 한 마디만
   var h='<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Snap Planning</div>'
-    + '<div class="cc-title">스냅 기획</div>'
-    + '<div class="cc-sub">촬영 전, 두 분이 원하는 스냅의 결을 살짝 남겨 주세요. 디렉터가 미리 읽고 준비해요.</div>';
+    + '<div class="cc-title">스냅 기획</div>';
   if(filled){
-    h+='<div class="cc-note" style="text-align:center;margin-top:6px">남겨 주셨어요 <span class="trk-ok">✓</span>'+(sum?(' · '+escapeHtml(sum)):'')+'</div>'
-      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:10px;width:auto;padding:10px 18px">고치기</button>';
+    h+='<div class="cc-note" style="text-align:center;margin-top:7px"><span class="trk-ok">✓</span> 남겨 주셨어요'+(ess?(' <span style="color:var(--label-soft)">·</span> '+escapeHtml(ess)):'')+'</div>'
+      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:11px;width:auto;padding:9px 20px">고치기</button>';
   } else {
-    h+='<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
-      +'<div class="cc-note" style="text-align:center">선택이에요. 안 남겨도 촬영·준비에는 지장 없어요.</div>';
+    h+='<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
+      +'<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
+      +'<div class="cc-note" style="text-align:center">선택이에요 · 안 남겨도 촬영엔 지장 없어요.</div>';
   }
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
