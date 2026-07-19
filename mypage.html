@@ -1393,6 +1393,25 @@ function _mpUnlock(){
   document.documentElement.style.paddingRight='';
   var html=document.documentElement, prev=html.style.scrollBehavior; html.style.scrollBehavior='auto'; window.scrollTo(0,_mpLockY); html.style.scrollBehavior=prev;
 }
+// [스크롤 잠금 자가 치유 · 2026-07-21 실기기 버그: "오버레이 다녀오면 마이페이지가 안 움직임(스크롤 굳음)"] marker: MP_LOCK_RECONCILE
+//   오버레이·모달·전체화면 편집이 하나도 안 떠 있는데 body 배경 잠금(_mpLock 카운터 불균형 또는 직접 overflow 잠금)이 남아 있으면 강제 해제.
+//   show()가 마이페이지·로그인 등 '바탕 화면'으로 돌아올 때 호출 — orphan 잠금이 화면을 굳히지 못하게. 뜬 게 있으면(가드 통과) 절대 손대지 않아 정상 잠금은 보존.
+function _mpLockReconcile(){
+  try{
+    if((typeof INVFLOW!=='undefined'&&INVFLOW.active)||(typeof TRKFLOW!=='undefined'&&TRKFLOW.active)||(typeof SEATFLOW!=='undefined'&&SEATFLOW.active)||(typeof SNAPFLOW!=='undefined'&&SNAPFLOW.active)||(typeof PHOTOFLOW!=='undefined'&&PHOTOFLOW.active)) return;   // 편집 플로우 진행 중
+    var pb=$('mp_production'); if(pb&&pb.classList.contains('mp-fs')) return;   // 제작 편집 전체화면 진행 중
+    if(document.getElementById('mp_snapOverlay')||document.getElementById('mp_photoOverlay')||document.getElementById('mp_obViewer')||document.getElementById('mp_ctViewer')||document.getElementById('mp_ftViewer')) return;   // 동적 전체화면 오버레이 열림(닫으면 DOM서 제거됨)
+    if(document.querySelector('.mp-modal.open, .pv-modal.open')) return;   // 확인·서명·원장·이미지 모달 열림
+    var ao=document.getElementById('mp_addrOverlay'); if(ao&&ao.style.display==='flex') return;   // 주소 찾기
+    var po=document.getElementById('mp_privacyOverlay'); if(po&&po.style.display==='flex') return;   // 처리방침
+    var b=document.body;   // 뜬 게 하나도 없음 → 남은 잠금은 orphan → 강제 해제
+    if(_mpLockN!==0 || b.style.position==='fixed' || b.style.overflow==='hidden'){
+      _mpLockN=0;
+      b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width=''; b.style.overflow='';
+      document.documentElement.style.paddingRight='';
+    }
+  }catch(e){}
+}
 // ── 커스텀 모달 (브라우저 confirm/alert 대체) ── mpConfirm({title,body,yes,no})→Promise<bool> · mpAlert(msg)
 function mpModalOpen(o){
   o = o || {};
@@ -1502,6 +1521,7 @@ function _qrDl(src,fname){
   catch(e){ try{ var w=window.open('','_blank'); if(w&&w.document){ w.document.write('<img src="'+src+'" alt="QR" style="width:60vmin;max-width:320px">'); } }catch(e2){} }   // data: URL 직접 내비게이션은 최신 브라우저가 차단 → 빈 탭에 이미지로(길게 눌러 저장 · 2026-07-18 리뷰)
 }
 function show(viewId){
+  if(viewId!=='loading') _mpLockReconcile();   // [MP_LOCK_RECONCILE] 바탕 화면으로 돌아올 때 orphan 배경 잠금 자가 해제 — 오버레이 다녀온 뒤 스크롤 굳음 방지(가드가 '뜬 게 있으면' 손 안 댐). 잠금 해제를 아래 scrollTo 전에 먼저 풀어 상단 이동도 정상 동작.
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
     if(v==='loading'){ el.style.display=(viewId==='loading')?'flex':'none'; }
