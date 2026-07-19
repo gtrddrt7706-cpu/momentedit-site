@@ -3932,8 +3932,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
       + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
           (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
-            ? '오프라인 청첩장에 자동으로 들어가요 · 링크·QR로 따로 보낼 수도 있어요'
-            : '식사·자리 안내를 담는 하객용 페이지예요 · 링크·QR로 하객께 보내면 돼요'))   // 오프라인 청첩장이 없는 구성(온라인만·실물·없음)엔 '청첩장에 들어가요'가 거짓 — 구성별 문구(2026-07-18 리뷰)
+            ? '청첩장에 자동으로 들어가는 안내예요'
+            : '식사·자리를 담는 하객 안내 페이지예요'))   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
       + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
           {primary:_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale)})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
