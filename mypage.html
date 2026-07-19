@@ -4808,7 +4808,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
     + '<div class="cc-title">스냅 기획</div>';
   if(filled){
     h+='<div class="cc-note" style="text-align:center;margin-top:7px"><span class="trk-ok">✓</span> 남겨 주셨어요'+(ess?(' <span style="color:var(--label-soft)">·</span> '+escapeHtml(ess)):'')+'</div>'
-      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:11px;width:auto;padding:9px 20px">고치기</button>';
+      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:11px;display:inline-block;width:auto;padding:8px 22px">고치기</button>';
   } else {
     h+='<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
       +'<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
