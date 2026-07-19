@@ -318,7 +318,11 @@
       box.appendChild(b);
     });
     // 재렌더(함수형 칩): 기존 노드를 제자리 교체 — append만 하면 열 때마다 칩이 중복 누적됨
-    if (_chipBox && _chipBox.parentNode) { _chipBox.parentNode.replaceChild(box, _chipBox); if (_chipLab) _chipLab.remove(); _chipBox.parentNode.insertBefore(lab, box); }
+    if (_chipBox && _chipBox.parentNode) {
+      var _par = _chipBox.parentNode;
+      _par.replaceChild(box, _chipBox);
+      if (_chipLab && _chipLab.parentNode) _par.replaceChild(lab, _chipLab); else _par.insertBefore(lab, box);
+    }
     else { place(lab); place(box); scrollDown(); }
     _chipLab = lab; _chipBox = box;
   }

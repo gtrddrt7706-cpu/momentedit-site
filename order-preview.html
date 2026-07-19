@@ -405,7 +405,7 @@ var STEPDEF={
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
- write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 직접 읽는 글이에요 · 비워둬도 되고, D-7까지 채우면 대본에 담겨요.'},
+ write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 직접 읽는 글이에요 · 비워둬도 되고, D-7까지 채우면 대본에 담겨요. 여기 쓰신 글은 AI 상담 도우미에게 전달되지 않아요.'},
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
@@ -1291,6 +1291,7 @@ try{ _applySaved(JSON.parse(localStorage.getItem('me_order')||'null')); }catch(e
 render();
 // ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
 var EMBED=/[?&]embed=1/.test(window.location.search);
+var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람은 null)
 function _embedSave(){
   if(!EMBED) return;
   try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
@@ -1312,6 +1313,7 @@ if(EMBED){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
     if(ev.data.type==='momentedit:orderFill'){
+      if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들(이름·코드·전화·예식일·D-day) — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시
       var d=ev.data.draft;
       if(d&&d.S){ if(_applySaved({S:d.S,idx:99,cs:true,sv:true})){ _persist(); render(); } }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
@@ -1319,6 +1321,61 @@ if(EMBED){
   });
   try{ parent.postMessage({type:'momentedit:orderReady'},window.location.origin); }catch(e){}
 }
+
+// ── AI 식순 상담사 위젯 (★식순 AI 상담 배선 v1 — 2026-07-19 · 기획 docs/plans/PLAN_식순_AI상담사_기획.md v3) ──
+//   우측 FAB(기존 위젯 표시·진사색)를 누르면 드로어가 열린다. 임베드=전담 도우미·독립 열람=안내+예약 유도.
+var RITUAL_CHIPS={
+ _def:['이 화면에서 뭘 하게 되나요?','예식은 총 몇 분인가요?','꼭 넣어야 하는 순서가 있나요?'],
+ course:['코스마다 뭐가 다른가요?','어른 하객이 많은데 어떤 코스가 맞을까요?','예식은 총 몇 분인가요?'],
+ tune:['순간은 나중에 바꿀 수 있나요?','뭘 기준으로 고르면 좋을까요?','하나도 안 더해도 되나요?'],
+ guest:['하객 안내는 어떻게 나가나요?','저희 목소리로 안내할 수 있나요?','하객은 언제부터 들어오나요?'],
+ entry:['입장 멘트는 어떻게 고르나요?','두 분 목소리로 입장을 열 수 있나요?','입장곡은 누가 정하나요?'],
+ veil:['베일 다운이 뭔가요?','누가 내려 주는 게 좋을까요?','생략해도 이상하지 않나요?'],
+ welcome:['첫인사는 얼마나 길게 하나요?','인사말 쓰는 요령이 있나요?','나레이션이 대신할 수도 있나요?'],
+ vow:['서약문은 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','서약 쓰는 공식이 있나요?'],
+ ringwarm:['링 워밍이 뭔가요?','가족만 돌리면 몇 분 걸리나요?','반지 교환과 어떻게 이어지나요?'],
+ ring:['반지 교환은 어떻게 진행되나요?','반지를 빼면 흐름이 이상한가요?','반지는 당일 누가 챙기나요?'],
+ declare:['성혼 선언은 누가 낭독하나요?','하객 합송은 어떻게 진행돼요?','가족 낭독이 부담스러우면 어떡하죠?'],
+ valley:['와인 세리머니가 뭔가요?','케이크와 와인 중 뭐가 어울릴까요?','비워도 괜찮나요?'],
+ toast:['축배는 어떻게 진행되나요?','케이크와 둘 다 하면 몇 분인가요?','건배 잔은 어떻게 준비되나요?'],
+ song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],
+ letter:['편지는 보통 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','부모님께와 서로에게, 뭐가 다른가요?'],
+ tribute:['헌정은 어떤 방식들이 있나요?','큰절이 부담스러우면 어떡하죠?','헌정 꽃은 어떻게 준비되나요?'],
+ bless:['덕담은 누가 하는 게 좋을까요?','부모님이 부담스러워하시면요?','덕담은 몇 분 정도인가요?'],
+ write:['글은 지금 다 써야 하나요?','쓴 글은 어디에 저장되나요?','글 쓰는 공식이 있나요?'],
+ done:['지금 구성이면 몇 분인가요?','저장하면 언제까지 고칠 수 있나요?','다음엔 뭘 준비하면 되나요?']
+};
+function ritualAiState(){
+  try{
+    if(typeof courseStarted!=='undefined' && !courseStarted) return CUST?'아직 코스 선택 전 · 예식 기본 정보만 확인됨':'';
+    var c=COURSES[S.course], st=(STEPS[idx]||{});
+    var L=['[지금 만드는 식순]'];
+    L.push('코스: '+c.nm+' · 현재 화면: '+(st.title||st.k||'시작'));
+    try{ var rows=summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); if(rows.length) L.push('구성: '+rows.join(' → ')); }catch(e0){}
+    L.push('시간 합: '+estMin());
+    try{ var bl=fillBlanks(); if(bl.length) L.push('아직 비어 있음: '+bl.map(function(b){return b[1];}).join(' · ')); }catch(e1){}
+    if(CUST){
+      var who=[]; if(CUST.groom) who.push('신랑 '+CUST.groom); if(CUST.bride) who.push('신부 '+CUST.bride);
+      var w=who.join(' · ');
+      if(CUST.weddingDate) w+=(w?' · ':'')+'예식일 '+CUST.weddingDate+(CUST.dday!=null?(CUST.dday>=0?' (D-'+CUST.dday+')':' ('+(-CUST.dday)+'일 지남)'):'');
+      if(w) L.push(w);
+      if(CUST.pastD14) L.push('pastD14: true');
+    }
+    return L.join('\n');
+  }catch(e){ return ''; }
+}
+window.ME_ADV_PAGE={
+  page:'식순',
+  endpoint:'/api/ritual-advisor',
+  stateMax:2600,
+  greeting:'식순을 만들다 순서가 궁금하면 물어보세요. 코스와 순간 하나하나의 진행 방식과 문안을 알고 있어요.',
+  chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
+  state:ritualAiState,
+  customer:function(){ return CUST?{name:CUST.name||'',code:CUST.code||'',phone:CUST.phone||'',stage:'식순 작성'}:null; },
+  advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined) }; },
+  onOpen:function(){ try{ _stopAud(); }catch(e){} }
+};
 </script>
+<script src="/assets/advisor-widget.js"></script>
 </body>
 </html>
