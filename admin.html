@@ -427,7 +427,8 @@ function _seatChartDoc(d){
   var prod=(d&&d.mirror&&d.mirror.production)||{}, sd=prod.seatDraft||{};
   var tables=(Object.prototype.toString.call(sd.tables)==='[object Array]')?sd.tables:[];
   var names=esc(d.names||''), code=esc(d.code||''), wdate=(d.pin&&d.pin['예식일'])?esc(fmtDate(d.pin['예식일'])):'';
-  var DL={N:'논알콜',A:'알콜',J:'주스'};
+  var _dfDrink=String((prod.finalDraft||{}).drink||'').trim()||'기본 잔';   // 2단계에서 고른 잔 = 자리 기본값(2026-07-19). 미표시·구'알콜'(A)은 이 잔으로 준비
+  var DL={N:'논알콜',J:'주스'};   // 예외만 라벨 · 기본(''·A)은 _dfDrink
   // 편집기와 동일한 번호(위→아래 행 순서·각 행 좌→우)
   var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String((t&&t.side)||'L')==='R'?Rs:Ls).push(i); });
   var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
@@ -437,9 +438,9 @@ function _seatChartDoc(d){
   var L='',R='';
   tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
-  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+(DL[dk]?(' · '+DL[dk]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 커스텀 테이블명(혼주석 등)은 당일 세팅 명단에도 표기(하객 안내와 대조 가능하게)
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||_dfDrink)); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시 — 기본(''·A)은 고른 잔(_dfDrink) · 커스텀 테이블명도 표기
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join('  |  ')+'</div>'; });
-  var totLine='음료 합계 · 알콜 '+cA+' · 논알콜 '+cN+' · 주스 '+cJ+' · 미정 '+cU+' · 총 '+cT+'명';
+  var totLine='음료 합계 · '+esc(_dfDrink)+' '+(cA+cU)+' · 논알콜 '+cN+' · 주스 '+cJ+' · 총 '+cT+'명';   // 기본(고른 잔)=미표시+구'알콜'
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
@@ -458,7 +459,7 @@ function _seatChartDoc(d){
     +'.pr{font-size:12.5px;line-height:1.9;padding:2px 0;border-bottom:1px dotted #ece6da}.pr b{color:#6B2A24;margin-right:6px}'
     +'@page{size:A4;margin:12mm}@media print{body{padding:0}.ptbl,.pseat{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
   var body='<h1>좌석 배치도</h1><div class="psub">'+(names||'')+(wdate?(' · 예식 '+wdate):'')+(code?(' · '+code):'')+'</div>'
-    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dA"></i>알콜<i class="dN"></i>논알콜<i class="dJ"></i>주스</span></div>'
+    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dA"></i>'+esc(_dfDrink)+'<i class="dN"></i>논알콜<i class="dJ"></i>주스</span></div>'
     +'<div class="pstage">◈ 단상 · 신랑 신부</div>'
     +'<div class="proom"><div class="pcol">'+(L||'<div style="color:#b3ad9f;font-size:12px">좌측 테이블 없음</div>')+'</div>'
     +'<div class="paisle">버진로드</div><div class="pcol">'+(R||'<div style="color:#b3ad9f;font-size:12px">우측 테이블 없음</div>')+'</div></div>'

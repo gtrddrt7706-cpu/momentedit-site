@@ -4561,7 +4561,7 @@ function wireGuideShare(box, token){
 function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
 // ── 단체 사진 구도(예식 준비 · guideinfoDraft.photo에 저장 · guideinfo 트랙) — 본식 뒤 '단체 기록' 시간이라 식순과 분리(2026-07-19 사용자 지시). 라벨 그대로 저장(키 매핑 없음) ──
 var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
-var PHOTO_FX=['폰 플래시 흔들기','플라워 샤워(꽃가루)','컨페티·폭죽','다 함께 만세','점프샷','손하트·브이'];   // 단체컷 연출/이벤트 프리셋 — 사진작가 전달용(2026-07-19). 직접 추가도 가능
+var PHOTO_FX=['폰 플래시 흔들기','다 함께 건배','다 함께 만세','손하트·브이','다 함께 박수·환호','점프샷'];   // 단체컷 연출/이벤트 프리셋 — 사진작가 전달용(2026-07-19). 청소·이물질 리스크 있는 꽃가루·컨페티·폭죽은 제외(원하면 직접 추가). 직접 추가도 가능
 var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
 var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
