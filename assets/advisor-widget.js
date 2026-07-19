@@ -137,6 +137,7 @@
 
   var started = false, sending = false, escShown = false, handoffSent = false;
   var transcript = [];
+  var lastNight = false;   // 직전 응답의 야간 플래그(식순 등 — 에스컬레이션 문구를 정직하게)
   var mode = 'adv';   // 'adv'(/api/advisor) | 'sched'(/api/schedule-advisor 신비주의 스케줄)
 
   function place(el) { body.appendChild(el); }
@@ -172,6 +173,7 @@
     if (handoffSent || transcript.length === 0) return; handoffSent = true;
     var payload = { messages: transcript.slice(-16), page: PAGE };
     try { var c = (typeof CFG.customer === 'function') ? CFG.customer() : null; if (c) payload.customer = c; } catch (e) {}
+    try { if (typeof CFG.state === 'function') { var _hs = CFG.state(); if (_hs) payload.state = String(_hs).slice(0, CFG.stateMax || 1800); } } catch (e) {}
     try {
       fetch('/api/handoff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) }).catch(function () {});
     } catch (e) {}
@@ -182,9 +184,11 @@
     var ki = kakaoInfo();
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
-    t.textContent = ki.mail
+    t.textContent = lastNight
+      ? '문의를 디렉터에게 남겼어요. 내일 영업시간에 이어서 답해드려요.'
+      : (ki.mail
       ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
-      : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.';
+      : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.');
     box.appendChild(t);
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
     var k = document.createElement('a');
@@ -198,6 +202,22 @@
       h.textContent = '상담 가능 ' + ESC.hours;
       box.appendChild(h);
     }
+    place(box); scrollDown();
+  }
+
+  // ── 예약 유도 박스(toBooking) — 익명 모드에서 인계 대신 상담 예약으로(연락 불가 인계 방지) ──
+  var bookShown = false;
+  function showBooking() {
+    if (bookShown) return; bookShown = true;
+    var box = document.createElement('div'); box.className = 'me-adv-esc';
+    var t = document.createElement('div'); t.className = 'me-adv-esc-t';
+    t.textContent = '이어지는 확인은 상담 예약 페이지에서 하실 수 있어요.';
+    box.appendChild(t);
+    var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
+    var a = document.createElement('a');
+    a.className = 'me-adv-esc-btn kakao'; a.href = (CFG.booking && CFG.booking.url) || '/inquiry.html';
+    a.textContent = '상담 예약 페이지로';
+    btns.appendChild(a); box.appendChild(btns);
     place(box); scrollDown();
   }
 
@@ -251,18 +271,21 @@
       return;
     }
     var advBody = { messages: transcript.slice(-14), page: PAGE };
-    // (마이) 로그인 고객의 실시간 상태를 함께 전송 → AI가 개인 질문에 실데이터로 답(전송 시점에 최신값으로 읽음)
-    try { if (typeof CFG.state === 'function') { var _s = CFG.state(); if (_s) advBody.state = String(_s).slice(0, 1800); } } catch (e) {}
-    fetch('/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
+    // (마이·식순) 로그인 고객의 실시간 상태를 함께 전송 → AI가 개인 질문에 실데이터로 답(전송 시점에 최신값으로 읽음)
+    try { if (typeof CFG.state === 'function') { var _s = CFG.state(); if (_s) advBody.state = String(_s).slice(0, CFG.stateMax || 1800); } } catch (e) {}
+    try { if (typeof CFG.advExtra === 'function') { var _x = CFG.advExtra(); if (_x) { for (var _k in _x) advBody[_k] = _x[_k]; } } } catch (e) {}   // 식순: embed·customer 등 판별 필드
+    fetch(CFG.endpoint || '/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(advBody) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
       .then(function (res) {
         typing.remove();
         var j = res.j || {};
         if (res.ok && j.reply) {
+          lastNight = !!j.night;
           addMsg(j.reply, 'bot');
           transcript.push({ role: 'assistant', content: j.reply });
           if (j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
+          if (j.toBooking) showBooking();     // (식순 독립 모드 등) 인계 대신 상담 예약 유도
         } else {
           try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
           addMsg('지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');
@@ -277,11 +300,16 @@
       .then(function () { sending = false; sendBtn.disabled = false; });
   }
 
+  var _chipLab = null, _chipBox = null;
+  function _chipsList() {
+    var c = null;
+    try { c = (typeof CFG.chips === 'function') ? CFG.chips() : CFG.chips; } catch (e) { c = null; }
+    return Array.isArray(c) ? c : [];
+  }
   function renderChips() {
-    var chips = Array.isArray(CFG.chips) ? CFG.chips : [];
+    var chips = _chipsList();
     if (!chips.length) return;
     var lab = document.createElement('div'); lab.className = 'me-adv-chips-label'; lab.textContent = 'Quick Questions';
-    place(lab);
     var box = document.createElement('div'); box.className = 'me-adv-chips';
     chips.forEach(function (c) {
       var b = document.createElement('button');
@@ -289,7 +317,10 @@
       b.addEventListener('click', function () { send(c.label, !!c.sched); });
       box.appendChild(b);
     });
-    place(box); scrollDown();
+    // 재렌더(함수형 칩): 기존 노드를 제자리 교체 — append만 하면 열 때마다 칩이 중복 누적됨
+    if (_chipBox && _chipBox.parentNode) { _chipBox.parentNode.replaceChild(box, _chipBox); if (_chipLab) _chipLab.remove(); _chipBox.parentNode.insertBefore(lab, box); }
+    else { place(lab); place(box); scrollDown(); }
+    _chipLab = lab; _chipBox = box;
   }
 
   // ── 열기/닫기 + 모바일 배경 스크롤 잠금(index.html 위젯과 동일 동작) ──
@@ -321,6 +352,8 @@
     backdrop.classList.add('open');
     lockScroll();
     refreshKakaoLink();
+    try { if (typeof CFG.onOpen === 'function') CFG.onOpen(); } catch (e) {}   // 식순: 재생 중 오디오 정지 등
+    if (started && typeof CFG.chips === 'function') renderChips();   // 스텝 맥락 칩 갱신(함수형일 때만 · 제자리 교체)
     if (!started) {
       started = true;
       renderChips();   // 메뉴(칩)를 위에
