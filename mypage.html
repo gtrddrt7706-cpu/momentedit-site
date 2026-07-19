@@ -1237,7 +1237,7 @@ function openRitualBuilder(p){
   _mpLock();
   var saved=false;
   function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
-  function onKey(e){ if(e.key==='Escape') done(); }
+  function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var d=ev.data||{};
@@ -1247,7 +1247,15 @@ function openRitualBuilder(p){
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
-    if(d.type==='momentedit:orderClose'){ done(); return; }   // 빌더 안 닫기 버튼·Esc
+    if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
+    if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
+      if(d.data && d.data.S){
+        apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
+          .then(function(r){ if(r&&r.ok){ saved=true; done(); } else { alert((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })
+          .catch(function(){ alert('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
+      } else { done(); }
+      return;
+    }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
         .then(function(r){ if(r&&r.ok){ saved=true; } else { alert((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
