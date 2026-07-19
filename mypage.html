@@ -1408,7 +1408,7 @@ function qrSaveImage(host, fname){
       el.toBlob(function(bl){
         try{
           var f=new File([bl],fname,{type:'image/png'});
-          if(navigator.canShare({files:[f]})){ navigator.share({files:[f]}).then(done).catch(function(){}); return; }
+          if(navigator.canShare({files:[f]})){ navigator.share({files:[f]}).then(done).catch(function(err){ if(err&&err.name==='AbortError') return; _qrDl(src,fname); done(); }); return; }   // 공유 가능이라며 실패하는 인앱 → 취소가 아니면 다운로드 폴백(아무 일도 없던 것 수정 · 2026-07-18 리뷰)
         }catch(e){}
         _qrDl(src,fname); done();
       },'image/png'); return;
@@ -1418,7 +1418,7 @@ function qrSaveImage(host, fname){
 }
 function _qrDl(src,fname){
   try{ var a=document.createElement('a'); a.style.cssText='position:fixed;left:-9999px;top:0'; a.href=src; a.download=fname; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
-  catch(e){ try{ window.open(src,'_blank'); }catch(e2){} }
+  catch(e){ try{ var w=window.open('','_blank'); if(w&&w.document){ w.document.write('<img src="'+src+'" alt="QR" style="width:60vmin;max-width:320px">'); } }catch(e2){} }   // data: URL 직접 내비게이션은 최신 브라우저가 차단 → 빈 탭에 이미지로(길게 눌러 저장 · 2026-07-18 리뷰)
 }
 function show(viewId){
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
@@ -3888,7 +3888,8 @@ function renderInvFlow(box){
   if(INVFLOW.step==='method') invStepMethod(box);
   else if(INVFLOW.step==='parents') invStepParents(box);
   else if(INVFLOW.step==='design') invStepDesign(box);
-  else if(INVFLOW.step==='done') invStepDone(box,{ok:true,urls:INVFLOW.draft.invitationUrls||{},eventId:INVFLOW.draft.eventId||''});   // 발행됨 재진입 — 저장된 링크로 완성 화면 복원(재발행 불필요)
+  else if(INVFLOW.step==='done'){ var _ru=INVFLOW.draft.invitationUrls||{}; var _rHas=!!(_ru.online||_ru.family||_ru.live);
+    invStepDone(box, _rHas?{ok:true,urls:_ru,eventId:INVFLOW.draft.eventId||''}:{ok:true,skipped:true}); }   // 발행됨 재진입 — 저장된 링크로 복원 · 링크 없는 done(청첩장 없이)은 skipped 화면으로(빈 '완성됐어요' 방지 · 2026-07-18 리뷰)
   else invStepConfirm(box);
 }
 function invStepMethod(box){
@@ -3937,6 +3938,7 @@ function invStepMethod(box){
       if(!d.groomKo||!d.brideKo){ mpAlert('신랑·신부 이름(한글)을 입력해 주세요.'); return; }
       if(!d.groomEn||!d.brideEn){ mpAlert('영문 이름(성 제외)도 적어 주세요. 청첩장 표지와 링크에 들어가요.'); return; }
     }
+    if(mm==='self' && INVFLOW.draft.selfQR!==true && INVFLOW.draft.selfQR!==false){ mpAlert('모바일 참석 QR을 받으실지 골라 주세요.'); return; }   // 미응답이 조용히 '청첩장 없이(none)'로 발행되던 함정 차단(2026-07-18 리뷰)
     saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
     else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행
@@ -3944,7 +3946,12 @@ function invStepMethod(box){
   });
 }
 function invStepParents(box){
-  var d=INVFLOW.draft; d._acctGate='Y';   // 계좌(마음 전하실 곳)는 필수 · 항상 노출
+  var d=INVFLOW.draft; d._acctGate='Y';   // 계좌(마음 전하실 곳) 섹션은 항상 노출
+  // 노출 위치 체크 기본 켬 — 계좌를 적고도 체크를 안 건드려 '어디에도 안 나오는' 함정 방지(미결정 undefined만 · 명시적 N은 존중 · 2026-07-18 리뷰)
+  var _offOn=(d.method==='offline'||d.method==='both'), _onOn=(d.method==='online'||d.method==='both');
+  if(_offOn && d.accountFamily===undefined) d.accountFamily='Y';
+  if(_onOn && d.accountOnline===undefined) d.accountOnline='Y';
+  if(_onOn && d.accountLive===undefined) d.accountLive='Y';
   var OMIT='호칭 생략 (이름만 표시)', ETC='기타(직접입력)';
   var GT=['장남','차남','삼남','사남','외동아들','막내아들',OMIT], BT=['장녀','차녀','삼녀','사녀','외동딸','막내딸',OMIT];
   var BANKS=['국민','신한','우리','하나','농협','기업','SC제일','씨티','카카오뱅크','토스뱅크','케이뱅크','새마을금고','우체국','수협','부산','대구','경남','광주','전북','산업'];
@@ -3954,7 +3961,7 @@ function invStepParents(box){
   function selOnly(id,arr,cur,flex){ cur=cur||''; var sv=(cur!==''&&arr.indexOf(cur)<0)?ETC:(cur||arr[0]); return '<select class="cc-input" id="'+id+'" style="'+(flex||'')+'margin-bottom:0">'+arr.concat([ETC]).map(function(x){return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'; }
   function etcRow(id,cur,arr,ph){ cur=cur||''; var etc=(cur!==''&&arr.indexOf(cur)<0); return '<input class="cc-input" id="'+id+'_e" placeholder="'+ph+'" value="'+(etc?escapeHtml(cur):'')+'" style="margin-top:6px;'+(etc?'':'display:none')+'">'; }
   // 부모님 계좌: 기존 단일값("은행 번호")을 은행/번호로 분리해 프리필 (은행이 목록에 있을 때만)
-  function paSplit(v){ v=String(v||'').trim(); var i=v.indexOf(' '); if(i>0){ var bk=v.slice(0,i); if(BANKS.indexOf(bk)>=0) return {bank:bk,no:v.slice(i+1).trim()}; } return {bank:'',no:v}; }
+  function paSplit(v){ v=String(v||'').trim(); var i=v.indexOf(' '); if(i>0){ var bk=v.slice(0,i); if(BANKS.indexOf(bk)>=0 || !/^[\d-]+$/.test(bk)) return {bank:bk,no:v.slice(i+1).trim()}; } return {bank:'',no:v}; }   // 기타(직접입력) 은행도 첫 토큰이 숫자 계좌가 아니면 은행으로 인식 — 재진입 시 '국민 카카오 12345'로 오염되던 것 수정(2026-07-18 리뷰)
   function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 104px;')+'<input class="cc-input" id="'+numId+'" placeholder="'+label+' 계좌번호" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
   var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
@@ -3985,7 +3992,7 @@ function invStepParents(box){
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
-    +'<div class="inv-q">혼주 · 마음 전하실 곳</div><div class="inv-sub">계좌는 필수, 나머지는 선택이에요.</div>'
+    +'<div class="inv-q">혼주 · 마음 전하실 곳</div><div class="inv-sub">계좌를 비워 두면 마음 전하실 곳 없이 나가요 · 나머지는 선택이에요.</div>'
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
     + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
@@ -4072,17 +4079,18 @@ function designBlock(side,label){
       + '<a class="cc-btn-ghost inv-onep-zoom" href="'+pv+'" target="_blank" rel="noopener">전체 보기 ↗</a>'
       + '</div>';
   }
-  return '<div class="inv-side"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div><div class="inv-fields">'+f+'</div>'+prev+'</div>';
+  // 04·05 표기 특성 안내 — 혼주 입력(2단계)이 디자인 선택보다 앞이라, 고르는 순간 여기서 알려야 처음 오는 손님도 본다(2026-07-18 리뷰)
+  var dzNote=(cur==='04')?'<div class="cc-note">버밀리언(04)은 혼주 성함을 <b>이름만</b> 표기가 기본이에요 · 호칭을 넣으려면 이전(혼주) 단계에서 골라 주세요.</div>'
+    :(cur==='05')?'<div class="cc-note">보태니컬(05)은 혼주를 영문(son of)으로 표기해 <b>장남·차녀 같은 호칭은 나오지 않아요</b>.</div>':'';
+  return '<div class="inv-side"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div>'+dzNote+'<div class="inv-fields">'+f+'</div>'+prev+'</div>';
 }
 function collectDesign(box){
   var d=INVFLOW.draft;
   Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){
     var K=SIDE_KEYS[el.getAttribute('data-side')]; d[K[el.getAttribute('data-k')]] = (el.value||'').trim();
   });
-  if(d.method==='both' && d._onlineSame!=='N'){   // 온라인=오프라인 미러
-    var O=SIDE_KEYS.offline, N=SIDE_KEYS.online;
-    d[N.d]=d[O.d]||''; ['title','sub','body','quote','gb','bb'].forEach(function(k){ d[N[k]]=d[O[k]]||''; });
-  }
+  // (미러 이동 2026-07-18 리뷰) '오프라인과 같게' 온라인 복사는 doPublishInv에서 발행 직전 1회만.
+  //   여기서 하면 ①'같게'로 잠깐 돌아오기만 해도 다르게로 쓴 온라인 디자인·문구가 즉시 덮여 유실 ②그리드 클릭이 이전 값을 미러해 저장 draft가 한 픽 뒤처짐.
 }
 function _invHasDesign(d){
   if(d.method==='offline') return !!d.designFamily;
@@ -4091,7 +4099,15 @@ function _invHasDesign(d){
   return true;
 }
 function bindDesign(box){
-  Array.prototype.forEach.call(box.querySelectorAll('.inv-dz'),function(el){ el.addEventListener('click',function(){ collectDesign(box); var _n=el.getAttribute('data-n'); INVFLOW.draft[SIDE_KEYS[el.getAttribute('data-side')].d]=_n; if(_n==='04'&&!INVFLOW.draft._titleTouched){ INVFLOW.draft.groomChildTitle='호칭 생략 (이름만 표시)'; INVFLOW.draft.brideChildTitle='호칭 생략 (이름만 표시)'; } invStepDesign(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('.inv-dz'),function(el){ el.addEventListener('click',function(){ collectDesign(box); var _n=el.getAttribute('data-n'); INVFLOW.draft[SIDE_KEYS[el.getAttribute('data-side')].d]=_n;
+    // 04(버밀리언) 기본 '이름만 표시' — 직접 고른 호칭(_titleTouched)은 존중하고, 자동 적용분은 04를 떠나면 원래 값으로 복원(구경만 해도 호칭이 영영 지워지던 것 수정 · 2026-07-18 리뷰)
+    var D=INVFLOW.draft;
+    if(!D._titleTouched){
+      var _any04=(D.designFamily==='04'||D.designOnline==='04');
+      if(_any04 && D._t04prev===undefined){ D._t04prev=[D.groomChildTitle||'',D.brideChildTitle||'']; D.groomChildTitle='호칭 생략 (이름만 표시)'; D.brideChildTitle='호칭 생략 (이름만 표시)'; }
+      else if(!_any04 && D._t04prev!==undefined){ D.groomChildTitle=D._t04prev[0]; D.brideChildTitle=D._t04prev[1]; delete D._t04prev; }
+    }
+    invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){ el.addEventListener('input',function(){ collectDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){ el.addEventListener('change',function(){ var k=el.getAttribute('data-acc'); INVFLOW.draft[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N'; }); });
@@ -4147,9 +4163,22 @@ function invStepConfirm(box){
   else if(m==='offline') sm='직접 모시는 청첩장 · '+dz(d.designFamily);
   else if(m==='online') sm='온라인(모바일 참석) 청첩장 · '+dz(d.designOnline);
   else sm=((d._onlineSame!=='N')||(d.designOnline===d.designFamily)) ? ('온라인·오프라인 모두 '+dz(d.designFamily)) : ('오프라인 '+dz(d.designFamily)+' · 온라인 '+dz(d.designOnline));
+  // 발행 전 마지막 점검 요약 — 계좌·혼주는 4단계에 안 보여 오타·미입력을 발행 후에야 알던 것 보완(2026-07-18 리뷰 · 한 줄만)
+  var det='';
+  if(m==='offline'||m==='online'||m==='both'){
+    var _acN=[d.groomAccount,d.brideAccount,d.groomFatherAccount,d.groomMotherAccount,d.brideFatherAccount,d.brideMotherAccount].filter(function(x){ return String(x||'').trim(); }).length;
+    var _acW=[]; if((m==='offline'||m==='both')&&d.accountFamily==='Y') _acW.push('오프라인'); if((m==='online'||m==='both')&&d.accountOnline==='Y') _acW.push('온라인'); if((m==='online'||m==='both')&&d.accountLive==='Y') _acW.push('모바일 참석');
+    var _acTxt=_acN?('계좌 '+_acN+'건'+(_acW.length?(' · '+_acW.join('·')+'에 나와요'):' · 노출 위치가 모두 꺼져 있어 안 나와요')):'계좌 미입력 · 마음 전하실 곳 없이 나가요';
+    det='<div class="cc-mini" style="display:block;margin:4px 0 2px">'+((d.greetingShowParents==='Y')?'혼주 성함 표기':'혼주 성함 없이')+' · '+_acTxt+'</div>';
+  }
+  // 만들기 결과 안내 — none·self는 '실제 청첩장이 나온다'는 문구가 거짓이라 구성별로(2026-07-18 리뷰)
+  var mkNote=(m==='none')?'<div class="cc-note">청첩장 없이 진행으로 저장돼요. 언제든 다시 만들 수 있어요.</div>'
+    :(m==='self')?(d.selfQR?'<div class="cc-note"><b>만들기</b>를 누르면 인쇄용 모바일 참석 QR·링크를 드려요. 발행 후에도 고칠 수 있어요.</div>'
+      :'<div class="cc-note">저희가 만들 것 없이 청첩장 단계만 마무리돼요. QR이 필요해지면 언제든 다시 고를 수 있어요.</div>')
+    :'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>';
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
-    +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'
-    +'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>'
+    +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'+det
+    +mkNote
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">청첩장 만들기</button></div></div>';
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
@@ -4158,10 +4187,16 @@ function invStepConfirm(box){
 function doPublishInv(box){
   var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
-  var dr=INVFLOW.draft, sendDraft=(dr.method==='self'&&!dr.selfQR)?Object.assign({},dr,{method:'none'}):dr;   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X)
+  var dr=INVFLOW.draft, sendDraft=dr;
+  if(dr.method==='both' && dr._onlineSame!=='N'){   // '오프라인과 같게' 미러는 발행 직전 1회만(작성 중 미러가 온라인 커스텀을 덮던 것 이동 · 2026-07-18 리뷰)
+    var _O=SIDE_KEYS.offline, _N=SIDE_KEYS.online, _cp={}; _cp[_N.d]=dr[_O.d]||''; ['title','sub','body','quote','gb','bb'].forEach(function(k){ _cp[_N[k]]=dr[_O[k]]||''; });
+    sendDraft=Object.assign({},sendDraft,_cp);
+  }
+  if(dr.method==='self'&&!dr.selfQR) sendDraft=Object.assign({},sendDraft,{method:'none'});   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X · 미응답은 1단계에서 차단됨)
   api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
     if(r&&r.ok){
       if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
+      else if(r.skipped){ INVFLOW.draft.invitationUrls=null; INVFLOW.draft.eventId=''; INVFLOW.step='done'; }   // none 전환 시 옛 링크 잔존 → 재진입이 은퇴한 청첩장을 '완성됨'으로 되살리던 것 정리(2026-07-18 리뷰)
       invStepDone(box, r);
     }
     else reset((r&&r.error)||'발행이 안 됐어요. 한 번 더 눌러 주세요.');
@@ -4183,7 +4218,10 @@ window.addEventListener('message', function(ev){
 });
 function invStepDone(box, r){
   if(r.skipped){
-    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.</div><div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    var _skSub=(String((INVFLOW.draft||{}).method||'')==='self')
+      ? '실물 청첩장은 직접 준비하시는 구성이에요 · 저희가 만들 것은 없어요. QR이 필요해지면 언제든 다시 고를 수 있어요.'
+      : '청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.';   // self(QR 아니요)에게 '청첩장 없이'라고 말해 선택이 뒤집힌 듯 보이던 것 구분(2026-07-18 리뷰)
+    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">'+_skSub+'</div><div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
     $('iv_done').addEventListener('click', exitInvFlow);
     var _ed0=$('iv_edit'); if(_ed0) _ed0.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); }); return;
   }
@@ -4295,20 +4333,20 @@ function invStepDone(box, r){
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
   $('iv_done').addEventListener('click', exitInvFlow);
   var _ed=$('iv_edit'); if(_ed) _ed.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); window.scrollTo({top:Math.max(0,box.offsetTop-12)}); });   // 작성 내용 그대로 1단계부터 점검 → 재발행하면 같은 링크 갱신
-  Array.prototype.forEach.call(box.querySelectorAll('.dl-share'),function(b){ b.addEventListener('click',function(){ var url=b.getAttribute('data-url'); if(navigator.share){ navigator.share({title:'청첩장에 초대합니다',url:url}).catch(function(){}); } else { invCopy(url,b); } }); });
+  Array.prototype.forEach.call(box.querySelectorAll('.dl-share'),function(b){ b.addEventListener('click',function(){ var url=b.getAttribute('data-url'); if(navigator.share){ navigator.share({title:'청첩장에 초대합니다',url:url}).catch(function(err){ if(!err||err.name!=='AbortError') invCopy(url,b); }); } else { invCopy(url,b); } }); });   // 공유 시트가 있다며 거절하는 인앱 등 → 취소(Abort) 아니면 복사로 폴백(조용한 무반응 방지 · 2026-07-18 리뷰)
   Array.prototype.forEach.call(box.querySelectorAll('.dl-copy'),function(b){ b.addEventListener('click',function(){ invCopy(b.getAttribute('data-url'),b); }); });
   Array.prototype.forEach.call(box.querySelectorAll('.dl-qr'),function(b){ b.addEventListener('click',function(){
     var k=b.getAttribute('data-kind'), bx=$('dcqr_'+k); if(!bx) return;
     var show=bx.style.display==='none'; bx.style.display=show?'':'none';
-    if(show && !bx._qrDone){ bx._qrDone=true; ensureQR(function(){ renderQRInto('dcqr_'+k+'_c','dcqr_'+k+'_s',b.getAttribute('data-url'),'moment-edit-invite-qr.png'); }); }
-  }); });
+    if(show && !bx._qrDone){ ensureQR(function(){ bx._qrDone=!!window.QRCode; renderQRInto('dcqr_'+k+'_c','dcqr_'+k+'_s',b.getAttribute('data-url'),'moment-edit-invite-qr.png'); }); }
+  }); });   // _qrDone은 라이브러리 로드 성공 시에만 — 일시 실패가 텍스트 폴백으로 영구 고정되던 것 수정(닫았다 열면 재시도 · 2026-07-18 리뷰)
   // QR은 각 접힘을 처음 열 때 1회 렌더(닫힌 채로는 안 그려 초기 로드 가볍게) · QR만 쓰는 구성은 펼침 시작이라 즉시 렌더
   var _qf=$('iv_qfold');
-  if(_qf){ var _qgo=function(){ if(_qf._qrDone) return; _qf._qrDone=true; ensureQR(function(){ renderInvQR(mobileUrl); }); };
+  if(_qf){ var _qgo=function(){ if(_qf._qrDone) return; ensureQR(function(){ _qf._qrDone=!!window.QRCode; renderInvQR(mobileUrl); }); };
     if(_qf.open) _qgo(); _qf.addEventListener('toggle', function(){ if(_qf.open) _qgo(); }); }
   var _gf=$('iv_gfold');
-  if(_gf){ var _ggo=function(){ if(_gf._qrDone) return; _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); }; if(_gf.open) _ggo(); }
-  if(_gf) _gf.addEventListener('toggle', function(){ if(_gf.open && !_gf._qrDone){ _gf._qrDone=true; ensureQR(function(){ renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); } });
+  if(_gf){ var _ggo=function(){ if(_gf._qrDone) return; ensureQR(function(){ _gf._qrDone=!!window.QRCode; renderQRInto('iv_gqr','iv_gqrsave',_gUrl,'moment-edit-guide-qr.png'); }); }; if(_gf.open) _ggo();
+    _gf.addEventListener('toggle', function(){ if(_gf.open) _ggo(); }); }
 }
 function invCopy(text,btn){
   function done(){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent='복사됐어요'; setTimeout(function(){ btn.textContent=t; },1400); } }
