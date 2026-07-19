@@ -3789,7 +3789,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
       + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel, null, {tag:'선택'})
       + row('최종 확정', t.final||'시작전', 'mp_finalStart', null, (_fDone?null:fNote))
-      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), (_seatDone?null:seNote), {tag:'선택'}) : '')
+      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), (_seatDone?null:seNote)) : '')   // ★'선택' 태그 금지 — 좌석 배치도는 필수 준비 · 선택인 건 공개 방식(전체 공개/내 자리만)뿐(2026-07-19 사용자 지시)
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
@@ -3804,7 +3804,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
   // 다이닝은 선택(완료 조건 제외). 최종 확정은 예식 30일 전부터 필수 — 그 전엔 미완료여도 접힘 유지.
-  var allDone = _coreDone && (_fDone ? _cfOk : (_dLeft==null || _dLeft>30)) && !p.confirmStale && !_cfPanelOpen;   // 재확인 필요·확인 직후엔 접지 않음. 확인서 게이트는 최종 확정 후에만(_fDone): 확인 가능해졌는데 안 봤으면 펼침 유지, 확정 전(D-30 이전)엔 종전대로 접힘 — 몇 달짜리 미접힘·죽은 강조 방지(2026-07-18 리뷰)
+  var allDone = _coreDone && (_fDone ? (_seatDone && _cfOk) : (_dLeft==null || _dLeft>30)) && !p.confirmStale && !_cfPanelOpen;   // 재확인 필요·확인 직후엔 접지 않음. 확인서·좌석 게이트는 최종 확정 후에만(_fDone): 좌석 배치는 필수 준비라(2026-07-19 사용자 지시) 미완이면 '준비 완료 ✓'로 접지 않음 · 확정 전(D-30 이전)엔 종전대로 접힘
   if(allDone){
     // 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
