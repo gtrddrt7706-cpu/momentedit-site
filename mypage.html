@@ -5312,7 +5312,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-seat-fedit],[data-fsave],[data-fedrink],[data-drink]'):null;   // data-drink 복원 2026-07-19 · data-fsave/fedrink=인원·음료 인라인(한 화면 통합)
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-fedrink],[data-drink]'):null;   // data-drink 복원 2026-07-19 · data-fedrink=상단 대표음료 칩(초경량)
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
