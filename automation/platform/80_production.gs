@@ -212,6 +212,9 @@ function handleSaveProductionTrack(body) {
     //   ★비어 있으면 키 자체를 안 넣는다 — 구 드래프트(photo 없음)와 동일하게 유지해 '무변경 재저장'이 가짜 재확인을 만들지 않게(2026-07-19). 구도가 생기면 그때만 변경으로 감지돼 확인 해제
     var _photo = (Object.prototype.toString.call(gir.photo) === '[object Array]') ? gir.photo.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 11) : [];
     if (_photo.length) body.draft.photo = _photo;
+    // 단체 사진 연출/이벤트(예: 폰 플래시 흔들기·플라워 샤워) — 사진작가·디렉터 전달용. 다중 선택+직접 추가. 최대 8개·각 24자. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
+    var _pfx = (Object.prototype.toString.call(gir.photoFx) === '[object Array]') ? gir.photoFx.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 8) : [];
+    if (_pfx.length) body.draft.photoFx = _pfx;
   }
   // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
   var _cs = null;
