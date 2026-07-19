@@ -21,12 +21,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.rh-hd .t,.ev-n{font-family:var(--serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
 .prog{padding:15px 0 0}
-.prog-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
+.prog-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;min-height:30px}
 .prog-now{font-size:12px;font-weight:700;color:var(--accent)}
 .prog-pct{font-size:11px;font-weight:600;color:var(--gold-deeper);flex-shrink:0}
 .prog-bar{height:7px;background:var(--border);border-radius:7px;overflow:hidden}
 .prog-fill{height:100%;background:var(--gold-deep);width:9%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
-.prog-next{font-size:10px;color:var(--light);margin-top:7px;text-align:right;word-break:keep-all}
+.prog-sub{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}   /* 2행: 보조 정보(진행 상황 좌 · 다음 예고 우) */
+.prog-next{font-size:10px;color:var(--light);text-align:right;word-break:keep-all;flex:1}
 .stage{flex:1;padding:8px 0 12px;animation:fade .5s ease-out}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:22px;font-weight:700;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
@@ -274,8 +275,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rh-cue{font-size:13px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:7px 10px;margin-top:8px;line-height:1.6;word-break:keep-all}
 .rh-cue b{color:var(--seal)}
 /* 임베드 나가기 — 다른 위저드(청첩장·다이닝·최종 확정·좌석)와 같은 '저장 후 나가기' 구조로 통일(2026-07-18 사용자 지시).
-   ✕(저장 없이 닫기)는 기기 임시 저장뿐이라 다른 기기 이어서가 안 됐음 → 나가며 서버에 초안 저장. 코스 고르기 전엔 '나가기'로 표기 */
-.ob-exitrow{display:flex;justify-content:flex-end;margin:12px 0 -8px}
+   ✕(저장 없이 닫기)는 기기 임시 저장뿐이라 다른 기기 이어서가 안 됐음 → 나가며 서버에 초안 저장. 코스 고르기 전엔 '나가기'로 표기.
+   위치는 진행 스트립 1행 오른쪽(#obExitSlot) — 홀로 뜬 줄이 상단 리듬을 깨던 것 정리(2026-07-18 사용자 지적) */
 .ob-exit{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-family:var(--serif);font-size:12.5px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
@@ -284,9 +285,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 <body>
 <div class="wrap">
   <div class="prog">
-    <div class="prog-top"><span class="prog-now" id="pnow"></span><span class="prog-pct" id="ppct"></span></div>
+    <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
+    <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
-    <div class="prog-next" id="pnext"></div>
+    <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span></div>
   </div>
   <div class="minitl" id="minitl" style="display:none"></div>
   <div class="stage" id="stage"></div>
@@ -625,8 +627,8 @@ var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',gues
 var _navKey='';
 function render(){
   _stopAud();
-  var _xr0=document.getElementById('obExit');   // 임베드 나가기 줄 — 연습 공간·완성 화면에선 숨김(각자 돌아가기·저장 버튼이 담당)
-  if(_xr0) _xr0.parentNode.style.display=(mode==='rehearse')?'none':'flex';
+  var _xr0=document.getElementById('obExit');   // 임베드 나가기 — 연습 공간·완성 화면에선 숨김(각자 돌아가기·저장 버튼이 담당)
+  if(_xr0) _xr0.style.display=(mode==='rehearse')?'none':'';
   if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
@@ -663,7 +665,7 @@ function render(){
   nx.style.display=(st.k==='course'&&!editReturn&&(crsOpen||!courseStarted))?'none':'block';
   nx.textContent=editReturn?'저장 · 요약으로':(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?(_doneSaved?'저장됨 · D-14까지 언제든 고쳐요':'이대로 저장하기'):'다음');
   renderMiniTL(st.k);
-  if(_xr0){ _xr0.textContent=courseStarted?'저장 후 나가기':'나가기'; if(st.k==='done') _xr0.parentNode.style.display='none'; }   // 코스 시작 전엔 저장할 게 없어 '나가기' · 완성 화면은 '이대로 저장하기'가 담당
+  if(_xr0){ _xr0.textContent=courseStarted?'저장 후 나가기':'나가기'; if(st.k==='done') _xr0.style.display='none'; }   // 코스 시작 전엔 저장할 게 없어 '나가기' · 완성 화면은 '이대로 저장하기'가 담당
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
   if(courseStarted) _persist();
@@ -1469,11 +1471,10 @@ if(EMBED){
     try{ if(courseStarted){ var _bs=fullBlocks(); payload={S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}; } }catch(e){}
     try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
   };
-  var _xrow=document.createElement('div'); _xrow.className='ob-exitrow';
-  var _cb=document.createElement('button'); _cb.type='button'; _cb.className='ob-exit'; _cb.id='obExit'; _cb.textContent='나가기';
+  var _cb=document.createElement('button'); _cb.type='button'; _cb.className='ob-exit'; _cb.id='obExit';
+  _cb.textContent=courseStarted?'저장 후 나가기':'나가기';   // 복원 진입 시 첫 렌더가 버튼 생성보다 먼저라 라벨이 어긋나던 것 — 생성 시점에 즉시 동기화
   _cb.addEventListener('click',window._obExit);
-  _xrow.appendChild(_cb);
-  var _wr=document.querySelector('.wrap'); if(_wr) _wr.insertBefore(_xrow,_wr.firstChild);
+  var _slot=document.getElementById('obExitSlot'); if(_slot) _slot.appendChild(_cb);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') window._obExit(); });
   window.addEventListener('message',function(ev){
     if(ev.origin!==window.location.origin||!ev.data) return;
