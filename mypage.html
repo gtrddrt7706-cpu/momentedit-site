@@ -860,6 +860,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .ph-chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
     .ph-chip{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
     .ph-chip.on{border-color:var(--gold-deep);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
+    .ph-chip.fxon{color:var(--gold-deeper);border-style:solid;border-color:var(--gold-deep);background:rgba(184,154,117,.10)}   /* 연출(photoFx) 선택 · 2026-07-19 port */
     .ph-chip.locked{cursor:default}
     .seat-drsum .s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 3px 0 9px;vertical-align:middle}
     .seat-drinkbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center;margin:10px auto 2px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:340px}
@@ -3323,11 +3324,13 @@ function renderProduction(p, inv){
     if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }
     if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
     if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
+    if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }
     box.style.display='none'; box.innerHTML=''; return;
   }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
+  if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }   // 단체 사진 전용 화면 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
@@ -3344,8 +3347,8 @@ function renderProduction(p, inv){
   if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
   // 행 버튼 → 바로 아래 패널 토글(내용 확인)
   function _panelToggle(btnId, panelId){ var b=$(btnId), pn=$(panelId); if(!b||!pn) return; b.addEventListener('click', function(){ pn.style.display=(pn.style.display==='none')?'':'none'; }); }
-  _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel'); _panelToggle('mp_photoOpen','mp_photoPanel');
-  try{ wirePhotoEditor(box, p); }catch(e){}   // 단체 사진 구도 편집(칩 토글·직접 추가 → guideinfo 저장) · 병렬 세션 f83da9b 보존
+  _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel');
+  var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ startPhotoFlow(p.guideinfoDraft||{}); });   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -3843,9 +3846,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
           (!_fDone?fNote:(_seatDone?null:seNote)))
-      // 단체 사진 — 본식 뒤 '단체 기록' 시간의 구도 선택(식순과 분리 · 병렬 세션 f83da9b 작업 보존). 행+패널
-      + (function(){ var _ph=((p.guideinfoDraft||{}).photo)||[]; return row('단체 사진', _ph.length?'완료':'', 'mp_photoOpen', (_ph.length?'전체 하객 + '+_ph.length+'컷':'구도 고르기'), '본식 뒤 단체 기록 시간에 남길 구도를 미리 골라 둬요', {tag:'선택'}); })()
-      + '<div class="trk-panel" id="mp_photoPanel" style="display:none">'+photoHubHtml(p)+'</div>'
+      // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
+      + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, '본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요', {}); })()
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
@@ -4721,37 +4723,88 @@ function guideHubHtml(p, inv){
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
 var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나라도 내용을 채워 완료하면';
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
-// ── 단체 사진 구도(예식 준비 · guideinfoDraft.photo · guideinfo 트랙) — 병렬 세션 f83da9b 보존 ──
+// ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
 var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
+var PHOTO_FX=['폰 플래시 흔들기','다 함께 건배','다 함께 만세','손하트·브이','다 함께 박수·환호','점프샷'];   // 단체컷 연출/이벤트 프리셋 — 사진작가 전달용(2026-07-19). 청소·이물질 리스크 있는 꽃가루·컨페티·폭죽은 제외(원하면 직접 추가). 직접 추가도 가능
 var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
+var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
-function photoHubHtml(p){
-  var gi=(p&&p.guideinfoDraft)||{}, sel=gi.photo||[];
-  var h='<div class="cc-note" style="text-align:left">남기고 싶은 <b>단체 사진 구도</b>를 골라 두면, 당일 디렉터가 이 순서대로 안내해요 · <b>전체 하객</b>은 늘 포함돼요.</div>';
-  h+='<div class="ph-chips"><span class="ph-chip on locked">전체 하객</span>';
-  PHOTO_PRESETS.forEach(function(n){ var on=sel.indexOf(n)>-1; h+='<span class="ph-chip'+(on?' on':'')+'" data-photo="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; });
-  h+='</div>';
-  var cust=sel.filter(function(n){ return PHOTO_PRESETS.indexOf(n)<0; });
-  if(cust.length){ h+='<div class="ph-chips">'; cust.forEach(function(n){ h+='<span class="ph-chip on" data-photo="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
-  h+='<div style="display:flex;gap:8px;margin-top:2px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  h+='<div class="cc-note" style="text-align:left;margin-top:8px">고른 순서대로 찍어요 · 보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
-  return h;
+// 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
+var PHOTOFLOW = { active:false, sel:[], gi:null };
+function startPhotoFlow(gi){
+  bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), gi:(gi||{}) };
+  PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  renderPhoto($('mp_production'));
+  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
 }
-function wirePhotoEditor(box, p){
-  var panel=box.querySelector('#mp_photoPanel'); if(!panel) return;
-  var gi=p.guideinfoDraft=(p.guideinfoDraft||{}); gi.photo=gi.photo||[];
-  function collect(){ return { seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:(gi.photo||[]).slice() }; }   // 좌석 공개설정·예약값도 함께 보내 다른 저장이 photo를 지우지 않게(트랙 전체 교체)
-  function save(){ try{ apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).catch(function(){}); }catch(e){} }
-  function rerender(){ panel.innerHTML=photoHubHtml(p); wirePhotoEditor(box, p); }
-  function toggle(n){ var i=gi.photo.indexOf(n); if(i>-1){ gi.photo.splice(i,1); } else { if(gi.photo.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; } gi.photo.push(n); } save(); rerender(); }
-  Array.prototype.forEach.call(panel.querySelectorAll('[data-photo]'), function(el){ el.addEventListener('click', function(){ toggle(el.getAttribute('data-photo')); }); });
-  var inp=panel.querySelector('#mp_photoAdd'), btn=panel.querySelector('#mp_photoAddBtn');
+function renderPhoto(box){
+  if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
+  var h='<div class="consult-card" style="text-align:left">';
+  h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요.</div>';
+  h+='<div class="ph-list">';
+  h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
+  sel.forEach(function(n,i){
+    h+='<div class="ph-item"><span class="ph-no">'+(i+2)+'</span><span class="ph-nm">'+escapeHtml(n)+'</span><span class="ph-ctl">'
+      +(i>0?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="-1" aria-label="위로">↑</button>':'<span class="ph-mv-sp"></span>')
+      +(i<sel.length-1?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="1" aria-label="아래로">↓</button>':'<span class="ph-mv-sp"></span>')
+      +'<button type="button" class="ph-del" data-pdel="'+i+'" aria-label="빼기">✕</button></span></div>';
+  });
+  h+='</div>';
+  var avail=PHOTO_PRESETS.filter(function(n){ return sel.indexOf(n)<0; });
+  if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div class="cc-note" style="text-align:left;margin-top:10px">보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
+  // 함께 할 이벤트/연출 — 사진작가·디렉터 전달용(구도와 별개 · 다중 선택+직접 추가 · 2026-07-19 사용자 지시)
+  h+='<div class="ph-sec">함께 할 이벤트 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
+  h+='<div class="ph-chips">';
+  PHOTO_FX.forEach(function(n){ var on=fx.indexOf(n)>-1; h+='<span class="ph-chip'+(on?' fxon':'')+'" data-pfx="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; });
+  fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
+  h+='</div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 폰 플래시 켜고 흔들기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='</div>';
+  box.innerHTML=h; box.style.display='block';
+  function rerender(){ renderPhoto(box); }
+  function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pdel]'), function(el){ el.addEventListener('click', function(){ sel.splice(+el.getAttribute('data-pdel'),1); rerender(); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ el.addEventListener('click', function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });
+  var inp=$('mp_photoAdd'), btn=$('mp_photoAddBtn');
   function add(){ if(!inp) return; var v=(inp.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
-    if(photoList(gi).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
-    if(gi.photo.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; }
-    gi.photo.push(v); inp.value=''; save(); rerender(); }
+    if(['전체 하객'].concat(sel).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
+    if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; }
+    sel.push(v); inp.value=''; rerender(); }
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+  // 이벤트/연출 — 다중 선택(토글) + 직접 추가
+  function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('이벤트가 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ el.addEventListener('click', function(){ fxToggle(el.getAttribute('data-pfx')); }); });
+  var fxi=$('mp_fxAdd'), fxb=$('mp_fxAddBtn');
+  function fxAdd(){ if(!fxi) return; var v=(fxi.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
+    if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 이벤트예요.'); return; }
+    if(fx.length>=PHOTO_FX_MAX){ mpAlert('이벤트가 많아요. 대표적인 것 위주로 골라 주세요.'); return; }
+    fx.push(v); fxi.value=''; rerender(); }
+  if(fxb) fxb.addEventListener('click', fxAdd);
+  if(fxi) fxi.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); fxAdd(); } });
+  var ex=$('mp_photoExit'); if(ex) ex.addEventListener('click', exitPhotoFlow);
+}
+function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
+  var gi=PHOTOFLOW.gi||{};
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
+    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice()
+  }, done:true});
+}
+function exitPhotoFlow(){   // 좌석 편집기와 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
+  if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true;
+  PHOTOFLOW.active=false; show('loading');
+  var _fail=function(msg){
+    PHOTOFLOW._exiting=false; PHOTOFLOW.active=true; show('mypageView'); renderPhoto($('mp_production'));
+    if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
+    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
+      .then(function(again){ if(again){ exitPhotoFlow(); } else { bkKill(PHOTOFLOW); PHOTOFLOW.active=false; show('loading'); loadMyState(); } });
+  };
+  savePhoto().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } PHOTOFLOW._exiting=false; bkKill(PHOTOFLOW); loadMyState(); }).catch(function(){ _fail(''); });
 }
 function wireGuideInfoEditor(box, gi){
   gi=gi||{};
@@ -4762,7 +4815,8 @@ function wireGuideInfoEditor(box, gi){
       seatMode: (gi.seatMode==='mine')?'mine':'all',   // 기본 '전체 배치도 공개'
       reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선·지움 존중)
       reserveName: String(gi.reserveName||''),
-      photo: (gi.photo||[]).slice()   // 단체 사진 구도 보존 — 공개 방식 저장이 photo를 지우지 않게(guideinfo 트랙 전체 교체 · f83da9b 병행)
+      photo: (gi.photo||[]).slice(),   // 단체 사진 구도 보존 — 공개 방식 저장이 photo를 지우지 않게(guideinfo 트랙 전체 교체)
+      photoFx: (gi.photoFx||[]).slice()   // 연출(photoFx)도 함께 실어 공개 방식 저장이 연출을 지우지 않게(2026-07-19 port · 트랙 전체 교체)
     };
   }
   // 공개 방식 = 캔버스 아래 별도 카드의 라디오 2택(전체 공개 / 내 자리만 검색) — 2026-07-19 개편(구 상단 체크박스 폐지)

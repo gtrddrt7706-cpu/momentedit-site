@@ -30,12 +30,15 @@ chk 'data-favshow' mypage.html 2                   # 담은 곳 하객 공개 �
 chk '_dnFavShowToggle' mypage.html 2               # 하객 공개 토글 헬퍼+호출
 chk 'dn-showtgl' mypage.html 3                     # 토글 CSS·마크업
 chk 'v.show === true' automation/platform/80_production.gs 2   # 서버 하객 노출=최종 선택(show)만 필터
+# ── 2026-07-19 단체 사진 전용화면(PHOTOFLOW·구도+연출 photoFx) — 병렬 세션 기능을 통합 브랜치에 포트(역전 방지)
+chk 'startPhotoFlow' mypage.html 2                  # 단체사진 전용화면 진입 함수+배선
+chk 'PHOTO_FX_MAX' mypage.html 3                    # 연출/이벤트 프리셋(photoFx) 상한+사용
+chk 'photoFx:' mypage.html 2                        # 저장(savePhoto·guideinfo collect)에 연출 포함 — 공개 방식 저장이 연출 지우지 않게
+chk 'renderPhoto(box)' mypage.html 4                # PHOTOFLOW.active 렌더 디스패치(2곳)+재렌더+savePhoto 복귀
 # 음수 마커 — 통합 역전 시 분리된 옛 좌석 행 부활 감지(bd0ee33 4차 역전류 조기 감지)
 _sep=$(grep -c "row('좌석 배치도', t.seat" mypage.html 2>/dev/null); _sep=${_sep:-0}; if [ "$_sep" -gt 0 ]; then echo "REVERT? mypage.html: 분리된 옛 좌석 배치도 행 부활($_sep)"; fail=1; else echo "ok mypage.html: 분리 좌석 행 없음(통합 유지)"; fi
-# ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
-chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
+# ── 2026-07-19 식순 AI 상담사 · 위젯 배선(추가형 · 서버 KB만 ritual-data 원천)
 chk 'ritual-data 공유 원천 v1' assets/ritual-data.js 1   # 공유 모듈 자체 생존
-chk 'ritual-data.js' order-preview.html 2          # 동기 로드 태그 + 주석(로드 누락 = 빌더 전체 붕괴)
 chk '식순 AI 상담 배선 v1' order-preview.html 1    # 빌더 위젯 배선(ME_ADV_PAGE·맥락 칩·그라운딩)
 chk '신원 번들' mypage.html 1                     # 식순 임베드 AI 신원주입(orderFill cust · 4회 역전됨 2026-07-19)
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
