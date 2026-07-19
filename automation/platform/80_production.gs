@@ -518,10 +518,13 @@ function handleGuideView(body) {
     v = v || {};
     return { n: String(v.n || ''), m: String(v.m || ''), tel: String(v.tel || ''), url: (/^https?:/i.test(String(v.url || '')) ? String(v.url) : '') };
   };
-  var restos = _favs.filter(function (v) { return v && v.src !== 'attr'; }).map(_mapItem);
-  var spots = _favs.filter(function (v) { return v && v.src === 'attr'; }).map(_mapItem);
   var _pick = String(dd.venuePick || '').trim();   // 위저드 내부 선택지 문구는 하객에게 식당명이 아님 — 걸러냄('여기로 모여요 · 직접 섭외할게요' 노출 방지)
   if (DN_PLACEHOLDER.indexOf(_pick) !== -1) _pick = '';
+  // 하객 노출 = '최종 선택(show:true)'한 곳 + 대표(여기로 예약)만 — 그냥 비교하려 담아둔 후보는 하객에 안 보임(2026-07-19 사용자 지시). 담기(_favs)와 하객 노출 분리.
+  var _nnDn = function (s) { return String(s || '').replace(/[\s　]+/g, '').toLowerCase(); };
+  var _pk = _nnDn(_pick);
+  var restos = _favs.filter(function (v) { return v && v.src !== 'attr' && (v.show === true || (_pk && _nnDn(v.n) === _pk)); }).map(_mapItem);
+  var spots = _favs.filter(function (v) { return v && v.src === 'attr' && v.show === true; }).map(_mapItem);
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || _pick !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
   return {

@@ -462,6 +462,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal);border-radius:8px;background:#fff;color:var(--seal);font-family:var(--serif-ko);font-size:12.5px;cursor:pointer}
 .dn-repbtn:hover{background:var(--seal);color:#fff}
 .dn-aggbook{margin-top:10px;padding-top:11px;border-top:1px dashed var(--border)}
+/* 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · 2026-07-19 */
+.dn-showtgl{display:block;width:100%;margin-top:7px;padding:7px 0;border:1px dashed var(--border);border-radius:8px;background:#fff;color:var(--label-soft,#8a8175);font-family:var(--serif-ko);font-size:12px;cursor:pointer}
+.dn-showtgl.on{border-style:solid;border-color:var(--gold);background:var(--gold-bg,#faf6ef);color:var(--gold-deep,#9a7b3f);font-weight:500}
+.dn-showlock{margin-top:9px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep,#9a7b3f)}
 .inv-opt.sel{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
 .inv-opt small{display:block;font-size:12px;color:var(--sub);font-weight:300;margin-top:3px}
 .inv-sub{margin:2px 0 8px 6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
@@ -4986,6 +4990,7 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-favattr]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favattr'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favattr',_n); }); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; if(_dnFavToggle(d3,{n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:p.phone||'',url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:'kakao'})){ saveTrkDraft(false); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favp',_pi); }); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); _dnFavToggle(TRKFLOW.draft,{n:el.getAttribute('data-favdel')}); saveTrkDraft(false); _dnRerenderKeep(function(){ return box.querySelector('.dn-agg')||box.querySelector('.dn-aggspots')||box.querySelector('.dn-head'); }); }); });   // 앵커=현 취합 뷰 기준(.dn-favbox는 옛 step0 박스라 이제 없음)
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favshow]'),function(el){ el.addEventListener('click',function(){ collect(); var _n=el.getAttribute('data-favshow'); _dnFavShowToggle(TRKFLOW.draft,_n); saveTrkDraft(false); _dnRerenderKeep(function(){ return _dnFindByAttr('data-favshow',_n); }); }); });   // 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출)
   var _fsh=$('dn_favShare'); if(_fsh){ _fsh.addEventListener('click',function(){
     var txt=_dnFavShareText(TRKFLOW.draft);
     var done=function(){ _fsh.textContent='복사됐어요 · 카톡에 붙여넣기 해주세요'; setTimeout(function(){ _fsh.textContent='카카오톡·문자로 목록 보내기'; },2200); };
@@ -5189,6 +5194,8 @@ function _dnFavToggle(d,snap){
   else { if(f.length>=10){ mpAlert('10곳까지 담을 수 있어요. 한 곳을 빼고 담아 주세요.'); return false; } f.push(snap); }
   d._favs=f; return true;
 }
+// [하객 공개] 담기(비교용)와 하객 노출 분리 — v.show===true인 곳만 하객 안내에 노출(대표=여기로 예약은 항상 공개) · 2026-07-19 사용자 지시
+function _dnFavShowToggle(d,nm){ var f=d._favs||[]; for(var i=0;i<f.length;i++){ if(f[i].n===nm){ f[i].show=!f[i].show; break; } } d._favs=f; }
 function _dnFavShareText(d){
   // 카톡·문자 공유 — 식당(전화 포함)·가볼 곳으로 나눠, 항목별 줄바꿈 + 사이 빈 줄로 읽기 쉽게.
   var f=d._favs||[], restos=f.filter(function(v){return v.src!=='attr';}), spots=f.filter(function(v){return v.src==='attr';});
@@ -5445,6 +5452,8 @@ function renderDining(box){
         var rep=String(d.venuePick||''), repInFav=false; for(var fi=0;fi<restos.length;fi++){ if(restos[fi].n===rep){ repInFav=true; break; } }
         if(!repInFav) rep='';   // 대표가 식당 목록에 없으면 미지정
         if(!rep && restos.length===1){ rep=restos[0].n; d.venuePick=rep; }   // 식당 한 곳만 담았으면 자동 대표(불필요한 클릭 생략)
+        // [하객 공개 토글] 담기(비교)와 노출 분리 — 켠 곳만 하객 안내에 뜸(대표=여기로 예약은 항상 공개) · 2026-07-19 사용자 지시
+        var _showBtn=function(v){ var on=v.show===true; return '<button type="button" class="dn-showtgl'+(on?' on':'')+'" data-favshow="'+escapeHtml(v.n)+'">'+(on?'✓ 하객에게 보여주는 중':'하객에게도 보여주기')+'</button>'; };
         var favHtml=restos.map(function(v){
           var isRep=(v.n===rep), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
           var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
@@ -5452,9 +5461,9 @@ function renderDining(box){
             +'<div class="n">'+(isRep?'<span class="repbadge">여기로 예약</span>':'')+escapeHtml(v.n)+'</div>'
             +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
             +(isRep   // 대표는 아래 예약 블록에 전화·지도가 크게 나오므로 작은 링크 줄은 생략(중복 방지). 나머지는 결정 전 빠른 확인용으로 노출
-                ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div>'
+                ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div><div class="dn-showlock">하객 안내에 \'여기로 모여요\'로 공개돼요</div>'
                 : '<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div>'
-                  +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'">여기로 예약할래요</button>')
+                  +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'">여기로 예약할래요</button>'+_showBtn(v))
             +'</div>';
         }).join('');
         // 가볼 곳(볼거리) — 예약 없이 지도만. 식당과 시각적으로 분리.
@@ -5462,8 +5471,8 @@ function renderDining(box){
           +spots.map(function(v){ var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
             return '<div class="dn-fav dn-spot"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="빼기">✕</button>'
               +'<div class="n">'+escapeHtml(v.n)+'</div>'+(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
-              +'<div class="a"><a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도 · 길찾기</a></div></div>'; }).join('')
-          +'<div class="dn-fine" style="margin-top:4px">운영시간·입장은 방문 전 확인해 주세요.</div></div>'):'';
+              +'<div class="a"><a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도 · 길찾기</a></div>'+_showBtn(v)+'</div>'; }).join('')
+          +'<div class="dn-fine" style="margin-top:4px">‘하객에게도 보여주기’를 켠 곳만 하객 안내에 떠요. 운영시간·입장은 방문 전 확인해 주세요.</div></div>'):'';
         var repNote= restos.length ? (rep
           ? '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래 <b>'+escapeHtml(rep)+'</b>로 예약만 마치면 준비가 끝나요. 다른 곳으로 바꾸려면 그 카드의 \'여기로 예약할래요\'를 누르세요.</div>'
           : '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">두 분이 함께 보고, <b>예약할 한 곳</b>에서 \'여기로 예약할래요\'를 눌러 주세요. 나머지는 후보로 남겨 둬도 괜찮아요.</div>')
@@ -5471,6 +5480,7 @@ function renderDining(box){
         var body2=repNote+favHtml+spotHtml
           +'<button type="button" class="cc-btn-ghost dn-favshare" id="dn_favShare" style="margin-top:4px">카카오톡·문자로 목록 보내기</button>'
           +'<div class="dn-fine" style="margin-top:8px">✕로 목록에서 뺄 수 있어요.'+(restos.length?' 예약 전 식당에 전화로 한 번 확인해 주세요.':'')+'</div>'
+          +((restos.length>1||spots.length)?'<div class="dn-fine" style="margin-top:4px">대표 예약처는 늘 하객에게 공개돼요. 추가로 <b>‘하객에게도 보여주기’</b>를 켠 식당·카페·가볼 곳만 함께 안내돼요(2차 등).</div>':'')
           +(restos.length?_dnRsvHtml(d):'');
         box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 닫기');
         bindTrk(box,renderDining,collect,{ last:true });

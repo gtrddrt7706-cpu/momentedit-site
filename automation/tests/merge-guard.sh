@@ -25,6 +25,11 @@ chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약
 chk 'rs-dk dk-' mypage.html 1                     # 자리별 음료 색점 복원(2026-07-19 · 스탭 프린트용)
 chk 'seat-privacy' mypage.html 1                   # 공개 방식 별도 카드(캔버스 아래)
 chk 'data-drink' mypage.html 3                     # 자리별 음료 칩 배선 복원
+# ── 2026-07-19 담은 곳 = 하객 공개 분리(담기≠노출 · 대표+선택한 곳만 하객 노출)
+chk 'data-favshow' mypage.html 2                   # 담은 곳 하객 공개 토글 렌더+배선
+chk '_dnFavShowToggle' mypage.html 2               # 하객 공개 토글 헬퍼+호출
+chk 'dn-showtgl' mypage.html 3                     # 토글 CSS·마크업
+chk 'v.show === true' automation/platform/80_production.gs 2   # 서버 하객 노출=최종 선택(show)만 필터
 # 음수 마커 — 통합 역전 시 분리된 옛 좌석 행 부활 감지(bd0ee33 4차 역전류 조기 감지)
 _sep=$(grep -c "row('좌석 배치도', t.seat" mypage.html 2>/dev/null); _sep=${_sep:-0}; if [ "$_sep" -gt 0 ]; then echo "REVERT? mypage.html: 분리된 옛 좌석 배치도 행 부활($_sep)"; fail=1; else echo "ok mypage.html: 분리 좌석 행 없음(통합 유지)"; fi
 # ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
