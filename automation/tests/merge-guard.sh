@@ -23,5 +23,7 @@ chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 �
 chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
 chk 'ritual-data 공유 원천 v1' assets/ritual-data.js 1   # 공유 모듈 자체 생존
 chk 'ritual-data.js' order-preview.html 2          # 동기 로드 태그 + 주석(로드 누락 = 빌더 전체 붕괴)
+# 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
+if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
