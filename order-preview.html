@@ -982,7 +982,7 @@ function renderStep(k){
       var _tg='';
       if(d.off) _tg='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
       else if(S.extra[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
-      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';
+      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn'+(momOn(x)?'':' up')+'" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';   // '넣기'는 up(크림 배경)으로 통일 — 옵션 경로(위)와 같은 라벨인데 색이 갈라지던 것(2026-07-18 사용자 지적)
       // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
       var _adj=!!_tg;
       var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
