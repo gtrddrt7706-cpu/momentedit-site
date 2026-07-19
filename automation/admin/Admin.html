@@ -794,7 +794,8 @@ function _prodTrackDetail(prod){
     if(_in('축배')) rh3+=L('축배·케이크', esc(_ko('toast',rs.toast))+' (실물 준비)');
     if(_in('축가')) rh3+=L('축가', esc(_ko('song',rs.song)));
     if(rs.valley&&rs.valley!=='none') rh3+=L('사이 순서', esc(_ko('valley',rs.valley)));
-    rh3+=L('음악(편지 배경)', esc(rs.mPeak||''))+L('음악(폐식)', esc(rs.mClose||''));
+    rh3+=L('음악(편지 배경)', esc(rs.mPeak||''))+(rs.mClose?L('음악(폐식·구 입력)', esc(rs.mClose)):'');   // 폐식 음악 입력칸 폐지(2026-07-19) — 옛 저장값만 표시
+    if(rs.specialReq) rh3+=L('목록 외 순서 요청', esc(rs.specialReq));   // 빌더 '목록에 없는 순서' 입력(2026-07-19 신설)
     if(rs.growth==='on') rh3+=L('식전 성장영상', rs.growthLink?esc(rs.growthLink):'켬 · 링크 미첨부');
     if(rs.vowText) rh3+='<div><span style="color:var(--label-soft)">서약문</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rs.vowText)+'</span></div>';
     if(rs.letterText) rh3+='<div><span style="color:var(--label-soft)">편지</span><br><span style="white-space:pre-wrap;color:var(--accent)">'+esc(rs.letterText)+'</span></div>';

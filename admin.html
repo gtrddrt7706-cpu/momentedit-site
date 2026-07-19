@@ -1584,6 +1584,10 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken){
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
     var _cA=0,_cN=0,_cJ=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='A')_cA++; else if(dv==='N')_cN++; else if(dv==='J')_cJ++; else _cU++; }); });
     if(_cA+_cN+_cJ>0) h+=row('음료(자리별)','알콜 '+_cA+' · 논알콜 '+_cN+' · 주스 '+_cJ+' · 미정 '+_cU);   // 음료를 하나라도 고른 고객만(구 데이터가 전부 '미정'으로 뜨는 소음 방지 · mypage 집계와 같은 기준)
+    // 좌석 배치 인원 ↔ 최종 확정 인원 불일치 경고 — 당일 홀 세팅 기준(자리 없이 서는 하객이 있을 수 있음). 고객 확인서 경고와 같은 기준(2026-07-19 점검: 세팅하는 쪽에도 노출)
+    var _plc=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v){ if(String(v||'').trim())_plc++; }); });
+    var _hn=parseInt((fd&&fd.headcount)||'',10)||0;
+    if(_plc>0 && _hn>0 && _plc!==_hn) h+='<div class="cnote" style="color:var(--seal)">⚠ 좌석 배치 '+_plc+'명 · 최종 확정 '+_hn+'명 (자리 없이 서는 하객 여부 확인)</div>';
     if(seatToken) h+=row('하객 공유 링크', 'momentedit.kr/seat.html?t='+seatToken);
   }
   return h||'<div class="cnote">내용 없음</div>';
