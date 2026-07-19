@@ -4554,7 +4554,7 @@ function wireGuideShare(box, token){
 function _seatPlacedCount(tables){ var n=0; (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }   // 이름 배치된 자리 수(확인서·집계 공용)
 // ── 단체 사진 구도(예식 준비 · guideinfoDraft.photo에 저장 · guideinfo 트랙) — 본식 뒤 '단체 기록' 시간이라 식순과 분리(2026-07-19 사용자 지시). 라벨 그대로 저장(키 매핑 없음) ──
 var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
-var PHOTO_FX=['폰 플래시 흔들기','응원봉·야광봉 흔들기','비눗방울(버블)','다 함께 건배','다 함께 만세','다 함께 박수·환호','손하트·브이','점프샷','부케 던지기'];   // 단체컷 연출/이벤트 프리셋 — 사진작가 전달용(2026-07-19). 요즘 트렌드(응원봉·버블·부케)로 확장. 청소·이물질 리스크 있는 꽃가루·컨페티·폭죽은 제외(원하면 직접 추가). 직접 추가도 가능
+var PHOTO_FX=['폰 플래시 흔들기','응원봉·야광봉 흔들기','다 함께 만세','손하트·브이','다 함께 박수·환호','점프샷'];   // 단체컷 '모여서 다 같이 하는 동작'만 — 사진작가 전달용(2026-07-19). 건배·부케 던지기·버블처럼 진행 흐름/송오프에서 자연스럽게 잡히는 순간은 제외(사진작가가 라이브로 담음). 꽃가루·컨페티·폭죽도 청소 리스크로 제외. 직접 추가는 가능
 var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
 var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
@@ -4585,13 +4585,14 @@ function renderPhoto(box){
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
-  // 함께 할 이벤트/연출 — 사진작가·디렉터 전달용(구도와 별개 · 다중 선택+직접 추가 · 2026-07-19 사용자 지시)
-  h+='<div class="ph-sec">함께 할 이벤트 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
+  // 단체컷 '다 함께 하는 동작' — 사진작가·디렉터 전달용(구도와 별개 · 모여서 하는 동작만 · 2026-07-19 사용자 지시)
+  h+='<div class="ph-sec">다 함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
   h+='<div class="ph-chips">';
   PHOTO_FX.forEach(function(n){ var on=fx.indexOf(n)>-1; h+='<span class="ph-chip'+(on?' fxon':'')+'" data-pfx="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; });
   fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
   h+='</div>';
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 폰 플래시 켜고 흔들기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. 건배·부케 던지기처럼 진행 중 순간은 사진작가가 흐름 속에서 담아요.</div>';
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   function rerender(){ renderPhoto(box); }
@@ -4607,12 +4608,12 @@ function renderPhoto(box){
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   // 이벤트/연출 — 다중 선택(토글) + 직접 추가
-  function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('이벤트가 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
+  function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ el.addEventListener('click', function(){ fxToggle(el.getAttribute('data-pfx')); }); });
   var fxi=$('mp_fxAdd'), fxb=$('mp_fxAddBtn');
   function fxAdd(){ if(!fxi) return; var v=(fxi.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
-    if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 이벤트예요.'); return; }
-    if(fx.length>=PHOTO_FX_MAX){ mpAlert('이벤트가 많아요. 대표적인 것 위주로 골라 주세요.'); return; }
+    if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 동작이에요.'); return; }
+    if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; }
     fx.push(v); fxi.value=''; rerender(); }
   if(fxb) fxb.addEventListener('click', fxAdd);
   if(fxi) fxi.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); fxAdd(); } });

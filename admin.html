@@ -427,8 +427,7 @@ function _seatChartDoc(d){
   var prod=(d&&d.mirror&&d.mirror.production)||{}, sd=prod.seatDraft||{};
   var tables=(Object.prototype.toString.call(sd.tables)==='[object Array]')?sd.tables:[];
   var names=esc(d.names||''), code=esc(d.code||''), wdate=(d.pin&&d.pin['예식일'])?esc(fmtDate(d.pin['예식일'])):'';
-  var _dfDrink=String((prod.finalDraft||{}).drink||'').trim()||'기본 잔';   // 2단계에서 고른 잔 = 자리 기본값(2026-07-19). 미표시·구'알콜'(A)은 이 잔으로 준비
-  var DL={N:'논알콜',J:'주스'};   // 예외만 라벨 · 기본(''·A)은 _dfDrink
+  var DL={N:'논알콜',A:'알콜',J:'주스'};
   // 편집기와 동일한 번호(위→아래 행 순서·각 행 좌→우)
   var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String((t&&t.side)||'L')==='R'?Rs:Ls).push(i); });
   var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
@@ -438,9 +437,9 @@ function _seatChartDoc(d){
   var L='',R='';
   tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
-  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||_dfDrink)); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시 — 기본(''·A)은 고른 잔(_dfDrink) · 커스텀 테이블명도 표기
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+(DL[dk]?(' · '+DL[dk]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 커스텀 테이블명(혼주석 등)은 당일 세팅 명단에도 표기(하객 안내와 대조 가능하게)
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join('  |  ')+'</div>'; });
-  var totLine='음료 합계 · '+esc(_dfDrink)+' '+(cA+cU)+' · 논알콜 '+cN+' · 주스 '+cJ+' · 총 '+cT+'명';   // 기본(고른 잔)=미표시+구'알콜'
+  var totLine='음료 합계 · 알콜 '+cA+' · 논알콜 '+cN+' · 주스 '+cJ+' · 미정 '+cU+' · 총 '+cT+'명';
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
@@ -459,7 +458,7 @@ function _seatChartDoc(d){
     +'.pr{font-size:12.5px;line-height:1.9;padding:2px 0;border-bottom:1px dotted #ece6da}.pr b{color:#6B2A24;margin-right:6px}'
     +'@page{size:A4;margin:12mm}@media print{body{padding:0}.ptbl,.pseat{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
   var body='<h1>좌석 배치도</h1><div class="psub">'+(names||'')+(wdate?(' · 예식 '+wdate):'')+(code?(' · '+code):'')+'</div>'
-    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dA"></i>'+esc(_dfDrink)+'<i class="dN"></i>논알콜<i class="dJ"></i>주스</span></div>'
+    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dA"></i>알콜<i class="dN"></i>논알콜<i class="dJ"></i>주스</span></div>'
     +'<div class="pstage">◈ 단상 · 신랑 신부</div>'
     +'<div class="proom"><div class="pcol">'+(L||'<div style="color:#b3ad9f;font-size:12px">좌측 테이블 없음</div>')+'</div>'
     +'<div class="paisle">버진로드</div><div class="pcol">'+(R||'<div style="color:#b3ad9f;font-size:12px">우측 테이블 없음</div>')+'</div></div>'
@@ -492,7 +491,6 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   if(surface==='마이') return p('/api/advisor',{messages:U,page:'마이',state:'현재 단계: 입금완료 · 예식일: 2026-10-26',test:true});
   if(surface==='예약') return p('/api/schedule-advisor',{messages:U,today:today,page:'예약',test:true});
   if(surface==='애프터') return p('/api/after-concierge',{messages:U,test:true});
-  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
@@ -573,7 +571,7 @@ function openAiCost(){
       var budget=(bg&&bg.ok)?(Number(bg.krw)||0):0;
       var d=r.day||{}, rows=(d.bySurface||[]);
       // 5곳을 항상 고정 순서로 표시(미사용은 ₩0) — "어디에 얼마" 분리가 한눈에
-      var SURF=['메인','마이페이지','예약','애프터','핸드오프','식순','핸드오프:식순'];
+      var SURF=['메인','마이페이지','예약','애프터','핸드오프'];
       var byName={}; rows.forEach(function(s){ byName[s.surface]=s; });
       var h='<div style="font-size:12px;color:#75705f;margin-bottom:10px">최근 24시간 · 접점별 (환율 약 '+(Number(r.rate)||0).toLocaleString('ko-KR')+'원 기준 추정)</div>';
       h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
@@ -636,7 +634,6 @@ function openAiTest(){
     if(surface==='예약') return post('/api/schedule-advisor',{messages:[U(q)],today:today,page:'예약',test:true});
     if(surface==='애프터') return post('/api/after-concierge',{messages:[U(q)],test:true});
     if(surface==='핸드오프') return post('/api/handoff',{messages:[U(q),A('상담사를 연결해 드릴게요')],page:'메인',customer:{name:'테스트',code:'TEST01',stage:'입금완료'},test:true});
-    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
     return post('/api/advisor',{messages:[U(q)],page:'메인',test:true}); };
   var oldT=document.getElementById('ad_aiTest'); if(oldT&&oldT.parentNode) oldT.parentNode.removeChild(oldT);
   var ov=document.createElement('div'); ov.id='ad_aiTest';
@@ -644,7 +641,7 @@ function openAiTest(){
   var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:10px;max-width:560px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)';
   box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600">🧪 AI 테스트</span><button id="aitClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
   var bd=document.createElement('div'); bd.style.cssText='padding:16px';
-  var SURF=['메인','마이','예약','애프터','핸드오프','식순'];
+  var SURF=['메인','마이','예약','애프터','핸드오프'];
   var cbs=SURF.map(function(s){return '<label style="margin-right:10px;font-size:13px;color:#3a2f25"><input type="checkbox" class="aitSurf" value="'+s+'" checked> '+s+'</label>';}).join('');
   bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">테스트할 접점</div><div style="margin-bottom:12px">'+cbs+'</div>'
    +'<div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;font-size:13px;color:#3a2f25"><label>최대 예산 ₩ <input id="aitBudget" type="number" value="2000" style="width:80px;padding:4px 6px;border:1px solid #d9cfc1;border-radius:5px"></label><span id="aitEst" style="font-size:12px;color:#9a9183"></span></div>'
@@ -1575,7 +1572,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi){
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
   var _pho=(gi&&gi.photo&&gi.photo.length)?('전체 하객 → '+gi.photo.join(' → ')):'';
   var _pfx=(gi&&gi.photoFx&&gi.photoFx.length)?gi.photoFx.join(' · '):'';
-  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('이벤트/연출',_pfx);
+  if(_pho||_pfx) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('다 함께 동작',_pfx);
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
   if(sd&&sd.tables&&sd.tables.length){
