@@ -22,7 +22,7 @@ chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 �
 chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
-chk 'seat-drnote' mypage.html 2                    # 좌석 음료=2단계 기준 프레이밍(미정 잡일 제거)
+chk '자리별 음료 칩·색점·선택 바 삭제' mypage.html 1   # 자리별 음료 UI 제거(2026-07-19)·복원 금지
 # ── 2026-07-19 식순 AI 상담사 · 문안 단일 원천 분리
 chk 'ritual-data 분리 v1' order-preview.html 1     # 문안 리터럴 → /assets/ritual-data.js 이관(역전 시 이중 원천 부활)
 chk 'ritual-data 공유 원천 v1' assets/ritual-data.js 1   # 공유 모듈 자체 생존
