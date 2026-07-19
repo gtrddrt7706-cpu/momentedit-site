@@ -208,6 +208,10 @@ function handleSaveProductionTrack(body) {
       reserveTime: String(gir.reserveTime || '').slice(0, 40),   // 식사 예약 시간 — 하객 안내 식사 섹션에 표기(종료 후 집결 혼란 방지)
       reserveName: String(gir.reserveName || '').slice(0, 30)    // 예약자 이름
     };   // 라이브 노출은 청첩장 파트 결정(디지털 참석)에서 자동 파생 — 이중 토글 폐지(2026-07-17 사용자 지시)
+    // 단체 사진 구도(예식 준비 · 본식 뒤 단체 기록) — 라벨 배열·고른 순서=촬영 순서. 전체 하객은 늘 포함이라 미저장. 최대 11개(총 12컷)·각 24자.
+    //   ★비어 있으면 키 자체를 안 넣는다 — 구 드래프트(photo 없음)와 동일하게 유지해 '무변경 재저장'이 가짜 재확인을 만들지 않게(2026-07-19). 구도가 생기면 그때만 변경으로 감지돼 확인 해제
+    var _photo = (Object.prototype.toString.call(gir.photo) === '[object Array]') ? gir.photo.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 11) : [];
+    if (_photo.length) body.draft.photo = _photo;
   }
   // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
   var _cs = null;
