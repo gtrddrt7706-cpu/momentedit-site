@@ -4802,19 +4802,25 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
   var box=$('mp_snap'); if(!box) return;
   if(!p || SNAPFLOW.active){ box.style.display='none'; box.innerHTML=''; return; }
   var sd=p.snapDraft||{}, filled=_snapFilledD(sd), ess=_snapSummary(sd);
-  // 미니멀 원칙(2026-07-19 사용자 지시): 채운 뒤엔 소개 문구를 빼 조용하게 · 요약은 카운트 대신 '결' 한 마디만
-  var h='<div class="consult-card" style="text-align:center">'
-    + '<div class="cc-eyebrow en-22">Snap Planning</div>'
-    + '<div class="cc-title">스냅 기획</div>';
+  // 미니멀 원칙(2026-07-19 사용자 지시): 빈 상태만 초대용 큰 카드 · 채운 뒤엔 '예식 준비' 행과 같은 조밀한 한 줄(큰 빈 카드·가운데 알약의 어색함 해소 · 수정 버튼도 오른쪽으로 통일)
+  var h;
   if(filled){
-    h+='<div class="cc-note" style="text-align:center;margin-top:7px"><span class="trk-ok">✓</span> 남겨 주셨어요'+(ess?(' <span style="color:var(--label-soft)">·</span> '+escapeHtml(ess)):'')+'</div>'
-      +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:11px;display:inline-block;width:auto;padding:8px 22px">고치기</button>';
+    h='<div class="consult-card" style="padding-top:15px;padding-bottom:15px">'
+      + '<div class="trk has-sub" style="border-bottom:none">'
+      +   '<span class="trk-nm">스냅 기획 <span class="trk-tag">선택</span> <span class="trk-ok">✓</span></span>'
+      +   '<button type="button" class="cc-btn-ghost" style="width:auto;padding:8px 14px" id="mp_snapStart">수정</button>'
+      + '</div>'
+      + '<div class="trk-sub">'+(ess?escapeHtml(ess):'원하는 결을 남겨 주셨어요')+'</div>'
+      + '</div>';
   } else {
-    h+='<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
-      +'<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
-      +'<div class="cc-note" style="text-align:center">선택이에요 · 안 남겨도 촬영엔 지장 없어요.</div>';
+    h='<div class="consult-card" style="text-align:center">'
+      + '<div class="cc-eyebrow en-22">Snap Planning</div>'
+      + '<div class="cc-title">스냅 기획</div>'
+      + '<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
+      + '<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
+      + '<div class="cc-note" style="text-align:center">선택이에요 · 안 남겨도 촬영엔 지장 없어요.</div>'
+      + '</div>';
   }
-  h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
