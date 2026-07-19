@@ -697,8 +697,8 @@ function renderIntro(){
   h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 30분의 식순과 나레이션 대본이 만들어져요.</div>';
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
-  h+='<div class="ipt"><span class="n">2</span>순간마다 진행 안내를 미리 들어보고 골라요 · 당일 진행은 준비된 안내와 디렉터가 챙겨요.</div>';   // 나레이션은 진행 수단(사회자 대체)이지 상품 핵심이 아님 — 2026-07-16 사용자 지시로 프레이밍 교정
-  h+='<div class="ipt"><span class="n">3</span>완성본을 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
+  // (구 2번 '순간마다 진행 안내를 미리 들어보고 골라요' 줄 삭제 — 2026-07-18 사용자 지시. 안내 듣기는 각 카드에서 자연히 발견됨)
+  h+='<div class="ipt"><span class="n">2</span>완성본을 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
   h+='</div>';
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap',''],['30분','본식','The Ceremony','',true],['30분','단체 기록','Group Record',''],['20분','배웅','Farewell','']];
@@ -707,8 +707,8 @@ function renderIntro(){
   });
   h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요.</div></div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
-  h+='<div class="pf-i">당일 진행은 나레이션과 디렉터가 맡아요. 두 분이 순서를 외우거나 진행할 일은 없어요.</div>';
-  h+='<div class="pf-i">두 분이 직접 준비하는 건 글(서약문·편지·인사말)과 음악 2곡 정도예요. 무엇을 언제까지인지는 완성 화면에 목록으로 정리돼요.</div>';
+  h+='<div class="pf-i">순서 안내와 흐름은 나레이션과 디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 직접 고른 순간만 함께해요.</div>';   // '진행할 일은 없어요' 과약속 교정(직접 낭독·인사 등 부부 몫 존재 · 2026-07-18 사용자 지시)
+  h+='<div class="pf-i">두 분이 직접 준비하는 건 글(서약문·편지·인사말) 정도예요. 무엇을 언제까지인지는 완성 화면에 목록으로 정리돼요.</div>';
   h+='<div class="pf-i">지금 정하기 어려운 건 비워 둬도 돼요. 비운 부분은 나중에 채워도 돼요.</div>';
   h+='<div class="pf-i">저장하면 예식 2주 전(D-14)까지 언제든 고칠 수 있어요.</div>';
   h+='</div>';
@@ -1240,7 +1240,7 @@ function fillBlanks(){
   if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
   if(inSeq('letter') && !S.letterText) b.push(['write','편지']);
   if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['write','인사말']);
-  if(!S.mPeak && !S.mClose) b.push(['done','음악']);
+  // 음악 빈칸 리마인더 제거(2026-07-18 사용자 지시 '음악은 일단 제외') — 음악 카드 입력은 선택으로 남고, 비우면 저희가 고름
   return b;
 }
 
@@ -1317,7 +1317,7 @@ function estMin(){
   return '약 '+m+'분';
 }
 function prep(){
-  var p=[['D-14','음악 2곡 정하기(편지 배경·폐식) · 입장곡은 저희가 추천']];
+  var p=[];   // 음악은 준비 목록에서 제외(2026-07-18 사용자 지시) — 선택 입력만 남기고, 비우면 두 분 분위기에 맞춰 저희가 고름
   if(inSeq('bless') && S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
   p.push(['D-7','혼인 서약문 준비']);
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
