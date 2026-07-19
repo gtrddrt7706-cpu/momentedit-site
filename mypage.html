@@ -5260,14 +5260,14 @@ function renderSeat(box){
     + legendHtml   // 음료 범례 — 캔버스 아래(상단 이물감 제거)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
-    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 공유 링크</button></div>'
+    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 저장 후 나가기</button></div>'
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
-    + (s.token ? seatSharePanelHtml(s.token) : '')
+    // ★좌석 편집기 안 공유 링크·QR 패널(seatSharePanelHtml) 복원 금지 — 2026-07-19 사용자 지시로 삭제. 링크·QR은 '하객 안내' 접점에서 제공(중복 제거). 완료는 위 '배치 완료 · 저장 후 나가기'로 마무리.
     +'</div>';
   SEATFLOW._rendering=false;
   box.style.display='block';
   bindSeat(box);
-  if(s.token) wireSeatShare(box, s.token);
+  // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
   wireGuideInfoEditor(box, s.gi||{});   // 공개 범위 체크(편집기 상단) — 링크 발급 전에도 설정 저장 가능
   // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
@@ -5301,9 +5301,10 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-fedit')){ commitSeatEdit(box); window._finalNext=true; exitSeatFlow(); return; }   // 스트립 '인원·음료 수정' — 좌석 저장 후 확정 위저드로(통합 2026-07-19 · renderProduction이 _finalNext 소비)
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
-      var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
-      saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW.token=r.seatToken||SEATFLOW.token; renderSeat(box); var sp=box.querySelector('.seat-share'); if(sp){ try{ sp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } } else { b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
-        .catch(function(){ b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
+      if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 배치 완료(done 저장·토큰 발급) 후 바로 오버레이 종료 — 공유 패널 폐지(2026-07-19). 이중 클릭·뒤로가기 재진입 방지
+      var b2=el, _label='배치 완료 · 저장 후 나가기'; b2.textContent='저장 중…'; b2.disabled=true;
+      saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); show('loading'); loadMyState(); } else { SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
+        .catch(function(){ SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
       return;
     }
   });
