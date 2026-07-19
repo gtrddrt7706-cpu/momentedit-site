@@ -3330,13 +3330,11 @@ function renderProduction(p, inv){
     if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }
     if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }
     if(PHOTOFLOW.active){ box.style.display='block'; renderPhoto(box); return; }
-    if(SNAPFLOW.active){ box.style.display='block'; renderSnapFlow(box); return; }   // 스냅 기획 편집 중(mp_production 슬롯 전개) — 배경 새로고침(p=null)에도 편집 유지
     box.style.display='none'; box.innerHTML=''; return;
   }
   if(INVFLOW.active){ box.style.display='block'; renderInvFlow(box); return; }   // 청첩장 입력 위저드 진행 중
   if(TRKFLOW.active){ box.style.display='block'; renderTrkFlow(box); return; }   // 다이닝·식순 입력 위저드 진행 중
   if(SEATFLOW.active){ box.style.display='block'; renderSeat(box); return; }     // 좌석 배치도 편집 중
-  if(SNAPFLOW.active){ box.style.display='block'; renderSnapFlow(box); return; }  // 스냅 기획 편집 중
   // 기초정보 입력 단계 없이 바로 대시보드 — 이름은 청첩장 1단계에서 받는다.
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
@@ -4687,9 +4685,18 @@ function startSnapFlow(sd){
     toneStyle:String(sd.toneStyle||''), comfort:String(sd.comfort||''),
     propsNote:String(sd.propsNote||''), directorNote:String(sd.directorNote||'')
   } };
+  // 식순 빌더처럼 전체 화면 오버레이로 — 진행바·다른 카드를 덮어 집중도를 높인다(2026-07-19 사용자 지시 · marker: SNAP_PREP_OVERLAY). iframe 아님(같은 페이지 JS라 div 오버레이).
+  var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 44px';
+  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
+  body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  _mpLock();   // 배경 스크롤 잠금(식순·계약 뷰어와 동일)
   SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
-  renderSnapFlow($('mp_production'));
-  var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
+  renderSnapFlow(inner);
+  body.scrollTop=0;
 }
 function renderSnapFlow(box){
   if(!box) return; var D=SNAPFLOW.d||{};
@@ -4765,17 +4772,22 @@ function saveSnap(){
     propsNote:String(D.propsNote||''), directorNote:String(D.directorNote||'')
   }, done:_snapFilledD(D)});   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
 }
-function exitSnapFlow(){   // 좌석/단체사진과 동일 — 저장 실패 시 무음 유실 금지(복귀+재시도)
+function exitSnapFlow(){   // 식순 빌더와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(SNAPFLOW._exiting) return;
   if(SNAPFLOW.d){ var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value; var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value; var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value; }   // 마지막 텍스트 반영
-  SNAPFLOW._exiting=true; SNAPFLOW.active=false; show('loading');
-  var _fail=function(msg){
-    SNAPFLOW._exiting=false; SNAPFLOW.active=true; show('mypageView'); renderSnapFlow($('mp_production'));
-    if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSnapFlow(); } else { bkKill(SNAPFLOW); SNAPFLOW.active=false; show('loading'); loadMyState(); } });
+  SNAPFLOW._exiting=true;
+  var _close=function(){
+    if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; }   // 층 소비(뒤로가기로 이미 닫혔으면 no-op)
+    var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+    _mpUnlock(); SNAPFLOW.active=false; SNAPFLOW._exiting=false;
+    show('loading'); loadMyState();
   };
-  saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } SNAPFLOW._exiting=false; bkKill(SNAPFLOW); loadMyState(); }).catch(function(){ _fail(''); });
+  var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
+    SNAPFLOW._exiting=false;
+    if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
+    alert(msg||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.');
+  };
+  saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
 }
 function _snapSummary(sd){
   sd=sd||{}; var parts=[];
