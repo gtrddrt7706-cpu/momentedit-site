@@ -19,5 +19,8 @@ chk 'trk-tag' mypage.html 2                        # 선택 태그
 chk '_coreDone' mypage.html 3                      # 강조·접힘 공용 게이트
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
 chk '다이어트 2026-07-18' mypage.html 1            # 병렬 세션: 최종 확정 2단계
+chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
+chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
+chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'

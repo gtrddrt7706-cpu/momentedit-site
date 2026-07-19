@@ -379,6 +379,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .trk-sep{display:flex;align-items:center;gap:10px;margin:20px 0 2px;color:var(--label-soft);font-size:10.5px;letter-spacing:.14em;font-weight:600}   /* 준비 트랙과 확인·전달(하객 안내·예식 확인서) 구분 — 성격이 달라 섞여 보이던 것 분리(2026-07-18 사용자 지시) */
 .trk-sep::before,.trk-sep::after{content:'';flex:1;height:1px;background:var(--border)}
 .trk-tag{font-size:10px;color:var(--label-soft);border:1px solid var(--border);border-radius:8px;padding:1px 7px;font-weight:500;letter-spacing:.02em;vertical-align:2px}   /* 행 이름 옆 '선택' 표시 — 하단 문장을 읽어야 알던 필수/선택을 행에서 바로(2026-07-18) */
+.seat-fstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:2px 0 10px;font-size:12.5px;color:var(--sub)}   /* 통합 페이지 위 섹션: 확정 요약(인원·음료)+재수정 입구(2026-07-19 사용자 지시) */
+.seat-fstrip .sf-l{font-size:10.5px;letter-spacing:.1em;color:var(--label-soft);font-weight:600}
+.seat-fstrip .sf-b{width:auto;padding:5px 11px;font-size:11.5px}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
@@ -3323,8 +3326,15 @@ function renderProduction(p, inv){
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
-  var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){ startTrkFlow('final', p.finalDraft||{}, p.base||{}); });
-  var se=$('mp_seatStart'); if(se) se.addEventListener('click', function(){ startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{}); });
+  // [통합 행 라우팅 · 2026-07-19] 최종 확정·좌석 = 버튼 하나: 확정 전엔 확정 위저드, 확정 후엔 좌석 캔버스로 직행(허브 층 없음)
+  var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
+    if(((p.tracks||{}).final||'')==='완료') startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{});
+    else startTrkFlow('final', p.finalDraft||{}, p.base||{});
+  });
+  // 확정 저장 직후(_seatNext) → 자리 배치로 자동 연결 · 좌석 스트립 '인원·음료 수정'(_finalNext) → 확정 위저드로
+  if(window._seatNext){ window._seatNext=false;
+    if(((p.tracks||{}).final||'')==='완료' && ((p.tracks||{}).seat||'')!=='완료') startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{}); }
+  if(window._finalNext){ window._finalNext=false; startTrkFlow('final', Object.assign({}, p.finalDraft||{}, {_step:0}), p.base||{}); }   // 수정 의도 진입은 1단계(인원)부터 — 이어하기 복원이 마지막 단계로 열던 것 방지
 }
 
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
@@ -3779,8 +3789,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _fDone=(t.final||'')==='완료';
   var fNote='';
   if(!_fDone){
-    fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요 · 확정하면 좌석 배치도가 열려요'
-      + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 좌석 배치도는 확정 전엔 행이 없어 존재를 알 길이 없음 — 게이트 행에서 예고(2026-07-18 리뷰)
+    fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
+      + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
   }
   // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
   var _seatDone=(t.seat||'')==='완료';
@@ -3798,8 +3808,11 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
       + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel, null, {tag:'선택'})
-      + row('최종 확정', t.final||'시작전', 'mp_finalStart', null, (_fDone?null:fNote))
-      + (_fDone ? row('좌석 배치도', t.seat||'시작전', 'mp_seatStart', (_seatDone?'완료 · 수정':'자리 정하기'), (_seatDone?null:seNote)) : '')   // ★'선택' 태그 금지 — 좌석 배치도는 필수 준비 · 선택인 건 공개 방식(전체 공개/내 자리만)뿐(2026-07-19 사용자 지시)
+      // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
+      //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
+      + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
+          (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'자리 정하기')),
+          (!_fDone?fNote:(_seatDone?null:seNote)))
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
@@ -4431,7 +4444,7 @@ function startSeatFlow(seatDraft, finalDraft, token, gi){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; }
   var tbls=(seatDraft && seatDraft.tables && seatDraft.tables.length) ? JSON.parse(JSON.stringify(seatDraft.tables)) : autoSeatTables(finalDraft&&finalDraft.headcount);
   tbls.forEach(function(t){ _seatNormDrinks(t); });   // 음료 배열 보정(구 데이터 호환)
-  SEATFLOW={ active:true, tables:tbls, token:token||'', gi:(gi||{}) };   // gi = 공유 패널의 공개 설정(자리 찾기·범위) 기준값
+  SEATFLOW={ active:true, tables:tbls, token:token||'', gi:(gi||{}), fd:(finalDraft||{}) };   // gi = 공유 패널의 공개 설정(자리 찾기·범위) 기준값 · fd = 상단 확정 요약 스트립용(통합 2026-07-19)
   SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
   renderSeat($('mp_production'));
   var b=$('mp_production'); if(b) window.scrollTo({top:Math.max(0,b.offsetTop-12)});
@@ -4763,6 +4776,9 @@ function renderSeat(box){
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
+    // [통합 섹션 스트립 · 2026-07-19 사용자 지시] 같은 페이지 위 칸=확정 요약(인원·음료)+재수정 입구 · 아래=좌석 캔버스
+    +(function(){ var fd=s.fd||{}; if(!fd.headcount&&!fd.drink) return '';
+      return '<div class="seat-fstrip"><span class="sf-l">최종 확정</span><span>'+(fd.headcount?('<b>'+escapeHtml(String(fd.headcount))+'명</b>'):'')+(fd.drink?((fd.headcount?' · ':'')+escapeHtml(String(fd.drink))):'')+'</span><button type="button" class="cc-btn-ghost sf-b" data-seat-fedit>인원·음료 수정</button></div>'; })()
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center">자리를 눌러 이름·음료를 정해요.</div>'
     // 좌석 공개 설정 = 2안 단일 체크(2026-07-17 사용자 지시) — 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색'. 잘 보이게 편집기 상단에.
@@ -4799,7 +4815,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink]'):null;
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-seat-fedit],[data-drink]'):null;
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
@@ -4814,6 +4830,7 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭이 조용히 무시되던 것 수정 — 칩 바는 그 창에만 존재하므로 오적용 없음
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
+    if(el.hasAttribute('data-seat-fedit')){ commitSeatEdit(box); window._finalNext=true; exitSeatFlow(); return; }   // 스트립 '인원·음료 수정' — 좌석 저장 후 확정 위저드로(통합 2026-07-19 · renderProduction이 _finalNext 소비)
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
       var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
@@ -4959,7 +4976,9 @@ function bindTrk(box, render, collect, opt){
     if(opt.last){ var b=$('trk_next'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
       saveTrkDraft(true).then(function(r){
         if(r && r.ok===false){ if($('trk_err')) $('trk_err').textContent=(r.error||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); if(b){ b.disabled=false; b.textContent='완료'; } return; }
-        bkKill(TRKFLOW); TRKFLOW.active=false; loadMyState();   // 완료로 나가는 경로도 뒤로가기 층 소비 — 잔층이 남으면 다음 뒤로가기가 유령 저장(확인서 해제)을 일으킴
+        bkKill(TRKFLOW); var _wasFinal=(TRKFLOW.track==='final'); TRKFLOW.active=false;
+        if(_wasFinal) window._seatNext=true;   // [통합 · 2026-07-19] 최종 확정 저장 직후 자리 배치로 자동 연결(명단이 머릿속에 있는 순간) — renderProduction이 소비
+        loadMyState();   // 완료로 나가는 경로도 뒤로가기 층 소비 — 잔층이 남으면 다음 뒤로가기가 유령 저장(확인서 해제)을 일으킴
       }); return; }
     var _go=function(){ saveTrkDraft(false); TRKFLOW.step++; render(box); };
     if(opt.confirmNext){ opt.confirmNext(_go); return; }   // 다음 진행 전 확인(예: 다이닝 예약정보 면책 팝업) — true일 때만 _go
