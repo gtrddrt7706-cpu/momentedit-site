@@ -3326,14 +3326,15 @@ function renderProduction(p, inv){
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
-  // [통합 행 라우팅 · 2026-07-19] 최종 확정·좌석 = 버튼 하나: 확정 전엔 확정 위저드, 확정 후엔 좌석 캔버스로 직행(허브 층 없음)
+  // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
+  //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
-    if(((p.tracks||{}).final||'')==='완료') startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{});
-    else startTrkFlow('final', p.finalDraft||{}, p.base||{});
+    var _fD=((p.tracks||{}).final||'')==='완료';
+    startTrkFlow('final', _fD?Object.assign({},p.finalDraft||{},{_step:0}):(p.finalDraft||{}), p.base||{});
   });
-  // 확정 저장 직후(_seatNext) → 자리 배치로 자동 연결 · 좌석 스트립 '인원·음료 수정'(_finalNext) → 확정 위저드로
+  // 확정 저장 직후(_seatNext) → ③좌석 단계로 자동 연결(좌석 완료 후 재확정이어도 이어감) · 좌석 스트립 '인원·음료 수정'(_finalNext) → 확정 1단계로
   if(window._seatNext){ window._seatNext=false;
-    if(((p.tracks||{}).final||'')==='완료' && ((p.tracks||{}).seat||'')!=='완료') startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{}); }
+    if(((p.tracks||{}).final||'')==='완료') startSeatFlow(p.seatDraft, p.finalDraft, p.seatToken, p.guideinfoDraft||{}); }
   if(window._finalNext){ window._finalNext=false; startTrkFlow('final', Object.assign({}, p.finalDraft||{}, {_step:0}), p.base||{}); }   // 수정 의도 진입은 1단계(인원)부터 — 이어하기 복원이 마지막 단계로 열던 것 방지
 }
 
@@ -3811,7 +3812,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
-          (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'자리 정하기')),
+          (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
           (!_fDone?fNote:(_seatDone?null:seNote)))
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
@@ -4775,7 +4776,7 @@ function renderSeat(box){
   }
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
-    +'<div class="inv-head"><span class="inv-step-n">좌석 배치도</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'
+    +'<div class="inv-head"><span class="inv-step-n">최종 확정 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
     // [통합 섹션 스트립 · 2026-07-19 사용자 지시] 같은 페이지 위 칸=확정 요약(인원·음료)+재수정 입구 · 아래=좌석 캔버스
     +(function(){ var fd=s.fd||{}; if(!fd.headcount&&!fd.drink) return '';
       return '<div class="seat-fstrip"><span class="sf-l">최종 확정</span><span>'+(fd.headcount?('<b>'+escapeHtml(String(fd.headcount))+'명</b>'):'')+(fd.drink?((fd.headcount?' · ':'')+escapeHtml(String(fd.drink))):'')+'</span><button type="button" class="cc-btn-ghost sf-b" data-seat-fedit>인원·음료 수정</button></div>'; })()
@@ -4849,7 +4850,7 @@ function bindSeat(box){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'식순', steps:6 }, final:{ label:'최종 확정', steps:2 } };   // ritual.steps는 renderRitual이 선택 여부에 따라 매 렌더 동적으로 덮어씀(최대 6)
+var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'식순', steps:6 }, final:{ label:'최종 확정', steps:3 } };   // ritual.steps는 renderRitual이 선택 여부에 따라 매 렌더 동적으로 덮어씀(최대 6) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
 var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
