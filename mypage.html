@@ -4623,7 +4623,8 @@ function prodConfirmHtml(p, inv){
   L+=line('청첩장', _ivv);
   var rv='';
   if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
-    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
+    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨';
+      var _pN=(rd.S.photo&&rd.S.photo.length)||0; if(_pN>0) rv+=' · 단체촬영 '+(_pN+1)+'컷'; } }   // 전체 하객+추가 구도(2026-07-19)
   else if(_rDone){ rv='완료'; }
   L+=line('식순', rv);
   var dv='';
