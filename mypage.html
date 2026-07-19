@@ -111,7 +111,7 @@ main.wide{max-width:600px}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* ── 로딩 ── */
-#loading{text-align:center;color:var(--light);min-height:calc(100vh - 280px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}
+#loading{text-align:center;color:var(--light);position:fixed;inset:0;z-index:40;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}   /* 로딩은 뷰포트 정중앙 — (구)min-height:calc(100vh-280px)는 헤더·푸터 가정으로 상단 쏠림·하단 빈 공간 났음(로딩 땐 푸터 없음). fixed+inset:0로 항상 중앙(2026-07-19 사용자 지적) */
 .spinner{width:9px;height:9px;background:var(--seal);border-radius:50%;margin:6px auto 22px;animation:meBreath 1.7s ease-in-out infinite}@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -182,6 +182,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
 .mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease)}
 .mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important}
+.mp-fs .seat-card{position:static!important;left:auto!important;transform:none!important;width:100%!important;max-width:880px!important}   /* 좌석 캔버스: 전체화면에선 vw 브레이크아웃(92vw·left:50%·translateX) 대신 컨테이너 %+margin:auto 중앙정렬 — vw(스크롤바 포함) vs 컨테이너(스크롤바 제외) 불일치로 실브라우저 스크롤바 있을 때 우측 쏠리던 것 해소(2026-07-19 사용자 지적) */
 @keyframes mpfsin{from{opacity:0}to{opacity:1}}
 
 /* 예외 상태 */
@@ -3887,7 +3888,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
-  var _cfPanelOpen=!!p.confirmStale||_cfOpenNext; _cfOpenNext=false;   // 재확인 필요·확인 직후엔 처음부터 펼쳐 경고/확인 배너가 보이게
+  var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
@@ -4913,14 +4914,8 @@ function startSnapFlow(sd){
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  // 상단 고정 바 — 제목 + 가벼운 ✕ 닫기(저장 후 나감). 카드 안 헤더의 낑긴 '저장 후 나가기'를 대체(중복 제거 · 2026-07-19 사용자 지시)
-  var head=document.createElement('div'); head.style.cssText='flex:0 0 auto;padding:13px 16px;border-bottom:1px solid var(--hairline,#EEE9E1);background:var(--bg,#FAFAF8)';
-  var headIn=document.createElement('div'); headIn.style.cssText='max-width:620px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px';
-  var ttl=document.createElement('span'); ttl.textContent='스냅 기획'; ttl.style.cssText='font-family:var(--serif-ko,serif);font-size:15px;font-weight:600;color:var(--accent,#3A2D22)';
-  var xbtn=document.createElement('button'); xbtn.type='button'; xbtn.setAttribute('aria-label','저장 후 닫기'); xbtn.textContent='✕'; xbtn.style.cssText='width:34px;height:34px;border:1px solid var(--border,#E6E1D8);background:var(--card-white,#fff);border-radius:999px;font-size:14px;color:var(--sub,#6b5d4d);cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent';
-  xbtn.addEventListener('click', function(){ exitSnapFlow(); });
-  headIn.appendChild(ttl); headIn.appendChild(xbtn); head.appendChild(headIn); ov.appendChild(head);
-  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 24px';
+  // 상단 고정 바·✕ 없음 — 종료는 하단 '저장하고 나가기'(+뒤로가기). 제목은 카드 안에 스크롤과 함께(2026-07-19 사용자 지시: 따라다니는 바·✕ 제거)
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 24px';
   var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
   body.appendChild(inner); ov.appendChild(body);
   // 하단 고정 저장 바 — 긴 폼에서 엄지로 바로 닿는 주 CTA(상단은 ✕만 · 2026-07-19 디자인 검토)
@@ -4940,6 +4935,8 @@ function renderSnapFlow(box){
   if(!box) return; var D=SNAPFLOW.d||{};
   function _chip(n,on,attr){ return '<span class="ph-chip'+(on?' fxon':'')+'" '+attr+'="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; }
   var h='<div class="consult-card" style="text-align:left">';
+  h+='<div class="cc-eyebrow en-22">Snap Planning</div>';
+  h+='<div class="cc-title" style="margin:0 0 8px">스냅 기획</div>';
   h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">촬영 전, 두 분이 원하는 결을 살짝 귀띔해 주세요. 전부 선택이라 안 채워도 괜찮아요. 남겨 주시면 촬영이 더 두 분다워져요.</div>';
   // 1) 무드 · 두 공간
   h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">무드 · 두 공간</div>';
@@ -5298,14 +5295,14 @@ function renderSeat(box){
     + legendHtml   // 음료 범례 — 캔버스 아래(상단 이물감 제거)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
-    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 공유 링크</button></div>'
+    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료 · 저장 후 나가기</button></div>'
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
-    + (s.token ? seatSharePanelHtml(s.token) : '')
+    // ★좌석 편집기 안 공유 링크·QR 패널(seatSharePanelHtml) 복원 금지 — 2026-07-19 사용자 지시로 삭제. 링크·QR은 '하객 안내' 접점에서 제공(중복 제거). 완료는 위 '배치 완료 · 저장 후 나가기'로 마무리.
     +'</div>';
   SEATFLOW._rendering=false;
   box.style.display='block';
   bindSeat(box);
-  if(s.token) wireSeatShare(box, s.token);
+  // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
   wireGuideInfoEditor(box, s.gi||{});   // 공개 범위 체크(편집기 상단) — 링크 발급 전에도 설정 저장 가능
   // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   var ei=box.querySelector('[data-ed]'); if(ei){ try{ ei.focus({preventScroll:true}); }catch(e){ try{ ei.focus(); }catch(_){} }
@@ -5347,9 +5344,10 @@ function bindSeat(box){
       return; }
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr(''); var names=0; SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
-      var b2=el; b2.textContent='만드는 중…'; b2.disabled=true;
-      saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW.token=r.seatToken||SEATFLOW.token; renderSeat(box); var sp=box.querySelector('.seat-share'); if(sp){ try{ sp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } } else { b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
-        .catch(function(){ b2.textContent='배치 완료 · 공유 링크'; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
+      if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 배치 완료(done 저장·토큰 발급) 후 바로 오버레이 종료 — 공유 패널 폐지(2026-07-19). 이중 클릭·뒤로가기 재진입 방지
+      var b2=el, _label='배치 완료 · 저장 후 나가기'; b2.textContent='저장 중…'; b2.disabled=true;
+      saveSeat(true).then(function(r){ if(r&&r.ok){ SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); show('loading'); loadMyState(); } else { SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
+        .catch(function(){ SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
       return;
     }
   });
