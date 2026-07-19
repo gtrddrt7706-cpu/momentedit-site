@@ -4891,7 +4891,7 @@ function renderSeat(box){
   var legendHtml=((cBase+cN)>0) ? '<div class="seat-drsum"><span class="s-dot dk-A"></span>'+escapeHtml(_fdDrink||'기본')+' '+cBase+(cN?(' <span class="s-dot dk-N"></span>논알콜 '+cN):'')+'</div>' : '';   // 개수 합계(이름 있는 자리) — 캔버스 아래
   var barHtml='';   // 자리 편집 중일 때만 뜨는 음료 선택 바(캔버스 위 고정)
   if(ed && ed.si!=='name'){
-    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; if(cur==='A')cur='';   // 구'알콜'=기본으로 취급
+    var et=s.tables[ed.ti]; var cur=(et&&et.drinks&&et.drinks[ed.si])||''; if(cur==='A'||cur==='J')cur='';   // 구'알콜'(A)·구'주스'(J)=기본으로 취급(주스 폐지 2026-07-19) — 바에서도 '기본' 칩이 선택돼 보이게(색점·집계와 일치)
     var edNo=num[ed.ti]||(ed.ti+1);
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'">'+(cls?'<span class="dot '+cls+'"></span>':'')+label+'</button>'; };
     barHtml='<div class="seat-drinkbar"><span class="sdb-label">'+edNo+'번 · 다른 잔이면</span>'+chip('', (_fdDrink||'기본'),'dk-A')+chip('N','논알콜','dk-N')+'</div>';   // 기본=고른 음료 · 예외=논알콜만(★주스 폐지 2026-07-19 · 복원 금지)
