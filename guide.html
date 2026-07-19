@@ -83,6 +83,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
 .privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
+.ps-t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);text-align:center;margin-bottom:13px}
+.ps-btn{display:block;text-align:center;font-family:var(--serif-ko);font-size:14.5px;color:#fff;background:var(--gold-deep);border-radius:24px;padding:12px 20px;text-decoration:none}
+.ps-btn:active{background:var(--accent)}
 
 /* ★라이브 섹션 복원 금지 — 2026-07-17 사용자 지시로 삭제(하객 안내=오프라인 하객용 · 라이브는 온라인 청첩장이 단일 창구) */
 
@@ -149,6 +152,14 @@ function diningHtml(dn){
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
   if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
   return h+'</div>';
+}
+// 하객 사진 모으기 — 부부가 정한 외부 공유 앨범/오픈채팅 링크가 있을 때만. 하객이 찍은 사진을 한곳으로(2026-07-19 · QR 갤러리 파일럿)
+function photoShareHtml(url){
+  if(!/^https?:/i.test(String(url||''))) return '';
+  return '<div class="sec"><div class="sec-h"><span class="sec-t">사진 모으기</span><span class="sec-n">Photos</span></div>'
+    +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
+    +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener">사진 올리기</a>'
+    +'<div class="privacy">두 분이 함께 모으는 공간이에요 · 남겨 주신 한 장이 큰 선물이 돼요.</div></div>';
 }
 // ★라이브 섹션(liveHtml) 복원 금지 — 2026-07-17 사용자 지시로 삭제. 멀리 계신 분 안내는 온라인 청첩장(live.html 링크 포함)이 담당
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
@@ -318,6 +329,7 @@ function render(g){
     +'<div class="hero"><div class="ek">The Wedding of</div><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+today+'</div>'
     +(hasSeat?seatFindHtml(!!g.seatFull):'')
     +diningHtml(g.dining)
+    +photoShareHtml(g.photoShare)
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
   if(hasSeat) bindSeat(g.seatToken, !!g.seatFull);
