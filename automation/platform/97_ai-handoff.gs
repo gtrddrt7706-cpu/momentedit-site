@@ -55,7 +55,7 @@ function handleAiHandoff(body) {
     var lock = LockService.getScriptLock();
     try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
     try { _aihSheet().appendRow(row); } finally { try { lock.releaseLock(); } catch (e) {} }
-    try { _aihNotifyNew(row[4], brief.summary || '', custTxt); } catch (e) {}   // 🔴 새 인계 즉시 관리자 알림
+    try { _aihNotifyNew(row[4], brief.summary || '', custTxt, row[3]); } catch (e) {}   // 🔴 새 인계 즉시 관리자 알림(접점 표기 포함)
     return { ok: true, id: id };
   } catch (err) {
     return { ok: false, error: (err && err.message) || String(err) };
@@ -63,7 +63,7 @@ function handleAiHandoff(body) {
 }
 
 /** 🔴 새 인계 관리자 SMS — 주간(08~22시)은 즉시(60초 버스트 가드), 야간(22~08시)은 보류 → 아침 9시 aiDaily가 모아 알림(새벽 문자 방지). */
-function _aihNotifyNew(category, summary, customer) {
+function _aihNotifyNew(category, summary, customer, page) {
   try {
     var p = PropertiesService.getScriptProperties();
     var hour = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
@@ -74,7 +74,7 @@ function _aihNotifyNew(category, summary, customer) {
     var now = new Date().getTime(), last = Number(p.getProperty('AI_LAST_HANDOFF_ALERT') || 0);
     if (now - last < 60000) return;   // 1분 내 중복 발송 억제
     p.setProperty('AI_LAST_HANDOFF_ALERT', String(now));
-    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('새 인계: ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
+    if (typeof aiAlertAdmin === 'function') aiAlertAdmin('새 인계' + (page ? '(' + page + ')' : '') + ': ' + (category || '문의') + ' · ' + String(summary || '').slice(0, 60) + ' (' + String(customer || '').slice(0, 30) + ')');
   } catch (e) {}
 }
 

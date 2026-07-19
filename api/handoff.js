@@ -10,22 +10,20 @@
 // 고객에게는 브리핑을 보여주지 않는다(관리자 전용). 프론트는 "전달됐어요"만 표시.
 
 const KNOWLEDGE = require('./_kb');
+const RITUAL_KB = require('./_ritual-kb');   // 접점 '식순' 인계는 식순 지식으로 브리핑(일반 KB엔 이벤트 상세가 없어 없는 옵션을 지어낼 위험 · 기획 v3 §1-2)
 const MODEL = 'claude-opus-4-8';   // 핸드오프는 드물고 관리자 응대 품질이 중요 → 상위 모델
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 800, MAX_HISTORY = 16, MAX_TOKENS = 1300;
 
-const SYSTEM_PROMPT = `당신은 웨딩 브랜드 "모먼트에디트"의 대표(디렉터)를 돕는 내부 비서입니다. 고객과 AI 상담사의 대화를 검토해, 대표가 빠르고 정확하게 응대하도록 "관리자 전용 브리핑"을 작성합니다. 이 브리핑은 고객에게 보이지 않습니다.
+const SYSTEM_HEAD = `당신은 웨딩 브랜드 "모먼트에디트"의 대표(디렉터)를 돕는 내부 비서입니다. 고객과 AI 상담사의 대화를 검토해, 대표가 빠르고 정확하게 응대하도록 "관리자 전용 브리핑"을 작성합니다. 이 브리핑은 고객에게 보이지 않습니다.
 
 [원칙]
 1. 아래 <지식> 안의 사실에 근거해 작성합니다. 지식에 없는 내용은 지어내지 말고 rationale에 "확인 필요"로 표시합니다.
 2. 가격·환불·계약·일정 등 민감한 수치·정책은 <지식>의 값만 사용합니다.
 3. suggestedReply는 대표가 고객에게 그대로 보내도 될 만큼 정중하고 단정한 한국어 존댓말 초안으로 씁니다. 전각 줄표(—)는 쓰지 않습니다.
 4. rationale에는 (a) 고객이 실제로 무엇을 원하는지 해석, (b) 그 답변의 근거(지식 어느 부분), (c) 대표가 직접 확인·결정해야 할 점을 적습니다. 특히 계약·법률·세무 등 대표가 헷갈릴 수 있는 부분은 근거를 친절히 설명합니다.
-5. confidence: 지식만으로 충분히 답 가능하면 "높음", 일부 확인 필요면 "보통", 정책 미정이라 대표 판단이 필수면 "낮음".
-
-<지식>
-${KNOWLEDGE}
-</지식>`;
+5. confidence: 지식만으로 충분히 답 가능하면 "높음", 일부 확인 필요면 "보통", 정책 미정이라 대표 판단이 필수면 "낮음".`;
+function systemFor(page){ return SYSTEM_HEAD + '\n\n<지식>\n' + (page === '식순' ? RITUAL_KB.full : KNOWLEDGE) + '\n</지식>'; }
 
 const SCHEMA = {
   type: 'object',
@@ -58,6 +56,7 @@ module.exports = async (req, res) => {
     const body = await readJson(req);
     const page = String((body && body.page) || '').slice(0, 20) || '메인';
     const customer = (body && body.customer && typeof body.customer === 'object') ? body.customer : null;
+    const state = (body && typeof body.state === 'string') ? body.state.slice(0, 2600).trim() : '';   // (식순) 고객이 만들던 식순 요약 — 디렉터가 되묻지 않게 브리핑에 동봉
     let history = Array.isArray(body && body.messages) ? body.messages : [];
     history = history
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
@@ -72,7 +71,9 @@ module.exports = async (req, res) => {
     const custLine = customer
       ? ('고객 정보: ' + [customer.name && ('이름 ' + customer.name), customer.code && ('코드 ' + customer.code), customer.stage && ('단계 ' + customer.stage), customer.phone && ('연락처 ' + customer.phone)].filter(Boolean).join(' · '))
       : '고객 정보: 비로그인(메인/예약 페이지 방문자)';
-    const userMsg = '아래는 고객과 AI 상담사의 대화입니다.\n[유입 페이지] ' + page + '\n[' + custLine + ']\n\n[대화]\n' + history.join('\n') + '\n\n위 고객을 위해 대표용 브리핑을 작성하세요.';
+    const userMsg = '아래는 고객과 AI 상담사의 대화입니다.\n[유입 페이지] ' + page + '\n[' + custLine + ']'
+      + (state ? '\n\n[고객이 만들던 식순 상태]\n' + state.replace(/[<>]/g, '') : '')
+      + '\n\n[대화]\n' + history.join('\n') + '\n\n위 고객을 위해 대표용 브리핑을 작성하세요.';
 
     const anthRes = await fetch(API_URL, {
       method: 'POST',
@@ -80,7 +81,11 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
-        system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+        system: await (async () => {
+          const blocks = [{ type: 'text', text: systemFor(page), cache_control: { type: 'ephemeral' } }];
+          try { const facts = await require('./_facts')(); if (facts) blocks.push({ type: 'text', text: '[운영 핵심정보 · 최신·최우선]\n' + facts }); } catch (e) {}   // 제안답변의 가격·기한이 낡지 않게(advisor와 동일)
+          return blocks;
+        })(),
         output_config: { format: { type: 'json_schema', schema: SCHEMA } },
         messages: [{ role: 'user', content: userMsg }],
       }),
@@ -91,7 +96,7 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'upstream_error' }));
     }
     const data = await anthRes.json();
-    if (!(body && body.test)) { try { await require('./_costlog')('핸드오프', MODEL, data.usage); } catch (e) {} }
+    if (!(body && body.test)) { try { await require('./_costlog')(page === '식순' ? '핸드오프:식순' : '핸드오프', MODEL, data.usage); } catch (e) {} }   // 식순발 인계 비용의 기원 보존(💰 집계)
     let brief = {};
     try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
     // 안전망: 전각 줄표 제거
@@ -104,7 +109,7 @@ module.exports = async (req, res) => {
       try {
         const r = await fetch(hook, {
           method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: customer || null, conversation: history, brief: brief, at: new Date().toISOString() }),
+          body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: customer || null, state: state || undefined, conversation: history, brief: brief, at: new Date().toISOString() }),
         });
         let jj = null; try { jj = await r.json(); } catch (e) {}
         delivered = !!(r.ok && jj && jj.ok === true && jj.id);   // GAS는 미지의 action에도 200을 주므로 ok·id까지 확인(라우팅 누락 감지)

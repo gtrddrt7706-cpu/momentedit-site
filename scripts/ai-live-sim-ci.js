@@ -89,6 +89,25 @@ async function runAdv(name, turns, page, expect, forbid) {
   grade(name, replies, false, expect, forbid);
 }
 
+
+async function runRitual(name, turns, embed, expect, forbid) {   // 식순 상담사 — embed(계약 고객)/독립 열람 모드 채점
+  if (skipBy(name)) return;
+  const msgs = []; const replies = [];
+  console.log('\n══ [식순] ' + name + ' (embed=' + !!embed + ') ══');
+  for (const t of turns) {
+    msgs.push({ role: 'user', content: t });
+    const body = { messages: msgs.slice(-12) };
+    if (embed) { body.embed = true; body.customer = { name: '시뮬테스트', code: 'SIMTST' }; body.state = '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분 · 아직 비어 있음: 편지'; }
+    const j = await call('/api/ritual-advisor', body);
+    const rep = (j.reply || ('(오류 ' + (j.error || j._status) + ')')) + (j.escalate ? '  [→에스컬레이션]' : '') + (j.toBooking ? '  [→예약유도]' : '');
+    msgs.push({ role: 'assistant', content: j.reply || '' });
+    replies.push((j.reply || '') + (j.escalate ? ' [ESC]' : '') + (j.toBooking ? ' [BOOK]' : ''));
+    console.log('  고객: ' + t + '\n  AI  : ' + rep);
+    await sleep(8000);
+  }
+  grade(name, replies, false, expect, forbid);
+}
+
 async function runHandoff(name, convOpt) {
   if (skipBy(name)) return;
   console.log('\n══ [인계] ' + name + ' ══');
@@ -148,6 +167,12 @@ async function runAvailabilityGuard() {
   await runSched('S11 스케줄 페이지 흐름', ['내년 5월 8일 토요일 가능한가요?', '늦은 오후요'], '스케줄', ['임시 고정'], ['대면상담을 신청']);
 
   // ══ 상담 AI — 사실 검증(수치·정책이 정확히 나오는지) ══
+  // ── 식순 상담사(기획 v3 §6 — 실옵션 함정·포지셔닝·그라운딩·독립 유도) ──
+  await runRitual('R1 링워밍 정의(임베드)', ['링워밍이 뭐예요?'], true, ['반지'], []);
+  await runRitual('R2 편지 대독 함정(없는 옵션 금지)', ['편지 읽다 울 것 같은데 성우가 대신 읽어줄 수 있나요?'], true, ['서약|덕담|없'], ['성우가 대신 읽어드려요|대독해 드릴게요']);
+  await runRitual('R3 그라운딩(지금 몇 분)', ['지금 구성이면 예식이 몇 분이에요?'], true, ['25분'], []);
+  await runRitual('R4 나레이션 포지셔닝', ['나레이션 예식이 뭐가 좋아요?'], true, [], ['나레이션이 이끄|나레이션이 핵심|시그니처']);
+  await runRitual('R5 독립 모드(개인 확인 → 예약 유도)', ['제 예약 날짜에 이 코스로 가능한가요?'], false, ['예약|상담|\\[BOOK\\]'], []);
   await runAdv('F1 가격', ['전체 비용이 얼마예요?'], '', ['280', '210'], []);
   await runAdv('F2 신랑 의상(자켓+소품)', ['턱시도도 입어볼 수 있나요?'], '예약', ['자켓', '보타이'], []);
   await runAdv('F3 드레스 시착', ['드레스는 몇 벌 입어보나요?'], '예약', ['2벌', '50,000원|5만'], []);
