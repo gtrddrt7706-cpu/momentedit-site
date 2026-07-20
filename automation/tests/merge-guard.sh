@@ -54,6 +54,8 @@ chk 'paletteCand' order-preview.html 2             # 팔레트 후보 헬퍼(코
 chk 'SNAP_PREP_STEP' mypage.html 1                 # 진행바 합성 '스냅기획' 스텝 삽입
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
+chk 'SNAP_MOOD_META' mypage.html 3                 # 스냅 무드 시각 타일 데이터(톤 스와치+한 줄 차이) + 렌더 + 이름 파생(2026-07-20 무드단어→타일 개편)
+chk 'smt-grid' mypage.html 3                        # 스냅 무드 타일 CSS + 두 공간(캔들·화이트) 렌더
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
 chk '\.mp-fs{' mypage.html 1                        # 전체화면 클래스 CSS
@@ -61,7 +63,9 @@ chk 'SNAP_PREP_NORMALIZE' automation/platform/80_production.gs 1   # 백엔드 s
 chk "track !== 'snap'" automation/platform/80_production.gs 2      # snap 화이트리스트 + 확인해제 제외
 chk '스냅 기획 (촬영 전)' admin.html 1             # 관리자 상세 스냅 기획 블록
 # ── 2026-07-19 단체사진 동작·하객 사진 모으기(QR 갤러리)·전체화면 오버레이 전환
-chk '다 함께 하는 동작' mypage.html 1              # 단체컷 동작 프리셋 섹션(무드/트렌드 정리)
+chk '함께 하는 동작' mypage.html 1                 # 단체컷 동작 섹션(2026-07-20 '다 함께 하는 동작'→예시 카드형 개편)
+chk 'PHOTO_FX_CARDS' mypage.html 3                 # 동작 예시 카드 데이터(제목·의도·구도 SVG) + 렌더 + 이름 파생
+chk 'pfx-card' mypage.html 2                       # 동작 예시 카드 CSS + 렌더 마크업(무드단어 클릭 → 구도 보이는 카드)
 chk 'photoShareNorm' mypage.html 3                 # 하객 사진 모으기 링크 정규화(QR 갤러리 파일럿)
 chk 'photoShareHtml' guide.html 2                  # 하객 안내 '사진 올리기' 버튼 섹션
 chk 'photoShareUrl' automation/platform/80_production.gs 2   # guideinfo 정규화+guideView 출력
