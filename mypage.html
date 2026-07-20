@@ -402,6 +402,20 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
 .ph-chip{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ph-chip:active{background:rgba(184,154,117,.08)}
+/* 단체컷 '함께 하는 동작' 예시 카드(무드단어 클릭 → 구도가 보이는 카드 개편 2026-07-20 · marker: pfx-card) */
+.pfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 0}
+.pfx-card{position:relative;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column}
+.pfx-card:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.pfx-card.on{border-color:var(--gold-deep);box-shadow:0 0 0 1.5px var(--gold-deep)}
+.pfx-thumb{aspect-ratio:4/3;width:100%;display:block;background:var(--bg2,#F5F3EF);color:var(--label-soft,#B3AA98)}
+.pfx-card.on .pfx-thumb{color:var(--gold-deep)}
+.pfx-meta{padding:8px 10px 10px;flex:1}
+.pfx-ttl{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--ink,#2B2823);line-height:1.3;word-break:keep-all}
+.pfx-cap{font-size:11px;color:var(--label-soft,#B3AA98);margin-top:2px;line-height:1.4;word-break:keep-all}
+.pfx-ck{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid var(--border);display:none;align-items:center;justify-content:center}
+.pfx-card.on .pfx-ck{display:flex;background:var(--gold-deep);border-color:var(--gold-deep)}
+.pfx-ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6}
+.pfx-echo{font-size:12px;color:var(--label,#6B6153);margin-top:9px;padding:9px 12px;background:var(--bg2,#F5F3EF);border-radius:9px;line-height:1.5}
 .trk-sub{font-size:11.5px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
 .trk-panel{text-align:left;padding:12px 2px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:0 0 8px 8px;padding-left:12px;padding-right:12px}   /* 행 버튼으로 여닫는 내용 패널(확인서·하객 안내) — 행과 같은 리듬, 살짝 다른 바탕으로 소속 표시 */
 .trk-sep{display:flex;align-items:center;gap:10px;margin:20px 0 2px;color:var(--label-soft);font-size:10.5px;letter-spacing:.14em;font-weight:600}   /* 준비 트랙과 확인·전달(하객 안내·예식 확인서) 구분 — 성격이 달라 섞여 보이던 것 분리(2026-07-18 사용자 지시) */
@@ -4814,7 +4828,16 @@ var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나�
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
 var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
-var PHOTO_FX=['다 같이 모여 기대기','부부 둘러싸고 위에서','다 함께 셀카','폰 플래시 흔들기','다 함께 활짝 웃기','다 함께 박수·환호'];   // 단체컷 '모여서 다 같이 하는 동작' — 사진작가 전달용(2026-07-19 리서치 반영). 2026 트렌드(캐주얼 허그·오버헤드 원형·그룹 셀카=인스타 감성)+캔디드로 구성. 전부 준비물 0. 필름 감성은 동작 아닌 작가 스타일이라 제외. 만세/손하트·브이/점프샷은 보편·가벼움으로 제외, 응원봉은 지참 부담이라 제외(원하면 직접 추가). 건배·부케·버블 등 진행 순간은 사진작가가 라이브로 담음. 꽃가루·컨페티·폭죽은 청소 리스크로 제외
+// 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_FX_CARDS).
+//   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
+var PHOTO_FX_CARDS=[
+ {n:'다 같이 모여 기대기', c:'가까이 붙어 · 소규모의 온기', d:'<g fill="currentColor"><circle cx="70" cy="74" r="15"/><circle cx="100" cy="66" r="16"/><circle cx="130" cy="74" r="15"/><circle cx="85" cy="96" r="13"/><circle cx="116" cy="96" r="13"/></g><path d="M56 120q44-26 88 0" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" opacity=".5"/>'},
+ {n:'살짝 높은 곳에서 다 함께', c:'모두 한 프레임에', d:'<g fill="currentColor"><circle cx="72" cy="50" r="8"/><circle cx="100" cy="46" r="9"/><circle cx="128" cy="50" r="8"/><circle cx="58" cy="72" r="11"/><circle cx="86" cy="68" r="12"/><circle cx="114" cy="68" r="12"/><circle cx="142" cy="72" r="11"/><circle cx="90" cy="100" r="15"/><circle cx="114" cy="100" r="15"/></g>'},
+ {n:'다 함께 부부를 바라보기', c:'시선이 모이는 따뜻한 컷', d:'<g fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="48" cy="82" r="12"/><circle cx="74" cy="74" r="12"/><circle cx="152" cy="82" r="12"/><circle cx="126" cy="74" r="12"/></g><g fill="currentColor"><circle cx="90" cy="78" r="14"/><circle cx="112" cy="78" r="14"/></g>'},
+ {n:'다 함께 셀카', c:'부부는 폰으로 · 넓은 컷은 촬영감독이 함께', d:'<rect x="120" y="26" width="54" height="94" rx="9" fill="none" stroke="currentColor" stroke-width="3" opacity=".6"/><path d="M147 120 L150 140" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".6"/><g fill="currentColor"><circle cx="56" cy="80" r="15"/><circle cx="88" cy="72" r="16"/><circle cx="116" cy="80" r="14"/></g>'},
+ {n:'박수로 맺는 한 컷', c:'예식을 맺는 마무리', d:'<g fill="currentColor"><circle cx="60" cy="86" r="13"/><circle cx="92" cy="80" r="14"/><circle cx="124" cy="80" r="14"/><circle cx="150" cy="88" r="12"/></g><g stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".6"><path d="M50 64l-5-10M68 58l-2-11M118 58l2-11M136 62l5-10"/></g>'}
+];
+var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
 var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
 var PHOTO_FX_MAX=8;   // 연출 상한
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
@@ -4856,14 +4879,17 @@ function renderPhoto(box){
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
-  // 단체컷 '다 함께 하는 동작' — 사진작가·디렉터 전달용(구도와 별개 · 모여서 하는 동작만 · 2026-07-19 사용자 지시)
-  h+='<div class="ph-sec">다 함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="ph-chips">';
-  PHOTO_FX.forEach(function(n){ var on=fx.indexOf(n)>-1; h+='<span class="ph-chip'+(on?' fxon':'')+'" data-pfx="'+escapeHtml(n)+'">'+(on?'✓ ':'')+escapeHtml(n)+'</span>'; });
-  fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
+  // 단체컷 '함께 하는 동작' — 예시 카드형(구도가 보이는 그림 + 한 줄 의도 · 무드단어 클릭에서 개편 2026-07-20). 사진작가·디렉터 전달용
+  h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">각 그림은 <b>구도만 나타낸 예시</b>예요(실제 촬영 컷과 달라요). 마음 가는 것만 눌러 주세요. 고른 개수로 비용은 바뀌지 않아요.</div>';
+  h+='<div class="pfx-grid">';
+  PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1; h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'"><svg class="pfx-thumb" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+c.d+'</svg><span class="pfx-ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div class="pfx-meta"><div class="pfx-ttl">'+escapeHtml(c.n)+'</div><div class="pfx-cap">'+escapeHtml(c.c)+'</div></div></div>'; });
   h+='</div>';
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 폰 플래시 켜고 흔들기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. 건배·부케 던지기처럼 진행 중 순간은 사진작가가 흐름 속에서 담아요.</div>';
+  var _fxExtra=fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; });   // 예전에 고른/직접 추가한 동작(프리셋에 없는 것) — 무음 유실 방지 위해 계속 노출
+  if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 우리만의 동작)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'아직 고른 동작이 없어요 · <b>전체 하객 단체컷은 그대로 담겨요</b>')+'</div>';
+  h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. <b>건배·눈물·웃음·포옹·환호</b>처럼 진행 중 순간은 억지로 만들지 않고 사진작가가 흐름 속에서 담아요.</div>';
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
@@ -4887,7 +4913,7 @@ function renderPhoto(box){
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   // 이벤트/연출 — 다중 선택(토글) + 직접 추가
   function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ el.addEventListener('click', function(){ fxToggle(el.getAttribute('data-pfx')); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ el.addEventListener('click', function(){ fxToggle(el.getAttribute('data-pfx')); }); el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fxToggle(el.getAttribute('data-pfx')); } }); });
   var fxi=$('mp_fxAdd'), fxb=$('mp_fxAddBtn');
   function fxAdd(){ if(!fxi) return; var v=(fxi.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 동작이에요.'); return; }
