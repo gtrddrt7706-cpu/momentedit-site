@@ -1388,7 +1388,7 @@ function estMin(){
   if(inSeq('ringwarm') && S.ringwarm==='all') m+=2;
   if(inSeq('toast') && S.toast==='both') m+=2;
   if(inSeq('letter') && S.letter==='both') m+=2;
-  var XM={welcome:1,letter:3,bless:0,valley:0,song:3};
+  var XM={welcome:1,letter:3,bless:0,valley:0,song:3,toast:2,ringwarm:2,tribute:2,veil:1};   // 팔레트로 코스 밖에서 더한 순간의 기본 분(카드 '약 N분' 라벨과 총합이 어긋나지 않게 · valley/bless는 위 델타가 처리해 0) — RITUAL_ADD_PALETTE
   Object.keys(S.extra).forEach(function(k){ if(S.extra[k]) m+=(XM[k]!==undefined?XM[k]:1); });
   return '약 '+m+'분';
 }
