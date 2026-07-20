@@ -54,8 +54,11 @@ chk 'paletteCand' order-preview.html 2             # 팔레트 후보 헬퍼(코
 chk 'SNAP_PREP_STEP' mypage.html 1                 # 진행바 합성 '스냅기획' 스텝 삽입
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
-chk 'SNAP_MOOD_META' mypage.html 3                 # 스냅 무드 시각 타일 데이터(톤 스와치+한 줄 차이) + 렌더 + 이름 파생(2026-07-20 무드단어→타일 개편)
-chk 'smt-grid' mypage.html 3                        # 스냅 무드 타일 CSS + 두 공간(캔들·화이트) 렌더
+# 2026-07-20 정보중심 개편: 무드 색 타일(SNAP_MOOD_META·smt-grid) 폐지 → 어떤 작가여도 도움되는 실무 정보(인물·관계·각도·꼭 담을 것)로 전환. 색 타일 복원 금지.
+chk 'SNAP_PEOPLE' mypage.html 2                     # 스냅 인물·관계 정보(누가 함께 담기나요) — 무드 색타일 폐지 대체
+chk 'aboutNote' mypage.html 3                       # 각도·신경 쓰이는 점(작가 브리핑) 필드 — 렌더+저장+수집
+chk 'mustPeople' mypage.html 3                       # 꼭 챙겨 담고 싶은 분 필드
+_smttile=$(grep -c 'class="smt' mypage.html 2>/dev/null); _smttile=${_smttile:-0}; if [ "$_smttile" -gt 0 ]; then echo "REVERT? mypage.html: 폐지된 무드 색 타일(.smt) 부활($_smttile)"; fail=1; else echo "ok mypage.html: 무드 색 타일 폐지 유지(정보중심)"; fi
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
 chk '\.mp-fs{' mypage.html 1                        # 전체화면 클래스 CSS

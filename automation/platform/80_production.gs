@@ -225,7 +225,10 @@ function handleSaveProductionTrack(body) {
     var snr = (body && body.draft) || {};
     var _snArr = function (v, max, len) { return (Object.prototype.toString.call(v) === '[object Array]') ? v.map(function (x) { return String(x).slice(0, len); }).filter(function (x) { return x; }).slice(0, max) : []; };
     body.draft = {
-      moodCandle: _snArr(snr.moodCandle, 6, 40),
+      people: _snArr(snr.people, 4, 40),          // 누가 함께 담기나요(인물·관계) — 2026-07-20 정보중심 개편
+      mustPeople: String(snr.mustPeople || '').slice(0, 120),   // 꼭 챙겨 담고 싶은 분
+      aboutNote: String(snr.aboutNote || '').slice(0, 200),     // 잘 나오는 각도·신경 쓰이는 점
+      moodCandle: _snArr(snr.moodCandle, 6, 40),  // 옛 무드 색 타일(신규 폼엔 없음) — 하위호환 보존
       moodWhite: _snArr(snr.moodWhite, 6, 40),
       moodNote: String(snr.moodNote || '').slice(0, 300),
       refs: _snArr(snr.refs, 5, 300).filter(function (u) { return /^https?:\/\//i.test(u); }),   // 링크만(http/https) · 최대 5
