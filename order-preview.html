@@ -689,7 +689,7 @@ function render(){
   else if(nx2) pnextEl.textContent='다음 · '+(PHASE[nx2.k]||nx2.title);
   else pnextEl.textContent='';
   document.getElementById('nav').style.display='flex';
-  var el=document.getElementById('stage'), h='';
+  var el=document.getElementById('stage'), h='';   // RITUAL_EVENT_VIDEO: 렌더 후 lazy-video 재스캔(아래 el.innerHTML 뒤)
   if(st.k==='done'){ h=renderDone(); }
   else if(st.k==='intro'){ h=renderIntro(); }
   else {
@@ -699,6 +699,7 @@ function render(){
     h+=renderStep(st.k);
   }
   el.innerHTML=h;
+  if(window.initLazyVideos){ try{ window.initLazyVideos(el); }catch(e){} }   // RITUAL_EVENT_VIDEO: 새로 그려진 순간 영상 슬롯 로드(자산 없으면 no-op)
   var pv=document.getElementById('prev');
   pv.disabled=(idx===0&&!editReturn);
   pv.textContent=editReturn?'취소':'이전';
@@ -768,11 +769,27 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   return h;
 }
 
+// 각 순간 캡션 단일 출처 — clip(SVG 연출컷)과 vclip(AI 영상)이 공유(문구 드리프트 방지)
+var CLIP_CAP={entry:'문이 열리고, 두 분의 첫걸음이 시작됩니다',welcome:'두 분이 나란히, 첫인사를 드립니다',declare:'모두의 목소리가 하나로, 성혼을 선언합니다',letter:'눌러 담아 온 마음이, 편지로 전해집니다',toast:'잔이 맞닿는 순간, 축복이 울립니다',vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'};
+
+// ★식순 순간 영상 슬롯(2026-07-20 · marker: RITUAL_EVENT_VIDEO) — 이벤트키→영상. 비어 있으면 기존 SVG 연출컷(clip)이 그대로 보임 · URL 채우면 그 순간만 AI 무드 영상으로 자동 교체(무변경 배선). 자산·호스팅 확정 후 채운다(docs/plans/PLAN_AI영상_제작가이드.md).
+// 형식) entry:{ mp4:'https://cdn/entry.mp4', webm:'https://cdn/entry.webm'(선택), poster:'/assets/ritual/entry.jpg', label:'연출 예시 영상'(선택·표시 정직성) }
+var EVENT_VIDEO={};
+function vclip(k){
+  var v=EVENT_VIDEO[k]; if(!v||!(v.mp4||v.webm)) return '';   // 자산 없으면 SVG로 폴백
+  var cap=CLIP_CAP[k]||'', label=v.label||'연출 예시 영상';
+  var src=(v.webm?'<source data-src="'+esc(v.webm)+'" type="video/webm">':'')+(v.mp4?'<source data-src="'+esc(v.mp4)+'" type="video/mp4">':'');
+  return '<div class="mclip"><video class="lazy-video" poster="'+esc(v.poster||'')+'" muted loop playsinline preload="none" aria-hidden="true" style="width:100%;aspect-ratio:5/2;object-fit:cover;display:block;border-radius:6px">'+src+'</video>'
+    +(cap?'<div class="m-cap">'+esc(cap)+'</div>':'')
+    +'<div class="m-cap" style="font-size:10px;color:var(--light);padding-top:2px">'+esc(label)+'</div></div>';
+}
+
 var _clipDone={};
 function clip(k){
+  var _vc=vclip(k); if(_vc) return _vc;   // 영상 자산 있으면 SVG 대신 영상(전 호출처 자동 적용)
   var _was=_clipDone[k]; _clipDone[k]=true;
   var G='#B89A75', GD='#9A7B4F', C='#6B2A24';
-  var cap={entry:'문이 열리고, 두 분의 첫걸음이 시작됩니다',welcome:'두 분이 나란히, 첫인사를 드립니다',declare:'모두의 목소리가 하나로, 성혼을 선언합니다',letter:'눌러 담아 온 마음이, 편지로 전해집니다',toast:'잔이 맞닿는 순간, 축복이 울립니다',vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'}[k];
+  var cap=CLIP_CAP[k];
   var svg='';
   if(k==='entry'){
     var A='#3A2D22', BG='#C9A76F';
@@ -1621,6 +1638,7 @@ window.ME_ADV_PAGE={
   onOpen:function(){ try{ _stopAud(); }catch(e){} }
 };
 </script>
+<script src="/assets/lazy-video.js" defer></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>

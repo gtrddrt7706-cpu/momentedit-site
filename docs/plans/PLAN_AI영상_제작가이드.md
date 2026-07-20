@@ -134,7 +134,7 @@
 **삽입 지점 현황(코드 확인 완료)**
 - **E(스냅 무드)** → `mypage.html` SNAPFLOW **무드 타일에 교체 지점 이미 설계됨**(주석: "톤 스와치 임시·추후 실제 예시로 교체"). **바로 붙일 수 있음.**
 - **A(홈 이미지 슬롯)** → `/assets/home/*.jpg`를 `<video poster>`로 교체(구조 소규모 변경).
-- **C(식순 이벤트)** → `order-preview.html` 이벤트 상세가 **텍스트 전용 → 영상 슬롯 UI 신규 제작 필요**(파일 교체 아님·별도 작업).
+- **C(식순 이벤트)** → **배선 완료(2026-07-20).** `order-preview.html`은 이미 순간별 SVG 연출컷(`clip(k)`)을 그 자리에 렌더 중이었음 → 그 위에 영상 레이어(`EVENT_VIDEO` 맵·`vclip`·`RITUAL_EVENT_VIDEO`)를 얹어, **맵에 URL만 채우면 그 순간이 AI 무드 영상으로 자동 교체**(비면 SVG 유지). 지원 순간: entry·welcome·vow·ring·declare·letter·toast·tribute·song.
 
 **샘플 스니펫**
 ```html
