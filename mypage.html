@@ -613,6 +613,16 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 11px}
 .dn-head-t{font-family:var(--serif-ko);font-size:13.5px;letter-spacing:.02em;color:var(--accent);white-space:nowrap;flex-shrink:0}
 .dn-head-c{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);white-space:nowrap}
+/* 애프터 웨딩 입구 게이트 — '만들기 vs 안 함' 큰 두 카드(2026-07-21 사용자 지시: '선택' 태그 대신 안 함도 당당한 결정으로) · marker: DN_GATE */
+.dn-gate{display:flex;flex-direction:column;gap:11px;margin:8px 0 2px}
+.dn-gate-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:13px;background:#fff;padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s,box-shadow .15s,background .15s}
+.dn-gate-card:active{background:var(--bg2)}
+.dn-gate-card:hover{border-color:var(--gold-deep)}
+.dn-gate-card .dgc-ico{font-size:22px;display:block;margin-bottom:7px;line-height:1}
+.dn-gate-card .dgc-t{display:block;font-family:var(--serif-ko);font-size:15px;color:var(--accent);font-weight:600}
+.dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
+.dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
+.dn-gate-card.dn-gate-skip .dgc-t{color:var(--sub)}   /* '안 함' 카드는 톤 낮춤 — 주 액션은 만들기 */
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
 .dn-segbtn:last-child{border-right:none}
@@ -3920,8 +3930,13 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어하기' : '시작하기');
   var _dDone=(t.dining||'')==='완료';
-  // 다이닝 = 청첩장·식순과 동일한 행(선택 항목) — 시작 전 '안내보기' · 완료 '완료 · 수정' (2026-06-13 사용자 지시)
-  var dLabel=_dDone?'완료 · 수정':'안내보기';
+  // [애프터 웨딩 3-상태 · 2026-07-21 사용자 지시] '선택(안해도 그만)' 태그 폐지 → 미정 / 만들기 완료 / 안 함.
+  //   안 함(안내 없이 진행)은 초록 완료✓ 대신 회색 '안 함' 배지로(안 했는데 완료로 보이던 오해 제거). ★'선택' 태그 복원 금지.
+  var _dd=dd||{};
+  var _dSkip=(_dDone && _dd.dining_on==='N');   // 안 하기로 함(안내 없이 진행)
+  var dLabel=_dSkip?'다시 정하기':(_dDone?'완료 · 수정':'정하기');
+  var _dSt=(_dDone && !_dSkip)?'완료':'시작전';   // 초록 ✓는 '만들기 완료'만
+  var _dTag=_dSkip?'안 함':null;   // 안 할 때만 회색 배지
 
   // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
   var _fDone=(t.final||'')==='완료';
@@ -3945,7 +3960,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var tracks = '<div class="trk-list">'
       + row('청첩장', ist, 'mp_invStart', ilabel)
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-      + row('애프터 웨딩', _dDone?'완료':'시작전', 'mp_diningStart', dLabel, null, {tag:'선택'})
+      + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag})
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
@@ -5894,6 +5909,22 @@ function renderDining(box){
     syncVenue();
   }
   syncVenue();   // 클릭 직후 재렌더에서도 venue·partner가 바로 맞도록
+  // [DN_GATE 2026-07-21 사용자 지시] 입구에서 '만들기 vs 안 함'을 먼저 큰 두 카드로 — 식당 목록부터 쏟아지지 않게. 아직 아무것도 안 정한 신규 진입에만.
+  if(TRKFLOW.step===0 && !((d._favs&&d._favs.length) || String(d.venuePick||'').trim() || TRKFLOW._dnPick)){
+    var m=TRK_META[TRKFLOW.track];
+    box.innerHTML='<div class="consult-card inv-wrap">'
+      +'<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · 1 / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+      +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
+      +'<div class="inv-sub">예식 후 식사·카페 자리를 하객께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
+      +'<div class="dn-gate">'
+        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-ico">🍽</span><span class="dgc-t">식사·카페 안내 만들기</span><span class="dgc-d">하객께 식당·카페·가볼 곳을 안내해요</span></button>'
+        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-ico">🍃</span><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
+      +'</div></div>';
+    var _mk=$('dn_make'); if(_mk) _mk.addEventListener('click',function(){ TRKFLOW._dnPick=true; renderDining(box); });   // 만들기 → 같은 step0 식당 화면으로
+    var _nn=$('dn_none'); if(_nn) _nn.addEventListener('click',function(){ collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N'; TRKFLOW.step=1; saveTrkDraft(true); renderDining(box); });   // 안 함 = 완결된 결정 → 완료(dining_on='N')로 저장 · _step=1(재진입 시 안내없이 화면) · 행은 '안 함' 배지
+
+    return;   // 게이트만 렌더(하단 '다음' 없음 · 나가기는 data-wiz-exit 전역 위임 · 뒤로가기는 TRKFLOW._bk)
+  }
   if(TRKFLOW.step===0){
     var slot=_dineSlot((TRKFLOW.base&&TRKFLOW.base.weddingTime)||'');
     var body='<div class="cc-note" style="text-align:left;margin:0 0 12px">'+escapeHtml(slot.lead)+'</div>'
@@ -5929,8 +5960,10 @@ function renderDining(box){
     var _dnsk=$('dn_skip'); if(_dnsk){ _dnsk.addEventListener('click',function(){ collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N'; saveTrkDraft(false); TRKFLOW.step=1; renderDining(box); }); }   // 안내 없이 진행 → step1 '없이 진행' 완료 화면으로
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
-      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.','',true,'저장하고 닫기');
+      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.',
+        '<div style="text-align:center;margin-top:2px"><button type="button" class="cc-btn-ghost" id="dn_again" style="width:auto;padding:9px 18px;font-size:12px">역시 애프터 웨딩 만들래요</button></div>',true,'저장하고 닫기');
       bindTrk(box,renderDining,collect,{ last:true });
+      var _dnAgain=$('dn_again'); if(_dnAgain) _dnAgain.addEventListener('click',function(){ d.venuePick=''; d.dining_on=''; syncVenue(); TRKFLOW._dnPick=false; TRKFLOW.step=0; saveTrkDraft(false); renderDining(box); });   // 안 함 되돌리기 → 입구 게이트로
     } else {
       var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 숫자만 — '25명' 입력 시 '25명 명' 방지
       var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지
