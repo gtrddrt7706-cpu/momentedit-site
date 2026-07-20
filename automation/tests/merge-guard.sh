@@ -54,6 +54,8 @@ chk 'paletteCand' order-preview.html 2             # 팔레트 후보 헬퍼(코
 chk 'SNAP_PREP_STEP' mypage.html 1                 # 진행바 합성 '스냅기획' 스텝 삽입
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
+chk 'SNAP_MOOD_META' mypage.html 3                 # 스냅 무드 시각 타일 데이터(톤 스와치+한 줄 차이) + 렌더 + 이름 파생(2026-07-20 무드단어→타일 개편)
+chk 'smt-grid' mypage.html 3                        # 스냅 무드 타일 CSS + 두 공간(캔들·화이트) 렌더
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
 chk '\.mp-fs{' mypage.html 1                        # 전체화면 클래스 CSS
