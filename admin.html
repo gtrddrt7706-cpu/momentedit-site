@@ -1567,7 +1567,7 @@ function prodTracksHtml(prod){
   var sn=prod.snapDraft||null;
   if((t.snap&&t.snap!=='시작전')||sn){
     h+='<div class="cnote">📸 스냅 기획 <b>'+esc(_tstat(t.snap))+'</b>';
-    if(sn){ var _ss=[]; var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); if(_ss.length)h+=' · '+_ss.join(' · '); }
+    if(sn){ var _ss=[]; if((sn.people||[]).length)_ss.push(esc(sn.people.join('·'))); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if(_ss.length)h+=' · '+_ss.join(' · '); }
     h+='</div>';
   }
   if(dd||rd||fd||sd||sn) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정·스냅 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft,sn)+'</div>';
@@ -1587,14 +1587,17 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   if(sn){
     var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));
     h+='<div class="grp-l">스냅 기획 (촬영 전)</div>'
-      +row('무드',_snMood.join(' / '))
-      +row('무드 메모',sn.moodNote)
-      +row('영감 링크',(sn.refs||[]).length?sn.refs.join('  '):'')
-      +row('꼭 담고 싶은 것',(sn.mustHaves||[]).length?sn.mustHaves.join(' · '):'')
-      +row('톤',sn.toneStyle)
+      +row('누가 함께',(sn.people||[]).length?sn.people.join(' · '):'')
+      +row('꼭 챙길 분',sn.mustPeople)
+      +row('각도·주의',sn.aboutNote)
       +row('편안함',sn.comfort)
+      +row('꼭 담고 싶은 컷',(sn.mustHaves||[]).length?sn.mustHaves.join(' · '):'')
       +row('소품·의상',sn.propsNote)
-      +row('디렉터에게',sn.directorNote);
+      +row('톤',sn.toneStyle)
+      +row('영감 링크',(sn.refs||[]).length?sn.refs.join('  '):'')
+      +row('분위기 한 줄',sn.moodNote)
+      +(_snMood.length?row('무드(구 색타일)',_snMood.join(' / ')):'')
+      +row('자유 메모',sn.directorNote);
   }
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
