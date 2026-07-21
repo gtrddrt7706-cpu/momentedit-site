@@ -148,8 +148,8 @@
 
 | 계층 | 기술 |
 |---|---|
-| 프론트엔드 | 바닐라 JS + 정적 HTML + CSS (프레임워크·빌드 없음), Google Fonts, PWA(`manifest.json`), Schema.org JSON-LD, GA4(`G-PJ596EFSDS`) |
-| 백엔드 ① | Google Apps Script(`/exec` 웹앱, clasp 배포, 배포ID `R3n9Mr`) |
+| 프론트엔드 | 바닐라 JS + 정적 HTML + CSS (프레임워크·빌드 없음), Google Fonts, PWA(`manifest.json`), Schema.org JSON-LD, GA4 |
+| 백엔드 ① | Google Apps Script(`/exec` 웹앱, clasp 배포) |
 | 백엔드 ② | Vercel 서버리스 함수(Node, CommonJS, 의존성 0) |
 | 데이터 | Google Sheets(단일 저장소) |
 | 호스팅 | Vercel(정적+API, 보안헤더·HSTS), 도메인 momentedit.kr |
@@ -227,7 +227,7 @@
 
 ### 5-3. 실사업 운영 증빙(`momentedit-docs`)
 
-- `legal/business-registration.pdf`(사업자등록증 · 내용 미확인/미개봉), `legal/통신판매업_신고준비.md`(국민신문고 1AA-2606-1311790 근거).
+- `legal/business-registration.pdf`(사업자등록증 · 내용 미확인/미개봉), `legal/통신판매업_신고준비.md`(국민신문고 판정 근거).
 - `legal/contract/` 29개: 계약서 통합본 v1.0·v1.1 + 조항별 초안 + 위약금/세무/리스크 리서치 + 발송 가이드.
 - `manuals/` 5개(AI 시스템·실무 매뉴얼 한/일·브랜드 색감·키워드), `operations/` 4개(회계 체크리스트·고객정보 수집 마스터·잔여작업), `research/wedding-pain-points-v2.md`, `tools/revenue-simulator.html`, `kakao-chatbot/` 2개, `logos/` 30개 브랜드 자산 키트.
 
