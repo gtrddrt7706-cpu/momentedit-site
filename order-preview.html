@@ -1251,7 +1251,7 @@ function renderStep(k){
     if(inSeq('vow')) witems.push('vow');
     if(inSeq('letter')) witems.push('letter');
     if(witems.length){
-      var wdone=witems.filter(function(x){ return x==='welcome'?S.welcomeText:x==='vow'?S.vowText:S.letterText; }).length;
+      var wdone=witems.filter(function(x){ return _wcFilled(x); }).length;   // 배지(_wcFilled·공백 제거)와 동일 기준으로 카운트 통일 · WRITE_2CHECK
       h+='<div class="write-check"><b>'+witems.length+'개 중 '+wdone+'개 적었어요.</b> 각 순간에서 이미 적었다면 그대로 두고, 비어 있으면 여기서 채워도 돼요 · 위 목차를 눌러 그 순간으로 바로 갈 수도 있어요.</div>';
       witems.forEach(function(x){ h+=writeCard(x,true); });
     } else {
