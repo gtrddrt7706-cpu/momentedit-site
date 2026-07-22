@@ -5448,7 +5448,7 @@ function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; DN_UI.pre=null; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
   if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
@@ -5519,6 +5519,7 @@ function bindTrk(box, render, collect, opt){
   }); }
   var _daskai=$('dn_askai'); if(_daskai){ _daskai.addEventListener('click',function(){ var inp=$('dncInput'); if(inp){ try{inp.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){} inp.focus(); } }); }   // 빈 결과 → AI 입력으로 유도(막다른 길 방지)
   var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
+  var _dpre=$('dn_pre'); if(_dpre){ _dpre.addEventListener('click',function(){ collect(); var opn=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre; DN_UI.pre=!opn; render(box); }); }   // '이런 자리를 찾고 있어요' 프리셋 펼침/접기(기본 접힘)
   var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; render(box); }); }   // 리스트 전체 보기
   Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ TRKFLOW.draft._filters=Object.assign({},p.set); TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
   var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); }); }   // 가볼 만한 곳 펼침/접기
@@ -5680,7 +5681,7 @@ var DINE_DB = [
 var _DN_PRICE={low:'~2만',mid:'2~5만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
 var _DN_ARR={'10:00':'11:50','13:20':'15:00','16:40':'18:10'};   // 본예식 → 식사 도착 기준
-var DN_UI={det:null,all:false,attr:false};   // 리스트 UI 상태(세부조건 펼침·전체 보기·가볼곳 펼침) — 화면용이라 draft에 저장 안 함
+var DN_UI={det:null,all:false,attr:false,pre:null};   // 리스트 UI 상태(세부조건 펼침·전체 보기·가볼곳 펼침·상황 프리셋 펼침) — 화면용이라 draft에 저장 안 함. pre=null이면 기본 접힘
 // 상황별 원탭 프리셋 — 누르면 여러 필터를 한 번에 세팅(AI 호출 없이 즉시). set을 _filters로 교체.
 var DN_PRESETS=[
   {label:'양가 어른 모시고 정찬', set:{theme:'formal',elderly:'true',group:'room'}},
@@ -5692,7 +5693,14 @@ var DN_PRESETS=[
   {label:'아이와 함께 편하게', set:{theme:'casual',food:'뷔페'}},
   {label:'가까운 곳 위주', set:{dist:'10'}},
   {label:'주차 걱정 없이', set:{parking:'good'}},              // 하객 차량 많은 예식 후 핵심(주차 넉넉 23곳) · 시나리오 칩 대체
-  {label:'고기·갈비로 든든히', set:{food:'한우·갈비'}}          // 단체 회식 스테디셀러 · 시나리오 칩 대체
+  {label:'고기·갈비로 든든히', set:{food:'한우·갈비'}},         // 단체 회식 스테디셀러 · 시나리오 칩 대체
+  // ★상황별 프리셋 확장 — 예산·분위기·음식 축으로 커버 넓힘(2026-07-22 사용자 지시 '좀더 많이 적절하게'). 각 set은 _dnPass 유효 키·실결과 있는 값만(프리미엄5·알뜰13·모던23·샤브4·한정식12·족발7). 접이식이라 개수 늘어도 화면 간결
+  {label:'특별한 날 프리미엄으로', set:{theme:'formal',price:'high'}},   // 예산 넉넉·격식(정찬×5만+)
+  {label:'부담 없는 가격대로', set:{price:'low'}},              // 알뜰(~2만)
+  {label:'모던한 분위기로', set:{mood:'모던'}},                 // 한옥·정원과 다른 감성 축 보완
+  {label:'뜨끈한 국물 요리로', set:{food:'샤브·전골'}},         // 겨울·어른 선호 따뜻한 한 끼
+  {label:'정갈한 한정식', set:{food:'한정식'}},                 // 격식 있는 코스 정찬
+  {label:'푸짐한 족발·보쌈', set:{food:'족발·보쌈'}}            // 캐주얼 회식·부담 없는 단체
 ];
 // 예식 후 가볼 만한 곳 — 향동 기준 디렉터 큐레이션(지도 검색이 빈약한 동네라 고정 추천). 거리·설명은 디렉터가 다듬을 수 있음.
 var DN_ATTRACTIONS=[
@@ -5788,9 +5796,12 @@ function dineFilterUI(d, wt){
       +block('동행',pill('elderly','true','어르신·좌식 우선'),true)
     +'</div>';
   // 컨셉 칩 — 전부 고정형(누르면 아래 리스트가 그 조건으로 걸러짐). (2026-07-12) 지도검색 시나리오 칩(키즈·뒷풀이)은 삭제 · 그 자리는 고정 키워드로 대체. 키즈·뒷풀이는 위 AI 입력에 적으면 지도로 찾아줌.
-  var presetRow='<div class="dn-preset-cap">이런 자리를 찾고 있어요</div><div class="dn-preset">'
+  // ★상황 프리셋 접이식 — 기본 접힘, 눌러서 펼침(2026-07-22 사용자 지시 '접혀있게 · 원하면 펴서'). 개수 늘어도 첫 화면 간결
+  var preOpen=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre;
+  var presetRow='<button type="button" class="dn-fmore" id="dn_pre">이런 자리를 찾고 있어요'+(preOpen?' ▴':' ▾')+'</button>'
+    +'<div class="dn-fdetail'+(preOpen?' open':'')+'"><div class="dn-preset-cap">상황을 고르면 조건이 한 번에 맞춰져요</div><div class="dn-preset" style="margin-bottom:0">'
     +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')
-    +'</div>';
+    +'</div></div>';
   var arr=_DN_ARR[wt||'']||'';
   var bigGroup=(fl.headN==='l'||fl.headN==='xl');   // 대단체 — 단체석·뷔페를 위로
   function _capScore(r){ return ((r.f||[]).indexOf('뷔페')>=0||r.g==='seats')?0:(r.g==='room'?2:1); }
