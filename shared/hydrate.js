@@ -464,7 +464,7 @@
         var _bd = _dark ? 'rgba(255,255,255,.28)' : 'rgba(0,0,0,.14)';
         var sec = document.createElement('section');
         sec.id = 'meGuideCta';
-        sec.style.cssText = 'margin:44px auto 0;text-align:center;opacity:0;transition:opacity .55s ease';   // 마지막 본문 섹션 안에 넣어 계좌와 함께 흐르게(상단 여백만·하단은 섹션 패딩) + 부드럽게 나타나기
+        sec.style.cssText = 'margin:72px auto 8px;text-align:center;opacity:0;transition:opacity .55s ease';   // 마지막 본문 섹션 안에 넣어 계좌와 함께 흐르게 + 부드럽게 나타나기. 상단 72px=계좌와 충분히 띄워 CTA로 구분(44는 좁다는 지적 2026-07-22)
         sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
           + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Guest Guide</div>'
           + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
