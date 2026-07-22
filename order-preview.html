@@ -1252,7 +1252,7 @@ function renderStep(k){
     if(inSeq('letter')) witems.push('letter');
     if(witems.length){
       var wdone=witems.filter(function(x){ return _wcFilled(x); }).length;   // 배지(_wcFilled·공백 제거)와 동일 기준으로 카운트 통일 · WRITE_2CHECK
-      h+='<div class="write-check"><b>'+witems.length+'개 중 '+wdone+'개 적었어요.</b> 각 순간에서 이미 적었다면 그대로 두고, 비어 있으면 여기서 채워도 돼요 · 위 목차를 눌러 그 순간으로 바로 갈 수도 있어요.</div>';
+      h+='<div class="write-check"><b id="wcCount">'+witems.length+'개 중 '+wdone+'개 적었어요.</b> 각 순간에서 이미 적었다면 그대로 두고, 비어 있으면 여기서 채워도 돼요 · 위 목차를 눌러 그 순간으로 바로 갈 수도 있어요.</div>';
       witems.forEach(function(x){ h+=writeCard(x,true); });
     } else {
       h+='<div class="write-check">직접 읽는 글이 없는 구성이에요 · 바로 완성으로 넘어가도 돼요.</div>';
@@ -1268,21 +1268,26 @@ function writeCard(kind, showStatus){
   }
   if(kind==='vow'){
     return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
-      +'<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>'
+      +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>'
       +'<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>'
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
   if(kind==='letter'){
     return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
-      +'<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>'
+      +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>'
       +'<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
   }
   return '';
 }
 function _wcFilled(kind){ return (kind==='welcome')?!!(S.welcomeText&&S.welcomeText.trim()):(kind==='vow')?!!(S.vowText&&S.vowText.trim()):!!(S.letterText&&S.letterText.trim()); }
 function wcStat(kind){ var f=_wcFilled(kind); return '<div class="wc-stat'+(f?' on':'')+'" data-wc="'+kind+'">'+(f?'✓ 적었어요':'아직 안 적었어요')+'</div>'; }
-function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=t.value.length?t.value.length+'자 · 약 '+Math.max(1,Math.round(t.value.length/300))+'분 ':''; c.style.color=t.value.length>360?'var(--seal)':'var(--gold-deeper)'; } }
-function wcSync(t,kind){ var s=document.querySelector('.wc-stat[data-wc="'+kind+'"]'); if(!s)return; var f=!!t.value.trim(); s.className='wc-stat'+(f?' on':''); s.textContent=f?'✓ 적었어요':'아직 안 적었어요'; }
+function _wcLen(n){ return n?(n+'자 · 약 '+Math.max(1,Math.round(n/300))+'분 '):''; }   // 글자수·예상시간 문구 단일 공식(로드 초기화·입력 갱신 공용)
+function wcCntSpan(id,v){ var n=(v||'').length, col=n?(n>360?';color:var(--seal)':';color:var(--gold-deeper)'):''; return '<span id="'+id+'" style="font-weight:600'+col+'">'+_wcLen(n)+'</span>'; }   // 저장분 다시 열 때도 자·분 즉시 표시
+function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=_wcLen(t.value.length); c.style.color=t.value.length>360?'var(--seal)':'var(--gold-deeper)'; } }
+function wcSync(t,kind){
+  var s=document.querySelector('.wc-stat[data-wc="'+kind+'"]'); if(s){ var f=!!t.value.trim(); s.className='wc-stat'+(f?' on':''); s.textContent=f?'✓ 적었어요':'아직 안 적었어요'; }
+  var cnt=document.getElementById('wcCount'); if(cnt){ cnt.textContent=document.querySelectorAll('.wc-stat').length+'개 중 '+document.querySelectorAll('.wc-stat.on').length+'개 적었어요.'; }   // 상단 요약 숫자도 실시간 동기화
+}
 
 function courseCard(v){
   var c=COURSES[v], soon=!c.ready, open=crsOpen===v;
