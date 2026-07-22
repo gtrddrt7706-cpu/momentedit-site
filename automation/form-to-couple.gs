@@ -581,7 +581,7 @@ function buildCoupleEmailHtml(groomName, brideName, onlineUrl, familyUrl, hasQr,
     '<body style="margin:0;padding:0;background:#1E1A17;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1E1A17;width:100%;"><tr><td align="center" bgcolor="#1E1A17" style="background:#1E1A17;">' +
     '<div style="color-scheme:dark;font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#1E1A17;color:#E8E1D6;">' +
-      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-gold.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
+      '<div style="text-align:center;margin-bottom:28px;"><img src="https://momentedit.kr/assets/preview/email-logo-gold.png" alt="MOMENT EDIT · Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +   // ★raw.githubusercontent(비공개=메일서 404 깨짐) → Vercel 공개 URL(2026-07-22). alt 전각줄표(—)도 · 로 교정
       '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">' + who + ' 님,<br>두 분의 청첩장이 준비되었습니다.</p>' +
       whenLine +
@@ -603,7 +603,7 @@ function buildDateRetryEmailHtml(groomName, brideName, weddingDateRaw) {
     '<body style="margin:0;padding:0;background:#1E1A17;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1E1A17;width:100%;"><tr><td align="center" bgcolor="#1E1A17" style="background:#1E1A17;">' +
     '<div style="color-scheme:dark;font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:44px 30px;background:#1E1A17;color:#E8E1D6;">' +
-      '<div style="text-align:center;margin-bottom:28px;"><img src="' + CFG.RAW + 'email-logo-gold.png" alt="MOMENT EDIT — Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +
+      '<div style="text-align:center;margin-bottom:28px;"><img src="https://momentedit.kr/assets/preview/email-logo-gold.png" alt="MOMENT EDIT · Private Wedding Studio" width="210" style="display:block;width:210px;max-width:62%;height:auto;margin:0 auto;border:0;"></div>' +   // ★raw.githubusercontent(비공개=메일서 404 깨짐) → Vercel 공개 URL(2026-07-22). alt 전각줄표(—)도 · 로 교정
       '<div style="width:40px;height:1px;background:#C9A977;margin:24px auto;"></div>' +
       '<p style="font-size:15px;line-height:1.85;font-weight:300;text-align:center;color:#E8E1D6;">안녕하세요, 모먼트 에디트입니다.</p>' +
       '<p style="font-size:14px;line-height:1.9;font-weight:300;text-align:center;color:#E8E1D6;margin-top:18px;">' + who + ' 님,<br>제출해 주신 예식 날짜를 다시 한 번 확인 부탁드립니다.</p>' +
