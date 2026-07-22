@@ -417,7 +417,20 @@
       if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
       runInertScripts();
       applyTitles(couple, designNum());
+      pruneEmptyVenueRows();
     } catch (e) { console.error('[hydrate]', e); }
+  }
+
+  // 오시는 길 메타(주소/교통편/주차/도착 안내) 중 값이 빈 행은 라벨만 남아 미완성처럼 보임(계약 전엔 교통·주차가 보통 빔)
+  //   → 내용(dd)이 빈 행은 숨긴다. 전 디자인·온라인 공통 DOM 정리(템플릿 8종 개별 OPTIONAL 래핑 대신 · 2026-07-22 · marker: pruneEmptyVenueRows)
+  function pruneEmptyVenueRows() {
+    try {
+      var rows = document.querySelectorAll('.venue-meta-row');
+      for (var i = 0; i < rows.length; i++) {
+        var dd = rows[i].querySelector('dd');
+        if (dd && !dd.textContent.replace(/\u00a0/g, '').trim()) rows[i].style.display = 'none';
+      }
+    } catch (e) {}
   }
 
   // 인사말 섹션 제목 교체 — 커스텀 있을 때만 텍스트 교체(폰트·스타일 유지). 가족/디지털 디자인 따로.
