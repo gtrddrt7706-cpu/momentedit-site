@@ -249,7 +249,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
 .consult-card .cc-sub b{color:var(--accent);font-weight:500}
 /* RESULT_WAIT_EMO 2026-07-22 · 예식/촬영 종료 후 여운 메시지(제목 아래·안내 위) */
-.consult-card .cc-emo{font-family:var(--serif-ko);font-size:13.5px;font-weight:400;color:var(--gold-deeper);line-height:1.95;margin-top:13px;padding-left:13px;border-left:2px solid var(--gold-soft);word-break:keep-all}
+.consult-card .cc-emo{font-family:var(--serif-ko);font-size:14.5px;font-weight:400;color:var(--accent);line-height:2.15;text-align:center;word-break:keep-all;margin:20px 6px 22px;letter-spacing:.005em}
+.consult-card .cc-emo .rule{display:block;width:26px;height:1px;background:var(--gold-soft);margin:0 auto 16px;border:0}
+.consult-card .fn-intro{font-size:12px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin-bottom:2px}
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .consult-card .cc-actions:empty{display:none}
@@ -3493,14 +3495,14 @@ function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean)
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
 function _resultWaitHtml(res){
   return '<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-    +'<div class="cc-emo" style="text-align:left">오래 준비하신 하루를, 두 분답게 온전히 치러내셨어요.<br>이제 그 여운에 마음껏 머무르세요.<br>그날의 공기까지, 저희가 곁에서 한 장 한 장 담아 둘게요. 🤍</div>'   // RESULT_WAIT_EMO
-    +'<div class="cc-sub" style="text-align:left">두 분의 하루를 정성껏 정리하고 있어요.<br>준비되는 대로 아래 순서로 마이페이지에 올라와요.</div>'
+    +'<div class="cc-emo"><span class="rule"></span>오래 준비하신 하루를, 두 분답게 온전히 치러내셨어요.<br>이제 그 여운에 마음껏 머무르세요.<br>그날의 공기까지, 저희가 곁에서 한 장 한 장 담아 둘게요.</div>'   // RESULT_WAIT_EMO
     +'<div class="visit-guide" style="margin-top:14px">'
+    +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.</div>'
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐'+(_eta(DELIVERY_ETA.retouch)?(' <b>'+DELIVERY_ETA.retouch+'</b> 뒤'):' 정성껏')+' 전해드려요.</span></div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?(' <b>'+DELIVERY_ETA.video+'</b> 뒤'):'')+' 전해드려요.</span></div>')
     +'</div>'
-    +'<div class="cc-note">결과물은 준비되는 대로 <b>하나씩</b> 올라와요 🤍<br><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
+    +'<div class="cc-note"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';
 }
 // 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
 function _surveySchema(isSnap){
