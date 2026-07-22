@@ -257,6 +257,12 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .wcard .wd{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 .wptr{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px;margin-top:12px;line-height:1.6;word-break:keep-all}
 .wptr b{font-weight:600}
+/* 글 적어두기 2차 확인 · WRITE_2CHECK */
+.write-check{font-size:12px;color:var(--sub);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:12px 14px;margin-bottom:4px;line-height:1.7;word-break:keep-all}
+.write-check b{color:var(--gold-deeper);font-weight:700}
+.wc-stat{display:inline-flex;align-items:center;font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--light);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-bottom:9px}
+.wc-stat.on{color:var(--gold-deeper);background:#EFEAE0;border-color:var(--gold-btn)}
+.sr-empty{display:inline-block;font-size:10px;font-weight:600;color:var(--seal);background:#F3E9E7;border:1px solid #E4CFCB;border-radius:20px;padding:2px 8px;margin-left:2px;white-space:nowrap}
 .special{margin-top:14px;text-align:center;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
@@ -713,14 +719,16 @@ function render(){
 }
 function renderMiniTL(k){
   var el=document.getElementById('minitl'), pn=document.getElementById('pnext');
+  var isWrite=(mode==='build' && k==='write');   // 글 적어두기 단계에서도 레일 항시 노출 → 각 순간으로 자유 이동·수정 (2026-07-22 사용자 지시 · WRITE_2CHECK)
   var blocks=(mode==='build' && k)?fullBlocks():[];
   var cur=-1; for(var i=0;i<blocks.length;i++){ if(blocks[i].k===k){ cur=i; break; } }
-  var show=(cur>-1)||(mode==='build'&&k&&curSeq().indexOf(k)>-1);   // 본식 단계면 항상 레일 유지(빼기 상태여도 사라지지 않게)
+  var show=(cur>-1)||(mode==='build'&&k&&curSeq().indexOf(k)>-1)||isWrite;   // 본식 단계·글 적어두기면 항상 레일 유지(빼기 상태여도 사라지지 않게)
   el.style.display=show?'block':'none';
   if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
+  if(isWrite) blocks=blocks.concat([{k:'write',n:'글 적어두기'}]);   // 레일 끝에 현재 단계(글 적어두기) 노드 추가
   // 완료(방문 끝) 단계는 ✓골드로 표시하고 탭하면 그 단계로 이동 · 아직 안 간 단계는 회색(탭 불가) — 진행 위치가 한눈에(2026-07-16 사용자 요청)
-  var SHORT={entry:'입장',welcome:'첫인사',_close:'폐식',toast:'축배'};   // 키 기반 축약(문구 리네임에도 안전 — 문자열 replace 체인 대체)
+  var SHORT={entry:'입장',welcome:'첫인사',_close:'폐식',toast:'축배',write:'글 적어두기'};   // 키 기반 축약(문구 리네임에도 안전 — 문자열 replace 체인 대체)
   var parts=blocks.map(function(b){
     var nm=SHORT[b.k]||b.n;
     if(b.k===k) return '<span class="mtl-now">'+esc(nm)+'</span>';
@@ -1153,13 +1161,13 @@ function renderStep(k){
     h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
     h+='<div class="self"><span class="who">두 분이 직접</span>한두 문장·목례면 충분해요.</div>';
     h+=fold('welNar2','인사 뒤 이어지는 나레이션',narBox("여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",null));
-    h+=writePtr('인사말은');
+    h+=writeCard('welcome',false);   // 1차 입력 — 이 순간에서 바로 적기(마지막 글 적어두기에서 다시 확인) · WRITE_2CHECK
   }
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
     h+=tip('울컥해서 못 읽을 것 같으면, "내가 멈추면 이어 읽어줘" 같은 사인을 배우자와 미리 정해 두세요 · 디렉터가 서약문을 준비해 둬, 그 순간 배우자가 대신 이어 읽을 수 있어요.');
-    h+=writePtr('서약문은');
+    h+=writeCard('vow',false);   // 1차 입력 — WRITE_2CHECK
   }
   else if(k==='ring'){
     h+=clip('ring');
@@ -1189,7 +1197,7 @@ function renderStep(k){
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,RECO.letter===v); });
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
     h+=tip('울컥해서 못 읽을 것 같으면, 배우자와 사인을 미리 정해 두세요 · 디렉터가 편지를 준비해 둬, 그 순간 배우자가 대신 이어 읽을 수 있어요.');
-    h+=writePtr('편지는');
+    h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
   }
   else if(k==='bless'){
     var famOpen=(S.course==='family');
@@ -1237,25 +1245,48 @@ function renderStep(k){
     });
   }
   else if(k==='write'){
-    if(inSeq('welcome') && S.welcome==='self'){
-      h+='<div class="wcard"><div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
-    }
-    if(inSeq('vow')){
-      h+='<div class="wcard"><div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);var c=document.getElementById(\'vowCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>';
-      h+='<div class="lenhint"><span id="vowCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>';
-      h+='<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>';
-      h+='<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
-    }
-    if(inSeq('letter')){
-      h+='<div class="wcard"><div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);var c=document.getElementById(\'letterCnt\');if(c){c.textContent=this.value.length?this.value.length+\'자 · 약 \'+Math.max(1,Math.round(this.value.length/300))+\'분 \':\'\';c.style.color=this.value.length>360?\'var(--seal)\':\'var(--gold-deeper)\';}" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>';
-      h+='<div class="lenhint"><span id="letterCnt" style="font-weight:600"></span>한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>';
-      h+='<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
+    // 글 적어두기 = 2차 확인 — 각 순간에서 1차로 적고, 여기선 적음/비움을 한눈에 점검·마저 채움 (2026-07-22 사용자 지시 · WRITE_2CHECK)
+    var witems=[];
+    if(inSeq('welcome') && S.welcome==='self') witems.push('welcome');
+    if(inSeq('vow')) witems.push('vow');
+    if(inSeq('letter')) witems.push('letter');
+    if(witems.length){
+      var wdone=witems.filter(function(x){ return _wcFilled(x); }).length;   // 배지(_wcFilled·공백 제거)와 동일 기준으로 카운트 통일 · WRITE_2CHECK
+      h+='<div class="write-check"><b id="wcCount">'+witems.length+'개 중 '+wdone+'개 적었어요.</b> 각 순간에서 이미 적었다면 그대로 두고, 비어 있으면 여기서 채워도 돼요 · 위 목차를 눌러 그 순간으로 바로 갈 수도 있어요.</div>';
+      witems.forEach(function(x){ h+=writeCard(x,true); });
+    } else {
+      h+='<div class="write-check">직접 읽는 글이 없는 구성이에요 · 바로 완성으로 넘어가도 돼요.</div>';
     }
   }
   h+='</div>'; return h;
 }
-function writePtr(lead){
-  return '<div class="wptr">'+esc(lead)+' 마지막 <b>글 적어두기</b>에서 한 번에 적어요 · 지금은 넘어가도 돼요</div>';
+// 글 입력 카드 단일 출처 — 각 순간(1차·showStatus=false)과 글 적어두기(2차·showStatus=true) 공용 (2026-07-22 · WRITE_2CHECK)
+function writeCard(kind, showStatus){
+  var st=showStatus?wcStat(kind):'';
+  if(kind==='welcome'){
+    return '<div class="wcard">'+st+'<div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+  }
+  if(kind==='vow'){
+    return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>'
+      +'<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>'
+      +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
+  }
+  if(kind==='letter'){
+    return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>'
+      +'<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
+  }
+  return '';
+}
+function _wcFilled(kind){ return (kind==='welcome')?!!(S.welcomeText&&S.welcomeText.trim()):(kind==='vow')?!!(S.vowText&&S.vowText.trim()):!!(S.letterText&&S.letterText.trim()); }
+function wcStat(kind){ var f=_wcFilled(kind); return '<div class="wc-stat'+(f?' on':'')+'" data-wc="'+kind+'">'+(f?'✓ 적었어요':'아직 안 적었어요')+'</div>'; }
+function _wcLen(n){ return n?(n+'자 · 약 '+Math.max(1,Math.round(n/300))+'분 '):''; }   // 글자수·예상시간 문구 단일 공식(로드 초기화·입력 갱신 공용)
+function wcCntSpan(id,v){ var n=(v||'').length, col=n?(n>360?';color:var(--seal)':';color:var(--gold-deeper)'):''; return '<span id="'+id+'" style="font-weight:600'+col+'">'+_wcLen(n)+'</span>'; }   // 저장분 다시 열 때도 자·분 즉시 표시
+function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=_wcLen(t.value.length); c.style.color=t.value.length>360?'var(--seal)':'var(--gold-deeper)'; } }
+function wcSync(t,kind){
+  var s=document.querySelector('.wc-stat[data-wc="'+kind+'"]'); if(s){ var f=!!t.value.trim(); s.className='wc-stat'+(f?' on':''); s.textContent=f?'✓ 적었어요':'아직 안 적었어요'; }
+  var cnt=document.getElementById('wcCount'); if(cnt){ cnt.textContent=document.querySelectorAll('.wc-stat').length+'개 중 '+document.querySelectorAll('.wc-stat.on').length+'개 적었어요.'; }   // 상단 요약 숫자도 실시간 동기화
 }
 
 function courseCard(v){
@@ -1456,15 +1487,15 @@ function renderDone(){
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 대본·연습·준비물</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
   if(_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘어도 괜찮아요 · 당일은 디렉터가 자연스럽게 이끌어요</div>';
-  var fb=fillBlanks();
-  if(fb.length){ h+='<div class="fillbadge"><div class="ft">아직 비워둔 칸 '+fb.length+'개 · 나중에 채워도 돼요</div><div class="fl">'; fb.forEach(function(x){ h+='<span onclick="jumpTo(\''+x[0]+'\')">'+esc(x[1])+' 채우기</span>'; }); h+='</div></div>'; }
+  // ★'아직 비워둔 칸' 별도 배지 폐지 — 글 적어두기(2차 확인)와 중복. 대신 아래 요약 행에 '글 비어 있음'을 인라인 표시(변경 버튼이 곧 채우기) — 2026-07-22 사용자 지시 · WRITE_2CHECK
   h+='<div class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</div><div class="sumry">';
   var _num=0;
   summaryRows().forEach(function(r){
     var isPre=(r[2]==='guest');
     var isOff=(r[2]==='ring'&&S.ring!=='on')||(r[2]==='valley'&&S.valley==='none')||(r[2]==='bless'&&S.bless!=='on')||(r[2]==='veil'&&S.veil==='skip');
     var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10px">식전</div>':isOff?'<div class="sr-n sr-off">뺌</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
-    h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">변경</button></div>';
+    var emptyWrite=(r[2]==='vow'&&!_wcFilled('vow'))||(r[2]==='letter'&&!_wcFilled('letter'))||(r[2]==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));   // 직접 읽는 글 미입력 → 인라인 표시(변경=채우기) · WRITE_2CHECK
+    h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+(emptyWrite?' <span class="sr-empty">글 비어 있음</span>':'')+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">'+(emptyWrite?'채우기':'변경')+'</button></div>';
   });
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
