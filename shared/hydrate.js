@@ -430,6 +430,12 @@
         var dd = rows[i].querySelector('dd');
         if (dd && !dd.textContent.replace(/\u00a0/g, '').trim()) rows[i].style.display = 'none';
       }
+      // \uc9c0\ub3c4 \ubbf8\uc815(mapIframe \uc5c6\uc74c \u2192 '\uc7a5\uc18c\ub294 \ubcf8 \uacc4\uc57d \ud6c4 \uc548\ub0b4' placeholder)\uc77c \ub550 '\uc9c0\ub3c4\uc5d0\uc11c \uc5f4\uae30' \ubc84\ud2bc \uc228\uae40.
+      //   \uc704\uce58\uac00 \uc548 \uc815\ud574\uc84c\ub294\ub370 '\uc9c0\ub3c4 \uc5f4\uae30' CTA\uac00 \uc88c\uc0c1\ub2e8\uc5d0 \ub5a0 \uc788\uc73c\uba74 \ubaa8\uc21c\u00b7\uc5b4\uc0c9(2026-07-22 \ub514\uc790\uc774\ub108 \uc810\uac80 \u00b7 marker: mapOverlayHide)
+      if (document.querySelector('.venue-map-pending')) {
+        var ov = document.querySelector('.venue-map-overlay');
+        if (ov) ov.style.display = 'none';
+      }
     } catch (e) {}
   }
 
