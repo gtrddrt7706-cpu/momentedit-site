@@ -3495,7 +3495,7 @@ function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean)
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
 function _resultWaitHtml(res){
   return '<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-    +'<div class="cc-emo"><span class="rule"></span>오래 준비하신 하루를, 두 분답게 온전히 치러내셨어요.<br>이제 그 여운에 마음껏 머무르세요.<br>그날의 공기까지, 저희가 곁에서 한 장 한 장 담아 둘게요.</div>'   // RESULT_WAIT_EMO
+    +'<div class="cc-emo"><span class="rule"></span>오래 준비하신 하루를,<br>두 분답게 온전히 치러내셨어요.<br>이제 그 여운에 마음껏 머무르세요.<br>그날의 공기까지, 저희가 곁에서<br>한 장 한 장 담아 둘게요.</div>'   // RESULT_WAIT_EMO · 구절 단위 줄바꿈(중앙 정렬 외톨이 방지)
     +'<div class="visit-guide" style="margin-top:14px">'
     +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.</div>'
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
