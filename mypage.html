@@ -4455,7 +4455,9 @@ function invStepDone(box, r){
   // 접힘 내부는 모바일 참석 QR 카드와 같은 구도(QR → 링크 → 열기·공유·복사 → QR 저장)로 통일 — 식장 인쇄물·테이블 안내판용 QR(2026-07-17 사용자 요청)
   var guideFold = _gCard
     ? '<details class="done-fold" id="iv_gfold"'+(cards?'':' open')+'><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
-      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">안내만 따로 보낼 때 쓰세요 · 청첩장에는 이미 들어 있어요.</div>'
+      // ★안내 QR 카피 — 종이 청첩장 제작 용도 + '두 곳 채워짐' 안내(2026-07-22 사용자 지시). 문구 축약·복원 시 이 두 줄 유지
+      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub" style="margin-bottom:4px">종이 청첩장을 직접 만드실 때 이 QR을 넣으세요 · 온라인 청첩장에는 이미 들어 있어요.</div>'
+      +'<div class="done-qr-sub" style="font-size:10.5px;margin-top:0">좌석 배치·애프터 웨딩(식사)을 완료하면 이 안내에 <b>자리 찾기·식사 안내</b> 두 곳이 채워져요 · 준비된 것부터 보여요.</div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'

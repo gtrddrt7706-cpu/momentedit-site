@@ -1469,10 +1469,10 @@ function renderDone(){
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
-  h+='<div class="sec-l">음악, 두 곡만 정하면 돼요</div>';
+  h+='<div class="sec-l">음악, 한 곡만 정하면 돼요</div>';
   h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
   h+='<input class="tin" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  h+='<input class="tin" oninput="setv(\'mClose\',this.value)" placeholder="폐식·단체촬영 음악 (곡명·가수)" value="'+esc(S.mClose)+'">';
+  // ★폐식·단체촬영 음악 입력칸 복원 금지 — 2026-07-22 사용자 지시로 삭제(편지·서약만 고르게). Admin.html은 옛 저장값(mClose)만 '구 입력'으로 표시. S.mClose 상태는 하위호환으로 보존
   h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 드려요.</div></div>';
   h+='<div class="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</div>';
   h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.</div>';
