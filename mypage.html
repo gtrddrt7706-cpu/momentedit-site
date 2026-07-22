@@ -4884,9 +4884,16 @@ function startPhotoFlow(gi){
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','단체 사진');
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 44px';
+  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 24px';
   var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
-  body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
+  body.appendChild(inner); ov.appendChild(body);
+  // 하단 고정 저장 바 — 스냅 기획과 동일한 주 CTA(엄지로 바로 닿게). 상단 작은 exit만 있어 '이 화면만 하단 완료 버튼이 없다'던 문제 해소(2026-07-22 사용자 지적 · marker: PHOTO_FOOT_SAVE)
+  var foot=document.createElement('div'); foot.style.cssText='flex:0 0 auto;border-top:1px solid var(--hairline,#EEE9E1);background:var(--bg,#FAFAF8);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))';
+  var footIn=document.createElement('div'); footIn.style.cssText='max-width:620px;margin:0 auto';
+  var saveBtn=document.createElement('button'); saveBtn.type='button'; saveBtn.className='cc-btn'; saveBtn.textContent='저장 후 나가기'; saveBtn.style.cssText='width:100%;margin:0';   // 제작 접점 통일 라벨(스냅과 동일)
+  saveBtn.addEventListener('click', function(){ exitPhotoFlow(); });
+  footIn.appendChild(saveBtn); foot.appendChild(footIn); ov.appendChild(foot);
+  document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // 배경 스크롤 잠금(식순·스냅과 동일)
   PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
@@ -4896,7 +4903,7 @@ function startPhotoFlow(gi){
 function renderPhoto(box){
   if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
   var h='<div class="consult-card" style="text-align:left">';
-  h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
+  h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span></div>';   // 종료는 하단 고정 '저장 후 나가기' 바로 통일(스냅과 동일) — 상단 중복 exit 제거(marker: PHOTO_FOOT_SAVE)
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요.</div>';
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
@@ -4913,14 +4920,14 @@ function renderPhoto(box){
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
   // 단체컷 '함께 하는 동작' — 예시 카드형(구도가 보이는 그림 + 한 줄 의도 · 무드단어 클릭에서 개편 2026-07-20). 사진작가·디렉터 전달용
   h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">각 그림은 <b>구도만 나타낸 예시</b>예요(실제 촬영 컷과 달라요). 마음 가는 것만 눌러 주세요. 고른 개수로 비용은 바뀌지 않아요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px"><b>안 고르셔도 괜찮아요</b> · 진행 흐름과 단체컷은 사진작가가 알아서 담아요. 각 그림은 <b>구도만 나타낸 예시</b>예요(실제 촬영 컷과 달라요). <b>꼭 넣고 싶은 것만</b> 눌러 주세요. 고른 개수로 비용은 바뀌지 않아요.</div>';
   h+='<div class="pfx-grid">';
   PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1; h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'"><svg class="pfx-thumb" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+c.d+'</svg><span class="pfx-ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div class="pfx-meta"><div class="pfx-ttl">'+escapeHtml(c.n)+'</div><div class="pfx-cap">'+escapeHtml(c.c)+'</div></div></div>'; });
   h+='</div>';
   var _fxExtra=fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; });   // 예전에 고른/직접 추가한 동작(프리셋에 없는 것) — 무음 유실 방지 위해 계속 노출
   if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 파도타기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'아직 고른 동작이 없어요 · <b>전체 하객 단체컷은 그대로 담겨요</b>')+'</div>';
+  h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'동작을 안 골라도 괜찮아요 · <b>전체 하객 단체컷은 그대로 담기고, 진행 순간은 사진작가가 담아요</b>')+'</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. <b>건배·눈물·웃음·포옹·환호</b>처럼 진행 중 순간은 억지로 만들지 않고 사진작가가 흐름 속에서 담아요.</div>';
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
@@ -4962,7 +4969,7 @@ function renderPhoto(box){
   var psi=$('mp_photoShare');
   if(psi) psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
   photoShareQrRender();
-  var ex=$('mp_photoExit'); if(ex) ex.addEventListener('click', exitPhotoFlow);
+  // 종료 버튼은 오버레이 하단 고정 바(startPhotoFlow)로 통일 — 카드 안 상단 exit 제거(marker: PHOTO_FOOT_SAVE)
 }
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
