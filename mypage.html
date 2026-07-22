@@ -4908,13 +4908,13 @@ function renderPhoto(box){
   h+='</div>';
   var _fxExtra=fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; });   // 예전에 고른/직접 추가한 동작(프리셋에 없는 것) — 무음 유실 방지 위해 계속 노출
   if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 우리만의 동작)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 파도타기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'아직 고른 동작이 없어요 · <b>전체 하객 단체컷은 그대로 담겨요</b>')+'</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. <b>건배·눈물·웃음·포옹·환호</b>처럼 진행 중 순간은 억지로 만들지 않고 사진작가가 흐름 속에서 담아요.</div>';
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
-  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="사진 모으는 링크 (카카오 오픈채팅·구글/아이클라우드 공유 앨범 등)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';
+  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="사진 모으는 링크 붙여넣기" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // 예시는 아래 설명문에 · 단일라인 잘림 방지(2026-07-21)
   h+='<div class="cc-note" style="text-align:left;margin-top:8px">부부가 만든 <b>공유 앨범·오픈채팅</b> 링크를 넣으면, 하객 안내 페이지에 <b>사진 올리기</b> 버튼으로 들어가요. 아래 QR은 저장해 테이블 카드·현장 안내에 두면 하객이 바로 올려요.</div>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
@@ -5034,7 +5034,7 @@ function renderSnapFlow(box){
   h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">누가 함께 담기나요 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">두 분만인지, 가족·친구가 함께인지 미리 알면 동선과 구성을 준비하기 좋아요.</div>';
   h+='<div class="ph-chips" data-sgrp="ppl">'+SNAP_PEOPLE.map(function(n){ return _chip(n, D.people.indexOf(n)>-1, 'data-sppl'); }).join('')+'</div>';
-  h+='<input class="cc-input" id="mp_snapMustPeople" maxlength="120" autocomplete="off" placeholder="꼭 챙겨 담고 싶은 분이 있다면 (예: 편찮으신 할머니 · 멀리서 온 친구)" value="'+escapeHtml(D.mustPeople||'')+'" style="margin-top:8px">';
+  h+='<input class="cc-input" id="mp_snapMustPeople" maxlength="120" autocomplete="off" placeholder="꼭 챙길 분 (예: 할머니 · 친구)" value="'+escapeHtml(D.mustPeople||'')+'" style="margin-top:8px">';   // 단일라인 잘림 방지 — 짧게(2026-07-21)
   // 2) 카메라 앞, 두 분은 — 리드 강도 + 각도·신경 쓰이는 점(작가가 앵글 잡을 때 도움)
   h+='<div class="ph-sec">카메라 앞, 두 분은 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<div class="cc-note" style="margin:2px 0 0">얼마나 리드해 드리면 좋을지 골라 주세요.</div><div class="ph-chips" data-sgrp="comf">'+SNAP_COMFORTS.map(function(n){ return _chip(n, D.comfort===n, 'data-scomf'); }).join('')+'</div>';
@@ -5047,7 +5047,7 @@ function renderSnapFlow(box){
   SNAP_MUSTHAVES.forEach(function(n){ h+=_chip(n, D.mustHaves.indexOf(n)>-1, 'data-smust'); });
   D.mustHaves.filter(function(n){ return SNAP_MUSTHAVES.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-smust="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
   h+='</div>';
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapMust" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 반려견과 함께)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapMustBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapMust" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 반려견)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapMustBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="margin:12px 0 6px;font-weight:600;color:var(--sub)">소품 · 의상 메모</div>';
   h+='<div class="cc-note" style="margin:2px 0 8px">드레스 시착 2벌·착용 1벌이 포함돼요. 신랑 셔츠·바지·구두는 직접, 헤어·메이크업은 외부에서 준비하시면 돼요.</div>';
   h+='<textarea class="cc-input" id="mp_snapProps" maxlength="300" placeholder="가져올 소품이나 의상 관련 메모가 있으면 적어 주세요." style="min-height:56px">'+escapeHtml(D.propsNote||'')+'</textarea>';
@@ -5057,7 +5057,7 @@ function renderSnapFlow(box){
   h+='<div class="cc-note" style="margin:12px 0 8px">똑같이 찍는 목록이 아니라 무드·조명·분위기를 읽어요. 저장해둔 무드보드·핀터레스트 링크 3~5개면 충분해요.</div>';
   if(D.refs.length){ h+='<div class="ph-list">'; D.refs.forEach(function(u,i){ h+='<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="ph-del" data-srefdel="'+i+'" aria-label="빼기">✕</button></div>'; }); h+='</div>'; }
   if(D.refs.length<SNAP_REF_MAX){ h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapRef" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapRefBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>'; }
-  h+='<input class="cc-input" id="mp_snapMoodNote" maxlength="150" autocomplete="off" placeholder="원하는 분위기를 한 줄로 (예: 잔잔하고 따뜻하게)" value="'+escapeHtml(D.moodNote||'')+'" style="margin-top:8px">';
+  h+='<input class="cc-input" id="mp_snapMoodNote" maxlength="150" autocomplete="off" placeholder="분위기 한 줄 (예: 잔잔하고 따뜻하게)" value="'+escapeHtml(D.moodNote||'')+'" style="margin-top:8px">';   // 단일라인 잘림 방지 — 짧게(2026-07-21)
   // 5) 자유롭게 남기고 싶은 말
   h+='<div class="ph-sec">자유롭게 남기고 싶은 말 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<textarea class="cc-input" id="mp_snapDirector" maxlength="500" placeholder="특별히 원하는 것, 꺼리는 앵글, 꼭 피하고 싶은 것 무엇이든 편하게 남겨 주세요." style="min-height:62px">'+escapeHtml(D.directorNote||'')+'</textarea>';
