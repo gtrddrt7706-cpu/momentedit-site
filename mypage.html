@@ -4618,6 +4618,13 @@ function collectSeats(box){
 }
 // [배포 시차 감지] 저장 응답의 에코(r.draft)와 보낸 draft를 구조 비교 — 구버전 GAS가 새 필드를 조용히 버리면(2026-07 음료 소실 사고 유형) 즉시 경고.
 //   값 정규화(길이 컷·불량값 빈값화)는 허용하고 '키·항목이 통째로 사라진 것'만 잡는다. 에코 없는 응답(에코 도입 전 서버)은 판단 보류(경고 없음).
+// ★빈 값 판정 — 서버가 '빈 값 키를 정규화로 생략'하는 것(guideinfo의 photo·photoFx·photoShareUrl가 비면 키 미포함 · 80_production 213/216/219줄)은 유실이 아니므로 경고에서 제외(2026-07-22 단체사진 저장 시 가짜 '일부 미저장' 팝업 원인). 데이터가 없는 빈 값은 잃을 것도 없음
+function _echoEmptyish(v){
+  if(v===''||v==null) return true;
+  if(Object.prototype.toString.call(v)==='[object Array]') return v.length===0;
+  if(typeof v==='object'){ for(var k in v){ if(Object.prototype.hasOwnProperty.call(v,k)) return false; } return true; }
+  return false;
+}
 function _echoLostPaths(sent, echoed, path, out){
   out=out||[]; path=path||'';
   if(!sent || typeof sent!=='object') return out;
@@ -4625,13 +4632,13 @@ function _echoLostPaths(sent, echoed, path, out){
   if(Object.prototype.toString.call(sent)==='[object Array]'){
     for(var i=0;i<sent.length;i++){
       if(sent[i]&&typeof sent[i]==='object') _echoLostPaths(sent[i], echoed[i], path+'['+i+']', out);
-      else if(echoed.length<=i) out.push(path+'['+i+']');
+      else if(echoed.length<=i && !_echoEmptyish(sent[i])) out.push(path+'['+i+']');   // 서버가 빈 원소(빈 문자열 등)를 걸러낸 것은 유실 아님
     }
     return out;
   }
   for(var k in sent){ if(!Object.prototype.hasOwnProperty.call(sent,k)) continue;
     var p=path?path+'.'+k:k;
-    if(!(k in echoed)) out.push(p);
+    if(!(k in echoed)){ if(!_echoEmptyish(sent[k])) out.push(p); }   // 빈 값 키를 서버가 정규화로 생략한 것은 유실 아님(실제 데이터 누락만 경고)
     else if(sent[k]&&typeof sent[k]==='object') _echoLostPaths(sent[k], echoed[k], p, out);
   }
   return out;
