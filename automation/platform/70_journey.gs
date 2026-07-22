@@ -978,6 +978,12 @@ function adminConfirmWeddingChange(code) {
       updCols['제작임시저장'] = JSON.stringify(prod);
     }
     touchCustomer(sheet, colOf, cust.num, updCols);
+    // ★wedchg-seat-inv 좌석 공개 조회 캐시 무효화 — 예식일이 바뀌면 하객 좌석 페이지의 '예식일'이 즉시 갱신되게(캐시 5분 대기 방지).
+    //   handleSaveProductionTrack(80)과 동일한 6분 톰스톤(seatv_inv_) 패턴 — put-after-remove 레이스 차단.
+    try {
+      var _svTokWc = String(cust.get('좌석공유토큰') || '').trim();
+      if (_svTokWc) { var _svcWc = CacheService.getScriptCache(); _svcWc.put('seatv_inv_' + _svTokWc, '1', 360); _svcWc.remove('seatv_' + _svTokWc); _svcWc.remove('seatf_' + _svTokWc); }
+    } catch (e) {}
     _recordHandler(code, '예식일 변경 적용 · ' + ((req.from && req.from.date) || '') + ((req.from && req.from.slot) ? (' ' + req.from.slot) : '') + ' → ' + req.to.date + ' ' + (req.to.slot || '')
       + (fee > 0 ? (' · 수수료 ' + fee + '원(입금자 ' + (req.payer || '') + ')') : ' · 무상'));
     notifyKakao('cust.changeConfirmed', code, { date: req.to.date, slot: req.to.slot, fee: fee });
