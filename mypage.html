@@ -249,8 +249,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
 .consult-card .cc-sub b{color:var(--accent);font-weight:500}
 /* RESULT_WAIT_EMO 2026-07-22 · 예식/촬영 종료 후 여운 메시지(제목 아래·안내 위) */
-.consult-card .cc-emo{font-family:var(--serif-ko);font-size:14.5px;font-weight:400;color:var(--accent);line-height:2.15;text-align:center;word-break:keep-all;margin:20px 6px 22px;letter-spacing:.005em}
-.consult-card .cc-emo .rule{display:block;width:26px;height:1px;background:var(--gold-soft);margin:0 auto 16px;border:0}
+.consult-card .cc-emo{font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);line-height:1.98;text-align:center;word-break:keep-all;text-wrap:balance;max-width:19em;margin:0 auto;padding:18px 0 24px;letter-spacing:.004em}
+.consult-card .cc-emo .stanza{display:block}
+.consult-card .cc-emo .stanza + .stanza{margin-top:2px}
+.consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 .consult-card .fn-intro{font-size:12px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin-bottom:2px}
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
@@ -3494,8 +3496,9 @@ function _eta(s){ return String(s||'').indexOf('?')<0; }                        
 function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
 function _resultWaitHtml(res){
-  return '<div class="cc-title" style="text-align:left">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
-    +'<div class="cc-emo"><span class="rule"></span>오래 준비하신 하루를,<br>두 분답게 온전히 치러내셨어요.<br>이제 그 여운에 마음껏 머무르세요.<br>그날의 공기까지, 저희가 곁에서<br>한 장 한 장 담아 둘게요.</div>'   // RESULT_WAIT_EMO · 구절 단위 줄바꿈(중앙 정렬 외톨이 방지)
+  return '<div class="cc-title" style="text-align:center">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
+    +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
+    +'<div class="cc-emo"><span class="stanza">오래 준비하신 하루를,</span><span class="stanza">두 분답게 온전히 치러내셨어요.</span><span class="stanza">이제 그 여운에 마음껏 머무르세요.</span><span class="stanza">그날의 공기까지,</span><span class="stanza">저희가 곁에서 한 장 한 장 담아 둘게요.</span></div>'   // RESULT_WAIT_EMO · stanza 5줄(v2)
     +'<div class="visit-guide" style="margin-top:14px">'
     +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.</div>'
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
@@ -3593,7 +3596,7 @@ function renderResult(res, nm, code){
   if(!res){ box.style.display='none'; box.innerHTML=''; return; }
   if(res.status==null){ return renderResultLegacy(res, box); }   // GAS 미배포 폴백 · 기존 동작 그대로(무회귀)
   var st = res.status;
-  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
+  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Delivery</div>';
   if(st==='대기'){
     h+=_resultWaitHtml(res);
     box.innerHTML=h+'</div>'; box.style.display='block'; return;
@@ -3736,7 +3739,7 @@ function doExtraSignal(){
 }
 // 구버전(결과물 status 없음) 폴백 — 셀렉트 백엔드 배포 전까지 기존 카드 그대로(①④⑤ 링크, ②③ 자리).
 function renderResultLegacy(res, box){
-  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Delivery</div>';
+  var h='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Delivery</div>';
   if(!res.delivered){
     h+=_resultWaitHtml(res);
   } else {
