@@ -1793,12 +1793,15 @@ function renderMyPage(d){
     // [결과물] 고객이 지금 할 일을 NOW에 반영 — 원본 도착(선택)·선택 완료(보정 중)·추가 보정 입금
     if (d.result && d.result.status) {
       var _rs = d.result.status, _rx = d.result.extra || {};
-      if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
+      var _svDone = !!(d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));   // [DELIV_STEP_HONEST] 후기 제출·건너뜀 = 완료
+      if (_rs === '대기') { head = '결과물을 준비하고 있어요'; sub = '원본부터 순서대로 마이페이지에 올려드릴게요. 아래에서 예상 일정을 확인하실 수 있어요.'; }   // 결과물전달 막 진입(아직 미업로드) — '준비되었습니다' 오표기 방지(2026-07-23)
+      else if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
       else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
       else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
       else if (_rs === '컨펌대기') { head = '보정본을 확인해 주세요'; sub = '받아보시고 마음에 드시면 확인을 눌러 마무리해 주세요.'; }
       else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '곧 최종 전달로 마무리할게요.'; }
-      else if (_rs === '전달완료' && _rx && d.result.survey && d.result.survey.status !== '완료') { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요. 🤍'; }
+      else if (_rs === '전달완료' && !_svDone) { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요. 🤍'; }
+      else if (_rs === '전달완료') { head = '모든 순간이 마무리됐어요'; sub = '받은 결과물은 마이페이지에서 언제든 다시 받으실 수 있어요. 🤍'; }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
       if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
     }
     $('mp_nowHead').textContent = head;
@@ -1827,9 +1830,11 @@ function renderMyPage(d){
     // 마지막 단계 = '후기'(설문)를 항상 추가 → 여정은 '…→결과물 전달→후기'로 마무리. 후기까지 줘야 100%.
     var atDelivered = (d.stage==='결과물전달');
     var surveyDone = !!(d.result && d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));
+    var _fullyDelivered = !!(d.result && d.result.status==='전달완료');   // [DELIV_STEP_HONEST 2026-07-23] 실제 전달 끝(설문 단계)만 후기로. 결과물전달에 막 진입(대기)했는데 아무것도 안 올라온 채 '후기 11/11'로 점프하던 문제 수정 — 결과물은 원본 2주·보정 4주·영상 6주에 걸쳐 올라오므로 그 동안은 '결과물 전달' 스텝이 현재여야 맞음
     if (list.length){
       list = list.concat(['후기']);
-      if (atDelivered) idx = surveyDone ? list.length : (list.length-1);   // 전달 완료=후기 현재, 후기 제출=전부 완료
+      // 전달 진행 중(대기·원본전달·보정중…)=결과물 전달 현재 · 전달완료+설문대기=후기 현재 · 설문완료=여정 완료(100%)
+      if (atDelivered) idx = surveyDone ? list.length : (_fullyDelivered ? (list.length-1) : (list.length-2));
     }
     var cur = (idx<0?0:idx);
     // [스냅 기획] 시그니처 여정 진행바에 '스냅기획' 합성 스텝을 '제작중' 앞에 삽입(표시 전용 · 백엔드 STAGE_FLOW 무변경 · '후기' 합성 스텝과 동일 방식 · marker: SNAP_PREP_STEP).
@@ -1839,7 +1844,7 @@ function renderMyPage(d){
       var _snapAt = list.indexOf('제작중');
       if (_snapAt >= 0){ _dispList = list.slice(); _dispList.splice(_snapAt, 0, '스냅기획'); _dispCur = (cur >= _snapAt) ? cur+1 : cur; }
     }
-    var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : '후기')
+    var nowLabel = atDelivered ? (surveyDone ? '여정 완료' : (_fullyDelivered ? '후기' : '결과물 전달'))   // [DELIV_STEP_HONEST] 전달 진행 중엔 라벨도 '결과물 전달'(후기 아님)
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
     if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel=(d.payment.bundle&&d.payment.bundle.length)?('계약금·'+d.payment.bundle.join('·')+' 입금'):'계약금 입금';   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
     if (payPlan(d).hold) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님) — NOW·제작 잠금과 같은 payPlan 기준
