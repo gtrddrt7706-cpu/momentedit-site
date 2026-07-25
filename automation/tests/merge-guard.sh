@@ -401,6 +401,20 @@ chk 'PICK_TRUTH' mypage.html 3                    # 표시=선택 기록 / 잠�
 chk 'hasPick' mypage.html 5                         # 정의 + ②행·미니라인·제출 버튼 라벨
 _pt=$(grep -c "picked ? chipOk(res.선택수" mypage.html 2>/dev/null); _pt=${_pt:-0}; if [ "$_pt" -gt 0 ]; then echo "REVERT? mypage.html: ②행 완료 칩이 상태 기준으로 되돌아감($_pt)"; fail=1; else echo 'ok mypage.html: ②행 완료 칩=실제 선택 기록 기준 유지'; fi
 _ar=$(grep -c ' ↗' mypage.html 2>/dev/null); _ar=${_ar:-0}; if [ "$_ar" -gt 0 ]; then echo "REVERT? mypage.html: 외부 링크 화살표(↗) 부활 $_ar곳 — 디자인 헌장 8(2026-07-25 사용자 지시)"; fail=1; else echo 'ok mypage.html: 외부 링크 화살표(↗) 0곳 유지'; fi
+# ── 2026-07-25 '후기' 단계 승격(PLAN_후기단계_추가 · 관리자 강제이동 지원)
+chk 'STAGE_REVIEW' automation/platform/00_platform-config.gs 3   # STAGE_FLOW 두 배열·데이터검증·nextAction에 '후기'
+chk 'STAGE_REVIEW' automation/platform/80_production.gs 2        # RESULT_STAGES 후기 포함 + 설문 제출 단계 가드
+chk 'STAGE_REVIEW' automation/admin/admin.gs 10                  # 큐·보드·아카이브·롤백·강제이동 후기 반영
+chk 'STAGE_REVIEW' admin.html 4                                  # STAGE_COLOR·STAGE_FLOW 폴백·stageCards·결과물 액션
+chk 'STAGE_REVIEW' mypage.html 7                                 # 합성 폴백·라벨·로드맵·리터럴 4종
+# ★최고위험 2곳 — 값 자체 확인(주석이 아니라 실제 배열/코드)
+_rs=$(grep -c "RESULT_STAGES = \['예식완료', '촬영완료', '결과물전달', '후기'\]" automation/platform/80_production.gs 2>/dev/null); _rs=${_rs:-0}
+if [ "$_rs" -lt 1 ]; then echo "REVERT? 80_production.gs: RESULT_STAGES에 '후기' 누락 — 후기 단계 고객의 결과물·갤러리·설문 카드가 통째로 사라짐"; fail=1; else echo "ok 80_production.gs: RESULT_STAGES 후기 포함"; fi
+_sf=$(grep -c "'결과물전달', '후기'\]," automation/platform/00_platform-config.gs 2>/dev/null); _sf=${_sf:-0}
+if [ "$_sf" -lt 1 ]; then echo "REVERT? 00_platform-config.gs: STAGE_FLOW 시그니처에 '후기' 누락"; fail=1; else echo "ok 00_platform-config.gs: STAGE_FLOW 후기 포함"; fi
+# 음수 가드 — 마이페이지 합성 스텝 '무조건' 재삽입 감지(조건부 폴백만 허용)
+_cc=$(grep -c "^      list = list.concat(\['후기'\]);" mypage.html 2>/dev/null); _cc=${_cc:-0}
+if [ "$_cc" -gt 0 ]; then echo "REVERT? mypage.html: 후기 합성 스텝 무조건 재삽입 부활($_cc) — 후기 2회 표시·STEP N/11 부풀음"; fail=1; else echo "ok mypage.html: 후기 합성은 조건부 폴백만(구 GAS 대비)"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

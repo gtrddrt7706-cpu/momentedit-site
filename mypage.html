@@ -1798,7 +1798,7 @@ function _loadSlowRetry(){   // MPD_E3 무한 스피너 → "연결이 느려요
 var STAGE_LABEL = {
   '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
   '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 입금',
-  '스냅기획':'스냅 기획','제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달'
+  '스냅기획':'스냅 기획','제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달','후기':'후기'   // STAGE_REVIEW
 };
 function stageLabel(code, product){
   var k=String(code||'').trim();
@@ -1825,7 +1825,7 @@ function renderMyPage(d){
     var t=new Date(); t.setHours(0,0,0,0);
     var dd=Math.round((w-t)/86400000);
     var wl=(d.product==='웨딩스냅')?'촬영':'예식';
-    var _dayReady=['입금완료','제작중','예식완료','촬영완료','결과물전달'].indexOf(String(d.stage||''))>=0;   // MPD_G12 준비 전(계약·결제 단계) 당일엔 중립 톤 — 미완료 재촉 문구와 감정 충돌 방지
+    var _dayReady=['입금완료','제작중','예식완료','촬영완료','결과물전달','후기'].indexOf(String(d.stage||''))>=0;   // STAGE_REVIEW   // MPD_G12 준비 전(계약·결제 단계) 당일엔 중립 톤 — 미완료 재촉 문구와 감정 충돌 방지
     var lab=dd>0?('D-'+dd):(dd===0?(_dayReady?'오늘이에요 🤍':'오늘이에요'):wl+'을 마쳤어요');
     // 본예식 시간(계약 확정 슬롯 +1h) — base에 있으면 그대로, 없으면 계약 fill에서 변환
     var wt=(d.production && d.production.base && /^\d{2}:\d{2}$/.test(String(d.production.base.weddingTime||'')))?String(d.production.base.weddingTime):'';
@@ -1965,7 +1965,10 @@ function renderMyPage(d){
     //   그동안 진행바가 몇 주간 '예식 완료'에 멈춰 NOW('원본이 도착했어요')와 어긋나던 것 정합(2026-07-23 사용자 지적 후속).
     var _resFlowOn = !!(d.result && ['원본전달','선택완료','보정중','컨펌대기','컨펌완료'].indexOf(String(d.result.status||''))>=0);
     if (list.length){
-      list = list.concat(['후기']);
+      // ★STAGE_REVIEW(2026-07-25 · PLAN_후기단계_추가 #18): 서버 STAGE_FLOW에 '후기'가 정식 단계로 승격됨(배치1).
+      //   ★무조건 list.concat(['후기']) 재삽입 금지 — 후기가 두 번 표시되고 STEP N/11로 부풀는다.
+      //   단 GAS 재배포 전(구 서버)엔 stageList에 후기가 없어 스텝이 통째로 사라지므로, '없을 때만' 폴백으로 붙인다(배포 갭 안전).
+      if (list.indexOf('후기') === -1) list = list.concat(['후기']);
       var _dvIdx = list.indexOf('결과물전달');
       // 전달완료+설문대기=후기 현재 · 설문완료=여정 완료(100%) · 그 외 전달 흐름(원본 도착~컨펌·강제 단계 포함)=결과물 전달 현재
       if (_fullyDelivered) idx = surveyDone ? list.length : (list.length-1);
@@ -2040,9 +2043,9 @@ function renderMyPage(d){
     // [02-6b] 중도금 안내 열림 시점 한 줄 안내(내 내역 결제 섹션) — 중도금은 무료 취소가 끝나는 예식 149일 전에 열림.
     if (d.ledger){
       d.ledger.payOpenNote = !d.isException && !!d.contract && d.product!=='웨딩스냅' && !d.midpayment && !d.balance
-        && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1;
+        && ['예식완료','촬영완료','결과물전달','후기'].indexOf(d.stage)===-1;
       // [02-8] 환불 예상(서버 d.refund · 계약서 7조·9조·4조⑧) — 내 내역 끝 접힘 한 줄. 예식 후엔 '지금 취소하면'이 무의미해 숨김.
-      d.ledger.refundQuote = (d.refund && !d.refund.pending && ['예식완료','촬영완료','결과물전달'].indexOf(d.stage)===-1) ? d.refund : null;
+      d.ledger.refundQuote = (d.refund && !d.refund.pending && ['예식완료','촬영완료','결과물전달','후기'].indexOf(d.stage)===-1) ? d.refund : null;
       // [임시고정 상시 확인] 배너는 상담완료부터 숨으므로(혼선 방지), 계약 서명 전까지는 내 내역에서 픽스 날짜를 이어서 보여줌. GAS가 서명완료·만료 시 hold를 자동으로 끊음.
       d.ledger.hold = d.hold || null;
     }
@@ -2089,7 +2092,7 @@ function applyCardStageView(d){
   // [입금완료+] 완료된 지난 단계 카드는 화면에서 정리 — 기록 열람은 상단 '내 내역'(접이식) 하나로 일원화(중복 토글 제거).
   var paidIdx = sIdx('입금완료');
   if (paidIdx >= 0 && cur >= paidIdx) {
-    var afterBalance = (d.balance && d.balance.confirmed) || ['예식완료','촬영완료','결과물전달'].indexOf(d.stage) >= 0;
+    var afterBalance = (d.balance && d.balance.confirmed) || ['예식완료','촬영완료','결과물전달','후기'].indexOf(d.stage) >= 0;
     var pastIds = afterBalance ? ['mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance'] : ['mp_fitting','mp_contract','mp_payment'];
     // [B-3] 미납 결제 카드는 '지난 카드'가 아님 — 잔금 선확인·예식완료 이후라도 미확인 중도금·잔금 카드는 유지(리마인더 메일·관리자 미납 카드와 정합)
     pastIds = pastIds.filter(function(id){
@@ -2137,8 +2140,8 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   // MPD_C3 잠금 해제 시점 힌트 — 결과물 '예식 후' · 후기 '결과물 받은 뒤'(잔금 '예식 N일 전'과 짝 · §6-9-①)
   var items = (product === '웨딩스냅')
-    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','결과물전달']];
+    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','후기']]   // STAGE_REVIEW · 기준값 결과물전달→후기(로드맵에서 후기 행이 안 사라지던 문제)
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','후기']]   // STAGE_REVIEW · 기준값 결과물전달→후기(로드맵에서 후기 행이 안 사라지던 문제);
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (d && d.payment) items = items.filter(function(r){ return r[0].indexOf('계약금')===-1; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 제거(본 계약·계약금 병합 라벨 포함)
@@ -3681,7 +3684,7 @@ function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
   _prodFsSync();
   // MPD4_H4 전달완료(결과물전달) 후엔 편집 대시보드 대신 읽기전용 '내 완성물' — 진행 중 편집 플로우가 있으면 그대로(저장 유실 방지)
-  if(((window._mpStateD&&window._mpStateD.stage)||'')==='결과물전달' && p && !INVFLOW.active && !(typeof TRKFLOW!=='undefined'&&TRKFLOW.active) && !SEATFLOW.active){
+  if(['결과물전달','후기'].indexOf((window._mpStateD&&window._mpStateD.stage)||'')>=0 /* STAGE_REVIEW */ && p && !INVFLOW.active && !(typeof TRKFLOW!=='undefined'&&TRKFLOW.active) && !SEATFLOW.active){
     var _mw=_myWorksHtml(p, inv);
     if(_mw){ box.innerHTML=_mw; box.style.display='block'; return; }
   }   // 편집 플로우 활성/종료에 맞춰 풀스크린 클래스 동기화(가드가 early-return 하기 전에 먼저)
@@ -3749,7 +3752,7 @@ function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean)
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
 function _resultWaitHtml(res){
   // [DELIV_WAIT_TITLE 2026-07-23] 제목을 단계 인식형으로 — 예식완료/촬영완료(직후)="무사히 끝났어요", 결과물전달 단계(res.delivered)="그날의 기록을 준비하고 있어요"(상단 진행바 '결과물 전달'과 매치 · 2026-07-23 사용자 지적)
-  var _dvT = res.delivered || ((window._mpStateD||{}).stage==='결과물전달');   // 구버전 GAS(delivered 미전송)여도 프론트 상태로 판정
+  var _dvT = res.delivered || ['결과물전달','후기'].indexOf((window._mpStateD||{}).stage)>=0;   // STAGE_REVIEW   // 구버전 GAS(delivered 미전송)여도 프론트 상태로 판정
   return '<div class="cc-title" style="text-align:center">'+(_dvT?'그날의 기록을 준비하고 있어요':(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요')+'</div>'
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
     +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 <span class="em-seal">하루</span>였어요.</span><span class="stanza">그 하루를, 저희가 <span style="white-space:nowrap">한 장 한 장</span> 담고 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 2줄 + 진사 악센트(덜어낼수록·하루). ★'곧 다시 만나실 수 있어요' 줄 재추가 금지 — 2026-07-25 사용자 지시로 삭제
