@@ -214,6 +214,12 @@ chk 'cc-btn-textlink' mypage.html 4                 # 강등 클래스 CSS+적�
 chk 'MPD_B5' mypage.html 1                          # 추가보정 화살표 톤다운
 chk 'MPD_B6' mypage.html 1                          # 후기 카피 정직화+필수 범례
 _b6=$(grep -c '탭만 하면 끝나요' mypage.html 2>/dev/null); _b6=${_b6:-0}; if [ "$_b6" -gt 0 ]; then echo "REVERT? mypage.html: '탭만 하면 끝나요' 과장 카피 부활($_b6)"; fail=1; else echo "ok mypage.html: 후기 카피 정직화 유지"; fi
+# ── 2026-07-25 마이페이지 2차 스프린트 PR②(구조 퀵윈 D4·D5·D6·C3·C5)
+chk 'MPD_D4' mypage.html 1                          # NOW D-1/당일 정점 카피
+chk 'MPD_D5' mypage.html 1                          # 진행중 행 진척 태그(청첩장 N/4·최종 N/3)
+chk 'MPD_D6' mypage.html 1                          # 계약 전 결제 자물쇠 게이트
+chk 'MPD_C3' mypage.html 1                          # 잠금 해제 시점 힌트
+chk 'MPD_C5' mypage.html 1                          # 잔금 미니 카드 eyebrow 공용 패턴
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

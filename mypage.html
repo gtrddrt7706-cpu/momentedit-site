@@ -1844,6 +1844,10 @@ function renderMyPage(d){
       var _tk = d.production.tracks;
       if (_tk.invitation==='완료' && _tk.ritual==='완료') {
         head = '예식 준비가 끝났어요';
+        // MPD_D4 감정 정점 — D-1 '내일 뵈어요' · 당일 '오늘이에요' (준비 끝 분기 안이라 미완료 재촉과 충돌 없음 · 잔여 결제 sub는 유지)
+        try{ var _wD4=(d.production.base&&d.production.base.weddingDate)||''; var _mD4=String(_wD4).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if(_mD4){ var _tD4=new Date(); _tD4.setHours(0,0,0,0); var _ddD4=Math.round((new Date(+_mD4[1],+_mD4[2]-1,+_mD4[3])-_tD4)/86400000);
+            if(_ddD4===0) head='오늘이에요'; else if(_ddD4===1) head='내일 뵈어요'; } }catch(e){}
         // 남은 결제만 정확히 — 신고(완료신호)된 몫은 '입금하라'가 아니라 '확인 중'으로(이중 입금 유도 방지)
         var _needM = _pp.midOpen && !_pp.midSig, _needB = _pp.balOpen && !_pp.balSig;
         sub  = (_needM && _needB) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
@@ -2069,15 +2073,19 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   }
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
+  // MPD_C3 잠금 해제 시점 힌트 — 결과물 '예식 후' · 후기 '결과물 받은 뒤'(잔금 '예식 N일 전'과 짝 · §6-9-①)
   var items = (product === '웨딩스냅')
-    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 대부분 탭 한 번씩이에요','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 대부분 탭 한 번씩이에요','결과물전달']];
+    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','결과물전달']]
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','예식 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (d && d.payment) items = items.filter(function(r){ return r[0].indexOf('계약금')===-1; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 제거(본 계약·계약금 병합 라벨 포함)
   if (product !== '웨딩스냅'){
     var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
     var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
+    // MPD_D6 계약 전 결제 자물쇠 게이트 — 신청접수~시착(계약완료 전)엔 중도금·잔금 잠금 행을 펼치지 않음(8줄 규모 압박 해소 · '본 계약 · 계약금' 행이 결제 예고를 대신)
+    var _ctIdxD6=(stageList||[]).indexOf('계약완료');
+    if(_ctIdxD6>=0 && !(typeof curIdx==='number' && curIdx>=_ctIdxD6) && !(contract && contract.signed)){ needMid=false; needBal=false; }
     // [임박 계약 일괄 수납] 계약금 카드가 열렸고 묶음에 포함됐으면(서버 bundle) 그 결제는 카드에서 받으므로 자물쇠에서 제외
     var _pbU = (d && d.payment && d.payment.bundle) || [];
     if (_pbU.indexOf('중도금') !== -1 || (d && d.payment && d.payment.midConfirmed)) needMid = false;
@@ -3188,10 +3196,10 @@ function renderBalance(p, mid){
     // 가까워짐·입금 신호 → 펼친 활성 카드 (평소 진입은 '내 내역 > 잔금 보기' 인라인 패널)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else if(p.dday!=null && p.dday<=30){
-    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로.
+    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로. · MPD_C5 eyebrow 공용 패턴 흡수(9.5px 골드 2.5:1 AA 미달 해소)
     var _mini = balDateTxt ? ('<b>'+escapeHtml(balDateTxt)+'</b>까지') : (dueLabel+'까지');
     box.innerHTML='<div class="consult-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'
-      +'<div style="text-align:left"><div style="font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)">Balance</div>'
+      +'<div style="text-align:left"><div class="cc-eyebrow en-22" style="margin-bottom:0;text-align:left;font-size:11px">Balance</div>'
       +'<div style="font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);margin-top:3px">잔금 '+_mini+' <span class="cc-mini">· '+dueLabel+'</span></div></div>'
       +'<button type="button" class="cc-btn-ghost" id="mp_bMiniView" style="width:auto;flex:0 0 auto;padding:8px 15px">보기</button></div></div>';
     box.style.display='block';
@@ -4079,6 +4087,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');   // 요약은 해당 행 바로 아래(하단 뭉치 금지 · 2026-07-17). opt.tag=행 옆 작은 표시(선택) · opt.primary=지금 할 차례 강조(채운 버튼)
   }
+  // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
+  var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null; if(_ivN) _ivStepTag=_ivN+'/4'; }
+  var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어하기' : '시작하기');
   var _dDone=(t.dining||'')==='완료';
@@ -4115,14 +4126,14 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
-      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv'})
+      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv', tag:_ivStepTag})
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {primary:_firstTodo==='ritual'})
       + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag, primary:_firstTodo==='dining'})
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final'})
+          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final', tag:(!_fDone?_fdStepTag:null)})
       // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
       + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {primary:_firstTodo==='photo'}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
