@@ -1937,8 +1937,15 @@ function runAct(fnArgs, code, lbl){
 function afterAction(code,res,act){
   closeModal();
   if(res&&res.archived){ toast('처리됨 · 아카이브로 이동'); if(_view==='archive') loadArchive(); else loadHome(); return; }
+  /* [ADM_AB3] 알림 사실대로 — 서버가 알아서 보내는 액션에 '잊지 마세요'라고 하면 관리자가 같은 안내를 한 번 더 보내게 된다.
+       라벨(NH)과 자동 발송 여부(NH_AUTO)를 나란히 둬서, 새 이벤트가 생기면 두 줄만 더하면 토스트가 따라온다.
+       ★NH_AUTO=false는 '지금 알림이 없는 상태'를 그대로 적을 뿐, 발송 재개(95_notify의 off 설정)는 여기서 건드리지 않는다. */
   var NH={adminSendContract:'계약서 도착',adminOpenFittingConsent:'드레스 시착 동의 요청',adminConfirmPayment:'계약금 입금 확인',adminConfirmMid:'중도금 입금 확인',adminConfirmBalance:'잔금 입금 확인',adminConfirmMidBalance:'중도금·잔금 입금 확인',adminSetResultLinks:'결과물 등록',adminMarkDelivered:'결과물 전달',adminMarkConsultDone:'상담 완료 · 마이페이지에서 계약 진행 안내',adminConfirmWeddingChange:'예식일 변경 적용',adminDeclineWeddingChange:'예식일 변경 거절(재조율)'};
-  toast(NH[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡 알림 잊지 마세요') : '✓ 처리됨');
+  var NH_AUTO={adminSendContract:true,adminOpenFittingConsent:true,adminConfirmPayment:true,adminSetResultLinks:true,adminMarkDelivered:true,adminMarkConsultDone:true,adminConfirmWeddingChange:true,adminDeclineWeddingChange:true,
+    adminConfirmMid:false,adminConfirmBalance:false,adminConfirmMidBalance:false};   // 입금 확인 3종은 cust.paymentConfirmed가 꺼져 있어 고객에게 아무것도 안 나감
+  toast(!NH[act] ? '✓ 처리됨'
+    : NH_AUTO[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요')
+    : '✓ 처리됨 · 이 확인은 고객 알림이 따로 가지 않아요');
   if(_view==='detail') openDetail(code);
   else if(_view==='archive') loadArchive();
   else loadHome();
@@ -2022,7 +2029,7 @@ function doConsultDone(code,names,fitN,fitSaved){
     : ((_view==='detail'&&curDetail&&curDetail.code===code&&curDetail.consent&&curDetail.consent.fitting&&curDetail.consent.fitting['벌수']!=null) ? String(curDetail.consent.fitting['벌수']) : '');
   openModal({
     title:'상담완료 처리',
-    text:b(names)+li('대면 상담·시착 동의가 끝났어요')+li('입어보신 시착 벌수를 기록하면 상담완료로 넘어가요')+li('한 벌도 안 입으셨으면 0 · 환불·추가 시착비 산정 근거예요'),
+    text:b(names)+li('대면 상담·시착 동의가 끝났어요')+li('입어보신 시착 벌수를 기록하면 상담완료로 넘어가요')+li('한 벌도 안 입으셨으면 0 · 환불·추가 시착비 산정 근거예요')+li('처리하면 고객에게 카톡이 자동으로 가요'),   /* [ADM_AB3] */
     extra:'<div class="kv" style="align-items:center;justify-content:center;gap:8px;margin-top:4px"><span class="k">시착 벌수</span><input id="cdFitN" inputmode="numeric" maxlength="1" value="'+esc(pre)+'" placeholder="0~9" style="width:64px;text-align:center;font-size:16px;padding:8px;border:1px solid var(--border);border-radius:8px"><span class="k">벌</span></div>',
     yes:'벌수 기록 · 상담완료',
     init:function(){ var i=$('cdFitN'); if(i){ i.focus(); try{i.select();}catch(e){} } },
@@ -2048,7 +2055,7 @@ function doConsultDone(code,names,fitN,fitSaved){
   });
 }
 // [ADM_AB1] 통장과 대조할 금액·입금자를 모달 안에 함께 — 확인 전에 상세로 되돌아가지 않아도 되게.
-function doConfirmPay(code,names,d){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요'), extra:_payFacts(_payRows(d,'pay')), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
+function doConfirmPay(code,names,d){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요')+li('확인하면 고객에게 카톡이 자동으로 가요')   /* [ADM_AB3] */, extra:_payFacts(_payRows(d,'pay')), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
 function doConfirmBalance(code,names,d){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'bal')), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
 function doConfirmMidBal(code,names,d){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요'), extra:_payFacts(_payRows(d,'midbal')), yes:'중도금·잔금 확인', onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
 function doConfirmMid(code,names,d){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'mid')), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
@@ -2062,7 +2069,7 @@ function doDelivered(code,names,d){
            : (noConfirm?'⚠ 고객 컨펌 전이에요 · 확인 후 전달을 권해요':'');
   var warnVid = (d&&d.raw&&!snap(d.product)&&!d.raw['영상링크'])?'⚠ 본식 영상이 아직 등록되지 않았어요 · 나중에 올리면 고객에게 별도 안내가 필요해요':'';   // [C-2 2026-07-25] 시그니처 한정 비차단 경고(계약 §12① 영상 포함 · 판정=snap(d.product) 파일 관례 · 홈 큐 경로(d 없음)는 경고 생략)
   openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!(warn||warnPay||warnVid),
-    text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+(warnVid?li(warnVid):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
+    text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+(warnVid?li(warnVid):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('넘기면 고객에게 카톡이 자동으로 가요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),   /* [ADM_AB3] */
     yes:(warn||warnPay||warnVid)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay||warnVid)?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
@@ -2135,7 +2142,7 @@ function doCancel(code,names){ var extra='<div class="field"><label>취소 사�
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면  고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
 function doUncontracted(code,names){ openModal({ title:'계약이 성사되지 않았나요? 미계약으로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 시착 벌수 공제 후 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면  고급 강제 변경'), yes:'미계약 처리', onYes:function(){ runAct(['adminMarkUncontracted',code],code,'미계약 처리'); } }); }
-function doOpenFitting(code,names){ openModal({ title:'드레스 시착 동의서를 보낼까요?', text:b(names)+li('현재단계가 시착으로 넘어가요')+li('고객 마이페이지에 드레스 시착 동의서가 떠요'), yes:'보내기', onYes:function(){ runAct(['adminOpenFittingConsent',code],code,'보내기'); } }); }
+function doOpenFitting(code,names){ openModal({ title:'드레스 시착 동의서를 보낼까요?', text:b(names)+li('현재단계가 시착으로 넘어가요')+li('고객 마이페이지에 드레스 시착 동의서가 떠요')+li('보내면 고객에게 카톡이 자동으로 가요')   /* [ADM_AB3] */, yes:'보내기', onYes:function(){ runAct(['adminOpenFittingConsent',code],code,'보내기'); } }); }
 // [02-9] 예식일 변경 확인 — from→to·수수료·입금자 확인 후 적용. 서버가 슬롯을 다시 검증해요(마감이면 에러로 안내).
 function doConfirmChange(code,names,d){
   var q=(d&&d.changeReq)||{}, f=q.from||{}, t=q.to||{};
@@ -2145,13 +2152,13 @@ function doConfirmChange(code,names,d){
     text:b(names)
       +li(w(f)+' → '+w(t))
       +li(fee>0?('변경 수수료 '+fee.toLocaleString()+'원'+(q.payer?(' · 입금자 '+q.payer+' · 통장 확인 후 눌러 주세요'):'')):'무상 변경 (계약 8조①)')
-      +li('슬롯 재확인 후 적용돼요 · 적용되면 예식일·결제 일정(중도금 D-149 · 잔금 D-9)이 새 날짜 기준으로 바뀌고 고객에게 안내가 가요'),
+      +li('슬롯 재확인 후 적용돼요 · 적용되면 예식일·결제 일정(중도금 D-149 · 잔금 D-9)이 새 날짜 기준으로 바뀌어요')+li('확인하면 고객에게 카톡이 자동으로 가요'),   /* [ADM_AB3] */
     yes:'변경 확인', onYes:function(){ runAct(['adminConfirmWeddingChange',code],code,'변경 확인'); } });
 }
 function doDeclineChange(code,names,d){
   var extra='<div class="field"><label>거절 사유 (고객 안내·이력에 남아요)</label><input type="text" id="dcR" placeholder="예: 그 일정은 진행이 어려워요 · 재조율 부탁드려요"></div>';
   openModal({ title:'예식일 변경 요청을 거절할까요?', danger:true,
-    text:b(names)+li('변경 요청이 닫히고 기존 예식일이 그대로 유지돼요')+li('고객에게 안내가 가요'),
+    text:b(names)+li('변경 요청이 닫히고 기존 예식일이 그대로 유지돼요')+li('거절하면 고객에게 카톡이 자동으로 가요 · 사유가 함께 전해져요'),   /* [ADM_AB3] */
     extra:extra, yes:'거절', init:function(){ var i=$('dcR'); if(i) i.focus(); },
     onYes:function(){ runAct(['adminDeclineWeddingChange',code,(($('dcR')&&$('dcR').value)||'').trim()],code,'거절'); } });
 }
@@ -2177,7 +2184,7 @@ function openSendContract(code,names,d){
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
     '<div class="field"><label>계약서 링크 (기본 계약서 자동 · 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>'
     +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">채워진 계약서 미리보기 (발송 전 확인)</button></div>';
-  openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송해 주세요.</span>', extra:extra, yes:'발송',
+  openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송해 주세요.</span>'+li('발송하면 고객에게 카톡이 자동으로 가요')   /* [ADM_AB3] */, extra:extra, yes:'발송',
     init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:contractFullUrl(d.product); var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
       var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; });
       var pv=$('ctPreview'); if(pv) pv.addEventListener('click',function(){ var s=$('ctSel').value; var tot=(s==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):s; var wv=String($('ctWed')&&$('ctWed').value||'').trim(); openContractViewer(d,{preview:true,weddingDate:wv,total:Number(tot)||0}); }); },
