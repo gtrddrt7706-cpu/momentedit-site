@@ -161,6 +161,17 @@ chk 'MPD_G1' mypage.html 2                          # 스냅 예약금 0 허위 
 _g1f=$(grep -c '예약금 || 100000' mypage.html 2>/dev/null); _g1f=${_g1f:-0}; if [ "$_g1f" -gt 0 ]; then echo "REVERT? mypage.html: 예약금 100000 폴백 부활($_g1f)"; fail=1; else echo "ok mypage.html: 예약금 100000 폴백 없음"; fi
 chk 'MPD_G2' mypage.html 1                          # 취소·노쇼 로드맵 미노출
 chk 'MPD_G3' mypage.html 1                          # 수락 버튼 로딩 상태
+# ── 2026-07-25 마이페이지 디자인 개선 PR③(배치 B 확정분 B7~B14)
+chk 'MPD_B7' mypage.html 1                          # fNote D-n 구간 볼드 해제(줄당 강조 1개)
+chk 'MPD_B8' mypage.html 1                          # 시스템체→해요체 전수(§7-3-⑤)
+chk 'MPD_B9' mypage.html 2                          # 입력 16px(iOS 줌 방지)+좌석 포커스 16px
+chk 'MPD_B10' mypage.html 2                         # 깜깜이 대기 보완('거의 다 됐어요' 삭제 포함)
+_b10=$(grep -c '거의 다 됐어요. 준비되는 대로' mypage.html 2>/dev/null); _b10=${_b10:-0}; if [ "$_b10" -gt 0 ]; then echo "REVERT? mypage.html: '거의 다 됐어요' 근거 없는 안심 부활($_b10)"; fail=1; else echo "ok mypage.html: '거의 다 됐어요' 없음"; fi
+chk 'MPD_B11' mypage.html 2                         # 터치 타깃 44px 1차 보정
+chk 'MPD_B12' mypage.html 1                         # 보정 4주 구간 예상표 유지
+chk 'MPD_B13' mypage.html 2                         # 막다른 에러 출구 표준화
+chk 'MPD_B14' mypage.html 2                         # 버튼 한글·쿠폰 영문 eyebrow·이모지 ⏳⏰ 제거
+_b14=$(grep -c '⏳\|⏰' mypage.html 2>/dev/null); _b14=${_b14:-1}; if [ "$_b14" -gt 1 ]; then echo "REVERT? mypage.html: 장식 이모지 ⏳/⏰ 부활($_b14 · 허용 1=hold 상태 아이콘)"; fail=1; else echo "ok mypage.html: 장식 이모지 ⏳⏰ 제거 유지($_b14)"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

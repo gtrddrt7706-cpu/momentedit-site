@@ -121,7 +121,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px}
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:15px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}
+.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -144,6 +144,15 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .rs-show-hint{color:var(--light);font-size:11.5px}
 .linkrow a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;cursor:pointer;transition:color .3s}
 .linkrow a:hover{color:var(--accent)}
+/* MPD_B11 터치 타깃 44px 1차 보정(§7-3-②) — 히트박스만 확장, 시각 유지: 로그인 하단 링크·돌아가기·로그아웃·원장 '보기'·체크박스·모달 닫기X·NOW 새로고침 */
+.linkrow a{display:inline-block;padding:13px 6px;margin:-13px -6px}
+.led-link,.led-linkbtn{position:relative}
+.led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
+.led-modal-x{width:44px;height:44px;top:5px;right:5px}
+.now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
+.rs-show{min-height:44px;margin:0 2px 6px}
+.srv-consent{min-height:44px}
+.srv-consent input,.rs-show input{width:18px;height:18px;flex-shrink:0;accent-color:var(--seal)}
 
 .errbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);text-align:center;line-height:1.7}
 .errbox.show{display:block}
@@ -235,6 +244,8 @@ details.acc>.consult-card{margin-top:10px}
 .foot-actions{margin-top:24px;text-align:center}
 .foot-actions a{font-family:var(--serif-ko);font-size:12.5px;color:var(--light);text-decoration:none;border-bottom:1px solid var(--card-border);cursor:pointer;transition:color .3s}
 .foot-actions a:hover{color:var(--sub)}
+.foot-actions a{display:inline-block;padding:13px 12px;margin:-13px -12px;border-bottom:none}   /* MPD_B11 로그아웃 44px — 밑줄은 내부 span으로 */
+.foot-actions a span{border-bottom:1px solid var(--card-border)}
 
 /* ── 풋터 (인장은 여기에만) ── */
 footer{padding:0 24px 32px;text-align:center;margin-top:20px}
@@ -792,17 +803,17 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
   <section class="view" id="loginView">
     <div class="eyebrow">My Page</div>
     <h1 class="title">로그인</h1>
-    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
+    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 볼 수 있어요.<!-- MPD_B8 시스템체→해요체 전수 16곳(§7-3-⑤ · 제외: 식순 낭독 대본·계약 조항 확인문·내빈 격식 안내) --><br>메일의 마이페이지 링크를 누르면 자동으로 로그인돼요.</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
-        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" data-email-assist>
+        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" enterkeyhint="next" data-email-assist>
         <label for="li_code">개인코드 (6자) 또는 이메일</label>
       </div>
       <div class="field">
-        <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password">
+        <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password" enterkeyhint="go">
         <label for="li_pw">비밀번호</label>
       </div>
-      <button type="submit" class="btn btn-seal en-22" id="li_btn">Login</button>
+      <button type="submit" class="btn btn-seal" id="li_btn">로그인</button><!-- MPD_B14 결정 버튼 한글 통일(2026-07-25 사용자 채택) -->
     </form>
     <div class="errbox" id="li_err"></div>
     <div class="linkrow">
@@ -949,6 +960,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .dk-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
     .dk-chip.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent)}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:10.5px;text-align:center;color:var(--accent);padding:3px 4px}
+.rs-edit:focus,.rt-cin:focus{font-size:16px}   /* MPD_B9 좌석 입력 — 포커스 순간만 16px로 iOS 줌 방지(평시 크기는 캔버스 배치 유지) */
     .rs-edit:focus{outline:none}
     .rt-ctl{display:flex;gap:4px;margin-top:4px;justify-content:center}
     .rt-mini{width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:7px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
@@ -1079,20 +1091,20 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
     <!-- 카카오톡 문의는 우측 중앙 AI 상담 위젯 안으로 이동(드로어 하단 상시 링크 + 에스컬레이션) -->
-    <div class="foot-actions"><a id="mp_logout">로그아웃</a></div>
+    <div class="foot-actions"><a id="mp_logout"><span>로그아웃</span></a></div>
   </section>
 
   <!-- 코드찾기 / 비번재설정 요청 -->
   <section class="view" id="forgotView">
     <div class="eyebrow">My Page</div>
     <h1 class="title" id="fg_title">개인코드 찾기</h1>
-    <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드립니다.</p>
+    <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드릴게요.</p>
     <form id="forgotForm">
       <div class="field">
-        <input type="email" id="fg_email" placeholder=" " required autocomplete="email">
+        <input type="email" id="fg_email" placeholder=" " required autocomplete="email" enterkeyhint="send">
         <label for="fg_email">이메일</label>
       </div>
-      <button type="submit" class="btn btn-seal en-22" id="fg_btn">Send</button>
+      <button type="submit" class="btn btn-seal" id="fg_btn">보내기</button>
     </form>
     <div class="okbox" id="fg_ok"></div>
     <div class="errbox" id="fg_err"></div>
@@ -1107,15 +1119,15 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <form id="resetForm">
       <input type="text" id="rs_user" name="username" autocomplete="username" tabindex="-1" aria-hidden="true" readonly style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none">
       <div class="field">
-        <input type="password" id="rs_pw" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="password" id="rs_pw" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next">
         <label for="rs_pw">새 비밀번호 (6자 이상)</label>
       </div>
       <div class="field">
-        <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
         <label for="rs_pw2">새 비밀번호 확인</label>
       </div>
-      <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인하세요)</span></label>
-      <button type="submit" class="btn btn-seal en-22" id="rs_btn">Reset</button>
+      <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인해 보세요)</span></label>
+      <button type="submit" class="btn btn-seal" id="rs_btn">변경하기</button>
     </form>
     <div class="errbox" id="rs_err"></div>
     <div class="linkrow"><a id="rs_back">← 로그인으로 돌아가기</a></div>
@@ -1612,7 +1624,7 @@ function cacheState(d){ try{
   localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:c }));
 }catch(e){} }
 function readCachedState(){ try{ var c=JSON.parse(localStorage.getItem(STATE_CACHE_KEY)||'null'); if(c && c.t && c.t===getToken() && c.d) return c.d; }catch(e){} return null; }
-function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'; el.classList.add('show'); } }
+function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 잠깐 생겼어요. 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'; el.classList.add('show'); } }   // MPD_B13 기본 에러 편지체+출구(재시도·문의)
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 
 // fetch (단순 요청 → CORS preflight 회피)
@@ -1686,7 +1698,7 @@ $('loginForm').addEventListener('submit', function(e){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
     else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('li_err','연결이 잠시 불안정해요. 다시 시도해 주세요.'); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25)
-  .then(function(){ btn.disabled=false; btn.textContent='Login'; });
+  .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
 });
 
 // ── 마이페이지 로드 + 렌더 ─────────────────────
@@ -1738,7 +1750,7 @@ function renderMyPage(d){
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)
   // NOW: 첫 문장 = 헤드라인(마침표 없이), 나머지 = 서브
   (function(){
-    var na = String(d.nextAction || '디렉터가 확인 후 안내드립니다.').trim();
+    var na = String(d.nextAction || '디렉터가 확인하고 안내드릴게요.').trim();
     var i = na.search(/\.\s/);              // 첫 '마침표+공백' 위치
     var head, sub;
     if (i === -1) { head = na.replace(/\.$/, ''); sub = ''; }
@@ -1797,7 +1809,7 @@ function renderMyPage(d){
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
     else if (d.production && d.stage === '입금완료') {
       head = '제작 정보를 입력해 주세요';
-      sub  = '아래에서 입력하시면 예식 준비가 시작됩니다.';
+      sub  = '아래에서 입력하시면 예식 준비가 시작돼요.';
     }
     // [제작 완료·예식 대기] 셋 다 완료면 NOW를 '준비 끝' 톤으로 (멈춘 느낌 방지)
     if (d.stage === '제작중' && d.production && d.production.tracks) {
@@ -1818,10 +1830,10 @@ function renderMyPage(d){
       var _svDone = !!(d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));   // [DELIV_STEP_HONEST] 후기 제출·건너뜀 = 완료
       if (_rs === '대기') { head = '결과물을 준비하고 있어요'; sub = '원본부터 순서대로 마이페이지에 올려드릴게요.\n아래에서 예상 일정을 확인하실 수 있어요.'; }   // 결과물전달 막 진입(아직 미업로드) — '준비되었습니다' 오표기 방지(2026-07-23) · 문장별 줄내림(pre-line · 2026-07-25 사용자 지시)
       else if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
-      else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
-      else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
+      else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손보고 있어요.'+((typeof DELIVERY_ETA!=='undefined'&&_eta(DELIVERY_ETA.retouch))?(' 보통 '+DELIVERY_ETA.retouch+' 걸리고, 완성되면'):' 완성되면')+' 카카오톡·메일로 알려드릴게요.'; }   // MPD_B10 깜깜이 대기 보완(소요·알림 예고)
+      else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '마무리되는 대로 카카오톡·메일로 보정본을 올려드릴게요.'; }   // MPD_B10 ★'거의 다 됐어요' 재추가 금지 — 근거 없는 안심 금지 규칙(2026-07-15)
       else if (_rs === '컨펌대기') { head = '보정본을 확인해 주세요'; sub = '받아보시고 마음에 드시면 확인을 눌러 마무리해 주세요.'; }
-      else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '곧 최종 전달로 마무리할게요.'; }
+      else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '최종본을 정리해 전달하고 카톡으로 알려드려요.'; }
       else if (_rs === '전달완료' && !_svDone) { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요.'; }
       else if (_rs === '전달완료') { head = '모든 순간이 마무리됐어요'; sub = '받은 결과물은 마이페이지에서 언제든 다시 받으실 수 있어요.'; }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
       if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
@@ -1832,10 +1844,10 @@ function renderMyPage(d){
     else { subEl.style.display = 'none'; }
   })();
 
-  // [02-1] 대기 갭 한 줄 (⏳) — 카드 없는 관리자 대기 구간
+  // [02-1] 대기 갭 한 줄 — 카드 없는 관리자 대기 구간
   (function(){
     var w = String(d.waiting||'').trim(), el = $('mp_waiting'); if(!el) return;
-    if (w){ el.textContent = '⏳ '+w+' 기다리는 중'; el.style.display='block'; }
+    if (w){ el.textContent = w+' 기다리는 중'; el.style.display='block'; }   // MPD_B14 ★장식 이모지(모래시계·알람시계) 재추가 금지 — 2026-07-25 사용자 채택
     else el.style.display='none';
   })();
 
@@ -2141,7 +2153,7 @@ function openInviteSamples(){
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#2f2820';
   var foot=document.createElement('div');
   foot.style.cssText='flex:0 0 auto;padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#e6e0d8);text-align:center';
-  foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
+  foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고해 보세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
   var _closed=false;
@@ -2176,7 +2188,7 @@ function renderCoupon(c){
   box.className='consult-sec';
   box.innerHTML=
     '<div class="consult-card cpn-card">'
-    +'<div class="cpn-eyebrow">후기 감사 선물</div>'
+    +'<div class="cpn-eyebrow">Gift</div>'
     +'<div class="cpn-title">'+title+'</div>'
     +'<div class="cpn-desc">두 분의 소중한 후기, 진심으로 감사드려요.<br>아래 바코드를 매장에서 보여주시면 돼요.</div>'
     +imgs
@@ -2326,7 +2338,7 @@ function renderLedger(l){
   });
   var lbc=$('mp_lbAcctCopy'); if(lbc) lbc.addEventListener('click', function(){
     var _b=(window._mpStateD||{}).balance, t=String((_b&&_b.account)||''); if(!t) return;
-    var ok=function(){ lbc.textContent='복사됐습니다'; setTimeout(function(){ lbc.textContent='계좌 복사'; },1500); };
+    var ok=function(){ lbc.textContent='복사됐어요'; setTimeout(function(){ lbc.textContent='계좌 복사'; },1500); };
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
   });
   var lbs=$('mp_lbSignal'); if(lbs) lbs.addEventListener('click', function(){
@@ -2357,7 +2369,7 @@ function doEditCashReceipt(tail){
 // [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
 function showFittingTerms(docs){
   var fd=null; (docs||[]).forEach(function(dc){ if(!fd&&dc.terms&&dc.terms.length) fd=dc; });
-  if(!fd){ mpAlert('동의 내용을 불러올 수 없어요.'); return; }
+  if(!fd){ mpAlert('동의 내용을 불러올 수 없어요. 새로고침 후 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'); return; }   // MPD_B13 막다른 에러 출구
   var signedLine=fd.at?'<div style="text-align:left;font-size:12px;color:var(--light);margin:0 0 8px">서명 · <b style="color:var(--sub);font-weight:500">'+escapeHtml(fd.at)+'</b></div>':'';
   var html=signedLine
     +'<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+fd.terms.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>'
@@ -2479,7 +2491,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn cc-btn-seal" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
-    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
+    body = '<div class="cc-title">디렉터가 확인하고 있어요</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
@@ -2504,7 +2516,7 @@ function renderConsult(c, product){
          + (c.proposedNote ? '<div class="cc-note" style="text-align:center;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'"</div>' : '');
     cta  = '<button type="button" class="cc-btn" id="mp_acceptProp">이 시간으로 수락</button>' + (url ? '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">다른 시간 보기</a>' : '');
   } else if (s === '취소'){
-    body = '<div class="cc-title">취소된 예약입니다</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
+    body = '<div class="cc-title">취소된 예약이에요</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
   } else {
     box.style.display='none'; return;
   }
@@ -2556,7 +2568,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">미계약으로 취소되면<br>진행한 시착 벌수만큼(1벌당 50,000원) 공제 후 환불돼요.</span></div>'
                  + '</div>';
-      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료됐어요</div><div class="cc-sub">시착은 상담 당일 함께 진행돼요.</div>'
         + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
@@ -2574,7 +2586,7 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료됩니다. 서명하면 드레스 시착이 진행됩니다.', confirmText:'서명 완료' }).then(function(sig){
+  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료' }).then(function(sig){
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
@@ -2712,7 +2724,7 @@ function renderContractPayment(c, p, ctx){
     var chg = ctx && ctx.change, chgHtml = '';
     if (chg && chg.request && chg.request.to && chg.request.to.date){
       var _rq = chg.request;
-      chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
+      chgHtml = '<div class="cc-sub" style="margin-top:6px">변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
         + '<div class="cc-sub cc-mini">'+(_rq.fee>0?('변경 수수료 '+fmtWon(_rq.fee)+(_rq.payer?(' · 입금자 '+escapeHtml(_rq.payer)):'')+' · 디렉터 확인 후 적용돼요'):'무상 변경 · 디렉터 확인 후 적용돼요')+'</div>'
         + '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgCancel">변경 요청 철회</button></div>';
     }
@@ -2738,7 +2750,7 @@ function renderContractPayment(c, p, ctx){
       var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
         rs.disabled=true; rs.textContent='요청 중…';
         api({action:'requestContractResend', token:getToken()}).then(function(r){
-          if(r&&r.ok){ rs.textContent='요청했어요 · 곧 보내드릴게요'; }
+          if(r&&r.ok){ rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'; }
           else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
         }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
       });
@@ -2800,7 +2812,7 @@ function renderContractPayment(c, p, ctx){
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
-  var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function _startContractCountdown(c){
   if (!c || c.signed) return;
@@ -2810,7 +2822,7 @@ function _startContractCountdown(c){
   var tick = function(){
     if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 지났어요'; loadMyState(); return; }   // MPD_A3 만료 문구 해요체 통일(2026-07-25)
     if (el){ var urg=remain<86400;   // 1일 이내만 실시간(긴박) · 그 전엔 차분히 일수로(압박감↓)
-      if(urg){ el.textContent='⏰ 마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
+      if(urg){ el.textContent='마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
       else { el.textContent='서명까지 약 '+Math.ceil(remain/86400)+'일 남았어요'; el.style.color=''; el.style.fontWeight=''; } }
     remain--;
   };
@@ -2896,7 +2908,7 @@ function renderChangeWizard(ctx, host){
         h='<div class="cc-sub" style="margin-top:10px">변경 수수료 · <b>무상</b>'+(_quote.basis?(' <span class="cc-mini">· '+escapeHtml(_quote.basis)+'</span>'):'')+'</div>';
       }
       if(q) q.innerHTML=h;
-      var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
+      var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
       _setSubmit(true);
     }).catch(function(){ _resetQuote(); _err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
   }
@@ -3006,7 +3018,7 @@ function renderPayment(p){
   var b=$('mp_paySignal'); if(b) b.addEventListener('click', doPaySignal);
   var ac=$('mp_acctCopy'); if(ac) ac.addEventListener('click', function(){
     var t=String(p.account||''); if(!t) return;
-    var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); };
+    var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); };
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
   });
 }
@@ -3028,7 +3040,7 @@ document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-acct]'):null; if(!t) return;
   var v=String(t.getAttribute('data-copy-acct')||''); if(!v) return;
   var sp=t.querySelector('.acct-copy-txt');
-  var done=function(){ if(sp){ sp.textContent='복사됐습니다'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
+  var done=function(){ if(sp){ sp.textContent='복사됐어요'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
 });
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
@@ -3042,7 +3054,7 @@ document.addEventListener('click', function(e){
   var srcId=t.getAttribute('data-copy-from');
   if(srcId){ var el=$(srcId); if(el) v=String(el.textContent||''); }
   v=v.replace(/[^0-9]/g,''); if(!v) return;
-  var done=function(){ t.textContent='복사됐습니다'; setTimeout(function(){ t.textContent='금액 복사'; },1500); };
+  var done=function(){ t.textContent='복사됐어요'; setTimeout(function(){ t.textContent='금액 복사'; },1500); };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
 });
 // [최종확정 소프트 게이트] 잔금 결제 전 인원 미확정이면 — 먼저 확정 유도(강제 아님 · 3걸음 위저드로 이동).
@@ -3134,7 +3146,7 @@ function renderBalance(p, mid){
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
-  var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
@@ -3217,7 +3229,7 @@ function renderMid(p, bal){
     if(b) b.setAttribute('data-combo', cb.checked?'1':'');
     var _cw=box.querySelector('.me-card-pay'); var _wrap=_cw&&_cw.closest?_cw.closest('.me-pay-alt'):null; if(_wrap&&_wrap.parentNode) _wrap.parentNode.removeChild(_wrap);
     try{ if(window.meCardPay) meCardPay.init(); }catch(e){} });
-  var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function doMidSignal(){
   var payer=(($('mp_mPayer')&&$('mp_mPayer').value)||'').trim();
@@ -3660,7 +3672,7 @@ function renderResult(res, nm, code){
     if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
-    if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
+    if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
     var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
@@ -3677,7 +3689,9 @@ function renderResult(res, nm, code){
   var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chipGo('추가 가능 ↓'):chip('곧 열려요')));
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
-  h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
+  // MPD_B12 가장 긴 침묵(컷 선택→보정본)에 예상표 유지 — 선택완료·보정중 구간 상단에 소요·알림 예고 1줄(DELIVERY_ETA.retouch 재사용 · '?'면 숨김)
+  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:0 0 8px;color:var(--label-soft)">보정은 보통 '+DELIVERY_ETA.retouch+' 걸려요 · 완성되면 카톡·메일로 알려드려요.</div>' : '';
+  h+='<div class="cc-title" style="text-align:left">결과물</div>'+_rEtaLine+'<div class="trk-list">'
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
     + row('②','보정 사진 고르기', r2)
     + row('③','추가 보정·결제', r3)
@@ -3708,7 +3722,7 @@ function renderResult(res, nm, code){
       +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
   } else if(st==='컨펌완료'){
     h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 곧 최종 전달돼요</div></div>';
+      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 최종본을 정리해 전달하고 카톡으로 알려드려요</div></div>';
   }
   // ③ 추가 보정·결제 패널 — 선택 이후(완료는 개요 ✓로 충분)
   if(picked) h+=_extraPanelHtml(res);
@@ -4010,8 +4024,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _fDone=(t.final||'')==='완료';
   var fNote='';
   if(!_fDone){
-    fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
-      + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
+    var _fUrg=(_dLeft!=null&&_dLeft>=0&&_dLeft<=30);   // MPD_B7 D-n(진사) 강조가 붙는 D-30 이내엔 기한 볼드 해제 — 줄당 강조 1개(디자인 헌장 1)
+    fNote='예식 '+(_fUrg?(_payDays().bal+'일 전까지'):('<b>'+_payDays().bal+'일 전까지</b>'))+' 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
+      + (_fUrg?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
   }
   // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
   var _seatDone=(t.seat||'')==='완료';
@@ -5982,7 +5997,7 @@ function renderDining(box){
         var mUrl=(url&&/^https?:\/\//i.test(url))?url:_dnMapUrl(nm);
         var callLine=telD
           ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(telShow)+'</a>'
-          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 돼요.</div>';
         var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
@@ -6374,7 +6389,7 @@ var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click',
   var code = $('mp_code').textContent.trim();
   if (!code || code==='—') return;
   var txt=$('mp_copy_txt');
-  var done=function(){ txt.textContent='복사됐습니다'; setTimeout(function(){ txt.textContent='복사'; },1500); };
+  var done=function(){ txt.textContent='복사됐어요'; setTimeout(function(){ txt.textContent='복사'; },1500); };
   try{
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(code).then(done).catch(function(){ legacyCopy(code); done(); });
@@ -6397,8 +6412,8 @@ $('fg_back').addEventListener('click', function(){ show('loginView'); });
 function openForgot(mode){
   forgotMode = mode;
   hideErr('fg_err'); $('fg_ok').classList.remove('show');
-  if (mode==='findCode'){ $('fg_title').textContent='개인코드 찾기'; $('fg_sub').textContent='가입하신 이메일을 입력하시면 개인코드를 보내드립니다.'; }
-  else { $('fg_title').textContent='비밀번호 재설정'; $('fg_sub').textContent='가입하신 이메일로 재설정 링크를 보내드립니다.'; }
+  if (mode==='findCode'){ $('fg_title').textContent='개인코드 찾기'; $('fg_sub').textContent='가입하신 이메일을 입력하시면 개인코드를 보내드릴게요.'; }
+  else { $('fg_title').textContent='비밀번호 재설정'; $('fg_sub').textContent='가입하신 이메일로 재설정 링크를 보내드릴게요.'; }
   show('forgotView');
 }
 $('forgotForm').addEventListener('submit', function(e){
@@ -6411,12 +6426,12 @@ $('forgotForm').addEventListener('submit', function(e){
     if (d && d.ok){
       var ok=$('fg_ok');
       ok.textContent = (forgotMode==='findCode')
-        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸습니다. 메일함을 확인해 주세요.'
-        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸습니다. 메일함을 확인해 주세요.';
+        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요.'
+        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요.';
       ok.classList.add('show');
     } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
   }).catch(function(){ showErr('fg_err'); })
-  .then(function(){ btn.disabled=false; btn.textContent='Send'; });
+  .then(function(){ btn.disabled=false; btn.textContent='보내기'; });
 });
 
 // ── 비번 재설정 (reset 링크) ───────────────────
@@ -6426,8 +6441,8 @@ $('resetForm').addEventListener('submit', function(e){
   e.preventDefault();
   hideErr('rs_err');
   var pw=$('rs_pw').value, pw2=$('rs_pw2').value;
-  if (pw.length<6){ showErr('rs_err','비밀번호는 6자 이상이어야 합니다.'); return; }
-  if (pw!==pw2){ showErr('rs_err','비밀번호가 일치하지 않습니다.'); return; }
+  if (pw.length<6){ showErr('rs_err','비밀번호는 6자 이상이어야 해요.'); return; }
+  if (pw!==pw2){ showErr('rs_err','비밀번호가 일치하지 않아요.'); return; }
   var btn=$('rs_btn'); btn.disabled=true; btn.textContent='변경 중…';
   api({action:'doResetPw', code:qp('code'), exp:qp('exp'), sig:qp('sig'), pw:pw, pw2:pw2}).then(function(d){
     if (d && d.ok){
@@ -6437,7 +6452,7 @@ $('resetForm').addEventListener('submit', function(e){
       else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
     } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('rs_err'); })
-  .then(function(){ btn.disabled=false; btn.textContent='Reset'; });
+  .then(function(){ btn.disabled=false; btn.textContent='변경하기'; });
 });
 
 // HTML escape
