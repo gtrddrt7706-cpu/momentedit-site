@@ -252,6 +252,12 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal label{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-bottom:5px}
 .modal input,.modal select,.modal textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:7px;padding:12px 13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none;-webkit-appearance:none;appearance:none;min-height:48px}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--gold)}
+/* [ADM_AA5] 링크 입력 + 붙여넣기 버튼 한 줄 */
+.modal .paste-row{display:flex;gap:6px;align-items:stretch}
+.modal .paste-row input{flex:1;min-width:0}
+.modal .paste-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:12px;cursor:pointer;white-space:nowrap}
+.modal .paste-btn:active{background:var(--bg2)}
+.modal .paste-hint{font-family:var(--serif-ko);font-size:11px;color:var(--seal);margin-top:4px;text-align:left;min-height:0}
 .modal .mbtns{display:flex;gap:8px;margin-top:6px}
 .modal .mbtns .btn{flex:1}
 .modal .merr{font-family:var(--serif-ko);font-size:12px;color:var(--seal);text-align:center;min-height:15px;margin-bottom:5px}
@@ -2112,12 +2118,33 @@ function openContractViewer(d, ov2){
   }
 }
 
+// [ADM_AA5] 링크 입력칸 옆 '붙여넣기' — 하루 최다 손입력 제거. clipboard 미지원·권한 거부면 버튼을 숨기고 손입력 그대로(조용한 폴백 · alert 금지).
+//   실패 안내는 H2 매핑대로 필드 옆 인라인 + focus. https로 시작할 때만 자동 채움(엉뚱한 클립보드 내용 방지).
+function _pasteField(inputId){
+  var inp=$(inputId), btn=$(inputId+'_paste'), hint=$(inputId+'_hint');
+  if(!inp||!btn) return;
+  if(!(navigator.clipboard && navigator.clipboard.readText)){ btn.style.display='none'; return; }
+  btn.addEventListener('click', function(){
+    navigator.clipboard.readText().then(function(t){
+      t=String(t||'').trim();
+      if(/^https:\/\//i.test(t)){ inp.value=t; if(hint) hint.textContent=''; inp.focus(); }
+      else { if(hint) hint.textContent='복사해 둔 내용이 https 링크가 아니에요. 직접 붙여넣어 주세요.'; inp.focus(); }
+    }).catch(function(){ btn.style.display='none'; if(hint) hint.textContent=''; });   // 권한 거부 등 — 버튼만 치우고 손입력 유지
+  });
+}
+function _linkField(label,id,val){
+  return '<div class="field"><label>'+esc(label)+'</label>'
+    +'<div class="paste-row"><input type="url" id="'+id+'" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(val||'')+'">'
+    +'<button type="button" class="paste-btn" id="'+id+'_paste">붙여넣기</button></div>'
+    +'<div class="paste-hint" id="'+id+'_hint"></div></div>';
+}
 function openSetResult(code,names,isSnap,d){
   var r=d.raw||{};
-  var extra='<div class="field"><label>원본 드라이브 링크</label><input type="url" id="rOrig" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['원본링크']||'')+'"></div>'+
-    '<div class="field"><label>보정본 폴더 링크</label><input type="url" id="rReto" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['보정본폴더']||'')+'"></div>'+
-    (isSnap?'':'<div class="field"><label>본식 영상 링크</label><input type="url" id="rVid" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['영상링크']||'')+'"></div>');
+  var extra=_linkField('원본 드라이브 링크','rOrig',r['원본링크'])
+    +_linkField('보정본 폴더 링크','rReto',r['보정본폴더'])
+    +(isSnap?'':_linkField('본식 영상 링크','rVid',r['영상링크']));
   openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중')+li('드라이브 공유가 "링크가 있는 모든 사용자"인지 먼저 확인해 주세요 · 저장 후 자동 점검이 한 번 더 경고해요'), extra:extra, yes:'저장',
+    init:function(){ _pasteField('rOrig'); _pasteField('rReto'); if(!isSnap) _pasteField('rVid'); },   // [ADM_AA5]
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });
 }
