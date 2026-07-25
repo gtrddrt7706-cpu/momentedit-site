@@ -15,6 +15,10 @@ const ok = (cond, label, detail) => {
 };
 
 // 헤더 1행만 진짜인 가짜 시트. 모르는 메서드는 자기 자신을 돌려주는 체이너(서식·검증 호출을 전부 흡수).
+//   ★STUB_SELF_PROXY(2026-07-26) — 핸들러가 돌려주는 값은 반드시 '프록시(px)'여야 한다. 타깃(self/stub)을 돌려주면
+//   체이닝이 한 칸만 가고(setFontWeight()는 되지만 .setBackground는 undefined) setupCustomers가 서식 구간에서
+//   TypeError로 죽는다. 그러면 guardBlocked 판정이 '가드 통과'가 아니라 '다른 예외로 죽음'을 읽게 되어
+//   PASS 시나리오가 전부 빈 통과가 된다(실제로 그랬다 · 코워크 #293 A급 1). 아래 [1]의 빈 통과 탐지가 재발을 막는다.
 function fakeSheet(header) {
   const row = header.slice();
   const self = {
@@ -26,15 +30,17 @@ function fakeSheet(header) {
     getRange: (r, c, _nr, nc) => rangeStub(row, r, c, nc == null ? 1 : nc),
     getFilter: () => null,
   };
-  return new Proxy(self, { get: (t, k) => (k in t ? t[k] : () => self) });
+  const px = new Proxy(self, { get: (t, k) => (k in t ? t[k] : () => px) });
+  return px;
 }
 function rangeStub(row, r, c, nc) {
   const stub = {
     getValues: () => [row.slice(c - 1, c - 1 + nc)],
-    setValues: (v) => { for (let i = 0; i < nc; i++) row[c - 1 + i] = v[0][i]; return stub; },
-    setValue: (v) => { row[c - 1] = v; return stub; },
+    setValues: (v) => { for (let i = 0; i < nc; i++) row[c - 1 + i] = v[0][i]; return px; },
+    setValue: (v) => { row[c - 1] = v; return px; },
   };
-  return new Proxy(stub, { get: (t, k) => (k in t ? t[k] : () => stub) });
+  const px = new Proxy(stub, { get: (t, k) => (k in t ? t[k] : () => px) });
+  return px;
 }
 
 function runScenario(header) {
@@ -43,8 +49,8 @@ function runScenario(header) {
   sb.SpreadsheetApp = new Proxy({
     getActive: () => new Proxy({ getSheetByName: () => sheet, insertSheet: () => sheet, toast() {} },
       { get: (t, k) => (k in t ? t[k] : () => ({})) }),
-    newDataValidation: () => { const v = {}; return new Proxy(v, { get: (t, k) => (k === 'build' ? () => ({}) : () => v) }); },
-    newConditionalFormatRule: () => { const v = {}; return new Proxy(v, { get: (t, k) => (k === 'build' ? () => ({}) : () => v) }); },
+    newDataValidation: () => { const v = {}; const pv = new Proxy(v, { get: (t, k) => (k === 'build' ? () => ({}) : () => pv) }); return pv; },
+    newConditionalFormatRule: () => { const v = {}; const pv = new Proxy(v, { get: (t, k) => (k === 'build' ? () => ({}) : () => pv) }); return pv; },
     flush() {},
   }, { get: (t, k) => (k in t ? t[k] : () => ({})) });
 
@@ -79,6 +85,10 @@ for (const [label, header] of SCEN) {
   const { diag, guardBlocked, guardMsg } = runScenario(header);
   ok(diag.blocked === guardBlocked, label + ' → 진단 ' + (diag.blocked ? 'BLOCK' : 'PASS') + ' / 가드 ' + (guardBlocked ? 'BLOCK' : 'PASS'),
     guardBlocked ? guardMsg.slice(0, 90) : '');
+  // ★빈 통과 탐지 — '가드 PASS'가 실은 '가드가 아닌 다른 예외로 죽음'이면 소리 나게 한다.
+  //   목이 부실해 setupCustomers가 서식 구간에서 TypeError로 죽으면 guardBlocked=false가 되어
+  //   PASS로 읽힌다. 그 상태로 초록이면 이 테스트는 GUARD_MIRROR를 지키지 못한다.
+  if (!guardBlocked && guardMsg) { fail++; console.log('  ❌ ' + label + ' — 가드 아닌 예외로 중단(빈 통과): ' + guardMsg.slice(0, 80)); }
 }
 
 console.log('\n[2] 진단은 여전히 가드보다 넓게 본다 (참고 정보는 유지 · 결론만 가드 기준)');
