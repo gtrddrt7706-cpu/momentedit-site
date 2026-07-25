@@ -113,6 +113,9 @@ ctx.touchCustomer = (sheet, colOf, num, upd) => { Object.keys(upd || {}).forEach
 ctx._weddingSlotTaken = () => !!ctx.SLOT_TAKEN;
 ctx.notifyKakao = (ev, code, extra) => { ctx.NOTIFIED.push({ ev, code, extra }); };
 ctx._recordHandler = (code, action) => { ctx.HISTORY.push(action); };
+// PROD_ACCESSOR: adminConfirmWeddingChange가 제작 base 동기화용으로 _prodLoad(cust)를 호출한다(80_production.gs).
+//   이 테스트는 제작 트랙을 세팅하지 않으므로 base 없는 빈 객체를 반환 → prod.base 분기 미진입(제작 동기화 경로는 prod-accessor.mjs·balance-sim이 담당).
+ctx._prodLoad = () => ({});
 vm.runInContext(code, ctx);
 
 /* ── 테스트 헬퍼 ── */
