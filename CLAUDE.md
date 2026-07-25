@@ -79,6 +79,7 @@
 | `previewStaleCustomers` | 20_customers-data | 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용). purgeStaleCustomers(true)와 동일 |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
 | `backfillProduceStage` | 80_production | 제작을 이미 시작했는데 '입금완료'에 고착된 고객의 현재단계를 '제작중'으로 정정. **기본 드라이런(로그만)** · 실제 반영은 `backfillProduceStage(false)`. 스냅 제외 · 제작 흔적 있는 건만(관리자가 롤백한 건은 제작임시저장이 비어 자동 제외) · 처리이력 기록. 2026-07-25 전이 복구 이전 고객 1회 정리용 |
+| `backfillProduceStageApply` | 80_production | 위 백필을 **실제 반영**(= `backfillProduceStage(false)`). GAS 편집기는 인자를 넘겨 실행할 수 없어 드롭다운에서 바로 고르는 실행용 래퍼. 드라이런으로 목록 확인 후 이걸 실행 |
 | `addGuideTokenColumn` | 80_production | Customers에 `안내공유토큰` 열 1회 추가(멱등). 하객 안내 허브(guide.html) 링크 발급 전 1회 실행 — 안 하면 토큰 발급이 조용히 생략됨 |
 | `ZZ_tossPing` | 98_pay_card | 토스 샌드박스 연결·키 확인(더미 confirm 호출·실결제 아님). PAY_CARD_ENABLED 켜기 전 TOSS_SECRET_KEY 점검 · 결과는 Logger |
 | `sendHoldExpiryNotices` | 70_journey | 임시고정 만료 D-3 안내 + 가예약 캘린더 백필·만료 정리(일1회 트리거 자동·수동 1회 실행 가능) |

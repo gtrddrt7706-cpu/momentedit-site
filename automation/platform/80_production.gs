@@ -1073,3 +1073,8 @@ function backfillProduceStage(dry) {
   Logger.log('[backfillProduceStage] 반영 완료 · ' + hits.length + '건');
   return { ok: true, hit: hits.length, dry: false, items: hits };
 }
+// [백필 실행 래퍼] GAS 편집기는 인자를 넘겨 실행할 수 없어, 드롭다운에서 바로 고를 수 있는 실행용 함수를 둔다.
+//   backfillProduceStage      = 드라이런(로그만 · 안전)
+//   backfillProduceStageApply = 실제 반영
+//   ★이 래퍼 삭제 금지 — 없으면 운영자가 매번 편집기에 임시 함수를 붙여야 하고, 파일 교체 때 그게 사라진다(2026-07-25 실제 겪음).
+function backfillProduceStageApply() { return backfillProduceStage(false); }
