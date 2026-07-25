@@ -1444,6 +1444,41 @@ function adminMarkConsultDone(code) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// [LINK_VERIFY 2026-07-25] 결과물 링크 서버 검증(best-effort) — 저장은 항상 수행하고 경고만 돌려준다.
+//   판정: ①https:// 시작 아님 → 형식 경고 ②응답 400 이상 → 접근 불가 ③200인데 구글 로그인 페이지 → 공유 제한 추정
+//   ④fetch 예외 → 확인 실패(검증 시스템 문제일 수 있어 단정하지 않는 문구). 어떤 경우에도 밖으로 throw 하지 않는다.
+function _resultLinkCheck(label, url) {
+  try {
+    if (!/^https:\/\//i.test(url)) return label + ' 링크: https:// 로 시작하는 주소가 아니에요. 주소를 확인해 주세요.';
+    var resp;
+    try {
+      resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+    } catch (e) {
+      return label + ' 링크: 접속 확인이 안 됐어요(검증 불가). 링크가 정상일 수도 있으니 한 번 직접 열어 확인해 주세요.';
+    }
+    var codeN = resp.getResponseCode();
+    if (codeN >= 400) return label + ' 링크: 열 수 없음(' + codeN + '). 주소를 확인해 주세요.';
+    var body = '';
+    try { body = String(resp.getContentText() || ''); } catch (e2) { body = ''; }
+    if (codeN === 200 && (body.indexOf('ServiceLogin') !== -1 || body.indexOf('accounts.google.com/v3/signin') !== -1)) {
+      return label + ' 링크: 공유 설정이 제한되어 고객이 열지 못할 수 있어요.';
+    }
+    return null;
+  } catch (e3) { return null; }   // 검증 자체 실패는 저장·응답에 영향 주지 않음(best-effort)
+}
+function _resultLinkWarnings(items) {
+  var warns = [];
+  try {
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (!it || !String(it.url || '').trim()) continue;   // 빈 칸은 검사 안 함
+      var w = _resultLinkCheck(it.label, String(it.url).trim());
+      if (w) warns.push(w);
+    }
+  } catch (e) {}
+  return warns;
+}
+
 // 2. 결과물 링크 등록 — 원본·영상·보정본(부분 허용·https) + 결과물상태 자동(전달완료는 유지)
 function adminSetResultLinks(code, links) {
   _requireAdmin();
@@ -1478,7 +1513,13 @@ function adminSetResultLinks(code, links) {
     }
     touchCustomer(sheet, colOf, cust.num, upd);
     _recordHandler(code, '결과물 링크 등록' + (원본 ? ' 원본' : '') + (보정본 ? ' 보정본' : '') + (영상 ? ' 영상' : ''));
-    return { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
+    // [LINK_VERIFY 2026-07-25] 저장 후 접근성 검증(경고하되 저장은 허용) — 경고는 반환+처리이력에 남겨 상세에서도 보이게.
+    var _lvWarns = [];
+    try {
+      _lvWarns = _resultLinkWarnings([{ label: '원본', url: 원본 }, { label: '보정본', url: 보정본 }, { label: '영상', url: 영상 }]);
+      if (_lvWarns.length) { try { _recordHandler(code, '[링크검증] ' + _lvWarns.join(' / ').slice(0, 400)); } catch (eR) {} }
+    } catch (eV) { _lvWarns = []; }
+    return { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물, warnings: _lvWarns };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
