@@ -893,7 +893,7 @@ function buildProductionState(r) {
 
 // [05] 결과물 단계(예식완료/촬영완료/결과물전달) — 원본 전달 → 고객 선택 → 보정 → 전달.
 //   사진 파일은 서버 X(드라이브 링크). 선택 = A안(번호/파일명 텍스트). 추가 보정 = 포함 10컷·추가 컷당 20,000(홈페이지 기준).
-var RESULT_STAGES = ['예식완료', '촬영완료', '결과물전달'];
+var RESULT_STAGES = ['예식완료', '촬영완료', '결과물전달', '후기'];   // ★STAGE_REVIEW 최고위험 지점 — '후기' 빼면 후기 단계 고객의 결과물 카드·갤러리·설문 카드가 통째로 사라진다. 제거 금지
 var RESULT = { 포함보정컷: 10, 추가보정단가: 20000 };   // ★단가·포함컷 단일 출처(momentedit.kr 가격표와 동일)
 function _resAcct() {
   return {
@@ -1164,6 +1164,9 @@ function handleSubmitSurvey(body) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    // ★STAGE_REVIEW 안전장치(기획 §3-2 #22): 종전엔 단계 검사가 아예 없어 강제이동 뒤 옛 화면에서 유령 제출이 가능했다.
+    //   결과물·후기 구간(RESULT_STAGES) 밖이면 거부. 제거 금지.
+    if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 후기를 남길 수 있는 단계가 아니에요.' };
     var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
     var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });

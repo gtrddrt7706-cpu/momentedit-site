@@ -380,8 +380,8 @@ var FILTER_KEY = 'me_admin_filter', OPEN_KEY = 'me_admin_open';
 
 /* 상수 — 백엔드 config와 일치 */
 var STAGE_FLOW = {
-  '시그니처': ['신청접수','상담확정','시착','상담완료','계약완료','입금완료','제작중','예식완료','결과물전달'],
-  '웨딩스냅': ['신청접수','촬영확정','계약완료','입금완료','촬영완료','결과물전달']
+  '시그니처': ['신청접수','상담확정','시착','상담완료','계약완료','입금완료','제작중','예식완료','결과물전달','후기'],
+  '웨딩스냅': ['신청접수','촬영확정','계약완료','입금완료','촬영완료','결과물전달','후기']   // STAGE_REVIEW
 };
 var STAGE_EX = ['미계약','취소','노쇼'];
 var STAGE_COLOR = {
@@ -389,6 +389,7 @@ var STAGE_COLOR = {
   '상담확정':['#EAF0F6','#2B5A8A'],'촬영확정':['#EAF0F6','#2B5A8A'],'시착':['#EAF0F6','#2B5A8A'],'상담완료':['#EAF0F6','#2B5A8A'],
   '계약완료':['#E7F1EA','#2E6B43'],
   '입금완료':['#E3EFE6','#1F6B3A'],'예식완료':['#E3EFE6','#1F6B3A'],'촬영완료':['#E3EFE6','#1F6B3A'],'결과물전달':['#E3EFE6','#1F6B3A'],
+  '후기':['#EDF7F0','#2E7D52'],   // STAGE_REVIEW · 결과물전달과 같은 초록 계열에서 한 단계 밝게(기획 §6 결정4)
   '제작중':['#F1EEF6','#5A4B8A'],
   '미계약':[ '#F2EDED','#9A4A45'],'취소':['#F2EDED','#9A4A45'],'노쇼':['#F2EDED','#9A4A45']
 };
@@ -1475,7 +1476,7 @@ function stageCards(stage){
     '신청접수':['consult'],'상담확정':['consult'],'촬영확정':['consult'],
     '시착':['consult','fitting'],'상담완료':['consult'],
     '계약완료':['contract'],'입금완료':['payment'],'제작중':['production'],
-    '예식완료':['result'],'촬영완료':['result'],'결과물전달':['result'],
+    '예식완료':['result'],'촬영완료':['result'],'결과물전달':['result'],'후기':['result'],   // STAGE_REVIEW
     '취소':['consult'],'미계약':['consult'],'노쇼':['consult']
   }[stage]||[];
 }
@@ -1836,7 +1837,7 @@ function cardResult(d,isSnap){
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(r['원본링크']) b+=ab('delivered','결과물 전달 처리');
     else b+='<div class="gate">원본을 먼저 등록해야 전달 처리할 수 있어요</div>';
-  } else if(st==='결과물전달' && rstt!=='전달완료'){
+  } else if((st==='결과물전달'||st==='후기') && rstt!=='전달완료'){   // STAGE_REVIEW
     // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 결과물전달인 고객(결과물상태≠전달완료) — 종전엔 거짓 '✓ 전달 완료' 표시 + 등록 버튼 전부 숨김(막다른길). 이어서 진행할 버튼 노출.
     b+='<div class="gate">⚠ 단계는 결과물전달인데 결과물은 아직 <b>'+esc(rstt)+'</b>이에요 (강제 변경 흔적) · 아래에서 이어서 진행해 주세요</div>';
     if(rstt==='선택완료') b+=ab('startRetouch','보정 착수','btn-line');
@@ -1845,7 +1846,7 @@ function cardResult(d,isSnap){
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(r['원본링크']) b+=ab('delivered','결과물 전달 처리');
     else b+='<div class="gate">원본을 먼저 등록해야 전달 처리할 수 있어요</div>';
-  } else if(st==='결과물전달'){
+  } else if(st==='결과물전달'||st==='후기'){   // STAGE_REVIEW — 후기 넘기기·쿠폰 버튼이 후기 단계에서도 보이게
     var svS=r['설문상태']||'대기';
     b+='<div class="gate">✓ 전달 완료'+(svS==='완료'?' · 후기 완료':(svS==='건너뜀'?' · 후기 넘김':' · 후기 작성 대기'))+'</div>';
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');

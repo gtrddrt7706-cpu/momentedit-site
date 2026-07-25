@@ -544,13 +544,15 @@ function adminHome() {
     surveyTally(rv, code, names, product);
     var survStatus = String(cget(rv, '설문상태') || '').trim();
     var surveyClosed = (survStatus === '완료' || survStatus === '건너뜀');   // 후기 마감(제출/넘기기) = 아카이브 조건
-    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || (stage === '결과물전달' && surveyClosed)) {
+    // ★STAGE_REVIEW: 아카이브 판정 = 예외 단계 이거나 (결과물전달·후기 중 하나 + 설문 마감).
+    //   '후기'가 새 종료 대기 단계지만, 구 데이터(단계=결과물전달 + 설문완료)도 그대로 아카이브에 남도록 두 값을 함께 본다(기획 §5 검증6).
+    if (STAGE_EXCEPTIONS.indexOf(stage) !== -1 || ((stage === '결과물전달' || stage === '후기') && surveyClosed)) {
       // 아카이브(예외/후기 마감)라도 추가 보정 입금 신호는 운영자 확인 필요 → 큐 노출
-      if (stage === '결과물전달' && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {
+      if ((stage === '결과물전달' || stage === '후기') && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {   // STAGE_REVIEW
         pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
       }
       // 아카이브라도 추가 보정 현금영수증 미발행분은 큐 유지(의무발급·가산세 방지)
-      if (stage === '결과물전달') {
+      if ((stage === '결과물전달' || stage === '후기')) {   // STAGE_REVIEW
         var _exArc = Math.round(Number(cget(rv, '추가보정금액')) || 0);
         var _isuArc = _parseJsonSafe(cget(rv, '동의기록')).영수증발행 || {};
         if (String(cget(rv, '추가보정상태') || '').trim() === '완료' && _exArc > 0 && !_isuArc['추가보정']) {
@@ -672,7 +674,7 @@ function adminHome() {
         badge: _bdg, _urgent: _bdg.level === 'red', _stage: 5, _wait: createdYmd });
     });
     // 결과물 전달 후 — 후기(설문) 대기(미마감). 아카이브 보류 → 결과물 관리 보드에 '후기 대기'로 노출, 진행 현황엔 미포함.
-    if (stage === '결과물전달') {
+    if ((stage === '결과물전달' || stage === '후기')) {   // STAGE_REVIEW — 후기 단계도 결과물 보드에 '후기 대기'로 노출
       if (추가보정 === '결제대기') pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
       resultsList.push({ code: code, names: names, product: product, 상태: '후기대기', 선택수: 선택수, 원본: !!원본, 보정본: !!String(cget(rv, '보정본폴더') || '').trim(), 영상: !!String(cget(rv, '영상링크') || '').trim(), 추가보정: 추가보정, 추가보정수량: String(cget(rv, '추가보정수량') || ''), 설문: survStatus, dday: (wedYmd ? _dayDiff(today, wedYmd) : null) });
       return;
@@ -868,7 +870,7 @@ function adminHome() {
     var code = String(bget(rv, '개인코드') || '').trim().toUpperCase();
     if (!code) return;
     var meta = custStageMap[code];
-    if (meta && (STAGE_EXCEPTIONS.indexOf(meta.stage) !== -1 || meta.stage === '결과물전달')) return;  // 끝난 고객 booking 제외
+    if (meta && (STAGE_EXCEPTIONS.indexOf(meta.stage) !== -1 || meta.stage === '결과물전달' || meta.stage === '후기')) return;  // 끝난 고객 booking 제외 · STAGE_REVIEW
     var product = meta ? meta.product : P.PRODUCT_SIGNATURE;
     var names = meta ? meta.names : _names(bget(rv, '성함(신랑)'), bget(rv, '성함(신부)'));
     var createdYmd = meta ? meta.created : _ymdOf(bget(rv, '신청일시'));
@@ -888,7 +890,7 @@ function adminHome() {
   function buildPipe(product) {
     var g = pipe[product], out = [];
     stageFlowFor(product).forEach(function (stage) {
-      if (stage === '결과물전달') return;  // 아카이브
+      if (stage === '결과물전달') return;  // 아카이브 (★STAGE_REVIEW: '후기'는 스킵하지 않는다 — 현황에 '후기 대기 N명'을 보이게. 기획 §6 결정3)
       var list = g[stage] || [];
       var byConsult = (stage === '상담확정' || stage === '촬영확정');   // 예식일이 아직 없는 단계 → 대면상담 D-day(cdday)로 가까운순 정렬
       list.sort(function (a, b) {
@@ -1138,15 +1140,15 @@ function adminArchive(query, filter) {
   if (last < P.DATA_START_ROW) return { ok: true, results: [], total: 0 };
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
   var get = function (rv, h) { var c = colOf[h]; return c ? String(rv[c - 1] || '') : ''; };
-  var ENDED = STAGE_EXCEPTIONS.concat(['결과물전달']);   // 미계약·취소·노쇼·결과물전달
+  var ENDED = STAGE_EXCEPTIONS.concat(['결과물전달', '후기']);   // 미계약·취소·노쇼 + 결과물전달(구 데이터)·후기(신규) · STAGE_REVIEW
   var q = query.replace(/[\s\-]/g, '');
   var out = [];
   for (var i = 0; i < vals.length; i++) {
     var rv = vals[i];
     var stage = get(rv, '현재단계').trim();
     if (ENDED.indexOf(stage) === -1) continue;            // 끝난 고객만
-    if (stage === '결과물전달') { var _ss = get(rv, '설문상태').trim(); if (_ss !== '완료' && _ss !== '건너뜀') continue; }   // 후기 대기는 아직 진행 중(보드) → 아카이브 제외
-    var endType = (stage === '결과물전달') ? '완료' : '중단';   // 완료(전달·그린) / 중단(취소·노쇼·미계약·레드)
+    if ((stage === '결과물전달' || stage === '후기')) { var _ss = get(rv, '설문상태').trim(); if (_ss !== '완료' && _ss !== '건너뜀') continue; }   // 후기 대기는 아직 진행 중(보드) → 아카이브 제외 · STAGE_REVIEW
+    var endType = ((stage === '결과물전달' || stage === '후기')) ? '완료' : '중단';   // 완료(전달·후기 마감·그린) / 중단(취소·노쇼·미계약·레드) · STAGE_REVIEW
     if (filter === 'done' && endType !== '완료') continue;
     if (filter === 'stopped' && endType !== '중단') continue;
     var code = get(rv, '개인코드').trim();
@@ -1944,7 +1946,7 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException, rep
     { cols: _prodCols().concat(['eventId', '제작상태']), at: isSnap ? '입금완료' : '제작중' },   // PROD_ACCESSOR — 제작 컬럼 목록은 _prodCols() 단일 출처(PR-B 트랙 분리 시 자동 확장 · 신 컬럼 잔존=데이터 부활 사고 차단)   // 스냅은 flow에 '제작중'이 없어 이 그룹이 영영 스킵되던 것 수정(스냅 기획·청첩장 초안도 초기화 대상 — 2026-07-25 점검)
     { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시'], at: isSnap ? '촬영완료' : '예식완료' },
     { cols: ['추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], at: isSnap ? '촬영완료' : '예식완료', keep: function (c) { return String(c.get('추가보정상태') || '').trim() === '완료'; } },   // ROLLBACK_KEEP_PAID · 완료(입금확인)된 추가 보정 — 현금영수증 의무발급 큐 유지
-    { cols: ['설문상태', '설문응답', '설문일시'], at: '결과물전달', consent: ['결과물전달일', '보관만료통지', '결과물파기'] }   // 결과물파기도 초기화 — 재전달 사이클에서 12조③ 만료통지·6개월 자동정리가 다시 살게(2026-07-25 점검)
+    { cols: ['설문상태', '설문응답', '설문일시'], at: '후기', consent: ['결과물전달일', '보관만료통지', '결과물파기'] }   // 결과물파기도 초기화 — 재전달 사이클에서 12조③ 만료통지·6개월 자동정리가 다시 살게(2026-07-25 점검)
   ];
   var upd = {}, consentKeys = [];
   groups.forEach(function (g) {
@@ -1959,6 +1961,8 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException, rep
   });
   // ROLLBACK_TRACK_DEMOTE · 결과물전달 아래(결과물 단계 구간)로 내릴 때 — 작업물(링크·선택·컨펌)은 그 단계 산출물이라 보존하되,
   //   '전달완료' 상태만 한 단계(컨펌완료)로 강등해 단계·고객 화면(전달완료·후기 UI)·관리자 트랙이 함께 되돌아가게(2026-07-25 사용자 신고 · 추천안 ①).
+  //   ★STAGE_REVIEW 확인(기획 §3 #11): flow 끝에 '후기'가 붙어도 '결과물전달' 인덱스는 그대로라 아래 판정은 불변.
+  //   후기 → 결과물전달 되돌리기는 ti === _di 라 강등되지 않는다(결과물전달 단계에선 '전달완료'가 정상값이므로 의도된 동작).
   var _di = flow.indexOf('결과물전달'), _ri = flow.indexOf(isSnap ? '촬영완료' : '예식완료');
   if (_di >= 0 && _ri >= 0 && ti < _di && ti >= _ri && colOf['결과물상태'] && !('결과물상태' in upd)
       && String(cust.get('결과물상태') || '').trim() === '전달완료') upd['결과물상태'] = '컨펌완료';
@@ -2043,6 +2047,10 @@ function adminForceStage(code, targetStage, reason) {
     if (cur === targetStage && !Object.keys(cleared).length && !needBookingReset) return { ok: true, noop: true, from: cur, to: targetStage };
     var upd = { '현재단계': targetStage };
     Object.keys(cleared).forEach(function (k) { upd[k] = cleared[k]; });
+    // ★STAGE_REVIEW 본체(기획 §3 #12): '후기'로 보낼 때는 설문상태를 '대기'로 되돌려 고객 화면에 설문 카드가 다시 뜨게 한다.
+    //   _clearForwardData는 목표가 그 데이터 단계 '이상'이면 보존하므로(ti >= gi) 후기로 이동할 때 설문 그룹을 지우지 않는다 → 여기서 명시 리셋.
+    //   설문응답·설문일시는 지우지 않는다(재제출 시 덮어씀 · 과거 답변 보존). 제거 금지.
+    if (targetStage === '후기' && colOf['설문상태']) upd['설문상태'] = '대기';
     touchCustomer(sheet, colOf, cust.num, upd);
     // [FORCE_CANCEL_TS 2026-07-25] 강제이동 목표가 '취소'면 Bookings.취소일시를 기록(정상 취소 경로와 동일). 없으면 환불 견적·큐 aging이 '오늘' 기준으로 매일 흔들리던 문제 차단. 멱등(이미 있으면 유지).
     if (targetStage === '취소') {
