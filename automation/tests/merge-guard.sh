@@ -438,6 +438,11 @@ if [ "$_sf" -lt 1 ]; then echo "REVERT? 00_platform-config.gs: STAGE_FLOW 시그
 # 음수 가드 — 마이페이지 합성 스텝 '무조건' 재삽입 감지(조건부 폴백만 허용)
 _cc=$(grep -c "^      list = list.concat(\['후기'\]);" mypage.html 2>/dev/null); _cc=${_cc:-0}
 if [ "$_cc" -gt 0 ]; then echo "REVERT? mypage.html: 후기 합성 스텝 무조건 재삽입 부활($_cc) — 후기 2회 표시·STEP N/11 부풀음"; fail=1; else echo "ok mypage.html: 후기 합성은 조건부 폴백만(구 GAS 대비)"; fi
+# ── 2026-07-25 전달완료 시 NEXT 자물쇠 동기화(열린 카드와 자물쇠 동시 표시 금지)
+chk 'DELIV_NEXT_SYNC' mypage.html 1                                    # 후기 폼이 열려 있는데 '후기'가 잠긴 다음 단계로도 보이던 모순
+_dn=$(grep -c "it\[0\] !== '후기' && it\[0\] !== '결과물 전달'" mypage.html 2>/dev/null); _dn=${_dn:-0}
+if [ "$_dn" -lt 1 ]; then echo "REVERT? mypage.html: 전달완료 NEXT 필터 소실 — 후기 폼과 후기 자물쇠가 같은 화면에 다시 뜬다"; fail=1; else echo 'ok mypage.html: 전달완료면 결과물·후기 자물쇠 제외'; fi
+
 # ── 2026-07-25 Customers 헤더 순서 정합(setupCustomers 재실행이 '라벨만' 밀어 써서 열이 오정렬되는 사고 방지)
 chk 'HEADER_ORDER_GUARD' automation/platform/10_customers-setup.gs 2   # 덮어쓰기 전 시트 헤더 대조 후 중단(데이터 무변경)
 chk 'HEADER_ORDER_LIVE' automation/platform/00_platform-config.gs 1    # 리터럴 순서 = _prodCreateOrder(meta 마지막) 고정 근거
