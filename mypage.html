@@ -3045,13 +3045,13 @@ function _finalGateHtml(hard){
   if(hard && hasProd){   // 하드 게이트 — 인원 확정 먼저(2번 결제 방지). 확정 흐름 있을 때만 사용
     return '<div style="margin:12px 0 2px;padding:14px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       +'<div class="cc-sub" style="margin:0">인원을 먼저 확정해 주세요.<br>확정하면 <b>추가 요금까지 합쳐 한 번에</b> 결제돼요.</div>'
-      +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기 (1분)</button>'
+      +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기</button>'   // MPD_A1 ★'(1분)' 소요시간 약속 재추가 금지 — 수치 약속 금지 규칙(2026-07-15) · 2026-07-25 삭제
       +'<div class="cc-note" style="margin:8px 0 0;color:var(--light)">두 번 결제되지 않도록 도와드리는 단계예요.</div></div>';
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
     +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>최종 확정을 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
-    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기 (1분)</button>':'')
+    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기</button>':'')
     +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 이후 인원 추가분은 따로 안내드려요.</div></div>';
 }
 document.addEventListener('click', function(e){
