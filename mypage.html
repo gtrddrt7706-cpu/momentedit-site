@@ -1981,7 +1981,7 @@ function renderMyPage(d){
     var _dispList = list, _dispCur = cur;
     var nowLabel = _fullyDelivered ? (surveyDone ? '여정 완료' : '후기')   // [DELIV_STEP_HONEST] 전달 끝(단계 무관)=후기·완료
                  : (atDelivered || _resFlowOn) ? '결과물 전달'              // [DELIV_FLOW_STEP] 원본 도착~컨펌·전달 단계=라벨도 '결과물 전달'
-                 : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
+                 : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '확인 중');   // ★DASH_FALLBACK_FIX(2026-07-25): '—' 폴백은 고객 문구 전각 줄표 금지 위반이자 의미 전달 0. 서버가 단계를 못 준 예외 상황이라 '확인 중'이 맞다. 줄표 복원 금지
     if (d.stage==='계약완료' && d.payment && !d.payment.confirmed) nowLabel=(d.payment.bundle&&d.payment.bundle.length)?('계약금·'+d.payment.bundle.join('·')+' 입금'):'계약금 입금';   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
     if (payPlan(d).hold) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님) — NOW·제작 잠금과 같은 payPlan 기준
     $('mp_stageNow').textContent = nowLabel;
@@ -1999,7 +1999,7 @@ function renderMyPage(d){
   }
 
   // 개인코드
-  var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
+  var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '';   // DASH_FALLBACK_FIX — 코드 없으면 빈칸(줄표 금지). 복사 버튼은 빈값 가드로 무동작
   ensureLedFab(d);   // 우측 고정 '내 내역' 바로가기 — 영수증·서류 상시 접근(내역 있을 때만 표시)
   ensureTopFab();   // MPD_G6 맨 위로 FAB(스크롤 400px+)
   ensureInviteFab(d);   // 우측 고정 '청첩장 샘플' 바로가기 — 제작 단계(청첩장 작업 중)에만 표시
@@ -6560,7 +6560,7 @@ function renderFinal(box){
 // 코드 복사 (피드백) — codecard 제거 시 안전(요소 없으면 바인딩 생략)
 var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click', function(){
   var code = $('mp_code').textContent.trim();
-  if (!code || code==='—') return;
+  if (!code || code==='—') return;   // ('—'는 옛 렌더 잔존값 하위호환 · DASH_FALLBACK_FIX 이후 새로 생기지 않음)
   var txt=$('mp_copy_txt');
   var done=function(){ txt.textContent='복사됐어요'; setTimeout(function(){ txt.textContent='복사'; },1500); };
   try{
