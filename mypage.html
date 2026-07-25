@@ -1766,17 +1766,19 @@ function renderMyPage(d){
     }
     // [계약완료] 서명 후 계약금 잔액 입금 대기 — 입금이 유일한 할 일 (확인 중이면 안내만)
     if (d.stage === '계약완료' && d.payment && !d.payment.confirmed) {
+      var _prep = (d.product==='웨딩스냅') ? '촬영 준비' : '예식 준비';   // MPD_G1 상품 인지형 어휘 — 스냅은 '촬영 준비'
       if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
       else {
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
           head = '결제만 남았어요';
-          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 예식 준비가 시작돼요.';
+          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 ' + _prep + '가 시작돼요.';
         } else {
         head = '계약금 입금만 남았어요';
+        var _dep = Number((_pa && _pa.예약금) || 0);   // MPD_G1 ★예약금 결측 폴백(100000) 재도입 금지 — 스냅 예약금 0을 결측 오인해 허위 '100,000 차감' 표시(2026-07-25 수정) · 차감 문구는 예약금>0일 때만
         sub = (_pa && Number(_pa.납부액) > 0)
-          ? ('계약금 잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_pa.예약금 || 100000) + ' 차감)을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.')
-          : '아래 안내에 따라 계약금을 입금해 주시면, 확인 후 예식 준비가 시작돼요.';
+          ? ('계약금 ' + (_dep > 0 ? ('잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_dep) + ' 차감)') : fmtWon(_pa.납부액)) + '을 아래 계좌로 보내주시면, 확인 후 ' + _prep + '가 시작돼요.')
+          : ('아래 안내에 따라 계약금을 입금해 주시면, 확인 후 ' + _prep + '가 시작돼요.');
         }
       }
     }
