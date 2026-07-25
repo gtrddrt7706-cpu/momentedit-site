@@ -156,7 +156,7 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .time-head.on{color:var(--accent);font-weight:500}
 .time-head .tag{font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);
   letter-spacing:0.08em;margin-left:7px}
-.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.time-empty{text-align:center;white-space:nowrap;font-family:var(--serif-ko);font-size:14.5px;font-weight:300;color:var(--light);line-height:1.95;padding:18px 0}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
 .slot{background:#fff;border:1px solid var(--border);border-radius:6px;padding:16px 8px;
   font-family:var(--serif);font-size:17px;font-weight:400;color:var(--accent);letter-spacing:0.04em;
   cursor:pointer;transition:all 0.2s var(--ease);text-align:center;position:relative}
@@ -416,6 +416,8 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
   .day{font-size:15px}.slot{font-size:15px;padding:14px 6px}
   .greet-title{font-size:24px}.greet-sub{font-size:15px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
   .deposit{margin:0 0 18px}
+  /* SCHED_UX: iOS는 16px 미만 입력칸 포커스 시 화면을 강제 확대 — 모바일에선 16px로(AI 입력칸과 동일 처방) */
+  #depPayer,#depCR,#flexEtc,#holdSlot{font-size:16px}
 }
 </style>
 </head>
@@ -498,7 +500,7 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
         </div>
         <div class="flex-etc">
           <label class="flex-etc-label" for="flexEtc">기타 <span>· 위 날짜·시간이 어려우시면 편하신 때를 적어 주세요</span></label>
-          <input type="text" id="flexEtc" maxlength="60" placeholder="예) 6월 5일 이후 평일 저녁도 가능합니다">
+          <input type="text" id="flexEtc" maxlength="60" placeholder="예) 다음 달 이후 평일 저녁도 가능해요">
           <div class="flex-etc-count"><span id="etcCount">0</span>/60</div>
         </div>
       </div>
@@ -511,24 +513,27 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
     <!-- 예식일 임시 고정 · AI 스케줄 도우미 — 입금 박스와 분리한 독립 카드 -->
     <div class="holdcard">
       <div id="holdWrap" style="text-align:left">
-        <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:left">
-          <input type="checkbox" id="holdChk" style="margin-top:3px" onchange="document.getElementById('holdBox').style.display=this.checked?'block':'none'">
-          <span>예식일을 먼저 고정해 둘까요? <span style="color:var(--light);font-weight:300">· 선택사항</span></span>
-        </label>
         <!-- HOLD_MINIMAL(2026-07-25 사용자 지시 "핵심만 미니멀하게"): 불릿 3줄 → 한 문장. 상세 조건(7일 규칙 등)은 각 상황 박스가 담당 — 불릿 복원 금지 -->
-        <div style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin:7px 0 0 25px;word-break:keep-all">디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 비용 없이 잡아드려요. 아직 미정이어도 괜찮아요.</div>
+        <!-- SCHED_UX: 설명을 라벨 안 같은 칼럼으로 — 체크박스 폭과 무관하게 제목·설명 좌측선 항상 일치(하드코딩 25px 들여쓰기 제거) -->
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;text-align:left">
+          <input type="checkbox" id="holdChk" style="margin-top:3px;flex:0 0 auto" onchange="document.getElementById('holdBox').style.display=this.checked?'block':'none'">
+          <span style="display:block;min-width:0">
+            <span style="display:block;font-family:var(--serif-ko);font-size:13px;color:var(--sub)">예식일을 먼저 고정해 둘까요? <span style="color:var(--light);font-weight:300">· 선택사항</span></span>
+            <span style="display:block;font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;margin-top:5px;word-break:keep-all">디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 비용 없이 잡아드려요. 아직 미정이어도 괜찮아요.</span>
+          </span>
+        </label>
         <!-- 97 · AI 스케줄 도우미 — 신비주의 가용성 확인(전체 캘린더 비공개, 단일 슬롯 안내). 임시 고정 입력 전, 항상 노출 -->
         <!-- SCHED_MINIMAL(2026-07-25 사용자 지시 "핵심만 미니멀하게"): AI 카드 헤더 1줄로 통합(Date Check 태그·설명 행 제거), 시간표 버튼은 텍스트 링크로, 안내 박스 문장 축소, 들여쓰기 통일 — 장식·중복 문구 복원 금지 -->
-        <div id="schedAi" style="background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:10px;padding:14px 15px;margin:12px 0 0">
+        <div id="schedAi" style="background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:8px;padding:14px 15px;margin:12px 0 0">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--seal);flex:0 0 auto"></span>
             <span style="font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap">AI 스케줄 도우미</span>
             <span style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);white-space:nowrap">· 날짜 가능 여부 확인</span>
           </div>
           <div id="schedAiMsgs" style="display:none;max-height:240px;overflow-y:auto;overscroll-behavior:contain;margin-bottom:10px"></div>
-          <form id="schedAiForm" style="display:flex;gap:7px;align-items:center">
-            <input id="schedAiInput" type="text" placeholder="예: 10월 둘째 주 토요일" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:9px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
-            <button type="submit" id="schedAiSend" style="flex:0 0 auto;border:none;border-radius:9px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:11px 15px;cursor:pointer">확인</button>
+          <form id="schedAiForm" style="display:flex;gap:7px;align-items:stretch"><!-- SCHED_UX: 입력창·버튼 높이 정렬(stretch) + 모서리 8px 통일 -->
+            <input id="schedAiInput" type="text" placeholder="예: 10월 둘째 주 토요일" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:8px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
+            <button type="submit" id="schedAiSend" style="flex:0 0 auto;display:flex;align-items:center;border:none;border-radius:8px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:0 16px;cursor:pointer">확인</button>
           </form>
         </div>
         <button type="button" data-seq-open="full" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;padding:0 0 1px;margin:12px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;border-bottom:1px solid var(--hairline)">
@@ -573,7 +578,7 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
       </div>
       <div class="deposit-payer">
         <label class="deposit-payer-label" for="depPayer">입금자명 <span>· 실제 입금하실 분</span></label>
-        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="예) 정하윤" oninput="var _h=document.getElementById('depPayerHint');if(_h)_h.style.color=''">
+        <input type="text" id="depPayer" maxlength="20" autocomplete="name" required placeholder="예) 정하윤" oninput="var _h=document.getElementById('depPayerHint');if(_h){_h.style.color='';_h.textContent='입금하실 때 표시될 성함과 같으면 확인이 빨라져요.';}">
         <div class="deposit-payer-hint" id="depPayerHint">입금하실 때 표시될 성함과 같으면 확인이 빨라져요.</div>
       </div>
       <div class="deposit-payer" style="margin-top:16px">
@@ -751,10 +756,21 @@ if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.
   var _cg=document.getElementById('calGrid');
   if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
 }
-// 첫 가능일이 있는 달로 달력을 연다
+// 첫 가능일이 있는 달로 달력을 연다 · SCHED_UX: 마지막 가능일 달을 기억해 다음달 버튼을 그 너머로 못 가게(빈 달 미로 방지)
+let maxAvY=null, maxAvM=null;
 if(SERVER.avail.length){
   const _ds = SERVER.avail.map(function(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);}).sort(function(a,b){return a-b;});
   viewY = _ds[0].getFullYear(); viewM = _ds[0].getMonth();
+  maxAvY = _ds[_ds.length-1].getFullYear(); maxAvM = _ds[_ds.length-1].getMonth();
+} else {
+  // SCHED_UX: 가능일이 하나도 없으면 빈 달력만 남지 않게 안내 1줄(달력 위)
+  var _cg2=document.getElementById('calGrid');
+  if(_cg2&&_cg2.parentNode&&!document.getElementById('noAvailNote')){
+    var _nn=document.createElement('div'); _nn.id='noAvailNote';
+    _nn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:10px 12px';
+    _nn.innerHTML='지금 열려 있는 상담 가능일이 없어요.'+(SERVER.kakao?' <a href="'+SERVER.kakao+'" target="_blank" rel="noopener" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">카카오톡</a>으로 문의해 주시면 일정을 도와드릴게요.':' 카카오톡으로 문의해 주시면 일정을 도와드릴게요.');
+    _cg2.parentNode.insertBefore(_nn,_cg2);
+  }
 }
 // 가능일: 구글 캘린더 '상담가능' 일정이 있는 날짜만 (서버 주입)
 function isAvail(d){
@@ -779,19 +795,23 @@ function renderCal(){
     const d = new Date(viewY,viewM,dd);
     const el = document.createElement('button'); el.className='day'; el.textContent=dd;
     if(d.getTime()===today.getTime()) el.classList.add('today');
+    el.setAttribute('aria-label', viewY+'년 '+(viewM+1)+'월 '+dd+'일'+(isAvail(d)?' · 예약 가능':' · 선택 불가'));   // SCHED_UX: 스크린리더가 숫자만 읽지 않게
     if(isAvail(d)){
       el.classList.add('avail');
       if(selDate && key(selDate)===key(d)) el.classList.add('sel');
       el.onclick=()=>{window.__schedTouched=true;selDate=d;selTime=null;renderCal();renderTime();updateSummary();
         setTimeout(()=>{document.getElementById('timeHead').scrollIntoView({behavior:'smooth',block:'center'});},150);};
     } else {
-      el.classList.add('off');
+      el.classList.add('off'); el.disabled=true;
     }
     grid.appendChild(el);
   }
   // 이전달 버튼 제한
   document.getElementById('prevM').disabled =
     (viewY<today.getFullYear()||(viewY===today.getFullYear()&&viewM<=today.getMonth()));
+  // SCHED_UX: 다음달 버튼 — 마지막 가능일 달 너머·가능일 0이면 잠금
+  document.getElementById('nextM').disabled =
+    (maxAvY===null) || (viewY>maxAvY || (viewY===maxAvY && viewM>=maxAvM));
 }
 
 function renderTime(){
@@ -825,10 +845,11 @@ function renderTime(){
       s.onclick=()=>{selTime=t;renderTime();updateSummary();revealGuide();}; }
     box.appendChild(s);
   });
-  // 전체 마감 시 안내
+  // 전체 마감 시 안내 — SCHED_UX: '기타' 섹션은 시간을 골라야 열리므로(마감일엔 안 보임) 불가능한 행동 지시 제거 · 카카오 문의 연결
   if(daySlots.every(t=>full.includes(t))){
     const note=document.createElement('div'); note.className='slots-full-note';
-    note.innerHTML='이 날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택하시거나, 원하시는 시간을 기타에 남겨 주세요.';
+    note.innerHTML='이 날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택해 주세요.'
+      +(SERVER.kakao?' 맞는 날이 없으면 <a href="'+SERVER.kakao+'" target="_blank" rel="noopener" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">카카오톡</a>으로 문의해 주세요.':'');
     box.appendChild(note);
   }
 }
@@ -906,7 +927,7 @@ function copyAcct(){
 function doSubmit(){
   if(!selDate||!selTime) return;
   var _payerEl=document.getElementById('depPayer');
-  if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; } return; }
+  if(_payerEl && !_payerEl.value.trim()){ _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; _h.textContent='입금자명을 입력해 주세요.'; } return; }   // SCHED_UX: 힌트만 붉어지는 대신 무엇을 해야 하는지 문구로
   var _crEl=document.getElementById('depCR'), _crNone=document.getElementById('depCRNone');
   var _crVal=(_crEl?_crEl.value:'').replace(/[^0-9]/g,'');
   if(!(_crNone&&_crNone.checked)){
