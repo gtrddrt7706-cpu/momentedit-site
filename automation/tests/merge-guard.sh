@@ -211,6 +211,10 @@ chk 'DDAY_TIME' mypage.html 1   # 헤더 D-day 줄에 예식 시간 병기(D-81 
 chk 'DDAY_ONELINE' mypage.html 2   # 헤더 칩 한 줄 병기(예식 2026.10.14 · D-80 · 오후 1:20 · 2026-07-25 사용자 지시 "한 줄로" — 구 MPD_B1 별도 줄 복원 금지)
 chk 'NAME_BADGE_LABEL' mypage.html 3   # 환영 영역 상품 알약 배지 폐지 → 상단 라벨 합류 'My Page · 시그니처'(2026-07-25 사용자 선택 C안 — 알약 배지·이름 옆 배치 복원 금지)
 chk 'TRK_NO_SUB' mypage.html 6   # '예식 준비' 5행의 행 아래 설명(.trk-sub) 폐지 → 각 화면 안으로 이관(2026-07-25 사용자 지시) · ★준비 5행 설명 복원 금지 / '확인·전달' 2행(하객 안내·예식 확인서)은 사용자 지시로 설명 유지
+# ── 2026-07-25 카톡 직행 차단 · AI 1차 응대(사용자 지시: "카톡으로 바로 들어오게 하지 말고 AI가 1차 해결 → 안 되면 그때 카톡")
+chk 'KAKAO_AI_FIRST' assets/advisor-widget.js 1   # window.MEAdvisor(open·ask) 공개 API — 다른 화면의 문의 버튼이 카톡 직행 대신 AI 위젯을 연다. ★제거 시 호출부가 카톡 직행으로 폴백
+chk 'KAKAO_AI_FIRST' mypage.html 3   # 내 내역 하단 카톡 직행 링크 삭제 + 예식일 변경 '무상 변경·면제'를 AI 위젯으로 라우팅. ★카톡 href 직행 복원 금지
+_kkdirect=$(grep -c 'href="[^"]*pf\.kakao' mypage.html 2>/dev/null); _kkdirect=${_kkdirect:-0}; if [ "$_kkdirect" -gt 0 ]; then echo "REVERT? mypage.html: 카톡 직행 링크 부활($_kkdirect)"; fail=1; else echo "ok mypage.html: 카톡 직행 링크 없음(AI 1차 응대 유지)"; fi
 # ── 2026-07-25 마이페이지 디자인 개선 배치 A(PLAN_마이페이지_디자인_개선.md · 5차 교차 점검 확정분)
 chk 'MPD_A1' mypage.html 1                          # 잔금 게이트 '(1분)' 수치 약속 삭제(재추가 금지)
 _a1=$(grep -c '(1분)' mypage.html 2>/dev/null); _a1=${_a1:-0}; if [ "$_a1" -gt 1 ]; then echo "REVERT? mypage.html: '(1분)' 소요시간 약속 부활($_a1)"; fail=1; else echo "ok mypage.html: '(1분)' 약속 없음(마커 주석 1건만)"; fi
