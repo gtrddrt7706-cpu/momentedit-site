@@ -1170,7 +1170,8 @@ function renderQueue(d){
       if(!/^[0-9]$/.test(v)){ inp.style.borderColor='var(--seal)'; inp.placeholder='0~9'; inp.focus(); return; }
       b.disabled=true; b.textContent='저장 중';
       gas('adminSetFittingCount', code, Number(v)).then(function(r){
-        if(r&&r.ok){ doConsultDone(code, names, v); loadHome(); }   // 저장 완료 → 프리필된 상담완료 모달 + 배지 갱신
+        // [ADM_AA8] 네 번째 인자 = "이 값은 방금 저장됐다" 플래그. 모달에서 값을 그대로 두면 같은 저장을 두 번 보내지 않는다(고치면 정상 저장).
+        if(r&&r.ok){ doConsultDone(code, names, v, true); loadHome(); }   // 저장 완료 → 프리필된 상담완료 모달 + 배지 갱신
         else { b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; openModal({ title:'벌수 기록 실패', text:li((r&&r.error)||'잠시 후 다시 시도해 주세요.'), yes:'확인', onYes:function(){ closeModal(); } }); }
       }).catch(function(){ b.disabled=false; b.textContent='저장'; });
     });
@@ -1967,7 +1968,7 @@ function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까�
 function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li((h.date||'')+' '+lab+' '+(h.slot||''))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
 function doDeclineHold(code,names,d){ var h=(d&&d.hold)||{}; openModal({ title:(h.status==='승인'?'임시고정을 해제할까요?':'임시고정 요청을 거절할까요?'), danger:true, text:b(names)+li('가예약이 풀려 그 슬롯이 다시 열려요')+li('고객에게 안내가 가요'), yes:(h.status==='승인'?'해제':'거절'), onYes:function(){ runAct(['adminDeclineWeddingHold',code],code,'임시고정 해제'); } }); }
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
-function doConsultDone(code,names,fitN){
+function doConsultDone(code,names,fitN,fitSaved){
   // [홈/상세 공통] 벌수 입력 + 상담완료를 한 모달에서 — 고객정보 안 들어가도 처리.
   //   상세면 기록된 벌수 프리필, 홈이면 비움(방금 시착한 벌수 입력). 0~9 검증 후 setFittingCount→consultDone 순차.
   var pre = (fitN!=null && fitN!=='') ? String(fitN)
@@ -1982,12 +1983,19 @@ function doConsultDone(code,names,fitN){
       var v=(($('cdFitN')&&$('cdFitN').value)||'').trim();
       if(!/^[0-9]$/.test(v)){ mErr('벌수는 0~9 사이 숫자로 입력해 주세요'); return; }
       mBusy(true);
-      gas('adminSetFittingCount', code, Number(v)).then(function(r){
-        if(!(r&&r.ok)){ mBusy(false,'벌수 기록 · 상담완료'); mErr((r&&r.error)||'벌수 기록 실패'); return; }
+      // [ADM_AA8] 큐 인라인 저장 직후라 값이 그대로면 setFittingCount 생략 → 같은 값 두 번 쓰기·저장 실패 재노출 방지.
+      //   값을 고쳤거나(v!==fitN) 상세에서 연 경우(fitSaved 없음)는 종전대로 저장부터 한다.
+      var _skipFit = (fitSaved===true && String(fitN)===v);
+      function _done(){
         gas('adminMarkConsultDone', code).then(function(r2){
           if(r2&&r2.ok){ afterAction(code,r2,'adminMarkConsultDone'); }
           else { mBusy(false,'벌수 기록 · 상담완료'); mErr((r2&&r2.error)||'상담완료 실패'); }
         }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr('오류: '+((e&&e.message)||e)); });
+      }
+      if(_skipFit){ _done(); return; }
+      gas('adminSetFittingCount', code, Number(v)).then(function(r){
+        if(!(r&&r.ok)){ mBusy(false,'벌수 기록 · 상담완료'); mErr((r&&r.error)||'벌수 기록 실패'); return; }
+        _done();
       }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr('오류: '+((e&&e.message)||e)); });
     }
   });
