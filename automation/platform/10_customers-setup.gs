@@ -92,6 +92,9 @@ function formatCustomersSheet() {
     '관리자메모': 180, '생성일시': 150, '최종수정': 150,
     '시착동의상태': 100, '시착동의일시': 140, '계약서발송일시': 140, '계약서명일시': 140, '계약서링크': 160, '동의기록': 200, '계약총액': 110, '입금자명': 110, '처리이력': 220
   };
+  // [PROD_ACCESSOR · B-4] 제작 데이터 컬럼은 폭을 좁게 — 하객 이름·좌석 JSON이 시트에서 기본 폭으로 펼쳐 보이지 않게(PII 노출면 축소).
+  //   목록을 리터럴로 박으면 PR-B 신 컬럼이 누락되므로 _prodCols() 단일 출처를 쓴다(런타임 호출이라 파일 평가 순서와 무관).
+  try { _prodCols().forEach(function (h) { W[h] = 140; }); } catch (e) {}
   Object.keys(W).forEach(function (h) { if (colOf[h]) sheet.setColumnWidth(colOf[h], W[h]); });
 
   // 가운데 정렬 컬럼
@@ -106,7 +109,8 @@ function formatCustomersSheet() {
   }
 
   // 민감/내부 열 흐리게 — 비번해시·토큰·동의기록(JSON)은 눈에 잘 안 띄게(원문/내부 데이터)
-  ['비번해시', '로그인토큰', '토큰만료', '제작임시저장', '동의기록'].forEach(function (h) {
+  // [PROD_ACCESSOR · B-4] 제작 데이터 컬럼도 흐리게 — PII 목록과 같은 부류라 _prodCols()로 합류(신 컬럼 누락 방지)
+  ['비번해시', '로그인토큰', '토큰만료', '동의기록'].concat((function () { try { return _prodCols(); } catch (e) { return ['제작임시저장']; } })()).forEach(function (h) {
     if (colOf[h]) sheet.getRange(P.HEADER_ROW, colOf[h], maxRows, 1).setFontColor('#B0AAA0').setFontSize(8);
   });
 

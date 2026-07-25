@@ -39,7 +39,8 @@ function handleSaveProductionBase(body) {
     var stage = String(cust.get('현재단계') || '').trim();
     if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
-    var _dl0 = _prodDraftLoadSafe(cust, code, _nqB); if (!_dl0.ok) return _dl0.res;   // 손상 셀 위 저장 금지(전 트랙 보호)
+    var _cm0 = _prodColsMissingError(colOf, code, _nqB); if (_cm0) return _cm0;   // [A-1] 컬럼 미생성 상태에서의 무증상 유실 차단
+    var _dl0 = _prodDraftLoadSafe(cust, code, _nqB); if (!_dl0.ok) return _dl0.res;   // 손상 컬럼 위 저장 금지(메타만 갱신 · PROD_COL_SPLIT)
     var draft = _dl0.d;
     // 이메일은 폼에서 받지 않는다 — 계정 이메일 우선, 없으면 기존 저장값 유지(85 청첩장 Couples 시드가 계속 차도록)
     var email = String((cust.get('이메일') || (draft.base && draft.base.email) || '')).trim();
@@ -62,7 +63,9 @@ function handleSaveProductionBase(body) {
     };
     var _nbJ = JSON.stringify((function () { var o = JSON.parse(JSON.stringify(draft.base)); delete o.savedAt; return o; })());
     if (draft.confirm && _obJ !== _nbJ) _prodConfirmVoid(draft);   // [예식 확인서] 기초정보(이름·일시) 실변경도 확인 해제
-    var upd = _prodStoreCols(draft, { '제작상태': '작성중' });   // PROD_ACCESSOR
+    var _szB = _prodSizeError(draft, { cust: cust });   // [A급2·B급1] err를 삼키지 않게 사전 검사 + 행 전체 합산
+    if (_szB) return { ok: false, error: _szB };
+    var upd = _prodStoreCols(draft, { '제작상태': '작성중' }, { cust: cust });   // PROD_ACCESSOR
     if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
@@ -100,47 +103,248 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
 //   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
 var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
 
-// ══ [PROD_ACCESSOR 2026-07-25 · Wave 4 PR-A] 제작 데이터 단일 창구 ══
-//   지금은 '제작임시저장' 단일 셀 JSON. Wave 4 PR-B에서 트랙별 컬럼(제작_ritual·제작_dining…)으로 나눌 때
-//   ★이 블록의 함수만 바꾸면 전 소비처(80·85·70·admin)가 따라온다. 다른 파일에서 cust.get('제작임시저장') 직접 접근 금지.
-//   ※ 상수가 아니라 함수로 두는 이유: .gs 파일 평가 순서(20→80)와 무관하게 어디서든 호출 가능(함수 선언은 전역 호이스팅).
-function _prodCols() { return ['제작임시저장']; }   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·캐시 무효화가 참조하는 스키마 단일 출처
-function _prodRawCell(cust) { return String(cust.get(_prodCols()[0]) || '').trim(); }   // 원문(손상 검사용) — PR-B에선 컬럼별 원문 맵으로
-function _prodLoad(cust) { return cust ? _parseJsonSafe(cust.get(_prodCols()[0])) : {}; }   // 읽기(관대 · 손상 시 {}) — 행 객체(.get) 경로
-function _prodLoadRaw(getter, rv) { return _parseJsonSafe(getter(rv, _prodCols()[0])); }   // 읽기 — 목록 스캔(행 배열 + 컬럼 getter 클로저 · admin)
-function _prodStoreCols(d, upd) {   // 쓰기 — 시트 업데이트 맵에 병합해 반환(touchCustomer 호출은 호출부가 1회 · 락 보유시간 단축)
-  upd = upd || {};
-  upd[_prodCols()[0]] = JSON.stringify(d);
-  return upd;
-}
-// [DRAFT_SIZE_CAP] 저장 전 전체 용량 검사 — 셀 한도(50k)를 넘겨 이후 모든 트랙 저장이 마비되는 사고 차단(조기 거부 · truncate 금지).
-//   초과면 고객 안내 문구, 통과면 ''. PR-B에서 컬럼별 캡으로 바뀌어도 호출부는 그대로.
-function _prodSizeError(d) {
-  var j = ''; try { j = JSON.stringify(d); } catch (e) { return ''; }
-  if (j.length > 45000) return '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + j.length + '자 · 최대 45,000자). 긴 글을 조금 줄여 주시면 저장돼요.';
-  return '';
-}
+// ══ [PROD_COL_SPLIT 2026-07-25 · Wave 4 PR-B] 제작 데이터 = 트랙별 컬럼 + 메타 컬럼 ══
+//   왜: 단일 셀(제작임시저장) 시절엔 한 트랙이 셀 한도(5만)를 밀어올리면 그 고객의 '모든' 트랙 저장이 마비됐다.
+//   트랙마다 컬럼을 주면 폭주 반경이 그 트랙 안에서 끝난다(캡·손상 방어 모두 컬럼 단위로 격리).
+//
+//   [크로스트랙 키의 거처] base·tracks·confirm·confirmStale·eventId·invitationUrls는 어느 트랙에도 안 묶인다 → 제작_meta 전용 컬럼.
+//     (특정 트랙 컬럼에 얹으면 그 트랙의 캡이 예식 확인서 스냅샷까지 게이트하게 됨 — 분리의 목적과 정반대)
+//     예외 _prev(force 덮어쓰기 직전 1세대 백업)는 그 트랙의 데이터이므로 해당 트랙 컬럼에 함께 넣는다(메타 캡을 백업이 잡아먹지 않게).
+//
+//   [두 세대 공존] 구셀(제작임시저장)은 이 PR에서 절대 지우지 않는다.
+//     · 읽기: 신 컬럼 우선 → 비어 있으면 구셀 폴백
+//     · 쓰기: 구셀 미갱신·미삭제(동결). 구세대 행의 첫 저장은 '전 트랙을 한꺼번에' 이전해 반쪽 상태를 만들지 않는다.
+//       (트랙 A만 저장하는 락 안에서 구셀을 비우면, 아직 안 옮긴 B·C가 그 순간 증발한다 — 지연 마이그레이션의 전형적 사고)
+//     · 구셀 정리(비우기)는 운영 안정 후 별도 결정 — 라이브 문제 시 되돌아갈 창구를 1세대 남겨 둔다.
+var PROD_LEGACY_COL = '제작임시저장';                 // 구세대 단일 셀(동결 · 읽기 폴백 전용)
+var PROD_META_COL = '제작_meta';                      // 크로스트랙 키 전용
+var PROD_TRACK_COL = { ritual: '제작_ritual', dining: '제작_dining', seat: '제작_seat', guideinfo: '제작_guideinfo', snap: '제작_snap', final: '제작_final', invitation: '제작_invitation' };
+var PROD_META_KEYS = ['base', 'tracks', 'confirm', 'confirmStale', 'eventId', 'invitationUrls'];
+//   컬럼별 캡 — ritual·dining은 종전 12k 유지(고객 글이 실제로 들어가는 트랙) · 나머지 20k · meta 20k.
+//   합산 상한: 셀당 5만은 컬럼 분리로 풀리지만 시트 '행' 전체 한도는 그대로라 느슨한 총량 상한을 남긴다.
+var PROD_CAP = { ritual: 12000, dining: 12000, meta: 20000, other: 20000, total: 120000, cellHard: 45000 };   // cellHard = 이전(마이그레이션) 중에만 적용하는 셀 하드 한도(시트 셀 5만 미만) — 기존 합법 데이터가 이전에서 막히지 않게
 
-// [손상 방어] 제작임시저장 셀이 깨졌으면(수동 편집·붙여넣기 사고 등) 그 위에 저장하지 않는다.
-//   _parseJsonSafe의 {} 폴백 위에 저장하면 좌석·청첩장·다이닝 전 트랙이 통째로 덮여 영구 유실되기 때문.
-//   반환: { ok:true, d } 또는 { ok:false, res }(고객 안내 + 관리자 메일 1시간 1회 · 셀 복구 유도).
-//   notifyQ(선택): 넘기면 경고 메일을 큐에 담아 호출부가 락 해제 후 발송(락 안 외부 I/O 방지) · 없으면 즉시 발송.
-function _prodDraftLoadSafe(cust, code, notifyQ) {
-  var raw = _prodRawCell(cust);   // PROD_ACCESSOR
-  if (!raw) return { ok: true, d: {} };
+function _prodCols() {   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·좌석 캐시·시트 서식이 참조하는 스키마 단일 출처
+  var out = [PROD_LEGACY_COL, PROD_META_COL];
+  for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) out.push(PROD_TRACK_COL[t]); }
+  return out;
+}
+function _prodNewCols() { return _prodCols().slice(1); }   // 구셀을 뺀 신설 컬럼만(합산 캡 대상)
+// 컬럼 생성 순서 — ★제작_meta를 '마지막'에. meta가 있으면 그 행은 migrated로 판정되는데,
+//   6분 타임아웃·수동 중단으로 meta만 생기면 아직 없는 트랙 컬럼 쓰기가 조용히 사라진다(writeCell이 헤더 없으면 skip).
+//   meta를 끝에 두면 '전부 있거나 전부 없거나'가 되어 어중간한 상태가 생기지 않는다.
+function _prodCreateOrder() { var o = []; for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) o.push(PROD_TRACK_COL[t]); } o.push(PROD_META_COL); return o; }
+// [A-1 가드] 신 컬럼이 시트에 없으면 저장을 '조용히 잃는' 대신 '시끄럽게 거부'한다.
+//   writeCell은 헤더가 없으면 로그만 남기고 건너뛰는데, PR-B는 구셀에 안 쓰므로 그 저장은 어디에도 남지 않는다
+//   (고객 화면엔 '저장됐어요' · 다음 로드에서 구셀 폴백으로 되돌아감 · 새 rev를 받았으니 다음 저장은 409로 굴러떨어짐).
+//   배포 순서(컬럼 추가 → 배포)를 지키면 이 창은 없지만, 백업 복원·시트 재생성·부분 실행 대비로 코드에도 둔다.
+function _prodColsMissing(colOf) { return _prodNewCols().filter(function (h) { return !colOf[h]; }); }
+function _prodColsMissingError(colOf, code, notifyQ) {
+  var miss = _prodColsMissing(colOf);
+  if (!miss.length) return null;
   try {
-    var d = JSON.parse(raw);
-    if (d && typeof d === 'object' && Object.prototype.toString.call(d) !== '[object Array]') return { ok: true, d: d };
-  } catch (e) {}
-  try {
-    var c = CacheService.getScriptCache(), ck = 'draftCorrupt_' + code;
+    var c = CacheService.getScriptCache(), ck = 'prodColMiss_' + (code || '-');
     if (!c.get(ck)) {
       c.put(ck, '1', 3600);
-      var _send = function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 임시저장 JSON 손상 · ' + code + ' · 저장 차단 중(전 트랙 보호) · Customers 시트에서 해당 셀 복구 필요'); } catch (e3) {} };
+      var _send = function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 트랙 컬럼 누락으로 저장 차단 · ' + (code || '-') + ' · 없는 컬럼: ' + miss.join(', ') + ' · 80_production의 addProdTrackColumns 1회 실행 필요'); } catch (e2) {} };
       if (notifyQ && notifyQ.push) notifyQ.push(_send); else _send();
     }
-  } catch (e2) {}
-  return { ok: false, res: { ok: false, error: '저장 데이터 점검이 필요해 잠시 저장을 멈췄어요. 스튜디오가 확인해 도와드릴게요.' } };
+  } catch (e) {}
+  return { ok: false, error: '저장 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해 주세요.' };
+}
+
+// 트랙 컬럼 값 포장 — 평상시엔 draft 그대로(구조 단순). _prev가 있을 때만 {_d,_p} 래퍼(백업을 메타로 밀어내지 않기 위함).
+function _prodTrackPack(draft, prev) {
+  if (prev === undefined || prev === null) return (draft === undefined || draft === null) ? '' : JSON.stringify(draft);
+  return JSON.stringify({ _d: (draft === undefined ? null : draft), _p: prev });
+}
+function _prodTrackUnpack(raw) {
+  var o = _parseJsonSafe(raw);
+  if (o && typeof o === 'object' && Object.prototype.toString.call(o) !== '[object Array]' && o._d !== undefined) return { draft: o._d, prev: o._p };
+  return { draft: o, prev: undefined };
+}
+
+// 재조립 — get(헤더)만 받으면 행 객체(.get)든 목록 스캔(getter(rv,h))이든 같은 논리 객체를 만든다.
+//   ★키 집합·값이 구세대와 동일해야 rev 지문(_prodStateRev·_prodTrackRev)이 흔들리지 않는다 →
+//    없는 트랙은 {}로 채우지 않고 undefined 그대로 둔다(구셀 시절과 동일. {}로 채우면 '초안 있음'으로 오독돼 안내·표시가 달라짐).
+function _prodAssemble(get) {
+  var metaRaw = String(get(PROD_META_COL) || '').trim();
+  var migrated = !!metaRaw;
+  var legacy = null, legacyRead = false;
+  function lg() { if (!legacyRead) { legacy = _parseJsonSafe(get(PROD_LEGACY_COL)); legacyRead = true; } return legacy; }   // 지연 파싱 — 신 컬럼으로 다 채워지면 구셀은 아예 안 읽는다
+  var d = migrated ? _parseJsonSafe(metaRaw) : _parseJsonSafe(get(PROD_LEGACY_COL));
+  for (var t in PROD_TRACK_COL) {
+    if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
+    var raw = String(get(PROD_TRACK_COL[t]) || '').trim();
+    if (raw) {
+      var up = _prodTrackUnpack(raw);
+      d[t + 'Draft'] = up.draft;
+      if (up.prev !== undefined) d._prev = up.prev;
+    } else if (migrated) {
+      var L = lg();   // 신세대인데 그 트랙만 비어 있음 → 구셀 폴백(혼재 행 · 아직 안 옮긴 트랙)
+      if (L && L[t + 'Draft'] !== undefined) d[t + 'Draft'] = L[t + 'Draft'];
+    }
+  }
+  if (!migrated) d._mig = true;   // 구셀 세대 표시 — 다음 저장에서 전 트랙 이전(저장 직전 제거되어 영속되지 않음)
+  return d;
+}
+function _prodLoad(cust) { return cust ? _prodAssemble(function (h) { return cust.get(h); }) : {}; }
+function _prodLoadRaw(getter, rv) { return _prodAssemble(function (h) { return getter(rv, h); }); }
+
+// 직렬화 + 캡 검사 한 번에 — 같은 초안을 두 번 stringify하지 않게(호출부는 pack을 그대로 _prodStoreCols에 넘김).
+//   opts.track: 그 트랙만 기록(락 시간 단축) · opts.full 또는 d._mig: 전 트랙 기록(구세대 첫 저장 = 통째 이전)
+//   반환 { cols, err } — err이 있으면 저장 금지. ★stringify 실패를 ''로 삼키지 않는다(삼키면 다음 단계가 그대로 던져 '처리된 것처럼' 읽힘).
+function _prodPack(d, opts) {
+  opts = opts || {};
+  var full = !!(d && d._mig) || opts.full === true;
+  var track = opts.track || '';
+  // ★[A급2] 마이그레이션은 절대 실패하면 안 된다 —
+  //   구셀 시절 캡은 '전체 45,000'이라 한 트랙이 22,000자여도 합법이었다. 그 행을 옮길 때 새 트랙 캡(20,000)으로 막으면
+  //   meta가 안 써져 migrated=false로 남고 → 다음 저장도 또 full → 또 초과 → 그 행은 무엇을 저장해도 영구히 무시된다.
+  //   그래서 이전 중에는 셀 하드 한도(50,000 미만)만 본다. 이미 존재하는 합법 데이터는 통과시키고,
+  //   캡은 '앞으로의 입력'을 막는 용도로만 쓴다(이전 후 그 트랙을 더 키우려 하면 그때 정상 거부).
+  var migrating = !!(d && d._mig);
+  var cols = {}, total = 0;
+  function put(header, val, cap, label) {
+    if (migrating) cap = Math.max(cap, PROD_CAP.cellHard);
+    if (val.length > cap) return '저장할 내용이 너무 길어요(' + label + ' 현재 약 ' + val.length + '자 · 최대 ' + cap.toLocaleString() + '자). 글 길이를 조금 줄여 주세요.';
+    cols[header] = val; total += val.length; return '';
+  }
+  var meta = {};
+  for (var i = 0; i < PROD_META_KEYS.length; i++) { var k = PROD_META_KEYS[i]; if (d[k] !== undefined) meta[k] = d[k]; }
+  var metaJ; try { metaJ = JSON.stringify(meta); } catch (e) { return { cols: {}, err: '저장할 내용을 정리하지 못했어요. 새로고침 후 다시 시도해 주세요.' }; }
+  var err = put(PROD_META_COL, metaJ, PROD_CAP.meta, '기본·확인 정보');
+  if (err) return { cols: {}, err: err };
+  for (var t in PROD_TRACK_COL) {
+    if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
+    if (!full && t !== track) continue;   // 변경 트랙만(track이 비면 메타만 갱신 — 예: 확인서·예식일 동기화)
+    var prevForT = (d._prev && String(d._prev.track || '') === t) ? d._prev : undefined;
+    var val; try { val = _prodTrackPack(d[t + 'Draft'], prevForT); } catch (e2) { return { cols: {}, err: '저장할 내용을 정리하지 못했어요. 새로고침 후 다시 시도해 주세요.' }; }
+    var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other;
+    // [B급2] 직전본 백업(_prev)이 캡을 밀어내면 백업을 포기한다 — 고객이 쓴 글은 7,000자인데 화면이 14,000자라고 말하며
+    //   거부하면 안내대로 줄여도 원인을 못 찾는다. 우선순위는 '고객 데이터 저장' > '복구용 백업 1세대'.
+    if (prevForT && val.length > cap && !migrating) {
+      try { val = _prodTrackPack(d[t + 'Draft'], undefined); } catch (e4) {}
+    }
+    err = put(PROD_TRACK_COL[t], val, cap, TRACK_LABEL_KO[t] || t);
+    if (err) return { cols: {}, err: err };
+  }
+  // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
+  //   (이번 쓰기분만 더하면 트랙을 하나씩 채워 상한을 우회할 수 있어 '있는데 안 도는 가드'가 된다)
+  if (opts.cust) {
+    _prodNewCols().forEach(function (h) { if (cols[h] === undefined) { try { total += String(opts.cust.get(h) || '').length; } catch (e3) {} } });
+  }
+  var totalCap = migrating ? Math.max(PROD_CAP.total, 200000) : PROD_CAP.total;   // 이전 중에는 합산도 막지 않는다(구셀 45k 상한이라 실제로 넘을 수 없음 · 이론적 방어만)
+  if (total > totalCap) return { cols: {}, err: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + total + '자 · 최대 ' + PROD_CAP.total.toLocaleString() + '자). 긴 글을 조금 줄여 주시면 저장돼요.' };
+  return { cols: cols, err: '' };
+}
+var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };
+
+// 쓰기 — 시트 업데이트 맵에 병합해 반환(touchCustomer 호출은 호출부가 1회 · 락 보유시간 단축).
+//   ★구셀(PROD_LEGACY_COL)은 여기서 절대 건드리지 않는다(갱신·삭제 금지 · 위 '두 세대 공존' 참조).
+function _prodStoreCols(d, upd, opts) {
+  opts = opts || {};
+  var pk = opts.pack || _prodPack(d, opts);
+  // ★[A급2] err를 삼키면 cols가 빈 {}인 채로 진행돼 '아무것도 안 쓰고 ok:true'가 된다(화면엔 저장됐어요·시트엔 없음).
+  //   호출부가 pack을 미리 검사했으면 여기 도달하지 않고, 안 했으면 던져서 조용한 성공 대신 실패로 드러낸다.
+  if (pk.err) throw new Error(pk.err);
+  upd = upd || {};
+  if (d && d._mig !== undefined) { try { delete d._mig; } catch (e) {} }   // 내부 표시는 영속 금지
+  for (var h in pk.cols) { if (pk.cols.hasOwnProperty(h)) upd[h] = pk.cols[h]; }
+  return upd;
+}
+// [DRAFT_SIZE_CAP] 저장 전 용량 검사 — 컬럼별 캡 + 신설 컬럼 합산 상한. 초과면 고객 안내 문구, 통과면 ''.
+function _prodSizeError(d, opts) { return _prodPack(d, opts).err; }
+
+// [진단 · 읽기 전용] 배포 전 점검 — 구셀 세대 행 중 '신 컬럼 캡을 넘길 트랙'이 있는지 미리 본다.
+//   이전(마이그레이션) 자체는 캡을 안 보므로 막히지 않지만, 이전 후 그 트랙을 '더 수정'하려 하면 거부된다.
+//   그 고객이 누구인지 배포 전에 알고 들어가려고 만든 목록(아무것도 쓰지 않음).
+function checkProdCapOverflow() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < P.DATA_START_ROW) return '대상 행 없음';
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var out = [];
+  for (var i = 0; i < vals.length; i++) {
+    var get = function (h) { var c = colOf[h]; return c ? vals[i][c - 1] : ''; };
+    var code = String(get('개인코드') || '').trim();
+    if (!code) continue;
+    var d = _prodAssemble(get);
+    var over = [];
+    // ★메타를 먼저 본다 — meta는 모든 저장 경로에서 매번 다시 pack되므로, 초과하면 그 트랙 하나가 아니라
+    //   그 행의 '전 트랙' 저장이 막힌다(실패면이 제일 넓은데 진단에서 빠지면 안 됨).
+    try {
+      var _mo = {}; for (var _mk = 0; _mk < PROD_META_KEYS.length; _mk++) { var _k2 = PROD_META_KEYS[_mk]; if (d[_k2] !== undefined) _mo[_k2] = d[_k2]; }
+      var _ml = JSON.stringify(_mo).length;
+      if (_ml > PROD_CAP.meta) over.push('meta ' + _ml + '자(캡 ' + PROD_CAP.meta + ' · 전 트랙 저장 차단)');
+    } catch (eM) {}
+    for (var t in PROD_TRACK_COL) {
+      if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
+      var v = d[t + 'Draft'];
+      if (v === undefined || v === null) continue;
+      var len = 0; try { len = JSON.stringify(v).length; } catch (e) { continue; }
+      var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other;
+      if (len > cap) over.push(t + ' ' + len + '자(캡 ' + cap + ')');
+    }
+    if (over.length) out.push(code + ' · ' + over.join(' · '));
+  }
+  var msg = out.length ? ('신 캡 초과 트랙 보유 고객 ' + out.length + '건\n' + out.join('\n')) : '초과 고객 없음 — 전 행이 신 캡 안에 들어옴';
+  try { Logger.log(msg); } catch (e) {}
+  return msg;
+}
+
+// [1회 실행 · 멱등] Customers에 제작 트랙 컬럼 8개 추가. addGuideTokenColumn과 같은 패턴 — ★반드시 끝에 append(열 인덱스 밀림 금지).
+//   PR-B 배포 후 1회 실행. 안 하면 신 컬럼이 없어 저장이 구셀에만 남는데(읽기·쓰기 모두 폴백 동작) 기능은 계속 정상 — 조용한 미완 상태.
+function addProdTrackColumns() {
+  var sheet = getCustomersSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var added = [];
+  _prodCreateOrder().forEach(function (h) {   // ★meta 마지막(위 주석)
+    if (headers.indexOf(h) !== -1) return;
+    sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h);
+    headers.push(h); added.push(h);
+  });
+  return added.length ? ('추가됨: ' + added.join(', ')) : '제작 트랙 컬럼 이미 전부 있음';
+}
+
+// [손상 방어 · 컬럼별 격리] 제작 데이터 컬럼이 깨졌으면(수동 편집·붙여넣기 사고 등) 그 위에 저장하지 않는다.
+//   _parseJsonSafe의 {} 폴백 위에 저장하면 그 컬럼의 초안이 통째로 덮여 영구 유실되기 때문.
+//   ★PR-B 격리 규칙 — 분리의 존재 이유가 여기 걸린다:
+//     · 메타 컬럼 손상 = 전면 차단(tracks·confirm이 거기 있어 어느 트랙도 정합하게 못 쓴다)
+//     · 구세대 행(메타 없음)에서 구셀 손상 = 전면 차단(구셀이 그 행의 전부)
+//     · 다른 트랙 컬럼 손상 = 그 트랙만 차단하고 나머지는 정상 저장(다이닝 1칸 깨졌다고 식순까지 막히면 분리 전보다 나쁘다)
+//     · 반대 방향도 고정: 깨진 컬럼 '그 자체' 위에는 여전히 못 쓴다.
+//   반환: { ok:true, d } 또는 { ok:false, res }(고객 안내 + 관리자 메일 1시간 1회 · 셀 복구 유도).
+//   track(선택): 이번에 저장할 트랙. 없으면 메타만 쓰는 경로(확인서·예식일 동기화)로 보고 트랙 손상은 차단하지 않는다.
+//   notifyQ(선택): 넘기면 경고 메일을 큐에 담아 호출부가 락 해제 후 발송(락 안 외부 I/O 방지) · 없으면 즉시 발송.
+function _prodDraftLoadSafe(cust, code, notifyQ, track) {
+  var get = function (h) { return cust.get(h); };
+  var okJson = function (h) {
+    var raw = String(get(h) || '').trim();
+    if (!raw) return true;
+    try { var o = JSON.parse(raw); return !!(o && typeof o === 'object' && Object.prototype.toString.call(o) !== '[object Array]'); } catch (e) { return false; }
+  };
+  var migrated = !!String(get(PROD_META_COL) || '').trim();
+  var bad = [];
+  if (migrated) { if (!okJson(PROD_META_COL)) bad.push(PROD_META_COL); }
+  else if (!okJson(PROD_LEGACY_COL)) bad.push(PROD_LEGACY_COL);   // 이미 이전된 행의 구셀 손상은 무해(동결·폴백 대상일 뿐) → 차단하지 않음
+  for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t) && !okJson(PROD_TRACK_COL[t])) bad.push(PROD_TRACK_COL[t]); }
+  if (bad.length) {
+    try {
+      var c = CacheService.getScriptCache(), ck = 'draftCorrupt_' + code;
+      if (!c.get(ck)) {
+        c.put(ck, '1', 3600);
+        var _send = function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 저장 데이터 손상 · ' + code + ' · 컬럼: ' + bad.join(', ') + ' · 해당 컬럼 저장 차단 중 · Customers 시트에서 복구 필요'); } catch (e3) {} };
+        if (notifyQ && notifyQ.push) notifyQ.push(_send); else _send();
+      }
+    } catch (e2) {}
+  }
+  var blocking = bad.filter(function (h) {
+    if (h === PROD_META_COL || h === PROD_LEGACY_COL) return true;              // 전면 차단
+    return !!(track && PROD_TRACK_COL[track] === h);                            // 이번에 쓸 트랙만 차단
+  });
+  if (blocking.length) return { ok: false, res: { ok: false, error: '저장 데이터 점검이 필요해 잠시 저장을 멈췄어요. 스튜디오가 확인해 도와드릴게요.' } };
+  return { ok: true, d: _prodLoad(cust) };
 }
 
 // 다이닝 위저드 내부 선택지 문구(식당명 아님) — 하객·요약 노출에서 걸러냄. 선택지 추가·수정 시 여기 한 곳만(mypage.html DN_PLACEHOLDER와 쌍)
@@ -290,7 +494,8 @@ function handleSaveProductionTrack(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
-    var _dl = _prodDraftLoadSafe(cust, code, _notifyQ); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(전 트랙 보호) · 경고 메일은 큐로(락 밖 발송)
+    var _cm = _prodColsMissingError(colOf, code, _notifyQ); if (_cm) return _cm;   // [A-1] 컬럼 미생성 상태에서의 무증상 유실 차단
+    var _dl = _prodDraftLoadSafe(cust, code, _notifyQ, (track === 'confirm' ? '' : track)); if (!_dl.ok) return _dl.res;   // 손상 컬럼 위 저장 금지(이번 트랙만 격리 판정 · confirm은 메타만 씀) · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
@@ -306,7 +511,9 @@ function handleSaveProductionTrack(body) {
           course: String((_rd.summary || {}).course || ''), venue: String(_dd.venue || _dd.venuePick || ''), seatTables: _tc, seatNames: _pn,
           tracks: { invitation: _tr.invitation || '', dining: _tr.dining || '', ritual: _tr.ritual || '', final: _tr.final || '', seat: _tr.seat || '' } } };
       delete d.confirmStale;
-      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
+      var _szC = _prodSizeError(d, { cust: cust });   // [A급2·B급1] 확인서 경로도 err 사전 검사 + 행 전체 합산
+      if (_szC) return { ok: false, error: _szC };
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));   // PROD_ACCESSOR — confirm은 메타 컬럼만 갱신(트랙 미지정)
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 확인서 경로도 조기 return이라 별도 전이(멱등)
       _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
       return { ok: true, confirm: d.confirm };
@@ -332,9 +539,10 @@ function handleSaveProductionTrack(body) {
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
-    var _capErr = _prodSizeError(d);   // [DRAFT_SIZE_CAP] 합산 캡 — 판정은 _prodSizeError(PROD_ACCESSOR)로 수렴, PR-B에서 컬럼별 캡으로 바뀜
-    if (_capErr) return { ok: false, error: _capErr };
-    var _upd = _prodStoreCols(d);   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축) · PROD_ACCESSOR
+    // [DRAFT_SIZE_CAP · PROD_COL_SPLIT] 컬럼별 캡 + 합산 상한 — 직렬화 결과(pack)를 그대로 쓰기에 넘겨 같은 초안을 두 번 stringify하지 않는다.
+    var _pk = _prodPack(d, { track: track, cust: cust });   // cust = 이번에 안 쓰는 컬럼의 현재 길이까지 합산(B-6)
+    if (_pk.err) return { ok: false, error: _pk.err };
+    var _upd = _prodStoreCols(d, {}, { pack: _pk });   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
     // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
     var _seatToken = '';
     if (track === 'seat') {
@@ -1042,6 +1250,10 @@ function addResultSelectionColumns() {
 //     관리자가 의도적으로 롤백한 고객은 _clearForwardData가 제작임시저장을 비우므로 흔적이 없어 자동 제외된다.
 //   · 처리이력에 백필 사실을 남긴다(사후 추적용).
 // 실행: 80_production 파일을 열고 → backfillProduceStage (드라이런) → 목록 확인 후 → backfillProduceStage(false)
+// ★[PROD_COL_SPLIT · A-3] 이 백필은 '구셀(제작임시저장) 기준 · Wave 4 PR-B 이전 세대 전용 · 1회성'이다.
+//   PR-B 이후 신규 고객은 구셀이 백지라 애초에 대상이 아니고(전이는 PRODUCE_ENTRY_FIX가 정상 처리),
+//   이전된 고객의 구셀은 동결된 이전 시점 스냅샷이라 시간이 갈수록 낡는다. → PR-B 배포 '전에' 1회 돌리고 끝낼 것.
+//   (신 컬럼을 보도록 고치는 대신 이대로 두는 이유: 목적이 '과거 고착 고객 정리'라 과거 데이터를 봐야 맞다)
 function backfillProduceStage(dry) {
   var dryRun = (dry !== false);   // 기본 드라이런
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);

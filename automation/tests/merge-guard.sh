@@ -168,7 +168,7 @@ chk 'ORDER_SAVE_FAIL' mypage.html 1                                  # 완료 �
 chk 'ORDER_SAVE_FAIL' order-preview.html 1                           # 낙관 '저장됨' 되돌림(수신)
 chk 'KEEP_UNTIL_DATE' mypage.html 1                                  # 보관 만료일 날짜 명시(전달일+6개월 · 폴백 유지)
 # ── 2026-07-25 Wave 4 PR-A 구조 준비(접근자 단일화·멀티탭·데드코드 · 코워크 스펙)
-chk 'PROD_ACCESSOR' automation/platform/80_production.gs 10          # 제작 데이터 단일 창구(_prodCols·_prodLoad·_prodStoreCols·_prodSizeError) + 소비처 전환
+chk 'PROD_ACCESSOR' automation/platform/80_production.gs 6           # 소비처 전환 표기(창구 본체는 PR-B에서 PROD_COL_SPLIT로 재작성 · 직접 접근 0은 아래 음수 마커가 지킴)
 chk 'PROD_ACCESSOR' automation/platform/85_invitation.gs 5           # 청첩장 초안·발행·배선 쓰기 4곳 + 읽기 1곳 전환
 chk 'PROD_ACCESSOR' automation/platform/70_journey.gs 3              # 예식일 변경 base 동기화(읽기·쓰기) + 잔금 추가요금 읽기
 chk 'PROD_ACCESSOR' automation/admin/admin.gs 5                      # 목록·상세 읽기 3곳 + 강제 롤백 초기화 목록 + 좌석 캐시 무효화 판정
@@ -178,6 +178,20 @@ chk 'UISTRIP_FAVS_EXEMPT' automation/platform/80_production.gs 1     # R-9 담�
 chk 'PROD_MULTITAB' mypage.html 2                                    # 다른 탭 저장 감지 배너(BroadcastChannel + storage 폴백)
 # 음수 마커 — 도달 불가로 삭제한 v2 식순 위저드가 '유실 기능 복원'으로 되살아나는 것 감지(2026-07-25 Wave 4 PR-A)
 _rrv=$(grep -c 'function renderRitual' mypage.html 2>/dev/null); _rrv=${_rrv:-0}; if [ "$_rrv" -gt 0 ]; then echo "REVERT? mypage.html: 삭제된 v2 식순 위저드(renderRitual) 부활($_rrv)"; fail=1; else echo 'ok mypage.html: v2 식순 위저드 삭제 유지(전용 빌더 단일 경로)'; fi
+# ── 2026-07-25 Wave 4 PR-B 트랙별 컬럼 분리 + 지연 마이그레이션(코워크 스펙 · 되돌릴 수 없는 데이터 축)
+chk 'PROD_COL_SPLIT' automation/platform/80_production.gs 3      # 컬럼 스키마·두 세대 공존·캡/손상 격리 본체
+chk 'PROD_COL_SPLIT' automation/platform/00_platform-config.gs 1 # CUSTOMER_HEADERS 끝 append(열 인덱스 밀림 금지)
+chk 'PROD_COL_SPLIT' scripts/audit/prod-accessor.mjs 2           # S1~S4 마이그레이션·캡/손상 격리 상시 회귀
+chk 'addProdTrackColumns' automation/platform/80_production.gs 1 # 멱등 1회 컬럼 추가 함수(★배포 '전' 실행 · CLAUDE.md 위치표 등재)
+chk '_prodColsMissing' automation/platform/80_production.gs 3    # [A-1] 컬럼 미생성 시 무증상 유실 대신 명시적 거부(정의+판정+메일)
+chk '_prodColsMissingError' automation/platform/85_invitation.gs 3 # 청첩장 저장 3경로 동일 가드
+chk 'cust: cust' automation/platform/85_invitation.gs 8           # [B급1] 합산 상한이 청첩장 4쓰기 전부에서 돌게 cust 전달
+chk '_prodSyncFail' automation/platform/70_journey.gs 4           # [A급1] 예식일 변경의 제작 base 동기화 실패를 조용히 넘기지 않음(통지+이력)
+chk 'checkProdCapOverflow' automation/platform/80_production.gs 1 # 배포 전 신 캡 초과 행 사전 진단(읽기 전용)
+chk 'migrating' automation/platform/80_production.gs 4            # ★이전은 캡으로 막히지 않는다(막히면 그 행 영구 정체) · 복원 금지
+chk 'PROD_META_COL' automation/platform/80_production.gs 7       # 크로스트랙 키 전용 컬럼(트랙 캡이 확인서를 게이트하지 않게)
+# 음수 마커 — ★구셀 삭제·갱신 부활 감지. 이 PR에서 유일하게 되돌릴 수 없는 데이터 사고 지점(반쪽 마이그레이션 증발).
+_plw=$(grep -cE "\[ *(PROD_LEGACY_COL|'제작임시저장') *\] *=|\{ *'제작임시저장' *:" automation/platform/80_production.gs automation/platform/85_invitation.gs automation/platform/70_journey.gs 2>/dev/null | awk -F: '{s+=$2} END{print s+0}'); if [ "$_plw" -gt 0 ]; then echo "REVERT? 구셀(제작임시저장) 쓰기 부활($_plw) — 두 세대 공존 규칙 위반"; fail=1; else echo 'ok 구셀 동결 유지(읽기 폴백 전용 · 쓰기 0)'; fi   # [B-7] 변수명(upd/updCols…)에 안 묶이게 대괄호 대입 형태로 매칭
 # ── 2026-07-25 강제 롤백 데이터 정합(코드리뷰 7건 · 수납 보존/트랙 강등/스냅 도달/파기 플래그/좌석 캐시/카드 가드)
 chk 'ROLLBACK_KEEP_PAID' automation/admin/admin.gs 5   # 확인된 수납(계약금·중도금·잔금·추가보정) 롤백 보존 — 지우면 카드 이중청구·영수증 큐 소실
 chk 'ROLLBACK_TRACK_DEMOTE' automation/admin/admin.gs 1 # 결과물전달 아래 롤백 시 '전달완료'→'컨펌완료' 강등(단계·고객화면 정합)

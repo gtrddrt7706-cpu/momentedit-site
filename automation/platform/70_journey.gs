@@ -971,13 +971,25 @@ function adminConfirmWeddingChange(code) {
     //   buildProductionState(80)·_ensureProductionBase(85 발행 promote)가 옛 base.weddingDate/Time을
     //   우선해 청첩장·식순·다이닝 도착시간이 옛 일시로 남는 것 방지(시간은 계약 슬롯→본예식 +1h 매핑).
     var prod = _prodLoad(cust);   // PROD_ACCESSOR
+    var _prodSyncFail = '';   // [A급1] 제작 동기화 실패를 조용히 넘기지 않는다(아래 관리자 통지·처리이력)
     if (prod && prod.base) {
       prod.base.weddingDate = req.to.date;
       var mapT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(req.to.slot || '').trim()];
       if (mapT) prod.base.weddingTime = mapT;
-      _prodStoreCols(prod, updCols);   // PROD_ACCESSOR
+      // ★[A급1 · PROD_COL_SPLIT] 예식일 변경 '자체'는 성공해야 하므로 여기서 return하지 않는다.
+      //   대신 제작 base 동기화만 실패한 것을 잡아 관리자에게 알린다 — 이걸 삼키면 톱레벨 예식일만 바뀌고
+      //   prod.base는 옛 일시로 남아 청첩장·식순·다이닝 도착시간이 옛 날짜로 도는, 바로 위 주석이 막으려던 사고가 난다.
+      try {
+        var _cmW = (typeof _prodColsMissing === 'function') ? _prodColsMissing(colOf) : [];
+        if (_cmW.length) throw new Error('제작 트랙 컬럼 미생성: ' + _cmW.join(', ') + ' (addProdTrackColumns 실행 필요)');
+        _prodStoreCols(prod, updCols, { cust: cust });   // PROD_ACCESSOR · B급1 합산 상한이 여기서도 돌게 cust 전달
+      } catch (eSync) { _prodSyncFail = String((eSync && eSync.message) || eSync); }
     }
     touchCustomer(sheet, colOf, cust.num, updCols);
+    if (_prodSyncFail) {   // 예식일은 바뀌었지만 제작 base가 옛 일시로 남은 상태 — 사람이 손으로 맞춰야 한다
+      try { _recordHandler(code, '[예식일변경] 제작 base 동기화 실패 · ' + _prodSyncFail.slice(0, 200)); } catch (eR) {}
+      try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[예식일변경] 제작 base 동기화 실패 · ' + code + ' · 청첩장·식순·다이닝이 옛 일시로 남을 수 있음 · 사유: ' + _prodSyncFail.slice(0, 200)); } catch (eM) {}
+    }
     // ★wedchg-seat-inv 좌석 공개 조회 캐시 무효화 — 예식일이 바뀌면 하객 좌석 페이지의 '예식일'이 즉시 갱신되게(캐시 5분 대기 방지).
     //   handleSaveProductionTrack(80)과 동일한 6분 톰스톤(seatv_inv_) 패턴 — put-after-remove 레이스 차단.
     try {
