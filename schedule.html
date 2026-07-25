@@ -507,8 +507,9 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
     </div>
   </div>
 
-  <!-- 안내 (선택 후) -->
-  <div class="guide" id="guide">
+  <!-- SCHED_AI_ROUTE(2026-07-25 사용자 지시 "카카오 연결 대신 AI가 스케줄 확인"): 임시고정·AI 카드를 별도 래퍼로 분리 —
+       마감·가능일 0 같은 막다른 안내에서 openSchedAi()로 이 카드만 먼저 열 수 있게(시간 선택 전에도 접근 가능) -->
+  <div class="guide" id="holdReveal">
 
     <!-- 예식일 임시 고정 · AI 스케줄 도우미 — 입금 박스와 분리한 독립 카드 -->
     <div class="holdcard">
@@ -550,7 +551,7 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
           <div id="holdDateWrap"></div>
           <label class="deposit-payer-label" for="holdSlot" style="text-align:left;margin-top:10px">예식 시간 <span>· 140분</span></label>
           <select id="holdSlot" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff"><option value="">선택해 주세요</option><option value="09:00">오전 09:00</option><option value="12:20">오후 12:20</option><option value="15:40">늦은 오후 15:40</option></select>
-          <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 카카오톡으로 문의해 주시면 일정 조율을 도와드릴게요.</div>
+          <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 위 <a href="#" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보시면 가능한 다른 날짜를 확인해 드려요.</div><!-- SCHED_AI_ROUTE: 카카오 문의 → AI 도우미로 교체(2026-07-25 사용자 지시) -->
           <div class="schedule-ref" aria-label="예식 진행 시간표">
             <div class="schedule-ref-head"><span class="schedule-ref-tag">Reference</span><span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);font-weight:400">· 요약</span></span></div>
             <div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">위에서 고르는 시간은 <b style="font-weight:500;color:var(--accent)">신랑·신부 도착</b> 기준이에요. 세부 식순은 계약 후 마이페이지에서 설계하실 수 있어요.</div>
@@ -565,6 +566,10 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- 안내 (선택 후) -->
+  <div class="guide" id="guide">
     <div class="deposit">
       <div class="deposit-label">Reservation Deposit</div>
       <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
@@ -689,6 +694,14 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
 var EXEC_URL="https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 // ── 커스텀 날짜 선택 컴포넌트(마이페이지 계약서 폼과 동일) — 예식일 임시고정용. OS 기본 달력 대신 우리 폼 달력 사용 ──
 function _g(i){return document.getElementById(i);}
+// SCHED_AI_ROUTE: 막다른 안내(전 슬롯 마감·가능일 0·임시고정 시간 마감)에서 AI 스케줄 도우미만 먼저 열고 이동
+function openSchedAi(){
+  var hr=document.getElementById('holdReveal'); if(hr) hr.classList.add('show');
+  var ai=document.getElementById('schedAi');
+  if(ai) setTimeout(function(){ ai.scrollIntoView({behavior:'smooth',block:'center'}); },80);
+  var inp=document.getElementById('schedAiInput');
+  if(inp) setTimeout(function(){ try{ inp.focus({preventScroll:true}); }catch(e){} },600);
+}
 function _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 function dtPickerHtml(p, hiddenId, placeholder, opt){
   opt=opt||{};
@@ -764,11 +777,12 @@ if(SERVER.avail.length){
   maxAvY = _ds[_ds.length-1].getFullYear(); maxAvM = _ds[_ds.length-1].getMonth();
 } else {
   // SCHED_UX: 가능일이 하나도 없으면 빈 달력만 남지 않게 안내 1줄(달력 위)
+  //   SCHED_AI_ROUTE(2026-07-25 사용자 지시): 카카오 연결 대신 AI 스케줄 도우미로 안내
   var _cg2=document.getElementById('calGrid');
   if(_cg2&&_cg2.parentNode&&!document.getElementById('noAvailNote')){
     var _nn=document.createElement('div'); _nn.id='noAvailNote';
     _nn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:10px 12px';
-    _nn.innerHTML='지금 열려 있는 상담 가능일이 없어요.'+(SERVER.kakao?' <a href="'+SERVER.kakao+'" target="_blank" rel="noopener" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">카카오톡</a>으로 문의해 주시면 일정을 도와드릴게요.':' 카카오톡으로 문의해 주시면 일정을 도와드릴게요.');
+    _nn.innerHTML='지금 열려 있는 상담 가능일이 없어요. 예식 날짜가 가능한지는 <a href="#" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 바로 확인하실 수 있어요.';
     _cg2.parentNode.insertBefore(_nn,_cg2);
   }
 }
@@ -845,11 +859,11 @@ function renderTime(){
       s.onclick=()=>{selTime=t;renderTime();updateSummary();revealGuide();}; }
     box.appendChild(s);
   });
-  // 전체 마감 시 안내 — SCHED_UX: '기타' 섹션은 시간을 골라야 열리므로(마감일엔 안 보임) 불가능한 행동 지시 제거 · 카카오 문의 연결
+  // 전체 마감 시 안내 — SCHED_UX: '기타' 섹션은 시간을 골라야 열리므로(마감일엔 안 보임) 불가능한 행동 지시 제거
+  //   SCHED_AI_ROUTE(2026-07-25 사용자 지시): 카카오 연결 대신 AI 스케줄 도우미로 안내
   if(daySlots.every(t=>full.includes(t))){
     const note=document.createElement('div'); note.className='slots-full-note';
-    note.innerHTML='이 날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택해 주세요.'
-      +(SERVER.kakao?' 맞는 날이 없으면 <a href="'+SERVER.kakao+'" target="_blank" rel="noopener" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">카카오톡</a>으로 문의해 주세요.':'');
+    note.innerHTML='이 날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택해 주세요. 날짜 고민은 <a href="#" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보세요.';
     box.appendChild(note);
   }
 }
@@ -885,6 +899,7 @@ function updateSummary(){
   }
 }
 function revealGuide(){
+  var _hr=document.getElementById('holdReveal'); if(_hr) _hr.classList.add('show');   // SCHED_AI_ROUTE: 임시고정·AI 카드 래퍼 함께 열기
   document.getElementById('guide').classList.add('show');
   document.getElementById('flexTimes').classList.add('show');
   if(selDate){
