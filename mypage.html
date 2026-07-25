@@ -2554,14 +2554,22 @@ function renderConsult(c, product){
     + '<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_cancelConfirm">취소 확정</button></div>'
     + '</div>';
 
+  // MPD_D1 신청접수 시점 신뢰 블록 — 진행 흐름·장소가 승인완료 전엔 0이던 것(§7-1-①). 확정 카드 vg 카피 재사용 · 승인되면 기존 '방문 전 안내'가 대체
+  var TRUST_MINI = '<div class="visit-guide vg-center" style="margin-top:14px"><div class="vg-title">진행 흐름</div>'
+    + (isSnap?'':'<div class="vg-row"><span class="vg-k">상담 · 시착</span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요.</span></div>')
+    + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.</span></div>'
+    + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
+    + '</div>';
   if (s === '신청접수'){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn cc-btn-seal" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
+    extra = TRUST_MINI;
   } else if (s === '시간선택완료'){
     body = '<div class="cc-title">디렉터가 확인하고 있어요</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
+    extra = TRUST_MINI + extra;   // MPD_D1 확인 대기 중에도 진행 흐름·장소 유지
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
