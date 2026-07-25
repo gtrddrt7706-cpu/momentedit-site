@@ -1705,6 +1705,13 @@ function cardResult(d,isSnap){
   // ④ 보정본 컨펌 상태
   if(stt==='컨펌대기') raw+='<div class="res-ex">보정본 전달 · <b>고객 컨펌 대기</b></div>';
   else if(stt==='컨펌완료') raw+='<div class="res-ex"><span style="color:var(--gold-deeper)">✓ 고객 컨펌 완료</span>'+(r['컨펌일시']?(' · '+esc(r['컨펌일시'])):'')+'</div>';
+  // [REVISION_LOOP 2026-07-25] 고객 무료 재보정 수정 요청 — 배지+부위·사유 노출. 반영 = 보정본 등록(같은 링크여도 저장)이 자동 처리+고객 재안내
+  var _rv=r['수정요청'];
+  if(_rv&&_rv.pending){ raw+='<div class="res-ex"><b style="color:var(--seal,#B0413E)">수정 요청 '+esc(String(_rv.round||1))+'회차 · 대기</b>'+(_rv.at?(' · '+esc(_rv.at)):'')
+    +(_rv.cats?('<div class="res-sel-list">부위: '+esc(_rv.cats)+'</div>'):'')
+    +(_rv.note?('<div class="res-sel-list">'+esc(_rv.note)+'</div>'):'')
+    +'<div style="font-size:11px;color:var(--sub,#6B6257);margin-top:3px">반영 후 아래 보정본 등록을 저장하면 자동으로 반영 처리되고 고객에게 다시 안내돼요</div></div>'; }
+  else if(_rv){ raw+='<div class="res-ex">수정 요청 '+esc(String(_rv.round||1))+'회차 <span style="color:var(--gold-deeper)">반영됨</span>'+(_rv.at?(' · '+esc(_rv.at)):'')+'</div>'; }
   // ③ 추가 보정 신청 — 수량 × 단가 = 금액 + 입금자명
   var ex=r['추가보정상태'], exq=Number(r['추가보정수량']||0), exa=Number(r['추가보정금액']||0);
   if(ex && ex!=='대기'){ var exu=(exq>0&&exa>0)?Math.round(exa/exq):20000;

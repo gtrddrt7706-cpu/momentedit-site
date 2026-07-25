@@ -958,7 +958,15 @@ function adminDetail(code) {
     입금완료신호: String(cust.get('입금완료신호') || ''),
     입금자명: String(cust.get('입금자명') || ''),
     쿠폰상태: String(cust.get('쿠폰상태') || ''),   // 커피쿠폰(후기 완주 보상) — 발급/회수. 발급 버튼·회수 버튼 게이트용
-    결제수단: _rec.결제수단 || {}   // 카드결제 마커(98_pay_card) — 관리자 화면 '카드' 뱃지·환불 주의 표기용
+    결제수단: _rec.결제수단 || {},   // 카드결제 마커(98_pay_card) — 관리자 화면 '카드' 뱃지·환불 주의 표기용
+    수정요청: (function () {   // [REVISION_LOOP] 고객 보정 수정 요청(최근 1건) — 결과물 카드 배지·내용 노출용
+      try {
+        var a = _rec.수정요청이력 || [];
+        if (!a.length) return null;
+        var L = a[a.length - 1];
+        return { pending: String(L.status || '') === '대기', at: String(L.at || ''), cats: (L.cats || []).join(' · '), note: String(L.note || ''), round: a.length };
+      } catch (e) { return null; }
+    })()
   };
 
   // 거울 — 고객이 보는 카드(buildXState(r)). product-aware는 cards로 게이트.
@@ -1530,6 +1538,21 @@ function adminSetResultLinks(code, links) {
     var upd = { '원본링크': 원본, '보정본폴더': 보정본 };
     if (colOf['원본폴더ID']) upd['원본폴더ID'] = _galFid;
     if (!isSnap) upd['영상링크'] = 영상;
+    // [REVISION_LOOP 2026-07-25] 대기 중 수정 요청이 있는데 보정본을 (재)등록하면 = 반영 완료 — 이력에 '반영' 표시 + 고객에게 보정본 재안내(락 해제 후 발송).
+    var _nfRevDone = false;
+    try {
+      if (보정본) {
+        var _rvRec = _parseJsonSafe(cust.get('동의기록'));
+        var _rvA = _rvRec.수정요청이력 || [];
+        if (_rvA.length && String(_rvA[_rvA.length - 1].status || '') === '대기') {
+          _rvA[_rvA.length - 1].status = '반영';
+          _rvA[_rvA.length - 1].doneAt = fmtKST(new Date());
+          _rvRec.수정요청이력 = _rvA;
+          upd['동의기록'] = JSON.stringify(_rvRec);
+          _nfRevDone = true;
+        }
+      }
+    } catch (eRv) {}
     var cur결과물 = String(cust.get('결과물상태') || '').trim();
     if (cur결과물 === '업로드') cur결과물 = '원본전달';                         // 레거시
     if (cur결과물 !== '전달완료') {
@@ -1553,7 +1576,7 @@ function adminSetResultLinks(code, links) {
   //   대기 카드 '올라올 때마다 알려드려요' 약속의 근거. 실패해도 저장 응답에 영향 없음(try) · 락 해제 후 실행.
   try {
     if (_nfOrig) notifyKakao('cust.resultOriginal', code);
-    else if (_nfReto) notifyKakao('cust.resultRetouch', code);
+    else if (_nfReto || _nfRevDone) notifyKakao('cust.resultRetouch', code);   // [REVISION_LOOP] 수정 반영 재등록은 상태 전이가 없어도 재안내(같은 컨펌대기 유지)
   } catch (eNf) {}
   var _lvWarns = [];
   try {

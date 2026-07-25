@@ -2103,6 +2103,7 @@ function doPost(e) {
       case 'requestExtraRetouch':   return jsonOut(handleRequestExtraRetouch(body));
       case 'extraRetouchSignal':    return jsonOut(handleExtraRetouchSignal(body));
       case 'confirmRetouch':        return jsonOut(handleConfirmRetouch(body));
+      case 'requestRevision':       return jsonOut(handleRequestRevision(body));   // [REVISION_LOOP] 무료 재보정 수정 요청(80_production)
       case 'submitSurvey':          return jsonOut(handleSubmitSurvey(body));
       case 'saveProductionBase': return jsonOut(handleSaveProductionBase(body));
       case 'saveProductionTrack':return jsonOut(handleSaveProductionTrack(body));
