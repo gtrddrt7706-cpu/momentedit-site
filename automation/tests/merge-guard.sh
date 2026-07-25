@@ -491,7 +491,12 @@ if [ "$_dtl" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 관리자 �
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 # 헤더 진단의 '결론'이 실제 가드 판정과 갈리지 않는지(GUARD_MIRROR) — 진짜 GAS 함수를 vm에서 돌려 대조
-if command -v node >/dev/null 2>&1; then node scripts/audit/header-order.mjs >/dev/null 2>&1 && echo 'ok header-order: 진단 결론 == 가드 판정' || { echo 'REVERT? header-order: 진단 결론이 가드 판정과 어긋남 — node scripts/audit/header-order.mjs 로 확인'; fail=1; }; else echo 'skip header-order (node 없음)'; fi
+#   ★실패 원인을 단정하지 말 것 — 이 스크립트는 결론 대조 말고도 빈 통과·읽기 전용·리터럴 무결성을 함께 본다.
+#   무엇이 깨졌는지는 실패한 줄이 말하게 하고, 여기서는 그 줄만 흘려준다.
+if command -v node >/dev/null 2>&1; then
+  _ho=$(node scripts/audit/header-order.mjs 2>&1) && echo 'ok header-order: 진단 결론 == 가드 판정 · 빈 통과 0 · 리터럴 무결' \
+    || { echo 'REVERT? header-order 실패:'; printf '%s\n' "$_ho" | grep '❌'; fail=1; }
+else echo 'skip header-order (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
 
