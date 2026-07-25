@@ -5,6 +5,16 @@
 # 마커가 정당하게 사라지면(기능 폐지 등) 이 목록에서 함께 지울 것 — 목록 갱신 없이 0이 나오면 무조건 역전 의심.
 cd "$(dirname "$0")/../.." || exit 1
 fail=0
+# ★GATE_AT_EXIT(2026-07-26) — 성패 판정을 EXIT 트랩에 걸어 '파일 맨 끝'에서 돌게 한다.
+#   이유: 판정을 본문 중간에 두면, 나중에 누가 검사를 파일 끝에 덧붙였을 때 그 검사가 fail=1을 세워도
+#   판정은 이미 지나가 exit 0 + 'ALL MARKERS OK'로 초록이 된다(=죽은 검사).
+#   실사고 2건 — ①ADM_GATE_CB(#292 통과 → #294가 발견) ②SURVEY_READ 2개(#295 · #297 리뷰에서 발견).
+#   ①을 고치며 '판정보다 위에 두라'는 경고 주석을 달았지만 한 커밋 뒤 ②가 같은 패턴을 다시 만들었다.
+#   주석은 두 번째를 막지 못했다 → 사람이 지킬 규칙을 없애고 구조로 바꾼다.
+#   트랩은 스크립트가 어떻게 끝나든 마지막에 돌므로, 검사를 어디에 덧붙여도 판정 위에 놓인다.
+#   (sh·dash·bash 전부에서 트랩 안 exit 1이 종료코드로 반영되는 것 확인)
+_gate() { [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }; echo 'ALL MARKERS OK'; }
+trap _gate EXIT
 chk(){ n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
@@ -493,11 +503,19 @@ if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 �
 
 # ── 2026-07-26 관리자 화면 눈확인에서 잡은 3건(체크박스 특이도 · noop 가드 · 조사 오타)
 chk 'ADM_GATE_CB' admin.html 1                     # 강제변경 동의 체크박스가 .adv-body 공통 입력 규칙(전폭 46px·appearance:none)에 안 먹히게 하는 규칙 · ★공통 규칙 '뒤'에 두어야 함 · 삭제 금지
-                                                   #   ※ 이 줄은 반드시 아래 [ "$fail" = "1" ] 판정보다 위에 있어야 한다 — 판정 뒤에 두면 REVERT?를 찍고도 exit 0 + 'ALL MARKERS OK'라 CI가 초록으로 통과한다(2026-07-26 실측).
+                                                   #   ※ 위치 제약 없음(2026-07-26 GATE_AT_EXIT 이후) — 판정이 EXIT 트랩으로 옮겨져 어디에 두든 살아 있다. 종전 '판정보다 위에 두라'는 제약은 폐지.
 chk 'ADM_GATE_CHK' scripts/audit/admin-shot.mjs 1  # 위 회귀 단언(크기 24px 이하 · appearance ≠ none)
 chk 'ADM_AC3NOOP' automation/admin/admin.gs 5      # 강제변경 noop 판정을 '실제로 값이 바뀌는 컬럼'으로 — Object.keys(cleared) 복원 금지
-_dtl=$(grep -c '데이터을' automation/admin/admin.gs 2>/dev/null); _dtl=${_dtl:-0}
-if [ "$_dtl" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 관리자 노출 문구 조사 오류 '데이터을' 부활($_dtl)"; fail=1; else echo "ok automation/admin/admin.gs: 조사 '데이터를' 유지"; fi
+#   '데이터을'만 보면 반쪽이다 — 조사를 문자열 밖에 붙이면 앞 낱말이 바뀌는 순간 다른 형태로 틀린다(실제로 '포함)를'이 났다).
+#   틀린 형태를 하나씩 쫓지 말고 함께 본다. ★이 목록의 리터럴을 admin.gs 주석에 그대로 쓰지 말 것 — 주석이 스스로 걸린다(실제로 한 번 걸렸다).
+_dtl=$(grep -cE '데이터을|포함\)를|완료\)를' automation/admin/admin.gs 2>/dev/null); _dtl=${_dtl:-0}
+if [ "$_dtl" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 관리자 노출 문구 조사 오류 부활($_dtl) — '데이터을'·'포함)를' 등"; fail=1; else echo "ok automation/admin/admin.gs: 조사 정상('데이터를'·'포함)을')"; fi
+chk 'ADM_JOSA' automation/admin/admin.gs 1   # 조사를 분기 안으로 넣어 두 경우 다 맞게(붙여 쓰기 복원 금지)
+#   ★위 렌더 형태 grep은 이어붙이기를 못 잡는다 — 소스에선 …포함)' + '를… 로 끊겨 있어 리터럴이 존재하지 않는다(실측).
+#   그래서 '고쳐진 문장이 통째로 있는지'와 '옛 이어붙이기 형태가 없는지'를 소스 기준으로 함께 본다.
+chk '진행 데이터와 상담 예약(캘린더 포함)을' automation/admin/admin.gs 1   # 분기 안에 조사까지 든 완성 문장
+_josaCat=$(grep -cE "'이후 단계 진행 데이터' *\+" automation/admin/admin.gs 2>/dev/null); _josaCat=${_josaCat:-0}
+if [ "$_josaCat" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 조사를 문자열 밖에 붙이는 옛 형태 부활($_josaCat) — bookingReset=true에서 조사가 틀어진다"; fail=1; else echo 'ok automation/admin/admin.gs: 조사 이어붙이기 형태 없음'; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 # 헤더 진단의 '결론'이 실제 가드 판정과 갈리지 않는지(GUARD_MIRROR) — 진짜 GAS 함수를 vm에서 돌려 대조
@@ -507,6 +525,9 @@ if command -v node >/dev/null 2>&1; then
   _ho=$(node scripts/audit/header-order.mjs 2>&1) && echo 'ok header-order: 진단 결론 == 가드 판정 · 빈 통과 0 · 리터럴 무결' \
     || { echo 'REVERT? header-order 실패:'; printf '%s\n' "$_ho" | grep '❌'; fail=1; }
 else echo 'skip header-order (node 없음)'; fi
+# (성패 판정·ALL MARKERS OK 출력은 파일 머리의 GATE_AT_EXIT 트랩이 맡는다 — 여기서 끝내지 않는다.
+#  아래에 검사를 계속 덧붙여도 안전하다. 그게 이 구조의 목적이다.)
+
 # ── 2026-07-25 후기(설문) 카드 가독성(사용자 지적 "안쪽 색이 전부 노란색이라 가독성이 안 좋다")
 #   ※ 원래 판정 줄 아래(파일 끝)에 붙어 있어 실행은 되지만 exit 코드에 반영되지 않았다 — 2026-07-26 위로 이동.
 chk 'SURVEY_READ' mypage.html 1   # 선택지 칩을 흰 바탕으로(패널 --bg2와 같은 색이라 한 덩어리로 읽히던 것) + 문항 사이 구분선 + 자유서술 칸 높이 92px. ★칩 배경 --bg2 복원 금지
@@ -517,18 +538,26 @@ if command -v node >/dev/null 2>&1; then
   _rd=$(node scripts/audit/rollback-deliverydate.mjs 2>&1) && echo 'ok rollback-deliverydate: 보관 기산일 보존·리셋 분기 정상' \
     || { echo 'REVERT? rollback-deliverydate 실패:'; printf '%s\n' "$_rd" | grep 'FAIL'; fail=1; }
 else echo 'skip rollback-deliverydate (node 없음)'; fi
-# ── [GUARD_TAIL 2026-07-26] 이 스크립트 자신을 검사한다 — 판정 줄 뒤에 붙은 가드는 REVERT?를 찍고도 exit 0이라 CI가 초록으로 통과한다.
-#   실사고 2건: ADM_GATE_CB(2026-07-26 실측) · SURVEY_READ(#295 · 위로 이동). 새 가드는 파일 끝이 아니라 이 블록 '위'에 추가할 것.
-#   ★이 검사는 반드시 판정 줄보다 위에 있어야 한다(자기 자신도 예외 없음).
-_gt_v=$(grep -n '^\[ "\$fail" = "1" \]' "$0" | head -1 | cut -d: -f1); _gt_v=${_gt_v:-0}
-if [ "$_gt_v" = "0" ]; then echo "REVERT? merge-guard.sh: 판정 줄을 찾을 수 없다(형태 변경) — GUARD_TAIL이 무력화됨"; fail=1
+# ── [GUARD_TAIL 2026-07-26] 이 스크립트 자신을 검사한다 — '판정 뒤에 붙은 가드는 죽는다'는 사고를 막는 자리.
+#   실사고 2건: ADM_GATE_CB(실측) · SURVEY_READ(#295). 새 가드는 관행상 파일 끝에 붙으므로 사람 주의로는 재발한다.
+#
+#   ★역할 전환(2026-07-26 · GATE_AT_EXIT와 병합) — 원래 이 검사는 '판정 줄을 찾아 그 뒤의 chk/fail=1을 신고'했다.
+#   지금은 판정이 EXIT 트랩으로 옮겨져 '뒤에 붙는다'는 상태가 구조적으로 불가능해졌다(트랩은 무조건 마지막에 돈다).
+#   그래서 죽은 줄을 세는 대신, 그 불가능을 떠받치는 전제 두 가지를 지킨다:
+#     ① 트랩 등록(trap _gate EXIT)이 살아 있는가
+#     ② 트랩 등록이 첫 검사보다 위인가 (아래로 내려가면 그 위 검사들이 다시 죽는다)
+#     ③ 본문에 인라인 판정([ "$fail" = "1" ] && … exit 1)이 되살아나지 않았는가 (되살리면 그 아래가 다시 죽는다)
+#   ①~③이 지켜지는 한 검사를 어디에 덧붙여도 안전하다. 종전의 '이 블록 위에 추가할 것' 제약은 폐지.
+_gt_trap=$(grep -n '^trap _gate EXIT' "$0" | head -1 | cut -d: -f1); _gt_trap=${_gt_trap:-0}
+_gt_first=$(grep -n '^chk ' "$0" | head -1 | cut -d: -f1); _gt_first=${_gt_first:-0}
+_gt_inline=$(grep -cE '^\[ "\$fail" = "1" \]' "$0"); _gt_inline=${_gt_inline:-0}
+if [ "$_gt_trap" = "0" ]; then
+  # ★여기서만 직접 exit 한다 — 트랩이 없으면 종료코드를 세울 주체가 없어 fail=1이 아무 효과도 못 낸다(그게 이 사고의 본질).
+  echo 'REVERT? merge-guard.sh: EXIT 트랩(GATE_AT_EXIT)이 사라졌다 — 판정이 본문으로 돌아가면 뒤에 붙는 가드가 다시 죽는다'; fail=1; exit 1
+elif [ "$_gt_first" != "0" ] && [ "$_gt_trap" -gt "$_gt_first" ]; then
+  echo "REVERT? merge-guard.sh: 트랩 등록($_gt_trap행)이 첫 검사($_gt_first행)보다 아래 — 그 사이 검사가 판정에 안 잡힌다"; fail=1
+elif [ "$_gt_inline" -gt 0 ]; then
+  echo "REVERT? merge-guard.sh: 본문 인라인 판정 부활($_gt_inline줄) — 그 아래 가드가 다시 죽는다. 트랩 하나만 남길 것"; fail=1
 else
-  _gt_n=$(awk -v n="$_gt_v" 'NR>n && ($0 ~ /fail=1/ || $0 ~ /^chk /)' "$0" | grep -c .); _gt_n=${_gt_n:-0}
-  if [ "$_gt_n" -gt 0 ]; then
-    echo "REVERT? merge-guard.sh: 판정 줄($_gt_v행) 뒤에 죽은 가드 $_gt_n줄 — 아래 줄을 판정 위로 옮길 것"
-    awk -v n="$_gt_v" 'NR>n && ($0 ~ /fail=1/ || $0 ~ /^chk /) { print "    " NR ": " substr($0,1,90) }' "$0"
-    fail=1
-  else echo 'ok merge-guard.sh: 판정 줄 뒤 죽은 가드 0줄'; fi
+  echo 'ok merge-guard.sh: 판정=EXIT 트랩(첫 검사보다 위 · 인라인 판정 없음) — 어디에 덧붙여도 죽은 가드 0'
 fi
-[ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
-echo 'ALL MARKERS OK'
