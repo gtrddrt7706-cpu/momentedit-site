@@ -4010,8 +4010,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _fDone=(t.final||'')==='완료';
   var fNote='';
   if(!_fDone){
-    fNote='예식 <b>'+_payDays().bal+'일 전까지</b> 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
-      + ((_dLeft!=null&&_dLeft>=0&&_dLeft<=30)?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
+    var _fUrg=(_dLeft!=null&&_dLeft>=0&&_dLeft<=30);   // MPD_B7 D-n(진사) 강조가 붙는 D-30 이내엔 기한 볼드 해제 — 줄당 강조 1개(디자인 헌장 1)
+    fNote='예식 '+(_fUrg?(_payDays().bal+'일 전까지'):('<b>'+_payDays().bal+'일 전까지</b>'))+' 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
+      + (_fUrg?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
   }
   // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
   var _seatDone=(t.seat||'')==='완료';
