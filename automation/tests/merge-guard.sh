@@ -318,6 +318,14 @@ chk 'ADM_AA2' admin.html 1                          # 액션 라벨 동사 사�
 chk '결과물 전달 처리' admin.html 3                 # delivered 라벨 통일(큐+상세 2곳)
 _aa2=$(grep -c "결과물 전달 완료 처리" admin.html 2>/dev/null); _aa2=${_aa2:-0}; if [ "$_aa2" -gt 0 ]; then echo "REVERT? admin.html: delivered 이중 라벨 부활($_aa2)"; fail=1; else echo "ok admin.html: delivered 라벨 단일 유지"; fi
 chk 'ADM_AA4' admin.html 1                          # 값 없음 자리표시 하이픈(전각 줄표 금지)
+# ── 2026-07-26 관리자 페이지 1차 스프린트 PR③(AA5 붙여넣기 · AA6 최근 본 고객 · AA7 자동 갱신)
+chk 'ADM_AA5' admin.html 3                          # 붙여넣기 헬퍼+링크 필드+CSS
+chk '_linkField' admin.html 4                       # 정의 1 + 결과물 링크 3필드
+chk 'ADM_AA6' admin.html 5                          # 최근 본 고객(CSS·자리·저장·렌더·적재)
+chk 'RECENT_KEY' admin.html 3                       # localStorage 키(정의+읽기+쓰기)
+chk 'ADM_AA7' admin.html 7                          # 조용한 폴링(가드·틱·시작/정지·배선)
+chk '_pollSkip' admin.html 2                        # 폴링 건너뛰기 가드(정의+호출)
+chk '_silentN' admin.html 5                         # 조용한 갱신 카운터(진행바 억제)
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

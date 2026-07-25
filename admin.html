@@ -252,6 +252,17 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal label{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-bottom:5px}
 .modal input,.modal select,.modal textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:7px;padding:12px 13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none;-webkit-appearance:none;appearance:none;min-height:48px}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--gold)}
+/* [ADM_AA5] 링크 입력 + 붙여넣기 버튼 한 줄 */
+.modal .paste-row{display:flex;gap:6px;align-items:stretch}
+.modal .paste-row input{flex:1;min-width:0}
+.modal .paste-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:12px;cursor:pointer;white-space:nowrap}
+.modal .paste-btn:active{background:var(--bg2)}
+.modal .paste-hint{font-family:var(--serif-ko);font-size:11px;color:var(--seal);margin-top:4px;text-align:left;min-height:0}
+/* [ADM_AA6] 최근 본 고객 칩 — 폰 재방문 시 재검색 제거(이름·코드만 저장) */
+.recent{display:flex;flex-wrap:wrap;gap:6px;margin:8px 2px 0}
+.recent .rc-l{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);align-self:center;margin-right:2px}
+.recent button{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:6px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent button:active{border-color:var(--gold);background:var(--bg2)}
 .modal .mbtns{display:flex;gap:8px;margin-top:6px}
 .modal .mbtns .btn{flex:1}
 .modal .merr{font-family:var(--serif-ko);font-size:12px;color:var(--seal);text-align:center;min-height:15px;margin-bottom:5px}
@@ -299,6 +310,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
       <input type="text" id="q" placeholder="개인코드·이름·연락처 검색" autocomplete="off">
       <button id="btnSearch">검색</button>
     </div>
+    <div id="recentWrap" class="recent" style="display:none"></div><!-- [ADM_AA6] 최근 본 고객 -->
     <div id="queueWrap"></div>
     <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
@@ -408,7 +420,8 @@ function _admPushView(v){   // 서브뷰 진입 시 1회 push(popstate 유발 �
 }
 // momentedit.kr 호스팅 — GAS를 fetch(doPost)로 호출 (마이페이지와 동일·CORS preflight 회피)
 var _busyN=0;
-function _busy(on){ _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
+var _silentN=0;   // [ADM_AA7] 조용한 갱신 깊이 — >0이면 상단 진행바를 '켜지만' 않는다(끄기는 항상 허용해 바가 굳지 않게)
+function _busy(on){ if(on && _silentN>0) return; _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
 function api(payload){
   _busy(true);
   var off=function(){ _busy(false); };
@@ -1029,7 +1042,8 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
 function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTeam','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
-function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+// [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
+function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
 function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
 function doLogin(){
@@ -1038,24 +1052,57 @@ function doLogin(){
   $('lgBtn').disabled=true; $('lgBtn').textContent='로그인 중…'; $('lgErr').textContent='';
   gasRaw('adminLogin', id, pw).then(function(r){
     $('lgBtn').disabled=false; $('lgBtn').textContent='로그인';
-    if(r&&r.ok){ TOKEN=r.token; localStorage.setItem('me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); }
+    if(r&&r.ok){ TOKEN=r.token; localStorage.setItem('me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); _pollStart(); }   // [ADM_AA7]
     else { $('lgErr').textContent=(r&&r.error)||'로그인 실패'; }
   }).catch(function(e){ $('lgBtn').disabled=false; $('lgBtn').textContent='로그인'; $('lgErr').textContent='오류: '+(e&&e.message||e); });
 }
-function doLogout(){ try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
+/* [ADM_AA7] 자동 갱신 — 폰을 두고 온 사이 들어온 입금 신호·새 신청이 새로고침 없이 반영되게.
+     · 75초 주기 조용한 폴링(진행바·스켈레톤 없음) + 탭 복귀(hidden→visible) 즉시 1회
+     · 건너뛰는 경우: 탭 숨김 / 홈이 아닌 화면(_view!=='home') / 검색 결과 보는 중 / 확인 모달 열림 / 입력 중 / 이미 요청 중
+     · 탭이 숨겨지면 타이머를 멈춘다(백그라운드 호출·쿼터 낭비 방지) */
+var POLL_MS=75000, _pollT=null, _pollBusy=false;
+function _pollSkip(){
+  if(document.hidden) return true;
+  if(!TOKEN) return true;
+  if(_view!=='home' || _lastQuery) return true;                     // 상세·아카이브·검색 결과 중엔 건드리지 않음
+  var cm=document.getElementById('confirmModal');
+  if(cm && cm.classList.contains('show')) return true;              // 확인 모달 열림
+  if(document.querySelector('.ov, #ad_ftViewer, #aiPanel.show')) return true;   // 문서 뷰어·AI 패널 등 오버레이
+  var ae=document.activeElement;
+  if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName||'')) return true;       // 입력 중
+  return _pollBusy;
+}
+function _pollTick(){
+  if(_pollSkip()) return;
+  _pollBusy=true;
+  try{ loadHome(true); }catch(e){}
+  setTimeout(function(){ _pollBusy=false; }, 3000);   // 연타 방지(응답과 무관하게 짧게 잠금)
+}
+function _pollStart(){ if(_pollT) return; _pollT=setInterval(_pollTick, POLL_MS); }
+function _pollStop(){ if(_pollT){ clearInterval(_pollT); _pollT=null; } }
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ _pollStop(); return; }
+  _pollStart();
+  _pollTick();   // 복귀 즉시 1회(주기를 기다리지 않게)
+});
+if(TOKEN) _pollStart();
+
+function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
 
 /* ════════ 홈 ════════ */
 var _homeRetried=false;
-function loadHome(){
+function loadHome(silent){
   _admHistInit();   // [ADMIN_BACK_NAV] 첫 목록 진입 시 history 기준점(home) 세팅 · popstate 리스너 등록(1회)
-  _lastQuery=''; _origin='home';
-  $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
-  show('loading');
+  if(!silent){ _lastQuery=''; _origin='home';
+    $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
+    show('loading');
+  } else { _silentN++; }   // [ADM_AA7] 조용한 갱신 — 스켈레톤·진행바 없이
   gas('adminHome').then(function(d){
+    if(silent){ _silentN=Math.max(0,_silentN-1); if(_view!=='home' || _lastQuery){ return; } }   // 도착 사이 상세·검색으로 갔으면 화면을 건드리지 않는다
     if(!d||!d.ok){
       // 진짜 인증 실패(토큰 무효·만료)만 로그아웃. GAS 일시 오류는 토큰 보존(netFail).
       if(d && /로그인이 필요|만료|권한/.test(String(d.error||''))) authFail();
-      else netFail(d && d.error);
+      else if(!silent) netFail(d && d.error);   // [ADM_AA7] 조용한 갱신의 일시 오류로 오류 화면을 띄우지 않는다
       return;
     }
     // 단계 목록 = 서버(00_platform-config) 단일 출처 우선 — 아래 하드코딩 STAGE_FLOW는 첫 로드용 폴백. GAS서 단계가 바뀌어도 보드·게이트가 어긋나지 않게.
@@ -1064,10 +1111,11 @@ function loadHome(){
     setWho(d.name); setTopbar(true);
     curHome=d;
     // 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
-    try{ renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }
+    try{ renderRecent(); renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }   // [ADM_AA6] 최근 본 고객 칩
     catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
     show('home');
   }).catch(function(e){
+    if(silent){ _silentN=Math.max(0,_silentN-1); return; }   // [ADM_AA7] 조용한 갱신 실패는 조용히 넘긴다(다음 주기에 다시 시도)
     if(!_homeRetried){ _homeRetried=true; setTimeout(loadHome, 1200); return; }   // 일시 네트워크 오류 1회 자동 재시도
     _homeRetried=false; netFail();
   });
@@ -1297,13 +1345,37 @@ function doSearch(){
 
 /* ════════ 상세 ════════ */
 var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
+/* [ADM_AA6] 최근 본 고객 — openDetail 진입 시 {code,names} 최근 5명만 localStorage에 기록(중복은 앞으로).
+     ★이름·코드만 저장한다. 금액·연락처 등 민감정보는 절대 넣지 않는다(공용 폰 분실 대비).
+     localStorage 접근 실패(사파리 프라이빗 등)면 칩 영역 자체를 숨기고 조용히 넘어간다. */
+var RECENT_KEY='me_admin_recent', RECENT_MAX=5;
+function _recentRead(){ try{ var a=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]'); return (a instanceof Array)?a.filter(function(x){ return x&&x.code; }).slice(0,RECENT_MAX):[]; }catch(e){ return null; } }
+function _recentPush(code,names){
+  if(!code) return;
+  var a=_recentRead(); if(a===null) return;
+  a=a.filter(function(x){ return x.code!==code; });
+  a.unshift({ code:String(code), names:String(names||'') });
+  try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){}
+}
+function renderRecent(){
+  var w=$('recentWrap'); if(!w) return;
+  var a=_recentRead();
+  if(!a||!a.length){ w.style.display='none'; w.innerHTML=''; return; }   // 저장 불가 브라우저·기록 없음 → 영역 자체 숨김
+  w.innerHTML='<span class="rc-l">최근 본 고객</span>'+a.map(function(x){
+    return '<button type="button" data-rc="'+esc(x.code)+'">'+esc(x.names||x.code)+'</button>';
+  }).join('');
+  w.style.display='flex';
+  w.querySelectorAll('button[data-rc]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openDetail(btn.getAttribute('data-rc'),'home'); });
+  });
+}
 function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
   _admHistInit(); if(_view!=='detail') _admPushView('detail');   // [ADMIN_BACK_NAV] 목록/아카이브→상세 진입 시 1회 push(상세 새로고침·popstate 복귀는 제외)
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
-    curDetail=d; renderDetail(d); show('detail');
+    curDetail=d; _recentPush(d.code||code, d.names); renderDetail(d); show('detail');   // [ADM_AA6] 조회 성공한 고객만 기록
     setTimeout(function(){
       // ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드가 최상단으로 재배치되므로, 일반 열람은 헤더(이름·단계·연락)부터 위에서 보이게 하고,
       // 큐 일감(focusKind)으로 들어온 경우에만 해당 카드로 스크롤·강조한다.
@@ -2112,12 +2184,33 @@ function openContractViewer(d, ov2){
   }
 }
 
+// [ADM_AA5] 링크 입력칸 옆 '붙여넣기' — 하루 최다 손입력 제거. clipboard 미지원·권한 거부면 버튼을 숨기고 손입력 그대로(조용한 폴백 · alert 금지).
+//   실패 안내는 H2 매핑대로 필드 옆 인라인 + focus. https로 시작할 때만 자동 채움(엉뚱한 클립보드 내용 방지).
+function _pasteField(inputId){
+  var inp=$(inputId), btn=$(inputId+'_paste'), hint=$(inputId+'_hint');
+  if(!inp||!btn) return;
+  if(!(navigator.clipboard && navigator.clipboard.readText)){ btn.style.display='none'; return; }
+  btn.addEventListener('click', function(){
+    navigator.clipboard.readText().then(function(t){
+      t=String(t||'').trim();
+      if(/^https:\/\//i.test(t)){ inp.value=t; if(hint) hint.textContent=''; inp.focus(); }
+      else { if(hint) hint.textContent='복사해 둔 내용이 https 링크가 아니에요. 직접 붙여넣어 주세요.'; inp.focus(); }
+    }).catch(function(){ btn.style.display='none'; if(hint) hint.textContent=''; });   // 권한 거부 등 — 버튼만 치우고 손입력 유지
+  });
+}
+function _linkField(label,id,val){
+  return '<div class="field"><label>'+esc(label)+'</label>'
+    +'<div class="paste-row"><input type="url" id="'+id+'" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(val||'')+'">'
+    +'<button type="button" class="paste-btn" id="'+id+'_paste">붙여넣기</button></div>'
+    +'<div class="paste-hint" id="'+id+'_hint"></div></div>';
+}
 function openSetResult(code,names,isSnap,d){
   var r=d.raw||{};
-  var extra='<div class="field"><label>원본 드라이브 링크</label><input type="url" id="rOrig" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['원본링크']||'')+'"></div>'+
-    '<div class="field"><label>보정본 폴더 링크</label><input type="url" id="rReto" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['보정본폴더']||'')+'"></div>'+
-    (isSnap?'':'<div class="field"><label>본식 영상 링크</label><input type="url" id="rVid" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['영상링크']||'')+'"></div>');
+  var extra=_linkField('원본 드라이브 링크','rOrig',r['원본링크'])
+    +_linkField('보정본 폴더 링크','rReto',r['보정본폴더'])
+    +(isSnap?'':_linkField('본식 영상 링크','rVid',r['영상링크']));
   openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중')+li('드라이브 공유가 "링크가 있는 모든 사용자"인지 먼저 확인해 주세요 · 저장 후 자동 점검이 한 번 더 경고해요'), extra:extra, yes:'저장',
+    init:function(){ _pasteField('rOrig'); _pasteField('rReto'); if(!isSnap) _pasteField('rVid'); },   // [ADM_AA5]
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });
 }
