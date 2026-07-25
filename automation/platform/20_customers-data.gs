@@ -154,9 +154,13 @@ var _CUST_PII_COLS = [
   '비번해시', '로그인토큰', '토큰만료',
   '신랑이름', '신부이름', '연락처', '이메일',
   '동의기록', '입금자명', '잔금입금자명', '중도금입금자명', '추가보정입금자명',
-  '제작임시저장', '계약서링크', '쿠폰데이터', '선택사진', '설문응답',
+  '계약서링크', '쿠폰데이터', '선택사진', '설문응답',
   '원본링크', '영상링크', '보정본폴더', '좌석공유토큰', '안내공유토큰'
 ];
+// [PROD_ACCESSOR] 실제 파기 대상 = 위 목록 + 제작 데이터 컬럼(_prodCols · 80_production 단일 출처).
+//   제작 컬럼을 리터럴에 박아두면 PR-B 트랙 분리 때 신 컬럼이 파기에서 누락돼 개인정보(하객 이름·좌석)가 살아남는다.
+//   ※ 함수로 합치는 이유: _CUST_PII_COLS는 파일 평가 시점 리터럴이라 평가 순서(20→80)상 _prodCols()를 직접 못 쓴다.
+function _custPiiCols() { return _CUST_PII_COLS.concat(typeof _prodCols === 'function' ? _prodCols() : ['제작임시저장']); }
 // 이 컬럼 중 하나라도 '보관 의무' 값이면 파기 제외(법정 보관 · 진행 중 계약 보호).
 function _custRetained(get) {
   if (String(get('계약상태') || '').trim() === '서명완료') return true;
@@ -170,7 +174,8 @@ function _custRetained(get) {
 // '이미 익명화됨' 판정 — _CUST_PII_COLS 가 전부 비었을 때만 참. 신원 4개만 지워지고 입금자명·링크·토큰 등이
 //   남은 부분 익명화 행은 거짓(=아직 파기 대상) → 4필드만 보던 스킵이 잔여 PII를 영구 보관하던 것 방지.
 function _custAnonymized(get) {
-  for (var i = 0; i < _CUST_PII_COLS.length; i++) { if (String(get(_CUST_PII_COLS[i]) || '').trim()) return false; }
+  var _pc = _custPiiCols();
+  for (var i = 0; i < _pc.length; i++) { if (String(get(_pc[i]) || '').trim()) return false; }
   return true;
 }
 function purgeStaleCustomers(dryRun) {
@@ -216,7 +221,8 @@ function purgeStaleCustomers(dryRun) {
     if (_custAnonymized(fget)) continue;                                  // 배치 중 이미 익명화됨
     if (!_stale(fget)) continue;                                          // 배치 중 재활동(최종수정 갱신) → 보호(오파기 방지)
     var _seatTok = String(fget('좌석공유토큰') || '').trim();   // 파기 후 좌석 공개조회 캐시도 함께 무효화(파기 약속 즉시 이행 — 캐시 5분 잔존 방지)
-    for (var k = 0; k < _CUST_PII_COLS.length; k++) { var cc = colOf[_CUST_PII_COLS[k]]; if (cc) fresh[cc - 1] = ''; }
+    var _pcK = _custPiiCols();
+    for (var k = 0; k < _pcK.length; k++) { var cc = colOf[_pcK[k]]; if (cc) fresh[cc - 1] = ''; }
     var mark = '[자동파기 ' + fmtKST(new Date()) + '] 상담 미계약 6개월 경과 · 개인정보 삭제';
     if (colOf['관리자메모']) fresh[colOf['관리자메모'] - 1] = mark;
     if (colOf['처리이력']) fresh[colOf['처리이력'] - 1] = (String(fget('처리이력') || '') + '\n' + mark).trim().slice(0, 4000);

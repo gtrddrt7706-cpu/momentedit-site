@@ -149,7 +149,7 @@ function handleSaveInvitationDraft(body) {
     d.invitationDraft = (body && body.draft) || {};
     if (d.confirm && _prodUiStrip(_oldInvJ) !== _prodUiStrip(JSON.stringify(d.invitationDraft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX(2026-07-25) — 청첩장이 첫 제작 작업일 수 있음. 80_production 트랙 저장과 동일 전이(멱등·역행금지)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
@@ -187,7 +187,7 @@ function handlePublishInvitation(body) {
       d.tracks = d.tracks || {};
       if (d.tracks.invitation !== '완료') _prodConfirmVoid(d);   // [예식 확인서] 청첩장 상태 변화(→완료)도 확인 해제
       d.tracks.invitation = '완료';
-      touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d) });
+      touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
       return { ok: true, skipped: true };
     }
 
@@ -213,7 +213,7 @@ function handlePublishInvitation(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls, d.tracks.invitation]) !== _pubOld) _prodConfirmVoid(d);   // [예식 확인서] 발행(상태·링크 변화)도 확인 해제 — 재발행 무변경은 유지
-    var _updPub = { '제작임시저장': JSON.stringify(d), 'eventId': eventId };
+    var _updPub = _prodStoreCols(d, { 'eventId': eventId });   // PROD_ACCESSOR
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
     touchCustomer(custSheet, custCol, cust.num, _updPub);
@@ -274,7 +274,7 @@ function saveInvitationPreview(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls]) !== _wireOld) _prodConfirmVoid(d);   // [예식 확인서] 배선(링크) 변화도 확인 해제 — 무변경 재배선은 유지
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(custSheet, custCol, cust.num, { '제작임시저장': JSON.stringify(d), 'eventId': eventId });
+    touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }));   // PROD_ACCESSOR
 
     return { ok: true, eventId: eventId, urls: urls };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
@@ -284,7 +284,7 @@ function saveInvitationPreview(body) {
 function buildInvitationState(r) {
   if (!r) return null;
   if (PRODUCTION_STAGES.indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
-  var d = _parseJsonSafe(r.get('제작임시저장'));
+  var d = _prodLoad(r);   // PROD_ACCESSOR
   var eventId = d.eventId || String(r.get('eventId') || '').trim();
   return {
     configured: _invConfigured(),

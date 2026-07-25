@@ -62,7 +62,7 @@ function handleSaveProductionBase(body) {
     };
     var _nbJ = JSON.stringify((function () { var o = JSON.parse(JSON.stringify(draft.base)); delete o.savedAt; return o; })());
     if (draft.confirm && _obJ !== _nbJ) _prodConfirmVoid(draft);   // [예식 확인서] 기초정보(이름·일시) 실변경도 확인 해제
-    var upd = { '제작임시저장': JSON.stringify(draft), '제작상태': '작성중' };
+    var upd = _prodStoreCols(draft, { '제작상태': '작성중' });   // PROD_ACCESSOR
     if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
@@ -100,12 +100,33 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
 //   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
 var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
 
+// ══ [PROD_ACCESSOR 2026-07-25 · Wave 4 PR-A] 제작 데이터 단일 창구 ══
+//   지금은 '제작임시저장' 단일 셀 JSON. Wave 4 PR-B에서 트랙별 컬럼(제작_ritual·제작_dining…)으로 나눌 때
+//   ★이 블록의 함수만 바꾸면 전 소비처(80·85·70·admin)가 따라온다. 다른 파일에서 cust.get('제작임시저장') 직접 접근 금지.
+//   ※ 상수가 아니라 함수로 두는 이유: .gs 파일 평가 순서(20→80)와 무관하게 어디서든 호출 가능(함수 선언은 전역 호이스팅).
+function _prodCols() { return ['제작임시저장']; }   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·캐시 무효화가 참조하는 스키마 단일 출처
+function _prodRawCell(cust) { return String(cust.get(_prodCols()[0]) || '').trim(); }   // 원문(손상 검사용) — PR-B에선 컬럼별 원문 맵으로
+function _prodLoad(cust) { return cust ? _parseJsonSafe(cust.get(_prodCols()[0])) : {}; }   // 읽기(관대 · 손상 시 {}) — 행 객체(.get) 경로
+function _prodLoadRaw(getter, rv) { return _parseJsonSafe(getter(rv, _prodCols()[0])); }   // 읽기 — 목록 스캔(행 배열 + 컬럼 getter 클로저 · admin)
+function _prodStoreCols(d, upd) {   // 쓰기 — 시트 업데이트 맵에 병합해 반환(touchCustomer 호출은 호출부가 1회 · 락 보유시간 단축)
+  upd = upd || {};
+  upd[_prodCols()[0]] = JSON.stringify(d);
+  return upd;
+}
+// [DRAFT_SIZE_CAP] 저장 전 전체 용량 검사 — 셀 한도(50k)를 넘겨 이후 모든 트랙 저장이 마비되는 사고 차단(조기 거부 · truncate 금지).
+//   초과면 고객 안내 문구, 통과면 ''. PR-B에서 컬럼별 캡으로 바뀌어도 호출부는 그대로.
+function _prodSizeError(d) {
+  var j = ''; try { j = JSON.stringify(d); } catch (e) { return ''; }
+  if (j.length > 45000) return '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + j.length + '자 · 최대 45,000자). 긴 글을 조금 줄여 주시면 저장돼요.';
+  return '';
+}
+
 // [손상 방어] 제작임시저장 셀이 깨졌으면(수동 편집·붙여넣기 사고 등) 그 위에 저장하지 않는다.
 //   _parseJsonSafe의 {} 폴백 위에 저장하면 좌석·청첩장·다이닝 전 트랙이 통째로 덮여 영구 유실되기 때문.
 //   반환: { ok:true, d } 또는 { ok:false, res }(고객 안내 + 관리자 메일 1시간 1회 · 셀 복구 유도).
 //   notifyQ(선택): 넘기면 경고 메일을 큐에 담아 호출부가 락 해제 후 발송(락 안 외부 I/O 방지) · 없으면 즉시 발송.
 function _prodDraftLoadSafe(cust, code, notifyQ) {
-  var raw = String(cust.get('제작임시저장') || '').trim();
+  var raw = _prodRawCell(cust);   // PROD_ACCESSOR
   if (!raw) return { ok: true, d: {} };
   try {
     var d = JSON.parse(raw);
@@ -156,6 +177,11 @@ function _prodUiStrip(json, track) {
     var o = JSON.parse(json);
     for (var k in o) { if (k.charAt(0) === '_') delete o[k]; }
     if (track === 'guideinfo') delete o.showSeat;
+    // [UISTRIP_FAVS_EXEMPT 2026-07-25 · R-9] 담은 곳(_favs)·하객 공개 토글(_favs[].show)은 확인서 해제 대상이 아니다 —
+    //   확인서 다이닝 줄은 '최종 선택 장소(venue·venuePick)'만 기록하고 담은 곳 목록은 담지 않으므로(prodConfirmHtml),
+    //   별을 담거나 공개를 켜고 끄는 것만으로 재확인을 요구하면 근거 없는 재확인 피로만 남는다.
+    //   ※ 위 언더바 규칙이 이미 지우지만, 그 규칙을 미래에 손대도 이 의도가 조용히 깨지지 않게 명시적으로 고정(회귀 방지).
+    delete o._favs;
     return JSON.stringify(o);
   } catch (e) { return String(json); }
 }
@@ -280,7 +306,7 @@ function handleSaveProductionTrack(body) {
           course: String((_rd.summary || {}).course || ''), venue: String(_dd.venue || _dd.venuePick || ''), seatTables: _tc, seatNames: _pn,
           tracks: { invitation: _tr.invitation || '', dining: _tr.dining || '', ritual: _tr.ritual || '', final: _tr.final || '', seat: _tr.seat || '' } } };
       delete d.confirmStale;
-      touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 확인서 경로도 조기 return이라 별도 전이(멱등)
       _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
       return { ok: true, confirm: d.confirm };
@@ -306,10 +332,9 @@ function handleSaveProductionTrack(body) {
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
-    var _updJ = JSON.stringify(d);
-    // [DRAFT_SIZE_CAP 2026-07-25] 전 트랙 합산 캡 — 한 트랙 초과가 셀 한도(50k)를 넘겨 이후 모든 트랙 저장을 마비시키는 사고 차단(조기 거부).
-    if (_updJ.length > 45000) return { ok: false, error: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + _updJ.length + '자 · 최대 45,000자). 긴 글을 조금 줄여 주시면 저장돼요.' };
-    var _upd = { '제작임시저장': _updJ };   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
+    var _capErr = _prodSizeError(d);   // [DRAFT_SIZE_CAP] 합산 캡 — 판정은 _prodSizeError(PROD_ACCESSOR)로 수렴, PR-B에서 컬럼별 캡으로 바뀜
+    if (_capErr) return { ok: false, error: _capErr };
+    var _upd = _prodStoreCols(d);   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축) · PROD_ACCESSOR
     // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
     var _seatToken = '';
     if (track === 'seat') {
@@ -436,7 +461,7 @@ function handleSeatView(body) {
   var cust = _findCustomerBy('좌석공유토큰', token, false);
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
-  var d = _parseJsonSafe(cust.get('제작임시저장'));
+  var d = _prodLoad(cust);   // PROD_ACCESSOR
   // (구)showSeat 허용 토글 게이트 제거 — 2026-07-17 2안 폐지. 레거시 false 저장분이 좌석 안내를 UI 없이 영구 차단하던 막다른길 해소. ★접근 게이트 추가 시 _seatFindByToken과 쌍으로
   // [좌석 공개 범위] 부부가 '내 자리만 검색'을 켠 경우에만 전체 배치도(명단) 차단 — 기본은 전체 공개(2026-07-17 사용자 지시).
   //   이미 배포된 seat 링크·QR에도 즉시 적용: 프론트(seat.html)가 mineOnly를 받으면 검색 전용 화면으로 전환(죽은 링크 없음).
@@ -501,7 +526,7 @@ function _seatFindByToken(token, q) {
     var cust = _findCustomerBy('좌석공유토큰', token, false);
     if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
     if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };
-    var d = _parseJsonSafe(cust.get('제작임시저장'));
+    var d = _prodLoad(cust);   // PROD_ACCESSOR
     var sd = d.seatDraft || {};   // (구)showSeat 게이트 제거 — handleSeatView와 동일(2026-07-17 2안 폐지)
     var raw = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
     tables = raw.map(_seatFindSlim);
@@ -561,7 +586,7 @@ function handleGuideView(body) {
   var cust = _findCustomerBy('안내공유토큰', token, false);
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
   if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
-  var d = _parseJsonSafe(cust.get('제작임시저장'));
+  var d = _prodLoad(cust);   // PROD_ACCESSOR
   var gi = d.guideinfoDraft || {};
   // (구)showSeat 허용 토글 폐지(2026-07-17 2안) — 좌석 노출은 배치 유무 + seatMode만으로 결정
   // ★라이브 파생·노출 복원 금지 — 2026-07-17 사용자 지시로 하객 안내에서 라이브 섹션 삭제(오프라인 하객용 페이지 · 라이브는 온라인 청첩장이 단일 창구)
@@ -611,7 +636,7 @@ function buildProductionState(r) {
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 · 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
   var stage = String(r.get('현재단계') || '').trim();
   if (PRODUCTION_STAGES.indexOf(stage) === -1) return null;
-  var draft = _parseJsonSafe(r.get('제작임시저장'));
+  var draft = _prodLoad(r);   // PROD_ACCESSOR
   var entered = !!draft.base;
   var b = draft.base || {};
   var lockedWed = _ymdOf(r.get('예식일'));                    // 계약 시점에 확정된 예식일(톱레벨) = 돈 계산 단일 기준
