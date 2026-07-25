@@ -1995,7 +1995,8 @@ function _cpnCompress(file, budget){
     fr.readAsDataURL(file);
   });
 }
-function doRevokeCoupon(code,names){ openModal({ title:'커피쿠폰을 회수할까요?',   // [ADM_AA9] danger 제거 — 되돌릴 수 있는 저위험 액션에 빨강을 쓰면 진짜 위험 액션(취소·노쇼·강제변경)의 빨강이 무뎌짐 text:b(names)+li('고객 마이페이지에서 바코드가 사라져요')+li('이미 사용한 쿠폰이면 회수 의미가 없어요'), yes:'회수', onYes:function(){ runAct(['adminRevokeCoupon',code],code,'회수'); } }); }
+// [ADM_AA9] danger 제거 — 되돌릴 수 있는 저위험 액션에 빨강을 쓰면 진짜 위험 액션(취소·노쇼·강제변경)의 빨강이 무뎌짐. 문구는 유지.
+function doRevokeCoupon(code,names){ openModal({ title:'커피쿠폰을 회수할까요?', text:b(names)+li('고객 마이페이지에서 바코드가 사라져요')+li('이미 사용한 쿠폰이면 회수 의미가 없어요'), yes:'회수', onYes:function(){ runAct(['adminRevokeCoupon',code],code,'회수'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
 function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면  고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
