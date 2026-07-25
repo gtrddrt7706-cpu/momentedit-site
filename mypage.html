@@ -3635,9 +3635,32 @@ function _prodFsSync(){
   if(on && !has){ box.classList.add('mp-fs'); _mpLock(); }
   else if(!on && has){ box.classList.remove('mp-fs'); _mpUnlock(); }
 }
+// [MPD4_H4] 전달완료 후 '내 완성물' 읽기전용 요약(§9-5-⑥) — 끝난 예식의 편집 대시보드 잔존 제거. 링크만 열람.
+function _myWorksHtml(p, inv){
+  p=p||{}; inv=inv||{}; var t=p.tracks||{};
+  var u=(inv.published&&inv.published.urls)||{};
+  function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
+  function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
+  var rows=[];
+  if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기 ↗')));
+  if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기 ↗')));
+  if((t.ritual||'')==='완료') rows.push(line('식순'));
+  if((t.seat||'')==='완료') rows.push(line('좌석 배치'));
+  if((t.dining||'')==='완료') rows.push(line('애프터 웨딩'));
+  if(!rows.length) return '';
+  return '<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Production</div>'
+    +'<div class="cc-title" style="text-align:left">내 완성물</div>'
+    +'<div class="trk-list">'+rows.join('')+'</div>'
+    +'<div class="cc-note" style="text-align:left;margin-top:12px">예식이 끝나 편집은 닫아 두었어요. 필요한 변경은 카카오톡으로 알려 주세요.</div></div>';
+}
 function renderProduction(p, inv){
   var box=$('mp_production'); if(!box) return;
-  _prodFsSync();   // 편집 플로우 활성/종료에 맞춰 풀스크린 클래스 동기화(가드가 early-return 하기 전에 먼저)
+  _prodFsSync();
+  // MPD4_H4 전달완료(결과물전달) 후엔 편집 대시보드 대신 읽기전용 '내 완성물' — 진행 중 편집 플로우가 있으면 그대로(저장 유실 방지)
+  if(((window._mpStateD&&window._mpStateD.stage)||'')==='결과물전달' && p && !INVFLOW.active && !(typeof TRKFLOW!=='undefined'&&TRKFLOW.active) && !SEATFLOW.active){
+    var _mw=_myWorksHtml(p, inv);
+    if(_mw){ box.innerHTML=_mw; box.style.display='block'; return; }
+  }   // 편집 플로우 활성/종료에 맞춰 풀스크린 클래스 동기화(가드가 early-return 하기 전에 먼저)
   if(!p){
     // 서버 상태가 제작 카드를 숨기는 순간(입금 홀드·단계 롤백)에도, 진행 중 편집은 강제 종료하지 않는다 —
     // 새로고침 한 번에 위저드·좌석 편집이 통째로 닫히며 저장 안 된 초안이 날아가던 문제(2026-07-18 점검). 나가기는 기존 '저장 후 나가기' 경로로.
