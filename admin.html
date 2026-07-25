@@ -269,10 +269,10 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <div class="topbar">
   <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
-  <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">⛔</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">🗄</button>
-  <button class="tb" id="btnAiTeam" title="AI 직원실(명단·교육·테스트·인건비·인계)" style="display:none">🤖</button>
-  <button class="tb" id="btnRefresh" title="새로고침" style="display:none">↻</button>
-  <button class="tb" id="btnLogout" title="로그아웃" style="display:none">⏏</button>
+  <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">휴무</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">보관</button>
+  <button class="tb" id="btnAiTeam" title="AI 직원실(명단·교육·테스트·인건비·인계)" style="display:none">AI</button>
+  <button class="tb" id="btnRefresh" title="새로고침" style="display:none">새로고침</button>
+  <button class="tb" id="btnLogout" title="로그아웃" style="display:none">로그아웃</button>
 </div>
 
 <main>
@@ -310,7 +310,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <!-- 아카이브 -->
   <section id="archiveView" style="display:none">
     <button class="back" id="btnArcBack">← 목록</button>
-    <div class="sect-h"><span class="ic">🗄</span><span class="tt">아카이브 (끝난 고객)</span></div>
+    <div class="sect-h"><span class="tt">아카이브 (끝난 고객)</span></div>
     <div class="search">
       <input type="text" id="aq" placeholder="이름·개인코드·연락처 검색" autocomplete="off">
       <button id="btnAsearch">검색</button>
@@ -438,7 +438,7 @@ function _seatChartDoc(d){
   tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
   ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
-    if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join('  |  ')+'</div>'; });
+    if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join(' |  ')+'</div>'; });
   var totLine='음료 합계 · 샴페인 '+cC+' · 레드와인 '+cR+' · 논알콜 스파클링 '+cN+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명';   // 자리별 3음료 집계(2026-07-19)
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
@@ -504,7 +504,7 @@ function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
   var box=document.createElement('div');
   box.style.cssText='background:#fff;border-radius:10px;max-width:520px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden';
   function chips(){ return TARGETS.map(function(t){ var on=!!sel[t]; return '<button type="button" class="teachTg" data-t="'+t+'" style="padding:6px 13px;border:1px solid '+(on?'#6B2A24':'#d9cfc1')+';background:'+(on?'#6B2A24':'#fff')+';color:'+(on?'#fff':'#5a554c')+';border-radius:999px;font-size:12px;cursor:pointer">'+t+'</button>'; }).join(''); }
-  box.innerHTML='<div style="padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2;font-size:15px;color:#3a2f25;font-weight:600">📚 AI 교육</div>'
+  box.innerHTML='<div style="padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2;font-size:15px;color:#3a2f25;font-weight:600"> AI 교육</div>'
     +'<div style="padding:16px">'
     +(ctxLine?'<div style="font-size:12px;color:#75705f;background:#f7f3ec;border-radius:7px;padding:8px 10px;margin-bottom:10px;white-space:pre-wrap">'+esc(ctxLine)+'</div>':'')
     +'<div style="font-size:12px;color:#75705f;margin-bottom:5px">가르칠 내용 <span style="color:#b0a896">(AI가 앞으로 이대로 답해요 · 자유롭게 수정)</span></div>'
@@ -544,7 +544,7 @@ function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
     doOne(false);
   }); }
 
-// AI 비용 — 💰 버튼 클릭 시에만 오버레이로 띄움(메인 로딩엔 영향 없음). GAS aiCostSummary24h 집계를 원화로 표시.
+// AI 비용 —  버튼 클릭 시에만 오버레이로 띄움(메인 로딩엔 영향 없음). GAS aiCostSummary24h 집계를 원화로 표시.
 function _won(n){ return '₩' + (Number(n)||0).toLocaleString('ko-KR'); }
 function openAiCost(){
   var old=document.getElementById('ad_aiCost'); if(old&&old.parentNode) old.parentNode.removeChild(old);
@@ -554,9 +554,9 @@ function openAiCost(){
   box.style.cssText='background:#fff;border-radius:10px;max-width:480px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden';
   var bar=document.createElement('div');
   bar.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2';
-  bar.innerHTML='<span style="font-size:15px;color:#3a2f25;font-weight:600">💰 AI 비용</span>';
+  bar.innerHTML='<span style="font-size:15px;color:#3a2f25;font-weight:600"> AI 비용</span>';
   var btns=document.createElement('span');
-  var bRef=document.createElement('button'); bRef.textContent='↻ 새로고침'; bRef.style.cssText='margin-right:8px;padding:6px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:6px;font-size:12px;cursor:pointer';
+  var bRef=document.createElement('button'); bRef.textContent='새로고침'; bRef.style.cssText='margin-right:8px;padding:6px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:6px;font-size:12px;cursor:pointer';
   var bCls=document.createElement('button'); bCls.textContent='닫기'; bCls.style.cssText='padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer';
   btns.appendChild(bRef); btns.appendChild(bCls); bar.appendChild(btns);
   var bodyEl=document.createElement('div'); bodyEl.style.cssText='padding:16px';
@@ -589,15 +589,15 @@ function openAiCost(){
       h+='<div style="margin-top:8px;font-size:12px">';
       h+='<div style="display:flex;justify-content:space-between;color:#75705f"><span>월 예산</span><span>'+(budget>0?(_won(budget)+' 중 '+pct+'%'):'미설정')+' <button id="aicBudget" style="margin-left:4px;padding:1px 7px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">설정</button></span></div>';
       if(budget>0){ h+='<div style="margin-top:5px;height:7px;background:#f0ebe3;border-radius:4px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+mCol+'"></div></div>'; }
-      if(over){ h+='<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border-radius:6px;color:#b00;font-size:12px">⚠️ 이번 달 예산을 넘었어요 ('+_won(mTotal-budget)+' 초과). 테스트·사용을 줄이거나 예산을 조정하세요. <button id="aicAlert" style="margin-left:4px;padding:1px 7px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">📱 알림</button></div>'; }
+      if(over){ h+='<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border-radius:6px;color:#b00;font-size:12px">⚠️ 이번 달 예산을 넘었어요 ('+_won(mTotal-budget)+' 초과). 테스트·사용을 줄이거나 예산을 조정하세요. <button id="aicAlert" style="margin-left:4px;padding:1px 7px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">알림</button></div>'; }
       else if(near){ h+='<div style="margin-top:6px;font-size:11px;color:#9a7b00">예산의 80%를 넘었어요.</div>'; }
       h+='</div>';
       h+='<div style="margin-top:10px;font-size:11px;color:#b0a896">추정치예요. 정확한 청구액은 Anthropic 콘솔 기준 · 업데이트 '+esc(r.updatedAt||'')+'</div>';
-      // 📨 문자·알림톡 (솔라피)
+      //  문자·알림톡 (솔라피)
       if(sp&&sp.ok){
         var balCol=(sp.balance!=null&&Number(sp.balance)<5000)?'#b00':'#3a2f25';
         var sm=sp.month||{}; var byTxt=Object.keys(sm.by||{}).map(function(k){return k+' '+sm.by[k];}).join(' · ');
-        h+='<div style="margin-top:16px;padding-top:12px;border-top:1px dashed #e0d8cc"><div style="font-size:12px;font-weight:600;color:#3a2f25;margin-bottom:6px">📨 문자·알림톡 (솔라피)</div>';
+        h+='<div style="margin-top:16px;padding-top:12px;border-top:1px dashed #e0d8cc"><div style="font-size:12px;font-weight:600;color:#3a2f25;margin-bottom:6px">문자·알림톡 (솔라피)</div>';
         h+='<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#75705f">잔액</span><span style="color:'+balCol+';font-weight:600">'+(sp.balance!=null?_won(sp.balance):'조회 실패')+'</span></div>';
         h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px"><span style="color:#75705f">이번 달 발송</span><span style="color:#3a2f25">'+(Number(sm.count)||0)+'건 <span style="color:#9a9183;font-weight:400">(추정 '+_won(sm.krw)+')</span></span></div>';
         h+='<div style="font-size:10px;color:#b0a896;margin-top:3px">'+(byTxt?esc(byTxt)+' · ':'')+'최근 24시간 '+((sp.day&&sp.day.count)||0)+'건 · 발송 단가는 추정(콘솔 기준 상이)</div>';
@@ -613,7 +613,7 @@ function openAiCost(){
   load();
 }
 
-// AI 테스트 — 🧪 버튼: 5접점 자동 테스트(설정: 예산·접점·커스텀 질문). same-origin이라 관리자에서 바로 실행.
+// AI 테스트 —  버튼: 5접점 자동 테스트(설정: 예산·접점·커스텀 질문). same-origin이라 관리자에서 바로 실행.
 function openAiTest(){
   var MYSTATE='현재 단계: 입금완료 · 예식일: 2026-10-26 · 중도금: 예식 149일 전(약 5개월 전) · 잔금: 예식 9일 전';
   var PHONE=/01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/;
@@ -641,7 +641,7 @@ function openAiTest(){
   var ov=document.createElement('div'); ov.id='ad_aiTest';
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto';
   var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:10px;max-width:560px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)';
-  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600">🧪 AI 테스트</span><button id="aitClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
+  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600"> AI 테스트</span><button id="aitClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
   var bd=document.createElement('div'); bd.style.cssText='padding:16px';
   var SURF=['메인','마이','예약','애프터','핸드오프','식순'];
   var cbs=SURF.map(function(s){return '<label style="margin-right:10px;font-size:13px;color:#3a2f25"><input type="checkbox" class="aitSurf" value="'+s+'" checked> '+s+'</label>';}).join('');
@@ -674,7 +674,7 @@ function openAiTest(){
     var seq=list.reduce(function(pr,it){ return pr.then(function(){ return run1(it.surface,it.q).then(function(j){
       var rep=j.reply||(j.ok!==undefined?('[ok='+j.ok+(j.delivered!==undefined?(' 전달='+j.delivered):'')+']'):JSON.stringify(j));
       var mark, failed=false; if(it.grade){ gradable++; var ok=false; try{ok=it.grade(rep,j);}catch(e){} if(ok)pass++; else failed=true; mark=ok?'<span style="color:#2e7d32">OK</span>':'<span style="color:#b00">CHECK</span>'; } else { mark='<span style="color:#9a7b00">검토</span>'; }
-      var eduBtn=failed?' <button class="aitEdu" data-surf="'+esc(it.surface)+'" data-q="'+esc(it.q)+'" style="margin-left:4px;padding:1px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>':'';
+      var eduBtn=failed?' <button class="aitEdu" data-surf="'+esc(it.surface)+'" data-q="'+esc(it.q)+'" style="margin-left:4px;padding:1px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button>':'';
       rows.push('<div style="border-top:1px solid #f0ebe3;padding:8px 0">[<b>'+mark+'</b>] <b>'+esc(it.surface)+'·'+esc(it.axis)+'</b> '+esc(it.q)+(j.escalate?' <span style="color:#6B2A24">[에스컬]</span>':'')+eduBtn+'<div style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div></div>');
       done++; render('실행 중… ('+done+'/'+list.length+')');
     }); }); }, Promise.resolve());
@@ -685,28 +685,28 @@ function openAiTest(){
       gas('aiTestRunSave', pass, gradable).then(function(rs){
         var cmp=''; if(rs&&rs.ok&&rs.prev){ cmp=' <span style="font-weight:400;color:#9a9183">· 지난번 '+rs.prev.pass+'/'+rs.prev.total+(pass>rs.prev.pass?' ▲':(pass<rs.prev.pass?' ▼':' ='))+'</span>'; }
         var fail=gradable-pass;
-        var alertBtn=fail>0?' <button id="aitAlert" style="margin-left:6px;padding:3px 9px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">📱 문제 문자 알림</button>':'';
-        out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+' (검토는 답 보고 판단)'+cmp+alertBtn+'</div>'+(fail>0?'<div style="font-size:11px;color:#9a7b00;margin-bottom:6px">CHECK 항목 옆 📚 교육으로 올바른 내용을 바로 가르칠 수 있어요.</div>':'')+rows.join('')+'<div style="margin-top:10px;font-size:11px;color:#b0a896">실제 비용은 💰 인건비에서 확인 · 추정 ≈₩'+(list.length*70).toLocaleString('ko-KR')+'</div>';
+        var alertBtn=fail>0?' <button id="aitAlert" style="margin-left:6px;padding:3px 9px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">문제 문자 알림</button>':'';
+        out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+' (검토는 답 보고 판단)'+cmp+alertBtn+'</div>'+(fail>0?'<div style="font-size:11px;color:#9a7b00;margin-bottom:6px">CHECK 항목 옆  교육으로 올바른 내용을 바로 가르칠 수 있어요.</div>':'')+rows.join('')+'<div style="margin-top:10px;font-size:11px;color:#b0a896">실제 비용은  인건비에서 확인 · 추정 ≈₩'+(list.length*70).toLocaleString('ko-KR')+'</div>';
         var ab=document.getElementById('aitAlert'); if(ab) ab.addEventListener('click',function(){ gas('aiAlertAdmin','테스트 '+pass+'/'+gradable+' 통과 · 문제 '+fail+'건 확인 필요').then(function(r){ alert(r&&r.ok?'관리자 문자 발송됨':('실패: '+((r&&r.error)||'설정 확인'))); }); }); wireEdu();
       }).catch(function(){ out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+'</div>'+rows.join(''); wireEdu(); });
     });
   });
 }
 
-// 🤖 AI 직원실 — 명단·교육·인계기록 + 테스트·인건비 통합 허브
+//  AI 직원실 — 명단·교육·인계기록 + 테스트·인건비 통합 허브
 function openAiTeam(){
   var old=document.getElementById('ad_aiTeam'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='ad_aiTeam';
   ov.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto';
   var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:10px;max-width:600px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)';
-  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600">🤖 AI 직원실</span><button id="atmClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
+  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee5d9;background:#faf7f2"><span style="font-size:15px;color:#3a2f25;font-weight:600"> AI 직원실</span><button id="atmClose" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">닫기</button></div>';
   var tabs=document.createElement('div'); tabs.style.cssText='display:flex;gap:4px;padding:10px 12px 0;flex-wrap:wrap';
   var bd=document.createElement('div'); bd.style.cssText='padding:16px;min-height:120px';
   box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
   document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
   ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
-  var TABS=[['명단','👥'],['핵심정보','🎯'],['교육','📚'],['개선','💡'],['리포트','📊'],['인계기록','📋'],['테스트','🧪'],['인건비','💰']]; var btns={};
-  TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]+' '+t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
+  var TABS=[['명단'],['핵심정보'],['교육'],['개선'],['리포트'],['인계기록'],['테스트'],['인건비']]; var btns={};   // 이모지 열 제거(2026-07-25 사용자 지시 · 최소 사용)
+  TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
     if(name==='명단') return rRoster();
@@ -715,17 +715,17 @@ function openAiTeam(){
     if(name==='개선') return rImprove();
     if(name==='리포트') return rReport();
     if(name==='인계기록') return rHandoff();
-    if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">🧪 테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
-    if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">💰 인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
+    if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
+    if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
   }
   function rRoster(){ var R=[['메인 상담','홈 예비고객 상담','메인'],['마이 비서','마이페이지 상담','마이페이지'],['예약 담당','날짜·시간 예약','예약'],['애프터 컨시어지','식당·애프터 추천','애프터'],['인계 비서','상담사 연결 브리핑','핸드오프']];
-    bd.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:8px">AI 5명을 한곳에서 — 📚교육으로 알려주고 · 🧪테스트로 점검하고 · 💰인건비를 봅니다.</div><div style="color:#9a9183;font-size:12px">최근 24시간 불러오는 중…</div>';
+    bd.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:8px">AI 5명을 한곳에서 — 교육으로 알려주고 · 테스트로 점검하고 · 인건비를 봅니다.</div><div style="color:#9a9183;font-size:12px">최근 24시간 불러오는 중…</div>';
     gas('aiCostSummary24h').then(function(r){ var by={}; if(r&&r.ok&&r.day&&r.day.bySurface){ r.day.bySurface.forEach(function(s){ by[s.surface]=s; }); }
-      var h='<div style="font-size:11px;color:#9a9183;margin-bottom:10px">AI 5명을 한곳에서 — 📚교육 · 🧪테스트 · 💰인건비. (최근 24시간 활동)</div><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
+      var h='<div style="font-size:11px;color:#9a9183;margin-bottom:10px">AI 5명을 한곳에서 — 교육 · 테스트 · 인건비. (최근 24시간 활동)</div><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
        +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')+'</td></tr>'; }).join('')+'</table>';
       bd.innerHTML=h;
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
-  // 🎯 핵심정보 — 가격·일정·정책의 단일 진실원. 여기서 고치면 재배포 없이 5직원 모두 최대 2분 내 반영. 변경은 이력에 남아 되돌리기 가능.
+  //  핵심정보 — 가격·일정·정책의 단일 진실원. 여기서 고치면 재배포 없이 5직원 모두 최대 2분 내 반영. 변경은 이력에 남아 되돌리기 가능.
   function rFacts(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:6px">가격·일정·정책 등 <b>핵심 사실</b> — 여기서 고치면 <b>재배포 없이</b> 5직원 모두 최대 2분 내 반영돼요. 잘못 넣으면 고객에게 그대로 나가니 신중히 · 변경은 이력에 남아 되돌릴 수 있어요.</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 280만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
      +'<div style="display:flex;gap:6px;margin-bottom:8px"><input id="fDesc" placeholder="메모(선택) — 근거·출처" style="flex:1;padding:6px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px"><button id="fAdd" style="padding:6px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">저장</button></div>'
@@ -736,24 +736,24 @@ function openAiTeam(){
     loadFacts(); }
   function loadFacts(){ var el=document.getElementById('fList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiFactsList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var fs=r.facts||[]; if(!fs.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 핵심정보가 없어요. 위에서 추가하세요. (없으면 기존 코드 기본값이 쓰입니다)</div>'; return; }
-      el.innerHTML=fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><div style="display:flex;align-items:center;gap:8px"><b style="color:#3a2f25;min-width:90px">'+esc(f.key)+'</b><span style="flex:1;color:#6B2A24;font-weight:600">'+esc(f.value)+'</span><button class="fEd" data-k="'+esc(f.key)+'" data-v="'+esc(f.value)+'" data-d="'+esc(f.desc)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">수정</button><button class="fHs" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">이력</button><button class="fDel" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'+(f.desc?'<div style="font-size:10px;color:#b0a896;margin-top:2px">📝 '+esc(f.desc)+' · '+esc(f.at)+'</div>':'<div style="font-size:10px;color:#cfc7b8;margin-top:2px">'+esc(f.at)+'</div>')+'</div>'; }).join('');
+      el.innerHTML=fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><div style="display:flex;align-items:center;gap:8px"><b style="color:#3a2f25;min-width:90px">'+esc(f.key)+'</b><span style="flex:1;color:#6B2A24;font-weight:600">'+esc(f.value)+'</span><button class="fEd" data-k="'+esc(f.key)+'" data-v="'+esc(f.value)+'" data-d="'+esc(f.desc)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">수정</button><button class="fHs" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">이력</button><button class="fDel" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'+(f.desc?'<div style="font-size:10px;color:#b0a896;margin-top:2px"> '+esc(f.desc)+' · '+esc(f.at)+'</div>':'<div style="font-size:10px;color:#cfc7b8;margin-top:2px">'+esc(f.at)+'</div>')+'</div>'; }).join('');
       Array.prototype.forEach.call(el.querySelectorAll('.fEd'),function(b){ b.addEventListener('click',function(){ document.getElementById('fKey').value=b.getAttribute('data-k'); document.getElementById('fVal').value=b.getAttribute('data-v'); document.getElementById('fDesc').value=b.getAttribute('data-d'); document.getElementById('fVal').focus(); }); });
       Array.prototype.forEach.call(el.querySelectorAll('.fDel'),function(b){ b.addEventListener('click',function(){ var k=b.getAttribute('data-k'); if(confirm('"'+k+'" 삭제할까요? (삭제하면 기존 코드 기본값으로 돌아갑니다)')) gas('aiFactDelete',k).then(loadFacts); }); });
       Array.prototype.forEach.call(el.querySelectorAll('.fHs'),function(b){ b.addEventListener('click',function(){ showFactHist(b.getAttribute('data-k')); }); });
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   function showFactHist(key){ var el=document.getElementById('fHist'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px;margin-top:8px">이력 불러오는 중…</div>';
     gas('aiFactHistory',key).then(function(r){ var h=(r&&r.history)||[]; if(!h.length){ el.innerHTML='<div style="font-size:12px;color:#9a9183;margin-top:8px">"'+esc(key)+'" 변경 이력이 없어요.</div>'; return; }
-      el.innerHTML='<div style="margin-top:10px;border-top:1px dashed #e0d8cc;padding-top:8px"><div style="font-size:12px;color:#75705f;margin-bottom:4px">"'+esc(key)+'" 변경 이력 <button id="fRb" style="margin-left:6px;padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">↩ 직전 값으로 되돌리기</button></div>'
+      el.innerHTML='<div style="margin-top:10px;border-top:1px dashed #e0d8cc;padding-top:8px"><div style="font-size:12px;color:#75705f;margin-bottom:4px">"'+esc(key)+'" 변경 이력 <button id="fRb" style="margin-left:6px;padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">직전 값으로 되돌리기</button></div>'
        +h.map(function(x){ return '<div style="font-size:11px;color:#5a554c;padding:3px 0">'+esc(x.at)+' · '+esc(x.prev||'(없음)')+' → <b>'+esc(x.next)+'</b></div>'; }).join('')+'</div>';
       var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){ if(confirm('"'+key+'"을 직전 값으로 되돌릴까요?')) gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else alert((rr&&rr.error)||'되돌리기 실패'); }); });
     }); }
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 — 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
-     +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">📢 전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
+     +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
      +'<button id="eduAdd" style="padding:6px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">추가</button></div>'
      +'<div style="margin-bottom:6px"><input id="eduMemo" placeholder="메모(선택) — 왜 추가했는지 · 출처 등" style="width:100%;padding:5px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px;box-sizing:border-box"></div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">기본은 <b>전체</b> — 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꾸세요. · 고친 뒤엔 <b>💡 개선</b> 탭에서 전 직원이 제대로 답하는지 확인하세요.</div>'
-     +'<input id="eduSearch" placeholder="🔍 등록된 교육 검색" style="width:100%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px;box-sizing:border-box;margin-bottom:8px">'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">기본은 <b>전체</b> — 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꾸세요. · 고친 뒤엔 <b>개선</b>탭에서 전 직원이 제대로 답하는지 확인하세요.</div>'
+     +'<input id="eduSearch" placeholder=" 등록된 교육 검색" style="width:100%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px;box-sizing:border-box;margin-bottom:8px">'
      +'<div id="eduList"></div>';
     document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(), memo=document.getElementById('eduMemo').value.trim(); if(!t) return;
       var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); };
@@ -773,29 +773,29 @@ function openAiTeam(){
     var ns=_eduNotes.filter(function(n){ return !q || (n.text+' '+n.target+' '+(n.memo||'')).toLowerCase().indexOf(q)>=0; });
     if(!ns.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">'+(q?'검색 결과가 없어요.':'아직 등록된 교육이 없어요.')+'</div>'; return; }
     var cf=_eduConflicts(_eduNotes);
-    el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:flex-start;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px;margin-top:2px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+(cf[n.id]?'<span title="비슷한 교육이 있어요 — 모순·중복 확인" style="cursor:help">⚠️</span> ':'')+esc(n.text)+(n.memo?'<div style="font-size:10px;color:#b0a896;margin-top:2px">📝 '+esc(n.memo)+'</div>':'')+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
+    el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:flex-start;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px;margin-top:2px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+(cf[n.id]?'<span title="비슷한 교육이 있어요 — 모순·중복 확인" style="cursor:help">⚠️</span> ':'')+esc(n.text)+(n.memo?'<div style="font-size:10px;color:#b0a896;margin-top:2px"> '+esc(n.memo)+'</div>':'')+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
     Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
     Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
   }
   function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } _eduNotes=r.notes||[]; renderEdu();
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
-  // 💡 개선 — 자기개선 루프: ⓪ 자동 안전망 상태·수동 점검 ① 전 직원 일괄 점검+교육 효과 확인 ② 실제 고객 질문(빈도) 교육 후보
+  //  개선 — 자기개선 루프: ⓪ 자동 안전망 상태·수동 점검 ① 전 직원 일괄 점검+교육 효과 확인 ② 실제 고객 질문(빈도) 교육 후보
   function rImprove(){
     bd.innerHTML='<div id="impHealth" style="background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:10px 12px;margin-bottom:14px"></div>'
-     +'<div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🩺 전 직원 점검</div>'
+     +'<div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">전 직원 점검</div>'
      +'<div style="font-size:11px;color:#9a9183;margin-bottom:6px">같은 질문을 4명(메인·마이·예약·애프터)에게 동시에 물어봐요. 틀리게 답하는 직원을 찾아 그 자리에서 가르치고, 교육 효과도 바로 확인합니다.</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:6px"><input id="impQ" placeholder="예) 주차 되나요?" style="flex:1;padding:7px 9px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><button id="impRun" style="padding:7px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">전 직원에게</button></div>'
      +'<div id="impOut" style="margin-bottom:16px"></div>'
-     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">💡 교육 후보 (실제 고객 질문)</div>'
-     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 막힘(상담사로 넘김) · 🟡 애매(답했지만 자신 없음) · ×N = 나온 횟수. 옆 📚로 전 직원에게 가르치면 다음부턴 스스로 처리해요. (종합 통계는 📊 리포트)</div>'
+     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">교육 후보 (실제 고객 질문)</div>'
+     +'<div style="font-size:11px;color:#9a9183;margin-bottom:8px">🔴 막힘(상담사로 넘김) · 🟡 애매(답했지만 자신 없음) · ×N = 나온 횟수. 옆 로 전 직원에게 가르치면 다음부턴 스스로 처리해요. (종합 통계는  리포트)</div>'
      +'<div id="impCand"></div></div>'
-     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px;margin-top:14px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">🛡️ 회귀셋 <span style="font-size:11px;font-weight:400;color:#9a9183">— 고친 건을 영구 점검(매일 자동). 다신 안 깨짐</span></div><div style="font-size:11px;color:#9a9183;margin-bottom:8px">📊 리포트에서 📌로 추가해요. 필수=답에 꼭 있어야 할 표현 · 금지=있으면 안 되는 표현.</div><div id="impReg"></div></div>';
+     +'<div style="border-top:1px dashed #e0d8cc;padding-top:12px;margin-top:14px"><div style="font-size:13px;color:#3a2f25;font-weight:600;margin-bottom:4px">회귀셋 <span style="font-size:11px;font-weight:400;color:#9a9183">— 고친 건을 영구 점검(매일 자동). 다신 안 깨짐</span></div><div style="font-size:11px;color:#9a9183;margin-bottom:8px">리포트 탭의 "고정" 버튼으로 추가해요. 필수=답에 꼭 있어야 할 표현 · 금지=있으면 안 되는 표현.</div><div id="impReg"></div></div>';
     // ⓪ 자동 안전망 — 매일 9시 자동 점검(위반 시에만 문자). 여기서 지금 바로도 가능.
     var health=document.getElementById('impHealth');
-    var renderHealth=function(){ health.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600;color:#3a2f25">🛡️ 자동 안전망</span><span style="font-size:11px;color:#9a9183">매일 9시 자동 · 위반/하락 시에만 문자</span><span style="margin-left:auto"></span><button id="impSafe" style="padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">지금 안전점검</button><button id="impDig" style="margin-left:6px;padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📨 요약 보기</button></div><div id="impHealthBody" style="margin-top:8px;font-size:12px;color:#75705f">최근 점검 불러오는 중…</div>';
+    var renderHealth=function(){ health.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600;color:#3a2f25">자동 안전망</span><span style="font-size:11px;color:#9a9183">매일 9시 자동 · 위반/하락 시에만 문자</span><span style="margin-left:auto"></span><button id="impSafe" style="padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">지금 안전점검</button><button id="impDig" style="margin-left:6px;padding:4px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">요약 보기</button></div><div id="impHealthBody" style="margin-top:8px;font-size:12px;color:#75705f">최근 점검 불러오는 중…</div>';
       document.getElementById('impSafe').addEventListener('click',function(){ var b=this; b.disabled=true; b.textContent='점검 중…(20~30초)'; document.getElementById('impHealthBody').textContent='안전점검 실행 중… 레드라인 4개를 확인합니다.';
-        gas('aiSafetyNow').then(function(r){ b.disabled=false; b.textContent='지금 안전점검'; if(r&&r.unreachable){ document.getElementById('impHealthBody').innerHTML='<span style="color:#9a7b00">서버측 자동점검이 막혀 있어요. 🧪 테스트 탭에서 브라우저로 점검해 주세요.</span>'; return; } loadHealth(); }).catch(function(){ b.disabled=false; b.textContent='지금 안전점검'; }); });
+        gas('aiSafetyNow').then(function(r){ b.disabled=false; b.textContent='지금 안전점검'; if(r&&r.unreachable){ document.getElementById('impHealthBody').innerHTML='<span style="color:#9a7b00">서버측 자동점검이 막혀 있어요.  테스트 탭에서 브라우저로 점검해 주세요.</span>'; return; } loadHealth(); }).catch(function(){ b.disabled=false; b.textContent='지금 안전점검'; }); });
       document.getElementById('impDig').addEventListener('click',function(){ var hb=document.getElementById('impHealthBody'); hb.textContent='요약 불러오는 중…'; gas('aiDigestPreview').then(function(r){ hb.innerHTML='<div style="padding:6px 8px;background:#fff;border-radius:5px;border:1px solid #f0ebe3">'+esc((r&&r.text)||'요약 없음')+'</div><div style="margin-top:4px;font-size:10px;color:#b0a896">매일 아침 이 한 줄을 관리자 문자로 받아요.</div>'; }); });
       loadHealth(); };
     var loadHealth=function(){ var hb=document.getElementById('impHealthBody'); if(!hb) return; gas('aiSafetyHistory').then(function(r){ if(!r||!r.ok||!r.rows||!r.rows.length){ hb.innerHTML='아직 자동 점검 기록이 없어요. <b>지금 안전점검</b>으로 바로 확인할 수 있어요.'; return; }
@@ -807,9 +807,9 @@ function openAiTeam(){
     var run=function(){ var q=document.getElementById('impQ').value.trim(); if(!q) return; var out=document.getElementById('impOut');
       out.innerHTML=SURF.map(function(s){ return '<div data-s="'+s+'" style="border-top:1px solid #f0ebe3;padding:7px 0;font-size:13px"><b style="color:#6B2A24">'+s+'</b> <span style="color:#9a9183">물어보는 중…</span></div>'; }).join('');
       SURF.forEach(function(s){ aiAsk(s,q).then(function(rep){ var row=out.querySelector('[data-s="'+s+'"]'); if(!row) return;
-        row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button></div><div class="impAns" style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
-        var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(!ok) return; b.textContent='🔁 교육 후 확인'; b.disabled=false;
-          b.onclick=function(){ b.disabled=true; b.textContent='확인 중…'; aiAsk(s,q).then(function(rep2){ var ans=row.querySelector('.impAns'); if(ans) ans.innerHTML='<div style="opacity:.5;text-decoration:line-through">교육 전: '+esc(rep)+'</div><div style="margin-top:3px;color:#2e7d32">교육 후: '+esc(rep2)+'</div><div style="margin-top:2px;font-size:10px;color:#b0a896">반영까지 최대 2분 — 안 바뀌었으면 잠시 뒤 다시 눌러보세요.</div>'; b.disabled=false; b.textContent='🔁 다시 확인'; }); };
+        row.innerHTML='<div style="display:flex;align-items:center;gap:6px"><b style="color:#6B2A24">'+s+'</b><button class="impEdu" style="margin-left:auto;padding:2px 9px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button></div><div class="impAns" style="color:#5a554c;margin-top:3px">'+esc(rep)+'</div>';
+        var b=row.querySelector('.impEdu'); if(b) b.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q+' ('+s+' 답이 아쉬움 · 전 직원 공유)',function(ok){ if(!ok) return; b.textContent='교육 후 확인'; b.disabled=false;
+          b.onclick=function(){ b.disabled=true; b.textContent='확인 중…'; aiAsk(s,q).then(function(rep2){ var ans=row.querySelector('.impAns'); if(ans) ans.innerHTML='<div style="opacity:.5;text-decoration:line-through">교육 전: '+esc(rep)+'</div><div style="margin-top:3px;color:#2e7d32">교육 후: '+esc(rep2)+'</div><div style="margin-top:2px;font-size:10px;color:#b0a896">반영까지 최대 2분 — 안 바뀌었으면 잠시 뒤 다시 눌러보세요.</div>'; b.disabled=false; b.textContent='다시 확인'; }); };
         }); });
       }); }); };
     document.getElementById('impRun').addEventListener('click', run);
@@ -818,7 +818,7 @@ function openAiTeam(){
     gas('aiQuestionLog').then(function(r){ if(!r||!r.ok){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">질문 로그를 불러오지 못했어요.</div>'; return; } var items=r.items||[]; if(!items.length){ cand.innerHTML='<div style="color:#9a9183;font-size:12px">아직 쌓인 고객 질문이 없어요.</div>'; return; }
       var rank=function(it){ return it.escalate||it.flag==='막힘'?2:(it.flag==='애매'?1:0); };
       items.sort(function(a,b){ var e=rank(b)-rank(a); return e!==0?e:((b.count||0)-(a.count||0)); });   // 막힘(🔴) → 애매(🟡) → 빈도순
-      cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; var mk=(it.escalate||it.flag==='막힘')?'<span title="상담사 연결됨(막힘)">🔴</span>':(it.flag==='애매'?'<span title="답했지만 자신 없음(애매)">🟡</span>':'<span style="opacity:.3">·</span>'); return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+mk+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button><button class="candDone" data-q="'+esc(it.q)+'" title="해결 — 목록에서 치우기(다시 막히면 재등장)" style="padding:2px 8px;border:1px solid #cfe0cf;background:#fff;color:#2e7d32;border-radius:5px;font-size:11px;cursor:pointer">✓</button></div>'; }).join('');
+      cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; var mk=(it.escalate||it.flag==='막힘')?'<span title="상담사 연결됨(막힘)">🔴</span>':(it.flag==='애매'?'<span title="답했지만 자신 없음(애매)">🟡</span>':'<span style="opacity:.3">·</span>'); return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+mk+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">질문</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button><button class="candDone" data-q="'+esc(it.q)+'" title="해결 — 목록에서 치우기(다시 막히면 재등장)" style="padding:2px 8px;border:1px solid #cfe0cf;background:#fff;color:#2e7d32;border-radius:5px;font-size:11px;cursor:pointer">✓</button></div>'; }).join('');
       Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candDone'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 질문을 해결로 표시하고 목록에서 치울까요? (같은 질문이 다시 막히면 자동으로 다시 떠요)')) return; b.disabled=true; gas('aiQuestionResolve',b.getAttribute('data-q')).then(function(rr){ if(rr&&rr.ok){ var row=b.parentNode; if(row&&row.parentNode) row.parentNode.removeChild(row); } else { b.disabled=false; alert((rr&&rr.error)||'실패'); } }); }); });
@@ -833,36 +833,36 @@ function openAiTeam(){
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   function pinReg(surface,q,btn){ var val=prompt('이 질문의 답에 꼭 들어가야 할 표현을 적으세요(필수 검증). 매일 자동 점검돼요.\n예) 280  ·  주차  ·  환불\n\n질문: '+q,'');
     if(val===null||!val.trim()) return; gas('aiRegAdd', surface||'메인', q, '필수', val.trim()).then(function(r){ if(r&&r.ok){ if(btn){ btn.textContent='✓ 고정'; btn.disabled=true; } } else alert((r&&r.error)||'고정 실패'); }); }
-  // 📊 고객질문 종합 리포트 — 기간별 막힘/애매/정상 + 접점별 + 자주 막힌/애매한 질문 TOP. 막힌·애매한 질문은 그 자리에서 📚교육·🩺점검.
+  //  고객질문 종합 리포트 — 기간별 막힘/애매/정상 + 접점별 + 자주 막힌/애매한 질문 TOP. 막힌·애매한 질문은 그 자리에서 교육·점검.
   var _repDays=7;
   function gotoCheck(q){ show('개선'); var el=document.getElementById('impQ'); if(el){ el.value=q; var b=document.getElementById('impRun'); if(b) b.click(); } }
-  function rReport(){ bd.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:13px;font-weight:600;color:#3a2f25">📊 고객질문 종합</span><span style="margin-left:auto;font-size:11px;color:#9a9183">기간</span>'
+  function rReport(){ bd.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:13px;font-weight:600;color:#3a2f25">고객질문 종합</span><span style="margin-left:auto;font-size:11px;color:#9a9183">기간</span>'
      +'<select id="repDays" style="padding:4px 6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="90">최근 90일</option></select></div>'
      +'<div id="repBody"><div style="color:#9a9183;font-size:12px">불러오는 중…</div></div>';
     var sel=document.getElementById('repDays'); sel.value=String(_repDays); sel.addEventListener('change',function(){ _repDays=Number(sel.value)||7; load(); });
     var pill=function(emoji,label,n,tot,col){ var pc=tot>0?Math.round(n/tot*100):0; return '<div style="flex:1;min-width:84px;background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:9px 10px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+n+'</div><div style="font-size:11px;color:#75705f">'+emoji+' '+label+(tot>0?(' · '+pc+'%'):'')+'</div></div>'; };
-    var qrow=function(it){ var s=it.surface||'메인'; return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(Number(it.count)>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+it.count+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(s)+'</span><button class="repAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">🩺</button><button class="repEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚</button><button class="repPin" data-q="'+esc(it.q)+'" data-s="'+esc(s)+'" title="회귀셋에 고정 — 매일 자동 점검" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📌</button><button class="repDone" data-q="'+esc(it.q)+'" title="해결 — 목록에서 치우기(다시 막히면 재등장)" style="padding:2px 8px;border:1px solid #cfe0cf;background:#fff;color:#2e7d32;border-radius:5px;font-size:11px;cursor:pointer">✓</button></div>'; };
+    var qrow=function(it){ var s=it.surface||'메인'; return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(Number(it.count)>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+it.count+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(s)+'</span><button class="repAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">질문</button><button class="repEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button><button class="repPin" data-q="'+esc(it.q)+'" data-s="'+esc(s)+'" title="회귀셋에 고정 — 매일 자동 점검" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">고정</button><button class="repDone" data-q="'+esc(it.q)+'" title="해결 — 목록에서 치우기(다시 막히면 재등장)" style="padding:2px 8px;border:1px solid #cfe0cf;background:#fff;color:#2e7d32;border-radius:5px;font-size:11px;cursor:pointer">✓</button></div>'; };
     var leadBlock=function(L){ var items=(L&&L.items)||[]; var pend=(L&&L.pending)||0;
-      var h='<div style="margin-top:12px;padding:9px 11px;background:#f3f6f3;border:1px solid #dfe7df;border-radius:8px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:600;color:#3a2f25">📨 상담 신청(리드)</span><span style="font-size:11px;color:#2e7d32">대기 '+pend+'</span></div>';
+      var h='<div style="margin-top:12px;padding:9px 11px;background:#f3f6f3;border:1px solid #dfe7df;border-radius:8px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:600;color:#3a2f25">상담 신청(리드)</span><span style="font-size:11px;color:#2e7d32">대기 '+pend+'</span></div>';
       if(!items.length){ h+='<div style="font-size:11px;color:#9a9183;margin-top:4px">아직 신청이 없어요. (챗봇에서 고객이 동의 후 남기면 여기·문자로 와요)</div>'; }
       else { h+=items.slice(0,10).map(function(x){ var ch=x.channel||'문자'; var ct=esc(x.contact||x.phone||''); var link=(ch==='이메일')?('mailto:'+ct):('sms:'+ct); return '<div style="border-top:1px solid #e6ece6;padding:6px 0;font-size:12px;'+(x.status==='완료'?'opacity:.5':'')+'"><div style="display:flex;align-items:center;gap:8px"><span style="color:#3a2f25;font-weight:600">'+esc(x.name)+'</span><a href="'+link+'" style="color:#6B2A24">'+ct+'</a><span style="color:#bcb3a4">'+esc(x.surface)+'</span><span style="flex:1"></span>'+(x.status==='완료'?'<span style="color:#9bbf9b">완료</span>':'<button class="leadRes" data-row="'+x.row+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">완료</button>')+'</div>'+(x.context?'<div style="color:#9a9183;margin-top:2px">'+esc(x.context)+'</div>':'')+'</div>'; }).join(''); }
       return h+'</div>'; };
     var wireLeads=function(rb){ Array.prototype.forEach.call(rb.querySelectorAll('.leadRes'),function(b){ b.addEventListener('click',function(){ b.disabled=true; gas('adminResolveLead',b.getAttribute('data-row')).then(function(rr){ if(rr&&rr.ok) load(); else { b.disabled=false; alert((rr&&rr.error)||'실패'); } }); }); }); };
     var load=function(){ var rb=document.getElementById('repBody'); rb.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
       Promise.all([gas('aiQuestionReport',_repDays), gas('adminListLeads').catch(function(){return null;})]).then(function(res){ var r=res[0], L=res[1]; if(!r||!r.ok){ rb.innerHTML='<div style="color:#b00;font-size:12px">불러오지 못했어요.</div>'; return; }
-        if(!r.total){ rb.innerHTML='<div style="padding:9px 11px;background:#f3f6f3;border:1px solid #dfe7df;border-radius:8px;font-size:12px;color:#3a2f25">💬 카톡 상담 연결 <b>'+(r.kakaoClicks||0)+'</b>건(최근 '+_repDays+'일)</div>'+leadBlock(L)+'<div style="color:#9a9183;font-size:12px;margin-top:10px">이 기간에 쌓인 고객 질문이 없어요. (질문 적재는 GAS 재배포 후부터 채워집니다)</div>'; wireLeads(rb); return; }
-        var h='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+pill('💬','전체',r.total,0,'#3a2f25')+pill('🔴','막힘',r.stuck,r.total,'#b00')+pill('🟡','애매',r.vague,r.total,'#9a7b00')+pill('✅','정상',r.normal,r.total,'#2e7d32')+'</div>';
+        if(!r.total){ rb.innerHTML='<div style="padding:9px 11px;background:#f3f6f3;border:1px solid #dfe7df;border-radius:8px;font-size:12px;color:#3a2f25">카톡 상담 연결 <b>'+(r.kakaoClicks||0)+'</b>건(최근 '+_repDays+'일)</div>'+leadBlock(L)+'<div style="color:#9a9183;font-size:12px;margin-top:10px">이 기간에 쌓인 고객 질문이 없어요. (질문 적재는 GAS 재배포 후부터 채워집니다)</div>'; wireLeads(rb); return; }
+        var h='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+pill('','전체',r.total,0,'#3a2f25')+pill('🔴','막힘',r.stuck,r.total,'#b00')+pill('🟡','애매',r.vague,r.total,'#9a7b00')+pill('','정상',r.normal,r.total,'#2e7d32')+'</div>';
         h+='<div style="font-size:11px;color:#9a9183;margin-bottom:6px">🔴 막힘 = AI가 못 풀어 상담사로 넘김 · 🟡 애매 = 답은 했지만 자신 없이 얼버무림(개선 1순위)</div>';
         if(r.bySurface&&r.bySurface.length){ h+='<div style="margin:10px 0 4px;font-size:12px;color:#75705f">접점별 질문 수</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">'+r.bySurface.map(function(s){ return '<span style="font-size:12px;background:#f4f1ea;border-radius:6px;padding:3px 9px;color:#5a554c">'+esc(s.surface)+' <b>'+s.count+'</b></span>'; }).join('')+'</div>'; }
-        // 💼 영업 관점 — 구매의도(예약 접점)·놓친 기회(막힘). 챗봇은 익명이라 실제 예약과 직접 연결은 안 됨 → 방향 신호.
+        //  영업 관점 — 구매의도(예약 접점)·놓친 기회(막힘). 챗봇은 익명이라 실제 예약과 직접 연결은 안 됨 → 방향 신호.
         var bk=0; (r.bySurface||[]).forEach(function(s){ if(s.surface==='예약') bk=s.count; });
-        h+='<div style="margin-top:12px;padding:9px 11px;background:#f7f4ef;border:1px solid #eee5d9;border-radius:8px"><div style="font-size:12px;font-weight:600;color:#3a2f25;margin-bottom:3px">💼 영업 관점</div><div style="font-size:12px;color:#5a554c">예약 문의 <b style="color:#2e7d32">'+bk+'</b>건(구매의도) · 💬 카톡 연결 <b style="color:#2e7d32">'+(r.kakaoClicks||0)+'</b>건 · 📨 상담 신청 <b style="color:#2e7d32">'+((L&&L.pending)||0)+'</b>건 대기 · 막힘 <b style="color:#b00">'+r.stuck+'</b>건. 막힘을 줄이고 신청·연결을 늘릴수록 전환이 올라가요.</div></div>';
+        h+='<div style="margin-top:12px;padding:9px 11px;background:#f7f4ef;border:1px solid #eee5d9;border-radius:8px"><div style="font-size:12px;font-weight:600;color:#3a2f25;margin-bottom:3px">영업 관점</div><div style="font-size:12px;color:#5a554c">예약 문의 <b style="color:#2e7d32">'+bk+'</b>건(구매의도) ·  카톡 연결 <b style="color:#2e7d32">'+(r.kakaoClicks||0)+'</b>건 ·  상담 신청 <b style="color:#2e7d32">'+((L&&L.pending)||0)+'</b>건 대기 · 막힘 <b style="color:#b00">'+r.stuck+'</b>건. 막힘을 줄이고 신청·연결을 늘릴수록 전환이 올라가요.</div></div>';
         h+=leadBlock(L);
         h+='<div style="margin-top:14px;font-size:13px;font-weight:600;color:#b00">🔴 자주 막힌 질문 TOP</div>';
-        h+=(r.topStuck&&r.topStuck.length)?('<div id="repStuck">'+r.topStuck.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
+        h+=(r.topStuck&&r.topStuck.length)?('<div id="repStuck">'+r.topStuck.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 </div>';
         h+='<div style="margin-top:14px;font-size:13px;font-weight:600;color:#9a7b00">🟡 자주 애매한 질문 TOP</div>';
-        h+=(r.topVague&&r.topVague.length)?('<div id="repVague">'+r.topVague.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 👍</div>';
-        h+='<div style="margin-top:16px;border-top:1px dashed #e0d8cc;padding-top:12px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:#3a2f25">📝 FAQ 자동초안</span><span style="font-size:11px;color:#9a9183">자주 묻는·막힌 질문 → 홈 FAQ 초안</span><button id="repFaq" style="margin-left:auto;padding:4px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">초안 생성</button></div><div id="repFaqOut" style="margin-top:8px"></div></div>';
+        h+=(r.topVague&&r.topVague.length)?('<div id="repVague">'+r.topVague.map(qrow).join('')+'</div>'):'<div style="color:#9a9183;font-size:12px;padding:6px 0">없음 </div>';
+        h+='<div style="margin-top:16px;border-top:1px dashed #e0d8cc;padding-top:12px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:#3a2f25"> FAQ 자동초안</span><span style="font-size:11px;color:#9a9183">자주 묻는·막힌 질문 → 홈 FAQ 초안</span><button id="repFaq" style="margin-left:auto;padding:4px 12px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">초안 생성</button></div><div id="repFaqOut" style="margin-top:8px"></div></div>';
         h+='<div style="margin-top:12px;font-size:10px;color:#b0a896">막힘/애매 구분·접점은 GAS 재배포 시점부터 채워져요. 그 이전 질문은 정상·기타로 집계됩니다.</div>';
         rb.innerHTML=h;
         var faqQs=[]; (r.topStuck||[]).concat(r.topVague||[]).forEach(function(x){ if(x&&x.q&&faqQs.indexOf(x.q)<0) faqQs.push(x.q); });
@@ -871,7 +871,7 @@ function openAiTeam(){
           fetch('/api/faq-draft',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({questions:faqQs.slice(0,20)})}).then(function(rs){return rs.json();}).then(function(j){ fb.disabled=false; fb.textContent='다시 생성';
             var fs=(j&&j.faqs)||[]; if(!fs.length){ o.innerHTML='<div style="color:#b00;font-size:12px">초안을 만들지 못했어요. ('+esc((j&&j.error)||'오류')+')</div>'; return; }
             o.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:6px">검토 후 홈페이지에 직접 게시하세요(자동 게시 아님). 사실은 핵심정보·지식 기준.</div>'+fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0"><div style="font-weight:600;color:#3a2f25;font-size:13px">Q. '+esc(f.q)+'</div><div style="color:#5a554c;font-size:13px;margin-top:3px;white-space:pre-wrap">A. '+esc(f.a)+'</div></div>'; }).join('')
-             +'<div style="text-align:right;margin-top:8px"><button id="repFaqCopy" style="padding:4px 12px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:12px;cursor:pointer">📋 전체 복사</button></div>';
+             +'<div style="text-align:right;margin-top:8px"><button id="repFaqCopy" style="padding:4px 12px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:12px;cursor:pointer">전체 복사</button></div>';
             var cp=document.getElementById('repFaqCopy'); if(cp) cp.addEventListener('click',function(){ var txt=fs.map(function(f){return 'Q. '+f.q+'\nA. '+f.a;}).join('\n\n'); if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(function(){ cp.textContent='✓ 복사됨'; },function(){ alert(txt); }); } else alert(txt); });
           }).catch(function(){ fb.disabled=false; fb.textContent='초안 생성'; o.innerHTML='<div style="color:#b00;font-size:12px">호출 실패</div>'; }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repAsk'),function(b){ b.addEventListener('click',function(){ gotoCheck(b.getAttribute('data-q')); }); });
@@ -893,11 +893,11 @@ function openAiTeam(){
           +(cf?'<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:'+cfColor(cf)+'1a;color:'+cfColor(cf)+'">확신 '+esc(cf)+'</span>':'')
           +(x.page?'<span style="font-size:10px;color:#9a9183">'+esc(x.page)+'</span>':'')
           +'<span style="color:#9a9183;font-size:11px;margin-left:auto">'+esc(x.at||'')+'</span></div>'
-          +'<div style="font-size:11px;color:#75705f;margin-top:3px">👤 '+esc(cust)+'</div>'
+          +'<div style="font-size:11px;color:#75705f;margin-top:3px"> '+esc(cust)+'</div>'
           +'<div style="color:#5a554c;margin-top:3px">'+esc(x.summary||x.suggestedReply||'')+'</div>'
           +(x.suggestedReply?'<details style="margin-top:4px"><summary style="font-size:11px;color:#6B2A24;cursor:pointer">제안 답변·근거 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#faf7f2;border-radius:6px;font-size:12px;color:#3a2f25;white-space:pre-wrap">'+esc(x.suggestedReply)+(x.rationale?'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0d8cc;color:#75705f">'+esc(x.rationale)+'</div>':'')+'</div></details>':'')
           +(x.conversation?'<details style="margin-top:4px"><summary style="font-size:11px;color:#9a9183;cursor:pointer">고객 대화 원문 보기</summary><div style="margin-top:5px;padding:7px 9px;background:#f4f1ea;border-radius:6px;font-size:12px;color:#5a554c;white-space:pre-wrap;max-height:220px;overflow:auto">'+esc(x.conversation)+'</div></details>':'')
-          +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" data-ans="'+esc(x.suggestedReply||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">📚 교육</button>'
+          +'<div style="text-align:right;margin-top:5px"><button class="hEdu" data-q="'+esc(x.summary||x.category||'')+'" data-ans="'+esc(x.suggestedReply||'')+'" style="margin-right:6px;padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button>'
           +(x.id?'<button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button>':'')+'</div>'
           +'</div>'; }).join('');
       Array.prototype.forEach.call(bd.querySelectorAll('.hEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 문의: '+b.getAttribute('data-q'),function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }, b.getAttribute('data-ans')); }); });
@@ -1067,7 +1067,7 @@ function queueRow(it){
 }
 function renderQueue(d){
   var u=d.queue.urgent||[], n=d.queue.normal||[], html='', ct=d.counts||{}, ctTotal=Number(ct.total)||0, ctUrgent=Number(ct.urgent)||0;
-  html+='<div class="sect-h"><span class="ic">⚡</span><span class="tt">처리할 일</span><span class="ct">'+ctTotal+(ctUrgent?' · <b>🔴'+ctUrgent+' 급함</b>':'')+'</span></div>';
+  html+='<div class="sect-h"><span class="tt">처리할 일</span><span class="ct">'+ctTotal+(ctUrgent?' · <b>🔴'+ctUrgent+' 급함</b>':'')+'</span></div>';
   if(!ctTotal){
     html+='<div class="empty">✓ 처리할 일이 없어요 · 다 됐어요</div>';
   } else {
@@ -1136,7 +1136,7 @@ function _svPct(q,goods){ if(!q) return null; var tot=0,hit=0,v; for(v in q){ if
 function renderSurvey(d){
   var wrap=$('surveyWrap'); if(!wrap) return;
   var sv=d.survey||{n:0,q:{},recent:[]};
-  var html='<div class="sect-h"><span class="ic">📊</span><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
+  var html='<div class="sect-h"><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
   if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요. 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
   // [안전망] 개선 신호 — '놓친 부분 있었음' 부각
   var _gq=sv.q.gap||{}; var _gapN=(Number(_gq.minor)||0)+(Number(_gq.some)||0);
@@ -1167,7 +1167,7 @@ function renderSurvey(d){
 function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
-  var html='<div class="sect-h"><span class="ic">🎞️</span><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
+  var html='<div class="sect-h"><span class="tt">결과물 관리</span><span class="ct">'+list.length+'</span></div>';
   if(!list.length){ html+='<div class="empty">아직 결과물 단계 고객이 없어요. 예식완료부터 여기에 표시되고, 후기까지 끝나면 아카이브로 이동해요</div>'; }
   else { html+=list.map(resultRow).join(''); }
   wrap.innerHTML=html;
@@ -1194,7 +1194,7 @@ function resultRow(it){
 function renderPipeline(d){
   var filter=localStorage.getItem(FILTER_KEY)||'시그니처';
   var pc=d.pipeCounts||{}, html='';
-  html+='<div class="sect-h"><span class="ic">📊</span><span class="tt">진행 중 현황</span></div>';
+  html+='<div class="sect-h"><span class="tt">진행 중 현황</span></div>';
   html+='<div class="ptabs">'+
     tabBtn('시그니처','시그니처 ',pc['시그니처'],filter)+
     tabBtn('웨딩스냅','스냅 ',pc['웨딩스냅'],filter)+
@@ -1230,7 +1230,7 @@ function pipeSection(groups, product){
       return '<div class="pcust" data-code="'+esc(c.code)+'"><span class="cn">'+esc(c.names)+'</span>'+
         '<span class="cs">'+esc(c.sub||'')+'</span>'+
         (c.dday!=null?'<span class="cd">'+esc(ddayLabel(c.dday,isSnap))+'</span>':'')+
-        (c.flag?'<span class="bolt">⚡</span>':'')+'</div>';
+        (c.flag?'<span class="bolt"></span>':'')+'</div>';
     }).join('');
     return '<div class="pgroup'+(isOpen?' open':'')+'" data-key="'+esc(key)+'">'+
       '<div class="pghead"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">'+g.count+'</span>'+(g.hasUrgent?'<span class="pgdot">🔴</span>':'')+'<span class="pgcar">›</span></div>'+
@@ -1294,9 +1294,9 @@ function renderDetail(d){
      '<span class="pchip">'+esc(d.product||'—')+'</span><span class="code">'+esc(d.code)+'</span></div></div>';
   // 연락
   h+='<div class="contact">';
-  if(d.phone) h+='<a href="tel:'+esc(d.phone.replace(/[^0-9+]/g,''))+'">📞 전화</a>';
+  if(d.phone) h+='<a href="tel:'+esc(d.phone.replace(/[^0-9+]/g,''))+'">전화</a>';
   if(d.phone) h+='<button id="copyPhone">연락처 복사</button>';
-  if(d.email) h+='<a href="mailto:'+esc(d.email)+'">✉ 메일</a>';
+  if(d.email) h+='<a href="mailto:'+esc(d.email)+'">메일</a>';
   h+='</div>';
   // 신청 내용(27필드) 토글
   if(c&&c.fields&&c.fields.length){
@@ -1312,7 +1312,7 @@ function renderDetail(d){
   if(d.history&&d.history.length){
     h+='<div class="card"><div class="card-h"><span class="ct">처리 이력</span></div><div class="hist">'+d.history.map(function(l){ return '<div class="hl">'+esc(shortHist(l))+'</div>'; }).join('')+'</div></div>';
   }
-  // ⚙ 고급 (강제 변경)
+  //  고급 (강제 변경)
   h+=advancedBox(d);
 
   $('detailBody').innerHTML=h;
@@ -1383,8 +1383,8 @@ function cardConsult(d,isSnap){
   var b='';
   // 취소 환불 — 환불계좌 + 송금 완료 처리(취소 고객만). 처리하면 환불송금 큐에서 사라짐.
   if(d.stage==='취소' && c.refund){
-    if(d.refundDone){ raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">💸 환불 완료 · '+esc(fmtDT(d.refundDone))+'</span><br><span style="color:var(--label-soft)">환불 계좌 '+esc(c.refund)+'</span>'; }
-    else { raw+='<br><b style="color:var(--seal)">💸 예약금 환불 송금 필요</b><br>환불 계좌 <b>'+esc(c.refund)+'</b><br><span style="color:var(--label-soft)">이 계좌로 보낸 뒤 아래 버튼으로 완료 처리해 주세요</span>'; b+=ab('markRefunded','환불 완료 처리','btn-line'); }
+    if(d.refundDone){ raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">환불 완료 · '+esc(fmtDT(d.refundDone))+'</span><br><span style="color:var(--label-soft)">환불 계좌 '+esc(c.refund)+'</span>'; }
+    else { raw+='<br><b style="color:var(--seal)">예약금 환불 송금 필요</b><br>환불 계좌 <b>'+esc(c.refund)+'</b><br><span style="color:var(--label-soft)">이 계좌로 보낸 뒤 아래 버튼으로 완료 처리해 주세요</span>'; b+=ab('markRefunded','환불 완료 처리','btn-line'); }
   }
   if(st==='시간선택완료'){ b+=ab('approve','✓ 승인')+ab('propose','시간 변경 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
   else if(st==='변경제안'){ b+=ab('accept','✓ 변경 수락')+ab('propose','다시 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
@@ -1460,17 +1460,17 @@ function cardContract(d,isSnap){
   if(con==='발송' && r['계약서발송일시']){   // 서명 대기 — 마감(발송+72h) 가시화 → 관리자 팔로업/임박 인지
     var _st=new Date(String(r['계약서발송일시']).replace(/-/g,'/'));
     if(!isNaN(_st.getTime())){ var _rem=_st.getTime()+72*3600*1000-Date.now();
-      raw += _rem<=0 ? ' · <span style="color:#b3261e;font-weight:600">⌛ 서명 기한 만료</span>'
-           : _rem<86400000 ? ' · <span style="color:#b3261e;font-weight:600">⏰ 마감 임박(약 '+Math.ceil(_rem/3600000)+'h)</span>'
+      raw += _rem<=0 ? ' · <span style="color:#b3261e;font-weight:600">서명 기한 만료</span>'
+           : _rem<86400000 ? ' · <span style="color:#b3261e;font-weight:600">마감 임박(약 '+Math.ceil(_rem/3600000)+'h)</span>'
            : ' · 서명 대기(약 '+Math.ceil(_rem/86400000)+'일)'; }
   }
   if(r['계약서명일시']) raw+=' · 서명 '+fmtDT(r['계약서명일시']);
-  if(r['계약서링크']) raw+='<br><span class="link-chip">📄 <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">양식 원본(빈 템플릿)</a></span>';
+  if(r['계약서링크']) raw+='<br><span class="link-chip"> <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">양식 원본(빈 템플릿)</a></span>';
   var b='', preStage = isSnap ? (d.stage==='촬영확정') : (d.stage==='상담완료');
   if((con===''||con==='미발송')){
     if(preStage && (isSnap || (r['시착동의상태']==='동의완료'))){
       if(isSnap || !('contractReq' in d) || (d.contractReq && d.contractReq.weddingDate)) b+=ab('sendContract','계약서 발송');   // contractReq 미노출(구 admin.gs)이면 기존대로 발송 허용 — 배포 갭 무중단
-      else b+='<div class="gate">🕒 고객이 예식일·계약 정보를 입력하면 발송할 수 있어요</div>';
+      else b+='<div class="gate">고객이 예식일·계약 정보를 입력하면 발송할 수 있어요</div>';
     }
     else b+='<div class="gate">'+(isSnap?'촬영확정':'드레스 시착 동의 완료')+' 후 발송할 수 있어요</div>';
   } else if(con==='발송'){ b+=ab('viewContract','계약서 보기','btn-line')+ab('sendContract','재발송','btn-line'); }
@@ -1496,7 +1496,7 @@ function cardPayment(d){
   if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-9)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
-  if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
+  if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)
   else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   // [수납묶음] 고객이 계약금과 중도금·잔금을 한 번에 신고(완료신호)한 상태 — '입금 확인' 클릭 시 신고 묶음이 함께 확정됨을 미리 안내
@@ -1550,8 +1550,8 @@ function cardProduction(d){
     if(inv.published&&inv.published.urls){
       var u=inv.published.urls;
       raw+='<br>';
-      if(u.online) raw+='<span class="link-chip">🔗 <a href="'+esc(u.online)+'" target="_blank" rel="noopener">온라인 보기</a></span>';
-      if(u.offline) raw+='<span class="link-chip">🔗 <a href="'+esc(u.offline)+'" target="_blank" rel="noopener">오프라인 보기</a></span>';
+      if(u.online) raw+='<span class="link-chip"> <a href="'+esc(u.online)+'" target="_blank" rel="noopener">온라인 보기</a></span>';
+      if(u.offline) raw+='<span class="link-chip"> <a href="'+esc(u.offline)+'" target="_blank" rel="noopener">오프라인 보기</a></span>';
       raw+='<button class="mt" id="copyInv" style="padding:0;margin-left:4px">링크 복사</button>';
     }
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
@@ -1562,29 +1562,29 @@ function cardProduction(d){
 }
 function _tstat(s){ return s==='완료'?'완료 ✓':(s==='진행중'?'작성 중':'시작 전'); }
 function prodTracksHtml(prod){
-  if(!prod) return '<div class="cnote">🍽 다이닝 · 📜 식순 · 🥂 최종확정 — 정보 없음</div>';
+  if(!prod) return '<div class="cnote">다이닝 ·  식순 ·  최종확정 — 정보 없음</div>';
   var t=prod.tracks||{}, dd=prod.diningDraft||null, rd=prod.ritualDraft||null, fd=prod.finalDraft||null, h='';
-  h+='<div class="cnote">🍽 다이닝 <b>'+esc(_tstat(t.dining))+'</b>';
+  h+='<div class="cnote">다이닝 <b>'+esc(_tstat(t.dining))+'</b>';
   if(dd){ if(dd.dining_on==='N'){ h+=' · 진행 안 함'; } else { var p=[]; var _vn=dd.venue||dd.venuePick||''; if(_vn)p.push(esc(_vn)); if(dd.headcount)p.push('인원 '+esc(dd.headcount)); if(dd.mealType)p.push(esc(dd.mealType)); if(dd.partner&&dd.partner!==_vn&&dd.partner!=='모먼트에디트 연계')p.push(esc(dd.partner)); if(dd.entrustAgree==='Y')p.push('위탁동의✓'); if(p.length)h+=' · '+p.join(' · '); } }
   h+='</div>';
-  h+='<div class="cnote">📜 식순 <b>'+esc(_tstat(t.ritual))+'</b>';
+  h+='<div class="cnote">식순 <b>'+esc(_tstat(t.ritual))+'</b>';
   // [RITUAL_ADMIN_V3 2026-07-25] 현행 v3 빌더 초안({_v:3,S,summary}) 우선 — 종전엔 v1 키만 읽어 v3 고객이 전부 빈 요약이던 운영 공백 수정. v1은 폴백 유지.
   if(rd&&rd._v===3){ var s3=rd.summary||{}; var q3=[]; if(s3.course)q3.push(esc(s3.course)); if(s3.count)q3.push(s3.count+'개 순간'); if(s3.min)q3.push(esc(String(s3.min))); if(q3.length)h+=' · '+q3.join(' · '); }
   else if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
   h+='</div>';
-  h+='<div class="cnote">🥂 최종확정 <b>'+esc(_tstat(t.final))+'</b>';
+  h+='<div class="cnote">최종확정 <b>'+esc(_tstat(t.final))+'</b>';
   if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+' · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산)'); if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
   h+='</div>';
   var sd=prod.seatDraft||null;
   if(t.seat||sd){
-    h+='<div class="cnote">🪑 좌석배치 <b>'+esc(_tstat(t.seat))+'</b>';
+    h+='<div class="cnote">좌석배치 <b>'+esc(_tstat(t.seat))+'</b>';
     if(sd&&sd.tables&&sd.tables.length){ var _tc=sd.tables.length,_nm=0; sd.tables.forEach(function(x){ (x.seats||[]).forEach(function(v){ if(String(v||'').trim())_nm++; }); }); h+=' · '+_tc+'개 테이블 · '+_nm+'명'; }
     h+='</div>';
   }
   // 스냅 기획(촬영 전 사전기획 · '예식 준비' 앞 · snapDraft) — 디렉터가 촬영 전 확인. 무드·레퍼런스·원하는 컷·톤·소품·요청.
   var sn=prod.snapDraft||null;
   if((t.snap&&t.snap!=='시작전')||sn){
-    h+='<div class="cnote">📸 스냅 기획 <b>'+esc(_tstat(t.snap))+'</b>';
+    h+='<div class="cnote">스냅 기획 <b>'+esc(_tstat(t.snap))+'</b>';
     if(sn){ var _ss=[]; if((sn.people||[]).length)_ss.push(esc(sn.people.join('·'))); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if(_ss.length)h+=' · '+_ss.join(' · '); }
     h+='</div>';
   }
@@ -1627,7 +1627,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('꼭 담고 싶은 컷',(sn.mustHaves||[]).length?sn.mustHaves.join(' · '):'')
       +row('소품·의상',sn.propsNote)
       +row('톤',sn.toneStyle)
-      +row('영감 링크',(sn.refs||[]).length?sn.refs.join('  '):'')
+      +row('영감 링크',(sn.refs||[]).length?sn.refs.join(' '):'')
       +row('분위기 한 줄',sn.moodNote)
       +(_snMood.length?row('무드(구 색타일)',_snMood.join(' / ')):'')
       +row('자유 메모',sn.directorNote);
@@ -1635,7 +1635,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
     h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
   if(sd&&sd.tables&&sd.tables.length){
-    h+='<div class="grp-l">좌석 배치 (당일 세팅용) <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printSeatChart()">🖨 좌석표 프린트</button></div>';
+    h+='<div class="grp-l">좌석 배치 (당일 세팅용) <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printSeatChart()">좌석표 프린트</button></div>';
     // 번호 = 행 순서(좌 1·3·5 / 우 2·4·6) — seat.html·좌석표 프린트·편집기와 동일. 번호 오름차순 정렬로 프린트 명단과 일치
     var _sLs=[],_sRs=[]; sd.tables.forEach(function(tb,i){ (String(tb.side||'L')==='R'?_sRs:_sLs).push(i); });
     var _sNum={},_sNn=1,_sMr=Math.max(_sLs.length,_sRs.length);
@@ -1644,7 +1644,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
     var _cC=0,_cR=0,_cN=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='C')_cC++; else if(dv==='R')_cR++; else if(dv==='N')_cN++; else _cU++; }); });
     if(_cC+_cR+_cN+_cU>0){ var _dp=[]; if(_cC)_dp.push('샴페인 '+_cC); if(_cR)_dp.push('레드와인 '+_cR); if(_cN)_dp.push('논알콜 스파클링 '+_cN); if(_cU)_dp.push('미정 '+_cU); h+=row('음료(자리별)',_dp.join(' · ')); }   // 자리별 3음료 집계(2026-07-19) · A4 프린트·mypage 집계와 같은 기준(row가 esc 처리)
-    // 좌석 배치 인원 ↔ 최종 확정 인원 불일치 경고 — 당일 홀 세팅 기준(자리 없이 서는 하객이 있을 수 있음). 고객 확인서 경고와 같은 기준(2026-07-19 점검: 세팅하는 쪽에도 노출)
+    // 좌석 배치 인원  최종 확정 인원 불일치 경고 — 당일 홀 세팅 기준(자리 없이 서는 하객이 있을 수 있음). 고객 확인서 경고와 같은 기준(2026-07-19 점검: 세팅하는 쪽에도 노출)
     var _plc=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v){ if(String(v||'').trim())_plc++; }); });
     var _hn=parseInt((fd&&fd.headcount)||'',10)||0;
     if(_plc>0 && _hn>0 && _plc!==_hn) h+='<div class="cnote" style="color:var(--seal)">⚠ 좌석 배치 '+_plc+'명 · 최종 확정 '+_hn+'명 (자리 없이 서는 하객 여부 확인)</div>';
@@ -1656,7 +1656,7 @@ function cardResult(d,isSnap){
   var r=d.raw||{}, stt=r['결과물상태']||'대기', raw='결과물 <b>'+esc(stt)+'</b>';
   var has=function(v){ return v?'✓':'—'; };
   raw+=' · 원본 '+has(r['원본링크'])+' · 보정본 '+has(r['보정본폴더'])+(isSnap?'':(' · 영상 '+has(r['영상링크'])));
-  function lk(lb,v){ return v?('<br><span class="link-chip">🔗 <a href="'+esc(v)+'" target="_blank" rel="noopener">'+lb+' 열기</a></span>'):''; }
+  function lk(lb,v){ return v?('<br><span class="link-chip"> <a href="'+esc(v)+'" target="_blank" rel="noopener">'+lb+' 열기</a></span>'):''; }
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
   // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
   var picks=r['선택사진'], pn=r['선택수'];
@@ -1683,7 +1683,7 @@ function cardResult(d,isSnap){
     else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
   } else if(st==='결과물전달' && rstt!=='전달완료'){
     // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 결과물전달인 고객(결과물상태≠전달완료) — 종전엔 거짓 '✓ 전달 완료' 표시 + 등록 버튼 전부 숨김(막다른길). 이어서 진행할 버튼 노출.
-    b+='<div class="gate">⚠ 단계는 결과물전달인데 결과물은 아직 <b>'+esc(rstt)+'</b> 이에요 (강제 변경 흔적) · 아래에서 이어서 진행하세요</div>';
+    b+='<div class="gate">⚠ 단계는 결과물전달인데 결과물은 아직 <b>'+esc(rstt)+'</b>이에요 (강제 변경 흔적) · 아래에서 이어서 진행하세요</div>';
     if(rstt==='선택완료') b+=ab('startRetouch','보정 착수','btn-line');
     if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');
     else b+=ab('setResult',(r['원본링크']?'결과물 링크 수정':'원본 링크 등록'),'btn-line');
@@ -1697,7 +1697,7 @@ function cardResult(d,isSnap){
     if(svS!=='완료'&&svS!=='건너뜀') b+=ab('skipSurvey','후기 넘기기 (설문 생략)','btn-line');
     // 커피쿠폰 — 후기 완주 고객에게 바코드 발급(마이페이지 표시). 발급됨이면 회수 가능.
     var cpS=r['쿠폰상태']||'';
-    if(cpS==='발급') b+='<div class="gate">☕ 커피쿠폰 발급됨 · 고객 마이페이지에 표시 중</div>'+ab('revokeCoupon','커피쿠폰 회수','btn-line');
+    if(cpS==='발급') b+='<div class="gate">커피쿠폰 발급됨 · 고객 마이페이지에 표시 중</div>'+ab('revokeCoupon','커피쿠폰 회수','btn-line');
     else if(svS==='완료') b+=ab('issueCoupon','커피쿠폰 발급 (바코드)','btn-line');
   }
   return '<div class="raw">'+raw+'</div>'+btnsWrap(b);
@@ -1707,7 +1707,7 @@ function advancedBox(d){
   var flow=STAGE_FLOW[d.product]||STAGE_FLOW['시그니처'];
   var opts='<optgroup label="정상 단계">'+flow.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>'+
     '<optgroup label="예외 상태">'+STAGE_EX.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>';
-  return '<div class="adv"><button class="adv-t" id="advToggle">⚙ 고급 ▾</button><div class="adv-body" id="advBody">'+
+  return '<div class="adv"><button class="adv-t" id="advToggle">고급 ▾</button><div class="adv-body" id="advBody">'+
     '<div class="adv-warn">⚠ 강제 변경은 정상 흐름을 건너뜁니다 — 복구·초기화용. <b>되돌리면 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화</b>됩니다. 신청접수까지 내리면 상담 예약(캘린더)·예식일 임시고정도 함께 초기화돼요.</div>'+
     '<label>단계</label><select id="fStage">'+opts+'</select>'+
     '<label>사유 (필수)</label><input type="text" id="fReason" placeholder="예: 잘못 취소 복구">'+
@@ -1939,8 +1939,8 @@ function _cpnCompress(file, budget){
 function doRevokeCoupon(code,names){ openModal({ title:'커피쿠폰을 회수할까요?', danger:true, text:b(names)+li('고객 마이페이지에서 바코드가 사라져요')+li('이미 사용한 쿠폰이면 회수 의미가 없어요'), yes:'회수', onYes:function(){ runAct(['adminRevokeCoupon',code],code,'회수'); } }); }
 function doCancel(code,names){ var extra='<div class="field"><label>취소 사유</label><select id="cxR"><option value="고객 요청">고객 요청</option><option value="일정 안 맞음">일정 안 맞음</option><option value="기타">기타</option></select></div>';
   openModal({ title:'이 예약을 취소할까요?', danger:true, text:b(names)+li('캘린더 일정이 삭제돼요')+li('되돌릴 수 없어요'), extra:extra, yes:'취소 확정', onYes:function(){ runAct(['adminCancel',code,$('cxR')?$('cxR').value:''],code,'취소 확정'); } }); }
-function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
-function doUncontracted(code,names){ openModal({ title:'계약이 성사되지 않았나요? 미계약으로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 시착 벌수 공제 후 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면 ⚙ 고급 강제 변경'), yes:'미계약 처리', onYes:function(){ runAct(['adminMarkUncontracted',code],code,'미계약 처리'); } }); }
+function doNoshow(code,names){ openModal({ title:'상담에 안 오셨나요? 노쇼로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면  고급 강제 변경'), yes:'노쇼 처리', onYes:function(){ runAct(['adminMarkNoshow',code],code,'노쇼 처리'); } }); }
+function doUncontracted(code,names){ openModal({ title:'계약이 성사되지 않았나요? 미계약으로 정리할까요?', danger:true, text:b(names)+li('이 고객은 아카이브로 이동해요')+li('예약금을 받았다면 시착 벌수 공제 후 환불 대상이에요 · 처리 후 처리할 일에 환불 카드가 떠요')+li('되돌리려면  고급 강제 변경'), yes:'미계약 처리', onYes:function(){ runAct(['adminMarkUncontracted',code],code,'미계약 처리'); } }); }
 function doOpenFitting(code,names){ openModal({ title:'드레스 시착 동의서를 보낼까요?', text:b(names)+li('현재단계가 시착으로 넘어가요')+li('고객 마이페이지에 드레스 시착 동의서가 떠요'), yes:'보내기', onYes:function(){ runAct(['adminOpenFittingConsent',code],code,'보내기'); } }); }
 // [02-9] 예식일 변경 확인 — from→to·수수료·입금자 확인 후 적용. 서버가 슬롯을 다시 검증해요(마감이면 에러로 안내).
 function doConfirmChange(code,names,d){
@@ -1982,7 +1982,7 @@ function openSendContract(code,names,d){
     '<option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option><option value="600000">스냅 — 60만</option><option value="__etc">직접 입력</option></select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 예식일로 평일/주말 자동 선택돼요. 평일이라도 <b>공휴일</b>이면 주말·공휴일(280만)을 직접 골라 주세요.</div></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
     '<div class="field"><label>계약서 링크 (기본 계약서 자동 — 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>'
-    +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">📄 채워진 계약서 미리보기 (발송 전 확인)</button></div>';
+    +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">채워진 계약서 미리보기 (발송 전 확인)</button></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송하세요.</span>', extra:extra, yes:'발송',
     init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:contractFullUrl(d.product); var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
       var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; });
