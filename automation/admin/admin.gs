@@ -1535,7 +1535,16 @@ function adminSetResultLinks(code, links) {
   var _lvWarns = [];
   try {
     _lvWarns = _resultLinkWarnings([{ label: '원본', url: _lvRes.links['원본'] }, { label: '보정본', url: _lvRes.links['보정본'] }, { label: '영상', url: _lvRes.links['영상'] }]);
-    if (_lvWarns.length) { try { _recordHandler(code, '[링크검증] ' + _lvWarns.join(' / ').slice(0, 400)); } catch (eR) {} }
+    // [LINK_VERIFY_RECLOCK 2026-07-25] 락 해제 후 실행되는 처리이력 기록을 짧은 락으로 보호 — 처리이력은 read-modify-write라
+    //   동시 관리자 액션과 겹치면 한 줄이 유실될 수 있음(점검 제안 반영). 5초 안에 락을 못 얻으면 기록 생략(경고는 이미 응답·모달로 전달됨).
+    if (_lvWarns.length) {
+      try {
+        var _rlLock = LockService.getScriptLock();
+        if (_rlLock.tryLock(5000)) {
+          try { _recordHandler(code, '[링크검증] ' + _lvWarns.join(' / ').slice(0, 400)); } finally { try { _rlLock.releaseLock(); } catch (eL) {} }
+        } else { Logger.log('[링크검증] 처리이력 기록 생략(락 대기 초과): ' + code); }
+      } catch (eR) {}
+    }
   } catch (eV) { _lvWarns = []; }
   _lvRes.warnings = _lvWarns;
   return _lvRes;
