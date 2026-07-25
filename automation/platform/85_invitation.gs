@@ -142,6 +142,7 @@ function handleSaveInvitationDraft(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
     var _oldInvJ = JSON.stringify(d.invitationDraft || {});
@@ -169,6 +170,7 @@ function handlePublishInvitation(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
 
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
@@ -236,6 +238,7 @@ function saveInvitationPreview(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
 
     var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
