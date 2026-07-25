@@ -204,6 +204,15 @@ chk 'MPD_G10' mypage.html 1                         # 용어 통일(예식 영�
 _g10=$(grep -c '본식 영상' mypage.html 2>/dev/null); _g10=${_g10:-0}; if [ "$_g10" -gt 0 ]; then echo "REVERT? mypage.html: '본식 영상' 용어 부활($_g10)"; fail=1; else echo "ok mypage.html: '예식 영상' 용어 유지"; fi
 chk 'MPD_G11' mypage.html 2                         # 계약 성사·제작 시작 환대 1줄
 chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결측 꼬리·오버플로 가드
+# ── 2026-07-25 마이페이지 2차 스프린트 PR①(B1~B6 위계·강조)
+chk 'MPD_B1' mypage.html 2                          # D-day 별도 줄 승격(먹색 · G12 중립 톤 공존)
+chk 'MPD_B2' mypage.html 1                          # 첫 미완료 준비 행 primary(확인서 양보)
+chk 'MPD_B3' mypage.html 1                          # 계좌 복사 중립(이중 진사 해소)
+chk 'MPD_B4' mypage.html 1                          # 취소류 텍스트 링크 강등
+chk 'cc-btn-textlink' mypage.html 4                 # 강등 클래스 CSS+적용 3곳
+chk 'MPD_B5' mypage.html 1                          # 추가보정 화살표 톤다운
+chk 'MPD_B6' mypage.html 1                          # 후기 카피 정직화+필수 범례
+_b6=$(grep -c '탭만 하면 끝나요' mypage.html 2>/dev/null); _b6=${_b6:-0}; if [ "$_b6" -gt 0 ]; then echo "REVERT? mypage.html: '탭만 하면 끝나요' 과장 카피 부활($_b6)"; fail=1; else echo "ok mypage.html: 후기 카피 정직화 유지"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
