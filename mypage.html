@@ -2529,9 +2529,11 @@ function doCancelRes(){
   }).catch(function(){ reset('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 function doAcceptProp(){
+  var btn=$('mp_acceptProp'); if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent='수락 중…'; }   // MPD_G3 수락 버튼 로딩 상태 — 비동기 버튼 중 유일하게 무방비라 이중 탭 위험(2026-07-25)
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='이 시간으로 수락'; } }
   api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); }
-  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
+    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
