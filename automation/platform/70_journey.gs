@@ -970,12 +970,12 @@ function adminConfirmWeddingChange(code) {
     // 제작 base 동기화 — 제작 단계에서 base가 이미 저장된 고객의 일시 변경 시,
     //   buildProductionState(80)·_ensureProductionBase(85 발행 promote)가 옛 base.weddingDate/Time을
     //   우선해 청첩장·식순·다이닝 도착시간이 옛 일시로 남는 것 방지(시간은 계약 슬롯→본예식 +1h 매핑).
-    var prod = _parseJsonSafe(cust.get('제작임시저장'));
+    var prod = _prodLoad(cust);   // PROD_ACCESSOR
     if (prod && prod.base) {
       prod.base.weddingDate = req.to.date;
       var mapT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(req.to.slot || '').trim()];
       if (mapT) prod.base.weddingTime = mapT;
-      updCols['제작임시저장'] = JSON.stringify(prod);
+      _prodStoreCols(prod, updCols);   // PROD_ACCESSOR
     }
     touchCustomer(sheet, colOf, cust.num, updCols);
     // ★wedchg-seat-inv 좌석 공개 조회 캐시 무효화 — 예식일이 바뀌면 하객 좌석 페이지의 '예식일'이 즉시 갱신되게(캐시 5분 대기 방지).
@@ -1242,7 +1242,7 @@ function _balanceExtraInfo(r) {
   var out = { finalDone: false, standing: 0, amount: 0 };
   try {
     if (!r || String(r.get('상품타입') || '').trim() === '웨딩스냅') return out;
-    var d = _parseJsonSafe(r.get('제작임시저장'));
+    var d = _prodLoad(r);   // PROD_ACCESSOR
     if (!(d.tracks && d.tracks.final === '완료')) return out;
     out.finalDone = true;
     var f = d.finalDraft || {};

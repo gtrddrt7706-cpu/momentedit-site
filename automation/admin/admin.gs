@@ -569,7 +569,7 @@ function adminHome() {
     var 추가보정 = String(cget(rv, '추가보정상태') || '').trim();
     var 선택수 = String(cget(rv, '선택수') || '').trim();
     var bk = bookMap[code];
-    var draft = _parseJsonSafe(cget(rv, '제작임시저장'));
+    var draft = _prodLoadRaw(cget, rv);   // PROD_ACCESSOR
     var invStatus = (draft.tracks && draft.tracks.invitation) || '시작전';
     var wedYmd = _ymdOf(draft.base && draft.base.weddingDate) || _ymdOf(bk ? bget(bk, '예식일자') : '');
     var consultYmd = _ymdOf(bk ? bget(bk, '선택날짜') : '');
@@ -887,7 +887,7 @@ function adminDetail(code) {
   d.email = String(cust.get('이메일') || '');
 
   // 헤더 핀 — 예식일(계약 확정 톱레벨 우선 · 없으면 제작 base · 없으면 상담 예식일자)·하객·상품
-  var draft = _parseJsonSafe(cust.get('제작임시저장'));
+  var draft = _prodLoad(cust);   // PROD_ACCESSOR
   d.pin = {
     예식일: _ymdOf(cust.get('예식일')) || _ymdOf(draft.base && draft.base.weddingDate) || _ymdOf(cr ? cr.get('예식일자') : ''),
     하객: String(cr ? (cr.get('하객') || '') : ''),
@@ -1069,7 +1069,7 @@ function adminArchive(query, filter) {
       var phoneN = phone.replace(/[\s\-]/g, '');
       if (hay.indexOf(query) === -1 && !(q && phoneN.indexOf(q) !== -1)) continue;
     }
-    var draft = _parseJsonSafe(get(rv, '제작임시저장'));
+    var draft = _prodLoadRaw(get, rv);   // PROD_ACCESSOR
     // [B-1 연동] 영수증 상태 뱃지 — 중단 종료는 기발행 여부만 JSON 직독(행마다 Bookings 스캔 방지),
     //   완료 종료만 원장 산출(이때 입금상태='확인'이라 예약금 Bookings 폴백을 타지 않음 → 빠름)
     var _issuedA = _parseJsonSafe(get(rv, '동의기록')).영수증발행 || {};
@@ -1741,7 +1741,7 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException) {
     { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증', keep: function (c) { return String(c.get('입금상태') || '').trim() === '확인'; } },   // ROLLBACK_KEEP_PAID · 확인된 수납은 롤백에도 보존(지우면 카드 이중청구·영수증 큐 소실·환불계산 누락 — 2026-07-25 점검)
     { cols: ['중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], at: '제작중', keep: function (c) { return String(c.get('중도금상태') || '').trim() === '확인'; } },        // 중도금(시그 3단계 마일스톤) · ROLLBACK_KEEP_PAID
     { cols: ['잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], at: isSnap ? '촬영완료' : '제작중', keep: function (c) { return String(c.get('잔금상태') || '').trim() === '확인'; } }, // 잔금(제작/촬영 단계 마일스톤) · ROLLBACK_KEEP_PAID
-    { cols: ['제작임시저장', 'eventId', '제작상태'], at: isSnap ? '입금완료' : '제작중' },   // 스냅은 flow에 '제작중'이 없어 이 그룹이 영영 스킵되던 것 수정(스냅 기획·청첩장 초안도 초기화 대상 — 2026-07-25 점검)
+    { cols: _prodCols().concat(['eventId', '제작상태']), at: isSnap ? '입금완료' : '제작중' },   // PROD_ACCESSOR — 제작 컬럼 목록은 _prodCols() 단일 출처(PR-B 트랙 분리 시 자동 확장 · 신 컬럼 잔존=데이터 부활 사고 차단)   // 스냅은 flow에 '제작중'이 없어 이 그룹이 영영 스킵되던 것 수정(스냅 기획·청첩장 초안도 초기화 대상 — 2026-07-25 점검)
     { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시'], at: isSnap ? '촬영완료' : '예식완료' },
     { cols: ['추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], at: isSnap ? '촬영완료' : '예식완료', keep: function (c) { return String(c.get('추가보정상태') || '').trim() === '완료'; } },   // ROLLBACK_KEEP_PAID · 완료(입금확인)된 추가 보정 — 현금영수증 의무발급 큐 유지
     { cols: ['설문상태', '설문응답', '설문일시'], at: '결과물전달', consent: ['결과물전달일', '보관만료통지', '결과물파기'] }   // 결과물파기도 초기화 — 재전달 사이클에서 12조③ 만료통지·6개월 자동정리가 다시 살게(2026-07-25 점검)
@@ -1829,7 +1829,7 @@ function adminForceStage(code, targetStage, reason) {
       } catch (eTs) {}
     }
     // FORCE_SEAT_INV · 제작임시저장(좌석 데이터 원천)이 초기화되면 하객 좌석 공개 조회 캐시도 즉시 무효화 — 6분 톰스톤(wedchg-seat-inv 동일 패턴 · 2026-07-25 점검)
-    if ('제작임시저장' in cleared) {
+    if (_prodCols().some(function (c) { return c in cleared; })) {   // PROD_ACCESSOR
       try {
         var _svTokF = String(cust.get('좌석공유토큰') || '').trim();
         if (_svTokF) { var _svcF = CacheService.getScriptCache(); _svcF.put('seatv_inv_' + _svTokF, '1', 360); _svcF.remove('seatv_' + _svTokF); _svcF.remove('seatf_' + _svTokF); }

@@ -1407,7 +1407,8 @@ function openRitualBuilder(p){
       _frameReady=true;
       var rd=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null;
       // [V2_DRAFT_NOTICE 2026-07-25] 구버전(v2 이하) 초안 감지 — 침묵 폐기 대신 1회 안내 후 종전 동작(새로 시작 · 회의 R-6)
-      if(p&&p.ritualDraft&&!rd){ try{ if(!localStorage.getItem('me_order_v2note')){ localStorage.setItem('me_order_v2note','1'); _miniToast('이전 버전에서 만든 식순 초안은 새 빌더로 이어지지 않아요 · 새로 시작해요'); } }catch(e){} }
+      //   [ORDER_OWNER] 안내 플래그도 계정별 키 — 같은 기기에서 계정이 바뀌면 그 계정은 안내를 다시 받아야 한다(앞 계정이 봤다고 건너뛰면 조용한 초안 폐기가 됨).
+      if(p&&p.ritualDraft&&!rd){ try{ var _v2k='me_order_v2note_'+(String((p&&p.code)||'')||'guest'); if(!localStorage.getItem(_v2k)){ localStorage.setItem(_v2k,'1'); _miniToast('이전 버전에서 만든 식순 초안은 새 빌더로 이어지지 않아요 · 새로 시작해요'); } }catch(e){} }
       // [ORDERFILL_DONE 2026-07-25] 서버 초안의 완료 여부를 실값으로 동봉 — 중간 '저장 후 나가기' 초안이 완성 화면·'저장됨'·전체 방문 ✓로 열리던 결함 수정(완료 판정 소스 = tracks.ritual)
       var _rdn=((((p&&p.tracks)||((p&&p.production)||{}).tracks)||{}).ritual==='완료');
       // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). 서약·편지 본문은 보내지 않음.
@@ -3708,7 +3709,7 @@ function renderProduction(p, inv){
       _dd0.reserveTime=String(p.guideinfoDraft.reserveTime||''); _dd0.reserveName=String(p.guideinfoDraft.reserveName||'');
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
-  var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이)로 교체 · 구 renderRitual(v2)는 하위호환 요약용으로만 유지
+  var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
@@ -5071,6 +5072,59 @@ function _echoLostPaths(sent, echoed, path, out){
   }
   return out;
 }
+// ══ [PROD_MULTITAB 2026-07-25 · Wave 4 PR-A] 다른 탭 저장 감지 ══
+//   같은 계정을 두 기기·두 탭에서 열어두고 편집하는 부부가 실제 사용 패턴 — Wave 3 rev 가드는 '저장할 때' 충돌을 잡지만,
+//   그 전까지 옛 화면인 줄 모르고 계속 쓰게 된다. 저장 성공을 다른 탭에 알려 '지금' 최신을 받을 기회를 준다.
+//   배너를 무시하고 저장해도 rev 가드(409 2버튼)가 그대로 받쳐준다 — 이 배너는 편의이지 안전장치가 아니다.
+var _MP_BC=null, _mpBcFallback=false;
+function _prodBcInit(){
+  if(_MP_BC||_mpBcFallback) return;
+  try{
+    if(typeof BroadcastChannel==='function'){
+      _MP_BC=new BroadcastChannel('me_prod');
+      _MP_BC.onmessage=function(ev){ var d=ev&&ev.data; if(d&&d.type==='save') _prodStaleBanner(String(d.track||'')); };   // BroadcastChannel은 보낸 탭엔 안 오므로 자기 필터 불필요
+      return;
+    }
+  }catch(e){ _MP_BC=null; }
+  _mpBcFallback=true;   // 미지원 브라우저 1벌 폴백 — storage 이벤트는 '다른 탭'에서만 발생(자기 탭 미수신)
+  try{ window.addEventListener('storage', function(ev){
+    if(!ev || ev.key!=='me_prod_ping' || !ev.newValue) return;
+    try{ var d=JSON.parse(ev.newValue); if(d&&d.track) _prodStaleBanner(String(d.track)); }catch(e2){}
+  }); }catch(e3){}
+}
+function _prodBcSend(track, rev){
+  if(!track) return;
+  var msg={ type:'save', track:String(track), rev:(rev==null?'':String(rev)), at:Date.now() };
+  if(_MP_BC){ try{ _MP_BC.postMessage(msg); return; }catch(e){} }
+  if(_mpBcFallback){ try{ localStorage.setItem('me_prod_ping', JSON.stringify(msg)); }catch(e2){} }
+}
+// 지금 이 탭에서 편집 중인 트랙(없으면 '') — 배너는 '같은 트랙'일 때만 띄운다(무관한 알림으로 방해하지 않기)
+function _prodOpenTrack(){
+  try{
+    if(document.getElementById('mp_obViewer')) return 'ritual';                                  // 식순 빌더 iframe 오버레이
+    if(typeof SEATFLOW!=='undefined' && SEATFLOW && SEATFLOW.active) return 'seat';
+    if(typeof SNAPFLOW!=='undefined' && SNAPFLOW && SNAPFLOW.active) return 'snap';
+    if(typeof TRKFLOW!=='undefined' && TRKFLOW && TRKFLOW.active) return String(TRKFLOW.track||'');   // dining·ritual·final
+  }catch(e){}
+  return '';
+}
+function _prodStaleBanner(track){
+  if(!track || track!==_prodOpenTrack()) return;
+  var old=document.getElementById('mp_staleBar'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var bar=document.createElement('div'); bar.id='mp_staleBar';
+  bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:12500;background:rgba(58,45,34,.96);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center';
+  try{ bar.style.paddingTop='calc(11px + env(safe-area-inset-top,0px))'; }catch(e){}
+  var tx=document.createElement('span'); tx.textContent='다른 탭에서 이 항목이 방금 저장됐어요';
+  var btn=document.createElement('button'); btn.type='button'; btn.textContent='최신 내용 불러오기';
+  btn.style.cssText='border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:5px 13px;font-family:inherit;font-size:12px;cursor:pointer';
+  btn.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); show('loading'); loadMyState(); });
+  var x=document.createElement('button'); x.type='button'; x.textContent='닫기'; x.setAttribute('aria-label','알림 닫기');
+  x.style.cssText='border:none;background:transparent;color:rgba(255,255,255,.7);font-family:inherit;font-size:12px;cursor:pointer';
+  x.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); });
+  bar.appendChild(tx); bar.appendChild(btn); bar.appendChild(x);
+  document.body.appendChild(bar);
+}
+try{ _prodBcInit(); }catch(e){}
 function apiTrackSave(payload){
   // 전송 시점 스냅샷과 비교 — 라이브 객체(SEATFLOW.tables 등)는 응답 대기 중 사용자가 계속 편집해 오탐이 나므로.
   // JSON 왕복 복사라 undefined 값 키도 전송본과 동일하게 떨어져 나감(구조 비교 기준 일치).
@@ -5082,6 +5136,7 @@ function apiTrackSave(payload){
   return api(payload).then(function(r){
     if(r && r.ok===false && r.code==='rev') return _revConflict(payload, r);
     try{ if(r && r.ok && r.rev!=null && payload && payload.track){ var _t2=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs); if(_t2) _t2[payload.track]=r.rev; } }catch(e){}
+    try{ if(r && r.ok && payload && payload.track) _prodBcSend(payload.track, r.rev); }catch(e){}   // PROD_MULTITAB — 저장 성공을 다른 탭에 알림(같은 트랙 편집 중이면 배너)
     try{
       if(r && r.ok && r.draft && _sent){
         var lost=_echoLostPaths(_sent, r.draft);
@@ -5833,14 +5888,13 @@ function bindSeat(box){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, ritual:{ label:'식순', steps:6 }, final:{ label:'최종 확정', steps:3 } };   // ritual.steps는 renderRitual이 선택 여부에 따라 매 렌더 동적으로 덮어씀(최대 6) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
+var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'최종 확정', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
 var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
   if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; DN_UI.pre=null; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
-  if(track==='ritual') _ritualMigrate(dr);   // 구(v1) 사회자·수동 타임라인 draft → v2 나레이션 빌더 스키마로 1회 변환
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
@@ -5864,7 +5918,7 @@ function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저
       .then(function(again){ if(again){ exitTrkFlow(); } else { bkKill(TRKFLOW); TRKFLOW.active=false; show('loading'); loadMyState(); } });
   });
 }
-function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='ritual') renderRitual(box); else if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }
+function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }   // ★ritual 분기 복원 금지(2026-07-25 Wave 4 PR-A · 전용 빌더 단일 경로)
 function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
 }
@@ -6446,304 +6500,11 @@ function renderDining(box){
     }
   }
 }
-// ── 식순 빌더 (v2 · 하위호환) — 뼈대(고정) + 이중고정(형태 선택) + 자유 이벤트. 데이터=ritualDraft v2. ★'나레이션 예식' 명명 금지(나레이션은 진행 수단 · 2026-07-16 지시) ──
-// 선택 이벤트 카탈로그(단일 출처). m=예상 분, c=분위기, more=더보기 접힘, badge=뱃지, fixed='preEntrance'는 입장 직전 고정.
-var RITUAL_EV = [
-  { k:'letter',  t:'편지·덕담',        m:3, c:'감동', more:false },
-  { k:'veildown',t:'베일다운',         m:1, c:'감동', more:false, badge:'이 규모라서 가능한 순간', fixed:'preEntrance' },
-  { k:'ringwarm',t:'링 워밍',          m:3, c:'감동', more:false, badge:'이 규모라서 가능한 순간' },
-  { k:'sign',    t:'서명식',           m:3, c:'감동', more:false },
-  { k:'wine',    t:'와인 세리머니',    m:3, c:'연출', more:false },
-  { k:'cake',    t:'케이크 커팅',      m:3, c:'연출', more:false },
-  { k:'song',    t:'축가',             m:4, c:'감동', more:false },
-  { k:'video',   t:'영상 상영',        m:3, c:'감동', more:false },
-  { k:'speech',  t:'내빈 인사·축사',   m:2, c:'감동', more:false },
-  { k:'custom',  t:'직접 추가',        m:2, c:'',     more:false },
-  { k:'toast',   t:'건배 제의',        m:2, c:'연출', more:true  },
-  { k:'fspeech', t:'친구 축사',        m:3, c:'감동', more:true  },
-  { k:'relay',   t:'한 줄 덕담 릴레이',m:3, c:'유쾌', more:true  },
-  { k:'quiz',    t:'신랑·신부 퀴즈',   m:4, c:'유쾌', more:true  },
-  { k:'bouquet', t:'부케 전달식',      m:2, c:'연출', more:true  },
-  { k:'candle',  t:'화촉점화',         m:2, c:'전통', more:true  }
-];
-var RITUAL_TONE = { '차분':['letter','veildown','sign'], '유쾌':['quiz','relay','toast'], '심플':['wine','cake'] };
-function _rEv(k){ for(var i=0;i<RITUAL_EV.length;i++) if(RITUAL_EV[i].k===k) return RITUAL_EV[i]; return null; }
-function _rNames(){ var b=TRKFLOW.base||{}; return { g:(b.groomKo||'').trim()||'신랑', b:(b.brideKo||'').trim()||'신부' }; }
-function _rHM(baseHM, add){ var p=String(baseHM||'').split(':'); if(p.length<2||isNaN(+p[0])) return ''; var t=((+p[0])*60+(+p[1])+add); t=((t%1440)+1440)%1440; return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
-function _rVowMin(d){ return d.vow==='자작'?4:3; }
-function _rEvMin(k,d){ if(k==='video'){ var s=(d.details&&d.details.video&&d.details.video.lenSec)||180; return Math.max(1,Math.round(s/60)); } if(k==='custom'){ return Math.max(1,parseInt((d.details&&d.details.custom&&d.details.custom.min)||2,10)||2); } var e=_rEv(k); return e?e.m:2; }
-function _rFixedMin(){ return 10; }   // 개식2 + 입장5 + 성혼2 + 폐식1
-function _rFormMin(d){ return 2 + _rVowMin(d) + (d.ringExchange!==false?2:0); }   // 환영2 + 서약 + 예물
-function _rSelMin(d){ var s=0,e=(d.events||[]); for(var i=0;i<e.length;i++) s+=_rEvMin(e[i],d); return s; }
-function _rBudget(d){ var free=30-_rFixedMin()-_rFormMin(d); var used=_rSelMin(d); return { free:free, used:used, remain:free-used, total:_rFixedMin()+_rFormMin(d)+used }; }
-// 자유 구간 배치 순서(베일다운 제외 — 입장 직전 고정). d.order 우선, 신규 선택은 뒤에 append.
-function _rArr(d){ var evs=(d.events||[]).filter(function(k){return k!=='veildown';}); var ord=(d.order||[]).filter(function(k){return evs.indexOf(k)>=0;}); evs.forEach(function(k){ if(ord.indexOf(k)<0) ord.push(k); }); return ord; }
-// 고정 블록 + 자유 이벤트를 시각 순서로 조립. [{k,t,m,fx,nar}]
-function _rBlocks(d){
-  var nm=_rNames(), wt=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', evs=(d.events||[]), acc=0, out=[];
-  function push(k,t,m,fx,nar){ out.push({ k:k, t:t, m:m, fx:fx, nar:nar, hm:_rHM(wt,acc) }); acc+=m; }
-  push('open','개식',2,true,'오늘 '+nm.g+', '+nm.b+' 두 사람이 부부가 되는 자리에 함께해 주셔서 감사합니다. 지금부터 결혼식을 시작합니다.');
-  if(evs.indexOf('veildown')>=0) push('veildown','베일다운',1,false,'입장에 앞서, 어머니가 신부의 베일을 내려 줍니다. 딸을 보내는 마지막 손길입니다.');
-  push('entrance','신랑·신부 동시 입장',5,true,'서로의 가장 좋은 친구이자 이제 평생의 동반자가 될 두 사람입니다. 신랑 '+nm.g+', 신부 '+nm.b+', 함께 입장합니다.');
-  push('welcome','환영 인사',2,true, d.welcome==='직접'?'먼저, 두 사람이 준비한 첫 인사가 있습니다.':'먼 걸음 해 주신 한 분 한 분께, 두 사람이 마음 깊이 감사드립니다.');
-  _rArr(d).forEach(function(k){ push(k,(_rEv(k)||{}).t||k,_rEvMin(k,d),false,_rNarEv(k,d,nm)); });
-  push('vow','혼인 서약',_rVowMin(d),true, d.vow==='자작'?'두 사람이 서로에게 직접 쓴 약속을 꺼냅니다.':'이제 두 사람에게 묻습니다. 서로를 평생 아끼고 지키겠습니까.');
-  if(d.ringExchange!==false) push('ring','예물 교환',2,true,'약속의 증표로, 두 사람이 반지를 나눕니다.');
-  push('declare','성혼 선언',2,true,'두 사람은 오늘, 가장 소중한 분들 앞에서 부부가 되었음을 선언합니다.');
-  push('close','폐식 · 단체촬영 안내',1,true,'이것으로 예식을 마칩니다. 이어서 가족·지인 단체 사진 촬영이 있겠습니다. 잠시 자리에서 기다려 주세요.');
-  return out;
-}
-function _rd(d,k){ d.details=d.details||{}; d.details[k]=d.details[k]||{}; return d.details[k]; }
-function _rNarEv(k,d,nm){
-  var x=_rd(d,k);
-  switch(k){
-    case 'letter': var who=x.reader==='groom'?nm.g:x.reader==='bride'?nm.b:'두 사람';
-      return x.dir==='toCouple' ? '이번에는 부모님이 두 사람에게 아껴 두었던 말씀을 건넵니다.'
-        : x.dir==='both' ? '두 사람과 부모님이 서로에게 준비한 마음을 나눕니다.'
-        : who+' 님이 부모님께 전하고 싶은 마음을 편지에 담았습니다.';
-    case 'ringwarm': return '두 사람의 반지가 여러분의 손을 차례로 지나갑니다. 축복하는 마음을 담아 옆자리로 전해 주세요.';
-    case 'sign': return (x.doc==='혼인신고서'?'두 사람이 혼인신고서에 나란히 서명합니다.':'두 사람이 오늘의 약속을 서약서에 남깁니다.');
-    case 'wine': return '두 사람이 함께 와인을 채웁니다.'+(x.capsule?' 오늘 봉인한 이 상자는 두 사람의 기념일에 다시 열립니다.':'');
-    case 'cake': return '달콤한 첫 순간입니다. 두 사람이 함께 케이크를 자릅니다.';
-    case 'song': var s=(x.title||'').trim(), who2=(x.who||'').trim(); return (who2?who2+' 님이 ':'')+'두 사람을 위해 준비한 노래'+(s?', '+s:'')+'입니다.';
-    case 'video': return '두 사람이 걸어온 시간을 잠시 함께 봅니다.';
-    case 'speech': return ((x.who||'').trim()?(x.who.trim()+' 님이 '):'')+'축하의 말씀을 전합니다.';
-    case 'toast': return '모두 잔을 들어 주세요. 두 사람의 앞날을 함께 축하합니다.';
-    case 'fspeech': return ((x.who||'').trim()?(x.who.trim()+' 님이 '):'')+'두 사람에게 축하를 전합니다.';
-    case 'relay': return '이 자리의 한 분 한 분이, 두 사람에게 한 마디씩 덕담을 건넵니다.';
-    case 'quiz': return ((x.host||'').trim()?(x.host.trim()+' 님이 '):'')+'준비한, 두 사람에 대한 퀴즈입니다.';
-    case 'bouquet': return '두 사람이 준비한 부케를 전합니다.';
-    case 'candle': return '양가 어머니가 하나의 불을 밝힙니다. 두 가족이 만나는 순간입니다.';
-    case 'custom': return (x.name||'').trim()||'두 사람이 준비한 순서입니다.';
-  }
-  return '';
-}
-// v1(구 사회자·수동 타임라인) → v2 스키마 1회 변환
-function _ritualMigrate(dr){
-  if(dr._v===2) return;
-  if(dr.mc===undefined && !dr.entryMusic && !dr.exitMusic && !dr.songTitle && !dr.timeline && !(dr.events&&dr.events.length)){ dr._v=2; return; }   // 빈 draft = 신규
-  var oldMap={ '부모님께 편지':'letter','와인 세리머니':'wine','케이크 커팅':'cake','축가':'song','내빈 인사':'speech','건배 제의':'toast','성장 영상':'video','이벤트 영상':'video' };
-  var ne=[]; (dr.events||[]).forEach(function(x){ var k=oldMap[x]; if(k&&ne.indexOf(k)<0) ne.push(k); });
-  var carry=[]; if(dr.timeline) carry.push('이전에 적어 주신 타임라인: '+dr.timeline); if(dr.extraOrder) carry.push('더 넣고 싶던 순서: '+dr.extraOrder);
-  var det={}; if(dr.songTitle||dr.songArtist||dr.accompaniment) det.song={ title:dr.songTitle||'', who:dr.songArtist||'', acc:(dr.accompaniment||'').indexOf('라이브')>=0?'live':(dr.accompaniment||'').indexOf('MR')>=0?'MR':'tbd' };
-  var m2={ _v:2, _step:0, tone:'', host:'narration', vow:'', welcome:'', ringExchange:true, events:ne, order:[], details:det, music:{ entry:dr.entryMusic||'', peak:'', closing:dr.exitMusic||'' }, review:{status:''}, note:carry.join('\n') };
-  m2._migrated=true;   // 첫 진입 안내 1회
-  for(var kk in dr){ if(kk[0]==='_'&&kk!=='_v'&&kk!=='_step') delete dr[kk]; }
-  Object.keys(dr).forEach(function(kk){ delete dr[kk]; }); Object.keys(m2).forEach(function(kk){ dr[kk]=m2[kk]; });
-}
-// 동적 스텝 배열 — 선택 0개면 순서·디테일 스킵
-function _rSteps(d){ var s=['tone','frame','add']; if((d.events||[]).length){ s.push('order'); s.push('detail'); } s.push('done'); return s; }
-function _rStepIndex(d,key){ return _rSteps(d).indexOf(key); }
-
-function renderRitual(box){
-  var d=TRKFLOW.draft; d.details=d.details||{}; d.music=d.music||{entry:'',peak:'',closing:''};
-  var nm=_rNames(), voice=(d.host==='mc'?'사회자 멘트':'나레이션');
-  var steps=_rSteps(d); if(TRKFLOW.step>=steps.length) TRKFLOW.step=steps.length-1; if(TRKFLOW.step<0) TRKFLOW.step=0;
-  TRK_META.ritual.steps=steps.length; TRKFLOW.steps=steps.length;
-  var key=steps[TRKFLOW.step], no=TRKFLOW.step+1;
-
-  if(key==='tone'){
-    var migNote = d._migrated ? '<div class="r-note" style="color:var(--seal)">식순 만들기가 새로워졌어요. 한 번만 다시 확인해 주세요.</div>' : ''; d._migrated=false;   // 1회 노출 후 해제 · ★'나레이션 예식' 명명 금지(2026-07-16 포지셔닝 지시 · 병합 역전 재수정 2026-07-17)
-    var sample = '<div class="r-prev"><span class="lb">'+voice+' 미리보기</span>"서로의 가장 좋은 친구이자 이제 평생의 동반자가 될 두 사람입니다."</div>';
-    var toneOpt=[['차분','차분하고 감동적으로','편지·서약 중심의 깊은 시간'],['유쾌','밝고 유쾌하게','웃음이 있는 가벼운 시간'],['심플','담백하고 심플하게','꼭 필요한 순서만, 짧고 깊게']];
-    var body=migNote
-      + '<div class="r-note">진행은 준비된 '+voice+' · 디렉터가 처음부터 끝까지 챙겨요. 사회자를 따로 구하지 않아도 돼요.</div>'
-      + sample
-      + toneOpt.map(function(x){return _trkOpt(x[0],d.tone,'tone',x[1],x[2]);}).join('')
-      + '<div class="r-note">추천 순서를 골라 드리는 기준이에요. 언제든 바꿀 수 있어요.</div>'
-      + (d.host==='mc'
-          ? '<div class="r-note">지인 사회자 진행으로 설정돼 있어요. 진행 대본은 저희가 완성해 드려요. <button type="button" class="r-link" id="r_host">다시 나레이션 진행으로</button></div>'
-          : '<div class="r-note">지인 사회자와 함께하고 싶으신가요? <button type="button" class="r-link" id="r_host">사회자 진행으로 바꾸기</button></div>');
-    box.innerHTML=trkShell(no,'우리 예식, 어떤 분위기로 흐를까요?',null,body,false);
-    bindTrk(box,renderRitual,function(){},{ validate:function(){ if(!d.tone) return '분위기를 골라 주세요.'; } });
-    var hb=$('r_host'); if(hb) hb.addEventListener('click',function(){ d.host=(d.host==='mc'?'narration':'mc'); renderRitual(box); });
-    return;
-  }
-
-  if(key==='frame'){
-    // 뼈대(고정 블록)만 보여준다 — 이미 고른 자유 이벤트는 여기 표시하지 않고 가운데 자리표시로.
-    var bl=_rBlocks(d).filter(function(b){ return b.fx; }), rowsFx=[];
-    bl.forEach(function(b){
-      var sub = b.k==='welcome' ? (d.welcome==='직접'?'두 분이 직접':d.welcome==='나레이션'?'나레이션에 맡김':'아래에서 선택') : (b.k==='vow'?(d.vow==='자작'?'직접 쓴 서약':d.vow==='문답'?'문답형':'아래에서 선택'):'');
-      rowsFx.push('<div class="r-tl-row fx"><span class="r-tl-t">'+escapeHtml(b.hm||('·'))+'</span><span class="r-tl-n">'+escapeHtml(b.t)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</span><span class="r-tl-ok">준비돼요</span></div>');
-      if(b.k==='welcome') rowsFx.push('<div class="r-tl-row"><span class="r-tl-t">·</span><span class="r-tl-n" style="color:var(--label-soft)">여기에 두 분의 순서가 들어가요</span></div>');
-    });
-    var tl='<div class="r-tl">'+rowsFx.join('')+'</div>';
-    var vowMini = d.vow==='문답' ? '<div class="r-prev"><span class="lb">'+voice+'</span>"이제 두 사람에게 묻습니다. 서로를 평생 아끼고 지키겠습니까."</div>' : '';
-    var body='<div class="r-note">여기까지만으로도 완성된 예식이에요. 다음 단계에서 두 분다운 순간을 더할 수 있어요.</div>'
-      + tl
-      + '<div class="inv-side-l" style="margin:16px 0 5px">혼인 서약</div>'
-      + _trkOpt('문답',d.vow,'vow','문답형','나레이션이 묻고 두 분이 "네"로 답해요 · 3분')
-      + _trkOpt('자작',d.vow,'vow','직접 쓴 서약 낭독','서로에게 쓴 약속을 읽어요 · 4분')
-      + vowMini
-      + '<div class="inv-side-l" style="margin:14px 0 5px">환영 인사</div>'
-      + _trkOpt('직접',d.welcome,'welcome','두 분이 직접','첫 인사를 두 분의 목소리로')
-      + _trkOpt('나레이션',d.welcome,'welcome','나레이션에 맡기기','준비한 환영 문구가 흐르게')
-      + '<label class="inv-chk" style="margin-top:14px"><input type="checkbox" id="r_ring"'+(d.ringExchange!==false?' checked':'')+'> 반지 교환 포함</label>'
-      + (d.ringExchange===false?'<div class="r-note">빼도 괜찮아요. 성혼 선언으로 바로 이어져요.</div>':'');
-    box.innerHTML=trkShell(no,'이 뼈대는 저희가 완성해 뒀어요',null,body,false);
-    bindTrk(box,renderRitual,function(){},{ validate:function(){ if(!d.vow) return '혼인 서약 형태를 골라 주세요.'; if(!d.welcome) return '환영 인사 방식을 골라 주세요.'; } });
-    var rc=$('r_ring'); if(rc) rc.addEventListener('change',function(){ d.ringExchange=rc.checked; renderRitual(box); });
-    return;
-  }
-
-  if(key==='add'){
-    var bud=_rBudget(d), over=bud.remain<0, pct=Math.max(0,Math.min(100,Math.round(bud.used/Math.max(1,bud.free)*100)));
-    var budHtml='<div class="r-bud'+(over?' over':'')+'"><div class="r-bud-top"><span><b>'+(over?('약 '+(-bud.remain)+'분 초과'):('남은 시간 '+bud.remain+'분'))+'</b></span><span class="sub">보통 3~4개를 더해요</span></div><div class="r-bud-bar"><div class="r-bud-fill" style="width:'+pct+'%"></div></div></div>';
-    var showMore = d._more || (d.events||[]).some(function(k){ var e=_rEv(k); return e&&e.more; });
-    function chipHtml(e){
-      var on=(d.events||[]).indexOf(e.k)>=0;
-      return '<span class="trk-chip'+(on?' on':'')+'" data-chip="'+e.k+'"><span class="tc-box">'+(on?'✓':'')+'</span>'+escapeHtml(e.t)+'<span class="tc-min">'+_rEvMin(e.k,d)+'분</span></span>';
-    }
-    var recs=RITUAL_TONE[d.tone]||[];
-    function chipHtmlRec(e){
-      var on=(d.events||[]).indexOf(e.k)>=0, rec=recs.indexOf(e.k)>=0;
-      return '<span class="trk-chip'+(on?' on':'')+'" data-chip="'+e.k+'"><span class="tc-box">'+(on?'✓':'')+'</span>'+escapeHtml(e.t)+(rec?' <span class="r-badge">추천</span>':'')+'<span class="tc-min">'+_rEvMin(e.k,d)+'분</span></span>';
-    }
-    // 톤 추천 이벤트는 더보기에 있어도 기본 그리드로 끌어올려 노출(유쾌 톤의 퀴즈·덕담릴레이·건배가 숨지 않게)
-    var base=RITUAL_EV.filter(function(e){return !e.more || recs.indexOf(e.k)>=0;}), more=RITUAL_EV.filter(function(e){return e.more && recs.indexOf(e.k)<0;});
-    base.sort(function(a,b){ return (recs.indexOf(b.k)>=0?1:0)-(recs.indexOf(a.k)>=0?1:0); });
-    var grid='<div class="trk-chips">'+base.map(chipHtmlRec).join('')+'</div>';
-    var moreBtn = showMore
-      ? '<div class="inv-side-l" style="margin:14px 0 5px">더 보기</div><div class="trk-chips">'+more.map(chipHtml).join('')+'</div>'
-      : '<button type="button" class="r-more" id="r_more">더 보기 · 건배·퀴즈·화촉점화 등</button>';
-    // 선택된 것들의 나레이션 미리보기
-    var sel=(d.events||[]);
-    var preview = sel.length ? sel.map(function(k){ var e=_rEv(k); return '<div class="r-prev"><span class="lb">'+escapeHtml((e||{}).t||k)+' · '+voice+'</span>'+escapeHtml(_rNarEv(k,d,nm))+'</div>'; }).join('') : '';
-    var toneNote = d.tone==='유쾌' ? '<div class="r-note">하객이 가족 위주라면 유쾌한 순서는 1개 정도가 적당해요.</div>' : (d.tone==='심플'?'<div class="r-note">뼈대만으로도 충분해요. 꼭 더하지 않으셔도 돼요.</div>':'');
-    var body=budHtml
-      + '<div class="r-note">하나도 더하지 않아도 돼요. 뼈대만으로 이미 완성된 예식이에요.</div>'
-      + toneNote + grid + moreBtn
-      + (over?'<div class="r-note" style="color:var(--seal)">시간이 조금 넘어요. 저장은 되고, 상담 때 함께 조정해요.</div>':'')
-      + (preview?('<div class="inv-side-l" style="margin:16px 0 6px">고르신 순간의 '+voice+'</div>'+preview):'');
-    box.innerHTML=trkShell(no,'더하고 싶은 순간이 있나요?',null,body,false);
-    bindTrk(box,renderRitual,function(){},{});
-    var mb=$('r_more'); if(mb) mb.addEventListener('click',function(){ d._more=true; renderRitual(box); });
-    return;
-  }
-
-  if(key==='order'){
-    var arr=_rArr(d); d.order=arr.slice();
-    var bl2=_rBlocks(d);
-    var lastFree=arr.length?arr[arr.length-1]:null; var lastCat=lastFree?((_rEv(lastFree)||{}).c):'';
-    var rows=bl2.map(function(b){
-      if(b.fx || b.k==='veildown'){ return '<div class="r-tl-row fx"><span class="r-tl-t">'+escapeHtml(b.hm||'·')+'</span><span class="r-tl-n">'+escapeHtml(b.t)+'</span><span class="r-tl-ok">고정</span></div>'; }
-      var i=arr.indexOf(b.k);
-      var mv='<span class="r-tl-mv"><button type="button" data-mv="up" data-k="'+b.k+'"'+(i<=0?' disabled':'')+'>▲</button><button type="button" data-mv="dn" data-k="'+b.k+'"'+(i>=arr.length-1?' disabled':'')+'>▼</button></span>';
-      return '<div class="r-tl-row"><span class="r-tl-t">'+escapeHtml(b.hm||'·')+'</span><span class="r-tl-n">'+escapeHtml(b.t)+'</span>'+mv+'</div>';
-    }).join('');
-    var warn = (lastCat==='유쾌') ? '<div class="r-note">마지막은 차분한 순서로 마무리하면 촬영으로 자연스럽게 이어져요.</div>' : '';
-    var body='<div class="r-note">추천 순서로 놓아 드렸어요. ▲▼로 바꿀 수 있어요.</div><div class="r-tl">'+rows+'</div>'+warn;
-    box.innerHTML=trkShell(no,'순서를 확인해 주세요',null,body,false);
-    bindTrk(box,renderRitual,function(){},{});
-    Array.prototype.forEach.call(box.querySelectorAll('[data-mv]'),function(el){ el.addEventListener('click',function(){
-      var k=el.getAttribute('data-k'), dir=el.getAttribute('data-mv'), a=d.order.slice(), i=a.indexOf(k); if(i<0) return;
-      var j=dir==='up'?i-1:i+1; if(j<0||j>=a.length) return; var tmp=a[i]; a[i]=a[j]; a[j]=tmp; d.order=a; renderRitual(box);
-    }); });
-    return;
-  }
-
-  if(key==='detail'){
-    var cards=_rArr(d).concat((d.events||[]).indexOf('veildown')>=0?['veildown']:[]).map(function(k){ return _rDetailCard(k,d,voice); }).join('');
-    var music='<div class="inv-side-l" style="margin:18px 0 6px">음악 · 세 곳만 정하면 돼요 <span style="color:var(--label-soft)">(비우면 분위기에 맞춰 준비)</span></div>'
-      + '<input class="cc-input" id="r_m_entry" autocomplete="off" placeholder="입장곡 (곡명·가수)" value="'+escapeHtml(d.music.entry||'')+'">'
-      + '<input class="cc-input" id="r_m_peak" autocomplete="off" placeholder="편지·서약 배경 음악" value="'+escapeHtml(d.music.peak||'')+'">'
-      + '<input class="cc-input" id="r_m_closing" autocomplete="off" placeholder="마무리 음악" value="'+escapeHtml(d.music.closing||'')+'" style="margin-bottom:0">';
-    var note='<div class="inv-fields"><div class="inv-side-l" style="margin:14px 0 5px">그 밖에 알려주실 것 <span style="color:var(--label-soft)">(선택)</span></div>'
-      + '<textarea class="cc-input" id="r_note" style="min-height:60px;margin-bottom:0" placeholder="자유롭게 적어 주세요">'+escapeHtml(d.note||'')+'</textarea></div>';
-    box.innerHTML=trkShell(no,'고르신 순간을 조금 더 담아 볼게요','비워도 되는 항목은 편하게 넘어가세요.',cards+music+note,false);
-    bindTrk(box,renderRitual,_rCollectDetail,{ validate:_rValidateDetail });
-    Array.prototype.forEach.call(box.querySelectorAll('[data-rdopt]'),function(el){ el.addEventListener('click',function(){ _rCollectDetail(); var p=el.getAttribute('data-rdopt').split('.'); _rd(d,p[0])[p[1]]=el.getAttribute('data-rv'); renderRitual(box); }); });
-    return;
-  }
-
-  // key==='done' — 큐시트 완성 + 저장. 재진입 시 편집 홈 역할.
-  var blD=_rBlocks(d), bud2=_rBudget(d), over2=bud2.remain<0;
-  var cue='<div class="r-cue">'+blD.map(function(b){
-    var audio = '🔊 '+voice;
-    var extra='';
-    if(b.k==='entrance') extra=' · 🎵 '+(d.music.entry||'입장곡');
-    else if(b.k==='close') extra=' · 🎵 '+(d.music.closing||'마무리 음악');
-    else if((b.k==='letter'||b.k==='vow') && d.music.peak) extra=' · 🎵 '+d.music.peak;
-    var last=''; var det=(d.details||{});
-    if(det[b.k]&&det[b.k].lastLine) last='<div class="r-cue-a">끝 신호 · <span class="v">"'+escapeHtml(det[b.k].lastLine)+'"</span></div>';
-    return '<div class="r-cue-row'+(b.fx?' fx':'')+'"><span class="r-cue-t">'+escapeHtml(b.hm||'·')+'</span><div class="r-cue-b"><div class="r-cue-n">'+escapeHtml(b.t)+'</div><div class="r-cue-a">'+audio+extra+'</div>'+last+'</div></div>';
-  }).join('')+'</div>';
-  var todo=_rTodo(d);
-  var editHome='<div style="margin-top:6px">'
-    + '<div class="r-editrow"><span>분위기 · 진행</span><button type="button" class="r-jump" data-j="tone">수정</button></div>'
-    + '<div class="r-editrow"><span>서약 · 환영 · 예물</span><button type="button" class="r-jump" data-j="frame">수정</button></div>'
-    + '<div class="r-editrow"><span>더한 순간 ('+(d.events||[]).length+')</span><button type="button" class="r-jump" data-j="add">수정</button></div>'
-    + ((d.events||[]).length?'<div class="r-editrow"><span>세부 내용 · 음악</span><button type="button" class="r-jump" data-j="detail">수정</button></div>':'')
-    + '</div>';
-  var body='<div class="r-note">'+escapeHtml('총 '+bud2.total+'분')+(over2?(' · 약 '+(-bud2.remain)+'분 초과, 상담 때 함께 다듬어요'):' · 본예식 30분 안에 여유 있게 들어가요')+'</div>'
-    + cue
-    + (todo?('<div class="r-todo"><div class="r-todo-t">함께 준비하면 좋은 것</div><ul>'+todo+'</ul></div>'):'')
-    + '<button type="button" class="r-more" id="r_copy" style="color:var(--gold-deep)">대본 텍스트 복사</button>'
-    + '<div class="r-note">'+(d.host==='mc'?'이 대본을 사회자분께 전해 주세요. 읽기만 하면 되도록 완성돼 있어요.':'저장하면 디렉터가 한 번 더 확인하고, 상담 때 함께 다듬어요. 이 대본 그대로 성우 나레이션이 준비돼요.')+' 예식 '+_payDays().bal+'일 전까지 언제든 고칠 수 있어요.</div>'
-    + editHome;
-  box.innerHTML=trkShell(no,nm.g+' · '+nm.b+'의 예식 대본이 완성됐어요',null,body,true,'완료');
-  bindTrk(box,renderRitual,function(){},{ last:true });
-  Array.prototype.forEach.call(box.querySelectorAll('.r-jump'),function(el){ el.addEventListener('click',function(){ var idx=_rStepIndex(d,el.getAttribute('data-j')); if(idx>=0){ TRKFLOW.step=idx; renderRitual(box); } }); });
-  var cp=$('r_copy'); if(cp) cp.addEventListener('click',function(){ _rCopyScript(d,blD,voice,cp); });
-}
-function _rDetailCard(k,d,voice){
-  var e=_rEv(k), x=_rd(d,k), nm=_rNames();
-  function pillGroup(field,opts){ return '<div class="r-pills">'+opts.map(function(o){ return '<button type="button" class="r-pill'+((x[field]||opts[0][0])===o[0]?' on':'')+'" data-rdopt="'+k+'.'+field+'" data-rv="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('')+'</div>'; }
-  var inner='';
-  if(k==='letter'){ inner=pillGroup('dir',[['toParents','두 분 → 부모님'],['toCouple','부모님 → 두 분'],['both','서로']])
-    + (x.dir!=='toCouple'?pillGroup('reader',[['bride','신부'],['groom','신랑'],['both','두 분']]):'')
-    + pillGroup('after',[['','낭독만'],['flower','꽃 전달'],['bow','큰절'],['hug','포옹']]); }
-  else if(k==='song'){ inner='<input class="cc-input" data-rd="song.title" autocomplete="off" placeholder="곡명" value="'+escapeHtml(x.title||'')+'"><input class="cc-input" data-rd="song.who" autocomplete="off" placeholder="부르는 분" value="'+escapeHtml(x.who||'')+'">'+pillGroup('acc',[['MR','MR 반주'],['live','라이브'],['tbd','미정']]); }
-  else if(k==='video'){ var sec=(x.lenSec||180),mm=Math.floor(sec/60),ss=sec%60; inner=pillGroup('kind',[['성장','성장'],['프러포즈','프러포즈'],['축하','축하 영상'],['인터뷰','하객 인터뷰']])
-    + '<div style="display:flex;gap:8px"><input class="cc-input" data-rd="video.min" inputmode="numeric" placeholder="분" value="'+mm+'" style="width:70px"><input class="cc-input" data-rd="video.sec" inputmode="numeric" placeholder="초" value="'+ss+'" style="width:70px"></div>'
-    + '<input class="cc-input" data-rd="video.link" autocomplete="off" placeholder="영상 링크 (드라이브·유튜브 · 나중에 채워도 돼요)" value="'+escapeHtml(x.link||'')+'" style="margin-bottom:0">'; }
-  else if(k==='sign'){ inner=pillGroup('doc',[['서약서','서약서'],['혼인신고서','혼인신고서']]); }
-  else if(k==='wine'){ inner='<label class="inv-chk"><input type="checkbox" data-rdchk="wine.capsule"'+(x.capsule?' checked':'')+'> 서로에게 쓴 편지를 함께 봉인 (타임캡슐)</label>'; }
-  else if(k==='speech'||k==='fspeech'){ inner='<input class="cc-input" data-rd="'+k+'.who" autocomplete="off" placeholder="하시는 분" value="'+escapeHtml(x.who||'')+'" style="margin-bottom:0">'; }
-  else if(k==='quiz'){ inner='<input class="cc-input" data-rd="quiz.host" autocomplete="off" placeholder="진행해 줄 지인 (필수)" value="'+escapeHtml(x.host||'')+'" style="margin-bottom:0">'; }
-  else if(k==='custom'){ inner='<input class="cc-input" data-rd="custom.name" autocomplete="off" placeholder="순서 이름" value="'+escapeHtml(x.name||'')+'"><input class="cc-input" data-rd="custom.min" inputmode="numeric" placeholder="예상 시간(분)" value="'+escapeHtml(String(x.min||2))+'" style="width:110px;margin-bottom:0">'; }
-  else if(k==='bouquet'){ inner='<div class="r-note">단체촬영 때 진행하면 본식 시간을 아낄 수 있어요. 상담 때 함께 정해요.</div>'; }
-  // 끝 신호(말 이벤트만)
-  var spoken=['letter','sign','speech','fspeech','relay','quiz','song','toast'];
-  var lastLine = spoken.indexOf(k)>=0 ? '<input class="cc-input" data-rd="'+k+'.lastLine" autocomplete="off" placeholder="마지막 문장 (선택 · 나중에 채워도 돼요)" value="'+escapeHtml(x.lastLine||'')+'" style="margin:6px 0 0"><div class="r-note">이 말이 끝나는 순간 음악이 스며들어요. 내용은 당일까지 비밀로 간직하셔도 돼요.</div>' : '';
-  return '<div class="r-card"><div class="r-card-h">'+escapeHtml((e||{}).t||k)+'<span class="m">'+_rEvMin(k,d)+'분</span></div>'
-    + '<div class="r-prev" style="margin-top:0"><span class="lb">'+voice+'</span>'+escapeHtml(_rNarEv(k,d,nm))+'</div>'
-    + inner + lastLine + '</div>';
-}
-function _rCollectDetail(){
-  var d=TRKFLOW.draft;
-  Array.prototype.forEach.call(document.querySelectorAll('[data-rd]'),function(el){ var p=el.getAttribute('data-rd').split('.'); _rd(d,p[0])[p[1]]=(el.value||'').trim(); });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-rdchk]'),function(el){ var p=el.getAttribute('data-rdchk').split('.'); _rd(d,p[0])[p[1]]=el.checked; });
-  // 영상 분·초 → lenSec
-  if(d.details&&d.details.video){ var v=d.details.video; var mm=parseInt(v.min||0,10)||0, ss=parseInt(v.sec||0,10)||0; v.lenSec=Math.max(1,mm*60+ss); }
-  if(d.details&&d.details.custom){ d.details.custom.min=Math.max(1,parseInt(d.details.custom.min||2,10)||2); }
-  if($('r_m_entry')) d.music.entry=($('r_m_entry').value||'').trim();
-  if($('r_m_peak')) d.music.peak=($('r_m_peak').value||'').trim();
-  if($('r_m_closing')) d.music.closing=($('r_m_closing').value||'').trim();
-  if($('r_note')) d.note=($('r_note').value||'').trim();
-}
-function _rValidateDetail(){ var d=TRKFLOW.draft; if((d.events||[]).indexOf('quiz')>=0 && !((d.details&&d.details.quiz&&d.details.quiz.host||'').trim())) return '퀴즈를 진행해 줄 지인 한 분을 적어 주세요.'; }
-// 준비물 체크리스트(선택 기반)
-function _rTodo(d){
-  var nm=_rNames(), out=[];
-  var e=(d.events||[]);
-  if(d.vow==='자작') out.push('서로에게 쓸 서약 준비');
-  if(e.indexOf('letter')>=0) out.push('편지 쓰기');
-  if(e.indexOf('song')>=0){ var w=(d.details&&d.details.song&&d.details.song.who||'').trim(); out.push((w?w+'과 ':'')+'축가 연습'); }
-  if(e.indexOf('video')>=0) out.push('영상 파일 예식 3일 전까지 전달');
-  if(e.indexOf('sign')>=0) out.push('서명식 서류·펜 준비');
-  if(e.indexOf('wine')>=0 && d.details&&d.details.wine&&d.details.wine.capsule) out.push('타임캡슐에 넣을 편지 준비');
-  return out.map(function(x){ return '<li>'+escapeHtml(x)+'</li>'; }).join('');
-}
-function _rCopyScript(d,blocks,voice,btn){
-  var nm=_rNames(), lines=[nm.g+' · '+nm.b+' 예식 식순',''];
-  blocks.forEach(function(b){ lines.push((b.hm?b.hm+'  ':'')+b.t); if(b.nar) lines.push('   '+voice+': '+b.nar); });
-  var txt=lines.join('\n');
-  function done(){ if(btn){ var o=btn.textContent; btn.textContent='복사됐어요'; setTimeout(function(){ btn.textContent=o; },1500); } }
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,done); }
-  else { try{ var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }catch(e){} }
-}
+// ★식순 v2 위저드(renderRitual·RITUAL_EV·_r* 헬퍼 29개 · 298줄) 복원 금지 — 2026-07-25 Wave 4 PR-A로 삭제.
+//   식순 입력은 2026-07 이후 전용 빌더(order-preview.html iframe · openRitualBuilder)가 유일 경로이고,
+//   startTrkFlow('ritual') 호출부가 0곳이라 이 블록은 도달 불가 데드코드였다(진입·요약 어느 쪽도 참조 없음).
+//   v2 초안 고객은 ORDERFILL_DONE 분기에서 새로 시작 + V2_DRAFT_NOTICE 1회 안내로 처리되고,
+//   확인서 요약은 v3 summary 기반(prodConfirmHtml)이라 표시 공백도 없다. '유실 기능 복원' 후보로 다루지 말 것.
 // ── 최종 확정 위저드 — 인원(초과 스탠딩 요금 자동계산)·음료(논알콜 포함)·특이사항. 기한: 예식 9일 전(잔금과 동일) ──
 function _finCalcHtml(n){
   var P=MP_FINAL_POLICY;
