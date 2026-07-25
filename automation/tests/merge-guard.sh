@@ -172,6 +172,20 @@ chk 'MPD_B12' mypage.html 1                         # 보정 4주 구간 예상�
 chk 'MPD_B13' mypage.html 2                         # 막다른 에러 출구 표준화
 chk 'MPD_B14' mypage.html 2                         # 버튼 한글·쿠폰 영문 eyebrow·이모지 ⏳⏰ 제거
 _b14=$(grep -c '⏳\|⏰' mypage.html 2>/dev/null); _b14=${_b14:-1}; if [ "$_b14" -gt 1 ]; then echo "REVERT? mypage.html: 장식 이모지 ⏳/⏰ 부활($_b14 · 허용 1=hold 상태 아이콘)"; fail=1; else echo "ok mypage.html: 장식 이모지 ⏳⏰ 제거 유지($_b14)"; fi
+# ── 2026-07-25 마이페이지 디자인 개선 PR④(배치 E · 위저드/접근성/성능)
+chk 'MPD_E1' mypage.html 2                          # postcode 동기 로드 제거+lazy 주입
+_e1=$(grep -c 'script src="//t1.daumcdn.net' mypage.html 2>/dev/null); _e1=${_e1:-0}; if [ "$_e1" -gt 0 ]; then echo "REVERT? mypage.html: postcode head 동기 로드 부활($_e1)"; fail=1; else echo "ok mypage.html: postcode 동기 로드 없음(lazy 유지)"; fi
+chk 'MPD_E2' mypage.html 2                          # 저장 후 스크롤 보존(캡처+복원)
+chk 'MPD_E3' mypage.html 2                          # api 12초 타임아웃+재시도 전환
+chk 'MPD_E4' mypage.html 2                          # 텍스트 골드 대비(--gold-deep 5.7:1 · label-soft 다운)
+chk 'MPD_E5' mypage.html 1                          # 초소형 폰트 하한 상향
+chk 'MPD_E6' mypage.html 2                          # 토스트·NOW aria-live
+chk 'MPD_E7' mypage.html 1                          # 자동저장 신호 확산(청첩장)
+chk '담으면 바로 저장돼요' mypage.html 1            # 자동저장 신호(다이닝 담기)
+chk '고른 내용은 나갈 때 자동으로 저장돼요' mypage.html 1   # 자동저장 신호(단체사진)
+chk 'MPD_E8' mypage.html 1                          # 좌석 테이블 통삭제 확인
+chk 'MPD_E9' mypage.html 2                          # 청첩장 경로별 단계 수
+chk 'MPD_E10' mypage.html 3                         # note 적층 압축
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
