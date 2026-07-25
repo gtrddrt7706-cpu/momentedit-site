@@ -5274,6 +5274,7 @@ function prodConfirmHtml(p, inv){
   // 예식 일시 — 확인서의 기준 정보(스냅샷에도 기록 · 2026-07-18 사용자 요청 상세화)
   var _bw=p.base||{}, _wm=String(_bw.weddingDate||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
   if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+_bw.weddingTime):'')));
+  L+=line('예식 장소', '경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="cc-mini" style="display:block;margin-top:2px">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 예식 전에 안내드려요</span>');   // MPD_D1 D-7에 장소·오시는 길을 되찾을 경로가 없던 것(§7-1-③) — 상담 카드는 상담완료 후 숨김이라 확인서에 상시화
   // 청첩장 — 구성·디자인 번호까지(발행됨 한 단어로는 무엇을 발행했는지 알 수 없음)
   var _ivd=(inv.draft||{}), _im=String(_ivd.method||'');
   var _imL=({online:'온라인',offline:'오프라인',both:'온라인·오프라인',self:'개인 제작',none:'청첩장 없이'})[_im]||'';
