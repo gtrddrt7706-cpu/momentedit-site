@@ -183,7 +183,7 @@ function formatCustomersSheet() {
 //     · addProdTrackColumns(80_production) — 제작 트랙 7 → 제작_meta 마지막
 //     · addGuideTokenColumn(80_production) — 안내공유토큰
 //     · addResultSelectionColumns(80_production) — 선택사진…설문일시 → 중도금 5개 → 원본폴더ID
-//     · adminMarkDelivered(admin.gs) — 원본폴더ID가 없으면 그 시점에 시트 끝에 자가 추가
+//     · adminSetResultLinks(admin.gs:1725) — 원본폴더ID가 없으면 결과물 링크 저장 시점에 시트 끝에 자가 추가(adminMarkDelivered가 아니다 · 그 함수는 열을 만들지 않는다)
 //   특히 '원본폴더ID'는 CUSTOMER_HEADERS에 아예 없어서, 시트에는 있는데 코드에는 없는 상태가 정상적으로 발생한다.
 //   그래서 리터럴을 고칠 때는 추측하지 말고 이 진단의 출력을 그대로 기준으로 삼는다.
 function checkCustomerHeaderOrder() {
@@ -221,15 +221,37 @@ function checkCustomerHeaderOrder() {
   if (onlyLive.length) Logger.log('── 시트에만 있는 라벨(코드에 없음) ' + onlyLive.length + '개: ' + onlyLive.join(', '));
   if (onlyCode.length) Logger.log('── 코드에만 있는 라벨(시트에 없음) ' + onlyCode.length + '개: ' + onlyCode.join(', '));
 
-  if (!bad.length) {
-    Logger.log('── 결론: 불일치 없음 · setupCustomers 실행 가능(HEADER_ORDER_GUARD 통과)');
-  } else {
-    Logger.log('── 불일치 ' + bad.length + '곳 ──');
+  // 3) ★GUARD_MIRROR(2026-07-26) — 결론은 반드시 '가드 자신의 기준'으로 따로 계산한다.
+  //   위 bad는 진단용이라 가드보다 엄격하다(범위 밖 열·빈 라벨·양쪽에만 있는 라벨까지 센다).
+  //   그 숫자로 "가드에 막힌다"를 말하면 가드가 통과인데도 막힌다고 단정하게 되고,
+  //   그 틀린 판정에 "리터럴을 실측에 맞춰 정정하라"는 지시가 붙어 나가 멀쩡한 라벨을 지우게 만든다.
+  //   실제 어긋나는 경우: ①원본폴더ID가 제작_* 뒤에 붙은 시트 ②헤더 중간이 빈 칸 ③시트가 코드보다 짧은 시트(=오히려 setupCustomers를 실행해야 맞는 상태).
+  //   그래서 setupCustomers의 HEADER_ORDER_GUARD와 '똑같은' 규칙(min 범위 · 빈 칸은 건너뜀)을 여기서 그대로 복제한다.
+  //   ★이 루프를 가드와 다르게 고치지 말 것 — 둘이 갈리는 순간 이 진단은 다시 틀린 말을 한다.
+  var guardCols = Math.min(live.length, code.length), guardBad = [];
+  for (var g = 0; g < guardCols; g++) {
+    if (live[g] && live[g] !== code[g]) guardBad.push((g + 1) + '열: 시트 "' + live[g] + '" ≠ 코드 "' + code[g] + '"');
+  }
+
+  if (bad.length) {
+    Logger.log('── 참고: 코드 리터럴과 다른 열 ' + bad.length + '곳 ──');
     Logger.log(bad.join('\n'));
-    Logger.log('── 결론: setupCustomers는 HEADER_ORDER_GUARD에 막힌다. 시트를 고치지 말고 위 실측 순서에 맞춰 ' +
-      '00_platform-config의 CUSTOMER_HEADERS를 정정할 것(merge-guard의 순서 검사도 같은 커밋에서 갱신).');
+  }
+
+  if (!guardBad.length) {
+    Logger.log('── 결론: HEADER_ORDER_GUARD 기준 불일치 없음 · setupCustomers는 이 검사에 막히지 않는다.');
+    if (bad.length) {
+      Logger.log('   다만 위 참고 ' + bad.length + '곳은 가드가 막지 않을 뿐 리터럴 정정 대상이다' +
+        (onlyLive.length ? (' (특히 시트에만 있는 라벨: ' + onlyLive.join(', ') + ')') : '') +
+        '. 이 상태로 setupCustomers를 실행하면 코드 리터럴 길이만큼만 덮어쓰므로 그 뒤 열은 그대로 남는다.');
+    }
+  } else {
+    Logger.log('── 결론: setupCustomers는 HEADER_ORDER_GUARD에 막힌다(' + guardBad.length + '곳).');
+    Logger.log(guardBad.join('\n'));
+    Logger.log('   시트를 고치지 말고 위 실측 순서에 맞춰 00_platform-config의 CUSTOMER_HEADERS를 정정할 것' +
+      '(merge-guard의 순서 검사도 같은 커밋에서 갱신).');
   }
   Logger.log('(이 함수는 아무것도 쓰지 않았습니다 · 몇 번이든 재실행 안전)');
 
-  return { ok: true, liveCount: live.length, codeCount: code.length, mismatch: bad.length, bad: bad, onlyLive: onlyLive, onlyCode: onlyCode, live: live };
+  return { ok: true, liveCount: live.length, codeCount: code.length, blocked: guardBad.length > 0, guardMismatch: guardBad.length, guardBad: guardBad, mismatch: bad.length, bad: bad, onlyLive: onlyLive, onlyCode: onlyCode, live: live };
 }

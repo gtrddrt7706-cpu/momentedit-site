@@ -98,7 +98,8 @@ var CUSTOMER_HEADERS = [
   //   ★HEADER_ORDER_MEASURED(2026-07-26) — 이 리터럴이 아니라 **운영 시트 실측**이 위치의 근거다(checkCustomerHeaderOrder 로그 · 59열).
   //   이 열은 원래 CUSTOMER_HEADERS에 없었고 두 경로로만 시트에 생겼다:
   //     · addResultSelectionColumns(80_production)의 need 배열 마지막
-  //     · adminMarkDelivered(admin.gs)가 열이 없으면 결과물 전달 시점에 시트 끝에 자가 추가
+  //     · adminSetResultLinks(admin.gs:1725)가 열이 없으면 결과물 링크 저장 시점에 시트 끝에 자가 추가
+  //       (adminMarkDelivered가 아니다 — 그 함수는 열을 만들지 않는다)
   //   그래서 리터럴에 빠진 채로 제작 8열이 그 뒤에 붙었고, 59열부터 코드와 시트가 한 칸씩 어긋나 있었다.
   //   위치를 옮기지 말 것 — 옮기면 setupCustomers가 다시 라벨을 밀어 쓴다.
   '원본폴더ID',

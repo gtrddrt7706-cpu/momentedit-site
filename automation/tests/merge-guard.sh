@@ -453,6 +453,19 @@ _hlblk=$(awk '/^var CUSTOMER_HEADERS = \[/,/^\];/' automation/platform/00_platfo
 _hlseq=$(printf '%s' "$_hlblk" | grep -oE "안내공유토큰|원본폴더ID|제작_(ritual|dining|seat|guideinfo|snap|final|invitation|meta)" | tr '\n' ',')
 _hlexp='안내공유토큰,원본폴더ID,제작_ritual,제작_dining,제작_seat,제작_guideinfo,제작_snap,제작_final,제작_invitation,제작_meta,'
 if [ "$_hlseq" != "$_hlexp" ]; then echo "REVERT? 00_platform-config.gs: CUSTOMER_HEADERS 꼬리 순서가 운영 시트 실측(2026-07-26 · 67열)과 어긋남 — setupCustomers가 라벨을 밀어 쓴다 / 실제=$_hlseq"; fail=1; else echo 'ok 00_platform-config.gs: 꼬리 순서 = 운영 시트 실측(안내공유토큰→원본폴더ID→제작7→meta)'; fi
+# 위 검사는 꼬리 10개만 본다 — 앞쪽(예: 잔금상태↔중도금상태 자리 바꿈·설문일시 삭제)은 못 잡는다.
+#   그래서 전체 라벨 시퀀스를 개수 + 해시로 함께 고정한다. 열을 정당하게 추가·변경했다면 이 두 값도 같은 커밋에서 갱신할 것
+#   (갱신 자체가 '헤더를 건드렸다'는 신호 — 운영 시트와의 정합을 checkCustomerHeaderOrder로 확인하고 넘어가라는 뜻).
+_hcnt=$(printf '%s' "$_hlblk" | grep -oE "'[^']*'" | tr -d "'" | grep -c .)
+_hexp_cnt=67
+if [ "$_hcnt" != "$_hexp_cnt" ]; then echo "REVERT? 00_platform-config.gs: CUSTOMER_HEADERS 개수 $_hcnt (기대 $_hexp_cnt) — 열 추가·삭제 시 이 값과 아래 해시를 같은 커밋에서 갱신할 것"; fail=1; else echo "ok 00_platform-config.gs: CUSTOMER_HEADERS $_hcnt개"; fi
+_hmd=''
+if command -v md5sum >/dev/null 2>&1; then _hmd=$(printf '%s' "$_hlblk" | grep -oE "'[^']*'" | tr -d "'" | tr '\n' ',' | md5sum | cut -c1-12)
+elif command -v md5 >/dev/null 2>&1; then _hmd=$(printf '%s' "$_hlblk" | grep -oE "'[^']*'" | tr -d "'" | tr '\n' ',' | md5 -q | cut -c1-12); fi
+_hmd_exp='864f743024db'
+if [ -z "$_hmd" ]; then echo 'skip CUSTOMER_HEADERS 시퀀스 해시 (md5 도구 없음)'
+elif [ "$_hmd" != "$_hmd_exp" ]; then echo "REVERT? 00_platform-config.gs: CUSTOMER_HEADERS 전체 시퀀스 변경($_hmd ≠ $_hmd_exp) — 라벨 이름·순서가 조용히 바뀌었다. 의도한 변경이면 이 기대값을 같은 커밋에서 갱신"; fail=1
+else echo 'ok 00_platform-config.gs: CUSTOMER_HEADERS 전체 시퀀스 해시 일치'; fi
 # 음수 가드 — 구 리터럴 순서(meta 먼저) 부활 감지
 _hm=$(grep -c "'제작_meta', '제작_ritual'" automation/platform/00_platform-config.gs 2>/dev/null); _hm=${_hm:-0}
 if [ "$_hm" -gt 0 ]; then echo "REVERT? 00_platform-config.gs: meta-first 헤더 순서 부활($_hm) — 운영 시트와 한 칸씩 어긋남"; fail=1; else echo 'ok 00_platform-config.gs: meta-first 순서 미부활'; fi
@@ -470,5 +483,7 @@ if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 �
 
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
+# 헤더 진단의 '결론'이 실제 가드 판정과 갈리지 않는지(GUARD_MIRROR) — 진짜 GAS 함수를 vm에서 돌려 대조
+if command -v node >/dev/null 2>&1; then node scripts/audit/header-order.mjs >/dev/null 2>&1 && echo 'ok header-order: 진단 결론 == 가드 판정' || { echo 'REVERT? header-order: 진단 결론이 가드 판정과 어긋남 — node scripts/audit/header-order.mjs 로 확인'; fail=1; }; else echo 'skip header-order (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
