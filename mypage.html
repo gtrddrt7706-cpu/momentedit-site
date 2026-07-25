@@ -4330,13 +4330,14 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     opt=opt||{};
     var done = (st==='완료');
     // TRK_NO_SUB(2026-07-25 사용자 지시 "제목 밑 설명이 2개는 있고 2개는 없어 · 전부 없는 식으로 · 필요한 설명은 클릭해 안쪽에서"):
-    //   행은 이름 + 상태 + 버튼만. 설명은 각 행을 눌러 들어간 화면·패널이 담당한다(아래 이관표).
-    //     최종 확정 · 좌석 -> renderSeat 상단 안내(기한·좌석 안내 링크)  ·  단체 사진 -> renderPhoto 상단 안내
-    //     하객 안내       -> guideHubHtml 패널 첫 줄               ·  예식 확인서 -> prodConfirmHtml 패널 첫 줄
-    //   ★행 아래 설명(.trk-sub) 복원 금지 — 일부 행에만 붙어 리듬이 깨지던 것을 없앤 조치.
-    //   단, 기한이 임박한 '최종 확정'만 opt.tag(제목 옆 작은 표시)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
-    return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
+    //   ★'예식 준비' 5행(청첩장·식순·애프터 웨딩·최종 확정·좌석·단체 사진)은 이름+상태+버튼만 — sub를 넘기지 않는다(복원 금지).
+    //     설명은 각 행을 눌러 들어간 화면이 담당: 최종 확정·좌석 -> renderSeat 상단(_seatLeadNote 기한·좌석 링크) / 단체 사진 -> renderPhoto 상단.
+    //     기한 임박한 '최종 확정'만 opt.tag(제목 옆)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
+    //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
+    //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
+    return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
+      + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
+      + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
   var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null; if(_ivN) _ivStepTag=_ivN+'/4'; }
@@ -4394,10 +4395,13 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
-      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel, null)   // TRK_NO_SUB: 설명은 아래 패널(guideHubHtml) 첫 줄로 이관   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
+      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
+          (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
+            ? '청첩장에 자동으로 들어가는 안내예요'
+            : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
-      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, null,
-          {primary:_cfPrimary})   // TRK_NO_SUB: 설명은 아래 패널(prodConfirmHtml) 첫 줄로 이관   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
+          {primary:_cfPrimary})   // TRK_NO_SUB 예외(2026-07-25 사용자 지시): '확인·전달' 그룹은 설명 유지   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
@@ -5208,14 +5212,9 @@ function guideHubHtml(p, inv){
   p=p||{};
   var tok=p.guideToken||'';
   var closed=!!tok && _guideLinkClosed(p.base);
-  // TRK_NO_SUB(2026-07-25 사용자 지시): 행 아래 설명을 여기로 이관 — 무엇인지 먼저 한 줄로 알리고 링크·QR을 보여준다.
-  var _lead='<div class="cc-note" style="text-align:left;margin:0 0 8px">'
-    + (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
-        ? '식사·자리 안내를 담는 <b>하객 안내 페이지</b>예요 · 청첩장에 자동으로 들어가요.'
-        : '식사·자리 안내를 담는 <b>하객 안내 페이지</b>예요 · 링크·QR로 하객에게 전해요.')
-    + '</div>';
-  return _lead + (tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>');
+  // 설명은 행 아래(.trk-sub)가 담당 — 패널에 같은 말을 또 쓰지 않는다(2026-07-25 사용자 지시로 행 설명 유지 결정)
+  return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
@@ -5606,9 +5605,7 @@ function prodConfirmHtml(p, inv){
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
   }
-  // TRK_NO_SUB(2026-07-25 사용자 지시): 행 아래 설명을 여기로 이관 — 이 패널이 무엇인지 첫 줄로 알린다.
-  var _cfLead='<div class="cc-note" style="text-align:left;margin:0 0 10px">지금까지 준비한 내용을 <b>한 장</b>으로 모았어요 · 예식 당일은 이 내용대로 진행돼요.</div>';
-  return '<div id="cf_wrap">'+_cfLead+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
+  return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 }
 function wireProdConfirm(box, p){
   var btn=$('cf_go'); if(!btn) return;
