@@ -3689,7 +3689,9 @@ function renderResult(res, nm, code){
   var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chipGo('추가 가능 ↓'):chip('곧 열려요')));
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
-  h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
+  // MPD_B12 가장 긴 침묵(컷 선택→보정본)에 예상표 유지 — 선택완료·보정중 구간 상단에 소요·알림 예고 1줄(DELIVERY_ETA.retouch 재사용 · '?'면 숨김)
+  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:0 0 8px;color:var(--label-soft)">보정은 보통 '+DELIVERY_ETA.retouch+' 걸려요 · 완성되면 카톡·메일로 알려드려요.</div>' : '';
+  h+='<div class="cc-title" style="text-align:left">결과물</div>'+_rEtaLine+'<div class="trk-list">'
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
     + row('②','보정 사진 고르기', r2)
     + row('③','추가 보정·결제', r3)
