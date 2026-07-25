@@ -1603,9 +1603,15 @@ function show(viewId){
     mn.classList.toggle('centered', viewId==='loginView'||viewId==='forgotView'||viewId==='resetView');
     if (viewId !== 'mypageView') mn.classList.remove('wide');   // mypage의 wide(제작단계)는 renderMyPage가 관리
   }
-  if (viewId !== window._curView) window.scrollTo({top:0});   // 뷰가 실제로 바뀔 때만 — 백그라운드 갱신(silent) 재표시가 읽던 위치를 위로 튕기지 않게 (2026-06-13 증상 수정)
+  if (viewId !== window._curView){   // 뷰가 실제로 바뀔 때만 — 백그라운드 갱신(silent) 재표시가 읽던 위치를 위로 튕기지 않게 (2026-06-13 증상 수정)
+    var _ky=(viewId==='mypageView' && window._mpKeepScroll!=null)?window._mpKeepScroll:null;   // MPD_E2 저장 후 재렌더 스크롤 보존 — 위저드 저장 경로가 show('loading') 경유로 최상단 점프하던 것
+    if(viewId!=='loading') window._mpKeepScroll=null;   // loading 경유 중엔 플래그 유지, 목적지 도착 시 소비/폐기
+    if(_ky!=null){ requestAnimationFrame(function(){ var h=document.documentElement, p=h.style.scrollBehavior; h.style.scrollBehavior='auto'; window.scrollTo(0,_ky); h.style.scrollBehavior=p; }); }
+    else window.scrollTo({top:0});
+  }
   window._curView = viewId;
 }
+function _mpHoldScroll(){ try{ window._mpKeepScroll=(document.body.style.position==='fixed')?_mpLockY:(window.pageYOffset||0); }catch(e){ window._mpKeepScroll=null; } }   // MPD_E2 저장-나가기 직전 위치 캡처(배경 잠금 중엔 잠금 기준값)
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
 function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); }catch(e){} }
@@ -4114,7 +4120,7 @@ function startInvFlow(inv, base){
   renderInvFlow($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
-function exitInvFlow(){   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   if(INVFLOW._exiting) return; INVFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지 → 실패 시 입력 그대로)
   saveInvDraft().then(function(r){
@@ -4768,7 +4774,7 @@ function saveSeat(done){
   _seatFinSave();   // 최종 인원=이름 있는 자리 수로 파생 저장(별도 인원 입력 폐지 2026-07-19) — 좌석 저장과 함께
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
 }
-function exitSeatFlow(){   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
+function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   SEATFLOW.active=false; _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지)
   var _fail=function(msg){
@@ -4984,7 +4990,7 @@ function _flowBusy(on){   // 저장 중 즉시 피드백 — 오버레이 위(z9
   if(on){ if(!v){ v=document.createElement('div'); v.id='flow_busy'; v.className='flow-busy'; v.setAttribute('aria-live','polite'); v.innerHTML='<div class="flow-busy-box"><span class="flow-busy-spin" aria-hidden="true"></span><span>저장 중…</span></div>'; document.body.appendChild(v); _flowBusyT=Date.now(); } }
   else if(v&&v.parentNode){ var el=v; el.id=''; var wait=Math.max(0, 300-(Date.now()-_flowBusyT)); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, wait); }   // id 즉시 해제(재시도 시 새 베일) + 남은 시간만큼 유지 후 제거
 }
-function exitPhotoFlow(){   // 식순·스냅 오버레이와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
+function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true; _flowBusy(true);   // 저장중 베일(멈춘 듯 보여 반복 클릭 방지)
   var _tearDown=function(){   // 오버레이·잠금·가드 정리(성공/저장없이나가기 공용)
     _flowBusy(false);
@@ -5122,7 +5128,7 @@ function saveSnap(){
     propsNote:String(D.propsNote||''), directorNote:String(D.directorNote||'')
   }, done:_snapFilledD(D)});   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
 }
-function exitSnapFlow(){   // 식순 빌더와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
+function exitSnapFlow(){ _mpHoldScroll();   // 식순 빌더와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(SNAPFLOW._exiting) return;
   if(SNAPFLOW.d){ var _mp=$('mp_snapMustPeople'); if(_mp) SNAPFLOW.d.mustPeople=_mp.value; var _ab=$('mp_snapAbout'); if(_ab) SNAPFLOW.d.aboutNote=_ab.value; var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value; var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value; var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value; }   // 마지막 텍스트 반영
   SNAPFLOW._exiting=true; _flowBusy(true);   // 저장중 베일(멈춘 듯 보여 반복 클릭 방지)
@@ -5486,7 +5492,7 @@ function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
   return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
 }
-function exitTrkFlow(){   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
+function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   if(TRKFLOW._exiting) return; TRKFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   TRKFLOW.active=false; _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지)
   saveTrkDraft(false).then(function(r){
