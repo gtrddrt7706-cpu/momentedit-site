@@ -1624,7 +1624,7 @@ function cacheState(d){ try{
   localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:c }));
 }catch(e){} }
 function readCachedState(){ try{ var c=JSON.parse(localStorage.getItem(STATE_CACHE_KEY)||'null'); if(c && c.t && c.t===getToken() && c.d) return c.d; }catch(e){} return null; }
-function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'; el.classList.add('show'); } }
+function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 잠깐 생겼어요. 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'; el.classList.add('show'); } }   // MPD_B13 기본 에러 편지체+출구(재시도·문의)
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 
 // fetch (단순 요청 → CORS preflight 회피)
@@ -2369,7 +2369,7 @@ function doEditCashReceipt(tail){
 // [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
 function showFittingTerms(docs){
   var fd=null; (docs||[]).forEach(function(dc){ if(!fd&&dc.terms&&dc.terms.length) fd=dc; });
-  if(!fd){ mpAlert('동의 내용을 불러올 수 없어요.'); return; }
+  if(!fd){ mpAlert('동의 내용을 불러올 수 없어요. 새로고침 후 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'); return; }   // MPD_B13 막다른 에러 출구
   var signedLine=fd.at?'<div style="text-align:left;font-size:12px;color:var(--light);margin:0 0 8px">서명 · <b style="color:var(--sub);font-weight:500">'+escapeHtml(fd.at)+'</b></div>':'';
   var html=signedLine
     +'<ul style="text-align:left;margin:0;padding-left:18px;line-height:1.7;font-size:12.5px;color:var(--sub)">'+fd.terms.map(function(x){return '<li style="margin:5px 0">'+escapeHtml(x)+'</li>';}).join('')+'</ul>'
