@@ -3593,7 +3593,7 @@ function renderProduction(p, inv){
 // [05] 결과물 카드 — 대기=준비 안내 / 원본전달~전달완료=원본→선택②→추가보정③→보정본④→영상⑤.
 // 결과물 예상 기간 — ★여기 '?'만 실제 기간으로 바꾸면 문구에 자동 반영★ (예: '예식 후 약 7일', '약 4주')
 //   '?'가 남아 있으면 그 기간 문구는 자동으로 숨겨 '미정 티'가 안 나게 함(_eta).
-var DELIVERY_ETA = { orig:'예식 후 약 2주', retouch:'약 4주', video:'약 6주' };   // 계약서 §12① (원본 2주·보정본 4주·영상 6주)
+var DELIVERY_ETA = { orig:'예식 후 약 2주', retouch:'약 4주', video:'약 6주' };   // MPD_G10 용어: 예식 영상(본식 영상 폐기)·보정본/보정할 사진 구분·사진작가(작가님·촬영감독 폐기)   // 계약서 §12① (원본 2주·보정본 4주·영상 6주)
 var DOWNLOAD_KEEP = '6개월';   // 계약서 §12③ 인도 완료 후 6개월 보관. '?'가 있으면 구체 기간은 숨김
 function _eta(s){ return String(s||'').indexOf('?')<0; }                          // 구체 기간(물음표 없음)인지
 function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
@@ -3609,8 +3609,8 @@ function _resultWaitHtml(res){
     // RESULT_WAIT_POLISH · A안(2026-07-26 사용자 선택): 문장형 '전해드려요' 반복 대신 짧은 설명 + 기간 우측 정렬 열(vg-t).
     //   기간 미확정('?')이면 기간 열을 숨기고 문장형으로 폴백 — 근거 없는 수치 약속 금지 규칙 유지.
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 가장 먼저'+(_eta(DELIVERY_ETA.orig)?'</span><span class="vg-t">'+DELIVERY_ETA.orig+'</span>':' 보내드려요.</span>')+'</div>'
-    +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+DELIVERY_ETA.retouch+' 뒤</span>':' 손봐 드려요.</span>')+'</div>'
-    +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 엮어'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+DELIVERY_ETA.video+' 뒤</span>':' 드려요.</span>')+'</div>')
+    +'<div class="vg-row"><span class="vg-k">보정본</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+DELIVERY_ETA.retouch+' 뒤</span>':' 손봐 드려요.</span>')+'</div>'
+    +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">예식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 엮어'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+DELIVERY_ETA.video+' 뒤</span>':' 드려요.</span>')+'</div>')
     +'</div>'
     +'<div class="cc-note" style="text-align:center"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 가운데 정렬(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-25 사용자 지시 3안으로 가운데 복귀)
 }
@@ -3632,7 +3632,7 @@ function _surveySchema(isSnap){
     {k:'pace',q:'140분의 호흡은 어떠셨어요?',pillar:1,o:[['good','딱 좋았어요 · 매 순간 또렷'],['short','조금 짧게 느껴졌어요'],['long','조금 벅찼어요']]},
     {k:'transparency',q:'‘숨은 비용 없는 올인원’은 지켜졌나요?',pillar:1,o:[['kept','약속대로 투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
     {k:'family',q:'부모님·가족은 편안하고 좋아하셨나요?',pillar:1,o:[['great','아주 만족하셨어요'],['ok','무난했어요'],['poor','아쉬워하셨어요']]},
-    {k:'result',q:'결과물(스냅·본식영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
+    {k:'result',q:'결과물(스냅·예식 영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
     {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
@@ -3724,7 +3724,7 @@ function renderResult(res, nm, code){
     var dl='';
     if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
-    if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
+    if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 예식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
     var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
@@ -3746,10 +3746,10 @@ function renderResult(res, nm, code){
   var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:0 0 8px;color:var(--label-soft)">보정은 보통 '+DELIVERY_ETA.retouch+' 걸려요 · 완성되면 카톡·메일로 알려드려요.</div>' : '';
   h+='<div class="cc-title" style="text-align:left">결과물</div>'+_rEtaLine+'<div class="trk-list">'
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
-    + row('②','보정 사진 고르기', r2)
+    + row('②','보정할 사진 고르기', r2)
     + row('③','추가 보정·결제', r3)
     + row('④','보정본', r4)
-    + (res.isSnap?'':row('⑤','본식 영상', res.영상?link(res.영상,'영상 보기'):(st==='전달완료'?chip('준비 중'):chip('곧 열려요'))))
+    + (res.isSnap?'':row('⑤','예식 영상', res.영상?link(res.영상,'영상 보기'):(st==='전달완료'?chip('준비 중'):chip('곧 열려요'))))
     + '</div>';
   // 보관 안심 — 다운로드할 결과물이 생겼고 + 보관 기간이 설정돼 있을 때만(막연한 약속 방지)
   if((res.원본 || hasReto) && _eta(DOWNLOAD_KEEP)){
@@ -3882,10 +3882,10 @@ function renderResultLegacy(res, box){
     }
     h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
       +step('①','원본 사진',res.원본,'원본 보기',false)
-      +step('②','보정 사진 고르기','','',true)
+      +step('②','보정할 사진 고르기','','',true)
       +step('③','추가 보정·결제','','',true)
       +step('④','보정본',res.보정본,'보정본 받기',false)
-      +(res.isSnap?'':step('⑤','본식 영상',res.영상,'영상 보기',false))
+      +(res.isSnap?'':step('⑤','예식 영상',res.영상,'영상 보기',false))
       +'</div><div class="cc-note">②③(번호 선택·추가 결제)은 곧 열려요. 사진은 드라이브 링크로 보고 골라 주세요.</div>';
   }
   box.innerHTML=h+'</div>'; box.style.display='block';
@@ -4927,7 +4927,7 @@ var PHOTO_FX_CARDS=[
  {n:'다 같이 모여 기대기', c:'가까이 붙어 · 소규모의 온기', d:'<g fill="currentColor"><circle cx="70" cy="74" r="15"/><circle cx="100" cy="66" r="16"/><circle cx="130" cy="74" r="15"/><circle cx="85" cy="96" r="13"/><circle cx="116" cy="96" r="13"/></g><path d="M56 120q44-26 88 0" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" opacity=".5"/>'},
  {n:'살짝 높은 곳에서 다 함께', c:'모두 한 프레임에', d:'<g fill="currentColor"><circle cx="72" cy="50" r="8"/><circle cx="100" cy="46" r="9"/><circle cx="128" cy="50" r="8"/><circle cx="58" cy="72" r="11"/><circle cx="86" cy="68" r="12"/><circle cx="114" cy="68" r="12"/><circle cx="142" cy="72" r="11"/><circle cx="90" cy="100" r="15"/><circle cx="114" cy="100" r="15"/></g>'},
  {n:'다 함께 부부를 바라보기', c:'시선이 모이는 따뜻한 컷', d:'<g fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="48" cy="82" r="12"/><circle cx="74" cy="74" r="12"/><circle cx="152" cy="82" r="12"/><circle cx="126" cy="74" r="12"/></g><g fill="currentColor"><circle cx="90" cy="78" r="14"/><circle cx="112" cy="78" r="14"/></g>'},
- {n:'다 함께 셀카', c:'부부는 폰으로 · 넓은 컷은 촬영감독이 함께', d:'<rect x="120" y="26" width="54" height="94" rx="9" fill="none" stroke="currentColor" stroke-width="3" opacity=".6"/><path d="M147 120 L150 140" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".6"/><g fill="currentColor"><circle cx="56" cy="80" r="15"/><circle cx="88" cy="72" r="16"/><circle cx="116" cy="80" r="14"/></g>'},
+ {n:'다 함께 셀카', c:'부부는 폰으로 · 넓은 컷은 사진작가가 함께', d:'<rect x="120" y="26" width="54" height="94" rx="9" fill="none" stroke="currentColor" stroke-width="3" opacity=".6"/><path d="M147 120 L150 140" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".6"/><g fill="currentColor"><circle cx="56" cy="80" r="15"/><circle cx="88" cy="72" r="16"/><circle cx="116" cy="80" r="14"/></g>'},
  {n:'박수로 맺는 한 컷', c:'예식을 맺는 마무리', d:'<g fill="currentColor"><circle cx="60" cy="86" r="13"/><circle cx="92" cy="80" r="14"/><circle cx="124" cy="80" r="14"/><circle cx="150" cy="88" r="12"/></g><g stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".6"><path d="M50 64l-5-10M68 58l-2-11M118 58l2-11M136 62l5-10"/></g>'}
 ];
 var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
@@ -5102,7 +5102,7 @@ function renderSnapFlow(box){
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="cc-eyebrow en-22">Snap Planning</div>';
   h+='<div class="cc-title" style="margin:0 0 8px">스냅 기획</div>';
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">촬영 전, 어떤 작가님이 오셔도 미리 알면 좋을 것들만 남겨 주세요. 전부 선택이에요 · 안 채워도 괜찮아요. 남겨 주시면 촬영이 더 두 분다워져요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">촬영 전, 어떤 사진작가님이 오셔도 미리 알면 좋을 것들만 남겨 주세요. 전부 선택이에요 · 안 채워도 괜찮아요. 남겨 주시면 촬영이 더 두 분다워져요.</div>';
   // 1) 누가 함께 담기나요 — 인물·관계(작가가 동선·구성을 미리 잡게) · marker: SNAP_PEOPLE
   h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">누가 함께 담기나요 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">두 분만인지, 가족·친구가 함께인지 미리 알면 동선과 구성을 준비하기 좋아요.</div>';
