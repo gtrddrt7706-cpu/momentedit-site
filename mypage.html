@@ -161,6 +161,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .gal-it.on .gal-ck{display:block}
 .gal-it:active{transform:scale(.98)}
 /* MPD4_F2 SR 골격 — 시각 무변화(§8-2-③) */
+/* MPD4_H5 내 내역 하단 자기서비스 진입점 */
+.led-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--divider)}
+.led-foot a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);text-decoration:none;border-bottom:1px solid var(--gold-soft);padding:8px 2px}
 /* MPD4_H4 완료 행 접기 — 카드 전체 아코디언 아님(완료 준비 행만) */
 .trk-fold summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);padding:8px 2px;user-select:none;-webkit-tap-highlight-color:transparent}
 .trk-fold summary::-webkit-details-marker{display:none}
@@ -2284,6 +2287,11 @@ function openInviteSamples(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
+// [MPD4_H5] 자기서비스 1단계(§9-5-④⑤) — 알림·정보 변경 진입점이 화면에 없던 것: 내 내역 하단에 카톡 안내 1줄 + 로그아웃 복제(최하단 1곳뿐이던 것)
+function _ledFootHtml(){
+  var _k=(window.ME_ADV_PAGE&&ME_ADV_PAGE.kakaoUrl)?ME_ADV_PAGE.kakaoUrl():'mailto:contact@momentedit.kr';
+  return '<div class="led-foot"><a href="'+escapeHtml(_k)+'" target="_blank" rel="noopener">정보·알림 변경은 카카오톡으로</a><button type="button" class="cc-btn-textlink" id="mp_ledLogout" style="padding:8px 4px">로그아웃</button></div>';
+}
 function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); box._bkId=bkOpen(closeLedModal); } }   // 뒤로가기 = 원장 닫기
 function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); bkDone(box._bkId); box._bkId=null; } }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
@@ -2432,10 +2440,12 @@ function renderLedger(l){
     chgSec+'<div class="led-sec"><div class="led-h">현금영수증</div>'+recRows+crNote+crEdit+'</div>'+
     '<div class="led-sec"><div class="led-h">서류</div>'+docRows+'</div>'+
     refundSec+
+    _ledFootHtml()+
     '</div>';
   // 배경 클릭(카드 바깥)·X 닫기 — onclick 할당(재렌더마다 리스너 누적 방지)
   box.onclick=function(e){ if(e.target===box) closeLedModal(); };
   var xb=$('mp_ledClose'); if(xb) xb.addEventListener('click', closeLedModal);
+  var lgb=$('mp_ledLogout'); if(lgb) lgb.addEventListener('click', function(){ try{ closeLedModal(); }catch(e){} clearToken(); show('loginView'); });   // MPD4_H5
   var ce=$('mp_crEditBtn'); if(ce) ce.addEventListener('click', function(){ doEditCashReceipt(l.cashTail); });
   var lc=$('mp_ledChgOpen'); if(lc) lc.addEventListener('click', function(){
     var pn=$('mp_ledChgPanel'); if(!pn) return;
