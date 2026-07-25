@@ -39,11 +39,11 @@
 
 | # | 항목 | 내용 | 추천 | 상태 |
 |---|---|---|---|---|
-| AC1 | 입금 확인 취소 액션 | 오처리 복구 경로 전무(ROLLBACK_KEEP_PAID가 보존) → adminUndoConfirm류 전용 멱등 액션+처리이력 | 진행 추천(금전 실위험 1위) | 제안 |
-| AC2 | 환불 완료 취소 | adminMarkRefunded 역방향 부재 → 취소 경로 | 진행 추천 | 제안 |
-| AC3 | 강제변경 안전 게이트 | 지워질 컬럼·동의기록 dry-run 미리보기 + 체크박스 게이트("이후 데이터 초기화에 동의") · 드롭다운 기본값 비선택화 | 진행 추천 | 제안 |
-| AC4 | 월 사업현황 | aiMorningReport에 "이번 달 계약 N·매출 ₩X·전달 N" 1줄 + 상단바 매출 패널(AI비용 패널 패턴 재사용 · 계약총액 월합계 신규 집계) | 진행 추천(0클릭 아침 도착) | 제안 |
-| AC5 | 알림 자동/수동 정책 정리 | AB3 점검에서 드러나는 "수동 필요" 이벤트를 자동 발송으로 승격할지, 템플릿 부재분은 "카톡 문구 복사" 버튼으로 할지 | 점검 결과 따라 | 제안 |
+| AC1 | 입금 확인 취소 액션 | 오처리 복구 경로 전무(ROLLBACK_KEEP_PAID가 보존) → adminUndoConfirm류 전용 멱등 액션+처리이력 | 진행 추천(금전 실위험 1위) | 반영(2차 스프린트 PR① #275) |
+| AC2 | 환불 완료 취소 | adminMarkRefunded 역방향 부재 → 취소 경로 | 진행 추천 | 반영(2차 스프린트 PR② #276) |
+| AC3 | 강제변경 안전 게이트 | 지워질 컬럼·동의기록 dry-run 미리보기 + 체크박스 게이트("이후 데이터 초기화에 동의") · 드롭다운 기본값 비선택화 | 진행 추천 | 반영(2차 스프린트 PR③ #278) |
+| AC4 | 월 사업현황 | aiMorningReport에 "이번 달 계약 N·매출 ₩X·전달 N" 1줄 + 상단바 매출 패널(AI비용 패널 패턴 재사용 · 계약총액 월합계 신규 집계) | 진행 추천(0클릭 아침 도착) | 반영(2차 스프린트 PR④ #279) |
+| AC5 | 알림 자동/수동 정책 정리 | AB3 점검에서 드러나는 "수동 필요" 이벤트를 자동 발송으로 승격할지, 템플릿 부재분은 "카톡 문구 복사" 버튼으로 할지 | 점검 결과 따라 | 반영(2차 스프린트 PR⑤ #280) |
 
 ## 4. 배치 AD — 시스템 중작업 (점진)
 
@@ -69,6 +69,12 @@
   - **AB3 자동 발송 전수 재확인**(admin.html NH 11키 → 액션 함수 → notifyKakao 이벤트 → 95_notify NOTIFY_EVENTS): 코워크 1차 대조표와 **결론 일치**. 발송 게이트는 `off` 플래그 하나뿐(95_notify:105 `if (meta.off) return false`)이고 `need`는 관리자 수신 분기(151)에서만 쓰인다는 점을 코드로 확정. 자동 발송 O 8종(contractArrived·fittingRequest·depositToProduction·resultOriginal·resultRetouch·resultDelivered·consultDone·changeConfirmed·changeDeclined) / 자동 발송 X 3종(중도금·잔금·묶음 → 전부 `cust.paymentConfirmed`, 95_notify:82 `off:true` · 2026-06-12 사용자 결정).
   - 1차 대조표에 없던 뉘앙스 3건: ①`adminConfirmPayment`는 직접 호출이 아니라 `_confirmDepositCore`(admin.gs:1347)로 위임해 발송(결과 동일) ②`cust.changeConfirmed`는 `need:false`지만 `off`가 없어 발송됨(게이트가 `off`만 보므로 결론 동일) ③`adminSetResultLinks`의 원본·보정본 알림은 **상태 전이 1회만** 발송(링크 수정 재저장은 재발송 없음) → AB4 문구에 반영.
   - `off:true` 전수 = paymentConfirmed·cashReceiptIssued·holdGranted·holdReleased·archiveExpiring(5종). 관리자 액션이 걸리는 건 paymentConfirmed 계열 3종뿐. **코드로 켜지 않고**(사용자 결정 사안) 결정 대기함에 등재 후 문구만 정직화.
+
+- **5차 · 2차 스프린트 반영(클로드 코드) · 2026-07-26** — 배치 AC 5건 + AB1 보완 1건 반영. `admin.gs`·`96_ai_cost.gs` 변경 포함이라 **`R3n9Mr` 새 버전 재배포 1회 필요**.
+  - PR① #275 AC1 / PR② #276 AC2 / PR③ #278 AC3 / PR④ #279 AC4 / PR⑤ #280 AC5 + AB1 보완.
+  - 신규 서버 함수 5종(`adminUndoConfirmPayment`·`adminUndoConfirmPreview`·`adminUndoRefunded`·`adminForceStagePreview`·`adminNotifyText`)과 읽기 전용 집계 `monthBusinessData`는 CLAUDE.md 실행 함수 위치표에 등재.
+  - 판단 기록 3건: ①**되돌리기는 전용 경로로** — `_clearForwardData`의 ROLLBACK_KEEP_PAID는 '확인된 수납 보존'이 목적이라 되돌리기에 재사용하면 안 된다. ②**미리보기와 실행은 같은 함수로** — AC3는 실행 경로(`_clearForwardData`)를 report 모드로 부른다. 미리보기 전용 코드를 따로 쓰면 시간이 지나며 어긋나 '안전장치처럼 보이는 함정'이 된다. ③**금액·문구는 서버 단일 원천** — AB1 보완은 `_journeyAmounts`, AC5는 `_nfCustomerMsg`를 그대로 읽는다. 프론트에 복제하면 두 곳이 갈라진다.
+  - 알림 발송 설정(`95_notify`의 `off`)은 이번에도 건드리지 않았다. AC5는 자동 발송을 켜는 대신 '문구 복사'로 우회했고, 재개 여부는 결정 대기함에 그대로 남아 있다.
 
 - **4차 · 2차 스프린트 0단계 교차 점검(클로드 코드) · 2026-07-26** — 배치 AC 착수 전 "되돌리기가 되돌리면 안 되는 것까지 되돌리는" 위험을 코드로 확정.
 
