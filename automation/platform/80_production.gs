@@ -281,6 +281,7 @@ function handleSaveProductionTrack(body) {
           tracks: { invitation: _tr.invitation || '', dining: _tr.dining || '', ritual: _tr.ritual || '', final: _tr.final || '', seat: _tr.seat || '' } } };
       delete d.confirmStale;
       touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+      setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 확인서 경로도 조기 return이라 별도 전이(멱등)
       _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
       return { ok: true, confirm: d.confirm };
     }
@@ -336,6 +337,11 @@ function handleSaveProductionTrack(body) {
       }
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
+    // ★PRODUCE_ENTRY_FIX(2026-07-25 사용자 발견 "이미 고객은 제작단계인데 관리자 페이지 단계랑 매치가 안 됨"):
+    //   입금완료→제작중 전이가 handleSaveProductionBase 한 곳에만 있었는데, 기초정보 입력 화면이 폐지돼(03-1b 서버 구성)
+    //   프런트가 saveProductionBase를 더는 호출하지 않음 → 전이가 영영 안 걸려 관리자 파이프라인이 '입금완료 · 제작 시작 대기'에 멈췄다.
+    //   실제 제작 착수 지점(트랙 저장)에서도 전이시킨다. setCustomerStage는 멱등·역행금지라 중복 호출 안전. 제거 금지.
+    setCustomerStage(code, 'produce');
     // [재배선 2026-06-16] 다이닝 '장소 미정'으로 완료 → 디렉터가 추천·예약 도와줄 신호(1회).
     //   옛 트리거('상담 때 함께 정할게요' 선택)는 그 선택지가 UI에서 제거돼 죽은 조건이었음 → 신규 흐름(식당 카드만)에 맞춰
     //   '특정 식당을 못 정한 채 마무리'를 신호로. 식당을 골랐거나 다이닝 안 함(N)이면 발사 안 함.

@@ -149,6 +149,7 @@ function handleSaveInvitationDraft(body) {
     if (d.confirm && _prodUiStrip(_oldInvJ) !== _prodUiStrip(JSON.stringify(d.invitationDraft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(sheet, colOf, cust.num, { '제작임시저장': JSON.stringify(d) });
+    setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX(2026-07-25) — 청첩장이 첫 제작 작업일 수 있음. 80_production 트랙 저장과 동일 전이(멱등·역행금지)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
 }

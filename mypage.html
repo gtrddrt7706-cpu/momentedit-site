@@ -1964,13 +1964,11 @@ function renderMyPage(d){
       else if (_resFlowOn && _dvIdx>=0) idx = _dvIdx;
     }
     var cur = (idx<0?0:idx);
-    // [스냅 기획] 시그니처 여정 진행바에 '스냅기획' 합성 스텝을 '제작중' 앞에 삽입(표시 전용 · 백엔드 STAGE_FLOW 무변경 · '후기' 합성 스텝과 동일 방식 · marker: SNAP_PREP_STEP).
-    //   ★표시 전용(_dispList/_dispCur)만 쓴다 — 아래 cardMin·visitDone 등은 원본 cur/sIdx(=d.stageList 기준)를 그대로 써야 하므로 cur/idx/list를 건드리지 않는다.
+    // ★SNAP_PREP_STEP 합성 스텝 폐지 — 2026-07-25 사용자 지적("제작 준비 · 다음 · 스냅 기획 = 매치가 안 맞음")으로 삭제. 재삽입 금지.
+    //   이유 ①스냅 기획 카드는 입금완료·제작중 화면에 '지금' 떠 있는데 진행바가 그걸 '다음'이라 안내하는 모순
+    //        ②'선택이에요'인 항목을 여정 필수 단계로 끼워 총 단계수만 부풀림(11→10 정상화)
+    //   진행바는 백엔드 STAGE_FLOW + '후기'(합성)만 표시한다. 스냅 기획 진입은 종전대로 제작 화면 카드(SNAP_PREP_FLOW)가 담당.
     var _dispList = list, _dispCur = cur;
-    if (list.length && d.product !== '웨딩스냅'){
-      var _snapAt = list.indexOf('제작중');
-      if (_snapAt >= 0){ _dispList = list.slice(); _dispList.splice(_snapAt, 0, '스냅기획'); _dispCur = (cur >= _snapAt) ? cur+1 : cur; }
-    }
     var nowLabel = _fullyDelivered ? (surveyDone ? '여정 완료' : '후기')   // [DELIV_STEP_HONEST] 전달 끝(단계 무관)=후기·완료
                  : (atDelivered || _resFlowOn) ? '결과물 전달'              // [DELIV_FLOW_STEP] 원본 도착~컨펌·전달 단계=라벨도 '결과물 전달'
                  : (stageLabel(d.stage, d.product) || stageLabel(list[cur], d.product) || '—');
