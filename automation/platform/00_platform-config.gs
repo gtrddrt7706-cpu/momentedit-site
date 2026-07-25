@@ -94,6 +94,14 @@ var CUSTOMER_HEADERS = [
   // 하객 안내 허브 공개 토큰 — 다이닝·좌석 등 하객에게 전달할 안내를 한 링크로 묶는 공개 조회 키.
   //   guide.html?g=토큰 → handleGuideView가 이 열을 역조회. 로그인(개인코드)과 분리 · 데이터 본체는 제작임시저장에 이미 있음. ★끝에 append.
   '안내공유토큰',
+  // 원본 사진 폴더 ID(MPD3_GAL 썸네일 갤러리) — 원본링크에서 folders/<ID>를 추출해 보관. getResultGallery가 이 폴더를 열거한다.
+  //   ★HEADER_ORDER_MEASURED(2026-07-26) — 이 리터럴이 아니라 **운영 시트 실측**이 위치의 근거다(checkCustomerHeaderOrder 로그 · 59열).
+  //   이 열은 원래 CUSTOMER_HEADERS에 없었고 두 경로로만 시트에 생겼다:
+  //     · addResultSelectionColumns(80_production)의 need 배열 마지막
+  //     · adminMarkDelivered(admin.gs)가 열이 없으면 결과물 전달 시점에 시트 끝에 자가 추가
+  //   그래서 리터럴에 빠진 채로 제작 8열이 그 뒤에 붙었고, 59열부터 코드와 시트가 한 칸씩 어긋나 있었다.
+  //   위치를 옮기지 말 것 — 옮기면 setupCustomers가 다시 라벨을 밀어 쓴다.
+  '원본폴더ID',
   // 제작 데이터 트랙별 컬럼(Wave 4 PR-B · PROD_COL_SPLIT) — 구 '제작임시저장' 단일 셀을 트랙 단위로 분리.
   //   한 트랙의 폭주가 다른 트랙 저장을 막지 않게 하는 게 목적(캡·손상 방어를 컬럼 단위로 격리).
   //   ★끝에 append(열 인덱스 밀림 금지) · 값의 단일 출처는 80_production의 _prodCols()(여기는 신규 설치용 리터럴 · 기존 시트는 addProdTrackColumns()가 1회 추가).
