@@ -1143,6 +1143,14 @@ function queueRow(it){
     '<div class="ql"><div class="qn"><span class="qk'+(it.kind==='현금영수증취소'?' qk-warn':'')+'">'+esc(chipLabel)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
     '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
 }
+// [ADM_AA10] 대기 일수 — 큐 항목의 _wait('YYYY-MM-DD')에서 오늘까지. 값이 없거나 형식이 다르면 -1(=분리 안 함).
+var STALE_DAYS = 7;
+function _waitDays(w){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(w||''))) return -1;
+  var t=new Date(w+'T00:00:00').getTime(); if(isNaN(t)) return -1;
+  var now=new Date(); now.setHours(0,0,0,0);
+  return Math.floor((now.getTime()-t)/86400000);
+}
 function renderQueue(d){
   var u=d.queue.urgent||[], n=d.queue.normal||[], html='', ct=d.counts||{}, ctTotal=Number(ct.total)||0, ctUrgent=Number(ct.urgent)||0;
   // [ADM_AA1] 급함 개수를 헤더 구석 11.5px 꼬리 → 제목 옆 배지로 승격. 0건이면 배지 자체를 안 그린다(0 표시 금지).
@@ -1151,7 +1159,12 @@ function renderQueue(d){
     html+='<div class="empty">✓ 처리할 일이 없어요 · 다 됐어요</div>';
   } else {
     if(u.length){ html+='<div class="qhead red">🔴 급한 것 ('+u.length+')</div>'+u.map(queueRow).join(''); }
-    if(n.length){ html+='<div class="qhead">그 외 ('+n.length+')</div>'+n.map(queueRow).join(''); }
+    // [ADM_AA10] '그 외'는 단계순이라 오래 기다린 건이 아래로 묻힌다 → 7일 이상 대기만 위로 떼어 별도 묶음.
+    //   서버 정렬(단계순 → 대기순)을 그대로 두고 걸러내기만 하므로 묶음 안 순서는 종전과 같다. _wait 없는 구 응답이면 전부 '그 외'로 남아 무회귀.
+    var stale=[], rest=[];
+    n.forEach(function(it){ (_waitDays(it&&it._wait)>=STALE_DAYS ? stale : rest).push(it); });
+    if(stale.length){ html+='<div class="qhead">오래 기다린 것 ('+stale.length+')</div>'+stale.map(queueRow).join(''); }
+    if(rest.length){ html+='<div class="qhead">그 외 ('+rest.length+')</div>'+rest.map(queueRow).join(''); }
   }
   $('queueWrap').innerHTML=html;
   // 바인딩: 행→상세 / 인라인 버튼→액션 / go 버튼→상세
