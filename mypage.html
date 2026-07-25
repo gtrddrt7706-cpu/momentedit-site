@@ -253,6 +253,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-emo .stanza{display:block}
 .consult-card .cc-emo .stanza + .stanza{margin-top:2px}
 .consult-card .cc-emo .em-seal{color:var(--seal);font-weight:500}   /* 진사 악센트 · 감정 정점 단어에만(인장처럼) */
+.res-panel.done .em-seal{color:var(--seal);font-weight:500}   /* SURVEY_DONE_TONE · 후기 완료 패널도 같은 진사 악센트('오래' 1점) */
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 .consult-card .fn-intro{font-size:12px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin-bottom:2px}
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
@@ -483,8 +484,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 #mp_svReview::placeholder{color:var(--label-soft);font-weight:300}
 .srv-consent{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
 .srv-consent input{width:15px;height:15px;accent-color:var(--gold-deep)}
-.srv-skip{display:block;width:100%;margin:11px 0 0;padding:6px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px}
-.srv-skip:hover{color:var(--sub)}
+/* ★고객 측 설문 스킵 버튼 복원 금지 — 2026-07-23 d4e259c 사용자 지시로 삭제
+   (건너뜀은 관리자 adminSkipSurvey 전용) */
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -1801,8 +1802,8 @@ function renderMyPage(d){
       else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
       else if (_rs === '컨펌대기') { head = '보정본을 확인해 주세요'; sub = '받아보시고 마음에 드시면 확인을 눌러 마무리해 주세요.'; }
       else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '곧 최종 전달로 마무리할게요.'; }
-      else if (_rs === '전달완료' && !_svDone) { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요. 🤍'; }
-      else if (_rs === '전달완료') { head = '모든 순간이 마무리됐어요'; sub = '받은 결과물은 마이페이지에서 언제든 다시 받으실 수 있어요. 🤍'; }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
+      else if (_rs === '전달완료' && !_svDone) { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요.'; }
+      else if (_rs === '전달완료') { head = '모든 순간이 마무리됐어요'; sub = '받은 결과물은 마이페이지에서 언제든 다시 받으실 수 있어요.'; }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
       if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
     }
     $('mp_nowHead').textContent = head;
@@ -1863,7 +1864,7 @@ function renderMyPage(d){
     // 제작중 부제: 실제 다음 할 일은 결제라 — 중도금·잔금 카드가 열리기 전(D-45·NEXT 자물쇠)엔 '중도금·잔금', 열리면 '예식 완료'
     if (d.stage==='제작중' && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage)
-                 : (atDelivered ? (surveyDone ? '모든 순간이 마무리됐어요 🤍' : '후기를 남기면 끝나요') : '마지막 단계예요');
+                 : (atDelivered ? (surveyDone ? '모든 순간이 마무리됐어요' : '후기를 남기면 끝나요') : '마지막 단계예요');
     // 점만 (막대 없음)
     $('mp_dots').innerHTML = _dispList.map(function(label,i){
       var cls = (i<_dispCur?'done':(i===_dispCur?'current':'future'));
@@ -3582,17 +3583,18 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">🤍 후기, 정말 감사해요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'소중한 후기 남겨주셔서 감사해요.<br>두 분의 하루를 오래 간직할게요.<br><br>약속드린 <b>스타벅스 커피 2잔은 이 마이페이지로 보내드려요.</b> ☕<br><span class="cc-mini">준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.</span></div></div>';
+  // SURVEY_DONE_TONE 2026-07-23 · 여정 종점 = 감정 문장으로 닫고 쿠폰 로지스틱은 cc-mini로 분리(이모지 없음 · 진사 악센트 '오래' 1점)
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">후기, 감사히 받았어요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'두 분의 이야기가 잘 닿았어요.<br>두 분의 하루를, 저희가 <span class="em-seal">오래</span> 간직할게요.</div><div class="cc-mini" style="display:block;margin-top:12px">감사의 마음으로 스타벅스 커피 2잔을 준비해요.<br>준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.</div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
-  return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">🤍 두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>끝까지 남겨주시면 감사의 마음으로 스타벅스 커피 2잔, 보내드릴게요. ☕</div>'
+  return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">두 분의 하루는 어떠셨나요</div>'
+    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>후기를 남겨주시면 감사의 마음으로 스타벅스 커피 2잔을 보내드려요.</div>'
     + body
     +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
-    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
+    +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
     +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
     +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button></div>';
@@ -3723,7 +3725,7 @@ function doSubmitSurvey(res){
   var answers={}, missing=null;
   _surveySchema(res&&res.isSnap).forEach(function(it){
     var grp=panel.querySelector('.srv-opts[data-key="'+it.k+'"]'), v=grp?grp.getAttribute('data-sel'):'';
-    if(v) answers[it.k]=v; else if(!missing) missing={it:it,grp:grp};
+    if(v) answers[it.k]=v; else if(it.req && !missing) missing={it:it,grp:grp};   // 필수(req)만 미응답 검증 — 화면 별표 2개와 일치(나머지는 비워도 제출 가능 · GAS도 2개만 필수)
   });
   if(missing){ var er=$('mp_svErr'); if(er){ er.textContent='‘'+missing.it.q+'’ 도 골라 주세요.'; er.style.display='block'; }
     if(missing.grp){ try{ missing.grp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } return; }
