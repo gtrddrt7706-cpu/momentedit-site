@@ -4268,9 +4268,7 @@ function invStepParents(box){
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
     +'<div class="inv-row"><input class="cc-input" id="iv_gp" placeholder="신랑 측 혼주 (예: 이재환 최미경)" value="'+escapeHtml(d.groomParents||'')+'">'+selOnly('iv_gct',GT,gtCur,'flex:0 0 124px;')+'</div>'+etcRow('iv_gct',gtCur,GT,'신랑 호칭 직접 입력 (예: 장손)')
     +'<div class="inv-row"><input class="cc-input" id="iv_bp" placeholder="신부 측 혼주 (예: 김영호 이정숙)" value="'+escapeHtml(d.brideParents||'')+'">'+selOnly('iv_bct',BT,btCur,'flex:0 0 124px;')+'</div>'+etcRow('iv_bct',btCur,BT,'신부 호칭 직접 입력')
-    +(is04?'<div class="cc-note">버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.</div>':'')
-    +(is05?'<div class="cc-note">보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.</div>':'')
-    +'<div class="cc-note">두 분 성함 사이 가운뎃점(·)은 띄어쓰기로 입력하면 자동으로 들어가요. 예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';
+    +'<div class="cc-note">'+(is04?'버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.<br>':'')+(is05?'보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.<br>':'')+'두 분 성함 사이 가운뎃점(·)은 띄어쓰기로 입력하면 자동으로 들어가요. 예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';   // MPD_E10 note 적층 압축 — 안내 3개를 한 문단으로(§8-1-④)
   var paF = d.envelopeShowParents==='Y' ? '<div class="inv-fields">'
     + paRow('신랑 아버지','iv_gfb','iv_gfa','groomFatherAccount')
     + paRow('신랑 어머니','iv_gmb','iv_gma','groomMotherAccount')
@@ -4925,7 +4923,7 @@ function renderPhoto(box){
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
   h+='<div class="sp-note" style="text-align:left;margin:0 0 8px">고른 내용은 나갈 때 자동으로 저장돼요</div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요. 보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';   // MPD_E10 산재 노트 통합
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -4938,7 +4936,6 @@ function renderPhoto(box){
   var avail=PHOTO_PRESETS.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  h+='<div class="cc-note" style="text-align:left;margin-top:10px">보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';
   // 단체컷 '함께 하는 동작' — 예시 카드형(구도가 보이는 그림 + 한 줄 의도 · 무드단어 클릭에서 개편 2026-07-20). 사진작가·디렉터 전달용
   h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">각 그림은 <b>구도만 나타낸 예시</b>예요(실제 촬영 컷과 달라요). 마음 가는 것만 눌러 주세요. 고른 개수로 비용은 바뀌지 않아요.</div>';
@@ -4949,7 +4946,7 @@ function renderPhoto(box){
   if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 파도타기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'아직 고른 동작이 없어요 · <b>전체 하객 단체컷은 그대로 담겨요</b>')+'</div>';
-  h+='<div class="cc-note" style="text-align:left;margin-top:10px">모여 선 단체컷에서 다 같이 하는 동작이에요. <b>건배·눈물·웃음·포옹·환호</b>처럼 진행 중 순간은 억지로 만들지 않고 사진작가가 흐름 속에서 담아요.</div>';
+  h+='<details class="cc-more" style="margin-top:8px"><summary>동작은 어떻게 찍히나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">모여 선 단체컷에서 다 같이 하는 동작이에요. <b>건배·눈물·웃음·포옹·환호</b>처럼 진행 중 순간은 억지로 만들지 않고 사진작가가 흐름 속에서 담아요.</div></details>';   // MPD_E10 설명 접기 강등
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
