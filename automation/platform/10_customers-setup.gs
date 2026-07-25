@@ -2,6 +2,8 @@
  * Moment Edit · 통합 플랫폼 (Phase 1) — T1 Customers 마스터 시트 세팅
  * ──────────────────────────────────────────────────────────────────────────
  * setupCustomers()  : 헤더 32컬럼 + 데이터 검증(드롭다운) + 서식. 멱등(재실행 안전·기존 데이터 보존).
+ *                     단, 재실행 안전은 '시트 헤더 순서 == CUSTOMER_HEADERS'일 때만 성립 → HEADER_ORDER_GUARD가 먼저 대조하고
+ *                     다르면 아무것도 바꾸지 않고 중단한다(라벨만 밀려 쓰이는 열 오정렬 방지).
  *                     (Phase1 23 + 계약·입금 8칸 + ⑧관리자 처리이력 1칸 = 32. 새 칸은 끝에 append)
  * getCustomersSheet(): Customers 탭 핸들 (없으면 명확한 오류).
  *
@@ -27,6 +29,25 @@ function setupCustomers() {
   //    (안 하면 아래 setValues(1,1,1,헤더수)가 기존 그리드 열수를 초과해 실패한다)
   if (sheet.getMaxColumns() < CUSTOMER_HEADERS.length) {
     sheet.insertColumnsAfter(sheet.getMaxColumns(), CUSTOMER_HEADERS.length - sheet.getMaxColumns());
+  }
+
+  // ★HEADER_ORDER_GUARD(2026-07-25) — '멱등·재실행 안전'은 기존 헤더 순서가 CUSTOMER_HEADERS와 같을 때만 참이다.
+  //   운영 중 열이 append로 늘어난 뒤(addProdTrackColumns·addGuideTokenColumn 등) 코드 리터럴의 순서가 어긋나 있으면,
+  //   아래 setValues는 데이터는 그대로 둔 채 '라벨만' 밀어 써서 열 전체를 조용히 오정렬시킨다(복구 난이도 최상).
+  //   그래서 덮어쓰기 전에 대조하고, 다르면 아무것도 하지 않고 멈춘다. 시트를 고치는 게 아니라 코드 순서를 시트에 맞춰야 한다.
+  var _exCols = Math.min(sheet.getLastColumn(), CUSTOMER_HEADERS.length);
+  if (_exCols > 0) {
+    var _ex = sheet.getRange(P.HEADER_ROW, 1, 1, _exCols).getValues()[0];
+    var _bad = [];
+    for (var _i = 0; _i < _exCols; _i++) {
+      var _h = String(_ex[_i] || '').trim();
+      if (_h && _h !== CUSTOMER_HEADERS[_i]) _bad.push((_i + 1) + '열: 시트 "' + _h + '" ≠ 코드 "' + CUSTOMER_HEADERS[_i] + '"');
+    }
+    if (_bad.length) {
+      throw new Error('헤더 순서 불일치로 중단(아무것도 바꾸지 않음) — ' + _bad.length + '곳: ' + _bad.slice(0, 8).join(' · ') +
+        (_bad.length > 8 ? ' 외 ' + (_bad.length - 8) + '곳' : '') +
+        ' | 그대로 실행하면 데이터는 남고 라벨만 밀려 열이 오정렬됩니다. 00_platform-config의 CUSTOMER_HEADERS를 시트 순서에 맞추고 다시 실행하세요.');
+    }
   }
 
   // 1) 헤더 (1행) — 항상 설계서 순서로 덮어써서 헤더 드리프트 방지

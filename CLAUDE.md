@@ -83,6 +83,8 @@
 | `purgeStaleCustomers` | 20_customers-data | 미계약·6개월 경과 고객 개인정보 자동 익명화(처리방침 파기 약속 이행). 계약(서명완료)·입금(중도금/잔금 확인)·계약총액 이력 있으면 법정보관으로 제외 · 행 삭제 없이 PII 컬럼만 비움. purgeAdvisorLog(주간)가 함께 호출. ScriptProperty `CUSTOMER_PURGE_OFF='Y'`로 정지·`CUSTOMER_PURGE_DAYS`로 일수 조정 |
 | `previewStaleCustomers` | 20_customers-data | 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용). purgeStaleCustomers(true)와 동일 |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
+| `setupCustomers` | 10_customers-setup | Customers 헤더·드롭다운·서식 재생성. **운영 중엔 원칙적으로 실행 금지** — 헤더 1행을 코드 리터럴 순서로 덮어쓰므로, 시트에 append로 늘어난 열 순서와 어긋나면 데이터는 그대로 둔 채 라벨만 밀려 열이 오정렬된다. `HEADER_ORDER_GUARD`가 실행 전에 대조해 다르면 아무것도 바꾸지 않고 중단하지만, 애초에 드롭다운 값만 바꾸려고 실행할 이유는 없다(GAS `setValue`는 데이터 검증을 통과하므로 서버 기록은 목록과 무관하게 성공 · 드롭다운은 시트에서 사람이 직접 고를 때만 영향) |
+| `formatCustomersSheet` | 10_customers-setup | 열폭·정렬·민감열 흐리게 + `현재단계` 조건부 색상만 재적용(헤더·데이터 무변경 · 운영 중 실행 안전). 단계 라벨을 추가했을 때 색을 입히는 용도 |
 | `backfillProduceStage` | 80_production | 제작을 이미 시작했는데 '입금완료'에 고착된 고객의 현재단계를 '제작중'으로 정정. **기본 드라이런(로그만)** · 실제 반영은 `backfillProduceStage(false)`. 스냅 제외 · 제작 흔적 있는 건만(관리자가 롤백한 건은 제작임시저장이 비어 자동 제외) · 처리이력 기록. 2026-07-25 전이 복구 이전 고객 1회 정리용. **★구셀(`제작임시저장`) 기준 · Wave 4 PR-B 이전 세대 전용 1회성 — PR-B 배포 전에 실행할 것**(이후 신규 고객은 구셀이 백지라 대상이 아니며, 시간이 갈수록 읽는 데이터가 낡는다) |
 | `backfillProduceStageApply` | 80_production | 위 백필을 **실제 반영**(= `backfillProduceStage(false)`). GAS 편집기는 인자를 넘겨 실행할 수 없어 드롭다운에서 바로 고르는 실행용 래퍼. 드라이런으로 목록 확인 후 이걸 실행 |
 | `checkProdCapOverflow` | 80_production | (읽기 전용·진단) 배포 전 점검 — 구셀 세대 행 중 신 컬럼 캡을 넘는 트랙을 가진 고객 목록. 이전 자체는 캡을 안 보므로 막히지 않지만, 그 고객이 그 트랙을 '더 수정'하려 하면 거부되니 미리 알고 들어가려는 용도. 아무것도 쓰지 않음 |

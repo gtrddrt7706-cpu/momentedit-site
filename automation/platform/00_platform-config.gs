@@ -97,7 +97,11 @@ var CUSTOMER_HEADERS = [
   // 제작 데이터 트랙별 컬럼(Wave 4 PR-B · PROD_COL_SPLIT) — 구 '제작임시저장' 단일 셀을 트랙 단위로 분리.
   //   한 트랙의 폭주가 다른 트랙 저장을 막지 않게 하는 게 목적(캡·손상 방어를 컬럼 단위로 격리).
   //   ★끝에 append(열 인덱스 밀림 금지) · 값의 단일 출처는 80_production의 _prodCols()(여기는 신규 설치용 리터럴 · 기존 시트는 addProdTrackColumns()가 1회 추가).
-  '제작_meta', '제작_ritual', '제작_dining', '제작_seat', '제작_guideinfo', '제작_snap', '제작_final', '제작_invitation'
+  //   ★HEADER_ORDER_LIVE(2026-07-25) — 순서는 반드시 80_production의 `_prodCreateOrder()`(트랙 7개 → meta 마지막)와 같아야 한다.
+  //   운영 시트의 이 8열은 addProdTrackColumns()가 그 순서로 append했으므로, 여기서 meta를 앞에 두면
+  //   setupCustomers()의 헤더 덮어쓰기가 라벨을 한 칸씩 밀어 '제작_ritual 데이터가 제작_meta로 읽히는' 오정렬을 만든다.
+  //   (그 상태로는 모든 행이 migrated로 오판정되어 제작 데이터가 통째로 어긋난다.) 순서 변경 금지.
+  '제작_ritual', '제작_dining', '제작_seat', '제작_guideinfo', '제작_snap', '제작_final', '제작_invitation', '제작_meta'
 ];
 
 // ============================ 드롭다운(데이터 검증) 값 목록 ============================
