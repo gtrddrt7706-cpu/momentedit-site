@@ -1573,15 +1573,27 @@ function adminMarkDelivered(code, force) {
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     if (!_stageAlreadyDeliv) setCustomerStage(code, 'deliver');   // 단계가 이미 결과물전달이면(강제 변경 복구) 상태·기록·알림만 마감 · DELIV_FORCE_RESUME
     _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
-    notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡)
+    var _dlvKakao = notifyKakao('cust.resultDelivered', code);   // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡). 반환 true/'held'/false — NOTIFY_SENT_RET
+    var _dlvMail = false;
     try {   // [2026-06-23] 결과물 전달은 카톡+메일 둘 다(다운로드 링크를 메일에도 남겨 6개월 내 찾기 쉽게). best-effort.
       var _rdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
-      _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
+      _dlvMail = _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
         centerP(esc(_rdNm) + ' 님,<br>두 분의 시간이 담긴 결과물이 준비되었습니다.') +
         centerP('전달일부터 6개월 보관됩니다.<br>마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요.') +
         emailBtn(P.MYPAGE_URL, 'My Page') +
-        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.'));
+        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.')) === true;
     } catch (e) {}
+    // [SILENT_FAIL_ALERT 2026-07-25] 알림톡·메일 둘 다 미도달이면 관리자 메일 — 고객이 결과물 준비 소식을 모른 채 방치되는 조용한 실패 방지.
+    //   야간 보류('held')는 아침 발송 예정이라 실패로 치지 않음. 메일 발송 자체 실패가 전달 처리를 막지 않게 try로 감쌈.
+    try {
+      if (_dlvKakao !== true && _dlvKakao !== 'held' && !_dlvMail) {
+        var _dlvNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
+        _nfAdminEmail('[Moment Edit] 결과물 전달 알림 미도달: ' + _dlvNm + ' / ' + code,
+          '결과물 전달 처리(' + code + ' · ' + _dlvNm + ')는 완료됐지만,<br>'
+          + '고객 알림톡과 이메일이 모두 발송되지 못했어요.<br>'
+          + '고객이 결과물 준비 소식을 받지 못했을 수 있으니 직접 연락해 안내해 주세요.');
+      }
+    } catch (eN) {}
     return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 · 고객 후기 제출/운영자 넘기기 시 아카이브
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }

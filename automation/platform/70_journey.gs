@@ -1671,7 +1671,12 @@ function weeklyBackup() {
     for (var i = 8; i < arr.length; i++) { try { arr[i].setTrashed(true); } catch (e) {} }
     Logger.log('weeklyBackup 완료: ' + stamp + ' · 보관 ' + Math.min(arr.length + 1, 8) + '개');
     return { ok: true, at: stamp };
-  } catch (e) { Logger.log('weeklyBackup 실패: ' + (e && e.message)); return { ok: false, error: String(e && e.message) }; }
+  } catch (e) {
+    Logger.log('weeklyBackup 실패: ' + (e && e.message));
+    // [SILENT_FAIL_ALERT 2026-07-25] 백업 실패를 로그에만 남기면 아무도 모름 → 관리자 메일 1줄. 메일 실패가 트리거를 죽이지 않게 이중 try.
+    try { _nfAdminLineEmail('주간 백업 실패: ' + String((e && e.message) || e).slice(0, 150)); } catch (e2) {}
+    return { ok: false, error: String(e && e.message) };
+  }
 }
 function setupAllTriggers() {
   var plan = [

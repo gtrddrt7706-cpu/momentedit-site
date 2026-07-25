@@ -94,19 +94,23 @@ var NOTIFY_EVENTS = {
  * @param {Object=} extra 부가정보(금액·D-day·이름 등) — 문구 변수용
  */
 function notifyKakao(event, code, extra) {
+  // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·false(미발송).
+  //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용.
   try {
     var meta = NOTIFY_EVENTS[event];
-    if (!meta) { if (NOTIFY.LOG) Logger.log('[notifyKakao] ⚠️ 미등록 이벤트: ' + event); return; }
-    if (meta.off) { if (NOTIFY.LOG) Logger.log('[notifyKakao] 발송 안 함(off · 2026-06-12 사용자 결정): ' + event); return; }
+    if (!meta) { if (NOTIFY.LOG) Logger.log('[notifyKakao] ⚠️ 미등록 이벤트: ' + event); return false; }
+    if (meta.off) { if (NOTIFY.LOG) Logger.log('[notifyKakao] 발송 안 함(off · 2026-06-12 사용자 결정): ' + event); return false; }
     if (NOTIFY.LOG) {
       Logger.log('[notifyKakao] ' + event + ' → ' + meta.to + (meta.need ? '(행동필요)' : '(안내)')
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
     }
-    if (!_notifyEnabled()) return;        // 발송 OFF — 로그만 남기고 종료
-    _kakaoSend(meta.to, event, code, extra);
+    if (!_notifyEnabled()) return false;   // 발송 OFF — 로그만 남기고 종료
+    var _sentRet = _kakaoSend(meta.to, event, code, extra);
     try { _nfMaybeBalanceCheck(); } catch (e) {}   // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고
+    return _sentRet;
   } catch (e) {
     try { Logger.log('[notifyKakao] 예외(무시): ' + (e && e.message)); } catch (_) {}
+    return false;
   }
 }
 
@@ -132,28 +136,29 @@ function _nfProps() {
  * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
 function _kakaoSend(to, event, code, extra, opts) {
+  // [NOTIFY_SENT_RET 2026-07-25] 반환: true(발송 시도 성공)·'held'(야간 보류)·false(미발송). 기존 호출부 반환 미사용(호환).
   var cfg = _nfProps();
-  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return; }
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return false; }
 
   if (to === 'admin') {
     // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 알림 — 관리자가 페이지에서 처리해야
     // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 아침보고·관리자 페이지로 충분.
     // [메일 전용 전환 · 2026-06-29] 문자비 0 — 관리자 알림은 SMS 대신 메일로(운영자 개인메일 cc). 이 메일에 폰 알람을 걸면 즉시 확인.
     var meta = NOTIFY_EVENTS[event] || {};
-    if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return; }
-    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra));
-    return;
+    if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return false; }
+    if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra)); return true; }
+    return false;
   }
 
   // [야간 보류] 고객 알림은 21시~익일 8시엔 보류 큐로 적재 → 아침 8시 트리거가 발송(정보성이라도 새벽 카톡 방지). 관리자 알림은 즉시.
-  if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return; }
+  if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return 'held'; }
 
   // customer — 개인코드로 연락처·이름 조회
   var cust = null;
   try { cust = findCustomerByCode(String(code || '').trim()); } catch (e) {}
-  if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return; }
+  if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return false; }
   var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
-  if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략'); return; }
+  if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략'); return false; }
   var name = _nfCoupleName(cust);
 
   // 상품별 단어 — 스냅은 '상담'→'촬영', '예식'→'촬영' (확정·D-1·제안·잔금 문구가 두 상품 공용이라 단어만 분기)
@@ -161,7 +166,7 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (extra.snap == null) { try { extra.snap = (String(cust.get('상품타입') || '').trim() === '웨딩스냅'); } catch (e) { extra.snap = false; } }
 
   var m = _nfCustomerMsg(event, name, extra);   // { vars, text }
-  if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return; }
+  if (!m) { Logger.log('[notify] 문구 미정의 이벤트: ' + event + ' — 발송 생략'); return false; }
 
   // [SMS 미사용 · 2026-06-29] 고객 알림은 카톡(알림톡) + 이메일만. SMS는 안 보냄 → 발신번호(개인번호) 화면 노출 0.
   //   알림톡에 disableSms:true → 카톡 실패해도 SMS 대체발송 안 함. from은 솔라피 식별용(고객 비노출).
@@ -183,6 +188,7 @@ function _kakaoSend(to, event, code, extra, opts) {
       _nfCustomerEmailFallback(custEmail, name, event, m.text);
     }
   } catch (e) {}
+  return sentKakao;   // [NOTIFY_SENT_RET] 알림톡 발송 성공 여부(이메일 폴백은 별도 best-effort)
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -589,15 +595,17 @@ function importKakaoTemplates() {
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
 function _notifyCustomerEmail(code, subject, headline, innerHtml) {
+  // [NOTIFY_SENT_RET 2026-07-25] 발송 성공 true · 미발송 false 반환(기존 호출부 반환 미사용 — 호환).
   try {
     var cust = findCustomerByCode(String(code || '').trim());
-    if (!cust) { Logger.log('[notify] 고객 메일 — 고객 조회 실패: ' + code); return; }
+    if (!cust) { Logger.log('[notify] 고객 메일 — 고객 조회 실패: ' + code); return false; }
     var to = String(cust.get('이메일') || '').trim();
-    if (!to || to.indexOf('@') < 0) { Logger.log('[notify] 고객 메일 — 이메일 없음/형식오류: ' + code); return; }
-    if (typeof emailShell !== 'function') { Logger.log('[notify] 고객 메일 — emailShell 미정의'); return; }
+    if (!to || to.indexOf('@') < 0) { Logger.log('[notify] 고객 메일 — 이메일 없음/형식오류: ' + code); return false; }
+    if (typeof emailShell !== 'function') { Logger.log('[notify] 고객 메일 — emailShell 미정의'); return false; }
     GmailApp.sendEmail(to, subject, '', { htmlBody: emailShell(headline, innerHtml), name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 고객 메일 발송 → ' + to + ' · ' + subject);
-  } catch (e) { try { Logger.log('[notify] 고객 메일 실패(무시): ' + (e && e.message)); } catch (_) {} }
+    return true;
+  } catch (e) { try { Logger.log('[notify] 고객 메일 실패(무시): ' + (e && e.message)); } catch (_) {} return false; }
 }
 
 // ============================ 관리자 잔액·실패 경고 (GAS 이메일 · 솔라피 무관) ============================
