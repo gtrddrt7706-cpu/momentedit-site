@@ -170,6 +170,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-soft);border-radius:20px;padding:4px 16px;letter-spacing:.02em}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
+.welcome .wed-chip .wed-dday{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em}   /* MPD_B1 D-day 별도 줄 승격 — 진사는 결정 색이라 먹색 사용(헌장 5) */
 
 /* ── NOW 카드 (주인공) ── */
 .now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:12px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
@@ -291,7 +292,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
 .acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
 .acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
-.acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--seal);color:var(--seal);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}
+/* MPD_B4 파괴적 액션 강등 — 취소류는 텍스트 링크 급(헌장 6) · 히트박스는 패딩으로 확보 */
+.cc-btn-textlink{background:none;border:none;color:var(--label-soft);font-family:var(--serif-ko);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:11px 8px;-webkit-tap-highlight-color:transparent}
+.cc-btn-textlink:active{color:var(--sub)}
+.acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--gold-btn-border);color:var(--accent);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}   /* MPD_B3 이중 진사 해소 — 복사=중립(골드 아웃라인·먹색), 진사 CTA는 입금했어요 하나만(헌장 5) */
 .acct-copy-btn:active{background:var(--bg2)}
 .acct-copy-btn svg{width:14px;height:14px}
 .acct-amt-wrap{margin-top:9px;text-align:center}
@@ -1767,7 +1771,7 @@ function renderMyPage(d){
     // 본예식 시간(계약 확정 슬롯 +1h) — base에 있으면 그대로, 없으면 계약 fill에서 변환
     var wt=(d.production && d.production.base && /^\d{2}:\d{2}$/.test(String(d.production.base.weddingTime||'')))?String(d.production.base.weddingTime):'';
     if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
-    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+(wt?(' · '+wt):'')+' <span style="color:var(--label-soft)">· '+lab+'</span>';
+    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+(wt?(' · '+wt):'')+'<span class="wed-dday">'+lab+'</span>';   // MPD_B1 D-day 승격 — label-soft 꼬리 → 별도 줄·먹색 반굵기(줄당 강조 1개 · 360px 줄바꿈 해소 §6-2-②③) · 당일 중립 톤(G12)은 lab 계산이 유지
     el.style.display='block';
   })();
 
@@ -2066,8 +2070,8 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   // [라벨, 설명, '이 단계에 도달하면 NEXT에서 사라짐'(지난 것 숨김 기준)]
   // [D1] 제작=3트랙이라 '예식 준비(청첩장·다이닝·식순)' 한 줄 (대시보드 제목과 통일)
   var items = (product === '웨딩스냅')
-    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']]
-    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 짧은 후기','결과물전달']];
+    ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영','예정일에 진행','촬영완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 대부분 탭 한 번씩이에요','결과물전달']]
+    : [['상담 · 드레스 시착','상담 당일 함께 진행','시착'],['본 계약 · 계약금','서명하고 계약금까지 한 번에','입금완료'],['예식 준비','청첩장·식순','제작중'],['예식완료','예정일에 진행','예식완료'],['결과물 전달','마이페이지에서 확인','결과물전달'],['후기','마지막 단계 · 대부분 탭 한 번씩이에요','결과물전달']];
   // 결제 마일스톤(중도금·잔금) 동적 배치 — 최신 예식일 기준. 잔금은 항상 제작(예식 준비) 다음(청첩장이 먼저 완성되는 흐름),
   //   149일 이내 계약이면 중도금은 '계약 시 함께', 9일 이내면 중도금·잔금이 묶여 제작 위로. 카드가 이미 열렸으면 해당 항목 생략.
   if (d && d.payment) items = items.filter(function(r){ return r[0].indexOf('계약금')===-1; });   // 계약금 카드가 열렸으면(진행 중·완료) NEXT 잠금과 중복 제거(본 계약·계약금 병합 라벨 포함)
@@ -2453,7 +2457,7 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
     : ('<div class="hold-date">'+when+'</div><div class="hold-meta">디렉터가 확인하고 있어요 · 승인 시 카카오톡으로 안내</div>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
   box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'…')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
-    +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" style="'+_hb+'" id="mp_holdCancel">고정 취소</button></div>'
+    +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" class="cc-btn-textlink" id="mp_holdCancel">고정 취소</button></div>'
     +'</div></div>';
   box.style.display='block';
   var _he=$('mp_holdEdit'); if(_he) _he.addEventListener('click', function(){ doHoldEdit(h); });
@@ -2549,7 +2553,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">디렉터가 확인하고 있어요</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
+    if (c.canCancel){ cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
@@ -2563,7 +2567,7 @@ function renderConsult(c, product){
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
+    if (c.canCancel) cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
     if (c.canCancel) extra = CANCEL_PANEL;
   } else if (s === '변경제안'){
@@ -3683,7 +3687,7 @@ function _surveyCardHtml(res, nm, code){
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
   return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">탭만 하면 끝나요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>후기를 남겨주시면 감사의 마음으로 스타벅스 커피 2잔을 보내드려요.</div>'
+    +'<div class="cc-note" style="margin-top:0">대부분 탭 한 번씩이에요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>* 표시만 필수예요 · 후기를 남겨주시면 감사의 마음으로 스타벅스 커피 2잔을 보내드려요.</div>'   // MPD_B6 카피-실측 정직화(11~12문항 · 수치 약속 금지) + 필수 범례
     + body
     +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" style="min-height:62px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
@@ -3742,7 +3746,7 @@ function renderResult(res, nm, code){
   }
   // 스텝 개요 ①~⑤ (진행 중)
   var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
-  var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chipGo('추가 가능 ↓'):chip('곧 열려요')));
+  var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chip('추가 가능'):chip('곧 열려요')));   // MPD_B5 선택 항목 화살표 톤다운 — 필수 to-do 오독 방지(§6-7-②)
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
   // MPD_B12 가장 긴 침묵(컷 선택→보정본)에 예상표 유지 — 선택완료·보정중 구간 상단에 소요·알림 예고 1줄(DELIVERY_ETA.retouch 재사용 · '?'면 숨김)
   var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:0 0 8px;color:var(--label-soft)">보정은 보통 '+DELIVERY_ETA.retouch+' 걸려요 · 완성되면 카톡·메일로 알려드려요.</div>' : '';
@@ -4105,18 +4109,22 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
+  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
+  var _cfPrimary=_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale);
+  // MPD_B2 첫 미완료 준비 행 1개에 primary — 6행 전부 고스트라 어디부터인지 정독 필요하던 것(§6-6-①). 확인서 primary가 켜지면 준비 행은 양보.
+  var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
-      + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-      + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag})
+      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv'})
+      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {primary:_firstTodo==='ritual'})
+      + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag, primary:_firstTodo==='dining'})
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          (!_fDone?fNote:(_seatDone?null:seNote)))
+          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final'})
       // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-      + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
+      + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {primary:_firstTodo==='photo'}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
@@ -4126,7 +4134,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
             : '식사·자리를 담는 하객 안내 페이지예요'))   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
       + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
-          {primary:_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale)})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+          {primary:_cfPrimary})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
