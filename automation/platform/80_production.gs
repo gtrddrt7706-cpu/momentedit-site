@@ -1029,3 +1029,47 @@ function addResultSelectionColumns() {
   }
   return (added.length ? ('추가됨: ' + added.join(', ')) : '컬럼 이미 있음') + (conv ? (' · 업로드→원본전달 ' + conv + '건') : '');
 }
+
+// ============================ [백필] 제작 착수했는데 입금완료에 고착된 고객 단계 정정 ============================
+// 배경: PRODUCE_ENTRY_FIX 이전에는 입금완료→제작중 전이가 실질적으로 한 번도 걸리지 않았다
+//   (전이 호출이 handleSaveProductionBase 한 곳뿐이었는데 그 화면이 폐지돼 호출부가 0건이 됨).
+//   그래서 제작을 이미 진행한 고객들이 관리자 화면에서 '입금완료 · 제작 시작 대기'로 남아 있다.
+//   신규 전이는 '다음 저장'부터 걸리므로, 더 저장하지 않을 고객은 이 백필로만 정정된다.
+// 안전장치:
+//   · 기본은 드라이런(로그만). 실제 반영은 backfillProduceStage(false).
+//   · 웨딩스냅 제외(스냅 흐름엔 '제작중'이 없음 · SNAP_PRODUCE_GUARD와 동일 원칙).
+//   · 대상은 '현재단계=입금완료' + '제작임시저장에 실제 작업 흔적(tracks 진행중·완료 또는 청첩장 초안)'.
+//     관리자가 의도적으로 롤백한 고객은 _clearForwardData가 제작임시저장을 비우므로 흔적이 없어 자동 제외된다.
+//   · 처리이력에 백필 사실을 남긴다(사후 추적용).
+// 실행: 80_production 파일을 열고 → backfillProduceStage (드라이런) → 목록 확인 후 → backfillProduceStage(false)
+function backfillProduceStage(dry) {
+  var dryRun = (dry !== false);   // 기본 드라이런
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < 2) { Logger.log('대상 없음(고객 없음)'); return { ok: true, hit: 0, dry: dryRun }; }
+  var vals = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
+  var cCode = colOf['개인코드'], cStage = colOf['현재단계'], cProd = colOf['상품타입'], cDraft = colOf['제작임시저장'];
+  var hits = [], skipped = 0;
+  for (var i = 0; i < vals.length; i++) {
+    var stage = String(vals[i][cStage - 1] || '').trim();
+    if (stage !== '입금완료') continue;
+    if (String(vals[i][cProd - 1] || '').trim() === '웨딩스냅') { skipped++; continue; }
+    var d = _parseJsonSafe(vals[i][cDraft - 1]);
+    var tr = d.tracks || {};
+    var touched = ['invitation', 'ritual', 'dining', 'final', 'seat', 'snap', 'guideinfo'].some(function (k) { return String(tr[k] || '').trim() !== ''; });
+    if (!touched && !(d.invitationDraft && Object.keys(d.invitationDraft).length)) continue;
+    var mark = Object.keys(tr).filter(function (k) { return String(tr[k] || '').trim(); }).map(function (k) { return k + '=' + tr[k]; }).join(', ');
+    hits.push({ row: i + 2, code: String(vals[i][cCode - 1] || '').trim(), tracks: mark || '청첩장 초안만' });
+  }
+  Logger.log('[backfillProduceStage] ' + (dryRun ? '드라이런(반영 없음)' : '실제 반영') + ' · 대상 ' + hits.length + '건 (스냅 제외 ' + skipped + '건)');
+  hits.forEach(function (h) { Logger.log('  · ' + h.code + ' (행 ' + h.row + ') · ' + h.tracks); });
+  if (dryRun) { Logger.log('실제 반영하려면 backfillProduceStage(false) 실행'); return { ok: true, hit: hits.length, dry: true, items: hits }; }
+  hits.forEach(function (h) {
+    try {
+      touchCustomer(sheet, colOf, h.row, { '현재단계': '제작중' });
+      if (typeof _recordHandler === 'function') _recordHandler(h.code, '단계 백필: 입금완료 → 제작중 (제작 착수 흔적 확인 · ' + h.tracks + ')');
+    } catch (e) { Logger.log('  ! 실패 ' + h.code + ': ' + (e && e.message)); }
+  });
+  Logger.log('[backfillProduceStage] 반영 완료 · ' + hits.length + '건');
+  return { ok: true, hit: hits.length, dry: false, items: hits };
+}

@@ -188,6 +188,7 @@ function handlePublishInvitation(body) {
       if (d.tracks.invitation !== '완료') _prodConfirmVoid(d);   // [예식 확인서] 청첩장 상태 변화(→완료)도 확인 해제
       d.tracks.invitation = '완료';
       touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
+      setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 발행('안 함' 포함)만 하고 나가는 재진입 경로는 초안 저장이 없어 전이가 빠짐(코워크 교차검증 치명1)
       return { ok: true, skipped: true };
     }
 
@@ -217,6 +218,7 @@ function handlePublishInvitation(body) {
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
     touchCustomer(custSheet, custCol, cust.num, _updPub);
+    setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 위저드 재진입(_step='confirm' 복원) 시 발행만 호출돼 전이가 빠지던 경로(코워크 교차검증 치명1)
 
     // 캐시 무효화: webhook(별 프로젝트)의 ScriptCache는 여기서 못 지움 → 재발행 시 TTL만큼 지연 가능(신규는 무관).
     return { ok: true, eventId: eventId, urls: urls };
@@ -224,6 +226,9 @@ function handlePublishInvitation(body) {
 }
 
 // [04] 청첩장 미리보기 — draft를 Couples 같은 eventId 행에 기록(발행 전). ★발행과 동일 _invMakeEventId → 미리보기 행=발행 행(2개 X). tracks는 '완료'로 안 올림(미완료 유지) → 발행이 같은 행 덮어쓰며 '완료'로 승격.
+// ★DEAD_ACTION_NOTE(2026-07-25): 프런트 호출부 0건(mypage·assets 전수 grep) — doPost 라우트만 생존한 사실상 죽은 액션.
+//   이번 사고의 근본 원인이 '단일 전이점을 믿었는데 그 호출부가 조용히 사라진 것'이었으므로, 죽은 액션은 이렇게 표기해 둔다.
+//   (handleSaveProductionBase도 동일 상태 — 80_production 참조) 되살릴 때는 전이·가드가 최신인지 먼저 확인할 것.
 function saveInvitationPreview(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -275,6 +280,7 @@ function saveInvitationPreview(body) {
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls]) !== _wireOld) _prodConfirmVoid(d);   // [예식 확인서] 배선(링크) 변화도 확인 해제 — 무변경 재배선은 유지
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
     touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }));   // PROD_ACCESSOR
+    setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 죽은 액션이지만 되살아날 때를 대비해 다른 청첩장 진입점과 동일 전이 유지
 
     return { ok: true, eventId: eventId, urls: urls };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }

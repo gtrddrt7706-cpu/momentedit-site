@@ -327,7 +327,16 @@ function _subStatusFor(stage, isSnap, x) {
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
     case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
-    case '제작중': return (x.invStatus === '완료') ? '청첩장 발행됨' : (x.invStatus === '진행중' ? '청첩장 만드는 중' : '제작 시작 전');
+    // ★SUBSTATUS_TRACKS(2026-07-25 코워크 교차검증 주의2): 청첩장 하나만 보던 판정 → 트랙 전체.
+    //   식순·좌석만 만든 고객이 '제작 시작 전'으로 잘못 보이던 문제(전이 정상화로 유입 증가). invStatus 단독 판정 복원 금지.
+    case '제작중': return (function () {
+      var _t = x.tracks || {};
+      var _keys = ['invitation', 'ritual', 'dining', 'final', 'seat', 'snap', 'guideinfo'];
+      var _done = 0, _doing = 0;
+      _keys.forEach(function (k) { var v = String(_t[k] || '').trim(); if (v === '완료') _done++; else if (v) _doing++; });
+      if (!_done && !_doing) return (x.invStatus === '완료') ? '청첩장 발행됨' : (x.invStatus === '진행중' ? '청첩장 만드는 중' : '제작 시작 전');
+      return '제작 진행 중 · ' + _done + '/' + (_done + _doing) + ' 완료';
+    })();
     case '예식완료': return _resultSub(x);
     case '촬영완료': return _resultSub(x);
     default: return '';
@@ -746,8 +755,11 @@ function adminHome() {
     }
     }
     // 예식/촬영 완료 — 시그(제작중&예식일 지남) / 스냅(입금완료&촬영일 지남)
-    var eventStage = isSnap ? '입금완료' : '제작중';
-    var dplus = (stage === eventStage && wedYmd) ? _dayDiff(today, wedYmd) : null;
+    // ★EVENT_GATE_WIDE(2026-07-25 코워크 교차검증 치명2): 시그니처 예식완료 진입을 '제작중' 단일에서 ['입금완료','제작중']로 확장.
+    //   제작 항목은 전부 선택이라 하나도 안 만든 고객은 입금완료에 머무는데, 그러면 예식이 지나도 일감이 안 뜨고
+    //   adminMarkEventDone도 거부돼 강제 단계 변경 말곤 방법이 없었다(막다른길). 스냅은 현행 유지. 좁히지 말 것.
+    var eventStages = isSnap ? ['입금완료'] : ['입금완료', '제작중'];
+    var dplus = (eventStages.indexOf(stage) !== -1 && wedYmd) ? _dayDiff(today, wedYmd) : null;
     if (dplus != null && dplus > 0) {
       var ev = isSnap ? '촬영' : '예식';
       pushQ({ code: code, names: names, product: product, kind: isSnap ? '촬영완료' : '예식완료',
@@ -787,7 +799,7 @@ function adminHome() {
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, tracks: (draft.tracks || {}), 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),   // SUBSTATUS_TRACKS — 트랙 전체 전달(청첩장 단독 판정 탈피)
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
       cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
       _created: createdYmd
@@ -1604,9 +1616,10 @@ function adminMarkEventDone(code) {
     var isSnap = String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP;
     var stage = String(cust.get('현재단계') || '').trim();
     var target = isSnap ? '촬영완료' : '예식완료';
-    var fromStage = isSnap ? '입금완료' : '제작중';
+    var fromStage = isSnap ? '입금완료' : '제작중';   // (표시용 · 실제 허용은 아래 EVENT_GATE_WIDE 목록)
+    var fromStages = isSnap ? ['입금완료'] : ['입금완료', '제작중'];   // ★EVENT_GATE_WIDE — 제작 미작업(입금완료) 고객도 예식완료 처리 가능. 큐 조건과 동일 목록 유지
     if (stage === target) return { ok: true, already: true, stage: stage };
-    if (stage !== fromStage) return { ok: false, error: target + ' 처리는 ' + fromStage + ' 상태에서만 가능합니다. (현재: ' + (stage || '없음') + ')' };
+    if (fromStages.indexOf(stage) === -1) return { ok: false, error: target + ' 처리는 ' + fromStages.join('·') + ' 상태에서만 가능합니다. (현재: ' + (stage || '없음') + ')' };
     setCustomerStage(code, 'event');
     _recordHandler(code, target + ' 처리');
     return { ok: true, stage: target };

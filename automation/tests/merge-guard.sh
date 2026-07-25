@@ -194,7 +194,12 @@ chk 'RESTORE_HONEST_HEAD' order-preview.html 1   # 식순 미저장 복원 착�
 chk 'ORDER_OWNER' order-preview.html 5   # 식순 로컬 초안 계정 바인딩(who 스탬프·독립열람 미복원·임베드 계정 대조 폐기 — 2026-07-25 사용자 지시 · 계정 전환 누출 방지)
 chk 'ORDER_OWNER' schedule.html 1   # 가능일 캐시 토큰별 키 분리(이전 계정 성함 잔상 방지)
 chk 'PRODUCE_ENTRY_FIX' automation/platform/80_production.gs 2   # 제작 트랙·확인서 저장 시 입금완료→제작중 전이(기초정보 화면 폐지로 전이가 영영 안 걸리던 실사고 · 2026-07-25)
-chk 'PRODUCE_ENTRY_FIX' automation/platform/85_invitation.gs 1   # 청첩장 저장도 동일 전이(첫 제작 작업일 수 있음)
+chk 'PRODUCE_ENTRY_FIX' automation/platform/85_invitation.gs 4   # 청첩장 4진입 전이(초안·발행 2경로·미리보기) — 재진입 발행만 하는 경로가 전이를 빠뜨리던 코워크 교차검증 치명1
+chk 'EVENT_GATE_WIDE' automation/admin/admin.gs 2   # 시그니처 예식완료 진입 ['입금완료','제작중'] — 제작 미작업 고객이 예식 후 막다른길에 빠지던 문제(코워크 치명2). 단일 상수로 좁히지 말 것
+chk 'SUBSTATUS_TRACKS' automation/admin/admin.gs 2   # 제작중 하위상태를 트랙 전체 기준으로(청첩장 단독 판정 복원 금지 · 코워크 주의2)
+chk 'STAGE_FLOW_FENCE' automation/consultation/consultation-booking.gs 1   # 상품 흐름에 없는 단계 쓰기 차단(마지막 방어선 · 코워크 관찰1)
+chk 'DEAD_ACTION_NOTE' automation/platform/85_invitation.gs 1   # 호출부 0건 죽은 액션 표기(이번 사고 원인 유형 재발 방지)
+chk 'backfillProduceStage' automation/platform/80_production.gs 1   # 입금완료 고착 고객 단계 백필(드라이런 기본)
 chk 'SNAP_PRODUCE_GUARD' automation/platform/85_invitation.gs 3   # 스냅 고객 청첩장 3진입 차단 — 스냅 flow엔 '제작중'이 없어 produce 전이 시 진행바·관리자 파이프라인 이탈(2026-07-25)
 chk 'SCHED_MINIMAL' schedule.html 2   # 스케줄 페이지 미니멀 2차(AI 카드 헤더 1줄·Date Check 태그 제거·시간표 버튼→텍스트 링크·안내 박스 1문단·확정 절차 중복 제거·들여쓰기 통일 · 2026-07-25 사용자 지시 — 장식·중복 복원 금지)
 chk 'SCHED_UX' schedule.html 5   # 스케줄 고객·디자인 디테일(전마감 안내·가능일 0 안내·다음달 잠금·입금자명 에러 문구·iOS 줌 방지 16px·달력 aria·체크박스 라벨 칼럼 정렬·AI 폼 높이 정렬 · 2026-07-25)
