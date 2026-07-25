@@ -481,6 +481,13 @@ _ign=$(grep -c '^__\*\.html$' .gitignore 2>/dev/null); _ign=${_ign:-0}
 _vig=$(grep -c '^__\*\.html$' .vercelignore 2>/dev/null); _vig=${_vig:-0}
 if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok __*.html 무시 규칙 .gitignore+.vercelignore 유지'; fi
 
+# ── 2026-07-26 관리자 화면 눈확인에서 잡은 3건(체크박스 특이도 · noop 가드 · 조사 오타)
+chk 'ADM_GATE_CB' admin.html 1                     # 강제변경 동의 체크박스가 .adv-body 공통 입력 규칙(전폭 46px·appearance:none)에 안 먹히게 하는 규칙 · ★공통 규칙 '뒤'에 두어야 함 · 삭제 금지
+                                                   #   ※ 이 줄은 반드시 아래 [ "$fail" = "1" ] 판정보다 위에 있어야 한다 — 판정 뒤에 두면 REVERT?를 찍고도 exit 0 + 'ALL MARKERS OK'라 CI가 초록으로 통과한다(2026-07-26 실측).
+chk 'ADM_GATE_CHK' scripts/audit/admin-shot.mjs 1  # 위 회귀 단언(크기 24px 이하 · appearance ≠ none)
+chk 'ADM_AC3NOOP' automation/admin/admin.gs 5      # 강제변경 noop 판정을 '실제로 값이 바뀌는 컬럼'으로 — Object.keys(cleared) 복원 금지
+_dtl=$(grep -c '데이터을' automation/admin/admin.gs 2>/dev/null); _dtl=${_dtl:-0}
+if [ "$_dtl" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 관리자 노출 문구 조사 오류 '데이터을' 부활($_dtl)"; fail=1; else echo "ok automation/admin/admin.gs: 조사 '데이터를' 유지"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 # 헤더 진단의 '결론'이 실제 가드 판정과 갈리지 않는지(GUARD_MIRROR) — 진짜 GAS 함수를 vm에서 돌려 대조
@@ -488,5 +495,3 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/header-order.mjs >/d
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
 
-# ── 2026-07-25 강제 변경 동의 체크박스 렌더 버그 수정
-chk 'ADM_GATE_CB' admin.html 1   # .adv-body 공통 입력 규칙이 체크박스를 전폭 46px 빈 상자로 덮어 강제 변경 버튼이 영영 안 열리던 것 차단(특이도 상향 규칙은 공통 규칙 '뒤'에 있어야 함) · ★위로 이동·삭제 금지

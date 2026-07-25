@@ -2005,6 +2005,14 @@ function _resetConsultBooking(code) {
      실행과 같은 _clearForwardData를 report 모드로 부르므로 미리보기와 실제 결과가 어긋날 수 없다.
      ROLLBACK_KEEP_PAID로 보존되는 항목은 '유지됨'으로 따로 돌려준다 — 입금 기록이 안 지워진다는 걸 화면에서 알아야
      입금 오처리를 강제변경으로 우회하지 않고 AC1(입금 확인 취소)로 가게 된다. */
+/* [ADM_AC3NOOP 2026-07-26] '실제로 값이 바뀌는 컬럼'만 변경으로 센다.
+     _clearForwardData는 이미 비어 있는 컬럼에도 upd[c]=''를 넣기 때문에 Object.keys(upd).length로 세면
+     바뀔 게 하나도 없는 재적용(예: 신청접수 고객을 다시 신청접수로)도 '변경 있음'이 돼 noop 가드가 사문화된다
+     (빈 컬럼 수십 개를 다시 쓰고 처리이력에 전부 나열). 결과물상태 강등(ROLLBACK_TRACK_DEMOTE)처럼
+     ''가 아닌 값을 넣는 경우도 이 비교로 함께 잡힌다. Object.keys 비교로 되돌리지 말 것. */
+function _fsChangedCols(cust, upd) {
+  return Object.keys(upd).filter(function (k) { return String(cust.get(k) || '') !== String(upd[k] || ''); });
+}
 function adminForceStagePreview(code, targetStage) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -2017,14 +2025,14 @@ function adminForceStagePreview(code, targetStage) {
   var cur = String(cust.get('현재단계') || '').trim();
   var colOf = buildHeaderIndex(getCustomersSheet());
   var report = { cleared: [], kept: [], consent: [], holdCal: null };
-  _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1, report);
+  var _pvUpd = _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1, report);
   var flow = stageFlowFor(product), ti = flow.indexOf(targetStage);
   var bookConfirm = flow.indexOf(product === P.PRODUCT_SNAP ? '촬영확정' : '상담확정');
   var bookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);   // 신청접수까지 내리면 상담 예약·캘린더 슬롯도 초기화
   return { ok: true, preview: true, from: cur, to: targetStage,
     cleared: report.cleared, kept: report.kept, consent: report.consent, bookingReset: bookingReset,
     holdRelease: !!report.holdCal,   // [ADM_AC3FIX] 가예약 캘린더 슬롯이 풀린다는 것도 미리 알린다(삭제는 실행할 때만)
-    noop: (cur === targetStage && !report.cleared.length && !report.consent.length && !bookingReset) };
+    noop: (cur === targetStage && !_fsChangedCols(cust, _pvUpd).length && !bookingReset) };   // [ADM_AC3NOOP] 실행 가드와 같은 판정식(미리보기·실행 불일치 차단)
 }
 
 function adminForceStage(code, targetStage, reason) {
@@ -2049,9 +2057,10 @@ function adminForceStage(code, targetStage, reason) {
     // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
     var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
     var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
-    if (cur === targetStage && !Object.keys(cleared).length && !needBookingReset) return { ok: true, noop: true, from: cur, to: targetStage };
+    var _fsChanged = _fsChangedCols(cust, cleared);   // [ADM_AC3NOOP] ★반드시 touchCustomer 앞에서 계산 — 쓰기 뒤에 재면 전부 '안 바뀜'이 된다
+    if (cur === targetStage && !_fsChanged.length && !needBookingReset) return { ok: true, noop: true, from: cur, to: targetStage };   // [ADM_AC3NOOP] 값이 실제로 바뀌는 컬럼이 하나도 없을 때만 noop
     var upd = { '현재단계': targetStage };
-    Object.keys(cleared).forEach(function (k) { upd[k] = cleared[k]; });
+    _fsChanged.forEach(function (k) { upd[k] = cleared[k]; });   // [ADM_AC3NOOP] 이미 비어 있는 컬럼은 다시 쓰지 않는다(빈 셀 수십 개 재기록 방지 · 결과는 동일)
     // ★STAGE_REVIEW 본체(기획 §3 #12): '후기'로 보낼 때는 설문상태를 '대기'로 되돌려 고객 화면에 설문 카드가 다시 뜨게 한다.
     //   _clearForwardData는 목표가 그 데이터 단계 '이상'이면 보존하므로(ti >= gi) 후기로 이동할 때 설문 그룹을 지우지 않는다 → 여기서 명시 리셋.
     //   설문응답·설문일시는 지우지 않는다(재제출 시 덮어씀 · 과거 답변 보존). 제거 금지.
@@ -2082,11 +2091,11 @@ function adminForceStage(code, targetStage, reason) {
       } catch (eSv) {}
     }
     var bookingReset = needBookingReset ? _resetConsultBooking(code) : false;   // 예약 취소 + 캘린더 슬롯 해제
-    var clearedCols = Object.keys(cleared).filter(function (k) { return k !== '동의기록'; });
+    var clearedCols = _fsChanged.filter(function (k) { return k !== '동의기록'; });   // [ADM_AC3NOOP] 처리이력엔 실제로 비워진 컬럼만(빈 컬럼 수십 개 나열 방지)
     _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
       + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
       + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '') + ' · 사유: ' + reason);
-    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: '이후 단계 진행 데이터' + (bookingReset ? '와 상담 예약(캘린더 포함)' : '') + '을 초기화했습니다.' };
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: '이후 단계 진행 데이터' + (bookingReset ? '와 상담 예약(캘린더 포함)' : '') + '를 초기화했습니다.' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
