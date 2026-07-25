@@ -315,11 +315,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .cc-btn.cc-btn-seal:hover{background:#511F1A}
 .cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
-/* TRK_NOW_TONE(2026-07-25 사용자 지시 "청첩장 버튼만 왜 색이 있어? 개선해줘"): '지금 할 차례' 표시를 진한 채움 버튼(.cc-btn)에서
-   같은 아웃라인 + 골드 강조로 낮춤 — 한 줄만 검은 덩어리로 튀던 것 해소. 모양·크기·서체는 형제 버튼과 동일, 색만 다르다.
-   ★.cc-btn(진한 채움)으로 되돌리지 말 것. 이 신호를 아예 없애면 어디부터 할지 알 수 없어짐(구 MPD_B2 취지 유지). */
-.trk .cc-btn-ghost.trk-now{border-color:var(--gold);color:var(--gold-deeper,#9a7b3f);font-weight:500;box-shadow:0 0 0 2px var(--gold-soft)}
-.trk .cc-btn-ghost.trk-now:hover{border-color:var(--gold-deep,#7A5F37);color:var(--accent)}
+/* TRK_BTN_SAME(2026-07-25 사용자 지시 "왜 청첩장 버튼만 다르게 하냐 · 전부 똑같이 만들어줘"):
+   '지금 할 차례' 버튼 강조를 전면 폐지했다. 예식 준비·확인 전달의 모든 행 버튼은 완전히 동일한 아웃라인 하나뿐.
+   ★진한 채움(.cc-btn)도, 골드 아웃라인(.trk-now)도 되살리지 말 것 — 2026-07-25 사용자 지시로 삭제(구 MPD_B2·TRK_NOW_TONE 폐지).
+   코드리뷰·복구가 '유실된 강조'로 판단해 복원하는 역전 금지(CLAUDE.md 제거 지시 보존 규칙). */
 /* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
 .acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
 .acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
@@ -4354,7 +4353,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
     return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="cc-btn-ghost'+(opt.primary?' trk-now':'')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
+      + '<button type="button" class="cc-btn-ghost" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
@@ -4379,30 +4378,28 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   // 행 = 이름+상태+버튼만(2026-07-17 사용자 지시 · 요약·마감 입력은 '예식 확인서'가 흡수). 행에는 미완료 기한·유도만 남김.
   // 예식 확인서·하객 안내 — 같은 행 폼으로 카드 안에(2026-07-17 사용자 지시). 버튼을 누르면 바로 아래 패널이 열려 내용 확인.
   var _cfOk=!!(p.confirm&&p.confirm.at);
-  var _coreDone=(ist==='완료')&&((t.ritual||'')==='완료');   // 필수 준비(청첩장·식순) — 확인서 강조·접힘 게이트가 공유(두 조건이 따로 살다 어긋나지 않게 · 2026-07-18 리뷰)
+  // TRK_BTN_SAME(2026-07-25): _coreDone(필수 준비 완료 = 청첩장·식순) 정의 제거 — 유일한 사용처였던 '확인서 강조'가 폐지됨.
+  //   접힘 게이트를 되살릴 때 필요하면 (ist==='완료')&&((t.ritual||'')==='완료') 로 재정의할 것(아래 참고용 주석과 짝).
   var _bm=String((p.confirm&&p.confirm.at)||'').match(/^\d{4}-(\d{2})-(\d{2})/);
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
   var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
-  var _cfPrimary=_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale);
-  // MPD_B2 첫 미완료 준비 행 1개에 '지금 할 차례' 표시 — 전부 같은 버튼이라 어디부터인지 정독 필요하던 것(§6-6-①). 확인서 표시가 켜지면 준비 행은 양보.
-  //   TRK_NOW_TONE(2026-07-25): 표시 방식은 진한 채움이 아니라 골드 아웃라인(.trk-now) — 한 줄만 검은 덩어리로 튀지 않게.
-  var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
+  // TRK_BTN_SAME(2026-07-25 사용자 지시): '지금 할 차례' 강조 폐지 → 강조 대상 계산(_cfPrimary·_firstTodo)도 함께 제거. ★복원 금지
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   // MPD4_H4 완료 행 접기(§9-5-②) — ★11차 판정: 2026-07-19 금지(카드 전체 아코디언·var allDone=false)와 별개.
   //   카드·미완료 행·확인 그룹은 항상 노출하고, '완료된 준비 행'만 2개 이상일 때 "완료 N · 남음 M" 요약으로 접는다(제작중 5~6화면 체감 축소).
   var _prepRows=[
-    { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv', tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {primary:_firstTodo==='ritual'}) },
-    { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag, primary:_firstTodo==='dining'}) },
+    { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null) },
+    { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
     { done: (_fDone&&_seatDone), html: row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          null, {primary:_firstTodo==='final', tag:(!_fDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
+          null, {tag:(!_fDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, null, {primary:_firstTodo==='photo'}); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
+    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
   ];
   var _doneP=[], _todoP=[];
   _prepRows.forEach(function(r){ (r.done?_doneP:_todoP).push(r.html); });
@@ -4419,8 +4416,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
             ? '청첩장에 자동으로 들어가는 안내예요'
             : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
-      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
-          {primary:_cfPrimary})   // TRK_NO_SUB 예외(2026-07-25 사용자 지시): '확인·전달' 그룹은 설명 유지   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요')   // TRK_NO_SUB 예외(2026-07-25 사용자 지시): '확인·전달' 그룹은 설명 유지   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
