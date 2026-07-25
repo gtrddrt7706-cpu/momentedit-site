@@ -1523,7 +1523,12 @@ function adminSetResultLinks(code, links) {
     if (!okUrl(보정본)) return { ok: false, error: '보정본 링크가 올바른 주소가 아니에요 (https://…).' };
     if (!okUrl(영상)) return { ok: false, error: '영상 링크가 올바른 주소가 아니에요 (https://…).' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    // [MPD3_GAL 2026-07-25] B안 썸네일 갤러리 — 원본링크에서 folders/<ID> 자동 추출 → 원본폴더ID(컬럼 없으면 멱등 추가).
+    //   관리자는 폴더ID를 따로 입력하지 않는다. 원본이 폴더 링크가 아니면 빈값(갤러리 대신 번호 입력 폴백).
+    var _galFid = (원본.match(/folders\/([A-Za-z0-9_-]{10,})/) || [])[1] || '';
+    if (!colOf['원본폴더ID']) { try { sheet.getRange(1, sheet.getLastColumn() + 1).setValue('원본폴더ID'); colOf = buildHeaderIndex(sheet); } catch (eCol) {} }
     var upd = { '원본링크': 원본, '보정본폴더': 보정본 };
+    if (colOf['원본폴더ID']) upd['원본폴더ID'] = _galFid;
     if (!isSnap) upd['영상링크'] = 영상;
     var cur결과물 = String(cust.get('결과물상태') || '').trim();
     if (cur결과물 === '업로드') cur결과물 = '원본전달';                         // 레거시
@@ -1565,6 +1570,14 @@ function adminSetResultLinks(code, links) {
     }
   } catch (eV) { _lvWarns = []; }
   _lvRes.warnings = _lvWarns;
+  // [MPD3_GAL] Drive 접근 방어 — GAS 운영 계정이 원본 폴더를 못 읽으면 갤러리가 안 열림. 저장은 막지 않고 관리자에게 공유 요청 안내만(락 해제 후 실행).
+  try {
+    var _galFid2 = (String(_lvRes.links['원본'] || '').match(/folders\/([A-Za-z0-9_-]{10,})/) || [])[1] || '';
+    if (_galFid2) {
+      try { DriveApp.getFolderById(_galFid2).getName(); _lvRes.gallery = true; }
+      catch (eGal) { _lvRes.gallery = false; _lvRes.galleryWarn = '운영 계정에서 이 폴더를 열 수 없어요. 폴더를 운영 계정과 공유해 주세요. 공유 전까지 고객 화면은 번호 입력으로 자동 폴백돼요.'; }
+    }
+  } catch (eGw) {}
   return _lvRes;
 }
 
