@@ -1593,7 +1593,7 @@ function saveFittingCount(code, btn){
   var _restore=function(){ if(btn){ btn.disabled=false; btn.textContent='저장'; } };
   if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   gas('adminSetFittingCount', code, Number(v)).then(function(r){
-    if(r&&r.ok){ toast('✓ 시착 '+r.count+'벌 기록'+(r.extra?(' · 추가 시착비 '+Number(r.extra).toLocaleString()+'원 별도 청구'):'')); if(_view==='detail') openDetail(code); else _restore(); }
+    if(r&&r.ok){ toast('✓ 시착 '+r.count+'벌 기록'+(r.extra?(' · 추가 시착비 '+_moneyNum(r.extra).toLocaleString()+'원 별도 청구'):'')); if(_view==='detail') openDetail(code); else _restore(); }
     else { _restore(); toast((r&&r.error)||'저장 실패'); }
   }).catch(function(){ _restore(); toast('저장 실패 · 잠시 후 다시'); });
 }
@@ -1608,7 +1608,7 @@ function consentHtml(cs){
 }
 function cardContract(d,isSnap){
   var r=d.raw||{}, con=r['계약상태']||'미발송', raw='계약 <b>'+esc(con)+'</b>';
-  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
+  if(r['계약총액']) raw+=' · 총액 '+esc(_moneyNum(r['계약총액']).toLocaleString())+'원';
   if(r['계약서발송일시']) raw+='<br>발송 '+fmtDT(r['계약서발송일시']);
   if(con==='발송' && r['계약서발송일시']){   // 서명 대기 — 마감(발송+72h) 가시화 → 관리자 팔로업/임박 인지
     var _st=new Date(String(r['계약서발송일시']).replace(/-/g,'/'));
@@ -1645,8 +1645,8 @@ function cardContract(d,isSnap){
 function cardPayment(d){
   var r=d.raw||{}, pay=r['입금상태']||'대기', raw='입금 <b>'+esc(pay)+'</b>';
   if(r['입금자명']) raw+=' · 입금자 '+esc(r['입금자명']);
-  if(r['계약총액']) raw+=' · 총액 '+esc(Number(r['계약총액']).toLocaleString())+'원';
-  if(r['계약총액']){ var _T=Number(r['계약총액'])||0; if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-9)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
+  if(r['계약총액']) raw+=' · 총액 '+esc(_moneyNum(r['계약총액']).toLocaleString())+'원';
+  if(r['계약총액']){ var _T=_moneyNum(r['계약총액']); if(snap(d.product)){ var _D=Math.round(_T*0.2); raw+='<div class="cnote">계약금 '+_D.toLocaleString()+'(20%·계약 시) · 잔금 '+(_T-_D).toLocaleString()+'(80%·D-9)</div>'; } else { var _DEP=Math.round(_T*0.1),_MID=Math.round(_T*0.4),_BAL=_T-_DEP-_MID,_RES=100000,_PAY=Math.max(0,_DEP-_RES); raw+='<div class="cnote">계약금 '+_DEP.toLocaleString()+'(예약금 '+_RES.toLocaleString()+' 차감 → 계약 시 '+_PAY.toLocaleString()+' 납부) · 중도금 '+_MID.toLocaleString()+'(D-149) · 잔금 '+_BAL.toLocaleString()+'(D-9)</div>'; } }
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)
@@ -1666,7 +1666,7 @@ function cardPayment(d){
   }
   var bal=d.mirror&&d.mirror.balance;
   if(bal){
-    raw+='<div class="cnote">잔금 <b>'+esc(bal.status)+'</b>'+(bal.amount!=null?(' · '+Number(bal.amount).toLocaleString()+'원'):'')+(bal.payerName?(' · 입금자 '+esc(bal.payerName)):'')+(bal.dday!=null?(' · 예식 D'+(bal.dday>=0?('-'+bal.dday):('+'+(-bal.dday)))):'')+'</div>';
+    raw+='<div class="cnote">잔금 <b>'+esc(bal.status)+'</b>'+(bal.amount!=null?(' · '+_moneyNum(bal.amount).toLocaleString()+'원'):'')+(bal.payerName?(' · 입금자 '+esc(bal.payerName)):'')+(bal.dday!=null?(' · 예식 D'+(bal.dday>=0?('-'+bal.dday):('+'+(-bal.dday)))):'')+'</div>';
     if(bal.status==='완료신호'&&!_mbBoth) b+=ab('confirmBalance','잔금 입금 확인','btn-line');
     else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>'+ab('undoPay:잔금','잔금 확인 취소','btn-danger');   /* [ADM_AC1] */
     // [ADM_AC1B] 계약금 확인이 수납묶음으로 중도금·잔금까지 한 번에 확정한 건은 되돌리기도 버튼을 2~3번 눌러야 했다.
@@ -1682,8 +1682,8 @@ function cardPayment(d){
   var rcpt='';
   if(d.cashReceipt) rcpt+='<div style="color:var(--label-soft)">발급대상 '+esc(fmtCRTarget(d.cashReceipt))+'</div>';
   (d.receipts||[]).forEach(function(it){
-    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 · '+esc(it.issued.번호)+' · '+Number(it.issued.금액||0).toLocaleString()+'원'+(it.orphan?' <span style="color:#b3261e">· 확인 구성이 바뀐 기록 · 발행 취소 후 현행 기준으로 재발행</span>':'')+'</div>';
-    else if(it.due) rcpt+='<div style="color:#b5852a">• '+esc(it.label)+' <b>발행 대기</b> '+Number(it.amount||0).toLocaleString()+'원 <span style="color:var(--label-soft)">· 홈택스 발급 후 번호 기록</span></div>';
+    if(it.issued) rcpt+='<div style="color:var(--gold-deeper,#9a7b3f)">✓ '+esc(it.label)+' 발행 · '+esc(it.issued.번호)+' · '+_moneyNum(it.issued.금액).toLocaleString()+'원'+(it.orphan?' <span style="color:#b3261e">· 확인 구성이 바뀐 기록 · 발행 취소 후 현행 기준으로 재발행</span>':'')+'</div>';
+    else if(it.due) rcpt+='<div style="color:#b5852a">• '+esc(it.label)+' <b>발행 대기</b> '+_moneyNum(it.amount).toLocaleString()+'원 <span style="color:var(--label-soft)">· 홈택스 발급 후 번호 기록</span></div>';
   });
   var rcptBlock = rcpt ? '<div class="raw-sub"><div class="raw-sub-h">현금영수증</div>'+rcpt+'</div>' : '';
   (d.receipts||[]).forEach(function(it){ if(it.due) b+=ab('issueReceipt:'+it.key, it.label+' 현금영수증 발행','btn-line'); });
@@ -1724,7 +1724,7 @@ function prodTracksHtml(prod){
   else if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
   h+='</div>';
   h+='<div class="cnote">최종확정 <b>'+esc(_tstat(t.final))+'</b>';
-  if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+' · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산)'); if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
+  if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+' · 추가 '+_moneyNum(fd.extraFee).toLocaleString()+'원(잔금 합산)'); if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
   h+='</div>';
   var sd=prod.seatDraft||null;
   if(t.seat||sd){
@@ -1784,7 +1784,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('자유 메모',sn.directorNote);
   }
   if(fd){ var _rvl=(rd&&rd.details&&rd.details.video&&rd.details.video.link)||'';   // 영상 링크 원본은 식순 위저드(2026-07-18 최종 확정 다이어트) — 구 최종확정 입력값은 폴백 표시
-    h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
+    h+='<div class="grp-l">최종 확정</div>'+row('총 하객',fd.headcount?fd.headcount+'명':'')+row('스탠딩',Number(fd.standing)>0?(fd.standing+'명 · 추가 '+_moneyNum(fd.extraFee).toLocaleString()+'원(잔금 합산 청구)'):'')+row('음료',fd.drink)+row('논알콜 잔 수',fd.softCount)+row('알레르기·특이사항',fd.allergy)+row('케이크 커스텀',fd.cake?fd.cake+' (구 입력 · 입력칸 폐지)':'')+row('영상 링크',_rvl?(_rvl+' (식순)'):(fd.videoLink?fd.videoLink+' (구 입력)':''))+row('디지털 참석',fd.digital?fd.digital+' (구 입력 · 현행은 청첩장 선택 파생)':''); }
   if(sd&&sd.tables&&sd.tables.length){
     h+='<div class="grp-l">좌석 배치 (당일 세팅용) <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printSeatChart()">좌석표 프린트</button></div>';
     // 번호 = 행 순서(좌 1·3·5 / 우 2·4·6) — seat.html·좌석표 프린트·편집기와 동일. 번호 오름차순 정렬로 프린트 명단과 일치
@@ -1828,7 +1828,7 @@ function cardResult(d,isSnap){
     +'<div style="font-size:11px;color:var(--sub,#6B6257);margin-top:3px">반영 후 아래 보정본 등록을 저장하면 자동으로 반영 처리되고 고객에게 다시 안내돼요</div></div>'; }
   else if(_rv){ raw+='<div class="res-ex">수정 요청 '+esc(String(_rv.round||1))+'회차 <span style="color:var(--gold-deeper)">반영됨</span>'+(_rv.at?(' · '+esc(_rv.at)):'')+'</div>'; }
   // ③ 추가 보정 신청 — 수량 × 단가 = 금액 + 입금자명
-  var ex=r['추가보정상태'], exq=Number(r['추가보정수량']||0), exa=Number(r['추가보정금액']||0);
+  var ex=r['추가보정상태'], exq=_moneyNum(r['추가보정수량']), exa=_moneyNum(r['추가보정금액']);   /* [ADM_MONEYNUM] 시트 문자 수량·금액 방어 */
   if(ex && ex!=='대기'){ var exu=(exq>0&&exa>0)?Math.round(exa/exq):20000;
     raw+='<div class="res-ex">추가 보정 <b>'+esc(ex)+'</b> · '+exq+'컷 × '+exu.toLocaleString()+' = <b>'+exa.toLocaleString()+'원</b>'+(r['추가보정입금자명']?(' · 입금자 '+esc(r['추가보정입금자명'])):'')+'</div>'; }
   // 마지막 설문(만족도)
@@ -2016,7 +2016,11 @@ function afterAction(code,res,act){
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }
 /* [ADM_AB1] 금전 확인 모달의 근거 — 라벨/값 분리(현금영수증 발행 모달과 같은 형태).
      값이 없으면 그 줄을 아예 그리지 않는다(빈칸·'-'·0원 표시 금지). 버튼 라벨엔 금액을 넣지 않는다. */
-function _amtKo(n){ n=Number(n); return (isFinite(n)&&n>0) ? n.toLocaleString()+'원' : ''; }
+/* [ADM_MONEYNUM 2026-07-26 점검] 시트 금액이 문자로 들어오는 경우 방어 — '3,500,000'·'₩2,800,000원'처럼
+     콤마·통화기호가 붙은 값이 그대로 오면 Number()가 NaN이 되어 화면에 '총액 NaN원'이 찍힌다.
+     서버는 이미 같은 이유로 _wonNum(70_journey)을 쓴다. 프론트도 같은 기준(숫자만 추출)으로 통일. */
+function _moneyNum(v){ var t=String(v==null?'':v).replace(/[^0-9]/g,''); return t?Number(t):0; }
+function _amtKo(n){ n=_moneyNum(n); return (n>0) ? n.toLocaleString()+'원' : ''; }
 function _payFacts(rows){
   var ro='background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:7px 9px;font-size:13px;color:#5c4a2c', out='';
   (rows||[]).forEach(function(r){
@@ -2067,11 +2071,11 @@ function _rqLine(rq,plain){
   var B=function(s){ return plain?s:('<b>'+s+'</b>'); };
   if(rq.needCount) return plain ? '벌수 기록 필요 · 시착 카드에서 기록하면 환불액이 계산돼요'
     : '<b style="color:#b3261e">벌수 기록 필요</b> <span style="color:var(--label-soft)">(시착 카드에서 기록하면 환불액이 계산돼요)</span>';
-  return '환불 예상 '+B(Number(rq.refund||0).toLocaleString()+'원')
+  return '환불 예상 '+B(_moneyNum(rq.refund).toLocaleString()+'원')
     +(rq.rule?(' · '+(plain?String(rq.rule):esc(rq.rule))):'')
-    +(rq.penalty>0?(' · 위약금 '+Number(rq.penalty).toLocaleString()+'원'+(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 비용은 위약금에 흡수'):''))
-                  :(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 공제 '+Number(rq.fitDeduct||0).toLocaleString()+'원'):''))
-    +' · 기수령 '+Number(rq.paid||0).toLocaleString()+'원';
+    +(rq.penalty>0?(' · 위약금 '+_moneyNum(rq.penalty).toLocaleString()+'원'+(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 비용은 위약금에 흡수'):''))
+                  :(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 공제 '+_moneyNum(rq.fitDeduct).toLocaleString()+'원'):''))
+    +' · 기수령 '+_moneyNum(rq.paid).toLocaleString()+'원';
 }
 function doIssueReceipt(code,names,kind,d){
   var it=null, rc=(d&&d.receipts)||[]; for(var i=0;i<rc.length;i++) if(rc[i].key===kind) it=rc[i];
@@ -2187,7 +2191,7 @@ function doDelivered(code,names,d){
   openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!(warn||warnPay||warnVid),
     text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+(warnVid?li(warnVid):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('넘기면 고객에게 카톡이 자동으로 가요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),   /* [ADM_AB3] */
     yes:(warn||warnPay||warnVid)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay||warnVid)?'그래도 전달':'전달 완료'); } }); }
-function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
+function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+_moneyNum(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
 /* 커피쿠폰 — 바코드 이미지(1~2장)를 base64로 압축해 발급. 구글 시트 셀 5만자 한계 → 이미지 합계 4.6만자 이내로 자동 축소. */
 var _cpnImgs=[];
@@ -2287,7 +2291,7 @@ function openSendContract(code,names,d){
   var wedPre = (creq && /^\d{4}-\d{2}-\d{2}$/.test(String(creq.weddingDate||''))) ? esc(creq.weddingDate)
              : ((d.pin && /^\d{4}-\d{2}-\d{2}$/.test(String(d.pin['예식일']||''))) ? esc(d.pin['예식일']) : '');
   var sugLine = creq
-    ? '<div class="cnote" style="margin:0 0 8px">고객이 지정한 예식일 <b>'+esc(creq.weddingDate||'')+(creq.weddingTime?(' · '+esc(wedTimeKo(creq.weddingTime))):'')+'</b>'+(sug?(' · '+esc(sug.reason)+' → <b>'+Number(sug.total).toLocaleString()+'원</b>'):'')+' <span style="color:var(--label-soft)">(확인 후 발송)</span></div>'
+    ? '<div class="cnote" style="margin:0 0 8px">고객이 지정한 예식일 <b>'+esc(creq.weddingDate||'')+(creq.weddingTime?(' · '+esc(wedTimeKo(creq.weddingTime))):'')+'</b>'+(sug?(' · '+esc(sug.reason)+' → <b>'+_moneyNum(sug.total).toLocaleString()+'원</b>'):'')+' <span style="color:var(--label-soft)">(확인 후 발송)</span></div>'
     : '<div class="cnote" style="margin:0 0 8px;color:var(--label-soft)">고객 예식일 입력 전 · 필요 시 직접 정할 수 있어요</div>';
   var partyBlock = creq
     ? '<div class="field"><label>고객 입력 정보 (확인)</label><div style="font-size:12px;line-height:1.7;color:#3A2D22;background:#F5F3EF;border:1px solid #DDD8D1;border-radius:6px;padding:10px 12px">신랑 '+esc(creq.groomBirth||'-')+' · '+esc(creq.groomAddr||'-')+'<br>신부 '+esc(creq.brideBirth||'-')+' · '+esc(creq.brideAddr||'-')+'</div></div>'
