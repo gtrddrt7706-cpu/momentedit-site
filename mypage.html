@@ -813,7 +813,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
         <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password" enterkeyhint="go">
         <label for="li_pw">비밀번호</label>
       </div>
-      <button type="submit" class="btn btn-seal en-22" id="li_btn">Login</button>
+      <button type="submit" class="btn btn-seal" id="li_btn">로그인</button><!-- MPD_B14 결정 버튼 한글 통일(2026-07-25 사용자 채택) -->
     </form>
     <div class="errbox" id="li_err"></div>
     <div class="linkrow">
@@ -1104,7 +1104,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
         <input type="email" id="fg_email" placeholder=" " required autocomplete="email" enterkeyhint="send">
         <label for="fg_email">이메일</label>
       </div>
-      <button type="submit" class="btn btn-seal en-22" id="fg_btn">Send</button>
+      <button type="submit" class="btn btn-seal" id="fg_btn">보내기</button>
     </form>
     <div class="okbox" id="fg_ok"></div>
     <div class="errbox" id="fg_err"></div>
@@ -1127,7 +1127,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
         <label for="rs_pw2">새 비밀번호 확인</label>
       </div>
       <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인해 보세요)</span></label>
-      <button type="submit" class="btn btn-seal en-22" id="rs_btn">Reset</button>
+      <button type="submit" class="btn btn-seal" id="rs_btn">변경하기</button>
     </form>
     <div class="errbox" id="rs_err"></div>
     <div class="linkrow"><a id="rs_back">← 로그인으로 돌아가기</a></div>
@@ -1698,7 +1698,7 @@ $('loginForm').addEventListener('submit', function(e){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
     else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('li_err','연결이 잠시 불안정해요. 다시 시도해 주세요.'); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25)
-  .then(function(){ btn.disabled=false; btn.textContent='Login'; });
+  .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
 });
 
 // ── 마이페이지 로드 + 렌더 ─────────────────────
@@ -1847,7 +1847,7 @@ function renderMyPage(d){
   // [02-1] 대기 갭 한 줄 (⏳) — 카드 없는 관리자 대기 구간
   (function(){
     var w = String(d.waiting||'').trim(), el = $('mp_waiting'); if(!el) return;
-    if (w){ el.textContent = '⏳ '+w+' 기다리는 중'; el.style.display='block'; }
+    if (w){ el.textContent = w+' 기다리는 중'; el.style.display='block'; }   // MPD_B14 ★장식 이모지(⏳⏰) 재추가 금지 — 2026-07-25 사용자 채택
     else el.style.display='none';
   })();
 
@@ -2188,7 +2188,7 @@ function renderCoupon(c){
   box.className='consult-sec';
   box.innerHTML=
     '<div class="consult-card cpn-card">'
-    +'<div class="cpn-eyebrow">후기 감사 선물</div>'
+    +'<div class="cpn-eyebrow">Gift</div>'
     +'<div class="cpn-title">'+title+'</div>'
     +'<div class="cpn-desc">두 분의 소중한 후기, 진심으로 감사드려요.<br>아래 바코드를 매장에서 보여주시면 돼요.</div>'
     +imgs
@@ -2724,7 +2724,7 @@ function renderContractPayment(c, p, ctx){
     var chg = ctx && ctx.change, chgHtml = '';
     if (chg && chg.request && chg.request.to && chg.request.to.date){
       var _rq = chg.request;
-      chgHtml = '<div class="cc-sub" style="margin-top:6px">⏳ 변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
+      chgHtml = '<div class="cc-sub" style="margin-top:6px">변경 요청 확인 중 · <b>'+escapeHtml(_chgMD(_rq.to.date))+(_rq.to.slot?(' · '+escapeHtml(wedTimeKo(_rq.to.slot))):'')+'</b></div>'
         + '<div class="cc-sub cc-mini">'+(_rq.fee>0?('변경 수수료 '+fmtWon(_rq.fee)+(_rq.payer?(' · 입금자 '+escapeHtml(_rq.payer)):'')+' · 디렉터 확인 후 적용돼요'):'무상 변경 · 디렉터 확인 후 적용돼요')+'</div>'
         + '<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_chgCancel">변경 요청 철회</button></div>';
     }
@@ -2822,7 +2822,7 @@ function _startContractCountdown(c){
   var tick = function(){
     if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 지났어요'; loadMyState(); return; }   // MPD_A3 만료 문구 해요체 통일(2026-07-25)
     if (el){ var urg=remain<86400;   // 1일 이내만 실시간(긴박) · 그 전엔 차분히 일수로(압박감↓)
-      if(urg){ el.textContent='⏰ 마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
+      if(urg){ el.textContent='마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
       else { el.textContent='서명까지 약 '+Math.ceil(remain/86400)+'일 남았어요'; el.style.color=''; el.style.fontWeight=''; } }
     remain--;
   };
@@ -6431,7 +6431,7 @@ $('forgotForm').addEventListener('submit', function(e){
       ok.classList.add('show');
     } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
   }).catch(function(){ showErr('fg_err'); })
-  .then(function(){ btn.disabled=false; btn.textContent='Send'; });
+  .then(function(){ btn.disabled=false; btn.textContent='보내기'; });
 });
 
 // ── 비번 재설정 (reset 링크) ───────────────────
@@ -6452,7 +6452,7 @@ $('resetForm').addEventListener('submit', function(e){
       else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
     } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
   }).catch(function(){ showErr('rs_err'); })
-  .then(function(){ btn.disabled=false; btn.textContent='Reset'; });
+  .then(function(){ btn.disabled=false; btn.textContent='변경하기'; });
 });
 
 // HTML escape
