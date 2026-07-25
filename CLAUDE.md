@@ -83,8 +83,9 @@
 | `purgeStaleCustomers` | 20_customers-data | 미계약·6개월 경과 고객 개인정보 자동 익명화(처리방침 파기 약속 이행). 계약(서명완료)·입금(중도금/잔금 확인)·계약총액 이력 있으면 법정보관으로 제외 · 행 삭제 없이 PII 컬럼만 비움. purgeAdvisorLog(주간)가 함께 호출. ScriptProperty `CUSTOMER_PURGE_OFF='Y'`로 정지·`CUSTOMER_PURGE_DAYS`로 일수 조정 |
 | `previewStaleCustomers` | 20_customers-data | 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용). purgeStaleCustomers(true)와 동일 |
 | `setupConsultation` | consultation-booking | 최초 설치용(운영 중 실행 금지) |
-| `backfillProduceStage` | 80_production | 제작을 이미 시작했는데 '입금완료'에 고착된 고객의 현재단계를 '제작중'으로 정정. **기본 드라이런(로그만)** · 실제 반영은 `backfillProduceStage(false)`. 스냅 제외 · 제작 흔적 있는 건만(관리자가 롤백한 건은 제작임시저장이 비어 자동 제외) · 처리이력 기록. 2026-07-25 전이 복구 이전 고객 1회 정리용 |
+| `backfillProduceStage` | 80_production | 제작을 이미 시작했는데 '입금완료'에 고착된 고객의 현재단계를 '제작중'으로 정정. **기본 드라이런(로그만)** · 실제 반영은 `backfillProduceStage(false)`. 스냅 제외 · 제작 흔적 있는 건만(관리자가 롤백한 건은 제작임시저장이 비어 자동 제외) · 처리이력 기록. 2026-07-25 전이 복구 이전 고객 1회 정리용. **★구셀(`제작임시저장`) 기준 · Wave 4 PR-B 이전 세대 전용 1회성 — PR-B 배포 전에 실행할 것**(이후 신규 고객은 구셀이 백지라 대상이 아니며, 시간이 갈수록 읽는 데이터가 낡는다) |
 | `backfillProduceStageApply` | 80_production | 위 백필을 **실제 반영**(= `backfillProduceStage(false)`). GAS 편집기는 인자를 넘겨 실행할 수 없어 드롭다운에서 바로 고르는 실행용 래퍼. 드라이런으로 목록 확인 후 이걸 실행 |
+| `addProdTrackColumns` | 80_production | Customers에 제작 트랙 컬럼 8개(`제작_ritual`·`제작_dining`·`제작_seat`·`제작_guideinfo`·`제작_snap`·`제작_final`·`제작_invitation`·`제작_meta`) 1회 추가(멱등·끝에 append · meta를 마지막에 추가해 '전부 있거나 전부 없거나'를 보장). **★반드시 '새 버전' 배포 _전에_ 실행**(GAS 편집기는 저장된 코드로 도니 배포 전에 실행 가능). 컬럼이 없는 상태로 PR-B 코드가 배포되면 `writeCell`이 헤더 없는 컬럼을 조용히 건너뛰어 **저장이 통째로 사라진다**(구셀에도 안 남음 · 화면엔 '저장됐어요'). 코드 가드(`_prodColsMissing`)가 그 상태를 감지해 저장을 거부하지만, 순서를 지키면 그 창 자체가 없다 |
 | `addGuideTokenColumn` | 80_production | Customers에 `안내공유토큰` 열 1회 추가(멱등). 하객 안내 허브(guide.html) 링크 발급 전 1회 실행 — 안 하면 토큰 발급이 조용히 생략됨 |
 | `ZZ_tossPing` | 98_pay_card | 토스 샌드박스 연결·키 확인(더미 confirm 호출·실결제 아님). PAY_CARD_ENABLED 켜기 전 TOSS_SECRET_KEY 점검 · 결과는 Logger |
 | `sendHoldExpiryNotices` | 70_journey | 임시고정 만료 D-3 안내 + 가예약 캘린더 백필·만료 정리(일1회 트리거 자동·수동 1회 실행 가능) |

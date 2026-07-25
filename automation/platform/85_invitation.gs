@@ -143,13 +143,13 @@ function handleSaveInvitationDraft(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
-    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼 · 경고는 락 밖 발송)
+    var _dl = _prodDraftLoadSafe(cust, code, _nq, 'invitation'); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지 — 자동저장이 전 트랙을 {}로 덮는 사고 방지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
     var _oldInvJ = JSON.stringify(d.invitationDraft || {});
     d.invitationDraft = (body && body.draft) || {};
     if (d.confirm && _prodUiStrip(_oldInvJ) !== _prodUiStrip(JSON.stringify(d.invitationDraft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
+    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { track: 'invitation' }));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX(2026-07-25) — 청첩장이 첫 제작 작업일 수 있음. 80_production 트랙 저장과 동일 전이(멱등·역행금지)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
@@ -172,7 +172,7 @@ function handlePublishInvitation(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
 
-    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
+    var _dl = _prodDraftLoadSafe(cust, code, _nq, 'invitation'); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
     var _oldInvJ2 = JSON.stringify(d.invitationDraft || {});
     var draft = (body && body.draft) || d.invitationDraft || {};
@@ -187,7 +187,7 @@ function handlePublishInvitation(body) {
       d.tracks = d.tracks || {};
       if (d.tracks.invitation !== '완료') _prodConfirmVoid(d);   // [예식 확인서] 청첩장 상태 변화(→완료)도 확인 해제
       d.tracks.invitation = '완료';
-      touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR
+      touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, {}, { track: 'invitation' }));   // PROD_ACCESSOR
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 발행('안 함' 포함)만 하고 나가는 재진입 경로는 초안 저장이 없어 전이가 빠짐(코워크 교차검증 치명1)
       return { ok: true, skipped: true };
     }
@@ -214,7 +214,7 @@ function handlePublishInvitation(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls, d.tracks.invitation]) !== _pubOld) _prodConfirmVoid(d);   // [예식 확인서] 발행(상태·링크 변화)도 확인 해제 — 재발행 무변경은 유지
-    var _updPub = _prodStoreCols(d, { 'eventId': eventId });   // PROD_ACCESSOR
+    var _updPub = _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation' });   // PROD_ACCESSOR
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
     touchCustomer(custSheet, custCol, cust.num, _updPub);
@@ -245,7 +245,7 @@ function saveInvitationPreview(body) {
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 청첩장 단계가 없습니다.' };   // ★SNAP_PRODUCE_GUARD(2026-07-25): 스냅 여정엔 '제작중'이 없어(STAGE_FLOW.웨딩스냅) produce 전이 시 stageIndex=-1 → 진행바 깨짐·관리자 파이프라인서 사라짐. 80_production(38·265)과 동일 가드. 제거 금지
 
-    var _dl = _prodDraftLoadSafe(cust, code, _nq); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
+    var _dl = _prodDraftLoadSafe(cust, code, _nq, 'invitation'); if (!_dl.ok) return _dl.res;   // 손상 셀 위 저장 금지(80_production 헬퍼 · 경고는 락 밖 발송)
     var d = _dl.d;
     var _oldInvJ2 = JSON.stringify(d.invitationDraft || {});
     var draft = (body && body.draft) || d.invitationDraft || {};
@@ -279,7 +279,7 @@ function saveInvitationPreview(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls]) !== _wireOld) _prodConfirmVoid(d);   // [예식 확인서] 배선(링크) 변화도 확인 해제 — 무변경 재배선은 유지
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }));   // PROD_ACCESSOR
+    touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation' }));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 죽은 액션이지만 되살아날 때를 대비해 다른 청첩장 진입점과 동일 전이 유지
 
     return { ok: true, eventId: eventId, urls: urls };
