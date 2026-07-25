@@ -151,6 +151,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
 .now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
+.me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
 .rs-show{min-height:44px;margin:0 2px 6px}
 .srv-consent{min-height:44px}
 .srv-consent input,.rs-show input{width:18px;height:18px;flex-shrink:0;accent-color:var(--seal)}
@@ -1798,7 +1799,7 @@ function renderMyPage(d){
     // [계약완료] 서명 후 계약금 잔액 입금 대기 — 입금이 유일한 할 일 (확인 중이면 안내만)
     if (d.stage === '계약완료' && d.payment && !d.payment.confirmed) {
       var _prep = (d.product==='웨딩스냅') ? '촬영 준비' : '예식 준비';   // MPD_G1 상품 인지형 어휘 — 스냅은 '촬영 준비'
-      if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
+      if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.\n서명한 계약서는 오른쪽 아래 문서 버튼(내 내역)에 있어요.'; }   // MPD_G7 계약 직후 내 내역 안내
       else {
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
@@ -2156,6 +2157,11 @@ function ensureLedFab(d){
     existing.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3.2h8.5L19 7.5V20.8H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3.2V7.5H19M9 12h6M9 15.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
     existing.addEventListener('click', openLedModal);
     stack.insertBefore(existing, stack.firstChild);   // 챗 아이콘 위에
+    try{ if(localStorage.getItem('me_ledtip_v1')!=='o'){ localStorage.setItem('me_ledtip_v1','o');   // MPD_G7 무라벨 문서 아이콘 발견성 — 첫 진입 1회 툴팁(§9-5-③)
+      stack.style.position='relative';
+      var _tip=document.createElement('div'); _tip.className='me-fab-tip'; _tip.textContent='내 내역 · 계약서·영수증이 여기 있어요';
+      stack.appendChild(_tip); setTimeout(function(){ if(_tip.parentNode) _tip.parentNode.removeChild(_tip); }, 5000);
+    } }catch(e){}
   } else if(existing.parentNode!==stack){
     stack.insertBefore(existing, stack.firstChild);   // 위젯이 늦게 떠 body에 붙었던 경우 스택으로 이동
   }
