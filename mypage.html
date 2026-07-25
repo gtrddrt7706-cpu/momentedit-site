@@ -440,7 +440,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-day.selected{background:#4E3F31;color:#fff;border-color:#4E3F31;font-weight:500}
 .dt-day.selected.today::after{background:#fff}
 .trk-list{margin:12px 0 4px}
-.trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:default}   /* TRK_ACT_RAIL(2026-07-26) — 행 자체엔 동작이 없고 오른쪽 버튼만 눌린다(mypage 전 목록 확인: 행 클릭 핸들러 0건). 손가락 커서가 헛클릭을 유도하던 것 제거. 행 전체를 누르게 만들면 그 행에만 cursor:pointer를 다시 준다. */
 .trk:last-child{border-bottom:none}
 .trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent);text-align:left}
 .trk.has-sub{padding-bottom:0}   /* 설명 있는 행은 아래 여백 제거 — 제목↔설명이 한 묶음으로 붙게(2026-07-19 사용자 지적: 간격 과다) */
@@ -500,6 +500,18 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .seat-summary .ss-dk{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);display:inline-flex;align-items:center;gap:5px}
 .seat-summary .ss-dk .s-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .trk-st{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft)}
+/* TRK_ACT_RAIL(2026-07-26 사용자 지적 "버튼 크기가 달라서 연속성이 깨진다"):
+   행 오른쪽 액션 열의 단일 규격. 예식 준비 카드가 이미 쓰던 치수(min-width:104px·padding:8px 14px·serif-ko·.02em)를
+   클래스로 뽑아 결과물 카드도 같은 규격을 쓰게 했다 — 종전 결과물 행만 6px 12px·min-width 없음이라
+   '원본 보기'(4자)·'보정본 받기'(5자)의 폭이 43px 벌어져 좌측 모서리가 들쭉날쭉했다.
+   상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
+   ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
+.trk-act{width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
+.trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}   /* gap 필수 — flex 컨테이너는 자식 사이 공백 텍스트 노드를 렌더하지 않아, 넣지 않으면 체크와 글자가 '✓완료'로 붙는다 */
+/* RES_RELINK_SAME(2026-07-26 사용자 지적 연장) — 패널 안 '다시 보기'는 아래 CTA와 같은 폭으로 쌓이는데
+   인라인 padding:7px 14px 때문에 혼자 6.6px 낮아 계단처럼 보였다. 기본 .cc-btn-ghost 높이를 그대로 쓰게 해
+   한 묶음의 버튼 더미가 같은 리듬을 갖게 한다(폭·좌우 정렬은 종전과 동일). */
+.res-panel .res-relink{width:100%;line-height:1.35;box-sizing:border-box}   /* <a>는 본문 line-height(1.7)를 물려받아 같은 padding에도 <button>보다 높다 — 명시 지정으로 높이를 맞춘다 */   /* 행 자체엔 동작이 없고 오른쪽 버튼만 눌리는 목록(결과물 개요) — 손가락 커서로 헛클릭 유도하지 않게 */
 /* 결과물 ②선택·③추가보정 패널 — 흰 카드 안 '소프트 크림' 섹션(테두리 없이 면으로 구분) */
 .res-panel{margin-top:14px;padding:16px 16px 17px;border-radius:12px;background:var(--bg2,#F5F3EF)}
 .res-panel+.res-panel{margin-top:12px}
@@ -3667,7 +3679,7 @@ function _myWorksHtml(p, inv){
   p=p||{}; inv=inv||{}; var t=p.tracks||{};
   var u=(inv.published&&inv.published.urls)||{};
   function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
-  function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
+  function view(url,label){ return url?('<a class="cc-btn-ghost trk-act" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
   var rows=[];
   if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기')));
   if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기')));
@@ -3869,11 +3881,11 @@ function renderResult(res, nm, code){
   var inc=res.포함컷||10, picked=(POST.indexOf(st)>=0), locked=(['보정중','컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);
   var hasPick=(Number(res.선택수)>0) || !!String(res.선택||'').trim();
   var hasReto=!!res.보정본 && (['컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);   // 보정본 받기 가능 시점
-  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+'</a>'; }
+  function link(l,t){ return '<a class="cc-btn-ghost trk-act" href="'+escapeHtml(l)+'" target="_blank" rel="noopener" aria-label="'+escapeHtml(t)+' (새 창)">'+t+'</a>'; }   // TRK_ACT_RAIL — 예식 준비 카드와 동일 규격(104px 레일). 외부 링크 표시 기호는 사용자 지시로 제거됐으므로(디자인 헌장 8) '새 창'은 aria-label로만 전달
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
-  function row(n,label,right){ return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }
+  function row(n,label,right){ return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }   // TRK_ACT_RAIL — 이 개요는 행 클릭 동작이 없다(오른쪽 버튼만) → 손가락 커서 제거
   var ex=res.extra||{};
   // ── 전달완료: 🔒 결과물 아코디언(언제든 열람) + 마지막 단계=설문 ──
   if(st==='전달완료'){
@@ -3935,7 +3947,7 @@ function renderResult(res, nm, code){
       +'<div id="mp_galWrap" style="display:none"></div>'   // MPD3_GALF 썸네일 갤러리 슬롯 — 로드 성공 시에만 표시(실패·구 GAS=아래 번호 입력 그대로)
       +'<div id="mp_pickManual">'
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
-      +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기</a>':'')
+      +(res.원본?'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기</a>':'')
       // [PICK_TRUTH] 기록 있을 때만 '✓ N컷 선택됨' — 상태만 앞선 경우의 '0컷 선택됨' 방지
       +(hasPick?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
       +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈·12-15 범위도 돼요)">'+escapeHtml(res.선택||'')+'</textarea>'
@@ -3953,10 +3965,10 @@ function renderResult(res, nm, code){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>';
     if(_rvp&&_rvp.pending){
       h+='<div class="cc-note" style="margin-top:0">수정 요청이 디렉터에게 전해졌어요'+(_rvp.at?(' · '+escapeHtml(String(_rvp.at).slice(0,16))):'')+'.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
-        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
+        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬고 싶으시면 <b>수정 요청하기</b>로 알려 주세요(무료 1회). 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)이에요.</div>'
-        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>'
+        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>'
         +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button>'
         +'<button type="button" class="cc-btn-ghost" id="mp_revOpen" style="width:100%;margin-top:8px">수정 요청하기</button>'
         +'<div id="mp_revForm" style="display:none;margin-top:10px">'
@@ -4164,9 +4176,9 @@ function renderResultLegacy(res, box){
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'
-        : (link ? '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(link)+'" target="_blank" rel="noopener">'+linkLabel+'</a>'
+        : (link ? '<a class="cc-btn-ghost trk-act" href="'+escapeHtml(link)+'" target="_blank" rel="noopener" aria-label="'+escapeHtml(linkLabel)+' (새 창)">'+linkLabel+'</a>'
                 : '<span class="trk-st">준비 중</span>');
-      return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';
+      return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';   // TRK_ACT_RAIL
     }
     h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
       +step('①','원본 사진',res.원본,'원본 보기',false)
@@ -4364,7 +4376,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
     return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="cc-btn-ghost" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
+      + '<button type="button" class="cc-btn-ghost trk-act" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
