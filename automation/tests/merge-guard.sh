@@ -370,6 +370,10 @@ chk "block: 'C'" automation/admin/admin.gs 1        # 단계 전진 차단(계�
 chk "block: 'D'" automation/admin/admin.gs 1        # 종료 고객 차단
 chk "block: 'E'" automation/admin/admin.gs 2        # 시간 경과·시각 미상 차단
 chk "block: 'F'" automation/admin/admin.gs 1        # 환불 정산 완료 건 차단
+# ── 2026-07-26 관리자 페이지 2차 스프린트 PR②(AC2 환불 완료 표시 취소)
+chk 'ADM_AC2' automation/admin/admin.gs 2           # 되돌리기 함수+FNS 등록
+chk 'ADM_AC2' admin.html 3                          # 버튼+디스패처+모달
+chk 'adminUndoRefunded' automation/admin/admin.gs 2  # 정의+FNS
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
