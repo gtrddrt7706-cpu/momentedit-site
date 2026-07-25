@@ -151,6 +151,15 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
 /* MPD3_D2 알림 딥링크 1회 강조 — 골드 링 페이드(장식 아님 · 위치 안내) */
+/* MPD3_GALF 썸네일 갤러리(B안) */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:4px}
+.gal-it{position:relative;border:1px solid var(--border);border-radius:9px;overflow:hidden;padding:0;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gal-it img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bg2)}
+.gal-it .gal-nm{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--sub);padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.gal-it .gal-ck{display:none;position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;line-height:22px;text-align:center}
+.gal-it.on{border-color:var(--seal);box-shadow:0 0 0 2px var(--gold-soft)}
+.gal-it.on .gal-ck{display:block}
+.gal-it:active{transform:scale(.98)}
 .focus-glow{animation:mpFocusGlow 2.4s ease 1}
 @keyframes mpFocusGlow{0%{box-shadow:0 0 0 3px var(--gold-soft)}55%{box-shadow:0 0 0 3px var(--gold-soft)}100%{box-shadow:0 0 0 3px rgba(184,154,117,0)}}
 .now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
@@ -3809,6 +3818,8 @@ function renderResult(res, nm, code){
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>'
+      +'<div id="mp_galWrap" style="display:none"></div>'   // MPD3_GALF 썸네일 갤러리 슬롯 — 로드 성공 시에만 표시(실패·구 GAS=아래 번호 입력 그대로)
+      +'<div id="mp_pickManual">'
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
       +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
       +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
@@ -3816,6 +3827,7 @@ function renderResult(res, nm, code){
       +'<div id="mp_pickChips" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px"></div>'
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>'
+      +'</div>'
       +'</div>';
   }
   // ④ 보정본 확인(컨펌) 패널 — 컨펌대기면 '확인'이 최우선이라 ③ 추가결제보다 위에 둔다.
@@ -3833,6 +3845,7 @@ function renderResult(res, nm, code){
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
+  if(res.갤러리 && !locked && (st==='원본전달'||st==='선택완료')) _galInit(res);   // MPD3_GALF B안 썸네일 갤러리(성공 시 번호 입력 대체)
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
   _bindExtra(res);
   // ② 라이브 정규화·칩 미리보기 — [PICK_NORMALIZE 2026-07-25] 범위 전개·프리픽스/확장자 제거·제로패딩·중복 병합을 실시간으로 보여주고, 고유 컷 수로 카운트(회의 A-1 합의).
@@ -3861,6 +3874,71 @@ function _pickNorm(raw){
     else push(t, t.toLowerCase());   // 숫자 아닌 파일명 그대로(A안) · 대소문자 무시 중복 제거
   }
   return { list:out, dup:dup };
+}
+// [MPD3_GALF] B안 썸네일 갤러리 — getResultGallery 로드 성공 시 번호 입력을 그리드로 대체(무회귀: 실패·noGallery·구 GAS면 아무 것도 안 바꿈).
+//   탭 토글 · 상단 "N장 선택됨" · 60장 페이징 더보기 · 파일ID 배열 제출("파일명(ID)" 저장). 지연 로딩(img loading=lazy).
+var _GAL=null;
+function _galInit(res){
+  _GAL={ files:[], sel:{}, order:[], page:0, pages:1, total:0, inc:Number(res.포함컷)||10, unit:Number(res.추가단가)||0, picked:String(res.선택||'') };
+  _galMore(true);
+}
+function _galMore(first){
+  var g=_GAL; if(!g) return;
+  var next=g.page+1; if(!first && next>g.pages) return;
+  var mb=$('mp_galMore'); if(mb){ mb.disabled=true; mb.textContent='불러오는 중…'; }
+  api({action:'getResultGallery', token:getToken(), page:next}).then(function(d){
+    if(!(d&&d.ok&&d.files&&d.files.length)){ if(first){ /* 폴백: 번호 입력 유지 */ } else if(mb){ mb.disabled=false; mb.textContent='더 보기'; } return; }
+    g.page=d.page||next; g.pages=d.pages||1; g.total=d.total||d.files.length;
+    d.files.forEach(function(f){ if(f&&f.id){ g.files.push(f); } });
+    if(first){
+      // 이전 제출("파일명(ID)")에서 선택 복원
+      var m=g.picked.match(/\(([A-Za-z0-9_-]{10,})\)/g)||[];
+      m.forEach(function(t){ var id=t.slice(1,-1); if(!g.sel[id]){ g.sel[id]=true; g.order.push(id); } });
+    }
+    _galRender();
+  }).catch(function(){ if(!first && mb){ mb.disabled=false; mb.textContent='더 보기'; } });
+}
+function _galRender(){
+  var g=_GAL, w=$('mp_galWrap'); if(!g||!w) return;
+  var man=$('mp_pickManual'); if(man) man.style.display='none';
+  var items=g.files.map(function(f){
+    var on=!!g.sel[f.id];
+    return '<button type="button" class="gal-it'+(on?' on':'')+'" data-gid="'+escapeHtml(f.id)+'" data-gname="'+escapeHtml(f.name)+'" aria-pressed="'+on+'">'
+      +'<img loading="lazy" src="'+escapeHtml(f.thumb||('https://drive.google.com/thumbnail?id='+f.id+'&sz=w400'))+'" alt="'+escapeHtml(f.name)+'">'
+      +'<span class="gal-nm">'+escapeHtml(f.name)+'</span><span class="gal-ck">✓</span></button>';
+  }).join('');
+  w.innerHTML='<div class="cc-note" style="margin-top:0">썸네일을 탭해 마음에 드는 컷을 골라 주세요. 포함 보정은 <b>'+g.inc+'컷</b>이에요.</div>'
+    +'<div class="cc-mini" id="mp_galCount" style="margin:2px 0 8px"></div>'
+    +'<div class="gal-grid">'+items+'</div>'
+    +(g.page<g.pages?('<button type="button" class="cc-btn-ghost" id="mp_galMore" style="width:100%;margin-top:8px">더 보기 · '+g.files.length+'/'+g.total+'장</button>'):'')
+    +'<button type="button" class="cc-btn" id="mp_galSubmit" style="margin-top:10px">고른 컷 제출</button>';
+  w.style.display='block';
+  _galCount();
+  Array.prototype.forEach.call(w.querySelectorAll('.gal-it'),function(el){ el.addEventListener('click',function(){
+    var id=el.getAttribute('data-gid'); if(!id) return;
+    if(_GAL.sel[id]){ delete _GAL.sel[id]; var ix=_GAL.order.indexOf(id); if(ix>=0) _GAL.order.splice(ix,1); el.classList.remove('on'); el.setAttribute('aria-pressed','false'); }
+    else { _GAL.sel[id]=true; _GAL.order.push(id); el.classList.add('on'); el.setAttribute('aria-pressed','true'); }
+    _galCount();
+  }); });
+  var mb=$('mp_galMore'); if(mb) mb.addEventListener('click',function(){ _galMore(false); });
+  var gs=$('mp_galSubmit'); if(gs) gs.addEventListener('click',_galSubmit);
+}
+function _galCount(){
+  var g=_GAL, el=$('mp_galCount'); if(!g||!el) return;
+  var n=g.order.length;
+  el.innerHTML='<b>'+n+'장</b> 선택됨'
+    +(n>g.inc?(' · 포함 '+g.inc+'컷 초과 <span style="color:var(--gold-deep)">초과분은 추가 보정(컷당 '+(g.unit?fmtWon(g.unit):'별도 안내')+')으로 진행돼요</span>'):(' · 포함 보정 '+g.inc+'컷'));
+}
+function _galSubmit(){
+  var g=_GAL; if(!g) return;
+  if(!g.order.length){ mpAlert('고르신 컷을 선택해 주세요.'); return; }
+  var byId={}; g.files.forEach(function(f){ byId[f.id]=f.name; });
+  var picks=g.order.map(function(id){ return { id:id, name:byId[id]||'' }; });
+  var btn=$('mp_galSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
+  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
 }
 function doSubmitSelection(){
   // [PICK_NORMALIZE] 제출 = 정규화된 캐논 문자열(쉼표+공백) — 표시(칩·카운트)와 저장이 항상 일치. 초과 안내는 상시 카운터가 담당(종전 1회성 confirm 대체 · 회의 A-1 합의)
