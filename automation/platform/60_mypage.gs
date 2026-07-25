@@ -52,8 +52,24 @@ function handleGetMyState(body) {
     hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
     refundBank: buildRefundBankState(r),  // [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 카드(없으면 null)
     payPolicy: (typeof PAYMENT !== 'undefined') ? { balanceDays: PAYMENT.잔금일수전, midDays: PAYMENT.중도금일수전 } : null,  // [정책 서빙] 프론트 D-day 판정 기준(리터럴 9/149 제거 — 70_journey PAYMENT 단일 출처)
-    waiting: _journeyWaiting(r)  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
+    waiting: _journeyWaiting(r),  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
+    aiToken: _aiWidgetToken_(String(r.get('개인코드') || ''))  // [AI_WIDGET_HMAC] 식순 AI 위젯 embed 신원 증명(시크릿 미설정이면 빈값 · 프론트는 그냥 안 보냄)
   };
+}
+
+// [AI_WIDGET_HMAC 2026-07-25] 식순 AI 위젯 embed 신원 토큰 — "code.exp.sig(base64url)".
+//   시크릿 = ScriptProperty 'AI_WIDGET_SECRET'(Vercel env 동일 값과 쌍). 미설정이면 빈값 반환(전환기 종전 동작).
+//   getMyState마다 재발급(유효 24h)이라 사실상 상시 유효 · 회수는 시크릿 교체로. Vercel(/api/ritual-advisor)이 재계산 대조.
+function _aiWidgetToken_(code) {
+  try {
+    if (!code) return '';
+    var secret = PropertiesService.getScriptProperties().getProperty('AI_WIDGET_SECRET') || '';
+    if (!secret) return '';
+    var exp = Math.floor(Date.now() / 1000) + 24 * 3600;
+    var payload = code + '.' + exp;
+    var sig = Utilities.computeHmacSha256Signature(payload, secret);
+    return payload + '.' + Utilities.base64EncodeWebSafe(sig).replace(/=+$/, '');
+  } catch (e) { return ''; }
 }
 
 // [환불 안전망] 종료 고객 환불 계좌 제출 상태 — 수령분이 있고 환불 미완료면 노출.

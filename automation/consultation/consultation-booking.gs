@@ -2144,12 +2144,13 @@ function handleAdvisorLog(body) {
     var q = String((body && body.q) || '').trim().slice(0, 300);
     if (!q) return { ok: true };
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
-    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('상담사질문로그'); sh.appendRow(['시각', '질문(마스킹)', '상담연결', '구분', '접점']); }
+    if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('상담사질문로그'); sh.appendRow(['시각', '질문(마스킹)', '상담연결', '구분', '접점', '테스트']); }
     if (sh.getLastRow() > 5000) return { ok: true };   // 폭주 가드 — 시트 무한 증식 방지(정리 전 상한)
     var esc = (body && body.escalate) ? 'Y' : '';
     var flag = String((body && body.flag) || (esc ? '막힘' : '정상')).slice(0, 6);   // 정상·애매·막힘 (애매=AI가 답했지만 자신 없음)
     var surface = String((body && body.surface) || '').slice(0, 8);
-    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, _deFormula(flag), _deFormula(surface)]);
+    var isTest = (body && body.isTest) ? 'Y' : '';   // [AI_TEST_TAG] 테스트 호출도 적재·태그 — 집계(aiQuestionLog·aiQuestionReport)는 제외
+    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, _deFormula(flag), _deFormula(surface), isTest]);
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
