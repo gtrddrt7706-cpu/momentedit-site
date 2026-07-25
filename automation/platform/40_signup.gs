@@ -170,13 +170,13 @@ function sendSignupEmail(to, names, code, token, product, detail) {
       '</details>' +
     '</div>' +
     // 어른께 드리는 안내(부모님 안내문) — 예식 신청에만 동봉(스냅 제외). FAQ 약속 이행.
+    // ★PARENTS_MINIMAL(2026-07-25 사용자 지시 "군더더기없이"): 본문 2문장→1문장 중앙 정렬, 하단 코칭 각주 3문장(운 떼기·재촉 금지·동반 상담) 삭제 — 복원 금지. 상세 설명은 parents.html 본문이 담당.
     (isSnap ? '' :
-      '<div style="margin:26px auto 0;max-width:440px;padding:20px 22px;background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;text-align:center">' +
+      '<div style="margin:26px auto 0;max-width:440px;padding:22px 22px 24px;background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;text-align:center">' +
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:8px">For Parents</div>' +
-        '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;color:#3A2D22;margin-bottom:10px">어른께 드리는 안내</div>' +
-        '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#6E6557;line-height:1.9;text-align:left">부모님과의 대화가 필요하실 때 그대로 보여드릴 수 있는 안내문을 준비해 두었습니다. 가족 중심 예식의 의미와 전통 예우, 예식의 격식을 어른의 눈높이로 담은 한 장입니다.</div>' +
-        '<div style="margin-top:14px"><a href="https://momentedit.kr/parents.html" style="display:inline-block;padding:10px 26px;background:#3A2D22;color:#F5F1E9;font-family:\'Noto Serif KR\',serif;font-size:12px;letter-spacing:0.08em;text-decoration:none;border-radius:3px">안내문 열어보기</a></div>' +
-        '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;color:#A39C8E;line-height:1.85;margin-top:12px;text-align:left">먼저 말씀으로 운을 떼신 뒤 카카오톡으로 링크를 전해 드리고, 이후 편한 대화를 나눠보세요. 결정을 재촉하지 않으시는 편이 좋습니다. 부모님과 함께 오시는 상담도 환영합니다.</div>' +
+        '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;color:#3A2D22;margin-bottom:8px">어른께 드리는 안내</div>' +
+        '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#6E6557;line-height:1.85;word-break:keep-all">부모님께 그대로 보여드릴 수 있도록<br>예식의 의미와 격식을<br>어른의 눈높이로 담았습니다.</div>' +
+        '<div style="margin-top:16px"><a href="https://momentedit.kr/parents.html" style="display:inline-block;padding:10px 26px;background:#3A2D22;color:#F5F1E9;font-family:\'Noto Serif KR\',serif;font-size:12px;letter-spacing:0.08em;text-decoration:none;border-radius:3px">안내문 열어보기</a></div>' +
       '</div>') +
     smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
 

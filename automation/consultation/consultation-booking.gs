@@ -1280,6 +1280,8 @@ function emailShell(headline, innerHtml) {
       '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:20px;text-align:center;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
       '<div style="text-align:center;margin-top:10px;font-size:10px;letter-spacing:.04em;color:#A39C8E;">Moment Edit · Private Wedding Studio</div>' +
     '</td></tr></table>' +
+    // ★EMAIL_BOTTOM_SPACER(2026-07-25): 모바일 Gmail 등 일부 앱이 최외곽 td의 아래 패딩(32px)을 트림 → 카드 하단 테두리가 스크롤 끝에 딱 붙어 '잘려' 보임(PC 웹은 정상). 빈 패딩 대신 실제 콘텐츠(&nbsp;) 스페이서로 하단 여백을 보장.
+    '<div style="height:28px;line-height:28px;font-size:1px;mso-line-height-rule:exactly">&nbsp;</div>' +
     '</td></tr></table></body></html>';
 }
 function emailBtn(url, label, color) {
