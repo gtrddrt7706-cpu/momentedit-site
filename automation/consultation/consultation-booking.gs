@@ -302,6 +302,12 @@ function setCustomerStage(code, transition) {
     var _flow = stageFlowFor(String(rowObj.get('상품타입') || '').trim());
     var _ci = _flow.indexOf(cur), _ni = _flow.indexOf(newStage);
     if (_ci !== -1 && _ni !== -1 && _ni < _ci) return true;   // 역행 무시 · 현재(더 진행된) 단계 유지
+    // ★STAGE_FLOW_FENCE(2026-07-25 코워크 교차검증 관찰1): 이 상품 흐름에 없는 단계는 쓰지 않는다(마지막 방어선).
+    //   근거: 흐름 밖 값이 들어가면 stageIndex=-1 → 고객 진행바 붕괴 + 관리자 파이프라인서 고객 소실.
+    //   지금까지는 호출부마다 '스냅 차단' 가드를 기억해야 성립했고, 그 기억에 의존하다 실제로 뚫렸다(스냅+청첩장).
+    //   예외 단계(취소·노쇼·미계약)는 흐름 밖이 정상이라 transition==='cancel'은 위 분기에서 이미 면제됨.
+    //   호출부 전수 확인: 전달값은 MAP 키(confirm·fitting·complete·contract·paid·produce·event·deliver·cancel)뿐 — 원시 단계 문자열 없음.
+    if (_ni === -1) { try { Logger.log('STAGE_FLOW_FENCE 차단: ' + code + ' · ' + transition + '→' + newStage + ' (상품=' + String(rowObj.get('상품타입') || '') + ' · 흐름에 없는 단계)'); } catch (e) {} return false; }
   }
   touchCustomer(sheet, colOf, rowObj.num, { '현재단계': newStage });    // platform/20
   return true;
