@@ -5455,7 +5455,12 @@ function bindSeat(box){
         if(_emp===-1){ _lessMsg='빈 자리가 없어요 · 이름과 음료를 지운 자리부터 줄일 수 있어요.'; }
         else { tl.seats.splice(_emp,1); if(tl.drinks) tl.drinks.splice(_emp,1); } }
       renderSeat(box); if(_lessMsg) _seatErr(_lessMsg); return; }
-    if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del'); if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); return; }
+    if(el.hasAttribute('data-seat-del')){ commitSeatEdit(box); var dq=+el.getAttribute('data-seat-del');   // MPD_E8 이름 찬 테이블 통삭제는 확인 1회(오탭 즉시 유실 방지) — 빈 테이블은 종전대로 즉시
+      var _dtb=SEATFLOW.tables[dq], _dnm=((_dtb&&_dtb.seats)||[]).filter(function(x){ return String(x||'').trim(); }).length;
+      var _doDel=function(){ if(SEATFLOW.tables.length>1) SEATFLOW.tables.splice(dq,1); renderSeat(box); };
+      if(_dnm>0){ mpConfirm({ title:'테이블 삭제', body:'이 테이블에 적어둔 성함 '+_dnm+'명도 함께 지워져요. 지울까요?', yes:'지우기', no:'취소', confirmSeal:true }).then(function(ok){ if(ok) _doDel(); }); }
+      else _doDel();
+      return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // 자리별 음료 칩 복원 2026-07-19 · _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭 무시 방지
     if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); exitSeatFlow(); return; }
