@@ -4192,6 +4192,7 @@ function renderInvFlow(box){
     invStepDone(box, _rHas?{ok:true,urls:_ru,eventId:INVFLOW.draft.eventId||''}:{ok:true,skipped:true}); }   // 발행됨 재진입 — 저장된 링크로 복원 · 링크 없는 done(청첩장 없이)은 skipped 화면으로(빈 '완성됐어요' 방지 · 2026-07-18 리뷰)
   else invStepConfirm(box);
 }
+function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }   // MPD_E9 self/none 경로는 혼주·디자인 단계를 건너뜀 — "1/4→4/4" 점프 거짓 예고 방지
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
   function opt(v,l,s){ return '<label class="inv-opt'+(m===v?' sel':'')+'" data-m="'+v+'">'+l+(s?'<small>'+s+'</small>':'')+'</label>'; }
@@ -4207,7 +4208,7 @@ function invStepMethod(box){
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / '+_invTotalSteps(d)+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'   // MPD_E9 경로별 단계 수(§8-1-⑤)
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
     +names
     +'<div class="inv-gate" style="margin:16px 0 4px"><div class="inv-gate-q">어떻게 초대하실래요?</div></div>'
@@ -4477,7 +4478,7 @@ function invStepConfirm(box){
     :(m==='self')?(d.selfQR?'<div class="cc-note"><b>만들기</b>를 누르면 인쇄용 모바일 참석 QR·링크를 드려요. 발행 후에도 고칠 수 있어요.</div>'
       :'<div class="cc-note">저희가 만들 것 없이 청첩장 단계만 마무리돼요. QR이 필요해지면 언제든 다시 고를 수 있어요.</div>')
     :'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>';
-  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 4 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'+det
     +mkNote
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
