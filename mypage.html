@@ -1819,10 +1819,10 @@ function renderMyPage(d){
       var _svDone = !!(d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));   // [DELIV_STEP_HONEST] 후기 제출·건너뜀 = 완료
       if (_rs === '대기') { head = '결과물을 준비하고 있어요'; sub = '원본부터 순서대로 마이페이지에 올려드릴게요.\n아래에서 예상 일정을 확인하실 수 있어요.'; }   // 결과물전달 막 진입(아직 미업로드) — '준비되었습니다' 오표기 방지(2026-07-23) · 문장별 줄내림(pre-line · 2026-07-25 사용자 지시)
       else if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
-      else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
-      else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
+      else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손보고 있어요.'+((typeof DELIVERY_ETA!=='undefined'&&_eta(DELIVERY_ETA.retouch))?(' 보통 '+DELIVERY_ETA.retouch+' 걸리고, 완성되면'):' 완성되면')+' 카카오톡·메일로 알려드릴게요.'; }   // MPD_B10 깜깜이 대기 보완(소요·알림 예고)
+      else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '마무리되는 대로 카카오톡·메일로 보정본을 올려드릴게요.'; }   // MPD_B10 ★'거의 다 됐어요' 재추가 금지 — 근거 없는 안심 금지 규칙(2026-07-15)
       else if (_rs === '컨펌대기') { head = '보정본을 확인해 주세요'; sub = '받아보시고 마음에 드시면 확인을 눌러 마무리해 주세요.'; }
-      else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '곧 최종 전달로 마무리할게요.'; }
+      else if (_rs === '컨펌완료') { head = '확인 감사해요'; sub = '최종본을 정리해 전달하고 카톡으로 알려드려요.'; }
       else if (_rs === '전달완료' && !_svDone) { head = '마지막으로 후기를 들려주세요'; sub = '아래에서 잠깐이면 끝나요.'; }
       else if (_rs === '전달완료') { head = '모든 순간이 마무리됐어요'; sub = '받은 결과물은 마이페이지에서 언제든 다시 받으실 수 있어요.'; }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
       if (_rx.status === '신청') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금 후 알려 주세요.'; }
@@ -2557,7 +2557,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">미계약으로 취소되면<br>진행한 시착 벌수만큼(1벌당 50,000원) 공제 후 환불돼요.</span></div>'
                  + '</div>';
-      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료됐어요</div>'
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료됐어요</div><div class="cc-sub">시착은 상담 당일 함께 진행돼요.</div>'
         + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
@@ -2739,7 +2739,7 @@ function renderContractPayment(c, p, ctx){
       var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
         rs.disabled=true; rs.textContent='요청 중…';
         api({action:'requestContractResend', token:getToken()}).then(function(r){
-          if(r&&r.ok){ rs.textContent='요청했어요 · 곧 보내드릴게요'; }
+          if(r&&r.ok){ rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'; }
           else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
         }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
       });
@@ -3661,7 +3661,7 @@ function renderResult(res, nm, code){
     if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
-    if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
+    if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
     var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
@@ -3709,7 +3709,7 @@ function renderResult(res, nm, code){
       +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
   } else if(st==='컨펌완료'){
     h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 곧 최종 전달돼요</div></div>';
+      +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 최종본을 정리해 전달하고 카톡으로 알려드려요</div></div>';
   }
   // ③ 추가 보정·결제 패널 — 선택 이후(완료는 개요 ✓로 충분)
   if(picked) h+=_extraPanelHtml(res);
