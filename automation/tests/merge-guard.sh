@@ -302,6 +302,11 @@ chk 'urg-badge' admin.html 2                        # 급함 배지(0건이면 �
 chk 'ADM_AA3' admin.html 1                          # 파괴 계열 danger 통일(가역 액션 제외 기준)
 _aa3=$(grep -c "ab('cancel','[^']*','btn-ghost')" admin.html 2>/dev/null); _aa3=${_aa3:-0}; if [ "$_aa3" -gt 0 ]; then echo "REVERT? admin.html: 취소 버튼 btn-ghost 복귀($_aa3)"; fail=1; else echo "ok admin.html: 취소=danger 통일 유지"; fi
 chk 'ADM_AA9' admin.html 1                          # 쿠폰 회수 danger 제거
+# ── 2026-07-26 관리자 페이지 1차 스프린트 PR②(AA2 동사 사전 · AA4 백오피스 톤)
+chk 'ADM_AA2' admin.html 1                          # 액션 라벨 동사 사전(확인/처리/착수/등록)
+chk '결과물 전달 처리' admin.html 3                 # delivered 라벨 통일(큐+상세 2곳)
+_aa2=$(grep -c "결과물 전달 완료 처리" admin.html 2>/dev/null); _aa2=${_aa2:-0}; if [ "$_aa2" -gt 0 ]; then echo "REVERT? admin.html: delivered 이중 라벨 부활($_aa2)"; fail=1; else echo "ok admin.html: delivered 라벨 단일 유지"; fi
+chk 'ADM_AA4' admin.html 1                          # 값 없음 자리표시 하이픈(전각 줄표 금지)
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
