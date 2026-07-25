@@ -152,6 +152,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
 .now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
 .me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
+/* MPD_G8 탭 눌림 공통 :active 토큰 — hover 전용 컨트롤(모바일 무반응)에 눌림 피드백(§9-4-③ · tap-highlight 꺼진 화면의 대체 피드백) */
+.trk-chip:active,.wed-slot:active,.dn-segbtn:active,.dn-fpill:active,.srv-opts button:active{transform:scale(.98);background:var(--bg2)}
 .rs-show{min-height:44px;margin:0 2px 6px}
 .srv-consent{min-height:44px}
 .srv-consent input,.rs-show input{width:18px;height:18px;flex-shrink:0;accent-color:var(--seal)}
