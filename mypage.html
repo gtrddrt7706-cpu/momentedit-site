@@ -779,7 +779,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 @keyframes doneRule{from{width:0;opacity:0}to{width:34px;opacity:.7}}
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
 </style>
-<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- MPD_E1 다음 postcode.v2.js head 동기 로드 제거 — 첫 화면 파싱 블로킹 주범. 주소검색 사용 시점에 ensurePostcode()가 동적 주입(QR lazy 패턴) · 동기 로드 복원 금지(2026-07-25) -->
 <!-- build: phase2n (완료카드 기본펼침·서명 즉시표시(prefetch)·중도금잔금 통합·시착비 환불단서·§4③ 명시) · redeploy 2026-06-09c -->
 </head>
 <body>
@@ -3910,8 +3910,19 @@ function birthSelectHtml(idBase, val){
   var d='<option value="">일</option>'; for(var D=1;D<=31;D++){ var ds=('0'+D).slice(-2); d+='<option value="'+ds+'"'+(ds===vd?' selected':'')+'>'+D+'일</option>'; }
   return '<div class="birth-group"><select class="birth-sel" id="'+idBase+'_y" style="flex:1.4">'+y+'</select><select class="birth-sel" id="'+idBase+'_m" style="flex:1">'+m+'</select><select class="birth-sel" id="'+idBase+'_d" style="flex:1">'+d+'</select></div>';
 }
+function ensurePostcode(cb){   // MPD_E1 postcode lazy-load(ensureQR 패턴) — 최초 사용 시 1회 주입, 동시 호출 큐잉
+  if(window.daum && window.daum.Postcode) return cb(true);
+  if(window._pcPending){ window._pcPending.push(cb); return; }
+  window._pcPending=[cb];
+  var s=document.createElement('script'); s.src='//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+  s.onload=s.onerror=function(){ var ok=!!(window.daum&&window.daum.Postcode); var q=window._pcPending||[]; window._pcPending=null; q.forEach(function(f){ try{f(ok)}catch(e){} }); };
+  document.head.appendChild(s);
+}
 function openAddrSearch(roadId, jibunId, detailId){
-  if(typeof daum==='undefined'||!daum.Postcode){ mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); return; }
+  if(typeof daum==='undefined'||!daum.Postcode){
+    ensurePostcode(function(ok){ if(ok) openAddrSearch(roadId, jibunId, detailId); else mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); });
+    return;
+  }
   var ov=$('mp_addrOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='mp_addrOverlay';
