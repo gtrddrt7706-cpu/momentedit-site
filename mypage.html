@@ -2653,6 +2653,7 @@ function renderConsult(c, product){
   var cancelToggle=$('mp_cancelToggle'), cancelPanel=$('mp_cancelPanel');
   if(cancelToggle&&cancelPanel) cancelToggle.addEventListener('click', function(){ var open=cancelPanel.style.display!=='none'; cancelPanel.style.display=open?'none':'block'; if(!open){ var a=$('mp_refundAcct'); if(a) setTimeout(function(){a.focus();},60); } });
   var cancelConfirm=$('mp_cancelConfirm'); if(cancelConfirm) cancelConfirm.addEventListener('click', doCancelRes);
+  _softHint($('mp_refundAcct'), _fmtAcctOk, '은행·계좌번호·예금주가 다 들어갔는지 확인해 주세요.');   // MPD4_H3
   var acceptBtn = $('mp_acceptProp'); if (acceptBtn) acceptBtn.addEventListener('click', doAcceptProp);
 }
 
@@ -2793,6 +2794,28 @@ function renderContractReqForm(ctx){
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
   var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(); });
   var sb=$('mp_ciSubmit'); if(sb) sb.addEventListener('click', doRequestContract);
+  _wireCiHints();   // MPD4_H3
+}
+// [MPD4_H3] blur 비차단 형식 힌트 — 계좌·전화·이메일(이메일은 형식 검사 신설 · §9-4-⑥). 제출을 막지 않고 필드 아래 한 줄 예고만.
+function _softHint(el, test, msg){
+  if(!el || el._softHintOn) return; el._softHintOn=true;
+  el.addEventListener('blur', function(){
+    var v=String(el.value||'').trim(), hid=(el.id||'f')+'_softhint', h=document.getElementById(hid);
+    if(v && !test(v)){
+      if(!h){ h=document.createElement('div'); h.id=hid; h.className='cc-mini'; h.style.cssText='color:var(--gold-deep);text-align:left;margin:2px 0 6px'; el.insertAdjacentElement('afterend', h); }
+      h.textContent=msg;
+    } else if(h){ h.remove(); }
+  });
+  el.addEventListener('input', function(){ var h=document.getElementById((el.id||'f')+'_softhint'); if(h && String(el.value||'').trim() && test(String(el.value).trim())) h.remove(); });
+}
+function _fmtEmailOk(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+function _fmtPhoneOk(v){ var d=v.replace(/[^0-9]/g,''); return d.length>=9 && d.length<=11; }
+function _fmtAcctOk(v){ return /\d{6,}/.test(v.replace(/[^0-9]/g,'')); }
+function _wireCiHints(){
+  _softHint($('mp_ciGP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
+  _softHint($('mp_ciBP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
+  _softHint($('mp_ciGE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
+  _softHint($('mp_ciBE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
 }
 function doRequestContract(){
   function v(id){ var e=$(id); return (e&&e.value||'').trim(); }
@@ -6636,6 +6659,7 @@ function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value
 
 // 로그아웃
 $('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });
+try{ _softHint($('fg_email'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.'); }catch(e){}   // MPD4_H3 이메일 형식 검사 신설(비차단)
 
 // [새로고침] 진행 상황 수동 갱신 — loadMyState가 로딩 화면으로 피드백
 (function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){ if(window._mePullRefresh){ _mePullRefresh(); } else { loadMyState(); } }); } })();   // 당겨서 새로고침과 같은 경로 — 위저드 입력 수집 후 갱신(버튼만 수집을 건너뛰던 우회로 봉합)
