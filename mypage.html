@@ -2206,6 +2206,14 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   if (_du.production && (_du.stage==='입금완료'||_du.stage==='제작중') && !_comboHoldU){
     items = items.filter(function(it){ return it[0] !== '예식 준비'; });
   }
+  // ★DELIV_NEXT_SYNC(2026-07-25): 결과물이 '전달완료'면 그 카드 안에 '마지막 단계' 후기 폼이 이미 열려 있다.
+  //   그런데 NEXT는 단계 인덱스만 보고 후기를 자물쇠로 예고해, 한 화면에서 후기가 '지금 쓰는 폼'이자 '잠긴 다음 단계'로 두 번 보였다.
+  //   (관리자가 단계를 아직 '후기'로 올리지 않았거나 구 GAS면 stageIndex가 결과물전달에 머물러 그대로 노출된다.)
+  //   전달된 순간부터 결과물·후기는 예고가 아니라 열린 카드 → 열린 카드와 자물쇠 동시 표시 금지 규칙('예식 준비'와 동일)을 여기에도 적용.
+  var _rvU = _du.result || {};
+  if (_rvU.status === '전달완료' || (_rvU.status == null && _rvU.delivered)){
+    items = items.filter(function(it){ return it[0] !== '후기' && it[0] !== '결과물 전달'; });
+  }
   if (!items.length){ box.innerHTML = ''; box.style.display = 'none'; return; }   // 남은 게 없으면(결과물전달 등) NEXT 숨김
   box.style.display = '';
   var lock = '<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
