@@ -103,6 +103,7 @@ chk 'wedchg-seat-inv' automation/platform/70_journey.gs 1   # 예식일 변경 �
 # ── 2026-07-25 결과물 링크 서버 검증(경고하되 저장 허용)
 chk 'LINK_VERIFY' automation/admin/admin.gs 2                        # 링크 검증 헬퍼(형식·접근성·공유제한) + 저장부 warnings 반환
 chk 'LINK_VERIFY_WARN' admin.html 1                                  # 저장 성공과 구분되는 링크 경고 모달
+chk 'LINK_VERIFY_RECLOCK' automation/admin/admin.gs 1                # 락 밖 처리이력 기록을 짧은 락으로 보호(동시 갱신 유실 방지)
 # ── 2026-07-25 조용한 실패 가시화(관리자 메일 통지 · 메일 전용 규칙)
 chk 'NOTIFY_SENT_RET' automation/platform/95_notify.gs 4             # 알림 발송 결과 반환(true/held/false · 기존 호출부 호환)
 chk 'SILENT_FAIL_ALERT' automation/admin/admin.gs 1                  # 결과물 전달 알림톡+메일 이중 실패 → 관리자 메일
