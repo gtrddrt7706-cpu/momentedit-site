@@ -150,6 +150,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
+.now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
 .rs-show{min-height:44px;margin:0 2px 6px}
 .srv-consent{min-height:44px}
 .srv-consent input,.rs-show input{width:18px;height:18px;flex-shrink:0;accent-color:var(--seal)}
@@ -842,6 +843,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
       <div class="now-head" id="mp_nowHead" role="status" aria-live="polite">&nbsp;</div><!-- MPD_E6 SR 낭독(시각 무변화) -->
       <div class="now-sub" id="mp_nowSub" style="display:none"></div>
       <div id="mp_waiting" style="display:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);margin-top:6px"></div>
+      <button type="button" class="now-go" id="mp_nowGo" style="display:none">할 일 카드로 바로가기 ↓</button><!-- MPD_G6 폴드 밖 액션 카드 연결(§9-5-①) -->
     </div>
 
     <!-- 진행바 (점만) -->
@@ -1924,6 +1926,7 @@ function renderMyPage(d){
   // 개인코드
   var _ccode=$('mp_code'); if(_ccode) _ccode.textContent = d.code || '—';
   ensureLedFab(d);   // 우측 고정 '내 내역' 바로가기 — 영수증·서류 상시 접근(내역 있을 때만 표시)
+  ensureTopFab();   // MPD_G6 맨 위로 FAB(스크롤 400px+)
   ensureInviteFab(d);   // 우측 고정 '청첩장 샘플' 바로가기 — 제작 단계(청첩장 작업 중)에만 표시
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
@@ -1932,6 +1935,7 @@ function renderMyPage(d){
     if (d.stage==='취소' || d.stage==='노쇼'){ var _upx=$('mp_upcoming'); if(_upx){ _upx.innerHTML=''; _upx.style.display='none'; } }   // MPD_G2 취소·노쇼 종료 고객에게 잠긴 미래 로드맵 미노출 — 종료 안내와 모순(stageIndex=-1이라 지난 단계 필터도 꺼짐). 미계약은 재시작 여지로 유지(결정 대기함)
     else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
+    var _ng=$('mp_nowGo'); if(_ng) _ng.style.display='none';   // MPD_G6 종료 고객은 할 일 카드 없음
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
     // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
@@ -1971,6 +1975,7 @@ function renderMyPage(d){
     renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
+    _nowGoWire();   // MPD_G6 NOW 바로가기 앵커 — 지금 할 일 카드로
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
@@ -2117,6 +2122,28 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
 
 // [02-6] 내 내역 — 결제·현금영수증·서류를 단계와 무관하게 한곳에. 우측 중앙 FAB(내역)으로 여는 모달 창.
 //   FAB은 AI 상담 위젯(advisor-widget.js)이 만든 #meAdvStack 안에 같은 .me-fab 스타일로 주입 → 챗 아이콘 위, 정렬·톤 일치.
+function _nowGoWire(){   // MPD_G6 첫 화면 NOW 텍스트는 보이지만 액션 카드가 폴드 밖인 문제 — 첫 보이는 액션 카드로 스크롤
+  var btn=$('mp_nowGo'); if(!btn) return;
+  var ids=['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result'];
+  var t=null; for(var i=0;i<ids.length;i++){ var el=$(ids[i]); if(el && el.style.display!=='none' && el.innerHTML){ t=el; break; } }
+  if(!t){ btn.style.display='none'; return; }
+  btn.style.display='inline-block';
+  btn.onclick=function(){ try{ t.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ window.scrollTo(0,t.offsetTop); } };
+}
+function ensureTopFab(){   // MPD_G6 400px+ 스크롤 시 '맨 위로' FAB(현재 scroll-to-top 전무 · 로고 탭=이탈 문제) — meAdvStack에 주입
+  var ex=document.getElementById('mp_topFab');
+  var stack=document.getElementById('meAdvStack');
+  if(!stack){ setTimeout(ensureTopFab, 400); return; }
+  if(!ex){
+    ex=document.createElement('button'); ex.type='button'; ex.id='mp_topFab'; ex.className='me-fab'; ex.setAttribute('aria-label','맨 위로');
+    ex.style.display='none';
+    ex.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+    ex.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+    stack.appendChild(ex);
+    var _tk=null, _upd=function(){ _tk=null; var on=(window.pageYOffset||0)>400 && window._curView==='mypageView' && document.body.style.position!=='fixed'; ex.style.display=on?'flex':'none'; };
+    window.addEventListener('scroll', function(){ if(_tk==null) _tk=requestAnimationFrame(_upd); }, {passive:true});
+  }
+}
 function ensureLedFab(d){
   var existing=document.getElementById('mp_ledFab');
   var show = !!(d && d.ledger) && !d.isException;
