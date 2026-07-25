@@ -2803,7 +2803,7 @@ function _startContractCountdown(c){
   if (expired || !(typeof c.remainingSec==='number' && c.remainingSec>0)) return;
   var remain = c.remainingSec, el = $('mp_ctCount');
   var tick = function(){
-    if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 만료되었습니다'; loadMyState(); return; }
+    if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 지났어요'; loadMyState(); return; }   // MPD_A3 만료 문구 해요체 통일(2026-07-25)
     if (el){ var urg=remain<86400;   // 1일 이내만 실시간(긴박) · 그 전엔 차분히 일수로(압박감↓)
       if(urg){ el.textContent='⏰ 마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
       else { el.textContent='서명까지 약 '+Math.ceil(remain/86400)+'일 남았어요'; el.style.color=''; el.style.fontWeight=''; } }
