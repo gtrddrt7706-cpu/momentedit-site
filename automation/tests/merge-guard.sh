@@ -507,9 +507,28 @@ if command -v node >/dev/null 2>&1; then
   _ho=$(node scripts/audit/header-order.mjs 2>&1) && echo 'ok header-order: 진단 결론 == 가드 판정 · 빈 통과 0 · 리터럴 무결' \
     || { echo 'REVERT? header-order 실패:'; printf '%s\n' "$_ho" | grep '❌'; fail=1; }
 else echo 'skip header-order (node 없음)'; fi
-[ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
-echo 'ALL MARKERS OK'
-
 # ── 2026-07-25 후기(설문) 카드 가독성(사용자 지적 "안쪽 색이 전부 노란색이라 가독성이 안 좋다")
+#   ※ 원래 판정 줄 아래(파일 끝)에 붙어 있어 실행은 되지만 exit 코드에 반영되지 않았다 — 2026-07-26 위로 이동.
 chk 'SURVEY_READ' mypage.html 1   # 선택지 칩을 흰 바탕으로(패널 --bg2와 같은 색이라 한 덩어리로 읽히던 것) + 문항 사이 구분선 + 자유서술 칸 높이 92px. ★칩 배경 --bg2 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
+# [ADM_DELIVDATE] 보관 시계 분리를 grep이 아니라 '실제 동작'으로 — 진짜 admin.gs 함수를 vm에서 돌려 결과 값을 본다.
+#   후기→결과물전달 롤백에서 동의기록.결과물전달일 보존 / 예식완료 이하에선 제거 / 미리보기==실제(5개 목표 전수).
+if command -v node >/dev/null 2>&1; then
+  _rd=$(node scripts/audit/rollback-deliverydate.mjs 2>&1) && echo 'ok rollback-deliverydate: 보관 기산일 보존·리셋 분기 정상' \
+    || { echo 'REVERT? rollback-deliverydate 실패:'; printf '%s\n' "$_rd" | grep 'FAIL'; fail=1; }
+else echo 'skip rollback-deliverydate (node 없음)'; fi
+# ── [GUARD_TAIL 2026-07-26] 이 스크립트 자신을 검사한다 — 판정 줄 뒤에 붙은 가드는 REVERT?를 찍고도 exit 0이라 CI가 초록으로 통과한다.
+#   실사고 2건: ADM_GATE_CB(2026-07-26 실측) · SURVEY_READ(#295 · 위로 이동). 새 가드는 파일 끝이 아니라 이 블록 '위'에 추가할 것.
+#   ★이 검사는 반드시 판정 줄보다 위에 있어야 한다(자기 자신도 예외 없음).
+_gt_v=$(grep -n '^\[ "\$fail" = "1" \]' "$0" | head -1 | cut -d: -f1); _gt_v=${_gt_v:-0}
+if [ "$_gt_v" = "0" ]; then echo "REVERT? merge-guard.sh: 판정 줄을 찾을 수 없다(형태 변경) — GUARD_TAIL이 무력화됨"; fail=1
+else
+  _gt_n=$(awk -v n="$_gt_v" 'NR>n && ($0 ~ /fail=1/ || $0 ~ /^chk /)' "$0" | grep -c .); _gt_n=${_gt_n:-0}
+  if [ "$_gt_n" -gt 0 ]; then
+    echo "REVERT? merge-guard.sh: 판정 줄($_gt_v행) 뒤에 죽은 가드 $_gt_n줄 — 아래 줄을 판정 위로 옮길 것"
+    awk -v n="$_gt_v" 'NR>n && ($0 ~ /fail=1/ || $0 ~ /^chk /) { print "    " NR ": " substr($0,1,90) }' "$0"
+    fail=1
+  else echo 'ok merge-guard.sh: 판정 줄 뒤 죽은 가드 0줄'; fi
+fi
+[ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
+echo 'ALL MARKERS OK'
