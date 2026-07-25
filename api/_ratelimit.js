@@ -23,9 +23,11 @@ function prune(now) {
   }
 }
 
-module.exports = function rateGate(req, perMin, per6h) {
+// key(선택): 검증된 신원 키(예: 'code:ME-XXXX') — IP 대신 그 키로 카운트(고객 단위 한도 · [AI_WIDGET_HMAC]).
+//   빈 값이면 종전 IP 키(기존 호출부 3인자 하위호환).
+module.exports = function rateGate(req, perMin, per6h, key) {
   perMin = perMin || 8; per6h = per6h || 100;
-  const ip = clientIp(req);
+  const ip = key ? String(key).slice(0, 60) : clientIp(req);
   const now = Date.now();
   let h = HITS.get(ip);
   if (!h) {

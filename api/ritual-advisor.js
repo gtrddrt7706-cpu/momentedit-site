@@ -18,6 +18,77 @@ const MAX_STATE_LEN = 2600;  // 식순 상태 요약이 일반 상태보다 김
 
 const KB = require('./_ritual-kb');
 const rateGate = require('./_ratelimit');
+const crypto = require('crypto');
+
+// [AI_WIDGET_HMAC 2026-07-25] embed 신원 검증 — GAS(getMyState)가 서명한 aiToken("code.exp.sig")을 재계산 대조.
+//   시크릿(AI_WIDGET_SECRET)은 GAS ScriptProperty와 Vercel env 동일 값. env 미설정이면 종전 신뢰-클레임 동작 유지(점진 전환·무중단).
+//   실패·부재·만료 = 에러가 아니라 익명 티어 강등(fail-closed · 화면은 안 깨짐).
+let _warnedNoSecret = false;
+function verifyAiToken(auth, secret) {
+  try {
+    const parts = String(auth || '').split('.');
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+    const exp = Number(parts[1]);
+    if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return null;
+    const payload = parts[0] + '.' + parts[1];
+    const expect = crypto.createHmac('sha256', secret).update(payload, 'utf8').digest('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const a = Buffer.from(String(parts[2]));
+    const b = Buffer.from(expect);
+    if (a.length !== b.length) return null;               // timingSafeEqual은 동일 길이 필수 — 길이 자체는 비밀이 아님
+    if (!crypto.timingSafeEqual(a, b)) return null;
+    return { code: parts[0].slice(0, 40), exp };
+  } catch (e) { return null; }
+}
+
+// [AI_STATE_SCHEMA 2026-07-25] state 자유 문자열 폐지 — 클라는 구조체(stateData)를 보내고 서버가 필드별
+//   형식 검증(문자군·길이·enum) 후 고정 템플릿으로 직접 조립한다(클라 문자열이 프롬프트에 그대로 꽂히는 경로 제거).
+//   검증 실패 필드는 조용히 생략. 구버전 클라(문자열 state)는 종전 sanitize 경로 폴백(전환기 무중단).
+//   기존 <상태> 격리 블록·STATE_RULE은 그대로 유지(다층 방어).
+const BLANK_ENUM = ['서약문', '편지', '인사말'];   // fillBlanks 라벨 고정 세트 — enum 검증
+function _sdStr(v, max, re) {
+  if (typeof v !== 'string') return '';
+  const s = v.replace(/[<>\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+  if (!s) return '';
+  return (re && !re.test(s)) ? '' : s;
+}
+const RE_NAME_KO = /^[가-힣a-zA-Z0-9 ]+$/;                    // 코스명·사람 이름
+const RE_SCREEN = /^(?=.*[가-힣])[가-힣a-zA-Z0-9 ?!·,.()\-]+$/;   // 화면 제목("어떤 순간을 직접 고를까요?" 등 문장부호 허용)
+const RE_FLOW = /^(?=.*[가-힣])[가-힣a-zA-Z0-9 ·()\-,.]+$/;   // 구성 행 "서약(직접 낭독)" 형태 — 순간명은 전부 한글이라 한글 1자 이상 필수(영문 전용 인젝션 차단)
+const RE_DATE = /^[0-9년월일.\-\/ ]{4,20}$/;
+function buildStateFromSchema(sd) {
+  if (!sd || typeof sd !== 'object' || Array.isArray(sd)) return null;
+  if (sd.pre === true) return '아직 코스 선택 전 · 예식 기본 정보만 확인됨';
+  const course = _sdStr(sd.course, 20, RE_NAME_KO);
+  const screen = _sdStr(sd.screen, 24, RE_SCREEN);
+  if (!course && !screen) return null;
+  const L = ['[지금 만드는 식순]'];
+  L.push('코스: ' + (course || '미정') + ' · 현재 화면: ' + (screen || '시작'));
+  if (Array.isArray(sd.flow)) {
+    const fl = sd.flow.slice(0, 24).map((x) => _sdStr(x, 30, RE_FLOW)).filter(Boolean);
+    if (fl.length) L.push('구성: ' + fl.join(' → '));
+  }
+  const min = _sdStr(sd.min, 10, /^약 \d{1,3}분$/);
+  if (min) L.push('시간 합: ' + min);
+  if (Array.isArray(sd.blanks)) {
+    const bl = sd.blanks.slice(0, 8).map((x) => (BLANK_ENUM.indexOf(x) >= 0 ? x : '')).filter(Boolean);
+    if (bl.length) L.push('아직 미작성: ' + bl.join(' · '));
+  }
+  const who = [];
+  const g = _sdStr(sd.groom, 12, RE_NAME_KO), b = _sdStr(sd.bride, 12, RE_NAME_KO);
+  if (g) who.push('신랑 ' + g);
+  if (b) who.push('신부 ' + b);
+  let w = who.join(' · ');
+  const wd = _sdStr(sd.weddingDate, 20, RE_DATE);
+  if (wd) {
+    const dd = Number(sd.dday);
+    const dtx = (Number.isInteger(dd) && Math.abs(dd) < 4000) ? (dd >= 0 ? ' (D-' + dd + ')' : ' (' + (-dd) + '일 지남)') : '';
+    w += (w ? ' · ' : '') + '예식일 ' + wd + dtx;
+  }
+  if (w) L.push(w);
+  if (sd.pastD14 === true) L.push('pastD14: true');
+  return L.join('\n').slice(0, MAX_STATE_LEN);
+}
 
 const RULES = `당신은 웨딩 브랜드 "모먼트에디트"의 식순(예식 순서) 전문 AI 상담 도우미입니다. 예비 부부가 식순 만들기 화면에서 묻는 질문에 따뜻하고 단정하게 답합니다.
 
@@ -72,11 +143,27 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ error: 'bad_json' }));
   }
 
-  // §3-1 데이터 계약: embed 플래그 + customer 유무 → 모드 판별(클라 신고값이지만 기존 '마이' 그라운딩과 동일 신뢰 수준)
+  // §3-1 데이터 계약: embed 플래그 + customer 유무 → 모드 판별
+  // [AI_WIDGET_HMAC] 시크릿이 설정돼 있으면 embed 클레임은 검증된 aiToken(body.auth)이 있어야 인정 —
+  //   부재·변조·만료는 익명 티어 강등(조용한 fail-closed). 시크릿 미설정이면 종전 신뢰-클레임 동작(경고 1줄)로 무중단.
   const customer = (body.customer && typeof body.customer === 'object') ? body.customer : null;
-  const isEmbed = !!body.embed && !!(customer && (customer.code || customer.name));
+  const claimedEmbed = !!body.embed && !!(customer && (customer.code || customer.name));
+  const secret = process.env.AI_WIDGET_SECRET || '';
+  let verified = null;
+  let isEmbed;
+  if (secret) {
+    verified = verifyAiToken(body.auth, secret);
+    isEmbed = claimedEmbed && !!verified;
+    if (isEmbed && customer) customer.code = verified.code;   // [AI_WIDGET_HMAC] 토큰↔클레임 결속 — code는 항상 서버 검증값(위장 클레임이 그라운딩·인계로 새는 것 차단)
+  } else {
+    isEmbed = claimedEmbed;
+    if (claimedEmbed && !_warnedNoSecret) { _warnedNoSecret = true; console.warn('ritual_advisor: AI_WIDGET_SECRET 미설정 · embed 클레임을 검증 없이 신뢰(전환기 동작)'); }
+  }
 
-  if (!rateGate(req, isEmbed ? 8 : 4, isEmbed ? 100 : 30)) {
+  // [AI_WIDGET_HMAC] 레이트리밋 키 — 검증된 code(기기·IP 무관 고객 단위). 미검증·익명은 종전 IP 키.
+  //   주장값(customer.code 클레임)을 키로 쓰던 경로 폐지(위조 클레임으로 남의 한도를 태우거나 IP 한도 우회 불가).
+  const rateKey = (verified && isEmbed) ? ('code:' + verified.code) : '';
+  if (!rateGate(req, isEmbed ? 8 : 4, isEmbed ? 100 : 30, rateKey)) {
     res.statusCode = 429;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify({ error: 'rate_limited', escalate: isEmbed, toBooking: !isEmbed }));
@@ -103,7 +190,10 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'empty_message' }));
     }
 
-    const state = (typeof body.state === 'string') ? body.state.slice(0, MAX_STATE_LEN).trim() : '';
+    // [AI_STATE_SCHEMA] 구조체(stateData) 우선 — 서버가 검증·조립한 텍스트만 프롬프트에 들어간다.
+    //   구버전 클라(문자열 state만 전송)는 종전 경로 폴백.
+    const schemaState = buildStateFromSchema(body.stateData);
+    const state = schemaState || ((typeof body.state === 'string') ? body.state.slice(0, MAX_STATE_LEN).trim() : '');
     const grounded = isEmbed && state.length > 0;
 
     let systemText = RULES + (isEmbed ? PERSONA_EMBED : PERSONA_ANON);
@@ -169,17 +259,18 @@ module.exports = async (req, res) => {
     const kstHour = (new Date(Date.now() + 9 * 3600 * 1000)).getUTCHours();
     const night = (kstHour >= 18 || kstHour < 9);
 
-    if (!body.test) {
-      try { await require('./_costlog')('식순', MODEL, data.usage); } catch (e) {}
-      try {
-        // 붙여넣은 편지·서약류(긴 산문)는 로그에 원문을 남기지 않는다(기획 v3 §3 · 90일 보관 시트 보호)
-        // 길이만으로 판정 — 실제 질문은 200자를 넘는 일이 드물고, 붙여넣은 글엔 '?'·'~나요'가 섞여 있어(어때요? 등)
-        //   토큰 유무로 거르면 편지가 그대로 저장됨. 개인 글 보호가 질문 1건 누락보다 우선.
-        const q = history[history.length - 1].content;
-        const longProse = q.length > 200 || (q.length > 120 && (q.match(/\n/g) || []).length >= 2);
-        await require('./_qlog')('식순', longProse ? '[긴 글 첨부됨 · 로그 생략]' : q, { escalate, reply: text });
-      } catch (e) {}
-    }
+    // [AI_TEST_TAG 2026-07-25] test 플래그로 로깅을 끄던 우회 폐지 — 항상 적재하고 isTest 태그만 부가.
+    //   클라 제어 플래그가 감사 로그를 무력화하면 남용 은폐 통로가 된다("끄지 말고 태깅"). 집계는 GAS 쪽에서 isTest 제외.
+    const isTest = !!body.test;
+    try { await require('./_costlog')('식순', MODEL, data.usage, { isTest }); } catch (e) {}
+    try {
+      // 붙여넣은 편지·서약류(긴 산문)는 로그에 원문을 남기지 않는다(기획 v3 §3 · 90일 보관 시트 보호)
+      // 길이만으로 판정 — 실제 질문은 200자를 넘는 일이 드물고, 붙여넣은 글엔 '?'·'~나요'가 섞여 있어(어때요? 등)
+      //   토큰 유무로 거르면 편지가 그대로 저장됨. 개인 글 보호가 질문 1건 누락보다 우선.
+      const q = history[history.length - 1].content;
+      const longProse = q.length > 200 || (q.length > 120 && (q.match(/\n/g) || []).length >= 2);
+      await require('./_qlog')('식순', longProse ? '[긴 글 첨부됨 · 로그 생략]' : q, { escalate, reply: text, isTest });
+    } catch (e) {}
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

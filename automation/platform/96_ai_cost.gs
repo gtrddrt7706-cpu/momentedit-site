@@ -23,7 +23,7 @@ function _aiCostUSD_(model, inn, out, cw, cr) {
 
 function _aiCostSheet_() {
   var sh = SpreadsheetApp.getActive().getSheetByName('AI_비용로그');
-  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_비용로그'); sh.appendRow(['시각', '접점', '모델', '입력', '출력', '캐시쓰기', '캐시읽기', '비용USD']); }
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_비용로그'); sh.appendRow(['시각', '접점', '모델', '입력', '출력', '캐시쓰기', '캐시읽기', '비용USD', '테스트']); }
   return sh;
 }
 
@@ -39,7 +39,8 @@ function handleAiCostLog(body) {
     if (!model || (inn + out + cw + cr) === 0) return { ok: true };
     var sh = _aiCostSheet_();
     if (sh.getLastRow() > 20000) return { ok: true };   // 폭주 가드(정리 전 상한)
-    sh.appendRow([new Date(), _deFormula(surface), _deFormula(model), inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr)]);
+    var isTest = (body && body.isTest) ? 'Y' : '';   // [AI_TEST_TAG] 테스트도 항상 적재·태그만 — 집계(aiCostSummary24h)가 제외
+    sh.appendRow([new Date(), _deFormula(surface), _deFormula(model), inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr), isTest]);
   } catch (e) { try { Logger.log('aiCostLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
@@ -50,11 +51,12 @@ function aiCostSummary24h() {
   var base = { ok: true, rate: rate, day: { total: 0, calls: 0, bySurface: [] }, month: { total: 0, calls: 0 }, updatedAt: fmtKST(new Date()) };
   var sh = SpreadsheetApp.getActive().getSheetByName('AI_비용로그');
   if (!sh || sh.getLastRow() < 2) return base;
-  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues();   // [시각,접점,모델,in,out,cw,cr,usd]
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();   // [시각,접점,모델,in,out,cw,cr,usd,isTest]
   var now = new Date(), dayCut = new Date(now.getTime() - 24 * 3600 * 1000);
   var thisMonth = Utilities.formatDate(now, tz, 'yyyy-MM');
   var day = {}, dayTotal = 0, dayCalls = 0, monTotal = 0, monCalls = 0;
   for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][8]) === 'Y') continue;   // [AI_TEST_TAG] 테스트 호출은 비용 집계서 제외(적재는 유지)
     var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t);
     if (isNaN(t.getTime())) continue;
     var surface = String(vals[i][1] || '기타'), usd = Number(vals[i][7]) || 0;
@@ -174,9 +176,10 @@ function aiQuestionLog() {   // adminCall
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
     if (!sh || sh.getLastRow() < 2) return { ok: true, items: [] };
     var n = Math.min(sh.getLastRow() - 1, 600);
-    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 5).getValues();
+    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 6).getValues();
     var map = {}, order = [];
     for (var i = vals.length - 1; i >= 0; i--) {   // 최신순 순회
+      if (String(vals[i][5]) === 'Y') continue;   // [AI_TEST_TAG] 테스트 질문은 교육 후보서 제외
       var q = String(vals[i][1] || '').trim(); if (!q) continue;
       var esc = String(vals[i][2]) === 'Y'; var flag = String(vals[i][3] || (esc ? '막힘' : '정상')); var sf = String(vals[i][4] || '');
       var key = q.toLowerCase().replace(/\s+/g, '');
@@ -204,10 +207,11 @@ function aiQuestionReport(days) {   // adminCall
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
     if (!sh || sh.getLastRow() < 2) return base;
     var n = Math.min(sh.getLastRow() - 1, 5000);
-    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 5).getValues();
+    var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, 6).getValues();
     var since = new Date(new Date().getTime() - days * 24 * 3600 * 1000);
     var total = 0, stuck = 0, vague = 0, normal = 0, surf = {}, sMap = {}, vMap = {};
     for (var i = 0; i < vals.length; i++) {
+      if (String(vals[i][5]) === 'Y') continue;   // [AI_TEST_TAG] 테스트 질문은 리포트 집계서 제외
       var d = new Date(vals[i][0]); if (isNaN(d.getTime()) || d < since) continue;
       var q = String(vals[i][1] || '').trim(); if (!q) continue;
       var esc = String(vals[i][2]) === 'Y'; var flag = String(vals[i][3] || (esc ? '막힘' : '정상')); var sf = String(vals[i][4] || '기타') || '기타';
@@ -493,7 +497,7 @@ function _aiSurfacePost_(surface, q) {   // 회귀/점검용 — 접점→엔드
   if (surface === '애프터') return _aiPost_('/api/after-concierge', { messages: [{ role: 'user', content: q }], test: true });
   if (surface === '핸드오프') return _aiPost_('/api/handoff', { messages: [{ role: 'user', content: q }, { role: 'assistant', content: '상담사를 연결해 드릴게요' }], page: '메인', customer: { name: '점검', code: 'CHK', stage: '상담' }, test: true });
   if (surface === '마이' || surface === '마이페이지') return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '마이', test: true });
-  if (surface === '식순') return _aiPost_('/api/ritual-advisor', { messages: [{ role: 'user', content: q }], embed: true, customer: { name: '점검', code: 'CHK' }, state: '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분', test: true });
+  if (surface === '식순') return _aiPost_('/api/ritual-advisor', { messages: [{ role: 'user', content: q }], embed: true, customer: { name: '점검', code: 'CHK' }, auth: (typeof _aiWidgetToken_ === 'function' ? _aiWidgetToken_('CHK') : ''), state: '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분', test: true });   // [AI_WIDGET_HMAC] 시크릿 도입 후에도 회귀 점검이 embed 티어를 그대로 검증하도록 실토큰 동봉(미설정이면 빈값 · 종전 동작)
   return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '메인', test: true });
 }
 function _regGrade_(type, val, x) {

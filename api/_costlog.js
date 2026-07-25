@@ -2,7 +2,8 @@
 //   기존 GAS 엔드포인트(HANDOFF_WEBHOOK_URL = /exec) 재활용 · action='aiCostLog'.
 //   본 응답 직전에 await(짧은 타임아웃)로 호출 — 느려지지 않게 2초에서 끊고, 실패해도 무해(로그만 누락).
 //   설정(HANDOFF_WEBHOOK_URL) 없으면 조용히 패스.
-module.exports = async function logAiCost(surface, model, usage) {
+// opts.isTest([AI_TEST_TAG]): 테스트 호출도 항상 적재하되 태그만 부가 — GAS 집계(aiCostSummary24h)가 제외 처리.
+module.exports = async function logAiCost(surface, model, usage, opts) {
   try {
     const hook = process.env.HANDOFF_WEBHOOK_URL;
     if (!hook || !/^https:\/\//.test(hook) || !usage) return;
@@ -14,6 +15,7 @@ module.exports = async function logAiCost(surface, model, usage) {
       out: usage.output_tokens || 0,
       cw: usage.cache_creation_input_tokens || 0,
       cr: usage.cache_read_input_tokens || 0,
+      isTest: !!(opts && opts.isTest),
     });
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);

@@ -14,10 +14,11 @@ module.exports = async function logQuestion(surface, q, opts) {
     const reply = String((opts && opts.reply) || '');
     const shaky = !escalate && SHAKY.test(reply);
     const flag = escalate ? '막힘' : (shaky ? '애매' : '정상');
+    const isTest = !!(opts && opts.isTest);   // [AI_TEST_TAG] 테스트도 적재·태그만 — 집계(aiQuestionLog·리포트)는 GAS가 제외
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);
     try {
-      await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'advisorLog', q, escalate, flag, surface: String(surface || '') }), signal: ctl.signal });
+      await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'advisorLog', q, escalate, flag, surface: String(surface || ''), isTest }), signal: ctl.signal });
     } finally { clearTimeout(t); }
   } catch (e) { /* 로깅 실패는 무시 */ }
 };

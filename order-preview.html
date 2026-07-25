@@ -1649,13 +1649,27 @@ function ritualAiState(){
     return L.join('\n');
   }catch(e){ return ''; }
 }
+// [AI_STATE_SCHEMA 2026-07-25] 상담 API용 구조체 상태 — 자유 문자열 대신 필드별 값을 보내고 서버(/api/ritual-advisor)가
+//   검증(문자군·길이·enum) 후 고정 템플릿으로 조립한다. ritualAiState(문자열)는 인계(/api/handoff) 맥락용으로 유지.
+function ritualAiStateData(){
+  try{
+    if(typeof courseStarted!=='undefined' && !courseStarted) return CUST?{pre:true}:null;
+    var c=(typeof COURSES!=='undefined'&&COURSES[S.course])||{nm:''}, st=(typeof STEPS!=='undefined'&&STEPS[idx])||{};
+    var o={course:c.nm||'', screen:(st.title||st.k||'시작')};
+    try{ o.flow=summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); }catch(e0){}
+    try{ o.min=estMin(); }catch(em){}
+    try{ o.blanks=fillBlanks().map(function(b){ return b[1]; }); }catch(e1){}
+    if(CUST){ o.groom=CUST.groom||''; o.bride=CUST.bride||''; o.weddingDate=CUST.weddingDate||''; if(CUST.dday!=null) o.dday=CUST.dday; if(CUST.pastD14) o.pastD14=true; }
+    return o;
+  }catch(e){ return null; }
+}
 window.ME_ADV_PAGE={
   page:'식순', endpoint:'/api/ritual-advisor', stateMax:2600,
   greeting:'식순을 만들다 순서가 궁금하면 물어보세요. 코스와 순간 하나하나의 진행 방식과 문안을 알고 있어요.',
   chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
   state:ritualAiState,
   customer:function(){ return CUST?{name:CUST.name||'',code:CUST.code||'',phone:CUST.phone||'',stage:'식순 작성'}:null; },
-  advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined) }; },
+  advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined), auth:((CUST&&CUST.aiToken)||undefined), stateData:(ritualAiStateData()||undefined) }; },   // [AI_WIDGET_HMAC] GAS 서명 토큰 전송(없으면 생략 · 서버가 시크릿 미설정이면 종전 동작)
   onOpen:function(){ try{ _stopAud(); }catch(e){} }
 };
 </script>
