@@ -1766,17 +1766,19 @@ function renderMyPage(d){
     }
     // [계약완료] 서명 후 계약금 잔액 입금 대기 — 입금이 유일한 할 일 (확인 중이면 안내만)
     if (d.stage === '계약완료' && d.payment && !d.payment.confirmed) {
+      var _prep = (d.product==='웨딩스냅') ? '촬영 준비' : '예식 준비';   // MPD_G1 상품 인지형 어휘 — 스냅은 '촬영 준비'
       if (d.payment.status === '완료신호') { head = '계약금 입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
       else {
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
           head = '결제만 남았어요';
-          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 예식 준비가 시작돼요.';
+          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 ' + _prep + '가 시작돼요.';
         } else {
         head = '계약금 입금만 남았어요';
+        var _dep = Number((_pa && _pa.예약금) || 0);   // MPD_G1 ★예약금 결측 폴백(100000) 재도입 금지 — 스냅 예약금 0을 결측 오인해 허위 '100,000 차감' 표시(2026-07-25 수정) · 차감 문구는 예약금>0일 때만
         sub = (_pa && Number(_pa.납부액) > 0)
-          ? ('계약금 잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_pa.예약금 || 100000) + ' 차감)을 아래 계좌로 보내주시면, 확인 후 예식 준비가 시작돼요.')
-          : '아래 안내에 따라 계약금을 입금해 주시면, 확인 후 예식 준비가 시작돼요.';
+          ? ('계약금 ' + (_dep > 0 ? ('잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_dep) + ' 차감)') : fmtWon(_pa.납부액)) + '을 아래 계좌로 보내주시면, 확인 후 ' + _prep + '가 시작돼요.')
+          : ('아래 안내에 따라 계약금을 입금해 주시면, 확인 후 ' + _prep + '가 시작돼요.');
         }
       }
     }
@@ -1898,7 +1900,8 @@ function renderMyPage(d){
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
-    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
+    if (d.stage==='취소' || d.stage==='노쇼'){ var _upx=$('mp_upcoming'); if(_upx){ _upx.innerHTML=''; _upx.style.display='none'; } }   // MPD_G2 취소·노쇼 종료 고객에게 잠긴 미래 로드맵 미노출 — 종료 안내와 모순(stageIndex=-1이라 지난 단계 필터도 꺼짐). 미계약은 재시작 여지로 유지(결정 대기함)
+    else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
@@ -2526,9 +2529,11 @@ function doCancelRes(){
   }).catch(function(){ reset('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
 }
 function doAcceptProp(){
+  var btn=$('mp_acceptProp'); if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent='수락 중…'; }   // MPD_G3 수락 버튼 로딩 상태 — 비동기 버튼 중 유일하게 무방비라 이중 탭 위험(2026-07-25)
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='이 시간으로 수락'; } }
   api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); }
-  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); });
+    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
