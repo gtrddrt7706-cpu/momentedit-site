@@ -4083,6 +4083,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;padding:8px 14px" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');   // 요약은 해당 행 바로 아래(하단 뭉치 금지 · 2026-07-17). opt.tag=행 옆 작은 표시(선택) · opt.primary=지금 할 차례 강조(채운 버튼)
   }
+  // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
+  var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null; if(_ivN) _ivStepTag=_ivN+'/4'; }
+  var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
   var ilabel = ist==='완료' ? (inv.published ? '발행됨 · 수정' : '다시 만들기') : (ist==='진행중' ? '이어하기' : '시작하기');
   var _dDone=(t.dining||'')==='완료';
@@ -4119,14 +4122,14 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
-      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv'})
+      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv', tag:_ivStepTag})
       + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {primary:_firstTodo==='ritual'})
       + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag, primary:_firstTodo==='dining'})
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final'})
+          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final', tag:(!_fDone?_fdStepTag:null)})
       // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
       + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {primary:_firstTodo==='photo'}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
