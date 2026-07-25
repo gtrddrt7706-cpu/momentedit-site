@@ -1844,6 +1844,10 @@ function renderMyPage(d){
       var _tk = d.production.tracks;
       if (_tk.invitation==='완료' && _tk.ritual==='완료') {
         head = '예식 준비가 끝났어요';
+        // MPD_D4 감정 정점 — D-1 '내일 뵈어요' · 당일 '오늘이에요' (준비 끝 분기 안이라 미완료 재촉과 충돌 없음 · 잔여 결제 sub는 유지)
+        try{ var _wD4=(d.production.base&&d.production.base.weddingDate)||''; var _mD4=String(_wD4).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if(_mD4){ var _tD4=new Date(); _tD4.setHours(0,0,0,0); var _ddD4=Math.round((new Date(+_mD4[1],+_mD4[2]-1,+_mD4[3])-_tD4)/86400000);
+            if(_ddD4===0) head='오늘이에요'; else if(_ddD4===1) head='내일 뵈어요'; } }catch(e){}
         // 남은 결제만 정확히 — 신고(완료신호)된 몫은 '입금하라'가 아니라 '확인 중'으로(이중 입금 유도 방지)
         var _needM = _pp.midOpen && !_pp.midSig, _needB = _pp.balOpen && !_pp.balSig;
         sub  = (_needM && _needB) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
