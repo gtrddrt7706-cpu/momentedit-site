@@ -87,11 +87,15 @@ function buildRefundBankState(r) {
   var q = null; try { q = _refundQuote(r, _cxYmd || _kstYmd(new Date())); } catch (e) {}
   var refund = (q && !q.pending && q.refund != null) ? Math.round(Number(q.refund)) : null;
   if (refund != null && refund <= 0 && !(q && q.needCount)) return null;   // 공제로 환불액 0원
+  // [REFUND_CARD_NOTE 2026-07-25] 카드 수령분 여부 — 동의기록.결제수단에 '카드' 마커가 하나라도 있으면 true(카드결제 OFF면 항상 false·휴면). 마이페이지 환불카드가 '카드분은 카드로 취소' 안내를 띄우는 근거.
+  var _pmR = {}; try { _pmR = _parseJsonSafe(r.get('동의기록')).결제수단 || {}; } catch (e) {}
+  var _hasCard = false; for (var _pk in _pmR) { if (_pmR.hasOwnProperty(_pk) && _pmR[_pk] === '카드') { _hasCard = true; break; } }
   return {
     acct: bk ? String(bk.get('환불계좌') || '').trim() : '',
     refund: refund,
     needCount: !!(q && q.needCount),
-    fitCount: q ? Math.round(Number(q.fitCount) || 0) : 0
+    fitCount: q ? Math.round(Number(q.fitCount) || 0) : 0,
+    card: _hasCard   // [REFUND_CARD_NOTE] 카드 수령분 있음
   };
 }
 
