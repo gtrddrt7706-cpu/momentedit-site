@@ -181,6 +181,7 @@ function adminCall(token, fn, args) {
       adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
       adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
       adminForceStagePreview: adminForceStagePreview,   // [ADM_AC3]
+      adminNotifyText: adminNotifyText,   // [ADM_AC5]
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
@@ -388,6 +389,26 @@ function morningBriefData() {
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
   return { todays: todays, total: d.counts.total, urgent: d.counts.urgent, kindLine: kindLine,
     urgentNames: d.queue.urgent.slice(0, 6).map(function (it) { return it.names + '·' + it.kind; }) };
+}
+
+/* [ADM_AC5] 고객에게 보낼 카톡 문구 1건을 그대로 돌려준다(발송하지 않음).
+     중도금·잔금·묶음 확인은 cust.paymentConfirmed가 꺼져 있어(95_notify · 2026-06-12 사용자 결정) 자동 발송이 없다.
+     ★여기서 알림을 켜지 않는다. 대신 관리자가 필요할 때 직접 보낼 수 있게 문구만 복사해 준다.
+     문구는 95_notify의 템플릿(_nfCustomerMsg)을 그대로 읽는다 — 관리자용 문구를 따로 쓰면 두 곳이 갈라진다. */
+function adminNotifyText(code, event, kind) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  event = String(event || '').trim();
+  if (['cust.paymentConfirmed'].indexOf(event) === -1) return { ok: false, error: '지원하지 않는 알림 문구예요.' };
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (typeof _nfCustomerMsg !== 'function') return { ok: false, error: '알림 문구 모듈을 불러오지 못했어요. (95_notify 배포 확인)' };
+  var name = '';
+  try { name = customerNames(cust); } catch (e) {}
+  var msg = _nfCustomerMsg(event, name || '고객', { kind: String(kind || '').trim() || '결제' });
+  var text = String((msg && msg.text) || '').trim();
+  if (!text) return { ok: false, error: '문구를 만들지 못했어요.' };
+  return { ok: true, text: text };
 }
 
 /* [ADM_AC4] 이번 달 사업현황(읽기 전용) — aiMorningReport가 읽어 아침 메일에 한 줄로 싣는다.
@@ -945,6 +966,25 @@ function adminDetail(code) {
   d.contractReq = _rec.계약정보 || null;   // [02-2.5] 고객이 입력한 계약 정보(예식일·생년월일·주소). null=고객 요청 전
   d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 발급 대상(고객 입력 휴대폰/사업자번호)
   d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
+  /* [ADM_AB1B] 마일스톤별 금액을 서버가 계산해 실어 보낸다 — 확인 모달이 통장과 대조할 금액을 바로 보여주게.
+       종전엔 상세에 계약금 자리에 '계약 총액'이 떴고(대조 대상이 다름) 중도금은 금액이 아예 없었다.
+       ★프론트에서 금액 산식을 복제하지 말 것 — _journeyAmounts(70_journey) 단일 원천. 잔금은 확정 스냅샷 우선. */
+  try {
+    var _amt = _journeyAmounts(cust.get('계약총액'), cust.get('상품타입'));
+    if (_amt) {
+      var _balSnap = Math.round(Number(_rec.잔금확정금액) || 0);
+      var _balX = (typeof _balanceExtraInfo === 'function') ? (_balanceExtraInfo(cust).amount || 0) : 0;
+      var _balCf = String(cust.get('잔금상태') || '').trim() === '확인';
+      d.milestoneAmounts = {
+        계약금: Math.round(Number(_amt.납부액) || 0),       // 계약 시 실제로 내는 돈(시그=계약금-예약금 · 스냅=계약금 전액)
+        예약금: Math.round(Number(_amt.예약금) || 0),
+        중도금: Math.round(Number(_amt.중도금) || 0),
+        잔금: _balCf ? (_balSnap || Math.round(Number(_amt.잔금) || 0)) : (Math.round(Number(_amt.잔금) || 0) + _balX),
+        총액: Math.round(Number(_amt.총액) || 0)
+      };
+      d.milestoneAmounts.중도금잔금 = d.milestoneAmounts.중도금 + d.milestoneAmounts.잔금;
+    }
+  } catch (e) {}
   d.hold = _rec.가예약 || null;   // 예식일 임시고정(요청/승인) — 관리자 승인/거절용
   if (d.hold && d.hold.status === '승인' && d.hold.expires && _ymdNum(_kstYmd(new Date())) > _ymdNum(d.hold.expires)) d.hold.expired = true;   // 14일 만료(점유 자동해제됨) — UI 표기용
   d.changeReq = _rec.변경요청 || null;   // [02-9] 예식일 변경 요청(고객 셀프) — 계약 카드 확인/거절용. null=요청 없음

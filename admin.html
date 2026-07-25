@@ -2017,15 +2017,38 @@ function _payFacts(rows){
   });
   return out;
 }
+/* [ADM_AC5] 자동 발송이 없는 3종(중도금·잔금·묶음) — 알림을 코드로 켜지 않고, 필요할 때 직접 보내도록 문구만 복사해 준다.
+     문구는 서버(95_notify 템플릿)에서 그대로 받아온다. 관리자용 문구를 여기서 따로 쓰면 두 곳이 갈라진다. */
+var _AC5_NOTE = '이 확인은 고객 알림이 자동으로 가지 않아요 · 필요하면 아래 문구를 복사해 보내 주세요';
+var _AC5_KIND = '';
+function _copyNotifyBtn(code,kind){
+  _AC5_KIND = kind || '';
+  return '<div class="field"><label>고객 안내 문구</label><button type="button" class="btn-line" id="cpNf" data-code="'+esc(code)+'" style="width:100%;padding:10px;font-size:12px">카톡 문구 복사</button><div class="paste-hint" id="cpNfHint"></div></div>';
+}
+function _bindCopyNotify(){
+  var btn=$('cpNf'); if(!btn) return;
+  btn.addEventListener('click', function(){
+    var hint=$('cpNfHint'); btn.disabled=true; btn.textContent='문구 불러오는 중';
+    gas('adminNotifyText', btn.getAttribute('data-code'), 'cust.paymentConfirmed', _AC5_KIND).then(function(r){
+      btn.disabled=false; btn.textContent='카톡 문구 복사';
+      if(!(r&&r.ok&&r.text)){ if(hint) hint.textContent=(r&&r.error)||'문구를 불러오지 못했어요'; return; }
+      copyText(r.text, btn);
+      if(hint) hint.textContent='복사했어요 · 카카오톡에 붙여넣어 보내 주세요';
+    }).catch(function(){ btn.disabled=false; btn.textContent='카톡 문구 복사'; if(hint) hint.textContent='문구를 불러오지 못했어요'; });
+  });
+}
 // 큐에서 열면 서버가 만든 요약 문장(sub)을 통째로 한 줄에 — 앞단에서 쪼개 해석하지 않는다. 상세에서 열면 기록된 값에서 조립.
 function _payRows(d,kind){
   if(!d) return [];
   if(d.sub!=null && !d.raw) return [{k:'입금 내용', v:d.sub}];
   var r=d.raw||{}, bal=(d.mirror&&d.mirror.balance)||{};
-  if(kind==='pay') return [{k:'계약 총액', v:_amtKo(r['계약총액'])},{k:'입금자', v:r['입금자명']}];
-  if(kind==='mid') return [{k:'입금자', v:r['중도금입금자명']}];
-  if(kind==='bal') return [{k:'잔금 금액', v:_amtKo(bal.amount)},{k:'입금자', v:bal.payerName}];
-  if(kind==='midbal') return [{k:'잔금 금액', v:_amtKo(bal.amount)},{k:'입금자', v:r['중도금입금자명']||bal.payerName}];
+  // [ADM_AB1B] 금액은 서버가 계산해 보낸 d.milestoneAmounts만 쓴다(프론트 산식 복제 금지).
+  //   구 GAS(재배포 전)면 값이 없어 금액 줄이 빠질 뿐, 화면은 그대로 뜬다.
+  var ma=d.milestoneAmounts||{};
+  if(kind==='pay') return [{k:'계약금(계약 시 납부)', v:_amtKo(ma['계약금'])},{k:'입금자', v:r['입금자명']}];
+  if(kind==='mid') return [{k:'중도금 금액', v:_amtKo(ma['중도금'])},{k:'입금자', v:r['중도금입금자명']}];
+  if(kind==='bal') return [{k:'잔금 금액', v:_amtKo(ma['잔금']!=null?ma['잔금']:bal.amount)},{k:'입금자', v:bal.payerName}];
+  if(kind==='midbal') return [{k:'중도금·잔금 합계', v:_amtKo(ma['중도금잔금'])},{k:'입금자', v:r['중도금입금자명']||bal.payerName}];
   return [];
 }
 /* [ADM_AB2] 환불 예상 한 줄 — 상세 카드와 환불 완료 모달이 같은 계산·같은 문구를 쓰도록 한 곳에서 만든다.
@@ -2136,9 +2159,9 @@ function doConsultDone(code,names,fitN,fitSaved){
 }
 // [ADM_AB1] 통장과 대조할 금액·입금자를 모달 안에 함께 — 확인 전에 상세로 되돌아가지 않아도 되게.
 function doConfirmPay(code,names,d){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요')+li('확인하면 고객에게 카톡이 자동으로 가요')   /* [ADM_AB3] */, extra:_payFacts(_payRows(d,'pay')), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
-function doConfirmBalance(code,names,d){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'bal')), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
-function doConfirmMidBal(code,names,d){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요'), extra:_payFacts(_payRows(d,'midbal')), yes:'중도금·잔금 확인', onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
-function doConfirmMid(code,names,d){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'mid')), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
+function doConfirmBalance(code,names,d){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능')+li(_AC5_NOTE), extra:_payFacts(_payRows(d,'bal'))+_copyNotifyBtn(code,'잔금'), yes:'잔금 확인', init:_bindCopyNotify, onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
+function doConfirmMidBal(code,names,d){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요')+li(_AC5_NOTE), extra:_payFacts(_payRows(d,'midbal'))+_copyNotifyBtn(code,'중도금·잔금'), yes:'중도금·잔금 확인', init:_bindCopyNotify, onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
+function doConfirmMid(code,names,d){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능')+li(_AC5_NOTE), extra:_payFacts(_payRows(d,'mid'))+_copyNotifyBtn(code,'중도금'), yes:'중도금 확인', init:_bindCopyNotify, onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names,d){
   var r=(d&&d.raw)||{}, noReto=!!(d&&d.raw&&!r['보정본폴더']), noConfirm=(!!d&&d.raw&&r['결과물상태']!=='컨펌완료'&&!noReto);

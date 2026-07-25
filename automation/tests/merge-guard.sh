@@ -386,6 +386,16 @@ chk 'ADM_AC4' automation/admin/admin.gs 1           # 읽기 전용 집계(실�
 chk 'ADM_AC4' automation/platform/96_ai_cost.gs 1   # 아침 보고 한 줄 배선
 chk 'monthBusinessData' automation/admin/admin.gs 1  # 집계 함수
 chk 'monthBusinessData' automation/platform/96_ai_cost.gs 2   # 호출부
+# ── 2026-07-26 관리자 페이지 2차 스프린트 PR⑤(AC5 카톡 문구 복사 · AB1-보완 서버 금액)
+chk 'ADM_AC5' automation/admin/admin.gs 2           # 문구 제공 함수+FNS
+chk 'ADM_AC5' admin.html 1                          # 복사 버튼 헬퍼
+chk 'adminNotifyText' automation/admin/admin.gs 2   # 정의+FNS
+chk '_copyNotifyBtn' admin.html 4                   # 정의 + 알림 없는 3종 모달
+chk 'ADM_AB1B' automation/admin/admin.gs 1          # 서버 마일스톤 금액
+chk 'ADM_AB1B' admin.html 1                         # 프론트는 받아 쓰기만
+chk 'milestoneAmounts' automation/admin/admin.gs 2  # 조립
+chk 'milestoneAmounts' admin.html 1                 # 사용(산식 복제 금지)
+_ab1b=$(grep -c "_amtKo(r\['계약총액'\])" admin.html 2>/dev/null); _ab1b=${_ab1b:-0}; if [ "$_ab1b" -gt 0 ]; then echo "REVERT? admin.html: 입금 확인 모달에 '계약 총액' 표기 부활($_ab1b)"; fail=1; else echo "ok admin.html: 입금 확인 모달 금액=마일스톤 금액 유지"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
