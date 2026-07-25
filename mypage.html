@@ -2018,6 +2018,7 @@ function renderMyPage(d){
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
     _nowGoWire();   // MPD_G6 NOW 바로가기 앵커 — 지금 할 일 카드로
     _mpApplyFocus();   // MPD3_D2 알림 딥링크 소비(1회)
+    if(window._mpNextToast){ var _t1=window._mpNextToast; window._mpNextToast=null; setTimeout(function(){ mpToast(_t1); }, 250); }   // MPD4_F1 저장-복귀 완료 확인 토스트(재렌더 뒤 1회)
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
@@ -4973,7 +4974,7 @@ function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 �
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
       .then(function(again){ if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; show('loading'); loadMyState(); } });
   };
-  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); show('loading'); loadMyState(); }).catch(function(){ _fail(''); });
+  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); show('loading'); loadMyState(); }).catch(function(){ _fail(''); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
 function seatSharePanelHtml(token){
@@ -5187,7 +5188,7 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
     var ov=$('mp_photoOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
     _mpUnlock(); PHOTOFLOW.active=false; PHOTOFLOW._exiting=false;
   };
-  var _close=function(){ _tearDown(); show('loading'); loadMyState(); };
+  var _close=function(){ window._mpNextToast='단체 사진 구도를 저장했어요 · 촬영 때 사진작가에게 전달돼요'; _tearDown(); show('loading'); loadMyState(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
   var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
     _flowBusy(false); PHOTOFLOW._exiting=false;
     if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
