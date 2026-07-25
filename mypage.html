@@ -3504,7 +3504,7 @@ function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean)
 function _resultWaitHtml(res){
   return '<div class="cc-title" style="text-align:center">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
-    +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 하루였어요.</span><span class="stanza">그 하루를, 저희가 한 장 한 장 담고 있어요.</span><span class="stanza">곧 <span class="em-seal">다시</span> 만나실 수 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 3줄 + 진사 악센트(덜어낼수록·다시) · 본질(덜어냄) 반영
+    +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 <span class="em-seal">하루</span>였어요.</span><span class="stanza">그 하루를, 저희가 한 장 한 장 담고 있어요.</span><span class="stanza">곧 <span class="em-seal">다시</span> 만나실 수 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 3줄 + 진사 악센트(덜어낼수록·하루·다시) · 본질(덜어냄) 반영
     +'<div class="visit-guide" style="margin-top:14px">'
     +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.</div>'
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
