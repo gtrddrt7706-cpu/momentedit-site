@@ -41,7 +41,7 @@
 |---|---|---|---|---|
 | AC1 | 입금 확인 취소 액션 | 오처리 복구 경로 전무(ROLLBACK_KEEP_PAID가 보존) → adminUndoConfirm류 전용 멱등 액션+처리이력 | 진행 추천(금전 실위험 1위) | 반영(2차 스프린트 PR① #275) |
 | AC2 | 환불 완료 취소 | adminMarkRefunded 역방향 부재 → 취소 경로 | 진행 추천 | 반영(2차 스프린트 PR② #276) |
-| AC3 | 강제변경 안전 게이트 | 지워질 컬럼·동의기록 dry-run 미리보기 + 체크박스 게이트("이후 데이터 초기화에 동의") · 드롭다운 기본값 비선택화 | 진행 추천 | 반영(2차 스프린트 PR③ #278) |
+| AC3 | 강제변경 안전 게이트 | 지워질 컬럼·동의기록 dry-run 미리보기 + 체크박스 게이트("이후 데이터 초기화에 동의") · 드롭다운 기본값 비선택화 | 진행 추천 | 반영(2차 스프린트 PR③ #278) · **후속 수정 필요(6차 검증 AC3-BUG · 미리보기가 캘린더 이벤트 실삭제)** |
 | AC4 | 월 사업현황 | aiMorningReport에 "이번 달 계약 N·매출 ₩X·전달 N" 1줄 + 상단바 매출 패널(AI비용 패널 패턴 재사용 · 계약총액 월합계 신규 집계) | 진행 추천(0클릭 아침 도착) | 반영(2차 스프린트 PR④ #279) |
 | AC5 | 알림 자동/수동 정책 정리 | AB3 점검에서 드러나는 "수동 필요" 이벤트를 자동 발송으로 승격할지, 템플릿 부재분은 "카톡 문구 복사" 버튼으로 할지 | 점검 결과 따라 | 반영(2차 스프린트 PR⑤ #280) |
 
@@ -75,6 +75,22 @@
   - 신규 서버 함수 5종(`adminUndoConfirmPayment`·`adminUndoConfirmPreview`·`adminUndoRefunded`·`adminForceStagePreview`·`adminNotifyText`)과 읽기 전용 집계 `monthBusinessData`는 CLAUDE.md 실행 함수 위치표에 등재.
   - 판단 기록 3건: ①**되돌리기는 전용 경로로** — `_clearForwardData`의 ROLLBACK_KEEP_PAID는 '확인된 수납 보존'이 목적이라 되돌리기에 재사용하면 안 된다. ②**미리보기와 실행은 같은 함수로** — AC3는 실행 경로(`_clearForwardData`)를 report 모드로 부른다. 미리보기 전용 코드를 따로 쓰면 시간이 지나며 어긋나 '안전장치처럼 보이는 함정'이 된다. ③**금액·문구는 서버 단일 원천** — AB1 보완은 `_journeyAmounts`, AC5는 `_nfCustomerMsg`를 그대로 읽는다. 프론트에 복제하면 두 곳이 갈라진다.
   - 알림 발송 설정(`95_notify`의 `off`)은 이번에도 건드리지 않았다. AC5는 자동 발송을 켜는 대신 '문구 복사'로 우회했고, 재개 여부는 결정 대기함에 그대로 남아 있다.
+
+- **6차 · 2차 스프린트 독립 검증(코워크) · 2026-07-26** — 병합된 main(8e3c139)에서 AC1~AC5·AB1보완을 코드로 재검증. 통과 항목과 **실버그 1건**.
+
+  **통과** — merge-guard `ALL MARKERS OK` · 신규 함수 7종 전량 존재 · 변경 .gs가 `admin.gs`·`96_ai_cost.gs` 2개뿐임을 `git log --name-only`로 확인(70_journey·95_notify·80_production·consultation-booking 무변경) · `95_notify:82`의 `cust.paymentConfirmed` `off:true` 유지 · AC5 `adminNotifyText`가 `_nfCustomerMsg` 템플릿을 그대로 반환(알림을 켜지 않음) · AC4 `monthBusinessData` 매출이 계약총액이 아니라 '확인'된 실입금 합 · AB1보완 프론트(admin.html:2045~2047)가 `d.milestoneAmounts`만 읽고 산식을 복제하지 않음 · AC1 차단 A~F 6종 코드 확인 · AC1 멱등 2중(`cur !== '확인'` continue + `!plan.length` early return) · AC1 dry-run이 `_adminLock()` 앞에서 return하므로 쓰기 0 · 4개 .gs + admin.html 인라인 스크립트 구문 검사 통과.
+  - A 차단의 키 대칭 확인: `_undoSpec`의 `payKey`(스냅 '예약금' / 시그 '계약금' / 중도금·잔금 동명)가 `98_pay_card.gs:229~237`의 `_payMarkCard(code, ledgerKey)` 호출 키와 전부 일치.
+  - 잔금 되돌리기의 `잔금확정금액` 삭제는 대칭적으로 옳음: 기록처 3곳(`admin.gs:1415`·`70_journey:1321`·`70_journey:1412) 전부 잔금 확인 시점에만 쓴다.
+
+  **★AC3-BUG · 강제변경 미리보기가 캘린더 이벤트를 실제로 지운다(수정 필요)**
+  - 위치: `admin.gs:1972` — `_clearForwardData` 안의 `if (consentKeys.indexOf('가예약') !== -1 && rec.가예약 && ...) _holdCalDelete(rec.가예약);`
+  - 원인: AC3는 "미리보기와 실행이 같은 함수를 쓴다"는 옳은 원칙으로 `adminForceStagePreview`(2013)가 같은 `_clearForwardData`를 report 모드로 부른다. 그런데 이 함수는 순수 계산이 아니다. 시트 쓰기는 없지만(`upd`를 반환만 함) **구글 캘린더 이벤트 삭제라는 외부 부작용이 하나 섞여 있다.** `_holdCalDelete`는 `ev.deleteEvent()`(70_journey:1545)로 실제 삭제한다.
+  - 재현: 임시고정이 승인된(`동의기록.가예약.eventId` 존재) 고객 상세 → 고급 → 단계 드롭다운에서 '신청접수' 선택. `admin.html:1919`가 `change` 이벤트에서 바로 미리보기를 호출하므로, **동의 체크박스도 누르기 전에 · 모달을 닫아도 캘린더 슬롯이 이미 풀린다.** 시트의 `동의기록.가예약`은 그대로 남아 관리자·고객 화면엔 임시고정이 살아 있는 것으로 보이고, `eventId`는 지워진 이벤트를 가리킨다(시트-캘린더 불일치).
+  - 범위: `ti < flow.indexOf(상담확정/촬영확정)`이라 목표가 '신청접수'일 때만(예외 단계는 `ti < 0`으로 상단 return). 좁지만, 하필 "임시고정을 잘못 승인했나 되돌려볼까" 하고 드롭다운을 열어보는 상황과 정확히 겹친다.
+  - 고칠 방향(권고): 부작용을 공유 함수에서 빼 **실행 경로로 옮긴다.** `_clearForwardData`는 무엇을 지울지 계산·보고만 하고(`consentKeys`에 '가예약'이 담겼는지를 report나 반환값으로 알린다), `_holdCalDelete` 호출은 `adminForceStage`가 `touchCustomer` 직후에 한다. 차선책은 `if (!report && ...)` 가드지만, "report가 곧 미리보기"라는 암묵 결합이라 다음 사람이 또 밟는다. 원칙은 유지: 미리보기와 실행은 계속 같은 계산 함수를 쓰되, **쓰기·외부 호출은 실행 경로에만 둔다.**
+  - 재발 방지: merge-guard에 음수 마커 1줄 — `_clearForwardData` 본문 안에 `_holdCalDelete(`가 0곳이어야 한다.
+
+  **뉘앙스 1건(블로커 아님)** — 번들 되돌리기는 버튼이 2~3번. 계약금 확인이 수납묶음으로 중도금·잔금까지 확정한 건은 `undoPay:계약금`이 계약금만 되돌리고, 중도금·잔금은 각각의 '확인 취소' 버튼으로 따로 되돌려야 한다(서버 `_undoConfirmCore`는 `milestone='중도금잔금'` 콤보를 이미 지원하는데 `admin.html`에 그 버튼이 없다). 번들 경로가 `중도금확인일시`·`잔금확인일시`를 함께 찍으므로(admin.gs:1409~1411) E 차단에 걸리지는 않아 복구는 가능하다. 개선안: 확인 취소 모달에 "이 건은 한 번에 확정된 건이라 중도금·잔금도 따로 되돌려야 해요" 한 줄, 또는 `undoPay:중도금잔금` 버튼 1개 추가.
 
 - **4차 · 2차 스프린트 0단계 교차 점검(클로드 코드) · 2026-07-26** — 배치 AC 착수 전 "되돌리기가 되돌리면 안 되는 것까지 되돌리는" 위험을 코드로 확정.
 
