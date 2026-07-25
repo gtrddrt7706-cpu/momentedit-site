@@ -255,7 +255,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-emo .em-seal{color:var(--seal);font-weight:500}   /* 진사 악센트 · 감정 정점 단어에만(인장처럼) */
 .res-panel.done .em-seal{color:var(--seal);font-weight:500}   /* SURVEY_DONE_TONE · 후기 완료 패널도 같은 진사 악센트('오래' 1점) */
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
-.consult-card .fn-intro{font-size:12px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin-bottom:2px}
+/* DLV_SEC 2026-07-25 · 결과물 대기 카드: 떠 있던 fn-intro 2줄 → 섹션 헤더(중앙 골드 라벨+서브)로 승격 — 감정 블록과 정보 표의 경계 */
+.consult-card .dlv-sec{text-align:center;margin:2px 0 10px}
+.consult-card .dlv-sec .t{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}
+.consult-card .dlv-sec .s{display:block;font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;margin-top:4px;word-break:keep-all}
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .consult-card .cc-actions:empty{display:none}
@@ -3517,7 +3520,7 @@ function _resultWaitHtml(res){
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
     +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 <span class="em-seal">하루</span>였어요.</span><span class="stanza">그 하루를, 저희가 한 장 한 장 담고 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 2줄 + 진사 악센트(덜어낼수록·하루). ★'곧 다시 만나실 수 있어요' 줄 재추가 금지 — 2026-07-25 사용자 지시로 삭제
     +'<div class="visit-guide" style="margin-top:14px">'
-    +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.<br>올라올 때마다 카카오톡과 메일로 알려드려요.</div>'
+    +'<div class="dlv-sec"><span class="t">전해드리는 순서</span><span class="s">준비되는 대로 하나씩 올라와요 · 그때마다 카카오톡과 메일로 알려드려요</span></div>'   // DLV_SEC · 떠 있던 안내 2줄 → 섹션 헤더로 승격
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐'+(_eta(DELIVERY_ETA.retouch)?(' <b>'+DELIVERY_ETA.retouch+'</b> 뒤'):' 정성껏')+' 전해드려요.</span></div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?(' <b>'+DELIVERY_ETA.video+'</b> 뒤'):'')+' 전해드려요.</span></div>')
