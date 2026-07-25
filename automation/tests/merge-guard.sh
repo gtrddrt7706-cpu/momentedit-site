@@ -446,6 +446,18 @@ if [ "$_hl" -lt 1 ]; then echo "REVERT? 00_platform-config.gs: 제작 트랙 헤
 # 음수 가드 — 구 리터럴 순서(meta 먼저) 부활 감지
 _hm=$(grep -c "'제작_meta', '제작_ritual'" automation/platform/00_platform-config.gs 2>/dev/null); _hm=${_hm:-0}
 if [ "$_hm" -gt 0 ]; then echo "REVERT? 00_platform-config.gs: meta-first 헤더 순서 부활($_hm) — 운영 시트와 한 칸씩 어긋남"; fail=1; else echo 'ok 00_platform-config.gs: meta-first 순서 미부활'; fi
+# ── 2026-07-26 저장소 위생: 루트 __*.html 화면 비교용 임시 사본 재유입 차단
+#   실사고: __b5/__b7/__b9/__before4.html(각 ~690KB · mypage.html 전체 사본)이 기획 커밋에 딸려 들어가
+#   momentedit.kr에 공개 배포됨. 넷 다 실서비스 GAS를 그대로 호출하는 '작동하는' 옛 클라이언트였고
+#   TRACK_REV_GUARD·PROD_MULTITAB·V2_DRAFT_NOTICE·ORDER_OWNER 방어장치가 0건이라
+#   그 사본으로 저장하면 충돌 감지 없이 다른 기기의 트랙을 덮어쓸 수 있었다.
+#   .gitignore·.vercelignore 2중 장치 + 이 가드로 3중. 루트 __*.html은 항상 0개여야 한다.
+_stray=$(git ls-files | grep -cE '^__.*\.html$'); _stray=${_stray:-0}
+if [ "$_stray" -gt 0 ]; then echo "REVERT? 루트 __*.html 임시 사본 재유입($_stray개) — 배포 노출 위험 · git rm 후 .gitignore 확인"; git ls-files | grep -E '^__.*\.html$' | sed 's/^/    /'; fail=1; else echo 'ok 루트 __*.html 임시 사본 0개 유지'; fi
+_ign=$(grep -c '^__\*\.html$' .gitignore 2>/dev/null); _ign=${_ign:-0}
+_vig=$(grep -c '^__\*\.html$' .vercelignore 2>/dev/null); _vig=${_vig:-0}
+if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok __*.html 무시 규칙 .gitignore+.vercelignore 유지'; fi
+
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
