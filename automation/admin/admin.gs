@@ -509,24 +509,29 @@ function adminHome() {
       if (stage === '취소') {
         var _rbk = bookMap[code], _racct = _rbk ? String(bget(_rbk, '환불계좌') || '').trim() : '';
         var _rdone = !!_parseJsonSafe(cget(rv, '동의기록')).환불완료;
-        var _rPaidC = (_rbk && String(bget(_rbk, '입금확인') || '').trim() === '확인');   // [REFUND_QUEUE_CANCEL_NOACCT] 예약금 수령 신호
+        var _rPaidC = (_rbk && String(bget(_rbk, '입금확인') || '').trim() === '확인') || String(cget(rv, '입금상태') || '').trim() === '확인';   // [REFUND_QUEUE_CANCEL_NOACCT · FU1 2026-07-25] 수령분 판정을 노쇼·미계약(_rPaid2)·Q5(_paidF)와 통일 — Bookings.입금확인 외 Customers.입금상태='확인'(계약 후 취소)도 포함해 큐 누락 차단
         if ((_racct || _rPaidC) && !_rdone) {
           var _rcd = _rbk ? _ymdOf(bget(_rbk, '취소일시')) : '';
           var _rdays = _dayDiff(today, _rcd);
           var _rsub = '예약금 환불 송금 필요';
+          var _rZeroC = false;   // [REFUND_QUEUE_CANCEL_NOACCT · FU2 2026-07-25] 산정 환불액 0원(공제 등·needCount 아님) 여부
           try {   // [02-8] 송금액 견적(계약서 7조·9조·4조⑧ · _refundQuote) — 기준일=취소일시(없으면 오늘). 스냅·산정 불가면 기본 문구 유지.
             var _rq = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, _rcd || today);
             if (_rq && _rq.needCount) _rsub += ' · 시착 벌수 기록 후 산정';
             else if (_rq && !_rq.pending && _rq.refund != null) {
+              if (Number(_rq.refund) <= 0) _rZeroC = true;   // [FU2] 공제로 환불액 0원
               _rsub += ' · ' + Number(_rq.refund).toLocaleString() + '원';
               if (_rq.penalty > 0) _rsub += '(위약금 ' + Math.round((_rq.rate || 0) * 100) + '% 공제)';
               else if (_rq.fitCount > 0) _rsub += '(시착 ' + _rq.fitCount + '벌 공제)';
             }
           } catch (e) {}
-          if (!_racct) _rsub += ' · 환불 계좌 요청 필요(카톡)';   // [REFUND_QUEUE_CANCEL_NOACCT] 계좌 미입력 취소 건 — 관리자에게 계좌 요청 필요 신호
-          pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
-            badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
-            _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
+          // [REFUND_QUEUE_CANCEL_NOACCT · FU2 2026-07-25] 계좌 미입력 신규 노출분은 환불액 0원이면 큐 생략(고객 환불카드도 안 떠 계좌 받을 일 자체가 없음 · 노쇼·미계약 분기와 동일). 계좌 입력 건은 사람 판단 위해 유지(변화 0).
+          if (_racct || !_rZeroC) {
+            if (!_racct) _rsub += ' · 환불 계좌 요청 필요(카톡)';   // [REFUND_QUEUE_CANCEL_NOACCT] 계좌 미입력 취소 건 — 관리자에게 계좌 요청 필요 신호
+            pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
+              badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
+              _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
+          }
         }
       }
       // [환불 안전망] 노쇼·미계약 — 관리자 처리 종료라 환불계좌 입력 경로가 없어 큐에서 빠지던 구멍.
