@@ -258,6 +258,11 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal .paste-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:12px;cursor:pointer;white-space:nowrap}
 .modal .paste-btn:active{background:var(--bg2)}
 .modal .paste-hint{font-family:var(--serif-ko);font-size:11px;color:var(--seal);margin-top:4px;text-align:left;min-height:0}
+/* [ADM_AA6] 최근 본 고객 칩 — 폰 재방문 시 재검색 제거(이름·코드만 저장) */
+.recent{display:flex;flex-wrap:wrap;gap:6px;margin:8px 2px 0}
+.recent .rc-l{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);align-self:center;margin-right:2px}
+.recent button{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:6px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent button:active{border-color:var(--gold);background:var(--bg2)}
 .modal .mbtns{display:flex;gap:8px;margin-top:6px}
 .modal .mbtns .btn{flex:1}
 .modal .merr{font-family:var(--serif-ko);font-size:12px;color:var(--seal);text-align:center;min-height:15px;margin-bottom:5px}
@@ -305,6 +310,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
       <input type="text" id="q" placeholder="개인코드·이름·연락처 검색" autocomplete="off">
       <button id="btnSearch">검색</button>
     </div>
+    <div id="recentWrap" class="recent" style="display:none"></div><!-- [ADM_AA6] 최근 본 고객 -->
     <div id="queueWrap"></div>
     <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
@@ -1070,7 +1076,7 @@ function loadHome(){
     setWho(d.name); setTopbar(true);
     curHome=d;
     // 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
-    try{ renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }
+    try{ renderRecent(); renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }   // [ADM_AA6] 최근 본 고객 칩
     catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
     show('home');
   }).catch(function(e){
@@ -1303,13 +1309,37 @@ function doSearch(){
 
 /* ════════ 상세 ════════ */
 var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
+/* [ADM_AA6] 최근 본 고객 — openDetail 진입 시 {code,names} 최근 5명만 localStorage에 기록(중복은 앞으로).
+     ★이름·코드만 저장한다. 금액·연락처 등 민감정보는 절대 넣지 않는다(공용 폰 분실 대비).
+     localStorage 접근 실패(사파리 프라이빗 등)면 칩 영역 자체를 숨기고 조용히 넘어간다. */
+var RECENT_KEY='me_admin_recent', RECENT_MAX=5;
+function _recentRead(){ try{ var a=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]'); return (a instanceof Array)?a.filter(function(x){ return x&&x.code; }).slice(0,RECENT_MAX):[]; }catch(e){ return null; } }
+function _recentPush(code,names){
+  if(!code) return;
+  var a=_recentRead(); if(a===null) return;
+  a=a.filter(function(x){ return x.code!==code; });
+  a.unshift({ code:String(code), names:String(names||'') });
+  try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){}
+}
+function renderRecent(){
+  var w=$('recentWrap'); if(!w) return;
+  var a=_recentRead();
+  if(!a||!a.length){ w.style.display='none'; w.innerHTML=''; return; }   // 저장 불가 브라우저·기록 없음 → 영역 자체 숨김
+  w.innerHTML='<span class="rc-l">최근 본 고객</span>'+a.map(function(x){
+    return '<button type="button" data-rc="'+esc(x.code)+'">'+esc(x.names||x.code)+'</button>';
+  }).join('');
+  w.style.display='flex';
+  w.querySelectorAll('button[data-rc]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openDetail(btn.getAttribute('data-rc'),'home'); });
+  });
+}
 function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
   _admHistInit(); if(_view!=='detail') _admPushView('detail');   // [ADMIN_BACK_NAV] 목록/아카이브→상세 진입 시 1회 push(상세 새로고침·popstate 복귀는 제외)
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
-    curDetail=d; renderDetail(d); show('detail');
+    curDetail=d; _recentPush(d.code||code, d.names); renderDetail(d); show('detail');   // [ADM_AA6] 조회 성공한 고객만 기록
     setTimeout(function(){
       // ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드가 최상단으로 재배치되므로, 일반 열람은 헤더(이름·단계·연락)부터 위에서 보이게 하고,
       // 큐 일감(focusKind)으로 들어온 경우에만 해당 카드로 스크롤·강조한다.
