@@ -2687,7 +2687,7 @@ function renderFitting(f, d){
   }
   var body = '<div class="cc-title">'+escapeHtml(f.title || '드레스 시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
            + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice).replace('시착 후, ','시착 후,<br>')+'</div>' : '');   // [③-2] 계약서 24h 예고(첫 구절 뒤 줄내림 고정)
-  var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
+  var cta  = '<button type="button" class="cc-btn cc-btn-seal" id="mp_signFitting">동의하고 서명</button>'   // MPD4_C2 시착도 결정적 액션 — 진사 CTA(헌장 5 · 본계약과 격 일치)
            + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
            + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
   box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
@@ -2695,7 +2695,8 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료' }).then(function(sig){
+  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료',
+    checkLabels:['예약금 공제 안내를 확인했어요'] }).then(function(sig){   // MPD4_C2 확인 체크 1개 — §6-4-② 스펙 문구 그대로(법적 동의 · 임의 변경 금지)
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
