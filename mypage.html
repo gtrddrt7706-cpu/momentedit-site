@@ -975,7 +975,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* 단체사진·스냅 칩 CSS는 전용화면 블록(.ph-list 근처)으로 단일화 — 구 f83da9b .ph-chip 규칙 제거(중복·구 스타일이 새 디자인을 덮던 문제 2026-07-19 병합) */
     /* 자리 편집 중 음료 선택 바 — '지금 이 자리를 편집 중' 신호로 골드 톤(중립 베이지 요약 카드와 위계 구분 · 2026-07-19 디자이너 개편) */
     /* [음료 바 sticky 2026-07-22] 아래쪽 테이블(5·6번) 자리를 탭해도 음료 칩이 화면 위에 항상 붙어 있게 — 위로 스크롤해 되짚는 마찰 제거. 상단 고정이라 하단 키보드에도 안 가림. */
-    .seat-drinkbar{position:sticky;top:8px;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:7px;justify-content:center;margin:12px 0 2px;padding:10px 12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold-deep);border-radius:12px;box-shadow:0 4px 14px rgba(58,45,34,.12)}
+    .seat-drinkbar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;top:auto;z-index:955;display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:center;max-width:calc(100% - 24px);margin:0;padding:12px 16px;background:var(--gold-bg,#FAF6EF);border:1px solid var(--gold-deep);border-radius:12px;box-shadow:0 4px 14px rgba(58,45,34,.12)}   /* MPD4_F4 하단 고정 — 아래 테이블 편집 시 화면 밖으로 벗어나던 근접성 문제(§8-1-③) · 엄지 거리 최소화(여백 H1 토큰) */
     .sdb-label{font-family:var(--serif-ko);font-size:11px;letter-spacing:.02em;font-weight:600;color:var(--gold-deep);width:100%;text-align:center;margin-bottom:3px}
     .dk-chip{font-family:var(--serif-ko);font-size:12px;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
     .dk-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
