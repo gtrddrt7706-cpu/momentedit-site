@@ -154,6 +154,7 @@ module.exports = async (req, res) => {
   if (secret) {
     verified = verifyAiToken(body.auth, secret);
     isEmbed = claimedEmbed && !!verified;
+    if (isEmbed && customer) customer.code = verified.code;   // [AI_WIDGET_HMAC] 토큰↔클레임 결속 — code는 항상 서버 검증값(위장 클레임이 그라운딩·인계로 새는 것 차단)
   } else {
     isEmbed = claimedEmbed;
     if (claimedEmbed && !_warnedNoSecret) { _warnedNoSecret = true; console.warn('ritual_advisor: AI_WIDGET_SECRET 미설정 · embed 클레임을 검증 없이 신뢰(전환기 동작)'); }
