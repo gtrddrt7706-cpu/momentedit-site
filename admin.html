@@ -420,7 +420,8 @@ function _admPushView(v){   // 서브뷰 진입 시 1회 push(popstate 유발 �
 }
 // momentedit.kr 호스팅 — GAS를 fetch(doPost)로 호출 (마이페이지와 동일·CORS preflight 회피)
 var _busyN=0;
-function _busy(on){ _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
+var _silentN=0;   // [ADM_AA7] 조용한 갱신 깊이 — >0이면 상단 진행바를 '켜지만' 않는다(끄기는 항상 허용해 바가 굳지 않게)
+function _busy(on){ if(on && _silentN>0) return; _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
 function api(payload){
   _busy(true);
   var off=function(){ _busy(false); };
@@ -1041,7 +1042,7 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
 function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTeam','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
-function authFail(msg){ TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin();   // [ADM_AA7] 세션 끊기면 폴링도 정지 var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
 function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
 function doLogin(){
@@ -1050,24 +1051,57 @@ function doLogin(){
   $('lgBtn').disabled=true; $('lgBtn').textContent='로그인 중…'; $('lgErr').textContent='';
   gasRaw('adminLogin', id, pw).then(function(r){
     $('lgBtn').disabled=false; $('lgBtn').textContent='로그인';
-    if(r&&r.ok){ TOKEN=r.token; localStorage.setItem('me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); }
+    if(r&&r.ok){ TOKEN=r.token; localStorage.setItem('me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); _pollStart(); }   // [ADM_AA7]
     else { $('lgErr').textContent=(r&&r.error)||'로그인 실패'; }
   }).catch(function(e){ $('lgBtn').disabled=false; $('lgBtn').textContent='로그인'; $('lgErr').textContent='오류: '+(e&&e.message||e); });
 }
-function doLogout(){ try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
+/* [ADM_AA7] 자동 갱신 — 폰을 두고 온 사이 들어온 입금 신호·새 신청이 새로고침 없이 반영되게.
+     · 75초 주기 조용한 폴링(진행바·스켈레톤 없음) + 탭 복귀(hidden→visible) 즉시 1회
+     · 건너뛰는 경우: 탭 숨김 / 홈이 아닌 화면(_view!=='home') / 검색 결과 보는 중 / 확인 모달 열림 / 입력 중 / 이미 요청 중
+     · 탭이 숨겨지면 타이머를 멈춘다(백그라운드 호출·쿼터 낭비 방지) */
+var POLL_MS=75000, _pollT=null, _pollBusy=false;
+function _pollSkip(){
+  if(document.hidden) return true;
+  if(!TOKEN) return true;
+  if(_view!=='home' || _lastQuery) return true;                     // 상세·아카이브·검색 결과 중엔 건드리지 않음
+  var cm=document.getElementById('confirmModal');
+  if(cm && cm.classList.contains('show')) return true;              // 확인 모달 열림
+  if(document.querySelector('.ov, #ad_ftViewer, #aiPanel.show')) return true;   // 문서 뷰어·AI 패널 등 오버레이
+  var ae=document.activeElement;
+  if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName||'')) return true;       // 입력 중
+  return _pollBusy;
+}
+function _pollTick(){
+  if(_pollSkip()) return;
+  _pollBusy=true;
+  try{ loadHome(true); }catch(e){}
+  setTimeout(function(){ _pollBusy=false; }, 3000);   // 연타 방지(응답과 무관하게 짧게 잠금)
+}
+function _pollStart(){ if(_pollT) return; _pollT=setInterval(_pollTick, POLL_MS); }
+function _pollStop(){ if(_pollT){ clearInterval(_pollT); _pollT=null; } }
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ _pollStop(); return; }
+  _pollStart();
+  _pollTick();   // 복귀 즉시 1회(주기를 기다리지 않게)
+});
+if(TOKEN) _pollStart();
+
+function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
 
 /* ════════ 홈 ════════ */
 var _homeRetried=false;
-function loadHome(){
+function loadHome(silent){
   _admHistInit();   // [ADMIN_BACK_NAV] 첫 목록 진입 시 history 기준점(home) 세팅 · popstate 리스너 등록(1회)
-  _lastQuery=''; _origin='home';
-  $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
-  show('loading');
+  if(!silent){ _lastQuery=''; _origin='home';
+    $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
+    show('loading');
+  } else { _silentN++; }   // [ADM_AA7] 조용한 갱신 — 스켈레톤·진행바 없이
   gas('adminHome').then(function(d){
+    if(silent){ _silentN=Math.max(0,_silentN-1); if(_view!=='home' || _lastQuery){ return; } }   // 도착 사이 상세·검색으로 갔으면 화면을 건드리지 않는다
     if(!d||!d.ok){
       // 진짜 인증 실패(토큰 무효·만료)만 로그아웃. GAS 일시 오류는 토큰 보존(netFail).
       if(d && /로그인이 필요|만료|권한/.test(String(d.error||''))) authFail();
-      else netFail(d && d.error);
+      else if(!silent) netFail(d && d.error);   // [ADM_AA7] 조용한 갱신의 일시 오류로 오류 화면을 띄우지 않는다
       return;
     }
     // 단계 목록 = 서버(00_platform-config) 단일 출처 우선 — 아래 하드코딩 STAGE_FLOW는 첫 로드용 폴백. GAS서 단계가 바뀌어도 보드·게이트가 어긋나지 않게.
@@ -1080,6 +1114,7 @@ function loadHome(){
     catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
     show('home');
   }).catch(function(e){
+    if(silent){ _silentN=Math.max(0,_silentN-1); return; }   // [ADM_AA7] 조용한 갱신 실패는 조용히 넘긴다(다음 주기에 다시 시도)
     if(!_homeRetried){ _homeRetried=true; setTimeout(loadHome, 1200); return; }   // 일시 네트워크 오류 1회 자동 재시도
     _homeRetried=false; netFail();
   });
