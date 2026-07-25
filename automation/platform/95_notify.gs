@@ -94,8 +94,8 @@ var NOTIFY_EVENTS = {
  * @param {Object=} extra 부가정보(금액·D-day·이름 등) — 문구 변수용
  */
 function notifyKakao(event, code, extra) {
-  // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·false(미발송).
-  //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용.
+  // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·'off'(전역 발송 OFF=의도된 미발송)·false(미발송).
+  //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용('held'·'off'는 실패로 안 침).
   try {
     var meta = NOTIFY_EVENTS[event];
     if (!meta) { if (NOTIFY.LOG) Logger.log('[notifyKakao] ⚠️ 미등록 이벤트: ' + event); return false; }
@@ -104,7 +104,7 @@ function notifyKakao(event, code, extra) {
       Logger.log('[notifyKakao] ' + event + ' → ' + meta.to + (meta.need ? '(행동필요)' : '(안내)')
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
     }
-    if (!_notifyEnabled()) return false;   // 발송 OFF — 로그만 남기고 종료
+    if (!_notifyEnabled()) return 'off';   // 발송 OFF(테스트 모드 등 의도된 미발송) — 실패로 치지 않게 'off' 반환 · 로그만 남기고 종료
     var _sentRet = _kakaoSend(meta.to, event, code, extra);
     try { _nfMaybeBalanceCheck(); } catch (e) {}   // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고
     return _sentRet;
