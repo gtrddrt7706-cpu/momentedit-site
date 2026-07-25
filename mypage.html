@@ -212,7 +212,7 @@ details.acc>.consult-card{margin-top:10px}
 .vg-title{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:10px 0 2px}
 .vg-row{display:flex;gap:12px;padding:10px 0;border-top:1px solid rgba(28,27,25,.06)}
 .vg-k{flex:0 0 68px;font-family:var(--serif-ko);font-size:11.5px;font-weight:500;color:var(--gold-deep);line-height:1.65;white-space:nowrap}
-.vg-v{flex:1;font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.65;word-break:keep-all}
+.vg-v{flex:1;font-family:var(--serif-ko);font-size:12.5px;font-weight:400;color:var(--sub);line-height:1.65;word-break:keep-all}   /* RESULT_WAIT_POLISH · 명조 12.5px 굵기 300은 저해상도에서 뭉개짐 → 400 (visit-guide 공통 적용) */
 .vg-v b{font-weight:500;color:var(--accent)}
 .vg-v em{font-style:normal;color:var(--gold-deep)}
 .vg-sub{display:inline-block;margin-top:3px;font-size:11px;color:var(--light);line-height:1.55}
@@ -249,7 +249,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
 .consult-card .cc-sub b{color:var(--accent);font-weight:500}
 /* RESULT_WAIT_EMO 2026-07-22 · 예식/촬영 종료 후 여운 메시지(제목 아래·안내 위) */
-.consult-card .cc-emo{font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);line-height:1.98;text-align:center;word-break:keep-all;text-wrap:balance;max-width:19em;margin:0 auto;padding:18px 0 24px;letter-spacing:.004em}
+.consult-card .cc-emo{font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);line-height:1.98;text-align:center;word-break:keep-all;text-wrap:balance;max-width:19em;margin:0 auto;padding:20px 0 20px;letter-spacing:.004em}   /* RESULT_WAIT_POLISH 2026-07-26 · 위아래 여백 균형(18/24→20/20) — 카드 중단 리듬 보정 */
 .consult-card .cc-emo .stanza{display:block}
 .consult-card .cc-emo .stanza + .stanza{margin-top:2px}
 .consult-card .cc-emo .em-seal{color:var(--seal);font-weight:500}   /* 진사 악센트 · 감정 정점 단어에만(인장처럼) */
@@ -257,7 +257,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 /* DLV_SEC 2026-07-25 · 결과물 대기 카드: 떠 있던 fn-intro 2줄 → 섹션 헤더(중앙 골드 라벨+서브)로 승격 — 감정 블록과 정보 표의 경계 */
 .consult-card .dlv-sec{text-align:center;margin:8px 0 6px}
-.consult-card .dlv-sec .t{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}
+.consult-card .dlv-sec .t{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}   /* RESULT_WAIT_POLISH · 섹션 제목(11px)이 부연(11.5px)보다 작던 크기 역전 해소 */
 .consult-card .dlv-sec .s{display:block;font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;margin-top:4px;word-break:keep-all;text-wrap:balance;max-width:24em;margin-left:auto;margin-right:auto}
 .consult-card .dlv-sec + .vg-row{border-top:none}   /* 헤더가 표를 소유하게 — 서브 바로 아래 선 제거(라벨이 '표의 한 행'처럼 읽히던 것 방지) */
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
@@ -294,7 +294,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-terms li{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;margin:4px 0}
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
-.consult-card .cc-mini{font-size:11px;color:var(--label-soft)}
+.consult-card .cc-mini{font-size:11px;color:var(--light)}   /* RESULT_WAIT_POLISH · 각주 대비 4.5:1 경계 → 한 톤 진하게(위계는 최하위 유지) */
 .consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold)}
 /* 완료 카드 접기 */
@@ -3520,9 +3520,9 @@ function _resultWaitHtml(res){
   return '<div class="cc-title" style="text-align:center">'+(_dvT?'그날의 기록을 준비하고 있어요':(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요')+'</div>'
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
     +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 <span class="em-seal">하루</span>였어요.</span><span class="stanza">그 하루를, 저희가 <span style="white-space:nowrap">한 장 한 장</span> 담고 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 2줄 + 진사 악센트(덜어낼수록·하루). ★'곧 다시 만나실 수 있어요' 줄 재추가 금지 — 2026-07-25 사용자 지시로 삭제
-    +'<div class="visit-guide" style="margin-top:14px">'
+    +'<div class="visit-guide" style="margin-top:10px">'   // RESULT_WAIT_POLISH · 문구~표 간격 축소(여백 균형)
     +'<div class="dlv-sec"><span class="t">전해드리는 순서</span><span class="s">준비되는 대로 하나씩 올라와요<br>그때마다 카카오톡과 메일로 알려드려요</span></div>'   // DLV_SEC · 떠 있던 안내 2줄 → 섹션 헤더로 승격
-    +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
+    +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 가장 먼저'+(_eta(DELIVERY_ETA.orig)?(', <b>'+DELIVERY_ETA.orig+'</b> 안에'):'')+' 전해드려요.</span></div>'   // RESULT_WAIT_POLISH · 한 줄 강조 1개 원칙('가장 먼저' em 해제·기간만 강조) + 기간 위치를 보정·영상 행과 같게 문장 뒤로
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면, 한 장씩 곱게 손봐'+(_eta(DELIVERY_ETA.retouch)?(' <b>'+DELIVERY_ETA.retouch+'</b> 뒤'):' 정성껏')+' 전해드려요.</span></div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?(' <b>'+DELIVERY_ETA.video+'</b> 뒤'):'')+' 전해드려요.</span></div>')
     +'</div>'
