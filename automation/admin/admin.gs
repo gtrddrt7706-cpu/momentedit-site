@@ -2016,7 +2016,14 @@ function _resetConsultBooking(code) {
      (빈 컬럼 수십 개를 다시 쓰고 처리이력에 전부 나열). 결과물상태 강등(ROLLBACK_TRACK_DEMOTE)처럼
      ''가 아닌 값을 넣는 경우도 이 비교로 함께 잡힌다. Object.keys 비교로 되돌리지 말 것. */
 function _fsChangedCols(cust, upd) {
-  return Object.keys(upd).filter(function (k) { return String(cust.get(k) || '') !== String(upd[k] || ''); });
+  // [ADM_AC3NOOP · NOOP_ZERO 2026-07-26] `|| ''`를 쓰면 숫자 0·false가 빈 값으로 뭉개져 "이미 비어 있다"로 오판된다.
+  //   → 0이 든 열은 초기화 대상에서 빠지고 그 값이 남는다. == null 로 '없음'만 빈 문자열로 바꾼다.
+  //   현재 대상 숫자 열은 전부 쓰기 시점에 0을 막고 있어(선택수←!picks / 추가보정수량←!(qty>0) / 계약총액←amt>0)
+  //   실제 도달 사례는 없지만, 앞으로 숫자 열이 이 목록에 추가되면 바로 함정이 되는 자리라 미리 막는다.
+  return Object.keys(upd).filter(function (k) {
+    var a = cust.get(k), b = upd[k];
+    return String(a == null ? '' : a) !== String(b == null ? '' : b);
+  });
 }
 function adminForceStagePreview(code, targetStage) {
   _requireAdmin();
@@ -2100,7 +2107,7 @@ function adminForceStage(code, targetStage, reason) {
     _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
       + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
       + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '') + ' · 사유: ' + reason);
-    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: '이후 단계 진행 데이터' + (bookingReset ? '와 상담 예약(캘린더 포함)' : '') + '를 초기화했습니다.' };
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: (bookingReset ? '이후 단계 진행 데이터와 상담 예약(캘린더 포함)을' : '이후 단계 진행 데이터를') + ' 초기화했습니다.' };   // [ADM_JOSA] 조사를 분기 안으로 — 밖에 붙여 쓰면 앞 낱말이 바뀔 때 틀린다(끝 음절 '함'은 ㅁ받침이라 '을')
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
