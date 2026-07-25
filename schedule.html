@@ -1059,6 +1059,16 @@ if(_hdw){
     var f=document.getElementById('schedAiForm'), inp=document.getElementById('schedAiInput'),
         msgs=document.getElementById('schedAiMsgs'), btn=document.getElementById('schedAiSend');
     if(!f||!inp||!msgs) return;
+    if(f.dataset.aiBound) return; f.dataset.aiBound='1';   // SCHED_AI_CONSULT: boot 2회(캐시→서버 갱신) 시 submit 중복 바인딩 방지
+    // SCHED_AI_CONSULT(2026-07-25 사용자 승인): 열려 있는 상담 가능일(달력에 이미 공개)을 AI에 전달 — 상담 '일정' 질문까지만 답하게
+    function _consultOpenDays(){
+      return (SERVER.avail||[]).filter(function(k){
+        var a=String(k).split('-'); if(a.length!==3) return false;
+        var dt=new Date(+a[0],+a[1]-1,+a[2]);
+        var f2=(SERVER.full&&SERVER.full[k])||[];
+        return f2.length<slotsFor(dt).length;   // 전 슬롯 마감일 제외
+      }).map(function(k){ var a=k.split('-'); return a[0]+'-'+('0'+a[1]).slice(-2)+'-'+('0'+a[2]).slice(-2); });
+    }
     var hist=[], busy=false;
     function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
     function bub(t,who){
@@ -1077,7 +1087,7 @@ if(_hdw){
       _loadWT();   // 점유 맵 미로드 시 로드 시작(아래 fetch와 병행, 없으면 빈 맵으로도 동작)
       var typing=bub('일정을 확인하고 있어요…','bot');
       fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},
-        body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd(),page:'스케줄'})})
+        body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd(),page:'스케줄',consult:{days:_consultOpenDays()}})})
         .then(function(r){return r.json();})
         .then(function(j){
           typing.remove();

@@ -103,7 +103,7 @@ function monthBusyTier(taken, ymd) {
 // ── 1차: 날짜 추출 전용 (가용성 데이터 없음 · JSON만) ──
 const EXTRACT_PROMPT = `당신은 웨딩 예식일 상담 대화에서 고객의 마지막 메시지가 무엇을 요청하는지 분석해 JSON으로만 답하는 추출기입니다.
 규칙:
-- intent: 특정 날짜나 시기의 예식 예약 가능 여부를 묻거나 확인을 원하면 "check". 직전에 안내받은 일정을 수락·확정하는 의사("네 그걸로 할게요", "그 날짜로 진행할게요", "좋아요 확정이요")면 "accept". 날짜를 전혀 말하지 않고 "언제 가능해요?", "가능한 날짜 알려줘"처럼 전체 현황을 물으면 "open". 스케줄과 무관한 질문(가격·환불·상담 등)이나 인사면 "other".
+- intent: 특정 날짜나 시기의 예식 예약 가능 여부를 묻거나 확인을 원하면 "check". 직전에 안내받은 일정을 수락·확정하는 의사("네 그걸로 할게요", "그 날짜로 진행할게요", "좋아요 확정이요")면 "accept". 날짜를 전혀 말하지 않고 "언제 가능해요?", "가능한 날짜 알려줘"처럼 전체 현황을 물으면 "open". 대면 상담(방문 상담)의 일정을 묻는 경우("상담은 언제 돼요?", "다음 주에 상담 가능해요?", "상담 날짜 남는 거 있어요?")는 "consult" — 예식(결혼식) 날짜 확인과 구분하며, 애매하면 예식일 문의("check")로 봅니다. 스케줄과 무관한 질문(가격·환불·상담 내용 등)이나 인사면 "other".
 - date: 고객이 말한 구체적 날짜 하나를 YYYY-MM-DD로. 여러 날짜를 말했으면 가장 이른 것 하나만. [오늘]을 기준으로 "내년", "다음 달", "10월 둘째 주 토요일" 같은 상대 표현을 정확히 계산합니다("내년"은 [오늘]의 연도+1). 구체 날짜가 없으면 빈 문자열.
 - 후속 턴 주의: 직전 도우미 답변에 이미 특정 날짜가 언급되었고 고객이 시간대·수긍 등 후속 답을 하는 경우, 반드시 그 날짜(같은 연도)를 그대로 사용합니다. 연도를 바꾸지 마세요.
 - periodFrom/periodTo: 구체 날짜 없이 시기만 말한 경우(예: "내년 10월", "내년 봄") 그 범위를 YYYY-MM-DD로. "초여름(6월)", "늦봄(5월)", "초가을(9월)", "늦가을(11월)", "연말(12월)", "이른 봄(3월)" 같은 계절·절기 표현도 반드시 대략의 월 범위로 변환합니다. 해당 없으면 빈 문자열.
@@ -115,7 +115,7 @@ const EXTRACT_PROMPT = `당신은 웨딩 예식일 상담 대화에서 고객의
 const EXTRACT_SCHEMA = {
   type: 'object',
   properties: {
-    intent: { type: 'string', enum: ['check', 'accept', 'open', 'other'] },
+    intent: { type: 'string', enum: ['check', 'accept', 'open', 'consult', 'other'] },
     date: { type: 'string' },
     periodFrom: { type: 'string' },
     periodTo: { type: 'string' },
@@ -142,7 +142,8 @@ const REPLY_PROMPT = `당신은 웨딩 브랜드 "모먼트에디트"의 예식�
 4. 요일은 [확인 결과]에 적어준 요일만 사용합니다. 직접 계산하지 않습니다.
 5. 희소성·마감 언급은 [확인 결과]가 명시적으로 허용할 때만, 대화에서 아직 안 했을 때 한 번만. 그때도 "서둘러 신청하세요"·"먼저 닿는 순서"·"놓치면" 같은 경쟁·촉박·압박 어휘는 절대 쓰지 않습니다. 실제로 일정이 차 있을 때 "이 시기는 남은 일정이 많지 않아요" 정도의 사실만 담백하게 전합니다. [확인 결과]가 허용하지 않으면 혼잡·희소성을 아예 언급하지 않습니다(없는 혼잡을 지어내지 않습니다).
 6. 전각 줄표(—)와 마크다운(** 등) 금지. 이모지 금지.
-7. 스케줄과 무관한 질문이면 짧게 양해를 구하고 "이 창구는 예식일 확인 전용"임을 안내합니다.
+7. 스케줄과 무관한 질문이면 짧게 양해를 구하고 "이 창구는 예식일·상담 일정 확인 전용"임을 안내합니다.
+7-3. 대면 상담 일정 안내([확인 결과]에 상담 가능일이 적힌 경우)는 승인제 화법 대상이 아닙니다. "상담 가능한 날로 확인돼요"처럼 평이하고 담백하게, [확인 결과]에 적힌 날짜·요일만 사용합니다. 영업 한 줄(아래 8~9)은 상담 일정 답변에는 붙이지 않습니다.
 7-1. 당신은 신청·예약·임시 고정을 대신 처리할 수 없습니다. "제가 신청해 드리겠습니다", "진행해 드리겠습니다" 같은 대행 약속 금지. 항상 고객이 직접 신청하는 위치(임시 고정 입력란·상담 신청)를 안내만 합니다.
 7-2. 날짜·요일·시간은 [확인 결과]에 적힌 그대로만 말합니다. 한 글자도 바꾸거나 새로 계산하지 않습니다.
 
@@ -192,6 +193,10 @@ module.exports = async (req, res) => {
 
     const today = /^\d{4}-\d{2}-\d{2}$/.test(String(body && body.today)) ? String(body.today)
       : new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);   // 클라이언트 미전달 시: 서버 UTC→KST(+9) 보정(자정~오전 9시 사이 하루 밀림 방지)
+
+    // SCHED_AI_CONSULT(2026-07-25 사용자 승인 "스케줄 관련 상담까지만 제한 허용"): 상담 가능일(달력에 이미 공개된 정보) —
+    //   schedule.html이 열려 있는 상담일만 전달. 미전달(inquiry 등)이면 null = 상담 캘린더 접근 불가로 응대.
+    const consultDays = normalizeConsult(body && body.consult);
 
     // 가용성: 로그인 클라이언트(schedule.html)가 준 taken 우선, 없으면 GAS 서버측 조회(비로그인 inquiry)
     let taken = normalizeTaken(body && body.taken);
@@ -243,10 +248,11 @@ module.exports = async (req, res) => {
     const page = String((body && body.page) || '스케줄').slice(0, 10);   // '스케줄'(임시고정 입력란 있음) | '예약'(inquiry 위젯)
     const lv = levelFor(taken, today, page);   // ⑤ 주말 예약율 6단계 · 클라이언트 비노출(로그만)
     try { console.log('sched_level', lv.n, lv.ratio.toFixed(2), page); } catch (e) {}
-    let verdict = decide(ex, taken, today, ctx, page, lv);
+    let verdict = decide(ex, taken, today, ctx, page, lv, consultDays);
     // [fail-closed] 점유 조회 불가 상태에서 특정 날짜'나 시기 후보'를 '가능'으로 단정하면 더블부킹 위험 — 안전 안내로 대체.
     //   ex.date(특정일)뿐 아니라 ex.periodFrom(시기 질문 → 서버가 후보일을 골라 '가능' 단정)도 함께 차단해야 한다.
-    if (availUnknown && ex && (ex.date || ex.periodFrom)) {
+    //   상담 일정(consult)은 예식 점유 맵과 무관하므로 차단하지 않는다(SCHED_AI_CONSULT).
+    if (availUnknown && ex && ex.intent !== 'consult' && (ex.date || ex.periodFrom)) {
       verdict = '지금은 일정 확인 시스템 연결이 잠시 원활하지 않다. 이 날짜가 가능한지 단정하지 말고, "잠시 후 다시 물어봐 주시면 바로 확인해 드리겠다"고 정중히 안내하라. 가능·마감 어느 쪽도 말하지 마라.';
     }
 
@@ -280,8 +286,9 @@ module.exports = async (req, res) => {
 };
 
 // ── 판정: 추출 결과 + 점유 맵 + 단계 정책 + 대화 상태 → AI에게 줄 한 건의 지시문 ──
-function decide(ex, taken, today, ctx, page, lv) {
+function decide(ex, taken, today, ctx, page, lv, consultDays) {
   const pol = lv.p, cta = ctx.ctaGiven;
+  if (ex.intent === 'consult') return consultVerdict(ex, consultDays, today);   // SCHED_AI_CONSULT: 상담 일정은 별도 분기(승인제 미적용)
   // 혼잡·희소성 멘트: 이미 한 번 안내했으면(cta) 반복하지 않음. 아니면 전역 단계와 "그 달" 혼잡도 중 높은 쪽.
   const busyAt = function (ymd) { return cta ? '' : BUSY_LINE[Math.max(pol.busy, monthBusyTier(taken, ymd))]; };
   if (ex.intent === 'accept') {
@@ -409,6 +416,49 @@ function okMsg(date, slot, note, page, cta) {
 function limitMsg(n) {
   // (2026-07-06 윈윈) '한도가 정해져 있어요'(통제·반발) → '임시 고정하면 디렉터가 함께 조율'(도움·다음 걸음)로 리프레임. 압박 금지.
   return '이 대화에서 이미 ' + n + '개의 날짜를 확인해 드렸습니다. 새 날짜를 더 확인해 주지는 말되, 딱딱하게 끊지 말고 따뜻하게: "여러 날짜가 고민되시면, 확인해 드린 날짜 중 마음이 가장 가는 날로 예식일 임시 고정을 신청해 두시면 디렉터가 최종 확인 후 다른 후보까지 함께 조율해 드려요" 취지로 다음 걸음을 안내하세요. 한도·제한을 강조하거나 압박하는 말투는 쓰지 마세요.';
+}
+
+// ── SCHED_AI_CONSULT: 대면 상담 일정 판정(2026-07-25 사용자 승인 "스케줄 관련 상담까지만 제한 허용") ──
+//   데이터는 schedule.html 달력에 이미 전부 공개된 '열려 있는 상담일'만 사용 — 예식일 승인제(신비주의)와 무관.
+//   범위 제한: 상담 '일정' 확인만. 상담 내용·가격 등은 extract가 other로 분류되어 기존 안내를 따른다.
+function consultVerdict(ex, days, today) {
+  if (days === null) {
+    return '고객이 대면 상담 일정을 물었습니다. 이 창구에서는 상담 캘린더를 직접 볼 수 없습니다. 대면상담을 신청하시면 일정 선택 화면(달력)에서 상담 가능일을 바로 고르실 수 있다고 안내하고, 예식 날짜 확인이 필요하면 이곳에서 도와드리겠다고 짧게 덧붙이세요.';
+  }
+  const open = days.filter(function (d) { return d > today; });
+  const ko = function (d) { return koDate(d) + '(' + WD_KO[dayOfWeek(d)] + ')'; };
+  if (!open.length) {
+    return '고객이 대면 상담 일정을 물었지만 지금 선택 가능한 상담 일정이 없습니다. 그 사실만 정중히 안내하세요. 언제 열린다는 약속·추측은 하지 마세요.';
+  }
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : '';
+  if (date) {
+    if (open.indexOf(date) !== -1) {
+      return '고객이 물은 ' + ko(date) + '은 상담 가능한 날로 확인됩니다. 위 달력에서 이 날짜를 선택하면 가능한 시간이 열린다고 안내하세요. 다른 날짜의 현황은 말하지 마세요.';
+    }
+    let alts = open.filter(function (d) { return d > date; }).slice(0, 2);
+    if (!alts.length) alts = open.slice(-2);
+    return '고객이 물은 ' + ko(date) + '은 상담 일정이 어렵습니다. 가까운 상담 가능일은 ' + alts.map(ko).join(' · ') + '입니다. 이 날짜들만 안내하고, 위 달력에서 선택하도록 안내하세요.';
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ex.periodFrom)) {
+    const from = ex.periodFrom > today ? ex.periodFrom : addDays(today, 1);
+    const to = /^\d{4}-\d{2}-\d{2}$/.test(ex.periodTo) && ex.periodTo > from ? ex.periodTo : addDays(from, 30);
+    const inRange = open.filter(function (d) { return d >= from && d <= to; }).slice(0, 3);
+    if (inRange.length) {
+      return '고객이 말한 시기의 상담 가능일: ' + inRange.map(ko).join(' · ') + '. 이 날짜들만 안내하고, 위 달력에서 날짜를 선택하면 가능한 시간이 열린다고 안내하세요.';
+    }
+    return '고객이 말한 시기에는 상담 가능일이 없습니다. 가까운 상담 가능일은 ' + open.slice(0, 2).map(ko).join(' · ') + '입니다. 이 날짜들만 안내하세요.';
+  }
+  return '고객이 대면 상담 일정을 물었습니다. 가까운 상담 가능일: ' + open.slice(0, 3).map(ko).join(' · ') + '. 이 날짜들만 안내하고, 위 달력에서 날짜를 선택하면 가능한 시간이 열린다고 안내하세요. 이 목록 외의 날짜·전체 현황은 말하지 마세요.';
+}
+// 상담 가능일 정규화 — {days:['YYYY-MM-DD',...]}만 수용. 미전달·형식 불일치는 null(상담 캘린더 접근 불가로 응대).
+function normalizeConsult(input) {
+  if (!input || typeof input !== 'object' || !Array.isArray(input.days)) return null;
+  const out = [];
+  for (const k of input.days) {
+    const s = String(k);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s) && out.indexOf(s) === -1) { out.push(s); if (out.length >= 400) break; }
+  }
+  return out.sort();
 }
 
 function freeSlot(taken, ymd, prefer) {
