@@ -179,7 +179,12 @@ function purgeStaleCustomers(dryRun) {
   var _lock = null;
   if (!dryRun) {
     _lock = LockService.getScriptLock();
-    try { _lock.waitLock(10000); } catch (e) { Logger.log('purgeStaleCustomers: 락 획득 실패(다른 파기 실행 중) — 건너뜀'); return { ok: false, error: 'busy' }; }
+    try { _lock.waitLock(10000); } catch (e) {
+      Logger.log('purgeStaleCustomers: 락 획득 실패(다른 파기 실행 중) — 건너뜀');
+      // [SILENT_FAIL_ALERT 2026-07-25] 파기 스킵이 로그에만 남으면 반복돼도 아무도 모름 → 관리자 메일 1줄. 메일 실패가 트리거를 죽이지 않게 try.
+      try { _nfAdminLineEmail('개인정보 자동 파기 스킵(락 실패): 다음 주기 재시도'); } catch (e2) {}
+      return { ok: false, error: 'busy' };
+    }
   }
   var days = 183, purged = 0, samples = [], codes = [], extra = { bookings: 0, signatures: 0 };
   try {

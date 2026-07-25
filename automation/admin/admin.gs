@@ -1444,6 +1444,54 @@ function adminMarkConsultDone(code) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
+// [LINK_VERIFY 2026-07-25] 결과물 링크 서버 검증(best-effort) — 저장은 항상 수행하고 경고만 돌려준다.
+//   판정(리다이렉트 기반 · 2026-07-25 더블체크 리뷰 반영): ①https:// 시작 아님 → 형식 경고
+//   ②리다이렉트 Location이 구글 로그인(accounts.google.com)으로 향함 → 공유 제한 추정
+//     (본문 'ServiceLogin' 문자열 판정은 정상 공유 페이지의 로그인 버튼에도 걸려 오경고 위험 → 제거)
+//   ③최종 응답 400 이상 → 접근 불가 ④fetch 예외 → 확인 실패(단정하지 않는 문구).
+//   리다이렉트는 최대 4회만 수동 추적. 어떤 경우에도 밖으로 throw 하지 않는다.
+function _resultLinkCheck(label, url) {
+  try {
+    if (!/^https:\/\//i.test(url)) return label + ' 링크: https:// 로 시작하는 주소가 아니에요. 주소를 확인해 주세요.';
+    var cur = url, codeN = 0;
+    for (var hop = 0; hop < 5; hop++) {
+      var resp;
+      try {
+        resp = UrlFetchApp.fetch(cur, { muteHttpExceptions: true, followRedirects: false });
+      } catch (e) {
+        return label + ' 링크: 접속 확인이 안 됐어요(검증 불가). 링크가 정상일 수도 있으니 한 번 직접 열어 확인해 주세요.';
+      }
+      codeN = resp.getResponseCode();
+      if (codeN >= 300 && codeN < 400) {
+        var loc = '';
+        try { loc = String((resp.getAllHeaders() || {})['Location'] || (resp.getAllHeaders() || {})['location'] || ''); } catch (eH) { loc = ''; }
+        if (!loc) break;
+        if (loc.indexOf('accounts.google.com') !== -1) {
+          return label + ' 링크: 공유 설정이 제한되어 고객이 열지 못할 수 있어요.';
+        }
+        if (loc.indexOf('http') !== 0) { try { loc = cur.replace(/^(https?:\/\/[^\/]+).*$/i, '$1') + loc; } catch (eA) { break; } }   // 상대경로 보정
+        cur = loc;
+        continue;
+      }
+      break;
+    }
+    if (codeN >= 400) return label + ' 링크: 열 수 없음(' + codeN + '). 주소를 확인해 주세요.';
+    return null;
+  } catch (e3) { return null; }   // 검증 자체 실패는 저장·응답에 영향 주지 않음(best-effort)
+}
+function _resultLinkWarnings(items) {
+  var warns = [];
+  try {
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (!it || !String(it.url || '').trim()) continue;   // 빈 칸은 검사 안 함
+      var w = _resultLinkCheck(it.label, String(it.url).trim());
+      if (w) warns.push(w);
+    }
+  } catch (e) {}
+  return warns;
+}
+
 // 2. 결과물 링크 등록 — 원본·영상·보정본(부분 허용·https) + 결과물상태 자동(전달완료는 유지)
 function adminSetResultLinks(code, links) {
   _requireAdmin();
@@ -1478,8 +1526,18 @@ function adminSetResultLinks(code, links) {
     }
     touchCustomer(sheet, colOf, cust.num, upd);
     _recordHandler(code, '결과물 링크 등록' + (원본 ? ' 원본' : '') + (보정본 ? ' 보정본' : '') + (영상 ? ' 영상' : ''));
-    return { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
+    var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
   } finally { try { lock.releaseLock(); } catch (e) {} }
+  // [LINK_VERIFY 2026-07-25] 저장 후 접근성 검증(경고하되 저장은 허용) — 더블체크 리뷰 반영: 외부 fetch(최대 3링크)가
+  //   락 점유 중 실행되면 다른 관리자 액션이 _LOCK_BUSY로 막힐 수 있어 락 해제 후로 이동. 저장은 이미 완료된 상태.
+  if (!_lvRes) return { ok: false, error: '저장 결과를 확인하지 못했어요. 다시 시도해 주세요.' };
+  var _lvWarns = [];
+  try {
+    _lvWarns = _resultLinkWarnings([{ label: '원본', url: _lvRes.links['원본'] }, { label: '보정본', url: _lvRes.links['보정본'] }, { label: '영상', url: _lvRes.links['영상'] }]);
+    if (_lvWarns.length) { try { _recordHandler(code, '[링크검증] ' + _lvWarns.join(' / ').slice(0, 400)); } catch (eR) {} }
+  } catch (eV) { _lvWarns = []; }
+  _lvRes.warnings = _lvWarns;
+  return _lvRes;
 }
 
 // 3. 예식/촬영 완료 처리 — 제품분기(시그 제작중→예식완료 / 스냅 입금완료→촬영완료)
@@ -1532,15 +1590,28 @@ function adminMarkDelivered(code, force) {
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     if (!_stageAlreadyDeliv) setCustomerStage(code, 'deliver');   // 단계가 이미 결과물전달이면(강제 변경 복구) 상태·기록·알림만 마감 · DELIV_FORCE_RESUME
     _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
-    notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡)
+    var _dlvKakao = notifyKakao('cust.resultDelivered', code);   // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡). 반환 true/'held'/'off'/false — NOTIFY_SENT_RET
+    var _dlvMail = false;
     try {   // [2026-06-23] 결과물 전달은 카톡+메일 둘 다(다운로드 링크를 메일에도 남겨 6개월 내 찾기 쉽게). best-effort.
       var _rdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
-      _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
+      _dlvMail = _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
         centerP(esc(_rdNm) + ' 님,<br>두 분의 시간이 담긴 결과물이 준비되었습니다.') +
         centerP('전달일부터 6개월 보관됩니다.<br>마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요.') +
         emailBtn(P.MYPAGE_URL, 'My Page') +
-        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.'));
+        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.')) === true;
     } catch (e) {}
+    // [SILENT_FAIL_ALERT 2026-07-25] 알림톡·메일 둘 다 미도달이면 관리자 메일 — 고객이 결과물 준비 소식을 모른 채 방치되는 조용한 실패 방지.
+    //   야간 보류('held')는 아침 발송 예정, 전역 OFF('off')는 의도된 미발송(테스트 모드)이라 둘 다 실패로 치지 않음(더블체크 리뷰 반영).
+    //   메일 발송 자체 실패가 전달 처리를 막지 않게 try로 감쌈.
+    try {
+      if (_dlvKakao !== true && _dlvKakao !== 'held' && _dlvKakao !== 'off' && !_dlvMail) {
+        var _dlvNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
+        _nfAdminEmail('[Moment Edit] 결과물 전달 알림 미도달: ' + _dlvNm + ' / ' + code,
+          '결과물 전달 처리(' + code + ' · ' + _dlvNm + ')는 완료됐지만,<br>'
+          + '고객 알림톡과 이메일이 모두 발송되지 못했어요.<br>'
+          + '고객이 결과물 준비 소식을 받지 못했을 수 있으니 직접 연락해 안내해 주세요.');
+      }
+    } catch (eN) {}
     return { ok: true, stage: '결과물전달', survey: '대기' };   // 후기 대기 · 고객 후기 제출/운영자 넘기기 시 아카이브
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
