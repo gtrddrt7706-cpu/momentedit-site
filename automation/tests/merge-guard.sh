@@ -232,7 +232,7 @@ chk 'MPD_E10' mypage.html 3                         # note 적층 압축
 # ── 2026-07-25 마이페이지 디자인 개선 PR⑤(배치 G 잔여 G4~G12 · G5는 보류)
 chk 'MPD_G4' mypage.html 1                          # 변수 폴백=본값 정합(색 77곳)
 _g4=$(grep -c 'var(--gold-deep,#9[aA]7' mypage.html 2>/dev/null); _g4=${_g4:-0}; if [ "$_g4" -gt 0 ]; then echo "REVERT? mypage.html: gold-deep 낡은 폴백 드리프트 부활($_g4)"; fail=1; else echo "ok mypage.html: gold-deep 폴백 정합 유지"; fi
-chk 'MPD_G6' mypage.html 4                          # NOW 바로가기 앵커+맨 위로 FAB
+chk 'MPD_G6' mypage.html 2                          # 맨 위로 FAB(ensureTopFab) — NOW 바로가기 앵커는 2026-07-25 사용자 지시로 삭제
 chk 'MPD_G7' mypage.html 2                          # 내 내역 FAB 툴팁+계약 직후 안내
 chk 'MPD_G8' mypage.html 1                          # 공통 :active 눌림 토큰
 chk 'MPD_G9' mypage.html 1                          # 카피 미세 조정('두 분' 폴백 등)

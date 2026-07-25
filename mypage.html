@@ -172,7 +172,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .focus-glow{animation:mpFocusGlow 2.4s ease 1}
 @keyframes mpFocusGlow{0%{box-shadow:0 0 0 3px var(--gold-soft)}55%{box-shadow:0 0 0 3px var(--gold-soft)}100%{box-shadow:0 0 0 3px rgba(184,154,117,0)}}
-.now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
+/* ★'할 일 카드로 바로가기' NOW 앵커(.now-go·mp_nowGo·_nowGoWire) 삭제 금지 — 2026-07-25 사용자 지시로 전면 삭제 · 맨 위로 FAB는 별개라 유지 */
 .me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
 /* TOPFAB_STEADY(2026-07-25 사용자 지시): '맨 위로' FAB은 display 토글 대신 자리 상시 확보 + 페이드 등장 — 등장·퇴장 때 스택(세로 중앙 정렬) 높이가 변해 내역·챗 버튼이 흔들리던 것 방지. display:none 토글 복원 금지 */
 #mp_topFab{opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease,visibility 0s linear .4s;pointer-events:none}
@@ -877,7 +877,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
       <div class="now-head" id="mp_nowHead" role="status" aria-live="polite">&nbsp;</div><!-- MPD_E6 SR 낭독(시각 무변화) -->
       <div class="now-sub" id="mp_nowSub" style="display:none"></div>
       <div id="mp_waiting" style="display:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);margin-top:6px"></div>
-      <button type="button" class="now-go" id="mp_nowGo" style="display:none">할 일 카드로 바로가기 ↓</button><!-- MPD_G6 폴드 밖 액션 카드 연결(§9-5-①) -->
+      <!-- ★'할 일 카드로 바로가기' NOW 앵커 버튼(mp_nowGo·now-go·_nowGoWire) 삭제 금지 — 2026-07-25 사용자 지시로 전면 삭제 · 맨 위로 FAB(ensureTopFab)는 별개라 유지 -->
     </div>
 
     <!-- 진행바 (점만) -->
@@ -2000,7 +2000,6 @@ function renderMyPage(d){
     if (d.stage==='취소' || d.stage==='노쇼'){ var _upx=$('mp_upcoming'); if(_upx){ _upx.innerHTML=''; _upx.style.display='none'; } }   // MPD_G2 취소·노쇼 종료 고객에게 잠긴 미래 로드맵 미노출 — 종료 안내와 모순(stageIndex=-1이라 지난 단계 필터도 꺼짐). 미계약은 재시작 여지로 유지(결정 대기함)
     else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
-    var _ng=$('mp_nowGo'); if(_ng) _ng.style.display='none';   // MPD_G6 종료 고객은 할 일 카드 없음
     _mpApplyFocus();   // MPD3_D2 종료 고객도 refund 딥링크는 유효
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
@@ -2041,7 +2040,6 @@ function renderMyPage(d){
     renderCoupon(d.coupon);                                          // 커피쿠폰 (후기 완주 보상) · 바코드
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
-    _nowGoWire();   // MPD_G6 NOW 바로가기 앵커 — 지금 할 일 카드로
     _mpApplyFocus();   // MPD3_D2 알림 딥링크 소비(1회)
     if(window._mpNextToast){ var _t1=window._mpNextToast; window._mpNextToast=null; setTimeout(function(){ mpToast(_t1); }, 250); }   // MPD4_F1 저장-복귀 완료 확인 토스트(재렌더 뒤 1회)
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
@@ -2195,14 +2193,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
 
 // [02-6] 내 내역 — 결제·현금영수증·서류를 단계와 무관하게 한곳에. 우측 중앙 FAB(내역)으로 여는 모달 창.
 //   FAB은 AI 상담 위젯(advisor-widget.js)이 만든 #meAdvStack 안에 같은 .me-fab 스타일로 주입 → 챗 아이콘 위, 정렬·톤 일치.
-function _nowGoWire(){   // MPD_G6 첫 화면 NOW 텍스트는 보이지만 액션 카드가 폴드 밖인 문제 — 첫 보이는 액션 카드로 스크롤
-  var btn=$('mp_nowGo'); if(!btn) return;
-  var ids=['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result'];
-  var t=null; for(var i=0;i<ids.length;i++){ var el=$(ids[i]); if(el && el.style.display!=='none' && el.innerHTML){ t=el; break; } }
-  if(!t){ btn.style.display='none'; return; }
-  btn.style.display='inline-block';
-  btn.onclick=function(){ try{ t.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ window.scrollTo(0,t.offsetTop); } };
-}
+// ★'할 일 카드로 바로가기' NOW 앵커 함수(_nowGoWire·mp_nowGo·now-go) 삭제 금지 — 2026-07-25 사용자 지시로 전면 삭제 · 아래 '맨 위로' FAB(ensureTopFab)는 별개 기능이라 유지
 function ensureTopFab(){   // MPD_G6 400px+ 스크롤 시 '맨 위로' FAB(현재 scroll-to-top 전무 · 로고 탭=이탈 문제) — meAdvStack에 주입
   var ex=document.getElementById('mp_topFab');
   var stack=document.getElementById('meAdvStack');
