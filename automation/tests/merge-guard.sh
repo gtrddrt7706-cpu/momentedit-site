@@ -436,6 +436,10 @@ chk 'ADM_AC1B' admin.html 2                         # 번들 되돌리기(콤보
 # [ADM_DELIVDATE 2026-07-26 사용자 결정] 보관 시계(결과물전달일·보관만료통지·결과물파기)는 '결과물전달' 그룹 — 설문 그룹에 되돌려 붙이면
 #   후기→결과물전달 롤백이 보관 6개월 기산일까지 지운다(전달은 그대로인데 만료 통지·배너 근거만 사라짐).
 chk 'ADM_DELIVDATE' automation/admin/admin.gs 1     # 보관 시계 그룹 분리
+# [ADM_MONEYNUM 2026-07-26 점검] 시트 금액이 문자('3,500,000'·'₩2,800,000원')로 오면 Number()가 NaN → 화면에 '총액 NaN원'.
+#   서버 _wonNum과 같은 기준(숫자만 추출)으로 프론트도 통일. 금액 표기는 전부 _moneyNum 경유.
+chk 'ADM_MONEYNUM' admin.html 2                     # 헬퍼 + 추가보정 수량·금액
+chk '_moneyNum' admin.html 16                       # 금액 표기 경유 지점
 _dd=$(grep -c "at: '후기', consent:" automation/admin/admin.gs 2>/dev/null); _dd=${_dd:-0}
 if [ "$_dd" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 보관 시계 키가 설문('후기') 그룹으로 복귀($_dd)"; fail=1; else echo "ok automation/admin/admin.gs: 보관 시계 = 결과물전달 그룹 유지"; fi
 _ac3=$(grep -c "STAGE_EX.map(function(s){ return '<option value=\"'+esc(s)+'\"'+(s===d.stage?' selected':'')" admin.html 2>/dev/null); _ac3=${_ac3:-0}; if [ "$_ac3" -gt 0 ]; then echo "REVERT? admin.html: 강제변경 드롭다운 기본 선택 부활($_ac3)"; fail=1; else echo "ok admin.html: 강제변경 드롭다운 비선택 기본값 유지"; fi
