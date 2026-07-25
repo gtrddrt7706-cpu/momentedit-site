@@ -17,3 +17,8 @@ scripts/
 .claude/
 .clasp.json
 .claspignore
+
+# 화면 비교용 임시 사본(__b5.html 등) — .gitignore와 2중 장치.
+#   설령 --force로 다시 커밋되더라도 배포에는 절대 올라가지 않게 한다.
+#   (루트 *.html은 원칙적으로 배포 대상이지만 __ 접두사만 예외)
+__*.html

@@ -9,6 +9,11 @@ Thumbs.db
 desktop.ini
 *.bak
 
+# 화면 비교용 임시 사본(__b5.html 등) — 루트 *.html은 전부 Vercel 배포 대상이라
+# 커밋되면 실서비스 GAS를 그대로 호출하는 '작동하는 옛 클라이언트'가 공개된다.
+# 2026-07-26 실사고: __b5/__b7/__b9/__before4.html 4개가 momentedit.kr에 공개 배포됨.
+__*.html
+
 # 점검 도구 임시 설치(puppeteer 등) — 정적 사이트라 평소 의존성 없음. 실수 커밋 방지.
 node_modules/
 package-lock.json
