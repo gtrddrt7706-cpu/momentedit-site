@@ -121,7 +121,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px}
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:15px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}
+.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -795,11 +795,11 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 볼 수 있어요.<!-- MPD_B8 시스템체→해요체 전수 16곳(§7-3-⑤ · 제외: 식순 낭독 대본·계약 조항 확인문·내빈 격식 안내) --><br>메일의 마이페이지 링크를 누르면 자동으로 로그인돼요.</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
-        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" data-email-assist>
+        <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" enterkeyhint="next" data-email-assist>
         <label for="li_code">개인코드 (6자) 또는 이메일</label>
       </div>
       <div class="field">
-        <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password">
+        <input type="password" id="li_pw" placeholder=" " required autocomplete="current-password" enterkeyhint="go">
         <label for="li_pw">비밀번호</label>
       </div>
       <button type="submit" class="btn btn-seal en-22" id="li_btn">Login</button>
@@ -949,6 +949,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .dk-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
     .dk-chip.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent)}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:10.5px;text-align:center;color:var(--accent);padding:3px 4px}
+.rs-edit:focus,.rt-cin:focus{font-size:16px}   /* MPD_B9 좌석 입력 — 포커스 순간만 16px로 iOS 줌 방지(평시 크기는 캔버스 배치 유지) */
     .rs-edit:focus{outline:none}
     .rt-ctl{display:flex;gap:4px;margin-top:4px;justify-content:center}
     .rt-mini{width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:7px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
@@ -1089,7 +1090,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드릴게요.</p>
     <form id="forgotForm">
       <div class="field">
-        <input type="email" id="fg_email" placeholder=" " required autocomplete="email">
+        <input type="email" id="fg_email" placeholder=" " required autocomplete="email" enterkeyhint="send">
         <label for="fg_email">이메일</label>
       </div>
       <button type="submit" class="btn btn-seal en-22" id="fg_btn">Send</button>
@@ -1107,11 +1108,11 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <form id="resetForm">
       <input type="text" id="rs_user" name="username" autocomplete="username" tabindex="-1" aria-hidden="true" readonly style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none">
       <div class="field">
-        <input type="password" id="rs_pw" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="password" id="rs_pw" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next">
         <label for="rs_pw">새 비밀번호 (6자 이상)</label>
       </div>
       <div class="field">
-        <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
         <label for="rs_pw2">새 비밀번호 확인</label>
       </div>
       <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인해 보세요)</span></label>
