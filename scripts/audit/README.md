@@ -35,3 +35,13 @@ node scripts/audit/func-check.mjs
 ```
 - puppeteer 없으면 통째로 건너뜀(`/tmp/dz/node_modules`도 자동 탐색). `script.google.com`은 목 응답.
 - 마이페이지·관리자의 상태별 액션 클릭은 `/tmp/dz` 목 하네스(`mp.js`·`adm.js`)로 그때그때 수행(시트 시드가 필요해 repo 상주 X).
+
+## deliv-matrix.mjs — 결과물 여정 정합 매트릭스 (2026-07-25)
+단계(예식완료/촬영완료/결과물전달) × 결과물상태 7종 × 상품 2종 = 32조합을 실제 mypage 렌더로 돌려
+진행바(STEP)·NOW·대기 카드 제목의 모순을 검사. 기대값은 DELIV_STEP_HONEST·DELIV_FLOW_STEP·
+DELIV_WAIT_TITLE 마커의 합의 동작과 세트 — 그 동작을 바꾸면 이 스크립트도 같은 커밋에서 갱신.
+`node scripts/audit/deliv-matrix.mjs`
+
+## _browser.mjs — 감사 공용 브라우저 어댑터 (2026-07-25)
+playwright(원격 점검 환경 기본·PLAYWRIGHT_BROWSERS_PATH 자동 탐색) 우선, puppeteer 폴백.
+render-check·deliv-matrix가 공용 — 원격 환경에서 렌더 점검이 더는 '건너뜀'으로 빠지지 않는다.

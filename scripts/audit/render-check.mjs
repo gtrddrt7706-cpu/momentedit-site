@@ -1,8 +1,8 @@
 // 프론트 렌더·구문 점검 — 정적 페이지의 인라인 <script> 구문 + 실제 로드 시 콘솔/페이지 에러를 잡는다.
 //   1) 모든 대상 HTML의 인라인 스크립트 구문 검사(new Function)
-//   2) puppeteer로 mypage·admin을 띄워 script.google.com을 목(mock)하고 pageerror 수집
+//   2) 브라우저(playwright 우선·puppeteer 폴백)로 mypage·admin을 띄워 script.google.com을 목(mock)하고 pageerror 수집
 //   사용: node scripts/audit/render-check.mjs
-//   puppeteer가 없으면 1)만 실행하고 2)는 건너뛴다(설치 안내 출력).
+//   playwright·puppeteer 둘 다 없으면 1)만 실행하고 2)는 건너뛴다(설치 안내 출력). 어댑터=_browser.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -40,13 +40,12 @@ for (const f of PAGES) {
   else console.log(`  ✅ ${f} (${r.blocks} blocks)`);
 }
 
-// ---------- 2) puppeteer 렌더 ----------
-const require = createRequire(import.meta.url);
-let puppeteer = null;
-for (const p of ['puppeteer', '/tmp/dz/node_modules/puppeteer']) { try { puppeteer = require(p); break; } catch {} }
+// ---------- 2) 브라우저 렌더(playwright 우선·puppeteer 폴백 — _browser.mjs) ----------
+const { launchBrowser } = await import('./_browser.mjs');
+const eng = await launchBrowser();
 
-if (!puppeteer) {
-  console.log('\n── 2) 렌더 점검 건너뜀 ── puppeteer 미설치. `npm i puppeteer` 후 다시 실행하세요.');
+if (!eng) {
+  console.log('\n── 2) 렌더 점검 건너뜀 ── playwright·puppeteer 미설치. `npm i puppeteer` 후 다시 실행하세요.');
   process.exit(synFail ? 1 : 0);
 }
 
@@ -55,27 +54,16 @@ await new Promise((r) => setTimeout(r, 1500));
 
 let renderFail = 0;
 try {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-  console.log('\n── 2) 렌더(pageerror) ──');
-  for (const page of DRIVE) {
-    const pg = await browser.newPage();
-    const errs = [];
-    pg.on('pageerror', (e) => errs.push(e.message));
-    pg.on('console', (m) => { if (m.type() === 'error') errs.push('console.error: ' + m.text()); });
-    await pg.setRequestInterception(true);
-    pg.on('request', (req) => {
-      const u = req.url();
-      if (u.includes('script.google.com')) return req.respond({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: '{"ok":true}' });
-      if (u.startsWith(`http://localhost:${PORT}`)) return req.continue();
-      return req.respond({ status: 200, contentType: 'text/plain', body: '' });
-    });
-    await pg.goto(`http://localhost:${PORT}/${page}`, { waitUntil: 'domcontentloaded' });
+  console.log(`\n── 2) 렌더(pageerror · ${eng.kind}) ──`);
+  for (const pageFile of DRIVE) {
+    const { page: pg, errors: errs } = await eng.newPage({ port: PORT });
+    await pg.goto(`http://localhost:${PORT}/${pageFile}`, { waitUntil: 'domcontentloaded' });
     await new Promise((r) => setTimeout(r, 800));
-    if (errs.length) { renderFail += errs.length; console.log(`  ❌ ${page}: ${errs.slice(0, 4).join(' | ')}`); }
-    else console.log(`  ✅ ${page} (pageerror 0)`);
+    if (errs.length) { renderFail += errs.length; console.log(`  ❌ ${pageFile}: ${errs.slice(0, 4).join(' | ')}`); }
+    else console.log(`  ✅ ${pageFile} (pageerror 0)`);
     await pg.close();
   }
-  await browser.close();
+  await eng.close();
 } finally { server.kill(); }
 
 console.log(`\n결과 — 구문 오류 ${synFail} · 렌더 오류 ${renderFail}`);
