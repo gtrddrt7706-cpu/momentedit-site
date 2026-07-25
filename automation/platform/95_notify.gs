@@ -77,6 +77,7 @@ var NOTIFY_EVENTS = {
   'cust.resultRetouch':   { to: 'customer', need: true,  desc: '보정본 도착 — 확인(컨펌) 요청 · RESULT_NOTIFY_STEPS' },
   'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 · 마이페이지에서 계약 진행 요청(예식일·정보 입력) · 카톡+메일' },
   'cust.depositToProduction':{ to: 'customer', need: true, desc: '계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · 2026-06-23 신규' },
+  'cust.refundAcctReq':   { to: 'customer', need: true,  desc: '취소됨 · 환불 계좌 입력 요청(강제취소 등 계좌 미입력·수령분 있음 시 1회) · REFUND_ACCT_REQ' },
   // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
   'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
   'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
@@ -406,6 +407,9 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.archiveExpiring':
       return { vars: { '#{이름}': name, '#{만료일}': _nfDate(x.expires) },
         text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 파일이 삭제될 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + NF_MYPAGE };
+    case 'cust.refundAcctReq':   // REFUND_ACCT_REQ · 취소 후 환불 계좌 미입력 고객에게 계좌 요청(계좌 남기면 그 계좌로 환불)
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 예약이 취소되었어요. 환불 계좌를 남겨주시면 입력하신 계좌로 환불해 드릴게요. 마이페이지에서 남겨주세요. ' + NF_MYPAGE };
     default:
       return null;
   }
