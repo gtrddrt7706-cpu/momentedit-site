@@ -1427,10 +1427,12 @@ function cardConsult(d,isSnap){
     else raw+='<br><b style="color:var(--seal)">예약금 환불 송금 필요</b><br><span style="color:var(--label-soft)">환불 계좌가 아직 없어요. 카카오톡으로 계좌를 받아 송금한 뒤 완료 처리하거나, 환불액이 없으면 바로 완료 처리하세요.</span>';
     b+=ab('markRefunded','환불 완료 처리','btn-line');
   }
-  if(st==='시간선택완료'){ b+=ab('approve','✓ 승인')+ab('propose','시간 변경 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
-  else if(st==='변경제안'){ b+=ab('accept','✓ 변경 수락')+ab('propose','다시 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
-  else if(st==='승인완료'||st==='확정'){ if(d.raw&&d.raw['시착동의상태']&&d.raw['시착동의상태']!=='대기'){ b+='<div class="gate">대면상담 진행 중 — 시간 변경·취소 마감</div>'; } else { b+=ab('propose','시간 변경 제안','btn-line')+ab('cancel','예약 취소','btn-ghost'); } }
-  else if(st==='신청접수'){ b+='<div class="gate">고객이 아직 시간을 선택하지 않았어요</div>'+ab('propose','시간 직접 제안','btn-line')+ab('cancel','취소','btn-ghost'); }
+  // [ADM_AA3] 파괴 계열 = danger 아웃라인 한 옷(진사 채움 금지 · 헌장 6). 취소·노쇼·미계약처럼 되돌리기 어려운 것만 danger,
+  //   임시고정 거절·해제(아래)는 다시 승인할 수 있는 가역 액션이라 ghost 유지 — 빨강을 남발하면 진짜 위험 액션의 빨강이 무뎌짐(AA9와 같은 원칙).
+  if(st==='시간선택완료'){ b+=ab('approve','✓ 승인')+ab('propose','시간 변경 제안','btn-line')+ab('cancel','취소','btn-danger'); }
+  else if(st==='변경제안'){ b+=ab('accept','✓ 변경 수락')+ab('propose','다시 제안','btn-line')+ab('cancel','취소','btn-danger'); }
+  else if(st==='승인완료'||st==='확정'){ if(d.raw&&d.raw['시착동의상태']&&d.raw['시착동의상태']!=='대기'){ b+='<div class="gate">대면상담 진행 중 — 시간 변경·취소 마감</div>'; } else { b+=ab('propose','시간 변경 제안','btn-line')+ab('cancel','예약 취소','btn-danger'); } }
+  else if(st==='신청접수'){ b+='<div class="gate">고객이 아직 시간을 선택하지 않았어요</div>'+ab('propose','시간 직접 제안','btn-line')+ab('cancel','취소','btn-danger'); }
   // 상담완료/노쇼 — 상담확정/촬영확정 단계
   if(d.stage==='상담확정'){ b+=ab('openFitting','드레스 시착 동의 보내기')+ab('noshow','노쇼 처리','btn-danger'); }
   else if(d.stage==='시착'){ b+=ab('consultDone','상담완료 처리')+ab('noshow','노쇼 처리','btn-danger'); }
