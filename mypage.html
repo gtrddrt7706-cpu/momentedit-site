@@ -56,10 +56,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --divider:#EDEAE4;      /* 연한 회색 구분선 */
   --hairline:#E6E1D8;     /* 헤더 구분선 */
   --dot-future:#CFC9BC;   /* 미래 점 테두리 */
-  --gold-deep:#9A7B4F;    /* 진한 골드 (라벨·접근성) */
+  --gold-deep:#7A5F37;    /* 진한 골드 (라벨·접근성) · MPD_E4 텍스트 대비 5.7:1(#9A7B4F 3.8:1은 AA 미달 — 텍스트용 골드는 이 값 유지, 장식은 --gold) */
   --gold-deeper:#7A5F37;  /* 더 진한 골드 (버튼 텍스트) */
   --gold-btn-border:#C2A988; /* 아웃라인 버튼 테두리 */
-  --label-soft:#7C766A;   /* 연한 보조 라벨 · 가독성 위해 한 톤 진하게(여전히 최하위 위계) */
+  --label-soft:#6F695D;   /* 연한 보조 라벨 · MPD_E4 한 톤 다운(4.3→5.2:1 · AA 확보) */
   /* 폰트 */
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
@@ -218,7 +218,7 @@ details.acc>summary.past-toggle{margin:2px 0 0}
 details.acc[open]>summary.past-toggle .pt-ar{display:inline-block;transform:rotate(180deg)}
 details.acc>.consult-card{margin-top:10px}
 .visit-guide{text-align:left;margin-top:14px;border-top:1px solid var(--hairline);padding-top:4px}
-.vg-title{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:10px 0 2px}
+.vg-title{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin:10px 0 2px}
 .vg-row{display:flex;gap:12px;padding:10px 0;border-top:1px solid rgba(28,27,25,.06)}
 .vg-k{flex:0 0 68px;font-family:var(--serif-ko);font-size:11.5px;font-weight:500;color:var(--gold-deep);line-height:1.65;white-space:nowrap}
 .vg-v{flex:1;font-family:var(--serif-ko);font-size:12.5px;font-weight:400;color:var(--sub);line-height:1.65;word-break:keep-all}   /* RESULT_WAIT_POLISH · 명조 12.5px 굵기 300은 저해상도에서 뭉개짐 → 400 (visit-guide 공통 적용) */
@@ -284,7 +284,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
 /* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
 .acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
-.acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
 .acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
 .acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
 .acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--seal);color:var(--seal);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}
@@ -292,7 +292,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .acct-copy-btn svg{width:14px;height:14px}
 .acct-amt-wrap{margin-top:9px;text-align:center}
 .acct-amt-link{background:none;border:none;font-family:var(--serif-ko);font-size:12px;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.acct-amt-link u{text-decoration-color:var(--gold);text-underline-offset:3px}
+.acct-amt-link u{text-decoration-color:var(--gold-deep);text-underline-offset:3px}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 /* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
 .me-pay-alt{display:flex;flex-direction:column;gap:8px}
@@ -330,7 +330,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .pf-ko,.pf-en{flex:1}
 .schedule-ref{margin-top:14px;padding:16px 18px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
 .schedule-ref-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--hairline);flex-wrap:wrap}
-.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
+.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-deep);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
 .schedule-ref-title{font-family:var(--serif-ko);font-size:12.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
 .schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:center}
 .ref-row{display:contents}
@@ -339,7 +339,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ref-time{font-family:var(--serif);font-size:13px;color:var(--sub);text-align:center;padding:9px 0;letter-spacing:0.02em;border-top:1px dashed var(--hairline);font-variant-numeric:tabular-nums}
 .ref-time.highlight{color:var(--accent);font-weight:500}
 .schedule-ref-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--hairline);font-size:11px;color:var(--sub);line-height:1.75;font-family:var(--serif-ko);font-weight:300;word-break:keep-all}
-.schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:0.08em;margin-right:4px}
+.schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold-deep);letter-spacing:0.08em;margin-right:4px}
 @media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:10.5px;letter-spacing:0}.ref-slot{font-size:10.5px}}
 .pf-cover{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:var(--gold-deep);min-height:18px;margin:8px 0 4px}
 .pf2{display:flex;gap:8px}.pf2>div{flex:1}
@@ -376,7 +376,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .pv-body{font-family:var(--serif-ko);font-size:13px;line-height:1.75;color:var(--sub);word-break:keep-all}
 .pv-body h2{font-size:14.5px;font-weight:600;color:var(--accent);margin:0}
 .pv-body .art-head{display:flex;align-items:baseline;gap:8px;margin:20px 0 8px}
-.pv-body .art-num{font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--gold)}
+.pv-body .art-num{font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--gold-deep)}
 .pv-body p{margin:6px 0}
 .pv-body ul,.pv-body ol{margin:6px 0;padding-left:18px}
 .pv-body li{margin:3px 0}
@@ -393,7 +393,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:2px;font-family:var(--serif);font-size:12.5px;color:var(--accent);cursor:pointer;transition:all .2s var(--ease);position:relative;padding:0}
 .dt-day.empty{pointer-events:none;cursor:default}
 .dt-day.past{color:var(--light);opacity:.3;cursor:not-allowed;pointer-events:none}
-.dt-day.today{font-weight:500;color:var(--gold)}
+.dt-day.today{font-weight:500;color:var(--gold-deep)}
 .dt-day.today::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold)}
 .dt-day.weekend{color:var(--sub)}
 .dt-day:hover:not(.past):not(.empty):not(.selected){background:var(--bg2);border-color:var(--gold)}
@@ -486,7 +486,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .deliv-body{padding:6px 4px 2px}
 .dl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .dl-row:last-child{border-bottom:none}
-.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:20px 0 10px}
+.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin:20px 0 10px}
 /* 마지막 설문 — 객관식 선택지 */
 .srv-block{margin:14px 0 0}
 .srv-q2{font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);margin:0 0 8px;line-height:1.5}
