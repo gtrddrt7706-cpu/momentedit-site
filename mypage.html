@@ -257,7 +257,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .res-panel.done .em-seal{color:var(--seal);font-weight:500}   /* SURVEY_DONE_TONE · 후기 완료 패널도 같은 진사 악센트('오래' 1점) */
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 /* DLV_SEC 2026-07-25 · 결과물 대기 카드: 떠 있던 fn-intro 2줄 → 섹션 헤더(중앙 골드 라벨+서브)로 승격 — 감정 블록과 정보 표의 경계 */
-.consult-card .dlv-sec{text-align:center;margin:8px 0 6px;line-height:1.7;word-break:keep-all}
+.consult-card .dlv-sec{text-align:left;margin:8px 0 6px;line-height:1.7;word-break:keep-all}   /* RESULT_WAIT_POLISH · 실무 안내 블록(헤더→표→각주)을 표와 같은 왼쪽 기둥으로 통일 · 중앙정렬 복원 금지(2026-07-25 사용자 지시) */
 .consult-card .dlv-sec .t{display:inline;font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}   /* RESULT_WAIT_POLISH · 섹션 제목(11px)이 부연(11.5px)보다 작던 크기 역전 해소 · 제목+부연 한 줄 인라인(2026-07-26 사용자 지시) */
 .consult-card .dlv-sec .s{display:inline;font-size:11.5px;font-weight:300;color:var(--light)}   /* RESULT_WAIT_POLISH · 부연을 제목과 같은 줄에 인라인 결합(좁은 화면은 · 뒤 자연 줄바꿈) */
 .consult-card .dlv-sec + .vg-row{border-top:none}   /* 헤더가 표를 소유하게 — 서브 바로 아래 선 제거(라벨이 '표의 한 행'처럼 읽히던 것 방지) */
@@ -3529,7 +3529,7 @@ function _resultWaitHtml(res){
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+DELIVERY_ETA.retouch+' 뒤</span>':' 손봐 전해드려요.</span>')+'</div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+DELIVERY_ETA.video+' 뒤</span>':' 전해드려요.</span>')+'</div>')
     +'</div>'
-    +'<div class="cc-note" style="text-align:center"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 중앙정렬(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-26 사용자 지시)
+    +'<div class="cc-note" style="text-align:left"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 좌측정렬 — 헤더·표와 같은 왼쪽 기둥으로 통일(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-25 사용자 지시로 중앙정렬 대체)
 }
 // 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
 function _surveySchema(isSnap){
