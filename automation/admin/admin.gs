@@ -390,6 +390,38 @@ function morningBriefData() {
     urgentNames: d.queue.urgent.slice(0, 6).map(function (it) { return it.names + '·' + it.kind; }) };
 }
 
+/* [ADM_AC4] 이번 달 사업현황(읽기 전용) — aiMorningReport가 읽어 아침 메일에 한 줄로 싣는다.
+     ★매출 집계 기준 = '확인'된 입금의 합(실입금). 계약총액 합계가 아니다.
+       계약총액으로 세면 아직 안 들어온 돈까지 매출로 잡혀 숫자를 믿을 수 없게 된다.
+     · 계약금 잔액 = 계약 시 실제로 들어온 현금(_journeyAmounts.납부액). 확인 시각은 동의기록.영수증기준일.예약금.
+     · 중도금·잔금 = 각 확인일시가 이번 달인 것. 잔금은 확정 스냅샷(잔금확정금액) 우선 · 없으면 기본액.
+     · 추가 보정 = '완료'(입금 확인)된 건 · 확인 시각은 동의기록.영수증기준일.추가보정.
+     · 상담 예약금(10만)은 Bookings에 '확인' 여부만 있고 확인 날짜가 없어 월 귀속을 할 수 없다 → 제외(라벨에 명시).
+     계약 건수 = 이번 달 계약서명일시 · 전달 건수 = 이번 달 동의기록.결과물전달일. */
+function monthBusinessData() {
+  var mon = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return { month: mon, contracts: 0, revenue: 0, delivered: 0 };
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var g = function (rv, h) { var c = colOf[h]; return c ? rv[c - 1] : ''; };
+  var inMon = function (v) { var y = _ymdOf(v); return !!y && y.slice(0, 7) === mon; };
+  var contracts = 0, revenue = 0, delivered = 0;
+  vals.forEach(function (rv) {
+    if (!String(g(rv, '개인코드') || '').trim()) return;
+    if (inMon(g(rv, '계약서명일시'))) contracts++;
+    var rec = _parseJsonSafe(g(rv, '동의기록'));
+    if (inMon(rec.결과물전달일)) delivered++;
+    var am = _journeyAmounts(g(rv, '계약총액'), g(rv, '상품타입'));
+    if (am) {
+      if (String(g(rv, '입금상태') || '').trim() === '확인' && inMon((rec.영수증기준일 || {}).예약금)) revenue += Number(am.납부액) || 0;
+      if (String(g(rv, '중도금상태') || '').trim() === '확인' && inMon(g(rv, '중도금확인일시'))) revenue += Number(am.중도금) || 0;
+      if (String(g(rv, '잔금상태') || '').trim() === '확인' && inMon(g(rv, '잔금확인일시'))) revenue += Math.round(Number(rec.잔금확정금액) || Number(am.잔금) || 0);
+    }
+    if (String(g(rv, '추가보정상태') || '').trim() === '완료' && inMon((rec.영수증기준일 || {}).추가보정)) revenue += Math.round(Number(g(rv, '추가보정금액')) || 0);
+  });
+  return { month: mon, contracts: contracts, revenue: Math.round(revenue), delivered: delivered };
+}
+
 // (구) 아침 브리핑 개별 메일 — 2026-06-29 aiMorningReport로 통합(중복 제거). 트리거에서 제거 · 하위호환 no-op.
 function sendMorningBrief() { return; }
 
