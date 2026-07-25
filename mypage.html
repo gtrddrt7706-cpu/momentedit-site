@@ -3742,6 +3742,14 @@ function renderResult(res, nm, code){
   var ex=res.extra||{};
   // ── 전달완료: 🔒 결과물 아코디언(언제든 열람) + 마지막 단계=설문 ──
   if(st==='전달완료'){
+    // MPD3_G5 만료 임박 배너 — 전달일+6개월(계약서 12조③ · 서버 만료 통지와 같은 기산) 기준 D-30부터 노출 + 접힘 자동 펼침. 구 GAS(전달일 필드 없음)면 비노출 폴백
+    var _expDN=null;
+    try{ var _dm=String(res.전달일||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if(_dm){ var _ex=new Date(+_dm[1],+_dm[2]-1+6,+_dm[3]); _ex.setHours(0,0,0,0); var _tz=new Date(); _tz.setHours(0,0,0,0); _expDN=Math.round((_ex-_tz)/86400000); } }catch(e){}
+    var _expBanner=(_expDN!=null && _expDN<=30)
+      ? ('<div class="cc-note" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin:2px 0 10px;color:var(--accent);text-align:left">'
+        +(_expDN>=0?('다운로드 기한 <b style="color:var(--seal)">D-'+_expDN+'</b> · 지금 기기에 저장해 주세요.'):'다운로드 보관 기간이 지났어요. 파일이 필요하시면 카카오톡으로 디렉터에게 알려 주세요.')+'</div>')
+      : '';
     var clp=true; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))!=='o'); }catch(e){}   // 후기 단계 = 결과물 접어두고 설문에 집중(연 적 있으면 기억)
     var dl='';
     if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
@@ -3749,7 +3757,8 @@ function renderResult(res, nm, code){
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 예식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
     if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
-    var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
+    if(_expBanner) clp=false;   // MPD3_G5 만료 임박이면 받은 결과물 접힘 자동 펼침
+    var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     var inner='';
     if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') inner+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
