@@ -2203,7 +2203,7 @@ function ensureLedFab(d){
     existing.addEventListener('click', openLedModal);
     stack.insertBefore(existing, stack.firstChild);   // 챗 아이콘 위에
     try{ if(localStorage.getItem('me_ledtip_v1')!=='o'){ localStorage.setItem('me_ledtip_v1','o');   // MPD_G7 무라벨 문서 아이콘 발견성 — 첫 진입 1회 툴팁(§9-5-③)
-      stack.style.position='relative';
+      // ★FAB_STACK_FIXED(2026-07-25): stack.style.position='relative' 재추가 금지 — .me-fab-stack은 position:fixed(우측 중앙)이고 인라인 relative가 이를 덮어써 FAB 3종(내역·챗·맨위로)이 문서 흐름으로 떨어지던 실사고. 툴팁(absolute)의 컨테이닝 블록은 fixed 부모로 충분.
       var _tip=document.createElement('div'); _tip.className='me-fab-tip'; _tip.textContent='내 내역 · 계약서·영수증이 여기 있어요';
       stack.appendChild(_tip); setTimeout(function(){ if(_tip.parentNode) _tip.parentNode.removeChild(_tip); }, 5000);
     } }catch(e){}
