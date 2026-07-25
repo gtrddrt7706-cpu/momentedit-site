@@ -23,7 +23,8 @@ function freshRow(over) {
 const cust = { get: (k) => (row.has(k) ? row.get(k) : ''), num: 2 };
 sb.findCustomerByCode = () => cust;
 sb.getCustomersSheet = () => ({});
-sb.buildHeaderIndex = () => ({});
+// PROD_COL_SPLIT: 제작 저장은 신 컬럼(제작_*)에 쓰고 _prodColsMissing 가드가 colOf에 그 컬럼이 있어야 통과 → 목 시트에 8개 컬럼 제공(없으면 S6b 저장이 '컬럼 누락'으로 차단됨).
+sb.buildHeaderIndex = () => ({ '제작_ritual': 10, '제작_dining': 11, '제작_seat': 12, '제작_guideinfo': 13, '제작_snap': 14, '제작_final': 15, '제작_invitation': 16, '제작_meta': 17 });
 sb.touchCustomer = (s, c, n, patch) => { Object.entries(patch).forEach(([k, v]) => row.set(k, v)); };
 sb.notifyKakao = (ev, code, p) => kakao.push({ ev, p });
 sb._nfAdminLineEmail = (m) => mails.push(m);

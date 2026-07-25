@@ -193,7 +193,9 @@ q = ctx.buildRefundQuote(row({ 상품타입: '시그니처', 현재단계: '시�
 check('게이트: 계약 전 + 예약금 확인 → 견적(1벌 공제 후 50,000)', !!q && q.refund === 50000, JSON.stringify(q));
 ctx.findRowByPersonalCode = () => null;
 q = ctx.buildRefundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })));
-check('게이트: 서명완료 → 견적', !!q && q.rule === '위약금 10%(9조)', JSON.stringify(q));
+// buildRefundQuote는 asOf 인자가 없어 '오늘(KST)' 폴백 → 정확한 rate는 실행일에 따라 달라진다.
+// 이 게이트 테스트는 '서명완료면 견적이 열린다(위약금 규칙 반환)'만 검증한다(정확한 rate 표는 위 dd 표에서 asOf 명시로 결정적 검증).
+check('게이트: 서명완료 → 견적', !!q && /^위약금 \d+%\(9조\)$/.test(q.rule), JSON.stringify(q));
 // asOf 생략 시 오늘(KST) 폴백
 q = ctx._refundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })), null);
 check('asOf 생략 → 오늘(YYYY-MM-DD)', /^\d{4}-\d{2}-\d{2}$/.test(q.asOf), q.asOf);

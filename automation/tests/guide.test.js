@@ -15,7 +15,8 @@ sb._findCustomerBy = (col, val) => { for (const c in DB) { if (String(DB[c][col]
 sb.resolveSession = (t) => (TOK[t] ? { ok: true, row: makeRow(TOK[t]) } : { ok: false, reason: 'x' });
 sb._sessionMsg = () => '세션';
 sb.getCustomersSheet = () => ({});
-sb.buildHeaderIndex = () => ({ '안내공유토큰': 99 });
+// PROD_COL_SPLIT: 제작 저장은 신 컬럼(제작_*)에 쓰고 _prodColsMissing 가드가 colOf에 그 컬럼이 있어야 통과시킨다 → 목 시트에 8개 컬럼 제공.
+sb.buildHeaderIndex = () => ({ '안내공유토큰': 99, '제작_ritual': 10, '제작_dining': 11, '제작_seat': 12, '제작_guideinfo': 13, '제작_snap': 14, '제작_final': 15, '제작_invitation': 16, '제작_meta': 17 });
 sb.touchCustomer = (s, co, n, patch) => Object.assign(DB[n], patch);
 sb.notifyKakao = () => {}; sb.notifyStudio = () => {}; sb._nfAdminLineEmail = () => {};
 sb.Utilities = { getUuid: () => 'abcdef0123456789abcdef0123456789', formatDate: (d) => new Date(d).toISOString().slice(0, 10) };   // formatDate 스텁 — _kstYmd(만료 판정)용 · ymdShift와 같은 UTC 기준이라 경계 테스트 결정적
@@ -30,12 +31,12 @@ console.log('── 하객 안내 허브 ──');
 fresh();
 const r1 = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { reserveTime: '오후 1시 30분', reserveName: '정희준', showLive: true, venue: '라비돌웨딩홀', evil: 'x' } });
 ok(r1.ok === true && !r1.guideToken, '1 guideinfo 저장은 토큰 발급 없음(다이닝·좌석만 발급)');
-const gd = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
+const gd = sb._prodLoad(makeRow('C1')).guideinfoDraft;   // PROD_COL_SPLIT: 저장은 신 컬럼 → 실제 접근자로 조립해 읽는다(구 제작임시저장 직접 파싱 폐지)
 ok(gd.reserveTime === '오후 1시 30분' && gd.reserveName === '정희준' && gd.showLive === undefined && gd.venue === undefined && gd.evil === undefined, '2 자리토글·예약만 저장 + 폐지(showLive·venue)·미지정 필드 제거');
 
 // 3) 예약 정보 길이 상한
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: false, draft: { reserveTime: 'a'.repeat(100), reserveName: 'b'.repeat(100) } });
-const gd2 = JSON.parse(DB.C1.제작임시저장).guideinfoDraft;
+const gd2 = sb._prodLoad(makeRow('C1')).guideinfoDraft;   // PROD_COL_SPLIT: 신 컬럼 조립
 ok(gd2.reserveTime.length === 40 && gd2.reserveName.length === 30, '3 예약 시간 40자·이름 30자 상한');
 
 // 4) handleGuideView — 공개 조회로 오시는 길·다이닝·좌석·라이브 반환
@@ -128,27 +129,27 @@ ok(sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, dra
 fresh();
 DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' } });
 const rc = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순'.repeat(30), v: 'v'.repeat(500), evil: 'x' }] } });
-const dc = JSON.parse(DB.C1.제작임시저장);
+const dc = sb._prodLoad(makeRow('C1'));
 ok(rc.ok === true && rc.confirm && rc.confirm.at && dc.confirm.snap[0].k.length === 24 && dc.confirm.snap[0].v.length === 300 && dc.confirm.snap[0].evil === undefined, '22 확인 저장 · 스냅샷 상한·정규화');
 ok(dc.confirmDraft === undefined && (dc.tracks.confirm === undefined), '22b confirm은 트랙 아님(Draft·tracks 미기록)');
 // 23) 확인 후 트랙 수정 → 확인 해제(stale)
 const ri = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { reserveTime: '오후 2시' } });
-const dc2 = JSON.parse(DB.C1.제작임시저장);
+const dc2 = sb._prodLoad(makeRow('C1'));
 ok(ri.ok === true && dc2.confirm === undefined && dc2.confirmStale === true, '23 확인 후 수정 → 자동 해제(재확인 필요)');
 // 24) 재확인 → stale 해제
 const rc2 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'y' }] } });
-const dc3 = JSON.parse(DB.C1.제작임시저장);
+const dc3 = sb._prodLoad(makeRow('C1'));
 ok(rc2.ok === true && dc3.confirm && dc3.confirmStale === undefined, '24 재확인 → 확인 복구·stale 해제');
 
 // ── 좌석 공개 범위(seatMode) — 2안 단일 체크(2026-07-17): 기본 '전체 배치도 공개' · 체크하면 '내 자리만 검색' ──
 // 25) 정규화 — 미지정·잡값은 'all'(기본), 'mine'만 내 자리만
 fresh();
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: {} });
-ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'all', '25a seatMode 미지정 → all(기본 전체 공개)');
+ok(sb._prodLoad(makeRow('C1')).guideinfoDraft.seatMode === 'all', '25a seatMode 미지정 → all(기본 전체 공개)');
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { seatMode: 'hack' } });
-ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'all', '25b 잡값 → all');
+ok(sb._prodLoad(makeRow('C1')).guideinfoDraft.seatMode === 'all', '25b 잡값 → all');
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { seatMode: 'mine' } });
-ok(JSON.parse(DB.C1.제작임시저장).guideinfoDraft.seatMode === 'mine', '25c mine → 내 자리만 검색');
+ok(sb._prodLoad(makeRow('C1')).guideinfoDraft.seatMode === 'mine', '25c mine → 내 자리만 검색');
 // 26) 'mine' 체크 시에만 전체 배치도 차단(mineOnly) — 명단(테이블) 미전송 · 기본은 종전대로 전체 반환
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { seatMode: 'mine' } } });
 const sv1 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' });
@@ -189,26 +190,26 @@ fresh();
 DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료', guideinfo: '완료' }, guideinfoDraft: { showSeat: true, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
 sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'x' }] } });
 const rNoop = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: true, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
-const dNoop = JSON.parse(DB.C1.제작임시저장);
+const dNoop = sb._prodLoad(makeRow('C1'));
 ok(rNoop.ok === true && !!dNoop.confirm && dNoop.confirmStale === undefined, '29a 무변경 재저장 → 확인 유지(가짜 재확인 필요 없음)');
 sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: false, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
-ok(!!JSON.parse(DB.C1.제작임시저장).confirm, '29b 자리 찾기 토글만 변경 → 확인 유지(_prodUiStrip 제외 필드)');
+ok(!!sb._prodLoad(makeRow('C1')).confirm, '29b 자리 찾기 토글만 변경 → 확인 유지(_prodUiStrip 제외 필드)');
 // 30) 실제 변경(공개 범위) 저장 → 확인 해제
 const rCh = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: false, seatMode: 'all', reserveTime: '오후 1시', reserveName: '정희준' } });
-const dCh = JSON.parse(DB.C1.제작임시저장);
+const dCh = sb._prodLoad(makeRow('C1'));
 ok(rCh.ok === true && dCh.confirm === undefined && dCh.confirmStale === true, '30 공개 범위 변경 → 확인 해제(재확인 필요)');
 // 31) 상태 지문(rev) 대조 — 옛 화면 확인 거부 · 현재 지문 일치 허용 · 미전송(구버전 프런트) 생략
 const rC2 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: 's', v: 'y' }] }, rev: 'stale-fingerprint' });
 ok(rC2.ok === false && /갱신/.test(rC2.error || ''), '31a 지문 불일치(배우자 탭이 먼저 수정) → 확인 거부');
-const _revNow = sb._prodStateRev(JSON.parse(DB.C1.제작임시저장));
+const _revNow = sb._prodStateRev(sb._prodLoad(makeRow('C1')));
 const rC3 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: 's', v: 'y' }] }, rev: _revNow });
-ok(rC3.ok === true && JSON.parse(DB.C1.제작임시저장).confirmStale === undefined, '31b 지문 일치 → 확인 허용·stale 해제');
+ok(rC3.ok === true && sb._prodLoad(makeRow('C1')).confirmStale === undefined, '31b 지문 일치 → 확인 허용·stale 해제');
 // 32) 청첩장 수정(85_invitation)도 확인 자동 해제 — 스냅샷 1행(청첩장 상태) 무결성
 fresh();
 DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' } });
 sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '청첩장', v: '만듦' }] } });
 const rInv = sb.handleSaveInvitationDraft({ token: 't1', draft: { method: 'offline', groomKo: '정희준' } });
-const dInv = JSON.parse(DB.C1.제작임시저장);
+const dInv = sb._prodLoad(makeRow('C1'));
 ok(rInv.ok === true && dInv.confirm === undefined && dInv.confirmStale === true, '32 청첩장 수정 → 확인 자동 해제(85_invitation 연동)');
 // 33) 서버 검색 상한 4 — 프런트 규약(1=단정 · 2~3=후보 나열 · 4=성함 더 입력)
 setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
