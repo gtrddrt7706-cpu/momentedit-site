@@ -257,9 +257,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .res-panel.done .em-seal{color:var(--seal);font-weight:500}   /* SURVEY_DONE_TONE · 후기 완료 패널도 같은 진사 악센트('오래' 1점) */
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 /* DLV_SEC 2026-07-25 · 결과물 대기 카드: 떠 있던 fn-intro 2줄 → 섹션 헤더(중앙 골드 라벨+서브)로 승격 — 감정 블록과 정보 표의 경계 */
-.consult-card .dlv-sec{text-align:left;margin:8px 0 6px;line-height:1.7;word-break:keep-all}   /* RESULT_WAIT_POLISH · 실무 안내 블록(헤더→표→각주)을 표와 같은 왼쪽 기둥으로 통일 · 중앙정렬 복원 금지(2026-07-25 사용자 지시) */
+.consult-card .dlv-sec{text-align:center;margin:8px 0 6px;line-height:1.7;word-break:keep-all}   /* RESULT_WAIT_POLISH · 헤더 가운데 정렬 복귀(2026-07-25 사용자 지시 2,3안 · 왼쪽정렬은 제목+긴 부연이 늘어져 어색) */
 .consult-card .dlv-sec .t{display:inline;font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}   /* RESULT_WAIT_POLISH · 섹션 제목(11px)이 부연(11.5px)보다 작던 크기 역전 해소 · 제목+부연 한 줄 인라인(2026-07-26 사용자 지시) */
-.consult-card .dlv-sec .s{display:inline;font-size:11.5px;font-weight:300;color:var(--light)}   /* RESULT_WAIT_POLISH · 부연을 제목과 같은 줄에 인라인 결합(좁은 화면은 · 뒤 자연 줄바꿈) */
+.consult-card .dlv-sec .s{display:inline;font-size:11px;font-weight:300;color:var(--label-soft)}   /* RESULT_WAIT_POLISH · 부연을 제목과 같은 줄에 인라인 결합(좁은 화면은 · 뒤 자연 줄바꿈) · 11px·label-soft로 톤다운(2026-07-25 사용자 지시 2안 · 보조설명으로 물러남) */
 .consult-card .dlv-sec + .vg-row{border-top:none}   /* 헤더가 표를 소유하게 — 서브 바로 아래 선 제거(라벨이 '표의 한 행'처럼 읽히던 것 방지) */
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
@@ -3534,14 +3534,14 @@ function _resultWaitHtml(res){
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
     +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 <span class="em-seal">하루</span>였어요.</span><span class="stanza">그 하루를, 저희가 <span style="white-space:nowrap">한 장 한 장</span> 담고 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 2줄 + 진사 악센트(덜어낼수록·하루). ★'곧 다시 만나실 수 있어요' 줄 재추가 금지 — 2026-07-25 사용자 지시로 삭제
     +'<div class="visit-guide" style="margin-top:10px">'   // RESULT_WAIT_POLISH · 문구~표 간격 축소(여백 균형)
-    +'<div class="dlv-sec"><span class="t">전해드리는 순서</span> <span class="s">· 준비되는 대로 카카오톡과 메일로 알려드려요</span></div>'   // DLV_SEC · RESULT_WAIT_POLISH · 제목+부연을 실제 한 줄로(2026-07-26 사용자 지시 · 두 줄 스택 복원 금지 · '하나씩'은 행 순서가 표현하므로 제거)
+    +'<div class="dlv-sec"><span class="t">전해드리는 순서</span> <span class="s">· 준비되는 대로 카톡·메일로 알려드려요</span></div>'   // DLV_SEC · RESULT_WAIT_POLISH · 제목+부연을 실제 한 줄로(2026-07-26 사용자 지시 · 두 줄 스택 복원 금지) · 부연 축약 '카톡·메일로'(2026-07-25 사용자 지시 2안 · 짧게)
     // RESULT_WAIT_POLISH · A안(2026-07-26 사용자 선택): 문장형 '전해드려요' 반복 대신 짧은 설명 + 기간 우측 정렬 열(vg-t).
     //   기간 미확정('?')이면 기간 열을 숨기고 문장형으로 폴백 — 근거 없는 수치 약속 금지 규칙 유지.
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 가장 먼저'+(_eta(DELIVERY_ETA.orig)?'</span><span class="vg-t">'+DELIVERY_ETA.orig+'</span>':' 전해드려요.</span>')+'</div>'
     +'<div class="vg-row"><span class="vg-k">보정 사진</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+DELIVERY_ETA.retouch+' 뒤</span>':' 손봐 전해드려요.</span>')+'</div>'
     +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">본식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 편집해'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+DELIVERY_ETA.video+' 뒤</span>':' 전해드려요.</span>')+'</div>')
     +'</div>'
-    +'<div class="cc-note" style="text-align:left"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 좌측정렬 — 헤더·표와 같은 왼쪽 기둥으로 통일(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-25 사용자 지시로 중앙정렬 대체)
+    +'<div class="cc-note" style="text-align:center"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 가운데 정렬(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-25 사용자 지시 3안으로 가운데 복귀)
 }
 // 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
 function _surveySchema(isSnap){
