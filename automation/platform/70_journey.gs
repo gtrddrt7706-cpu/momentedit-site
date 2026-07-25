@@ -1105,8 +1105,9 @@ function handleSaveCashReceipt(body) {
 }
 // 현금영수증 발행 원장 — 결제 마일스톤(예약금/계약금·중도금·잔금)별 {입금확인 여부·금액·발행기록}. 관리자 발행 큐·카드 + 마이페이지 '내 내역'이 공통으로 쓰는 단일 소스.
 //   의무발행업종 — 입금이 '확인'된 마일스톤은 현금영수증 발급 대상(미발급 20% 가산세). issued=발행완료 기록 / due=확인됐는데 미발행.
-function _cashReceiptLedger(r) {
+function _cashReceiptLedger(r, opts) {
   if (!r) return [];
+  opts = opts || {};
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
   var issued = {}, paidBy = {};
@@ -1128,15 +1129,25 @@ function _cashReceiptLedger(r) {
   }
   var out = [];
   // 예약금 '받은 날'은 상담 예약 입금 — 계약(서명=입금상태 확인) 전이라도 Bookings 입금확인이면 발급 대상(기한 D+5는 받은 날 기산)
-  var _depCf = String(r.get('입금상태') || '').trim() === '확인';
-  if (!_depCf && !isSnap && typeof findRowByPersonalCode === 'function') {
-    try { var _bkD = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); if (_bkD && String(_bkD.get('입금확인') || '').trim() === '확인') _depCf = true; } catch (e) {}
+  // [RECEIPT_PAID_SPLIT 2026-07-25 사용자 지시 "실제 입금한 금액보다 많이 발급되면 안 된다"]
+  //   수령 판정을 돈의 출처별로 분리한다. 예전엔 두 항목이 _depCf 하나를 공유해서,
+  //   계약서 발송(계약총액 기록)~계약금 입금 확인 사이 구간에 상담 예약금 입금(Bookings)만으로
+  //   '계약금 잔액'까지 수령·발행대기로 떠 실수령(10만)보다 큰 금액의 발급을 지시했다. ★단일 게이트로 되돌리지 말 것.
+  //   · 예약금(상담 예약금 10만) = Bookings 입금확인 — 계약 서명 전에 이미 받은 돈(기한 D+5가 서명을 기다려주지 않음)
+  //   · 계약금 잔액             = Customers 입금상태 '확인' 만 — 계약 시 실제로 들어온 현금
+  var _depCf = String(r.get('입금상태') || '').trim() === '확인';   // 계약금(잔액) 실수령
+  var _bkCf = _depCf;                                                // 상담 예약금 실수령
+  if (!_bkCf && !isSnap) {
+    if (typeof opts.bookingPaid === 'boolean') _bkCf = opts.bookingPaid;   // 호출자가 이미 아는 경우(목록 루프) — 행별 시트 조회 회피
+    else if (typeof findRowByPersonalCode === 'function') {
+      try { var _bkD = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); if (_bkD && String(_bkD.get('입금확인') || '').trim() === '확인') _bkCf = true; } catch (e) {}
+    }
   }
-  out.push(item('예약금', isSnap ? '계약금' : '예약금', _depCf, isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
+  out.push(item('예약금', isSnap ? '계약금' : '예약금', isSnap ? _depCf : _bkCf, isSnap ? (amounts ? amounts['계약금'] : 0) : PAYMENT.예약금));
   // [정합] 시그 '계약금 잔액'(계약금 - 예약금 · 계약 시 실입금 현금) — 원장에 없어 현금영수증 발급 대상·주간 점검에서 영구 누락되던 금액(의무발급 이행)
   if (!isSnap && amounts) {
     var _ctrRem = Math.max(0, Number(amounts['계약금'] || 0) - Number(PAYMENT.예약금 || 0));
-    if (_ctrRem > 0) out.push(item('계약금', '계약금 잔액', _depCf, _ctrRem));
+    if (_ctrRem > 0) out.push(item('계약금', '계약금 잔액', _depCf, _ctrRem));   // ★RECEIPT_PAID_SPLIT: _bkCf 아님 — 상담 예약금만 받은 상태에서 뜨면 초과 발급
   }
   // 묶음 입금(임박 계약): 중도금·잔금이 같은 확인일시로 기록됐으면 한 번의 이체 → 영수증도 1건(합산)으로
   var _mCf = String(r.get('중도금상태') || '').trim() === '확인', _bCf = String(r.get('잔금상태') || '').trim() === '확인';
