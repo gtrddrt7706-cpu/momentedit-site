@@ -252,6 +252,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-emo{font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);line-height:1.98;text-align:center;word-break:keep-all;text-wrap:balance;max-width:19em;margin:0 auto;padding:18px 0 24px;letter-spacing:.004em}
 .consult-card .cc-emo .stanza{display:block}
 .consult-card .cc-emo .stanza + .stanza{margin-top:2px}
+.consult-card .cc-emo .em-seal{color:var(--seal);font-weight:500}   /* 진사 악센트 · 감정 정점 단어에만(인장처럼) */
 .consult-card .rule{display:block;width:28px;height:1px;background:var(--gold-soft);margin:16px auto 0;border:0}
 .consult-card .fn-intro{font-size:12px;font-weight:300;color:var(--light);line-height:1.7;text-align:left;margin-bottom:2px}
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px}
@@ -3503,7 +3504,7 @@ function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean)
 function _resultWaitHtml(res){
   return '<div class="cc-title" style="text-align:center">'+(res.isSnap?'촬영':'예식')+'이 무사히 끝났어요</div>'
     +'<span class="rule"></span>'   // 헤어라인: 제목→편지 전환 표시(제목 아래)
-    +'<div class="cc-emo"><span class="stanza">오래 준비하신 하루를,</span><span class="stanza">두 분답게 온전히 치러내셨어요.</span><span class="stanza">이제 그 여운에 마음껏 머무르세요.</span><span class="stanza">그날의 공기까지,</span><span class="stanza">저희가 곁에서 한 장 한 장 담아 둘게요.</span></div>'   // RESULT_WAIT_EMO · stanza 5줄(v2)
+    +'<div class="cc-emo"><span class="stanza"><span class="em-seal">덜어낼수록</span>, 두 분이 선명해진 하루였어요.</span><span class="stanza">그 하루를, 저희가 한 장 한 장 담고 있어요.</span><span class="stanza">곧 <span class="em-seal">다시</span> 만나실 수 있어요.</span></div>'   // RESULT_WAIT_EMO · stanza 3줄 + 진사 악센트(덜어낼수록·다시) · 본질(덜어냄) 반영
     +'<div class="visit-guide" style="margin-top:14px">'
     +'<div class="fn-intro">준비되는 대로, 아래 순서로 마이페이지에 하나씩 올라와요.</div>'
     +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 '+(_eta(DELIVERY_ETA.orig)?('<b>'+DELIVERY_ETA.orig+'</b> 안에 '):'')+'<em>가장 먼저</em> 전해드려요.</span></div>'
