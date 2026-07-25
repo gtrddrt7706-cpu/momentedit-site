@@ -380,6 +380,14 @@ function aiMorningReport(preview) {
     var todo = (brief.total || 0) + '건' + (brief.urgent ? (' · 급함 ' + brief.urgent) : '') + (brief.kindLine ? (' · ' + brief.kindLine) : '');
     rows.push(['처리할 일', todo + (brief.urgentNames && brief.urgentNames.length ? ('\n' + brief.urgentNames.join(' / ')) : ''), (brief.urgent || 0) > 0]);
   }
+  // [ADM_AC4] 이번 달 사업현황 한 줄 — 집계는 admin.gs monthBusinessData(읽기 전용)가 하고 여기선 싣기만 한다.
+  //   매출은 '확인'된 입금의 합(실입금) · 상담 예약금은 확인 날짜 기록이 없어 빠져 있다.
+  try {
+    if (typeof monthBusinessData === 'function') {
+      var mb = monthBusinessData();
+      if (mb) rows.push(['이번 달 사업현황', '계약 ' + mb.contracts + '건 · 실입금 ' + won(mb.revenue) + '원 · 전달 ' + mb.delivered + '건 (상담 예약금 제외)', false]);
+    }
+  } catch (e) {}
   rows.push(['미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
   if (night > 0) rows.push(['밤사이 새 인계', night + '건', true]);
   if (digest) rows.push(['최근 24시간 요약', digest, false]);
