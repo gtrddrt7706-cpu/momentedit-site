@@ -358,6 +358,17 @@ chk '카톡이 자동으로 가요' admin.html 7             # 자동 발송 액
 chk 'NH_AUTO' admin.html 4                          # 자동/무발송 플래그(정의+주석+분기)
 chk '이 확인은 고객 알림이 따로 가지 않아요' admin.html 1   # 입금 확인 3종 토스트(거짓 '잊지 마세요' 폐기)
 _ab3=$(grep -c "카톡 알림 잊지 마세요" admin.html 2>/dev/null); _ab3=${_ab3:-0}; if [ "$_ab3" -gt 0 ]; then echo "REVERT? admin.html: 자동 발송인데 '잊지 마세요' 토스트 부활($_ab3)"; fail=1; else echo "ok admin.html: 알림 토스트 정직화 유지"; fi
+# ── 2026-07-26 관리자 페이지 2차 스프린트 PR①(AC1 입금 확인 취소 · 차단 조건 6종은 조건별로 감시)
+chk 'ADM_AC1' automation/admin/admin.gs 2           # 되돌리기 코어+FNS 등록
+chk 'ADM_AC1' admin.html 5                          # 버튼 3 + 디스패처 + 모달
+chk 'UNDO_WINDOW_HOURS' automation/admin/admin.gs 4  # 되돌리기 허용 시간 상수(정책값)
+chk 'adminUndoConfirmPreview' automation/admin/admin.gs 2   # dry-run 진입점(정의+FNS)
+chk "block: 'A'" automation/admin/admin.gs 1        # 카드 확정분 차단(동의기록.결제수단)
+chk "block: 'B'" automation/admin/admin.gs 1        # 현금영수증 발행분 차단(콤보 키 포함)
+chk "block: 'C'" automation/admin/admin.gs 1        # 단계 전진 차단(계약금 한정 — 중도금·잔금엔 적용 금지)
+chk "block: 'D'" automation/admin/admin.gs 1        # 종료 고객 차단
+chk "block: 'E'" automation/admin/admin.gs 2        # 시간 경과·시각 미상 차단
+chk "block: 'F'" automation/admin/admin.gs 1        # 환불 정산 완료 건 차단
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

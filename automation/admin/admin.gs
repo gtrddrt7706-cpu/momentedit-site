@@ -178,6 +178,7 @@ function adminCall(token, fn, args) {
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
+      adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
@@ -1399,6 +1400,116 @@ function adminUndoCashReceipt(code, kind) {
   touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
   _recordHandler(code, '현금영수증 발행 취소(' + kind + ')');
   return { ok: true };
+}
+
+
+/* ============================ [ADM_AC1] 입금 확인 취소 (오처리 복구 전용) ============================
+   입금 확인은 한 번에 6가지를 바꾼다(입금상태·영수증 기산점·번들 마일스톤·잔금 스냅샷·현재단계·고객 카톡).
+   잘못 누른 걸 되돌릴 경로가 없어 지금까지는 강제변경으로 우회했는데, 강제변경의 롤백은
+   _clearForwardData의 ROLLBACK_KEEP_PAID가 '확인된 수납은 보존'하도록 설계돼 있어 입금은 애초에 안 지워진다.
+   그래서 이 액션은 그 경로를 재사용하지 않고 별도로 둔다.
+
+   되돌리면 안 되는 경우는 각각 다른 메시지로 돌려준다 — "안 됩니다" 하나로 뭉치면 왜 막혔는지 몰라
+   결국 강제변경으로 우회하게 되고, 그게 더 많은 데이터를 지운다.
+     A 카드로 확정된 건(동의기록.결제수단) · B 현금영수증 발행됨 · C 다음 단계로 전진함(계약금만)
+     D 종료 고객(취소·노쇼·미계약) · E 되돌리기 시간 경과 · F 환불 정산이 끝난 건
+
+   UNDO_WINDOW_HOURS: 오처리는 대개 몇 분 안에 발견된다. 시간이 지난 건은 현금영수증 기한·환불 견적이
+   이미 그 값을 물고 있어 조용한 되돌리기가 더 위험하므로 창을 좁게 둔다(정책값 · 결정 대기함 등재). */
+var UNDO_WINDOW_HOURS = 24;
+
+// 'yyyy-MM-dd HH:mm'(KST) 문자열에서 지금까지 경과 시간(h). 값이 없거나 형식이 다르면 null(=시각 미상).
+function _undoHoursSince(kst) {
+  var m = String(kst == null ? '' : kst).match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  if (!m) return null;
+  var t = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 9, +m[5]);   // KST(+09:00) → UTC
+  if (isNaN(t)) return null;
+  return (new Date().getTime() - t) / 3600000;
+}
+
+// 마일스톤별 되돌리기 스펙 — 상태·신호·확인일시 컬럼, 카드 판정 키, 영수증 판정 키(콤보 포함).
+function _undoSpec(milestone, isSnap) {
+  if (milestone === '계약금') return { label: '계약금', stateCol: '입금상태', signalCol: '입금완료신호', atCol: '', payKey: isSnap ? '예약금' : '계약금', receiptKeys: isSnap ? ['예약금'] : ['계약금'], stage: true };
+  if (milestone === '중도금') return { label: '중도금', stateCol: '중도금상태', signalCol: '중도금입금신호', atCol: '중도금확인일시', payKey: '중도금', receiptKeys: ['중도금', '중도금잔금'], stage: false };
+  if (milestone === '잔금') return { label: '잔금', stateCol: '잔금상태', signalCol: '잔금입금신호', atCol: '잔금확인일시', payKey: '잔금', receiptKeys: ['잔금', '중도금잔금'], stage: false };
+  return null;
+}
+
+// 되돌리기 코어 — preview=true면 아무것도 쓰지 않고 '무엇이 어떻게 되돌아가는지'만 계획으로 돌려준다.
+function _undoConfirmCore(code, milestone, reason, preview) {
+  code = String(code || '').trim().toUpperCase();
+  milestone = String(milestone || '').trim();
+  reason = String(reason || '').trim();
+  if (['계약금', '중도금', '잔금', '중도금잔금'].indexOf(milestone) === -1) return { ok: false, error: '되돌릴 항목이 올바르지 않아요. (계약금·중도금·잔금·중도금잔금)' };
+  if (!preview && !reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var stageNow = String(cust.get('현재단계') || '').trim();
+  var isSnap = String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP;
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  // D · 종료 고객 — 확인 함수와 같은 가드(취소 건의 정산은 환불 큐에서 따로 본다)
+  if (STAGE_EXCEPTIONS.indexOf(stageNow) !== -1) return { ok: false, block: 'D', error: '진행이 종료된 고객이에요(' + stageNow + '). 되돌리려면 먼저 단계를 정상으로 복구해 주세요.' };
+  // F · 환불 정산 완료 — 환불액은 기수령액(=확인된 입금)으로 계산돼서, 정산 뒤 입금을 되돌리면 장부가 어긋난다
+  if (rec.환불완료) return { ok: false, block: 'F', error: '이미 환불 완료로 정리된 고객이에요. 입금을 되돌리면 환불 계산과 어긋나요. 환불 완료 취소를 먼저 해주세요.' };
+
+  var targets = (milestone === '중도금잔금') ? ['중도금', '잔금'] : [milestone];
+  var plan = [], patch = {}, recDirty = false, consentRemoved = [];
+  for (var i = 0; i < targets.length; i++) {
+    var sp = _undoSpec(targets[i], isSnap);
+    if (!sp) return { ok: false, error: '되돌릴 항목이 올바르지 않아요.' };
+    if (isSnap && targets[i] === '중도금') return { ok: false, error: '웨딩스냅은 중도금이 없어요. (계약금·잔금 2단계)' };
+    var cur = String(cust.get(sp.stateCol) || '').trim();
+    if (cur !== '확인') continue;                                        // 멱등 — 이미 확인이 아니면 되돌릴 게 없다
+    // A · 카드 확정분 — 시트에서만 되돌리면 장부와 PG가 어긋난다
+    if (rec.결제수단 && rec.결제수단[sp.payKey] === '카드') return { ok: false, block: 'A', error: sp.label + '은 카드로 결제된 건이에요. 시트만 되돌리면 결제 기록과 어긋나요. 토스에서 결제 취소를 먼저 진행해 주세요.' };
+    // B · 현금영수증 발행분 — 발행 취소가 먼저다
+    var issued = rec.영수증발행 || {};
+    for (var k = 0; k < sp.receiptKeys.length; k++) {
+      if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
+    }
+    // C · 다음 단계로 전진함 — 계약금에만 적용. 중도금·잔금은 원래 제작중·예식완료에서 확인하는 마일스톤이라 여기서 막으면 정상 건이 전부 막힌다
+    if (sp.stage && stageNow !== '입금완료') return { ok: false, block: 'C', error: '이미 ' + (stageNow || '다음 단계') + '(으)로 진행된 고객이에요. 계약금 확인은 입금완료 단계에 머물러 있을 때만 되돌릴 수 있어요.' };
+    // E · 되돌리기 시간 — 계약금은 영수증 기산점, 중도금·잔금은 확인일시가 확인 시각
+    var atStr = sp.atCol ? String(cust.get(sp.atCol) || '').trim() : String((rec.영수증기준일 || {}).예약금 || '').trim();
+    var hrs = _undoHoursSince(atStr);
+    if (hrs == null) return { ok: false, block: 'E', error: sp.label + ' 확인 시각이 기록에 없어요(예전 데이터). 되돌리기 대신 강제 단계 변경으로 정리해 주세요.' };
+    if (hrs > UNDO_WINDOW_HOURS) return { ok: false, block: 'E', error: sp.label + ' 확인 후 ' + Math.floor(hrs) + '시간이 지났어요. 되돌리기는 확인 후 ' + UNDO_WINDOW_HOURS + '시간 안에만 가능해요.' };
+    // 되돌린 상태 — 고객 입금 신고가 남아 있으면 '완료신호'로, 없으면 빈값(대기)으로
+    var back = String(cust.get(sp.signalCol) || '').trim() ? '완료신호' : '';
+    patch[sp.stateCol] = back;
+    if (sp.atCol) patch[sp.atCol] = '';
+    plan.push({ key: targets[i], label: sp.label, from: '확인', to: back || '대기', at: atStr, hours: Math.max(0, Math.round(hrs * 10) / 10) });
+    if (targets[i] === '계약금' && rec.영수증기준일 && rec.영수증기준일.예약금) { delete rec.영수증기준일.예약금; recDirty = true; consentRemoved.push('영수증기준일.예약금(현금영수증 5일 기한 기산점)'); }
+    if (targets[i] === '잔금' && rec.잔금확정금액 != null) { delete rec.잔금확정금액; recDirty = true; consentRemoved.push('잔금확정금액(확정 시점 금액 스냅샷)'); }
+  }
+  if (!plan.length) return { ok: true, already: true, error: '' };      // 멱등 — 두 번 눌러도 안전
+
+  var stagePlan = null;
+  if (targets.indexOf('계약금') !== -1) stagePlan = { from: stageNow, to: '계약완료' };
+  var notice = '이미 나간 입금 확인 카톡은 취소되지 않아요. 필요하면 직접 안내해 주세요.';
+  if (preview) return { ok: true, preview: true, milestone: milestone, plan: plan, stage: stagePlan, consentRemoved: consentRemoved, notice: notice, windowHours: UNDO_WINDOW_HOURS };
+
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    if (recDirty) patch['동의기록'] = JSON.stringify(rec);
+    // 현재단계는 touchCustomer로 직접 쓴다 — setCustomerStage는 역행(입금완료→계약완료)을 무시한다
+    if (stagePlan) patch['현재단계'] = stagePlan.to;
+    touchCustomer(sheet, colOf, cust.num, patch);
+    _recordHandler(code, '입금 확인 취소(' + plan.map(function (p) { return p.label; }).join('·') + ')' + (stagePlan ? ' → ' + stagePlan.to : '') + ' · 사유: ' + reason);
+    return { ok: true, undone: plan.map(function (p) { return p.key; }), stage: stagePlan, notice: notice };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// 실행 — 사유 필수 · 멱등 · 처리이력. milestone: 계약금 | 중도금 | 잔금 | 중도금잔금
+function adminUndoConfirmPayment(code, milestone, reason) {
+  _requireAdmin();
+  return _undoConfirmCore(code, milestone, reason, false);
+}
+// 미리보기(dry-run) — 아무것도 쓰지 않고 무엇이 어떻게 되돌아가는지만 돌려준다. 모달이 실행 전에 보여준다.
+function adminUndoConfirmPreview(code, milestone) {
+  _requireAdmin();
+  return _undoConfirmCore(code, milestone, '', true);
 }
 
 // [02-0] 시착 동의 게이트 열기 → 시착동의상태=동의요청 (고객 마이페이지에 동의서 노출). 상담확정 단계에서.

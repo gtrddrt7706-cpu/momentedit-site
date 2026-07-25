@@ -1634,7 +1634,8 @@ function cardPayment(d){
   if(r['입금완료신호']) raw+='<br>신호 '+fmtDT(r['입금완료신호']);
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)
-  else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
+  // [ADM_AC1] 오처리 복구용 되돌리기 — 큐엔 두지 않는다(일상 액션이 아니라 사고 복구용이라 눈에 잘 띄면 오히려 위험).
+  else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>'+ab('undoPay:계약금','입금 확인 취소','btn-danger');
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   // [수납묶음] 고객이 계약금과 중도금·잔금을 한 번에 신고(완료신호)한 상태 — '입금 확인' 클릭 시 신고 묶음이 함께 확정됨을 미리 안내
   if(pay==='완료신호'&&((r['중도금상태']||'')==='완료신호'||(d.mirror&&d.mirror.balance&&d.mirror.balance.status==='완료신호')))
@@ -1645,13 +1646,13 @@ function cardPayment(d){
     var _mbBoth=(mid==='완료신호'&&d.mirror&&d.mirror.balance&&d.mirror.balance.status==='완료신호');
     if(_mbBoth) b+=ab('confirmMidBal','중도금·잔금 입금 확인 (한 번에 입금)','btn-line');
     else if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');
-    else if(mid==='확인') b+='<div class="gate">✓ 중도금 확인됨</div>';
+    else if(mid==='확인') b+='<div class="gate">✓ 중도금 확인됨</div>'+ab('undoPay:중도금','중도금 확인 취소','btn-danger');   /* [ADM_AC1] */
   }
   var bal=d.mirror&&d.mirror.balance;
   if(bal){
     raw+='<div class="cnote">잔금 <b>'+esc(bal.status)+'</b>'+(bal.amount!=null?(' · '+Number(bal.amount).toLocaleString()+'원'):'')+(bal.payerName?(' · 입금자 '+esc(bal.payerName)):'')+(bal.dday!=null?(' · 예식 D'+(bal.dday>=0?('-'+bal.dday):('+'+(-bal.dday)))):'')+'</div>';
     if(bal.status==='완료신호'&&!_mbBoth) b+=ab('confirmBalance','잔금 입금 확인','btn-line');
-    else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>';
+    else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>'+ab('undoPay:잔금','잔금 확인 취소','btn-danger');   /* [ADM_AC1] */
   }
   // [02-8] 환불 예상(d.refundQuote · 계약서 7조·9조·4조⑧ 서버 계산) — 지금 취소하면 한 줄. 벌수 미기록이면 산정 불가 경고.
   if(d.refundQuote && !d.refundQuote.pending){
@@ -1874,6 +1875,7 @@ function onDetailAct(act,d){
   var code=d.code, names=d.names, isSnap=snap(d.product);
   if(act.indexOf('issueReceipt:')===0){ doIssueReceipt(code,names,act.slice(13),d); return; }
   if(act.indexOf('undoReceipt:')===0){ doUndoReceipt(code,names,act.slice(12)); return; }
+  if(act.indexOf('undoPay:')===0){ doUndoPay(code,names,act.slice(8)); return; }   /* [ADM_AC1] */
   if(act==='approve') doApprove(code,names);
   else if(act==='accept') doAccept(code,names);
   else if(act==='cancel') doCancel(code,names);
@@ -2008,6 +2010,27 @@ function doIssueReceipt(code,names,kind,d){
     onYes:function(){ var num=(($('crNum')&&$('crNum').value)||'').trim(); if(!num){ mErr('발행번호를 입력해 주세요.'); return; } runAct(['adminIssueCashReceipt',code,kind,num],code,'발행 완료'); } });
 }
 function doUndoReceipt(code,names,kind){ var kLabel={'중도금잔금':'중도금·잔금'}[kind]||kind; openModal({ title:kLabel+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
+/* [ADM_AC1] 입금 확인 취소 — 누르기 전에 서버 미리보기(dry-run)로 "무엇이 어떻게 되돌아가는지"를 먼저 보여준다.
+     막히는 경우는 서버가 이유별로 다른 메시지를 주므로 그대로 보여준다(왜 막혔는지 알아야 강제변경으로 우회하지 않는다). */
+function doUndoPay(code,names,milestone){
+  toast('되돌릴 내용 확인 중');
+  gas('adminUndoConfirmPreview', code, milestone).then(function(p){
+    if(!(p&&p.ok)){ openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
+    if(p.already){ toast('이미 되돌려진 상태예요'); return; }
+    var rows=(p.plan||[]).map(function(x){ return li(x.label+' · 확인('+esc(x.at||'')+') → '+x.to); }).join('');
+    var st=p.stage?li('현재단계 '+p.stage.from+' → '+p.stage.to):'';
+    var cs=(p.consentRemoved||[]).map(function(x){ return li('지워짐: '+x); }).join('');
+    openModal({ title:'입금 확인을 되돌릴까요?', danger:true,
+      text:b(names)+rows+st+cs+li('⚠ '+p.notice),
+      extra:'<div class="field"><label>되돌리는 사유 (처리이력에 남아요)</label><input type="text" id="upR" placeholder="예: 다른 고객 입금과 혼동해 잘못 확인"></div>',
+      yes:'입금 확인 취소', init:function(){ var i=$('upR'); if(i) i.focus(); },
+      onYes:function(){
+        var r=(($('upR')&&$('upR').value)||'').trim();
+        if(!r){ mErr('되돌리는 사유를 입력해 주세요'); return; }
+        runAct(['adminUndoConfirmPayment',code,milestone,r],code,'입금 확인 취소');
+      } });
+  }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
+}
 function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25] 큐 버튼 전용 — 상세 화면으로 들어가지 않고 완료 확인 팝업만 띄운다. 계좌·환불완료 여부는 상세를 조회해 doMarkRefunded에 넘김(계좌 있으면 복사 제공 · 없으면 카톡 안내). 상세를 보고 싶으면 행(줄)을 누르면 됨.
   gas('adminDetail', code).then(function(d){ doMarkRefunded(code, names, (d&&d.ok)?d:null); })
     .catch(function(){ doMarkRefunded(code, names, null); });
