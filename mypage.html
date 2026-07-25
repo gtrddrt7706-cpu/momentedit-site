@@ -146,8 +146,6 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .linkrow a:hover{color:var(--accent)}
 /* MPD_B11 터치 타깃 44px 1차 보정(§7-3-②) — 히트박스만 확장, 시각 유지: 로그인 하단 링크·돌아가기·로그아웃·원장 '보기'·체크박스·모달 닫기X·NOW 새로고침 */
 .linkrow a{display:inline-block;padding:13px 6px;margin:-13px -6px}
-.foot-actions a{display:inline-block;padding:13px 12px;margin:-13px -12px;border-bottom:none}
-.foot-actions a span{border-bottom:1px solid var(--card-border)}
 .led-link,.led-linkbtn{position:relative}
 .led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}
@@ -246,6 +244,8 @@ details.acc>.consult-card{margin-top:10px}
 .foot-actions{margin-top:24px;text-align:center}
 .foot-actions a{font-family:var(--serif-ko);font-size:12.5px;color:var(--light);text-decoration:none;border-bottom:1px solid var(--card-border);cursor:pointer;transition:color .3s}
 .foot-actions a:hover{color:var(--sub)}
+.foot-actions a{display:inline-block;padding:13px 12px;margin:-13px -12px;border-bottom:none}   /* MPD_B11 로그아웃 44px — 밑줄은 내부 span으로 */
+.foot-actions a span{border-bottom:1px solid var(--card-border)}
 
 /* ── 풋터 (인장은 여기에만) ── */
 footer{padding:0 24px 32px;text-align:center;margin-top:20px}
