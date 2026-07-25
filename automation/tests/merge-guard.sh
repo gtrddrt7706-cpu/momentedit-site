@@ -296,6 +296,12 @@ chk '_softHint' mypage.html 7                       # 헬퍼+배선 6곳
 chk 'MPD4_H4' mypage.html 4                         # 완료 행 접기+내 완성물(CSS·조립·요약·게이트)
 chk 'trk-fold' mypage.html 2                        # 접기 CSS+마크업
 chk 'MPD4_H5' mypage.html 3                         # led-foot(CSS·헬퍼·배선)
+# ── 2026-07-26 관리자 페이지 1차 스프린트 PR①(AA1 긴급 신호 · AA3 파괴 클래스 · AA9 쿠폰 과잉 완화)
+chk 'ADM_AA1' admin.html 3                          # 긴급 큐 색 바+배지 CSS+렌더
+chk 'urg-badge' admin.html 2                        # 급함 배지(0건이면 미출력)
+chk 'ADM_AA3' admin.html 1                          # 파괴 계열 danger 통일(가역 액션 제외 기준)
+_aa3=$(grep -c "ab('cancel','[^']*','btn-ghost')" admin.html 2>/dev/null); _aa3=${_aa3:-0}; if [ "$_aa3" -gt 0 ]; then echo "REVERT? admin.html: 취소 버튼 btn-ghost 복귀($_aa3)"; fail=1; else echo "ok admin.html: 취소=danger 통일 유지"; fi
+chk 'ADM_AA9' admin.html 1                          # 쿠폰 회수 danger 제거
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
