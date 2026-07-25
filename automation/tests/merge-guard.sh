@@ -441,8 +441,14 @@ if [ "$_cc" -gt 0 ]; then echo "REVERT? mypage.html: 후기 합성 스텝 무조
 # ── 2026-07-25 Customers 헤더 순서 정합(setupCustomers 재실행이 '라벨만' 밀어 써서 열이 오정렬되는 사고 방지)
 chk 'HEADER_ORDER_GUARD' automation/platform/10_customers-setup.gs 2   # 덮어쓰기 전 시트 헤더 대조 후 중단(데이터 무변경)
 chk 'HEADER_ORDER_LIVE' automation/platform/00_platform-config.gs 1    # 리터럴 순서 = _prodCreateOrder(meta 마지막) 고정 근거
-_hl=$(grep -c "'제작_ritual', '제작_dining', '제작_seat', '제작_guideinfo', '제작_snap', '제작_final', '제작_invitation', '제작_meta'" automation/platform/00_platform-config.gs 2>/dev/null); _hl=${_hl:-0}
-if [ "$_hl" -lt 1 ]; then echo "REVERT? 00_platform-config.gs: 제작 트랙 헤더 순서가 _prodCreateOrder(meta 마지막)와 어긋남 — setupCustomers가 8열 라벨을 밀어 쓴다"; fail=1; else echo 'ok 00_platform-config.gs: 제작 트랙 헤더 순서 = 운영 시트 append 순서'; fi
+chk 'HEADER_ORDER_AUDIT' automation/platform/10_customers-setup.gs 1   # 읽기 전용 실측 진단(checkCustomerHeaderOrder) — 리터럴 정정 전 근거
+# 제작 8열의 '상대 순서'만 본다(meta가 마지막). CUSTOMER_HEADERS 블록만 잘라내 라벨 등장 순서를 비교하므로
+# 줄바꿈·들여쓰기·따옴표 스타일이 바뀌어도 오탐이 나지 않는다(구버전은 한 줄 완전일치라 포맷팅만으로 RED였다).
+# (주석 줄에도 라벨이 예시로 등장하므로 // 뒤를 잘라내고 실제 배열 원소만 본다)
+_hlblk=$(awk '/^var CUSTOMER_HEADERS = \[/,/^\];/' automation/platform/00_platform-config.gs 2>/dev/null | sed 's|//.*||')
+_hlseq=$(printf '%s' "$_hlblk" | grep -oE "제작_(ritual|dining|seat|guideinfo|snap|final|invitation|meta)" | tr '\n' ',')
+_hlexp='제작_ritual,제작_dining,제작_seat,제작_guideinfo,제작_snap,제작_final,제작_invitation,제작_meta,'
+if [ "$_hlseq" != "$_hlexp" ]; then echo "REVERT? 00_platform-config.gs: CUSTOMER_HEADERS의 제작 8열 순서가 _prodCreateOrder(meta 마지막)와 어긋남 — setupCustomers가 8열 라벨을 밀어 쓴다 / 실제=$_hlseq"; fail=1; else echo 'ok 00_platform-config.gs: 제작 8열 상대 순서 = addProdTrackColumns append 순서(meta 마지막)'; fi
 # 음수 가드 — 구 리터럴 순서(meta 먼저) 부활 감지
 _hm=$(grep -c "'제작_meta', '제작_ritual'" automation/platform/00_platform-config.gs 2>/dev/null); _hm=${_hm:-0}
 if [ "$_hm" -gt 0 ]; then echo "REVERT? 00_platform-config.gs: meta-first 헤더 순서 부활($_hm) — 운영 시트와 한 칸씩 어긋남"; fail=1; else echo 'ok 00_platform-config.gs: meta-first 순서 미부활'; fi
