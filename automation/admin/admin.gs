@@ -1511,8 +1511,11 @@ function adminMarkDelivered(code, force) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
     var stage = String(cust.get('현재단계') || '').trim();
-    if (stage === '결과물전달') return { ok: true, already: true, stage: stage };
-    if (['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
+    // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 먼저 결과물전달이 된 고객(결과물상태≠전달완료)도 전달 완료 처리 가능하게 —
+    //   종전엔 already로 조기 반환해 상태·기록·알림 없이 영영 마감 불가(막다른길). 이미 전달완료면 종전대로 멱등 반환.
+    var _stageAlreadyDeliv = (stage === '결과물전달');
+    if (_stageAlreadyDeliv && String(cust.get('결과물상태') || '').trim() === '전달완료') return { ok: true, already: true, stage: stage };
+    if (!_stageAlreadyDeliv && ['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };
     // [B-2] 미수금 가드 — 잔금(시그는 중도금 포함)·추가보정 미확인 상태로 결과물을 내보내는 사고 방지. 의도적 전달은 force(상세 카드 경고 확인)로만.
     var _isSnapD = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
@@ -1527,7 +1530,7 @@ function adminMarkDelivered(code, force) {
     var _dRec = _parseJsonSafe(cust.get('동의기록'));
     _dRec.결과물전달일 = fmtKST(new Date());                     // 인도 완료일(계약서 12조③ 보관 6개월 기산 · 만료 통지 기준)
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
-    setCustomerStage(code, 'deliver');
+    if (!_stageAlreadyDeliv) setCustomerStage(code, 'deliver');   // 단계가 이미 결과물전달이면(강제 변경 복구) 상태·기록·알림만 마감 · DELIV_FORCE_RESUME
     _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
     notifyKakao('cust.resultDelivered', code);                  // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡)
     try {   // [2026-06-23] 결과물 전달은 카톡+메일 둘 다(다운로드 링크를 메일에도 남겨 6개월 내 찾기 쉽게). best-effort.

@@ -1648,6 +1648,15 @@ function cardResult(d,isSnap){
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
     if(r['원본링크']) b+=ab('delivered','결과물 전달');
     else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
+  } else if(st==='결과물전달' && rstt!=='전달완료'){
+    // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 결과물전달인 고객(결과물상태≠전달완료) — 종전엔 거짓 '✓ 전달 완료' 표시 + 등록 버튼 전부 숨김(막다른길). 이어서 진행할 버튼 노출.
+    b+='<div class="gate">⚠ 단계는 결과물전달인데 결과물은 아직 <b>'+esc(rstt)+'</b> 이에요 (강제 변경 흔적) · 아래에서 이어서 진행하세요</div>';
+    if(rstt==='선택완료') b+=ab('startRetouch','보정 착수','btn-line');
+    if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');
+    else b+=ab('setResult',(r['원본링크']?'결과물 링크 수정':'원본 링크 등록'),'btn-line');
+    if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
+    if(r['원본링크']) b+=ab('delivered','결과물 전달 완료 처리');
+    else b+='<div class="gate">원본 등록 후 전달 완료 처리할 수 있어요</div>';
   } else if(st==='결과물전달'){
     var svS=r['설문상태']||'대기';
     b+='<div class="gate">✓ 전달 완료'+(svS==='완료'?' · 후기 완료':(svS==='건너뜀'?' · 후기 넘김':' · 후기 작성 대기'))+'</div>';
