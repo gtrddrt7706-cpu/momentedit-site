@@ -150,7 +150,9 @@ function handleSaveInvitationDraft(body) {
     d.invitationDraft = (body && body.draft) || {};
     if (d.confirm && _prodUiStrip(_oldInvJ) !== _prodUiStrip(JSON.stringify(d.invitationDraft || {}))) _prodConfirmVoid(d);   // [예식 확인서] 청첩장 실변경도 확인 해제(80_production 공용 헬퍼)
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { track: 'invitation' }));   // PROD_ACCESSOR
+    var _szI1 = _prodSizeError(d, { track: 'invitation', cust: cust });   // [A급2·B급1]
+    if (_szI1) return { ok: false, error: _szI1 };
+    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { track: 'invitation', cust: cust }));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX(2026-07-25) — 청첩장이 첫 제작 작업일 수 있음. 80_production 트랙 저장과 동일 전이(멱등·역행금지)
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
@@ -189,7 +191,9 @@ function handlePublishInvitation(body) {
       d.tracks = d.tracks || {};
       if (d.tracks.invitation !== '완료') _prodConfirmVoid(d);   // [예식 확인서] 청첩장 상태 변화(→완료)도 확인 해제
       d.tracks.invitation = '완료';
-      touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, {}, { track: 'invitation' }));   // PROD_ACCESSOR
+      var _szI2 = _prodSizeError(d, { track: 'invitation', cust: cust });   // [A급2·B급1]
+      if (_szI2) return { ok: false, error: _szI2 };
+      touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, {}, { track: 'invitation', cust: cust }));   // PROD_ACCESSOR
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 발행('안 함' 포함)만 하고 나가는 재진입 경로는 초안 저장이 없어 전이가 빠짐(코워크 교차검증 치명1)
       return { ok: true, skipped: true };
     }
@@ -216,7 +220,9 @@ function handlePublishInvitation(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls, d.tracks.invitation]) !== _pubOld) _prodConfirmVoid(d);   // [예식 확인서] 발행(상태·링크 변화)도 확인 해제 — 재발행 무변경은 유지
-    var _updPub = _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation' });   // PROD_ACCESSOR
+    var _szI3 = _prodSizeError(d, { track: 'invitation', cust: cust });   // [A급2·B급1]
+    if (_szI3) return { ok: false, error: _szI3 };
+    var _updPub = _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation', cust: cust });   // PROD_ACCESSOR
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
     touchCustomer(custSheet, custCol, cust.num, _updPub);
@@ -282,7 +288,9 @@ function saveInvitationPreview(body) {
     d.eventId = eventId; d.invitationUrls = urls;
     if (d.confirm && JSON.stringify([d.eventId, d.invitationUrls]) !== _wireOld) _prodConfirmVoid(d);   // [예식 확인서] 배선(링크) 변화도 확인 해제 — 무변경 재배선은 유지
     d.tracks = d.tracks || {}; if (d.tracks.invitation !== '완료') d.tracks.invitation = '진행중';
-    touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation' }));   // PROD_ACCESSOR
+    var _szI4 = _prodSizeError(d, { track: 'invitation', cust: cust });   // [A급2·B급1]
+    if (_szI4) return { ok: false, error: _szI4 };
+    touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation', cust: cust }));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 죽은 액션이지만 되살아날 때를 대비해 다른 청첩장 진입점과 동일 전이 유지
 
     return { ok: true, eventId: eventId, urls: urls };

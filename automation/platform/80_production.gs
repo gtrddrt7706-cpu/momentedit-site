@@ -63,7 +63,9 @@ function handleSaveProductionBase(body) {
     };
     var _nbJ = JSON.stringify((function () { var o = JSON.parse(JSON.stringify(draft.base)); delete o.savedAt; return o; })());
     if (draft.confirm && _obJ !== _nbJ) _prodConfirmVoid(draft);   // [예식 확인서] 기초정보(이름·일시) 실변경도 확인 해제
-    var upd = _prodStoreCols(draft, { '제작상태': '작성중' });   // PROD_ACCESSOR
+    var _szB = _prodSizeError(draft, { cust: cust });   // [A급2·B급1] err를 삼키지 않게 사전 검사 + 행 전체 합산
+    if (_szB) return { ok: false, error: _szB };
+    var upd = _prodStoreCols(draft, { '제작상태': '작성중' }, { cust: cust });   // PROD_ACCESSOR
     if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
@@ -120,7 +122,7 @@ var PROD_TRACK_COL = { ritual: '제작_ritual', dining: '제작_dining', seat: '
 var PROD_META_KEYS = ['base', 'tracks', 'confirm', 'confirmStale', 'eventId', 'invitationUrls'];
 //   컬럼별 캡 — ritual·dining은 종전 12k 유지(고객 글이 실제로 들어가는 트랙) · 나머지 20k · meta 20k.
 //   합산 상한: 셀당 5만은 컬럼 분리로 풀리지만 시트 '행' 전체 한도는 그대로라 느슨한 총량 상한을 남긴다.
-var PROD_CAP = { ritual: 12000, dining: 12000, meta: 20000, other: 20000, total: 120000 };
+var PROD_CAP = { ritual: 12000, dining: 12000, meta: 20000, other: 20000, total: 120000, cellHard: 45000 };   // cellHard = 이전(마이그레이션) 중에만 적용하는 셀 하드 한도(시트 셀 5만 미만) — 기존 합법 데이터가 이전에서 막히지 않게
 
 function _prodCols() {   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·좌석 캐시·시트 서식이 참조하는 스키마 단일 출처
   var out = [PROD_LEGACY_COL, PROD_META_COL];
@@ -196,8 +198,15 @@ function _prodPack(d, opts) {
   opts = opts || {};
   var full = !!(d && d._mig) || opts.full === true;
   var track = opts.track || '';
+  // ★[A급2] 마이그레이션은 절대 실패하면 안 된다 —
+  //   구셀 시절 캡은 '전체 45,000'이라 한 트랙이 22,000자여도 합법이었다. 그 행을 옮길 때 새 트랙 캡(20,000)으로 막으면
+  //   meta가 안 써져 migrated=false로 남고 → 다음 저장도 또 full → 또 초과 → 그 행은 무엇을 저장해도 영구히 무시된다.
+  //   그래서 이전 중에는 셀 하드 한도(50,000 미만)만 본다. 이미 존재하는 합법 데이터는 통과시키고,
+  //   캡은 '앞으로의 입력'을 막는 용도로만 쓴다(이전 후 그 트랙을 더 키우려 하면 그때 정상 거부).
+  var migrating = !!(d && d._mig);
   var cols = {}, total = 0;
   function put(header, val, cap, label) {
+    if (migrating) cap = Math.max(cap, PROD_CAP.cellHard);
     if (val.length > cap) return '저장할 내용이 너무 길어요(' + label + ' 현재 약 ' + val.length + '자 · 최대 ' + cap.toLocaleString() + '자). 글 길이를 조금 줄여 주세요.';
     cols[header] = val; total += val.length; return '';
   }
@@ -212,6 +221,11 @@ function _prodPack(d, opts) {
     var prevForT = (d._prev && String(d._prev.track || '') === t) ? d._prev : undefined;
     var val; try { val = _prodTrackPack(d[t + 'Draft'], prevForT); } catch (e2) { return { cols: {}, err: '저장할 내용을 정리하지 못했어요. 새로고침 후 다시 시도해 주세요.' }; }
     var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other;
+    // [B급2] 직전본 백업(_prev)이 캡을 밀어내면 백업을 포기한다 — 고객이 쓴 글은 7,000자인데 화면이 14,000자라고 말하며
+    //   거부하면 안내대로 줄여도 원인을 못 찾는다. 우선순위는 '고객 데이터 저장' > '복구용 백업 1세대'.
+    if (prevForT && val.length > cap && !migrating) {
+      try { val = _prodTrackPack(d[t + 'Draft'], undefined); } catch (e4) {}
+    }
     err = put(PROD_TRACK_COL[t], val, cap, TRACK_LABEL_KO[t] || t);
     if (err) return { cols: {}, err: err };
   }
@@ -220,7 +234,8 @@ function _prodPack(d, opts) {
   if (opts.cust) {
     _prodNewCols().forEach(function (h) { if (cols[h] === undefined) { try { total += String(opts.cust.get(h) || '').length; } catch (e3) {} } });
   }
-  if (total > PROD_CAP.total) return { cols: {}, err: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + total + '자 · 최대 ' + PROD_CAP.total.toLocaleString() + '자). 긴 글을 조금 줄여 주시면 저장돼요.' };
+  var totalCap = migrating ? Math.max(PROD_CAP.total, 200000) : PROD_CAP.total;   // 이전 중에는 합산도 막지 않는다(구셀 45k 상한이라 실제로 넘을 수 없음 · 이론적 방어만)
+  if (total > totalCap) return { cols: {}, err: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + total + '자 · 최대 ' + PROD_CAP.total.toLocaleString() + '자). 긴 글을 조금 줄여 주시면 저장돼요.' };
   return { cols: cols, err: '' };
 }
 var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };
@@ -230,6 +245,9 @@ var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌�
 function _prodStoreCols(d, upd, opts) {
   opts = opts || {};
   var pk = opts.pack || _prodPack(d, opts);
+  // ★[A급2] err를 삼키면 cols가 빈 {}인 채로 진행돼 '아무것도 안 쓰고 ok:true'가 된다(화면엔 저장됐어요·시트엔 없음).
+  //   호출부가 pack을 미리 검사했으면 여기 도달하지 않고, 안 했으면 던져서 조용한 성공 대신 실패로 드러낸다.
+  if (pk.err) throw new Error(pk.err);
   upd = upd || {};
   if (d && d._mig !== undefined) { try { delete d._mig; } catch (e) {} }   // 내부 표시는 영속 금지
   for (var h in pk.cols) { if (pk.cols.hasOwnProperty(h)) upd[h] = pk.cols[h]; }
@@ -237,6 +255,36 @@ function _prodStoreCols(d, upd, opts) {
 }
 // [DRAFT_SIZE_CAP] 저장 전 용량 검사 — 컬럼별 캡 + 신설 컬럼 합산 상한. 초과면 고객 안내 문구, 통과면 ''.
 function _prodSizeError(d, opts) { return _prodPack(d, opts).err; }
+
+// [진단 · 읽기 전용] 배포 전 점검 — 구셀 세대 행 중 '신 컬럼 캡을 넘길 트랙'이 있는지 미리 본다.
+//   이전(마이그레이션) 자체는 캡을 안 보므로 막히지 않지만, 이전 후 그 트랙을 '더 수정'하려 하면 거부된다.
+//   그 고객이 누구인지 배포 전에 알고 들어가려고 만든 목록(아무것도 쓰지 않음).
+function checkProdCapOverflow() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < P.DATA_START_ROW) return '대상 행 없음';
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var out = [];
+  for (var i = 0; i < vals.length; i++) {
+    var get = function (h) { var c = colOf[h]; return c ? vals[i][c - 1] : ''; };
+    var code = String(get('개인코드') || '').trim();
+    if (!code) continue;
+    var d = _prodAssemble(get);
+    var over = [];
+    for (var t in PROD_TRACK_COL) {
+      if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
+      var v = d[t + 'Draft'];
+      if (v === undefined || v === null) continue;
+      var len = 0; try { len = JSON.stringify(v).length; } catch (e) { continue; }
+      var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other;
+      if (len > cap) over.push(t + ' ' + len + '자(캡 ' + cap + ')');
+    }
+    if (over.length) out.push(code + ' · ' + over.join(' · '));
+  }
+  var msg = out.length ? ('신 캡 초과 트랙 보유 고객 ' + out.length + '건\n' + out.join('\n')) : '초과 고객 없음 — 전 행이 신 캡 안에 들어옴';
+  try { Logger.log(msg); } catch (e) {}
+  return msg;
+}
 
 // [1회 실행 · 멱등] Customers에 제작 트랙 컬럼 8개 추가. addGuideTokenColumn과 같은 패턴 — ★반드시 끝에 append(열 인덱스 밀림 금지).
 //   PR-B 배포 후 1회 실행. 안 하면 신 컬럼이 없어 저장이 구셀에만 남는데(읽기·쓰기 모두 폴백 동작) 기능은 계속 정상 — 조용한 미완 상태.
@@ -456,7 +504,9 @@ function handleSaveProductionTrack(body) {
           course: String((_rd.summary || {}).course || ''), venue: String(_dd.venue || _dd.venuePick || ''), seatTables: _tc, seatNames: _pn,
           tracks: { invitation: _tr.invitation || '', dining: _tr.dining || '', ritual: _tr.ritual || '', final: _tr.final || '', seat: _tr.seat || '' } } };
       delete d.confirmStale;
-      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d));   // PROD_ACCESSOR — confirm은 메타 컬럼만 갱신(트랙 미지정)
+      var _szC = _prodSizeError(d, { cust: cust });   // [A급2·B급1] 확인서 경로도 err 사전 검사 + 행 전체 합산
+      if (_szC) return { ok: false, error: _szC };
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));   // PROD_ACCESSOR — confirm은 메타 컬럼만 갱신(트랙 미지정)
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 확인서 경로도 조기 return이라 별도 전이(멱등)
       _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
       return { ok: true, confirm: d.confirm };

@@ -256,5 +256,68 @@ console.log('\n[13] B-8 writeCell 빈 값 의미 — 강제 롤백이 8컬럼을
   ok(cleared === G._prodCols().length, '★빈 값 쓰기가 스킵되지 않고 실제로 지워짐(데이터 부활 사고 없음)', '지워진 셀 ' + cleared + '/' + G._prodCols().length);
 }
 
+console.log('\n[14] 재검토 A급 — 이전(마이그레이션)은 절대 실패하지 않는다');
+{
+  const LEG = G.PROD_LEGACY_COL, META = G.PROD_META_COL, TC = G.PROD_TRACK_COL;
+  // 구셀 시절 합법이던 크기(전체 45k 안, 단일 트랙 22k) — 신 seat 캡 20k를 넘는다
+  const legacy = { base: { groomKo: '김' }, tracks: { seat: '완료' }, seatDraft: { note: 'x'.repeat(22000) } };
+  const row = { [LEG]: JSON.stringify(legacy) };
+  const d = G._prodLoad(rowOf(row));
+  ok(d._mig === true, '구세대 감지');
+  const pk = G._prodPack(d, { track: 'seat' });
+  ok(pk.err === '', '★이전은 캡으로 막히지 않음(막히면 그 행은 영구 정체)', pk.err.slice(0, 60));
+  ok(pk.cols[META] !== undefined, '메타가 기록됨 → 다음 로드부터 migrated=true(재시도 루프 탈출)');
+  const after = G._prodLoad(rowOf(Object.assign({}, row, pk.cols)));
+  ok(after._mig === undefined, '이전 후에는 구세대 표시 사라짐');
+  ok(JSON.stringify(after.seatDraft) === JSON.stringify(legacy.seatDraft), '초과 트랙도 손실 없이 이전됨');
+  // 이전 후 '더 키우려' 하면 그때는 정상 거부(캡은 앞으로의 입력을 막는 용도)
+  ok(!!G._prodPack(after, { track: 'seat' }).err, '이전 후 같은 트랙 재저장은 캡으로 정상 거부(안내 가능 상태)');
+  // 다른 트랙은 영향 없음 — 분리의 목적
+  ok(G._prodPack(after, { track: 'ritual' }).err === '', '★초과 트랙이 있어도 다른 트랙 저장은 정상');
+}
+
+console.log('\n[15] 재검토 A급 — _prodStoreCols가 err를 삼키지 않는다');
+{
+  const over = { tracks: {}, ritualDraft: { t: 'ㅁ'.repeat(13000) } };   // ritual 캡 12k 초과 · 구세대 아님
+  ok(!!G._prodPack(over, { track: 'ritual' }).err, '캡 초과는 err 발생');
+  let threw = false, msg = '';
+  try { G._prodStoreCols(over, {}, { track: 'ritual' }); } catch (e) { threw = true; msg = String(e.message || e); }
+  ok(threw, '★err를 삼키고 빈 cols로 진행하지 않고 던진다(조용한 ok:true 차단)');
+  ok(msg.indexOf('자') >= 0, '던진 메시지가 고객 안내 문구 그대로', msg.slice(0, 50));
+  // 정상 크기는 당연히 안 던짐
+  let ok2 = true; try { G._prodStoreCols({ tracks: {}, ritualDraft: { t: 'ok' } }, {}, { track: 'ritual' }); } catch (e) { ok2 = false; }
+  ok(ok2, '정상 저장은 그대로 통과');
+}
+
+console.log('\n[16] 재검토 B급 — 백업(_prev)이 고객 데이터 저장을 막지 않는다');
+{
+  const TC = G.PROD_TRACK_COL;
+  const body = { S: { t: 'ㅁ'.repeat(6900) } };                       // 고객 글 자체는 캡 안
+  const d = { tracks: {}, ritualDraft: body, _prev: { track: 'ritual', at: '2026-07-25 10:00', draft: body } };
+  const pk = G._prodPack(d, { track: 'ritual' });
+  ok(pk.err === '', '★현재본+백업이 캡을 넘으면 백업을 포기하고 저장은 성공(우선순위: 고객 데이터 > 백업)', pk.err.slice(0, 60));
+  const back = G._prodLoad(rowOf(pk.cols));
+  ok(JSON.stringify(back.ritualDraft) === JSON.stringify(body), '고객 초안은 그대로 보존');
+  ok(back._prev === undefined, '이번 저장에서는 백업만 생략됨');
+  // 둘 다 여유 있으면 백업도 함께 남는다
+  const small = { tracks: {}, seatDraft: { a: 1 }, _prev: { track: 'seat', at: 'x', draft: { a: 0 } } };
+  const back2 = G._prodLoad(rowOf(G._prodPack(small, { track: 'seat' }).cols));
+  ok(back2._prev && back2._prev.track === 'seat', '여유 있으면 백업 보존(종전 동작 유지)');
+}
+
+console.log('\n[17] 재검토 B급 — 합산 상한이 6경로 전부에서 도는가(cust 배선)');
+{
+  const TC = G.PROD_TRACK_COL;
+  const filled = {};
+  ['ritual', 'dining'].forEach((t) => { filled[TC[t]] = 'x'.repeat(11900); });
+  ['seat', 'guideinfo', 'snap', 'final'].forEach((t) => { filled[TC[t]] = 'x'.repeat(19900); });
+  const d = { tracks: {}, invitationDraft: { m: 'x'.repeat(19800) } };
+  ok(!!G._prodSizeError(d, { track: 'invitation', cust: rowOf(filled) }), '청첩장 경로도 행 전체 합산으로 거부(B급1 배선 확인)');
+  const full7 = Object.assign({}, filled); full7[TC.invitation] = 'x'.repeat(19900);   // 7트랙 전부 채운 행(≈123k)
+  const meta = { tracks: {}, base: { g: 'x'.repeat(100) } };
+  ok(!!G._prodSizeError(meta, { cust: rowOf(full7) }), '메타 전용 경로(기초정보·확인서)도 합산 적용');
+  ok(G._prodSizeError(meta, { cust: rowOf(filled) }) === '', '아직 여유 있는 행은 메타 저장 통과(과잉 차단 아님)');
+}
+
 console.log(`\n결과 — 실패 ${fail}건` + (fail ? '' : ' (전부 통과)'));
 process.exit(fail ? 1 : 0);
