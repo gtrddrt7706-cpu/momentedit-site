@@ -1272,13 +1272,13 @@ function openDetail(code, origin, focusKind){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
     curDetail=d; renderDetail(d); show('detail');
     setTimeout(function(){
-      var target=null;
-      if(focusKind && KIND2CARD[focusKind]) target=document.querySelector('.card[data-k="'+KIND2CARD[focusKind]+'"]');   // 큐에서 온 일감의 카드로 바로
-      if(!target) target=document.querySelector('.card.cur');
+      // ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드가 최상단으로 재배치되므로, 일반 열람은 헤더(이름·단계·연락)부터 위에서 보이게 하고,
+      // 큐 일감(focusKind)으로 들어온 경우에만 해당 카드로 스크롤·강조한다.
+      var target = (focusKind && KIND2CARD[focusKind]) ? document.querySelector('.card[data-k="'+KIND2CARD[focusKind]+'"]') : null;   // 큐에서 온 일감의 카드로 바로
       if(target){ var y=target.getBoundingClientRect().top+window.pageYOffset-72; window.scrollTo({top:y<0?0:y,behavior:'smooth'});
-        if(focusKind){ target.classList.add('focus'); setTimeout(function(){ target.classList.remove('focus'); },2200); } }
+        target.classList.add('focus'); setTimeout(function(){ target.classList.remove('focus'); },2200); }
       else window.scrollTo(0,0);
-    }, 60);   // 진행 중인 단계(또는 큐 일감) 카드로 자동 스크롤
+    }, 60);   // 큐 일감 카드로만 자동 스크롤 (없으면 상단부터)
   }).catch(function(e){ toast('오류'); loadHome(); });
 }
 
@@ -1302,8 +1302,8 @@ function renderDetail(d){
   if(c&&c.fields&&c.fields.length){
     h+='<button class="fields-toggle" id="fldToggle">신청 내용 보기 ▾</button><div class="fields" id="fldBox">'+fieldGroups(c.fields)+'</div>';
   }
-  // 카드 (product-aware)
-  (d.cards||[]).forEach(function(k){ h+=renderCard(k,d,isSnap); });
+  // 카드 (product-aware) — ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드를 최상단으로 재배치
+  orderCards(d.cards, d.stage).forEach(function(k){ h+=renderCard(k,d,isSnap); });
   // 메모
   h+='<div class="card"><div class="card-h"><span class="ct">관리자 메모</span><span style="margin-left:auto;font-size:10px;color:var(--label-soft)">내부 전용</span></div>'+
      '<textarea class="memo-area" id="memoArea" placeholder="고객에겐 안 보이는 내부 메모">'+esc(d.memo||'')+'</textarea>'+
@@ -1338,10 +1338,26 @@ function cardMeta(k,isSnap){ return {
 }[k]; }
 function mirrorToggle(k,mirror){ if(!mirror) return ''; return '<button class="mt" data-mt="'+k+'">고객 화면 미리보기 ▾</button><div class="mbody" id="mb_'+k+'">'+kvDump(mirror)+'</div>'; }
 function kvDump(o){ var h=''; for(var key in o){ if(!o.hasOwnProperty(key)||key.charAt(0)==='_') continue; var v=o[key]; if(v==null||v==='') continue; if(typeof v==='object') continue; h+='<div class="kv"><span class="k">'+esc(key)+'</span><span class="v">'+esc(String(v))+'</span></div>'; } return h||'<div class="cnote">표시할 내용 없음</div>'; }
-function isCur(stage, k, isSnap){
-  var map={consult:['신청접수','상담확정','촬영확정','시착','상담완료'],fitting:['시착'],contract:['계약완료'],payment:['입금완료'],production:['제작중'],result:['예식완료','촬영완료']};
-  return (map[k]||[]).indexOf(stage)!==-1;
+/* ★CARD_STAGE_ORDER 2026-07-25 — 고객 상세: 지금 단계에 해당하는 카드를 최상단으로 (상황별 우선 노출)
+   단계별 '지금 볼 카드'(첫 원소가 최우선). 여기 없는 단계는 서버 기본 순서 유지. */
+function stageCards(stage){
+  return {
+    '신청접수':['consult'],'상담확정':['consult'],'촬영확정':['consult'],
+    '시착':['consult','fitting'],'상담완료':['consult'],
+    '계약완료':['contract'],'입금완료':['payment'],'제작중':['production'],
+    '예식완료':['result'],'촬영완료':['result'],'결과물전달':['result'],
+    '취소':['consult'],'미계약':['consult'],'노쇼':['consult']
+  }[stage]||[];
 }
+function orderCards(cards, stage){   // 지금 단계 카드를 맨 위로 · 나머지는 원래(여정) 순서 유지
+  var cur=stageCards(stage);
+  if(!cur.length) return (cards||[]).slice();
+  var top=[], rest=[];
+  (cards||[]).forEach(function(k){ (cur.indexOf(k)!==-1?top:rest).push(k); });
+  top.sort(function(a,b){ return cur.indexOf(a)-cur.indexOf(b); });
+  return top.concat(rest);
+}
+function isCur(stage, k, isSnap){ return stageCards(stage).indexOf(k)!==-1; }   // '.cur' 하이라이트 = 최상단 카드와 동일 기준
 function renderCard(k,d,isSnap){
   var m=cardMeta(k,isSnap); if(!m) return '';
   var inner='', mirror=d.mirror?d.mirror[k]:null;
