@@ -1469,7 +1469,8 @@ function _resultLinkCheck(label, url) {
         if (loc.indexOf('accounts.google.com') !== -1) {
           return label + ' 링크: 공유 설정이 제한되어 고객이 열지 못할 수 있어요.';
         }
-        if (loc.indexOf('http') !== 0) { try { loc = cur.replace(/^(https?:\/\/[^\/]+).*$/i, '$1') + loc; } catch (eA) { break; } }   // 상대경로 보정
+        if (/^\/\//.test(loc)) loc = 'https:' + loc;   // 프로토콜 상대(//host/…) — origin을 붙이면 잘못된 주소가 돼 오경고(404)로 이어지던 것 방지
+        else if (loc.indexOf('http') !== 0) { try { loc = cur.replace(/^(https?:\/\/[^\/]+).*$/i, '$1') + loc; } catch (eA) { break; } }   // 상대경로 보정
         cur = loc;
         continue;
       }
