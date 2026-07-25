@@ -315,6 +315,11 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .cc-btn.cc-btn-seal:hover{background:#511F1A}
 .cc-btn.cc-btn-seal:active{background:#8A3A32}
 .cc-btn-ghost{display:block;width:100%;text-align:center;padding:13px 0;border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);background:#fff;text-decoration:none;cursor:pointer;transition:all .3s}
+/* TRK_NOW_TONE(2026-07-25 사용자 지시 "청첩장 버튼만 왜 색이 있어? 개선해줘"): '지금 할 차례' 표시를 진한 채움 버튼(.cc-btn)에서
+   같은 아웃라인 + 골드 강조로 낮춤 — 한 줄만 검은 덩어리로 튀던 것 해소. 모양·크기·서체는 형제 버튼과 동일, 색만 다르다.
+   ★.cc-btn(진한 채움)으로 되돌리지 말 것. 이 신호를 아예 없애면 어디부터 할지 알 수 없어짐(구 MPD_B2 취지 유지). */
+.trk .cc-btn-ghost.trk-now{border-color:var(--gold);color:var(--gold-deeper,#9a7b3f);font-weight:500;box-shadow:0 0 0 2px var(--gold-soft)}
+.trk .cc-btn-ghost.trk-now:hover{border-color:var(--gold-deep,#7A5F37);color:var(--accent)}
 /* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
 .acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
 .acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
@@ -4349,7 +4354,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
     return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
+      + '<button type="button" class="cc-btn-ghost'+(opt.primary?' trk-now':'')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
@@ -4381,7 +4386,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
   var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
   var _cfPrimary=_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale);
-  // MPD_B2 첫 미완료 준비 행 1개에 primary — 6행 전부 고스트라 어디부터인지 정독 필요하던 것(§6-6-①). 확인서 primary가 켜지면 준비 행은 양보.
+  // MPD_B2 첫 미완료 준비 행 1개에 '지금 할 차례' 표시 — 전부 같은 버튼이라 어디부터인지 정독 필요하던 것(§6-6-①). 확인서 표시가 켜지면 준비 행은 양보.
+  //   TRK_NOW_TONE(2026-07-25): 표시 방식은 진한 채움이 아니라 골드 아웃라인(.trk-now) — 한 줄만 검은 덩어리로 튀지 않게.
   var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   // MPD4_H4 완료 행 접기(§9-5-②) — ★11차 판정: 2026-07-19 금지(카드 전체 아코디언·var allDone=false)와 별개.
