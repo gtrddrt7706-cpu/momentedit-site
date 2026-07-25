@@ -3196,10 +3196,10 @@ function renderBalance(p, mid){
     // 가까워짐·입금 신호 → 펼친 활성 카드 (평소 진입은 '내 내역 > 잔금 보기' 인라인 패널)
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else if(p.dday!=null && p.dday<=30){
-    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로.
+    // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로. · MPD_C5 eyebrow 공용 패턴 흡수(9.5px 골드 2.5:1 AA 미달 해소)
     var _mini = balDateTxt ? ('<b>'+escapeHtml(balDateTxt)+'</b>까지') : (dueLabel+'까지');
     box.innerHTML='<div class="consult-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'
-      +'<div style="text-align:left"><div style="font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)">Balance</div>'
+      +'<div style="text-align:left"><div class="cc-eyebrow en-22" style="margin-bottom:0;text-align:left;font-size:11px">Balance</div>'
       +'<div style="font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);margin-top:3px">잔금 '+_mini+' <span class="cc-mini">· '+dueLabel+'</span></div></div>'
       +'<button type="button" class="cc-btn-ghost" id="mp_bMiniView" style="width:auto;flex:0 0 auto;padding:8px 15px">보기</button></div></div>';
     box.style.display='block';
