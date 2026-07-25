@@ -1844,10 +1844,10 @@ function renderMyPage(d){
     else { subEl.style.display = 'none'; }
   })();
 
-  // [02-1] 대기 갭 한 줄 (⏳) — 카드 없는 관리자 대기 구간
+  // [02-1] 대기 갭 한 줄 — 카드 없는 관리자 대기 구간
   (function(){
     var w = String(d.waiting||'').trim(), el = $('mp_waiting'); if(!el) return;
-    if (w){ el.textContent = w+' 기다리는 중'; el.style.display='block'; }   // MPD_B14 ★장식 이모지(⏳⏰) 재추가 금지 — 2026-07-25 사용자 채택
+    if (w){ el.textContent = w+' 기다리는 중'; el.style.display='block'; }   // MPD_B14 ★장식 이모지(모래시계·알람시계) 재추가 금지 — 2026-07-25 사용자 채택
     else el.style.display='none';
   })();
 
