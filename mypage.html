@@ -4519,7 +4519,14 @@ document.addEventListener('click', function(e){
 // [B-2 · PROD_MULTITAB] 청첩장은 트랙 모델 밖(apiTrackSave 미경유)이라 종전엔 브로드캐스트가 없었다 —
 //   PR-B에서 청첩장도 제작_invitation 컬럼을 갖고 _prodOpenTrack이 'invitation'을 보고하므로 발신도 붙인다(같은 트랙 두 탭 편집 커버).
 function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft})
-  .then(function(r){ try{ if(r&&r.ok) _prodBcSend('invitation', ''); }catch(e){} return r; }).catch(function(){}); }
+  .then(function(r){
+    try{ if(r&&r.ok) _prodBcSend('invitation', ''); }catch(e){}
+    // [후속2] 단계 이동 호출부(3곳)는 결과를 안 보고 넘어간다 — 여기서 한 번만 알린다.
+    //   가드('저장 준비가 아직 끝나지 않았어요')·손상 격리('저장 데이터 점검이 필요해…')가 이 지점에서 안 보이면
+    //   '무증상 대신 명시적 거부'라는 가드의 목적이 절반만 달성된다. 손상은 시트 수동 편집으로도 나는 실사용 경로.
+    try{ if(r && r.ok===false && r.error) _miniToast(String(r.error).slice(0,80)); }catch(e2){}
+    return r;
+  }).catch(function(){}); }
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
   if(!box) return;

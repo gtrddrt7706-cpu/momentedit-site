@@ -271,6 +271,13 @@ function checkProdCapOverflow() {
     if (!code) continue;
     var d = _prodAssemble(get);
     var over = [];
+    // ★메타를 먼저 본다 — meta는 모든 저장 경로에서 매번 다시 pack되므로, 초과하면 그 트랙 하나가 아니라
+    //   그 행의 '전 트랙' 저장이 막힌다(실패면이 제일 넓은데 진단에서 빠지면 안 됨).
+    try {
+      var _mo = {}; for (var _mk = 0; _mk < PROD_META_KEYS.length; _mk++) { var _k2 = PROD_META_KEYS[_mk]; if (d[_k2] !== undefined) _mo[_k2] = d[_k2]; }
+      var _ml = JSON.stringify(_mo).length;
+      if (_ml > PROD_CAP.meta) over.push('meta ' + _ml + '자(캡 ' + PROD_CAP.meta + ' · 전 트랙 저장 차단)');
+    } catch (eM) {}
     for (var t in PROD_TRACK_COL) {
       if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
       var v = d[t + 'Draft'];
