@@ -5150,7 +5150,7 @@ function renderPhoto(box){
   function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-pdel]'), function(el){ el.addEventListener('click', function(){ sel.splice(+el.getAttribute('data-pdel'),1); rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ el.addEventListener('click', function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
   var inp=$('mp_photoAdd'), btn=$('mp_photoAddBtn');
   function add(){ if(!inp) return; var v=(inp.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(['전체 하객'].concat(sel).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
@@ -5160,7 +5160,7 @@ function renderPhoto(box){
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   // 이벤트/연출 — 다중 선택(토글) + 직접 추가
   function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ el.addEventListener('click', function(){ fxToggle(el.getAttribute('data-pfx')); }); el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fxToggle(el.getAttribute('data-pfx')); } }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ _kbChip(el, function(){ fxToggle(el.getAttribute('data-pfx')); }); });   // MPD4_F3 fxon 스팬도 role·tabindex 확보(카드는 기대응)
   var fxi=$('mp_fxAdd'), fxb=$('mp_fxAddBtn');
   function fxAdd(){ if(!fxi) return; var v=(fxi.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 동작이에요.'); return; }
@@ -5218,6 +5218,13 @@ var SNAP_COMFORTS=['리드 많이 해주세요','적당히','자유롭게 둘게
 var SNAP_MUST_MAX=3, SNAP_REF_MAX=5, SNAP_PEOPLE_MAX=4;
 var SNAPFLOW = { active:false, d:null };
 function _snapFilledD(D){ D=D||{}; return !!(((D.people||[]).length)||String(D.mustPeople||'').trim()||String(D.aboutNote||'').trim()||D.comfort||((D.mustHaves||[]).length)||String(D.propsNote||'').trim()||D.toneStyle||((D.refs||[]).length)||String(D.moodNote||'').trim()||String(D.directorNote||'').trim()||((D.moodCandle||[]).length)||((D.moodWhite||[]).length)); }   // moodCandle/moodWhite는 옛 저장분 하위호환용만(신규 폼엔 색 타일 없음)
+// [MPD4_F3] 포인터 전용 선택 칩 키보드화 — role=button·tabindex=0 부여 + click/Enter/Space(자동반복 가드) 배선(_dnStarBind 패턴 일반화 · §8-2-③)
+function _kbChip(el, fn){
+  if(!el.getAttribute('role')) el.setAttribute('role','button');
+  if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+  el.addEventListener('click', fn);
+  el.addEventListener('keydown', function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fn(e); } });
+}
 function _snapToggle(arr, v, max, msg){ var i=arr.indexOf(v); if(i>-1){ arr.splice(i,1); return true; } if(arr.length>=max){ mpAlert(msg||'너무 많아요. 대표적인 것 위주로 골라 주세요.'); return false; } arr.push(v); return true; }
 function startSnapFlow(sd){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
@@ -5298,8 +5305,8 @@ function renderSnapFlow(box){
     var dr=$('mp_snapDirector'); if(dr) D.directorNote=dr.value;
   }
   function rerender(){ collect(); renderSnapFlow(box); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-sppl]'), function(el){ el.addEventListener('click', function(){ if(_snapToggle(D.people, el.getAttribute('data-sppl'), SNAP_PEOPLE_MAX)) rerender(); }); });   // 누가 함께(다중)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-smust]'), function(el){ el.addEventListener('click', function(){ if(_snapToggle(D.mustHaves, el.getAttribute('data-smust'), SNAP_MUST_MAX, '원하는 컷이 많아요. 대표적인 것 3개까지 골라 주세요.')) rerender(); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-sppl]'), function(el){ _kbChip(el, function(){ if(_snapToggle(D.people, el.getAttribute('data-sppl'), SNAP_PEOPLE_MAX)) rerender(); }); });   // 누가 함께(다중) · MPD4_F3 키보드화
+  Array.prototype.forEach.call(box.querySelectorAll('[data-smust]'), function(el){ _kbChip(el, function(){ if(_snapToggle(D.mustHaves, el.getAttribute('data-smust'), SNAP_MUST_MAX, '원하는 컷이 많아요. 대표적인 것 3개까지 골라 주세요.')) rerender(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-stone]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-stone'); D.toneStyle=(D.toneStyle===v)?'':v; rerender(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-scomf]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-scomf'); D.comfort=(D.comfort===v)?'':v; rerender(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-srefdel]'), function(el){ el.addEventListener('click', function(){ D.refs.splice(+el.getAttribute('data-srefdel'),1); rerender(); }); });
@@ -5736,7 +5743,7 @@ function bindTrk(box, render, collect, opt){
   TRKFLOW._collect=collect;   // 당겨서 새로고침이 현재 스텝 입력을 초안으로 수집할 때 사용(입력 유실 방지)
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ el.addEventListener('click',function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ _kbChip(el,function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });   // MPD4_F3 큐시트 칩 키보드화
   Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
   // [찜] 별표 토글(카드 선택과 분리 — span role=button: label 활성화 전달 안 받음 + stopPropagation) · 재렌더 후 앵커 기준 스크롤 유지(튐 방지)
