@@ -384,6 +384,7 @@ function _admHistInit(){
   if(_admHistReady) return; _admHistReady=true;
   try{ history.replaceState({admV:'home'}, ''); }catch(e){}
   window.addEventListener('popstate', function(ev){
+    try{ closeModal(); }catch(e){}   // [ADMIN_BACK_NAV] 확인 모달이 열린 채 뒤로가기 시 목록 위에 모달이 남던 것 방지(모달 먼저 닫기)
     if(_view!=='detail' && _view!=='archive') return;   // home/login이면 관여 안 함(자연 이탈)
     var target=(ev && ev.state && ev.state.admV) || 'home';
     _admFromPop=true;
@@ -1409,8 +1410,13 @@ function cardConsult(d,isSnap){
   }
   // 취소 환불 — 송금 완료 처리(취소 고객만). 처리하면 환불송금 큐에서 사라짐.
   // [REFUND_DONE_NOACCT 2026-07-25] '환불 완료 처리' 버튼을 c.refund(계좌 입력) 게이트 밖으로 — 계좌 미입력 취소 건(REFUND_QUEUE_CANCEL_NOACCT로 큐 노출)도 카톡으로 계좌 받아 송금 후·환불액 0원이면 완료 처리 가능. 종전엔 계좌 없으면 완료 버튼이 없어 큐에 뜨는데 처리 못 하던 막다른 길.
+  // [REFUND_DONE_NOACCT · 점검 2026-07-25] 계좌 없고 환불액 0 '확정'(무결제·전액공제, pending/needCount 아님)이면 송금할 게 없어 버튼·문구 생략(큐 FU2와 동일 기준). 불확실(pending·계좌있음·환불>0·벌수미기록)은 항상 노출 → 정당한 건 막다른길 안 됨.
+  var _rq0=d.refundQuote;
+  var _refZero = (!c.refund && _rq0 && !_rq0.pending && !_rq0.needCount && Number(_rq0.refund||0)<=0);
   if(d.stage==='취소' && d.refundDone){
     raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">환불 완료 · '+esc(fmtDT(d.refundDone))+'</span>'+(c.refund?('<br><span style="color:var(--label-soft)">환불 계좌 '+esc(c.refund)+'</span>'):'');
+  } else if(d.stage==='취소' && _refZero){
+    raw+='<br><span style="color:var(--label-soft)">환불 송금 대상 없음 (수령분·환불액 0)</span>';
   } else if(d.stage==='취소'){
     if(c.refund) raw+='<br><b style="color:var(--seal)">예약금 환불 송금 필요</b><br>환불 계좌 <b>'+esc(c.refund)+'</b><br><span style="color:var(--label-soft)">이 계좌로 보낸 뒤 아래 버튼으로 완료 처리해 주세요</span>';
     else raw+='<br><b style="color:var(--seal)">예약금 환불 송금 필요</b><br><span style="color:var(--label-soft)">환불 계좌가 아직 없어요. 카카오톡으로 계좌를 받아 송금한 뒤 완료 처리하거나, 환불액이 없으면 바로 완료 처리하세요.</span>';
