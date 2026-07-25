@@ -4329,9 +4329,14 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   function row(name, st, btnId, label, sub, opt){
     opt=opt||{};
     var done = (st==='완료');
-    return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
-      + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
-      + (sub?'<div class="trk-sub">'+sub+'</div>':'');   // 요약은 해당 행 바로 아래(하단 뭉치 금지 · 2026-07-17). opt.tag=행 옆 작은 표시(선택) · opt.primary=지금 할 차례 강조(채운 버튼)
+    // TRK_NO_SUB(2026-07-25 사용자 지시 "제목 밑 설명이 2개는 있고 2개는 없어 · 전부 없는 식으로 · 필요한 설명은 클릭해 안쪽에서"):
+    //   행은 이름 + 상태 + 버튼만. 설명은 각 행을 눌러 들어간 화면·패널이 담당한다(아래 이관표).
+    //     최종 확정 · 좌석 -> renderSeat 상단 안내(기한·좌석 안내 링크)  ·  단체 사진 -> renderPhoto 상단 안내
+    //     하객 안내       -> guideHubHtml 패널 첫 줄               ·  예식 확인서 -> prodConfirmHtml 패널 첫 줄
+    //   ★행 아래 설명(.trk-sub) 복원 금지 — 일부 행에만 붙어 리듬이 깨지던 것을 없앤 조치.
+    //   단, 기한이 임박한 '최종 확정'만 opt.tag(제목 옆 작은 표시)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
+    return '<div class="trk"><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
+      + '<button type="button" class="'+(opt.primary?'cc-btn':'cc-btn-ghost')+'" style="width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);letter-spacing:.02em" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>';   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
   var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null; if(_ivN) _ivStepTag=_ivN+'/4'; }
@@ -4349,15 +4354,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
 
   // 최종 확정(인원·음료·특이사항) — 완료면 요약, 아니면 기한 안내(D-30부터 D-n 강조)
   var _fDone=(t.final||'')==='완료';
-  var fNote='';
-  if(!_fDone){
-    var _fUrg=(_dLeft!=null&&_dLeft>=0&&_dLeft<=30);   // MPD_B7 D-n(진사) 강조가 붙는 D-30 이내엔 기한 볼드 해제 — 줄당 강조 1개(디자인 헌장 1)
-    fNote='예식 '+(_fUrg?(_payDays().bal+'일 전까지'):('<b>'+_payDays().bal+'일 전까지</b>'))+' 확정해 주세요 · 확정하면 이어서 자리 배치로 넘어가요'
-      + (_fUrg?(' · <b style="color:var(--seal)">D-'+_dLeft+'</b>'):'');   // 통합 행(2026-07-19 사용자 지시): 확정 저장 직후 좌석 캔버스로 자동 연결되는 여정 예고
-  }
-  // 좌석 배치도 — 최종 확정(인원)이 끝나야 열림. 완료 요약은 중복이라 생략 · 미완료 유도만(2026-07-17)
+  // TRK_NO_SUB: 기한 문구(행 아래 설명) 폐지 → 임박 시에만 제목 옆 'D-n' 태그. 상세 안내는 renderSeat 상단이 담당.
+  var _fUrgTag=(!_fDone && _dLeft!=null && _dLeft>=0 && _dLeft<=30) ? ('D-'+_dLeft) : null;
   var _seatDone=(t.seat||'')==='완료';
-  var seNote=(_fDone && !_seatDone)?'자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요':'';   // '(선택)' 표기는 행 태그가 담당 — 이중 표기 제거(2026-07-18)
   // 행 = 이름+상태+버튼만(2026-07-17 사용자 지시 · 요약·마감 입력은 '예식 확인서'가 흡수). 행에는 미완료 기한·유도만 남김.
   // 예식 확인서·하객 안내 — 같은 행 폼으로 카드 안에(2026-07-17 사용자 지시). 버튼을 누르면 바로 아래 패널이 열려 내용 확인.
   var _cfOk=!!(p.confirm&&p.confirm.at);
@@ -4381,9 +4380,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
     { done: (_fDone&&_seatDone), html: row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final', tag:(!_fDone?_fdStepTag:null)}) },
+          null, {primary:_firstTodo==='final', tag:(!_fDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {primary:_firstTodo==='photo'}); })() }   /* 완료 시 안내문 숨김 — 형제 준비 행과 리듬 통일(2026-07-19 사용자 지시) */
+    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, null, {primary:_firstTodo==='photo'}); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
   ];
   var _doneP=[], _todoP=[];
   _prepRows.forEach(function(r){ (r.done?_doneP:_todoP).push(r.html); });
@@ -4395,13 +4394,10 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
-      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
-          (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
-            ? '청첩장에 자동으로 들어가는 안내예요'
-            : '식사·자리를 담는 하객 안내 페이지예요'))   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
+      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel, null)   // TRK_NO_SUB: 설명은 아래 패널(guideHubHtml) 첫 줄로 이관   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
-      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
-          {primary:_cfPrimary})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, null,
+          {primary:_cfPrimary})   // TRK_NO_SUB: 설명은 아래 패널(prodConfirmHtml) 첫 줄로 이관   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
@@ -5212,8 +5208,14 @@ function guideHubHtml(p, inv){
   p=p||{};
   var tok=p.guideToken||'';
   var closed=!!tok && _guideLinkClosed(p.base);
-  return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
+  // TRK_NO_SUB(2026-07-25 사용자 지시): 행 아래 설명을 여기로 이관 — 무엇인지 먼저 한 줄로 알리고 링크·QR을 보여준다.
+  var _lead='<div class="cc-note" style="text-align:left;margin:0 0 8px">'
+    + (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
+        ? '식사·자리 안내를 담는 <b>하객 안내 페이지</b>예요 · 청첩장에 자동으로 들어가요.'
+        : '식사·자리 안내를 담는 <b>하객 안내 페이지</b>예요 · 링크·QR로 하객에게 전해요.')
+    + '</div>';
+  return _lead + (tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>');
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
@@ -5604,7 +5606,9 @@ function prodConfirmHtml(p, inv){
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
   }
-  return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
+  // TRK_NO_SUB(2026-07-25 사용자 지시): 행 아래 설명을 여기로 이관 — 이 패널이 무엇인지 첫 줄로 알린다.
+  var _cfLead='<div class="cc-note" style="text-align:left;margin:0 0 10px">지금까지 준비한 내용을 <b>한 장</b>으로 모았어요 · 예식 당일은 이 내용대로 진행돼요.</div>';
+  return '<div id="cf_wrap">'+_cfLead+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 }
 function wireProdConfirm(box, p){
   var btn=$('cf_go'); if(!btn) return;
@@ -5689,6 +5693,20 @@ function _seatFeeHtml(n){
 }
 // 배경 자동 저장(무음) — 최종 인원=이름 있는 자리 수로 파생 · 스탠딩/추가요금도 함께 담아 관리자 화면과 일치. 이름 하나라도 있으면 완료 처리.
 function _seatFinSave(){ try{ if(!SEATFLOW) return; var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={}); fd.headcount=(n?String(n):''); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){}); }catch(e){} }
+// TRK_NO_SUB: 좌석 화면 상단 안내 한 줄 — 기한(예식 N일 전·임박 시 D-n)과 좌석 안내 링크 생성을 여기서 알린다(목록 행에서 이관).
+function _seatLeadNote(){
+  try{
+    var d=(window._mpStateD||{}), pr=d.production||{}, t=pr.tracks||{};
+    var bal=_payDays().bal, wl=_payWord();
+    var left=null, wd=(pr.base&&pr.base.weddingDate)?String(pr.base.weddingDate).slice(0,10):'';
+    if(/^\d{4}-\d{2}-\d{2}$/.test(wd)){ var w=new Date(wd+'T00:00:00'); if(!isNaN(w)){ var n=new Date(); n.setHours(0,0,0,0); left=Math.ceil((w-n)/86400000); } }
+    var urg=(left!=null && left>=0 && left<=30);
+    var out=wl+' '+(urg?(bal+'일 전까지'):('<b>'+bal+'일 전까지</b>'))+' 확정해 주세요'
+      + (urg?(' · <b style="color:var(--seal)">D-'+left+'</b>'):'');   // MPD_B7 D-n(진사) 강조가 붙는 D-30 이내엔 기한 볼드 해제 — 줄당 강조 1개(디자인 헌장 1). 구 fNote에서 이 화면으로 이관(TRK_NO_SUB)
+    if((t.seat||'')!=='완료') out+='<br>자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요';
+    return out;
+  }catch(e){ return '자리를 정하면 하객 <b>좌석 안내 링크</b>가 만들어져요'; }
+}
 function renderSeat(box){
   if(!box) return; var s=SEATFLOW; var ed=s.edit||null;
   if(ed) _seatWriteEdit(box);   // 재렌더 진입 시 입력 중이던 값을 먼저 모델에 반영 — 외부 재렌더(상태 갱신 등)가 타이핑 중 이름을 삼키지 않게(편집 상태는 유지)
@@ -5751,7 +5769,9 @@ function renderSeat(box){
     +'<div class="inv-head"><span class="inv-step-n">최종 확정 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
     // [자리별 3음료 + 인원 자동계산 2026-07-19 사용자 지시] 별도 인원 입력·대표음료 칩 폐지 → 자리에 이름·음료를 넣으면 인원·요금 자동. 요금 안내는 캔버스 아래.
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
-    +'<div class="cc-sub" style="text-align:center;margin-bottom:12px">자리를 눌러 <b>이름과 음료</b>를 정해요.</div>'
+    +'<div class="cc-sub" style="text-align:center;margin-bottom:6px">자리를 눌러 <b>이름과 음료</b>를 정해요.</div>'
+    // TRK_NO_SUB(2026-07-25 사용자 지시): 목록 행 아래에 있던 기한·좌석 안내 링크 설명을 이 화면 안으로 이관(행은 이름·버튼만)
+    +'<div class="cc-note" style="text-align:center;margin:0 0 12px">'+_seatLeadNote()+'</div>'
     + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
     +'<div class="seat-room">'
