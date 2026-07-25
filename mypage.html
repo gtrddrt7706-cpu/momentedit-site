@@ -1796,7 +1796,7 @@ function renderMyPage(d){
     if (d.result && d.result.status) {
       var _rs = d.result.status, _rx = d.result.extra || {};
       var _svDone = !!(d.result.survey && (d.result.survey.status==='완료' || d.result.survey.status==='건너뜀'));   // [DELIV_STEP_HONEST] 후기 제출·건너뜀 = 완료
-      if (_rs === '대기') { head = '결과물을 준비하고 있어요'; sub = '원본부터 순서대로 마이페이지에 올려드릴게요. 아래에서 예상 일정을 확인하실 수 있어요.'; }   // 결과물전달 막 진입(아직 미업로드) — '준비되었습니다' 오표기 방지(2026-07-23)
+      if (_rs === '대기') { head = '결과물을 준비하고 있어요'; sub = '원본부터 순서대로 마이페이지에 올려드릴게요.\n아래에서 예상 일정을 확인하실 수 있어요.'; }   // 결과물전달 막 진입(아직 미업로드) — '준비되었습니다' 오표기 방지(2026-07-23) · 문장별 줄내림(pre-line · 2026-07-25 사용자 지시)
       else if (_rs === '원본전달') { head = '원본이 도착했어요'; sub = '보정할 컷을 골라 주세요. 아래에서 번호로 고르시면 돼요.'; }
       else if (_rs === '선택완료') { head = '고른 컷을 보정하고 있어요'; sub = '한 장씩 곱게 손봐 마이페이지에 올려드릴게요.'; }
       else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '거의 다 됐어요. 준비되는 대로 보정본을 올려드릴게요.'; }
