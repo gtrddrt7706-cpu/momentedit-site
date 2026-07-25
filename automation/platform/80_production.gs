@@ -662,7 +662,8 @@ function buildResultState(r) {
     선택: String(r.get('선택사진') || '').trim(),           // A안: 번호/파일명 텍스트
     선택수: Number(r.get('선택수') || 0) || 0,
     선택일시: String(r.get('선택확정일시') || '').trim(),
-    전달일: (function () { try { return String((_parseJsonSafe(r.get('동의기록')) || {}).결과물전달일 || '').slice(0, 10); } catch (e) { return ''; } })(),   // MPD3_G5 만료 임박 배너용 — adminMarkDelivered가 기록한 인도 완료일(계약서 12조③ 6개월 기산). 구 프론트는 이 필드를 안 읽으므로 무해
+    전달일: (function () { try { return String((_parseJsonSafe(r.get('동의기록')) || {}).결과물전달일 || '').slice(0, 10); } catch (e) { return ''; } })(),
+    갤러리: !!String(r.get('원본폴더ID') || '').trim(),   // MPD3_GAL 썸네일 갤러리 가능(원본폴더ID 있음) — 프론트는 true일 때만 getResultGallery 시도(구 GAS·미추출이면 번호 입력 폴백)   // MPD3_G5 만료 임박 배너용 — adminMarkDelivered가 기록한 인도 완료일(계약서 12조③ 6개월 기산). 구 프론트는 이 필드를 안 읽으므로 무해
     포함컷: RESULT.포함보정컷,
     추가단가: RESULT.추가보정단가,
     extra: {
@@ -674,6 +675,44 @@ function buildResultState(r) {
       holder: acct.holder
     }
   };
+}
+
+// [MPD3_GAL 05-②B] 썸네일 갤러리 목록 — 고객 토큰 인증 → 원본폴더ID의 이미지 파일만 이름순 열거.
+//   60장/페이지 · 전체 목록(id·이름)은 CacheService 10분 캐시(수백 장에서 6분 한도·쿼터 회피 · 캐시 실패해도 동작).
+//   썸네일 URL은 drive.google.com/thumbnail — 원본 폴더가 링크 공유(하위 상속)라 고객 브라우저가 직접 로드(GAS 프록시 없음).
+function handleGetResultGallery(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var r = s.row;
+  if (RESULT_STAGES.indexOf(String(r.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아니에요.' };
+  var fid = String(r.get('원본폴더ID') || '').trim();
+  if (!fid) return { ok: false, noGallery: true, error: '갤러리를 준비 중이에요. 원본 링크로 봐 주세요.' };
+  var page = Math.max(1, Math.floor(Number((body && body.page) || 1)) || 1);
+  var PAGE = 60;
+  var cache = null, listJson = null, list = null, cacheKey = 'rg1_' + fid;
+  try { cache = CacheService.getScriptCache(); listJson = cache.get(cacheKey); } catch (e) {}
+  if (listJson) { try { list = JSON.parse(listJson); } catch (e) { list = null; } }
+  if (!list) {
+    var folder;
+    try { folder = DriveApp.getFolderById(fid); } catch (e) { return { ok: false, noGallery: true, error: '갤러리를 열 수 없어요. 원본 링크로 봐 주세요.' }; }
+    list = [];
+    try {
+      var it = folder.getFiles();
+      while (it.hasNext()) {
+        var f = it.next();
+        if (String(f.getMimeType() || '').indexOf('image/') !== 0) continue;   // 이미지 파일만(영상·기타 제외)
+        list.push({ id: f.getId(), name: f.getName() });
+        if (list.length >= 1500) break;   // 안전 상한 — 폭주 폴더에서 실행 한도 보호
+      }
+    } catch (e2) { return { ok: false, noGallery: true, error: '갤러리를 열 수 없어요. 원본 링크로 봐 주세요.' }; }
+    list.sort(function (a, b) { return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0); });
+    try { if (cache) cache.put(cacheKey, JSON.stringify(list), 600); } catch (e3) {}   // 100KB 초과 등 캐시 실패 무시
+  }
+  var total = list.length, pages = Math.max(1, Math.ceil(total / PAGE));
+  var slice = list.slice((page - 1) * PAGE, (page - 1) * PAGE + PAGE).map(function (x) {
+    return { id: x.id, name: x.name, thumb: 'https://drive.google.com/thumbnail?id=' + x.id + '&sz=w400' };
+  });
+  return { ok: true, files: slice, page: page, pages: pages, total: total, included: RESULT.포함보정컷 };
 }
 
 // [05-②] 고객 사진 선택 제출(A안: 번호/파일명 텍스트). 단계 전이 없음.
@@ -861,7 +900,7 @@ function adminStartRetouch(code) {
 function addResultSelectionColumns() {
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시', '중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], added = [];
+  var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시', '중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드', '원본폴더ID'], added = [];   // MPD3_GAL 원본폴더ID(B안 썸네일 갤러리)
   need.forEach(function (h) { if (headers.indexOf(h) === -1) { sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h); added.push(h); } });
   var colOf = buildHeaderIndex(sheet), conv = 0;
   if (colOf['결과물상태']) {
