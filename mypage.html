@@ -292,6 +292,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
 .acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
 .acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
+/* MPD_B4 파괴적 액션 강등 — 취소류는 텍스트 링크 급(헌장 6) · 히트박스는 패딩으로 확보 */
+.cc-btn-textlink{background:none;border:none;color:var(--label-soft);font-family:var(--serif-ko);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:11px 8px;-webkit-tap-highlight-color:transparent}
+.cc-btn-textlink:active{color:var(--sub)}
 .acct-copy-btn{width:100%;max-width:280px;margin:13px auto 0;border:1px solid var(--gold-btn-border);color:var(--accent);background:#fff;border-radius:999px;padding:10px 0;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .25s;-webkit-tap-highlight-color:transparent}   /* MPD_B3 이중 진사 해소 — 복사=중립(골드 아웃라인·먹색), 진사 CTA는 입금했어요 하나만(헌장 5) */
 .acct-copy-btn:active{background:var(--bg2)}
 .acct-copy-btn svg{width:14px;height:14px}
@@ -2454,7 +2457,7 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
     : ('<div class="hold-date">'+when+'</div><div class="hold-meta">디렉터가 확인하고 있어요 · 승인 시 카카오톡으로 안내</div>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
   box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'…')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
-    +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" style="'+_hb+'" id="mp_holdCancel">고정 취소</button></div>'
+    +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" class="cc-btn-textlink" id="mp_holdCancel">고정 취소</button></div>'
     +'</div></div>';
   box.style.display='block';
   var _he=$('mp_holdEdit'); if(_he) _he.addEventListener('click', function(){ doHoldEdit(h); });
@@ -2550,7 +2553,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">디렉터가 확인하고 있어요</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
+    if (c.canCancel){ cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
   } else if (s === '승인완료' || s === '확정'){
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
@@ -2564,7 +2567,7 @@ function renderConsult(c, product){
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
          + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
-    if (c.canCancel) cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
+    if (c.canCancel) cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
     if (c.canCancel) extra = CANCEL_PANEL;
   } else if (s === '변경제안'){
