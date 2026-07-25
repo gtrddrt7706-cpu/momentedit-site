@@ -13,9 +13,29 @@ fail=0
 #   주석은 두 번째를 막지 못했다 → 사람이 지킬 규칙을 없애고 구조로 바꾼다.
 #   트랩은 스크립트가 어떻게 끝나든 마지막에 돌므로, 검사를 어디에 덧붙여도 판정 위에 놓인다.
 #   (sh·dash·bash 전부에서 트랩 안 exit 1이 종료코드로 반영되는 것 확인)
-_gate() { [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }; echo 'ALL MARKERS OK'; }
+#   ★GATE_RAN(2026-07-26 추가) — 트랩은 스크립트가 '어떻게' 끝나든 돈다. 그게 장점이자 새 구멍이었다:
+#   중간에서 죽어도(fail=0인 채) 트랩은 그대로 'ALL MARKERS OK'를 찍는다.
+#   실측 — 301행에 구문오류 1줄을 넣으니 출력 243/394줄 · 마지막 줄 'ALL MARKERS OK' · rc=2.
+#   종료코드는 CI가 잡지만 사람은 못 잡는다(우리 규약이 "돌려서 ALL MARKERS OK 확인"이고 꼬리 몇 줄만 본다).
+#   #301 이전에는 판정 줄에 도달하지 못해 아무것도 안 찍혔다 → 트랩이 '판정은 반드시 돈다'를 얻으면서
+#   '판정이 돌았다 = 검사가 다 돌았다'를 잃은 것. 그래서 실행된 chk 수를 파일의 chk 줄 수와 대조한다.
+#   ※ chk를 조건부(if 안 등)로 넣으면 이 대조가 어긋난다 — 새 chk는 무조건 실행되는 자리에 둘 것.
+#   ※ 한계: 마지막 chk보다 아래(끝 node 검사 구간)에서 죽으면 이 대조로는 못 잡는다. 그 구간은 몇 줄뿐이고
+#      전부 출력을 캡처하는 형태라 여기까지를 값싼 대책으로 본다('맨 끝에 있어야 하는 줄'을 다시 만들지 않기 위해).
+_ran=0
+_gate() {
+  _rc=$?   # ★반드시 트랩의 첫 줄 — 아래 $(grep …)이 $?를 덮어쓴다
+  _exp=$(grep -c '^chk ' "$0")
+  if [ "$_ran" != "$_exp" ]; then
+    echo "REVERT? merge-guard 중단 — chk $_ran/$_exp 만 실행됐다(직전 종료코드 $_rc). 위 결과는 전체 검사가 아니다"; exit 1
+  fi
+  [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
+  echo 'ALL MARKERS OK'
+}
 trap _gate EXIT
-chk(){ n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
+# _ran = GATE_RAN 중단 감지용 실행 계수.
+chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
 chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 발행 차단
@@ -506,9 +526,12 @@ chk 'ADM_GATE_CB' admin.html 1                     # 강제변경 동의 체크�
                                                    #   ※ 위치 제약 없음(2026-07-26 GATE_AT_EXIT 이후) — 판정이 EXIT 트랩으로 옮겨져 어디에 두든 살아 있다. 종전 '판정보다 위에 두라'는 제약은 폐지.
 chk 'ADM_GATE_CHK' scripts/audit/admin-shot.mjs 1  # 위 회귀 단언(크기 24px 이하 · appearance ≠ none)
 chk 'ADM_AC3NOOP' automation/admin/admin.gs 5      # 강제변경 noop 판정을 '실제로 값이 바뀌는 컬럼'으로 — Object.keys(cleared) 복원 금지
-#   '데이터을'만 보면 반쪽이다 — 조사를 문자열 밖에 붙이면 앞 낱말이 바뀌는 순간 다른 형태로 틀린다(실제로 '포함)를'이 났다).
-#   틀린 형태를 하나씩 쫓지 말고 함께 본다. ★이 목록의 리터럴을 admin.gs 주석에 그대로 쓰지 말 것 — 주석이 스스로 걸린다(실제로 한 번 걸렸다).
-_dtl=$(grep -cE '데이터을|포함\)를|완료\)를' automation/admin/admin.gs 2>/dev/null); _dtl=${_dtl:-0}
+#   ★이 목록은 '이미 실제로 난 오류' 2개만 담는다. 늘리지 말 것 — 받침 유무는 앞 낱말마다 달라서 열거는 끝이 없고,
+#   한 항목이라도 규칙을 거꾸로 담으면 가드가 맞는 문구를 신고해 오히려 틀린 쪽으로 고치게 만든다.
+#   실제로 그랬다: 2026-07-26에 '완료)를'을 넣었는데 '료'는 받침이 없어 '를'이 맞다 — 맞는 문장을 신고하는 규칙이었다(삭제함).
+#   증상 열거는 여기까지. 원인은 아래 _josaCat(조사를 문자열 밖에 이어붙이는 형태 부재)이 막는다.
+#   ★이 목록의 리터럴을 admin.gs 주석에 그대로 쓰지 말 것 — 주석이 스스로 걸린다(실제로 한 번 걸렸다).
+_dtl=$(grep -cE '데이터을|포함\)를' automation/admin/admin.gs 2>/dev/null); _dtl=${_dtl:-0}
 if [ "$_dtl" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: 관리자 노출 문구 조사 오류 부활($_dtl) — '데이터을'·'포함)를' 등"; fail=1; else echo "ok automation/admin/admin.gs: 조사 정상('데이터를'·'포함)을')"; fi
 chk 'ADM_JOSA' automation/admin/admin.gs 1   # 조사를 분기 안으로 넣어 두 경우 다 맞게(붙여 쓰기 복원 금지)
 #   ★위 렌더 형태 grep은 이어붙이기를 못 잡는다 — 소스에선 …포함)' + '를… 로 끊겨 있어 리터럴이 존재하지 않는다(실측).
