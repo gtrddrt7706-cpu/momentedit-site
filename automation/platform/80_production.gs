@@ -662,6 +662,7 @@ function buildResultState(r) {
     선택: String(r.get('선택사진') || '').trim(),           // A안: 번호/파일명 텍스트
     선택수: Number(r.get('선택수') || 0) || 0,
     선택일시: String(r.get('선택확정일시') || '').trim(),
+    전달일: (function () { try { return String((_parseJsonSafe(r.get('동의기록')) || {}).결과물전달일 || '').slice(0, 10); } catch (e) { return ''; } })(),   // MPD3_G5 만료 임박 배너용 — adminMarkDelivered가 기록한 인도 완료일(계약서 12조③ 6개월 기산). 구 프론트는 이 필드를 안 읽으므로 무해
     포함컷: RESULT.포함보정컷,
     추가단가: RESULT.추가보정단가,
     extra: {
