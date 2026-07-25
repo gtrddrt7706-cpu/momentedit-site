@@ -84,7 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .brand-img{width:224px;max-width:71%;height:auto;display:inline-block}
 .brand-fallback{display:block;line-height:1.5}
 .wordmark{display:block;font-family:var(--serif);font-size:16px;font-weight:500;color:var(--accent);text-decoration:none}
-.topsub{font-family:var(--serif);font-size:8px;color:var(--label-soft);margin-top:7px}
+.topsub{font-family:var(--serif);font-size:10px;color:var(--label-soft);margin-top:7px}   /* MPD_E5 폰트 하한 상향(본문 11px·보조 10px) — 부모님 세대 가독(§8-2-②) */
 
 /* ── 레이아웃 ── */
 main{width:100%;max-width:430px;margin:0 auto;padding:22px 22px 36px}
@@ -201,7 +201,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* ── 개인코드 카드 ── */
 .codecard{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:11px 16px;max-width:280px;margin:20px auto 0;box-shadow:var(--card-shadow)}
 .codecard .cc-left{display:flex;flex-direction:column;gap:3px;min-width:0}
-.codecard .cc-label{font-family:var(--serif);font-size:9px;color:var(--gold-deep);letter-spacing:.18em;padding-left:.18em}
+.codecard .cc-label{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em;padding-left:.12em}
 .codecard .code{font-family:var(--mono);font-size:17px;font-weight:400;letter-spacing:.1em;color:var(--accent)}
 .codecard .copy{display:inline-flex;align-items:center;gap:6px;flex:none;padding:8px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deeper);cursor:pointer;transition:all .3s var(--ease)}
 .codecard .copy:hover{background:var(--bg3);border-color:var(--gold-deep);color:var(--accent)}
@@ -386,7 +386,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .pv-body th{background:var(--bg2);font-weight:600}
 .pv-body section{margin-bottom:16px}
 .dt-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
-.dt-wd{text-align:center;font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:var(--light);padding:5px 0}
+.dt-wd{text-align:center;font-family:var(--serif);font-size:10px;letter-spacing:.12em;color:var(--light);padding:5px 0}
 .dt-wd.sun{color:#B53A3A}
 .dt-wd.sat{color:#4A6FA5}
 .dt-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
@@ -914,20 +914,20 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:14px 0 6px}
     .seat-room{display:flex;gap:2px;align-items:stretch;--zig:22px}   /* --zig=테이블 좌우 지그재그 폭. 좌우 대칭(우측은 부호 반전으로 미러) · 모바일 22px(360px폭 넘침 방지)·PC 80px */
     .seat-aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
-    .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:8.5px;letter-spacing:.28em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
+    .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:10px;letter-spacing:.2em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
     .seat-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;align-items:center}   /* 상하 간격 압축(최소 동선만) — 컨트롤 줄이 테이블 사이 통로 역할 */
     .seat-colh{font-size:10.5px;letter-spacing:.08em;color:var(--gold-deep);text-align:center;margin-bottom:-6px}
     .rt-wrap{width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center}
     .rt{position:relative;width:var(--rt,150px);height:var(--rt,150px);flex-shrink:0;--seatR:calc(var(--rt,150px)*0.36)}   /* --rt=테이블 지름(원·자리·간격이 함께 스케일). 모바일은 작게(레이아웃 상자도 줄어 지그재그 여유 확보) */
     .rt::before{content:'';position:absolute;left:50%;top:50%;width:calc(var(--rt,150px)*0.46);height:calc(var(--rt,150px)*0.46);transform:translate(-50%,-50%);border-radius:50%;background:#FCFBF9;border:1.5px solid var(--gold);box-shadow:0 1px 3px rgba(58,45,34,.12)}   /* 테이블 번호 원판 — 크림 원판+골드 링(진사 숫자) */
-    .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;z-index:2}
+    .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:2}
     .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:calc(var(--rt,150px)*0.155);font-weight:500;color:#6B2A24;line-height:1;padding:0;pointer-events:none;z-index:1}   /* 테이블 번호 — 크림 원판 위 진사 숫자(또렷한 명조체 숫자) */
     .rt-c.rt-cbtn{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}   /* 번호를 탭하면 테이블 이름 편집 — 구 커스텀 이름 확인·수정 경로(seat.html·관리자에 노출되는 값) */
-    .rt-cnm{font-size:9px;font-weight:400;color:var(--sub);max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+    .rt-cnm{font-size:11px;font-weight:400;color:var(--sub);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px;z-index:2}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
-    .rs{position:relative;max-width:74px;overflow:visible;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:10.5px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
+    .rs{position:relative;max-width:74px;overflow:visible;white-space:nowrap;border:1px solid var(--border);background:#fff;border-radius:11px;font-family:var(--serif-ko);font-size:11px;color:var(--sub);padding:3px 7px;cursor:pointer;box-shadow:0 1px 2px rgba(28,27,25,.05)}
     .rs>.rs-nm{display:inline-block;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
     .rs.empty{color:var(--light);border-style:dashed;background:var(--bg2);padding:3px 8px;font-size:11px}
     .rs:active{border-color:var(--gold-deep)}
