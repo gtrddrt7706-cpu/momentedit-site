@@ -1568,7 +1568,9 @@ function prodTracksHtml(prod){
   if(dd){ if(dd.dining_on==='N'){ h+=' · 진행 안 함'; } else { var p=[]; var _vn=dd.venue||dd.venuePick||''; if(_vn)p.push(esc(_vn)); if(dd.headcount)p.push('인원 '+esc(dd.headcount)); if(dd.mealType)p.push(esc(dd.mealType)); if(dd.partner&&dd.partner!==_vn&&dd.partner!=='모먼트에디트 연계')p.push(esc(dd.partner)); if(dd.entrustAgree==='Y')p.push('위탁동의✓'); if(p.length)h+=' · '+p.join(' · '); } }
   h+='</div>';
   h+='<div class="cnote">📜 식순 <b>'+esc(_tstat(t.ritual))+'</b>';
-  if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
+  // [RITUAL_ADMIN_V3 2026-07-25] 현행 v3 빌더 초안({_v:3,S,summary}) 우선 — 종전엔 v1 키만 읽어 v3 고객이 전부 빈 요약이던 운영 공백 수정. v1은 폴백 유지.
+  if(rd&&rd._v===3){ var s3=rd.summary||{}; var q3=[]; if(s3.course)q3.push(esc(s3.course)); if(s3.count)q3.push(s3.count+'개 순간'); if(s3.min)q3.push(esc(String(s3.min))); if(q3.length)h+=' · '+q3.join(' · '); }
+  else if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
   h+='</div>';
   h+='<div class="cnote">🥂 최종확정 <b>'+esc(_tstat(t.final))+'</b>';
   if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+' · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산)'); if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
@@ -1593,7 +1595,22 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   var h='';
   if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
-  if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
+  // [RITUAL_ADMIN_V3 2026-07-25] v3 빌더 초안 상세 — 코스·순서 흐름·주요 연출 선택·글 유무(본문 비노출)·성장영상 링크. 종전 v1 키만 읽어 v3 고객이 라벨 없는 빈 본문이던 운영 공백 수정.
+  if(rd&&rd._v===3){ var s3d=rd.S||{}, sm3=rd.summary||{};
+    h+='<div class="grp-l">식순</div>'
+      +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
+      +row('순서 흐름', (sm3.flow&&sm3.flow.length)?sm3.flow.join(' → '):'')
+      +row('성혼 선언', ({narr:'나레이션',chorus:'하객 합송',family:'가족'})[s3d.declareWho]||'')
+      +row('반지 교환', s3d.ring==='off'?'뺌':'')
+      +row('베일 다운', ({mother:'어머니',father:'아버지',both:'두 분',skip:'뺌'})[s3d.veil]||'')
+      +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')
+      +row('부모님 헌정', ({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||'')
+      +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
+      +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
+      +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null].filter(function(x){return x;}).join(' · ')||'아직 없음')
+      +(s3d.growth==='on'?row('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');
+  }
+  else if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
   var _pho=(gi&&gi.photo&&gi.photo.length)?('전체 하객 → '+gi.photo.join(' → ')):'';
   var _pfx=(gi&&gi.photoFx&&gi.photoFx.length)?gi.photoFx.join(' · '):'';
@@ -1643,7 +1660,7 @@ function cardResult(d,isSnap){
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
   // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
   var picks=r['선택사진'], pn=r['선택수'];
-  if(picks){ raw+='<div class="res-sel"><b>고른 컷 '+esc(pn||'')+'컷</b>'+(r['선택확정일시']?(' · '+esc(r['선택확정일시'])):'')+'<div class="res-sel-list">'+esc(picks)+'</div></div>'; }
+  if(picks){ raw+='<div class="res-sel"><b>고른 컷 '+esc(pn||'')+'컷</b>'+(r['선택확정일시']?(' · '+esc(r['선택확정일시'])):'')+' <button type="button" class="btn btn-line" style="padding:2px 10px;font-size:11px;vertical-align:1px" onclick="(function(b){var e=b.parentNode.querySelector(\'.res-sel-list\'); if(e){ legacyCopy(e.textContent.trim()); b.textContent=\'복사됨\'; setTimeout(function(){ b.textContent=\'복사\'; },1500); }})(this)">복사</button><div class="res-sel-list">'+esc(picks)+'</div></div>'; }   // [C-1 2026-07-25] 보정 작업용 콤마 구분 복사(Lightroom 필터 호환)
   // ④ 보정본 컨펌 상태
   if(stt==='컨펌대기') raw+='<div class="res-ex">보정본 전달 · <b>고객 컨펌 대기</b></div>';
   else if(stt==='컨펌완료') raw+='<div class="res-ex"><span style="color:var(--gold-deeper)">✓ 고객 컨펌 완료</span>'+(r['컨펌일시']?(' · '+esc(r['컨펌일시'])):'')+'</div>';
@@ -1850,9 +1867,10 @@ function doDelivered(code,names,d){
   var warnPay = unpaid.length?('⚠ 미수금: '+unpaid.join('·')+' 입금 확인 전이에요 — 받을 돈이 남은 채 전달돼요'):'';
   var warn = noReto?'⚠ 보정본이 아직 등록되지 않았어요 — 빈 채로 전달돼요'
            : (noConfirm?'⚠ 고객 컨펌 전이에요 — 확인 후 전달을 권해요':'');
-  openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!(warn||warnPay),
-    text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
-    yes:(warn||warnPay)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay)?'그래도 전달':'전달 완료'); } }); }
+  var warnVid = (d&&d.raw&&!snap(d.product)&&!d.raw['영상링크'])?'⚠ 본식 영상이 아직 등록되지 않았어요 — 나중에 올리면 고객에게 별도 안내가 필요해요':'';   // [C-2 2026-07-25] 시그니처 한정 비차단 경고(계약 §12① 영상 포함 · 판정=snap(d.product) 파일 관례 · 홈 큐 경로(d 없음)는 경고 생략)
+  openModal({ title:'결과물 전달 완료로 넘길까요?', danger:!!(warn||warnPay||warnVid),
+    text:b(names)+(warnPay?li(warnPay):'')+(warn?li(warn):'')+(warnVid?li(warnVid):'')+li('고객 마이페이지에 결과물·후기 단계가 열려요')+li('후기(설문)를 받은 뒤, 또는 넘기면 아카이브로 이동해요'),
+    yes:(warn||warnPay||warnVid)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay||warnVid)?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+Number(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
 /* 커피쿠폰 — 바코드 이미지(1~2장)를 base64로 압축해 발급. 구글 시트 셀 5만자 한계 → 이미지 합계 4.6만자 이내로 자동 축소. */
@@ -2033,7 +2051,7 @@ function openSetResult(code,names,isSnap,d){
   var extra='<div class="field"><label>원본 드라이브 링크</label><input type="url" id="rOrig" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['원본링크']||'')+'"></div>'+
     '<div class="field"><label>보정본 폴더 링크</label><input type="url" id="rReto" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['보정본폴더']||'')+'"></div>'+
     (isSnap?'':'<div class="field"><label>본식 영상 링크</label><input type="url" id="rVid" inputmode="url" autocomplete="off" placeholder="https://…" value="'+esc(r['영상링크']||'')+'"></div>');
-  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중'), extra:extra, yes:'저장',
+  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중')+li('드라이브 공유가 "링크가 있는 모든 사용자"인지 먼저 확인해 주세요 · 저장 후 자동 점검이 한 번 더 경고해요'), extra:extra, yes:'저장',
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });
 }

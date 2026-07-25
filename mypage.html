@@ -1342,14 +1342,17 @@ function openRitualBuilder(p){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false;
-  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
+  var saved=false, _closed=false, _frameReady=false;   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var d=ev.data||{};
     if(d.type==='momentedit:orderReady'){
+      _frameReady=true;
       var rd=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null;
+      // [ORDERFILL_DONE 2026-07-25] 서버 초안의 완료 여부를 실값으로 동봉 — 중간 '저장 후 나가기' 초안이 완성 화면·'저장됨'·전체 방문 ✓로 열리던 결함 수정(완료 판정 소스 = tracks.ritual)
+      var _rdn=((((p&&p.tracks)||((p&&p.production)||{}).tracks)||{}).ritual==='완료');
       // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). 서약·편지 본문은 보내지 않음.
       var _cb=(p&&p.production&&p.production.base)||(p&&p.base)||{};
       var _wd=String(_cb.weddingDate||'').trim(), _ddn=null;
@@ -1357,7 +1360,7 @@ function openRitualBuilder(p){
       var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
       var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||''};
       try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } } }catch(e2){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, cust:_cu}, location.origin);
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu}, location.origin);   // ORDERFILL_DONE
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -1367,7 +1370,7 @@ function openRitualBuilder(p){
       var _exFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReset'}, location.origin); }catch(e){} };
       if(d.data && d.data.S){
         apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-          .then(function(r){ if(r&&r.ok){ saved=true; done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })
+          .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ show('loading'); loadMyState(); } else done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
           .catch(function(){ _exFail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
       } else { done(); }
       return;
@@ -1381,8 +1384,17 @@ function openRitualBuilder(p){
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   window.addEventListener('message',onMsg);
-  var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 이 오버레이 닫기
+  // [RITUAL_BACK_SAVE 2026-07-25] 뒤로가기도 Esc와 동일하게 '저장 후 나가기' 경유 — 모바일 주 닫기 제스처가 유일한 무저장 탈출구이던 문제 수정.
+  //   3초 안에 저장 완료(orderExit)가 안 오면 그래도 닫고(비차단 토스트), 진행 중 저장이 성공하면 위 orderExit 콜백이 _closed를 보고 loadMyState로 갱신.
+  //   bkOpen의 pushState는 '시작하기' 클릭 핸들러 동기 구간에서 실행됨(iOS 스와이프백 비제스처 스킵 이슈 없음 · WebKit 248303 확인).
+  var _bkId=bkOpen(function(){
+    if(!_frameReady){ done(); return; }   // iframe 미로드(저장할 것도 없음) → 그냥 닫기
+    try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); return; }
+    setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요 · 잠시 후 반영돼요'); } },3000);
+  });
 }
+// 소형 비차단 토스트 — 다이얼로그 없이 1줄 안내(뒤로가기 저장 대기 등 · RITUAL_BACK_SAVE)
+function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,47,37,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:10px 18px;border-radius:999px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center'; document.body.appendChild(t); requestAnimationFrame(function(){ t.style.opacity='1'; }); setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); },300); },2600); }catch(e){} }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
 function openFittingView(){
   var doc=window._fittingDoc; if(!doc) return;
@@ -3676,7 +3688,8 @@ function renderResult(res, nm, code){
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
       +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
       +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
-      +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈 모두 가능)">'+escapeHtml(res.선택||'')+'</textarea>'
+      +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈·12-15 범위도 돼요)">'+escapeHtml(res.선택||'')+'</textarea>'
+      +'<div id="mp_pickChips" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px"></div>'
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
       +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>'
       +'</div>';
@@ -3698,24 +3711,44 @@ function renderResult(res, nm, code){
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
   _bindExtra(res);
-  // ② 라이브 카운트 — 입력 토큰 수 vs 포함 컷. 초과분은 ③ 추가 보정 대상임을 미리 안내.
-  var pc=$('mp_picks'), pcl=$('mp_pickCount');
-  if(pcl){ var updc=function(){ var n=pc?_resCount(pc.value):0; pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
-    pcl.innerHTML = n ? ('현재 <b>'+n+'</b>컷'+(n>inc?(' · 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷은 ③에서 결제'):(' / 포함 '+inc+'컷'))) : ('포함 보정 '+inc+'컷'); };
+  // ② 라이브 정규화·칩 미리보기 — [PICK_NORMALIZE 2026-07-25] 범위 전개·프리픽스/확장자 제거·제로패딩·중복 병합을 실시간으로 보여주고, 고유 컷 수로 카운트(회의 A-1 합의).
+  var pc=$('mp_picks'), pcl=$('mp_pickCount'), pch=$('mp_pickChips');
+  if(pcl){ var updc=function(){ var r=pc?_pickNorm(pc.value):{list:[],dup:0}; var n=r.list.length;
+    if(pch){ var cs=''; var show=r.list.slice(0,40); for(var ci=0;ci<show.length;ci++){ cs+='<span style="font-size:12px;padding:2px 9px;border:1px solid var(--gold-line,#e2d8c8);border-radius:999px;background:#faf7f1;color:var(--sub,#6b5d4d)">'+escapeHtml(show[ci])+'</span>'; } if(r.list.length>40) cs+='<span style="font-size:12px;color:var(--label-soft)">+'+(r.list.length-40)+'</span>'; pch.innerHTML=cs; }
+    pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
+    pcl.innerHTML = n ? ('현재 <b>'+n+'</b>컷'+(n>inc?(' / 포함 '+inc+'컷 · 초과 '+(n-inc)+'컷은 ③에서 결제'):(' / 포함 '+inc+'컷'))+(r.dup?(' · 중복 '+r.dup+'건 자동 정리'):'')) : ('포함 보정 '+inc+'컷'); };
     if(pc) pc.addEventListener('input', updc); updc(); }
 }
+// [PICK_NORMALIZE 2026-07-25] 컷 선택 캐논 정규화(프론트 전용 파이프 · 서버는 방어층만) —
+//   구분자(쉼표·공백·줄바꿈·세미콜론·중점) 통합 · 확장자/IMG_류 프리픽스 제거 · 순수 숫자는 3자리 제로패딩(자사 파일명 규칙) ·
+//   범위 "12-15" 전개(상한 500 · 우발적 1-9999 방지) · 중복 제거(순서 유지). 반환 {list, dup}.
+function _pickNorm(raw){
+  var toks=String(raw||'').split(/[\s,;·，、]+/), out=[], seen={}, dup=0;
+  function pad3(x){ var s=String(x); return (s.length>=3)?s:('00'+s).slice(-3); }
+  function push(v,key){ if(seen[key]){ dup++; return; } seen[key]=1; out.push(v); }
+  for(var i=0;i<toks.length;i++){
+    var t=toks[i].trim(); if(!t) continue;
+    t=t.replace(/\.(jpe?g|png|heic|heif|webp|raw|cr2|cr3|nef|arw|dng)$/i,'').replace(/^(img|dsc|dscf|photo)[_\-]?/i,'');
+    if(!t) continue;
+    var m=t.match(/^(\d{1,5})[\-~](\d{1,5})$/);
+    if(m){ var a=parseInt(m[1],10), b=parseInt(m[2],10);
+      if(b>=a && (b-a)<500){ for(var q=a;q<=b;q++){ var z=pad3(q); push(z,z); } continue; } }
+    if(/^\d{1,5}$/.test(t)){ var z2=pad3(parseInt(t,10)); push(z2,z2); }
+    else push(t, t.toLowerCase());   // 숫자 아닌 파일명 그대로(A안) · 대소문자 무시 중복 제거
+  }
+  return { list:out, dup:dup };
+}
 function doSubmitSelection(){
-  var pcEl=$('mp_picks'), picks=((pcEl&&pcEl.value)||'').trim();
-  if(!picks){ mpAlert('고르신 컷을 입력해 주세요.'); return; }
+  // [PICK_NORMALIZE] 제출 = 정규화된 캐논 문자열(쉼표+공백) — 표시(칩·카운트)와 저장이 항상 일치. 초과 안내는 상시 카운터가 담당(종전 1회성 confirm 대체 · 회의 A-1 합의)
+  var pcEl=$('mp_picks'), r=_pickNorm((pcEl&&pcEl.value)||'');
+  if(!r.list.length){ mpAlert('고르신 컷을 입력해 주세요.'); return; }
+  var picks=r.list.join(', ');
   var btn=$('mp_pickSubmit');
-  function send(){ if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
-    function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-    api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); }); }
-  var inc=pcEl?(+(pcEl.getAttribute('data-inc')||10)):10, n=_resCount(picks);
-  if(n>inc){ mpConfirm({ title:'이대로 제출할까요?', body:'고르신 '+n+'컷 = 포함 '+inc+'컷 + 추가 '+(n-inc)+'컷이에요.\n추가 '+(n-inc)+'컷은 다음 ③ 단계에서 결제 안내를 드려요.', yes:'네, 제출할게요', no:'다시 고를게요' }).then(function(ok){ if(ok) send(); }); }
-  else send();
+  if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
+  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
+    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+  }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 말씀해 주세요.'); reset(); });
 }
 function doConfirmRetouch(){
   mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷 수정은 무료 재보정 1회(14일 안·카카오톡), 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){
