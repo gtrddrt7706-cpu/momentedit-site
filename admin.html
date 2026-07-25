@@ -1042,7 +1042,8 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
 function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTeam','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
 function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
-function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin();   // [ADM_AA7] 세션 끊기면 폴링도 정지 var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+// [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
+function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
 function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
 function doLogin(){
