@@ -1591,6 +1591,7 @@ if(EMBED){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
     if(ev.data.type==='momentedit:orderExitReset'){ _obExiting=false; return; }   // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
+    if(ev.data.type==='momentedit:orderSaveFail'){ _doneSaved=false; _persist(); render(); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 부모의 완료 저장 실패 — 낙관 '저장됨' 표시 되돌려 다시 저장 가능하게(회의 R-8)
     if(ev.data.type==='momentedit:orderFill'){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시

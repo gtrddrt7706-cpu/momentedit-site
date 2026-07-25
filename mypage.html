@@ -1088,7 +1088,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     details.cc-more{margin-top:12px}
     details.cc-more>summary{cursor:pointer;list-style:none;text-align:center;font-size:12px;color:var(--light);outline:none;padding:4px 0}
     details.cc-more>summary::-webkit-details-marker{display:none}
-    .mp-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.30);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+    .mp-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.30);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}   /* z 1000→11000 (TRACK_REV_GUARD) — 전체화면 오버레이(9999·10000) 위에서도 충돌 다이얼로그가 보이게 */
     /* 저장 중 즉시 피드백 베일 — 오버레이(950) 위·모달(1000) 아래(z960). 멈춘 것처럼 보여 반복 클릭하던 문제(2026-07-20 · marker: flow-busy) */
     .flow-busy{position:fixed;inset:0;z-index:960;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,.66);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
     .flow-busy-box{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:0 8px 30px rgba(28,27,25,.12)}
@@ -1394,6 +1394,8 @@ function openRitualBuilder(p){
     if(d.type==='momentedit:orderReady'){
       _frameReady=true;
       var rd=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null;
+      // [V2_DRAFT_NOTICE 2026-07-25] 구버전(v2 이하) 초안 감지 — 침묵 폐기 대신 1회 안내 후 종전 동작(새로 시작 · 회의 R-6)
+      if(p&&p.ritualDraft&&!rd){ try{ if(!localStorage.getItem('me_order_v2note')){ localStorage.setItem('me_order_v2note','1'); _miniToast('이전 버전에서 만든 식순 초안은 새 빌더로 이어지지 않아요 · 새로 시작해요'); } }catch(e){} }
       // [ORDERFILL_DONE 2026-07-25] 서버 초안의 완료 여부를 실값으로 동봉 — 중간 '저장 후 나가기' 초안이 완성 화면·'저장됨'·전체 방문 ✓로 열리던 결함 수정(완료 판정 소스 = tracks.ritual)
       var _rdn=((((p&&p.tracks)||((p&&p.production)||{}).tracks)||{}).ritual==='완료');
       // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). 서약·편지 본문은 보내지 않음.
@@ -1419,9 +1421,11 @@ function openRitualBuilder(p){
       return;
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
+      // [ORDER_SAVE_FAIL 2026-07-25] 완료 저장 실패 시 빌더에 신호 — 빌더가 낙관 표시한 '저장됨'을 되돌려 거짓 저장 상태·버튼 잠금 영구화 방지(회의 R-8)
+      var _svFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderSaveFail'}, location.origin); }catch(e){} };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
-        .then(function(r){ if(r&&r.ok){ saved=true; } else { alert((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
-        .catch(function(){ alert('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
+        .then(function(r){ if(r&&r.ok){ saved=true; } else { _svFail((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
+        .catch(function(){ _svFail('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
   }
   x.addEventListener('click',done);
@@ -3807,7 +3811,13 @@ function renderResult(res, nm, code){
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 예식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
-    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
+    // [KEEP_UNTIL_DATE 2026-07-25] 보관 만료일을 날짜로 명시 — 전달일+6개월(서버 sendArchiveExpiryNotices와 동일 계산·같은 롤오버) · 전달일 없거나 '?'면 종전 기간 문구 폴백(회의 E-2)
+    var _keepLine='';
+    try{ if(_dm){ var _ku=new Date(+_dm[1],+_dm[2]-1+6,+_dm[3]);
+      var _kuY=_ku.getFullYear()+'-'+('0'+(_ku.getMonth()+1)).slice(-2)+'-'+('0'+_ku.getDate()).slice(-2);
+      _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)"><b>'+_kuY+'</b>까지 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>'; } }catch(e){}
+    if(!_keepLine && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
+    dl+=_keepLine;
     if(_expBanner) clp=false;   // MPD3_G5 만료 임박이면 받은 결과물 접힘 자동 펼침
     var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
@@ -3853,11 +3863,28 @@ function renderResult(res, nm, code){
       +'</div>';
   }
   // ④ 보정본 확인(컨펌) 패널 — 컨펌대기면 '확인'이 최우선이라 ③ 추가결제보다 위에 둔다.
+  // [REVISION_LOOP 2026-07-25] 무료 재보정 1회의 공식 경로 — 카카오톡 안내를 이 화면의 '수정 요청하기'로 대체(회의 A-2).
+  //   요청 대기 중엔 접수 확인 상태만(침묵 큐 방지 · 재요청 숨김 1건만) · 반영되면 서버가 자동으로 이 패널을 원상 복귀+재안내.
   if(st==='컨펌대기' && res.보정본){
-    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
-      +'<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬는 <b>무료 재보정은 1회</b>(14일 안) 카카오톡으로, 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)으로 알려 주세요.</div>'
-      +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
-      +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button></div>';
+    var _rvp=res.revision||null;
+    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>';
+    if(_rvp&&_rvp.pending){
+      h+='<div class="cc-note" style="margin-top:0">수정 요청이 디렉터에게 전해졌어요'+(_rvp.at?(' · '+escapeHtml(String(_rvp.at).slice(0,16))):'')+'.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
+        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>';
+    } else {
+      h+='<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬고 싶으시면 <b>수정 요청하기</b>로 알려 주세요(무료 1회). 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)이에요.</div>'
+        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
+        +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button>'
+        +'<button type="button" class="cc-btn-ghost" id="mp_revOpen" style="width:100%;margin-top:8px">수정 요청하기</button>'
+        +'<div id="mp_revForm" style="display:none;margin-top:10px">'
+          +'<div class="cc-mini" style="margin:0 0 6px">어떤 부분을 다듬을까요? (여러 개 선택할 수 있어요)</div>'
+          +'<div id="mp_revCats" style="display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px"></div>'
+          +'<textarea class="cc-input" id="mp_revNote" maxlength="1000" style="min-height:84px" placeholder="예: 3번 사진 신부님 팔 라인을 조금 자연스럽게 해주세요"></textarea>'
+          +'<div class="cc-mini" style="margin:6px 0 8px;color:var(--label-soft)">보정본이 마음에 꼭 들 때까지 확인하시라고 마련한 과정이에요. 보정본을 받으신 날부터 14일 안에 1회 재보정을 무료로 도와드려요. 요청은 한 번에 모아 주시면 놓침 없이 반영돼요.</div>'
+          +'<button type="button" class="cc-btn" id="mp_revSubmit">수정 요청 보내기</button>'
+        +'</div>';
+    }
+    h+='</div>';
   } else if(st==='컨펌완료'){
     h+='<div class="res-panel done"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>'
       +'<div class="cc-sub" style="text-align:left"><span class="trk-ok">✓</span> 확인 완료 · 최종본을 정리해 전달하고 카톡으로 알려드려요</div></div>';
@@ -3869,6 +3896,7 @@ function renderResult(res, nm, code){
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
   if(res.갤러리 && !locked && (st==='원본전달'||st==='선택완료')) _galInit(res);   // MPD3_GALF B안 썸네일 갤러리(성공 시 번호 입력 대체)
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
+  _bindRevision();   // [REVISION_LOOP] 수정 요청 폼(칩·사유·제출) 배선 — 폼이 없으면 조용히 통과
   _bindExtra(res);
   // ② 라이브 정규화·칩 미리보기 — [PICK_NORMALIZE 2026-07-25] 범위 전개·프리픽스/확장자 제거·제로패딩·중복 병합을 실시간으로 보여주고, 고유 컷 수로 카운트(회의 A-1 합의).
   var pc=$('mp_picks'), pcl=$('mp_pickCount'), pch=$('mp_pickChips');
@@ -3975,7 +4003,7 @@ function doSubmitSelection(){
   }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
 }
 function doConfirmRetouch(){
-  mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷 수정은 무료 재보정 1회(14일 안·카카오톡), 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){
+  mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷을 다듬고 싶으시면 ④의 수정 요청하기(무료 1회)로, 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){   // REVISION_LOOP — 카카오톡 안내를 공식 경로(수정 요청하기)로 대체
     if(!ok) return;
     var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
@@ -4000,6 +4028,32 @@ function doSubmitSurvey(res){
   api({action:'submitSurvey', token:getToken(), answers:answers, review:review, reviewPublic:pub}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
   }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+}
+// [REVISION_LOOP 2026-07-25] 무료 재보정 수정 요청 폼 — 카테고리 칩(복수) + 사유(1000자) → requestRevision.
+//   제출 성공 시 loadMyState로 접수 확인 상태 재렌더(침묵 큐 방지). 대기 중 재요청은 서버도 멱등 차단.
+var REV_CATS=['피부 보정','밝기/색감','몸/라인','배경 정리','기타'];
+function _bindRevision(){
+  var open=$('mp_revOpen'), form=$('mp_revForm'), cats=$('mp_revCats'), sub=$('mp_revSubmit');
+  if(!open||!form||!cats||!sub) return;
+  var sel={};
+  var chipCss='font-size:13px;padding:6px 13px;border:1px solid var(--gold-line,#e2d8c8);border-radius:999px;background:#fff;color:var(--sub,#5A554C);cursor:pointer;font-family:inherit';
+  REV_CATS.forEach(function(c){
+    var b=document.createElement('button'); b.type='button'; b.textContent=c; b.style.cssText=chipCss;
+    b.addEventListener('click',function(){ sel[c]=!sel[c];
+      b.style.background=sel[c]?'var(--gold-deep,#8a6d3b)':'#fff'; b.style.color=sel[c]?'#fff':'var(--sub,#5A554C)'; b.style.borderColor=sel[c]?'var(--gold-deep,#8a6d3b)':'var(--gold-line,#e2d8c8)'; });
+    cats.appendChild(b);
+  });
+  open.addEventListener('click',function(){ var on=(form.style.display==='none'); form.style.display=on?'block':'none'; open.textContent=on?'수정 요청 접기':'수정 요청하기'; });
+  sub.addEventListener('click',function(){
+    var picked=REV_CATS.filter(function(c){ return sel[c]; });
+    var note=(($('mp_revNote')&&$('mp_revNote').value)||'').trim();
+    if(!picked.length && !note){ mpAlert('다듬고 싶은 부분을 골라 주시거나 적어 주세요.'); return; }
+    sub.disabled=true; sub.textContent='보내는 중…';
+    function reset(){ sub.disabled=false; sub.textContent='수정 요청 보내기'; }
+    api({action:'requestRevision', token:getToken(), cats:picked, note:note}).then(function(d){
+      if(d&&d.ok){ show('loading'); loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+    }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  });
 }
 function doRequestExtra(){
   var qty=Math.floor(Number(($('mp_exQty')&&$('mp_exQty').value)||0));
@@ -4956,7 +5010,13 @@ function apiTrackSave(payload){
   // 전송 시점 스냅샷과 비교 — 라이브 객체(SEATFLOW.tables 등)는 응답 대기 중 사용자가 계속 편집해 오탐이 나므로.
   // JSON 왕복 복사라 undefined 값 키도 전송본과 동일하게 떨어져 나감(구조 비교 기준 일치).
   var _sent=null; try{ _sent=(payload&&payload.draft)?JSON.parse(JSON.stringify(payload.draft)):null; }catch(e){}
+  // [TRACK_REV_GUARD 2026-07-25] 트랙 rev 동봉 — 다른 기기·탭의 선저장을 서버가 감지(조용한 덮어쓰기 방지 · 회의 R-7).
+  //   최신 상태의 trackRevs가 있을 때만(구 GAS·미로드면 rev 없이 종전 동작). 저장 성공 시 서버가 준 새 rev로 갱신해 자기 연속 저장 오탐 방지.
+  try{ var _trs=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs)||null;
+    if(_trs && payload && payload.track && payload.rev==null && !payload.force && _trs[payload.track]!=null) payload.rev=_trs[payload.track]; }catch(e){}
   return api(payload).then(function(r){
+    if(r && r.ok===false && r.code==='rev') return _revConflict(payload, r);
+    try{ if(r && r.ok && r.rev!=null && payload && payload.track){ var _t2=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs); if(_t2) _t2[payload.track]=r.rev; } }catch(e){}
     try{
       if(r && r.ok && r.draft && _sent){
         var lost=_echoLostPaths(_sent, r.draft);
@@ -4969,6 +5029,23 @@ function apiTrackSave(payload){
       }
     }catch(e){}
     return r;
+  });
+}
+// [TRACK_REV_GUARD] rev 충돌 2버튼 UX — '최신 내용 불러오기(권장)' 또는 '내가 쓴 내용으로 저장'(force · 서버가 직전본 1세대 백업).
+//   덮어쓰기는 2단 확인 · 다이얼로그를 닫으면 저장 취소(실수로 덮어쓰지 않게). 반환값은 저장 결과 형태 유지(호출부 alert 흐름 그대로).
+function _revConflict(payload, r){
+  return mpConfirm({ title:'다른 기기에서 먼저 저장됐어요',
+    body:'같은 항목을 다른 기기(또는 다른 탭)에서 먼저 저장했어요.\n최신 내용을 불러와 이어서 수정하시길 권해요.',
+    yes:'최신 내용 불러오기', no:'내가 쓴 내용으로 저장' }).then(function(load){
+    if(load){ show('loading'); loadMyState(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.' }; }
+    return mpConfirm({ title:'이 화면의 내용으로 덮어쓸까요?',
+      body:'다른 기기에서 저장된 내용이 이 화면의 내용으로 바뀌어요.\n직전 내용은 서버에 1회분 보관돼 문제가 생기면 디렉터가 복구를 도와드려요.',
+      yes:'덮어쓰기', no:'돌아가기' }).then(function(fc){
+      if(!fc) return { ok:false, error:'저장을 멈췄어요. 최신 내용을 확인한 뒤 다시 저장해 주세요.' };
+      var p2={}; for(var k in payload){ if(payload.hasOwnProperty(k)) p2[k]=payload[k]; }
+      delete p2.rev; p2.force=true;
+      return apiTrackSave(p2);
+    });
   });
 }
 function saveSeat(done){

@@ -140,6 +140,15 @@ function _prodStateRev(d) {
   for (var i = 0; i < s.length; i++) { h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; }
   return String(h);
 }
+// [TRACK_REV_GUARD 2026-07-25] 트랙별 초안 지문 — 그 트랙 초안만의 해시(전체 지문 _prodStateRev와 달리 다른 트랙 저장에 안 흔들림).
+//   UI 키(_step 등)는 _prodUiStrip으로 제외 — 화면 위치만 달라도 충돌로 오탐하지 않게. 두 기기 동시 편집의 조용한 덮어쓰기를 잡는다(회의 R-7).
+function _prodTrackRev(d, track) {
+  var j = '';
+  try { j = _prodUiStrip(JSON.stringify((d || {})[track + 'Draft'] || {}), track); } catch (e) { return ''; }
+  var h = 5381;
+  for (var i = 0; i < j.length; i++) { h = ((h * 33) ^ j.charCodeAt(i)) >>> 0; }
+  return String(h);
+}
 // 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
 //   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
 function _prodUiStrip(json, track) {
@@ -278,6 +287,13 @@ function handleSaveProductionTrack(body) {
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
     var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
+    // [TRACK_REV_GUARD 2026-07-25] 트랙 rev 대조(락 안 · TOCTOU 없음) — 다른 기기·탭이 먼저 저장했으면 조용한 덮어쓰기 대신 충돌 반환.
+    //   프론트는 code:'rev'를 받아 '최신 불러오기(권장) / 내가 쓴 내용으로 저장(force)' 2버튼. 구클라(rev 미전송)는 검사 생략(종전 동작).
+    if (body && body.rev != null && !body.force && String(body.rev) !== _prodTrackRev(d, track)) {
+      return { ok: false, code: 'rev', error: '다른 기기(또는 탭)에서 이 항목이 먼저 저장됐어요. 최신 내용을 확인해 주세요.',
+        latest: { rev: _prodTrackRev(d, track), draft: d[track + 'Draft'] || null, tracks: d.tracks || {} } };
+    }
+    if (body && body.force) d._prev = { track: track, at: fmtKST(new Date()), draft: d[track + 'Draft'] || null };   // force 덮어쓰기 직전본 1세대 백업(복구 문의 대비 · 다음 force가 대체)
     // [DRAFT_SIZE_CAP 2026-07-25] ritual·dining만 정규화 없이 원문 저장돼 셀 한도(50k)를 위협 — 조기 거부(truncate 절대 금지 · 회의 W1-4).
     if (track === 'ritual' || track === 'dining') {
       var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
@@ -367,7 +383,7 @@ function handleSaveProductionTrack(body) {
         if (_svTok) { var _svc2 = CacheService.getScriptCache(); _svc2.put('seatv_inv_' + _svTok, '1', 360); _svc2.remove('seatv_' + _svTok); _svc2.remove('seatf_' + _svTok); }   // seatf_=이름 검색용 원본 캐시도 함께
       } catch (e) {}
     }
-    var _res = { ok: true };
+    var _res = { ok: true, rev: _prodTrackRev(d, track) };   // [TRACK_REV_GUARD] 저장 직후의 새 트랙 지문 — 프론트가 갱신해 자기 연속 저장이 충돌로 오탐되지 않게
     if (d.confirmStale) _res.confirmStale = true;   // [예식 확인서] 이번 저장으로(또는 이미) 확인이 해제된 상태 — 프론트가 확인 완료 화면을 '재확인 필요'로 즉시 갱신
     if (track === 'seat') _res.seatToken = _seatToken;
     if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성
@@ -624,6 +640,9 @@ function buildProductionState(r) {
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)
     confirmStale: !!draft.confirmStale,        // 확인 후 수정됨 → 재확인 필요 표시
     rev: _prodStateRev(draft),                 // 상태 지문 — 확인 요청이 되돌려 보내 옛 화면 확인을 서버가 거부(다중 탭 안전)
+    trackRevs: (function () {   // [TRACK_REV_GUARD] 트랙별 초안 지문 — 저장 요청이 되돌려 보내면 다른 기기의 선저장을 감지(조용한 덮어쓰기 방지)
+      var o = {}; ['dining', 'ritual', 'final', 'seat', 'guideinfo', 'snap'].forEach(function (t) { o[t] = _prodTrackRev(draft, t); }); return o;
+    })(),
     finalDraft: draft.finalDraft || null,      // 최종 확정 입력 이어하기·요약 표시용
     seatDraft: draft.seatDraft || null,        // 좌석 배치도 이어하기·표시용(tables[])
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
@@ -666,6 +685,14 @@ function buildResultState(r) {
     갤러리: !!String(r.get('원본폴더ID') || '').trim(),   // MPD3_GAL 썸네일 갤러리 가능(원본폴더ID 있음) — 프론트는 true일 때만 getResultGallery 시도(구 GAS·미추출이면 번호 입력 폴백)   // MPD3_G5 만료 임박 배너용 — adminMarkDelivered가 기록한 인도 완료일(계약서 12조③ 6개월 기산). 구 프론트는 이 필드를 안 읽으므로 무해
     포함컷: RESULT.포함보정컷,
     추가단가: RESULT.추가보정단가,
+    revision: (function () {   // [REVISION_LOOP] 무료 재보정 수정 요청 상태 — pending이면 프론트가 접수 확인 카드(재요청 숨김·1건만)
+      try {
+        var a = (_parseJsonSafe(r.get('동의기록')).수정요청이력) || [];
+        if (!a.length) return null;
+        var L = a[a.length - 1];
+        return { pending: String(L.status || '') === '대기', at: String(L.at || ''), round: a.length };
+      } catch (e) { return null; }
+    })(),
     extra: {
       status: String(r.get('추가보정상태') || '').trim() || '대기',  // 대기/신청/견적/결제대기/완료
       수량: Number(r.get('추가보정수량') || 0) || 0,
@@ -829,10 +856,55 @@ function handleConfirmRetouch(body) {
     if (cur === '컨펌완료' || cur === '전달완료') return { ok: true, already: true };
     if (cur !== '컨펌대기' && cur !== '보정중') return { ok: false, error: '아직 보정본 확인 단계가 아니에요.' };
     if (!String(cust.get('보정본폴더') || '').trim()) return { ok: false, error: '보정본이 아직 준비되지 않았어요.' };
+    // [REVISION_LOOP] 수정 요청 반영 중엔 확정 보류 — 구 화면(캐시)의 확인 버튼 대비. 새 보정본 재등록 시 자동으로 다시 열림.
+    try { var _cra = (_parseJsonSafe(cust.get('동의기록')).수정요청이력) || []; if (_cra.length && String(_cra[_cra.length - 1].status || '') === '대기') return { ok: false, error: '수정 요청을 반영하고 있어요. 새 보정본을 안내드린 뒤 확인하실 수 있어요.' }; } catch (e) {}
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '컨펌완료', '컨펌일시': fmtKST(new Date()) });
     try { notifyStudio('[플랫폼] 보정본 컨펌 완료 (' + code + ')', code + ' · 고객이 보정본을 확인했어요. 최종 전달 가능.'); } catch (e) {}
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [REVISION_LOOP 2026-07-25] 보정본 수정 요청(무료 재보정 1회의 공식 경로 · 회의 A-2) — 상태는 컨펌대기 유지.
+//   동의기록.수정요청이력에 {at, cats, note, status:'대기'} 적재(대기 1건만·멱등) + 관리자 메일 통지.
+//   반영 경로: 관리자가 보정본을 재등록(adminSetResultLinks)하면 '반영' 처리 + 고객에게 보정본 재안내(기존 컨펌대기 흐름 재사용).
+var REVISION_CATS = ['피부 보정', '밝기/색감', '몸/라인', '배경 정리', '기타'];
+function handleRequestRevision(body) {
+  var s = resolveSession(String((body && body.token) || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var catsIn = (Object.prototype.toString.call(body && body.cats) === '[object Array]') ? body.cats : [];
+  var cats = catsIn.map(function (c) { return String(c || '').trim(); }).filter(function (c) { return REVISION_CATS.indexOf(c) >= 0; }).slice(0, REVISION_CATS.length);
+  var note = String((body && body.note) || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, 1000);   // 줄바꿈은 보존(여러 건 모아 쓰기) · 제어문자만 제거
+  if (!cats.length && !note) return { ok: false, error: '다듬고 싶은 부분을 골라 주시거나 적어 주세요.' };
+  var round = 0, sent = false;
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('결과물상태') || '').trim() !== '컨펌대기') return { ok: false, error: '지금은 보정본 확인 단계가 아니에요.' };
+    if (!String(cust.get('보정본폴더') || '').trim()) return { ok: false, error: '보정본이 아직 준비되지 않았어요.' };
+    var rec = _parseJsonSafe(cust.get('동의기록'));
+    var arr = rec.수정요청이력 || [];
+    if (arr.length && String(arr[arr.length - 1].status || '') === '대기') return { ok: true, already: true };   // 대기 1건만(멱등 · 재요청 방지)
+    arr.push({ at: fmtKST(new Date()), cats: cats, note: note, status: '대기' });
+    rec.수정요청이력 = arr;
+    round = arr.length;
+    touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+    sent = true;
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+  if (sent) {
+    try {
+      notifyStudio('[플랫폼] 보정 수정 요청 (' + code + ')',
+        code + ' · ' + round + '회차 수정 요청'
+        + (cats.length ? ('\n부위: ' + cats.join(' · ')) : '')
+        + (note ? ('\n사유: ' + note) : '')
+        + '\n반영 후 관리자 페이지에서 보정본 등록(같은 링크여도 저장)을 누르면 자동으로 반영 처리되고 고객에게 다시 안내돼요.');
+    } catch (e) {}
+  }
+  return { ok: true };
 }
 
 // [05-마지막] 만족도 설문 제출(고객). 전달 완료 후. answers={질문키:선택값} 객관식 + review(후기)·reviewPublic(공개동의).
