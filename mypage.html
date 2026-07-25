@@ -2082,6 +2082,9 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   if (product !== '웨딩스냅'){
     var midDone0 = !!(mid && mid.confirmed), balDone0 = !!(bal && bal.confirmed);
     var needMid = !mid && !midDone0, needBal = !bal && !balDone0;
+    // MPD_D6 계약 전 결제 자물쇠 게이트 — 신청접수~시착(계약완료 전)엔 중도금·잔금 잠금 행을 펼치지 않음(8줄 규모 압박 해소 · '본 계약 · 계약금' 행이 결제 예고를 대신)
+    var _ctIdxD6=(stageList||[]).indexOf('계약완료');
+    if(_ctIdxD6>=0 && !(typeof curIdx==='number' && curIdx>=_ctIdxD6) && !(contract && contract.signed)){ needMid=false; needBal=false; }
     // [임박 계약 일괄 수납] 계약금 카드가 열렸고 묶음에 포함됐으면(서버 bundle) 그 결제는 카드에서 받으므로 자물쇠에서 제외
     var _pbU = (d && d.payment && d.payment.bundle) || [];
     if (_pbU.indexOf('중도금') !== -1 || (d && d.payment && d.payment.midConfirmed)) needMid = false;
