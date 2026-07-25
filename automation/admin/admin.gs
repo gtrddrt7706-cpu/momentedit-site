@@ -179,6 +179,7 @@ function adminCall(token, fn, args) {
       adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
       adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
+      adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
@@ -2069,6 +2070,26 @@ function adminMarkUncontracted(code) {
 }
 
 // 취소 환불 송금 완료 처리 — 동의기록.환불완료=시각 기록 → 환불 송금 큐에서 사라짐. (멱등)
+/* [ADM_AC2] 환불 완료 취소 — '송금 완료 표시'를 되돌리는 것이지 송금 자체를 되돌리는 게 아니다.
+     표시를 지우면 그 고객이 다시 환불 송금 큐에 떠서, 잘못 눌러 큐에서 사라진 건을 되찾을 수 있다.
+     금전 표시라 사유 필수 · 멱등 · 처리이력은 AC1과 같은 규칙. */
+function adminUndoRefunded(code, reason) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  reason = String(reason || '').trim();
+  if (!reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.환불완료) return { ok: true, already: true };   // 멱등 — 두 번 눌러도 안전
+  var at = String(rec.환불완료 || '');
+  delete rec.환불완료;
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+  _recordHandler(code, '환불 완료 표시 취소(완료 표시 ' + at + ') · 사유: ' + reason);
+  return { ok: true, was: at };
+}
+
 function adminMarkRefunded(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
