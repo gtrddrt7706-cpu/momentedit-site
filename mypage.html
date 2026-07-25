@@ -4297,7 +4297,8 @@ function invStepParents(box){
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
     + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
     +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
-    +'</div>';
+    +'<div class="sp-note">다음으로 넘어가면 여기까지 자동 저장돼요</div>'
+    +'</div>';   // MPD_E7 자동저장 신호 표준화(좌석 '고르면 바로 저장돼요' 패턴 확산)
   function collect(){
     var rd=function(id){ return ($(id)&&$(id).value||'').trim(); };
     var rdSel=function(id){ var s=$(id); if(!s) return undefined; return s.value===ETC ? (($(id+'_e')&&$(id+'_e').value||'').trim()) : s.value; };
@@ -4922,6 +4923,7 @@ function renderPhoto(box){
   if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
+  h+='<div class="sp-note" style="text-align:left;margin:0 0 8px">고른 내용은 나갈 때 자동으로 저장돼요</div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요.</div>';
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
@@ -5927,7 +5929,7 @@ function dineFilterUI(d, wt){
     +(DN_UI.attr?'<div class="dn-attr-list"><div class="dn-fine" style="margin:0 0 8px">눌러서 담아 두면 다음 화면에서 식당과 함께 볼 수 있어요. 산책·사진 코스예요.</div>'+attrItems+'<div class="dn-fine" style="margin-top:2px">거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
   // (2026-07-12) 통합 흐름: AI 입력(aiBox) → 컨셉 칩(presetRow, 식사+시나리오 한 줄) → 지도 결과(placeCards) → 커브레이션 리스트(head·chips·cards). '또는 직접 골라보기' 칸막이·step0 찜박스 제거.
   // 카드=버튼(눌러서 찜)이라 별표를 없앤 대신, 처음 오는 분도 알 수 있게 한 줄 안내(결과 있을 때만)
-  var tapHint=list.length?'<div class="dn-taphint">마음에 드는 곳을 <b>눌러서 담아</b> 두세요. \'다음\'에서 모아 비교해요.</div>':'';
+  var tapHint=list.length?'<div class="dn-taphint">마음에 드는 곳을 <b>눌러서 담아</b> 두세요. 담으면 바로 저장돼요. \'다음\'에서 모아 비교해요.</div>':'';
   return aiBox + presetRow + placeCards + head + care + aiHint + chips + tapHint + cards + fine + attr;
 }
 // 예약 정보(시간·예약자) 입력 — 다이닝 위저드 마지막 단계 전용(2026-07-17 사용자 지시 · 확인서에서 이동). 하객 안내 식사 섹션에 표기됨.
