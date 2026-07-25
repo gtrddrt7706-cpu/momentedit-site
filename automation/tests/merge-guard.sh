@@ -220,6 +220,9 @@ chk 'MPD_D5' mypage.html 1                          # 진행중 행 진척 태�
 chk 'MPD_D6' mypage.html 1                          # 계약 전 결제 자물쇠 게이트
 chk 'MPD_C3' mypage.html 1                          # 잠금 해제 시점 힌트
 chk 'MPD_C5' mypage.html 1                          # 잔금 미니 카드 eyebrow 공용 패턴
+# ── 2026-07-25 마이페이지 2차 스프린트 PR③(D1 경량분)
+chk 'MPD_D1' mypage.html 2                          # 신청접수 신뢰 블록+확인서 장소 라인
+chk 'TRUST_MINI' mypage.html 3                      # 신뢰 블록 조립+주입 2곳
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
