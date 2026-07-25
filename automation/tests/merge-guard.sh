@@ -265,7 +265,8 @@ chk 'MPD_G11' mypage.html 2                         # 계약 성사·제작 시�
 chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결측 꼬리·오버플로 가드
 # ── 2026-07-25 마이페이지 2차 스프린트 PR①(B1~B6 위계·강조)
 chk 'MPD_B1' mypage.html 2                          # D-day 별도 줄 승격(먹색 · G12 중립 톤 공존)
-chk 'MPD_B2' mypage.html 1                          # 첫 미완료 준비 행 primary(확인서 양보)
+chk 'MPD_B2' mypage.html 1                          # 첫 미완료 준비 행 '지금 할 차례' 표시(확인서 양보) — 2026-07-25 TRK_NOW_TONE으로 진한 채움→골드 아웃라인
+chk 'TRK_NOW_TONE' mypage.html 2   # 행 '지금 할 차례' 버튼을 진한 채움(.cc-btn) 대신 골드 아웃라인(.trk-now)으로(2026-07-25 사용자 지시 "청첩장 버튼만 색이 있다") · ★진한 채움 복원 금지
 chk 'MPD_B3' mypage.html 1                          # 계좌 복사 중립(이중 진사 해소)
 chk 'MPD_B4' mypage.html 1                          # 취소류 텍스트 링크 강등
 chk 'cc-btn-textlink' mypage.html 4                 # 강등 클래스 CSS+적용 3곳
