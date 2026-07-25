@@ -144,6 +144,17 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .rs-show-hint{color:var(--light);font-size:11.5px}
 .linkrow a{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);text-decoration:none;cursor:pointer;transition:color .3s}
 .linkrow a:hover{color:var(--accent)}
+/* MPD_B11 터치 타깃 44px 1차 보정(§7-3-②) — 히트박스만 확장, 시각 유지: 로그인 하단 링크·돌아가기·로그아웃·원장 '보기'·체크박스·모달 닫기X·NOW 새로고침 */
+.linkrow a{display:inline-block;padding:13px 6px;margin:-13px -6px}
+.foot-actions a{display:inline-block;padding:13px 12px;margin:-13px -12px;border-bottom:none}
+.foot-actions a span{border-bottom:1px solid var(--card-border)}
+.led-link,.led-linkbtn{position:relative}
+.led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
+.led-modal-x{width:44px;height:44px;top:5px;right:5px}
+.now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
+.rs-show{min-height:44px;margin:0 2px 6px}
+.srv-consent{min-height:44px}
+.srv-consent input,.rs-show input{width:18px;height:18px;flex-shrink:0;accent-color:var(--seal)}
 
 .errbox{display:none;margin-top:16px;padding:12px 14px;background:rgba(107,42,36,0.05);border:1px solid rgba(107,42,36,0.2);border-radius:6px;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);text-align:center;line-height:1.7}
 .errbox.show{display:block}
@@ -1080,7 +1091,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
     <!-- 카카오톡 문의는 우측 중앙 AI 상담 위젯 안으로 이동(드로어 하단 상시 링크 + 에스컬레이션) -->
-    <div class="foot-actions"><a id="mp_logout">로그아웃</a></div>
+    <div class="foot-actions"><a id="mp_logout"><span>로그아웃</span></a></div>
   </section>
 
   <!-- 코드찾기 / 비번재설정 요청 -->
