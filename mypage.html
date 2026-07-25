@@ -2505,6 +2505,7 @@ function renderRefundBank(rb){
   box.innerHTML='<div class="cc-eyebrow en-22">Refund</div>'
     +'<div class="cc-title">환불 계좌 안내</div>'
     +'<div class="cc-sub">'+amt+'<br>'+(rb.acct?'입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.':'환불 받으실 계좌를 남겨주시면 송금해 드릴게요.')+'</div>'
+    +(rb.card?'<div class="cc-note" style="text-align:left;margin-top:8px;line-height:1.6">카드로 결제하신 금액은 결제하신 카드로 취소돼요. 아래 계좌는 계좌이체로 내신 금액 환불용이에요.</div>':'')   /* REFUND_CARD_NOTE 2026-07-25 · 카드 수령분이 있으면 계좌 환불과 카드 취소를 구분 안내(카드결제 OFF면 rb.card=false로 미노출·휴면) */
     +'<div class="cc-actions"><input type="text" class="cc-input" id="mp_rbAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주" value="'+escapeHtml(rb.acct||'')+'">'
     +'<button type="button" class="cc-btn" id="mp_rbSave">'+(rb.acct?'계좌 변경':'계좌 저장')+'</button></div>'
     +'<div id="mp_rbMsg" class="cc-mini" style="min-height:14px;margin-top:9px"></div>';

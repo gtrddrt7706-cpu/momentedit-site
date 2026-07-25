@@ -1382,7 +1382,10 @@ function cardConsult(d,isSnap){
   if(c.cancelledAt) raw+='<br>취소 '+fmtDT(c.cancelledAt);
   var b='';
   // 취소 환불 — 환불계좌 + 송금 완료 처리(취소 고객만). 처리하면 환불송금 큐에서 사라짐.
+  // [CARD_REFUND_VIA_TOSS 2026-07-25] 카드 수령분(동의기록.결제수단='카드')이 있으면 계좌 송금이 아니라 토스 결제취소로 처리해야 함을 경고(카드결제 OFF면 결제수단 비어 미노출·휴면). 구 Admin.html 안내를 라이브로 복원.
   if(d.stage==='취소' && c.refund){
+    var _pmA=(d.raw&&d.raw['결제수단'])||{}, _hasCardA=false; for(var _kA in _pmA){ if(_pmA[_kA]==='카드'){ _hasCardA=true; break; } }
+    if(_hasCardA && !d.refundDone) raw+='<br><span style="color:var(--seal)">⚠ 카드 결제분 포함 · 이 금액은 계좌 송금이 아니라 토스에서 결제취소로 처리하세요.</span>';
     if(d.refundDone){ raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">환불 완료 · '+esc(fmtDT(d.refundDone))+'</span><br><span style="color:var(--label-soft)">환불 계좌 '+esc(c.refund)+'</span>'; }
     else { raw+='<br><b style="color:var(--seal)">예약금 환불 송금 필요</b><br>환불 계좌 <b>'+esc(c.refund)+'</b><br><span style="color:var(--label-soft)">이 계좌로 보낸 뒤 아래 버튼으로 완료 처리해 주세요</span>'; b+=ab('markRefunded','환불 완료 처리','btn-line'); }
   }
