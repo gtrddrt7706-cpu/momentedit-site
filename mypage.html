@@ -164,6 +164,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 @keyframes mpFocusGlow{0%{box-shadow:0 0 0 3px var(--gold-soft)}55%{box-shadow:0 0 0 3px var(--gold-soft)}100%{box-shadow:0 0 0 3px rgba(184,154,117,0)}}
 .now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
 .me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
+/* TOPFAB_STEADY(2026-07-25 사용자 지시): '맨 위로' FAB은 display 토글 대신 자리 상시 확보 + 페이드 등장 — 등장·퇴장 때 스택(세로 중앙 정렬) 높이가 변해 내역·챗 버튼이 흔들리던 것 방지. display:none 토글 복원 금지 */
+#mp_topFab{opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease,visibility 0s linear .4s;pointer-events:none}
+#mp_topFab.on{opacity:1;visibility:visible;transform:none;transition:opacity .4s ease,transform .4s ease,visibility 0s;pointer-events:auto}
 /* MPD_G8 탭 눌림 공통 :active 토큰 — hover 전용 컨트롤(모바일 무반응)에 눌림 피드백(§9-4-③ · tap-highlight 꺼진 화면의 대체 피드백) */
 .trk-chip:active,.wed-slot:active,.dn-segbtn:active,.dn-fpill:active,.srv-opts button:active{transform:scale(.98);background:var(--bg2)}
 .rs-show{min-height:44px;margin:0 2px 6px}
@@ -2182,11 +2185,11 @@ function ensureTopFab(){   // MPD_G6 400px+ 스크롤 시 '맨 위로' FAB(현�
   if(!stack){ setTimeout(ensureTopFab, 400); return; }
   if(!ex){
     ex=document.createElement('button'); ex.type='button'; ex.id='mp_topFab'; ex.className='me-fab'; ex.setAttribute('aria-label','맨 위로');
-    ex.style.display='none';
+    // TOPFAB_STEADY: display 토글 금지 — 자리 상시 확보(투명) + .on 클래스 페이드. 스택이 세로 중앙 정렬이라 display 토글은 등장 때마다 내역·챗 버튼을 밀었음
     ex.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
     ex.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
     stack.appendChild(ex);
-    var _tk=null, _upd=function(){ _tk=null; var on=(window.pageYOffset||0)>400 && window._curView==='mypageView' && document.body.style.position!=='fixed'; ex.style.display=on?'flex':'none'; };
+    var _tk=null, _upd=function(){ _tk=null; var on=(window.pageYOffset||0)>400 && window._curView==='mypageView' && document.body.style.position!=='fixed'; ex.classList.toggle('on', on); };
     window.addEventListener('scroll', function(){ if(_tk==null) _tk=requestAnimationFrame(_upd); }, {passive:true});
   }
 }
