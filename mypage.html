@@ -195,7 +195,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-soft);border-radius:20px;padding:4px 16px;letter-spacing:.02em}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
-.welcome .wed-chip .wed-dday{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em}   /* MPD_B1 D-day 별도 줄 승격 — 진사는 결정 색이라 먹색 사용(헌장 5) */
+.welcome .wed-chip .wed-dday{display:inline;margin-left:2px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em;white-space:nowrap}   /* DDAY_ONELINE(2026-07-25 사용자 지시 "한 줄로"): MPD_B1 별도 줄 승격을 한 줄 병기로 전환 — 먹색 반굵기 강조(헌장 5)는 유지, 'D-80 · 시간' 덩어리는 nowrap으로 함께 줄바꿈 */
 
 /* ── NOW 카드 (주인공) ── */
 .now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:12px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
@@ -1825,7 +1825,7 @@ function renderMyPage(d){
     //   'D-81 · 오후 1:20' 형태(강조는 D-81 하나 · 시간은 연한 보조 표기). 예식이 지난 뒤에는 시간 생략.
     var wtKo=''; if(wt){ var _wh=+wt.slice(0,2), _wm2=wt.slice(3,5); wtKo=(_wh<12?('오전 '+_wh):('오후 '+(_wh===12?12:_wh-12)))+':'+_wm2; }
     var _tTail=(wtKo && dd>=0)?' <span style="font-size:12px;font-weight:300;color:var(--sub)">· '+wtKo+'</span>':'';
-    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+'<span class="wed-dday">'+lab+_tTail+'</span>';   // MPD_B1 D-day 승격 — label-soft 꼬리 → 별도 줄·먹색 반굵기(줄당 강조 1개 · 360px 줄바꿈 해소 §6-2-②③) · 당일 중립 톤(G12)은 lab 계산이 유지
+    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+' <span style="font-weight:300">·</span> <span class="wed-dday">'+lab+_tTail+'</span>';   // DDAY_ONELINE(2026-07-25 사용자 지시) 한 줄 병기: 예식 2026.10.14 · D-80 · 오후 1:20 — 강조는 D-day 하나(줄당 강조 1개 유지) · 좁은 화면은 D-day 덩어리째 줄바꿈(nowrap) · 구 MPD_B1 별도 줄 승격 대체 · 당일 중립 톤(G12)은 lab 계산이 유지
     el.style.display='block';
   })();
 
