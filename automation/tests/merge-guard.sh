@@ -186,6 +186,17 @@ chk '고른 내용은 나갈 때 자동으로 저장돼요' mypage.html 1   # �
 chk 'MPD_E8' mypage.html 1                          # 좌석 테이블 통삭제 확인
 chk 'MPD_E9' mypage.html 2                          # 청첩장 경로별 단계 수
 chk 'MPD_E10' mypage.html 3                         # note 적층 압축
+# ── 2026-07-25 마이페이지 디자인 개선 PR⑤(배치 G 잔여 G4~G12 · G5는 보류)
+chk 'MPD_G4' mypage.html 1                          # 변수 폴백=본값 정합(색 77곳)
+_g4=$(grep -c 'var(--gold-deep,#9[aA]7' mypage.html 2>/dev/null); _g4=${_g4:-0}; if [ "$_g4" -gt 0 ]; then echo "REVERT? mypage.html: gold-deep 낡은 폴백 드리프트 부활($_g4)"; fail=1; else echo "ok mypage.html: gold-deep 폴백 정합 유지"; fi
+chk 'MPD_G6' mypage.html 4                          # NOW 바로가기 앵커+맨 위로 FAB
+chk 'MPD_G7' mypage.html 2                          # 내 내역 FAB 툴팁+계약 직후 안내
+chk 'MPD_G8' mypage.html 1                          # 공통 :active 눌림 토큰
+chk 'MPD_G9' mypage.html 1                          # 카피 미세 조정('두 분' 폴백 등)
+chk 'MPD_G10' mypage.html 1                         # 용어 통일(예식 영상·보정본·사진작가)
+_g10=$(grep -c '본식 영상' mypage.html 2>/dev/null); _g10=${_g10:-0}; if [ "$_g10" -gt 0 ]; then echo "REVERT? mypage.html: '본식 영상' 용어 부활($_g10)"; fail=1; else echo "ok mypage.html: '예식 영상' 용어 유지"; fi
+chk 'MPD_G11' mypage.html 2                         # 계약 성사·제작 시작 환대 1줄
+chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결측 꼬리·오버플로 가드
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
