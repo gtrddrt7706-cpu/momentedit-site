@@ -1452,7 +1452,8 @@ function adminMarkConsultDone(code) {
 //   리다이렉트는 최대 4회만 수동 추적. 어떤 경우에도 밖으로 throw 하지 않는다.
 function _resultLinkCheck(label, url) {
   try {
-    if (!/^https:\/\//i.test(url)) return label + ' 링크: https:// 로 시작하는 주소가 아니에요. 주소를 확인해 주세요.';
+    // [LINK_VERIFY_FIX 2026-07-25] 저장 검증(okUrl)은 http(s) 모두 허용 → 검증기도 http(s)로 맞춰 작동하는 http 링크에 거짓 형식경고를 내지 않게 함
+    if (!/^https?:\/\//i.test(url)) return label + ' 링크: http(s):// 로 시작하는 주소가 아니에요. 주소를 확인해 주세요.';
     var cur = url, codeN = 0;
     for (var hop = 0; hop < 5; hop++) {
       var resp;
@@ -1470,7 +1471,7 @@ function _resultLinkCheck(label, url) {
           return label + ' 링크: 공유 설정이 제한되어 고객이 열지 못할 수 있어요.';
         }
         if (/^\/\//.test(loc)) loc = 'https:' + loc;   // 프로토콜 상대(//host/…) — origin을 붙이면 잘못된 주소가 돼 오경고(404)로 이어지던 것 방지
-        else if (loc.indexOf('http') !== 0) { try { loc = cur.replace(/^(https?:\/\/[^\/]+).*$/i, '$1') + loc; } catch (eA) { break; } }   // 상대경로 보정
+        else if (loc.indexOf('http') !== 0) { try { loc = cur.replace(/^(https?:\/\/[^\/]+).*$/i, '$1') + (loc.charAt(0) === '/' ? loc : '/' + loc); } catch (eA) { break; } }   // 상대경로 보정 — [LINK_VERIFY_FIX 2026-07-25] 슬래시 없는 상대경로(view?id=x)도 '/' 보강해 'hostview…' 깨진 주소·거짓 404 방지
         cur = loc;
         continue;
       }
