@@ -341,6 +341,12 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 </div>
 
 <script>
+/* [ADM_AA2] 액션 라벨 동사 사전 — 같은 행위에 두 이름을 두지 않는다(큐 버튼·상세 버튼·모달 확인 버튼 모두 같은 동사).
+     "…확인"   들어온 것을 맞다고 승인    : 입금 확인 · 중도금 확인 · 잔금 확인 · 변경 확인 · 추가 보정 입금 확인
+     "…처리"   상태를 다음으로 넘기는 확정 : 상담완료 처리 · 결과물 전달 처리 · 환불 완료 처리 · 노쇼 처리 · 미계약 처리
+     "…착수"   작업을 시작함              : 보정 착수
+     "…등록/발송/보내기/발급/회수"  물건·문서를 만들어 내보내거나 거둠
+   ★새 액션을 추가할 땐 위 4갈래 중 하나를 골라 쓰고, 큐 라벨(btnLbl)과 상세 라벨(ab)을 반드시 같은 문자열로 둔다. */
 var TOKEN = localStorage.getItem('me_admin_token') || '';
 var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 var SLOTS = { weekday: [], weekend: [] };
@@ -1071,7 +1077,7 @@ var curHome=null;
 function queueRow(it){
   var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세)
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
   var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소' };
   var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
@@ -1734,8 +1740,8 @@ function cardResult(d,isSnap){
     if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');         // 선택 끝 → 보정본 올리기가 1순위
     else b+=ab('setResult',(r['원본링크']?'결과물 링크 수정':'원본 링크 등록'),'btn-line');
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
-    if(r['원본링크']) b+=ab('delivered','결과물 전달');
-    else b+='<div class="gate">원본 등록 후 전달할 수 있어요</div>';
+    if(r['원본링크']) b+=ab('delivered','결과물 전달 처리');
+    else b+='<div class="gate">원본을 먼저 등록해야 전달 처리할 수 있어요</div>';
   } else if(st==='결과물전달' && rstt!=='전달완료'){
     // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 결과물전달인 고객(결과물상태≠전달완료) — 종전엔 거짓 '✓ 전달 완료' 표시 + 등록 버튼 전부 숨김(막다른길). 이어서 진행할 버튼 노출.
     b+='<div class="gate">⚠ 단계는 결과물전달인데 결과물은 아직 <b>'+esc(rstt)+'</b>이에요 (강제 변경 흔적) · 아래에서 이어서 진행하세요</div>';
@@ -1743,8 +1749,8 @@ function cardResult(d,isSnap){
     if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');
     else b+=ab('setResult',(r['원본링크']?'결과물 링크 수정':'원본 링크 등록'),'btn-line');
     if(exPay) b+=ab('confirmExtra','추가 보정 입금 확인');
-    if(r['원본링크']) b+=ab('delivered','결과물 전달 완료 처리');
-    else b+='<div class="gate">원본 등록 후 전달 완료 처리할 수 있어요</div>';
+    if(r['원본링크']) b+=ab('delivered','결과물 전달 처리');
+    else b+='<div class="gate">원본을 먼저 등록해야 전달 처리할 수 있어요</div>';
   } else if(st==='결과물전달'){
     var svS=r['설문상태']||'대기';
     b+='<div class="gate">✓ 전달 완료'+(svS==='완료'?' · 후기 완료':(svS==='건너뜀'?' · 후기 넘김':' · 후기 작성 대기'))+'</div>';
