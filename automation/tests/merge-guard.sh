@@ -16,7 +16,7 @@ chk 'GUIDE_MAKE_COND' mypage.html 3                # 하객 안내 조건 공용
 chk '본예식 15분 전' mypage.html 1                 # 인쇄 킷 도착 안내
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
-chk '_coreDone' mypage.html 3                      # 강조·접힘 공용 게이트
+# (_coreDone 마커 폐지 2026-07-25 — 유일한 사용처 '확인서 강조'가 사용자 지시로 삭제됨(TRK_BTN_SAME). 접힘 게이트 복원 시 재등록할 것)
 chk 'DELIV_STEP_HONEST' mypage.html 3              # 결과물전달 진행 중엔 '후기 점프' 금지(전달완료만 후기)
 chk 'DELIV_FLOW_STEP' mypage.html 2                # 원본 도착~컨펌 동안 진행바 '결과물 전달' 현재(표시 전용)
 chk 'DELIV_WAIT_TITLE' mypage.html 1               # 대기 카드 제목 단계 인식(전달 단계=기록 준비 중)
@@ -265,8 +265,9 @@ chk 'MPD_G11' mypage.html 2                         # 계약 성사·제작 시�
 chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결측 꼬리·오버플로 가드
 # ── 2026-07-25 마이페이지 2차 스프린트 PR①(B1~B6 위계·강조)
 chk 'MPD_B1' mypage.html 2                          # D-day 별도 줄 승격(먹색 · G12 중립 톤 공존)
-chk 'MPD_B2' mypage.html 1                          # 첫 미완료 준비 행 '지금 할 차례' 표시(확인서 양보) — 2026-07-25 TRK_NOW_TONE으로 진한 채움→골드 아웃라인
-chk 'TRK_NOW_TONE' mypage.html 2   # 행 '지금 할 차례' 버튼을 진한 채움(.cc-btn) 대신 골드 아웃라인(.trk-now)으로(2026-07-25 사용자 지시 "청첩장 버튼만 색이 있다") · ★진한 채움 복원 금지
+# (MPD_B2·TRK_NOW_TONE 폐지 2026-07-25 사용자 지시 "전부 똑같이 만들어줘" — 행 버튼 '지금 할 차례' 강조 자체를 삭제. 아래 TRK_BTN_SAME이 부활을 감시)
+chk 'TRK_BTN_SAME' mypage.html 2   # 예식 준비·확인 전달 행 버튼 완전 동일(강조 없음) · ★진한 채움(.cc-btn)·골드 아웃라인(.trk-now) 복원 금지
+_trknow=$(grep -c 'trk-now' mypage.html 2>/dev/null); _trknow=${_trknow:-0}; if [ "$_trknow" -gt 1 ]; then echo "REVERT? mypage.html: 폐지된 행 버튼 강조(trk-now) 부활($_trknow)"; fail=1; else echo "ok mypage.html: 행 버튼 강조 없음(전부 동일)"; fi
 chk 'MPD_B3' mypage.html 1                          # 계좌 복사 중립(이중 진사 해소)
 chk 'MPD_B4' mypage.html 1                          # 취소류 텍스트 링크 강등
 chk 'cc-btn-textlink' mypage.html 4                 # 강등 클래스 CSS+적용 3곳
