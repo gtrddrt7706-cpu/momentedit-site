@@ -23,8 +23,11 @@ function freshRow(over) {
 const cust = { get: (k) => (row.has(k) ? row.get(k) : ''), num: 2 };
 sb.findCustomerByCode = () => cust;
 sb.getCustomersSheet = () => ({});
-// PROD_COL_SPLIT: 제작 저장은 신 컬럼(제작_*)에 쓰고 _prodColsMissing 가드가 colOf에 그 컬럼이 있어야 통과 → 목 시트에 8개 컬럼 제공(없으면 S6b 저장이 '컬럼 누락'으로 차단됨).
-sb.buildHeaderIndex = () => ({ '제작_ritual': 10, '제작_dining': 11, '제작_seat': 12, '제작_guideinfo': 13, '제작_snap': 14, '제작_final': 15, '제작_invitation': 16, '제작_meta': 17 });
+// ★PRODCOL_STUB(2026-07-26): 빈 헤더 인덱스를 주면 PR-B 가드(_prodColsMissing)가 '컬럼 미생성'으로 보고 제작 저장을 통째로 거부한다.
+//   그러면 S6a·S6b가 '저장이 막혀서' 통과/실패하는 가짜 결과가 된다(운영 시트엔 컬럼이 있다).
+//   제작 8열만 넣지 않고 CUSTOMER_HEADERS 전체를 인덱스로 준다 — 목이 실제 시트에서 더 멀어지지 않게(다른 컬럼 조회도 함께 성립).
+const _COLIDX = {}; (sb.CUSTOMER_HEADERS || []).forEach((h, i) => { _COLIDX[h] = i + 1; });
+sb.buildHeaderIndex = () => _COLIDX;
 sb.touchCustomer = (s, c, n, patch) => { Object.entries(patch).forEach(([k, v]) => row.set(k, v)); };
 sb.notifyKakao = (ev, code, p) => kakao.push({ ev, p });
 sb._nfAdminLineEmail = (m) => mails.push(m);

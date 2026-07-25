@@ -477,6 +477,13 @@ if [ "$_sf" -lt 1 ]; then echo "REVERT? 00_platform-config.gs: STAGE_FLOW 시그
 # 음수 가드 — 마이페이지 합성 스텝 '무조건' 재삽입 감지(조건부 폴백만 허용)
 _cc=$(grep -c "^      list = list.concat(\['후기'\]);" mypage.html 2>/dev/null); _cc=${_cc:-0}
 if [ "$_cc" -gt 0 ]; then echo "REVERT? mypage.html: 후기 합성 스텝 무조건 재삽입 부활($_cc) — 후기 2회 표시·STEP N/11 부풀음"; fail=1; else echo "ok mypage.html: 후기 합성은 조건부 폴백만(구 GAS 대비)"; fi
+# ── 2026-07-26 링크 스킴 가드(시트 셀 직접 수정 경로의 저장형 XSS 차단)
+chk 'SAFE_URL' mypage.html 1                                           # 헬퍼 정의 + 근거 주석
+_su=$(grep -c 'safeUrl(' mypage.html 2>/dev/null); _su=${_su:-0}
+if [ "$_su" -lt 10 ]; then echo "REVERT? mypage.html: safeUrl 적용 지점 감소($_su<10) — javascript: 주소가 href로 새는 경로 재개방"; fail=1; else echo "ok mypage.html: 링크 스킴 가드 적용 $_su곳"; fi
+[ -f scripts/audit/mypage-fuzz.mjs ] && echo 'ok scripts/audit/mypage-fuzz.mjs: 극단입력 퍼즈 하네스 존재' || { echo 'REVERT? scripts/audit/mypage-fuzz.mjs 삭제됨 — 링크스킴·오염 상시 회귀 소실'; fail=1; }
+[ -f scripts/audit/review-stage-sim.mjs ] && echo 'ok scripts/audit/review-stage-sim.mjs: 후기 단계 서버 회귀 존재' || { echo 'REVERT? review-stage-sim.mjs 삭제됨'; fail=1; }
+
 # ── 2026-07-25 전달완료 시 NEXT 자물쇠 동기화(열린 카드와 자물쇠 동시 표시 금지)
 chk 'DELIV_NEXT_SYNC' mypage.html 1                                    # 후기 폼이 열려 있는데 '후기'가 잠긴 다음 단계로도 보이던 모순
 _dn=$(grep -c "it\[0\] !== '후기' && it\[0\] !== '결과물 전달'" mypage.html 2>/dev/null); _dn=${_dn:-0}
