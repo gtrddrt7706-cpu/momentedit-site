@@ -1972,8 +1972,11 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException, rep
   if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
     var rec = _parseJsonSafe(cust.get('동의기록'));
     if (report) consentKeys.forEach(function (k) { if (rec[k] !== undefined) report.consent.push(k); });   // [ADM_AC3] 실제로 값이 있는 키만 미리보기에
-
-    if (consentKeys.indexOf('가예약') !== -1 && rec.가예약 && typeof _holdCalDelete === 'function') _holdCalDelete(rec.가예약);   // 캘린더 이벤트도 함께 정리
+    /* [ADM_AC3FIX 2026-07-26] 캘린더 이벤트 삭제(_holdCalDelete)를 여기서 하지 않는다 — 이 함수는 미리보기(dry-run)도 같이 쓰는
+         계산 함수라, 여기에 외부 부작용이 있으면 단계를 골라보기만 해도 가예약 슬롯이 실제로 풀린다(6차 검증 AC3-BUG).
+         지울 대상만 report.holdCal로 알리고, 실제 삭제는 실행 경로(adminForceStage)가 시트 쓰기 뒤에 한다.
+         ★이 함수 본문에 _holdCalDelete 호출을 되살리지 말 것 — merge-guard가 본문 안 0곳을 감시한다. */
+    if (report && consentKeys.indexOf('가예약') !== -1 && rec.가예약) report.holdCal = rec.가예약;
     consentKeys.forEach(function (k) { delete rec[k]; });
     upd['동의기록'] = Object.keys(rec).length ? JSON.stringify(rec) : '';
   }
@@ -2013,13 +2016,14 @@ function adminForceStagePreview(code, targetStage) {
   if (stageFlowFor(product).concat(STAGE_EXCEPTIONS).indexOf(targetStage) === -1) return { ok: false, error: '이 상품에 없는 단계입니다: ' + targetStage };
   var cur = String(cust.get('현재단계') || '').trim();
   var colOf = buildHeaderIndex(getCustomersSheet());
-  var report = { cleared: [], kept: [], consent: [] };
+  var report = { cleared: [], kept: [], consent: [], holdCal: null };
   _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1, report);
   var flow = stageFlowFor(product), ti = flow.indexOf(targetStage);
   var bookConfirm = flow.indexOf(product === P.PRODUCT_SNAP ? '촬영확정' : '상담확정');
   var bookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);   // 신청접수까지 내리면 상담 예약·캘린더 슬롯도 초기화
   return { ok: true, preview: true, from: cur, to: targetStage,
     cleared: report.cleared, kept: report.kept, consent: report.consent, bookingReset: bookingReset,
+    holdRelease: !!report.holdCal,   // [ADM_AC3FIX] 가예약 캘린더 슬롯이 풀린다는 것도 미리 알린다(삭제는 실행할 때만)
     noop: (cur === targetStage && !report.cleared.length && !report.consent.length && !bookingReset) };
 }
 
@@ -2040,7 +2044,8 @@ function adminForceStage(code, targetStage, reason) {
     var cur = String(cust.get('현재단계') || '').trim();
     var flow = stageFlowFor(product), ti = flow.indexOf(targetStage), isSnap = (product === P.PRODUCT_SNAP);
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-    var cleared = _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1);   // 이후 단계 진행 데이터 초기화(완전 초기화) + 예외 복구 시 환불 흔적 제거
+    var _fsRep = { cleared: [], kept: [], consent: [], holdCal: null };   // [ADM_AC3FIX] 부작용 대상 수집(삭제는 아래 쓰기 뒤에)
+    var cleared = _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1, _fsRep);   // 이후 단계 진행 데이터 초기화(완전 초기화) + 예외 복구 시 환불 흔적 제거
     // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
     var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
     var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
@@ -2052,6 +2057,9 @@ function adminForceStage(code, targetStage, reason) {
     //   설문응답·설문일시는 지우지 않는다(재제출 시 덮어씀 · 과거 답변 보존). 제거 금지.
     if (targetStage === '후기' && colOf['설문상태']) upd['설문상태'] = '대기';
     touchCustomer(sheet, colOf, cust.num, upd);
+    // [ADM_AC3FIX] 가예약 캘린더 이벤트 해제 — 시트에서 '가예약'이 실제로 지워진 뒤에만(미리보기에서는 여기까지 오지 않는다).
+    //   실패해도 단계 변경 자체는 이미 끝났으므로 막지 않는다(로그만).
+    if (_fsRep.holdCal && typeof _holdCalDelete === 'function') { try { _holdCalDelete(_fsRep.holdCal); } catch (eHc) { Logger.log('가예약 캘린더 해제 실패: ' + (eHc && eHc.message)); } }
     // [FORCE_CANCEL_TS 2026-07-25] 강제이동 목표가 '취소'면 Bookings.취소일시를 기록(정상 취소 경로와 동일). 없으면 환불 견적·큐 aging이 '오늘' 기준으로 매일 흔들리던 문제 차단. 멱등(이미 있으면 유지).
     if (targetStage === '취소') {
       try {

@@ -394,6 +394,13 @@ chk 'ADM_AC3' admin.html 5                          # 비선택 기본값·미�
 chk 'adminForceStagePreview' automation/admin/admin.gs 2   # dry-run 진입점(정의+FNS)
 chk '_forceGate' admin.html 3                       # 체크 전 실행 버튼 비활성
 chk 'adv-prev' admin.html 6                         # 미리보기 박스(CSS+렌더)
+# [ADM_AC3FIX 2026-07-26] _clearForwardData는 미리보기(dry-run)도 함께 쓰는 계산 함수 — 본문에 외부 부작용이 있으면
+#   단계를 골라보기만 해도 가예약 캘린더 슬롯이 실제로 풀린다(6차 검증 AC3-BUG). 본문 안 _holdCalDelete( 호출은 0곳이어야 한다.
+_ac3fix=$(awk '/^function _clearForwardData/{f=1} f{print} f&&/^}/{exit}' automation/admin/admin.gs 2>/dev/null | grep -c '_holdCalDelete(')
+_ac3fix=${_ac3fix:-0}
+if [ "$_ac3fix" -gt 0 ]; then echo "REVERT? automation/admin/admin.gs: _clearForwardData 본문에 _holdCalDelete 부작용 부활($_ac3fix) — 미리보기가 캘린더를 지운다"; fail=1; else echo "ok automation/admin/admin.gs: _clearForwardData 본문에 캘린더 삭제 부작용 없음"; fi
+chk 'ADM_AC3FIX' automation/admin/admin.gs 3        # 계산 함수에서 부작용 분리 + 실행 경로 이동
+chk 'ADM_AC1B' admin.html 2                         # 번들 되돌리기(콤보 버튼 + 모달 안내)
 _ac3=$(grep -c "STAGE_EX.map(function(s){ return '<option value=\"'+esc(s)+'\"'+(s===d.stage?' selected':'')" admin.html 2>/dev/null); _ac3=${_ac3:-0}; if [ "$_ac3" -gt 0 ]; then echo "REVERT? admin.html: 강제변경 드롭다운 기본 선택 부활($_ac3)"; fail=1; else echo "ok admin.html: 강제변경 드롭다운 비선택 기본값 유지"; fi
 # ── 2026-07-26 관리자 페이지 2차 스프린트 PR④(AC4 월 사업현황 · 아침 메일 1줄)
 chk 'ADM_AC4' automation/admin/admin.gs 1           # 읽기 전용 집계(실입금 기준)
