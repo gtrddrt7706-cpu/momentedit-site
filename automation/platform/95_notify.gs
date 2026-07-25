@@ -329,6 +329,11 @@ function _nfWon(n) {
 function _nfDday(d) { return (typeof d === 'number' && isFinite(d) && d >= 0) ? ('D-' + d) : '예정'; }
 
 var NF_MYPAGE = 'momentedit.kr/mypage.html';
+// [MPD3_D2 2026-07-25] 알림 → 카드 딥링크 — 마이페이지 링크에 이벤트별 ?focus= 부여(프론트가 해당 카드로 스크롤+1회 강조 · 미지 값은 프론트가 무시).
+//   이벤트↔카드 매핑표: consult=상담/예약 카드(mp_consult) · fitting=시착 동의(mp_fitting) · contract=계약서/계약정보·예식일 변경(mp_contract)
+//   mid=중도금(mp_midpayment) · balance=잔금(mp_balance) · result=결과물(mp_result) · production=예식 준비(mp_production)
+//   hold=임시고정 배너(mp_hold) · refund=환불 계좌 카드(mp_refundBank). 새 이벤트 추가 시 여기 표와 프론트 _FOCUS_MAP을 함께 갱신.
+function _nfMy(focus) { return NF_MYPAGE + (focus ? ('?focus=' + focus) : ''); }
 
 function _nfCustomerMsg(event, name, x) {
   x = x || {};
@@ -337,7 +342,7 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.consultConfirmed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
       return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 일정이 확정되었습니다(' + d + '). 이 시간은 두 분만을 위해 비워둡니다. 변경은 마이페이지에서 가능해요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 일정이 확정되었습니다(' + d + '). 이 시간은 두 분만을 위해 비워둡니다. 변경은 마이페이지에서 가능해요. ' + _nfMy('consult') };
     case 'cust.consultDayBefore':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
       return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
@@ -345,71 +350,71 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.timeProposed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
       return { vars: { '#{이름}': name, '#{유형}': (x.snap ? '촬영' : '상담'), '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, ' + (x.snap ? '촬영' : '상담') + ' 시간 변경을 제안드렸어요(' + d + '). 마이페이지에서 수락하시거나 더 편한 시간을 선택해 주세요. 확인해 주시면 바로 확정해 드릴게요. ' + _nfMy('consult') };
     case 'cust.consultDone':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 진행하신 상담이 완료되었습니다. 함께해 주셔서 감사합니다. 다음 단계는 마이페이지에서 예식일과 기본 정보를 입력해 주시면 진행되며, 확인 후 이용계약서를 보내드립니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 진행하신 상담이 완료되었습니다. 함께해 주셔서 감사합니다. 다음 단계는 마이페이지에서 예식일과 기본 정보를 입력해 주시면 진행되며, 확인 후 이용계약서를 보내드립니다. ' + _nfMy('contract') };
     case 'cust.depositToProduction':
       // 상품별 다음 안내가 달라 #{안내} 변수로 분기(알림톡 T18 · SMS 대체문구는 동일 결과)
       var depGuide = x.snap
         ? '이제 촬영 준비를 시작할게요. 일정에 맞춰 차근차근 안내드리겠습니다.'
         : '다음 단계로 마이페이지에서 제작 정보를 입력해 주세요. 입력해 주시면 제작이 시작됩니다.';
       return { vars: { '#{이름}': name, '#{안내}': depGuide },
-        text: '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. ' + depGuide + ' ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. ' + depGuide + ' ' + _nfMy('production') };
     case 'cust.fittingRequest':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 2벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 드레스 시착 동의서가 도착했어요. 시착은 기본 2벌까지 포함이에요. 마이페이지에서 확인 후 서명해 주세요. 서명 후 시착이 진행됩니다. ' + _nfMy('fitting') };
     case 'cust.contractArrived':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 안내드린 내용 그대로 담았습니다. 72시간 안에 마이페이지에서 차분히 확인 후 서명해 주세요(기한 경과 시 자동 파기). ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 이용계약서가 도착했어요. 안내드린 내용 그대로 담았습니다. 72시간 안에 마이페이지에서 차분히 확인 후 서명해 주세요(기한 경과 시 자동 파기). ' + _nfMy('contract') };
     case 'cust.paymentConfirmed':
       return { vars: { '#{이름}': name, '#{항목}': String(x.kind || '결제') },
-        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '결제') + ' 입금이 확인되었습니다. 감사합니다. 받은 마음 그대로 정성껏 준비하겠습니다. 내역은 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '결제') + ' 입금이 확인되었습니다. 감사합니다. 받은 마음 그대로 정성껏 준비하겠습니다. 내역은 마이페이지에서 확인하실 수 있어요. ' + _nfMy('ledger') };
     case 'cust.cashReceiptIssued':
       return { vars: { '#{이름}': name, '#{항목}': String(x.kind || ''), '#{금액}': _nfWon(x.amount) },
         text: '[모먼트에디트] ' + name + '님, ' + String(x.kind || '') + ' 현금영수증(' + _nfWon(x.amount) + '원)이 발행되었습니다. 승인번호와 발행 내역은 마이페이지에서 확인하실 수 있어요. ' + NF_MYPAGE };
     case 'cust.midPre':
     case 'cust.midDue':
       return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + _nfDday(x.dday) + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + _nfDday(x.dday) + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + _nfMy('mid') };
     case 'cust.balancePre':
     case 'cust.balanceDue':
       return { vars: { '#{이름}': name, '#{행사}': (x.snap ? '촬영' : '예식'), '#{디데이}': String(x.dday != null ? x.dday : '') },
-        text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(' + (x.snap ? '촬영' : '예식') + ' ' + _nfDday(x.dday) + '). 남은 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 잔금 일정을 안내드립니다(' + (x.snap ? '촬영' : '예식') + ' ' + _nfDday(x.dday) + '). 남은 준비는 저희가 차근차근 마무리하고 있습니다. 금액과 계좌는 마이페이지에서 확인해 주세요. ' + _nfMy('balance') };
     case 'cust.resultDelivered':
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + _nfMy('result') };
     case 'cust.resultOriginal':   // RESULT_NOTIFY_STEPS — 원본 업로드 순간(고객 액션: 보정 컷 고르기)
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 원본 사진이 도착했습니다. 마이페이지에서 원본을 확인하시고, 보정할 컷을 골라 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 원본 사진이 도착했습니다. 마이페이지에서 원본을 확인하시고, 보정할 컷을 골라 주세요. ' + _nfMy('result') };
     case 'cust.resultRetouch':    // RESULT_NOTIFY_STEPS — 보정본 업로드 순간(고객 액션: 컨펌)
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 보정본이 도착했습니다. 마이페이지에서 받아보시고, 마음에 드시면 확인을 눌러 마무리해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 보정본이 도착했습니다. 마이페이지에서 받아보시고, 마음에 드시면 확인을 눌러 마무리해 주세요. ' + _nfMy('result') };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + _nfMy('hold') };
     case 'cust.holdReleased':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 마음이 정해지시면 마이페이지에서 언제든 다시 요청하실 수 있어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 마음이 정해지시면 마이페이지에서 언제든 다시 요청하실 수 있어요. ' + _nfMy('consult') };
     case 'cust.holdExpiring':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d, '#{남은일}': String(x.left != null ? x.left : '') },
-        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 기간이 지나면 자리는 자동으로 풀립니다. 상담을 확정하시면 그대로 유지돼요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 기간이 지나면 자리는 자동으로 풀립니다. 상담을 확정하시면 그대로 유지돼요. ' + _nfMy('hold') };
     case 'cust.changeConfirmed':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
-        text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 이후 안내는 새 날짜 기준으로 정리해 두었어요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 이후 안내는 새 날짜 기준으로 정리해 두었어요. ' + _nfMy('contract') };
     case 'cust.changeDeclined':
       return { vars: { '#{이름}': name, '#{사유}': String(x.reason || '요청하신 일정 진행이 어려워요') },
-        text: '[모먼트에디트] ' + name + '님, 죄송하게도 요청하신 예식일 변경을 진행하지 못했습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. 가능한 방향을 함께 찾아보겠습니다. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 죄송하게도 요청하신 예식일 변경을 진행하지 못했습니다. 마이페이지에서 다른 일정으로 다시 요청하실 수 있어요. 가능한 방향을 함께 찾아보겠습니다. ' + _nfMy('contract') };
     case 'cust.archiveExpiring':
       return { vars: { '#{이름}': name, '#{만료일}': _nfDate(x.expires) },
-        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 파일이 삭제될 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 결과물 보관 기간이 ' + _nfDate(x.expires) + '에 끝나요. 만료 후에는 파일이 삭제될 수 있어요. 마이페이지에서 미리 다운로드해 주세요. ' + _nfMy('result') };
     case 'cust.refundAcctReq':   // REFUND_ACCT_REQ · 취소 후 환불 계좌 미입력 고객에게 계좌 요청(계좌 남기면 그 계좌로 환불)
       return { vars: { '#{이름}': name },
-        text: '[모먼트에디트] ' + name + '님, 예약이 취소되었어요. 환불 계좌를 남겨주시면 입력하신 계좌로 환불해 드릴게요. 마이페이지에서 남겨주세요. ' + NF_MYPAGE };
+        text: '[모먼트에디트] ' + name + '님, 예약이 취소되었어요. 환불 계좌를 남겨주시면 입력하신 계좌로 환불해 드릴게요. 마이페이지에서 남겨주세요. ' + _nfMy('refund') };
     default:
       return null;
   }
