@@ -157,6 +157,20 @@ function handleCardConfirm(body) {
     }
     }
 
+    // PAY_ROLLBACK_GUARD 2026-07-25 · 관리자 강제 롤백이 상태 컬럼을 비워도 카드 수납 흔적(동의기록.결제수단)은 남는다 —
+    //   흔적이 있으면 재청구 차단(이중결제 방지 · 구 롤백 데이터·수동 시트 수정 방어). 계좌이체 수납은 마커가 없어 영향 없음.
+    var _pmR = {}; try { _pmR = _parseJsonSafe(cust.get('동의기록')).결제수단 || {}; } catch (ePm) { _pmR = {}; }
+    var _pmDepKey = (String(cust.get('상품타입') || '').trim() === '웨딩스냅') ? '예약금' : '계약금';
+    var _pmKeys = (milestone === '중도금잔금') ? ['중도금', '잔금']
+                : (milestone === '계약금묶음') ? [_pmDepKey, '중도금', '잔금']
+                : (milestone === '계약금') ? [_pmDepKey]
+                : [milestone];
+    var _pmHit = _pmKeys.filter(function (k) { return _pmR[k] === '카드'; });
+    if (_pmHit.length) {
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '중복(카드흔적)', memo: _pmHit.join(',') });
+      return { ok: true, already: true, alreadyMsg: '이미 카드로 결제된 항목이 있어요. 중복 방지를 위해 결제는 진행되지 않았어요. 화면 상태가 실제와 다르면 디렉터에게 문의해 주세요.' };
+    }
+
     // 금액 위변조 검증 — 서버 재계산값과 일치해야 함
     var expected = _payExpectedAmount(cust, milestone);
     if (expected == null || expected <= 0) {
