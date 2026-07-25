@@ -377,6 +377,24 @@ function show(view){
   $('detailView').style.display = (view==='detail')?'block':'none';
   $('archiveView').style.display = (view==='archive')?'block':'none';
 }
+/* [ADMIN_BACK_NAV 2026-07-25] 관리자 SPA 뒤로가기 — 상세·아카이브에서 브라우저/기기 뒤로가기 시 사이트를 이탈하지 않고 이전 목록으로 복귀.
+   상세/아카이브 진입 때 history 항목을 1회 push하고, popstate에서 소비해 home(또는 archive)으로 되돌린다. 같은 뷰 새로고침·popstate 유발 호출은 push 제외. */
+var _admHistReady=false, _admFromPop=false;
+function _admHistInit(){
+  if(_admHistReady) return; _admHistReady=true;
+  try{ history.replaceState({admV:'home'}, ''); }catch(e){}
+  window.addEventListener('popstate', function(ev){
+    if(_view!=='detail' && _view!=='archive') return;   // home/login이면 관여 안 함(자연 이탈)
+    var target=(ev && ev.state && ev.state.admV) || 'home';
+    _admFromPop=true;
+    try{ if(target==='archive' && _view!=='archive') loadArchive(); else loadHome(); }
+    finally{ _admFromPop=false; }
+  });
+}
+function _admPushView(v){   // 서브뷰 진입 시 1회 push(popstate 유발 복귀 중엔 skip)
+  if(_admFromPop) return;
+  try{ history.pushState({admV:v}, ''); }catch(e){}
+}
 // momentedit.kr 호스팅 — GAS를 fetch(doPost)로 호출 (마이페이지와 동일·CORS preflight 회피)
 var _busyN=0;
 function _busy(on){ _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
@@ -1018,6 +1036,7 @@ function doLogout(){ try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; lo
 /* ════════ 홈 ════════ */
 var _homeRetried=false;
 function loadHome(){
+  _admHistInit();   // [ADMIN_BACK_NAV] 첫 목록 진입 시 history 기준점(home) 세팅 · popstate 리스너 등록(1회)
   _lastQuery=''; _origin='home';
   $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
   show('loading');
@@ -1267,6 +1286,7 @@ function doSearch(){
 var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지)
 function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
+  _admHistInit(); if(_view!=='detail') _admPushView('detail');   // [ADMIN_BACK_NAV] 목록/아카이브→상세 진입 시 1회 push(상세 새로고침·popstate 복귀는 제외)
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
@@ -2099,6 +2119,7 @@ function saveMemo(){
 /* ════════ 아카이브 ════════ */
 function openArchive(){ _arcQuery=''; _arcFilter='all'; $('aq').value=''; loadArchive(); }
 function loadArchive(){
+  _admHistInit(); if(_view!=='archive') _admPushView('archive');   // [ADMIN_BACK_NAV] 목록→아카이브 진입 시 1회 push
   show('loading'); $('loading').innerHTML='<div class="spinner"></div>불러오는 중…';
   gas('adminArchive', _arcQuery, _arcFilter).then(function(d){
     if(!d||!d.ok){ toast('불러오기 실패'); return; }
