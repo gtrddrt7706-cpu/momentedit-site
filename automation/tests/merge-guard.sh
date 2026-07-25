@@ -24,6 +24,13 @@ chk 'DELIV_FORCE_RESUME' admin.html 1              # 강제 결과물전달 상�
 chk 'CARD_STAGE_ORDER' admin.html 3                # 고객 상세: 지금 단계 카드 최상단 재배치(stageCards/orderCards)
 chk 'DELIV_FORCE_RESUME' automation/admin/admin.gs 2   # 강제 단계 고객도 전달 완료 처리 가능(멱등 유지)
 chk 'SEARCH_DAYS_1Y' automation/consultation/consultation-booking.gs 1   # 예약 가능일 조회창 120→365(1년) 확대(2026-07-25 사용자 지시)
+chk 'REFUND_QUEUE_CANCEL_NOACCT' automation/admin/admin.gs 3   # 취소+계좌없음도 예약금 수령분 있으면 환불송금 큐 노출('계좌 요청 필요' 라벨) — Q3 구멍 차단
+chk 'FORCE_CANCEL_TS' automation/admin/admin.gs 1   # 강제이동→취소 시 Bookings.취소일시 기록 — 환불 견적·aging '오늘' 기준 흔들림 차단 Q4
+chk 'REFUND_CARD_NOTE' mypage.html 1   # 환불카드: 카드 수령분이면 '카드분은 카드로 취소·계좌는 이체분' 안내(Q1)
+chk 'REFUND_CARD_NOTE' automation/platform/60_mypage.gs 1   # 서버 refundBank.card 플래그(동의기록.결제수단='카드' 감지)
+chk 'CARD_REFUND_VIA_TOSS' admin.html 1   # 관리자 취소 환불: 카드 수령분이면 토스 결제취소로 처리 경고(Q2 · 구 Admin.html 복원)
+chk 'REFUND_ACCT_REQ' automation/platform/95_notify.gs 2   # 취소 고객 환불계좌 요청 알림 이벤트+문구(Q5)
+chk 'REFUND_ACCT_REQ' automation/admin/admin.gs 1   # 강제취소 시 계좌 미입력·수령분 있으면 고객에게 계좌 요청 1회(Q5 트리거)
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk '최종 확정 · 좌석' mypage.html 1               # 통합 행(2026-07-19 사용자 지시)
@@ -161,6 +168,42 @@ chk 'MPD_G1' mypage.html 2                          # 스냅 예약금 0 허위 
 _g1f=$(grep -c '예약금 || 100000' mypage.html 2>/dev/null); _g1f=${_g1f:-0}; if [ "$_g1f" -gt 0 ]; then echo "REVERT? mypage.html: 예약금 100000 폴백 부활($_g1f)"; fail=1; else echo "ok mypage.html: 예약금 100000 폴백 없음"; fi
 chk 'MPD_G2' mypage.html 1                          # 취소·노쇼 로드맵 미노출
 chk 'MPD_G3' mypage.html 1                          # 수락 버튼 로딩 상태
+# ── 2026-07-25 마이페이지 디자인 개선 PR③(배치 B 확정분 B7~B14)
+chk 'MPD_B7' mypage.html 1                          # fNote D-n 구간 볼드 해제(줄당 강조 1개)
+chk 'MPD_B8' mypage.html 1                          # 시스템체→해요체 전수(§7-3-⑤)
+chk 'MPD_B9' mypage.html 2                          # 입력 16px(iOS 줌 방지)+좌석 포커스 16px
+chk 'MPD_B10' mypage.html 2                         # 깜깜이 대기 보완('거의 다 됐어요' 삭제 포함)
+_b10=$(grep -c '거의 다 됐어요. 준비되는 대로' mypage.html 2>/dev/null); _b10=${_b10:-0}; if [ "$_b10" -gt 0 ]; then echo "REVERT? mypage.html: '거의 다 됐어요' 근거 없는 안심 부활($_b10)"; fail=1; else echo "ok mypage.html: '거의 다 됐어요' 없음"; fi
+chk 'MPD_B11' mypage.html 2                         # 터치 타깃 44px 1차 보정
+chk 'MPD_B12' mypage.html 1                         # 보정 4주 구간 예상표 유지
+chk 'MPD_B13' mypage.html 2                         # 막다른 에러 출구 표준화
+chk 'MPD_B14' mypage.html 2                         # 버튼 한글·쿠폰 영문 eyebrow·이모지 ⏳⏰ 제거
+_b14=$(grep -c '⏳\|⏰' mypage.html 2>/dev/null); _b14=${_b14:-1}; if [ "$_b14" -gt 1 ]; then echo "REVERT? mypage.html: 장식 이모지 ⏳/⏰ 부활($_b14 · 허용 1=hold 상태 아이콘)"; fail=1; else echo "ok mypage.html: 장식 이모지 ⏳⏰ 제거 유지($_b14)"; fi
+# ── 2026-07-25 마이페이지 디자인 개선 PR④(배치 E · 위저드/접근성/성능)
+chk 'MPD_E1' mypage.html 2                          # postcode 동기 로드 제거+lazy 주입
+_e1=$(grep -c 'script src="//t1.daumcdn.net' mypage.html 2>/dev/null); _e1=${_e1:-0}; if [ "$_e1" -gt 0 ]; then echo "REVERT? mypage.html: postcode head 동기 로드 부활($_e1)"; fail=1; else echo "ok mypage.html: postcode 동기 로드 없음(lazy 유지)"; fi
+chk 'MPD_E2' mypage.html 2                          # 저장 후 스크롤 보존(캡처+복원)
+chk 'MPD_E3' mypage.html 2                          # api 12초 타임아웃+재시도 전환
+chk 'MPD_E4' mypage.html 2                          # 텍스트 골드 대비(--gold-deep 5.7:1 · label-soft 다운)
+chk 'MPD_E5' mypage.html 1                          # 초소형 폰트 하한 상향
+chk 'MPD_E6' mypage.html 2                          # 토스트·NOW aria-live
+chk 'MPD_E7' mypage.html 1                          # 자동저장 신호 확산(청첩장)
+chk '담으면 바로 저장돼요' mypage.html 1            # 자동저장 신호(다이닝 담기)
+chk '고른 내용은 나갈 때 자동으로 저장돼요' mypage.html 1   # 자동저장 신호(단체사진)
+chk 'MPD_E8' mypage.html 1                          # 좌석 테이블 통삭제 확인
+chk 'MPD_E9' mypage.html 2                          # 청첩장 경로별 단계 수
+chk 'MPD_E10' mypage.html 3                         # note 적층 압축
+# ── 2026-07-25 마이페이지 디자인 개선 PR⑤(배치 G 잔여 G4~G12 · G5는 보류)
+chk 'MPD_G4' mypage.html 1                          # 변수 폴백=본값 정합(색 77곳)
+_g4=$(grep -c 'var(--gold-deep,#9[aA]7' mypage.html 2>/dev/null); _g4=${_g4:-0}; if [ "$_g4" -gt 0 ]; then echo "REVERT? mypage.html: gold-deep 낡은 폴백 드리프트 부활($_g4)"; fail=1; else echo "ok mypage.html: gold-deep 폴백 정합 유지"; fi
+chk 'MPD_G6' mypage.html 4                          # NOW 바로가기 앵커+맨 위로 FAB
+chk 'MPD_G7' mypage.html 2                          # 내 내역 FAB 툴팁+계약 직후 안내
+chk 'MPD_G8' mypage.html 1                          # 공통 :active 눌림 토큰
+chk 'MPD_G9' mypage.html 1                          # 카피 미세 조정('두 분' 폴백 등)
+chk 'MPD_G10' mypage.html 1                         # 용어 통일(예식 영상·보정본·사진작가)
+_g10=$(grep -c '본식 영상' mypage.html 2>/dev/null); _g10=${_g10:-0}; if [ "$_g10" -gt 0 ]; then echo "REVERT? mypage.html: '본식 영상' 용어 부활($_g10)"; fail=1; else echo "ok mypage.html: '예식 영상' 용어 유지"; fi
+chk 'MPD_G11' mypage.html 2                         # 계약 성사·제작 시작 환대 1줄
+chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결측 꼬리·오버플로 가드
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

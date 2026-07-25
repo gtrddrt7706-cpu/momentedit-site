@@ -504,11 +504,13 @@ function adminHome() {
             badge: { level: 'red', text: '발행취소·재발행' }, _urgent: false, _stage: 9, _wait: createdYmd });
         }
       }
-      // 취소 환불 송금 대기 — 환불계좌 입력됨 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
+      // 취소 환불 송금 대기 — 환불계좌 입력됨 또는 예약금 수령분(입금확인=확인) 있음 & 아직 환불완료 처리 안 함(카톡/메일 끊겨도 놓치지 않게 큐로). 환불 완료 처리하면 사라짐.
+      // [REFUND_QUEUE_CANCEL_NOACCT 2026-07-25] 계좌 미입력이어도 예약금 수령분이 있으면 '계좌 요청 필요' 라벨로 노출 — 취소+계좌없음이 큐서 빠지던 구멍 차단(노쇼·미계약 분기와 동일 패턴)
       if (stage === '취소') {
         var _rbk = bookMap[code], _racct = _rbk ? String(bget(_rbk, '환불계좌') || '').trim() : '';
         var _rdone = !!_parseJsonSafe(cget(rv, '동의기록')).환불완료;
-        if (_racct && !_rdone) {
+        var _rPaidC = (_rbk && String(bget(_rbk, '입금확인') || '').trim() === '확인');   // [REFUND_QUEUE_CANCEL_NOACCT] 예약금 수령 신호
+        if ((_racct || _rPaidC) && !_rdone) {
           var _rcd = _rbk ? _ymdOf(bget(_rbk, '취소일시')) : '';
           var _rdays = _dayDiff(today, _rcd);
           var _rsub = '예약금 환불 송금 필요';
@@ -521,6 +523,7 @@ function adminHome() {
               else if (_rq.fitCount > 0) _rsub += '(시착 ' + _rq.fitCount + '벌 공제)';
             }
           } catch (e) {}
+          if (!_racct) _rsub += ' · 환불 계좌 요청 필요(카톡)';   // [REFUND_QUEUE_CANCEL_NOACCT] 계좌 미입력 취소 건 — 관리자에게 계좌 요청 필요 신호
           pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
             badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
             _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
@@ -1781,6 +1784,20 @@ function adminForceStage(code, targetStage, reason) {
     var upd = { '현재단계': targetStage };
     Object.keys(cleared).forEach(function (k) { upd[k] = cleared[k]; });
     touchCustomer(sheet, colOf, cust.num, upd);
+    // [FORCE_CANCEL_TS 2026-07-25] 강제이동 목표가 '취소'면 Bookings.취소일시를 기록(정상 취소 경로와 동일). 없으면 환불 견적·큐 aging이 '오늘' 기준으로 매일 흔들리던 문제 차단. 멱등(이미 있으면 유지).
+    if (targetStage === '취소') {
+      try {
+        var _bkTs = findRowByPersonalCode(code);
+        if (_bkTs) {
+          var _bsTs = getSheet(), _bcTs = buildHeaderIndex(_bsTs);
+          if (_bcTs['취소일시'] && !String(_bkTs.get('취소일시') || '').trim()) writeCell(_bsTs, _bcTs, _bkTs.num, '취소일시', new Date());
+        }
+        // [REFUND_ACCT_REQ 2026-07-25] 강제취소 고객이 수령분(입금확인/입금상태=확인) 있고 환불계좌 미입력이면 고객에게 계좌 입력 요청 1회(카톡→SMS→메일 폴백). 이 블록은 취소로 '전환'될 때만 도달(같은 단계 재지정은 상단 noop). 계좌 있으면 생략.
+        var _acctF = _bkTs ? String(_bkTs.get('환불계좌') || '').trim() : '';
+        var _paidF = String(cust.get('입금상태') || '').trim() === '확인' || (_bkTs && String(_bkTs.get('입금확인') || '').trim() === '확인');
+        if (!_acctF && _paidF) { try { notifyKakao('cust.refundAcctReq', code); } catch (eNf) {} }
+      } catch (eTs) {}
+    }
     // FORCE_SEAT_INV · 제작임시저장(좌석 데이터 원천)이 초기화되면 하객 좌석 공개 조회 캐시도 즉시 무효화 — 6분 톰스톤(wedchg-seat-inv 동일 패턴 · 2026-07-25 점검)
     if ('제작임시저장' in cleared) {
       try {
