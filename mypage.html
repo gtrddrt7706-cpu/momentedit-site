@@ -166,7 +166,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* ── 마이페이지 · 환영 ── */
 .welcome{text-align:center;margin-bottom:24px}
 .welcome .mp-label{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--gold-deep);margin-bottom:10px}
-.welcome .names{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);line-height:1.4}
+.welcome .names{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);line-height:1.4;overflow-wrap:anywhere}
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-soft);border-radius:20px;padding:4px 16px;letter-spacing:.02em}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
@@ -1762,7 +1762,8 @@ function renderMyPage(d){
     var t=new Date(); t.setHours(0,0,0,0);
     var dd=Math.round((w-t)/86400000);
     var wl=(d.product==='웨딩스냅')?'촬영':'예식';
-    var lab=dd>0?('D-'+dd):(dd===0?'오늘이에요 🤍':wl+'을 마쳤어요');
+    var _dayReady=['입금완료','제작중','예식완료','촬영완료','결과물전달'].indexOf(String(d.stage||''))>=0;   // MPD_G12 준비 전(계약·결제 단계) 당일엔 중립 톤 — 미완료 재촉 문구와 감정 충돌 방지
+    var lab=dd>0?('D-'+dd):(dd===0?(_dayReady?'오늘이에요 🤍':'오늘이에요'):wl+'을 마쳤어요');
     // 본예식 시간(계약 확정 슬롯 +1h) — base에 있으면 그대로, 없으면 계약 fill에서 변환
     var wt=(d.production && d.production.base && /^\d{2}:\d{2}$/.test(String(d.production.base.weddingTime||'')))?String(d.production.base.weddingTime):'';
     if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
@@ -2675,7 +2676,7 @@ function renderContractReqForm(ctx){
   var preWed=ci.weddingDate||hd.date||'', preSlot=ci.weddingTime||hd.slot||'';
   var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
     +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">확인</div>'
-    +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml(ci.groom||'')+' · '+escapeHtml(ci.bride||'')+'</b><br>연락처 '+escapeHtml(ci.phone||'미입력')+' · 이메일 '+escapeHtml(ci.email||'미입력')+'</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml([ci.groom,ci.bride].filter(Boolean).join(' · ')||'미입력')+'</b><br>연락처 '+escapeHtml(ci.phone||'미입력')+' · 이메일 '+escapeHtml(ci.email||'미입력')+'</div>'
     +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px">정보가 다르면 카카오톡으로 알려 주세요.</div></div>';
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Contract</div>'
     +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
