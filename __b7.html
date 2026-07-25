@@ -2203,7 +2203,7 @@ function ensureLedFab(d){
     existing.addEventListener('click', openLedModal);
     stack.insertBefore(existing, stack.firstChild);   // 챗 아이콘 위에
     try{ if(localStorage.getItem('me_ledtip_v1')!=='o'){ localStorage.setItem('me_ledtip_v1','o');   // MPD_G7 무라벨 문서 아이콘 발견성 — 첫 진입 1회 툴팁(§9-5-③)
-      // ★FAB_STACK_FIXED(2026-07-25): stack.style.position='relative' 재추가 금지 — .me-fab-stack은 position:fixed(우측 중앙)이고 인라인 relative가 이를 덮어써 FAB 3종(내역·챗·맨위로)이 문서 흐름으로 떨어지던 실사고. 툴팁(absolute)의 컨테이닝 블록은 fixed 부모로 충분.
+      stack.style.position='relative';
       var _tip=document.createElement('div'); _tip.className='me-fab-tip'; _tip.textContent='내 내역 · 계약서·영수증이 여기 있어요';
       stack.appendChild(_tip); setTimeout(function(){ if(_tip.parentNode) _tip.parentNode.removeChild(_tip); }, 5000);
     } }catch(e){}
@@ -2600,22 +2600,17 @@ function renderConsult(c, product){
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
     extra = TRUST_MINI + extra;   // MPD_D1 확인 대기 중에도 진행 흐름·장소 유지
   } else if (s === '승인완료' || s === '확정'){
-    // MPD4_C1 확정 카드 과밀 해소(§6-3-①) — 핵심(일시·장소)만 상시 노출, 나머지 안내는 접기.
-    //   ★2026-07-19 접힘 금지 지시와의 경계(11차 판정): 금지=예식 준비 카드 전체 아코디언 / 여기는 보조 안내 행만 접고 카드·일시·CTA·장소는 상시 노출.
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b></div>'
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
-         + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
-         + '</div>'
-         + '<details class="cc-more"><summary>'+(isSnap?'촬영':'예식')+'까지 함께 챙길 것들</summary>'
-         + '<div class="visit-guide" style="margin-top:8px">'
          + (isSnap ? '' :
               '<div class="vg-row"><span class="vg-k">드레스 시착</span><span class="vg-v">컬렉션은 자유롭게 둘러보실 수 있어요.<br>직접 입어보는 시착은 <b>상담 당일 동의 후</b> 진행돼요 <em>(기본 2벌)</em>.</span></div>'
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.<br>시착 후 계약하지 않으시면 진행한 벌수만큼(1벌당 50,000원) 차감돼요.<span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
          + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
               : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
+         + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
-         + '</div></details>';
+         + '</div>';
     if (c.canChange) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel) cta += '<button type="button" class="cc-btn-textlink" id="mp_cancelToggle">예약 취소</button>';   // 네이티브 취소(환불계좌 입력) · GAS 페이지 우회
     if (!c.canChange && !c.canCancel) cta = '<div class="cc-note">'+L+' <b>24시간 전</b>부터는 변경·취소가 어려워요.<br>부득이한 사정이 있으시면 카카오톡으로 문의해 주세요.</div>';
@@ -2687,7 +2682,7 @@ function renderFitting(f, d){
   }
   var body = '<div class="cc-title">'+escapeHtml(f.title || '드레스 시착 동의서')+'</div><ul class="cc-terms">'+terms+'</ul>'
            + (f.nextNotice ? '<div class="cc-note">'+escapeHtml(f.nextNotice).replace('시착 후, ','시착 후,<br>')+'</div>' : '');   // [③-2] 계약서 24h 예고(첫 구절 뒤 줄내림 고정)
-  var cta  = '<button type="button" class="cc-btn cc-btn-seal" id="mp_signFitting">동의하고 서명</button>'   // MPD4_C2 시착도 결정적 액션 — 진사 CTA(헌장 5 · 본계약과 격 일치)
+  var cta  = '<button type="button" class="cc-btn" id="mp_signFitting">동의하고 서명</button>'
            + (f.gateNotice ? '<div class="cc-note">'+escapeHtml(f.gateNotice)+'</div>' : '')
            + (f.reviewNote ? '<div class="cc-note">'+escapeHtml(f.reviewNote)+'</div>' : '');
   box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
@@ -2695,8 +2690,7 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료',
-    checkLabels:['예약금 공제 안내를 확인했어요'] }).then(function(sig){   // MPD4_C2 확인 체크 1개 — §6-4-② 스펙 문구 그대로(법적 동의 · 임의 변경 금지)
+  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료' }).then(function(sig){
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
