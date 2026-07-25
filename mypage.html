@@ -1634,12 +1634,15 @@ function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 �
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 
 // fetch (단순 요청 → CORS preflight 회피)
-function api(payload){
+function api(payload){   // MPD_E3 12초 타임아웃 — GAS 콜드스타트·불안정 망에서 무한 스피너 방지(각 호출부 catch가 재시도 안내)
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, 12000):null;
   return fetch(EXEC_URL, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload)
-  }).then(function(r){ return r.json(); });
+    body:JSON.stringify(payload),
+    signal:ac?ac.signal:undefined
+  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
 }
 
 function qp(name){
@@ -1714,7 +1717,15 @@ function loadMyState(opts){
   api({action:'getMyState', token:getToken()}).then(function(d){
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
-  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ show('loginView'); } });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X)
+  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+}
+
+function _loadSlowRetry(){   // MPD_E3 무한 스피너 → "연결이 느려요 · 다시 시도" 전환(첫 로드·캐시 없음 한정)
+  var el=$('loading'); if(!el){ show('loginView'); return; }
+  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);text-align:center;line-height:1.75">연결이 느려요.<br>잠시 후 다시 시도해 주세요.</div>'
+    +'<button type="button" class="cc-btn" style="width:auto;padding:11px 26px;margin-top:14px" id="mp_retryLoad">다시 시도</button>';
+  show('loading');
+  var bt=$('mp_retryLoad'); if(bt) bt.addEventListener('click', function(){ el.innerHTML='<div class="spinner"></div><div style="font-family:var(--serif-ko);font-size:13px">불러오는 중…</div>'; loadMyState(); });
 }
 
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
