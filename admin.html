@@ -223,6 +223,10 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .adv-hint{font-family:var(--serif-ko);font-size:11px;color:var(--red);margin-top:4px}
 .btn[disabled]{opacity:.45;pointer-events:none}
 .adv-body select,.adv-body input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:7px;padding:11px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none;-webkit-appearance:none;appearance:none;min-height:46px}
+/* [ADM_GATE_CB] 체크박스는 위 공통 입력 규칙에서 제외 — 같은 특이도(.adv-gate input vs .adv-body input)라 뒤에 온 공통 규칙이 이겨서
+   체크박스가 전폭 46px 빈 상자로 그려지고 appearance:none 때문에 체크 표시도 안 보였다(강제 변경 버튼이 영영 안 열림).
+   특이도를 올려(.adv-body .adv-gate input) 확실히 이기게 하고 네이티브 렌더를 되돌린다. ★공통 규칙 뒤에 두어야 함 — 위로 옮기지 말 것. */
+.adv-body .adv-gate input[type=checkbox]{width:20px;min-width:20px;height:20px;min-height:20px;flex:0 0 auto;margin:0;padding:0;border-radius:4px;-webkit-appearance:auto;appearance:auto;accent-color:var(--red,#b3261e)}
 
 /* 아카이브 */
 .achips{display:flex;gap:6px;margin-bottom:14px}

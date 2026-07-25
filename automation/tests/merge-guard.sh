@@ -472,3 +472,6 @@ if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 �
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
 echo 'ALL MARKERS OK'
+
+# ── 2026-07-25 강제 변경 동의 체크박스 렌더 버그 수정
+chk 'ADM_GATE_CB' admin.html 1   # .adv-body 공통 입력 규칙이 체크박스를 전폭 46px 빈 상자로 덮어 강제 변경 버튼이 영영 안 열리던 것 차단(특이도 상향 규칙은 공통 규칙 '뒤'에 있어야 함) · ★위로 이동·삭제 금지
