@@ -3636,7 +3636,7 @@ function renderResult(res, nm, code){
     if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
     if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 본식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">전달된 파일 링크가 곧 표시돼요.</div>';
-    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요. 🤍</div>';
+    if(_eta(DOWNLOAD_KEEP)) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
     var hd='<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     var inner='';
@@ -3661,7 +3661,7 @@ function renderResult(res, nm, code){
     + '</div>';
   // 보관 안심 — 다운로드할 결과물이 생겼고 + 보관 기간이 설정돼 있을 때만(막연한 약속 방지)
   if((res.원본 || hasReto) && _eta(DOWNLOAD_KEEP)){
-    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요. 🤍</div>';
+    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
   }
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
@@ -4275,7 +4275,7 @@ function designBlock(side,label){
     f+='<textarea class="cc-input" data-side="'+side+'" data-k="body" placeholder="인사말 본문 (*별표*로 감싸면 금색)" style="min-height:62px">'+escapeHtml(d[K.body]||'')+'</textarea>';
     if(cur==='02') f+='<input class="cc-input" data-side="'+side+'" data-k="quote" placeholder="대표 문구 (2번 전용 · 별표 강조는 본문에서만 돼요)" value="'+escapeHtml(d[K.quote]||'')+'">';
     if(cur==='08'){ f+='<input class="cc-input" data-side="'+side+'" data-k="gb" placeholder="신랑 한마디 (8번 전용)" value="'+escapeHtml(d[K.gb]||'')+'"><input class="cc-input" data-side="'+side+'" data-k="bb" placeholder="신부 한마디" value="'+escapeHtml(d[K.bb]||'')+'">'; }
-    f+='<div class="cc-note">💡 적으면 청첩장 인사말 자리에 그대로 들어가요. <b>비워두면 디자인 기본 문구</b>가 자동으로 들어가요.</div>';
+    f+='<div class="cc-note">적으면 청첩장 인사말 자리에 그대로 들어가요. <b>비워두면 디자인 기본 문구</b>가 자동으로 들어가요.</div>';
   }
   // 이 섹션 바로 아래 예시 미리보기(저장된 렌더 이미지) — 표지 영역을 액자에 보여주고 '전체 보기'로 새 탭
   var prev='';
