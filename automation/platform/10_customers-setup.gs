@@ -44,9 +44,13 @@ function setupCustomers() {
       if (_h && _h !== CUSTOMER_HEADERS[_i]) _bad.push((_i + 1) + '열: 시트 "' + _h + '" ≠ 코드 "' + CUSTOMER_HEADERS[_i] + '"');
     }
     if (_bad.length) {
-      throw new Error('헤더 순서 불일치로 중단(아무것도 바꾸지 않음) — ' + _bad.length + '곳: ' + _bad.slice(0, 8).join(' · ') +
+      // ★문구 정확성(2026-07-26): 바로 위 insertColumnsAfter가 이미 빈 열을 늘렸을 수 있으므로 '아무것도 바꾸지 않음'은 거짓이 될 수 있다.
+      //   보증할 수 있는 범위(헤더 라벨·데이터 무변경)만 적는다. 근거 없는 포괄 안심 문구 금지 원칙.
+      throw new Error('헤더 순서 불일치로 중단 — ' + _bad.length + '곳: ' + _bad.slice(0, 8).join(' · ') +
         (_bad.length > 8 ? ' 외 ' + (_bad.length - 8) + '곳' : '') +
-        ' | 그대로 실행하면 데이터는 남고 라벨만 밀려 열이 오정렬됩니다. 00_platform-config의 CUSTOMER_HEADERS를 시트 순서에 맞추고 다시 실행하세요.');
+        ' | 헤더 라벨과 데이터는 건드리지 않았습니다(그리드 열 수를 맞추는 빈 열 추가는 이 검사 전에 이미 수행됨 · 빈 열이라 무해).' +
+        ' 그대로 실행했다면 데이터는 남고 라벨만 밀려 열이 오정렬됩니다.' +
+        ' 먼저 10_customers-setup의 checkCustomerHeaderOrder를 실행해 실측 순서를 확인하고, 00_platform-config의 CUSTOMER_HEADERS를 거기에 맞춘 뒤 다시 실행하세요.');
     }
   }
 
@@ -167,4 +171,65 @@ function formatCustomersSheet() {
 
   try { SpreadsheetApp.getActive().toast('Customers 서식 정리 완료', 'Moment Edit', 4); } catch (e) {}
   return 'Customers 서식 정리 완료';
+}
+
+// ============================ [진단 · 읽기 전용] 시트 헤더 순서 실측 ============================
+// ★HEADER_ORDER_AUDIT(2026-07-26) — HEADER_ORDER_GUARD가 걸렸을 때 '무엇이 어떻게 어긋났는지'를 실측한다.
+//   아무것도 쓰지 않는다(setValue·setValues·insertColumns 호출 0건). 몇 번을 실행해도 시트는 그대로다.
+//   checkProdCapOverflow와 같은 패턴 · GAS 편집기 드롭다운에서 바로 고를 수 있게 인자 없는 함수.
+//
+//   왜 필요한가: CUSTOMER_HEADERS(코드 리터럴)와 실제 운영 시트의 열 순서는 서로 다를 수 있다.
+//   운영 중 열이 늘어나는 경로가 setupCustomers 말고도 여러 개이고, 그것들끼리도 순서가 다르기 때문이다.
+//     · addProdTrackColumns(80_production) — 제작 트랙 7 → 제작_meta 마지막
+//     · addGuideTokenColumn(80_production) — 안내공유토큰
+//     · addResultSelectionColumns(80_production) — 선택사진…설문일시 → 중도금 5개 → 원본폴더ID
+//     · adminMarkDelivered(admin.gs) — 원본폴더ID가 없으면 그 시점에 시트 끝에 자가 추가
+//   특히 '원본폴더ID'는 CUSTOMER_HEADERS에 아예 없어서, 시트에는 있는데 코드에는 없는 상태가 정상적으로 발생한다.
+//   그래서 리터럴을 고칠 때는 추측하지 말고 이 진단의 출력을 그대로 기준으로 삼는다.
+function checkCustomerHeaderOrder() {
+  var sheet = SpreadsheetApp.getActive().getSheetByName(P.CUSTOMERS_SHEET);
+  if (!sheet) { Logger.log('시트 없음: ' + P.CUSTOMERS_SHEET); return { ok: false, error: '시트 없음' }; }
+
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) { Logger.log('헤더 행이 비어 있음 — 신규 시트로 보임(대조 대상 없음)'); return { ok: true, empty: true }; }
+
+  var live = sheet.getRange(P.HEADER_ROW, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h == null ? '' : h).trim(); });
+  var code = CUSTOMER_HEADERS;
+  var n = Math.max(live.length, code.length);
+
+  // 1) 전체 열 나열 — 시트가 코드보다 길면 그 뒤 열도 전부 표시한다.
+  var lines = [], bad = [];
+  for (var i = 0; i < n; i++) {
+    var l = (i < live.length) ? live[i] : '(시트 열 없음)';
+    var c = (i < code.length) ? code[i] : '(코드 없음)';
+    var same = (i < live.length && i < code.length && l === c);
+    if (!same) bad.push((i + 1) + '열: 시트 "' + l + '" / 코드 "' + c + '"');
+    lines.push((same ? '   ' : ' ✗ ') + (i + 1) + ': ' + l + ' | ' + c);
+  }
+
+  // 2) 집합 차이 — 순서와 별개로 '어느 쪽에만 있는 라벨'인지. 리터럴에 넣을 위치를 정할 때 필요하다.
+  var liveSet = {}, codeSet = {};
+  live.forEach(function (h) { if (h) liveSet[h] = 1; });
+  code.forEach(function (h) { codeSet[h] = 1; });
+  var onlyLive = live.filter(function (h, i) { return h && !codeSet[h] && live.indexOf(h) === i; });
+  var onlyCode = code.filter(function (h) { return !liveSet[h]; });
+
+  Logger.log('[헤더 실측] 시트 ' + live.length + '열 / 코드 CUSTOMER_HEADERS ' + code.length + '개');
+  Logger.log('── 전체 (열번호: 시트라벨 | 코드라벨 · ✗=불일치) ──');
+  Logger.log(lines.join('\n'));
+
+  if (onlyLive.length) Logger.log('── 시트에만 있는 라벨(코드에 없음) ' + onlyLive.length + '개: ' + onlyLive.join(', '));
+  if (onlyCode.length) Logger.log('── 코드에만 있는 라벨(시트에 없음) ' + onlyCode.length + '개: ' + onlyCode.join(', '));
+
+  if (!bad.length) {
+    Logger.log('── 결론: 불일치 없음 · setupCustomers 실행 가능(HEADER_ORDER_GUARD 통과)');
+  } else {
+    Logger.log('── 불일치 ' + bad.length + '곳 ──');
+    Logger.log(bad.join('\n'));
+    Logger.log('── 결론: setupCustomers는 HEADER_ORDER_GUARD에 막힌다. 시트를 고치지 말고 위 실측 순서에 맞춰 ' +
+      '00_platform-config의 CUSTOMER_HEADERS를 정정할 것(merge-guard의 순서 검사도 같은 커밋에서 갱신).');
+  }
+  Logger.log('(이 함수는 아무것도 쓰지 않았습니다 · 몇 번이든 재실행 안전)');
+
+  return { ok: true, liveCount: live.length, codeCount: code.length, mismatch: bad.length, bad: bad, onlyLive: onlyLive, onlyCode: onlyCode, live: live };
 }
