@@ -73,6 +73,8 @@ var NOTIFY_EVENTS = {
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
+  'cust.resultOriginal':  { to: 'customer', need: true,  desc: '원본 도착 — 보정 컷 선택 요청 · RESULT_NOTIFY_STEPS' },
+  'cust.resultRetouch':   { to: 'customer', need: true,  desc: '보정본 도착 — 확인(컨펌) 요청 · RESULT_NOTIFY_STEPS' },
   'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 · 마이페이지에서 계약 진행 요청(예식일·정보 입력) · 카톡+메일' },
   'cust.depositToProduction':{ to: 'customer', need: true, desc: '계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · 2026-06-23 신규' },
   // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
@@ -376,6 +378,12 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.resultDelivered':
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 두 분의 시간이 담긴 결과물이 준비되었습니다. 전달일부터 6개월 보관되니 마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요. ' + NF_MYPAGE };
+    case 'cust.resultOriginal':   // RESULT_NOTIFY_STEPS — 원본 업로드 순간(고객 액션: 보정 컷 고르기)
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 원본 사진이 도착했습니다. 마이페이지에서 원본을 확인하시고, 보정할 컷을 골라 주세요. ' + NF_MYPAGE };
+    case 'cust.resultRetouch':    // RESULT_NOTIFY_STEPS — 보정본 업로드 순간(고객 액션: 컨펌)
+      return { vars: { '#{이름}': name },
+        text: '[모먼트에디트] ' + name + '님, 보정본이 도착했습니다. 마이페이지에서 받아보시고, 마음에 드시면 확인을 눌러 마무리해 주세요. ' + NF_MYPAGE };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
@@ -543,6 +551,8 @@ function setKakaoTemplates() {
     'cust.balancePre':          '',   // T09 잔금
     'cust.balanceDue':          '',   // T09 잔금(같은 코드)
     'cust.resultDelivered':     '',   // T10 결과물
+    'cust.resultOriginal':      '',   // 원본 도착(신규 · 솔라피 템플릿 승인 후 채우기 · 그 전엔 이메일 폴백) RESULT_NOTIFY_STEPS
+    'cust.resultRetouch':       '',   // 보정본 도착(신규 · 동일) RESULT_NOTIFY_STEPS
     'cust.holdExpiring':        '',   // T13 임시고정만료
     'cust.changeConfirmed':     '',   // T14 예식일변경적용
     'cust.changeDeclined':      '',   // T15 예식일변경보류
@@ -823,7 +833,9 @@ var NF_EMAIL_TITLE = {
   'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용', btn: '변경 내용 확인' },
   'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
   'cust.consultDone':         { subj: '상담이 완료되었습니다', head: '상담이 완료되었어요', btn: '다음 단계 입력' },
-  'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' }
+  'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' },
+  'cust.resultOriginal':      { subj: '원본 사진이 도착했습니다', head: '원본이 도착했어요', btn: '보정 컷 고르기' },
+  'cust.resultRetouch':       { subj: '보정본이 도착했습니다', head: '보정본이 도착했어요', btn: '보정본 확인' }
 };
 
 // 고객 알림이 카톡으로 못 나갔을 때(템플릿없음·전송실패·전달실패) 같은 내용을 '고객 이메일'로 발송.
