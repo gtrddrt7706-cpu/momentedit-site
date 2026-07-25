@@ -170,6 +170,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .badge{display:inline-block;margin-top:13px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-soft);border-radius:20px;padding:4px 16px;letter-spacing:.02em}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
+.welcome .wed-chip .wed-dday{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em}   /* MPD_B1 D-day 별도 줄 승격 — 진사는 결정 색이라 먹색 사용(헌장 5) */
 
 /* ── NOW 카드 (주인공) ── */
 .now{background:var(--card-white);border:1px solid var(--border);border-radius:8px;padding:32px 26px;margin-bottom:12px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;position:relative;box-shadow:var(--card-shadow)}
@@ -1767,7 +1768,7 @@ function renderMyPage(d){
     // 본예식 시간(계약 확정 슬롯 +1h) — base에 있으면 그대로, 없으면 계약 fill에서 변환
     var wt=(d.production && d.production.base && /^\d{2}:\d{2}$/.test(String(d.production.base.weddingTime||'')))?String(d.production.base.weddingTime):'';
     if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
-    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+(wt?(' · '+wt):'')+' <span style="color:var(--label-soft)">· '+lab+'</span>';
+    el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+(wt?(' · '+wt):'')+'<span class="wed-dday">'+lab+'</span>';   // MPD_B1 D-day 승격 — label-soft 꼬리 → 별도 줄·먹색 반굵기(줄당 강조 1개 · 360px 줄바꿈 해소 §6-2-②③) · 당일 중립 톤(G12)은 lab 계산이 유지
     el.style.display='block';
   })();
 
