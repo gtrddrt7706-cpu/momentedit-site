@@ -3666,8 +3666,8 @@ function _myWorksHtml(p, inv){
   function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
   function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
   var rows=[];
-  if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기 ↗')));
-  if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기 ↗')));
+  if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기')));
+  if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기')));
   if((t.ritual||'')==='완료') rows.push(line('식순'));
   if((t.seat||'')==='완료') rows.push(line('좌석 배치'));
   if((t.dining||'')==='완료') rows.push(line('애프터 웨딩'));
@@ -3859,9 +3859,14 @@ function renderResult(res, nm, code){
     box.innerHTML=h+'</div>'; box.style.display='block'; return;
   }
   var POST=['선택완료','보정중','컨펌대기','컨펌완료','전달완료'];
+  // [PICK_TRUTH 2026-07-25] 표시는 '실제 선택 기록', 잠금은 '상태'로 분리.
+  //   picked(상태 기준)만 쓰면 관리자가 고객 선택 없이 보정본을 등록(adminSetResultLinks → 컨펌대기)한 순간
+  //   ②행이 '✓ 선택 완료'로 거짓 표시됐다. 고객은 고른 적이 없는데 골랐다고 읽는다.
+  //   hasPick = 서버에 남은 선택 기록(선택수 또는 선택사진)만 본다. picked는 단계 개폐(추가보정·보정중)에만 남긴다.
   var inc=res.포함컷||10, picked=(POST.indexOf(st)>=0), locked=(['보정중','컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);
+  var hasPick=(Number(res.선택수)>0) || !!String(res.선택||'').trim();
   var hasReto=!!res.보정본 && (['컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);   // 보정본 받기 가능 시점
-  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+' ↗</a>'; }
+  function link(l,t){ return '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(l)+'" target="_blank" rel="noopener">'+t+'</a>'; }
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
@@ -3903,7 +3908,9 @@ function renderResult(res, nm, code){
     return;
   }
   // 스텝 개요 ①~⑤ (진행 중)
-  var r2 = picked ? chipOk(res.선택수>0?(res.선택수+'컷 선택'):'선택 완료') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요'));
+  // [PICK_TRUTH] ②행 — 선택 기록이 있을 때만 ✓. 기록 없이 상태만 앞서 있으면 사실대로 '디렉터가 진행'(회색 중립).
+  var r2 = hasPick ? chipOk(Number(res.선택수)>0?(res.선택수+'컷 선택'):'선택 완료')
+    : (picked ? chip('디렉터가 진행') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요')));
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chip('추가 가능'):chip('곧 열려요')));   // MPD_B5 선택 항목 화살표 톤다운 — 필수 to-do 오독 방지(§6-7-②)
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
   // MPD_B12 가장 긴 침묵(컷 선택→보정본)에 예상표 유지 — 선택완료·보정중 구간 상단에 소요·알림 예고 1줄(DELIVERY_ETA.retouch 재사용 · '?'면 숨김)
@@ -3925,12 +3932,13 @@ function renderResult(res, nm, code){
       +'<div id="mp_galWrap" style="display:none"></div>'   // MPD3_GALF 썸네일 갤러리 슬롯 — 로드 성공 시에만 표시(실패·구 GAS=아래 번호 입력 그대로)
       +'<div id="mp_pickManual">'
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
-      +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기 ↗</a>':'')
-      +(picked?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
+      +(res.원본?'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기</a>':'')
+      // [PICK_TRUTH] 기록 있을 때만 '✓ N컷 선택됨' — 상태만 앞선 경우의 '0컷 선택됨' 방지
+      +(hasPick?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
       +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈·12-15 범위도 돼요)">'+escapeHtml(res.선택||'')+'</textarea>'
       +'<div id="mp_pickChips" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px"></div>'
       +'<div class="cc-mini" id="mp_pickCount" style="margin:2px 0 8px"></div>'
-      +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(picked?'다시 제출':'고른 컷 제출')+'</button>'
+      +'<button type="button" class="cc-btn" id="mp_pickSubmit">'+(hasPick?'다시 제출':'고른 컷 제출')+'</button>'
       +'</div>'
       +'</div>';
   }
@@ -3942,10 +3950,10 @@ function renderResult(res, nm, code){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>';
     if(_rvp&&_rvp.pending){
       h+='<div class="cc-note" style="margin-top:0">수정 요청이 디렉터에게 전해졌어요'+(_rvp.at?(' · '+escapeHtml(String(_rvp.at).slice(0,16))):'')+'.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
-        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>';
+        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬고 싶으시면 <b>수정 요청하기</b>로 알려 주세요(무료 1회). 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)이에요.</div>'
-        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기 ↗</a>'
+        +'<a class="cc-btn-ghost" style="width:auto;padding:7px 14px;margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>'
         +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button>'
         +'<button type="button" class="cc-btn-ghost" id="mp_revOpen" style="width:100%;margin-top:8px">수정 요청하기</button>'
         +'<div id="mp_revForm" style="display:none;margin-top:10px">'
@@ -4679,7 +4687,7 @@ function _invEgParents(){
     +     '<span class="inv-eg-frame"><img loading="lazy" decoding="async" src="/assets/preview/sec-live-account.png" alt="모바일 참석 화면 계좌 표기 예시"></span>'
     +     '<div class="inv-eg-name">모바일 참석 화면</div></a>' : '')
     + '</div>'
-    + '<a class="inv-eg-full" href="'+_pvUrl(F,n+' '+nm+' 청첩장 전체')+'" target="_blank" rel="noopener">전체 청첩장 보기 ↗</a>'
+    + '<a class="inv-eg-full" href="'+_pvUrl(F,n+' '+nm+' 청첩장 전체')+'" target="_blank" rel="noopener">전체 청첩장 보기</a>'
     + '</div>';
 }
 function designBlock(side,label){
@@ -4704,7 +4712,7 @@ function designBlock(side,label){
       + '<a class="inv-onep-frame" href="'+pv+'" target="_blank" rel="noopener" aria-label="청첩장 예시 크게 보기">'
       +   '<img class="inv-onep-img" loading="lazy" decoding="async" src="'+thumb+'" alt="'+escapeHtml(_designName(cur))+' 청첩장 예시" onerror="this.onerror=null;this.src=\''+src+'\'">'
       + '</a>'
-      + '<a class="cc-btn-ghost inv-onep-zoom" href="'+pv+'" target="_blank" rel="noopener">전체 보기 ↗</a>'
+      + '<a class="cc-btn-ghost inv-onep-zoom" href="'+pv+'" target="_blank" rel="noopener">전체 보기</a>'
       + '</div>';
   }
   // 04·05 표기 특성 안내 — 혼주 입력(2단계)이 디자인 선택보다 앞이라, 고르는 순간 여기서 알려야 처음 오는 손님도 본다(2026-07-18 리뷰)

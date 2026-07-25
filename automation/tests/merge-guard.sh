@@ -396,6 +396,11 @@ chk 'ADM_AB1B' admin.html 1                         # 프론트는 받아 쓰기
 chk 'milestoneAmounts' automation/admin/admin.gs 2  # 조립
 chk 'milestoneAmounts' admin.html 1                 # 사용(산식 복제 금지)
 _ab1b=$(grep -c "_amtKo(r\['계약총액'\])" admin.html 2>/dev/null); _ab1b=${_ab1b:-0}; if [ "$_ab1b" -gt 0 ]; then echo "REVERT? admin.html: 입금 확인 모달에 '계약 총액' 표기 부활($_ab1b)"; fail=1; else echo "ok admin.html: 입금 확인 모달 금액=마일스톤 금액 유지"; fi
+# ── 2026-07-25 마이페이지 결과물 섹션(사용자 지적 2건 · 헌장 8·9)
+chk 'PICK_TRUTH' mypage.html 3                    # 표시=선택 기록 / 잠금=상태 분리(거짓 '✓ 선택 완료' 재발 방지)
+chk 'hasPick' mypage.html 5                         # 정의 + ②행·미니라인·제출 버튼 라벨
+_pt=$(grep -c "picked ? chipOk(res.선택수" mypage.html 2>/dev/null); _pt=${_pt:-0}; if [ "$_pt" -gt 0 ]; then echo "REVERT? mypage.html: ②행 완료 칩이 상태 기준으로 되돌아감($_pt)"; fail=1; else echo 'ok mypage.html: ②행 완료 칩=실제 선택 기록 기준 유지'; fi
+_ar=$(grep -c ' ↗' mypage.html 2>/dev/null); _ar=${_ar:-0}; if [ "$_ar" -gt 0 ]; then echo "REVERT? mypage.html: 외부 링크 화살표(↗) 부활 $_ar곳 — 디자인 헌장 8(2026-07-25 사용자 지시)"; fail=1; else echo 'ok mypage.html: 외부 링크 화살표(↗) 0곳 유지'; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
