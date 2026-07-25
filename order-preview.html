@@ -1264,16 +1264,16 @@ function renderStep(k){
 function writeCard(kind, showStatus){
   var st=showStatus?wcStat(kind):'';
   if(kind==='welcome'){
-    return '<div class="wcard">'+st+'<div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+    return '<div class="wcard">'+st+'<div class="wn">인사말</div><div class="wd">하객에게 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" maxlength="4000" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
   }
   if(kind==='vow'){
-    return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
+    return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" maxlength="4000" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>'
       +'<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>'
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
   if(kind==='letter'){
-    return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
+    return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">마음 하나만 골라 두 줄이면 충분해요.</div><textarea class="ta" maxlength="4000" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'한 사람 기준 1분 안팎이 가장 깊게 남아요.</div>'
       +'<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
   }
@@ -1594,7 +1594,14 @@ if(EMBED){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시
       var d=ev.data.draft;
-      if(d&&d.S){ if(_applySaved({S:d.S,idx:99,cs:true,sv:true})){ _persist(); render(); } }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
+      // [ORDERFILL_DONE 2026-07-25] 서버 초안의 완료 여부(done)를 실값으로 주입 — 중간 '저장 후 나가기' 초안이 완성 화면·'저장됨 · D-14'·레일 전체 ✓로 열리던 결함 수정.
+      //   done!==false = 구버전 mypage(플래그 미전송) 캐시 하위호환(종전 완료 취급 유지). 미완료 주입 시 이 기기 로컬 방문기록·위치(_restored)는 보존하고 서버 S만 최신으로.
+      var _dn=(ev.data.done!==false);
+      if(d&&d.S){
+        var _keep=_restored?{idx:idx, sk:Object.keys(_seenK)}:{idx:0, sk:[]};
+        var _ap=_dn?{S:d.S,idx:99,cs:true,sv:true}:{S:d.S,idx:_keep.idx,cs:true,sv:false,sk:_keep.sk};
+        if(_applySaved(_ap)){ _persist(); render(); }
+      }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
     }
   });
   try{ parent.postMessage({type:'momentedit:orderReady'},window.location.origin); }catch(e){}

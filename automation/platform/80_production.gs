@@ -278,13 +278,21 @@ function handleSaveProductionTrack(body) {
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
     var _prevFinal = (track === 'final') ? (d.finalDraft || {}) : null;   // 재확정 변경 감지(인원·음료·잔수 바뀌면 요금·준비가 달라져 관리자 재통지)
     var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
+    // [DRAFT_SIZE_CAP 2026-07-25] ritual·dining만 정규화 없이 원문 저장돼 셀 한도(50k)를 위협 — 조기 거부(truncate 절대 금지 · 회의 W1-4).
+    if (track === 'ritual' || track === 'dining') {
+      var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
+      if (_dcJ.length > 12000) return { ok: false, error: '저장할 내용이 너무 길어요(현재 약 ' + _dcJ.length + '자 · 최대 12,000자). 글 길이를 조금 줄여 주세요.' };
+    }
     d[track + 'Draft'] = (body && body.draft) || {};
     // [예식 확인서] 확인 후 '내용 실변경'만 자동 해제(재확인 필요 · 면책 무결성) — 위저드 열고 그대로 나가기·_step 이동·자리찾기 토글은 확인 유지(재확인 피로 방지)
     if (track !== 'snap' && d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);   // 스냅 사전기획은 예식 확인서 대상이 아니라 확인 해제 트리거에서 제외(2026-07-19)
     d.tracks = d.tracks || {};
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
-    var _upd = { '제작임시저장': JSON.stringify(d) };   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
+    var _updJ = JSON.stringify(d);
+    // [DRAFT_SIZE_CAP 2026-07-25] 전 트랙 합산 캡 — 한 트랙 초과가 셀 한도(50k)를 넘겨 이후 모든 트랙 저장을 마비시키는 사고 차단(조기 거부).
+    if (_updJ.length > 45000) return { ok: false, error: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + _updJ.length + '자 · 최대 45,000자). 긴 글을 조금 줄여 주시면 저장돼요.' };
+    var _upd = { '제작임시저장': _updJ };   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
     // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
     var _seatToken = '';
     if (track === 'seat') {
@@ -676,7 +684,16 @@ function handleSubmitResultSelection(body) {
   var picks = String((body && body.picks) || '').trim();
   if (!picks) return { ok: false, error: '고르신 컷을 입력해 주세요.' };
   if (picks.length > 4000) picks = picks.slice(0, 4000);
-  var n = picks.split(/[\s,\n;·]+/).filter(function (x) { return x; }).length;   // 토큰 수 = 대략 장수
+  // [PICK_NORMALIZE 2026-07-25] 서버 방어층 — 프론트 캐논과 동일 최소 파이프(분리·trim·빈 제거·중복 제거(순서 유지)) · 선택수=고유 토큰 수.
+  //   범위 전개("12-15")·프리픽스/확장자 제거·제로패딩은 프론트 전용(이중 구현 드리프트 방지 · 회의 A-1 명확화 1).
+  var _pkT = picks.split(/[\s,;·，、]+/), _pkOut = [], _pkSeen = {};
+  for (var _pi = 0; _pi < _pkT.length; _pi++) {
+    var _pt = String(_pkT[_pi] || '').trim(); if (!_pt) continue;
+    var _pk = _pt.toLowerCase(); if (_pkSeen[_pk]) continue;
+    _pkSeen[_pk] = 1; _pkOut.push(_pt);
+  }
+  picks = _pkOut.join(', ');
+  var n = _pkOut.length;   // 고유 토큰 수 = 장수(프론트 카운터와 동일 기준)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
