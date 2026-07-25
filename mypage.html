@@ -1685,7 +1685,7 @@ $('loginForm').addEventListener('submit', function(e){
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
     else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
-  }).catch(function(){ showErr('li_err'); })
+  }).catch(function(){ showErr('li_err','연결이 잠시 불안정해요. 다시 시도해 주세요.'); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25)
   .then(function(){ btn.disabled=false; btn.textContent='Login'; });
 });
 
