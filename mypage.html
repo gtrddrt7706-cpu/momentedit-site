@@ -2176,8 +2176,9 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
   if (!items.length){ box.innerHTML = ''; box.style.display = 'none'; return; }   // 남은 게 없으면(결과물전달 등) NEXT 숨김
   box.style.display = '';
   var lock = '<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-  var html = '<h2 class="sr-only">다음 단계</h2><div class="nx-label en-30">NEXT</div>' + items.map(function(it){   // MPD4_F2
-    return '<div class="next-row">'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
+  var html = '<h2 class="sr-only">다음 단계</h2><div class="nx-label en-30">NEXT</div>' + items.map(function(it, _ni){   // MPD4_F2
+    // MPD4_C3 잠긴 단계 원근 — 바로 다음 1개만 톤 유지, 먼 항목은 명도 계단식 하향(§6-9-② · 잠금=차단이 아니라 예고)
+    return '<div class="next-row"'+(_ni>0?(' style="opacity:'+Math.max(0.5,1-_ni*0.14).toFixed(2)+'"'):'')+'>'+lock+'<span class="nx-txt">'+escapeHtml(it[0])+'<small>'+escapeHtml(it[1])+'</small></span></div>';
   }).join('');
   box.innerHTML = html;
 }
