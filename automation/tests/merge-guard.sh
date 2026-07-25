@@ -332,6 +332,11 @@ chk 'RECENT_KEY' admin.html 3                       # localStorage 키(정의+�
 chk 'ADM_AA7' admin.html 7                          # 조용한 폴링(가드·틱·시작/정지·배선)
 chk '_pollSkip' admin.html 2                        # 폴링 건너뛰기 가드(정의+호출)
 chk '_silentN' admin.html 5                         # 조용한 갱신 카운터(진행바 억제)
+# ── 2026-07-26 관리자 페이지 1차 스프린트 PR④(AA8 벌수 중복 저장 · AA10 오래 기다린 것 분리)
+chk 'ADM_AA8' admin.html 2                          # 인라인 저장 직후 같은 값이면 재저장 생략
+chk 'ADM_AA10' admin.html 2                         # 7일+ 대기 별도 묶음(대기 일수 헬퍼+렌더)
+chk '_waitDays' admin.html 2                        # 대기 일수 계산(정의+분류)
+chk '오래 기다린 것' admin.html 1                    # 방치 묶음 헤더
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
