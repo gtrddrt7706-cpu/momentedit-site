@@ -1527,11 +1527,20 @@ function adminSetResultLinks(code, links) {
     }
     touchCustomer(sheet, colOf, cust.num, upd);
     _recordHandler(code, '결과물 링크 등록' + (원본 ? ' 원본' : '') + (보정본 ? ' 보정본' : '') + (영상 ? ' 영상' : ''));
+    // [RESULT_NOTIFY_STEPS 2026-07-25] 상태가 실제로 전이된 1회만 고객 알림 플래그(링크 수정 재저장 시 중복 발송 방지) — 발송은 락 해제 후
+    var _nfOrig = (upd['결과물상태'] === '원본전달' && cur결과물 !== '원본전달');
+    var _nfReto = (upd['결과물상태'] === '컨펌대기' && cur결과물 !== '컨펌대기');
     var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
   } finally { try { lock.releaseLock(); } catch (e) {} }
   // [LINK_VERIFY 2026-07-25] 저장 후 접근성 검증(경고하되 저장은 허용) — 더블체크 리뷰 반영: 외부 fetch(최대 3링크)가
   //   락 점유 중 실행되면 다른 관리자 액션이 _LOCK_BUSY로 막힐 수 있어 락 해제 후로 이동. 저장은 이미 완료된 상태.
   if (!_lvRes) return { ok: false, error: '저장 결과를 확인하지 못했어요. 다시 시도해 주세요.' };
+  // [RESULT_NOTIFY_STEPS 2026-07-25] 원본·보정본이 올라온 순간 고객 알림(카톡 · 템플릿 미승인 시 이메일 자동 폴백) —
+  //   대기 카드 '올라올 때마다 알려드려요' 약속의 근거. 실패해도 저장 응답에 영향 없음(try) · 락 해제 후 실행.
+  try {
+    if (_nfOrig) notifyKakao('cust.resultOriginal', code);
+    else if (_nfReto) notifyKakao('cust.resultRetouch', code);
+  } catch (eNf) {}
   var _lvWarns = [];
   try {
     _lvWarns = _resultLinkWarnings([{ label: '원본', url: _lvRes.links['원본'] }, { label: '보정본', url: _lvRes.links['보정본'] }, { label: '영상', url: _lvRes.links['영상'] }]);
