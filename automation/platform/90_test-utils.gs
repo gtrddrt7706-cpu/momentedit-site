@@ -285,7 +285,7 @@ function adminReadCheck() {
     L('  처리이력 ' + (d.history ? d.history.length : 0) + '줄 · 동의기록(시착)=' + (d.consent && d.consent.fitting ? 'Y' : 'N'));
   } else { L('  (고객 데이터 없음)'); }
 
-  // 3) adminArchive — 끝난 고객(미계약·취소·노쇼·결과물전달)
+  // 3) adminArchive — 끝난 고객(미계약·취소·노쇼 · 후기 단계에서 설문 마감) · STAGE_REVIEW로 종료 판정이 결과물전달→후기 기준으로 이동
   var a = adminArchive('', 'all');
   L('■ adminArchive: 총 ' + a.total + ' · 최근 ' + a.results.length + '명');
   a.results.slice(0, 6).forEach(function (r) { L('   · ' + r.names + ' | ' + r.endType + '(' + r.endTypeLabel + ') | 종료 ' + (r.modified || '—')); });
