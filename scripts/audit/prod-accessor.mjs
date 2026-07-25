@@ -211,5 +211,50 @@ console.log('\n[10] _prev(force 백업) 거처 — 메타 캡을 잡아먹지 �
   ok(G._prodTrackRev(back, 'seat') === G._prodTrackRev(d, 'seat'), '_prev 유무가 트랙 rev를 흔들지 않음');
 }
 
+console.log('\n[11] A-1 컬럼 미생성 가드 — 조용한 유실을 시끄러운 거부로');
+{
+  const all = {}; G._prodNewCols().forEach((h, i) => { all[h] = i + 1; });
+  ok(G._prodColsMissing(all).length === 0, '컬럼이 전부 있으면 통과');
+  const partial = Object.assign({}, all); delete partial[G.PROD_TRACK_COL.dining];
+  ok(G._prodColsMissing(partial).length === 1, '하나만 없어도 감지');
+  const rej = G._prodColsMissingError(partial, 'ME-T', []);
+  ok(rej && rej.ok === false && !!rej.error, '★저장을 명시적으로 거부(무증상 유실 대신)');
+  ok(rej.error.indexOf('—') < 0, '거부 문구 전각 줄표 없음');
+  ok(G._prodColsMissingError(all, 'ME-T', []) === null, '정상 상태에선 거부하지 않음');
+  // 컬럼 생성 순서: meta가 마지막이어야 '전부 있거나 전부 없거나'
+  const order = G._prodCreateOrder();
+  ok(order[order.length - 1] === G.PROD_META_COL, '★addProdTrackColumns는 meta를 마지막에 생성(중단 시 반쪽 migrated 방지)');
+  ok(order.length === G._prodNewCols().length, '생성 순서 목록과 신설 컬럼 수 일치');
+}
+
+console.log('\n[12] B-6 합산 상한 — 이번에 안 쓰는 컬럼까지 더해야 행을 실제로 묶는다');
+{
+  const TC = G.PROD_TRACK_COL;
+  // 이미 다른 컬럼이 가득 찬 행에 작은 트랙 하나를 더 저장 → cust 없으면 통과(구멍), cust 주면 거부
+  //   코워크가 지목한 우회 시나리오 그대로: 각 컬럼은 자기 캡 안이지만 합치면 행 상한을 넘는 상태에서 마지막 트랙을 저장
+  const filled = {};
+  ['ritual', 'dining'].forEach((t) => { filled[TC[t]] = 'x'.repeat(11900); });          // 각 12k 캡 안
+  ['seat', 'guideinfo', 'snap', 'final'].forEach((t) => { filled[TC[t]] = 'x'.repeat(19900); });   // 각 20k 캡 안
+  const d = { tracks: {}, invitationDraft: { m: 'x'.repeat(19800) } };                   // 이번에 쓰는 트랙도 자기 캡 안
+  ok(G._prodSizeError(d, { track: 'invitation' }) === '', 'cust 없이 쓰기분만 보면 통과(종전 구멍 재현)');
+  const withRow = G._prodSizeError(d, { track: 'invitation', cust: rowOf(filled) });
+  ok(!!withRow, '★행 전체를 보면 거부 — 트랙을 하나씩 채워 상한을 우회할 수 없음');
+  ok(G._prodSizeError(d, { track: 'invitation', cust: rowOf({}) }) === '', '빈 행이면 당연히 통과(과잉 차단 아님)');
+}
+
+console.log('\n[13] B-8 writeCell 빈 값 의미 — 강제 롤백이 8컬럼을 실제로 비우는가');
+{
+  // R3n9Mr에 실제 올라가는 writeCell은 1벌뿐(.claspignore가 form-to-couple.gs를 제외 · gas-lint EXCLUDE 동일).
+  // 그 1벌은 빈 값 skip이 없어 upd[c]='' 가 실제로 셀을 지운다 → 강제 롤백이 신 컬럼 8개를 모두 비운다.
+  const writes = [];
+  const sheet = { getRange: () => ({ setValue: (v) => writes.push(v) }) };
+  const colOf = {}; G._prodCols().forEach((h, i) => { colOf[h] = i + 1; });
+  colOf['최종수정'] = 99;
+  const upd = {}; G._prodCols().forEach((h) => { upd[h] = ''; });
+  G.touchCustomer(sheet, colOf, 2, upd);
+  const cleared = writes.filter((v) => v === '').length;
+  ok(cleared === G._prodCols().length, '★빈 값 쓰기가 스킵되지 않고 실제로 지워짐(데이터 부활 사고 없음)', '지워진 셀 ' + cleared + '/' + G._prodCols().length);
+}
+
 console.log(`\n결과 — 실패 ${fail}건` + (fail ? '' : ' (전부 통과)'));
 process.exit(fail ? 1 : 0);

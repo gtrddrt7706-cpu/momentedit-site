@@ -39,6 +39,7 @@ function handleSaveProductionBase(body) {
     var stage = String(cust.get('현재단계') || '').trim();
     if (PRODUCTION_STAGES.indexOf(stage) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
 
+    var _cm0 = _prodColsMissingError(colOf, code, _nqB); if (_cm0) return _cm0;   // [A-1] 컬럼 미생성 상태에서의 무증상 유실 차단
     var _dl0 = _prodDraftLoadSafe(cust, code, _nqB); if (!_dl0.ok) return _dl0.res;   // 손상 컬럼 위 저장 금지(메타만 갱신 · PROD_COL_SPLIT)
     var draft = _dl0.d;
     // 이메일은 폼에서 받지 않는다 — 계정 이메일 우선, 없으면 기존 저장값 유지(85 청첩장 Couples 시드가 계속 차도록)
@@ -126,7 +127,29 @@ function _prodCols() {   // 제작 데이터가 실제로 들어있는 컬럼 �
   for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) out.push(PROD_TRACK_COL[t]); }
   return out;
 }
-function _prodNewCols() { return _prodCols().slice(1); }   // 구셀을 뺀 신설 컬럼만(멱등 추가·합산 캡 대상)
+function _prodNewCols() { return _prodCols().slice(1); }   // 구셀을 뺀 신설 컬럼만(합산 캡 대상)
+// 컬럼 생성 순서 — ★제작_meta를 '마지막'에. meta가 있으면 그 행은 migrated로 판정되는데,
+//   6분 타임아웃·수동 중단으로 meta만 생기면 아직 없는 트랙 컬럼 쓰기가 조용히 사라진다(writeCell이 헤더 없으면 skip).
+//   meta를 끝에 두면 '전부 있거나 전부 없거나'가 되어 어중간한 상태가 생기지 않는다.
+function _prodCreateOrder() { var o = []; for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) o.push(PROD_TRACK_COL[t]); } o.push(PROD_META_COL); return o; }
+// [A-1 가드] 신 컬럼이 시트에 없으면 저장을 '조용히 잃는' 대신 '시끄럽게 거부'한다.
+//   writeCell은 헤더가 없으면 로그만 남기고 건너뛰는데, PR-B는 구셀에 안 쓰므로 그 저장은 어디에도 남지 않는다
+//   (고객 화면엔 '저장됐어요' · 다음 로드에서 구셀 폴백으로 되돌아감 · 새 rev를 받았으니 다음 저장은 409로 굴러떨어짐).
+//   배포 순서(컬럼 추가 → 배포)를 지키면 이 창은 없지만, 백업 복원·시트 재생성·부분 실행 대비로 코드에도 둔다.
+function _prodColsMissing(colOf) { return _prodNewCols().filter(function (h) { return !colOf[h]; }); }
+function _prodColsMissingError(colOf, code, notifyQ) {
+  var miss = _prodColsMissing(colOf);
+  if (!miss.length) return null;
+  try {
+    var c = CacheService.getScriptCache(), ck = 'prodColMiss_' + (code || '-');
+    if (!c.get(ck)) {
+      c.put(ck, '1', 3600);
+      var _send = function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[제작] 트랙 컬럼 누락으로 저장 차단 · ' + (code || '-') + ' · 없는 컬럼: ' + miss.join(', ') + ' · 80_production의 addProdTrackColumns 1회 실행 필요'); } catch (e2) {} };
+      if (notifyQ && notifyQ.push) notifyQ.push(_send); else _send();
+    }
+  } catch (e) {}
+  return { ok: false, error: '저장 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해 주세요.' };
+}
 
 // 트랙 컬럼 값 포장 — 평상시엔 draft 그대로(구조 단순). _prev가 있을 때만 {_d,_p} 래퍼(백업을 메타로 밀어내지 않기 위함).
 function _prodTrackPack(draft, prev) {
@@ -192,6 +215,11 @@ function _prodPack(d, opts) {
     err = put(PROD_TRACK_COL[t], val, cap, TRACK_LABEL_KO[t] || t);
     if (err) return { cols: {}, err: err };
   }
+  // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
+  //   (이번 쓰기분만 더하면 트랙을 하나씩 채워 상한을 우회할 수 있어 '있는데 안 도는 가드'가 된다)
+  if (opts.cust) {
+    _prodNewCols().forEach(function (h) { if (cols[h] === undefined) { try { total += String(opts.cust.get(h) || '').length; } catch (e3) {} } });
+  }
   if (total > PROD_CAP.total) return { cols: {}, err: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + total + '자 · 최대 ' + PROD_CAP.total.toLocaleString() + '자). 긴 글을 조금 줄여 주시면 저장돼요.' };
   return { cols: cols, err: '' };
 }
@@ -216,7 +244,7 @@ function addProdTrackColumns() {
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
   var added = [];
-  _prodNewCols().forEach(function (h) {
+  _prodCreateOrder().forEach(function (h) {   // ★meta 마지막(위 주석)
     if (headers.indexOf(h) !== -1) return;
     sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h);
     headers.push(h); added.push(h);
@@ -411,6 +439,7 @@ function handleSaveProductionTrack(body) {
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
+    var _cm = _prodColsMissingError(colOf, code, _notifyQ); if (_cm) return _cm;   // [A-1] 컬럼 미생성 상태에서의 무증상 유실 차단
     var _dl = _prodDraftLoadSafe(cust, code, _notifyQ, (track === 'confirm' ? '' : track)); if (!_dl.ok) return _dl.res;   // 손상 컬럼 위 저장 금지(이번 트랙만 격리 판정 · confirm은 메타만 씀) · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
@@ -454,7 +483,7 @@ function handleSaveProductionTrack(body) {
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
     // [DRAFT_SIZE_CAP · PROD_COL_SPLIT] 컬럼별 캡 + 합산 상한 — 직렬화 결과(pack)를 그대로 쓰기에 넘겨 같은 초안을 두 번 stringify하지 않는다.
-    var _pk = _prodPack(d, { track: track });
+    var _pk = _prodPack(d, { track: track, cust: cust });   // cust = 이번에 안 쓰는 컬럼의 현재 길이까지 합산(B-6)
     if (_pk.err) return { ok: false, error: _pk.err };
     var _upd = _prodStoreCols(d, {}, { pack: _pk });   // 시트 쓰기 병합용 — 토큰 발급분까지 담아 touchCustomer 1회로(락 보유시간 단축)
     // 좌석 배치 완료 → 공개 조회 토큰 1회 발급(seat.html?t=…). 이미 있으면 유지(링크·QR 안정). 미완료로 되돌려도 토큰은 보존(재공유 안정).
@@ -1164,6 +1193,10 @@ function addResultSelectionColumns() {
 //     관리자가 의도적으로 롤백한 고객은 _clearForwardData가 제작임시저장을 비우므로 흔적이 없어 자동 제외된다.
 //   · 처리이력에 백필 사실을 남긴다(사후 추적용).
 // 실행: 80_production 파일을 열고 → backfillProduceStage (드라이런) → 목록 확인 후 → backfillProduceStage(false)
+// ★[PROD_COL_SPLIT · A-3] 이 백필은 '구셀(제작임시저장) 기준 · Wave 4 PR-B 이전 세대 전용 · 1회성'이다.
+//   PR-B 이후 신규 고객은 구셀이 백지라 애초에 대상이 아니고(전이는 PRODUCE_ENTRY_FIX가 정상 처리),
+//   이전된 고객의 구셀은 동결된 이전 시점 스냅샷이라 시간이 갈수록 낡는다. → PR-B 배포 '전에' 1회 돌리고 끝낼 것.
+//   (신 컬럼을 보도록 고치는 대신 이대로 두는 이유: 목적이 '과거 고착 고객 정리'라 과거 데이터를 봐야 맞다)
 function backfillProduceStage(dry) {
   var dryRun = (dry !== false);   // 기본 드라이런
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
