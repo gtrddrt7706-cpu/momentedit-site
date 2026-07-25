@@ -267,6 +267,13 @@ chk 'MPD4_F4' mypage.html 1                         # 음료 바 하단 고정
 chk 'MPD4_F2' mypage.html 5                         # sr-only CSS+h1+NEXT h2+포커스 저장/복원
 chk 'MPD4_F3' mypage.html 4                         # _kbChip 헬퍼+스냅·사진·큐시트 배선
 chk '_kbChip' mypage.html 6                         # 헬퍼 정의+호출 5곳
+# ── 2026-07-25 마이페이지 4차 스프린트 PR④(C3 명도 계단 · H3 blur 힌트 · H4 접기+내 완성물 · H5 1단계)
+chk 'MPD4_C3' mypage.html 1                         # 잠긴 단계 명도 계단
+chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+ci+환불+이메일)
+chk '_softHint' mypage.html 7                       # 헬퍼+배선 6곳
+chk 'MPD4_H4' mypage.html 4                         # 완료 행 접기+내 완성물(CSS·조립·요약·게이트)
+chk 'trk-fold' mypage.html 2                        # 접기 CSS+마크업
+chk 'MPD4_H5' mypage.html 3                         # led-foot(CSS·헬퍼·배선)
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
