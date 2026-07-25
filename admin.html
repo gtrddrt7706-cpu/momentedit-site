@@ -1064,7 +1064,7 @@ function loadHome(){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange' };
+  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세)
   var act=inlineKinds[it.kind];
   var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
   var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소' };
@@ -1117,7 +1117,8 @@ function renderQueue(d){
   });
 }
 function onQueueAct(act,code,names,isSnap,el){
-  if(act==='approve') doApprove(code,names);
+  if(act==='markRefunded') doMarkRefundedInline(code,names);   // [REFUND_QUEUE_INLINE] 큐 '환불 처리' → 상세 이동 없이 바로 완료 확인 팝업
+  else if(act==='approve') doApprove(code,names);
   else if(act==='grantHold') doGrantHold(code,names,{hold:{date:(el&&el.getAttribute('data-hd'))||'',slot:(el&&el.getAttribute('data-hs'))||'',status:'요청'}});
   else if(act==='consultDone') doConsultDone(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names);
@@ -1856,6 +1857,10 @@ function doIssueReceipt(code,names,kind,d){
     onYes:function(){ var num=(($('crNum')&&$('crNum').value)||'').trim(); if(!num){ mErr('발행번호를 입력해 주세요.'); return; } runAct(['adminIssueCashReceipt',code,kind,num],code,'발행 완료'); } });
 }
 function doUndoReceipt(code,names,kind){ var kLabel={'중도금잔금':'중도금·잔금'}[kind]||kind; openModal({ title:kLabel+' 현금영수증 발행을 취소할까요?', danger:true, text:b(names)+li('기록이 지워지고 다시 발행 대기로 돌아가요')+li('홈택스에서 실제 발급한 건은 홈택스에서도 취소해야 해요'), yes:'발행 취소', onYes:function(){ runAct(['adminUndoCashReceipt',code,kind],code,'발행 취소'); } }); }
+function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25] 큐 버튼 전용 — 상세 화면으로 들어가지 않고 완료 확인 팝업만 띄운다. 계좌·환불완료 여부는 상세를 조회해 doMarkRefunded에 넘김(계좌 있으면 복사 제공 · 없으면 카톡 안내). 상세를 보고 싶으면 행(줄)을 누르면 됨.
+  gas('adminDetail', code).then(function(d){ doMarkRefunded(code, names, (d&&d.ok)?d:null); })
+    .catch(function(){ doMarkRefunded(code, names, null); });
+}
 function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)||'';
   openModal({ title:'예약금 환불을 완료했나요?', text:b(names)+li(acct?('환불 계좌 '+esc(acct)):'환불 계좌 미입력 · 카카오톡으로 받아 송금 후 처리하거나 환불액 없을 때')+li('이 고객이 환불 송금 대기에서 사라져요')+li('실제 송금은 통장에서 직접 하셔야 해요'),   /* REFUND_DONE_NOACCT 2026-07-25 · 계좌 미입력이어도 완료 처리 가능(문구 방어) */
     extra: acct?('<div class="field"><label>환불 계좌</label><div style="display:flex;gap:8px;align-items:center"><div style="flex:1;background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:8px 10px;font-size:13px">'+esc(acct)+'</div><button type="button" class="btn-line" style="padding:8px 12px;font-size:12px" onclick="copyText(\''+esc(String(acct).replace(/['"\\<>]/g,''))+'\',this)">복사</button></div></div>'):'',
