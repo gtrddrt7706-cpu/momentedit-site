@@ -792,7 +792,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
   <section class="view" id="loginView">
     <div class="eyebrow">My Page</div>
     <h1 class="title">로그인</h1>
-    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 확인하세요.<br>메일의 마이페이지 링크를 누르면 자동으로 로그인됩니다.</p>
+    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 볼 수 있어요.<!-- MPD_B8 시스템체→해요체 전수 16곳(§7-3-⑤ · 제외: 식순 낭독 대본·계약 조항 확인문·내빈 격식 안내) --><br>메일의 마이페이지 링크를 누르면 자동으로 로그인돼요.</p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
         <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" data-email-assist>
@@ -1086,7 +1086,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
   <section class="view" id="forgotView">
     <div class="eyebrow">My Page</div>
     <h1 class="title" id="fg_title">개인코드 찾기</h1>
-    <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드립니다.</p>
+    <p class="subtitle" id="fg_sub">가입하신 이메일을 입력하시면 안내 메일을 보내드릴게요.</p>
     <form id="forgotForm">
       <div class="field">
         <input type="email" id="fg_email" placeholder=" " required autocomplete="email">
@@ -1114,7 +1114,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
         <input type="password" id="rs_pw2" placeholder=" " required minlength="6" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
         <label for="rs_pw2">새 비밀번호 확인</label>
       </div>
-      <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인하세요)</span></label>
+      <label class="rs-show"><input type="checkbox" id="rs_show"> 비밀번호 표시 <span class="rs-show-hint">(저장될 값을 눈으로 확인해 보세요)</span></label>
       <button type="submit" class="btn btn-seal en-22" id="rs_btn">Reset</button>
     </form>
     <div class="errbox" id="rs_err"></div>
@@ -1738,7 +1738,7 @@ function renderMyPage(d){
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)
   // NOW: 첫 문장 = 헤드라인(마침표 없이), 나머지 = 서브
   (function(){
-    var na = String(d.nextAction || '디렉터가 확인 후 안내드립니다.').trim();
+    var na = String(d.nextAction || '디렉터가 확인하고 안내드릴게요.').trim();
     var i = na.search(/\.\s/);              // 첫 '마침표+공백' 위치
     var head, sub;
     if (i === -1) { head = na.replace(/\.$/, ''); sub = ''; }
@@ -1797,7 +1797,7 @@ function renderMyPage(d){
     // [입금완료] 제작 기초정보 입력이 열려 있으면 '준비 중' 대신 입력을 유도
     else if (d.production && d.stage === '입금완료') {
       head = '제작 정보를 입력해 주세요';
-      sub  = '아래에서 입력하시면 예식 준비가 시작됩니다.';
+      sub  = '아래에서 입력하시면 예식 준비가 시작돼요.';
     }
     // [제작 완료·예식 대기] 셋 다 완료면 NOW를 '준비 끝' 톤으로 (멈춘 느낌 방지)
     if (d.stage === '제작중' && d.production && d.production.tracks) {
@@ -2141,7 +2141,7 @@ function openInviteSamples(){
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#2f2820';
   var foot=document.createElement('div');
   foot.style.cssText='flex:0 0 auto;padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#e6e0d8);text-align:center';
-  foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고하세요.</div>';
+  foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고해 보세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
   var _closed=false;
@@ -2479,7 +2479,7 @@ function renderConsult(c, product){
     body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn cc-btn-seal" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
   } else if (s === '시간선택완료'){
-    body = '<div class="cc-title">디렉터 확인 중</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
+    body = '<div class="cc-title">디렉터가 확인하고 있어요</div><div class="cc-sub">선택하신 시간 · <b>'+escapeHtml(c.date)+' '+escapeHtml(c.time)+'</b><br>예약금·일정 확인 후 메일·카카오톡으로 확정을 알려드려요.</div>';
     // [대기 중 셀프 변경/취소] 확정 전이라 자유롭게 — 변경은 일정 선택 재진입(예식일 임시고정 보유 시 당기기만, 서버 가드)
     if (c.canChange && url) cta += '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">시간 변경</a>';
     if (c.canCancel){ cta += '<button type="button" class="cc-btn-ghost" id="mp_cancelToggle">신청 취소</button>'; extra = CANCEL_PANEL; }
@@ -2504,7 +2504,7 @@ function renderConsult(c, product){
          + (c.proposedNote ? '<div class="cc-note" style="text-align:center;margin-top:10px;font-style:italic;color:var(--accent)">"'+escapeHtml(c.proposedNote)+'"</div>' : '');
     cta  = '<button type="button" class="cc-btn" id="mp_acceptProp">이 시간으로 수락</button>' + (url ? '<a class="cc-btn-ghost" href="'+escapeHtml(url)+'">다른 시간 보기</a>' : '');
   } else if (s === '취소'){
-    body = '<div class="cc-title">취소된 예약입니다</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
+    body = '<div class="cc-title">취소된 예약이에요</div><div class="cc-sub">다시 진행을 원하시면 카카오톡으로 문의해 주세요.</div>';
   } else {
     box.style.display='none'; return;
   }
@@ -2556,7 +2556,7 @@ function renderFitting(f, d){
                  + '<div class="vg-row"><span class="vg-k">서명</span><span class="vg-v">계약서 발송 후 <b>72시간 안에</b> 서명해 주세요.<br>기한이 지나면 계약서가 자동으로 파기돼요(재발송 요청 가능).</span></div>'
                  + '<div class="vg-row"><span class="vg-k">예약금</span><span class="vg-v vg-muted">미계약으로 취소되면<br>진행한 시착 벌수만큼(1벌당 50,000원) 공제 후 환불돼요.</span></div>'
                  + '</div>';
-      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료되었습니다</div>'
+      box.innerHTML = '<div class="consult-card"><div class="cc-eyebrow en-22">Fitting</div><div class="cc-title">드레스 시착 동의가 완료됐어요</div>'
         + cntLine + notice + '<details class="cc-more"><summary>동의 내용 보기</summary>' + termsFull + '</details></div>';
       box.style.display='block';
     } else {                                              // 상담완료 이후 → 카드 제거(내 내역 '서류 > 시착 동의서 보기'가 동의 내용+서명을 대신 · 중복 정리)
@@ -2574,7 +2574,7 @@ function renderFitting(f, d){
   var sign = $('mp_signFitting'); if (sign) sign.addEventListener('click', doSignFitting);
 }
 function doSignFitting(){
-  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료됩니다. 서명하면 드레스 시착이 진행됩니다.', confirmText:'서명 완료' }).then(function(sig){
+  mpSignaturePad({ title:'드레스 시착 동의 서명', body:'아래 칸에 서명하시면 드레스 시착 동의가 완료돼요. 서명하면 드레스 시착이 진행돼요.', confirmText:'서명 완료' }).then(function(sig){
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
@@ -5983,7 +5983,7 @@ function renderDining(box){
         var mUrl=(url&&/^https?:\/\//i.test(url))?url:_dnMapUrl(nm);
         var callLine=telD
           ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(telShow)+'</a>'
-          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 됩니다.</div>';
+          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 돼요.</div>';
         var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
@@ -6398,8 +6398,8 @@ $('fg_back').addEventListener('click', function(){ show('loginView'); });
 function openForgot(mode){
   forgotMode = mode;
   hideErr('fg_err'); $('fg_ok').classList.remove('show');
-  if (mode==='findCode'){ $('fg_title').textContent='개인코드 찾기'; $('fg_sub').textContent='가입하신 이메일을 입력하시면 개인코드를 보내드립니다.'; }
-  else { $('fg_title').textContent='비밀번호 재설정'; $('fg_sub').textContent='가입하신 이메일로 재설정 링크를 보내드립니다.'; }
+  if (mode==='findCode'){ $('fg_title').textContent='개인코드 찾기'; $('fg_sub').textContent='가입하신 이메일을 입력하시면 개인코드를 보내드릴게요.'; }
+  else { $('fg_title').textContent='비밀번호 재설정'; $('fg_sub').textContent='가입하신 이메일로 재설정 링크를 보내드릴게요.'; }
   show('forgotView');
 }
 $('forgotForm').addEventListener('submit', function(e){
@@ -6412,8 +6412,8 @@ $('forgotForm').addEventListener('submit', function(e){
     if (d && d.ok){
       var ok=$('fg_ok');
       ok.textContent = (forgotMode==='findCode')
-        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸습니다. 메일함을 확인해 주세요.'
-        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸습니다. 메일함을 확인해 주세요.';
+        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요.'
+        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요.';
       ok.classList.add('show');
     } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
   }).catch(function(){ showErr('fg_err'); })
@@ -6427,8 +6427,8 @@ $('resetForm').addEventListener('submit', function(e){
   e.preventDefault();
   hideErr('rs_err');
   var pw=$('rs_pw').value, pw2=$('rs_pw2').value;
-  if (pw.length<6){ showErr('rs_err','비밀번호는 6자 이상이어야 합니다.'); return; }
-  if (pw!==pw2){ showErr('rs_err','비밀번호가 일치하지 않습니다.'); return; }
+  if (pw.length<6){ showErr('rs_err','비밀번호는 6자 이상이어야 해요.'); return; }
+  if (pw!==pw2){ showErr('rs_err','비밀번호가 일치하지 않아요.'); return; }
   var btn=$('rs_btn'); btn.disabled=true; btn.textContent='변경 중…';
   api({action:'doResetPw', code:qp('code'), exp:qp('exp'), sig:qp('sig'), pw:pw, pw2:pw2}).then(function(d){
     if (d && d.ok){
