@@ -85,7 +85,7 @@ const SYS = {
   SHEET_NAME: '상담예약',
   HEADER_ROW: 1,
   DATA_START_ROW: 2,
-  SEARCH_DAYS: 120,                            // 달력 가능일 탐색 범위(앞으로 N일)
+  SEARCH_DAYS: 365,                            // 달력 가능일 탐색 범위(앞으로 N일) — [SEARCH_DAYS_1Y] 120→365(1년)로 확대(2026-07-25 사용자 지시 · 4개월서 짤리던 예약 가능일을 1년까지 노출). 캘린더에 '상담가능' 일정이 그만큼 깔려 있어야 함(seedAllDaysUntil2027). 쿼리는 캐시(warmAvailCache 1분 트리거)로 커버
   AVAIL_KEYWORD: /상담\s*가능|consult|available/i, // 캘린더에서 '상담가능' 일정을 식별하는 키워드
   FROM_NAME: 'Moment Edit',
   EVENT_PREFIX: 'Moment Edit 상담 · ',
