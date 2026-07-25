@@ -1132,7 +1132,7 @@ function queueRow(it){
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var chgAttr=it.chg?(' data-cfd="'+esc(it.chg.fd||'')+'" data-cfs="'+esc(it.chg.fs||'')+'" data-ctd="'+esc(it.chg.td||'')+'" data-cts="'+esc(it.chg.ts||'')+'" data-cfee="'+esc(String(it.chg.fee||0))+'" data-cpy="'+esc(it.chg.payer||'')+'"'):'';
   var btn = act
-    ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'
+    ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'" data-sub="'+esc(it.sub||'')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'   /* [ADM_AB1] 큐 요약(sub)을 모달로 통째 전달 */
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
   // [벌수 인라인 기록] 상담완료 대기인데 벌수 미기록이면 큐에서 바로 적고 저장 → 저장되면 상담완료 모달로 이어짐 (2026-06-12 사용자 지시)
   if(it.kind==='상담완료' && it.badge && it.badge.text==='벌수 미기록'){
@@ -1190,15 +1190,17 @@ function renderQueue(d){
     });
   });
 }
+// [ADM_AB1] 큐 버튼이 들고 있는 서버 요약 문장을 그대로 모달에 넘긴다(파싱하지 않음). 값이 없으면 모달에 정보 칸이 안 생긴다.
+function _qSub(el){ var v=(el&&el.getAttribute('data-sub'))||''; return v?{sub:v}:null; }
 function onQueueAct(act,code,names,isSnap,el){
   if(act==='markRefunded') doMarkRefundedInline(code,names);   // [REFUND_QUEUE_INLINE] 큐 '환불 처리' → 상세 이동 없이 바로 완료 확인 팝업
   else if(act==='approve') doApprove(code,names);
   else if(act==='grantHold') doGrantHold(code,names,{hold:{date:(el&&el.getAttribute('data-hd'))||'',slot:(el&&el.getAttribute('data-hs'))||'',status:'요청'}});
   else if(act==='consultDone') doConsultDone(code,names);
-  else if(act==='confirmPay') doConfirmPay(code,names);
-  else if(act==='confirmBalance') doConfirmBalance(code,names);
-  else if(act==='confirmMid') doConfirmMid(code,names);
-  else if(act==='confirmMidBal') doConfirmMidBal(code,names);
+  else if(act==='confirmPay') doConfirmPay(code,names,_qSub(el));
+  else if(act==='confirmBalance') doConfirmBalance(code,names,_qSub(el));
+  else if(act==='confirmMid') doConfirmMid(code,names,_qSub(el));
+  else if(act==='confirmMidBal') doConfirmMidBal(code,names,_qSub(el));
   else if(act==='confirmExtra') doConfirmExtra(code,names);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
@@ -1654,13 +1656,7 @@ function cardPayment(d){
   // [02-8] 환불 예상(d.refundQuote · 계약서 7조·9조·4조⑧ 서버 계산) — 지금 취소하면 한 줄. 벌수 미기록이면 산정 불가 경고.
   if(d.refundQuote && !d.refundQuote.pending){
     var rq=d.refundQuote;
-    raw+='<div class="cnote">'+(rq.closed?('환불 산정('+esc(rq.asOfLabel||'')+') · '):'지금 취소하면 · ')+(rq.needCount
-      ? '<b style="color:#b3261e">벌수 기록 필요</b> <span style="color:var(--label-soft)">(시착 카드에서 기록하면 환불액이 계산돼요)</span>'
-      : ('환불 예상 <b>'+Number(rq.refund||0).toLocaleString()+'원</b>'
-        +(rq.rule?(' · '+esc(rq.rule)):'')
-        +(rq.penalty>0?(' · 위약금 '+Number(rq.penalty).toLocaleString()+'원'+(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 비용은 위약금에 흡수'):'')):(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 공제 '+Number(rq.fitDeduct||0).toLocaleString()+'원'):''))
-        +' · 기수령 '+Number(rq.paid||0).toLocaleString()+'원'))
-      +'</div>';
+    raw+='<div class="cnote">'+(rq.closed?('환불 산정('+esc(rq.asOfLabel||'')+') · '):'지금 취소하면 · ')+_rqLine(rq,false)+'</div>';   /* [ADM_AB2] 문구·계산은 _rqLine 한 곳 */
   }
   // 현금영수증 — 발급대상 + 마일스톤별 발행 상태(원장 d.receipts). 발행할 것 먼저, 발행 취소는 뒤로.
   var rcpt='';
@@ -1891,10 +1887,10 @@ function onDetailAct(act,d){
   else if(act==='sendContract') openSendContract(code,names,d);
   else if(act==='viewContract') openContractViewer(d);
   else if(act==='uncontracted') doUncontracted(code,names);
-  else if(act==='confirmPay') doConfirmPay(code,names);
-  else if(act==='confirmBalance') doConfirmBalance(code,names);
-  else if(act==='confirmMid') doConfirmMid(code,names);
-  else if(act==='confirmMidBal') doConfirmMidBal(code,names);
+  else if(act==='confirmPay') doConfirmPay(code,names,d);
+  else if(act==='confirmBalance') doConfirmBalance(code,names,d);
+  else if(act==='confirmMid') doConfirmMid(code,names,d);
+  else if(act==='confirmMidBal') doConfirmMidBal(code,names,d);
   else if(act==='setResult') openSetResult(code,names,isSnap,d);
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names,d);
@@ -1956,6 +1952,42 @@ function afterAction(code,res,act){
 }
 
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }
+/* [ADM_AB1] 금전 확인 모달의 근거 — 라벨/값 분리(현금영수증 발행 모달과 같은 형태).
+     값이 없으면 그 줄을 아예 그리지 않는다(빈칸·'-'·0원 표시 금지). 버튼 라벨엔 금액을 넣지 않는다. */
+function _amtKo(n){ n=Number(n); return (isFinite(n)&&n>0) ? n.toLocaleString()+'원' : ''; }
+function _payFacts(rows){
+  var ro='background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:7px 9px;font-size:13px;color:#5c4a2c', out='';
+  (rows||[]).forEach(function(r){
+    var v=(r&&r.v!=null)?String(r.v).trim():'';
+    if(!v) return;
+    out+='<div class="field"><label>'+esc(r.k)+'</label><div style="'+ro+'">'+esc(v)+'</div></div>';
+  });
+  return out;
+}
+// 큐에서 열면 서버가 만든 요약 문장(sub)을 통째로 한 줄에 — 앞단에서 쪼개 해석하지 않는다. 상세에서 열면 기록된 값에서 조립.
+function _payRows(d,kind){
+  if(!d) return [];
+  if(d.sub!=null && !d.raw) return [{k:'입금 내용', v:d.sub}];
+  var r=d.raw||{}, bal=(d.mirror&&d.mirror.balance)||{};
+  if(kind==='pay') return [{k:'계약 총액', v:_amtKo(r['계약총액'])},{k:'입금자', v:r['입금자명']}];
+  if(kind==='mid') return [{k:'입금자', v:r['중도금입금자명']}];
+  if(kind==='bal') return [{k:'잔금 금액', v:_amtKo(bal.amount)},{k:'입금자', v:bal.payerName}];
+  if(kind==='midbal') return [{k:'잔금 금액', v:_amtKo(bal.amount)},{k:'입금자', v:r['중도금입금자명']||bal.payerName}];
+  return [];
+}
+/* [ADM_AB2] 환불 예상 한 줄 — 상세 카드와 환불 완료 모달이 같은 계산·같은 문구를 쓰도록 한 곳에서 만든다.
+     plain=true면 모달 본문용(태그 없는 문장). */
+function _rqLine(rq,plain){
+  if(!rq) return '';
+  var B=function(s){ return plain?s:('<b>'+s+'</b>'); };
+  if(rq.needCount) return plain ? '벌수 기록 필요 · 시착 카드에서 기록하면 환불액이 계산돼요'
+    : '<b style="color:#b3261e">벌수 기록 필요</b> <span style="color:var(--label-soft)">(시착 카드에서 기록하면 환불액이 계산돼요)</span>';
+  return '환불 예상 '+B(Number(rq.refund||0).toLocaleString()+'원')
+    +(rq.rule?(' · '+(plain?String(rq.rule):esc(rq.rule))):'')
+    +(rq.penalty>0?(' · 위약금 '+Number(rq.penalty).toLocaleString()+'원'+(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 비용은 위약금에 흡수'):''))
+                  :(rq.fitCount>0?(' · 시착 '+Number(rq.fitCount)+'벌 공제 '+Number(rq.fitDeduct||0).toLocaleString()+'원'):''))
+    +' · 기수령 '+Number(rq.paid||0).toLocaleString()+'원';
+}
 function doIssueReceipt(code,names,kind,d){
   var it=null, rc=(d&&d.receipts)||[]; for(var i=0;i<rc.length;i++) if(rc[i].key===kind) it=rc[i];
   var amt=it?Number(it.amount||0):0, tgt=(it&&it.target)||'';
@@ -1974,7 +2006,9 @@ function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25]
     .catch(function(){ doMarkRefunded(code, names, null); });
 }
 function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)||'';
-  openModal({ title:'예약금 환불을 완료했나요?', text:b(names)+li(acct?('환불 계좌 '+esc(acct)):'환불 계좌 미입력 · 카카오톡으로 받아 송금 후 처리하거나 환불액 없을 때')+li('이 고객이 환불 송금 대기에서 사라져요')+li('실제 송금은 통장에서 직접 하셔야 해요'),   /* REFUND_DONE_NOACCT 2026-07-25 · 계좌 미입력이어도 완료 처리 가능(문구 방어) */
+  // [ADM_AB2] 얼마를 보냈어야 하는지를 모달 안에서 — 상세 카드와 같은 계산(_rqLine). 산정 전이면 그렇다고 적는다.
+  var _rq=d&&d.refundQuote, _rqLi=_rq ? li(_rq.pending?'환불액 산정 전이에요 · 벌수 기록 필요':_rqLine(_rq,true)) : '';
+  openModal({ title:'예약금 환불을 완료했나요?', text:b(names)+_rqLi+li(acct?('환불 계좌 '+esc(acct)):'환불 계좌 미입력 · 카카오톡으로 받아 송금 후 처리하거나 환불액 없을 때')+li('이 고객이 환불 송금 대기에서 사라져요')+li('실제 송금은 통장에서 직접 하셔야 해요'),   /* REFUND_DONE_NOACCT 2026-07-25 · 계좌 미입력이어도 완료 처리 가능(문구 방어) */
     extra: acct?('<div class="field"><label>환불 계좌</label><div style="display:flex;gap:8px;align-items:center"><div style="flex:1;background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:8px 10px;font-size:13px">'+esc(acct)+'</div><button type="button" class="btn-line" style="padding:8px 12px;font-size:12px" onclick="copyText(\''+esc(String(acct).replace(/['"\\<>]/g,''))+'\',this)">복사</button></div></div>'):'',
     yes:'환불 완료', onYes:function(){ runAct(['adminMarkRefunded',code],code,'환불 완료'); } }); }
 function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까요?', text:b(names)+li('고객 화면에 \"보정 중\"으로 표시돼요'), yes:'보정 착수', onYes:function(){ runAct(['adminStartRetouch',code],code,'보정 착수'); } }); }
@@ -2013,10 +2047,11 @@ function doConsultDone(code,names,fitN,fitSaved){
     }
   });
 }
-function doConfirmPay(code,names){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
-function doConfirmBalance(code,names){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
-function doConfirmMidBal(code,names){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요'), yes:'중도금·잔금 확인', onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
-function doConfirmMid(code,names){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
+// [ADM_AB1] 통장과 대조할 금액·입금자를 모달 안에 함께 — 확인 전에 상세로 되돌아가지 않아도 되게.
+function doConfirmPay(code,names,d){ openModal({ title:'입금을 확인 처리할까요?', text:b(names)+li('단계가 입금완료로 넘어가요')+li('고객이 중도금·잔금까지 한 번에 신고했다면 그 신고분도 함께 확정돼요')+li('되돌리려면 강제 변경이 필요해요'), extra:_payFacts(_payRows(d,'pay')), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmPayment',code],code,'입금 확인'); } }); }
+function doConfirmBalance(code,names,d){ openModal({ title:'잔금을 확인 처리할까요?', text:b(names)+li('잔금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'bal')), yes:'잔금 확인', onYes:function(){ runAct(['adminConfirmBalance',code],code,'잔금 확인'); } }); }
+function doConfirmMidBal(code,names,d){ openModal({ title:'중도금·잔금을 한 번에 확인 처리할까요?', text:b(names)+li('한 번에 입금하신 건이에요 · 중도금·잔금 모두 확인으로 바뀌어요')+li('현금영수증도 합산 1건으로 발행 큐에 떠요'), extra:_payFacts(_payRows(d,'midbal')), yes:'중도금·잔금 확인', onYes:function(){ runAct(['adminConfirmMidBalance',code],code,'확인'); } }); }
+function doConfirmMid(code,names,d){ openModal({ title:'중도금을 확인 처리할까요?', text:b(names)+li('중도금상태가 확인으로 바뀌어요')+li('단계는 그대로 · 제작 계속 가능'), extra:_payFacts(_payRows(d,'mid')), yes:'중도금 확인', onYes:function(){ runAct(['adminConfirmMid',code],code,'중도금 확인'); } }); }
 function doEventDone(code,names,isSnap){ var w=isSnap?'촬영':'예식'; openModal({ title:w+'완료로 넘길까요?', text:b(names)+li('단계가 '+w+'완료로 바뀌어요')+li('결과물 단계가 열려요'), yes:'넘기기', onYes:function(){ runAct(['adminMarkEventDone',code],code,'넘기기'); } }); }
 function doDelivered(code,names,d){
   var r=(d&&d.raw)||{}, noReto=!!(d&&d.raw&&!r['보정본폴더']), noConfirm=(!!d&&d.raw&&r['결과물상태']!=='컨펌완료'&&!noReto);
@@ -2230,7 +2265,7 @@ function openSetResult(code,names,isSnap,d){
   var extra=_linkField('원본 드라이브 링크','rOrig',r['원본링크'])
     +_linkField('보정본 폴더 링크','rReto',r['보정본폴더'])
     +(isSnap?'':_linkField('본식 영상 링크','rVid',r['영상링크']));
-  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중')+li('드라이브 공유가 "링크가 있는 모든 사용자"인지 먼저 확인해 주세요 · 저장 후 자동 점검이 한 번 더 경고해요'), extra:extra, yes:'저장',
+  openModal({ title:'결과물 링크 등록', text:bumpName(names)+li('부분 입력 가능 (원본만 먼저 OK)')+li('원본만 저장 → 원본전달(고객이 고르기 시작) · 보정본 저장 → 보정중')+li('드라이브 공유가 "링크가 있는 모든 사용자"인지 먼저 확인해 주세요 · 저장 후 자동 점검이 한 번 더 경고해요')+li('처음 등록하면 고객에게 도착 알림이 바로 가요')   /* [ADM_AB4] 저장이 곧 고객 알림임을 누르기 전에 */, extra:extra, yes:'저장',
     init:function(){ _pasteField('rOrig'); _pasteField('rReto'); if(!isSnap) _pasteField('rVid'); },   // [ADM_AA5]
     onYes:function(){ var links={ '원본':String($('rOrig').value||'').trim(), '보정본':String($('rReto').value||'').trim(), '영상':(isSnap?'':String($('rVid')?$('rVid').value:'').trim()) };
       runAct(['adminSetResultLinks',code,links],code,'저장'); } });

@@ -337,6 +337,14 @@ chk 'ADM_AA8' admin.html 2                          # 인라인 저장 직후 �
 chk 'ADM_AA10' admin.html 2                         # 7일+ 대기 별도 묶음(대기 일수 헬퍼+렌더)
 chk '_waitDays' admin.html 2                        # 대기 일수 계산(정의+분류)
 chk '오래 기다린 것' admin.html 1                    # 방치 묶음 헤더
+# ── 2026-07-26 관리자 페이지 1차 스프린트 PR⑤(AB1 금액·입금자 · AB2 환불 예상 · AB4 알림 예고)
+chk 'ADM_AB1' admin.html 4                          # 금전 확인 모달 근거(헬퍼+큐 전달+상세 전달)
+chk '_payFacts' admin.html 5                        # 라벨/값 칸(정의+모달 4곳)
+chk '_payRows' admin.html 5                         # 값 조립(정의+모달 4곳)
+chk 'ADM_AB2' admin.html 3                          # 환불 예상 단일 원천(헬퍼+카드+모달)
+chk '_rqLine' admin.html 4                          # 환불 한 줄 헬퍼(정의+카드+모달 2)
+chk 'ADM_AB4' admin.html 1                          # 결과물 링크 저장 = 고객 알림 예고
+chk '처음 등록하면 고객에게 도착 알림이 바로 가요' admin.html 1   # 실제 조건(상태 전이 1회)에 맞춘 문구
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }
