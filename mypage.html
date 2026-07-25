@@ -2326,7 +2326,7 @@ function renderLedger(l){
   });
   var lbc=$('mp_lbAcctCopy'); if(lbc) lbc.addEventListener('click', function(){
     var _b=(window._mpStateD||{}).balance, t=String((_b&&_b.account)||''); if(!t) return;
-    var ok=function(){ lbc.textContent='복사됐습니다'; setTimeout(function(){ lbc.textContent='계좌 복사'; },1500); };
+    var ok=function(){ lbc.textContent='복사됐어요'; setTimeout(function(){ lbc.textContent='계좌 복사'; },1500); };
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
   });
   var lbs=$('mp_lbSignal'); if(lbs) lbs.addEventListener('click', function(){
@@ -2800,7 +2800,7 @@ function renderContractPayment(c, p, ctx){
      + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
-  var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function _startContractCountdown(c){
   if (!c || c.signed) return;
@@ -2896,7 +2896,7 @@ function renderChangeWizard(ctx, host){
         h='<div class="cc-sub" style="margin-top:10px">변경 수수료 · <b>무상</b>'+(_quote.basis?(' <span class="cc-mini">· '+escapeHtml(_quote.basis)+'</span>'):'')+'</div>';
       }
       if(q) q.innerHTML=h;
-      var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
+      var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tt).then(ok).catch(function(){ legacyCopy(tt); ok(); }); } else { legacyCopy(tt); ok(); } }catch(e){ legacyCopy(tt); ok(); } });
       _setSubmit(true);
     }).catch(function(){ _resetQuote(); _err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
   }
@@ -3006,7 +3006,7 @@ function renderPayment(p){
   var b=$('mp_paySignal'); if(b) b.addEventListener('click', doPaySignal);
   var ac=$('mp_acctCopy'); if(ac) ac.addEventListener('click', function(){
     var t=String(p.account||''); if(!t) return;
-    var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); };
+    var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); };
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); }
   });
 }
@@ -3028,7 +3028,7 @@ document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-copy-acct]'):null; if(!t) return;
   var v=String(t.getAttribute('data-copy-acct')||''); if(!v) return;
   var sp=t.querySelector('.acct-copy-txt');
-  var done=function(){ if(sp){ sp.textContent='복사됐습니다'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
+  var done=function(){ if(sp){ sp.textContent='복사됐어요'; setTimeout(function(){ sp.textContent='계좌번호 복사'; },1500); } };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
 });
 // [02-5] 잔금 카드 — 결제 마일스톤(단계 아님). d.balance 없으면(백엔드 미반영) 조용히 숨김.
@@ -3042,7 +3042,7 @@ document.addEventListener('click', function(e){
   var srcId=t.getAttribute('data-copy-from');
   if(srcId){ var el=$(srcId); if(el) v=String(el.textContent||''); }
   v=v.replace(/[^0-9]/g,''); if(!v) return;
-  var done=function(){ t.textContent='복사됐습니다'; setTimeout(function(){ t.textContent='금액 복사'; },1500); };
+  var done=function(){ t.textContent='복사됐어요'; setTimeout(function(){ t.textContent='금액 복사'; },1500); };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(function(){ legacyCopy(v); done(); }); } else { legacyCopy(v); done(); } }catch(err){ legacyCopy(v); done(); }
 });
 // [최종확정 소프트 게이트] 잔금 결제 전 인원 미확정이면 — 먼저 확정 유도(강제 아님 · 3걸음 위저드로 이동).
@@ -3134,7 +3134,7 @@ function renderBalance(p, mid){
   }
   box.style.display='block';
   var b=$('mp_bSignal'); if(b) b.addEventListener('click', doBalanceSignal);
-  var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_bAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 // 현금영수증(선택) 입력 — 결제 카드(계약금·중도금·잔금) 공통. 입금자명 아래 한 줄, 저장값 자동 채움.
 function cashReceiptField(id, val){
@@ -3217,7 +3217,7 @@ function renderMid(p, bal){
     if(b) b.setAttribute('data-combo', cb.checked?'1':'');
     var _cw=box.querySelector('.me-card-pay'); var _wrap=_cw&&_cw.closest?_cw.closest('.me-pay-alt'):null; if(_wrap&&_wrap.parentNode) _wrap.parentNode.removeChild(_wrap);
     try{ if(window.meCardPay) meCardPay.init(); }catch(e){} });
-  var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐습니다'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
+  var ac=$('mp_mAcctCopy'); if(ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ legacyCopy(t); ok(); }); } else { legacyCopy(t); ok(); } }catch(e){ legacyCopy(t); ok(); } });
 }
 function doMidSignal(){
   var payer=(($('mp_mPayer')&&$('mp_mPayer').value)||'').trim();
@@ -6375,7 +6375,7 @@ var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click',
   var code = $('mp_code').textContent.trim();
   if (!code || code==='—') return;
   var txt=$('mp_copy_txt');
-  var done=function(){ txt.textContent='복사됐습니다'; setTimeout(function(){ txt.textContent='복사'; },1500); };
+  var done=function(){ txt.textContent='복사됐어요'; setTimeout(function(){ txt.textContent='복사'; },1500); };
   try{
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(code).then(done).catch(function(){ legacyCopy(code); done(); });
