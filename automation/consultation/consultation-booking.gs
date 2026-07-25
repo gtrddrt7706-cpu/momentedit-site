@@ -2099,6 +2099,7 @@ function doPost(e) {
       case 'cardPayConfig':      return jsonOut(handleCardPayConfig(body));  // 98 · 카드결제 설정 조회(플래그 OFF면 enabled:false)
       case 'saveCashReceipt':    return jsonOut(handleSaveCashReceipt(body));
       case 'submitResultSelection': return jsonOut(handleSubmitResultSelection(body));
+      case 'getResultGallery': return jsonOut(handleGetResultGallery(body));   // MPD3_GAL B안 썸네일 갤러리(80_production)
       case 'requestExtraRetouch':   return jsonOut(handleRequestExtraRetouch(body));
       case 'extraRetouchSignal':    return jsonOut(handleExtraRetouchSignal(body));
       case 'confirmRetouch':        return jsonOut(handleConfirmRetouch(body));
