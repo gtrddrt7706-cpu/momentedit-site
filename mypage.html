@@ -150,6 +150,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
+/* MPD3_D2 알림 딥링크 1회 강조 — 골드 링 페이드(장식 아님 · 위치 안내) */
+.focus-glow{animation:mpFocusGlow 2.4s ease 1}
+@keyframes mpFocusGlow{0%{box-shadow:0 0 0 3px var(--gold-soft)}55%{box-shadow:0 0 0 3px var(--gold-soft)}100%{box-shadow:0 0 0 3px rgba(184,154,117,0)}}
 .now-go{display:inline-block;margin-top:9px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);border-bottom:1px solid var(--gold-soft)}   /* MPD_G6 NOW 바로가기 앵커 */
 .me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
 /* MPD_G8 탭 눌림 공통 :active 토큰 — hover 전용 컨트롤(모바일 무반응)에 눌림 피드백(§9-4-③ · tap-highlight 꺼진 화면의 대체 피드백) */
@@ -1659,6 +1662,21 @@ function qp(name){
   catch(e){ return ''; }
 }
 
+// [MPD3_D2] 알림 딥링크 — ?focus=카드 (95_notify _nfMy와 세트 · 미지 값 무시). 로그인/캐시 렌더 후 1회 소비.
+window._mpFocus=(function(){ var f=String(qp('focus')||'').toLowerCase(); return /^[a-z]{2,16}$/.test(f)?f:''; })();
+var _FOCUS_MAP={ consult:'mp_consult', fitting:'mp_fitting', contract:'mp_contract', payment:'mp_payment', mid:'mp_midpayment', balance:'mp_balance', result:'mp_result', production:'mp_production', hold:'mp_hold', refund:'mp_refundBank' };
+function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이면 스크롤+1회 강조, 아니면 조용히 소비
+  var f=window._mpFocus; if(!f) return; window._mpFocus='';
+  if(f==='ledger'){ try{ openLedModal(); }catch(e){} return; }
+  var id=_FOCUS_MAP[f]; if(!id) return;
+  var el=document.getElementById(id);
+  if(!el || el.style.display==='none' || !el.innerHTML) return;
+  setTimeout(function(){
+    try{ el.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){ try{ window.scrollTo(0, el.offsetTop-80); }catch(e2){} }
+    el.classList.add('focus-glow'); setTimeout(function(){ el.classList.remove('focus-glow'); }, 2600);
+  }, 250);
+}
+
 // ── 부팅 라우팅 ────────────────────────────────
 (function boot(){
   var mode = qp('mode');
@@ -1949,6 +1967,7 @@ function renderMyPage(d){
     else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
     var _ng=$('mp_nowGo'); if(_ng) _ng.style.display='none';   // MPD_G6 종료 고객은 할 일 카드 없음
+    _mpApplyFocus();   // MPD3_D2 종료 고객도 refund 딥링크는 유효
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
     // 임시고정 배너는 상담 여정(신청접수~시착)까지만 — 계약서 요청 단계부터는 요청 폼의 예식일이 기준이라, 고정 날짜와 달라질 수 있는 배너를 숨김(혼선 방지). 프리필(ctx.hold)은 그대로.
@@ -1989,6 +2008,7 @@ function renderMyPage(d){
     renderLedger(d.ledger);                                          // 내 내역 (02-6) · 결제·현금영수증·서류
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
     _nowGoWire();   // MPD_G6 NOW 바로가기 앵커 — 지금 할 일 카드로
+    _mpApplyFocus();   // MPD3_D2 알림 딥링크 소비(1회)
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
