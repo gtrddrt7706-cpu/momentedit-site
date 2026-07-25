@@ -1792,6 +1792,10 @@ function adminForceStage(code, targetStage, reason) {
           var _bsTs = getSheet(), _bcTs = buildHeaderIndex(_bsTs);
           if (_bcTs['취소일시'] && !String(_bkTs.get('취소일시') || '').trim()) writeCell(_bsTs, _bcTs, _bkTs.num, '취소일시', new Date());
         }
+        // [REFUND_ACCT_REQ 2026-07-25] 강제취소 고객이 수령분(입금확인/입금상태=확인) 있고 환불계좌 미입력이면 고객에게 계좌 입력 요청 1회(카톡→SMS→메일 폴백). 이 블록은 취소로 '전환'될 때만 도달(같은 단계 재지정은 상단 noop). 계좌 있으면 생략.
+        var _acctF = _bkTs ? String(_bkTs.get('환불계좌') || '').trim() : '';
+        var _paidF = String(cust.get('입금상태') || '').trim() === '확인' || (_bkTs && String(_bkTs.get('입금확인') || '').trim() === '확인');
+        if (!_acctF && _paidF) { try { notifyKakao('cust.refundAcctReq', code); } catch (eNf) {} }
       } catch (eTs) {}
     }
     // FORCE_SEAT_INV · 제작임시저장(좌석 데이터 원천)이 초기화되면 하객 좌석 공개 조회 캐시도 즉시 무효화 — 6분 톰스톤(wedchg-seat-inv 동일 패턴 · 2026-07-25 점검)
