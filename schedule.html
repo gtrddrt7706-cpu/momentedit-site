@@ -1109,7 +1109,9 @@ if(_hdw){
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }
-  var CACHE_KEY='me_sched_avail_v1', painted=false;
+  // ORDER_OWNER 자매 수정(2026-07-25): 가능일 캐시에 고객 성함·선택날짜가 담김 — 계정 전환 시 이전 계정 캐시가 잠깐 그려지지 않게 토큰별 키로 분리(+옛 공용 키 1회 정리)
+  var CACHE_KEY='me_sched_avail_v1:'+token.slice(-10), painted=false;
+  try{ localStorage.removeItem('me_sched_avail_v1'); }catch(e){}
   function applyHead(s){ var set=function(id,v){var el=$(id);if(el)el.textContent=(v||'');};
     set('t_names',s.names); set('t_deposit',s.depositStr); set('t_account',s.account); set('t_holder',s.holder);
     var _cpy=$('acctCopyBtn'); if(_cpy) _cpy.style.display=(s.account?'':'none');
