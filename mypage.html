@@ -4106,18 +4106,22 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
+  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
+  var _cfPrimary=_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale);
+  // MPD_B2 첫 미완료 준비 행 1개에 primary — 6행 전부 고스트라 어디부터인지 정독 필요하던 것(§6-6-①). 확인서 primary가 켜지면 준비 행은 양보.
+  var _firstTodo=_cfPrimary?'':(ist!=='완료'?'inv':((t.ritual||'')!=='완료'?'ritual':(!_dDone?'dining':(!(_fDone&&_seatDone)?'final':((_phB2||_fxB2)?'':'photo')))));
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   var tracks = '<div class="trk-list">'
-      + row('청첩장', ist, 'mp_invStart', ilabel)
-      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null)
-      + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag})
+      + row('청첩장', ist, 'mp_invStart', ilabel, null, {primary:_firstTodo==='inv'})
+      + row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {primary:_firstTodo==='ritual'})
+      + row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag, primary:_firstTodo==='dining'})
       // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
       //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
       + row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          (!_fDone?fNote:(_seatDone?null:seNote)))
+          (!_fDone?fNote:(_seatDone?null:seNote)), {primary:_firstTodo==='final'})
       // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-      + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
+      + (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, ((_ph.length||_fx.length)?null:'본식 뒤 단체 기록 시간에 남길 구도·연출을 정해요'), {primary:_firstTodo==='photo'}); })()   /* 완료 시 안내문 숨김 — 형제 준비 행(청첩장·식순·최종확정)과 리듬 통일(2026-07-19 사용자 지시) · 미완료(구도·연출 미선택)일 때만 안내 */
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
@@ -4127,7 +4131,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
             : '식사·자리를 담는 하객 안내 페이지예요'))   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
       + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요',
-          {primary:_coreDone&&_fDone&&(!_cfOk||!!p.confirmStale)})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+          {primary:_cfPrimary})   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
