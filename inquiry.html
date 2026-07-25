@@ -123,6 +123,7 @@
   // 운영 설정 — 이 부분만 교체하세요
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 카카오 채널 URL — 자체 도메인 버전에서는 여기에 직접 입력하세요 (없으면 빈 문자열 "").
+  // KAKAO_AI_FIRST: 상수만 남겨 둠(AI 위젯이 못 풀 때 쓰는 에스컬레이션 URL은 advisor-kb.js escalation이 단일 원천).
   const KAKAO_URL = "https://pf.kakao.com/_CfxcxlX/chat";
   // Apps Script 백엔드(doPost) 주소 — 제출 데이터가 이리로 전송됩니다.
   const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -1001,24 +1002,9 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 /* ═══════════════════════════════════════════════
    DATETIME PICKER · 상담 일시 커스텀 위젯
    ═══════════════════════════════════════════════ */
-(function initKakaoLink(){
-  const el = document.getElementById('kakaoLink');
-  if (!el) return;
-
-  const isValidUrl = typeof KAKAO_URL === 'string'
-    && KAKAO_URL.trim() !== ''
-    && KAKAO_URL.trim() !== '#'
-    && /^https?:\/\//i.test(KAKAO_URL.trim())
-    && !KAKAO_URL.includes('REPLACE_ME');
-
-  if (isValidUrl) {
-    el.href = KAKAO_URL;
-  } else {
-    // URL 미설정: 카톡 안내 블록 전체를 숨김 (문구만 남는 것 방지)
-    var support = el.closest('.success-support');
-    if (support) support.style.display = 'none'; else el.style.display = 'none';
-  }
-})();
+// KAKAO_AI_FIRST(2026-07-25 사용자 지시): 예약 페이지의 카톡 직행 링크(#kakaoLink)는 이미 마크업에서 제거됐고,
+//   문의는 우측 AI 상담 위젯이 1차로 받은 뒤 못 풀 때만 카톡으로 이어진다(advisor-widget showEscalation).
+//   여기 남아 있던 초기화 코드는 대상 요소가 없어 동작하지 않던 죽은 코드라 정리. ★카톡 직행 링크 복원 금지.
 
 
 

@@ -2285,10 +2285,11 @@ function openInviteSamples(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
-// [MPD4_H5] 자기서비스 1단계(§9-5-④⑤) — 알림·정보 변경 진입점이 화면에 없던 것: 내 내역 하단에 카톡 안내 1줄 + 로그아웃 복제(최하단 1곳뿐이던 것)
+// [MPD4_H5] 자기서비스 1단계(§9-5-④⑤) — 내 내역 하단 로그아웃(최하단 1곳뿐이던 것 복제)
+// KAKAO_AI_FIRST(2026-07-25 사용자 지시): 좌측 하단 '정보·알림 변경은 카카오톡으로' 직행 링크 삭제.
+//   정보·알림 변경 문의도 우측 AI 상담 위젯이 1차로 받고, 못 풀면 위젯 안에서 카톡으로 이어진다. ★카톡 직행 링크 복원 금지.
 function _ledFootHtml(){
-  var _k=(window.ME_ADV_PAGE&&ME_ADV_PAGE.kakaoUrl)?ME_ADV_PAGE.kakaoUrl():'mailto:contact@momentedit.kr';
-  return '<div class="led-foot"><a href="'+escapeHtml(_k)+'" target="_blank" rel="noopener">정보·알림 변경은 카카오톡으로</a><button type="button" class="cc-btn-textlink" id="mp_ledLogout" style="padding:8px 4px">로그아웃</button></div>';
+  return '<div class="led-foot"><button type="button" class="cc-btn-textlink" id="mp_ledLogout" style="padding:8px 4px">로그아웃</button></div>';
 }
 function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); box._bkId=bkOpen(closeLedModal); } }   // 뒤로가기 = 원장 닫기
 function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); bkDone(box._bkId); box._bkId=null; } }
@@ -3012,6 +3013,8 @@ function renderChangeWizard(ctx, host){
   var inline=!!host;   // 내 내역 모달 안 인라인 렌더(2026-07-10 사용자 지시 — 창 안에서 해결)
   var fill=(ctx&&ctx.contract&&ctx.contract.fill)||{};
   var curTxt=(typeof fmtWedKo==='function'&&fmtWedKo(fill.weddingDate))?fmtWedKo(fill.weddingDate):(fill.weddingDate||'');
+  // KAKAO_AI_FIRST(2026-07-25 사용자 지시): 카톡 직행 → AI 상담 위젯이 1차로 규정을 안내하고, 못 풀면 위젯 안에서 카톡 연결.
+  //   위젯이 없는 예외 상황에서만 기존 카톡·메일로 폴백. ★href 직행으로 되돌리지 말 것.
   var _kakao=(window.ME_ADV_PAGE&&ME_ADV_PAGE.kakaoUrl)?ME_ADV_PAGE.kakaoUrl():'mailto:contact@momentedit.kr';
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Change</div>'
     +'<div class="cc-title" style="text-align:center">예식일 변경</div>'
@@ -3023,7 +3026,7 @@ function renderChangeWizard(ctx, host){
     +'<div class="vg-row"><span class="vg-k">무상 변경</span><span class="vg-v">무료 취소 기간(예식 <b>150일 전</b>까지)에는 횟수 제한 없이 무상,<br>예식 <b>60일 전</b>까지는 <b>1회 무상</b>으로 변경할 수 있어요.</span></div>'
     +'<div class="vg-row"><span class="vg-k">변경 수수료</span><span class="vg-v">그 이후의 변경이나 두 번째부터의 변경은<br>총 계약금액의 <b>10%</b>가 변경 수수료예요. <span class="vg-sub">(이용계약서 제8조)</span></span></div>'
     +'<div class="vg-row"><span class="vg-k">경조사 면제</span><span class="vg-v vg-muted">본인·직계가족의 경조사 등 부득이한 사유가 증빙되면 시기와 관계없이 1회 면제돼요.</span></div>'
-    +'<div style="text-align:center;margin-top:8px"><a href="'+escapeHtml(_kakao)+'" target="_blank" rel="noopener" class="cc-btn-ghost" style="display:inline-block;width:auto;padding:8px 18px">무상 변경·면제 문의하기</a></div>'
+    +'<div style="text-align:center;margin-top:8px"><button type="button" class="cc-btn-ghost" id="mp_chgAskAi" style="display:inline-block;width:auto;padding:8px 18px">무상 변경·면제 물어보기</button></div>'
     +'</div></details>'
     +'<label class="pf-l" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{})
     +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
@@ -3035,6 +3038,15 @@ function renderChangeWizard(ctx, host){
     +'<button type="button" class="cc-btn-ghost" id="mp_chgBack">돌아가기</button></div></div>';
   box.style.display='block';
   try{ box.scrollIntoView({block:inline?'nearest':'start',behavior:'smooth'}); }catch(e){}
+  // KAKAO_AI_FIRST: '무상 변경·면제 물어보기' → AI 상담 위젯이 1차로 응대(못 풀면 위젯 안에서 카톡 연결).
+  //   위젯 미로드 등 예외에서만 기존 카톡·메일로 폴백 — 고객이 막다른 길에 놓이지 않게.
+  (function(){ var _ab=$('mp_chgAskAi'); if(!_ab) return;
+    _ab.addEventListener('click', function(){
+      var q='예식일 변경 무상 조건과 경조사 면제 기준이 궁금해요';
+      if(window.MEAdvisor && typeof MEAdvisor.ask==='function'){ MEAdvisor.ask(q); return; }
+      try{ window.open(_kakao, '_blank', 'noopener'); }catch(e){ location.href=_kakao; }
+    });
+  })();
   var _av={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'늦은 오후'},taken:{}};
   var _quote=null;   // 마지막 견적 {fee,basis,account,holder} · 요청 가능 여부의 기준
   function _err(m){ var e=$('mp_chgErr'); if(e) e.textContent=m||''; }

@@ -397,6 +397,19 @@
     setInterval(syncHide, 600);
   }
 
+  // KAKAO_AI_FIRST(2026-07-25 사용자 지시 "카톡으로 바로 들어오게 하지 말고 AI가 1차 해결 → 안 되면 그때 카톡"):
+  //   다른 화면의 '문의하기'류 버튼이 카톡 URL로 직행하지 않고 이 위젯을 열도록 공개 API를 노출한다.
+  //   ask(q)는 드로어를 열고 질문을 대신 보낸다 → AI가 답하고, 못 풀면 기존 에스컬레이션(showEscalation)이 카톡을 띄운다.
+  //   ★window.MEAdvisor 제거 금지 — 없어지면 호출부가 카톡 직행으로 폴백한다.
+  try {
+    window.MEAdvisor = {
+      open: open,
+      close: close,
+      ask: function (q) { open(); if (q) setTimeout(function () { try { send(String(q), false); } catch (e) {} }, 320); },
+      available: true
+    };
+  } catch (e) {}
+
   fab.addEventListener('click', open);
   // 외부에서 상담 도우미 열기: window.meAdvOpen() 또는 [data-adv-open] 요소 클릭
   window.meAdvOpen = open;
