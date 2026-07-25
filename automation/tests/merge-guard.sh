@@ -374,6 +374,13 @@ chk "block: 'F'" automation/admin/admin.gs 1        # 환불 정산 완료 건 �
 chk 'ADM_AC2' automation/admin/admin.gs 2           # 되돌리기 함수+FNS 등록
 chk 'ADM_AC2' admin.html 3                          # 버튼+디스패처+모달
 chk 'adminUndoRefunded' automation/admin/admin.gs 2  # 정의+FNS
+# ── 2026-07-26 관리자 페이지 2차 스프린트 PR③(AC3 강제변경 안전 게이트)
+chk 'ADM_AC3' automation/admin/admin.gs 4           # report 모드+미리보기+FNS
+chk 'ADM_AC3' admin.html 5                          # 비선택 기본값·미리보기·게이트·인라인 힌트·CSS
+chk 'adminForceStagePreview' automation/admin/admin.gs 2   # dry-run 진입점(정의+FNS)
+chk '_forceGate' admin.html 3                       # 체크 전 실행 버튼 비활성
+chk 'adv-prev' admin.html 6                         # 미리보기 박스(CSS+렌더)
+_ac3=$(grep -c "STAGE_EX.map(function(s){ return '<option value=\"'+esc(s)+'\"'+(s===d.stage?' selected':'')" admin.html 2>/dev/null); _ac3=${_ac3:-0}; if [ "$_ac3" -gt 0 ]; then echo "REVERT? admin.html: 강제변경 드롭다운 기본 선택 부활($_ac3)"; fail=1; else echo "ok admin.html: 강제변경 드롭다운 비선택 기본값 유지"; fi
 # 식순 문안 단일 원천 정합(빌더↔KB) — node 있으면 실행(문안 이중 원천·KB 드리프트·토큰 캡 감지)
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-mirror.js || fail=1; else echo 'skip check-ritual-mirror (node 없음)'; fi
 [ "$fail" = "1" ] && { echo '── 역전 의심: 해당 수정 커밋을 git log에서 찾아 패치 재적용(git show <sha> -- 파일 | git apply -3) 후 복원 커밋'; exit 1; }

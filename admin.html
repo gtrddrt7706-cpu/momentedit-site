@@ -213,6 +213,15 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .adv-body.open{display:block}
 .adv-warn{font-family:var(--serif-ko);font-size:11.5px;color:var(--red);background:var(--redbg);border-radius:7px;padding:8px 11px;margin-bottom:11px;line-height:1.6}
 .adv-body label{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:8px 0 4px}
+/* [ADM_AC3] 강제 변경 미리보기·동의 게이트 */
+.adv-prev{font-family:var(--serif-ko);font-size:12px;line-height:1.7;color:var(--accent);background:#faf7f0;border:1px solid #ece3d0;border-radius:8px;padding:8px 12px;margin-top:8px}
+.adv-prev-h{display:block;font-weight:600;margin-bottom:4px}
+.adv-prev-x{color:var(--red)}
+.adv-prev-k{color:var(--gold-deeper,#9a7b3f)}
+.adv-gate{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--accent);cursor:pointer}
+.adv-gate input{width:20px;min-height:20px;margin:0;-webkit-appearance:auto;appearance:auto;flex:0 0 auto}
+.adv-hint{font-family:var(--serif-ko);font-size:11px;color:var(--red);margin-top:4px}
+.btn[disabled]{opacity:.45;pointer-events:none}
 .adv-body select,.adv-body input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:7px;padding:11px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none;-webkit-appearance:none;appearance:none;min-height:46px}
 
 /* 아카이브 */
@@ -1851,13 +1860,42 @@ function cardResult(d,isSnap){
 
 function advancedBox(d){
   var flow=STAGE_FLOW[d.product]||STAGE_FLOW['시그니처'];
-  var opts='<optgroup label="정상 단계">'+flow.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>'+
-    '<optgroup label="예외 상태">'+STAGE_EX.map(function(s){ return '<option value="'+esc(s)+'"'+(s===d.stage?' selected':'')+'>'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>';
+  // [ADM_AC3] 기본값을 비선택으로 — 첫 항목이 미리 골라져 있으면 사유만 적고 눌렀을 때 엉뚱한 단계로 간다.
+  var opts='<option value="">선택하세요</option><optgroup label="정상 단계">'+flow.map(function(s){ return '<option value="'+esc(s)+'">'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>'+
+    '<optgroup label="예외 상태">'+STAGE_EX.map(function(s){ return '<option value="'+esc(s)+'">'+esc(s)+(s===d.stage?' (현재)':'')+'</option>'; }).join('')+'</optgroup>';
   return '<div class="adv"><button class="adv-t" id="advToggle">고급 ▾</button><div class="adv-body" id="advBody">'+
     '<div class="adv-warn">⚠ 강제 변경은 정상 흐름을 건너뛰어요(복구·초기화용). <b>되돌리면 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화</b>돼요. 신청접수까지 내리면 상담 예약(캘린더)·예식일 임시고정도 함께 초기화돼요.</div>'+
     '<label>단계</label><select id="fStage">'+opts+'</select>'+
+    '<div id="fPrev" class="adv-prev" style="display:none"></div>'+
     '<label>사유 (필수)</label><input type="text" id="fReason" placeholder="예: 잘못 취소 복구">'+
-    '<div class="actions"><button class="btn btn-danger" id="fGo">강제 변경</button></div></div></div>';
+    '<label class="adv-gate"><input type="checkbox" id="fAgree"><span>위 데이터가 초기화되는 것을 확인했어요</span></label>'+
+    '<div class="actions"><button class="btn btn-danger" id="fGo" disabled>강제 변경</button></div></div></div>';
+}
+/* [ADM_AC3] 단계를 고르면 서버 미리보기를 불러 '비워짐 / 유지됨 / 상담 예약 초기화'를 목록으로 보여준다.
+     실행과 같은 _clearForwardData(report 모드)라 미리보기와 실제 결과가 어긋나지 않는다.
+     유지됨(ROLLBACK_KEEP_PAID)을 같이 보여주는 이유 — 입금 기록은 강제변경으로 안 지워진다는 걸 알아야
+     입금 오처리를 여기서 우회하지 않고 '입금 확인 취소'로 가게 된다. */
+function _forceGate(){
+  var go=$('fGo'); if(!go) return;
+  var st=$('fStage'), ag=$('fAgree');
+  go.disabled = !(st && st.value && ag && ag.checked);
+}
+function _forcePreview(code){
+  var box=$('fPrev'), st=$('fStage'); if(!box||!st) return;
+  var ag=$('fAgree'); if(ag) ag.checked=false; _forceGate();
+  if(!st.value){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display='block'; box.innerHTML='<span class="adv-prev-h">확인 중</span>';
+  gas('adminForceStagePreview', code, st.value).then(function(p){
+    if(!(p&&p.ok)){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span><div>'+esc((p&&p.error)||'')+'</div>'; return; }
+    var h='<span class="adv-prev-h">'+esc(p.from||'')+' → '+esc(p.to||'')+'</span>';
+    if(p.noop) h+='<div>바뀌는 것이 없어요</div>';
+    if((p.cleared||[]).length) h+='<div class="adv-prev-x">비워짐 · '+p.cleared.map(esc).join(' · ')+'</div>';
+    if((p.consent||[]).length) h+='<div class="adv-prev-x">동의기록에서 지워짐 · '+p.consent.map(esc).join(' · ')+'</div>';
+    if(p.bookingReset) h+='<div class="adv-prev-x">상담 예약이 신청접수로 · 캘린더 슬롯 해제</div>';
+    if((p.kept||[]).length) h+='<div class="adv-prev-k">유지됨 · '+p.kept.map(esc).join(' · ')+' <span style="color:var(--label-soft)">(확인된 수납은 강제 변경으로 지워지지 않아요 · 되돌리려면 입금 확인 취소)</span></div>';
+    if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset && !p.noop) h+='<div>비워지는 데이터는 없어요</div>';
+    box.innerHTML=h;
+  }).catch(function(){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span>'; });
 }
 
 function bindDetail(d){
@@ -1871,6 +1909,9 @@ function bindDetail(d){
   $('detailBody').querySelectorAll('.btn[data-da]').forEach(function(b){ b.addEventListener('click', function(){ onDetailAct(b.getAttribute('data-da'), d); }); });
   // 고급
   var at=$('advToggle'); if(at) at.addEventListener('click', function(){ $('advBody').classList.toggle('open'); });
+  // [ADM_AC3] 단계 선택 → 미리보기 · 체크 전엔 실행 버튼 비활성
+  var fs=$('fStage'); if(fs) fs.addEventListener('change', function(){ _forcePreview(d.code); });
+  var fa=$('fAgree'); if(fa) fa.addEventListener('change', _forceGate);
   var fg=$('fGo'); if(fg) fg.addEventListener('click', function(){ doForce(d.code, d.names, $('fStage').value, $('fReason').value); });
 }
 function onDetailAct(act,d){
@@ -2330,9 +2371,17 @@ function openPropose(code,names){
 }
 function fillTimes(dateStr){ var sel=$('pTime'); if(!sel) return; var slots=[]; if(dateStr){ var d=new Date(dateStr+'T00:00:00'); var wd=d.getDay(); slots=(wd===0||wd===6)?SLOTS.weekend:SLOTS.weekday; } sel.innerHTML=slots.length?slots.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join(''):'<option value="">가능한 시간 없음</option>'; }
 
+function _advHint(id,msg){
+  var el=$(id); if(!el) return;
+  var h=document.getElementById(id+'_hint');
+  if(!h){ h=document.createElement('div'); h.id=id+'_hint'; h.className='adv-hint'; el.parentNode.insertBefore(h, el.nextSibling); }
+  h.textContent=msg; try{ el.focus(); }catch(e){}
+}
 function doForce(code,names,target,reason){
   reason=String(reason||'').trim();
-  if(!reason){ toast('강제 변경 사유를 입력해 주세요'); return; }
+  // [ADM_AC3] 입력 누락은 필드 옆 인라인 + focus(H2 매핑) — 토스트는 사라져서 어디가 비었는지 안 보인다.
+  if(!target){ _advHint('fStage','바꿀 단계를 선택해 주세요'); return; }
+  if(!reason){ _advHint('fReason','강제 변경 사유를 입력해 주세요'); return; }
   openModal({ title:'강제로 단계를 바꿀까요?', danger:true, text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('⚠ 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화돼요')+li('상담 예약(캘린더)은 별개예요')+li('이력에 남아요'), yes:'강제 변경',
     onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
 }

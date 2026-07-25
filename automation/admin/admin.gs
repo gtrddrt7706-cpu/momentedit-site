@@ -180,6 +180,7 @@ function adminCall(token, fn, args) {
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
       adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
       adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
+      adminForceStagePreview: adminForceStagePreview,   // [ADM_AC3]
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
@@ -1853,7 +1854,9 @@ function adminSkipSurvey(code) {
 
 // 5. ★강제 단계 변경 (복구/초기화용) — 현재단계 변경 + '이후 단계 진행 데이터 초기화'(완전 초기화) · 제품 유효성 검증
 //   ※ 상담 예약(상담예약 시트·캘린더)은 별개라 건드리지 않음.
-function _clearForwardData(colOf, cust, product, targetStage, fromException) {
+// [ADM_AC3] report(선택)를 넘기면 무엇이 비워지고 무엇이 보존되는지 함께 채운다 — 미리보기와 실행이 같은 함수를 쓰게 해
+//   "미리보기와 실제 결과가 다른 안전장치"(= 함정)가 생기지 않도록. report를 안 넘기면 동작은 종전과 완전히 같다.
+function _clearForwardData(colOf, cust, product, targetStage, fromException, report) {
   var flow = stageFlowFor(product);
   var ti = flow.indexOf(targetStage);
   if (ti < 0) return {};
@@ -1875,8 +1878,11 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException) {
   groups.forEach(function (g) {
     var gi = flow.indexOf(g.at);
     if (gi < 0 || ti >= gi) return;                 // 이 상품에 없거나, 목표가 이 데이터 단계 이상이면 보존
-    if (g.keep && g.keep(cust)) return;             // ROLLBACK_KEEP_PAID · 확인된 결제 사실은 초기화하지 않음
-    g.cols.forEach(function (c) { if (colOf[c]) upd[c] = ''; });
+    if (g.keep && g.keep(cust)) {                   // ROLLBACK_KEEP_PAID · 확인된 결제 사실은 초기화하지 않음
+      if (report) g.cols.forEach(function (c) { if (colOf[c] && String(cust.get(c) || '').trim()) report.kept.push(c); });   // [ADM_AC3] 화면에 '유지됨'으로 구분 표시
+      return;
+    }
+    g.cols.forEach(function (c) { if (colOf[c]) { upd[c] = ''; if (report && String(cust.get(c) || '').trim()) report.cleared.push(c); } });
     if (g.consent) consentKeys = consentKeys.concat(g.consent);   // string·array 모두 허용(한 그룹에서 여러 동의기록 키 제거)
   });
   // ROLLBACK_TRACK_DEMOTE · 결과물전달 아래(결과물 단계 구간)로 내릴 때 — 작업물(링크·선택·컨펌)은 그 단계 산출물이라 보존하되,
@@ -1889,6 +1895,8 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException) {
   // ※ 동의기록.영수증발행(홈택스 발행 기록)은 의도적 보존 — 세무 증빙. 취소는 adminUndoCashReceipt로만.
   if (consentKeys.length) {                          // 동의기록 JSON에서 해당 키 제거
     var rec = _parseJsonSafe(cust.get('동의기록'));
+    if (report) consentKeys.forEach(function (k) { if (rec[k] !== undefined) report.consent.push(k); });   // [ADM_AC3] 실제로 값이 있는 키만 미리보기에
+
     if (consentKeys.indexOf('가예약') !== -1 && rec.가예약 && typeof _holdCalDelete === 'function') _holdCalDelete(rec.가예약);   // 캘린더 이벤트도 함께 정리
     consentKeys.forEach(function (k) { delete rec[k]; });
     upd['동의기록'] = Object.keys(rec).length ? JSON.stringify(rec) : '';
@@ -1914,6 +1922,31 @@ function _resetConsultBooking(code) {
     return false;
   }
 }
+/* [ADM_AC3] 강제 변경 미리보기(dry-run) — 실행 전에 "무엇이 비워지고 무엇이 남는지"를 목록으로 보여준다.
+     실행과 같은 _clearForwardData를 report 모드로 부르므로 미리보기와 실제 결과가 어긋날 수 없다.
+     ROLLBACK_KEEP_PAID로 보존되는 항목은 '유지됨'으로 따로 돌려준다 — 입금 기록이 안 지워진다는 걸 화면에서 알아야
+     입금 오처리를 강제변경으로 우회하지 않고 AC1(입금 확인 취소)로 가게 된다. */
+function adminForceStagePreview(code, targetStage) {
+  _requireAdmin();
+  code = String(code || '').trim().toUpperCase();
+  targetStage = String(targetStage || '').trim();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+  if (!targetStage) return { ok: false, error: '바꿀 단계를 선택해 주세요.' };
+  var product = String(cust.get('상품타입') || '').trim();
+  if (stageFlowFor(product).concat(STAGE_EXCEPTIONS).indexOf(targetStage) === -1) return { ok: false, error: '이 상품에 없는 단계입니다: ' + targetStage };
+  var cur = String(cust.get('현재단계') || '').trim();
+  var colOf = buildHeaderIndex(getCustomersSheet());
+  var report = { cleared: [], kept: [], consent: [] };
+  _clearForwardData(colOf, cust, product, targetStage, STAGE_EXCEPTIONS.indexOf(cur) !== -1, report);
+  var flow = stageFlowFor(product), ti = flow.indexOf(targetStage);
+  var bookConfirm = flow.indexOf(product === P.PRODUCT_SNAP ? '촬영확정' : '상담확정');
+  var bookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);   // 신청접수까지 내리면 상담 예약·캘린더 슬롯도 초기화
+  return { ok: true, preview: true, from: cur, to: targetStage,
+    cleared: report.cleared, kept: report.kept, consent: report.consent, bookingReset: bookingReset,
+    noop: (cur === targetStage && !report.cleared.length && !report.consent.length && !bookingReset) };
+}
+
 function adminForceStage(code, targetStage, reason) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
