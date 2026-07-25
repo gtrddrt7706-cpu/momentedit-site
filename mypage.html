@@ -1900,7 +1900,8 @@ function renderMyPage(d){
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
     ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
-    renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지
+    if (d.stage==='취소' || d.stage==='노쇼'){ var _upx=$('mp_upcoming'); if(_upx){ _upx.innerHTML=''; _upx.style.display='none'; } }   // MPD_G2 취소·노쇼 종료 고객에게 잠긴 미래 로드맵 미노출 — 종료 안내와 모순(stageIndex=-1이라 지난 단계 필터도 꺼짐). 미계약은 재시작 여지로 유지(결정 대기함)
+    else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
     try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}    // 종료 고객이 토스에서 복귀(?me_pay)해도 confirm 시도가 사라지지 않게 — 서버가 '종료 예약' 안내로 응답, 잔여 URL·미확정 결제 방치 방지
   } else {
