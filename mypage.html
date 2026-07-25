@@ -2399,7 +2399,7 @@ function renderLedger(l){
   var docRows=(l.documents&&l.documents.length)
     ? l.documents.map(function(dc){
         var right = (dc.label==='계약서' && window._contractFill) ? '<button type="button" class="led-linkbtn js-view-contract">보기</button>'
-                  : dc.url ? ('<a class="led-link" href="'+escapeHtml(dc.url)+'" target="_blank" rel="noopener">보기</a>')
+                  : dc.url ? ('<a class="led-link" href="'+escapeHtml(safeUrl(dc.url))+'" target="_blank" rel="noopener">보기</a>')
                   : ((dc.terms&&dc.terms.length) ? '<button type="button" class="led-linkbtn" data-doc="fitting">보기</button>' : '');
         return '<div class="led-row"><span class="led-k">'+escapeHtml(dc.label)+'</span><span class="led-v">'+escapeHtml(dc.status)+(dc.at?(' · '+escapeHtml(dc.at)):'')+'</span><span class="led-s">'+right+'</span></div>';
       }).join('')
@@ -2909,7 +2909,7 @@ function renderContractPayment(c, p, ctx){
   if(window._contractFill){ window._contractFill.signed = !!(c && c.signed); window._contractFill.expired = !!(c && (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0))); if(c && c.signedAt) window._contractFill.signDate = String(c.signedAt).slice(0,10); window._contractFill.docTitle = [((ctx&&ctx.product)||'계약서'), ((window._contractFill.groom||'')+(window._contractFill.bride?('·'+window._contractFill.bride):'')), (window._contractFill.weddingDate||'')].filter(Boolean).join('_'); window._contractFill.product = (ctx&&ctx.product)||''; }   // 서명완료/만료/파일명·상품(스냅↔시그니처 라우팅)은 기존 값에서 직접(새 GAS 불요)
   var link = c.fill
     ? '<button type="button" class="cc-btn-ghost js-view-contract">계약서 보기</button>'
-    : (c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(c.link)+'" target="_blank" rel="noopener">계약서 보기</a>' : '');   // c.fill 없으면(구 GAS·배포 갭) 기존 외부 링크로 폴백
+    : (c.link ? '<a class="cc-btn-ghost" href="'+escapeHtml(safeUrl(c.link))+'" target="_blank" rel="noopener">계약서 보기</a>' : '');   // c.fill 없으면(구 GAS·배포 갭) 기존 외부 링크로 폴백
   var signed = !!c.signed;
   var isSnap = !!(ctx && ctx.product === '웨딩스냅');   // 스냅=2단계(계약금20%·잔금80%, 충당/중도금 없음)
   var expired = (c.expired || (typeof c.remainingSec==='number' && c.remainingSec<=0));
@@ -3693,7 +3693,7 @@ function _myWorksHtml(p, inv){
   p=p||{}; inv=inv||{}; var t=p.tracks||{};
   var u=(inv.published&&inv.published.urls)||{};
   function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
-  function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(url)+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
+  function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(safeUrl(url))+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
   var rows=[];
   if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기')));
   if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기')));
@@ -3895,7 +3895,7 @@ function renderResult(res, nm, code){
   var inc=res.포함컷||10, picked=(POST.indexOf(st)>=0), locked=(['보정중','컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);
   var hasPick=(Number(res.선택수)>0) || !!String(res.선택||'').trim();
   var hasReto=!!res.보정본 && (['컨펌대기','컨펌완료','전달완료'].indexOf(st)>=0);   // 보정본 받기 가능 시점
-  function link(l,t){ return '<a class="cc-btn-ghost trk-act" href="'+escapeHtml(l)+'" target="_blank" rel="noopener" aria-label="'+escapeHtml(t)+' (새 창)">'+t+'</a>'; }   // TRK_ACT_RAIL — 예식 준비 카드와 동일 규격(104px 레일). 외부 링크 표시 기호는 사용자 지시로 제거됐으므로(디자인 헌장 8) '새 창'은 aria-label로만 전달
+  function link(l,t){ return '<a class="cc-btn-ghost trk-act" href="'+escapeHtml(safeUrl(l))+'" target="_blank" rel="noopener" aria-label="'+escapeHtml(t)+' (새 창)">'+t+'</a>'; }   // TRK_ACT_RAIL — 예식 준비 카드와 동일 규격(104px 레일). 외부 링크 표시 기호는 사용자 지시로 제거됐으므로(디자인 헌장 8) '새 창'은 aria-label로만 전달
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
@@ -3961,7 +3961,7 @@ function renderResult(res, nm, code){
       +'<div id="mp_galWrap" style="display:none"></div>'   // MPD3_GALF 썸네일 갤러리 슬롯 — 로드 성공 시에만 표시(실패·구 GAS=아래 번호 입력 그대로)
       +'<div id="mp_pickManual">'
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
-      +(res.원본?'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(res.원본)+'" target="_blank" rel="noopener">원본 다시 보기</a>':'')
+      +(res.원본?'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(safeUrl(res.원본))+'" target="_blank" rel="noopener">원본 다시 보기</a>':'')
       // [PICK_TRUTH] 기록 있을 때만 '✓ N컷 선택됨' — 상태만 앞선 경우의 '0컷 선택됨' 방지
       +(hasPick?'<div class="cc-mini" style="color:var(--label-soft);margin:2px 0 6px">✓ '+(res.선택수||0)+'컷 선택됨'+(res.선택일시?(' · '+escapeHtml(res.선택일시)):'')+' · 수정 후 다시 제출할 수 있어요</div>':'')
       +'<textarea class="cc-input" id="mp_picks" data-inc="'+inc+'" style="min-height:74px" placeholder="예: 012, 045, 088 (쉼표·줄바꿈·12-15 범위도 돼요)">'+escapeHtml(res.선택||'')+'</textarea>'
@@ -3979,10 +3979,10 @@ function renderResult(res, nm, code){
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>';
     if(_rvp&&_rvp.pending){
       h+='<div class="cc-note" style="margin-top:0">수정 요청이 디렉터에게 전해졌어요'+(_rvp.at?(' · '+escapeHtml(String(_rvp.at).slice(0,16))):'')+'.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
-        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 2px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
+        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 2px" href="'+escapeHtml(safeUrl(res.보정본))+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬고 싶으시면 <b>수정 요청하기</b>로 알려 주세요(무료 1회). 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)이에요.</div>'
-        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(res.보정본)+'" target="_blank" rel="noopener">보정본 다시 보기</a>'
+        +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 8px" href="'+escapeHtml(safeUrl(res.보정본))+'" target="_blank" rel="noopener">보정본 다시 보기</a>'
         +'<button type="button" class="cc-btn" id="mp_confirmReto">확인했어요 · 만족해요</button>'
         +'<button type="button" class="cc-btn-ghost" id="mp_revOpen" style="width:100%;margin-top:8px">수정 요청하기</button>'
         +'<div id="mp_revForm" style="display:none;margin-top:10px">'
@@ -4190,7 +4190,7 @@ function renderResultLegacy(res, box){
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'
-        : (link ? '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(link)+'" target="_blank" rel="noopener">'+linkLabel+'</a>'
+        : (link ? '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(safeUrl(link))+'" target="_blank" rel="noopener">'+linkLabel+'</a>'
                 : '<span class="trk-st">준비 중</span>');
       return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';
     }
@@ -5561,7 +5561,7 @@ function renderSnapFlow(box){
   h+='<div class="ph-sec">분위기 참고 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<div class="cc-note" style="margin:2px 0 0">촬영 톤</div><div class="ph-chips" data-sgrp="tone">'+SNAP_TONES.map(function(n){ return _chip(n, D.toneStyle===n, 'data-stone'); }).join('')+'</div>';
   h+='<div class="cc-note" style="margin:12px 0 8px">똑같이 찍는 목록이 아니라 무드·조명·분위기를 읽어요. 저장해둔 무드보드·핀터레스트 링크 3~5개면 충분해요.</div>';
-  if(D.refs.length){ h+='<div class="ph-list">'; D.refs.forEach(function(u,i){ h+='<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="ph-del" data-srefdel="'+i+'" aria-label="빼기">✕</button></div>'; }); h+='</div>'; }
+  if(D.refs.length){ h+='<div class="ph-list">'; D.refs.forEach(function(u,i){ h+='<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(safeUrl(u))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="ph-del" data-srefdel="'+i+'" aria-label="빼기">✕</button></div>'; }); h+='</div>'; }
   if(D.refs.length<SNAP_REF_MAX){ h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapRef" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapRefBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>'; }
   h+='<input class="cc-input" id="mp_snapMoodNote" maxlength="150" autocomplete="off" placeholder="분위기 한 줄 (예: 잔잔하고 따뜻하게)" value="'+escapeHtml(D.moodNote||'')+'" style="margin-top:8px">';   // 단일라인 잘림 방지 — 짧게(2026-07-21)
   // 5) 자유롭게 남기고 싶은 말
@@ -6682,6 +6682,11 @@ $('resetForm').addEventListener('submit', function(e){
 });
 
 // HTML escape
+// ★SAFE_URL(2026-07-26 점검): 화면에 나가는 링크의 스킴을 http(s)·같은 사이트 경로로 한정한다.
+//   관리자 입력 경로는 서버가 이미 검사하지만(admin.gs adminSetResultLinks의 okUrl), 시트 셀을 손으로 고치면 그 검사를 건너뛰고
+//   'javascript:' 주소가 고객 화면의 href에 그대로 들어간다(저장형 XSS 경로 · 퍼즈에서 실제 재현).
+//   값을 통째로 버리면 '링크가 사라진' 것처럼 보이므로, 스킴이 아니면 about:blank로 무력화해 눌러도 아무 일이 없게 한다.
+function safeUrl(u){ var v=String(u==null?'':u).trim(); if(!v) return ''; return (/^https?:\/\//i.test(v) || v.charAt(0)==='/') ? v : 'about:blank'; }
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 </script>
 <!-- ══ AI 상담 위젯 · 마이페이지 (자유질문 · 개인화는 2단계에서 확장) ══ -->
