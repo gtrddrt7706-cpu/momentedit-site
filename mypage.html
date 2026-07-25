@@ -815,9 +815,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
   <!-- 마이페이지 -->
   <section class="view" id="mypageView">
     <div class="welcome">
+      <!-- MPD_A2 렌더 전 placeholder — 고객 노출 전각 줄표 금지(공백 유지 · 2026-07-25) -->
       <div class="mp-label">My Page</div>
-      <div class="names" id="mp_names">—</div>
-      <span class="badge" id="mp_product">—</span>
+      <div class="names" id="mp_names">&nbsp;</div>
+      <span class="badge" id="mp_product">&nbsp;</span>
       <div class="wed-chip" id="mp_wedding" style="display:none"></div>
     </div>
 
@@ -827,7 +828,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
       </button>
       <div class="now-label en-32">NOW</div>
-      <div class="now-head" id="mp_nowHead">—</div>
+      <div class="now-head" id="mp_nowHead">&nbsp;</div>
       <div class="now-sub" id="mp_nowSub" style="display:none"></div>
       <div id="mp_waiting" style="display:none;font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deep);margin-top:6px"></div>
     </div>
@@ -835,7 +836,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <!-- 진행바 (점만) -->
     <div class="progress" id="mp_progress">
       <div class="pg-top">
-        <span class="pg-stage" id="mp_stageNow">—</span>
+        <span class="pg-stage" id="mp_stageNow">&nbsp;</span>
         <span class="pg-step" id="mp_stageCount"></span>
       </div>
       <div class="pg-next" id="mp_nextStage"></div>
@@ -1684,7 +1685,7 @@ $('loginForm').addEventListener('submit', function(e){
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
     else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
-  }).catch(function(){ showErr('li_err'); })
+  }).catch(function(){ showErr('li_err','연결이 잠시 불안정해요. 다시 시도해 주세요.'); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25)
   .then(function(){ btn.disabled=false; btn.textContent='Login'; });
 });
 
@@ -2802,7 +2803,7 @@ function _startContractCountdown(c){
   if (expired || !(typeof c.remainingSec==='number' && c.remainingSec>0)) return;
   var remain = c.remainingSec, el = $('mp_ctCount');
   var tick = function(){
-    if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 만료되었습니다'; loadMyState(); return; }
+    if (remain<=0){ if (_contractTimer){ clearInterval(_contractTimer); _contractTimer=null; } if (el) el.textContent='기한이 지났어요'; loadMyState(); return; }   // MPD_A3 만료 문구 해요체 통일(2026-07-25)
     if (el){ var urg=remain<86400;   // 1일 이내만 실시간(긴박) · 그 전엔 차분히 일수로(압박감↓)
       if(urg){ el.textContent='⏰ 마감 임박 · 남은 시간 '+fmtRemain(remain); el.style.color='var(--seal)'; el.style.fontWeight='600'; }
       else { el.textContent='서명까지 약 '+Math.ceil(remain/86400)+'일 남았어요'; el.style.color=''; el.style.fontWeight=''; } }
@@ -3045,13 +3046,13 @@ function _finalGateHtml(hard){
   if(hard && hasProd){   // 하드 게이트 — 인원 확정 먼저(2번 결제 방지). 확정 흐름 있을 때만 사용
     return '<div style="margin:12px 0 2px;padding:14px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
       +'<div class="cc-sub" style="margin:0">인원을 먼저 확정해 주세요.<br>확정하면 <b>추가 요금까지 합쳐 한 번에</b> 결제돼요.</div>'
-      +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기 (1분)</button>'
+      +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기</button>'   // MPD_A1 ★'(1분)' 소요시간 약속 재추가 금지 — 수치 약속 금지 규칙(2026-07-15) · 2026-07-25 삭제
       +'<div class="cc-note" style="margin:8px 0 0;color:var(--light)">두 번 결제되지 않도록 도와드리는 단계예요.</div></div>';
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
     +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>최종 확정을 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
-    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기 (1분)</button>':'')
+    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기</button>':'')
     +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 이후 인원 추가분은 따로 안내드려요.</div></div>';
 }
 document.addEventListener('click', function(e){
