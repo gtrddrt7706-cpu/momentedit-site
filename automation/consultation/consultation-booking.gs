@@ -414,6 +414,21 @@ function _releaseWeddingHoldOnCancel(code) {
   } catch (e) {}
 }
 
+// [REFUND_ACCT_REQ · FU4 2026-07-25] 취소 전이 시 환불계좌 미입력 + 수령분 있으면 고객에게 계좌 요청 1회(관리자 상담취소·이메일취소 경로 · adminForceStage Q5와 동일 알림).
+//   ★환불계좌는 시트에서 즉시 재조회 — row() 래퍼는 스냅샷 캐시라 handleCancelReservation의 계좌 writeCell(actCancel 직전)이 r.get엔 안 보임. 캐시로 판정하면 셀프취소 오발송.
+//   수령분 = 예약금(Bookings.입금확인=확인) 또는 계약금(Customers.입금상태=확인). try/catch로 취소 처리 본연을 막지 않음.
+function _maybeRefundAcctReq(sheet, colOf, r) {
+  try {
+    var code = String(r.get('개인코드') || '').trim(); if (!code) return;
+    var acct = '';
+    try { if (colOf['환불계좌']) acct = String(sheet.getRange(r.num, colOf['환불계좌']).getValue() || '').trim(); } catch (e) {}
+    if (acct) return;   // 계좌 이미 있음 → 생략(셀프취소는 계좌 기록이 먼저라 여기서 걸림)
+    var bkPaid = String(r.get('입금확인') || '').trim() === '확인';   // 예약금 수령(Bookings)
+    var cuPaid = false; try { var _cu = findCustomerByCode(code); cuPaid = !!_cu && String(_cu.get('입금상태') || '').trim() === '확인'; } catch (e) {}   // 계약금 수령(Customers)
+    if (!bkPaid && !cuPaid) return;   // 수령분 없음 → 송금할 것 없음, 생략
+    notifyKakao('cust.refundAcctReq', code);
+  } catch (e) {}
+}
 function actCancel(sheet, colOf, r) {
   var names = coupleNames(r);
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
@@ -424,6 +439,7 @@ function actCancel(sheet, colOf, r) {
   // 2) 상태/취소일시 기록 (이미 '취소'면 상태는 그대로, 일시만 갱신)
   if (String(r.get('상태') || '').trim() !== ST.CANCELLED) {
     writeCell(sheet, colOf, r.num, '상태', ST.CANCELLED);
+    _maybeRefundAcctReq(sheet, colOf, r);   // [REFUND_ACCT_REQ · FU4] 상태 전이(신규 취소)일 때만 — 재처리(이미 취소·일시만 갱신)는 이 분기 밖이라 재발송 없음
   }
   writeCell(sheet, colOf, r.num, '취소일시', new Date());
   _bustAvailCache();   // 슬롯 해제 → 가능일 캐시 무효화
@@ -613,6 +629,7 @@ function handleEmailCancel(body) {
   writeCell(sheet, colOf, row.num, '취소일시', new Date());
   if (acct) writeCell(sheet, colOf, row.num, '환불계좌', acct);
   try { sendRefundRequestEmail(row, dateKey, time, acct); } catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
+  _maybeRefundAcctReq(sheet, colOf, row);   // [REFUND_ACCT_REQ · FU4] 이메일취소도 계좌 미입력+수령분 있으면 고객 계좌 요청 1회(actCancel 미경유 경로 · 상태전이 가드 안이라 재발송 없음)
   notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });
   var to = row.get('이메일'); if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');
