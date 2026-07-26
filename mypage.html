@@ -440,7 +440,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-day.selected{background:#4E3F31;color:#fff;border-color:#4E3F31;font-weight:500}
 .dt-day.selected.today::after{background:#fff}
 .trk-list{margin:12px 0 4px}
-.trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trk{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:default}   /* TRK_ACT_RAIL(2026-07-26) — 행 자체엔 동작이 없고 오른쪽 버튼만 눌린다(mypage 전 목록 확인: 행 클릭 핸들러 0건). 손가락 커서가 헛클릭을 유도하던 것 제거. 행 전체를 누르게 만들면 그 행에만 cursor:pointer를 다시 준다. */
 .trk:last-child{border-bottom:none}
 .trk-nm{flex:1;font-family:var(--serif-ko);font-size:14px;color:var(--accent);text-align:left}
 .trk.has-sub{padding-bottom:0}   /* 설명 있는 행은 아래 여백 제거 — 제목↔설명이 한 묶음으로 붙게(2026-07-19 사용자 지적: 간격 과다) */
@@ -507,8 +507,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
 .trk-act{width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
-.trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}
-.trk.trk-static{cursor:default}
+.trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}   /* gap 필수 — flex 컨테이너는 자식 사이 공백 텍스트 노드를 렌더하지 않아, 넣지 않으면 체크와 글자가 '✓완료'로 붙는다 */
 /* RES_RELINK_SAME(2026-07-26 사용자 지적 연장) — 패널 안 '다시 보기'는 아래 CTA와 같은 폭으로 쌓이는데
    인라인 padding:7px 14px 때문에 혼자 6.6px 낮아 계단처럼 보였다. 기본 .cc-btn-ghost 높이를 그대로 쓰게 해
    한 묶음의 버튼 더미가 같은 리듬을 갖게 한다(폭·좌우 정렬은 종전과 동일). */
@@ -3693,7 +3692,7 @@ function _myWorksHtml(p, inv){
   p=p||{}; inv=inv||{}; var t=p.tracks||{};
   var u=(inv.published&&inv.published.urls)||{};
   function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
-  function view(url,label){ return url?('<a class="cc-btn-ghost" style="width:auto;padding:8px 12px" href="'+escapeHtml(safeUrl(url))+'" target="_blank" rel="noopener">'+label+'</a>'):null; }
+  function view(url,label){ return url?('<a class="cc-btn-ghost trk-act" href="'+escapeHtml(safeUrl(url))+'" target="_blank" rel="noopener">'+label+'</a>'):null; }   // TRK_ACT_RAIL — 인라인 치수 대신 공용 레일(104px) · safeUrl 유지(SAFE_URL 가드)
   var rows=[];
   if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기')));
   if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기')));
@@ -3899,7 +3898,7 @@ function renderResult(res, nm, code){
   function chip(t){ return '<span class="trk-st">'+escapeHtml(t)+'</span>'; }
   function chipGo(t){ return '<span class="trk-st" style="color:var(--gold-deep)">'+escapeHtml(t)+'</span>'; }
   function chipOk(t){ return '<span class="trk-st"><span class="trk-ok">✓</span> '+escapeHtml(t)+'</span>'; }
-  function row(n,label,right){ return '<div class="trk trk-static"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }   // TRK_ACT_RAIL — 이 개요는 행 클릭 동작이 없다(오른쪽 버튼만) → 손가락 커서 제거
+  function row(n,label,right){ return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>'; }   // TRK_ACT_RAIL — 행 클릭 동작 없음(오른쪽 버튼만). .trk 기본이 cursor:default가 되어 예외 클래스가 불필요해짐(2026-07-26 삭제)
   var ex=res.extra||{};
   // ── 전달완료: 🔒 결과물 아코디언(언제든 열람) + 마지막 단계=설문 ──
   if(st==='전달완료'){
@@ -4190,9 +4189,9 @@ function renderResultLegacy(res, box){
   } else {
     function step(n,label,link,linkLabel,future){
       var right = future ? '<span class="trk-st">곧 열려요</span>'
-        : (link ? '<a class="cc-btn-ghost" style="width:auto;padding:6px 12px" href="'+escapeHtml(safeUrl(link))+'" target="_blank" rel="noopener">'+linkLabel+'</a>'
+        : (link ? '<a class="cc-btn-ghost trk-act" href="'+escapeHtml(safeUrl(link))+'" target="_blank" rel="noopener" aria-label="'+escapeHtml(linkLabel)+' (새 창)">'+linkLabel+'</a>'
                 : '<span class="trk-st">준비 중</span>');
-      return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';
+      return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';   // TRK_ACT_RAIL — 구 결과물 뷰도 같은 레일. safeUrl 유지(SAFE_URL 가드)
     }
     h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
       +step('①','원본 사진',res.원본,'원본 보기',false)

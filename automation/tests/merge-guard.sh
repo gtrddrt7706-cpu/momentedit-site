@@ -321,7 +321,15 @@ chk 'MPD_G12' mypage.html 1                         # 당일 칩 중립 톤·결
 chk 'MPD_B1' mypage.html 2                          # D-day 별도 줄 승격(먹색 · G12 중립 톤 공존)
 # (MPD_B2·TRK_NOW_TONE 폐지 2026-07-25 사용자 지시 "전부 똑같이 만들어줘" — 행 버튼 '지금 할 차례' 강조 자체를 삭제. 아래 TRK_BTN_SAME이 부활을 감시)
 chk 'TRK_BTN_SAME' mypage.html 2   # 예식 준비·확인 전달 행 버튼 완전 동일(강조 없음) · ★진한 채움(.cc-btn)·골드 아웃라인(.trk-now) 복원 금지
-chk 'TRK_ACT_RAIL' mypage.html 3   # 행 오른쪽 액션 열 단일 규격(.trk-act 104px 레일) — 결과물 카드만 6px 12px라 폭이 43px 벌어지던 것 통일. 카드별 개별 치수로 되돌리지 말 것(2026-07-26 사용자 지적)
+chk 'TRK_ACT_RAIL' mypage.html 6   # 행 오른쪽 액션 열 단일 규격(.trk-act 104px 레일) — 결과물 카드만 6px 12px라 폭이 43px 벌어지던 것 통일. 카드별 개별 치수로 되돌리지 말 것(2026-07-26 사용자 지적)
+#   위 레일을 인라인 치수(style="width:auto;padding:…")로 되돌리면 다시 카드마다 폭이 달라진다 — .trk 행 안의 ghost 버튼에 한해 금지.
+_trkInline=$(grep -c 'cc-btn-ghost" style="width:auto;padding:[68]px 12px' mypage.html 2>/dev/null); _trkInline=${_trkInline:-0}
+if [ "$_trkInline" -gt 0 ]; then echo "REVERT? mypage.html: 행 액션 버튼이 인라인 치수로 되돌아감($_trkInline) — .trk-act 레일을 쓸 것"; fail=1; else echo 'ok mypage.html: 행 액션 버튼 = .trk-act 공용 레일'; fi
+#   행 자체엔 클릭 동작이 없다(핸들러 0건 실측) → 손가락 커서 부활 금지. 행 전체를 누르게 만들 땐 그 행에만 주고 이 가드도 함께 갱신.
+_trkCur=$(grep -c '^\.trk{[^}]*cursor:pointer' mypage.html 2>/dev/null); _trkCur=${_trkCur:-0}
+if [ "$_trkCur" -gt 0 ]; then echo "REVERT? mypage.html: .trk 행에 cursor:pointer 부활($_trkCur) — 동작 없는 행이 눌리는 것처럼 보인다"; fail=1; else echo 'ok mypage.html: .trk 행 커서 = default(헛클릭 유도 없음)'; fi
+#   .trk-st의 gap 제거 금지 — flex라 자식 사이 공백 텍스트가 안 그려져 체크와 글자가 붙는다.
+chk '.trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px' mypage.html 1
 chk 'res-relink' mypage.html 4   # 패널 안 '다시 보기'가 아래 CTA와 같은 높이로 쌓이게(<a>의 line-height 상속으로 혼자 낮던 것)
 _trknow=$(grep -c 'trk-now' mypage.html 2>/dev/null); _trknow=${_trknow:-0}; if [ "$_trknow" -gt 1 ]; then echo "REVERT? mypage.html: 폐지된 행 버튼 강조(trk-now) 부활($_trknow)"; fail=1; else echo "ok mypage.html: 행 버튼 강조 없음(전부 동일)"; fi
 chk 'MPD_B3' mypage.html 1                          # 계좌 복사 중립(이중 진사 해소)
