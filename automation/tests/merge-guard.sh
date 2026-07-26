@@ -613,6 +613,10 @@ chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.
 chk 'INQ_RAIL_CLEAR' inquiry.html 1            # ★본문 우측 여백 확보 '금지' 기록(2026-07-26 철회 — 본문이 왼쪽으로 치우쳐 보임). 겹침을 이유로 padding-right를 다시 넣지 말 것
 chk 'INQ_TAP40' inquiry.html 1                 # 선택지 라벨 40px — 라디오는 opacity:0이라 라벨이 실제 탭 타깃
 chk 'INQ_NAV_HIDE' inquiry.html 1              # 네비 스크롤 숨김 로직 — 없으면 fixed·투명 네비가 페이지 전체에서 본문과 겹친다(홈엔 있고 여기만 빠져 있었다)
+chk 'INQ_LABEL_ALIGN' inquiry.html 1           # 필드 아이콘 복원 금지 — 12개 중 2개에만 있어 라벨 좌측선이 20/46 두 줄로 갈렸다
+chk 'INQ_TAP40B' inquiry.html 1                # 상품 탭·동의 상세 40px + 네비/동의/푸터로고 ::before 히트영역
+chk 'INQ_NOTE_ONE' inquiry.html 1              # 보조 안내 표기 5종 → 인라인 이탤릭 1종·10.5px. 테두리 박스 Note 복원 금지
+chk '적어 주세요' inquiry.html 2               # 보조용언 띄어쓰기 통일(붙여쓴 12건 → 띄어쓰기) · '부탁드립니다·안내드립니다'는 명사+겸양이라 붙임 유지
 chk 'gold-text' inquiry.html 14                # 읽는 골드 텍스트 24건 → 2건(대비 2.54→5.71)
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
