@@ -4015,8 +4015,13 @@ footer {
     margin: 32px auto 8px;
   }
 }
+/* [MAP_BREATH] 지도 블록만 아래 마진이 없어(margin-top만 48px) 588px짜리 큰 카드 바로 밑에서
+   다크 푸터가 40px 만에 시작했다 — '끼인' 느낌의 원인(2026-07-26 사용자 지적 → 실측).
+   같은 급 블록은 전부 대칭이다(.cta-block 56/56 · .price-block 36/36 · .terms-block 24/24).
+   ★아래를 위보다 크게 두는 게 핵심 — 경계(푸터) 앞이라 지금은 40<56으로 뒤집혀 있었다.
+   실측: 위 56→80 · 아래 40→88. (푸터 margin-top 40px과 상쇄되므로 아래 값은 88이 그대로 보인다) */
 .access-wrap {
-  margin-top: 48px;
+  margin: 80px 0 88px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border);
