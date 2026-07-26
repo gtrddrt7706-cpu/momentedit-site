@@ -227,7 +227,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
       <div>
         <h2 class="sec-title">연락처</h2>
       </div>
-      <span class="sec-optional" style="color:var(--gold-text)">Required · 필수</span>
+      <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
     </div>
 
     <p class="field-group-hint" style="margin-top:-20px;margin-bottom:24px;display:flex;align-items:center;gap:8px"><span class="required-dot" style="position:relative;top:0;margin:0"></span>표시는 필수 항목입니다.</p>
@@ -259,7 +259,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
     <div class="sub-section">
       <div class="sub-section-head">
         <span class="sub-section-title">알게 된 경로</span>
-        <span class="sub-section-opt" style="color:var(--gold-text)">Required · 필수</span>
+        <span class="sub-section-opt" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
       </div>
       <div class="compact-options referral-options" role="radiogroup" aria-label="알게 된 경로">
         <label class="compact-option">
@@ -314,7 +314,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
       <div>
         <h2 class="sec-title">예식 정보</h2>
       </div>
-      <span class="sec-optional" style="color:var(--gold-text)">Required · 필수</span>
+      <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
     </div>
 
     <!-- 희망 예식 일자 -->
@@ -589,7 +589,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
       <div>
         <h2 class="sec-title">의상</h2>
       </div>
-      <span class="sec-optional" style="color:var(--gold-text)">Required · 필수</span>
+      <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
     </div>
 
     <div class="compact-group">
@@ -660,7 +660,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
       <div>
         <h2 class="sec-title">원하는 분위기</h2>
       </div>
-      <span class="sec-optional" style="color:var(--gold-text)">Required · 필수</span>
+      <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
     </div>
 
     <div class="reference-intro">
@@ -911,7 +911,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
         <div>
           <h2 class="sec-title">예약 조회용 비밀번호</h2>
         </div>
-        <span class="sec-optional" style="color:var(--gold-text)">Required · 필수</span>
+        <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
       </div>
       <p class="field-group-hint" style="margin-top:-20px;margin-bottom:28px">신청 내역을 <strong style="color:var(--accent);font-weight:500">조회·로그인</strong>할 때 사용합니다.<br>제출 후 발급되는 <strong style="color:var(--accent);font-weight:500">개인코드</strong>와 함께 쓰여요.</p>
       <div class="field">
@@ -1684,6 +1684,11 @@ window.ME_ADV_PAGE = {
      크기·기울기·색은 마커 자체에 고정해 부모 상속을 끊는다(.accent를 두 번 써서 문맥 규칙보다 우선).
      본문 글자 크기는 문맥별로 그대로 둔다 — 통일 대상은 '마커'다. */
 .accent.accent{font-size:10.5px;font-family:var(--serif);font-style:italic;color:var(--gold-text);letter-spacing:0.07em;margin-right:4px}
+</style>
+<style>
+/* [INQ_KO_TRACK] 영문 대문자 조판용 자간(14~16%)이 한글 '필수'에도 걸려 '필 수'로 벌어졌다.
+   홈에서 같은 문제를 고친 처방(LABEL_KO_TRACK)을 그대로 적용 — 영문 트래킹은 유지하고 한글만 낮춘다. */
+.ll-ko{letter-spacing:0.04em}
 </style>
 </body>
 </html>
