@@ -597,6 +597,10 @@ chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)
 chk 'img-webp.mjs' scripts/audit/img-webp.mjs 1  # 위 구조 상시 회귀(파일 존재 + 디코드 실패 이중 확인)
+# ── 2026-07-26 /점검 · 나레이션 대본 교차점검
+chk 'RINGWARM_NO_MIN' order-preview.html 1     # 링워밍 '하객 전체' 카드의 '약 2분 더'·'스물다섯 분' 복원 금지(recoTxt '인원에 따라 달라져요'와 정면 모순 · 수치 약속 금지)
+chk 'DECL_PAUSE_POS' scripts/build-dubbing-script.mjs 1   # 선언 무음이 '마지막 문장'이 아니라 '끝에서 두 번째'(선언문) 기준임 — 구 지시 복원 금지
+chk 'N0_STAY' scripts/build-dubbing-script.mjs 1          # N0가 '자리를 옮기실 때'로 되돌아가면 폐식 G3-15 '자리에서 그대로'와 다시 충돌
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
 # [ADM_DELIVDATE] 보관 시계 분리를 grep이 아니라 '실제 동작'으로 — 진짜 admin.gs 함수를 vm에서 돌려 결과 값을 본다.
 #   후기→결과물전달 롤백에서 동의기록.결과물전달일 보존 / 예식완료 이하에선 제거 / 미리보기==실제(5개 목표 전수).

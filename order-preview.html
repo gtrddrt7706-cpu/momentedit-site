@@ -1234,7 +1234,10 @@ function renderStep(k){
   else if(k==='ringwarm'){
     h+=diag('ringwarm');
     h+=oc('ringwarm','family','가족만','양가 가족의 손만 거쳐요 · 짧고 편안한 기본',RINGWARM.family.nar,null,null,'반지는 파우치에 고정해 분실 걱정이 없어요 · 진행은 나레이션이 먼저 설명하고, 하객은 옆으로 전달만 하면 돼요');
-    h+=oc('ringwarm','all','하객 전체','스물다섯 분 모두의 축복을 담아요 · 약 2분 더',RINGWARM.all.nar,null,null,null);
+    // ★RINGWARM_NO_MIN — 이 카드만 "약 2분 더"로 남아 있었다. 같은 화면 recoTxt는 이미 '인원에 따라 달라져요'라
+    //   두 문구가 정면으로 어긋났고(2026-07-26 확정 변경이 recoTxt에만 적용됨), 수치 약속 금지 규칙(CLAUDE.md)에도 걸린다.
+    //   '스물다섯 분'도 상한이지 실제 인원이 아니다(12명 예식에서 사실과 다름) → '오신 모든 분'으로.
+    h+=oc('ringwarm','all','하객 전체','오신 모든 분의 축복을 담아요 · 인원에 따라 시간이 달라져요',RINGWARM.all.nar,null,null,null);
   }
   else if(k==='tribute'){
     h+=clip('tribute');
