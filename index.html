@@ -317,6 +317,9 @@ select {
   --sub: #5a554c;
   --light: #75705f;
   --gold: #b89a75;
+  /* [HOME_GOLD_TEXT] 장식용 골드(#b89a75)는 본문 배경에서 2.54:1 — 텍스트로 쓰면 WCAG AA(4.5) 미달.
+     선·아이콘은 --gold 유지, '글자'에는 아래 진한 톤을 쓴다(마이페이지 MPD_C5와 같은 처방). */
+  --gold-text: #7a5f37;
   --accent: #3a2d22;
   --seal: #6b2a24;
   --border: #ddd8d1;
@@ -889,7 +892,7 @@ body.menu-open nav {
   font-family: var(--serif-ko);
   font-size: clamp(11.5px, 1.3vw, 13px);
   font-weight: 300;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.09em;
   word-break: keep-all;
 }
@@ -1640,7 +1643,7 @@ section {
   font-family: var(--serif-ko);
   font-size: 12px;
   font-weight: 400;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.04em;
 }
 .card-label-ko::before {
@@ -1652,7 +1655,7 @@ section {
 .card-grid .card-label { margin-bottom: 16px; }
 .card-sub {
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.06em;
   margin-bottom: 14px;
 }
@@ -1707,7 +1710,7 @@ section {
 }
 .feature .card-sub {
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text);   /* HOME_GOLD_TEXT: 2.54:1 -> AA 통과 톤 */
   letter-spacing: 0.06em;
   margin-bottom: 14px;
   transition: color 0.35s var(--ease);
@@ -1772,7 +1775,7 @@ section {
   font-family: var(--serif-ko);
   font-size: 13px;
   font-weight: 400;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.02em;
 }
 .seq-name-ko::before {
@@ -2255,7 +2258,7 @@ a.ig-handle:hover {
   font-family: var(--serif-ko);
   font-size: 11.5px;
   font-weight: 300;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.03em;
   margin-top: 10px;
   word-break: keep-all;
@@ -2482,7 +2485,7 @@ a.ig-handle:hover {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.06em;
   text-align: left;
 }
@@ -2756,6 +2759,47 @@ a.ig-handle:hover {
     width: 14px;
     height: 14px;
   }
+}
+/* [HOME_TAP40] 텍스트 링크·토글이 12~34px라 모바일에서 누르기 어려웠다(계측 14건).
+   밑줄·화살표 장식을 건드리지 않으려고 크기 대신 '보이지 않는 히트 영역'(::before)만 40px로 넓힌다.
+   ★f-copy 안 링크(푸터 한 줄 안 인라인 링크)는 제외 — WCAG 2.5.8 인라인 예외이고,
+     세로로 넓히면 바로 아래 줄의 링크와 겹쳐 오히려 오터치가 난다. */
+.sec-title-link,
+.channel-block-link--text-only,
+.dm-more,
+.journal-card-btn,
+a.access-link,
+.f-footer-logo-link,
+.faq-a-inner a[href="parents.html"] {
+  position: relative;
+}
+.sec-title-link::before,
+.channel-block-link--text-only::before,
+.dm-more::before,
+.journal-card-btn::before,
+a.access-link::before,
+.f-footer-logo-link::before,
+.faq-a-inner a[href="parents.html"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40px;
+  min-height: 100%;
+}
+/* 아래 셋은 '채워진 알약/칩'이라 장식이 없다 → 히트영역 대신 크기를 직접 키운다.
+   .faq-eg·.faq-ask-btn은 AI 위젯 스크립트가 뒤늦게 그려서 1차 계측에서 빠져 있었다(2차에 잡음). */
+.faq-eg,
+.faq-ask-btn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.faq-ask-input {
+  min-height: 44px;
 }
 footer {
   text-align: center;
@@ -3859,7 +3903,7 @@ footer {
   font-size: 10px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 400;
   margin-bottom: 16px;
   font-family: var(--sans);
@@ -4001,7 +4045,7 @@ footer {
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
   margin-bottom: 28px;
 }
 .delivered-intro {
@@ -4408,7 +4452,7 @@ a.access-link:hover::after {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.04em;
   margin-left: 4px;
   font-weight: 400;
@@ -4658,7 +4702,7 @@ body {
   font-style: italic;
   font-size: 11px;
   letter-spacing: 0.3em;
-  color: var(--gold);
+  color: var(--gold-text);
   text-transform: uppercase;
   padding-left: 0.3em;
   margin-bottom: 10px;
@@ -4697,7 +4741,7 @@ body {
   font-weight: 500;
 }
 .transparency-col.included .transparency-col-label {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 .transparency-col-label .ko {
   font-family: var(--serif-ko);
@@ -5820,7 +5864,7 @@ body {
     <div class="price-note" style="margin-top:14px">
       <span>✓ VAT 포함 · 보증인원 없음</span>
     </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--gold);letter-spacing:0.04em">최대 하루 세 팀 한정 &middot; 주말·공휴일 조기 마감</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--gold-text);letter-spacing:0.04em">최대 하루 세 팀 한정 &middot; 주말·공휴일 조기 마감</div>
     <!-- INCLUDED VS OPTIONAL — 추가비용 투명성 -->
     <div class="transparency-block">
       <div class="transparency-head">
@@ -5863,7 +5907,7 @@ body {
 <div class="reveal">
   <div style="margin:36px 0;padding:32px 36px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
+      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold-text);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
       <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing:-0.01em;margin:0">왜 평일이 더 자연스러운가</h3>
     </div>
     <p class="t-body" style="margin:0 auto 14px;max-width:600px;text-align:center;font-size:13.5px;line-height:1.95;text-wrap:balance;word-break:keep-all">양가 직계가족 25명만 모이는 자리에서는, 예식일을 꼭 주말로 잡을 이유가 없습니다. 평일은 서로 일정을 맞추기 한결 수월하고, 원하는 날짜를 넉넉히 골라 서두르지 않는 하루를 보낼 수 있습니다.</p>
@@ -5874,7 +5918,7 @@ body {
 <div class="reveal">
   <div class="price-block highlight">
     <div class="price-title">Archive Opening Honor</div>
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 한정</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold-text);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 한정</div>
     <p style="font-size:13px;color:var(--sub);margin-bottom:8px">브랜드의 시작을 함께해 주시는 부부를 위한 예우입니다</p>
     <p style="font-size:12px;color:var(--light);margin-bottom:20px">두 분의 기록이 모먼트에디트의 첫 아카이브에 정중히 담깁니다.</p>
     <div style="font-size:14px;color:var(--accent);font-weight:400;margin-bottom:16px">보정 셀렉트 컷 +10장 추가 제공</div>
@@ -5885,7 +5929,7 @@ body {
 <!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
 <div class="reveal">
   <div class="snap-block">
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold-text);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
     <h3 class="sec-label">Weekday Editorial Snap ·<span class="ll-ko"> 평일 웨딩스냅</span></h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
     <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
@@ -5899,7 +5943,7 @@ body {
       <li><span class="li-label">의상 스타일링</span><span class="snap-val">드레스 시착 2벌 무료 · 착용 1벌 포함<span class="li-sub">추가 착용 1벌당 &#8361;50,000 (최대 2벌)</span></span></li>
     </ul>
     <div style="text-align:center;margin-top:24px">
-      <div style="font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
+      <div style="font-family:var(--serif);font-size:24px;color:var(--gold-text);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
       <div class="t-note">VAT 포함 &middot; 평일(월~금) 한정 운영</div>
       <div style="margin-top:14px;padding:14px 20px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.8;max-width:420px;margin-left:auto;margin-right:auto;word-break:keep-all;text-wrap:balance">
         <span style="display:block">본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.</span>
@@ -6047,7 +6091,7 @@ body {
 <div class="faq-item"><div class="faq-q"><span>예식은 얼마나 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 140분은 본질만 남긴 시간입니다. 불필요한 대기와 반복을 걷어내고, 주인공의 에너지가 가장 선명한 순간만을 담습니다.<div class="faq-seq"><strong>140분 시그니처 시퀀스</strong><br>20m | Getting Ready · 의상 착장, 컨디션 정돈<br>40m | Private Snap · 하객과 완벽히 분리된 공간에서 오직 기록에만 몰입<br>30m | The Ceremony · 모든 시선이 집중되는 순간의 정갈한 본식<br>30m | Group Record · 양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간<br>20m | Farewell · 서두르지 않는 배웅, 여운 있는 마무리</div></div></div></div>
 <div class="faq-item"><div class="faq-q"><span>예식 후 식사는 어떻게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">예식 후의 식사·카페를 안내하는 <strong>애프터 웨딩</strong>은 선택 항목입니다. 스튜디오 인근의 검증된 파트너를 마이페이지에서 취향에 맞게 추천해 드리고, 마음에 드는 곳을 고르시면 연락처와 예약 안내 문구까지 정리해 드립니다. 예약이 어려우신 경우 디렉터가 도와드립니다. 식사 비용은 선택하신 파트너사에 별도로 지불하시는 항목입니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>디지털 참석은 어떻게 구성되나요?</span></div><div class="faq-a"><div class="faq-a-inner">광고와 외부 노출이 없는 1080p 비공개 화면입니다. 접속자 수도, 공개 채팅도 표시되지 않습니다. 오롯이 두 분의 시간만이 화면에 머무릅니다.<br><br>디지털 참석 페이지는 청첩장 안에 동봉되는 QR 혹은 링크로 접속하며, 어떠한 설치나 로그인도 필요하지 않습니다. 영상 탭 한 번으로 전체화면 전환되어, 어르신까지 모든 세대가 편안히 감상하실 수 있습니다.</div></div></div>
-<div class="faq-item"><div class="faq-q"><span>얼마나 전에 예약해야 하나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트는 <strong>2027년 하반기 정식 오픈</strong>을 앞두고, 현재 사전 예약을 받고 있습니다.<br><br>운영은 하루 최대 세 팀으로 진행합니다. 한 팀의 기록에 충분한 호흡을 두기 위함이며, 희망 일자가 있으시다면 <strong>최소 6개월 전</strong> 문의를 권장합니다. 봄(4~5월)·가을(9~11월) 주말은 조기 마감될 수 있어 <strong>9개월 전</strong> 문의를 권장합니다.<br><br><span style="color:var(--gold);font-style:italic">운영 초기 한정으로 3개월 전 예약도 환영합니다. 가능 일정은 사전 문의서를 통해 확인해 드립니다.</span></div></div></div>
+<div class="faq-item"><div class="faq-q"><span>얼마나 전에 예약해야 하나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트는 <strong>2027년 하반기 정식 오픈</strong>을 앞두고, 현재 사전 예약을 받고 있습니다.<br><br>운영은 하루 최대 세 팀으로 진행합니다. 한 팀의 기록에 충분한 호흡을 두기 위함이며, 희망 일자가 있으시다면 <strong>최소 6개월 전</strong> 문의를 권장합니다. 봄(4~5월)·가을(9~11월) 주말은 조기 마감될 수 있어 <strong>9개월 전</strong> 문의를 권장합니다.<br><br><span style="color:var(--gold-text);font-style:italic">운영 초기 한정으로 3개월 전 예약도 환영합니다. 가능 일정은 사전 문의서를 통해 확인해 드립니다.</span></div></div></div>
 <div class="faq-item"><div class="faq-q"><span>상담 예약은 어떻게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">세 단계로 정중히 모십니다.<br><br><strong>01.</strong> 사전 문의서 제출<br><strong>02.</strong> 담당 디렉터 메일 안내 <span style="color:var(--light);font-size:0.92em">(영업일 48시간 이내)</span><br><strong>03.</strong> 상담 예약금 <strong>100,000원</strong> 송금 → 방문 일정 확정<br><br>▸ 예약금은 본 계약 시 <strong>100% 차감</strong>되며, 본 계약을 진행하지 않으셔도 <strong>전액 환불</strong>됩니다. 단, 드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 차감되고 나머지는 환불됩니다.<br>▸ 일정 변경은 상담 <strong>24시간 전</strong>까지 가능합니다.<br>▸ 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 <span style="color:var(--light);font-size:0.92em">(기본 2벌)</span>.</div></div></div>
 <button type="button" class="faq-more-toggle" id="faqMoreToggle" aria-expanded="false" aria-controls="faqMoreList"><span class="more-text-open">더 자세한 질문 <span class="more-count">6</span> 보기</span><span class="more-text-close">접기</span><span class="more-icon">+</span></button>
 <div class="faq-more" id="faqMoreList"><div class="faq-more-inner">
@@ -6072,7 +6116,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
   margin-bottom: 8px;
 }
 .faq-ask-head {
@@ -6991,6 +7035,10 @@ function replayHeroAnimation(){
   }
 }
 @media (max-width: 680px) {
+  /* ★FAB 레일(.me-fab-stack) 위치·크기·모양 변경 금지 — 2026-07-26 사용자 지시
+     ("어이콘은 손대지마 지금이 좋아 위치도"). 우측 하단 도킹 시안(HOME_FAB_DOCK)은
+     FAQ '묻기' 버튼과 새로 겹쳐 계측상 더 나빴고, 사용자가 현 디자인·위치를 채택했다.
+     이후 리뷰·리팩터링이 '겹침 개선' 명목으로 되살리지 말 것. */
   .me-fab-stack {
     right: 6px;
     gap: 12px;
@@ -7103,7 +7151,7 @@ function replayHeroAnimation(){
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
   margin-bottom: 4px;
 }
 .me-adv-title {
@@ -7119,7 +7167,7 @@ function replayHeroAnimation(){
   border: none;
   cursor: pointer;
   color: var(--light);
-  padding: 6px;
+  padding: 11px;   /* [HOME_TAP40] 18px 아이콘 + 11×2 = 40px 탭 타깃 (구 6px = 30px) */
   line-height: 0;
   border-radius: 6px;
   transition:
