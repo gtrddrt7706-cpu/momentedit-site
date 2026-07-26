@@ -640,6 +640,17 @@ chk 'GUIDE_FOCUS' guide.html 1                 # .find input:focus{outline:none}
 chk 'GUIDE_HEADING' guide.html 1               # h1·h2가 0개였다 — 화면낭독기에 구조가 없었다
 chk 'h2 class="sec-t"' guide.html 4            # 섹션 제목 4곳(좌석·내자리·식사·사진). span으로 되돌리면 헤딩 구조가 다시 사라진다
 chk 'aria-label="성함"' guide.html 1           # 좌석 검색 입력이 placeholder만 있던 것
+# ── 2026-07-26 guide.html 2라운드(화면낭독기·극단 데이터·외부 링크 고지)
+chk 'aria-live="polite"' guide.html 1          # 좌석 검색 결과가 live region이 아니라, 이름을 쳐도 낭독기가 아무 말도 안 했다 — 이 페이지의 존재 이유가 무음이었다
+chk 'GUIDE_MAP_SR' guide.html 2                # 배치도 그림이 '3 김민수 5 2 4'로 흘러나오던 것. 검색모드=aria-hidden · 전체공개=sr-only 명단으로 대체(CSS 1 + JS 1)
+chk 'sr-only' guide.html 4                     # 위 대체 수단의 본체. ★display:none으로 바꾸면 낭독기도 건너뛰어 전체공개 모드가 다시 무음이 된다
+chk 'GUIDE_RT_SR' guide.html 1                 # 번호 알약이 '3테이블 3 자리예요'로 두 번 들리던 것. 테이블에 이름이 따로 있을 때만 번호를 말로 넣는다
+chk 'GUIDE_LINKNAME' guide.html 1              # 링크 목록이 '지도·전화·지도·지도·지도'로만 들려 가게 구분이 안 되던 것(WCAG 2.4.4) + 새 탭 고지(3.2.5)
+chk 'GUIDE_EMPTY_SEC' guide.html 1             # dining.on만 켜고 담은 곳이 0이면 제목만 있는 빈 섹션이 뜨던 것(실측)
+chk 'GUIDE_DATE_GUARD' guide.html 1            # 2027-13-45가 롤오버돼 '13월 45일 (월)'로 자신 있게 틀린 요일까지 붙던 것
+chk 'GUIDE_SAFEAREA' guide.html 1              # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것 — 노치폰 가로에서 잘림
+chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 버튼인데 하객이 누르기 전에 알 수 없던 것(CSS 1 + JS 1)
+chk 'MP_PHOTOSHARE_INFO' mypage.html 1         # 부부 쪽 짝 안내 — 접근 범위·프로필 노출·앨범을 지우면 버튼도 닫힘
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi

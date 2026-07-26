@@ -5413,6 +5413,9 @@ function renderPhoto(box){
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
   h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="사진 모으는 링크 붙여넣기" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // 예시는 아래 설명문에 · 단일라인 잘림 방지(2026-07-21)
   h+='<div class="cc-note" style="text-align:left;margin-top:8px">부부가 만든 <b>공유 앨범·오픈채팅</b> 링크를 넣어 주세요. 하객 안내 페이지에 <b>사진 올리기</b> 버튼으로 들어가요. 아래 QR을 저장해 테이블 카드·현장 안내에 두면 하객분들이 바로 올려요.</div>';
+  // [MP_PHOTOSHARE_INFO] 부부가 링크를 고르기 전에 알아야 하는 세 가지 — 접근 범위·프로필 노출·링크 수명(2026-07-26).
+  //   사진은 우리가 아니라 그 서비스에 쌓이므로 보관·삭제도 그쪽 규칙을 따른다. 우리가 대신 보증하지 않는다.
+  h+='<div class="cc-note" style="text-align:left;margin-top:6px">링크를 아는 분은 누구나 들어갈 수 있어요. 오픈채팅은 참여자끼리 프로필이 보이니, 하객 부담을 줄이시려면 공유 앨범 쪽이 편해요. 사진은 그 서비스에 쌓이니 <b>예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요</b> · 사진을 먼저 옮겨 두세요.</div>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
