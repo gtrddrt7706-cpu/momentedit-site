@@ -620,6 +620,16 @@ chk 'INQ_KO_TRACK' inquiry.html 1              # 영문 자간이 한글 '필수
 chk 'll-ko' inquiry.html 7                     # 한글 꼬리 span 6 + CSS 1
 chk '적어 주세요' inquiry.html 2               # 보조용언 띄어쓰기 통일(붙여쓴 12건 → 띄어쓰기) · '부탁드립니다·안내드립니다'는 명사+겸양이라 붙임 유지
 chk 'gold-text' inquiry.html 14                # 읽는 골드 텍스트 24건 → 2건(대비 2.54→5.71)
+# ── 2026-07-26 live.html 1라운드(하객이 예식 당일 여는 화면)
+chk 'LIVE_KO_TRACK' live.html 1                # 영문 트래킹이 한글에 걸려 낱글자로 흩어지던 것(최악 .couple-ko 24% — 신랑·신부 이름) + 히어로 eyebrow 3줄 방지
+chk 'LIVE_CONTRAST' live.html 3                # 본문 1 + CONTRAST2 1 + OPACITY 주석 1. 장식용 골드(2.54:1)를 글자색으로 되돌리지 말 것(선·테두리엔 --gold 유지)
+chk 'LIVE_TAP40' live.html 1                   # 복사 29px·브랜드 27px·편지 수신인 33px → 40px. ★브랜드는 ::before 히트영역이 아니라 헤더 패딩 14→8 + 앵커 min-height로 '박스 자체'를 키운 것
+chk 'LIVE_OPACITY' live.html 1                 # ★색만 고쳐도 opacity로 다시 흐려지던 자리(영상 안내문·전체화면 힌트·'의 아들'). 투명도로 위계를 만들지 말 것 — 크기·서체로
+chk 'LIVE_LINK_UNKNOWN' live.html 4            # 링크가 틀렸을 때 더미 예식(이서준·정하윤 / 국민은행 123456-78-901234 + 복사 버튼)이 진짜처럼 뜨던 것. CSS·마크업·JS·핸들러 4곳 — 하나만 지워도 가짜 계좌가 돌아온다
+chk 'link-unknown-box\[hidden\]' live.html 1   # ★.lp-message-box{display:flex}가 브라우저 기본 [hidden]을 이겨서 정상 화면에도 안내문이 떴던 사고. 이 한 줄 지우면 재발
+chk 'LIVE_LETTER_KO' live.html 1               # 편지 폼 aria-label 3종 + 한글 CTA + 한글 안내문
+chk '편지 보내기' live.html 3                  # 폼·프리뷰 버튼 2곳 + 주석. 'Deliver' 영문 단독으로 복원 금지(홈 HOME_CTA_KO와 같은 근거)
+chk 'aria-label="두 분께 남길 편지"' live.html 1  # 세 칸 모두 label 없이 placeholder만 있던 것 — 화면은 그대로 두고 이름만 붙였다
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
