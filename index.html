@@ -2754,16 +2754,37 @@ a.ig-handle:hover {
     height: 14px;
   }
 }
-/* [HOME_TAP40] 인라인 링크·칩이 17~30px로 작아 모바일에서 누르기 어려웠다(계측 18건). 최소 40px 확보. */
-.faq-ask-eg button,
-.faq-ask-btn,
-.archive-ig-handle,
-.more-link,
-.read-more,
-.col-read {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
+/* [HOME_TAP40] 텍스트 링크·토글이 12~34px라 모바일에서 누르기 어려웠다(계측 14건).
+   밑줄·화살표 장식을 건드리지 않으려고 크기 대신 '보이지 않는 히트 영역'(::before)만 40px로 넓힌다.
+   ★f-copy 안 링크(푸터 한 줄 안 인라인 링크)는 제외 — WCAG 2.5.8 인라인 예외이고,
+     세로로 넓히면 바로 아래 줄의 링크와 겹쳐 오히려 오터치가 난다. */
+.sec-title-link,
+.channel-block-link--text-only,
+.dm-more,
+.journal-card-btn,
+a.access-link,
+.f-footer-logo-link,
+.faq-a-inner a[href="parents.html"] {
+  position: relative;
+}
+.sec-title-link::before,
+.channel-block-link--text-only::before,
+.dm-more::before,
+.journal-card-btn::before,
+a.access-link::before,
+.f-footer-logo-link::before,
+.faq-a-inner a[href="parents.html"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40px;
+  min-height: 100%;
+}
+.faq-ask-input {
+  min-height: 44px;
 }
 footer {
   text-align: center;
@@ -6994,29 +7015,21 @@ function replayHeroAnimation(){
   }
 }
 @media (max-width: 680px) {
-  /* [HOME_FAB_DOCK] 모바일에서 레일이 화면 세로 중앙 = 읽는 자리에 떠서 본문 오른쪽 끝 32px를 덮었다
-     (390px 기준 레일 left 338 vs 본문 right 370). 읽기를 막지 않는 우측 하단으로 내린다. */
+  /* ★FAB 레일(.me-fab-stack) 위치·크기·모양 변경 금지 — 2026-07-26 사용자 지시
+     ("어이콘은 손대지마 지금이 좋아 위치도"). 우측 하단 도킹 시안(HOME_FAB_DOCK)은
+     FAQ '묻기' 버튼과 새로 겹쳐 계측상 더 나빴고, 사용자가 현 디자인·위치를 채택했다.
+     이후 리뷰·리팩터링이 '겹침 개선' 명목으로 되살리지 말 것. */
   .me-fab-stack {
-    right: 10px;
-    top: auto;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    gap: 10px;
-    transform: none;
+    right: 6px;
+    gap: 12px;
   }
-  .me-fab-stack.reveal { transform: none; }
-  .me-fab-stack.hide { transform: translateX(8px); }
   .me-fab-ico {
-    width: 42px;
-    height: 42px;
-    background: rgba(250, 250, 248, 0.86);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    border-radius: 50%;
-    box-shadow: 0 1px 6px rgba(28, 27, 25, 0.08);
+    width: 46px;
+    height: 46px;
   }
   .me-fab-ico svg {
-    width: 20px;
-    height: 20px;
+    width: 21px;
+    height: 21px;
   }
 }
 
@@ -7134,7 +7147,7 @@ function replayHeroAnimation(){
   border: none;
   cursor: pointer;
   color: var(--light);
-  padding: 6px;
+  padding: 11px;   /* [HOME_TAP40] 18px 아이콘 + 11×2 = 40px 탭 타깃 (구 6px = 30px) */
   line-height: 0;
   border-radius: 6px;
   transition:
