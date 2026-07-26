@@ -176,13 +176,35 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
    couple을 h1, 섹션 제목을 h2로 올리되 보이는 모습은 그대로(크기·굵기·여백 고정). */
 h1.couple{font-size:23px;font-weight:500;letter-spacing:.02em;margin:8px 0 6px;line-height:1.7}
 h2.sec-t{font-size:15.5px;font-weight:500;color:var(--accent);margin:0;line-height:1.7}
+
+/* ════════════════════════════════════════════════════════════════
+   2라운드 (2026-07-26)
+   ════════════════════════════════════════════════════════════════ */
+
+/* [GUIDE_MAP_SR] 눈에는 안 보이지만 화면낭독기엔 읽히는 텍스트.
+   좌석 배치도 그림을 aria-hidden으로 덮는 대신, 전체 공개 모드에선 이 목록이 대체 수단이 된다.
+   ★display:none·visibility:hidden은 낭독기도 건너뛴다 — 반드시 이 클립 방식이어야 한다. */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* [GUIDE_SAFEAREA] viewport-fit=cover를 켜 놓고 env(safe-area-inset-*)은 한 번도 안 썼다.
+   노치 있는 폰을 가로로 눕히면 좌우 15px로는 노치·둥근 모서리를 못 피한다.
+   max()라서 인셋이 없는 기기에선 지금과 완전히 동일하다. */
+body{
+  padding-left:max(15px, env(safe-area-inset-left));
+  padding-right:max(15px, env(safe-area-inset-right));
+  padding-bottom:max(60px, env(safe-area-inset-bottom));
+}
+
+/* [GUIDE_PHOTO_INFO] 외부로 나가는 버튼임을 눈으로도 알리는 표시. */
+.ps-ext{margin-left:7px;font-family:var(--serif);font-size:13px;opacity:.85}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
-  <div id="root"><div class="card"><div class="state">안내를 불러오는 중이에요…</div></div></div>
+  <main id="root"><div class="card"><div class="state" role="status">안내를 불러오는 중이에요…</div></div></main>
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -193,10 +215,14 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
-  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
+  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]);
+  // [GUIDE_DATE_GUARD] 형식만 맞으면 통과시켜 2027-13-45가 '2027년 13월 45일 (월)'로 나왔다.
+  // Date가 조용히 롤오버해 '자신 있게 틀린 요일'까지 붙는다 — 왕복이 안 맞으면 날짜 줄을 아예 빼는 게 낫다.
+  if(dt.getFullYear()!==+p[0] || dt.getMonth()!==+p[1]-1 || dt.getDate()!==+p[2]) return '';
+  var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
 }
-function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+function stateHtml(msg, sm){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
 function mapUrl(v){ return (v.url && /^https?:/i.test(v.url)) ? v.url : ('https://map.kakao.com/?q='+encodeURIComponent(v.n||'')); }
 function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
 var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
@@ -206,24 +232,31 @@ function guestMeta(m){ // 하객 노출용 소개 — 가격대(2~5만 등)는 �
   // 숫자 없이 쓴 가격('만원'·'십만원대')도 함께 거름 — 한글 수사+만원 표기가 하객에게 새지 않게(2026-07-18 점검)
   return String(m||'').split('·').map(function(x){return x.trim();}).filter(function(x){return x && !/[0-9][0-9,.~\s-]*(만|원)|₩|[일이삼사오육칠팔구십백천]*\s*만\s*원/.test(x);}).join(' · ');
 }
+// [GUIDE_LINKNAME] 화면낭독기 링크 목록이 '지도 · 전화 · 지도 · 지도 · 지도'로만 들려 어느 가게 건지 구분이 안 됐다(WCAG 2.4.4).
+//   눈에 보이는 라벨은 그대로 두고 접근성 이름에만 가게 이름을 얹는다. 새 탭으로 나가는 것도 여기서 알린다(3.2.5).
+//   아이콘 svg는 이름 없는 image 노드로 잡히던 것 — 장식이므로 aria-hidden.
+function actMap(v, nm){ return '<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener" aria-label="'+esc(nm||v.n||'')+' 지도 · 새 탭에서 열려요"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON_MAP+'</svg>지도</a>'; }
+function actTel(tel, nm){ return '<a class="act" href="'+esc(telUrl(tel))+'" aria-label="'+esc(nm||'')+' 전화 걸기"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON_TEL+'</svg>전화</a>'; }
 function spotHtml(v, withTel){
-  var acts='<a class="act" href="'+esc(mapUrl(v))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>';
-  if(withTel && v.tel) acts+='<a class="act" href="'+esc(telUrl(v.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>';
+  var acts=actMap(v, v.n);
+  if(withTel && v.tel) acts+=actTel(v.tel, v.n);
   var _m=guestMeta(v.m);
   return '<div class="spot"><div class="sn">'+esc(v.n)+'</div>'+(_m?'<div class="sm">'+esc(_m)+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
 }
 function diningHtml(dn){
   if(!dn || !dn.on) return '';
-  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">식사 · 애프터</h2><span class="sec-n">Dining</span></div>';
   var restos=(dn.restos||[]).slice(), spots=dn.spots||[];
+  // [GUIDE_EMPTY_SEC] on만 켜고 담은 곳이 하나도 없으면 제목만 있는 빈 섹션이 떴다(실측).
+  //   하객에겐 '뭔가 있는데 안 뜬 화면'으로 보인다 — 내용이 없으면 섹션 자체를 내지 않는다.
+  if(!dn.pick && !restos.length && !spots.length) return '';
+  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">식사 · 애프터</h2><span class="sec-n">Dining</span></div>';
   if(dn.pick){
     // 선택 식당이 찜 목록에도 있으면 카드 하나로 합침 — 같은 이름 이중 노출 방지 + 소개·지도·전화를 '여기로 모여요' 안에서 바로(2026-07-17 사용자 지적)
     var mi=-1; for(var i=0;i<restos.length;i++){ if(normName(restos[i].n)===normName(dn.pick)){ mi=i; break; } }
     var mv=(mi>=0)?restos.splice(mi,1)[0]:null;
     var rsv=(dn.rtime?esc(dn.rtime):'')+((dn.rtime&&dn.rname)?' · ':'')+(dn.rname?'<b>'+esc(dn.rname)+'</b> 이름으로 예약':'');
     var _pm=mv?guestMeta(mv.m):'';   // 조건·표시에 한 번만 계산(spotHtml의 _m 패턴과 동일)
-    var acts='<a class="act" href="'+esc(mapUrl(mv||{n:dn.pick}))+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24">'+ICON_MAP+'</svg>지도</a>'
-      +((mv&&mv.tel)?'<a class="act" href="'+esc(telUrl(mv.tel))+'"><svg viewBox="0 0 24 24">'+ICON_TEL+'</svg>전화</a>':'');
+    var acts=actMap(mv||{n:dn.pick}, dn.pick)+((mv&&mv.tel)?actTel(mv.tel, dn.pick):'');
     h+='<div class="pick"><div class="pl">여기로 모여요</div><div class="pn">'+esc(dn.pick)+'</div>'
       +(_pm?'<div class="pm">'+esc(_pm)+'</div>':'')
       +(rsv?'<div class="rsv">'+rsv+'</div>':'')
@@ -238,10 +271,14 @@ function diningHtml(dn){
 // 하객 사진 모으기 — 부부가 정한 외부 공유 앨범/오픈채팅 링크가 있을 때만. 하객이 찍은 사진을 한곳으로(2026-07-19 · QR 갤러리 파일럿)
 function photoShareHtml(url){
   if(!/^https?:/i.test(String(url||''))) return '';
+  // [GUIDE_PHOTO_INFO] 이 버튼은 우리 화면이 아니라 부부가 만든 외부 공간(공유 앨범·오픈채팅)으로 나간다.
+  //   기존 안내는 '큰 선물이 돼요' 한 줄뿐이라, 하객은 누르기 전에 어디로 가는지도
+  //   오픈채팅이면 내 프로필·닉네임이 방에 보인다는 것도 알 수 없었다.
+  //   ★'모든 사진이 안전하게 보관돼요' 같은 말은 쓰지 않는다 — 남의 서비스라 우리가 보증할 수 없다.
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
-    +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener">사진 올리기</a>'
-    +'<div class="privacy">두 분이 함께 모으는 공간이에요 · 남겨 주신 한 장이 큰 선물이 돼요.</div></div>';
+    +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener" aria-label="사진 올리기 · 새 탭에서 열려요">사진 올리기<span class="ps-ext" aria-hidden="true">↗</span></a>'
+    +'<div class="privacy">두 분이 준비한 외부 공간으로 이동해요 · 서비스에 따라 이름이나 프로필이 함께 보일 수 있어요.</div></div>';
 }
 // ★라이브 섹션(liveHtml) 복원 금지 — 2026-07-17 사용자 지시로 삭제. 멀리 계신 분 안내는 온라인 청첩장(live.html 링크 포함)이 담당
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
@@ -257,8 +294,14 @@ function seatFindHtml(full){
       +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
   }
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">내 자리 찾기</h2><span class="sec-n">Your Table</span></div>'
-    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력하세요"><div class="find-res" id="fr"></div></div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력하세요"><div class="find-res" id="fr" role="status" aria-live="polite" aria-atomic="true"></div></div>'
     +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
+}
+// [GUIDE_RT_SR] 번호 알약은 눈으로 테이블을 찾는 표시다. 귀로 들으면 '3테이블 3 자리예요'로 숫자가 두 번 나온다.
+//   알약은 숨기고, 테이블에 따로 이름이 있어(예: '가족석') 문장에 번호가 없을 때만 번호를 말로 넣는다.
+function rtBadge(no, label){
+  var spoken = (String(label||'')===('테이블 '+no)) ? '' : '<span class="sr-only">테이블 '+no+' · </span>';
+  return spoken+'<span class="rt" aria-hidden="true">'+no+'</span>';
 }
 function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1·3·5 / 우 2·4·6)
   var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String(t.side||'L')==='R'?Rs:Ls).push(i); });
@@ -285,8 +328,8 @@ function findSeat(v){
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
   var _rh=seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc)), _sm=$('seatMap');
-  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'; }
-  else fr.innerHTML='<span class="rt">'+no+'</span><b>'+esc(label)+'</b> 자리예요'+_rh;
+  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'; }
+  else fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_rh;
 }
 // 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버(_seatFindByToken) 응답과 같은 계약({no,label,side,occ}·★변경 시 GAS와 함께).
 //   이름은 '전체 성함 정확 일치 + 단일 자리'일 때만(서버와 동일 규칙 — 부분 검색으로 타인 실명 표기 방지)
@@ -352,13 +395,28 @@ function seatRoomHtml(hit){
     if(String(t.side||'L')==='R'){ R+='<div style="transform:translateX('+zigX(ri++,'R')+'px)">'+tbl(t,h)+'</div>'; }
     else { L+='<div style="transform:translateX('+zigX(li++,'L')+'px)">'+tbl(t,h)+'</div>'; }
   }
-  return '<div class="mtb-wrap"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
+  // [GUIDE_MAP_SR] 이 배치도는 눈으로 보는 그림인데, 화면낭독기엔 숫자·이름 조각 10개가
+  //   '3 김민수 5 2 4 친구석'처럼 맥락 없이 흘러나오고 있었다(실측).
+  //   ① 검색 모드: 답은 이미 위 문장('테이블 3 자리예요')이 하니 그림은 aria-hidden으로 덮는다.
+  //   ② 전체 공개 모드: 그림 말고는 아무 대체 수단이 없다 — 테이블별 명단을 보이지 않는 목록으로 함께 낸다.
+  //      (이 모드는 부부가 '전체 공개'를 명시적으로 고른 경우뿐이라, 명단을 텍스트로 내도 공개 범위가 넓어지지 않는다)
+  // 부분 일치가 여럿이면 '이게 확정이 아니다'라는 신호가 그림 캡션에만 있었다 — 귀로도 들리게 한 줄 낸다.
+  var srAlt=(!hit.all && !one) ? '<p class="sr-only">같은 테이블에 성함이 비슷한 자리가 여럿이에요. 성함을 전체로 입력하면 정확히 표시돼요.</p>' : '';
+  if(hit.all){
+    srAlt+='<ul class="sr-only">';
+    for(var si=0;si<room.length;si++){ var st=room[si];
+      var nms=(st.nms||[]).filter(function(x){ return String(x||'').trim(); });
+      srAlt+='<li>테이블 '+st.no+(st.label?(' · '+esc(st.label)):'')+' : '+(nms.length?nms.map(esc).join(', '):'아직 비어 있어요')+'</li>';
+    }
+    srAlt+='</ul>';
+  }
+  return '<div class="mtb-wrap">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
     +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
-    +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
+    +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div></div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-  if(hits.length===1) return '<span class="rt">'+hits[0].no+'</span><b>'+esc(hits[0].label)+'</b> 자리예요'+seatRoomHtml(hits[0]);
+  if(hits.length===1) return rtBadge(hits[0].no, hits[0].label)+'<b>'+esc(hits[0].label)+'</b> 자리예요'+seatRoomHtml(hits[0]);
   if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
   return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
 }
