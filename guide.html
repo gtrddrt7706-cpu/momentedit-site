@@ -14,10 +14,20 @@
 <title>하객 안내 · Moment Edit</title>
 <meta property="og:title" content="MOMENT EDIT · 하객 안내">
 <meta property="og:description" content="예식 안내를 확인해 보세요.">
-<!-- 브랜드 세리프 로드 — 없으면 한글이 시스템 고딕으로 폴백돼 mypage와 폰트가 달라 보임(2026-07-20 수정) -->
+<!-- [GUIDE_FONT_NOBLOCK] 이 페이지는 하객이 '예식장 안에서, 남의 와이파이로' 여는 화면이다.
+     폰트 CSS를 렌더 블로킹으로 두면 폰트 CDN이 느린 만큼 흰 화면이 그대로 길어진다.
+     실측(폰트 CDN 3초 지연): first-contentful-paint 3056ms — 3초 동안 완전한 백지.
+     게다가 body 끝의 부트 스크립트도 이 CSS 뒤에야 실행돼 GAS 요청이 3057ms에야 나갔다.
+     ★즉 폰트 한 개가 데이터 요청까지 3초 밀고 있었다.
+     media=print → onload로 all 전환하면 브라우저가 이 CSS를 렌더 블로킹에서 뺀다.
+     그동안 한글은 시스템 서체로 먼저 읽히고 브랜드 세리프가 도착하면 바뀐다(URL에 display=swap).
+     ★폰트가 아예 안 와도 페이지는 읽힌다 — 전엔 영영 백지였다.
+     ★브랜드 세리프 자체는 그대로 유지한다(2026-07-20 수정 취지) · 로드 '시점'만 바꾼 것. -->
+<link rel="preconnect" href="https://script.google.com"><!-- 실제 데이터가 오는 곳 — 핸드셰이크를 미리 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
   --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F; --faint:#A49D8E;
@@ -198,6 +208,24 @@ body{
 
 /* [GUIDE_PHOTO_INFO] 외부로 나가는 버튼임을 눈으로도 알리는 표시. */
 .ps-ext{margin-left:7px;font-family:var(--serif);font-size:13px;opacity:.85}
+
+/* ════════════════════════════════════════════════════════════════
+   3라운드 (2026-07-26) — 예식장 현장 조건
+   ════════════════════════════════════════════════════════════════ */
+
+/* [GUIDE_MAP_REFLOW] 글자를 키워 보는 하객(브라우저 200% 확대 = 실효 207px)에게 좌석표가
+   페이지 전체를 가로로 밀고 있었다(실측 223 > 207). .gr-tbl은 118px 고정에 flex-shrink:0이라
+   폭이 줄지 않는다 — 좌석 칩 위치가 전부 px 기준이라 줄이면 배치가 어긋난다.
+   좌석표는 '2차원 배치' 자체가 정보라 억지로 접을 수 없다(WCAG 1.4.10도 이 경우를 예외로 둔다).
+   그래서 줄이는 대신 스크롤을 이 블록 안에 가둔다 — 페이지는 안 밀리고, 필요한 사람만 지도를 민다.
+   ★확대해서 보는 사람이 바로 이 배치도를 가장 필요로 하는 사람이다. */
+.mtb-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* [GUIDE_RETRY] 실패 화면의 '다시 불러오기'. 만료·못찾음 화면엔 안 붙는다(재시도해도 안 달라진다). */
+.retry-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+  margin-top:18px;padding:0 26px;font-family:var(--serif-ko);font-size:14px;
+  color:#fff;background:var(--gold-text);border:none;border-radius:24px;cursor:pointer}
+.retry-btn:active{background:var(--accent)}
 </style>
 </head>
 <body>
@@ -310,12 +338,18 @@ function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1�
   return num;
 }
 function normName(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); }   // 공백(전각 포함) 제거 — '김 민수'로 입력해도 '김민수' 좌석을 찾게(양방향)
+// [GUIDE_DEADREF] ★현재 이 함수를 호출하는 곳은 없다(2026-07-26 전수 확인).
+//   2026-07-18에 '전체 공개 = 검색 없음'으로 정리되면서 호출부가 사라졌다.
+//   그런데 안에 남아 있던 두 문구가 '아래 전체 배치도로 확인해 주세요'라고 없는 것을 가리키고 있었다
+//   ('전체 좌석 배치도 보기' 링크는 같은 날 복원 금지로 삭제됨 · .mapall CSS만 잔존).
+//   함수를 지우지는 않는다 — mineOnly 강등 분기(SEAT_STATE==='mine')와 짝을 이루는 구조라 섣불리 건드리지 않는다.
+//   대신 다시 배선되더라도 거짓말은 하지 않도록 문구만 실재하는 것으로 고쳐 둔다.
 function findSeat(v){
   if(SEAT_STATE==='mine') return;   // 서버 검색 모드로 강등된 상태 — 결과 표시는 bindSeatServer가 전담(로컬 실패 문구로 덮지 않게)
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
   if(!v){ fr.innerHTML=''; renderFullMap(); return; }
   if(SEAT_STATE==='loading'){ fr.textContent='좌석 안내를 불러오는 중이에요…'; return; }
-  if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 아래 전체 배치도로 확인해 주세요.'; return; }
+  if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'; return; }
   var lc=normName(v), tables=SEAT.tables||[], num=seatRowNum(tables), hits=[];
   if(!lc){ fr.innerHTML=''; return; }
   for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]), got=false;
@@ -323,7 +357,7 @@ function findSeat(v){
     if(got) hits.push(i);
   }
   if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; renderFullMap(); return; }
-  if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 더 입력하시거나 아래 전체 배치도에서 확인해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지(동명이인은 배치도로)
+  if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지(동명이인은 배치도로)
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
@@ -474,17 +508,62 @@ function render(g){
     +'</div>';
   if(hasSeat) bindSeat(g.seatToken, !!g.seatFull);
 }
+// [GUIDE_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다.
+//   fetch 한 번 → 실패하면 '잠시 후 다시 시도해 주세요' 한 줄. 누를 것도, 자동 재시도도 없었다(실측: 버튼 0개).
+//   이 페이지의 최대 부하 시점은 '하객이 한꺼번에 도착하는 때'다. GAS가 그때 밀리는 건 정상 범위인데,
+//   지금은 그 순간에 들어온 하객이 막다른 화면을 보고 끝난다.
+//   live.html의 방식(자동 재시도 + 폴백)을 가져오되 간격은 이 페이지에 맞게 줄였다.
+//   ★live는 자리 잡고 보는 화면이라 2.5초·6초가 맞지만, 여기는 걸어가면서 흘긋 보는 화면이다.
+//     그 간격이면 하객이 10초를 '불러오는 중'만 보고 서 있게 된다 — 1.2초·3초로 줄여 4초대엔 손에 버튼을 쥐여 준다.
+//   ★멈춘 게 아니라는 걸 알리려고, 한 번 실패하면 문구도 바꾼다(role=status라 낭독기에도 전달된다).
+//   ★'만료'·'못 찾음'은 재시도해도 달라지지 않으므로 버튼을 붙이지 않는다(헛된 기대 금지).
+function failHtml(){
+  // ★버튼이 생기면 문구도 바뀌어야 한다 — '잠시 후 다시 시도해 주세요'는 버튼이 하는 말을
+  //   제목이 한 번 더 하는 셈이라, 같은 화면에서 같은 요청이 세 번 나온다.
+  //   제목은 '무슨 일이 있었나', 보조는 '무엇을 하면 되나', 버튼은 '그 행동'으로 역할을 나눈다.
+  return '<div class="card"><div class="state" role="status">안내를 불러오지 못했어요.'
+    +'<div class="sm">네트워크 상태를 확인한 뒤 다시 눌러 주세요.</div>'
+    +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></div></div>';
+}
 (function boot(){
   var g=qp('g');
   if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
-  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'guideView', g:g}) })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if(d && d.ok && d.guide){ render(d.guide); }
-      else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
-      else { $('root').innerHTML=stateHtml((d&&d.error)||'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
-    })
-    .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });
+  var cacheKey='me_guide_'+g;
+
+  // [GUIDE_CACHE] 재방문·회선 불량 대비 — 한 번 본 안내는 즉시 그리고, 최신값은 뒤에서 갱신한다.
+  //   예식장 와이파이가 붙었다 끊겼다 하는 상황에서 '전에 봤던 안내라도' 보이는 편이 백지보다 낫다.
+  //   담기는 건 이미 링크만 있으면 보이는 것(부부 이름·예식일·식당 공개정보)뿐 · 좌석 명단은 여기 안 들어온다.
+  var painted=false;
+  try{ var raw=localStorage.getItem(cacheKey); if(raw){ render(JSON.parse(raw)); painted=true; } }catch(e){}
+
+  function load(attempt){
+    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'guideView', g:g}) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok && d.guide){
+          try{ localStorage.setItem(cacheKey, JSON.stringify(d.guide)); }catch(e){}
+          render(d.guide); painted=true;
+        }
+        else if(d && d.expired){ try{ localStorage.removeItem(cacheKey); }catch(e){}
+          $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
+        else { try{ localStorage.removeItem(cacheKey); }catch(e){}
+          $('root').innerHTML=stateHtml((d&&d.error)||'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+      })
+      .catch(function(){
+        if(attempt<2){
+          if(!painted) $('root').innerHTML=stateHtml('연결이 느려요','다시 불러오고 있어요…');
+          setTimeout(function(){ load(attempt+1); }, attempt===0?1200:3000);
+          return;
+        }
+        if(painted) return;   // 캐시로 이미 보여 주고 있으면 굳이 지우지 않는다
+        $('root').innerHTML=failHtml();
+        var b=$('retryBtn');
+        if(b) b.addEventListener('click', function(){
+          $('root').innerHTML=stateHtml('안내를 불러오는 중이에요…'); load(0);
+        });
+      });
+  }
+  load(0);
 })();
 </script>
 </body>
