@@ -630,6 +630,16 @@ chk 'link-unknown-box\[hidden\]' live.html 1   # ★.lp-message-box{display:flex
 chk 'LIVE_LETTER_KO' live.html 1               # 편지 폼 aria-label 3종 + 한글 CTA + 한글 안내문
 chk '편지 보내기' live.html 3                  # 폼·프리뷰 버튼 2곳 + 주석. 'Deliver' 영문 단독으로 복원 금지(홈 HOME_CTA_KO와 같은 근거)
 chk 'aria-label="두 분께 남길 편지"' live.html 1  # 세 칸 모두 label 없이 placeholder만 있던 것 — 화면은 그대로 두고 이름만 붙였다
+# ── 2026-07-26 guide.html 1라운드(하객이 예식장에서 여는 안내 허브)
+chk 'GUIDE_CONTRAST' guide.html 1              # --gold-deep(3.82:1)·--faint(2.61:1)이 본문 글자에 쓰이던 것. 글자엔 --gold-text, 선엔 --gold/--gold-deep 유지
+chk 'gold-text' guide.html 6                   # 토큰 정의 1 + 읽는 골드 5(브랜드·식당소개·지도전화·예약·검색결과 등). 되돌리면 지도·전화 버튼부터 안 읽힌다
+chk 'GUIDE_TAP40' guide.html 1                 # 지도·전화 71×34 · 뒤로 48×29 → 40px. ★뒤로는 .backbar top -4→-9를 함께 옮겨야 라벨이 안 어긋난다
+chk 'GUIDE_KO_TRACK' guide.html 1              # '여기로 모여요'(16%)·'단상·신랑 신부'(20%) — 영문 라벨 트래킹이 한글에 걸린 것. 홈/문의/live와 같은 처방
+chk 'GUIDE_ORPHAN' guide.html 1                # ★text-wrap:pretty는 한글을 재배분하지 않는다(실측). word-break:keep-all로 되돌리지 말 것
+chk 'GUIDE_FOCUS' guide.html 1                 # .find input:focus{outline:none}가 초점 링을 지우고 있던 것. ★:where()는 특이도 0이라 .find input:focus-visible 재선언이 함께 있어야 이긴다
+chk 'GUIDE_HEADING' guide.html 1               # h1·h2가 0개였다 — 화면낭독기에 구조가 없었다
+chk 'h2 class="sec-t"' guide.html 4            # 섹션 제목 4곳(좌석·내자리·식사·사진). span으로 되돌리면 헤딩 구조가 다시 사라진다
+chk 'aria-label="성함"' guide.html 1           # 좌석 검색 입력이 placeholder만 있던 것
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
