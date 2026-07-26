@@ -78,6 +78,7 @@ ok('녹음 대본 생성기의 "선언 N종" 서술이 DECLWHO와 일치' + (gen
 //   선택기(DECLWHO 4종 순회)는 정상이었기에 기존 검사가 전부 초록이었다 → 요약 문자열을 4번째 대조로 추가.
 //   ※ pick은 사람이 읽는 요약이라 DECLWHO 라벨과 표기가 다르다(예: family.d='가족이 낭독' vs pick='가족 낭독').
 //     그래서 키→요약표기 대응을 여기서 명시한다. 합송은 보류라 pick에서 내렸고, 그건 데이터에 없는 정책이라 검사하지 않는다.
+// ★편집 규칙: pick의 첫 항목은 그 코스의 기본값과 같게 쓴다(가드는 '포함'만 보므로 순서는 사람이 지킨다).
 const PICK_LABEL = { narr: '나레이션', ask: '하객 응답', chorus: '하객 합송', family: '가족 낭독' };
 if (builderKeys) {
   const cdM = html.match(/var COURSE_DEF=\{[\s\S]*?\n\};/);
@@ -96,6 +97,21 @@ if (builderKeys) {
     ok('코스 상세 pick이 코스별 기본 선언 주체를 포함' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
   }
 }
+
+// ★DECL_ADMIN_MIRROR — 운영자 화면 두 곳이 선언 주체 4종을 전부 다루는지.
+//   실사고(2026-07-26): #318이 'ask'를 추가했는데 admin 두 표면이 안 따라왔다.
+//   admin.html은 하드코딩 맵에 없어 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌고(감동 코스 기본값이라 전원 해당),
+//   Admin.html은 else로 떨어져 '나레이션'이라고 틀린 값을 보여줬다(빈칸보다 나쁘다 · 운영자가 예고 클립 준비를 통째로 빠뜨린다).
+//   admin.html은 원천을 직접 읽게 고쳤으므로 '하드코딩 맵으로 되돌아가지 않았는지'를 본다.
+//   Admin.html은 GAS라 ritual-data.js를 못 읽어 손분기가 불가피하다 → 라벨 문자열 존재만 대조한다(약한 검사임을 인정).
+const adminHtml = fs.readFileSync(path.join(root, 'admin.html'), 'utf8');
+ok('admin.html이 선언 주체 라벨을 원천에서 읽음(_declWhoLabel · 하드코딩 맵 아님)',
+  adminHtml.includes('<script src="/assets/ritual-data.js">') && adminHtml.includes('_declWhoLabel')
+  && !/\{narr:'나레이션',chorus:/.test(adminHtml));
+const gasAdmin = fs.readFileSync(path.join(root, 'automation/admin/Admin.html'), 'utf8');
+const gasMiss = declKeys.filter((k) => !new RegExp("declareWho==='" + k + "'").test(gasAdmin) && k !== 'narr');
+ok('Admin.html(GAS)이 선언 주체 4종을 분기' + (gasMiss.length ? ' — 누락: ' + gasMiss.join(',') : ' (narr은 else 기본값)'),
+  gasMiss.length === 0);
 
 // 택1 원칙: 선언 자리에서 '덧붙임'을 뜻하는 서술이 남아 있으면 안 된다.
 const addOn = [

@@ -787,7 +787,10 @@ function _prodTrackDetail(prod){
     rh3+=L('코스', esc(String(rsm.course||''))+(rsm.count?(' · '+esc(String(rsm.count))+'개 순서'):'')+(rsm.min?(' · '+esc(String(rsm.min))):''));
     if(_fl) rh3+='<div><span style="color:var(--label-soft)">순서 흐름</span><br><span style="color:var(--accent)">'+esc(rsm.flow.join(' → '))+'</span></div>';
     rh3+=L('입장', esc(_ko('entry',rs.entry))+(rs.entryVoice==='couple'?' · 두 분 녹음(파일 수령 필요)':' · 나레이션'));
-    rh3+=L('성혼 선언', rs.declareWho==='chorus'?'하객 합송(선언문 인쇄)':(rs.declareWho==='family'?'가족 낭독':'나레이션'));
+    // ★DECL_ADMIN_MIRROR — GAS라 /assets/ritual-data.js를 못 읽어 4종을 손으로 맞춘다(주체가 늘면 여기도 같이 고칠 것).
+    //   과거 사고(2026-07-26): 'ask'가 else로 떨어져 '나레이션'으로 표시됐다. 빈칸보다 나쁘다 —
+    //   운영자가 이 화면만 보고 준비하면 개식 직후 예고 클립(W2-a)과 하객 응답 안내가 통째로 빠진다.
+    rh3+=L('성혼 선언', rs.declareWho==='ask'?'하객 응답(개식 직후 예고 클립 필요)':(rs.declareWho==='chorus'?'하객 합송(선언문 인쇄)':(rs.declareWho==='family'?'가족 낭독(선언문 인쇄)':'나레이션')));
     if(_in('베일')) rh3+=L('베일 다운', esc(_ko('veil',rs.veil)));
     if(_in('링 워밍')) rh3+=L('링 워밍', esc(_ko('ringwarm',rs.ringwarm)));
     if(_in('편지')) rh3+=L('편지 대상', esc(_ko('letter',rs.letter))+(rs.flash?' · 플래시 세리머니':''));
