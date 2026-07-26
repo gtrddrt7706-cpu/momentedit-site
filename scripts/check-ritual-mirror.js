@@ -72,6 +72,31 @@ const genM = gen.match(/선언 (\d+)종/);
 ok('녹음 대본 생성기의 "선언 N종" 서술이 DECLWHO와 일치' + (genM ? ' (생성기 ' + genM[1] + '종)' : ' — 서술 없음'),
   !!genM && Number(genM[1]) === declKeys.length);
 
+// ★DECL_PICK_MIRROR — 코스 상세의 성혼 선언 요약(`pick`)이 그 코스의 실제 기본값을 말하는지.
+//   실사고(2026-07-26): #318이 감동 코스만 고쳐서, 나머지 4개 코스의 pick이 방금 출시한 응답형을 빠뜨리고
+//   보류 상태인 합송을 앞세웠다. 가족 코스는 아예 다른 축(엄숙/따뜻 = DECLARE 톤)을 섞어 놨다.
+//   선택기(DECLWHO 4종 순회)는 정상이었기에 기존 검사가 전부 초록이었다 → 요약 문자열을 4번째 대조로 추가.
+//   ※ pick은 사람이 읽는 요약이라 DECLWHO 라벨과 표기가 다르다(예: family.d='가족이 낭독' vs pick='가족 낭독').
+//     그래서 키→요약표기 대응을 여기서 명시한다. 합송은 보류라 pick에서 내렸고, 그건 데이터에 없는 정책이라 검사하지 않는다.
+const PICK_LABEL = { narr: '나레이션', ask: '하객 응답', chorus: '하객 합송', family: '가족 낭독' };
+if (builderKeys) {
+  const cdM = html.match(/var COURSE_DEF=\{[\s\S]*?\n\};/);
+  if (!cdM) { ok('빌더 COURSE_DEF 파싱', false); }
+  else {
+    const CD = new Function(cdM[0] + ' return COURSE_DEF;')();
+    const badPick = [];
+    for (const c of Object.keys(D.COURSES)) {
+      const det = (D.COURSES[c].detail || []).find((x) => /성혼 선언/.test(x.n));
+      const def = (CD[c] || {}).declareWho;
+      const want = PICK_LABEL[def];
+      if (!det || !det.pick) { badPick.push(c + '(선언 항목 없음)'); continue; }
+      if (!want) { badPick.push(c + '(기본값 ' + def + ' 미매핑)'); continue; }
+      if (!det.pick.includes(want)) badPick.push(c + '(기본 "' + want + '"이 pick에 없음: ' + det.pick + ')');
+    }
+    ok('코스 상세 pick이 코스별 기본 선언 주체를 포함' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
+  }
+}
+
 // 택1 원칙: 선언 자리에서 '덧붙임'을 뜻하는 서술이 남아 있으면 안 된다.
 const addOn = [
   ['order-preview.html', html], ['api/_ritual-kb.js', fs.readFileSync(path.join(root, 'api/_ritual-kb.js'), 'utf8')],
