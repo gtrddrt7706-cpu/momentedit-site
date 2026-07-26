@@ -672,3 +672,7 @@ chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 1     # G
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
 chk "'narr','ask','chorus','family'" order-preview.html 1
+chk 'DECL_ADMIN_MIRROR' scripts/check-ritual-mirror.js 1   # 운영자 화면 2곳이 선언 주체 4종을 다루는지
+chk '_declWhoLabel' admin.html 2                            # 선언 주체 라벨은 원천(DECLWHO)에서 읽는다 · 하드코딩 맵 복귀 금지
+chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참조할 원천 로드
+chk "declareWho==='ask'" automation/admin/Admin.html 1      # GAS 관리자도 응답형을 분기(틀린 값 표시 방지)
