@@ -2946,6 +2946,11 @@ footer {
     font-size: 13px;
     line-height: 1.85;
   }
+  /* [BR_NO_GLUE] br을 display:none 하면 줄바꿈이 '공백으로' 바뀌지 않고 그냥 사라진다.
+     소스가 `…화이트존,<br>두 공간을…` 이면 모바일에서 `…화이트존,두 공간을…` 로 붙어 오타처럼 보였다(실사고 9곳).
+     → 이 규칙의 영향을 받는 br은 소스에서 **앞에 공백 한 칸**을 둘 것(`…습니다. <br>다음문장`).
+       데스크탑은 줄 끝 공백이라 안 보이고, 모바일은 br이 사라져도 공백이 남아 정상 분리된다.
+     상시 회귀: `node scripts/audit/br-glue.mjs` (7페이지 × 5폭 실렌더) */
   .t-body br {
     display: none;
   }
@@ -5260,7 +5265,7 @@ body {
   <h3 class="sec-label">Our Perspective · 우리의 관점</h3>
   <p class="t-emph">형식보다 본질에 머무는 것.<br>가장 깊은 예우입니다.</p>
   <br>
-  <p class="t-body">전통의 정중함과 현대의 절제, 그 사이에서 균형을 찾습니다.<br>두 분의 결혼이 의무가 아닌 기쁨으로 남도록, 가장 두 분다운 기록을 완성합니다.</p>
+  <p class="t-body">전통의 정중함과 현대의 절제, 그 사이에서 균형을 찾습니다. <br>두 분의 결혼이 의무가 아닌 기쁨으로 남도록, 가장 두 분다운 기록을 완성합니다.</p>
   <p class="t-note" style="margin-top:18px">필수 추가 비용 없이, 하나의 가격에 본질만 담았습니다.</p>
 </div>
 <!-- ABOUT PHOTO -->
@@ -5409,7 +5414,7 @@ body {
 <!-- STYLING -->
 <div class="reveal">
   <h3 class="sec-label">Styling Collection · 의상과 소품</h3>
-  <p class="t-body" style="margin-bottom:24px">공간과 어울리는 스타일링까지 함께 완성합니다.<br>드레스·면사포·주얼리 등 의상과 웨딩 소품을 스튜디오에 직접 갖추고 있습니다.<br>신랑은 자켓과 보타이 등 스타일링 소품을 준비해 드리고, 셔츠·바지 등 기본 의상은 직접 준비해 오시면 됩니다.</p>
+  <p class="t-body" style="margin-bottom:24px">공간과 어울리는 스타일링까지 함께 완성합니다. <br>드레스·면사포·주얼리 등 의상과 웨딩 소품을 스튜디오에 직접 갖추고 있습니다. <br>신랑은 자켓과 보타이 등 스타일링 소품을 준비해 드리고, 셔츠·바지 등 기본 의상은 직접 준비해 오시면 됩니다.</p>
 </div>
 <div class="photo-placeholder half" style="height:380px;margin:24px 0 0;border-radius:8px">
   <img class="ph-img" src="/assets/home/styling.jpg" alt="웨딩드레스 스타일링 컬렉션" loading="lazy" onerror="this.style.display='none'">
@@ -5430,7 +5435,7 @@ body {
     <div class="seq-time">40<span>min</span></div>
     <div>
       <div class="seq-name">Private Snap<span class="seq-name-ko">단독 스냅</span></div>
-      <div class="seq-desc">하객의 시선으로부터 보호된 채 진행되는 정돈과 몰입의 시간입니다. 캔들존과 화이트존,<br>두 공간을 연속으로 전환하며 쉼 없이 이어지는 집중 촬영으로 기록의 밀도가 가장 높은 구간입니다.</div>
+      <div class="seq-desc">하객의 시선으로부터 보호된 채 진행되는 정돈과 몰입의 시간입니다. 캔들존과 화이트존, <br>두 공간을 연속으로 전환하며 쉼 없이 이어지는 집중 촬영으로 기록의 밀도가 가장 높은 구간입니다.</div>
     </div>
   </div>
   <div class="seq-item seq-item--core">
@@ -5444,7 +5449,7 @@ body {
     <div class="seq-time">30<span>min</span></div>
     <div>
       <div class="seq-name">Group Record<span class="seq-name-ko">단체 기록</span></div>
-      <div class="seq-desc">양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간입니다.<br>캔들존과 화이트존 두 공간에서, 따뜻한 무드와 에디토리얼 무드로 자연스럽게 이어지는 시간.</div>
+      <div class="seq-desc">양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간입니다. <br>캔들존과 화이트존 두 공간에서, 따뜻한 무드와 에디토리얼 무드로 자연스럽게 이어지는 시간.</div>
     </div>
   </div>
   <div class="seq-item">
@@ -5479,7 +5484,7 @@ body {
 <div class="reveal" style="margin-top:80px">
   <h3 class="sec-label">After Wedding · 식사·카페 안내</h3>
   <p class="t-emph" style="margin-bottom:16px">예식이 끝난 뒤의 식사와 카페까지, 정갈한 다음 장을 안내합니다.</p>
-  <p class="t-body">맛과 주차, 프라이버시를 직접 검증해 선별한 스튜디오 인근의 식사·카페 파트너를 마이페이지에서 취향에 맞게 추천해 드립니다.<br>마음에 드는 곳을 고르면 연락처와 예약 문구까지 안내해 드려요. 예약이 어려우실 땐 디렉터가 도와드립니다.</p>
+  <p class="t-body">맛과 주차, 프라이버시를 직접 검증해 선별한 스튜디오 인근의 식사·카페 파트너를 마이페이지에서 취향에 맞게 추천해 드립니다. <br>마음에 드는 곳을 고르면 연락처와 예약 문구까지 안내해 드려요. 예약이 어려우실 땐 디렉터가 도와드립니다.</p>
   <p class="t-note">이용은 선택 사항이며, 식사 비용은 선택하신 파트너사에 별도로 지불하시는 항목입니다.</p>
 </div>
 <div class="photo-placeholder half" style="height:360px;margin:24px 0 0;border-radius:8px">
@@ -5493,7 +5498,7 @@ body {
   <div class="sec-label">SELECTIVE PRESENCE · 선택적 디지털 참석</div>
   <h2 class="sec-title">The Extended Venue</h2>
   <div class="sec-title-sub">디지털 참석 · 물리적 거리를 넘어, 마음으로 닿는 초대</div>
-  <p class="t-body">오직 초대된 이들만이 닿을 수 있는 사적인 자리를 마련합니다.<br>거리와 일정으로 함께하지 못하는 분들의 마음까지, 결혼식의 자리는 정중히 이어집니다.</p>
+  <p class="t-body">오직 초대된 이들만이 닿을 수 있는 사적인 자리를 마련합니다. <br>거리와 일정으로 함께하지 못하는 분들의 마음까지, 결혼식의 자리는 정중히 이어집니다.</p>
 </div>
 <!-- MOCKUP ACCESS NOTE -->
 <div class="reveal">
@@ -5877,7 +5882,7 @@ body {
     <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
     <h3 class="sec-label">Weekday Editorial Snap · 평일 웨딩스냅</h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
-    <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다.<br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
+    <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
     <div class="photo-placeholder half" style="height:340px;margin:20px 0 4px;border-radius:8px">
       <img class="ph-img" src="/assets/home/snap.jpg" alt="평일 웨딩스냅 · 화이트존 에디토리얼 촬영 예시" loading="lazy" onerror="this.style.display='none'">
     </div>
@@ -5933,7 +5938,7 @@ body {
     </ol>
   </div>
 </div>
-<div class="reveal"><p class="t-emph" style="margin-top:44px;text-align:center;word-break:keep-all;letter-spacing:0.01em">좋은 예식은 당일이 아니라,<br class="br-mo">준비하는 동안에도 정중합니다.</p></div>
+<div class="reveal"><p class="t-emph" style="margin-top:44px;text-align:center;word-break:keep-all;letter-spacing:0.01em">좋은 예식은 당일이 아니라, <br class="br-mo">준비하는 동안에도 정중합니다.</p></div>
 <div class="cta-block reveal">
   <a href="./inquiry.html" class="cta-btn">Start Your Narrative</a>
   <div class="cta-sub">프라이빗 방문 상담 예약하기</div>
