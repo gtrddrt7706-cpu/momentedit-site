@@ -552,6 +552,131 @@ function printSeatChart(){
   pbtn.addEventListener('click',function(){ if(!_ld){ setTimeout(function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} },250); return; } try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
   x.addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
 }
+
+/* ─────────── 하객 인쇄물 (식순지 · 가족 낭독 카드) ───────────
+   ★PRINT_FROM_SOURCE — 문안을 여기에 복붙하지 말 것. 선언 문안은 DECLWHO(assets/ritual-data.js)에서 읽는다.
+     손으로 적으면 원천이 하나 더 생기고, 그 사본은 어떤 가드도 안 본다(인쇄물 기획안 §1).
+     식순 목록·선언 주체는 전부 빌더 저장분(rd.summary·rd.S)에서 읽어 화면과 어긋날 수 없게 한다. */
+
+// 인쇄물 전용 날짜(하객용 정식 표기). ★fmtDate()는 '7/26(일)' 운영자 축약형이라 여기 쓰면 안 되고, 고치지도 말 것(좌석표·목록이 쓴다).
+function _printDateKo(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); return m?(+m[1]+'년 '+(+m[2])+'월 '+(+m[3])+'일'):''; }
+
+// customerNames()가 (g && b) ? g+' · '+b : (g||b||'고객') 로 만든 값이라 정확히 역변환된다. 한쪽이 비면 이름 삽입을 끈다.
+function _printNames(d){
+  var raw=String((d&&d.names)||'').trim(), p=raw.split(' · ');
+  var g=(p[0]||'').trim(), b=(p[1]||'').trim();
+  return { raw:raw, groom:g, bride:b, ok:!!(g&&b) };
+}
+
+// 인쇄 오버레이(좌석표와 같은 방식 · iframe srcdoc + contentWindow.print)
+function _printOverlay(id, title, doc){
+  var old=document.getElementById(id); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id=id;
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column';
+  var bar=document.createElement('div');
+  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e6e0d8;background:#fff';
+  var ttl=document.createElement('span'); ttl.textContent=title; ttl.style.cssText='font-size:14px;color:#3a2f25';
+  var pbtn=document.createElement('button'); pbtn.type='button'; pbtn.textContent='인쇄·저장'; pbtn.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 14px;margin-right:8px;font-size:13px;cursor:pointer';
+  var x=document.createElement('button'); x.type='button'; x.textContent='닫기'; x.style.cssText='border:1px solid #e6e0d8;background:#fff;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer';
+  var fr=document.createElement('iframe'); fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#fff';
+  var rg=document.createElement('div'); rg.appendChild(pbtn); rg.appendChild(x);
+  bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr); document.body.appendChild(ov);
+  var _ld=false; fr.onload=function(){ _ld=true; };   // srcdoc 로드 전 인쇄 클릭 → 빈 페이지 방지
+  fr.srcdoc=doc;
+  pbtn.addEventListener('click',function(){ if(!_ld){ setTimeout(function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} },250); return; } try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){} });
+  x.addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
+}
+
+// 하객 식순지 · A5 양면 1장. 앞면=이름·날짜·식순 / 뒷면=진행 안내(AI 고지·기립 없음·응답형 예고·도움 요청)
+function _orderSheetDoc(d){
+  var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||{};
+  var S=rd.S||{}, sm=rd.summary||{};
+  var nm=_printNames(d);
+  var head=nm.ok?(esc(nm.groom)+' · '+esc(nm.bride)):esc(nm.raw||'');
+  var wdate=esc(_printDateKo((d&&d.pin&&d.pin['예식일'])||''));
+  var flow=(sm.flow&&sm.flow.length)?sm.flow:[];
+  var list=flow.map(function(v,i){ return '<li>'+esc(String(v))+'</li>'; }).join('');
+  // ★응답형(ask) 예고 — '답할 말'은 절대 인쇄하지 않는다. W2-a와 같은 수준(순서가 있다·짧다)만.
+  //   정답을 박으면 하객이 질문 전에 답해 버리고, DECLWHO.ask.prep의 "인쇄물이 필요 없어요"와도 어긋난다.
+  var askBlock=(S.declareWho==='ask')
+    ? '<p>오늘 한 번, 하객 여러분께서 다 함께 답해 주시는 순서가 있습니다.<br>그때 안내 음성이 답할 말을 알려 드립니다. 짧은 한마디면 됩니다.</p>' : '';
+  var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0}'
+    +'.pg{padding:6mm 4mm;display:flex;flex-direction:column;min-height:100vh}'
+    +'.pg+.pg{page-break-before:always}'
+    +'.ohd{text-align:center;margin-top:14mm}.onm{font-size:21px;font-weight:600;letter-spacing:.06em}'
+    +'.odt{font-size:13.5px;color:#6b6257;margin-top:7px}'
+    // ★줄 수 적응 — flow는 코스 정의(최대 9줄)가 아니라 부부가 실제 고른 블록이라 더 길어질 수 있다(fullBlocks). 고정 크기로 두면 앞면이 넘쳐 A5 3장이 된다.
+    +'.otl{text-align:center;font-size:15px;letter-spacing:.42em;color:#6B2A24;margin:'+(flow.length>10?'9mm':(flow.length>8?'12mm':'16mm'))+' 0 '+(flow.length>10?'5mm':'8mm')+';font-weight:600}'
+    +'ol{max-width:230px;margin:0 auto;padding:0 0 0 26px;font-size:'+(flow.length>12?'12px':(flow.length>10?'13px':(flow.length>8?'13.5px':'14.5px')))+';line-height:'+(flow.length>12?'1.75':(flow.length>10?'1.95':(flow.length>8?'2.1':'2.35')))+'}'
+    +'.ofoot{margin-top:auto;text-align:center;font-size:9.5px;color:#8a8072;padding-top:8mm}'
+    +'.bt{text-align:center;font-size:15px;color:#6B2A24;font-weight:600;margin:12mm 0 9mm;letter-spacing:.06em}'
+    +'.bb{font-size:12.5px;line-height:2.05}.bb p{margin:0 0 7mm}'
+    +'@page{size:A5;margin:14mm}@media print{.pg{min-height:0}}';
+  var front='<div class="pg"><div class="ohd"><div class="onm">'+head+'</div>'+(wdate?'<div class="odt">'+wdate+'</div>':'')+'</div>'
+    +'<div class="otl">식 순</div>'
+    +(list?('<ol>'+list+'</ol>'):'<div style="text-align:center;color:#b3ad9f;font-size:12px">순서가 아직 정해지지 않았어요</div>')
+    // ★유도 한 줄 — 음성 고지가 'AI'라는 단어를 쓰지 않으므로 뒷면이 유일한 명시 채널이다(회신4 §4-2 조건 ㉮). 지우지 말 것.
+    +'<div class="ofoot">진행 안내는 뒷면에 있습니다.</div></div>';
+  var back='<div class="pg"><div class="bt">오늘의 진행 안내</div><div class="bb">'
+    +'<p>오늘 예식은 사회자 없이, 미리 준비한 AI 음성 안내로 진행합니다.<br>안내 문장은 두 사람이 직접 고르고 다듬었습니다.<br>작은 예식이라 이렇게 준비했습니다.</p>'
+    +'<p>자리에서 일어나실 순서는 따로 없습니다.<br>편히 앉아 계시면 됩니다.</p>'
+    +askBlock
+    +'<p>진행이 궁금하시거나 도움이 필요하시면<br>가까이 있는 스태프에게 편히 말씀해 주세요.</p>'
+    +'</div></div>';
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>식순지 '+esc((d&&d.code)||'')+'</title><style>'+css+'</style></head><body>'+front+back+'</body></html>';
+}
+function printOrderSheet(){
+  var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
+  // 렌더 게이트(_v===3 분기 안에만 버튼을 그림)가 있어도 진입 가드를 둔다 — 버튼을 그린 시점과 누른 시점 사이에 curDetail이 바뀔 수 있다.
+  if(!rd||rd._v!==3||!(rd.summary&&rd.summary.flow&&rd.summary.flow.length)){ alert('아직 식순이 작성되지 않았어요.'); return; }
+  _printOverlay('ad_orderPrint','식순지 · '+((d&&d.names)||'')+' · '+((d&&d.code)||''), _orderSheetDoc(d));
+}
+
+// 가족 낭독 카드 · A5 가로 1장. ★이름이 실제로 들어가는 유일한 인쇄물(D안 본체 · TTS에는 이름을 넣지 않는다).
+// ★_DECL_CARD_WHO — 낭독 카드를 뽑을 선언 주체. 합송(chorus)은 '보류'지 폐기가 아니다(2026-07-26). 승급하면 여기에 'chorus'를 넣고 아래 chorus 블록만 채운다.
+var _DECL_CARD_WHO=['family'];
+// 문장 단위 줄바꿈(낭독자가 어디서 숨 쉴지 알게). 뒤돌아보기 정규식 없이 처리 — 구형 사파리 호환.
+function _splitSent(t){ return String(t||'').split(/\.\s+/).filter(function(x){return x.trim();}).map(function(x,i,a){ return esc(x.trim()+(/[.!?]$/.test(x.trim())?'':'.')); }); }
+function _declareCardDoc(d){
+  var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||{};
+  var who=(rd.S||{}).declareWho||'', nm=_printNames(d);
+  var src=''; try{ if(typeof DECLWHO!=='undefined'&&DECLWHO[who]&&DECLWHO[who].nar) src=DECLWHO[who].nar; }catch(e){}   // ★원천에서 읽는다 · 복붙 금지
+  var lines;
+  if(who==='family'){
+    // 조사가 이름에 한 번도 붙지 않는 문장 설계 — 이름 뒤는 전부 쉼표 아니면 공백이라 받침 판정 코드가 필요 없다.
+    // 두음(류/유)은 정규화하지 않는다. 고객이 적어 준 한글 표기가 유일한 진실원이다.
+    lines = nm.ok
+      ? ['오늘, 신랑 '+esc(nm.groom)+', 신부 '+esc(nm.bride)+' 두 사람은','이 자리에 함께한 우리 모두를 증인으로','서로의 평생이 되었습니다.','','이 약속은 오늘부터 두 사람의 것입니다.','',
+         '@신랑 '+esc(nm.groom)+', 신부 '+esc(nm.bride)+',','@이제 두 사람은 부부입니다.','',
+         '가족 여러분과 함께,','두 사람에게 큰 박수를 보내 주시기 바랍니다.']
+      // 한 칸만 채워진 레코드에서 '신랑 홍길동, 신부 ,'가 인쇄되는 것보다 무이름이 낫다 → 원천 문안 그대로 떨어뜨린다.
+      : _splitSent(src);
+  }
+  else if(who==='chorus'){
+    // ★합송 좌석 카드 — 승급 전이라 문안·규격 미정(인쇄물 기획안 §3). 분기 자리만 열어 둔 것이고, 채우기 전에는 버튼도 안 뜬다(_DECL_CARD_WHO).
+    lines = _splitSent(src);
+  }
+  else lines = _splitSent(src);
+  var body=lines.map(function(s){
+    if(!s) return '<div class="sp"></div>';
+    if(s.charAt(0)==='@') return '<div class="hi">'+s.slice(1)+'</div>';   // 선언 본문 줄(굵게·크게)
+    return '<div class="ln">'+s+'</div>';
+  }).join('');
+  var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:4mm 6mm;display:flex;flex-direction:column;justify-content:center;min-height:100vh}'
+    +'.cnote{text-align:center;font-size:11px;color:#8a8072;margin-bottom:7mm}'
+    +'.ln{text-align:center;font-size:20px;line-height:1.75}'
+    +'.hi{text-align:center;font-size:28px;line-height:1.6;font-weight:700;color:#6B2A24}'
+    +'.sp{height:7mm}'
+    +'@page{size:A5 landscape;margin:12mm}@media print{body{min-height:0}}';
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>낭독 카드 '+esc((d&&d.code)||'')+'</title><style>'+css+'</style></head><body>'
+    +'<div class="cnote">천천히 읽으셔도 됩니다.</div>'+body+'</body></html>';
+}
+function printDeclareCard(){
+  var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
+  var who=(rd&&rd.S&&rd.S.declareWho)||'';
+  if(!rd||rd._v!==3||_DECL_CARD_WHO.indexOf(who)<0){ alert('가족 낭독을 고른 예식에만 낭독 카드가 있어요.'); return; }
+  _printOverlay('ad_declPrint','낭독 카드 · '+((d&&d.names)||'')+' · '+((d&&d.code)||''), _declareCardDoc(d));
+}
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
 // 접점에 질문 1개 보내 답만 받기(test:true → 비용·인계 오염 없음). 교육 반영 확인·테스트 공용.
 function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U=[{role:'user',content:q}];
@@ -1760,7 +1885,10 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   if(dd){ h+='<div class="grp-l">다이닝</div>'+row('진행', dd.dining_on==='N'?'안 함':(dd.dining_on==='Y'?'진행':''))+row('인원',dd.headcount)+row('식사 장소', dd.venue||dd.venuePick||dd.partner)+(dd.mealType?row('식사형태(이전 입력)',dd.mealType):'')+row('위탁동의',dd.entrustAgree==='Y'?'동의':''); }
   // [RITUAL_ADMIN_V3 2026-07-25] v3 빌더 초안 상세 — 코스·순서 흐름·주요 연출 선택·글 유무(본문 비노출)·성장영상 링크. 종전 v1 키만 읽어 v3 고객이 라벨 없는 빈 본문이던 운영 공백 수정.
   if(rd&&rd._v===3){ var s3d=rd.S||{}, sm3=rd.summary||{};
-    h+='<div class="grp-l">식순</div>'
+    // ★인쇄 버튼은 이 _v===3 분기 안에만 둔다 — 구세대 초안(else if)·식순 미작성(rd falsy)은 자동으로 버튼이 안 생긴다(좌석표 1800줄과 같은 방식).
+    var _pbt='<button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printOrderSheet()">식순지 프린트</button>'
+      +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
+    h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
       +row('순서 흐름', (sm3.flow&&sm3.flow.length)?sm3.flow.join(' → '):'')
       +row('성혼 선언', _declWhoLabel(s3d.declareWho))   // ★DECL_ADMIN_MIRROR — 하드코딩 맵 금지 · 원천(DECLWHO)을 읽는다
