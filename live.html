@@ -102,7 +102,7 @@ html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
   --focus-ring-offset:3px;
   color-scheme:light;
   --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;
-  --text:#1C1B19;--sub:#5A554C;--light:#75705F;--gold:#B89A75;
+  --text:#1C1B19;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--gold-text:#7A5F37;
   --accent:#3A2D22;--seal:#6B2A24;
   --border:#DDD8D1;--hairline:rgba(28,27,25,0.18);
   --footer-bg:#1A1714;
@@ -1537,6 +1537,14 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <span class="hero-scroll-label">Scroll</span>
     <span class="hero-scroll-line"></span>
   </div>
+
+  <!-- [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답했을 때만 뜬다(body.link-unknown).
+       스타일은 프리뷰 안내(.lp-message-box)를 그대로 재사용 — 새 컴포넌트를 만들지 않는다. -->
+  <div class="lp-message-box link-unknown-box" role="status" hidden>
+    <div class="lp-message-mark">LINK</div>
+    <div class="lp-message-title">이 링크로는<br class="mobile-br"> 예식을 찾을 수 없습니다</div>
+    <div class="lp-message-desc">주소가 잘못 복사되었거나 만료되었을 수 있어요.<br class="mobile-br"> 신랑·신부에게 받으신 링크를 다시 확인해 주세요.</div>
+  </div>
 </section>
 
 <!-- ═══ SECTION 01 — BROADCAST ═══ -->
@@ -1646,7 +1654,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 
       <!-- Deliver 버튼 (비활성 데모) -->
       <div class="lf-cta lp-cta-preview">
-        <span class="lf-cta-text">Deliver</span>
+        <span class="lf-cta-text">편지 보내기</span>
         <svg class="lf-cta-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1678,6 +1686,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
           class="lf-message"
           id="lfMessage"
           name="message"
+          aria-label="두 분께 남길 편지"
           placeholder="두 분에게 전하고 싶은 마음을 편안히 남겨 주세요. 짧은 인사도, 긴 편지도 모두 두 분만의 기록으로 간직됩니다."
           required
           maxlength="2000"></textarea>
@@ -1691,6 +1700,8 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
             id="lfGuestName"
             name="guestName"
             type="text"
+            aria-label="이름"
+            autocomplete="name"
             placeholder="이름"
             required
             maxlength="40">
@@ -1701,13 +1712,14 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
             id="lfRelation"
             name="relation"
             type="text"
+            aria-label="두 분과의 관계"
             placeholder="관계 · 신랑 친구"
             maxlength="40">
         </div>
       </div>
 
       <button type="submit" class="lf-cta" id="lfSubmit">
-        <span class="lf-cta-text">Deliver</span>
+        <span class="lf-cta-text">편지 보내기</span>
         <svg class="lf-cta-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1749,7 +1761,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </div>
 
   </div>
-  <p class="form-fallback">Private to the bride and groom only</p>
+  <p class="form-fallback">이 편지는 두 분에게만 전달됩니다.</p>
 </section>
 
 <!-- ═══ SECTION 03 — ENVELOPE ═══ -->
@@ -1967,6 +1979,14 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   let rendered = false;      // 캐시로 이미 그렸는지(couple-ready 표시 판단용)
   let infoApplied = false;   // 부부 정보가 화면에 한 번이라도 적용됐는지(폴링 더미 방지용)
 
+  // [LIVE_LINK_UNKNOWN] 링크로 예식을 못 찾았을 때 더미(가짜 이름·계좌)를 감추고 안내만 남긴다.
+  // 폴링이 뒤늦게 성공하면 setLinkUnknown(false)로 원래 화면을 되돌린다.
+  function setLinkUnknown(on){
+    document.body.classList.toggle('link-unknown', on);
+    const box = document.querySelector('.link-unknown-box');
+    if (box) box.hidden = !on;
+  }
+
   // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
   if (!forceFresh) {
     try {
@@ -2002,6 +2022,9 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
 
     if (!data.ok) {
       console.warn('[Live] Couple not found:', eventId, data.error);
+      // [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답한 경우만.
+      // 캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다.
+      if (!infoApplied) setLinkUnknown(true);
       return; // finally에서 표시
     }
 
@@ -2038,7 +2061,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
         const d = await r.json();
         if (d.ok && d.couple) {
           // 초기 fetch가 실패했던 하객도 폴링 성공 시 부부 정보 채움(더미 방지)
-          if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; }
+          if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; setLinkUnknown(false); }
           if (d.couple.vimeoId) {
             try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
             attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
@@ -2532,5 +2555,118 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
 </script>
 
 
+<style>
+/* [LIVE_KO_TRACK] 영문 대문자용 트래킹이 한글에도 걸려 낱글자로 흩어졌다(실측 15건 · 8~24%).
+   ★가장 나쁜 곳이 신랑·신부 이름(.couple-ko 24%)이었다 — 하객이 보는 페이지에서 가장 중요한 정보다.
+   홈 LABEL_KO_TRACK · 문의 INQ_KO_TRACK과 같은 처방: 한글에만 자간을 낮춘다.
+   영문 라벨(PRESENCE·DATE 등)의 트래킹은 그대로 둬 편집 톤을 유지한다. */
+.couple-ko{letter-spacing:0.06em}
+.eyebrow .ko,.sec-label-row .sub{letter-spacing:0.06em}
+/* ★자간만 줄여도 히어로 eyebrow는 여전히 3줄이었다 — '디지털 / 참석'으로 두 글자가 홀로 떨어진다.
+   영문 트래킹(0.34em)이 폭을 다 먹어서 폰 폭에선 어차피 두 줄이니, 줄바꿈을 우연이 아니라
+   의도한 자리(한글 앞)에 둔다. 앞의 구분점은 줄 끝에 혼자 남지 않게 함께 감춘다.
+   :has() 미지원 브라우저는 구분점만 남고 줄바꿈은 그대로 — 지금보다 나쁘지 않다. */
+@media(max-width:480px){
+  .eyebrow .ko{display:block;white-space:nowrap;margin-top:5px}
+  .eyebrow .bullet:has(+ .ko){display:none}
+}
+.env-q-name{letter-spacing:0.04em}
+.env-copy{letter-spacing:0.04em}
+.env-holder,.env-holder .label{letter-spacing:0.04em}
+.env-q-parents .of{letter-spacing:0.02em}
+
+/* [LIVE_CONTRAST] 장식용 골드(2.54:1)·연한 선색(1.36:1)이 글자에 쓰였다.
+   글자에는 --gold-text(5.71:1), 구분 기호는 본문 보조색으로. 선·테두리용 --gold는 그대로 둔다. */
+.env-holder .label,.env-q-parents .of,.hero-edition,.sec-label-row .no,.brand-mark{color:var(--gold-text)}
+.event-meta .sep,.meta-sep{color:var(--sub)}
+
+/* [LIVE_TAP40] 복사 버튼 29px · 상단 브랜드 27px — 하객이 실제로 누르는 것. */
+.env-copy{min-height:40px}
+/* ★.lf-seg(신랑에게만/두 분 모두/신부에게만) 104×33 — 프리뷰 모드에선 폼이 숨겨져 있어
+   ?e= 없이 검사했을 땐 안 보였다. 실제 하객 모드로 열어야 나오는 버튼이다. */
+.lf-seg{min-height:40px}
+/* ★처음엔 ::before로 히트영역만 넓혔다. 실제 클릭은 됐지만(elementFromPoint 실측 HIT)
+   박스 자체는 27px이라 검사에도 보조기술에도 27px로 보인다.
+   헤더 세로 패딩 14→8, 앵커 min-height 40 — 헤더 총높이(57px)는 그대로 두고 박스만 진짜로 키운다. */
+.brand-strip-in{padding-top:8px;padding-bottom:8px}
+a.brand-mark-link{min-height:40px}
+</style>
+<style>
+/* [LIVE_CONTRAST2] 남은 대비 미달 정리 (2026-07-26).
+   ★셀렉터를 CSS에서 추측했다가 하나도 안 맞았다 — 렌더된 DOM에서 직접 뽑아 교체했다.
+   섹션 번호(Nº 01)·계좌 역할(Groom/Bride)·뒤로가기 화살표·구분점이 장식용 골드(2.54:1)나
+   테두리색(1.36:1)을 글자에 쓰고 있었다.
+   ★이름 사이 '&'(20px)와 편지 장식 '❋'는 그대로 둔다 — 정보가 아니라 브랜드 액센트다. */
+.sec-num,.sec-num sup{color:var(--gold-text)}
+.env-q-side{color:var(--gold-text)}
+/* ★.back-arrow 단독으로 썼더니 위쪽 a.brand-mark-link .back-arrow(특이도 0,2,1)에 밀렸다.
+   같은 셀렉터로 맞춰야 실제로 색이 바뀐다. */
+a.brand-mark-link .back-arrow{color:var(--gold-text)}
+.eyebrow .bullet{color:var(--sub)}
+.event-date .sep,.event-time .sep{color:var(--sub)}
+/* PREVIEW는 장식이 아니라 '지금 보고 있는 게 실제 페이지가 아니다'라는 상태 라벨이다.
+   10px·2.65:1이면 정작 읽어야 할 사람이 못 읽는다. */
+.lp-message-mark{color:var(--gold-text)}
+/* ★이름 사이 '&'는 그대로 골드로 둔다 — 바로 아래 한글 줄이 같은 정보를 '·'로 다시 주므로
+   정보가 아니라 이름을 잇는 액센트다. 여기서 색을 올리면 이름보다 연결자가 세진다. */
+</style>
+<style>
+/* [LIVE_OPACITY] 색만 고쳐선 안 되는 자리 (2026-07-26).
+   ★색 검사를 computed color로만 돌리면 통과로 나오는데 화면에선 미달인 곳이 있었다 —
+   opacity로 흐려 놓은 글자다. LIVE_CONTRAST에서 .of를 --gold-text로 올려놨는데도
+   부모가 opacity:0.7이라 실제 렌더는 3.04:1이었다. 색과 투명도를 같이 봐야 실측이 맞는다.
+   처방은 공통 — 투명도로 흐리지 말고 색 자체에 밝기를 넣는다. 위계는 크기·서체·기울임으로.
+   (검사 스크립트도 조상 누적 opacity와 배경 알파 합성을 반영하도록 고쳤다) */
+
+/* 1. 전체화면 안내 — 하객이 영상을 크게 보는 유일한 방법을 알려주는 문장이다. 2.80 → 4.79:1
+   줄간격도 1.4였다(10px 한글). 이 페이지 유일한 1.5 미만 — 1.65로 올린다. */
+.player-fs-hint{opacity:1;line-height:1.65}
+
+/* 2. 영상 자리 안내문 — 일찍 들어온 하객이 빈 화면 앞에서 읽는 단 한 줄.
+   이 페이지에서 가장 읽혀야 하는 문장인데 32% 흰색이라 2.82:1이었다. 0.32 → 0.55 (6.26:1)
+   바로 위 영문 줄(5.37:1)보다 살짝 진하게 둬, 뜻을 지닌 한글 줄이 앞에 오게 한다. */
+.placeholder-text-ko{color:rgba(255,255,255,0.55)}
+
+/* 3. '의 아들 · 의 딸' — 부모 이름 뒤 접미. 3.04 → 5.71:1
+   이름보다 조용해야 하는 건 맞지만, 그건 10px·이탤릭·세리프가 이미 하고 있다. */
+.env-q-parents .of{opacity:1}
+</style>
+<style>
+/* [LIVE_LINK_UNKNOWN] 링크가 틀렸을 때 가짜 예식을 보여주던 문제 (2026-07-26).
+   ★설계 점검 중 발견 — ?e= 가 틀리면 서버가 {ok:false}를 주는데, 그때 코드가 그냥 return해서
+   더미 마크업(이서준·정하윤 / 2027.12.17 / 국민은행 123456-78-901234)이 진짜처럼 남았다.
+   계좌번호 옆에 '복사' 버튼까지 살아 있어, 링크를 잘못 받은 하객이 존재하지 않는 계좌를
+   복사할 수 있는 상태였다. 서버가 명시적으로 '없다'고 답한 경우에만 이 상태로 전환한다.
+   ★네트워크 오류(throw)는 여기로 오지 않는다 — 그건 재시도·폴링이 맡는다.
+   ★캐시로 이미 그린 재방문 하객(infoApplied)도 제외 — 서버 일시 오류로 멀쩡한 화면을 지우면 안 된다. */
+body.link-unknown .couple,
+body.link-unknown .event-meta,
+body.link-unknown .hero-note,
+body.link-unknown .hero-scroll,
+body.link-unknown .on-air,
+body.link-unknown .hero-edition,
+body.link-unknown .hero-divider,
+body.link-unknown #live,
+body.link-unknown #letter,
+body.link-unknown #envelope{display:none}
+/* ★처음엔 divider를 opacity:0으로 뒀는데 자리를 그대로 차지해 안내문 위가 텅 빈 띠가 됐다.
+   Ed.№01 에디션 라벨도 함께 숨긴다 — 어느 예식인지 모르는 화면에 특정 예식의 번호는 거짓말이다. */
+.link-unknown-box{max-width:340px}
+/* ★★[hidden]만 걸어놨더니 정상 화면에도 안내문이 그대로 떴다.
+   .lp-message-box{display:flex} 클래스 규칙이 브라우저 기본 [hidden]{display:none}를 이긴다.
+   스크린샷을 안 찍었으면 못 봤을 사고 — 클래스로 display를 주는 요소엔 [hidden] 규칙을 같이 써야 한다. */
+.link-unknown-box[hidden]{display:none}
+</style>
+<style>
+/* [LIVE_LETTER_KO] 편지 폼 — 하객이 실제로 손을 대는 유일한 자리 (2026-07-26).
+   1) 세 칸(편지·이름·관계) 모두 label도 aria-label도 없이 placeholder만 있었다.
+      화면 디자인은 그대로 두고 aria-label만 붙인다(픽셀 변화 0). 이름칸엔 autocomplete="name".
+   2) 'Deliver' → '편지 보내기'. 홈 HOME_CTA_KO와 같은 근거 — 눌러야 하는 버튼은 읽는 사람 말로.
+      이 페이지 다른 버튼(복사·돌아가기)은 이미 한글이라 Deliver만 혼자 영어였다.
+   3) 'Private to the bride and groom only' → '이 편지는 두 분에게만 전달됩니다.'
+      영문 라벨(LETTER 편지)엔 늘 한글이 붙는데 이 한 줄만 영어 단독이었다.
+      개인적인 말을 쓰게 만드는 안심 문구라 읽히지 않으면 의미가 없다. */
+.lf-cta{font-family:var(--serif-ko);font-size:14.5px;font-weight:400;letter-spacing:0.02em;text-transform:none}
+</style>
 </body>
 </html>
