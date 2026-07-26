@@ -467,6 +467,9 @@ chk 'monthBusinessData' automation/admin/admin.gs 1  # 집계 함수
 chk 'monthBusinessData' automation/platform/96_ai_cost.gs 2   # 호출부
 # ── 2026-07-26 관리자 페이지 2차 스프린트 PR⑤(AC5 카톡 문구 복사 · AB1-보완 서버 금액)
 chk 'ADM_AC5' automation/admin/admin.gs 2           # 문구 제공 함수+FNS
+# [REV_ROUND_NOTE 2026-07-26 점검] 무료 재보정 2회차 이상 관리자 경고 — 계약서 §12②(1회·14일) vs 서버 무제한 격차의 사람-판단 신호.
+#   ★서버 회차 차단으로 바꾸지 말 것 — 같은 조 ③이 '하자 재작업은 횟수·기간 제한 없음'이라 일괄 차단은 계약 위반이 된다.
+chk 'REV_ROUND_NOTE' admin.html 1
 chk 'ADM_AC5' admin.html 1                          # 복사 버튼 헬퍼
 chk 'adminNotifyText' automation/admin/admin.gs 2   # 정의+FNS
 chk '_copyNotifyBtn' admin.html 4                   # 정의 + 알림 없는 3종 모달
