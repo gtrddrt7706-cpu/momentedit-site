@@ -648,3 +648,6 @@ chk '두 사람이 함께 나이프를 잡습니다' assets/ritual-data.js 2   #
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
 chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 1     # G3-15 폐식 finality cue
+chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
+chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
+chk "'narr','ask','chorus','family'" order-preview.html 1

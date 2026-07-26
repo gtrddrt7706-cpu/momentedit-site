@@ -56,6 +56,28 @@ const drift = narAll.filter(([, s]) => !html.includes(s));
 ok('빌더 인라인 사본이 원천 문안 ' + narAll.length + '개와 일치(drift ' + drift.length + '건)', drift.length === 0);
 drift.forEach(([id, s]) => console.log('   DRIFT ' + id + ' : ' + s.slice(0, 46) + '…'));
 
+// ★DECL_SET_INVARIANT — 성혼 선언은 '택1 세트'다. 세 곳(원천 DECLWHO · 빌더 선택지 배열 · 생성기 총량 서술)이
+//   서로 다른 개수를 말하면 화면·대본·AI가 각각 다른 예식을 설명하게 된다.
+//   실사고(2026-07-26): 응답형(W2)이 택1인데 코드·KB·생성기가 '선언 뒤에 덧붙임'으로 서술 →
+//   그대로 녹음했으면 성혼 선언이 20초 간격으로 두 번 나갈 뻔했다(W2-c가 선언문 자체).
+const declKeys = Object.keys(D.DECLWHO);
+const pickM = html.match(/\[([^\]]*)\]\.forEach\(function\(w\)\{\s*var sel=S\.declareWho===w/);
+const builderKeys = pickM ? (pickM[1].match(/'([^']+)'/g) || []).map((x) => x.replace(/'/g, '')) : null;
+ok('빌더 선언 선택지 배열이 DECLWHO ' + declKeys.length + '종과 일치'
+  + (builderKeys ? ' (빌더 ' + builderKeys.length + '종)' : ' — 배열 파싱 실패'),
+  !!builderKeys && builderKeys.length === declKeys.length && declKeys.every((k) => builderKeys.includes(k)));
+
+const gen = fs.readFileSync(path.join(root, 'scripts/build-dubbing-script.mjs'), 'utf8');
+const genM = gen.match(/선언 (\d+)종/);
+ok('녹음 대본 생성기의 "선언 N종" 서술이 DECLWHO와 일치' + (genM ? ' (생성기 ' + genM[1] + '종)' : ' — 서술 없음'),
+  !!genM && Number(genM[1]) === declKeys.length);
+
+// 택1 원칙: 선언 자리에서 '덧붙임'을 뜻하는 서술이 남아 있으면 안 된다.
+const addOn = [
+  ['order-preview.html', html], ['api/_ritual-kb.js', fs.readFileSync(path.join(root, 'api/_ritual-kb.js'), 'utf8')],
+].filter(([, s]) => /선언 뒤에[^.]*답하는/.test(s)).map(([f]) => f);
+ok('선언 택1 원칙 위반 서술("선언 뒤에 …답하는") 0건' + (addOn.length ? ' — ' + addOn.join(',') : ''), addOn.length === 0);
+
 try { KB = require(path.join(root, 'api/_ritual-kb.js')); } catch (e) { ok('_ritual-kb.js 로드', false); process.exit(1); }
 const probes = [
   D.ENTRY.A.nar, D.DECLARE['1'].nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,
