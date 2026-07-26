@@ -1428,6 +1428,12 @@ section {
   color: var(--light);
   margin-bottom: 12px;
 }
+/* [LABEL_KO_TRACK] 위 22% 자간은 영문 대문자 조판용(THE REALITY)이다.
+   같은 자간이 한글 꼬리에도 걸려 '결 혼 식 의  현 실'처럼 낱글자로 흩어져 보였다(10px에 2.2px).
+   한글 부분만 8%로 낮춘다 — 영문 트래킹은 그대로 두어 한 덩어리로 읽히게. 17개 라벨 전부 적용. */
+.sec-label .ll-ko {
+  letter-spacing: 0.08em;
+}
 .sec-title {
   font-family: var(--serif);
   font-weight: 350;
@@ -5250,7 +5256,7 @@ body {
 <!-- REALITY · 문제 공감(손실 회피) — '두려움 → 우리의 답(ABOUT)'으로 연결 -->
 <section id="reality" style="padding-top:var(--gap)">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>THE REALITY · 결혼식의 현실</div>
+  <div class="sec-label"><span class="label-dot"></span>THE REALITY ·<span class="ll-ko"> 결혼식의 현실</span></div>
   <h2 class="sec-title">A Long Day</h2>
   <div class="sec-title-sub">가장 빛나야 할 두 사람이, 가장 지치는 하루</div>
   <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">많은 결혼식이 그렇습니다. 준비는 버겁고, 당일은 정신없이 지나갑니다. <br class="pc-hide">그 익숙한 풍경을, 두 분께는 권하고 싶지 않았습니다.</p>
@@ -5269,14 +5275,14 @@ body {
 <!-- ABOUT -->
 <section id="about" style="padding-top:var(--gap)">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>ABOUT · 소개</div>
+  <div class="sec-label"><span class="label-dot"></span>ABOUT ·<span class="ll-ko"> 소개</span></div>
   <h2 class="sec-title">A Quiet Record</h2>
   <div class="sec-title-sub">서울 근교 프라이빗 스몰웨딩 · 단독 하우스웨딩, 가장 두 사람다운 기록</div>
   <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">양가 직계가족 25명까지 함께하는 마이크로웨딩, 평일결혼식의 여유까지.<br class="pc-hide"> 촬영·디지털 참석·청첩장 컬렉션·다이닝 안내가 하나의 흐름으로 이어지는, 140분 시그니처 시퀀스를 제안합니다.</p>
 </div>
 <div class="divider-line"></div>
 <div class="reveal">
-  <h3 class="sec-label">The Core Service · 핵심 구성</h3>
+  <h3 class="sec-label">The Core Service ·<span class="ll-ko"> 핵심 구성</span></h3>
   <div class="feature-grid">
     <div class="feature">
       <div class="card-label">140 Minutes</div>
@@ -5297,7 +5303,7 @@ body {
 </div>
 <div class="divider-line"></div>
 <div class="reveal">
-  <h3 class="sec-label">Our Perspective · 우리의 관점</h3>
+  <h3 class="sec-label">Our Perspective ·<span class="ll-ko"> 우리의 관점</span></h3>
   <p class="t-emph">형식보다 본질에 머무는 것.<br>가장 깊은 예우입니다.</p>
   <br>
   <p class="t-body">전통의 정중함과 현대의 절제, 그 사이에서 균형을 찾습니다. <br>두 분의 결혼이 의무가 아닌 기쁨으로 남도록, 가장 두 분다운 기록을 완성합니다.</p>
@@ -5312,7 +5318,7 @@ body {
 <!-- VISUAL ARCHIVE -->
 <section id="archive">
 <div class="reveal">
-  <h3 class="sec-label">Visual Archive · 기록 갤러리</h3>
+  <h3 class="sec-label">Visual Archive ·<span class="ll-ko"> 기록 갤러리</span></h3>
   <div class="sec-title"><a class="sec-title-link" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="Moment Edit Instagram 바로가기">Instagram</a></div>
 </div>
 <div class="reveal archive-grid" data-archive-grid aria-label="Visual Archive · 인스타그램에서 더 보기">
@@ -5418,7 +5424,7 @@ body {
 <!-- SERVICE GUIDE -->
 <section id="service">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>SERVICE GUIDE · 서비스 안내</div>
+  <div class="sec-label"><span class="label-dot"></span>SERVICE GUIDE ·<span class="ll-ko"> 서비스 안내</span></div>
   <h2 class="sec-title">The 140 Signature</h2>
   <div class="sec-title-sub">웨딩스냅·디지털 참석·청첩장 컬렉션을 하나로 잇는,<br class="pc-hide"> 양가 직계가족 결혼식을 위한 140분 올인원 웨딩 시퀀스</div>
   <p class="t-body">스냅, 영상, 청첩장. 결혼식의 기록은 늘 세 갈래로 나뉘어 왔습니다. 모먼트에디트는 이 셋을 한 명의 디렉터가 한 흐름으로 잇습니다.<br class="pc-hide"> 같은 빛, 같은 톤, 같은 호흡. 두 분의 가장 두 분다운 찰나가 서로 어긋나지 않도록.</p>
@@ -5426,7 +5432,7 @@ body {
 <div class="divider-line"></div>
 <!-- SPATIAL DUALITY -->
 <div class="reveal">
-  <h3 class="sec-label">Spatial Duality · 두 개의 공간</h3>
+  <h3 class="sec-label">Spatial Duality ·<span class="ll-ko"> 두 개의 공간</span></h3>
   <p class="t-body" style="margin-bottom:28px">한 번의 예약으로 두 가지 무드의 기록을 완성합니다.<br class="pc-hide"> 하나의 실내 공간 안에서 자연스럽게 전환되는 두 개의 무드는 날씨에 영향받지 않으며, 커플 촬영은 물론 가족·지인 기념 촬영에도 자유롭게 활용됩니다.</p>
   <div class="card-grid">
     <div>
@@ -5448,7 +5454,7 @@ body {
 <div class="divider-line"></div>
 <!-- STYLING -->
 <div class="reveal">
-  <h3 class="sec-label">Styling Collection · 의상과 소품</h3>
+  <h3 class="sec-label">Styling Collection ·<span class="ll-ko"> 의상과 소품</span></h3>
   <p class="t-body" style="margin-bottom:24px">공간과 어울리는 스타일링까지 함께 완성합니다. <br>드레스·면사포·주얼리 등 의상과 웨딩 소품을 스튜디오에 직접 갖추고 있습니다. <br>신랑은 자켓과 보타이 등 스타일링 소품을 준비해 드리고, 셔츠·바지 등 기본 의상은 직접 준비해 오시면 됩니다.</p>
 </div>
 <div class="photo-placeholder half" style="height:380px;margin:24px 0 0;border-radius:8px">
@@ -5457,7 +5463,7 @@ body {
 <div class="divider-line"></div>
 <!-- THE 140 SEQUENCE -->
 <div class="reveal">
-  <h3 class="sec-label">The 140 Sequence · 140분의 순서</h3>
+  <h3 class="sec-label">The 140 Sequence ·<span class="ll-ko"> 140분의 순서</span></h3>
   <p class="t-body" style="margin-bottom:32px">설계된 공간 위에서 기록의 본질을 지키기 위한 시그니처 타임라인입니다.</p>
   <div class="seq-item">
     <div class="seq-time">20<span>min</span></div>
@@ -5498,7 +5504,7 @@ body {
 <div class="divider-line"></div>
 <!-- CREATIVE SUPPORT -->
 <div class="reveal">
-  <h3 class="sec-label">Creative Support · 연출 지원</h3>
+  <h3 class="sec-label">Creative Support ·<span class="ll-ko"> 연출 지원</span></h3>
   <p class="t-emph" style="margin-bottom:24px">두 분이 그리시는 대로 예식이 완성됩니다.</p>
   <div class="feature-grid" style="grid-template-columns:1fr 1fr">
     <div class="feature">
@@ -5517,7 +5523,7 @@ body {
 </div>
 <!-- DINING -->
 <div class="reveal" style="margin-top:80px">
-  <h3 class="sec-label">After Wedding · 식사·카페 안내</h3>
+  <h3 class="sec-label">After Wedding ·<span class="ll-ko"> 식사·카페 안내</span></h3>
   <p class="t-emph" style="margin-bottom:16px">예식이 끝난 뒤의 식사와 카페까지, 정갈한 다음 장을 안내합니다.</p>
   <p class="t-body">맛과 주차, 프라이버시를 직접 검증해 선별한 스튜디오 인근의 식사·카페 파트너를 마이페이지에서 취향에 맞게 추천해 드립니다. <br>마음에 드는 곳을 고르면 연락처와 예약 문구까지 안내해 드려요. 예약이 어려우실 땐 디렉터가 도와드립니다.</p>
   <p class="t-note">이용은 선택 사항이며, 식사 비용은 선택하신 파트너사에 별도로 지불하시는 항목입니다.</p>
@@ -5530,7 +5536,7 @@ body {
 <!-- LIVE -->
 <section id="live">
 <div class="reveal">
-  <div class="sec-label">SELECTIVE PRESENCE · 선택적 디지털 참석</div>
+  <div class="sec-label">SELECTIVE PRESENCE ·<span class="ll-ko"> 선택적 디지털 참석</span></div>
   <h2 class="sec-title">The Extended Venue</h2>
   <div class="sec-title-sub">디지털 참석 · 물리적 거리를 넘어, 마음으로 닿는 초대</div>
   <p class="t-body">오직 초대된 이들만이 닿을 수 있는 사적인 자리를 마련합니다. <br>거리와 일정으로 함께하지 못하는 분들의 마음까지, 결혼식의 자리는 정중히 이어집니다.</p>
@@ -5915,7 +5921,7 @@ body {
 <div class="reveal">
   <div class="snap-block">
     <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
-    <h3 class="sec-label">Weekday Editorial Snap · 평일 웨딩스냅</h3>
+    <h3 class="sec-label">Weekday Editorial Snap ·<span class="ll-ko"> 평일 웨딩스냅</span></h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
     <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
     <div class="photo-placeholder half" style="height:340px;margin:20px 0 4px;border-radius:8px">
@@ -5946,7 +5952,7 @@ body {
 <!-- JOURNEY · 진행 시스템(통제감·명확성) · 마이페이지 = 손안의 진행실 -->
 <section id="journey">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>JOURNEY · 진행</div>
+  <div class="sec-label"><span class="label-dot"></span>JOURNEY ·<span class="ll-ko"> 진행</span></div>
   <h2 class="sec-title">My Page</h2>
   <div class="sec-title-sub">예약, 그 다음부터가 진짜 시작입니다</div>
   <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">보통은 웨딩플래너의 몫인 일을, 여기선 두 분이 직접 합니다. 막막할 틈 없이, 진행은 저희가 곁에서 거들어 드려요. 복잡한 절차 없이 쉽게, 모든 내역은 투명하게, <br class="pc-hide">청첩장·식순은 언제든 원하는 대로 바꿔가며. 상담부터 예식까지 손안에서 함께합니다.</p>
@@ -5983,7 +5989,7 @@ body {
 <!-- DIRECTOR -->
 <section id="director">
 <div class="reveal">
-  <div class="sec-label">DIRECTOR · 디렉터</div>
+  <div class="sec-label">DIRECTOR ·<span class="ll-ko"> 디렉터</span></div>
   <div style="margin:20px 0 4px">
     <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent)">Kawana Miku<span style="font-size:12px;font-weight:400;color:var(--light);letter-spacing:0.04em;margin-left:10px">川名 美玖</span></div>
   </div>
@@ -6067,7 +6073,7 @@ body {
 <!-- FAQ -->
 <section id="faq">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>FAQ · 자주 묻는 질문</div>
+  <div class="sec-label"><span class="label-dot"></span>FAQ ·<span class="ll-ko"> 자주 묻는 질문</span></div>
   <h2 class="sec-title">Common Questions</h2>
   <div class="sec-title-sub">스몰웨딩 자주 묻는 질문 · 서비스 운영 원칙 및 가이드</div>
 </div>
@@ -6237,7 +6243,7 @@ body {
 <!-- RSVP -->
 <section id="rsvp">
 <div class="reveal">
-  <div class="sec-label"><span class="label-dot"></span>RSVP · 상담 예약</div>
+  <div class="sec-label"><span class="label-dot"></span>RSVP ·<span class="ll-ko"> 상담 예약</span></div>
   <div class="sec-title">The First Chapter</div>
   <div class="sec-title-sub">프라이빗 웨딩 상담 예약</div>
   <p class="t-body" style="margin-bottom:36px">모먼트에디트는 완성도 높은 기획을 위해 사전 예약제로 운영됩니다.</p>
