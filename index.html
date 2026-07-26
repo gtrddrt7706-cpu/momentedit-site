@@ -2535,27 +2535,37 @@ a.ig-handle:hover {
   letter-spacing: 0.02em;
   margin: 0 0 16px;
 }
+/* [BTN_TIER] 버튼 2단 체계 — 채움 마룬 = 전환(inquiry.html · .cta-btn 3곳) / 외곽 마룬 = 보조 이동(parents.html · 여기 1곳).
+   전에는 이 버튼이 .cta-btn과 같은 색·같은 폭·같은 채움인데 높이만 55(vs 60) · 글자 13px(vs 15.5) · 라운드 3px(vs 4) ·
+   패딩 15/22(vs 20/48)로 전 축이 미세하게 어긋나 있었다. '같은 급'으로 읽히면서 '덜 만든 것'처럼 보이는 애매한 상태였다
+   (2026-07-26 사용자 지적 → 실측 확인). 폭만 맞추고 나머지를 놓친 흔적.
+   완전히 같게 만드는 안(가)도 검토했지만, 그러면 화면에 전환 버튼이 4개가 되어 어디를 눌러야 할지 흐려진다.
+   → 격을 낮춰 확실히 구분한다. 규격(글자·높이·라운드)은 .cta-btn과 같게 맞추고 채움만 뺀다.
+   ★화살표(→)는 여기 남긴다 — '이 페이지를 떠나 다른 문서로 간다'는 신호. 채움 전환 버튼에는 붙이지 않는다. */
 .journal-guide-link {
   display: inline-block;
   font-family: var(--serif-ko);
-  font-size: 14px;
-  font-weight: 500;
-  color: #F5F1E9;
+  font-size: 15.5px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--seal);
   text-decoration: none;
-  letter-spacing: 0.03em;
-  padding: 11px 26px;
-  background: var(--seal);
+  letter-spacing: 0.02em;
+  padding: 19px 39px;   /* [BTN_TIER] 테두리 1px×2가 더해지므로 20이 아니라 19 — 채움 버튼과 총높이를 같게(60px) */
+  background: transparent;
   border: 1px solid var(--seal);
-  border-radius: 3px;
-  transition: opacity 0.3s var(--ease);
+  border-radius: 4px;
+  transition:
+    background 0.3s var(--ease),
+    border-color 0.3s var(--ease);
 }
 .journal-guide-link .arrow {
-  color: #F5F1E9;
+  color: currentColor;
   transition: transform 0.3s var(--ease);
   display: inline-block;
 }
 .journal-guide-link:hover {
-  opacity: 0.9;
+  background: rgba(107, 42, 36, 0.06);
 }
 .journal-guide-link:hover .arrow {
   transform: translateX(3px);
@@ -2566,7 +2576,7 @@ a.ig-handle:hover {
     padding-top: 32px;
   }
   .journal-guide-lead { font-size: 12.5px; }
-  .journal-guide-link { font-size: 13px; padding: 10px 22px; }
+  /* [BTN_TIER] 글자 크기는 .cta-btn과 같은 15.5px 유지 — 여기서 13px로 줄이면 다시 '덜 만든 버튼'이 된다 */
 }
 .divider-mini {
   text-align: center;
@@ -3118,7 +3128,7 @@ footer {
     display: block;
     margin: 0 20px;
     box-sizing: border-box;
-    padding: 15px 22px;
+    padding: 19px 22px;   /* [BTN_TIER] 테두리 1px×2 포함해 .cta-btn과 같은 총높이 60px */
     text-align: center;
   }
   .step {
