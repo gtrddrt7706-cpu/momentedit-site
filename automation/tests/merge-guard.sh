@@ -3,7 +3,16 @@
 # 사용: main 병합(pull 포함) 직후 sh automation/tests/merge-guard.sh
 # 실사고 3건: ①.done-fold CSS 오삭제 ②guideFold 조립 줄 소실 ③d42540f 낡은 버퍼 통째 커밋(위저드 수정 7건 무언급 역전 · 2026-07-18)
 # 마커가 정당하게 사라지면(기능 폐지 등) 이 목록에서 함께 지울 것 — 목록 갱신 없이 0이 나오면 무조건 역전 의심.
+# ★SELF_ABS(2026-07-26) — 이 스크립트가 '자기 자신'을 읽을 때 쓸 절대경로. 반드시 아래 cd 前에 확정한다.
+#   $0는 호출 시점 cwd 기준이라, cd 뒤에 "$0"로 자기 파일을 열면 상대 호출에서 통째로 깨진다.
+#   실측(2026-07-26 · GATE_AT_EXIT 이후 main) — cd automation/tests && sh merge-guard.sh 하면
+#     ①GUARD_TAIL의 grep이 빈 결과 → "EXIT 트랩이 사라졌다"는 거짓 경보(트랩은 멀쩡하다)
+#     ②GATE_RAN의 _exp가 빈 문자열 → "chk 347/ 만 실행됐다"는 깨진 중단 보고
+#   둘 다 멀쩡한 저장소에서 RED가 뜬다. 자가검사가 자기 파일을 못 찾아 생기는 오탐이라 원인 추적도 어렵다.
+#   ※ 자기 파일을 읽는 곳은 전부 "$_SELF"를 쓸 것 — "$0"는 아래 cd 한 줄에서만.
+_SELF=$(cd "$(dirname "$0")" 2>/dev/null && pwd)/$(basename "$0")
 cd "$(dirname "$0")/../.." || exit 1
+[ -r "$_SELF" ] || { echo "REVERT? merge-guard.sh: 자기 파일을 못 읽는다($_SELF) — 자가검사(GATE_RAN·GUARD_TAIL) 무력화"; exit 1; }
 fail=0
 # ★GATE_AT_EXIT(2026-07-26) — 성패 판정을 EXIT 트랩에 걸어 '파일 맨 끝'에서 돌게 한다.
 #   이유: 판정을 본문 중간에 두면, 나중에 누가 검사를 파일 끝에 덧붙였을 때 그 검사가 fail=1을 세워도
@@ -25,7 +34,7 @@ fail=0
 _ran=0
 _gate() {
   _rc=$?   # ★반드시 트랩의 첫 줄 — 아래 $(grep …)이 $?를 덮어쓴다
-  _exp=$(grep -c '^chk ' "$0")
+  _exp=$(grep -c '^chk ' "$_SELF")   # ★$0 금지 — 위에서 저장소 루트로 cd했다(SELF_ABS 주석 참고)
   if [ "$_ran" != "$_exp" ]; then
     echo "REVERT? merge-guard 중단 — chk $_ran/$_exp 만 실행됐다(직전 종료코드 $_rc). 위 결과는 전체 검사가 아니다"; exit 1
   fi
@@ -570,7 +579,7 @@ _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev
 #   후기→결과물전달 롤백에서 동의기록.결과물전달일 보존 / 예식완료 이하에선 제거 / 미리보기==실제(5개 목표 전수).
 if command -v node >/dev/null 2>&1; then
   _rd=$(node scripts/audit/rollback-deliverydate.mjs 2>&1) && echo 'ok rollback-deliverydate: 보관 기산일 보존·리셋 분기 정상' \
-    || { echo 'REVERT? rollback-deliverydate 실패:'; printf '%s\n' "$_rd" | grep 'FAIL'; fail=1; }
+    || { echo 'REVERT? rollback-deliverydate 실패:'; printf '%s\n' "$_rd" | grep 'FAIL' || printf '%s\n' "$_rd" | tail -3; fail=1; }   # 스크립트가 아예 못 뜨면 'FAIL' 줄이 없다 — 그때는 마지막 3줄로 이유를 남긴다
 else echo 'skip rollback-deliverydate (node 없음)'; fi
 # ── [GUARD_TAIL 2026-07-26] 이 스크립트 자신을 검사한다 — '판정 뒤에 붙은 가드는 죽는다'는 사고를 막는 자리.
 #   실사고 2건: ADM_GATE_CB(실측) · SURVEY_READ(#295). 새 가드는 관행상 파일 끝에 붙으므로 사람 주의로는 재발한다.
@@ -582,9 +591,13 @@ else echo 'skip rollback-deliverydate (node 없음)'; fi
 #     ② 트랩 등록이 첫 검사보다 위인가 (아래로 내려가면 그 위 검사들이 다시 죽는다)
 #     ③ 본문에 인라인 판정([ "$fail" = "1" ] && … exit 1)이 되살아나지 않았는가 (되살리면 그 아래가 다시 죽는다)
 #   ①~③이 지켜지는 한 검사를 어디에 덧붙여도 안전하다. 종전의 '이 블록 위에 추가할 것' 제약은 폐지.
-_gt_trap=$(grep -n '^trap _gate EXIT' "$0" | head -1 | cut -d: -f1); _gt_trap=${_gt_trap:-0}
-_gt_first=$(grep -n '^chk ' "$0" | head -1 | cut -d: -f1); _gt_first=${_gt_first:-0}
-_gt_inline=$(grep -cE '^\[ "\$fail" = "1" \]' "$0"); _gt_inline=${_gt_inline:-0}
+#   ※ 자기 파일은 "$_SELF"로 연다 — "$0"를 쓰면 서브디렉터리에서 호출했을 때 grep이 빈 결과를 내고
+#     "트랩이 사라졌다"는 거짓 REVERT?가 뜬다(2026-07-26 실측 · 멀쩡한 저장소에서 RED).
+_gt_trap=$(grep -n '^trap _gate EXIT' "$_SELF" | head -1 | cut -d: -f1); _gt_trap=${_gt_trap:-0}
+_gt_first=$(grep -n '^chk ' "$_SELF" | head -1 | cut -d: -f1); _gt_first=${_gt_first:-0}
+_gt_inline=$(grep -cE '^\[ "\$fail" = "1" \]' "$_SELF"); _gt_inline=${_gt_inline:-0}
+#   ④ 자기 파일을 다시 "$0"로 열지 않는가 — 허용은 맨 위 두 줄(_SELF 확정 · cd)뿐이다.
+_gt_self=$(grep -vE '^[[:space:]]*#' "$_SELF" | grep -c '"\$0"'); _gt_self=${_gt_self:-0}
 if [ "$_gt_trap" = "0" ]; then
   # ★여기서만 직접 exit 한다 — 트랩이 없으면 종료코드를 세울 주체가 없어 fail=1이 아무 효과도 못 낸다(그게 이 사고의 본질).
   echo 'REVERT? merge-guard.sh: EXIT 트랩(GATE_AT_EXIT)이 사라졌다 — 판정이 본문으로 돌아가면 뒤에 붙는 가드가 다시 죽는다'; fail=1; exit 1
@@ -592,6 +605,8 @@ elif [ "$_gt_first" != "0" ] && [ "$_gt_trap" -gt "$_gt_first" ]; then
   echo "REVERT? merge-guard.sh: 트랩 등록($_gt_trap행)이 첫 검사($_gt_first행)보다 아래 — 그 사이 검사가 판정에 안 잡힌다"; fail=1
 elif [ "$_gt_inline" -gt 0 ]; then
   echo "REVERT? merge-guard.sh: 본문 인라인 판정 부활($_gt_inline줄) — 그 아래 가드가 다시 죽는다. 트랩 하나만 남길 것"; fail=1
+elif [ "$_gt_self" -gt 2 ]; then
+  echo "REVERT? merge-guard.sh: 자기 파일을 \$0로 여는 줄이 늘었다($_gt_self > 2) — 서브디렉터리 호출에서 거짓 REVERT?가 뜬다. \"\$_SELF\"를 쓸 것"; fail=1
 else
-  echo 'ok merge-guard.sh: 판정=EXIT 트랩(첫 검사보다 위 · 인라인 판정 없음) — 어디에 덧붙여도 죽은 가드 0'
+  echo 'ok merge-guard.sh: 판정=EXIT 트랩(첫 검사보다 위 · 인라인 판정 없음 · 자기참조는 $_SELF) — 어디에 덧붙여도 죽은 가드 0'
 fi
