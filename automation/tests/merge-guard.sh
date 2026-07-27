@@ -740,3 +740,6 @@ chk '★AI고지_부부' order-preview.html 1                       # 음성=완
 chk '진행 안내는 뒷면에 있습니다' admin.html 1                  # 식순지 앞면 유도 한 줄 — 뒷면이 유일한 AI 명시 채널이라 필수(조건 ㉮)
 chk 'PRINT_FROM_SOURCE' admin.html 1                        # 인쇄물 문안 복붙 금지(네 번째 원천 방지) 표식
 chk '_DECL_CARD_WHO' admin.html 3                           # 낭독 카드 대상 주체 배열 · 합송(chorus) 분기 자리 보존
+chk "'나레이션 대행' 선택지 복원 금지" assets/ritual-data.js 1   # 8842582로 폐지된 선택지 · 카피만 뒤늦게 정리(제거 지시 보존)
+chk 'FESTIVE_MIN_WHY' assets/ritual-data.js 1                   # 축하 여유 16분은 오타 아님 · 첫 예식 실측 전 낮추기 금지
+chk '가장 가까운 정면 열에 앉으신 채로' assets/ritual-data.js 3   # 헌정 큐 · 부모님 좌석·자세(3종 전부)
