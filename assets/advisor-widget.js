@@ -34,13 +34,23 @@
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
     + '.me-adv-panel.open{transform:translateX(0);box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
     + '@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}.me-adv-input{font-size:16px}}'
+    /* [ADV_PRINT] 인쇄할 때 떠다니는 버튼·패널이 종이에 그대로 찍혔다.
+       parents.html 인쇄 미리보기에서 공유 FAB(46×46)이 편지 본문 위에 겹쳐 나왔다(스크린샷에서 발견).
+       parents는 인쇄 스타일에서 nav·도구·푸터를 이미 감추는데 이 위젯만 빠져 있었다 —
+       위젯 쪽에 두면 이 파일을 쓰는 네 페이지가 전부 같이 해결된다. */
+    + '@media print{.me-fab-stack,.me-adv-panel,.me-adv-backdrop,.me-adv-fab{display:none !important}}'
     + '.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg,#FAFAF8);border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18))}'
     + '.me-adv-head-t{display:flex;align-items:center;gap:13px}'
     + '.me-adv-seal{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--seal,#6B2A24);border:1px solid rgba(107,42,36,0.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif,Georgia,serif);font-size:15px;font-weight:500;letter-spacing:0.04em;flex:0 0 auto;box-shadow:0 2px 9px rgba(28,27,25,0.06)}'
     + '.me-adv-titles{display:flex;flex-direction:column;line-height:1.1}'
-    + '.me-adv-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold,#B89A75);margin-bottom:4px}'
+    /* [ADV_A11Y] 장식용 골드(#B89A75)가 글자에 쓰여 2.54:1이었다 → 읽는 골드 5.71:1.
+       ★이 파일은 inquiry·mypage·order-preview·parents 네 페이지가 함께 쓴다(2026-07-27 확인).
+         --gold-text를 정의한 페이지는 그 값을, 없는 페이지는 폴백 #7A5F37을 쓴다. */
+    + '.me-adv-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold-text,#7A5F37);margin-bottom:4px}'
     + '.me-adv-title{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em;line-height:1.15}'
-    + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .25s,background .25s}'
+    /* [ADV_A11Y] 닫기 30×30 — 패널을 빠져나오는 유일한 버튼인데 가장 작았다 → 44px.
+       아이콘 크기는 그대로 두고 히트영역만 넓힌다(모양 변화 없음). */
+    + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .25s,background .25s;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}'
     + '.me-adv-close:hover{color:var(--accent,#3A2D22);background:rgba(28,27,25,0.05)}'
     + '.me-adv-close svg{width:18px;height:18px}'
     + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
@@ -70,7 +80,8 @@
     + '.me-adv-esc-btn.mail:hover{opacity:.9;transform:translateY(-1px)}'
     + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10.5px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
     + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
-    + '.me-adv-foot-kakao{display:block;text-align:center;margin-top:11px;font-family:var(--serif-ko,serif);font-size:11.5px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .25s}'
+    /* [ADV_A11Y] 카카오톡 문의 링크 높이 23px — '해결이 안 될 때' 마지막으로 누르는 자리다 → 44px. */
+    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,serif);font-size:11.5px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .25s}'
     + '.me-adv-foot-kakao u{text-decoration:underline;text-decoration-color:rgba(117,112,95,0.45);text-underline-offset:3px}'
     + '.me-adv-foot-kakao:hover{color:var(--seal,#6B2A24)}'
     + '.me-adv-foot-kakao:hover u{text-decoration-color:rgba(107,42,36,0.5)}'
