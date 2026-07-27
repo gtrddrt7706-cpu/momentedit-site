@@ -651,6 +651,15 @@ chk 'GUIDE_DATE_GUARD' guide.html 1            # 2027-13-45가 롤오버돼 '13�
 chk 'GUIDE_SAFEAREA' guide.html 1              # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것 — 노치폰 가로에서 잘림
 chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 버튼인데 하객이 누르기 전에 알 수 없던 것(CSS 1 + JS 1)
 chk 'MP_PHOTOSHARE_INFO' mypage.html 1         # 부부 쪽 짝 안내 — 접근 범위·프로필 노출·앨범을 지우면 버튼도 닫힘
+# ── 2026-07-26 guide.html 3라운드(예식장 현장 조건 — 느린 회선·실패·확대)
+chk 'GUIDE_FONT_NOBLOCK' guide.html 1          # 폰트 CSS가 렌더 블로킹이라 FCP 3056ms·백지였다. media=print+onload로 뺐다 → FCP 60ms
+chk 'media="print"' guide.html 1               # ★위 처방의 본체. rel=stylesheet만 남기면 다시 렌더 블로킹이 되고 흰 화면이 돌아온다
+chk 'preconnect" href="https://script.google.com' guide.html 1  # 데이터가 오는 곳 사전 연결 — 폰트만 preconnect하고 정작 GAS는 빠져 있었다
+chk 'GUIDE_RETRY' guide.html 2                 # 실패 시 하객이 누를 게 0개였다(실측). 자동 재시도 1.2·3초 + '다시 불러오기' 버튼(CSS 1 + JS 1)
+chk 'retry-btn' guide.html 3                   # 위 버튼 — CSS 2(본체·:active) + 마크업 1
+chk 'GUIDE_CACHE' guide.html 1                 # 회선 불량 재방문 시 캐시로 즉시 표시. ★재시도 전부 실패해도 캐시 화면을 지우지 않는다(painted 가드)
+chk 'GUIDE_MAP_REFLOW' guide.html 1            # 200% 확대(207px)에서 좌석표가 페이지를 가로로 밀던 것 → 스크롤을 블록 안에 가둠
+chk 'GUIDE_DEADREF' guide.html 1               # 호출부 없는 findSeat 안의 문구가 삭제된 '전체 배치도'를 가리키고 있던 것
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
