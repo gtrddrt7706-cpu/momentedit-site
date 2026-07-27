@@ -352,6 +352,43 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rowbtn,.play,.ex-chip,.sr-c,.copy-btn2{min-height:40px}
 .play,.ex-chip{display:inline-flex;align-items:center;justify-content:center}
 .sr-c,.copy-btn2{display:inline-flex;align-items:center;justify-content:center}
+
+/* ════════ 2라운드 · 고객 입장(편의성·직관성·이해성·디테일) ════════ */
+
+/* [ORD_KEY] 위저드에서 실제로 '고르는' 것들 — 코스 카드·선택지 카드·순간 카드·펼침줄 —
+   이 전부 <div onclick>이었다. 마우스로만 눌리고 Tab으로는 닿지 않는다.
+   실측(코스 5종 전 단계 순회): onclick은 있는데 포커스를 못 받는 요소 8종 · 누적 254개.
+   화면낭독기는 그냥 글자로 읽고 '고를 수 있다'도 '지금 골라져 있다'도 말하지 않았고,
+   음성조작('나레이션 클릭')도 이름이 없어 걸리지 않았다.
+   ★고치는 방식: 카드를 통째로 button으로 바꾸면 안쪽 '들어보기'·↑↓ 버튼이 버튼 안에 들어가
+     (nested interactive) 낭독기가 되레 헷갈린다. 그래서 '카드 제목만' 진짜 버튼으로 만들고
+     그 ::after를 카드 전체에 늘려 덮는다 — 마우스·터치 감각은 종전 그대로, 안쪽 버튼은 z-index로 위에 남긴다. */
+:where(button.oc-nm,button.crs-h,button.mc-t,button.fold,button.special){
+  font:inherit;color:inherit;letter-spacing:inherit;text-align:inherit;
+  background:transparent;border:0;margin:0;padding:0;border-radius:0;
+  -webkit-appearance:none;appearance:none;cursor:pointer}
+.oc,.crs,.mc{position:relative}
+button.oc-nm::after,button.crs-h::after,button.mc-t::after{
+  content:'';position:absolute;left:0;top:0;right:0;bottom:0;border-radius:12px}
+button.oc-nm,button.crs-h,button.fold{width:100%}
+button.special{display:block;width:100%}
+/* 오버레이 위에 남겨야 하는 것들(안쪽 조작·펼친 내용) */
+.oc .play,.oc .uprow,.mc-mv,.mc-act,.mc-x,.cdet{position:relative;z-index:1}
+/* 흐려 둔 카드의 제목은 [ORD_OFF_OPACITY]가 정한 색을 유지(button 기본색으로 되돌아가지 않게) */
+.mc.off button.mc-t{color:#6E675E}
+
+/* [ORD_FOCUS] 위 버튼들이 생겼는데 이 페이지엔 포커스 표시 규칙이 아예 없었고,
+   글 입력칸은 .ta:focus{outline:none}으로 오히려 지우고 있었다(테두리 색만 남음). */
+:where(a,button,input,textarea,select,[tabindex]):focus-visible{
+  outline:2px solid var(--seal);outline-offset:3px;border-radius:4px}
+/* ★:where()는 특이도 0이라 .ta:focus{outline:none}(0,1,1)을 못 이긴다 — 같은 깊이로 다시 쓴다. */
+.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+/* [ORD_H2] 단계 제목이 전부 <div>였다(h2 0개). 낭독기의 제목 이동으로는 아무 데도 못 간다. */
+h2.q-title,.done-hd h2.t,.rh-hd h2.t{margin:0}
+/* [ORD_STEPFOCUS] 단계가 바뀌면 제목으로 포커스를 옮긴다 — Tab으로는 닿지 않는 자리라 테두리는 안 그린다. */
+h2[tabindex="-1"]:focus{outline:none}
+h3.sec-l{font-size:11px;font-weight:600}
 </style>
 </head>
 <body>
@@ -587,7 +624,7 @@ function exBox(title,arr,guide,noHead){
   var h='<div class="exlist">'+(noHead?'':'<div class="ex-t">'+esc(title)+'</div>');
   if(tags.length>1){
     h+='<div class="ex-chips">';
-    tags.forEach(function(tg){ h+='<button class="ex-chip'+(tg===cur?' on':'')+'" onclick="exPick(\''+title+'\',\''+tg+'\')">'+esc(tg)+'</button>'; });
+    tags.forEach(function(tg){ h+='<button class="ex-chip'+(tg===cur?' on':'')+'" aria-pressed="'+(tg===cur?'true':'false')+'" onclick="exPick(\''+title+'\',\''+tg+'\')">'+esc(tg)+'</button>'; });   // [ORD_DESC]
     h+='</div>';
   }
   var shown=0;
@@ -745,21 +782,24 @@ var PHASE={intro:'시작',course:'코스 고르기',tune:'맞춤 고르기',gues
 
 var _navKey='';
 function render(){
+  var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
   _stopAud();
   var _xr0=document.getElementById('obExit');   // 임베드 나가기 — 표시·라벨을 한 곳에서 결정(연습 공간·완성 화면에선 숨김 · 그 사이 early return이 늘어도 done 화면에 버튼이 남지 않게 · 2026-07-19 점검)
   if(_xr0){ var _xk=(STEPS[idx]||{}).k; _xr0.style.display=(mode==='rehearse'||_xk==='done')?'none':''; _xr0.textContent=courseStarted?'저장 후 나가기':'나가기'; }
   if(mode==='rehearse'){ renderRehearse(); return; }
   var st=STEPS[idx];
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
-  var stops=CEREMONY.concat(['done']); // 하객 맞이(1)부터 완성(폐식·촬영)까지
-  var pre=(st.k==='intro'||st.k==='course'||st.k==='tune'), si=stops.indexOf(st.k);
+  var pre=(st.k==='intro'||st.k==='course'||st.k==='tune');
   var pct=Math.max(2,Math.round((idx+1)/STEPS.length*100));
   document.getElementById('pf').style.width=pct+'%';
-  document.getElementById('pnow').textContent=(st.k==='tune')?'기본 식순이 준비됐어요':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':('순서 '+(si+1)+' / '+stops.length+' · '+estMin());
+  // [ORD_NEXTNAME] 'tune' 한 단계를 세 가지 이름으로 부르고 있었다 —
+  //   예고는 '함께 볼 순간 확인(전체 기본)' · 진행 라벨은 '기본 식순이 준비됐어요' · 화면 제목은 '어떤 순간을 직접 고를까요?'.
+  //   부부는 예고를 보고 눌렀는데 다른 이름의 화면에 도착한다. 예고와 라벨을 화면이 하는 일('순서 다듬기')로 맞춘다.
+  document.getElementById('pnow').textContent=(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
-  else if(st.k==='course') pnextEl.textContent='다음 · 함께 볼 순간 확인(전체 기본)';
+  else if(st.k==='course') pnextEl.textContent='다음 · 순서 다듬기';
   else if(nx2 && nx2.k==='done' && st.k==='tune') pnextEl.textContent='다음 · 추천 그대로, 완성 보기';
   else if(nx2 && nx2.k==='done') pnextEl.textContent='다음 · 폐식 · 단체촬영 안내, 그리고 완성';
   else if(nx2 && nx2.k==='guest') pnextEl.textContent='다음 · 여기서 실제 예식이 시작돼요 · 하객 맞이';
@@ -771,11 +811,19 @@ function render(){
   else if(st.k==='intro'){ h=renderIntro(); }
   else {
     var mo=MOMENT[st.k];
-    h+='<div class="q-title">'+esc(st.title)+'</div>'+(mo?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));
+    h+='<h2 class="q-title" id="stepHead" tabindex="-1">'+esc(st.title)+'</h2>'+(mo?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));   // [ORD_H2]
     if(recoTxt(st.k)) h+='<div class="reassure">'+esc(recoTxt(st.k))+'</div>';
     h+=renderStep(st.k);
   }
+  // [ORD_KEY] 고르면 render()가 stage를 통째로 다시 그린다 → 포커스가 body로 날아가
+  //   키보드·낭독기 사용자는 '아버지가'를 고른 순간 자기 위치를 잃는다. 같은 자리로 되돌려 준다.
+  var _fk=(_ae0&&_ae0.getAttribute)?_ae0.getAttribute('data-fk'):null;
   el.innerHTML=h;
+  if(_fk){ _fk=_fk.replace(/"/g,'');
+    var _rf=el.querySelector('[data-fk="'+_fk+'"]');
+    // 맨 위·맨 아래로 옮기면 그 방향 화살표가 사라진다 → 같은 카드의 제목으로 내려앉는다
+    if(!_rf&&_fk.indexOf('mv:')===0) _rf=el.querySelector('[data-fk="mc:'+_fk.split(':')[1]+'"]');
+    if(_rf&&_rf.focus){ try{ _rf.focus({preventScroll:true}); }catch(e){ try{ _rf.focus(); }catch(e2){} } } }
   var pv=document.getElementById('prev');
   pv.disabled=(idx===0&&!editReturn);
   pv.textContent=editReturn?'취소':'이전';
@@ -785,7 +833,15 @@ function render(){
   nx.textContent=editReturn?'저장 · 요약으로':(st.k==='intro')?'시작하기':(idx===STEPS.length-2)?'완성 보기':(idx===STEPS.length-1?(_doneSaved?'저장됨 · D-14까지 언제든 고쳐요':'이대로 저장하기'):'다음');
   renderMiniTL(st.k);
   var navKey=mode+':'+idx;
-  if(navKey!==_navKey){ window.scrollTo(0,0); _navKey=navKey; }
+  if(navKey!==_navKey){
+    // [ORD_STEPFOCUS] '다음'을 누르면 화면은 통째로 바뀌는데 포커스는 그대로 버튼에 남아,
+    //   화면낭독기 사용자에겐 아무 일도 일어나지 않은 것처럼 들렸다. 새 단계 제목으로 옮겨 준다.
+    //   ★첫 렌더(_navKey 없음)엔 옮기지 않는다 — 페이지 열자마자 포커스를 뺏지 않게.
+    var _first=!_navKey;
+    window.scrollTo(0,0); _navKey=navKey;
+    if(!_first){ var _hd=document.getElementById('stepHead');
+      if(_hd&&_hd.focus){ try{ _hd.focus({preventScroll:true}); }catch(e){ try{ _hd.focus(); }catch(e2){} } } }
+  }
   if(courseStarted) _persist();
 }
 function renderMiniTL(k){
@@ -813,7 +869,7 @@ function renderMiniTL(k){
 }
 
 function renderIntro(){
-  var h='<div class="q-title">우리 예식, 우리가 만들어요</div>';
+  var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
   h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 30분의 식순과 나레이션 대본이 만들어져요.</div>';
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
@@ -837,10 +893,15 @@ function renderIntro(){
 
 function oc(key,v,nm,desc,nar,end,self,prep,rec){
   var on=S[key]===v;
-  var h='<div class="oc'+(on?' on':'')+'" onclick="pick(\''+key+'\',\''+v+'\')">';
-  h+='<div class="oc-nm">'+esc(nm)+(rec?'<span class="oc-rec">기본</span>':'')+'</div>';
-  if(desc) h+='<div class="oc-desc">'+esc(desc)+'</div>';
-  if(nar){ h+=narBox(nar,end)+(on?playBtn():''); }
+  // [ORD_KEY] 카드는 그릇, 제목이 버튼 — 제목의 ::after가 카드를 덮어 '카드 아무 데나' 감각은 유지된다.
+  //   [ORD_DESC] 버튼 이름은 '아버지가' 뿐이라 낭독기로는 무엇인지 알 수 없었다 → 설명줄을 이름에 딸려 읽히게 묶는다.
+  var did='ocd_'+key+'_'+v;
+  var h='<div class="oc'+(on?' on':'')+'">';
+  h+='<button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+(desc?'" aria-describedby="'+did:'')+'" data-fk="'+key+':'+v+'" onclick="pick(\''+key+'\',\''+v+'\')">'+esc(nm)+(rec?'<span class="oc-rec">기본</span>':'')+'</button>';
+  if(desc) h+='<div class="oc-desc" id="'+did+'">'+esc(desc)+'</div>';
+  // [ORD_AUDITION] 나레이션 글은 보여 주면서 '들어보기'는 고른 카드에만 있었다(담백 부모님 덕담·사이 순서, 가족 링워밍 4곳).
+  //   넣을지 말지 판단하려고 듣는 건데, 넣기 전엔 못 듣는 구조였다 — 글이 있으면 듣기도 있게.
+  if(nar){ h+=narBox(nar,end)+playBtn(); }
   if(self) h+='<div class="self"><span class="who">직접 · '+esc(self.who)+'</span>'+esc(self.t)+'</div>';
   if(prep) h+='<div class="prep-hint">'+prep+'</div>';
   h+='</div>';
@@ -1027,7 +1088,7 @@ function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k=
 var _tprev=''; var _foldOpen={};
 /* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
-function fold(key,title,inner){ var o=_foldOpen[key]; return '<div class="fold'+(o?' open':'')+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x" aria-hidden="true">›</span></div>'+(o?'<div class="fold-b">'+inner+'</div>':''); }
+function fold(key,title,inner){ var o=_foldOpen[key]; return '<button type="button" class="fold'+(o?' open':'')+'" aria-expanded="'+(o?'true':'false')+'" data-fk="fold:'+key+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x" aria-hidden="true">›</span></button>'+(o?'<div class="fold-b">'+inner+'</div>':''); }   // [ORD_KEY]
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
 window.quickOff=function(k){
   if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
@@ -1090,26 +1151,26 @@ function renderStep(k){
       var _why=(OPTWHY[S.course]||{})[x]||'';
       var _off=d.off||(OFFTGL[x]&&!momOn(x));
       var _open=(_tprev===x);   // 모든 카드 확장 가능 — 확장 안에 장면(있으면)+이 순간 들어보기+판단 정보가 함께 열림(2026-07-17 사용자 요청)
-      h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'" onclick="tprev(\''+x+'\')">';
+      h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'">';   // [ORD_KEY] 펼침 조작은 아래 .mc-t 버튼이 맡는다
       var _min=_off?'':(_mm(x)?('약 '+_mm(x)+'분'):(x==='guest'?'식전':''));
       // 카드 레벨엔 순서 넣기/빼기만 — 이 버튼 체인이 '조정 가능' 판정의 단일 출처(아래 알약 _adj가 이걸 따라 표시와 동작이 어긋나지 않음)
       var _tg='';
-      if(d.off) _tg='<button type="button" class="rowbtn up" onclick="event.stopPropagation();extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
-      else if(S.extra[x]) _tg='<button type="button" class="rowbtn" onclick="event.stopPropagation();extraTgl(\''+x+'\')">순서에서 빼기</button>';
-      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn'+(momOn(x)?'':' up')+'" onclick="event.stopPropagation();quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';   // '넣기'는 up(크림 배경)으로 통일 — 옵션 경로(위)와 같은 라벨인데 색이 갈라지던 것(2026-07-18 사용자 지적)
+      if(d.off) _tg='<button type="button" class="rowbtn up" aria-label="'+esc(t.n)+' 순서에 넣기" onclick="extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
+      else if(S.extra[x]) _tg='<button type="button" class="rowbtn" aria-label="'+esc(t.n)+' 순서에서 빼기" onclick="extraTgl(\''+x+'\')">순서에서 빼기</button>';
+      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn'+(momOn(x)?'':' up')+'" aria-label="'+esc(t.n)+(momOn(x)?' 순서에서 빼기':' 순서에 넣기')+'" onclick="quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';   // '넣기'는 up(크림 배경)으로 통일 — 옵션 경로(위)와 같은 라벨인데 색이 갈라지던 것(2026-07-18 사용자 지적)
       // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
       var _adj=!!_tg;
       var _pill=_off?'지금은 빠져 있어요':(_adj?'뺄 수 있어요':'고정 진행');
       // 순서 이동 ↑↓ — 위에서부터가 실제 진행 순서(2026-07-18 사용자 지시). 하객 맞이(식전)는 맨 위 고정이라 이동 없음
       var _mv='';
       if(x!=='guest'){
-        _mv='<span class="mc-mv" onclick="event.stopPropagation()">'
-          +((di>1)?'<button type="button" class="mvb" aria-label="순서 위로" onclick="momMove(\''+x+'\',-1)">↑</button>':'')
-          +((di<_disp.length-1)?'<button type="button" class="mvb" aria-label="순서 아래로" onclick="momMove(\''+x+'\',1)">↓</button>':'')
+        _mv='<span class="mc-mv">'
+          +((di>1)?'<button type="button" class="mvb" aria-label="'+esc(t.n)+' 순서 위로" data-fk="mv:'+x+':u" onclick="momMove(\''+x+'\',-1)">↑</button>':'')
+          +((di<_disp.length-1)?'<button type="button" class="mvb" aria-label="'+esc(t.n)+' 순서 아래로" data-fk="mv:'+x+':d" onclick="momMove(\''+x+'\',1)">↓</button>':'')
           +'</span>';
       }
-      h+='<div class="mc-hd"><div class="mc-t">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></div><span class="mc-r">'+_mv+'<span class="mc-chev" aria-hidden="true">›</span></span></div>';
-      h+='<div class="mc-e">'+esc(t.c)+'</div>';
+      h+='<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_open?'true':'false')+'" aria-describedby="mcd_'+x+'" data-fk="mc:'+x+'" onclick="tprev(\''+x+'\')">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+'<span class="tcap'+((_off||_adj)?'':' fx')+'">'+_pill+'</span></button><span class="mc-r">'+_mv+'<span class="mc-chev" aria-hidden="true">›</span></span></div>';   // [ORD_KEY][ORD_DESC]
+      h+='<div class="mc-e" id="mcd_'+x+'">'+esc(t.c)+'</div>';
       if(!_off && x!=='welcome') h+='<div class="mc-s">지금 · '+esc(rowVal(x))+'</div>';
       if(_tg) h+='<div class="mc-act">'+_tg+'</div>';
       if(_open){
@@ -1118,7 +1179,7 @@ function renderStep(k){
         // 장면과 듣기를 한 프레임으로 — 재생 바가 장면 박스 하단에 붙어 미디어 한 덩어리로 읽히게(2026-07-17 사용자 요청)
         h+='<div class="mc-media">'
           +(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>')
-          +'<button type="button" class="rowbtn mc-play" data-mp="'+x+'" onclick="event.stopPropagation();momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
+          +'<button type="button" class="rowbtn mc-play" data-mp="'+x+'" aria-label="'+esc(t.n)+' 들어보기" onclick="momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
           +'</div>';
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
         // 열었을 때 도움 정보: 이 단계에서 정하게 될 것 + 많이 고르는 선택(사회적 증거) — 나레이션·영상 외 판단 재료(2026-07-17 사용자 요청)
@@ -1132,12 +1193,12 @@ function renderStep(k){
     });
     // 폐식·단체촬영 — 본식을 닫는 마지막 순간(고정). 눌러서 닫는 나레이션만 미리듣기 · 단체 사진 '구도'는 예식 준비의 '단체 사진'에서(2026-07-19 사용자 지시: 단체촬영은 본식 뒤 '단체 기록' 시간이라 식순과 분리)
     var _pOpen=(_tprev==='_close');
-    h+='<div class="mc'+(_pOpen?' open':'')+'" onclick="tprev(\'_close\')">'
-      +'<div class="mc-hd"><div class="mc-t">폐식·단체촬영<span class="tcap fx">고정 진행</span></div><span class="mc-chev" aria-hidden="true">›</span></div>'
+    h+='<div class="mc'+(_pOpen?' open':'')+'">'   // [ORD_KEY]
+      +'<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_pOpen?'true':'false')+'" data-fk="mc:_close" onclick="tprev(\'_close\')">폐식·단체촬영<span class="tcap fx">고정 진행</span></button><span class="mc-chev" aria-hidden="true">›</span></div>'
       +'<div class="mc-e">나레이션이 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요</div>'
       +'<div class="mc-s">지금 · 나레이션 · 맨 마지막 고정</div>';
     if(_pOpen){
-      h+='<div class="mc-x" onclick="event.stopPropagation()">';
+      h+='<div class="mc-x">';
       h+='<div class="mc-media"><div class="mclip"><div style="padding:20px 14px;font-size:12.5px;line-height:1.8;color:var(--sub)">'+esc(CLOSE_NAR)+'</div></div>'
         +'<button type="button" class="rowbtn mc-play" data-mp="_close" onclick="event.stopPropagation();momPlay(this,\'_close\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';
       h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>단체 사진 구도</b>는 마이페이지 <b>예식 준비 · 단체 사진</b>에서 골라요 · 본식 뒤 단체 기록 시간에 진행돼요.</div>';
@@ -1159,8 +1220,8 @@ function renderStep(k){
     GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
     h+='</div>';
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!cpl?' on':'')+'" onclick="setGuestVoice(\'nar\')"><div class="oc-nm">나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비해요.</div></div>';
-    h+='<div class="oc'+(cpl?' on':'')+'" onclick="setGuestVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
+    h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
@@ -1170,7 +1231,7 @@ function renderStep(k){
     if(cpl){
       GUEST.forEach(function(g,i){
         h+='<div class="gt"><div class="gt-t">'+esc(g[0])+' <span class="gt-tag">참고 예시</span></div><div class="gt-x">'+esc(g[2])+'</div>';
-        h+='<div class="uprow"><button class="rowbtn" onclick="event.stopPropagation();mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>';
+        h+='<div class="uprow"><button class="rowbtn" aria-label="'+esc(g[0])+' 샘플 듣기" onclick="mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" aria-label="'+esc(g[0])+' 파일 바꾸기" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" aria-label="'+esc(g[0])+' 파일 올리기" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>';
         h+='</div>';
       });
     } else {
@@ -1195,8 +1256,8 @@ function renderStep(k){
     var h='<div style="margin-top:16px">';
     h+=clip('entry');
     h+='<div class="vq" style="margin-top:16px">입장 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!ecpl?' on':'')+'" onclick="setEntryVoice(\'nar\')"><div class="oc-nm">나레이션<span class="oc-rec">기본</span></div><div class="oc-desc">저희가 준비한 나레이션이 입장을 안내해요.</div></div>';
-    h+='<div class="oc'+(ecpl?' on':'')+'" onclick="setEntryVoice(\'couple\')" style="margin-top:11px"><div class="oc-nm">두 분 목소리로</div><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
+    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비한 나레이션이 입장을 안내해요.</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(ecpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(ecpl?'true':'false')+'" data-fk="entryVoice:couple" onclick="setEntryVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 또렷하게 녹음해 올려 주세요. 보내 주신 파일은 당일 그대로 재생돼요.</div>';
@@ -1208,7 +1269,7 @@ function renderStep(k){
     h+='<div class="opts" style="margin-top:10px">';
     h+='<div class="entry-chips">';
     ['A','B','C','D','E','F'].forEach(function(v){
-      h+='<button class="ex-chip'+(S.entry===v?' on':'')+'" onclick="pick(\'entry\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';
+      h+='<button class="ex-chip'+(S.entry===v?' on':'')+'" aria-pressed="'+(S.entry===v?'true':'false')+'" data-fk="entry:'+v+'" onclick="pick(\'entry\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';   // [ORD_DESC]
     });
     h+='</div>';
     h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞추고, 당일엔 문 앞에서 디렉터가 신호를 드려요 · 두 분은 손만 꼭 잡으면 돼요.</div>';
@@ -1370,9 +1431,12 @@ function courseCard(v){
   var flow='';
   var _hasSwap=false;
   c.flow.forEach(function(f,i){ var fixed=c.detail&&c.detail[i]&&c.detail[i].fix; if(!fixed)_hasSwap=true; flow+=(i?'<span class="cflow-a">›</span>':'')+'<span class="cflow-i'+(fixed?'':' swap')+'">'+esc(f)+'</span>'; });
-  var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'" '+(soon?'':'onclick="pickCourse(\''+v+'\')"')+'>';
-  h+='<div class="crs-h"><span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span><span style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+(soon?'':'<span class="crs-chev" aria-hidden="true">›</span>')+'</span></div>';
-  h+='<div class="crs-one">'+esc(c.one)+'</div>';
+  var h='<div class="crs'+(open?' on':'')+(soon?' soon':' pick')+'">';
+  // [ORD_KEY] 코스 고르기는 이 화면에서 가장 중요한 선택인데 Tab으로 닿지 않았다 — 카드 머리줄을 진짜 버튼으로.
+  var _ch='<span class="crs-nm">'+esc(c.nm)+' <small>· '+c.flow.length+'개의 순간 · '+esc(c.min)+'</small></span><span style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+(c.badge?'<span class="crs-badge">'+esc(c.badge)+'</span>':'')+(soon?'':'<span class="crs-chev" aria-hidden="true">›</span>')+'</span>';
+  h+=soon?('<div class="crs-h">'+_ch+'</div>')
+        :('<button type="button" class="crs-h" aria-expanded="'+(open?'true':'false')+'" aria-describedby="crsd_'+v+'" data-fk="course:'+v+'" onclick="pickCourse(\''+v+'\')">'+_ch+'</button>');   // [ORD_DESC]
+  h+='<div class="crs-one" id="crsd_'+v+'">'+esc(c.one)+'</div>';
   h+='<div class="cflow" style="margin-top:11px">'+flow+'</div>';
   if(open && c.detail){
     h+='<div class="crs-feel"><b>이런 예식이에요</b><br>'+esc(c.feel)+'</div>';
@@ -1488,6 +1552,17 @@ function fullBlocks(){
   b.push({n:'폐식·단체촬영',k:'_close',nar:CLOSE_NAR,cue:'나레이션 마무리와 함께 마무리 음악 시작 · 하드 스톱 없이 길게 페이드아웃 → 자리에서 그대로 단체촬영(구도는 예식 준비 · 단체 사진에서)'});   // 단체촬영 '구도'는 예식 준비로 분리(2026-07-19) — 식순 큐는 일반 안내만
   return b;
 }
+// [ORD_STEPNO] 진행 표시의 '순서 N / N'이 완성 화면의 번호와 다른 숫자를 세고 있었다.
+//   기존: 위저드 단계 수(빼 둔 순간까지 포함) → 담백에서 '순서 10 / 10'인데 바로 아래 요약엔 '7개 순서'.
+//   부모님 덕담을 뺀 상태로 그 화면에 서면 '순서 8 / 10'이라 하지만, 완성 요약에서 그 줄은 번호 없는 '뺌'이다.
+//   고침: 완성 요약과 같은 원천(fullBlocks)으로 세서, 걷는 동안 보는 번호가 끝에서 보는 번호와 같게 한다.
+function stepNoLabel(k){
+  var b=fullBlocks(), t=b.length;
+  if(k==='guest') return '식전 안내';                      // 하객 맞이는 본식 순서 밖(요약에서도 '식전')
+  if(k==='done') return '순서 '+t+' / '+t;                 // 완성 = 마지막 순서(폐식·단체촬영)까지
+  for(var i=0;i<b.length;i++){ if(b[i].k===k) return '순서 '+(i+1)+' / '+t; }
+  return '지금은 빠져 있어요';                              // 이 순간을 뺀 채로 그 화면에 서 있을 때
+}
 function inSeq(k){ return curSeq().indexOf(k)>-1; }
 // ★CAKE_DUP_GUARD — 사이 순서와 축배 두 곳에서 케이크가 함께 잡히면 한 예식에 커팅이 두 번 들어간다.
 //   막지 않고 알리기만 한다(이 빌더의 기존 방식 · 선택은 고객 몫). 선택 시점이 아니라 렌더 시점 판정 —
@@ -1567,20 +1642,20 @@ function renderDone(){
   var bs=fullBlocks();
   // RESTORE_HONEST_HEAD(2026-07-25 사용자 발견): 저장 전 초안을 '이어서' 복원해 이 화면으로 착지할 때 헤드라인이 '완성됐어요'라 첫인상이 모순(글 비어 있음 배지와 충돌 · 처음 온 것처럼 느껴짐). 복원 상태는 '불러왔어요' 헤드로 정직하게 — 같은 말이던 배너는 헤드로 승격·제거. 방금 완주(비복원)·저장 후는 종전 그대로.
   var _resumeHead=_restored&&!_doneSaved;
-  var h='<div class="done-hd"><div class="t">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</div><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서 · '+estMin()+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</h2><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서 · '+estMin()+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
   if(_doneSaved) h+='<div class="banner" style="text-align:center">기기에만 저장돼요 · D-14까지 언제든 다시 열어 고칠 수 있어요.</div>';
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 대본·연습·준비물</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
   if(_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘어도 괜찮아요 · 당일은 디렉터가 자연스럽게 이끌어요</div>';
   // ★'아직 비워둔 칸' 별도 배지 폐지 — 글 적어두기(2차 확인)와 중복. 대신 아래 요약 행에 '글 비어 있음'을 인라인 표시(변경 버튼이 곧 채우기) — 2026-07-22 사용자 지시 · WRITE_2CHECK
-  h+='<div class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</div><div class="sumry">';
+  h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry">';   // [ORD_H2]
   var _num=0;
   summaryRows().forEach(function(r){
     var isPre=(r[2]==='guest');
     var isOff=(r[2]==='ring'&&S.ring!=='on')||(r[2]==='valley'&&S.valley==='none')||(r[2]==='bless'&&S.bless!=='on')||(r[2]==='veil'&&S.veil==='skip');
     var numCell=isPre?'<div class="sr-n" style="color:var(--light);font-size:10px">식전</div>':isOff?'<div class="sr-n sr-off">뺌</div>':'<div class="sr-n">'+(++_num<10?'0':'')+_num+'</div>';
     var emptyWrite=(r[2]==='vow'&&!_wcFilled('vow'))||(r[2]==='letter'&&!_wcFilled('letter'))||(r[2]==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));   // 직접 읽는 글 미입력 → 인라인 표시(변경=채우기) · WRITE_2CHECK
-    h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+(emptyWrite?' <span class="sr-empty">글 비어 있음</span>':'')+'</div><button class="sr-c" onclick="editStep(\''+r[2]+'\')">'+(emptyWrite?'채우기':'변경')+'</button></div>';
+    h+='<div class="sumrow'+(isOff?' off':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+(emptyWrite?' <span class="sr-empty">글 비어 있음</span>':'')+'</div><button class="sr-c" aria-label="'+esc(r[0])+(emptyWrite?' 글 채우기':' 바꾸기')+'" data-fk="sum:'+r[2]+'" onclick="editStep(\''+r[2]+'\')">'+(emptyWrite?'채우기':'변경')+'</button></div>';
   });
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
@@ -1588,13 +1663,15 @@ function renderDone(){
   //   이 줄이 없으면 "하객한테 AI 쓴다고 말했나요?"에 답할 근거가 없어진다. 지우지 말 것 · 선택 옵션으로 만들지 말 것.
   h+='<div class="prep-hint" style="margin-top:12px">당일 하객 안내에는 "미리 준비한 안내 음성으로 진행합니다"라는 안내가 들어가고, 하객 식순지에는 AI 음성 안내라고 적혀요.</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
-  h+='<div class="sec-l">음악, 한 곡만 정하면 돼요</div>';
+  h+='<h3 class="sec-l">음악, 한 곡만 정하면 돼요</h3>';   // [ORD_H2]
   h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
   h+='<input class="tin" aria-label="편지·서약 배경 음악" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
   // ★폐식·단체촬영 음악 입력칸 복원 금지 — 2026-07-22 사용자 지시로 삭제(편지·서약만 고르게). Admin.html은 옛 저장값(mClose)만 '구 입력'으로 표시. S.mClose 상태는 하위호환으로 보존
   h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 드려요.</div></div>';
-  h+='<div class="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</div>';
-  h+='<div class="note">편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.</div>';
+  h+='<button type="button" class="special" data-fk="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</button>';   // [ORD_KEY]
+  // [ORD_NOTE_FIT] 이 줄이 코스와 상관없이 늘 '편지와 서약이 중심인 예식이라'로 나갔다.
+  //   미니멀 코스엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
+  h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
   return h;
 }
@@ -1608,7 +1685,7 @@ function renderRehearse(){
   document.getElementById('ppct').textContent='';
   document.getElementById('pnext').textContent='';
   var bs=fullBlocks();
-  var h='<div class="rh-hd"><div class="t">연습 공간</div><div class="s">완성된 예식을 처음부터 끝까지 들으며 연습해요 · 다 못 외워도 나레이션이 순서마다 알려주고, 디렉터가 곁에서 신호를 드려요.</div></div>';
+  var h='<div class="rh-hd"><h2 class="t" id="stepHead" tabindex="-1">연습 공간</h2><div class="s">완성된 예식을 처음부터 끝까지 들으며 연습해요 · 다 못 외워도 나레이션이 순서마다 알려주고, 디렉터가 곁에서 신호를 드려요.</div></div>';
   h+='<button class="rh-auto" style="margin-top:16px" onclick="listenAll(this)">처음부터 이어 듣기</button>';
   { h+='<div class="prep-hint" style="text-align:center">나레이션 목소리 미리보기예요 · 서약·편지처럼 두 분이 직접 읽는 시간은 실제 예식에서 더해져요(전체 약 '+estMin().replace('약 ','')+'에 포함).</div>'; }
   bs.forEach(function(b,i){
@@ -1623,7 +1700,7 @@ function renderRehearse(){
   });
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript()">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
   var _prep=''; prep().forEach(function(p){ _prep+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
-  h+='<div class="sec-l" style="margin-top:18px">당일까지 준비할 것</div><div class="prep">'+_prep+'</div>';
+  h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">'+_prep+'</div>';
   h+='<button class="rehearse-btn" style="margin-top:16px" onclick="closeRehearse()">완성 화면으로 돌아가기</button>';
   h+='<div class="banner" style="text-align:center">오프라인 연습용 다운로드도 제공될 예정이에요.</div>';
   document.getElementById('stage').innerHTML=h;
