@@ -36,6 +36,29 @@ else {
     + (same ? '' : ' — 원천누락:' + (miss.join(',') || '없음') + ' / 원천잉여:' + (extra.join(',') || '없음') + ' / 값불일치:' + (diff.join(',') || '없음')), same);
 }
 
+// ★MIN_BASE_TRIAD — 소요 시간이 세 곳에 따로 적혀 있다. 이 셋이 갈리면 같은 고객이 같은 세션에서
+//   AI 상담사한테는 "약 25분"을 듣고 빌더 화면에서는 다른 숫자를 본다(둘 다 우리가 한 말이다).
+//     ① COURSES[x].min      '약 25분' 문자열   → 코스 선택 카드(원천·빌더 사본 양쪽)
+//     ② MIN.base            숫자              → AI 상담사 지식베이스(api/_ritual-kb.js)
+//     ③ estMin()의 리터럴    숫자              → 빌더 실시간 예상 시간
+//   ★A안(estMin이 MIN.base를 직접 읽기)은 쓸 수 없다 — order-preview.html은 ritual-data.js를 로드하지 않는다
+//     (외부 script는 advisor-widget.js 하나뿐 · 인라인 사본 구조가 이 파일 존재 이유다). 그래서 대조로 막는다.
+{
+  const nOf = (v) => Number(String(v || '').replace(/\D/g, ''));
+  const base = D.MIN.base || {};
+  const bad1 = Object.keys(D.COURSES).filter((c) => nOf(D.COURSES[c].min) !== base[c])
+    .map((c) => c + '(카드' + nOf(D.COURSES[c].min) + '≠MIN.base' + base[c] + ')');
+  ok('COURSES[x].min 문자열이 MIN.base 숫자와 일치(' + Object.keys(D.COURSES).length + '코스)'
+    + (bad1.length ? ' — ' + bad1.join(',') : ''), bad1.length === 0);
+
+  const emM = html.match(/var base=\{([^}]*)\}\[S\.course\]/);
+  const bb = {};
+  if (emM) emM[1].split(',').forEach((kv) => { const m = kv.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*(\d+)\s*$/); if (m) bb[m[1]] = Number(m[2]); });
+  const bad2 = Object.keys(base).filter((c) => bb[c] !== base[c]).map((c) => c + '(빌더' + bb[c] + '≠원천' + base[c] + ')');
+  ok('빌더 estMin()의 base 리터럴이 MIN.base와 일치' + (emM ? ' (빌더 ' + Object.keys(bb).length + '코스)' : ' — 리터럴 파싱 실패')
+    + (bad2.length ? ' — ' + bad2.join(',') : ''), !!emM && Object.keys(bb).length === Object.keys(base).length && bad2.length === 0);
+}
+
 // ★NAR_MIRROR — 빌더는 assets/ritual-data.js를 로드하지 않고 같은 문안의 인라인 사본을 따로 들고 있다.
 //   그래서 한쪽만 고치면 고객 화면과 AI 상담 답변이 갈린다. 원천 문안이 빌더에도 있는지 전수 대조한다.
 //   (단방향 검사 · 빌더에만 있는 잉여 문안은 대상 아님)

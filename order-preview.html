@@ -511,7 +511,7 @@ var GUEST=[
 ];
 var COURSES={
   damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
-    seq:['guest','entry','welcome','vow','ring','declare','letter','bless','valley'],
+    seq:['guest','entry','welcome','vow','ring','declare','valley','letter','bless'],   // ★밸리는 편지 '앞'(성혼선언 → 밸리 → 편지◆ → 덕담). 기본값은 밸리·덕담 둘 다 OFF라 7순간 그대로 · 켰을 때만 달라진다. 맨 끝으로 되돌리지 말 것(코스설계_v1 코스A 본문 · 큐시트 '편지 전 톤 낮추며 정돈')
     one:'어른 하객이 많은 두 분께 · 꼭 필요한 순간만',
     feel:'담백하지만 진심이 깊게 남길 원하는 두 분께 · 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
@@ -527,7 +527,7 @@ var COURSES={
     addable:'원하면 와인 세리머니·케이크 커팅·부모님 덕담을 더할 수 있어요.'},
   gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 29분',
     seq:['guest','veil','entry','welcome','vow','ring','letter','tribute','declare'],
-    opt:[{k:'valley',at:9}],
+    opt:[{k:'valley',at:6}],   // ★at:6 = 반지(5) 뒤·편지(6) 앞. at:9는 seq 길이와 같아 splice가 맨 끝에 꽂았다 · OPTWHY가 안내하는 '분위기 전환' 지점은 절차 구간에서 감정 구간으로 넘어가는 경계지 예식이 끝난 뒤가 아니다
     one:'눈물 예식을 원하는 두 분께 · 편지와 서약이 정점',
     feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 베일 다운으로 시작해 편지에서 절정에 이르는 벅찬 예식이에요.',
     flow:['베일 다운','입장','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언','폐식·단체촬영'],
@@ -578,7 +578,7 @@ var COURSES={
   // ★FESTIVE_MIN_WHY — 축하만 순간 합 대비 여유가 16분(다른 코스 10~14분)이다. 오타가 아니라 친구 하객 환호·축배 잔 배분에 드는 시간이다(TOAST.both.cue가 '편지 낭독 중 하객 잔 미리 채움'으로 동선까지 잡아 둔다). 첫 예식 실측 전까지 낮추지 말 것.
   festive:{nm:'축하', badge:'밝고 활기', ready:true, min:'약 30분',
     seq:['guest','entry','welcome','vow','ring','declare','letter','toast'],
-    opt:[{k:'song',at:6},{k:'bless',at:6}],
+    opt:[{k:'song',at:7},{k:'bless',at:7}],   // ★at:7,7 = 편지◆ 뒤(정점 → 이완(축가) → 여운(덕담) → 밝은 착지(축배)). at:6,6이면 축가·덕담이 편지 앞에 와서 덕담(감동)·편지(감동)가 연속되고 BLOCK.bless의 '편지 뒤라' 큐가 사실과 어긋난다
     one:'친구 하객이 많은 두 분께 · 웃음과 축배의 활기',
     feel:'즐겁게 축하하고 싶은 두 분께 · 편지로 마음을 한 번 모으고, 축배·케이크로 밝게 마무리하는 코스예요.',
     flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','축배·케이크','폐식·단체촬영'],
@@ -698,6 +698,16 @@ var STEPS=[], CEREMONY=[];
 // 전체 순서 팔레트 — 고정 3개(guest·entry·폐식)와 핵심(vow·ring·declare) 빼고 어느 코스에서든 더할 수 있는 순간 (2026-07-19 사용자 지시: "코스에 없는 이벤트도 원하면 넣게") — RITUAL_ADD_PALETTE
 var GADD={veil:1,welcome:1,bless:1,ringwarm:1,valley:1,letter:1,tribute:1,toast:1,song:1};
 var RANK={guest:0,veil:5,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
+// ★RANK_OV — 우리 코스는 식순 문법이 두 개인데 위 RANK는 하나만 안다.
+//   선언 중반형(담백·미니멀·축하): 성혼선언을 절차로 중간에 두고 감정 정점(편지)이 뒤 → declare:50 < letter:60 이 맞다.
+//   선언 종반 통합형(감동·가족):   감정 정점(편지) → 헌정 → 성혼선언으로 착지 → declare가 seq의 마지막이다.
+//   그대로 두면 팔레트로 더한 밸리(70)·축가(80)·축배(85)가 전부 성혼선언 뒤, 곧 폐식 직전으로 간다.
+//   실제 결과: 하객이 다 함께 답한 성혼선언 직후에 케이크를 자른다(연구2 안티패턴 3 — 유쾌로 끝맺음 → 여운 없이 단체촬영).
+//   84인 이유: 축배(85)만 선언 뒤에 남긴다(연구1 — 케이크커팅·축배는 클로징 배치 확정). 밸리·축가는 선언 앞으로 들어온다.
+//   ※ 통합 규칙 — 이완 순간은 감정 정점 '앞'에 둔다. 정점 뒤는 헌정·선언·폐식 나레이션이 이미 하강 곡선을 깔고 있다.
+var RANK_OV={gamdong:{declare:84}, family:{declare:84}};
+function rankOf(k,dflt){ var o=(RANK_OV[S.course]||{}); if(o[k]!==undefined) return o[k];
+  return RANK[k]!==undefined?RANK[k]:(dflt!==undefined?dflt:99); }   // ★모르는 키 기본값은 호출부가 정한다 — 끼울 순간은 99(맨 뒤로), 훑는 쪽은 0(원래 `RANK[s[i]]||0`과 같게). 한쪽으로 통일하면 기존 삽입 결과가 바뀐다
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
   return Object.keys(GADD).filter(isGAdd);
@@ -710,8 +720,8 @@ function defaultOrd(){   // 코스 기본 순서 — seq + 선택 순서(opt)를
   // 코스 밖에서 더한 순간(전체 팔레트)을 표준 순서(RANK)에 맞춰 제자리에 끼움
   Object.keys(S.extra||{}).forEach(function(g){
     if(!S.extra[g] || !isGAdd(g) || s.indexOf(g)>-1) return;
-    var pos=s.length, gr=(RANK[g]!==undefined?RANK[g]:99);
-    for(var i=0;i<s.length;i++){ if((RANK[s[i]]||0) > gr){ pos=i; break; } }
+    var pos=s.length, gr=rankOf(g);   // ★RANK_OV 적용 — 코스 문법에 맞는 자리
+    for(var i=0;i<s.length;i++){ if(rankOf(s[i],0) > gr){ pos=i; break; } }
     s.splice(pos,0,g);
   });
   return s;
@@ -1542,8 +1552,14 @@ var BLOCK={
   },
   bless:function(){
     if(S.bless!=='on') return null;
+    // ★BLESS_CUE_BYPOS — 덕담 큐를 '코스가 가족인가'가 아니라 '실제 순서상 편지보다 뒤인가'로 판정한다.
+    //   코스 기반이면 감동에 팔레트로 덕담을 더했을 때(RANK[bless]=25라 서약 앞으로 간다) 큐가 여전히 "편지 뒤라"를 출력한다.
+    //   이 큐는 화면뿐 아니라 부부가 뽑는 인쇄 식순지에도 들어가서, 사실과 다르면 현장에서 톤을 반대로 잡는다.
+    //   부부가 ↑↓로 순서를 직접 바꿀 수 있는 빌더라 위치 기반이 원래 맞다.
+    var _bo=ordNow(), _bi=_bo.indexOf('bless'), _li=_bo.indexOf('letter');
+    var _afterLetter=(inSeq('letter') && _bi>-1 && _li>-1 && _bi>_li);
     var famOpen=(S.course==='family');
-    return {n:'부모님 덕담',nar:famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
+    return {n:'부모님 덕담',nar:famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀이 있습니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':_afterLetter?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 순서로 · 예식의 문을 여는 말씀이라 밝고 또렷하게')};
   }
 };
 function fullBlocks(){
@@ -1570,6 +1586,8 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
 function _cakeDup(){ return inSeq('valley') && S.valley==='cake' && inSeq('toast') && (S.toast==='cake'||S.toast==='both'); }
 function cakeDupNote(){ return '<div class="reassure" style="margin-top:12px">지금은 사이 순서와 축배 두 곳에서 케이크를 자르게 돼요 · 한 곳만 케이크로 두시면 흐름이 또렷하고, 실물 준비도 한 번으로 정리돼요.</div>'; }
 function estMin(){
+  // ★MIN_BASE_TRIAD — 이 리터럴은 assets/ritual-data.js의 MIN.base와 같아야 한다(AI 상담사가 그쪽을 읽는다).
+  //   빌더는 ritual-data.js를 로드하지 않아 직접 참조할 수 없어서, check-ritual-mirror.js가 이 줄을 파싱해 대조한다. 형태를 바꾸면 가드가 못 읽는다.
   var base={damback:25,minimal:18,gamdong:29,family:30,festive:30}[S.course]||25, m=base;
   if(S.ring==='off') m-=1;
   if(inSeq('valley') && S.valley!=='none') m+=3;
