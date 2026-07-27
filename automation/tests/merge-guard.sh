@@ -660,6 +660,24 @@ chk 'retry-btn' guide.html 3                   # 위 버튼 — CSS 2(본체·:a
 chk 'GUIDE_CACHE' guide.html 1                 # 회선 불량 재방문 시 캐시로 즉시 표시. ★재시도 전부 실패해도 캐시 화면을 지우지 않는다(painted 가드)
 chk 'GUIDE_MAP_REFLOW' guide.html 1            # 200% 확대(207px)에서 좌석표가 페이지를 가로로 밀던 것 → 스크롤을 블록 안에 가둠
 chk 'GUIDE_DEADREF' guide.html 1               # 호출부 없는 findSeat 안의 문구가 삭제된 '전체 배치도'를 가리키고 있던 것
+# ── 2026-07-27 seat.html 1라운드(guide 1~3라운드 처방을 복제 페이지에 적용)
+chk 'SEAT_FONT_NOBLOCK' seat.html 1            # 폰트 CSS 렌더 블로킹 — 백지 + 좌석 데이터 요청까지 밀림
+chk 'media="print"' seat.html 1                # ★위 처방 본체. rel=stylesheet만 남기면 흰 화면이 돌아온다
+chk 'SEAT_CONTRAST' seat.html 1                # --gold-deep 3.82:1 · 하드코딩 #A49D8E 2.61:1이 글자에 쓰이던 것
+chk 'gold-text' seat.html 5                    # 토큰 1 + 읽는 골드 4(브랜드·검색결과·좌우 라벨·♡)
+chk 'SEAT_TAP40' seat.html 1                   # 뒤로 48×29 → 40px. ★.backbar top을 함께 올려야 라벨이 안 어긋난다
+chk 'SEAT_HEADING' seat.html 1                 # h1이 0개였다 — 화면낭독기에 구조 없음
+chk 'h1 class="couple"' seat.html 2            # 전체 배치도·내 자리만 두 화면 모두
+chk 'aria-live="polite"' seat.html 2           # 검색 결과가 live region이 아니라 이름을 쳐도 낭독기가 무음이었다(두 화면)
+chk 'SEAT_SR' seat.html 3                      # 배치도 그림을 aria-hidden으로 덮고 sr-only 명단으로 대체(CSS 1 + 전체 1 + 내자리 1)
+chk 'sr-only' seat.html 3                      # ★display:none으로 바꾸면 낭독기도 건너뛰어 다시 무음이 된다
+chk 'SEAT_FOCUS' seat.html 1                   # .find input:focus{outline:none}가 초점 링을 지우던 것
+chk 'SEAT_MAP_REFLOW' seat.html 1              # ★320px에서 페이지가 336>320으로 밀리던 것. 400px 이하에서만 가둔다 — 414px는 전 모습 유지(잘림 방지)
+chk 'SEAT_RETRY' seat.html 2                   # 실패 시 누를 게 0개였다. 자동 재시도 1.2·3초 + 버튼(CSS 1 + JS 1)
+chk 'SEAT_NOCACHE' seat.html 2                 # ★guide의 localStorage 캐시를 '의도적으로' 안 가져온 기록 — 이 응답엔 하객 전원 실명이 들어 있다. 캐시 추가 금지
+chk 'SEAT_DATE_GUARD' seat.html 1              # 2027-13-45가 롤오버돼 '13월 45일 (월)'로 나오던 것
+chk 'SEAT_MOTION' seat.html 1                  # 검색마다 도는 smooth 스크롤 — 동작 줄이기 설정 존중
+chk 'SEAT_SAFEAREA' seat.html 1                # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi

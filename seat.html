@@ -14,10 +14,16 @@
 <title>좌석 안내 · Moment Edit</title>
 <meta property="og:title" content="MOMENT EDIT · 좌석 안내">
 <meta property="og:description" content="예식 좌석을 확인해 보세요.">
-<!-- 브랜드 세리프 로드 — 없으면 한글이 시스템 고딕으로 폴백돼 폰트가 달라 보임(2026-07-20 수정) -->
+<!-- [SEAT_FONT_NOBLOCK] guide.html과 같은 처방(2026-07-27). 하객이 예식장 와이파이로 여는 화면이라
+     폰트 CSS를 렌더 블로킹으로 두면 폰트 CDN이 느린 만큼 백지가 길어지고, body 끝의 부트 스크립트도
+     그 뒤에야 실행돼 좌석 데이터 요청 자체가 밀린다.
+     media=print → onload로 all 전환. 한글은 시스템 서체로 먼저 읽히고 브랜드 세리프가 오면 바뀐다.
+     ★폰트가 아예 안 와도 페이지는 읽힌다. 브랜드 세리프 자체는 유지(2026-07-20 취지) · 로드 '시점'만 바꿈. -->
+<link rel="preconnect" href="https://script.google.com"><!-- 좌석 데이터가 오는 곳 — 폰트만 걸려 있고 정작 여기가 빠져 있었다 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
   --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
@@ -63,12 +69,85 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
 </style>
+<style>
+/* ════════════════════════════════════════════════════════════════
+   좌석 안내 1라운드 (2026-07-27)
+   guide.html 1~3라운드에서 고친 것들이 이 페이지에 그대로 남아 있었다.
+   두 파일은 검색 로직·문구가 복제돼 있어(코드 주석에도 '두 파일 함께') 같은 처방을 적용한다.
+   ★단, 캐시(GUIDE_CACHE)만은 가져오지 않는다 — 아래 SEAT_NOCACHE 참고.
+   ════════════════════════════════════════════════════════════════ */
+
+/* [SEAT_CONTRAST] --gold-deep(#9A7B4F)=3.82:1 · 하드코딩 #A49D8E=2.61:1이 글자에 쓰였다.
+   글자엔 --gold-text(5.71:1), 선·테두리엔 --gold/--gold-deep 유지 — index·inquiry·live·guide와 같은 규칙. */
+:root{ --gold-text:#7A5F37; }
+.brand,
+.find-res,
+.colh{color:var(--gold-text)}
+.backbar button{color:var(--light)}   /* 2.61 → 4.79 */
+/* 이름 사이 '♡'는 두 사람을 가르는 유일한 표시다(아래 한글 줄이 따로 없다).
+   guide.html .heart와 같은 판단 — 5.71:1로 올려도 이름(--accent 13.3:1)보다 한참 옅다. */
+.heart{color:var(--gold-text)}
+
+/* [SEAT_KO_TRACK] 영문 라벨용 트래킹이 한글에 걸린 곳. '버진로드'는 세로쓰기 장식이라 제외(aria-hidden). */
+.stage{letter-spacing:.06em}
+.colh{letter-spacing:.04em}
+
+/* [SEAT_TAP40] '‹ 뒤로' 48×29 — 화면 맨 위 모서리라 더 누르기 어렵다.
+   ★박스만 키우면 라벨이 내려가 브랜드 줄과 어긋난다 → .backbar top을 함께 올려 라벨 위치를 지킨다. */
+.backbar{top:-9px}
+.backbar button{min-height:40px;display:inline-flex;align-items:center;padding:0 8px}
+
+/* [SEAT_HEADING] h1이 하나도 없어 화면낭독기에 구조가 없었다. 보이는 모습은 그대로. */
+h1.couple{font-size:20px;font-weight:500;letter-spacing:.02em;margin:0;line-height:1.4}
+
+/* [SEAT_SR] 배치도는 눈으로 보는 그림이라 낭독기엔 숫자·이름 파편으로 흘러나온다.
+   ★display:none·visibility:hidden은 낭독기도 건너뛴다 — 반드시 이 클립 방식이어야 한다. */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* [SEAT_FOCUS] .find input:focus{outline:none}이 초점 링을 지우고 테두리 색만 바꾸고 있었다.
+   ★:where()는 특이도 0이라 그것만으론 못 이긴다 — .find input:focus-visible 재선언이 함께 있어야 실제로 뜬다. */
+:where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:3px}
+.find input:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+/* [SEAT_MAP_REFLOW] ★guide.html보다 심하다 — .tbl이 150px(guide 118px)에 지그재그도 ±30px(guide ±22px)이라
+   200% 확대가 아니라 '작은 폰 320px'에서 이미 페이지가 가로로 밀리고 있었다(실측 336 > 320).
+   좌석표는 2차원 배치 자체가 정보라 접을 수 없다 → 스크롤을 이 블록 안에 가둔다.
+   ★★여기서 세 번 틀렸고 매번 스크린샷이 잡아냈다. 계측만 봤으면 다 통과로 넘어갔을 것이다.
+   ① overflow만 걸었더니 표준 폭(414px)에서도 스크롤이 생겼다 — 전엔 지그재그로 밀린 테이블이
+      카드 패딩 위로 번져 나가며 딱 들어맞고 있었기 때문이다.
+   ② 패딩만큼 끌어냈더니 안쪽 패딩이 그만큼 다시 먹어 폭이 제자리였고, '장하늘' 칩이 잘렸다.
+   ③ 안쪽 패딩을 빼고 카드 바깥선까지 넓혀도 여전히 잘렸다. 이유는 계산해 보니 구조적이다 —
+      .col이 flex:1이라 스크롤 영역을 넓히면 열도 같이 넓어지고, 테이블이 열 중앙에서 다시
+      ±30px 밀리면서 넘치는 양이 거의 그대로 따라온다. 넓혀서 해결되는 문제가 아니다.
+   결론: 이 지오메트리는 폰 폭에 원래 안 들어간다. 414px에서는 카드·본문 여백 위로 번져 나가는
+   지금 모습이 (잘림 없이) 성립하므로 손대지 않고, 실제로 페이지가 밀리던 좁은 폭에서만 가둔다.
+   ★실측: 320px에서 페이지가 336>320으로 밀리고 있었다(guide.html은 118px 테이블이라 320px까진 버텼다). */
+@media(max-width:400px){
+  .room{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;
+    margin-left:-19px;margin-right:-19px}
+}
+
+/* [SEAT_SAFEAREA] viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 썼다.
+   max()라서 인셋이 없는 기기에선 지금과 완전히 동일하다. */
+body{
+  padding-left:max(15px, env(safe-area-inset-left));
+  padding-right:max(15px, env(safe-area-inset-right));
+  padding-bottom:max(60px, env(safe-area-inset-bottom));
+}
+
+/* [SEAT_RETRY] 실패 화면의 '다시 불러오기'. 만료·못찾음엔 안 붙는다(눌러도 달라지지 않는다). */
+.retry-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+  margin-top:18px;padding:0 26px;font-family:var(--serif-ko);font-size:14px;
+  color:#fff;background:var(--gold-text);border:none;border-radius:24px;cursor:pointer}
+.retry-btn:active{background:var(--accent)}
+</style>
 </head>
 <body>
 <div class="wrap">
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
-  <div id="root"><div class="state">좌석 안내를 불러오는 중이에요…</div></div>
+  <main id="root"><div class="state" role="status">좌석 안내를 불러오는 중이에요…</div></main>
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -79,15 +158,27 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
-  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]); var WD=['일','월','화','수','목','금','토'];
+  var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]);
+  // [SEAT_DATE_GUARD] 형식만 맞으면 통과시켜 2027-13-45가 '2027년 13월 45일 (월)'로 나왔다.
+  // Date가 조용히 롤오버해 '자신 있게 틀린 요일'까지 붙는다 — 왕복이 안 맞으면 날짜 줄을 아예 뺀다.
+  if(dt.getFullYear()!==+p[0] || dt.getMonth()!==+p[1]-1 || dt.getDate()!==+p[2]) return '';
+  var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
 }
-function stateHtml(msg, sm){ return '<div class="card"><div class="state">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+function stateHtml(msg, sm){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
 var NUMS={};     // 배열 인덱스 → 행순서 표시 번호(지도 배지·검색 결과가 같은 번호를 쓰게)
 // 편집기(mypage)·좌석표 프린트와 동일한 반 칸(180/n) 회전 — 단상 쪽은 비우고 정면에 자리. 세 화면의 자리 위치 일치
 function seatPos(n,i,r){ var off=180/(n||1); var a=(-90+off+i*(360/(n||1)))*Math.PI/180; return {x:Math.cos(a)*r, y:Math.sin(a)*r}; }
+// [SEAT_MOTION] 검색할 때마다 smooth 스크롤이 돈다. '동작 줄이기'를 켠 사람에겐 멀미가 되는 움직임이라
+//   그 설정을 켠 기기에선 즉시 이동으로 바꾼다(도착지는 같다).
+function scrollToSeat(el){
+  if(!el) return;
+  var reduce=false;
+  try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  try{ el.scrollIntoView({behavior:reduce?'auto':'smooth', block:'center'}); }catch(e){}
+}
 function zig(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*30; }
 function render(seat){
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
@@ -111,15 +202,26 @@ function render(seat){
   NUMS=num;   // 검색 결과(findSeat)도 지도 배지와 같은 행순서 번호를 쓰게 보관
   var L='', R='', li=0, ri=0;
   tables.forEach(function(t,i){ if(String(t.side||'L')==='R') R+=tblCard(t,i,ri++,num[i]); else L+=tblCard(t,i,li++,num[i]); });
-  var room = '<div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
+  // [SEAT_SR] 이 배치도는 눈으로 보는 그림이다. 낭독기엔 '1 가족석 이재환 최미경 3 김민수…'처럼
+  //   맥락 없는 파편으로 흘러나온다 — 그림은 aria-hidden으로 덮고, 대신 테이블별 명단을 목록으로 낸다.
+  //   ★전체 배치도 모드는 부부가 '전체 공개'를 고른 경우뿐이라(내 자리만이면 renderMineOnly로 간다)
+  //     명단을 텍스트로 내도 공개 범위가 넓어지지 않는다.
+  var srList='<ul class="sr-only">';
+  tables.forEach(function(t,i){
+    var nms=(t.seats||[]).map(function(x){ return String(x||'').trim(); }).filter(Boolean);
+    var _c=String(t.name||'').trim(), _isC=(_c && !/^테이블\s*\d+$/.test(_c));
+    srList+='<li>'+(num[i]||(i+1))+'번 테이블'+(_isC?(' · '+esc(_c)):'')+' : '+(nms.length?nms.map(esc).join(', '):'아직 준비 중이에요')+'</li>';
+  });
+  srList+='</ul>';
+  var room = srList+'<div aria-hidden="true"><div class="stage">&#9672; 단상 · 신랑 신부</div><div class="room">'
     +'<div class="col"><div class="colh">좌측</div>'+(L||'')+'</div>'
-    +'<div class="aisle" aria-hidden="true"><span>버진로드</span></div>'
-    +'<div class="col"><div class="colh">우측</div>'+(R||'')+'</div></div>';
+    +'<div class="aisle"><span>버진로드</span></div>'
+    +'<div class="col"><div class="colh">우측</div>'+(R||'')+'</div></div></div>';
   $('root').innerHTML =
     '<div class="card">'
-    +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="head"><h1 class="couple">'+couple+'</h1>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
     +'<div class="lead">두 분의 결혼을 축하합니다.<br>아래에서 성함을 검색하시면 자리를 안내해 드려요.</div>'
-    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr" role="status" aria-live="polite" aria-atomic="true"></div></div>'
     + room
     +'<div class="foot">자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
     +'</div>';
@@ -144,7 +246,7 @@ function findSeat(v){
   gk.forEach(function(g){ var tb=document.querySelector('[data-tbl="'+g+'"]'); if(tb) tb.classList.add('hit'); });   // 매칭된 테이블 모두 강조(지도로 눈으로도 확인)
   if(gk.length>1){   // 흔한 성·부분일치 → 텍스트로 한 자리만 단정하지 않음(엉뚱한 자리 방지). 지도엔 다 강조돼 있음.
     $('fr').innerHTML='<b>'+esc(v)+'</b> 님이 여러 자리에서 검색돼요 · 성함을 더 입력해 주세요.';
-    if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+    scrollToSeat(first);
     return;
   }
   var hitG=+gk[0];
@@ -153,7 +255,7 @@ function findSeat(v){
   var _c=String(t.name||'').trim();
   var _isCustom=(_c && !/^테이블\s*\d+$/.test(_c));   // 번호중복 제거 2026-07-19: 기본명이면 'N번 테이블'만, 커스텀명이면 이름 · N번 테이블
   $('fr').innerHTML=_isCustom ? ('<b>'+esc(_c)+'</b> 자리예요 · '+_no+'번 테이블') : ('<b>'+_no+'번 테이블</b> 자리예요');
-  if(first){ try{ first.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+  scrollToSeat(first);
 }
 // '내 자리만' 모드(부부 설정 · 기본값) — 전체 배치도 대신 이름 검색 전용 화면. 명단은 기기로 받지 않고
 //   서버 검색(seatView+q)으로 본인 테이블만 답한다. 이미 배포된 링크·QR도 이 화면으로 자연 전환(죽은 링크 없음).
@@ -163,9 +265,9 @@ function renderMineOnly(seat, t){
   var date=fmtDate(seat.date);
   $('root').innerHTML =
     '<div class="card">'
-    +'<div class="head"><div class="couple">'+couple+'</div>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
+    +'<div class="head"><h1 class="couple">'+couple+'</h1>'+(date?'<div class="date">'+esc(date)+'</div>':'')+'</div>'
     +'<div class="lead">두 분의 결혼을 축하합니다.<br>성함을 검색하시면 자리를 안내해 드려요.</div>'
-    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr"></div></div>'
+    +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력해 보세요"><div class="find-res" id="fr" role="status" aria-live="polite" aria-atomic="true"></div></div>'
     +'<div class="foot">연락처 없이 성함과 테이블만 안내돼요.<br>자리를 못 찾으셨다면 현장 안내를 참고해 주세요.</div>'
     +'</div>';
   // 검색·결과 규칙은 guide.html(bindSeatServer·seatHitsHtml)과 동일 — 문구·규칙 수정 시 두 파일 함께
@@ -188,9 +290,12 @@ function renderMineOnly(seat, t){
       var w='<div style="transform:translateX('+z+'px)">'+tblM(t,h)+'</div>';
       if(String(t.side||'L')==='R') R+=w; else L+=w;
     }
-    return '<div class="stage" style="margin:16px 0 6px">&#9672; 단상 · 신랑 신부</div>'
-      +'<div class="room"><div class="col">'+L+'</div><div class="aisle" aria-hidden="true"><span>버진로드</span></div><div class="col">'+R+'</div></div>'
-      +'<div class="foot" style="margin-top:8px">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>';
+    // [SEAT_SR] 답은 이미 위 문장('3번 테이블 자리예요')이 한다 — 그림은 덮는다.
+    //   단, 부분 일치가 여럿일 때의 '확정 아님' 신호는 그림 캡션에만 있어 귀로는 안 들렸다 → 한 줄 따로 낸다.
+    return (one?'':'<p class="sr-only">같은 테이블에 성함이 비슷한 자리가 여럿이에요. 성함을 전체로 입력하면 정확히 표시돼요.</p>')
+      +'<div aria-hidden="true"><div class="stage" style="margin:16px 0 6px">&#9672; 단상 · 신랑 신부</div>'
+      +'<div class="room"><div class="col">'+L+'</div><div class="aisle"><span>버진로드</span></div><div class="col">'+R+'</div></div>'
+      +'<div class="foot" style="margin-top:8px">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div></div>';
   }
   function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+홀 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
@@ -216,18 +321,48 @@ function renderMineOnly(seat, t){
   }
   if(q) q.addEventListener('input', function(){ seq++; if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });   // 입력 즉시 이전 응답 무효화
 }
+// [SEAT_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다 — fetch 한 번, 실패하면 문장 한 줄, 누를 것 0개.
+//   이 페이지의 최대 부하 시점은 하객이 한꺼번에 도착하는 때다. 그때 들어온 사람이 막다른 화면을 보고 끝난다.
+//   guide.html과 같은 처방: 자동 재시도 2회(1.2·3초) + 그래도 안 되면 사람이 누를 버튼.
+//   ★'만료'·'못 찾음'엔 버튼을 안 붙인다 — 눌러도 달라지지 않는다.
+//   ★제목은 '무슨 일이 있었나', 보조는 '무엇을 하면 되나', 버튼은 '그 행동'으로 역할을 나눈다.
+//
+// [SEAT_NOCACHE] ★guide.html의 localStorage 캐시는 여기로 가져오지 않는다.
+//   guide의 캐시 대상은 부부 이름·예식일·식당 공개정보였지만, 이 페이지의 전체 배치도 응답에는
+//   하객 전원의 실명이 들어 있다. 캐시하면 링크를 한 번 연 기기마다 하객 명단이 남는다.
+//   이 페이지는 '명단을 기기로 받지 않는다'는 원칙('내 자리만' 모드)이 설계의 뼈대라, 캐시가 그걸 뒤집는다.
+//   느린 회선 대비는 자동 재시도와 버튼으로만 한다.
+function seatFailHtml(){
+  return '<div class="card"><div class="state" role="status">좌석 안내를 불러오지 못했어요.'
+    +'<div class="sm">네트워크 상태를 확인한 뒤 다시 눌러 주세요.</div>'
+    +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></div></div>';
+}
 (function boot(){
   var t=qp('t');
   if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
-  fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if(d && d.ok && d.seat){ render(d.seat); }
-      else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면
-      else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
-      else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
-    })
-    .catch(function(){ $('root').innerHTML=stateHtml('잠시 후 다시 시도해 주세요.','네트워크 상태를 확인해 주세요.'); });
+  function load(attempt){
+    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok && d.seat){ render(d.seat); }
+        else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면
+        else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
+        else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+      })
+      .catch(function(){
+        if(attempt<2){
+          $('root').innerHTML=stateHtml('연결이 느려요','다시 불러오고 있어요…');
+          setTimeout(function(){ load(attempt+1); }, attempt===0?1200:3000);
+          return;
+        }
+        $('root').innerHTML=seatFailHtml();
+        var b=$('retryBtn');
+        if(b) b.addEventListener('click', function(){
+          $('root').innerHTML=stateHtml('좌석 안내를 불러오는 중이에요…'); load(0);
+        });
+      });
+  }
+  load(0);
 })();
 </script>
 </body>
