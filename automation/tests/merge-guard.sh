@@ -708,6 +708,17 @@ chk 'ORD_STRUCT' order-preview.html 2          # h1·main이 0개였다(주석 1
 chk '<main class="stage"' order-preview.html 1 # div로 되돌리면 랜드마크가 다시 사라진다
 chk 'sr-only' order-preview.html 2             # ★display:none으로 바꾸면 낭독기도 건너뛴다
 chk 'aria-label="서로에게 하는 약속' order-preview.html 1  # 긴 글 칸 4개가 placeholder만 있던 것(치는 순간 이름이 사라진다)
+# ── 2026-07-27 order-preview.html 2라운드(고객 입장 · 편의성/직관성/디자인성/이해성/디테일)
+chk 'ORD_KEY' order-preview.html 12            # ★위저드에서 '고르는' 것 전부가 <div onclick>이라 Tab으로 닿지 않았다(8종 254개). 카드 제목만 button으로 만들고 ::after를 카드 전체로 늘려 덮는다 — 카드를 통째로 button으로 바꾸면 안쪽 들어보기·↑↓가 버튼 안에 들어간다(nested interactive). div onclick으로 되돌리기 금지
+chk 'button.oc-nm::after' order-preview.html 1 # 위 오버레이 — 지우면 카드 아무 데나 누르는 감각이 제목 줄로 쪼그라든다
+chk 'ORD_FOCUS' order-preview.html 1           # 포커스 표시 규칙이 아예 없었고 .ta:focus{outline:none}이 오히려 지우고 있었다. :where()는 특이도 0이라 .ta:focus-visible를 따로 써야 이긴다
+chk 'ORD_H2' order-preview.html 5              # 단계 제목이 전부 div였다(h2 0개) — 낭독기 제목 이동으로 아무 데도 못 갔다
+chk 'ORD_STEPFOCUS' order-preview.html 2       # '다음'을 눌러도 포커스가 버튼에 남아 낭독기엔 아무 일도 안 일어난 것처럼 들렸다 → 새 단계 제목으로 이동(첫 렌더 제외)
+chk 'ORD_STEPNO' order-preview.html 1          # ★'순서 N / N'이 완성 요약과 다른 숫자였다(담백 10/10 vs 7개 순서). 뺀 순간까지 세던 것 → fullBlocks 한 원천으로. 단계 수로 되돌리기 금지
+chk 'ORD_NEXTNAME' order-preview.html 1        # tune 한 단계를 세 이름으로 불렀다(예고 '함께 볼 순간 확인(전체 기본)' · 라벨 '기본 식순이 준비됐어요' · 제목 '어떤 순간을…')
+chk 'ORD_NOTE_FIT' order-preview.html 1        # ★미니멀엔 편지 낭독이 없는데 '편지와 서약이 중심인 예식이라'로 권하고 있었다 — 고르지도 않은 순서를 근거로 든 말
+chk 'ORD_AUDITION' order-preview.html 1        # 나레이션 글은 보여 주면서 들어보기는 고른 카드에만 있었다(담백 덕담·사이, 가족 링워밍 4곳) — 넣을지 판단하려고 듣는 건데 넣기 전엔 못 들었다
+chk 'ORD_DESC' order-preview.html 3            # 버튼 이름이 '아버지가'뿐이라 낭독기로는 무엇인지 알 수 없었다 → aria-describedby로 설명줄 연결
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
