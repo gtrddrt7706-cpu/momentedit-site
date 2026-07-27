@@ -698,6 +698,16 @@ chk 'PAR_KO_TRACK' parents.html 1              # 영문용 트래킹(.08em)이 �
 chk 'ADV_A11Y' assets/advisor-widget.js 3      # 아이브로우 2.54:1 · 닫기 30×30 · 카톡문의 높이 23px — 공용 위젯이라 4개 페이지가 함께 고쳐진다
 chk 'gold-text' assets/advisor-widget.js 2     # 위 아이브로우 색(주석 1 + 값 1). --gold-text 미정의 페이지는 폴백 #7A5F37
 chk 'ADV_PRINT' assets/advisor-widget.js 1     # ★인쇄 시 떠다니는 FAB이 편지 본문 위에 찍히던 것(parents 인쇄 미리보기 스크린샷에서 발견)
+# ── 2026-07-27 order-preview.html 1라운드(코스 5종 × 전 단계 65회 순회 실측)
+chk 'ORD_OFF_OPACITY' order-preview.html 1     # ★'순서에 없음'을 opacity(.5~.62)로 표현해 판단용 글자까지 흐려지던 것(7.16→2.79 등). 투명도를 올려선 못 푼다(4.5:1을 넘기려면 .84 필요 → 신호 소멸) — 흐림 대신 색으로. opacity 복원 금지
+chk 'ORD_CHEV' order-preview.html 1            # 펼침 표시 '›'가 2.25:1이라 '눌러서 펼쳐진다'는 신호가 안 보이던 것 → 3.82:1(UI 요소 기준 3:1)
+chk 'ORD_NOW' order-preview.html 1             # 지금 단계 표시(흰 글자/골드)가 3.95:1이던 것 → 5.97:1. 위저드에서 가장 자주 보는 정보다
+chk 'ORD_ONBG' order-preview.html 1            # --light가 회색 카드 위에서 4.2~4.47로 내려가던 것 → 바탕 있는 자리만 --sub
+chk 'ORD_TAP40' order-preview.html 1           # 순서 바꾸는 ↑↓ 27×27 등 17종 → 40px
+chk 'ORD_STRUCT' order-preview.html 2          # h1·main이 0개였다(주석 1 + CSS 1). 단계 제목은 바뀌므로 고정 제목은 sr-only h1으로
+chk '<main class="stage"' order-preview.html 1 # div로 되돌리면 랜드마크가 다시 사라진다
+chk 'sr-only' order-preview.html 2             # ★display:none으로 바꾸면 낭독기도 건너뛴다
+chk 'aria-label="서로에게 하는 약속' order-preview.html 1  # 긴 글 칸 4개가 placeholder만 있던 것(치는 순간 이름이 사라진다)
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
