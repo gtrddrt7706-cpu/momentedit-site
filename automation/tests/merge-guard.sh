@@ -686,6 +686,18 @@ chk 'crowd=(n>=8)' seat.html 1                 # ★임계 8. 짧은 더미로 �
 chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
 chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
 chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
+# ── 2026-07-27 parents.html 1라운드(사이트에서 독자 나이가 가장 많은 화면)
+chk 'PAR_CONTRAST' parents.html 1              # 장식 골드(2.54:1)가 一二三四 장 번호·아이브로우 글자에 쓰이던 것 → --gold-text
+chk 'gold-text' parents.html 3                 # 토큰 1 + 적용 2. 노안 독자에게 장 번호는 '어디까지 읽었는지' 짚는 표시다
+chk 'PAR_FOOTER' parents.html 1                # 상호·대표·사업자등록번호가 2.71:1이던 것 → 5.16:1(법정 표기이자 신뢰 확인 자리)
+chk 'PAR_TAP40' parents.html 1                 # 상단 로고·뒤로·메일 링크가 12~22px이던 것 → 40px. 손이 정확하지 않은 독자에겐 여기가 첫 벽
+chk 'PAR_TOOLS' parents.html 3                 # 글자 크기 단계 표시 + 끝단 disabled + role=group(주석 1 + CSS 1 + 마크업 1)
+chk 'fontLabel' parents.html 2                 # ★'눌렀는데 안 커지네'를 막는 현재 단계 표시 — 지우면 어른이 계속 누르게 된다
+chk 'PAR_KO_TRACK' parents.html 1              # 영문용 트래킹(.08em)이 한글 '뒤로'에 걸려 있던 것
+# ── 2026-07-27 assets/advisor-widget.js (inquiry·mypage·order-preview·parents 4개 페이지 공용)
+chk 'ADV_A11Y' assets/advisor-widget.js 3      # 아이브로우 2.54:1 · 닫기 30×30 · 카톡문의 높이 23px — 공용 위젯이라 4개 페이지가 함께 고쳐진다
+chk 'gold-text' assets/advisor-widget.js 2     # 위 아이브로우 색(주석 1 + 값 1). --gold-text 미정의 페이지는 폴백 #7A5F37
+chk 'ADV_PRINT' assets/advisor-widget.js 1     # ★인쇄 시 떠다니는 FAB이 편지 본문 위에 찍히던 것(parents 인쇄 미리보기 스크린샷에서 발견)
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
