@@ -45,3 +45,21 @@ DELIV_WAIT_TITLE 마커의 합의 동작과 세트 — 그 동작을 바꾸면 �
 ## _browser.mjs — 감사 공용 브라우저 어댑터 (2026-07-25)
 playwright(원격 점검 환경 기본·PLAYWRIGHT_BROWSERS_PATH 자동 탐색) 우선, puppeteer 폴백.
 render-check·deliv-matrix가 공용 — 원격 환경에서 렌더 점검이 더는 '건너뜀'으로 빠지지 않는다.
+
+## ritual-order-sim.mjs — 식순 순서 엔진 전수 시뮬레이터 (2026-07-27)
+`order-preview.html`의 순서 엔진 선언(`COURSES`·`GADD`·`RANK`·`RANK_OV`·`rankOf`·`isGAdd`·`isOptK`·
+`defaultOrd`·`ordNow`·`curSeq`·`OFFTGL`·`momOn`)을 **원문 그대로 잘라 실행**해 5코스 × 순서축 전 부분집합 ×
+켜짐축 전 부분집합 = **1664조합**을 돌린다. 손으로 옮겨 적지 않는다.
+
+```bash
+node scripts/audit/ritual-order-sim.mjs                    # HEAD 자기검사
+node scripts/audit/ritual-order-sim.mjs a.html b.html      # 두 변형 비교(RANK 조정안 검증)
+```
+- **★식순은 2축이다.** 축1 = `curSeq()`(seq + opt 제자리 삽입 + 팔레트) · 축2 = `OFFTGL`+`momOn()`으로
+  `BLOCK[k]()`가 `null`. `curSeq()`만 보면 **꺼진 순간이 배열에 그대로 남아** 거짓 결론이 나온다
+  (담백의 `valley`·`bless`는 seq 붙박이라 `isOptK`=false → 축1에서 절대 안 걸러진다). 실사고 1건.
+- 자기검사가 보는 것: 구조 무결성(중복 순간·빈 순서·축2 누수·`RANK` 미등재 키) · 5코스 기본 상태 ·
+  §4-4 위반(이완이 정점보다 뒤) · 케이크 인접(`_cakeDup` 자리) · 덕담↔서약 역전 · 정점 후반 배치율.
+  뒤 넷은 **경고성 지표**라 0이 아니어도 실패로 보지 않는다(안끼리 비교용).
+- 엔진 심볼 이름이 바뀌면 조용히 통과하지 않고 **예외로 죽는다**(없음·중복 둘 다 에러). 리팩터링하면
+  스크립트 상단 `DECLS` 목록을 같은 커밋에서 갱신할 것 — 마커 `RITUAL_ORDER_SIM`.
