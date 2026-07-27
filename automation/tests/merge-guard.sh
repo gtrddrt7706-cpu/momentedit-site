@@ -856,3 +856,6 @@ chk 'SCHED_STICKY_BAR' schedule.html 5                          # 하단 고정 
 chk 'id="stickyBar"' schedule.html 1                            # JS 배선 계약(stickyBar·stickyPick·stickyBtn) — id 이름 변경 금지
 chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸터 워드마크 1장 · 비우면 이 페이지만 끝이 뚝 끊긴다
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
+chk 'BLESS_TWO_AXES' order-preview.html 3                     # famOpen 두 뜻 분리 · (A)blessOpens 위치 / (B)famCourse 코스. 다시 합치지 말 것
+chk '_blessOpens' order-preview.html 3                        # 덕담 나레이션이 스피커로 거짓말하지 않게 하는 위치 판정
+chk "opt:\[{k:'welcome',at:2}\]" assets/ritual-data.js 1      # 가족 코스 첫인사 = 입장 직후(2026-07-27 사용자 결정)
