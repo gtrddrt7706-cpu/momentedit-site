@@ -678,6 +678,14 @@ chk 'SEAT_NOCACHE' seat.html 2                 # ★guide의 localStorage 캐시
 chk 'SEAT_DATE_GUARD' seat.html 1              # 2027-13-45가 롤오버돼 '13월 45일 (월)'로 나오던 것
 chk 'SEAT_MOTION' seat.html 1                  # 검색마다 도는 smooth 스크롤 — 동작 줄이기 설정 존중
 chk 'SEAT_SAFEAREA' seat.html 1                # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것
+# ── 2026-07-27 seat.html 2라운드(배치도를 하객이 실제로 읽을 수 있는가)
+chk 'SEAT_ZIG' seat.html 1                     # ★zig가 side로 부호를 뒤집어 짝수 행에서 좌·우 표가 60px 수렴 → 통로 16px에서 이름표 정면충돌('김민수'가 '박지영'에 덮여 '김'만 보였다). 4안 실측 비교에서 평행화만 0으로 떨어졌다(18→0) — side 분기 복원 금지
+chk 'return ((row%2===0)?1:-1)\*30' seat.html 1  # 위 처방 본체(평행 이동). side 부호 반전을 되살리면 충돌이 그대로 돌아온다
+chk 'SEAT_CROWD' seat.html 3                   # 자리 8명 이상이면 원 위 이름표가 겹쳐 못 읽던 것 → 원엔 점, 이름은 표 아래 목록(주석 1 + CSS 1 + 분기 1)
+chk 'crowd=(n>=8)' seat.html 1                 # ★임계 8. 짧은 더미로 재면 9로 보인다 — 한글 3자 실명으로 재야 8인 원탁(가장 흔한 규격)이 잡힌다
+chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
+chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
+chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
