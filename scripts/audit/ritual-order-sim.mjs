@@ -29,7 +29,7 @@ const DEFAULT_TARGET = path.join(REPO, 'order-preview.html');
 // ── 1. 원문 추출 ────────────────────────────────────────────────────────────
 // 문자열·라인주석·블록주석을 인지하는 중괄호 균형 스캐너.
 // 정규식으로 자르면 문자열 안의 '}' 하나에 무너진다.
-function sliceDecl(src, startIdx) {
+export function sliceDecl(src, startIdx) {
   let i = startIdx, depth = 0, seen = false;
   let inS = null, inLine = false, inBlock = false;
   while (i < src.length) {
@@ -60,14 +60,14 @@ function sliceDecl(src, startIdx) {
   throw new Error('unbalanced from ' + startIdx);
 }
 
-function grab(src, needle, optional = false) {
+export function grab(src, needle, optional = false) {
   const idx = src.indexOf(needle);
   if (idx < 0) { if (optional) return ''; throw new Error('순서 엔진 선언을 못 찾았다: ' + needle); }
   if (src.indexOf(needle, idx + 1) >= 0) throw new Error('선언이 두 번 나온다(어느 쪽이 진짜인지 알 수 없다): ' + needle);
   return sliceDecl(src, idx);
 }
 
-const DECLS = [
+export const DECLS = [
   ['var COURSES={', false], ['var GADD={', false], ['var RANK={', false],
   ['var RANK_OV={', true], ['function rankOf(', true],
   ['function isGAdd(', false], ['function isOptK(', false],
@@ -90,7 +90,8 @@ export function loadEngine(file) {
   `;
   // S는 바깥에서 주입 — 빌더 원본과 같은 전역 참조 구조를 만든다
   const factory = new Function('S', body);
-  return { factory, found, sourceChars: body.length };
+  // body·parts를 함께 돌려준다 — ritual-order-sim-audit.mjs가 이 원문을 다시 검증한다.
+  return { factory, found, parts, body, sourceChars: body.length };
 }
 
 // ── 2. 조합 열거 ────────────────────────────────────────────────────────────
@@ -329,16 +330,21 @@ function compare(fileA, fileB) {
 }
 
 // ── 6. 진입점 ──────────────────────────────────────────────────────────────
-const argv = process.argv.slice(2);
-let code = 0;
-try {
-  if (argv.length === 0) code = selfCheck(DEFAULT_TARGET);
-  else if (argv.length === 1) code = selfCheck(path.resolve(argv[0]));
-  else if (argv.length === 2) code = compare(path.resolve(argv[0]), path.resolve(argv[1]));
-  else { console.log('사용: node scripts/audit/ritual-order-sim.mjs [파일] | [파일A 파일B]'); code = 2; }
-} catch (e) {
-  console.log('\n실패: ' + e.message);
-  console.log('순서 엔진 심볼이 바뀌었을 수 있다. 이 스크립트 상단 DECLS 목록을 같은 커밋에서 갱신할 것.');
-  code = 1;
+// ★직접 실행할 때만 돈다. import하면 안 돈다 — 감사 스크립트(ritual-order-sim-audit.mjs)가
+//   loadEngine·enumerate를 가져다 쓰는데, 무조건 실행하면 import만으로 process.exit이 터진다.
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  const argv = process.argv.slice(2);
+  let code = 0;
+  try {
+    if (argv.length === 0) code = selfCheck(DEFAULT_TARGET);
+    else if (argv.length === 1) code = selfCheck(path.resolve(argv[0]));
+    else if (argv.length === 2) code = compare(path.resolve(argv[0]), path.resolve(argv[1]));
+    else { console.log('사용: node scripts/audit/ritual-order-sim.mjs [파일] | [파일A 파일B]'); code = 2; }
+  } catch (e) {
+    console.log('\n실패: ' + e.message);
+    console.log('순서 엔진 심볼이 바뀌었을 수 있다. 이 스크립트 상단 DECLS 목록을 같은 커밋에서 갱신할 것.');
+    code = 1;
+  }
+  process.exit(code);
 }
-process.exit(code);
