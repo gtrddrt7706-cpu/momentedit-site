@@ -31,14 +31,25 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
     font-family:var(--serif);font-style:italic;letter-spacing:.2em;font-size:13px;background:var(--bg2)}
   .pv-err{font-family:var(--serif-ko);font-size:13px;color:var(--sub);padding:60px 24px;text-align:center;line-height:1.8}
   .pv-foot{margin-top:18px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);text-align:center;line-height:1.7;letter-spacing:.01em}
+
+/* ════ 2026-07-30 미리보기 1라운드 · 고객 입장 실측 ════ */
+/* [PV_CONTRAST] --gold-deep(#9A7B4F)은 이 페이지 바탕(#EDEBE6)에서 3.31:1 —
+   템플릿 이름과 '화면 속 이름·문구는 예시예요' 안내가 안 읽혔다. */
+  .pv-cap{color:#7A5F37}
+  .pv-foot{color:#6E5A38}
+/* [PV_TAP40] '← 돌아가기'가 66×19였다 — 이 페이지의 유일한 조작이다 */
+  .pv-back{display:inline-flex;align-items:center;min-height:40px}
+  .pv-top{margin-bottom:6px}
+/* [PV_FOCUS] 포커스 표시 규칙이 없었다 */
+  :where(a,[tabindex]):focus-visible{outline:2px solid #6B2A24;outline-offset:3px;border-radius:4px}
 </style>
 </head>
 <body>
   <div class="pv-top">
-    <span class="pv-cap" id="pv_cap">Preview</span>
+    <h1 class="pv-cap" style="font-weight:inherit" id="pv_cap">Preview</h1><!-- [PV_STRUCT] 페이지의 유일한 제목 -->
     <a class="pv-back" id="pv_back" href="#">← 돌아가기</a>
   </div>
-  <div class="pv-frame" id="pv_frame"><div class="pv-skel">MOMENT EDIT</div></div>
+  <main class="pv-frame" id="pv_frame"><div class="pv-skel">MOMENT EDIT</div></main>
   <div class="pv-foot">화면 속 이름·문구는 예시예요. 실제 청첩장엔 두 분 정보가 들어가요.</div>
 <script>
   (function(){
@@ -48,7 +59,9 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
     var frame = document.getElementById('pv_frame');
     var back = document.getElementById('pv_back');
     back.addEventListener('click', function(e){ e.preventDefault(); if(history.length>1){ history.back(); return; } try{ window.close(); }catch(_){ } setTimeout(function(){ location.href='/mypage.html'; }, 160); });
-    if(title){ document.getElementById('pv_cap').textContent = title; document.title = title + ' · Moment Edit'; }
+    if(title){ var _c=document.getElementById('pv_cap'); _c.textContent = title;
+      if(/[가-힣]/.test(title)) _c.style.letterSpacing='.04em';   // [PV_KO] 한글 제목엔 영문용 .14em 자간이 과하다
+      document.title = title + ' · Moment Edit'; }
     // 보안: /assets/preview/ 내부 이미지(png·webp·jpg)만 허용 — 임의 URL 차단
     if(/^\/assets\/preview\/[A-Za-z0-9_./-]+\.(png|webp|jpe?g)$/.test(src)){
       var img = new Image();

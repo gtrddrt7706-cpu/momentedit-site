@@ -152,6 +152,27 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 :where(a,button,input,textarea,select,[tabindex]):focus{outline:none}
 :where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
+
+/* ════ 2026-07-30 처리방침 1라운드 · 고객 입장 실측(414/360px) ════ */
+/* [PRV_CONTRAST] --gold(#B89A75)는 흰 바탕 2.54:1 — 라벨·조항 번호가 그 색이었다.
+   글자만 --gold-text(5.71:1)로 가른다(테두리·장식은 그대로). */
+:root{ --gold-text:#7A5F37; }
+.hero-label,.art-num{color:var(--gold-text)}
+/* ★푸터 손대기 금지 — 2026-07-30 사용자 지시.
+   실측상 어두운 푸터의 저작권 줄 2.05:1 · 메일/마이페이지 링크 2.71:1이고 링크 높이도 12px지만,
+   사용자가 화면을 보고 "이 부분 푸터는 손대지 말자"고 정했다. 지금 모습이 의도된 톤이다.
+   ★이후 감사·리뷰·리팩터링이 '대비 미달·탭 영역 미달'로 다시 집어내더라도 되살리지 말 것.
+     (되돌려진 규칙: footer .f-copy 색상 상향 · footer .f-copy a 40px 히트영역 · line-height 1.6) */
+/* [PRV_TAP40] 상단 로고 21px · '상담 페이지로' 21px → 40px (푸터는 위 지시로 제외) */
+.nav-mark,.nav-back{min-height:40px}
+.nav-in{padding-top:6px;padding-bottom:6px}
+/* [PRV_LOGO] 왼쪽 위 로고 — 워드마크 이미지(1545×212 · 7.29:1). 폴백은 이미지 실패 시에만. */
+.nav-logo{width:148px;height:auto;display:block}
+.nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
+@media(max-width:680px){.nav-logo{width:130px}}
+/* [PRV_KO_TRACK] 한글에 영문용 자간 — '상담 페이지로'(8%)·'개정 시행일자'(14%) */
+.nav-back{letter-spacing:0.02em}
+.hero-meta{letter-spacing:0.02em;font-style:normal}
 </style>
 <style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}</style>
 </head>
@@ -159,7 +180,9 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 
 <nav>
   <div class="nav-in">
-    <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
+    <!-- [PRV_LOGO] 왼쪽 위 로고를 자간 텍스트 대신 브랜드 워드마크 이미지로(2026-07-30 사용자 지시).
+         이미지가 안 뜨면 종전 텍스트 조판으로 떨어진다 — 로고가 통째로 사라지지 않게. -->
+    <a href="./index.html" class="nav-mark" aria-label="Moment Edit · 홈으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-mark-fb" aria-hidden="true">MOMENT<span class="dot"></span>EDIT</span></a>
     <a href="./inquiry.html" class="nav-back"><span class="arrow">←</span> 상담 페이지로</a>
   </div>
 </nav>

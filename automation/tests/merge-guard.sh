@@ -734,6 +734,24 @@ chk 'SCH_ALERT' schedule.html 2                # 제출이 막힌 이유가 글�
 chk 'SCH_DONEFOCUS' schedule.html 1            # 신청 접수 순간에 포커스가 body에 남아 완료 안내가 안 읽혔다 → 대화상자 안으로 이동
 chk 'SCH_AMOUNT' schedule.html 1               # ★맨 위 '상담 예약금 · 신청 시 안내'인데 같은 페이지 아래엔 금액이 크게 있었다 — 돈 이야기 첫 줄이 '아직 안 알려드려요'로 읽히던 것. 같은 서버 값으로 채움
 chk 'SCH_REQUIRED' schedule.html 1             # 입금자명이 없으면 제출이 막히는데 라벨·힌트가 선택 입력처럼 읽혔다
+# ── 2026-07-30 privacy·cancel·preview 1라운드(고객 입장 실측 · 414/360px)
+chk 'PRV_CONTRAST' privacy.html 1              # 라벨·조항번호가 --gold(2.54:1)였다 → 글자만 --gold-text(5.71:1)
+chk '푸터 손대기 금지' privacy.html 1           # ★2026-07-30 사용자 지시 — 어두운 푸터는 실측상 2.05~2.71:1·링크 12px지만 지금 톤이 의도된 것. 감사가 다시 집어내도 되살리지 말 것
+chk 'PRV_TAP40' privacy.html 1                 # 상단 로고·'상담 페이지로' 21px → 40px (푸터는 위 지시로 제외)
+chk 'PRV_LOGO' privacy.html 2                  # 왼쪽 위 로고를 자간 텍스트 → 브랜드 워드마크 이미지(2026-07-30 사용자 지시 · 주석 1 + CSS 1). 이미지 실패 시 종전 텍스트로 폴백
+chk 'nav-mark-fb' privacy.html 2               # 위 폴백 — 지우면 이미지 실패 시 로고가 통째로 사라진다
+chk 'PRV_KO_TRACK' privacy.html 1              # '상담 페이지로'(8%)·'개정 시행일자'(14%) — 한글에 영문용 자간
+chk 'CAN_CONTRAST' cancel.html 1               # ★취소가 막힌 화면의 유일한 출구(카카오톡 링크)가 2.65:1로 안 읽혔다 · 상태 라벨도
+chk 'CAN_TAP40' cancel.html 1                  # 문장 속 카카오톡 링크 12px — ::before 히트영역으로 40px(중심±19px 히트 실측)
+chk 'CAN_FOCUS' cancel.html 1                  # 포커스 표시가 없었고 input:focus는 테두리 색만 바꿨다
+chk 'CAN_STRUCT' cancel.html 1                 # h1·h2·main 0개 · 상태가 innerHTML로 바뀌는데 낭독기에 안 들렸다 → aria-live
+chk 'CAN_ALERT' cancel.html 1                  # ★네트워크 실패가 OS alert였다 → 화면 안 role=alert · 버튼 복구 확인
+chk 'CAN_KO_TRACK' cancel.html 1               # 한글 eyebrow('안내')에 영문용 .22em 자간
+chk '비워 두셔도 취소는 진행돼요' cancel.html 1  # 환불계좌를 비워도 되는지 몰라 취소를 멈추던 것 — 서버 REFUND_ACCT_REQ(취소 후 계좌 요청)와 일치하는 사실 안내
+chk 'PV_CONTRAST' preview.html 1               # 템플릿 이름·'예시예요' 안내가 바탕(#EDEBE6) 위 3.31:1
+chk 'PV_TAP40' preview.html 1                  # 유일한 조작 '← 돌아가기'가 66×19였다
+chk 'PV_FOCUS' preview.html 1                  # 포커스 표시 규칙이 없었다
+chk 'PV_STRUCT' preview.html 1                 # h1·main 0개 — 템플릿 이름표를 h1로
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
