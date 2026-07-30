@@ -46,21 +46,35 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--sub);font-weight:400;margin-top:10px}
   .note{font-size:11.5px;color:var(--light);line-height:1.75;margin-top:16px}
   a.kakao{color:var(--gold);font-weight:600;text-decoration:none}
+
+/* ════ 2026-07-30 취소 페이지 1라운드 · 고객 입장 실측 ════ */
+/* [CAN_CONTRAST] --gold(#B89A75)는 흰 카드 위 2.65:1 — 상태 라벨(eyebrow)과 문의 링크(카카오톡)가
+   그 색이었다. 취소가 막힌 화면에서 유일한 출구가 카카오톡 링크인데 안 읽히던 것. */
+  .eyebrow{color:#7A5F37}
+  .eyebrow.ko{letter-spacing:.06em}   /* [CAN_KO_TRACK] 한글 eyebrow('안내')는 영문용 .22em이 과하다 */
+  a.kakao{color:#7A5F37;position:relative;display:inline-block}
+  a.kakao::before{content:'';position:absolute;left:-4px;right:-4px;top:50%;height:40px;transform:translateY(-50%)}   /* [CAN_TAP40] 문장 속 링크 — 줄 간격은 그대로, 히트영역만 40px */
+/* [CAN_FOCUS] 포커스 표시가 없었고 input:focus는 테두리 색만 바꿨다 */
+  :where(a,button,input,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:4px}
+  input:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <div class="brand">MOMENT<span class="dot"></span>EDIT</div>
   <div class="brand-sub">Private Wedding Studio</div>
-  <div class="card" id="card"><div class="desc">불러오는 중…</div></div>
-</div>
+  <h1 class="sr-only">예약 취소</h1><!-- [CAN_STRUCT] 화면 제목은 상태마다 바뀌므로 고정 제목은 보이지 않게 한 번만 -->
+  <div class="card" id="card" aria-live="polite"><div class="desc">불러오는 중…</div></div>
+</main>
 <script>
 var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 function api(payload){ return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}); }
 function q(name){ var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search); return m?decodeURIComponent(m[1].replace(/\+/g,' ')):''; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 var TOKEN=q('token'), SIG=q('sig'), card=document.getElementById('card');
-function showMsg(eyebrow,title,desc,note){ card.innerHTML='<div class="eyebrow">'+esc(eyebrow)+'</div><div class="title">'+title+'</div>'+(desc?'<div class="desc">'+desc+'</div>':'')+(note?'<div class="note">'+note+'</div>':''); }
+function showMsg(eyebrow,title,desc,note){ var _ko=/[가-힣]/.test(eyebrow||'');   // [CAN_KO_TRACK] 한글 eyebrow는 영문용 .22em 자간이 과하다
+  card.innerHTML='<div class="eyebrow'+(_ko?' ko':'')+'" aria-hidden="true">'+esc(eyebrow)+'</div><h2 class="title">'+title+'</h2>'+(desc?'<div class="desc">'+desc+'</div>':'')+(note?'<div class="note">'+note+'</div>':''); }
 if(!TOKEN||!SIG){ showMsg('안내','유효하지 않은 링크예요','받으신 메일의 링크로 다시 시도해 주세요.'); }
 else {
   api({action:'emailCancelInfo', token:TOKEN, sig:SIG}).then(function(d){
@@ -79,22 +93,24 @@ else {
     var rf=d.refund, rfBox='';
     if(rf){
       if(rf.needCount){
-        rfBox='<div class="info" style="margin-bottom:4px">환불 예상 · <b>확인 후 안내</b><br><span style="font-size:12px;color:var(--light)">시착 벌수 확인 후 정확한 금액을 안내드려요</span></div>';
+        rfBox='<div class="info" style="margin-bottom:4px">환불 예상 · <b>확인 후 안내</b><br><span style="font-size:12px;color:var(--sub)">시착 벌수 확인 후 정확한 금액을 안내드려요</span></div>';
       } else {
         var rfCap = (Number(rf.fitCount)>0)
           ? '(시착 '+esc(rf.fitCount)+'벌 공제 '+Number(rf.fitDeduct||0).toLocaleString()+'원)'
           : '(전액 환불)';
-        rfBox='<div class="info" style="margin-bottom:4px">환불 예상 · <b>'+Number(rf.amount||0).toLocaleString()+'원</b><br><span style="font-size:12px;color:var(--light)">'+rfCap+'</span></div>';
+        rfBox='<div class="info" style="margin-bottom:4px">환불 예상 · <b>'+Number(rf.amount||0).toLocaleString()+'원</b><br><span style="font-size:12px;color:var(--sub)">'+rfCap+'</span></div>';
       }
     }
-    card.innerHTML='<div class="eyebrow">Cancel</div><div class="title">예약을 취소하시겠어요?</div>'
+    card.innerHTML='<div class="eyebrow" aria-hidden="true">Cancel</div><h2 class="title">예약을 취소하시겠어요?</h2>'
       +'<div class="desc">'+esc(d.names)+' 님</div>'
       +'<div class="info"><b>'+esc(d.date)+' · '+esc(d.time)+'</b></div>'
       +rfBox
       +'<label for="acct">환불 계좌 <span style="color:var(--light)">(예약금 환불용)</span></label>'
       +'<input type="text" id="acct" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">'
+      +'<div class="note" style="margin-top:8px;text-align:left">지금 비워 두셔도 취소는 진행돼요 · 환불이 필요하면 취소 후에 계좌를 따로 여쭤봐요.</div>'
       +'<button type="button" class="btn" id="go">예약 취소하기</button>'
       +'<button type="button" class="btn btn-ghost" id="keep">아니요, 유지할게요</button>'
+      +'<div class="note" id="cErr" role="alert" style="display:none;color:var(--seal)"></div>'
       +'<div class="note">취소 후 입력하신 계좌로 예약금을 환불해 드려요 (영업일 기준 수일 소요).<br>드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불돼요.</div>';
     document.getElementById('keep').addEventListener('click', function(){ location.href='/mypage.html'; });
     document.getElementById('go').addEventListener('click', function(){
@@ -103,7 +119,7 @@ else {
       api({action:'emailCancel', token:TOKEN, sig:SIG, acct:acct}).then(function(r){
         if(r&&r.ok){ showMsg('Done','예약이 취소되었어요','입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); }
         else { b.disabled=false; b.textContent='예약 취소하기'; showMsg('안내','취소를 완료하지 못했어요', esc((r&&r.error)||'잠시 후 다시 시도해 주세요.')); }
-      }).catch(function(){ b.disabled=false; b.textContent='예약 취소하기'; alert('취소에 실패했어요. 잠시 후 다시 시도해 주세요.'); });
+      }).catch(function(){ b.disabled=false; b.textContent='예약 취소하기'; var _e=document.getElementById('cErr'); if(_e){ _e.style.display=''; _e.textContent='취소에 실패했어요. 네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요.'; } });   // [CAN_ALERT] OS alert 대체 — 화면 안에서, 낭독기에도 들리게
     });
   }).catch(function(){ showMsg('안내','예약 정보를 불러오지 못했어요','네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요.'); });
 }

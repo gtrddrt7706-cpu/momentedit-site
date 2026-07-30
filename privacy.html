@@ -152,6 +152,22 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 :where(a,button,input,textarea,select,[tabindex]):focus{outline:none}
 :where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
+
+/* ════ 2026-07-30 처리방침 1라운드 · 고객 입장 실측(414/360px) ════ */
+/* [PRV_CONTRAST] --gold(#B89A75)는 흰 바탕 2.54:1 — 라벨·조항 번호가 그 색이었다.
+   어두운 푸터의 저작권 줄(2.05:1)·메일/마이페이지 링크(2.71:1)도 안 읽혔다.
+   parents.html과 같은 처방: 글자만 --gold-text(5.71:1) · 푸터는 rgba(192,180,160,.72)=5.16:1. */
+:root{ --gold-text:#7A5F37; }
+.hero-label,.art-num{color:var(--gold-text)}
+footer .f-copy,footer .f-copy a{color:rgba(192,180,160,0.72) !important}
+/* [PRV_TAP40] 상단 로고 21px · '상담 페이지로' 21px · 푸터 링크 12px */
+.nav-mark,.nav-back{min-height:40px}
+.nav-in{padding-top:6px;padding-bottom:6px}
+footer .f-copy a{display:inline-block;min-height:40px;line-height:40px}
+footer .f-copy{line-height:1.6}
+/* [PRV_KO_TRACK] 한글에 영문용 자간 — '상담 페이지로'(8%)·'개정 시행일자'(14%) */
+.nav-back{letter-spacing:0.02em}
+.hero-meta{letter-spacing:0.02em;font-style:normal}
 </style>
 <style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}</style>
 </head>
