@@ -752,6 +752,15 @@ chk 'PV_CONTRAST' preview.html 1               # 템플릿 이름·'예시예요
 chk 'PV_TAP40' preview.html 1                  # 유일한 조작 '← 돌아가기'가 66×19였다
 chk 'PV_FOCUS' preview.html 1                  # 포커스 표시 규칙이 없었다
 chk 'PV_STRUCT' preview.html 1                 # h1·main 0개 — 템플릿 이름표를 h1로
+# ── 2026-07-30 계약서 3종 1라운드(고객 입장 실측 · 414/360px)
+chk 'CTR_CONTRAST' contract/v1-1.html 1        # ★서명 전에 꼭 읽어야 할 것들이 --gold였다 — 조문 번호 '제1조'(2.65:1) · '금액' 라벨(2.56:1) · 흰 글자/골드 '중요' 배지(2.65:1)
+chk 'CTR_CONTRAST' contract/snap-v1-0.html 1   # 위와 동일(두 계약서가 같은 CSS)
+chk 'CTR_CONTRAST' contract/fitting.html 1     # 서명란 '고객 · Customer'까지 3.78~3.95:1
+chk '.summary-card .sum-k,.toc-list a .tn,.sign-cell .sc-role' contract/v1-1.html 1  # ★원 규칙이 0,2,0이라 단순 클래스로 쓰면 조용히 안 먹는다(실측으로 발견) — 같은 깊이 유지
+chk 'CTR_TAP40' contract/v1-1.html 1           # ★목차 17개가 19px였다. ::before 가짜 히트영역은 줄 간격 32px에서 이웃과 8px씩 겹쳐(실측 5건) 옆 조문으로 잘못 뛴다 → 줄 자체를 40px로. 가짜 영역으로 되돌리기 금지
+chk 'CTR_TAP40' contract/snap-v1-0.html 1      # 위와 동일
+chk 'CTR_FOCUS' contract/v1-1.html 1           # 포커스 표시 규칙이 없었다 — 계약서를 키보드로 훑으면 위치를 잃는다
+chk '푸터 손대기 금지' contract/v1-1.html 1     # ★2026-07-30 사용자 지시(privacy와 동일 판단) — 어두운 푸터 3.12~3.25:1은 의도된 톤
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
