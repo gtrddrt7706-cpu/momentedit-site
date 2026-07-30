@@ -1744,7 +1744,9 @@ section {
   font-family: var(--serif);
   font-size: 32px;
   font-weight: 300;
-  color: var(--gold);
+  /* [GOLD_TEXT_AA] 시퀀스 시간은 장식이 아니라 정보다 — 장식용 --gold(#B89A75)는
+     크림 배경에서 2.54:1이라 26px(대형 텍스트 기준 3:1)로도 미달. 텍스트용 골드로. */
+  color: var(--gold-text);
   line-height: 1;
   padding-top: 4px;
   display: inline-flex;
@@ -2309,7 +2311,7 @@ a.ig-handle:hover {
   font-family: var(--serif);
   font-size: 24px;
   font-weight: 300;
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA] 예약 단계 번호 = 정보 · 2.54:1 → 5.71:1 */
   text-align: center;
   padding-top: 2px;
   transition: transform 0.4s var(--ease);
@@ -2406,7 +2408,7 @@ a.ig-handle:hover {
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA] 자식 .journal-num·.journal-date가 상속 · 10px에 2.54:1은 특히 위험 */
   margin-bottom: 14px;
 }
 .journal-card-meta .journal-dot {
@@ -4702,7 +4704,9 @@ body {
 .faq-more-toggle .more-count {
   font-family: var(--serif);
   font-style: italic;
-  color: var(--gold);
+  /* [GOLD_TEXT_AA] '+6'은 한 덩어리 라벨 — 아래 .more-icon과 반드시 같은 톤을 유지할 것.
+     톤을 가르면 위계로 안 읽히고 색 오류처럼 보인다(2026-07-30 사용자 지시). */
+  color: var(--gold-text);
   margin: 0 4px;
   text-transform: none;
   letter-spacing: 0.04em;
@@ -4710,7 +4714,9 @@ body {
 .faq-more-toggle .more-icon {
   display: inline-block;
   font-style: normal;
-  color: var(--gold);
+  /* [GOLD_TEXT_AA] 아이콘이지만 글자와 같은 줄에 붙은 글리프 → 텍스트 취급.
+     위 .more-count와 한 덩어리이므로 톤을 갈라놓지 말 것. */
+  color: var(--gold-text);
   transition: transform 0.4s var(--ease);
   font-size: 16px;
   line-height: 1;
@@ -5141,7 +5147,7 @@ body {
   transition: color 0.5s ease;
 }
 .jr-step.on .jr-n {
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA] 활성 단계 번호 = 정보 · 2.54:1 → 5.71:1 */
 }
 .jr-step-tx {
   display: flex;
@@ -5602,7 +5608,14 @@ body {
 </div>
 <!-- LIVE PREVIEW MOCKUP -->
 <div class="reveal">
-<div class="live-mockup-wrap">
+<!-- [MOCKUP_ARIA_HIDDEN] 장식용 목업 — 안의 4.5~9px 텍스트 49건은 읽으라고 넣은 게 아니라
+     디지털 참석 페이지를 축소해 '형태'만 보여주는 것이다(2026-07-30 사용자 확인).
+     ★이 aria-hidden은 '내부 포커스 가능 요소 0개'라는 실측에 근거한다
+       (측정 당시 a[href]·button·input·[tabindex] 0 · img 0 · 하위 156개 전부 비대화형).
+       여기에 버튼·링크·입력을 추가하면 aria-hidden을 반드시 함께 재검토할 것 —
+       포커스는 되는데 스크린리더가 읽지 않으면 접근성 위반이 된다.
+     설명은 바로 위 .mockup-intro-text가 담당한다. 글자 크기는 의도된 것이니 키우지 말 것. -->
+<div class="live-mockup-wrap" aria-hidden="true">
   <div class="live-mockup-cols">
     <!-- PHONE -->
     <div class="phone">
@@ -5812,7 +5825,11 @@ body {
       <span style="font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);letter-spacing:0.06em">청첩장 미리보기</span>
       <span style="font-size:14px;color:var(--seal);display:inline-block;transition:transform 0.3s var(--ease)">↗</span>
     </span>
-    <span style="display:block;margin-top:18px;font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7;white-space:nowrap">
+    <!-- [NOWRAP_CLIP_FIX] white-space:nowrap 금지 — 2026-07-30 삭제.
+         390px에서 내용 317px / 표시 300px로 17px가 잘려 '됩니다.'가 안 보였다.
+         body에 overflow-x:hidden이 있어 가로 스크롤도 안 생기고 그냥 잘림.
+         body의 word-break:keep-all이 어절 단위로 끊어주므로 그대로 두면 된다. -->
+    <span style="display:block;margin-top:18px;font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7">
       청첩장은 두 분의 이야기에 맞춰 자유롭게 커스텀됩니다.
     </span>
   </a>
