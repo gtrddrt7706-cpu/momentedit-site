@@ -862,3 +862,13 @@ chk "opt:\[{k:'welcome',at:2}\]" assets/ritual-data.js 1      # 가족 코스 �
 chk 'RANK_RELAX' order-preview.html 2                          # 이완(밸리55·축가57) < 정점(편지60) · valley:70/song:80으로 되돌리면 896쌍 위반
 chk 'valley:55,song:57' order-preview.html 1                   # B′ 확정값(2026-07-27 코워크 회신8)
 chk "festive:{song:80}" order-preview.html 1                   # 축하만 축가 예외 · ★밸리는 넣지 말 것(축배와 붙어 커팅 2회)
+chk 'ritual-order-sim-audit.mjs' automation/tests/merge-guard.sh 2   # ★아래 감사 실행 블록이 살아 있는지 — 마커 문자열이 아니라 '실제 node 호출 줄'을 센다(자기 자신만 세면 블록을 지워도 통과한다)
+chk '와인(S.valley' order-preview.html 1                          # 와인+축배는 일부러 안 잡는다 · wine 분기 추가 금지(2026-07-27 합의)
+# ★RITUAL_ORDER_SIM_AUDIT — 순서 엔진 시뮬레이터 자기 감사(선언 12종·경계·자유변수·변이검출·inSeq 축2).
+#   상시 실행하는 이유: "순서 엔진 만지는 PR에서만 의미 있다"는 판단을 사람이 매번 해야 하는 게 문제다.
+#   이 저장소에서 조용히 깨진 건 전부 '여기는 안 건드렸다고 생각한 자리'였고, 감사 [1]은 엔진 선언 이름이
+#   하나라도 어긋나면 FAIL이라 다른 목적의 리팩터가 엔진을 스칠 때 그게 걸린다. 비용 565ms(가드 전체의 1/3).
+if command -v node >/dev/null 2>&1; then
+  _os=$(node scripts/audit/ritual-order-sim-audit.mjs 2>&1) && echo 'ok ritual-order-sim-audit: 선언 12종·경계·자유변수·변이검출·inSeq 축2 전부 통과' \
+    || { echo "$_os" | tail -20; echo 'REVERT? ritual-order-sim-audit 실패 — 순서 엔진 선언이 바뀌었거나 시뮬레이터가 죽었다'; fail=1; }
+else echo 'skip ritual-order-sim-audit (node 없음)'; fi
