@@ -719,6 +719,21 @@ chk 'ORD_NEXTNAME' order-preview.html 1        # tune 한 단계를 세 이름�
 chk 'ORD_NOTE_FIT' order-preview.html 1        # ★미니멀엔 편지 낭독이 없는데 '편지와 서약이 중심인 예식이라'로 권하고 있었다 — 고르지도 않은 순서를 근거로 든 말
 chk 'ORD_AUDITION' order-preview.html 1        # 나레이션 글은 보여 주면서 들어보기는 고른 카드에만 있었다(담백 덕담·사이, 가족 링워밍 4곳) — 넣을지 판단하려고 듣는 건데 넣기 전엔 못 들었다
 chk 'ORD_DESC' order-preview.html 3            # 버튼 이름이 '아버지가'뿐이라 낭독기로는 무엇인지 알 수 없었다 → aria-describedby로 설명줄 연결
+# ── 2026-07-27 schedule.html 1라운드(상담 일정 선택 · 화면 5상태 순회 실측 · 414/360px)
+chk 'SCH_CONTRAST' schedule.html 1             # ★--gold(#B89A75)는 흰 바탕 2.65:1이다. 테두리엔 좋지만 글자엔 못 쓴다 — 두 분 성함 2.54 · '상담 예약금' 2.65 · 시간칸 '오전/오후/저녁' 1.92까지 그 색이었다(16종). --gold는 테두리·그라데이션 그대로, 글자만 --gold-text로 가른다
+chk 'gold-text' schedule.html 5                # 위 색 정의 + 적용(주석 포함). --gold로 되돌리면 16종이 그대로 돌아온다
+chk 'SCH_FULL_OPACITY' schedule.html 1         # ★마감 시간을 opacity:.5로 흐려 어느 시간이 찼는지 못 읽던 것(2.83·1.92:1). 투명도로는 못 푼다(4.5:1에 0.85 필요 → 신호 소멸) — 흐림 대신 색으로. opacity 복원 금지
+chk 'SCH_TAP40' schedule.html 1                # 달 넘기는 ‹› 38 · 계좌 복사 35 · 진행 시간표 줄 19 · 카카오톡 12 → 40px
+chk 'SCH_DAY40' schedule.html 1                # 360px에서 날짜 칸이 38×38로 내려앉던 것 — 이 페이지에서 제일 많이 누르는 자리다
+chk 'SCH_KO_TRACK' schedule.html 1             # 영문 소캡용 자간(0.08~0.16em)이 한글에 그대로 걸려 있었다 — 신청 버튼 포함 6종
+chk 'SCH_FOCUS' schedule.html 1                # 포커스 표시 규칙이 아예 없었고 #depPayer:focus{outline:none}이 지우고 있었다. :where()는 특이도 0이라 #depPayer:focus-visible를 따로 써야 이긴다
+chk 'SCH_STRUCT' schedule.html 1               # h2·h3가 0개 · main 랜드마크 0개 · AI 도우미 입력칸에 이름이 없었다
+chk '<main class="wrap">' schedule.html 1      # div로 되돌리면 '본문으로 건너뛰기'가 다시 사라진다
+chk 'SCH_SRNAME' schedule.html 4               # 제목이 '날짜 선택셀렉트 어 데이트'로 붙어 읽히고 시간칸이 '저녁18:10약 40분'이었다 → 영문 장식 aria-hidden + 칸마다 aria-label
+chk 'SCH_ALERT' schedule.html 2                # 제출이 막힌 이유가 글자색 변화로만 나타나 낭독기엔 아무 말도 안 들렸다 → role=alert·aria-live·aria-invalid
+chk 'SCH_DONEFOCUS' schedule.html 1            # 신청 접수 순간에 포커스가 body에 남아 완료 안내가 안 읽혔다 → 대화상자 안으로 이동
+chk 'SCH_AMOUNT' schedule.html 1               # ★맨 위 '상담 예약금 · 신청 시 안내'인데 같은 페이지 아래엔 금액이 크게 있었다 — 돈 이야기 첫 줄이 '아직 안 알려드려요'로 읽히던 것. 같은 서버 값으로 채움
+chk 'SCH_REQUIRED' schedule.html 1             # 입금자명이 없으면 제출이 막히는데 라벨·힌트가 선택 입력처럼 읽혔다
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
