@@ -859,3 +859,6 @@ chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 �
 chk 'BLESS_TWO_AXES' order-preview.html 3                     # famOpen 두 뜻 분리 · (A)blessOpens 위치 / (B)famCourse 코스. 다시 합치지 말 것
 chk '_blessOpens' order-preview.html 3                        # 덕담 나레이션이 스피커로 거짓말하지 않게 하는 위치 판정
 chk "opt:\[{k:'welcome',at:2}\]" assets/ritual-data.js 1      # 가족 코스 첫인사 = 입장 직후(2026-07-27 사용자 결정)
+chk 'RANK_RELAX' order-preview.html 2                          # 이완(밸리55·축가57) < 정점(편지60) · valley:70/song:80으로 되돌리면 896쌍 위반
+chk 'valley:55,song:57' order-preview.html 1                   # B′ 확정값(2026-07-27 코워크 회신8)
+chk "festive:{song:80}" order-preview.html 1                   # 축하만 축가 예외 · ★밸리는 넣지 말 것(축배와 붙어 커팅 2회)
