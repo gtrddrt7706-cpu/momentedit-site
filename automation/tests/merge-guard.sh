@@ -761,6 +761,12 @@ chk 'CTR_TAP40' contract/v1-1.html 1           # ★목차 17개가 19px였다. 
 chk 'CTR_TAP40' contract/snap-v1-0.html 1      # 위와 동일
 chk 'CTR_FOCUS' contract/v1-1.html 1           # 포커스 표시 규칙이 없었다 — 계약서를 키보드로 훑으면 위치를 잃는다
 chk '푸터 손대기 금지' contract/v1-1.html 1     # ★2026-07-30 사용자 지시(privacy와 동일 판단) — 어두운 푸터 3.12~3.25:1은 의도된 톤
+# ── 2026-07-30 청첩장 템플릿 8종 1라운드(하객 입장 실측 · 414/360px)
+chk 'INV_TAP40' i/invitations/invitation-01-classic.html 1     # ★청첩장에서 하객이 실제로 누르는 건 축의금 계좌 복사 버튼 하나인데 8종 전부 24~30px였다
+chk 'INV_TAP40' i/invitations/invitation-08-noir.html 1        # 위와 동일(8종 전부에 같은 블록)
+chk 'INV_STRUCT' i/invitations/invitation-01-classic.html 1    # 두 분 이름이 h1이 아니라 div였다 · main 랜드마크 0개
+chk '<h1 class="cover-names-ko"' i/invitations/invitation-03-letterpress.html 1  # 청첩장의 제목은 두 분의 이름이다
+chk '<main class="invitation">' i/invitations/invitation-01-classic.html 1       # div로 되돌리면 랜드마크가 다시 사라진다
 chk 'btn-tier.mjs' scripts/audit/btn-tier.mjs 1  # 위 체계 상시 회귀(채움 버튼 규격 동일 · 외곽은 총높이까지 동일)
 chk '프라이빗 방문 상담 예약하기' index.html 3   # 버튼 한글 라벨 3곳 — 영문 단독 라벨로 복원 금지
 _srvbg=$(grep -c 'srv-opts button{[^}]*background:var(--bg2)' mypage.html 2>/dev/null); _srvbg=${_srvbg:-0}; if [ "$_srvbg" -gt 0 ]; then echo "REVERT? mypage.html: 설문 칩 배경이 패널과 같은 --bg2로 되돌아감($_srvbg)"; fail=1; else echo "ok mypage.html: 설문 칩 흰 바탕 유지(가독성)"; fi
