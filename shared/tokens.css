@@ -1,33 +1,50 @@
-/* Moment Edit — 디자인 토큰 정본 (single source of truth)
- * 용도: mypage·admin·schedule·index 등 각 페이지의 :root 중복을 이 파일로 일원화.
- * 적용(추후·직접수정 단계): 각 페이지 <head>에  <link rel="stylesheet" href="/shared/tokens.css">  추가 후
- *   그 페이지의 인라인 :root 블록 제거. (지금은 어디에도 연결 안 됨 = 라이브 영향 0)
+/* Moment Edit — 디자인 토큰 참조본  [TOKENS_REF]
+ *
+ * ★★ 이 파일은 어디에도 연결되어 있지 않습니다. 고쳐도 화면은 바뀌지 않습니다. ★★
+ *
+ * 실제로 적용되는 값은 각 페이지의 인라인 :root 입니다.
+ *   index.html / inquiry.html / schedule.html / mypage.html / admin.html
+ * 색·폰트를 바꾸려면 그 페이지의 :root 를 고쳐야 합니다.
+ *
+ * 이 파일의 역할은 "정본 후보"가 아니라 "현재 값의 기록"입니다.
+ * 2026-07-31 실측 동기화 — 아래 값은 index.html :root 기준입니다.
+ *
+ * ── 연결하려 한다면(권장하지 않음, 별도 과제) ──
+ *   1) <link> 를 인라인 <style> 보다 앞에 넣는다 → 인라인이 캐스케이드로 이겨 화면 변화 0
+ *   2) 그 상태로 커밋해 발판을 만든다
+ *   3) 그다음 페이지별로 인라인 :root 를 하나씩 걷어낸다
+ *   ★2단계를 건너뛰고 인라인을 먼저 지우면 전 페이지가 동시에 바뀐다.
+ *
+ * ── 페이지 간 변수명 표류 (2026-07-31 실측, 통합 전 상태 기록) ──
+ *   같은 색인데 이름이 다르다. 통합하려면 사용처까지 함께 바꿔야 한다.
+ *     #FAFAF8  index/inquiry/schedule/mypage --bg      · admin --paper
+ *     #1C1B19  index/inquiry/schedule/mypage --text    · admin --ink
+ *     #7A5F37  index/inquiry --gold-text · mypage --gold-deep + --gold-deeper(중복) · admin --gold-deeper
+ *     #E6E1D8  mypage --hairline · admin --gold-line
+ *     #FFFFFF  mypage --card-white · admin --card
+ *   ★admin 은 의도적 별도 체계(--paper/--ink)다. 동기화 대상이 아니다.
  */
 :root{
   color-scheme:light;
-  /* 브랜드 색 */
-  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19;
-  --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
-  --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
-  /* 골드 보조(과거 폴백으로만 쓰던 값 → 정식 토큰화) */
-  --gold-bg:#FAF6EF;                 /* 옅은 골드 배경(선택칩·아이콘 원) */
-  --gold-soft:rgba(184,154,117,.28); /* 옅은 골드 테두리 */
-  --gold-deep:#9A7B4F;               /* 진한 골드(라벨·접근성) */
-  --gold-deeper:#7A5F37;             /* 더 진한 골드(버튼 텍스트) */
-  --gold-btn-border:#C2A988;
-  --label-soft:#7C766A;              /* 최하위 보조 라벨(가독성 위해 한 톤 진하게) */
-  /* 카드 보조 */
-  --card-white:#FFFFFF; --card-bg:#FCFAF6; --card-border:#E8DEC9;
-  --divider:#EDEAE4; --hairline:#E6E1D8; --dot-future:#CFC9BC;
-  --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05); /* index·schedule 카드 톤 */
-  /* 반경 스케일(통일) */
-  --r-sm:6px; --r:8px; --r-lg:10px;
-  /* 폰트 */
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
-  --sans:'Noto Sans KR',-apple-system,sans-serif;
-  --mono:'Roboto Mono',ui-monospace,monospace;
-  /* 모션 */
+
+  /* 브랜드 색 — index.html :root 실측 */
+  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6;
+  --text:#1C1B19; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
+  --border:#DDD8D1;
+  --footer-bg:#1A1714; --footer-text:#C9C3B8;
+
+  /* 골드 2값 분리 — 용도가 다르다. 합치지 말 것 */
+  --gold:#B89A75;       /* 장식 전용: 선·테두리·독립 아이콘. 텍스트 금지(2.54:1 AA미달) */
+  --gold-text:#7A5F37;  /* 텍스트 전용: 5.71:1 AA통과 */
+  --seal:#6B2A24;       /* 인장·전환 버튼 채움 */
+
+  /* 폰트 — Fallback 은 웹폰트 바로 뒤에 와야 메트릭 보정이 걸린다 */
+  --serif:'Cormorant Garamond','Cormorant Fallback',Georgia,serif;
+  --serif-ko:'Noto Serif KR','Noto Serif KR Fallback','Nanum Myeongjo',serif;
+  --sans:'Noto Sans KR','Noto Sans KR Fallback',-apple-system,sans-serif;
+
+  /* 모션 — 시간은 5단계 램프, 이징은 --ease 하나 */
   --ease:cubic-bezier(0.16,1,0.3,1);
-  --ease-out:cubic-bezier(0.22,1,0.36,1);
+  --ease-ink:cubic-bezier(0.22,1,0.36,1);
+  --ease-seal:cubic-bezier(0.65,0,0.35,1);
 }
