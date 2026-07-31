@@ -3038,6 +3038,21 @@ footer {
     transform: none !important;
   }
 }
+/* [NAV_TABLET_FIX] 데스크톱 내비는 8개 링크를 펼치는 데 최소 978px가 필요하다.
+   전환점이 680px이라 681~1023px(아이패드 세로·폰 가로·작은 창)에서 링크가 화면 밖으로
+   최대 249px 밀려나 FAQ·RSVP·My Page가 보이지도 눌리지도 않았다(실측).
+   예약 고객의 재방문 입구인 My Page가 막히는 문제라 전환점을 1023px로 올린다.
+   햄버거 메뉴에 같은 링크가 전부 있으므로 기능 손실은 없다.
+   ★내비 항목을 늘리면 필요 폭이 커진다 — 978px 기준을 다시 재고 이 값을 조정할 것. */
+@media (max-width: 1023px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-toggle {
+    display: inline-flex;
+    transform: translateY(0);
+  }
+}
 @media (max-width: 680px) {
   :root {
     --gap: 80px;

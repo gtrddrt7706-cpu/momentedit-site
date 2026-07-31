@@ -881,3 +881,4 @@ chk 'INQ_CLS_NAVLOGO' inquiry.html 1                        # head 크리티컬 
 chk 'SUB_PAGE_SYNC' parents.html 1                          # 토큰 체계 동기(반px·푸터 AA·aria-label) 유지
 chk 'SUB_PAGE_SYNC' invitation-gallery.html 1               # 반px·이징 동기 유지 · 템플릿 base64 구역은 대상 아님
 chk 'TOKENS_REF' shared/tokens.css 1                        # 참조본 경고 헤더 · --gold-deep에 다른 색(#9A7B4F) 재삽입 금지(연결 시 mypage 68곳 AA미달)
+chk 'NAV_TABLET_FIX' index.html 1                           # 내비 전환점 1023px · 680px로 되돌리면 아이패드에서 My Page가 화면 밖으로 밀림
