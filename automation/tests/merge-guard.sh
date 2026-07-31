@@ -878,3 +878,5 @@ chk 'INQ_A11Y' inquiry.html 1                               # 전환 페이지 �
 chk '<main' inquiry.html 1                                  # 폼 영역 main 랜드마크 · div로 되돌리면 랜드마크 소실
 chk 'INQ_FONT_FALLBACK' inquiry.html 1                      # 폰트 폴백 메트릭 · 제거하면 CLS 0.245 회귀(웹폰트 도착 시 페이지가 밀림)
 chk 'INQ_CLS_NAVLOGO' inquiry.html 1                        # head 크리티컬 CSS(로고 크기) · 빼면 CLS 0.97 재발
+chk 'SUB_PAGE_SYNC' parents.html 1                          # 토큰 체계 동기(반px·푸터 AA·aria-label) 유지
+chk 'SUB_PAGE_SYNC' invitation-gallery.html 1               # 반px·이징 동기 유지 · 템플릿 base64 구역은 대상 아님
