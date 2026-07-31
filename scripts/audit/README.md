@@ -101,3 +101,39 @@ node scripts/audit/ritual-order-sim-audit.mjs /tmp/BR.html    # 다른 변형 �
   `defaultOrd()`는 값 자체가 아니라 `RANK[x] > gr` 비교만 하므로, 아무도 넘지 않는 변경이 0조합인 것이 정상이다.
 - **[5] 축2 누수** — `inSeq('<OFFTGL 키>')` 호출부에 같은 줄·다음 줄에서 `S.<키>` 값 확인이 붙어 있는지 자동 검사.
   `inSeq()`는 축1(`curSeq()`)만 보므로 꺼진 순간이 배열에 남는다. 현재 6곳 전부 안전.
+
+## ritual-guard-scan.mjs — 내용 가드 지역 열거 (2026-07-31)
+순서 열거기(`ritual-order-sim.mjs`)는 **순서를 바꾸는 축**만 훑는다. 그런데 고객에게 보이는 값을
+바꾸는 필드는 그보다 넓다 — `S.ringwarm`·`S.letter`·`S.declareWho`·`S.song`… 은 순서를 전혀 안 바꾸면서
+화면의 '약 N분'과 준비 목록을 바꾼다.
+
+```bash
+node scripts/audit/ritual-guard-scan.mjs                 # HEAD의 order-preview.html
+node scripts/audit/ritual-guard-scan.mjs /tmp/BR.html    # 다른 변형 파일
+```
+
+**순서 축과 곱하지 않는다.** 곱하면 `13,632 × 384 ≒ 523만`인데 그 523만 행의 순서 배열은 여전히
+13,632종뿐이라 384배가 전부 복제고 지표만 부풀린다. 대신 각 가드가 **읽는 필드만** 그 가드에 대해서만 곱한다
+(estMin 864 · prep 6,144 · \_mm 72 · \_cakeDup 9 · 블로커 8 × 5코스 × seq 프로파일 2종 = 70,970).
+
+**색인은 함수가 아니라 필드다.** 같은 필드를 같은 방향으로 읽는 자리가 함수 경계를 넘어 둘 이상 있다 —
+`estMin()`과 카드 칩을 그리는 지역 클로저 `_mm()`이 letter·ringwarm·toast·veil을 똑같이 읽는다.
+함수 단위로 잡으면 둘을 별개로 세고 '둘이 어긋났는가'라는 진짜 질문을 못 던진다.
+
+- **[A] 도달** — 어떤 값을 넣어도 출력이 안 바뀌는 필드. 죽은 분기이거나 스캐너가 못 밟는 자리다.
+  ★이 스캐너가 생긴 이유가 여기다. 순서 시뮬레이터는 `courseDefaults`로 다섯 필드만 세팅해
+  `S.ringwarm`·`S.letter`가 13,632조합 전부에서 `undefined`였고, `estMin`의 `+2` 두 줄이 한 번도 안 밟혔다.
+  그 상태로 시뮬레이터·감사·merge-guard가 전부 초록이었다.
+- **[B] 칩 합 vs 총 시간 델타** — `order-preview.html` 1141행 주석이 선언한 불변식("estMin 델타와 일치")을
+  실행으로 고정한다. 절대값은 다르다(estMin은 코스 기본분에서 출발) — 같아야 하는 건 변화량뿐이다.
+- **[C] estMin 범위** · **[D] prep 항목 중복** · **[E] `_cakeDup` 발화**(0이면 가드가 안 닿는 것).
+- **[F] 축 누락 자동 탐지** — 파일이 실제로 읽는 `S.*` 이름을 전부 긁어 **순서 축에도 없고 이 파일 FIELDS에도
+  없는** 이름을 남긴다. "축이 잘못되면 지표가 잡지만 축이 빠지면 아무도 못 잡는다"를 기계로 옮긴 유일한 자리.
+  현재 뜨는 9개(`declare`·`entry`·`flash`·`tribute`·`blessProxy`·`mPeak`·`mClose`·`tune`·`up`)는 **대본 문안 축**이라
+  이 두 열거기 중 어느 쪽도 안 흔든다. 쓰기만 하고 아무도 안 읽는 필드도 따로 보고한다(현재 `vow` 1건).
+
+**seq 프로파일 2종**(코스 기본 / 넣을 수 있는 걸 전부 넣음)으로 돈다. `inSeq()`가 가드 분기의 앞조건이라,
+순서에 없는 순간의 분기는 애초에 못 밟기 때문이다. 담백 코스에서 `ringwarm` 변이가 `full`에서만 잡히는 게 그 예다.
+
+**변이 검증 완료** — `estMin`의 letter `+2→+20` · `_mm`의 ringwarm `4→6` · `prep`의 `declareWho==='family'` 무력화
+셋 다 각각 [B]·[B]·[A]에서 잡힌다.
