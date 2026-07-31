@@ -867,3 +867,5 @@ chk 'SUB_TYPO_SYNC' mypage.html 1                           # 반px 제거 상�
 chk 'SCHED_FAIL_AA' schedule.html 1                         # 오류 화면 링크 #7A5F37(5.71:1)·main 유지 · #9A7F5F로 되돌리면 3.6:1 미달
 chk 'SCALE_LEADING7' index.html 1                           # 행간 8단계 램프(한글 보정) · 목업 구역 예외
 chk 'SCALE_RADIUS6' index.html 1                            # 모서리 2/4/6/8/12+알약 · 폰 목업 곡률 예외
+chk 'WEIGHT_RAMP4' index.html 1                             # 굵기 300/400/500/600 · 350은 300으로 렌더되는 유령값
+chk 'BRAND_VAR' index.html 1                                # 브랜드색 하드코딩 금지 · var(--accent)/(--seal) 사용

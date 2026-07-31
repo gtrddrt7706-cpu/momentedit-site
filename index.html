@@ -338,6 +338,9 @@ select {
   --serif-jp: "Noto Serif JP", "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --sans: "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, sans-serif;
   --gap: 104px;
+  /* [WEIGHT_RAMP4] 굵기는 300 / 400 / 500 / 600 네 단계만. 350은 쓰지 말 것 —
+     로드된 웨이트가 300;400;500;600이라 350은 CSS 폰트 매칭으로 300에 붙어
+     '있어 보이지만 없는 값'이 된다(실측: Noto Serif KR 350·300 모두 353px). */
   /* [SCALE_LEADING7] 행간도 램프로만: 1 / 1.15 / 1.3 / 1.4 / 1.5 / 1.7 / 1.85 / 2.
      ※ UI/UX Pro Max design-system 규격(1.5·1.625)은 라틴 기준이라 한글 장문에 좁다.
      본문은 1.85, 밀도 높은 UI는 1.5~1.7로 한글에 맞춰 상향 조정한 값이다. */
@@ -633,7 +636,8 @@ body.menu-open .nav-wordmark {
   top: 50%;
   width: 14px;
   height: 1px;
-  background-color: #3a2d22;
+  /* [BRAND_VAR] 브랜드색은 변수로 — 팔레트를 바꿀 때 여기만 빠지면 이 선만 옛 색으로 남는다. */
+  background-color: var(--accent);
   display: block;
   transition: background-color 0.65s var(--ease);
 }
@@ -1177,7 +1181,7 @@ html.me-restoring body { opacity: 0 !important; }
 }
 .hero-sub {
   font-family: var(--serif-ko);
-  font-weight: 350;
+  font-weight: 300;
   font-size: 18px;
   color: var(--accent);
   line-height: 1.7;
@@ -1488,7 +1492,7 @@ section:not(#rsvp) > *:last-child {
 }
 .sec-title {
   font-family: var(--serif);
-  font-weight: 350;
+  font-weight: 300;
   font-size: clamp(32px, 4.6vw, 52px);
   line-height: 1.15;
   letter-spacing: -0.02em;
