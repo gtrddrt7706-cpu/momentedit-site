@@ -1141,14 +1141,13 @@ html.me-restoring body { opacity: 0 !important; }
   content: "";
   position: absolute;
   inset: 0;
-  /* [HERO_VIG_WARM] 비네트·텍스처는 반드시 진사 계열로(2026-07-31 실증).
-     기존 회갈(58,45,34)은 저채도 엄버라, 베일이 지나가는 전환대에 겹치면 웜 경로가
-     회색 흙탕으로 오염돼 '진사→흰 전환이 부자연'하게 보였다(사용자 지적 → A/B 렌더로 확정).
-     같은 알파로 색만 진사 심계(90,28,20)로 교체 — 깊이감은 유지, 회색기만 제거.
-     seamCol의 (70,23,16) 상수는 합성 차이 ΔRGB≤2라 재유도 불필요(실측). */
+  /* [HERO_VIG_REVERT] 2026-07-31 비네트를 진사 심계(90,28,20)로 바꿔봤으나(렌더 A/B에선 개선)
+     사용자가 실기기에서 '전보다 더 안 좋다'고 판정 → 원래 회갈(58,45,34)로 원복.
+     교훈: 헤드리스 렌더와 실기기(OLED·색관리)는 이 미묘한 톤에서 다르게 보인다.
+     이 구간은 사용자 실기기 확인 없이 다시 만지지 말 것. */
   background:
-    repeating-linear-gradient(0deg, rgba(90, 28, 20, 0.012) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 80% at 50% 108%, rgba(90, 28, 20, 0.05), transparent 62%);
+    repeating-linear-gradient(0deg, rgba(58, 45, 34, 0.012) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 80% at 50% 108%, rgba(58, 45, 34, 0.05), transparent 62%);
   pointer-events: none;
 }
 /* 밑단 웜톤 페더(2026-07-16): 히어로 마지막 ~14%를 진사 → 로즈우드 → 테라코타 → 샌드 → 크림으로 정적 페더링.
