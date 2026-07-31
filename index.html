@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <!-- viewport-fit=cover: 콘텐츠가 상태바 뒤까지 이어져 마이페이지처럼 '투명 상태바'가 됨. 프로스트는 상단 fixed 메뉴바(고정 크롬)가 유발하므로, 모바일에선 그 메뉴바를 제거해 마이페이지처럼 투명 유지 -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- [A11Y_PINCH_ZOOM] maximum-scale·user-scalable=no 제거 — 확대를 막으면 저시력 사용자가 사진·가격표를 볼 수 없다(WCAG 1.4.4). iOS 입력 확대는 폼 폰트를 16px 이상으로 두어 해결한다. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script src="/shared/analytics.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -337,6 +338,12 @@ select {
   --serif-jp: "Noto Serif JP", "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --sans: "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, sans-serif;
   --gap: 104px;
+  /* [A11Y_INPUT_16] 입력창 폰트는 16px 미만이면 iOS Safari가 포커스 시 화면을 강제 확대한다.
+     핀치줌을 허용(user-scalable 제거)했으므로 입력창은 반드시 16px 이상으로 유지할 것. */
+  /* [A11Y_LABEL_MATCH] 링크·버튼의 aria-label은 화면에 보이는 글자를 '그대로 포함'해야 한다(WCAG 2.5.3).
+     음성 명령 사용자가 보이는 대로 말했을 때 인식되게 하기 위함. 요약형 라벨로 바꾸지 말 것. */
+  /* [A11Y_FOOTER_AA] 푸터 f-copy 알파 0.44→0.7 (#1a1714 배경 대비 2.71:1→4.90:1)·이탤릭 0.34→0.55.
+     옅게 보이려고 알파를 내리면 AA 미달로 돌아간다. 흐리게 하려면 색이 아니라 크기·자간으로. */
   /* [TRACK_RAMP8] 자간도 램프로만 쓴다: -0.02 / 0.01 / 0.02 / 0.04 / 0.08 / 0.14 / 0.22 / 0.28em.
      예외 = 히어로 로고·푸터 워드마크·divider-mini(브랜드 시그니처)와 폰 목업 구역. 새 값 금지. */
   /* [TYPO_SCALE7] 본문·라벨 폰트 크기는 7단계만 쓴다: 11/12/13/14/16/18/20.
@@ -5928,7 +5935,10 @@ body {
     스튜디오를 거치지 않고 두 분께만 도착합니다.
   </p>
 
-  <div class="delivered-mail" aria-hidden="true">
+  <!-- [A11Y_LETTER_EXPOSED] 이 카드는 장식이 아니라 '받은 편지' 실제 예시다(본문·펼쳐보기 버튼 포함).
+       aria-hidden이면 스크린리더 사용자가 예시를 통째로 못 읽고, 안의 버튼은 포커스는 되는데
+       읽히지 않는 위반이 된다(WCAG 4.1.2). 대신 group+라벨로 '예시'임을 알린다. -->
+  <div class="delivered-mail" role="group" aria-label="받은 편지 예시">
     <div class="dm-brand">MOMENT&nbsp;EDIT</div>
     <div class="dm-subbrand">PRIVATE WEDDING STUDIO</div>
     <div class="dm-hairline"></div>
@@ -6460,7 +6470,7 @@ body {
   <div class="access-info">
     <div class="access-row">
       <span class="access-label">Address</span>
-      <a href="https://map.naver.com/v5/search/경기도 고양시 덕양구 향동동" target="_blank" rel="noopener" class="access-value access-link" aria-label="네이버 지도에서 스튜디오 주소 열기">경기도 고양시 덕양구 향동동 <span class="access-note">(정확한 주소 확정 예정)</span></a>
+      <a href="https://map.naver.com/v5/search/경기도 고양시 덕양구 향동동" target="_blank" rel="noopener" class="access-value access-link" aria-label="경기도 고양시 덕양구 향동동 (정확한 주소 확정 예정) · 네이버 지도에서 열기">경기도 고양시 덕양구 향동동 <span class="access-note">(정확한 주소 확정 예정)</span></a>
     </div>
     <div class="access-row">
       <span class="access-label">Transit</span>
@@ -6483,10 +6493,10 @@ body {
   <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="f-footer-logo-link" aria-label="페이지 최상단으로 이동">
     <picture><source type="image/webp" srcset="/assets/brand/wordmark-only.webp"><img class="f-footer-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" loading="lazy" decoding="async"></picture>
   </a>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:16px;letter-spacing:0.04em;line-height:1.85"><a href="mailto:contact@momentedit.kr" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">contact@momentedit.kr</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="mypage.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">My Page</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">경기 고양시 덕양구 향동동<span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="privacy.html" style="color:inherit;text-decoration:none">개인정보처리방침</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
-  <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.34);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:16px;letter-spacing:0.04em;line-height:1.85"><a href="mailto:contact@momentedit.kr" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">contact@momentedit.kr</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="mypage.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">My Page</a></div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">경기 고양시 덕양구 향동동<span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="privacy.html" style="color:inherit;text-decoration:none">개인정보처리방침</a></div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
+  <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.7);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
 </footer>
 </div>
 <script>
@@ -7622,7 +7632,7 @@ function replayHeroAnimation(){
   border-radius: 12px;
   padding: 12px 14px;
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text);
   background: #fff;
   line-height: 1.5;
