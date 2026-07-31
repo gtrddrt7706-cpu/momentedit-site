@@ -337,6 +337,8 @@ select {
   --serif-jp: "Noto Serif JP", "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --sans: "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, sans-serif;
   --gap: 104px;
+  /* [TYPO_SCALE7] 본문·라벨 폰트 크기는 7단계만 쓴다: 11/12/13/14/16/18/20.
+     디스플레이(22+)와 마이크로 라벨(8/9), 폰 목업 장식 구역은 별도. 반px 금지. */
   --max: 820px;
 }
 html {
@@ -400,7 +402,7 @@ nav.nav-hidden {
 .nav-wordmark {
   font-family: var(--serif);
   font-weight: 500;
-  font-size: 15px;
+  font-size: 16px;
   letter-spacing: 0.18em;
   color: var(--accent);
   opacity: 0.9;
@@ -590,7 +592,7 @@ body.menu-open .nav-wordmark {
 .mm-close-label {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.12em;
   color: var(--accent);
@@ -788,7 +790,7 @@ body.menu-open .nav-wordmark {
 }
 .mobile-menu-links .mm-ko {
   font-family: var(--serif-ko);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 300;
   color: var(--light);
   letter-spacing: 0.08em;
@@ -813,7 +815,7 @@ body.menu-open .nav-wordmark {
 }
 .mm-foot-eyebrow {
   font-family: var(--serif);
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 400;
   color: var(--light);
   letter-spacing: 0.34em;
@@ -1382,7 +1384,7 @@ html.me-restoring body { opacity: 0 !important; }
   -webkit-backdrop-filter: blur(6px);
   color: rgba(255, 255, 255, 0.92);
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 300;
   letter-spacing: 0.02em;
   line-height: 1.5;
@@ -1397,7 +1399,7 @@ html.me-restoring body { opacity: 0 !important; }
   font-family: var(--serif);
   font-style: italic;
   font-weight: 500;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1407,7 +1409,7 @@ html.me-restoring body { opacity: 0 !important; }
   .ph-note {
     right: 10px;
     bottom: 10px;
-    font-size: 9.5px;
+    font-size: 9px;
     padding: 7px 10px;
     max-width: 180px;
   }
@@ -1453,7 +1455,7 @@ section:not(#rsvp) > *:last-child {
   padding: calc(var(--gap) + 32px) 0;
 }
 .sec-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--light);
@@ -1475,7 +1477,7 @@ section:not(#rsvp) > *:last-child {
   margin-bottom: 10px;
 }
 .sec-title-sub {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--sub);
   margin-bottom: 32px;
   line-height: 1.8;
@@ -1537,7 +1539,7 @@ section:not(#rsvp) > *:last-child {
 }
 .terms-value {
   font-family: var(--serif-ko);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 300;
   color: var(--sub);
   line-height: 1.9;
@@ -1664,7 +1666,7 @@ section:not(#rsvp) > *:last-child {
 }
 .card-label {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--accent);
   margin-bottom: 4px;
@@ -1712,7 +1714,7 @@ section:not(#rsvp) > *:last-child {
 }
 .feature .card-label {
   font-family: var(--serif);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 500;
   color: var(--accent);
   margin-bottom: 4px;
@@ -1765,7 +1767,9 @@ section:not(#rsvp) > *:last-child {
   display: grid;
   grid-template-columns: 80px 1fr;
   gap: 28px;
-  padding: 32px 0;
+  /* [TYPO_RHYTHM] 타임라인 5항목이 본문 줄간격과 비슷한 간격으로 붙어 벽처럼 읽혔다.
+     항목 사이 숨을 본문 문단 간격의 1.5배 이상으로. (32→40px) */
+  padding: 40px 0;
   border-bottom: 1px solid var(--border);
 }
 .seq-item:last-child {
@@ -1903,7 +1907,7 @@ section:not(#rsvp) > *:last-child {
   transform: rotate(45deg);
 }
 .price-title {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--light);
@@ -1986,7 +1990,7 @@ section:not(#rsvp) > *:last-child {
 .snap-list .li-sub {
   display: block;
   margin-top: 3px;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--light);
   letter-spacing: 0.01em;
 }
@@ -2120,7 +2124,7 @@ section:not(#rsvp) > *:last-child {
 }
 .channel-block-text {
   font-family: var(--serif-ko);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 300;
   color: var(--sub);
   letter-spacing: 0.02em;
@@ -2171,7 +2175,7 @@ a.ig-handle:hover {
   line-height: 0;
 }
 .channel-block-link--text-only .handle {
-  font-size: 19px;
+  font-size: 20px;
   letter-spacing: 0;
   display: inline-block;
   position: relative;
@@ -2221,14 +2225,14 @@ a.ig-handle:hover {
     border-radius: 50%;
   }
   .channel-block-text {
-    font-size: 15.5px;
+    font-size: 16px;
     line-height: 1.4;
   }
   .channel-block-text .handle {
     font-size: 18px;
   }
   .channel-block-link--text-only .handle {
-    font-size: 17px;
+    font-size: 18px;
   }
 }
 .cta-block {
@@ -2251,7 +2255,7 @@ a.ig-handle:hover {
    ★한글 라벨에 기존 uppercase·12% 자간을 쓰면 안 된다 — 섹션 라벨에서 고친 낱글자 흩어짐(LABEL_KO_TRACK)이 재현된다. */
 .cta-eyebrow {
   font-family: var(--serif);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-text);
@@ -2260,7 +2264,7 @@ a.ig-handle:hover {
 .cta-btn {
   display: inline-block;
   font-family: var(--serif-ko);
-  font-size: 15.5px;
+  font-size: 16px;
   letter-spacing: 0.02em;
   text-transform: none;
   line-height: 1.3;
@@ -2314,7 +2318,7 @@ a.ig-handle:hover {
 /* CTA 위험 역전 한 줄 — 예약금 전액 환불 안심(전환 법칙 STEP 2) */
 .cta-assure {
   font-family: var(--serif-ko);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 300;
   color: var(--gold-text);
   letter-spacing: 0.03em;
@@ -2353,7 +2357,7 @@ a.ig-handle:hover {
 }
 .step-name {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--accent);
   margin-bottom: 6px;
@@ -2364,7 +2368,7 @@ a.ig-handle:hover {
 }
 .step-name.ko {
   font-family: var(--serif-ko);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -2403,7 +2407,7 @@ a.ig-handle:hover {
 }
 @media (max-width: 760px) {
   .director-quote {
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.9;
   }
   .director-quote p {
@@ -2436,7 +2440,7 @@ a.ig-handle:hover {
   align-items: center;
   gap: 8px;
   font-family: var(--serif);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-text); /* [GOLD_TEXT_AA] 자식 .journal-num·.journal-date가 상속 · 10px에 2.54:1은 특히 위험 */
@@ -2468,7 +2472,7 @@ a.ig-handle:hover {
 .journal-card-full {
   font-family: var(--serif-ko);
   font-weight: 300;
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.95;
   color: var(--sub);
   letter-spacing: 0.02em;
@@ -2549,7 +2553,7 @@ a.ig-handle:hover {
 }
 @media (max-width: 760px) {
   .journal-footer {
-    font-size: 10.5px;
+    font-size: 11px;
     margin: 14px 0 14px;
     padding-top: 12px;
   }
@@ -2562,7 +2566,7 @@ a.ig-handle:hover {
 }
 .journal-guide-lead {
   font-family: var(--serif-ko);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 300;
   color: var(--sub);
   letter-spacing: 0.02em;
@@ -2578,7 +2582,7 @@ a.ig-handle:hover {
 .journal-guide-link {
   display: inline-block;
   font-family: var(--serif-ko);
-  font-size: 15.5px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.3;
   color: var(--seal);
@@ -2608,7 +2612,7 @@ a.ig-handle:hover {
     margin-top: 40px;
     padding-top: 32px;
   }
-  .journal-guide-lead { font-size: 12.5px; }
+  .journal-guide-lead { font-size: 13px; }
   /* [BTN_TIER] 글자 크기는 .cta-btn과 같은 15.5px 유지 — 여기서 13px로 줄이면 다시 '덜 만든 버튼'이 된다 */
 }
 .divider-mini {
@@ -3005,7 +3009,7 @@ footer {
     transform: translateY(1px) !important;
   }
   .nav-wordmark {
-    font-size: 12.5px;
+    font-size: 13px;
     letter-spacing: 0.14em;
     height: 17px;
     gap: 4px;
@@ -3095,7 +3099,7 @@ footer {
     gap: 28px;
   }
   .feature .card-label {
-    font-size: 17px;
+    font-size: 18px;
   }
   .seq-item {
     grid-template-columns: 68px 1fr;
@@ -3136,7 +3140,7 @@ footer {
     line-height: 1.5;
   }
   .faq-q strong {
-    font-size: 15px;
+    font-size: 16px;
   }
   .faq-q::after {
     font-size: 18px;
@@ -4096,7 +4100,7 @@ footer {
 }
 .access-value {
   font-family: var(--serif-ko);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 300;
   color: var(--sub);
   line-height: 1.65;
@@ -4126,7 +4130,7 @@ footer {
 }
 .delivered-intro {
   font-family: var(--serif-ko);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 300;
   color: var(--sub);
   line-height: 1.95;
@@ -4313,7 +4317,7 @@ footer {
 }
 .delivered-note {
   font-family: var(--serif-ko);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 300;
   color: var(--sub);
   letter-spacing: 0.01em;
@@ -4328,7 +4332,7 @@ footer {
     padding: 0 20px;
   }
   .delivered-eyebrow {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.22em;
   }
   .delivered-mail {
@@ -4367,7 +4371,7 @@ footer {
     font-size: 11px;
   }
   .delivered-intro {
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.85;
   }
   .delivered-note {
@@ -4485,11 +4489,11 @@ footer {
     margin-bottom: 14px;
   }
   .preview-link-en {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.2em;
   }
   .preview-link-ko {
-    font-size: 10px;
+    font-size: 11px;
   }
   .preview-link-btn {
     font-size: 13px;
@@ -4546,15 +4550,15 @@ a.access-link:hover::after {
     padding: 12px 0;
   }
   .access-label {
-    font-size: 9.5px;
+    font-size: 9px;
     letter-spacing: 0.18em;
   }
   .access-value {
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.6;
   }
   .access-note {
-    font-size: 10px;
+    font-size: 11px;
     display: inline-block;
     margin-top: 2px;
   }
@@ -4839,7 +4843,7 @@ body {
 }
 .transparency-list li {
   font-family: var(--serif-ko);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--sub);
   padding: 8px 0;
   letter-spacing: 0.01em;
@@ -4857,7 +4861,7 @@ body {
 .transparency-list .li-meta {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--light);
   letter-spacing: 0.04em;
   font-weight: 300;
@@ -4874,12 +4878,12 @@ body {
 }
 .transparency-list .li-price .li-meta {
   margin-left: 2px;
-  font-size: 10px;
+  font-size: 11px;
 }
 .transparency-foot {
   margin: 18px 0 0;
   font-family: var(--serif-ko);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--light);
   text-align: center;
   line-height: 1.7;
@@ -4899,7 +4903,7 @@ body {
     padding: 20px 18px;
   }
   .transparency-col-label {
-    font-size: 10.5px;
+    font-size: 11px;
     letter-spacing: 0.16em;
     margin-bottom: 14px;
     padding-bottom: 10px;
@@ -4909,10 +4913,10 @@ body {
     padding: 7px 0;
   }
   .transparency-list .li-meta {
-    font-size: 10px;
+    font-size: 11px;
   }
   .transparency-list .li-price {
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .transparency-foot {
     font-size: 11px;
@@ -5002,7 +5006,7 @@ body {
 }
 .ideogram-caption-ko {
   font-family: var(--serif-ko);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--light);
   letter-spacing: 0.02em;
   margin-top: 6px;
@@ -5348,7 +5352,7 @@ body {
   <div class="sec-label"><span class="label-dot"></span>THE REALITY ·<span class="ll-ko"> 결혼식의 현실</span></div>
   <h2 class="sec-title">A Long Day</h2>
   <div class="sec-title-sub">가장 빛나야 할 두 사람이, 가장 지치는 하루</div>
-  <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">많은 결혼식이 그렇습니다. 준비는 버겁고, 당일은 정신없이 지나갑니다. <br class="pc-hide">그 익숙한 풍경을, 두 분께는 권하고 싶지 않았습니다.</p>
+  <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">많은 결혼식이 그렇습니다. 준비는 버겁고, 당일은 정신없이 지나갑니다. <br class="pc-hide">그 익숙한 풍경을, 두 분께는 권하고 싶지 않았습니다.</p>
 </div>
 <div class="reveal">
   <div class="feature-grid">
@@ -5367,7 +5371,7 @@ body {
   <div class="sec-label"><span class="label-dot"></span>ABOUT ·<span class="ll-ko"> 소개</span></div>
   <h2 class="sec-title">A Quiet Record</h2>
   <div class="sec-title-sub">서울 근교 프라이빗 스몰웨딩 · 단독 하우스웨딩, 가장 두 사람다운 기록</div>
-  <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">양가 직계가족 25명까지 함께하는 마이크로웨딩, 평일결혼식의 여유까지.<br class="pc-hide"> 촬영·디지털 참석·청첩장 컬렉션·다이닝 안내가 하나의 흐름으로 이어지는, 140분 시그니처 시퀀스를 제안합니다.</p>
+  <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">양가 직계가족 25명까지 함께하는 마이크로웨딩, 평일결혼식의 여유까지.<br class="pc-hide"> 촬영·디지털 참석·청첩장 컬렉션·다이닝 안내가 하나의 흐름으로 이어지는, 140분 시그니처 시퀀스를 제안합니다.</p>
 </div>
 <div class="divider-line"></div>
 <div class="reveal">
@@ -5833,7 +5837,7 @@ body {
 <div class="reveal" style="max-width:560px;margin:56px auto 0">
   <div style="text-align:center;margin-bottom:26px">
     <span style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--seal)">Tailored for two</span>
-    <p style="font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0">두 편의 청첩장, 두 분의 뜻대로</p>
+    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0">두 편의 청첩장, 두 분의 뜻대로</p>
   </div>
   <div style="display:grid;gap:14px">
     <div style="padding:18px 20px;background:rgba(184,154,117,0.07);border:1px solid rgba(184,154,117,0.5);border-radius:6px">
@@ -5865,14 +5869,14 @@ body {
     <span style="display:inline-flex;align-items:baseline;gap:14px;padding:6px 0 8px;border-bottom:1px solid var(--seal)">
       <span style="font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:0.1em;color:var(--seal)">View Gallery</span>
       <span style="color:var(--light);font-size:11px">·</span>
-      <span style="font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);letter-spacing:0.06em">청첩장 미리보기</span>
+      <span style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);letter-spacing:0.06em">청첩장 미리보기</span>
       <span style="font-size:14px;color:var(--seal);display:inline-block;transition:transform 0.3s var(--ease)">↗</span>
     </span>
     <!-- [NOWRAP_CLIP_FIX] white-space:nowrap 금지 — 2026-07-30 삭제.
          390px에서 내용 317px / 표시 300px로 17px가 잘려 '됩니다.'가 안 보였다.
          body에 overflow-x:hidden이 있어 가로 스크롤도 안 생기고 그냥 잘림.
          body의 word-break:keep-all이 어절 단위로 끊어주므로 그대로 두면 된다. -->
-    <span style="display:block;margin-top:18px;font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7">
+    <span style="display:block;margin-top:18px;font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7">
       청첩장은 두 분의 이야기에 맞춰 자유롭게 커스텀됩니다.
     </span>
   </a>
@@ -5883,20 +5887,20 @@ body {
 <div class="reveal" style="max-width:560px;margin:64px auto 0">
   <div style="text-align:center;margin-bottom:22px">
     <span style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--seal)">The Guest Companion</span>
-    <p style="font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0;word-break:keep-all">예식 당일, 오시는 하객의 손안에는</p>
+    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0;word-break:keep-all">예식 당일, 오시는 하객의 손안에는</p>
   </div>
   <div style="display:grid;gap:12px">
     <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
       <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Way</span>
-      <span style="font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">오시는 길·주차 안내</b> · 출발 전 다시 찾게 되는 것들이 링크 하나에 정리됩니다.</span>
+      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">오시는 길·주차 안내</b> · 출발 전 다시 찾게 되는 것들이 링크 하나에 정리됩니다.</span>
     </div>
     <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
       <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Seat</span>
-      <span style="font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">내 자리 찾기</b> · 이름을 찾으면 자리가 바로 보입니다. 좌석표 앞에서 서성일 일이 없어요.</span>
+      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">내 자리 찾기</b> · 이름을 찾으면 자리가 바로 보입니다. 좌석표 앞에서 서성일 일이 없어요.</span>
     </div>
     <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
       <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Photos</span>
-      <span style="font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">사진 모으기</b> · 원하시면 하객분들이 담은 장면도 한곳으로 모입니다.</span>
+      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">사진 모으기</b> · 원하시면 하객분들이 담은 장면도 한곳으로 모입니다.</span>
     </div>
   </div>
   <p style="text-align:center;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.04em;margin:16px 0 0;word-break:keep-all">청첩장 그 다음 화면까지, 저희가 직접 만들어 둔 하객 전용 페이지입니다.</p>
@@ -6040,8 +6044,8 @@ body {
       <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold-text);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
       <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing:-0.01em;margin:0">왜 평일이 더 자연스러운가</h3>
     </div>
-    <p class="t-body" style="margin:0 auto 14px;max-width:600px;text-align:center;font-size:13.5px;line-height:1.95;text-wrap:balance;word-break:keep-all">양가 직계가족 25명만 모이는 자리에서는, 예식일을 꼭 주말로 잡을 이유가 없습니다. 평일은 서로 일정을 맞추기 한결 수월하고, 원하는 날짜를 넉넉히 골라 서두르지 않는 하루를 보낼 수 있습니다.</p>
-    <p class="t-body" style="margin:0 auto;max-width:600px;text-align:center;font-size:13.5px;line-height:1.95;text-wrap:balance;word-break:keep-all">그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>
+    <p class="t-body" style="margin:0 auto 14px;max-width:600px;text-align:center;font-size:14px;line-height:1.95;text-wrap:balance;word-break:keep-all">양가 직계가족 25명만 모이는 자리에서는, 예식일을 꼭 주말로 잡을 이유가 없습니다. 평일은 서로 일정을 맞추기 한결 수월하고, 원하는 날짜를 넉넉히 골라 서두르지 않는 하루를 보낼 수 있습니다.</p>
+    <p class="t-body" style="margin:0 auto;max-width:600px;text-align:center;font-size:14px;line-height:1.95;text-wrap:balance;word-break:keep-all">그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>
   </div>
 </div>
 <!-- ARCHIVE OPENING HONOR -->
@@ -6062,7 +6066,7 @@ body {
     <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold-text);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
     <h3 class="sec-label">Weekday Editorial Snap ·<span class="ll-ko"> 평일 웨딩스냅</span></h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
-    <p class="t-body" style="margin:14px 0 0;font-size:12.5px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
+    <p class="t-body" style="margin:14px 0 0;font-size:13px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
     <div class="photo-placeholder half" style="height:340px;margin:20px 0 4px;border-radius:8px">
       <picture><source type="image/webp" srcset="/assets/home/snap.webp"><img class="ph-img" src="/assets/home/snap.jpg" alt="평일 웨딩스냅 · 화이트존 에디토리얼 촬영 예시" loading="lazy" onerror="this.style.display='none'"></picture>
     </div>
@@ -6075,7 +6079,7 @@ body {
     <div style="text-align:center;margin-top:24px">
       <div style="font-family:var(--serif);font-size:24px;color:var(--gold-text);font-weight:400;letter-spacing:0.02em">&#8361;600,000</div>
       <div class="t-note">VAT 포함 &middot; 평일(월~금) 한정 운영</div>
-      <div style="margin-top:14px;padding:14px 20px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.8;max-width:420px;margin-left:auto;margin-right:auto;word-break:keep-all;text-wrap:balance">
+      <div style="margin-top:14px;padding:14px 20px;background:var(--bg2);border-radius:4px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);font-weight:300;letter-spacing:0.02em;line-height:1.8;max-width:420px;margin-left:auto;margin-right:auto;word-break:keep-all;text-wrap:balance">
         <span style="display:block">본식의 부담 없이, 평일의 여유 속에서 두 분의 기록만 남기는 자리입니다.</span>
       </div>
     </div>
@@ -6094,7 +6098,7 @@ body {
   <div class="sec-label"><span class="label-dot"></span>JOURNEY ·<span class="ll-ko"> 진행</span></div>
   <h2 class="sec-title">My Page</h2>
   <div class="sec-title-sub">예약, 그 다음부터가 진짜 시작입니다</div>
-  <p class="t-body" style="margin-top:14px;font-size:13.5px;color:var(--sub)">보통은 웨딩플래너의 몫인 일을, 여기선 두 분이 직접 합니다. 막막할 틈 없이, 진행은 저희가 곁에서 거들어 드려요. 복잡한 절차 없이 쉽게, 모든 내역은 투명하게, <br class="pc-hide">청첩장·식순은 언제든 원하는 대로 바꿔가며. 상담부터 예식까지 손안에서 함께합니다.</p>
+  <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">보통은 웨딩플래너의 몫인 일을, 여기선 두 분이 직접 합니다. 막막할 틈 없이, 진행은 저희가 곁에서 거들어 드려요. 복잡한 절차 없이 쉽게, 모든 내역은 투명하게, <br class="pc-hide">청첩장·식순은 언제든 원하는 대로 바꿔가며. 상담부터 예식까지 손안에서 함께합니다.</p>
 </div>
 <div class="reveal">
   <div class="jr-showcase">
@@ -6125,7 +6129,7 @@ body {
      ★order-preview.html 공개 링크를 홈에 다시 달지 말 것. 대신 '상담에서 직접' 한 줄로 —
      도구는 상담 자리에서만 열어 보여주는 것으로(희소성·상담 유인). 페이지 자체는 noindex 유지. -->
 <div class="reveal" style="text-align:center;margin-top:40px">
-  <p style="font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.8;word-break:keep-all;margin:0">이 화면들은 캡처가 아니라 실제로 움직이는 도구입니다.<br class="mobile-br"> 상담 자리에서 직접 열어, 두 분 손으로 눌러보시게 해드려요.</p>
+  <p style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.8;word-break:keep-all;margin:0">이 화면들은 캡처가 아니라 실제로 움직이는 도구입니다.<br class="mobile-br"> 상담 자리에서 직접 열어, 두 분 손으로 눌러보시게 해드려요.</p>
 </div>
 <div class="reveal"><p class="t-emph" style="margin-top:44px;text-align:center;word-break:keep-all;letter-spacing:0.01em">좋은 예식은 당일이 아니라, <br class="br-mo">준비하는 동안에도 정중합니다.</p></div>
 <div class="cta-block reveal">
@@ -6226,7 +6230,7 @@ body {
   <div class="sec-title-sub">스몰웨딩 자주 묻는 질문 · 서비스 운영 원칙 및 가이드</div>
 </div>
 <div class="faq-item"><div class="faq-q"><span>하객은 몇 분까지 함께할 수 있나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트는 양가 합산 <strong>최대 25명</strong>까지 착석으로 모실 수 있습니다.<br><br>인원은 자유롭게 정하시면 됩니다. 적게 모여도, 가까이 모여도 괜찮습니다. 12명이 모이는 자리든 24명이 모이는 자리든, 그날의 인원에 맞추어 테이블과 좌석을 다시 배치하여 자연스러운 자리를 만들어 드립니다.<br><br>25명을 넘는 경우에는 스탠딩 좌석을 추가하실 수 있습니다(별도 비용). 멀리 계신 분께는 디지털 참석으로 자리를 내어드립니다.<br><br>구체적인 인원과 동선은 상담을 통해 함께 설계해 드립니다.</div></div></div>
-<div class="faq-item"><div class="faq-q"><span>스몰웨딩 비용은 얼마인가요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 올인원 패키지는 주말·공휴일 <strong>280만 원</strong>, 평일결혼식 <strong>210만 원</strong>입니다(VAT 포함). 양가 직계가족 25명까지 함께하는 마이크로웨딩 동일 시퀀스로 진행됩니다. 촬영(원본 전체 + 보정 10장)·본식영상·모바일청첩장·다이닝 안내까지 필수 항목이 모두 포함되어 있으며, <strong>필수 추가 비용은 없습니다</strong>.<br><br><strong>일반 웨딩홀이 식대·꽃·스드메를 항목마다 따로 청구하는 것과 달리, 하나의 통합 가격에 본질적인 항목만 담아낸 구성입니다.</strong><br><br>평일 웨딩스냅만 원하시는 경우, 운영 초기 한정으로 60만 원에 진행하고 있습니다(정가 80만 원).<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:12px;line-height:1.85;color:var(--sub)"><strong style="color:var(--accent);font-size:12.5px;letter-spacing:0.04em">선택 항목 안내</strong><br>다이닝 식사 비용은 선택하신 파트너사에 별도 지불, 추가 보정 1컷 20,000원, 추가 시착 1벌 50,000원(3벌째부터), 헤어·메이크업은 외부에서 별도 진행됩니다. 모두 상담 시 명확히 안내드립니다.</span></div></div></div>
+<div class="faq-item"><div class="faq-q"><span>스몰웨딩 비용은 얼마인가요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 올인원 패키지는 주말·공휴일 <strong>280만 원</strong>, 평일결혼식 <strong>210만 원</strong>입니다(VAT 포함). 양가 직계가족 25명까지 함께하는 마이크로웨딩 동일 시퀀스로 진행됩니다. 촬영(원본 전체 + 보정 10장)·본식영상·모바일청첩장·다이닝 안내까지 필수 항목이 모두 포함되어 있으며, <strong>필수 추가 비용은 없습니다</strong>.<br><br><strong>일반 웨딩홀이 식대·꽃·스드메를 항목마다 따로 청구하는 것과 달리, 하나의 통합 가격에 본질적인 항목만 담아낸 구성입니다.</strong><br><br>평일 웨딩스냅만 원하시는 경우, 운영 초기 한정으로 60만 원에 진행하고 있습니다(정가 80만 원).<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:12px;line-height:1.85;color:var(--sub)"><strong style="color:var(--accent);font-size:13px;letter-spacing:0.04em">선택 항목 안내</strong><br>다이닝 식사 비용은 선택하신 파트너사에 별도 지불, 추가 보정 1컷 20,000원, 추가 시착 1벌 50,000원(3벌째부터), 헤어·메이크업은 외부에서 별도 진행됩니다. 모두 상담 시 명확히 안내드립니다.</span></div></div></div>
 <div class="faq-item"><div class="faq-q"><span>예식은 얼마나 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 140분은 본질만 남긴 시간입니다. 불필요한 대기와 반복을 걷어내고, 주인공의 에너지가 가장 선명한 순간만을 담습니다.<div class="faq-seq"><strong>140분 시그니처 시퀀스</strong><br>20m | Getting Ready · 의상 착장, 컨디션 정돈<br>40m | Private Snap · 하객과 완벽히 분리된 공간에서 오직 기록에만 몰입<br>30m | The Ceremony · 모든 시선이 집중되는 순간의 정갈한 본식<br>30m | Group Record · 양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간<br>20m | Farewell · 서두르지 않는 배웅, 여운 있는 마무리</div></div></div></div>
 <div class="faq-item"><div class="faq-q"><span>예식 후 식사는 어떻게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">예식 후의 식사·카페를 안내하는 <strong>애프터 웨딩</strong>은 선택 항목입니다. 스튜디오 인근의 검증된 파트너를 마이페이지에서 취향에 맞게 추천해 드리고, 마음에 드는 곳을 고르시면 연락처와 예약 안내 문구까지 정리해 드립니다. 예약이 어려우신 경우 디렉터가 도와드립니다. 식사 비용은 선택하신 파트너사에 별도로 지불하시는 항목입니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>디지털 참석은 어떻게 구성되나요?</span></div><div class="faq-a"><div class="faq-a-inner">광고와 외부 노출이 없는 1080p 비공개 화면입니다. 접속자 수도, 공개 채팅도 표시되지 않습니다. 오롯이 두 분의 시간만이 화면에 머무릅니다.<br><br>디지털 참석 페이지는 청첩장 안에 동봉되는 QR 혹은 링크로 접속하며, 어떠한 설치나 로그인도 필요하지 않습니다. 영상 탭 한 번으로 전체화면 전환되어, 어르신까지 모든 세대가 편안히 감상하실 수 있습니다.</div></div></div>
@@ -6235,7 +6239,7 @@ body {
 <button type="button" class="faq-more-toggle" id="faqMoreToggle" aria-expanded="false" aria-controls="faqMoreList"><span class="more-text-open">더 자세한 질문 <span class="more-count">6</span> 보기</span><span class="more-text-close">접기</span><span class="more-icon">+</span></button>
 <div class="faq-more" id="faqMoreList"><div class="faq-more-inner">
 <div class="faq-item"><div class="faq-q"><span>마이크로웨딩이란 무엇인가요?</span></div><div class="faq-a"><div class="faq-a-inner">마이크로웨딩은 일반적으로 10~30명 내외의 소규모 결혼식을 의미합니다. 모먼트에디트는 <strong>양가 직계가족 25명까지 함께하는 프라이빗 마이크로웨딩</strong>을 제안합니다.<br><br>형식은 작지만 의미는 깊은 자리. 가까이 모신 분들과의 호흡 안에서, 두 분의 가장 두 사람다운 찰나가 정성스럽게 기록됩니다. 디지털 참석으로 멀리 계신 분들의 마음까지 이어드려, 작은 자리가 결코 작지 않도록 설계했습니다.</div></div></div>
-<div class="faq-item"><div class="faq-q"><span>부모님이 큰 결혼식을 원하시는데 어떻게 안내해야 할까요?</span></div><div class="faq-a"><div class="faq-a-inner">양가 어르신을 더 정중하게 모시기 위해, 인원을 절제합니다. 가까이서 모든 분의 표정을 기억할 수 있는 자리, 한 분 한 분께 충분한 환대를 내어드릴 수 있는 호흡. 이것이 모먼트에디트가 생각하는 <strong>가족 중심 예식의 형식</strong>입니다.<br><br>직접 모시지 못하는 분께는 디지털 참석으로 온전한 자리를 내어드립니다. 거리가 멀어 못 오신 분이 더는 결례가 되지 않는 자리입니다.<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:12.5px;line-height:1.9;color:var(--sub);margin-top:8px"><strong style="color:var(--accent);font-size:13px;letter-spacing:0.04em">어른 세대를 위한 안내 자료</strong><br>가족 중심 예식의 의미, 전통 예우, 그리고 모먼트에디트의 형식을 한 장에 담은 안내문을 사전 문의서 제출 시 함께 보내드립니다. 부모님과의 대화를 부드럽게 풀어드리기 위한 자료입니다.<br><a href="parents.html" style="display:inline-block;margin-top:8px;color:var(--accent);font-weight:500;text-decoration:none;border-bottom:1px solid var(--gold)">안내문 미리 보기 →</a></span></div></div></div>
+<div class="faq-item"><div class="faq-q"><span>부모님이 큰 결혼식을 원하시는데 어떻게 안내해야 할까요?</span></div><div class="faq-a"><div class="faq-a-inner">양가 어르신을 더 정중하게 모시기 위해, 인원을 절제합니다. 가까이서 모든 분의 표정을 기억할 수 있는 자리, 한 분 한 분께 충분한 환대를 내어드릴 수 있는 호흡. 이것이 모먼트에디트가 생각하는 <strong>가족 중심 예식의 형식</strong>입니다.<br><br>직접 모시지 못하는 분께는 디지털 참석으로 온전한 자리를 내어드립니다. 거리가 멀어 못 오신 분이 더는 결례가 되지 않는 자리입니다.<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:13px;line-height:1.9;color:var(--sub);margin-top:8px"><strong style="color:var(--accent);font-size:13px;letter-spacing:0.04em">어른 세대를 위한 안내 자료</strong><br>가족 중심 예식의 의미, 전통 예우, 그리고 모먼트에디트의 형식을 한 장에 담은 안내문을 사전 문의서 제출 시 함께 보내드립니다. 부모님과의 대화를 부드럽게 풀어드리기 위한 자료입니다.<br><a href="parents.html" style="display:inline-block;margin-top:8px;color:var(--accent);font-weight:500;text-decoration:none;border-bottom:1px solid var(--gold)">안내문 미리 보기 →</a></span></div></div></div>
 <div class="faq-item"><div class="faq-q"><span>적은 인원으로 축의금 전달이 어렵지는 않을까요?</span></div><div class="faq-a"><div class="faq-a-inner">청첩장 안에 개인 계좌를 함께 안내하실 수 있고, 디지털 참석 페이지의 <strong>디지털 봉투</strong>에는 양가 계좌가 아코디언 안에 정중히 접혀 있어, 마음을 전하고 싶으신 분만 펼쳐 보실 수 있습니다.<br><br>직접 오지 못하시는 분께도 디지털 참석으로 자리를 내어드리고, 메시지로 마음을 주고받을 수 있도록 했습니다. 형식이 달라도, 함께한 모든 형태의 마음은 정중히 받습니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>청첩장은 어떻게 준비되나요?</span></div><div class="faq-a"><div class="faq-a-inner">청첩장은 모먼트에디트 여정의 <strong>첫 문장</strong>입니다. 별도의 제작비 없이 패키지 안에 온전히 담기며, <strong>시그니처 컬렉션</strong> 가운데 두 분의 톤에 가장 어울리는 한 편을 골라 <strong>마이페이지에서 직접</strong> 완성하시도록 도구와 가이드를 드립니다.<br><br>두 분께는 <strong>두 편의 청첩장</strong>을 함께 드립니다. 멀리 계신 하객을 위한 <strong>온라인 청첩장</strong>은 링크 한 번으로 디지털 참석 · 예식 영상 · 편지 · 봉투가 한 페이지에 열리고, 가까운 분들께 직접 건네는 <strong>오프라인 청첩장</strong>은 오시는 길과 함께 정중히 안내합니다.<br><br>인사말과 혼주(부모님) 표기, 마음 전하실 곳(양가 부모님 계좌까지)은 두 분의 뜻에 맞추어 <strong>넣거나 비울 수 있습니다</strong>.<br><br>실물 청첩장이 필요하신 경우, 청첩장 원본 이미지와 <strong>전용 QR</strong>이 함께 제공됩니다. 인쇄는 두 분이 선호하시는 업체에서 자유롭게 진행하실 수 있습니다.<br><br>청첩장을 <strong>직접 제작해 쓰시는 경우에도</strong> 인쇄용 QR을 드립니다. 그 한 장으로 하객 안내와 디지털 참석이 모두 연결됩니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>예식 진행이 걱정되시나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 기본 구성에는 성우의 나레이션과 대본 가이드가 포함되어 있어, 두 사람의 기획대로 자연스럽게 예식이 진행됩니다. 전담 진행자 섭외는 선택 옵션으로 제공되며, 상담을 통해 가장 적합한 구성을 함께 설계해 드립니다.</div></div></div>
@@ -6276,7 +6280,7 @@ body {
 }
 .faq-eg {
   font-family: var(--sans);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--sub);
   background: var(--bg2);
   border: 1px solid var(--border);
@@ -6295,7 +6299,7 @@ body {
 }
 @media (max-width: 680px) {
   .faq-ask-head {
-    font-size: 14.5px;
+    font-size: 14px;
     margin-bottom: 14px;
   }
   .faq-eg {
@@ -6367,7 +6371,7 @@ body {
   }
   .faq-ask-btn {
     padding: 8px 15px;
-    font-size: 12.5px;
+    font-size: 13px;
   }
 }
 </style>
@@ -7277,7 +7281,7 @@ function replayHeroAnimation(){
   align-items: center;
   justify-content: center;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.04em;
   flex: 0 0 auto;
@@ -7291,7 +7295,7 @@ function replayHeroAnimation(){
 .me-adv-eyebrow {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold-text);
@@ -7299,7 +7303,7 @@ function replayHeroAnimation(){
 }
 .me-adv-title {
   font-family: var(--serif-ko);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 500;
   color: var(--accent);
   letter-spacing: 0.01em;
@@ -7407,7 +7411,7 @@ function replayHeroAnimation(){
   width: 100%;
   text-align: left;
   font-family: var(--serif-ko);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--accent);
   background: none;
@@ -7433,7 +7437,7 @@ function replayHeroAnimation(){
 .me-adv-chips-label {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: var(--gold);
   text-transform: uppercase;
@@ -7477,7 +7481,7 @@ function replayHeroAnimation(){
 .me-adv-chip.cat::after {
   content: "›";
   color: var(--gold);
-  font-size: 19px;
+  font-size: 20px;
   line-height: 1;
   flex: 0 0 auto;
   transition: transform 0.22s var(--ease);
@@ -7489,7 +7493,7 @@ function replayHeroAnimation(){
 .me-adv-escoffer {
   align-self: flex-start;
   font-family: var(--serif-ko);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--seal);
   background: none;
   border: 1px solid rgba(107, 42, 36, 0.35);
@@ -7516,7 +7520,7 @@ function replayHeroAnimation(){
 }
 .me-adv-esc-t {
   font-family: var(--serif-ko);
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--accent);
   line-height: 1.7;
   margin-bottom: 14px;
