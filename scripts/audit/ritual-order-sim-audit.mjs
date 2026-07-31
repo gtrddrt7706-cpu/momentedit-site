@@ -189,25 +189,27 @@ console.log('\n[3] 자유변수 — 엔진이 S 말고 바깥을 빌려 쓰는�
   else {
     ok('텅 빈 vm 컨텍스트에서 엔진이 생성된다(선언 단계 자유변수 0)');
 
-    // 선언만이 아니라 1664조합을 전부 돌려 본다 — 실행 경로에서만 읽는 전역이 있을 수 있다.
+    // 선언만이 아니라 전 조합을 돌려 본다 — 실행 경로에서만 읽는 전역이 있을 수 있다.
+    // ★2026-07-28: 키 문자열을 다시 파싱해 S를 재구성하던 걸 states 스냅샷 사용으로 바꿨다.
+    //   재구성 코드는 enumerate()의 복제본이라, enumerate가 바뀌면 조용히 어긋나는 자리였다.
+    //   여기서 확인하려는 건 '열거가 맞는가'가 아니라 '엔진이 바깥 전역을 읽는가'다 — 같은 S를 그대로 먹이는 게 맞다.
     const base = enumerate(TARGET);
+    const N = base.rows.size;
     let ref = 0, mismatch = 0;
     for (const [key, want] of base.rows) {
-      const [course, plus, minus] = key.split('|');
-      const on = plus.slice(1) === '-' ? [] : plus.slice(1).split(',');
-      const off = minus.slice(1) === '-' ? [] : minus.slice(1).split(',');
+      const m = base.states.get(key);
       const S = vmEng.S;
-      Object.assign(S, { course, ring: 'on', bless: course === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none', ord: null, extra: {} });
-      on.forEach(k => { S.extra[k] = true; if (k === 'bless') S.bless = 'on'; if (k === 'valley') S.valley = 'wine'; });
-      off.forEach(k => { if (k === 'ring') S.ring = 'off'; else if (k === 'bless') S.bless = 'off'; else if (k === 'veil') S.veil = 'skip'; else S.valley = 'none'; });
+      Object.assign(S, { course: m.course, ring: 'on', bless: m.course === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none', toast: 'toast', ord: null, extra: {} });
+      m.on.forEach(k => { S.extra[k] = true; if (k === 'bless') S.bless = 'on'; if (k === 'valley') S.valley = 'wine'; });
+      Object.assign(S, m.st);
       try {
         const got = vmEng.eng.curSeq().filter(k => k !== 'guest' && (!vmEng.eng.OFFTGL[k] || vmEng.eng.momOn(k)));
         if (!same([...want], [...got])) mismatch++;
       } catch (e) { ref++; if (ref === 1) bad('실행 중 바깥 전역 접근: ' + e.message + ' (조합 ' + key + ')'); }
     }
-    if (!ref) ok(`1664조합 전 구간 실행에서도 자유변수 0 (카나리아 ${CANARY.length}종 무발화)`);
+    if (!ref) ok(`${N}조합 전 구간 실행에서도 자유변수 0 (카나리아 ${CANARY.length}종 무발화)`);
     mismatch ? bad(`격리 실행과 일반 실행의 결과가 다른 조합 ${mismatch}개 — 실행 환경에 의존하고 있다`)
-             : ok('격리 실행 결과 = 일반 실행 결과(1664/1664 동일)');
+             : ok(`격리 실행 결과 = 일반 실행 결과(${N}/${N} 동일)`);
     if (touched.size) bad('읽은 바깥 전역: ' + [...touched].join(' · '));
   }
 }
@@ -252,6 +254,29 @@ console.log('\n[4] 변이 검출 — 엔진을 건드리면 티가 나는가 · 
   run('RANK letter → 999 (편지를 맨 뒤로)', setRank('letter', 999), true);
   // 양성 — 함수 조각도 실행되는가
   run('ordNow 기본 순서 뒤집기', patch(spans.find(s => s.needle === 'function ordNow('), 'return def;', 'return def.slice().reverse();'), true);
+  // ★양성 — 사각지대 회귀 가드(2026-07-28).
+  //   COURSES의 seq 안에서 '밸리만' 자리를 옮긴다. 다른 순간은 한 칸도 안 건드린다.
+  //   축2를 끄기 축으로만 훑던 2026-07-27판에선 이 변이가 0조합이었다(S.valley가 항상 'none'이라
+  //   밸리가 결과 배열에 아예 안 나왔다). order-preview.html이 주석으로 명시 금지한 역전이 조용히 통과했다.
+  //   여기가 다시 0조합이 되면 상태 축이 끄기 축으로 되돌아간 것이다. 그때는 ritual-order-sim.mjs의
+  //   STATES/enumerate를 볼 것 — 지표 이름이 아니라 '켜는 조합이 있는가'가 문제다.
+  {
+    const cs = spans.find(s => s.needle === 'var COURSES={');
+    let mut = null;
+    if (cs) {
+      const hit = [...cs.text.matchAll(/seq:\[[^\]]*\]/g)].map(m => m[0]).find(t => t.includes("'valley'"));
+      if (hit && (cs.text.split(hit).length - 1) === 1) {
+        const items = hit.slice(5, -1).split(',');
+        const vi = items.indexOf("'valley'");
+        if (vi > 0) {
+          const moved = items.slice(); moved.splice(vi, 1);
+          vi === items.length - 1 ? moved.splice(1, 0, "'valley'") : moved.push("'valley'");
+          mut = patch(cs, hit, 'seq:[' + moved.join(',') + ']');
+        }
+      }
+    }
+    run('COURSES seq에서 밸리만 자리 옮기기 (구판이 0조합으로 놓치던 변이)', mut, true);
+  }
   // 음성 — 순위표는 서수다. 아무도 넘지 않는 값 변경은 조용해야 맞다(반응하면 그게 이상한 것).
   const rk = rankSpan && JSON.parse('{' + rankSpan.text.replace(/^var RANK=\{/, '').replace(/\};?\s*$/, '').replace(/(\w+):/g, '"$1":') + '}');
   if (rk) {
