@@ -105,10 +105,30 @@ export const LB = {
 export const show = a => (a && a.length ? a.map(k => LB[k] || k).join(' ') : '(없음)');
 export const same = (x, y) => (x ? x.join('>') : '∅') === (y ? y.join('>') : '∅');
 
-// applyCourse() 실측 (order-preview.html) — 코스 기본값의 단일 출처
-const courseDefaults = c => ({ ring: 'on', bless: c === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none' });
-// extraTgl() 실측 — 팔레트를 켜면 축2 토글도 함께 켜진다
+// applyCourse() 실측 (order-preview.html:1471~1473) — 코스 기본값의 단일 출처
+// ★toast는 2026-07-28에 더했다. 구판은 S.toast를 아예 안 넣어서 전 조합이 undefined였고,
+//   그래서 _cakeDup()의 두 조건이 각각 독립적으로 0이 됐다.
+const courseDefaults = c => ({ ring: 'on', bless: c === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none', toast: 'toast' });
+// extraTgl() 실측(1119행) — 팔레트를 켜면 축2 토글도 함께 켜진다
 const applyExtraTgl = (S, k) => { if (k === 'bless') S.bless = 'on'; if (k === 'valley') S.valley = 'wine'; };
+
+// ★★축2는 '끄기 축'이 아니라 '상태 축'이다 (2026-07-28에 고침).
+//   구판(2026-07-27)은 축2를 끄는 방향으로만 훑었다. 기본값이 valley:'none'이고 off 분기도 'none'이라
+//   켜는 경로가 팔레트뿐이었고 거기선 항상 'wine'이었다 → 1664조합 중 S.valley==='cake'가 0개,
+//   담백처럼 valley가 seq 붙박이인 코스는 '밸리를 켠 조합'이 아예 0개였다.
+//   실증: order-preview.html이 주석으로 명시 금지한 담백 seq 역전(밸리를 편지 뒤로)을 넣었더니
+//         구판 시뮬레이터·감사·chk 마커가 전부 초록이었다. 상태 축으로 바꾸면 잡힌다.
+//   값 목록은 전부 실측이다 — momOn()(1087) · 검증 분기(1724) · quickOff()(1096~1097) · pick 카드(1350~1352·1380).
+//   order:false = 순서 엔진이 안 읽는 키. toast는 OFFTGL에 없어 필터를 안 타고 _cakeDup()만 읽는다.
+//   veil의 'father'·'close'는 momOn(S.veil!=='skip')에도 순서에도 mother와 완전히 같다(문구만 다르다) → 안 늘린다.
+export const STATES = {
+  ring:   { order: true,  off: 'off',  v: ['on', 'off'] },
+  bless:  { order: true,  off: 'off',  v: ['on', 'off'] },
+  veil:   { order: true,  off: 'skip', v: ['mother', 'skip'] },
+  valley: { order: true,  off: 'none', v: ['none', 'wine', 'cake'] },
+  toast:  { order: false, off: null,   v: ['toast', 'cake', 'both'] },
+};
+export const STATE_KEYS = Object.keys(STATES);
 
 function subsets(arr) {
   const out = [];
@@ -118,38 +138,79 @@ function subsets(arr) {
   }
   return out;
 }
+function product(keys) {
+  let out = [{}];
+  for (const k of keys) {
+    const next = [];
+    for (const base of out) for (const v of STATES[k].v) next.push({ ...base, [k]: v });
+    out = next;
+  }
+  return out;
+}
+const stTag = st => { const ks = Object.keys(st).sort(); return ks.length ? ks.map(k => k + '=' + st[k]).join(',') : '-'; };
 
-export function enumerate(file) {
+// enumerate(file)                  → 상태 축 전수(기본)
+// enumerate(file,{legacy:true})    → 2026-07-27판 1664조합 재현. 확장이 '덮어쓰기가 아니라 추가'임을 대조하는 데만 쓴다.
+export function enumerate(file, { legacy = false } = {}) {
   const S = {};
   const meta = loadEngine(file);
   const eng = meta.factory(S);
-  const rows = new Map();
+  const rows = new Map(), states = new Map(), base = new Map();
   for (const course of COURSE_KEYS) {
     S.course = course; S.extra = {}; S.ord = null;
+    const seq = eng.COURSES[course].seq;
     const axis1 = [...new Set([
       ...(eng.COURSES[course].opt || []).map(o => o.k),
       ...Object.keys(eng.GADD).filter(k => eng.isGAdd(k)),
     ])].sort();
-    const axis2 = Object.keys(eng.OFFTGL).filter(k => eng.COURSES[course].seq.indexOf(k) > -1).sort();
-    for (const on of subsets(axis1)) for (const off of subsets(axis2)) {
+    const axis2 = Object.keys(eng.OFFTGL).filter(k => seq.indexOf(k) > -1).sort();
+    const setup = (on) => {
       Object.assign(S, courseDefaults(course));
       S.course = course; S.ord = null; S.extra = {};
       on.forEach(k => { S.extra[k] = true; applyExtraTgl(S, k); });
-      off.forEach(k => {
-        if (k === 'ring') S.ring = 'off';
-        else if (k === 'bless') S.bless = 'off';
-        else if (k === 'veil') S.veil = 'skip';
-        else S.valley = 'none';
-      });
-      // ★fullBlocks() 등가 — 축1(curSeq)을 돌면서 축2(momOn)로 거른다.
-      //   guest는 식전 안내 트랙이라 BLOCK.guest가 무조건 null이다(본식 대본 미포함).
-      rows.set(
-        course + '|+' + (on.join(',') || '-') + '|-' + (off.join(',') || '-'),
-        eng.curSeq().filter(k => k !== 'guest' && (!eng.OFFTGL[k] || eng.momOn(k)))
-      );
+    };
+    for (const on of subsets(axis1)) {
+      // 축1은 상태와 무관하게 정해진다 — curSeq()는 S.extra만 읽고 S.ring/valley/…는 안 읽는다.
+      setup(on);
+      const cur0 = eng.curSeq();
+      // ★없는 순간의 상태는 안 훑는다 — 어차피 결과가 같은 행이 복제될 뿐이고, 그 복제가 지표를 부풀린다.
+      const vary = STATE_KEYS.filter(k => cur0.indexOf(k) > -1);
+      const plans = legacy ? subsets(axis2) : product(vary);
+      for (const plan of plans) {
+        setup(on);
+        if (legacy) plan.forEach(k => { S[k] = STATES[k].off; });
+        else Object.assign(S, plan);              // ★팔레트 기본값보다 상태 축이 우선(quickOff·pick 실측)
+        const cur = eng.curSeq();
+        // 구판 키는 course|+on|-off · 확장 키는 course|+on|~k=v,… — 어느 쪽이든 split('|')[0]이 코스다.
+        const key = course + '|+' + (on.join(',') || '-')
+                  + (legacy ? '|-' + (plan.join(',') || '-') : '|~' + stTag(plan));
+        const st = {}; vary.forEach(k => { st[k] = S[k]; });     // 구판도 '실제로 만든 상태값'을 남긴다
+        // ★fullBlocks() 등가 — 축1(curSeq)을 돌면서 축2(momOn)로 거른다.
+        //   guest는 식전 안내 트랙이라 BLOCK.guest가 무조건 null이다(본식 대본 미포함).
+        rows.set(key, cur.filter(k => k !== 'guest' && (!eng.OFFTGL[k] || eng.momOn(k))));
+        states.set(key, { course, on: on.slice(), st, cur });
+        if (!on.length && STATE_KEYS.every(k => !(k in st) || st[k] === courseDefaults(course)[k])) base.set(course, key);
+      }
     }
   }
-  return { eng, rows, meta };
+  return { eng, rows, states, base, meta };
+}
+
+// ★확장이 구판을 덮어쓰지 않았음을 실측으로 보인다.
+//   구판 1664행 각각에 대해, 같은 상태값을 갖는 확장판 행을 찾아 순서가 같은지 본다.
+//   같으면 "구판 지표는 확장판 안에 그대로 살아 있고, 확장은 추가일 뿐"이 성립한다.
+export function embedCheck(file) {
+  const L = enumerate(file, { legacy: true });
+  const X = enumerate(file);
+  let missing = 0, differ = 0, sample = null;
+  const covered = new Set();
+  for (const [lk, lm] of L.states) {
+    const xk = lm.course + '|+' + (lm.on.join(',') || '-') + '|~' + stTag(lm.st);
+    if (!X.rows.has(xk)) { missing++; if (!sample) sample = lk + ' → ' + xk; continue; }
+    covered.add(xk);
+    if (!same([...L.rows.get(lk)], [...X.rows.get(xk)])) { differ++; if (!sample) sample = lk; }
+  }
+  return { legacyTotal: L.rows.size, expandedTotal: X.rows.size, missing, differ, covered: covered.size, sample, L, X };
 }
 
 // ── 3. 지표 ────────────────────────────────────────────────────────────────
@@ -167,7 +228,11 @@ export function violations(rows, { festiveSongException = true } = {}) {
   }
   return { n, by };
 }
-export function cakeAdjacent(rows) {
+// ★2026-07-28: 이름이 틀려서 고쳤다. 구 cakeAdjacent()는 S.valley도 S.toast도 안 보고
+//   '밸리와 축배가 순서상 붙는 형태'만 셌다. 케이크 실물과는 무관한 순서 지표다.
+//   구판이 센 160·16조합은 전부 S.valley==='wine'이었고, _cakeDup()이 실제로 발화하는 조합은 0개였다.
+//   회신9 §2·회신11 §2·회신12에 인용된 "케이크 인접"은 전부 이 지표를 가리킨다(= 밸리·축배 인접).
+export function valleyToastAdjacent(rows) {         // 순서 지표
   const hit = [];
   for (const [k, s] of rows) {
     const a = s.indexOf('valley'), b = s.indexOf('toast');
@@ -175,14 +240,29 @@ export function cakeAdjacent(rows) {
   }
   return hit;
 }
+// 내용 지표 — _cakeDup()(order-preview.html:1570) 등가.
+// inSeq()는 curSeq()를 보므로(축1만) 걸러진 결과 배열이 아니라 states.cur를 봐야 한다.
+export function cakeDup(states) {
+  const hit = [];
+  for (const [k, m] of states) {
+    if (m.cur.indexOf('valley') > -1 && m.st.valley === 'cake'
+     && m.cur.indexOf('toast') > -1 && (m.st.toast === 'cake' || m.st.toast === 'both')) hit.push(k);
+  }
+  return hit;
+}
+// 밸리·축배가 붙으면서 실물까지 겹치는 조합 — 경고를 만들지 않기로 한 판단(회신10 §2)의 대상 집합
+export function adjacentAndDup(rows, states) {
+  const dup = new Set(cakeDup(states));
+  return valleyToastAdjacent(rows).filter(k => dup.has(k));
+}
 function countBy(keys) {
   const by = {}; keys.forEach(k => { const c = k.split('|')[0]; by[NM[c] || c] = (by[NM[c] || c] || 0) + 1; });
   return by;
 }
 
 // ── 4. 자기검사 모드 ────────────────────────────────────────────────────────
-function selfCheck(file) {
-  const { eng, rows, meta } = enumerate(file);
+function selfCheck(file, opt = {}) {
+  const { eng, rows, states, base, meta } = enumerate(file, opt);
   let fail = 0;
   const bad = (m) => { fail++; console.log('  FAIL ' + m); };
   const ok = (m) => console.log('  ok   ' + m);
@@ -202,9 +282,10 @@ function selfCheck(file) {
     empty.length ? bad(`순간이 하나도 없는 조합 ${empty.length}개`) : ok('빈 순서가 나오는 조합이 없다');
 
     // 축2가 실제로 작동하는가 — 꺼진 순간이 결과에 남아 있으면 fullBlocks()와 어긋난다
+    // ★키 문자열을 파싱하지 않고 states에 남긴 실제 상태값을 본다(키 형식이 바뀌어도 안 깨진다).
     const leak = [...rows].filter(([k, s]) => {
-      const off = k.split('|-')[1];
-      return off !== '-' && off.split(',').some(x => s.indexOf(x) > -1);
+      const st = states.get(k).st;
+      return STATE_KEYS.some(x => STATES[x].order && st[x] === STATES[x].off && s.indexOf(x) > -1);
     });
     leak.length ? bad(`끈 순간이 결과에 남은 조합 ${leak.length}개 — 축2 필터가 안 먹는다`) : ok('축2(OFFTGL·momOn)로 끈 순간은 결과에서 사라진다');
 
@@ -217,7 +298,7 @@ function selfCheck(file) {
   }
 
   console.log('\n[2] 5코스 기본 상태 (부부가 코스만 고르고 아무것도 안 건드린 화면)');
-  for (const c of COURSE_KEYS) console.log(`  ${NM[c].padEnd(4)} ${show(rows.get(c + '|+-|--'))}`);
+  for (const c of COURSE_KEYS) console.log(`  ${NM[c].padEnd(4)} ${show(rows.get(base.get(c)))}`);
 
   console.log('\n[3] RANK 표');
   console.log('  ' + Object.entries(eng.RANK).map(([k, v]) => `${LB[k] || k}:${v}`).join(' '));
@@ -232,12 +313,24 @@ function selfCheck(file) {
     console.log('  (경고성 지표다 — 0이 아니라고 실패로 보지 않는다. 안끼리 비교할 때 쓴다.)');
   }
 
-  console.log('\n[5] 케이크 인접 — 밸리(와인·케이크)와 축배가 바로 붙는 조합');
+  console.log('\n[5] 밸리·축배 인접 (순서 지표) — 두 동작 세리머니가 바로 붙는 조합');
   {
-    const hit = cakeAdjacent(rows);
+    const hit = valleyToastAdjacent(rows);
     console.log(`  ${hit.length}조합 ${JSON.stringify(countBy(hit))}`);
     if (hit.length) console.log(`  예) ${hit[0]}  →  ${show(rows.get(hit[0]))}`);
-    console.log('  (_cakeDup 경고가 뜨는 자리다. 경고만 하고 막지는 않는다.)');
+    const kind = {}; hit.forEach(k => { const v = states.get(k).st.valley; kind[v] = (kind[v] || 0) + 1; });
+    console.log(`  밸리 종류별 ${JSON.stringify(kind)}`);
+    console.log('  (순서만 본다. 케이크 실물 중복은 아래 [5b]다 — 이 둘을 한 지표로 부르던 게 구판의 오류였다.)');
+  }
+
+  console.log('\n[5b] 케이크 중복 (내용 지표) — _cakeDup() 경고가 실제로 뜨는 조합');
+  {
+    const hit = cakeDup(states);
+    console.log(`  ${hit.length}조합 ${JSON.stringify(countBy(hit))}`);
+    if (hit.length) console.log(`  예) ${hit[0]}  →  ${show(rows.get(hit[0]))}`);
+    const both = adjacentAndDup(rows, states);
+    console.log(`  그중 순서까지 붙는 조합 ${both.length}개`);
+    console.log('  (경고만 하고 막지는 않는다. 와인+축배는 실물이 안 겹쳐 경고를 만들지 않기로 했다 — 회신10 §2.)');
   }
 
   console.log('\n[6] 덕담이 서약보다 앞에 오는 조합 — 4안 공통 잔여 문제(별건)');
@@ -257,6 +350,16 @@ function selfCheck(file) {
     console.log(`  편지 등장 ${tot}조합 중 ${late}조합 (${(late / tot * 100).toFixed(1)}%)`);
   }
 
+  console.log('\n[8] 구판(2026-07-27 · 1664조합) 포함 관계 — 확장이 덮어쓰기가 아니라 추가인가');
+  {
+    const e = embedCheck(file);
+    console.log(`  구판 ${e.legacyTotal}조합 → 확장 ${e.expandedTotal}조합 (${(e.expandedTotal / e.legacyTotal).toFixed(2)}배)`);
+    if (e.missing) bad(`구판 행 중 확장판에 대응이 없는 것 ${e.missing}개 (예: ${e.sample})`);
+    else if (e.differ) bad(`대응은 되지만 순서가 다른 행 ${e.differ}개 (예: ${e.sample})`);
+    else ok(`구판 ${e.legacyTotal}행이 전부 확장판 안에 순서 그대로 들어 있다(서로 다른 ${e.covered}행에 대응)`);
+    console.log('  → 구판 지표(1112·896·160·77.8% …)는 폐기가 아니라 부분집합 위의 수다. 확장은 그 위에 내용 축을 얹었다.');
+  }
+
   console.log('\n' + '='.repeat(88));
   console.log(fail ? `구조 검사 실패 ${fail}건` : '구조 검사 통과');
   console.log('='.repeat(88));
@@ -264,8 +367,8 @@ function selfCheck(file) {
 }
 
 // ── 5. 비교 모드 ────────────────────────────────────────────────────────────
-function compare(fileA, fileB) {
-  const A = enumerate(fileA), B = enumerate(fileB);
+function compare(fileA, fileB, opt = {}) {
+  const A = enumerate(fileA, opt), B = enumerate(fileB, opt);
   const nameA = path.basename(fileA), nameB = path.basename(fileB);
   const keys = new Set([...A.rows.keys(), ...B.rows.keys()]);
 
@@ -278,7 +381,7 @@ function compare(fileA, fileB) {
 
   console.log('\n[2] 5코스 기본 상태 — 대다수 고객이 보는 화면');
   for (const c of COURSE_KEYS) {
-    const k = c + '|+-|--';
+    const k = B.base.get(c) || A.base.get(c);
     const eq = same(A.rows.get(k), B.rows.get(k));
     console.log(`  ${NM[c].padEnd(4)} ${eq ? '= 같음 ' : '★다름 '} ${show(B.rows.get(k))}`);
     if (!eq) console.log(`       ${nameA}: ${show(A.rows.get(k))}`);
@@ -287,7 +390,9 @@ function compare(fileA, fileB) {
   console.log('\n[3] 지표 대조');
   const row = (label, x) => {
     const v = violations(x.rows), all = violations(x.rows, { festiveSongException: false });
-    console.log(`  ${label.padEnd(24)} §4-4위반 ${String(v.n).padStart(4)}쌍(전체 ${String(all.n).padStart(4)})  케이크인접 ${String(cakeAdjacent(x.rows).length).padStart(4)}`);
+    console.log(`  ${label.padEnd(24)} §4-4위반 ${String(v.n).padStart(5)}쌍(전체 ${String(all.n).padStart(5)})`
+      + `  밸리·축배인접 ${String(valleyToastAdjacent(x.rows).length).padStart(4)}`
+      + `  케이크중복 ${String(cakeDup(x.states).length).padStart(4)}`);
   };
   row(nameA, A); row(nameB, B);
 
@@ -334,13 +439,16 @@ function compare(fileA, fileB) {
 //   loadEngine·enumerate를 가져다 쓰는데, 무조건 실행하면 import만으로 process.exit이 터진다.
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  const argv = process.argv.slice(2);
+  // --legacy: 2026-07-27판 1664조합으로 돌린다. 그때 인용한 수를 다시 뽑아 대조할 때만 쓴다.
+  const argv = process.argv.slice(2).filter(a => a !== '--legacy');
+  const opt = { legacy: process.argv.includes('--legacy') };
+  if (opt.legacy) console.log('※ --legacy: 2026-07-27판 축(끄기 축)으로 돌린다 — 대조 전용이다.\n');
   let code = 0;
   try {
-    if (argv.length === 0) code = selfCheck(DEFAULT_TARGET);
-    else if (argv.length === 1) code = selfCheck(path.resolve(argv[0]));
-    else if (argv.length === 2) code = compare(path.resolve(argv[0]), path.resolve(argv[1]));
-    else { console.log('사용: node scripts/audit/ritual-order-sim.mjs [파일] | [파일A 파일B]'); code = 2; }
+    if (argv.length === 0) code = selfCheck(DEFAULT_TARGET, opt);
+    else if (argv.length === 1) code = selfCheck(path.resolve(argv[0]), opt);
+    else if (argv.length === 2) code = compare(path.resolve(argv[0]), path.resolve(argv[1]), opt);
+    else { console.log('사용: node scripts/audit/ritual-order-sim.mjs [--legacy] [파일] | [파일A 파일B]'); code = 2; }
   } catch (e) {
     console.log('\n실패: ' + e.message);
     console.log('순서 엔진 심볼이 바뀌었을 수 있다. 이 스크립트 상단 DECLS 목록을 같은 커밋에서 갱신할 것.');
