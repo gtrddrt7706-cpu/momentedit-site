@@ -862,7 +862,7 @@ chk "opt:\[{k:'welcome',at:2}\]" assets/ritual-data.js 1      # 가족 코스 �
 chk 'RANK_RELAX' order-preview.html 2                          # 이완(밸리55·축가57) < 정점(편지60) · valley:70/song:80으로 되돌리면 896쌍 위반
 chk 'valley:55,song:57' order-preview.html 1                   # B′ 확정값(2026-07-27 코워크 회신8)
 chk "festive:{song:80}" order-preview.html 1                   # 축하만 축가 예외 · ★밸리는 넣지 말 것(축배와 붙어 커팅 2회)
-chk 'ritual-order-sim-audit.mjs' automation/tests/merge-guard.sh 2   # ★아래 감사 실행 블록이 살아 있는지 — 마커 문자열이 아니라 '실제 node 호출 줄'을 센다(자기 자신만 세면 블록을 지워도 통과한다)
+chk '^  _os=.*ritual-order-sim-audit' automation/tests/merge-guard.sh 1   # ★아래 감사 실행 '줄'만 매칭한다(앵커 `^  _os=` 덕에 이 chk 줄 자신은 안 걸린다). 2026-07-27 회신12 지적 — 개수로 자기참조를 상쇄하는 방식은 그 파일에 같은 문자열이 하나 더 생기는 날 조용히 무력해진다
 chk '와인(S.valley' order-preview.html 1                          # 와인+축배는 일부러 안 잡는다 · wine 분기 추가 금지(2026-07-27 합의)
 # ★RITUAL_ORDER_SIM_AUDIT — 순서 엔진 시뮬레이터 자기 감사(선언 12종·경계·자유변수·변이검출·inSeq 축2).
 #   상시 실행하는 이유: "순서 엔진 만지는 PR에서만 의미 있다"는 판단을 사람이 매번 해야 하는 게 문제다.
