@@ -358,6 +358,25 @@ select {
      디스플레이(22+)와 마이크로 라벨(8/9), 폰 목업 장식 구역은 별도. 반px 금지. */
   --max: 820px;
 }
+  /* [PERF_CV_SECTIONS] 화면 밖 섹션의 스타일·레이아웃을 뒤로 미룬다(content-visibility:auto).
+     Lighthouse 실측 — 이 페이지 비용의 대부분은 스크립트(0.8s)가 아니라 Style&Layout(5.6s, 4x 스로틀):
+     25,000px 전체를 첫 로드에 레이아웃하는 값. 아래 8개 섹션은 뷰포트에 접근할 때 렌더된다.
+     contain-intrinsic-size의 auto 키워드는 한 번 렌더된 실제 높이를 기억하므로 힌트(390px 실측값)는
+     첫 추정에만 쓰인다. 히어로·reality는 첫 화면 흐름이라 제외. 미지원 브라우저(구 iOS)는 그냥 무시 = 무해. */
+  /* ★#rsvp 제외 — 마지막 자식 마진이 섹션 밖으로 새어 footer 간격 88px을 만드는 구조라
+     (스킬 '마진이 섹션 밖으로 새는 구조' 참조) 격리(contain)가 그 마진을 안에 가둬
+     footer 간격이 사라지고 섹션이 88px 커진다. 실측으로 확인 후 제외(2026-07-31). */
+  #archive, #service, #live, #invest, #journey, #director, #faq {
+    content-visibility: auto;
+  }
+  #archive  { contain-intrinsic-size: auto 515px; }
+  #service  { contain-intrinsic-size: auto 4142px; }
+  #live     { contain-intrinsic-size: auto 4157px; }
+  #invest   { contain-intrinsic-size: auto 3421px; }
+  #journey  { contain-intrinsic-size: auto 1754px; }
+  #director { contain-intrinsic-size: auto 1311px; }
+  #faq      { contain-intrinsic-size: auto 770px; }
+
 html {
   /* 로드 첫 페인트 시 흰 캔버스가 비쳐 '흰색 번쩍임'이 나던 것 방지 — 히어로 상단 마우브색으로 초기 배경 고정(상단 바운스도 자연스럽게) */
   background: #6f2b24;

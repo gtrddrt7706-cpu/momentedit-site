@@ -375,6 +375,18 @@ section:not(#rsvp) > *:last-child { margin-bottom: 0 }
 - 한 섹션에 애니메이션 요소 3개 이하. 순차 지연(stagger)은 80ms 이하
 - 스크롤 하이재킹, 고정 스크롤, 스크럽 애니메이션 금지
 
+## 성능 — 계측이 먼저 ([PERF_CV_SECTIONS], 2026-07-31)
+
+이 페이지의 로드 비용은 **스크립트가 아니라 Style&Layout**이었다(4x 스로틀 기준 5.6s vs 0.8s).
+25,000px 전체를 첫 로드에 레이아웃하는 값. 해법은 코드 다이어트가 아니라 지연이다:
+
+- 아래쪽 7개 섹션(`#archive`~`#faq`)에 `content-visibility: auto` + 실측 높이 힌트.
+- 결과: Lighthouse 성능 41→88 · TBT 4,910→69ms · LCP -45% · 최종 레이아웃 동일(±4px 검증).
+- **★`#rsvp`는 절대 넣지 말 것** — 마지막 자식의 새는 마진이 footer 간격 88px을 만드는
+  구조라, 격리가 그 마진을 가두면 footer 간격이 사라진다(실측으로 확인 후 제외).
+- 새 섹션을 추가하면 이 목록과 `contain-intrinsic-size` 힌트도 함께 갱신할 것.
+- 성능을 만질 땐 스크립트 줄이기부터 하지 말고 mainthread-work-breakdown부터 볼 것.
+
 ## 페이지 구조
 
 메인 페이지는 아래 순서다. 섹션을 손볼 때 위치를 확인하라.
