@@ -337,6 +337,8 @@ select {
   --serif-jp: "Noto Serif JP", "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --sans: "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, sans-serif;
   --gap: 104px;
+  /* [TRACK_RAMP8] 자간도 램프로만 쓴다: -0.02 / 0.01 / 0.02 / 0.04 / 0.08 / 0.14 / 0.22 / 0.28em.
+     예외 = 히어로 로고·푸터 워드마크·divider-mini(브랜드 시그니처)와 폰 목업 구역. 새 값 금지. */
   /* [TYPO_SCALE7] 본문·라벨 폰트 크기는 7단계만 쓴다: 11/12/13/14/16/18/20.
      디스플레이(22+)와 마이크로 라벨(8/9), 폰 목업 장식 구역은 별도. 반px 금지. */
   --max: 820px;
@@ -408,7 +410,7 @@ nav.nav-hidden {
   font-family: var(--serif);
   font-weight: 500;
   font-size: 16px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   color: var(--accent);
   opacity: 0.9;
   display: inline-flex;
@@ -443,7 +445,7 @@ body.menu-open .nav-wordmark {
 .nav-links a {
   font-family: var(--serif);
   font-size: 14px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #43382e;
   text-decoration: none;
@@ -516,7 +518,7 @@ body.menu-open .nav-wordmark {
   font-style: normal;
   font-size: 8px;
   font-weight: 500;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   text-indent: 0.24em;
   color: #6b5a48;
   -webkit-text-fill-color: #6b5a48;
@@ -531,7 +533,7 @@ body.menu-open .nav-wordmark {
 .nav-toggle:active .nav-toggle-label {
   color: var(--gold);
   -webkit-text-fill-color: var(--gold);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   transform: scale(0.96);
 }
 .nav-toggle-label::after {
@@ -599,7 +601,7 @@ body.menu-open .nav-wordmark {
   font-style: italic;
   font-size: 16px;
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--accent);
   -webkit-text-fill-color: var(--accent);
   transition:
@@ -678,7 +680,7 @@ body.menu-open .nav-wordmark {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   color: var(--accent);
   text-transform: uppercase;
   text-align: center;
@@ -900,7 +902,7 @@ body.menu-open nav {
   font-size: clamp(11.5px, 1.3vw, 13px);
   font-weight: 300;
   color: var(--gold-text);
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   word-break: keep-all;
 }
 .hero-logo-hair {
@@ -1185,7 +1187,7 @@ html.me-restoring body { opacity: 0 !important; }
 }
 .hero-scroll span {
   font-size: 9px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(245, 240, 232, 0.6);
 }
@@ -1299,7 +1301,7 @@ html.me-restoring body { opacity: 0 !important; }
   font-weight: 300;
   font-size: clamp(13px, 1.6vw, 15px);
   color: var(--sub);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   line-height: 1.9;
   max-width: 600px;
   word-break: keep-all;
@@ -1405,7 +1407,7 @@ html.me-restoring body { opacity: 0 !important; }
   font-style: italic;
   font-weight: 500;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
   margin-bottom: 4px;
@@ -1548,7 +1550,7 @@ section:not(#rsvp) > *:last-child {
   font-weight: 300;
   color: var(--sub);
   line-height: 1.9;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.01em;
   word-break: keep-all;
 }
 .terms-value strong {
@@ -1613,7 +1615,7 @@ section:not(#rsvp) > *:last-child {
   font-weight: 400;
   line-height: 1.55;
   color: var(--accent);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 .t-note {
   font-size: 12px;
@@ -1694,7 +1696,7 @@ section:not(#rsvp) > *:last-child {
 .card-sub {
   font-size: 11px;
   color: var(--gold-text);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   margin-bottom: 14px;
 }
 .card p {
@@ -1749,7 +1751,7 @@ section:not(#rsvp) > *:last-child {
 .feature .card-sub {
   font-size: 11px;
   color: var(--gold-text);   /* HOME_GOLD_TEXT: 2.54:1 -> AA 통과 톤 */
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   margin-bottom: 14px;
   transition: color 0.35s var(--ease);
 }
@@ -1796,7 +1798,7 @@ section:not(#rsvp) > *:last-child {
 .seq-time span {
   font-size: 12px;
   color: var(--light);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 .seq-item--core .seq-time {
   color: var(--seal);
@@ -1863,7 +1865,7 @@ section:not(#rsvp) > *:last-child {
 .seq-tag {
   display: inline-block;
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--seal);
   border: 1px solid var(--seal);
@@ -1907,13 +1909,13 @@ section:not(#rsvp) > *:last-child {
   background: var(--seal);
   color: #fff;
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   padding: 4px 36px;
   transform: rotate(45deg);
 }
 .price-title {
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--light);
   margin-bottom: 24px;
@@ -2147,7 +2149,7 @@ section:not(#rsvp) > *:last-child {
   font-style: normal;
   font-weight: 600;
   color: var(--accent);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 a.ig-handle {
   text-decoration: none;
@@ -2326,7 +2328,7 @@ a.ig-handle:hover {
   font-size: 12px;
   font-weight: 300;
   color: var(--gold-text);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   margin-top: 10px;
   word-break: keep-all;
 }
@@ -2512,7 +2514,7 @@ a.ig-handle:hover {
   font-style: italic;
   font-size: 12px;
   color: var(--light);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 .journal-card-btn {
   align-self: flex-start;
@@ -2553,7 +2555,7 @@ a.ig-handle:hover {
   font-style: italic;
   font-size: 11px;
   color: var(--gold-text);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-align: left;
 }
 @media (max-width: 760px) {
@@ -2921,7 +2923,7 @@ footer {
   .f-contact-text {
     font-family: var(--serif);
     font-size: 11px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     color: rgba(210, 194, 165, 0.82);
   }
 }
@@ -2937,7 +2939,7 @@ footer {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.2);
   margin-top: 10px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 @media (min-width: 681px) {
   .f-seal-wrap {
@@ -3051,7 +3053,7 @@ footer {
   .hero-sub {
     font-size: 16px;
     max-width: 280px;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
   .hero-scroll-line::after {
     width: 2px;
@@ -4407,7 +4409,7 @@ footer {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
   transition: color 0.3s var(--ease);
@@ -4496,14 +4498,14 @@ footer {
   }
   .preview-link-en {
     font-size: 11px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
   }
   .preview-link-ko {
     font-size: 11px;
   }
   .preview-link-btn {
     font-size: 13px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
   }
 }
 a.access-link {
@@ -4557,7 +4559,7 @@ a.access-link:hover::after {
   }
   .access-label {
     font-size: 9px;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
   }
   .access-value {
     font-size: 13px;
@@ -4574,7 +4576,7 @@ a.access-link:hover::after {
     transform: none;
   }
   .feature:hover .card-label {
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
   .feature .card-label::after,
   .feature:hover .card-label::after {
@@ -4689,7 +4691,7 @@ a.access-link:hover::after {
   font-family: var(--serif);
   font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--sub);
   cursor: pointer;
@@ -4791,7 +4793,7 @@ body {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.28em;
   color: var(--gold-text);
   text-transform: uppercase;
   padding-left: 0.3em;
@@ -4822,7 +4824,7 @@ body {
 .transparency-col-label {
   font-family: var(--serif);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 16px;
@@ -4910,7 +4912,7 @@ body {
   }
   .transparency-col-label {
     font-size: 11px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     margin-bottom: 14px;
     padding-bottom: 10px;
   }
@@ -4966,7 +4968,7 @@ body {
   font-family: var(--serif-ko);
   font-weight: 400;
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   word-spacing: 0.05em;
   text-transform: none;
   color: var(--sub);
@@ -5847,17 +5849,17 @@ body {
   </div>
   <div style="display:grid;gap:14px">
     <div style="padding:18px 20px;background:rgba(184,154,117,0.07);border:1px solid rgba(184,154,117,0.5);border-radius:6px">
-      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.06em;color:var(--seal);margin-bottom:6px">Online <span style="color:var(--light);font-weight:400">· 온라인 청첩장</span></span>
+      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing: 0.04em;color:var(--seal);margin-bottom:6px">Online <span style="color:var(--light);font-weight:400">· 온라인 청첩장</span></span>
       <span style="display:block;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7;word-break:keep-all">멀리 계신 하객께 링크 한 번으로. 디지털 참석과 예식 영상까지 한 페이지에 담깁니다.</span>
     </div>
     <div style="padding:18px 20px;background:rgba(184,154,117,0.07);border:1px solid rgba(184,154,117,0.5);border-radius:6px">
-      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.06em;color:var(--seal);margin-bottom:6px">Offline <span style="color:var(--light);font-weight:400">· 오프라인 청첩장</span></span>
+      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing: 0.04em;color:var(--seal);margin-bottom:6px">Offline <span style="color:var(--light);font-weight:400">· 오프라인 청첩장</span></span>
       <span style="display:block;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7;word-break:keep-all">가까운 분들께 직접 건네는 한 편. 오시는 길을 함께 안내합니다.</span>
     </div>
     <!-- [PRM_BYO] 직접 제작 청첩장도 QR 한 장으로 시스템에 연결(2026-07-31 홍보 최신화 · 사용자 지정 소재).
          과장 없이 실제 기능만: 마이페이지 청첩장 1단계 '실물(종이)·개인 제작' 선택 시 인쇄용 QR 제공(모바일 참석·하객 안내 연결). -->
     <div style="padding:18px 20px;background:rgba(184,154,117,0.07);border:1px solid rgba(184,154,117,0.5);border-radius:6px">
-      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.06em;color:var(--seal);margin-bottom:6px">Bring Yours <span style="color:var(--light);font-weight:400">· 직접 만드셔도</span></span>
+      <span style="display:block;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing: 0.04em;color:var(--seal);margin-bottom:6px">Bring Yours <span style="color:var(--light);font-weight:400">· 직접 만드셔도</span></span>
       <span style="display:block;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7;word-break:keep-all">종이 청첩장을 따로 준비하셨나요? 인쇄용 QR 한 장을 드립니다. 그 한 장으로 하객 안내부터 디지털 참석까지 그대로 이어져요.</span>
     </div>
   </div>
@@ -5873,9 +5875,9 @@ body {
   <!-- 카드 -->
   <a href="invitation-gallery.html?e=test-couple" aria-label="프라이빗 웨딩 청첩장 미리보기" style="display:block;padding:28px 24px 24px;background:rgba(107,42,36,0.06);border:1px solid rgba(107,42,36,0.55);border-radius:6px;text-decoration:none;transition:background 0.4s var(--ease),border-color 0.4s var(--ease)">
     <span style="display:inline-flex;align-items:baseline;gap:14px;padding:6px 0 8px;border-bottom:1px solid var(--seal)">
-      <span style="font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:0.1em;color:var(--seal)">View Gallery</span>
+      <span style="font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing: 0.08em;color:var(--seal)">View Gallery</span>
       <span style="color:var(--light);font-size:11px">·</span>
-      <span style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);letter-spacing:0.06em">청첩장 미리보기</span>
+      <span style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);letter-spacing: 0.04em">청첩장 미리보기</span>
       <span style="font-size:14px;color:var(--seal);display:inline-block;transition:transform 0.3s var(--ease)">↗</span>
     </span>
     <!-- [NOWRAP_CLIP_FIX] white-space:nowrap 금지 — 2026-07-30 삭제.
@@ -6047,8 +6049,8 @@ body {
 <div class="reveal">
   <div style="margin:36px 0;padding:32px 36px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.3em;color:var(--gold-text);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
-      <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing:-0.01em;margin:0">왜 평일이 더 자연스러운가</h3>
+      <div style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing: 0.28em;color:var(--gold-text);text-transform:uppercase;padding-left:0.3em;margin-bottom:8px">A Quiet Choice</div>
+      <h3 style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--accent);letter-spacing: -0.02em;margin:0">왜 평일이 더 자연스러운가</h3>
     </div>
     <p class="t-body" style="margin:0 auto 14px;max-width:600px;text-align:center;font-size:14px;line-height:1.95;text-wrap:balance;word-break:keep-all">양가 직계가족 25명만 모이는 자리에서는, 예식일을 꼭 주말로 잡을 이유가 없습니다. 평일은 서로 일정을 맞추기 한결 수월하고, 원하는 날짜를 넉넉히 골라 서두르지 않는 하루를 보낼 수 있습니다.</p>
     <p class="t-body" style="margin:0 auto;max-width:600px;text-align:center;font-size:14px;line-height:1.95;text-wrap:balance;word-break:keep-all">그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>
@@ -6069,7 +6071,7 @@ body {
 <!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
 <div class="reveal">
   <div class="snap-block">
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.16em;color:var(--gold-text);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing: 0.14em;color:var(--gold-text);border:1px solid var(--gold);border-radius:3px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
     <h3 class="sec-label">Weekday Editorial Snap ·<span class="ll-ko"> 평일 웨딩스냅</span></h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
     <p class="t-body" style="margin:14px 0 0;font-size:13px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
@@ -6263,7 +6265,7 @@ body {
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-text);
   margin-bottom: 8px;
@@ -7302,7 +7304,7 @@ function replayHeroAnimation(){
   font-family: var(--serif);
   font-style: italic;
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold-text);
   margin-bottom: 4px;
