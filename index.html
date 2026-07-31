@@ -1439,6 +1439,19 @@ section:not(#rsvp) > *:last-child {
 #invest > .reveal:first-child > .price-block:first-child {
   margin-top: 0;
 }
+/* [SECTION_RHYTHM_TIER2] 2단 리듬 — 장(챕터)이 바뀌는 4개 경계만 한 박자 넓힌다.
+   기본 경계는 200/248 그대로, 아래 divider만 상하 +32px → 모바일 264 · 데스크톱 312.
+   경위: 200 단일값 배포 직후 사용자가 답답함을 느꼈고, 코워크가 전후를 390px
+   실렌더로 비교해 확인 — 좁아진 4경계는 전부 콘텐츠 성격이 바뀌는 자리였다
+   (갤러리 진입 · 가격 진입 · 여정 진입 · 사람 소개 진입). 여백의 출신은
+   드리프트가 맞았지만, 눈에는 장 사이의 쉼표로 기능하고 있었다.
+   되돌리는 대신 의도적인 2단으로 굳힌다. 조절할 땐 +32px 하나만 만진다. */
+#about + .divider,
+#live + .divider,
+#invest + .divider,
+#journey + .divider {
+  padding: calc(var(--gap) + 32px) 0;
+}
 .sec-label {
   font-size: 10px;
   letter-spacing: 0.22em;
