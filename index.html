@@ -3232,9 +3232,12 @@ footer {
   width: 100%;
   justify-content: center;
 }
+/* [PRM_PHONE300] 폰 목업 확대 280→300(모바일 248→266) — 2026-07-31 모바일 가독 개선.
+   LIVE(.phone)·JOURNEY(.jr-phone) 두 목업은 같은 형식 — 크기를 바꿀 땐 반드시 둘 다 함께(사용자 지시).
+   ★aspect-ratio는 프레임이 아니라 스크린(.phone-screen·.jr-screen)에 둔다 — 패딩 9px 때문에 프레임에 두면
+   스크린 비율이 9:19에서 어긋나 9:19 캡처 이미지가 좌우로 잘린다(계약 후 실화면 크롭 사고의 원인) */
 .phone {
-  width: 280px;
-  aspect-ratio: 9/19;
+  width: 300px;
   background: #0e0e0d;
   border-radius: 34px;
   padding: 9px;
@@ -3257,7 +3260,7 @@ footer {
 }
 .phone-screen {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 9/19;
   background: #fafaf8;
   border-radius: 26px;
   overflow: hidden;
@@ -4031,7 +4034,7 @@ footer {
 }
 @media (max-width: 680px) {
   .phone {
-    width: 248px;
+    width: 266px;
   }
   .mock-slide {
     padding: 14px 12px 14px;
@@ -5078,10 +5081,10 @@ body {
   flex-direction: column;
   align-items: center;
 }
+/* [PRM_PHONE300] LIVE .phone과 동일 확대 — 둘은 항상 같은 크기·같은 구조(비율은 .jr-screen에) 유지 */
 .jr-phone {
   position: relative;
-  width: 280px;
-  aspect-ratio: 9/19;
+  width: 300px;
   padding: 9px;
   border-radius: 34px;
   background: #0e0e0d;
@@ -5103,7 +5106,7 @@ body {
 .jr-screen {
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 9/19;
   border-radius: 26px;
   overflow: hidden;
   background: #fafaf8;
@@ -5233,7 +5236,7 @@ body {
 }
 @media (max-width: 680px) {
   .jr-phone {
-    width: 248px;
+    width: 266px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

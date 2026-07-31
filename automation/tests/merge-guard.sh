@@ -775,6 +775,7 @@ chk '<main class="invitation">' i/invitations/invitation-01-classic.html 1      
 chk 'PRM_JR5' index.html 1                     # ★마이페이지 쇼케이스 5번째 화면 = 식순 위저드 실화면(mp-order) — 말 대신 화면으로. 4장으로 되돌리면 steps/shots 수가 어긋나 캐러셀이 죽는다(JS가 length 불일치 시 전체 비활성)
 chk 'mp-order' index.html 1                    # 위 실화면 자산 참조(webp·png가 한 줄의 picture 안에)
 chk 'PRM_DEMO_GATE' index.html 1               # ★식순 도구 공개 체험 링크 제거 — 2026-07-31 사용자 지시(경쟁사 노출 우려). 홈에 order-preview 공개 링크 복원 금지 · 대신 '상담 자리에서 직접' 한 줄(희소성·상담 유인)
+chk 'PRM_PHONE300' index.html 2                # ★폰 목업 확대(300/266) — LIVE(.phone)·JOURNEY(.jr-phone)는 항상 같은 크기(사용자 지시 '할거면같이'). aspect-ratio는 프레임이 아닌 스크린에(패딩 9px 탓에 프레임에 두면 9:19 캡처가 좌우 크롭)
 chk 'PRM_BYO' index.html 1                     # ★직접 제작 청첩장도 인쇄용 QR 한 장으로 하객 안내·디지털 참석 연결(사용자 지정 소재) — 실제 기능(마이페이지 '실물(종이)·개인 제작' 경로)만 서술
 chk 'PRM_GUEST' index.html 1                   # 오시는 하객의 손안 화면 3종(길·주차/자리 찾기/사진 모으기) — 전부 실기능 · 사진 모으기는 '원하시면'으로 조건 명시
 chk '직접 제작해 쓰시는 경우에도' index.html 2   # FAQ 보이는 답 + JSON-LD 동기(둘이 어긋나면 검색 결과와 화면이 다른 말을 한다)
