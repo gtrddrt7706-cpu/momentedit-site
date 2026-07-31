@@ -1421,6 +1421,24 @@ section {
   margin: 0 auto;
   padding: 0 28px;
 }
+/* [SECTION_RHYTHM] 섹션 사이 간격은 .divider 하나가 단독으로 정한다
+   (--gap×2 + 스탬프 40px = 모바일 200px · 데스크톱 248px).
+   section에 상하 padding이 없어 첫/마지막 자식의 마진이 섹션 밖으로 새어 나오면
+   그만큼 구간이 넓어진다. 실제로 8구간 중 4구간이 그렇게 벌어져 있었고,
+   여분값(48·56·28)이 '경계의 위계'가 아니라 '그 섹션을 끝내는 컴포넌트'를
+   따라가고 있었다 — 위계가 아니라 드리프트. 그래서 새는 마진만 차단한다.
+   ★display:flow-root로 가두면 안 된다 — 수치만 200이 되고 공백은 섹션 안쪽으로
+     옮겨갈 뿐이라 눈에 보이는 리듬은 그대로다(측정: 총높이가 오히려 +40px).
+   ★#rsvp 제외 — 마지막 섹션이라 이 마진이 footer와의 간격(88px)을 만든다.
+     여기까지 0으로 만들면 이번 범위 밖인 footer 간격이 바뀐다. */
+section:not(#rsvp) > *:last-child {
+  margin-bottom: 0;
+}
+/* 위와 같은 취지의 앞쪽 경계 — .price-block의 margin-top 36px이 .reveal을 통과해
+   섹션 위로 샜다. 두 price-block 사이의 36px은 의도된 간격이라 첫 번째만 막는다. */
+#invest > .reveal:first-child > .price-block:first-child {
+  margin-top: 0;
+}
 .sec-label {
   font-size: 10px;
   letter-spacing: 0.22em;
@@ -5365,7 +5383,10 @@ body {
   <p class="t-note" style="margin-top:18px">필수 추가 비용 없이, 하나의 가격에 본질만 담았습니다.</p>
 </div>
 <!-- ABOUT PHOTO -->
-<div class="photo-placeholder half" style="height:420px;margin:48px 0;border-radius:8px">
+<!-- [SECTION_RHYTHM] margin 아래값 0 — 인라인이라 CSS의 :last-child 차단을 이긴다.
+     같은 컴포넌트의 다른 3곳(5525·5596·6009)은 이미 'margin:Npx 0 0' 패턴이고
+     여기만 아래 마진이 살아 about→archive 구간을 48px 넓히고 있었다. -->
+<div class="photo-placeholder half" style="height:420px;margin:48px 0 0;border-radius:8px">
   <picture><source type="image/webp" srcset="/assets/home/about.webp"><img class="ph-img" src="/assets/home/about.jpg" alt="모먼트에디트 스튜디오 내부 전경" loading="lazy" onerror="this.style.display='none'"></picture>
 </div>
 </section>

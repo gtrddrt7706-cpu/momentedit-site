@@ -802,3 +802,4 @@ chk '가장 가까운 정면 열에 앉으신 채로' assets/ritual-data.js 3   
 chk 'GOLD_TEXT_AA' index.html 6                             # 텍스트 골드는 --gold-text(#7A5F37·5.71:1) · 장식 --gold(#B89A75·2.54:1)로 되돌리기 금지
 chk 'NOWRAP_CLIP_FIX' index.html 1                          # 390px서 17px 잘리던 문장 · white-space:nowrap 재삽입 금지
 chk 'MOCKUP_ARIA_HIDDEN' index.html 1                       # 장식 목업 스크린리더 제외 · 목업에 포커스 요소 추가 시 함께 재검토
+chk 'SECTION_RHYTHM' index.html 2                           # 섹션 간격은 .divider 단독(--gap×2+40) · 새는 마진 차단 규칙 + about 인라인 마진
