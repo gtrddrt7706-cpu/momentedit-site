@@ -24,6 +24,9 @@
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+/* [SUB_TYPO_SYNC] 메인(index)의 크기 7단계·자간 8램프 체계를 이 페이지에 이식했다.
+   반px 금지. 새 크기가 필요하면 11/12/13/14/16/18/20 중에서 고를 것. */
+
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
@@ -41,7 +44,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 }
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;
-  font-size:15px;line-height:1.85;letter-spacing:0;-webkit-font-smoothing:antialiased;
+  font-size:16px;line-height:1.85;letter-spacing:0;-webkit-font-smoothing:antialiased;
   word-break:keep-all;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom)}
 
 /* 배경 질감 */
@@ -65,16 +68,16 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 
 /* ── 인사 ── */
 .greet{text-align:center;padding:8px 22px 40px;max-width:480px;margin:0 auto}
-.greet-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.18em;
+.greet-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.22em;
   color:var(--gold);text-transform:uppercase;margin-bottom:18px}
 .greet-title{font-family:var(--serif-ko);font-size:27px;font-weight:400;color:var(--accent);
   line-height:1.4;letter-spacing:0.02em;margin-bottom:14px}
 .greet-title .name{color:var(--gold);font-weight:500}
-.greet-title .nim{font-size:19px;color:var(--sub);font-weight:400;margin-left:2px}
+.greet-title .nim{font-size:20px;color:var(--sub);font-weight:400;margin-left:2px}
 .greet-sub{font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--accent);
-  letter-spacing:0.03em}
+  letter-spacing:0.02em}
 .greet-line{width:30px;height:1px;background:var(--gold);margin:24px auto 0}
-.greet-desc{font-family:var(--serif-ko);font-size:13.5px;font-weight:300;color:var(--sub);
+.greet-desc{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);
   line-height:1.9;margin-top:22px;letter-spacing:0.01em}
 
 /* ── 스텝 표시 ── */
@@ -87,7 +90,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .step.active .step-dot{border-color:var(--seal);background:var(--seal);color:#fff}
 input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인장색) — 파란 기본색 대체, 마이페이지와 통일 */
 .step.done .step-dot{border-color:var(--gold);background:var(--gold);color:#fff}
-.step-name{font-size:10px;letter-spacing:0.1em;color:var(--light);font-weight:400;
+.step-name{font-size:11px;letter-spacing:0.08em;color:var(--light);font-weight:400;
   transition:color 0.4s var(--ease)}
 .step.active .step-name{color:var(--accent)}
 .step::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:1px;
@@ -101,8 +104,8 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   overflow:hidden;margin-bottom:18px}
 .card-head{padding:22px 24px 16px;border-bottom:1px solid var(--hairline);
   display:flex;align-items:baseline;gap:11px}
-.card-num{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold);line-height:1}
-.card-title{font-family:var(--serif-ko);font-size:15px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
+.card-num{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--gold);line-height:1}
+.card-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
 .card-title .en{font-family:var(--serif);font-style:italic;font-size:11px;color:var(--light);
   letter-spacing:0.08em;margin-left:7px;text-transform:uppercase}
 
@@ -117,19 +120,19 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .cal-nav:hover:not(:disabled){border-color:var(--gold);color:var(--gold);background:var(--bg2)}
 .cal-nav:disabled{opacity:0.25;cursor:not-allowed}
 .cal-wd{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px}
-.wd{text-align:center;font-family:var(--serif);font-size:11px;letter-spacing:0.12em;
+.wd{text-align:center;font-family:var(--serif);font-size:11px;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--light);padding:6px 0;font-weight:400}
 .wd.sun{color:#B5634A}.wd.sat{color:#6A7BA0}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;
   background:none;border:1px solid transparent;border-radius:6px;
-  font-family:var(--serif);font-size:17px;font-weight:400;color:var(--accent);
+  font-family:var(--serif);font-size:18px;font-weight:400;color:var(--accent);
   cursor:pointer;transition:all 0.22s var(--ease);position:relative;padding:0}
 .day.empty{pointer-events:none}
 .day.off{color:var(--light);opacity:0.28;cursor:not-allowed;pointer-events:none}
 .day.today{font-weight:500;color:var(--gold)}
 .day.today::after{content:'TODAY';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
-  font-family:var(--serif);font-style:italic;font-size:6.5px;letter-spacing:0.08em;color:var(--gold)}
+  font-family:var(--serif);font-style:italic;font-size:6px;letter-spacing:0.08em;color:var(--gold)}
 .day.avail::before{content:'';position:absolute;top:6px;right:7px;width:5px;height:5px;
   border-radius:50%;background:var(--gold);opacity:0.55}
 .day:hover:not(.off):not(.empty):not(.sel){background:var(--bg2);border-color:var(--gold-soft)}
@@ -146,7 +149,7 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .cal-legend .lg-box{display:inline-flex;align-items:center;gap:7px;font-family:var(--serif-ko);
   font-size:12px;color:var(--accent);font-weight:400;padding:6px 14px;
   background:var(--gold-soft);border-radius:999px}
-.cal-legend .lg-muted{font-family:var(--serif-ko);font-size:10.5px;color:var(--light);font-weight:300}
+.cal-legend .lg-muted{font-family:var(--serif-ko);font-size:11px;color:var(--light);font-weight:300}
 .cal-legend .lg-dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
 
 /* ── 시간 슬롯 ── */
@@ -158,12 +161,12 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   letter-spacing:0.08em;margin-left:7px}
 .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
 .slot{background:#fff;border:1px solid var(--border);border-radius:6px;padding:16px 8px;
-  font-family:var(--serif);font-size:17px;font-weight:400;color:var(--accent);letter-spacing:0.04em;
+  font-family:var(--serif);font-size:18px;font-weight:400;color:var(--accent);letter-spacing:0.04em;
   cursor:pointer;transition:all 0.2s var(--ease);text-align:center;position:relative}
-.slot .slot-period{display:block;font-family:var(--serif);font-style:italic;font-size:10px;
-  letter-spacing:0.1em;color:var(--gold);margin-bottom:5px}
+.slot .slot-period{display:block;font-family:var(--serif);font-style:italic;font-size:11px;
+  letter-spacing:0.08em;color:var(--gold);margin-bottom:5px}
 .slot.sel .slot-period{color:rgba(255,255,255,0.65)}
-.slot .slot-sub{display:block;font-family:var(--sans);font-size:9.5px;font-weight:300;
+.slot .slot-sub{display:block;font-family:var(--sans);font-size:9px;font-weight:300;
   color:var(--light);letter-spacing:0.04em;margin-top:3px}
 .slot:hover:not(.sel):not(.full){border-color:var(--gold);background:var(--bg2)}
 .slot.sel{background:#4E3F31;color:#fff;border-color:#4E3F31;
@@ -173,7 +176,7 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .slot.full .slot-period{color:var(--light)}
 .slot.full .slot-full-tag{color:var(--seal);font-weight:400;text-decoration:none}
 .slot.full .slot-sub{text-decoration:none}
-.time-empty{text-align:center;font-family:var(--serif-ko);font-size:12.5px;color:var(--light);
+.time-empty{text-align:center;font-family:var(--serif-ko);font-size:13px;color:var(--light);
   font-weight:300;padding:18px 0;letter-spacing:0.02em}
 .slots-full-note{grid-column:1/-1;text-align:center;font-family:var(--serif-ko);font-size:12px;
   color:var(--sub);font-weight:300;line-height:1.7;padding:14px;margin-top:4px;
@@ -184,16 +187,16 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   transition:max-height 0.5s var(--ease),opacity 0.4s var(--ease),margin 0.5s var(--ease)}
 .flex-times.show{max-height:600px;opacity:1;margin-top:22px;padding-top:20px;border-top:1px dashed var(--hairline)}
 .flex-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
-.flex-title{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
-.flex-opt{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.16em;
+.flex-title{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
+.flex-opt{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--light)}
-.flex-desc{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);
+.flex-desc{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);
   line-height:1.6;letter-spacing:0.01em;margin-bottom:14px;word-break:keep-all}
 .flex-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .fchip{position:relative;cursor:pointer}
 .fchip input{position:absolute;opacity:0;pointer-events:none}
 .fchip span{display:inline-block;padding:9px 16px;border:1px solid var(--border);border-radius:999px;
-  font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--sub);
+  font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);
   background:#fff;transition:all 0.25s var(--ease);user-select:none}
 .fchip:hover span{border-color:var(--light)}
 .fchip input:checked + span{border-color:var(--gold);background:var(--gold-soft);color:var(--accent);font-weight:400}
@@ -205,7 +208,7 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   transition:border-color 0.25s var(--ease);box-sizing:border-box}
 #flexEtc:focus{outline:none;border-color:var(--gold)}
 #flexEtc::placeholder{color:var(--light);font-weight:300;font-size:12px}
-.flex-etc-count{text-align:right;font-family:var(--serif);font-size:10px;color:var(--light);
+.flex-etc-count{text-align:right;font-family:var(--serif);font-size:11px;color:var(--light);
   margin-top:5px;letter-spacing:0.04em}
 
 /* ── 안내 (선택 후 노출) ── */
@@ -218,11 +221,11 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   background:var(--bg2);display:flex;align-items:center;justify-content:center;margin-top:1px}
 .notice-ic svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.4}
 .notice-body{flex:1;min-width:0}
-.notice-t{font-family:var(--serif-ko);font-size:13.5px;font-weight:500;color:var(--accent);
+.notice-t{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);
   letter-spacing:0.02em;margin-bottom:4px}
 .notice-d{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;letter-spacing:0.01em;font-weight:300}
 .notice-d .em{color:var(--seal);font-weight:400}
-.notice-d .muted{color:var(--light);font-size:11.5px}
+.notice-d .muted{color:var(--light);font-size:12px}
 
 /* 선택 전 핵심 안내 */
 .keyinfo{background:#fff;border:1px solid var(--border);border-radius:8px;
@@ -232,11 +235,11 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   border-bottom:1px dashed var(--hairline)}
 .keyinfo-label{flex-shrink:0;font-family:var(--serif-ko);font-size:12px;font-weight:500;
   color:var(--gold);letter-spacing:0.04em;min-width:76px}
-.keyinfo-val{font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);font-weight:300;letter-spacing:0.01em}
+.keyinfo-val{font-family:var(--serif-ko);font-size:14px;color:var(--sub);font-weight:300;letter-spacing:0.01em}
 .keyinfo-val b{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);letter-spacing:0.01em}
 .keyinfo-row:first-child .keyinfo-val b{font-family:var(--serif);font-size:16px;letter-spacing:0.02em}
-.keyinfo-sub{font-size:11.5px;color:var(--light);margin-left:4px}
-.keyinfo-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);
+.keyinfo-sub{font-size:12px;color:var(--light);margin-left:4px}
+.keyinfo-note{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);
   line-height:1.7;letter-spacing:0.01em;padding-top:14px}
 
 /* 예약금 강조 박스 */
@@ -247,18 +250,18 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
   background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .holdcard{margin-bottom:18px;padding:22px 22px 20px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:left;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(28,27,25,0.03),0 8px 30px rgba(28,27,25,0.04)}
 .holdcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.deposit-label{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:0.2em;
+.deposit-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.22em;
   color:var(--gold);text-transform:uppercase;margin-bottom:14px}
 .deposit-amt{font-family:var(--serif);font-size:34px;font-weight:500;color:var(--accent);
   letter-spacing:0.02em;line-height:1}
-.deposit-amt .won{font-size:19px;font-weight:400;margin-right:3px;color:var(--sub)}
+.deposit-amt .won{font-size:20px;font-weight:400;margin-right:3px;color:var(--sub)}
 .deposit-note{font-family:var(--serif-ko);font-size:12px;color:var(--sub);font-weight:300;
   margin-top:12px;letter-spacing:0.01em}
 .deposit-acct{margin-top:20px;padding:16px 18px 0;border-top:1px solid var(--hairline);
-  font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);letter-spacing:0.02em}
-.deposit-acct .acct-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.16em;
+  font-family:var(--serif-ko);font-size:13px;color:var(--accent);letter-spacing:0.02em}
+.deposit-acct .acct-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--light);display:block;margin-bottom:7px}
-.deposit-acct .acct-no{font-family:var(--serif);font-size:15px;letter-spacing:0.04em;color:var(--accent);font-weight:500}
+.deposit-acct .acct-no{font-family:var(--serif);font-size:16px;letter-spacing:0.04em;color:var(--accent);font-weight:500}
 .deposit-acct .muted{display:block;font-size:11px;color:var(--light);font-weight:300;margin-top:8px}
 .deposit-acct .acct-copy-btn{margin-top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 16px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;letter-spacing:0.02em;-webkit-tap-highlight-color:transparent;transition:border-color .2s,color .2s}
 .deposit-acct .acct-copy-btn:hover{border-color:var(--gold);color:var(--accent)}
@@ -275,12 +278,12 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 
 /* ── 제출 ── */
 .submit-wrap{padding:8px 0 40px;text-align:center}
-.summary{font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);margin-bottom:18px;
+.summary{font-family:var(--serif-ko);font-size:14px;color:var(--sub);margin-bottom:18px;
   letter-spacing:0.01em;min-height:20px}
 .summary.on{color:var(--accent)}
 .summary .pick{color:var(--seal);font-weight:500}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:100%;
-  font-family:var(--serif-ko);font-size:14px;letter-spacing:0.1em;color:#fff;
+  font-family:var(--serif-ko);font-size:14px;letter-spacing:0.08em;color:#fff;
   background:var(--seal);padding:19px;border:none;border-radius:var(--radius);cursor:pointer;
   font-weight:300;transition:all 0.3s var(--ease);position:relative;overflow:hidden}
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7A312A,#5B1E18);
@@ -324,7 +327,7 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
 .modal-check svg path{stroke-dasharray:30;stroke-dashoffset:30;
   animation:draw 0.6s var(--ease-out) 0.3s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.modal-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.22em;
+.modal-label{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.22em;
   color:var(--gold);text-transform:uppercase;margin-bottom:14px}
 .modal-title{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);
   letter-spacing:0.02em;margin-bottom:20px}
@@ -337,10 +340,10 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
 .modal-help{font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--light);
   line-height:1.65;letter-spacing:0.01em;margin-bottom:24px;word-break:keep-all}
 .modal-help a{color:var(--seal);font-weight:400;text-decoration:underline;text-underline-offset:2px}
-.modal-warn{font-family:var(--serif-ko);font-size:10.5px;font-weight:400;color:var(--seal);
+.modal-warn{font-family:var(--serif-ko);font-size:11px;font-weight:400;color:var(--seal);
   letter-spacing:-0.01em;line-height:1.5;padding:10px 12px;margin-bottom:24px;white-space:nowrap;
   background:rgba(107,42,36,0.05);border-radius:var(--radius)}
-.modal-btn{width:100%;font-family:var(--sans);font-size:12px;letter-spacing:0.18em;
+.modal-btn{width:100%;font-family:var(--sans);font-size:12px;letter-spacing:0.22em;
   text-transform:uppercase;color:#fff;background:#4E3F31;padding:17px;border:none;
   border-radius:var(--radius);cursor:pointer;font-weight:400;transition:background 0.3s var(--ease)}
 .modal-btn:hover{background:#3A2D22}
@@ -358,11 +361,11 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
 .sticky-bar.show{transform:translateY(0);visibility:visible;transition:transform 0.45s var(--ease),visibility 0s}
 .sticky-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:14px}
 .sticky-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.sticky-label{font-family:var(--serif);font-style:italic;font-size:9.5px;letter-spacing:0.14em;
+.sticky-label{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--gold)}
 .sticky-pick{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);
   letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sticky-btn{flex-shrink:0;font-family:var(--serif-ko);font-size:14px;letter-spacing:0.06em;color:#fff;
+.sticky-btn{flex-shrink:0;font-family:var(--serif-ko);font-size:14px;letter-spacing:0.04em;color:#fff;
   background:#4E3F31;padding:13px 24px;border:none;border-radius:var(--radius);cursor:pointer;
   font-weight:300;transition:background 0.3s var(--ease)}
 .sticky-btn:hover{background:#3A2D22}
@@ -378,17 +381,17 @@ body.sticky-on footer{padding-bottom:104px}
 /* 140분 시퀀스 진행 시간표(참고) — 마이페이지 계약 폼과 동일 컴포넌트 */
 .schedule-ref{margin-top:14px;padding:16px 18px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
 .schedule-ref-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--hairline);flex-wrap:wrap}
-.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
-.schedule-ref-title{font-family:var(--serif-ko);font-size:12.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
+.schedule-ref-tag{font-family:var(--serif);font-style:italic;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);padding:2px 8px;border:0.5px solid var(--gold-soft);border-radius:2px}
+.schedule-ref-title{font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);letter-spacing:0.02em}
 .schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:center}
 .ref-row{display:contents}
-.ref-header-cell{font-family:var(--serif-ko);font-size:10.5px;color:var(--accent);padding:3px 0 9px;text-align:center;font-weight:400;word-break:keep-all}
-.ref-slot{font-family:var(--serif-ko);font-size:11.5px;font-weight:500;color:var(--accent);letter-spacing:0.02em;padding:9px 0;border-top:1px dashed var(--hairline)}
+.ref-header-cell{font-family:var(--serif-ko);font-size:11px;color:var(--accent);padding:3px 0 9px;text-align:center;font-weight:400;word-break:keep-all}
+.ref-slot{font-family:var(--serif-ko);font-size:12px;font-weight:500;color:var(--accent);letter-spacing:0.02em;padding:9px 0;border-top:1px dashed var(--hairline)}
 .ref-time{font-family:var(--serif);font-size:13px;color:var(--sub);text-align:center;padding:9px 0;letter-spacing:0.02em;border-top:1px dashed var(--hairline);font-variant-numeric:tabular-nums}
 .ref-time.highlight{color:var(--accent);font-weight:500}
 .schedule-ref-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--hairline);font-size:11px;color:var(--sub);line-height:1.75;font-family:var(--serif-ko);font-weight:300;word-break:keep-all}
 .schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:0.08em;margin-right:4px}
-@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:10.5px;letter-spacing:0}.ref-slot{font-size:10.5px}}
+@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:11px;letter-spacing:0}.ref-slot{font-size:11px}}
 /* 커스텀 날짜 선택(예식일 임시고정) — 마이페이지 계약서 폼과 동일 컴포넌트 */
 .dt-picker-wrap{position:relative;width:100%}
 .dt-trigger{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .25s var(--ease),background .25s var(--ease);text-align:left}
@@ -401,16 +404,16 @@ body.sticky-on footer{padding-bottom:104px}
 .dt-panel.open{display:block}
 .dt-panel.visible{opacity:1;transform:translateY(0)}
 .dt-cal-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 12px;border-bottom:1px solid var(--hairline);margin-bottom:8px}
-.dt-cal-title{font-family:var(--serif);font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.06em}
+.dt-cal-title{font-family:var(--serif);font-size:13px;font-weight:500;color:var(--accent);letter-spacing:0.04em}
 .dt-cal-nav{background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:20px;font-weight:300;color:var(--sub);line-height:1;padding:4px 9px;border-radius:2px;transition:all .25s var(--ease)}
 .dt-cal-nav:hover:not(:disabled){color:var(--gold);background:var(--bg2)}
 .dt-cal-nav:disabled{opacity:.25;cursor:not-allowed}
 .dt-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
-.dt-wd{text-align:center;font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:var(--light);padding:5px 0}
+.dt-wd{text-align:center;font-family:var(--serif);font-size:9px;letter-spacing:0.14em;color:var(--light);padding:5px 0}
 .dt-wd.sun{color:#B53A3A}
 .dt-wd.sat{color:#4A6FA5}
 .dt-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.dt-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:2px;font-family:var(--serif);font-size:12.5px;color:var(--accent);cursor:pointer;transition:all .2s var(--ease);position:relative;padding:0}
+.dt-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:2px;font-family:var(--serif);font-size:13px;color:var(--accent);cursor:pointer;transition:all .2s var(--ease);position:relative;padding:0}
 .dt-day.empty{pointer-events:none;cursor:default}
 .dt-day.past{color:var(--light);opacity:.3;cursor:not-allowed;pointer-events:none}
 .dt-day.today{font-weight:500;color:var(--gold)}
@@ -420,8 +423,8 @@ body.sticky-on footer{padding-bottom:104px}
 .dt-day.selected{background:#4E3F31;color:#fff;border-color:#4E3F31;font-weight:500}
 .dt-day.selected.today::after{background:#fff}
 @media(max-width:560px){
-  .day{font-size:15px}.slot{font-size:15px;padding:14px 6px}
-  .greet-title{font-size:24px}.greet-sub{font-size:15px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
+  .day{font-size:16px}.slot{font-size:16px;padding:14px 6px}
+  .greet-title{font-size:24px}.greet-sub{font-size:16px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
   .deposit{margin:0 0 18px}
   /* SCHED_UX: iOS는 16px 미만 입력칸 포커스 시 화면을 강제 확대 — 모바일에선 16px로(AI 입력칸과 동일 처방) */
   #depPayer,#depCR,#flexEtc,#holdSlot{font-size:16px}
@@ -598,7 +601,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
           <input type="checkbox" id="holdChk" style="margin-top:3px;flex:0 0 auto" onchange="document.getElementById('holdBox').style.display=this.checked?'block':'none'">
           <span style="display:block;min-width:0">
             <span style="display:block;font-family:var(--serif-ko);font-size:13px;color:var(--sub)">예식일을 먼저 고정해 둘까요? <span style="color:var(--light);font-weight:300">· 선택사항</span></span>
-            <span style="display:block;font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);line-height:1.7;margin-top:5px;word-break:keep-all">디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 비용 없이 잡아드려요. 아직 미정이어도 괜찮아요.</span>
+            <span style="display:block;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);line-height:1.7;margin-top:5px;word-break:keep-all">디렉터가 승인하면 그 날짜·시간을 <b style="font-weight:500;color:var(--sub)">14일 동안</b> 비용 없이 잡아드려요. 아직 미정이어도 괜찮아요.</span>
           </span>
         </label>
         <!-- 97 · AI 스케줄 도우미 — 신비주의 가용성 확인(전체 캘린더 비공개, 단일 슬롯 안내). 임시 고정 입력 전, 항상 노출 -->
@@ -607,29 +610,29 @@ h2.card-title,h3.card-title{margin:0;display:inline}
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--seal);flex:0 0 auto"></span>
             <span style="font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap">AI 스케줄 도우미</span>
-            <span style="font-family:var(--serif-ko);font-size:11.5px;font-weight:300;color:var(--light);white-space:nowrap">· 날짜 가능 여부 확인</span>
+            <span style="font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);white-space:nowrap">· 날짜 가능 여부 확인</span>
           </div>
           <div id="schedAiMsgs" style="display:none;max-height:240px;overflow-y:auto;overscroll-behavior:contain;margin-bottom:10px"></div>
           <form id="schedAiForm" style="display:flex;gap:7px;align-items:stretch"><!-- SCHED_UX: 입력창·버튼 높이 정렬(stretch) + 모서리 8px 통일 -->
             <input id="schedAiInput" type="text" aria-label="가능 여부를 확인할 날짜" placeholder="예: 10월 둘째 주 토요일" autocomplete="off" style="flex:1 1 auto;min-width:0;border:1px solid var(--border,#e6e0d8);border-radius:8px;padding:10px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none">
-            <button type="submit" id="schedAiSend" style="flex:0 0 auto;display:flex;align-items:center;border:none;border-radius:8px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:12.5px;padding:0 16px;cursor:pointer">확인</button>
+            <button type="submit" id="schedAiSend" style="flex:0 0 auto;display:flex;align-items:center;border:none;border-radius:8px;background:var(--seal);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:0 16px;cursor:pointer">확인</button>
           </form>
         </div>
         <button type="button" class="seq-open-line" data-seq-open="full" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;padding:0 0 1px;margin:12px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;border-bottom:1px solid var(--hairline)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="color:var(--gold)"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           시간대별 전체 진행 시간표 보기
         </button>
-        <div id="holdRuleNote" role="alert" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:12px 0 0;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
+        <div id="holdRuleNote" role="alert" style="display:none;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:12px 0 0;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
           <div>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요. 상담일을 앞당기시거나, 고정 없이 진행해 주세요.</div>
         </div>
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
-          <div style="font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">디렉터 확인 후 승인 여부를 <b>마이페이지</b>로 안내드려요. 변경·취소도 마이페이지에서 가능하고, 확정은 <b>본계약 서명</b>으로 이루어져요.</div>
+          <div style="font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">디렉터 확인 후 승인 여부를 <b>마이페이지</b>로 안내드려요. 변경·취소도 마이페이지에서 가능하고, 확정은 <b>본계약 서명</b>으로 이루어져요.</div>
           <label class="deposit-payer-label" for="holdDate" style="text-align:left">예식 날짜</label>
           <div id="holdDateWrap"></div>
           <label class="deposit-payer-label" for="holdSlot" style="text-align:left;margin-top:10px">예식 시간 <span>· 140분</span></label>
           <select id="holdSlot" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border,#e6e0d8);border-radius:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff"><option value="">선택해 주세요</option><option value="09:00">오전 09:00</option><option value="12:20">오후 12:20</option><option value="15:40">늦은 오후 15:40</option></select>
-          <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 위 <a href="#" class="ai-link" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보시면 가능한 다른 날짜를 확인해 드려요.</div><!-- SCHED_AI_ROUTE: 카카오 문의 → AI 도우미로 교체(2026-07-25 사용자 지시) -->
+          <div id="holdSlotNote" style="display:none;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all">이 날짜는 지금 선택 가능한 시간이 없어요. 위 <a href="#" class="ai-link" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보시면 가능한 다른 날짜를 확인해 드려요.</div><!-- SCHED_AI_ROUTE: 카카오 문의 → AI 도우미로 교체(2026-07-25 사용자 지시) -->
           <div class="schedule-ref" aria-label="예식 진행 시간표">
             <div class="schedule-ref-head"><span class="schedule-ref-tag" aria-hidden="true">Reference</span><span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text,#7A5F37);font-weight:400">· 요약</span></span></div>
             <div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">위에서 고르는 시간은 <b style="font-weight:500;color:var(--accent)">신랑·신부 도착</b> 기준이에요. 세부 식순은 계약 후 마이페이지에서 설계하실 수 있어요.</div>
@@ -669,7 +672,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
       <div class="deposit-payer" style="margin-top:16px">
         <label class="deposit-payer-label" for="depCR">현금영수증 발급 번호 <span>· 소득공제용</span></label>
         <input type="tel" id="depCR" inputmode="numeric" maxlength="20" autocomplete="tel" aria-describedby="depCRErr" placeholder="휴대폰 또는 사업자번호" oninput="this.value=this.value.replace(/[^0-9]/g,'');this.removeAttribute('aria-invalid');var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
-        <label class="cr-none-label" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin-top:9px">
+        <label class="cr-none-label" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--sub);margin-top:9px">
           <input type="checkbox" id="depCRNone" onchange="var i=document.getElementById('depCR');i.disabled=this.checked;if(this.checked){i.value='';i.style.opacity=.5;}else{i.style.opacity=1;}var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
           <span>소득공제 없이 발급할게요 <span style="color:var(--light);font-weight:300">· 번호 미등록</span></span>
         </label>
@@ -764,8 +767,8 @@ h2.card-title,h3.card-title{margin:0;display:inline}
 <style>#meAlertOk:hover{background:#3A2D22}#meAlertOk:active{background:#2E241B}</style>
 <div id="meAlert" role="alertdialog" aria-modal="true" aria-labelledby="meAlertMsg" style="display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.32);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)">
   <div style="background:#FAFAF8;border:1px solid var(--border,#E6E1D8);border-radius:8px;max-width:340px;width:100%;padding:24px 20px 16px;box-shadow:0 14px 44px rgba(40,28,16,0.20)">
-    <div id="meAlertMsg" style="font-family:var(--serif-ko,serif);font-size:13.5px;color:var(--sub,#5A554C);line-height:1.8;word-break:keep-all;margin-bottom:16px;text-align:left"></div>
-    <button type="button" id="meAlertOk" style="display:block;width:100%;padding:13px 0;border:none;border-radius:6px;background:#4E3F31;color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;letter-spacing:.04em;cursor:pointer;box-shadow:0 3px 10px rgba(78,63,49,0.28);transition:background .2s">확인</button>
+    <div id="meAlertMsg" style="font-family:var(--serif-ko,serif);font-size:14px;color:var(--sub,#5A554C);line-height:1.8;word-break:keep-all;margin-bottom:16px;text-align:left"></div>
+    <button type="button" id="meAlertOk" style="display:block;width:100%;padding:13px 0;border:none;border-radius:6px;background:#4E3F31;color:#fff;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;letter-spacing:0.04em;cursor:pointer;box-shadow:0 3px 10px rgba(78,63,49,0.28);transition:background .2s">확인</button>
   </div>
 </div>
 <div class="modal-overlay" id="modal">
@@ -862,7 +865,7 @@ if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.
   var _hl=SERVER.currentDate.split('-'), _hlim=(+_hl[0])*10000+(+_hl[1])*100+(+_hl[2]);
   SERVER.avail=(SERVER.avail||[]).filter(function(k){var a=String(k).split('-');return ((+a[0])*10000+(+a[1])*100+(+a[2]))<=_hlim;});
   var _cg=document.getElementById('calGrid');
-  if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:11.5px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
+  if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
 }
 // 첫 가능일이 있는 달로 달력을 연다 · SCHED_UX: 마지막 가능일 달을 기억해 다음달 버튼을 그 너머로 못 가게(빈 달 미로 방지)
 let maxAvY=null, maxAvM=null;
@@ -1189,7 +1192,7 @@ if(_hdw){
     function bub(t,who){
       msgs.style.display='block';
       var d=document.createElement('div');
-      d.style.cssText='max-width:92%;font-family:var(--serif-ko);font-size:12.5px;line-height:1.7;word-break:keep-all;white-space:pre-wrap;border-radius:11px;padding:9px 12px;margin:0 0 7px;'+(who==='me'?'margin-left:auto;background:var(--seal);color:#fff':'background:var(--bg2,#F5F3EF);color:var(--accent)');
+      d.style.cssText='max-width:92%;font-family:var(--serif-ko);font-size:13px;line-height:1.7;word-break:keep-all;white-space:pre-wrap;border-radius:11px;padding:9px 12px;margin:0 0 7px;'+(who==='me'?'margin-left:auto;background:var(--seal);color:#fff':'background:var(--bg2,#F5F3EF);color:var(--accent)');
       d.textContent=t; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d;
     }
     function todayYmd(){ var n=new Date(); return n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2); }

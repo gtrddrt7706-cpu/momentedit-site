@@ -862,3 +862,5 @@ chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예�
 chk 'A11Y_FOOTER_AA' index.html 1                           # 푸터 f-copy 알파 0.7 유지 · 0.44로 되돌리면 2.71:1 미달
 chk 'A11Y_INPUT_16' index.html 1                            # 입력창 16px 이상 · 미만이면 iOS가 포커스 시 강제 확대
 chk 'A11Y_LABEL_MATCH' index.html 1                         # aria-label은 보이는 글자를 포함(WCAG 2.5.3) · 요약형으로 축약 금지
+chk 'SUB_TYPO_SYNC' schedule.html 1                         # 서브페이지 타이포 이식 마커 · 반px 재유입 금지
+chk 'SUB_TYPO_SYNC' mypage.html 1                           # 반px 제거 상태 유지(정수 통합은 로그인 QA 후)
