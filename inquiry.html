@@ -189,11 +189,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 
 <nav>
   <div class="nav-in">
-    <a href="./index.html" class="nav-mark">
-      <span>MOMENT</span>
-      <span class="dot"></span>
-      <span>EDIT</span>
-    </a>
+    <a href="./index.html" class="nav-mark" aria-label="Moment Edit · 홈으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-mark-fb" aria-hidden="true">MOMENT<span class="dot"></span>EDIT</span></a>
     <a href="./index.html" class="nav-back">
       <span class="arrow">←</span>
       <span>Home</span>
@@ -1689,6 +1685,13 @@ window.ME_ADV_PAGE = {
 /* [INQ_KO_TRACK] 영문 대문자 조판용 자간(14~16%)이 한글 '필수'에도 걸려 '필 수'로 벌어졌다.
    홈에서 같은 문제를 고친 처방(LABEL_KO_TRACK)을 그대로 적용 — 영문 트래킹은 유지하고 한글만 낮춘다. */
 .ll-ko{letter-spacing:0.04em}
+
+/* [NAV_LOGO] 왼쪽 위 로고를 자간 텍스트 대신 브랜드 워드마크 이미지로(2026-07-30 사용자 지시 · privacy.html과 동일).
+   ★이미지가 안 뜨면 종전 텍스트 조판으로 떨어진다 — 로고가 통째로 사라지지 않게. */
+.nav-logo{width:148px;height:auto;display:block}
+.nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
+.nav-mark{min-height:40px}
+@media(max-width:680px){.nav-logo{width:130px}}
 </style>
 </body>
 </html>

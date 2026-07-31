@@ -740,6 +740,10 @@ chk '푸터 손대기 금지' privacy.html 1           # ★2026-07-30 사용자
 chk 'PRV_TAP40' privacy.html 1                 # 상단 로고·'상담 페이지로' 21px → 40px (푸터는 위 지시로 제외)
 chk 'PRV_LOGO' privacy.html 2                  # 왼쪽 위 로고를 자간 텍스트 → 브랜드 워드마크 이미지(2026-07-30 사용자 지시 · 주석 1 + CSS 1). 이미지 실패 시 종전 텍스트로 폴백
 chk 'nav-mark-fb' privacy.html 2               # 위 폴백 — 지우면 이미지 실패 시 로고가 통째로 사라진다
+chk 'NAV_LOGO' inquiry.html 1                  # 같은 nav 컴포넌트를 쓰는 자매 페이지도 함께 교체(로고만 페이지마다 다르면 더 어색)
+chk 'NAV_LOGO' parents.html 1                  # 위와 동일
+chk 'nav-mark-fb' inquiry.html 2               # 이미지 실패 폴백
+chk 'nav-mark-fb' parents.html 2               # 이미지 실패 폴백
 chk 'PRV_KO_TRACK' privacy.html 1              # '상담 페이지로'(8%)·'개정 시행일자'(14%) — 한글에 영문용 자간
 chk 'CAN_CONTRAST' cancel.html 1               # ★취소가 막힌 화면의 유일한 출구(카카오톡 링크)가 2.65:1로 안 읽혔다 · 상태 라벨도
 chk 'CAN_TAP40' cancel.html 1                  # 문장 속 카카오톡 링크 12px — ::before 히트영역으로 40px(중심±19px 히트 실측)

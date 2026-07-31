@@ -186,13 +186,20 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 ::selection{background:rgba(107,42,36,0.18);color:var(--accent)}
 /* 편지 화면엔 떠다니는 채팅 아이콘은 숨기고(하단 버튼으로 연다), 우측에는 공유 버튼만 남긴다 */
 #meAdvFab{display:none!important}
+
+/* [NAV_LOGO] 왼쪽 위 로고를 자간 텍스트 대신 브랜드 워드마크 이미지로(2026-07-30 사용자 지시 · privacy.html과 동일).
+   ★이미지가 안 뜨면 종전 텍스트 조판으로 떨어진다 — 로고가 통째로 사라지지 않게. */
+.nav-logo{width:148px;height:auto;display:block}
+.nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
+.nav-mark{min-height:40px}
+@media(max-width:680px){.nav-logo{width:130px}}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-in">
-    <a href="./index.html" class="nav-mark">MOMENT<span class="dot"></span>EDIT</a>
+    <a href="./index.html" class="nav-mark" aria-label="Moment Edit · 홈으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-mark-fb" aria-hidden="true">MOMENT<span class="dot"></span>EDIT</span></a>
     <a href="./index.html" class="nav-back" aria-label="이전 페이지로 돌아가기" onclick="var r=document.referrer; if(history.length>1 && r && r.indexOf(location.origin)===0){ history.back(); return false; } return true;"><span class="arrow" aria-hidden="true">&larr;</span>뒤로</a>
   </div>
 </nav>
