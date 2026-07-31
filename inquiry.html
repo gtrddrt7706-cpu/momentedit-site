@@ -130,13 +130,33 @@
 </script>
 
 <style>
+/* [INQ_FONT_FALLBACK] 폰트 폴백 메트릭 보정 — index.html에서 이식(2026-07-31).
+   없으면 웹폰트 도착 순간 글자 크기·행 높이가 바뀌며 페이지가 통째로 밀린다(측정: CLS 0.245).
+   size-adjust/ascent-override로 폴백 글꼴을 웹폰트와 같은 크기로 맞춰 교체 시 흔들림을 없앤다.
+   ★스택(--serif 등)에 "… Fallback"을 웹폰트 바로 뒤에 넣어야 효과가 난다. */
+@font-face {
+  font-family: "Cormorant Fallback";
+  src: local("Georgia"), local("Times New Roman"), local("Noto Serif"), local("Noto Serif CJK KR"), local("Roboto Serif");
+  size-adjust: 88%; ascent-override: 95%; descent-override: 25%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Noto Serif KR Fallback";
+  src: local("Apple SD Gothic Neo"), local("Noto Serif CJK KR"), local("Noto Sans CJK KR"), local("Malgun Gothic"), local("Nanum Myeongjo"), local("Roboto");
+  size-adjust: 100%; ascent-override: 88%; descent-override: 22%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Noto Sans KR Fallback";
+  src: local("Apple SD Gothic Neo"), local("Noto Sans CJK KR"), local("Malgun Gothic"), local("Roboto");
+  size-adjust: 100%; ascent-override: 88%; descent-override: 22%; line-gap-override: 0%;
+}
+
 /* iOS 입력 포커스 자동확대(줌) 방지 — 입력 폰트 16px 보장. 손가락 수동 확대(접근성)는 유지(viewport 안 건드림) */
 input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select{font-size:16px!important}
 
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
- *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}:root{color-scheme:light;--hover-lift:-1px;--tracking-ko:0;--tracking-en:-0.015em;--focus-ring-color:var(--seal);--focus-ring-offset:3px;--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--gold-text:#7A5F37;--gold-soft:rgba(184,154,117,0.18);--accent:#3A2D22;--seal:#6B2A24;--border:#DDD8D1;--footer-bg:#1A1714;--hairline:rgba(28,27,25,0.18);--ease:cubic-bezier(0.16,1,0.3,1);--ease-out:cubic-bezier(0.22,1,0.36,1);--serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;--sans:'Noto Sans KR',-apple-system,sans-serif;--max:620px;--radius:4px}html{scroll-behavior:smooth;overflow-x:hidden}body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.9;letter-spacing:0;-webkit-font-smoothing:antialiased;overflow-x:hidden;word-break:keep-all}nav{position:fixed;top:0;left:0;right:0;z-index:100;background:none;transition:transform 1.05s var(--ease-out),opacity 0.95s ease}nav.nav-hidden{transform:translateY(-100%);opacity:0}.nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}.nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}.nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}.nav-back{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:#5A4A3C;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.3s}.nav-back:hover{color:var(--accent)}.nav-back .arrow{display:inline-block;transition:transform 0.3s var(--ease-out)}.nav-back:hover .arrow{transform:translateX(-3px)}.hero{padding:140px 28px 56px;text-align:center;max-width:var(--max);margin:0 auto}.hero-label{font-size:10px;letter-spacing:0.34em;text-transform:uppercase;color:var(--gold-text);margin-bottom:28px}.hero-logo{width:min(240px,60vw);margin:0 auto 32px;display:block}.hero-divider{width:36px;height:1px;background:var(--gold);margin:0 auto}.hero-availnote{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--light);letter-spacing:0.03em;line-height:1.85;margin-top:22px;word-break:keep-all}/* ★[INQ_RAIL_CLEAR] 본문 우측 여백 확보 금지 — 2026-07-26 사용자 지시로 철회.
+ *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}:root{color-scheme:light;--hover-lift:-1px;--tracking-ko:0;--tracking-en:-0.015em;--focus-ring-color:var(--seal);--focus-ring-offset:3px;--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;--gold:#B89A75;--gold-text:#7A5F37;--gold-soft:rgba(184,154,117,0.18);--accent:#3A2D22;--seal:#6B2A24;--border:#DDD8D1;--footer-bg:#1A1714;--hairline:rgba(28,27,25,0.18);--ease:cubic-bezier(0.16,1,0.3,1);--ease-out:cubic-bezier(0.22,1,0.36,1);--serif:'Cormorant Garamond','Cormorant Fallback',Georgia,serif;--serif-ko:'Noto Serif KR','Noto Serif KR Fallback','Nanum Myeongjo',serif;--sans:'Noto Sans KR','Noto Sans KR Fallback',-apple-system,sans-serif;--max:620px;--radius:4px}html{scroll-behavior:smooth;overflow-x:hidden}body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.9;letter-spacing:0;-webkit-font-smoothing:antialiased;overflow-x:hidden;word-break:keep-all}nav{position:fixed;top:0;left:0;right:0;z-index:100;background:none;transition:transform 1.05s var(--ease-out),opacity 0.95s ease}nav.nav-hidden{transform:translateY(-100%);opacity:0}.nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}.nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}.nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}.nav-back{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.08em;color:#5A4A3C;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.3s}.nav-back:hover{color:var(--accent)}.nav-back .arrow{display:inline-block;transition:transform 0.3s var(--ease-out)}.nav-back:hover .arrow{transform:translateX(-3px)}.hero{padding:140px 28px 56px;text-align:center;max-width:var(--max);margin:0 auto}.hero-label{font-size:10px;letter-spacing:0.34em;text-transform:uppercase;color:var(--gold-text);margin-bottom:28px}.hero-logo{width:min(240px,60vw);margin:0 auto 32px;display:block}.hero-divider{width:36px;height:1px;background:var(--gold);margin:0 auto}.hero-availnote{font-family:var(--serif-ko);font-size:12.5px;font-weight:300;color:var(--light);letter-spacing:0.03em;line-height:1.85;margin-top:22px;word-break:keep-all}/* ★[INQ_RAIL_CLEAR] 본문 우측 여백 확보 금지 — 2026-07-26 사용자 지시로 철회.
    배경: 우측 고정 아이콘 레일(left 338)이 본문 오른쪽 32px를 덮어 "Required · 필수" 등에서 글자가 잘린다.
    시도: .form-wrap padding-right를 56px로 늘려 레일을 피했다 → 글자 침범 0건이 됐다.
    ★철회 사유: 본문이 왼쪽으로 치우쳐 보인다. 사용자가 "이건 괜찮아 전으로 돌리자"로 겹침을 수용.
@@ -183,7 +203,14 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://momentedit.kr"},{"@type":"ListItem","position":2,"name":"상담 문의","item":"https://momentedit.kr/inquiry.html"}]}
 </script>
-<style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}</style>
+<style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}
+/* [INQ_CLS_NAVLOGO] 로고 크기를 head에서 미리 확정한다.
+   이 페이지는 .nav-logo 규칙이 <head> 밖(문서 129,471자 지점)에 있어, nav가 먼저 그려질 때
+   브라우저가 width/height 속성값(1545×212)대로 212px 높이를 잡았다가 CSS 도착 후 18px로 줄면서
+   페이지 전체를 끌어내렸다 — 실측 CLS 0.968(전체의 99%). 폰트 폴백이 원인이 아니었다.
+   ★이 블록을 지우거나 <head> 밖으로 옮기면 그대로 재발한다. */
+.nav-logo{width:148px;height:auto;display:block}
+@media(max-width:680px){.nav-logo{width:130px}}</style>
 </head>
 <body>
 

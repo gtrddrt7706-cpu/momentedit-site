@@ -876,3 +876,5 @@ chk 'CTA_TYPE_QUIET' index.html 2                           # 전환 CTA 글자 
 chk 'MOTION_RAMP5' index.html 1                             # 전환 0.12/0.3/0.45/0.7/1.2 · 이징 var(--ease) 통일 · 기본 ease 재유입 금지
 chk 'INQ_A11Y' inquiry.html 1                               # 전환 페이지 접근성 · role=tablist 재삽입 금지(자식이 button)
 chk '<main' inquiry.html 1                                  # 폼 영역 main 랜드마크 · div로 되돌리면 랜드마크 소실
+chk 'INQ_FONT_FALLBACK' inquiry.html 1                      # 폰트 폴백 메트릭 · 제거하면 CLS 0.245 회귀(웹폰트 도착 시 페이지가 밀림)
+chk 'INQ_CLS_NAVLOGO' inquiry.html 1                        # head 크리티컬 CSS(로고 크기) · 빼면 CLS 0.97 재발
