@@ -865,3 +865,5 @@ chk 'A11Y_LABEL_MATCH' index.html 1                         # aria-label은 보�
 chk 'SUB_TYPO_SYNC' schedule.html 1                         # 서브페이지 타이포 이식 마커 · 반px 재유입 금지
 chk 'SUB_TYPO_SYNC' mypage.html 1                           # 반px 제거 상태 유지(정수 통합은 로그인 QA 후)
 chk 'SCHED_FAIL_AA' schedule.html 1                         # 오류 화면 링크 #7A5F37(5.71:1)·main 유지 · #9A7F5F로 되돌리면 3.6:1 미달
+chk 'SCALE_LEADING7' index.html 1                           # 행간 8단계 램프(한글 보정) · 목업 구역 예외
+chk 'SCALE_RADIUS6' index.html 1                            # 모서리 2/4/6/8/12+알약 · 폰 목업 곡률 예외
