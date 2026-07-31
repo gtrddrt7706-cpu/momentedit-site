@@ -350,8 +350,12 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
   background:rgba(250,250,248,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(28,27,25,0.06);
   padding:12px 18px calc(12px + env(safe-area-inset-bottom));
-  transform:translateY(120%);transition:transform 0.45s var(--ease)}
-.sticky-bar.show{transform:translateY(0)}
+  /* [SCHED_STICKY_BAR] transform만으로 숨기면 화면 밖에 있는 버튼이 그대로 탭 순서에 남아
+     키보드 사용자가 '보이지 않는 버튼'에 포커스된다 → visibility로 접근성 트리에서도 뺀다.
+     숨길 때만 0.45s 지연을 줘서 슬라이드다운이 다 끝난 뒤 사라지게 한다. */
+  visibility:hidden;
+  transform:translateY(120%);transition:transform 0.45s var(--ease),visibility 0s linear 0.45s}
+.sticky-bar.show{transform:translateY(0);visibility:visible;transition:transform 0.45s var(--ease),visibility 0s}
 .sticky-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:14px}
 .sticky-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .sticky-label{font-family:var(--serif);font-style:italic;font-size:9.5px;letter-spacing:0.14em;
@@ -362,6 +366,9 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
   background:#4E3F31;padding:13px 24px;border:none;border-radius:var(--radius);cursor:pointer;
   font-weight:300;transition:background 0.3s var(--ease)}
 .sticky-btn:hover{background:#3A2D22}
+/* [SCHED_STICKY_BAR] 바가 떠 있는 동안만 푸터 아래 여백 — 고정 바가 푸터 워드마크를 가리지 않게.
+   평소엔 붙이지 않아 페이지 끝에 빈 공간이 남지 않는다(_stickyShow가 body 클래스를 토글). */
+body.sticky-on footer{padding-bottom:104px}
 
 /* 페이드인 */
 .fade{opacity:0;transform:translateY(14px);animation:fade 0.9s var(--ease) forwards}
@@ -431,7 +438,10 @@ footer{text-align:center;padding:0 22px 32px;margin-top:20px}
 :root{ --gold-text:#7A5F37; }
 .greet-label,.greet-title .name,.keyinfo-label,.card-num,
 .time-head .tag,.slot .slot-period,.deposit-label,
-.schedule-ref-tag,.schedule-ref-foot .accent{color:var(--gold-text)}
+.schedule-ref-tag,.schedule-ref-foot .accent,
+/* ★.sticky-label 추가(2026-07-31) — 위 실측 16종에 이게 빠져 있던 건 마크업이 소실돼 화면에 없었기 때문이다.
+   [SCHED_STICKY_BAR]로 마크업을 되살리면 9.5px 대문자 골드 글자가 그대로 살아나므로 같은 처방을 함께 적용한다. */
+.sticky-label{color:var(--gold-text)}
 .step.done .step-dot{border-color:var(--gold-text);background:var(--gold-text)}
 /* 주말 열 머리(토·일)는 색으로 구분하는 자리라 색조는 지키고 명도만 내린다 */
 .wd.sun{color:#A04A32}.wd.sat{color:#556791}
@@ -730,9 +740,24 @@ h2.card-title,h3.card-title{margin:0;display:inline}
 </main>
 
 <footer>
+  <!-- [SCHED_FOOTER_LOGO] 푸터 워드마크 1장 복원(2026-07-31 사용자 결정) — .f-footer-logo CSS만 남고
+       마크업이 비어 있어 이 페이지만 끝이 뚝 끊겨 보였다. 다른 면과 같은 마무리. -->
+  <img class="f-footer-logo" src="/assets/brand/wordmark-gold.png" alt="MOMENT EDIT" width="1545" height="378" loading="lazy" decoding="async">
 </footer>
 
 <!-- 하단 고정 선택 바 -->
+<!-- [SCHED_STICKY_BAR] 마크업 복원(2026-07-31 사용자 결정). CSS(.sticky-bar 계열)와 JS(updateSummary의 stickyBar·stickyPick,
+     doSubmit의 stickyBtn)는 계속 살아 있었고 마크업만 소실돼 기능이 조용히 꺼져 있었다. 제거 지시가 아니라 병합 사고였다는 근거는
+     이 자리에 빈 주석만 남아 있었다는 것. ★id 3개(stickyBar·stickyPick·stickyBtn)가 JS와의 배선 계약이니 이름을 바꾸지 말 것. -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="sticky-in">
+    <div class="sticky-info">
+      <div class="sticky-label">Your Selection</div>
+      <div class="sticky-pick" id="stickyPick"></div>
+    </div>
+    <button class="sticky-btn" id="stickyBtn" type="button">신청하기</button>
+  </div>
+</div>
 
 <!-- 확정 팝업 -->
 <!-- 브랜드 알림 모달 — OS alert 대체(중앙 정렬·다크 모카 버튼) -->
@@ -955,6 +980,9 @@ function renderTime(){
 // [임시고정 7일 규칙] 상담일이 오늘+7일 이내인지 — 임시고정 체크와 충돌하면 인라인 경고·제출 차단
 function _holdDeadlineOk(){ if(!selDate) return true; var lim=new Date(today); lim.setDate(lim.getDate()+7); return selDate<=lim; }
 function _syncHoldRule(){ var chk=document.getElementById('holdChk'), n=document.getElementById('holdRuleNote'); if(!n) return; n.style.display=(chk&&chk.checked&&!_holdDeadlineOk())?'block':'none'; }
+// [SCHED_STICKY_BAR] 바 표시 = 클래스 두 개를 한 곳에서 토글. body.sticky-on이 푸터 아래 여백을 만들어
+// 고정 바가 푸터 워드마크를 가리지 않게 한다. 세 갈래에서 각자 add/remove 하면 한쪽만 고쳐질 때 어긋난다.
+function _stickyShow(bar,on){ if(!bar) return; bar.classList.toggle('show',!!on); document.body.classList.toggle('sticky-on',!!on); }
 function updateSummary(){
   _syncHoldRule();
   const sum=document.getElementById('summary'); const btn=document.getElementById('submitBtn');
@@ -971,15 +999,15 @@ function updateSummary(){
     sT.classList.add('done');sT.classList.remove('active');
     sDo.classList.add('active');
     if(pickEl) pickEl.textContent=pickStr;
-    if(bar) bar.classList.add('show');
+    _stickyShow(bar,true);
   } else if(selDate){
     sum.textContent='시간을 선택해 주세요';sum.classList.remove('on');btn.disabled=true;
     sDa.classList.add('done');sDa.classList.remove('active');
     sT.classList.add('active');sDo.classList.remove('active');
-    if(bar) bar.classList.remove('show');
+    _stickyShow(bar,false);
   } else {
     sum.textContent='날짜와 시간을 선택해 주세요';sum.classList.remove('on');btn.disabled=true;
-    if(bar) bar.classList.remove('show');
+    _stickyShow(bar,false);
   }
 }
 function revealGuide(){

@@ -384,11 +384,16 @@ nav.nav-hidden {
   /* 상태바 안전영역만큼 위 여백 추가 — black-translucent(풀블리드) 홈앱에서 로고·메뉴가 시계에 가리지 않게 */
   padding: calc(20px + env(safe-area-inset-top)) 46px 20px;
 }
+/* [HOME_MASTHEAD_WORDMARK] 홈 마스트헤드도 워드마크 이미지로 통일(2026-07-31 사용자 결정 '추천대로 전부').
+   privacy·inquiry·parents와 같은 규격 = width 148px(모바일 130px). 원본 1545×212라 148px에서 높이 20.3px로,
+   자리를 넘겨받은 .nav-wordmark(높이 21px)와 거의 같다.
+   ★height로 잡지 말 것 — 다른 3면이 전부 width 기준이라 height를 쓰면 이 면만 크기가 어긋난다.
+   .nav-wordmark는 지우지 않고 이미지 로드 실패 시의 폴백으로 남겨 둔다(onerror가 display를 켠다). */
 .nav-logo {
-  height: 31px;
-  opacity: 0.6;
+  width: 148px;
+  height: auto;
+  opacity: 0.9;
   display: block;
-  transform: translateY(0px);
 }
 .nav-logo-link {
   display: inline-block;
@@ -3004,9 +3009,12 @@ footer {
   .nav-in {
     display: none !important;
   }
+  /* [HOME_MASTHEAD_WORDMARK] 모바일 규격도 다른 3면과 같은 width 130px.
+     이 화면폭에서는 위 .nav-in이 display:none이라 실제로 렌더되지는 않지만,
+     height로 남겨 두면 나중에 상단 바를 되살렸을 때 이 면만 로고가 뭉개진다(원본 비율 7.3:1). */
   .nav-logo {
-    height: 23.5px !important;
-    transform: translateY(1px) !important;
+    width: 130px !important;
+    height: auto !important;
   }
   .nav-wordmark {
     font-size: 13px;
@@ -3017,10 +3025,8 @@ footer {
     opacity: 1;
     transform: translateY(2px);
   }
-  .nav-logo-link img {
-    height: 23.5px !important;
-    max-width: 140px !important;
-  }
+  /* ★.nav-logo-link img 별도 규칙은 두지 않는다 — 그 img가 곧 .nav-logo라 두 곳에서
+     같은 값을 잡으면 한쪽만 고쳐질 때 조용히 어긋난다(위 .nav-logo 한 곳에서만 잡는다). */
   .nav-toggle-label {
     font-size: 8px;
   }
@@ -5273,7 +5279,7 @@ body {
 <!-- NAV -->
 <nav class="nav-hidden">
 <div class="nav-in">
-  <a href="/" onclick="event.preventDefault(); replayHeroAnimation();" class="nav-logo-link" aria-label="페이지 최상단으로"><span class="nav-wordmark">MOMENT<span class="nav-wordmark-dot" aria-hidden="true"></span>EDIT</span></a>
+  <a href="/" onclick="event.preventDefault(); replayHeroAnimation();" class="nav-logo-link" aria-label="페이지 최상단으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-wordmark" aria-hidden="true" style="display:none">MOMENT<span class="nav-wordmark-dot" aria-hidden="true"></span>EDIT</span></a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#archive">Archive</a></li>

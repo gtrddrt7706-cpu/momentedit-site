@@ -851,3 +851,8 @@ chk 'SECTION_RHYTHM' index.html 2                           # 섹션 간격은 .
 chk 'SECTION_RHYTHM_TIER2' index.html 1                    # 장 전환 4경계 divider +32px(264/312) · 기본 200/248과 2단 리듬 유지
 chk 'TYPO_SCALE7' index.html 1                              # 본문·라벨 7단계(11~20) · 반px 금지 · 목업 구역 예외
 chk 'TYPO_RHYTHM' index.html 1                              # 타임라인 항목 padding 40px — 벽처럼 붙는 회귀 금지
+chk 'HOME_MASTHEAD_WORDMARK' index.html 2                       # 홈 마스트헤드 = 워드마크 이미지(width 148/130px) · height 기준으로 되돌리면 이 면만 크기가 어긋난다(원본 비율 7.3:1)
+chk 'SCHED_STICKY_BAR' schedule.html 5                          # 하단 고정 선택 바 마크업+숨김 시 접근성(visibility)+푸터 여백 토글 · 마크업만 또 소실되면 기능이 조용히 꺼진다
+chk 'id="stickyBar"' schedule.html 1                            # JS 배선 계약(stickyBar·stickyPick·stickyBtn) — id 이름 변경 금지
+chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸터 워드마크 1장 · 비우면 이 페이지만 끝이 뚝 끊긴다
+chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
