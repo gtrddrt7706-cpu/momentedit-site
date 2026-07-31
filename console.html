@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>진행 콘솔 — Moment Edit</title>
+<!--
+  [CONSOLE_V1]  현장 디렉터 콘솔 · 예식 미리듣기 겸용
+
+  쓰임 3가지를 한 파일이 전부 맡는다(2026-07-31 사용자 결정 "3쓰임 전부 대응").
+    A. 현장 진행   ?mode=console  — 디렉터가 버튼으로 예식을 진행한다
+    B. 고객 미리듣기 ?mode=preview  — 사람이 안 눌러도 처음부터 끝까지 자동으로 흐른다
+    C. 내부 리허설  ?mode=console&course=... — 코스를 바꿔가며 직접 들어본다
+
+  큐는 여기서 만들지 않는다. assets/ritual-cue.js 가 전부 계산한다.
+  이 파일은 '받아서 소리를 내고 화면에 띄우는' 껍데기다. 순서·발사방식을 여기서 고치면 안 된다.
+
+  ★오디오가 한 개도 없어도 끝까지 진행된다 — 클립이 없으면 문안 카드 + 예상 시간 무음으로 넘어간다.
+-->
+<style>
+:root{
+  --bg:#141210; --bg2:#1E1B18; --bg3:#2A2622;
+  --text:#F2EFE9; --sub:#A9A296; --dim:#6E6860;
+  --line:#332E29;
+  --gold:#B89A75; --gold-text:#D9BC93;
+  --seal:#8E3A31;
+  --live:#3F6B4F; --auto:#2D4A63; --clock:#5A4A2A;
+  --sans:'Noto Sans KR','Apple SD Gothic Neo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:16px;line-height:1.6;overscroll-behavior:none;
+  -webkit-user-select:none;user-select:none;
+}
+button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px;padding-bottom:env(safe-area-inset-bottom)}
+
+/* ── 설정 화면 ─────────────────────────────────────── */
+#setup{padding:28px 0 60px}
+#setup h1{font-family:var(--serif-ko);font-size:26px;font-weight:600;margin:0 0 4px;letter-spacing:-.02em}
+#setup .lede{color:var(--sub);font-size:14px;margin:0 0 28px;line-height:1.7}
+.sec{border-top:1px solid var(--line);padding:20px 0 4px}
+.sec>h2{font-size:13px;font-weight:700;color:var(--gold-text);margin:0 0 14px;letter-spacing:.06em}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.row>label{display:block;width:100%;font-size:12px;color:var(--sub);margin-bottom:2px}
+.chip{
+  padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg2);
+  font-size:14px;color:var(--sub);transition:all .18s var(--ease);
+}
+.chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#20180F;font-weight:600}
+select,input[type=time],input[type=text]{
+  background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);
+  padding:10px 12px;font-size:15px;font-family:inherit;min-width:0;
+}
+.filebtn{
+  display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:1px dashed var(--line);
+  border-radius:10px;background:var(--bg2);font-size:14px;color:var(--sub);
+}
+.filebtn input{display:none}
+.filebtn.has{border-style:solid;border-color:var(--live);color:var(--text)}
+.note{font-size:12px;color:var(--dim);line-height:1.7;margin:8px 0 0}
+.go{
+  display:block;width:100%;margin:32px 0 0;padding:20px;border-radius:14px;
+  background:var(--seal);color:#fff;font-size:19px;font-weight:700;letter-spacing:.02em;
+}
+.go:active{transform:scale(.99)}
+#sum{font-size:13px;color:var(--sub);margin-top:14px;line-height:1.8}
+#sum b{color:var(--gold-text);font-weight:600}
+
+/* ── 콘솔 화면 ─────────────────────────────────────── */
+#run{display:none;height:100dvh;flex-direction:column}
+#run.on{display:flex}
+.bar{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);
+  font-size:12px;color:var(--dim);flex:0 0 auto;
+}
+.bar .sp{flex:1}
+.bar button{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px;color:var(--sub)}
+.bar .clk{font-variant-numeric:tabular-nums;color:var(--sub)}
+
+.stage{flex:1 1 auto;overflow-y:auto;padding:18px 16px 6px;min-height:0}
+.now{
+  border:1px solid var(--line);border-radius:16px;background:var(--bg2);padding:18px 18px 16px;
+}
+.now .tag{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pill{
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.04em;
+  background:var(--bg3);color:var(--sub);
+}
+.pill.m{background:var(--seal);color:#fff}
+.pill.c{background:var(--auto);color:#CFE3F2}
+.pill.k{background:var(--clock);color:#EBD9A8}
+.pill.l{background:var(--live);color:#DCF0E2}
+.pill.p{background:#3A2E4A;color:#DDD0EC}
+.now .no{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.now h2{
+  font-family:var(--serif-ko);font-size:clamp(24px,6.4vw,38px);font-weight:600;
+  margin:2px 0 10px;letter-spacing:-.02em;line-height:1.3;
+}
+.now .txt{
+  font-size:15px;color:var(--sub);line-height:1.85;white-space:pre-wrap;
+  max-height:34vh;overflow-y:auto;padding-right:4px;
+}
+.now .txt.big{font-size:17px;color:var(--text)}
+.now .hint{margin-top:12px;font-size:13px;color:var(--gold-text);line-height:1.7}
+.prog{height:6px;border-radius:99px;background:var(--bg3);overflow:hidden;margin-top:14px}
+.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s linear}
+.prog.live i{background:var(--live)}
+.tm{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:6px;font-variant-numeric:tabular-nums}
+
+.up{margin-top:12px;display:grid;gap:8px}
+.upc{
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg2);
+  display:flex;align-items:center;gap:10px;
+}
+.upc.dim{opacity:.55}
+.upc .lb{font-size:11px;color:var(--dim);flex:0 0 auto;width:38px}
+.upc .nm{flex:1;font-size:15px;font-weight:600;line-height:1.4;min-width:0}
+.upc .nm small{display:block;font-weight:400;font-size:12px;color:var(--dim);margin-top:1px}
+.upc .es{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+/* ── 조작부 ─────────────────────────────────────────── */
+.ctl{flex:0 0 auto;padding:10px 16px 16px;border-top:1px solid var(--line);background:var(--bg)}
+.main{
+  position:relative;display:block;width:100%;padding:24px 16px;border-radius:16px;
+  background:var(--seal);color:#fff;font-size:21px;font-weight:700;letter-spacing:.01em;
+  overflow:hidden;transition:background .2s var(--ease);
+}
+.main small{display:block;font-size:12px;font-weight:400;opacity:.82;margin-top:3px}
+.main.wait{background:var(--auto)}
+.main.hold::after{
+  content:'';position:absolute;left:0;bottom:0;height:4px;background:#fff;
+  width:var(--hold,0%);transition:width .1s linear;
+}
+.main:active{filter:brightness(1.08)}
+.sub3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.sub3 button{
+  padding:15px 6px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);
+  font-size:14px;font-weight:600;color:var(--sub);line-height:1.3;
+}
+.sub3 button small{display:block;font-size:10px;font-weight:400;color:var(--dim);margin-top:2px}
+.sub3 button.on{background:var(--gold);border-color:var(--gold);color:#20180F}
+.vol{display:flex;align-items:center;gap:12px;margin-top:12px}
+.vol span{font-size:11px;color:var(--dim);flex:0 0 auto}
+.vol input{flex:1;accent-color:var(--gold);height:26px}
+.vol b{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;width:34px;text-align:right;flex:0 0 auto}
+
+/* ── 큐 목록 시트 ───────────────────────────────────── */
+#sheet{
+  position:fixed;inset:0;background:rgba(10,9,8,.72);backdrop-filter:blur(4px);
+  display:none;z-index:50;align-items:flex-end;
+}
+#sheet.on{display:flex}
+#sheet .in{
+  width:100%;max-height:86dvh;background:var(--bg2);border-radius:18px 18px 0 0;
+  border-top:1px solid var(--line);display:flex;flex-direction:column;
+}
+#sheet header{display:flex;align-items:center;padding:16px;border-bottom:1px solid var(--line);flex:0 0 auto}
+#sheet header h3{margin:0;font-size:15px;font-weight:700;flex:1}
+#sheet header button{font-size:14px;color:var(--sub);padding:6px 10px}
+#sheet .list{overflow-y:auto;padding:8px 8px 24px}
+.qi{display:flex;align-items:center;gap:10px;width:100%;padding:12px;border-radius:10px;text-align:left}
+.qi:active{background:var(--bg3)}
+.qi.cur{background:var(--bg3);outline:1px solid var(--gold)}
+.qi .n{font-size:11px;color:var(--dim);width:26px;flex:0 0 auto;font-variant-numeric:tabular-nums}
+.qi .t{flex:1;font-size:14px;min-width:0}
+.qi .t small{display:block;font-size:11px;color:var(--dim)}
+.qi.done .t{color:var(--dim)}
+.sheetsec{font-size:11px;color:var(--gold-text);padding:14px 12px 6px;font-weight:700;letter-spacing:.06em}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--bg3);border:1px solid var(--line);border-radius:999px;padding:10px 18px;
+  font-size:13px;color:var(--text);z-index:80;opacity:0;pointer-events:none;transition:opacity .25s;
+  max-width:90vw;text-align:center;
+}
+.toast.on{opacity:1}
+
+@media (min-width:900px){
+  .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
+  .stage>div:first-child{display:flex}
+  .now{flex:1;display:flex;flex-direction:column}
+  .now .txt{flex:1;max-height:none;font-size:17px}
+  .now .txt.big{font-size:20px}
+  .now .prog{margin-top:auto}
+  .up{margin-top:0;align-content:start}
+  .now h2{font-size:40px}
+  .ctl{padding:12px 16px 20px}
+  .ctl .inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr;gap:12px;align-items:start}
+  .sub3{margin-top:0}
+  .main{padding:28px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 설정 ══════════════════════════════════════════ -->
+<section id="setup" class="wrap">
+  <h1>진행 콘솔</h1>
+  <p class="lede">
+    예식 순서를 큐로 만들어 하나씩 내보냅니다.<br>
+    소리 파일이 아직 없어도 <b>문안 카드</b>로 처음부터 끝까지 진행됩니다.
+  </p>
+
+  <div class="sec">
+    <h2>쓰임</h2>
+    <div class="row" id="rMode"></div>
+    <p class="note" id="modeNote"></p>
+  </div>
+
+  <div class="sec">
+    <h2>코스</h2>
+    <div class="row" id="rCourse"></div>
+  </div>
+
+  <div class="sec">
+    <h2>선택 항목</h2>
+    <div class="row"><label>입장</label><span id="rEntry"></span></div>
+    <div class="row"><label>성혼 선언 주체</label><span id="rWho"></span></div>
+    <div class="row"><label>편지</label><span id="rLetter"></span></div>
+    <div class="row"><label>덕담(어른 말씀)</label><span id="rBless"></span></div>
+    <div class="row"><label>곁들임</label><span id="rValley"></span></div>
+    <div class="row"><label>하객 맞이 목소리</label><span id="rGV"></span></div>
+    <div class="row"><label>온라인 참석 안내</label><span id="rDigital"></span></div>
+  </div>
+
+  <div class="sec">
+    <h2>소리</h2>
+    <div class="row" style="gap:10px">
+      <label>나레이션 클립 폴더 — 파일명이 <code>16_narr-ring-out.wav</code> 처럼 번호로 시작하면 자동으로 짝지어집니다</label>
+      <label class="filebtn" id="lbClips">📁 클립 폴더 선택
+        <input type="file" id="fClips" webkitdirectory directory multiple>
+      </label>
+      <label class="filebtn" id="lbBgm">🎵 배경 음악 파일
+        <input type="file" id="fBgm" accept="audio/*">
+      </label>
+    </div>
+    <p class="note">
+      고른 파일은 이 브라우저 안에서만 재생됩니다. 어디에도 올라가지 않습니다.<br>
+      아무것도 안 골라도 됩니다 — 그때는 문안 카드와 예상 시간으로 진행합니다.
+    </p>
+  </div>
+
+  <div class="sec">
+    <h2>개식 시각 <span style="font-weight:400;color:var(--dim)">(선택)</span></h2>
+    <div class="row" style="align-items:center;gap:10px">
+      <input type="time" id="tStart" step="60">
+      <button class="chip" id="tClear" aria-pressed="false">비우기</button>
+    </div>
+    <p class="note">
+      넣으면 <b>10분 전 · 5분 전 · 1분 전</b> 하객 안내가 그 시각에 저절로 나갑니다.<br>
+      비워 두면 그 세 개도 손으로 눌러 내보냅니다.
+    </p>
+  </div>
+
+  <div class="sec">
+    <h2 id="sumH">이 설정으로 만들어질 진행</h2>
+    <div id="sum"></div>
+  </div>
+
+  <button class="go" id="go">시작</button>
+  <p class="note" style="text-align:center;margin-top:14px">
+    시작하면 화면이 꺼지지 않게 붙잡습니다. 소리는 첫 버튼을 누를 때 열립니다.
+  </p>
+</section>
+
+<!-- ══ 콘솔 ══════════════════════════════════════════ -->
+<section id="run">
+  <div class="bar">
+    <span id="bCourse"></span>
+    <span id="bPos"></span>
+    <span class="sp"></span>
+    <span class="clk" id="bClock"></span>
+    <button id="bSheet">≡ 큐 목록</button>
+    <button id="bExit">나가기</button>
+  </div>
+
+  <div class="stage">
+    <div>
+      <div class="now">
+        <div class="tag" id="nTag"></div>
+        <h2 id="nName">준비됨</h2>
+        <div class="txt" id="nTxt"></div>
+        <div class="hint" id="nHint" hidden></div>
+        <div class="prog" id="nProg"><i></i></div>
+        <div class="tm"><span id="nEl">0:00</span><span id="nTo">0:00</span></div>
+      </div>
+    </div>
+    <div class="up">
+      <div class="upc" id="u1"><span class="lb">다음</span><span class="nm">—</span><span class="es"></span></div>
+      <div class="upc dim" id="u2"><span class="lb">그다음</span><span class="nm">—</span><span class="es"></span></div>
+    </div>
+  </div>
+
+  <div class="ctl">
+    <div class="inner">
+      <button class="main" id="mBtn">시작 <small>길게 누르면 전체 정지</small></button>
+      <div>
+        <div class="sub3">
+          <button id="bWait">대기 클립<small>지금 기다립니다</small></button>
+          <button id="bMute">음악만 멈춤<small>말은 그대로</small></button>
+          <button id="bBack">뒤로<small>한 칸 되돌림</small></button>
+        </div>
+        <div class="vol">
+          <span>음악</span>
+          <input type="range" id="vol" min="0" max="100" value="70">
+          <b id="volV">70</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="sheet"><div class="in">
+  <header><h3>큐 목록</h3><button id="shClose">닫기</button></header>
+  <div class="list" id="shList"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<audio id="aNarr" preload="auto"></audio>
+<audio id="aBgm" preload="auto" loop></audio>
+
+<script src="/assets/ritual-data.js"></script>
+<script src="/assets/ritual-cue.js"></script>
+<script>
+(function(){
+'use strict';
+
+var $ = function(s){ return document.querySelector(s); };
+var PARAM = RitualCue.PARAM;
+
+/* ─────────────────────────────────────────────────────
+   1. 설정 — URL 파라미터가 있으면 그대로 받고, 없으면 화면에서 고른다
+   ───────────────────────────────────────────────────── */
+var QS = new URLSearchParams(location.search);
+var MODE = (QS.get('mode') === 'preview') ? 'preview' : 'console';
+
+var S = { course:'damback', entry:'A', declareWho:'narr', declare:'1',
+          letter:'parent', bless:'off', valley:'none', guestVoice:'nar', digital:false };
+
+if (QS.get('S')) {
+  try { var d = JSON.parse(decodeURIComponent(escape(atob(QS.get('S'))))); for (var k in d) S[k] = d[k]; } catch(e){}
+}
+if (QS.get('course')) S.course = QS.get('course');
+
+var OPT = {
+  rMode:   ['mode',  [['console','현장 진행'],['preview','예식 미리듣기']]],
+  rCourse: ['course',[['damback','담백'],['gamdong','감동'],['family','가족'],['minimal','미니멀'],['festive','축하']]],
+  rEntry:  ['entry', [['A','A'],['B','B'],['C','C'],['D','D'],['E','E'],['F','F']]],
+  rWho:    ['declareWho',[['narr','나레이션'],['ask','하객 응답'],['family','가족 낭독'],['chorus','다 함께']]],
+  rLetter: ['letter',[['parent','부모님께'],['each','서로에게'],['both','둘 다']]],
+  rBless:  ['bless', [['off','없음'],['on','있음']]],
+  rValley: ['valley',[['none','없음'],['wine','와인'],['cake','케이크']]],
+  rGV:     ['guestVoice',[['nar','나레이션'],['couple','두 분 목소리']]],
+  rDigital:['digital',[[false,'없음'],[true,'있음']]]
+};
+
+function paint(){
+  Object.keys(OPT).forEach(function(id){
+    var host = $('#'+id); if (!host) return;
+    var key = OPT[id][0];
+    host.querySelectorAll('.chip').forEach(function(b){
+      var v = b.dataset.v === 'true' ? true : (b.dataset.v === 'false' ? false : b.dataset.v);
+      var cur = (key === 'mode') ? MODE : S[key];
+      b.setAttribute('aria-pressed', String(v === cur));
+    });
+  });
+  $('#modeNote').textContent = (MODE === 'preview')
+    ? '사람이 누르지 않아도 처음부터 끝까지 저절로 흐릅니다. 서약·편지처럼 사람이 말하는 자리는 "여기서 이런 순간이 있습니다" 카드로 짧게 지나갑니다.'
+    : '큐를 하나씩 손으로 내보냅니다. 이어져도 되는 자리는 저절로 넘어가고, 사람을 기다려야 하는 자리에서만 멈춥니다.';
+  summarize();
+}
+
+Object.keys(OPT).forEach(function(id){
+  var host = $('#'+id); if (!host) return;
+  OPT[id][1].forEach(function(p){
+    var b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.dataset.v = String(p[0]); b.textContent = p[1];
+    b.onclick = function(){
+      var key = OPT[id][0];
+      var v = b.dataset.v === 'true' ? true : (b.dataset.v === 'false' ? false : b.dataset.v);
+      if (key === 'mode') MODE = v; else S[key] = v;
+      paint();
+    };
+    host.appendChild(b);
+  });
+});
+
+function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2); }
+function fmtMin(s){ return Math.round(s/60) + '분'; }
+
+function summarize(){
+  var r;
+  try { r = RitualCue.build(S, {mode:MODE}); }
+  catch(e){ $('#sum').textContent = '설정을 만들 수 없습니다: ' + e.message; return; }
+  var m = r.meta;
+  var lines = [
+    '큐 <b>' + m.total + '개</b> · 손으로 누르는 자리 <b>' + m.manual + '번</b> · 저절로 넘어가는 자리 <b>' + (m.chain + m.clock) + '번</b>',
+    '들리는 말 <b>' + fmt(m.clipSec) + '</b> · 사람의 시간 <b>' + fmt(m.liveSec) + '</b> · 통틀어 <b>약 ' + fmtMin(m.totalSec) + '</b> <span style="color:var(--dim)">(기준 ' + m.minLabel + ')</span>'
+  ];
+  if (m.noClip) lines.push('<span style="color:var(--gold-text)">녹음이 없는 자리 ' + m.noClip + '곳 — 문안 카드로 지나갑니다</span>');
+  $('#sum').innerHTML = lines.join('<br>');
+}
+
+/* 로컬 파일 ─ 브라우저 안에서만 쓴다 */
+var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
+var BGMURL = '';
+$('#fClips').onchange = function(e){
+  var fs = e.target.files || [], n = 0;
+  for (var i = 0; i < fs.length; i++) {
+    var f = fs[i], nm = f.name.replace(/\.[^.]+$/, '');
+    if (!/\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name)) continue;
+    var u = URL.createObjectURL(f), hit = false;
+    var mno = nm.match(/^(\d{1,2})\b/);
+    if (mno) { CLIPS[('0' + mno[1]).slice(-2)] = u; hit = true; }
+    RitualCue.FILES.forEach(function(sl){ if (nm.indexOf(sl) >= 0) { CLIPS[sl] = u; hit = true; } });
+    if (hit) n++;
+  }
+  $('#lbClips').classList.toggle('has', n > 0);
+  $('#lbClips').firstChild.nodeValue = n ? ('📁 클립 ' + n + '개 짝지음 ') : '📁 클립 폴더 선택 ';
+};
+$('#fBgm').onchange = function(e){
+  var f = e.target.files && e.target.files[0]; if (!f) return;
+  BGMURL = URL.createObjectURL(f);
+  $('#lbBgm').classList.add('has');
+  $('#lbBgm').firstChild.nodeValue = '🎵 ' + f.name.slice(0, 22) + ' ';
+};
+$('#tClear').onclick = function(){ $('#tStart').value = ''; };
+
+/* ─────────────────────────────────────────────────────
+   2. 소리 — 나레이션 1트랙 + 음악 1트랙. 더킹은 음악 쪽 게인.
+   ───────────────────────────────────────────────────── */
+var AC = null, aNarr = $('#aNarr'), aBgm = $('#aBgm'), gBgm = null, gMaster = null, wired = false;
+function dbGain(db){ return db <= -89 ? 0.0001 : Math.pow(10, db/20); }
+
+function audioOn(){
+  if (wired) { if (AC && AC.state === 'suspended') AC.resume(); return; }
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    var sN = AC.createMediaElementSource(aNarr);
+    var sB = AC.createMediaElementSource(aBgm);
+    gBgm = AC.createGain(); gMaster = AC.createGain();
+    gBgm.gain.value = 1; gMaster.gain.value = vol() ;
+    sN.connect(AC.destination);
+    sB.connect(gBgm); gBgm.connect(gMaster); gMaster.connect(AC.destination);
+    wired = true;
+  } catch(e){ wired = false; }   // Web Audio가 막히면 element 볼륨으로 떨어진다
+}
+function vol(){ return (+$('#vol').value) / 100; }
+function applyMaster(){
+  if (gMaster && AC) gMaster.gain.setTargetAtTime(muted ? 0.0001 : vol(), AC.currentTime, .05);
+  else aBgm.volume = muted ? 0 : vol();
+}
+$('#vol').oninput = function(){ $('#volV').textContent = $('#vol').value; applyMaster(); };
+
+var duckNow = 0;
+function duckTo(db, ms){
+  duckNow = db;
+  var g = dbGain(db);
+  if (gBgm && AC) {
+    gBgm.gain.cancelScheduledValues(AC.currentTime);
+    gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
+    gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000));
+  } else {
+    aBgm.volume = Math.min(1, g * (muted ? 0 : vol()));
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   3. 러너 — 큐 하나를 '클립 → 뒤처리 → 사람 구간' 순으로 흘린다
+   ───────────────────────────────────────────────────── */
+var R = null;              // build 결과
+var cur = -1;              // 지금 큐
+var phase = 'idle';        // idle | clip | post | live | end
+var timers = [];
+var muted = false;
+var fired = {};            // clock 큐 중복 발사 막기
+var wakeLock = null;
+var progT = null;
+
+function clearT(){ timers.forEach(clearTimeout); timers = []; if (progT) { clearInterval(progT); progT = null; } }
+function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
+function toast(m){
+  var el = $('#toast'); el.textContent = m; el.classList.add('on');
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('on'); }, 2200);
+}
+
+function srcOf(c){
+  if (!c.slug) return '';
+  if (CLIPS[c.no]) return CLIPS[c.no];
+  if (CLIPS[c.slug]) return CLIPS[c.slug];
+  return PARAM.clipDir + c.file + '.mp3';    // 없으면 재생 실패 → 문안 카드로 떨어진다
+}
+
+/* 클립 재생. 실패하면 est초 무음으로 같은 시간을 흘린다. */
+function playClip(c, done){
+  var dur = c.est || 3;
+  var fallback = function(why){
+    aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}
+    setPill('card', why);
+    // 소리가 없을 때 낭독 시간만큼 무음으로 앉아 있으면 미리듣기가 견딜 수 없이 늘어진다.
+    // 현장(console)은 실제 길이 그대로 둔다 — 리허설의 목적이 타이밍 체감이기 때문.
+    // 미리듣기(preview)만 '문안을 눈으로 읽을 시간'으로 줄인다.
+    var d = (MODE === 'preview')
+      ? Math.min(dur, Math.max(3.5, (c.text || '').length / 17))
+      : dur;
+    runProg(d, done);
+  };
+  var url = srcOf(c);
+  if (!url) return fallback('녹음 없음');
+
+  var settled = false;
+  aNarr.onerror = function(){ if (!settled) { settled = true; fallback('파일 없음'); } };
+  aNarr.onloadedmetadata = function(){
+    if (settled) return;
+    if (isFinite(aNarr.duration) && aNarr.duration > 0.4) dur = aNarr.duration;
+  };
+  aNarr.onended = function(){ if (!settled) { settled = true; clearT(); done(); } };
+  aNarr.src = url;
+  var p = aNarr.play();
+  if (p && p.catch) p.catch(function(){ if (!settled) { settled = true; fallback('재생 막힘'); } });
+  // 재생이 시작되든 아니든 화면 시계는 돈다. 끝나면 onended가 먼저 잡는다.
+  later(function(){
+    if (settled) return;
+    settled = true;
+    try { aNarr.pause(); } catch(e){}
+    done();
+  }, Math.round(dur * 1000) + 900);
+  runProg(dur, null);
+}
+
+function runProg(sec, done){
+  var t0 = Date.now(), ms = Math.max(200, sec * 1000);
+  if (progT) clearInterval(progT);
+  progT = setInterval(function(){
+    var el = Date.now() - t0, r = Math.min(1, el / ms);
+    $('#nProg').firstElementChild.style.width = (r * 100) + '%';
+    $('#nEl').textContent = fmt(el / 1000);
+    $('#nTo').textContent = fmt(sec);
+    if (r >= 1) { clearInterval(progT); progT = null; if (done) done(); }
+  }, 200);
+  $('#nTo').textContent = fmt(sec);
+}
+
+function setPill(kind, why){
+  var host = $('#nTag'); if (!host) return;
+  if (kind !== 'card') return;
+  var p = document.createElement('span');
+  p.className = 'pill'; p.textContent = '문안 카드 · ' + why;
+  host.appendChild(p);
+}
+
+/* 뒤처리(post) 단계를 차례로 실행 */
+function runPost(list, i, done){
+  if (!list || i >= list.length) return done();
+  var st = list[i];
+  if (st.music) { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); }
+  else if (st.wait) { later(function(){ runPost(list, i+1, done); }, st.wait); }
+  else runPost(list, i+1, done);
+}
+
+function fire(i, opt){
+  opt = opt || {};
+  if (!R || i < 0 || i >= R.cues.length) return finish();
+  clearT();
+  cur = i; fired[i] = true;
+  var c = R.cues[i];
+  render();
+  audioOn();
+
+  duckTo(c.duck, PARAM.fadeDownMs);
+
+  playClip(c, function(){
+    phase = 'post';
+    runPost(c.post, 0, function(){
+      if (c.live) {
+        phase = 'live';
+        duckTo(c.live.duck === undefined ? c.duck : c.live.duck, PARAM.fadeUpMs);
+        render();
+        if (MODE === 'preview') later(function(){ advance(); }, (c.live.est || 10) * 1000);
+        else {
+          runProg(c.live.est || 30, null);
+          // 편지 낭독 중 오래 말이 없으면 대기 클립을 권한다(런북 §11-C read.waitClipAt)
+          if (c.k === 'letter') later(function(){ toast('말이 끊기면 [대기 클립]을 눌러도 됩니다'); }, (PARAM.read.waitClipAt + 20) * 1000);
+        }
+      } else {
+        phase = 'done';
+        duckTo(PARAM.duckMusic, PARAM.fadeUpMs);
+        render();
+        var nx = R.cues[i+1];
+        if (nx && nx.fire === 'chain') later(function(){ advance(); }, PARAM.gapMs);
+        else if (!nx) later(finish, PARAM.gapMs);
+      }
+    });
+  });
+}
+
+function advance(){
+  if (cur + 1 >= R.cues.length) return finish();
+  fire(cur + 1);
+}
+
+function finish(){
+  clearT(); phase = 'end';
+  try { aNarr.pause(); } catch(e){}
+  duckTo(PARAM.duckOff, 6000);
+  later(function(){ try { aBgm.pause(); } catch(e){} }, 6200);
+  render();
+}
+
+/* ─────────────────────────────────────────────────────
+   4. 화면 — 지금 / 다음 / 그다음 3층
+   ───────────────────────────────────────────────────── */
+// 시각 고정 큐는 개식 시각을 넣었을 때만 저절로 나간다. 비워 뒀으면 손으로 눌러야 한다.
+function fireLabel(f){
+  if (f === 'clock') return startAt ? '시각에' : '손으로';
+  return f === 'manual' ? '손으로' : '이어서';
+}
+
+/* 사람 구간 문구 — 말하는 자리와 움직이는 자리를 갈라 쓴다.
+   ★LIVE_DOING — 입장·반지 교환은 '직접 말하는 시간'이 아니다. 한 문장으로 뭉치면
+   고객이 "여기서 우리가 말해야 하나?" 하고 오해한다(이 표시의 목적이 정반대다). */
+var DOING = {
+  say:  { badge: '직접 말하는 시간', lead: '이 자리는 사람이 직접 말하는 시간입니다. 녹음된 안내는 나가지 않습니다.' },
+  move: { badge: '움직이는 시간',   lead: '이 자리는 사람이 움직이는 시간입니다. 말은 하지 않습니다.' },
+  sing: { badge: '노래',            lead: '이 자리는 노래가 흐르는 시간입니다. 안내 음성은 멈춰 있습니다.' }
+};
+function liveBadge(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d.badge : '사람의 시간'; }
+function liveLead(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d.lead + '\n' : ''; }
+
+function render(){
+  if (!R) return;
+  var c = R.cues[cur] || null, n1 = R.cues[cur+1] || null, n2 = R.cues[cur+2] || null;
+
+  $('#bPos').textContent = (cur < 0 ? 0 : cur+1) + ' / ' + R.cues.length;
+
+  var tag = $('#nTag'); tag.innerHTML = '';
+  function pill(cls, t){ var s = document.createElement('span'); s.className = 'pill ' + cls; s.textContent = t; tag.appendChild(s); }
+
+  if (phase === 'end') {
+    $('#nName').textContent = '진행이 끝났습니다';
+    $('#nTxt').textContent = MODE === 'preview'
+      ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
+      : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.';
+    $('#nHint').hidden = true;
+    $('#nProg').firstElementChild.style.width = '100%';
+    $('#mBtn').innerHTML = '처음으로 <small>다시 진행합니다</small>';
+    $('#mBtn').className = 'main wait';
+    up(null, null); return;
+  }
+  if (!c) {
+    $('#nName').textContent = '준비됨';
+    $('#nTxt').textContent = MODE === 'preview'
+      ? '아래 버튼을 누르면 처음부터 끝까지 저절로 들려 드립니다.'
+      : '아래 버튼을 누르면 첫 번째 큐가 나갑니다.';
+    up(n1, n2);
+    $('#mBtn').innerHTML = '시작 <small>' + (n1 ? n1.name : '') + '</small>';
+    $('#mBtn').className = 'main';
+    return;
+  }
+
+  pill(c.fire === 'manual' ? 'm' : (c.fire === 'clock' ? 'k' : 'c'), fireLabel(c.fire));
+  if (c.no) { var no = document.createElement('span'); no.className = 'no'; no.textContent = c.no + '번'; tag.appendChild(no); }
+  if (c.pick) pill('p', c.pick);
+  if (phase === 'live') pill('l', liveBadge(c.live));
+  if (c.own) pill('l', '두 분 목소리');
+
+  $('#nName').textContent = (phase === 'live' && c.live) ? c.live.t : c.name;
+  var tx = $('#nTxt');
+  if (phase === 'live' && c.live) {
+    tx.className = 'txt big';
+    tx.textContent = liveLead(c.live)
+      + (c.live.fallback ? '막히면: ' + c.live.fallback + '\n' : '')
+      + (c.live.note ? c.live.note : '');
+  } else {
+    tx.className = 'txt';
+    tx.textContent = c.text || '';
+  }
+  var h = $('#nHint');
+  var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
+  h.hidden = !htxt; h.textContent = htxt;
+  $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
+
+  up(n1, n2);
+
+  var main = $('#mBtn');
+  if (n1 && n1.fire === 'chain' && phase !== 'live') {
+    main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · 기다리지 않고 내보냅니다</small>';
+    main.className = 'main wait';
+  } else if (n1 && n1.fire === 'clock' && startAt) {
+    main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · ' + clockAt(n1) + '에 저절로 나갑니다</small>';
+    main.className = 'main wait';
+  } else {
+    main.innerHTML = '다음 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>';
+    main.className = 'main';
+  }
+}
+
+/* 시각 고정 큐가 실제로 몇 시에 나가는지 */
+function clockAt(c){
+  if (!startAt || c.atMin == null) return '';
+  var d = new Date(startAt + c.atMin * 60000);
+  return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+}
+
+function up(n1, n2){
+  function set(id, c, lb){
+    var el = $('#'+id);
+    el.querySelector('.lb').textContent = lb;
+    if (!c) { el.querySelector('.nm').textContent = '—'; el.querySelector('.es').textContent = ''; return; }
+    var when = (c.fire === 'clock' && startAt) ? ('시각에 · ' + clockAt(c)) : fireLabel(c.fire);
+    el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
+      + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음') + '</small>';
+    el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + fmt(c.live.est) : '');
+  }
+  set('u1', n1, '다음'); set('u2', n2, '그다음');
+}
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]; }); }
+
+/* ─────────────────────────────────────────────────────
+   5. 버튼
+   ───────────────────────────────────────────────────── */
+var holdT = null, held = false;
+var mBtn = $('#mBtn');
+
+function holdStart(e){
+  held = false;
+  mBtn.classList.add('hold');
+  var t0 = Date.now();
+  holdT = setInterval(function(){
+    var r = Math.min(1, (Date.now() - t0) / 1500);
+    mBtn.style.setProperty('--hold', (r*100) + '%');
+    if (r >= 1) { holdEnd(); held = true; panic(); }
+  }, 60);
+}
+function holdEnd(){
+  if (holdT) clearInterval(holdT);
+  holdT = null; mBtn.classList.remove('hold'); mBtn.style.setProperty('--hold', '0%');
+}
+mBtn.addEventListener('pointerdown', holdStart);
+mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!was) mainTap(); });
+mBtn.addEventListener('pointerleave', function(){ holdEnd(); });
+mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
+
+function mainTap(){
+  audioOn();
+  if (phase === 'end') { cur = -1; phase = 'idle'; fired = {}; render(); return; }
+  advance();
+}
+
+function panic(){
+  clearT();
+  try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
+  duckTo(PARAM.duckMusic, 600);
+  phase = 'done';
+  render();
+  toast('전체 정지 — 다음 큐는 손으로 눌러야 나갑니다');
+}
+
+// 대기 클립 = 51번(감정이 지나가기를 함께 기다리는 안내). 체인은 멈춘다.
+$('#bWait').onclick = function(){
+  clearT(); audioOn();
+  var slug = 'bridge-4-wait-emotion';
+  var u = CLIPS['51'] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
+  duckTo(PARAM.duckSpeech, 300);
+  var txt = RitualCue.EXTRA[slug] || '';
+  $('#nName').textContent = '잠시 기다립니다';
+  $('#nTxt').className = 'txt'; $('#nTxt').textContent = txt;
+  aNarr.onended = null; aNarr.onerror = null;
+  aNarr.src = u;
+  var p = aNarr.play();
+  if (p && p.catch) p.catch(function(){ runProg(RitualCue.sylSec(txt), null); });
+  runProg(RitualCue.sylSec(txt), null);
+  phase = 'done';
+  toast('기다리는 중 — 준비되면 [다음]');
+};
+
+$('#bMute').onclick = function(){
+  muted = !muted;
+  $('#bMute').classList.toggle('on', muted);
+  if (gMaster && AC) gMaster.gain.setTargetAtTime(muted ? 0.0001 : vol(), AC.currentTime, .4);
+  else aBgm.volume = muted ? 0 : vol();
+  toast(muted ? '음악만 멈췄습니다 · 말은 그대로 나갑니다' : '음악을 다시 올립니다');
+};
+
+$('#bBack').onclick = function(){
+  clearT();
+  try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
+  cur = Math.max(-1, cur - 1);
+  phase = cur < 0 ? 'idle' : 'done';
+  render();
+  toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');
+};
+
+/* 큐 목록 시트 — 점프 + 보조 클립 */
+var HELPERS = [
+  ['bridge-5-wait-setup', '준비 대기 안내', '무엇을 준비하는 중일 때'],
+  ['bridge-6-resume', '다시 이어가기', '멈춘 자리에서 재개할 때'],
+  ['parents-letter', '혼주 편지', '혼주께서 편지를 준비하셨을 때'],
+  ['narr-bless-open', '어른 말씀 열기', '덕담을 따로 열어야 할 때']
+];
+$('#bSheet').onclick = function(){ buildSheet(); $('#sheet').classList.add('on'); };
+$('#shClose').onclick = function(){ $('#sheet').classList.remove('on'); };
+$('#sheet').onclick = function(e){ if (e.target.id === 'sheet') $('#sheet').classList.remove('on'); };
+
+function buildSheet(){
+  var L = $('#shList'); L.innerHTML = '';
+  var h = document.createElement('div'); h.className = 'sheetsec'; h.textContent = '진행 순서 — 눌러서 그 자리로';
+  L.appendChild(h);
+  R.cues.forEach(function(c, i){
+    var b = document.createElement('button');
+    b.className = 'qi' + (i === cur ? ' cur' : '') + (i < cur ? ' done' : '');
+    b.innerHTML = '<span class="n">' + (c.no || '—') + '</span><span class="t">' + esc(c.name)
+      + '<small>' + fireLabel(c.fire) + ' · ' + fmt(c.est) + (c.live ? ' + 사람 ' + fmt(c.live.est) : '') + '</small></span>';
+    b.onclick = function(){ $('#sheet').classList.remove('on'); fire(i); };
+    L.appendChild(b);
+  });
+  var h2 = document.createElement('div'); h2.className = 'sheetsec'; h2.textContent = '따로 쓰는 클립 — 순서에 넣지 않고 한 번만';
+  L.appendChild(h2);
+  HELPERS.forEach(function(p){
+    var b = document.createElement('button');
+    b.className = 'qi';
+    b.innerHTML = '<span class="n">' + RitualCue.noOf(p[0]) + '</span><span class="t">' + esc(p[1]) + '<small>' + esc(p[2]) + '</small></span>';
+    b.onclick = function(){
+      $('#sheet').classList.remove('on');
+      clearT(); audioOn();
+      var u = CLIPS[RitualCue.noOf(p[0])] || CLIPS[p[0]] || (PARAM.clipDir + RitualCue.fileOf(p[0]) + '.mp3');
+      duckTo(PARAM.duckSpeech, 300);
+      aNarr.onended = null; aNarr.onerror = null; aNarr.src = u;
+      var pl = aNarr.play(); if (pl && pl.catch) pl.catch(function(){});
+      var tx = RitualCue.EXTRA[p[0]] || '';
+      $('#nName').textContent = p[1];
+      $('#nTxt').className = 'txt'; $('#nTxt').textContent = tx;
+      runProg(tx ? RitualCue.sylSec(tx) : 12, null);
+      phase = 'done';
+      toast(p[1] + ' 재생 — 순서는 그대로입니다');
+    };
+    L.appendChild(b);
+  });
+}
+
+/* 시각 고정 큐 — 개식 시각을 넣었을 때만 저절로 나간다 */
+var startAt = null;
+function tick(){
+  var d = new Date();
+  $('#bClock').textContent = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) + ':' + ('0'+d.getSeconds()).slice(-2);
+  if (!R || !startAt || MODE === 'preview' || phase === 'clip' || phase === 'live') return;
+  for (var i = 0; i < R.cues.length; i++) {
+    var c = R.cues[i];
+    if (c.fire !== 'clock' || fired[i] || c.atMin == null) continue;
+    if (d.getTime() >= startAt + c.atMin * 60000 && d.getTime() < startAt + (c.atMin * 60000) + 90000) { fire(i); break; }
+  }
+}
+setInterval(tick, 1000);
+
+/* ─────────────────────────────────────────────────────
+   6. 시작 / 나가기
+   ───────────────────────────────────────────────────── */
+$('#go').onclick = function(){
+  try { R = RitualCue.build(S, {mode:MODE}); }
+  catch(e){ toast('순서를 만들 수 없습니다: ' + e.message); return; }
+  cur = -1; phase = 'idle'; fired = {};
+
+  var tv = $('#tStart').value;
+  if (tv) {
+    var p = tv.split(':'), d = new Date();
+    d.setHours(+p[0], +p[1], 0, 0);
+    startAt = d.getTime();
+  } else startAt = null;
+
+  $('#setup').style.display = 'none';
+  $('#run').classList.add('on');
+  $('#bCourse').textContent = R.meta.courseNm + (MODE === 'preview' ? ' · 미리듣기' : '');
+
+  audioOn();
+  if (BGMURL) { aBgm.src = BGMURL; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
+  applyMaster();
+  if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
+  render();
+
+  if (MODE === 'preview') later(function(){ advance(); }, 700);
+};
+
+$('#bExit').onclick = function(){
+  clearT();
+  try { aNarr.pause(); aBgm.pause(); } catch(e){}
+  if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
+  $('#run').classList.remove('on');
+  $('#setup').style.display = '';
+  cur = -1; phase = 'idle'; R = null;
+};
+
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'visible' && wakeLock === null && navigator.wakeLock && $('#run').classList.contains('on')) {
+    navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
+  }
+});
+
+/* 스페이스바 = 다음 (현장에서 무선 프리젠터가 대개 이걸 보낸다) */
+document.addEventListener('keydown', function(e){
+  if (!$('#run').classList.contains('on')) return;
+  if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); mainTap(); }
+  if (e.code === 'PageUp' || e.code === 'ArrowLeft') { e.preventDefault(); $('#bBack').onclick(); }
+  if (e.code === 'Escape') { e.preventDefault(); panic(); }
+});
+
+paint();
+if (QS.get('auto') === '1') $('#go').click();
+})();
+</script>
+</body>
+</html>

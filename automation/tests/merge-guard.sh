@@ -882,3 +882,13 @@ chk 'SUB_PAGE_SYNC' parents.html 1                          # 토큰 체계 동�
 chk 'SUB_PAGE_SYNC' invitation-gallery.html 1               # 반px·이징 동기 유지 · 템플릿 base64 구역은 대상 아님
 chk 'TOKENS_REF' shared/tokens.css 1                        # 참조본 경고 헤더 · --gold-deep에 다른 색(#9A7B4F) 재삽입 금지(연결 시 mypage 68곳 AA미달)
 chk 'NAV_TABLET_FIX' index.html 1                           # 내비 전환점 1023px · 680px로 되돌리면 아이패드에서 My Page가 화면 밖으로 밀림
+
+# ── 현장 콘솔 · 큐 엔진 (2026-07-31) ─────────────────────────────
+chk '\[CUE_ENGINE_V1\]' assets/ritual-cue.js 1               # 큐 생성 엔진 본체 · 콘솔과 미리듣기가 같이 죽는다
+chk 'CUE_FIRE_RULE' assets/ritual-cue.js 2                   # "앞 큐에 live가 있으면 manual" 규칙 주석 · 지우면 수동/자동 판정 근거가 사라짐
+chk 'LIVE_DOING' assets/ritual-cue.js 1                      # 말/동작 구분 · 빠지면 입장·반지에 "직접 말하는 시간"이 뜬다
+chk '\[CONSOLE_V1\]' console.html 1                          # 디렉터 콘솔 본체
+chk 'LIVE_DOING' console.html 1                              # 콘솔 쪽 말/동작 분기
+chk '\[CUE_GUARD_V1\]' scripts/check-ritual-cue.js 1         # 큐 엔진 회귀 검사 자체
+# 큐 엔진 회귀 검사 — §3-A 20큐 판정표 · CUE_FIRE_RULE · EXTRA 문안 대조를 전 조합에서 돌린다
+if command -v node >/dev/null 2>&1; then node scripts/check-ritual-cue.js || fail=1; fi
