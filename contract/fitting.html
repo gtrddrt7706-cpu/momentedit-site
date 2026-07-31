@@ -42,6 +42,16 @@ ol.terms li{margin:9px 0}
   ol.terms li,.sign-cell,table.kv tr{break-inside:avoid}
   .sign-wrap{break-inside:avoid}
 }
+
+/* ════ 2026-07-30 시착 동의서 1라운드 · 고객 입장 실측 ════ */
+/* [CTR_CONTRAST] --gold-deep(#9A7B4F)이 3.78~3.95:1이었다 — 서명란의 '고객 · Customer' 역할 표기까지. */
+:root{ --gold-text:#7A5F37; }
+.hero-label,.sc-role{color:var(--gold-text)}
+/* [CTR_KO_TRACK] 한글에 영문용 자간 — '시착동의-v4'(18%)·'모먼트에디트'(20%) */
+.hero-ver,.sc-role{letter-spacing:0.02em}
+/* [CTR_FOCUS] 포커스 표시 규칙이 없었다 */
+:where(a,button,input,textarea,select,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--seal);outline-offset:3px;border-radius:3px}
 </style>
 </head>
 <body>
