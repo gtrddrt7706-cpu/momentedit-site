@@ -872,3 +872,4 @@ chk 'BRAND_VAR' index.html 1                                # 브랜드색 하�
 chk 'HERO_VIG_REVERT' index.html 1                          # 히어로 비네트 회갈(58,45,34) 원복(사용자 실기기 판정) · 재변경은 실기기 확인 후에만
 chk 'PERF_CV_SECTIONS' index.html 1                         # 아래 8섹션 content-visibility:auto · 제거하면 첫 로드 레이아웃 5.6s 회귀
 chk 'TEASE_LINE_CASCADE' index.html 3                       # 티저 두 줄 시차 페이드(마크업·CSS·JS) · 한 덩어리 페이드로 되돌리기 금지
+chk 'CTA_TYPE_QUIET' index.html 2                           # 전환 CTA 글자 14px/0.08em(schedule .btn과 동일 격) · 16px로 되돌리기 금지
