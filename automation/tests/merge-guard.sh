@@ -874,3 +874,5 @@ chk 'PERF_CV_SECTIONS' index.html 1                         # 아래 8섹션 con
 chk 'TEASE_LINE_CASCADE' index.html 3                       # 티저 두 줄 시차 페이드(마크업·CSS·JS) · 한 덩어리 페이드로 되돌리기 금지
 chk 'CTA_TYPE_QUIET' index.html 2                           # 전환 CTA 글자 14px/0.08em(schedule .btn과 동일 격) · 16px로 되돌리기 금지
 chk 'MOTION_RAMP5' index.html 1                             # 전환 0.12/0.3/0.45/0.7/1.2 · 이징 var(--ease) 통일 · 기본 ease 재유입 금지
+chk 'INQ_A11Y' inquiry.html 1                               # 전환 페이지 접근성 · role=tablist 재삽입 금지(자식이 button)
+chk '<main' inquiry.html 1                                  # 폼 영역 main 랜드마크 · div로 되돌리면 랜드마크 소실

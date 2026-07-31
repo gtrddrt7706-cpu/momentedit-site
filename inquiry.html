@@ -207,7 +207,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 
 
 <!-- ═══ FORM ═══════════════════════════════════ -->
-<div class="form-wrap" id="formWrap">
+<main class="form-wrap" id="formWrap">
 <form id="inquiryForm" novalidate>
 
   <!-- Honeypot — 봇 차단용 (사람에게는 보이지 않음, 자동 입력되면 제출 차단) -->
@@ -454,7 +454,9 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
      크기는 마커 자체에 고정해 부모 문맥 상속을 끊는다. 본문 크기는 문맥별로 그대로 둔다. */
 
 </style>
-        <div class="seqref-sw" role="tablist" aria-label="상품별 진행 안내 선택">
+        <!-- [INQ_A11Y] role=tablist는 자식이 role=tab이어야 한다(WCAG 4.1.2). 여기 자식은 일반 button이라
+     탭 구조가 스크린리더에서 깨졌다. 실제 동작도 탭 위젯이 아니라 두 안내문 전환 토글이므로 group으로 정정. -->
+<div class="seqref-sw" role="group" aria-label="상품별 진행 안내 선택">
           <button type="button" class="on" id="seqSwSig">시그니처 140분</button>
           <button type="button" id="seqSwSnap">평일 웨딩스냅</button>
         </div>
@@ -976,7 +978,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   </div>
 
 </form>
-</div>
+</main>
 
 <!-- ═══ SUCCESS SCREEN ═══════════════════════════ -->
 <div class="success" id="successScreen" aria-live="polite">
@@ -1015,10 +1017,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="f-footer-logo-link" aria-label="페이지 최상단으로 이동">
     <img class="f-footer-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" loading="lazy" decoding="async" style="width:min(180px,42vw);height:auto;display:block;margin:0 auto">
   </a>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:16px;letter-spacing:0.04em;line-height:1.85"><a href="mailto:contact@momentedit.kr" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">contact@momentedit.kr</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="mypage.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">마이페이지</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">경기 고양시 덕양구 향동동<span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="privacy.html" style="color:inherit;text-decoration:none">개인정보처리방침</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.44);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
-  <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.34);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:16px;letter-spacing:0.04em;line-height:1.85"><a href="mailto:contact@momentedit.kr" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">contact@momentedit.kr</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="mypage.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">마이페이지</a></div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">경기 고양시 덕양구 향동동<span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="privacy.html" style="color:inherit;text-decoration:none">개인정보처리방침</a></div>
+  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:0.5px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
+  <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.7);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
 </footer>
 
 <script>
