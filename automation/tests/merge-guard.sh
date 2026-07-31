@@ -869,3 +869,4 @@ chk 'SCALE_LEADING7' index.html 1                           # 행간 8단계 램
 chk 'SCALE_RADIUS6' index.html 1                            # 모서리 2/4/6/8/12+알약 · 폰 목업 곡률 예외
 chk 'WEIGHT_RAMP4' index.html 1                             # 굵기 300/400/500/600 · 350은 300으로 렌더되는 유령값
 chk 'BRAND_VAR' index.html 1                                # 브랜드색 하드코딩 금지 · var(--accent)/(--seal) 사용
+chk 'HERO_VIG_WARM' index.html 1                            # 히어로 비네트는 진사 계열 · 회갈(58,45,34)로 되돌리면 전환대가 흙탕됨
