@@ -16,6 +16,7 @@ on:
       - 'api/_ritual-kb.js'
       - 'automation/tests/merge-guard.sh'
       - 'scripts/check-ritual-mirror.js'
+      - 'scripts/audit/**'          # 가드가 실행하는 감사 스크립트들(ritual-order-sim-audit·header-order·rollback-deliverydate) — 여기가 바뀌면 가드 결과가 바뀐다
 jobs:
   guard:
     runs-on: ubuntu-latest

@@ -293,6 +293,40 @@ function checkProdCapOverflow() {
   return msg;
 }
 
+// (읽기 전용·진단) 저장된 식순 초안 중 S.ord가 배열인 레코드 세기 — 순서를 손으로 옮긴 고객이 몇 명인가.
+//   왜 필요한가: COURSES[x].seq·opt의 자리를 바꿔도 S.ord가 배열인 고객에게는 그 변경이 안 닿는다(ordNow가 저장분을 우선).
+//   ★그건 사고가 아니라 옳은 동작이다 — 고객이 ↑↓로 직접 정한 순서를 우리가 원천을 고쳤다는 이유로 되돌리면 그게 사고다.
+//   그래서 이 함수는 개수만 센다. ★마이그레이션을 만들지 말 것. 0건이면 seq 재배열이 전원에게 적용된다는 뜻이고,
+//   0이 아니면 그 고객은 그대로 두고 이 목록으로 식별만 한다(상담 때 "다른 분과 순서가 다른데요"에 답할 근거).
+//   S.ord에 값이 들어가는 경로는 order-preview.html의 momMove() 한 곳뿐이고, 지우는 곳은 applyCourse() 한 곳이다.
+function checkRitualOrdOverride() {
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < P.DATA_START_ROW) return '대상 행 없음';
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var total = 0, v3 = 0, hit = [];
+  for (var i = 0; i < vals.length; i++) {
+    var get = function (h) { var c = colOf[h]; return c ? vals[i][c - 1] : ''; };
+    var code = String(get('개인코드') || '').trim();
+    if (!code) continue;
+    var d = null;
+    try { d = _prodAssemble(get).ritualDraft; } catch (e) { continue; }
+    if (!d) continue;
+    total++;
+    if (d._v !== 3) continue;   // 구세대 초안엔 S 자체가 없다
+    v3++;
+    var ord = d.S && d.S.ord;
+    if (Object.prototype.toString.call(ord) === '[object Array]' && ord.length) {
+      hit.push(code + ' · ' + ((d.summary && d.summary.course) || '?') + ' 코스 · ' + ord.length + '칸 · ' + ord.join(','));
+    }
+  }
+  var msg = '식순 초안 ' + total + '건(그중 _v3 ' + v3 + '건) · S.ord가 배열인 레코드 ' + hit.length + '건'
+    + (hit.length ? ('\n' + hit.join('\n') + '\n\n→ 위 고객은 순서를 직접 옮긴 분들이다. 코스 seq를 바꿔도 이 분들 화면은 안 바뀐다(의도된 동작). 되돌리지 말 것.')
+                  : '\n\n→ 0건. 코스 seq·opt 재배열이 전 고객에게 그대로 적용된다.');
+  try { Logger.log(msg); } catch (e) {}
+  return msg;
+}
+
 // [1회 실행 · 멱등] Customers에 제작 트랙 컬럼 8개 추가. addGuideTokenColumn과 같은 패턴 — ★반드시 끝에 append(열 인덱스 밀림 금지).
 //   PR-B 배포 후 1회 실행. 안 하면 신 컬럼이 없어 저장이 구셀에만 남는데(읽기·쓰기 모두 폴백 동작) 기능은 계속 정상 — 조용한 미완 상태.
 function addProdTrackColumns() {

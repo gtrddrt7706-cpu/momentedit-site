@@ -44,6 +44,8 @@ _gate() {
 trap _gate EXIT
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
+# ★chk 자기참조 금지 — 대상 파일이 이 스크립트 자신이면 패턴을 앵커로 잡아 chk 줄이 매칭되지 않게 한다.
+#   문안·근거는 CLAUDE.md '병렬 세션 병합 검증 규칙' 단일 원천(여기 두 벌 적으면 갈라진다).
 chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
@@ -856,3 +858,20 @@ chk 'SCHED_STICKY_BAR' schedule.html 5                          # 하단 고정 
 chk 'id="stickyBar"' schedule.html 1                            # JS 배선 계약(stickyBar·stickyPick·stickyBtn) — id 이름 변경 금지
 chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸터 워드마크 1장 · 비우면 이 페이지만 끝이 뚝 끊긴다
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
+chk 'BLESS_TWO_AXES' order-preview.html 3                     # famOpen 두 뜻 분리 · (A)blessOpens 위치 / (B)famCourse 코스. 다시 합치지 말 것
+chk '_blessOpens' order-preview.html 3                        # 덕담 나레이션이 스피커로 거짓말하지 않게 하는 위치 판정
+chk "opt:\[{k:'welcome',at:2}\]" assets/ritual-data.js 1      # 가족 코스 첫인사 = 입장 직후(2026-07-27 사용자 결정)
+chk 'RANK_RELAX' order-preview.html 2                          # 이완(밸리55·축가57) < 정점(편지60) · valley:70/song:80으로 되돌리면 896쌍 위반
+chk 'valley:55,song:57' order-preview.html 1                   # B′ 확정값(2026-07-27 코워크 회신8)
+chk "festive:{song:80}" order-preview.html 1                   # 축하만 축가 예외 · ★밸리는 넣지 말 것(축배와 붙어 커팅 2회)
+chk '^  _os=.*ritual-order-sim-audit' automation/tests/merge-guard.sh 1   # ★아래 감사 실행 '줄'만 매칭한다(앵커 `^  _os=` 덕에 이 chk 줄 자신은 안 걸린다). 2026-07-27 회신12 지적 — 개수로 자기참조를 상쇄하는 방식은 그 파일에 같은 문자열이 하나 더 생기는 날 조용히 무력해진다
+chk '와인(S.valley' order-preview.html 1                          # 와인+축배는 일부러 안 잡는다 · wine 분기 추가 금지(2026-07-27 합의)
+# ★RITUAL_ORDER_SIM_AUDIT — 순서 엔진 시뮬레이터 자기 감사(선언 전수·경계·자유변수·변이검출·inSeq 축2).
+#   ★선언 수를 여기 적지 말 것 — RANK_OV·rankOf가 선택 2종이라 main 단독 10종 / #352 병합 후 12종이다(실측). 되돌림이 생기면 주석만 조용히 어긋난다.
+#   상시 실행하는 이유: "순서 엔진 만지는 PR에서만 의미 있다"는 판단을 사람이 매번 해야 하는 게 문제다.
+#   이 저장소에서 조용히 깨진 건 전부 '여기는 안 건드렸다고 생각한 자리'였고, 감사 [1]은 엔진 선언 이름이
+#   하나라도 어긋나면 FAIL이라 다른 목적의 리팩터가 엔진을 스칠 때 그게 걸린다. 비용 565ms(가드 전체의 1/3).
+if command -v node >/dev/null 2>&1; then
+  _os=$(node scripts/audit/ritual-order-sim-audit.mjs 2>&1) && echo 'ok ritual-order-sim-audit: 선언 전수·경계·자유변수·변이검출·inSeq 축2 전부 통과' \
+    || { echo "$_os" | tail -20; echo 'REVERT? ritual-order-sim-audit 실패 — 순서 엔진 선언이 바뀌었거나 시뮬레이터가 죽었다'; fail=1; }
+else echo 'skip ritual-order-sim-audit (node 없음)'; fi
