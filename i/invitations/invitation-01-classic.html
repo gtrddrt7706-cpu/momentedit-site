@@ -975,12 +975,22 @@ body{
   .env-acc-num{font-size:13.5px}
   .env-acc-row{gap:10px;padding:14px 14px}
 }
+
+/* ════ 2026-07-30 청첩장 1라운드 · 하객 입장 실측 ════ */
+/* [INV_STRUCT] 두 분 이름이 h1이 아니라 div였고 main 랜드마크가 없었다 —
+   낭독기가 '이건 누구의 청첩장인지'를 제목으로 읽지 못했다. 화면 모습은 그대로(픽셀 변화 0). */
+/* [INV_TAP40] 청첩장에서 하객이 실제로 '누르는' 것은 축의금 계좌 복사 버튼 하나다.
+   8종 전부 24~30px였다(글자 크기에 딱 맞는 상자). 손가락으로 조준하기 어렵다.
+   ★글자 크기·색·테두리 등 템플릿마다 다른 디자인은 그대로 두고 최소 높이만 40px로.
+     청첩장은 디자인이 상품이라, 대비·자간 같은 다른 실측 지적(옅은 장식 활자 ·
+     이름 자간 24~50%)은 의도된 조판으로 보고 손대지 않았다. */
+.env-acc-copy,.acc-copy{min-height:40px;display:inline-flex;align-items:center;justify-content:center}
 </style>
 </head>
 
 <body>
 
-<div class="invitation">
+<main class="invitation">
 
   <!-- ═══ 01. COVER ═══ -->
   <section class="sec">
@@ -995,7 +1005,7 @@ body{
 
       <div class="cover-hairline"></div>
 
-      <div class="cover-names-ko">이서준 · 정하윤</div>
+      <h1 class="cover-names-ko">이서준 · 정하윤</h1>
 
       <div class="cover-date">
         <div class="cover-date-year">Two Thousand Twenty Six</div>
@@ -1215,7 +1225,7 @@ body{
     <div class="foot-quote">Focus on the Essence,<br>Record the Truth.</div>
   </footer>
 
-</div>
+</main>
 
 <script>
   // Reveal 애니메이션 — Intersection Observer
