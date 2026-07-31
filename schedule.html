@@ -1223,7 +1223,8 @@ if(_hdw){
 //   GAS 콜드스타트가 길어도 빈 달력이 멈춰 보이지 않게 로딩 안내·타임아웃 처리.
 (function(){
   function $(i){return document.getElementById(i);}
-  function fail(msg){ document.body.innerHTML='<div style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'+msg+'<br><br><a href="/mypage.html" style="color:#9A7F5F;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></div>'; }
+  function fail(msg){ /* [SCHED_FAIL_AA] 오류 화면도 고객이 실제로 보는 면이다 — 링크색 #9A7F5F는 2.6:1 미달이라 텍스트용 골드로. main 랜드마크도 유지한다. */
+    document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'+msg+'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }
