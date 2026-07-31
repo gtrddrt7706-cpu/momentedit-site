@@ -1346,7 +1346,11 @@ html.me-restoring body { opacity: 0 !important; }
   max-width: 600px;
   word-break: keep-all;
 }
-.hero-tease-line::before {
+.hero-tease-main {
+  display: block;
+}
+/* 점 장식은 윗줄(.hero-tease-main)과 함께 페이드된다 ([TEASE_LINE_CASCADE]) */
+.hero-tease-main::before {
   content: "";
   display: block;
   width: 5px;
@@ -1367,7 +1371,7 @@ html.me-restoring body { opacity: 0 !important; }
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-tease-line::before {
+  .hero-tease-main::before {
     animation: none;
     opacity: 0.9;
   }
@@ -5386,9 +5390,15 @@ body {
 <script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}var te=null;/* .hero-tease는 이 스크립트보다 뒤에 있어 u() 안에서 지연 조회 *//* 베일 스탑 조견표(p 0.2~1.0, 0.1 간격)+진사 배경 합성 → 경계 위 실제 색 계산용. 베일 그라데이션을 바꾸면 함께 갱신 */var VL=[[250,250,248,1],[247,243,236,1],[241,231,218,1],[232,210,188,0.994],[215,165,139,0.916],[186,124,102,0.67],[146,76,61,0.42],[115,46,39,0.18],[111,43,36,0]];function seamCol(sp){var x=(Math.max(0.2,Math.min(1,sp))-0.2)/0.1,i=Math.min(7,Math.floor(x)),tt=x-i,A=VL[i],B=VL[i+1],a=A[3]+(B[3]-A[3])*tt,r=A[0]+(B[0]-A[0])*tt,g=A[1]+(B[1]-A[1])*tt,bl=A[2]+(B[2]-A[2])*tt;return [a*r+(1-a)*70,a*g+(1-a)*23,a*bl+(1-a)*16];}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0,fo=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}/* 이음띠 시작색 = 경계 위 실제 색(페더 불투명도×아이보리 착지 + 나머지×베일·배경 합성) → 경계 라인 원천 차단(2026-07-17 '순간 딱 라인' 지적) */if(!te){te=document.querySelector('.hero-tease');}if(te){var sc2=seamCol(1-veil),st=[Math.round(fo*245+(1-fo)*sc2[0]),Math.round(fo*239+(1-fo)*sc2[1]),Math.round(fo*229+(1-fo)*sc2[2])];te.style.setProperty('--stripTop','rgb('+st.join(',')+')');}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
-  <p class="hero-tease-line">가장 두 사람다운 찰나를 기록합니다<span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
+  <!-- [TEASE_LINE_CASCADE] 두 줄을 한 덩어리로 페이드하던 것을 줄별 시차 페이드로(2026-07-31 사용자 제안).
+     각 줄이 자기 중심 좌표로 같은 공식을 계산 — 윗줄이 먼저 나타나고 먼저 물러난다(읽는 순서와 일치). -->
+<p class="hero-tease-line"><span class="hero-tease-main">가장 두 사람다운 찰나를 기록합니다</span><span class="hero-tease-sub">양가 가족만 모시는, 140분의 프라이빗 웨딩</span></p>
 </div>
-<script>(function(){var el=document.querySelector('.hero-tease-line');if(!el)return;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm){el.style.opacity=1;return;}var t=false;function u(){t=false;var r=el.getBoundingClientRect(),vh=window.innerHeight||1,c=r.top+r.height/2,up=c<vh/2,dist=Math.abs(c-vh/2),e=Math.max(0,Math.min(1,(dist-vh*(up?0.28:0.17))/(vh*(up?0.16:0.25)))),o=1-e;el.style.opacity=o.toFixed(3);el.style.transform='translateY('+((up?-1:1)*e*8).toFixed(1)+'px)';/* 위로 나갈 땐(up) 상단 22%까지 온전히 보이다 6%에서 소멸 — 대칭 페이드가 너무 일찍 지웠다는 2026-07-17 사용자 지적 */}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){/* [TEASE_LINE_CASCADE] 줄별 시차 페이드 — 공식은 기존 그대로, 적용만 요소별.
+각 줄이 '자기' 중심 좌표로 계산하므로 윗줄(높은 중심)이 문턱을 먼저 넘는다:
+등장도 윗줄 먼저, 퇴장도 윗줄 먼저(읽는 순서). 시차는 두 줄 간격(≈48px)/페이드창 비율이라
+뷰포트가 바뀌어도 유지된다. 상수(0.28/0.16·0.17/0.25)는 2026-07-17 튜닝값 그대로. */
+var els=[document.querySelector('.hero-tease-main'),document.querySelector('.hero-tease-sub')].filter(Boolean);if(!els.length)return;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;if(rm){for(var k=0;k<els.length;k++){els[k].style.opacity=1;}return;}var t=false;function apply(el,vh){var r=el.getBoundingClientRect(),c=r.top+r.height/2,up=c<vh/2,dist=Math.abs(c-vh/2),e=Math.max(0,Math.min(1,(dist-vh*(up?0.28:0.17))/(vh*(up?0.16:0.25)))),o=1-e;el.style.opacity=o.toFixed(3);el.style.transform='translateY('+((up?-1:1)*e*8).toFixed(1)+'px)';}function u(){t=false;var vh=window.innerHeight||1;for(var i=0;i<els.length;i++)apply(els[i],vh);}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO PHOTO · 진사 커튼이 걷히며 등장 -->
 <div class="photo-placeholder full hero-photo">
   <picture><source type="image/webp" srcset="/assets/home/hero.webp"><img class="ph-img" src="/assets/home/hero.jpg" alt="모먼트에디트 프라이빗 스몰웨딩 스튜디오 메인 이미지" loading="eager" fetchpriority="high" decoding="async" onerror="this.style.display='none'"></picture>
