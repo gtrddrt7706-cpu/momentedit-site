@@ -940,9 +940,13 @@ chk 'BTN_WIDTH' index.html 1                                 # 데스크톱 버�
 chk 'A11Y_SEATMAP' guide.html 1                              # 가로 스크롤 배치도 tabindex=0 · 빼면 키보드 하객이 화면 밖 테이블을 못 본다(WCAG 2.1.1)
 chk 'act-off' guide.html 2                                   # 표본에서 지도·사진 올리기 이동 차단 · 지어낸 가게로 지도를 띄우면 고장난 화면이 된다
 chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것
-chk 'GALLERY_GUIDE' invitation-gallery.html 3                # 갤러리 10번째 카드 = 하객 안내 표본(src 직접) · 빼면 메인 버튼이 다시 2개로 갈라진다
+chk 'GALLERY_GUIDE' invitation-gallery.html 1                # 10번째 카드 = 하객 안내 표본 · 빼면 오프라인판 발견 여정의 종착지가 사라진다
 chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소
-chk 'GALLERY_HREF' invitation-gallery.html 1                 # Open↗ 폴백 경로 i/invitations/ · 루트로 되돌리면 인앱 브라우저에서만 조용히 404
-chk 'GV_CHOOSE' invitation-gallery.html 3                    # 진입 선택(온라인/오프라인) · '둘 다 둘러보기' 탈출구와 세션 기억을 함께 지울 것
+chk 'GALLERY_HREF' invitation-gallery.html 1                 # Open↗ = 화면과 같은 실물 주소 · 폴백 404 사고(2026-08-01)의 재발 방지 근거 주석
+# ── 갤러리 실물 전환 (2026-08-01 · 관문 GV_CHOOSE는 GV_VER 토글로 대체·폐기) ──
+chk 'GV_REAL' invitation-gallery.html 3                      # 실물(cover/family) src 직접 표시 · base64 사본으로 되돌리면 문서 651KB + 이중 관리 부활
+chk 'GV_VER' invitation-gallery.html 5                       # 온라인/오프라인 판 토글 · 관문으로 되돌리지 말 것(학습 순서 역전)
+chk 'HYDRATE_DEMO' shared/hydrate.js 2                       # test-couple = 시트 무조회 표본 + 하객 안내 버튼 상시 주입 · 빠지면 홍보 조회가 GAS를 때리고 시트 잡값이 노출된다
+chk 'i-family/family-01.html' invitation-gallery.html 1      # 오프라인판 실물 연결 · 카탈로그로 되돌리면 '전체 볼 수 있게'가 다시 깨진다
 chk 'GD_TRY' i/invitations/invitation-09-guide.html 2        # '이렇게 맞춰집니다' 카드의 눌러보기 버튼 · 갤러리 안에선 카드 이동
 chk 'GD_TRY' invitation-gallery.html 1                       # 그 버튼이 보내는 메시지를 받는 쪽 · 빠지면 버튼이 먹통이 된다

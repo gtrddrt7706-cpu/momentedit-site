@@ -459,10 +459,19 @@
   var GUIDE_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
   function injectGuideCta(eventId) {
     if (location.pathname.indexOf('/i-family/') === -1 || !eventId) return;   // 온라인 커버(/i/)는 디지털 참석용 — 가족 카드에서만
+    // [HYDRATE_DEMO] 표본은 조회 없이 즉시 — 표본 안내(g=demo)로 연결. 갤러리 iframe 안이면
+    // 새 창 대신 부모에게 카드 이동을 요청한다(gv:goto:guide → 10번 하객 안내 카드).
+    if (eventId === 'test-couple') { _paintGuideCta('/guide.html?g=demo', true); return; }
     fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok || !d.g) return;
+        _paintGuideCta('/guide.html?g=' + encodeURIComponent(d.g), false);
+      })
+      .catch(function () {});
+  }
+  function _paintGuideCta(href, demo) {
+    (function () {
         if (document.getElementById('meGuideCta')) return;
         // 테두리는 배경 밝기에 적응 — 어두운 디자인(08 등)에서 검정 계열 테두리가 사라지지 않게
         var _dark = false;
@@ -474,7 +483,7 @@
         sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
           + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Guest Guide</div>'
           + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
-          + '<a href="/guide.html?g=' + encodeURIComponent(d.g) + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
+          + '<a id="meGuideCtaBtn" href="' + href + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
           + '</div>';
         // 100vh~118vh 본문 섹션 뒤에 홀로 떨어져 '너무 내려가' 보이던 문제(family-02·03·06·07) → 마지막 본문 섹션(.sec) 안 끝에 삽입해 계좌와 함께 흐르게. 섹션이 없으면 footer 앞으로 폴백(2026-07-22 · marker: meGuideCta-inline)
         var _secs = document.querySelectorAll('.sec');
@@ -483,9 +492,19 @@
         if (_host) _host.appendChild(sec);
         else if (foot && foot.parentNode) foot.parentNode.insertBefore(sec, foot);
         else document.body.appendChild(sec);
+        if (demo) {
+          // 갤러리 안(iframe)에서는 카드 이동으로 — 미리보기 여정이 갤러리 밖으로 새지 않게
+          var _inFrame = false; try { _inFrame = (window.parent && window.parent !== window); } catch (e) { _inFrame = true; }
+          if (_inFrame) {
+            var _btn = document.getElementById('meGuideCtaBtn');
+            if (_btn) _btn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              try { window.parent.postMessage('gv:goto:guide', '*'); } catch (e) {}
+            });
+          }
+        }
         requestAnimationFrame(function () { sec.style.opacity = '1'; });
-      })
-      .catch(function () {});
+    })();
   }
 
   function preconnectWebhook() {
@@ -506,6 +525,19 @@
     var failsafe = setTimeout(reveal, 5000);
 
     if (!eventId) { apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
+
+    // [HYDRATE_DEMO] ?e=test-couple = 홍보 미리보기(메인·청첩장 갤러리)다 — 시트를 부르지 않는다.
+    //   ① 예식 당일 GAS가 붐빌 때 홍보 조회가 부하를 얹으면 안 된다(guide.html?g=demo와 같은 원칙).
+    //   ② test-couple 행에 테스트 잡값이 들어 있으면 그게 홍보 화면에 그대로 노출된다 —
+    //      시트 상태와 무관하게 항상 다듬어진 SAMPLE(이서준·정하윤)로 그린다.
+    //   ③ 하객 안내 버튼은 실제로는 guideView 응답이 있어야 뜬다. 표본에선 조회 없이 항상 심는다 —
+    //      '오프라인판을 스크롤하다 발견'하는 경로가 미리보기에서도 실물과 똑같이 재현되게.
+    //      (2026-08-01 갤러리 실물 전환과 세트 · 실제 하객 경로는 이 분기를 지나가지 않는다)
+    if (eventId === 'test-couple') {
+      apply(SAMPLE); clearTimeout(failsafe); reveal();
+      injectGuideCta('test-couple');
+      return;
+    }
 
     var cacheKey = 'me_couple_' + eventId;
     // 캐시 우선: 같은 부부(eventId)는 재방문·다른 디자인도 즉시 렌더(체감 속도↑).
