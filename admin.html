@@ -186,6 +186,30 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .sv-rev-m{font-size:10.5px;color:var(--label-soft);margin-bottom:3px}
 .sv-rev-m span{color:var(--sub)}
 .sv-rev-m b{color:var(--gold-deeper,#9A7B3F)}.sv-rev-m i{color:var(--label-soft);font-style:normal}
+/* [SV_DIGEST] 설문 결과 요약화(2026-08-01) — 응답 1건인데도 14개 문항 막대가 전부 '100%'로
+   깔려 화면이 정신없다는 지적. 막대는 '분포'를 보라고 만든 물건인데 n이 작을 땐 분포가 없다.
+   → 평소엔 '봐야 할 것'만 남기고(부정 응답·유입·평균), 막대와 후기 전문은 접어 둔다. */
+.sv-note{font-size:12px;color:var(--sub);line-height:1.6;margin:0 2px 12px}
+.sv-note b{color:var(--accent,#2C2722);font-weight:600}
+.sv-watch{background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:8px;padding:10px 12px;margin:0 2px 10px}
+.sv-watch-h{font-size:11px;font-weight:600;color:var(--gold-deeper,#9A7B3F);letter-spacing:.02em;margin-bottom:6px}
+.sv-watch ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.sv-watch li{font-size:12px;color:var(--ink,#3A332B);line-height:1.5}
+.sv-watch li b{font-weight:600}
+.sv-ok{font-size:12px;color:var(--sub);margin:0 2px 10px;line-height:1.5}
+.sv-fold{border:1px solid var(--line,#E5E0D8);border-radius:8px;background:#fff;margin:0 2px 8px;overflow:hidden}
+.sv-fold>summary{list-style:none;cursor:pointer;padding:11px 12px;font-size:12px;font-weight:600;
+  color:var(--accent,#2C2722);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  min-height:44px;box-sizing:border-box}
+.sv-fold>summary::-webkit-details-marker{display:none}
+.sv-fold>summary::after{content:"›";color:var(--gold-deeper,#9A7B3F);font-size:17px;line-height:1;
+  transition:transform .3s cubic-bezier(0.16,1,0.3,1);flex:0 0 auto}
+.sv-fold[open]>summary::after{transform:rotate(90deg)}
+.sv-fold>summary .n{font-weight:400;color:var(--label-soft)}
+.sv-fold-in{padding:2px 12px 13px;border-top:1px solid var(--line,#E5E0D8)}
+.sv-fold-in .sv-qs{margin-top:11px}
+.sv-fold-in .sv-rev:last-child{margin-bottom:0}
+@media (prefers-reduced-motion: reduce){ .sv-fold>summary::after{transition:none} }
 
 /* 메모·이력 */
 .memo-area{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--sans);font-size:14px;color:var(--accent);background:#fff;resize:vertical;min-height:62px;outline:none;line-height:1.6}
@@ -1361,54 +1385,101 @@ function onQueueAct(act,code,names,isSnap,el){
 
 /* ════════ 결과물 관리 — 원본→선택→보정→전달 보드 (전달완료=아카이브로 빠짐) ════════ */
 // 설문 라벨(mypage 스키마와 1:1) — 집계·카드 표시 공용
+/* [SV_DIGEST] neg = '눈여겨봐야 할 응답' 값들. 요약 카드는 이것만 골라 보여준다.
+   ★중립(무난·보통·이용 안 함)은 넣지 않는다 — 넣으면 요약이 다시 전체 목록이 되어 의미가 없다.
+   ★source·reason은 품질이 아니라 마케팅 데이터라 neg가 없다(따로 한 줄로 요약). */
 var SURVEY_Q = {
-  pace:{t:'140분 호흡',o:{good:'딱 좋음',short:'짧음',long:'벅참'}},
-  transparency:{t:'올인원 투명성',o:{kept:'투명',mostly:'대체로',unexpected:'예상밖 비용'}},
-  family:{t:'가족 만족',o:{great:'아주 만족',ok:'무난',poor:'아쉬움'}},
-  result:{t:'결과물',o:{above:'기대 이상',expected:'기대만큼',below:'아쉬움'}},
-  ceremony:{t:'식순·나레이션',o:{free:'자유로워 좋음',ok:'무난',needGuide:'가이드 필요'}},
-  space:{t:'두 공간',o:{both:'둘 다 좋음',one:'한쪽 좋음',transition:'전환 아쉬움'}},
-  dining:{t:'애프터 웨딩',o:{good:'만족',ok:'보통',poor:'아쉬움',na:'이용 안 함'}},
-  shoot:{t:'촬영 몰입',o:{great:'몰입',ok:'무난',poor:'아쉬움'}},
-  styling:{t:'스타일링',o:{great:'만족',ok:'보통',poor:'아쉬움'}},
-  overall:{t:'종합 만족',o:{very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}},
-  recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'}},
+  pace:{t:'140분 호흡',o:{good:'딱 좋음',short:'짧음',long:'벅참'},neg:['short','long']},
+  transparency:{t:'올인원 투명성',o:{kept:'투명',mostly:'대체로',unexpected:'예상밖 비용'},neg:['unexpected']},
+  family:{t:'가족 만족',o:{great:'아주 만족',ok:'무난',poor:'아쉬움'},neg:['poor']},
+  result:{t:'결과물',o:{above:'기대 이상',expected:'기대만큼',below:'아쉬움'},neg:['below']},
+  ceremony:{t:'식순·나레이션',o:{free:'자유로워 좋음',ok:'무난',needGuide:'가이드 필요'},neg:['needGuide']},
+  space:{t:'두 공간',o:{both:'둘 다 좋음',one:'한쪽 좋음',transition:'전환 아쉬움'},neg:['transition']},
+  dining:{t:'애프터 웨딩',o:{good:'만족',ok:'보통',poor:'아쉬움',na:'이용 안 함'},neg:['poor']},
+  shoot:{t:'촬영 몰입',o:{great:'몰입',ok:'무난',poor:'아쉬움'},neg:['poor']},
+  styling:{t:'스타일링',o:{great:'만족',ok:'보통',poor:'아쉬움'},neg:['poor']},
+  overall:{t:'종합 만족',o:{very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'},neg:['neutral','low']},
+  recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'},neg:['unsure']},
   source:{t:'유입 경로',o:{insta:'인스타그램',friend:'지인소개',search:'검색',sns:'유튜브·블로그',etc:'그외'}},
   reason:{t:'결정 이유',o:{mood:'감성·분위기',allinone:'올인원',price:'가격·투명성',review:'후기·평판',etc:'그외'}},
-  gap:{t:'놓친 부분(안전망)',o:{none:'없음',minor:'사소',some:'있음'}}
+  gap:{t:'놓친 부분(안전망)',o:{none:'없음',minor:'사소',some:'있음'},neg:['minor','some']}
 };
 var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','source','reason','overall','recommend','gap'];
 var SURVEY_PILLARS=[{k:'pace',label:'140분 적절',good:['good']},{k:'transparency',label:'투명성 약속 이행',good:['kept','mostly']},{k:'family',label:'가족 만족',good:['great']}];
 function _svPct(q,goods){ if(!q) return null; var tot=0,hit=0,v; for(v in q){ if(q.hasOwnProperty(v)){ tot+=q[v]; if(goods.indexOf(v)>=0) hit+=q[v]; } } return tot?{pct:Math.round(hit/tot*100),n:tot}:null; }
+/* [SV_DIGEST] 설문 결과 = '요약 먼저, 자세히는 접어서'(2026-08-01 사용자 지적 반영).
+   전에는 응답 1건에도 14개 문항 막대가 전부 100%로 깔렸다. 막대는 분포를 읽으라는 물건인데
+   n이 1이면 읽을 분포가 없다. 그래서 화면은 꽉 찼는데 정작 '무엇을 해야 하나'는 안 보였다.
+   지금 구조: ① 개선 신호  ② 3축 이행률  ③ 추천·종합  ④ 눈여겨볼 응답만  ⑤ 유입·결정 한 줄
+              ⑥ [접힘] 문항별 분포 전체  ⑦ [접힘] 후기 전문
+   ★막대와 후기를 '지우지' 않았다 — details 안에 그대로 있다. 판단 근거는 언제든 펴서 봐야 한다. */
+function _svTop(q){   // 한 문항에서 가장 많이 나온 값 → {v, c}
+  var best=null,v;
+  for(v in q){ if(q.hasOwnProperty(v) && q[v]>0 && (!best || q[v]>best.c)) best={v:v,c:q[v]}; }
+  return best;
+}
+function _svLabel(k,val){ var m=SURVEY_Q[k]; return (m && m.o[val]) || val; }
 function renderSurvey(d){
   var wrap=$('surveyWrap'); if(!wrap) return;
   var sv=d.survey||{n:0,q:{},recent:[]};
   var html='<div class="sect-h"><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
   if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요. 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
-  // [안전망] 개선 신호 — '놓친 부분 있었음' 부각
+
+  // ── ① 개선 신호 — '놓친 부분 있었음'은 항상 맨 위에 (안전망)
   var _gq=sv.q.gap||{}; var _gapN=(Number(_gq.minor)||0)+(Number(_gq.some)||0);
-  if(_gapN){ html+='<div style="margin:8px 0 12px;padding:9px 12px;border:1px solid #d8b06a;border-radius:8px;background:#fdf6ec;color:#8a5a1a;font-size:12.5px;line-height:1.5">개선 신호 · 고객이 <b>놓친 부분 있었음</b>으로 답한 설문 <b>'+_gapN+'건</b> · 아래 문항 분포·후기에서 확인해 주세요</div>'; }
-  // 브랜드 약속 3축 이행률
+  if(_gapN){ html+='<div style="margin:8px 0 12px;padding:9px 12px;border:1px solid #d8b06a;border-radius:8px;background:#fdf6ec;color:#8a5a1a;font-size:12.5px;line-height:1.5">개선 신호 · 고객이 <b>놓친 부분 있었음</b>으로 답한 설문 <b>'+_gapN+'건</b> · 아래 후기에서 확인해 주세요</div>'; }
+
+  // ── ② 브랜드 약속 3축 이행률
   html+='<div class="sv-pillars">';
   SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'-')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
   html+='</div>';
-  // 추천 의향 + 종합 한 줄
+
+  // ── ③ 추천 의향 + 종합
   var rec=_svPct(sv.q.recommend,['definitely','maybe']), ov=_svPct(sv.q.overall,['very','satisfied']);
   html+='<div class="sv-sum">추천 의향 <b>'+(rec?rec.pct+'%':'-')+'</b> · 종합 만족 <b>'+(ov?ov.pct+'%':'-')+'</b></div>';
-  // 문항별 분포 막대
-  html+='<div class="sv-qs">';
-  SURVEY_ORDER.forEach(function(k){ var q=sv.q[k]; if(!q) return; var meta=SURVEY_Q[k]; var tot=0,v; for(v in q){ if(q.hasOwnProperty(v)) tot+=q[v]; } if(!tot) return;
-    html+='<div class="sv-qrow"><div class="sv-qt">'+esc(meta?meta.t:k)+'</div><div class="sv-bar">';
-    var order=meta?Object.keys(meta.o):Object.keys(q);
-    order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; var pc=Math.round(c/tot*100); html+='<span class="sv-seg sv-seg-'+(i)+'" style="width:'+pc+'%" title="'+esc((meta&&meta.o[val])||val)+' '+c+'명">'+(pc>=14?(pc+'%'):'')+'</span>'; });
-    html+='</div><div class="sv-leg">'; order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; html+='<span class="sv-lg"><i class="sv-dot sv-seg-'+i+'"></i>'+esc((meta&&meta.o[val])||val)+' '+c+'</span>'; }); html+='</div></div>';
+
+  // ── ④ 눈여겨볼 응답만 추려서 (없으면 한 줄로 '없음')
+  var watch=[];
+  SURVEY_ORDER.forEach(function(k){
+    var meta=SURVEY_Q[k], q=sv.q[k]; if(!meta || !meta.neg || !q) return;
+    meta.neg.forEach(function(val){ var c=Number(q[val])||0; if(c) watch.push({t:meta.t,l:meta.o[val],c:c}); });
   });
-  html+='</div>';
-  // 공개 동의 후기
-  var revs=(sv.recent||[]).filter(function(x){ return x.review; });
-  if(revs.length){ html+='<div class="sv-rev-h">후기 ('+revs.length+')</div>';
-    html+=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+(x.gap&&x.gap!=='none'?' <b style="color:#8a5a1a">개선의견</b>':'')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
+  if(watch.length){
+    html+='<div class="sv-watch"><div class="sv-watch-h">눈여겨볼 응답 '+watch.length+'건</div><ul>';
+    watch.forEach(function(w){ html+='<li>'+esc(w.t)+' — <b>'+esc(w.l)+'</b> '+w.c+'명</li>'; });
+    html+='</ul></div>';
+  } else {
+    html+='<div class="sv-ok">아쉬움으로 답한 문항 없음 · 전 문항 긍정</div>';
   }
+
+  // ── ⑤ 유입·결정은 품질이 아니라 마케팅 데이터 — 최다 응답만 한 줄로
+  var st=_svTop(sv.q.source||{}), rt=_svTop(sv.q.reason||{}), bits=[];
+  if(st) bits.push('유입 <b>'+esc(_svLabel('source',st.v))+'</b> '+st.c);
+  if(rt) bits.push('결정 이유 <b>'+esc(_svLabel('reason',rt.v))+'</b> '+rt.c);
+  if(bits.length) html+='<div class="sv-note">'+bits.join(' · ')+'</div>';
+
+  // ── ⑥ [접힘] 문항별 분포 전체
+  var qCount=0; SURVEY_ORDER.forEach(function(k){ if(sv.q[k]) qCount++; });
+  if(qCount){
+    var qs='<div class="sv-qs">';
+    SURVEY_ORDER.forEach(function(k){ var q=sv.q[k]; if(!q) return; var meta=SURVEY_Q[k]; var tot=0,v; for(v in q){ if(q.hasOwnProperty(v)) tot+=q[v]; } if(!tot) return;
+      qs+='<div class="sv-qrow"><div class="sv-qt">'+esc(meta?meta.t:k)+'</div><div class="sv-bar">';
+      var order=meta?Object.keys(meta.o):Object.keys(q);
+      order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; var pc=Math.round(c/tot*100); qs+='<span class="sv-seg sv-seg-'+(i)+'" style="width:'+pc+'%" title="'+esc((meta&&meta.o[val])||val)+' '+c+'명">'+(pc>=14?(pc+'%'):'')+'</span>'; });
+      qs+='</div><div class="sv-leg">'; order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; qs+='<span class="sv-lg"><i class="sv-dot sv-seg-'+i+'"></i>'+esc((meta&&meta.o[val])||val)+' '+c+'</span>'; }); qs+='</div></div>';
+    });
+    qs+='</div>';
+    html+='<details class="sv-fold"><summary>문항별 분포 <span class="n">'+qCount+'문항</span></summary><div class="sv-fold-in">'+qs+'</div></details>';
+  }
+
+  // ── ⑦ [접힘] 후기 전문
+  var revs=(sv.recent||[]).filter(function(x){ return x.review; });
+  if(revs.length){
+    var pub=revs.filter(function(x){ return x.reviewPublic==='Y'; }).length;
+    var rv=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+(x.gap&&x.gap!=='none'?' <b style="color:#8a5a1a">개선의견</b>':'')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
+    html+='<details class="sv-fold"><summary>후기 <span class="n">'+revs.length+'건'+(pub?(' · 공개동의 '+pub):'')+'</span></summary><div class="sv-fold-in">'+rv+'</div></details>';
+  }
+
   wrap.innerHTML=html;
 }
 function renderResults(d){

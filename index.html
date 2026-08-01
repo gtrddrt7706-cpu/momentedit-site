@@ -4481,127 +4481,12 @@ footer {
     line-height: 1.85;
   }
 }
-.preview-link {
-  display: block;
-  max-width: 320px;
-  margin: 56px auto 0;
-  padding: 28px 0;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  transition: border-color 0.45s var(--ease);
-}
-.preview-link-eyebrow {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.preview-link-en {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--gold);
-  transition: color 0.3s var(--ease);
-}
-.preview-link-sep {
-  color: var(--light);
-  font-family: var(--serif);
-  font-size: 11px;
-}
-.preview-link-ko {
-  font-family: var(--serif-ko);
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--sub);
-  letter-spacing: 0.08em;
-  transition: color 0.3s var(--ease);
-}
-.preview-link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  color: var(--accent);
-  padding: 4px 0 6px;
-  border-bottom: 1px solid var(--accent);
-  transition:
-    color 0.3s var(--ease),
-    border-color 0.3s var(--ease);
-}
-.preview-link-arrow {
-  font-size: 13px;
-  color: var(--seal);
-  opacity: 0.88;
-  transition:
-    transform 0.3s var(--ease),
-    opacity 0.3s var(--ease);
-  display: inline-block;
-}
-.preview-link:hover {
-  border-color: var(--gold);
-}
-.preview-link-wrap a {
-  transition:
-    background 0.45s var(--ease),
-    border-color 0.45s var(--ease),
-    transform 0.45s var(--ease),
-    box-shadow 0.45s var(--ease) !important;
-}
-.preview-link-wrap a:hover {
-  background: rgba(107, 42, 36, 0.1) !important;
-  border-color: var(--seal) !important;
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 28px rgba(107, 42, 36, 0.12),
-    0 3px 8px rgba(107, 42, 36, 0.06);
-}
-.preview-link-wrap a:hover span[style*="transform 0.3s"] {
-  transform: translate(3px, -3px);
-}
-.preview-link:hover .preview-link-en {
-  color: var(--accent);
-}
-.preview-link:hover .preview-link-ko {
-  color: var(--accent);
-}
-.preview-link:hover .preview-link-btn {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
-}
-.preview-link:hover .preview-link-arrow {
-  transform: translate(2px, -2px);
-  opacity: 1;
-}
-@media (max-width: 680px) {
-  .preview-link {
-    max-width: 280px;
-    margin: 44px auto 0;
-    padding: 24px 0;
-  }
-  .preview-link-eyebrow {
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .preview-link-en {
-    font-size: 11px;
-    letter-spacing: 0.22em;
-  }
-  .preview-link-ko {
-    font-size: 11px;
-  }
-  .preview-link-btn {
-    font-size: 13px;
-    letter-spacing: 0.14em;
-  }
-}
+/* [BTN_TIER] .preview-link* 규칙 121줄을 여기서 걷어냈다(2026-08-01).
+   16개 규칙 중 마크업이 쓰던 건 .preview-link-wrap a 하나뿐이었고, 그마저
+   translateY(-2px) + box-shadow(그림자 두 겹)라 브랜드 금지사항(그림자·들림)에
+   정면으로 어긋나 있었다. 청첩장 미리보기 CTA를 .journal-guide-link(외곽 마룬)로
+   통일하면서 통째로 불필요해졌다. 버튼은 2단 체계 하나로만 유지한다. */
+
 a.access-link {
   text-decoration: none;
   display: inline-flex;
@@ -4721,22 +4606,6 @@ a.access-link:hover::after {
   }
   .divider-stamp:hover {
     opacity: 0.25;
-  }
-  .preview-link:hover {
-    border-color: var(--hairline);
-  }
-  .preview-link-wrap a:hover {
-    transform: none;
-    box-shadow: none;
-    background: rgba(107, 42, 36, 0.06) !important;
-    border-color: rgba(107, 42, 36, 0.55) !important;
-  }
-  .preview-link-wrap a:hover span[style*="transform 0.3s"] {
-    transform: none;
-  }
-  .preview-link:hover .preview-link-arrow,
-  .preview-link-btn:hover .preview-link-arrow {
-    transform: none;
   }
   .cta-btn:hover {
     transform: none;
@@ -5978,27 +5847,18 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 </div>
 
 <!-- DIGITAL ATTENDANCE PREVIEW — 청첩장 → 디지털 참석 전체 하객 경험 체험 -->
-<div class="preview-link-wrap reveal" style="max-width:520px;margin:64px auto 0;text-align:center">
-  <!-- Eyebrow (박스 위 단독) -->
-  <div style="margin-bottom:16px">
-    <span style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--seal)">Preview</span>
-  </div>
-  <!-- 카드 -->
-  <a href="invitation-gallery.html?e=test-couple" aria-label="프라이빗 웨딩 청첩장 미리보기" style="display:block;padding:28px 24px 24px;background:rgba(107,42,36,0.06);border:1px solid rgba(107,42,36,0.55);border-radius:6px;text-decoration:none;transition:background 0.45s var(--ease),border-color 0.45s var(--ease)">
-    <span style="display:inline-flex;align-items:baseline;gap:14px;padding:6px 0 8px;border-bottom:1px solid var(--seal)">
-      <span style="font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing: 0.08em;color:var(--seal)">View Gallery</span>
-      <span style="color:var(--light);font-size:11px">·</span>
-      <span style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);letter-spacing: 0.04em">청첩장 미리보기</span>
-      <span style="font-size:14px;color:var(--seal);display:inline-block;transition:transform 0.3s var(--ease)">↗</span>
-    </span>
-    <!-- [NOWRAP_CLIP_FIX] white-space:nowrap 금지 — 2026-07-30 삭제.
-         390px에서 내용 317px / 표시 300px로 17px가 잘려 '됩니다.'가 안 보였다.
-         body에 overflow-x:hidden이 있어 가로 스크롤도 안 생기고 그냥 잘림.
-         body의 word-break:keep-all이 어절 단위로 끊어주므로 그대로 두면 된다. -->
-    <span style="display:block;margin-top:18px;font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);letter-spacing:0.02em;line-height:1.7">
-      청첩장은 두 분의 이야기에 맞춰 자유롭게 커스텀됩니다.
-    </span>
-  </a>
+<!-- [BTN_TIER] 청첩장 미리보기 CTA — 부모님 안내 버튼(.journal-guide-link)과 같은 격으로 통일(2026-08-01).
+     전에는 이것만 세 번째 스타일이었다: 28px 패딩의 큰 박스 + 안쪽에 밑줄 친 'View Gallery' +
+     호버 시 translateY(-2px)와 그림자 두 겹. 화면에서 가장 무거운 요소인데 격은 '보조 이동'이라
+     무게와 역할이 어긋나 있었고, 그림자·들림은 브랜드 금지사항이다.
+     → 2단 체계 안으로 들인다. 리드 한 줄 + 외곽 마룬 버튼. 화살표는 →(다른 문서로 이동).
+     ★[NOWRAP_CLIP_FIX] 이 자리에 white-space:nowrap 금지(2026-07-30 사고 · 교훈 승계).
+       옛 카드에서 390px 기준 내용 317px / 표시 300px로 17px가 잘려 '됩니다.'가 안 보였다.
+       body에 overflow-x:hidden이 있어 가로 스크롤도 안 생기고 그냥 잘린다 — 아무도 모른다.
+       body의 word-break:keep-all이 어절 단위로 끊어주므로 손대지 말 것. -->
+<div class="journal-guide reveal" style="max-width:520px;margin:64px auto 0">
+  <p class="journal-guide-lead">청첩장은 두 분의 이야기에 맞춰 자유롭게 커스텀됩니다</p>
+  <a href="invitation-gallery.html?e=test-couple" class="journal-guide-link">청첩장 미리보기 <span class="arrow">→</span></a>
 </div>
 
 <!-- [PRM_GUEST] 오시는 하객의 손안 화면 3종(2026-07-31 홍보 최신화) — 청첩장 '다음'까지 준비돼 있음을 구체로.
