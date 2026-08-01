@@ -102,6 +102,20 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
   border-radius:10px 10px 0 0;font-size:11.5px;line-height:1.6;color:var(--sub);text-align:center}
 .demo-flag b{color:var(--seal);font-weight:600}
 .demo-flag .hint{display:block;margin-top:3px;font-size:11px;color:var(--sub);letter-spacing:.02em}
+/* [GUIDE_DEMO] 표본에서는 바깥으로 나가는 링크를 죽인다 — 지어낸 가게로 지도를 띄우거나
+   빈 앨범으로 내보내면 '고장난 화면'으로 읽힌다. 모양은 그대로 두되 링크가 아니게 만든다
+   (a→span이라 스크린리더에도 '링크'로 들리지 않고 포커스도 잡히지 않는다). */
+/* ★opacity로 흐리게 두었더니 대비가 AA 미달로 떨어졌다(axe 적발 4건).
+   게다가 이 화면의 목적은 '하객이 보는 모양 그대로' 보여주는 것이라 흐리게 만들 이유도 없다.
+   생김새는 원본과 똑같이 두고 '이동'만 막는다 — 연결 안 된다는 설명은 꼬리말이 한다. */
+.act-off,.ps-btn-off{cursor:default}
+.ps-btn-off{pointer-events:none}
+.demo-foot{margin:0 -18px;padding:16px 18px 18px;border-top:1px solid var(--hair);background:var(--bg2);
+  border-radius:0 0 10px 10px;text-align:center}
+.demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7}
+.demo-foot .t b{color:var(--seal);font-weight:600}
+.demo-foot .b{display:inline-block;margin-top:11px;font-family:var(--serif-ko);font-size:13px;
+  color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:11px 22px;text-decoration:none;min-height:44px;box-sizing:border-box}
 /* ★--faint(#A49D8E)로 두면 --bg2 위에서 2.4:1로 AA 미달이었다(axe 적발).
    위계는 색이 아니라 크기로 낸다 — 브랜드 규칙 그대로. */
 .ps-t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);text-align:center;margin-bottom:13px}
@@ -471,7 +485,10 @@ function seatRoomHtml(hit){
     }
     srAlt+='</ul>';
   }
-  return '<div class="mtb-wrap">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
+  // [A11Y_SEATMAP] 이 상자는 좌우로 스크롤된다(overflow-x:auto). 포커스를 못 받으면 키보드만 쓰는
+  //   하객은 화면 밖 테이블을 영영 볼 수 없다(WCAG 2.1.1 · axe scrollable-region-focusable).
+  //   ★tabindex를 뺐다가는 조용히 되돌아간다 — 눈으로는 아무 차이가 없어서 아무도 모른다.
+  return '<div class="mtb-wrap" tabindex="0" role="group" aria-label="좌석 배치도 · 좌우로 넘겨 보실 수 있어요">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
     +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
     +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div></div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
 }
@@ -581,14 +598,48 @@ function renderDemo(){
   var c=document.querySelector('#root .card');
   if(c){
     var b=document.createElement('div'); b.className='demo-flag';
-    b.innerHTML='<b>샘플 화면</b>입니다 · 실제 예식에서는 두 분의 정보로 채워집니다'
-      +'<span class="hint">아래 &lsquo;내 자리 찾기&rsquo;에 <b>이정우</b>를 넣어 보세요</span>';
+    b.innerHTML='<b>샘플 화면</b>입니다 · 하객이 청첩장 링크를 열면 만나는 화면이에요'
+      +'<span class="hint">실제 예식에서는 두 분의 정보로 채워집니다</span>';
     c.insertBefore(b, c.firstChild);
   }
-  // 좌석 검색을 표본 데이터로 로컬 처리(fetch 없음) — findSeat이 이미 로컬 검색기다
+
+  // ── 좌석: 표본 데이터로 로컬 검색(fetch 없음) + 결과를 미리 띄워 둔다
+  //    ★빈 검색창만 두면 이 페이지에서 가장 중요한 장면('이름을 넣으면 자리가 뜬다')이
+  //      아무도 안 눌러서 안 보인다 — 홍보 화면에서 핵심을 상호작용 뒤에 숨기면 안 된다
+  //      (2026-08-01 사용자 지적: "검색된 것도 보여줘야지").
   SEAT={tables:DEMO_TABLES}; SEAT_STATE='ok';
   var q=$('q');
-  if(q){ var tm=null; q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ findSeat(q.value); }, 250); }); }
+  if(q){
+    var tm=null;
+    q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ findSeat(q.value); }, 250); });
+    q.value='이정우';
+    findSeat('이정우');
+    var tip=document.createElement('div');
+    tip.style.cssText='font-size:11.5px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.6';
+    tip.innerHTML='다른 성함도 넣어 보세요 · <b>한서영</b> · <b>정민호</b> · <b>김서준</b>';
+    var find=q.closest('.find'); if(find && find.parentNode) find.parentNode.insertBefore(tip, find.nextSibling);
+  }
+
+  // ── 바깥으로 나가는 링크를 죽인다(지도·사진 올리기) — 모양은 그대로, 이동만 막는다
+  var root=$('root');
+  [].slice.call(root.querySelectorAll('a.act')).forEach(function(a){
+    var sp=document.createElement('span');
+    sp.className='act act-off'; sp.innerHTML=a.innerHTML;
+    a.parentNode.replaceChild(sp, a);
+  });
+  var ps=root.querySelector('a.ps-btn');
+  if(ps){ var sp2=document.createElement('span'); sp2.className='ps-btn ps-btn-off'; sp2.textContent='사진 올리기';
+    ps.parentNode.replaceChild(sp2, ps); }
+
+  // ── 꼬리말: 여기가 무엇인지 · 오시는 길은 어디에 있는지 · 돌아가는 길
+  var card=document.querySelector('#root .card');
+  if(card){
+    var f=document.createElement('div'); f.className='demo-foot';
+    f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
+      +'<b>오시는 길·주차 안내</b>는 두 분의 청첩장 화면에 함께 담깁니다.</div>'
+      +'<a class="b" href="/">모먼트에디트 홈으로</a>';
+    card.appendChild(f);
+  }
 }
 (function boot(){
   var g=qp('g');
