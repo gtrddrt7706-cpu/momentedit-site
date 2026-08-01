@@ -97,6 +97,28 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
 .privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
+/* [GUIDE_DRINK] 자리 안내 바로 아래 한 줄 — 배치도보다 위에 둔다(내 자리 다음으로 궁금한 것) */
+.dk-line{display:flex;align-items:center;justify-content:center;gap:7px;margin:9px 0 2px}
+.dk-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:0 0 auto}
+.dk-t{font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);letter-spacing:.01em}
+.dk-t b{color:var(--accent);font-weight:500}
+/* [DEMO_MAP] 표본에서 지도 버튼을 죽여 두니 '여기 뭔가 비었다'로 읽혔다(2026-08-01 사용자 지시
+   "지도 부분도 임시로 해놓자"). 진짜 지도를 박으면 지어낸 가게로 안내하는 셈이라,
+   ★지명·도로명 없는 추상 도식으로 자리만 잡는다. 표본임을 라벨로 못 박는다. */
+.dm-map{position:relative;height:132px;margin:11px 0 2px;border:1px solid var(--border);border-radius:8px;
+  background:var(--bg2);overflow:hidden}
+.dm-map::before{content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,transparent 0 46%,rgba(184,154,117,.30) 46% 47%,transparent 47%),
+    linear-gradient(0deg,transparent 0 62%,rgba(184,154,117,.22) 62% 63%,transparent 63%),
+    linear-gradient(0deg,transparent 0 28%,rgba(28,27,25,.06) 28% 28.6%,transparent 28.6%)}
+.dm-pin{position:absolute;left:46.5%;top:62%;transform:translate(-50%,-100%);width:11px;height:11px;
+  border-radius:50% 50% 50% 0;background:var(--seal);rotate:-45deg}
+.dm-pin::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:4px;height:4px;border-radius:50%;background:var(--bg)}
+.dm-tag{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);font-family:var(--serif);
+  font-style:italic;font-size:9.5px;letter-spacing:.18em;color:var(--sub);
+  background:rgba(250,250,248,.9);padding:3px 9px;border-radius:999px}
 /* [GUIDE_DEMO] 표본에서는 바깥으로 나가는 링크를 죽인다 — 지어낸 가게로 지도를 띄우거나
    빈 앨범으로 내보내면 '고장난 화면'으로 읽힌다. 모양은 그대로 두되 링크가 아니게 만든다
    (a→span이라 스크린리더에도 '링크'로 들리지 않고 포커스도 잡히지 않는다). */
@@ -131,8 +153,15 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 @media (prefers-reduced-motion:reduce){.g-scroll-chev{animation:none}}
 /* ★--faint(#A49D8E)로 두면 --bg2 위에서 2.4:1로 AA 미달이었다(axe 적발).
    위계는 색이 아니라 크기로 낸다 — 브랜드 규칙 그대로. */
-.ps-t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);text-align:center;margin-bottom:13px}
-.ps-btn{display:block;text-align:center;font-family:var(--serif-ko);font-size:14.5px;color:#fff;background:var(--gold-deep);border-radius:24px;padding:12px 20px;text-decoration:none}
+.ps-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px}
+/* [PS_QUIET] 채움 골드 알약이 이 화면에서 가장 무거운 덩어리였다(2026-08-01 사용자 지시
+   "진사 테두리나 색채움 없이"). 채움·진사 테두리 없이 얇은 헤어라인 + 먹색 글자로.
+   존재감은 폭과 여백이 낸다 — 브랜드의 CTA_TYPE_QUIET와 같은 논리. */
+.ps-btn{display:block;text-align:center;font-family:var(--serif-ko);font-size:14px;letter-spacing:.04em;
+  color:var(--accent);background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:15px 20px;text-decoration:none;min-height:48px;box-sizing:border-box;
+  transition:border-color .3s var(--ease,ease),background .12s ease}
+.ps-btn:active{background:var(--bg2);border-color:var(--faint)}
 .ps-btn:active{background:var(--accent)}
 
 /* ★라이브 섹션 복원 금지 — 2026-07-17 사용자 지시로 삭제(하객 안내=오프라인 하객용 · 라이브는 온라인 청첩장이 단일 창구) */
@@ -184,7 +213,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 
 /* 흰 글자를 얹는 골드 배경 — 3.95:1이라 정작 버튼 글자가 안 읽혔다 → 5.97:1 */
 .hero .today,
-.ps-btn{background:var(--gold-text)}
+
 
 /* --faint(2.61:1) 텍스트 4곳 → --light(4.79:1) */
 .backbar button,
@@ -247,7 +276,7 @@ body{
 }
 
 /* [GUIDE_PHOTO_INFO] 외부로 나가는 버튼임을 눈으로도 알리는 표시. */
-.ps-ext{margin-left:7px;font-family:var(--serif);font-size:13px;opacity:.85}
+.ps-ext{margin-left:6px;font-family:var(--serif);font-size:12px;color:var(--gold-deep)}
 
 /* ════════════════════════════════════════════════════════════════
    3라운드 (2026-07-26) — 예식장 현장 조건
@@ -380,7 +409,7 @@ function photoShareHtml(url){
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
     +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener" aria-label="사진 올리기 · 새 탭에서 열려요">사진 올리기<span class="ps-ext" aria-hidden="true">↗</span></a>'
-    +'<div class="privacy">두 분이 준비한 외부 공간으로 이동해요 · 서비스에 따라 이름이나 프로필이 함께 보일 수 있어요.</div></div>';
+    +'<div class="privacy">두 분이 준비한 외부 공간이에요 · 이름이 함께 보일 수 있어요.</div></div>';
 }
 // ★라이브 섹션(liveHtml) 복원 금지 — 2026-07-17 사용자 지시로 삭제. 멀리 계신 분 안내는 온라인 청첩장(live.html 링크 포함)이 담당
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
@@ -435,9 +464,10 @@ function findSeat(v){
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
+  var _dk=drinkHtml(((t.drinks||[])[mi[0]])||'');   // [GUIDE_DRINK] 내 자리 음료만
   var _rh=seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc)), _sm=$('seatMap');
-  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'; }
-  else fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_rh;
+  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk; }
+  else fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk+_rh;
 }
 // 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버(_seatFindByToken) 응답과 같은 계약({no,label,side,occ}·★변경 시 GAS와 함께).
 //   이름은 '전체 성함 정확 일치 + 단일 자리'일 때만(서버와 동일 규칙 — 부분 검색으로 타인 실명 표기 방지)
@@ -481,6 +511,19 @@ function renderFullMap(){
 }
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
+/* [GUIDE_DRINK] 자리별 음료 — 마이페이지가 자리마다 고르는 3종과 같은 계약이다
+   (C 샴페인 · R 레드와인 · N 논알콜 스파클링 · 빈 값 미정 · mypage SEAT_DRINK_LABEL과 동일).
+   ★서버(seatView)가 drink를 보내줄 때만 뜬다 — 안 보내면 조용히 아무것도 안 그린다.
+     없는 정보를 지어내지 않고, GAS가 필드를 싣기 시작하면 저절로 켜진다.
+   ★하객에게는 '내 자리'의 음료만 보인다. 남의 음료는 취향·건강 정보라 절대 노출하지 않는다. */
+var DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링'};
+var DRINK_TONE={C:'#B08A3E',R:'#9B4A57',N:'#5F9E86'};
+function drinkHtml(code){
+  var k=String(code||'').toUpperCase(), t=DRINK_LABEL[k];
+  if(!t) return '';
+  return '<div class="dk-line"><span class="dk-dot" style="background:'+DRINK_TONE[k]+'" aria-hidden="true"></span>'
+    +'<span class="dk-t">준비된 음료 · <b>'+esc(t)+'</b></span></div>';
+}
 function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*41, y:Math.sin(a)*41 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
 // 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
 function seatRoomHtml(hit){
@@ -527,7 +570,7 @@ function seatRoomHtml(hit){
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
-  if(hits.length===1) return rtBadge(hits[0].no, hits[0].label)+'<b>'+esc(hits[0].label)+'</b> 자리예요'+seatRoomHtml(hits[0]);
+  if(hits.length===1) return rtBadge(hits[0].no, hits[0].label)+'<b>'+esc(hits[0].label)+'</b> 자리예요'+drinkHtml(hits[0].drink)+seatRoomHtml(hits[0]);   // [GUIDE_DRINK] 서버가 drink를 실어 보낼 때만
   if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
   return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
 }
@@ -617,12 +660,12 @@ var DEMO=false;
    ★총 24명 — 이 스튜디오의 '하객 25명 이하' 약속 안쪽으로 맞춘 수다. 늘릴 때 25를 넘기지 말 것.
    ★seats 배열 길이가 곧 원 둘레의 자리 수다(_mtPos). 빈 문자열을 남기면 빈 자리로 그려진다. */
 var DEMO_TABLES=[
-  {side:'L',name:'가족석',seats:['이정우','한서영','이도현','이수민','이지호']},
-  {side:'R',name:'가족석',seats:['정민호','오세라','정하람','정유진','정예린']},
-  {side:'L',name:'',seats:['김서준','박지우','김도윤','박서연','김하준']},
-  {side:'R',name:'',seats:['최유진','강태현','최은서','강민재','최지안']},
-  {side:'L',name:'',seats:['윤소연','윤재원']},
-  {side:'R',name:'',seats:['임재원','임서윤']}
+  {side:'L',name:'가족석',seats:['이정우','한서영','이도현','이수민','이지호'], drinks:['N','C','R','N','C']},
+  {side:'R',name:'가족석',seats:['정민호','오세라','정하람','정유진','정예린'], drinks:['C','N','C','R','N']},
+  {side:'L',name:'',seats:['김서준','박지우','김도윤','박서연','김하준'],       drinks:['R','C','N','C','R']},
+  {side:'R',name:'',seats:['최유진','강태현','최은서','강민재','최지안'],       drinks:['C','R','N','C','N']},
+  {side:'L',name:'',seats:['윤소연','윤재원'],                                 drinks:['N','C']},
+  {side:'R',name:'',seats:['임재원','임서윤'],                                 drinks:['R','N']}
 ];
 function renderDemo(){
   DEMO=true;
@@ -654,8 +697,17 @@ function renderDemo(){
     var find=q.closest('.find'); if(find && find.parentNode) find.parentNode.insertBefore(tip, find.nextSibling);
   }
 
-  // ── 바깥으로 나가는 링크를 죽인다(지도·사진 올리기) — 모양은 그대로, 이동만 막는다
+  // ── [DEMO_MAP] 대표 장소 카드에 지도 자리를 세운다(표본 전용 · 추상 도식)
   var root=$('root');
+  var pick=root.querySelector('.pick');
+  if(pick && !pick.querySelector('.dm-map')){
+    var mp=document.createElement('div'); mp.className='dm-map'; mp.setAttribute('aria-hidden','true');
+    mp.innerHTML='<span class="dm-pin"></span><span class="dm-tag">Sample Map</span>';
+    var acts=pick.querySelector('.acts');
+    if(acts) pick.insertBefore(mp, acts); else pick.appendChild(mp);
+  }
+
+  // ── 바깥으로 나가는 링크를 죽인다(지도·사진 올리기) — 모양은 그대로, 이동만 막는다
   [].slice.call(root.querySelectorAll('a.act')).forEach(function(a){
     var sp=document.createElement('span');
     sp.className='act act-off'; sp.innerHTML=a.innerHTML;

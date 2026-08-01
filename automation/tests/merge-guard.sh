@@ -958,3 +958,7 @@ chk 'GUIDE_SCROLLCUE' guide.html 3                           # 스크롤바 숨�
 chk 'DEMO_SEATS' guide.html 1                                # 표본 좌석 만석 5석 + 맨뒤 2석 · 총 24명(25명 약속 안쪽) · 늘릴 때 25 넘기지 말 것
 chk 'INV_BACK' shared/hydrate.js 1                           # 갤러리 Open으로 넘어온 실물 청첩장의 '‹ 갤러리' 버튼 · 표본에서만 뜬다
 chk 'GV_SCROLLCUE' invitation-gallery.html 1                 # 프레임 안 Scroll 큐 · 없으면 83~87% 깊이의 하객 안내 CTA를 '없다'고 오해한다
+chk 'CTA_STACK' shared/hydrate.js 1                          # 하객 안내 CTA position:relative+z-index · 빼면 배경 레이어(.venue-bg 등)에 덮여 일부 디자인만 조용히 사라진다
+chk 'GUIDE_DRINK' guide.html 4                               # 내 자리 음료 3종(마이페이지 계약) · 서버가 drink를 보낼 때만 뜬다 · 남의 음료 노출 금지
+chk 'DEMO_MAP' guide.html 2                                  # 표본 지도 도식 · 지명·도로명 없는 추상 도식이어야 한다
+chk 'PS_QUIET' guide.html 1                                  # 사진 올리기 = 채움·진사 없는 헤어라인 버튼 · 골드 채움으로 되돌리지 말 것
