@@ -722,7 +722,15 @@ body.menu-open .nav-wordmark {
 .mobile-menu-inner {
   max-width: 520px;
   margin: 0 auto;
-  padding: 104px 32px 48px;
+  /* [MM_TOPROW] 원래 104px 고정이었다. Close가 우상단에 절대배치돼 있던 시절, 그 버튼을
+     피해 앉으려고 잡은 값이다. 이제 Close가 이 행 안으로 들어왔으니 그만큼 비울 이유가 없다.
+     ★고정값이면 안 된다 — 상태바 처리가 두 갈래다.
+       · 홈화면 앱(status-bar-style: default) → 웹뷰가 상태바 아래에서 시작 → 인셋 0
+       · 사파리(viewport-fit=cover)          → 오버레이가 상태바를 덮음 → 인셋 59 필요
+     고정 104px은 전자에서 상태바 60 + 104 = 164px이 통째로 비어 "너무 내려가 있다"가 됐다
+     (2026-08-01 사용자 지적 · 실기기 스크린샷 실측 181px). env()로 두 경우를 한 식에 담는다.
+     뒤에 깔린 nav는 메뉴가 열리면 항상 nav-hidden(opacity 0)이라 비칠 걱정이 없다(실측). */
+  padding: calc(40px + env(safe-area-inset-top)) 32px 48px;
   min-height: 100%;
   display: flex;
   flex-direction: column;
