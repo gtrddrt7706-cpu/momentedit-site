@@ -911,3 +911,10 @@ chk 'FALLBACK_LADDER' order-preview.html 2                   # 서약·편지 �
 chk 'NAR_MIRROR' order-preview.html 1                        # endLong 인라인 사본이 '안 쓰이니 지워도 된다'로 보이지 않게 하는 주석
 chk 'PHASE_CLIP' console.html 1                              # 클립 재생 중 phase를 끊는 한 줄 · 빼면 녹음이 흐르는 동안 "사람의 시간"이 남는다
 chk 'ALT_CLIP_TEST' automation/tests/console-alt-clip.mjs 1  # 실렌더 검증 스크립트 자체(브라우저 필요라 여기선 실행 안 함 · 손으로 돌릴 것)
+
+# ── 더빙 대본 단일 원천 (2026-08-01) ────────────────────────────
+chk 'DUB_SHEET_GUARD' scripts/check-dub-sheet.js 1                          # 시트/자동생성 대본 드리프트 검사 자체
+chk '더빙_녹음_대본_최종.md' 'docs/plans/식순연구/더빙_대본_시트.md' 1        # 시트가 단일 원천을 지목 · 빼면 읽는 사람이 어느 문서로 녹음할지 갈린다
+chk 'AI 음성 고지' scripts/build-dubbing-script.mjs 1                        # G1-4 고지 삭제 금지 근거 · 예식 전체에서 AI 고지가 나가는 유일한 자리
+# 시트가 문안·연출노트를 다시 복사해 들고 있으면 여기서 걸린다(2026-08-01 드리프트 8건 · 그중 4건이 사고급)
+if command -v node >/dev/null 2>&1; then node scripts/check-dub-sheet.js || fail=1; fi
