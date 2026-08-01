@@ -887,6 +887,8 @@ chk 'EDGE_BACK' inquiry.html 1                              # 가장자리 스�
 chk 'EDGE_BACK' parents.html 1                              # 가장자리 스와이프 뒤로가기
 chk 'EDGE_BACK' schedule.html 1                             # 가장자리 스와이프 뒤로가기
 chk 'EDGE_BACK' mypage.html 1                               # 가장자리 스와이프 뒤로가기 · 당겨서 새로고침(세로)과 공존
+chk 'SHEET_DISMISS' shared/edge-back.js 1                   # 모달 아래로 쓸어 닫기 · 캔버스/입력 위에서는 포기
+chk 'ZONE_MIN' shared/edge-back.js 1                        # iOS는 시스템 띠(0~20px)를 비켜 24~76px에서 받는다 · 통째로 끄지 말 것
 
 # ── 현장 콘솔 · 큐 엔진 (2026-07-31) ─────────────────────────────
 chk '\[CUE_ENGINE_V1\]' assets/ritual-cue.js 1               # 큐 생성 엔진 본체 · 콘솔과 미리듣기가 같이 죽는다
