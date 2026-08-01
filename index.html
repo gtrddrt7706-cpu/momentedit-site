@@ -2365,6 +2365,18 @@ a.ig-handle:hover {
   overflow: hidden;
   z-index: 1;
 }
+/* [BTN_WIDTH] 데스크톱에서 세 버튼 폭이 288 / 263 / 209로 제각각이었다(실측 2026-08-01).
+   inline-block이라 글자 수가 폭을 정한 탓 — '청첩장 미리보기'(7자)가 '어른께 드리는 안내 보기'(11자)보다
+   54px 좁아 혼자만 작아 보였다(사용자 지적). 같은 체계의 버튼은 폭도 같아야 한 벌로 읽힌다.
+   기준은 전환 CTA의 자연폭 288px. 680px 이하에서는 두 버튼 다 block+좌우 20px 마진으로 폭이
+   화면에서 정해지므로 이 규칙을 걸지 않는다 — 320px에서 288px 하한이 걸리면 밖으로 삐져나온다. */
+@media (min-width: 681px) {
+  .cta-btn,
+  .journal-guide-link {
+    min-width: 288px;
+    box-sizing: border-box;
+  }
+}
 .cta-btn::after {
   content: "";
   position: absolute;
@@ -5882,7 +5894,15 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
       <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">사진 모으기</b> · 원하시면 하객분들이 담은 장면도 한곳으로 모입니다.</span>
     </div>
   </div>
-  <p style="text-align:center;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.04em;margin:16px 0 0;word-break:keep-all">청첩장 그 다음 화면까지, 저희가 직접 만들어 둔 하객 전용 페이지입니다.</p>
+  <!-- [GUIDE_DEMO_CTA] 말로 설명하던 것을 '열어볼 수 있는 것'으로 바꿨다(2026-08-01 사용자 지시).
+       청첩장은 이미 invitation-gallery.html?e=test-couple 로 실물을 보여주고 있었는데
+       하객 안내만 글 세 줄로 설명만 하고 있었다 — 같은 섹션 안에서 증거의 격이 달랐다.
+       guide.html?g=demo 는 서버를 부르지 않는 표본 화면이다(GAS 무부하 · 실명 없음).
+       버튼은 청첩장 미리보기와 같은 .journal-guide-link — 두 제안이 나란히 읽히게. -->
+  <div class="journal-guide" style="margin:30px auto 0;padding-top:28px">
+    <p class="journal-guide-lead">청첩장 그 다음 화면까지, 저희가 직접 만들어 둔 하객 전용 페이지입니다</p>
+    <a href="guide.html?g=demo" class="journal-guide-link">하객 안내 화면 보기 <span class="arrow">→</span></a>
+  </div>
 </div>
 
 <div class="reveal" style="text-align:center;margin-top:48px">
