@@ -24,8 +24,10 @@ const SRC = path.join(root, 'docs/plans/식순연구/더빙_녹음_대본_최종
 const CAST = path.join(root, 'docs/plans/식순연구/배역_예시_대사.txt');
 const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
 
-// ── --voice 진행=대길,안내=김경화 앵커,편지=현주
+// ── --voice 진행=대길,안내=김경화 앵커,편지=한준
 //    보이스가 확정되면 화자명을 캐릭터 이름으로 바꿔 타입캐스트가 자동 배정하게 만든다.
+//    ★공백이 든 이름(김경화 앵커)에 백슬래시를 붙이지 않는다 — 아래에서 slice(a+1).join(' ')로
+//      다시 이어 붙이므로 셸이 나눈 토큰이 저절로 복원된다. 이스케이프하면 이름에 \가 박힌다.
 const VOICE = {};
 {
   const a = process.argv.indexOf('--voice');
