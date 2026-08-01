@@ -962,3 +962,4 @@ chk 'CTA_STACK' shared/hydrate.js 1                          # 하객 안내 CTA
 chk 'GUIDE_DRINK' guide.html 4                               # 내 자리 음료 3종(마이페이지 계약) · 서버가 drink를 보낼 때만 뜬다 · 남의 음료 노출 금지
 chk 'DEMO_MAP' guide.html 2                                  # 표본 지도 도식 · 지명·도로명 없는 추상 도식이어야 한다
 chk 'PS_QUIET' guide.html 1                                  # 사진 올리기 = 채움·진사 없는 헤어라인 버튼 · 골드 채움으로 되돌리지 말 것
+chk 'LIVE_DEMO' live.html 1                                  # ?e=test-couple = 프리뷰(GAS 무호출) · 빼면 갤러리 온라인판 Enter가 '예식을 찾을 수 없습니다'로 떨어진다
