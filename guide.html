@@ -114,8 +114,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
   border-radius:0 0 10px 10px;text-align:center}
 .demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7}
 .demo-foot .t b{color:var(--seal);font-weight:600}
-.demo-foot .b{display:inline-block;margin-top:11px;font-family:var(--serif-ko);font-size:13px;
-  color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:11px 22px;text-decoration:none;min-height:44px;box-sizing:border-box}
+.demo-foot .b{display:inline-block;margin:11px 4px 0;font-family:var(--serif-ko);font-size:13px;
+  color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:11px 20px;text-decoration:none;min-height:44px;box-sizing:border-box}
+.demo-foot .b.sub{color:var(--sub);border-color:var(--border)}   /* --light는 --bg2 위에서 4.5:1을 아슬하게 못 넘긴다(axe 적발) */
 /* ★--faint(#A49D8E)로 두면 --bg2 위에서 2.4:1로 AA 미달이었다(axe 적발).
    위계는 색이 아니라 크기로 낸다 — 브랜드 규칙 그대로. */
 .ps-t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);text-align:center;margin-bottom:13px}
@@ -635,9 +636,12 @@ function renderDemo(){
   var card=document.querySelector('#root .card');
   if(card){
     var f=document.createElement('div'); f.className='demo-foot';
+    // ★'오시는 길·주차 안내는 청첩장에 담깁니다'라고 썼다가 지웠다 — 실제 청첩장(01~08)과
+    //   live.html 어디에도 그 섹션이 없다(2026-08-01 전수 확인). 없는 것을 있다고 쓰면 안 된다.
     f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
-      +'<b>오시는 길·주차 안내</b>는 두 분의 청첩장 화면에 함께 담깁니다.</div>'
-      +'<a class="b" href="/">모먼트에디트 홈으로</a>';
+      +'이 화면은 <b>종이 청첩장 속 QR</b>로 하객에게 전해집니다.</div>'
+      +'<a class="b" href="/invitation-gallery.html?e=test-couple">청첩장 화면도 보기</a>'
+      +'<a class="b sub" href="/">모먼트에디트 홈으로</a>';
     card.appendChild(f);
   }
 }

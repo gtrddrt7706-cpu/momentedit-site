@@ -929,7 +929,7 @@ chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 
 
 # ── 청첩장 CTA 통일 · 관리자 설문 요약화 (2026-08-01) ──────────
 chk 'BTN_TIER' index.html 7                                  # 버튼 2단 체계 · 청첩장 미리보기도 외곽 마룬으로 편입(세 번째 스타일 금지)
-chk 'journal-guide-link' index.html 8                        # 외곽 마룬 버튼 3곳(부모님·청첩장·하객 안내)이 같은 클래스를 쓴다
+chk 'journal-guide-link' index.html 10                       # 외곽 마룬 버튼 3곳(청첩장·하객 안내·부모님)이 같은 클래스를 쓴다
 chk 'SV_DIGEST' admin.html 3                                 # 설문 요약화 · neg 정의 + renderSurvey + 접힘 CSS
 chk 'sv-fold' admin.html 8                                   # 문항별 분포·후기 접기 · 풀면 응답 1건에 막대 12개가 다시 깔린다
 chk 'sv-watch' admin.html 5                                  # '눈여겨볼 응답'만 추리는 요약 카드 · 이게 빠지면 요약이 평균 3개뿐이 된다
@@ -939,3 +939,4 @@ chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 
 chk 'BTN_WIDTH' index.html 1                                 # 데스크톱 버튼 폭 288px 통일 · inline-block이라 글자 수가 폭을 정하던 것
 chk 'A11Y_SEATMAP' guide.html 1                              # 가로 스크롤 배치도 tabindex=0 · 빼면 키보드 하객이 화면 밖 테이블을 못 본다(WCAG 2.1.1)
 chk 'act-off' guide.html 2                                   # 표본에서 지도·사진 올리기 이동 차단 · 지어낸 가게로 지도를 띄우면 고장난 화면이 된다
+chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것

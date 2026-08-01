@@ -5859,50 +5859,38 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 </div>
 
 <!-- DIGITAL ATTENDANCE PREVIEW — 청첩장 → 디지털 참석 전체 하객 경험 체험 -->
-<!-- [BTN_TIER] 청첩장 미리보기 CTA — 부모님 안내 버튼(.journal-guide-link)과 같은 격으로 통일(2026-08-01).
-     전에는 이것만 세 번째 스타일이었다: 28px 패딩의 큰 박스 + 안쪽에 밑줄 친 'View Gallery' +
-     호버 시 translateY(-2px)와 그림자 두 겹. 화면에서 가장 무거운 요소인데 격은 '보조 이동'이라
-     무게와 역할이 어긋나 있었고, 그림자·들림은 브랜드 금지사항이다.
-     → 2단 체계 안으로 들인다. 리드 한 줄 + 외곽 마룬 버튼. 화살표는 →(다른 문서로 이동).
-     ★[NOWRAP_CLIP_FIX] 이 자리에 white-space:nowrap 금지(2026-07-30 사고 · 교훈 승계).
-       옛 카드에서 390px 기준 내용 317px / 표시 300px로 17px가 잘려 '됩니다.'가 안 보였다.
-       body에 overflow-x:hidden이 있어 가로 스크롤도 안 생기고 그냥 잘린다 — 아무도 모른다.
-       body의 word-break:keep-all이 어절 단위로 끊어주므로 손대지 말 것. -->
-<div class="journal-guide reveal" style="max-width:520px;margin:64px auto 0">
-  <p class="journal-guide-lead">청첩장은 두 분의 이야기에 맞춰 자유롭게 커스텀됩니다</p>
-  <a href="invitation-gallery.html?e=test-couple" class="journal-guide-link">청첩장 미리보기 <span class="arrow">→</span></a>
-</div>
+<!-- [GUEST_PREVIEW] 하객이 받는 두 화면을 한 자리에서 '직접 열어보게' 한다(2026-08-01 사용자 지시).
+     전에는 ① 청첩장 미리보기 버튼이 따로 있고 ② 그 아래 하객 안내를 회색 3줄로 '설명'만 하고
+     ③ 또 그 아래 하객 안내 버튼이 있었다 — 같은 이야기가 세 덩어리로 흩어져 있었다.
+     ★직접 볼 수 있으면 설명은 필요 없다. 3줄 설명을 지우고 각 버튼 위 한 줄 캡션으로 줄였다.
+     ★온라인/오프라인 소속을 캡션에 명시한다 — 하객 안내는 '종이 청첩장 속 QR'로 들어가는
+       파생 페이지다(mypage 정의와 일치). 어디에 속한 화면인지 모르면 두 버튼이 남남으로 읽힌다.
 
-<!-- [PRM_GUEST] 오시는 하객의 손안 화면 3종(2026-07-31 홍보 최신화) — 청첩장 '다음'까지 준비돼 있음을 구체로.
-     전부 실제 기능(guide.html 안내 허브 · seat.html 자리 찾기 · 사진 모으기는 두 분이 열어둘 때). -->
+     [PRM_GUEST] 하객 손안 화면 3종을 회색 상자로 설명하던 블록의 후신이다. 설명을 지운 건
+       내용을 버린 게 아니라 '열어볼 수 있는 것'으로 승격시킨 것 — 되돌려 3줄 설명으로 만들지 말 것.
+       ★삭제된 'Way · 오시는 길·주차 안내' 항목은 실제로 어느 페이지에도 없다(청첩장 01~08 ·
+         live.html · guide.html 전수 확인 2026-08-01). 없는 기능을 홍보하고 있던 것이라 함께 내렸다.
+     [GUIDE_DEMO_CTA] 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로 — guide.html?g=demo로 연결.
+     [BTN_TIER] 두 버튼 모두 외곽 마룬(.journal-guide-link) · 세 번째 스타일을 만들지 말 것.
+     [NOWRAP_CLIP_FIX] 이 자리에 white-space:nowrap 금지(2026-07-30 사고) — 390px에서 17px가
+       잘려 문장 끝이 사라진다. body의 word-break:keep-all이 어절 단위로 끊어주므로 손대지 말 것. -->
 <div class="reveal" style="max-width:560px;margin:64px auto 0">
-  <div style="text-align:center;margin-bottom:22px">
+  <div style="text-align:center;margin-bottom:26px">
     <span style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--seal)">The Guest Companion</span>
-    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0;word-break:keep-all">예식 당일, 오시는 하객의 손안에는</p>
+    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0;word-break:keep-all">예식 당일, 하객이 받는 두 화면</p>
   </div>
-  <div style="display:grid;gap:12px">
-    <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
-      <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Way</span>
-      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">오시는 길·주차 안내</b> · 출발 전 다시 찾게 되는 것들이 링크 하나에 정리됩니다.</span>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
-      <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Seat</span>
-      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">내 자리 찾기</b> · 이름을 찾으면 자리가 바로 보입니다. 좌석표 앞에서 서성일 일이 없어요.</span>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px;background:var(--bg2);border-radius:6px">
-      <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-text);flex-shrink:0;letter-spacing:0.04em">Photos</span>
-      <span style="font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;word-break:keep-all"><b style="font-weight:500;color:var(--text)">사진 모으기</b> · 원하시면 하객분들이 담은 장면도 한곳으로 모입니다.</span>
-    </div>
+
+  <div class="journal-guide" style="margin:0;padding-top:0;border-top:none">
+    <p class="journal-guide-lead" style="margin-bottom:12px"><b style="font-weight:500;color:var(--sub)">온라인 청첩장</b><br>인사 · 예식일 · 디지털 참석 · 편지 · 축의</p>
+    <a href="invitation-gallery.html?e=test-couple" class="journal-guide-link">청첩장 미리보기 <span class="arrow">→</span></a>
   </div>
-  <!-- [GUIDE_DEMO_CTA] 말로 설명하던 것을 '열어볼 수 있는 것'으로 바꿨다(2026-08-01 사용자 지시).
-       청첩장은 이미 invitation-gallery.html?e=test-couple 로 실물을 보여주고 있었는데
-       하객 안내만 글 세 줄로 설명만 하고 있었다 — 같은 섹션 안에서 증거의 격이 달랐다.
-       guide.html?g=demo 는 서버를 부르지 않는 표본 화면이다(GAS 무부하 · 실명 없음).
-       버튼은 청첩장 미리보기와 같은 .journal-guide-link — 두 제안이 나란히 읽히게. -->
-  <div class="journal-guide" style="margin:30px auto 0;padding-top:28px">
-    <p class="journal-guide-lead">청첩장 그 다음 화면까지, 저희가 직접 만들어 둔 하객 전용 페이지입니다</p>
+
+  <div class="journal-guide" style="margin:34px 0 0;padding-top:32px">
+    <p class="journal-guide-lead" style="margin-bottom:12px"><b style="font-weight:500;color:var(--sub)">종이 청첩장 속 QR</b><br>내 자리 찾기 · 식사·애프터 · 사진 모으기</p>
     <a href="guide.html?g=demo" class="journal-guide-link">하객 안내 화면 보기 <span class="arrow">→</span></a>
   </div>
+
+  <p style="text-align:center;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.04em;margin:26px 0 0;word-break:keep-all">두 화면 모두 저희가 직접 만들어 둔 하객 전용 페이지입니다. 어떤 청첩장이든, 하객의 다음 화면은 저희가 잇습니다.</p>
 </div>
 
 <div class="reveal" style="text-align:center;margin-top:48px">
