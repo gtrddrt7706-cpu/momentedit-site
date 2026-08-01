@@ -68,6 +68,12 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
 .state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
+/* [STATE_EXIT] 막다른 화면의 출구 — 카드 안쪽 여백(22px 18px 20px)을 가로질러 구분선을 긋는다 */
+.state-x{margin:0 -18px -20px;padding:17px 18px 20px;border-top:1px solid var(--border);background:var(--bg2);border-radius:0 0 8px 8px}
+.state-x-h{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-align:center}
+.state-x-s{font-size:13px;color:var(--sub);line-height:1.65;word-break:keep-all;text-wrap:pretty;text-align:center;margin-bottom:13px}
+.state-x-b{display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;background:var(--gold-text);color:#fff;word-break:keep-all}
+.state-x-b.sub{background:#fff;color:var(--gold-text);border:1px solid var(--border);margin-top:8px;font-weight:500}
 </style>
 <style>
 /* ════════════════════════════════════════════════════════════════
@@ -176,7 +182,21 @@ function fmtDate(ymd){
   var WD=['일','월','화','수','목','금','토'];
   return (+p[0])+'년 '+(+p[1])+'월 '+(+p[2])+'일 ('+WD[dt.getDay()]+')';
 }
-function stateHtml(msg, sm){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div></div>'; }
+// ★[STATE_EXIT] 막다른 화면에 출구가 없었다(2026-08-01) — '잘못된 주소예요'를 만난 하객은 여기서 할 수 있는 게 없다.
+//   카카오톡으로 옮겨 다니는 동안 주소 끝의 `?t=…`가 잘려 오는 일이 실제로 있다. 예식 당일 아침 예식장 앞에서
+//   이 화면을 보고 있는 하객을 기준으로 만든다 — 무엇을 해 보면 되는지 + 물어볼 곳 두 군데.
+//   ★신랑·신부 개인 연락처는 절대 넣지 않는다 — 이 주소는 하객 전원에게 뿌려지는 공개 링크다.
+//   ★붙이는 자리는 되돌아갈 길이 막힌 상태뿐이다. 로딩·'연결이 느려요'에는 붙이지 않는다
+//     (곧 저절로 풀릴 일에 문의처를 내밀면 멀쩡한 회선을 고장으로 오해한다).
+//   ★'예식이 끝나 닫혔어요'에도 붙이지 않는다 — 그건 사고가 아니라 정상 종료다. 링크를 다시 받아도 소용없고,
+//     감사 인사 밑에 문의 버튼을 다는 건 실례다.
+var EXIT_HTML='<div class="state-x">'
+  +'<div class="state-x-h">이렇게 해 보세요</div>'
+  +'<div class="state-x-s">청첩장을 보내 주신 분께 링크를 다시 받아 주세요 · 카카오톡으로 받은 주소는 끝이 잘려 있을 때가 있어요.</div>'
+  +'<a class="state-x-b" href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener">카카오톡으로 문의하기</a>'
+  +'<a class="state-x-b sub" href="mailto:contact@momentedit.kr">메일로 문의 · contact@momentedit.kr</a>'
+  +'</div>';
+function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
 var NUMS={};     // 배열 인덱스 → 행순서 표시 번호(지도 배지·검색 결과가 같은 번호를 쓰게)
@@ -386,7 +406,7 @@ function seatFailHtml(){
 }
 (function boot(){
   var t=qp('t');
-  if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.'); return; }
+  if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   function load(attempt){
     fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
       .then(function(r){ return r.json(); })
@@ -394,7 +414,7 @@ function seatFailHtml(){
         if(d && d.ok && d.seat){ render(d.seat); }
         else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면
         else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
-        else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.'); }
+        else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })
       .catch(function(){
         if(attempt<2){
