@@ -5410,7 +5410,13 @@ body {
   <div class="hero-veil" aria-hidden="true"></div>
   <div class="hero-feather" aria-hidden="true"></div>
 </div>
-<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}var te=null;/* .hero-tease는 이 스크립트보다 뒤에 있어 u() 안에서 지연 조회 *//* 베일 스탑 조견표(p 0.2~1.0, 0.1 간격)+진사 배경 합성 → 경계 위 실제 색 계산용. 베일 그라데이션을 바꾸면 함께 갱신 */var VL=[[250,250,248,1],[247,243,236,1],[241,231,218,1],[232,210,188,0.994],[215,165,139,0.916],[186,124,102,0.67],[146,76,61,0.42],[115,46,39,0.18],[111,43,36,0]];function seamCol(sp){var x=(Math.max(0.2,Math.min(1,sp))-0.2)/0.1,i=Math.min(7,Math.floor(x)),tt=x-i,A=VL[i],B=VL[i+1],a=A[3]+(B[3]-A[3])*tt,r=A[0]+(B[0]-A[0])*tt,g=A[1]+(B[1]-A[1])*tt,bl=A[2]+(B[2]-A[2])*tt;return [a*r+(1-a)*70,a*g+(1-a)*23,a*bl+(1-a)*16];}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0,fo=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}/* 이음띠 시작색 = 경계 위 실제 색(페더 불투명도×아이보리 착지 + 나머지×베일·배경 합성) → 경계 라인 원천 차단(2026-07-17 '순간 딱 라인' 지적) */if(!te){te=document.querySelector('.hero-tease');}if(te){var sc2=seamCol(1-veil),st=[Math.round(fo*245+(1-fo)*sc2[0]),Math.round(fo*239+(1-fo)*sc2[1]),Math.round(fo*229+(1-fo)*sc2[2])];te.style.setProperty('--stripTop','rgb('+st.join(',')+')');}if(tc){var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
+<script>(function(){var hero=document.querySelector('.hero');if(!hero)return;var logo=hero.querySelector('.hero-logo'),scr=hero.querySelector('.hero-scroll'),fe=hero.querySelector('.hero-feather');var tc=document.getElementById('meThemeColor'),tcCream=null;var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;var t=false;function clamp(v){return Math.max(0,Math.min(1,v));}var te=null;/* .hero-tease는 이 스크립트보다 뒤에 있어 u() 안에서 지연 조회 *//* 베일 스탑 조견표(p 0.2~1.0, 0.1 간격)+진사 배경 합성 → 경계 위 실제 색 계산용. 베일 그라데이션을 바꾸면 함께 갱신 */var VL=[[250,250,248,1],[247,243,236,1],[241,231,218,1],[232,210,188,0.994],[215,165,139,0.916],[186,124,102,0.67],[146,76,61,0.42],[115,46,39,0.18],[111,43,36,0]];function seamCol(sp){var x=(Math.max(0.2,Math.min(1,sp))-0.2)/0.1,i=Math.min(7,Math.floor(x)),tt=x-i,A=VL[i],B=VL[i+1],a=A[3]+(B[3]-A[3])*tt,r=A[0]+(B[0]-A[0])*tt,g=A[1]+(B[1]-A[1])*tt,bl=A[2]+(B[2]-A[2])*tt;return [a*r+(1-a)*70,a*g+(1-a)*23,a*bl+(1-a)*16];}function u(){t=false;var y=window.scrollY||0,vh=window.innerHeight||1,hh=hero.offsetHeight||vh;var veil=0,fo=0;if(!rm){var vr=clamp(y/(hh*1.7));veil=vr*vr*(3-2*vr);hero.style.setProperty('--heroVeilY',((1-veil)*100).toFixed(2)+'%');if(fe){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}if(logo){if(y<=2){logo.style.removeProperty('opacity');logo.style.removeProperty('transform');}else{var lo=1-clamp((veil-0.18)/0.5);logo.style.setProperty('opacity',lo.toFixed(3),'important');logo.style.setProperty('transform','translateY('+(y*0.12).toFixed(1)+'px) scale('+(1+(1-lo)*0.045).toFixed(4)+')','important');}}if(scr){if(y<=2){scr.style.removeProperty('opacity');}else{scr.style.opacity=(1-clamp(y/(vh*0.35))).toFixed(3);}}}if(fe&&rm){fo=clamp((y-hh*0.12)/(hh*0.38));fe.style.opacity=fo.toFixed(3);}/* 이음띠 시작색 = 경계 위 실제 색(페더 불투명도×아이보리 착지 + 나머지×베일·배경 합성) → 경계 라인 원천 차단(2026-07-17 '순간 딱 라인' 지적) */if(!te){te=document.querySelector('.hero-tease');}if(te){var sc2=seamCol(1-veil),st=[Math.round(fo*245+(1-fo)*sc2[0]),Math.round(fo*239+(1-fo)*sc2[1]),Math.round(fo*229+(1-fo)*sc2[2])];te.style.setProperty('--stripTop','rgb('+st.join(',')+')');}if(tc&&!window.__meTCLock){/*[ADV_TC]*/var cream=rm?(y>=hh):(veil>=0.46);/* 0.46 = 새 웜톤 곡선의 밝기 램프 중간점(f≈0.79) — 진사바가 밝은 화면 위에 남는 구간 최소화(2026-07-16 실측) */if(cream!==tcCream){tcCream=cream;tc.setAttribute('content',cream?'#faf9f8':'#6f2b24');}}}
+/* [ADV_TC] 오버레이(상담 도우미 등)가 body를 position:fixed로 고정하면 scrollY가 0으로
+   붕괴한다. 그러면 이 핸들러가 '히어로 맨 위'로 오해하고 테마색을 진사로 되돌려,
+   크림색 패널 위에 아이폰 상태바만 진사 띠로 남았다(2026-08-01 헤드리스 재현).
+   해결: 오버레이가 window.__meTCLock을 세우면 이 핸들러는 손대지 않고,
+   닫힐 때 __meTCSync()로 캐시를 비우고 다시 계산한다(캐시가 남으면 복귀가 한 번 씹힌다). */
+window.__meTCSync=function(){tcCream=null;u();};window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(u);t=true;}},{passive:true});window.addEventListener('resize',u,{passive:true});u();})();</script>
 <!-- HERO GAP · 진사 모노그램 → 넓은 여백 속 작은 키워드(집중) → 사진 등장 -->
 <div class="hero-tease">
   <!-- [TEASE_LINE_CASCADE] 두 줄을 한 덩어리로 페이드하던 것을 줄별 시차 페이드로(2026-07-31 사용자 제안).
@@ -7481,51 +7487,67 @@ function replayHeroAnimation(){
   }
 }
 
+/* [ADV_INDEX] 상담 도우미 메뉴 = '설정 앱 목록'이 아니라 '목차'다 (2026-08-01 개편)
+   구형: 12줄 전부 전폭 헤어라인 + 우측 끝 20px 골드 › + 16px 명조.
+   ─ 문제 1. 12개의 가로줄이 이 브랜드의 주 표현수단인 여백을 12등분해 잘랐다.
+   ─ 문제 2. justify-content:space-between 탓에 글자와 › 사이에 빈 골짜기(최대 200px)가
+             생겼다. 표(table cell)로 읽히게 만든 결정적 신호였다.
+   ─ 문제 3. 16px 칩이 14px 답변 버블보다 커서 위계가 뒤집혀 있었다.
+   개편: 선을 전부 걷어내고 여백으로 나눈다 · ›를 글자 바로 뒤에 붙인다 · 14px로 내려
+         답변(14)과 같은 격, 제목(20)과 위계를 만든다. 탭 타깃은 45px로 유지. */
 .me-adv-chips {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin-top: 8px;
+  gap: 2px;
+  /* 눌림 배경이 글줄 좌우로 10px 번지게 — 글자는 본문 22px 라인 유지.
+     위 여백 2px인 이유: [TYPO_RHYTHM] 라벨 '위' 공백(24+10=34)이 '아래'(2+칩패딩12=14)의
+     2배 이상이어야 라벨이 목록에 붙은 것으로 읽힌다. 균등하면 헤더 것인지 목록 것인지 모른다. */
+  margin: 2px -10px 0;
 }
 .me-adv-chip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;   /* 빈 골짜기 제거 — ›가 글자를 따라온다 */
+  gap: 4px;
   width: 100%;
   text-align: left;
   font-family: var(--serif-ko);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
+  letter-spacing: 0.01em;
   color: var(--accent);
   background: none;
   border: none;
-  border-bottom: 1px solid var(--hairline);
-  border-radius: 0;
-  padding: 15px 2px;
+  border-radius: 6px;
+  padding: 12px 10px;   /* 21(행) + 24 = 45px 탭 타깃 */
   cursor: pointer;
   transition:
     color 0.3s var(--ease),
+    background 0.12s var(--ease),
     padding-left 0.3s var(--ease);
-  line-height: 1.4;
+  line-height: 1.5;
   word-break: keep-all;
 }
-.me-adv-chip:last-child {
-  border-bottom: none;
-}
 .me-adv-chip:hover {
-  color: var(--gold);
-  padding-left: 8px;
+  color: var(--seal);   /* 구 --gold(2.54:1)는 호버하는 순간 AA 미달이었다 → --seal 10.14:1 */
+  padding-left: 18px;
+}
+.me-adv-chip:active {
+  background: var(--bg2);   /* 폰엔 호버가 없다 — 눌림 감각은 이 옅은 워시가 낸다 */
 }
 .me-adv-greet{margin-top:auto}   /* 메뉴는 위·인사말 버블만 하단(입력창 쪽)으로 — 넘치면 auto가 0으로 접혀 정상 스크롤 (2026-07-07) */
+/* [ADV_INDEX] 한글을 Cormorant 이탤릭 대문자로 조판하던 자리.
+   Cormorant엔 한글 글리프가 없어 폴백으로 떨어지고, 거기 italic이 걸려 '가짜 기울임'이
+   되고, uppercase는 한글에 아무 효과가 없었다. 색도 --gold(2.54:1)라 AA 미달.
+   → 이 사이트가 이미 쓰는 국문 소라벨 규격(.sec-label.ko)에 맞춘다. 자간은
+     [LABEL_KO_TRACK]이 한글 조각에 정한 0.08em. */
 .me-adv-chips-label {
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--serif-ko);
   font-size: 12px;
+  font-weight: 400;
   letter-spacing: 0.08em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin: 6px 0 -2px;
+  color: var(--sub);
+  margin: 10px 0 0;
 }
 .me-adv-nav {
   display: flex;
@@ -7547,7 +7569,7 @@ function replayHeroAnimation(){
   border: none;
   cursor: pointer;
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text);   /* [GOLD_TEXT_AA] 글자다 — 장식 골드(2.54:1) 금지 */
   padding: 0;
   font-family: var(--sans);
   line-height: 1.4;
@@ -7556,18 +7578,23 @@ function replayHeroAnimation(){
   text-decoration: underline;
 }
 .me-adv-crumb .sep {
-  color: var(--light);
-  opacity: 0.55;
+  color: var(--light);   /* opacity 0.55를 걸면 4.74:1이 2.6:1로 떨어졌다 — 하한선 그대로 쓴다 */
 }
 .me-adv-crumb .cur {
   color: var(--sub);
 }
+/* [ADV_INDEX] 20px 골드 ›가 12번 반복되며 패널에서 가장 시끄러운 요소였다.
+   글자와 같은 줄의 글리프이므로 색은 --gold-text가 규칙(장식 --gold 아님). 크기도 한 단 낮춘다. */
 .me-adv-chip.cat::after {
   content: "›";
-  color: var(--gold);
-  font-size: 20px;
+  color: var(--gold-text);
+  font-size: 14px;
   line-height: 1;
   flex: 0 0 auto;
+  /* 광학 보정: ›(U+203A)는 명조 em박스에서 수학축 근처에 앉아 한글보다 2px 낮게 보인다.
+     정렬은 top으로, 움직임은 transform으로 — 섞으면 호버 때 보정이 날아간다. */
+  position: relative;
+  top: -2px;
   transition: transform 0.3s var(--ease);
 }
 .me-adv-chip.cat:hover::after {
@@ -7974,9 +8001,18 @@ function replayHeroAnimation(){
       _locked=false;
     }
   }
+  // [ADV_TC] 패널은 크림 바탕이다 — 열려 있는 동안 상태바도 크림으로 고정한다.
+  // lockScroll()이 scrollY를 0으로 무너뜨려 히어로 스크립트가 진사로 되돌리는 것을 막는다.
+  var tcEl=document.getElementById('meThemeColor');
+  function themeCream(on){
+    if(!tcEl) return;
+    if(on){ window.__meTCLock=1; tcEl.setAttribute('content','#faf9f8'); }
+    else  { window.__meTCLock=0; if(window.__meTCSync) window.__meTCSync(); }
+  }
   function open(keepScroll){
     panel.classList.add('open'); stackEl.classList.add('hide');
     if(backdrop) backdrop.classList.add('open');
+    themeCream(true);
     lockScroll();
     if(!started){
       started=true;
@@ -7991,6 +8027,7 @@ function replayHeroAnimation(){
     panel.classList.remove('open'); stackEl.classList.remove('hide');
     if(backdrop) backdrop.classList.remove('open');
     unlockScroll();
+    themeCream(false);   // unlockScroll 뒤에 — 스크롤 복원이 끝나야 히어로가 제 값을 계산한다
   }
   if(backdrop) backdrop.addEventListener('click',close);
 
@@ -7999,7 +8036,11 @@ function replayHeroAnimation(){
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
 
-  fab.addEventListener('click',open);
+  /* [ADV_OPEN_TOP] 여기서 open을 그대로 넘기면 첫 인자(keepScroll)에 MouseEvent가 들어간다.
+     truthy라 'body.scrollTop=0'이 통째로 건너뛰어졌고, 직전 addMsg(인사말)의 scrollDown()이
+     남긴 스크롤 211px이 그대로 유지됐다. 즉 FAB로 열면 항상 라벨과 상위 3개 항목
+     (비용·결제 / 예식 진행·시간 / 공간·위치·하객)이 화면 위로 잘려 있었다. 2026-08-01 실측. */
+  fab.addEventListener('click',function(){ open(false); });
   closeBtn.addEventListener('click',close);
 
   // FAQ 섹션 AI 검색창 → 상담 도우미 열고 그 질문을 바로 2단으로 전송

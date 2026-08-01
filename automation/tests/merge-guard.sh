@@ -918,3 +918,10 @@ chk '더빙_녹음_대본_최종.md' 'docs/plans/식순연구/더빙_대본_시�
 chk 'AI 음성 고지' scripts/build-dubbing-script.mjs 1                        # G1-4 고지 삭제 금지 근거 · 예식 전체에서 AI 고지가 나가는 유일한 자리
 # 시트가 문안·연출노트를 다시 복사해 들고 있으면 여기서 걸린다(2026-08-01 드리프트 8건 · 그중 4건이 사고급)
 if command -v node >/dev/null 2>&1; then node scripts/check-dub-sheet.js || fail=1; fi
+
+# ── 상담 도우미 패널 개편 (2026-08-01) ────────────────────────
+chk 'ADV_INDEX' index.html 3                                 # 목차형 메뉴 3곳(칩·라벨·›) · 선 없애고 여백으로 나눔 · ›를 글자 뒤에 붙임 · 14px
+chk 'ADV_TC' index.html 3                                    # 패널 열린 동안 상태바 크림 고정(진사 띠 방지) · 히어로 잠금 + 동기화 훅 + 패널 호출부
+chk '__meTCSync' index.html 2                                # 잠금 해제 시 캐시 비우고 재계산 · 없으면 닫은 뒤 테마색이 한 번 씹힌다
+chk 'ADV_OPEN_TOP' index.html 1                              # fab 클릭에 open을 그대로 넘기면 MouseEvent가 keepScroll로 들어가 목록 상단이 잘린다
+chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 없다 · 눌림 워시를 지우면 탭 피드백이 사라진다
