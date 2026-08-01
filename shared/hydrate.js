@@ -369,9 +369,42 @@
     // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
     var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
     // 지도 미설정(사업장 계약 전 등) → 빈 iframe 대신 안내 placeholder (#5)
+    /* [VENUE_MAP_DEMO] 표본(?e=test-couple)에서는 안내 문구 대신 지도 도식을 세운다
+       (2026-08-01 사용자 지시 "예시 부분이니깐 지도도 임시로").
+       ★실제 청첩장에서는 '장소는 본 계약 후 안내드립니다'를 그대로 둔다 —
+         본계약 전이라 정확 주소가 없는 건 사실이고, 하객에게 가짜 지도를 보이면 안 된다.
+       ★도식에는 지명·도로명을 넣지 않는다. guide.html [DEMO_MAP]과 같은 언어(길·핀·Sample Map).
+       ★격자 4줄로는 지도가 아니라 모눈종이로 읽힌다(첫 시안 실패). 길은 꺾이고, 블록이 있고,
+         핀은 교차점에 발을 딛어야 지도로 보인다. 그래서 SVG로 그린다.
+         preserveAspectRatio=slice — 디자인 08종의 박스 비율이 제각각이어도 안 찌그러진다. */
     if (!String(venue.mapIframe || '').trim()) {
-      html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g,
-        '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#9a8f7f;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>');
+      var _isDemo = String(c.eventId || '') === 'test-couple';
+      var _fill = _isDemo
+        ? '<div class="venue-map-pending" aria-hidden="true" style="position:relative;height:100%;min-height:200px;background:#efece5;overflow:hidden">'
+          + '<svg viewBox="0 0 344 212" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;display:block">'
+          + '<rect width="344" height="212" fill="#efece5"/>'
+          + '<g fill="#e7e2d8">'
+          + '<rect x="16" y="16" width="104" height="58" rx="2"/><rect x="196" y="12" width="80" height="44" rx="2"/>'
+          + '<rect x="22" y="146" width="76" height="54" rx="2"/><rect x="214" y="152" width="106" height="48" rx="2"/>'
+          + '<rect x="196" y="76" width="52" height="26" rx="2"/>'
+          + '</g>'
+          + '<g stroke="#faf9f8" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+          + '<path d="M0 118H128c14 0 20-6 30-12l186-10" stroke-width="15"/>'
+          + '<path d="M158 0v212" stroke-width="12"/>'
+          + '<path d="M0 90h344" stroke-width="6"/><path d="M274 96v116" stroke-width="6"/>'
+          + '<path d="M60 118 22 212" stroke-width="6"/>'
+          + '</g>'
+          + '<path d="M158 118h100l60-30" stroke="#B89A75" stroke-width="1.4" stroke-dasharray="4 5" stroke-linecap="round" fill="none" opacity=".85"/>'
+          + '<ellipse cx="158" cy="119" rx="6.5" ry="2.2" fill="#6B2A24" opacity=".14"/>'
+          + '<path d="M158 118c-6.6-8.8-9.5-14-9.5-19a9.5 9.5 0 1 1 19 0c0 5-2.9 10.2-9.5 19z" fill="#6B2A24"/>'
+          + '<circle cx="158" cy="99" r="3.4" fill="#efece5"/>'
+          + '</svg>'
+          + '<span style="position:absolute;left:50%;bottom:11px;transform:translateX(-50%);'
+          + 'font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;font-size:10px;letter-spacing:.18em;'
+          + 'color:#6f685c;background:rgba(250,250,248,.92);padding:3px 10px;border-radius:999px">Sample Map</span>'
+          + '</div>'
+        : '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#9a8f7f;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>';
+      html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g, _fill);
     }
     [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
      ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
@@ -485,7 +518,9 @@
            ★position:relative + z-index를 지우면 특정 디자인에서만 조용히 사라진다. 8종 전수 재검증 없이 건드리지 말 것. */
         sec.style.cssText = 'position:relative;z-index:5;margin:72px auto 8px;text-align:center;opacity:0;transition:opacity .55s ease';   // 마지막 본문 섹션 안에 넣어 계좌와 함께 흐르게 + 부드럽게 나타나기. 상단 72px=계좌와 충분히 띄워 CTA로 구분(44는 좁다는 지적 2026-07-22)
         sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
-          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Guest Guide</div>'
+          /* [CTA_EYEBROW] opacity .55는 11px에서 3.1:1로 AA 미달(axe, 2026-08-01). .68 → 5.0:1.
+             ★고정 hex로 바꾸지 말 것 — 08 같은 어두운 디자인에서는 상속색이 반전돼야 한다. 위계는 opacity가 아니라 크기(11px)가 낸다. */
+          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">Guest Guide</div>'
           + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
           + '<a id="meGuideCtaBtn" href="' + href + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
           + '</div>';
@@ -575,7 +610,13 @@
     //      '오프라인판을 스크롤하다 발견'하는 경로가 미리보기에서도 실물과 똑같이 재현되게.
     //      (2026-08-01 갤러리 실물 전환과 세트 · 실제 하객 경로는 이 분기를 지나가지 않는다)
     if (eventId === 'test-couple') {
-      apply(SAMPLE); clearTimeout(failsafe); reveal();
+      // [VENUE_MAP_DEMO] SAMPLE에는 eventId가 없다 → apply()가 표본 경로임을 알 방법이 없었다.
+      //   복사본에 eventId를 실어 보낸다(SAMPLE 원본은 건드리지 않는다 — ?e= 없는 프리뷰도 같은 객체를 쓴다).
+      //   이걸로 ① 오시는 길 지도 도식이 서고 ② 온라인 커버 Enter가 /live.html?e=test-couple로 나간다.
+      var _demo = {}, _k;
+      for (_k in SAMPLE) if (Object.prototype.hasOwnProperty.call(SAMPLE, _k)) _demo[_k] = SAMPLE[_k];
+      _demo.eventId = 'test-couple';
+      apply(_demo); clearTimeout(failsafe); reveal();
       injectGuideCta('test-couple');
       injectGalleryBack();   // [INV_BACK]
       return;
