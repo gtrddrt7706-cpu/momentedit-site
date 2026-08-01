@@ -18,7 +18,7 @@
       "dir": "assets/audio/narration",
       "clips": 12,
       "sents": 36,
-      "chars": 1533
+      "chars": 1534
     },
     {
       "file": "2_진행_전반.txt",
@@ -30,7 +30,7 @@
       "dir": "assets/audio/narration",
       "clips": 22,
       "sents": 50,
-      "chars": 1945
+      "chars": 1946
     },
     {
       "file": "3_진행_후반.txt",
@@ -42,7 +42,7 @@
       "dir": "assets/audio/narration",
       "clips": 19,
       "sents": 60,
-      "chars": 2364
+      "chars": 2365
     },
     {
       "file": "4_혼주편지.txt",
@@ -54,7 +54,7 @@
       "dir": "assets/audio/narration",
       "clips": 1,
       "sents": 38,
-      "chars": 1853
+      "chars": 1854
     },
     {
       "file": "5_배역.txt",
@@ -70,7 +70,7 @@
       "dir": "assets/audio/cast",
       "clips": 15,
       "sents": 59,
-      "chars": 2060
+      "chars": 2062
     }
   ],
   "clips": [
