@@ -963,3 +963,4 @@ chk 'GUIDE_DRINK' guide.html 4                               # 내 자리 음료
 chk 'DEMO_MAP' guide.html 2                                  # 표본 지도 도식 · 지명·도로명 없는 추상 도식이어야 한다
 chk 'PS_QUIET' guide.html 1                                  # 사진 올리기 = 채움·진사 없는 헤어라인 버튼 · 골드 채움으로 되돌리지 말 것
 chk 'LIVE_DEMO' live.html 1                                  # ?e=test-couple = 프리뷰(GAS 무호출) · 빼면 갤러리 온라인판 Enter가 '예식을 찾을 수 없습니다'로 떨어진다
+chk 'MOCKUP_TERSE' index.html 2                              # 목업 4단 설명 30자 이내 1줄 규칙 · 옆 폰이 이미 화면을 보여주므로 글이 한 번 더 묘사하면 중복이다
