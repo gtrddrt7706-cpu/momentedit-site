@@ -943,3 +943,6 @@ chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객
 chk 'GALLERY_GUIDE' invitation-gallery.html 3                # 갤러리 10번째 카드 = 하객 안내 표본(src 직접) · 빼면 메인 버튼이 다시 2개로 갈라진다
 chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소
 chk 'GALLERY_HREF' invitation-gallery.html 1                 # Open↗ 폴백 경로 i/invitations/ · 루트로 되돌리면 인앱 브라우저에서만 조용히 404
+chk 'GV_CHOOSE' invitation-gallery.html 3                    # 진입 선택(온라인/오프라인) · '둘 다 둘러보기' 탈출구와 세션 기억을 함께 지울 것
+chk 'GD_TRY' i/invitations/invitation-09-guide.html 2        # '이렇게 맞춰집니다' 카드의 눌러보기 버튼 · 갤러리 안에선 카드 이동
+chk 'GD_TRY' invitation-gallery.html 1                       # 그 버튼이 보내는 메시지를 받는 쪽 · 빠지면 버튼이 먹통이 된다

@@ -41,6 +41,13 @@
   .gd-two-item + .gd-two-item{padding-top:22px}
   .gd-two-label{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.07em;color:var(--seal)}
   .gd-two-desc{font-size:12.5px;font-weight:300;color:var(--sub);line-height:1.9;margin:8px 0 0;word-break:keep-all}
+/* [GD_TRY] 설명 옆에 '그래서 어떻게 보이는데'를 붙인다. 종이 청첩장을 고른 하객은
+   QR을 찍어 하객 안내로 들어간다 — 그 경로를 글로 설명하는 대신 눌러 보게 한다.
+   갤러리 안(iframe)에서는 카드 이동, 단독으로 열렸을 땐 href 그대로 이동한다. */
+.gd-try{display:inline-block;margin:12px 0 0;font-family:var(--serif-ko);font-size:12px;font-weight:400;
+  letter-spacing:0.06em;color:var(--seal);text-decoration:none;border:1px solid var(--seal);border-radius:4px;
+  padding:11px 18px;min-height:44px;box-sizing:border-box;line-height:1.4}
+.gd-try:active{background:rgba(107,42,36,0.06)}
   .gd-two-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--seal);letter-spacing:0.02em;line-height:1.7;margin:9px 0 0;word-break:keep-all}
   .gd-scroll{position:fixed;left:0;right:0;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:20;transition:opacity 0.4s ease}
   .gd-scroll.hide{opacity:0}
@@ -79,10 +86,13 @@
       <div class="gd-two-item">
         <div class="gd-two-label">온라인 청첩장</div>
         <p class="gd-two-desc">멀리 계신 하객께 링크 한 번으로,<br>디지털 참석 페이지로 이어집니다.</p>
+        <a class="gd-try" href="/invitation-gallery.html?e=test-couple" data-gv="online">청첩장 디자인 보기 →</a>
       </div>
       <div class="gd-two-item">
         <div class="gd-two-label">오프라인 청첩장</div>
         <p class="gd-two-desc">가까운 분들께 직접 건네는 한 편,<br>오시는 길(약도)을 함께 담습니다.</p>
+        <p class="gd-two-desc" style="margin-top:6px">종이에 인쇄된 QR을 찍으면 <b style="font-weight:500;color:var(--seal)">하객 안내</b> 화면이 열립니다.</p>
+        <a class="gd-try" href="/guide.html?g=demo" data-gv="guide">QR을 찍으면 열리는 화면 →</a>
       </div>
     </div>
   </div>
@@ -92,6 +102,18 @@
   <span class="gd-scroll-chev"></span>
 </div>
 <script>
+/* [GD_TRY] 갤러리(iframe) 안에서는 새 창으로 나가지 않고 해당 카드로 넘어간다.
+   ★부모 창이 없을 때(단독 열람)는 href 그대로 — 그래서 링크를 button이 아니라 a로 뒀다. */
+(function(){
+  var inFrame=false; try{ inFrame = (window.parent && window.parent!==window); }catch(e){ inFrame=true; }
+  Array.prototype.forEach.call(document.querySelectorAll('a[data-gv]'), function(a){
+    a.addEventListener('click', function(e){
+      if(!inFrame) return;
+      e.preventDefault();
+      try{ window.parent.postMessage('gv:goto:'+a.getAttribute('data-gv'), '*'); }catch(_){}
+    });
+  });
+})();
 (function(){var c=document.getElementById('gdScroll');if(!c)return;function u(){var b=document.documentElement;var atEnd=(window.innerHeight+(window.scrollY||window.pageYOffset))>=(b.scrollHeight-28);c.classList.toggle('hide',atEnd);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();
 </script>
 </body>
