@@ -940,3 +940,5 @@ chk 'BTN_WIDTH' index.html 1                                 # 데스크톱 버�
 chk 'A11Y_SEATMAP' guide.html 1                              # 가로 스크롤 배치도 tabindex=0 · 빼면 키보드 하객이 화면 밖 테이블을 못 본다(WCAG 2.1.1)
 chk 'act-off' guide.html 2                                   # 표본에서 지도·사진 올리기 이동 차단 · 지어낸 가게로 지도를 띄우면 고장난 화면이 된다
 chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것
+chk 'GALLERY_GUIDE' invitation-gallery.html 3                # 갤러리 10번째 카드 = 하객 안내 표본(src 직접) · 빼면 메인 버튼이 다시 2개로 갈라진다
+chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소

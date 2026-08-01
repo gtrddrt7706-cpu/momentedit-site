@@ -640,8 +640,10 @@ function renderDemo(){
     //   live.html 어디에도 그 섹션이 없다(2026-08-01 전수 확인). 없는 것을 있다고 쓰면 안 된다.
     f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
       +'이 화면은 <b>종이 청첩장 속 QR</b>로 하객에게 전해집니다.</div>'
-      +'<a class="b" href="/invitation-gallery.html?e=test-couple">청첩장 화면도 보기</a>'
-      +'<a class="b sub" href="/">모먼트에디트 홈으로</a>';
+      // ★target="_top" — 이 표본은 청첩장 갤러리의 10번째 카드로 iframe 안에서도 열린다.
+      //   빼면 갤러리 안에 갤러리가 중첩된다(2026-08-01 [GALLERY_GUIDE]와 짝).
+      //   갤러리로 가는 링크는 두지 않는다 — 지금 그 갤러리 '안'에 있을 수 있다.
+      +'<a class="b" href="/" target="_top">모먼트에디트 홈으로</a>';
     card.appendChild(f);
   }
 }
