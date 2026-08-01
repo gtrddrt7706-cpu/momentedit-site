@@ -933,14 +933,14 @@ chk 'journal-guide-link' index.html 10                       # 외곽 마룬 버
 chk 'SV_DIGEST' admin.html 3                                 # 설문 요약화 · neg 정의 + renderSurvey + 접힘 CSS
 chk 'sv-fold' admin.html 8                                   # 문항별 분포·후기 접기 · 풀면 응답 1건에 막대 12개가 다시 깔린다
 chk 'sv-watch' admin.html 5                                  # '눈여겨볼 응답'만 추리는 요약 카드 · 이게 빠지면 요약이 평균 3개뿐이 된다
-chk 'GUIDE_DEMO' guide.html 5                                # ?g=demo 표본 · GAS 무호출 · 좌석 결과 선표시 · 외부 링크 차단
+chk 'GUIDE_DEMO' guide.html 4                                # ?g=demo 표본 · GAS 무호출 · 좌석 결과 선표시(배너는 2026-08-01 사용자 지시로 제거)
 chk "g==='demo'" guide.html 1                                # 데모 분기는 boot 맨 앞 · 실제 하객 경로는 이 코드를 지나가지 않는다
 chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로
 chk 'BTN_WIDTH' index.html 1                                 # 데스크톱 버튼 폭 288px 통일 · inline-block이라 글자 수가 폭을 정하던 것
 chk 'A11Y_SEATMAP' guide.html 1                              # 가로 스크롤 배치도 tabindex=0 · 빼면 키보드 하객이 화면 밖 테이블을 못 본다(WCAG 2.1.1)
 chk 'act-off' guide.html 2                                   # 표본에서 지도·사진 올리기 이동 차단 · 지어낸 가게로 지도를 띄우면 고장난 화면이 된다
 chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것
-chk 'GALLERY_GUIDE' invitation-gallery.html 1                # 10번째 카드 = 하객 안내 표본 · 빼면 오프라인판 발견 여정의 종착지가 사라진다
+chk 'GALLERY_GUIDE' invitation-gallery.html 2                # 10번째 카드 = 하객 안내 표본 · 빼면 오프라인판 발견 여정의 종착지가 사라진다
 chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소
 chk 'GALLERY_HREF' invitation-gallery.html 1                 # Open↗ = 화면과 같은 실물 주소 · 폴백 404 사고(2026-08-01)의 재발 방지 근거 주석
 # ── 갤러리 실물 전환 (2026-08-01 · 관문 GV_CHOOSE는 GV_VER 토글로 대체·폐기) ──
@@ -950,3 +950,8 @@ chk 'HYDRATE_DEMO' shared/hydrate.js 2                       # test-couple = 시
 chk 'i-family/family-01.html' invitation-gallery.html 1      # 오프라인판 실물 연결 · 카탈로그로 되돌리면 '전체 볼 수 있게'가 다시 깨진다
 chk 'GD_TRY' i/invitations/invitation-09-guide.html 2        # '이렇게 맞춰집니다' 카드의 눌러보기 버튼 · 갤러리 안에선 카드 이동
 chk 'GD_TRY' invitation-gallery.html 1                       # 그 버튼이 보내는 메시지를 받는 쪽 · 빠지면 버튼이 먹통이 된다
+chk 'GV_CENTER' invitation-gallery.html 1                    # .gv-stage min-width:0 근거 · 지우면 스테이지가 4920px로 부풀어 프레임이 왼쪽으로 밀린다
+chk 'GV_SCROLLBAR' invitation-gallery.html 1                 # 프레임 안 실물 스크롤바 숨김 주입 · 윈도우에서 회색 막대 재발 방지
+chk 'GV_OPEN_SAME' invitation-gallery.html 1                 # Open은 같은 탭 · ?i·?v 기록 덕에 뒤로가기로 정확히 복귀
+chk 'GUIDE_INFRAME' guide.html 2                             # 프레임 안에선 뒤로·홈 버튼을 켜지 않는다 · 미리보기 여정 밖으로 새는 문
+chk 'GUIDE_SCROLLCUE' guide.html 3                           # 스크롤바 숨김 + Scroll 큐 · 내용이 길 때만 나타나고 스크롤하면 사라진다

@@ -97,11 +97,6 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
 .privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
-/* [GUIDE_DEMO] 표본 화면 표시줄 — 링크가 잘못 돌아다녀도 하객이 실제 안내로 오해하지 않게 */
-.demo-flag{margin:0 -18px;padding:11px 18px;background:var(--bg2);border-bottom:1px solid var(--hair);
-  border-radius:10px 10px 0 0;font-size:11.5px;line-height:1.6;color:var(--sub);text-align:center}
-.demo-flag b{color:var(--seal);font-weight:600}
-.demo-flag .hint{display:block;margin-top:3px;font-size:11px;color:var(--sub);letter-spacing:.02em}
 /* [GUIDE_DEMO] 표본에서는 바깥으로 나가는 링크를 죽인다 — 지어낸 가게로 지도를 띄우거나
    빈 앨범으로 내보내면 '고장난 화면'으로 읽힌다. 모양은 그대로 두되 링크가 아니게 만든다
    (a→span이라 스크린리더에도 '링크'로 들리지 않고 포커스도 잡히지 않는다). */
@@ -117,6 +112,22 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .demo-foot .b{display:inline-block;margin:11px 4px 0;font-family:var(--serif-ko);font-size:13px;
   color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:11px 20px;text-decoration:none;min-height:44px;box-sizing:border-box}
 .demo-foot .b.sub{color:var(--sub);border-color:var(--border)}   /* --light는 --bg2 위에서 4.5:1을 아슬하게 못 넘긴다(axe 적발) */
+/* [GUIDE_SCROLLCUE] 윈도우 실물 스크롤바 숨김(스크롤은 유지) + 인지는 하단 Scroll 큐가 담당
+   (2026-08-01 사용자 지시 "스크롤바 없애고 아래 스크롤 효과가 잠깐 나오는 식으로").
+   큐는 invitation-09의 gd-scroll과 같은 언어 — 페이지 끝이거나 스크롤할 게 없으면 숨는다. */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
+.mtb-wrap{scrollbar-width:none;-ms-overflow-style:none}
+.mtb-wrap::-webkit-scrollbar{width:0;height:0;display:none}
+.g-scroll{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:40;
+  opacity:1;transition:opacity .6s ease}
+.g-scroll.hide{opacity:0}
+.g-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.22em;color:var(--gold-deep)}
+.g-scroll-chev{width:1px;height:22px;background:linear-gradient(to bottom,var(--gold-deep),transparent);
+  animation:gScrollDrop 1.8s ease-in-out infinite}
+@keyframes gScrollDrop{0%{transform:translateY(0);opacity:.9}70%{transform:translateY(7px);opacity:.25}100%{transform:translateY(7px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.g-scroll-chev{animation:none}}
 /* ★--faint(#A49D8E)로 두면 --bg2 위에서 2.4:1로 AA 미달이었다(axe 적발).
    위계는 색이 아니라 크기로 낸다 — 브랜드 규칙 그대로. */
 .ps-t{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);text-align:center;margin-bottom:13px}
@@ -266,7 +277,27 @@ body{
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 function $(id){ return document.getElementById(id); }
 // 뒤로 가기 — 청첩장 등 다른 페이지에서 넘어온 경우만 표시(QR·새 탭 직접 진입은 돌아갈 곳이 없어 숨김)
-(function(){ try{ if(history.length>1 && document.referrer){ $('backBar').style.display='block'; $('backBtn').addEventListener('click', function(){ history.back(); }); } }catch(e){} })();
+(function(){ try{
+  // [GUIDE_INFRAME] 갤러리 폰 프레임 안에서는 '‹ 뒤로'를 켜지 않는다 — iframe의 history.back은
+  //   프레임 밖으로 나가거나 아무 일도 안 해, 프레임 안에 낯선 문 하나가 떠 있는 꼴이 된다.
+  var _inF=false; try{ _inF=(window.parent&&window.parent!==window); }catch(_){ _inF=true; }
+  if(!_inF && history.length>1 && document.referrer){ $('backBar').style.display='block'; $('backBtn').addEventListener('click', function(){ history.back(); }); }
+}catch(e){} })();
+(function(){ // [GUIDE_SCROLLCUE] 렌더 뒤 호출된다(render 끝에서 gCue()) — 스크롤할 게 있을 때만 나타나고, 내리기 시작하면 사라진다
+  var el=null;
+  window.gCue=function(){
+    try{
+      if(el && el.parentNode) el.parentNode.removeChild(el);
+      var de=document.documentElement;
+      if(de.scrollHeight <= window.innerHeight + 40) return;   // 스크롤할 게 없으면 큐도 없다
+      el=document.createElement('div'); el.className='g-scroll'; el.setAttribute('aria-hidden','true');
+      el.innerHTML='<span class="g-scroll-label">Scroll</span><span class="g-scroll-chev"></span>';
+      document.body.appendChild(el);
+      var off=function(){ if(el) el.classList.add('hide'); window.removeEventListener('scroll',off); };
+      window.addEventListener('scroll',off,{passive:true});
+    }catch(e){}
+  };
+})();
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
@@ -552,6 +583,7 @@ function render(g){
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
   if(hasSeat && !DEMO) bindSeat(g.seatToken, !!g.seatFull);   // [GUIDE_DEMO] 표본은 서버를 부르지 않는다
+  if(window.gCue) window.gCue();   // [GUIDE_SCROLLCUE] 내용이 화면보다 길 때만 나타난다
 }
 // [GUIDE_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다.
 //   fetch 한 번 → 실패하면 '잠시 후 다시 시도해 주세요' 한 줄. 누를 것도, 자동 재시도도 없었다(실측: 버튼 0개).
@@ -596,13 +628,8 @@ function renderDemo(){
              spots:[{n:'일산호수공원 산책로', m:'도보 8분'}] },
     photoShare:'https://momentedit.kr/'
   });
-  var c=document.querySelector('#root .card');
-  if(c){
-    var b=document.createElement('div'); b.className='demo-flag';
-    b.innerHTML='<b>샘플 화면</b>입니다 · 하객이 청첩장 링크를 열면 만나는 화면이에요'
-      +'<span class="hint">실제 예식에서는 두 분의 정보로 채워집니다</span>';
-    c.insertBefore(b, c.firstChild);
-  }
+  // ★상단 '샘플 화면입니다' 배너는 뺐다(2026-08-01 사용자 지시 "이미 샘플인 걸 아는데").
+  //   미리보기 경로에서 오는 사람은 표본임을 이미 알고, 하단 꼬리말이 한 번 더 말한다.
 
   // ── 좌석: 표본 데이터로 로컬 검색(fetch 없음) + 결과를 미리 띄워 둔다
   //    ★빈 검색창만 두면 이 페이지에서 가장 중요한 장면('이름을 넣으면 자리가 뜬다')이
@@ -636,14 +663,14 @@ function renderDemo(){
   var card=document.querySelector('#root .card');
   if(card){
     var f=document.createElement('div'); f.className='demo-foot';
-    // ★'오시는 길·주차 안내는 청첩장에 담깁니다'라고 썼다가 지웠다 — 실제 청첩장(01~08)과
-    //   live.html 어디에도 그 섹션이 없다(2026-08-01 전수 확인). 없는 것을 있다고 쓰면 안 된다.
+    // [GUIDE_INFRAME] 홈 버튼은 단독 열람일 때만 — 갤러리 프레임 안의 target=_top은
+    //   미리보기 여정 전체를 버리고 홈으로 튕기는 함정문이다.
+    // ★'종이 청첩장 속 QR' 문구 정정([GV_REAL] 시스템 지도) — 이 화면은 오프라인 청첩장 '안'의
+    //   버튼으로 들어온다. QR은 실물(종이) 직접 제작 구성에만 드린다.
+    var _inF=false; try{ _inF=(window.parent&&window.parent!==window); }catch(_){ _inF=true; }
     f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
-      +'이 화면은 <b>종이 청첩장 속 QR</b>로 하객에게 전해집니다.</div>'
-      // ★target="_top" — 이 표본은 청첩장 갤러리의 10번째 카드로 iframe 안에서도 열린다.
-      //   빼면 갤러리 안에 갤러리가 중첩된다(2026-08-01 [GALLERY_GUIDE]와 짝).
-      //   갤러리로 가는 링크는 두지 않는다 — 지금 그 갤러리 '안'에 있을 수 있다.
-      +'<a class="b" href="/" target="_top">모먼트에디트 홈으로</a>';
+      +'실제 예식에서는 두 분의 정보로 채워집니다.</div>'
+      +(_inF?'':'<a class="b" href="/" target="_top">모먼트에디트 홈으로</a>');
     card.appendChild(f);
   }
 }
