@@ -507,6 +507,43 @@
     })();
   }
 
+  /* [INV_BACK] 갤러리에서 Open으로 넘어온 실물 청첩장에는 돌아갈 문이 없었다
+     (2026-08-01 사용자 지적 "전체화면으로 바뀌는 건 좋은데 뒤로가기 버튼이 없어").
+     청첩장 원본 8×2종을 건드리지 않고 여기서 한 번에 얹는다 — 이 파일은 16종이 공유한다.
+     ★조건: history가 있고 & 표본(?e=test-couple)일 때만. 실제 하객이 받은 청첩장에
+       '갤러리로' 버튼이 뜨면 안 된다 — 하객은 갤러리를 모른다.
+     ★어두운 디자인(Noir 등)에서 사라지지 않게 배경 밝기로 색을 뒤집는다. */
+  function injectGalleryBack() {
+    try {
+      var _p2 = new URLSearchParams(location.search);
+      if ((_p2.get('e') || '').trim() !== 'test-couple') return;   // 표본 경로 전용
+      if (!(history.length > 1)) return;
+      try { if (window.parent && window.parent !== window) return; } catch (e) { return; }   // 갤러리 프레임 안에선 불필요
+      if (document.getElementById('meGvBack')) return;
+      var dark = false;
+      try {
+        var bc = (getComputedStyle(document.body).backgroundColor || '').match(/\d+/g);
+        if (bc && bc.length >= 3) dark = (0.299 * bc[0] + 0.587 * bc[1] + 0.114 * bc[2]) < 128;
+      } catch (e) {}
+      var a = document.createElement('button');
+      a.id = 'meGvBack';
+      a.type = 'button';
+      a.setAttribute('aria-label', '갤러리로 돌아가기');
+      a.style.cssText = 'position:fixed;left:max(14px,env(safe-area-inset-left));'
+        + 'top:calc(12px + env(safe-area-inset-top));z-index:2147483000;'
+        + 'display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:11px 16px 11px 13px;'
+        + 'font-family:"Noto Serif KR","Nanum Myeongjo",serif;font-size:12.5px;letter-spacing:0.04em;'
+        + 'border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;'
+        + 'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);'
+        + (dark
+            ? 'background:rgba(28,27,25,0.62);color:#EDE8DF;border:1px solid rgba(184,154,117,0.42);'
+            : 'background:rgba(255,255,255,0.82);color:#3A2D22;border:1px solid rgba(28,27,25,0.12);');
+      a.innerHTML = '<span aria-hidden="true" style="font-size:15px;line-height:1">\u2039</span><span>갤러리</span>';
+      a.addEventListener('click', function () { history.back(); });
+      document.body.appendChild(a);
+    } catch (e) {}
+  }
+
   function preconnectWebhook() {
     try {
       ['https://script.google.com', 'https://script.googleusercontent.com'].forEach(function (h) {
@@ -536,6 +573,7 @@
     if (eventId === 'test-couple') {
       apply(SAMPLE); clearTimeout(failsafe); reveal();
       injectGuideCta('test-couple');
+      injectGalleryBack();   // [INV_BACK]
       return;
     }
 

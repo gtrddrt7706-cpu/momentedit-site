@@ -109,9 +109,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
   border-radius:0 0 10px 10px;text-align:center}
 .demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7}
 .demo-foot .t b{color:var(--seal);font-weight:600}
-.demo-foot .b{display:inline-block;margin:11px 4px 0;font-family:var(--serif-ko);font-size:13px;
-  color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:11px 20px;text-decoration:none;min-height:44px;box-sizing:border-box}
-.demo-foot .b.sub{color:var(--sub);border-color:var(--border)}   /* --light는 --bg2 위에서 4.5:1을 아슬하게 못 넘긴다(axe 적발) */
+/* .demo-foot .b(홈 버튼) 규칙 삭제 — 버튼 자체를 뺐다(2026-08-01). 죽은 규칙 남기지 않는다. */
 /* [GUIDE_SCROLLCUE] 윈도우 실물 스크롤바 숨김(스크롤은 유지) + 인지는 하단 Scroll 큐가 담당
    (2026-08-01 사용자 지시 "스크롤바 없애고 아래 스크롤 효과가 잠깐 나오는 식으로").
    큐는 invitation-09의 gd-scroll과 같은 언어 — 페이지 끝이거나 스크롤할 게 없으면 숨는다. */
@@ -119,11 +117,14 @@ html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 .mtb-wrap{scrollbar-width:none;-ms-overflow-style:none}
 .mtb-wrap::-webkit-scrollbar{width:0;height:0;display:none}
+/* ★고정 큐가 본문 위에 겹쳐 글자와 뒤엉키던 것 — 옅은 알약 배경으로 층을 분리한다(2026-08-01) */
 .g-scroll{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:40;
+  display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:40;
+  padding:8px 16px 10px;border-radius:999px;background:rgba(250,250,248,.88);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   opacity:1;transition:opacity .6s ease}
 .g-scroll.hide{opacity:0}
-.g-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.22em;color:var(--gold-deep)}
+.g-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.22em;color:var(--sub)}   /* --gold-deep은 흰 카드 위에서 3.94:1 AA 미달(axe) — 선만 골드로 남긴다 */
 .g-scroll-chev{width:1px;height:22px;background:linear-gradient(to bottom,var(--gold-deep),transparent);
   animation:gScrollDrop 1.8s ease-in-out infinite}
 @keyframes gScrollDrop{0%{transform:translateY(0);opacity:.9}70%{transform:translateY(7px);opacity:.25}100%{transform:translateY(7px);opacity:0}}
@@ -610,13 +611,18 @@ function failHtml(){
    ★실명·연락처 없음. 좌석 이름은 지어낸 것이고 전화 링크도 넣지 않는다.
    ★분기는 boot() 맨 앞에서 즉시 return 한다. 실제 하객 경로(?g=<토큰>)는 이 코드를 지나가지 않는다. */
 var DEMO=false;
+/* [DEMO_SEATS] 배치가 이상해 보이던 이유: 테이블마다 6자리를 그려 놓고 1~3자리만 채워
+   빈 원이 더 많았다(2026-08-01 사용자 지적 "구조가 조금 이상한데 풀 좌석으로").
+   → 앞 4개 테이블은 5석 만석, 맨 뒤 좌우 2개 테이블만 2석.
+   ★총 24명 — 이 스튜디오의 '하객 25명 이하' 약속 안쪽으로 맞춘 수다. 늘릴 때 25를 넘기지 말 것.
+   ★seats 배열 길이가 곧 원 둘레의 자리 수다(_mtPos). 빈 문자열을 남기면 빈 자리로 그려진다. */
 var DEMO_TABLES=[
-  {side:'L',name:'가족석',seats:['이정우','한서영','이도현','','','']},
-  {side:'R',name:'',seats:['정민호','오세라','정하람','','','']},
-  {side:'L',name:'',seats:['김서준','박지우','','','','']},
-  {side:'R',name:'',seats:['최유진','강태현','','','','']},
-  {side:'L',name:'',seats:['윤소연','','','','','']},
-  {side:'R',name:'',seats:['임재원','','','','','']}
+  {side:'L',name:'가족석',seats:['이정우','한서영','이도현','이수민','이지호']},
+  {side:'R',name:'가족석',seats:['정민호','오세라','정하람','정유진','정예린']},
+  {side:'L',name:'',seats:['김서준','박지우','김도윤','박서연','김하준']},
+  {side:'R',name:'',seats:['최유진','강태현','최은서','강민재','최지안']},
+  {side:'L',name:'',seats:['윤소연','윤재원']},
+  {side:'R',name:'',seats:['임재원','임서윤']}
 ];
 function renderDemo(){
   DEMO=true;
@@ -663,14 +669,13 @@ function renderDemo(){
   var card=document.querySelector('#root .card');
   if(card){
     var f=document.createElement('div'); f.className='demo-foot';
-    // [GUIDE_INFRAME] 홈 버튼은 단독 열람일 때만 — 갤러리 프레임 안의 target=_top은
-    //   미리보기 여정 전체를 버리고 홈으로 튕기는 함정문이다.
+    // [GUIDE_INFRAME] '모먼트에디트 홈으로' 버튼 제거(2026-08-01 사용자 지시 "없어도 될 것 같아").
+    //   미리보기로 들어온 사람에겐 브라우저 뒤로가기가 있고, 갤러리 안에선 이 버튼이
+    //   여정 전체를 버리는 함정문이었다. 꼬리말은 '왜 안 눌리는지'만 말한다.
     // ★'종이 청첩장 속 QR' 문구 정정([GV_REAL] 시스템 지도) — 이 화면은 오프라인 청첩장 '안'의
     //   버튼으로 들어온다. QR은 실물(종이) 직접 제작 구성에만 드린다.
-    var _inF=false; try{ _inF=(window.parent&&window.parent!==window); }catch(_){ _inF=true; }
     f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
-      +'실제 예식에서는 두 분의 정보로 채워집니다.</div>'
-      +(_inF?'':'<a class="b" href="/" target="_top">모먼트에디트 홈으로</a>');
+      +'실제 예식에서는 두 분의 정보로 채워집니다.</div>';
     card.appendChild(f);
   }
 }

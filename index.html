@@ -5859,28 +5859,24 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 </div>
 
 <!-- DIGITAL ATTENDANCE PREVIEW — 청첩장 → 디지털 참석 전체 하객 경험 체험 -->
-<!-- [GUEST_PREVIEW] 버튼 하나. 갤러리 안에서 청첩장 9종과 하객 안내를 나란히 넘겨 본다
-     (2026-08-01 사용자 지시 "오프라인 청첩장도 볼 수 있게 하고 타고 들어갈 수 있게 하면
-     버튼이 2개일 필요 없잖아"). 갤러리 10번째 카드가 guide.html?g=demo다 → [GALLERY_GUIDE].
-     ★되돌려 버튼 2개나 회색 3줄 설명으로 만들지 말 것 — 같은 이야기가 다시 흩어진다.
-     [PRM_GUEST] 하객 손안 화면 3종을 설명하던 블록의 후신. 설명을 지운 건 내용을 버린 게 아니라
-       '열어볼 수 있는 것'으로 승격시킨 것이다.
-       ★삭제된 'Way · 오시는 길·주차 안내'는 실제로 어느 페이지에도 없다(청첩장 01~08 ·
-         live.html · guide.html 전수 확인 2026-08-01). 없는 기능을 홍보하고 있던 것이라 함께 내렸다.
-     [GUIDE_DEMO_CTA] 하객 안내는 guide.html?g=demo 표본으로 연결된다(갤러리 경유).
+<!-- [GUEST_PREVIEW] 버튼 하나. 갤러리 안에서 청첩장 온·오프라인 두 판과 하객 안내를 넘겨 본다.
+     ★미니멀 개편(2026-08-01 사용자 지시 "미니멀하게 깔끔하게").
+       전에는 눈썹 + 제목 + 두 문장 리드 + 버튼 4단이었고, 데스크톱에서 mobile-br이 죽어
+       두 문장이 한 줄로 이어붙어 읽혔다("…열어 보세요온라인·오프라인 두 판…").
+       → 눈썹을 지우고 제목 한 줄 + 리드 한 줄 + 버튼 3단으로 줄인다. 줄바꿈에 의존하지 않는
+       한 문장으로 다시 써서 어느 폭에서도 깨지지 않게.
+     [PRM_GUEST] 하객 손안 화면 3종을 회색 상자로 설명하던 블록의 후신 — 설명을 지운 건
+       '열어볼 수 있는 것'으로 승격시킨 것이다. 되돌려 3줄 설명으로 만들지 말 것.
+       ★삭제된 'Way · 오시는 길·주차 안내'는 오프라인판 실물(i-family)에는 약도로 들어 있지만
+         '링크 하나에 정리된다'는 표현은 사실이 아니었다([GV_REAL] 시스템 지도 참조).
+     [GUIDE_DEMO_CTA] 하객 안내는 오프라인판 안의 버튼으로 이어진다(갤러리 경유).
      [BTN_TIER] 외곽 마룬(.journal-guide-link) · 세 번째 스타일을 만들지 말 것.
      [NOWRAP_CLIP_FIX] 이 자리에 white-space:nowrap 금지(2026-07-30 사고) — 390px에서 17px가
        잘려 문장 끝이 사라진다. body의 word-break:keep-all이 어절 단위로 끊어주므로 손대지 말 것. -->
-<div class="reveal" style="max-width:560px;margin:64px auto 0">
-  <div style="text-align:center;margin-bottom:22px">
-    <span style="font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--seal)">The Guest Companion</span>
-    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:14px 0 0;word-break:keep-all">예식 당일, 하객이 받는 화면</p>
-  </div>
-  <!-- ★'종이 청첩장 속 QR' 문구를 정정(2026-08-01) — QR은 실물 직접 제작 구성에만 드린다.
-       오프라인판도 링크로 나가며, 하객 안내는 그 청첩장 안의 버튼이다. 갤러리가 실물을
-       그대로 띄우므로([GV_REAL]) 여기서는 설명하지 않고 '그대로'만 약속한다. -->
+<div class="reveal" style="max-width:520px;margin:64px auto 0">
   <div class="journal-guide" style="margin:0;padding-top:0;border-top:none">
-    <p class="journal-guide-lead">하객에게 나가는 청첩장을 그대로 열어 보세요<br class="mobile-br">온라인·오프라인 두 판 모두, 하객 안내까지 그 안에 있습니다</p>
+    <p style="font-family:var(--serif-ko);font-size:16px;font-weight:400;color:var(--text);letter-spacing:0.02em;margin:0 0 10px;word-break:keep-all">하객이 받는 청첩장, 그대로 열어 보세요</p>
+    <p class="journal-guide-lead">온라인·오프라인 두 판과 하객 안내까지 그 안에 있습니다</p>
     <a href="invitation-gallery.html?e=test-couple" class="journal-guide-link">청첩장 미리보기 <span class="arrow">→</span></a>
   </div>
 </div>

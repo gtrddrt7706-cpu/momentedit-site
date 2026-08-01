@@ -491,6 +491,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
         ★가로로 스크롤되는 조상(좌석 배치도 등) 위에서는 포기한다 — 판을 뺏으면 안 된다.
      ② live.html 링크는 새 탭으로 — 폰 프레임 안에서 딴 페이지로 항해하면
         돌아올 길이 없다(뒤로가기가 iframe에 안 닿는 환경이 많다). */
+  function _dkPeek(doc){
+    try { var b=(doc.defaultView.getComputedStyle(doc.body).backgroundColor||'').match(/\d+/g);
+          return !!(b && b.length>=3 && (0.299*b[0]+0.587*b[1]+0.114*b[2])<128); } catch(e){ return false; }
+  }
   function attachFrameExtras(ifr){
     var doc;
     try { doc = ifr.contentDocument; } catch(e){ return; }
@@ -499,6 +503,41 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     // [GV_SCROLLBAR] 윈도우 브라우저는 스크롤바가 오버레이가 아니라 실물이라, 폰 프레임 안
     // 청첩장 오른쪽에 회색 막대가 박힌다(사용자 지적). 막대만 숨기고 스크롤은 그대로 둔다.
     // 스크롤 가능하다는 인지는 각 화면의 Scroll 큐가 담당한다(cover엔 원래 있고 guide엔 신설).
+    /* [GV_SCROLLCUE] 하객 안내 CTA는 청첩장 83~87% 지점에 있다(8종 전수 실측).
+       스크롤바까지 숨겼으니 '더 있다'는 신호가 아무것도 없어 "버튼이 없는 청첩장이 있다"로
+       읽혔다(2026-08-01 사용자 지적 — 실제로는 8종 모두 있었다).
+       프레임 안 문서에 Scroll 큐를 얹는다. guide/09카드와 같은 언어. 내리기 시작하면 사라진다. */
+    try {
+      var de = doc.documentElement;
+      if (de.scrollHeight > (doc.defaultView.innerHeight || 0) + 40 && !doc.getElementById('gvCue')) {
+        var cue = doc.createElement('div');
+        cue.id = 'gvCue';
+        cue.setAttribute('aria-hidden', 'true');
+        // ★알약 배경 — 고정 큐가 청첩장 본문 글자와 겹쳐 뒤엉키는 것을 막는다
+        var _pill = _dkPeek(doc) ? 'rgba(28,27,25,.62)' : 'rgba(250,250,248,.88)';
+        cue.style.cssText = 'position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));'
+          + 'transform:translateX(-50%);z-index:2147483000;pointer-events:none;display:flex;'
+          + 'flex-direction:column;align-items:center;gap:4px;padding:8px 16px 10px;border-radius:999px;'
+          + 'background:' + _pill + ';backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);'
+          + 'opacity:1;transition:opacity .6s ease';
+        var _dk = false;
+        try { var _b = (doc.defaultView.getComputedStyle(doc.body).backgroundColor || '').match(/\d+/g);
+              if (_b && _b.length >= 3) _dk = (0.299*_b[0] + 0.587*_b[1] + 0.114*_b[2]) < 128; } catch(e){}
+        var _c = _dk ? 'rgba(237,232,223,.75)' : 'rgba(154,123,79,.9)';
+        cue.innerHTML = '<span style="font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;'
+          + 'font-size:10px;letter-spacing:.22em;color:' + _c + '">Scroll</span>'
+          + '<span style="width:1px;height:20px;background:linear-gradient(to bottom,' + _c + ',transparent);'
+          + 'animation:gvCueDrop 1.8s ease-in-out infinite"></span>';
+        var kf = doc.createElement('style');
+        kf.textContent = '@keyframes gvCueDrop{0%{transform:translateY(0);opacity:.9}70%{transform:translateY(7px);opacity:.25}100%{transform:translateY(7px);opacity:0}}'
+          + '@media(prefers-reduced-motion:reduce){#gvCue span:last-child{animation:none!important}}';
+        (doc.head || doc.documentElement).appendChild(kf);
+        doc.body.appendChild(cue);
+        var off = function(){ cue.style.opacity = '0'; doc.removeEventListener('scroll', off); doc.defaultView.removeEventListener('scroll', off); };
+        doc.addEventListener('scroll', off, {passive:true});
+        doc.defaultView.addEventListener('scroll', off, {passive:true});
+      }
+    } catch(e){}
     try {
       var st = doc.createElement('style');
       st.textContent = 'html,body{scrollbar-width:none!important;-ms-overflow-style:none!important}'

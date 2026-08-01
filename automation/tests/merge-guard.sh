@@ -955,3 +955,6 @@ chk 'GV_SCROLLBAR' invitation-gallery.html 1                 # 프레임 안 실
 chk 'GV_OPEN_SAME' invitation-gallery.html 1                 # Open은 같은 탭 · ?i·?v 기록 덕에 뒤로가기로 정확히 복귀
 chk 'GUIDE_INFRAME' guide.html 2                             # 프레임 안에선 뒤로·홈 버튼을 켜지 않는다 · 미리보기 여정 밖으로 새는 문
 chk 'GUIDE_SCROLLCUE' guide.html 3                           # 스크롤바 숨김 + Scroll 큐 · 내용이 길 때만 나타나고 스크롤하면 사라진다
+chk 'DEMO_SEATS' guide.html 1                                # 표본 좌석 만석 5석 + 맨뒤 2석 · 총 24명(25명 약속 안쪽) · 늘릴 때 25 넘기지 말 것
+chk 'INV_BACK' shared/hydrate.js 1                           # 갤러리 Open으로 넘어온 실물 청첩장의 '‹ 갤러리' 버튼 · 표본에서만 뜬다
+chk 'GV_SCROLLCUE' invitation-gallery.html 1                 # 프레임 안 Scroll 큐 · 없으면 83~87% 깊이의 하객 안내 CTA를 '없다'고 오해한다
