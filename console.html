@@ -484,6 +484,23 @@ var muted = false;
 var fired = {};            // clock 큐 중복 발사 막기
 var wakeLock = null;
 var progT = null;
+var liveT0 = 0;            // 지금 흐르는 사람 구간이 시작된 시각 (ALT_CLIP 판정용)
+var shown = {};            // i → 실제로 나간 큐. alt로 바뀌었을 수 있어 화면·시트는 이쪽을 본다
+function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
+
+/* ★ALT_CLIP — 바로 앞 사람 구간이 overSec을 넘었으면 문안을 바꿔 내보낸다.
+   디렉터는 '다음'만 누른다. 3분 넘긴 어른 말씀을 끊기로 막 결정한 사람에게
+   "어느 마무리 문안으로 할까요"까지 물으면 그 1초가 사고가 된다(런북 §8 4단 · §11-A). */
+function resolve(c){
+  if (!c || !c.alt || !liveT0) return c;
+  var el = (Date.now() - liveT0) / 1000;
+  if (el < c.alt.overSec) return c;
+  var o = {}; for (var k in c) o[k] = c[k];
+  o.slug = c.alt.slug; o.no = c.alt.no; o.file = c.alt.file;
+  o.name = c.alt.name; o.text = c.alt.text; o.est = c.alt.est;
+  o.altSec = Math.round(el); o.altWhy = c.alt.why;
+  return o;
+}
 
 function clearT(){ timers.forEach(clearTimeout); timers = []; if (progT) { clearInterval(progT); progT = null; } }
 function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
@@ -571,7 +588,15 @@ function fire(i, opt){
   if (!R || i < 0 || i >= R.cues.length) return finish();
   clearT();
   cur = i; fired[i] = true;
-  var c = R.cues[i];
+  var c = resolve(R.cues[i]);
+  liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
+  // ★PHASE_CLIP — 클립이 나가기 시작하면 phase를 여기서 끊는다.
+  //   이 줄이 없으면 앞이 사람 구간이었을 때 phase가 'live'인 채로 남아, 녹음이 흐르는 동안에도
+  //   화면이 초록 막대와 "사람의 시간"을 계속 띄운다. 하필 그 자리가 덕담을 끊고 마무리 문안이
+  //   나가는 순간이라 — 디렉터가 가장 확실히 알아야 할 "이제 마이크는 나레이션 것"이 거꾸로 뜬다.
+  phase = 'clip';
+  shown[i] = c;
+  if (c.altSec) toast('말씀이 ' + fmt(c.altSec) + ' 이어져 마무리 문안을 바꿔 내보냅니다');
   render();
   audioOn();
 
@@ -582,6 +607,7 @@ function fire(i, opt){
     runPost(c.post, 0, function(){
       if (c.live) {
         phase = 'live';
+        liveT0 = Date.now();
         duckTo(c.live.duck === undefined ? c.duck : c.live.duck, PARAM.fadeUpMs);
         render();
         if (MODE === 'preview') later(function(){ advance(); }, (c.live.est || 10) * 1000);
@@ -637,7 +663,8 @@ function liveLead(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d
 
 function render(){
   if (!R) return;
-  var c = R.cues[cur] || null, n1 = R.cues[cur+1] || null, n2 = R.cues[cur+2] || null;
+  // 지금 큐는 '실제로 나간 것'을, 다음·그다음은 원래 문안을 보여 준다 — 교체 판정은 아직 안 났다.
+  var c = cueAt(cur), n1 = R.cues[cur+1] || null, n2 = R.cues[cur+2] || null;
 
   $('#bPos').textContent = (cur < 0 ? 0 : cur+1) + ' / ' + R.cues.length;
 
@@ -669,6 +696,7 @@ function render(){
   pill(c.fire === 'manual' ? 'm' : (c.fire === 'clock' ? 'k' : 'c'), fireLabel(c.fire));
   if (c.no) { var no = document.createElement('span'); no.className = 'no'; no.textContent = c.no + '번'; tag.appendChild(no); }
   if (c.pick) pill('p', c.pick);
+  if (c.altSec) pill('p', '길어짐 대응 · ' + fmt(c.altSec) + ' 경과');
   if (phase === 'live') pill('l', liveBadge(c.live));
   if (c.own) pill('l', '두 분 목소리');
 
@@ -717,7 +745,8 @@ function up(n1, n2){
     if (!c) { el.querySelector('.nm').textContent = '—'; el.querySelector('.es').textContent = ''; return; }
     var when = (c.fire === 'clock' && startAt) ? ('시각에 · ' + clockAt(c)) : fireLabel(c.fire);
     el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
-      + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음') + '</small>';
+      + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')
+      + (c.alt ? ' · ' + Math.round(c.alt.overSec / 60) + '분 넘으면 문안 자동 교체' : '') + '</small>';
     el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + fmt(c.live.est) : '');
   }
   set('u1', n1, '다음'); set('u2', n2, '그다음');
@@ -751,7 +780,7 @@ mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
 
 function mainTap(){
   audioOn();
-  if (phase === 'end') { cur = -1; phase = 'idle'; fired = {}; render(); return; }
+  if (phase === 'end') { cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; render(); return; }
   advance();
 }
 
@@ -814,7 +843,8 @@ function buildSheet(){
   var L = $('#shList'); L.innerHTML = '';
   var h = document.createElement('div'); h.className = 'sheetsec'; h.textContent = '진행 순서 — 눌러서 그 자리로';
   L.appendChild(h);
-  R.cues.forEach(function(c, i){
+  R.cues.forEach(function(c0, i){
+    var c = cueAt(i);
     var b = document.createElement('button');
     b.className = 'qi' + (i === cur ? ' cur' : '') + (i < cur ? ' done' : '');
     b.innerHTML = '<span class="n">' + (c.no || '—') + '</span><span class="t">' + esc(c.name)
@@ -866,7 +896,7 @@ setInterval(tick, 1000);
 $('#go').onclick = function(){
   try { R = RitualCue.build(S, {mode:MODE}); }
   catch(e){ toast('순서를 만들 수 없습니다: ' + e.message); return; }
-  cur = -1; phase = 'idle'; fired = {};
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0;
 
   var tv = $('#tStart').value;
   if (tv) {
@@ -894,7 +924,7 @@ $('#bExit').onclick = function(){
   if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
   $('#run').classList.remove('on');
   $('#setup').style.display = '';
-  cur = -1; phase = 'idle'; R = null;
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; R = null;
 };
 
 document.addEventListener('visibilitychange', function(){

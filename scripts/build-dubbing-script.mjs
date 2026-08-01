@@ -42,8 +42,9 @@ const G = [
     ['G3-12', '부모님 덕담: 문 여는 버전', 'narr-bless-open', D.NARR.blessOpenFamily],
     ['G3-13', '부모님 덕담: 중간 버전', 'narr-bless-mid', D.NARR.blessMid],
     ['G3-14', '부모님 덕담 마무리', 'narr-bless-end', D.NARR.blessEnd],
+    ['G3-14L', '부모님 덕담 마무리: 길었을 때', 'narr-bless-end-long', D.NARR.blessEndLong],
     ['G3-15', '폐식·단체촬영 전환', 'narr-close', D.NARR.close],
-  ], note: 'G3-15는 예식의 마지막 소리다. 가장 느리게 · 마지막 문장 뒤 여운을 길게.' },
+  ], note: 'G3-15는 예식의 마지막 소리다. 가장 느리게 · 마지막 문장 뒤 여운을 길게.\n★G3-14 / G3-14L은 택1이다. 덕담이 3분을 넘겨 디렉터가 받아 끊은 날에만 G3-14L이 나간다(런북 §8 4단 · §11-A).\n  G3-14보다 한 톤 더 낮고 느리게 · 어른의 말을 요약해 받는 문장이라 서두르면 밟는 소리가 된다.\n  둘을 같은 세션에서 이어 녹음하지 말 것 — 앞 문장의 여운이 남아 두 클립이 같은 톤이 된다.' },
 
   { n: 4, t: '편지 낭독 도입', tone: '감동을 낮게 인(in)하는 정점 도입 · 도입만 성우, 본문은 부부가 직접', items:
     Object.keys(D.LETTER).map((k) => [`G4-${k}`, D.LETTER[k].d, `letter-${k}`, D.LETTER[k].nar]),

@@ -42,13 +42,13 @@
     clipDir: '/assets/audio/narration/'
   };
 
-  // ── 53클립 번호 → 파일명 (대본 `더빙_녹음_대본_최종.txt` 순서 그대로 · 인덱스+1 = 번호)
+  // ── 54클립 번호 → 파일명 (대본 `더빙_녹음_대본_최종.txt` 순서 그대로 · 인덱스+1 = 번호)
   var FILES = [
     'guest-1-arrival', 'guest-2-10min', 'guest-3-5min', 'guest-4-1min',
     'entry-A', 'entry-B', 'entry-C', 'entry-D', 'entry-E', 'entry-F',
     'narr-welcome-in', 'narr-welcome-out', 'narr-vow-in', 'narr-vow-out', 'narr-ring-in', 'narr-ring-out',
     'narr-valley-wine', 'narr-valley-cake', 'narr-song', 'narr-letter-end', 'narr-declare-family-intro',
-    'narr-bless-open', 'narr-bless-mid', 'narr-bless-end', 'narr-close',
+    'narr-bless-open', 'narr-bless-mid', 'narr-bless-end', 'narr-bless-end-long', 'narr-close',
     'letter-parent', 'letter-each', 'letter-both',
     'declare-1-solemn', 'declare-2-warm', 'declare-family',
     'declare-ask-a', 'declare-ask-b', 'declare-ask-c',
@@ -161,10 +161,21 @@
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
       fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin),
-      note: o.note || ''
+      note: o.note || '', alt: null
     };
     if (c.live && c.live.duck === undefined) c.live.duck = c.duck;
     if (c.live && !c.live.est) c.live.est = 30;
+    // ★ALT_CLIP — 같은 자리에 문안이 둘인 큐. 어느 쪽이 나갈지는 앞 사람 구간이 얼마나 길었는지로 갈린다.
+    //   디렉터가 고르는 것이 아니다 — 절단을 결정한 사람에게 문안 선택까지 시키면 그 1초가 사고가 된다.
+    //   콘솔이 live 시작 시각을 재고 overSec을 넘겼으면 alt로 바꿔 발사한다(런북 §8 4단).
+    if (o.alt) {
+      c.alt = {
+        overSec: o.alt.overSec, why: o.alt.why || '',
+        slug: o.alt.slug, no: noOf(o.alt.slug), file: fileOf(o.alt.slug),
+        name: o.alt.name || c.name, text: o.alt.text || '',
+        est: o.alt.est || sylSec(o.alt.text)
+      };
+    }
     return c;
   }
 
@@ -398,7 +409,13 @@
         }),
         cue({
           k: 'bless', blockN: '부모님 덕담', slug: 'narr-bless-end', name: '부모님 덕담 마무리', text: D.NARR.blessEnd,
-          hint: '말씀이 끝나면 · 또는 3분을 넘어 절단하기로 판단하면'
+          hint: '말씀이 끝나면 · 또는 3분을 넘어 절단하기로 판단하면',
+          // 3분을 넘겼으면 '끝난 뒤 하는 말'로는 헐겁다 — 끊고 들어온 자리를 덮는 문안으로 자동 교체.
+          alt: {
+            overSec: PARAM.bless.longThreshold, slug: 'narr-bless-end-long',
+            name: '부모님 덕담 마무리 (길었을 때)', text: D.NARR.blessEndLong,
+            why: '덕담이 3분을 넘겨 디렉터가 받아 끊었다'
+          }
         })
       ];
     }
