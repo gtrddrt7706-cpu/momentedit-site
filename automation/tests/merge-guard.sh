@@ -942,3 +942,4 @@ chk 'act-off' guide.html 2                                   # 표본에서 지�
 chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것
 chk 'GALLERY_GUIDE' invitation-gallery.html 3                # 갤러리 10번째 카드 = 하객 안내 표본(src 직접) · 빼면 메인 버튼이 다시 2개로 갈라진다
 chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소
+chk 'GALLERY_HREF' invitation-gallery.html 1                 # Open↗ 폴백 경로 i/invitations/ · 루트로 되돌리면 인앱 브라우저에서만 조용히 404

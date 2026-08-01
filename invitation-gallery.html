@@ -630,7 +630,16 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     // 헤더 우측 카운터(Nº 01 / 08) 업데이트
     var counterNum = document.getElementById('gv-counter-num');
     if (counterNum) counterNum.textContent = String(i+1).padStart(2,'0');
-    openNew.href = inv.file + '?e=' + encodeURIComponent(eId);
+    /* [GALLERY_HREF] 청첩장 원본은 i/invitations/ 아래에 있는데 여기서 루트를 가리키고 있었다.
+       → 10장 전부 404(2026-08-01 라이브 실측: /invitation-01-classic.html 404 / i/invitations/… 200).
+       평소엔 안 드러난다 — Open은 TEMPLATES의 base64를 Blob으로 여는 게 정상 경로고 이 href는
+       그게 막혔을 때의 폴백이기 때문이다. 그런데 Blob이 막히는 곳이 바로 카카오톡·인스타 인앱
+       브라우저다. 즉 청첩장을 가장 많이 열어 보는 환경에서만 조용히 404가 났다.
+       ★표본(live)은 TEMPLATES에 없어 항상 이 폴백을 탄다. 게다가 파일명에 이미 ?g=demo가 있어
+         ?e=를 덧붙이면 '?g=demo?e=…'로 물음표가 두 번 붙는다 — 분기해서 그대로 쓴다. */
+    openNew.href = inv.live
+      ? inv.file
+      : 'i/invitations/' + inv.file + '?e=' + encodeURIComponent(eId);
     openNew.setAttribute('aria-label', inv.name + ' 새 탭에서 열기');
     // 다크 청첩장(Noir 등) 위에서는 Open 버튼 톤 반전 (라이트 ↔ 다크)
     openNew.classList.toggle('is-dark', isDarkInv(i));
