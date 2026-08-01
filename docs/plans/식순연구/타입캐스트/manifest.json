@@ -1,6 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "source": "더빙_녹음_대본_최종.txt",
+  "cast": "배역_예시_대사.txt",
   "gap": {
     "head": 0.4,
     "sent": 1.8,
@@ -11,6 +12,10 @@
       "file": "1_안내.txt",
       "title": "식전 안내 + 폐식 브릿지",
       "role": "안내",
+      "speakers": [
+        "안내"
+      ],
+      "dir": "assets/audio/narration",
       "clips": 12,
       "sents": 36,
       "chars": 1533
@@ -19,6 +24,10 @@
       "file": "2_진행_전반.txt",
       "title": "입장 + 고정 진행 나레이션",
       "role": "진행",
+      "speakers": [
+        "진행"
+      ],
+      "dir": "assets/audio/narration",
       "clips": 22,
       "sents": 50,
       "chars": 1945
@@ -27,6 +36,10 @@
       "file": "3_진행_후반.txt",
       "title": "편지 도입 · 선언 · 베일 · 링워밍 · 헌정 · 축배",
       "role": "진행",
+      "speakers": [
+        "진행"
+      ],
+      "dir": "assets/audio/narration",
       "clips": 19,
       "sents": 60,
       "chars": 2364
@@ -35,9 +48,29 @@
       "file": "4_혼주편지.txt",
       "title": "어른께 드리는 안내 편지 (3분 통낭독)",
       "role": "편지",
+      "speakers": [
+        "편지"
+      ],
+      "dir": "assets/audio/narration",
       "clips": 1,
       "sents": 38,
       "chars": 1853
+    },
+    {
+      "file": "5_배역.txt",
+      "title": "배역 예시 대사 (미리듣기 전용 · 가상 인물)",
+      "role": "배역",
+      "speakers": [
+        "신랑",
+        "신부",
+        "아버님",
+        "어머님",
+        "하객대표"
+      ],
+      "dir": "assets/audio/cast",
+      "clips": 15,
+      "sents": 59,
+      "chars": 2060
     }
   ],
   "clips": [
@@ -48,6 +81,7 @@
       "file": "guest-1-arrival",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -84,6 +118,7 @@
       "file": "guest-2-10min",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -108,6 +143,7 @@
       "file": "guest-3-5min",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -132,6 +168,7 @@
       "file": "guest-4-1min",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -174,6 +211,7 @@
       "file": "end-0-photo",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -198,6 +236,7 @@
       "file": "end-1a-farewell",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -234,6 +273,7 @@
       "file": "end-1b-farewell-online",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -276,6 +316,7 @@
       "file": "end-2-goodbye",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -306,6 +347,7 @@
       "file": "online-3-welcome",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -336,6 +378,7 @@
       "file": "bridge-4-wait-emotion",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -360,6 +403,7 @@
       "file": "bridge-5-wait-setup",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -384,6 +428,7 @@
       "file": "bridge-6-resume",
       "role": "안내",
       "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -408,6 +453,7 @@
       "file": "entry-A",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -444,6 +490,7 @@
       "file": "entry-B",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -474,6 +521,7 @@
       "file": "entry-C",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -510,6 +558,7 @@
       "file": "entry-D",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -546,6 +595,7 @@
       "file": "entry-E",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -582,6 +632,7 @@
       "file": "entry-F",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -618,6 +669,7 @@
       "file": "narr-welcome-in",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -636,6 +688,7 @@
       "file": "narr-welcome-out",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -660,6 +713,7 @@
       "file": "narr-vow-in",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -684,6 +738,7 @@
       "file": "narr-vow-out",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -702,6 +757,7 @@
       "file": "narr-ring-in",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -726,6 +782,7 @@
       "file": "narr-ring-out",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -744,6 +801,7 @@
       "file": "narr-valley-wine",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -768,6 +826,7 @@
       "file": "narr-valley-cake",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -792,6 +851,7 @@
       "file": "narr-song",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -816,6 +876,7 @@
       "file": "narr-letter-end",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -834,6 +895,7 @@
       "file": "narr-declare-family-intro",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -852,6 +914,7 @@
       "file": "narr-bless-open",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -870,6 +933,7 @@
       "file": "narr-bless-mid",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -888,6 +952,7 @@
       "file": "narr-bless-end",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -906,6 +971,7 @@
       "file": "narr-bless-end-long",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -930,6 +996,7 @@
       "file": "narr-close",
       "role": "진행",
       "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 2.5,
       "sents": [
@@ -972,6 +1039,7 @@
       "file": "letter-parent",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1002,6 +1070,7 @@
       "file": "letter-each",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1026,6 +1095,7 @@
       "file": "letter-both",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1056,6 +1126,7 @@
       "file": "declare-1-solemn",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1098,6 +1169,7 @@
       "file": "declare-2-warm",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1140,6 +1212,7 @@
       "file": "declare-family",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1176,6 +1249,7 @@
       "file": "declare-ask-a",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1200,6 +1274,7 @@
       "file": "declare-ask-b",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1254,6 +1329,7 @@
       "file": "declare-ask-c",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1278,6 +1354,7 @@
       "file": "veil-mother",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1302,6 +1379,7 @@
       "file": "veil-father",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1326,6 +1404,7 @@
       "file": "veil-close",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1350,6 +1429,7 @@
       "file": "ringwarm-family",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1386,6 +1466,7 @@
       "file": "ringwarm-all",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1422,6 +1503,7 @@
       "file": "tribute-in",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1446,6 +1528,7 @@
       "file": "tribute-out",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1470,6 +1553,7 @@
       "file": "toast-toast",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 4.5,
       "sents": [
@@ -1500,6 +1584,7 @@
       "file": "toast-cake",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1524,6 +1609,7 @@
       "file": "toast-both",
       "role": "진행",
       "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 4.5,
       "sents": [
@@ -1560,6 +1646,7 @@
       "file": "parents-letter",
       "role": "편지",
       "part": "4_혼주편지.txt",
+      "dir": "assets/audio/narration",
       "head": 0.4,
       "tail": 1,
       "sents": [
@@ -1788,6 +1875,555 @@
         {
           "i": 37,
           "text": "모먼트에디트 올림.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "01",
+      "id": "R-guest-1",
+      "label": "식전 안내 · 도착",
+      "file": "guest-1",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "안녕하세요, 신랑 이준호입니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "오늘 저희 예식에 와 주셔서 정말 감사합니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "자리는 저희가 한 분 한 분 생각하면서 정해 두었습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "받으신 안내나 입구 화면에서 성함을 찾아 앉아 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "02",
+      "id": "R-guest-2",
+      "label": "식전 안내 · 십 분 전",
+      "file": "guest-2",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신부 정세영입니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "예식이 십 분 뒤에 시작됩니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "준비해 둔 와인 한잔 하시면서 편히 계시다가, 자리에 앉아 주시면 감사하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "03",
+      "id": "R-guest-3",
+      "label": "식전 안내 · 오 분 전",
+      "file": "guest-3",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 오 분 남았습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "자리에 앉아 주시면 감사하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "04",
+      "id": "R-guest-4",
+      "label": "식전 안내 · 일 분 전 · 고지",
+      "file": "guest-4",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘 예식은 사회자 없이, 저희가 미리 준비한 안내 음성으로 진행합니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "어떤 순서로 할지, 어떤 말로 안내할지는 저희 둘이 직접 정했습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "잠시 후 시작합니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "편한 마음으로 함께해 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "05",
+      "id": "R-entry",
+      "label": "입장 직전 인사",
+      "file": "entry",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "저희 둘이 이제 함께 들어가겠습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "오늘 하루, 저희와 같이 웃어 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "06",
+      "id": "R-welcome-groom",
+      "label": "첫인사",
+      "file": "welcome-groom",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "안녕하세요.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "오늘 와 주셔서 정말 감사합니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "저희 둘 다 말주변이 별로 없어서, 준비를 많이는 못 했습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "그냥 오늘 오신 분들 다 많이 웃고 가셨으면 좋겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "07",
+      "id": "R-welcome-bride",
+      "label": "첫인사",
+      "file": "welcome-bride",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼 길 와 주신 분들이 많습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "한 분 한 분 얼굴 보고 인사드리고 싶었는데, 오늘은 이렇게 한 번에 드립니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "와 주셔서 감사합니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "08",
+      "id": "R-vow-groom",
+      "label": "혼인 서약",
+      "file": "vow-groom",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "세영아.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "나는 앞으로도 아마 말을 잘 못 할 거야.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "대신 옆에 있을게.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "네가 힘들 때 제일 먼저 알아채는 사람이 되고, 네가 괜찮다고 해도 한 번은 더 물어볼게.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 4,
+          "text": "잘 살자.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "09",
+      "id": "R-vow-bride",
+      "label": "혼인 서약",
+      "file": "vow-bride",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "준호야.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "사랑한다는 말은 앞으로 많이 할 거니까, 오늘은 다른 걸 약속할게.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "나는 너한테 화가 나도 다음 날까지 안 끌고 가겠다고.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "네가 실수해도 사람들 앞에서는 얘기 안 하겠다고.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 4,
+          "text": "평생 그렇게 할게.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "10",
+      "id": "R-letter-parent",
+      "label": "편지 · 부모님께",
+      "file": "letter-parent",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "엄마, 아빠께.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "스물아홉 해 동안 저는 한 번도 제대로 고맙다고 말한 적이 없어요.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "오늘 처음 해요.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "저 이제 다른 집으로 가요.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 4,
+          "text": "그런데 딸이 없어지는 건 아니에요.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 5,
+          "text": "낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "11",
+      "id": "R-letter-each",
+      "label": "편지 · 서로에게",
+      "file": "letter-each",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "세영아.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "너한테 쓰는 편지는 처음이라 몇 번을 다시 썼어.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "결국 남은 말은 하나야.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "같이 있으면 나는 조금 더 나은 사람이 되더라.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 4,
+          "text": "그거면 됐다고 생각했어.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "12",
+      "id": "R-bless-father",
+      "label": "덕담",
+      "file": "bless-father",
+      "role": "아버님",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "준호야, 세영아.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "아버지가 말주변이 없어서 길게는 못 한다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "살다 보면 서로 미운 날이 온다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "그날 먼저 말 거는 쪽이 이기는 거다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 4,
+          "text": "잘 살아라.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "13",
+      "id": "R-bless-mother",
+      "label": "덕담",
+      "file": "bless-mother",
+      "role": "어머님",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "세영아, 준호야.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "엄마는 오늘 딸 손을 놓는 게 아니라, 아들 손을 하나 더 잡는다고 생각한다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "아프지 말고, 밥 잘 챙겨 먹고.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "그거면 된다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "14",
+      "id": "R-tribute",
+      "label": "헌정 인사",
+      "file": "tribute",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "어머니, 아버지.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "키워 주셔서 감사합니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "오늘부터는 저희가 두 분 챙기겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "15",
+      "id": "R-toast",
+      "label": "축배",
+      "file": "toast",
+      "role": "하객대표",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.4,
+      "tail": 1,
+      "sents": [
+        {
+          "i": 0,
+          "text": "준호, 세영이 두 사람과 오래 알고 지낸 친구입니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 1,
+          "text": "길게 안 하겠습니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 2,
+          "text": "두 사람 앞날에 좋은 일만 있기를 바랍니다.",
+          "before": 0,
+          "after": 1.8
+        },
+        {
+          "i": 3,
+          "text": "자, 다 같이 잔 들어 주세요.",
           "before": 0,
           "after": 0
         }
