@@ -921,7 +921,8 @@ if command -v node >/dev/null 2>&1; then node scripts/check-dub-sheet.js || fail
 
 # ── 상담 도우미 패널 개편 (2026-08-01) ────────────────────────
 chk 'ADV_INDEX' index.html 3                                 # 목차형 메뉴 3곳(칩·라벨·›) · 선 없애고 여백으로 나눔 · ›를 글자 뒤에 붙임 · 14px
-chk 'ADV_TC' index.html 3                                    # 패널 열린 동안 상태바 크림 고정(진사 띠 방지) · 히어로 잠금 + 동기화 훅 + 패널 호출부
+chk 'ADV_TC' index.html 5                                    # 상태바 진사 띠 방지 · 히어로 잠금 + 동기화 훅 + 상담패널 + 모바일 메뉴(열기/닫기)
+chk 'MM_TOPROW' index.html 5                                 # Close를 눈썹과 같은 행에 묶음 · 절대배치로 되돌리면 기기마다 19~78px씩 어긋난다
 chk '__meTCSync' index.html 2                                # 잠금 해제 시 캐시 비우고 재계산 · 없으면 닫은 뒤 테마색이 한 번 씹힌다
 chk 'ADV_OPEN_TOP' index.html 1                              # fab 클릭에 open을 그대로 넘기면 MouseEvent가 keepScroll로 들어가 목록 상단이 잘린다
 chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 없다 · 눌림 워시를 지우면 탭 피드백이 사라진다
