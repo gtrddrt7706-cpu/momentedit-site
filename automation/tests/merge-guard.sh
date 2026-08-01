@@ -882,6 +882,11 @@ chk 'SUB_PAGE_SYNC' parents.html 1                          # 토큰 체계 동�
 chk 'SUB_PAGE_SYNC' invitation-gallery.html 1               # 반px·이징 동기 유지 · 템플릿 base64 구역은 대상 아님
 chk 'TOKENS_REF' shared/tokens.css 1                        # 참조본 경고 헤더 · --gold-deep에 다른 색(#9A7B4F) 재삽입 금지(연결 시 mypage 68곳 AA미달)
 chk 'NAV_TABLET_FIX' index.html 1                           # 내비 전환점 1023px · 680px로 되돌리면 아이패드에서 My Page가 화면 밖으로 밀림
+chk 'EDGE_BACK' index.html 1                                # 가장자리 스와이프 뒤로가기 연결 · iOS 제외 로직은 스크립트 내부
+chk 'EDGE_BACK' inquiry.html 1                              # 가장자리 스와이프 뒤로가기(전환 페이지)
+chk 'EDGE_BACK' parents.html 1                              # 가장자리 스와이프 뒤로가기
+chk 'EDGE_BACK' schedule.html 1                             # 가장자리 스와이프 뒤로가기
+chk 'EDGE_BACK' mypage.html 1                               # 가장자리 스와이프 뒤로가기 · 당겨서 새로고침(세로)과 공존
 
 # ── 현장 콘솔 · 큐 엔진 (2026-07-31) ─────────────────────────────
 chk '\[CUE_ENGINE_V1\]' assets/ritual-cue.js 1               # 큐 생성 엔진 본체 · 콘솔과 미리듣기가 같이 죽는다

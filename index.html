@@ -6,6 +6,8 @@
 <!-- [A11Y_PINCH_ZOOM] maximum-scale·user-scalable=no 제거 — 확대를 막으면 저시력 사용자가 사진·가격표를 볼 수 없다(WCAG 1.4.4). iOS 입력 확대는 폼 폰트를 16px 이상으로 두어 해결한다. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script src="/shared/analytics.js" defer></script>
+<!-- [EDGE_BACK] 왼쪽 가장자리 스와이프 → 뒤로가기. iOS는 시스템 제스처와 충돌하므로 스크립트 내부에서 자동 제외. -->
+<script src="/shared/edge-back.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
