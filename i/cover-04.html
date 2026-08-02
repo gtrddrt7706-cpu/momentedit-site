@@ -163,7 +163,7 @@ body::before{
   min-height:calc(100vh - var(--safe-top) - var(--safe-bottom));
   min-height:calc(100svh - var(--safe-top) - var(--safe-bottom));
   display:grid;
-  grid-template-rows:auto 1fr auto;
+  grid-template-rows:auto auto 1fr auto; /* [DTL16] 자식 4개(header·mark·stage·bottom)에 행 3개 — 1fr이 mark 행에 붙어(실측 420px) 세로 록업이 하단으로 밀렸다. stage가 1fr을 받아 이름이 정중앙에(주석의 '무게중심 정중앙' 의도 복원) */
   padding:48px 0 36px;
   position:relative;
   /* 화선지 카드처럼 떠있는 느낌 — body(#F6F2E8)보다 살짝 밝은 종이 톤 + 부드러운 그림자.
@@ -295,6 +295,7 @@ body::before{
   opacity:0;
   animation:fadeUp 1.4s var(--ease) 0.9s forwards;
   min-height:240px;
+  text-align:center; /* [DTL16] 외자(이준·김솔 실측 글자부 84.6px)가 min-height 박스 상단에 붙어 수직선·주점이 이름 아래로 115px 늘어졌다 — 세로쓰기의 인라인축은 세로이므로 center가 글자를 선 중앙(주점 높이)에 앉힌다. 긴 이름(min-height 초과)은 무변화 */
 }
 .vname:nth-of-type(2){
   animation-delay:1.2s;
@@ -992,6 +993,11 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   text-transform:uppercase;
   flex-shrink:0;
 }
+.acc-copy::before{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 34.3×24px 미달 → 히트영역 44.3×44px(01·02·03 동일 처방). 시각 크기는 유지, 행 높이 54px 안에 머묾 */
+  position:absolute;
+  inset:-10px -5px;
+}
 .acc-copy::after{
   content:'';
   position:absolute;
@@ -1077,9 +1083,12 @@ details.acc[open] summary::after{transform:rotate(45deg)}
 
     <div class="invite-sign reveal">
       <div class="sign-col">
+        <!-- [DTL16] 혼주 미표기 시 마커가 안쪽 내용만 걷어 빈 .sign-parents(+margin 14px)가 남았다 — 가족판과 같은 바깥 래핑으로 통일 -->
+        <!-- OPTIONAL:greetingGroomParents -->
         <div class="sign-parents">
-          <!-- OPTIONAL:greetingGroomParents --><span class="of">of</span>{{GROOM_PARENTS}}<!-- /OPTIONAL:greetingGroomParents -->
+          <span class="of">of</span>{{GROOM_PARENTS}}
         </div>
+        <!-- /OPTIONAL:greetingGroomParents -->
         <div class="sign-name">
           <!-- OPTIONAL:groomChildTitle -->{{GROOM_CHILD_TITLE}} <!-- /OPTIONAL:groomChildTitle -->{{GROOM_NAME}}
           <span class="sign-relation">Groom</span>
@@ -1087,9 +1096,11 @@ details.acc[open] summary::after{transform:rotate(45deg)}
       </div>
       <div class="sign-divider" aria-hidden="true"></div>
       <div class="sign-col">
+        <!-- OPTIONAL:greetingBrideParents -->
         <div class="sign-parents">
-          <!-- OPTIONAL:greetingBrideParents --><span class="of">of</span>{{BRIDE_PARENTS}}<!-- /OPTIONAL:greetingBrideParents -->
+          <span class="of">of</span>{{BRIDE_PARENTS}}
         </div>
+        <!-- /OPTIONAL:greetingBrideParents -->
         <div class="sign-name">
           <!-- OPTIONAL:brideChildTitle -->{{BRIDE_CHILD_TITLE}} <!-- /OPTIONAL:brideChildTitle -->{{BRIDE_NAME}}
           <span class="sign-relation">Bride</span>
@@ -1111,7 +1122,9 @@ details.acc[open] summary::after{transform:rotate(45deg)}
 
     <div class="date-block reveal">
       <div class="date-eyebrow">Save the Date</div>
-      <div class="date-main">{{WEDDING_MONTH_DAY_DOT}}</div>
+      <!-- [DTL16] 토큰화 때 평문 'MM. DD'가 되며 주점(.date-main .dot — CSS만 남은 사문)이 죽어 있었다.
+           가족판(family-04)과 같은 월·일 토큰 + 주홍 가운뎃점으로 판형 짝 복원 — 이 디자인의 시그니처. -->
+      <div class="date-main">{{WEDDING_MONTH_NUM_PAD}}<span class="dot">·</span>{{WEDDING_DAY_OF_MONTH_PAD}}</div>
       <div class="date-meta">
         <!-- [OFF04_DATE_REAL] 연도 하드코딩 동류 결함 — 2027년 커플이 받으면 Twenty-Six로 나가던 자리(가족판은 이미 토큰) -->
         <span class="row"><span class="accent">{{WEDDING_YEAR_EN}}</span></span>
@@ -1283,6 +1296,13 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   } else {
     document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('visible')});
   }
+
+  // [DTL16] 섹션 로마숫자 재번호 — OPTIONAL 섹션이 빠지면(디지털참석 N 등) I·II·IV로 결번된다.
+  // hydrate가 걷어낸 최종 DOM에서 남은 순서대로 다시 센다(01·02·03의 [DTL16] 재번호와 같은 원칙).
+  var secRoman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  document.querySelectorAll('.sec-num-mark').forEach(function(el, i){
+    el.textContent = secRoman[i] || String(i + 1);
+  });
 
   // 계좌 복사
   var toast = document.getElementById('toast');
