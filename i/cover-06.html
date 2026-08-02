@@ -324,7 +324,7 @@ body::after{
 }
 .inv-text p{margin-bottom:20px}
 .inv-text p:last-child{margin-bottom:0}
-.inv-text .em{color:var(--gold);font-weight:500}
+.inv-text .em{font-weight:500} /* [AUD16] 골드 1.93→잉크 상속, 활판 본문 강조는 굵기로 (03과 동일 결정) */
 .inv-text .han-em{
   font-family:var(--serif-ko);font-weight:500;color:var(--dancheong-deep);
   margin:0 1px;letter-spacing:0.04em;
@@ -362,12 +362,21 @@ body::after{
   letter-spacing:0.6em;color:var(--dancheong);padding-left:0.6em;
   margin-bottom:30px;text-transform:uppercase;
 }
+/* [AUD16] 날짜 대제 2줄 꺾임(실측 86px) → 오프라인판(family-06) 1줄 규격 역이식:
+   flex 1행 고정 + 중점 0.6em 축소 + padding-left 0.14em 제거 (오프 실측 43px 1줄과 동일) */
 .date-han-main{
   font-family:var(--serif-ko);font-weight:500;
   font-size:clamp(34px,8.5vw,42px);color:var(--ink);
-  letter-spacing:0.14em;padding-left:0.14em;line-height:1;margin-bottom:20px;
+  letter-spacing:0.14em;line-height:1;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:center;
+  gap:0.16em;
 }
-.date-han-main .sep{color:var(--dancheong);margin:0 0.08em;font-weight:400}
+.date-han-main .m,.date-han-main .d{display:inline-block;line-height:1}
+.date-han-main .sep{
+  color:var(--dancheong);font-weight:400;
+  font-size:0.6em;line-height:1;
+  display:inline-flex;align-items:center;
+}
 .date-latin{
   font-family:var(--serif-en);font-size:12.5px;letter-spacing:0.28em;
   color:var(--ink-mid);padding-left:0.28em;margin-bottom:16px;
@@ -427,14 +436,14 @@ body::after{
   font-family:var(--serif-en);font-weight:500;font-size:10px;
   color:var(--ink-light);text-align:center;padding:8px 0 16px;letter-spacing:0.06em;
 }
-.date-cal-dow.sun{color:var(--dancheong);opacity:0.85}
+.date-cal-dow.sun{color:var(--dancheong)} /* [AUD16] opacity .85 제거, 8.85 온전 */
 .date-cal-cell{
   font-family:var(--serif-en);font-weight:400;font-size:12px;color:var(--ink-soft);
   text-align:center;padding:8px 0;aspect-ratio:1;
   display:flex;align-items:center;justify-content:center;
   position:relative;font-variant-numeric:tabular-nums;
 }
-.date-cal-cell.sun{color:var(--dancheong);opacity:0.7}
+.date-cal-cell.sun{color:var(--dancheong)} /* [AUD16] opacity .7(실효 4.14) 제거 → 8.85 */
 .date-cal-cell.empty{color:transparent}
 .date-cal-cell.marked{color:var(--paper-bright);font-weight:500}
 .date-cal-cell.marked::before{
@@ -760,6 +769,7 @@ details.env-acc-item[open] > .env-acc-q{
   opacity:0.85;
 }
 .date-studio-line .name{color:var(--ink-mid);font-weight:500}
+.date-studio-line .ko{font-family:var(--serif-ko);font-style:normal} /* [AUD16] ', 성수' 한글 가짜 이탤릭 → normal */
 
 @media (max-width:340px){
   .date-studio-line{font-size:12px}
@@ -906,8 +916,9 @@ details.env-acc-item[open] > .env-acc-q{
     <div class="date-content reveal">
       <div class="date-eyebrow">약속의 날</div>
 
+      <!-- [AUD16] 오프라인판 1줄 규격 역이식: 월·일을 .m/.d 스팬으로 (flex 아이템화) -->
       <h2 class="date-han-main" id="sec-02-title">
-        {{WEDDING_MONTH_HAN}}<span class="sep">·</span>{{WEDDING_DAY_HAN}}
+        <span class="m">{{WEDDING_MONTH_HAN}}</span><span class="sep">·</span><span class="d">{{WEDDING_DAY_HAN}}</span>
       </h2>
 
       <div class="date-latin">{{WEDDING_DATE_SPACED}}</div>
@@ -930,7 +941,8 @@ details.env-acc-item[open] > .env-acc-q{
           <div class="date-cal-month-han">{{WEDDING_MONTH_HAN}}</div>
           <div class="date-cal-month-en">{{WEDDING_MONTH_EN}}</div>
         </div>
-        <div class="date-cal" role="grid" aria-label="{{WEDDING_MONTH_DISPLAY}} 달력">
+        <!-- [AUD16] 장식 달력: role="grid"·aria-label 제거 (자식 row/gridcell 없음 → axe critical, 01 규격과 동일) -->
+        <div class="date-cal">
           <div class="date-cal-dow sun">일</div>
           <div class="date-cal-dow">월</div>
           <div class="date-cal-dow">화</div>
@@ -945,7 +957,7 @@ details.env-acc-item[open] > .env-acc-q{
       <!-- 스튜디오 — 한 줄 이탤릭 캡션 -->
       <div class="date-studio-line">
         <span class="at">於</span>
-        <span class="name">Moment Edit</span>, 성수
+        <span class="name">Moment Edit</span><span class="ko">, 성수</span><!-- [AUD16] 한글부 normal 분기 -->
       </div>
     </div>
   </section>

@@ -280,7 +280,7 @@ body::after{
 }
 .inv-text p{margin-bottom:20px}
 .inv-text p:last-child{margin-bottom:0}
-.inv-text .em{color:var(--gold);font-weight:500}
+.inv-text .em{font-weight:500} /* [AUD16] 골드 1.93→잉크 상속, 활판 본문 강조는 굵기로 (03과 동일 결정) */
 .inv-text .han-em{
   font-family:var(--serif-ko);font-weight:500;color:var(--dancheong-deep);
   margin:0 1px;letter-spacing:0.04em;
@@ -390,14 +390,14 @@ body::after{
   font-family:var(--serif-en);font-weight:500;font-size:10px;
   color:var(--ink-light);text-align:center;padding:8px 0 16px;letter-spacing:0.06em;
 }
-.date-cal-dow.sun{color:var(--dancheong);opacity:0.85}
+.date-cal-dow.sun{color:var(--dancheong)} /* [AUD16] opacity .85 제거, 8.85 온전 */
 .date-cal-cell{
   font-family:var(--serif-en);font-weight:400;font-size:12px;color:var(--ink-soft);
   text-align:center;padding:8px 0;aspect-ratio:1;
   display:flex;align-items:center;justify-content:center;
   position:relative;font-variant-numeric:tabular-nums;
 }
-.date-cal-cell.sun{color:var(--dancheong);opacity:0.7}
+.date-cal-cell.sun{color:var(--dancheong)} /* [AUD16] opacity .7(실효 4.14) 제거 → 8.85 */
 .date-cal-cell.empty{color:transparent}
 .date-cal-cell.marked{color:var(--paper-bright);font-weight:500}
 .date-cal-cell.marked::before{
@@ -808,7 +808,10 @@ details.env-acc-item[open] > .env-acc-q{
   font-size:13px;
   opacity:0.85;
 }
-.date-studio-line .name{color:var(--ink-mid);font-weight:500}
+.date-studio-line .name{
+  color:var(--ink-mid);font-weight:500;
+  font-family:var(--serif-ko);font-style:normal; /* [AUD16] 장소명(한글) 가짜 이탤릭 → normal (온라인판 .name은 라틴이라 이탤릭 유지) */
+}
 
 @media (max-width:340px){
   .date-studio-line{font-size:12px}
@@ -981,7 +984,8 @@ details.env-acc-item[open] > .env-acc-q{
           <div class="date-cal-month-han">{{WEDDING_MONTH_HAN}}</div>
           <div class="date-cal-month-en">{{WEDDING_MONTH_EN}}</div>
         </div>
-        <div class="date-cal" role="grid" aria-label="결혼식 달력">
+        <!-- [AUD16] 장식 달력: role="grid"·aria-label 제거 (자식 row/gridcell 없음 → axe critical, 01 규격과 동일) -->
+        <div class="date-cal">
           <div class="date-cal-dow sun">일</div>
           <div class="date-cal-dow">월</div>
           <div class="date-cal-dow">화</div>

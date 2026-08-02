@@ -41,7 +41,12 @@
     // 08 한마디는 비워 기본 문구(다짐·마음 형식, DEFAULT_*_BIO)가 프리뷰에 나오게 — 폼 안내와 일치
     // dig* = 온라인 전용 오버라이드(비우면 오프/공통 값 상속). 프리뷰는 비워 기본 유지.
     pullQuote: '', groomBio: '', brideBio: '',
-    digPullQuote: '', digGroomBio: '', digBrideBio: ''
+    digPullQuote: '', digGroomBio: '', digBrideBio: '',
+    /* [DEMO_ENVELOPE] 마음 전하실 곳 노출 플래그 (2026-08-02 16종 검수 P3 승인).
+       이게 없어서 표본·프리뷰에서 계좌 봉투 섹션이 한 번도 안 보였다 — 하객 안내 버튼은
+       항상 심으면서 봉투는 숨기는 비대칭. 예비 고객이 기능을 모른 채 지나간다.
+       계좌 숫자는 위의 프리뷰 샘플 값이 그대로 쓰인다(실존 계좌 아님). */
+    accountFamily: 'Y', accountOnline: 'Y'
   };
 
   // ─── 유틸 ───────────────────────────────────────────────
@@ -528,6 +533,13 @@
         var _secs = document.querySelectorAll('.sec');
         var _host = _secs.length ? _secs[_secs.length - 1] : null;
         var foot = document.querySelector('.inv-footer');
+        /* [CTA_FONT] family-01은 body가 산세리프고 본문 서체는 요소 단위로 세리프를 입는다 —
+           카드가 body를 상속하면 전면 세리프 지면에서 혼자 산세리프였다(16종 검수).
+           ★섹션 컨테이너(.sec)도 body를 상속하므로 컨테이너가 아니라 '실제 본문 문단'의 서체를 따른다. */
+        try {
+          var _fsrc = (_host && _host.querySelector('p')) || document.querySelector('.sec p, .inv-text p, main p');
+          sec.style.fontFamily = getComputedStyle(_fsrc || _host || document.body).fontFamily;
+        } catch (eF) {}
         if (_host) _host.appendChild(sec);
         else if (foot && foot.parentNode) foot.parentNode.insertBefore(sec, foot);
         else document.body.appendChild(sec);
@@ -580,6 +592,26 @@
       a.innerHTML = '<span aria-hidden="true" style="font-size:15px;line-height:1">\u2039</span><span>갤러리</span>';
       a.addEventListener('click', function () { history.back(); });
       document.body.appendChild(a);
+      /* [INV_BACK_DODGE] 알약이 커버 워드마크를 덮었다(02·03·04·05·07 실측 61×14px 겹침, 16종 검수).
+         디자인마다 마스트 높이가 달라 고정 top으론 전부 못 피한다 — 붙인 뒤 실제로 밑에 깔린
+         텍스트 요소를 히트테스트로 찾아, 있으면 그 아래로 내려앉는다(최대 132px). */
+      requestAnimationFrame(function () {
+        try {
+          var r = a.getBoundingClientRect(), low = 0;
+          var pts = [[r.left + 6, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2], [(r.left + r.right) / 2, r.top + 4]];
+          for (var i = 0; i < pts.length; i++) {
+            var els = document.elementsFromPoint(pts[i][0], pts[i][1]) || [];
+            for (var j = 0; j < els.length; j++) {
+              var el = els[j];
+              if (el === a || a.contains(el) || el === document.body || el === document.documentElement) continue;
+              if (!el.textContent || !el.textContent.trim()) continue;
+              var b2 = el.getBoundingClientRect();
+              if (b2.height > 0 && b2.height < 160 && b2.bottom > low) low = b2.bottom;   // 화면만 한 배경 컨테이너는 제외
+            }
+          }
+          if (low > 0) a.style.top = Math.min(132, Math.round(low) + 10) + 'px';
+        } catch (e2) {}
+      });
     } catch (e) {}
   }
 

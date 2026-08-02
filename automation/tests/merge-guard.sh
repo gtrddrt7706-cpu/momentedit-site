@@ -970,3 +970,31 @@ chk 'CTA_EYEBROW' shared/hydrate.js 1                        # Guest Guide 라�
 chk 'OFF04_DATE_REAL' i-family/family-04.html 1              # 04 가족판 SAVE THE DATE 실데이터 토큰 · '08·23' 시안 잔재로 되돌리면 모든 커플이 8월 23일로 나간다
 chk 'WEDDING_MONTH_NUM_PAD' i-family/family-04.html 1        # 위와 세트 — 주점 스타일 유지한 월·일 토큰
 chk '{{WEDDING_YEAR_EN}}' i/cover-04.html 1                  # 04 온라인판 연도 토큰 · 'Two Thousand Twenty-Six' 하드코딩 복귀 금지
+# ── 2026-08-02 16종 디자이너 검수 교정 [AUD16] — 마커·구조 가드
+chk 'AUD16' i/cover-01.html 28                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-02.html 26                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-03.html 34                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-04.html 15                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-05.html 25                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-06.html 8                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-07.html 28                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i/cover-08.html 12                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-01.html 31                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-02.html 29                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-03.html 38                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-04.html 15                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-05.html 25                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-06.html 5                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-07.html 33                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'AUD16' i-family/family-08.html 10                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
+chk 'DEMO_ENVELOPE' shared/hydrate.js 1               # 표본에 마음 전하실 곳 재현 · 빼면 예비 고객이 봉투 기능을 못 본다
+chk 'CTA_FONT' shared/hydrate.js 1                    # 하객 안내 카드 서체를 본문 문단에서 상속 · 빼면 01에서 혼자 산세리프
+chk 'INV_BACK_DODGE' shared/hydrate.js 1              # 표본 알약 워드마크 회피 히트테스트 · 빼면 커버 로고를 가린다
+chk '{{WEDDING_MONTH_NUM_PAD}}' i/cover-03.html 1     # 03 날짜 토큰(하드코딩 동류 결함 수정분)
+chk '{{WEDDING_MONTH_NUM_PAD}}' i-family/family-03.html 1
+chk '{{WEDDING_YEAR}}' i/cover-04.html 1              # 04 콜로폰 연도 토큰
+chk '{{WEDDING_YEAR}}' i-family/family-04.html 1      # 04 가족판 콜로폰 신설(판형 짝)
+# 장식 달력 role=grid 금지 — 재유입 즉시 적발 (aria-required-children critical 재발 방지)
+for _f in i/cover-02.html i/cover-03.html i/cover-05.html i/cover-06.html i/cover-07.html i-family/family-02.html i-family/family-03.html i-family/family-05.html i-family/family-06.html i-family/family-07.html; do
+  if grep -v '<!--' "$_f" | grep -q 'role="grid"'; then echo "REVERT? $_f: 장식 달력에 role=grid 재유입"; fail=1; else echo "ok $_f: role=grid 없음(주석 제외)"; fi
+done

@@ -62,9 +62,10 @@
   --bg3:#EDEBE6;
   --text:#1C1B19;
   --accent:#2C2825;
-  --sub:#7A756D;
-  --light:#B0AAA0;
+  --sub:#6E6962; /* [AUD16] 본문 잉크 #7A756D 4.38→#6E6962 5.21 (≥4.74 지시 충족, 흰 카드 5.44·bg2 4.91) */
+  --light:#726E68; /* [AUD16] #B0AAA0→#726E68, 대비 2.21→4.85 (흰 카드 2.31→5.07) — 뮤트 소형 라벨용 */
   --gold:#C4AD8F;
+  --gold-text:#7A5F37; /* [AUD16] 신설 — 골드 글자 전용 진골드 5.71 (--gold 2.07는 장식 전용) */
   --border:#DDD8D1;
   --hairline:rgba(28,27,25,0.08);
   --hairline-mid:rgba(28,27,25,0.18);
@@ -164,7 +165,7 @@ body::before{
   font-weight:400;
   font-size:13px;
   letter-spacing:0.04em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
 }
 .sec-marker-divider{flex:1;height:1px;background:var(--hairline-mid)}
 .sec-marker-cat{
@@ -183,7 +184,7 @@ body::before{
   letter-spacing:0.08em;
   color:var(--light);
   font-variant-numeric:tabular-nums;
-  opacity:0.7;
+  /* [AUD16] opacity .7(실효 2.75) 제거 — 장식 folio지만 텍스트인 이상 기준까지. 위계는 10px 크기가 이미 지킨다 → --light 4.85 온전 */
 }
 
 /* ════ COVER ════ */
@@ -217,7 +218,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.06em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   font-variant-numeric:tabular-nums;
 }
 
@@ -338,7 +339,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.06em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   margin-bottom:10px;
 }
 .inv-title{
@@ -403,7 +404,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.22em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   text-transform:uppercase;
   padding-left:0.22em;
 }
@@ -426,7 +427,7 @@ body::before{
 .inv-byline-content .parents .of{
   font-family:var(--serif);
   font-style:italic;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   margin:0 4px;
   font-size:11px;
 }
@@ -455,8 +456,8 @@ body::before{
   font-style:italic;
   font-size:13px;
   letter-spacing:0.04em;
-  color:var(--gold);
-  margin-bottom:6px;
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
+  margin-bottom:32px; /* [AUD16] 6px→32px — 중복 라벨(.date-eyebrow-sub) 제거분의 하단 리듬 승계 */
 }
 .date-eyebrow-sub{
   font-family:var(--sans);
@@ -517,7 +518,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.22em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   text-transform:uppercase;
   padding-left:0.22em;
 }
@@ -572,7 +573,7 @@ body::before{
   text-align:center;
   padding:6px 0;
 }
-.date-cal-dow.sun{color:var(--gold);opacity:0.8}
+.date-cal-dow.sun{color:var(--gold-text)} /* [AUD16] 골드·opacity.8(실효 1.82)→진골드 5.97(흰 카드), opacity 제거 */
 .date-cal-cell{
   font-family:var(--serif);
   font-size:13px;
@@ -581,7 +582,7 @@ body::before{
   padding:8px 0;
   font-variant-numeric:tabular-nums;
 }
-.date-cal-cell.sun{color:var(--gold);opacity:0.85}
+.date-cal-cell.sun{color:var(--gold-text)} /* [AUD16] 골드·opacity.85(실효 1.90)→진골드 5.97(흰 카드), opacity 제거 */
 .date-cal-cell.empty{visibility:hidden}
 .date-cal-cell.marked{color:#fff;font-weight:500}
 .date-cal-cell.marked span{
@@ -615,7 +616,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.06em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   margin-bottom:12px;
 }
 .join-title{
@@ -658,7 +659,7 @@ body::before{
   border-radius:2px;
   transition:transform 0.4s var(--ease-soft),background 0.3s var(--ease-soft),box-shadow 0.4s var(--ease-soft);
 }
-.join-btn:hover{transform:translateY(-1px);background:var(--text);box-shadow:0 8px 24px rgba(28,27,25,0.12)}
+.join-btn:hover{background:var(--text)} /* [AUD16] 호버 리프트(translateY)·그림자 제거 — 버튼 그림자 정책 */
 .join-btn .arrow{font-family:var(--serif);font-style:normal;transition:transform 0.4s var(--ease-soft)}
 .join-btn:hover .arrow{transform:translateX(4px)}
 
@@ -686,7 +687,7 @@ body::before{
   font-family:var(--serif);
   font-style:italic;
   font-variant-numeric:tabular-nums;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   font-size:11px;
   letter-spacing:0.04em;
 }
@@ -700,7 +701,7 @@ body::before{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.06em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.07→5.71 */
   margin-bottom:10px;
 }
 .env-title{
@@ -751,7 +752,7 @@ details.env-acc-item[open]{border-color:var(--gold);box-shadow:0 4px 16px rgba(1
   font-style:italic;
   font-size:11px;
   letter-spacing:0.04em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 색인 글자 심화, 대비 2.16→5.97(흰 카드) */
   font-variant-numeric:tabular-nums;
 }
 .env-acc-info{display:flex;flex-direction:column;gap:3px;flex:1}
@@ -781,14 +782,14 @@ details.env-acc-item[open]{border-color:var(--gold);box-shadow:0 4px 16px rgba(1
 .env-acc-parents .of{
   font-family:var(--serif);
   font-style:italic;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 소형 라벨 심화, 대비 2.16→5.97(흰 카드) */
   margin:0 3px;
 }
 .env-acc-plus{
   font-family:var(--serif);
   font-size:22px;
   font-weight:300;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 상태 표시 글리프 심화 2.16→5.97 (1.4.11 비텍스트 3:1 충족) */
   transition:transform 0.4s var(--ease-soft);
 }
 details[open] .env-acc-plus{transform:rotate(45deg)}
@@ -810,7 +811,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   padding-left:2px;
 }
 .env-acc-sub-label .dot{
-  color:var(--gold, #B89671);
+  color:var(--gold-text, #7A5F37); /* [AUD16] 글줄 내 글리프는 진골드 2.16→5.97 */
   margin:0 6px;
   font-weight:300;
 }
@@ -901,7 +902,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   background:var(--gold);
 }
 .env-acc-copy.copied{
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 'Copied' 상태 텍스트 심화, 대비 2.16→5.97(흰 카드) */
 }
 .env-acc-copy.copied::after{
   background:var(--gold);
@@ -961,7 +962,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   font-style:italic;
   font-size:11px;
   letter-spacing:0.2em;
-  color:rgba(250,250,248,0.38);
+  color:rgba(250,250,248,0.52); /* [AUD16] α.38(#6F6E6C 3.45)→α.52(#8E8E8C) — on #1A1917 대비 5.35, 파이썬 실측 (α.46=4.45 미달·α.48=4.77 여유 부족) */
   text-transform:uppercase;
   padding-left:0.2em;
   margin-bottom:28px;
@@ -1130,7 +1131,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
 
     <div class="date-content reveal">
       <div class="date-eyebrow">Save the Date</div>
-      <div class="date-eyebrow-sub">Save the Date</div>
+      <!-- [AUD16] .date-eyebrow-sub(SAVE THE DATE) 삭제 — 마커 The Date→눈썹 Save the Date→대문자 반복의 3중 중복 중 최잉여층. 형제 섹션(초대·라이브·봉투)은 눈썹 1층 구조 -->
 
       <h2 class="date-headline" id="sec-02-title">
         <span class="md">
@@ -1155,7 +1156,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
           <div class="date-cal-month-en">{{WEDDING_MONTH_EN_SHORT}}</div>
           <div class="date-cal-month-num">{{WEDDING_MONTH_SLASH}}</div>
         </div>
-        <div class="date-cal" role="grid" aria-label="{{WEDDING_MONTH_DISPLAY}} 달력">
+        <div class="date-cal"><!-- [AUD16] 장식 달력의 role="grid"(+연쇄 필수 자식 요구·aria-label) 제거 — aria-required-children critical 해소 -->
           <div class="date-cal-dow sun">Sun</div>
           <div class="date-cal-dow">Mon</div>
           <div class="date-cal-dow">Tue</div>

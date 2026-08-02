@@ -213,7 +213,7 @@ body::before{
   font-style:italic;
   font-size:10.5px;
   letter-spacing:0.18em;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.76→5.45(#FAF7ED) */
   text-transform:uppercase;
   white-space:nowrap;
   justify-self:start;
@@ -227,7 +227,7 @@ body::before{
   font-size:11px;
   letter-spacing:0.4em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.76→5.45 */
   opacity:0;
   animation:fadeUp 1.4s var(--ease) 0.3s forwards;
 }
@@ -322,7 +322,7 @@ body::before{
   font-size:10.5px;
   letter-spacing:0.36em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.76→5.45 */
   padding-left:0.36em;
 }
 .cover-date em{
@@ -387,7 +387,7 @@ body::before{
   font-size:10px;
   letter-spacing:0.36em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
 }
 
 .sec-title{
@@ -466,7 +466,7 @@ body::before{
 .sign-parents{
   font-family:var(--serif-ko);
   font-size:12px;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
   line-height:1.7;
   margin-bottom:14px;
 }
@@ -478,7 +478,7 @@ body::before{
   letter-spacing:0.12em;
   text-transform:uppercase;
   margin-right:6px;
-  opacity:0.85;
+  /* [AUD16] opacity:0.85 제거(위계는 opacity 금지) — 주홍 실효 대비 4.08→5.24 */
 }
 .sign-parents .sep{color:var(--ink-faint);margin:0 4px}
 .sign-name{
@@ -497,7 +497,7 @@ body::before{
   font-size:10px;
   letter-spacing:0.32em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
 }
 
 /* ─────────────────────────────────
@@ -525,7 +525,7 @@ body::before{
   font-size:10px;
   letter-spacing:0.4em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
   margin-bottom:24px;
 }
 
@@ -618,7 +618,7 @@ body::before{
 .live-btn:focus-visible{
   background:transparent;
   color:var(--ink);
-  transform:translateY(-1px);
+  /* [AUD16] 인터랙티브 버튼 호버 리프트(translateY -1px) 제거 — 색 반전만 남김 */
 }
 .live-btn .arrow{
   font-style:normal;
@@ -646,7 +646,7 @@ body::before{
 .live-feat-ko{
   font-family:var(--serif-ko);
   font-size:11px;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.74→5.41(#FAF6EC) */
   letter-spacing:0.02em;
 }
 
@@ -767,7 +767,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   font-style:italic;
   font-size:10px;
   letter-spacing:0.18em;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
   text-transform:uppercase;
   margin-bottom:24px;
 }
@@ -785,7 +785,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   font-size:9px;
   letter-spacing:0.36em;
   text-transform:uppercase;
-  color:var(--ink-fade);
+  color:var(--ink-mid); /* [AUD16] --ink-fade→--ink-mid, 대비 2.64→5.23 */
   padding-top:20px;
   border-top:1px solid var(--hairline);
   display:inline-block;
@@ -965,8 +965,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   white-space:nowrap;
 }
 .acc-sub-label .dot{
-  color:var(--gold, #C8584A);
-  opacity:0.55;
+  color:var(--vermilion); /* [AUD16] 미정의 --gold 폴백 #C8584A+op.55(≈2.05)→주홍 5.52 — 팔레트 밖 색 제거 */
   margin:0 5px;
   font-weight:300;
 }
@@ -1004,19 +1003,19 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   transition:background 0.3s ease;
 }
 .acc-copy:hover,
-.acc-copy:focus-visible{
-  color:var(--gold, #C8584A);
+.acc-copy:focus-visible{ /* [AUD16] 미정의 --gold 폴백 #C8584A(3.9)→주홍 --vermilion(5.24) — 상태색 4곳 동일 */
+  color:var(--vermilion);
   outline:none;
 }
 .acc-copy:hover::after,
 .acc-copy:focus-visible::after{
-  background:var(--gold, #C8584A);
+  background:var(--vermilion);
 }
 .acc-copy.copied{
-  color:var(--gold, #C8584A);
+  color:var(--vermilion);
 }
 .acc-copy.copied::after{
-  background:var(--gold, #C8584A);
+  background:var(--vermilion);
 }
 /* === /04 봉투 === */
 </style>
@@ -1249,7 +1248,8 @@ details.acc[open] summary::after{transform:rotate(45deg)}
     <div class="foot-brand">Moment Edit</div>
     <div class="foot-sub">Private Wedding Studio</div>
     <div class="foot-quote">Focus on the Essence,<br>Record the Truth.</div>
-    <div class="foot-spec">DRW.04 · REV.03 · 2027</div>
+    <!-- [AUD16] 콜로폰 연도 하드코딩 '2027'→{{WEDDING_YEAR}} — hydrate가 실제 예식 연도로 치환 -->
+    <div class="foot-spec">DRW.04 · REV.03 · {{WEDDING_YEAR}}</div>
   </footer>
 
 </main>

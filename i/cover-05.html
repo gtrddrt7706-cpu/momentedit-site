@@ -69,9 +69,9 @@
   --ink-green-fade:#5A6850;
   --rose:#955C5C;              /* 매트 로즈 */
   --rose-deep:#7A4541;
-  --rose-warm:#C08080;
-  --gold:#B59655;              /* Art Deco gold */
-  --gold-deep:#8D7441;
+  --rose-warm:#CE9595;         /* [AUD16] #C08080→#CE9595, forest 위 대비 4.00→5.04 (다크 섹션 텍스트용 밝힘) */
+  --gold:#B59655;              /* Art Deco gold — 장식 전용 */
+  --gold-deep:#7A6435;         /* [AUD16] #8D7441→#7A6435, cream 위 대비 4.03→5.12 (골드 텍스트 전용 심화) */
   --charcoal:#1A1814;
   --charcoal-soft:#2A2620;
 
@@ -210,13 +210,13 @@ body::after{
   color:var(--rose);
   letter-spacing:0.05em;
 }
-.sec-meta .num .ar{color:var(--sage);font-size:9px}
+.sec-meta .num .ar{color:var(--moss);font-size:9px} /* [AUD16] sage→moss, 대비 2.71→6.36 */
 .sec-meta .label{
   font-family:var(--serif);
   font-style:italic;
   font-size:11px;
   letter-spacing:0.28em;
-  color:var(--sage);
+  color:var(--moss); /* [AUD16] sage→moss, 대비 2.71→6.36 */
 }
 
 /* ═════════ Reveal 애니메이션 ═════════ */
@@ -343,7 +343,7 @@ body::after{
   font-size:11.5px;
   letter-spacing:0.32em;
   text-transform:uppercase;
-  color:var(--sage);
+  color:var(--moss); /* [AUD16] sage→moss, 대비 2.71→6.36 */
   padding-left:0.32em;
 }
 
@@ -402,15 +402,14 @@ body::after{
   font-family:var(--serif-ko);
   font-size:13px;
   font-weight:300;
-  color:var(--ink-green);
-  opacity:0.45;
+  color:var(--ink-green-fade); /* [AUD16] ink-green@0.45→ink-green-fade 명시색, 대비 2.41→5.37 (opacity 위계 제거) */
   letter-spacing:0.3em;
   padding-left:0.3em;
   margin-top:6px;
   margin-bottom:0;
   text-align:center;
 }
-.cover-title-ko .sep{color:var(--rose);opacity:0.7;font-size:0.9em}
+.cover-title-ko .sep{color:var(--rose);font-size:0.9em} /* [AUD16] opacity:0.7 제거, 대비 2.78→4.78 */
 
 /* 라틴 학명 — 대담하게 */
 
@@ -434,14 +433,13 @@ body::after{
 .cover-date-hero .cover-date-num{
   font-size:clamp(36px,9vw,46px);
   font-weight:400;
-  opacity:0.7;
+  /* [AUD16] opacity:0.7 제거, 대비 2.78→4.78 */
 }
 .cover-date-hero .cover-date-unit{
   font-family:var(--serif-ko);
   font-size:clamp(16px,4vw,22px);
   font-weight:300;
-  color:var(--rose);
-  opacity:0.9;
+  color:var(--rose); /* [AUD16] opacity:0.9 제거, 대비 3.96→4.78 */
   margin-right:12px;
   letter-spacing:0.04em;
 }
@@ -452,8 +450,7 @@ body::after{
   font-family:var(--serif-ko);
   font-size:13px;
   font-weight:300;
-  color:var(--rose);
-  opacity:0.9;
+  color:var(--rose); /* [AUD16] opacity:0.9 제거, 대비 3.96→4.78 */
   letter-spacing:0.12em;
   padding-left:0.12em;
   margin-top:4px;
@@ -648,8 +645,7 @@ body::after{
   font-family:var(--serif);
   font-style:italic;
   font-size:10.5px;
-  color:var(--rose);
-  opacity:0.9;
+  color:var(--rose-deep); /* [AUD16] rose@0.9→rose-deep·opacity 제거, 대비 3.96→6.88 */
   margin-right:6px;
   letter-spacing:0.06em;
 }
@@ -725,10 +721,10 @@ body::after{
   margin-right:0;
 }
 .when-date-day{
-  font-family:var(--serif);
-  font-style:italic;
+  font-family:var(--serif-ko); /* [AUD16] 한글 가짜 이탤릭 해소: serif(italic)→serif-ko normal */
+  font-style:normal;
   font-size:13px;
-  color:var(--sage);
+  color:var(--ink-green-fade); /* [AUD16] sage→ink-green-fade, 대비 2.71→5.37 */
   letter-spacing:0.14em;
   margin-bottom:44px;
 }
@@ -795,7 +791,7 @@ body::after{
   border-bottom:1px solid var(--hairline-mid);
   letter-spacing:0.04em;
 }
-.when-cal-dow.sun{color:var(--rose)}
+.when-cal-dow.sun{color:var(--rose-deep)} /* [AUD16] rose→rose-deep, 대비 4.07→5.86 (parchment 기준) */
 
 .when-cal-cell{
   font-family:var(--serif);
@@ -811,7 +807,7 @@ body::after{
   position:relative;
   font-variant-numeric:tabular-nums;
 }
-.when-cal-cell.sun{color:var(--rose);opacity:0.75}
+.when-cal-cell.sun{color:var(--rose-deep)} /* [AUD16] rose@0.75→rose-deep 명시색, 대비 2.73→5.86 */
 .when-cal-cell.empty{color:transparent}
 
 /* 마크 — 잎사귀로 감싸기 */
@@ -859,7 +855,7 @@ body::after{
 }
 .sec-join .sec-join .sec-meta{color:var(--sage-soft)}
 .sec-join .sec-meta .num .roman{color:var(--rose-warm)}
-.sec-join .sec-meta .num .ar{color:var(--sage-soft);opacity:0.7}
+.sec-join .sec-meta .num .ar{color:var(--sage-soft)} /* [AUD16] opacity:0.7 제거, 대비 4.24→6.93 */
 .sec-join .sec-meta .label{color:var(--sage-soft)}
 
 .join-wrap{
@@ -926,9 +922,8 @@ body::after{
   text-transform:uppercase;
   position:relative;
   overflow:hidden;
-  transition:transform 0.3s var(--ease-out),box-shadow 0.4s var(--ease-out);
+  transition:transform 0.3s var(--ease-out); /* [AUD16] 인터랙티브 버튼 그림자·호버 리프트 제거 (06 규격과 동일) */
   -webkit-tap-highlight-color:transparent;
-  box-shadow:0 4px 24px rgba(0,0,0,0.25);
   isolation:isolate;
 }
 .join-btn::before{
@@ -940,7 +935,7 @@ body::after{
   transition:transform 0.5s var(--ease-out);
   z-index:-1;
 }
-.join-btn:hover{color:var(--cream);box-shadow:0 8px 32px rgba(165,102,102,0.45)}
+.join-btn:hover{color:var(--cream)} /* [AUD16] 호버 확장 그림자(리프트) 제거 */
 .join-btn:hover::before{transform:translateY(0)}
 .join-btn:active{transform:scale(0.97)}
 .join-btn .arrow{
@@ -1112,7 +1107,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   padding-left:2px;
 }
 .env-acc-sub-label .dot{
-  color:var(--gold, #B89671);
+  color:var(--gold-deep, #7A6435); /* [AUD16] gold→gold-deep(글자 붙은 글리프), 대비 2.54→5.12 */
   margin:0 6px;
   font-weight:300;
 }
@@ -1188,7 +1183,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
 }
 .env-acc-copy:hover,
 .env-acc-copy:focus-visible{
-  color:var(--gold);
+  color:var(--gold-deep); /* [AUD16] 호버 골드 글자 심화 2.54→4.85(cream-warm 기준) · 밑줄은 장식 라인이라 gold 유지 */
   outline:none;
 }
 .env-acc-copy:hover::after,
@@ -1196,13 +1191,13 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   background:var(--gold);
 }
 .env-acc-copy.copied{
-  color:var(--gold);
+  color:var(--gold-deep); /* [AUD16] 동일 심화 */
 }
 .env-acc-copy.copied::after{
   background:var(--gold);
 }
-.env-acc-copy:hover{background:var(--rose)}
-.env-acc-copy.copied{background:var(--rose-deep)}
+/* [AUD16] 잔재 규칙 제거: 투명 언더라인 버튼에 호버 시 로즈 솔리드 배경이 얹혀
+   골드 글자 대비가 1.88:1로 붕괴하던 충돌 (hover bg rose / copied bg rose-deep 2줄 삭제) */
 .env-acc-holder{
   margin-top:12px;
   text-align:right;
@@ -1290,7 +1285,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   .env-acc-mono{width:38px;height:38px}
   .env-acc-name{font-size:16px}
   .env-acc-num{font-size:13px}
-  .inv-text .em{color:var(--gold);font-weight:500}
+  /* [AUD16] ≤400px 골드 강조 덮어쓰기 삭제 — 본문 강조는 기본 진로즈(rose-deep) 유지, 대비 2.54→6.88 */
 }
 
 @media(max-width:360px){
@@ -1336,8 +1331,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   margin-right:6px;
 }
 .env-acc-name .dot{
-  color:var(--gold, #B59655);
-  opacity:0.6;
+  color:var(--gold-deep, #7A6435); /* [AUD16] gold@0.6→gold-deep·opacity 제거, 대비 1.70→5.12 */
   margin:0 6px;
   font-weight:300;
 }
@@ -1521,7 +1515,8 @@ details.env-acc-item[open] > summary.env-acc-q{
           <div class="when-cal-month">{{WEDDING_MONTH_EN_SHORT}}</div>
           <div class="when-cal-year">{{WEDDING_YEAR_EN}}</div>
         </div>
-        <div class="when-cal" role="grid" aria-label="{{WEDDING_MONTH_DISPLAY}} 달력">
+        <!-- [AUD16] 장식 달력: role="grid"·aria-label 제거 (자식 row/gridcell 없음 → axe critical, 01 규격과 동일) -->
+        <div class="when-cal">
           <div class="when-cal-dow sun">S</div>
           <div class="when-cal-dow">M</div>
           <div class="when-cal-dow">T</div>

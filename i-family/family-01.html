@@ -32,9 +32,10 @@
 :root{
   --bg:#FAFAF8;
   --bg2:#F5F3EF;
-  --sub:#7A756D;
-  --light:#B0AAA0;
+  --sub:#6E6962; /* [AUD16] #7A756D→#6E6962, 대비 4.38→5.21 (bg2 4.13→4.91) */
+  --light:#726E68; /* [AUD16] #B0AAA0→#726E68, 대비 2.21→4.85 — 소형 라벨·부모 성함 콘텐츠용 */
   --gold:#C4AD8F;
+  --gold-text:#7A5F37; /* [AUD16] 신설 — 골드 글자 전용 진골드, 대비 5.71 (--gold 2.07는 장식 전용) */
   --accent:#2C2825;
   --border:#DDD8D1;
   --hairline:rgba(28,27,25,0.08);
@@ -107,7 +108,7 @@ body{
   font-style:italic;
   font-size:11px;
   letter-spacing:0.28em;
-  color:var(--light);
+  color:var(--gold-text); /* [AUD16] var(--light) 2.21→진골드 5.71 — 골드 소형 텍스트 전군 */
   text-transform:uppercase;
 }
 
@@ -141,7 +142,7 @@ body{
   font-size:12px;
   font-weight:400;
   letter-spacing:0.42em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   text-transform:uppercase;
   padding-left:0.42em;
   margin-bottom:56px;
@@ -275,7 +276,7 @@ body{
   font-size:11px;
   letter-spacing:0.38em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-bottom:14px;
   padding-left:0.38em;
 }
@@ -304,8 +305,8 @@ body{
 .inv-text p{margin-bottom:24px}
 .inv-text p:last-child{margin-bottom:0}
 .inv-text .em{
-  color:var(--gold);
-  font-weight:400;
+  color:var(--gold-text); /* [AUD16] 본문 강조 진골드, 대비 2.07→5.71 */
+  font-weight:500; /* [AUD16] 400→500 — 강조 위계를 색이 아닌 굵기로 */
 }
 
 .inv-divider{
@@ -360,7 +361,7 @@ body{
   font-family:var(--serif);
   font-style:italic;
   font-size:10px;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   letter-spacing:0.1em;
   margin-right:6px;
   text-transform:lowercase;
@@ -382,7 +383,7 @@ body{
   font-size:11px;
   letter-spacing:0.38em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-bottom:14px;
   padding-left:0.38em;
 }
@@ -414,7 +415,7 @@ body{
   font-size:13px;
   letter-spacing:0.38em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-bottom:40px;
   padding-left:0.38em;
 }
@@ -487,7 +488,7 @@ body{
   padding:8px 0;
   text-transform:uppercase;
 }
-.when-cal-head.sun{color:#C4957A}
+.when-cal-head.sun{color:#9A5F41} /* [AUD16] #C4957A→#9A5F41(테라코타 유지), 대비 2.53→4.92 */
 
 .when-cal-cell{
   font-family:var(--serif);
@@ -504,7 +505,7 @@ body{
   justify-content:center;
 }
 
-.when-cal-cell.sun{color:#C4957A;opacity:0.85}
+.when-cal-cell.sun{color:#9A5F41} /* [AUD16] #C4957A·opacity.85(실효 2.16)→명시색 #9A5F41 4.92, opacity 제거 */
 .when-cal-cell.empty{color:transparent}
 
 .when-cal-cell.marked{
@@ -520,7 +521,7 @@ body{
   transform:translate(-50%,-50%);
   width:34px;
   height:34px;
-  background:var(--gold);
+  background:var(--gold-text); /* [AUD16] 배지 진골드 심화 — 흰 숫자 대비 2.16→5.97 (헤일로 그림자는 장식 유지) */
   border-radius:50%;
   box-shadow:0 2px 8px rgba(196,173,143,0.32),0 0 0 3px rgba(196,173,143,0.12);
   z-index:-1;
@@ -661,7 +662,7 @@ body{
   font-style:italic;
   font-size:10px;
   letter-spacing:0.24em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 (bg2 5.38) */
   text-transform:uppercase;
   margin-top:8px;
   padding-left:0.24em;
@@ -692,9 +693,9 @@ body{
 .venue-label{
   font-family:var(--serif);
   font-style:italic;
-  font-size:13px;
+  font-size:11px; /* [AUD16] 13px→11px — 형제 눈썹(.inv-label·.when-label)과 동격 */
   letter-spacing:0.38em;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   text-transform:uppercase;
   margin-bottom:24px;
   text-align:center;
@@ -721,8 +722,7 @@ body{
   margin-top:0;
   margin-bottom:44px;
   text-align:center;
-  opacity:0.85;
-}
+} /* [AUD16] opacity:0.85 제거(실효 3.33) — --sub 심화로 명시 대비 5.21 */
 
 
 /* 식장명 블록 — 영문 italic 메인 + 한글 sub (venue-title과 톤 통일) */
@@ -778,9 +778,8 @@ body{
   color:var(--accent);
   text-decoration:none;
   letter-spacing:0.04em;
-  box-shadow:0 2px 12px rgba(0,0,0,0.06);
   transition:all 0.3s var(--ease);
-}
+} /* [AUD16] 인터랙티브 칩 box-shadow 제거 — 그림자 정책(버튼 그림자 금지) */
 .venue-map-overlay:hover,
 .venue-map-overlay:focus-visible{
   border-color:var(--gold);
@@ -789,7 +788,7 @@ body{
 .venue-map-overlay-arrow{
   font-family:var(--serif);
   font-size:14px;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 글줄 내 글리프는 진골드 2.07→5.71 */
   line-height:1;
 }
 
@@ -815,8 +814,7 @@ body{
 .venue-app-btn:hover,
 .venue-app-btn:focus-visible{
   border-color:var(--gold);
-  transform:translateY(-1px);
-}
+} /* [AUD16] 호버 리프트(translateY) 제거 — 그림자·리프트 정책 */
 .venue-app-name{
   font-family:var(--serif);
   font-style:italic;
@@ -856,7 +854,7 @@ body{
   font-size:11px;
   letter-spacing:0.28em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-bottom:10px;
   font-weight:400;
   padding-left:0.28em;
@@ -918,7 +916,7 @@ body{
   font-size:11px;
   letter-spacing:0.28em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-bottom:24px;
 }
 .env-title{
@@ -935,7 +933,7 @@ body{
   font-family:var(--serif-ko);
   font-weight:300;
   font-size:13px;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   letter-spacing:0.32em;
   padding-left:0.32em;
   margin-bottom:24px;
@@ -973,7 +971,7 @@ body{
   transition:color 0.3s ease;
   text-align:left;
 }
-.env-acc-q:hover{color:var(--gold)}
+.env-acc-q:hover{color:var(--gold-text)} /* [AUD16] 호버 골드 2.07→5.71 */
 .env-acc-head{
   display:flex;
   flex-direction:column;
@@ -992,7 +990,7 @@ body{
   font-size:11px;
   letter-spacing:0.22em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   flex-shrink:0;
   width:58px;
 }
@@ -1016,10 +1014,9 @@ body{
   font-family:var(--serif);
   font-style:italic;
   font-size:10px;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드·opacity.7(실효 1.6대)→진골드 5.71, opacity 제거 */
   letter-spacing:0.08em;
   margin-left:6px;
-  opacity:0.7;
 }
 .env-acc-plus{
   font-family:var(--serif);
@@ -1032,7 +1029,7 @@ body{
 }
 .env-acc-item.open .env-acc-plus{
   transform:rotate(45deg);
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 상태 표시 글리프 심화 2.07→5.71 (1.4.11 비텍스트 3:1 충족) */
 }
 .env-acc-a{
   max-height:0;
@@ -1056,7 +1053,7 @@ body{
   padding-left:2px;
 }
 .env-acc-sub-label .dot{
-  color:var(--gold, #B89671);
+  color:var(--gold-text, #7A5F37); /* [AUD16] 글줄 내 글리프는 진골드 2.07→5.71 */
   margin:0 6px;
   font-weight:300;
 }
@@ -1099,8 +1096,8 @@ body{
 }
 .env-acc-copy:hover,
 .env-acc-copy:active{
-  background:var(--gold);
-  border-color:var(--gold);
+  background:var(--gold-text); /* [AUD16] 호버·눌림 채움 위 흰 글자 대비 2.16→5.97 */
+  border-color:var(--gold-text);
   color:#fff;
 }
 .env-acc-copy.copied{
@@ -1118,7 +1115,7 @@ body{
 .env-acc-holder .label{
   font-family:var(--serif);
   font-style:italic;
-  color:var(--gold);
+  color:var(--gold-text); /* [AUD16] 골드 글자 심화, 대비 2.07→5.71 */
   margin-right:6px;
   letter-spacing:0.1em;
 }
