@@ -1493,10 +1493,21 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 <!-- ═══ STICKY HEADER ═══ -->
 <header class="brand-strip">
   <div class="brand-strip-in">
+    <!-- [LIVE_INFRAME] 갤러리 프레임 안에서는 화살표를 지운다 — 폰 목업 안에서 홈으로 항해하면
+         미리보기 여정이 갤러리 밖으로 샌다(guide.html [GUIDE_INFRAME]과 같은 처방).
+         워드마크는 남기고 링크 성질만 없앤다(브랜드 노출은 유지). -->
     <a href="index.html" class="brand-mark brand-mark-link" data-home-link aria-label="청첩장으로 돌아가기">
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
+    <script>
+      (function(){ var f=false; try{ f=(window.parent&&window.parent!==window);}catch(e){f=true;}
+        if(!f) return;
+        var a=document.querySelector('[data-home-link]'); if(!a) return;
+        a.removeAttribute('href'); a.removeAttribute('aria-label'); a.style.cursor='default';
+        var ar=a.querySelector('.back-arrow'); if(ar) ar.style.display='none';
+      })();
+    </script>
     <span class="on-air"><span class="live-dot"></span>On Air</span>
   </div>
 </header>
@@ -1980,6 +1991,17 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   //     홍보 경로는 GAS를 부르지 않는다(예식 당일 부하 + 시트 잡값 노출 차단).
   if (!eventId || eventId === 'test-couple') {
     clearTimeout(failsafeTimer);
+    /* [LIVE_DEMO_DATE] 정적 더미는 2027·12·17인데 청첩장 표본은 2026·10·24였다 —
+       갤러리에서 온라인판 Enter로 넘어온 예비 고객에게 '같은 예식인데 날짜가 다른' 화면이 보였다
+       (2026-08-02 라이브 카드 추가 검토 중 실측 발견 · 04 날짜 하드코딩과 같은 계열).
+       ★hydrate.js SAMPLE과 한 몸 — 한쪽만 바꾸면 다시 어긋난다. */
+    try {
+      applyCoupleInfo({
+        groomName: '이서준', brideName: '정하윤',
+        groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
+        weddingDate: '2026-10-24', weddingTime: '14:00'
+      });
+    } catch (e) {}
     document.body.classList.add('couple-ready');
     return;
   }
@@ -2126,7 +2148,12 @@ function applyCoupleInfo(couple){
 
     // 요일 계산 (KST 기준)
     const weekdayMap = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-    const dayIdx = new Date(date + 'T00:00:00+09:00').getDay();
+    /* [LIVE_DOW_TZ] getDay()는 '보는 사람의 시간대' 기준이다 — KST 자정으로 만든 순간을
+       UTC나 미주에서 읽으면 하루 앞 요일이 나온다(2026-10-24 토 → 해외 하객 화면엔 FRI, 실측).
+       라이브 페이지는 멀리 계신 분을 위한 화면이라 이 오차가 정확히 표적 사용자를 때린다.
+       ★시간대에 안 흔들리는 UTC 성분으로 계산한다(청첩장 hydrate.js는 로컬 성분 생성자라 이미 안전). */
+    const _dp = date.split('-');
+    const dayIdx = new Date(Date.UTC(+_dp[0], +_dp[1] - 1, +_dp[2])).getUTCDay();
     const weekdayEn = weekdayMap[dayIdx] || 'SUN';
 
     // event-time: FRI／10:00 KST

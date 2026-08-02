@@ -229,6 +229,12 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
 .mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease)}
 .mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important}
+/* [FAB_OVER_FS] 청첩장 위저드가 열리면 .mp-fs(z-index:950·불투명 전면)가 깔리는데,
+   FAB 스택은 z-index:95라 '청첩장 샘플' 아이콘이 그 밑에 파묻혔다 —
+   ensureInviteFab은 정확히 위저드가 열린 동안에만 아이콘을 켜므로, 켜지는 순간 항상 안 보였다
+   (2026-08-02 사용자 지적 · [CTA_STACK]과 같은 계열의 스태킹 사고).
+   ★위저드 중에도 샘플을 언제든 열 수 있게 하는 것이 이 아이콘의 존재 이유다. 낮추지 말 것. */
+body.mp-fs-on .me-fab-stack{z-index:960}
 .mp-fs .seat-card{position:static!important;left:auto!important;transform:none!important;width:100%!important;max-width:880px!important}   /* 좌석 캔버스: 전체화면에선 vw 브레이크아웃(92vw·left:50%·translateX) 대신 컨테이너 %+margin:auto 중앙정렬 — vw(스크롤바 포함) vs 컨테이너(스크롤바 제외) 불일치로 실브라우저 스크롤바 있을 때 우측 쏠리던 것 해소(2026-07-19 사용자 지적) */
 @keyframes mpfsin{from{opacity:0}to{opacity:1}}
 
@@ -3689,8 +3695,8 @@ function _prodFsSync(){
   var box=$('mp_production'); if(!box) return;
   var on = INVFLOW.active || (typeof TRKFLOW!=='undefined' && TRKFLOW.active) || SEATFLOW.active;   // 단체사진(PHOTOFLOW)은 전용 오버레이(mp_photoOverlay) 사용이라 제외
   var has = box.classList.contains('mp-fs');
-  if(on && !has){ box.classList.add('mp-fs'); _mpLock(); }
-  else if(!on && has){ box.classList.remove('mp-fs'); _mpUnlock(); }
+  if(on && !has){ box.classList.add('mp-fs'); document.body.classList.add('mp-fs-on'); _mpLock(); }   // [FAB_OVER_FS] body 표식 — FAB 스택을 오버레이 위로 올리는 스위치
+  else if(!on && has){ box.classList.remove('mp-fs'); document.body.classList.remove('mp-fs-on'); _mpUnlock(); }
 }
 // [MPD4_H4] 전달완료 후 '내 완성물' 읽기전용 요약(§9-5-⑥) — 끝난 예식의 편집 대시보드 잔존 제거. 링크만 열람.
 function _myWorksHtml(p, inv){

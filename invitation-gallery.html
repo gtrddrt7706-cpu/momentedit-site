@@ -400,6 +400,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     {name:'Noir Editorial', on:'i/cover-08.html', off:'i-family/family-08.html', bg:'#2f2820'},
     /* [GALLERY_GUIDE] 뒤 2장은 판 구분이 없는 안내 카드 — 토글이 숨는다 */
     {name:'Tailored · 맞춤 안내', src:'i/invitations/invitation-09-guide.html', bg:'#FAF8F4'},
+    /* [GALLERY_LIVE] 온라인 판의 부가 화면 — 오프라인엔 '하객 안내'가 있는데 온라인 쪽 라이브는
+       Enter를 눌러 새 탭으로 나가야만 볼 수 있었다(2026-08-02 사용자 지적 "설명이 한쪽만 있다").
+       ★순서: 두 판 설명 → 온라인 부가 → 오프라인 부가. 위 토글(온라인·오프라인)과 같은 왼→오 차례. */
+    {name:'Digital Attendance · 모바일 참석', src:'live.html?e=test-couple', bg:'#FAFAF8', dig:true},
     {name:'Guest Companion · 하객 안내', src:'guide.html?g=demo', bg:'#FAFAF8', live:true}
   ];
 
@@ -575,6 +579,11 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
       var h = a.getAttribute('href') || '';
       if (h.indexOf('live.html') === -1) return;
       e.preventDefault(); e.stopPropagation();
+      /* [GALLERY_LIVE] 라이브 카드가 생기기 전엔 새 탭이 유일한 길이었다 — 이제 갤러리 안에서 이어진다.
+         카드를 못 찾을 때만 옛 방식으로 폴백(안전망). */
+      var _lt = -1;
+      for (var _k=0; _k<INVITATIONS.length; _k++){ if (INVITATIONS[_k].dig) { _lt=_k; break; } }
+      if (_lt >= 0) { go(_lt); return; }
       try { window.open(new URL(h, doc.baseURI).href, '_blank'); } catch(err){}   // ifr.src는 상대주소라 base로 못 쓴다
     }, true);
     if (!window.matchMedia('(max-width: 760px)').matches) return;
@@ -737,6 +746,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     var what = ev.data.slice(8);
     var t = -1;
     if (what === 'guide') { for (var k=0;k<INVITATIONS.length;k++){ if (INVITATIONS[k].live) { t=k; break; } } }
+    else if (what === 'live') { for (var k2=0;k2<INVITATIONS.length;k2++){ if (INVITATIONS[k2].dig) { t=k2; break; } } }   // [GALLERY_LIVE]
     else if (what === 'online') { t = 0; if (typeof setVer === 'function') setVer('on', true); }
     if (t >= 0) go(t);
   });

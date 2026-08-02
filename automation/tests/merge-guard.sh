@@ -1027,3 +1027,8 @@ chk 'PC_TALL' invitation-gallery.html 1                # PC 미리보기 프레�
 chk 'INV_COVER_COPY' mypage.html 1                     # 표지 이름 안내 — '영문만'은 01(병기)·06(한글 주도)에서 거짓
 chk 'lp-cta-preview' live.html 2                        # 프리뷰 CTA 뮤트 배경(opacity 금지) · 되돌리면 흰 글자가 3.31:1로 무너진다
 chk 'gold-text' i/invitations/invitation-09-guide.html 2   # 09 카드 글자용 진골드
+chk 'FAB_OVER_FS' mypage.html 2                        # 위저드 전체화면(.mp-fs z:950) 위로 FAB 스택 올림 · 빼면 '청첩장 샘플' 아이콘이 다시 파묻힌다
+chk 'GALLERY_LIVE' invitation-gallery.html 3           # 라이브 카드(모바일 참석) + Enter 내부 이동 + goto:live 수신
+chk 'LIVE_DOW_TZ' live.html 1                          # 요일 UTC 성분 계산 · getDay()로 되돌리면 해외 하객에게 하루 밀린 요일이 나간다
+chk 'LIVE_DEMO_DATE' live.html 1                       # 표본 날짜를 청첩장 SAMPLE과 일치 · 빼면 2027·12·17 더미가 노출
+chk 'LIVE_INFRAME' live.html 1                         # 갤러리 프레임 안 홈 링크 무력화
