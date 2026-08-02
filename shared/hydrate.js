@@ -408,7 +408,7 @@
           + 'font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;font-size:10px;letter-spacing:.18em;'
           + 'color:#6f685c;background:rgba(250,250,248,.92);padding:3px 10px;border-radius:999px">Sample Map</span>'
           + '</div>'
-        : '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#9a8f7f;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>';
+        : '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#6E675C;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>';   /* [DTL16] #9a8f7f 2.81:1 → #6E675C 4.95:1 — 실하객이 읽는 안내문이 기준 미달이었다(08팀 적발) */
       html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g, _fill);
     }
     [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],

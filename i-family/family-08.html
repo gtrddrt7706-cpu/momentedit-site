@@ -343,6 +343,7 @@ summary:focus-visible{outline-offset:2px}
 .greeting .emph{
   font-weight:400;color:var(--ink);
 }
+.greeting .em{color:var(--gold);font-weight:400} /* [DTL16] hydrate *별표* 강조(.em, 전 디자인 공통)가 08만 무스타일 — 실측 본문과 동일(300·ink-2)로 강조 실종. 다크 지면은 밝은 골드가 정답([AUD16] 2항) — #C9A876 on #2F2820 = 6.47:1 AA */
 
 .gs-list{
   position:relative;
@@ -518,7 +519,7 @@ summary:focus-visible{outline-offset:2px}
   color:var(--ink);padding-left:0.18em;
 }
 .date-cal-grid{
-  display:grid;grid-template-columns:repeat(7,1fr);
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr)); /* [DTL16] 묵은 320px +2px의 뿌리 — 셀 aspect-ratio:1이 높이(패딩20+행간22.8=42.8px)를 min-width로 전이해 1fr(=minmax(auto,1fr))의 auto 바닥이 7×42.8=299.6px > 276px(320 컨테이너)로 밀었다(실측 docSW 322). minmax(0,1fr)로 바닥 해제 — 320에서 셀 39.4×42.8(육안 무변), 360·390은 원래 42.8 초과라 렌더 무변 */
   gap:0;padding:18px 0 0;
 }
 .date-cal-dow{
@@ -582,6 +583,10 @@ summary:focus-visible{outline-offset:2px}
   color:var(--ink);text-decoration:none;letter-spacing:0.04em;
   transition:all 0.3s var(--ease);
 }
+.venue-map-overlay::after{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 129.9×42.8로 세로 1.2px 미달 → 141.9×54.8. 뒤는 같은 목적지(지도)의 iframe뿐이라 6px 겹침 무해, 시각 무변 */
+  position:absolute;inset:-6px;
+}
 .venue-map-overlay:hover,
 .venue-map-overlay:focus-visible{
   background:var(--gold);color:var(--bg);border-color:var(--gold);
@@ -643,7 +648,7 @@ summary:focus-visible{outline-offset:2px}
   font-family:var(--serif-ko);font-size:13.5px;font-weight:300;
   color:var(--ink-2);line-height:1.9;
 }
-.venue-meta-row .venue-meta-row .venue-meta-arrival .em{color:var(--gold);font-weight:400;font-style:normal}
+.venue-meta-row.venue-meta-arrival .em{color:var(--gold);font-weight:400;font-style:normal} /* [DTL16] 자기중첩 오타 사문 셀렉터 정정(7연속 동일 오타의 마지막) — '15분 전' 강조가 300·상속색으로 죽어 있었다(실측). 다크 지면이라 밝은 골드가 정답([AUD16] 2항) — #C9A876 on #2F2820 = 6.47:1 */
 
 /* ─────────────────────────────────
    Nº V — ENVELOPE (축의)
@@ -773,6 +778,11 @@ details.env-acc[open] > .env-acc-q{
   cursor:pointer;
   transition:color 0.3s ease,border-color 0.3s ease;
   flex-shrink:0;-webkit-tap-highlight-color:transparent;
+  position:relative; /* [DTL16] 탭 타깃 확장 기준점 */
+}
+.env-acc-copy::after{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 42.4×19(480)·62.4×26(≤390) 미달(8연속) → 히트 48.4×45 이상(01~07 동일 처방 이식). 시각 크기 유지, 이웃 Copy 세로 간격 실측 71.7px+라 확장 후에도 45px 이상 이격 */
+  position:absolute;inset:-13px -3px;
 }
 .env-acc-copy:hover,
 .env-acc-copy:focus-visible{
@@ -871,6 +881,16 @@ details.env-acc[open] > .env-acc-q{
   .gs-row{grid-template-columns:60px 1fr;gap:14px}
   .env-acc-num{font-size:13px}
   .env-acc-copy{padding:7px 14px;font-size:10px}
+}
+
+/* [DTL16] prefers-reduced-motion 킬스위치 — 1차에서 01에만 들어가고 08은 실제로 누락(grep 16종 중 08 두 파일만 부재). 지속시간만 0이면 지연이 살아남아 cover-bot이 1.3s 뒤 팝업(07 동일 결함 실측 op 0) — 커버 연출 지연(0.2~1.3s)까지 함께 끈다(07 패턴) */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;scroll-behavior:auto !important;
+    animation-delay:0s !important;transition-delay:0s !important;
+  }
+  .reveal{opacity:1 !important;transform:none !important}
 }
 
 /* ─────────────────────────────────

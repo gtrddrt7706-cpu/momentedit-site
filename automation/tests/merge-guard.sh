@@ -998,3 +998,25 @@ chk '{{WEDDING_YEAR}}' i-family/family-04.html 1      # 04 가족판 콜로폰 �
 for _f in i/cover-02.html i/cover-03.html i/cover-05.html i/cover-06.html i/cover-07.html i-family/family-02.html i-family/family-03.html i-family/family-05.html i-family/family-06.html i-family/family-07.html; do
   if grep -v '<!--' "$_f" | grep -q 'role="grid"'; then echo "REVERT? $_f: 장식 달력에 role=grid 재유입"; fail=1; else echo "ok $_f: role=grid 없음(주석 제외)"; fi
 done
+# ── 2026-08-02 변주 스트레스 심화 [DTL16] — 16종 하나씩 점검 라운드
+chk 'DTL16' i/cover-01.html 9                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-02.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-03.html 8                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-04.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-05.html 10                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-06.html 8                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-07.html 9                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i/cover-08.html 8                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-01.html 11                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-02.html 8                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-03.html 8                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-04.html 6                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-05.html 9                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-06.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-07.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' i-family/family-08.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
+chk 'DTL16' shared/hydrate.js 1                       # '본 계약 후' 안내문 4.95:1
+# '15분 전' 자기중첩 사문 셀렉터 재유입 금지 (8종 가족판 전수에서 적발·정정된 오타 패턴)
+for _f in i-family/family-01.html i-family/family-02.html i-family/family-03.html i-family/family-04.html i-family/family-05.html i-family/family-06.html i-family/family-07.html i-family/family-08.html; do
+  if sed 's|/\*.*\*/||g' "$_f" | grep -q "\.venue-meta-row \.venue-meta-row"; then echo "REVERT? $_f: 자기중첩 사문 셀렉터 재유입"; fail=1; else echo "ok $_f: 자기중첩 셀렉터 없음(주석 제외)"; fi
+done
