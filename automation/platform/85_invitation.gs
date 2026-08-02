@@ -99,6 +99,16 @@ function _invUrls(eventId, designOnline, designFamily, live) {
   };
 }
 
+/* [PREVIEW_DIGITAL 2026-08-02] 디지털 참석 여부(boolean) — 식순 미리듣기의 배웅 장면이 이 값으로 갈린다.
+   (오프라인 end-1a-farewell / 온라인 end-1b-farewell-online + 온라인 하객 맞이 큐 · assets/ritual-cue.js)
+   ★규칙(어떤 청첩장 방식이 디지털 참석인가)은 아래 _invCouplesFields 한 곳에만 산다.
+     그 조건을 여기에도, 프론트에도 옮겨 적지 않는다 — 옮겨 적으면 규칙이 바뀌는 날 사본만 옛 규칙을 지킨다.
+     그래서 그 함수를 그대로 돌려 결과 한 칸(digitalAttendance)만 읽는다. 발행 전 초안에도 그대로 통한다.
+   발행 후 값과도 어긋나지 않는다 — 발행이 Couples 에 쓰는 값이 바로 이 함수의 같은 칸이다. */
+function _invDigital(draft) {
+  try { return _invCouplesFields({}, draft || {}).digitalAttendance === 'Y'; } catch (e) { return false; }
+}
+
 // 입구·디자인·인사말·계좌 draft → Couples 41열(eventId 제외 40키) 매핑.
 function _invCouplesFields(base, draft) {
   base = base || {}; draft = draft || {};
@@ -307,6 +317,7 @@ function buildInvitationState(r) {
     configured: _invConfigured(),
     status: (d.tracks && d.tracks.invitation) || '시작전',
     draft: d.invitationDraft || null,
+    digital: _invDigital(d.invitationDraft),   // [PREVIEW_DIGITAL] 식순 미리듣기가 배웅 장면을 고를 때 쓴다(프론트는 규칙을 모른 채 결과만 읽는다)
     published: eventId ? { eventId: eventId, urls: d.invitationUrls || _invUrls(eventId, '', '', 'N') } : null
   };
 }

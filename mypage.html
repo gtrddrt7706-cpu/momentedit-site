@@ -1426,7 +1426,7 @@ function openContractView(){
   }
 }
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
-function openRitualBuilder(p){
+function openRitualBuilder(p, inv){
   var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','식순 만들기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
@@ -1462,7 +1462,11 @@ function openRitualBuilder(p){
       var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
       var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||'', aiToken:(p&&p.aiToken)||''};   // [AI_WIDGET_HMAC] GAS 서명 토큰 릴레이(미발급이면 빈값)
       try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } if(!_cu.aiToken){ _cu.aiToken=_ld.aiToken||''; } } }catch(e2){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu}, location.origin);   // ORDERFILL_DONE
+      // [PREVIEW_DIGITAL] 디지털 참석 여부 동봉 — 빌더 안 「미리 들어보기」가 배웅 장면을 맞게 고르려면 이 한 칸이 필요하다.
+      //   빌더는 청첩장 트랙을 전혀 못 본다(오직 식순 S 만 쥔다). 새 규약을 만들지 않고 이미 있는 orderFill 에 한 칸만 더한다.
+      //   ★빌더는 이 값을 S 에 넣지 않는다 — 넣으면 _embedSave() 가 서버 초안에 굳혀 청첩장이 바뀌어도 안 따라온다.
+      var _dig=false; try{ _dig=!!(window.RitualPreviewLink && RitualPreviewLink.digitalOf(inv)); }catch(e3){}
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig}, location.origin);   // ORDERFILL_DONE
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -1502,9 +1506,11 @@ function openRitualBuilder(p){
 //     고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
 //   골격은 식순 빌더(openRitualBuilder)와 같다. 다른 점은 하나, 여기는 '듣기'라 저장도 postMessage 도 없다 —
 //   그래서 saved·onMsg·orderExit 경로가 통째로 없고, 닫기는 언제나 그냥 닫기다.
-function openRitualPreview(p){
+function openRitualPreview(p, inv){
   var src='';
-  try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft))||''; }catch(e){}
+  //   ★디지털 참석(inv)은 식순 초안에 없다 — 청첩장 트랙이 이미 정한 것이라 조립하는 이 순간에만 얹는다.
+  //     이 값이 배웅 장면을 가른다(end-1a 오프라인 · end-1b 온라인) + 온라인 하객 맞이 큐. [PREVIEW_DIGITAL]
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft, {digital:RitualPreviewLink.digitalOf(inv)}))||''; }catch(e){}
   if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
      떼기만 하면 done() 이 안 돌아 잠금 카운트가 새고 안 보이는 iframe 에서 소리가 계속 난다.
@@ -3826,8 +3832,8 @@ function renderProduction(p, inv){
       _dd0.reserveTime=String(p.guideinfoDraft.reserveTime||''); _dd0.reserveName=String(p.guideinfoDraft.reserveName||'');
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
-  var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
-  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p); });   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
+  var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p, inv); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
+  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p, inv); });   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){

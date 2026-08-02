@@ -1088,3 +1088,14 @@ chk 'ob_rpViewer' order-preview.html 4                  # 빌더 미리듣기 �
 chk 'trk-act-min' mypage.html 2                         # 보조 버튼 크기 위계 · 빼면 「미리 들어보기」가 주 버튼과 같은 무게로 선다
 chk 'if(old) return old' mypage.html 1                  # 연타 = 떠 있는 판 그대로 · '닫고 다시 열기'로 되돌리면 히스토리 층이 어긋나 페이지 밖으로 튕긴다
 chk 'if(old) return old' order-preview.html 1           # 연타 = 떠 있는 판 그대로 · 떼고 새로 짜면 배경 스크롤이 잠긴 채로 남는다
+
+# ── 디지털 참석 → 배웅 장면 갈림 [PREVIEW_DIGITAL] (2026-08-02 · 미리듣기가 늘 오프라인 배웅으로 흐르던 결함 수리)
+# 규칙은 서버 한 곳에만 산다 · 프론트는 결과만 읽는다 · 파생값을 식순 초안 S 에 굳히지 않는다
+chk '_invDigital' automation/platform/85_invitation.gs 2 # 규칙 소유 함수(_invCouplesFields)를 그대로 돌려 결과만 낸다 · 지우면 프론트가 조건을 베껴 적게 되고 규칙이 바뀌는 날 사본만 옛 규칙을 지킨다
+chk 'var INJECT' assets/ritual-preview-link.js 1        # '엔진은 읽는데 S 에는 없는 키' 선언 · 빠지면 [PREVIEW_KEYS]가 digital 을 '아무도 값을 안 만드는 키'로 잡아 빌드가 선다
+chk 'digitalOf' assets/ritual-preview-link.js 2         # 결과 읽기 단일 원천(정의+공개) · 두 진입점이 각자 청첩장 상태를 해석하면 판정이 갈라진다
+chk 'PREVIEW_DIGITAL' assets/ritual-preview-link.js 2   # 왜 S 에 안 넣는지(=_embedSave 가 서버 초안에 굳힌다) 근거 주석 · 지우면 다음 사람이 S 에 넣는다
+chk 'PREVIEW_DIGITAL' mypage.html 2                     # 마이페이지 두 경로 — 식순 행 「미리 들어보기」 조립 · 빌더로 넘기는 orderFill 동봉
+chk 'CUSTDIG' order-preview.html 6                      # 빌더가 받아 둔 디지털 참석 · S 가 아니라 주소 조립 순간에만 쓴다(선언·수신·조립2·주석)
+chk 'PREVIEW_DIGITAL' scripts/build-course-story.mjs 1  # 정적 검사: 엔진이 읽는 키마다 값을 만드는 곳이 있나(빌더의 S 이거나 INJECT 이거나)
+chk 'PREVIEW_DIGITAL' scripts/audit/preview-entry.mjs 9  # 실렌더 검사 9종(기본선 2 · orderFill 3 · 배웅 갈림 5 중 서버·폴백·우선순위 · S 이탈 차단)

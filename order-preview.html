@@ -1711,7 +1711,7 @@ function renderDone(){
      ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
        고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
      저장 전 S 도 그대로 들린다(서버 초안이 아니라 지금 화면의 S 를 넘긴다) — 저장해야 들을 수 있으면 고르는 손이 멈춘다. */
-  if(window.RitualPreviewLink && RitualPreviewLink.url(S)){
+  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG})){
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리 들어보기</button>';
     h+='<div class="prep-hint" style="text-align:center;margin-top:7px">지금 고른 순서 그대로, 예식의 흐름을 소리로 들어봐요</div>';
   }
@@ -1748,11 +1748,12 @@ function renderDone(){
 }
 /* 예식 미리 들어보기 — 지금 화면의 식순 S 그대로 흐르는 소리 미리듣기 [PREVIEW_LINK_V1]
    중첩 iframe(빌더 안에서 또 하나)이라 독립 열람·마이페이지 임베드 양쪽에서 같게 동작한다.
-   ★새 postMessage 규약을 만들지 않는다 — 미리듣기는 아무것도 저장하지 않으니 부모와 주고받을 말이 없다.
+   ★미리듣기 전용 postMessage 규약을 만들지 않는다 — 듣기만 하니 저장할 것도, 부모에게 되돌려 줄 말도 없다.
+     (밖에서 받는 것은 하나뿐이고, 그것도 이미 있는 orderFill 에 한 칸 얹은 CUSTDIG 다 · [PREVIEW_DIGITAL])
      (마이페이지 식순 행에도 같은 진입점이 있고, 거기는 서버 초안에서 조립한다 · mypage.html openRitualPreview) */
 function openRitualPreview(){
   var src='';
-  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S))||''; }catch(e){}
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG}))||''; }catch(e){}   // [PREVIEW_DIGITAL] 배웅 장면이 여기서 갈린다
   if(!src){ try{ toast('아직 들려드릴 순서가 없어요'); }catch(e){} return null; }
   try{ _stopAud(); }catch(e){}   // 빌더에서 듣던 견본 음성이 있으면 먼저 끊는다 — 두 소리가 겹치면 둘 다 안 들린다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
@@ -1853,6 +1854,14 @@ try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
 render();
 // ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
 var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람은 null)
+/* [PREVIEW_DIGITAL] 디지털 참석 여부 — 청첩장 트랙이 정한 값을 orderFill 로 받아 둔다.
+   ★S 에 넣지 않는다. _embedSave() 가 S 를 통째로 부모에 보내 서버 초안에 굳는다 —
+     그러면 나중에 청첩장 방식을 바꿔도 식순 초안에 박힌 옛 값이 미리듣기를 계속 지배한다.
+   쓰는 곳은 미리듣기 주소를 조립하는 그 한 순간뿐이다(RitualPreviewLink.url 의 두 번째 인자).
+   독립 열람(임베드 아님)은 false — 데모·공개 링크는 오프라인 배웅으로 흐른다.
+   ★이 선언은 첫 render() 아래에 있다(var 호이스팅). 그래서 첫 렌더 순간엔 undefined 다 —
+     부르는 쪽이 !!CUSTDIG 로 못 박아 false 로 읽는다. orderFill 이 오면 값이 서고 다시 렌더된다. */
+var CUSTDIG=false;
 function _embedSave(){
   if(!EMBED) return;
   try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
@@ -1883,6 +1892,7 @@ if(EMBED){
     if(ev.data.type==='momentedit:orderSaveFail'){ _doneSaved=false; _persist(); render(); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 부모의 완료 저장 실패 — 낙관 '저장됨' 표시 되돌려 다시 저장 가능하게(회의 R-8)
     if(ev.data.type==='momentedit:orderFill'){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
+      if(typeof ev.data.digital==='boolean') CUSTDIG=ev.data.digital;   // [PREVIEW_DIGITAL] 구버전 mypage(미전송)면 false 유지 — 종전 동작 그대로
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
       if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){

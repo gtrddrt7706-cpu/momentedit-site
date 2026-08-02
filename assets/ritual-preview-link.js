@@ -31,8 +31,18 @@
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독
-    'digital'                                  // 디지털 참석(배웅 장면이 갈린다)
+    'digital'                                  // 디지털 참석(배웅 장면이 갈린다) — ★INJECT · 식순 S 에는 없다
   ];
+
+  /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
+     식순 빌더는 이 값을 묻지 않는다 — 청첩장 트랙에서 이미 정해진 것이라 다시 물으면 답이 둘이 된다.
+     그래서 주소를 조립하는 이 순간에만 밖에서 받아 얹는다(url 의 두 번째 인자).
+     ★S 에 써 넣지 말 것. order-preview 의 _embedSave() 가 S 를 통째로 부모에 보내 서버 초안에 굳는다 —
+       청첩장 방식이 바뀌는 날 식순 초안에 박힌 옛 값만 남는다(확정 정보를 두 군데 적으면 한쪽만 고치는 날이 온다).
+     이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
+     (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
+      늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
+  var INJECT = ['digital'];
 
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
@@ -45,23 +55,47 @@
     return o;
   }
 
+  /* 청첩장 상태(getMyState 의 invitation)에서 '디지털 참석'을 읽는다 [PREVIEW_DIGITAL]
+     ★규칙의 원문은 서버 한 곳뿐이다 — automation/platform/85_invitation.gs 의 _invCouplesFields():
+         var live = (method==='online'||method==='both'||(method==='self'&&draft.selfQR)) ? 'Y' : 'N';
+       그 조건을 여기에 옮겨 적지 않는다. 옮겨 적으면 규칙이 바뀌는 날 이 사본만 옛 규칙을 지킨다.
+       여기서는 서버가 이미 계산해 넘긴 '결과'만 읽는다:
+         ① inv.digital            — buildInvitationState 가 같은 함수로 계산해 준 값(발행 전 초안도 유효)
+         ② inv.published.urls.live — 발행된 청첩장의 라이브 주소(''이면 디지털 참석 없음)
+       ①이 없는 화면(GAS 재배포 전)에서는 ②로 내려앉는다 — 미발행이면 false, 즉 오늘까지의 동작 그대로다.
+       조용히 틀리는 대신 조용히 예전대로 도는 쪽을 고른 것이다(고치는 방향이 둘일 때 덜 나쁜 쪽). */
+  function digitalOf(inv) {
+    if (!inv) return false;
+    if (typeof inv.digital === 'boolean') return inv.digital;
+    var u = inv.published && inv.published.urls;
+    return !!(u && u.live);
+  }
+
   // 한글이 섞여도 안전한 base64 — 받는 쪽(console.html)은 atob → decodeURIComponent(escape(...)) 로 푼다.
   function enc(o) {
     return btoa(unescape(encodeURIComponent(JSON.stringify(o))));
   }
 
   /* 미리듣기 주소. S 가 없거나 코스가 없으면 '' — 부르는 쪽은 이 빈 값으로 '들려줄 게 없다'를 판단한다.
-     (버튼을 띄울지 말지를 두 곳이 각자 판단하면 조건이 갈라진다) */
-  function url(S) {
+     (버튼을 띄울지 말지를 두 곳이 각자 판단하면 조건이 갈라진다)
+     extra = INJECT 키만 받는다(여기서도 담을 것을 센다) · 없으면 미리듣기 쪽 기본값이 그대로 선다. */
+  function url(S, extra) {
     if (!S || !S.course) return '';
-    return '/console.html?mode=preview&embed=1&S=' + encodeURIComponent(enc(pick(S)));
+    var o = pick(S);
+    if (extra) {
+      for (var i = 0; i < INJECT.length; i++) {
+        var k = INJECT[i];
+        if (extra[k] !== undefined && extra[k] !== null) o[k] = extra[k];
+      }
+    }
+    return '/console.html?mode=preview&embed=1&S=' + encodeURIComponent(enc(o));
   }
 
   // 초안(p.ritualDraft)에서 바로 — 마이페이지처럼 서버 초안만 쥔 곳이 쓴다. v3 초안만 미리듣기가 읽을 수 있다.
-  function urlFromDraft(rd) {
+  function urlFromDraft(rd, extra) {
     if (!rd || rd._v !== 3 || !rd.S) return '';
-    return url(rd.S);
+    return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, pick: pick, url: url, urlFromDraft: urlFromDraft };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf };
 })(window);

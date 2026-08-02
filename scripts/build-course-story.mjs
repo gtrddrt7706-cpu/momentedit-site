@@ -228,7 +228,31 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
   for (const k of NEVER) if (PK.indexOf(k) > -1) {
     bad(`KEYS 에 고객이 쓴 글 '${k}' 이 들어 있다 — 주소로 나가면 안 되는 값이다(당일까지 비밀 · 민감 텍스트).\n         엔진이 이 값을 필요로 한다면 주소가 아니라 다른 길(postMessage 등)로 옮길 것`);
   }
-  console.log(`[PREVIEW_KEYS] 엔진이 읽는 S 키 ${readK.size}종 = 미리듣기가 옮기는 ${PK.length}종`);
+  /* ★"엔진이 읽는다"와 "누가 값을 만든다"는 다른 질문이다 [PREVIEW_DIGITAL]
+     위 두 검사는 목록만 맞대 본다 — 키가 KEYS 에 있고 엔진이 읽으면 초록이다.
+     그런데 2026-08-02 에 실제로 난 사고는 그 사이 틈에 있었다: 'digital' 은 KEYS 에도 있고 엔진도 읽는데,
+     식순 빌더 어디에도 그 값을 만드는 곳이 없어 디지털 참석 예식도 미리듣기는 늘 오프라인 배웅으로 흘렀다.
+     화면은 멀쩡하고 검사도 초록이었다. 검사는 '목록에 있나'만 보고 '값이 오나'는 안 봤다.
+     그래서 한 질문을 더 한다 — 이 키에 값이 오기는 하나.
+     통과 조건: 식순 빌더(order-preview.html)가 S.<키> 를 알거나, INJECT 에 '밖에서 얹는다'고 적혀 있거나.
+     둘 다 아니면 아무도 값을 안 만드는 키다(조용히 기본값). 둘 다면 어느 쪽이 이기는지 아무도 모른다. */
+  const INJ = _w.RitualPreviewLink.INJECT || [];
+  const obSrc = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
+  const builderKnows = (k) => new RegExp('\\bS\\s*\\.\\s*' + k + '\\b').test(obSrc);
+  for (const k of PK) {
+    const inS = builderKnows(k), inInj = INJ.indexOf(k) > -1;
+    if (!inS && !inInj) {
+      bad(`값을 만드는 곳이 없는 키 '${k}' — 엔진은 읽고 KEYS 에도 있는데, 식순 빌더는 S.${k} 를 모르고 INJECT 에도 없다.\n         미리듣기는 이 자리를 조용히 기본값으로 흘린다(화면은 안 깨진다). 빌더가 물어보게 하거나, INJECT 에 적고 조립 시점에 얹을 것`);
+    }
+    if (inS && inInj) {
+      bad(`'${k}' 이 빌더의 S 에도 있고 INJECT 에도 있다 — 값이 둘이라 어느 쪽이 이기는지 아무도 모른다. 한쪽으로 정할 것`);
+    }
+  }
+  for (const k of INJ) if (PK.indexOf(k) < 0) {
+    bad(`INJECT 의 '${k}' 이 KEYS 에 없다 — 조립 시점에 얹어도 주소에 실리지 않는다(url 이 INJECT∩KEYS 만 담는다)`);
+  }
+
+  console.log(`[PREVIEW_KEYS] 엔진이 읽는 S 키 ${readK.size}종 = 미리듣기가 옮기는 ${PK.length}종 (빌더 밖에서 얹는 것 ${INJ.length}종: ${INJ.join('·') || '없음'})`);
 }
 
 console.log(fail ? '[STORY_COVER] FAIL' : `[STORY_COVER] ok — 블록 ${seenBlock.size}/${seenBlock.size} · 사람 구간 ${seenLive.size}/${seenLive.size} 커버${warn ? ` (경고 ${warn})` : ''}`);

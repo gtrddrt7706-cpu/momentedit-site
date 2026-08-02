@@ -124,6 +124,7 @@ try {
       ok(open.adv === true, '미리듣기 중엔 상담사 위젯이 숨는다(hideOn)', String(open.adv));
       const S1 = checkUrl('order-preview', open.src);
       if (S1) ok(S1.course === 'gamdong' && S1.letter === 'both' && S1.bless === 'on', '고른 값이 그대로 넘어간다', JSON.stringify(S1).slice(0, 90));
+      if (S1) ok(S1.digital === false, '[PREVIEW_DIGITAL] 청첩장 정보를 받기 전엔 오프라인 배웅(digital=false)', JSON.stringify(S1.digital));
 
       const fr = page.frames ? page.frames().filter((f) => /console\.html/.test(f.url()))[0] : null;
       ok(!!fr, '오버레이 안에서 console.html 이 실제로 로드된다');
@@ -189,6 +190,32 @@ try {
       ok(dbl.same, '연타는 떠 있는 판을 그대로 쓴다(듣던 소리를 처음으로 되감지 않는다)');
       ok(/\/console\.html\?mode=preview/.test(dbl.src), '연타 뒤에도 미리듣기 화면이 그대로 살아 있다', dbl.src);
       ok(!dbl.ov && dbl.ovf === '', '연타로 닫아도 잠금이 정확히 풀린다', JSON.stringify(dbl.ovf));
+
+      /* ★빌더는 청첩장 트랙을 볼 길이 없다 [PREVIEW_DIGITAL]
+         디지털 참석 여부는 부모(마이페이지)가 orderFill 에 한 칸 얹어 보낸다. 여기서 볼 것은 둘이다 —
+           ① 받은 값이 실제로 주소에 실리는가 (안 실리면 배웅 장면이 조용히 오프라인으로 굳는다)
+           ② 그 값이 식순 S 로 새지 않는가 (새면 _embedSave() 가 S 를 통째로 부모에 보내 서버 초안에 굳는다.
+              그러면 나중에 청첩장 방식을 바꿔도 식순 초안에 박힌 옛 값이 미리듣기를 계속 지배한다) */
+      const dig = await page.evaluate(() => new Promise((res) => {
+        window.postMessage({ type: 'momentedit:orderFill', draft: null, done: true, digital: true }, location.origin);
+        setTimeout(() => {
+          const b = [].slice.call(document.querySelectorAll('button.rehearse-btn'))
+            .filter((x) => x.textContent.trim() === '미리 들어보기')[0];
+          if (!b) return res({ err: '버튼 없음' });
+          b.click();
+          const fr = document.getElementById('ob_rpFrame');
+          const src = fr ? fr.getAttribute('src') : '';
+          const inS = Object.prototype.hasOwnProperty.call(S, 'digital');
+          const ov = document.getElementById('ob_rpViewer');
+          const x = ov ? ov.querySelector('button[aria-label="닫기"]') : null;
+          if (x) x.click();
+          res({ src: src, inS: inS });
+        }, 250);
+      }));
+      let Sdig = null; try { Sdig = decodeS(dig.src); } catch (e) { Sdig = null; }
+      ok(!!Sdig, '[PREVIEW_DIGITAL] orderFill 뒤 미리듣기 주소가 다시 조립된다', dig.err || String(dig.src).slice(0, 60));
+      if (Sdig) ok(Sdig.digital === true, '[PREVIEW_DIGITAL] 부모가 준 디지털 참석이 주소에 실린다(온라인 배웅으로 갈린다)', JSON.stringify(Sdig.digital));
+      ok(dig.inS === false, '[PREVIEW_DIGITAL] 그 값이 식순 S 에는 들어가지 않는다(서버 초안에 굳지 않게)', `S.digital 존재=${dig.inS}`);
 
       const real = errors.filter((e) => !/favicon|net::ERR/.test(e));
       ok(real.length === 0, 'JS 오류 0건', real.slice(0, 3).join(' | '));
@@ -297,7 +324,8 @@ try {
       ok(mOpen.fsOpen === true, '[MP_FS_OVERLAYS] 단일 목록이 이 오버레이를 안다');
       ok(!mOpen.track, '[의도] 미리듣기는 「편집 중」으로 세지 않는다(듣기만 하니 저장 충돌 배너가 뜨면 안 된다)', String(mOpen.track));
       ok(mOpen.adv === true, '미리듣기 중엔 상담사 위젯이 숨는다(hideOn)', String(mOpen.adv));
-      checkUrl('mypage', mOpen.src);
+      const Smp0 = checkUrl('mypage', mOpen.src);
+      if (Smp0) ok(Smp0.digital === false, '[PREVIEW_DIGITAL] 청첩장 트랙이 없으면 오프라인 배웅(digital=false)', JSON.stringify(Smp0.digital));
 
       const mfr = page.frames ? page.frames().filter((f) => /console\.html/.test(f.url()))[0] : null;
       ok(!!mfr, '오버레이 안에서 console.html 이 실제로 로드된다');
@@ -362,6 +390,41 @@ try {
       //   닫는 순간 마이페이지 밖으로 튕긴다. 화면은 멀쩡해 보이고 페이지만 사라지므로 주소로 본다(실측으로 겪은 자리).
       await new Promise((r) => setTimeout(r, 500));
       ok(page.url().indexOf('/mypage.html') >= 0, '연타 뒤 닫아도 페이지 밖으로 튕기지 않는다', page.url());
+
+      /* ★배웅 장면이 갈리는 자리 [PREVIEW_DIGITAL]
+         디지털 참석이면 미리듣기에 온라인 하객 맞이 큐가 서고 배웅이 end-1b-farewell-online 으로 간다.
+         그런데 이 값은 식순 초안 어디에도 없다 — 청첩장 트랙이 정한 것이라 빌더가 묻지 않는다.
+         그래서 '초안만 보고 조립'하면 디지털 참석 예식도 영원히 오프라인 배웅으로 흐른다(2026-08-02 실사고).
+         화면은 멀쩡하고 소리만 달라서 눈으로는 안 잡힌다. 클릭 경로로 열어 주소를 풀어 본다.
+         ★규칙(어떤 청첩장 방식이 디지털 참석인가)은 여기서 검사하지 않는다 — 그 규칙은 서버 한 곳(85_invitation.gs)
+           의 것이고, 여기서 다시 적으면 규칙이 바뀌는 날 검사만 옛 규칙을 지킨다. 여기는 '결과가 전달되는가'만 본다. */
+      const DIGCASES = [
+        { n: '서버가 준 digital=true 가 주소까지 간다', inv: { digital: true }, want: true },
+        { n: '서버가 준 digital=false 가 주소까지 간다', inv: { digital: false, draft: { method: 'online' } }, want: false },
+        { n: '구버전 GAS(digital 칸 없음)는 발행된 라이브 주소로 알아낸다', inv: { published: { eventId: 'x', urls: { live: 'https://momentedit.kr/live.html?e=x' } } }, want: true },
+        { n: '라이브 주소가 비어 있으면 오프라인 배웅', inv: { published: { eventId: 'x', urls: { live: '' } } }, want: false },
+        { n: '서버 확정값이 발행 주소보다 앞선다', inv: { digital: false, published: { eventId: 'x', urls: { live: 'https://momentedit.kr/live.html?e=x' } } }, want: false },
+      ];
+      for (const C of DIGCASES) {
+        const got = await page.evaluate((a2) => {
+          const st = JSON.parse(JSON.stringify(a2.seed));
+          st.invitation = a2.inv;
+          renderMyPage(st);
+          const b = document.getElementById('mp_ritualPreview');
+          if (!b) return { err: '버튼 없음' };
+          b.click();
+          const fr = document.getElementById('mp_rpFrame');
+          const src = fr ? fr.getAttribute('src') : '';
+          const ov = document.getElementById('mp_rpViewer');
+          const x = ov ? ov.querySelector('button[aria-label="닫기"]') : null;
+          if (x) x.click();
+          return { src: src };
+        }, { seed: seed, inv: C.inv });
+        let Sc = null; try { Sc = decodeS(got.src); } catch (e) { Sc = null; }
+        ok(!!Sc && Sc.digital === C.want, `[PREVIEW_DIGITAL] ${C.n}`, got.err || `digital=${Sc ? JSON.stringify(Sc.digital) : '(주소 못 풂)'}`);
+        await new Promise((r) => setTimeout(r, 250));   // 닫기가 히스토리 층을 되돌릴 틈(연타 사고 자리)
+      }
+      ok(page.url().indexOf('/mypage.html') >= 0, '[PREVIEW_DIGITAL] 여닫기를 반복해도 페이지 밖으로 튕기지 않는다', page.url());
 
       // 초안이 없는데도 불렸을 때 — 빈 화면 대신 이유를 말한다
       const guard = await page.evaluate(() => {
