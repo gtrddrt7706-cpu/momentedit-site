@@ -1204,7 +1204,7 @@ body::after{
   color:rgba(237,230,216,0.85);
   line-height:1.9;
 }
-.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
+.venue-meta-row.venue-meta-arrival .em{ /* [DTL16] 자기중첩 오타 셀렉터(.venue-meta-row .venue-meta-row …)가 매칭 0 — '15분 전' 강조가 죽어 있었다(실측 300·상속색). family-01·02와 동일 교정. 다크 지면은 밝은 골드가 정답([AUD16] 2항) — #B89668 on #2C2825 = 5.29:1 AA */
   color:var(--gold);
   font-weight:400;
   font-style:normal;
@@ -1448,6 +1448,11 @@ details.env-acc-item[open] .env-acc-plus{
   -webkit-tap-highlight-color:transparent;
   box-shadow:none;
 }
+.env-acc-copy::before{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 36.3×23px 미달 → 히트영역 44.3×45px(01·02 동일 처방). 시각 크기는 유지(행 패딩 10px 안에 머묾) */
+  position:absolute;
+  inset:-11px -4px;
+}
 .env-acc-copy::after{
   content:'';
   position:absolute;
@@ -1460,19 +1465,20 @@ details.env-acc-item[open] .env-acc-plus{
 }
 .env-acc-copy:hover,
 .env-acc-copy:focus-visible{
-  color:var(--gold-deep);
+  color:var(--gold-text); /* [DTL16] --gold-deep 4.10:1 → 5.35:1 — 골드 글자 심화([AUD16] 2항) */
   outline:none;
   background:transparent;
 }
 
 .env-acc-copy.copied{
-  color:var(--gold);
+  color:var(--gold-text); /* [DTL16] 'Copied' 상태 텍스트 — --gold 2.48:1 → 5.35:1 (02와 동일 처방) */
 }
 .env-acc-copy.copied::after{
   background:var(--gold);
 }
-.env-acc-copy:hover{background:var(--gold-deep)}
-.env-acc-copy.copied{background:var(--gold)}
+/* [DTL16] 구형 채움칩 잔재 배경 2줄 삭제 — :hover가 글자·배경을 동시에 gold-deep으로,
+   .copied가 동시에 gold로 칠해 'Copied' 피드백이 1.6s 동안 비가시(1:1, 실측 bg #B89668)였다.
+   언더라인 형식(위 색 전환)만 남긴다 */
 .env-acc-holder{
   margin-top:10px;
   text-align:right;
@@ -2004,6 +2010,48 @@ details.env-acc-item[open] .env-acc-plus{
     entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   revealElements.forEach(el => observer.observe(el));
+
+  // [DTL16] 섹션 Nº·봉투 색인 재번호 — OPTIONAL 섹션이 빠지면(봉투 미노출·한쪽 봉투 숨김) 결번된다.
+  // hydrate가 걷어낸 최종 DOM에서 남은 순서대로 다시 센다(01·02의 [DTL16] 재번호와 같은 원칙, 03은 접두 없는 로마숫자).
+  const secRoman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  document.querySelectorAll('.sec-marker-num').forEach((el, i) => { el.textContent = secRoman[i] || String(i + 1); });
+  const envRoman = ['i', 'ii', 'iii', 'iv']; // 신랑측만 숨으면 색인이 ii 단독 — 같은 결번
+  document.querySelectorAll('.env-acc-num').forEach((el, i) => { el.textContent = envRoman[i] || String(i + 1); });
+
+  // [DTL16] 커버 카드 이름 맞춤 — 긴 실명(박알렉산더·김엘리자베스 실측)에서 한글 줄이 0.28em 자간으로
+  // 두 줄로 꺾여 '·'가 첫 줄 끝에 홀로 남았다. 크기가 아니라 자간을 낮춰 한 줄을 지킨다([MM_TOPROW] 원칙).
+  // 영문 모노그램은 엔진별 폭 편차(Cinzel 이탤릭 합성 여부)에 대비해 넘칠 때만 2px씩 줄인다.
+  // 실측(scrollWidth) 기반 · 폰트 로드 후 실행 · 짧은 이름(표본 이서준·정하윤, 외자 이준·김솔)은 무변화.
+  const fitCoverNames = () => {
+    try {
+      // ★기준폭은 요소 clientWidth가 아니라 '섹션 블록폭 - 패딩 체인'으로 계산한다.
+      //   nowrap을 걸면 플렉스 카드가 min-content로 늘어나 clientWidth가 따라 커져
+      //   되돌림 조건이 거짓이 되는 자기참조(320px 실측 카드 334px 팽창)를 끊는 것.
+      const sec = document.querySelector('.sec.cover'), main = document.querySelector('.cover-main'), card = document.querySelector('.cover-card');
+      if (!sec || !main || !card) return;
+      const pf = (el, p) => parseFloat(getComputedStyle(el)[p]) || 0;
+      const availMain = sec.clientWidth - pf(main, 'paddingLeft') - pf(main, 'paddingRight');
+      const cardW = Math.min(pf(card, 'maxWidth') || availMain, availMain);
+      const W = cardW - pf(card, 'paddingLeft') - pf(card, 'paddingRight') - 2; // 보더 1px×2
+      const ko = document.querySelector('.cover-names-ko');
+      if (ko && W > 0) {
+        ko.style.whiteSpace = 'nowrap';
+        const steps = [0.22, 0.16, 0.1, 0.06];
+        for (let i = 0; ko.scrollWidth > W && i < steps.length; i++) {
+          ko.style.letterSpacing = steps[i] + 'em';
+          ko.style.paddingLeft = steps[i] + 'em';
+        }
+        if (ko.scrollWidth > W) { // 극단(320px 장이름 등)은 자연 줄바꿈으로 복귀(무해 폴백)
+          ko.style.whiteSpace = ''; ko.style.letterSpacing = ''; ko.style.paddingLeft = '';
+        }
+      }
+      document.querySelectorAll('.cover-monogram .mono-line').forEach(line => {
+        let fs = parseFloat(getComputedStyle(line).fontSize) || 38;
+        while (line.scrollWidth > W && fs > 30) { fs -= 2; line.style.fontSize = fs + 'px'; }
+      });
+    } catch (e) {}
+  };
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitCoverNames); } else { fitCoverNames(); }
 
   setTimeout(() => {
     const cover = document.querySelector('.cover .reveal');
