@@ -559,11 +559,16 @@ body::before{
 }
 .date-cal-cell.sun{color:var(--gold-text)} /* [AUD16] 골드·opacity.85(실효 1.90)→진골드 5.97(흰 카드), opacity 제거 */
 .date-cal-cell.empty{visibility:hidden}
-.date-cal-cell.marked{color:#fff;font-weight:500}
-.date-cal-cell.marked span{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+.date-cal-cell.marked{color:#fff;font-weight:500;position:relative} /* [DTL16] 예식일 원 배치 기준점 */
+.date-cal-cell.marked span{position:relative;z-index:1} /* [DTL16] 숫자만 원 위로 — 원은 아래 ::before가 그린다 */
+.date-cal-cell.marked::before{
+  /* [DTL16] 인라인 28px 원이 줄박스를 키워 예식일 주만 행높이 44px(일반 39.4px, +4.6 실측) —
+     6주 달력(2027-01)에서 마지막 주가 도드라졌다. 01과 같은 절대배치 원으로 전 주 행높이 통일 */
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
   width:28px;
   height:28px;
   background:var(--accent);
@@ -680,6 +685,7 @@ body::before{
   color:var(--accent);
   text-decoration:none;
   letter-spacing:0.04em;
+  min-height:44px; /* [DTL16] 탭 타깃 — 계산 41.6px 미달 보정(01과 동일 처방). 지도 활성 시 노출되는 링크 */
   transition:all 0.3s var(--ease-soft);
 } /* [AUD16] 인터랙티브 칩 box-shadow 제거 — 그림자 정책(버튼 그림자 금지) */
 .venue-map-overlay:hover,
@@ -768,7 +774,7 @@ body::before{
   color:var(--accent);
   line-height:1.85;
 }
-.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
+.venue-meta-row.venue-meta-arrival .em{ /* [DTL16] 자기중첩 오타 셀렉터(.venue-meta-row .venue-meta-row …)가 매칭 0 — 도착 안내 '15분 전' 강조가 300으로 죽어 있었다(실측 w=300). family-01과 동일 교정 */
   color:var(--accent);
   font-weight:500;
   font-style:normal;
@@ -963,6 +969,11 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   position:relative;
   transition:color 0.3s var(--ease-soft);
   text-transform:uppercase;
+}
+.env-acc-copy::before{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 34.3×24px 미달 → 히트영역 44.3×44px. 시각 크기는 유지(행 높이 52px 안에 머묾) */
+  position:absolute;
+  inset:-10px -5px;
 }
 .env-acc-copy::after{
   content:'';
@@ -1463,6 +1474,13 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
     entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   revealElements.forEach(el => observer.observe(el));
+
+  // [DTL16] 섹션 Nº·봉투 색인 재번호 — 신랑측 봉투만 숨으면 색인이 ii 단독으로 결번된다(온라인판 No. III 결번과 동종).
+  // hydrate가 걷어낸 최종 DOM에서 남은 순서대로 다시 센다(01의 [DTL16] 재번호와 같은 원칙, 02는 로마숫자).
+  const secRoman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  document.querySelectorAll('.sec-marker-num').forEach((el, i) => { el.textContent = 'No. ' + (secRoman[i] || (i + 1)); });
+  const envRoman = ['i', 'ii', 'iii', 'iv'];
+  document.querySelectorAll('.env-acc-num').forEach((el, i) => { el.textContent = envRoman[i] || String(i + 1); });
 
   // (scroll indicator 제거됨)
 
