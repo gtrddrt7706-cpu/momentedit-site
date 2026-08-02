@@ -28,7 +28,27 @@ const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
 //    보이스가 확정되면 화자명을 캐릭터 이름으로 바꿔 타입캐스트가 자동 배정하게 만든다.
 //    ★공백이 든 이름(김경화 앵커)에 백슬래시를 붙이지 않는다 — 아래에서 slice(a+1).join(' ')로
 //      다시 이어 붙이므로 셸이 나눈 토큰이 저절로 복원된다. 이스케이프하면 이름에 \가 박힌다.
-const VOICE = {};
+// ★★VOICE_FIXED — 2026-08-02, 형님이 귀로 여덟 자리를 골랐다. 그 결과를 코드에 박는다.
+//   왜 CLI 인자가 아니라 상수인가: --voice 로 매번 손으로 치면 오타가 나고, 오타 난 역할명은
+//   조용히 무시돼 역할명 그대로 나간다(아래 가드가 이제 그걸 잡는다). 확정된 배정은 재현돼야 한다.
+//   --voice 는 오버라이드로 남긴다 — 한 자리만 잠깐 바꿔 들어 볼 때 쓴다.
+//
+//   ★진행이 아직 비어 있다. 남준 · 우성 2인이 결승 중이다(보이스찾기/3_진행_결승.txt).
+//     41/54클립짜리 자리라 둘 중 하나를 찍어 박지 않는다. 정해지면 아래 한 줄을 살린다.
+//   ★'잔희' 는 형님이 적어 준 표기 그대로다. 2026 설 무료 30종에 '진희' 가 있어 오타일 수 있다.
+//     타입캐스트에서 자동 배정이 안 되면 이 줄을 '진희' 로 고쳐 다시 돌리면 된다.
+const DEFAULT_VOICE = {
+  // 진행: '남준',   // ← 결승 확정 후 주석 해제
+  안내: '잔희',
+  편지: '김호인',
+  신랑: '이준',
+  신부: '서진',
+  아버님: '권일',
+  어머님: '주하',
+  하객대표: '영목',
+};
+
+const VOICE = { ...DEFAULT_VOICE };
 {
   const a = process.argv.indexOf('--voice');
   if (a >= 0 && process.argv[a + 1]) {
@@ -126,8 +146,11 @@ const cast = castAll.filter((c) => !CAST_HOLD(c.id));
 
 // ── 조립
 fs.mkdirSync(OUT, { recursive: true });
+// ★voice 를 manifest 에 실어 보낸다 — 확정 배정의 단일 진실 원천을 하나로 둔다.
+//   build-voice-screen.mjs 가 이걸 읽어 "어느 자리가 남았나"를 스스로 안다.
+//   두 파일에 이름을 각각 적어 두면 한쪽만 고치는 날이 오고, 그날 조용히 어긋난다.
 const manifest = { version: 2, source: '더빙_녹음_대본_최종.txt', cast: '배역_예시_대사.txt',
-                   gap: GAP, parts: [], clips: [] };
+                   voice: VOICE, gap: GAP, parts: [], clips: [] };
 let totalSent = 0;
 
 for (const P of PARTS) {
@@ -171,7 +194,10 @@ for (const P of PARTS) {
     manifest.clips.push(rec);
   }
 
-  const spk = [...new Set(mine.map((c) => named(c.speaker || ROLE_OF(c.id))))];
+  const roleList = [...new Set(mine.map((c) => c.speaker || ROLE_OF(c.id)))];
+  const spk = roleList.map(named);
+  const mapped = roleList.filter((r) => VOICE[r]);
+  const unmapped = roleList.filter((r) => !VOICE[r]);
 
   // ★★PASTE_NO_COMMENT — 붙여넣기 파일에는 대사 줄만 넣는다. 안내 문구는 README.md로 간다.
   //   2026-08-01 실사고(2차): 머리 주석을 '#'로 달고 "이 줄은 화자로 잡히지 않습니다"라고 적어 뒀는데,
@@ -184,11 +210,15 @@ for (const P of PARTS) {
   const note = [
     `타입캐스트 「대본 가져오기 → 텍스트 붙여넣기」에 파일 내용을 통째로 붙여넣으세요.`,
     `★이 파일에는 안내 주석이 한 줄도 없습니다(PASTE_NO_COMMENT). 붙여넣은 그대로가 낭독 대상입니다.`,
-    spk.length === 1
-      ? `화자 '${spk[0]}' = 이 파트의 목소리 1인.` +
-        (VOICE[P.role] ? ' 타입캐스트 캐릭터 이름이라 자동 배정됩니다.'
-                       : ' 3단계 「보이스 배정」에서 고르면 됩니다.')
-      : `화자 ${spk.length}인 — ${spk.join(' · ')}. 3단계 「보이스 배정」에서 각각 고르면 됩니다.`,
+    // ★파트의 role 하나로 판정하지 않는다 — 배역 파트는 P.role이 '배역'이라 VOICE에 영원히 없고,
+    //   그러면 5명이 전부 자동 배정되는 상황에서도 "손으로 고르세요"라고 거짓 안내를 하게 된다.
+    //   화자 하나하나를 보고, 아직 역할명으로 남은 것만 이름을 대 준다.
+    unmapped.length === 0
+      ? `화자 ${spk.length}인 — ${spk.join(' · ')}. 전부 타입캐스트 캐릭터 이름이라 자동 배정됩니다.`
+      : mapped.length === 0
+        ? `화자 ${spk.length}인 — ${spk.join(' · ')}. 아직 역할명이라 3단계 「보이스 배정」에서 고르면 됩니다.`
+        : `화자 ${spk.length}인 — ${spk.join(' · ')}. 이 중 ${unmapped.join(' · ')} 만 아직 역할명이라 ` +
+          `3단계 「보이스 배정」에서 손으로 골라야 하고, 나머지는 자동 배정됩니다.`,
     `한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, ` +
       `node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다.`,
   ];
@@ -230,6 +260,37 @@ for (const P of PARTS) {
                         clips: mine.length, sents: sentInPart, chars });
   const warn = chars > 20000 ? '  ★20,000자 초과 — 더 쪼갤 것' : '';
   console.log(`  ${P.f.padEnd(18)} 클립 ${String(mine.length).padStart(2)} · 문장 ${String(sentInPart).padStart(3)} · ${String(chars).padStart(6)}자${warn}`);
+}
+
+// ★★VOICE_ROLE_GUARD — 박아 둔 배정이 실제 역할에 걸렸는지 검사한다.
+//   오타 난 키('하객' · '어머니' · '진행자')는 조용히 무시된다. 파일은 정상으로 보이고
+//   그 자리만 역할명으로 남는다 — 붙여넣고 나서야 "얘만 왜 배정이 안 되지" 하고 알게 된다.
+//   2026-08-01 교훈과 같은 계열이다. 개수를 세는 검사는 엉뚱한 키가 들어온 것을 못 잡는다.
+{
+  const realRoles = new Set(manifest.clips.map((c) => c.role));
+  const ghost = Object.keys(VOICE).filter((r) => !realRoles.has(r));
+  if (ghost.length) {
+    console.error(`\n✗ VOICE 에 실제로 없는 역할명이 ${ghost.length}개 있습니다 — 이 배정은 무시됩니다.`);
+    for (const g of ghost) console.error(`   '${g}' → '${VOICE[g]}'`);
+    console.error(`  실제 역할은 ${[...realRoles].join(' · ')} 입니다.\n`);
+    process.exit(1);
+  }
+
+  // ★중복 배정 검사 — 8자리 = 8개 다른 목소리. 특히 진행(41클립)과 편지·하객대표가 겹치면
+  //   편지가 진행의 연장으로 들리고, 축배는 낭독처럼 들린다. 낙차가 전부인 자리들이다.
+  const byVoice = {};
+  for (const [role, v] of Object.entries(VOICE)) (byVoice[v] ||= []).push(role);
+  const dup = Object.entries(byVoice).filter(([, rs]) => rs.length > 1);
+  if (dup.length) {
+    console.error(`\n✗ 한 목소리가 여러 자리에 배정돼 있습니다 — 같은 사람이 계속 말하는 예식이 됩니다.`);
+    for (const [v, rs] of dup) console.error(`   '${v}' → ${rs.join(' · ')}`);
+    process.exit(1);
+  }
+
+  const left = [...realRoles].filter((r) => !VOICE[r]);
+  console.log(left.length
+    ? `  보이스 배정 ${realRoles.size - left.length}/${realRoles.size} — 남은 자리 ${left.join(' · ')}`
+    : `  보이스 배정 ${realRoles.size}/${realRoles.size} — 전 자리 확정`);
 }
 
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');

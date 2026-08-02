@@ -30,6 +30,7 @@ const OUT = path.join(ROOT, 'docs/plans/식순연구/타입캐스트/보이스�
 
 const SCREEN_FILE = '1_스크리닝_8자리.txt';
 const FINAL_FILE = '2_본선_8자리.txt';
+const RUNOFF_FILE = '3_진행_결승.txt';
 
 // ★스크리닝 한 덩어리의 최소 길이. 이보다 짧으면 다음 문장을 한 줄 더 붙인다.
 //   3초짜리로는 판단이 안 선다. 10초 안팎이 스크리닝의 적정 길이다.
@@ -146,6 +147,27 @@ const SEATS = [
   },
 ];
 
+// ★★RUNOFF — 본선을 통과하고 둘이 남았을 때 쓰는 결승 대본. 2026-08-02 진행 자리에서 실제로 발생했다.
+//   스크리닝·본선과 목적이 다르다. 거기서는 첫인상으로 떨어뜨렸다. 여기서 볼 것은 지구력이다 —
+//   41/54클립을 끝까지 끌고 가는가. 10초로는 절대 안 드러나고, 15문장쯤 가야 갈라진다.
+//
+//   ★그래서 배치가 두 겹이다.
+//     앞 — 블록. 한 사람이 15문장을 통으로 끌고 간다. 호흡이 무너지는 지점이 여기서 나온다.
+//     뒤 — 교대. 결정타 3문장만 번갈아 놓는다. 직전 것과 붙어 있어야 미세한 차이가 들린다.
+//   같은 문장이 두 번 나오는 건 의도다. 목적이 다르니 중복이 아니다.
+//
+//   ★블록 첫 자리는 성혼 선언(G5-1)이다. 예식에서 되돌릴 수 없는 유일한 순간이라
+//     여기서 무게가 안 실리면 나머지 40클립이 아무리 좋아도 소용없다.
+//   ★화자 이름이 곧 타입캐스트 캐릭터 이름이다 — 붙여넣으면 두 사람이 이미 배정된 채로 나온다.
+//     후보가 바뀌면 voices 만 갈아 끼우고 다시 돌리면 된다.
+const RUNOFF = {
+  role: '진행',
+  voices: ['남준', '우성'],
+  block: [['G5-1', 0, 5], ['G4-parent', 0, 3], ['W2-b', 0, 7]],
+  clincher: ['G5-1', 1, 3],
+  why: '성혼 선언 · 편지 도입 · 서약 문답. 가장 무거운 대목과 가장 조용한 대목과 가장 형식적인 대목.',
+};
+
 // ★반려된 1차 후보. 지우지 않고 기준선으로 남긴다 — "이 사람보다 나은가"를 재는 자가 필요하다.
 const BASELINE = [
   ['진행', '대길', '공철'],
@@ -189,6 +211,10 @@ if (dupId.length) {
   process.exit(1);
 }
 const CLIP = new Map(manifest.clips.map((c) => [c.id, c]));
+
+// ★확정 현황은 manifest.voice 하나에서만 읽는다. 이 파일에 이름을 따로 적어 두지 않는다 —
+//   두 군데 적으면 한쪽만 고치는 날이 오고, 그날 문서가 조용히 거짓말을 시작한다.
+const FIXED = manifest.voice || {};
 
 const clipOf = (id, expectRole) => {
   const c = CLIP.get(id);
@@ -237,9 +263,60 @@ for (const s of SEATS) {
   finalMeta.push({ ...s, blocks, total: blocks.reduce((a, b) => a + b.sents.length, 0) });
 }
 
+// 결승 — 2인이 남은 자리. 블록으로 지구력을 보고, 교대로 결정타를 붙여 비교한다.
+const runoffLines = [];
+const runoffMeta = { role: RUNOFF.role, voices: RUNOFF.voices, why: RUNOFF.why, blocks: [] };
+{
+  // ★후보가 2명 미만이면 결승이 성립하지 않는다. 같은 이름이 두 번 들어와도 마찬가지다 —
+  //   화자 칩이 하나만 생겨서 A/B 가 아니라 그냥 낭독이 된다. 조용히 넘어가면 안 된다.
+  const uniq = new Set(RUNOFF.voices);
+  if (RUNOFF.voices.length < 2 || uniq.size !== RUNOFF.voices.length) {
+    console.error(`\n✗ 결승 후보가 ${RUNOFF.voices.length}명(고유 ${uniq.size}명)입니다 — 서로 다른 2명 이상이어야 합니다.\n`);
+    process.exit(1);
+  }
+
+  // ★이미 다른 자리에 확정된 이름이 결승에 올라오면 안 된다. 이겨도 중복 배정이 되고,
+  //   그건 같은 사람이 계속 말하는 예식이다. manifest.voice 가 확정 현황의 단일 진실 원천이다.
+  const clash = RUNOFF.voices.filter((v) => Object.values(FIXED).includes(v));
+  if (clash.length) {
+    console.error(`\n✗ 결승 후보 ${clash.join(' · ')} 는 이미 다른 자리에 확정돼 있습니다.`);
+    for (const c of clash) {
+      const at = Object.entries(FIXED).filter(([, v]) => v === c).map(([r]) => r);
+      console.error(`   '${c}' → ${at.join(' · ')} 자리`);
+    }
+    console.error('  이기면 중복 배정이 됩니다. 다른 후보를 올리세요.\n');
+    process.exit(1);
+  }
+  if (FIXED[RUNOFF.role]) {
+    console.error(`\n✗ '${RUNOFF.role}' 자리는 이미 '${FIXED[RUNOFF.role]}' 로 확정돼 있습니다 — 결승이 끝난 자리입니다.`);
+    console.error('  RUNOFF 를 다음 미정 자리로 옮기거나, 결승이 다 끝났다면 이 블록을 비우세요.\n');
+    process.exit(1);
+  }
+
+  const gather = ([id, from, count]) => {
+    const c = clipOf(id, RUNOFF.role);   // ★role 가드가 여기에도 걸린다 — 다른 자리 대사가 못 들어온다
+    const sents = c.sents.slice(from, from + count).map((x) => x.text);
+    if (!sents.length) {
+      console.error(`\n✗ 결승 대사 '${id}' 구간(${from}, ${count})이 비었습니다 — 대본이 바뀐 것 같습니다.\n`);
+      process.exit(1);
+    }
+    return { no: c.no, label: c.label, sents };
+  };
+
+  runoffMeta.blocks = RUNOFF.block.map(gather);
+  for (const v of RUNOFF.voices)
+    for (const b of runoffMeta.blocks)
+      for (const t of b.sents) runoffLines.push(`${v}: ${t}`);
+
+  runoffMeta.clincher = gather(RUNOFF.clincher);
+  for (const t of runoffMeta.clincher.sents)
+    for (const v of RUNOFF.voices) runoffLines.push(`${v}: ${t}`);
+}
+
 // ★PASTE_NO_COMMENT 자가검사 — 대사 줄이 아닌 것이 하나라도 섞이면 파일을 쓰지 않는다.
 //   타입캐스트는 이 파일을 통째로 낭독한다. 안내 한 줄이 새면 그 줄도 읽힌다.
-for (const [name, lines] of [[SCREEN_FILE, screenLines], [FINAL_FILE, finalLines]]) {
+for (const [name, lines] of [[SCREEN_FILE, screenLines], [FINAL_FILE, finalLines],
+                            [RUNOFF_FILE, runoffLines]]) {
   const stray = lines.filter((l) => l.trim() && !/^[^:：]{1,20}[:：]\s*\S/.test(l));
   if (stray.length) {
     console.error(`\n✗ ${name} 에 대사 줄이 아닌 줄이 ${stray.length}개 있습니다 — 타입캐스트가 이걸 낭독합니다.`);
@@ -263,6 +340,14 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, SCREEN_FILE), screenLines.join('\n') + '\n', 'utf8');
 fs.writeFileSync(path.join(OUT, FINAL_FILE), finalLines.join('\n') + '\n', 'utf8');
 
+// ★결승 화자 수 검사 — 칩이 후보 수만큼 생겨야 A/B 가 성립한다.
+const spkInRunoff = new Set(runoffLines.map((l) => l.split(':')[0]));
+if (spkInRunoff.size !== RUNOFF.voices.length) {
+  console.error(`\n✗ 결승 화자가 ${spkInRunoff.size}명입니다 — 후보는 ${RUNOFF.voices.length}명입니다.\n`);
+  process.exit(1);
+}
+fs.writeFileSync(path.join(OUT, RUNOFF_FILE), runoffLines.join('\n') + '\n', 'utf8');
+
 // ── README — 안내는 전부 여기로 온다. 이 블록을 지우면 안내가 어디에도 없게 된다. ──────
 
 const R = [];
@@ -275,6 +360,29 @@ R.push('| **형님** | 듣고 좁힌다. 후보 이름을 데려온다 | 밈 노
 R.push('| **나** | 데려온 이름을 밈 지도와 대조 · 탈락 사유 제시 · 다음 탐색 방향 | **듣기. 전부.** |');
 R.push('');
 R.push('---', '');
+
+// ── 확정 현황 — manifest.voice 에서 읽는다. 이 표는 손으로 갱신하지 않는다.
+{
+  const left = SEATS.map((x) => x.role).filter((r) => !FIXED[r]);
+  const done = SEATS.length - left.length;
+  R.push('## 확정 현황', '');
+  R.push(left.length
+    ? `여덟 자리 중 **${done}자리 확정** · 남은 자리 **${left.join(' · ')}**.`
+    : `여덟 자리 **전부 확정**. 이 폴더의 일은 끝났습니다.`, '');
+  R.push('| 자리 | 클립 | 목소리 | 상태 |');
+  R.push('|---|---|---|---|');
+  for (const m of screenMeta) {
+    const clips = manifest.clips.filter((c) => c.role === m.role).length;
+    const v = FIXED[m.role];
+    const cell = v ? `**${v}**` : (m.role === RUNOFF.role ? RUNOFF.voices.join(' vs ') : '—');
+    R.push(`| ${m.role} | ${clips} | ${cell} | ${v ? '✅ 확정' : (m.role === RUNOFF.role ? '◐ 결승 중' : '⬜ 미정')} |`);
+  }
+  R.push('');
+  R.push('확정된 자리는 `build-typecast-import.mjs` 의 `DEFAULT_VOICE` 에 박혀 있습니다 —');
+  R.push('붙여넣기 파일에서 화자가 이미 캐릭터 이름이라 **타입캐스트가 알아서 배정**합니다.');
+  R.push('이 표는 `manifest.json` 의 `voice` 에서 읽어 자동으로 씁니다. 손으로 고치지 마세요.');
+  R.push('');
+}
 
 R.push('## ★먼저 — 이 폴더 파일은 다운로드하지 않습니다', '');
 R.push('- **미리듣기 전용입니다.** 미리듣기는 무제한 0원, 다운로드는 즉시 차감 · 취소 불가입니다.');
@@ -294,8 +402,9 @@ R.push('   한 명당 10초입니다. 진행은 12명, 배역 1클립짜리는 4
 R.push('   좋은 걸 찾는 단계가 아니라 **떨어뜨리는** 단계입니다.');
 R.push('   ★문장을 바꾸지 마세요. 사람마다 다른 문장으로 들으면 비교가 되지 않습니다.');
 R.push('4. **본선.** 살아남은 2~3명만 `' + FINAL_FILE + '` 로 다시 겁니다. 여기서 긴 호흡이 드러납니다.');
-R.push('5. **확정 1명.** 이름을 적어 두고 다음 자리로 넘어갑니다.');
-R.push('6. 여덟 자리가 다 차면 이름 목록만 넘겨 주세요. 밈 노출 이력을 대조해 드립니다.');
+R.push('5. **둘까지 좁혀졌는데 못 고르겠으면 결승.** 후보 2명을 화자로 세운 파일을 따로 만듭니다.');
+R.push('   지금은 `' + RUNOFF_FILE + '` 이 그것입니다 — 아래 절에 보는 법이 있습니다.');
+R.push('6. **확정 1명.** 이름을 넘겨 주세요. 밈 노출 이력을 대조하고 생성기에 박습니다.');
 R.push('');
 
 R.push('## 자리별로 무엇을 찾나', '');
@@ -355,6 +464,32 @@ R.push('');
 R.push(`합계 ${finalLines.length}줄 · ${finalLines.join('').length}자.`);
 R.push('');
 
+// ── 결승 절 — 후보가 둘 남았을 때만 의미가 있다.
+R.push(`## \`${RUNOFF_FILE}\` — ${RUNOFF.voices.join(' vs ')}`, '');
+R.push(`**${RUNOFF.role}** 자리 결승입니다. 붙여넣으면 화자 칩 ${RUNOFF.voices.length}개가 생기는데,`);
+R.push('이름이 곧 타입캐스트 캐릭터 이름이라 **보이스가 이미 배정된 채로 나옵니다.** 재생만 누르면 됩니다.', '');
+R.push('여기서 볼 것은 첫인상이 아닙니다. 그건 스크리닝과 본선에서 이미 걸렀습니다.');
+R.push(`**지구력**입니다 — ${manifest.clips.filter((c) => c.role === RUNOFF.role).length}클립을 끝까지 끌고 가는가.`);
+R.push('10초로는 절대 안 드러나고, 열댓 문장쯤 가야 갈라집니다.', '');
+R.push('| 구간 | 줄 | 무엇을 보나 |');
+R.push('|---|---|---|');
+{
+  const per = runoffMeta.blocks.reduce((a, b) => a + b.sents.length, 0);
+  for (const v of RUNOFF.voices) R.push(`| **${v}** 블록 | ${per} | 혼자 통으로 간다. 호흡이 무너지는 지점이 여기서 나온다 |`);
+  R.push(`| 교대 | ${runoffMeta.clincher.sents.length * RUNOFF.voices.length} | 결정타를 한 줄씩 번갈아. 붙어 있어야 미세한 차이가 들린다 |`);
+}
+R.push('');
+R.push(`블록에 담은 것은 ${runoffMeta.blocks.map((b) => `${b.no} ${b.label}`).join(' · ')} 입니다.`);
+R.push(RUNOFF.why, '');
+R.push('★**같은 문장이 두 번 나오는 건 의도입니다.** 블록에서 한 번, 교대에서 또 한 번.');
+R.push('목적이 다릅니다 — 블록은 흐름을 보고, 교대는 한 줄을 봅니다.', '');
+R.push(`★교대 구간에 넣은 ${runoffMeta.clincher.sents.length}문장이 이 자리의 진짜 시험입니다.`);
+R.push(`\`${runoffMeta.clincher.label}\` — 예식에서 되돌릴 수 없는 유일한 순간입니다.`);
+R.push('여기서 무게가 안 실리면 나머지 클립이 아무리 좋아도 소용없습니다. **막상막하면 이 줄로 결정하세요.**');
+R.push('');
+R.push(`합계 ${runoffLines.length}줄 · ${runoffLines.join('').length}자.`);
+R.push('');
+
 R.push('## 확정 뒤 — 다운로드 설정', '');
 R.push('여덟 자리가 다 정해지고 플랜을 결제한 뒤에야 하는 일입니다.');
 R.push(`이 폴더가 아니라 상위 \`타입캐스트/\` 의 \`1_안내.txt\` ~ \`5_배역.txt\` 를 받습니다.`, '');
@@ -385,6 +520,7 @@ console.log('\n✓ 보이스 스크리닝 대본 생성 완료');
 console.log(`  ${path.relative(ROOT, OUT)}/`);
 console.log(`    ${SCREEN_FILE}   ${screenLines.length}줄 · 화자 ${spkInScreen.size}명 · ${screenLines.join('').length}자`);
 console.log(`    ${FINAL_FILE}    ${finalLines.length}줄 · ${finalLines.join('').length}자`);
+console.log(`    ${RUNOFF_FILE}    ${runoffLines.length}줄 · 후보 ${RUNOFF.voices.join(' vs ')} · ${runoffLines.join('').length}자`);
 console.log(`    README.md`);
 console.log('\n  자리별 스크리닝 줄');
 for (const m of screenMeta) {
