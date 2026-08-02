@@ -1032,3 +1032,5 @@ chk 'GALLERY_LIVE' invitation-gallery.html 3           # 라이브 카드(모바
 chk 'LIVE_DOW_TZ' live.html 1                          # 요일 UTC 성분 계산 · getDay()로 되돌리면 해외 하객에게 하루 밀린 요일이 나간다
 chk 'LIVE_DEMO_DATE' live.html 1                       # 표본 날짜를 청첩장 SAMPLE과 일치 · 빼면 2027·12·17 더미가 노출
 chk 'LIVE_INFRAME' live.html 1                         # 갤러리 프레임 안 홈 링크 무력화
+chk 'GV_INFO' invitation-gallery.html 6                # 안내 카드 설명(띠 연속성·옆 패널·자세히) · 빠지면 9~11번이 무설명 화면으로 회귀
+chk 'GV_SAFEBG' invitation-gallery.html 1              # 모바일 몸통색 카드 추종 · 빼면 아이폰 하단 흰 박스 재발
