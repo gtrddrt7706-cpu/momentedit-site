@@ -554,8 +554,8 @@ body::after{
 .inv-text p:last-child{margin-bottom:0}
 .inv-text .em{
   color:var(--rose-deep);
-  font-family:var(--serif);
-  font-style:italic;
+  font-family:var(--serif-ko); /* [DTL16] 커스텀 인사말 *강조*는 한글이 실린다(열한 해의 겨울 실측) — Cormorant 이탤릭 폴백의 합성 기울임 제거([AUD16] 6항) */
+  font-style:normal;
   font-weight:500;
   font-size:17px;
   letter-spacing:0.02em;
@@ -925,6 +925,7 @@ body::after{
   display:inline-flex;
   align-items:center;
   gap:8px;
+  min-height:44px; /* [DTL16] 탭 타깃 — 실측 43.6px 미달 보정(family-01·02·04 동일 처방). 지도 활성 시 노출되는 링크 */
   padding:10px 16px;
   background:var(--cream);
   border:1px solid var(--rose-warm);
@@ -1025,7 +1026,7 @@ body::after{
   color:var(--parchment);
   line-height:1.9;
 }
-.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
+.venue-meta-row.venue-meta-arrival .em{ /* [DTL16] 자기중첩 오타 셀렉터(.venue-meta-row .venue-meta-row …) 매칭 0 — '15분 전' 강조가 죽어 있었다(실측 300·parchment 상속색). family-01~04와 동일 교정 · rose-warm on forest 5.04:1 AA */
   color:var(--rose-warm);
   font-weight:400;
   font-style:normal;
@@ -1083,8 +1084,9 @@ body::after{
   border-bottom:1px solid var(--ink-green);
 }
 
-details.env-acc{border-bottom:1px solid var(--hairline-mid)}
-details.env-acc:last-child{border-bottom:none}
+/* [DTL16] 사문 셀렉터 교정: 실제 클래스는 env-acc-item(.env-acc 매칭 0 실측) — 항목 구분선·+회전이 통째로 죽어 있었다 */
+details.env-acc-item{border-bottom:1px solid var(--hairline-mid)}
+details.env-acc-item:last-child{border-bottom:none}
 
 summary.env-acc-q{
   width:100%;
@@ -1150,7 +1152,7 @@ summary.env-acc-q::marker{display:none}
   margin-left:12px;
   opacity:0.5;
 }
-details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);opacity:1}
+details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);opacity:1} /* [DTL16] 사문 셀렉터 교정 — 열림 상태에서 transform:none 실측 */
 
 .env-acc-a{padding:0}
 .env-acc-inner{padding:0 10px 24px}
@@ -1232,6 +1234,11 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   flex-shrink:0;
   border-radius:0;
   -webkit-tap-highlight-color:transparent;
+}
+.env-acc-copy::before{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 38.2×24px 미달 → 히트영역 44.2×44px(01~04 동일 처방). 시각 크기는 유지(행 상하 패딩 14px 안에 머묾) */
+  position:absolute;
+  inset:-10px -3px;
 }
 .env-acc-copy::after{
   content:'';
@@ -1379,7 +1386,7 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg);color:var(--rose);op
   .reveal,.reveal-stagger > *{opacity:1 !important;transform:none !important}
     .sec-venue{background:#fff;color:#000}
   .sec-venue *{color:#000 !important}
-  details.env-acc .env-acc-a{display:block !important}
+  details.env-acc-item .env-acc-a{display:block !important} /* [DTL16] 사문 셀렉터 교정 */
   .env-acc-plus{display:none}
   .env-acc-copy{display:none}
   .env-acc-row{background:#f5f2e8;border:1px solid #ccc}
@@ -1839,11 +1846,22 @@ details.env-acc-item[open] > summary.env-acc-q{
     }
   }, { passive: true });
 
-  // Details
-  document.querySelectorAll('details.env-acc').forEach(d => {
+  // [DTL16] 섹션 눈썹 재번호 — OPTIONAL 섹션이 빠지면(봉투 미노출 등) 로마숫자가 결번되고
+  // 분모 '/ 04'가 실제 섹션 수와 어긋난다. hydrate가 걷어낸 최종 DOM에서 분자·분모를 함께 다시 센다(온라인판·01~04 재번호와 같은 원칙, 05는 분모까지).
+  const secMetas = document.querySelectorAll('.sec .sec-meta');
+  const secRoman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  const pad2 = n => (n < 10 ? '0' : '') + n;
+  secMetas.forEach((m, i) => {
+    const ro = m.querySelector('.roman'), ar = m.querySelector('.ar');
+    if (ro) ro.textContent = secRoman[i] || String(i + 1);
+    if (ar) ar.textContent = pad2(i + 1) + ' / ' + pad2(secMetas.length);
+  });
+
+  // Details — [DTL16] 사문 셀렉터 교정(env-acc→env-acc-item): name="env" 미지원 구형 브라우저의 단일 열림 폴백 복원
+  document.querySelectorAll('details.env-acc-item').forEach(d => {
     d.addEventListener('toggle', () => {
       if (d.open) {
-        document.querySelectorAll('details.env-acc[open]').forEach(other => {
+        document.querySelectorAll('details.env-acc-item[open]').forEach(other => {
           if (other !== d) other.open = false;
         });
       }
