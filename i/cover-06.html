@@ -648,6 +648,11 @@ details.env-acc-item[open] > .env-acc-q{
   color:var(--dancheong);cursor:pointer;transition:color 0.3s ease,border-color 0.3s ease;
   flex-shrink:0;border-radius:0;text-transform:uppercase;
   padding-left:calc(2px + 0.3em);-webkit-tap-highlight-color:transparent;
+  position:relative; /* [DTL16] 탭 타깃 확장 기준점 */
+}
+.env-acc-copy::after{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 45.7×19px 미달 → 히트영역 45.7×45px(01~05 동일 처방). 아래 -14px는 border-bottom 1px 보정(절대배치 기준이 패딩 박스라 -13이면 실효 44.0 경계). 시각 크기는 유지(sub 상하 패딩 14px 안에 머물러 이웃 행과 안 겹침) */
+  position:absolute;inset:-13px 0 -14px;
 }
 .env-acc-copy:hover{color:var(--dancheong-deep);border-color:var(--dancheong-deep)}
 .env-acc-copy.copied{color:var(--dancheong-deep);border-color:var(--dancheong-deep)}
@@ -706,7 +711,7 @@ details.env-acc-item[open] > .env-acc-q{
   .sec-date{padding:120px 32px 100px}
   .sec-marker{top:38px;right:24px}
   .inv-text{font-size:14.5px;line-height:2}
-  .date-han-main{font-size:clamp(40px,11vw,50px)}
+  .date-han-main{font-size:clamp(34px,11vw,50px)} /* [DTL16] 최소 40px 고정이 '십이월·이십오일'(7자, 실측 345.6px)을 320px에서 좌우 12.8px씩 클립 — 364px 아래에서만 11vw로 유동. 390(42.9px)·일월/이월 케이스는 무변화 */
   .date-time{padding:16px 28px}
   .date-time-kor{font-size:16px}
   .date-cal-cell{font-size:11.5px}
@@ -721,6 +726,8 @@ details.env-acc-item[open] > .env-acc-q{
   .sec-invite,.sec-join,.sec-env{padding:90px 24px 72px}
   .sec-marker{top:30px;right:20px}
   .cover-stamp{left:18px}
+  .cover-names-ko{font-size:clamp(32px,10vw,52px)} /* [DTL16] 최소 40px 고정이 5자 실명(박알렉산더 실측)에서 커버 그리드를 370px로 밀어 320px에서 이름 끝·이슈 라벨(No./날짜)이 우측 클립 — 자간 0.18em(디자인 결)은 지키고 이 파일의 clamp 체계로 크기만 유동. 글리프 클립은 347px 아래에서만 생겨 이 블록이 전 구간을 덮는다 */
+  .date-time{gap:12px;padding:16px 18px} /* [DTL16] 320px에서 '오전 아홉 시'가 꺾여 '시'만 둘째 줄 고아(오전 열한 시 반은 '반', 실측) — 글자는 그대로 두고 띠의 여백·간격만 죄어 한 줄 유지 */
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -769,7 +776,7 @@ details.env-acc-item[open] > .env-acc-q{
   opacity:0.85;
 }
 .date-studio-line .name{color:var(--ink-mid);font-weight:500}
-.date-studio-line .ko{font-family:var(--serif-ko);font-style:normal} /* [AUD16] ', 성수' 한글 가짜 이탤릭 → normal */
+/* [DTL16] .ko(', 성수') 규칙 삭제 — 시안 잔재 지명 제거로 매칭 0이 된 사문 정리(강조 원칙은 위 [AUD16] 이력 참조) */
 
 @media (max-width:340px){
   .date-studio-line{font-size:12px}
@@ -955,9 +962,11 @@ details.env-acc-item[open] > .env-acc-q{
       </div>
 
       <!-- 스튜디오 — 한 줄 이탤릭 캡션 -->
+      <!-- [DTL16] ', 성수' 하드코딩 제거 — 실제 스튜디오는 경기 고양 향동(venue.js)이라 시안 잔재 지명이
+           실하객에게 틀린 지역으로 나가고 있었다(cover-03 [DTL16]·[AUD16] 7항 동류). 라틴 이탤릭 결에 맞춰 영문 venue 토큰 -->
       <div class="date-studio-line">
         <span class="at">於</span>
-        <span class="name">Moment Edit</span><span class="ko">, 성수</span><!-- [AUD16] 한글부 normal 분기 -->
+        <span class="name">{{VENUE_NAME_EN}}</span>
       </div>
     </div>
   </section>
