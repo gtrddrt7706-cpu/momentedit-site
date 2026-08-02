@@ -4583,7 +4583,7 @@ function invStepMethod(box){
     +'<div class="pf"><label class="pf-l">신부</label>'
     +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+nv('brideKo')+'">'
     +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
-    +'<div class="cc-note" style="margin:5px 0 0">청첩장 표지엔 <b>영문 이름만</b> 나와요. 성 없이 이름만 적어 주세요 (예: Heejun).</div>'
+    +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun).</div>'   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'

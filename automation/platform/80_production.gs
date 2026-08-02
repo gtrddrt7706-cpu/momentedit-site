@@ -688,7 +688,13 @@ function handleSeatView(body) {
   var out = tables.map(function (t) {
     t = t || {};
     var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
-    return { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+    var row = { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+    /* [SEAT_DRINK_SRV] 자리별 음료 — guide.html [GUIDE_DRINK]의 '서버가 보낼 때만 그린다' 계약의 서버쪽 절반(2026-08-02 연동 점검에서 누락 확정).
+       seats와 평행 배열 · 코드 2자 상한(라벨 해석은 클라이언트 화이트리스트가 함) ·
+       검색 경로(_seatFindSlim)는 지금처럼 계속 제외한다(타인 조회 응답 최소화 원칙 유지). */
+    var _drk = (Object.prototype.toString.call(t.drinks) === '[object Array]') ? t.drinks : [];
+    if (_drk.length) row.drinks = seats.map(function (s, i) { return String(_drk[i] || '').trim().slice(0, 2); });
+    return row;
   });
   var _resp = {
     ok: true,
