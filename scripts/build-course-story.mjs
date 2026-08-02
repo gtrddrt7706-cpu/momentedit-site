@@ -56,6 +56,11 @@ const ALL_ON = Object.fromEntries(GADD_KEYS.map(g => [g, true]));
 
 const seenBlock = new Map();          // blockN -> Set(k)
 const seenLive  = new Map();          // live.t -> {blockN,k,doing,self,fb:Set,slugs:Set,modes:Set}
+// ★CAST_COVER — 배역 예시가 붙는 자리를 같은 스윕으로 함께 훑는다
+const hitKey  = new Set();            // 실제로 이긴 CAST_AT 키 (배열 참조로 판정 — 규칙을 다시 쓰지 않는다)
+const hitId   = new Set();            // 실제로 재생 대상이 된 클립 id
+const seenBadge = new Map();          // 배지 문구 -> {roles:Set, where:'…'}
+const ownDead = new Map();            // own:true 인데 배역이 안 붙는 큐
 let builds = 0;
 
 function absorb(S, mode) {
@@ -63,6 +68,7 @@ function absorb(S, mode) {
   for (const c of RC.build(S, { mode }).cues) {
     if (!seenBlock.has(c.blockN)) seenBlock.set(c.blockN, new Set());
     seenBlock.get(c.blockN).add(c.k);
+    absorbCast(c);                     // ★live 가 없는 큐(하객 맞이 4개)도 own: 으로 배역이 붙는다
     if (!c.live) continue;
     const t = c.live.t;
     if (!seenLive.has(t)) seenLive.set(t, { blockN: c.blockN, k: c.k, doing: c.live.doing || '', self: !!c.live.self, fb: new Set(), slugs: new Set(), modes: new Set() });
@@ -70,6 +76,24 @@ function absorb(S, mode) {
     e.modes.add(mode); e.slugs.add(c.slug || '(무클립)');
     if (c.live.fallback) e.fb.add(c.live.fallback);
   }
+}
+
+/* 큐 하나에서 배역이 어떻게 풀리는지 기록한다.
+   ★어떤 CAST_AT 키가 이겼는지는 '배열 참조'로 판정한다 — castIds 의 우선순위 규칙(slug → live,
+   own 은 slug → k)을 여기에 다시 적으면, 규칙이 바뀌는 날 검사만 낡은 규칙을 지키게 된다. */
+function absorbCast(c) {
+  const ids = ST.castIds(c);
+  for (const [kind, arr] of [['main', ids.main], ['live', ids.live]]) {
+    if (!arr) continue;
+    for (const [k, v] of Object.entries(ST.CAST_AT)) if (v === arr) hitKey.add(k);
+    arr.forEach(id => hitId.add(id));
+    const list = kind === 'main' ? ST.castMainOf(c) : ST.castLiveOf(c);
+    const badge = ST.castBadgeOf(list);
+    if (!seenBadge.has(badge)) seenBadge.set(badge, { roles: new Set(), where: `${c.blockN} · ${kind}` });
+    list.forEach(o => seenBadge.get(badge).roles.add(o.role));
+  }
+  if (ids.main && ids.live) bad(`큐 '${c.name}' — main·live 양쪽에 배역이 걸린다. 한쪽이 다른 쪽을 조용히 먹는다(CAST_TWO_SLOTS)`);
+  if (c.own && !ids.main) ownDead.set(c.slug || c.k, c.name);
 }
 for (const course of Object.keys(D.COURSES)) {
   // ①확장 옵션 전조합(2^9) — seq에 들어올 수 있는 블록 전수
@@ -129,6 +153,41 @@ for (const [t, e] of seenLive) {
   if (!inPreview && s.only !== 'console') bad(`미리듣기에 안 나오는 자리인데 only:'console' 표시가 없다 — '${t.slice(0, 30)}…'`);
 }
 for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽은 문안 — 어떤 조합에서도 안 나오는 키\n         '${t}'`);
+
+// ── 2-d. 배역 예시 커버리지 [CAST_COVER]
+//   배역 클립은 '고객 화면에서만' 쓰인다. 디렉터 화면은 이 표를 한 번도 읽지 않으므로,
+//   여기서 안 잡으면 틀린 채로 고객에게만 보인다 — 우리 눈에는 끝까지 안 띈다.
+{
+  const MF = path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json');
+  const man = JSON.parse(fs.readFileSync(MF, 'utf8'));
+  const mCast = new Map(man.clips.filter(c => c.dir === 'assets/audio/cast').map(c => [`${c.no}_${c.file}`, c.role]));
+
+  // ①표와 대본이 같은 자를 쓰는가 — CAST 는 재생이, manifest 는 녹음이 읽는다. 갈리면 엉뚱한 목소리가 나간다
+  for (const [id, c] of Object.entries(ST.CAST)) {
+    if (!mCast.has(id)) bad(`CAST '${id}' — manifest 의 배역 클립에 없다(대본에 없는 음원을 재생하려 한다)`);
+    else if (mCast.get(id) !== c.role) bad(`CAST '${id}' 역할 불일치 — 표 '${c.role}' vs 대본 '${mCast.get(id)}'`);
+  }
+  for (const id of mCast.keys()) if (!ST.CAST[id]) bad(`manifest 배역 '${id}' — CAST 표에 없다(녹음해 놓고 어디서도 안 쓴다)`);
+
+  // ②죽은 키·죽은 클립 — 자산이 아니라 함정이다(2-b·2-c와 같은 기준)
+  for (const k of Object.keys(ST.CAST_AT)) if (!hitKey.has(k)) bad(`CAST_AT '${k}' — 어떤 조합에서도 안 걸리는 죽은 키`);
+  for (const arr of Object.values(ST.CAST_AT)) for (const id of arr) if (!ST.CAST[id]) bad(`CAST_AT 가 없는 클립 '${id}' 을 가리킨다`);
+  for (const id of Object.keys(ST.CAST)) if (!hitId.has(id)) bad(`CAST '${id}' — 어떤 조합에서도 재생되지 않는다`);
+
+  // ③두 분 목소리를 골랐는데 그 자리에 예시가 없다 — 고객이 기대한 것과 화면이 어긋난다
+  for (const [k, name] of ownDead) bad(`own 자리 '${name}'(${k}) — 두 분 목소리를 골랐는데 배역 예시가 안 붙는다. CAST_AT 에 'own:${k}' 를 추가할 것`);
+
+  // ④배지 문구 — 두 사람 이상이 말하는 자리에서 한 사람 문구가 남으면 화면이 나머지를 지운다
+  const solo = new Set(Object.values(ST.CAST_SAY));
+  for (const [badge, e] of seenBadge) {
+    if (!badge) { bad(`배역이 붙는데 배지 문구가 빈다 [${e.where}] — 고객이 '왜 남의 목소리가 나오지' 하게 된다`); continue; }
+    if (e.roles.size > 1 && solo.has(badge)) {
+      bad(`배지가 한 사람만 말한다 [${e.where}] — 자리에는 ${[...e.roles].join('·')} 가 있는데 문구는 '${badge}'`);
+    }
+  }
+  console.log(`[CAST_COVER] 클립 ${Object.keys(ST.CAST).length}종 · 자리 ${hitKey.size}/${Object.keys(ST.CAST_AT).length} · 배지 ${seenBadge.size}종`);
+  for (const [b2, e] of [...seenBadge].sort()) console.log(`             · ${b2}  [${[...e.roles].join('·')}]`);
+}
 
 console.log(fail ? '[STORY_COVER] FAIL' : `[STORY_COVER] ok — 블록 ${seenBlock.size}/${seenBlock.size} · 사람 구간 ${seenLive.size}/${seenLive.size} 커버${warn ? ` (경고 ${warn})` : ''}`);
 if (fail) process.exit(1);

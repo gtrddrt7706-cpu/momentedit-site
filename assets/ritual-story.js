@@ -81,13 +81,13 @@
 
     '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴': {
       who: '두 분',
-      scene: '문이 열리면 두 분이 손을 잡고 함께 걸어 들어오세요. 중앙에 서실 때까지 안내 음성은 나오지 않고 입장곡만 흘러요. 천천히 걸으셔도 돼요 — 다음 순서는 두 분이 다 걸으신 뒤에 시작돼요.'
+      scene: '문이 열리면 두 분이 손을 잡고 함께 걸어 들어오세요. 중앙에 서실 때까지 안내 음성은 나오지 않고 입장곡만 흘러요. 천천히 걸으셔도 돼요. 다음 순서는 두 분이 다 걸으신 뒤에 시작돼요.'
     },
 
     '두 분이 직접 인사 (디렉터가 핸드마이크 전달)': {
       who: '두 분',
       scene: '두 분이 하객분들께 직접 인사말을 건네세요. 마이크는 저희가 손에 쥐어 드려요. 앞뒤는 안내 음성이 열고 닫아 주니까, 가운데 한두 문장만 준비하시면 돼요.',
-      safe: '말이 막혀도 괜찮아요. 미리 적어 주신 인사말 카드를 저희가 바로 손에 넣어 드려요.',
+      safe: '말이 막혀도 괜찮아요. 미리 적어 주신 인사말 카드를 저희가 바로 건네 드려요.',
       fbSrc: '말이 막히면 미리 받아 둔 인사말 카드를 건넴'
     },
 
@@ -131,7 +131,7 @@
     '두 분이 직접 편지 낭독': {
       who: '두 분',
       scene: '두 분이 준비하신 편지를 직접 읽으세요. 이 자리는 음악을 완전히 끄고, 온전히 두 분의 목소리만 남겨 둬요. 예식에서 가장 조용하고, 가장 오래 기억되는 자리예요.',
-      safe: '가장 많이 우시는 자리예요. 멈추셔도 괜찮아요 — 잠깐 뒤 안내 음성이 자리를 메워 드리고, 그래도 어려우시면 배우자분이 이어 읽으세요. 끝까지 힘드시면 저희가 대신 읽어 드려요.',
+      safe: '가장 많이 우시는 자리예요. 멈추셔도 괜찮아요. 잠깐 뒤 안내 음성이 자리를 메워 드리고, 그래도 어려우시면 배우자분이 이어 읽으세요. 끝까지 힘드시면 저희가 대신 읽어 드려요.',
       fbSrc: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 배우자가 이어 읽기 · 그다음 디렉터 대독'
     },
 
@@ -209,10 +209,150 @@
     }
   };
 
+  // ── 배역 예시 클립 (미리듣기 전용)  ★CAST_MAP_V1
+  //
+  // 무엇인가 — 식순에서 '사람이 말하는 자리'는 당일 신랑·신부·부모님·하객이 직접 말한다.
+  //   미리듣기는 그 자리를 비워 둘 수 없다(비우면 흐름이 끊겨 "이 예식이 어떤 느낌인지"가 안 잡힌다).
+  //   그래서 배우 목소리로 예시를 깐다. 원천은 docs/plans/식순연구/타입캐스트/manifest.json 15클립,
+  //   조립 결과는 assets/audio/cast/NN_file.mp3 다. ★당일 콘솔은 이 클립을 재생하지 않는다.
+  //
+  // ★왜 매핑을 여기에 새로 저작하나 — manifest의 클립에는 큐를 가리키는 키가 없다.
+  //   필드가 no/file/role/dir/part/sents 뿐이라 "이 클립이 어느 큐에서 흐르나"를 아무도 모른다.
+  //   그 연결을 어딘가에는 적어야 하는데, ritual-cue.js에 적으면 당일 콘솔이 미리듣기 전용
+  //   데이터를 짊어지고, manifest에 적으면 붙여넣기 생성기가 재생 로직을 알아야 한다.
+  //   장면 레이어가 제자리다 — 여기는 이미 '고객이 보는 화면' 전용이고, LIVE와 같은 키(live.t
+  //   원문)를 쓰므로 한 자리를 두 표가 같은 이름으로 가리킨다.
+  //
+  // ★CAST_KEY_NS — 키 공간을 접두사로 가른다(slug: / live: / own:). 셋을 한 표에 섞지 않는다.
+  //   ①slug — 같은 live.t 에 서로 다른 클립이 갈리는 자리. 편지가 그렇다(부모님께/서로에게/둘 다가
+  //           전부 '두 분이 직접 편지 낭독'이다). live 키로 잡으면 셋이 한 칸에 뭉친다.
+  //   ②live — 대부분의 사람 구간. LIVE와 같은 키라, ritual-cue.js에서 지문을 고치면 이쪽도 같이
+  //           미커버로 드러난다(빌더가 잡는다).
+  //   ③own  — 두 분이 미리 녹음해 올리는 자리(하객 맞이·입장). 당일에도 '사람이 말하는' 게 아니라
+  //           '녹음이 나가는' 자리라 배지 문구가 다르다.
+  //   조회 순서도 이 순서다 — 좁은 키가 먼저 이긴다.
+  //
+  // ★클립이 없는 자리 — 성혼 선언의 하객 합송·응답([16][17])은 문안만 있고 음원이 없다
+  //   (§6 결정 7 대기 · AI 단일 보이스로 군중을 만들 수 없다). 가족 대표 선언 낭독은 §2-A 표에
+  //   클립 배정이 없다. 베일·링 워밍·반지·와인·케이크는 발화 자체가 없고, 축가는 노래다.
+  //   전부 지금처럼 텍스트 카드로 흐른다 — 여기에 억지로 채워 넣지 말 것.
+  var CAST_DIR = '/assets/audio/cast/';
+
+  // 당일 그 사람이 그 자리에서 직접 말하는 경우 (§2-C 배지 ①)
+  var CAST_SAY = {
+    '신랑': '예시 목소리 · 당일엔 신랑님이 직접 말해요',
+    '신부': '예시 목소리 · 당일엔 신부님이 직접 말해요',
+    '아버님': '예시 목소리 · 당일엔 아버님이 직접 말씀하세요',
+    '어머님': '예시 목소리 · 당일엔 어머님이 직접 말씀하세요',
+    '하객대표': '예시 목소리 · 당일엔 하객분이 직접 말해요'
+  };
+  // 미리 녹음해 두는 자리 — 당일엔 '말하는' 게 아니라 '틀어지는' 것이라 문구가 다르다
+  var CAST_REC = '예시 목소리 · 당일엔 두 분이 녹음한 목소리가 나가요';
+  // ★CAST_PAIR — 한 자리에서 두 사람 이상이 말하는 큐(혼인 서약 = 신랑+신부)의 문구.
+  //   첫 사람 배지만 쓰면 "당일엔 신랑님이 직접 말해요"가 되어, 화면이 신부를 지운다.
+  //   키는 역할 이름을 코드포인트 순으로 정렬해 '|'로 이은 것 — 대사 순서가 바뀌어도 같은 키가 나온다.
+  var CAST_PAIR = {
+    '신랑|신부': '예시 목소리 · 당일엔 두 분이 직접 말해요',
+    '아버님|어머님': '예시 목소리 · 당일엔 부모님이 직접 말씀하세요'
+  };
+
+  // manifest.json 15클립과 1:1. role 은 빌더가 manifest 와 대조한다(판별과 검증이 같은 자를 쓴다)
+  var CAST = {
+    '01_guest-1':       { role: '신랑', rec: true },
+    '02_guest-2':       { role: '신부', rec: true },
+    '03_guest-3':       { role: '신랑', rec: true },
+    '04_guest-4':       { role: '신부', rec: true },
+    '05_entry':         { role: '신부', rec: true },
+    '06_welcome-groom': { role: '신랑' },
+    '07_welcome-bride': { role: '신부' },
+    '08_vow-groom':     { role: '신랑' },
+    '09_vow-bride':     { role: '신부' },
+    '10_letter-parent': { role: '신부' },
+    '11_letter-each':   { role: '신랑' },
+    '12_bless-father':  { role: '아버님' },
+    '13_bless-mother':  { role: '어머님' },
+    '14_tribute':       { role: '신랑' },
+    '15_toast':         { role: '하객대표' }
+  };
+
+  // 어디서 흐르나. 값은 재생 순서다(신랑 → 신부).
+  var CAST_AT = {
+    // ①slug — 편지 3종. live.t 가 셋 다 같아서 slug 로만 갈린다
+    'slug:letter-parent': ['10_letter-parent'],
+    'slug:letter-each':   ['11_letter-each'],
+    'slug:letter-both':   ['10_letter-parent', '11_letter-each'],
+
+    // ②live — LIVE 와 같은 키(live.t 원문)
+    'live:두 분이 직접 인사 (디렉터가 핸드마이크 전달)': ['06_welcome-groom', '07_welcome-bride'],
+    'live:두 분이 서로에게 서약문 낭독': ['08_vow-groom', '09_vow-bride'],
+    'live:부모님 말씀 (디렉터가 마이크 전달)': ['12_bless-father', '13_bless-mother'],
+    // 헌정 3종(꽃·큰절·포옹) — 동작만 다르고 두 분이 드리는 감사말은 같은 자리다
+    'live:양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹': ['14_tribute'],
+    'live:양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹': ['14_tribute'],
+    'live:양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 말없이 포옹': ['14_tribute'],
+    // 축배 — 잔을 드는 두 종만. 케이크 단독(toast-cake)은 발화가 없어 비운다
+    'live:하객 전원 잔 들기 → 다 함께 건배': ['15_toast'],
+    'live:편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수 후 두 분께 잔 전달 → 나레이션 건배사 → 다 함께 건배': ['15_toast'],
+
+    // ③own — 두 분 목소리 옵션을 켰을 때만 (끄면 안내 음성이라 예시가 필요 없다)
+    'own:guest-1-arrival': ['01_guest-1'],
+    'own:guest-2-10min':   ['02_guest-2'],
+    'own:guest-3-5min':    ['03_guest-3'],
+    'own:guest-4-1min':    ['04_guest-4'],
+    'own:entry':           ['05_entry']   // 입장 멘트 6종(entry-A~F)이 한 클립을 공유 — k 로 받는다
+  };
+
   // ── 조회 (키 폴백 없음 — 못 찾으면 null. 빌더가 미리 전수로 막는다)
   function liveOf(cue) { return (cue && cue.live && LIVE[cue.live.t]) || null; }
   function blockOf(blockN) { return BLOCK[blockN] || null; }
   function aliasOf(n) { return ALIAS[n] || n; }
+  function castOne(id) {
+    var c = CAST[id]; if (!c) return null;
+    return { id: id, role: c.role, badge: c.rec ? CAST_REC : (CAST_SAY[c.role] || ''), src: CAST_DIR + id + '.mp3' };
+  }
+  // ★CAST_TWO_SLOTS — 배역 클립이 놓이는 자리는 한 종류가 아니라 두 종류다. 섞으면 둘 다 틀린다.
+  //   ①main — 나레이션 클립 '대신' 흐른다. own: 자리가 이것이다. 하객 맞이 4큐에는 live 필드가
+  //     아예 없고(사람이 말하는 창이 없다), 입장의 live 는 doing:'move'(걷는 시간)라 말이 없다.
+  //     두 분이 직접 녹음하기로 한 자리라, 안내 음성이 나갈 그 자리를 두 분 목소리가 대체한다.
+  //   ②live — 사람 구간(live 창) '안에서' 흐른다. slug: · live: 자리가 이것이다. 앞서 나레이션이
+  //     흐르고, 그 뒤 사람이 말할 차례에 배우 예시가 깔린다.
+  //   main 과 live 가 동시에 걸리는 큐는 없다(전 코스·전 축 스윕으로 확인). 그래도 castIds 가
+  //   두 칸으로 나눠 돌려주므로, 훗날 겹치는 큐가 생겨도 한쪽이 다른 쪽을 조용히 먹지 않는다.
+  //   조회 순서는 slug → live (좁은 키가 이긴다). 없으면 빈 배열 — 그 자리는 텍스트 카드로 흐른다.
+  function castIds(cue) {
+    if (!cue) return { main: null, live: null };
+    return {
+      main: (cue.own && (CAST_AT['own:' + cue.slug] || CAST_AT['own:' + cue.k])) || null,
+      live: (cue.slug && CAST_AT['slug:' + cue.slug]) || (cue.live && CAST_AT['live:' + cue.live.t]) || null
+    };
+  }
+  function castExpand(ids) {
+    if (!ids) return [];
+    var out = [], i, o;
+    for (i = 0; i < ids.length; i++) { o = castOne(ids[i]); if (o) out.push(o); }
+    return out;
+  }
+  function castMainOf(cue) { return castExpand(castIds(cue).main); }   // 나레이션 클립 자리를 대체
+  function castLiveOf(cue) { return castExpand(castIds(cue).live); }   // 사람 구간(live) 안에서 재생
+  /* 한 자리(큐)를 대표하는 배지 문구 하나. ★문구는 여기서만 만든다 —
+     console.html 이 직접 조립하면 화면마다 다른 말이 생기고, 고칠 때 한쪽만 고쳐진다. */
+  function castBadgeOf(list) {
+    if (!list || !list.length) return '';
+    var b = list[0].badge, same = true, rs = [], i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].badge !== b) same = false;
+      if (rs.indexOf(list[i].role) < 0) rs.push(list[i].role);
+    }
+    // ★같은 문구면 그대로 — 먼저 온다. 녹음 자리(CAST_REC)는 역할이 신랑·신부로 갈려도
+    //   문구가 하나라, 이 가지가 없으면 '직접 말해요'로 뒤집혀 정반대 안내가 된다.
+    if (same) return b;
+    return CAST_PAIR[rs.slice().sort().join('|')] || '예시 목소리 · 당일엔 두 분과 가족이 직접 말해요';
+  }
+  // 커버리지 검사용 — 두 자리를 합쳐 "이 큐에 배역이 붙나"만 본다. 재생에는 쓰지 말 것
+  function castOf(cue) { var x = castIds(cue); return castExpand(x.main || x.live); }
 
-  return { V: 1, ALIAS: ALIAS, BLOCK: BLOCK, LIVE: LIVE, liveOf: liveOf, blockOf: blockOf, aliasOf: aliasOf, version: 'story-v1' };
+  return { V: 1, ALIAS: ALIAS, BLOCK: BLOCK, LIVE: LIVE, CAST: CAST, CAST_AT: CAST_AT, CAST_DIR: CAST_DIR,
+           liveOf: liveOf, blockOf: blockOf, aliasOf: aliasOf, castOf: castOf, castOne: castOne,
+           castIds: castIds, castMainOf: castMainOf, castLiveOf: castLiveOf, castBadgeOf: castBadgeOf,
+           CAST_SAY: CAST_SAY, CAST_REC: CAST_REC, CAST_PAIR: CAST_PAIR, version: 'story-v1' };
 });

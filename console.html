@@ -17,6 +17,11 @@
   이 파일은 '받아서 소리를 내고 화면에 띄우는' 껍데기다. 순서·발사방식을 여기서 고치면 안 된다.
 
   ★오디오가 한 개도 없어도 끝까지 진행된다 — 클립이 없으면 문안 카드 + 예상 시간 무음으로 넘어간다.
+
+  ★GUEST_SKIN — ?embed=1 이면 같은 파일이 '고객이 보는 화면'으로 바뀐다(쓰임 B·C의 실제 얼굴).
+    설정 패널·큐 목록·뒤로·전체 정지를 감추고, 디렉터 지문 대신 장면 레이어(assets/ritual-story.js)의
+    고객 언어를 붙인다. ★새 파일을 만들지 않는다(기획서 §6 결정 1) — 화면을 둘로 두면 순서가 갈라지고,
+    갈라진 순간 한쪽만 고치는 날이 온다. 지금 이 한 파일이 현장·리허설·고객 미리듣기 셋의 단일 원천이다.
 -->
 <style>
 :root{
@@ -182,6 +187,30 @@ select,input[type=time],input[type=text]{
 }
 .toast.on{opacity:1}
 
+/* ── 고객용 미리듣기 스킨 ★GUEST_SKIN ───────────────────
+   embed=1 이면 <body>에 .guest 가 붙는다. 디렉터가 쓰는 것을 전부 감추고,
+   장면 레이어가 쓴 고객 언어만 남긴다. 감추는 것은 '지금 안 쓰는 것'이 아니라
+   '고객이 보면 안 되는 것'이다 — 큐 번호·발사 방식·되돌리기·전체 정지. */
+body.guest #setup{display:none !important}
+body.guest #bPos, body.guest #bClock, body.guest #bSheet, body.guest #bExit,
+body.guest .sub3, body.guest .vol, body.guest .now .no{display:none !important}
+body.guest .ctl .inner{grid-template-columns:1fr}
+body.guest .main{background:var(--bg3);color:var(--text);font-size:17px;font-weight:600;padding:20px 16px}
+body.guest .main small{opacity:.72;font-weight:400}
+body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
+body.guest .now .txt.big{color:var(--text)}
+
+#gIntro{display:none;padding:36px 0 48px}
+body.guest #gIntro.on{display:block}
+#gIntro h1{font-family:var(--serif-ko);font-size:25px;font-weight:600;margin:0 0 12px;letter-spacing:-.02em;line-height:1.35}
+#gIntro p{color:var(--sub);font-size:14.5px;line-height:1.85;margin:0 0 12px}
+#gIntro .len{color:var(--gold-text);font-size:13px;margin:0 0 8px}
+
+.blk{margin:0 0 10px;padding:0 0 10px;border-bottom:1px solid var(--line)}
+.blk .bn{font-size:12px;font-weight:700;color:var(--gold-text);letter-spacing:.06em}
+.blk .bh{font-size:13px;color:var(--sub);line-height:1.7;margin-top:4px}
+.safe{margin-top:12px;font-size:13px;color:var(--sub);line-height:1.75;border-left:2px solid var(--live);padding-left:10px}
+
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
   .stage>div:first-child{display:flex}
@@ -270,6 +299,17 @@ select,input[type=time],input[type=text]{
   </p>
 </section>
 
+<!-- ══ 고객 미리듣기 인트로 ══ ★GUEST_SKIN (embed=1일 때만 선다) ══
+     §2-B 안전장치 2 「진입 시 1회 고지」 — 문구를 여기서 손대지 말 것.
+     이 한 줄이 배역 예시 목소리 전체의 근거다(오해는 소리가 아니라 화면이 막는다). -->
+<section id="gIntro" class="wrap">
+  <h1>예식, 미리 한 번 들어 보세요</h1>
+  <p>사람이 말하는 부분은 예시 목소리로 들려드려요. 당일엔 두 분과 가족이 직접 말합니다.</p>
+  <p>고르신 순서 그대로 처음부터 끝까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.</p>
+  <p class="len" id="giLen"></p>
+  <button class="go" id="giGo">듣기 시작</button>
+</section>
+
 <!-- ══ 콘솔 ══════════════════════════════════════════ -->
 <section id="run">
   <div class="bar">
@@ -285,16 +325,18 @@ select,input[type=time],input[type=text]{
     <div>
       <div class="now">
         <div class="tag" id="nTag"></div>
+        <div class="blk" id="nBlk" hidden><div class="bn"></div><div class="bh"></div></div>
         <h2 id="nName">준비됨</h2>
         <div class="txt" id="nTxt"></div>
         <div class="hint" id="nHint" hidden></div>
+        <div class="safe" id="nSafe" hidden></div>
         <div class="prog" id="nProg"><i></i></div>
         <div class="tm"><span id="nEl">0:00</span><span id="nTo">0:00</span></div>
       </div>
     </div>
     <div class="up">
-      <div class="upc" id="u1"><span class="lb">다음</span><span class="nm">—</span><span class="es"></span></div>
-      <div class="upc dim" id="u2"><span class="lb">그다음</span><span class="nm">—</span><span class="es"></span></div>
+      <div class="upc" id="u1"><span class="lb">다음</span><span class="nm"></span><span class="es"></span></div>
+      <div class="upc dim" id="u2"><span class="lb">그다음</span><span class="nm"></span><span class="es"></span></div>
     </div>
   </div>
 
@@ -329,18 +371,27 @@ select,input[type=time],input[type=text]{
 
 <script src="/assets/ritual-data.js"></script>
 <script src="/assets/ritual-cue.js"></script>
+<script src="/assets/ritual-story.js"></script>
 <script>
 (function(){
 'use strict';
 
 var $ = function(s){ return document.querySelector(s); };
 var PARAM = RitualCue.PARAM;
+var STORY = window.RitualStory || null;   // 장면 레이어 — 없어도 디렉터 화면은 그대로 돈다
 
 /* ─────────────────────────────────────────────────────
    1. 설정 — URL 파라미터가 있으면 그대로 받고, 없으면 화면에서 고른다
    ───────────────────────────────────────────────────── */
 var QS = new URLSearchParams(location.search);
 var MODE = (QS.get('mode') === 'preview') ? 'preview' : 'console';
+
+/* ★GUEST_SKIN — embed=1 이면 고객이 보는 화면이다(마이페이지 iframe 안).
+   지금은 embed=1 이 곧 고객판이라 플래그를 둘로 두고 한 줄로 잇는다 — 훗날
+   '디렉터가 iframe 안에서 리허설' 같은 쓰임이 생겨도 고칠 자리가 이 한 줄이다. */
+var EMBED = QS.get('embed') === '1';
+var GUEST = EMBED;
+if (GUEST) MODE = 'preview';              // 고객 화면은 언제나 저절로 흐른다
 
 var S = { course:'damback', entry:'A', declareWho:'narr', declare:'1',
           letter:'parent', bless:'off', valley:'none', guestVoice:'nar', digital:false };
@@ -487,6 +538,12 @@ var progT = null;
 var liveT0 = 0;            // 지금 흐르는 사람 구간이 시작된 시각 (ALT_CLIP 판정용)
 var shown = {};            // i → 실제로 나간 큐. alt로 바뀌었을 수 있어 화면·시트는 이쪽을 본다
 function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
+var castNow = null;                       // 지금 흐르는 배역 예시 클립(배지의 원천)
+var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바뀌는 첫 큐에서만 띄운다
+function resetRun(){
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0;
+  castNow = null; blkNow = ''; blkFresh = false;
+}
 
 /* ★ALT_CLIP — 바로 앞 사람 구간이 overSec을 넘었으면 문안을 바꿔 내보낸다.
    디렉터는 '다음'만 누른다. 3분 넘긴 어른 말씀을 끊기로 막 결정한 사람에게
@@ -502,7 +559,8 @@ function resolve(c){
   return o;
 }
 
-function clearT(){ timers.forEach(clearTimeout); timers = []; if (progT) { clearInterval(progT); progT = null; } }
+function stopProg(){ if (progT) { clearInterval(progT); progT = null; } }
+function clearT(){ timers.forEach(clearTimeout); timers = []; stopProg(); }
 function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
 function toast(m){
   var el = $('#toast'); el.textContent = m; el.classList.add('on');
@@ -516,41 +574,74 @@ function srcOf(c){
   return PARAM.clipDir + c.file + '.mp3';    // 없으면 재생 실패 → 문안 카드로 떨어진다
 }
 
-/* 클립 재생. 실패하면 est초 무음으로 같은 시간을 흘린다. */
-function playClip(c, done){
-  var dur = c.est || 3;
-  var fallback = function(why){
-    aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}
-    setPill('card', why);
-    // 소리가 없을 때 낭독 시간만큼 무음으로 앉아 있으면 미리듣기가 견딜 수 없이 늘어진다.
-    // 현장(console)은 실제 길이 그대로 둔다 — 리허설의 목적이 타이밍 체감이기 때문.
-    // 미리듣기(preview)만 '문안을 눈으로 읽을 시간'으로 줄인다.
-    var d = (MODE === 'preview')
-      ? Math.min(dur, Math.max(3.5, (c.text || '').length / 17))
-      : dur;
-    runProg(d, done);
-  };
-  var url = srcOf(c);
-  if (!url) return fallback('녹음 없음');
-
-  var settled = false;
-  aNarr.onerror = function(){ if (!settled) { settled = true; fallback('파일 없음'); } };
+/* 소리 한 개를 흘린다. 실패하면 ok=false 로 돌려준다 — 무엇으로 대신할지는 부르는 쪽이 정한다.
+   ★TIMER_REARM — 안전 타이머를 metadata 를 받은 뒤 '다시' 건다.
+     처음엔 est(대본 음절 추정)로 걸 수밖에 없는데, 실제 파일이 그보다 길면 그 자리에서 잘린다.
+     특히 배역 예시 클립은 est 자체가 없다(3초로 시작한다) — 다시 걸지 않으면 전부 3초에 끊긴다. */
+function playSrc(url, estSec, cb){
+  var dur = estSec || 3, done = false, tmr = null;
+  function settle(ok, why){
+    if (done) return; done = true;
+    if (tmr) clearTimeout(tmr);
+    stopProg();
+    aNarr.onerror = aNarr.onloadedmetadata = aNarr.onended = null;
+    cb(ok, why);
+  }
+  function arm(){
+    if (tmr) clearTimeout(tmr);
+    tmr = setTimeout(function(){ try { aNarr.pause(); } catch(e){} settle(true); }, Math.round(dur * 1000) + 900);
+    timers.push(tmr);
+  }
+  aNarr.onerror = function(){ settle(false, '파일 없음'); };
   aNarr.onloadedmetadata = function(){
-    if (settled) return;
-    if (isFinite(aNarr.duration) && aNarr.duration > 0.4) dur = aNarr.duration;
+    if (done) return;
+    if (isFinite(aNarr.duration) && aNarr.duration > 0.4) { dur = aNarr.duration; arm(); runProg(dur, null); }
   };
-  aNarr.onended = function(){ if (!settled) { settled = true; clearT(); done(); } };
+  aNarr.onended = function(){ settle(true); };
   aNarr.src = url;
   var p = aNarr.play();
-  if (p && p.catch) p.catch(function(){ if (!settled) { settled = true; fallback('재생 막힘'); } });
-  // 재생이 시작되든 아니든 화면 시계는 돈다. 끝나면 onended가 먼저 잡는다.
-  later(function(){
-    if (settled) return;
-    settled = true;
-    try { aNarr.pause(); } catch(e){}
-    done();
-  }, Math.round(dur * 1000) + 900);
-  runProg(dur, null);
+  if (p && p.catch) p.catch(function(){ settle(false, '재생 막힘'); });
+  arm(); runProg(dur, null);
+}
+
+/* 소리가 없을 때 — 문안 카드로 같은 자리를 지난다.
+   현장(console)은 실제 낭독 길이 그대로 둔다(리허설의 목적이 타이밍 체감).
+   미리듣기(preview)만 '문안을 눈으로 읽을 시간'으로 줄인다. */
+function fallbackCard(c, why, done){
+  aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}
+  setPill('card', why);
+  var dur = c.est || 3;
+  var d = (MODE === 'preview') ? Math.min(dur, Math.max(3.5, (c.text || '').length / 17)) : dur;
+  runProg(d, done);
+}
+
+/* 배역 예시를 차례로 흘린다(신랑 → 신부). ★첫 개가 실패하면 음원 자체가 아직 없는 것이라
+   부르는 쪽에 알려 원래 자리로 돌려보낸다 — 조립 전에도 화면이 끝까지 흐른다. */
+function playCastList(list, done, onNoAudio){
+  var i = 0;
+  (function step(){
+    if (i >= list.length) { castNow = null; render(); return done(); }
+    var g = list[i++]; castNow = g; render();
+    playSrc(g.src, 0, function(ok){
+      if (ok) return step();
+      castNow = null; render();
+      if (i === 1) return onNoAudio();
+      done();
+    });
+  })();
+}
+
+function playClip(c, done){
+  // ★고객 화면에서 '두 분이 미리 녹음하는 자리'(하객 맞이 4큐·입장)는
+  //   안내 음성 대신 배역 예시가 그 자리를 대신한다(CAST_TWO_SLOTS의 main).
+  var cm = (GUEST && STORY) ? STORY.castMainOf(c) : [];
+  if (cm.length) return playCastList(cm, done, function(){ fallbackCard(c, '녹음 없음', done); });
+  var url = srcOf(c);
+  if (!url) return fallbackCard(c, '녹음 없음', done);
+  playSrc(url, c.est || 3, function(ok, why){
+    if (ok) return done();
+    fallbackCard(c, why || '파일 없음', done);
+  });
 }
 
 function runProg(sec, done){
@@ -567,6 +658,9 @@ function runProg(sec, done){
 }
 
 function setPill(kind, why){
+  // ★GUEST_SKIN — 고객 화면에는 '문안 카드 · 녹음 없음'을 띄우지 않는다.
+  //   그건 우리 준비 상태이지 고객이 읽을 말이 아니다("준비가 덜 됐나"로만 읽힌다).
+  if (GUEST) return;
   var host = $('#nTag'); if (!host) return;
   if (kind !== 'card') return;
   var p = document.createElement('span');
@@ -590,13 +684,16 @@ function fire(i, opt){
   cur = i; fired[i] = true;
   var c = resolve(R.cues[i]);
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
+  castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
+  blkFresh = (c.blockN || '') !== blkNow;
+  blkNow = c.blockN || '';
   // ★PHASE_CLIP — 클립이 나가기 시작하면 phase를 여기서 끊는다.
   //   이 줄이 없으면 앞이 사람 구간이었을 때 phase가 'live'인 채로 남아, 녹음이 흐르는 동안에도
   //   화면이 초록 막대와 "사람의 시간"을 계속 띄운다. 하필 그 자리가 덕담을 끊고 마무리 문안이
   //   나가는 순간이라 — 디렉터가 가장 확실히 알아야 할 "이제 마이크는 나레이션 것"이 거꾸로 뜬다.
   phase = 'clip';
   shown[i] = c;
-  if (c.altSec) toast('말씀이 ' + fmt(c.altSec) + ' 이어져 마무리 문안을 바꿔 내보냅니다');
+  if (c.altSec && !GUEST) toast('말씀이 ' + fmt(c.altSec) + ' 이어져 마무리 문안을 바꿔 내보냅니다');
   render();
   audioOn();
 
@@ -610,7 +707,13 @@ function fire(i, opt){
         liveT0 = Date.now();
         duckTo(c.live.duck === undefined ? c.duck : c.live.duck, PARAM.fadeUpMs);
         render();
-        if (MODE === 'preview') later(function(){ advance(); }, (c.live.est || 10) * 1000);
+        if (MODE === 'preview') {
+          // ★사람이 말하는 자리 — 고객 화면에서는 배우 예시 목소리가 그 시간을 채운다.
+          //   음원이 아직 없으면(조립 전) 종전대로 est 만큼 장면 카드를 띄우고 넘어간다.
+          var cl = (GUEST && STORY) ? STORY.castLiveOf(c) : [];
+          if (cl.length) playCastList(cl, advance, function(){ runProg(c.live.est || 10, advance); });
+          else later(function(){ advance(); }, (c.live.est || 10) * 1000);
+        }
         else {
           runProg(c.live.est || 30, null);
           // 편지 낭독 중 오래 말이 없으면 대기 클립을 권한다(런북 §11-C read.waitClipAt)
@@ -661,6 +764,37 @@ var DOING = {
 function liveBadge(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d.badge : '사람의 시간'; }
 function liveLead(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d.lead + '\n' : ''; }
 
+/* ── 고객판 문구 ★GUEST_SKIN ─────────────────────────
+   원칙: 디렉터 지문을 고객 말로 '번역'하지 않는다. 번역은 원문이 바뀔 때 조용히 낡는다.
+   같은 자리를 가리키는 고객판 문장을 장면 레이어가 따로 갖고 있고(STORY_KEY_IS_SOURCE),
+   빌더(scripts/build-course-story.mjs)가 전 코스·전 축에서 빠진 자리를 전수로 잡는다.
+   여기 나가는 말의 원천은 셋뿐이다 — 장면 레이어(liveOf/blockOf) · 코스 표(detail[]) · 나레이션 문안(c.text). */
+var GDOING = { say:'직접 말하는 시간', move:'움직이는 시간', sing:'노래하는 시간' };
+function gScene(c){ return (STORY && STORY.liveOf(c)) || null; }
+function gLiveTitle(c, sc){
+  // 조사를 붙이지 않는다 — who 가 '두 분'·'부모님'·'하객 여러분'으로 바뀌어 '이/가'가 매번 틀린다
+  return ((sc && sc.who) || '두 분') + ' · ' + (GDOING[c.live && c.live.doing] || '사람의 시간');
+}
+/* 배지 ① — 지금 흐르는 예시 목소리. 음원이 아직 없어도 '무엇이 흐를 자리인지'는 알려 준다
+   (조립 전에도 배지가 떠야 §2-B 안전장치 1이 성립한다 — 오해는 소리가 아니라 화면이 막는다) */
+function gCastBadge(c){
+  if (castNow) return castNow.badge;
+  if (!STORY) return '';
+  // ★문구 조립은 장면 레이어(castBadgeOf)가 한다 — 두 사람이 말하는 자리(혼인 서약)에서
+  //   첫 사람 배지만 쓰면 화면이 나머지 한 사람을 지운다. 여기서 l[0] 을 쓰지 말 것.
+  return STORY.castBadgeOf((phase === 'live') ? STORY.castLiveOf(c) : STORY.castMainOf(c));
+}
+/* 블록 머리 — 순서 소개의 원천은 코스 표(detail[])다. 거기 없는 블록만 장면 레이어가 채운다(STORY_BLOCK_FILL) */
+function gBlock(bn){
+  if (!bn) return null;
+  var det = (window.COURSES && COURSES[S.course] && COURSES[S.course].detail) || [];
+  var a = STORY ? STORY.aliasOf(bn) : bn;
+  for (var i = 0; i < det.length; i++) {
+    if ((STORY ? STORY.aliasOf(det[i].n) : det[i].n) === a) return det[i];
+  }
+  return STORY ? STORY.blockOf(bn) : null;
+}
+
 function render(){
   if (!R) return;
   // 지금 큐는 '실제로 나간 것'을, 다음·그다음은 원래 문안을 보여 준다 — 교체 판정은 아직 안 났다.
@@ -672,24 +806,64 @@ function render(){
   function pill(cls, t){ var s = document.createElement('span'); s.className = 'pill ' + cls; s.textContent = t; tag.appendChild(s); }
 
   if (phase === 'end') {
-    $('#nName').textContent = '진행이 끝났습니다';
-    $('#nTxt').textContent = MODE === 'preview'
-      ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
-      : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.';
-    $('#nHint').hidden = true;
+    $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
+    $('#nTxt').className = 'txt';
+    $('#nTxt').textContent = GUEST
+      ? '들으신 순서 그대로 당일에 흘러요. 사람이 말하는 부분만 두 분과 가족의 목소리로 바뀝니다.'
+      : (MODE === 'preview' ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
+                            : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.');
+    $('#nHint').hidden = true; $('#nSafe').hidden = true; $('#nBlk').hidden = true;
     $('#nProg').firstElementChild.style.width = '100%';
-    $('#mBtn').innerHTML = '처음으로 <small>다시 진행합니다</small>';
+    $('#mBtn').innerHTML = GUEST ? '다시 듣기 <small>처음부터 한 번 더</small>' : '처음으로 <small>다시 진행합니다</small>';
     $('#mBtn').className = 'main wait';
     up(null, null); return;
   }
   if (!c) {
-    $('#nName').textContent = '준비됨';
-    $('#nTxt').textContent = MODE === 'preview'
-      ? '아래 버튼을 누르면 처음부터 끝까지 저절로 들려 드립니다.'
-      : '아래 버튼을 누르면 첫 번째 큐가 나갑니다.';
+    $('#nName').textContent = GUEST ? '곧 시작해요' : '준비됨';
+    $('#nTxt').className = 'txt';
+    $('#nTxt').textContent = GUEST
+      ? '잠시 후 처음부터 저절로 흘러요.'
+      : (MODE === 'preview' ? '아래 버튼을 누르면 처음부터 끝까지 저절로 들려 드립니다.'
+                            : '아래 버튼을 누르면 첫 번째 큐가 나갑니다.');
+    $('#nHint').hidden = true; $('#nSafe').hidden = true; $('#nBlk').hidden = true;
     up(n1, n2);
-    $('#mBtn').innerHTML = '시작 <small>' + (n1 ? n1.name : '') + '</small>';
+    $('#mBtn').innerHTML = (GUEST ? '다음 순서로 <small>' : '시작 <small>') + (n1 ? esc(n1.name) : '') + '</small>';
     $('#mBtn').className = 'main';
+    return;
+  }
+
+  var tx = $('#nTxt'), h = $('#nHint'), sf = $('#nSafe'), nb = $('#nBlk'), main = $('#mBtn');
+
+  if (GUEST) {
+    /* ★GUEST_SKIN — 고객 화면. 디렉터 지문은 한 글자도 쓰지 않는다.
+       c.hint · c.note · c.live.t · c.live.fallback 은 전부 '디렉터가 읽는 말'이라
+       여기서 참조하면 그 순간 "핸드마이크"·"막히면:"이 신부에게 그대로 보인다. */
+    if (c.pick) pill('p', '여기는 고를 수 있어요 · ' + c.pick);          // §2-C 배지 ②
+    var gb = gCastBadge(c);                                              // §2-C 배지 ① (§2-B 안전장치 1)
+    if (gb) pill('l', gb);
+
+    var blk = blkFresh ? gBlock(c.blockN) : null;
+    var bhow = blk ? [blk.how, blk.fx].filter(Boolean).join(' ') : '';
+    nb.hidden = !bhow;
+    nb.firstElementChild.textContent = bhow ? (c.blockN || '') : '';
+    nb.lastElementChild.textContent = bhow;
+
+    var sc = (phase === 'live') ? gScene(c) : null;
+    if (sc) {
+      $('#nName').textContent = gLiveTitle(c, sc);
+      tx.className = 'txt big'; tx.textContent = sc.scene || '';
+      h.hidden = !sc.tip;   h.textContent = sc.tip || '';
+      sf.hidden = !sc.safe; sf.textContent = sc.safe || '';
+    } else {
+      $('#nName').textContent = c.name;
+      tx.className = 'txt'; tx.textContent = c.text || '';
+      h.hidden = true; h.textContent = '';
+      sf.hidden = true; sf.textContent = '';
+    }
+    $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
+    up(n1, n2);
+    main.className = 'main';
+    main.innerHTML = '다음 순서로 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>';
     return;
   }
 
@@ -701,7 +875,6 @@ function render(){
   if (c.own) pill('l', '두 분 목소리');
 
   $('#nName').textContent = (phase === 'live' && c.live) ? c.live.t : c.name;
-  var tx = $('#nTxt');
   if (phase === 'live' && c.live) {
     tx.className = 'txt big';
     tx.textContent = liveLead(c.live)
@@ -711,14 +884,13 @@ function render(){
     tx.className = 'txt';
     tx.textContent = c.text || '';
   }
-  var h = $('#nHint');
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
   h.hidden = !htxt; h.textContent = htxt;
+  sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
 
   up(n1, n2);
 
-  var main = $('#mBtn');
   if (n1 && n1.fire === 'chain' && phase !== 'live') {
     main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · 기다리지 않고 내보냅니다</small>';
     main.className = 'main wait';
@@ -742,7 +914,15 @@ function up(n1, n2){
   function set(id, c, lb){
     var el = $('#'+id);
     el.querySelector('.lb').textContent = lb;
-    if (!c) { el.querySelector('.nm').textContent = '—'; el.querySelector('.es').textContent = ''; return; }
+    // ★고객 화면에 전각 줄표를 쓰지 않는다 — 남은 순서가 없다는 뜻을 말로 적는다
+    if (!c) { el.querySelector('.nm').textContent = GUEST ? '마무리' : '—'; el.querySelector('.es').textContent = ''; return; }
+    if (GUEST) {
+      // ★디렉터 정보는 한 줄도 내지 않는다 — 발사 방식·클립 번호·'녹음 없음'·'문안 자동 교체'는
+      //   전부 우리 사정이고, 고객이 읽으면 "준비가 덜 됐나" 하는 신호로만 남는다
+      el.querySelector('.nm').textContent = c.name;
+      el.querySelector('.es').textContent = fmt(c.est + (c.live ? (c.live.est || 0) : 0));
+      return;
+    }
     var when = (c.fire === 'clock' && startAt) ? ('시각에 · ' + clockAt(c)) : fireLabel(c.fire);
     el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
       + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')
@@ -760,6 +940,7 @@ var holdT = null, held = false;
 var mBtn = $('#mBtn');
 
 function holdStart(e){
+  if (GUEST) return;      // ★고객 화면에는 '전체 정지'가 없다 — 되돌릴 수 없는 조작을 손에 쥐어 주지 않는다
   held = false;
   mBtn.classList.add('hold');
   var t0 = Date.now();
@@ -780,7 +961,11 @@ mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
 
 function mainTap(){
   audioOn();
-  if (phase === 'end') { cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; render(); return; }
+  if (phase === 'end') {
+    resetRun(); render();
+    if (GUEST) later(function(){ advance(); }, 400);   // 고객은 '다시 듣기' 한 번으로 바로 이어 간다
+    return;
+  }
   advance();
 }
 
@@ -896,7 +1081,7 @@ setInterval(tick, 1000);
 $('#go').onclick = function(){
   try { R = RitualCue.build(S, {mode:MODE}); }
   catch(e){ toast('순서를 만들 수 없습니다: ' + e.message); return; }
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0;
+  resetRun();
 
   var tv = $('#tStart').value;
   if (tv) {
@@ -906,6 +1091,7 @@ $('#go').onclick = function(){
   } else startAt = null;
 
   $('#setup').style.display = 'none';
+  $('#gIntro').classList.remove('on');
   $('#run').classList.add('on');
   $('#bCourse').textContent = R.meta.courseNm + (MODE === 'preview' ? ' · 미리듣기' : '');
 
@@ -924,7 +1110,7 @@ $('#bExit').onclick = function(){
   if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
   $('#run').classList.remove('on');
   $('#setup').style.display = '';
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; R = null;
+  resetRun(); R = null;
 };
 
 document.addEventListener('visibilitychange', function(){
@@ -937,12 +1123,28 @@ document.addEventListener('visibilitychange', function(){
 document.addEventListener('keydown', function(e){
   if (!$('#run').classList.contains('on')) return;
   if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); mainTap(); }
+  if (GUEST) return;      // ★뒤로·전체 정지는 디렉터 것이다
   if (e.code === 'PageUp' || e.code === 'ArrowLeft') { e.preventDefault(); $('#bBack').onclick(); }
   if (e.code === 'Escape') { e.preventDefault(); panic(); }
 });
 
 paint();
-if (QS.get('auto') === '1') $('#go').click();
+
+/* ★GUEST_SKIN — 고객 화면 부팅. 설정 패널 대신 인트로 카드 한 장을 세운다.
+   ★자동으로 시작하지 않는다 — 브라우저는 사람이 한 번 누르기 전에는 소리를 열어 주지 않는다.
+     auto=1 로 들어와도 guest 에서는 무시한다(무음으로 끝까지 흘러 버리는 사고를 막는다). */
+if (GUEST) {
+  document.body.classList.add('guest');
+  var gi = $('#gIntro'); gi.classList.add('on');
+  try {
+    // ★두 수를 같이 적는다 — 미리듣기는 사람 구간을 줄여 흘리므로 실제 예식보다 훨씬 짧다.
+    //   한쪽만 적으면 "우리 예식이 4분이라고?" 또는 "26분을 앉아서 들으라고?"가 된다.
+    var gm = RitualCue.build(S, {mode:'preview'}).meta;
+    var gr = RitualCue.build(S, {mode:'console'}).meta;
+    $('#giLen').textContent = '듣는 데 약 ' + fmtMin(gm.totalSec) + ' · 실제 예식은 약 ' + fmtMin(gr.totalSec) + '이에요.';
+  } catch(e){ $('#giLen').textContent = ''; }
+  $('#giGo').onclick = function(){ gi.classList.remove('on'); $('#go').click(); };
+} else if (QS.get('auto') === '1') $('#go').click();
 })();
 </script>
 </body>

@@ -909,6 +909,22 @@ chk 'FIRE_FROM_CONSOLE' scripts/build-course-story.mjs 1     # 진행 방식은 
 # 장면 레이어 커버리지 — 미커버/중복/죽은 문안/fallback 원문 어긋남/내부 용어 누출을 전 조합에서 잡는다
 if command -v node >/dev/null 2>&1; then node scripts/build-course-story.mjs --check || fail=1; fi
 
+# ── 배역 예시 음성 · 고객용 미리듣기 스킨 (2026-08-02) ───────────
+#   배역 클립은 '고객 화면에서만' 쓰인다 — 디렉터 콘솔은 이 표를 한 번도 읽지 않는다.
+#   그래서 여기서 안 잡으면 틀린 채로 고객에게만 보이고, 우리 눈에는 끝까지 안 띈다.
+chk 'CAST_MAP_V1' assets/ritual-story.js 1                   # 배역 클립 15종 표 · 빠지면 고객 화면에 예시 목소리가 통째로 안 붙는다
+chk 'CAST_KEY_NS' assets/ritual-story.js 1                   # CAST_AT 키 세 갈래(slug:/live:/own:) 근거 · 뭉치면 엉뚱한 자리에 붙는다
+chk 'CAST_TWO_SLOTS' assets/ritual-story.js 1                # 한 큐가 main·live 두 자리를 동시에 가지면 한쪽이 조용히 먹힌다
+chk 'CAST_TWO_SLOTS' scripts/build-course-story.mjs 1        # 그 겹침을 전 조합에서 잡는 판정 · 지우면 겹쳐도 통과한다
+chk 'CAST_PAIR' assets/ritual-story.js 2                     # 두 사람이 말하는 자리(서약=신랑+신부)의 합친 배지 · 없으면 화면이 나머지 한 사람을 지운다
+chk 'castBadgeOf' console.html 1                             # 배지 문구 조립은 장면 레이어가 한다 · l[0]로 되돌리면 신부가 화면에서 사라진다
+chk '\[CAST_COVER\]' scripts/build-course-story.mjs 1        # 배역 매핑 커버리지 · 죽은 키/죽은 클립/manifest 역할 불일치를 매번 대조
+chk 'GUEST_SKIN' console.html 3                              # 고객 스킨 분기 · 빠지면 디렉터 설정 패널·조작 문구가 고객에게 그대로 보인다
+chk 'TIMER_REARM' console.html 1                             # 미리듣기 타이머 재무장 · 빠지면 중간에 멈춘 채 끝까지 안 간다
+chk '\[GUEST_SKIN_RENDER\]' scripts/check-guest-skin.mjs 1   # 6조합 × 390/1280 실렌더 검증 자체
+#   ※ check-guest-skin.mjs 는 여기서 실행하지 않는다 — 브라우저와 로컬 서버(:8765)가 필요해서다.
+#     console.html · ritual-story.js · ritual-cue.js 를 고쳤으면 푸시 전에 손으로 한 번 돌릴 것.
+
 # ── 덕담 길어짐 대응 (2026-08-01 · 런북 §8 4단 · §11-A) ─────────
 chk 'ALT_CLIP' assets/ritual-cue.js 1                        # 한 큐가 문안 2개를 갖는 구조 · 빠지면 alt가 통째로 사라져 3분 초과 대응이 없어진다
 chk 'ALT_CLIP' console.html 2                                # 콘솔 판정부(resolve)와 fire 진입부 · 하나만 남으면 판정이 다음 큐로 샌다
