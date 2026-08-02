@@ -224,8 +224,9 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
 .gv-info-l{font-family:var(--serif-ko);font-size:13px;font-weight:300;line-height:1.95;
   color:var(--sub);margin-bottom:12px;word-break:keep-all}
 .gv-info-l:last-child{margin-bottom:0}
-.gv-info-l b{display:block;font-family:var(--serif);font-style:italic;font-size:10.5px;font-weight:500;
-  letter-spacing:0.14em;color:var(--light);margin-bottom:1px}
+/* [GV_INFO] 문답 라벨(무엇인가요/어디서…)은 폐기 — 설문지처럼 읽혔다(2026-08-02 사용자 지적).
+   설명은 한 문장씩 이어지는 산문으로. 줄간은 청첩장 본문과 같은 호흡. */
+.gv-info-l{margin-bottom:2px}
 .gv-info-l i{font-style:normal;color:var(--accent);border-bottom:1px solid rgba(184,154,117,0.5);padding-bottom:1px}
 @media(max-width:1199px){.gv-info{display:none}}
 
@@ -263,6 +264,30 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   .gv-ver-cap{display:none}
   .gv-vi-eyebrow{display:none}        /* 안내 카드도 같은 규칙 — 제목만 남긴다 */
   .gv-verbar{min-height:54px;padding:5px 12px 6px}
+  /* [GV_ONEROW] 모바일은 '뒤로 · 판/제목 · 번호'를 한 줄로 — 영문 제목(Invitation Gallery)을 접고
+     토글 띠를 헤더 줄 위에 겹쳐 올린다. 두 줄(44+54=98px) → 한 줄(54px), 회수분은 미리보기로.
+     ★영문 제목을 접는 근거: 이 화면은 '청첩장 미리보기' 버튼으로 들어온 곳이고,
+       브랜드는 프레임 안 청첩장이 이미 말한다(MOMENT EDIT). 좁은 화면에선 한 픽셀이 미리보기다.
+     ★실측 근거: 뒤로14 + 토글152 + 카운터74 = 240px — 320px 화면에도 들어간다.
+     ★펼침(open)일 땐 흐름으로 되돌린다 — 겹친 채로 늘리면 헤더를 뚫는다. */
+  /* ★display:none이 아니라 visibility:hidden — 헤더는 1fr/auto/1fr 그리드라 칸을 없애면
+     카운터가 가운데 칸으로 밀려 토글과 겹친다(실측 [158,232] vs [97,249]). 칸은 남기고 글자만 감춘다. */
+  .gv-brand{visibility:hidden}
+  .gv-header{min-height:54px;padding:0 16px;z-index:12}
+  /* ★z-index는 헤더(12)보다 위여야 한다 — 아래면 헤더의 반투명+블러 배경이 토글·제목을 덮어
+     '글자가 안 보이는' 상태가 된다(실측 스크린샷으로 확인). */
+  .gv-verbar{position:absolute;left:0;right:0;top:env(safe-area-inset-top,0px);height:54px;
+    padding:0 84px 0 40px;border-bottom:none;background:transparent;z-index:13;pointer-events:none}
+  .gv-verbar>*{pointer-events:auto}
+  .gv-verbar.open{position:static;height:auto;padding:6px 12px 8px;background:rgba(250,250,248,0.97);
+    border-bottom:1px solid var(--hairline);z-index:auto}
+  /* 한 줄로 합친 상태에선 '자세히' 버튼이 카운터와 겹친다(절대배치 right:8px) —
+     닫혀 있을 땐 버튼을 감추고 제목 자체를 누르게 한다(꺾쇠가 눌리는 것임을 알린다).
+     펼치면 흐름 안 '접기'가 그 역할을 이어받는다. */
+  .gv-verbar.info:not(.open) .gv-vi-more{display:none}
+  .gv-verbar.info:not(.open) .gv-vi-title{cursor:pointer}
+  .gv-verbar.info:not(.open) .gv-vi-title::after{content:'⌄';font-family:var(--sans);font-size:12px;
+    color:var(--gold-text,#7A5F37);margin-left:7px;vertical-align:1px}
 }
 /* 낮은 데스크톱은 캡션을 숨기는 규칙이 이미 있다 — 안내 눈썹도 같은 이유로 접고 높이를 맞춘다 */
 @media(min-width:761px) and (max-height:860px){.gv-verbar{min-height:48px}.gv-vi-eyebrow{display:none}}
@@ -461,21 +486,22 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     /* [GALLERY_GUIDE] 뒤 2장은 판 구분이 없는 안내 카드 — 토글이 숨는다 */
     {name:'Tailored · 맞춤 안내', src:'i/invitations/invitation-09-guide.html', bg:'#FAF8F4',
      info:{eyebrow:'How it works', title:'두 판, 하나의 준비',
-       lines:['온라인·오프라인을 따로 만들지 않습니다. 한 번 적어 주시면 두 판이 함께 맞춰집니다.',
+       lines:['온라인과 오프라인을 따로 만들지 않습니다.',
+              '한 번 적어 주시면 두 판이 함께 맞춰지고,',
               '보내실 분에 따라 골라 쓰시면 됩니다.']}},
     /* [GALLERY_LIVE] 온라인 판의 부가 화면 — 오프라인엔 '하객 안내'가 있는데 온라인 쪽 라이브는
        Enter를 눌러 새 탭으로 나가야만 볼 수 있었다(2026-08-02 사용자 지적 "설명이 한쪽만 있다").
        ★순서: 두 판 설명 → 온라인 부가 → 오프라인 부가. 위 토글(온라인·오프라인)과 같은 왼→오 차례. */
     {name:'Digital Attendance · 모바일 참석', src:'live.html?e=test-couple', bg:'#FAFAF8', dig:true,
-     info:{eyebrow:'Online · 온라인 판에 딸린 화면', title:'멀리 계신 분도, 그 자리에',
-       lines:['<b>무엇인가요</b> 예식을 실시간으로 보는 비공개 화면입니다. 광고도, 접속자 목록도 없습니다.',
-              '<b>어디서 열리나요</b> 온라인 청첩장 안의 <i>Enter</i>를 누르면 이 화면이 열립니다.',
-              '<b>왜 있나요</b> 오지 못한 분이 미안해하지 않으셔도 되도록. 편지도 남기실 수 있습니다.']}},
+     info:{eyebrow:'Online', title:'멀리 계신 분도, 그 자리에',
+       lines:['온라인 청첩장 안의 <i>Enter</i>를 누르면 열리는 화면입니다.',
+              '오지 못한 분도 예식을 실시간으로 보실 수 있고,',
+              '광고도 접속자 목록도 없이 편지만 조용히 남습니다.']}},
     {name:'Guest Companion · 하객 안내', src:'guide.html?g=demo', bg:'#FAFAF8', live:true,
-     info:{eyebrow:'Offline · 오프라인 판에 딸린 화면', title:'당일 물으실 것들을 미리',
-       lines:['<b>무엇인가요</b> 예식 당일의 식사 안내와 내 자리를 한 곳에 모은 화면입니다.',
-              '<b>어디서 열리나요</b> 오프라인 청첩장을 내리다 보면 <i>하객 안내 열기</i> 버튼이 있습니다.',
-              '<b>왜 있나요</b> 어른들이 당일 여쭙는 것들을 두 분 대신 미리 답해 둡니다.']}}
+     info:{eyebrow:'Offline', title:'당일 물으실 것들을 미리',
+       lines:['오프라인 청첩장을 내려가면 <i>하객 안내 열기</i>가 있습니다.',
+              '식사 안내와 내 자리를 한 곳에 모아 두어,',
+              '어른들이 당일 여쭐 것들에 두 분 대신 미리 답합니다.']}}
   ];
 
   const params = new URLSearchParams(location.search);
@@ -840,14 +866,23 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     if (_viEl) {
       _viEl.innerHTML = '<div class="gv-vi-eyebrow">' + nf.eyebrow + '</div>'
         + '<div class="gv-vi-title">' + nf.title + '</div>'
-        + '<button type="button" class="gv-vi-more" aria-expanded="false">자세히</button>'
-        + '<div class="gv-vi-lines">' + _lines(nf) + '</div>';
+        + '<div class="gv-vi-lines">' + _lines(nf) + '</div>'
+        + '<button type="button" class="gv-vi-more" aria-expanded="false">자세히</button>';   // 글 아래에 — 펼쳤을 때 제목과 본문 사이에 끼면 흐름이 끊긴다
       var mb = _viEl.querySelector('.gv-vi-more');
-      if (mb) mb.addEventListener('click', function(){
+      var tt = _viEl.querySelector('.gv-vi-title');
+      function _tog(){
         var on = vbar.classList.toggle('open');
-        mb.setAttribute('aria-expanded', on ? 'true' : 'false');
-        mb.textContent = on ? '접기' : '자세히';
-      });
+        if (mb) { mb.setAttribute('aria-expanded', on ? 'true' : 'false'); mb.textContent = on ? '접기' : '자세히'; }
+        if (tt) tt.setAttribute('aria-expanded', on ? 'true' : 'false');
+      }
+      if (mb) mb.addEventListener('click', _tog);
+      /* 한 줄 병합(모바일)에선 '자세히'가 숨으므로 제목이 그 역할을 한다 — 키보드로도 열리게 */
+      if (tt) {
+        tt.setAttribute('role', 'button'); tt.setAttribute('tabindex', '0');
+        tt.setAttribute('aria-expanded', 'false');
+        tt.addEventListener('click', _tog);
+        tt.addEventListener('keydown', function(ev){ if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _tog(); } });
+      }
     }
   }
 
