@@ -1020,3 +1020,5 @@ chk 'DTL16' shared/hydrate.js 1                       # '본 계약 후' 안내�
 for _f in i-family/family-01.html i-family/family-02.html i-family/family-03.html i-family/family-04.html i-family/family-05.html i-family/family-06.html i-family/family-07.html i-family/family-08.html; do
   if sed 's|/\*.*\*/||g' "$_f" | grep -q "\.venue-meta-row \.venue-meta-row"; then echo "REVERT? $_f: 자기중첩 사문 셀렉터 재유입"; fail=1; else echo "ok $_f: 자기중첩 셀렉터 없음(주석 제외)"; fi
 done
+chk 'LD_FILL' shared/hydrate.js 1                      # JSON-LD 런타임 채움 · 빼면 커버 8종 구조화 데이터가 " ·  결혼식"/빈 날짜로 회귀
+chk 'INV_EM_HINT' mypage.html 1                        # 별표 힌트 '강조' 문구 · '금색'으로 되돌리면 디자인 5종에서 거짓 안내

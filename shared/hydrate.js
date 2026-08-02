@@ -453,6 +453,20 @@
       var venue = window.MOMENT_VENUE || {};
       document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
       if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
+      /* [LD_FILL] head의 정적 JSON-LD가 16종 공통으로 name " ·  결혼식"/startDate "" 빈 채 나가고 있었다(연동 점검 적발).
+         noindex라 검색 노출용은 아니지만, JS 실행 크롤러·공유 미리보기 도구에는 이제 정확한 값이 잡힌다.
+         ★표본(test-couple)도 채워진다 — 가짜 데이터지만 표본 페이지 자체가 홍보용이라 문제 없음. */
+      try {
+        var _ldEl = document.querySelector('script[type="application/ld+json"]');
+        if (_ldEl && couple.groomName && couple.brideName) {
+          var _ld = JSON.parse(_ldEl.textContent || '{}');
+          _ld.name = couple.groomName + ' · ' + couple.brideName + ' 결혼식';
+          var _lm = String(couple.weddingDate || '').match(/^\d{4}-\d{2}-\d{2}$/) && String(couple.weddingTime || '').match(/^\d{2}:\d{2}$/);
+          if (_lm) _ld.startDate = couple.weddingDate + 'T' + couple.weddingTime + ':00+09:00';
+          if (venue.nameKo) _ld.location = { '@type': 'Place', name: venue.nameKo, address: venue.address || '' };
+          _ldEl.textContent = JSON.stringify(_ld);
+        }
+      } catch (eLd) {}
       runInertScripts();
       applyTitles(couple, designNum());
       pruneEmptyVenueRows();
