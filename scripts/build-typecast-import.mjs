@@ -294,6 +294,46 @@ for (const P of PARTS) {
     : `  보이스 배정 ${realRoles.size}/${realRoles.size} — 전 자리 확정`);
 }
 
+// ── ★★VOICE_PROBE (2026-08-02) — 붙여넣기 전에 여덟 자리가 다 잡히는지 10초 만에 확인한다
+//   왜 필요한가: 캐릭터 이름이 한 글자만 달라도 타입캐스트는 그 화자를 자동 배정하지 못한다.
+//   지금 구조에서 그 사실은 **파트를 다 붙여넣고 배정 화면까지 가서야** 드러난다.
+//   '잔희'가 '진희'의 오타라면 그때는 파일을 다시 만들고 다섯 파트를 다시 붙여넣어야 한다.
+//   이 파일은 여덟 줄이다. 붙여넣고 화자 목록만 보면 끝난다. 다운로드를 안 하니 크레딧은 0이다.
+//   덤이 하나 있다 — 여덟 목소리가 한 화면에 서므로 미리듣기(무료)로 캐스팅을 통으로 다시 들어볼 수 있다.
+//   ★이 파일은 파트가 아니다. manifest.parts에 넣지 않는다 — 조립기가 파트로 착각하면 안 된다.
+const sylOf = (t) => (t.match(/[가-힣]/g) || []).length;
+const probe = [];
+for (const [role, name] of Object.entries(VOICE)) {
+  const pool = manifest.clips.filter((c) => c.role === role).flatMap((c) => c.sents.map((x) => x.text));
+  if (!pool.length) continue;                       // VOICE_ROLE_GUARD가 위에서 이미 막는다
+  // 대표 문장 — 너무 짧으면 목소리가 안 들리고 너무 길면 확인이 일이 된다. 길이 60퍼센타일로 뽑는다.
+  const sorted = pool.slice().sort((x, y) => sylOf(x) - sylOf(y));
+  probe.push({ role, name, text: sorted[Math.floor((sorted.length - 1) * 0.6)] });
+}
+{
+  const want = Object.keys(VOICE).length;
+  if (probe.length !== want) {
+    console.error(`\n✗ 보이스 확인 파일이 ${probe.length}줄입니다 — ${want}자리를 다 확인할 수 없습니다.`);
+    process.exit(1);
+  }
+  const names = probe.map((x) => x.name);
+  if (new Set(names).size !== names.length) {
+    console.error(`\n✗ 보이스 확인 파일에 같은 이름이 두 번 나옵니다 — 한 화자로 합쳐져 자리 확인이 안 됩니다.`);
+    process.exit(1);
+  }
+  // ★COMMENT_NO_COLON과 같은 가드 — 대사 줄이 아닌 것이 섞이면 붙여넣는 순간 유령 화자가 생긴다.
+  const lines = probe.map((x) => `${x.name}: ${x.text}`);
+  const stray = lines.filter((l) => !/^[^:：]{1,20}[:：]\s*\S/.test(l));
+  if (stray.length) {
+    console.error(`\n✗ 보이스 확인 파일에 대사 줄이 아닌 줄이 있습니다.`);
+    for (const l of stray) console.error(`   ${l}`);
+    process.exit(1);
+  }
+  fs.writeFileSync(path.join(OUT, '0_보이스확인.txt'), lines.join('\n') + '\n', 'utf8');
+  manifest.probe = { file: '0_보이스확인.txt', roles: probe.map((x) => ({ role: x.role, name: x.name })) };
+  console.log(`  0_보이스확인.txt    ${probe.length}줄 — 붙여넣어 여덟 자리가 다 잡히는지만 보세요(다운로드 금지 · 크레딧 0)`);
+}
+
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
 // ── 절차서
@@ -312,6 +352,19 @@ R.push('', '타입캐스트 입력 한도는 20,000자입니다. 파트를 나�
 R.push(`**출력 폴더가 두 갈래인 것에 주의하세요.** 1~4번은 나레이션(\`assets/audio/narration/\`)이고 당일 콘솔이 실제로 재생합니다.`);
 R.push(`5번 배역은 미리듣기 전용(\`assets/audio/cast/\`)이라 **당일 콘솔이 재생하지 않습니다.** 조립기가 알아서 갈라 떨굽니다.`, '');
 R.push('## 순서', '');
+R.push('### 0. 먼저 `0_보이스확인.txt` 여덟 줄부터 붙여넣으세요 (크레딧 0)', '');
+R.push('여덟 자리에 박아 둔 캐릭터 이름이 타입캐스트에서 실제로 잡히는지 확인하는 파일입니다.');
+R.push('이름이 한 글자만 달라도 그 화자는 자동 배정이 안 되는데, 그 사실은 원래 다섯 파트를 다 붙여넣은 뒤에야 드러납니다.', '');
+R.push('| 자리 | 캐릭터 이름 |');
+R.push('|---|---|');
+for (const x of manifest.probe.roles) R.push(`| ${x.role} | **${x.name}** |`);
+R.push('');
+R.push('붙여넣은 뒤 **화자가 여덟 개 다 잡히면 통과**입니다. 그대로 다음으로 가세요.');
+R.push('하나라도 기본 화자(예: `박창수`)로 남거나 이름이 안 잡히면 그 이름이 타입캐스트에 없는 것입니다.');
+R.push('그 자리 이름만 알려 주면 한 줄 고쳐 다시 뽑습니다 — `node scripts/build-typecast-import.mjs --voice 안내=진희` 형태입니다.', '');
+R.push('**이 파일은 절대 다운로드하지 마세요.** 미리듣기·재생성은 무료지만 다운로드만 한도를 깎습니다.');
+R.push('여덟 목소리가 한 화면에 서므로, 미리듣기로 캐스팅 전체를 한 번에 다시 들어 보기에도 좋습니다.', '');
+R.push('### 1~7. 본 작업', '');
 R.push('1. 타입캐스트 → **대본 가져오기** → **텍스트 붙여넣기** 탭.');
 R.push('2. 파트 파일 하나를 통째로 복사해 붙여넣고 **다음**.');
 R.push('3. **화자 감지** — 위 표의 화자가 그대로 잡히면 정상입니다. 1~4번은 1인, 5번 배역은 여러 명입니다.');
@@ -324,14 +377,20 @@ R.push('   생성기가 대사 형식이 아닌 줄을 하나라도 발견하면
 R.push('4. **보이스 배정** — 각 화자에 목소리를 고릅니다. 파트마다 다른 목소리를 배정하는 게 설계입니다.');
 R.push('5. 문장별로 감정·속도를 다듬습니다. **여기서는 다운로드하지 마세요** — 미리듣기·재생성은 무제한 무료고, 다운로드만 한도를 깎습니다(협의안 §3-①).');
 R.push('6. 전부 확정한 뒤 **다운로드 → 문장별 분리**로 받습니다. 줄 수만큼 파일이 떨어집니다.');
-R.push('7. **파트 번호로 시작하는 폴더에 각각 풀고** `node scripts/assemble-narration.mjs --in <상위폴더>`를 돌립니다.');
+R.push('7. **받은 zip이나 폴더를 한 곳에 모아** `node scripts/assemble-narration.mjs --in <모아 둔 폴더>`를 돌립니다.');
 R.push('   문장이 클립으로 붙고, 여백이 들어가고, 음량이 맞춰지고, 나레이션·배역이 갈라져 각 폴더로 떨어집니다.', '');
-R.push('```');
-R.push('~/Downloads/타입캐스트/');
-for (const p of manifest.parts) R.push(`  ${p.file.replace(/\.txt$/, '')}/   ← ${p.file} 다운로드분 ${p.sents}개`);
-R.push('```', '');
-R.push('**폴더 이름은 파트 번호(`1_`·`2_`…)로 시작하기만 하면 됩니다.** 조립기가 그 번호로 파트를 붙입니다 —');
-R.push('폴더를 안 나누고 한 곳에 다 풀면 파트끼리 섞여서 순서 검증에 걸립니다.');
+// ★★PART_AUTOMATCH — 폴더 이름을 사람이 맞추는 절차는 폐기됐다. 되살리지 말 것.
+R.push('### 폴더 이름은 안 맞춰도 됩니다 (`PART_AUTOMATCH`)', '');
+R.push('예전엔 `1_안내/` 처럼 파트 번호로 시작하는 폴더에 손으로 나눠 담아야 했습니다. 그건 우리 사정이지 받는 쪽 사정이 아닙니다 —');
+R.push('타입캐스트가 주는 zip 이름에는 파트 번호가 없어서 매번 사람이 이름을 고쳐야 했고, 손이 가는 자리는 결국 틀립니다.', '');
+R.push('지금은 조립기가 **문장 개수**로 파트를 짚고 **길이 상관**으로 확인합니다. zip은 알아서 풀어서 봅니다.');
+R.push('폴더 이름이 `다운로드 (3)` 이든 `무제 프로젝트.zip` 이든 상관없고, 이름이 틀리게 붙어 있어도 내용이 이깁니다.', '');
+R.push('| 파트 | 파일 개수 |');
+R.push('|---|---|');
+for (const p of manifest.parts) R.push(`| \`${p.file}\` | ${p.sents}개 |`);
+R.push('');
+R.push('개수가 파트마다 다르기 때문에 이게 성립합니다. 개수가 안 맞으면 `문장별 분리`가 아니라 `전체 통합`으로 받았거나');
+R.push('두 파트가 한 폴더에 섞인 것이고, 조립기가 그 경우를 이름 대신 개수로 짚어 알려 줍니다.');
 R.push('한 파트만 먼저 조립하려면 `--part 3`처럼 지정하세요(A/B 중인 파트만 뽑아 볼 때).', '');
 // ★PASTE_NO_COMMENT — 파일에서 뺀 안내는 여기로 온다. 이 블록을 지우면 안내가 어디에도 없게 된다.
 R.push('## 파트별 안내', '');

@@ -24,6 +24,13 @@
 //   4파트 때도 이미 틀렸고 배역(5파트)이 붙으며 확실해졌다.
 //   지금은 --in 바로 아래 하위 폴더의 **앞 숫자**를 파트 번호로 읽고, 폴더 안에서만 정렬한다.
 //   폴더가 없으면 --in 자체를 한 파트로 본다(그땐 --part 로 어느 파트인지 알려줘야 한다).
+//
+// ★★그 폴더 이름을 사람이 맞추는 일도 없앴다 (2026-08-02 · PART_AUTOMATCH)
+//   위 수정 이후에도 "폴더 이름을 파트 번호로 시작하게 하라"는 조건이 남아 있었다.
+//   타입캐스트가 주는 zip 이름에는 우리 파트 번호가 없으므로, 그건 매번 사람이 손으로 고쳐야 했다.
+//   손이 가는 자리는 결국 틀리고, 틀리면 클립이 통째로 다른 자리에 붙는다.
+//   지금은 문장 개수로 파트를 짚고 길이 상관으로 확인한다. 폴더 이름은 힌트일 뿐이고,
+//   이름이 틀려도 내용이 이긴다. zip은 알아서 풀어서 본다.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -77,9 +84,9 @@ if (DRY || !IN) {
     console.log(`\n  ★같은 문장이 ${rep.length}종 나옵니다 — 파일명이 겹칠 수 있으니 반드시 순서로 매칭하세요:`);
     for (const [t, v] of rep) console.log(`    "${t}" × ${v.length}  (${v.join(' · ')})`);
   }
-  console.log('\n  받은 파일은 파트 번호로 시작하는 폴더에 각각 풀어 주세요:');
-  for (const p of parts) console.log(`    <다운로드폴더>/${p.file.replace(/\.txt$/, '')}/  ← ${p.sents}개`);
-  if (!IN) console.log('\n  실제 조립: --in <다운로드 폴더> 를 주세요. 한 파트만 하려면 --part 3');
+  console.log('\n  ★받은 zip이나 폴더를 아무 이름으로든 한 곳에 모아 두기만 하면 됩니다 — 파트는 개수와 길이로 알아서 찾습니다(PART_AUTOMATCH):');
+  for (const p of parts) console.log(`    ${p.file.padEnd(18)} 파일 ${String(p.sents).padStart(3)}개`);
+  if (!IN) console.log('\n  실제 조립: --in <모아 둔 폴더> 를 주세요. 한 파트만 하려면 --part 3');
   process.exit(0);
 }
 
@@ -105,58 +112,121 @@ const sortIn = (files) => {
     : path.basename(a).localeCompare(path.basename(b), 'ko'));
 };
 
-// ── 하위 폴더를 파트로 읽는다
-const subs = fs.readdirSync(IN, { withFileTypes: true })
-  .filter((e) => e.isDirectory())
-  .map((e) => ({ n: numOf(e.name), p: path.join(IN, e.name), name: e.name }))
-  .filter((d) => !isNaN(d.n));
-
-if (!subs.length) {
-  if (!pick || todo.length !== 1) {
-    console.error(`✗ ${IN} 아래에 파트 폴더가 없습니다.`);
-    console.error(`  파트 번호로 시작하는 폴더에 각각 풀어 주세요: ${parts.map((p) => p.file.replace(/\.txt$/, '') + '/').join(' · ')}`);
-    console.error(`  또는 한 파트만 조립한다면 --part <번호> 로 어느 파트인지 알려 주세요.`);
-    process.exit(1);
-  }
-  subs.push({ n: todo[0].n, p: IN, name: path.basename(IN) });
-  console.log(`폴더가 안 나뉘어 있어 --in 전체를 파트 ${todo[0].n}(${todo[0].file})로 봅니다.`);
-}
-
-// ── 파트별 수집 · 개수 대조
-const work = [];      // { part, clips, files }
-let missing = 0;
-for (const P of todo) {
-  const d = subs.find((s) => s.n === P.n);
-  if (!d) { console.log(`  ${P.file.padEnd(18)} 폴더 없음 — 건너뜁니다`); missing++; continue; }
-  const files = sortIn(collect(d.p));
-  const clips = man.clips.filter((c) => c.part === P.file);
-  const need = clips.reduce((a, c) => a + c.sents.length, 0);
-  console.log(`  ${P.file.padEnd(18)} ${d.name}/ 에서 ${files.length}개 · 필요 ${need}개`);
-  if (files.length !== need) {
-    console.error(`\n✗ 개수가 안 맞습니다 (${P.file}). '문장별 분리'로 받았는지, 그 파트만 이 폴더에 풀었는지 확인하세요.`);
-    process.exit(1);
-  }
-  work.push({ P, clips, files });
-}
-if (!work.length) { console.error('\n✗ 조립할 파트가 하나도 없습니다.'); process.exit(1); }
-if (missing) console.log(`  (${missing}개 파트는 아직 안 받았습니다 — 나중에 다시 돌리면 그때 붙습니다)`);
-
-// ── 순서 검증: 실측 길이 vs 대본 예상 길이 · ★파트별로 따로 본다
-//    전체를 한 번에 보면 한 파트가 통째로 밀려도 나머지가 상관을 떠받쳐 통과할 수 있다.
+// ── 길이 상관 — 실측 길이가 대본 예상 길이와 같은 방향으로 움직이는지
+//    파트 판별과 순서 검증이 같은 자를 쓴다. 자가 둘이면 둘이 다른 말을 하는 날이 온다.
 const corr = (a, b) => {
   const n = a.length, ma = a.reduce((x, y) => x + y, 0) / n, mb = b.reduce((x, y) => x + y, 0) / n;
   let num = 0, da = 0, db = 0;
   for (let i = 0; i < n; i++) { const u = a[i] - ma, v = b[i] - mb; num += u * v; da += u * u; db += v * v; }
   return num / Math.sqrt(da * db);
 };
+
+// ── ★★PART_AUTOMATCH (2026-08-02) — 받은 그대로 던져도 어느 파트인지 스스로 찾는다
+//   예전엔 사람이 `1_안내/` `2_진행_전반/` 처럼 폴더 이름을 파트 번호에 맞춰 줘야 했다.
+//   그건 우리 사정이지 받는 사람 사정이 아니다. 타입캐스트는 프로젝트 이름으로 zip을 주고
+//   그 이름에는 우리 파트 번호가 없다. 이름을 손으로 맞추는 단계가 하나 더 있으면 그 단계가 틀린다.
+//   지금은 **문장 개수**로 파트를 짚고 **길이 상관**으로 확인한다. 둘 다 받은 데이터 자체에서 나온다.
+//   폴더 이름은 힌트로만 쓴다(점수가 같을 때의 tie-break) — 틀린 이름이 판정을 뒤집지 못한다.
+//   zip이면 풀어서 본다. zip째 줘도, 푼 폴더째 줘도, 한 파트만 낱개로 줘도 같은 답이 나온다.
+const needOf = (P) => man.clips.filter((c) => c.part === P.file).reduce((a, c) => a + c.sents.length, 0);
+const estOf = (P) => {
+  const out = [];
+  for (const c of man.clips.filter((x) => x.part === P.file)) for (const s of c.sents) out.push(estSec(s.text));
+  return out;
+};
+
+const TMPZ = fs.mkdtempSync('/tmp/narr-zip-');
+const groups = [];
+const addZip = (zip, label) => {
+  const d = fs.mkdtempSync(path.join(TMPZ, 'z-'));
+  try { execFileSync('unzip', ['-q', '-o', zip, '-d', d]); }
+  catch { console.error(`✗ zip을 못 풀었습니다: ${label}`); process.exit(1); }
+  const f = sortIn(collect(d));
+  if (f.length) groups.push({ name: label, files: f, hint: numOf(label) });
+};
+
+if (fs.statSync(IN).isFile()) {
+  if (!/\.zip$/i.test(IN)) { console.error(`✗ --in 은 폴더나 zip이어야 합니다: ${IN}`); process.exit(1); }
+  addZip(IN, path.basename(IN));
+} else {
+  for (const e of fs.readdirSync(IN, { withFileTypes: true }).sort((x, y) => x.name.localeCompare(y.name, 'ko'))) {
+    const p = path.join(IN, e.name);
+    if (e.isDirectory()) {
+      const f = sortIn(collect(p));
+      if (f.length) groups.push({ name: e.name + '/', files: f, hint: numOf(e.name) });
+    } else if (/\.zip$/i.test(e.name)) addZip(p, e.name);
+  }
+  const loose = sortIn(fs.readdirSync(IN).filter((n) => AUD.test(n)).map((n) => path.join(IN, n)));
+  if (loose.length) groups.push({ name: `${path.basename(IN)}/ (낱개)`, files: loose, hint: NaN });
+}
+if (!groups.length) {
+  console.error(`✗ ${IN} 안에서 음원을 못 찾았습니다.`);
+  console.error(`  타입캐스트에서 받은 zip을 그대로 이 폴더에 넣거나, 압축을 푼 폴더째 넣어 주세요.`);
+  process.exit(1);
+}
+
+const durCache = new Map();
+const durOf = (f) => { if (!durCache.has(f)) durCache.set(f, dur(f)); return durCache.get(f); };
+
+// 개수가 맞는 파트만 후보로 두고, 길이 상관으로 점수를 매겨 높은 것부터 짝을 짓는다.
+const pairs = [];
+for (const g of groups) {
+  const cands = parts.filter((P) => needOf(P) === g.files.length);
+  if (!cands.length) continue;
+  g.real = g.files.map(durOf);
+  for (const P of cands) pairs.push({ g, P, r: corr(g.real, estOf(P)) });
+}
+pairs.sort((x, y) => (y.r - x.r) || ((y.g.hint === y.P.n ? 1 : 0) - (x.g.hint === x.P.n ? 1 : 0)));
+const usedP = new Set();
+for (const x of pairs) {
+  if (x.g.P || usedP.has(x.P.file) || x.r < 0.85) continue;
+  x.g.P = x.P; x.g.r = x.r; usedP.add(x.P.file);
+}
+
+console.log(`받은 것 ${groups.length}묶음 — 폴더 이름이 아니라 개수와 길이로 파트를 찾습니다`);
+const orphan = [];
+for (const g of groups) {
+  if (!g.P) { orphan.push(g); console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ✗ 못 찾음`); continue; }
+  // ★파트 번호로 보이는 값일 때만 어긋남을 말한다. `typecast_export_2026-08-02` 의 2026을 두고
+  //   "이름은 2026인데" 라고 하면 아무 잘못 없는 폴더에 경고를 붙이는 셈이다.
+  const claims = !isNaN(g.hint) && g.hint >= 1 && g.hint <= parts.length;
+  const mis = (claims && g.hint !== g.P.n) ? ` · 폴더 이름은 ${g.hint}번인데 내용은 ${g.P.n}번입니다(내용을 따릅니다)` : '';
+  console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ${g.P.file}  r=${g.r.toFixed(3)}${mis}`);
+}
+if (orphan.length) {
+  console.error(`\n✗ 어느 파트인지 못 정한 묶음이 ${orphan.length}개 있습니다.`);
+  for (const g of orphan) {
+    const taken = parts.filter((P) => needOf(P) === g.files.length && usedP.has(P.file));
+    if (taken.length) console.error(`  ${g.name} — ${taken[0].file} 과 개수가 같은데 그 파트는 다른 묶음이 이미 가져갔습니다. zip과 압축 푼 폴더가 같이 들어 있지 않은지 보세요.`);
+    else console.error(`  ${g.name} — ${g.files.length}개짜리 파트가 없습니다.`);
+  }
+  console.error(`  파트별 필요 개수 — ${parts.map((P) => `${P.file} ${needOf(P)}개`).join(' · ')}`);
+  console.error(`  개수가 다르면 '문장별 분리'가 아니라 '전체 통합'으로 받았거나, 두 파트가 한 폴더에 섞인 것입니다.`);
+  process.exit(1);
+}
+
+// ── 조립할 파트만 추린다
+const work = [];      // { P, clips, files, real }
+let missing = 0;
+for (const P of todo) {
+  const g = groups.find((x) => x.P && x.P.file === P.file);
+  if (!g) { console.log(`  ${P.file.padEnd(18)} 아직 안 받았습니다 — 건너뜁니다`); missing++; continue; }
+  work.push({ P, clips: man.clips.filter((c) => c.part === P.file), files: g.files, real: g.real });
+}
+if (!work.length) { console.error('\n✗ 조립할 파트가 하나도 없습니다.'); process.exit(1); }
+if (missing) console.log(`  (${missing}개 파트는 나중에 다시 돌리면 그때 붙습니다)`);
+
+// ── 순서 검증: 실측 길이 vs 대본 예상 길이 · ★파트별로 따로 본다
+//    전체를 한 번에 보면 한 파트가 통째로 밀려도 나머지가 상관을 떠받쳐 통과할 수 있다.
+//    ★판별에서 이미 r을 봤는데 여기서 또 본다 — 판별은 '어느 파트인가'를, 이건 '순서가 맞나'를 묻는다.
+//      후보가 하나뿐이라 사실상 무사통과한 묶음도 여기서 다시 걸린다.
 let bad = false;
 for (const w of work) {
   const flat = [];
   for (const c of w.clips) for (const s of c.sents) flat.push({ c, s });
-  const real = w.files.map(dur);
+  const real = w.real || (w.real = w.files.map(dur));
   const est = flat.map((x) => estSec(x.s.text));
   const r = corr(real, est);
-  w.real = real;
   console.log(`순서 검증 · ${w.P.file.padEnd(18)} r = ${r.toFixed(3)}${r < 0.85 ? '   ✗' : ''}`);
   if (r < 0.85) {
     bad = true;
@@ -225,6 +295,7 @@ for (const w of work) {
 }
 
 fs.rmSync(TMP, { recursive: true, force: true });
+fs.rmSync(TMPZ, { recursive: true, force: true });
 console.log(`\n✓ ${made}클립 → ${[...outDirs].map((d) => path.relative(root, d) + '/').join(' · ')}`);
 if ([...outDirs].some((d) => /cast$/.test(d)))
   console.log(`  ★assets/audio/cast/ 는 미리듣기 전용입니다. 당일 콘솔은 이 클립을 재생하지 않습니다.`);

@@ -928,6 +928,17 @@ chk 'AI 음성 고지' scripts/build-dubbing-script.mjs 1                       
 # 시트가 문안·연출노트를 다시 복사해 들고 있으면 여기서 걸린다(2026-08-01 드리프트 8건 · 그중 4건이 사고급)
 if command -v node >/dev/null 2>&1; then node scripts/check-dub-sheet.js || fail=1; fi
 
+# ── 타입캐스트 핸드오프 무인화 (2026-08-02) ────────────────────
+#   붙여넣기 전(VOICE_PROBE)·되받기(PART_AUTOMATCH) 두 자리에서 사람 손을 없앤 자동화.
+#   되살아나면 안 되는 폐지: "받은 폴더 이름을 1_안내/ 처럼 파트 번호로 시작하게 바꿔 주세요".
+#   타입캐스트 zip 이름에는 우리 파트 번호가 없어 그 안내는 매번 사람이 손으로 고쳐야 했다.
+chk 'PART_AUTOMATCH' scripts/assemble-narration.mjs 3        # 개수+길이로 파트를 짚는 본체·주석·안내 3곳 · 빼면 '폴더 이름 맞추기'가 되살아난다
+chk 'VOICE_PROBE' scripts/build-typecast-import.mjs 1        # 0_보이스확인.txt 생성부 · 빼면 이름 오타가 5파트 다 붙여넣은 뒤에야 드러난다
+chk 'PART_AUTOMATCH' 'docs/plans/식순연구/타입캐스트/README.md' 1   # 절차서 쪽 근거 · 빼면 폐지된 폴더 이름 규칙이 문서로 되돌아온다
+chk 'TC_HANDOFF_GUARD' scripts/check-typecast-handoff.mjs 1  # 아래 상시 검사 자체
+# 프로브·파트 개수가 manifest와 어긋나면 여기서 걸린다 — 어긋난 채로 붙여넣으면 크레딧을 쓰고 나서야 안다
+if command -v node >/dev/null 2>&1; then node scripts/check-typecast-handoff.mjs || fail=1; fi
+
 # ── 상담 도우미 패널 개편 (2026-08-01) ────────────────────────
 chk 'ADV_INDEX' index.html 3                                 # 목차형 메뉴 3곳(칩·라벨·›) · 선 없애고 여백으로 나눔 · ›를 글자 뒤에 붙임 · 14px
 chk 'ADV_TC' index.html 5                                    # 상태바 진사 띠 방지 · 히어로 잠금 + 동기화 훅 + 상담패널 + 모바일 메뉴(열기/닫기)
