@@ -1105,3 +1105,4 @@ chk 'GV_LIVE_TOP' invitation-gallery.html 1              # 프레임 안 라이�
 chk 'GV_EXTRAS_POLL' invitation-gallery.html 1           # load 미발생 문서에도 배선 · 라이브 카드는 load에 못 닿는다
 chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(홈 링크·띠) · CSS 훅과 스크립트 쌍
 chk 'COPY_TRIM4' index.html 1                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
+chk 'MOCK_SAMPLE_SYNC' index.html 1                     # 홈 목업 표본일 = 청첩장 SAMPLE(2026-10-24 토 14:00) · 어긋나면 홈과 미리보기가 다른 예식일을 보여준다
