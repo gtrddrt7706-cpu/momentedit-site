@@ -206,6 +206,11 @@ body.guest #gIntro.on{display:block}
 #gIntro p{color:var(--sub);font-size:14.5px;line-height:1.85;margin:0 0 12px}
 #gIntro .len{color:var(--gold-text);font-size:13px;margin:0 0 8px}
 
+/* ★PREVIEW_BED — 배경 음악 성격 고지. 음악이 실제로 흐를 때만 선다.
+   소리가 안 나는데 "배경 음악은 예시예요"라고 쓰면 그 줄이 거짓말이 된다. */
+#gBed{display:none}
+body.guest #gBed.on{display:block;padding:9px 16px;font-size:12.5px;line-height:1.6;text-align:center;color:var(--sub);background:var(--bg3);border-bottom:1px solid var(--line)}
+
 .blk{margin:0 0 10px;padding:0 0 10px;border-bottom:1px solid var(--line)}
 .blk .bn{font-size:12px;font-weight:700;color:var(--gold-text);letter-spacing:.06em}
 .blk .bh{font-size:13px;color:var(--sub);line-height:1.7;margin-top:4px}
@@ -320,6 +325,9 @@ body.guest #gIntro.on{display:block}
     <button id="bSheet">≡ 큐 목록</button>
     <button id="bExit">나가기</button>
   </div>
+
+  <!-- ★PREVIEW_BED — 고객 화면에서만 · 음악이 실제로 흐를 때만 선다(aBgm playing) -->
+  <div id="gBed">배경 음악은 분위기를 위한 예시예요. 당일 곡은 상담에서 함께 골라요.</div>
 
   <div class="stage">
     <div>
@@ -463,6 +471,13 @@ function summarize(){
 /* 로컬 파일 ─ 브라우저 안에서만 쓴다 */
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';
+/* ★PREVIEW_BED — 고객 미리듣기의 배경 음악.
+   현장 콘솔은 디렉터가 로컬 파일을 물리지만(위 BGMURL), 고객 화면에는 파일을 고를 사람이 없다.
+   그래서 미리듣기 모드에서만 서버에 놓인 무드 베드 한 곳으로 떨어진다.
+   ★이 곡은 '당일 곡'이 아니라 '분위기 예시'다 — 그 말은 화면(#gBed)이 한다.
+   ★파일이 없으면 지금까지처럼 조용히 무음으로 끝까지 흐른다. 없다고 깨지지 않는다. */
+var PREVIEW_BED = '/assets/narration/preview-bed.mp3';
+var BED_TRIM_DB = -6;   // 미리듣기 전용 감쇠 — 현장 더킹 수치는 예식장 PA 전제라 폰·이어폰에서는 말을 먹는다
 $('#fClips').onchange = function(e){
   var fs = e.target.files || [], n = 0;
   for (var i = 0; i < fs.length; i++) {
@@ -511,10 +526,16 @@ function applyMaster(){
 }
 $('#vol').oninput = function(){ $('#volV').textContent = $('#vol').value; applyMaster(); };
 
+/* ★PREVIEW_BED — 고지 줄은 소리가 실제로 난 뒤에 뜬다.
+   파일이 없거나(404) 브라우저가 막으면 playing 이 오지 않으므로 줄도 서지 않는다. */
+aBgm.addEventListener('playing', function(){ var e = $('#gBed'); if (e && GUEST) e.classList.add('on'); });
+aBgm.addEventListener('pause',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
+aBgm.addEventListener('error',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
+
 var duckNow = 0;
 function duckTo(db, ms){
   duckNow = db;
-  var g = dbGain(db);
+  var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0));   // ★PREVIEW_BED
   if (gBgm && AC) {
     gBgm.gain.cancelScheduledValues(AC.currentTime);
     gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
@@ -1096,7 +1117,8 @@ $('#go').onclick = function(){
   $('#bCourse').textContent = R.meta.courseNm + (MODE === 'preview' ? ' · 미리듣기' : '');
 
   audioOn();
-  if (BGMURL) { aBgm.src = BGMURL; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
+  var bedSrc = BGMURL || (MODE === 'preview' ? PREVIEW_BED : '');   // ★PREVIEW_BED — 디렉터가 고른 파일이 언제나 이긴다
+  if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
   if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
   render();

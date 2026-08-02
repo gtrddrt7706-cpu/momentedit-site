@@ -82,6 +82,25 @@ const FORBID = [
   ['화살표(내부 동선 표기)','→'],
 ];
 
+/* ★PREVIEW_BED — 배경 음악 고지 줄이 '한 번이라도' 섰는지 본다.
+   끝나면 음악이 pause 되면서 줄도 내려가므로, 마지막 한 장면만 보면 늘 false 로 읽힌다. */
+const BED = `(() => {
+  window.__bedOn = false;
+  const wire = () => {
+    const el = document.querySelector('#gBed');
+    if (!el) return false;
+    const see = () => { if (el.classList.contains('on')) window.__bedOn = true; };
+    new MutationObserver(see).observe(el, { attributes: true, attributeFilter: ['class'] });
+    see();
+    return true;
+  };
+  if (!wire()) document.addEventListener('DOMContentLoaded', wire);
+})();`;
+
+/* ★기대값을 파일 존재로 정한다 — 곡을 놓는 날 검사가 저절로 반대편을 보게 된다.
+   (곡이 없는 지금은 "소리가 없으면 그 줄도 서지 않는다"를 지킨다 — 안 나는 소리를 설명하면 거짓말이다) */
+const BED_FILE = fs.existsSync(path.join(ROOT, 'assets', 'narration', 'preview-bed.mp3'));
+
 const SNAPDIR = process.env.GUEST_SNAP_DIR || '/tmp/guest-skin';
 fs.mkdirSync(SNAPDIR, { recursive: true });
 const b64 = (o) => Buffer.from(JSON.stringify(o), 'utf8').toString('base64');
@@ -121,7 +140,7 @@ for (const [w, h, tag] of SIZES) {
     const errs = [];
     p.on('pageerror', e => errs.push(String(e)));
     p.on('console', m => { if (m.type()==='error' && !/404|Failed to load resource/.test(m.text())) errs.push('console:'+m.text()); });
-    await p.addInitScript(CLOCK); await p.addInitScript(SNAP);
+    await p.addInitScript(CLOCK); await p.addInitScript(SNAP); await p.addInitScript(BED);
     await p.goto(url, {waitUntil:'networkidle'});
     await p.waitForTimeout(400);
     const intro = await p.evaluate(() => document.querySelector('#gIntro').innerText.trim());
@@ -138,6 +157,7 @@ for (const [w, h, tag] of SIZES) {
     if (tag === 'm') await p.screenshot({path:path.join(SNAPDIR, `${slug}-4-end.png`)});
     const snaps = await p.evaluate(() => window.__snaps);
     const pills = await p.evaluate(() => window.__pills);
+    const bedOn = await p.evaluate(() => window.__bedOn);   // ★PREVIEW_BED
     await p.close();
 
     pills.forEach(x => pillsAll.add(x));
@@ -150,6 +170,12 @@ for (const [w, h, tag] of SIZES) {
     });
     // 수집 0 = 안 본 것. 통과로 세지 않는다.
     if (snaps.length < 5) { hits.push(`수집 ${snaps.length}개 — 화면을 못 봤습니다(통과 아님)`); }
+    // ★PREVIEW_BED — 소리와 고지가 같이 가야 한다. 어긋나면 화면이 거짓말을 한 것이다.
+    if (bedOn !== BED_FILE) {
+      hits.push(BED_FILE
+        ? '배경 음악 파일은 있는데 고지 줄이 한 번도 안 섰습니다(고객이 곡을 당일 곡으로 오해한다)'
+        : '배경 음악 파일이 없는데 고지 줄이 섰습니다(안 나는 소리를 설명하고 있다)');
+    }
     if (hits.length || errs.length || !ended) bad = 1;
     console.log(`${tag}${w} ${label.padEnd(16)} 완주=${String(ended).padEnd(5)} 스냅 ${String(snaps.length).padStart(3)} 배지 ${String(pills.length).padStart(2)} JS오류 ${errs.length} ${hits.length ? '✗ LEAK '+hits.length : '✓'}`);
     if (errs.length) console.log('    ERR ' + errs.slice(0,3).join('\n    ERR '));
@@ -158,6 +184,7 @@ for (const [w, h, tag] of SIZES) {
   await b.close();
 }
 
+console.log('\n── 배경 음악 [PREVIEW_BED] — preview-bed.mp3 ' + (BED_FILE ? '있음 → 고지 줄이 서야 한다' : '없음 → 무음 · 고지 줄도 서지 않아야 한다'));
 console.log('\n── 화면에 실제로 뜬 배지 ' + pillsAll.size + '종');
 [...pillsAll].sort().forEach(x => console.log('   · ' + x));
 

@@ -1106,3 +1106,12 @@ chk 'GV_EXTRAS_POLL' invitation-gallery.html 1           # load 미발생 문서
 chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(홈 링크·띠) · CSS 훅과 스크립트 쌍
 chk 'COPY_TRIM4' index.html 1                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'MOCK_SAMPLE_SYNC' index.html 1                     # 홈 목업 표본일 = 청첩장 SAMPLE(2026-10-24 토 14:00) · 어긋나면 홈과 미리보기가 다른 예식일을 보여준다
+
+# ── 미리듣기 배경 음악 [PREVIEW_BED] (2026-08-02 · 사용자 제안 "오디오북처럼 BGM까지 나오게")
+# 엔진은 이미 음악을 지시하고 있었다(post music) · 없던 것은 소리와 '그 곡이 무엇인지 말하는 줄'뿐이다
+# ★고지는 소리가 실제로 난 뒤에만 선다 — 안 나는 소리를 설명하면 그 줄이 거짓말이 된다
+chk 'PREVIEW_BED' console.html 6                        # 상수·감쇠·폴백·고지 배선 + 왜 당일 곡이 아닌지 근거 주석
+chk 'gBed' console.html 6                               # 고지 줄 — CSS · 마크업 · playing/pause/error 세 리스너
+chk 'BED_TRIM_DB' console.html 2                        # 미리듣기 전용 감쇠 — 현장 더킹 수치는 예식장 PA 전제다
+chk 'PREVIEW_BED' scripts/check-guest-skin.mjs 4        # 실렌더: 곡 유무를 기대값으로 삼아 양쪽을 다 본다
+chk 'BED_FILE' scripts/check-guest-skin.mjs 3           # 기대값의 원천이 파일 존재 하나뿐(곡을 놓는 날 검사가 저절로 반대편을 본다)
