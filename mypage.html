@@ -2301,19 +2301,21 @@ function ensureInviteFab(d){
 function openInviteSamples(){
   var old=document.getElementById('mp_invSample'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_invSample'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','청첩장 샘플');
-  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(28,27,25,.55);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;transition:opacity .22s ease';
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(28,27,25,.55);display:flex;align-items:center;justify-content:center;padding:12px;opacity:0;transition:opacity .22s ease';   /* [SAMPLE_TALL] 18→12 */
   var box=document.createElement('div');
-  box.style.cssText='width:100%;max-width:430px;height:86vh;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';
+  /* [SAMPLE_TALL] 갤러리에 판 토글(온라인·오프라인)이 들어오면서 모달 안 미리보기가 짧아졌다
+     (2026-08-02 사용자 지적). 모달 자체를 키우고 위아래 껍데기를 줄여 프레임에 몰아준다. */
+  box.style.cssText='width:100%;max-width:430px;height:calc(100vh - 24px);max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';
   var bar=document.createElement('div');
-  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border,#DDD8D1)';
-  var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep,#7A5F37)">Invitation Samples</span><br><span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span>';
+  bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:9px 12px 9px 16px;border-bottom:1px solid var(--border,#DDD8D1)';   /* [SAMPLE_TALL] 눈썹+제목 2줄 → 한 줄 */
+  var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span><span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep,#7A5F37);margin-left:9px">Samples</span>';
   var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.innerHTML='&#10005;';
   x.style.cssText='border:none;background:transparent;font-size:18px;color:var(--sub,#5A554C);cursor:pointer;padding:4px 8px;line-height:1';
   bar.appendChild(ttl); bar.appendChild(x);
   var fr=document.createElement('iframe'); fr.src='/invitation-gallery.html'; fr.title='청첩장 샘플';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#2f2820';
   var foot=document.createElement('div');
-  foot.style.cssText='flex:0 0 auto;padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#DDD8D1);text-align:center';
+  foot.style.cssText='flex:0 0 auto;padding:7px 16px calc(7px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#DDD8D1);text-align:center';   /* [SAMPLE_TALL] */
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고해 보세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
@@ -4721,8 +4723,12 @@ function _pvUrl(src,title){ return '/preview.html?img='+encodeURIComponent(src)+
 function _invEgParents(){
   var d=INVFLOW.draft, n=d.designFamily||d.designOnline||'01', nm=_designName(n);
   var P='/assets/preview/sec-family-'+n+'-parents.png', E='/assets/preview/sec-family-'+n+'-env.png', F='/assets/preview/prev-family-'+n+'.png';
+  /* [EG_SIDE_HONEST] 크롭은 전부 오프라인판(sec-family-*)이다 — 온라인만 고르신 분께
+     '이 청첩장엔 이렇게'라고 하면 판형이 어긋난다(2026-08-02 예시 검수 적발).
+     레이아웃은 두 판이 같으므로 이미지는 그대로 쓰되, 캡션이 사실대로 말하게 한다. */
+  var _onlyOn = (d.method === 'online');
   return '<div class="inv-eg">'
-    + '<div class="inv-eg-cap">예시 · '+n+(nm?' '+escapeHtml(nm):'')+' 청첩장엔 이렇게 들어가요</div>'
+    + '<div class="inv-eg-cap">예시 · '+n+(nm?' '+escapeHtml(nm):'')+(_onlyOn ? ' 청첩장 · 같은 자리에 이렇게 들어가요' : ' 청첩장엔 이렇게 들어가요')+'</div>'
     + '<div class="inv-eg-grid">'
     +   '<a class="inv-eg-card" href="'+_pvUrl(P,'혼주 성함 예시 · '+n+' '+nm)+'" target="_blank" rel="noopener">'
     +     '<span class="inv-eg-frame"><img loading="lazy" decoding="async" src="'+P+'" alt="혼주 성함 표기 예시"></span>'

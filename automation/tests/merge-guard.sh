@@ -1043,3 +1043,5 @@ chk 'LIVE_DEMO_DATE' live.html 1                       # 표본 날짜를 청첩
 chk 'LIVE_INFRAME' live.html 1                         # 갤러리 프레임 안 홈 링크 무력화
 chk 'GV_INFO' invitation-gallery.html 6                # 안내 카드 설명(띠 연속성·옆 패널·자세히) · 빠지면 9~11번이 무설명 화면으로 회귀
 chk 'GV_SAFEBG' invitation-gallery.html 1              # 모바일 몸통색 카드 추종 · 빼면 아이폰 하단 흰 박스 재발
+chk 'SAMPLE_TALL' mypage.html 4                        # 샘플 모달 세로 재배분 · 되돌리면 판 토글에 눌려 미리보기가 다시 짧아진다
+chk 'EG_SIDE_HONEST' mypage.html 1                     # 온라인 단독 고객에게 오프라인 크롭을 '이 청첩장'이라 하지 않는다
