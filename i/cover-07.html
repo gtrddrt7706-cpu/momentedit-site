@@ -968,6 +968,11 @@ details.env-acc-item[open] > .env-acc-q{
   color:var(--gold-text); /* [AUD16] Copy 버튼 글자 2.06→5.71 */cursor:pointer;transition:color 0.3s ease,border-color 0.3s ease;
   flex-shrink:0;border-radius:0;text-transform:uppercase;
   padding-left:calc(2px + 0.22em);-webkit-tap-highlight-color:transparent;
+  position:relative; /* [DTL16] 탭 타깃 확장 기준점 */
+}
+.env-acc-copy::after{
+  content:''; /* [DTL16] 탭 타깃 확장 — 실측 39.4×18px 미달(7연속) → 히트영역 45.4×45px(01~06 동일 처방 이식, 07은 폭도 미달이라 좌우 -3px 추가 — 왼쪽 계좌번호와의 flex gap 14px 안). 아래 -14px는 border-bottom 1px 보정. 시각 크기는 유지 — sub 상하 패딩 14px 안에 머물러 이웃 Copy 확장영역과 실측 21px 이상 떨어짐 */
+  position:absolute;inset:-13px -3px -14px;
 }
 .env-acc-copy:hover{color:var(--ink);border-color:var(--ink)}
 .env-acc-copy.copied{color:var(--ink);border-color:var(--ink)}
@@ -1046,6 +1051,7 @@ details.env-acc-item[open] > .env-acc-q{
   *,*::before,*::after{
     animation-duration:0.01ms !important;animation-iteration-count:1 !important;
     transition-duration:0.01ms !important;scroll-behavior:auto !important;
+    animation-delay:0s !important;transition-delay:0s !important; /* [DTL16] 지속시간만 0이면 지연이 살아남아 cover-foot이 1.9s 뒤 팝업(실측 op 0) — 정지가 아니라 '느린 등장'이었다. 커버 연출 지연(0.25~1.9s)까지 함께 끈다 */
   }
   .reveal > *{opacity:1 !important;transform:none !important}
   .cover-scroll{opacity:1}
@@ -1059,7 +1065,7 @@ details.env-acc-item[open] > .env-acc-q{
   .invitation{box-shadow:none;max-width:100%;background:#fff;border:none}
   .sec{min-height:auto !important;padding:40px 30px;break-inside:avoid;page-break-inside:avoid}
   .cover{page-break-after:always;break-after:page;display:block}
-  .cover-scroll,..cover-index,.cover-coord{display:none}
+  .cover-scroll,.cover-index,.cover-coord{display:none} /* [DTL16] '..cover-index' 오타 정정 — 무효 셀렉터 하나가 목록 전체를 사문으로 만들고 있었다(15분전 자기중첩 오타와 동류) */
   .reveal > *{opacity:1 !important;transform:none !important}
   .sec-join{background:#fff;color:#000}
   .sec-join::before,.sec-join::after{display:none}
@@ -1498,9 +1504,11 @@ details.env-acc-item[open] > .env-acc-q{
       </div>
 
       <!-- 스튜디오 — 세리프 이탤릭 한 줄 -->
+      <!-- [DTL16] ', Seongsu' 하드코딩 제거 — 실제 스튜디오는 경기 고양 향동(venue.js)이라 시안 잔재 지명이
+           실하객에게 틀린 지역으로 나가고 있었다(cover-03·06 [DTL16]·[AUD16] 7항 동류). 영문 이탤릭 결에 맞춰 venue 토큰 -->
       <div class="date-studio-line">
         <span class="at">at</span>
-        <span class="name">Moment Edit</span>, Seongsu
+        <span class="name">{{VENUE_NAME_EN}}</span>
       </div>
     </div>
   </section>
@@ -1639,7 +1647,8 @@ details.env-acc-item[open] > .env-acc-q{
     <div class="foot-brand">Moment Edit</div>
     <div class="foot-sub">Private Wedding Studio</div>
     <div class="foot-quote">Focus on the Essence,<br>Record the Truth.</div>
-    <div class="foot-spec">DRW.07 · REV.03 · 2027</div>
+    <!-- [DTL16] 콜로폰 연도 '2027' 하드코딩 제거 — 2026 예식(min·text 실측)에 틀린 연도가 나가고 있었다([AUD16] 7항: 날짜류 토큰만) -->
+    <div class="foot-spec">DRW.07 · REV.03 · {{WEDDING_YEAR}}</div>
   </footer>
 
 </main>
@@ -1650,6 +1659,13 @@ details.env-acc-item[open] > .env-acc-q{
     entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   revealElements.forEach(el => observer.observe(el));
+
+  // [DTL16] 섹션 No. 재번호 — OPTIONAL 섹션이 빠지면(디지털참석 N 실측 I·II·IV) 로마숫자가 결번된다.
+  // hydrate가 걷어낸 최종 DOM에서 남은 순서대로 다시 센다(01~05의 [DTL16] 재번호와 같은 원칙).
+  const secRoman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  document.querySelectorAll('.inv-eyebrow, .date-eyebrow, .join-eyebrow, .env-eyebrow').forEach((el, i) => {
+    el.textContent = el.textContent.replace(/No\.\s*[IVX]+/, 'No. ' + (secRoman[i] || (i + 1)));
+  });
 
   setTimeout(() => {
     const cover = document.querySelector('.cover');
