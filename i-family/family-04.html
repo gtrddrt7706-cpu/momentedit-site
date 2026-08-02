@@ -1255,7 +1255,9 @@ details.acc[open] summary::after{transform:rotate(45deg)}
 
     <div class="date-block reveal">
       <div class="date-eyebrow">Save the Date</div>
-      <div class="date-main">08<span class="dot">·</span>23</div>
+      <!-- [OFF04_DATE_REAL] 시안 잔재 '08·23' 하드코딩이 그대로 나가고 있었다(2026-08-02 16종 검수 적발).
+           어떤 커플이 받아도 8월 23일로 보이던 하객 대면 결함 — 주점(朱點) 스타일은 유지한 채 실데이터로. -->
+      <div class="date-main">{{WEDDING_MONTH_NUM_PAD}}<span class="dot">·</span>{{WEDDING_DAY_OF_MONTH_PAD}}</div>
       <div class="date-meta">
         <span class="row"><span class="accent">{{WEDDING_YEAR_EN}}</span></span>
         <span class="row">{{WEDDING_DAY_EN}} · {{WEDDING_TIME_KOR}}</span>

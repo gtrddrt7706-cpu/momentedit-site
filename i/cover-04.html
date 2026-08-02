@@ -1114,7 +1114,8 @@ details.acc[open] summary::after{transform:rotate(45deg)}
       <div class="date-eyebrow">Save the Date</div>
       <div class="date-main">{{WEDDING_MONTH_DAY_DOT}}</div>
       <div class="date-meta">
-        <span class="row"><span class="accent">Two Thousand Twenty-Six</span></span>
+        <!-- [OFF04_DATE_REAL] 연도 하드코딩 동류 결함 — 2027년 커플이 받으면 Twenty-Six로 나가던 자리(가족판은 이미 토큰) -->
+        <span class="row"><span class="accent">{{WEDDING_YEAR_EN}}</span></span>
         <span class="row">{{WEDDING_DAY_EN}} · {{WEDDING_TIME_KOR_FULL}}</span>
       </div>
     </div>

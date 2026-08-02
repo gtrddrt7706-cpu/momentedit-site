@@ -967,3 +967,6 @@ chk 'MOCKUP_TERSE' index.html 2                              # 목업 4단 설�
 chk 'VENUE_MAP_DEMO' shared/hydrate.js 2                     # 표본만 지도 도식 · 실물은 '장소는 본 계약 후'를 그대로 둔다(본계약 전이라 정확 주소가 없는 건 사실이다) · 하객에게 가짜 지도 금지
 chk 'xMidYMid slice' shared/hydrate.js 1                     # 지도 도식 slice · 08종 박스 비율이 제각각이라 이걸 빼면 디자인마다 찌그러진다 (주석이 아니라 SVG 속성을 직접 지킨다)
 chk 'CTA_EYEBROW' shared/hydrate.js 1                        # Guest Guide 라벨 opacity .68 = 5.0:1 · .55로 되돌리면 3.1:1로 AA 미달, 고정 hex로 바꾸면 어두운 디자인에서 안 보인다
+chk 'OFF04_DATE_REAL' i-family/family-04.html 1              # 04 가족판 SAVE THE DATE 실데이터 토큰 · '08·23' 시안 잔재로 되돌리면 모든 커플이 8월 23일로 나간다
+chk 'WEDDING_MONTH_NUM_PAD' i-family/family-04.html 1        # 위와 세트 — 주점 스타일 유지한 월·일 토큰
+chk '{{WEDDING_YEAR_EN}}' i/cover-04.html 1                  # 04 온라인판 연도 토큰 · 'Two Thousand Twenty-Six' 하드코딩 복귀 금지
