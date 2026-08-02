@@ -900,6 +900,15 @@ chk '\[CUE_GUARD_V1\]' scripts/check-ritual-cue.js 1         # 큐 엔진 회귀
 # 큐 엔진 회귀 검사 — §3-A 20큐 판정표 · CUE_FIRE_RULE · EXTRA 문안 대조를 전 조합에서 돌린다
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-cue.js || fail=1; fi
 
+# ── 텍스트 장면 레이어 · 고객 미리듣기 (2026-08-02) ──────────────
+chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 장면 지문 원천 · 미리듣기 화면이 통째로 빈다
+chk 'STORY_KEY_IS_SOURCE' assets/ritual-story.js 1           # LIVE의 키는 live.t 원문 · slug로 바꾸면 꽃/큰절/포옹이 한 칸에 뭉친다
+chk 'STORY_BLOCK_FILL' assets/ritual-story.js 1              # 순서 소개의 원천은 COURSES[].detail · BLOCK은 detail에 없는 것만
+chk '\[STORY_COVER\]' scripts/build-course-story.mjs 1       # 커버리지 검사 + 코스별 장면 대본 생성기 자체
+chk 'FIRE_FROM_CONSOLE' scripts/build-course-story.mjs 1     # 진행 방식은 console 빌드가 진실 · preview meta로 세면 머리글이 거짓말한다
+# 장면 레이어 커버리지 — 미커버/중복/죽은 문안/fallback 원문 어긋남/내부 용어 누출을 전 조합에서 잡는다
+if command -v node >/dev/null 2>&1; then node scripts/build-course-story.mjs --check || fail=1; fi
+
 # ── 덕담 길어짐 대응 (2026-08-01 · 런북 §8 4단 · §11-A) ─────────
 chk 'ALT_CLIP' assets/ritual-cue.js 1                        # 한 큐가 문안 2개를 갖는 구조 · 빠지면 alt가 통째로 사라져 3분 초과 대응이 없어진다
 chk 'ALT_CLIP' console.html 2                                # 콘솔 판정부(resolve)와 fire 진입부 · 하나만 남으면 판정이 다음 큐로 샌다
