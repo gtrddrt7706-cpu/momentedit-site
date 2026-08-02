@@ -1707,6 +1707,14 @@ function renderDone(){
   if(_doneSaved) h+='<div class="banner" style="text-align:center">'+(EMBED
     ?'마이페이지에 저장됐어요 · D-14까지 언제든 다시 열어 고칠 수 있어요.'
     :'<b>이 기기에</b> 저장됐어요 · D-14까지 언제든 다시 열어 고칠 수 있어요.<br>다른 기기에서도 이어 보시려면 마이페이지에 로그인해 이 화면을 열어 주세요.')+'</div>';
+  /* [PREVIEW_LINK_V1] 완성 직후가 가장 듣고 싶은 순간이다 — 방금 고른 순서를 소리로 확인한다.
+     ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
+       고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
+     저장 전 S 도 그대로 들린다(서버 초안이 아니라 지금 화면의 S 를 넘긴다) — 저장해야 들을 수 있으면 고르는 손이 멈춘다. */
+  if(window.RitualPreviewLink && RitualPreviewLink.url(S)){
+    h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리 들어보기</button>';
+    h+='<div class="prep-hint" style="text-align:center;margin-top:7px">지금 고른 순서 그대로, 예식의 흐름을 소리로 들어봐요</div>';
+  }
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 대본·연습·준비물</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
   if(_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘어도 괜찮아요 · 당일은 디렉터가 자연스럽게 이끌어요</div>';
@@ -1737,6 +1745,48 @@ function renderDone(){
   h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
   return h;
+}
+/* 예식 미리 들어보기 — 지금 화면의 식순 S 그대로 흐르는 소리 미리듣기 [PREVIEW_LINK_V1]
+   중첩 iframe(빌더 안에서 또 하나)이라 독립 열람·마이페이지 임베드 양쪽에서 같게 동작한다.
+   ★새 postMessage 규약을 만들지 않는다 — 미리듣기는 아무것도 저장하지 않으니 부모와 주고받을 말이 없다.
+     (마이페이지 식순 행에도 같은 진입점이 있고, 거기는 서버 초안에서 조립한다 · mypage.html openRitualPreview) */
+function openRitualPreview(){
+  var src='';
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S))||''; }catch(e){}
+  if(!src){ try{ toast('아직 들려드릴 순서가 없어요'); }catch(e){} return null; }
+  try{ _stopAud(); }catch(e){}   // 빌더에서 듣던 견본 음성이 있으면 먼저 끊는다 — 두 소리가 겹치면 둘 다 안 들린다
+  /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
+     떼고 새로 짜면 ①듣던 소리가 처음으로 되감기고 ②열기 전 배경 스크롤 값을 'hidden' 인 상태에서 기억해
+     닫아도 배경이 잠긴 채로 남는다(실렌더 검사가 ②를 잡았다).
+     ★'닫고 다시 열기'로 고치지 말 것 — 마이페이지 쪽은 닫기가 히스토리 층을 되돌려서(bkDone→history.back),
+       같은 순간에 새 층을 쌓으면 층이 어긋나 페이지 밖으로 튕긴다(실측). 두 진입점이 같은 규칙을 쓴다. */
+  var old=document.getElementById('ob_rpViewer'); if(old) return old;
+  var ov=document.createElement('div'); ov.id='ob_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리 들어보기');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
+  var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
+  x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
+  var fr=document.createElement('iframe'); fr.id='ob_rpFrame'; fr.src=src; fr.title='예식 미리 들어보기';
+  fr.setAttribute('allow','autoplay');   // 소리가 나는 화면 — 자동재생 권한을 안쪽으로 넘긴다(부모가 허락받은 만큼만 넘어간다)
+  fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
+  ov.appendChild(x); ov.appendChild(fr);
+  ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  fr.addEventListener('load', function(){ fr.style.opacity='1'; });
+  setTimeout(function(){ fr.style.opacity='1'; },1200);   // load 를 놓쳐도 화면이 영영 비어 있지 않게
+  var _bo=document.body.style.overflow; document.body.style.overflow='hidden';   // 뒤 배경이 함께 밀리지 않게(빌더엔 잠금 헬퍼가 없어 여기서 직접 · 열 때 값을 기억해 그대로 되돌린다)
+  var _closed=false;
+  function done(){
+    if(_closed) return; _closed=true;
+    document.removeEventListener('keydown',onKey);
+    try{ fr.src='about:blank'; }catch(e){}   // ★소리를 먼저 끊는다 — DOM 에서 떼기만 하면 브라우저에 따라 오디오가 살아남아 닫은 뒤에도 계속 들린다
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    document.body.style.overflow=_bo;
+  }
+  function onKey(e){ if(e.key==='Escape'&&!e.repeat) done(); }   // 빌더의 Esc('저장 후 나가기')는 이 오버레이가 떠 있는 동안 스스로 비켜선다(아래 EMBED 블록 참고)
+  x.addEventListener('click',done);
+  document.addEventListener('keydown',onKey);
+  return ov;
 }
 window.resetAll=function(){ if(!confirm('지금까지 만든 식순을 지우고 처음부터 다시 만들까요?')) return; try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); }catch(e){} window.location.reload(); };   // reset 직후 1회는 임베드 서버 초안 주입을 건너뜀(다시 만들기가 되돌아오는 문제 방지)
 
@@ -1821,7 +1871,11 @@ if(EMBED){
   _cb.textContent=courseStarted?'저장 후 나가기':'나가기';   // 복원 진입 시 첫 렌더가 버튼 생성보다 먼저라 라벨이 어긋나던 것 — 생성 시점에 즉시 동기화
   _cb.addEventListener('click',window._obExit);
   var _slot=document.getElementById('obExitSlot'); if(_slot) _slot.appendChild(_cb);
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!e.repeat) window._obExit(); });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape'||e.repeat) return;
+    if(document.getElementById('ob_rpViewer')) return;   // [PREVIEW_LINK_V1] 미리듣기가 떠 있으면 Esc 는 그 화면 몫 — 여기서 받으면 듣다 말고 빌더가 통째로 닫힌다(미리듣기가 자기 Esc 를 따로 듣는다 · 이 핸들러가 먼저 등록돼 있어 순서는 항상 여기가 먼저다)
+    window._obExit();
+  });
   window.addEventListener('message',function(ev){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
@@ -1915,9 +1969,11 @@ window.ME_ADV_PAGE={
   state:ritualAiState,
   customer:function(){ return CUST?{name:CUST.name||'',code:CUST.code||'',phone:CUST.phone||'',stage:'식순 작성'}:null; },
   advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined), auth:((CUST&&CUST.aiToken)||undefined), stateData:(ritualAiStateData()||undefined) }; },   // [AI_WIDGET_HMAC] GAS 서명 토큰 전송(없으면 생략 · 서버가 시크릿 미설정이면 종전 동작)
-  onOpen:function(){ try{ _stopAud(); }catch(e){} }
+  onOpen:function(){ try{ _stopAud(); }catch(e){} },
+  hideOn:function(){ return !!document.getElementById('ob_rpViewer'); }   // [PREVIEW_LINK_V1] 미리듣기 중엔 숨김 — 소리를 듣는 자리라 말 걸 자리가 아니다(한 화면 한 상담사 · mypage 와 같은 판단)
 };
 </script>
+<script src="/assets/ritual-preview-link.js"></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>

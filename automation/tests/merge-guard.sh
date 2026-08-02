@@ -1072,3 +1072,19 @@ chk 'GV_INFO' invitation-gallery.html 6                # 안내 카드 설명(�
 chk 'GV_SAFEBG' invitation-gallery.html 1              # 모바일 몸통색 카드 추종 · 빼면 아이폰 하단 흰 박스 재발
 chk 'SAMPLE_TALL' mypage.html 4                        # 샘플 모달 세로 재배분 · 되돌리면 판 토글에 눌려 미리보기가 다시 짧아진다
 chk 'EG_SIDE_HONEST' mypage.html 1                     # 온라인 단독 고객에게 오프라인 크롭을 '이 청첩장'이라 하지 않는다
+
+# ── 예식 미리 들어보기 진입점 (2026-08-02 · 기획서 §5 3단계) ─────────────────────────
+# 주소를 한 곳에서만 조립한다 · 고객이 쓴 글은 주소에 싣지 않는다 · 연타로 배경이 잠긴 채 남지 않는다
+chk 'PREVIEW_LINK_V1' assets/ritual-preview-link.js 1   # 주소 조립 단일 원천 · 이 파일이 사라지면 두 진입점이 각자 조립하게 된다
+chk 'PREVIEW_LINK_V1' mypage.html 4                     # 마이페이지 식순 행 진입점(버튼 조립·배선·오버레이)
+chk 'PREVIEW_LINK_V1' order-preview.html 4              # 빌더 완성 화면 진입점 + Esc 양보
+chk 'PREVIEW_LINK_V1' scripts/audit/preview-entry.mjs 1 # 390/1280 실렌더 하네스 자체 · 지우면 위 넷이 무검증으로 돈다
+chk 'PREVIEW_KEYS' scripts/build-course-story.mjs 2     # 엔진이 읽는 S 키 ↔ 미리듣기가 옮기는 키 양방향 대조(+고객이 쓴 글 차단)
+chk 'RitualPreviewLink' mypage.html 2                   # 주소를 손으로 다시 만들지 않는다(마이페이지)
+chk 'RitualPreviewLink' order-preview.html 2            # 주소를 손으로 다시 만들지 않는다(빌더)
+chk 'MP_FS_OVERLAYS' mypage.html 6                      # 전체화면 오버레이 단일 목록 · 미리듣기가 빠지면 잠금 자가치유가 열린 판을 못 보고 스크롤이 굳는다
+chk 'mp_rpViewer' mypage.html 5                         # 마이페이지 미리듣기 오버레이 id(목록·열기·닫기·잠금 판정이 이 이름을 공유한다)
+chk 'ob_rpViewer' order-preview.html 4                  # 빌더 미리듣기 오버레이 id(Esc 양보 판정이 이 이름을 본다)
+chk 'trk-act-min' mypage.html 2                         # 보조 버튼 크기 위계 · 빼면 「미리 들어보기」가 주 버튼과 같은 무게로 선다
+chk 'if(old) return old' mypage.html 1                  # 연타 = 떠 있는 판 그대로 · '닫고 다시 열기'로 되돌리면 히스토리 층이 어긋나 페이지 밖으로 튕긴다
+chk 'if(old) return old' order-preview.html 1           # 연타 = 떠 있는 판 그대로 · 떼고 새로 짜면 배경 스크롤이 잠긴 채로 남는다

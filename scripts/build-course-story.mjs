@@ -189,6 +189,48 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
   for (const [b2, e] of [...seenBadge].sort()) console.log(`             · ${b2}  [${[...e.roles].join('·')}]`);
 }
 
+// ── 2-e. 미리듣기 주소가 옮기는 것 [PREVIEW_KEYS]
+//   고객 화면의 미리듣기는 식순 초안 S 를 주소(?S=)로 받아 흐른다. 그 주소를 조립하는 곳이
+//   assets/ritual-preview-link.js 의 KEYS 다 — '담을 것'만 세는 화이트리스트.
+//   ★번역은 원문이 바뀔 때 조용히 낡는다: 엔진이 새 키를 읽기 시작해도 KEYS 가 그대로면
+//     미리듣기는 그 자리를 기본값으로 흘린다. 화면은 안 깨지고 고객만 다른 예식을 듣는다.
+//     그래서 엔진 원문을 매번 훑어 목록과 맞대 본다.
+{
+  const linkSrc = fs.readFileSync(path.join(ROOT, 'assets/ritual-preview-link.js'), 'utf8');
+  const _w = {};
+  new Function('window', linkSrc)(_w);                       // 진짜 값을 읽는다 — 정규식으로 목록을 흉내 내면 목록이 둘이 된다
+  const PK = _w.RitualPreviewLink.KEYS;
+
+  // 엔진이 실제로 읽는 S 키. 주석 줄은 먼저 걷어낸다(설명 속 'S.xxx' 가 읽기로 세지 않게)
+  const readK = new Set();
+  for (const f of ['assets/ritual-cue.js', 'assets/ritual-story.js']) {
+    const src = fs.readFileSync(path.join(ROOT, f), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+    let m;
+    const re1 = /\bS\s*\.\s*([A-Za-z_][A-Za-z0-9_]*)/g;
+    while ((m = re1.exec(src))) readK.add(m[1]);
+    const re2 = /\bS\s*\[\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*\]/g;
+    while ((m = re2.exec(src))) readK.add(m[1]);
+  }
+
+  for (const k of readK) if (PK.indexOf(k) < 0) {
+    bad(`미리듣기가 못 받는 키 'S.${k}' — 엔진은 읽는데 ritual-preview-link.js KEYS 에 없다.\n         고객이 고른 것과 다른 예식이 조용히 흐른다(화면은 안 깨진다). KEYS 에 더할 것`);
+  }
+  for (const k of PK) if (!readK.has(k)) {
+    bad(`KEYS 의 죽은 키 '${k}' — 주소에 실어 보내는데 엔진이 안 읽는다. 지울 것(죽은 키는 자산이 아니라 함정이다)`);
+  }
+
+  /* ★고객이 쓴 글은 주소에 싣지 않는다 — 위 두 검사와 별개의 그물이다.
+     언젠가 엔진이 S.vowText 를 읽기 시작하면 첫 검사는 "KEYS 에 더하라"고 한다.
+     그때 시키는 대로 더하면 서약문이 주소창·방문기록·접속로그에 남는다.
+     그래서 여기서 한 번 더 막는다 — 두 검사가 맞붙으면 그건 사람이 결정할 일이라는 신호다. */
+  const NEVER = ['vowText', 'letterText', 'welcomeText', 'up', 'mPeak', 'mClose', 'growthLink'];
+  for (const k of NEVER) if (PK.indexOf(k) > -1) {
+    bad(`KEYS 에 고객이 쓴 글 '${k}' 이 들어 있다 — 주소로 나가면 안 되는 값이다(당일까지 비밀 · 민감 텍스트).\n         엔진이 이 값을 필요로 한다면 주소가 아니라 다른 길(postMessage 등)로 옮길 것`);
+  }
+  console.log(`[PREVIEW_KEYS] 엔진이 읽는 S 키 ${readK.size}종 = 미리듣기가 옮기는 ${PK.length}종`);
+}
+
 console.log(fail ? '[STORY_COVER] FAIL' : `[STORY_COVER] ok — 블록 ${seenBlock.size}/${seenBlock.size} · 사람 구간 ${seenLive.size}/${seenLive.size} 커버${warn ? ` (경고 ${warn})` : ''}`);
 if (fail) process.exit(1);
 if (CHECK_ONLY) process.exit(0);

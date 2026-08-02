@@ -518,6 +518,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
 .trk-act{width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
+/* 보조 버튼(주 버튼 왼쪽) — 한 행에 둘이 서므로 작은 규격. 390px에서 이름칸을 먹지 않게 min-width를 풀고 글자를 한 단 줄인다.
+   ★TRK_BTN_SAME(행 버튼은 전부 동일)의 예외가 아니다 — 그 규칙이 말하는 '행 버튼'은 각 행의 주 동작(오른쪽 열)이고,
+   이건 주 동작이 아니라 곁들임이다. 둘을 같은 크기로 만들면 무엇이 주된 다음 걸음인지가 사라진다. */
+.trk-act.trk-act-min{min-width:auto;padding:8px 11px;font-size:12px;color:var(--sub,#5A554C)}
 .trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}   /* gap 필수 — flex 컨테이너는 자식 사이 공백 텍스트 노드를 렌더하지 않아, 넣지 않으면 체크와 글자가 '✓완료'로 붙는다 */
 /* RES_RELINK_SAME(2026-07-26 사용자 지적 연장) — 패널 안 '다시 보기'는 아래 CTA와 같은 폭으로 쌓이는데
    인라인 padding:7px 14px 때문에 혼자 6.6px 낮아 계단처럼 보였다. 기본 .cc-btn-ghost 높이를 그대로 쓰게 해
@@ -1234,6 +1238,16 @@ function contractSrc(product, docVersion){
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
 //   채울 데이터는 renderContractPayment가 window._contractFill 에 담아둠(서버 buildContractState.fill). 같은 출처 iframe postMessage라 정보가 외부로 안 나감.
+/* 지금 떠 있는 '전체화면 오버레이' — 목록은 여기 하나다 [MP_FS_OVERLAYS]
+   같은 질문("화면을 통째로 덮은 게 떠 있나")을 하는 곳이 셋이다:
+     ① 당겨서 새로고침 보류(overlayOpen)  ② 스크롤 잠금 자가치유(_mpLockReconcile)  ③ 저장 경고 폴백(네이티브 alert)
+   셋이 각자 id 를 나열하면 새 오버레이를 만든 날 한 곳만 고치게 되고, 그 한 곳이 조용히 틀린다.
+   특히 ②는 '뜬 게 하나도 없다'고 판단하면 배경 잠금을 강제로 푼다 — 목록에서 빠진 오버레이는
+   열려 있는데도 뒤 배경이 함께 스크롤되고, 닫고 나면 엉뚱한 자리에 서 있다.
+   ★새 전체화면 오버레이를 만들면 여기 id 를 더할 것. 세는 곳을 늘리지 말 것.
+   ※'무엇을 편집 중인가'(_prodOpenTrack)와 '상담사를 숨길까'(advisor hideOn)는 묻는 질문이 달라 이 목록을 쓰지 않는다 — 각 자리에 이유를 적어 뒀다. */
+var MP_FS_OVERLAYS=['mp_snapOverlay','mp_photoOverlay','mp_obViewer','mp_ctViewer','mp_ftViewer','mp_rpViewer'];
+function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getElementById(MP_FS_OVERLAYS[i])) return true; } return false; }
 // [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
 (function(){
@@ -1245,7 +1259,7 @@ function contractSrc(product, docVersion){
   //         ③ 갱신 진행 중  ④ 수집 훅 없는 화면에서 작성 중인 입력(시드값과 달라진 필드)이 있을 때
   function overlayOpen(){
     if(typeof _mpLockN!=='undefined' && _mpLockN>0) return true;   // mpModal 등 _mpLock 사용처 전부
-    if(document.getElementById('mp_obViewer')) return true;        // 식순 빌더 iframe 오버레이
+    if(_mpFsOpen()) return true;   // [MP_FS_OVERLAYS] 전체화면 오버레이(식순 빌더·미리듣기·계약서·시착서·스냅·단체사진) — 목록은 한 곳
     var ao=document.getElementById('mp_addrOverlay'); if(ao && ao.style.display==='flex') return true;    // 주소 찾기(_mpLock 안 씀)
     var po=document.getElementById('mp_privacyOverlay'); if(po && po.style.display==='flex') return true; // 처리방침(_mpLock 안 씀)
     var cs=getComputedStyle(document.body); if(cs.overflow==='hidden') return true;   // 안전망: 다른 방식의 본문 잠금
@@ -1483,6 +1497,52 @@ function openRitualBuilder(p){
     setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요 · 잠시 후 반영돼요'); } },3000);
   });
 }
+// 예식 미리 들어보기 — 식순 초안 그대로 흐르는 소리 미리듣기(/console.html?mode=preview&embed=1&S=…) [PREVIEW_LINK_V1]
+//   ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
+//     고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
+//   골격은 식순 빌더(openRitualBuilder)와 같다. 다른 점은 하나, 여기는 '듣기'라 저장도 postMessage 도 없다 —
+//   그래서 saved·onMsg·orderExit 경로가 통째로 없고, 닫기는 언제나 그냥 닫기다.
+function openRitualPreview(p){
+  var src='';
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft))||''; }catch(e){}
+  if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
+  /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
+     떼기만 하면 done() 이 안 돌아 잠금 카운트가 새고 안 보이는 iframe 에서 소리가 계속 난다.
+     그렇다고 '닫고 다시 열기'로 하면 더 나쁘다 — 닫기가 히스토리 층을 되돌리는데(bkDone→history.back)
+     같은 순간에 bkOpen 이 새 층을 쌓으면 층이 어긋나 다음 닫기에 페이지 밖으로 튕긴다(실측으로 확인).
+     듣던 소리가 처음으로 되감기지도 않으니, 그대로 두는 쪽이 사람에게도 맞다. */
+  var old=$('mp_rpViewer'); if(old) return old;
+  var ov=document.createElement('div'); ov.id='mp_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리 들어보기');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
+  var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
+  x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
+  // ★빌더와 달리 이 ✕는 끝까지 남는다 — 미리듣기 화면(console.html 손님 모드)엔 자기 닫기 버튼이 없다.
+  var fr=document.createElement('iframe'); fr.id='mp_rpFrame'; fr.src=src; fr.title='예식 미리 들어보기';
+  fr.setAttribute('allow','autoplay');   // 소리가 나는 화면 — 자동재생 권한을 iframe 에 넘긴다(부모가 허락받은 만큼만 넘어간다)
+  fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
+  ov.appendChild(x); ov.appendChild(fr);
+  ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  fr.addEventListener('load', function(){ fr.style.opacity='1'; });
+  setTimeout(function(){ fr.style.opacity='1'; },1200);   // load 를 놓쳐도 화면이 영영 비어 있지 않게
+  _mpLock();
+  var _closed=false;
+  function done(){
+    if(_closed) return; _closed=true;
+    bkDone(_bkId); document.removeEventListener('keydown',onKey);
+    // ★소리를 먼저 끊는다 — DOM 에서 떼기만 하면 브라우저에 따라 오디오가 살아남아 닫은 뒤에도 계속 들린다.
+    try{ fr.src='about:blank'; }catch(e){}
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    _mpUnlock();
+    // 저장한 게 없으니 loadMyState 를 부르지 않는다 — 듣고 나왔다고 화면을 다시 그릴 이유가 없다.
+  }
+  function onKey(e){ if(e.key==='Escape') done(); }
+  x.addEventListener('click',done);
+  document.addEventListener('keydown',onKey);
+  var _bkId=bkOpen(done);   // 뒤로가기 = 닫기(저장 대기 없음 · 빌더의 3초 유예가 필요 없는 이유가 이것이다)
+  return ov;
+}
 // 소형 비차단 토스트 — 다이얼로그 없이 1줄 안내(뒤로가기 저장 대기 등 · RITUAL_BACK_SAVE)
 function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,47,37,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:10px 18px;border-radius:999px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center'; document.body.appendChild(t); requestAnimationFrame(function(){ t.style.opacity='1'; }); setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); },300); },2600); }catch(e){} }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
@@ -1549,7 +1609,7 @@ function _mpLockReconcile(){
   try{
     if((typeof INVFLOW!=='undefined'&&INVFLOW.active)||(typeof TRKFLOW!=='undefined'&&TRKFLOW.active)||(typeof SEATFLOW!=='undefined'&&SEATFLOW.active)||(typeof SNAPFLOW!=='undefined'&&SNAPFLOW.active)||(typeof PHOTOFLOW!=='undefined'&&PHOTOFLOW.active)) return;   // 편집 플로우 진행 중
     var pb=$('mp_production'); if(pb&&pb.classList.contains('mp-fs')) return;   // 제작 편집 전체화면 진행 중
-    if(document.getElementById('mp_snapOverlay')||document.getElementById('mp_photoOverlay')||document.getElementById('mp_obViewer')||document.getElementById('mp_ctViewer')||document.getElementById('mp_ftViewer')) return;   // 동적 전체화면 오버레이 열림(닫으면 DOM서 제거됨)
+    if(_mpFsOpen()) return;   // [MP_FS_OVERLAYS] 동적 전체화면 오버레이 열림(닫으면 DOM서 제거됨) — 목록은 한 곳
     if(document.querySelector('.mp-modal.open, .pv-modal.open')) return;   // 확인·서명·원장·이미지 모달 열림
     var ao=document.getElementById('mp_addrOverlay'); if(ao&&ao.style.display==='flex') return;   // 주소 찾기
     var po=document.getElementById('mp_privacyOverlay'); if(po&&po.style.display==='flex') return;   // 처리방침
@@ -3767,6 +3827,7 @@ function renderProduction(p, inv){
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
+  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p); });   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
@@ -4402,6 +4463,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
     return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?' <span class="trk-ok">✓</span>':'')+'</span>'
+      + (opt.pre?'<button type="button" class="cc-btn-ghost trk-act trk-act-min" id="'+opt.pre.id+'">'+escapeHtml(opt.pre.label)+'</button>':'')   /* opt.pre = 주 버튼 왼쪽 보조 동작(작은 규격). 행을 새로 만들지 않는다 — 목록 길이를 늘리지 말라는 지시(2026-07-25)와, 설명줄(sub) 금지(TRK_NO_SUB)를 둘 다 지키는 유일한 자리. */
       + '<button type="button" class="cc-btn-ghost trk-act" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
@@ -4438,9 +4500,14 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   // MPD4_H4 완료 행 접기(§9-5-②) — ★11차 판정: 2026-07-19 금지(카드 전체 아코디언·var allDone=false)와 별개.
   //   카드·미완료 행·확인 그룹은 항상 노출하고, '완료된 준비 행'만 2개 이상일 때 "완료 N · 남음 M" 요약으로 접는다(제작중 5~6화면 체감 축소).
+  // [PREVIEW_LINK_V1] 식순 초안이 있으면 그 예식을 소리로 미리 들어볼 수 있다.
+  //   ★'들려줄 게 있는가'의 판단은 링크 조립기 한 곳이 한다 — 주소가 나오면 있고, 빈 문자열이면 없다.
+  //     여기서 rd._v===3 같은 조건을 따로 세우면, 조립기 조건이 바뀌는 날 버튼만 남아 빈 화면을 연다.
+  var _ritPre=null;
+  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리 들어보기'}; }catch(e){}
   var _prepRows=[
     { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null) },
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리 들어보기」가 함께 선다
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
@@ -5185,6 +5252,9 @@ function _prodBcAccept(d){   // 같은 계정의 신호만 수용(둘 중 하나
 // 지금 이 탭에서 편집 중인 트랙(없으면 '') — 배너는 '같은 트랙'일 때만 띄운다(무관한 알림으로 방해하지 않기)
 function _prodOpenTrack(){
   try{
+    // ★[MP_FS_OVERLAYS] 목록을 일부러 쓰지 않는다 — 여기가 묻는 것은 '무엇을 편집 중인가'지 '무엇이 떠 있는가'가 아니다.
+    //   미리듣기 오버레이(mp_rpViewer)는 듣기만 한다(저장 경로 없음) → 다른 탭 저장과 부딪힐 게 없어 배너를 띄우지 않는다.
+    //   빠뜨린 게 아니다. 여기에 mp_rpViewer 를 더하면 듣고만 있는 사람에게 '다른 기기에서 저장됐어요' 배너가 뜬다.
     if(document.getElementById('mp_obViewer')) return 'ritual';                                  // 식순 빌더 iframe 오버레이
     // ★정본 플로우 목록(_mpLockReconcile)과 같은 세트를 본다 — 하나라도 빠지면 그 트랙만 배너가 영영 안 뜬다.
     if(typeof PHOTOFLOW!=='undefined' && PHOTOFLOW && PHOTOFLOW.active) return 'guideinfo';       // 단체 사진·좌석 공개방식 = guideinfo 트랙 '전체 교체' 저장 → 덮어쓰기 위험이 가장 큰 트랙(B-1)
@@ -5230,8 +5300,8 @@ function apiTrackSave(payload){
         if(lost.length && !window._echoWarned){ window._echoWarned=true;   // 세션당 1회(같은 원인으로 저장마다 반복 경고 방지)
           try{ console.warn('[saveProductionTrack] 서버 미반영 필드(구버전 GAS 의심):', lost.join(', ')); }catch(e){}
           var _msg='입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요. 디렉터가 확인해 도와드릴게요.';
-          var _ov=document.getElementById('mp_obViewer');   // 식순 빌더 오버레이(z-index 9999)가 떠 있으면 모달(1000)이 가려짐 → 네이티브 알림으로
-          if(_ov){ try{ alert(_msg); }catch(e2){} } else { mpAlert(_msg); }
+          // [MP_FS_OVERLAYS] 전체화면 오버레이(z-index 9999)가 떠 있으면 모달(1000)이 가려짐 → 네이티브 알림으로
+          if(_mpFsOpen()){ try{ alert(_msg); }catch(e2){} } else { mpAlert(_msg); }
         }
       }
     }catch(e){}
@@ -6766,7 +6836,10 @@ window.ME_ADV_PAGE = {
   hideOn: function(){
     var v = document.getElementById('loginView');
     if (v && v.offsetParent !== null) return true;
-    return !!document.getElementById('mp_obViewer');   // 식순 빌더 오버레이 중엔 숨김 — 한 화면 한 상담사(빌더 iframe 안에 식순 상담사 있음 · 기획 v3 §4-1)
+    // ★[MP_FS_OVERLAYS] 목록을 일부러 쓰지 않는다 — 여기가 묻는 것은 '상담사를 숨길까'다.
+    //   식순 빌더는 iframe 안에 자기 상담사가 있어 겹치므로 숨긴다. 미리듣기(mp_rpViewer)는 소리를 듣는 자리라 함께 숨긴다.
+    //   계약서·시착서 뷰어는 종전대로 숨기지 않는다 — 문서를 보며 묻는 자리라 상담사가 있어야 한다(빠뜨린 게 아니다).
+    return !!(document.getElementById('mp_obViewer')||document.getElementById('mp_rpViewer'));
   },
   // 카톡 문의 링크 — GAS KAKAO_URL(getMyState d.kakao·캐시) 우선, 미설정 시 메일 폴백(구 하단 버튼과 동일 규칙)
   kakaoUrl: function(){
@@ -6778,6 +6851,7 @@ window.ME_ADV_PAGE = {
   }
 };
 </script>
+<script src="/assets/ritual-preview-link.js"></script>
 <script src="/assets/advisor-kb.js"></script>
 <script src="/assets/advisor-widget.js"></script>
 <script src="/assets/email-assist.js" defer></script>
