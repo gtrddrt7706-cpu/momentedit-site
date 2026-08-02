@@ -185,6 +185,8 @@ body.couple-ready{
    STICKY HEADER
    ════════════════════════════════════════ */
 
+/* [LIVE_INFRAME] 갤러리 프레임 안에서만 고정 해제 — 실제 하객 화면은 sticky 그대로 */
+html.me-inframe .brand-strip{position:static;padding-top:0}
 .brand-strip{
   position:sticky;top:0;z-index:100;
   background:rgba(250,250,248,0.92);
@@ -1500,17 +1502,22 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
-    <script>
-      (function(){ var f=false; try{ f=(window.parent&&window.parent!==window);}catch(e){f=true;}
-        if(!f) return;
-        var a=document.querySelector('[data-home-link]'); if(!a) return;
-        a.removeAttribute('href'); a.removeAttribute('aria-label'); a.style.cursor='default';
-        var ar=a.querySelector('.back-arrow'); if(ar) ar.style.display='none';
-      })();
-    </script>
     <span class="on-air"><span class="live-dot"></span>On Air</span>
   </div>
 </header>
+<script>
+/* [LIVE_INFRAME] 갤러리 프레임 안에서의 조정 — 홈 링크 무력화 + 브랜드 띠 고정 해제.
+   ★헤더 안에 두었더니 파싱 중 스크립트가 통째로 사라졌다(파일 4개 vs DOM 3개, 실측).
+     자기 조상 안에서 실행되는 스크립트는 이런 함정이 있다 — 헤더 밖으로 뺀다. */
+(function(){
+  var f=false; try{ f=(window.parent&&window.parent!==window); }catch(e){ f=true; }
+  if(!f) return;
+  document.documentElement.classList.add('me-inframe');
+  var a=document.querySelector('[data-home-link]');
+  if(a){ a.removeAttribute('href'); a.removeAttribute('aria-label'); a.style.cursor='default';
+    var ar=a.querySelector('.back-arrow'); if(ar) ar.style.display='none'; }
+})();
+</script>
 
 <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">디지털 참석 · 모먼트에디트 프라이빗 스몰웨딩 비공개 페이지</h1>
 

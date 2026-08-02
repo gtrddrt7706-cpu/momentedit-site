@@ -1101,3 +1101,6 @@ chk 'PREVIEW_DIGITAL' mypage.html 2                     # 마이페이지 두 �
 chk 'CUSTDIG' order-preview.html 6                      # 빌더가 받아 둔 디지털 참석 · S 가 아니라 주소 조립 순간에만 쓴다(선언·수신·조립2·주석)
 chk 'PREVIEW_DIGITAL' scripts/build-course-story.mjs 1  # 정적 검사: 엔진이 읽는 키마다 값을 만드는 곳이 있나(빌더의 S 이거나 INJECT 이거나)
 chk 'PREVIEW_DIGITAL' scripts/audit/preview-entry.mjs 9  # 실렌더 검사 9종(기본선 2 · orderFill 3 · 배웅 갈림 5 중 서버·폴백·우선순위 · S 이탈 차단)
+chk 'GV_LIVE_TOP' invitation-gallery.html 1              # 프레임 안 라이브 브랜드 띠 고정 해제 · 되돌리면 상단에 띠가 두 겹으로 남는다
+chk 'GV_EXTRAS_POLL' invitation-gallery.html 1           # load 미발생 문서에도 배선 · 라이브 카드는 load에 못 닿는다
+chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(홈 링크·띠) · CSS 훅과 스크립트 쌍

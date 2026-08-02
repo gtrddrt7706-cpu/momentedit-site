@@ -485,7 +485,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     {name:'Noir Editorial', on:'i/cover-08.html', off:'i-family/family-08.html', bg:'#2f2820'},
     /* [GALLERY_GUIDE] 뒤 2장은 판 구분이 없는 안내 카드 — 토글이 숨는다 */
     {name:'Tailored · 맞춤 안내', src:'i/invitations/invitation-09-guide.html', bg:'#FAF8F4',
-     info:{eyebrow:'How it works', title:'두 판, 하나의 준비',
+     info:{eyebrow:'How it works', title:'두 판 한 번에',
        lines:['온라인과 오프라인을 따로 만들지 않습니다.',
               '한 번 적어 주시면 두 판이 함께 맞춰지고,',
               '보내실 분에 따라 골라 쓰시면 됩니다.']}},
@@ -493,12 +493,12 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
        Enter를 눌러 새 탭으로 나가야만 볼 수 있었다(2026-08-02 사용자 지적 "설명이 한쪽만 있다").
        ★순서: 두 판 설명 → 온라인 부가 → 오프라인 부가. 위 토글(온라인·오프라인)과 같은 왼→오 차례. */
     {name:'Digital Attendance · 모바일 참석', src:'live.html?e=test-couple', bg:'#FAFAF8', dig:true,
-     info:{eyebrow:'Online', title:'멀리 계신 분도, 그 자리에',
+     info:{eyebrow:'Online', title:'모바일 참석',
        lines:['온라인 청첩장 안의 <i>Enter</i>를 누르면 열리는 화면입니다.',
               '오지 못한 분도 예식을 실시간으로 보실 수 있고,',
               '광고도 접속자 목록도 없이 편지만 조용히 남습니다.']}},
     {name:'Guest Companion · 하객 안내', src:'guide.html?g=demo', bg:'#FAFAF8', live:true,
-     info:{eyebrow:'Offline', title:'당일 물으실 것들을 미리',
+     info:{eyebrow:'Offline', title:'하객 안내',
        lines:['오프라인 청첩장을 내려가면 <i>하객 안내 열기</i>가 있습니다.',
               '식사 안내와 내 자리를 한 곳에 모아 두어,',
               '어른들이 당일 여쭐 것들에 두 분 대신 미리 답합니다.']}}
@@ -581,6 +581,22 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
       if (sk2) sk2.classList.add('hidden');
       attachFrameExtras(ifr);
     });
+    /* [GV_EXTRAS_POLL] load만 믿으면 안 된다 — 프레임 문서가 외부 리소스(영상 플레이어·웹폰트)를
+       기다리느라 load에 영영 못 닿는 경우가 있다(라이브 카드 실측: 6초 뒤에도 readyState=loading).
+       그러면 Scroll 큐·스타일 주입이 통째로 안 걸린다. body가 생기는 즉시 배선한다(중복은 __gvWired가 막는다). */
+    (function _poll(n){
+      if (n > 40) return;
+      try {
+        var d = ifr.contentDocument;
+        if (ifr.dataset.src && d && d.body && d.location && d.location.href !== 'about:blank') {
+          var sk3 = card.querySelector('.gv-skeleton');
+          if (sk3) sk3.classList.add('hidden');
+          attachFrameExtras(ifr);
+          if (d.__gvWired) return;
+        }
+      } catch(e){}
+      setTimeout(function(){ _poll(n+1); }, 250);
+    })(0);
 
     frame.appendChild(skel);
     frame.appendChild(ifr);
@@ -623,8 +639,32 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   function attachFrameExtras(ifr){
     var doc;
     try { doc = ifr.contentDocument; } catch(e){ return; }
-    if (!doc || doc.__gvWired) return;
+    if (!doc) return;
+    /* ★about:blank(프레임 생성 직후의 빈 문서)에는 배선하지 않는다 —
+       여기서 __gvWired를 찍어 버리면 뒤이어 들어오는 진짜 문서가 영영 배선되지 않는다.
+       라이브 카드에서 Scroll 큐·스타일 주입이 통째로 안 걸리던 원인(2026-08-02 실측:
+       wired=false·cue=false인데 재호출도 막혀 있었다). 세션 초 {once:true} 사고와 같은 계열. */
+    var _du = ''; try { _du = (doc.location && doc.location.href) || ''; } catch(e){}
+    if (!_du || _du === 'about:blank') return;
+    if (doc.__gvWired) return;
     doc.__gvWired = true;
+    /* [GV_LIVE_TOP] 라이브 화면의 브랜드 띠는 position:sticky라 프레임 안에서 갤러리 상단 띠
+       바로 밑에 늘 붙어 다녔다 — 띠가 두 겹으로 보이고 미리보기 세로도 그만큼 먹혔다
+       (2026-08-02 사용자 지적 "라이브 페이지가 너무 위에까지 올라간다").
+       ★live.html 안의 인라인 스크립트로 풀려 했으나 프레임에서 실행이 확인되지 않았다(실측) —
+         갤러리가 이미 프레임 문서에 CSS를 넣고 있으니 여기서 확실하게 건다.
+       ★실제 하객이 여는 live.html은 손대지 않는다 — 거기선 sticky가 맞다.
+       홈 링크도 여기서 함께 무력화한다(프레임 밖으로 새는 문 차단). */
+    try {
+      var _lst = doc.createElement('style');
+      _lst.textContent = '.brand-strip{position:static!important;padding-top:0!important}';
+      (doc.head || doc.documentElement).appendChild(_lst);
+      var _hl = doc.querySelector('[data-home-link]');
+      if (_hl) {
+        _hl.removeAttribute('href'); _hl.removeAttribute('aria-label'); _hl.style.cursor = 'default';
+        var _ha = _hl.querySelector('.back-arrow'); if (_ha) _ha.style.display = 'none';
+      }
+    } catch(e){}
     // [GV_SCROLLBAR] 윈도우 브라우저는 스크롤바가 오버레이가 아니라 실물이라, 폰 프레임 안
     // 청첩장 오른쪽에 회색 막대가 박힌다(사용자 지적). 막대만 숨기고 스크롤은 그대로 둔다.
     // 스크롤 가능하다는 인지는 각 화면의 Scroll 큐가 담당한다(cover엔 원래 있고 guide엔 신설).
