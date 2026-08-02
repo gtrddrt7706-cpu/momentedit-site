@@ -1024,3 +1024,5 @@ chk 'LD_FILL' shared/hydrate.js 1                      # JSON-LD 런타임 채�
 chk 'INV_EM_HINT' mypage.html 1                        # 별표 힌트 '강조' 문구 · '금색'으로 되돌리면 디자인 5종에서 거짓 안내
 chk 'SEAT_DRINK_SRV' automation/platform/80_production.gs 1        # seatView 자리별 음료 응답 · 빼면 실청첩장 하객 안내에서 음료가 다시 사라진다
 chk 'INV_COVER_COPY' mypage.html 1                     # 표지 이름 안내 — '영문만'은 01(병기)·06(한글 주도)에서 거짓
+chk 'lp-cta-preview' live.html 2                        # 프리뷰 CTA 뮤트 배경(opacity 금지) · 되돌리면 흰 글자가 3.31:1로 무너진다
+chk 'gold-text' i/invitations/invitation-09-guide.html 2   # 09 카드 글자용 진골드

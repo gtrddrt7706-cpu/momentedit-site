@@ -1010,7 +1010,10 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 }
 .lp-cta-preview{
   cursor:default;
-  opacity:0.55;
+  /* [AUD16] opacity 0.55는 버튼 전체(배경+흰 글자)를 함께 흐려 3.31:1로 무너뜨렸다(2026-08-02 인접 화면 점검).
+     '누를 수 없는 미리보기'라는 뜻은 채도를 뺀 배경으로 내고, 글자는 또렷하게 둔다 → 6.52:1.
+     ★opacity로 되돌리지 말 것 — 배경과 글자가 같이 흐려져 대비가 반드시 깨진다. */
+  background:#6A5B4E;
 }
 
 /* 전송 성공 화면 */
