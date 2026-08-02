@@ -193,6 +193,30 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
 @media(max-width:640px){.gv-verbar{padding:6px 12px 8px}}
 @media(prefers-reduced-motion:reduce){.gv-ver-b,.gv-ver-b::after{transition:none}}}:where(a,button,input,textarea,select,[tabindex]):focus{outline:none}:where(a,button,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}</style>
 <style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}</style>
+<style>
+/* [PC_TALL] PC 미리보기 프레임 키우기 (2026-08-02 사용자 지적 "미리보기가 너무 짧아졌다").
+   실측 1440x900: 프레임 551px / 껍데기 349px(39%) — 헤더54 + 판토글76 + main여백46 + 카드여백72 + 푸터101.
+   ★[GV_VER] 판 토글이 뒤에 들어오면서 짧아진 것 — 토글을 지우는 대신 여백을 재배분한다.
+   ★'Open을 누르지 않고도 스크롤로 본다'가 이 화면의 핵심 가치다. 세로를 프레임에 몰아준다.
+   모바일(<=760px)은 이미 전체화면이라 무관 — 데스크톱에서만 적용. */
+@media(min-width:761px){
+  .gv-main{padding:12px 0 8px}                    /* 46 → 20 */
+  .gv-card{padding:6px 36px 10px}                 /* 72 → 16 */
+  .gv-frame{height:min(1180px,100%)}              /* 상한 820 → 1180 (큰 모니터가 실제로 더 보이게) */
+  .gv-verbar{padding:6px 16px 7px}                /* 76 → 약 62 */
+  .gv-ver-b{padding:6px 12px;min-height:34px}
+  .gv-footer{padding:10px 24px 12px;gap:8px}      /* 101 → 약 74 */
+  /* Open 알약은 프레임 아래 빈 자리에 있었다 — 자리를 프레임에 내주고 프레임 우하단에 겹쳐 앉는다.
+     원래 반투명+블러로 만들어진 알약이라 콘텐츠 위에 얹혀도 브랜드 톤이 유지된다. */
+  #gv-open-new{bottom:14px;right:14px}
+}
+/* 세로가 짧은 노트북(<=820px)에선 더 줄인다 — 1280x800에서 프레임이 451px까지 내려갔다 */
+@media(min-width:761px) and (max-height:860px){
+  .gv-verbar .gv-ver-cap{display:none}            /* 캡션 한 줄 회수 — 토글 라벨만으로 뜻이 선다 */
+  .gv-footer{padding:8px 24px 10px;gap:6px}
+  .gv-main{padding:8px 0 6px}
+}
+</style>
 </head>
 <body>
 

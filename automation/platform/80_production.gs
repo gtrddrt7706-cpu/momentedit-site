@@ -721,10 +721,17 @@ function _seatRowNum(tables) {   // 행순서 번호 = seat.html·guide.html·�
   for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
   return num;
 }
-function _seatFindSlim(t) {   // 검색에 필요한 최소만(음료 등 내부 필드 제외)
+function _seatFindSlim(t) {   // 검색에 필요한 최소만 — 이 객체는 서버 안에서만 돈다(응답엔 hits/room만 나감)
   t = t || {};
   var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
-  return { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+  var _dk = (Object.prototype.toString.call(t.drinks) === '[object Array]') ? t.drinks : [];
+  var o = { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
+  /* [SEAT_DRINK_SRV] 음료를 여기서 버리면 '내 자리만' 모드(기본값)에선 본인 음료조차 못 찾는다 —
+     guide.html 573행이 hits[0].drink를 이미 기다리고 있었다(2026-08-02 재배포 검증에서 확정).
+     ★이 슬림 객체는 클라이언트로 나가지 않는다(seatf_ 서버 캐시 + 검색용). 응답에 실리는 건
+       아래 _seatFindByToken이 '정확히 일치한 본인 자리 하나'에 대해서만 꺼내는 코드 1자다. */
+  if (_dk.length) o.drinks = seats.map(function (s, i) { return String(_dk[i] || '').trim().slice(0, 2); });
+  return o;
 }
 function _seatFindByToken(token, q) {
   q = _seatNorm(q);   // seat.html·guide.html과 동일 정규화(_seatNorm 단일 출처)
@@ -766,6 +773,11 @@ function _seatFindByToken(token, q) {
     //   같은 테이블에 부분 일치가 여럿이면(mi 2+) 이름 없이 자리들만 강조(프런트가 전체 성함 재입력 유도).
     var _exact = (_mi.length === 1) && (_seatNorm((_ht.seats || [])[_mi[0]]) === q);
     hits[0].nm = _exact ? String((_ht.seats || [])[_mi[0]] || '') : '';
+    /* [SEAT_DRINK_SRV] 본인 음료 — 이름과 똑같은 게이트(정확 일치 단일 자리)를 쓴다.
+       부분 검색으로는 남의 자리 정보가 한 톨도 안 나가야 하므로 코드 1자도 예외를 두지 않는다.
+       내려보내는 건 'C'|'R'|'N' 한 글자뿐 — 라벨 해석은 guide.html DRINK_LABEL이 한다. */
+    hits[0].drink = (_exact && Object.prototype.toString.call(_ht.drinks) === '[object Array]')
+      ? String(_ht.drinks[_mi[0]] || '') : '';
     hits[0].hti = _hi;                                      // room 배열에서 본인 테이블 위치
     // ★room 형태({no,label,side,occ}) 변경 시 guide.html _roomLocal(구버전 GAS 폴백)도 함께 — 두 런타임이 같은 계약을 씀
     hits[0].room = tables.map(function (t, i) {
