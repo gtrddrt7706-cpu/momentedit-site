@@ -266,7 +266,13 @@ for (const s of SEATS) {
 // 결승 — 2인이 남은 자리. 블록으로 지구력을 보고, 교대로 결정타를 붙여 비교한다.
 const runoffLines = [];
 const runoffMeta = { role: RUNOFF.role, voices: RUNOFF.voices, why: RUNOFF.why, blocks: [] };
-{
+
+// ★★결승이 끝난 자리면 대본을 만들지 않는다 — 이건 오류가 아니라 완료다.
+//   그리고 남아 있던 결승 파일을 지운다. 죽은 대본이 폴더에 남아 있으면 언젠가 누가 그걸 붙여넣는다.
+//   이미 정해진 자리에 미리듣기를 또 돌리는 건 시간 낭비로 끝나지만, 그 상태로 다운로드를 누르면
+//   크레딧이 즉시 차감되고 취소가 안 된다. 파일을 남겨 두는 쪽이 더 비싸다.
+const RUNOFF_ON = !FIXED[RUNOFF.role];
+if (RUNOFF_ON) {
   // ★후보가 2명 미만이면 결승이 성립하지 않는다. 같은 이름이 두 번 들어와도 마찬가지다 —
   //   화자 칩이 하나만 생겨서 A/B 가 아니라 그냥 낭독이 된다. 조용히 넘어가면 안 된다.
   const uniq = new Set(RUNOFF.voices);
@@ -287,12 +293,6 @@ const runoffMeta = { role: RUNOFF.role, voices: RUNOFF.voices, why: RUNOFF.why, 
     console.error('  이기면 중복 배정이 됩니다. 다른 후보를 올리세요.\n');
     process.exit(1);
   }
-  if (FIXED[RUNOFF.role]) {
-    console.error(`\n✗ '${RUNOFF.role}' 자리는 이미 '${FIXED[RUNOFF.role]}' 로 확정돼 있습니다 — 결승이 끝난 자리입니다.`);
-    console.error('  RUNOFF 를 다음 미정 자리로 옮기거나, 결승이 다 끝났다면 이 블록을 비우세요.\n');
-    process.exit(1);
-  }
-
   const gather = ([id, from, count]) => {
     const c = clipOf(id, RUNOFF.role);   // ★role 가드가 여기에도 걸린다 — 다른 자리 대사가 못 들어온다
     const sents = c.sents.slice(from, from + count).map((x) => x.text);
@@ -316,7 +316,7 @@ const runoffMeta = { role: RUNOFF.role, voices: RUNOFF.voices, why: RUNOFF.why, 
 // ★PASTE_NO_COMMENT 자가검사 — 대사 줄이 아닌 것이 하나라도 섞이면 파일을 쓰지 않는다.
 //   타입캐스트는 이 파일을 통째로 낭독한다. 안내 한 줄이 새면 그 줄도 읽힌다.
 for (const [name, lines] of [[SCREEN_FILE, screenLines], [FINAL_FILE, finalLines],
-                            [RUNOFF_FILE, runoffLines]]) {
+                            ...(RUNOFF_ON ? [[RUNOFF_FILE, runoffLines]] : [])]) {
   const stray = lines.filter((l) => l.trim() && !/^[^:：]{1,20}[:：]\s*\S/.test(l));
   if (stray.length) {
     console.error(`\n✗ ${name} 에 대사 줄이 아닌 줄이 ${stray.length}개 있습니다 — 타입캐스트가 이걸 낭독합니다.`);
@@ -341,18 +341,22 @@ fs.writeFileSync(path.join(OUT, SCREEN_FILE), screenLines.join('\n') + '\n', 'ut
 fs.writeFileSync(path.join(OUT, FINAL_FILE), finalLines.join('\n') + '\n', 'utf8');
 
 // ★결승 화자 수 검사 — 칩이 후보 수만큼 생겨야 A/B 가 성립한다.
-const spkInRunoff = new Set(runoffLines.map((l) => l.split(':')[0]));
-if (spkInRunoff.size !== RUNOFF.voices.length) {
-  console.error(`\n✗ 결승 화자가 ${spkInRunoff.size}명입니다 — 후보는 ${RUNOFF.voices.length}명입니다.\n`);
-  process.exit(1);
+if (RUNOFF_ON) {
+  const spkInRunoff = new Set(runoffLines.map((l) => l.split(':')[0]));
+  if (spkInRunoff.size !== RUNOFF.voices.length) {
+    console.error(`\n✗ 결승 화자가 ${spkInRunoff.size}명입니다 — 후보는 ${RUNOFF.voices.length}명입니다.\n`);
+    process.exit(1);
+  }
+  fs.writeFileSync(path.join(OUT, RUNOFF_FILE), runoffLines.join('\n') + '\n', 'utf8');
+} else {
+  fs.rmSync(path.join(OUT, RUNOFF_FILE), { force: true });
 }
-fs.writeFileSync(path.join(OUT, RUNOFF_FILE), runoffLines.join('\n') + '\n', 'utf8');
 
 // ── README — 안내는 전부 여기로 온다. 이 블록을 지우면 안내가 어디에도 없게 된다. ──────
 
 const R = [];
 R.push('# 보이스 찾기 — 하나씩 클릭하며 고르는 대본', '');
-R.push('1차 후보가 청취에서 전량 반려됐습니다. 문서 설명으로 좁히는 방식이 한계에 닿았습니다.');
+R.push('1차 후보가 청취에서 전량 반려됐습니다(2026-08-01). 문서 설명으로 좁히는 방식이 한계에 닿았습니다.');
 R.push('이 폴더는 **귀로 직접 고르기 위한** 대본입니다. 후보를 데려오는 쪽과 걸러내는 쪽을 갈랐습니다.', '');
 R.push('| | 하는 일 | 못 하는 일 |');
 R.push('|---|---|---|');
@@ -374,8 +378,9 @@ R.push('---', '');
   for (const m of screenMeta) {
     const clips = manifest.clips.filter((c) => c.role === m.role).length;
     const v = FIXED[m.role];
-    const cell = v ? `**${v}**` : (m.role === RUNOFF.role ? RUNOFF.voices.join(' vs ') : '—');
-    R.push(`| ${m.role} | ${clips} | ${cell} | ${v ? '✅ 확정' : (m.role === RUNOFF.role ? '◐ 결승 중' : '⬜ 미정')} |`);
+    const runoff = RUNOFF_ON && m.role === RUNOFF.role;
+    const cell = v ? `**${v}**` : (runoff ? RUNOFF.voices.join(' vs ') : '—');
+    R.push(`| ${m.role} | ${clips} | ${cell} | ${v ? '✅ 확정' : (runoff ? '◐ 결승 중' : '⬜ 미정')} |`);
   }
   R.push('');
   R.push('확정된 자리는 `build-typecast-import.mjs` 의 `DEFAULT_VOICE` 에 박혀 있습니다 —');
@@ -403,7 +408,10 @@ R.push('   좋은 걸 찾는 단계가 아니라 **떨어뜨리는** 단계입�
 R.push('   ★문장을 바꾸지 마세요. 사람마다 다른 문장으로 들으면 비교가 되지 않습니다.');
 R.push('4. **본선.** 살아남은 2~3명만 `' + FINAL_FILE + '` 로 다시 겁니다. 여기서 긴 호흡이 드러납니다.');
 R.push('5. **둘까지 좁혀졌는데 못 고르겠으면 결승.** 후보 2명을 화자로 세운 파일을 따로 만듭니다.');
-R.push('   지금은 `' + RUNOFF_FILE + '` 이 그것입니다 — 아래 절에 보는 법이 있습니다.');
+R.push(RUNOFF_ON
+  ? '   지금은 `' + RUNOFF_FILE + '` 이 그것입니다 — 아래 절에 보는 법이 있습니다.'
+  : `   \`${RUNOFF.role}\` 자리가 그렇게 정해졌습니다(${RUNOFF.voices.join(' vs ')} → **${FIXED[RUNOFF.role]}**).`
+    + ' 끝난 대본은 지웠습니다 — 남겨 두면 언젠가 누가 붙여넣습니다.');
 R.push('6. **확정 1명.** 이름을 넘겨 주세요. 밈 노출 이력을 대조하고 생성기에 박습니다.');
 R.push('');
 
@@ -465,6 +473,14 @@ R.push(`합계 ${finalLines.length}줄 · ${finalLines.join('').length}자.`);
 R.push('');
 
 // ── 결승 절 — 후보가 둘 남았을 때만 의미가 있다.
+if (!RUNOFF_ON) {
+  R.push(`## \`${RUNOFF_FILE}\` — 끝났습니다`, '');
+  R.push(`**${RUNOFF.role}** 자리 결승이 **${FIXED[RUNOFF.role]}** 로 끝났습니다(${RUNOFF.voices.join(' vs ')}).`);
+  R.push(`${manifest.clips.filter((c) => c.role === RUNOFF.role).length}클립을 이 목소리가 끌고 갑니다.`, '');
+  R.push('결승 파일은 지웠습니다. 정해진 자리의 대본을 폴더에 남겨 두면 언젠가 누가 그걸 붙여넣고,');
+  R.push('그 상태로 다운로드를 누르면 **크레딧이 즉시 차감되고 취소가 안 됩니다.**', '');
+  R.push('다시 필요해지면 `RUNOFF` 의 `role` 과 `voices` 를 바꾸고 다시 돌리세요 — 그 자리가 미정이면 파일이 다시 생깁니다.', '');
+} else {
 R.push(`## \`${RUNOFF_FILE}\` — ${RUNOFF.voices.join(' vs ')}`, '');
 R.push(`**${RUNOFF.role}** 자리 결승입니다. 붙여넣으면 화자 칩 ${RUNOFF.voices.length}개가 생기는데,`);
 R.push('이름이 곧 타입캐스트 캐릭터 이름이라 **보이스가 이미 배정된 채로 나옵니다.** 재생만 누르면 됩니다.', '');
@@ -489,6 +505,7 @@ R.push('여기서 무게가 안 실리면 나머지 클립이 아무리 좋아�
 R.push('');
 R.push(`합계 ${runoffLines.length}줄 · ${runoffLines.join('').length}자.`);
 R.push('');
+}
 
 R.push('## 확정 뒤 — 다운로드 설정', '');
 R.push('여덟 자리가 다 정해지고 플랜을 결제한 뒤에야 하는 일입니다.');
@@ -520,7 +537,8 @@ console.log('\n✓ 보이스 스크리닝 대본 생성 완료');
 console.log(`  ${path.relative(ROOT, OUT)}/`);
 console.log(`    ${SCREEN_FILE}   ${screenLines.length}줄 · 화자 ${spkInScreen.size}명 · ${screenLines.join('').length}자`);
 console.log(`    ${FINAL_FILE}    ${finalLines.length}줄 · ${finalLines.join('').length}자`);
-console.log(`    ${RUNOFF_FILE}    ${runoffLines.length}줄 · 후보 ${RUNOFF.voices.join(' vs ')} · ${runoffLines.join('').length}자`);
+if (RUNOFF_ON) console.log(`    ${RUNOFF_FILE}    ${runoffLines.length}줄 · 후보 ${RUNOFF.voices.join(' vs ')} · ${runoffLines.join('').length}자`);
+else console.log(`    (${RUNOFF_FILE} 는 만들지 않았습니다 — ${RUNOFF.role} 자리가 '${FIXED[RUNOFF.role]}' 로 확정. 낡은 파일은 지웠습니다)`);
 console.log(`    README.md`);
 console.log('\n  자리별 스크리닝 줄');
 for (const m of screenMeta) {
