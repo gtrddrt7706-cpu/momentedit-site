@@ -339,7 +339,7 @@ body{
   text-transform:uppercase;
   margin-right:8px;
   display:inline-block;
-  width:36px;
+  min-width:36px; /* [DTL16] width:36px→min-width — GROOM 실폭 45.1px가 고정박스를 넘쳐 이름과의 8px 간격을 삼켰다(신랑 줄만 밀착, 신부 줄은 6px). 자연폭+margin으로 두 줄 간격 통일 */
 }
 .inv-signature > div{
   margin-bottom:14px;
@@ -498,6 +498,7 @@ body{
   text-align:center;
   padding:10px 0;
   letter-spacing:0.02em;
+  font-variant-numeric:tabular-nums; /* [DTL16] 달력 숫자 등폭 고정 — 열 흔들림 방지 */
   position:relative;
   aspect-ratio:1;
   display:flex;
@@ -770,6 +771,7 @@ body{
   display:inline-flex;
   align-items:center;
   gap:8px;
+  min-height:44px; /* [DTL16] 탭 타깃 — 실측 41.6px(모바일 38.7px) 미달 보정. 지도 활성 시 노출되는 링크 */
   padding:10px 16px;
   background:var(--bg);
   border:1px solid var(--border);
@@ -867,7 +869,7 @@ body{
   color:var(--accent);
   line-height:1.85;
 }
-.venue-meta-row .venue-meta-row .venue-meta-arrival .em{
+.venue-meta-row.venue-meta-arrival .em{ /* [DTL16] 자기중첩 오타 셀렉터(.venue-meta-row .venue-meta-row …)로 도착 안내 '15분 전' 강조가 전혀 안 걸리고 있었다 */
   color:var(--accent);
   font-weight:500;
   font-style:normal;
@@ -899,6 +901,10 @@ body{
   .venue-app-label{font-size:11.5px}
   .venue-meta-row{padding:18px 0}
   .venue-meta-row dd{font-size:13px}
+}
+
+@media(max-width:360px){
+  .cover-date-year{letter-spacing:0.22em} /* [DTL16] 'TWO THOUSAND TWENTY-SEVEN'(2027)이 320px에서 하이픈 분절 2줄 — 크기가 아닌 자간으로 좁혀 한 줄 유지([MM_TOPROW] 원칙) */
 }
 
 /* ═══════════════════════════════════════════
@@ -1011,8 +1017,8 @@ body{
   line-height:1.6;
 }
 .env-acc-parents .of{
-  font-family:var(--serif);
-  font-style:italic;
+  font-family:var(--serif-ko); /* [DTL16] '의 장남' 전체가 한글 — Cormorant엔 글리프가 없어 폴백 조판 */
+  font-style:normal; /* [DTL16] 한글 이탤릭 슬롯 금지([AUD16] 6항) — 합성 기울임(가짜 이탤릭) 제거 */
   font-size:10px;
   color:var(--gold-text); /* [AUD16] 골드·opacity.7(실효 1.6대)→진골드 5.71, opacity 제거 */
   letter-spacing:0.08em;
@@ -1093,6 +1099,12 @@ body{
   cursor:pointer;
   transition:all 0.3s ease;
   flex-shrink:0;
+  position:relative; /* [DTL16] 탭 타깃 확장 기준점 */
+}
+.env-acc-copy::after{
+  content:'';
+  position:absolute;
+  inset:-9px 0; /* [DTL16] 실측 54.5×26px → 히트영역 세로 44px. 시각 크기는 유지(패딩 확대는 행 비례를 깨서), 행 패딩 16px 안에 머묾 */
 }
 .env-acc-copy:hover,
 .env-acc-copy:active{
@@ -1139,6 +1151,19 @@ body{
   .env-acc-parents .of{font-size:9px}
   .env-acc-num{font-size:13.5px}
   .env-acc-row{gap:10px;padding:14px 14px}
+}
+
+/* [DTL16] prefers-reduced-motion 킬스위치 — 16종 중 01(·08)에만 없던 등장·전환 정지. 05·06·07과 동일 패턴 */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal{opacity:1 !important;transform:none !important}
+  .cover-scroll{opacity:1;animation:none}
+  .cover-scroll-line{animation:none}
 }
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
@@ -1448,6 +1473,12 @@ body{
     const coverReveal = document.querySelector('.sec:first-child .reveal');
     if (coverReveal) coverReveal.classList.add('visible');
   }, 100);
+
+  // [DTL16] 섹션 폴리오 재번호 — OPTIONAL 섹션이 빠지면(봉투 미노출 등) Nº가 건너뛴다.
+  // hydrate가 섹션을 걷어낸 최종 DOM에서 남은 순서대로 다시 센다.
+  document.querySelectorAll('.sec-num').forEach((el, i) => {
+    el.textContent = 'Nº ' + String(i + 1).padStart(2, '0');
+  });
 
   // 스크롤 시 스크롤 인디케이터 페이드 아웃
   let scrollFaded = false;
