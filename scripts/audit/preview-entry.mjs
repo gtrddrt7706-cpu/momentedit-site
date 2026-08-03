@@ -99,7 +99,13 @@ try {
       ok(!!btn, '완성 화면에 「미리 들어보기」가 선다');
       if (btn) {
         ok(btn.w > 0 && btn.right <= btn.vw + 0.5, '버튼이 화면 폭 안에 들어온다', btn ? `right=${btn.right} vw=${btn.vw}` : '');
-        ok(/소리로 들어봐요/.test(btn.hint), '버튼 아래 한 줄 안내가 붙는다', btn.hint.slice(0, 40));
+        /* ★[HINT_LOOSE 2026-08-03] 예전엔 「소리로 들어봐요」를 글자 그대로 찾았다. 그 사이
+           order-preview.html 의 문구가 「고른 순서 그대로 흐름을 들어봐요」로 다듬어졌고
+           (f61bff5 · ORD_LEAN), 화면은 멀쩡한데 검사만 낡은 문장을 지키다 빨간불을 켰다.
+           문안은 앞으로도 다듬어진다 — 검사가 지켜야 할 규칙은 '이 문장'이 아니라
+           **버튼 아래에 듣는다는 한 줄이 붙어 있다**는 것이다. 그것만 본다. */
+        ok(btn.hint.trim().length > 0 && /들어|듣/.test(btn.hint),
+          '버튼 아래 한 줄 안내가 붙는다(문안은 자유 · 듣는다는 말만 있으면 된다)', btn.hint.slice(0, 40));
       }
 
       await page.evaluate(() => {

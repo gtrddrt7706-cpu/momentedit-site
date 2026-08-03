@@ -110,10 +110,17 @@ if (r < 0.85 && !process.argv.includes('--force')) {
   process.exit(1);
 }
 
-// ── 가장자리 무음 제거 (TRIM_VENDOR_EDGE · assemble-narration.mjs와 같은 규칙)
+// ── 무음 정리 (assemble-narration.mjs와 같은 규칙 · 두 조립기가 같은 자를 쓴다)
+//    가장자리는 깎고(TRIM_VENDOR_EDGE), 안쪽 긴 쉼은 상한까지 줄인다(SENT_CAP).
+//    ★이 클립에서는 SENT_CAP이 특히 중요하다. 편지는 문단 10개로 받아서 문장 사이 여백을
+//      우리가 넣지 않는다 — 여기서 들리는 문장 사이 쉼은 전부 타입캐스트가 넣어 둔 자연 쉼이라
+//      manifest의 GAP을 아무리 줄여도 그대로 남는다. 상한을 걸어야 비로소 줄어든다.
 const EDGE_KEEP = 0.05, EDGE_MAX = 1.20;
+// ★mp3는 컨테이너 duration과 디코드 길이가 ~0.04초 어긋난다. 0.03으로 재면 뒤 무음을 통째로 놓친다.
+const EOF_TOL = 0.10;
+const SENT_CAP = Math.max(0.20, Number(man.gap?.sent) || 0.45);
 const TMP = fs.mkdtempSync('/tmp/letter-');
-let trimmed = 0;
+let trimmed = 0, trimmedInner = 0;
 const norm = (f) => {
   const d = dur(f);
   const res = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'silencedetect=n=-50dB:d=0.05', '-f', 'null', '-'],
@@ -125,13 +132,40 @@ const norm = (f) => {
   }
   if (c !== null) seg.push([c, d]);
   const head = (seg.length && seg[0][0] <= 0.03) ? seg[0][1] : 0;
-  const tail = (seg.length && seg[seg.length - 1][1] >= d - 0.03) ? d - seg[seg.length - 1][0] : 0;
+  const tail = (seg.length && seg[seg.length - 1][1] >= d - EOF_TOL) ? d - seg[seg.length - 1][0] : 0;
   let c0 = Math.min(Math.max(head - EDGE_KEEP, 0), EDGE_MAX);
   let c1 = Math.min(Math.max(tail - EDGE_KEEP, 0), EDGE_MAX);
   if (d - c0 - c1 < 0.30) { c0 = 0; c1 = 0; }
-  trimmed += c0 + c1;
+  const lo = c0, hi = d - c1;
+
+  // 안쪽 무음은 가운데를 도려낸다 — 양끝 절반씩은 남겨 말끝과 들숨을 살린다
+  const cut = [];
+  for (const [s0, e0] of seg) {
+    const s1 = Math.max(s0, lo), e1 = Math.min(e0, hi);
+    if (e1 - s1 <= SENT_CAP + 0.02) continue;
+    cut.push([s1 + SENT_CAP / 2, e1 - SENT_CAP / 2]);
+    trimmedInner += (e1 - s1) - SENT_CAP;
+  }
+  const keep = []; let p = lo;
+  for (const [cs, ce] of cut) { if (cs > p) keep.push([p, cs]); p = Math.max(p, ce); }
+  if (hi > p) keep.push([p, hi]);
+  if (!keep.length) keep.push([lo, hi]);
+
+  const kept = keep.reduce((x, [s0, e0]) => x + (e0 - s0), 0);
+  trimmed += d - kept;
+
+  // ★같은 입력 패드([0:a])를 두 번 쓸 수 없다 — 여럿이면 asplit으로 갈라 놓고 다시 concat한다
+  let af = [];
+  if (keep.length === 1 && Math.abs(kept - d) >= 0.005)
+    af = ['-af', `atrim=start=${keep[0][0].toFixed(3)}:end=${keep[0][1].toFixed(3)},asetpts=N/SR/TB`];
+  else if (keep.length > 1) {
+    const n = keep.length;
+    af = ['-filter_complex',
+      `[0:a]asplit=${n}${keep.map((_, i) => `[s${i}]`).join('')};`
+      + keep.map(([s0, e0], i) => `[s${i}]atrim=start=${s0.toFixed(3)}:end=${e0.toFixed(3)},asetpts=N/SR/TB[k${i}]`).join(';')
+      + `;${keep.map((_, i) => `[k${i}]`).join('')}concat=n=${n}:v=0:a=1[o]`, '-map', '[o]'];
+  }
   const o = path.join(TMP, 'n' + path.basename(f).replace(/\W/g, '_') + '.wav');
-  const af = (c0 || c1) ? ['-af', `atrim=start=${c0.toFixed(3)}:end=${(d - c1).toFixed(3)},asetpts=N/SR/TB`] : [];
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', f, ...af, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', o]);
   return o;
 };
@@ -166,4 +200,5 @@ fs.copyFileSync(dst, alt);
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`\n✓ ${path.relative(root, dst)}  ${total.toFixed(1)}초 (${Math.floor(total / 60)}분 ${(total % 60).toFixed(0)}초)`);
 console.log(`  ↳ 사본 ${path.relative(root, alt)}  (parents.html 전용 경로)`);
-console.log(`  가장자리 무음 제거 ${trimmed.toFixed(1)}초 — TRIM_VENDOR_EDGE`);
+console.log(`  원본 무음 정리 ${trimmed.toFixed(1)}초 — 가장자리 ${(trimmed - trimmedInner).toFixed(1)}초 TRIM_VENDOR_EDGE`
+  + ` · 안쪽 ${trimmedInner.toFixed(1)}초 SENT_CAP(${SENT_CAP}초 상한)`);
