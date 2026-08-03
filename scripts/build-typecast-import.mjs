@@ -190,7 +190,8 @@ for (const P of PARTS) {
       // 혼주 편지 소제목(하나~넷) 앞뒤 각 1.5초 — 없으면 3분짜리 편지의 구조가 귀에 안 들린다
       if (c.id === 'G10' && /^(하나|둘|셋|넷),\s/.test(s.text)) { before = 1.5; if (!last) after = 1.5; }
       // 문단 경계는 한 박 더 쉰다
-      else if (c.id === 'G10' && s.first && k > 0) { before = Math.max(before, 0.8); }
+      // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
+      else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, 0.8); }
 
       rec.sents.push({ i: k, text: s.text, before, after });
       body.push(`${named(role)}: ${s.text}`);
