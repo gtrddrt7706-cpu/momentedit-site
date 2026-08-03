@@ -2909,32 +2909,51 @@ a.ig-handle:hover {
     transition: transform 0.7s var(--ease);
   }
 }
-/* [IG_MARK] 제목이 된 아이디 + 인스타 마크 하나.
-   ★세리프로만 두니 '@momentedit.kr'이 인스타 계정이 아니라 홈페이지 주소로 읽혔다(.kr이 특히).
-     폰트를 인스타 것(=시스템 산세 600)으로 바꾸는 대신 마크를 하나 붙여 뜻을 세운다 —
-     이 지면의 활자는 우리 것이어야 하고, '어느 플랫폼인가'는 글자가 아니라 기호가 말하면 된다.
-   ★사진 위 9개가 아니라 여기 하나 — 같은 말은 한 번만. */
-.ig-title {
-  letter-spacing: -0.01em;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.3em;
+/* [IG_MARK] 인스타 마크는 사진 위에 — 다만 '전처럼'은 아니다 (2026-08-03 사용자 지시).
+   ★사용자 논리: 마크가 사진을 살짝 가리니 '눌러서 보고 싶어진다'. 클릭을 부르는 건 마크가 맞다.
+   ★다만 예전 자리는 정중앙 + 지름 32px 흰 원이었다 — 인물 얼굴 정통으로 얹혔고,
+     따뜻한 필름 톤 지면에서 흰 원 9개가 가장 밝은 물체가 됐다.
+   → 인스타 자신의 그리드가 쓰는 자리(우상단 모서리)로 옮기고, 받침 원을 없애 글리프만 남긴다.
+     받침 대신 아주 옅은 그림자로 밝은 사진 위에서도 읽히게 한다
+     (이 그림자는 '떠 보이게' 하는 장식이 아니라 흰 글리프의 가독 장치다 — 브랜드 규칙의 상승감 금지와 다른 층).
+   ★제목 옆 마크는 뺐다 — 같은 말을 위아래로 두 번 하지 않는다. */
+.archive-grid-ig {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 17px;
+  height: 17px;
+  display: block;
+  pointer-events: none;
+  opacity: 0.82;
+  filter: drop-shadow(0 1px 2.5px rgba(20, 16, 12, 0.55));
+  transition: opacity 0.35s var(--ease);
 }
-.ig-mark {
-  width: 0.58em;
-  height: 0.58em;
-  flex: none;
-  align-self: center;
-  transform: translateY(0.04em);
-  stroke: var(--gold-text, #7a5f37);
+.archive-grid-ig svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: #fff;
   stroke-width: 1.7;
   fill: none;
-  transition: stroke 0.3s var(--ease);
+  color: #fff;
 }
-.sec-title-link:hover .ig-mark {
-  stroke: var(--seal);
+@media (min-width: 761px) {
+  .archive-grid-ig {
+    top: 14px;
+    right: 14px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+  }
 }
-/* 배지를 걷어낸 대신, 모바일에서 '눌렸다'는 응답은 남긴다(hover가 없는 화면의 유일한 신호) */
+@media (hover: hover) {
+  .archive-grid-cell:hover .archive-grid-ig {
+    opacity: 1;
+  }
+}
+/* 눌렸다는 응답 — hover가 없는 화면의 유일한 신호 */
 @media (hover: none) {
   .archive-grid-cell:active::after {
     background: rgba(28, 27, 25, 0.22);
@@ -5470,35 +5489,98 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <section id="archive">
 <div class="reveal">
   <h3 class="sec-label">Visual Archive ·<span class="ll-ko"> 기록 갤러리</span></h3>
-  <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="Moment Edit Instagram 바로가기"><span class="ig-handle-t">@momentedit.kr</span><svg class="ig-mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.4"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/></svg></a></div>
+  <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="Moment Edit Instagram 바로가기">@momentedit.kr</a></div>
 </div>
 <div class="reveal archive-grid" data-archive-grid aria-label="Visual Archive · 인스타그램에서 더 보기">
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 01 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-01.webp"><img src="/assets/home/gallery-01.jpg" alt="스몰웨딩 스냅 촬영 예시 1" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light" aria-label="Wedding moment 02 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-02.webp"><img src="/assets/home/gallery-02.jpg" alt="스몰웨딩 스냅 촬영 예시 2" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 03 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-03.webp"><img src="/assets/home/gallery-03.jpg" alt="스몰웨딩 스냅 촬영 예시 3" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 04 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-04.webp"><img src="/assets/home/gallery-04.jpg" alt="프라이빗 웨딩 촬영 예시 4" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-deep" aria-label="Wedding moment 05 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-05.webp"><img src="/assets/home/gallery-05.jpg" alt="프라이빗 웨딩 촬영 예시 5" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 06 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-06.webp"><img src="/assets/home/gallery-06.jpg" alt="양가 직계가족 마이크로웨딩 촬영 예시 · Moment Edit 캔들존" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light-2" aria-label="Wedding moment 07 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-07.webp"><img src="/assets/home/gallery-07.jpg" alt="양가 직계가족 마이크로웨딩 촬영 예시 · Moment Edit 화이트존" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 08 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-08.webp"><img src="/assets/home/gallery-08.jpg" alt="웨딩스냅 본식영상 촬영 예시 8" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 09 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-09.webp"><img src="/assets/home/gallery-09.jpg" alt="웨딩스냅 본식영상 촬영 예시 9" loading="lazy" onerror="this.style.display='none'"></picture>
+    <span class="archive-grid-ig" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="5.4"/>
+        <circle cx="12" cy="12" r="4.1"/>
+        <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
   </a>
 </div>
 <!-- Bottom: Instagram [IG_ONCE] 아이디는 위 제목으로 올라갔다 — 이 자리는 '들어가는 문' -->
