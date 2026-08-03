@@ -1138,6 +1138,29 @@ chk 'COVER_BAL' i-family/family-08.html 2
 chk 'GV_CUE_DUP' invitation-gallery.html 2               # 자체 Scroll 큐가 있으면 안 얹는다 + 하단 줄과 겹치면 위로 비킨다 · 되돌리면 06 '아래로'·08 'MOMENT EDIT STUDIO' 위에 알약이 겹친다
 chk 'GV_CUE_LATE' invitation-gallery.html 1              # 큐 판정 재시도(문서가 자리 잡을 때까지) · 한 번만 재면 하이드레이션 전에 '스크롤할 게 없다'로 읽혀 큐가 뜨는 날·안 뜨는 날이 갈린다
 chk 'GV_TITLE_PLAIN' invitation-gallery.html 2           # 09 카드 제목 '내용 맞춤' + 모바일 제목 알약 · 되돌리면 '두 판 한 번에'와 맨 꺾쇠로 회귀(사용자 "무슨 말이야?"·"화살표가 애매하다")
+# ── 스크롤 큐 통일 [CUE_ONE] · 좌석 음료 선택 [SEAT_DRINK_SEL] · 로딩 표시 통일 [BUSY_ONE] (2026-08-03)
+chk 'CUE_ONE' i/cover-01.html 2                         # 큐 CSS 블록 + 이 판의 --cue-bottom · 16종 전부 같은 값이어야 한다
+chk 'CUE_ONE' i-family/family-01.html 2
+chk 'CUE_ONE' i/cover-02.html 2
+chk 'CUE_ONE' i-family/family-02.html 2
+chk 'CUE_ONE' i/cover-03.html 2
+chk 'CUE_ONE' i-family/family-03.html 2
+chk 'CUE_ONE' i/cover-04.html 2
+chk 'CUE_ONE' i-family/family-04.html 2
+chk 'CUE_ONE' i/cover-05.html 2
+chk 'CUE_ONE' i-family/family-05.html 2
+chk 'CUE_ONE' i/cover-06.html 2
+chk 'CUE_ONE' i-family/family-06.html 2
+chk 'CUE_ONE' i/cover-07.html 2
+chk 'CUE_ONE' i-family/family-07.html 2
+chk 'CUE_ONE' i/cover-08.html 2
+chk 'CUE_ONE' i-family/family-08.html 2
+chk 'cover-scroll-label' i/cover-04.html 1              # 마크업이 아예 없던 판(02·03·04·05·07) 대표 — 지우면 그 판만 다시 '아래 더 있다' 신호가 사라진다
+chk 'SEAT_DRINK_SEL' mypage.html 4                     # 음료 바를 '고른 자리'에 매단다 · edit 기준으로 되돌리면 이름 확정 순간 바가 사라져 음료를 한 번도 못 고른다
+chk 'data-seat-selclose' mypage.html 3                 # 바 닫기 — 선언·위임 셀렉터·핸들러 셋이 다 있어야 실제로 닫힌다(셀렉터 누락으로 안 닫히던 실측)
+chk 'BUSY_ONE' mypage.html 1                           # 저장 베일도 진사 점 · 회전 링으로 되돌리면 한 화면에 표시가 두 언어
+chk 'BUSY_ONE' admin.html 1
+chk 'BUSY_ONE' live.html 1
 chk 'GV_ONEROW_CTR' invitation-gallery.html 2            # 한 줄 헤더 좌우 패딩 대칭 + 320px 여유 확보 · 40/84로 되돌리면 가운데 것이 화면 중심에서 22px 왼쪽에 앉는다
 chk 'GV_EDGE_PLATE' invitation-gallery.html 1            # 좌우 넘김 화살표 원판 · 없애면 화살표가 청첩장 위에 떠 장식으로 읽힌다
 chk 'ADM_HEAD2' admin.html 3                            # 관리자 헤더 2단(묶음 div + 600px 분기 + 340px 보정) · 한 줄로 되돌리면 'MOMENT EDIT'가 두 줄로 쪼개지고 '로그아웃'이 화면 밖으로 잘린다

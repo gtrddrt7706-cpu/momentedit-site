@@ -930,18 +930,21 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   height:14px;
   flex-shrink:0;
 }
+/* [BUSY_ONE] 버튼 안 표시도 같은 말로 — 회전 링 대신 숨쉬는 점(버튼 위라 색은 currentColor) */
 .lf-cta-spinner{
   display:none;
-  width:14px;
-  height:14px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:currentColor;
   flex-shrink:0;
-  animation:lfSpin 0.9s linear infinite;
+  animation:lfBreath 1.7s ease-in-out infinite;
 }
 .lf-cta.loading .lf-cta-icon{display:none}
 .lf-cta.loading .lf-cta-spinner{display:inline-block}
-@keyframes lfSpin{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
+@keyframes lfBreath{
+  0%,100%{opacity:0.25;transform:scale(0.82)}
+  50%{opacity:0.9;transform:scale(1)}
 }
 
 /* 프리뷰 모드 */
@@ -1744,9 +1747,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
         <svg class="lf-cta-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <svg class="lf-cta-spinner" viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-dasharray="28" stroke-dashoffset="10"/>
-        </svg>
+        <span class="lf-cta-spinner" aria-hidden="true"></span>
       </button>
     </form>
 

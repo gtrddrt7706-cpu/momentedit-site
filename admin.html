@@ -278,8 +278,12 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 
 /* 로딩·스켈레톤·토스트 */
 #loading{text-align:center;padding:54px 0;color:var(--light);font-family:var(--serif-ko);font-size:13px}
-.spinner{width:26px;height:26px;border:2px solid var(--gold-line);border-top-color:var(--seal);border-radius:50%;margin:0 auto 14px;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* [BUSY_ONE] '일하는 중' 표시를 한 언어로 (2026-08-03 사용자 "진사 점 깜빡이는 거랑 2개가 있는 것 같은데 확인해서 통일시키자").
+   실측 — 같은 화면 안에 ①진사 점이 숨쉬는 표시(불러오는 중)와 ②금색 링이 도는 스피너(저장 중)가 함께 있었다.
+   브랜드 언어는 조용한 쪽이다(회전하는 기계식 스피너는 이 지면의 말이 아니다) — 진사 점 하나로 맞춘다.
+   문구는 하는 일에 따라 '불러오는 중…' / '저장 중…'. */
+.spinner{width:9px;height:9px;background:var(--seal);border-radius:50%;margin:6px auto 14px;animation:meBreath 1.7s ease-in-out infinite}
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 .skel{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:9px;height:54px;margin-bottom:8px}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:60;pointer-events:none;max-width:90%;text-align:center}

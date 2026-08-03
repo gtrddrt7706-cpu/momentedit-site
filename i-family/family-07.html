@@ -1373,7 +1373,68 @@ details.env-acc-item[open] > .env-acc-q{
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
 <script src="/shared/hydrate.js?v=20260722d" defer></script>
-<style>body{opacity:0;transition:opacity .5s ease}body.couple-ready{opacity:1}</style>
+<style>body{opacity:0;transition:opacity .5s ease}body.couple-ready{opacity:1}
+/* [CUE_ONE] 스크롤 큐 8종 통일 (2026-08-03 사용자 "1번 청첩장이랑 다른데 연속성 있게 통일하자")
+   실측 — 실제로 뜨던 건 01('Scroll')과 06('아래로') 둘뿐이었다.
+   02·08은 통째로 숨겨져 있었고(08은 라벨이 'Roll'), 03·05·07은 CSS만 있고 마크업이 없었다.
+   그래서 갤러리 미리보기에선 갤러리가 얹어 주는 알약이 대신 보였고, 하객이 링크를 직접 열면
+   '아래 더 있다'는 신호가 아무것도 없는 판이 여섯이었다. 한 언어로 맞춘다 — 라벨 'Scroll' 위, 금선 아래.
+   ★색 변수명은 판마다 다르므로 var() 폴백 사슬로 각 판의 제 색을 집는다.
+     덕분에 이 블록은 16개 파일에서 글자까지 같다 — 다음에 한 판만 어긋나는 일이 안 생긴다.
+   ★마크업 순서(01은 라벨 먼저, 06·08은 선 먼저)는 order로 흡수한다 — 순서를 고치러 다니지 않는다. */
+.cover-scroll{
+  /* ★!important — 07은 '.sec.cover > *{position:relative}'가 모든 직계 자식을 상대배치로 잡는다(특이도 0,2,0).
+     그 규칙에 걸리면 큐가 그리드 행을 하나 더 만들어(실측 4번째 행 62px) 가운데 트랙을 그만큼 밀어내고,
+     [COVER_BAL]로 맞춰 둔 균형이 07만 -10 → -41로 어긋난다. 흐름 밖에 있어야 하는 요소라 여기서 못을 박는다. */
+  position:absolute !important;
+  bottom:calc(var(--cue-bottom,48px) + var(--safe-bottom,0px));
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  z-index:4;
+  opacity:0;
+  animation:cueIn 1.2s cubic-bezier(0.22,1,0.36,1) 2.4s forwards;
+  transition:opacity 0.6s ease,transform 0.6s ease;
+  pointer-events:none;
+  visibility:visible;
+}
+.cover-scroll.hidden{opacity:0 !important;transform:translateX(-50%) translateY(10px);pointer-events:none}
+.cover-scroll-label{
+  order:0;
+  font-family:var(--serif,var(--serif-en,Georgia,serif));
+  font-style:italic;
+  font-weight:400;
+  font-size:10px;
+  letter-spacing:0.24em;
+  padding-left:0.24em;
+  text-transform:uppercase;
+  line-height:1;
+  color:var(--light,var(--ink-mid,var(--ink-3,var(--ink-green-fade,#6A5F55))));
+}
+.cover-scroll-line{
+  order:1;
+  width:1px;
+  height:40px;
+  position:static;
+  overflow:visible;
+  opacity:1;
+  background:linear-gradient(to bottom,var(--gold,#B89A75),transparent);
+  animation:cuePulse 2s ease-in-out infinite;
+  transform:none;
+}
+.cover-scroll-line::after{content:none}
+@keyframes cueIn{to{opacity:1}}
+@keyframes cuePulse{0%,100%{opacity:0.4}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .cover-scroll{animation:none;opacity:1}
+  .cover-scroll-line{animation:none;opacity:0.75}
+}
+@media print{.cover-scroll{display:none}}
+.cover-scroll{--cue-bottom:134px}   /* [CUE_ONE] 이 판의 하단 활자(푸터·서명줄)를 비켜 앉는 높이 — 실측값 */
+</style>
 </head>
 
 <body data-design="07">
@@ -1425,6 +1486,10 @@ details.env-acc-item[open] > .env-acc-q{
       <div class="cover-foot-right">
         at <span class="name">{{VENUE_NAME_KO}}</span>
       </div>
+    </div>
+    <div class="cover-scroll" aria-hidden="true">
+      <div class="cover-scroll-label">Scroll</div>
+      <div class="cover-scroll-line"></div>
     </div>
   </section>
 
