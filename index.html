@@ -2805,10 +2805,10 @@ a.ig-handle:hover {
   transition-delay: 0.16s;
 }
 .archive-grid.revealed .archive-grid-cell:nth-child(8) {
-  transition-delay: 0.3s;
+  transition-delay: 0.22s;   /* [IG_LEGIBLE] 8·9가 둘 다 0.3s라 대각 파동이 마지막에서 끊겼다 */
 }
 .archive-grid.revealed .archive-grid-cell:nth-child(9) {
-  transition-delay: 0.3s;
+  transition-delay: 0.28s;
 }
 .archive-grid-cell.mood-warm {
   background:
@@ -2952,7 +2952,13 @@ a.ig-handle:hover {
   display: block;
   pointer-events: none;
   opacity: 0.8;
-  filter: drop-shadow(0 1px 3px rgba(20, 16, 12, 0.62));
+  /* [IG_LEGIBLE] 그림자 한 겹으로는 밝은 사진 위에서 마크가 사라진다 — 픽셀 실측 대비 1.59:1(2번 타일).
+     흰 글리프에 '어두운 윤곽선'을 만들어 주는 촘촘한 그림자를 먼저 깔고, 그 위에 넓고 옅은 그림자로
+     사진과 분리한다. 받침(흰 원)을 다시 놓지 않고 대비만 올리는 방법 — 그림자는 글리프 자기 픽셀에만 걸린다. */
+  filter:
+    drop-shadow(0 0 1px rgba(18, 14, 10, 0.92))
+    drop-shadow(0 0 2px rgba(18, 14, 10, 0.7))
+    drop-shadow(0 1px 4px rgba(18, 14, 10, 0.45));
   transition: opacity 0.35s var(--ease);
 }
 .archive-grid-ig svg {
