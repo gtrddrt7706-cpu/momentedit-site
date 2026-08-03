@@ -4413,21 +4413,29 @@ footer {
 .dm-more:hover .dm-more-t {
   border-color: var(--accent);
 }
+/* [DM_FOOT_SIGN] 편지 맺음 — 이름 먼저, 문장 뒤 (2026-08-03 사용자 지시).
+   메일 주소를 뺀다: 이 카드는 '받은 편지'의 모습이지 연락처 안내가 아니다.
+   위계도 뒤집는다 — 예전엔 문구가 위에 금색으로 크게 서고 브랜드가 아래 작은 회색이었다.
+   편지 끝에 남아야 할 것은 '누가 만든 자리인가'(Moment Edit)이고, 문장은 그 아래 낮게 붙는 서명이다.
+   ★금색(#b89a75)은 흰 지면에서 대비 2.3 — 장식 전용 색이다. 글자로 쓰던 것을 --light(4.95)로 내린다. */
+.dm-foot {
+  padding-top: 22px;
+  border-top: 1px solid rgba(28, 27, 25, 0.08);
+}
+.dm-foot-brand {
+  font-family: var(--serif);
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  line-height: 1.2;
+}
 .dm-foot-quote {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
-  color: var(--gold);
-  padding-top: 20px;
-  border-top: 1px solid rgba(28, 27, 25, 0.08);
-  margin-bottom: 10px;
-}
-.dm-foot-contact {
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+  letter-spacing: 0.075em;
   color: var(--light);
-  font-family: var(--sans);
+  margin-top: 9px;
 }
 .delivered-note {
   font-family: var(--serif-ko);
@@ -4481,8 +4489,11 @@ footer {
   .dm-sign {
     font-size: 13px;
   }
+  .dm-foot-brand {
+    font-size: 15px;
+  }
   .dm-foot-quote {
-    font-size: 11px;
+    font-size: 12px;
   }
   .delivered-intro {
     font-size: 14px;
@@ -5957,8 +5968,10 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 
     <div class="dm-sign">엄마가.</div>
 
-    <div class="dm-foot-quote">Focus on the Essence, Record the Truth.</div>
-    <div class="dm-foot-contact">Moment Edit · contact@momentedit.kr</div>
+    <div class="dm-foot">
+      <div class="dm-foot-brand">Moment Edit</div>
+      <div class="dm-foot-quote">Focus on the Essence, Record the Truth.</div>
+    </div>
   </div>
 
   <p class="delivered-note">
