@@ -1300,8 +1300,11 @@ function emailShell(headline, innerHtml) {
       '<div style="text-align:center;margin-bottom:24px;"><img src="https://momentedit.kr/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +   // ★raw.githubusercontent(비공개 저장소=메일서 404 깨짐) → Vercel 공개 URL로 변경(2026-07-22). logogold.png는 저장소 루트=momentedit.kr/logogold.png로 공개 서빙
       '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#3A2D22;margin:0 0 8px">' + esc(headline) + '</p>' +
       innerHtml +
-      '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:20px;text-align:center;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#B89A75;">Focus on the Essence, Record the Truth.</div>' +
-      '<div style="text-align:center;margin-top:10px;font-size:10px;letter-spacing:.04em;color:#A39C8E;">Moment Edit · Private Wedding Studio</div>' +
+      // [DM_FOOT_SIGN] 이름 먼저 · 문장 뒤 · 흰 지면이라 금색(#B89A75 대비 2.3)을 글자로 쓰지 않는다
+      '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:22px;text-align:center;">' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;letter-spacing:0.03em;color:#3A2D22;">Moment Edit</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:12.5px;letter-spacing:0.075em;color:#75705F;margin-top:9px;">Focus on the Essence, Record the Truth.</div>' +
+      '</div>' +
     '</td></tr></table>' +
     // ★EMAIL_BOTTOM_SPACER(2026-07-25): 모바일 Gmail 등 일부 앱이 최외곽 td의 아래 패딩(32px)을 트림 → 카드 하단 테두리가 스크롤 끝에 딱 붙어 '잘려' 보임(PC 웹은 정상). 빈 패딩 대신 실제 콘텐츠(&nbsp;) 스페이서로 하단 여백을 보장.
     '<div style="height:28px;line-height:28px;font-size:1px;mso-line-height-rule:exactly">&nbsp;</div>' +

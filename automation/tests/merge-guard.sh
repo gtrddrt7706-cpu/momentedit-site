@@ -1107,6 +1107,9 @@ chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(
 chk 'COPY_TRIM4' index.html 1
 chk 'COPY_QUIET' index.html 1                            # 수식·중복만 덜어낸 문단 7곳 · 되돌리면 최장 139자·설득조 문장이 복귀                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
+chk 'DM_FOOT_SIGN' automation/guest-letter-webhook.gs 1  # ★실제 하객이 보내고 두 분이 받는 편지 메일 — 홈 예시만 고치면 진짜 편지는 옛 모습으로 남는다(2026-08-03 사용자 확인)
+chk 'DM_FOOT_SIGN' automation/form-to-couple.gs 2        # 청첩장 전달 메일 2종(안내·재제출)
+chk 'DM_FOOT_SIGN' automation/consultation/consultation-booking.gs 1  # 상담 메일(흰 지면) — 금색을 글자로 쓰면 대비 2.3                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 chk 'MOCK_SAMPLE_SYNC' index.html 1                     # 홈 목업 표본일 = 청첩장 SAMPLE(2026-10-24 토 14:00) · 어긋나면 홈과 미리보기가 다른 예식일을 보여준다
 
 # ── 미리듣기 배경 음악 [PREVIEW_BED] (2026-08-02 · 사용자 제안 "오디오북처럼 BGM까지 나오게")

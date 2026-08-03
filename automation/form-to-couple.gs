@@ -589,8 +589,12 @@ function buildCoupleEmailHtml(groomName, brideName, onlineUrl, familyUrl, hasQr,
       '<div style="background:#2A241F;padding:22px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin:24px 0;">' + links + '</div>' +
       (hasQr ? '<div style="text-align:center;margin:4px 0 24px;"><img src="cid:qrDigital" alt="라이브(입장) 페이지 QR" width="150" height="150" style="width:150px !important;height:150px !important;max-width:150px !important;display:block;margin:0 auto;border:0;border-radius:2px;"><div style="font-size:12px;color:#B8AE9F;margin-top:12px;line-height:1.7;"><span style="color:#D8B48C;font-weight:600;">라이브(입장) 페이지 QR</span><br>종이 청첩장·인쇄물에 넣으시면, 하객이 스캔해 바로 입장할 수 있습니다.<br>QR을 길게(꾹) 누르면 이미지로 저장하실 수 있습니다.</div></div>' : '') +
       '<p style="font-size:13px;line-height:1.9;color:#B8AE9F;">한 번 열어보시고 이름·날짜·계좌·호칭에 오타가 없는지 확인해 주세요.<br>' + editNote + '</p>' +
-      '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#C9A977;">Focus on the Essence, Record the Truth.</div>' +
-      '<div style="text-align:center;margin-top:14px;font-size:10px;color:#7A7165;">Moment Edit · contact@momentedit.kr</div></div>' +
+      // [DM_FOOT_SIGN] 이름 먼저 · 문장 뒤 · 메일 없음(발신자가 들고 있다) · #7A7165(대비 3.6) → #A99E8E(6.56)
+      '<div style="margin-top:40px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.10);text-align:center;">' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;letter-spacing:0.03em;color:#E8E1D6;">Moment Edit</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:12.5px;letter-spacing:0.075em;color:#A99E8E;margin-top:9px;">Focus on the Essence, Record the Truth.</div>' +
+      '</div>' +
+      '</div>' +
     '</td></tr></table></body></html>';
 }
 // 날짜 검증 실패 시 두 분께 정중히 재제출 안내 — 본 안내 메일과 동일 브랜드 톤(dark/serif/gold).
@@ -618,8 +622,12 @@ function buildDateRetryEmailHtml(groomName, brideName, weddingDateRaw) {
         '<div style="font-size:15px;font-family:\'Cormorant Garamond\',serif;letter-spacing:0.04em;">' + formLink + '</div>' +
       '</div>' +
       '<p style="font-size:12px;line-height:1.85;color:#9C9080;text-align:center;margin-top:22px;">같은 성함으로 제출해 주시면 이전 정보가 자동으로 갱신됩니다.<br>혹시 문의 사항이 있으시면 contact@momentedit.kr 으로 회신해 주세요.</p>' +
-      '<div style="text-align:center;margin-top:32px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;color:#C9A977;">Focus on the Essence, Record the Truth.</div>' +
-      '<div style="text-align:center;margin-top:14px;font-size:10px;color:#7A7165;">Moment Edit · contact@momentedit.kr</div></div>' +
+      // [DM_FOOT_SIGN] 이름 먼저 · 문장 뒤 · 메일 없음(발신자가 들고 있다) · #7A7165(대비 3.6) → #A99E8E(6.56)
+      '<div style="margin-top:40px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.10);text-align:center;">' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;letter-spacing:0.03em;color:#E8E1D6;">Moment Edit</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:12.5px;letter-spacing:0.075em;color:#A99E8E;margin-top:9px;">Focus on the Essence, Record the Truth.</div>' +
+      '</div>' +
+      '</div>' +
     '</td></tr></table></body></html>';
 }
 

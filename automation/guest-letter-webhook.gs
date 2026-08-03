@@ -543,11 +543,12 @@ function buildEmailHtml(couple, guestName, relation, message, recipient, role) {
       '<div style="background:#2A241F;padding:32px 28px;border:1px solid rgba(255,255,255,0.08);border-radius:2px;font-family:\'Noto Serif KR\',serif;font-size:14.5px;line-height:2;font-weight:300;color:#E8E1D6;white-space:pre-wrap;word-break:keep-all;">' +
         escapedMessage +
       '</div>' +
-      '<div style="text-align:center;margin-top:40px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:11px;letter-spacing:0.08em;color:#C4AD8F;">' +
-        'Focus on the Essence, Record the Truth.' +
-      '</div>' +
-      '<div style="text-align:center;margin-top:24px;font-size:10px;color:#7A7165;letter-spacing:0.08em;">' +
-        'Moment Edit · contact@momentedit.kr' +
+      // [DM_FOOT_SIGN] 편지 맺음 — 이름 먼저, 문장 뒤, 메일 없음(2026-08-03 사용자 지시).
+      //  이 메일은 '받은 편지'지 연락처 안내가 아니다 · 회신 주소는 발신자(From)가 이미 들고 있다.
+      //  ★#7A7165는 이 어두운 지면에서 대비 3.6 — 10px 글자에 쓰던 색이다. #A99E8E(6.56)로 올린다.
+      '<div style="margin-top:40px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.10);text-align:center;">' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;letter-spacing:0.03em;color:#E8E1D6;">Moment Edit</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:12.5px;letter-spacing:0.075em;color:#A99E8E;margin-top:9px;">Focus on the Essence, Record the Truth.</div>' +
       '</div>' +
     '</div>' +
     '</td></tr></table></body></html>';
