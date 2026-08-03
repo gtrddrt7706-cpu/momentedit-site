@@ -12,7 +12,7 @@
 //
 // 의존성 없음(전역 fetch). 키는 코드·저장소에 두지 않는다.
 
-const MODEL = 'claude-sonnet-4-6';   // 마이페이지 애프터웨딩 컨시어지(계약 고객): 현재 Sonnet 4.6 (그라운딩 후 Opus 재격상 검토)
+const MODEL = 'claude-sonnet-5';   // 마이페이지 애프터웨딩 컨시어지(계약 고객): 현재 Sonnet 5 (그라운딩 후 Opus 재격상 검토)   // [MODEL_GEN5 2026-08-03] Sonnet 4.6 → Sonnet 5 세대 이전. 되돌리려면 git revert 1커밋.
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const KAKAO_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json';
 const STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(index.html 지도와 동일 좌표)

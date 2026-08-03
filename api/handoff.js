@@ -11,7 +11,7 @@
 
 const KNOWLEDGE = require('./_kb');
 const RITUAL_KB = require('./_ritual-kb');   // 접점 '식순' 인계는 식순 지식으로 브리핑(일반 KB엔 이벤트 상세가 없어 없는 옵션을 지어낼 위험 · 기획 v3 §1-2)
-const MODEL = 'claude-opus-4-8';   // 핸드오프는 드물고 관리자 응대 품질이 중요 → 상위 모델
+const MODEL = 'claude-opus-5';   // 핸드오프는 드물고 관리자 응대 품질이 중요 → 상위 모델   // [MODEL_GEN5 2026-08-03] Opus 4.8 → Opus 5. 인계는 관리자만 보는 출력이라 고객 노출 위험이 가장 낮다.
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_MSG_LEN = 800, MAX_HISTORY = 16, MAX_TOKENS = 1300;
 

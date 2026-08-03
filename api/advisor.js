@@ -1,5 +1,5 @@
 // 모먼트에디트 AI 상담사 · 2단 자유질문 엔드포인트 (Vercel 서버리스)
-// 프론트(index.html 위젯) → POST /api/advisor → Claude Haiku 4.5
+// 프론트(index.html 위젯) → POST /api/advisor → Claude Sonnet 5
 // 지식베이스(KB) 안의 사실만으로 답하고, 모르면 [[ESCALATE]] 신호로 상담사 연결을 유도한다.
 //
 // 필요 환경변수 (Vercel 프로젝트 설정):
@@ -13,8 +13,8 @@
 
 // 모델: 고객 상담 접점은 Sonnet 4.6. 실시간 채팅이라 thinking 비활성 + effort low.
 //   (마이페이지는 실시간 상태 그라운딩을 붙인 뒤 Opus 재격상 검토 · 그래서 상수·분기는 남겨둠)
-const MODEL_PUBLIC = 'claude-sonnet-4-6';
-const MODEL_MYPAGE = 'claude-sonnet-4-6';   // 마이페이지(계약 고객): 현재 Sonnet. 그라운딩 후 Opus 재격상 시 이 값만 교체
+const MODEL_PUBLIC = 'claude-sonnet-5';   // [MODEL_GEN5 2026-08-03] Sonnet 4.6 → Sonnet 5 세대 이전. 되돌리려면 이 줄만 원복(git revert 1커밋).
+const MODEL_MYPAGE = 'claude-sonnet-5';   // 마이페이지(계약 고객): 현재 Sonnet. 그라운딩 후 Opus 재격상 시 이 값만 교체
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
 // 어뷰징·비용 가드

@@ -9,7 +9,14 @@ var AI_COST_CFG = {
   USD_KRW: 1400,    // 원/달러 (추정 — 변동 시 이 값만 수정)
   RETAIN_DAYS: 35,  // 로그 보관일(이번 달 집계 커버 · 그 이후 자동 삭제)
   // 모델별 1M토큰당 USD [입력, 출력]. 캐시쓰기=입력×1.25, 캐시읽기=입력×0.1.
+  // ★[MODEL_GEN5 2026-08-03] api/ 의 모델 상수를 바꾸면 반드시 여기도 같이 고칠 것.
+  //   미등록 모델은 아래 fallback으로 조용히 잘못 청구되고, 경보도 안 뜬다(집계만 틀어진다).
   PRICE: {
+    // 현행 세대
+    'claude-opus-5':   { input: 5, output: 25 },
+    'claude-sonnet-5': { input: 3, output: 15 },   // 2026-08-31까지 도입가 $2/$10. 정가로 잡아 과대추정 = 예산 경보가 일찍 울리는 안전한 방향
+    'claude-haiku-4-5-20251001': { input: 1, output: 5 },
+    // 구세대 — 되돌릴(revert) 때를 대비해 남겨 둔다. 지우지 말 것
     'claude-opus-4-8':   { input: 5, output: 25 },
     'claude-sonnet-4-6': { input: 3, output: 15 },
     'claude-haiku-4-5':  { input: 1, output: 5 }
@@ -17,7 +24,7 @@ var AI_COST_CFG = {
 };
 
 function _aiCostUSD_(model, inn, out, cw, cr) {
-  var p = AI_COST_CFG.PRICE[model] || AI_COST_CFG.PRICE['claude-sonnet-4-6'];
+  var p = AI_COST_CFG.PRICE[model] || AI_COST_CFG.PRICE['claude-sonnet-5'];
   return (inn * p.input + out * p.output + cw * p.input * 1.25 + cr * p.input * 0.1) / 1e6;
 }
 

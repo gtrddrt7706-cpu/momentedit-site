@@ -8,7 +8,7 @@
 //
 // 필요 환경변수: ANTHROPIC_API_KEY (없으면 503 · 프론트 폴백)
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';   // [MODEL_GEN5 2026-08-03] Sonnet 4.6 → Sonnet 5 세대 이전. 되돌리려면 이 줄만 원복(git revert 1커밋).
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
 const MAX_MSG_LEN = 1500;    // 붙여넣기 첨삭(양가 편지 2통+질문 ≈ 650자+)이 잘리지 않게 상향 — 기획 v3 §5

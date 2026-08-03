@@ -5,7 +5,7 @@
 // 환경변수: ANTHROPIC_API_KEY (필수) · HANDOFF_WEBHOOK_URL (선택 · 핵심정보/보충지식 주입용)
 
 const KNOWLEDGE = require('./_kb');
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';   // [MODEL_GEN5 2026-08-03] Sonnet 4.6 → Sonnet 5 세대 이전. 되돌리려면 이 줄만 원복(git revert 1커밋).
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_TOKENS = 1600;
 
