@@ -13,9 +13,9 @@
     "하객대표": "영목"
   },
   "gap": {
-    "head": 0.4,
-    "sent": 1.8,
-    "tail": 1
+    "head": 0.35,
+    "sent": 0.9,
+    "tail": 0.9
   },
   "parts": [
     {
@@ -126,26 +126,26 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘, 두 사람의 예식에 함께해 주셔서 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘의 모든 자리는 두 사람이 정성껏 준비한 지정 좌석입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "미리 받으신 좌석 안내나 입구의 안내 화면으로 자리를 확인하실 수 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -163,14 +163,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 예식이 약 십 분 뒤 시작됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -188,14 +188,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "예식 시작 오 분 전입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -213,32 +213,32 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘 예식은 미리 준비한 안내 음성으로 진행합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "어떤 순서로 진행할지, 어떤 문장으로 안내할지는 두 사람이 직접 정했습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "잠시 후 예식이 시작됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "자리에 앉아 두 사람의 시작을 함께 맞아 주세요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -256,14 +256,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "지금부터 단체 사진을 담겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -281,26 +281,26 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 기록이 모두 담겼습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "이제 두 사람이 문 앞에서 여러분을 기다립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "서두르지 마시고, 나가시는 길에 두 사람과 인사 나눠 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -318,32 +318,32 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 기록이 모두 담겼습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "이제 두 사람이 문 앞에서 여러분을 기다립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "서두르지 마시고, 나가시는 길에 두 사람과 인사 나눠 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "두고 오신 물건이 없는지 한 번만 살펴 주시면 감사하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -361,20 +361,20 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘 이 자리를 함께 채워 주셔서 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "여러분이 계셔서 두 사람의 처음이 외롭지 않았습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -392,20 +392,20 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "화면으로 함께해 주시는 분들께도 인사드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘 이 자리는, 오시지 못한 분들의 자리까지 비워 두지 않으려고 마련했습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -423,14 +423,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "잠시, 이 마음이 지나갈 시간을 함께 기다리겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -448,14 +448,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "잠시 준비할 것이 있어 조금만 기다려 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -473,14 +473,14 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "기다려 주셔서 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -498,26 +498,26 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "지금까지 두 사람은, 각자의 길을 걸어왔습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘, 그 두 길이 하나가 되어 이 자리에서 만납니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "모두, 따뜻한 박수로 두 사람을 맞아 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -535,20 +535,20 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "기다리던 순간입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "여기 모인 마음을 모두 담아, 큰 박수 부탁드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -566,26 +566,26 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "두 사람이 오래 기다려 온 순간입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "서로의 손을 잡고, 평생 함께 걸을 첫 걸음을 내딛습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "하객 여러분, 큰 박수로 맞아 주시면 감사하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -603,26 +603,26 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오랜 계절을 지나, 두 사람이 서로에게 닿았습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘 이 문이 열리면, 두 사람의 새로운 계절이 시작됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "따뜻한 박수로, 그 처음을 함께 맞아 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -640,26 +640,26 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘 이 자리에는, 두 사람을 여기까지 키워 온 사랑이 함께 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "그 사랑 앞에서, 두 사람이 평생의 약속을 향한 첫 걸음을 내딛습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "따뜻한 박수 부탁드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -677,26 +677,26 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "지금부터, 두 사람의 이야기가 시작됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "그 첫 장을, 큰 박수로 함께 열어 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -714,8 +714,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -733,14 +733,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "여러분과 함께라서, 오늘이 더 빛납니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -758,14 +758,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "두 사람이 서로에게 건네는, 혼인 서약의 시간입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -783,8 +783,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -802,14 +802,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "서로를 향한 약속을, 이제 손끝에 새깁니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -827,8 +827,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -846,14 +846,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "지금, 두 사람이 각자의 잔을 하나로 모읍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -871,14 +871,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 첫 순간을 함께 나눕니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -896,14 +896,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제, 두 사람을 위해 준비된 노래가 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -921,8 +921,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -940,8 +940,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -959,8 +959,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -978,8 +978,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -997,8 +997,8 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
@@ -1016,14 +1016,14 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오래 지켜봐 오신 마음이, 그 말씀에 다 담겨 있었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1041,32 +1041,32 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
+      "head": 0.35,
       "tail": 2.5,
       "sents": [
         {
           "i": 0,
           "text": "오늘 예식의 마지막 순서입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -1084,20 +1084,20 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "세상에서 가장 먼저 두 사람을 사랑해 준 마음이, 오늘 이 자리에 함께합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -1115,14 +1115,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1140,20 +1140,20 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "세상에서 가장 먼저 두 사람을 사랑해 준 마음, 그리고 이제 서로의 평생이 될 두 사람.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘, 그 모든 마음을 차례로 소리 내어 전합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -1171,32 +1171,32 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "잠시, 두 사람이 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘, 신랑 신부는 이 자리에 함께하신 모든 분을 증인으로, 서로의 평생이 되었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "이 약속은 오늘부터 두 사람의 것입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "신랑 신부, 이제 두 사람은 부부입니다.",
           "before": 0.5,
-          "after": 1
+          "after": 0.8
         },
         {
           "i": 4,
@@ -1214,32 +1214,32 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "잠시, 두 사람이 함께 웃고 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "이 자리에 계신 모든 분이, 그 증인입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "신랑 신부, 이제 두 사람은 부부입니다.",
           "before": 0.5,
-          "after": 1
+          "after": 0.8
         },
         {
           "i": 4,
@@ -1257,26 +1257,26 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "이 약속은 오늘부터 두 사람의 것입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "신랑 신부, 이제 두 사람은 부부입니다.",
           "before": 0.5,
-          "after": 1
+          "after": 0.8
         },
         {
           "i": 3,
@@ -1294,14 +1294,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘 예식에는 여러분이 함께 답해 주시는 순서가 한 번 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1319,32 +1319,32 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "이제 여러분의 차례입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "제가 한 가지를 여쭙겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "다 같이 이렇게 답해 주시면 됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -1356,7 +1356,7 @@
           "i": 5,
           "text": "그럼 시작하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 6,
@@ -1374,14 +1374,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "신랑 신부, 이제 두 사람은 부부입니다.",
           "before": 0.5,
-          "after": 1
+          "after": 0.8
         },
         {
           "i": 1,
@@ -1399,26 +1399,26 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제, 두 사람의 반지가 양가 가족의 손을 차례로 지나갑니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "잠시 손에 쥐고, 마음속 축복을 담아 옆으로 전해 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "오래 쥐지 마시고, 다음 분께 바로 전해 주시면 감사하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -1436,26 +1436,26 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제, 두 사람의 반지가 이 자리의 모든 손을 차례로 지나갑니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "잠시 손에 쥐고, 마음속 축복을 담아 옆으로 전해 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "오래 쥐지 마시고, 다음 분께 바로 전해 주시면 감사하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -1473,14 +1473,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제, 두 사람이 가장 오랜 사랑 앞으로 걸어갑니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1498,14 +1498,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "그 사랑이 있어, 오늘의 두 사람이 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1523,20 +1523,20 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
+      "head": 0.35,
       "tail": 4.5,
       "sents": [
         {
           "i": 0,
           "text": "이제, 이 기쁨을 모두 함께 나누겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "잔을 들어 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -1554,14 +1554,14 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 가장 달콤한 순간입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1579,26 +1579,26 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
+      "head": 0.35,
       "tail": 4.5,
       "sents": [
         {
           "i": 0,
           "text": "오늘의 가장 달콤한 순간입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "두 사람이 함께 나이프를 잡습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "이어서 모두, 잔을 들어 주시기 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -1616,230 +1616,230 @@
       "role": "편지",
       "part": "4_혼주편지.txt",
       "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "안녕하십니까.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "귀한 자녀분의 혼사를 맡게 된 모먼트에디트입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "예식을 준비하는 사람으로서, 두 분 어른께 먼저 인사드리는 것이 도리라 생각하여 이 글을 올립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "한 사람을 오늘까지 길러 혼사에 이르게 하신 그 세월을, 저희가 감히 다 알지 못합니다.",
-          "before": 0.8,
-          "after": 1.8
+          "before": 0.5,
+          "after": 0.9
         },
         {
           "i": 4,
           "text": "다만 그 시간의 무게를 알기에, 이 예식을 가볍게 만들지 않겠다는 말씀을 먼저 드리고 싶습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 5,
           "text": "두 분께서 궁금해하실 것들을 미리 정리해 드린 안내입니다.",
-          "before": 0.8,
-          "after": 1.8
+          "before": 0.5,
+          "after": 0.9
         },
         {
           "i": 6,
           "text": "천천히 살펴봐 주십시오.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 7,
           "text": "하나, 인원을 절제하는 이유.",
-          "before": 1.5,
-          "after": 1.5
+          "before": 1.1,
+          "after": 1.1
         },
         {
           "i": 8,
           "text": "모먼트에디트의 예식은 양가의 가장 가까운 분들을 모시는 자리입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 9,
           "text": "하객이 많은 자리에서는 인사가 스쳐 지나가기 쉽습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 10,
           "text": "저희는 인원을 절제하는 대신, 오신 모든 분과 눈을 맞추고 이야기를 나눌 수 있는 호흡을 마련합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 11,
           "text": "그날 혼주께서는 오신 모든 분과 눈을 맞추고 인사를 나누신 뒤, 서두르지 않고 배웅하시게 됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 12,
           "text": "저희가 인원을 절제하는 이유는 소홀함이 아니라 정중함에 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 13,
           "text": "둘, 갖출 것은 갖춘 예식.",
-          "before": 1.5,
-          "after": 1.5
+          "before": 1.1,
+          "after": 1.1
         },
         {
           "i": 14,
           "text": "작은 예식이라 하여 격식을 덜어내지 않습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 15,
           "text": "어른께 드리는 예와 인사를 갖춘 정갈한 본식으로 진행하며, 예식 전체에 넉넉한 시간을 두어 서두르지 않습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 16,
           "text": "양가의 모든 세대가 한 자리에 모여 남기는 가족 기록의 시간도 따로 마련되어 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 17,
           "text": "점점 드물어지는 순간이기에, 가장 정성을 들이는 순서 가운데 하나입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 18,
           "text": "혼주에게는 혼주의 품격을, 주인공에게는 주인공의 시간을.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 19,
           "text": "저희가 예식을 준비하며 지키는 문장입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 20,
           "text": "셋, 오시지 못하는 분들께.",
-          "before": 1.5,
-          "after": 1.5
+          "before": 1.1,
+          "after": 1.1
         },
         {
           "i": 21,
           "text": "거리가 멀거나 건강이 여의치 않아 직접 오시지 못하는 분들께는, 외부에 공개되지 않는 온라인 참석 자리를 따로 마련해 드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 22,
           "text": "예식을 처음부터 끝까지 함께 보실 수 있고, 축하의 말씀도 전하실 수 있습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 23,
           "text": "직접 모시는 자리를 대신하려는 것이 아니라, 오시지 못하는 분이 결례가 되지 않도록 마련한 배려입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 24,
           "text": "넷, 축하의 마음.",
-          "before": 1.5,
-          "after": 1.5
+          "before": 1.1,
+          "after": 1.1
         },
         {
           "i": 25,
           "text": "축하의 마음은 청첩장과 함께 정중히 안내드리고, 감사히 받습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 26,
           "text": "청첩장에 마음 전하실 곳을 함께 적어 드리며, 온라인 참석 자리에도 마음을 전하실 수 있는 길을 마련해 두었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 27,
           "text": "형식이 달라도, 함께해 주신 모든 마음은 소중히 받습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 28,
           "text": "이 형식은 자녀분이 오래 고민하여 마음에 둔 방식입니다.",
-          "before": 0.8,
-          "after": 1.8
+          "before": 0.5,
+          "after": 0.9
         },
         {
           "i": 29,
           "text": "그 마음이 어른께 잘 전해지도록 돕는 것이 저희의 역할입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 30,
           "text": "결혼의 형식에 정답은 없다고 생각합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 31,
           "text": "모든 결정은 온전히 두 분과 어른의 몫입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 32,
           "text": "저희는 다만, 어느 쪽을 택하시든 그 자리가 소홀하지 않도록 준비하는 사람들입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 33,
           "text": "예식이 어떻게 준비되고 있는지는, 신랑신부를 통해 소상히 전해 드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 34,
           "text": "궁금하신 점은 아래에서 편히 물어봐 주십시오.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 35,
           "text": "정성껏 답해 드리겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 36,
           "text": "두 분 어른께, 예식을 맡은 사람으로서 올립니다.",
-          "before": 0.8,
-          "after": 1.8
+          "before": 0.5,
+          "after": 0.9
         },
         {
           "i": 37,
@@ -1857,26 +1857,26 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "안녕하세요, 신랑 이준호입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘 저희 예식에 와 주셔서 정말 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "자리는 저희가 한 분 한 분 생각하면서 정해 두었습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -1894,20 +1894,20 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "신부 정세영입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "예식이 십 분 뒤에 시작됩니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -1925,14 +1925,14 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "이제 오 분 남았습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -1950,26 +1950,26 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "오늘 예식은 사회자 없이, 저희가 미리 준비한 안내 음성으로 진행합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "어떤 순서로 할지, 어떤 말로 안내할지는 저희 둘이 직접 정했습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "잠시 후 시작합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -1987,14 +1987,14 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "저희 둘이 이제 함께 들어가겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
@@ -2012,26 +2012,26 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "안녕하세요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "오늘 와 주셔서 정말 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "저희 둘 다 말주변이 별로 없어서, 준비를 많이는 못 했습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -2049,20 +2049,20 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "먼 길 와 주신 분들이 많습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "한 분 한 분 얼굴 보고 인사드리고 싶었는데, 오늘은 이렇게 한 번에 드립니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -2080,32 +2080,32 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "세영아.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "나는 앞으로도 아마 말을 잘 못 할 거야.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "대신 옆에 있을게.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "네가 힘들 때 제일 먼저 알아채는 사람이 되고, 네가 괜찮다고 해도 한 번은 더 물어볼게.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -2123,32 +2123,32 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "준호야.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "사랑한다는 말은 앞으로 많이 할 거니까, 오늘은 다른 걸 약속할게.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "나는 너한테 화가 나도 다음 날까지 안 끌고 가겠다고.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "네가 실수해도 사람들 앞에서는 얘기 안 하겠다고.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -2166,38 +2166,38 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "엄마, 아빠께.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "스물아홉 해 동안 저는 한 번도 제대로 고맙다고 말한 적이 없어요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "오늘 처음 해요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "저 이제 다른 집으로 가요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
           "text": "그런데 딸이 없어지는 건 아니에요.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 5,
@@ -2215,32 +2215,32 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "세영아.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "너한테 쓰는 편지는 처음이라 몇 번을 다시 썼어.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "결국 남은 말은 하나야.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "같이 있으면 나는 조금 더 나은 사람이 되더라.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -2258,32 +2258,32 @@
       "role": "아버님",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "준호야, 세영아.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "아버지가 말주변이 없어서 길게는 못 한다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "살다 보면 서로 미운 날이 온다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
           "text": "그날 먼저 말 거는 쪽이 이기는 거다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 4,
@@ -2301,26 +2301,26 @@
       "role": "어머님",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "세영아, 준호야.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "엄마는 오늘 딸 손을 놓는 게 아니라, 아들 손을 하나 더 잡는다고 생각한다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "아프지 말고, 밥 잘 챙겨 먹고.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,
@@ -2338,20 +2338,20 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "어머니, 아버지.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "키워 주셔서 감사합니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
@@ -2369,26 +2369,26 @@
       "role": "하객대표",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 1,
+      "head": 0.35,
+      "tail": 0.9,
       "sents": [
         {
           "i": 0,
           "text": "준호, 세영이 두 사람과 오래 알고 지낸 친구입니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 1,
           "text": "길게 안 하겠습니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 2,
           "text": "두 사람 앞날에 좋은 일만 있기를 바랍니다.",
           "before": 0,
-          "after": 1.8
+          "after": 0.9
         },
         {
           "i": 3,

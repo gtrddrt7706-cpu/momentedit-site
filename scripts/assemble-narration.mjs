@@ -34,7 +34,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -248,9 +248,45 @@ const sil = (sec) => {
     '-i', `anullsrc=r=48000:cl=mono`, '-t', String(sec), '-c:a', 'pcm_s24le', f]);
   return f;
 };
-const norm = (f) => {                       // 48k/24bit mono로 통일해 concat 안전하게
+// ── ★★[TRIM_VENDOR_EDGE 2026-08-03] 원본 가장자리 무음을 깎는다
+//   타입캐스트는 클립마다 앞 0.19~0.40초 · 뒤 0.20~0.36초 무음을 얹어서 준다.
+//   그 위에 우리 여백을 그대로 더하면 설계 2.6초 자리가 3.2~3.4초로 들린다(혼주 편지 실측 ·
+//   무음이 전체의 30%였다). 사용자 실청 지적 "문장이 바뀌는 곳에서 턴이 너무 길어"의 절반이 이것이다.
+//   여기서 가장자리를 없애야 **manifest에 적은 초가 곧 귀에 들리는 초**가 된다.
+//   말끝·숨소리를 자르지 않도록 -50dB로 재고 양쪽에 0.05초는 남긴다. 재는 자와 자르는 자가 같다.
+const EDGE_KEEP = 0.05;   // 남겨 두는 여유 — 자음 끝이 뭉개지지 않게
+const EDGE_MAX = 1.20;    // 이보다 길면 사고(빈 파일·통무음)로 보고 손대지 않는다
+const trimStat = { n: 0, sec: 0 };
+
+const edgeOf = (f) => {
+  const d = durOf(f);
+  const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'silencedetect=n=-50dB:d=0.05', '-f', 'null', '-'],
+    { encoding: 'utf8' });
+  // ★silencedetect는 info 레벨로 나온다 — `-v error`를 붙이면 한 줄도 안 나오고 '무음 0곳'이 된다
+  const e = r.stderr || '';
+  const seg = []; let cur = null;
+  for (const m of e.matchAll(/silence_(start|end): ([-\d.]+)/g)) {
+    if (m[1] === 'start') cur = parseFloat(m[2]);
+    else if (cur !== null) { seg.push([cur, parseFloat(m[2])]); cur = null; }
+  }
+  if (cur !== null) seg.push([cur, d]);
+  const head = (seg.length && seg[0][0] <= 0.03) ? seg[0][1] : 0;
+  const tail = (seg.length && seg[seg.length - 1][1] >= d - 0.03) ? d - seg[seg.length - 1][0] : 0;
+  const c0 = Math.min(Math.max(head - EDGE_KEEP, 0), EDGE_MAX);
+  const c1 = Math.min(Math.max(tail - EDGE_KEEP, 0), EDGE_MAX);
+  if (d - c0 - c1 < 0.30) return [0, 0];    // 거의 통째로 무음인 파일은 건드리지 않는다
+  return [c0, c1];
+};
+
+const norm = (f) => {                       // 48k/24bit mono로 통일해 concat 안전하게 + 가장자리 무음 제거
   const o = path.join(TMP, 'n' + path.basename(f).replace(/\W/g, '_') + '.wav');
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', f, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', o]);
+  const [c0, c1] = edgeOf(f);
+  const d = durOf(f);
+  const af = (c0 || c1)
+    ? ['-af', `atrim=start=${c0.toFixed(3)}:end=${(d - c1).toFixed(3)},asetpts=N/SR/TB`]
+    : [];
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', f, ...af, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', o]);
+  trimStat.n++; trimStat.sec += c0 + c1;
   return o;
 };
 
@@ -297,6 +333,7 @@ for (const w of work) {
 fs.rmSync(TMP, { recursive: true, force: true });
 fs.rmSync(TMPZ, { recursive: true, force: true });
 console.log(`\n✓ ${made}클립 → ${[...outDirs].map((d) => path.relative(root, d) + '/').join(' · ')}`);
+if (trimStat.n) console.log(`  가장자리 무음 제거 ${trimStat.sec.toFixed(1)}초 (${trimStat.n}개 · 평균 ${(trimStat.sec / trimStat.n).toFixed(2)}초) — TRIM_VENDOR_EDGE`);
 if ([...outDirs].some((d) => /cast$/.test(d)))
   console.log(`  ★assets/audio/cast/ 는 미리듣기 전용입니다. 당일 콘솔은 이 클립을 재생하지 않습니다.`);
 console.log(`  마지막으로 식장 스피커로 실청하세요. 헤드폰에서 괜찮아도 홀 울림에서 BGM에 묻힐 수 있습니다.`);
