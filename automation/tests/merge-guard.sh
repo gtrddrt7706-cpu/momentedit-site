@@ -1107,6 +1107,8 @@ chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(
 chk 'COPY_TRIM4' index.html 1
 chk 'COPY_QUIET' index.html 1                            # 수식·중복만 덜어낸 문단 7곳 · 되돌리면 최장 139자·설득조 문장이 복귀                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'IG_ONCE' index.html 2                               # 기록 갤러리 = '인스타그램'을 한 번만 · 되돌리면 큰 제목이 남의 회사 이름이 되고 사진 9장 위에 배지가 다시 상시로 찍힌다(모바일 hover 없음)
+chk 'ORD_ROWCTL' order-preview.html 3                   # 넣기·빼기를 ↑↓ 옆 한 칸으로 + '꼭 들어가는 순서' 알약 제거 · 되돌리면 목록이 카드당 한 줄씩 길어지고 알약이 여섯 개로 늘어난다
+chk 'ORD_HUE' order-preview.html 5                      # 진사 절제(주 버튼 먹빛 · 선택 글자 accent · 칩 아웃라인) · 마이페이지와 같은 말을 쓰기 위한 것
 chk 'ORD_ASK' order-preview.html 3                       # 우리 톤 확인 판 · 브라우저 confirm()으로 되돌리면 검은 시스템 판이 한 화면에 두 언어를 만든다
 chk 'ORD_RESET_SRV' order-preview.html 1                # '처음부터 다시'가 서버 초안까지 비운다
 chk 'ORD_RESET_SRV' mypage.html 1                       # 그 요청을 받아 실제로 비우는 쪽 · 한쪽만 있으면 나갔다 오면 완성 화면으로 되살아난다

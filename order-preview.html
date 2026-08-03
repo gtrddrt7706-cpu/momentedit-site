@@ -53,7 +53,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .oc-nm{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;word-break:keep-all}
 .oc-nm::before{content:'';width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:.15s;background-repeat:no-repeat;background-position:center;background-size:12px}
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
-.oc.on .oc-nm{color:var(--seal)}
+.oc.on .oc-nm{color:var(--accent)}   /* [ORD_HUE] 고른 카드에 진사가 셋(테두리·체크·제목)이었다 — 체크 하나만 남긴다 */
 .oc-desc{font-size:13px;color:var(--light);margin-top:3px;word-break:keep-all}
 .oc-rec{font-size:11px;color:var(--gold-deeper);font-weight:400;margin-left:auto;flex-shrink:0}
 .oc:active,.crs:active{transform:scale(.985);transition:transform .12s}
@@ -82,7 +82,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
 .ex-chip{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:12px;color:var(--sub);font-family:var(--sans);cursor:pointer}
-.ex-chip.on{border-color:var(--seal);color:#fff;background:var(--seal);font-weight:600}
+.ex-chip.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent);background:#fff;font-weight:600}   /* [ORD_HUE] 마이페이지 선택 칩(.dk-chip.on)과 같은 말 */
 .entry-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .oc .nar,.oc .self{background:none;border:none;border-radius:0;padding:9px 2px 0}
 .ex-t{font-size:10px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;margin-bottom:8px}
@@ -104,7 +104,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .seqr .sq-d{font-size:10px;color:#635E4F;margin-top:2px;word-break:keep-all;line-height:1.5}   /* [ORD_A11Y] --light(#75705F)는 강조 행 배경(#EEECE7) 위에서 4.19 — 10px 글자엔 4.5가 필요하다. 5.48로 */
 .seqr.on{background:#EEECE7;border:1px solid var(--seal);border-radius:10px;padding:10px;margin:3px 0}
 .seqr.on .sq-tm{color:var(--seal)}
-.seqr.on .sq-n{color:var(--seal)}
+.seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
 .seqr .sq-here{font-size:10px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
 .dmnote{font-size:11px;color:var(--light);text-align:center;margin-top:11px;line-height:1.6;word-break:keep-all}
 .prefacts{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px}
@@ -121,7 +121,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#EEECE7}.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
 .crs-nm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
-.crs.on .crs-nm{color:var(--seal)}
+.crs.on .crs-nm{color:var(--accent)}   /* [ORD_HUE] 위와 같은 이유 */
 .crs-badge{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 10px}
 .crs.soon .crs-badge{background:var(--light)}
 .crs-one{font-size:13px;color:var(--gold-deeper);margin-top:6px;word-break:keep-all;font-weight:500}
@@ -174,6 +174,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-mv{display:inline-flex;gap:4px}
 .mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
 .mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
+/* [ORD_ROWCTL] 넣기·빼기 — ↑↓와 같은 크기·같은 자리. 빼기는 한 톤 진하게(되돌릴 수 있는 조작이라 진사는 쓰지 않는다) */
+.mvb-del,.mvb-add{font-size:16px;font-weight:600;color:var(--gold-deeper);margin-left:2px}
+.mvb-add{background:#F6F2EA;border-color:var(--gold-btn)}
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
@@ -248,7 +251,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .nav{padding:16px 0 calc(20px + env(safe-area-inset-bottom));display:flex;gap:10px;position:sticky;bottom:0;z-index:70;background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 15px)}
 .btn{flex:1;border:none;border-radius:11px;padding:15px 0;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-prev{flex:0 0 82px;background:var(--bg2);color:var(--sub)}
-.btn-next{background:var(--seal);color:#fff}.btn-next:active{background:#571f1a}
+/* [ORD_HUE] 주 버튼을 마이페이지와 같은 먹빛(#4E3F31)으로 — 진사는 「CTA·강조 포인트, 넓은 면적 금지」다.
+   화면마다 하단 전폭을 진사로 채우면 그 규칙이 무너지고, 마이페이지(.cc-btn #4E3F31)와도 말이 갈렸다. */
+.btn-next{background:#4E3F31;color:#fff}.btn-next:active{background:#3E3227}
 .btn:disabled{opacity:.4}
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
@@ -1238,10 +1243,14 @@ function renderStep(k){
       h+='<div class="mc'+(_off?' off':'')+(_open?' open':'')+'">';   // [ORD_KEY] 펼침 조작은 아래 .mc-t 버튼이 맡는다
       var _min=_off?'':(_mm(x)?('약 '+_mm(x)+'분'):(x==='guest'?'식전':''));
       // 카드 레벨엔 순서 넣기/빼기만 — 이 버튼 체인이 '조정 가능' 판정의 단일 출처(아래 알약 _adj가 이걸 따라 표시와 동작이 어긋나지 않음)
+      /* [ORD_ROWCTL] '순서에서 빼기'가 카드 아래 한 줄을 통째로 쓰고 있었다 — 목록 일곱 줄이 그만큼 길어졌다
+         (2026-08-03 사용자 "화살표 있는 곳에 버튼 추가하든가 더 덜어내자 · 깔끔하고 미니멀하게").
+         ↑↓와 같은 묶음에 −/+ 한 칸으로 넣는다. 목록 편집의 표준 자리라 설명이 필요 없고,
+         되돌릴 수 있는 조작이라(빼면 +가 뜬다) 확인 판도 필요 없다. */
       var _tg='';
-      if(d.off) _tg='<button type="button" class="rowbtn up" aria-label="'+esc(t.n)+' 순서에 넣기" onclick="extraTgl(\''+x+'\')">'+ICO_PLUS+'순서에 넣기</button>';
-      else if(S.extra[x]) _tg='<button type="button" class="rowbtn" aria-label="'+esc(t.n)+' 순서에서 빼기" onclick="extraTgl(\''+x+'\')">순서에서 빼기</button>';
-      else if(OFFTGL[x]) _tg='<button type="button" class="rowbtn'+(momOn(x)?'':' up')+'" aria-label="'+esc(t.n)+(momOn(x)?' 순서에서 빼기':' 순서에 넣기')+'" onclick="quickOff(\''+x+'\')">'+(momOn(x)?'순서에서 빼기':ICO_PLUS+'순서에 넣기')+'</button>';   // '넣기'는 up(크림 배경)으로 통일 — 옵션 경로(위)와 같은 라벨인데 색이 갈라지던 것(2026-07-18 사용자 지적)
+      if(d.off) _tg='<button type="button" class="mvb mvb-add" aria-label="'+esc(t.n)+' 순서에 넣기" title="순서에 넣기" onclick="extraTgl(\''+x+'\')">+</button>';
+      else if(S.extra[x]) _tg='<button type="button" class="mvb mvb-del" aria-label="'+esc(t.n)+' 순서에서 빼기" title="순서에서 빼기" onclick="extraTgl(\''+x+'\')">−</button>';
+      else if(OFFTGL[x]) _tg='<button type="button" class="mvb '+(momOn(x)?'mvb-del':'mvb-add')+'" aria-label="'+esc(t.n)+(momOn(x)?' 순서에서 빼기':' 순서에 넣기')+'" title="'+(momOn(x)?'순서에서 빼기':'순서에 넣기')+'" onclick="quickOff(\''+x+'\')">'+(momOn(x)?'−':'+')+'</button>';
       // 알약 = 고정/조정 축(2026-07-17 사용자 요청: 어떤 순간이 고정이고 어떤 순간을 넣고 빼는지 한눈에) — 선택 종류는 확장 안 '여기서 정할 것'이 담당
       var _adj=!!_tg;
       // ★[ORD_BADGE_AXIS] 이 알약은 **순서 축**만 말한다(이 순서가 빠지는가). '연출을 고를 수 있는가'는 다른 축이고,
@@ -1249,7 +1258,10 @@ function renderStep(k){
       //   서로 다른 축에 써서, 코스 상세에서 '연출 고를 수 있어요'였던 순간이 한 화면 뒤 '고정 진행'으로 뒤집혔다
       //   (담백 기준 다섯 개 · 2026-08-01). 축이 섞이지 않게 순서 축 문구는 '순서'라는 말을 반드시 품을 것.
       // ★'뺄 수 있어요'는 아래 '순서에서 빼기' 버튼과 같은 말이라 뺐다 — 버튼이 있으면 가능하다는 뜻이 이미 전달된다.
-      var _pill=_off?'지금은 빠져 있어요':(_adj?'':'꼭 들어가는 순서');
+      // [ORD_ROWCTL] '꼭 들어가는 순서' 알약 제거 — 일곱 줄 중 여섯에 같은 알약이 붙어 소음이 됐다.
+      //   − 버튼이 없다는 것이 곧 '뺄 수 없는 순서'다(예전에 '뺄 수 있어요'를 같은 이유로 뺐다).
+      //   빠져 있는 상태만 남긴다 — 그건 분류가 아니라 지금 상태라 흐린 카드만으로는 부족하다.
+      var _pill=_off?'지금은 빠져 있어요':'';
       // 순서 이동 ↑↓ — 위에서부터가 실제 진행 순서(2026-07-18 사용자 지시). 하객 맞이(식전)는 맨 위 고정이라 이동 없음
       var _mv='';
       if(x!=='guest'){
@@ -1258,12 +1270,11 @@ function renderStep(k){
           +((di<_disp.length-1)?'<button type="button" class="mvb" aria-label="'+esc(t.n)+' 순서 아래로" data-fk="mv:'+x+':d" onclick="momMove(\''+x+'\',1)">↓</button>':'')
           +'</span>';
       }
-      h+='<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_open?'true':'false')+'" aria-describedby="mcd_'+x+'" data-fk="mc:'+x+'" onclick="tprev(\''+x+'\')">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+(_pill?'<span class="tcap'+(_off?'':' fx')+'">'+_pill+'</span>':'')+'</button><span class="mc-r">'+_mv+'<span class="mc-chev" aria-hidden="true">›</span></span></div>';   // [ORD_KEY][ORD_DESC]
+      h+='<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_open?'true':'false')+'" aria-describedby="mcd_'+x+'" data-fk="mc:'+x+'" onclick="tprev(\''+x+'\')">'+esc(t.n)+(_min?'<span class="mc-min">'+_min+'</span>':'')+(_pill?'<span class="tcap'+(_off?'':' fx')+'">'+_pill+'</span>':'')+'</button><span class="mc-r">'+_mv+_tg+'<span class="mc-chev" aria-hidden="true">›</span></span></div>';   // [ORD_KEY][ORD_DESC]
       h+='<div class="mc-e" id="mcd_'+x+'">'+esc(t.c)+'</div>';
       // ★'지금 ·'은 예식 맥락에서 "예식이 지금 여기까지 왔다"로 읽혔다(2026-08-01). 이 줄이 말하는 건 **고른 연출**이다.
       var _mcs=(!_off && x!=='welcome')?rowVal(x):'';
       if(_mcs) h+='<div class="mc-s">연출 · '+esc(_mcs)+'</div>';   // [ORD_BADGE_AXIS] 고를 연출이 없는 순간(반지 교환)은 이 줄 자체를 안 그린다
-      if(_tg) h+='<div class="mc-act">'+_tg+'</div>';
       if(_open){
         h+='<div class="mc-x">';
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
