@@ -1104,7 +1104,8 @@ chk 'PREVIEW_DIGITAL' scripts/audit/preview-entry.mjs 9  # 실렌더 검사 9종
 chk 'GV_LIVE_TOP' invitation-gallery.html 1              # 프레임 안 라이브 브랜드 띠 고정 해제 · 되돌리면 상단에 띠가 두 겹으로 남는다
 chk 'GV_EXTRAS_POLL' invitation-gallery.html 1           # load 미발생 문서에도 배선 · 라이브 카드는 load에 못 닿는다
 chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(홈 링크·띠) · CSS 훅과 스크립트 쌍
-chk 'COPY_TRIM4' index.html 1                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
+chk 'COPY_TRIM4' index.html 1
+chk 'COPY_QUIET' index.html 1                            # 수식·중복만 덜어낸 문단 7곳 · 되돌리면 최장 139자·설득조 문장이 복귀                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'MOCK_SAMPLE_SYNC' index.html 1                     # 홈 목업 표본일 = 청첩장 SAMPLE(2026-10-24 토 14:00) · 어긋나면 홈과 미리보기가 다른 예식일을 보여준다
 
 # ── 미리듣기 배경 음악 [PREVIEW_BED] (2026-08-02 · 사용자 제안 "오디오북처럼 BGM까지 나오게")
