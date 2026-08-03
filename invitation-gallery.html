@@ -676,9 +676,38 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
        스크롤바까지 숨겼으니 '더 있다'는 신호가 아무것도 없어 "버튼이 없는 청첩장이 있다"로
        읽혔다(2026-08-01 사용자 지적 — 실제로는 8종 모두 있었다).
        프레임 안 문서에 Scroll 큐를 얹는다. guide/09카드와 같은 언어. 내리기 시작하면 사라진다. */
+    /* [GV_CUE_LATE] 큐 판정을 '한 번'이 아니라 '문서가 자리를 잡을 때까지'로 바꾼다.
+       배선(attachFrameExtras)은 문서당 1회(__gvWired)인데, 그 순간 청첩장이 아직 하이드레이션 전이면
+       scrollHeight가 한 화면뿐이라 '스크롤할 게 없다'로 읽혀 큐가 영영 안 붙었다
+       (2026-08-03 실측 — 같은 04 카드가 8초엔 붙고 12초엔 안 붙었다. 뜨는 날과 안 뜨는 날이 갈리는 종류). */
+    (function _cueTry(_n){
     try {
       var de = doc.documentElement;
-      if (de.scrollHeight > (doc.defaultView.innerHeight || 0) + 40 && !doc.getElementById('gvCue')) {
+      /* [GV_CUE_DUP] 커버가 자기 Scroll 큐를 이미 갖고 있으면 얹지 않는다.
+         2026-08-03 [COVER_BAL]로 06 커버를 한 화면으로 줄이자 접힘선 아래 있던 '아래로' 큐가 올라와
+         갤러리 알약과 정확히 겹쳤다 — 한 화면에 스크롤 안내가 둘. 없던 결함이 아니라, 안 보이던 결함이다. */
+      var _vh0 = doc.defaultView.innerHeight || 0;
+      if (doc.getElementById('gvCue')) return;
+      var _native = false;
+      try {
+        _native = [].slice.call(doc.querySelectorAll('body *')).some(function (e) {
+          if (e.id === 'gvCue' || e.children.length) return false;
+          var t = (e.textContent || '').trim();
+          if (!/^(scroll|scroll down|아래로|스크롤)$/i.test(t)) return false;
+          var cs = doc.defaultView.getComputedStyle(e);
+          if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+          var r = e.getBoundingClientRect();
+          return r.height > 0 && r.top > _vh0 * 0.6 && r.top < _vh0;
+        });
+      } catch (e) {}
+      if (_native) return;
+      // ★청첩장은 body가 스크롤 컨테이너다(body{overflow:hidden auto}) — html만 재면 늘 한 화면으로 읽힌다
+      var _sh = Math.max(de.scrollHeight || 0, (doc.body && doc.body.scrollHeight) || 0);
+      if (_sh <= _vh0 + 40) {   // 아직 한 화면 — 하이드레이션을 기다린다(최대 7초)
+        if (_n < 24) setTimeout(function(){ _cueTry(_n + 1); }, 300);
+        return;
+      }
+      {
         var cue = doc.createElement('div');
         cue.id = 'gvCue';
         cue.setAttribute('aria-hidden', 'true');
@@ -702,11 +731,35 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
           + '@media(prefers-reduced-motion:reduce){#gvCue span:last-child{animation:none!important}}';
         (doc.head || doc.documentElement).appendChild(kf);
         doc.body.appendChild(cue);
+        /* [GV_CUE_DUP] 큐가 앉을 자리에 이미 커버 푸터 줄이 있으면(07 'Saturday · 오후 2:00 … AT MOMENT EDIT')
+           알약이 그 위를 덮는다. 알약 배경이 있어 글자가 뒤엉키진 않지만 정보를 가린다 — 푸터 위로 비켜 앉힌다. */
+        try {
+          // ★한 번 올리면 그 위에 있던 다른 줄과 새로 겹친다(04 'SEOJUN & HAYOON'의 &) — 겹침이 사라질 때까지 되민다
+          for (var _pass = 0; _pass < 4; _pass++) {
+            var _cr = cue.getBoundingClientRect(), _lift = 0;
+            [].slice.call(doc.querySelectorAll('body *')).forEach(function (e) {
+              if (e === cue || cue.contains(e)) return;
+              // ★'잎 요소만'으로 재면 <div>MOMENT EDIT <em>STUDIO</em></div> 같은 줄의 앞부분을 놓친다(08 실측 — 알약이 그 위에 얹혔다)
+              if (![].slice.call(e.childNodes).some(function (c) { return c.nodeType === 3 && c.textContent.trim(); })) return;
+              var cs = doc.defaultView.getComputedStyle(e);
+              if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+              var r = e.getBoundingClientRect();
+              if (r.height < 1 || r.bottom <= _cr.top || r.top >= _cr.bottom) return;
+              _lift = Math.max(_lift, _cr.bottom - r.top + 10);
+            });
+            if (_lift <= 0) break;
+            var _cur = parseFloat((String(cue.style.bottom).match(/(\d+(?:\.\d+)?)px/) || [0, 14])[1]) || 14;
+            var _next = Math.min(Math.round(_cur + _lift), 170);
+            if (_next <= _cur) break;
+            cue.style.bottom = 'calc(' + _next + 'px + env(safe-area-inset-bottom))';
+          }
+        } catch (e) {}
         var off = function(){ cue.style.opacity = '0'; doc.removeEventListener('scroll', off); doc.defaultView.removeEventListener('scroll', off); };
         doc.addEventListener('scroll', off, {passive:true});
         doc.defaultView.addEventListener('scroll', off, {passive:true});
       }
     } catch(e){}
+    })(0);
     try {
       var st = doc.createElement('style');
       st.textContent = 'html,body{scrollbar-width:none!important;-ms-overflow-style:none!important}'

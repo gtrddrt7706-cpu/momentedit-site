@@ -344,8 +344,9 @@ body::after{
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:40px 30px 36px;
-  transform:translateY(30px);
+  /* [COVER_BAL] 8종 커버 첫 화면 세로 균형 통일 — 록업 중심을 화면 중심보다 10px 위(광학 중심)로. 상단을 덜고 하단을 더한다 */
+  /* 세로 30px 상시 오프셋 제거 — 리빌 연출 잔재가 카드를 늘 30px 내리고 있었다(오프라인 03에는 없다) */
+  padding:18px 30px 62px;
   position:relative;
   z-index:2;
 }
@@ -1499,7 +1500,7 @@ details.env-acc-item[open] .env-acc-plus{
 @media(max-width:400px){
   .cover-top{padding:calc(26px + var(--safe-top)) 24px 0}
   .cover-brand{font-size:10px;letter-spacing:0.3em;padding-left:0.3em;white-space:nowrap;}
-  .cover-main{padding:30px 22px}
+  .cover-main{padding:8px 22px 52px} /* [COVER_BAL] 8종 커버 첫 화면 세로 균형 통일 — 록업 중심을 화면 중심보다 10px 위(광학 중심)로. 상단을 덜고 하단을 더한다 */
   .cover-card{padding:40px 28px}
   .cover-monogram{font-size:54px}
   .cover-names-ko{font-size:21px;letter-spacing:0.28em;padding-left:0.28em}

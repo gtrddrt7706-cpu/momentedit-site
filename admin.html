@@ -25,7 +25,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --paper:#FAFAF8;--paper2:#F5F3EF;--paper3:#EDEBE6;--card:#FFFFFF;
   --ink:#1C1B19;--sub:#5A554C;--light:#75705F;--accent:#3A2D22;
   --gold:#B89A75;--gold-deep:#9A7B4F;--gold-deeper:#7A5F37;--gold-line:#E6E1D8;
-  --seal:#6B2A24;--border:#DDD8D1;--divider:#EDEAE4;--label-soft:#7C766A;
+  --seal:#6B2A24;--border:#DDD8D1;--divider:#EDEAE4;--label-soft:#75705F; /* [ADM_A11Y] 라벨 대비 4.5:1 미달(#7C766A)이라 한 단계 진하게 · 로그인 라벨 axe serious */
   --blue:#3F6F7A;--red:#9A4A45;--redbg:#F2EDED;--yellow:#8A6A2B;--yellowbg:#FBF3E4;
   --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif;
   --sans:'Noto Sans KR',-apple-system,sans-serif;--mono:'Roboto Mono',monospace;
@@ -37,12 +37,25 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weigh
 
 /* 헤더 */
 .topbar{position:sticky;top:0;z-index:20;background:rgba(250,250,248,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--gold-line);padding:12px 16px;display:flex;align-items:center;gap:8px}
-.topbar .wm{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--accent);cursor:pointer;transition:color .2s}
+.topbar .wm{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--accent);cursor:pointer;transition:color .2s;white-space:nowrap;flex:none}
 .topbar .wm:hover{color:var(--seal)}
 .topbar .wm:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
-.topbar .who{margin-left:auto;font-family:var(--serif-ko);font-size:12px;color:var(--sub)}
+.topbar .who{margin-left:auto;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.topbar .tb-group{display:flex;align-items:center;gap:8px;flex:none}
 .topbar .tb{background:none;border:1px solid var(--border);border-radius:7px;min-width:34px;height:34px;cursor:pointer;color:var(--gold-deeper);font-size:13px;flex:none;padding:0 9px}
 .topbar .tb:active{background:var(--paper2)}
+/* [ADM_HEAD2] 좁은 화면 헤더 2단 — 한 줄에 브랜드·이름·버튼 5개를 몰아넣어
+   'MOMENT EDIT'가 두 줄로 쪼개지고 '로그아웃'이 화면 밖으로 잘려 나가고 있었다.
+   윗줄은 누구인지(브랜드·이름), 아랫줄은 무엇을 하는지(도구 5개)로 나눈다. */
+@media (max-width:600px){
+  .topbar{flex-wrap:wrap;row-gap:9px;padding:10px 14px 11px}
+  .topbar .tb-group{width:100%;gap:6px}
+  .topbar .tb{flex:1 1 0;min-width:0;height:34px;font-size:12px;padding:0 4px;white-space:nowrap}
+}
+@media (max-width:340px){ /* [ADM_HEAD2] 최소폭에서 '새로고침'·'로그아웃'이 테두리에 닿지 않게 */
+  .topbar .tb-group{gap:5px}
+  .topbar .tb{font-size:11.5px;padding:0 2px}
+}
 main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 
 /* 검색 */
@@ -321,10 +334,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <div class="topbar">
   <span class="wm" id="brandHome" role="button" tabindex="0" title="관리자 홈으로">MOMENT EDIT</span>
   <span class="who" id="whoName"></span>
-  <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">휴무</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">보관</button>
-  <button class="tb" id="btnAiTeam" title="AI 직원실(명단·교육·테스트·인건비·인계)" style="display:none">AI</button>
-  <button class="tb" id="btnRefresh" title="새로고침" style="display:none">새로고침</button>
-  <button class="tb" id="btnLogout" title="로그아웃" style="display:none">로그아웃</button>
+  <!-- [ADM_HEAD2] 버튼을 한 묶음으로 — 좁은 화면에서 통째로 둘째 줄로 내린다 -->
+  <div class="tb-group">
+    <button class="tb" id="btnBlocks" title="날짜 막기(휴무)" style="display:none">휴무</button><button class="tb" id="btnArchive" title="아카이브" style="display:none">보관</button>
+    <button class="tb" id="btnAiTeam" title="AI 직원실(명단·교육·테스트·인건비·인계)" style="display:none">AI</button>
+    <button class="tb" id="btnRefresh" title="새로고침" style="display:none">새로고침</button>
+    <button class="tb" id="btnLogout" title="로그아웃" style="display:none">로그아웃</button>
+  </div>
 </div>
 
 <main>
@@ -334,8 +350,8 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <section id="loginView" style="display:none">
     <div class="login-wrap">
       <div class="login-t">MOMENT EDIT · 관리자</div>
-      <div class="field"><label>아이디</label><input type="text" id="lgId" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
-      <div class="field"><label>비밀번호</label><input type="password" id="lgPw" autocomplete="current-password"></div>
+      <div class="field"><label for="lgId">아이디</label><input type="text" id="lgId" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+      <div class="field"><label for="lgPw">비밀번호</label><input type="password" id="lgPw" autocomplete="current-password"></div>
       <div class="login-err" id="lgErr"></div>
       <button class="btn btn-seal" id="lgBtn">로그인</button>
     </div>

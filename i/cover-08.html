@@ -203,6 +203,7 @@ summary:focus-visible{outline-offset:2px}
   flex-direction:column;
   justify-content:center;
   gap:24px;
+  /* [COVER_BAL] 넓은 폰(430px)·PC에서도 같은 균형 — 록업 중심을 화면 중심 10px 위로 */
   padding:48px 0;
 }
 .cover-display{
@@ -962,6 +963,7 @@ details.env-acc[open] > .env-acc-q{
    MOBILE 반응형 (≤390px)
 ───────────────────────────────── */
 @media (max-width:390px){
+  .cover-mid{padding:31px 0 65px} /* [COVER_BAL] 좁은 폰은 커버 패딩이 60/40으로 바뀌어 별도 보정 */
   :root{ --inv-padding-x:22px; }
   .invitation{padding:0 22px}
   .sec{padding:80px 0}

@@ -129,7 +129,7 @@ body::after{
     0 56px 120px rgba(27,27,31,0.10);
 }
 .sec{position:relative;display:flex;flex-direction:column;overflow:hidden}
-.sec.cover{min-height:115vh;min-height:115svh}
+.sec.cover{min-height:100vh;min-height:100svh} /* [COVER_BAL] 8종 커버 첫 화면 세로 균형 통일 — 록업 중심을 화면 중심보다 10px 위(광학 중심)로. 상단을 덜고 하단을 더한다 */ /* 커버를 한 화면으로: 예전엔 첫 화면보다 127px 길어 가운데정렬 록업이 접힘선 아래 66px로 내려가고, 하단 푸터와 스크롤 큐가 아예 안 보였다 */
 .sec.sec-invite{min-height:90vh;min-height:90svh}
 .sec.sec-date{min-height:120vh;min-height:120svh}
 .sec.sec-venue{min-height:90vh;min-height:90svh}
@@ -748,7 +748,7 @@ details.env-acc-item[open] > .env-acc-q{
   .cover-top{padding:calc(28px + var(--safe-top)) 24px 0}
   .cover-brand{font-size:10px;letter-spacing:0.26em;padding-left:0.26em;white-space:nowrap;}
   .cover-issue .label{font-size:9.5px}
-  .cover-main{padding:40px}
+  .cover-main{padding:27px 40px 53px} /* [COVER_BAL] 록업 중심을 화면 중심보다 10px 위(광학 중심)로 */
   .cover-bottom{padding:0 24px calc(28px + var(--safe-bottom))}
   .cover-bg-han{font-size:clamp(320px,94vw,460px)}
   .sec-invite,.sec-venue,.sec-env{padding:100px 32px 80px}

@@ -288,7 +288,8 @@ body::after{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  padding:40px 36px;
+  /* [COVER_BAL] 넓은 폰(430px)·PC에서도 같은 균형 — 록업 중심을 화면 중심 10px 위로 */
+  padding:24px 36px 56px;
   position:relative;
   z-index:2;
   text-align:center;
@@ -1336,7 +1337,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--ros
   .sec.sec-short{padding:90px 28px 70px}
   .sec-meta{padding:40px 28px 0;font-size:9.5px}
   .cover-head{padding:calc(22px + var(--safe-top)) 28px 18px}
-  .cover-main{padding:30px 28px}
+  .cover-main{padding:15px 28px 45px} /* [COVER_BAL] 8종 커버 첫 화면 세로 균형 통일 — 록업 중심을 화면 중심보다 10px 위(광학 중심)로. 상단을 덜고 하단을 더한다 */
   .cover-foot{padding:18px 28px calc(18px + var(--safe-bottom))}
     .cover-title{font-size:clamp(48px,12vw,64px)}
   .cover-eyebrow{gap:12px;margin-bottom:22px}
@@ -1358,7 +1359,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--ros
 }
 
 @media(max-width:360px){
-  .cover-main{padding:20px 24px}
+  .cover-main{padding:5px 24px 35px} /* [COVER_BAL] 8종 커버 첫 화면 세로 균형 통일 — 록업 중심을 화면 중심보다 10px 위(광학 중심)로. 상단을 덜고 하단을 더한다 */
     .cover-title-ko{gap:12px}
 }
 

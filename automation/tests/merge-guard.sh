@@ -1116,5 +1116,26 @@ chk 'gBed' console.html 6                               # 고지 줄 — CSS · 
 chk 'BED_TRIM_DB' console.html 2                        # 미리듣기 전용 감쇠 — 현장 더킹 수치는 예식장 PA 전제다
 chk 'PREVIEW_BED' scripts/check-guest-skin.mjs 4        # 실렌더: 곡 유무를 기대값으로 삼아 양쪽을 다 본다
 chk 'BED_FILE' scripts/check-guest-skin.mjs 3           # 기대값의 원천이 파일 존재 하나뿐(곡을 놓는 날 검사가 저절로 반대편을 본다)
-chk 'COVER_BAL' i/cover-01.html 1                        # 01 커버 광학 균형(위 56/아래 96) · 80/64로 되돌리면 이름 록업이 다시 아래로 처진다
+# ── 커버 8종 세로 균형 통일 [COVER_BAL] (2026-08-03 · 사용자 "비슷한균형으로 셋팅" + 03 실기기 지적)
+# 16종 전부 록업 중심을 화면 중심 10px 위(광학 중심)에 맞춰 두었다. 실측 폭 390/430/1440 전부 -11~+5.
+# ★마커가 0이 되면 그 디자인만 다시 처지고, 갤러리에서 나란히 놓았을 때 한 장만 어긋나 보인다.
+chk 'COVER_BAL' i/cover-01.html 1                       # 위 66/아래 86 · 80/64로 되돌리면 이름 록업이 다시 아래로 처진다
 chk 'COVER_BAL' i-family/family-01.html 1
+chk 'COVER_BAL' i/cover-02.html 1                       # .cover-main 23/57
+chk 'COVER_BAL' i-family/family-02.html 1
+chk 'COVER_BAL' i/cover-03.html 2                       # 상시 세로 오프셋 제거 + 18/62 · 온라인 03만 리빌 잔재로 카드가 30px 내려가 있었다(사용자 실기기 지적)
+chk 'COVER_BAL' i-family/family-03.html 2
+chk 'COVER_BAL' i/cover-04.html 1                       # 보정 불필요 근거 · 지우면 다음 사람이 04만 빠진 줄 알고 패딩을 더한다
+chk 'COVER_BAL' i-family/family-04.html 1
+chk 'COVER_BAL' i/cover-05.html 3                       # 기본(넓은 폰·PC) + 400px + 360px 세 구간
+chk 'COVER_BAL' i-family/family-05.html 3
+chk 'COVER_BAL' i/cover-06.html 2                       # 커버를 한 화면으로(예전 115svh) + .cover-main 27/53 · 되돌리면 록업이 접힘선 아래로 66px 내려가고 푸터·스크롤 큐가 안 보인다
+chk 'COVER_BAL' i-family/family-06.html 2
+chk 'COVER_BAL' i/cover-07.html 1                       # .cover-stage 17/31
+chk 'COVER_BAL' i-family/family-07.html 1
+chk 'COVER_BAL' i/cover-08.html 2                       # 기본은 대칭 · 좁은 폰(390)만 31/65 · 커버 패딩이 60/40으로 바뀌는 구간이라 값이 다르다
+chk 'COVER_BAL' i-family/family-08.html 2
+chk 'GV_CUE_DUP' invitation-gallery.html 2               # 자체 Scroll 큐가 있으면 안 얹는다 + 하단 줄과 겹치면 위로 비킨다 · 되돌리면 06 '아래로'·08 'MOMENT EDIT STUDIO' 위에 알약이 겹친다
+chk 'GV_CUE_LATE' invitation-gallery.html 1              # 큐 판정 재시도(문서가 자리 잡을 때까지) · 한 번만 재면 하이드레이션 전에 '스크롤할 게 없다'로 읽혀 큐가 뜨는 날·안 뜨는 날이 갈린다
+chk 'ADM_HEAD2' admin.html 3                            # 관리자 헤더 2단(묶음 div + 600px 분기 + 340px 보정) · 한 줄로 되돌리면 'MOMENT EDIT'가 두 줄로 쪼개지고 '로그아웃'이 화면 밖으로 잘린다
+chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀면 flex-wrap이 버튼을 하나씩 흘려 둘째 줄이 들쭉날쭉해진다
