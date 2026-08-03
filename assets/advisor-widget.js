@@ -50,45 +50,58 @@
     + '.me-adv-title{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em;line-height:1.15}'
     /* [ADV_A11Y] 닫기 30×30 — 패널을 빠져나오는 유일한 버튼인데 가장 작았다 → 44px.
        아이콘 크기는 그대로 두고 히트영역만 넓힌다(모양 변화 없음). */
-    + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .25s,background .25s;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}'
+    + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .3s var(--ease,ease),background .3s var(--ease,ease);min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}'
     + '.me-adv-close:hover{color:var(--accent,#3A2D22);background:rgba(28,27,25,0.05)}'
     + '.me-adv-close svg{width:18px;height:18px}'
     + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
     /* 메뉴는 위, 인사말 버블만 하단(입력창 쪽)으로 — 넘치면 auto가 0으로 접혀 정상 채팅 스크롤 (2026-07-07 사용자 지시) */
     + '.me-adv-greet{margin-top:auto}'
-    + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:15px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
+    + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:12px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
     + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
     + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
-    + '.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2,#F5F3EF);border-radius:13px;border-bottom-left-radius:4px}'
+    + '.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2,#F5F3EF);border-radius:12px;border-bottom-left-radius:4px}'
     + '.me-adv-typing i{width:6px;height:6px;border-radius:50%;background:var(--gold,#B89A75);opacity:.5;animation:meAdvBlink 1.2s infinite}'
     + '.me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}'
     + '@keyframes meAdvBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}'
-    + '.me-adv-chips{display:flex;flex-direction:column;gap:0;margin-top:8px}'
-    + '.me-adv-chips-label{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11.5px;letter-spacing:0.08em;color:var(--gold,#B89A75);text-transform:uppercase;margin:6px 0 -2px}'
-    + '.me-adv-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;font-family:var(--serif-ko,serif);font-size:15px;font-weight:400;color:var(--accent,#3A2D22);background:none;border:none;border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18));border-radius:0;padding:15px 2px;cursor:pointer;transition:color .22s,padding-left .22s;line-height:1.45;word-break:keep-all}'
-    + '.me-adv-chip:last-child{border-bottom:none}'
-    + '.me-adv-chip:hover{color:var(--gold,#B89A75);padding-left:8px}'
-    + '.me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko,serif);font-size:12.5px;color:var(--seal,#6B2A24);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:30px;padding:9px 16px;cursor:pointer;transition:background .25s,border-color .25s;line-height:1.4}'
+    /* [ADV_INDEX_SYNC] index.html이 2026-08-01에 받은 상담 메뉴 개편을 이 파일에도 이식(2026-08-03).
+       이 파일은 inquiry·parents·mypage·order-preview 네 페이지가 함께 쓰는데, 메인홈만 개편되어
+       고객이 페이지를 넘나들 때 같은 패널이 다른 화면으로 보이고 있었다. 되돌리지 말 것.
+       ─ 전폭 헤어라인 제거: 12줄이면 선이 12개. 이 브랜드의 주 표현수단인 여백을 12등분해 잘랐다.
+       ─ 15px → 14px: 답변 버블(14px)보다 메뉴가 커서 위계가 뒤집혀 있었다. 메뉴는 내용과 같은 격.
+       ─ 호버 --gold(#B89A75) → --seal: 구형은 호버하는 순간 2.54:1로 떨어져 AA 미달이었다(10.14:1).
+       ─ :active 워시 추가: 폰엔 호버가 없다. 눌림 감각이 통째로 없었다.
+       ─ margin -10px: 눌림 워시가 글줄 좌우로 번져야 누른 면적과 보이는 면적이 맞는다.
+         글자는 칩의 padding-left:10px이 되받아 본문 22px 라인을 유지한다. */
+    + '.me-adv-chips{display:flex;flex-direction:column;gap:2px;margin:2px -10px 0}'
+    /* [ADV_INDEX_SYNC] 한글을 Cormorant 이탤릭 대문자로 조판하던 자리. Cormorant엔 한글 글리프가
+       없어 폴백으로 떨어지고, 거기 italic이 걸려 '가짜 기울임'이 되고, uppercase는 한글에 아무
+       효과가 없었다. 색도 --gold(2.54:1)라 AA 미달. → 국문 소라벨 규격(--serif-ko·12px·0.08em·--sub). */
+    + '.me-adv-chips-label{font-family:var(--serif-ko,serif);font-size:12px;font-weight:400;letter-spacing:0.08em;color:var(--sub,#5A554C);margin:10px 0 0}'
+    + '.me-adv-chip{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;text-align:left;font-family:var(--serif-ko,serif);font-size:14px;font-weight:400;letter-spacing:0.01em;color:var(--accent,#3A2D22);background:none;border:none;border-radius:6px;padding:12px 10px;cursor:pointer;transition:color .3s var(--ease,ease),background .12s var(--ease,ease),padding-left .3s var(--ease,ease);line-height:1.5;word-break:keep-all}'
+    + '.me-adv-chip:hover{color:var(--seal,#6B2A24);padding-left:18px}'
+    + '.me-adv-chip:active{background:var(--bg2,#F5F3EF)}'
+    /* [ADV_RAMP] 반px 12.5 → 13([TYPO_SCALE7]) · 라운드 30px → 999px 알약([SCALE_RADIUS6]는 2/4/6/8/12+999만 쓴다) */
+    + '.me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko,serif);font-size:13px;color:var(--seal,#6B2A24);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:999px;padding:9px 16px;cursor:pointer;transition:background .3s var(--ease,ease),border-color .3s var(--ease,ease);line-height:1.4}'
     + '.me-adv-escoffer:hover{background:rgba(107,42,36,0.05);border-color:var(--seal,#6B2A24)}'
     + '.me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}'
     + '.me-adv-esc-t{font-family:var(--serif-ko,serif);font-size:13px;color:var(--accent,#3A2D22);line-height:1.6;margin-bottom:11px}'
     + '.me-adv-esc-btns{display:flex;flex-direction:column;gap:8px}'
-    + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .25s,transform .25s}'
+    + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-esc-btn.kakao{background:var(--seal,#6B2A24);color:#fff;font-weight:500;letter-spacing:0.02em}'
     + '.me-adv-esc-btn.kakao:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 18px rgba(107,42,36,0.18)}'
     + '.me-adv-esc-btn.mail{background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border:1px solid var(--border,#DDD8D1)}'
     + '.me-adv-esc-btn.mail:hover{opacity:.9;transform:translateY(-1px)}'
-    + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10.5px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
+    + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
     + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
     /* [ADV_A11Y] 카카오톡 문의 링크 높이 23px — '해결이 안 될 때' 마지막으로 누르는 자리다 → 44px. */
-    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,serif);font-size:11.5px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .25s}'
+    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,serif);font-size:12px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .3s var(--ease,ease)}'
     + '.me-adv-foot-kakao u{text-decoration:underline;text-decoration-color:rgba(117,112,95,0.45);text-underline-offset:3px}'
     + '.me-adv-foot-kakao:hover{color:var(--seal,#6B2A24)}'
     + '.me-adv-foot-kakao:hover u{text-decoration-color:rgba(107,42,36,0.5)}'
     + '.me-adv-form{display:flex;align-items:flex-end;gap:8px}'
-    + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .25s}'
+    + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .3s var(--ease,ease)}'
     + '.me-adv-input:focus{border-color:var(--gold,#B89A75)}'
-    + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s,transform .25s}'
+    + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
     + '.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}'
     + '.me-adv-send svg{width:20px;height:20px}';
@@ -334,7 +347,8 @@
   function renderChips() {
     var chips = _chipsList();
     if (!chips.length) return;
-    var lab = document.createElement('div'); lab.className = 'me-adv-chips-label'; lab.textContent = 'Quick Questions';
+    // [ADV_INDEX_SYNC] 'Quick Questions'(영문) → 메인홈과 같은 국문 문구. 되돌리지 말 것.
+    var lab = document.createElement('div'); lab.className = 'me-adv-chips-label'; lab.textContent = '무엇이 궁금하세요?';
     var box = document.createElement('div'); box.className = 'me-adv-chips';
     chips.forEach(function (c) {
       var b = document.createElement('button');
