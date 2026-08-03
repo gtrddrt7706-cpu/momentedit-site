@@ -657,7 +657,11 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
        홈 링크도 여기서 함께 무력화한다(프레임 밖으로 새는 문 차단). */
     try {
       var _lst = doc.createElement('style');
-      _lst.textContent = '.brand-strip{position:static!important;padding-top:0!important}';
+      /* static이면 띠(58px)가 흐름을 차지해 .hero(min-height:100vh)를 그만큼 밀어낸다 —
+         콘텐츠 중심이 화면 중심보다 42px 아래로 내려가 '너무 밑에 있다'가 된다(실측).
+         absolute로 빼면 흐름을 차지하지 않아 100vh 중앙정렬이 화면 기준으로 맞고,
+         스크롤하면 문서와 함께 위로 흘러가는 성질은 그대로다. */
+      _lst.textContent = '.brand-strip{position:absolute!important;top:0;left:0;right:0;padding-top:0!important}';
       (doc.head || doc.documentElement).appendChild(_lst);
       var _hl = doc.querySelector('[data-home-link]');
       if (_hl) {
