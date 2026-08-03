@@ -8146,19 +8146,83 @@ function replayHeroAnimation(){
 })();
 </script>
 <!-- ══ /AI 상담사 위젯 ══ -->
+<style>
+/* [POPUP_BRAND 2026-08-03] 화면 안 알림(토스트) — OS 기본 alert 을 대신한다.
+   alert는 검은 시스템 창에 파란 '닫기'가 떠 이 사이트의 말이 아니고, 동기 차단이라
+   뒤 화면 상태와 어긋난 채 겹쳐 보인다. 캡션(capEl)이 없는 자리의 폴백을 여기로 옮긴다.
+   ★새 값 금지 — 크기 13px·라운드 999·전환 0.45s·이징 var(--ease)는 모두 :root 램프 안에서 골랐다. */
+.me-toast{
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 8px);
+  z-index: 300;   /* 기존 최상위는 스킵링크 210 · 네비 200 — 그 위 */
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 11px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--serif-ko);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+  border-radius: 999px;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.45s var(--ease),
+    transform 0.45s var(--ease);
+}
+.me-toast.on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .me-toast { transition: none }
+}
+</style>
+<script>
+/* [POPUP_BRAND 2026-08-03] 네이티브 alert 대체용 최소 토스트. 노드 하나를 재사용하고 2.6초 뒤 스스로 사라진다.
+   role="status"(aria-live:polite)라 스크린리더에도 흐름을 끊지 않고 전달된다. */
+(function(){
+  window.meToast = window.meToast || function(msg){
+    try{
+      var el = document.getElementById('meToast');
+      if(!el){
+        el = document.createElement('div');
+        el.id = 'meToast';
+        el.className = 'me-toast';
+        el.setAttribute('role','status');
+        el.setAttribute('aria-live','polite');
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      if(el._t) clearTimeout(el._t);
+      // 방금 붙인 노드는 시작 상태가 한 프레임 필요하다 — 바로 .on을 주면 전환 없이 튀어나온다
+      requestAnimationFrame(function(){ el.classList.add('on'); });
+      el._t = setTimeout(function(){ el.classList.remove('on'); el._t = null; }, 2600);
+    }catch(e){}
+  };
+})();
+</script>
 <script>
 /* 공유 — 모바일은 네이티브 공유 시트, PC는 링크 복사(캡션에 '복사됨' 피드백). 메인홈·예약 공용 동작. */
 (function(){
   window.meShareSite = function(capEl){
     var data = { url:'https://momentedit.kr' };   // 글 없이 링크만 — 카톡 등에서 문구가 메시지로 같이 입력되지 않게 (2026-06-12 사용자 지시)
     function copied(){
-      if(!capEl) { try{ alert('링크가 복사됐어요 · momentedit.kr'); }catch(e){} return; }
+      // [POPUP_BRAND 2026-08-03] 캡션 자리가 없을 때의 알림을 alert → 브랜드 토스트로. 알리는 방식만 바뀌고 흐름은 그대로.
+      if(!capEl) { meToast('링크를 복사했어요 · momentedit.kr'); return; }
       var prev=capEl.textContent; capEl.textContent='복사됨';
       setTimeout(function(){ capEl.textContent=prev; }, 1600);
     }
     if(navigator.share){ navigator.share(data).catch(function(){}); return; }
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.url).then(copied).catch(function(){ try{ alert('momentedit.kr'); }catch(e){} }); return; }
-    try{ var t=document.createElement('textarea'); t.value=data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); copied(); }catch(e){ try{ alert('momentedit.kr'); }catch(_){ } }
+    // [POPUP_BRAND 2026-08-03] 복사 실패 폴백도 alert → 토스트. 주소만 던지던 'momentedit.kr'을 무엇을 하면 되는지 말하는 문장으로 바꿨다.
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(data.url).then(copied).catch(function(){ meToast('복사가 안 됐어요 · 주소창의 momentedit.kr 을 직접 복사해 주세요'); }); return; }
+    try{ var t=document.createElement('textarea'); t.value=data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); copied(); }catch(e){ meToast('복사가 안 됐어요 · 주소창의 momentedit.kr 을 직접 복사해 주세요'); }
   };
   var sf=document.getElementById('meShareFab');
   if(sf) sf.addEventListener('click', function(){ meShareSite(sf.querySelector('.me-fab-cap')); });

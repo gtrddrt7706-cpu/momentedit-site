@@ -35,7 +35,8 @@ const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
 //
 //   ★2026-08-02 진행까지 확정됐다 — 여덟 자리 전부 찼다. 남준 · 우성 결승에서 형님이 우성을 골랐다
 //     (보이스찾기/3_진행_결승.txt · 블록 30줄로 지구력, 교대 6줄로 성혼 선언을 붙여 비교).
-//     41/54클립을 이 목소리가 끌고 간다. 바꾸려면 여기 한 줄이지만, 바꾸는 순간 예식 전체가 바뀐다.
+//     38/51클립을 이 목소리가 끌고 간다. 바꾸려면 여기 한 줄이지만, 바꾸는 순간 예식 전체가 바뀐다.
+//     (2026-08-03 베일 폐지로 41/54 → 38/51 · 진행 3클립이 빠졌다)
 //   ★'잔희' 는 형님이 적어 준 표기 그대로다. 2026 설 무료 30종에 '진희' 가 있어 오타일 수 있다.
 //     타입캐스트에서 자동 배정이 안 되면 이 줄을 '진희' 로 고쳐 다시 돌리면 된다.
 const DEFAULT_VOICE = {
@@ -62,7 +63,7 @@ const VOICE = { ...DEFAULT_VOICE };
 const named = (role) => VOICE[role] || role;
 
 // ── 역할 배정 (협의안 §5 「역할 분담 권장안」 · 총 3인을 넘기지 않는다)
-//    진행 41 · 안내 12 · 편지 1 = 54
+//    진행 38 · 안내 12 · 편지 1 = 51   [VEIL_RETIRED 2026-08-03] 베일 3클립 제거분
 const ROLE_OF = (id) => {
   if (/^G1-/.test(id)) return '안내';          // 식전 안내방송
   if (/^N\d/.test(id)) return '안내';          // 폐식 후 브릿지
@@ -76,7 +77,10 @@ const ROLE_OF = (id) => {
 const PARTS = [
   { f: '1_안내.txt',   t: '식전 안내 + 폐식 브릿지', role: '안내', has: (id) => /^G1-|^N\d/.test(id) },
   { f: '2_진행_전반.txt', t: '입장 + 고정 진행 나레이션', role: '진행', has: (id) => /^G2-|^G3-/.test(id) },
-  { f: '3_진행_후반.txt', t: '편지 도입 · 선언 · 베일 · 링워밍 · 헌정 · 축배', role: '진행',
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  //   G6(베일)은 사라졌지만 has 패턴에는 남겨 둔다 — 남은 그룹 번호를 당기지 않았으므로
+  //   빈 접두사를 지우는 것과 같고, 나중에 G6이 다른 용도로 생기면 이 파트가 맞는 자리다.
+  { f: '3_진행_후반.txt', t: '편지 도입 · 선언 · 링워밍 · 헌정 · 축배', role: '진행',
     has: (id) => /^G4-|^G5-|^W2-|^G6-|^G7-|^G8-|^G9-/.test(id) },
   { f: '4_혼주편지.txt', t: '어른께 드리는 안내 편지 (3분 통낭독)', role: '편지', has: (id) => id === 'G10' },
   // ★배역은 원천도 출력 폴더도 다르다. 당일 콘솔은 이 클립을 재생하지 않는다(미리듣기 전용).
@@ -132,7 +136,8 @@ const parse = (file) => {
 };
 
 const clips = parse(SRC);
-if (clips.length !== 54) { console.error(`✗ 클립 수 불일치: ${clips.length} (기대 54)`); process.exit(1); }
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. (54 → 51)
+if (clips.length !== 51) { console.error(`✗ 클립 수 불일치: ${clips.length} (기대 51)`); process.exit(1); }
 
 const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
 if (castAll.length && castAll.length !== 17) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 17)`); process.exit(1); }

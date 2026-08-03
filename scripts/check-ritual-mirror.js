@@ -16,9 +16,12 @@ ok('ritual-data.js 로드(코스 5·NARR·MIN)', Object.keys(D.COURSES).length =
 const html = fs.readFileSync(path.join(root, 'order-preview.html'), 'utf8');
 ok('빌더에 식순 AI 위젯 배선 존재', html.includes('식순 AI 상담 배선 v1'));
 
-// ★XM_MIRROR_9KEY — 소요분 상수 정합. 빌더(order-preview.html의 var XM)가 기준이고 원천이 그걸 따라간다.
-//   과거 사고: 원천 5키 / 빌더 9키로 갈라져, 팔레트로 축배·링워밍·헌정·베일을 더한 고객에게
-//   화면은 +2/+2/+2/+1분을 더해 보여주는데 AI 상담사는 그만큼 짧은 총시간을 말했다.
+// ★XM_MIRROR_9KEY — 소요분 상수 정합(현재 8키 · 마커 문자열은 다른 곳에서 참조하므로 그대로 둔다).
+//   빌더(order-preview.html의 var XM)가 기준이고 원천이 그걸 따라간다.
+//   과거 사고: 원천 5키 / 빌더 9키로 갈라져, 팔레트로 축배·링워밍·헌정을 더한 고객에게
+//   화면은 +2/+2/+2분을 더해 보여주는데 AI 상담사는 그만큼 짧은 총시간을 말했다.
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+//   (veil이 빠져 원천 XM은 8키다. 빌더 var XM에서도 veil:1을 빼면 이 검사가 다시 초록이 된다)
 const xmM = html.match(/var XM=\{([^}]*)\}/);
 if (!xmM) { ok('빌더 var XM 파싱', false); }
 else {
@@ -41,7 +44,8 @@ else {
 //   (단방향 검사 · 빌더에만 있는 잉여 문안은 대상 아님)
 const narAll = [];
 const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push([id, s]); };
-['ENTRY', 'DECLARE', 'DECLWHO', 'LETTER', 'VEIL', 'RINGWARM', 'TOAST'].forEach((t) => {
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+['ENTRY', 'DECLARE', 'DECLWHO', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));

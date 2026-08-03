@@ -110,7 +110,8 @@ const BASE = 'http://localhost:8765/console.html?mode=preview&embed=1';
 const COMBOS = [
   ['A 담백 기본',   null],
   ['B 담백 두분목소리', {course:'damback', guestVoice:'couple', entryVoice:'couple'}],
-  ['C 감동 풀옵션', {course:'gamdong', entry:'D', declareWho:'family', letter:'both', bless:'on', valley:'wine', veil:'on', guestVoice:'couple', entryVoice:'couple', digital:true}],
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  ['C 감동 풀옵션', {course:'gamdong', entry:'D', declareWho:'family', letter:'both', bless:'on', valley:'wine', guestVoice:'couple', entryVoice:'couple', digital:true}],
   ['D 가족',        {course:'family', entry:'B', declareWho:'ask', letter:'each', bless:'on', valley:'cake'}],
   ['E 미니멀',      {course:'minimal', entry:'F', declareWho:'chorus'}],
   ['F 축하',        {course:'festive', entry:'C', letter:'both', valley:'cake', guestVoice:'couple'}],

@@ -321,6 +321,14 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal .mbtns .btn{flex:1}
 .modal .merr{font-family:var(--serif-ko);font-size:12px;color:var(--seal);text-align:center;min-height:15px;margin-bottom:5px}
 
+/* [ADM_MODAL 2026-08-03] 브라우저 기본 팝업(alert·confirm·prompt) 대체 판.
+   스킨은 위 .modal-ov/.modal 을 그대로 입는다 — 예약 처리 판(openModal)과 같은 판·같은 글꼴. 여기서 새로 정하는 건 겹침 순서와 본문 흐름뿐.
+   겹침 순서는 이 파일 최댓값(99999 · 인쇄 오버레이)보다 위 — 인쇄·문서 뷰어를 띄운 채로 뜨는 알림이 있다. */
+#admDlgOv{z-index:100010}
+#admDlgOv .admdlg-b{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px;white-space:pre-line;word-break:break-word}
+#admDlgOv .admdlg-pre{font-family:var(--mono);font-size:11.5px;color:var(--sub);text-align:left;line-height:1.65;white-space:pre-wrap;word-break:break-word;max-height:42vh;overflow:auto;background:var(--paper2);border:1px solid var(--gold-line);border-radius:8px;padding:10px 12px;margin-bottom:14px;-webkit-user-select:text;user-select:text}
+#admDlgOv .modal.danger{border-top:2px solid var(--seal)}   /* 진사는 되돌릴 수 없는 동작의 얇은 키라인·확인 버튼에만 */
+
 /* 로그인 */
 .login-wrap{max-width:340px;margin:9vh auto 0;text-align:center;padding:0 6px}
 .login-logo{width:74px;height:74px;border-radius:18px;margin:0 auto 14px;background:#F3ECDF;border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;font-family:var(--serif-ko);font-size:42px;font-weight:500;color:var(--seal)}
@@ -409,6 +417,24 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   </div>
 </div>
 
+<!-- [ADM_MODAL 2026-08-03] 브라우저 기본 팝업 대체 판 · 위 #confirmModal(예약 처리 흐름)과 판을 나눈다 —
+     #confirmModal은 전역 하나뿐이라, 그 판이 열린 채 알림이 겹치면 서로를 지운다. -->
+<div class="modal-ov" id="admDlgOv" role="dialog" aria-modal="true" aria-labelledby="admDlgT">
+  <div class="modal" id="admDlgBox">
+    <h3 id="admDlgT">확인</h3>
+    <div class="admdlg-b" id="admDlgB"></div>
+    <div class="admdlg-pre" id="admDlgPre" style="display:none"></div>
+    <div class="field" id="admDlgField" style="display:none">
+      <label id="admDlgLb" for="admDlgIn"></label>
+      <input id="admDlgIn" type="text" autocomplete="off">
+    </div>
+    <div class="mbtns">
+      <button type="button" class="btn btn-ghost" id="admDlgNo">취소</button>
+      <button type="button" class="btn btn-line" id="admDlgYes">확인</button>
+    </div>
+  </div>
+</div>
+
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLWHO를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script>
@@ -461,6 +487,101 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
 // 예식 시간 표기 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 본예식 기준으로 통일(고객·계약서와 동일 표기).
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var B={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(B[t]) t=B[t]; var L={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; return (L[t]?L[t]+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
+
+/* ════════ [ADM_MODAL 2026-08-03] 브라우저 기본 팝업 대체 ════════
+   admAlert / admConfirm / admPrompt — 셋 다 Promise를 돌려준다.
+   · admAlert({title,body,pre})            → Promise<void>          · 버튼 1개
+   · admConfirm({title,body,yes,no,danger})→ Promise<boolean>       · 버튼 2개, 첫 포커스는 '취소'
+   · admPrompt({title,body,label,value,placeholder}) → Promise<string|null> · 열리면 입력에 포커스+전체선택
+   본문은 전부 textContent로 넣는다 — 서버가 준 오류 문구(r.error)를 그대로 싣는 자리가 많아 HTML로 새기면 안 된다.
+   판 자체는 #admDlgOv 하나를 돌려쓰므로, 앞 판이 닫힌 뒤 다음 판이 뜨도록 _admDlgQueue로 줄을 세운다. */
+var _admDlg={ ov:null, box:null, t:null, b:null, pre:null, field:null, label:null, input:null, no:null, yes:null,
+              onEnd:null, prevFocus:null, prevOverflow:'', queue:Promise.resolve() };
+function _admDlgInit(){
+  if(_admDlg.ov) return;
+  _admDlg.ov=$('admDlgOv'); _admDlg.box=$('admDlgBox'); _admDlg.t=$('admDlgT'); _admDlg.b=$('admDlgB');
+  _admDlg.pre=$('admDlgPre'); _admDlg.field=$('admDlgField'); _admDlg.label=$('admDlgLb');
+  _admDlg.input=$('admDlgIn'); _admDlg.no=$('admDlgNo'); _admDlg.yes=$('admDlgYes');
+  _admDlg.no.addEventListener('click', function(){ _admDlgEnd(false); });
+  _admDlg.yes.addEventListener('click', function(){ _admDlgEnd(true); });
+  _admDlg.ov.addEventListener('click', function(e){ if(e.target===_admDlg.ov) _admDlgEnd(false); });   // 배경 클릭 = 취소
+  _admDlg.input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); _admDlgEnd(true); } });
+  document.addEventListener('keydown', _admDlgKey, true);   // capture — Esc는 맨 위 판만 닫아야 해서 아래 #confirmModal 핸들러보다 먼저 잡는다
+}
+function _admDlgOpen(){ return !!(_admDlg.ov && _admDlg.ov.classList.contains('show')); }
+function _admDlgTabbables(){
+  var sel='button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])';
+  return Array.prototype.filter.call(_admDlg.box.querySelectorAll(sel), function(el){ return el.offsetWidth>0 || el.offsetHeight>0; });
+}
+function _admDlgKey(e){
+  if(!_admDlgOpen()) return;
+  if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); _admDlgEnd(false); return; }   // Esc = 취소
+  if(e.key!=='Tab') return;
+  var f=_admDlgTabbables(); if(!f.length) return;
+  var first=f[0], last=f[f.length-1], a=document.activeElement, inside=_admDlg.box.contains(a);
+  // 포커스 트랩 — 양 끝에서 되돌려 Tab이 판 밖으로 새지 않게
+  if(e.shiftKey){ if(!inside || a===first){ e.preventDefault(); last.focus(); } }
+  else { if(!inside || a===last){ e.preventDefault(); first.focus(); } }
+}
+function _admDlgEnd(ok){
+  var fn=_admDlg.onEnd; if(!fn) return;   // 이미 닫힌 판 — 두 번 결론내지 않는다
+  _admDlg.onEnd=null;
+  _admDlg.ov.classList.remove('show');
+  document.body.style.overflow=_admDlg.prevOverflow;   // 열 때 적어 둔 값으로 원복
+  try{ if(_admDlg.prevFocus && _admDlg.prevFocus.focus) _admDlg.prevFocus.focus(); }catch(e){}
+  _admDlg.prevFocus=null;
+  fn(ok);
+}
+function _admDlgShow(o){
+  o=o||{};
+  return new Promise(function(resolve){
+    _admDlgInit();
+    var kind=o.kind||'alert';
+    _admDlg.t.textContent=o.title||'확인';
+    _admDlg.b.textContent=o.body||'';
+    _admDlg.b.style.display=o.body?'block':'none';
+    _admDlg.pre.textContent=o.pre||'';
+    _admDlg.pre.style.display=o.pre?'block':'none';
+    _admDlg.box.className='modal'+(o.danger?' danger':'');
+    _admDlg.no.style.display=(kind==='alert')?'none':'block';
+    _admDlg.no.textContent=o.no||'취소';
+    _admDlg.yes.textContent=o.yes||'확인';
+    _admDlg.yes.className='btn '+(o.danger?'btn-seal':'btn-line');   // 진사 버튼은 되돌릴 수 없는 동작에만
+    if(kind==='prompt'){
+      _admDlg.field.style.display='block';
+      _admDlg.label.textContent=o.label||'';
+      _admDlg.label.style.display=o.label?'block':'none';
+      _admDlg.input.value=(o.value==null?'':String(o.value));
+      _admDlg.input.placeholder=o.placeholder||'';
+    } else { _admDlg.field.style.display='none'; _admDlg.input.value=''; }
+    _admDlg.prevFocus=document.activeElement;
+    _admDlg.prevOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    _admDlg.onEnd=function(ok){
+      if(kind==='prompt') resolve(ok?_admDlg.input.value:null);
+      else if(kind==='confirm') resolve(!!ok);
+      else resolve();
+    };
+    _admDlg.ov.classList.add('show');
+    // 첫 포커스 — 확인 판은 '취소'에 둔다(Enter가 실행으로 새지 않게). 입력 판은 입력칸에 두고 전체선택.
+    setTimeout(function(){
+      try{
+        if(kind==='prompt'){ _admDlg.input.focus(); _admDlg.input.select(); }
+        else if(kind==='confirm') _admDlg.no.focus();
+        else _admDlg.yes.focus();
+      }catch(e){}
+    },0);
+  });
+}
+function _admDlgQueue(o){
+  var p=_admDlg.queue.then(function(){ return _admDlgShow(o); });
+  _admDlg.queue=p.then(function(){}, function(){});
+  return p;
+}
+function admAlert(o){ o=o||{}; o.kind='alert'; return _admDlgQueue(o); }
+function admConfirm(o){ o=o||{}; o.kind='confirm'; return _admDlgQueue(o); }
+function admPrompt(o){ o=o||{}; o.kind='prompt'; return _admDlgQueue(o); }
+
 function show(view){
   _view = (view==='detail'||view==='archive') ? view : (view==='login'?'login':'home');
   $('loading').style.display = (view==='loading')?'block':'none';
@@ -477,6 +598,7 @@ function _admHistInit(){
   try{ history.replaceState({admV:'home'}, ''); }catch(e){}
   window.addEventListener('popstate', function(ev){
     try{ closeModal(); }catch(e){}   // [ADMIN_BACK_NAV] 확인 모달이 열린 채 뒤로가기 시 목록 위에 모달이 남던 것 방지(모달 먼저 닫기)
+    try{ _admDlgEnd(false); }catch(e){}   // [ADM_MODAL 2026-08-03] 같은 이유 · 기본 팝업 대체 판도 함께 닫는다(안 닫으면 스크롤 잠금이 남는다)
     if(_view!=='detail' && _view!=='archive') return;   // home/login이면 관여 안 함(자연 이탈)
     var target=(ev && ev.state && ev.state.admV) || 'home';
     _admFromPop=true;
@@ -502,7 +624,8 @@ function api(payload){
 // 시착 동의서 문서 뷰어(관리자) — /contract/fitting.html 오버레이 + 서버(adminFittingDoc) 데이터 채움 + 인쇄=PDF
 function openFittingDoc(code){
   gas('adminFittingDoc', code).then(function(res){
-    if(!res || !res.ok){ alert((res&&res.error)||'동의서 데이터를 불러오지 못했어요.'); return; }
+    /* [ADM_MODAL 2026-08-03] 알린 뒤 곧바로 빠져나가는 자리 — admAlert를 기다리지 않아도 return이 그대로 흐름을 끊는다(뒤에 실행할 코드가 없다) */
+    if(!res || !res.ok){ admAlert({ title:'동의서를 불러오지 못했어요', body:(res&&res.error)||'잠시 후 다시 시도해 주세요.' }); return; }
     var doc=res.doc||{};
     var old=document.getElementById('ad_ftViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
     var ov=document.createElement('div'); ov.id='ad_ftViewer';
@@ -529,7 +652,8 @@ function openFittingDoc(code){
       }
     }
     x.addEventListener('click',done); window.addEventListener('message',onMsg);
-  }).catch(function(){ alert('동의서 데이터를 불러오지 못했어요.'); });
+  /* [ADM_MODAL 2026-08-03] 네트워크 실패 알림 — 콜백 끝이라 흐름 변화 없음 */
+  }).catch(function(){ admAlert({ title:'동의서를 불러오지 못했어요', body:'네트워크 상태를 확인한 뒤 다시 시도해 주세요.' }); });
 }
 
 // [좌석표 프린트] 현재 열린 상세(curDetail)의 좌석 배치를 인쇄용 A4 문서로 — 시각 배치도 + 음료 색점 + 테이블별 명단 + 음료 합계.
@@ -579,7 +703,8 @@ function _seatChartDoc(d){
 }
 function printSeatChart(){
   var d=curDetail; var prod=(d&&d.mirror&&d.mirror.production)||{}; var sd=prod.seatDraft||{};
-  if(!sd.tables||!sd.tables.length){ alert('아직 좌석 배치가 없어요.'); return; }
+  /* [ADM_MODAL 2026-08-03] 진입 가드 알림 — return이 흐름을 끊으므로 admAlert를 기다릴 필요가 없다 */
+  if(!sd.tables||!sd.tables.length){ admAlert({ title:'아직 좌석 배치가 없어요', body:'고객이 좌석을 배치한 뒤에 좌석표를 뽑을 수 있어요.' }); return; }
   var old=document.getElementById('ad_seatPrint'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='ad_seatPrint';
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column';
@@ -672,7 +797,8 @@ function _orderSheetDoc(d){
 function printOrderSheet(){
   var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
   // 렌더 게이트(_v===3 분기 안에만 버튼을 그림)가 있어도 진입 가드를 둔다 — 버튼을 그린 시점과 누른 시점 사이에 curDetail이 바뀔 수 있다.
-  if(!rd||rd._v!==3||!(rd.summary&&rd.summary.flow&&rd.summary.flow.length)){ alert('아직 식순이 작성되지 않았어요.'); return; }
+  /* [ADM_MODAL 2026-08-03] 진입 가드 알림 — return이 흐름을 끊으므로 admAlert를 기다릴 필요가 없다 */
+  if(!rd||rd._v!==3||!(rd.summary&&rd.summary.flow&&rd.summary.flow.length)){ admAlert({ title:'아직 식순이 작성되지 않았어요', body:'고객이 식순을 마친 뒤에 식순지를 뽑을 수 있어요.' }); return; }
   _printOverlay('ad_orderPrint','식순지 · '+((d&&d.names)||'')+' · '+((d&&d.code)||''), _orderSheetDoc(d));
 }
 
@@ -718,7 +844,8 @@ function _declareCardDoc(d){
 function printDeclareCard(){
   var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
   var who=(rd&&rd.S&&rd.S.declareWho)||'';
-  if(!rd||rd._v!==3||_DECL_CARD_WHO.indexOf(who)<0){ alert('가족 낭독을 고른 예식에만 낭독 카드가 있어요.'); return; }
+  /* [ADM_MODAL 2026-08-03] 진입 가드 알림 — return이 흐름을 끊으므로 admAlert를 기다릴 필요가 없다 */
+  if(!rd||rd._v!==3||_DECL_CARD_WHO.indexOf(who)<0){ admAlert({ title:'이 예식에는 낭독 카드가 없어요', body:'가족 낭독을 고른 예식에만 낭독 카드를 뽑을 수 있어요.' }); return; }
   _printOverlay('ad_declPrint','낭독 카드 · '+((d&&d.names)||'')+' · '+((d&&d.code)||''), _declareCardDoc(d));
 }
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
@@ -732,7 +859,8 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
-//   (2026-07-06 개편) prompt() → 편집 모달: ① AI 제안답변을 그대로 미리 채워 수정 가능 ② 어느 직원(접점)에게 가르칠지 선택.
+//   (2026-07-06 개편) 브라우저 기본 입력창 → 편집 모달: ① AI 제안답변을 그대로 미리 채워 수정 가능 ② 어느 직원(접점)에게 가르칠지 선택.
+//   [ADM_MODAL 2026-08-03] 위 문장의 함수 이름을 풀어 썼다 — 남은 기본 팝업을 세는 grep에 주석이 걸려 오탐이 났다.
 //   대상: 전체(6명 공유) · 메인 · 마이 · 예약 · 애프터 · 식순 · 어른 안내. prefill=미리 채울 내용(인계 제안답변 등). 핵심수치는 1차 차단 후 재확인(force).
 function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
   var TARGETS=['전체','메인','마이','예약','애프터','식순','어른 안내'], sel={};   /* [AI_ROSTER_RITUAL] '식순'은 ritual-advisor.js:210, '어른 안내'는 parents.html이 advisor에 넘기는 page값. 둘 다 _kbnotes 대상인데 여기 없어서 '전체' 노트만 받고 있었다. */ sel[target]=true;
@@ -773,8 +901,10 @@ function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
       gas('aiKbNoteAdd',targets[i],t,force).then(function(r){
         if(r&&r.ok){ i++; doOne(false); }
         else if(r&&r.blocked){ btn.disabled=false; btn.textContent='교육하기';
-          if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 가르칠까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')){ btn.disabled=true; btn.textContent='교육 중…'; doOne(true); }
-          else { if(cb)cb(false); } }
+          /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 이 분기는 .then 콜백의 끝이고 반환값을 쓰는 곳이 없어(doOne은 콜백이 스스로 이어간다),
+             분기 전체를 .then 안으로 옮기면 예·아니오 두 갈래가 그대로 보존된다. 버튼 되돌리기는 확인 판을 열기 전에 이미 끝냈다. */
+          admConfirm({ title:'그래도 가르칠까요?', body:(r.error||'핵심 수치처럼 보여요.')+'\n가격·정책이 틀리면 고객에게 그대로 나가요.', yes:'그대로 교육' })
+            .then(function(go){ if(go){ btn.disabled=true; btn.textContent='교육 중…'; doOne(true); } else { if(cb)cb(false); } }); }
         else { feed.style.color='#b00'; feed.textContent=((targets.length>1?('['+targets[i]+'] '):'')+((r&&r.error)||'추가 실패')); btn.disabled=false; btn.textContent='교육하기'; }
       });
     };
@@ -842,8 +972,16 @@ function openAiCost(){
         h+='</div>';
       }
       bodyEl.innerHTML=h;
-      var bb=document.getElementById('aicBudget'); if(bb) bb.addEventListener('click',function(){ var v=prompt('월 예산을 원화로 입력해 주세요 (0 = 해제)', budget||10000); if(v===null) return; var n=Math.max(0,Math.floor(Number(String(v).replace(/[^0-9]/g,''))||0)); gas('aiBudgetSet',n).then(function(rs){ if(rs&&rs.ok) load(); else alert((rs&&rs.error)||'설정 실패'); }); });
-      var al=document.getElementById('aicAlert'); if(al) al.addEventListener('click',function(){ gas('aiAlertAdmin','이번 달 AI 비용이 예산('+_won(budget)+')을 넘었어요. 현재 '+_won(mTotal)).then(function(rs){ alert(rs&&rs.ok?'관리자 문자 발송됨':('실패: '+((rs&&rs.error)||'설정 확인'))); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 prompt → Promise. 클릭 핸들러가 입력값을 즉시 쓰던 자리라, 입력 이후의 계산·저장을 통째로 .then 안으로 옮겼다.
+         취소는 그대로 null → 앞과 같은 조기 return. 핸들러 뒤에 이어지는 코드가 없어 밖으로 새는 흐름이 없다. */
+      var bb=document.getElementById('aicBudget'); if(bb) bb.addEventListener('click',function(){
+        admPrompt({ title:'월 예산을 정할까요?', body:'0을 넣으면 예산 제한이 풀려요.', label:'월 예산(원)', value:String(budget||10000), placeholder:'예) 10000' }).then(function(v){
+          if(v===null) return;
+          var n=Math.max(0,Math.floor(Number(String(v).replace(/[^0-9]/g,''))||0));
+          gas('aiBudgetSet',n).then(function(rs){ if(rs&&rs.ok) load(); else admAlert({ title:'예산을 저장하지 못했어요', body:(rs&&rs.error)||'잠시 후 다시 시도해 주세요.' }); });
+        }); });
+      /* [ADM_MODAL 2026-08-03] 결과 알림 — 콜백 끝이라 흐름 변화 없음 */
+      var al=document.getElementById('aicAlert'); if(al) al.addEventListener('click',function(){ gas('aiAlertAdmin','이번 달 AI 비용이 예산('+_won(budget)+')을 넘었어요. 현재 '+_won(mTotal)).then(function(rs){ admAlert(rs&&rs.ok?{ title:'관리자에게 문자를 보냈어요' }:{ title:'문자를 보내지 못했어요', body:(rs&&rs.error)||'문자 설정을 확인해 주세요.' }); }); });
     }).catch(function(){ bodyEl.innerHTML='<div style="color:#b00;font-size:13px">네트워크 오류로 불러오지 못했어요.</div>'; });
   };
   bRef.addEventListener('click', load);
@@ -898,7 +1036,8 @@ function openAiTest(){
   var updEst=function(){ $a('aitEst').textContent='≈ 최대 '+estCalls()+'회'; };
   $a('aitBudget').addEventListener('input', updEst); updEst();
   gas('aiTestScenarios').then(function(r){ if(r&&r.ok) $a('aitCustom').value=r.text||''; }).catch(function(){});
-  $a('aitSave').addEventListener('click', function(){ gas('aiTestScenariosSave',$a('aitCustom').value).then(function(r){ alert(r&&r.ok?('저장됨 ('+r.count+'줄)'):'저장 실패'); }); });
+  /* [ADM_MODAL 2026-08-03] 저장 결과 알림 — 콜백 끝이라 흐름 변화 없음 */
+  $a('aitSave').addEventListener('click', function(){ gas('aiTestScenariosSave',$a('aitCustom').value).then(function(r){ admAlert(r&&r.ok?{ title:'저장했어요', body:r.count+'줄' }:{ title:'저장하지 못했어요', body:'잠시 후 다시 시도해 주세요.' }); }); });
   $a('aitRun').addEventListener('click', function(){
     var checked={}; Array.prototype.forEach.call(document.querySelectorAll('.aitSurf'),function(c){ if(c.checked) checked[c.value]=1; });
     var list=BUILTIN.filter(function(x){return checked[x[0]];}).map(function(x){return {surface:x[0],axis:x[1],q:x[2],grade:x[3]};});
@@ -924,7 +1063,8 @@ function openAiTest(){
         var fail=gradable-pass;
         var alertBtn=fail>0?' <button id="aitAlert" style="margin-left:6px;padding:3px 9px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:5px;font-size:11px;cursor:pointer">문제 문자 알림</button>':'';
         out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+' (검토는 답 보고 판단)'+cmp+alertBtn+'</div>'+(fail>0?'<div style="font-size:11px;color:#9a7b00;margin-bottom:6px">CHECK 항목 옆  교육으로 올바른 내용을 바로 가르칠 수 있어요.</div>':'')+rows.join('')+'<div style="margin-top:10px;font-size:11px;color:#b0a896">실제 비용은  인건비에서 확인 · 추정 ≈₩'+(list.length*70).toLocaleString('ko-KR')+'</div>';
-        var ab=document.getElementById('aitAlert'); if(ab) ab.addEventListener('click',function(){ gas('aiAlertAdmin','테스트 '+pass+'/'+gradable+' 통과 · 문제 '+fail+'건 확인 필요').then(function(r){ alert(r&&r.ok?'관리자 문자 발송됨':('실패: '+((r&&r.error)||'설정 확인'))); }); }); wireEdu();
+        /* [ADM_MODAL 2026-08-03] 결과 알림 — 콜백 끝이라 흐름 변화 없음 */
+        var ab=document.getElementById('aitAlert'); if(ab) ab.addEventListener('click',function(){ gas('aiAlertAdmin','테스트 '+pass+'/'+gradable+' 통과 · 문제 '+fail+'건 확인 필요').then(function(r){ admAlert(r&&r.ok?{ title:'관리자에게 문자를 보냈어요' }:{ title:'문자를 보내지 못했어요', body:(r&&r.error)||'문자 설정을 확인해 주세요.' }); }); }); wireEdu();
       }).catch(function(){ out.innerHTML='<div style="font-weight:700;margin-bottom:6px">자동판정 '+pass+'/'+gradable+'</div>'+rows.join(''); wireEdu(); });
     });
   });
@@ -967,22 +1107,33 @@ function openAiTeam(){
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 280만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
      +'<div style="display:flex;gap:6px;margin-bottom:8px"><input id="fDesc" placeholder="메모(선택) · 근거·출처" style="flex:1;padding:6px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px"><button id="fAdd" style="padding:6px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">저장</button></div>'
      +'<div id="fList"></div><div id="fHist"></div>';
-    document.getElementById('fAdd').addEventListener('click',function(){ var k=document.getElementById('fKey').value.trim(), v=document.getElementById('fVal').value.trim(), d=document.getElementById('fDesc').value.trim(); if(!k||!v){ alert('항목과 값을 모두 입력해 주세요.'); return; }
-      if(!confirm('"'+k+'" = "'+v+'" 으로 저장할까요?\n고객 답변에 바로 쓰입니다.')) return;
-      gas('aiFactSet',k,v,d).then(function(r){ if(r&&r.ok){ document.getElementById('fKey').value=''; document.getElementById('fVal').value=''; document.getElementById('fDesc').value=''; loadFacts(); } else alert((r&&r.error)||'저장 실패'); }); });
+    /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤에 저장 호출이 이어지던 자리라, 확인 이후 전부를 .then 안으로 옮겼다.
+       입력 검증 알림(!k||!v)은 곧바로 return이라 그대로 두어도 흐름이 같다. */
+    document.getElementById('fAdd').addEventListener('click',function(){ var k=document.getElementById('fKey').value.trim(), v=document.getElementById('fVal').value.trim(), d=document.getElementById('fDesc').value.trim(); if(!k||!v){ admAlert({ title:'항목과 값을 모두 입력해 주세요' }); return; }
+      admConfirm({ title:'핵심정보를 저장할까요?', body:'"'+k+'" = "'+v+'"\n저장하면 고객 답변에 바로 쓰여요.', yes:'저장' }).then(function(go){
+        if(!go) return;
+        gas('aiFactSet',k,v,d).then(function(r){ if(r&&r.ok){ document.getElementById('fKey').value=''; document.getElementById('fVal').value=''; document.getElementById('fDesc').value=''; loadFacts(); } else admAlert({ title:'저장하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); });
+      }); });
     loadFacts(); }
   function loadFacts(){ var el=document.getElementById('fList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiFactsList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var fs=r.facts||[]; if(!fs.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 핵심정보가 없어요. 위에서 추가해 주세요. (없으면 기존 코드 기본값이 쓰여요)</div>'; return; }
       el.innerHTML=fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><div style="display:flex;align-items:center;gap:8px"><b style="color:#3a2f25;min-width:90px">'+esc(f.key)+'</b><span style="flex:1;color:#6B2A24;font-weight:600">'+esc(f.value)+'</span><button class="fEd" data-k="'+esc(f.key)+'" data-v="'+esc(f.value)+'" data-d="'+esc(f.desc)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">수정</button><button class="fHs" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">이력</button><button class="fDel" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'+(f.desc?'<div style="font-size:10px;color:#b0a896;margin-top:2px"> '+esc(f.desc)+' · '+esc(f.at)+'</div>':'<div style="font-size:10px;color:#cfc7b8;margin-top:2px">'+esc(f.at)+'</div>')+'</div>'; }).join('');
       Array.prototype.forEach.call(el.querySelectorAll('.fEd'),function(b){ b.addEventListener('click',function(){ document.getElementById('fKey').value=b.getAttribute('data-k'); document.getElementById('fVal').value=b.getAttribute('data-v'); document.getElementById('fDesc').value=b.getAttribute('data-d'); document.getElementById('fVal').focus(); }); });
-      Array.prototype.forEach.call(el.querySelectorAll('.fDel'),function(b){ b.addEventListener('click',function(){ var k=b.getAttribute('data-k'); if(confirm('"'+k+'" 삭제할까요? (삭제하면 기존 코드 기본값으로 돌아갑니다)')) gas('aiFactDelete',k).then(loadFacts); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 삭제 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다(아니오는 아무것도 안 함 — 원래와 같다) */
+      Array.prototype.forEach.call(el.querySelectorAll('.fDel'),function(b){ b.addEventListener('click',function(){ var k=b.getAttribute('data-k');
+        admConfirm({ title:'"'+k+'" 항목을 삭제할까요?', body:'삭제하면 이 항목은 기존 코드 기본값으로 돌아가요.', yes:'삭제', danger:true })
+          .then(function(go){ if(go) gas('aiFactDelete',k).then(loadFacts); }); }); });
       Array.prototype.forEach.call(el.querySelectorAll('.fHs'),function(b){ b.addEventListener('click',function(){ showFactHist(b.getAttribute('data-k')); }); });
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   function showFactHist(key){ var el=document.getElementById('fHist'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px;margin-top:8px">이력 불러오는 중…</div>';
     gas('aiFactHistory',key).then(function(r){ var h=(r&&r.history)||[]; if(!h.length){ el.innerHTML='<div style="font-size:12px;color:#9a9183;margin-top:8px">"'+esc(key)+'" 변경 이력이 없어요.</div>'; return; }
       el.innerHTML='<div style="margin-top:10px;border-top:1px dashed #e0d8cc;padding-top:8px"><div style="font-size:12px;color:#75705f;margin-bottom:4px">"'+esc(key)+'" 변경 이력 <button id="fRb" style="margin-left:6px;padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">직전 값으로 되돌리기</button></div>'
        +h.map(function(x){ return '<div style="font-size:11px;color:#5a554c;padding:3px 0">'+esc(x.at)+' · '+esc(x.prev||'(없음)')+' → <b>'+esc(x.next)+'</b></div>'; }).join('')+'</div>';
-      var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){ if(confirm('"'+key+'"을 직전 값으로 되돌릴까요?')) gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else alert((rr&&rr.error)||'되돌리기 실패'); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 되돌리기 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다 */
+      var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){
+        admConfirm({ title:'"'+key+'" 항목을 직전 값으로 되돌릴까요?', body:'되돌린 값이 고객 답변에 바로 쓰여요.', yes:'되돌리기' })
+          .then(function(go){ if(!go) return;
+            gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else admAlert({ title:'되돌리지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); }); }); });
     }); }
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 · 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
@@ -993,7 +1144,11 @@ function openAiTeam(){
      +'<input id="eduSearch" placeholder=" 등록된 교육 검색" style="width:100%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px;box-sizing:border-box;margin-bottom:8px">'
      +'<div id="eduList"></div>';
     document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(), memo=document.getElementById('eduMemo').value.trim(); if(!t) return;
-      var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); } else if(r&&r.blocked){ if(confirm((r.error||'핵심 수치처럼 보여요.')+'\n\n그래도 추가할까요? (가격·정책이 틀리면 고객에게 그대로 나갑니다)')) doAdd(true); } else alert((r&&r.error)||'추가 실패'); }); };
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. doAdd는 자기 자신을 다시 부르는 구조인데 반환값을 쓰는 곳이 없어,
+         재시도 호출(doAdd(true))만 .then 안으로 옮기면 예·아니오 두 갈래가 그대로 보존된다(아니오는 원래도 아무것도 안 했다). */
+      var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); }
+        else if(r&&r.blocked){ admConfirm({ title:'그래도 추가할까요?', body:(r.error||'핵심 수치처럼 보여요.')+'\n가격·정책이 틀리면 고객에게 그대로 나가요.', yes:'그대로 추가' }).then(function(go){ if(go) doAdd(true); }); }
+        else admAlert({ title:'추가하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); }); };
       doAdd(false); });
     document.getElementById('eduSearch').addEventListener('input',function(){ renderEdu(); });
     loadEdu(); }
@@ -1012,7 +1167,10 @@ function openAiTeam(){
     var cf=_eduConflicts(_eduNotes);
     el.innerHTML=ns.map(function(n){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;display:flex;align-items:flex-start;gap:8px;font-size:13px;'+(n.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:40px;margin-top:2px">'+esc(n.target)+'</span><span style="flex:1;color:#3a2f25">'+(cf[n.id]?'<span title="비슷한 교육이 있어요 · 모순·중복 확인" style="cursor:help">⚠️</span> ':'')+esc(n.text)+(n.memo?'<div style="font-size:10px;color:#b0a896;margin-top:2px"> '+esc(n.memo)+'</div>':'')+'</span><button data-tg="'+esc(n.id)+'" data-on="'+(n.active?'0':'1')+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(n.active?'끄기':'켜기')+'</button><button data-del="'+esc(n.id)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
     Array.prototype.forEach.call(el.querySelectorAll('[data-tg]'),function(b){ b.addEventListener('click',function(){ gas('aiKbNoteSetActive',b.getAttribute('data-tg'),b.getAttribute('data-on')==='1').then(loadEdu); }); });
-    Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){ if(confirm('삭제할까요?')) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); });
+    /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 삭제 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다 */
+    Array.prototype.forEach.call(el.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(){
+      admConfirm({ title:'이 교육을 삭제할까요?', body:'삭제하면 직원들이 이 내용을 더는 참고하지 않아요.', yes:'삭제', danger:true })
+        .then(function(go){ if(go) gas('aiKbNoteDelete',b.getAttribute('data-del')).then(loadEdu); }); }); });
   }
   function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
     gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } _eduNotes=r.notes||[]; renderEdu();
@@ -1058,7 +1216,14 @@ function openAiTeam(){
       cand.innerHTML=items.slice(0,40).map(function(it){ var c=Number(it.count)||1; var mk=(it.escalate||it.flag==='막힘')?'<span title="상담사 연결됨(막힘)">🔴</span>':(it.flag==='애매'?'<span title="답했지만 자신 없음(애매)">🟡</span>':'<span style="opacity:.3">·</span>'); return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:13px">'+mk+'<span style="flex:1;color:#3a2f25">'+esc(it.q)+'</span>'+(c>1?'<span style="font-size:10px;color:#6B2A24;font-weight:600">×'+c+'</span>':'')+'<span style="font-size:10px;color:#bcb3a4">'+esc(String(it.at).slice(5,16))+'</span><button class="candAsk" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">질문</button><button class="candEdu" data-q="'+esc(it.q)+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">교육</button><button class="candDone" data-q="'+esc(it.q)+'" title="해결 · 목록에서 치우기(다시 막히면 재등장)" style="padding:2px 8px;border:1px solid #cfe0cf;background:#fff;color:#2e7d32;border-radius:5px;font-size:11px;cursor:pointer">✓</button></div>'; }).join('');
       Array.prototype.forEach.call(cand.querySelectorAll('.candAsk'),function(b){ b.addEventListener('click',function(){ document.getElementById('impQ').value=b.getAttribute('data-q'); run(); window.scrollTo(0,0); }); });
       Array.prototype.forEach.call(cand.querySelectorAll('.candEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
-      Array.prototype.forEach.call(cand.querySelectorAll('.candDone'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 질문을 해결로 표시하고 목록에서 치울까요? (같은 질문이 다시 막히면 자동으로 다시 떠요)')) return; b.disabled=true; gas('aiQuestionResolve',b.getAttribute('data-q')).then(function(rr){ if(rr&&rr.ok){ var row=b.parentNode; if(row&&row.parentNode) row.parentNode.removeChild(row); } else { b.disabled=false; alert((rr&&rr.error)||'실패'); } }); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. '아니오면 return' 뒤로 버튼 잠금·서버 호출이 이어지던 자리라,
+         확인 이후 코드를 통째로 .then 안으로 옮기고 조기 return도 그 안에 그대로 뒀다(핸들러 뒤에 남는 코드가 없어 밖으로 새지 않는다). */
+      Array.prototype.forEach.call(cand.querySelectorAll('.candDone'),function(b){ b.addEventListener('click',function(){
+        admConfirm({ title:'이 질문을 해결로 표시할까요?', body:'목록에서 치워요. 같은 질문이 다시 막히면 자동으로 다시 떠요.', yes:'해결로 표시' }).then(function(go){
+          if(!go) return;
+          b.disabled=true;
+          gas('aiQuestionResolve',b.getAttribute('data-q')).then(function(rr){ if(rr&&rr.ok){ var row=b.parentNode; if(row&&row.parentNode) row.parentNode.removeChild(row); } else { b.disabled=false; admAlert({ title:'처리하지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } });
+        }); }); });
     }).catch(function(){ cand.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; });
     loadReg();
   }
@@ -1066,10 +1231,19 @@ function openAiTeam(){
     gas('aiRegList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var cs=r.cases||[]; if(!cs.length){ el.innerHTML='<div style="color:#9a9183;font-size:12px">아직 고정된 회귀 케이스가 없어요.</div>'; return; }
       el.innerHTML=cs.map(function(c){ return '<div style="border-top:1px solid #f0ebe3;padding:7px 0;display:flex;align-items:center;gap:8px;font-size:12px;'+(c.active?'':'opacity:.5')+'"><span style="font-size:10px;color:#9a9183;min-width:34px">'+esc(c.surface)+'</span><span style="flex:1;color:#3a2f25">'+esc(c.q)+' <span style="color:#9a9183">['+esc(c.type)+(c.val?(':'+esc(c.val)):'')+']</span></span><button data-ron="'+esc(c.id)+'" data-on="'+(c.active?'0':'1')+'" style="padding:3px 7px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">'+(c.active?'끄기':'켜기')+'</button><button data-rdel="'+esc(c.id)+'" style="padding:3px 7px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'; }).join('');
       Array.prototype.forEach.call(el.querySelectorAll('[data-ron]'),function(b){ b.addEventListener('click',function(){ gas('aiRegSetActive',b.getAttribute('data-ron'),b.getAttribute('data-on')==='1').then(loadReg); }); });
-      Array.prototype.forEach.call(el.querySelectorAll('[data-rdel]'),function(b){ b.addEventListener('click',function(){ if(confirm('이 회귀 케이스를 삭제할까요?')) gas('aiRegDelete',b.getAttribute('data-rdel')).then(loadReg); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 삭제 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다 */
+      Array.prototype.forEach.call(el.querySelectorAll('[data-rdel]'),function(b){ b.addEventListener('click',function(){
+        admConfirm({ title:'이 회귀 케이스를 삭제할까요?', body:'매일 돌던 이 질문의 자동 점검이 멈춰요.', yes:'삭제', danger:true })
+          .then(function(go){ if(go) gas('aiRegDelete',b.getAttribute('data-rdel')).then(loadReg); }); }); });
     }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
-  function pinReg(surface,q,btn){ var val=prompt('이 질문의 답에 꼭 들어가야 할 표현을 적으세요(필수 검증). 매일 자동 점검돼요.\n예) 280  ·  주차  ·  환불\n\n질문: '+q,'');
-    if(val===null||!val.trim()) return; gas('aiRegAdd', surface||'메인', q, '필수', val.trim()).then(function(r){ if(r&&r.ok){ if(btn){ btn.textContent='✓ 고정'; btn.disabled=true; } } else alert((r&&r.error)||'고정 실패'); }); }
+  /* [ADM_MODAL 2026-08-03] 동기 prompt → Promise. 입력값을 바로 검사·전송하던 함수라 본문 전체를 .then 안으로 옮겼다.
+     pinReg는 반환값을 쓰는 호출자가 없어(클릭 핸들러에서만 부른다) 함수를 비동기로 바꿔도 밖에 영향이 없다.
+     취소는 그대로 null, 빈 문자열도 원래처럼 아무 일 없이 끝난다. */
+  function pinReg(surface,q,btn){
+    admPrompt({ title:'이 질문의 필수 표현을 고정할까요?', body:'답에 꼭 들어가야 할 표현을 적어 주세요. 매일 자동으로 점검돼요.\n\n질문: '+q, label:'꼭 들어갈 표현', value:'', placeholder:'예) 280 · 주차 · 환불' }).then(function(val){
+      if(val===null||!val.trim()) return;
+      gas('aiRegAdd', surface||'메인', q, '필수', val.trim()).then(function(r){ if(r&&r.ok){ if(btn){ btn.textContent='✓ 고정'; btn.disabled=true; } } else admAlert({ title:'고정하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); });
+    }); }
   //  고객질문 종합 리포트 — 기간별 막힘/애매/정상 + 접점별 + 자주 막힌/애매한 질문 TOP. 막힌·애매한 질문은 그 자리에서 교육·점검.
   var _repDays=7;
   function gotoCheck(q){ show('개선'); var el=document.getElementById('impQ'); if(el){ el.value=q; var b=document.getElementById('impRun'); if(b) b.click(); } }
@@ -1084,7 +1258,8 @@ function openAiTeam(){
       if(!items.length){ h+='<div style="font-size:11px;color:#9a9183;margin-top:4px">아직 신청이 없어요. (챗봇에서 고객이 동의 후 남기면 여기·문자로 와요)</div>'; }
       else { h+=items.slice(0,10).map(function(x){ var ch=x.channel||'문자'; var ct=esc(x.contact||x.phone||''); var link=(ch==='이메일')?('mailto:'+ct):('sms:'+ct); return '<div style="border-top:1px solid #e6ece6;padding:6px 0;font-size:12px;'+(x.status==='완료'?'opacity:.5':'')+'"><div style="display:flex;align-items:center;gap:8px"><span style="color:#3a2f25;font-weight:600">'+esc(x.name)+'</span><a href="'+link+'" style="color:#6B2A24">'+ct+'</a><span style="color:#bcb3a4">'+esc(x.surface)+'</span><span style="flex:1"></span>'+(x.status==='완료'?'<span style="color:#9bbf9b">완료</span>':'<button class="leadRes" data-row="'+x.row+'" style="padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">완료</button>')+'</div>'+(x.context?'<div style="color:#9a9183;margin-top:2px">'+esc(x.context)+'</div>':'')+'</div>'; }).join(''); }
       return h+'</div>'; };
-    var wireLeads=function(rb){ Array.prototype.forEach.call(rb.querySelectorAll('.leadRes'),function(b){ b.addEventListener('click',function(){ b.disabled=true; gas('adminResolveLead',b.getAttribute('data-row')).then(function(rr){ if(rr&&rr.ok) load(); else { b.disabled=false; alert((rr&&rr.error)||'실패'); } }); }); }); };
+    /* [ADM_MODAL 2026-08-03] 실패 알림 — 콜백 끝이라 흐름 변화 없음 */
+    var wireLeads=function(rb){ Array.prototype.forEach.call(rb.querySelectorAll('.leadRes'),function(b){ b.addEventListener('click',function(){ b.disabled=true; gas('adminResolveLead',b.getAttribute('data-row')).then(function(rr){ if(rr&&rr.ok) load(); else { b.disabled=false; admAlert({ title:'처리하지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } }); }); }); };
     var load=function(){ var rb=document.getElementById('repBody'); rb.innerHTML='<div style="color:#9a9183;font-size:12px">불러오는 중…</div>';
       Promise.all([gas('aiQuestionReport',_repDays), gas('adminListLeads').catch(function(){return null;})]).then(function(res){ var r=res[0], L=res[1]; if(!r||!r.ok){ rb.innerHTML='<div style="color:#b00;font-size:12px">불러오지 못했어요.</div>'; return; }
         if(!r.total){ rb.innerHTML='<div style="padding:9px 11px;background:#f3f6f3;border:1px solid #dfe7df;border-radius:8px;font-size:12px;color:#3a2f25">카톡 상담 연결 <b>'+(r.kakaoClicks||0)+'</b>건(최근 '+_repDays+'일)</div>'+leadBlock(L)+'<div style="color:#9a9183;font-size:12px;margin-top:10px">이 기간에 쌓인 고객 질문이 없어요. (질문 적재는 GAS 재배포 후부터 채워집니다)</div>'; wireLeads(rb); return; }
@@ -1103,18 +1278,28 @@ function openAiTeam(){
         h+='<div style="margin-top:12px;font-size:10px;color:#b0a896">막힘/애매 구분·접점은 GAS 재배포 시점부터 채워져요. 그 이전 질문은 정상·기타로 집계됩니다.</div>';
         rb.innerHTML=h;
         var faqQs=[]; (r.topStuck||[]).concat(r.topVague||[]).forEach(function(x){ if(x&&x.q&&faqQs.indexOf(x.q)<0) faqQs.push(x.q); });
-        var fb=document.getElementById('repFaq'); if(fb) fb.addEventListener('click',function(){ if(!faqQs.length){ alert('초안을 만들 질문이 없어요(막힘·애매가 쌓이면 생성돼요).'); return; }
+        /* [ADM_MODAL 2026-08-03] 진입 가드 알림 — return이 흐름을 끊으므로 admAlert를 기다릴 필요가 없다 */
+        var fb=document.getElementById('repFaq'); if(fb) fb.addEventListener('click',function(){ if(!faqQs.length){ admAlert({ title:'초안을 만들 질문이 없어요', body:'막힘·애매가 쌓이면 초안이 생성돼요.' }); return; }
           var o=document.getElementById('repFaqOut'); fb.disabled=true; fb.textContent='생성 중…'; o.innerHTML='<div style="color:#9a9183;font-size:12px">AI가 초안을 작성 중이에요(10~20초)…</div>';
           fetch('/api/faq-draft',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({questions:faqQs.slice(0,20)})}).then(function(rs){return rs.json();}).then(function(j){ fb.disabled=false; fb.textContent='다시 생성';
             var fs=(j&&j.faqs)||[]; if(!fs.length){ o.innerHTML='<div style="color:#b00;font-size:12px">초안을 만들지 못했어요. ('+esc((j&&j.error)||'오류')+')</div>'; return; }
             o.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:6px">검토 후 홈페이지에 직접 게시해 주세요(자동 게시 아님). 사실은 핵심정보·지식 기준.</div>'+fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0"><div style="font-weight:600;color:#3a2f25;font-size:13px">Q. '+esc(f.q)+'</div><div style="color:#5a554c;font-size:13px;margin-top:3px;white-space:pre-wrap">A. '+esc(f.a)+'</div></div>'; }).join('')
              +'<div style="text-align:right;margin-top:8px"><button id="repFaqCopy" style="padding:4px 12px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:12px;cursor:pointer">전체 복사</button></div>';
-            var cp=document.getElementById('repFaqCopy'); if(cp) cp.addEventListener('click',function(){ var txt=fs.map(function(f){return 'Q. '+f.q+'\nA. '+f.a;}).join('\n\n'); if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(function(){ cp.textContent='✓ 복사됨'; },function(){ alert(txt); }); } else alert(txt); });
+            /* [ADM_MODAL 2026-08-03] 복사 실패 시 원문을 띄워 손으로 복사하게 하던 자리 — pre 칸에 그대로 담아 선택·복사할 수 있게 했다(기본 팝업보다 긴 글에 낫다). 흐름 변화 없음 */
+            var cp=document.getElementById('repFaqCopy'); if(cp) cp.addEventListener('click',function(){ var txt=fs.map(function(f){return 'Q. '+f.q+'\nA. '+f.a;}).join('\n\n');
+              var manual=function(){ admAlert({ title:'복사하지 못했어요', body:'아래 내용을 직접 복사해 주세요.', pre:txt }); };
+              if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(function(){ cp.textContent='✓ 복사됨'; }, manual); } else manual(); });
           }).catch(function(){ fb.disabled=false; fb.textContent='초안 생성'; o.innerHTML='<div style="color:#b00;font-size:12px">호출 실패</div>'; }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repAsk'),function(b){ b.addEventListener('click',function(){ gotoCheck(b.getAttribute('data-q')); }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 질문: '+b.getAttribute('data-q')+' (전 직원 공유)',function(ok){ if(ok){ b.textContent='✓'; b.disabled=true; } }); }); });
         Array.prototype.forEach.call(rb.querySelectorAll('.repPin'),function(b){ b.addEventListener('click',function(){ pinReg(b.getAttribute('data-s'),b.getAttribute('data-q'),b); }); });
-        Array.prototype.forEach.call(rb.querySelectorAll('.repDone'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 질문을 해결로 표시하고 목록에서 치울까요? (다시 막히면 자동으로 다시 떠요)')) return; b.disabled=true; gas('aiQuestionResolve',b.getAttribute('data-q')).then(function(rr){ if(rr&&rr.ok) load(); else { b.disabled=false; alert((rr&&rr.error)||'실패'); } }); }); });
+        /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. '아니오면 return' 뒤로 버튼 잠금·서버 호출이 이어지던 자리라 확인 이후 코드를 통째로 .then 안으로 옮겼다 */
+        Array.prototype.forEach.call(rb.querySelectorAll('.repDone'),function(b){ b.addEventListener('click',function(){
+          admConfirm({ title:'이 질문을 해결로 표시할까요?', body:'목록에서 치워요. 다시 막히면 자동으로 다시 떠요.', yes:'해결로 표시' }).then(function(go){
+            if(!go) return;
+            b.disabled=true;
+            gas('aiQuestionResolve',b.getAttribute('data-q')).then(function(rr){ if(rr&&rr.ok) load(); else { b.disabled=false; admAlert({ title:'처리하지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } });
+          }); }); });
         wireLeads(rb);
       }).catch(function(){ rb.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); };
     load();
@@ -1138,7 +1323,13 @@ function openAiTeam(){
           +(x.id?'<button class="hRes" data-id="'+esc(x.id)+'" style="padding:3px 10px;border:1px solid #d9cfc1;background:#fff;border-radius:5px;font-size:11px;cursor:pointer">✓ 처리완료</button>':'')+'</div>'
           +'</div>'; }).join('');
       Array.prototype.forEach.call(bd.querySelectorAll('.hEdu'),function(b){ b.addEventListener('click',function(){ aiTeachPrompt('전체','고객 문의: '+b.getAttribute('data-q'),function(ok){ if(ok){ b.textContent='✓ 교육됨'; b.disabled=true; } }, b.getAttribute('data-ans')); }); });
-      Array.prototype.forEach.call(bd.querySelectorAll('.hRes'),function(b){ b.addEventListener('click',function(){ if(!confirm('이 인계를 처리완료로 표시할까요?')) return; b.disabled=true; b.textContent='처리 중…'; gas('adminResolveAiHandoff',b.getAttribute('data-id')).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; alert((rr&&rr.error)||'실패'); } }); }); });
+      /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. '아니오면 return' 뒤로 버튼 잠금·라벨 변경·서버 호출이 이어지던 자리라 확인 이후 코드를 통째로 .then 안으로 옮겼다 */
+      Array.prototype.forEach.call(bd.querySelectorAll('.hRes'),function(b){ b.addEventListener('click',function(){
+        admConfirm({ title:'이 인계를 처리완료로 표시할까요?', body:'인계 목록에서 사라져요.', yes:'처리완료' }).then(function(go){
+          if(!go) return;
+          b.disabled=true; b.textContent='처리 중…';
+          gas('adminResolveAiHandoff',b.getAttribute('data-id')).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; admAlert({ title:'처리하지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } });
+        }); }); });
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
   show('명단');
 }
@@ -1262,6 +1453,11 @@ function _pollSkip(){
   if(_view!=='home' || _lastQuery) return true;                     // 상세·아카이브·검색 결과 중엔 건드리지 않음
   var cm=document.getElementById('confirmModal');
   if(cm && cm.classList.contains('show')) return true;              // 확인 모달 열림
+  /* [ADM_MODAL 2026-08-03] 기본 팝업 대체 판도 같은 이유로 건너뛴다.
+     예전 alert·confirm·prompt는 자바스크립트를 통째로 멈춰서 그동안 폴링이 아예 못 돌았다.
+     판을 우리 판으로 바꾸면 그 멈춤이 사라지므로, 위 확인 모달과 같은 가드를 명시해 원래 동작을 지킨다. */
+  var ad=document.getElementById('admDlgOv');
+  if(ad && ad.classList.contains('show')) return true;
   if(document.querySelector('.ov, #ad_ftViewer, #aiPanel.show')) return true;   // 문서 뷰어·AI 패널 등 오버레이
   var ae=document.activeElement;
   if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName||'')) return true;       // 입력 중

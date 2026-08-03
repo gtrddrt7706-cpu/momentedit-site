@@ -1030,6 +1030,12 @@ function revealGuide(){
 function meAlert(msg){
   var ov=document.getElementById('meAlert'), m=document.getElementById('meAlertMsg'), ok=document.getElementById('meAlertOk');
   function esc2(x){ return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  /* [POPUP_BRAND 2026-08-03] 이 alert 하나만 남긴다 — 브랜드 모달 DOM(#meAlert) 자체가 없을 때의 최후 폴백이라
+     여기서 또 DOM을 만들어 봐야 같은 이유로 실패한다. 평소엔 도달하지 않는다:
+     #meAlert · #meAlertMsg · #meAlertOk 셋 다 body에 정적 마크업으로 박혀 있고, 지우는 코드도 없다.
+     다만 영구 보장은 아니다 — 부트스트랩 fail()이 document.body.innerHTML을 통째로 갈아끼우면 함께 사라진다.
+     그 경로는 페이지가 이미 오류 화면으로 끝난 뒤라 meAlert를 부를 조작이 남아 있지 않지만,
+     남은 만분의 일에서 말없이 삼키는 것보다는 못생긴 창이라도 뜨는 편이 낫다. */
   if(!ov||!m||!ok){ alert((msg&&typeof msg==='object')?[msg.lead].concat(msg.items||[]).join('\n'):msg); return; }
   if(msg&&typeof msg==='object'){   // {lead, items[]} · 리드 한 줄 + 점 목록(안내 박스들과 동일한 결)
     var h='';

@@ -1198,3 +1198,56 @@ chk 'GV_ONEROW_CTR' invitation-gallery.html 2            # 한 줄 헤더 좌우
 chk 'GV_EDGE_PLATE' invitation-gallery.html 1            # 좌우 넘김 화살표 원판 · 없애면 화살표가 청첩장 위에 떠 장식으로 읽힌다
 chk 'ADM_HEAD2' admin.html 3                            # 관리자 헤더 2단(묶음 div + 600px 분기 + 340px 보정) · 한 줄로 되돌리면 'MOMENT EDIT'가 두 줄로 쪼개지고 '로그아웃'이 화면 밖으로 잘린다
 chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀면 flex-wrap이 버튼을 하나씩 흘려 둘째 줄이 들쭉날쭉해진다
+
+# ══ 베일 다운 폐지 · 순서 고정 · 저장 상태 · 네이티브 팝업 추방 (2026-08-03) ══
+# nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
+nochk(){ n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
+
+# [VEIL_RETIRED] 전 예식 동시입장이라 베일 다운은 실행 불가 — 코스·팔레트·큐·KB 어디에도 되살리지 말 것
+chk 'VEIL_RETIRED' order-preview.html 3                 # 상수·장면도해·카드분기 세 자리에 폐지 사유가 남아 있어야 한다
+chk 'VEIL_RETIRED' assets/ritual-data.js 3              # 원천(코스 seq·문안·소요분)
+chk 'VEIL_RETIRED' assets/ritual-cue.js 3               # 큐시트 생성기
+chk 'VEIL_RETIRED' api/_ritual-kb.js 3                  # AI 상담 지식
+nochk "'veil'" order-preview.html                       # 빌더 코드에 veil 키가 남으면 팔레트·순서·요약 어딘가로 다시 샌다
+nochk "'veil'" assets/ritual-cue.js
+nochk 'D.VEIL' api/_ritual-kb.js
+
+# [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
+chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다
+chk 'var FIXPOS=' order-preview.html 1
+chk 'if(FIXPOS\[k\]) return' order-preview.html 1        # 자기가 고정
+chk 'if(FIXPOS\[o\[j\]\]) return' order-preview.html 1    # 이웃이 고정(스와프로 밀어내는 경로)
+
+# [ORD_SAVE_STATE] 저장됨은 부모가 확인해 준 뒤에만 — 낙관 표시로 되돌리면 '실패 알림 + 저장됨 버튼'이 한 화면에 공존한다
+chk 'ORD_SAVE_STATE' order-preview.html 6
+chk 'ORD_SAVE_STATE' mypage.html 2
+chk 'momentedit:orderSaved' order-preview.html 1         # 성공 신호 수신
+chk 'momentedit:orderSaved' mypage.html 1                # 성공 신호 발신 · 한쪽만 있으면 저장 성공이 영원히 '저장 중'으로 남는다
+chk 'function doSave' order-preview.html 1
+chk 'function _saveDone' order-preview.html 1
+
+# [ORD_EXIT_ALWAYS] 완성 화면에도 나가기 · 숨기면 부모의 플로팅 ✕도 숨은 상태라 나갈 길이 하나도 없다(2026-08-03 제보)
+chk 'ORD_EXIT_ALWAYS' order-preview.html 2
+chk 'momentedit:orderClose' order-preview.html 1          # 저장 완료 뒤 나가기는 재저장이 아니라 그냥 닫기(완료본이 초안으로 되돌아가지 않게)
+
+# [ORD_DONEACTS][ORD_TELL][ORD_EMPTY_LINE] 완성 화면 정리
+chk 'ORD_DONEACTS' order-preview.html 2                   # 문의·다시 만들기 한 줄 묶음 · 풀면 회색 판이 음악 카드 옆에 홀로 뜬다
+chk 'ORD_TELL' order-preview.html 2                       # 알림형 브랜드 판
+chk 'ORD_EMPTY_LINE' order-preview.html 4                 # 배지 자리·이름폭 96·빈 값 줄표 · 되돌리면 배지가 행마다 다른 줄에 찍힌다
+chk 'flex:0 0 96px' order-preview.html 1                  # 88px 이면 '하객 맞이 안내'·'폐식 · 단체촬영'만 이름이 두 줄로 접힌다(실측)
+
+# [POPUP_BRAND][ADM_MODAL][MP_MODAL_ONE] 네이티브 팝업 추방 — 검은 시스템 판은 이 지면의 말이 아니고, alert 은 동기 차단이라 뒤 화면과 어긋난 채 함께 보인다
+chk 'MP_MODAL_ONE' mypage.html 1
+chk 'POPUP_BRAND' index.html 3
+chk 'POPUP_BRAND' invitation-gallery.html 3
+chk 'POPUP_BRAND' automation/consultation/ScreenA_apply.html 3
+chk 'ADM_MODAL' admin.html 20
+chk 'function admConfirm\|admConfirm=' admin.html 1
+nochk '[^.a-zA-Z_]alert(' order-preview.html
+nochk '[^.a-zA-Z_]alert(' mypage.html
+nochk '[^.a-zA-Z_]alert(' index.html
+nochk '[^.a-zA-Z_]alert(' invitation-gallery.html
+nochk '[^.a-zA-Z_]alert(' admin.html
+nochk '[^.a-zA-Z_]confirm(' admin.html
+nochk '[^.a-zA-Z_]prompt(' admin.html
+nochk '[^.a-zA-Z_]alert(' automation/consultation/ScreenA_apply.html

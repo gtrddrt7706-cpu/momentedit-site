@@ -11,7 +11,7 @@
 //
 // ★식순은 2축 구조다. 하나만 보면 반드시 틀린다.
 //   축1  COURSES[c].seq + opt(제자리 삽입) + S.extra(팔레트)   → curSeq()
-//   축2  OFFTGL={ring,bless,veil,valley} + momOn()             → BLOCK[k]()가 null 반환
+//   축2  OFFTGL={ring,bless,valley} + momOn()                  → BLOCK[k]()가 null 반환
 //   실제 진행 순서 = fullBlocks() = 축1을 돌면서 축2로 걸러낸 결과
 //   curSeq()는 순서 축만 필터하므로 '꺼진 순간'이 배열에 그대로 남아 있다.
 //   담백의 valley·bless는 seq 붙박이(isOptK=false)라 curSeq에서 절대 안 걸러지고 축2에서만 걸러진다.
@@ -98,7 +98,8 @@ export function loadEngine(file) {
 export const COURSE_KEYS = ['damback', 'gamdong', 'family', 'minimal', 'festive'];
 export const NM = { damback: '담백', gamdong: '감동', family: '가족', minimal: '미니멀', festive: '축하' };
 export const LB = {
-  guest: '식전', veil: '베일', entry: '입장', welcome: '첫인사', bless: '덕담', vow: '서약',
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  guest: '식전', entry: '입장', welcome: '첫인사', bless: '덕담', vow: '서약',
   ringwarm: '링워밍', ring: '반지', declare: '★선언', letter: '◆편지', tribute: '헌정',
   valley: '밸리', song: '축가', toast: '축배',
 };
@@ -108,7 +109,8 @@ export const same = (x, y) => (x ? x.join('>') : '∅') === (y ? y.join('>') : '
 // applyCourse() 실측 (order-preview.html:1471~1473) — 코스 기본값의 단일 출처
 // ★toast는 2026-07-28에 더했다. 구판은 S.toast를 아예 안 넣어서 전 조합이 undefined였고,
 //   그래서 _cakeDup()의 두 조건이 각각 독립적으로 0이 됐다.
-const courseDefaults = c => ({ ring: 'on', bless: c === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none', toast: 'toast' });
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+const courseDefaults = c => ({ ring: 'on', bless: c === 'family' ? 'on' : 'off', valley: 'none', toast: 'toast' });
 // extraTgl() 실측(1119행) — 팔레트를 켜면 축2 토글도 함께 켜진다
 const applyExtraTgl = (S, k) => { if (k === 'bless') S.bless = 'on'; if (k === 'valley') S.valley = 'wine'; };
 
@@ -120,11 +122,10 @@ const applyExtraTgl = (S, k) => { if (k === 'bless') S.bless = 'on'; if (k === '
 //         구판 시뮬레이터·감사·chk 마커가 전부 초록이었다. 상태 축으로 바꾸면 잡힌다.
 //   값 목록은 전부 실측이다 — momOn()(1087) · 검증 분기(1724) · quickOff()(1096~1097) · pick 카드(1350~1352·1380).
 //   order:false = 순서 엔진이 안 읽는 키. toast는 OFFTGL에 없어 필터를 안 타고 _cakeDup()만 읽는다.
-//   veil의 'father'·'close'는 momOn(S.veil!=='skip')에도 순서에도 mother와 완전히 같다(문구만 다르다) → 안 늘린다.
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 export const STATES = {
   ring:   { order: true,  off: 'off',  v: ['on', 'off'] },
   bless:  { order: true,  off: 'off',  v: ['on', 'off'] },
-  veil:   { order: true,  off: 'skip', v: ['mother', 'skip'] },
   valley: { order: true,  off: 'none', v: ['none', 'wine', 'cake'] },
   toast:  { order: false, off: null,   v: ['toast', 'cake', 'both'] },
 };

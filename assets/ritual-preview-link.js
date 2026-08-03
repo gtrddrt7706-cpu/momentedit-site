@@ -26,7 +26,8 @@
     'ord', 'extra',                            // 순서 조정 · 더한 순서(둘 다 키 목록일 뿐 · 글은 없다)
     'entry', 'entryVoice',                     // 입장 멘트 · 입장 목소리
     'guestVoice',                              // 하객 맞이 목소리
-    'veil', 'ringwarm', 'ring',                // 베일 다운 · 링 워밍 · 반지 교환
+    // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+    'ringwarm', 'ring',                        // 링 워밍 · 반지 교환
     'declare', 'declareWho',                   // 성혼 선언 문안 · 누가
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상

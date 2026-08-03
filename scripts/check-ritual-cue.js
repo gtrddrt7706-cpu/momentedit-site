@@ -8,7 +8,7 @@
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
  *  4) 5코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
- *  5) FILES 54개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
+ *  5) FILES 51개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
  */
@@ -24,9 +24,11 @@ const ok = (m) => console.log('ok  cue: ' + m);
 const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 
 /* ── 1. FILES 무결성 ───────────────────────────────────────── */
-if (C.FILES.length !== 54) no(`FILES 54개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 54) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 54개 · 중복 없음');
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+//   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
+if (C.FILES.length !== 51) no(`FILES 51개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== 51) no('FILES에 중복 슬러그가 있다');
+else ok('FILES 51개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {
@@ -40,11 +42,14 @@ else ok('FILES 54개 · 중복 없음');
 // ★번호는 FILES 순서에서 파생된다(인덱스+1) — 클립을 중간에 끼우면 그 뒤가 통째로 +1 밀린다.
 //   2026-08-01 narr-bless-end-long(25번) 삽입으로 25 이상이 한 칸씩 이동했다. 판정 자체는 그대로다.
 //   슬러그를 함께 적어 둔다 — 다음에 밀릴 때 "무엇이 무엇이 됐는지"를 다시 추적하지 않게.
-const A3_MANUAL = ['01', '05', '11', '12', '14', '16', '20', '24', '48', '50'];
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+//   veil 슬러그 3개가 36번 자리에서 빠져 36번 이상이 통째로 -3 밀렸다(48→45 · 50→47 · 47→44).
+//   판정 자체는 그대로다 — 담백 코스에 베일이 없었으므로 수동 10 / 자동 10도 변하지 않는다.
+const A3_MANUAL = ['01', '05', '11', '12', '14', '16', '20', '24', '45', '47'];
 //                  guest-1  entry-A  welcome-in/out  vow-out  ring-out  letter-end  bless-end  farewell  goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['13', '15', '30', '27', '23', '26', '47'];
+const A3_CHAIN = ['13', '15', '30', '27', '23', '26', '44'];
 //                 vow-in  ring-in  declare-1-solemn  letter-parent  bless-mid  close  end-0-photo
 {
   const r = C.build({ course: 'damback', bless: 'on' }, { mode: 'console' });
@@ -116,11 +121,12 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
                         if (!firstDoing) firstDoing = `${c.no || '—'} ${c.slug || c.name}: doing=${c.live.doing || '없음'} · "${c.live.t}"`;
                       }
                       // CUE_FIRE_RULE — 규칙이 계산하는 자리에만 적용한다.
-                      //   식전 4큐(guest) · 베일(veil) · 입장(entry)은 엔진이 fire를 직접 박는 자리다.
+                      //   식전 4큐(guest) · 입장(entry)은 엔진이 fire를 직접 박는 자리다.
                       //   앞 큐의 live로는 표현되지 않는 대기(신부 준비 완료 등)라서 규칙 밖이고,
                       //   그 자리들이 옳은지는 위 §3-A 20큐 판정표 검사가 이미 고정하고 있다.
                       //   (식전 안내 2클립은 guest 뒤에 붙지만 규칙이 계산하는 자리다)
-                      const pinned = (i === 0 || c.k === 'veil' || c.k === 'entry' ||
+                      // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+                      const pinned = (i === 0 || c.k === 'entry' ||
                         (c.k === 'guest' && c.blockN !== '식전 안내'));
                       if (pinned) {
                         if (c.fire === 'chain') {

@@ -10,11 +10,11 @@
 //
 //   ★왜 함수가 아니라 '필드'로 색인하는가 (2026-07-31 클로드 코드 회신17 지적)
 //   같은 필드를 같은 방향으로 읽는 자리가 함수 경계를 넘어 둘 이상 있다. estMin()과, 카드 칩을 그리는
-//   지역 클로저 _mm()이 letter·ringwarm·toast·veil을 똑같이 읽는다. 함수 단위로 잡으면 둘을 별개로 세고
+//   지역 클로저 _mm()이 letter·ringwarm·toast를 똑같이 읽는다. 함수 단위로 잡으면 둘을 별개로 세고
 //   '둘이 어긋났는가'라는 진짜 질문을 못 던진다. 그래서 표는 필드 기준이고, 가드는 그 필드를 참조만 한다.
 //
 //   ★이 스캐너가 존재하는 이유(실사고)
-//   순서 시뮬레이터는 courseDefaults로 ring·bless·veil·valley·toast 다섯 개만 세팅한다. 그래서
+//   순서 시뮬레이터는 courseDefaults로 ring·bless·valley·toast 네 개만 세팅한다. 그래서
 //   S.ringwarm·S.letter는 13,632조합 전부에서 undefined였고, estMin의 아래 두 줄은 한 번도 안 밟혔다.
 //     if(inSeq('ringwarm') && S.ringwarm==='all') m+=2;
 //     if(inSeq('letter')   && S.letter==='both')  m+=2;
@@ -59,12 +59,11 @@ export function loadGuards(file) {
 
 // ── 2. 필드 표 ──────────────────────────────────────────────────────────────
 // 값 도메인은 order-preview.html 실측(복원 새니타이저 1724행 · pick 카드 · assets/ritual-data.js).
-//   veil은 4값 전부 넣는다. 순서상 mother/father/close는 동일하지만(momOn은 !=='skip'만 본다)
 //   가드는 값 비교라 도메인을 줄이면 '줄인 만큼'을 못 본다 — 이 파일의 예산은 그걸 아낄 이유가 없다.
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 export const FIELDS = {
   ring:        ['on', 'off'],
   bless:       ['on', 'off'],
-  veil:        ['mother', 'father', 'close', 'skip'],
   valley:      ['none', 'wine', 'cake'],
   toast:       ['toast', 'cake', 'both'],
   ringwarm:    ['family', 'all'],
@@ -82,10 +81,11 @@ export const FIELDS = {
 };
 
 // 가드별로 '읽는 필드'만 선언한다. 이 목록이 곧 지역 곱집합의 축이다.
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 export const GUARDS = {
-  estMin:    ['ring', 'valley', 'bless', 'veil', 'ringwarm', 'toast', 'letter'],
-  _mm:       ['letter', 'ringwarm', 'toast', 'veil'],
-  prep:      ['bless', 'letter', 'welcome', 'declareWho', 'veil', 'song',
+  estMin:    ['ring', 'valley', 'bless', 'ringwarm', 'toast', 'letter'],
+  _mm:       ['letter', 'ringwarm', 'toast'],
+  prep:      ['bless', 'letter', 'welcome', 'declareWho', 'song',
               'growth', 'growthLink', 'entryVoice', 'guestVoice', 'ring'],
   _cakeDup:  ['valley', 'toast'],
   blocker:   ['vowText', 'letterText', 'welcomeText', 'welcome'],
@@ -190,7 +190,8 @@ export function guardScan(file = DEFAULT_TARGET) {
   // [B] 칩 합과 총 시간의 '델타'가 일치하는가
   //   order-preview.html 1141행 주석이 명시한 불변식 — "estMin 델타와 일치(칩과 총 시간이 어긋나지 않게)".
   //   절대값은 다르다(estMin은 코스 기본분에서 출발). 같아야 하는 건 필드를 흔들었을 때의 변화량뿐이다.
-  const shared = ['letter', 'ringwarm', 'toast', 'veil'];
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  const shared = ['letter', 'ringwarm', 'toast'];
   for (const course of COURSE_KEYS) {
     for (const profileKey of ['base', 'full']) {
       for (const f of shared) {
@@ -209,7 +210,8 @@ export function guardScan(file = DEFAULT_TARGET) {
   //   파일이 실제로 읽는 S.* 이름을 전부 긁어, 순서 축(ritual-order-sim)에도 없고 위 FIELDS에도 없는
   //   이름을 남긴다. 여기 뜬 이름은 '버그'가 아니라 '아무 열거기도 안 흔드는 필드'라는 뜻이다.
   const src = fs.readFileSync(file, 'utf8');
-  const ORDER_AXIS = ['course', 'extra', 'ord', 'ring', 'bless', 'veil', 'valley', 'toast'];
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  const ORDER_AXIS = ['course', 'extra', 'ord', 'ring', 'bless', 'valley', 'toast'];
   const known = new Set([...ORDER_AXIS, ...Object.keys(FIELDS)]);
   const hits = new Map();
   for (const m of src.matchAll(/\bS\.([A-Za-z_$][\w$]*)\s*(=[^=]|)/g)) {

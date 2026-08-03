@@ -42,7 +42,7 @@
     clipDir: '/assets/audio/narration/'
   };
 
-  // ── 54클립 번호 → 파일명 (대본 `더빙_녹음_대본_최종.txt` 순서 그대로 · 인덱스+1 = 번호)
+  // ── 51클립 번호 → 파일명 (대본 `더빙_녹음_대본_최종.txt` 순서 그대로 · 인덱스+1 = 번호)
   var FILES = [
     'guest-1-arrival', 'guest-2-10min', 'guest-3-5min', 'guest-4-1min',
     'entry-A', 'entry-B', 'entry-C', 'entry-D', 'entry-E', 'entry-F',
@@ -52,7 +52,7 @@
     'letter-parent', 'letter-each', 'letter-both',
     'declare-1-solemn', 'declare-2-warm', 'declare-family',
     'declare-ask-a', 'declare-ask-b', 'declare-ask-c',
-    'veil-mother', 'veil-father', 'veil-close',
+    // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
     'ringwarm-family', 'ringwarm-all',
     'tribute-in', 'tribute-out',
     'toast-toast', 'toast-cake', 'toast-both',
@@ -103,7 +103,8 @@
     var def = {
       entry: cd.entry, welcome: 'self', vow: 'ok', ring: 'on', declare: cd.declare, declareWho: cd.declareWho,
       valley: 'none', letter: cd.letter, bless: (s.course === 'family' ? 'on' : 'off'),
-      veil: 'mother', ringwarm: 'family', tribute: 'flower', toast: 'toast', song: 'family',
+      // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+      ringwarm: 'family', tribute: 'flower', toast: 'toast', song: 'family',
       guestVoice: 'nar', entryVoice: 'nar', blessProxy: false, digital: false, ord: null, extra: {}, tune: {}
     };
     for (k in def) if (s[k] === undefined || s[k] === null) s[k] = def[k];
@@ -115,8 +116,9 @@
   }
 
   // ── 진행 순서 — order-preview.html의 defaultOrd/ordNow/curSeq를 그대로 옮긴 것(같은 결과여야 한다)
-  var GADD = { veil: 1, welcome: 1, bless: 1, ringwarm: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1 };
-  var RANK = { guest: 0, veil: 5, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, song: 80, toast: 85 };
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  var GADD = { welcome: 1, bless: 1, ringwarm: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1 };
+  var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
     return !!GADD[k] && c.seq.indexOf(k) < 0 && !(c.opt || []).some(function (o) { return o.k === k; });
@@ -202,17 +204,7 @@
       return out;
     },
 
-    veil: function (S) {
-      if (S.veil === 'skip') return [];
-      var v = D.VEIL[S.veil]; if (!v || !v.nar) return [];
-      return [cue({
-        k: 'veil', blockN: '베일 다운', slug: 'veil-' + S.veil, name: '베일 다운',
-        text: v.nar, duck: -14, fire: 'manual',
-        hint: '베일 내려 주실 분이 문 밖에 서시면',
-        pick: v.d,
-        live: { t: '베일을 내리고 두 분의 손을 이어 줌 · 내려 주신 분 착석', est: 40, self: true, doing: 'move' }
-      })];
-    },
+    // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 
     entry: function (S) {
       var e = D.ENTRY[S.entry], own = S.entryVoice === 'couple';

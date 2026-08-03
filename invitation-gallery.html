@@ -313,6 +313,25 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   .gv-footer{padding:8px 24px 10px;gap:6px}
   .gv-main{padding:8px 0 6px}
 }
+
+/* [POPUP_BRAND 2026-08-03] 화면 안 알림(토스트) — ?pick 모드의 OS 기본 alert 을 대신한다.
+   alert는 검은 시스템 창에 파란 '닫기'가 떠 이 갤러리의 말이 아니고, 동기 차단이라
+   고른 카드가 뒤에서 멈춘 채 겹쳐 보인다. 이 파일에 이미 있는 .gv-hint(다크 알약)와 같은 결로 맞췄다.
+   ★.gv-hint는 스테이지 안 absolute + 761px 이상에서 숨김이라 그대로 못 쓴다 — 모양만 물려받은 fixed 판. */
+.gv-toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 76px);
+  transform:translate(-50%,8px);z-index:10000;   /* pick 알약(9999) 위 */
+  max-width:min(360px,calc(100vw - 40px));padding:11px 20px;
+  background:rgba(28,27,25,0.88);color:rgba(255,255,255,0.94);border-radius:999px;
+  font-family:var(--serif-ko);font-size:13px;font-weight:400;letter-spacing:0.02em;
+  line-height:1.5;text-align:center;word-break:keep-all;
+  box-shadow:0 6px 20px rgba(28,27,25,.22);pointer-events:none;opacity:0;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  /* ★이 파일의 :root 는 --ease:var(--ease) — 자기 자신을 참조하는 순환이라 계산 시점에 무효가 된다.
+     그래서 var(--ease) 만 쓰면 transition 선언이 통째로 버려진다(이 페이지의 다른 전환들이 지금 그 상태다).
+     여기서는 폴백을 적어 실제로 페이드가 걸리게 한다 — 값은 자매 파일들의 --ease 와 같은 곡선. */
+  transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.gv-toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.gv-toast{transition:none}}
 </style>
 </head>
 <body>
@@ -933,6 +952,27 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   mPrev.addEventListener('click', function(){ go(idx-1); });
   mNext.addEventListener('click', function(){ go(idx+1); });
 
+  /* [POPUP_BRAND 2026-08-03] 네이티브 alert 대체용 최소 토스트. 노드 하나를 재사용하고 2.6초 뒤 스스로 사라진다.
+     role="status"(aria-live:polite)라 스크린리더에도 카드 넘김 흐름을 끊지 않고 전달된다. */
+  function gvToast(msg){
+    try{
+      var el = document.getElementById('gvToast');
+      if(!el){
+        el = document.createElement('div');
+        el.id = 'gvToast';
+        el.className = 'gv-toast';
+        el.setAttribute('role','status');
+        el.setAttribute('aria-live','polite');
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      if(el._t) clearTimeout(el._t);
+      // 방금 붙인 노드는 시작 상태가 한 프레임 필요하다 — 바로 .show를 주면 전환 없이 튀어나온다
+      requestAnimationFrame(function(){ el.classList.add('show'); });
+      el._t = setTimeout(function(){ el.classList.remove('show'); el._t = null; }, 2600);
+    }catch(e){}
+  }
+
   // [G] ?pick 모드 — 위저드가 연 경우, 현재 슬라이드 디자인 번호를 postMessage로 돌려주고 닫기. (샘플 무수정, 버튼만 주입)
   if (params.get('pick') === '1') {
     var pickBtn = document.createElement('button');
@@ -940,7 +980,8 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     pickBtn.textContent = '이 디자인으로 선택';
     pickBtn.setAttribute('style', 'position:fixed;left:50%;bottom:max(env(safe-area-inset-bottom),18px);transform:translateX(-50%);z-index:9999;padding:13px 26px;background:#6B2A24;color:#fff;border:none;border-radius:999px;font-family:"Noto Serif KR",serif;font-size:14px;font-weight:500;box-shadow:0 6px 20px rgba(28,27,25,.22);cursor:pointer;-webkit-tap-highlight-color:transparent');
     pickBtn.addEventListener('click', function () {
-      if (idx > 7) { alert('디자인 카드(1~8번)에서 선택해 주세요.'); return; }   // 9·10번은 안내 카드
+      // [POPUP_BRAND 2026-08-03] alert → 브랜드 토스트. 조기 return은 그대로 — 알리는 방식만 바뀐다.
+      if (idx > 7) { gvToast('디자인 카드(1~8번)에서 선택해 주세요'); return; }   // 9·10번은 안내 카드
       var design = ('0' + (idx + 1)).slice(-2);   // idx 0→'01' … 7→'08'
       try {
         if (window.opener && !window.opener.closed) {
@@ -949,7 +990,8 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
           return;
         }
       } catch (e) {}
-      alert('위저드에서 \'샘플 갤러리에서 고르기\'로 열어 주세요. (고른 디자인 ' + design + ')');
+      // [POPUP_BRAND 2026-08-03] opener가 없을 때의 안내도 alert → 토스트. 문장 끝 마침표만 덜어 캡션 결에 맞췄다.
+      gvToast('위저드에서 \'샘플 갤러리에서 고르기\'로 열어 주세요 (고른 디자인 ' + design + ')');
     });
     document.body.appendChild(pickBtn);
   }

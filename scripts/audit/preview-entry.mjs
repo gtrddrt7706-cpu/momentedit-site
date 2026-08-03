@@ -78,7 +78,8 @@ try {
 
       // 고객이 코스를 고르고 글까지 적어 완성 화면에 선 상태를 만든다(글은 주소에 새면 안 되는 값이다)
       await page.evaluate((sec) => {
-        S.course = 'gamdong'; S.letter = 'both'; S.bless = 'on'; S.veil = 'mother'; S.ring = 'on';
+        // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+        S.course = 'gamdong'; S.letter = 'both'; S.bless = 'on'; S.ring = 'on';
         for (const k in sec) S[k] = sec[k];
         courseStarted = true;
         buildSteps();
@@ -239,7 +240,8 @@ try {
         production: {
           base: { weddingDate: '2026-10-26' },
           tracks: { ritual: '완료' },
-          ritualDraft: { _v: 3, S: Object.assign({ course: 'gamdong', letter: 'both', bless: 'on', veil: 'mother' }, SECRET) },
+          // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+          ritualDraft: { _v: 3, S: Object.assign({ course: 'gamdong', letter: 'both', bless: 'on' }, SECRET) },
         },
       };
       const view = await page.evaluate((st) => {

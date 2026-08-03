@@ -199,7 +199,8 @@ console.log('\n[3] 자유변수 — 엔진이 S 말고 바깥을 빌려 쓰는�
     for (const [key, want] of base.rows) {
       const m = base.states.get(key);
       const S = vmEng.S;
-      Object.assign(S, { course: m.course, ring: 'on', bless: m.course === 'family' ? 'on' : 'off', veil: 'mother', valley: 'none', toast: 'toast', ord: null, extra: {} });
+      // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+      Object.assign(S, { course: m.course, ring: 'on', bless: m.course === 'family' ? 'on' : 'off', valley: 'none', toast: 'toast', ord: null, extra: {} });
       m.on.forEach(k => { S.extra[k] = true; if (k === 'bless') S.bless = 'on'; if (k === 'valley') S.valley = 'wine'; });
       Object.assign(S, m.st);
       try {

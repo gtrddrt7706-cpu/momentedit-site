@@ -37,12 +37,7 @@ var LETTER={
  each:{d:"서로에게",nar:"이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"서로에게 쓸 편지"},
  both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음, 그리고 이제 서로의 평생이 될 두 사람. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
 };
-var VEIL={
- mother:{d:'어머니가',nar:"문이 열리기 전, 어머니가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
- father:{d:'아버지가',nar:"문이 열리기 전, 아버지가 신부의 베일을 내립니다. 오늘까지 품어 온 사랑을, 이제 평생의 약속 앞에 건넵니다."},
- close:{d:'가까운 분이',nar:"문이 열리기 전, 가장 가까운 사랑이 신부의 베일을 내립니다. 오늘까지 품어 온 마음을, 이제 평생의 약속 앞에 건넵니다."},
- skip:{d:'생략',nar:''}
-};
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 var RINGWARM={
  family:{d:'가족만',nar:"이제, 두 사람의 반지가 양가 가족의 손을 차례로 지나갑니다. 잠시 손에 쥐고, 마음속 축복을 담아 옆으로 전해 주시기 바랍니다. 오래 쥐지 마시고, 다음 분께 바로 전해 주시면 감사하겠습니다. 모두의 마음이 담긴 반지가, 곧 두 사람에게 돌아옵니다."},
  all:{d:'하객 전체',nar:"이제, 두 사람의 반지가 이 자리의 모든 손을 차례로 지나갑니다. 잠시 손에 쥐고, 마음속 축복을 담아 옆으로 전해 주시기 바랍니다. 오래 쥐지 마시고, 다음 분께 바로 전해 주시면 감사하겠습니다. 이 자리의 모든 마음이 담긴 반지가, 곧 두 사람에게 돌아옵니다."}
@@ -95,14 +90,15 @@ var COURSES={
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아, 예식이 자연스럽게 마무리돼요.', fix:true}
     ],
     addable:'원하면 와인 세리머니·케이크 커팅·부모님 덕담을 더할 수 있어요.'},
-  gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 29분',
-    seq:['guest','veil','entry','welcome','vow','ring','letter','tribute','declare'],
+  gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 28분',
+    // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+    //   베일 1분이 빠져 29분 → 28분(MIN.base.gamdong도 함께 내렸다 · 두 값은 늘 같아야 한다).
+    seq:['guest','entry','welcome','vow','ring','letter','tribute','declare'],
     opt:[{k:'valley',at:9}],
     one:'눈물 예식을 원하는 두 분께 · 편지와 서약이 정점',
-    feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 베일 다운으로 시작해 편지에서 절정에 이르는 벅찬 예식이에요.',
-    flow:['베일 다운','입장','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언','폐식·단체촬영'],
+    feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 첫인사부터 편지까지 감정이 차오르는 벅찬 예식이에요.',
+    flow:['입장','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언','폐식·단체촬영'],
     detail:[
-      {n:'베일 다운', how:'문이 열리기 직전, 어머니나 아버지가(또는 가장 가까운 분이) 신부의 베일을 내려 주고 두 분의 손을 이어 줘요.', fx:'부모의 마지막 배웅이 담기는, 입장의 문을 여는 순간이에요. 드레스 오버베일 여부는 저희가 미리 함께 확인해요.', pick:'어머니 / 아버지 / 가까운 분 / 생략'},
       {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'첫 등장부터 감정이 차오르는, 눈물의 문을 여는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
       {n:'환영·첫인사', how:'두 분이 하객에게 직접 감사 인사를 전해요.', fx:'벅찬 마음을 함께 나누며 자리가 따뜻해져요.', pick:'인사말 준비'},
       {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.', fx:'편지와 함께 이 예식의 두 정점 중 하나예요.', pick:'울컥하면 배우자가 대신'},
@@ -112,7 +108,7 @@ var COURSES={
       {n:'성혼 선언', how:'나레이션의 물음에 하객분들이 한마디로 답하고, 그 답으로 성혼이 선언돼요.', fx:'하객 모두가 증인으로 답하며 선언이 완성되는 순간이에요.', pick:'하객 응답 / 나레이션 / 가족 낭독'},
       {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아요.', fix:true}
     ],
-    addable:'베일 다운으로 열고, 하객분들이 함께 답하는 성혼 선언으로 닫는 코스예요.'},
+    addable:'첫인사로 문을 열고, 하객분들이 함께 답하는 성혼 선언으로 닫는 코스예요.'},
   family:{nm:'가족', badge:'가족 참여', ready:true, min:'약 30분',
     seq:['guest','entry','bless','vow','ringwarm','ring','letter','tribute','declare'],
     opt:[{k:'welcome',at:3}],
@@ -206,9 +202,11 @@ var NARR={
 };
 // 소요 시간 상수(estMin이던 하드코딩) — 분 단위 단일 원천
 var MIN={
- base:{damback:25,minimal:18,gamdong:29,family:30,festive:30},
- XM:{welcome:1,letter:3,bless:0,valley:0,song:3,toast:2,ringwarm:2,tribute:2,veil:1},   // ★빌더(order-preview.html의 var XM)가 기준 · 9키 동일해야 함(check-ritual-mirror.js가 대조) — XM_MIRROR_9KEY
- delta:{ringOff:-1,valley:3,bless:2,veilSkip:-1,ringwarmAll:2,toastBoth:2,letterBoth:2}
+ base:{damback:25,minimal:18,gamdong:28,family:30,festive:30},   // [VEIL_RETIRED 2026-08-03] 감동 29→28 · 베일 1분 제거분
+ // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+ XM:{welcome:1,letter:3,bless:0,valley:0,song:3,toast:2,ringwarm:2,tribute:2},   // ★빌더(order-preview.html의 var XM)가 기준 · 8키 동일해야 함(check-ritual-mirror.js가 대조) — XM_MIRROR_9KEY
+ delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
-return {ENTRY:ENTRY,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,VEIL:VEIL,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,MIN:MIN};
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+return {ENTRY:ENTRY,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,MIN:MIN};
 });

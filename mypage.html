@@ -1481,7 +1481,15 @@ function openRitualBuilder(p, inv){
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
       // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
-      var _exFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReset'}, location.origin); }catch(e){} };
+      /* [ORD_SAVE_STATE 2026-08-03] 실패는 빌더 안에서 말하게 한다 — 여기서 alert 을 띄우지 않는다.
+         alert 은 동기 차단이라, 닫기 전까지 아래 postMessage 가 나가지 못했다. 그 사이 빌더는
+         낙관 표시한 '저장됨'을 그대로 들고 있었고, 한 화면에 "저장 실패" 알림과 "저장됨" 버튼이 공존했다
+         (2026-08-03 사용자 스크린샷). 메시지를 먼저 보내고, 전달이 안 될 때만 네이티브로 물러선다. */
+      var _exFail=function(msg){
+        var sent=false;
+        try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReset', msg:msg}, location.origin); sent=true; }catch(e){}
+        if(!sent) mpAlert(msg);
+      };
       if(d.data && d.data.S){
         apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
           .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ show('loading'); loadMyState(); } else done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
@@ -1496,15 +1504,21 @@ function openRitualBuilder(p, inv){
     if(d.type==='momentedit:orderReset'){
       var _ack=function(){ try{ fr.contentWindow.postMessage({type:'momentedit:orderResetDone'}, location.origin); }catch(e){} };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:{}, summary:{}}, done:false})
-        .then(function(){ saved=true; _ack(); }).catch(function(){ _ack(); });
+        .then(function(r){ if(r&&r.ok) saved=true; _ack(); }).catch(function(){ _ack(); });   // r.ok 확인 — 실패한 비우기를 성공으로 세지 않게(saved는 나갈 때 대시보드 갱신 여부)
       return;
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
-      // [ORDER_SAVE_FAIL 2026-07-25] 완료 저장 실패 시 빌더에 신호 — 빌더가 낙관 표시한 '저장됨'을 되돌려 거짓 저장 상태·버튼 잠금 영구화 방지(회의 R-8)
-      var _svFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderSaveFail'}, location.origin); }catch(e){} };
+      /* [ORDER_SAVE_FAIL 2026-07-25 · ORD_SAVE_STATE 2026-08-03]
+         성공·실패를 **양쪽 다** 빌더에 돌려준다. 예전엔 실패만 보냈다 — 성공 신호가 없으니
+         빌더는 누르는 즉시 '저장됨'을 낙관 표시할 수밖에 없었고, 그게 거짓 저장 상태의 뿌리였다.
+         실패 사유는 alert 이 아니라 msg 로 실어 보낸다(빌더가 자기 지면 안에서 브랜드 판으로 보여 줌). */
+      var _svAck=function(ok,msg){
+        try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||''}, location.origin); }
+        catch(e){ if(!ok) mpAlert(msg||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); }
+      };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
-        .then(function(r){ if(r&&r.ok){ saved=true; } else { _svFail((r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
-        .catch(function(){ _svFail('저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
+        .then(function(r){ if(r&&r.ok){ saved=true; _svAck(true); } else { _svAck(false,(r&&r.error)||'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
+        .catch(function(){ _svAck(false,'저장에 실패했어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
   }
   x.addEventListener('click',done);
@@ -5324,8 +5338,10 @@ function apiTrackSave(payload){
         if(lost.length && !window._echoWarned){ window._echoWarned=true;   // 세션당 1회(같은 원인으로 저장마다 반복 경고 방지)
           try{ console.warn('[saveProductionTrack] 서버 미반영 필드(구버전 GAS 의심):', lost.join(', ')); }catch(e){}
           var _msg='입력하신 항목 중 일부가 저장되지 않았어요. 새로고침 후 한 번 더 저장해 보시고, 반복되면 문의로 알려주세요. 디렉터가 확인해 도와드릴게요.';
-          // [MP_FS_OVERLAYS] 전체화면 오버레이(z-index 9999)가 떠 있으면 모달(1000)이 가려짐 → 네이티브 알림으로
-          if(_mpFsOpen()){ try{ alert(_msg); }catch(e2){} } else { mpAlert(_msg); }
+          /* [MP_MODAL_ONE 2026-08-03] 예전엔 전체화면 오버레이(9999)가 떠 있으면 모달(1000)이 가려져 네이티브 alert 으로 물러섰다.
+             그 뒤 TRACK_REV_GUARD 에서 .mp-modal 을 z-index 11000 으로 올려(오버레이 9999·10000 위) 가려지지 않는다 →
+             폴백이 남아 있을 이유가 없어졌다. 이제 어느 화면에서든 같은 판으로 말한다. */
+          mpAlert(_msg);
         }
       }
     }catch(e){}

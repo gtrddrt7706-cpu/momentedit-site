@@ -44,14 +44,16 @@ const soft = (m) => { console.log('  warn ' + m); warn++; };
 const SWEEP = {
   declareWho: ['narr', 'chorus', 'ask', 'family'], declare: ['1', '2'],
   valley: ['none', 'wine', 'cake'], letter: ['parent', 'each', 'both'],
-  bless: ['on', 'off'], veil: ['mother', 'father', 'close', 'skip'],
+  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+  bless: ['on', 'off'],
   ringwarm: ['family', 'all'], tribute: ['flower', 'bow', 'hug'],
   toast: ['toast', 'cake', 'both'], song: ['family', 'live'],
   blessProxy: [false, true], ring: ['on', 'off'], digital: [false, true],
   entry: Object.keys(D.ENTRY), guestVoice: ['nar', 'couple'], entryVoice: ['nar', 'couple'],
   welcome: ['self'], vow: ['ok']
 };
-const GADD_KEYS = ['veil', 'welcome', 'bless', 'ringwarm', 'valley', 'letter', 'tribute', 'toast', 'song'];
+// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+const GADD_KEYS = ['welcome', 'bless', 'ringwarm', 'valley', 'letter', 'tribute', 'toast', 'song'];
 const ALL_ON = Object.fromEntries(GADD_KEYS.map(g => [g, true]));
 
 const seenBlock = new Map();          // blockN -> Set(k)
