@@ -1107,6 +1107,9 @@ chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(
 chk 'COPY_TRIM4' index.html 1
 chk 'COPY_QUIET' index.html 1                            # 수식·중복만 덜어낸 문단 7곳 · 되돌리면 최장 139자·설득조 문장이 복귀                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'IG_ONCE' index.html 2                               # 기록 갤러리 = '인스타그램'을 한 번만 · 되돌리면 큰 제목이 남의 회사 이름이 되고 사진 9장 위에 배지가 다시 상시로 찍힌다(모바일 hover 없음)
+chk 'ORD_INTRO2' order-preview.html 6                    # 안내 2화면 분리 + 퍼센트 제외 + 꼬리표 · 되돌리면 안내가 한 화면에 몰려 390px에서 3화면을 스크롤해야 '시작하기'에 닿는다
+chk 'renderIntro2' order-preview.html 2                 # 둘째 안내 화면(분기 + 함수) 둘 다 있어야 뜬다
+chk 'pf-key' order-preview.html 5                       # 꼬리표 줄(스타일 1 + 4줄) · :has() 대신 클래스라 구 사파리에서도 점이 안 남는다
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
 chk 'NOW_ONELINE' automation/platform/00_platform-config.gs 1  # 서버 문구 첫 문장 13자 이내 규칙(그 문장이 곧 헤드라인이다)
 chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림자(어두운 윤곽선) + 리빌 대각 파동 · 한 겹으로 되돌리면 밝은 사진 3장(2·7·9)에서 마크가 대비 1.6으로 사라진다
