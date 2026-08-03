@@ -733,9 +733,9 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
 //   (2026-07-06 개편) prompt() → 편집 모달: ① AI 제안답변을 그대로 미리 채워 수정 가능 ② 어느 직원(접점)에게 가르칠지 선택.
-//   대상: 전체(5명 공유) · 메인 · 마이 · 예약 · 애프터. prefill=미리 채울 내용(인계 제안답변 등). 핵심수치는 1차 차단 후 재확인(force).
+//   대상: 전체(6명 공유) · 메인 · 마이 · 예약 · 애프터 · 식순 · 어른 안내. prefill=미리 채울 내용(인계 제안답변 등). 핵심수치는 1차 차단 후 재확인(force).
 function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
-  var TARGETS=['전체','메인','마이','예약','애프터'], sel={}; sel[target]=true;
+  var TARGETS=['전체','메인','마이','예약','애프터','식순','어른 안내'], sel={};   /* [AI_ROSTER_RITUAL] '식순'은 ritual-advisor.js:210, '어른 안내'는 parents.html이 advisor에 넘기는 page값. 둘 다 _kbnotes 대상인데 여기 없어서 '전체' 노트만 받고 있었다. */ sel[target]=true;
   var ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(20,17,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:36px 14px;overflow:auto';
   var box=document.createElement('div');
@@ -809,7 +809,7 @@ function openAiCost(){
       var budget=(bg&&bg.ok)?(Number(bg.krw)||0):0;
       var d=r.day||{}, rows=(d.bySurface||[]);
       // 5곳을 항상 고정 순서로 표시(미사용은 ₩0) — "어디에 얼마" 분리가 한눈에
-      var SURF=['메인','마이페이지','예약','애프터','핸드오프','식순','핸드오프:식순'];
+      var SURF=['메인','마이페이지','예약','애프터','핸드오프','식순','핸드오프:식순','FAQ초안'];   /* [AI_ROSTER_RITUAL] faq-draft.js:60이 'FAQ초안'으로 적재하는데 표시 목록에 없어 합계에만 잡히고 행이 없었다 */
       var byName={}; rows.forEach(function(s){ byName[s.surface]=s; });
       var h='<div style="font-size:12px;color:#75705f;margin-bottom:10px">최근 24시간 · 접점별 (환율 약 '+(Number(r.rate)||0).toLocaleString('ko-KR')+'원 기준 추정)</div>';
       h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
@@ -955,10 +955,10 @@ function openAiTeam(){
     if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
     if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
   }
-  function rRoster(){ var R=[['메인 상담','홈 예비고객 상담','메인'],['마이 비서','마이페이지 상담','마이페이지'],['예약 담당','날짜·시간 예약','예약'],['애프터 컨시어지','식당·애프터 추천','애프터'],['인계 비서','상담사 연결 브리핑','핸드오프']];
-    bd.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:8px">AI 5명을 한곳에서 · 교육으로 알려주고 · 테스트로 점검하고 · 인건비를 봅니다.</div><div style="color:#9a9183;font-size:12px">최근 24시간 불러오는 중…</div>';
+  function rRoster(){ var R=[['메인 상담','홈 예비고객 상담','메인'],['마이 비서','마이페이지 상담','마이페이지'],['예약 담당','날짜·시간 예약','예약'],['애프터 컨시어지','식당·애프터 추천','애프터'],['인계 비서','상담사 연결 브리핑','핸드오프'],['식순 도우미','예식 순서 설계 상담','식순']];   /* [AI_ROSTER_RITUAL 2026-08-03] 식순 AI(api/ritual-advisor)는 돌아가고 비용도 쓰는데 명단에만 없었다 — 그래서 교육 대상에서도 빠져 있었다. 지우지 말 것. */
+    bd.innerHTML='<div style="font-size:11px;color:#9a9183;margin-bottom:8px">AI 6명을 한곳에서 · 교육으로 알려주고 · 테스트로 점검하고 · 인건비를 봅니다.</div><div style="color:#9a9183;font-size:12px">최근 24시간 불러오는 중…</div>';
     gas('aiCostSummary24h').then(function(r){ var by={}; if(r&&r.ok&&r.day&&r.day.bySurface){ r.day.bySurface.forEach(function(s){ by[s.surface]=s; }); }
-      var h='<div style="font-size:11px;color:#9a9183;margin-bottom:10px">AI 5명을 한곳에서 · 교육 · 테스트 · 인건비. (최근 24시간 활동)</div><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
+      var h='<div style="font-size:11px;color:#9a9183;margin-bottom:10px">AI 6명을 한곳에서 · 교육 · 테스트 · 인건비. (최근 24시간 활동)</div><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#9a9183;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
        +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')+'</td></tr>'; }).join('')+'</table>';
       bd.innerHTML=h;
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
@@ -1040,7 +1040,7 @@ function openAiTeam(){
         hb.innerHTML='<span style="color:'+col+';font-weight:600">최근 '+last.pass+'/'+last.total+'</span> <span style="color:#9a9183">'+esc(String(last.at).slice(5,16))+'</span>'+(bad>0?(' · <span style="color:#b00">실패: '+esc(last.fails)+'</span>'):' · 이상 없음')
          +'<div style="margin-top:5px;font-size:11px;color:#bcb3a4">'+r.rows.map(function(x){ var b=x.total-x.pass; return '<span title="'+esc(x.at)+(x.fails?(' · '+esc(x.fails)):'')+'" style="display:inline-block;margin-right:4px;color:'+(b>0?'#b00':'#9bbf9b')+'">'+(b>0?'✕':'●')+'</span>'; }).join('')+' <span style="color:#cfc7b8">(최근→과거)</span></div>'; }); };
     renderHealth();
-    var SURF=['메인','마이','예약','애프터'];
+    var SURF=['메인','마이','예약','애프터','식순'];   /* [AI_ROSTER_RITUAL] aiAsk(:731)는 이미 식순을 라우팅하는데 목록에만 빠져 있었다 */
     var run=function(){ var q=document.getElementById('impQ').value.trim(); if(!q) return; var out=document.getElementById('impOut');
       out.innerHTML=SURF.map(function(s){ return '<div data-s="'+s+'" style="border-top:1px solid #f0ebe3;padding:7px 0;font-size:13px"><b style="color:#6B2A24">'+s+'</b> <span style="color:#9a9183">물어보는 중…</span></div>'; }).join('');
       SURF.forEach(function(s){ aiAsk(s,q).then(function(rep){ var row=out.querySelector('[data-s="'+s+'"]'); if(!row) return;

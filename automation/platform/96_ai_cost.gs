@@ -1,6 +1,6 @@
 /** AI 비용 로그·집계 (2026-06-27)
  *  접점별 토큰을 적재하고, 관리자 페이지에서 최근 24시간·이번 달 비용을 원화(₩)로 집계한다.
- *   - 쓰기: doPost action='aiCostLog' → handleAiCostLog (Vercel 4개 엔드포인트가 호출)
+ *   - 쓰기: doPost action='aiCostLog' → handleAiCostLog (Vercel 6개 엔드포인트(advisor·schedule-advisor·ritual-advisor·after-concierge·faq-draft·handoff)가 호출)
  *   - 읽기: adminCall fn='aiCostSummary24h' (관리자 인증 경유 · 💰 버튼 클릭 시에만)
  *   - 시트: 'AI_비용로그' [시각, 접점, 모델, 입력, 출력, 캐시쓰기, 캐시읽기, 비용USD]
  *  ※ 금액은 추정치(단가×토큰). Anthropic 콘솔 청구액과 약간 차이날 수 있음. 환율·단가는 아래 CONFIG.
@@ -66,7 +66,7 @@ function aiCostSummary24h() {
       day[surface].usd += usd; day[surface].calls++; dayTotal += usd; dayCalls++;
     }
   }
-  var order = ['메인', '마이페이지', '예약', '애프터', '핸드오프', '식순', '핸드오프:식순'];
+  var order = ['메인', '마이페이지', '예약', '애프터', '핸드오프', '식순', '핸드오프:식순', 'FAQ초안']   // [AI_ROSTER_RITUAL 2026-08-03] faq-draft.js:60이 'FAQ초안'으로 적재하는데 정렬 목록에 없어 인덱스 99로 밀려 있었다;
   var bySurface = Object.keys(day).map(function (k) { return day[k]; })
     .sort(function (a, b) { var ia = order.indexOf(a.surface), ib = order.indexOf(b.surface); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); })
     .map(function (s) { return { surface: s.surface, krw: Math.round(s.usd * rate), calls: s.calls }; });
