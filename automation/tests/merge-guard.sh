@@ -1259,3 +1259,5 @@ chk 'CC_SUB_FIT' mypage.html 2                            # 스냅 기획 설명
 nochk '[-][-]ease:var[(][-][-]ease[)]' invitation-gallery.html 1    # 자기참조 순환(주석 1건만 허용) · 되살리면 이 페이지 transition 36개가 통째로 죽는다
 chk 'btn-next.busy' order-preview.html 2                  # 저장 중은 disabled 가 아니라 busy · .btn:disabled{opacity:.4}로 되돌리면 '저장 중…' 대비가 2.12로 떨어진다(실측)
 nochk 'nx.disabled=!!_saving' order-preview.html
+chk 'ORD_BTN_ALIGN' order-preview.html 4                  # 요약 행 버튼 폭 고정 + 320 보정 + 뺌 행 값 통일 · 풀면 '변경'(52px)/'채우기'(64px)로 왼쪽 가장자리가 12px씩 지그재그가 된다
+chk 'min-width:62px' order-preview.html 1                 # 62px 이 경계 — 64면 값 칸이 줄어 '나레이션 · 엄숙하게'가 두 줄, 58이면 좁아 보인다(실측)

@@ -330,7 +330,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    96px 이 경계다 — 전 행 이름 한 줄, 값 줄바꿈 악화 없음. 108px 부터는 값이 390 에서도 접히기 시작한다. */
 .sr-l{flex:0 0 96px;font-family:var(--serif);font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all;line-height:1.4}
 .sr-v{flex:1;font-size:13px;color:var(--sub);word-break:keep-all;line-height:1.5}
-.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 13px}
+.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 12px;min-width:62px}
 .sr-c:active{background:var(--bg2);color:var(--seal)}
 .fillbadge{margin-top:14px;background:#EEECE7;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px}
 .fillbadge .ft{font-size:12px;font-weight:600;color:var(--seal)}
@@ -408,6 +408,24 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rowbtn,.play,.ex-chip,.sr-c,.copy-btn2{min-height:40px}
 .play,.ex-chip{display:inline-flex;align-items:center;justify-content:center}
 .sr-c,.copy-btn2{display:inline-flex;align-items:center;justify-content:center}
+/* [ORD_BTN_ALIGN 2026-08-03] 요약 행 버튼 폭 고정 — 라벨이 '변경'(2자)·'채우기'(3자)로 갈려
+   버튼 폭이 52/64px 로 달라졌고, 오른쪽은 맞아도 왼쪽 가장자리가 행마다 12px 씩 어긋났다(390px 실측).
+   긴 라벨 기준으로 min-width 를 못박아 두 라벨이 같은 상자를 쓰게 한다 — 세로로 훑을 때 선이 하나로 선다.
+   좌우 여백은 13→12px. 64px 로 잡았을 땐 값 칸이 12px 줄어 '나레이션 · 엄숙하게'가 두 줄로 접혔다.
+   62px 이 경계다 — '채우기' 세 글자가 여유 있게 들어가면서 값 줄바꿈이 늘지 않는다(390px 실측). */
+
+/* [ORD_BTN_ALIGN] 320px 보정 — 버튼 폭을 고정하니 좁은 화면에서 자리가 모자랐다.
+   실측: 행 안쪽 254px 에 번호22+이름96+버튼64+간격30 = 212 → 값 칸 42px.
+   '글 비어 있음' 알약은 줄바꿈 금지라 72px 밑으로 못 줄어든다 → 그 행만 16px 넘쳐
+   버튼이 밀리고 왼쪽 가장자리가 다시 흩어졌다. 좁은 화면에선 전체를 한 단계 줄인다. */
+@media (max-width:360px){
+  .sumrow{padding:12px 9px;gap:7px}
+  .sr-n{flex:0 0 20px}
+  .sr-l{flex:0 0 90px;font-size:13.5px}   /* 90px 미만이면 '폐식 · 단체촬영'·'식전 성장영상'이 두 줄로 접혀 그 행만 높아진다 */
+  .sr-v{min-width:0}
+  .sr-c{min-width:56px;padding:9px 9px}
+  .sr-empty{font-size:9.5px;padding:2px 6px}
+}   /* [ORD_BTN_ALIGN] 이 블록을 지우면 320px 에서 알약 때문에 행이 넘쳐 버튼이 다시 흩어진다 */
 
 /* ════════ 2라운드 · 고객 입장(편의성·직관성·이해성·디테일) ════════ */
 
@@ -1854,10 +1872,13 @@ function renderDone(){
     var emptyWrite=(r[2]==='vow'&&!_wcFilled('vow'))||(r[2]==='letter'&&!_wcFilled('letter'))||(r[2]==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));   // 직접 읽는 글 미입력 → 표시(변경=채우기) · WRITE_2CHECK
     // 고를 연출이 없는 순간(반지 교환)은 값이 빈다 — [ORD_BADGE_AXIS]대로 순서 축을 여기 넣지 않기 때문.
     //   그 자리를 빈 칸으로 두면 한 행만 가운데가 뚫려 보인다 → 값이 없으면 이름이 그 폭을 쓴다.
+    /* [ORD_BTN_ALIGN] 뺀 순서의 값 칸을 하나로 — 부모님 덕담은 빈 값(줄표), 사이 순서는 '없음' 이라
+       같은 '뺌' 행이 서로 다른 말을 하고 있었다. 안 하는 순서의 연출값은 읽을 이유가 없다(뺌 배지가 이미 말한다). */
+    if(isOff) r=[r[0],'',r[2]];
     var noVal=!String(r[1]||'').trim() && !emptyWrite;
     h+='<div class="sumrow'+(isOff?' off':'')+(noVal?' novalue':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+(emptyWrite?'<span class="sr-empty">글 비어 있음</span>':'')+'</div><button class="sr-c" aria-label="'+esc(r[0])+(emptyWrite?' 글 채우기':' 바꾸기')+'" data-fk="sum:'+r[2]+'" onclick="editStep(\''+r[2]+'\')">'+(emptyWrite?'채우기':'변경')+'</button></div>';
   });
-  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식 · 단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
+  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식·단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   // ★AI고지_부부 — 하객 고지가 음성(완곡)·인쇄물(명시)로 나뉘므로, 부부가 그 분리를 알고 승인한 상태여야 한다(회신4 §4-2 조건 ㉯).
   //   이 줄이 없으면 "하객한테 AI 쓴다고 말했나요?"에 답할 근거가 없어진다. 지우지 말 것 · 선택 옵션으로 만들지 말 것.
