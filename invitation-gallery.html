@@ -276,8 +276,11 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   .gv-header{min-height:54px;padding:0 16px;z-index:12}
   /* ★z-index는 헤더(12)보다 위여야 한다 — 아래면 헤더의 반투명+블러 배경이 토글·제목을 덮어
      '글자가 안 보이는' 상태가 된다(실측 스크린샷으로 확인). */
+  /* [GV_ONEROW_CTR] 좌우 패딩이 40/84로 달라 가운데 것이 화면 중심에서 22px 왼쪽에 앉아 있었다
+     (2026-08-03 사용자 "위치가 좀 부자연스러운 것 같은데"). 뒤로(30px)보다 카운터(90px)가 넓어
+     '남는 자리의 가운데'와 '화면의 가운데'가 달랐던 것 — 넓은 쪽에 맞춰 좌우를 같게 두면 진짜 가운데가 된다. */
   .gv-verbar{position:absolute;left:0;right:0;top:env(safe-area-inset-top,0px);height:54px;
-    padding:0 84px 0 40px;border-bottom:none;background:transparent;z-index:13;pointer-events:none}
+    padding:0 84px;border-bottom:none;background:transparent;z-index:13;pointer-events:none}
   .gv-verbar>*{pointer-events:auto}
   .gv-verbar.open{position:static;height:auto;padding:6px 12px 8px;background:rgba(250,250,248,0.97);
     border-bottom:1px solid var(--hairline);z-index:auto}
@@ -295,6 +298,12 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     border-right:1.4px solid var(--gold-text,#7A5F37);border-bottom:1.4px solid var(--gold-text,#7A5F37);
     transform:translateY(-2px) rotate(45deg)}
   .gv-verbar.info:not(.open) .gv-vi-title:active{background:rgba(28,27,25,0.04)}
+}
+/* [GV_ONEROW_CTR] 320px에서는 토글(152px)이 진짜 가운데에 서면 카운터와 6px 겹친다 —
+   양쪽을 조금씩 덜어 자리를 만든다(토글 좌우 여백 12→8 · 카운터의 № 표식 접기). 실측 여유 20px. */
+@media(max-width:340px){
+  .gv-ver-b{padding:9px 8px}
+  .gv-counter-mark{display:none}
 }
 /* 낮은 데스크톱은 캡션을 숨기는 규칙이 이미 있다 — 안내 눈썹도 같은 이유로 접고 높이를 맞춘다 */
 @media(min-width:761px) and (max-height:860px){.gv-verbar{min-height:48px}.gv-vi-eyebrow{display:none}}
