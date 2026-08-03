@@ -87,7 +87,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .seqr .sq-b{flex:1;min-width:0}
 .seqr .sq-n{font-size:12px;font-weight:600;color:var(--sub)}
 .seqr .sq-n small{font-size:10px;color:var(--light);font-weight:400;margin-left:5px}
-.seqr .sq-d{font-size:10px;color:var(--light);margin-top:2px;word-break:keep-all;line-height:1.5}
+.seqr .sq-d{font-size:10px;color:#635E4F;margin-top:2px;word-break:keep-all;line-height:1.5}   /* [ORD_A11Y] --light(#75705F)는 강조 행 배경(#EEECE7) 위에서 4.19 — 10px 글자엔 4.5가 필요하다. 5.48로 */
 .seqr.on{background:#EEECE7;border:1px solid var(--seal);border-radius:10px;padding:10px;margin:3px 0}
 .seqr.on .sq-tm{color:var(--seal)}
 .seqr.on .sq-n{color:var(--seal)}
@@ -469,10 +469,10 @@ var DECLARE={
  '2':{d:"따뜻하게",nar:"잠시, 두 사람이 함께 웃고 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다. 이 자리에 계신 모든 분이, 그 증인입니다. 신랑 신부, 이제 두 사람은 부부입니다. 다 함께 큰 박수로 두 사람을 축하해 주시기 바랍니다."}
 };
 var DECLWHO={
- narr:{d:'나레이션',desc:'나레이션이 두 사람의 성혼을 공식적으로 선언해요.'},
- chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션의 선창에 이어, 하객 모두가 인쇄된 선언문을 함께 낭독해요.',nar:"모든 마음이 모였습니다. 이제, 이 자리에 계신 모든 분의 목소리로 이 예식을 선언으로 완성하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'선언문은 좌석 카드로 미리 비치하고, 나레이션이 먼저 안내해요 · 부담스러우면 언제든 나레이션 단독으로 바꿀 수 있어요'},
- ask:{d:'하객이 함께 답하기',desc:'나레이션의 물음에 하객 모두가 한마디로 답하고, 그 답으로 성혼이 선언돼요.',nar:"여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다. 이제 여러분의 차례입니다. 제가 한 가지를 여쭙겠습니다. 다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다. 그럼 시작하겠습니다. 두 사람이 평생을 함께 걸어갈 수 있도록, 곁에서 힘이 되어 주시겠습니까?",end:"신랑 신부, 이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.",prep:'인쇄물이 필요 없어요 · 하객분들은 네, 그러겠습니다 한마디만 하시면 돼요 · 개식 직후에 미리 한 번 안내해 드려요'},
- family:{d:'가족이 낭독',desc:'양가 부모님, 또는 대표 한 분이 두 사람의 성혼을 직접 선언해요.',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다. 가족 여러분과 함께, 두 사람에게 큰 박수를 보내 주시기 바랍니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
+ narr:{d:'나레이션',desc:'나레이션이 성혼을 선언해요'},
+ chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션 선창에 이어 하객이 함께 낭독해요',nar:"모든 마음이 모였습니다. 이제, 이 자리에 계신 모든 분의 목소리로 이 예식을 선언으로 완성하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 신랑 신부, 이제 두 사람은 부부입니다.",prep:'선언문은 좌석 카드로 미리 비치하고, 나레이션이 먼저 안내해요 · 부담스러우면 언제든 나레이션 단독으로 바꿀 수 있어요'},
+ ask:{d:'하객이 함께 답하기',desc:'나레이션의 물음에 하객이 한마디로 답해요',nar:"여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다. 이제 여러분의 차례입니다. 제가 한 가지를 여쭙겠습니다. 다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다. 그럼 시작하겠습니다. 두 사람이 평생을 함께 걸어갈 수 있도록, 곁에서 힘이 되어 주시겠습니까?",end:"신랑 신부, 이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.",prep:'하객은 「네, 그러겠습니다」 한마디면 돼요 · 개식 직후 미리 안내해요'},
+ family:{d:'가족이 낭독',desc:'양가 부모님이나 대표 한 분이 직접 선언해요',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다. 가족 여러분과 함께, 두 사람에게 큰 박수를 보내 주시기 바랍니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
 };
 var LETTER={
  parent:{d:"부모님께",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음이, 오늘 이 자리에 함께합니다. 한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"부모님께 드릴 편지"},
@@ -493,8 +493,8 @@ var TRIBUTE={
  nar:"이제, 두 사람이 가장 오랜 사랑 앞으로 걸어갑니다. 말로 다 못 한 감사를, 오늘 두 사람이 몸짓으로 전합니다.",
  end:"그 사랑이 있어, 오늘의 두 사람이 있습니다. 오늘, 두 집안은 서로의 가족이 되었습니다.",
  modes:{
-  flower:{d:'꽃 헌정',how:'부모님께(또는 두 분을 키워 주신 소중한 분께) 꽃을 전하고 포옹해요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
-  bow:{d:'큰절',how:'부모님께 큰절을 올리고 일어나 포옹해요 · 드레스나 몸이 걱정되면 깊은 목례로 바꿔도 마음은 똑같이 전해져요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
+  flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
+  bow:{d:'큰절',how:'큰절을 올리고 일어나 포옹해요 · 깊은 목례로 바꿔도 돼요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
   hug:{d:'포옹',how:'부모님께 다가가 말없이 포옹해요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 말없이 포옹'}
  }
 };
@@ -699,7 +699,7 @@ var STEPDEF={
  welcome:{k:'welcome',title:'두 분의 첫인사, 이렇게 진행돼요',sub:''},
  vow:{k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 직접 읽는 순간이에요. 나레이션이 그 앞을 열어 드려요.'},
  ringwarm:{k:'ringwarm',title:'링 워밍(반지 축복 나누기), 어디까지 돌릴까요?',sub:''},
- ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:'서약의 증표로 반지를 나누는 순간. 원하는 대로 넣거나 빼세요.'},
+ ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:''},
  declare:{k:'declare',title:'성혼 선언, 누가 낭독할까요?',sub:''},
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
@@ -707,7 +707,7 @@ var STEPDEF={
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
- write:{k:'write',title:'글 적어두기',sub:'고른 순서 중 직접 읽는 글이에요 · 비워둬도 되고, D-7까지 채우면 대본에 담겨요.'},
+ write:{k:'write',title:'글 적어두기',sub:'비워둬도 돼요 · D-7까지 채우면 대본에 담겨요'},
  done:{k:'done',title:''}
 };
 var STEPS=[], CEREMONY=[];
@@ -768,31 +768,39 @@ var COURSE_DEF={
  festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'}
 };
 function cdef(c){ return COURSE_DEF[c]||COURSE_DEF.damback; }
+/* [ORD_LEAN] '안심' 줄을 걷어냈다. 열에 여덟이 '대부분 X를 골라요'였는데,
+   그 X 카드에는 이미 '기본' 배지가 붙어 있다 — 같은 말을 14~41자로 한 번 더 하고 있었다.
+   ★배지가 대신 못 하는 사실(원고 템플릿·인원에 따른 시간)만 남긴다. 나머지는 undefined → 줄이 안 뜬다. */
 function recoTxt(k){
   var c=S.course;
-  var base={entry:'대부분 A 서사형을 골라요',ring:'대부분 넣어요',declare:'대부분 나레이션으로 맡겨요 · 선언을 하객분들의 한마디로 완성하는 방식도 고를 수 있어요',valley:'담백 코스는 대부분 비워 둬요',letter:'대부분 부모님께 편지를 읽어요',bless:'소규모 예식의 하이라이트로 꼽히는 순서예요 · 1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',veil:'보통 어머니가 내려 주세요',ringwarm:'가족만이 기본이에요 · 하객 전체는 인원에 따라 달라져요',tribute:'대부분 꽃 헌정을 골라요 · 꽃은 저희가 준비해요',toast:'축배가 기본 · 케이크가 준비되면 둘 다도 좋아요'};
-  var ov={
-   gamdong:{declare:'이 코스는 선언을 하객분들의 한마디로 완성해요 · 짧게 함께 답하시면 돼요',letter:'이 코스는 부모님께, 그리고 서로에게 둘 다 읽는 분들이 많아요'},
-   family:{bless:'가족 코스의 시그니처예요 · 1~2분(대여섯 문장) 원고 템플릿을 드려요',declare:'가족이 직접 선언하면 이 코스답게 깊어져요 · 나레이션도 좋아요'},
-   festive:{declare:'밝은 분위기엔 따뜻한 톤을 많이 골라요 · 하객분들이 함께 답하면 환호로 이어져요'}
+  var base={
+    bless:'1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',
+    ringwarm:'하객 전체로 돌리면 인원에 따라 시간이 달라져요'
   };
+  var ov={ family:{bless:'가족 코스의 시그니처예요 · 1~2분 원고 템플릿을 드려요'} };
   return (ov[c]&&ov[c][k])||base[k];
 }
+
+/* [ORD_LEAN] 순간 화면의 설명을 덜어낸다 (2026-08-03 사용자 "설명을 줄이면서 필요한 것만 · 미니멀하지만 이해는 쉽게").
+   실측 — 15개 부제 중 10개가 '~순간이에요'로 끝났다. 제목이 이미 그 순간의 이름인데
+   부제가 같은 말을 시적으로 되풀이하고 있었다(예: 「반지 교환, 넣을까요?」+ '반지로 나누는 순간이에요').
+   ★규칙: 부제는 제목이 말하지 않은 것만 말한다. 말할 게 없으면 비운다(빈 t는 화면에서 줄이 사라진다).
+   ★감정이 핵심인 순간(편지)은 남긴다 — 그 한 줄이 정보이기도 하다. */
 var MOMENT={
- guest:{ph:'예식의 시작 · 하객 맞이',t:'실제 예식은 여기서 시작돼요. 하객이 자리에 앉는 동안 안내가 흘러요.',act:'나레이션이 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
- entry:{ph:'식이 열려요',t:'문이 열리고 두 분이 함께 입장해요 · 멘트를 골라 첫 장면을 완성해요.',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
- veil:{ph:'베일 다운',t:'입장 직전, 문이 열리기 전에 부모님이 베일을 내리고 두 분의 손을 이어 줘요.',act:'누가 내려 줄지 골라주세요. 동작은 리허설 때 함께 맞춰요.'},
- welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 감사 인사를 전하는 순간이에요.',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
- vow:{ph:'혼인 서약',t:'서로에게 약속을 소리 내어 건네는 순간이에요.',act:'직접 낭독 · 낭독 방식을 정해주세요.'},
- ringwarm:{ph:'링 워밍',t:'두 분의 반지를 가족·하객이 손에서 손으로 쥐고, 축복을 담아 전해요.',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
- ring:{ph:'반지 교환',t:'서약의 약속을 반지로 나누는 순간이에요.',act:'넣을지 뺄지 골라주세요.'},
- declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 공식적으로 선언하는 순간이에요.',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
- valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 폐식 전에 하나만 살짝 더해요.',act:'없음이 기본 · 원하면 하나만 더해요.'},
- toast:{ph:'축배 · 케이크',t:'분위기가 가장 밝게 고조되는, 축제 같은 순간이에요.',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
- song:{ph:'축가',t:'두 분을 위해 준비된 노래가 흐르는 순간이에요.',act:'누가 부를지 골라주세요.'},
- letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요.',act:'누구에게 전할지 골라주세요.'},
- tribute:{ph:'부모님 헌정',t:'키워 주신 사랑에, 두 분이 몸짓으로 감사를 전하는 순간이에요.',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
- bless:{ph:'부모님 덕담',t:'부모님이 두 분에게 짧게 말씀을 전하는 순간이에요.',act:'넣을지 뺄지 골라주세요.'}
+ guest:{ph:'예식의 시작 · 하객 맞이',t:'여기서 예식이 시작돼요 · 하객이 앉는 동안 안내가 흘러요',act:'나레이션이 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
+ entry:{ph:'식이 열려요',t:'멘트가 첫 장면을 만들어요',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
+ veil:{ph:'베일 다운',t:'입장 직전, 베일을 내리고 두 분의 손을 이어 줘요',act:'누가 내려 줄지 골라주세요. 동작은 리허설 때 함께 맞춰요.'},
+ welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 인사해요',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
+ vow:{ph:'혼인 서약',t:'서로에게 쓴 약속을 직접 읽어요',act:'직접 낭독 · 낭독 방식을 정해주세요.'},
+ ringwarm:{ph:'링 워밍',t:'반지를 손에서 손으로 쥐며 축복을 담아요',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
+ ring:{ph:'반지 교환',t:'',act:'넣을지 뺄지 골라주세요.'},
+ declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 알리는 순서예요',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
+ valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 하나만 더해요',act:'없음이 기본 · 원하면 하나만 더해요.'},
+ toast:{ph:'축배 · 케이크',t:'',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
+ song:{ph:'축가',t:'',act:'누가 부를지 골라주세요.'},
+ letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요',act:'누구에게 전할지 골라주세요.'},
+ tribute:{ph:'부모님 헌정',t:'몸짓으로 감사를 전하는 순서예요',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
+ bless:{ph:'부모님 덕담',t:'부모님이 짧게 말씀을 전해요',act:'넣을지 뺄지 골라주세요.'}
 };
 var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',veil:'베일 다운',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'};
 
@@ -839,7 +847,7 @@ function render(){
   else if(st.k==='intro2'){ h=renderIntro2(); }
   else {
     var mo=MOMENT[st.k];
-    h+='<h2 class="q-title" id="stepHead" tabindex="-1">'+esc(st.title)+'</h2>'+(mo?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));   // [ORD_H2]
+    h+='<h2 class="q-title" id="stepHead" tabindex="-1">'+esc(st.title)+'</h2>'+((mo&&mo.t)?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));   // [ORD_H2]
     if(recoTxt(st.k)) h+='<div class="reassure">'+esc(recoTxt(st.k))+'</div>';
     h+=renderStep(st.k);
   }
@@ -1190,13 +1198,15 @@ function renderStep(k){
   if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
     var h='<div style="margin-top:4px">';
-    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스가 정해졌어요 · <b>추천 구성 그대로 진행해도 되고</b>, 다음을 누르며 하나씩 우리답게 다듬어요.</div>';
-    h+='<div class="tune-hint">위에서 아래가 실제 진행 순서예요 · <b>↑↓</b>로 바꿀 수 있어요.<br>카드를 누르면 <b>장면과 안내 듣기</b>가 열리고, 거기서 <b>연출</b>을 골라요 · <b>순서에서 빼기</b> 버튼이 있는 순간만 넣고 뺄 수 있어요.</div>';   // 순서 조정 안내(2026-07-18 사용자 지시) + [ORD_BADGE_AXIS] 순서 축·연출 축을 문장에서 갈라 놓음
+    /* [ORD_LEAN] 목록 앞에 안내가 네 줄(220자) 서 있어 무엇을 보는 화면인지가 뒤로 밀렸다.
+       두 줄로 줄인다 — 나머지는 화면이 스스로 말한다(↑↓ 버튼·'순서에서 빼기' 버튼은 라벨이 곧 설명이다). */
+    h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스로 시작해요 · <b>그대로 둬도 되고</b>, 하나씩 다듬어도 돼요.</div>';
+    h+='<div class="tune-hint">위에서 아래가 진행 순서예요 · <b>↑↓</b>로 옮기고, 카드를 누르면 <b>연출</b>을 골라요.</div>';   // 순서 조정 안내(2026-07-18 사용자 지시) + [ORD_BADGE_AXIS] 순서 축·연출 축을 문장에서 갈라 놓음
     // ★[ORD_SAVE_WHERE] 코스를 고른 여기가 두 번째(마지막) 알림 자리다 — 이 화면부터 순간 13개를 하나씩
     //   다듬느라 20분 넘게 걸리고, 다 만든 뒤 저장 배너에서야 '이 기기에만'을 알면 그때는 이미 늦다
     //   (신부 폰에서 만들고 신랑 폰으로 열면 없다 · 2026-08-01). 막지 않고 권하기만 한다 — 로그인 강요 금지.
     //   임베드(마이페이지 안)는 서버에 저장되므로 이 줄을 붙이지 않는다.
-    if(!EMBED) h+='<div class="save-note">지금부터 다듬는 내용은 <b>이 기기에</b> 저장돼요 · 마이페이지에 로그인해 열면 다른 기기에서도 이어 만들 수 있어요.</div>';
+    if(!EMBED) h+='<div class="save-note"><b>이 기기에만</b> 저장돼요 · 마이페이지로 열면 다른 기기에서도 이어 만들어요.</div>';
     var _disp=ordNow().map(function(dk){return {k:dk,off:isOptK(dk)&&!S.extra[dk]};});   // 조정된 순서 그대로 위→아래(단일 출처 ordNow · 2026-07-18)
     var MMIN={entry:2,veil:1,welcome:1,vow:3,ringwarm:2,ring:1,declare:2,valley:3,toast:2,song:3,letter:3,tribute:2,bless:2};   // 표시용 근사(약 N분) — 넣고 뺄 때 총 시간 변화의 이유가 보이게(2026-07-17 결정: 도입). guest는 식전이라 본식 분에 안 잡힘
     var _mm=function(x){   // 연출 선택에 따라 분이 달라지는 순간은 현재 선택 기준으로(estMin 델타와 일치 — 칩과 총 시간이 어긋나지 않게)
@@ -1288,7 +1298,7 @@ function renderStep(k){
     h+='</div>';
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
     h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
-    h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들어, 파일을 올리면 저희가 틀어드려요.</div></div>';
+    h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들면 저희가 틀어드려요</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
@@ -1323,8 +1333,8 @@ function renderStep(k){
     var h='<div style="margin-top:16px">';
     h+=clip('entry');
     h+='<div class="vq" style="margin-top:16px">입장 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비한 나레이션이 입장을 안내해요.</div></div>';   // [ORD_KEY]
-    h+='<div class="oc'+(ecpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(ecpl?'true':'false')+'" data-fk="entryVoice:couple" onclick="setEntryVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">두 분 목소리로 인사를 담아, 입장할 때 함께 흐르게 할 수 있어요.</div></div>';
+    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">나레이션이 입장을 안내해요</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(ecpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(ecpl?'true':'false')+'" data-fk="entryVoice:couple" onclick="setEntryVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">두 분 목소리로 인사를 담아 흐르게 해요</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 또렷하게 녹음해 올려 주세요. 보내 주신 파일은 당일 그대로 재생돼요.</div>';
@@ -1339,7 +1349,7 @@ function renderStep(k){
       h+='<button class="ex-chip'+(S.entry===v?' on':'')+'" aria-pressed="'+(S.entry===v?'true':'false')+'" data-fk="entry:'+v+'" onclick="pick(\'entry\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';   // [ORD_DESC]
     });
     h+='</div>';
-    h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞추고, 당일엔 문 앞에서 디렉터가 신호를 드려요 · 두 분은 손만 꼭 잡으면 돼요.</div>';
+    h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞춰요 · 당일엔 디렉터가 신호를 드려요</div>';
     h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
     (function(){
       var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
@@ -1364,7 +1374,7 @@ function renderStep(k){
   }
   else if(k==='vow'){
     h+=clip('vow');
-    h+=oc('vow','ok','직접 낭독','서로에게 쓴 약속을 두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
+    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
     // ★FALLBACK_LADDER — 런북 §3의 1~3순위를 문장 하나에 담는다(기다림 · 배우자 이어읽기 · 디렉터 대독).
     //   4순위 '성우 대리 낭독'은 화면에 올리지 않는다 — 두 분이 쓴 실제 서약문을 미리 녹음해 두는 방식이라
     //   '당일까지 비밀'과 양립할 수 없고, 배타 처리로 남겨 두느니 제공하지 않는 편이 지킬 수 있는 약속이다(§11-B).
@@ -1374,7 +1384,7 @@ function renderStep(k){
   else if(k==='ring'){
     h+=clip('ring');
     h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,true);
-    h+=oc('ring','off','빼기','반지 없이 성혼 선언으로 바로 이어져요','');
+    h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요 · 당황하지 않아도 돼요, 나머지는 자리에서 천천히.');
   }
   else if(k==='declare'){
@@ -1398,8 +1408,8 @@ function renderStep(k){
     h+=clip('letter');
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
-    if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 별처럼 함께해요 (플래시 세리머니)</label>';
-    h+=tip('울컥해서 못 읽을 것 같으면, 배우자와 사인을 미리 정해 두세요 · 디렉터가 편지를 준비해 둬, 그 순간 배우자가 대신 이어 읽을 수 있어요 · 두 분 다 어려우면 디렉터가 대신 읽어 드려요.');   // FALLBACK_LADDER — 서약 카드와 같은 사다리(런북 §3)
+    if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
+    h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 디렉터가 편지를 준비해 두고, 필요하면 대신 읽어 드려요.');   // FALLBACK_LADDER — 서약 카드와 같은 사다리(런북 §3)
     h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
   }
   else if(k==='bless'){
@@ -1420,9 +1430,9 @@ function renderStep(k){
     h+=diag('veil');
     h+=oc('veil','mother','어머니가','',S.veil==='mother'?VEIL.mother.nar:null);
     h+=oc('veil','father','아버지가','아버지가 내려 주시는, 뭉클한 변주예요',S.veil==='father'?VEIL.father.nar:null);
-    h+=oc('veil','close','가까운 분이','어머니·아버지가 아니어도 좋아요 · 언니, 형제, 오래 곁을 지켜 준 분 등 가장 소중한 분이 내려 주시면 뭉클해요',S.veil==='close'?VEIL.close.nar:null);
-    h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요 · (오버베일: 얼굴 위로 넘겼다 내리는 겉베일)','');
-    if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">오버베일 여부는 저희가 미리 확인하고, 동작은 리허설에서 맞춰요 · 어려우면 소중한 분과 동반 입장으로 바꿔도 뭉클해요.</div>';
+    h+=oc('veil','close','가까운 분이','어머니·아버지가 아니어도 좋아요 · 언니, 형제, 곁을 지켜 준 분',S.veil==='close'?VEIL.close.nar:null);
+    h+=oc('veil','skip','생략','베일 다운 없이 바로 입장해요','');
+    if(S.veil!=='skip') h+='<div class="reassure" style="margin-top:12px">동작은 리허설에서 맞춰요 · 어려우면 동반 입장으로 바꿔도 좋아요</div>';
   }
   else if(k==='ringwarm'){
     h+=diag('ringwarm');
@@ -1436,9 +1446,9 @@ function renderStep(k){
     h+=clip('tribute');
     ['flower','bow','hug'].forEach(function(v){
       var m=TRIBUTE.modes[v];
-      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'헌정용 꽃은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
+      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
     });
-    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 그대로 받으시면 돼요 · 타이밍은 당일 디렉터가 안내해요.</div>';
+    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요 · 타이밍은 디렉터가 안내해요</div>';
   }
   else if(k==='song'){
     h+=clip('song');
@@ -1652,7 +1662,7 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
 //   막지 않고 알리기만 한다(이 빌더의 기존 방식 · 선택은 고객 몫). 선택 시점이 아니라 렌더 시점 판정 —
 //   S.valley는 pick 말고 quickOff·extraTgl로도 바뀌어 진입점이 셋이다.
 function _cakeDup(){ return inSeq('valley') && S.valley==='cake' && inSeq('toast') && (S.toast==='cake'||S.toast==='both'); }
-function cakeDupNote(){ return '<div class="reassure" style="margin-top:12px">지금은 사이 순서와 축배 두 곳에서 케이크를 자르게 돼요 · 한 곳만 케이크로 두시면 흐름이 또렷하고, 실물 준비도 한 번으로 정리돼요.</div>'; }
+function cakeDupNote(){ return '<div class="reassure" style="margin-top:12px">사이 순서와 축배 두 곳에서 케이크를 자르게 돼요 · 한 곳만 두시면 흐름이 또렷해요</div>'; }
 function estMin(){
   var base={damback:25,minimal:18,gamdong:29,family:30,festive:30}[S.course]||25, m=base;
   if(S.ring==='off') m-=1;
@@ -1737,7 +1747,7 @@ function renderDone(){
      저장 전 S 도 그대로 들린다(서버 초안이 아니라 지금 화면의 S 를 넘긴다) — 저장해야 들을 수 있으면 고르는 손이 멈춘다. */
   if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG})){
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리 들어보기</button>';
-    h+='<div class="prep-hint" style="text-align:center;margin-top:7px">지금 고른 순서 그대로, 예식의 흐름을 소리로 들어봐요</div>';
+    h+='<div class="prep-hint" style="text-align:center;margin-top:7px">고른 순서 그대로 흐름을 들어봐요</div>';
   }
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 대본·연습·준비물</button>';
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
@@ -1756,17 +1766,17 @@ function renderDone(){
   h+='</div>';
   // ★AI고지_부부 — 하객 고지가 음성(완곡)·인쇄물(명시)로 나뉘므로, 부부가 그 분리를 알고 승인한 상태여야 한다(회신4 §4-2 조건 ㉯).
   //   이 줄이 없으면 "하객한테 AI 쓴다고 말했나요?"에 답할 근거가 없어진다. 지우지 말 것 · 선택 옵션으로 만들지 말 것.
-  h+='<div class="prep-hint" style="margin-top:12px">당일 하객 안내에는 "미리 준비한 안내 음성으로 진행합니다"라는 안내가 들어가고, 하객 식순지에는 AI 음성 안내라고 적혀요.</div>';
+  h+='<div class="prep-hint" style="margin-top:12px">하객 안내에 "미리 준비한 안내 음성으로 진행합니다"가 들어가고, 식순지엔 AI 음성 안내로 적혀요.</div>';
   // 유일한 필수 입력(음악)을 요약 바로 아래로
   h+='<h3 class="sec-l">음악, 한 곡만 정하면 돼요</h3>';   // [ORD_H2]
-  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원과 재생은 저희가 준비해요 · D-14까지 · 비우면 두 분의 분위기에 맞춰 저희가 골라 드려요.</div>';
+  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원·재생은 저희가 준비해요 · D-14까지 · 비우면 저희가 골라 드려요.</div>';
   h+='<input class="tin" aria-label="편지·서약 배경 음악" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
   // ★폐식·단체촬영 음악 입력칸 복원 금지 — 2026-07-22 사용자 지시로 삭제(편지·서약만 고르게). Admin.html은 옛 저장값(mClose)만 '구 입력'으로 표시. S.mClose 상태는 하위호환으로 보존
-  h+='<div class="prep-hint">입장곡은 고르신 입장 멘트에 어울리는 곡으로 저희가 몇 곡 추천해 드려요.</div></div>';
+  h+='<div class="prep-hint">입장곡은 고르신 멘트에 어울리는 곡을 추천해 드려요.</div></div>';
   h+='<button type="button" class="special" data-fk="special" onclick="alert(\'목록에 없는 순서가 있으면 편하게 말씀해 주세요. 가능한 선에서 반영해 드릴게요.\')">목록에 없는 순서가 있나요?<br>편하게 말씀해 주세요.</button>';   // [ORD_KEY]
   // [ORD_NOTE_FIT] 이 줄이 코스와 상관없이 늘 '편지와 서약이 중심인 예식이라'로 나갔다.
   //   미니멀 코스엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
-  h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 목소리까지 남는 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
+  h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
   h+='<div style="text-align:center;margin-top:16px"><button class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button></div>';
   return h;
 }
