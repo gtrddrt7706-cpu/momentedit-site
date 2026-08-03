@@ -1567,7 +1567,12 @@ function applyCourse(v){
 }
 var courseStarted=false;
 window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
-  } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen=''; idx=2; render(); };
+  } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen='';
+  /* [ORD_STEPKEY] 예전엔 idx=2(=다듬기)로 하드코딩돼 있었다. [ORD_INTRO2]로 안내가 한 화면 늘자
+     그 자리가 '코스 고르기'가 되어, '시작하기'를 눌러도 같은 화면이 다시 그려졌다(2026-08-03 사용자 제보).
+     단계는 키로 찾는다 — _seenK가 이미 '인덱스 워터마크 금지'로 배운 것과 같은 교훈이다. */
+  for(var _ti=0;_ti<STEPS.length;_ti++){ if(STEPS[_ti].k==='tune'){ idx=_ti; break; } }
+  render(); };
 window.jumpTo=function(k){
   if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
