@@ -1116,3 +1116,5 @@ chk 'gBed' console.html 6                               # 고지 줄 — CSS · 
 chk 'BED_TRIM_DB' console.html 2                        # 미리듣기 전용 감쇠 — 현장 더킹 수치는 예식장 PA 전제다
 chk 'PREVIEW_BED' scripts/check-guest-skin.mjs 4        # 실렌더: 곡 유무를 기대값으로 삼아 양쪽을 다 본다
 chk 'BED_FILE' scripts/check-guest-skin.mjs 3           # 기대값의 원천이 파일 존재 하나뿐(곡을 놓는 날 검사가 저절로 반대편을 본다)
+chk 'COVER_BAL' i/cover-01.html 1                        # 01 커버 광학 균형(위 56/아래 96) · 80/64로 되돌리면 이름 록업이 다시 아래로 처진다
+chk 'COVER_BAL' i-family/family-01.html 1
