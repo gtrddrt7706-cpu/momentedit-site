@@ -47,7 +47,7 @@
        ★이 파일은 inquiry·mypage·order-preview·parents 네 페이지가 함께 쓴다(2026-07-27 확인).
          --gold-text를 정의한 페이지는 그 값을, 없는 페이지는 폴백 #7A5F37을 쓴다. */
     + '.me-adv-eyebrow{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold-text,#7A5F37);margin-bottom:4px}'
-    + '.me-adv-title{font-family:var(--serif-ko,serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em;line-height:1.15}'
+    + '.me-adv-title{font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:19px;font-weight:500;color:var(--accent,#3A2D22);letter-spacing:0.01em;line-height:1.15}'
     /* [ADV_A11Y] 닫기 30×30 — 패널을 빠져나오는 유일한 버튼인데 가장 작았다 → 44px.
        아이콘 크기는 그대로 두고 히트영역만 넓힌다(모양 변화 없음). */
     + '.me-adv-close{background:none;border:none;cursor:pointer;color:var(--light,#75705F);padding:6px;line-height:0;border-radius:6px;transition:color .3s var(--ease,ease),background .3s var(--ease,ease);min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}'
@@ -73,18 +73,24 @@
        ─ margin -10px: 눌림 워시가 글줄 좌우로 번져야 누른 면적과 보이는 면적이 맞는다.
          글자는 칩의 padding-left:10px이 되받아 본문 22px 라인을 유지한다. */
     + '.me-adv-chips{display:flex;flex-direction:column;gap:2px;margin:2px -10px 0}'
+    /* [ADV_KO_FALLBACK] 폴백을 'serif'(브라우저 기본)에서 'Noto Serif KR'로 넓힘(2026-08-03).
+       order-preview.html은 :root에 --serif-ko를 정의하지 않아 이 파일의 국문 조판이
+       그 페이지에서만 기기 기본 명조로 떨어졌다(iOS 애플명조 · 윈도 바탕 등 제각각).
+       네 페이지 모두 Noto Serif KR 웹폰트를 이미 내려받고 있으므로 이름만 적어주면 맞는다.
+       ※ 검사기 자체의 기본 serif가 같은 글꼴이라 헤드리스 렌더로는 차이가 안 보인다
+         (글자폭 113.94px 동일 실측) — 이 폴백을 'serif'로 되돌리지 말 것. */
     /* [ADV_INDEX_SYNC] 한글을 Cormorant 이탤릭 대문자로 조판하던 자리. Cormorant엔 한글 글리프가
        없어 폴백으로 떨어지고, 거기 italic이 걸려 '가짜 기울임'이 되고, uppercase는 한글에 아무
        효과가 없었다. 색도 --gold(2.54:1)라 AA 미달. → 국문 소라벨 규격(--serif-ko·12px·0.08em·--sub). */
-    + '.me-adv-chips-label{font-family:var(--serif-ko,serif);font-size:12px;font-weight:400;letter-spacing:0.08em;color:var(--sub,#5A554C);margin:10px 0 0}'
-    + '.me-adv-chip{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;text-align:left;font-family:var(--serif-ko,serif);font-size:14px;font-weight:400;letter-spacing:0.01em;color:var(--accent,#3A2D22);background:none;border:none;border-radius:6px;padding:12px 10px;cursor:pointer;transition:color .3s var(--ease,ease),background .12s var(--ease,ease),padding-left .3s var(--ease,ease);line-height:1.5;word-break:keep-all}'
+    + '.me-adv-chips-label{font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:12px;font-weight:400;letter-spacing:0.08em;color:var(--sub,#5A554C);margin:10px 0 0}'
+    + '.me-adv-chip{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;text-align:left;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:14px;font-weight:400;letter-spacing:0.01em;color:var(--accent,#3A2D22);background:none;border:none;border-radius:6px;padding:12px 10px;cursor:pointer;transition:color .3s var(--ease,ease),background .12s var(--ease,ease),padding-left .3s var(--ease,ease);line-height:1.5;word-break:keep-all}'
     + '.me-adv-chip:hover{color:var(--seal,#6B2A24);padding-left:18px}'
     + '.me-adv-chip:active{background:var(--bg2,#F5F3EF)}'
     /* [ADV_RAMP] 반px 12.5 → 13([TYPO_SCALE7]) · 라운드 30px → 999px 알약([SCALE_RADIUS6]는 2/4/6/8/12+999만 쓴다) */
-    + '.me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko,serif);font-size:13px;color:var(--seal,#6B2A24);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:999px;padding:9px 16px;cursor:pointer;transition:background .3s var(--ease,ease),border-color .3s var(--ease,ease);line-height:1.4}'
+    + '.me-adv-escoffer{align-self:flex-start;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:13px;color:var(--seal,#6B2A24);background:none;border:1px solid rgba(107,42,36,0.35);border-radius:999px;padding:9px 16px;cursor:pointer;transition:background .3s var(--ease,ease),border-color .3s var(--ease,ease);line-height:1.4}'
     + '.me-adv-escoffer:hover{background:rgba(107,42,36,0.05);border-color:var(--seal,#6B2A24)}'
     + '.me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}'
-    + '.me-adv-esc-t{font-family:var(--serif-ko,serif);font-size:13px;color:var(--accent,#3A2D22);line-height:1.6;margin-bottom:11px}'
+    + '.me-adv-esc-t{font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:13px;color:var(--accent,#3A2D22);line-height:1.6;margin-bottom:11px}'
     + '.me-adv-esc-btns{display:flex;flex-direction:column;gap:8px}'
     + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-esc-btn.kakao{background:var(--seal,#6B2A24);color:#fff;font-weight:500;letter-spacing:0.02em}'
@@ -94,7 +100,7 @@
     + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
     + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
     /* [ADV_A11Y] 카카오톡 문의 링크 높이 23px — '해결이 안 될 때' 마지막으로 누르는 자리다 → 44px. */
-    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,serif);font-size:12px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .3s var(--ease,ease)}'
+    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:12px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .3s var(--ease,ease)}'
     + '.me-adv-foot-kakao u{text-decoration:underline;text-decoration-color:rgba(117,112,95,0.45);text-underline-offset:3px}'
     + '.me-adv-foot-kakao:hover{color:var(--seal,#6B2A24)}'
     + '.me-adv-foot-kakao:hover u{text-decoration-color:rgba(107,42,36,0.5)}'
