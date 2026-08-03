@@ -25,6 +25,20 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prog-now{font-size:12px;font-weight:700;color:var(--accent)}
 .prog-pct{font-size:11px;font-weight:600;color:var(--gold-deeper);flex-shrink:0}
 .prog-bar{height:7px;background:var(--border);border-radius:7px;overflow:hidden}
+/* [ORD_ASK] 확인 판 — 종이 카드 · 헤어라인 · 진사. 시스템 대화상자를 대신한다 */
+.ord-ask{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(28,27,25,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .2s ease}
+.ord-ask.on{opacity:1}
+.ord-ask .oa-box{width:100%;max-width:340px;background:var(--card,#fff);border:1px solid var(--border,#DDD8D1);border-radius:14px;padding:26px 24px 18px;text-align:center;transform:translateY(8px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
+.ord-ask.on .oa-box{transform:none}
+.ord-ask .oa-t{font-family:var(--serif-ko,inherit);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.55;word-break:keep-all}
+.ord-ask .oa-d{font-size:13px;font-weight:300;color:var(--sub,#5A554C);line-height:1.75;margin-top:9px;word-break:keep-all}
+.ord-ask .oa-btns{display:flex;gap:8px;margin-top:20px}
+.ord-ask .oa-btns button{flex:1;min-height:46px;border-radius:10px;font-family:var(--serif-ko,inherit);font-size:14px;cursor:pointer;padding:0 10px;word-break:keep-all}
+.ord-ask .oa-no{border:1px solid var(--border,#DDD8D1);background:var(--bg,#FAFAF8);color:var(--sub,#5A554C)}
+.ord-ask .oa-yes{border:1px solid var(--accent,#3A2D22);background:var(--accent,#3A2D22);color:#fff}
+.ord-ask .oa-yes.danger{border-color:var(--seal,#6B2A24);background:var(--seal,#6B2A24)}
+.ord-ask button:focus-visible{outline:2px solid var(--seal,#6B2A24);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.ord-ask,.ord-ask .oa-box{transition:none}}
 .prog-fill{height:100%;background:var(--gold-deep);width:0%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .prog-sub{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}   /* 2행: 보조 정보(진행 상황 좌 · 다음 예고 우) */
 .prog-next{font-size:11px;color:var(--light);text-align:right;word-break:keep-all;flex:1}   /* [ORD_NEXTLABEL] 이름표 · 누르는 것이 아니다 */
@@ -1566,13 +1580,29 @@ function applyCourse(v){
   buildSteps();
 }
 var courseStarted=false;
-window.startCourse=function(v){ if(courseStarted && v!==S.course){ if(!confirm('코스를 바꾸면 지금까지 고른 순서 선택이 새 코스 추천으로 다시 세팅돼요. 작성한 서약문·편지는 그대로 남아요. 바꿀까요?')) return; applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
-  } else if(!courseStarted){ applyCourse(v); } courseStarted=true; crsOpen='';
-  /* [ORD_STEPKEY] 예전엔 idx=2(=다듬기)로 하드코딩돼 있었다. [ORD_INTRO2]로 안내가 한 화면 늘자
-     그 자리가 '코스 고르기'가 되어, '시작하기'를 눌러도 같은 화면이 다시 그려졌다(2026-08-03 사용자 제보).
-     단계는 키로 찾는다 — _seenK가 이미 '인덱스 워터마크 금지'로 배운 것과 같은 교훈이다. */
-  for(var _ti=0;_ti<STEPS.length;_ti++){ if(STEPS[_ti].k==='tune'){ idx=_ti; break; } }
-  render(); };
+window.startCourse=function(v){
+  var _go=function(){
+    courseStarted=true; crsOpen='';
+    /* [ORD_STEPKEY] 예전엔 idx=2(=다듬기)로 하드코딩돼 있었다. [ORD_INTRO2]로 안내가 한 화면 늘자
+       그 자리가 '코스 고르기'가 되어, '시작하기'를 눌러도 같은 화면이 다시 그려졌다(2026-08-03 사용자 제보).
+       단계는 키로 찾는다 — _seenK가 이미 '인덱스 워터마크 금지'로 배운 것과 같은 교훈이다. */
+    for(var _ti=0;_ti<STEPS.length;_ti++){ if(STEPS[_ti].k==='tune'){ idx=_ti; break; } }
+    render();
+  };
+  if(courseStarted && v!==S.course){
+    // [ORD_ASK] 코스 교체도 같은 판으로 — 시스템 confirm 을 남겨 두면 한 화면에 두 언어가 된다
+    ordAsk({title:(COURSES[v]?COURSES[v].nm:'다른')+' 코스로 바꿀까요?',
+            body:'지금까지 고른 순서와 연출이 새 코스 추천으로 다시 세팅돼요. 적어 두신 서약문·편지는 그대로 남아요.',
+            yes:'코스 바꾸기', no:'취소', danger:true}).then(function(ok){
+      if(!ok) return;
+      applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
+      _go();
+    });
+    return;
+  }
+  if(!courseStarted) applyCourse(v);
+  _go();
+};
 window.jumpTo=function(k){
   if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
@@ -1828,7 +1858,59 @@ function openRitualPreview(){
   document.addEventListener('keydown',onKey);
   return ov;
 }
-window.resetAll=function(){ if(!confirm('지금까지 만든 식순을 지우고 처음부터 다시 만들까요?')) return; try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); }catch(e){} window.location.reload(); };   // reset 직후 1회는 임베드 서버 초안 주입을 건너뜀(다시 만들기가 되돌아오는 문제 방지)
+/* [ORD_ASK] 브라우저 기본 confirm()은 검은 시스템 판이라 이 지면의 말이 아니다
+   (2026-08-03 사용자 "팝업 화면 디자인 개선 · 우리 무드로"). 같은 자리에 우리 톤의 판을 띄운다.
+   ★확인 계열 버튼은 진사(--seal) — 되돌릴 수 없는 일이라는 신호. 취소가 기본 포커스다. */
+function ordAsk(opt){
+  return new Promise(function(res){
+    var ov=document.createElement('div');
+    ov.className='ord-ask'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.innerHTML='<div class="oa-box">'
+      +'<div class="oa-t">'+esc(opt.title||'')+'</div>'
+      +(opt.body?'<div class="oa-d">'+esc(opt.body)+'</div>':'')
+      +'<div class="oa-btns">'
+        +'<button type="button" class="oa-no">'+esc(opt.no||'취소')+'</button>'
+        +'<button type="button" class="oa-yes'+(opt.danger?' danger':'')+'">'+esc(opt.yes||'확인')+'</button>'
+      +'</div></div>';
+    var _bo=document.body.style.overflow; document.body.style.overflow='hidden';
+    document.body.appendChild(ov);
+    requestAnimationFrame(function(){ ov.classList.add('on'); });
+    var no=ov.querySelector('.oa-no'), yes=ov.querySelector('.oa-yes'), _d=false;
+    function close(v){ if(_d) return; _d=true;
+      document.removeEventListener('keydown',onKey);
+      ov.classList.remove('on');
+      setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.body.style.overflow=_bo; },200);
+      res(v); }
+    function onKey(e){ if(e.key==='Escape'&&!e.repeat){ e.preventDefault(); close(false); }
+      if(e.key==='Tab'){ var f=[no,yes], i=f.indexOf(document.activeElement);
+        e.preventDefault(); f[(i+(e.shiftKey?f.length-1:1))%f.length].focus(); } }   // 판 밖으로 포커스가 새지 않게
+    no.addEventListener('click',function(){ close(false); });
+    yes.addEventListener('click',function(){ close(true); });
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(false); });
+    document.addEventListener('keydown',onKey);
+    try{ no.focus(); }catch(e){}   // 기본은 '취소' — 되돌릴 수 없는 일에 손가락이 먼저 닿지 않게
+  });
+}
+window.resetAll=function(){
+  ordAsk({title:'처음부터 다시 만들까요?', body:'지금까지 고른 순서와 연출이 모두 지워져요. 적어 두신 서약문·편지도 함께 지워집니다.',
+          yes:'지우고 시작', no:'취소', danger:true}).then(function(ok){
+    if(!ok) return;
+    try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); }catch(e){}
+    /* [ORD_RESET_SRV] 임베드에서는 초안이 서버에 있다 — 로컬만 지우면 다시 들어올 때 서버본이 복원돼
+       '완성' 화면으로 열린다(2026-08-03 사용자 제보 "확인을 눌렀다 나갔다 다시 들어가도 완료 쪽으로 열린다").
+       세션 플래그는 그 한 번만 건너뛸 뿐 서버본을 지우지 않는다 — 부모(마이페이지)에게 비우라고 알린다. */
+    if(EMBED){
+      var _done=false, _go=function(){ if(_done) return; _done=true; window.location.reload(); };
+      try{ window.addEventListener('message',function _r(ev){
+        if(ev.origin!==window.location.origin) return;
+        if(ev.data&&ev.data.type==='momentedit:orderResetDone'){ window.removeEventListener('message',_r); _go(); }
+      }); parent.postMessage({type:'momentedit:orderReset'}, window.location.origin); }catch(e){ _go(); }
+      setTimeout(_go, 2500);   // 응답이 없어도 갇히지 않게(서버 비우기는 실패해도 다음 저장이 덮는다)
+      return;
+    }
+    window.location.reload();
+  });
+};
 
 function renderRehearse(){
   document.getElementById('nav').style.display='none';

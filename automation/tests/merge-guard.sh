@@ -1107,6 +1107,9 @@ chk 'LIVE_INFRAME' live.html 2                           # 프레임 안 조정(
 chk 'COPY_TRIM4' index.html 1
 chk 'COPY_QUIET' index.html 1                            # 수식·중복만 덜어낸 문단 7곳 · 되돌리면 최장 139자·설득조 문장이 복귀                           # 긴 문단 4곳 압축(소개·서비스 리드·두 공간·스타일링) · 되돌리면 100~122자 문단이 복귀
 chk 'IG_ONCE' index.html 2                               # 기록 갤러리 = '인스타그램'을 한 번만 · 되돌리면 큰 제목이 남의 회사 이름이 되고 사진 9장 위에 배지가 다시 상시로 찍힌다(모바일 hover 없음)
+chk 'ORD_ASK' order-preview.html 3                       # 우리 톤 확인 판 · 브라우저 confirm()으로 되돌리면 검은 시스템 판이 한 화면에 두 언어를 만든다
+chk 'ORD_RESET_SRV' order-preview.html 1                # '처음부터 다시'가 서버 초안까지 비운다
+chk 'ORD_RESET_SRV' mypage.html 1                       # 그 요청을 받아 실제로 비우는 쪽 · 한쪽만 있으면 나갔다 오면 완성 화면으로 되살아난다
 chk 'ORD_STEPKEY' order-preview.html 1                   # 단계 이동은 키로 · idx 하드코딩으로 되돌리면 안내 화면이 하나만 늘어도 '시작하기'가 제자리를 다시 그린다(2026-08-03 실제 사고)
 chk 'ORD_LEAN' order-preview.html 3                      # 순간 화면 설명 감축 원칙(부제는 제목이 말하지 않은 것만 · 안심 줄 폐지 · 목록 앞 안내 2줄) · 되돌리면 '~순간이에요' 상용구와 '대부분 X를 골라요' 중복이 복귀
 chk 'ORD_A11Y' order-preview.html 1                     # 강조 행 캡션 대비(4.19→5.48)

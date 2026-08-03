@@ -1489,6 +1489,16 @@ function openRitualBuilder(p, inv){
       } else { done(); }
       return;
     }
+    /* [ORD_RESET_SRV] 빌더의 '처음부터 다시 만들기' — 초안은 서버에 있으므로 여기서 비운다.
+       예전엔 빌더가 로컬만 지우고 세션 플래그로 '한 번만 무시'했다. 나갔다 다시 들어오면
+       서버본이 그대로 살아 돌아와 완성 화면으로 열렸다(2026-08-03 사용자 제보).
+       ★비운다 = 빈 S를 done:false로 저장. 빌더는 course 없는 초안을 복원하지 않는다(_applySaved 게이트). */
+    if(d.type==='momentedit:orderReset'){
+      var _ack=function(){ try{ fr.contentWindow.postMessage({type:'momentedit:orderResetDone'}, location.origin); }catch(e){} };
+      apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:{}, summary:{}}, done:false})
+        .then(function(){ saved=true; _ack(); }).catch(function(){ _ack(); });
+      return;
+    }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
       // [ORDER_SAVE_FAIL 2026-07-25] 완료 저장 실패 시 빌더에 신호 — 빌더가 낙관 표시한 '저장됨'을 되돌려 거짓 저장 상태·버튼 잠금 영구화 방지(회의 R-8)
       var _svFail=function(msg){ alert(msg); try{ fr.contentWindow.postMessage({type:'momentedit:orderSaveFail'}, location.origin); }catch(e){} };
