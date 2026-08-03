@@ -720,6 +720,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
    MESSAGE FORM
    ════════════════════════════════════════ */
 
+/* [LETTER_UI] min-height 560은 화면이 바뀔 때 카드가 줄었다 늘었다 하지 않게 잡아 둔 것이다.
+   다만 블록 정렬이라 전송완료(371px)·차단 화면이 위에 붙고 아래로 189px가 텅 비어 '깨진 것처럼' 보였다.
+   높이는 그대로 지키되 안쪽을 세로 가운데로 — 남는 여백이 위아래로 갈라져 의도한 여백으로 읽힌다. */
 .form-frame{
   background:#fff;
   border:1px solid var(--border);
@@ -727,7 +730,11 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   height:auto;
   min-height:560px;
   margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
+.form-frame > *{width:100%}
 .form-frame iframe{width:100%;height:100%;border:0;display:block}
 .form-fallback{
   font-size:11px;
@@ -856,19 +863,27 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   outline:none;
   border-color:var(--gold);
 }
+/* [LETTER_UI] 글자수를 상자 안에 절대배치로 띄워 두니 흰 알약이 아래 테두리를 끊고,
+   크기조절 손잡이(resize:vertical) 위에 앉아 손잡이를 잡기 어려웠다. 상자 밖 오른쪽 아래로 내린다. */
 .lf-counter{
-  position:absolute;
-  bottom:10px;
-  right:14px;
+  margin-top:6px;
+  text-align:right;
   font-family:var(--serif);
   font-size:10px;
   font-style:italic;
   color:var(--light);
   letter-spacing:0.04em;
   pointer-events:none;
-  background:rgba(255,255,255,0.88);
-  padding:2px 6px;
-  border-radius:2px;
+}
+.ls-note{
+  font-family:var(--serif-ko);
+  font-size:12px;
+  font-weight:300;
+  line-height:1.85;
+  color:var(--sub);
+  margin:18px auto 0;
+  max-width:300px;
+  word-break:keep-all;
 }
 .lf-row{
   display:flex;
@@ -1738,7 +1753,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
             type="text"
             aria-label="두 분과의 관계"
             placeholder="관계 · 신랑 친구"
-            maxlength="40">
+            maxlength="30">
         </div>
       </div>
 
@@ -1757,6 +1772,8 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <div class="ls-line"></div>
       <div class="ls-title"><span id="lsGuestName"></span>님의 마음이<br><span id="lsRecipientLabel">두 분께</span> 전해졌습니다</div>
       <div class="ls-quote">Focus on the Essence, Record the Truth.</div>
+      <!-- [LETTER_DELIVERED] 받을 주소가 없어 메일이 못 나간 경우에만 뜬다 — 편지는 안전하게 보관돼 있다 -->
+      <div class="ls-note" id="lsNote" style="display:none">편지는 안전하게 보관됐어요.<br>메일 주소 확인이 필요해, 스튜디오가 두 분께 직접 전해드릴게요.</div>
       <button type="button" class="ls-again" id="lsAgain">또 다른 편지를 남기기</button>
     </div>
 
@@ -2132,6 +2149,28 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
 function applyCoupleInfo(couple){
   if (!couple) return;
 
+  /* [LETTER_TARGET] 받을 메일 주소가 없는 쪽은 아예 고르지 못하게 한다.
+     고르면 편지가 스튜디오까지만 가고 두 분 편지함엔 닿지 않는데, 하객은 전해졌다고 믿게 된다.
+     ★서버(getCouple)가 이 두 값을 안 주는 동안(재배포 전)은 undefined —— 그때는 아무것도 감추지 않는다. */
+  try {
+    const _segOf = r => document.querySelector('.lf-seg[data-recipient="' + r + '"]');
+    const _hide = (r, hide) => { const el = _segOf(r); if (el) el.style.display = hide ? 'none' : ''; return el; };
+    const noG = couple.hasGroomEmail === false, noB = couple.hasBrideEmail === false;
+    const gEl = _hide('groom', noG), bEl = _hide('bride', noB);
+    // 둘 다 없으면 선택 자체가 뜻이 없다 — 줄을 통째로 접는다(편지는 그대로 보관·스튜디오 전달)
+    const block = document.querySelector('.lf-recipient-block');
+    if (block && noG && noB) block.style.display = 'none';
+    // 감춘 쪽이 지금 선택돼 있으면 '두 분 모두'로 되돌린다(빈 선택 상태로 남지 않게)
+    const active = document.querySelector('.lf-seg.active');
+    if (active && ((noG && active === gEl) || (noB && active === bEl))) {
+      document.querySelectorAll('.lf-seg').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
+      const both = _segOf('both');
+      if (both) { both.classList.add('active'); both.setAttribute('aria-checked', 'true'); }
+      const hid = document.getElementById('lfRecipient');
+      if (hid) hid.value = 'both';
+    }
+  } catch (_e) {}
+
   // 1. 영문 이름 (Cover) — 성 제외, 이름만 (couple-en-name 두 개)
   const enNames = document.querySelectorAll('.couple-en-name');
   if (enNames.length >= 2) {
@@ -2475,7 +2514,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     blockedBox.style.display = 'none';
     form.style.display = 'flex';
   }
-  function showSent(guestName, recipient){
+  function showSent(guestName, recipient, delivered){
     form.style.display = 'none';
     errorBox.classList.remove('is-visible');
     errorBox.style.display = 'none';
@@ -2485,6 +2524,9 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       sent.classList.add('is-visible');
     });
     sentGuestEl.textContent = guestName;
+    // [LETTER_DELIVERED] 메일이 실제로 나갔는지는 서버만 안다 — 안 나갔으면 그렇다고 말한다(편지는 보관됨)
+    const noteEl = document.getElementById('lsNote');
+    if (noteEl) noteEl.style.display = (delivered === false) ? 'block' : 'none';
     const label = document.getElementById('lsRecipientLabel');
     if (label) {
       label.textContent = recipient === 'groom' ? '신랑에게' : recipient === 'bride' ? '신부에게' : '두 분께';
@@ -2530,8 +2572,12 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
   }
 
   // 제출
+  /* [LETTER_SEND] 보내는 중 재진입 차단 — 버튼만 disabled로 두면 이름 칸에서 Enter를 눌러
+     같은 편지가 한 번 더 나갈 수 있다(폼 submit은 버튼을 거치지 않는다). */
+  let sending = false;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (sending) return;
 
     const message = msgEl.value.trim();
     const guestName = nameEl.value.trim();
@@ -2541,6 +2587,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     if (!message || !guestName) return;
 
     // 로딩 상태
+    sending = true;
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
@@ -2561,37 +2608,27 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
         redirect: 'follow',
       });
 
-      let ok = false;
-      try {
-        const data = await res.json();
-        ok = !!data.ok;
-        if (!ok && data.error === 'BLOCKED_CONTENT') {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-          showBlocked();
-          return;
-        }
-        if (!ok && data.error) {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-          showError(data.error);
-          return;
-        }
-      } catch (_) {
-        // 응답 파싱 실패하더라도 status 2xx 면 성공으로 간주
-        ok = res.ok;
-      }
+      const done = () => { sending = false; submitBtn.classList.remove('loading'); submitBtn.disabled = false; };
 
-      if (ok) {
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-        showSent(guestName, recipient);
-      } else {
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-        showError('서버 응답이 비정상입니다. 잠시 후 다시 시도해 주세요.');
+      /* [LETTER_SEND] 예전엔 응답을 못 읽으면 'status 2xx면 성공'으로 넘겼다.
+         Apps Script는 스크립트 오류·할당량 초과에도 200 + HTML 오류 페이지를 돌려준다 —
+         그 경우 편지는 한 통도 안 나갔는데 하객은 '전해졌습니다'를 본다(가장 나쁜 실패).
+         서버가 ok를 말해 줄 때만 성공으로 친다. 확인이 안 되면 다시 보내게 하는 편이 낫다
+         (같은 편지가 두 번 가는 쪽이, 한 통도 안 가는 쪽보다 낫다). */
+      let data = null;
+      try { data = JSON.parse(await res.text()); } catch (_) { data = null; }
+
+      if (data && data.ok) {
+        done();
+        showSent(guestName, recipient, data.delivered);   // delivered:false면 '스튜디오가 직접 전해드릴게요'
+        return;
       }
+      done();
+      if (data && data.error === 'BLOCKED_CONTENT') { showBlocked(); return; }
+      if (data && data.error) { showError(data.error); return; }
+      showError('편지가 전해졌는지 확인하지 못했어요. 잠시 후 한 번 더 보내 주세요.');
     } catch (err) {
+      sending = false;
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
       showError('네트워크 오류입니다. 잠시 후 다시 시도해 주세요.');

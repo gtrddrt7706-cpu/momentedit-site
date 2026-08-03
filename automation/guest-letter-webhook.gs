@@ -138,8 +138,13 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: '등록되지 않은 예식입니다.' });
     }
 
-    // 금지어 검사
-    const modResult = checkBannedWords(message);
+    // [LETTER_RATE] 한 예식으로 편지가 쏟아지는 것을 막는다 — Apps Script 할당량과 두 분의 받은편지함을 함께 지킨다.
+    //  CacheService는 원자적이지 않아 경계에서 한두 건 오차가 나지만, '무제한'과 '대략 제한'의 차이가 크다.
+    const _rl = _glRateCheck(eventId);
+    if (!_rl.ok) return jsonResponse({ ok: false, error: _rl.error });
+
+    // 금지어 검사 — ★본문만 보면 이름·관계 칸으로 그대로 새어 나간다(둘 다 메일에 그대로 찍힌다).
+    const modResult = checkBannedWords([guestName, relation, message].filter(Boolean).join(' \n '));
     const needsModeration = modResult.blocked;
 
     appendMessage({
@@ -166,8 +171,10 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: 'BLOCKED_CONTENT' });
     }
 
-    sendToRecipients(couple, guestName, relation, message, recipient);
-    return jsonResponse({ ok: true });
+    // [LETTER_DELIVERED] 받을 주소가 하나도 없으면 메일은 못 나간다(편지는 시트에 남고 스튜디오에 알림).
+    //  예전엔 그 경우에도 ok:true만 돌려줘 하객은 '전해졌습니다'를 보고 두 분은 못 받는 상태가 됐다.
+    const _sentCount = sendToRecipients(couple, guestName, relation, message, recipient);
+    return jsonResponse({ ok: true, delivered: _sentCount > 0 });
 
   } catch (err) {
     try {
@@ -280,6 +287,15 @@ function getCoupleByEventIdFull(eventId, view) {
 
       couple[header] = value;
     });
+
+    // [LETTER_TARGET] 주소 자체는 계속 숨기되(PII), '받을 곳이 있는가'만 참/거짓으로 알린다.
+    //  라이브 편지 폼이 이걸 보고 '받을 주소가 없는 쪽'을 고르지 못하게 막는다 —
+    //  고르면 편지가 스튜디오까지만 가고 두 분 편지함엔 닿지 않는데, 하객은 전해졌다고 믿게 된다.
+    (function () {
+      const _gi = headers.indexOf('groomEmail'), _bi = headers.indexOf('brideEmail');
+      couple.hasGroomEmail = _gi !== -1 && String(row[_gi] || '').indexOf('@') !== -1;
+      couple.hasBrideEmail = _bi !== -1 && String(row[_bi] || '').indexOf('@') !== -1;
+    })();
 
     // 계좌 옵트아웃 — 이 화면(view)에서 계좌를 숨기기로 한 경우 계좌 6필드를 응답에서도 비운다(화면-데이터 일치).
     if (!_acctVisibleForView(couple, view)) {
@@ -450,6 +466,20 @@ function appendModeration(data) {
   });
 }
 
+// [LETTER_RATE] 예식별 짧은 창(분) + 긴 창(시간) 두 겹. 차단된 시도도 함께 센다(스팸이 무료로 재시도하지 못하게).
+function _glRateCheck(eventId) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const kMin = 'lr_m_' + eventId, kHr = 'lr_h_' + eventId;
+    const m = Number(cache.get(kMin) || 0), h = Number(cache.get(kHr) || 0);
+    if (m >= 3)  return { ok: false, error: '편지가 연달아 도착하고 있어요. 잠시 뒤에 다시 보내 주세요.' };
+    if (h >= 40) return { ok: false, error: '지금은 편지가 많이 몰렸어요. 잠시 뒤에 다시 시도해 주세요.' };
+    cache.put(kMin, String(m + 1), 60);
+    cache.put(kHr, String(h + 1), 3600);
+  } catch (_e) {}   // 캐시가 막히면 제한 없이 통과 — 편지를 막는 것보다 낫다
+  return { ok: true };
+}
+
 function sendToRecipients(couple, guestName, relation, message, recipient) {
   const targets = [];
 
@@ -473,13 +503,13 @@ function sendToRecipients(couple, guestName, relation, message, recipient) {
   if (targets.length === 0) {
     GmailApp.sendEmail(
       STUDIO_EMAIL,
-      '[Moment Edit] 수신자 이메일 누락',
+      '[Moment Edit] ⚠️ 편지 미전달 — 수신자 이메일 없음 (직접 전달 필요)',
       '예식 ID ' + couple.eventId + '의 수신자 이메일이 없습니다.\n' +
       '수신 대상: ' + recipientLabelKo(recipient) + '\n\n' +
       '하객: ' + guestName + '\n메시지: ' + message,
       { from: STUDIO_EMAIL }
     );
-    return;
+    return 0;   // [LETTER_DELIVERED] 편지는 시트에 남아 있다 — 스튜디오가 직접 전달한다
   }
 
   let subjectPrefix = '';
@@ -490,14 +520,20 @@ function sendToRecipients(couple, guestName, relation, message, recipient) {
     (recipient === 'both' ? '두 분께' : recipient === 'groom' ? '신랑님께' : '신부님께') +
     ' 마음을 전했습니다';
 
+  // [LETTER_PLAIN] 텍스트 대체본 — 예전엔 빈 문자열이었다.
+  //  HTML을 못 그리는 클라이언트·화면낭독기에서 편지가 통째로 사라지고, 스팸 점수도 나빠진다.
+  const plainBody = guestName + '님' + (relation ? ' (' + relation + ')' : '') + '이 남긴 편지입니다.\n\n'
+    + message + '\n\n— Moment Edit\nFocus on the Essence, Record the Truth.';
+
   for (const t of targets) {
     const htmlBody = buildEmailHtml(couple, guestName, relation, message, recipient, t.role);
-    GmailApp.sendEmail(t.email, subject, '', {
+    GmailApp.sendEmail(t.email, subject, plainBody, {
       htmlBody: htmlBody,
       name: 'Moment Edit',
       from: STUDIO_EMAIL,
     });
   }
+  return targets.length;
 }
 
 /**
@@ -524,6 +560,12 @@ function buildEmailHtml(couple, guestName, relation, message, recipient, role) {
   return '' +
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><style>:root{color-scheme:dark}body{margin:0;padding:0;background:#1E1A17}</style></head>' +
     '<body style="margin:0;padding:0;background:#1E1A17;">' +
+    // [LETTER_PREHEADER] 받은편지함 미리보기 줄 — 없으면 'MOMENT EDIT PRIVATE WEDDING STUDIO…'가 끌려 나와
+    //  누가 보낸 편지인지 열기 전엔 알 수 없었다. 뒤의 공백은 본문이 딸려 들어오는 것을 막는다.
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">' +
+      escapedGuest + '님' + (escapedRelation ? ' (' + escapedRelation + ')' : '') + '이 남긴 편지입니다.' +
+      '&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;' +
+    '</div>' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1E1A17;width:100%;"><tr><td align="center" bgcolor="#1E1A17" style="background:#1E1A17;">' +
     '<div style="color-scheme:dark;font-family:\'Noto Serif KR\',serif;max-width:560px;margin:0 auto;padding:48px 32px;background:#1E1A17;color:#E8E1D6;">' +
       '<div style="text-align:center;margin-bottom:32px;">' +
