@@ -305,7 +305,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .mp-step-done .trk-ok{color:var(--seal,#6B2A24);font-weight:600}   /* 여정 스텝 체크도 동일 진사색(통일) */
 .consult-card .cc-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
 .consult-card .cc-title{font-family:var(--serif-ko);font-size:17px;font-weight:500;color:var(--accent);line-height:1.5}
-.consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px}
+.consult-card .cc-sub{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);line-height:1.7;margin-top:8px;text-wrap:balance;word-break:keep-all}   /* [CC_SUB_FIT] 접히더라도 한 마디만 떨어지지 않게 — 미지원 브라우저는 종전 그대로 */
 .consult-card .cc-sub b{color:var(--accent);font-weight:500}
 /* RESULT_WAIT_EMO 2026-07-22 · 예식/촬영 종료 후 여운 메시지(제목 아래·안내 위) */
 .consult-card .cc-emo{font-family:var(--serif-ko);font-size:15px;font-weight:400;color:var(--accent);line-height:1.98;text-align:center;word-break:keep-all;text-wrap:balance;max-width:19em;margin:0 auto;padding:20px 0 20px;letter-spacing:.004em}   /* RESULT_WAIT_POLISH 2026-07-26 · 위아래 여백 균형(18/24→20/20) — 카드 중단 리듬 보정 */
@@ -5784,7 +5784,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
     h='<div class="consult-card" style="text-align:center">'
       + '<div class="cc-eyebrow en-22">Snap Planning</div>'
       + '<div class="cc-title">스냅 기획</div>'
-      + '<div class="cc-sub">원하는 스냅의 결을 남겨 두면, 디렉터가 미리 읽고 준비해요.</div>'
+      + '<div class="cc-sub">원하는 결을 남기면 디렉터가 미리 준비해요.</div>'   // [CC_SUB_FIT] 26자 → 21자 · 390px에서 '준비해요.' 한 마디만 둘째 줄로 떨어지던 고아 줄 해소 · 위 '남겨 주셨어요' 분기와 같은 어휘(원하는 결)
       + '<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
       + '<div class="cc-note" style="text-align:center">선택이에요 · 안 남겨도 촬영엔 지장 없어요.</div>'
       + '</div>';

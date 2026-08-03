@@ -256,6 +256,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    화면마다 하단 전폭을 진사로 채우면 그 규칙이 무너지고, 마이페이지(.cc-btn #4E3F31)와도 말이 갈렸다. */
 .btn-next{background:#4E3F31;color:#fff}.btn-next:active{background:#3E3227}
 .btn:disabled{opacity:.4}
+/* [ORD_SAVE_STATE] 저장 응답 대기 — 흐리게 하지 않고 톤만 낮춘다(글자는 끝까지 읽혀야 한다) */
+.btn-next.busy{background:#6E5C4B;cursor:default}
+.btn-next.busy:active{background:#6E5C4B}
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
 .done-hd .t{font-size:22px;font-weight:700}.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
@@ -309,7 +312,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* [BUSY_ONE] 저장 중 표시는 사이트 공통 '숨쉬는 점' 하나 — 도는 링을 새로 만들지 말 것 */
 .bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.5s ease-in-out infinite}
 @keyframes meBreath{0%,100%{opacity:.35;transform:scale(.82)}50%{opacity:1;transform:scale(1)}}
-.special{margin-top:14px;text-align:center;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px;cursor:pointer;line-height:1.6;word-break:keep-all}
+/* [ORD_DONEACTS] (구).special 회색 판 규칙 삭제 — 그 버튼이 마무리 버튼 줄(.done-acts)로 옮겨가 아무것도 안 고르는 규칙이 됐다 */
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
@@ -416,7 +419,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    ★고치는 방식: 카드를 통째로 button으로 바꾸면 안쪽 '들어보기'·↑↓ 버튼이 버튼 안에 들어가
      (nested interactive) 낭독기가 되레 헷갈린다. 그래서 '카드 제목만' 진짜 버튼으로 만들고
      그 ::after를 카드 전체에 늘려 덮는다 — 마우스·터치 감각은 종전 그대로, 안쪽 버튼은 z-index로 위에 남긴다. */
-:where(button.oc-nm,button.crs-h,button.mc-t,button.fold,button.special){
+:where(button.oc-nm,button.crs-h,button.mc-t,button.fold){
   font:inherit;color:inherit;letter-spacing:inherit;text-align:inherit;
   background:transparent;border:0;margin:0;padding:0;border-radius:0;
   -webkit-appearance:none;appearance:none;cursor:pointer}
@@ -424,7 +427,6 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 button.oc-nm::after,button.crs-h::after,button.mc-t::after{
   content:'';position:absolute;left:0;top:0;right:0;bottom:0;border-radius:12px}
 button.oc-nm,button.crs-h,button.fold{width:100%}
-button.special{display:block;width:100%}
 /* 오버레이 위에 남겨야 하는 것들(안쪽 조작·펼친 내용) */
 .oc .play,.oc .uprow,.mc-mv,.mc-act,.mc-x,.cdet{position:relative;z-index:1}
 /* 흐려 둔 카드의 제목은 [ORD_OFF_OPACITY]가 정한 색을 유지(button 기본색으로 되돌아가지 않게) */
@@ -945,7 +947,15 @@ function render(){
     : '다음';
   var _nxHtml=editReturn?'저장 · 요약으로':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(idx===STEPS.length-2)?'완성 보기':_lastN;
   nx.innerHTML=_nxHtml;
-  nx.disabled=!!_saving;
+  /* [ORD_SAVE_STATE] '저장 중'은 disabled 가 아니라 busy 다.
+     처음엔 nx.disabled 를 걸었는데, 공용 규칙 .btn:disabled{opacity:.4} 가 버튼 전체를 흐려
+     '저장 중…' 글자 대비가 2.12까지 떨어졌다(흰 글자 · 실측). 지금 무슨 일이 벌어지는지 알려 주는
+     문구가 가장 안 보이는 상태가 된 셈이다. 그래서 disabled 대신 aria-disabled + .busy 로 바꾼다 —
+     클릭 차단은 아래 핸들러 첫 줄과 doSave 의 재진입 가드가 이미 맡고 있다. */
+  nx.disabled=false;
+  nx.classList.toggle('busy', !!_saving);
+  nx.setAttribute('aria-disabled', _saving?'true':'false');
+  if(_saving) nx.setAttribute('aria-live','polite'); else nx.removeAttribute('aria-live');
   renderMiniTL(st.k);
   var navKey=mode+':'+idx;
   if(navKey!==_navKey){
@@ -1652,7 +1662,7 @@ window.startCourse=function(v){
   _go();
 };
 window.jumpTo=function(k){
-  if(k==='done'){ var mc=document.getElementById('musicCard'); if(mc){ mc.scrollIntoView({behavior:'smooth',block:'center'}); var inp=mc.querySelector('input'); if(inp) inp.focus(); return; } }
+  // [MUSIC_GONE] 옛 'done → 음악 칸으로 스크롤·포커스' 분기 제거 — 그 칸이 사라졌다
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
 };
@@ -1852,12 +1862,11 @@ function renderDone(){
   // ★AI고지_부부 — 하객 고지가 음성(완곡)·인쇄물(명시)로 나뉘므로, 부부가 그 분리를 알고 승인한 상태여야 한다(회신4 §4-2 조건 ㉯).
   //   이 줄이 없으면 "하객한테 AI 쓴다고 말했나요?"에 답할 근거가 없어진다. 지우지 말 것 · 선택 옵션으로 만들지 말 것.
   h+='<div class="prep-hint" style="margin-top:12px">하객 안내에 "미리 준비한 안내 음성으로 진행합니다"가 들어가고, 식순지엔 AI 음성 안내로 적혀요.</div>';
-  // 유일한 필수 입력(음악)을 요약 바로 아래로
-  h+='<h3 class="sec-l">음악, 한 곡만 정하면 돼요</h3>';   // [ORD_H2]
-  h+='<div class="wcard" id="musicCard" style="margin-top:0"><div class="wd">곡명과 가수만 적어 주시면 음원·재생은 저희가 준비해요 · D-14까지 · 비우면 저희가 골라 드려요.</div>';
-  h+='<input class="tin" aria-label="편지·서약 배경 음악" oninput="setv(\'mPeak\',this.value)" placeholder="편지·서약 배경 음악 (곡명·가수)" value="'+esc(S.mPeak)+'">';
-  // ★폐식·단체촬영 음악 입력칸 복원 금지 — 2026-07-22 사용자 지시로 삭제(편지·서약만 고르게). Admin.html은 옛 저장값(mClose)만 '구 입력'으로 표시. S.mClose 상태는 하위호환으로 보존
-  h+='<div class="prep-hint">입장곡은 고르신 멘트에 어울리는 곡을 추천해 드려요.</div></div>';
+  /* [MUSIC_GONE 2026-08-03] 곡 선정 칸 폐지 — 사용자 지시 "노래선정부분 완전삭제".
+     음악은 저희가 고른다. 부부에게 곡명을 받아 두던 칸(mPeak)과 그 안내 3줄을 통째로 뺀다.
+     ★되살리지 말 것 — 이미 2026-07-18에 준비 목록에서, 07-22에 폐식곡 칸에서 한 번씩 덜어낸 자리다.
+       S.mPeak·S.mClose 상태 자체는 하위호환으로 남긴다(옛 초안에 값이 있고 Admin이 '구 입력'으로 읽는다).
+       jumpTo('done')의 음악 칸 포커스 분기도 함께 제거했다. */
   // [ORD_NOTE_FIT] 이 줄이 코스와 상관없이 늘 '편지와 서약이 중심인 예식이라'로 나갔다.
   //   미니멀 코스엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
   h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
@@ -2011,7 +2020,8 @@ function renderRehearse(){
 }
 
 var _navLock=0, _nl2=0;
-document.getElementById('next').addEventListener('click',function(){ var t=Date.now(); if(t-_nl2<400) return; _nl2=t;
+document.getElementById('next').addEventListener('click',function(){ if(_saving) return;   // [ORD_SAVE_STATE] 저장 응답 대기 중 — aria-disabled 라 실제로 눌리므로 여기서 막는다
+  var t=Date.now(); if(t-_nl2<400) return; _nl2=t;
   // [ORD_STICKYNAV] 코스 화면에서 카드를 펼쳐 둔 동안 이 버튼은 '다음'이 아니라 'X 코스로 시작하기'다 — 라벨과 동작을 한 곳에서 맞춘다.
   var _st1=STEPS[idx]; if(_st1&&_st1.k==='course'&&!editReturn&&crsOpen&&COURSES[crsOpen]){ startCourse(crsOpen); return; }
   if(editReturn){editReturn=false;_editSnap=null;_doneSaved=false;goDone();return;}   // 수정 확정 시 '저장됨' 해제 → 다시 저장하도록(서버본과 어긋남 방지)

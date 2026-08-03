@@ -1201,7 +1201,7 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 
 # ══ 베일 다운 폐지 · 순서 고정 · 저장 상태 · 네이티브 팝업 추방 (2026-08-03) ══
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
-nochk(){ n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
+nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
 # [VEIL_RETIRED] 전 예식 동시입장이라 베일 다운은 실행 불가 — 코스·팔레트·큐·KB 어디에도 되살리지 말 것
 chk 'VEIL_RETIRED' order-preview.html 3                 # 상수·장면도해·카드분기 세 자리에 폐지 사유가 남아 있어야 한다
@@ -1251,3 +1251,11 @@ nochk '[^.a-zA-Z_]alert(' admin.html
 nochk '[^.a-zA-Z_]confirm(' admin.html
 nochk '[^.a-zA-Z_]prompt(' admin.html
 nochk '[^.a-zA-Z_]alert(' automation/consultation/ScreenA_apply.html
+
+# ── 곡 선정 폐지 · 순환 CSS 변수 · 저장 중 대비 (2026-08-03) ──
+chk 'MUSIC_GONE' order-preview.html 2                     # 곡 선정 칸 폐지(음악은 저희가 고른다) + jumpTo 포커스 분기 제거 · 되살리면 완성 화면에 필수처럼 보이는 입력이 다시 생긴다
+nochk 'musicCard' order-preview.html                      # 요소가 사라졌으므로 이 id를 찾는 코드도 남으면 안 된다
+chk 'CC_SUB_FIT' mypage.html 2                            # 스냅 기획 설명 21자 + 균형 줄바꿈 · 26자로 되돌리면 '준비해요.' 한 마디만 둘째 줄로 떨어진다
+nochk '[-][-]ease:var[(][-][-]ease[)]' invitation-gallery.html 1    # 자기참조 순환(주석 1건만 허용) · 되살리면 이 페이지 transition 36개가 통째로 죽는다
+chk 'btn-next.busy' order-preview.html 2                  # 저장 중은 disabled 가 아니라 busy · .btn:disabled{opacity:.4}로 되돌리면 '저장 중…' 대비가 2.12로 떨어진다(실측)
+nochk 'nx.disabled=!!_saving' order-preview.html
