@@ -1363,7 +1363,13 @@ chk 'cue-bottom:80px' i/cover-01.html 1                   # 16장 공통값 · �
 chk 'cue-bottom:80px' i/cover-08.html 1
 chk 'cue-bottom:80px' i-family/family-08.html 1
 chk 'position:fixed !important' i/cover-08.html 1          # 커버 기준(absolute)이면 판마다 화면 자리가 어긋난다(08 이 84px 떴다)
-chk 'appendChild(_cueEl)\|appendChild(scrollEl)' i/cover-08.html 1   # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
+chk 'CUE_IN' i/cover-08.html 2                             # 등장은 JS 가 0.9s 뒤 .in — CSS 지연(2.4s)으로 되돌리면 느려지고, 노드를 옮길 때 애니메이션이 되감겨 판마다 시점이 갈린다
+chk 'CUE_PLATE' i/cover-08.html 2                          # 하얀 원형 배경판 · 없으면 큐가 본문 글자와 뒤엉킨다(자리를 피해 다니지 않기로 했으므로)
+chk 'document.body.appendChild(el)' i/cover-08.html 1       # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
+chk 'CUE_MOOD' i/cover-01.html 1                            # 이탤릭 소문자 Scroll + 흘러내리는 선 · 트래킹 넓은 대문자로 되돌리면 UI 명령어 톤이 된다
+chk 'cueDrip' i/cover-08.html 2                             # 말로 시키는 대신 동작을 보여 준다(제자리 맥박 → 흘러내림)
+chk 'text-transform:none' i/cover-04.html 1
+chk 'cue-dark' i/cover-08.html 2                            # 어두운 판(누아르)엔 어두운 배경판
 nochk 'max-height:700px' i/cover-04.html                  # 높이별 감추기 폐지 — 되살리면 어떤 화면에선 있고 어떤 화면에선 없다
 nochk 'var(--safe-bottom,0px));' i/cover-08.html          # --safe-bottom 은 판마다 값이 달라 같은 80px 이어도 자리가 어긋난다
 

@@ -1152,7 +1152,9 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   gap:12px;
   z-index:4;
   opacity:0;
-  animation:cueIn 1.2s cubic-bezier(0.22,1,0.36,1) 2.4s forwards;
+  /* [CUE_IN 2026-08-04] 등장을 CSS 지연(2.4s)+페이드(1.2s)=3.6s 에서 걷어냈다.
+     ①너무 느렸고 ②큐를 body 로 옮기는 순간 애니메이션이 되감겨 판마다 등장 시점이 달라 보였다.
+     이제 아래 인라인 스크립트가 0.9s 뒤 .in 을 붙인다 — 16장이 같은 시점, 같은 속도. */
   transition:opacity 0.6s ease,transform 0.6s ease;
   pointer-events:none;
   visibility:visible;
@@ -1189,6 +1191,38 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   .cover-scroll-line{animation:none;opacity:0.75}
 }
 
+/* [CUE_PLATE 2026-08-04] 스크롤 표시 배경판 복원 — 예전 갤러리 알약에 있던 하얀 원형 배경이다.
+   자리를 판마다 피해 다니지 않기로 한 뒤(CUE_POS) 큐가 본문 글자 위에 얹힐 수 있다.
+   배경판이 있으면 글자와 뒤엉키지 않는다. 어두운 판(누아르)은 반대로 어두운 판을 깐다. */
+.cover-scroll{background:rgba(250,250,248,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  /* 좌우 여백은 넉넉히 — 알약은 좌우 끝이 반원이라, 그 반원이 글자 높이까지 파고들면
+     'SCROLL' 이 판 밖으로 나온 것처럼 보인다. 글자폭(56px)보다 직선 구간이 길어야 한다(실측). */
+  border-radius:999px;padding:9px 20px 11px;gap:5px;box-shadow:0 1px 3px rgba(28,27,25,.06);
+  transition:opacity .55s ease,transform .55s ease}
+/* [CUE_MOOD 2026-08-04] 디테일 마감 — 트래킹 넓은 대문자 SCROLL 은 UI 명령어 톤이라
+   청첩장의 목소리가 아니다. 이 지면이 이미 쓰는 말투(이탤릭 세리프 소문자 · of, Groom, a quiet invitation.)로 낮춘다.
+   그리고 말로 시키는 대신 **동작을 보여 준다** — 선이 아래로 흘러내리며 사라진다.
+   ★알약 안에서는 선을 짧게. 40px 선을 그대로 두면 판이 세로로 길어져 알약이 아니라 덩어리가 되고,
+     둥근 모서리가 라벨 좌우를 파먹어 글자가 판 밖으로 나온 것처럼 보였다(실측). */
+.cover-scroll .cover-scroll-label{
+  text-transform:none;              /* SCROLL → Scroll */
+  font-size:10.5px;
+  letter-spacing:0.13em;            /* 0.24em 은 낱글자가 흩어져 '표지판'처럼 읽힌다 */
+  padding-left:0.13em;
+  opacity:.86;
+}
+.cover-scroll .cover-scroll-line{
+  height:22px;
+  animation:cueDrip 2.1s cubic-bezier(0.4,0,0.2,1) infinite;   /* 맥박(제자리 깜빡임) → 흘러내림 */
+}
+@keyframes cueDrip{
+  0%   {transform:translateY(-4px);opacity:0}
+  22%  {opacity:.95}
+  100% {transform:translateY(8px);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){ .cover-scroll .cover-scroll-line{animation:none;opacity:.7} }
+.cover-scroll.cue-dark{background:rgba(28,27,25,.62);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.cover-scroll.in{opacity:1}
 @media print{.cover-scroll{display:none}}
 /* [CUE_POS 2026-08-04] 스크롤 표시는 16장이 **완전히 같다** — 모양도, 화면에서의 자리도.
      ★사용자 결정: 글자와 겹쳐도 된다. 스크롤하면 곧 사라진다(.hidden). 판마다 피해 다니지 말 것.
@@ -1614,14 +1648,6 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
      ★window.scrollY만 보면 안 된다: 이 청첩장들은 body가 스크롤 컨테이너다(body{overflow:hidden auto}).
        그 경우 window.scrollY는 0에 머문다 — 세 군데를 다 본다. */
   (function(){
-    /* [CUE_POS 2026-08-04] 큐를 body 로 옮긴다 — 자리를 화면 기준(fixed)으로 못박기 위해서다.
-       ★transform 이 걸린 조상이 하나라도 있으면 position:fixed 는 화면이 아니라 그 조상을 기준으로 잡힌다.
-         08 은 .cover-bot 에 transform 이 있어(항등 행렬이라도 컨테이닝 블록을 만든다) 나머지 15장보다
-         84px 높이 떠 있었다(실측). 조상을 건드리는 대신 큐만 body 로 빼면 어느 판이든 같은 자리다. */
-    try {
-      var _cueEl = document.querySelector('.cover-scroll');
-      if (_cueEl && _cueEl.parentElement !== document.body) document.body.appendChild(_cueEl);
-    } catch (e) {}
     var faded = false;
     var onCueScroll = function(){
       if (faded) return;
@@ -1637,5 +1663,25 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
 </script>
 
 
+<script>
+/* [CUE_IN][CUE_PLATE][CUE_POS 2026-08-04] 스크롤 표시 한 벌 — 16장이 같은 코드를 쓴다.
+   1) body 로 옮긴다: transform 걸린 조상이 있으면 position:fixed 가 화면 기준을 잃는다(08 이 84px 떴다).
+   2) 배경판 명암을 판 배경에서 정한다: 누아르처럼 어두운 판엔 어두운 판을 깐다.
+   3) 0.9초 뒤 .in - CSS 지연으로 두면 노드를 옮길 때 애니메이션이 되감겨 판마다 시점이 달라진다. */
+(function(){
+  function go(){
+    var el = document.querySelector('.cover-scroll');
+    if (!el) return;
+    try { if (el.parentElement !== document.body) document.body.appendChild(el); } catch (e) {}
+    try {
+      var bc = (getComputedStyle(document.body).backgroundColor || '').match(/[0-9.]+/g);
+      if (bc && bc.length >= 3 && (0.299*bc[0] + 0.587*bc[1] + 0.114*bc[2]) < 128) el.classList.add('cue-dark');
+    } catch (e) {}
+    setTimeout(function(){ el.classList.add('in'); }, 900);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+  else go();
+})();
+</script>
 </body>
 </html>
