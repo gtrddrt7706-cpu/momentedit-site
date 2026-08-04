@@ -100,6 +100,30 @@ for (const v of keys) {
 }
 ok(`입장 ${keys.length}종 · 화면·대본·조립표·재생표가 문장·화자까지 일치`, bad.length === 0, bad.join('\n'));
 
+// ── [ENTRY_PASTE] 성우에게 붙여넣는 파일도 같은 화자여야 한다
+//   대본·화면·표를 다 고쳐 놓아도, 붙여넣기 파일이 낡아 있으면 사용자가 그걸 붙여넣는 날
+//   똑같은 사고가 그대로 재발한다(실제로 재더빙_화면글자_맞추기.txt 가 입장 17줄을 전부 신부로
+//   들고 있었다 — 그 파일을 다시 붙여넣었으면 여섯 클립이 도로 한 사람 목소리가 된다).
+//   ★대상은 '입장 17줄을 통째로 들고 있는 파일'만 — 나레이션 대본(재더빙_entry.txt)도 세 문장이
+//     글자가 겹치지만 그건 진행 목소리가 읽는 자리라 화자가 달라야 맞다. 통째로 든 파일만 골라야
+//     겹치는 문장 때문에 멀쩡한 대본을 틀렸다고 하지 않는다.
+const VOICE = man.voice || {};
+const entTexts = [];
+man.clips.filter((c) => /^R-entry-/.test(c.id)).forEach((c) => c.sents.forEach((x) => entTexts.push([x.text, VOICE[x.role || c.role]])));
+const pasteDir = R('docs/plans/식순연구/타입캐스트');
+const pasteBad = [];
+let pasteHit = 0;
+for (const fn of fs.readdirSync(pasteDir).filter((x) => /^재더빙.*\.txt$/.test(x))) {
+  const lines = fs.readFileSync(path.join(pasteDir, fn), 'utf8').split('\n').map((l) => l.trim());
+  const say = new Map();
+  lines.forEach((l) => { const g = l.match(/^([^:]+):\s*(.+)$/); if (g) say.set(g[2].trim(), g[1].trim()); });
+  if (!entTexts.every(([t]) => say.has(t))) continue;      // 입장 전체를 든 파일이 아니다 — 대상 아님
+  pasteHit++;
+  entTexts.forEach(([t, who]) => { if (say.get(t) !== who) pasteBad.push(`${fn}: '${t.slice(0, 18)}…' 화자 ${say.get(t)} ≠ ${who}`); });
+}
+ok(`붙여넣기 파일 ${pasteHit}개의 입장 화자가 대본과 일치`, pasteBad.length === 0,
+  pasteBad.join('\n') + (pasteBad.length ? '\n낡은 붙여넣기 파일입니다 — 이걸 타입캐스트에 넣으면 한 사람 목소리로 되돌아갑니다.' : ''));
+
 // ── 배지 — 이 자리는 '두 분이 녹음한 목소리'다. 역할이 둘로 갈렸다고 '직접 말해요'로 뒤집히면 안 된다.
 //    입장은 미리 받아 두는 녹음이라 당일 그 자리에서 말하는 게 아니다. 반대로 안내하면 고객이 마이크를 든다.
 const badge = ST.castOne('18_entry-A') || {};

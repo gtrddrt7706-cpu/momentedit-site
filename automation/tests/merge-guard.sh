@@ -1459,6 +1459,17 @@ chk '신랑|신부' 'docs/plans/식순연구/배역_예시_대사.txt' 7   # 입
 chk '"role": "신랑|신부"' 'docs/plans/식순연구/타입캐스트/manifest.json' 7
 if command -v node >/dev/null 2>&1; then node scripts/check-entry-alt.mjs || fail=1; fi
 
+# ── [ENTRY_VOICE] 글자 말고 **소리**로 화자를 본다 ──
+# 위 check-entry-alt.mjs 는 원천·화면·대본·조립표가 같은 말을 하는지 본다. 그런데 그 넷이 전부
+# 초록인 채로 **소리만 한 사람**일 수 있다. 실제로 그랬다 — 화면은 "신랑 한 문장, 신부 한 문장"인데
+# 여섯 클립 전부 신부 목소리였다. 글자 검사는 이걸 원리적으로 못 잡는다.
+# check-entry-voice.mjs 가 문장별 기본 주파수(F0)를 재서, 대본이 말한 화자 쪽에 붙는지 본다.
+# ★남/여 Hz 를 적어 넣지 않는다 — 받은 소리에서 두 무리를 스스로 만들어 자가 보정한다(성우가 바뀌어도 산다).
+# ★소리가 아직 없으면 조용히 skip — 붙여넣기 전에는 잴 것이 없다. 있는데 어긋난 것만 실패다.
+chk 'ENTRY_PASTE' scripts/check-entry-alt.mjs 1         # 붙여넣기 파일이 낡으면 다시 붙여넣는 날 사고가 그대로 재발한다
+chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-entry-voice.mjs || fail=1; fi
+
 # ── [GV_NOBACK][GV_TOPRESET] 청첩장 미리보기 좌우 넘김 (2026-08-04 사용자
 #    *"좌로넘길때 옆으로안가고 뒤로가기 실행되는데 청첩장 미리보기 부분에서만 뒤로가기 기능 끄자"*
 #    *"다시 그청첩장으로 넘겻을때 스크롤이 최상단이 아니라 마지막으로 봣던 페이지부분이 나오는데"*) ──
