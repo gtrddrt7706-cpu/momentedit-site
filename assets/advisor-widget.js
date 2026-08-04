@@ -33,7 +33,12 @@
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
     + '.me-adv-panel.open{transform:translateX(0);box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
-    + '@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}.me-adv-input{font-size:16px}}'
+    /* [ADV_NOZOOM 2026-08-03] 여기 있던 `.me-adv-input{font-size:16px}`을 뺐다 — 죽은 규칙이었다.
+       이 블록(36행)이 base `.me-adv-input`(아래) 보다 먼저 선언돼, 같은 특이도(0,1,0)에서
+       나중에 온 base의 14px가 이겼다. 그래서 모바일에서도 14px로 렌더되고,
+       iOS는 입력창 글자가 16px 미만이면 포커스 시 화면을 자동 확대한다(사용자 지적).
+       → base를 16px로 올려 근본을 고쳤다. 여기에 다시 넣지 말 것(순서 때문에 또 죽는다). */
+    + '@media(max-width:680px){.me-adv-panel{width:100vw;border-left:none}}'
     /* [ADV_PRINT] 인쇄할 때 떠다니는 버튼·패널이 종이에 그대로 찍혔다.
        parents.html 인쇄 미리보기에서 공유 FAB(46×46)이 편지 본문 위에 겹쳐 나왔다(스크린샷에서 발견).
        parents는 인쇄 스타일에서 nav·도구·푸터를 이미 감추는데 이 위젯만 빠져 있었다 —
@@ -100,12 +105,12 @@
     + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
     + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
     /* [ADV_A11Y] 카카오톡 문의 링크 높이 23px — '해결이 안 될 때' 마지막으로 누르는 자리다 → 44px. */
-    + '.me-adv-foot-kakao{display:flex;align-items:center;justify-content:center;min-height:44px;text-align:center;margin-top:5px;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:12px;letter-spacing:0.03em;color:var(--light,#75705F);text-decoration:none;transition:color .3s var(--ease,ease)}'
-    + '.me-adv-foot-kakao u{text-decoration:underline;text-decoration-color:rgba(117,112,95,0.45);text-underline-offset:3px}'
-    + '.me-adv-foot-kakao:hover{color:var(--seal,#6B2A24)}'
-    + '.me-adv-foot-kakao:hover u{text-decoration-color:rgba(107,42,36,0.5)}'
+    /* [ADV_ESC_ONLY 2026-08-03] .me-adv-foot-kakao 4줄 삭제 — 상시 카톡 링크와 함께 사라진 죽은 CSS.
+       에스컬레이션 시 뜨는 버튼은 별개 클래스(.me-adv-esc-btn.kakao)라 영향 없다. */
     + '.me-adv-form{display:flex;align-items:flex-end;gap:8px}'
-    + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:14px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .3s var(--ease,ease)}'
+    /* [ADV_NOZOOM] 16px 고정 — iOS는 16px 미만 입력창에 포커스하면 화면을 자동 확대한다.
+       메인홈(index.html:7743)의 같은 요소도 16px이라 규격도 이쪽이 맞다. 내리지 말 것. */
+    + '.me-adv-input{flex:1 1 auto;resize:none;border:1px solid var(--border,#DDD8D1);border-radius:12px;padding:12px 14px;font-family:var(--sans,sans-serif);font-size:16px;color:var(--text,#1C1B19);background:#fff;line-height:1.5;max-height:96px;outline:none;transition:border-color .3s var(--ease,ease)}'
     + '.me-adv-input:focus{border-color:var(--gold,#B89A75)}'
     + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
@@ -154,7 +159,13 @@
     + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
     + '      <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.8 11.3 20.3 4.2c.5-.2 1 .3.8.8l-4.7 15.2c-.15.5-.8.6-1.1.16l-3.4-4.8-3 2.4c-.3.24-.75.03-.76-.35l-.06-3.9-5.2-1.1c-.5-.1-.55-.8-.06-1Z" fill="none" stroke="var(--seal,#6B2A24)" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></button>'
     + '    </form>'
-    + '    <a class="me-adv-foot-kakao" id="meAdvKakao" href="#" rel="noopener">해결이 안 되면 <u>카카오톡 문의</u></a>'
+    /* ★[ADV_ESC_ONLY 2026-08-03 사용자 지시] 여기 있던 상시 노출 '해결이 안 되면 카카오톡 문의'
+       링크를 삭제했다. 되살리지 말 것.
+       이유: 카톡 안내는 AI가 못 풀 때만 나가는 것이 설계 의도인데(2026-07-05 지시
+       "중간 버튼 없이 바로 showEscalation"), 이 링크가 첫 화면부터 상시로 떠 있어
+       "이 AI는 어차피 못 푼다"는 인상을 먼저 주고 카톡 직행을 유도하고 있었다.
+       메인홈(index.html)에는 애초에 이 링크가 없다 — 공용 위젯만 옛 방식이 남아 있었다.
+       인계 유실 없음: showEscalation()이 첫 줄에서 doHandoff()를 호출한다. */
     + '  </footer>'
     + '</section>';
   document.body.appendChild(wrap);
@@ -163,7 +174,7 @@
       panel = document.getElementById('meAdvPanel'), backdrop = document.getElementById('meAdvBackdrop'),
       closeBtn = document.getElementById('meAdvClose'), body = document.getElementById('meAdvBody'),
       form = document.getElementById('meAdvForm'), input = document.getElementById('meAdvInput'),
-      sendBtn = document.getElementById('meAdvSend'), kakaoA = document.getElementById('meAdvKakao');
+      sendBtn = document.getElementById('meAdvSend');   // [ADV_ESC_ONLY] kakaoA(상시 카톡 링크) 제거 — 위 footer 주석 참조
 
   var started = false, sending = false, escShown = false, handoffSent = false;
   var transcript = [];
@@ -191,12 +202,8 @@
     u = String(u || ESC.kakaoUrl || 'mailto:contact@momentedit.kr');
     return { href: u, mail: u.indexOf('mailto:') === 0 };
   }
-  function refreshKakaoLink() {
-    var k = kakaoInfo();
-    kakaoA.href = k.href;
-    kakaoA.innerHTML = k.mail ? '해결이 안 되면 <u>이메일 문의</u>' : '해결이 안 되면 <u>카카오톡 문의</u>';
-    if (k.mail) kakaoA.removeAttribute('target'); else kakaoA.setAttribute('target', '_blank');
-  }
+  /* ★[ADV_ESC_ONLY 2026-08-03] refreshKakaoLink() 삭제 — 상시 카톡 링크가 사라져 대상이 없다.
+     카톡/이메일 주소 결정은 kakaoInfo()가 계속 담당하며, showEscalation()이 그때 읽어 쓴다. */
 
   // ── 에스컬레이션: 답 못 푸는 경우 중간 버튼 없이 바로 카톡 상담 연결(showEscalation)을 띄운다(2026-07-05 사용자 지시) ──
   function doHandoff() {
@@ -400,7 +407,6 @@
     panel.classList.add('open'); stackEl.classList.add('hide');
     backdrop.classList.add('open');
     lockScroll();
-    refreshKakaoLink();
     try { if (typeof CFG.onOpen === 'function') CFG.onOpen(); } catch (e) {}   // 식순: 재생 중 오디오 정지 등
     if (started && typeof CFG.chips === 'function') renderChips();   // 스텝 맥락 칩 갱신(함수형일 때만 · 제자리 교체)
     if (!started) {
@@ -450,9 +456,7 @@
   });
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
-  refreshKakaoLink();
-  // 카톡으로 넘어갈 때도 디렉터에게 대화 인계(있을 때만) — 고객이 같은 말을 두 번 안 하게.
-  kakaoA.addEventListener('click', function () { refreshKakaoLink(); doHandoff(); });
+  // [ADV_ESC_ONLY] 상시 카톡 링크와 그 클릭 핸들러 제거. 인계는 showEscalation()이 첫 줄에서 doHandoff()로 처리한다.
 
   // ── 공유 FAB(옵션 · CFG.share.url) — 링크만 공유(모바일 네이티브 시트·PC 복사). 복사 시 아이콘이 1.6초 체크로 바뀜. ──
   var shareBtn = document.getElementById('meAdvShare');
