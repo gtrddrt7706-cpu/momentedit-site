@@ -2399,11 +2399,15 @@ function ensureInviteFab(d){
 function openInviteSamples(){
   var old=document.getElementById('mp_invSample'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_invSample'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','청첩장 샘플');
-  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(28,27,25,.55);display:flex;align-items:center;justify-content:center;padding:12px;opacity:0;transition:opacity .22s ease';   /* [SAMPLE_TALL] 18→12 */
+  /* [SAMPLE_TOPCUT 2026-08-04] 판이 화면 위로 벗어나 제목·닫기가 잘렸다(사용자 제보).
+     원인 둘: ①align-items:center 는 자식이 컨테이너보다 크면 **위쪽으로** 넘쳐 그 부분에 닿을 수 없다.
+     ②iOS 의 100vh 는 주소창이 보일 때의 실제 보이는 높이보다 크다 → calc(100vh - 24px) 가 화면을 넘긴다.
+     flex-start + margin:auto 는 넘칠 때 위를 자르지 않는 안전한 가운데 정렬이고, 높이는 dvh 로 잰다. */
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(28,27,25,.55);display:flex;align-items:flex-start;justify-content:center;padding:12px;opacity:0;transition:opacity .22s ease';   /* [SAMPLE_TALL] 18→12 */
   var box=document.createElement('div');
   /* [SAMPLE_TALL] 갤러리에 판 토글(온라인·오프라인)이 들어오면서 모달 안 미리보기가 짧아졌다
      (2026-08-02 사용자 지적). 모달 자체를 키우고 위아래 껍데기를 줄여 프레임에 몰아준다. */
-  box.style.cssText='width:100%;max-width:430px;height:calc(100vh - 24px);max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';
+  box.style.cssText='width:100%;max-width:430px;margin:auto;height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';   /* [SAMPLE_TOPCUT] dvh 미지원 브라우저는 위 vh 줄이 남는다 */
   var bar=document.createElement('div');
   bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:9px 12px 9px 16px;border-bottom:1px solid var(--border,#DDD8D1)';   /* [SAMPLE_TALL] 눈썹+제목 2줄 → 한 줄 */
   var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span><span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep,#7A5F37);margin-left:9px">Samples</span>';

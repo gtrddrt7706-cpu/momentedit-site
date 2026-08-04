@@ -186,6 +186,15 @@ const DRAW = `(SPEC) => {
        그대로 잡혀, 가운데 정렬된 짧은 글 둘레에 전폭 점선이 그려진다(2026-08-03 표지 '이름·날짜'에서 실측).
        텍스트 노드를 하나씩 걸어 각 줄 상자만 합친다. */
   const inkRect = (el) => {
+    /* ★세로쓰기(writing-mode: vertical-*)에서는 Range 의 클라이언트 사각형이 글자가 실제로
+       차지한 세로 범위보다 짧게 잡힌다 — 04 표지 '이서준'은 요소 200px 인데 잉크가 138px 로 나와
+       점선이 첫 글자와 끝 글자를 물고 지나갔다(2026-08-04 사용자 제보 · 위아래 31px 씩 모자람).
+       세로쓰기는 요소 상자를 그대로 믿는다. */
+    const wm = getComputedStyle(el).writingMode || '';
+    if (wm.indexOf('vertical') === 0 || wm.indexOf('tb') === 0) {
+      const b = el.getBoundingClientRect();
+      if (b.width > 1 && b.height > 1) return { left: b.left, top: b.top, right: b.right, bottom: b.bottom, width: b.width, height: b.height };
+    }
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
       acceptNode: (n) => (n.nodeValue && n.nodeValue.trim()) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
     });
@@ -366,6 +375,18 @@ async function run() {
             e.style.opacity = '1'; e.style.transform = 'none'; e.style.transition = 'none';
           });
           document.querySelectorAll('.cover-scroll').forEach(e => { e.style.display = 'none'; });
+          /* [PREV_NO_CHROME 2026-08-04] 청첩장이 아닌 화면 장치는 예시에서 지운다.
+             ?e=test-couple 로 열면 hydrate 가 '‹ 갤러리' 되돌아가기 알약을 얹는다(INV_BACK).
+             통짜 캡처는 fixed 요소를 뷰포트 자리에 그대로 찍으므로, 예시 이미지 한복판에
+             갤러리 버튼이 박혀 있었다(2026-08-04 사용자 제보 · 16장 전부).
+             ★고정/스티키로 떠 있는 것은 전부 화면 장치다 — 청첩장 본문은 흐름 안에 있다. */
+          document.querySelectorAll('body *').forEach(e => {
+            if (e.closest('.anx-layer')) return;
+            const cs = getComputedStyle(e);
+            if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
+            const r = e.getBoundingClientRect();
+            if (r.width > 4 && r.height > 4) e.style.display = 'none';
+          });
           /* 계좌는 접힌 아코디언(details.acc)이다 — 편집 대상(계좌번호)이 보여야 예시 구실을 한다.
              ★ open 속성만 켜면 안 된다: 한쪽만 열리는 배타 토글이 있으면 곧바로 다시 닫히고,
                그 뒤에 주석을 그리면 이미 어긋난 자리에 점선이 남는다(2026-08-03 신랑측이 닫힌 채 실측).
@@ -465,6 +486,12 @@ async function run() {
         document.querySelectorAll('.env-item').forEach(e => {
           e.classList.add('open');
           const q = e.querySelector('.env-q'); if (q) q.setAttribute('aria-expanded', 'true');
+        });
+        document.querySelectorAll('body *').forEach(e => {   // [PREV_NO_CHROME] 라이브의 스티키 브랜드 띠
+          const cs = getComputedStyle(e);
+          if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
+          const r = e.getBoundingClientRect();
+          if (r.width > 4 && r.height > 4) e.style.display = 'none';
         });
         document.querySelectorAll('.env-a').forEach(e => { e.style.maxHeight = 'none'; e.style.overflow = 'visible'; });
       });

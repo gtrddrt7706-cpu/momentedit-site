@@ -310,8 +310,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .save-err span{display:block;margin-top:5px;color:var(--gold-deeper)}
 .save-err span b{display:inline;color:inherit;font-size:inherit;margin:0}
 /* [BUSY_ONE] 저장 중 표시는 사이트 공통 '숨쉬는 점' 하나 — 도는 링을 새로 만들지 말 것 */
-.bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.5s ease-in-out infinite}
-@keyframes meBreath{0%,100%{opacity:.35;transform:scale(.82)}50%{opacity:1;transform:scale(1)}}
+.bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+/* [BUSY_ONE] 숨쉬는 리듬은 사이트 한 벌 — 마이페이지 .spinner·관리자와 같은 1.7s / 0.25→0.9.
+   1.5s / .35→1 로 달라져 있어 같은 흐름 안에서 두 박자가 보였다(2026-08-04 사용자 지적). */
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 /* [ORD_DONEACTS] (구).special 회색 판 규칙 삭제 — 그 버튼이 마무리 버튼 줄(.done-acts)로 옮겨가 아무것도 안 고르는 규칙이 됐다 */
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}

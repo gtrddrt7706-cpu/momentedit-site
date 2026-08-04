@@ -247,8 +247,10 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .btn:hover:not(:disabled) .ar{transform:translateX(4px)}
 .btn:disabled{opacity:0.32;cursor:not-allowed}
 .btn.loading{opacity:0.8;cursor:wait}
-.btn.loading .ar{animation:spin 0.9s linear infinite;transform-origin:center}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* [BUSY_ONE] 도는 화살표 → 사이트 공통 '숨쉬는 점'. 회전은 이 지면의 언어가 아니고,
+   마이페이지·식순·관리자가 전부 같은 점을 쓰는데 상담 일정만 돌고 있었다(2026-08-04 전수조사). */
+.btn.loading .ar{animation:meBreath 1.7s ease-in-out infinite;transform-origin:center}
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 .confirm-note{font-size:11px;color:var(--light);line-height:1.7;margin-top:16px;
   letter-spacing:0.02em;font-family:var(--serif-ko);font-weight:300}
 .confirm-note b{color:var(--accent);font-weight:500;font-size:12px}

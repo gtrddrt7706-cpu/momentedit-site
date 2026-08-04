@@ -1301,3 +1301,22 @@ chk 'selectClips' scripts/repatch-clip.mjs 2
 nochk 'man.clips.filter((c) => c.part === P.file)' scripts/assemble-narration.mjs
 nochk 'writeFileSync(MAN' scripts/repatch-clip.mjs
 nochk '\-\-clip' scripts/build-typecast-import.mjs
+# ── 대기 표시 한 벌 · 예시에서 화면 장치 제거 · 샘플 모달 (2026-08-04) ──
+nochk 'keyframes spin' mypage.html                       # 회전 스피너를 되살리지 말 것 — 사이트 대기 표시는 '숨쉬는 점' 하나다
+nochk 'keyframes spin' order-preview.html
+nochk 'keyframes spin' admin.html
+nochk 'keyframes spin' schedule.html
+nochk 'keyframes spin' inquiry.html
+nochk 'keyframes spin' automation/consultation/ScreenA_apply.html
+nochk 'keyframes spin' automation/consultation/ScreenB_schedule.html
+nochk 'keyframes spin' automation/admin/Admin.html
+chk 'meBreath 1.7s' mypage.html 1                        # 리듬은 1.7s 한 벌 · 1.5s 로 갈리면 같은 흐름에서 두 박자가 보인다(실측 지적)
+chk 'meBreath 1.7s' order-preview.html 1
+chk 'meBreath 1.7s' admin.html 1
+chk 'meBreath 1.7s' automation/consultation/ScreenA_apply.html 1
+chk 'meBreath 1.7s' automation/consultation/ScreenB_schedule.html 1
+chk 'meBreath 1.7s' automation/admin/Admin.html 1
+chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
+chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
+chk 'SAMPLE_TOPCUT' mypage.html 2                        # 샘플 모달 flex-start+margin:auto+dvh · center+100vh 로 되돌리면 제목·닫기가 화면 위로 잘린다
+chk 'align-items:flex-start' mypage.html 1
