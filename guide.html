@@ -169,6 +169,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 .foot{text-align:center;padding:20px 0 4px}
 .foot .wm{font-family:var(--serif);font-size:14px;letter-spacing:.03em;color:var(--accent)}
 .foot .tag{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--faint);margin-top:5px}
+/* [BUSY_ONE] 대기 표시는 사이트 한 벌 — 마이페이지·식순과 같은 '숨쉬는 점'(1.7s / 0.25→0.9).
+   이 페이지들은 글자만 있어 같은 흐름 안에서 어떤 화면엔 점이 있고 어떤 화면엔 없었다(2026-08-04 전수조사). */
+.bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal,#6B2A24);margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 .state{text-align:center;padding:54px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
 /* [STATE_EXIT] 막다른 화면의 출구 — 이 카드는 좌우 여백만 있어(padding:0 18px) 아래쪽은 0으로 맞춘다 */
@@ -301,7 +305,7 @@ body{
 <div class="wrap">
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
-  <main id="root"><div class="card"><div class="state" role="status">안내를 불러오는 중이에요…</div></div></main>
+  <main id="root"><div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div></main>
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -421,7 +425,7 @@ function seatFindHtml(full){
   //   2026-07-18 사용자 지시 — 전체 공개에 검색을 두면 부분 검색 노출과 겹쳐 모드 정체성이 흐려짐. ★검색창·'전체 좌석 배치도 보기' 링크 복원 금지
   if(full){
     return '<div class="sec"><div class="sec-h"><h2 class="sec-t">좌석 배치도</h2><span class="sec-n">Seating</span></div>'
-      +'<div class="mtb-wrap" id="seatMap"><div class="state" style="padding:20px">좌석 안내를 불러오는 중이에요…</div></div>'
+      +'<div class="mtb-wrap" id="seatMap"><div class="state" style="padding:20px"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div></div>'
       +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
   }
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">내 자리 찾기</h2><span class="sec-n">Your Table</span></div>'
@@ -451,7 +455,7 @@ function findSeat(v){
   if(SEAT_STATE==='mine') return;   // 서버 검색 모드로 강등된 상태 — 결과 표시는 bindSeatServer가 전담(로컬 실패 문구로 덮지 않게)
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
   if(!v){ fr.innerHTML=''; renderFullMap(); return; }
-  if(SEAT_STATE==='loading'){ fr.textContent='좌석 안내를 불러오는 중이에요…'; return; }
+  if(SEAT_STATE==='loading'){ fr.innerHTML='<span class="bdot"></span>좌석 안내를 불러오는 중이에요…';   /* [BUSY_ONE] */ return; }
   if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'; return; }
   var lc=normName(v), tables=SEAT.tables||[], num=seatRowNum(tables), hits=[];
   if(!lc){ fr.innerHTML=''; return; }
@@ -766,7 +770,7 @@ function renderDemo(){
         $('root').innerHTML=failHtml();
         var b=$('retryBtn');
         if(b) b.addEventListener('click', function(){
-          $('root').innerHTML=stateHtml('안내를 불러오는 중이에요…'); load(0);
+          $('root').innerHTML=stateHtml('<span class="bdot"></span>안내를 불러오는 중이에요…'); load(0);
         });
       });
   }

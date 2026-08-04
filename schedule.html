@@ -297,6 +297,8 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .btn:disabled{opacity:0.32;cursor:not-allowed}
 .btn.loading{opacity:0.8;cursor:wait}
 .btn.loading .ar{opacity:0}.btn.loading span::after{content:'';animation:meDots 1.6s infinite}@keyframes meDots{0%,100%{content:''}25%{content:' ·'}50%{content:' · ·'}75%{content:' · · ·'}}
+.bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 /* [BUSY_ONE] 회전 스피너 정의 삭제 — 쓰는 곳이 없었고, 되살리면 사이트 대기 표시가 두 언어가 된다 */
 .confirm-note{font-size:11px;color:var(--light);line-height:1.7;margin-top:16px;
   letter-spacing:0.02em;font-family:var(--serif-ko);font-weight:300}
@@ -1209,7 +1211,7 @@ if(_hdw){
       if(busy) return;
       var q=(inp.value||'').trim(); if(!q) return;
       inp.value=''; bub(q,'me'); hist.push({role:'user',content:q});
-      busy=true; btn.disabled=true; btn.textContent='확인 중';
+      busy=true; btn.disabled=true; btn.innerHTML='<span class="bdot"></span>확인 중';   /* [BUSY_ONE] 사이트 공통 숨쉬는 점 */
       _loadWT();   // 점유 맵 미로드 시 로드 시작(아래 fetch와 병행, 없으면 빈 맵으로도 동작)
       var typing=bub('일정을 확인하고 있어요…','bot');
       fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},

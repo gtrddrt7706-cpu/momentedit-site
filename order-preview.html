@@ -843,7 +843,7 @@ window.momPlay=function(b,k,pick,ovV){
   // ★탭한 그 순간에 소리를 시작할 수 있으면 그렇게 한다(엔진은 화면이 뜰 때 미리 싣는다).
   //   비동기로 미루면 iOS 가 '사용자가 누른 재생'으로 안 쳐 준다.
   if(ENG){ _start(b,_pick(_srcs(ENG,k,ovV),pick),me); return; }
-  b.innerHTML='불러오는 중…';
+  b.innerHTML='<span class="bdot"></span>불러오는 중…';   /* [BUSY_ONE] 소리 준비도 같은 표시로 */
   momSrcs(k,ovV).then(function(list){ if(AUDBTN===b&&AUDTOK===me) _start(b,_pick(list,pick),me); });
 };
 window.listenAll=function(b){ momPlay(b,null); };   // 전 순서 이어듣기 — 고른 코스·옵션 그대로

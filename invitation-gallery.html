@@ -735,7 +735,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
           var cs = doc.defaultView.getComputedStyle(e);
           if (cs.display === 'none' || cs.visibility === 'hidden') return false;
           var r = e.getBoundingClientRect();
-          return r.height > 0 && r.top > _vh0 * 0.6 && r.top < _vh0;
+          /* [GV_CUE_DUP 2026-08-04] 위치 비율(0.6vh) 조건 삭제 — 청첩장 큐 자리를 손보자마자
+             이 조건을 벗어나 '커버 큐 + 갤러리 알약' 두 개가 한 화면에 떴다(04 실측).
+             자리는 청첩장이 정한다. 여기서는 **보이느냐**만 본다. */
+          return r.height > 0 && r.top < _vh0 * 1.2;
         });
       } catch (e) {}
       if (_native) return;

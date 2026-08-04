@@ -1357,7 +1357,12 @@ chk 'CUE_POS' i/cover-01.html 2
 chk 'CUE_POS' i/cover-08.html 2
 chk 'CUE_POS' i-family/family-01.html 2
 chk 'CUE_POS' i-family/family-08.html 2
-chk 'max-height:700px' i/cover-04.html 1                  # 이 줄이 빠지면 갤러리 iframe(646px)에서 큐가 본문 글자를 문다
-chk 'max-height:700px' i-family/family-04.html 1
-nochk 'cue-bottom:48px}' i/cover-01.html                  # 옛 값으로 되돌리면 큐가 다시 대역 아래로 몰린다
-nochk 'cue-bottom:134px}' i/cover-07.html
+# ★2026-08-04 사용자 결정으로 방침이 바뀌었다: 판마다 자리를 피해 다니지 않고 **전부 같은 자리**.
+#   글자에 겹쳐도 스크롤하면 곧 사라진다(.hidden). 그래서 높이별 감추기(max-height:700px)는 폐지.
+chk 'cue-bottom:80px' i/cover-01.html 1                   # 16장 공통값 · 판별로 다른 값을 넣지 말 것
+chk 'cue-bottom:80px' i/cover-08.html 1
+chk 'cue-bottom:80px' i-family/family-08.html 1
+chk 'position:fixed !important' i/cover-08.html 1          # 커버 기준(absolute)이면 판마다 화면 자리가 어긋난다(08 이 84px 떴다)
+chk 'appendChild(_cueEl)\|appendChild(scrollEl)' i/cover-08.html 1   # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
+nochk 'max-height:700px' i/cover-04.html                  # 높이별 감추기 폐지 — 되살리면 어떤 화면에선 있고 어떤 화면에선 없다
+nochk 'var(--safe-bottom,0px));' i/cover-08.html          # --safe-bottom 은 판마다 값이 달라 같은 80px 이어도 자리가 어긋난다

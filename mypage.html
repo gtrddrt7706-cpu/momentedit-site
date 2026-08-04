@@ -2417,7 +2417,11 @@ function openInviteSamples(){
   var fr=document.createElement('iframe'); fr.src='/invitation-gallery.html'; fr.title='청첩장 샘플';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;background:#2f2820';
   var foot=document.createElement('div');
-  foot.style.cssText='flex:0 0 auto;padding:7px 16px calc(7px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border,#DDD8D1);text-align:center';   /* [SAMPLE_TALL] */
+  /* [SAMPLE_FOOT 2026-08-04] 안내 문구 밑 흰 띠를 줄인다(사용자 지시 '아래쪽을 위로').
+     아이폰에서 env(safe-area-inset-bottom)=34px 이 그대로 더해져 글자 밑에 41px 이 남았다.
+     판 자체가 이미 화면 아래에서 12px 떠 있고(오버레이 padding) 이 줄은 눌러도 되는 게 아닌
+     안내 한 줄이라, 안전영역을 절반만 반영해도 홈 인디케이터와 겹치지 않는다 → 41px → 21px. */
+  foot.style.cssText='flex:0 0 auto;padding:6px 16px calc(5px + env(safe-area-inset-bottom,0px)/2);border-top:1px solid var(--border,#DDD8D1);text-align:center';   /* [SAMPLE_TALL] */
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고해 보세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);

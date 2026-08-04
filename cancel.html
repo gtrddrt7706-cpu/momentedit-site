@@ -35,6 +35,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:34px 26px;box-shadow:0 1px 3px rgba(28,27,25,.05)}
   .eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
   .title{font-family:var(--serif-ko);font-size:19px;font-weight:500;color:var(--accent);line-height:1.5;margin-bottom:10px}
+  /* [BUSY_ONE] 대기 표시는 사이트 한 벌 — 마이페이지·식순과 같은 '숨쉬는 점'(1.7s / 0.25→0.9).
+     이 페이지들은 글자만 있어 같은 흐름 안에서 어떤 화면엔 점이 있고 어떤 화면엔 없었다(2026-08-04 전수조사). */
+  .bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal,#6B2A24);margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+  @keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
   .desc{font-family:var(--serif-ko);font-size:13.5px;color:var(--sub);line-height:1.85}
   .info{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:18px 0;font-family:var(--serif-ko);font-size:15px;color:var(--accent)}
   .info b{font-weight:600}
@@ -65,7 +69,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   <div class="brand">MOMENT<span class="dot"></span>EDIT</div>
   <div class="brand-sub">Private Wedding Studio</div>
   <h1 class="sr-only">예약 취소</h1><!-- [CAN_STRUCT] 화면 제목은 상태마다 바뀌므로 고정 제목은 보이지 않게 한 번만 -->
-  <div class="card" id="card" aria-live="polite"><div class="desc">불러오는 중…</div></div>
+  <div class="card" id="card" aria-live="polite"><div class="desc"><span class="bdot"></span>불러오는 중…</div></div>
 </main>
 <script>
 var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -115,7 +119,7 @@ else {
     document.getElementById('keep').addEventListener('click', function(){ location.href='/mypage.html'; });
     document.getElementById('go').addEventListener('click', function(){
       var acct=(document.getElementById('acct').value||'').trim();
-      var b=document.getElementById('go'); b.disabled=true; b.textContent='처리 중…';
+      var b=document.getElementById('go'); b.disabled=true; b.innerHTML='<span class="bdot"></span>처리 중…';   /* [BUSY_ONE] textContent 면 태그가 글자로 찍힌다 */
       api({action:'emailCancel', token:TOKEN, sig:SIG, acct:acct}).then(function(r){
         if(r&&r.ok){ showMsg('Done','예약이 취소되었어요','입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); }
         else { b.disabled=false; b.textContent='예약 취소하기'; showMsg('안내','취소를 완료하지 못했어요', esc((r&&r.error)||'잠시 후 다시 시도해 주세요.')); }

@@ -1451,7 +1451,9 @@ details.env-acc-item[open] > summary.env-acc-q{
      그 규칙에 걸리면 큐가 그리드 행을 하나 더 만들어(실측 4번째 행 62px) 가운데 트랙을 그만큼 밀어내고,
      [COVER_BAL]로 맞춰 둔 균형이 07만 -10 → -41로 어긋난다. 흐름 밖에 있어야 하는 요소라 여기서 못을 박는다. */
   position:absolute !important;
-  bottom:calc(var(--cue-bottom,48px) + var(--safe-bottom,0px));
+  /* [CUE_POS] --safe-bottom 은 판마다 값이 다르다(08 은 22px) — 같은 80px 이어도 자리가 어긋난다.
+     화면 하단 안전영역만 더한다. 이 줄을 --safe-bottom 으로 되돌리지 말 것. */
+  bottom:calc(var(--cue-bottom,80px) + env(safe-area-inset-bottom,0px));
   left:50%;
   transform:translateX(-50%);
   display:flex;
@@ -1497,20 +1499,14 @@ details.env-acc-item[open] > summary.env-acc-q{
   .cover-scroll-line{animation:none;opacity:0.75}
 }
 
-/* [CUE_POS] 낮은 화면(갤러리 iframe·가로모드·작은 폰) 대응 — 커버가 짧아지면 위 글자가 큐 쪽으로 내려와
-   여유가 0px 까지 좁아졌다(700px 에서 07, 640px 에서 05·08 실측 충돌).
-   큐는 아래에 붙어 있으므로 **선을 줄이면 큐의 윗변이 내려가** 위 글자와의 사이가 벌어진다.
-   높이만 보고 줄인다 — 폭 기준으로는 이 문제를 못 잡는다. */
-@media (max-height:790px){ .cover-scroll-line{height:28px} .cover-scroll{gap:9px} }
-/* 700px 아래로는 커버 자체가 이미 빡빡해 큐를 넣을 자리가 없다 — 선을 줄여도 여유가 0px 까지 좁아진다(실측).
-   글자를 물고 있는 큐보다 없는 큐가 낫다. 갤러리 안이라면 갤러리가 자기 알약을 대신 얹는다
-   (invitation-gallery.html [GV_CUE_DUP] — 네이티브 큐가 0x0 이면 '없음'으로 보고 주입한다). */
-@media (max-height:700px){ .cover-scroll{display:none} }
 @media print{.cover-scroll{display:none}}
-/* [CUE_POS 2026-08-04] 큐가 빈 대역의 아래쪽에 몰려 있었다 — 위 여유 57~188px 로 3.3배 벌어져
-     디자인마다 '애매한 자리'로 읽혔다(사용자 지적, 08 기준). 8종 모두 **대역 한가운데**로 맞춘다.
-     대역 = 큐 위 마지막 글자 바닥 ~ 큐 아래 첫 글자 윗선(없으면 커버 아래끝). 390x844 실측값. */
-.cover-scroll{--cue-bottom:119px}   /* [CUE_ONE] 이 판의 하단 활자(푸터·서명줄)를 비켜 앉는 높이 — 실측값 */
+/* [CUE_POS 2026-08-04] 스크롤 표시는 16장이 **완전히 같다** — 모양도, 화면에서의 자리도.
+     ★사용자 결정: 글자와 겹쳐도 된다. 스크롤하면 곧 사라진다(.hidden). 판마다 피해 다니지 말 것.
+     ★커버를 기준으로 재면(absolute) 판마다 커버 높이·padding 이 달라 화면 위치가 어긋난다
+       — 08 은 min-height:800px + padding-bottom:40px 라 나머지(100vh)보다 84px 높이 떴다(실측).
+       그래서 화면(fixed)을 기준으로 못박는다. 어느 판이든, 어느 화면 높이든 같은 자리다.
+     값을 판별로 다르게 두지 말 것. 되돌리면 '어떤 판은 붙고 어떤 판은 떠 있다'로 다시 읽힌다. */
+.cover-scroll{--cue-bottom:80px;position:fixed !important}   /* [CUE_ONE] 8종 16장 공통값 — 판별로 바꾸지 말 것 */
 </style>
 </head>
 
@@ -1920,7 +1916,9 @@ details.env-acc-item[open] > summary.env-acc-q{
   window.addEventListener('scroll', () => {
     if (!scrollFaded && window.scrollY > 80) {
       scrollFaded = true;
+      /* [CUE_POS 2026-08-04] 큐를 body 로 — transform 이 걸린 조상이 있으면 fixed 가 화면 기준을 잃는다(08 실측 84px) */
       const scrollEl = document.querySelector('.cover-scroll');
+      try { if (scrollEl && scrollEl.parentElement !== document.body) document.body.appendChild(scrollEl); } catch (e) {}
       if (scrollEl) scrollEl.classList.add('hidden');
     }
   }, { passive: true });

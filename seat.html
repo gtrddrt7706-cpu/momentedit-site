@@ -66,6 +66,10 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
 .tbl-empty{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);font-size:10px;color:var(--light)}
 .foot{text-align:center;font-size:11px;color:var(--light);margin-top:16px;line-height:1.6}
+/* [BUSY_ONE] 대기 표시는 사이트 한 벌 — 마이페이지·식순과 같은 '숨쉬는 점'(1.7s / 0.25→0.9).
+   이 페이지들은 글자만 있어 같은 흐름 안에서 어떤 화면엔 점이 있고 어떤 화면엔 없었다(2026-08-04 전수조사). */
+.bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal,#6B2A24);margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+@keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 .state{text-align:center;padding:50px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
 /* [STATE_EXIT] 막다른 화면의 출구 — 카드 안쪽 여백(22px 18px 20px)을 가로질러 구분선을 긋는다 */
@@ -164,7 +168,7 @@ body{
 <div class="wrap">
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
-  <main id="root"><div class="state" role="status">좌석 안내를 불러오는 중이에요…</div></main>
+  <main id="root"><div class="state" role="status"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div></main>
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -425,7 +429,7 @@ function seatFailHtml(){
         $('root').innerHTML=seatFailHtml();
         var b=$('retryBtn');
         if(b) b.addEventListener('click', function(){
-          $('root').innerHTML=stateHtml('좌석 안내를 불러오는 중이에요…'); load(0);
+          $('root').innerHTML=stateHtml('<span class="bdot"></span>좌석 안내를 불러오는 중이에요…'); load(0);
         });
       });
   }
