@@ -272,7 +272,7 @@ const EOF_TOL = 0.10;
 //   (지우지 않고 상한까지만 줄인다. 쉼을 없애면 문장이 서로 달라붙는다.)
 const SENT_CAP = Math.max(0.20, Number(man.gap?.sent) || 0.45);
 
-// ★★★[GAP_NET 2026-08-04] 문장 사이 여백에서 **남이 넣어 둔 여백**을 뺀다.
+// ★★★[GAP_NET 2026-08-04 · 같은 날 기본 꺼짐으로 되돌림] 문장 사이 여백에서 **남이 넣어 둔 여백**을 뺀다.
 //   왜 — 2026-08-04 사용자 판정: *"편지 여백이 자연스러우니깐 참조해서 진행"*. 편지가 기준자가 됐다.
 //   그래서 편지와 나레이션을 같은 자로 실측했더니(scripts/audit/gap-profile.mjs) 딱 한 자리가 어긋났다.
 //
@@ -289,9 +289,26 @@ const SENT_CAP = Math.max(0.20, Number(man.gap?.sent) || 0.45);
 //     판별 기준을 SENT_CAP으로 두는 이유도 같다. 문장 사이의 상한과 문장 사이의 판별이 같은 자여야
 //     gap.sent를 바꾸는 날 둘이 같이 움직인다.
 //   ★클립 앞(head)·뒤(tail)도 대상이 아니다. 편지의 앞 0.23 · 뒤 0.49가 이미 이 값들에서 나왔다.
+//
+// ★★★그런데 사용자 실청 판정이 뒤집었다 (2026-08-04 · 같은 날):
+//     "너무 여백이없는데"
+//   측정은 맞았는데 결론이 틀렸다. **편지가 자연스러웠다는 판정은 「문장 사이가 0.45」라는 뜻이 아니었다.**
+//   편지는 한 사람이 이어서 읽는 낭독이라 문장이 붙어도 흐름이 끊기지 않는다. 나레이션은 사회자가
+//   하객에게 주는 **독립된 지시**라 문장마다 받아들일 틈이 필요하다. 소리의 성격이 다르면 같은 초가
+//   다른 길이로 들린다.
+//   ★기준자를 옮겨 적을 때는 **어느 자리를 기준으로 삼았는지**까지 물어야 한다.
+//     편지에서 귀에 띄는 여백은 문장 사이(0.45)가 아니라 문단 경계(0.79~1.10)였다.
+//   그래서 GAP_NET은 **기본 꺼짐**으로 둔다. 발견 자체(같은 이름의 여백이 소스 형태에 따라
+//   두 값으로 들린다)는 사실이므로 지우지 않고 남기되, 켜는 것은 --gap-net 을 준 사람의 결정이다.
+//
+// --gap-add <초> : 문장 사이에 더한다(문단·큰 전환은 제외). 사용자 실청으로 값을 고르기 위한 손잡이.
+const GAP_NET_ON = process.argv.includes('--gap-net');
+const GAP_ADD = Number(arg('--gap-add', '0')) || 0;
 const GAP_NET = (sec) => {
   const v = +Number(sec).toFixed(3);
-  return v <= SENT_CAP + 0.02 ? +Math.max(0, v - EDGE_KEEP * 2).toFixed(3) : v;
+  if (v > SENT_CAP + 0.02) return v;                       // 문단 0.70 · 큰 전환 1.00은 손대지 않는다
+  const net = GAP_NET_ON ? Math.max(0, v - EDGE_KEEP * 2) : v;
+  return +(net + GAP_ADD).toFixed(3);
 };
 const trimStat = { n: 0, sec: 0, inner: 0, net: 0 };
 
@@ -411,8 +428,10 @@ fs.rmSync(TMPZ, { recursive: true, force: true });
 console.log(`\n✓ ${made}클립 → ${[...outDirs].map((d) => path.relative(root, d) + '/').join(' · ')}`);
 if (trimStat.n) console.log(`  원본 무음 정리 ${trimStat.sec.toFixed(1)}초 (${trimStat.n}개 · 평균 ${(trimStat.sec / trimStat.n).toFixed(2)}초)`
   + ` — 가장자리 ${(trimStat.sec - trimStat.inner).toFixed(1)}초 TRIM_VENDOR_EDGE · 안쪽 ${trimStat.inner.toFixed(1)}초 SENT_CAP(${SENT_CAP}초 상한)`);
-if (trimStat.net > 0.05) console.log(`  문장 사이 여백 상계 ${trimStat.net.toFixed(1)}초 GAP_NET`
-  + ` — 원본 가장자리로 남긴 ${EDGE_KEEP}초씩을 빼고 넣어 실제 쉼을 ${SENT_CAP}초에 맞춥니다(기준자: 혼주 편지).`);
+if (Math.abs(trimStat.net) > 0.05) console.log(`  문장 사이 여백 조정 ${(-trimStat.net).toFixed(1)}초`
+  + `${GAP_NET_ON ? ' · GAP_NET 켜짐(양옆 wav가 가진 ' + EDGE_KEEP + '초씩 차감)' : ''}`
+  + `${GAP_ADD ? ' · --gap-add ' + GAP_ADD + '초' : ''}`
+  + ` — 귀에 들리는 문장 사이 ≈ ${(SENT_CAP + EDGE_KEEP * 2 + GAP_ADD - (GAP_NET_ON ? EDGE_KEEP * 2 : 0)).toFixed(2)}초`);
 if ([...outDirs].some((d) => /cast$/.test(d)))
   console.log(`  ★assets/audio/cast/ 는 미리듣기 전용입니다. 당일 콘솔은 이 클립을 재생하지 않습니다.`);
 console.log(`  마지막으로 식장 스피커로 실청하세요. 헤드폰에서 괜찮아도 홀 울림에서 BGM에 묻힐 수 있습니다.`);
