@@ -666,6 +666,13 @@ var COURSES={
     addable:'축배·케이크가 이 코스의 시그니처예요.'}
 };
 
+// ★[VOW_CHORUS 2026-08-04] 서약의 마지막 한 문장은 두 분이 함께 읽는다.
+//   원천은 assets/ritual-data.js 의 VOWBOTH 다. 이 빌더는 엔진을 동기로 읽지 않으므로(engine()이 비동기)
+//   다른 문안들과 같은 방식으로 인라인 사본을 둔다 — 대신 check-ritual-mirror.js 가 원천과 전수 대조한다.
+//   ★여기 글자를 고치면 대본·소리(26_vow-both)도 같이 틀어진다. 반드시 원천부터 고칠 것.
+var VOWBOTH=["저희, 그렇게 살겠습니다.","지켜봐 주세요."];
+var VOWBOTH_T=VOWBOTH.join(' ');
+
 var EXVOW=[
  ["담백","나는 오늘부터 당신의 가장 가까운 친구이자, 가장 든든한 편이 될게요. 좋은 날엔 함께 웃고, 힘든 날엔 먼저 손 내밀겠습니다."],
  ["담백","화려한 약속보다, 매일의 작은 다정함을 지킬게요. 당신이 나를 선택한 오늘을, 평생 잊지 않겠습니다."],
@@ -860,7 +867,7 @@ var STEPDEF={
  guest:{k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  entry:{k:'entry',title:'입장, 어떻게 열까요?',sub:'여섯 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
  welcome:{k:'welcome',title:'두 분의 첫인사, 이렇게 진행돼요',sub:''},
- vow:{k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 직접 읽는 순간이에요. 나레이션이 그 앞을 열어 드려요.'},
+ vow:{k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 한 줄씩 번갈아 읽고, 마지막 한 문장만 함께 읽는 순간이에요. 나레이션이 그 앞을 열어 드려요.'},
  ringwarm:{k:'ringwarm',title:'링 워밍(반지 축복 나누기), 어디까지 돌릴까요?',sub:''},
  ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:''},
  declare:{k:'declare',title:'성혼 선언, 누가 낭독할까요?',sub:''},
@@ -1578,6 +1585,9 @@ function renderStep(k){
   else if(k==='vow'){
     h+=clip('vow');
     h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
+    // ★[VOW_CHORUS] 말로만 "마지막은 함께"라고 하면 고객이 뭘 준비해야 할지 모른다 — 문장을 그대로 보여 준다.
+    //   화면이 소리를 설명하지 못하면, 폴백이 조용했던 때와 같은 사고다.
+    h+='<div class="self"><span class="who">마지막 한 문장만 두 분이 함께</span>'+esc(VOWBOTH_T)+'</div>';
     // ★FALLBACK_LADDER — 런북 §3의 1~3순위를 문장 하나에 담는다(기다림 · 배우자 이어읽기 · 디렉터 대독).
     //   4순위 '성우 대리 낭독'은 화면에 올리지 않는다 — 두 분이 쓴 실제 서약문을 미리 녹음해 두는 방식이라
     //   '당일까지 비밀'과 양립할 수 없고, 배타 처리로 남겨 두느니 제공하지 않는 편이 지킬 수 있는 약속이다(§11-B).
@@ -1684,6 +1694,7 @@ function writeCard(kind, showStatus){
     return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">서로에게 쓴 약속 · 당일까지 비밀로 둬도 돼요.</div><textarea class="ta" maxlength="4000" aria-label="서로에게 하는 약속(서약문)" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'한 사람 기준 1분 안팎(약 300자)이 가장 잘 전달돼요.</div>'
       +'<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>'
+      +'<div class="prep-hint">서로 한 줄씩 번갈아 읽고, 마지막 한 문장만 함께 읽어요 — "'+esc(VOWBOTH_T)+'" · 이 문장은 저희가 준비해 둬요.</div>'
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
   if(kind==='letter'){
@@ -1811,7 +1822,7 @@ var BLOCK={
     return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
   },
   vow:function(){
-    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 직접 서약 낭독',end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 → 낭독 끝나고 2초 두었다가 다음 안내'};
+    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',both:VOWBOTH_T,end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장은 두 분이 함께 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
   },
   ringwarm:function(){
     return {n:'링 워밍',nar:RINGWARM[S.ringwarm].nar,self:(S.ringwarm==='all'?'하객 전체':'양가 가족')+'가 주머니를 손에서 손으로',cue:'나레이션 안내 → 반지 주머니가 손에서 손으로 → 마지막 분이 디렉터에게 → 디렉터가 반지를 꺼내 단상 옆 트레이에 준비 → 반지 교환 나레이션과 함께 두 분께 전달 · 반지가 도는 동안은 하객 손·표정 클로즈업 구간(두 분은 반지를 따라가는 시선으로 · 정면 대기 금지)'};
@@ -1911,6 +1922,8 @@ function scriptText(){
     lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end);
     if(b.self) lines.push('직접: '+b.self);
     if(b.n.indexOf('서약')>-1) lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · D-7까지 적으면 여기 담겨요)');
+    // ★[VOW_CHORUS] 대본에서도 읽는 순서 그대로 — 각자 서약문 다음이 함께 읽는 한 문장이다.
+    if(b.both) lines.push('함께: '+b.both);
     if(b.n.indexOf('편지')>-1) lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
     if(b.n.indexOf('첫인사')>-1 && S.welcomeText) lines.push('인사말(두 분 작성):\n'+S.welcomeText);
     if(b.cue) lines.push('큐: '+b.cue);
@@ -2131,6 +2144,8 @@ function renderRehearse(){
     if(b.nar) h+='<div class="nar" style="margin-top:9px"><span class="lb">이 나레이션이 흐르고</span>'+esc(b.nar)+'</div>';
     var _my=(b.n.indexOf('서약')>-1&&S.vowText)?S.vowText:(b.n.indexOf('편지')>-1&&S.letterText)?S.letterText:(b.n.indexOf('첫인사')>-1&&S.welcomeText)?S.welcomeText:'';
     if(_my) h+='<div class="self"><span class="who">내가 준비한 말</span>'+esc(_my)+'</div>';
+    // ★[VOW_CHORUS] 연습할 때도 보여야 한다 — 이 문장은 두 분이 소리를 맞춰야 하는 유일한 자리다.
+    if(b.both) h+='<div class="self"><span class="who">마지막 한 문장 · 두 분이 함께</span>'+esc(b.both)+'</div>';
     h+='<div class="rh-cue"><b>큐</b> · '+esc(b.cue)+'</div>';
     if(b.end) h+='<div class="prep-hint">이어서 나레이션이 마무리해요 · "'+esc(b.end)+'"</div>';
     h+='<button class="play" style="margin-top:9px" onclick="momPlay(this,\''+b.k+'\')">'+'들어보기'+'</button>';

@@ -183,7 +183,22 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
   // ②죽은 키·죽은 클립 — 자산이 아니라 함정이다(2-b·2-c와 같은 기준)
   for (const k of Object.keys(ST.CAST_AT)) if (!hitKey.has(k)) bad(`CAST_AT '${k}' — 어떤 조합에서도 안 걸리는 죽은 키`);
   for (const arr of Object.values(ST.CAST_AT)) for (const id of arr) if (!ST.CAST[id]) bad(`CAST_AT 가 없는 클립 '${id}' 을 가리킨다`);
-  for (const id of Object.keys(ST.CAST)) if (!hitId.has(id)) bad(`CAST '${id}' — 어떤 조합에서도 재생되지 않는다`);
+  // ★[VOW_CHORUS] 재료 클립(mixFor)은 그 자체로 재생되지 않는 게 정상이다 — 대신 목적지를 검사한다.
+  //   그냥 예외로 빼 두면 목적지가 사라지는 날 재료만 조용히 남는다. "재료다"라고 적은 값을 그대로 쫓는다.
+  for (const id of Object.keys(ST.CAST)) {
+    const mf = ST.CAST[id].mixFor;
+    if (mf) {
+      if (!ST.CAST[mf]) bad(`CAST '${id}' 의 재료 목적지 '${mf}' 가 표에 없다`);
+      else if (!(ST.CAST[mf].mix || []).includes(id)) bad(`CAST '${id}' 는 '${mf}' 의 재료라는데, '${mf}'.mix 에 '${id}' 가 없다(짝이 한쪽만 안다)`);
+      else if (!hitId.has(mf)) bad(`CAST '${id}' 의 재료 목적지 '${mf}' 가 어떤 조합에서도 재생되지 않는다`);
+      continue;
+    }
+    if (!hitId.has(id)) bad(`CAST '${id}' — 어떤 조합에서도 재생되지 않는다`);
+  }
+  for (const [id, c] of Object.entries(ST.CAST)) for (const src of (c.mix || [])) {
+    if (!ST.CAST[src]) bad(`CAST '${id}'.mix 가 없는 클립 '${src}' 을 재료로 쓴다`);
+    else if (ST.CAST[src].mixFor !== id) bad(`CAST '${id}'.mix 의 '${src}' 가 자기 목적지를 '${ST.CAST[src].mixFor || '(없음)'}' 로 안다`);
+  }
 
   // ③두 분 목소리를 골랐는데 그 자리에 예시가 없다 — 고객이 기대한 것과 화면이 어긋난다
   for (const [k, name] of ownDead) bad(`own 자리 '${name}'(${k}) — 두 분 목소리를 골랐는데 배역 예시가 안 붙는다. CAST_AT 에 'own:${k}' 를 추가할 것`);

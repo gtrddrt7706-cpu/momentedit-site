@@ -240,9 +240,15 @@
         cue({
           k: 'vow', blockN: '혼인 서약', slug: 'narr-vow-in', name: '혼인 서약 시작', text: n.nar,
           live: {
-            t: '두 분이 서로에게 서약문 낭독', est: 65, self: true, doing: 'say', peak: true,
+            // ★[VOW_CHORUS 2026-08-04] 지문을 '각자 낭독'에서 '번갈아 → 마지막은 함께'로 바꿨다.
+            //   ★이 문자열은 ritual-story.js 의 LIVE 키와 CAST_AT 의 'live:' 키이기도 하다.
+            //     한 글자만 달라도 장면 안내와 배역 예시가 조용히 끊긴다 — 셋을 같은 커밋에서 고친다.
+            //   both 는 함께 읽는 그 한 문장이다. 말만 하고 문장을 안 보여 주면 고객이 뭘 준비해야
+            //   할지 모른다 — 화면이 소리를 설명하지 못하면 폴백이 조용했던 때와 같은 사고다.
+            t: '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께', est: 70, self: true, doing: 'say', peak: true,
+            both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기'
+            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 합창이 어긋나면 신부가 반 박자 먼저'
           }
         }),
         cue({

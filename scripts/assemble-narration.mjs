@@ -52,6 +52,20 @@ const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시�
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 
+// ── ★[VOW_CHORUS 2026-08-04] 합성 클립(mix)은 여기서 만들지 않는다.
+//   26_vow-both 는 타입캐스트에서 받는 소리가 아니라 24·25 mp3를 겹쳐 만든 결과물이다
+//   (`node scripts/build-chorus.mjs`). 붙여넣기 대본에도 없으니 --in 폴더에 wav가 있을 리 없고,
+//   그대로 두면 개수 판별이 한 자리 어긋나 「어느 파트인지 못 정한 묶음」으로 멈춘다.
+//   ★조용히 빼지 않는다 — 뺐다는 사실을 화면에 적는다. 빠진 걸 모르면 26이 낡은 채로 남는 날
+//     "다 다시 만들었는데 그 자리만 옛 소리"가 되고, 그때 원인을 찾을 단서가 없다.
+//   ★manifest 에서 지우지는 않는다. 대장에는 남아야 재생 표·대조 검사가 26을 찾을 수 있다.
+const MIXED = man.clips.filter((c) => c.mix);
+man.clips = man.clips.filter((c) => !c.mix);
+if (MIXED.length) {
+  console.log(`※ 합성 클립 ${MIXED.length}개는 이 조립에서 뺍니다 — ${MIXED.map((c) => `${c.no}_${c.file}`).join(' · ')}`);
+  console.log(`   재료(${MIXED.flatMap((c) => c.mix).join(' · ')})를 먼저 조립한 뒤 → node scripts/build-chorus.mjs\n`);
+}
+
 const syl = (s) => (s.match(/[가-힣]/g) || []).length;
 const estSec = (s) => syl(s) / 300 * 60;          // 대본 기준 300음절/분
 const AUD = /\.(mp3|wav|m4a|flac|ogg)$/i;

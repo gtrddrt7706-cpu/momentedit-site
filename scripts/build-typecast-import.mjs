@@ -18,8 +18,13 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
+// ★[VOW_CHORUS] 합성 클립(mix) 판정은 여기 다시 적지 않고 재생 표에서 읽는다.
+//   두 군데 적으면 클립이 늘거나 줄어드는 날 한쪽만 고쳐진다.
+const ST_ = createRequire(import.meta.url)(path.join(root, 'assets/ritual-story.js'));
+const IS_MIX = (no, file) => !!(ST_.CAST[`${no}_${file}`] || {}).mix;
 const SRC = path.join(root, 'docs/plans/식순연구/더빙_녹음_대본_최종.txt');
 const CAST = path.join(root, 'docs/plans/식순연구/배역_예시_대사.txt');
 const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
@@ -173,7 +178,8 @@ if (clips.length !== 51) { console.error(`✗ 클립 수 불일치: ${clips.leng
 const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
 // [TEXT_AUDIO 2026-08-04] 입장이 1클립 → 6클립(A~F)으로 벌어져 17 → 22.
 //   화면이 느낌 6종을 보여 주는데 소리가 하나뿐이면, 고르는 일이 아무 소리도 바꾸지 못한다.
-if (castAll.length && castAll.length !== 22) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 22)`); process.exit(1); }
+// [VOW_CHORUS 2026-08-04] 서약 마지막 한 문장 합창 3클립(재료 2 + 합성 1)이 붙어 22 → 25.
+if (castAll.length && castAll.length !== 25) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 25)`); process.exit(1); }
 // 배역은 라벨 첫 칸이 화자다 — `신랑 · 식전 안내 · 도착` → 화자 `신랑`
 for (const c of castAll) {
   const seg = c.label.split('·').map((s) => s.trim());
@@ -209,9 +215,11 @@ for (const P of PARTS) {
 
     // 이 클립의 문장별 뒤 여백을 계산해 둔다 (조립기가 그대로 쓴다)
     const over = clipGap(c.id, c.file, sents.length ? sents[sents.length - 1].text : '');
+    const mix = IS_MIX(c.no, c.file);
     const rec = { no: c.no, id: c.id, label: c.label, file: c.file, role,
                   part: P.f, dir: P.dir || 'assets/audio/narration',
                   head: GAP.head, tail: over.tail ?? GAP.tail, sents: [] };
+    if (mix) rec.mix = ST_.CAST[`${c.no}_${c.file}`].mix;   // 재료 목록 — 조립기가 건너뛰고 build-chorus 가 읽는다
 
     sents.forEach((s, k) => {
       const last = k === sents.length - 1;
@@ -228,6 +236,11 @@ for (const P of PARTS) {
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }
 
       rec.sents.push({ i: k, text: s.text, before, after });
+      // ★[VOW_CHORUS] 합성 클립은 manifest 에는 남기고 붙여넣기 본문에서만 뺀다.
+      //   타입캐스트에서 받는 파일이 아니라 build-chorus.mjs 가 재료를 겹쳐 만든다.
+      //   ★보류분(CAST_HOLD)처럼 통째로 빼면 안 된다 — manifest 에서 사라지면 재생 표가
+      //     '대본에 없는 음원'을 가리키게 되고, 커버리지 검사가 그 자리에서 멎는다.
+      if (mix) return;
       body.push(`${named(role)}: ${s.text}`);
       sentInPart++; totalSent++;
     });
@@ -235,7 +248,9 @@ for (const P of PARTS) {
     manifest.clips.push(rec);
   }
 
-  const roleList = [...new Set(mine.map((c) => c.speaker || ROLE_OF(c.id)))];
+  // ★[VOW_CHORUS] 합성 클립의 화자('신랑|신부')는 붙여넣기에 없는 사람이다. 화자 수에서 뺀다.
+  //   안 빼면 머리글이 "화자 6인"이라 말하는데 파일에는 5인만 있고, 보이스 배정 화면과 어긋난다.
+  const roleList = [...new Set(mine.filter((c) => !IS_MIX(c.no, c.file)).map((c) => c.speaker || ROLE_OF(c.id)))];
   const spk = roleList.map(named);
   const mapped = roleList.filter((r) => VOICE[r]);
   const unmapped = roleList.filter((r) => !VOICE[r]);
@@ -298,9 +313,10 @@ for (const P of PARTS) {
   const chars = body.join('\n').length;
   manifest.parts.push({ file: P.f, title: P.t, role: P.role, speakers: spk, note,
                         dir: P.dir || 'assets/audio/narration',
-                        clips: mine.length, sents: sentInPart, chars });
+                        clips: mine.filter((c) => !IS_MIX(c.no, c.file)).length, sents: sentInPart, chars });
   const warn = chars > 20000 ? '  ★20,000자 초과 — 더 쪼갤 것' : '';
-  console.log(`  ${P.f.padEnd(18)} 클립 ${String(mine.length).padStart(2)} · 문장 ${String(sentInPart).padStart(3)} · ${String(chars).padStart(6)}자${warn}`);
+  const pasted = mine.filter((c) => !IS_MIX(c.no, c.file)).length;
+  console.log(`  ${P.f.padEnd(18)} 클립 ${String(pasted).padStart(2)} · 문장 ${String(sentInPart).padStart(3)} · ${String(chars).padStart(6)}자${warn}`);
 }
 
 // ★★VOICE_ROLE_GUARD — 박아 둔 배정이 실제 역할에 걸렸는지 검사한다.
@@ -308,7 +324,9 @@ for (const P of PARTS) {
 //   그 자리만 역할명으로 남는다 — 붙여넣고 나서야 "얘만 왜 배정이 안 되지" 하고 알게 된다.
 //   2026-08-01 교훈과 같은 계열이다. 개수를 세는 검사는 엉뚱한 키가 들어온 것을 못 잡는다.
 {
-  const realRoles = new Set(manifest.clips.map((c) => c.role));
+  // ★[VOW_CHORUS] 합성 클립은 타입캐스트에서 목소리를 고를 자리가 아니다(우리가 겹쳐 만든다).
+  //   빼지 않으면 "보이스 배정 8/9 — 남은 자리 신랑|신부"가 떠서, 다 정해 놓고도 덜 된 것처럼 보인다.
+  const realRoles = new Set(manifest.clips.filter((c) => !c.mix).map((c) => c.role));
   const ghost = Object.keys(VOICE).filter((r) => !realRoles.has(r));
   if (ghost.length) {
     console.error(`\n✗ VOICE 에 실제로 없는 역할명이 ${ghost.length}개 있습니다 — 이 배정은 무시됩니다.`);

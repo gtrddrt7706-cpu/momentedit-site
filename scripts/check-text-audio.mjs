@@ -112,6 +112,24 @@ for (const S of states) {
   }
 }
 
+// ── ★[VOW_CHORUS 2026-08-04] 서약 마지막 합창은 위 대조에 안 걸린다 — 그래서 여기서 따로 본다.
+//   왜 안 걸리나: 합창 클립은 castLive 다(사람이 말하는 구간 안의 예시). 위 대조는 castLive 를 뺀다.
+//   그런데 이 자리만은 화면에 **문장 자체**가 뜬다(order-preview 가 live.both 를 그대로 그린다).
+//   글자가 뜨는 자리는 소리와 같아야 한다는 규칙이 여기에도 걸린다 — 규칙은 같고 통로만 다르다.
+//   ★재료 24·25 까지 함께 본다. 셋 중 하나만 딴 문장이면 겹친 소리가 웅얼거림이 된다.
+//   ★표를 다시 적지 않는다. 왼쪽은 D.VOWBOTH(원천), 오른쪽은 manifest — 둘 다 이미 있는 값이다.
+const chorus = [];
+{
+  const want = (D.VOWBOTH || []).join(' ');
+  const ids = ['24_vow-both-1', '25_vow-both-2', '26_vow-both'];
+  if (!want) chorus.push(`ritual-data.js 의 VOWBOTH 가 비어 있습니다`);
+  else for (const id of ids) {
+    const got = SAY.get(CST + '|' + id);
+    if (!got) chorus.push(`대본에 ${id} 이 없습니다 — node scripts/build-typecast-import.mjs 를 다시 도세요`);
+    else if (norm(got.text) !== norm(want)) chorus.push(`${id} 의 대본이 VOWBOTH 와 다릅니다\n    화면 "${want}"\n    소리 "${got.text}"`);
+  }
+}
+
 const rows = [...seen.values()].sort((a, b) => (a.k + a.slug).localeCompare(b.k + b.slug));
 const bad = rows.filter((r) => !r.ok && !r.noText);
 const cut = (s, n = 76) => (s.length > n ? s.slice(0, n) + '…' : s);
@@ -125,5 +143,7 @@ for (const r of (ALL ? rows : bad)) {
   console.log(`    화면 "${cut(r.screen)}"`);
   console.log(`    소리 "${cut(r.said) || '(없음)'}"`);
 }
-if (bad.length) { console.log(`\n✗ ${bad.length}곳에서 화면 글과 소리가 다릅니다.`); process.exit(1); }
+if (chorus.length) { console.log(`\n[VOW_CHORUS] 서약 마지막 합창`); for (const m of chorus) console.log(`  ✗ ${m}`); }
+else if (ALL) console.log(`\n[VOW_CHORUS] ✓ 서약 마지막 합창 3클립이 VOWBOTH 와 같습니다.`);
+if (bad.length || chorus.length) { console.log(`\n✗ ${bad.length + chorus.length}곳에서 화면 글과 소리가 다릅니다.`); process.exit(1); }
 console.log('\n✓ 화면 글과 소리가 전부 같습니다.');

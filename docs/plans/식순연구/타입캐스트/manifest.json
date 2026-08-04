@@ -112,9 +112,9 @@
         "출력 폴더가 다릅니다 — assemble-narration.mjs가 assets/audio/cast/ 로 떨굽니다."
       ],
       "dir": "assets/audio/cast",
-      "clips": 20,
-      "sents": 74,
-      "chars": 2040
+      "clips": 22,
+      "sents": 78,
+      "chars": 2104
     }
   ],
   "clips": [
@@ -2311,6 +2311,85 @@
           "before": 0,
           "after": 0
         }
+      ]
+    },
+    {
+      "no": "24",
+      "id": "R-vow-both-1",
+      "label": "혼인 서약 · 합창 재료(신랑 몫)",
+      "file": "vow-both-1",
+      "role": "신랑",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.18,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "저희, 그렇게 살겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "지켜봐 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "25",
+      "id": "R-vow-both-2",
+      "label": "혼인 서약 · 합창 재료(신부 몫)",
+      "file": "vow-both-2",
+      "role": "신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.18,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "저희, 그렇게 살겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "지켜봐 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "26",
+      "id": "R-vow-both",
+      "label": "혼인 서약 · 마지막 한 문장 합창(합성)",
+      "file": "vow-both",
+      "role": "신랑|신부",
+      "part": "5_배역.txt",
+      "dir": "assets/audio/cast",
+      "head": 0.18,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "저희, 그렇게 살겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "지켜봐 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ],
+      "mix": [
+        "24_vow-both-1",
+        "25_vow-both-2"
       ]
     },
     {

@@ -1381,3 +1381,33 @@ chk 'function _mpRefresh' mypage.html 1
 chk 'opts.done' mypage.html 1                            # 베일을 걷을 시점(성공·실패·끊김 모두)
 nochk "show('loading'); loadMyState" mypage.html          # 이 조합이 곧 '화면 비우기'다
 chk 'SAMPLE_FOOT' mypage.html 3                          # 판 높이에서 하단 안전영역을 뺀다 · 안 빼면 실기기에서 아래 모서리가 잘린다
+
+# ── [VOW_CHORUS] 서약의 마지막 한 문장은 두 분이 함께 (2026-08-04 사용자
+#    *"합창부분도 시현해보자 적절한곳 찾아서 파일 다시주고 그부분도 문자수정하고"*
+#    *"너무 유치하지않게 인스타감성 요즘 트랜드 세련된 웨딩이되어야하니깐"*) ──
+# 왜 서약 자리인가 — 후보 다섯(첫인사·서약·성혼선언·헌정·폐식)을 의미·동선·길이·절제로 재서 골랐다.
+#   교대 낭독 → 마지막은 함께가 요즘 서약문의 표준형이고, 두 분이 이미 마주 서 있어 동선이 안 생긴다.
+# ★한 자리에만 둔다. 여러 곳에 뿌리면 희소성이 사라져 '장치'로 보인다 — 절제가 세련됨이다.
+# ★재생기는 배열을 **순차** 재생한다. 두 파일을 동시에 트는 길이 없으므로 겹침은 미리 만들어 둬야 한다:
+#   24(신랑)·25(신부)는 재료, 26은 그 둘을 겹친 결과물(scripts/build-chorus.mjs).
+#   그래서 24·25 는 어디에도 배선하지 않는다 — 그대로 틀면 같은 말이 세 번 이어져 들린다.
+#   대신 mixFor 로 "나는 저 클립의 재료다"를 표에 적어, 커버리지 검사가 목적지를 대신 보게 했다.
+#   ★예외를 검사에 하드코딩하지 않았다 — 목적지가 사라지는 날 재료만 조용히 남는 걸 막기 위해서다.
+chk 'VOW_CHORUS' assets/ritual-data.js 1
+chk 'VOW_CHORUS' assets/ritual-cue.js 1
+chk 'VOW_CHORUS' assets/ritual-story.js 3
+chk 'VOW_CHORUS' order-preview.html 4
+chk 'VOW_CHORUS' scripts/assemble-narration.mjs 1
+chk 'VOW_CHORUS' scripts/check-text-audio.mjs 1
+chk 'VOW_CHORUS' scripts/check-ritual-mirror.js 1
+chk 'VOW_CHORUS' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk 'var VOWBOTH' assets/ritual-data.js 1                  # 문안 원천은 여기 하나
+chk 'VOWBOTH:VOWBOTH' assets/ritual-data.js 1              # export 안 하면 화면·검사가 원천을 못 읽는다
+chk 'mixFor' assets/ritual-story.js 2                      # 재료 두 칸 · 지우면 커버리지 검사가 옳게 화를 낸다
+chk 'mixFor' scripts/build-course-story.mjs 3
+chk "'26_vow-both'" assets/ritual-story.js 3               # CAST_AT 배선 · CAST 표 · mixFor 목적지
+chk 'CAST_PAIR\[c.role\]' assets/ritual-story.js 1          # '신랑|신부'처럼 겹친 역할도 배지를 찾게
+chk "split('|')" assets/ritual-story.js 1                  # 안 쪼개면 배지 키가 '신랑|신랑|신부|신부'로 깨진다
+chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 아니라 합성처럼 들린다(플랜저)
+chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
+nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다

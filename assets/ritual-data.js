@@ -200,6 +200,15 @@ var NARR={
  blessEndLong:"오래 지켜봐 오신 마음이, 그 말씀에 다 담겨 있었습니다. 두 사람이 오래 새기겠습니다.",
  close:"오늘 예식의 마지막 순서입니다. 두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주시기 바랍니다."
 };
+// ★[VOW_CHORUS 2026-08-04] 서약의 마지막 한 문장은 두 분이 함께 — 화면·소리·대본의 단일 원천.
+//   지금까지 서약은 '각자 한 줄씩'으로 끝났다. 요즘 서약문의 표준형은 교대 낭독 → 마지막은 함께다.
+//   그 마지막 한 줄만 여기 둔다. 앞의 서약 본문은 고객이 직접 쓰는 것이라 우리가 정하지 않는다.
+//   ★한 자리에만 둔다. 첫인사·헌정에도 뿌리면 희소성이 사라져 '장치'로 보인다 — 절제가 세련됨이다.
+//   ★유치해지는 길목 넷을 다 피한다: 느낌표 없음 · '영원히/평생/사랑'류의 큰 말 없음 ·
+//     박수 요구 없음 · 과장 없음. "그렇게"가 앞의 각자 서약을 받아, 그 자리에서만 성립한다.
+//   ★앞 서약이 반말(서로에게)이라 여기서 존댓말로 바뀐다. 시선이 하객 쪽으로 도는 자리다.
+//   이 값이 곧 배역 대본 [26] R-vow-both 의 본문이다 — check-text-audio 가 둘을 대조한다.
+var VOWBOTH=["저희, 그렇게 살겠습니다.","지켜봐 주세요."];
 // 소요 시간 상수(estMin이던 하드코딩) — 분 단위 단일 원천
 var MIN={
  base:{damback:25,minimal:18,gamdong:28,family:30,festive:30},   // [VEIL_RETIRED 2026-08-03] 감동 29→28 · 베일 1분 제거분
@@ -208,5 +217,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,MIN:MIN};
+return {ENTRY:ENTRY,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN};
 });

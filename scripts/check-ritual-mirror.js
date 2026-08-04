@@ -60,6 +60,15 @@ const drift = narAll.filter(([, s]) => !html.includes(s));
 ok('빌더 인라인 사본이 원천 문안 ' + narAll.length + '개와 일치(drift ' + drift.length + '건)', drift.length === 0);
 drift.forEach(([id, s]) => console.log('   DRIFT ' + id + ' : ' + s.slice(0, 46) + '…'));
 
+// ★[VOW_CHORUS 2026-08-04] 서약 마지막 합창 문장도 인라인 사본이다 — 위 NAR_MIRROR 는 nar/end 만 훑어서 안 걸린다.
+//   이 문장은 다른 문안과 달리 **소리로도 나간다**(26_vow-both). 화면·대본·소리 셋이 같은 글자여야 하고,
+//   소리 쪽은 check-text-audio.mjs 가 본다. 여기선 화면 쪽 사본이 원천을 따라가는지만 본다.
+//   ★빌더가 엔진을 동기로 못 읽어서 사본을 두는 것이므로, 사본을 없애는 대신 검사를 붙인다.
+const vb = D.VOWBOTH || [];
+const vbMiss = vb.filter((t) => !html.includes(t));
+ok('빌더 VOWBOTH 사본이 원천과 일치(' + vb.length + '문장 · drift ' + vbMiss.length + '건)', vb.length > 0 && vbMiss.length === 0);
+vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
+
 // ★DECL_SET_INVARIANT — 성혼 선언은 '택1 세트'다. 세 곳(원천 DECLWHO · 빌더 선택지 배열 · 생성기 총량 서술)이
 //   서로 다른 개수를 말하면 화면·대본·AI가 각각 다른 예식을 설명하게 된다.
 //   실사고(2026-07-26): 응답형(W2)이 택1인데 코드·KB·생성기가 '선언 뒤에 덧붙임'으로 서술 →

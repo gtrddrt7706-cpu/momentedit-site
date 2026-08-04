@@ -77,7 +77,11 @@ for (const p of man.parts) {
   const f = path.join(DIR, p.file);
   if (!fs.existsSync(f)) { bad(`${p.file} 이 없습니다 — 붙여넣을 파일이 사라졌습니다`); continue; }
   const real = fs.readFileSync(f, 'utf8').split('\n').filter((l) => l.trim()).length;
-  const fromClips = man.clips.filter((c) => c.part === p.file).reduce((a, c) => a + c.sents.length, 0);
+  // ★[VOW_CHORUS 2026-08-04] 합성 클립(mix)은 붙여넣기 파일에도, 조립기에도 없다 — 세는 데서도 뺀다.
+  //   26_vow-both 는 24·25 mp3 를 겹쳐 만드는 결과물이라 타입캐스트에서 받을 소리가 없다.
+  //   ★대장(manifest)에는 남긴다 — 재생 표와 대조 검사가 26 을 찾아야 하기 때문이다.
+  //     '세는 자'와 '만드는 자'가 같은 규칙을 쓰게 여기서도 c.mix 를 뺀다(assemble-narration.mjs 와 짝).
+  const fromClips = man.clips.filter((c) => c.part === p.file && !c.mix).reduce((a, c) => a + c.sents.length, 0);
   if (real !== p.sents) bad(`${p.file}: 파일은 ${real}줄인데 manifest는 ${p.sents}문장이라고 합니다 — 조립기가 개수로 파트를 못 짚습니다`);
   else if (fromClips !== p.sents) bad(`${p.file}: manifest 안에서 어긋납니다 — parts.sents ${p.sents} ≠ clips 합 ${fromClips}. 조립기는 clips 합(needOf)으로 셉니다`);
   else ok(`${p.file} ${p.sents}문장 — 파일·parts·clips 삼자 일치`);
