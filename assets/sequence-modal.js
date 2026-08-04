@@ -50,8 +50,12 @@
     + '.meseq-tabs{flex:0 0 auto;display:flex;gap:6px;padding:16px 24px 14px}'
     + '.meseq-tab{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:11px;padding:10px 4px;cursor:pointer;font-family:var(--serif-ko,serif);color:var(--sub,#5A554C);line-height:1.25;transition:all .2s}'
     + '.meseq-tab b{display:block;font-size:13px;font-weight:500}.meseq-tab span{display:block;font-size:10px;color:var(--light,#75705F);margin-top:2px}'
-    + '.meseq-tab.on{background:#6B2A24;border-color:#6B2A24;color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'   /* 진사(seal) */
-    + '.meseq-tab.on:hover{background:#571F1A;border-color:#571F1A}.meseq-tab.on:active{background:#7A322B;border-color:#7A322B}'
+    /* [SEAL_POINT 2026-08-04] 사용자 지시 "진사 색상은 최소한 포인트 부분만 사용하자".
+       선택된 시간대 칩은 110x53 — 점이 아니라 면이다. 게다가 바로 위 상품 칩(.meseq-prod .on)은
+       이미 먹색이라, 같은 '선택됨'을 두 가지 색으로 말하고 있었다(실측). 하나의 말로 맞춘다.
+       ★진사는 이 모달에서 타임라인의 '지금' 점(.meseq-it.hl) 하나에만 남는다 — 그게 포인트다. */
+    + '.meseq-tab.on{background:#4E3F31;border-color:#4E3F31;color:#fff}.meseq-tab.on span{color:rgba(255,255,255,0.82)}'
+    + '.meseq-tab.on:hover{background:#3F3328;border-color:#3F3328}.meseq-tab.on:active{background:#5B4A3B;border-color:#5B4A3B}'
     + '.meseq-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:6px 24px 20px;-webkit-overflow-scrolling:touch}'
     + '.meseq-tl{position:relative;margin:6px 0 0;padding-left:64px}'
     + '.meseq-tl::before{content:"";position:absolute;left:63px;top:8px;bottom:18px;width:1px;background:var(--border,#DDD8D1)}'
@@ -76,9 +80,15 @@
     + '.meseq-prod{flex:0 0 auto;display:flex;gap:6px;padding:14px 24px 0}'
     + '.meseq-prod button{flex:1;border:1px solid var(--border,#DDD8D1);background:none;border-radius:8px;padding:9px 4px;cursor:pointer;font-family:var(--serif-ko,serif);font-size:12.5px;color:var(--sub,#5A554C);transition:all .2s}'
     + '.meseq-prod button.on{background:#4E3F31;border-color:#4E3F31;color:#fff}'
-    /* 시간표 열기 버튼(예약·스케줄·마이 공용) — 마이페이지 .cc-btn과 같은 색·효과 */
-    + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#6B2A24;color:#fff;border:none;border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .3s}'
-    + '.seq-open-btn:hover{background:#571f1a}.seq-open-btn:active{background:#4a1a15}';
+    /* 시간표 열기 버튼(상담 신청·마이 공용)
+       [SEAL_POINT 2026-08-04] 324x42 진사 채움이었다 — 한 화면에 진사 덩어리가 셋(신청 버튼·이 버튼·상품 칩).
+       이건 '보기'다, 주 행동이 아니다. 브랜드가 이미 쓰는 조용한 버튼(guide.html .ps-btn)과 같은 말로:
+       채움 없이 얇은 헤어라인 + 먹색 글자, 존재감은 폭과 여백이 낸다.
+       ★진사는 시계 아이콘 하나에만 남긴다 — 없애는 게 아니라 점으로 되돌리는 것이다.
+       ★예약 화면(schedule.html)은 이미 밑줄 한 줄짜리(.seq-open-line)로 조용하다 — 같은 방향이다. */
+    + '.seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:transparent;color:var(--accent,#3A2D22);border:1px solid var(--border,#DDD8D1);border-radius:6px;padding:13px 0;font-family:var(--serif-ko,serif);font-size:13px;letter-spacing:0.01em;cursor:pointer;transition:background .2s,border-color .3s}'
+    + '.seq-open-btn svg{color:var(--seal,#6B2A24)}'
+    + '.seq-open-btn:hover{background:var(--bg2,#F5F3EF);border-color:var(--gold,#B89A75)}.seq-open-btn:active{background:var(--bg3,#EDEBE6)}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var ov = document.createElement('div'); ov.className = 'meseq-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '140분 진행 시간표');

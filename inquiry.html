@@ -459,7 +459,11 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
         <style>
         .seqref-sw{display:flex;gap:6px;margin:-2px 0 13px}
         .seqref-sw button{flex:1;border:1px solid var(--border);background:none;border-radius:8px;padding:8px 4px;cursor:pointer;font-family:var(--serif-ko);font-size:12px;color:var(--sub);transition:all .2s}
-        .seqref-sw button.on{background:#6B2A24;border-color:#6B2A24;color:#fff}
+        /* [SEAL_POINT 2026-08-04] 진사 채움(159x40)을 먹색으로 — 사용자 지시 "진사는 최소한 포인트 부분만".
+           ★같은 토글이 시간표 모달 안에서는 이미 먹색(.meseq-prod button.on #4E3F31)이었다.
+             한 화면에서 열었다 닫았다 하면 같은 버튼의 색이 바뀌어 보였다(실측) — 그쪽에 맞춘다.
+           ★이 화면에 남는 진사는 맨 아래 '신청 보내기' 하나다. 한 화면에 주 행동은 하나. */
+        .seqref-sw button.on{background:#4E3F31;border-color:#4E3F31;color:#fff}
         .snaprow{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:10px 2px;border-top:1px dashed var(--hairline);font-family:var(--serif-ko)}
         .snaprow b{font-size:12.5px;font-weight:500;color:var(--accent)}
         .snaprow span{font-family:var(--serif);font-style:italic;font-size:13.5px;font-weight:500;color:#4E3F31;letter-spacing:0.04em}
@@ -525,7 +529,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
           <span class="accent">Note</span>대기 공간이 없으니, <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 방문 부탁드립니다.
         </div>
         <button type="button" class="seq-open-btn" data-seq-open="trim" style="margin-top:13px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#fff" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           시간대별 전체 진행 시간표 보기
         </button>
         </div>
@@ -539,7 +543,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
           <span class="accent">Note</span>하객 없이 두 분만 진행되는 프라이빗 촬영이에요. 원본 사진 전량과 보정본을 전해 드립니다.
         </div>
         <button type="button" class="seq-open-btn" data-seq-open="snap" style="margin-top:13px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#fff" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           스냅 진행 흐름 자세히 보기
         </button>
         </div>

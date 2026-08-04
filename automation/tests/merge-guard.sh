@@ -1550,3 +1550,19 @@ if command -v node >/dev/null 2>&1; then
   _n=$(grep -l 'shared/gv-back.js' i/cover-0*.html i-family/family-0*.html live.html guide.html i/invitations/invitation-09-guide.html 2>/dev/null | wc -l | tr -d ' ')
   [ "$_n" = "19" ] || { echo "REVERT? gv-back.js 배선이 19곳이 아니다($_n) — 빠진 판은 Open 후 돌아갈 문이 없다"; fail=1; }
 fi
+
+# ── [SEAL_POINT] 진사(#6B2A24)는 포인트에만 (2026-08-04 사용자 *"진사 색상은 최소한 포인트 부분만 사용하자"*) ──
+# 브랜드 규칙은 원래 '진사 = CTA·강조 포인트, 넓은 면적 금지'였는데, 상담 신청 화면 한 곳에
+# 진사 덩어리가 셋이었다(실측: 신청 버튼 17500px² · 시간표 열기 13608px² · 상품 칩 6360px²,
+# 모달을 열면 시간대 칩 5803px² 까지 넷). 셋이 모이면 그건 포인트가 아니라 색 배합이다.
+# 남긴 것 — 화면당 주 행동 하나(신청 보내기)와 진짜 점들(타임라인 '지금' 점 · 나브 점 · 지도 핀).
+# 옮긴 것 — 선택 상태는 먹색(#4E3F31)으로. 같은 상품 토글이 화면에선 진사, 모달에선 먹색이라
+#           열었다 닫으면 같은 버튼의 색이 바뀌어 보이던 것도 이걸로 함께 정리됐다.
+# 조용해진 것 — '시간표 보기'는 주 행동이 아니다. 헤어라인 + 먹색 글자(guide.html .ps-btn과 같은 말),
+#           진사는 시계 아이콘 하나에만 남는다.
+chk 'SEAL_POINT' assets/sequence-modal.js 2
+chk 'SEAL_POINT' inquiry.html 1
+nochk 'meseq-tab.on{background:#6B2A24' assets/sequence-modal.js
+nochk 'seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#6B2A24' assets/sequence-modal.js
+nochk 'seqref-sw button.on{background:#6B2A24' inquiry.html
+chk 'seq-open-btn svg{color:var(--seal' assets/sequence-modal.js 1     # 진사를 지운 게 아니라 점으로 되돌린 자리
