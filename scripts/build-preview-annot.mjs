@@ -25,6 +25,13 @@
  *     좌/우를 번갈아 놓아 아래 상자를 덮지 않는다 — '한글 부제' 라벨이 인사말 상자 위에
  *     얹혀 엉뚱한 곳을 가리키던 사고(2026-08-03 제보)가 이 규칙이 없어서 났다.
  *  ⑤ 그래도 겹치면 상자 바깥(좌/우)으로 밀어낸다. 마지막 수단은 아래 모서리.
+ *  ⑥ 어두운 판(08 누아르 등)에서는 점선·라벨을 크림으로 뒤집는다. 진사 점선은 배경에 묻혀
+ *     아예 안 보였다(2026-08-04 제보). 판단은 디자인 단위가 아니라 **상자 단위**로 — 같은 디자인
+ *     안에서도 섹션마다 판 색이 다르다(03·06 은 오시는 길만 어둡다).
+ *  ⑦ 계좌처럼 버튼·배경을 가진 '판'은 mode:'box' 로 요소 테두리를 감싼다. 글자 잉크로 재면
+ *     점선이 '복사' 버튼 테두리를 뚫고 지나간다(2026-08-04 제보).
+ *  ⑧ 고객이 위저드에서 채우는 칸은 하나도 빠짐없이 주석이 있어야 한다. mypage 의 data-k 가 기준:
+ *     title·sub·body 는 전 디자인, quote 는 02 전용, gb/bb(한마디)는 08 전용. 여기에 혼주·계좌.
  */
 import fs from 'fs';
 import path from 'path';
@@ -68,7 +75,7 @@ const SPEC = {
     { g: '큰 제목', sel: '.inv-title', nth: 0 },          // 01 만 제목에 id 가 없다(#sec-01-title 없음)
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
     { g: '혼주 성함', sel: '.inv-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },   // 위에서 .open 을 켜므로 펼친 본문까지 감싼다
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },   // 위에서 .open 을 켜므로 펼친 본문까지 감싼다
   ],
   // 02 표지는 눈썹줄이 예식 월({{WEDDING_MONTH_EN}})이라 이름 바로 위에 날짜가 붙어 있다 → 한 덩어리.
   // 상단 마스트헤드의 .cover-mast-date 는 04 의 .cover-date-tag 와 같은 장식 태그라 04 를 따라 뺀다.
@@ -77,8 +84,9 @@ const SPEC = {
     { g: '이름·날짜', sel: '.cover-eyebrow, .cover-names-en, .cover-names-ko', all: true },
     { g: '큰 제목', sel: '#sec-01-title', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
+    { g: '대표 문구', sel: '.inv-pull-quote', nth: 0 },   // 02 전용 칸(data-k="quote") — 예시에 없으면 어디로 가는 말인지 알 수 없다
     { g: '혼주 성함', sel: '.inv-byline .parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },
   ],
   // 03 은 표지 카드 한 장 안에 모노그램(영문)·한글 이름·날짜·요일이 차례로 들어 있어 한 상자로 합쳐진다.
   // 부제가 영문인 디자인은 03 뿐이다(SUB 표).
@@ -88,7 +96,7 @@ const SPEC = {
     { g: '영문 부제', sel: '.inv-title-sub', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
     { g: '혼주 성함', sel: '.inv-sig-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },
   ],
   '04': [
     // 표지는 세로 한글 이름과 아래 영문+날짜가 500px 떨어져 있다 — 한 상자로 묶으면 빈 여백을
@@ -99,7 +107,7 @@ const SPEC = {
     { g: '한글 부제', sel: '.sec-title-ko', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.invite-text', nth: 0 },
     { g: '혼주 성함', sel: '.sign-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.acc', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.acc', all: true, mode: 'box' },
   ],
   // 05 표지는 영문 이름 → 한글 이름 → 큰 날짜(.cover-date-hero) → 요일·시간 순. 한글 이름과 큰 날짜
   // 사이가 80px 라 아슬아슬하게 한 상자로 합쳐진다(합치기 기준 90px).
@@ -109,7 +117,7 @@ const SPEC = {
     { g: '큰 제목', sel: '#sec-01-title', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
     { g: '혼주 성함', sel: '.inv-sig-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },
   ],
   // 06 은 한글 이름이 크고(h1.cover-names-ko) 영문이 그 아래 작게 붙는다 — 8종 중 한글이 주인공인 유일한 표지.
   '06': [
@@ -117,7 +125,7 @@ const SPEC = {
     { g: '큰 제목', sel: '#sec-01-title', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
     { g: '혼주 성함', sel: '.inv-sig-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },
   ],
   // 07 은 표지 날짜가 상단 태그(.cover-date-tag)와 하단 푸터(.cover-foot-left, 식장명과 한 줄)로 흩어져 있어
   // 04 같은 '영문 이름 + 날짜' 덩어리가 없다 → 이름만 잡는다(푸터를 잡으면 식장명까지 묶이고, 이름과 380px 떨어져
@@ -128,7 +136,7 @@ const SPEC = {
     { g: '한글 부제', sel: '.inv-title-ko', nth: 0 },
     { g: '인사말 — 직접 작성', sel: '.inv-text', nth: 0 },
     { g: '혼주 성함', sel: '.inv-table .parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc-item', all: true, mode: 'box' },
   ],
   // 08 표지 h1 은 'We are getting married.' 고정문이고 고객이 채우는 건 그 안의 한글 이름 스팬뿐이라
   // .cover-display 를 통째로 잡으면 못 고치는 영문 문장까지 감싼다 → .cover-display .ko 만.
@@ -139,8 +147,9 @@ const SPEC = {
     { g: '큰 제목', sel: '#sec-01-title', nth: 0 },
     { g: '한글 부제', sel: '.sec-title-ko', nth: 0 },       // 08 은 섹션마다 있어 5개 — 첫 번째(초대의 글)만
     { g: '인사말 — 직접 작성', sel: '.greeting', nth: 0 },
+    { g: '한마디', sel: '.duo-bio', all: true },   // 08 전용 칸(data-k="gb"/"bb") — 신랑·신부 각 한 줄
     { g: '혼주 성함', sel: '.gs-parents', all: true },
-    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc', all: true },
+    { g: '마음 전하실 곳 — 계좌', sel: '.env-acc', all: true, mode: 'box' },
   ],
 };
 
@@ -152,6 +161,12 @@ const DRAW = `(SPEC) => {
   st.textContent = \`
     .anx-layer{position:absolute;inset:0;pointer-events:none;z-index:99999}
     .anx-box{position:absolute;border:1.1px dashed rgba(107,42,36,.66);border-radius:5px}
+    /* 어두운 판(08 누아르·03/06 의 어두운 섹션) — 진사 점선이 배경에 묻혀 안 보였다(2026-08-03 제보).
+       색을 크림으로 뒤집고, 라벨도 크림 알약 + 진사 글씨로 반전한다. 진사 알약에 흰 글씨는
+       어두운 배경 위에서 알약 자체가 배경과 붙어 '무엇을 가리키는지' 가 사라진다. */
+    .anx-box.on-dark{border-color:rgba(245,241,232,.86)}
+    .anx-lb.on-dark{background:#F5F1E8;color:#5E241F;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+    .anx-lb.on-dark svg{stroke:#5E241F}
     .anx-lb{position:absolute;display:inline-flex;align-items:center;gap:4px;
       background:\${SEAL};color:#fff;border-radius:4px;padding:3px 7px;
       font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
@@ -189,14 +204,46 @@ const DRAW = `(SPEC) => {
     return { left: l, top: t, right: rr, bottom: bb, width: rr - l, height: bb - t };
   };
 
+  /* 이 요소 뒤에 실제로 깔린 배경색 — 부모를 거슬러 올라가 처음 만나는 불투명 색.
+     디자인 8종은 섹션마다 판 색이 달라(누아르 전면 어둠 · 03/06 은 오시는 길만 어둠)
+     디자인 단위가 아니라 상자 단위로 판단해야 한다. */
+  const bgLum = (el) => {
+    let n = el;
+    while (n && n !== document.documentElement) {
+      const c = getComputedStyle(n).backgroundColor;
+      /* ★정규식을 쓰지 말 것 — DRAW 는 템플릿 리터럴이라 \\d 가 d 로 삼켜진다.
+         한동안 /[\\d.]+/ 가 /[d.]+/ 로 주입돼 rgb() 파싱이 통째로 실패했고,
+         그 결과 어두운 판 판정이 항상 false 가 돼 08 누아르에서 점선이 배경에 묻혔다(2026-08-04 실측).
+         이스케이프가 필요 없는 방식으로만 적을 것. */
+      const inParen = c && c.indexOf('(') > -1 ? c.slice(c.indexOf('(') + 1, c.lastIndexOf(')')) : '';
+      const m = inParen ? inParen.split(',').map(x => parseFloat(x)).filter(x => x === x) : null;
+      if (m && m.length >= 3 && (m.length < 4 || m[3] > 0.5)) {
+        const [r, g, b2] = m;
+        const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b2);
+      }
+      n = n.parentElement;
+    }
+    return 1;
+  };
+
   const sy = window.scrollY, sx = window.scrollX;
   const boxes = [], missing = [];
 
   for (const spec of SPEC) {
     const els = [...document.querySelectorAll(spec.sel)];
     const pick = spec.all ? els : (els[spec.nth || 0] ? [els[spec.nth || 0]] : []);
-    const rects = pick.map(inkRect).filter(Boolean);
+    /* mode:'box' — 계좌처럼 버튼·배경을 가진 '판'은 글자 잉크로 재면 안 된다.
+       잉크는 '복사' 버튼의 글자에서 끝나 점선이 버튼 테두리를 뚫고 지나갔다(2026-08-03 제보).
+       판은 요소 테두리를 그대로 쓴다. */
+    const measure = (el) => {
+      if (spec.mode !== 'box') return inkRect(el);
+      const b = el.getBoundingClientRect();
+      return b.width > 1 ? { left: b.left, top: b.top, right: b.right, bottom: b.bottom, width: b.width, height: b.height } : null;
+    };
+    const rects = pick.map(measure).filter(Boolean);
     if (!rects.length) { missing.push(spec.g); continue; }
+    const dark = pick.some(el => bgLum(el) < 0.34);
     // all:true 는 한 덩어리로 합치되, 세로로 크게 떨어져 있으면(다른 섹션) 나눠 그린다
     const groups = [];
     rects.sort((a, b) => a.top - b.top).forEach(r => {
@@ -206,10 +253,11 @@ const DRAW = `(SPEC) => {
         last.top = Math.min(last.top, r.top); last.bottom = Math.max(last.bottom, r.bottom);
       } else groups.push({ left: r.left, right: r.right, top: r.top, bottom: r.bottom });
     });
+    const pad = spec.mode === 'box' ? 4 : PAD;   // 판은 테두리에 바짝 — 여백을 크게 주면 옆 판까지 먹는다
     groups.forEach(gr => boxes.push({
-      label: spec.g,
-      x: gr.left + sx - PAD, y: gr.top + sy - PAD,
-      w: (gr.right - gr.left) + PAD * 2, h: (gr.bottom - gr.top) + PAD * 2,
+      label: spec.g, dark,
+      x: gr.left + sx - pad, y: gr.top + sy - pad,
+      w: (gr.right - gr.left) + pad * 2, h: (gr.bottom - gr.top) + pad * 2,
     }));
   }
 
@@ -245,12 +293,12 @@ const DRAW = `(SPEC) => {
 
   boxes.forEach((bx, i) => {
     const el = document.createElement('div');
-    el.className = 'anx-box';
+    el.className = 'anx-box' + (bx.dark ? ' on-dark' : '');
     el.style.cssText = \`left:\${bx.x}px;top:\${bx.y}px;width:\${bx.w}px;height:\${bx.h}px\`;
     layer.appendChild(el);
 
     const lb = document.createElement('div');
-    lb.className = 'anx-lb';
+    lb.className = 'anx-lb' + (bx.dark ? ' on-dark' : '');
     lb.innerHTML = PENCIL + '<span>' + bx.label + '</span>';
     layer.appendChild(lb);
     const lw = lb.offsetWidth, lh = lb.offsetHeight;
@@ -284,7 +332,7 @@ const DRAW = `(SPEC) => {
     placed.push(best);
   });
 
-  return { drawn: boxes.length, missing };
+  return { drawn: boxes.length, missing, dark: boxes.map(b => (b.dark ? 1 : 0)).join('') };
 }`;
 
 async function run() {
@@ -353,7 +401,7 @@ async function run() {
         const res = await page.evaluate(new Function('SPEC', `return (${DRAW})(SPEC)`), SPEC[n]);
         const tag = `${side}-${n}`;
         if (res.missing.length) { fail = 1; report.push(`  ✗ ${tag} 대상 못 찾음: ${res.missing.join(', ')}`); }
-        else report.push(`  ok ${tag} 주석 ${res.drawn}개${errs.length ? ' (JS오류 ' + errs.length + ')' : ''}`);
+        else report.push(`  ok ${tag} 주석 ${res.drawn}개 어두운배경[${res.dark}]${errs.length ? ' (JS오류 ' + errs.length + ')' : ''}`);
         if (!checkOnly) {
           await page.screenshot({ path: path.join(OUT, `prev-${side}-${n}.png`), fullPage: true });
           /* 위저드 2/4 단계(혼주·마음 전하실 곳)에 인라인으로 붙는 작은 예시.
@@ -404,7 +452,7 @@ async function run() {
      예전엔 이 한 장만 따로 찍어서 점선 굵기·라벨 모양이 청첩장 예시와 달랐다(2026-08-03 실측:
      굵은 점선 + 알약 라벨 + 첫 줄만 감싼 상자). 같은 그리기 코드를 태워 손을 맞춘다. */
   if (!only) {
-    const LIVE_SPEC = [{ g: '마음 전하실 곳 — 계좌', sel: '.env-item', all: true }];
+    const LIVE_SPEC = [{ g: '마음 전하실 곳 — 계좌', sel: '.env-item', all: true, mode: 'box' }];   // 판이라 글자 잉크로 재면 '복사' 버튼 테두리를 뚫는다
     const page = await browser.newPage({ viewport: { width: 430, height: 932 }, deviceScaleFactor: 2 });
     try {
       await page.goto(`${BASE}/live.html?e=test-couple`, { waitUntil: 'networkidle', timeout: 45000 });

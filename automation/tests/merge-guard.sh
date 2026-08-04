@@ -1269,3 +1269,7 @@ chk 'inkRect' scripts/build-preview-annot.mjs 2                 # 글자 잉크 
 chk 'inkAll' scripts/build-preview-annot.mjs 3                  # 라벨이 청첩장 본문 글자를 덮지 않게 · 빼면 '혼주 성함'이 신랑 이름 위에 앉는다(실측)
 chk 'details::details-content' scripts/build-preview-annot.mjs 1  # 닫힌 계좌 아코디언 강제 노출 · 없으면 신랑측이 빈 칸으로 찍힌다
 chk 'env-acc-item' scripts/build-preview-annot.mjs 2             # 01 은 details 가 아니라 클래스 토글 아코디언
+chk 'on-dark' scripts/build-preview-annot.mjs 5                  # 어두운 판에서 점선·라벨을 크림으로 반전 · 빼면 08 누아르에서 점선이 배경에 묻힌다(실측 대비 9.92→1.3)
+chk "mode: 'box'" scripts/build-preview-annot.mjs 8              # 계좌 패널은 요소 테두리로 · 글자 잉크로 재면 점선이 '복사' 버튼을 뚫는다
+chk '대표 문구' scripts/build-preview-annot.mjs 1                # 02 전용 칸(data-k=quote)
+chk '한마디' scripts/build-preview-annot.mjs 2                   # 08 전용 칸(data-k=gb/bb)
