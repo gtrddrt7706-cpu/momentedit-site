@@ -1414,6 +1414,11 @@ chk 'CHORUS_LAG' scripts/build-chorus.mjs 3                # '트랙 총길이 �
 # ── [CAST_AUDIO_GUARD] 배선된 클립의 음원이 실제로 있는가 (2026-08-04)
 #   배선만 되고 mp3 가 없으면 미리듣기가 그 대목을 건너뛴다. 예정된 결원은 PENDING 명단에만 적히고,
 #   명단에 없는 결원·낡은 명단·죽은 id 는 여기서 하드 실패로 잡는다.
+chk 'OPT_KEY' order-preview.html 4                         # 옵션 키(declareWho) != 큐 키(declare) — 표를 한 곳에만 두고 검사가 그 표를 읽는다
+chk 'OPT_KEY' scripts/check-option-audio.mjs 1
+chk 'NO_PLAY' order-preview.html 4                          # 소리 없는 자리는 버튼을 숨기고 이유를 남긴다 — 표는 화면 한 곳, 검사는 그 표를 읽는다
+chk 'NO_PLAY' scripts/check-option-audio.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/check-option-audio.mjs || fail=1; fi   # 옵션 카드 들어보기가 전부 소리를 내는지 전수(값 목록은 코드에서 편다)
 chk 'CAST_AUDIO_GUARD' scripts/check-cast-audio.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-cast-audio.mjs || fail=1; fi
 chk 'VOW_CHORUS' 'docs/plans/식순연구/배역_예시_대사.txt' 1
