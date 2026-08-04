@@ -69,6 +69,16 @@ const vbMiss = vb.filter((t) => !html.includes(t));
 ok('빌더 VOWBOTH 사본이 원천과 일치(' + vb.length + '문장 · drift ' + vbMiss.length + '건)', vb.length > 0 && vbMiss.length === 0);
 vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
 
+// ★[ENTRY_SELF_MIRROR 2026-08-04] 입장 인사 예시문(ENTRY[v].self)도 인라인 사본이다 — 위 NAR_MIRROR 는 .nar 만 훑어서 안 걸렸다.
+//   이 글은 화면에만 있는 설명이 아니라 **고객이 보고 녹음해 올리는 대본**이고, 같은 글자로 성우 대본과
+//   예시 mp3 까지 만들어진다. 원천만 고치고 화면을 남겨 두면 화면에 적힌 문장과 들리는 목소리가 갈라진다.
+//   ※문장별 화자(신랑/신부 교대)가 맞는지는 scripts/check-entry-alt.mjs 가 따로 본다 — 여기에 같은 검사를 두 번 적지 않는다.
+const selfAll = Object.keys(D.ENTRY).map((k) => [k, (D.ENTRY[k] || {}).self]).filter(([, s]) => typeof s === 'string' && s.trim());
+const selfMiss = selfAll.filter(([, s]) => !html.includes(s));
+ok('빌더 ENTRY.self 사본이 원천과 일치(' + selfAll.length + '종 · drift ' + selfMiss.length + '건)',
+  selfAll.length === Object.keys(D.ENTRY).length && selfMiss.length === 0);
+selfMiss.forEach(([k]) => console.log('   DRIFT ENTRY.' + k + '.self'));
+
 // ★DECL_SET_INVARIANT — 성혼 선언은 '택1 세트'다. 세 곳(원천 DECLWHO · 빌더 선택지 배열 · 생성기 총량 서술)이
 //   서로 다른 개수를 말하면 화면·대본·AI가 각각 다른 예식을 설명하게 된다.
 //   실사고(2026-07-26): 응답형(W2)이 택1인데 코드·KB·생성기가 '선언 뒤에 덧붙임'으로 서술 →

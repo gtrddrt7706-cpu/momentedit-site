@@ -69,6 +69,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .play.playing{color:var(--seal);text-decoration-color:var(--seal)}
 .self{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 14px;margin-top:11px;font-size:13px;color:var(--ink2);line-height:1.75}
 .self .who{color:var(--gold-deeper);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
+.nar .alt{display:flex;gap:8px;align-items:baseline;margin-top:7px}   /* [ENTRY_ALT] 한 문장 = 한 줄 · 누가 읽는지 앞에 */
+.nar .alt:first-of-type{margin-top:0}
+.nar .alt .altw{flex:0 0 auto;font-size:10px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;background:#EFEAE1;border-radius:6px;padding:2px 6px;line-height:1.5}
 .prep-hint{font-size:12px;color:var(--gold-deeper);margin-top:9px;word-break:keep-all;line-height:1.6}
 .noplay{font-size:12px;color:var(--ink-3,#8a8177);margin-top:9px;word-break:keep-all;line-height:1.6}   /* [NO_PLAY] 죽은 버튼 대신 이유 한 줄 */
 .tip{background:#F3EEE6;border:1px solid #E7DFD2;border-radius:11px;padding:11px 13px;margin-top:12px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
@@ -531,6 +534,9 @@ var ENTRY={
  F:{d:"이야기의 시작",nar:"지금부터, 두 사람의 이야기가 시작됩니다. 오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장을, 큰 박수로 함께 열어 주시기 바랍니다. 신랑 신부, 입장!",
     self:"지금부터, 저희 두 사람의 이야기가 시작됩니다. 오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장, 지금 함께 열어 주세요."}
 };
+/* ★[ENTRY_ALT 2026-08-04] 입장 인사는 두 분이 한 문장씩 번갈아 읽는다. 원천은 assets/ritual-data.js 의 ENTRY_ALT —
+   여기 있는 건 사본이다(빌더가 엔진을 동기로 못 읽어서다). scripts/check-ritual-mirror.js 가 둘을 대조한다. */
+var ENTRY_ALT=["신랑","신부"];
 var DECLARE={
  '1':{d:"엄숙하게",nar:"잠시, 두 사람이 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 오늘, 신랑 신부는 이 자리에 함께하신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다. 이 자리의 모든 분께, 두 사람을 위한 큰 박수를 부탁드립니다."},
  '2':{d:"따뜻하게",nar:"잠시, 두 사람이 함께 웃고 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다. 이 자리에 계신 모든 분이, 그 증인입니다. 신랑 신부, 이제 두 사람은 부부입니다. 다 함께 큰 박수로 두 사람을 축하해 주시기 바랍니다."}
@@ -718,6 +724,18 @@ function exBox(title,arr,guide,noHead){
   return h;
 }
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+/* [ENTRY_ALT] 한 덩어리 예시문을 문장으로 나눠 누가 읽는지 붙인다.
+   ★자르는 규칙은 대본 생성기(scripts/build-typecast-import.mjs 의 splitSents)와 같아야 한다 —
+     화면에 '신랑'이라 적힌 문장이 실제로 신랑 목소리로 녹음돼 와야 하기 때문이다.
+     같은 자를 쓰는지는 scripts/check-entry-alt.mjs 가 이 함수를 그대로 떼어 돌려 manifest 와 대조한다.
+   ★후방탐색(?<=)을 쓰지 않는다 — 구형 사파리에서 정규식 파싱 자체가 터져 화면이 통째로 안 그려진다.
+     결과는 같고, 예식 전날 폰으로 여는 고객을 잃지 않는다. */
+function entryAlt(t){
+  var ss=String(t||'').replace(/([.!?])\s+/g,'$1\n').split('\n');
+  var out=[],i,x;
+  for(i=0;i<ss.length;i++){ x=ss[i].replace(/^\s+|\s+$/g,''); if(x) out.push([ENTRY_ALT[out.length%ENTRY_ALT.length],x]); }
+  return out;
+}
 function narBox(t,end){return '<div class="nar"><span class="lb">나레이션</span>'+esc(t)+(end?' <span class="end">('+esc(end)+')</span>':'')+'</div>';}
 var ICO_PLAY='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M8 5v14l11-7z"/></svg>';
 var ICO_UP='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19V7M6 13l6-6 6 6"/></svg>';
@@ -1589,8 +1607,16 @@ function renderStep(k){
     h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞춰요 · 당일엔 디렉터가 신호를 드려요</div>';
     h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
     (function(){
-      var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
-      h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn('entry');
+      var v=S.entry, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
+      /* ★[ENTRY_ALT] 두 분 목소리로 갈 때는 **누가 어느 문장을 읽는지**까지 보여준다.
+         화면이 "두 분이 읽을 인사"라 말해 놓고 글은 한 덩어리면 고객은 한 사람이 다 읽는 줄 안다 —
+         그러면 한 사람 목소리로 녹음해 올려 주시고, 그때는 이미 늦다. 입장은 둘이 함께 걷는 자리다. */
+      var ebody='';
+      if(ecpl){ entryAlt(ENTRY[v].self).forEach(function(x){ ebody+='<div class="alt"><span class="altw">'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>'; }); }
+      else ebody=esc(ENTRY[v].nar);
+      h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+ebody+'</div>';
+      if(ecpl) h+='<div class="prep-hint">한 문장씩 번갈아 읽어요 · 첫 문장은 '+esc(ENTRY_ALT[0])+'님 · 문장은 두 분 말로 바꾸셔도 돼요</div>';   // [ENTRY_ALT]
+      h+=playBtn('entry');
       if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
       h+='</div>';
     })();

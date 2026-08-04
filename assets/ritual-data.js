@@ -22,6 +22,18 @@ var ENTRY={
  F:{d:"이야기의 시작",nar:"지금부터, 두 사람의 이야기가 시작됩니다. 오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장을, 큰 박수로 함께 열어 주시기 바랍니다. 신랑 신부, 입장!",
     self:"지금부터, 저희 두 사람의 이야기가 시작됩니다. 오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장, 지금 함께 열어 주세요."}
 };
+// ★[ENTRY_ALT 2026-08-04] 입장 인사는 두 분이 **한 문장씩 번갈아** 읽는다.
+//   왜 번갈아인가 — 입장은 신랑·신부가 **함께** 걷는 자리다. 인사를 한 사람만 읽으면
+//   화면은 "두 분이 읽을 인사"라고 말해 놓고 소리로는 한 사람만 나온다. 사용자 지적 그대로:
+//   *"남편이랑 신부랑 같이 입장하는건데 왜 신부만 나래이션이있어?"*
+//   ★왜 합창(둘이 동시에)이 아닌가 — 합창은 서약 마지막 한 문장(VOWBOTH)에만 쓴다.
+//     두 번 쓰면 서약의 정점이 희석된다. 입장은 「따로 → 교대」, 서약 끝에서 「함께」로 올라간다.
+//     문안 자체가 그 상승을 쓰고 있다(A: "각자의 길" → "하나가 되어").
+//   ★왜 명단이 여기 있나 — 규칙이 네 곳에서 쓰인다: 화면 표시(order-preview.html 인라인 사본) ·
+//     붙여넣기 대본(배역_예시_대사.txt) · 조립 매핑(manifest.json sents[].role) · 재생 표(ritual-story.js CAST).
+//     넷이 어긋나면 화면에 적힌 사람과 들리는 목소리가 달라진다. scripts/check-entry-alt.mjs 가 넷을 전수 대조한다.
+//   순서는 index % 2 다 — 첫 문장이 ENTRY_ALT[0]. 문장 수가 2든 3든 규칙이 안 깨진다.
+var ENTRY_ALT=["신랑","신부"];
 var DECLARE={
  '1':{d:"엄숙하게",nar:"잠시, 두 사람이 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 오늘, 신랑 신부는 이 자리에 함께하신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다. 이 자리의 모든 분께, 두 사람을 위한 큰 박수를 부탁드립니다."},
  '2':{d:"따뜻하게",nar:"잠시, 두 사람이 함께 웃고 함께 걸어갈 날들을 마음에 그려 주시기 바랍니다. 이제 두 사람은, 서로에게 세상에 단 하나뿐인 사람이 되었습니다. 이 자리에 계신 모든 분이, 그 증인입니다. 신랑 신부, 이제 두 사람은 부부입니다. 다 함께 큰 박수로 두 사람을 축하해 주시기 바랍니다."}
@@ -217,5 +229,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN};
+return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN};
 });

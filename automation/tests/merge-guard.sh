@@ -1436,6 +1436,29 @@ chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화�
 chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다
 nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다
 
+# ── [ENTRY_ALT] 입장 인사는 두 분이 한 문장씩 번갈아 (2026-08-04 사용자
+#    *"입장 번갈아가면서 하는게좋지 남편이랑 신부랑 같이 입장하는건데 왜 신부만 나래이션이있어?"*) ──
+# 입장은 신랑·신부가 **함께 걷는** 자리인데 예시 인사 여섯 종이 전부 신부 한 사람 목소리였다.
+# 화면은 "두 분이 읽을 인사"라 말하고 소리는 한 사람이었다.
+# ★규칙이 네 곳에 흩어진다 — 원천(ritual-data ENTRY_ALT) · 화면(order-preview 사본+entryAlt) ·
+#   성우 대본(배역_예시_대사.txt 줄 앞 화자) · 조립/재생 표(manifest sents[].role · ritual-story CAST).
+#   하나만 고치는 날 화면엔 '신랑'인데 신부 목소리가 나온다 → check-entry-alt.mjs 가 넷을 전수 대조한다.
+#   ★그 검사는 화면 entryAlt() 를 **떼어다 그대로 돌린다** — 손으로 다시 구현하면 자르는 자리가 갈린다.
+# ★합창(둘이 동시)은 서약 마지막 한 문장뿐이다. 입장까지 합창으로 바꾸지 말 것 — 서약의 정점이 희석된다.
+chk 'ENTRY_ALT' assets/ritual-data.js 2
+chk 'var ENTRY_ALT=' assets/ritual-data.js 1               # 규칙 원천은 여기 하나
+chk 'ENTRY_ALT:ENTRY_ALT' assets/ritual-data.js 1          # export 안 하면 화면·검사가 원천을 못 읽는다
+chk 'ENTRY_ALT' order-preview.html 4
+chk 'function entryAlt(t){' order-preview.html 1           # 검사가 이 함수를 떼어 돌린다 — 이름을 바꾸면 검사가 못 찾는다
+chk 'ENTRY_ALT' assets/ritual-story.js 1
+chk 'ENTRY_ALT' scripts/build-typecast-import.mjs 6        # 줄별 화자 파싱 · '신랑|신부' 펼치기
+chk 'ENTRY_ALT' scripts/check-entry-alt.mjs 3
+chk 'ENTRY_ALT' scripts/check-typecast-handoff.mjs 1        # 프로브 후보를 문장 화자로 고른다 — 클립 단위면 '신랑'이 한 건도 안 잡힌다
+chk 'ENTRY_SELF_MIRROR' scripts/check-ritual-mirror.js 1   # ENTRY.self 사본도 대조 — NAR_MIRROR 는 .nar 만 훑어 안 걸렸다
+chk '신랑|신부' 'docs/plans/식순연구/배역_예시_대사.txt' 7   # 입장 6 + 합창 1
+chk '"role": "신랑|신부"' 'docs/plans/식순연구/타입캐스트/manifest.json' 7
+if command -v node >/dev/null 2>&1; then node scripts/check-entry-alt.mjs || fail=1; fi
+
 # ── [GV_NOBACK][GV_TOPRESET] 청첩장 미리보기 좌우 넘김 (2026-08-04 사용자
 #    *"좌로넘길때 옆으로안가고 뒤로가기 실행되는데 청첩장 미리보기 부분에서만 뒤로가기 기능 끄자"*
 #    *"다시 그청첩장으로 넘겻을때 스크롤이 최상단이 아니라 마지막으로 봣던 페이지부분이 나오는데"*) ──

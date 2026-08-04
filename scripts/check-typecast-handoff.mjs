@@ -57,7 +57,11 @@ if (!man.probe) {
       // 대사가 그 역할의 실제 대본에 있는 문장인가 (지어낸 텍스트를 잡는다)
       const strayText = [];
       roles.forEach((r, i) => {
-        const pool = new Set(man.clips.filter((c) => c.role === r.role).flatMap((c) => c.sents.map((s) => s.text)));
+        // ★[ENTRY_ALT 2026-08-04] 클립이 아니라 **문장**으로 고른다 — 한 클립 안에서 화자가 갈리는 자리가 있다.
+        //   입장 인사는 두 분이 한 문장씩 번갈아 읽어 클립 role 이 '신랑|신부'다. 클립 단위로 고르면
+        //   '신랑' 과 같은 클립이 하나도 없어, 빌더가 제대로 뽑은 프로브를 "지어낸 대사"라며 거절한다.
+        //   ★고르는 자(build-typecast-import.mjs 의 probe pool)와 같은 규칙을 쓴다.
+        const pool = new Set(man.clips.flatMap((c) => c.sents.filter((x) => (x.role || c.role) === r.role).map((x) => x.text)));
         const t = lines[i].slice(lines[i].indexOf(':') + 1).trim();
         if (!pool.has(t)) strayText.push(`${r.role}(${r.name})`);
       });

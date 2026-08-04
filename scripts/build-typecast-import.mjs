@@ -206,12 +206,40 @@ for (const P of PARTS) {
 
   for (const c of mine) {
     const role = c.speaker || ROLE_OF(c.id);
+    // ★[ENTRY_ALT 2026-08-04] 화자가 '신랑|신부'처럼 겹쳐 있으면 **줄마다** 누가 읽는지 적혀 있어야 한다.
+    //   입장 인사는 두 분이 한 문장씩 번갈아 읽는다(ritual-data.js 의 ENTRY_ALT 가 규칙 원천).
+    //   ★자기 검증형으로 만든 이유 — 머리글만 '신랑|신부'로 바꾸고 줄 앞을 안 적으면,
+    //     붙여넣기 파일에 `신랑|신부: …` 라는 **없는 캐릭터**가 화자로 나간다. 타입캐스트는 그걸
+    //     기본 화자에 몰아 배정하고, 다운로드하는 순간 크레딧이 차감되며 취소가 안 된다.
+    //     그러니 개수가 아니라 **모든 줄**을 보고, 목록 밖 이름도 거부한다.
+    //   ★합창 클립(mix)은 예외다 — 둘이 **동시에** 말하는 자리라 문장별 화자가 없다.
+    //     같은 문장을 두 목소리로 따로 받아 겹치는 것이라 재료 쪽([24][25])에 화자가 이미 적혀 있다.
+    const ALT = (!IS_MIX(c.no, c.file) && role.includes('|')) ? role.split('|') : null;
     const sents = [];
     c.paras.forEach((para, pi) => {
-      splitSents(para).forEach((s, si) => {
-        sents.push({ text: s, para: pi, first: si === 0 });
+      let who = null, text = para;
+      if (ALT) {
+        const m = para.match(/^\s*([^:]+?)\s*:\s*(.+)$/);
+        if (!m || !ALT.includes(m[1])) {
+          console.error(`\n✗ [${c.no}] ${c.id} — 화자가 '${role}'인데 줄 앞에 누가 읽는지 없거나 목록 밖입니다. [ENTRY_ALT]`);
+          console.error(`   문제 줄: ${para}`);
+          console.error(`   ${ALT.map((r) => `${r}: …`).join(' · ')} 처럼 줄마다 화자를 적으세요.\n`);
+          process.exit(1);
+        }
+        who = m[1]; text = m[2];
+      }
+      splitSents(text).forEach((s, si) => {
+        sents.push({ text: s, para: pi, first: si === 0, who });
       });
     });
+    if (ALT) {
+      // 머리글에 이름만 올려 두고 한 줄도 안 읽는 사람이 있으면, 화면은 두 분이라 말하는데 소리는 한 사람이다.
+      const idle = ALT.filter((r) => !sents.some((s) => s.who === r));
+      if (idle.length) {
+        console.error(`\n✗ [${c.no}] ${c.id} — 머리글엔 있는데 한 줄도 안 읽는 화자: ${idle.join(' · ')} [ENTRY_ALT]\n`);
+        process.exit(1);
+      }
+    }
 
     // 이 클립의 문장별 뒤 여백을 계산해 둔다 (조립기가 그대로 쓴다)
     const over = clipGap(c.id, c.file, sents.length ? sents[sents.length - 1].text : '');
@@ -235,13 +263,14 @@ for (const P of PARTS) {
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }
 
-      rec.sents.push({ i: k, text: s.text, before, after });
+      // [ENTRY_ALT] 문장별 화자는 겹친 역할일 때만 적는다 — 한 사람짜리 클립에 같은 값을 되풀이하지 않는다
+      rec.sents.push(s.who ? { i: k, text: s.text, role: s.who, before, after } : { i: k, text: s.text, before, after });
       // ★[VOW_CHORUS] 합성 클립은 manifest 에는 남기고 붙여넣기 본문에서만 뺀다.
       //   타입캐스트에서 받는 파일이 아니라 build-chorus.mjs 가 재료를 겹쳐 만든다.
       //   ★보류분(CAST_HOLD)처럼 통째로 빼면 안 된다 — manifest 에서 사라지면 재생 표가
       //     '대본에 없는 음원'을 가리키게 되고, 커버리지 검사가 그 자리에서 멎는다.
       if (mix) return;
-      body.push(`${named(role)}: ${s.text}`);
+      body.push(`${named(s.who || role)}: ${s.text}`);   // [ENTRY_ALT] 줄마다 다른 사람일 수 있다
       sentInPart++; totalSent++;
     });
 
@@ -250,7 +279,8 @@ for (const P of PARTS) {
 
   // ★[VOW_CHORUS] 합성 클립의 화자('신랑|신부')는 붙여넣기에 없는 사람이다. 화자 수에서 뺀다.
   //   안 빼면 머리글이 "화자 6인"이라 말하는데 파일에는 5인만 있고, 보이스 배정 화면과 어긋난다.
-  const roleList = [...new Set(mine.filter((c) => !IS_MIX(c.no, c.file)).map((c) => c.speaker || ROLE_OF(c.id)))];
+  // [ENTRY_ALT] '신랑|신부'는 두 자리다 — 안 쪼개면 없는 화자 하나가 목록에 서고 진짜 두 사람이 사라진다
+  const roleList = [...new Set(mine.filter((c) => !IS_MIX(c.no, c.file)).flatMap((c) => String(c.speaker || ROLE_OF(c.id)).split('|')))];
   const spk = roleList.map(named);
   const mapped = roleList.filter((r) => VOICE[r]);
   const unmapped = roleList.filter((r) => !VOICE[r]);
@@ -326,7 +356,7 @@ for (const P of PARTS) {
 {
   // ★[VOW_CHORUS] 합성 클립은 타입캐스트에서 목소리를 고를 자리가 아니다(우리가 겹쳐 만든다).
   //   빼지 않으면 "보이스 배정 8/9 — 남은 자리 신랑|신부"가 떠서, 다 정해 놓고도 덜 된 것처럼 보인다.
-  const realRoles = new Set(manifest.clips.filter((c) => !c.mix).map((c) => c.role));
+  const realRoles = new Set(manifest.clips.filter((c) => !c.mix).flatMap((c) => String(c.role).split('|')));   // [ENTRY_ALT]
   const ghost = Object.keys(VOICE).filter((r) => !realRoles.has(r));
   if (ghost.length) {
     console.error(`\n✗ VOICE 에 실제로 없는 역할명이 ${ghost.length}개 있습니다 — 이 배정은 무시됩니다.`);
@@ -362,7 +392,8 @@ for (const P of PARTS) {
 const sylOf = (t) => (t.match(/[가-힣]/g) || []).length;
 const probe = [];
 for (const [role, name] of Object.entries(VOICE)) {
-  const pool = manifest.clips.filter((c) => c.role === role).flatMap((c) => c.sents.map((x) => x.text));
+  // [ENTRY_ALT] 클립이 아니라 **문장**으로 고른다 — 한 클립 안에서 화자가 갈리는 자리가 있다
+  const pool = manifest.clips.flatMap((c) => c.sents.filter((x) => (x.role || c.role) === role).map((x) => x.text));
   if (!pool.length) continue;                       // VOICE_ROLE_GUARD가 위에서 이미 막는다
   // 대표 문장 — 너무 짧으면 목소리가 안 들리고 너무 길면 확인이 일이 된다. 길이 60퍼센타일로 뽑는다.
   const sorted = pool.slice().sort((x, y) => sylOf(x) - sylOf(y));
@@ -461,7 +492,9 @@ for (const p of manifest.parts) {
 // ★확정 현황은 VOICE 에서 그린다. 손으로 이름을 적지 않는다 —
 //   두 군데 적으면 한쪽만 고치는 날이 오고, 그날 이 문서가 조용히 거짓말을 시작한다.
 {
-  const roles = [...new Set(manifest.clips.map((c) => c.role))];
+  // [ENTRY_ALT] 겹친 역할('신랑|신부')은 두 자리로 편다. 안 펴면 표가 "9자리 중 8자리 확정 · 남은 자리 신랑|신부"라고
+  //   거짓 보고를 한다 — 실제로는 여덟 자리가 다 찼는데도 사용자가 손으로 고를 게 남은 줄 안다.
+  const roles = [...new Set(manifest.clips.flatMap((c) => String(c.role).split('|')))];
   const left = roles.filter((r) => !VOICE[r]);
   R.push(left.length ? '## 보이스 배정 현황' : '## ★보이스 8자리 전부 확정 — 손으로 고를 것이 없습니다', '');
   if (left.length) {
@@ -474,7 +507,7 @@ for (const p of manifest.parts) {
   R.push('| 자리 | 클립 | 목소리 |');
   R.push('|---|---|---|');
   for (const r of roles) {
-    const n = manifest.clips.filter((c) => c.role === r).length;
+    const n = manifest.clips.filter((c) => String(c.role).split('|').includes(r)).length;   // [ENTRY_ALT]
     R.push(`| ${r} | ${n} | ${VOICE[r] ? `**${VOICE[r]}**` : '⬜ 미정'} |`);
   }
   R.push('');
@@ -485,7 +518,7 @@ for (const p of manifest.parts) {
 }
 // ── 배역 파트 안내 (원천이 다르고 쓰임이 다르다)
 if (cast.length) {
-  const spk = [...new Set(cast.map((c) => c.speaker))];
+  const spk = [...new Set(cast.flatMap((c) => String(c.speaker).split('|')))];   // [ENTRY_ALT]
   R.push(`## 5번 배역은 성격이 다릅니다 — 미리듣기 전용 ${cast.length}클립`, '');
   R.push('1~4번은 **당일 식장에서 실제로 울리는 소리**입니다. 5번은 아닙니다.');
   R.push('상담 때 고객이 "우리 예식이 어떤 소리로 흘러가는지" 미리 듣는 용도이고, **당일 콘솔은 이 클립을 재생하지 않습니다.**');

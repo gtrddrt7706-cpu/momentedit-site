@@ -268,12 +268,16 @@
     '04_guest-4':       { role: '신부', rec: true },
     // ★[TEXT_AUDIO 2026-08-04] 입장은 화면 6종과 1:1이다. 05_entry 한 클립 공유는 폐기.
     //   번호가 18부터인 건 나레이션에 이미 05_entry-A ~ 10_entry-F 가 있어서다(폴더만 다른 동명 금지).
-    '18_entry-A':       { role: '신부', rec: true },
-    '19_entry-B':       { role: '신부', rec: true },
-    '20_entry-C':       { role: '신부', rec: true },
-    '21_entry-D':       { role: '신부', rec: true },
-    '22_entry-E':       { role: '신부', rec: true },
-    '23_entry-F':       { role: '신부', rec: true },
+    // ★[ENTRY_ALT 2026-08-04] 입장은 두 분이 한 문장씩 번갈아 읽는다 — 역할이 한 사람이 아니다.
+    //   전에는 여섯 클립이 전부 '신부'였다. 화면은 "두 분이 읽을 인사"라고 말하는데 소리는 신부뿐이었다.
+    //   ★rec:true 라 배지는 CAST_REC('두 분이 녹음한 목소리') 하나로 나간다 — CAST_PAIR 를 타지 않는다.
+    //     문장별 화자는 manifest.json 의 sents[].role 이 갖고 있고, 규칙 원천은 ritual-data.js 의 ENTRY_ALT 다.
+    '18_entry-A':       { role: '신랑|신부', rec: true },
+    '19_entry-B':       { role: '신랑|신부', rec: true },
+    '20_entry-C':       { role: '신랑|신부', rec: true },
+    '21_entry-D':       { role: '신랑|신부', rec: true },
+    '22_entry-E':       { role: '신랑|신부', rec: true },
+    '23_entry-F':       { role: '신랑|신부', rec: true },
     '06_welcome-groom': { role: '신랑' },
     '07_welcome-bride': { role: '신부' },
     '08_vow-groom':     { role: '신랑' },
