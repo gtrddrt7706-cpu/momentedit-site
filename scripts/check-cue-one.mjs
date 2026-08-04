@@ -33,7 +33,7 @@ const note = (f, msg) => bad.push(`${f} — ${msg}`);
 
 // ── ① [CUE_GLIDE] 블록이 16장에서 글자까지 같은가
 const START = '/* [CUE_GLIDE';
-const END = 'transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)}';
+const END = 'visibility 0s linear 1.15s}';
 const blocks = new Map();
 for (const f of INVITES) {
   if (!existsSync(join(ROOT, f))) { note(f, '파일이 없다'); continue; }
@@ -68,6 +68,10 @@ const SHARED = [
   ['등장 0.95s', /\.95s cubic-bezier\(\.22,\.61,\.36,1\)/],
   ['퇴장 1.15s', /1\.15s cubic-bezier\(\.37,0,\.63,1\)/],
   ['가라앉는 거리 9px', /translateY\(9px\)/],
+  /* ★visibility 를 전환 목록에 넣는 것이 '스르륵'의 조건이다 —
+     빠지면 클래스가 붙는 순간 요소가 꺼져 페이드가 통째로 생략된 것처럼 보인다.
+     16장 중 8장(03·05·06·07 온·오프)만 옛 규칙에 visibility:hidden 이 남아 그 8장만 툭 사라졌다. */
+  ['사라짐 끝난 뒤 끄기', /visibility 0s linear 1\.15s/],
 ];
 for (const f of ['invitation-gallery.html', 'guide.html', 'i/invitations/invitation-09-guide.html', ...INVITES.slice(0, 1)]) {
   if (!existsSync(join(ROOT, f))) { note(f, '파일이 없다'); continue; }

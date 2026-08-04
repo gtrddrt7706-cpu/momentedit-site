@@ -773,8 +773,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
           + 'flex-direction:column;align-items:center;gap:5px;padding:9px 20px 11px;border-radius:999px;'
           + 'background:' + (_dk ? 'rgba(28,27,25,.3)' : 'rgba(250,250,248,.42)') + ';'
           + 'box-shadow:' + (_dk ? '0 1px 3px rgba(0,0,0,.22)' : '0 1px 2px rgba(28,27,25,.045)') + ';'
-          + 'backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;'
-          + 'transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1)';
+          + 'backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;visibility:visible;'
+          /* ★visibility 를 전환 목록에 넣는 것이 '스르륵'의 조건이다 — 빠지면 꺼지는 순간
+             요소가 사라져 페이드가 통째로 생략된 것처럼 보인다(청첩장 8장에서 실제로 그랬다). */
+          + 'transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1),visibility 0s linear 0s';
         cue.innerHTML = '<span style="font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;'
           + 'font-size:10.5px;letter-spacing:.13em;padding-left:.13em;opacity:.86;color:' + _c + '">Scroll</span>'
           + '<span style="width:1px;height:22px;background:linear-gradient(to bottom,' + _c + ',transparent);'
@@ -785,9 +787,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
         (doc.head || doc.documentElement).appendChild(kf);
         doc.body.appendChild(cue);
         var _hide = function(){
-          cue.style.transition = 'opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)';
+          cue.style.transition = 'opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1),visibility 0s linear 1.15s';
           cue.style.opacity = '0';
           cue.style.transform = 'translateX(-50%) translateY(9px)';
+          cue.style.visibility = 'hidden';   // 다 사라진 뒤에 꺼진다(위 transition 의 1.15s 지연)
         };
         setTimeout(function(){ cue.style.opacity = '1'; cue.style.transform = 'translateX(-50%) translateY(0)'; }, 500);
         var _cueT = setTimeout(_hide, 500 + 2200);

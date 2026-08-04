@@ -1272,10 +1272,16 @@ details.acc[open] summary::after{transform:rotate(45deg)}
      애니메이션은 전환(transition)보다 세다. 그래서 2.4s 뒤부터 opacity 를 애니메이션이 붙들어,
      사라질 때 불투명도만 뚝 끊기고 위치만 스르르 흘렀다(1.15s 중 opacity 0ms). 여기서 못을 박는다. */
   animation:none;
-  transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1)}
+  /* ★visibility 도 함께 다룬다 — 16장 중 8장(03·05·06·07 온·오프)만 옛 .hidden 에 visibility:hidden 이 있었다.
+     visibility 는 전환 목록에 없으면 클래스가 붙는 그 순간 꺼진다. 그래서 그 8장만 페이드가 통째로
+     생략된 것처럼 툭 사라졌다(사용자 제보 "어떤건 스르륵이고 어떤건 효과없이 그냥 사라지는데").
+     여기서 두 상태 모두 visibility 를 명시하고, 끄는 시점을 사라짐이 **끝난 뒤로** 미룬다. */
+  visibility:visible;
+  transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1),visibility 0s linear 0s}
 .cover-scroll.in{transform:translateX(-50%) translateY(0)}
 .cover-scroll.hidden{opacity:0 !important;transform:translateX(-50%) translateY(9px) !important;
-  transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)}
+  visibility:hidden !important;
+  transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1),visibility 0s linear 1.15s}
 
 @media print{.cover-scroll{display:none}}
 /* [CUE_POS 2026-08-04] 스크롤 표시는 16장이 **완전히 같다** — 모양도, 화면에서의 자리도.

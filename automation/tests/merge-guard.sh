@@ -1474,3 +1474,14 @@ chk 'GV_ROW_TIGHT' invitation-gallery.html 3
 #      그 두 판에서만 조용히 죽어 있었다(노치 기기에서 큐가 홈 인디케이터에 더 붙는다).
 nochk 'user-scalable=no' i/cover-01.html
 nochk 'user-scalable=no' i-family/family-01.html
+
+# ── [DEL_TRUTH] 삭제 확인 문구가 서버의 실제 동작과 같은 말을 하는가 (2026-08-04 사용자 "4번 너가확인해봐") ──
+# 서버(automation/platform/96_ai_cost.gs)를 읽고 셋을 갈랐다:
+#   · aiFactDelete  — 지우기 직전 값을 이력 시트에 '(삭제)'로 남기고 aiFactRollback 이 되살린다 → 되돌릴 수 있다.
+#     다만 지우면 목록에서 행이 빠져 '이력' 버튼에 닿을 길이 없었다. 그래서 지운 직후 이력을 펼친다.
+#     ★showFactHist 호출을 빼면 '되돌릴 수 있다'는 문구가 거짓말이 된다.
+#   · aiKbNoteDelete / aiRegDelete — sh.deleteRows 한 줄, 이력 없음 → 정말 못 되돌린다.
+#     둘 다 바로 옆에 '끄기'(SetActive)가 있고 그건 되돌릴 수 있다 — 문구가 그쪽을 가리킨다.
+chk 'DEL_TRUTH' admin.html 3
+chk 'showFactHist(k)' admin.html 1
+chk '되돌릴 수 없어요 — 잠깐 멈추려는 거라면' admin.html 2
