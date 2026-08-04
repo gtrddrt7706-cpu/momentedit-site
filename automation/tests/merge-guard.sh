@@ -1366,6 +1366,9 @@ chk 'position:fixed !important' i/cover-08.html 1          # 커버 기준(absol
 chk 'CUE_IN' i/cover-08.html 2                             # 등장은 JS 가 0.9s 뒤 .in — CSS 지연(2.4s)으로 되돌리면 느려지고, 노드를 옮길 때 애니메이션이 되감겨 판마다 시점이 갈린다
 chk 'CUE_PLATE' i/cover-08.html 2                          # 하얀 원형 배경판 · 없으면 큐가 본문 글자와 뒤엉킨다(자리를 피해 다니지 않기로 했으므로)
 chk 'document.body.appendChild(el)' i/cover-08.html 1       # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
+chk 'CUE_AUTOHIDE' i/cover-01.html 1                        # 스스로 물러난다(3.2초) · 없으면 홈·갤러리 미리보기에서 스크롤을 안 해 큐가 청첩장을 계속 가린다
+chk 'CUE_AUTOHIDE' i-family/family-08.html 1
+nochk 'rgba(250,250,248,.88)' i/cover-04.html               # 배경판은 옅게(.58) — .88 로 되돌리면 뒤 디자인이 안 보인다
 chk 'CUE_MOOD' i/cover-01.html 1                            # 이탤릭 소문자 Scroll + 흘러내리는 선 · 트래킹 넓은 대문자로 되돌리면 UI 명령어 톤이 된다
 chk 'cueDrip' i/cover-08.html 2                             # 말로 시키는 대신 동작을 보여 준다(제자리 맥박 → 흘러내림)
 chk 'text-transform:none' i/cover-04.html 1
