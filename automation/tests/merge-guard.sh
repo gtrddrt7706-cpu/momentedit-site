@@ -1410,4 +1410,5 @@ chk 'CAST_PAIR\[c.role\]' assets/ritual-story.js 1          # '신랑|신부'처
 chk "split('|')" assets/ritual-story.js 1                  # 안 쪼개면 배지 키가 '신랑|신랑|신부|신부'로 깨진다
 chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 아니라 합성처럼 들린다(플랜저)
 chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
+chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다
 nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다
