@@ -143,6 +143,13 @@ for (const c of targets) {
   let plan;
   if (A.segs.length === B.segs.length && A.segs.length > 0) {
     plan = `문장 단위 정렬 (토막 ${A.segs.length}개)`;
+    // ★[CHORUS_SEGN] 둘이 같기만 하면 통과시키면, **둘 다 똑같이 틀린** 경우가 조용히 지나간다.
+    //   (문장 2개인데 양쪽 다 토막 1개로 잡히는 식 — 두 문장이 한 덩어리로 붙어 버린다)
+    //   아는 문장 수와 다르면 맞춰 놓고도 반드시 말한다. 폴백이 조용하면 버그가 기능처럼 보인다.
+    if (want && A.segs.length !== want) {
+      plan += ` ★그런데 대본은 ${want}문장입니다 — 두 재료가 똑같이 ${A.segs.length}덩어리로 잡혔습니다. 문장이 붙었는지 꼭 들어 보세요`;
+      warned++;
+    }
     // 여백은 manifest 가 적어 둔 값을 그대로 쓴다 — 조립기가 두 재료에 같은 값을 넣었으므로 같다
     const gapAt = (i) => {
       const s = c.sents[i];
@@ -155,7 +162,14 @@ for (const c of targets) {
       const pa = path.join(TMP, `a${i}.wav`), pb = path.join(TMP, `b${i}.wav`);
       cut(srcs[0].f, A.segs[i][0], A.segs[i][1], pa);
       cut(srcs[1].f, B.segs[i][0], B.segs[i][1], pb);
-      const da = dur(pa), db = dur(pb), target = Math.max(da, db);
+      const da = dur(pa), db = dur(pb);
+      // ★[CHORUS_MEET 2026-08-04] 목표 길이는 '긴 쪽'이 아니라 **가운데**(기하평균)다.
+      //   긴 쪽에 맞추면 긴 쪽은 손대지 않고 짧은 쪽만 혼자 늘어난다 — 한 사람의 보정 여유만
+      //   쓰고 다른 사람 몫은 통째로 버리는 셈이다. 실제로 서약 합창에서 신랑 0.84초 대
+      //   신부 1.64초일 때, 긴 쪽 기준은 0.67초가 남았고 가운데 기준은 0.44초로 줄었다.
+      //   ★품질에서도 이쪽이 낫다 — 한 사람을 크게 비트는 대신 두 사람을 조금씩만 비튼다
+      //     (보정률이 배율 r 에서 √r 로 준다). 그리고 그게 실제 합창이 맞춰지는 방식이다.
+      const target = Math.sqrt(Math.max(da, 0.001) * Math.max(db, 0.001));
       const qa = path.join(TMP, `A${i}.wav`), qb = path.join(TMP, `B${i}.wav`);
       tempos[0].push(stretch(pa, qa, da / target));
       tempos[1].push(stretch(pb, qb, db / target));
