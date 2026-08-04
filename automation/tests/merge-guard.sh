@@ -992,7 +992,7 @@ chk 'GV_OPEN_SAME' invitation-gallery.html 1                 # Open은 같은 �
 chk 'GUIDE_INFRAME' guide.html 2                             # 프레임 안에선 뒤로·홈 버튼을 켜지 않는다 · 미리보기 여정 밖으로 새는 문
 chk 'GUIDE_SCROLLCUE' guide.html 3                           # 스크롤바 숨김 + Scroll 큐 · 내용이 길 때만 나타나고 스크롤하면 사라진다
 chk 'DEMO_SEATS' guide.html 1                                # 표본 좌석 만석 5석 + 맨뒤 2석 · 총 24명(25명 약속 안쪽) · 늘릴 때 25 넘기지 말 것
-chk 'INV_BACK' shared/hydrate.js 1                           # 갤러리 Open으로 넘어온 실물 청첩장의 '‹ 갤러리' 버튼 · 표본에서만 뜬다
+chk 'INV_BACK' shared/hydrate.js 1                           # 알약이 shared/gv-back.js 로 옮겨 간 자리 표시 · 여기에 다시 만들지 말라는 안내가 남아 있어야 한다
 chk 'GV_SCROLLCUE' invitation-gallery.html 1                 # 프레임 안 Scroll 큐 · 없으면 83~87% 깊이의 하객 안내 CTA를 '없다'고 오해한다
 chk 'CTA_STACK' shared/hydrate.js 1                          # 하객 안내 CTA position:relative+z-index · 빼면 배경 레이어(.venue-bg 등)에 덮여 일부 디자인만 조용히 사라진다
 chk 'GUIDE_DRINK' guide.html 4                               # 내 자리 음료 3종(마이페이지 계약) · 서버가 drink를 보낼 때만 뜬다 · 남의 음료 노출 금지
@@ -1025,7 +1025,7 @@ chk 'AUD16' i-family/family-07.html 33                     # 16종 교정 마커
 chk 'AUD16' i-family/family-08.html 10                     # 16종 교정 마커(대비·role·이탤릭·토큰) · 줄면 어딘가 되돌아간 것
 chk 'DEMO_ENVELOPE' shared/hydrate.js 1               # 표본에 마음 전하실 곳 재현 · 빼면 예비 고객이 봉투 기능을 못 본다
 chk 'CTA_FONT' shared/hydrate.js 1                    # 하객 안내 카드 서체를 본문 문단에서 상속 · 빼면 01에서 혼자 산세리프
-chk 'INV_BACK_DODGE' shared/hydrate.js 1              # 표본 알약 워드마크 회피 히트테스트 · 빼면 커버 로고를 가린다
+chk 'INV_BACK_DODGE' shared/gv-back.js 1              # 알약 워드마크 회피 히트테스트 · 빼면 커버 로고를 가린다(옮겨 온 뒤에도 살아 있어야 한다)
 chk '{{WEDDING_MONTH_NUM_PAD}}' i/cover-03.html 1     # 03 날짜 토큰(하드코딩 동류 결함 수정분)
 chk '{{WEDDING_MONTH_NUM_PAD}}' i-family/family-03.html 1
 chk '{{WEDDING_YEAR}}' i/cover-04.html 1              # 04 콜로폰 연도 토큰
@@ -1487,3 +1487,27 @@ nochk 'user-scalable=no' i-family/family-01.html
 chk 'DEL_TRUTH' admin.html 3
 chk 'showFactHist(k)' admin.html 1
 chk '되돌릴 수 없어요 — 잠깐 멈추려는 거라면' admin.html 2
+
+# ── [GV_SIDE_OFF][GV_NAME_KO][GV_BACK] PC 미리보기 연속성 (2026-08-04 사용자
+#    *"연속성을 위해 좌측에있는 설명부분은 삭제 / 하단 좌측 영문은 삭제 한글로 / 오픈눌러서 들어가면
+#      그전 청첩장이랑 똑같은 디자인으로 뒤로가기 버튼"*) ──
+# ① 좌측 설명 판(aside.gv-info) 폐기 — 9~11번에서만 켜져 넘길 때마다 화면 왼쪽이 켜졌다 꺼졌다 했다.
+#    설명 3줄은 상단 띠 '자세히'(.gv-vi-lines)에 그대로 있다 — .gv-info-l 규칙을 지우면 그쪽이 민얼굴이 된다.
+# ② 안내 카드 이름에서 영문 삭제 → 한글만. Cormorant 에는 한글이 없어 .ko 로 한글 세리프를 받쳐야 한다.
+# ③ 돌아가기 알약을 shared/gv-back.js **한 곳**으로 모았다(종전엔 hydrate.js 안에 있어 16장 전용).
+#    갤러리가 Open 주소에 ?gv=<카드>-<판> 표식을 붙이고, 그 표식이 있을 때만 뜬다.
+#    ★진짜 하객이 받은 주소엔 표식이 없다 — 거기 '갤러리'가 뜨면 결함이다(실측 4경로 0건).
+#    ★hydrate.js 에 다시 만들지 말 것. 두 벌이 되면 언젠가 한쪽만 손대 생김새가 갈린다.
+chk 'GV_SIDE_OFF' invitation-gallery.html 3
+nochk 'aside class="gv-info"' invitation-gallery.html
+chk 'gv-info-l' invitation-gallery.html 4
+chk 'GV_NAME_KO' invitation-gallery.html 2
+chk 'gv-meta-name.ko' invitation-gallery.html 1   # CSS가 한 줄로 붙어 있어 줄 수는 1
+chk 'GV_BACK' invitation-gallery.html 1
+chk "'gv=' + i + '-' + ver" invitation-gallery.html 1
+chk 'INV_BACK' shared/gv-back.js 2
+nochk 'function injectGalleryBack' shared/hydrate.js
+if command -v node >/dev/null 2>&1; then
+  _n=$(grep -l 'shared/gv-back.js' i/cover-0*.html i-family/family-0*.html live.html guide.html i/invitations/invitation-09-guide.html 2>/dev/null | wc -l | tr -d ' ')
+  [ "$_n" = "19" ] || { echo "REVERT? gv-back.js 배선이 19곳이 아니다($_n) — 빠진 판은 Open 후 돌아갈 문이 없다"; fail=1; }
+fi

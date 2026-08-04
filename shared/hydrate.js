@@ -572,62 +572,12 @@
     })();
   }
 
-  /* [INV_BACK] 갤러리에서 Open으로 넘어온 실물 청첩장에는 돌아갈 문이 없었다
-     (2026-08-01 사용자 지적 "전체화면으로 바뀌는 건 좋은데 뒤로가기 버튼이 없어").
-     청첩장 원본 8×2종을 건드리지 않고 여기서 한 번에 얹는다 — 이 파일은 16종이 공유한다.
-     ★조건: history가 있고 & 표본(?e=test-couple)일 때만. 실제 하객이 받은 청첩장에
-       '갤러리로' 버튼이 뜨면 안 된다 — 하객은 갤러리를 모른다.
-     ★어두운 디자인(Noir 등)에서 사라지지 않게 배경 밝기로 색을 뒤집는다. */
-  function injectGalleryBack() {
-    try {
-      var _p2 = new URLSearchParams(location.search);
-      if ((_p2.get('e') || '').trim() !== 'test-couple') return;   // 표본 경로 전용
-      if (!(history.length > 1)) return;
-      try { if (window.parent && window.parent !== window) return; } catch (e) { return; }   // 갤러리 프레임 안에선 불필요
-      if (document.getElementById('meGvBack')) return;
-      var dark = false;
-      try {
-        var bc = (getComputedStyle(document.body).backgroundColor || '').match(/\d+/g);
-        if (bc && bc.length >= 3) dark = (0.299 * bc[0] + 0.587 * bc[1] + 0.114 * bc[2]) < 128;
-      } catch (e) {}
-      var a = document.createElement('button');
-      a.id = 'meGvBack';
-      a.type = 'button';
-      a.setAttribute('aria-label', '갤러리로 돌아가기');
-      a.style.cssText = 'position:fixed;left:max(14px,env(safe-area-inset-left));'
-        + 'top:calc(12px + env(safe-area-inset-top));z-index:2147483000;'
-        + 'display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:11px 16px 11px 13px;'
-        + 'font-family:"Noto Serif KR","Nanum Myeongjo",serif;font-size:12.5px;letter-spacing:0.04em;'
-        + 'border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;'
-        + 'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);'
-        + (dark
-            ? 'background:rgba(28,27,25,0.62);color:#EDE8DF;border:1px solid rgba(184,154,117,0.42);'
-            : 'background:rgba(255,255,255,0.82);color:#3A2D22;border:1px solid rgba(28,27,25,0.12);');
-      a.innerHTML = '<span aria-hidden="true" style="font-size:15px;line-height:1">\u2039</span><span>갤러리</span>';
-      a.addEventListener('click', function () { history.back(); });
-      document.body.appendChild(a);
-      /* [INV_BACK_DODGE] 알약이 커버 워드마크를 덮었다(02·03·04·05·07 실측 61×14px 겹침, 16종 검수).
-         디자인마다 마스트 높이가 달라 고정 top으론 전부 못 피한다 — 붙인 뒤 실제로 밑에 깔린
-         텍스트 요소를 히트테스트로 찾아, 있으면 그 아래로 내려앉는다(최대 132px). */
-      requestAnimationFrame(function () {
-        try {
-          var r = a.getBoundingClientRect(), low = 0;
-          var pts = [[r.left + 6, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2], [(r.left + r.right) / 2, r.top + 4]];
-          for (var i = 0; i < pts.length; i++) {
-            var els = document.elementsFromPoint(pts[i][0], pts[i][1]) || [];
-            for (var j = 0; j < els.length; j++) {
-              var el = els[j];
-              if (el === a || a.contains(el) || el === document.body || el === document.documentElement) continue;
-              if (!el.textContent || !el.textContent.trim()) continue;
-              var b2 = el.getBoundingClientRect();
-              if (b2.height > 0 && b2.height < 160 && b2.bottom > low) low = b2.bottom;   // 화면만 한 배경 컨테이너는 제외
-            }
-          }
-          if (low > 0) a.style.top = Math.min(132, Math.round(low) + 10) + 'px';
-        } catch (e2) {}
-      });
-    } catch (e) {}
-  }
+  /* [INV_BACK → shared/gv-back.js 2026-08-04] 갤러리로 돌아가는 알약은 여기 있었다.
+     갤러리에는 청첩장 16장 말고 안내 카드가 셋 더 있는데(맞춤 안내·모바일 참석·하객 안내)
+     그 셋은 이 파일을 쓰지 않아 Open 으로 들어가면 돌아갈 문이 없었다.
+     한 벌로 두려고 shared/gv-back.js 로 옮겼다 — 19장이 같은 파일을 읽는다.
+     ★여기에 다시 만들지 말 것. 두 벌이 되면 언젠가 한쪽만 손대 생김새가 갈린다
+       (같은 날 스크롤 표시가 딱 그렇게 8 대 8로 갈라져 있었다). */
 
   function preconnectWebhook() {
     try {
@@ -664,7 +614,6 @@
       _demo.eventId = 'test-couple';
       apply(_demo); clearTimeout(failsafe); reveal();
       injectGuideCta('test-couple');
-      injectGalleryBack();   // [INV_BACK]
       return;
     }
 
