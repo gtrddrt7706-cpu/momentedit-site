@@ -13,6 +13,11 @@
       "continue": true
     },
     {
+      "src": "^/assets/audio/.*\\.mp3$",
+      "headers": { "Cache-Control": "public, max-age=0, must-revalidate" },
+      "continue": true
+    },
+    {
       "src": "^/i/(cover-\\d{2})\\.html$",
       "has": [
         {

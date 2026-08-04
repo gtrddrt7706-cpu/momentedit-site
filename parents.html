@@ -313,61 +313,94 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   plusBtn.addEventListener('click',function(){if(idx<SIZES.length-1){idx++;apply();}});
   document.getElementById('printBtn').addEventListener('click',function(){window.print();});
 
-  /* 듣기: 녹음 음원이 있으면 음원 재생, 없으면 기기 내장 한국어 음성으로 낭독 */
+  /* 듣기 — 녹음 음원이 있으면 음원, 없으면 기기 내장 한국어 음성으로 낭독
+     [LISTEN_ONE_HANDLER 2026-08-04] 버튼 하나에 핸들러 하나. 모드가 정해진 뒤에만 버튼을 보인다.
+     왜 이렇게까지 하나 — 2026-08-04 실사용 신고: "편지 듣다가 중간에 기존 더빙하기전 음성이 나오다가
+     한번더 누르니 동시에나오는버그" . 모드 판정이 fetch(HEAD)라 비동기인데 판정 전에 버튼을 보여 주면
+     「모르는 채로 누를 수 있는 창」이 열리고, 그 창에서 시작한 기기 음성이 살아 있는 채 음원 모드가 켜지면
+     두 소리가 겹친다. 핸들러를 둘로 나눠 두면 나중 핸들러가 앞 핸들러의 소리를 끌 방법도 없다.
+     ★모드를 모르는 채로는 버튼을 보여 주지 않는다. 다만 영영 모르는 상태로 두지도 않는다(HEAD_WAIT 뒤 음성 모드).
+     회귀핀: scripts/audit/parents-listen-race.mjs */
   var AUDIO_SRC='/assets/audio/parents-letter.mp3';
-  var audioEl=null,audioMode=false;
-  var synth=window.speechSynthesis;
+  var HEAD_WAIT=2500;                      // 판정이 이만큼 늦으면 기기 음성으로 내려앉는다
   var btn=document.getElementById('listenBtn');
-  function setupAudioMode(){
-    audioMode=true;btn.hidden=false;
-    btn.addEventListener('click',function(){
-      if(!audioEl){audioEl=new Audio(AUDIO_SRC);audioEl.preload='auto';
-        audioEl.addEventListener('ended',function(){btn.textContent='듣기';});
-        audioEl.addEventListener('error',function(){btn.textContent='듣기';});}
-      if(audioEl.paused){audioEl.play();btn.textContent='멈춤';}
-      else{audioEl.pause();btn.textContent='듣기';}
-    });
-    document.addEventListener('visibilitychange',function(){if(document.hidden&&audioEl&&!audioEl.paused){audioEl.pause();btn.textContent='듣기';}});
-  }
-  try{
-    fetch(AUDIO_SRC,{method:'HEAD'}).then(function(r){
-      if(r&&r.ok){setupAudioMode();}
-    }).catch(function(){});
-  }catch(e){}
-  if(synth&&window.SpeechSynthesisUtterance){
-    if(!audioMode)btn.hidden=false;
-    var speaking=false;
-    function koVoice(){
+  var synth=window.speechSynthesis;
+  var canTTS=!!(synth&&window.SpeechSynthesisUtterance);
+  if(btn){
+    var mode=null;                         // 'audio' | 'tts' — null이면 아직 모르는 상태라 버튼을 안 보인다
+    var audioEl=null, speaking=false, settled=false;
+
+    var label=function(t){ btn.textContent=t; };
+    var koVoice=function(){
       try{
-        var vs=synth.getVoices()||[];
+        var vs=(synth&&synth.getVoices&&synth.getVoices())||[];
         for(var i=0;i<vs.length;i++){if((vs[i].lang||'').toLowerCase().indexOf('ko')===0)return vs[i];}
       }catch(e){}
       return null;
-    }
-    function stopRead(){try{synth.cancel();}catch(e){}speaking=false;btn.textContent='듣기';}
-    function startRead(){
-      var parts=[];
-      var nodes=document.querySelectorAll('#letter p, #letter .part-title, #letter .choice-list li, #letter .sign-from');
+    };
+    var ttsStop=function(){ if(canTTS){try{synth.cancel();}catch(e){}} speaking=false; };
+    var audioStop=function(){ if(audioEl&&!audioEl.paused){try{audioEl.pause();}catch(e){}} };
+    var stopAll=function(){ ttsStop(); audioStop(); label('듣기'); };
+
+    var ttsStart=function(){
+      var parts=[], nodes=document.querySelectorAll('#letter p, #letter .part-title, #letter .choice-list li, #letter .sign-from');
       for(var i=0;i<nodes.length;i++){
         var t=(nodes[i].textContent||'').replace(/\s+/g,' ').trim();
         if(t)parts.push(t);
       }
       if(!parts.length)return;
       try{synth.cancel();}catch(e){}
-      var v=koVoice();
-      var remaining=parts.length;
+      var v=koVoice(), remaining=parts.length;
+      var done=function(){ remaining--; if(remaining<=0){ speaking=false; if(mode==='tts')label('듣기'); } };
       for(var j=0;j<parts.length;j++){
         var u=new SpeechSynthesisUtterance(parts[j]);
-        u.lang='ko-KR';if(v)u.voice=v;u.rate=0.95;u.pitch=1;
-        u.onend=u.onerror=function(){remaining--;if(remaining<=0){speaking=false;btn.textContent='듣기';}};
+        u.lang='ko-KR'; if(v)u.voice=v; u.rate=0.95; u.pitch=1;
+        u.onend=u.onerror=done;
         synth.speak(u);
       }
-      speaking=true;btn.textContent='멈춤';
-    }
-    btn.addEventListener('click',function(){if(audioMode)return;speaking?stopRead():startRead();});
-    document.addEventListener('visibilitychange',function(){if(document.hidden)stopRead();});
-    window.addEventListener('pagehide',stopRead);
-    if(typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
+      speaking=true; label('멈춤');
+    };
+
+    var audioToggle=function(){
+      if(!audioEl){
+        audioEl=new Audio(AUDIO_SRC); audioEl.preload='auto';
+        audioEl.addEventListener('ended',function(){label('듣기');});
+        audioEl.addEventListener('error',function(){label('듣기');});
+      }
+      if(audioEl.paused){
+        label('멈춤');
+        var p=null; try{ p=audioEl.play(); }catch(e){ label('듣기'); return; }
+        // 재생이 거절될 수 있다(자동재생 정책·디코드 실패) — 라벨만 '멈춤'으로 남아 거짓말하지 않게 되돌린다
+        if(p&&p.catch)p.catch(function(){ label('듣기'); });
+      }else{ audioEl.pause(); label('듣기'); }
+    };
+
+    // 모드가 바뀌는 순간, 떠 있던 소리를 먼저 끈다 — 이 한 줄이 두 소리가 겹치는 유일한 통로를 막는다
+    var setMode=function(m){
+      if(mode===m)return;
+      mode=m; ttsStop(); audioStop(); label('듣기'); btn.hidden=false;
+    };
+
+    btn.addEventListener('click',function(){
+      if(mode==='audio')return audioToggle();
+      if(mode==='tts')return speaking?stopAll():ttsStart();
+    });
+    document.addEventListener('visibilitychange',function(){ if(document.hidden)stopAll(); });
+    window.addEventListener('pagehide',stopAll);
+    if(canTTS&&typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
+
+    var toTTS=function(){ if(settled)return; settled=true; if(canTTS)setMode('tts'); };   // 둘 다 없으면 버튼은 끝내 숨긴다
+    var toAudio=function(){
+      if(!settled){ settled=true; setMode('audio'); return; }
+      // 기기 음성으로 내려앉은 뒤에 음원이 늦게 도착했다 — 아직 아무 소리도 안 났을 때만 조용히 올린다
+      if(mode==='tts'&&!speaking)setMode('audio');
+    };
+    var timer=setTimeout(toTTS,HEAD_WAIT);
+    try{
+      fetch(AUDIO_SRC,{method:'HEAD'}).then(function(r){
+        clearTimeout(timer); if(r&&r.ok)toAudio(); else toTTS();
+      }).catch(function(){ clearTimeout(timer); toTTS(); });
+    }catch(e){ clearTimeout(timer); toTTS(); }
   }
 })();
 </script>
