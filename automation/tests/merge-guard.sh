@@ -1366,6 +1366,11 @@ chk 'position:fixed !important' i/cover-08.html 1          # 커버 기준(absol
 chk 'CUE_IN' i/cover-08.html 2                             # 등장은 JS 가 0.9s 뒤 .in — CSS 지연(2.4s)으로 되돌리면 느려지고, 노드를 옮길 때 애니메이션이 되감겨 판마다 시점이 갈린다
 chk 'CUE_PLATE' i/cover-08.html 2                          # 하얀 원형 배경판 · 없으면 큐가 본문 글자와 뒤엉킨다(자리를 피해 다니지 않기로 했으므로)
 chk 'document.body.appendChild(el)' i/cover-08.html 1       # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
+chk 'CUE_REARM' i/cover-01.html 1                           # 카드가 앞에 설 때 큐를 다시 켠다 · 없으면 미리 불러 둔 카드는 보기도 전에 타이머가 끝나 "어떤 건 나오고 어떤 건 안 나온다"
+chk 'CUE_REARM' invitation-gallery.html 1                   # 알려 주는 쪽(갤러리)과 받는 쪽(청첩장)이 둘 다 있어야 동작한다
+chk 'momentedit:cueRearm' i/cover-08.html 1
+chk 'momentedit:cueRearm' invitation-gallery.html 1
+chk '__cueArmed' i/cover-04.html 2                          # 하이드레이션이 body 를 갈아 끼워도 큐가 살아남게 여러 박자 재확인 · 타이머 중복 방지
 chk 'CUE_AUTOHIDE' i/cover-01.html 1                        # 스스로 물러난다(3.2초) · 없으면 홈·갤러리 미리보기에서 스크롤을 안 해 큐가 청첩장을 계속 가린다
 chk 'CUE_AUTOHIDE' i-family/family-08.html 1
 nochk 'rgba(250,250,248,.88)' i/cover-04.html               # 배경판은 옅게(.58) — .88 로 되돌리면 뒤 디자인이 안 보인다

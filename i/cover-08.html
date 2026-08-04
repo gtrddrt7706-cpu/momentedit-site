@@ -1096,7 +1096,7 @@ details.env-acc[open] > .env-acc-q{
 /* [CUE_PLATE 2026-08-04] 스크롤 표시 배경판 복원 — 예전 갤러리 알약에 있던 하얀 원형 배경이다.
    자리를 판마다 피해 다니지 않기로 한 뒤(CUE_POS) 큐가 본문 글자 위에 얹힐 수 있다.
    배경판이 있으면 글자와 뒤엉키지 않는다. 어두운 판(누아르)은 반대로 어두운 판을 깐다. */
-.cover-scroll{background:rgba(250,250,248,.58);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+.cover-scroll{background:rgba(250,250,248,.42);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
   /* 좌우 여백은 넉넉히 — 알약은 좌우 끝이 반원이라, 그 반원이 글자 높이까지 파고들면
      'SCROLL' 이 판 밖으로 나온 것처럼 보인다. 글자폭(56px)보다 직선 구간이 길어야 한다(실측). */
   border-radius:999px;padding:9px 20px 11px;gap:5px;box-shadow:0 1px 2px rgba(28,27,25,.045);
@@ -1123,7 +1123,7 @@ details.env-acc[open] > .env-acc-q{
   100% {transform:translateY(8px);opacity:0}
 }
 @media (prefers-reduced-motion:reduce){ .cover-scroll .cover-scroll-line{animation:none;opacity:.7} }
-.cover-scroll.cue-dark{background:rgba(28,27,25,.42);box-shadow:0 1px 3px rgba(0,0,0,.22)}
+.cover-scroll.cue-dark{background:rgba(28,27,25,.3);box-shadow:0 1px 3px rgba(0,0,0,.22)}
 .cover-scroll.in{opacity:1}
 @media print{.cover-scroll{display:none}}
 /* [CUE_POS 2026-08-04] 스크롤 표시는 16장이 **완전히 같다** — 모양도, 화면에서의 자리도.
@@ -1531,31 +1531,46 @@ details.env-acc[open] > .env-acc-q{
 </script>
 
 <script>
-/* [CUE_IN][CUE_PLATE][CUE_POS 2026-08-04] 스크롤 표시 한 벌 — 16장이 같은 코드를 쓴다.
+/* [CUE_IN][CUE_PLATE][CUE_POS][CUE_AUTOHIDE][CUE_REARM 2026-08-04] 스크롤 표시 한 벌 — 16장이 같은 코드.
    1) body 로 옮긴다: transform 걸린 조상이 있으면 position:fixed 가 화면 기준을 잃는다(08 이 84px 떴다).
    2) 배경판 명암을 판 배경에서 정한다: 누아르처럼 어두운 판엔 어두운 판을 깐다.
-   3) 0.9초 뒤 .in - CSS 지연으로 두면 노드를 옮길 때 애니메이션이 되감겨 판마다 시점이 달라진다. */
+   3) 나타났다가 스스로 물러난다. 스크롤하면 그 즉시(.hidden).
+   ★[CUE_REARM] 갤러리에서 "어떤 청첩장은 나오고 어떤 건 안 나온다"의 원인 두 가지를 여기서 함께 막는다:
+     ① 하이드레이션이 body 를 통째로 갈아 끼우면 body 로 옮겨 둔 큐가 **사라진다**(갤러리 01 실측: 큐 없음).
+        → 한 번만 실행하지 말고 몇 번 더 확인해 다시 붙인다.
+     ② 갤러리는 이웃 카드를 미리 불러 둔다. 불러온 시점부터 타이머가 돌아, 사용자가 그 카드를 볼 때쯤엔
+        이미 다 사라진 뒤다(실측: 보고 있는 카드가 hidden=true). → 카드가 앞에 설 때 부모가 알려 주면 다시 켠다. */
 (function(){
+  var timers = [];
+  function clearTimers(){ while (timers.length) clearTimeout(timers.pop()); }
+  function arm(el){
+    clearTimers();
+    el.classList.remove('hidden');
+    timers.push(setTimeout(function(){ el.classList.add('in'); }, 500));
+    timers.push(setTimeout(function(){ el.classList.add('hidden'); }, 500 + 2200));
+  }
   function go(){
     var el = document.querySelector('.cover-scroll');
-    if (!el) return;
+    if (!el) return false;
     try { if (el.parentElement !== document.body) document.body.appendChild(el); } catch (e) {}
     try {
       var bc = (getComputedStyle(document.body).backgroundColor || '').match(/[0-9.]+/g);
       if (bc && bc.length >= 3 && (0.299*bc[0] + 0.587*bc[1] + 0.114*bc[2]) < 128) el.classList.add('cue-dark');
+      else el.classList.remove('cue-dark');
     } catch (e) {}
-    setTimeout(function(){ el.classList.add('in'); }, 700);
-    /* [CUE_AUTOHIDE 2026-08-04] 스스로 물러난다 — 예전엔 스크롤해야만 사라졌다.
-       홈·갤러리 미리보기에서는 스크롤을 하지 않으니 큐가 계속 떠서 청첩장 디자인을 가렸다
-       (사용자 지적 "메인화면 청첩장 디자인 확인할 수 있게"). 3.2초 보여 주고 물러난다.
-       스크롤하면 그 즉시 사라지는 기존 동작(.hidden)은 그대로 — 둘 다 같은 클래스를 쓴다. */
-    setTimeout(function(){ el.classList.add('hidden'); }, 700 + 3200);
+    if (!el.__cueArmed) { el.__cueArmed = 1; arm(el); }
+    return true;
   }
-  /* 이 스크립트는 </body> 직전이라 .cover-scroll 은 이미 파싱돼 있다 — DOMContentLoaded 를
-     기다리면 <head> 의 웹폰트 CSS 가 파서를 막는 만큼 등장이 통째로 밀린다(느린 망에서 수 초).
-     지금 바로 시작하고, 혹시 못 찾으면 그때만 한 번 더 시도한다. */
   go();
-  if (!document.querySelector('.cover-scroll.in')) document.addEventListener('DOMContentLoaded', go);
+  // 하이드레이션이 body 를 갈아 끼운 뒤에도 큐가 살아 있게 — 몇 박자 더 확인한다
+  [120, 400, 900, 1800, 3000].forEach(function(t){ setTimeout(go, t); });
+  window.addEventListener('load', go);
+  // 카드가 앞에 설 때(갤러리가 알려 준다) 다시 켠다
+  window.addEventListener('message', function(ev){
+    if (!ev.data || ev.data.type !== 'momentedit:cueRearm') return;
+    var el = document.querySelector('.cover-scroll');
+    if (el) { el.__cueArmed = 1; el.classList.remove('in'); arm(el); }
+  });
 })();
 </script>
 </body>

@@ -874,6 +874,14 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
     idx = i;
     track.style.transform = 'translateX(' + (-100*i) + '%)';
     cards.forEach(function(c,k){ c.classList.toggle('is-active', k===i); });
+    /* [CUE_REARM 2026-08-04] 앞에 선 카드의 스크롤 표시를 다시 켠다.
+       갤러리는 이웃 카드를 미리 불러 둔다 — 불러온 시점부터 큐 타이머가 돌아, 사용자가 그 카드를
+       볼 때쯤엔 이미 사라진 뒤다. 그래서 "어떤 청첩장은 나오고 어떤 건 안 나온다"로 보였다(실측).
+       카드가 앞에 설 때마다 알려 주면 청첩장 쪽이 큐를 처음부터 다시 보여 준다. */
+    try {
+      var _af = cards[i] && cards[i].querySelector('iframe');
+      if (_af && _af.contentWindow) _af.contentWindow.postMessage({type:'momentedit:cueRearm'}, location.origin);   // 같은 출처로만
+    } catch (e) {}
     dotEls.forEach(function(d,k){
       d.classList.toggle('active', k===i);
       d.setAttribute('aria-selected', k===i ? 'true' : 'false');
