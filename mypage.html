@@ -1318,7 +1318,7 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
     try{ if(typeof INVFLOW!=='undefined'&&INVFLOW.active&&INVFLOW._collect) INVFLOW._collect(); }catch(e){}
     try{ if(typeof SEATFLOW!=='undefined'&&SEATFLOW.active&&SEATFLOW.edit&&typeof commitSeatEdit==='function'){ var bx=document.getElementById('mp_production'); if(bx) commitSeatEdit(bx); } }catch(e){}
     var prev=window._curView||'mypageView';
-    try{ show('loading'); loadMyState(); }
+    try{ _mpRefresh(); }
     catch(e){ try{ show(prev); }catch(e2){} }   // 동기 실패 시 이전 화면 복귀(무한 '불러오는 중' 방지)
   }
   window._mePullRefresh=refreshNow;   // 헤더 새로고침 버튼(mp_refresh)도 같은 경로 사용 — 두 경로 모두 입력 수집 후 갱신
@@ -1450,7 +1450,7 @@ function openRitualBuilder(p, inv){
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
   var saved=false, _closed=false, _frameReady=false;   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
-  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ show('loading'); loadMyState(); } }
+  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -1492,7 +1492,7 @@ function openRitualBuilder(p, inv){
       };
       if(d.data && d.data.S){
         apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-          .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ show('loading'); loadMyState(); } else done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
+          .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ _mpRefresh(); } else done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
           .catch(function(){ _exFail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
       } else { done(); }
       return;
@@ -1906,12 +1906,21 @@ $('loginForm').addEventListener('submit', function(e){
 function loadMyState(opts){
   opts=opts||{};
   if(!opts.silent) show('loading');                       // 백그라운드 갱신(silent)이면 스피너 없이 조용히
+  var _fin=function(){ if(typeof opts.done==='function'){ try{ opts.done(); }catch(e){} } };   // [BUSY_ONE] 베일을 걷을 시점 — 성공·실패·끊김 모두
   api({action:'getMyState', token:getToken()}).then(function(d){
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
-  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+    _fin();
+  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } _fin(); });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
 }
 
+/* [BUSY_ONE] 동작을 마치고 돌아올 때의 갱신 — 화면을 비우지 않는다.
+   show('loading') + loadMyState() 조합을 이걸로 대체한다. 이미 그려진 마이페이지 위에
+   저장할 때와 **같은 베일**을 덮고 그 자리에서 최신 상태로 갈아 끼운다. */
+function _mpRefresh(label){
+  _flowBusy(true, label || '불러오는 중…');
+  loadMyState({ silent: true, done: function(){ _flowBusy(false); } });
+}
 function _loadSlowRetry(){   // MPD_E3 무한 스피너 → "연결이 느려요 · 다시 시도" 전환(첫 로드·캐시 없음 한정)
   var el=$('loading'); if(!el){ show('loginView'); return; }
   el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">연결이 느려요.<br>잠시 후 다시 시도해 주세요.</div>'
@@ -2407,7 +2416,10 @@ function openInviteSamples(){
   var box=document.createElement('div');
   /* [SAMPLE_TALL] 갤러리에 판 토글(온라인·오프라인)이 들어오면서 모달 안 미리보기가 짧아졌다
      (2026-08-02 사용자 지적). 모달 자체를 키우고 위아래 껍데기를 줄여 프레임에 몰아준다. */
-  box.style.cssText='width:100%;max-width:430px;margin:auto;height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';   /* [SAMPLE_TOPCUT] dvh 미지원 브라우저는 위 vh 줄이 남는다 */
+  /* [SAMPLE_FOOT 2026-08-04] 실기기에서 판 아래 좌우 모서리가 잘렸다(사용자 제보) — 판 높이가
+     화면 아래 안전영역(홈 인디케이터)까지 먹고 있었다. 그만큼 빼서 둥근 모서리가 항상 화면 안에 있게 한다.
+     안전영역을 판 높이에서 빼므로 아래 안내 줄은 더 이상 안전영역을 따로 더할 필요가 없다. */
+  box.style.cssText='width:100%;max-width:430px;margin:auto;height:calc(100vh - 24px);height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px));max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';   /* [SAMPLE_TOPCUT] dvh 미지원 브라우저는 위 vh 줄이 남는다 */
   var bar=document.createElement('div');
   bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:9px 12px 9px 16px;border-bottom:1px solid var(--border,#DDD8D1)';   /* [SAMPLE_TALL] 눈썹+제목 2줄 → 한 줄 */
   var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span><span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep,#7A5F37);margin-left:9px">Samples</span>';
@@ -2421,7 +2433,7 @@ function openInviteSamples(){
      아이폰에서 env(safe-area-inset-bottom)=34px 이 그대로 더해져 글자 밑에 41px 이 남았다.
      판 자체가 이미 화면 아래에서 12px 떠 있고(오버레이 padding) 이 줄은 눌러도 되는 게 아닌
      안내 한 줄이라, 안전영역을 절반만 반영해도 홈 인디케이터와 겹치지 않는다 → 41px → 21px. */
-  foot.style.cssText='flex:0 0 auto;padding:6px 16px calc(5px + env(safe-area-inset-bottom,0px)/2);border-top:1px solid var(--border,#DDD8D1);text-align:center';   /* [SAMPLE_TALL] */
+  foot.style.cssText='flex:0 0 auto;padding:6px 16px 7px;border-top:1px solid var(--border,#DDD8D1);text-align:center';   /* [SAMPLE_TALL][SAMPLE_FOOT] 안전영역은 판 높이에서 이미 뺐다 — 여기서 또 더하면 흰 띠가 두 배가 된다 */
   foot.innerHTML='<div style="font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.6">마음에 드는 느낌을 골라 청첩장 제작에 참고해 보세요.</div>';
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
@@ -4279,7 +4291,7 @@ function _bindRevision(){
     sub.disabled=true; sub.textContent='보내는 중…';
     function reset(){ sub.disabled=false; sub.textContent='수정 요청 보내기'; }
     api({action:'requestRevision', token:getToken(), cats:picked, note:note}).then(function(d){
-      if(d&&d.ok){ show('loading'); loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
+      if(d&&d.ok){ _mpRefresh(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
     }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
   });
 }
@@ -4626,18 +4638,18 @@ function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 
   _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지 → 실패 시 입력 그대로)
   saveInvDraft().then(function(r){
     INVFLOW._exiting=false;
-    if(r&&r.ok){ _flowBusy(false); bkKill(INVFLOW); INVFLOW.active=false; show('loading'); loadMyState(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
+    if(r&&r.ok){ _flowBusy(false); bkKill(INVFLOW); INVFLOW.active=false; _mpRefresh(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     _flowBusy(false); show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
     if(!bkAlive(INVFLOW._bk)) INVFLOW._bk=bkOpen(function(){ exitInvFlow(); });   // 뒤로가기로 나가다 실패한 경우 — 소비된 가드 재무장(다음 뒤로가기가 페이지 이탈이 되지 않게)
     mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitInvFlow(); } else { bkKill(INVFLOW); INVFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitInvFlow(); } else { bkKill(INVFLOW); INVFLOW.active=false; _mpRefresh(); } });
   });
 }
 // [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit]'):null;
   if(!t) return;
-  if(typeof INVFLOW!=='undefined' && INVFLOW.active){ show('loading'); exitInvFlow(); }
+  if(typeof INVFLOW!=='undefined' && INVFLOW.active){ exitInvFlow(); }   // [BUSY_ONE] 화면을 비우지 않는다 — exitInvFlow 가 같은 베일을 켠다
   else if(typeof TRKFLOW!=='undefined' && TRKFLOW.active){ exitTrkFlow(); }
 });
 // [창모드 뷰어] 예시·전체 청첩장 이미지 — 새탭(preview.html) 대신 페이지 안 모달로(2026-07-11 사용자 지시)
@@ -5320,7 +5332,7 @@ function _prodStaleBanner(track){
   var tx=document.createElement('span'); tx.textContent='다른 탭에서 이 항목이 방금 저장됐어요';
   var btn=document.createElement('button'); btn.type='button'; btn.textContent='최신 내용 불러오기';
   btn.style.cssText='border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:5px 13px;font-family:inherit;font-size:12px;cursor:pointer';
-  btn.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); show('loading'); loadMyState(); });
+  btn.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); _mpRefresh(); });
   var x=document.createElement('button'); x.type='button'; x.textContent='닫기'; x.setAttribute('aria-label','알림 닫기');
   x.style.cssText='border:none;background:transparent;color:rgba(255,255,255,.7);font-family:inherit;font-size:12px;cursor:pointer';
   x.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); });
@@ -5362,7 +5374,7 @@ function _revConflict(payload, r){
   return mpConfirm({ title:'다른 기기에서 먼저 저장됐어요',
     body:'같은 항목을 다른 기기(또는 다른 탭)에서 먼저 저장했어요.\n최신 내용을 불러와 이어서 수정하시길 권해요.',
     yes:'최신 내용 불러오기', no:'내가 쓴 내용으로 저장' }).then(function(load){
-    if(load){ show('loading'); loadMyState(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.' }; }
+    if(load){ _mpRefresh(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.' }; }
     return mpConfirm({ title:'이 화면의 내용으로 덮어쓸까요?',
       body:'다른 기기에서 저장된 내용이 이 화면의 내용으로 바뀌어요.\n직전 내용은 서버에 1회분 보관돼 문제가 생기면 디렉터가 복구를 도와드려요.',
       yes:'덮어쓰기', no:'돌아가기' }).then(function(fc){
@@ -5389,9 +5401,9 @@ function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 �
     SEATFLOW.active=true; show('mypageView'); renderSeat($('mp_production'));   // 편집 화면 복원(입력 보존)
     if(!bkAlive(SEATFLOW._bk)) SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); } });
   };
-  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); show('loading'); loadMyState(); }).catch(function(){ _fail(''); });
+  saveSeat(false).then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); _mpRefresh(); }).catch(function(){ _fail(''); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
 function seatSharePanelHtml(token){
@@ -5596,9 +5608,17 @@ function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설�
   }, done:true});
 }
 var _flowBusyT=0;
-function _flowBusy(on){   // 저장 중 즉시 피드백 — 오버레이 위(z960<모달1000) '저장 중…' 베일. 인/좌석은 show('loading')로 즉시 피드백이 있지만 사진·스냅 오버레이는 저장중 화면이 그대로라 멈춘 듯 보여 반복 클릭하던 문제(2026-07-20). 최소 300ms 표시 — 빠른 저장 시 번쩍 스치는 깜빡임 방지(2026-07-22)
+/* [BUSY_ONE 2026-08-04] 대기 표시는 **하나의 취급**이다 — 점만 같아선 통일이 아니다.
+   사용자 지적: "저장 후 나가기 누르면 아직도 이 로딩 표시 나오는데 왜 통일을 못 시키는 거야?"
+   실제로 한 동작 안에서 두 화면이 이어졌다:
+     ① .flow-busy — 반투명 베일 + 작은 판(내용이 그대로 보인다)
+     ② #loading   — 페이지를 통째로 비우는 불투명 흰 화면
+   저장하고 돌아오는 길에 ①→② 로 넘어가니, 다 만들어 둔 마이페이지가 한 번 사라졌다 다시 나타났다.
+   ★규칙: 화면에 이미 내용이 있으면 지우지 않는다. 베일 하나로 덮고 그 자리에서 갱신한다.
+     #loading(전체 비우기)은 **보여 줄 게 아직 없는 첫 진입**에서만 쓴다. */
+function _flowBusy(on, label){   // 저장 중 즉시 피드백 — 오버레이 위(z960<모달1000) '저장 중…' 베일. 인/좌석은 show('loading')로 즉시 피드백이 있지만 사진·스냅 오버레이는 저장중 화면이 그대로라 멈춘 듯 보여 반복 클릭하던 문제(2026-07-20). 최소 300ms 표시 — 빠른 저장 시 번쩍 스치는 깜빡임 방지(2026-07-22)
   var v=document.getElementById('flow_busy');
-  if(on){ if(!v){ v=document.createElement('div'); v.id='flow_busy'; v.className='flow-busy'; v.setAttribute('aria-live','polite'); v.innerHTML='<div class="flow-busy-box"><span class="flow-busy-spin" aria-hidden="true"></span><span>저장 중…</span></div>'; document.body.appendChild(v); _flowBusyT=Date.now(); } }
+  if(on){ if(!v){ v=document.createElement('div'); v.id='flow_busy'; v.className='flow-busy'; v.setAttribute('aria-live','polite'); v.innerHTML='<div class="flow-busy-box"><span class="flow-busy-spin" aria-hidden="true"></span><span>'+(label||'저장 중…')+'</span></div>'; document.body.appendChild(v); _flowBusyT=Date.now(); } }
   else if(v&&v.parentNode){ var el=v; el.id=''; var wait=Math.max(0, 300-(Date.now()-_flowBusyT)); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, wait); }   // id 즉시 해제(재시도 시 새 베일) + 남은 시간만큼 유지 후 제거
 }
 function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
@@ -5609,12 +5629,12 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
     var ov=$('mp_photoOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
     _mpUnlock(); PHOTOFLOW.active=false; PHOTOFLOW._exiting=false;
   };
-  var _close=function(){ window._mpNextToast='단체 사진 구도를 저장했어요 · 촬영 때 사진작가에게 전달돼요'; _tearDown(); show('loading'); loadMyState(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
+  var _close=function(){ window._mpNextToast='단체 사진 구도를 저장했어요 · 촬영 때 사진작가에게 전달돼요'; _tearDown(); _mpRefresh(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
   var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
     _flowBusy(false); PHOTOFLOW._exiting=false;
     if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitPhotoFlow(); } else { _tearDown(); show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitPhotoFlow(); } else { _tearDown(); _mpRefresh(); } });
   };
   savePhoto().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail(''); });
 }
@@ -5755,13 +5775,13 @@ function exitSnapFlow(){ _mpHoldScroll();   // 식순 빌더와 동일 — 저�
     if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; }   // 층 소비(뒤로가기로 이미 닫혔으면 no-op)
     var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
     _mpUnlock(); SNAPFLOW.active=false; SNAPFLOW._exiting=false;
-    show('loading'); loadMyState();
+    _mpRefresh();
   };
   var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능 · alert 대신 mpConfirm(다른 플로우와 파리티 · z역전 해소로 오버레이 위에 정상 표시 2026-07-20)
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSnapFlow(); } else { if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; } var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); SNAPFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitSnapFlow(); } else { if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; } var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); SNAPFLOW.active=false; _mpRefresh(); } });
   };
   saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
 }
@@ -5885,11 +5905,11 @@ function wireProdConfirm(box, p){
     var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
     if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
     apiTrackSave(_pl).then(function(r){
-      if(r&&r.ok){ _cfOpenNext=true; window._cfScroll=true; show('loading'); loadMyState(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 '확인하셨어요' 배너(맨 아래)가 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
+      if(r&&r.ok){ _cfOpenNext=true; window._cfScroll=true; _mpRefresh(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 '확인하셨어요' 배너(맨 아래)가 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
       else {
         btn.disabled=false; btn.textContent=t0;
         var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
-        mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ show('loading'); loadMyState(); } });
+        mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ _mpRefresh(); } });
       }
     }).catch(function(){ btn.disabled=false; btn.textContent=t0; mpAlert('확인 저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
   });
@@ -6107,7 +6127,7 @@ function bindSeat(box){
       function _proceed(){
         if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 배치 완료(done 저장·토큰 발급) 후 바로 오버레이 종료 — 공유 패널 폐지(2026-07-19). 이중 클릭·뒤로가기 재진입 방지
         var b2=_done, _label='배치 완료'; b2.textContent='저장 중…'; b2.disabled=true; _flowBusy(true);   // 베일 통일(제작 접점 일관)
-        saveSeat(true).then(function(r){ if(r&&r.ok){ _flowBusy(false); SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); show('loading'); loadMyState(); } else { _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
+        saveSeat(true).then(function(r){ if(r&&r.ok){ _flowBusy(false); SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); _mpRefresh(); } else { _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
           .catch(function(){ _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
       }
       if(undec>0){ mpConfirm({ title:'음료 미정 '+undec+'명 있어요', body:'음료를 아직 안 고른 자리가 '+undec+'명 있어요.\n지금은 미정으로 두고 나중에 이어서 정할 수도 있어요.', yes:'이대로 완료', no:'더 고를게요' }).then(function(ok){ if(ok) _proceed(); }); return; }
@@ -6148,11 +6168,11 @@ function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저
   TRKFLOW.active=false; _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지)
   saveTrkDraft(false).then(function(r){
     TRKFLOW._exiting=false;
-    if(r&&r.ok){ _flowBusy(false); bkKill(TRKFLOW); show('loading'); loadMyState(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
+    if(r&&r.ok){ _flowBusy(false); bkKill(TRKFLOW); _mpRefresh(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     _flowBusy(false); TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
     if(!bkAlive(TRKFLOW._bk)) TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
     mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitTrkFlow(); } else { bkKill(TRKFLOW); TRKFLOW.active=false; show('loading'); loadMyState(); } });
+      .then(function(again){ if(again){ exitTrkFlow(); } else { bkKill(TRKFLOW); TRKFLOW.active=false; _mpRefresh(); } });
   });
 }
 function renderTrkFlow(box){ if(!box) return; if(TRKFLOW.track==='final') renderFinal(box); else renderDining(box); }   // ★ritual 분기 복원 금지(2026-07-25 Wave 4 PR-A · 전용 빌더 단일 경로)

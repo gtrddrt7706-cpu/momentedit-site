@@ -1366,3 +1366,12 @@ chk 'position:fixed !important' i/cover-08.html 1          # 커버 기준(absol
 chk 'appendChild(_cueEl)\|appendChild(scrollEl)' i/cover-08.html 1   # transform 걸린 조상이 fixed 기준을 가로챈다 → 큐만 body 로
 nochk 'max-height:700px' i/cover-04.html                  # 높이별 감추기 폐지 — 되살리면 어떤 화면에선 있고 어떤 화면에선 없다
 nochk 'var(--safe-bottom,0px));' i/cover-08.html          # --safe-bottom 은 판마다 값이 달라 같은 80px 이어도 자리가 어긋난다
+
+# ── 대기 표시는 '하나의 취급' (2026-08-04 사용자 "왜 통일을 못 시키는 거야?") ──
+# 점만 같아선 통일이 아니었다. 한 동작 안에서 ①반투명 베일 → ②페이지를 통째로 비우는 흰 화면 으로 넘어가
+# 다 만들어 둔 마이페이지가 사라졌다 다시 나타났다. 화면에 내용이 있으면 지우지 않는다.
+chk '_mpRefresh' mypage.html 18                          # 동작 뒤 갱신은 전부 베일 방식 · show('loading')+loadMyState() 조합으로 되돌리지 말 것
+chk 'function _mpRefresh' mypage.html 1
+chk 'opts.done' mypage.html 1                            # 베일을 걷을 시점(성공·실패·끊김 모두)
+nochk "show('loading'); loadMyState" mypage.html          # 이 조합이 곧 '화면 비우기'다
+chk 'SAMPLE_FOOT' mypage.html 3                          # 판 높이에서 하단 안전영역을 뺀다 · 안 빼면 실기기에서 아래 모서리가 잘린다
