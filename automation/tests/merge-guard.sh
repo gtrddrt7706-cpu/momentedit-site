@@ -1331,3 +1331,14 @@ chk 'buildOf' scripts/assemble-narration.mjs 3
 chk 'patchMap' scripts/assemble-narration.mjs 6
 chk 'const at = k' scripts/assemble-narration.mjs 1
 nochk 'c.sents.map(() => norm' scripts/assemble-narration.mjs
+# ── 스크롤 큐 자리 (2026-08-04 사용자 지적 "스크롤 효과가 애매한 위치에 있어") ──
+# 큐가 빈 대역의 아래쪽에 몰려 위 여유가 57~188px 로 3.3배 벌어져 있었다 → 8종 모두 대역 한가운데로.
+# 낮은 화면에선 위 글자가 내려와 여유가 0px 까지 좁아진다 → 700px 아래로는 감추고 갤러리가 대신 얹는다.
+chk 'CUE_POS' i/cover-01.html 2
+chk 'CUE_POS' i/cover-08.html 2
+chk 'CUE_POS' i-family/family-01.html 2
+chk 'CUE_POS' i-family/family-08.html 2
+chk 'max-height:700px' i/cover-04.html 1                  # 이 줄이 빠지면 갤러리 iframe(646px)에서 큐가 본문 글자를 문다
+chk 'max-height:700px' i-family/family-04.html 1
+nochk 'cue-bottom:48px}' i/cover-01.html                  # 옛 값으로 되돌리면 큐가 다시 대역 아래로 몰린다
+nochk 'cue-bottom:134px}' i/cover-07.html
