@@ -1099,7 +1099,16 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .led-h{font-family:var(--serif-ko);font-size:11px;letter-spacing:.12em;color:var(--gold-deep);font-weight:500;margin-bottom:4px;text-transform:uppercase}
     .led-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
     .led-sec .led-row:first-of-type{border-top:none}
-    .led-k{font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500;min-width:68px;flex-shrink:0}
+    /* [LED_COLALIGN 2026-08-03 사용자 지적] 금액 열이 행마다 좌우로 어긋나 보이던 문제.
+       원인은 폰트가 아니라 이 min-width 값이었다 — 68px은 '계약금 잔액'(실측 73.5px)과
+       '시착 동의서'(73.5px)를 못 담아 그 행만 라벨이 커지고, 뒤따르는 금액이 5.5px 밀렸다.
+       결제·현금영수증·서류 세 섹션 전부 같은 증상(harness 실측: 5.5px → 0px 수렴 확인).
+       80px = 73.5px + 여유 6.5px(폰트 폴백 대비). width가 아니라 min-width를 유지하는 이유는
+       '예식일 임시 고정'(105px) 같은 긴 라벨이 줄바꿈되지 않게 하기 위함 — 그 행은 섹션에
+       혼자라 비교 대상이 없어 시각적 문제가 없다. 68px로 되돌리지 말 것.
+       ※ 숫자 자체는 이미 정렬돼 있다 — Noto Serif KR은 고정폭 숫자라
+         font-variant-numeric:tabular-nums를 넣어도 폭이 동일했다(실측). 넣지 말 것. */
+    .led-k{font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500;min-width:80px;flex-shrink:0}
     .led-v{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);flex:1}
     .led-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);white-space:nowrap}
     .led-s.led-done{color:var(--gold-deep);font-weight:500}
