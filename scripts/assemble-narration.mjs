@@ -1,6 +1,6 @@
 // 타입캐스트 '문장별 분리' 다운로드 → 클립 조립기
 //
-//   node scripts/assemble-narration.mjs --in ~/Downloads/타입캐스트 [--part 3] [--out <폴더>] [--dry]
+//   node scripts/assemble-narration.mjs --in ~/Downloads/타입캐스트 [--part 3] [--clip entry-] [--out <폴더>] [--dry]
 //
 // 하는 일
 //   ① manifest.json의 문장 순서대로 파일을 집어
@@ -35,6 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { selectClips } from './clip-select.mjs';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -43,6 +44,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? proce
 const DRY = process.argv.includes('--dry');
 const IN = arg('--in', '');
 const ONLY = arg('--part', '');                   // '3' 또는 '3,5' — 이 파트만 조립
+const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,narr-song' — 이 클립만 (부분 재더빙)
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
@@ -55,7 +57,32 @@ const numOf = (n) => { const m = String(n).match(/\d+/); return m ? parseInt(m[0
 
 // ── 파트 선택
 //    manifest의 파트 파일명 앞 숫자가 곧 파트 번호다 (1_안내.txt → 1)
-const parts = man.parts.map((p) => ({ ...p, n: numOf(p.file) }));
+// ── ★★[CLIP_SUBSET 2026-08-04] 한 대목만 다시 더빙해 갈아 끼운다
+//   왜 — 사용자 요청: *"신랑신부 입장 부분만 더빙을 수정하고싶으면 그부분만 더빙파일 너한테주면 수정가능해?"*
+//   그런데 PART_AUTOMATCH는 **파트 전체의 문장 개수**로 파트를 짚는다. 입장 6클립(23문장)만 주면
+//   50문장짜리 2_진행_전반과 개수가 안 맞아 "어느 파트인지 못 정한 묶음"으로 멈춘다.
+//   ★멈추는 건 옳다 — 개수가 다른데 조용히 붙이면 클립이 통째로 다른 자리에 간다.
+//   그래서 「지금 다루는 대장이 부분집합이다」를 --clip 으로 **선언**하게 한다.
+//   선언하면 개수 판별·길이 상관·순서 검증이 전부 그 부분집합을 기준으로 다시 계산된다.
+//   ★새 파일에 부분집합을 적어 두지 않는다 — manifest가 이미 클립·문장·파트·화자를 전부 안다.
+const SEL = CLIPS ? (() => {
+  const sel = selectClips(man.clips, CLIPS);
+  if (!sel.length) {
+    console.error(`✗ --clip ${CLIPS} 에 맞는 클립이 없습니다.`);
+    console.error(`  있는 클립 — ${man.clips.map((c) => c.file).join(' · ')}`);
+    process.exit(1);
+  }
+  return sel;
+})() : null;
+const clipsOf = (P) => (SEL || man.clips).filter((c) => c.part === P.file);
+const parts = man.parts.map((p) => ({ ...p, n: numOf(p.file) }))
+  .filter((p) => !SEL || SEL.some((c) => c.part === p.file))
+  .map((p) => (SEL ? { ...p, clips: clipsOf(p).length, sents: clipsOf(p).reduce((a, c) => a + c.sents.length, 0) } : p));
+if (SEL) {
+  console.log(`★부분 재더빙 · --clip ${CLIPS} → ${SEL.length}클립 · ${parts.reduce((a, p) => a + p.sents, 0)}문장`);
+  for (const p of parts) console.log(`  ${p.file.padEnd(18)} 문장 ${String(p.sents).padStart(3)}개 — ${clipsOf(p).map((c) => c.file).join(' · ')}`);
+  console.log(`  ★이 파트의 나머지 클립은 건드리지 않습니다. 지금 만드는 mp3만 덮어씁니다.`);
+}
 const pick = ONLY ? new Set(ONLY.split(',').map((s) => parseInt(s.trim(), 10))) : null;
 const todo = pick ? parts.filter((p) => pick.has(p.n)) : parts;
 if (!todo.length) {
@@ -66,10 +93,10 @@ const dirOf = (c) => path.resolve(root, OUT_OVERRIDE || c.dir || 'assets/audio/n
 
 // ── 드라이런: 음원 없이 매니페스트만 점검한다
 if (DRY || !IN) {
-  console.log(`매니페스트 점검 · ${man.clips.length}클립\n`);
+  console.log(`매니페스트 점검 · ${(SEL || man.clips).length}클립\n`);
   let tot = 0, sents = 0, clips = 0;
   for (const p of parts) {
-    const cs = man.clips.filter((c) => c.part === p.file);
+    const cs = clipsOf(p);
     const sec = cs.reduce((a, c) => a + c.head + c.tail
       + c.sents.reduce((b, s) => b + s.before + s.after + estSec(s.text), 0), 0);
     tot += sec; sents += p.sents; clips += p.clips;
@@ -78,7 +105,7 @@ if (DRY || !IN) {
   }
   console.log(`\n  합계 ${clips}클립 · ${sents}문장 · 무음 포함 약 ${(tot / 60).toFixed(1)}분`);
   const dup = {};
-  for (const c of man.clips) for (const s of c.sents) (dup[s.text] ||= []).push(`${c.part.replace(/\.txt$/, '')} ${c.no}`);
+  for (const c of (SEL || man.clips)) for (const s of c.sents) (dup[s.text] ||= []).push(`${c.part.replace(/\.txt$/, '')} ${c.no}`);
   const rep = Object.entries(dup).filter(([, v]) => v.length > 1);
   if (rep.length) {
     console.log(`\n  ★같은 문장이 ${rep.length}종 나옵니다 — 파일명이 겹칠 수 있으니 반드시 순서로 매칭하세요:`);
@@ -86,7 +113,7 @@ if (DRY || !IN) {
   }
   console.log('\n  ★받은 zip이나 폴더를 아무 이름으로든 한 곳에 모아 두기만 하면 됩니다 — 파트는 개수와 길이로 알아서 찾습니다(PART_AUTOMATCH):');
   for (const p of parts) console.log(`    ${p.file.padEnd(18)} 파일 ${String(p.sents).padStart(3)}개`);
-  if (!IN) console.log('\n  실제 조립: --in <모아 둔 폴더> 를 주세요. 한 파트만 하려면 --part 3');
+  if (!IN) console.log('\n  실제 조립: --in <모아 둔 폴더> 를 주세요. 한 파트만 하려면 --part 3 · 한 대목만 다시 받았으면 --clip entry-');
   process.exit(0);
 }
 
@@ -128,10 +155,10 @@ const corr = (a, b) => {
 //   지금은 **문장 개수**로 파트를 짚고 **길이 상관**으로 확인한다. 둘 다 받은 데이터 자체에서 나온다.
 //   폴더 이름은 힌트로만 쓴다(점수가 같을 때의 tie-break) — 틀린 이름이 판정을 뒤집지 못한다.
 //   zip이면 풀어서 본다. zip째 줘도, 푼 폴더째 줘도, 한 파트만 낱개로 줘도 같은 답이 나온다.
-const needOf = (P) => man.clips.filter((c) => c.part === P.file).reduce((a, c) => a + c.sents.length, 0);
+const needOf = (P) => clipsOf(P).reduce((a, c) => a + c.sents.length, 0);
 const estOf = (P) => {
   const out = [];
-  for (const c of man.clips.filter((x) => x.part === P.file)) for (const s of c.sents) out.push(estSec(s.text));
+  for (const c of clipsOf(P)) for (const s of c.sents) out.push(estSec(s.text));
   return out;
 };
 
@@ -202,6 +229,7 @@ if (orphan.length) {
   }
   console.error(`  파트별 필요 개수 — ${parts.map((P) => `${P.file} ${needOf(P)}개`).join(' · ')}`);
   console.error(`  개수가 다르면 '문장별 분리'가 아니라 '전체 통합'으로 받았거나, 두 파트가 한 폴더에 섞인 것입니다.`);
+  if (!SEL) console.error(`  ★한 대목만 다시 더빙한 것이라면 --clip 을 주세요 (예: --clip entry-). 그러면 그 대목의 문장 개수로 맞춥니다.`);
   process.exit(1);
 }
 
@@ -211,7 +239,7 @@ let missing = 0;
 for (const P of todo) {
   const g = groups.find((x) => x.P && x.P.file === P.file);
   if (!g) { console.log(`  ${P.file.padEnd(18)} 아직 안 받았습니다 — 건너뜁니다`); missing++; continue; }
-  work.push({ P, clips: man.clips.filter((c) => c.part === P.file), files: g.files, real: g.real });
+  work.push({ P, clips: clipsOf(P), files: g.files, real: g.real });
 }
 if (!work.length) { console.error('\n✗ 조립할 파트가 하나도 없습니다.'); process.exit(1); }
 if (missing) console.log(`  (${missing}개 파트는 나중에 다시 돌리면 그때 붙습니다)`);

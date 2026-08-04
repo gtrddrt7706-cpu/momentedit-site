@@ -1285,3 +1285,19 @@ nochk 'mockPlay' order-preview.html                       # 샘플 재생 진입
 chk 'var AUDEL' order-preview.html 1                      # 소리 요소 1개 재사용 · new Audio 를 항목마다 만들면 iOS 에서 두 번째 클립부터 막힌다
 chk 'EXTRA_ON' order-preview.html 3                       # 팔레트 기본 연출 표 1곳(extraTgl·미리듣기가 같은 표를 본다)
 chk 'order-audio-check' scripts/audit/order-audio-check.mjs 1   # 실렌더 검증 — 순간마다 다른 파일을 요청하는지 기계가 본다
+
+# ── [CLIP_SUBSET] 한 대목만 다시 더빙해 갈아 끼우기 (2026-08-04 사용자 요청
+#    *"신랑신부 입장 부분만 더빙을 수정하고싶으면 그부분만 더빙파일너한테주면 수정가능해?"*) ──
+# PART_AUTOMATCH는 「파트 전체의 문장 개수」로 파트를 짚는다 → 입장 23문장만 주면 어느 파트와도 안 맞아 멈춘다.
+# 멈추는 건 옳다(개수가 다른데 조용히 붙이면 클립이 통째로 다른 자리에 간다). 그래서 --clip 으로
+# 「지금 다루는 게 부분집합이다」를 선언하게 하고, 개수·길이상관·순서검증을 전부 그 부분집합 기준으로 다시 센다.
+# ★고르는 규칙은 clip-select.mjs 한 곳에만 있다 — 만드는 쪽(repatch-clip)과 붙이는 쪽(assemble)이
+#   서로 다른 규칙을 쓰면 개수만 맞고 순서가 밀린다. 규칙을 두 군데 적으면 한쪽만 고치는 날이 온다.
+# ★repatch-clip은 manifest를 읽기만 한다 — 부분 대장이 전체 대장을 덮어쓰면 66클립이 자기 자리를 잃는다.
+chk 'selectClips' scripts/clip-select.mjs 1
+chk 'CLIP_SUBSET' scripts/assemble-narration.mjs 1
+chk 'clipsOf' scripts/assemble-narration.mjs 7   # ★grep -c는 '줄 수'다 — 한 줄에 두 번 나오는 자리가 있어 8회/7줄
+chk 'selectClips' scripts/repatch-clip.mjs 2
+nochk 'man.clips.filter((c) => c.part === P.file)' scripts/assemble-narration.mjs
+nochk 'writeFileSync(MAN' scripts/repatch-clip.mjs
+nochk '\-\-clip' scripts/build-typecast-import.mjs
