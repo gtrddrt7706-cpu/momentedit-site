@@ -1,0 +1,102 @@
+// [ORD_REAL_AUDIO] 「들어보기」가 진짜 그 순간의 파일을 요청하는지 실렌더로 확인한다.
+//
+// 왜 필요한가 (2026-08-04 사용자 제보)
+//   *"여기왜 다른 오디오가나와?"* / *"전부다 줬잖아 파일"*
+//   빌더가 부르던 `/assets/narration/m-<키>.mp3` 는 만들어진 적 없는 이름이었다.
+//   404 → 조용히 대표 샘플로 폴백 → 어느 순간을 눌러도 같은 목소리인데 화면은 멀쩡했다.
+//   ★조용한 폴백은 눈으로 못 잡는다. 그래서 「무엇을 요청했는가」를 기계가 본다.
+//
+// 무엇을 보는가
+//   ① 엔진 3파일이 샌드박스에만 실렸는가 — 이 화면의 인라인 COURSES/ENTRY 를 덮지 않았는가
+//   ② 순간마다 다른 파일이 나오는가 · 그 파일이 저장소에 실제로 있는가
+//   ③ 진짜 버튼을 눌렀을 때 네트워크로 나가는 URL 이 그 순간의 파일인가 (390 · 1280)
+//
+//   node scripts/audit/order-audio-check.mjs
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { launchBrowser } from './_browser.mjs';
+
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '../..');
+const PORT = 8233;
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mp3': 'audio/mpeg',
+  '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
+
+const server = http.createServer((req, res) => {
+  const rel = decodeURIComponent(req.url.split('?')[0]);
+  const f = path.join(ROOT, rel === '/' ? '/index.html' : rel);
+  if (!f.startsWith(ROOT) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end('nf'); }
+  res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream' });
+  // mp3는 헤더만 보내도 충분하다 — 이 검사가 보는 건 「무엇을 요청했는가」지 소리가 아니다(★나는 소리를 못 듣는다)
+  res.end(path.extname(f) === '.mp3' ? fs.readFileSync(f).subarray(0, 2048) : fs.readFileSync(f));
+});
+await new Promise((r) => server.listen(PORT, r));
+
+const eng = await launchBrowser();
+if (!eng) { console.log('브라우저 없음 — 건너뜀'); server.close(); process.exit(0); }
+
+let fail = 0;
+const ok = (c, m) => { console.log(`  ${c ? '✓' : '✗'} ${m}`); if (!c) fail++; };
+
+for (const [tag, viewport] of [['390 (폰)', { width: 390, height: 844 }], ['1280 (데스크톱)', { width: 1280, height: 900 }]]) {
+  console.log(`\n══ ${tag}`);
+  const { page, errors } = await eng.newPage({ port: PORT, viewport });
+  const asked = [];
+  page.on('request', (r) => { const u = r.url(); if (/\.mp3(\?|$)/.test(u)) asked.push(u.replace(`http://localhost:${PORT}`, '')); });
+  await page.goto(`http://localhost:${PORT}/order-preview.html`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction('!!window.ENG', null, { timeout: 15000 }).catch(() => {});
+
+  /* ① 샌드박스 — 엔진이 window 를 건드리지 않았는가 */
+  const iso = await page.evaluate(() => ({
+    loaded: !!window.ENG,
+    onWindow: typeof window.RitualCue + '/' + typeof window.RitualStory,
+    sameCourses: !!(window.ENG && window.COURSES === window.ENG.COURSES),
+    sameEntry: !!(window.ENG && window.ENTRY === window.ENG.ENTRY),
+    inlineKeys: Object.keys(window.COURSES || {}).join(','),
+  }));
+  ok(iso.loaded, '엔진 3파일이 샌드박스에 실렸다');
+  ok(iso.onWindow === 'undefined/undefined', `window 에 RitualCue/RitualStory 없음 (${iso.onWindow})`);
+  ok(!iso.sameCourses && !iso.sameEntry, '인라인 COURSES/ENTRY 가 엔진 것으로 안 바뀜');
+  ok(iso.inlineKeys.length > 0, `인라인 COURSES 살아 있음 (${iso.inlineKeys})`);
+
+  /* ② 순간마다 다른 파일 · 실존 */
+  const KEYS = 'guest entry welcome vow ringwarm ring declare valley toast song letter tribute bless _close'.split(' ');
+  const got = await page.evaluate((ks) => {
+    const o = {};
+    ks.forEach((k) => { o[k] = _srcs(window.ENG, k).map((x) => x.src); });
+    o.__all = _srcs(window.ENG, null).map((x) => x.src);
+    return o;
+  }, KEYS);
+  const empty = KEYS.filter((k) => !got[k].length);
+  ok(!empty.length, `14개 순간 모두 소리가 있다${empty.length ? ' — 빈 키: ' + empty.join(' ') : ''}`);
+  const firsts = KEYS.filter((k) => got[k].length).map((k) => got[k][0]);
+  ok(new Set(firsts).size === firsts.length, `순간마다 첫 소리가 다르다 (${new Set(firsts).size}/${firsts.length})`);
+  const missing = [...new Set(KEYS.flatMap((k) => got[k]).concat(got.__all))].filter((u) => !fs.existsSync(path.join(ROOT, u)));
+  ok(!missing.length, `참조 파일이 저장소에 실제로 있다${missing.length ? ' — 없음: ' + missing.join(' ') : ''}`);
+  ok(got.__all.length >= 10, `전 순서 이어듣기 ${got.__all.length}개`);
+  ok(!KEYS.some((k) => got[k].some((u) => /\/assets\/narration\//.test(u))), '옛 m-<키>.mp3 경로를 더는 안 부른다');
+
+  /* ③ 진짜 버튼 — 연습 공간의 블록별 「들어보기」 */
+  await page.evaluate(() => { window.openRehearse(); });
+  await page.waitForTimeout ? await page.waitForTimeout(300) : await new Promise((r) => setTimeout(r, 300));
+  const btns = await page.$$('button.play');
+  ok(btns.length > 3, `연습 공간 들어보기 버튼 ${btns.length}개`);
+  asked.length = 0;
+  if (btns.length > 3) {
+    await btns[3].click();   // 0 = 처음부터 이어 듣기가 아닌, 블록 버튼 하나
+    await new Promise((r) => setTimeout(r, 700));
+    const lbl = await btns[3].evaluate((b) => b.textContent.trim());
+    ok(asked.length > 0, `탭 → 요청 나감: ${asked.join(' ') || '(없음)'}`);
+    ok(asked.every((u) => /^\/assets\/audio\/(narration|cast)\//.test(u)), '요청 경로가 실제 음원 폴더다');
+    ok(!/샘플/.test(lbl), `버튼 라벨에 '샘플' 없음 — "${lbl}"`);
+  }
+
+  const hard = errors.filter((e) => !/favicon|net::ERR/.test(e));
+  ok(!hard.length, `콘솔 오류 없음${hard.length ? ' — ' + hard.slice(0, 3).join(' | ') : ''}`);
+  await page.close();
+}
+
+await eng.close();
+server.close();
+console.log(fail ? `\n★ 실패 ${fail}건\n` : '\nORDER AUDIO OK\n');
+process.exit(fail ? 1 : 0);

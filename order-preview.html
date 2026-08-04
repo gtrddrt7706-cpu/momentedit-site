@@ -712,35 +712,139 @@ function narBox(t,end){return '<div class="nar"><span class="lb">나레이션</s
 var ICO_PLAY='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M8 5v14l11-7z"/></svg>';
 var ICO_UP='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19V7M6 13l6-6 6 6"/></svg>';
 var ICO_PLUS='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>';
-function playBtn(){return '<button class="play" onclick="event.stopPropagation();mockPlay(this)">들어보기</button>';}
+// [ORD_REAL_AUDIO] k = 이 소리가 속한 순간 키(MOMENT 키와 같은 값) · ov = 아직 안 고른 선택지를 미리 들어볼 때 그 값
+function playBtn(k,ov){return '<button class="play" onclick="event.stopPropagation();momPlay(this,'+(k?"'"+k+"'":'null')+',null'+(ov?",'"+ov+"'":'')+')">들어보기</button>';}
 function tip(t){return '<div class="tip"><b>팁</b> '+t+'</div>';}
-var AUD=null, AUDBTN=null, AUDO='', AUDWAIT=false;
-function _stopAud(){ if(AUD){try{AUD.onerror=null;AUD.onended=null;AUD.pause();AUD.removeAttribute('src');AUD.load();}catch(e){}} if(AUDBTN){AUDBTN.classList.remove('playing');AUDBTN.innerHTML=AUDO;} AUD=null;AUDBTN=null;AUDWAIT=false; }   // src 분리로 진행 중 다운로드까지 중단(버려진 오디오가 계속 버퍼링하지 않게 · 핸들러 먼저 해제해 유령 폴백 방지)
-function _playSrc(b,src,label,fallback,onFallback){
-  if(AUDBTN===b){
-    if(AUDWAIT){ AUDWAIT=false; b.innerHTML=label; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
+/* [ORD_REAL_AUDIO] 「이 순간 들어보기」가 순간마다 같은 소리를 냈다 (2026-08-04 사용자 제보).
+     verbatim: *"여기왜 다른 오디오가나와?"* / *"전부다 줬잖아 파일"*
+   원인 — 여기서 부르던 `/assets/narration/m-<키>.mp3` 는 **한 번도 만들어진 적 없는 이름**이다.
+     실제 음원은 조립기가 `/assets/audio/narration/NN_슬러그.mp3`(51개) ·
+     `/assets/audio/cast/NN_슬러그.mp3`(15개)로 넣는다. 404 → 조용히 대표 샘플로 폴백 →
+     어느 순간을 눌러도 같은 목소리인데 화면은 멀쩡했다.
+   ★배운 것: 폴백이 조용하면 버그가 기능처럼 보인다. 그래서 대체 재생을 없앴다 — 없으면 없다고 말한다.
+   ★순간→파일 표를 여기 다시 적지 않는다. assets/ritual-cue.js 가 이미 전부 계산한다
+     (큐의 k 가 이 화면 MOMENT 키와 같은 값, file 이 NN_슬러그). 배역 예시는 assets/ritual-story.js.
+     표를 여기 또 적으면 코스가 바뀌는 날 한쪽만 낡는다. */
+
+/* [ORD_ENG_SANDBOX] 엔진 3파일을 <script>로 실으면 이 화면이 통째로 뒤집힌다 —
+   ritual-data.js 는 root[k]=D[k] 로 ENTRY·COURSES·GUEST·TRIBUTE·NARR 를 bare 전역에 올리는데
+   이 파일에도 같은 이름의 인라인 사본이 있다(var ENTRY / var TRIBUTE / var GUEST / var COURSES).
+   → new Function 의 **인자 이름으로 전역을 그림자 처리**해 가짜 전역 g 에만 싣는다.
+     self·module·exports 가 파라미터라, 본문의 UMD 가 window 가 아니라 g 를 본다. */
+var ENG=null, ENGP=null;
+function engine(){
+  if(ENG) return Promise.resolve(ENG);
+  if(ENGP) return ENGP;
+  var g={};
+  ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){
+    return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok) throw new Error(u); return r.text(); });
+  })).then(function(src){
+    src.forEach(function(t,i){ (new Function('self','module','exports',t+'\n//# sourceURL=engine'+i+'.js'))(g); });
+    if(!g.RitualCue||!g.RitualStory) throw new Error('engine');
+    ENG=g; return g;
+  })['catch'](function(){ ENGP=null; return null; });
+  return ENGP;
+}
+
+// 순간 하나가 내는 소리 목록. 읽기만 한다 — 계산은 엔진이 이미 끝냈다.
+//   k   : 순간 키(null 이면 전 순서 이어듣기)
+//   ovV : 아직 안 고른 선택지를 미리 들어볼 때 S[k] 대신 쓸 값
+// 팔레트로 순간을 넣을 때 함께 켜지는 기본 연출. ★extraTgl과 미리듣기가 같은 표를 본다 —
+//   두 군데 적으면 연출이 늘어나는 날 한쪽만 낡는다(빼 둔 순간을 들으면 소리가 0이 되는 식으로).
+var EXTRA_ON={bless:'on',valley:'wine'};
+function _srcs(g,k,ovV){
+  function grab(S2){
+    var r; try{ r=g.RitualCue.build(S2,{mode:'preview'}); }catch(e){ return []; }
+    var dir=g.RitualCue.PARAM.clipDir, out=[];
+    r.cues.forEach(function(c){
+      if(k && c.k!==k) return;
+      var main=g.RitualStory.castMainOf(c), live=g.RitualStory.castLiveOf(c);
+      if(main.length){ var mb=g.RitualStory.castBadgeOf(main); main.forEach(function(x){ out.push({src:x.src,note:mb}); }); }
+      else if(c.file) out.push({src:dir+c.file+'.mp3',note:''});
+      if(live.length){ var lb=g.RitualStory.castBadgeOf(live); live.forEach(function(x){ out.push({src:x.src,note:lb}); }); }
+    });
+    return out;
+  }
+  var base={},q; for(q in S) base[q]=S[q];
+  base.extra={}; for(q in (S.extra||{})) base.extra[q]=S.extra[q];
+  var ov=!!(ovV!==undefined && ovV!==null && k);
+  if(ov) base[k]=ovV;
+  var out=grab(base);
+  // 빼 둔 순간도 들어는 볼 수 있게 — 넣을지 말지 판단하려고 듣는 것이므로([ORD_AUDITION]과 같은 이유).
+  //   ★'안 넣음'이 기본값인 순간(사이 순서·부모님 덕담)은 넣었을 때의 기본 연출로 들려준다.
+  if(!out.length && k && k.charAt(0)!=='_'){
+    base.extra[k]=true;
+    if(!ov && EXTRA_ON[k]!==undefined) base[k]=EXTRA_ON[k];
+    out=grab(base);
+  }
+  return out;
+}
+function momSrcs(k,ovV){ return engine().then(function(g){ return g?_srcs(g,k,ovV):[]; }); }
+
+/* ★소리 요소를 하나만 만들어 돌려 쓴다 — iOS 는 「탭한 그 순간에 play() 한 그 요소」에만 이후 재생을 허락한다.
+   항목마다 new Audio 를 만들면 이어듣기의 두 번째 클립부터 조용히 막힌다(폰에서만 재현되는 종류다). */
+var AUDEL=null, AUDBTN=null, AUDO='', AUDWAIT=false, AUDQ=null, AUDI=0, AUDOK=0, AUDTOK=0;
+function _el(){
+  if(!AUDEL){
+    AUDEL=new Audio(); AUDEL.preload='auto';
+    AUDEL.addEventListener('ended',_next);
+    AUDEL.addEventListener('error',function(){ if(AUDEL.getAttribute('src')) _next(); });   // 없는 파일은 건너뛴다(멈추지 않는다)
+  }
+  return AUDEL;
+}
+function _next(){ if(AUDBTN&&AUDQ){ AUDI++; _step(AUDBTN,AUDTOK); } }
+function _stopAud(){
+  AUDTOK++;   // 늦게 도착한 조회 결과가 다음 버튼을 덮지 않게 — 표를 바꿔 무효화한다
+  var b=AUDBTN; AUDBTN=null; AUDQ=null; AUDI=0; AUDOK=0; AUDWAIT=false;
+  if(AUDEL){ try{ AUDEL.pause(); AUDEL.removeAttribute('src'); AUDEL.load(); }catch(e){} }
+  if(b){ b.classList.remove('playing'); b.innerHTML=AUDO; _note(b,''); }
+}
+// 지금 어느 대목인지 · 이게 예시 목소리인지 — 소리로는 못 가르는 걸 화면이 말한다
+function _note(b,txt){
+  var el=document.getElementById('audnote');
+  if(!txt){ if(el&&el.parentNode) el.parentNode.removeChild(el); return; }
+  if(!el){ el=document.createElement('div'); el.id='audnote'; el.className='prep-hint'; el.style.marginTop='6px'; }
+  el.textContent=txt;
+  if(b.parentNode && b.nextSibling!==el) b.parentNode.insertBefore(el,b.nextSibling);
+}
+function _lbl(b){ if(AUDBTN===b) b.innerHTML='재생 중…'+((AUDQ&&AUDQ.length>1)?' <span style="opacity:.7">'+(AUDI+1)+'/'+AUDQ.length+'</span>':''); }
+function _fail(b,me,msg){ b.classList.remove('playing'); b.innerHTML=msg; _note(b,''); setTimeout(function(){ if(AUDBTN===b&&AUDTOK===me) _stopAud(); },1800); }
+function _step(b,me){
+  if(AUDBTN!==b||AUDTOK!==me||!AUDQ) return;
+  if(AUDI>=AUDQ.length){ if(!AUDOK){ _fail(b,me,'소리를 불러오지 못했어요'); return; } _stopAud(); return; }
+  var it=AUDQ[AUDI], a=_el();
+  _lbl(b); _note(b,it.note||'');
+  a.src=it.src;
+  var pr=a.play();
+  if(pr&&pr.then) pr.then(function(){ if(AUDBTN===b&&AUDTOK===me) AUDOK++; },function(e){
+    if(AUDBTN!==b||AUDTOK!==me) return;
+    if(e&&e.name==='NotAllowedError'){ AUDWAIT=true; b.innerHTML='탭하여 재생'; return; }   // 자동재생 차단 — 파일 문제가 아니다
+    if(e&&e.name==='AbortError') return;                                                   // 다음 src 가 이미 들어왔다
+    _next();
+  });
+  else AUDOK++;
+}
+function _pick(list,n){ return (typeof n==='number')?list.slice(n,n+1):list; }
+function _start(b,list,me){
+  if(!list||!list.length){ _fail(b,me,'이 순간은 아직 소리가 없어요'); return; }   // ★대체 재생 없음 — 없으면 없다고 말한다
+  AUDQ=list; AUDI=0; AUDOK=0; _step(b,me);
+}
+//   pick 이 숫자면 그 순간 안에서 몇 번째 소리인지(하객 안내 4행). ★슬러그 표를 이 파일에 안 적으려고 숫자로 받는다
+window.momPlay=function(b,k,pick,ovV){
+  if(AUDBTN===b){   // 같은 버튼 재탭 = 멈춤(자동재생이 막혀 대기 중이면 이어서 재생)
+    if(AUDWAIT){ AUDWAIT=false; _lbl(b); _el().play()['catch'](function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
     _stopAud(); return;
   }
   _stopAud();
-  AUDBTN=b; AUDO=b.innerHTML; b.classList.add('playing'); b.innerHTML=label;
-  AUD=new Audio(src);
-  AUD.onended=_stopAud;
-  AUD.onerror=function(){
-    if(fallback && AUDBTN===b){ try{ if(onFallback) onFallback(); }catch(e0){} AUD=new Audio(fallback); AUD.onended=_stopAud; AUD.onerror=function(){ b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200); }; b.innerHTML='재생 중… (샘플 목소리)'; AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; }); return; }
-    b.innerHTML='샘플 준비 중'; setTimeout(function(){ if(AUDBTN===b) _stopAud(); },1200);
-  };
-  AUD.play().catch(function(){ AUDWAIT=true; b.innerHTML='탭하여 재생'; });
-}
-// 지금은 대표 샘플 목소리 1개를 모든 미리듣기에 재생(실제로 들리는 데모). 완성 후 순서별 실제 파일로 교체.
-var NARR_SAMPLE='/assets/narration/sample-voice.mp3', NARR_SAMPLE_LBL='재생 중… (샘플 목소리)';   // 샘플 교체 시 여기 한 곳만
-window.mockPlay=function(b){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); };
-// 순간별 듣기 — 순간 파일(m-<키>.mp3)이 준비되면 그걸, 아직이면 대표 샘플로 폴백. 실녹음 완성 시 파일만 추가하면 자동 전환.
-//   한 번 404 난 키는 세션 동안 기억해 재탐색 없이 바로 샘플 재생(탭마다 이중 요청 방지).
-var _momMiss={};
-window.momPlay=function(b,k){
-  if(_momMiss[k]){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); return; }
-  _playSrc(b,'/assets/narration/m-'+k+'.mp3','재생 중…',NARR_SAMPLE,function(){ if(navigator.onLine!==false) _momMiss[k]=1; });   // 오프라인 순간의 일시 오류는 세션 캐시에 안 남김
+  var me=AUDTOK;
+  AUDBTN=b; AUDO=b.innerHTML; b.classList.add('playing');
+  // ★탭한 그 순간에 소리를 시작할 수 있으면 그렇게 한다(엔진은 화면이 뜰 때 미리 싣는다).
+  //   비동기로 미루면 iOS 가 '사용자가 누른 재생'으로 안 쳐 준다.
+  if(ENG){ _start(b,_pick(_srcs(ENG,k,ovV),pick),me); return; }
+  b.innerHTML='불러오는 중…';
+  momSrcs(k,ovV).then(function(list){ if(AUDBTN===b&&AUDTOK===me) _start(b,_pick(list,pick),me); });
 };
+window.listenAll=function(b){ momPlay(b,null); };   // 전 순서 이어듣기 — 고른 코스·옵션 그대로
 
 var STEPDEF={
  /* [ORD_INTRO2] 안내를 두 화면으로 나눈다 (2026-08-03 사용자 "한눈에 이해할 수 있게 · 설명 페이지는 퍼센트에서 빼도 좋다").
@@ -1061,7 +1165,7 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   if(desc) h+='<div class="oc-desc" id="'+did+'">'+esc(desc)+'</div>';
   // [ORD_AUDITION] 나레이션 글은 보여 주면서 '들어보기'는 고른 카드에만 있었다(담백 부모님 덕담·사이 순서, 가족 링워밍 4곳).
   //   넣을지 말지 판단하려고 듣는 건데, 넣기 전엔 못 듣는 구조였다 — 글이 있으면 듣기도 있게.
-  if(nar){ h+=narBox(nar,end)+playBtn(); }
+  if(nar){ h+=narBox(nar,end)+playBtn(key,v); }   // [ORD_REAL_AUDIO] 고르기 전 미리듣기 — S 대신 이 카드의 값으로 조립해 들려준다
   if(self) h+='<div class="self"><span class="who">직접 · '+esc(self.who)+'</span>'+esc(self.t)+'</div>';
   if(prep) h+='<div class="prep-hint">'+prep+'</div>';
   h+='</div>';
@@ -1265,7 +1369,7 @@ function rowVal(k){
   }
   return '';
 }
-window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(k==='bless') S.bless='on'; if(k==='valley') S.valley='wine'; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
+window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(EXTRA_ON[k]!==undefined) S[k]=EXTRA_ON[k]; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
 // 이 코스에 없는 순서 더하기(전체 팔레트) — 고정 3개·핵심 빼고 아직 안 더한 순간만 접이식으로. 더하면 위 순서에 자리 잡고 카드에서 ↑↓·빼기 가능 (2026-07-19)
 var _PAL_COST={valley:1,toast:1,song:1,tribute:1};   // 실물·연주 준비물이 있어 추가 비용 안내가 필요한 순간
 function paletteHtml(){
@@ -1405,13 +1509,13 @@ function renderStep(k){
     if(cpl){
       GUEST.forEach(function(g,i){
         h+='<div class="gt"><div class="gt-t">'+esc(g[0])+' <span class="gt-tag">참고 예시</span></div><div class="gt-x">'+esc(g[2])+'</div>';
-        h+='<div class="uprow"><button class="rowbtn" aria-label="'+esc(g[0])+' 샘플 듣기" onclick="mockPlay(this)">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" aria-label="'+esc(g[0])+' 파일 바꾸기" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" aria-label="'+esc(g[0])+' 파일 올리기" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>';
+        h+='<div class="uprow"><button class="rowbtn" aria-label="'+esc(g[0])+' 샘플 듣기" onclick="momPlay(this,\'guest\','+i+')">'+ICO_PLAY+'샘플 듣기</button>'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" aria-label="'+esc(g[0])+' 파일 바꾸기" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" aria-label="'+esc(g[0])+' 파일 올리기" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div>';
         h+='</div>';
       });
     } else {
       var _gs=''; GUEST.forEach(function(g){ _gs+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div></div>'; });
       h+='<div style="margin-top:12px">'+fold('guestScripts','안내 문구 전문 보기',_gs)+'</div>';
-      h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="mockPlay(this)">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
+      h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="momPlay(this,\'guest\')">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
     }
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 나레이션으로 흐르게 준비돼요.')+'</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
@@ -1450,7 +1554,7 @@ function renderStep(k){
     h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
     (function(){
       var v=S.entry, txt=ecpl?ENTRY[v].self:ENTRY[v].nar, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
-      h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn();
+      h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+esc(txt)+'</div>'+playBtn('entry');
       if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
       h+='</div>';
     })();
@@ -1464,7 +1568,7 @@ function renderStep(k){
     h+='<div class="proc-s"><span class="pn">1</span>나레이션이 인사의 문을 열어줘요</div>';
     h+='<div class="proc-s"><span class="pn">2</span>두 분이 하객에게 직접 짧게 인사해요 · 30초~1분</div>';
     h+='<div class="proc-s"><span class="pn">3</span>나레이션이 따뜻하게 마무리해요</div></div>';
-    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn();
+    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn('welcome');
     h+='<div class="self"><span class="who">두 분이 직접</span>한두 문장·목례면 충분해요.</div>';
     h+=fold('welNar2','인사 뒤 이어지는 나레이션',narBox("여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",null));
     h+=writeCard('welcome',false);   // 1차 입력 — 이 순간에서 바로 적기(마지막 글 적어두기에서 다시 확인) · WRITE_2CHECK
@@ -1796,7 +1900,6 @@ function prep(){
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
   return p;
 }
-window.listenAll=function(b){ _playSrc(b,NARR_SAMPLE,NARR_SAMPLE_LBL); };
 function scriptText(){
   var bs=fullBlocks(), lines=['우리 예식 대본 · '+COURSES[S.course].nm+' 코스 · '+estMin(),''];
   var no=0;
@@ -2028,7 +2131,7 @@ function renderRehearse(){
     if(_my) h+='<div class="self"><span class="who">내가 준비한 말</span>'+esc(_my)+'</div>';
     h+='<div class="rh-cue"><b>큐</b> · '+esc(b.cue)+'</div>';
     if(b.end) h+='<div class="prep-hint">이어서 나레이션이 마무리해요 · "'+esc(b.end)+'"</div>';
-    h+='<button class="play" style="margin-top:9px" onclick="mockPlay(this)">'+'들어보기'+'</button>';
+    h+='<button class="play" style="margin-top:9px" onclick="momPlay(this,\''+b.k+'\')">'+'들어보기'+'</button>';
     h+='</div>';
   });
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript()">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
@@ -2101,6 +2204,7 @@ try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
   if(!(_sv0&&_sv0.who&&!EMBED)) _applySaved(_sv0);
 }catch(e){}
 render();
+engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미리 싣는다(iOS 사용자 제스처 유지)
 // ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
 var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람은 null)
 /* [PREVIEW_DIGITAL] 디지털 참석 여부 — 청첩장 트랙이 정한 값을 orderFill 로 받아 둔다.

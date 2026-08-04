@@ -1273,3 +1273,15 @@ chk 'on-dark' scripts/build-preview-annot.mjs 5                  # 어두운 판
 chk "mode: 'box'" scripts/build-preview-annot.mjs 8              # 계좌 패널은 요소 테두리로 · 글자 잉크로 재면 점선이 '복사' 버튼을 뚫는다
 chk '대표 문구' scripts/build-preview-annot.mjs 1                # 02 전용 칸(data-k=quote)
 chk '한마디' scripts/build-preview-annot.mjs 2                   # 08 전용 칸(data-k=gb/bb)
+
+# ── 「들어보기」 실음원 배선 (2026-08-04 사용자 제보 *"여기왜 다른 오디오가나와?"* / *"전부다 줬잖아 파일"*) ──
+# 옛 배선은 만들어진 적 없는 `/assets/narration/m-<키>.mp3` 를 불렀다 → 404 → 조용히 대표 샘플로 폴백 →
+# 어느 순간을 눌러도 같은 목소리인데 화면은 멀쩡했다. ★조용한 폴백은 눈으로 못 잡는다.
+chk 'ORD_REAL_AUDIO' order-preview.html 4                 # 실음원 배선(원인 주석·playBtn 인자·oc 미리듣기·EXTRA_ON·엔진 프리로드)
+chk 'ORD_ENG_SANDBOX' order-preview.html 1                # 엔진을 new Function 인자 그림자로 가짜 전역에만 싣는다
+nochk "assets/narration/m-'" order-preview.html           # 존재한 적 없는 이름 · 되살리면 같은 버그가 그대로 돌아온다(주석의 사고 기록은 남긴다)
+nochk 'NARR_SAMPLE' order-preview.html                    # 대표 샘플 폴백 폐지 — 소리가 없으면 없다고 말한다
+nochk 'mockPlay' order-preview.html                       # 샘플 재생 진입점 폐지(momPlay 하나로 통일)
+chk 'var AUDEL' order-preview.html 1                      # 소리 요소 1개 재사용 · new Audio 를 항목마다 만들면 iOS 에서 두 번째 클립부터 막힌다
+chk 'EXTRA_ON' order-preview.html 3                       # 팔레트 기본 연출 표 1곳(extraTgl·미리듣기가 같은 표를 본다)
+chk 'order-audio-check' scripts/audit/order-audio-check.mjs 1   # 실렌더 검증 — 순간마다 다른 파일을 요청하는지 기계가 본다
