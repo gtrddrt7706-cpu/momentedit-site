@@ -1424,6 +1424,7 @@ chk 'mixFor' scripts/build-course-story.mjs 3
 chk "'26_vow-both'" assets/ritual-story.js 3               # CAST_AT 배선 · CAST 표 · mixFor 목적지
 chk 'CAST_PAIR\[c.role\]' assets/ritual-story.js 1          # '신랑|신부'처럼 겹친 역할도 배지를 찾게
 chk "split('|')" assets/ritual-story.js 1                  # 안 쪼개면 배지 키가 '신랑|신랑|신부|신부'로 깨진다
+chk 'CHORUS_SEGN' scripts/build-chorus.mjs 5              # 문장 경계를 소리에서 추정하지 않는다 — manifest 가 아는 문장 수를 쓴다
 chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 아니라 합성처럼 들린다(플랜저)
 chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
 chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다

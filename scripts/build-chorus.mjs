@@ -55,7 +55,17 @@ function dur(f) {
   return Number(String(r.stdout).trim()) || 0;
 }
 // 무음 구간을 찾아 「소리 나는 토막」의 시작·끝 목록으로 바꾼다
-function segments(f) {
+//
+// ★[CHORUS_SEGN 2026-08-04] 문장 수(n)를 받으면 그 개수로 맞춘다.
+//   왜 — 처음 받은 실제 더빙에서 신부 클립의 "지켜봐 주세요." 안에 0.128초 숨이 있었다.
+//   SIL_MIN(0.12)이 그보다 낮아 그 숨을 문장 경계로 오인했고, 토막이 2 vs 3 이 되어
+//   문장 단위 정렬을 통째로 포기했다(통짜 폴백 → 한쪽이 ×0.86 으로 늘어나 목소리가 변했다).
+//   ★고치는 방향은 문턱을 올리는 게 아니다. 문턱은 목소리·감정마다 달라서 다음 녹음에서 또 틀린다.
+//     소리에서 문장 경계를 **추정**하지 말고, manifest 가 **이미 아는 문장 수**를 쓴다.
+//     짧은 무음부터 도로 이어 붙여, 가장 긴 n-1 개만 문장 경계로 남긴다.
+//   ※ n 을 안 주면(또는 토막이 n 보다 적으면) 예전대로 잰 그대로 돌려준다 — 없는 경계를
+//     만들어 내지는 않는다. 그건 다시 추정이다.
+function segments(f, n) {
   const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', `silencedetect=n=${SIL_DB}:d=${SIL_MIN}`, '-f', 'null', '-'], { encoding: 'utf8' });
   const log = String(r.stderr || '');
   const sil = [];
@@ -65,7 +75,18 @@ function segments(f) {
   const segs = []; let at = 0;
   for (const [a, b] of sil) { if (a - at > 0.05) segs.push([at, a]); at = b; }
   if (total - at > 0.05) segs.push([at, total]);
-  return { segs, total };
+  // [CHORUS_SEGN] 아는 문장 수까지 줄인다 — 짧은 틈부터 도로 잇는다
+  let merged = 0;
+  while (n > 0 && segs.length > n) {
+    let k = 0, best = Infinity;
+    for (let i = 0; i + 1 < segs.length; i++) {
+      const gap = segs[i + 1][0] - segs[i][1];
+      if (gap < best) { best = gap; k = i; }
+    }
+    segs.splice(k, 2, [segs[k][0], segs[k + 1][1]]);
+    merged++;
+  }
+  return { segs, total, merged, want: n || 0 };
 }
 function cut(f, a, b, out) {
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-ss', a.toFixed(3), '-to', b.toFixed(3), '-i', f,
@@ -105,8 +126,13 @@ for (const c of targets) {
     missing++; continue;
   }
 
-  const A = segments(srcs[0].f), B = segments(srcs[1].f);
+  // [CHORUS_SEGN] 두 재료는 같은 문장을 읽은 것이다 — manifest 가 아는 문장 수를 둘 다에 준다
+  const want = (c.sents || []).length;
+  const A = segments(srcs[0].f, want), B = segments(srcs[1].f, want);
   console.log(`   · 길이  ${srcs[0].id} ${A.total.toFixed(2)}초 (토막 ${A.segs.length})  |  ${srcs[1].id} ${B.total.toFixed(2)}초 (토막 ${B.segs.length})`);
+  // [CHORUS_SEGN] 되돌린 자리를 숨기지 않는다 — 말 속 숨을 문장 경계로 오인했던 자리다
+  for (const [s2, r] of [[srcs[0], A], [srcs[1], B]])
+    if (r.merged) console.log(`   · [CHORUS_SEGN] ${s2.id} 말 속 숨 ${r.merged}군데를 문장 경계에서 뺐습니다 (아는 문장 ${r.want}개에 맞춤)`);
 
   const lanes = [[], []];        // 두 트랙의 조각 목록
   const tempos = [[], []];
