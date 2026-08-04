@@ -35,7 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { selectClips } from './clip-select.mjs';
+import { selectClips, selectSents } from './clip-select.mjs';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -45,6 +45,8 @@ const DRY = process.argv.includes('--dry');
 const IN = arg('--in', '');
 const ONLY = arg('--part', '');                   // '3' 또는 '3,5' — 이 파트만 조립
 const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,narr-song' — 이 클립만 (부분 재더빙)
+const SENTS = arg('--sent', '');                  // '신랑 신부, 입장!' — 이 문장 자리만 (문장 재더빙 · 구분자는 |)
+const PATCH = arg('--patch', '');                 // 새로 받은 그 문장 wav가 있는 폴더
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
@@ -65,6 +67,25 @@ const numOf = (n) => { const m = String(n).match(/\d+/); return m ? parseInt(m[0
 //   그래서 「지금 다루는 대장이 부분집합이다」를 --clip 으로 **선언**하게 한다.
 //   선언하면 개수 판별·길이 상관·순서 검증이 전부 그 부분집합을 기준으로 다시 계산된다.
 //   ★새 파일에 부분집합을 적어 두지 않는다 — manifest가 이미 클립·문장·파트·화자를 전부 안다.
+//
+// ── ★★★[SENT_PATCH 2026-08-04] 문장 **한 자리**만 갈아 끼운다
+//   왜 — 사용자 질문: *"문장중 신랑신부 입장 이 문장만 할수는 없는거야?"*
+//   CLIP_SUBSET은 「클립 단위」다. 입장 6클립을 고치려면 23문장을 다시 뽑아야 한다.
+//   그런데 고치고 싶은 건 마지막 한 마디뿐이고, 그 마디는 6클립에서 **글자까지 똑같다**.
+//   그래서 --sent 로 자리를 짚고, --patch 폴더의 새 wav로 그 자리만 바꿔 클립을 다시 붙인다.
+//   나머지 문장은 --in 의 **처음 받은 원본**을 그대로 쓴다.
+//
+//   ★그래서 --patch 를 줄 때 --in 은 「그 파트 전체 원본」이다(부분집합이 아니다).
+//     개수 판별·순서 검증은 파트 전체 기준으로 그대로 돈다 — 자리를 세는 자와 붙이는 자가 어긋나면
+//     한 자리 밀린 채로 조용히 완성되기 때문이다. 판별(clipsOf)과 생성(buildOf)을 이름부터 갈라 둔다.
+const SP0 = SENTS ? selectSents(man.clips, SENTS) : null;
+if (SP0 && !SP0.length) {
+  console.error(`✗ --sent "${SENTS}" 에 맞는 문장이 없습니다. 대본과 글자가 같은지 보세요(따옴표·느낌표 포함).`);
+  process.exit(1);
+}
+if (PATCH && !SP0) { console.error('✗ --patch 는 --sent 와 짝입니다. 어느 자리를 바꿀지 --sent 로 알려 주세요.'); process.exit(1); }
+if (SP0 && !PATCH && !DRY) { console.error('✗ --sent 만으로는 바꿀 소리가 없습니다. 새로 받은 wav 폴더를 --patch 로 주세요(자리 확인만 하려면 --dry).'); process.exit(1); }
+
 const SEL = CLIPS ? (() => {
   const sel = selectClips(man.clips, CLIPS);
   if (!sel.length) {
@@ -73,12 +94,22 @@ const SEL = CLIPS ? (() => {
     process.exit(1);
   }
   return sel;
-})() : null;
-const clipsOf = (P) => (SEL || man.clips).filter((c) => c.part === P.file);
+})() : (SP0 ? [...new Set(SP0.map((x) => x.clip))] : null);   // --sent 만 주면 그 문장이 든 클립이 곧 대상
+const SP = SP0 ? SP0.filter((x) => SEL.includes(x.clip)) : null;
+if (SP && !SP.length) { console.error(`✗ --sent "${SENTS}" 는 --clip ${CLIPS} 안에 없습니다.`); process.exit(1); }
+
+// 판별용 — --in 이 담고 있어야 하는 클립. 문장 패치는 파트 전체 원본을 받으므로 부분집합이 아니다.
+const clipsOf = (P) => (SP ? man.clips : (SEL || man.clips)).filter((c) => c.part === P.file);
+// 생성용 — 실제로 다시 만들어 덮어쓸 클립.
+const buildOf = (P) => (SEL || man.clips).filter((c) => c.part === P.file);
 const parts = man.parts.map((p) => ({ ...p, n: numOf(p.file) }))
   .filter((p) => !SEL || SEL.some((c) => c.part === p.file))
   .map((p) => (SEL ? { ...p, clips: clipsOf(p).length, sents: clipsOf(p).reduce((a, c) => a + c.sents.length, 0) } : p));
-if (SEL) {
+if (SP) {
+  console.log(`★문장 재더빙 · --sent "${SENTS}" → ${SP.length}자리 · 다시 붙일 클립 ${SEL.length}개`);
+  for (const x of SP) console.log(`  ${x.clip.no}_${x.clip.file}  ${x.i + 1}/${x.clip.sents.length}번째 문장 — "${x.text}"`);
+  console.log(`  ★--in 에는 그 파트 **전체 원본**을 주세요. 나머지 문장은 원본을 그대로 씁니다.`);
+} else if (SEL) {
   console.log(`★부분 재더빙 · --clip ${CLIPS} → ${SEL.length}클립 · ${parts.reduce((a, p) => a + p.sents, 0)}문장`);
   for (const p of parts) console.log(`  ${p.file.padEnd(18)} 문장 ${String(p.sents).padStart(3)}개 — ${clipsOf(p).map((c) => c.file).join(' · ')}`);
   console.log(`  ★이 파트의 나머지 클립은 건드리지 않습니다. 지금 만드는 mp3만 덮어씁니다.`);
@@ -113,7 +144,7 @@ if (DRY || !IN) {
   }
   console.log('\n  ★받은 zip이나 폴더를 아무 이름으로든 한 곳에 모아 두기만 하면 됩니다 — 파트는 개수와 길이로 알아서 찾습니다(PART_AUTOMATCH):');
   for (const p of parts) console.log(`    ${p.file.padEnd(18)} 파일 ${String(p.sents).padStart(3)}개`);
-  if (!IN) console.log('\n  실제 조립: --in <모아 둔 폴더> 를 주세요. 한 파트만 하려면 --part 3 · 한 대목만 다시 받았으면 --clip entry-');
+  if (!IN) console.log('\n  실제 조립: --in <모아 둔 폴더> 를 주세요. 한 파트만 하려면 --part 3 · 한 대목만 다시 받았으면 --clip entry- · 한 문장만이면 --sent "…" --patch <폴더>');
   process.exit(0);
 }
 
@@ -239,7 +270,7 @@ let missing = 0;
 for (const P of todo) {
   const g = groups.find((x) => x.P && x.P.file === P.file);
   if (!g) { console.log(`  ${P.file.padEnd(18)} 아직 안 받았습니다 — 건너뜁니다`); missing++; continue; }
-  work.push({ P, clips: clipsOf(P), files: g.files, real: g.real });
+  work.push({ P, clips: clipsOf(P), build: buildOf(P), files: g.files, real: g.real });
 }
 if (!work.length) { console.error('\n✗ 조립할 파트가 하나도 없습니다.'); process.exit(1); }
 if (missing) console.log(`  (${missing}개 파트는 나중에 다시 돌리면 그때 붙습니다)`);
@@ -266,6 +297,27 @@ for (const w of work) {
 if (bad) {
   console.error(`\n✗ 순서가 어긋난 것으로 보입니다 (r < 0.85). 파일 정렬을 확인하고 다시 돌리세요. 무시하려면 --force`);
   if (!process.argv.includes('--force')) process.exit(1);
+}
+
+// ── ★★★[SENT_PATCH] 새로 받은 문장 wav를 자리에 배정한다
+//   개수 규칙은 셋뿐이다. 애매한 네 번째 경우를 허용하지 않는다 —
+//     1개  → 매칭된 자리 **전부**에 같은 파일 (같은 문장이 여러 클립에 나올 때. 입장 6곳이 이 경우다)
+//     자리 수와 같음 → 위에 찍어 준 순서대로 하나씩
+//     그 외 → 멈춘다. 조용히 앞에서부터 붙이면 어느 자리가 안 바뀌었는지 아무도 모른다.
+const patchMap = new Map();
+if (PATCH) {
+  if (!fs.existsSync(PATCH)) { console.error(`✗ --patch 폴더가 없습니다: ${PATCH}`); process.exit(1); }
+  const pf = fs.statSync(PATCH).isDirectory() ? sortIn(collect(PATCH)) : [PATCH];
+  if (!pf.length) { console.error(`✗ ${PATCH} 안에서 음원을 못 찾았습니다.`); process.exit(1); }
+  if (pf.length === 1) for (const x of SP) patchMap.set(`${x.clip.file}#${x.i}`, pf[0]);
+  else if (pf.length === SP.length) SP.forEach((x, i) => patchMap.set(`${x.clip.file}#${x.i}`, pf[i]));
+  else {
+    console.error(`✗ --patch 안 음원이 ${pf.length}개인데 바꿀 자리는 ${SP.length}곳입니다.`);
+    console.error(`  1개(모든 자리에 같은 소리)이거나 ${SP.length}개(자리 순서대로)여야 합니다.`);
+    process.exit(1);
+  }
+  console.log(`\n★갈아 끼울 소리 ${pf.length}개 → ${SP.length}자리`);
+  for (const x of SP) console.log(`  ${x.clip.no}_${x.clip.file} ${x.i + 1}번째 ← ${path.basename(patchMap.get(`${x.clip.file}#${x.i}`))}`);
 }
 
 // ── 조립
@@ -409,9 +461,14 @@ for (const w of work) {
   let k = 0;
   console.log(`\n${w.P.file} → ${w.P.dir || 'assets/audio/narration'}/`);
   for (const c of w.clips) {
+    // ★자리 인덱스를 먼저 확정하고 통째로 넘긴다 — 예전엔 `w.files[k++]`로 세면서 읽었다.
+    //   그러면 「이 클립은 안 만든다」로 건너뛰는 날 k가 안 늘어 그 뒤 전부가 밀린다.
+    //   세는 일과 읽는 일을 갈라 두면 건너뛰어도 자리가 흔들리지 않는다. (SENT_PATCH)
+    const at = k; k += c.sents.length;
+    if (!w.build.includes(c)) continue;
     // 문장 wav를 먼저 다 만든다 — 사이 여백은 「앞 문장 after + 뒤 문장 before」가 한 자리이므로
     //   따로따로 넣으면 GAP_NET이 한 자리를 두 번 깎는다. 합쳐 놓고 한 번만 판단한다.
-    const norms = c.sents.map(() => norm(w.files[k++]));
+    const norms = c.sents.map((s, si) => norm(patchMap.get(`${c.file}#${si}`) || w.files[at + si]));
     const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
     const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
     const seq = [sil(headSec)];
@@ -440,7 +497,8 @@ for (const w of work) {
       '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
-    console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length})`);
+    const pn = c.sents.filter((s, si) => patchMap.has(`${c.file}#${si}`)).length;
+    console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''})`);
 
     // parents.html은 번호 없는 경로를 부른다 — 사본을 둔다 (★PARENTS_DUAL_PATH)
     if (c.file === 'parents-letter') {

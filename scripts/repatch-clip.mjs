@@ -18,7 +18,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { selectClips } from './clip-select.mjs';
+import { selectClips, selectSents } from './clip-select.mjs';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const DIR = path.join(root, 'docs/plans/식순연구/타입캐스트');
@@ -26,13 +26,14 @@ const MAN = path.join(DIR, 'manifest.json');
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const CLIPS = arg('--clip', '');
+const SENTS = arg('--sent', '');
 const NAME = arg('--name', '');
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 
-if (!CLIPS) {
-  console.log('한 대목만 다시 더빙할 때 쓰는 도구입니다. --clip 으로 어느 대목인지 알려 주세요.\n');
+if (!CLIPS && !SENTS) {
+  console.log('한 대목만 다시 더빙할 때 쓰는 도구입니다. --clip 으로 대목을, --sent 로 문장 하나를 짚습니다.\n');
   const byPart = {};
   for (const c of man.clips) (byPart[c.part] ||= []).push(c);
   for (const [p, cs] of Object.entries(byPart)) {
@@ -40,6 +41,48 @@ if (!CLIPS) {
     for (const c of cs) console.log(`    ${c.file.padEnd(26)} ${c.no}_${c.file}.mp3  ${String(c.sents.length).padStart(2)}문장  ${c.label || ''}`);
   }
   console.log('\n  예) 입장 나레이션 6개 → node scripts/repatch-clip.mjs --clip entry-');
+  console.log('      "신랑 신부, 입장!" 한 마디만 → node scripts/repatch-clip.mjs --sent "신랑 신부, 입장!"');
+  process.exit(0);
+}
+
+// ── ★★★[SENT_PATCH 2026-08-04] 문장 한 자리만 다시 뽑는다
+//   왜 — 사용자 질문: *"문장중 신랑신부 입장 이 문장만 할수는 없는거야?"*
+//   같은 문장이 여러 클립에 나오면(입장은 6곳) **한 개만 받아 여섯 자리에 전부 넣는다**.
+//   그래서 붙여넣기 파일에는 자리 수(6줄)가 아니라 **서로 다른 문장 수**만 적는다.
+//   ★한 번 말한 것을 여섯 번 다시 말하게 하지 않는다 — 여섯 번 뽑으면 억양이 여섯 가지가 된다.
+if (SENTS) {
+  const pool = CLIPS ? selectClips(man.clips, CLIPS) : man.clips;
+  const hits = selectSents(pool, SENTS);
+  if (!hits.length) {
+    console.error(`✗ --sent "${SENTS}" 에 맞는 문장이 없습니다. 대본과 글자가 같은지 보세요(쉼표·느낌표 포함).`);
+    console.error(`  여럿을 고를 땐 쉼표가 아니라 | 로 나눕니다 — 대사 안에 쉼표가 들어 있기 때문입니다.`);
+    process.exit(1);
+  }
+  const uniq = [...new Set(hits.map((x) => x.text))];
+  const slug = NAME || SENTS.replace(/[^0-9A-Za-z가-힣]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24) || 'sent';
+  const fn = `재더빙문장_${slug}.txt`;
+  const spk = (t) => {
+    const c = hits.find((x) => x.text === t).clip;
+    return man.voice?.[c.role] || c.role;
+  };
+  fs.writeFileSync(path.join(DIR, fn), uniq.map((t) => `${spk(t)}: ${t}`).join('\n') + '\n', 'utf8');
+
+  const clips = [...new Set(hits.map((x) => x.clip))];
+  const partOf = [...new Set(clips.map((c) => c.part))];
+  console.log(`✓ ${fn} — docs/plans/식순연구/타입캐스트/\n`);
+  console.log(`  서로 다른 문장  ${uniq.length}개 = 받을 파일 개수`);
+  console.log(`  들어갈 자리     ${hits.length}곳`);
+  for (const x of hits) console.log(`    ${x.clip.no}_${x.clip.file}  ${x.i + 1}/${x.clip.sents.length}번째  "${x.text}"`);
+  console.log(`  다시 붙일 클립  ${clips.length}개 (${partOf.join(' · ')})`);
+  console.log(`
+  ── 그다음 ──
+  ① 타입캐스트에 위 파일을 붙여넣고 ${uniq.length}개만 받습니다 (${uniq.length === 1 ? '한 개' : uniq.length + '개'}라 분리·통합 아무거나 상관없습니다)
+  ② 받은 파일을 아무 폴더에나 두고:
+       node scripts/assemble-narration.mjs --in <처음 받은 ${partOf[0].replace(/\.txt$/, '')} 원본 폴더> --sent "${SENTS}" --patch <새로 받은 폴더>
+  ③ 위 ${clips.length}개 클립만 다시 붙여 덮어씁니다. 나머지 문장은 원본 그대로입니다.
+
+  ★--in 은 **처음 받은 그 파트 전체 원본**입니다(부분집합 아님). 나머지 문장을 거기서 가져오기 때문입니다.
+  ★원본을 잃어버렸다면 문장 단위 교체가 안 됩니다 — 그땐 --clip 으로 대목 전체를 다시 받아야 합니다.`);
   process.exit(0);
 }
 

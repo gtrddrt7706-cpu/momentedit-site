@@ -1320,3 +1320,14 @@ chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
 chk 'SAMPLE_TOPCUT' mypage.html 2                        # 샘플 모달 flex-start+margin:auto+dvh · center+100vh 로 되돌리면 제목·닫기가 화면 위로 잘린다
 chk 'align-items:flex-start' mypage.html 1
+
+# ── [SENT_PATCH] 문장 한 자리만 갈아 끼우기 (2026-08-04 사용자 질문 "문장중 신랑신부 입장 이 문장만 할수는 없는거야?") ──
+#   같은 문장이 6클립에 나오므로 1개만 받아 6자리에 넣는다. 판별(clipsOf)과 생성(buildOf)을 갈라 둔 것이 핵심.
+chk 'selectSents' scripts/clip-select.mjs 1
+chk 'selectSents' scripts/assemble-narration.mjs 2
+chk 'selectSents' scripts/repatch-clip.mjs 2
+chk 'SENT_PATCH' scripts/assemble-narration.mjs 3
+chk 'buildOf' scripts/assemble-narration.mjs 3
+chk 'patchMap' scripts/assemble-narration.mjs 6
+chk 'const at = k' scripts/assemble-narration.mjs 1
+nochk 'c.sents.map(() => norm' scripts/assemble-narration.mjs
