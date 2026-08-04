@@ -1261,3 +1261,11 @@ chk 'btn-next.busy' order-preview.html 2                  # 저장 중은 disabl
 nochk 'nx.disabled=!!_saving' order-preview.html
 chk 'ORD_BTN_ALIGN' order-preview.html 4                  # 요약 행 버튼 폭 고정 + 320 보정 + 뺌 행 값 통일 · 풀면 '변경'(52px)/'채우기'(64px)로 왼쪽 가장자리가 12px씩 지그재그가 된다
 chk 'min-width:62px' order-preview.html 1                 # 62px 이 경계 — 64면 값 칸이 줄어 '나레이션 · 엄숙하게'가 두 줄, 58이면 좁아 보인다(실측)
+
+# ── 청첩장 예시 이미지 (2026-08-03) ──
+# 생성기를 지우지 말 것 — 2026-08-02 판까지는 임시 스크립트로 뽑고 버려서, 예시를 고치라는 지시가 왔을 때 원본이 없어 통째로 다시 만들었다
+chk 'build-preview-annot' scripts/build-preview-annot.mjs 1
+chk 'inkRect' scripts/build-preview-annot.mjs 2                 # 글자 잉크 폭으로 점선을 잡는다 · 요소 박스로 되돌리면 가운데 정렬된 짧은 글에 전폭 상자가 생긴다
+chk 'inkAll' scripts/build-preview-annot.mjs 3                  # 라벨이 청첩장 본문 글자를 덮지 않게 · 빼면 '혼주 성함'이 신랑 이름 위에 앉는다(실측)
+chk 'details::details-content' scripts/build-preview-annot.mjs 1  # 닫힌 계좌 아코디언 강제 노출 · 없으면 신랑측이 빈 칸으로 찍힌다
+chk 'env-acc-item' scripts/build-preview-annot.mjs 2             # 01 은 details 가 아니라 클래스 토글 아코디언
