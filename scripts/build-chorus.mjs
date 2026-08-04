@@ -110,6 +110,10 @@ for (const c of targets) {
 
   const lanes = [[], []];        // 두 트랙의 조각 목록
   const tempos = [[], []];
+  // ★[CHORUS_LAG 2026-08-04] 문장마다 '속도를 맞추고도 남은 말 길이 차'. 이게 사람이 실제로 듣는 어긋남이다.
+  //   아래 '트랙 총길이 차'는 문장 단위 정렬에선 구조적으로 0이 된다(짧은 쪽을 무음으로 채워 맞추니까).
+  //   그 0을 '잘 맞았다'로 읽으면, 한쪽이 먼저 끝나고 다른 쪽이 계속 말하는 상태를 놓친다.
+  const lags = [];
   let plan;
   if (A.segs.length === B.segs.length && A.segs.length > 0) {
     plan = `문장 단위 정렬 (토막 ${A.segs.length}개)`;
@@ -130,6 +134,7 @@ for (const c of targets) {
       tempos[0].push(stretch(pa, qa, da / target));
       tempos[1].push(stretch(pb, qb, db / target));
       const ea = dur(qa), eb = dur(qb), end = Math.max(ea, eb);
+      lags.push(Math.abs(ea - eb));   // [CHORUS_LAG] 무음으로 덮기 전의 진짜 차이
       // 늘리다 만 만큼은 무음으로 채워 두 트랙의 다음 문장 시작점을 같게 만든다
       for (const [L, e, q] of [[0, ea, qa], [1, eb, qb]]) {
         lanes[L].push(q);
@@ -157,7 +162,13 @@ for (const c of targets) {
   const d0 = dur(t0), d1 = dur(t1);
   const drift = Math.abs(d0 - d1);
   const rng = (a) => a.length ? `${Math.min(...a).toFixed(3)}~${Math.max(...a).toFixed(3)}` : '—';
-  console.log(`   · 정렬 후  ${d0.toFixed(2)}초 · ${d1.toFixed(2)}초  (남은 어긋남 ${drift.toFixed(3)}초)`);
+  console.log(`   · 정렬 후  ${d0.toFixed(2)}초 · ${d1.toFixed(2)}초  (트랙 총길이 차 ${drift.toFixed(3)}초)`);
+  if (lags.length) {
+    const sum = lags.reduce((x, y) => x + y, 0), mx = Math.max(...lags);
+    console.log(`   · [CHORUS_LAG] 말이 어긋난 양  문장별 최대 ${mx.toFixed(3)}초 · 합 ${sum.toFixed(3)}초  ← 사람이 실제로 듣는 건 이 값이다`);
+    if (mx > 0.30) { console.log(`   ★ 한 문장이 ${mx.toFixed(2)}초 어긋납니다 — 한쪽이 먼저 끝나고 다른 쪽이 계속 말합니다.`);
+                     console.log(`     속도 한계(${TEMPO_LO}~${TEMPO_HI}) 밖이라 더는 못 맞춥니다. 두 성우의 낭독 속도를 맞춰 다시 받는 편이 낫습니다.`); warned++; }
+  }
   console.log(`   · 속도 보정  ${srcs[0].id} ×${rng(tempos[0])}  |  ${srcs[1].id} ×${rng(tempos[1])}`);
   if (drift > 0.25) { console.log(`   ★ 어긋남이 0.25초를 넘습니다 — 겹쳐 들릴 수 있어요. 합창 문장을 더 짧게 줄이는 편이 낫습니다.`); warned++; }
   if (tempos.some((t) => t.some((x) => x <= TEMPO_LO + 1e-6 || x >= TEMPO_HI - 1e-6))) {

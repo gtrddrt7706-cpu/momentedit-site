@@ -1403,6 +1403,14 @@ chk 'VOW_CHORUS' order-preview.html 4
 chk 'VOW_CHORUS' scripts/assemble-narration.mjs 1
 chk 'VOW_CHORUS' scripts/check-text-audio.mjs 1
 chk 'VOW_CHORUS' scripts/check-ritual-mirror.js 1
+chk 'CAST_SILENT' order-preview.html 2                     # 건너뛴 클립을 화면이 말한다 — 지우면 다시 조용해진다
+chk 'CHORUS_LAG' scripts/build-chorus.mjs 3                # '트랙 총길이 차 0' 을 '잘 맞았다'로 읽지 않게 진짜 값을 함께 찍는다
+
+# ── [CAST_AUDIO_GUARD] 배선된 클립의 음원이 실제로 있는가 (2026-08-04)
+#   배선만 되고 mp3 가 없으면 미리듣기가 그 대목을 건너뛴다. 예정된 결원은 PENDING 명단에만 적히고,
+#   명단에 없는 결원·낡은 명단·죽은 id 는 여기서 하드 실패로 잡는다.
+chk 'CAST_AUDIO_GUARD' scripts/check-cast-audio.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-cast-audio.mjs || fail=1; fi
 chk 'VOW_CHORUS' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk 'var VOWBOTH' assets/ritual-data.js 1                  # 문안 원천은 여기 하나
 chk 'VOWBOTH:VOWBOTH' assets/ritual-data.js 1              # export 안 하면 화면·검사가 원천을 못 읽는다
