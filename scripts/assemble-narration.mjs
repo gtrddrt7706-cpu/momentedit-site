@@ -271,7 +271,29 @@ const EOF_TOL = 0.10;
 //   상한은 manifest의 `gap.sent`를 그대로 읽는다 — 문장 사이 여백을 바꾸는 날 이 상한도 따라오도록.
 //   (지우지 않고 상한까지만 줄인다. 쉼을 없애면 문장이 서로 달라붙는다.)
 const SENT_CAP = Math.max(0.20, Number(man.gap?.sent) || 0.45);
-const trimStat = { n: 0, sec: 0, inner: 0 };
+
+// ★★★[GAP_NET 2026-08-04] 문장 사이 여백에서 **남이 넣어 둔 여백**을 뺀다.
+//   왜 — 2026-08-04 사용자 판정: *"편지 여백이 자연스러우니깐 참조해서 진행"*. 편지가 기준자가 됐다.
+//   그래서 편지와 나레이션을 같은 자로 실측했더니(scripts/audit/gap-profile.mjs) 딱 한 자리가 어긋났다.
+//
+//     편지 문장 사이 0.43~0.45  ←  문단 wav **안쪽**이라 SENT_CAP 0.45가 상한으로 걸린다
+//     나레이션 문장 사이 0.52~0.55  ←  문장 wav **사이**라 상한이 안 걸리고, 내가 넣은 0.45에
+//                                    TRIM_VENDOR_EDGE가 남긴 EDGE_KEEP 0.05가 양쪽에서 더해진다
+//
+//   같은 「문장 사이」인데 한쪽만 0.10초 길었다. 사용자가 자연스럽다고 한 쪽은 0.45다.
+//   ★내가 넣은 여백에 남이 넣어 둔 여백이 더해진다 — 그러니 남은 몫을 빼고 넣어야
+//     manifest에 적은 초가 곧 귀에 들리는 초가 된다(TRIM_VENDOR_EDGE 주석의 약속을 여기서 지킨다).
+//
+//   ★차감 대상은 「문장 사이」뿐이다. SENT_CAP을 넘는 경계(0.70 문단 · 1.00 큰 전환)는 손대지 않는다 —
+//     그 자리는 편지에서 이미 0.79/0.80 · 1.09/1.10으로 들렸고 사용자가 자연스럽다고 한 값이다.
+//     판별 기준을 SENT_CAP으로 두는 이유도 같다. 문장 사이의 상한과 문장 사이의 판별이 같은 자여야
+//     gap.sent를 바꾸는 날 둘이 같이 움직인다.
+//   ★클립 앞(head)·뒤(tail)도 대상이 아니다. 편지의 앞 0.23 · 뒤 0.49가 이미 이 값들에서 나왔다.
+const GAP_NET = (sec) => {
+  const v = +Number(sec).toFixed(3);
+  return v <= SENT_CAP + 0.02 ? +Math.max(0, v - EDGE_KEEP * 2).toFixed(3) : v;
+};
+const trimStat = { n: 0, sec: 0, inner: 0, net: 0 };
 
 const silSegs = (f, d) => {
   const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'silencedetect=n=-50dB:d=0.05', '-f', 'null', '-'],
@@ -342,13 +364,21 @@ for (const w of work) {
   let k = 0;
   console.log(`\n${w.P.file} → ${w.P.dir || 'assets/audio/narration'}/`);
   for (const c of w.clips) {
-    const seq = [sil(c.head)];
-    for (const s of c.sents) {
-      if (s.before > 0) seq.push(sil(s.before));
-      seq.push(norm(w.files[k++]));
-      if (s.after > 0) seq.push(sil(s.after));
+    // 문장 wav를 먼저 다 만든다 — 사이 여백은 「앞 문장 after + 뒤 문장 before」가 한 자리이므로
+    //   따로따로 넣으면 GAP_NET이 한 자리를 두 번 깎는다. 합쳐 놓고 한 번만 판단한다.
+    const norms = c.sents.map(() => norm(w.files[k++]));
+    const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
+    const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
+    const seq = [sil(headSec)];
+    for (let i = 0; i < norms.length; i++) {
+      seq.push(norms[i]);
+      if (i + 1 >= norms.length) continue;
+      const raw = c.sents[i].after + c.sents[i + 1].before;
+      const g = GAP_NET(raw);
+      trimStat.net += raw - g;
+      if (g > 0) seq.push(sil(g));
     }
-    seq.push(sil(c.tail));
+    seq.push(sil(tailSec));
 
     const tag = `${w.P.n}_${c.no}`;
     const lst = path.join(TMP, `l${tag}.txt`);
@@ -381,6 +411,8 @@ fs.rmSync(TMPZ, { recursive: true, force: true });
 console.log(`\n✓ ${made}클립 → ${[...outDirs].map((d) => path.relative(root, d) + '/').join(' · ')}`);
 if (trimStat.n) console.log(`  원본 무음 정리 ${trimStat.sec.toFixed(1)}초 (${trimStat.n}개 · 평균 ${(trimStat.sec / trimStat.n).toFixed(2)}초)`
   + ` — 가장자리 ${(trimStat.sec - trimStat.inner).toFixed(1)}초 TRIM_VENDOR_EDGE · 안쪽 ${trimStat.inner.toFixed(1)}초 SENT_CAP(${SENT_CAP}초 상한)`);
+if (trimStat.net > 0.05) console.log(`  문장 사이 여백 상계 ${trimStat.net.toFixed(1)}초 GAP_NET`
+  + ` — 원본 가장자리로 남긴 ${EDGE_KEEP}초씩을 빼고 넣어 실제 쉼을 ${SENT_CAP}초에 맞춥니다(기준자: 혼주 편지).`);
 if ([...outDirs].some((d) => /cast$/.test(d)))
   console.log(`  ★assets/audio/cast/ 는 미리듣기 전용입니다. 당일 콘솔은 이 클립을 재생하지 않습니다.`);
 console.log(`  마지막으로 식장 스피커로 실청하세요. 헤드폰에서 괜찮아도 홀 울림에서 BGM에 묻힐 수 있습니다.`);
