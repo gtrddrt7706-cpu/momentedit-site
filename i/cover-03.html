@@ -1675,6 +1675,23 @@ details.env-acc-item[open] .env-acc-plus{
 @media (prefers-reduced-motion:reduce){ .cover-scroll .cover-scroll-line{animation:none;opacity:.7} }
 .cover-scroll.cue-dark{background:rgba(28,27,25,.3);box-shadow:0 1px 3px rgba(0,0,0,.22)}
 .cover-scroll.in{opacity:1}
+/* [CUE_GLIDE 2026-08-04] 나타날 때도 사라질 때도 스르륵 — 청첩장의 속도로.
+   딱 켜지고 딱 꺼지는 건 알림창의 말투다. 아래에서 살며시 떠올랐다가, 다시 가라앉으며 스민다.
+   ★사라짐을 등장보다 길게 잡는다 — 눈에 남는 건 사라지는 쪽이다.
+   ★그 느린 시간은 .hidden 에만 얹는다. 클래스가 붙는 순간에만 길어지고,
+     다시 켤 때(.hidden 제거)는 기본 시간으로 돌아온다 — 등장이 덩달아 늘어지지 않는다.
+   ★16장 + 갤러리(마이페이지 샘플 모달이 이 갤러리를 그대로 띄운다)가 같은 값을 쓴다. 판별로 바꾸지 말 것. */
+.cover-scroll{transform:translateX(-50%) translateY(9px);
+  /* ★[CUE_IN]이 "CSS 지연 2.4s + 페이드 1.2s를 걷어냈다"고 적어 두었지만, 실제로 지워진 건 주석뿐이었다 —
+     위쪽 옛 블록의 animation:fadeInUp …forwards 가 그대로 살아 있었다(실측).
+     애니메이션은 전환(transition)보다 세다. 그래서 2.4s 뒤부터 opacity 를 애니메이션이 붙들어,
+     사라질 때 불투명도만 뚝 끊기고 위치만 스르르 흘렀다(1.15s 중 opacity 0ms). 여기서 못을 박는다. */
+  animation:none;
+  transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1)}
+.cover-scroll.in{transform:translateX(-50%) translateY(0)}
+.cover-scroll.hidden{opacity:0 !important;transform:translateX(-50%) translateY(9px) !important;
+  transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)}
+
 @media print{.cover-scroll{display:none}}
 /* [CUE_POS 2026-08-04] 스크롤 표시는 16장이 **완전히 같다** — 모양도, 화면에서의 자리도.
      ★사용자 결정: 글자와 겹쳐도 된다. 스크롤하면 곧 사라진다(.hidden). 판마다 피해 다니지 말 것.
@@ -2133,11 +2150,34 @@ details.env-acc-item[open] .env-acc-plus{
 (function(){
   var timers = [];
   function clearTimers(){ while (timers.length) clearTimeout(timers.pop()); }
+  /* [CUE_OFFSCROLL 2026-08-04] '내리면 곧 사라진다'를 여기로 모은다.
+     예전엔 판마다 따로 둔 스크롤 리스너가 이 일을 했는데, 큐를 한 벌로 합치면서
+     그 리스너가 가리키던 변수(scrollEl)가 사라져 4장(01·05 · 온라인/오프라인)에서
+     스크롤할 때마다 ReferenceError 가 났다(실측). 큐를 아는 쪽이 큐를 끈다.
+     ★청첩장은 body 가 스크롤 상자인 판이 있다 — 세 군데를 다 듣고, 세 값을 다 본다. */
+  var offScroll = null;
+  var SCROLL_TARGETS = [window, document, document.body];
+  function unbindScroll(){
+    if (!offScroll) return;
+    SCROLL_TARGETS.forEach(function(t){ if (t) try { t.removeEventListener('scroll', offScroll, {capture:true}); } catch(e){} });
+    offScroll = null;
+  }
   function arm(el){
     clearTimers();
+    unbindScroll();
     el.classList.remove('hidden');
     timers.push(setTimeout(function(){ el.classList.add('in'); }, 500));
     timers.push(setTimeout(function(){ el.classList.add('hidden'); }, 500 + 2200));
+    offScroll = function(){
+      var y = (window.pageYOffset || 0)
+            + ((document.documentElement && document.documentElement.scrollTop) || 0)
+            + ((document.body && document.body.scrollTop) || 0);
+      if (y < 40) return;
+      clearTimers();
+      el.classList.add('hidden');
+      unbindScroll();
+    };
+    SCROLL_TARGETS.forEach(function(t){ if (t) try { t.addEventListener('scroll', offScroll, {passive:true, capture:true}); } catch(e){} });
   }
   function go(){
     var el = document.querySelector('.cover-scroll');

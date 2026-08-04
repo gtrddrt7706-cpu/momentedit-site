@@ -139,18 +139,27 @@ html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 .mtb-wrap{scrollbar-width:none;-ms-overflow-style:none}
 .mtb-wrap::-webkit-scrollbar{width:0;height:0;display:none}
-/* ★고정 큐가 본문 위에 겹쳐 글자와 뒤엉키던 것 — 옅은 알약 배경으로 층을 분리한다(2026-08-01) */
-.g-scroll{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:40;
-  padding:8px 16px 10px;border-radius:999px;background:rgba(250,250,248,.88);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  opacity:1;transition:opacity .6s ease}
-.g-scroll.hide{opacity:0}
-.g-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.22em;color:var(--sub)}   /* --gold-deep은 흰 카드 위에서 3.94:1 AA 미달(axe) — 선만 골드로 남긴다 */
+/* ★고정 큐가 본문 위에 겹쳐 글자와 뒤엉키던 것 — 옅은 알약 배경으로 층을 분리한다(2026-08-01)
+   [CUE_ONE][CUE_GLIDE 2026-08-04] 청첩장 16장·갤러리와 **같은 한 벌**로 맞춘다 —
+   자리(80px) · 알약(.42 + blur7) · 라벨 10.5px/.13em · 선 22px/cueDrip 2.1s ·
+   0.5s 뒤 스르륵 떠오르고 2.2s 뒤 스르르 가라앉는다 · 손으로 내리면 그 즉시.
+   갤러리에서 좌우로 넘기면 이 화면도 한 카드로 지나간다 — 거기서만 다르게 생기면 안 된다. */
+.g-scroll{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%) translateY(9px);
+  display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:40;
+  padding:9px 20px 11px;border-radius:999px;background:rgba(250,250,248,.42);
+  box-shadow:0 1px 2px rgba(28,27,25,.045);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  opacity:0;transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1)}
+.g-scroll.in{opacity:1;transform:translateX(-50%) translateY(0)}
+.g-scroll.hide{opacity:0 !important;transform:translateX(-50%) translateY(9px) !important;
+  transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)}
+.g-scroll-label{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:.13em;
+  padding-left:.13em;opacity:.86;line-height:1;color:var(--sub)}   /* line-height:1 — 없으면 알약이 청첩장(58px)보다 7px 두꺼워진다(실측 65px) · --gold-deep은 흰 카드 위에서 3.94:1 AA 미달(axe)이라 선만 골드로 남긴다 */
 .g-scroll-chev{width:1px;height:22px;background:linear-gradient(to bottom,var(--gold-deep),transparent);
-  animation:gScrollDrop 1.8s ease-in-out infinite}
-@keyframes gScrollDrop{0%{transform:translateY(0);opacity:.9}70%{transform:translateY(7px);opacity:.25}100%{transform:translateY(7px);opacity:0}}
-@media (prefers-reduced-motion:reduce){.g-scroll-chev{animation:none}}
+  animation:cueDrip 2.1s cubic-bezier(0.4,0,0.2,1) infinite}
+@keyframes cueDrip{0%{transform:translateY(-4px);opacity:0}22%{opacity:.95}100%{transform:translateY(8px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.g-scroll-chev{animation:none;opacity:.7}}
 /* ★--faint(#A49D8E)로 두면 --bg2 위에서 2.4:1로 AA 미달이었다(axe 적발).
    위계는 색이 아니라 크기로 낸다 — 브랜드 규칙 그대로. */
 .ps-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px}
@@ -327,7 +336,17 @@ function $(id){ return document.getElementById(id); }
       el=document.createElement('div'); el.className='g-scroll'; el.setAttribute('aria-hidden','true');
       el.innerHTML='<span class="g-scroll-label">Scroll</span><span class="g-scroll-chev"></span>';
       document.body.appendChild(el);
-      var off=function(){ if(el) el.classList.add('hide'); window.removeEventListener('scroll',off); };
+      /* [CUE_GLIDE] 리듬도 청첩장과 같다 — 0.5s 뒤 떠오르고, 2.2s 머물다 스스로 물러난다. */
+      var _t=setTimeout(function(){ if(el) el.classList.add('in'); },500);
+      var _h=setTimeout(function(){ if(el) el.classList.add('hide'); },500+2200);
+      /* ★'스크롤 이벤트가 왔다'가 아니라 '실제로 내려갔다'로 판단한다 —
+         렌더 직후 화면이 자리를 잡으며 scroll 이 한 번 튀면, 큐가 떠오르기도 전에 사라졌다(실측: 계속 0). */
+      var off=function(){
+        if ((window.scrollY||window.pageYOffset||0) < 40) return;
+        clearTimeout(_t); clearTimeout(_h);
+        if(el){ el.classList.add('in'); el.classList.add('hide'); }
+        window.removeEventListener('scroll',off);
+      };
       window.addEventListener('scroll',off,{passive:true});
     }catch(e){}
   };

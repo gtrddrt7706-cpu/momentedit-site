@@ -1428,3 +1428,49 @@ chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 �
 chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
 chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다
 nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다
+
+# ── [GV_NOBACK][GV_TOPRESET] 청첩장 미리보기 좌우 넘김 (2026-08-04 사용자
+#    *"좌로넘길때 옆으로안가고 뒤로가기 실행되는데 청첩장 미리보기 부분에서만 뒤로가기 기능 끄자"*
+#    *"다시 그청첩장으로 넘겻을때 스크롤이 최상단이 아니라 마지막으로 봣던 페이지부분이 나오는데"*) ──
+# ① 뒤로가기: iOS·안드로이드는 화면 가장자리에서 시작한 가로 스와이프를 브라우저 이동으로 가져간다.
+#    막을 수 있는 시점은 touchstart 뿐이다(그 뒤엔 이미 제스처가 시작된다) — 그래서 {passive:false}.
+#    좌우 끝 44px 는 넘기기 버튼(.gv-edge)이 덮은 자리라 아래에 굴릴 본문이 없다 → 스크롤을 안 뺏는다.
+#    ★touchstart 를 막으면 브라우저가 click 을 안 보낸다. 탭 대체 처리를 지우면 가장자리 화살표가 죽는다.
+# ② 최상단 복귀: 떠나는 카드만 되돌리던 것을 **도착하는 카드**로 옮겼다.
+#    청첩장 html 은 scroll-behavior:smooth 라 화면 밖 카드에서는 되감기가 중간에 멈춘다(실측) —
+#    되돌리는 동안만 auto 로 내려야 진짜 0 이 된다.
+chk 'GV_NOBACK' invitation-gallery.html 3
+chk 'passive:false, capture:true' invitation-gallery.html 1
+chk 'GV_TOPRESET' invitation-gallery.html 1
+chk 'resetScroll(cards\[i\])' invitation-gallery.html 1
+chk "scrollBehavior = 'auto'" invitation-gallery.html 1
+nochk 'resetScroll(cards\[idx\])' invitation-gallery.html    # 옛 형태(떠나는 카드만 되돌리기) — 되살리면 돌아온 카드가 아까 보던 자리에서 열린다
+
+# ── [CUE_GLIDE][CUE_OFFSCROLL][CUE_ONE] 스크롤 표시 한 벌 (2026-08-04 사용자
+#    *"사라질때 스르르 웨딩 무드에 맞게 청첩장 샘플쪽도 똑같이"*
+#    *"나올때도 스르륵 무드잇게 샘플쪽도 미리보기청첩장이랑 시간이랑 투명도라우전부 같이 적용해"*) ──
+# 값 한 벌: 자리 80px · 알약 rgba(250,250,248,.42)+blur7 · 라벨 10.5px/.13em · 선 22px/cueDrip 2.1s ·
+#           0.5s 뒤 .in(0.95s 상승) · 2.2s 뒤 .hidden(1.15s 하강) · 손으로 내리면 그 즉시.
+# ★animation:none 이 핵심이다. 옛 fadeInUp(지연 2.4s·forwards)이 살아 있어 **애니메이션이 전환을 이겨**
+#   사라질 때 불투명도만 뚝 끊겼다(실측: transform 은 1.15s, opacity 는 0ms). 지우면 그 증상이 돌아온다.
+# ★마이페이지 '청첩장 샘플' 모달은 invitation-gallery.html 을 그대로 띄운다 — 그래서 한 벌로 족하다.
+# ★개수로 세지 않는다 — 개수는 "있다"만 말하고, 여기 요구는 "**같다**"였다.
+#   18개 파일의 값을 맞대어 보는 검사를 따로 두고, 이 줄은 그 검사가 살아 있는지만 지킨다.
+chk 'CUE_ONE' scripts/check-cue-one.mjs 1
+chk 'CUE_GLIDE' guide.html 2
+chk 'CUE_GLIDE' i/invitations/invitation-09-guide.html 2
+chk 'CUE_ONE' invitation-gallery.html 1
+if command -v node >/dev/null 2>&1; then node scripts/check-cue-one.mjs || fail=1; fi
+
+# ── [GV_ROW_TIGHT] 미리보기 상단 띠 54 → 42px (2026-08-04 사용자
+#    *"샘플이랑 미리보기 두쪽전부 온라인,오프라인 위에 선택창 부분 세로폭 최대한으로 줄여보자"*) ──
+# 헤더와 띠가 **같은 높이**여야 한 줄로 겹친다(GV_ONEROW). 한쪽만 고치면 토글이 헤더 밖으로 삐져나온다.
+chk 'GV_ROW_TIGHT' invitation-gallery.html 3
+
+# ── [VIEWPORT_ONE] 청첩장 16장의 viewport 선언은 한 줄이어야 한다 (2026-08-04 axe 적발) ──
+# 01(온라인·오프라인) 두 판만 maximum-scale=1.0,user-scalable=no 였다. 두 가지가 동시에 깨져 있었다:
+#   ① 확대 금지 = WCAG 1.4.4 위반(axe meta-viewport) — 글씨를 키워 읽는 사람을 막는다.
+#   ② viewport-fit=cover 가 없어 env(safe-area-inset-*)이 늘 0 — [CUE_POS]의 하단 안전영역 보정이
+#      그 두 판에서만 조용히 죽어 있었다(노치 기기에서 큐가 홈 인디케이터에 더 붙는다).
+nochk 'user-scalable=no' i/cover-01.html
+nochk 'user-scalable=no' i-family/family-01.html

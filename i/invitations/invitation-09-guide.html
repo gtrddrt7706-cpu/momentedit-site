@@ -49,11 +49,25 @@
   padding:11px 18px;min-height:44px;box-sizing:border-box;line-height:1.4}
 .gd-try:active{background:rgba(107,42,36,0.06)}
   .gd-two-note{font-family:var(--serif-ko);font-size:11.5px;font-weight:400;color:var(--seal);letter-spacing:0.02em;line-height:1.7;margin:9px 0 0;word-break:keep-all}
-  .gd-scroll{position:fixed;left:0;right:0;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:20;transition:opacity 0.4s ease}
-  .gd-scroll.hide{opacity:0}
-  .gd-scroll-label{font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold)}
-  .gd-scroll-chev{width:8px;height:8px;border-right:1.4px solid var(--gold);border-bottom:1.4px solid var(--gold);animation:gdScrollBounce 1.8s ease-in-out infinite}
-  @keyframes gdScrollBounce{0%,100%{transform:rotate(45deg) translate(-2px,-2px);opacity:0.45}50%{transform:rotate(45deg) translate(1px,1px);opacity:1}}
+  /* [CUE_ONE][CUE_GLIDE 2026-08-04] 청첩장 16장·갤러리·하객 안내와 **같은 한 벌**.
+     이 화면은 갤러리에서 좌우로 넘기다 만나는 카드다 — 여기만 꺾쇠가 튀면 그 줄이 끊긴다.
+     자리 80px · 알약 · 라벨 10.5px/.13em · 선 22px/cueDrip 2.1s · 0.5s 등장 · 2.2s 뒤 퇴장. */
+  .gd-scroll{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));
+    transform:translateX(-50%) translateY(9px);
+    display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:20;
+    padding:9px 20px 11px;border-radius:999px;background:rgba(250,250,248,.42);
+    box-shadow:0 1px 2px rgba(28,27,25,.045);
+    backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    opacity:0;transition:opacity .95s cubic-bezier(.22,.61,.36,1),transform .95s cubic-bezier(.22,.61,.36,1)}
+  .gd-scroll.in{opacity:1;transform:translateX(-50%) translateY(0)}
+  .gd-scroll.hide{opacity:0 !important;transform:translateX(-50%) translateY(9px) !important;
+    transition:opacity 1.15s cubic-bezier(.37,0,.63,1),transform 1.15s cubic-bezier(.37,0,.63,1)}
+  .gd-scroll-label{font-family:var(--serif);font-style:italic;font-size:10.5px;letter-spacing:0.13em;
+    padding-left:0.13em;opacity:.86;line-height:1;text-transform:none;color:var(--gold)}   /* line-height:1 — 없으면 알약이 청첩장(58px)보다 8px 두꺼워진다(실측 66px) */
+  .gd-scroll-chev{width:1px;height:22px;background:linear-gradient(to bottom,var(--gold),transparent);
+    animation:cueDrip 2.1s cubic-bezier(0.4,0,0.2,1) infinite}
+  @keyframes cueDrip{0%{transform:translateY(-4px);opacity:0}22%{opacity:.95}100%{transform:translateY(8px);opacity:0}}
+  @media (prefers-reduced-motion:reduce){.gd-scroll-chev{animation:none;opacity:.7}}
 </style>
 </head>
 <body>
@@ -117,7 +131,21 @@
     });
   });
 })();
-(function(){var c=document.getElementById('gdScroll');if(!c)return;function u(){var b=document.documentElement;var atEnd=(window.innerHeight+(window.scrollY||window.pageYOffset))>=(b.scrollHeight-28);c.classList.toggle('hide',atEnd);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();
+/* [CUE_GLIDE 2026-08-04] 리듬도 16장과 같다 — 0.5s 뒤 떠오르고 2.2s 머문다.
+   내리기 시작했거나 이미 끝에 닿아 있으면 기다리지 않고 물러난다(한 번 물러나면 다시 부르지 않는다). */
+(function(){
+  var c=document.getElementById('gdScroll'); if(!c) return;
+  var t=setTimeout(function(){ c.classList.add('in'); },500);
+  var h=setTimeout(function(){ c.classList.add('hide'); },500+2200);
+  function bye(){ clearTimeout(t); clearTimeout(h); c.classList.add('in'); c.classList.add('hide'); }
+  function u(){
+    var b=document.documentElement, y=window.scrollY||window.pageYOffset||0;
+    if (y>40 || (window.innerHeight+y)>=(b.scrollHeight-28)) bye();
+  }
+  window.addEventListener('scroll',u,{passive:true});
+  window.addEventListener('resize',u);
+  u();
+})();
 </script>
 </body>
 </html>
