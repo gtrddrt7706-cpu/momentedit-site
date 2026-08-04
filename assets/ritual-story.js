@@ -253,13 +253,20 @@
     '아버님|어머님': '예시 목소리 · 당일엔 부모님이 직접 말씀하세요'
   };
 
-  // manifest.json 15클립과 1:1. role 은 빌더가 manifest 와 대조한다(판별과 검증이 같은 자를 쓴다)
+  // manifest.json 20클립과 1:1. role 은 빌더가 manifest 와 대조한다(판별과 검증이 같은 자를 쓴다)
   var CAST = {
     '01_guest-1':       { role: '신랑', rec: true },
     '02_guest-2':       { role: '신부', rec: true },
     '03_guest-3':       { role: '신랑', rec: true },
     '04_guest-4':       { role: '신부', rec: true },
-    '05_entry':         { role: '신부', rec: true },
+    // ★[TEXT_AUDIO 2026-08-04] 입장은 화면 6종과 1:1이다. 05_entry 한 클립 공유는 폐기.
+    //   번호가 18부터인 건 나레이션에 이미 05_entry-A ~ 10_entry-F 가 있어서다(폴더만 다른 동명 금지).
+    '18_entry-A':       { role: '신부', rec: true },
+    '19_entry-B':       { role: '신부', rec: true },
+    '20_entry-C':       { role: '신부', rec: true },
+    '21_entry-D':       { role: '신부', rec: true },
+    '22_entry-E':       { role: '신부', rec: true },
+    '23_entry-F':       { role: '신부', rec: true },
     '06_welcome-groom': { role: '신랑' },
     '07_welcome-bride': { role: '신부' },
     '08_vow-groom':     { role: '신랑' },
@@ -296,7 +303,15 @@
     'own:guest-2-10min':   ['02_guest-2'],
     'own:guest-3-5min':    ['03_guest-3'],
     'own:guest-4-1min':    ['04_guest-4'],
-    'own:entry':           ['05_entry']   // 입장 멘트 6종(entry-A~F)이 한 클립을 공유 — k 로 받는다
+    // ★[TEXT_AUDIO 2026-08-04] 전에는 'own:entry' 한 줄이 cue.k 로 잡혀 6종이 한 클립을 공유했다.
+    //   화면은 여섯 가지 다른 글을 보여 주는데 소리는 하나였다 — 고르는 일이 소리를 바꾸지 못했다.
+    //   이제 cue.slug(entry-A~F)로 각자 받는다. castIds 의 조회 순서가 slug 먼저라 그대로 걸린다.
+    'own:entry-A':         ['18_entry-A'],
+    'own:entry-B':         ['19_entry-B'],
+    'own:entry-C':         ['20_entry-C'],
+    'own:entry-D':         ['21_entry-D'],
+    'own:entry-E':         ['22_entry-E'],
+    'own:entry-F':         ['23_entry-F']
   };
 
   // ── 조회 (키 폴백 없음 — 못 찾으면 null. 빌더가 미리 전수로 막는다)

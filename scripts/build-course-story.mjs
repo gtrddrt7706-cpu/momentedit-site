@@ -107,6 +107,15 @@ for (const course of Object.keys(D.COURSES)) {
   for (const [ax, vals] of Object.entries(SWEEP)) for (const v of vals) for (const ex of [ALL_ON, {}]) for (const mode of ['console', 'preview']) {
     absorb({ course, extra: { ...ex }, [ax]: v }, mode);
   }
+  // ③★[PAIR_SWEEP 2026-08-04] 축을 **둘씩** 흔든다.
+  //   한 축씩만 흔들면 두 값이 만나야 생기는 자리가 통째로 빠진다. 실제로 그랬다 —
+  //   입장 느낌 C는 어느 코스의 기본값도 아니라, entry:'C' 와 entryVoice:'couple' 이 한 번도
+  //   같은 상태에 서지 않았다. 그래서 「입장 C를 두 분 목소리로」 자리가 검사에서 조용히 빠져 있었다.
+  //   ★빠진 자리는 FAIL 로도 안 뜬다 — 그냥 없는 것처럼 지나간다. 그게 이 스윕이 있는 이유다.
+  const AX = Object.entries(SWEEP);
+  for (let i = 0; i < AX.length; i++) for (let j = i + 1; j < AX.length; j++)
+    for (const a of AX[i][1]) for (const b of AX[j][1]) for (const ex of [ALL_ON, {}])
+      absorb({ course, extra: { ...ex }, [AX[i][0]]: a, [AX[j][0]]: b }, 'preview');
 }
 
 // ── 2. 커버리지 판정

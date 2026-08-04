@@ -8,12 +8,14 @@
 // ★판별과 생성이 같은 자를 써야 한다.
 //
 // 규칙 — 쉼표로 여럿, 각 조각은 셋 중 하나로 맞는다:
-//   정확한 파일명(entry-D) · 클립 id(G2-D) · 앞글자(entry- → entry-A..F)
-//   ※ 'entry'는 배역 파트의 entry까지 함께 잡는다. 나레이션만 원하면 'entry-'.
+//   정확한 파일명(entry-D) · 클립 id(G2-D) · 앞글자(entry- → entry-A..F · R-entry- → 배역만)
+//   ※ 파일명은 파트가 달라도 겹칠 수 있다 — 나레이션 entry-A 와 배역 entry-A 는 다른 클립인데
+//     이름이 같다. 그래서 'entry-' 는 열두 개를 잡는다. 한쪽만 원하면 **id 앞글자**로 짚는다:
+//     배역만 → 'R-entry-' · 나레이션만 → 'G2-'. 이름이 겹치는 축과 안 겹치는 축을 둘 다 준다.
 export const selectClips = (clips, spec) => {
   const pats = String(spec || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!pats.length) return [];
-  return clips.filter((c) => pats.some((p) => c.file === p || c.id === p || c.file.startsWith(p)));
+  return clips.filter((c) => pats.some((p) => c.file === p || c.id === p || c.file.startsWith(p) || String(c.id || '').startsWith(p)));
 };
 
 // ── 문장 자리 고르기 (SENT_PATCH · 2026-08-04)

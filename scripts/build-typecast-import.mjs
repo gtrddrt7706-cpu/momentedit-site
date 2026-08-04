@@ -171,7 +171,9 @@ const clips = parse(SRC);
 if (clips.length !== 51) { console.error(`✗ 클립 수 불일치: ${clips.length} (기대 51)`); process.exit(1); }
 
 const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
-if (castAll.length && castAll.length !== 17) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 17)`); process.exit(1); }
+// [TEXT_AUDIO 2026-08-04] 입장이 1클립 → 6클립(A~F)으로 벌어져 17 → 22.
+//   화면이 느낌 6종을 보여 주는데 소리가 하나뿐이면, 고르는 일이 아무 소리도 바꾸지 못한다.
+if (castAll.length && castAll.length !== 22) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 22)`); process.exit(1); }
 // 배역은 라벨 첫 칸이 화자다 — `신랑 · 식전 안내 · 도착` → 화자 `신랑`
 for (const c of castAll) {
   const seg = c.label.split('·').map((s) => s.trim());

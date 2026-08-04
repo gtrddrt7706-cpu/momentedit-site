@@ -1331,6 +1331,25 @@ chk 'buildOf' scripts/assemble-narration.mjs 3
 chk 'patchMap' scripts/assemble-narration.mjs 6
 chk 'const at = k' scripts/assemble-narration.mjs 1
 nochk 'c.sents.map(() => norm' scripts/assemble-narration.mjs
+
+# ── [TEXT_AUDIO] 화면에 쓰인 글 = 그 자리에서 나는 소리 (2026-08-04 사용자 지적
+#    *"근데왜 이부분이 나래이션이랑 다르지?"* → *"전부다 똑같이 나오게해야지 당연한거잖아 전수조사해"*) ──
+# 입장 「두 분 목소리」에서 화면은 느낌 6종(ENTRY[v].self)을 보여 주는데 소리는 05_entry 한 클립이었다.
+# 글자와 소리가 다른 말이었고, 여섯 중 무엇을 골라도 같은 소리라 고르는 일이 아무것도 바꾸지 못했다.
+# 하객 맞이 4클립도 배역 대본이 화면 글과 다른 문장이었다(가상 인물 이름까지 들어 있었다).
+# ★눈으로 훑어 찾은 게 아니다 — 축을 둘씩 흔들어 전 자리를 기계로 대조해 10곳을 찾았다.
+#   한 축씩만 흔들면 「두 분 목소리 × 느낌 C」처럼 두 값이 만나야 생기는 자리가 통째로 빠진다.
+# ★이 검사를 지우지 말 것. 문안은 앞으로도 고쳐진다 — 고치는 날 소리가 따라오지 않으면 여기서 멈춘다.
+chk 'TEXT_AUDIO' scripts/check-text-audio.mjs 1
+chk 'TEXT_AUDIO' assets/ritual-story.js 2
+chk 'TEXT_AUDIO' 'docs/plans/식순연구/배역_예시_대사.txt' 2
+chk "'own:entry-A'" assets/ritual-story.js 1               # 입장 6종이 각자 제 클립을 받는다
+chk "'own:entry-F'" assets/ritual-story.js 1
+nochk "'own:entry':" assets/ritual-story.js                # 한 클립 공유로 되돌리지 말 것
+nochk "'05_entry'" assets/ritual-story.js                  # 폐기된 클립 — 되살리면 여섯 자리가 다시 한 소리를 낸다
+if command -v node >/dev/null 2>&1; then node scripts/check-text-audio.mjs >/dev/null 2>&1 \
+  && echo 'ok text-audio: 화면 글 = 그 자리 소리 (전 자리 대조)' \
+  || { echo 'FAIL text-audio: 화면 글과 소리가 다른 자리가 있습니다 — node scripts/check-text-audio.mjs'; fail=1; }; fi
 # ── 스크롤 큐 자리 (2026-08-04 사용자 지적 "스크롤 효과가 애매한 위치에 있어") ──
 # 큐가 빈 대역의 아래쪽에 몰려 위 여유가 57~188px 로 3.3배 벌어져 있었다 → 8종 모두 대역 한가운데로.
 # 낮은 화면에선 위 글자가 내려와 여유가 0px 까지 좁아진다 → 700px 아래로는 감추고 갤러리가 대신 얹는다.
