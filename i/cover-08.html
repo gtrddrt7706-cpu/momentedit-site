@@ -41,6 +41,11 @@
 @font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2) format('woff2');font-weight:300;font-display:swap}
 @font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2) format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'MaruBuri';src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2) format('woff2');font-weight:500;font-display:swap}
+/* [MAST_TOP 2026-08-04] 머리글 위 공간을 줄였다(사용자 지시 "모먼트에디트 로고 윗쪽 간격이 너무 넓은데").
+   실측해 보니 8종 모두 **위 공간이 옆 여백보다 넓었다**(위 25~32px vs 옆 22~28px).
+   머리글은 본문이 아니라 running head 다 — 옆보다 좁아야 지면 위에 얹힌 것으로 읽힌다.
+   그래서 잉크가 위에서 18px 안팎에 오도록 판마다 맞췄다(08 은 편집 여백이 성격이라 폭만 같이 줄임).
+   ★var(--safe-top) 은 그대로 둔다 — 노치 보정은 이 값과 별개다. */
 </style>
 
 <style>
@@ -967,7 +972,7 @@ details.env-acc[open] > .env-acc-q{
   :root{ --inv-padding-x:22px; }
   .invitation{padding:0 22px}
   .sec{padding:80px 0}
-  .cover{padding:60px 0 40px}
+  .cover{padding:42px 0 40px}
   .cover-display{font-size:clamp(34px,9.5vw,46px)}
   .sec-title{font-size:clamp(30px,8.5vw,40px)}
   .date-display-num{font-size:clamp(60px,16vw,84px)}

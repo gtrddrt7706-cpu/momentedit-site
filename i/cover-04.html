@@ -845,7 +845,7 @@ details.acc[open] summary::after{transform:rotate(45deg)}
 
   /* cover의 위/아래 padding을 대칭으로 (위 36→28). cover-header도 약간 위쪽으로
      끌어올려서 콘텐츠 시각적 무게중심이 cover 정중앙에 오도록 조정 */
-  .cover{padding:28px 0 28px}
+  .cover{padding:14px 0 28px}
   .cover-header{padding:0 10% 12px;margin-bottom:14px}
   .cover-brand{font-size:10px;letter-spacing:0.28em;white-space:nowrap;}
   .cover-brand-dot{width:3.5px;height:3.5px;margin:0 30px}
@@ -1025,6 +1025,11 @@ details.acc[open] summary::after{transform:rotate(45deg)}
   background:var(--vermilion);
 }
 /* === /04 봉투 === */
+/* [MAST_TOP 2026-08-04] 머리글 위 공간을 줄였다(사용자 지시 "모먼트에디트 로고 윗쪽 간격이 너무 넓은데").
+   실측해 보니 8종 모두 **위 공간이 옆 여백보다 넓었다**(위 25~32px vs 옆 22~28px).
+   머리글은 본문이 아니라 running head 다 — 옆보다 좁아야 지면 위에 얹힌 것으로 읽힌다.
+   그래서 잉크가 위에서 18px 안팎에 오도록 판마다 맞췄다(08 은 편집 여백이 성격이라 폭만 같이 줄임).
+   ★var(--safe-top) 은 그대로 둔다 — 노치 보정은 이 값과 별개다. */
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
 <script src="/shared/hydrate.js?v=20260722d" defer></script>

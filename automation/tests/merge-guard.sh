@@ -1600,3 +1600,37 @@ chk 'never unset HTTPS_PROXY' CLAUDE.md 1
 chk 'authorized repository set' scripts/deploy.sh 1
 chk 'format-patch' scripts/deploy.sh 1
 nochk 'no_proxy="\*"' scripts/deploy.sh
+
+# ── [GV_EDGE_AWAY] 좌우 화살표도 스르륵 물러난다 (2026-08-04 사용자
+#    *"좌우 버튼 넘기면 적절하게 스르륵 사라지도록해죠 모바일청첩장에 집중할수있게"*) ──
+# 스크롤 표시와 **같은 한 벌**: 0.95s 등장 / 1.15s 퇴장 · visibility 를 전환 목록에 함께 넣는다.
+# 머무는 시간만 더 길다(3.6s) — 큐는 한 번의 안내지만 화살표는 조작 수단이라 알아볼 여유가 필요하다.
+# 돌아오는 조건이 핵심이다: 카드가 바뀔 때 · 청첩장이 맨 위로 돌아왔을 때. 빼면 넘길 방법을 못 찾는 사람이 생긴다.
+# ★화살표가 물러나면 좌우 가장자리가 청첩장 본문이 된다 — 그래서 iframe 안 뒤로가기 가드를 44→26px 로 좁혔다.
+#   되돌리면 좌우 44px 에서 시작한 세로 스크롤이 먹통이 된다.
+chk 'GV_EDGE_AWAY' invitation-gallery.html 5
+chk 'gvEdgeWake' invitation-gallery.html 4
+chk 'gv-edge.gv-away' invitation-gallery.html 1
+chk 'sx <= 26' invitation-gallery.html 1
+nochk 'sx <= 44' invitation-gallery.html
+
+# ── [MAST_TOP] 머리글 위 공간 (2026-08-04 사용자 *"모먼트에디트 로고 윗쪽 간격이 너무 넓은데 적절하게줄여죠"*
+#    *"청첩장 전부 점검해서 적절하게 제작에 샘플쪽도"*) ──
+# 실측: 8종 모두 위 공간(25~32px)이 옆 여백(22~28px)보다 넓어 머리글이 아래로 밀려 보였다.
+# 머리글은 본문이 아니라 running head — 옆보다 좁아야 지면 위에 얹힌 것으로 읽힌다.
+# 잉크가 위에서 **18px** 에 오도록 6종을 맞췄다(실측 18/18/18/18/18/18 · 08 은 편집 여백이라 86→68 로 폭만 동일하게).
+# ★var(--safe-top) 은 건드리지 않았다 — 노치 보정은 이 값과 별개다. 되살릴 때 함께 지우지 말 것.
+chk 'MAST_TOP' i/cover-02.html 1
+chk 'MAST_TOP' i/cover-03.html 1
+chk 'MAST_TOP' i/cover-04.html 1
+chk 'MAST_TOP' i/cover-05.html 1
+chk 'MAST_TOP' i/cover-06.html 1
+chk 'MAST_TOP' i/cover-07.html 1
+chk 'MAST_TOP' i/cover-08.html 1
+chk 'MAST_TOP' i-family/family-02.html 1
+chk 'MAST_TOP' i-family/family-03.html 1
+chk 'MAST_TOP' i-family/family-04.html 1
+chk 'MAST_TOP' i-family/family-05.html 1
+chk 'MAST_TOP' i-family/family-06.html 1
+chk 'MAST_TOP' i-family/family-07.html 1
+chk 'MAST_TOP' i-family/family-08.html 1
