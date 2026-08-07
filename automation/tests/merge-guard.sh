@@ -1566,3 +1566,25 @@ nochk 'meseq-tab.on{background:#6B2A24' assets/sequence-modal.js
 nochk 'seq-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#6B2A24' assets/sequence-modal.js
 nochk 'seqref-sw button.on{background:#6B2A24' inquiry.html
 chk 'seq-open-btn svg{color:var(--seal' assets/sequence-modal.js 1     # 진사를 지운 게 아니라 점으로 되돌린 자리
+
+# ── 예약·신청 화면 디자인 점검 (2026-08-04 사용자 *"예약페이지 디자이너 관점으로 디자인 체크 디테일 까지"*
+#    *"홈페이지에서 예약정보 작성하는 예약페이지도 점검"*) ──
+# [SCHED_QUIET_OFF] 비활성 CTA — 진사 채움을 opacity 0.32 로 낮춘 것이었다. 크림 위에서 분홍(모브)으로
+#   읽히고, 346x56 이라 '아직 눌리지도 않는 것'이 화면에서 가장 큰 색 덩어리였다. 채움 없이 헤어라인으로.
+#   ★기본 .btn 에 투명 테두리를 미리 깔아 둔다 — 비활성에만 테두리를 주면 켜질 때 높이가 2px 튄다(실측).
+# [SCHED_PALETTE] 토요일 머리글이 파랑(#556791)이었다 — 크림·먹·금·진사뿐인 지면의 유일한 한색.
+#   그리고 상담 신청 화면은 라디오·체크 49개가 accent-color 없이 브라우저 기본 파랑으로 켜졌다.
+# [SCHED_EMPTY_SPAN] '날짜를 선택하시면…'이 슬롯 격자의 첫 칸에 갇혀 폭 154px, 넉 줄로 쪼개져 있었다.
+# [SCHED_KEEPALL] 안내 본문에서 '예약 완료는'이 '예약 / 완료는'으로 끊겼다.
+# [KO_TRACKING] 영문 눈썹용 규칙(이탤릭+넓은 자간+uppercase)에 한글이 들어가 '확 인' '필 수'로 흩어졌다(6곳).
+chk 'SCHED_QUIET_OFF' schedule.html 2
+chk 'SCHED_PALETTE' schedule.html 1
+chk 'SCHED_PALETTE' inquiry.html 1
+chk 'SCHED_EMPTY_SPAN' schedule.html 1
+chk 'SCHED_KEEPALL' schedule.html 1
+chk 'KO_TRACKING' inquiry.html 1
+chk 'grid-column:1/-1;text-align:center' schedule.html 1
+chk 'accent-color:var(--seal)' inquiry.html 1
+chk 'accent-color' order-preview.html 1
+nochk 'btn:disabled{opacity:0.32' schedule.html
+nochk 'wd.sat{color:#556791' schedule.html

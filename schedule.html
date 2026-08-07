@@ -62,7 +62,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .brand .dot{display:inline-block;width:3px;height:3px;border-radius:50%;
   background:var(--seal);vertical-align:middle;margin:0 1px 3px}
 .brand-sub{font-size:9px;letter-spacing:0.3em;color:var(--light);text-transform:uppercase;margin-top:7px;opacity:0.8}
-.brand-link{display:inline-block;text-decoration:none;line-height:0}
+.brand-link{display:inline-block;text-decoration:none;line-height:0;color:inherit}   /* [KO_TRACKING 자매 · 2026-08-04] 색을 안 정해 두면 브라우저 기본 파랑(#0000EE)을 문다 — 지금은 안이 이미지라 안 보이지만 글자가 하나 들어가는 날 파랗게 뜬다(방문 뒤엔 보라) */
 .logo-img{width:224px;max-width:71%;height:auto;display:block;margin:0 auto}
 .brand-fallback{display:block;line-height:1.5}
 .brand-fallback .wordmark{display:block;font-family:var(--serif);font-size:18px;font-weight:500;color:var(--accent);letter-spacing:.18em}
@@ -90,7 +90,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   font-family:var(--serif);font-style:italic;font-size:13px;color:var(--light);
   transition:all 0.4s var(--ease);position:relative;z-index:2}
 .step.active .step-dot{border-color:var(--seal);background:var(--seal);color:#fff}
-input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인장색) — 파란 기본색 대체, 마이페이지와 통일 */
+input[type=checkbox],input[type=radio]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인장색) — 파란 기본색 대체, 마이페이지·신청 화면과 통일 · 라디오도 함께(나중에 하나 추가되면 그것만 파래진다) */
 .step.done .step-dot{border-color:var(--gold);background:var(--gold);color:#fff}
 .step-name{font-size:11px;letter-spacing:0.08em;color:var(--light);font-weight:400;
   transition:color 0.4s var(--ease)}
@@ -178,8 +178,11 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .slot.full .slot-period{color:var(--light)}
 .slot.full .slot-full-tag{color:var(--seal);font-weight:400;text-decoration:none}
 .slot.full .slot-sub{text-decoration:none}
-.time-empty{text-align:center;font-family:var(--serif-ko);font-size:13px;color:var(--light);
-  font-weight:300;padding:18px 0;letter-spacing:0.02em}
+/* [SCHED_EMPTY_SPAN 2026-08-04] 이 안내가 .slots(격자) 안에 들어가 **첫 칸**만 차지했다 —
+   폭이 카드의 1/2(154px)로 줄어 '날짜를 / 선택하시면 / 가능한 시간이 / 열립니다' 넉 줄로 쪼개졌다(실측).
+   가운데 정렬이 안 되는 것처럼 보이던 것도 같은 이유다. 격자 전체를 쓰게 한다. */
+.time-empty{grid-column:1/-1;text-align:center;font-family:var(--serif-ko);font-size:13px;color:var(--light);
+  font-weight:300;padding:18px 0;letter-spacing:0.02em;word-break:keep-all}
 .slots-full-note{grid-column:1/-1;text-align:center;font-family:var(--serif-ko);font-size:12px;
   color:var(--sub);font-weight:300;line-height:1.7;padding:14px;margin-top:4px;
   background:var(--bg2);border-radius:var(--radius);letter-spacing:0.01em;word-break:keep-all}
@@ -225,7 +228,10 @@ input[type=checkbox]{accent-color:var(--seal)}   /* 체크 표시 = 진사(인�
 .notice-body{flex:1;min-width:0}
 .notice-t{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);
   letter-spacing:0.02em;margin-bottom:4px}
-.notice-d{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;letter-spacing:0.01em;font-weight:300}
+/* [SCHED_KEEPALL 2026-08-04] '예약 완료는'이 '예약 / 완료는'으로 끊겼다 —
+   한글은 낱말 중간에서 줄이 바뀌면 읽는 속도가 눈에 띄게 떨어진다. 이 지면의 다른 글줄은
+   이미 keep-all 을 쓰고 있었는데 본문만 빠져 있었다. */
+.notice-d{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;letter-spacing:0.01em;font-weight:300;word-break:keep-all}
 .notice-d .em{color:var(--seal);font-weight:400}
 .notice-d .muted{color:var(--light);font-size:12px}
 
@@ -286,7 +292,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .summary .pick{color:var(--seal);font-weight:500}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;width:100%;
   font-family:var(--serif-ko);font-size:14px;letter-spacing:0.08em;color:#fff;
-  background:var(--seal);padding:19px;border:none;border-radius:var(--radius);cursor:pointer;
+  background:var(--seal);padding:19px;border:1px solid transparent;border-radius:var(--radius);cursor:pointer;   /* [SCHED_QUIET_OFF] 테두리를 미리 깔아 둔다 — 비활성에만 테두리를 주면 켜지는 순간 높이가 58→56 으로 2px 튄다(실측) */
   font-weight:300;transition:all 0.3s var(--ease);position:relative;overflow:hidden}
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7A312A,#5B1E18);
   opacity:0;transition:opacity 0.4s var(--ease)}
@@ -294,7 +300,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .btn span{position:relative;z-index:1}
 .btn .ar{position:relative;z-index:1;transition:transform 0.3s var(--ease-out)}
 .btn:hover:not(:disabled) .ar{transform:translateX(4px)}
-.btn:disabled{opacity:0.32;cursor:not-allowed}
+/* [SCHED_QUIET_OFF 2026-08-04] 진사 채움을 32%로 낮춘 비활성은 분홍(모브)으로 읽혔다 —
+   팔레트에 없는 색인데다 346x56 이라, '아직 눌리지도 않는 것'이 이 화면에서 가장 큰 색 덩어리였다
+   (사용자 지시 "진사 색상은 최소한 포인트 부분만"과도 정면으로 어긋난다).
+   비활성은 조용해야 한다 — 채움 없이 헤어라인 + 흐린 글자. 눌리는 순간에만 진사가 켜진다. */
+.btn:disabled{background:transparent;color:var(--light);border:1px solid var(--border);
+  box-shadow:none;opacity:1;cursor:not-allowed}
+.btn:disabled::before{opacity:0 !important}
 .btn.loading{opacity:0.8;cursor:wait}
 .btn.loading .ar{opacity:0}.btn.loading span::after{content:'';animation:meDots 1.6s infinite}@keyframes meDots{0%,100%{content:''}25%{content:' ·'}50%{content:' · ·'}75%{content:' · · ·'}}
 .bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
@@ -451,7 +463,10 @@ body.sticky-on footer{padding-bottom:104px}
 .sticky-label{color:var(--gold-text)}
 .step.done .step-dot{border-color:var(--gold-text);background:var(--gold-text)}
 /* 주말 열 머리(토·일)는 색으로 구분하는 자리라 색조는 지키고 명도만 내린다 */
-.wd.sun{color:#A04A32}.wd.sat{color:#556791}
+/* [SCHED_PALETTE 2026-08-04] 토요일이 파랑(#556791)이었다 — 크림·먹·금·진사뿐인 이 지면에서
+   유일한 한색이라 달력에서 그 한 칸만 튀었다. 일요일도 진사가 아닌 벽돌색(#A04A32)이었다.
+   주말은 '주말'이라는 한 가지 정보다 — 토·일을 같은 진사로 묶는다(색맹에게도 같은 신호). */
+.wd.sun,.wd.sat{color:var(--seal)}
 /* ★.slot.sel .slot-period(0,2,0)가 위 묶음(0,3,0)에 안 밀리게 — 고른 칸은 어두운 배경이라 흰 글씨 유지 */
 .slot.sel .slot-period{color:rgba(255,255,255,0.78)}
 
