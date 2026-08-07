@@ -1,0 +1,118 @@
+# GAS 자동 배포 — automation/ 이 바뀐 main 푸시에서 R3n9Mr 프로젝트에 반영 + 기존 배포 갱신.
+#
+# 왜 만들었나 (2026-08-07):
+#   그동안 .gs를 고칠 때마다 사장님이 GAS 편집기에 손으로 붙여넣고 '새 버전' 재배포를 해야 했다.
+#   단계가 많고, '배포 관리→연필→새 버전' 대신 '새 배포'를 누르면 /exec 주소가 바뀌어
+#   사이트 8곳이 옛 백엔드를 보게 되는 되돌리기 비싼 실수 여지가 있었다.
+#
+# 필요한 GitHub Secrets (Settings → Secrets and variables → Actions):
+#   CLASPRC_JSON        ← PC에서 `clasp login` 후 생긴 ~/.clasprc.json 전문
+#   GAS_DEPLOYMENT_ID   ← `clasp deployments` 로 확인한 기존 배포 ID (AKfycb... 로 시작)
+#
+# ★안전장치
+#   - redeploy(기존 배포 갱신)만 쓴다. deploy(새 배포)는 절대 쓰지 않는다 → /exec 주소 불변.
+#   - push 전에 원격 파일 목록을 받아 로컬에 없는 파일이 있으면 중단한다
+#     (clasp push -f 는 원격 전용 파일을 지운다 — 그 사고를 막는 유일한 방어선).
+#   - .claspignore 가 레터·부부폼(별도 GAS 프로젝트) 파일을 제외한다. 건드리지 말 것.
+#   - dry_run 으로 수동 실행하면 무엇이 바뀔지만 보여주고 아무것도 반영하지 않는다.
+
+name: GAS Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'automation/**'
+      - '.clasp.json'
+      - '.claspignore'
+      - '.github/workflows/gas-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '반영 없이 변경 예정만 확인'
+        type: boolean
+        default: true
+
+concurrency:
+  group: gas-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: clasp 설치
+        run: npm install -g @google/clasp@3.3.0
+
+      - name: 인증 파일 작성
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "::error::CLASPRC_JSON 시크릿이 없습니다. PC에서 'clasp login' 후 ~/.clasprc.json 전문을 등록하세요."
+            exit 1
+          fi
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+          chmod 600 "$HOME/.clasprc.json"
+          clasp show-authorized-user
+
+      - name: 원격 전용 파일 검사 (push -f 가 지우는 것 방지)
+        run: |
+          set -e
+          mkdir -p /tmp/remote
+          cp .clasp.json /tmp/remote/.clasp.json
+          # rootDir 을 임시 폴더로 돌려 원격 전체를 받아온다(로컬 automation/ 은 건드리지 않음)
+          node -e "const f='/tmp/remote/.clasp.json';const j=require(f);j.rootDir='.';require('fs').writeFileSync(f,JSON.stringify(j))"
+          ( cd /tmp/remote && clasp pull >/dev/null 2>&1 || { echo '::error::clasp pull 실패 — 인증 또는 Apps Script API 설정을 확인하세요'; exit 1; } )
+
+          # 원격에 있는데 로컬 automation/ 에 없는 파일 찾기 (확장자 무시하고 이름으로 비교)
+          find /tmp/remote -type f \( -name '*.gs' -o -name '*.js' -o -name '*.html' -o -name '*.json' \) \
+            ! -name '.clasp.json' | sed "s|/tmp/remote/||" | sed 's/\.[^.]*$//' | sort -u > /tmp/remote.txt
+          find automation -type f \( -name '*.gs' -o -name '*.js' -o -name '*.html' -o -name '*.json' \) \
+            | sed 's|^automation/||' | sed 's/\.[^.]*$//' | sort -u > /tmp/local.txt
+
+          ORPHAN=$(comm -23 /tmp/remote.txt /tmp/local.txt || true)
+          if [ -n "$ORPHAN" ]; then
+            echo "::error::원격 GAS에만 있는 파일이 있습니다. push 하면 삭제됩니다. 중단합니다."
+            echo "$ORPHAN" | sed 's/^/  - /'
+            echo "해결: 해당 파일을 저장소 automation/ 에 내려받아 커밋하거나, 정말 지워도 되는지 확인 후 이 검사를 임시로 완화하세요."
+            exit 1
+          fi
+          echo "원격 전용 파일 없음 — 안전하게 push 가능"
+
+      - name: 푸시될 파일 목록
+        run: clasp status
+
+      - name: dry-run 종료
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        run: |
+          echo "::notice::dry-run 이라 여기서 멈춥니다. 실제 반영하려면 dry_run 을 꺼고 다시 실행하세요."
+          exit 0
+
+      - name: GAS 반영
+        if: '!(github.event_name == ''workflow_dispatch'' && inputs.dry_run)'
+        run: clasp push -f
+
+      - name: 기존 배포 갱신 (새 배포 아님 · /exec 주소 유지)
+        if: '!(github.event_name == ''workflow_dispatch'' && inputs.dry_run)'
+        env:
+          DEP: ${{ secrets.GAS_DEPLOYMENT_ID }}
+        run: |
+          if [ -z "$DEP" ]; then
+            echo "::error::GAS_DEPLOYMENT_ID 시크릿이 없습니다. 'clasp deployments' 로 확인해 등록하세요."
+            echo "         (이 값이 없으면 새 배포를 만들 위험이 있어 일부러 중단합니다)"
+            exit 1
+          fi
+          clasp redeploy "$DEP" -d "auto ${GITHUB_SHA:0:7} $(date -u +%Y-%m-%dT%H:%MZ)"
+          echo "::notice::배포 갱신 완료 — /exec 주소는 그대로입니다."
+
+      - name: 배포 후 상태
+        if: '!(github.event_name == ''workflow_dispatch'' && inputs.dry_run)'
+        run: clasp deployments
