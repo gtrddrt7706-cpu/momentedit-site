@@ -1468,6 +1468,15 @@ if command -v node >/dev/null 2>&1; then node scripts/check-entry-alt.mjs || fai
 # ★소리가 아직 없으면 조용히 skip — 붙여넣기 전에는 잴 것이 없다. 있는데 어긋난 것만 실패다.
 chk 'ENTRY_PASTE' scripts/check-entry-alt.mjs 1         # 붙여넣기 파일이 낡으면 다시 붙여넣는 날 사고가 그대로 재발한다
 chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
+
+# ── [ORDER_AUDIT] 식순 이벤트 전수 점검 화면 (2026-08-07 · 임시) ──
+# 사용자가 코스를 다시 짜기 전에 "이벤트가 전부 나열되고 이벤트마다 나레이션을 들어 볼" 화면을 요청.
+# ★임시 화면이다. 코스 리뉴얼이 끝나면 order-audit.html 과 이 블록을 **같은 커밋에서 함께** 지운다.
+# ★이 화면은 원천이 아니다 — 목록·문안·파일 이름을 여기 적지 않고 assets/ritual-cue.js 를 돌려서 그린다.
+#   표를 화면에 다시 적는 순간, 코스가 바뀌는 날 이 화면만 낡은 식순을 보여 준다.
+chk 'ORDER_AUDIT' order-audit.html 1
+chk 'ritual-cue.js' order-audit.html 3                     # 엔진을 돌려서 그린다는 사실 자체가 지켜져야 한다
+chk 'noindex' order-audit.html 1                           # 고객에게 노출되는 페이지가 아니다
 if command -v node >/dev/null 2>&1; then node scripts/check-entry-voice.mjs || fail=1; fi
 
 # ── [GV_NOBACK][GV_TOPRESET] 청첩장 미리보기 좌우 넘김 (2026-08-04 사용자
