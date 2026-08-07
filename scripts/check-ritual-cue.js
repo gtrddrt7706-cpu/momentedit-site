@@ -8,7 +8,7 @@
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
  *  4) 5코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
- *  5) FILES 51개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
+ *  5) FILES 59개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
  */
@@ -18,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
+const D = require(path.join(ROOT, 'assets/ritual-data.js'));
 
 let fail = 0;
 const ok = (m) => console.log('ok  cue: ' + m);
@@ -28,7 +29,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
 if (C.FILES.length !== 59) no(`FILES 59개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== 59) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 51개 · 중복 없음');
+else ok('FILES 59개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {
@@ -77,7 +78,10 @@ const A3_CHAIN = ['11', '13', '15', '30', '27', '23', '26', '44'];
 /* ── 3. CUE_FIRE_RULE 불변 (전 조합) ───────────────────────── */
 /* ── 4. 전 조합 build 스모크 ───────────────────────────────── */
 const AX = {
-  course: ['damback', 'gamdong', 'family', 'minimal', 'festive'],
+  /* ★[AXIS_FROM_SOURCE 2026-08-07] 코스 축은 원천에서 읽는다 — 손으로 적힌 5종이었다.
+     실사고: 기록형(record)을 COURSES 에 넣었는데 이 줄을 못 고쳐, 전수 검사가 그 코스를
+     통째로 건너뛰었다(초록인데 안 본 것). 목록을 두 군데 적으면 한쪽만 낡는다. */
+  course: Object.keys(D.COURSES),
   entry: ['A', 'B', 'C', 'D', 'E', 'F'],
   declareWho: ['narr', 'ask', 'family', 'chorus'],
   declare: ['1', '2'],
@@ -220,7 +224,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     if (m.manual < 5 || m.manual > 20) bad.push(`${course} manual=${m.manual}`);
   }
   if (bad.length) no(`코스별 큐 수 이상 (${bad.join(' ')})`);
-  else ok('코스 5종 큐 수 정상 범위');
+  else ok(`코스 ${AX.course.length}종 큐 수 정상 범위`);
 }
 
 if (fail) {

@@ -104,7 +104,7 @@
        entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
        declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
          격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
-    record: { entry: 'F', declareWho: 'ask', declare: '1', letter: 'parent' }
+    record: { entry: 'F', declareWho: 'ask', declare: '1', letter: 'parent', ring: 'off' }
   };
   function norm(S) {
     var s = {}, k;
@@ -112,7 +112,11 @@
     if (!D.COURSES[s.course]) s.course = 'damback';
     var cd = COURSE_DEF[s.course];
     var def = {
-      entry: cd.entry, welcome: 'self', vow: 'ok', ring: 'on', declare: cd.declare, declareWho: cd.declareWho,
+      /* ★[RING_OPT 2026-08-07] 반지 교환 기본값은 코스가 정한다 — 하드코딩 'on' 이었다.
+         사용자 결정: "반지교환은 희망하면 추가할수있도록만 하자"(기록형 한정).
+         ★seq 에서 빼지 않고 기본값만 끄는 이유 — 켰을 때 제자리(선언 앞)로 돌아와야 한다.
+           seq 에서 빼면 켜는 길이 사라진다(ring 은 GADD 팔레트에 없다 · 137행). */
+      entry: cd.entry, welcome: 'self', vow: 'ok', ring: (cd.ring || 'on'), declare: cd.declare, declareWho: cd.declareWho,
       valley: 'none', letter: cd.letter, bless: (s.course === 'family' ? 'on' : 'off'),
       // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
       ringwarm: 'family', tribute: 'flower', toast: 'toast', song: 'family',
