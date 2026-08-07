@@ -206,7 +206,11 @@ function sweep(){
 /* ── 저장 ───────────────────────────────────────────── */
 var KEY = 'me-order-audit-v1';
 var MARK = (function(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } })();
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(MARK)); }catch(e){} }
+/* 저장이 되는 판인지 **미리** 확인한다. 파일로 열거나 미리보기 안에서 열면 브라우저가 저장을 막는데,
+   그때 조용히 넘어가면 한참 눌러 놓고 새로고침에서 전부 날아간다 — 그게 제일 나쁘다. */
+var CAN_SAVE = (function(){ try{ localStorage.setItem(KEY+'-t','1'); localStorage.removeItem(KEY+'-t'); return true; }
+                            catch(e){ return false; } })();
+function save(){ if(CAN_SAVE){ try{ localStorage.setItem(KEY, JSON.stringify(MARK)); }catch(e){} } }
 
 /* ── 재생 — 한 번에 하나만 ───────────────────────────── */
 var AU = document.getElementById('au'), CUR = null, QUEUE = null;
@@ -417,6 +421,12 @@ engine().then(function(){
     var o = document.createElement('option'); o.value = c;
     o.textContent = (G.COURSES[c].nm || c) + ' 코스'; sel.appendChild(o);
   });
+  if(!CAN_SAVE){
+    var w = document.createElement('p'); w.className = 'miss';
+    w.style.cssText = 'margin:8px 0 0;font-size:12.5px';
+    w.textContent = '이 판에서는 표시가 저장되지 않아요(새로고침하면 사라져요) · 다 고르신 뒤 아래 ‘결과 만들기’로 뽑아 주세요.';
+    document.querySelector('header .wrap').appendChild(w);
+  }
   var cv = EVENTS.cover, full = cv.have === cv.need;
   document.querySelector('.lede').innerHTML =
     '모든 코스·모든 선택지를 합쳐 <b>' + EVENTS.length + '개</b>예요. 하나씩 들어 보고 유지·수정·제거를 눌러 주세요.'
