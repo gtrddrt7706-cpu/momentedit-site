@@ -96,7 +96,8 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'upstream_error' }));
     }
     const data = await anthRes.json();
-    if (!(body && body.test)) { try { await require('./_costlog')(page === '식순' ? '핸드오프:식순' : '핸드오프', MODEL, data.usage); } catch (e) {} }   // 식순발 인계 비용의 기원 보존(💰 집계)
+    /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
+    try { await require('./_costlog')(page === '식순' ? '핸드오프:식순' : '핸드오프', MODEL, data.usage, { isTest: !!(body && body.test) }); } catch (e) {}   // 식순발 인계 비용의 기원 보존(인건비 집계)
     let brief = {};
     try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
     // 안전망: 전각 줄표 제거

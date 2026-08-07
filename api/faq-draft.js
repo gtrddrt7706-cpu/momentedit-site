@@ -57,7 +57,8 @@ module.exports = async (req, res) => {
     });
     if (!anthRes.ok) { console.error('faq_draft_upstream', anthRes.status); res.statusCode = 502; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'upstream_error' })); }
     const data = await anthRes.json();
-    if (!(body && body.test)) { try { await require('./_costlog')('FAQ초안', MODEL, data.usage); } catch (e) {} }
+    /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
+    try { await require('./_costlog')('FAQ초안', MODEL, data.usage, { isTest: !!(body && body.test) }); } catch (e) {}
     let parsed = { faqs: [] };
     try { parsed = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
     const faqs = (Array.isArray(parsed.faqs) ? parsed.faqs : []).map((f) => ({ q: String(f.q || '').replace(/—/g, '·'), a: String(f.a || '').replace(/—/g, '·') })).filter((f) => f.q && f.a);

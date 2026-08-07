@@ -224,9 +224,15 @@ module.exports = async (req, res) => {
       escalate = true; toBooking = false;
     }
 
-    if (!(body && body.test)) {
-      try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage); } catch (e) {}
-      try { await require('./_qlog')(page === '마이' ? '마이페이지' : '메인', history[history.length - 1].content, { escalate, reply: text }); } catch (e) {}
+   /* [AI_TEST_TAG 2026-08-07] test 플래그로 로깅을 통째로 끄던 우회 폐지 — 항상 적재하고 isTest 태그만.
+      클라 제어 플래그가 감사 로그를 무력화하면 남용 은폐 통로가 된다("끄지 말고 태깅").
+      집계 제외는 GAS(aiCostSummary24h·aiQuestionLog)가 isTest='Y'로 처리한다.
+      2026-07-25에 ritual-advisor만 이 방식으로 고쳤고 나머지 5곳이 옛 방식으로 남아 있었다 —
+      그래서 매일 자동 안전점검 32콜이 비용 로그에 한 줄도 안 남았다(2026-08-07 실측: 24h 0회). */
+    {
+      const isTest = !!(body && body.test);
+      try { await require('./_costlog')(page === '마이' ? '마이페이지' : '메인', reqBody.model, data.usage, { isTest }); } catch (e) {}
+      try { await require('./_qlog')(page === '마이' ? '마이페이지' : '메인', history[history.length - 1].content, { escalate, reply: text, isTest }); } catch (e) {}
     }
 
     res.statusCode = 200;

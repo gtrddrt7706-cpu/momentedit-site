@@ -272,7 +272,8 @@ module.exports = async (req, res) => {
     text = fixWeekdayText(text, ex.date);   // 표기 정합: 모델이 고객 문구의 잘못된 요일을 따라 적으면 실제 요일로 교정(규칙 7-2 백스톱)
     if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';
 
-    if (!isTest) { try { await require('./_qlog')('예약', history[history.length - 1].content, { reply: text }); } catch (e) {} }
+    /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 — 위 advisor.js 주석 참조 */
+    try { await require('./_qlog')('예약', history[history.length - 1].content, { reply: text, isTest }); } catch (e) {}
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -581,7 +582,8 @@ async function callClaude(apiKey, payload, isTest) {
     throw new Error('upstream_' + r.status);
   }
   const data = await r.json();
-  if (!isTest) { try { await require('./_costlog')('예약', payload.model, data.usage); } catch (e) {} }
+  /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
+  try { await require('./_costlog')('예약', payload.model, data.usage, { isTest }); } catch (e) {}
   return data;
 }
 function textOf(data) {

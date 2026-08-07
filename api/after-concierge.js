@@ -130,7 +130,8 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) return out(502, { ok: false, error: 'ai_unavailable' });
     const data = await r.json();
-    if (!(body && body.test)) { try { await require('./_costlog')('애프터', MODEL, data.usage); } catch (e) {} }
+    /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
+    try { await require('./_costlog')('애프터', MODEL, data.usage, { isTest: !!(body && body.test) }); } catch (e) {}
     let parsed = {};
     try { parsed = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) { return out(502, { ok: false, error: 'ai_parse' }); }
 
@@ -160,7 +161,7 @@ module.exports = async (req, res) => {
       source = 'db';                                                  // 프론트가 DINE_DB 필터로 노출
     }
 
-    if (!(body && body.test)) { try { await require('./_qlog')('애프터', history[history.length - 1].content, { reply: reply }); } catch (e) {} }
+    try { await require('./_qlog')('애프터', history[history.length - 1].content, { reply: reply, isTest: !!(body && body.test) }); } catch (e) {}   // [AI_TEST_TAG 2026-08-07]
 
     return out(200, { ok: true, intent: parsed.intent === 'offtopic' ? 'offtopic' : 'place',
       category: cat, reply, ask, filters: f, places, source, mapDown });

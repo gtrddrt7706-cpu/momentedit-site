@@ -964,6 +964,14 @@ function openAiCost(){
       var over=(budget>0&&mTotal>budget), near=(budget>0&&!over&&mTotal>=budget*0.8);
       var mCol=over?'#b00':(near?'#9a7b00':'#3a2f25');
       h+='<div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e0d8cc;display:flex;justify-content:space-between;font-size:13px"><span style="color:#75705f">이번 달 합계</span><span style="color:'+mCol+';font-weight:600">'+_won(m.total)+' <span style="color:#75705F;font-weight:400">('+(Number(m.calls)||0)+'회)</span></span></div>';
+      /* [AI_TEST_COST 2026-08-07] 자동점검 비용 줄 — 종전엔 이 금액이 화면에서 완전히 증발했다.
+         매일 9시 안전점검·회귀가 최대 32콜을 실제로 청구하는데 표엔 ₩0/0회로만 보여, 화면의
+         "실제 비용은 인건비에서 확인" 안내와 정면으로 어긋났다. 고객 비용과 섞지 않으려고 별도 줄로 둔다
+         (예산 진행바·초과 경고는 종전대로 고객 비용 기준 — 원인 파악이 흐려지지 않게). */
+      var tc=r.test||{};
+      if((Number(tc.monthCalls)||0)>0||(Number(tc.dayCalls)||0)>0){
+        h+='<div style="margin-top:6px;display:flex;justify-content:space-between;font-size:12px"><span style="color:#75705F">└ 자동점검·테스트 <span style="font-size:11px">(예산 미포함)</span></span><span style="color:#75705F">'+_won(Number(tc.monthTotal)||0)+' <span style="font-size:11px">('+(Number(tc.monthCalls)||0)+'회 · 24h '+(Number(tc.dayCalls)||0)+'회)</span></span></div>';
+      }
       // 월 예산 — 설정·진행바·초과 경고
       var pct=budget>0?Math.min(100,Math.round(mTotal/budget*100)):0;
       h+='<div style="margin-top:8px;font-size:12px">';

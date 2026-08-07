@@ -62,13 +62,23 @@ function aiCostSummary24h() {
   var now = new Date(), dayCut = new Date(now.getTime() - 24 * 3600 * 1000);
   var thisMonth = Utilities.formatDate(now, tz, 'yyyy-MM');
   var day = {}, dayTotal = 0, dayCalls = 0, monTotal = 0, monCalls = 0;
+  /* [AI_TEST_COST 2026-08-07] 자동점검 비용을 '보이게' 한다.
+     종전엔 isTest='Y'를 continue로 버려서 매일 도는 안전점검·회귀 최대 32콜이 화면에서 완전히 증발했다
+     (2026-08-07 실측: 24h 0회 · 이번달 3회 = 실제 고객 상담분만). 실제로는 청구되는데 ₩0으로 보였다.
+     고객 비용(day/month)은 종전대로 분리 유지하고, 자동점검분만 test 버킷에 따로 담아 함께 반환한다. */
+  var tDayU = 0, tDayC = 0, tMonU = 0, tMonC = 0;
   for (var i = 0; i < vals.length; i++) {
-    if (String(vals[i][8]) === 'Y') continue;   // [AI_TEST_TAG] 테스트 호출은 비용 집계서 제외(적재는 유지)
     var t = vals[i][0]; if (!(t instanceof Date)) t = new Date(t);
     if (isNaN(t.getTime())) continue;
     var surface = String(vals[i][1] || '기타'), usd = Number(vals[i][7]) || 0;
-    if (Utilities.formatDate(t, tz, 'yyyy-MM') === thisMonth) { monTotal += usd; monCalls++; }
-    if (t >= dayCut) {
+    var inMonth = (Utilities.formatDate(t, tz, 'yyyy-MM') === thisMonth), inDay = (t >= dayCut);
+    if (String(vals[i][8]) === 'Y') {   // [AI_TEST_TAG] 테스트 호출은 고객 비용 집계서 제외(적재는 유지) — 버리지 않고 아래 test 버킷에 담는다
+      if (inMonth) { tMonU += usd; tMonC++; }
+      if (inDay) { tDayU += usd; tDayC++; }
+      continue;
+    }
+    if (inMonth) { monTotal += usd; monCalls++; }
+    if (inDay) {
       if (!day[surface]) day[surface] = { surface: surface, usd: 0, calls: 0 };
       day[surface].usd += usd; day[surface].calls++; dayTotal += usd; dayCalls++;
     }
@@ -81,6 +91,7 @@ function aiCostSummary24h() {
     ok: true, rate: rate,
     day: { total: Math.round(dayTotal * rate), calls: dayCalls, bySurface: bySurface },
     month: { total: Math.round(monTotal * rate), calls: monCalls },
+    test: { dayTotal: Math.round(tDayU * rate), dayCalls: tDayC, monthTotal: Math.round(tMonU * rate), monthCalls: tMonC },   // [AI_TEST_COST] 자동점검분 — 예산 초과 판정에는 넣지 않는다(고객 비용과 섞이면 원인 파악이 흐려진다)
     updatedAt: fmtKST(new Date())
   };
 }
