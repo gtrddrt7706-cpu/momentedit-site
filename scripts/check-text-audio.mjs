@@ -80,7 +80,8 @@ for (const k of keys) for (const v of AX[k]) states.push({ ...base, [k]: v });
 for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
   for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
 // 확장 순간(팔레트로 넣는 자리)도 켜 본다 — 안 켜면 그 큐가 아예 안 나와 검사에서 조용히 빠진다.
-for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter']) {
+// ★'free'(자유 한 칸)를 빼면 그 두 클립이 검사에서 조용히 사라진다 — 추가 순간은 켜 봐야 나온다.
+for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
   states.push({ ...base, extra: e });
   states.push({ ...base, extra: e, entryVoice: 'couple', guestVoice: 'couple' });

@@ -62,7 +62,9 @@
     // ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. **반드시 목록 끝에 붙인다** —
     //   번호가 인덱스+1이라 중간에 끼우면 기존 51개 파일이 전부 개명된다.
     'narr-entry-out', 'narr-ringwarm-out', 'narr-valley-out',
-    'narr-song-out', 'narr-toast-out', 'narr-declare-family-out'
+    'narr-song-out', 'narr-toast-out', 'narr-declare-family-out',
+    // ★[FREE_SLOT 2026-08-07] 자유 한 칸 — 무엇이 들어오든 담기게 **지목하지 않는** 두 줄
+    'narr-free-in', 'narr-free-out'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -97,7 +99,12 @@
     gamdong: { entry: 'D', declareWho: 'ask', declare: '1', letter: 'parent' },
     family: { entry: 'E', declareWho: 'family', declare: '1', letter: 'parent' },
     minimal: { entry: 'B', declareWho: 'narr', declare: '1', letter: 'parent' },
-    festive: { entry: 'F', declareWho: 'narr', declare: '2', letter: 'parent' }
+    festive: { entry: 'F', declareWho: 'narr', declare: '2', letter: 'parent' },
+    /* ★[RECORD_COURSE] 기록형 기본값.
+       entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
+       declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
+         격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
+    record: { entry: 'F', declareWho: 'ask', declare: '1', letter: 'parent' }
   };
   function norm(S) {
     var s = {}, k;
@@ -116,13 +123,19 @@
     if (!D.DECLWHO[s.declareWho]) s.declareWho = cd.declareWho;
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
+    /* ★[PEAK_ONE 2026-08-07] 정점은 하나다 — 편지를 넣으면 서약을 끈다(peakOne 코스 한정).
+       왜 코스 정의가 아니라 여기인가: seq/opt 만으로는 "둘 중 하나"를 표현할 수 없다.
+       둘 다 켜진 조합이 만들어지는 순간 **말하는 자리가 2개**가 되고, 그때 디렉터는
+       카메라를 놓아야 한다(끝을 사람이 재야 하는 자리라서). 그러면 이 코스가 성립하지 않는다.
+       ★고르는 것은 고객이다 — 편지를 **더한** 쪽을 정점으로 본다(기본은 서약). */
+    if (D.COURSES[s.course].peakOne && s.extra.letter) s.vow = 'off';
     return s;
   }
 
   // ── 진행 순서 — order-preview.html의 defaultOrd/ordNow/curSeq를 그대로 옮긴 것(같은 결과여야 한다)
   // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-  var GADD = { welcome: 1, bless: 1, ringwarm: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1 };
-  var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, song: 80, toast: 85 };
+  var GADD = { welcome: 1, bless: 1, ringwarm: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1, free: 1 };
+  var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
     return !!GADD[k] && c.seq.indexOf(k) < 0 && !(c.opt || []).some(function (o) { return o.k === k; });
@@ -219,7 +232,11 @@
         pick: '입장 멘트 ' + e.d + (own ? ' · 두 분 목소리' : ''),
         post: [{ music: 'to', v: 0, ms: 600 }],   // "입장!" 뒤 입장곡을 풀로 — 음악이 주인공
         // ★안전 규칙 2(§3-A) — 입장 걷는 시간(실측 1분 42초)은 타이머 자동 금지. 다음 큐는 반드시 사람이 낸다.
-        live: { t: '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴', est: 102, duck: 0, self: true, doing: 'move' }
+        /* ★[RECORD_COURSE] 기록형은 행진하지 않는다 — 문·통로가 아니라 하객 사이에서 온다.
+           문이 열리고 통로를 걷는 그림이 '틀에 맞춰진 예식'의 얼굴이라서다. 대신 걸어오는 동선은
+           남긴다 — 사진의 시작 컷이 거기서 나온다.
+           ★현장 안내를 여기 한 곳에서만 갈라 둔다. 두 군데 적으면 리허설에서 두 분이 문 앞에 선다. */
+        live: { t: (S.course === 'record' ? '두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음)' : '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴'), est: 102, duck: 0, self: true, doing: 'move' }
       }), cue({
         k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-out', name: '입장 마무리',
         text: D.NARR.entryOut, duck: -12
@@ -242,6 +259,10 @@
     },
 
     vow: function (S) {
+      /* ★[PEAK_ONE] 서약을 끌 수 있어야 한다 — 기록형에서 편지를 정점으로 고르면 여기가 빠진다.
+         norm() 이 s.vow='off' 로 만들어 주는데, 여기서 안 보면 그 결정이 조용히 무시된다.
+         (ring 은 원래부터 S.ring 을 본다 — 같은 규칙을 vow 에도 둔다) */
+      if (S.vow !== 'ok') return [];
       var n = D.NARR.vow;
       return [
         cue({
@@ -361,6 +382,21 @@
       }), cue({
         k: 'song', blockN: '축가', slug: 'narr-song-out', name: '축가 마무리',
         text: D.NARR.songOut, duck: PARAM.duckMusic
+      })];
+    },
+
+    /* ★[FREE_SLOT] 자유 한 칸 — 두 분이 하고 싶은 것 하나가 들어오는 자리.
+       ★무엇이 올지 모르므로 문안이 **지목하지 않는다**. "노래를"·"영상을" 이라 적는 순간
+         다른 것을 넣은 예식에서 거짓말이 된다. 그게 이 두 줄이 이렇게 밋밋한 이유다.
+       ★길이도 모른다 → est 는 넉넉히 잡고 끝은 사람이 낸다(앞에 live 가 있어 다음 큐가 자동 manual). */
+    free: function () {
+      return [cue({
+        k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
+        text: D.NARR.freeIn, duck: PARAM.duckMusic, pick: '두 분이 정한 순서',
+        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 리허설에서 미리 물어 둔다' }
+      }), cue({
+        k: 'free', blockN: '자유 한 칸', slug: 'narr-free-out', name: '자유 한 칸 마무리',
+        text: D.NARR.freeOut, duck: PARAM.duckMusic
       })];
     },
 

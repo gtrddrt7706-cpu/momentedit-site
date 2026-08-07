@@ -11,7 +11,7 @@ const ok = (name, cond) => { console.log((cond ? 'ok ' : 'FAIL ') + name); if (!
 
 let D, KB;
 try { D = require(path.join(root, 'assets/ritual-data.js')); } catch (e) { ok('ritual-data.js 로드', false); process.exit(1); }
-ok('ritual-data.js 로드(코스 5·NARR·MIN)', Object.keys(D.COURSES).length === 5 && !!D.NARR && !!D.MIN);
+ok('ritual-data.js 로드(코스 6·NARR·MIN)', Object.keys(D.COURSES).length === 6 && !!D.NARR && !!D.MIN);   // [RECORD_COURSE] 기록형 추가로 5→6
 
 const html = fs.readFileSync(path.join(root, 'order-preview.html'), 'utf8');
 ok('빌더에 식순 AI 위젯 배선 존재', html.includes('식순 AI 상담 배선 v1'));

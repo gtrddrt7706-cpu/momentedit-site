@@ -26,8 +26,8 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 /* ── 1. FILES 무결성 ───────────────────────────────────────── */
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 //   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
-if (C.FILES.length !== 57) no(`FILES 57개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 57) no('FILES에 중복 슬러그가 있다');
+if (C.FILES.length !== 59) no(`FILES 59개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== 59) no('FILES에 중복 슬러그가 있다');
 else ok('FILES 51개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.

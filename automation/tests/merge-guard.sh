@@ -1490,6 +1490,24 @@ chk 'OUT_ENTRY' order-preview.html 2
 # 빨갛게만 두면 재더빙이 끝날 때까지 검사 전체가 빨개서 사람이 검사를 안 본다. 조용히 넘기면
 # "고쳤는데 소리는 안 바뀐" 상태가 배포된다. → **사용자가 실제로 붙여넣는 파일이 곧 명단**이고,
 # check-text-audio.mjs 가 어긋난 자리 ↔ 명단을 양방향으로 대조한다(명단을 코드에 또 적지 않는다).
+# ── [RECORD_COURSE] 기록형 — 촬영이 본체인 코스 (2026-08-07 사용자
+#    *"촬영이 메인이고 웨딩이벤트만이 줄수있는 감동의 순간들 한두개 정도 아니면 3개정도만"*) ──
+# ★긴 말하는 자리가 **하나**여야 성립하는 코스다(서약 또는 편지 택일 · peakOne).
+#   둘이 되는 순간 디렉터가 카메라를 놓아야 한다 — 끝을 사람이 재야 하는 자리라서.
+#   그 규칙은 코스 정의가 아니라 norm() 에 있다(seq/opt 로는 '둘 중 하나'를 못 적는다).
+# ★vow 빌더가 S.vow 를 봐야 한다 — 안 보면 norm() 의 결정이 조용히 무시된다.
+# ★입장 행진 없음(하객 사이를 지나 옴) · 선언은 하객이 함께(격식 축을 지키는 최소 형식).
+chk 'RECORD_COURSE' assets/ritual-data.js 1
+chk 'peakOne' assets/ritual-data.js 1
+chk 'PEAK_ONE' assets/ritual-cue.js 2
+chk 'peakOne' assets/ritual-cue.js 1
+chk "record: { entry: 'F'" assets/ritual-cue.js 1
+chk 'FREE_SLOT' assets/ritual-data.js 1
+chk 'FREE_SLOT' assets/ritual-cue.js 2
+chk 'narr-free-in' assets/ritual-cue.js 2
+chk 'free: 1' assets/ritual-cue.js 1                       # GADD — 빼면 자유 칸을 팔레트로 못 넣는다
+chk "'free'" scripts/check-text-audio.mjs 1                # 훑는 목록에서 빠지면 두 클립이 조용히 사라진다
+chk 'free:1' order-audit.html 1
 chk 'REDUB_PENDING' scripts/check-text-audio.mjs 1
 chk 'REDUB_PENDING' scripts/check-option-audio.mjs 2
 chk 'REDUB_PENDING' order-audit.html 2
