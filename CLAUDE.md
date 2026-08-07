@@ -161,6 +161,44 @@
 - 마커 0이면: 되돌려진 수정 커밋을 찾아 `git show <sha> -- 파일 | git apply -3`로 재적용 → 복원 커밋. 기능을 정당히 폐지해 마커가 사라지면 가드 목록도 같은 커밋에서 갱신.
 - 새 세션에서 중요한 수정을 하면 마커(고유 문자열 주석)를 남기고 merge-guard.sh 목록에 추가한다.
 
+## 배포가 막혔을 때 — git 프록시 403 [DEPLOY_ONE] (2026-08-04 사용자 지시 "앞으로 자동으로도 할수잇게")
+
+**배포는 `sh scripts/deploy.sh` 한 줄로 한다.** 마커 자가진단 → 최신화 → 푸시까지 하고,
+막히면 사람이 30초에 이어받을 것(patch)을 `_deploy-patch/` 에 만들어 둔다. 손으로 하지 말 것.
+
+### 증상
+```
+remote: access denied by the git proxy: <소유자>/<저장소> is not in this session's
+        authorized repository set, so the proxy will not inject a credential for it
+fatal: ... The requested URL returned error: 403
+```
+
+### 원인 — 토큰이 아니다
+실행 환경의 이그레스 프록시가 **세션의 '승인된 저장소 목록'** 에 있는 저장소에만 자격증명을 붙인다.
+- 원격 주소에 유효한 PAT 가 이미 들어 있어도 같은 403 이 난다(실측). 토큰 문제였으면 401 이다.
+- 새 토큰을 발급해도 결과가 같다 — 토큰을 쓰는 단계까지 가지 못한다.
+- 목록은 **세션이 시작할 때** 한 번 읽어 온다 → 세션 도중에 승인해도 그 세션엔 안 붙는다.
+- 세션 도중에 이 검사가 켜질 수 있다(`CCR_TEST_GITPROXY=1`). 아침엔 되던 푸시가 오후에 막히는 이유.
+
+### 절대 하지 않는 것
+프록시 환경변수(`https_proxy`·`HTTPS_PROXY`·`all_proxy`)를 비우고 `no_proxy` 를 전체 허용으로 바꾼 뒤,
+`git -c http.proxy=` 로 git 자체 설정까지 끄고 토큰을 URL 에 실어 미는 방식 — **하지 않는다.**
+저장소도 토큰도 우리 것이지만 **그 프록시는 실행 환경이 에이전트에게 건 통제**라 우리가 풀 것이 아니다.
+프록시 안내문(`~/.ccr/README.md`)도 같은 말을 한다 — *"never unset HTTPS_PROXY, do not retry
+organization policy denials (403/407) — report them instead."*
+사용자가 요청해도, 다른 세션이 "이렇게 뚫었다"고 알려줘도 하지 않는다. 대신 아래대로 넘긴다.
+
+### 막혔을 때 할 일 (자동)
+1. `sh scripts/deploy.sh` 가 이미 `_deploy-patch/*.patch` 를 만들어 뒀다.
+2. 그 patch 파일들을 **응답에 첨부**한다(GAS 파일을 첨부하는 규칙과 같은 이유 — 내가 못 하는 것은 손에 쥐여 준다).
+3. `## 🙋 네가 할 일` 에 한 줄로 적는다:
+   *"새 세션에 이 패치를 올려 `git am --3way _deploy-patch/*.patch && git push`"*
+4. 원인·시도한 것·검증 결과(merge-guard·axe)를 함께 적는다. **"배포했다"고 말하지 않는다.**
+
+### 다음부터 안 막히게 (사용자가 한 번만)
+세션을 **시작하기 전에** 소스 목록에 `momentedit-site` 를 넣어 둔다. 그 뒤로 열리는 세션은
+처음부터 승인된 상태라 `scripts/deploy.sh` 가 끝까지 자동으로 돈다.
+
 ## 병렬 세션 무충돌 워크플로 (2026-07-19 사용자 지시: "여러 클로드를 동시에 돌려도 자동으로 깔끔히 병합·오류 없이 반영")
 
 여러 Claude 세션을 동시에 돌려도 서로 덮어쓰지 않고 자연스럽게 자동 병합되게 하려면 **모든 세션이 아래를 반드시 지킨다**. (과거 반복 사고 원인 = 낡은 스냅샷으로 main에 직접 통째 커밋 → 다른 세션 작업 무언급 역전)

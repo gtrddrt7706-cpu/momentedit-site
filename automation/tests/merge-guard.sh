@@ -1588,3 +1588,15 @@ chk 'accent-color:var(--seal)' inquiry.html 1
 chk 'accent-color' order-preview.html 1
 nochk 'btn:disabled{opacity:0.32' schedule.html
 nochk 'wd.sat{color:#556791' schedule.html
+
+# ── [DEPLOY_ONE] 배포 한 줄 + 프록시 403 대응 (2026-08-04 사용자 지시 "앞으로 자동으로도 할수잇게") ──
+# 배포는 sh scripts/deploy.sh 로 한다 — 마커 자가진단 → 최신화 → 푸시, 막히면 인계용 patch 를 만든다.
+# ★프록시 우회(https_proxy= / no_proxy="*" / -c http.proxy=)는 하지 않는다.
+#   저장소도 토큰도 우리 것이지만 그 프록시는 실행 환경이 에이전트에게 건 통제다.
+#   이 두 줄(스크립트의 금지 주석 · CLAUDE.md 의 금지 항목)이 사라지면 다음 세션이 그 유혹에 그대로 걸린다.
+chk 'DEPLOY_ONE' scripts/deploy.sh 1
+chk 'DEPLOY_ONE' CLAUDE.md 1
+chk 'never unset HTTPS_PROXY' CLAUDE.md 1
+chk 'authorized repository set' scripts/deploy.sh 1
+chk 'format-patch' scripts/deploy.sh 1
+nochk 'no_proxy="\*"' scripts/deploy.sh

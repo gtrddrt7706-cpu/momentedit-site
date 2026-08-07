@@ -22,3 +22,6 @@ package.json
 # 화면 눈확인 하네스가 매번 다시 찍는 스크린샷(admin-shot.mjs·mypage-shot.mjs).
 # 실행하면 그대로 재생성되는 산출물이라 레포에 넣지 않는다(1회 1MB+ · 픽셀 diff는 리뷰에 무의미).
 scripts/audit/_shots/
+
+# [DEPLOY_ONE] scripts/deploy.sh 가 막혔을 때 만드는 인계용 패치 — 저장소에 담지 않는다
+_deploy-patch/
