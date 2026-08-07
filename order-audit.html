@@ -233,7 +233,7 @@ function save(){ if(CAN_SAVE){ try{ localStorage.setItem(KEY, JSON.stringify(MAR
 /* ── 소리 주소 해석 — 화면 전체가 이 함수 하나만 쓴다.
       기본판(사이트)은 상대 경로 그대로. 혼자 도는 사본은 카드에 심어 둔 소리를
       AUD 에 걷어 두고 그걸 쓴다 — 재생 코드는 어느 쪽에서도 안 바뀐다. */
-var MEDIA_BASE = '', AUD = null;
+var MEDIA_BASE = '', AUD = null, PENDING = {};   // [REDUB_PENDING] 빌드가 재더빙 대기 명단을 여기 심는다
 function mediaUrl(p){ return (AUD && AUD[p]) || (MEDIA_BASE + p); }
 
 /* ── 재생 — 한 번에 하나만 ───────────────────────────── */
@@ -343,6 +343,11 @@ function card(e, m){
 
   var chips = [];
   if(e.spare) chips.push('<span class="chip live">평소엔 안 나옴 · 조건이 맞을 때만</span>');
+  /* ★[REDUB_PENDING] 문안을 새로 썼는데 소리가 아직 안 온 자리. 표시하지 않으면
+     "글은 새 것인데 옛 소리가 나는" 상태를 사장님이 버그로 오해한다 — 화면이 먼저 말한다. */
+  if(e.slug && typeof PENDING !== 'undefined' && PENDING[e.slug])
+    chips.push('<span class="chip" style="background:#fbeee9;border-color:#e8c9c0;color:#a8453a">'
+      + (PENDING[e.slug] === '신규' ? '새 대사 · 소리 아직 없음' : '글은 새 것 · 소리는 아직 옛 것') + '</span>');
   var base = e.base ? Array.from(e.base) : [];
   if(base.length) base.forEach(function(c){
     chips.push('<span class="chip on">'+esc((G.COURSES[c]||{}).nm||c)+'</span>');

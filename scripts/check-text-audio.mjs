@@ -145,5 +145,52 @@ for (const r of (ALL ? rows : bad)) {
 }
 if (chorus.length) { console.log(`\n[VOW_CHORUS] 서약 마지막 합창`); for (const m of chorus) console.log(`  ✗ ${m}`); }
 else if (ALL) console.log(`\n[VOW_CHORUS] ✓ 서약 마지막 합창 3클립이 VOWBOTH 와 같습니다.`);
-if (bad.length || chorus.length) { console.log(`\n✗ ${bad.length + chorus.length}곳에서 화면 글과 소리가 다릅니다.`); process.exit(1); }
-console.log('\n✓ 화면 글과 소리가 전부 같습니다.');
+
+// ── ★[REDUB_PENDING 2026-08-07] 문안을 고치면 소리는 **당장은** 옛 것이다.
+//   그 창을 그냥 빨갛게 두면 재더빙이 끝날 때까지 모든 검사가 빨개서, 사람이 검사를 안 보게 된다.
+//   그렇다고 조용히 넘기면 "고쳤는데 소리는 안 바뀐" 상태가 배포된다 — 이 프로젝트가 실제로 겪은 사고다.
+//   ★그래서 **붙여넣기 파일이 곧 대기 명단**이다. 어긋난 자리는 반드시 그 파일에 있어야 하고,
+//     그 파일에 있는데 이제 안 어긋나면 파일이 낡은 것이다. 양방향으로 강제한다.
+//     명단을 코드에 따로 적지 않는다 — 사용자가 실제로 쓰는 파일 하나가 명단 노릇을 한다.
+//   ★쓰기: node scripts/check-text-audio.mjs --redub   (어긋난 자리로 붙여넣기 파일을 다시 뽑는다)
+const REDUB = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt');
+const sentsOf = (t) => String(t).split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+const VOICE = (man.voice || {})['진행'] || '진행';
+
+if (process.argv.includes('--redub')) {
+  const lines = [
+    '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
+    '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
+    '# 목소리는 전부 진행 = ' + VOICE + ' 입니다.',
+    '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
+    '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
+    '# 대기 ' + bad.length + '클립', ''
+  ];
+  for (const r of bad) {
+    lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)'));
+    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    lines.push('');
+  }
+  fs.writeFileSync(REDUB, lines.join('\n'));
+  console.log('\n→ 붙여넣기 파일을 다시 뽑았습니다: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+  process.exit(0);
+}
+
+// 대기 명단과 대조
+let pend = [];
+if (fs.existsSync(REDUB)) pend = [...fs.readFileSync(REDUB, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)].map((m) => m[1]);
+const badSlugs = bad.map((r) => r.slug).filter(Boolean).sort();
+const pendSorted = pend.slice().sort();
+const onlyBad = badSlugs.filter((x) => !pendSorted.includes(x));
+const onlyPend = pendSorted.filter((x) => !badSlugs.includes(x));
+
+if (chorus.length) { console.log(`\n✗ 서약 합창이 어긋납니다.`); process.exit(1); }
+if (!bad.length && !pend.length) { console.log('\n✓ 화면 글과 소리가 전부 같습니다.'); process.exit(0); }
+if (onlyBad.length || onlyPend.length) {
+  console.log(`\n✗ 대기 명단(재더빙_리드보강.txt)이 실제와 다릅니다.`);
+  onlyBad.forEach((x) => console.log(`   명단에 없는데 어긋남: ${x}  → node scripts/check-text-audio.mjs --redub`));
+  onlyPend.forEach((x) => console.log(`   명단에 있는데 이제 맞음: ${x}  → 소리가 들어왔으면 명단에서 빼세요(--redub)`));
+  process.exit(1);
+}
+console.log(`\n⏳ 재더빙 대기 ${bad.length}클립 — 전부 명단에 있습니다(재더빙_리드보강.txt).`);
+console.log('   글은 새 것 · 소리는 아직 옛 것입니다. 붙여넣기 → wav 수급 → 조립 후 이 줄이 사라집니다.');

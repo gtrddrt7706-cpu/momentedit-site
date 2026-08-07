@@ -58,7 +58,11 @@
     'toast-toast', 'toast-cake', 'toast-both',
     'parents-letter',
     'end-0-photo', 'end-1a-farewell', 'end-1b-farewell-online', 'end-2-goodbye',
-    'online-3-welcome', 'bridge-4-wait-emotion', 'bridge-5-wait-setup', 'bridge-6-resume'
+    'online-3-welcome', 'bridge-4-wait-emotion', 'bridge-5-wait-setup', 'bridge-6-resume',
+    // ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. **반드시 목록 끝에 붙인다** —
+    //   번호가 인덱스+1이라 중간에 끼우면 기존 51개 파일이 전부 개명된다.
+    'narr-entry-out', 'narr-ringwarm-out', 'narr-valley-out',
+    'narr-song-out', 'narr-toast-out', 'narr-declare-family-out'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -216,6 +220,9 @@
         post: [{ music: 'to', v: 0, ms: 600 }],   // "입장!" 뒤 입장곡을 풀로 — 음악이 주인공
         // ★안전 규칙 2(§3-A) — 입장 걷는 시간(실측 1분 42초)은 타이머 자동 금지. 다음 큐는 반드시 사람이 낸다.
         live: { t: '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴', est: 102, duck: 0, self: true, doing: 'move' }
+      }), cue({
+        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-out', name: '입장 마무리',
+        text: D.NARR.entryOut, duck: -12
       })];
     },
 
@@ -264,6 +271,9 @@
         k: 'ringwarm', blockN: '링 워밍', slug: 'ringwarm-' + S.ringwarm, name: '링 워밍', text: r.nar,
         pick: r.d,
         live: { t: '반지 주머니가 손에서 손으로 · 마지막 분이 디렉터에게', est: (S.ringwarm === 'all' ? 240 : 120), self: true, doing: 'move', note: '지연 원인 1위 — 음악을 버퍼로 깔아 둔다' }
+      }), cue({
+        k: 'ringwarm', blockN: '링 워밍', slug: 'narr-ringwarm-out', name: '링 워밍 마무리',
+        text: D.NARR.ringwarmOut
       })];
     },
 
@@ -291,6 +301,9 @@
           text: D.NARR.declareFamilyIntro, pick: '가족이 낭독',
           note: '가족이 부담스러워하면 [대기 클립] 대신 ' + noOf('declare-family') + '번(가족 낭독 폴백)을 큐 목록에서 즉시 재생',
           live: { t: '가족 대표가 큰 글씨 선언문 낭독 (디렉터가 마이크·인쇄물 전달)', est: 45, self: true, doing: 'say', fallback: noOf('declare-family') + '번 폴백 클립' }
+        }), cue({
+          k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 · 가족 낭독 마무리',
+          text: D.NARR.declareFamilyOut
         })];
       }
       if (w === 'ask') {
@@ -333,6 +346,10 @@
         slug: wine ? 'narr-valley-wine' : 'narr-valley-cake', name: wine ? '와인 세리머니' : '케이크 커팅',
         text: wine ? D.NARR.valleyWine : D.NARR.valleyCake, duck: -12, pick: wine ? '와인' : '케이크',
         live: { t: wine ? '두 잔을 하나에 붓고 한 모금' : '함께 나이프 잡고 커팅 · 포즈', est: 30, self: true, doing: 'move' }
+      }), cue({
+        k: 'valley', blockN: wine ? '와인 세리머니' : '케이크 커팅',
+        slug: 'narr-valley-out', name: (wine ? '와인 세리머니' : '케이크 커팅') + ' 마무리',
+        text: D.NARR.valleyOut, duck: -12
       })];
     },
 
@@ -341,6 +358,9 @@
         k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 도입', text: D.NARR.song, duck: PARAM.duckMusic,
         pick: S.song === 'live' ? '어쿠스틱 라이브' : '가족·지인이 직접',
         live: { t: '축가 1곡', est: 210, duck: PARAM.duckOff, self: true, doing: 'sing', note: 'BGM은 완전히 끈다' }
+      }), cue({
+        k: 'song', blockN: '축가', slug: 'narr-song-out', name: '축가 마무리',
+        text: D.NARR.songOut, duck: PARAM.duckMusic
       })];
     },
 
@@ -350,6 +370,9 @@
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
         duck: PARAM.duckMusic, pick: t.d, note: '축배 뒤 무음은 4~5초로 길게(온도 낙차)',
         live: { t: t.cue, est: 45, duck: 0, self: true, doing: 'move' }
+      }), cue({
+        k: 'toast', blockN: '축배 · 케이크', slug: 'narr-toast-out', name: '축배 · 케이크 마무리',
+        text: D.NARR.toastOut, duck: PARAM.duckMusic
       })];
     },
 

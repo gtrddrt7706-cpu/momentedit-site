@@ -1474,6 +1474,27 @@ chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
 # ★임시 화면이다. 코스 리뉴얼이 끝나면 order-audit.html 과 이 블록을 **같은 커밋에서 함께** 지운다.
 # ★이 화면은 원천이 아니다 — 목록·문안·파일 이름을 여기 적지 않고 assets/ritual-cue.js 를 돌려서 그린다.
 #   표를 화면에 다시 적는 순간, 코스가 바뀌는 날 이 화면만 낡은 식순을 보여 준다.
+# ── [LEAD_OUT] 사람의 시간은 자기 닫는 말을 갖는다 (2026-08-07 사용자
+#    *"나래이션멘트가 주인공 신랑신부가 행동하게 자연스럽게 시작과끝을 매워주고 리드해야하는데"*) ──
+# 닫는 말이 없으면 디렉터가 누르는 순간 '다음 순간의 여는 말'이 나와, 그 한 문장이 앞을 닫고
+# 뒤를 여는 두 몫을 혼자 진다 → 앞 순간이 증발한다(축가는 3분 30초를 7초 도입 하나로 열고 끝이 없었다).
+# ★디렉터의 누름은 이미 그 자리에 있다 — 수동 큐 수는 그대로 10개다(check-ritual-cue.js 가 고정).
+# ★닫는 말은 다음 순서를 지목하지 않는다 — 코스마다 순서가 다르고 사용자가 바꾼다.
+chk 'LEAD_OUT' assets/ritual-data.js 1
+chk 'entryOut' assets/ritual-data.js 1
+chk 'narr-entry-out' assets/ritual-cue.js 2
+chk 'narr-song-out' assets/ritual-cue.js 2
+chk 'LEAD_OUT' order-preview.html 2
+chk 'OUT_ENTRY' order-preview.html 2
+# ── [REDUB_PENDING] 글은 새 것 · 소리는 아직 옛 것인 창을 명단 하나로 지킨다 ──
+# 빨갛게만 두면 재더빙이 끝날 때까지 검사 전체가 빨개서 사람이 검사를 안 본다. 조용히 넘기면
+# "고쳤는데 소리는 안 바뀐" 상태가 배포된다. → **사용자가 실제로 붙여넣는 파일이 곧 명단**이고,
+# check-text-audio.mjs 가 어긋난 자리 ↔ 명단을 양방향으로 대조한다(명단을 코드에 또 적지 않는다).
+chk 'REDUB_PENDING' scripts/check-text-audio.mjs 1
+chk 'REDUB_PENDING' scripts/check-option-audio.mjs 2
+chk 'REDUB_PENDING' order-audit.html 2
+chk '재더빙_리드보강.txt' scripts/check-text-audio.mjs 1
+chk '재더빙_리드보강' scripts/check-option-audio.mjs 1
 chk 'ORDER_AUDIT' order-audit.html 1
 chk 'ritual-cue.js' order-audit.html 3                     # 엔진을 돌려서 그린다는 사실 자체가 지켜져야 한다
 chk 'noindex' order-audit.html 1                           # 고객에게 노출되는 페이지가 아니다
