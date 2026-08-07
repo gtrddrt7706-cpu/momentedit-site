@@ -86,18 +86,18 @@
 | `flushHeldNotifies` | 95_notify | 야간 보류 알림 즉시 발송(평소엔 8시 트리거 자동) |
 | `notifyBalanceCheck` | 95_notify | 솔라피 잔액이 임계(`SOLAPI_LOW_BALANCE`·기본 3000원·자동충전 5000보다 낮게) 이하면 관리자에게 GAS 이메일 경고 1통(하루 1통). aiDaily 매일 + 발송 활동 시 시간당 1회(_nfMaybeBalanceCheck) 호출. 솔라피 안 거치는 메일이라 잔액 0이어도 발송됨 |
 | `handleSolapiReport` | 95_notify | 솔라피 전달결과 리포트 웹훅 처리(doPost가 배열/messageId 형태 감지 시 호출). 알림톡 '전달 실패'면 그 고객에게 이메일(카톡 미수신 커버). 발송 시 `알림톡추적` 시트에 messageId↔code 기록 · purgeNfTrack가 7일 정리. ★솔라피 콘솔에 리포트 웹훅 URL=/exec 등록 필요 |
-| `solapiUsageSummary` | 95_notify | 문자·알림톡 잔액+이번달/24h 발송 건수·추정비용(관리자 💰 패널·adminCall) |
+| `solapiUsageSummary` | 95_notify | 문자·알림톡 잔액+이번달/24h 발송 건수·추정비용(관리자 인건비 패널·adminCall) |
 | `setupAllTriggers` | 70_journey | 자동 트리거 일괄 등록(재배포 후·트리거 변경 시 1회) |
 | `weeklyBackup` | 70_journey | 전체 스프레드시트를 'ME_백업' 폴더에 주간 날짜 사본·최근 8주 보관(첫 실행 시 Drive 권한 승인 · setupAllTriggers가 매주 등록) |
 | `aiQuestionResolve` | 96_ai_cost | 교육 후보/리포트에서 질문 '해결' 표시(목록서 치움 · 재발 시 재등장) — 관리자 ✓버튼(adminCall) |
 | `weeklyReceiptAudit` | admin | 영수증 미발행 점검(월요일 트리거 자동·수동 점검 가능) |
 | `purgeAdvisorLog` | consultation-booking | AI 상담사 질문 로그 90일 정리(주간 트리거 자동 · 애프터수요로그도 함께 정리) |
 | `purgeAwDemandLog` | consultation-booking | 애프터웨딩 수요 로그 90일 정리(purgeAdvisorLog가 함께 호출 · 별도 트리거 불필요) |
-| `aiCostSummary24h` | 96_ai_cost | 접점별 AI 비용 24시간·이번달 집계(원화) — 관리자 💰버튼이 호출(adminCall) |
-| `aiQuestionLog` | 96_ai_cost | 실제 고객 질문 로그 최신순(빈도수·🔴막힘/🟡애매) — 관리자 💡개선 탭 교육 후보(adminCall) |
-| `aiQuestionReport` | 96_ai_cost | 고객질문 종합 리포트(기간별 막힘/애매/정상·접점별·자주 막힌·애매한 질문 TOP) — 관리자 📊리포트 탭(adminCall) |
-| `aiFactSet`·`aiFactsList`·`aiFactHistory`·`aiFactRollback`·`aiFactDelete` | 96_ai_cost | 핵심정보 단일 진실원(가격·일정·정책) 편집·이력·롤백 — 관리자 🎯핵심정보 탭(adminCall). API가 `handleAiFacts`(doPost action='aiFacts')로 라이브 주입 |
-| `aiRegAdd`·`aiRegList`·`aiRegSetActive`·`aiRegDelete` | 96_ai_cost | 회귀셋(고친 건 영구 점검) 관리 — 📊리포트 📌로 추가·💡개선 탭서 관리(adminCall). aiDailySafetyCheck가 매일 함께 점검 |
+| `aiCostSummary24h` | 96_ai_cost | 접점별 AI 비용 24시간·이번달 집계(원화) — 관리자 인건비 탭이 호출(adminCall) |
+| `aiQuestionLog` | 96_ai_cost | 실제 고객 질문 로그 최신순(빈도수·🔴막힘/🟡애매) — 관리자 개선 탭 교육 후보(adminCall) |
+| `aiQuestionReport` | 96_ai_cost | 고객질문 종합 리포트(기간별 막힘/애매/정상·접점별·자주 막힌·애매한 질문 TOP) — 관리자 리포트 탭(adminCall) |
+| `aiFactSet`·`aiFactsList`·`aiFactHistory`·`aiFactRollback`·`aiFactDelete` | 96_ai_cost | 핵심정보 단일 진실원(가격·일정·정책) 편집·이력·롤백 — 관리자 핵심정보 탭(adminCall). API가 `handleAiFacts`(doPost action='aiFacts')로 라이브 주입 |
+| `aiRegAdd`·`aiRegList`·`aiRegSetActive`·`aiRegDelete` | 96_ai_cost | 회귀셋(고친 건 영구 점검) 관리 — 리포트 탭 고정 버튼으로 추가·개선 탭서 관리(adminCall). aiDailySafetyCheck가 매일 함께 점검 |
 | `aiDaily` | 96_ai_cost | 매일 9시 트리거 — `aiMorningReport()` 1개만 호출(setupAllTriggers가 등록) |
 | `aiMorningReport` | 96_ai_cost | ★아침 운영 보고 통합 — **오늘 상담·처리할 일**(admin `morningBriefData`)+안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 모아 **관리자에게 메일 1통(섹션 상세 · 제목에 핵심요약)**으로. aiDaily가 호출. (구 `sendMorningBrief` 별도 메일 폐지·통합) 솔라피 잔액 '긴급' 경고(0 전)는 _nfMaybeBalanceCheck가 별도 즉시 처리 |
 | `adminUndoConfirmPayment('코드','마일스톤','사유')` | admin | 입금 확인 취소(오처리 복구) — 마일스톤은 계약금·중도금·잔금·중도금잔금. 사유 필수·멱등·처리이력. 카드결제분·현금영수증 발행분·다음 단계 전진(계약금 한정)·종료 고객·확인 후 24시간 경과(`UNDO_WINDOW_HOURS`)·환불 정산 완료 건은 각각 다른 메시지로 차단. 관리자 상세 화면 버튼이 호출(adminCall) |
