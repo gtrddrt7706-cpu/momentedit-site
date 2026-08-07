@@ -39,6 +39,13 @@
   button:active{transform:translateY(1px)}
   .pri{background:var(--ink);color:#fff;border-color:var(--ink)}
   .prog{font-size:12.5px;color:var(--sub);margin-left:auto;white-space:nowrap}
+  #now{display:none;margin:8px 0 2px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;
+       background:#f4efe6;font-size:13px;cursor:pointer;align-items:center;gap:7px}
+  #now.on{display:flex}
+  #now .nlab{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #now .npos{margin-left:auto;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+  .ev.playing{outline:2px solid var(--ink);outline-offset:-1px}
+  .play.bad{color:var(--drop);border-color:var(--drop)}
   .blk{margin:26px 0 8px;font-size:13px;font-weight:700;color:var(--acc);letter-spacing:.02em;
        border-bottom:1px solid var(--line);padding-bottom:5px}
   .ev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin:8px 0}
@@ -99,6 +106,7 @@
       <button id="copy">결과 복사</button>
       <span class="prog" id="prog">…</span>
     </div>
+    <div id="now" title="누르면 그 이벤트로 이동"><span>▶</span><span class="nlab"></span><span class="npos"></span></div>
   </div>
 </header>
 
@@ -212,26 +220,74 @@ var CAN_SAVE = (function(){ try{ localStorage.setItem(KEY+'-t','1'); localStorag
                             catch(e){ return false; } })();
 function save(){ if(CAN_SAVE){ try{ localStorage.setItem(KEY, JSON.stringify(MARK)); }catch(e){} } }
 
+/* ── 소리 주소 해석 — 화면 전체가 이 함수 하나만 쓴다.
+      기본판은 사이트 상대 경로 그대로(MEDIA_BASE=''). 혼자 도는 사본은 빌드가
+      MEDIA_BASE·AUD(파일 안에 담아 둔 소리)만 갈아끼운다 — 재생 코드는 안 건드린다. */
+var MEDIA_BASE = '', AUD = null, BLOBS = {};
+function mediaUrl(p){
+  if(AUD && AUD[p]){
+    if(!BLOBS[p]){
+      var bin = atob(AUD[p]), u8 = new Uint8Array(bin.length);
+      for(var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      BLOBS[p] = URL.createObjectURL(new Blob([u8], {type:'audio/mpeg'}));
+    }
+    return BLOBS[p];
+  }
+  return MEDIA_BASE + p;
+}
+
 /* ── 재생 — 한 번에 하나만 ───────────────────────────── */
-var AU = document.getElementById('au'), CUR = null, QUEUE = null;
+var AU = document.getElementById('au'), CUR = null, QUEUE = null, QTOT = 0, FAILN = 0;
+function nowBar(btn){
+  var el = document.getElementById('now');
+  if(!btn){ el.classList.remove('on'); return; }
+  el.classList.add('on');
+  el.querySelector('.nlab').textContent = btn.dataset.label || '';
+  el.querySelector('.npos').textContent = QUEUE ? ((QTOT - QUEUE.length) + ' / ' + QTOT) : '';
+  [].forEach.call(document.querySelectorAll('.ev.playing'), function(c){ c.classList.remove('playing'); });
+  var card = btn.closest('.ev'); if(card) card.classList.add('playing');
+}
+document.getElementById('now').onclick = function(){
+  if(CUR) CUR.scrollIntoView({block:'center', behavior:'smooth'});
+};
 function stopAll(){
-  AU.pause(); CUR = null; QUEUE = null;
+  AU.pause(); CUR = null; QUEUE = null; nowBar(null);
   [].forEach.call(document.querySelectorAll('.play.on'), function(b){ b.classList.remove('on'); });
 }
 function playSrc(src, btn){
   if(CUR === btn && !AU.paused){ stopAll(); return; }
   [].forEach.call(document.querySelectorAll('.play.on'), function(b){ b.classList.remove('on'); });
   CUR = btn; if(btn) btn.classList.add('on');
-  AU.src = src;
-  AU.play()['catch'](function(){ if(btn){ btn.classList.remove('on'); btn.textContent = '재생 실패'; } });
+  nowBar(btn);
+  AU.src = mediaUrl(src);
+  AU.play()['catch'](function(){ playFail(btn); });
 }
-AU.addEventListener('ended', function(){
-  if(CUR) CUR.classList.remove('on');
+function nextInQueue(){
   if(QUEUE && QUEUE.length){
     var nx = QUEUE.shift();
     nx.scrollIntoView({block:'center', behavior:'smooth'});
     playSrc(nx.dataset.src, nx);
-  } else { CUR = null; QUEUE = null; }
+  } else { CUR = null; QUEUE = null; nowBar(null); }
+}
+/* ★못 불러온 클립에서 조용히 멈추지 않는다 — 이어듣기 중이면 표시만 남기고 다음으로 간다.
+   조용히 멈추면 "안 되는데?"가 된다. 두 번 연달아 실패하면 이 창 자체가 소리를 막는 것이니 위에 알린다. */
+function playFail(btn){
+  if(CUR !== btn) return;                          // 이미 다른 클립으로 넘어갔다
+  if(btn){ btn.classList.remove('on'); btn.classList.add('bad'); btn.textContent = '✕ 재생 실패'; }
+  FAILN++;
+  if(FAILN >= 2 && !document.getElementById('audwarn')){
+    var w = document.createElement('p'); w.id = 'audwarn'; w.className = 'miss';
+    w.style.cssText = 'margin:8px 0 2px;font-size:12.5px';
+    w.textContent = '소리를 계속 못 불러오고 있어요 · 지금 보시는 창이 재생을 막는 것일 수 있어요. 파일을 내려받아 크롬이나 사파리로 열면 나요.';
+    document.querySelector('header .wrap').appendChild(w);
+  }
+  nextInQueue();
+}
+AU.addEventListener('error', function(){ playFail(CUR); });
+AU.addEventListener('playing', function(){ FAILN = 0; });
+AU.addEventListener('ended', function(){
+  if(CUR) CUR.classList.remove('on');
+  nextInQueue();
 });
 
 /* ── 그리기 ──────────────────────────────────────────── */
@@ -310,13 +366,14 @@ function card(e, m){
   var plays = [];
   if(e.slug){
     var src = G.RitualCue.PARAM.clipDir + e.file + '.mp3';
-    plays.push('<button class="play" data-src="'+esc(src)+'" data-nar="1">▶ 나레이션<span class="dur"></span></button>');
+    var lab = (e.no ? e.no + ' ' : '') + (e.name || e.slug) + ' · ' + e.blockN;
+    plays.push('<button class="play" data-src="'+esc(src)+'" data-nar="1" data-label="'+esc(lab)+'">▶ 나레이션<span class="dur"></span></button>');
   }
   var cast = [];
   try{ cast = e.spare ? [] : (G.RitualStory.castMainOf(e)||[]).concat(G.RitualStory.castLiveOf(e)||[]); }catch(err){ cast = []; }
   cast.forEach(function(c){
     if(!c || !c.src) return;
-    plays.push('<button class="play cast" data-src="'+esc(c.src)+'">▶ 배역 · '+esc(c.id||'')+'<span class="dur"></span></button>');
+    plays.push('<button class="play cast" data-src="'+esc(c.src)+'" data-label="'+esc(((e.no?e.no+' ':'')+(e.name||e.slug))+' · 배역 '+(c.id||''))+'">▶ 배역 · '+esc(c.id||'')+'<span class="dur"></span></button>');
   });
   if(plays.length) h.push('<div class="plays">'+plays.join('')+'</div>');
   else h.push('<p class="miss">미리 만들어 둔 소리가 없는 자리예요 · 글로 확인해 주세요.</p>');
@@ -360,7 +417,7 @@ function esc(s){ return String(s==null?'':s)
 document.getElementById('seq').onclick = function(){
   var btns = [].slice.call(document.querySelectorAll('.play[data-nar]'));
   if(!btns.length) return;
-  QUEUE = btns.slice(1);
+  QUEUE = btns.slice(1); QTOT = btns.length;
   btns[0].scrollIntoView({block:'center', behavior:'smooth'});
   playSrc(btns[0].dataset.src, btns[0]);
 };
@@ -374,7 +431,7 @@ document.getElementById('dur').onclick = function(){
   (function step(){
     if(i >= btns.length){ self.textContent = '전체 ' + fmt(tot) + ' (' + n + '개)'; return; }
     var b = btns[i++], a = new Audio();
-    a.preload = 'metadata'; a.src = b.dataset.src;
+    a.preload = 'metadata'; a.src = mediaUrl(b.dataset.src);
     var done = false;
     a.onloadedmetadata = function(){ if(done) return; done = true;
       b.querySelector('.dur').textContent = ' ' + fmt(a.duration);
