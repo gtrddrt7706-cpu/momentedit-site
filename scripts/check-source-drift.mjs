@@ -84,5 +84,22 @@ function scan(needle) {
   else ok('코스 개수를 손으로 적은 자리 없음');
 }
 
+/* 4) ★녹음 대본이 모든 클립을 아는가
+   2026-08-08 실측: 대본 생성기가 **51개만** 알고 있었는데 실제 클립은 75개였다.
+   대본을 읽는 사람은 51개가 전부인 줄 알고, 나머지 24개는 아무도 녹음하지 않는다.
+   ★폐지한 슬러그(RETIRED)는 뺀다 — 자리는 남기되 녹음하지 않는 것이다. */
+{
+  const Cue = require(path.join(root, 'assets/ritual-cue.js'));
+  const scriptPath = path.join(root, 'docs/plans/식순연구/더빙_녹음_대본_최종.txt');
+  if (!fs.existsSync(scriptPath)) no('녹음 대본이 없다 — node scripts/build-dubbing-script.mjs');
+  else {
+    const t = fs.readFileSync(scriptPath, 'utf8');
+    const live = Cue.FILES.filter((f) => !(Cue.RETIRED || {})[f]);
+    const miss = live.filter((f) => !t.includes(f));
+    if (miss.length) no(`녹음 대본이 모르는 클립 ${miss.length}개 — build-dubbing-script.mjs 에 추가할 것\n    ${miss.join(', ')}`);
+    else ok(`녹음 대본이 클립 ${live.length}개를 전부 안다`);
+  }
+}
+
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');
 process.exit(fail);
