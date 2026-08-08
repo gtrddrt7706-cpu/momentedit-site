@@ -2213,8 +2213,12 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('순서 흐름', (sm3.flow&&sm3.flow.length)?sm3.flow.join(' → '):'')
       +row('성혼 선언', _declWhoLabel(s3d.declareWho))   // ★DECL_ADMIN_MIRROR — 하드코딩 맵 금지 · 원천(DECLWHO)을 읽는다
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
-      +row('베일 다운', ({mother:'어머니',father:'아버지',both:'두 분',skip:'뺌'})[s3d.veil]||'')
-      +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')
+      /* ★[VEIL_RETIRED 2026-08-03] 베일 다운 행 삭제 — 전 예식 동시입장이라 실행 불가.
+         값을 만들 경로가 코스·팔레트·큐 어디에도 없어 늘 빈 줄이었다. 되살리지 말 것. */
+      /* ★[RINGWARM_RETIRED 2026-08-07 · LEGACY_LABEL] 링 워밍은 폐지됐고 새로 고를 길이 없다.
+         행을 남겨 둔 이유는 하나뿐 — 폐지 전에 저장된 초안이 이 값을 쥐고 있으면 관리자가 알아야 한다.
+         row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
+      +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
       +row('부모님 헌정', ({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||'')
       +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')

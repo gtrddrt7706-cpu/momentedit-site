@@ -31,8 +31,11 @@ const ok = (m) => console.log('ok  drift: ' + m);
 const no = (m) => { console.log('DRIFT? ' + m); fail = 1; };
 
 // 고객·상담사에게 닿는 파일만 본다. 문서·임시 점검 화면은 제외(설명이 목적이다).
+/* 고객·상담사·운영자에게 닿는 파일. 문서와 임시 점검 화면은 뺀다(설명이 목적이다).
+   ★admin.html 도 넣는다 — 운영자가 폐지된 순서를 화면에서 보면 "아직 되나 보다" 하고 안내한다.
+     실제로 여기서 '베일 다운' 행이 살아 있는 것을 이 검사가 잡았다. */
 const FACING = ['index.html', 'mypage.html', 'order-preview.html', 'guide.html', 'seat.html',
-  'console.html', 'live.html', 'api/_ritual-kb.js', 'assets/advisor-kb.js'];
+  'console.html', 'live.html', 'admin.html', 'api/_ritual-kb.js', 'assets/advisor-kb.js'];
 /* ★면제 — "적어 두는 것이 목적"인 줄. 여기 낱말을 늘릴 때는 조심할 것:
    면제가 늘수록 검사가 눈을 감는다. 늘리기 전에 "정말 적어 둬야 하는 글인가"를 먼저 물 것.
    ★`"nm":` 는 원천에서 뽑은 **사본 데이터**다(숨긴 코스도 데이터에는 있어야 한다 —
