@@ -444,7 +444,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 주체 라벨은 DECLWHO에서 읽는다(주체가 늘어도 admin이 자동으로 따라온다).
 //   과거 사고(2026-07-26): #318이 'ask'를 네 번째 주체로 추가했는데 여기 하드코딩 맵이 안 따라와,
-//   응답형을 고른 고객(감동 코스 기본값)의 상세에서 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌다.
+//   응답형을 고른 고객(당시 감동 코스 기본값 · [LEGACY_LABEL] 지금은 숨긴 코스다)의 상세에서 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌다.
 //   원천을 못 읽는 상황(스크립트 로드 실패)에서도 행이 사라지지 않도록 키를 그대로 보여주는 폴백을 둔다.
 function _declWhoLabel(k){
   if(!k) return '';
