@@ -4,10 +4,10 @@
  * [CUE_GUARD_V1]
  *
  * 이 파일이 지키는 것:
- *  1) §3-A 21큐 전수 판정표 — damback+bless=on 이 수동 10 / 자동 10 이고 수동 번호가 정확히 그 10개
+ *  1) §3-A 전수 판정표 — 담백 코스가 수동 8 / 자동 6 / 시각고정 3 이고 번호가 정확히 그것
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
- *  4) 5코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
+ *  4) 전 코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
  *  5) FILES 59개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
@@ -39,7 +39,7 @@ else ok('FILES 59개 · 중복 없음');
   } else ok('번호 매핑 (인덱스+1)');
 }
 
-/* ── 2. §3-A 21큐 전수 판정표 ──────────────────────────────── */
+/* ── 2. §3-A 전수 판정표 ──────────────────────────────────── */
 // ★번호는 FILES 순서에서 파생된다(인덱스+1) — 클립을 중간에 끼우면 그 뒤가 통째로 +1 밀린다.
 //   2026-08-01 narr-bless-end-long(25번) 삽입으로 25 이상이 한 칸씩 이동했다. 판정 자체는 그대로다.
 //   슬러그를 함께 적어 둔다 — 다음에 밀릴 때 "무엇이 무엇이 됐는지"를 다시 추적하지 않게.
@@ -50,22 +50,28 @@ else ok('FILES 59개 · 중복 없음');
 //   ★수동 큐 **수는 그대로 10개**다 — 11(welcome-in)이 수동에서 자동으로 내려오고 52가 그 자리에 온다.
 //     닫는 말은 사람의 시간 뒤에 붙고, 디렉터의 누름은 이미 거기 있었다. 현장 조작 횟수 변화 0.
 //     이 숫자가 늘어나면 그건 설계가 깨진 것이다 — 그때 이 검사가 먼저 화를 낸다.
-const A3_MANUAL = ['01', '05', '12', '14', '16', '20', '24', '45', '47', '52'];
-//                  guest-1  entry-A  welcome-out  vow-out  ring-out  letter-end  bless-end  farewell  goodbye  entry-out
+// [THREE_COURSES · EVENT_BUDGET 2026-08-07] 담백에서 첫인사·덕담·와인/케이크가 팔레트로 내려갔다.
+//   21큐 → 17큐. ★수동이 10에서 8로 준 것은 설계대로다 — 사라진 세 순간이 각각
+//   '사람의 시간'을 갖고 있었고, 그 뒤에 붙던 수동 누름이 함께 사라졌다(12 welcome-out · 24 bless-end,
+//   그리고 valley 는 담백에서 빠지며 판정표에 없던 큐가 통째로 빠졌다).
+//   ★이 표는 **얼어붙은 스냅샷**이다. 규칙 자체(앞에 live 가 있으면 manual)는 아래 3번이 전 조합으로 지킨다.
+//     여기 숫자가 흔들리면 "코스 모양이 바뀌었다"는 뜻이고, 의도한 변경인지 사람이 봐야 한다.
+const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '45', '47'];
+//                  guest-1  entry-A  entry-out  vow-out  ring-out  letter-end  farewell  goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['11', '13', '15', '30', '27', '23', '26', '44'];
-//                 welcome-in  vow-in  ring-in  declare-1-solemn  letter-parent  bless-mid  close  end-0-photo
+const A3_CHAIN = ['13', '15', '30', '27', '26', '44'];
+//                 vow-in  ring-in  declare-1-solemn  letter-parent  close  end-0-photo
 {
-  const r = C.build({ course: 'damback', bless: 'on' }, { mode: 'console' });
+  const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 21) no(`§3-A: 21큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 17) no(`§3-A: 17큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
-  else ok('§3-A 21큐 전수 판정표 (수동 10 / 자동 10)');
+  else ok(`§3-A 17큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
 
   // 반지 마무리 → 성혼 선언 사이 '페이드 8초 + 침묵 3초' 시간 고정 (대본 153~159행)
   const ro = r.cues.find((c) => c.slug === 'narr-ring-out');
