@@ -1207,6 +1207,11 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
+# [PHOTOCUE_BOARD] 촬영 안내는 콘솔의 '골라 트는 판'에서만 나온다.
+#   판이 없으면 녹음한 클립 10개를 틀 수단이 사라진다(한 번 그 상태로 떠 있었다).
+chk 'PHOTOCUE_BOARD' console.html 3
+chk 'playLoose' console.html 2                  # 체인 밖 재생 — 진행 위치를 바꾸지 않는다
+
 # [NO_AUDIO] 녹음 대기 목록은 FILES ↔ manifest 를 통째로 대조해 만든다.
 #   미리듣기에 안 나오는 콘솔 전용 클립이 목록에서 조용히 빠지던 것을 막는다(실제로 16개가 떠 있었다).
 chk 'NO_AUDIO' scripts/check-text-audio.mjs 2
