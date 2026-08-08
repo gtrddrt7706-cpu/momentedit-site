@@ -24,7 +24,7 @@
 
 ### A. 시그니처(예식) 패키지 안의 스냅 (별매 아님)
 - 140분 시퀀스의 일부. "스냅·영상·청첩장을 한 디렉터가 한 흐름으로." (`index.html:5382-5384`)
-- 140분 순서(마케팅): **20 Getting Ready · 40 Private Snap · 30 The Ceremony · 30 Group Record · 20 Farewell** (`index.html:5418-5457`, FAQ `6036`)
+- 140분 순서(마케팅): **20 Getting Ready · 40 Private Snap · 16~24 The Ceremony · 36~44 Group Record(인사와 사진) · 20 Farewell**(본식+Group Record 합 60분 고정) (`index.html:5418-5457`, FAQ `6036`)
 - 고객 모달 세부 시간표는 분배가 다름(입장 5분+본식 25분, 하객 입장 20분 별도) — `sequence-modal.js:18-26`. **★기획 전 어느 쪽이 정본인지 정리 필요.**
 - 가격: 주말·공휴일 280만 / 평일 210만 (VAT 포함) (`index.html:5806-5807`)
 

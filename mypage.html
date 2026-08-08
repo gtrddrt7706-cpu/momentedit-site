@@ -1251,7 +1251,8 @@ function contractSrc(product, docVersion){
   }
   if(v==='v1.1') return '/contract/archive/v1-1.html';
   if(v==='v1.2') return '/contract/archive/v1-2.html';
-  return '/contract/v1-1.html';   // 현행(v1.3)
+  if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.4)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.

@@ -102,15 +102,121 @@ function scan(needle) {
 }
 
 /* 5) ★140분 시간표가 여러 곳에 손으로 적혀 있다 — 옛 숫자가 남으면 고객이 다른 시간을 본다.
-   2026-08-08 실측: 같은 표가 **네 군데**(index.html · sequence-modal.js · order-preview.html ·
-   advisor-kb.js/_ritual-kb.js)에 있었고, 두 곳만 고쳤다가 나머지가 옛 숫자를 말하고 있었다.
-   ★값을 한 곳으로 모으는 게 정답이지만 정적 HTML·SEO JSON까지 묶기는 과하다.
-     대신 **옛 숫자가 남아 있으면 실패**하게 해서, 고칠 때 전부 훑게 만든다. */
+   2026-08-08 1차: 옛 낱말 6개를 목록으로 두고 찾았다. 그날 저녁에 바로 뚫렸다 —
+   FAQ 블록이 `30m | The Ceremony` 형식이라 `'본식 30분'` 목록에 하나도 안 걸렸다.
+   같은 표가 실제로는 **아홉 군데**였다(index 셋 · sequence-modal · order-preview ·
+   advisor-kb · _kb.js · 계약서 3조 · 스마트스토어 원본).
+   ★그래서 낱말을 찾지 않는다. **숫자를 데이터에서 계산해 놓고, 다른 숫자가 붙어 있으면 실패**한다.
+     'Ceremony'·'Group Record' 옆에 붙은 가장 가까운 시간 표기를 읽어, 계산값과 다르면 잡는다.
+     새 형식으로 적어도(30m·(30분)·30<small>min) 걸린다. */
 {
-  const OLD = ['본식 25분', '본식 30분', 'Ceremony 30분', 'The Ceremony 30분', 'Group Record 30분', '단체 기록 30분'];
-  const bad = OLD.flatMap((n) => scan(n).map((h) => `"${n}" @ ${h}`));
-  if (bad.length) no(`140분 시간표에 옛 숫자가 남아 있다 — 네 곳을 함께 고칠 것\n    ${bad.join('\n    ')}`);
-  else ok('140분 시간표에 옛 숫자 없음');
+  // 보이는 코스에서 본식 범위를 계산한다 — 손으로 적지 않는다.
+  const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden).map((k) => D.MIN.base[k]);
+  const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~24
+  const GR = [60 - CE[1], 60 - CE[0]];                     // 인사와 사진 36~44 (합 60분 고정)
+  const okRange = (lo, hi, want) => lo >= want[0] && hi <= want[1];
+
+  // 지나간 것을 보존하는 자리는 본다고 달라지지 않는다.
+  const FROZEN = /(^|\/)(contract\/archive|docs\/국가지원금|docs\/plans|node_modules|_deploy-patch|\.git)\//;
+  const EXT = /\.(html|js|mjs|gs|md|json)$/;
+  const files = [];
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const rel = path.relative(root, path.join(dir, e.name));
+      if (/^(node_modules|\.git|_deploy-patch)$/.test(e.name)) continue;
+      if (e.isDirectory()) walk(path.join(dir, e.name));
+      else if (EXT.test(e.name) && !FROZEN.test(rel + '/')) files.push(rel);
+    }
+  })(root);
+
+  /* ★붙어 있는 것만 본다. 시간표 한 줄은 숫자와 이름 사이에 서식(태그·구분자)밖에 없다:
+       `30m | The Ceremony` · `The Ceremony (30분)` · `- 30분 The Ceremony:` ·
+       `30<small>min</small>…<div class="n">Group Record`
+     사이에 **말(글자)이 끼면 시간표 줄이 아니다** — "모먼트에디트의 140분은 …" 같은 총합 문장이
+     그렇게 걸러진다. 1차 시도는 '가장 가까운 숫자'를 봤다가 총합 140분·합 60분까지 28건을 잡았다. */
+  /* ★이름과 숫자를 짝지으려 하지 않는다 — 세 번 시도했고 세 번 다 틀렸다.
+       ①'가장 가까운 숫자'는 총합 140분·합 60분을 잡았다(28건 오탐).
+       ②'사이에 글자가 없으면 한 줄'은 이웃 항목끼리 엇갈려 짝지었다(`…정갈한 본식 36~44m | Group Record`).
+       ③'표를 통째로 순서대로'는 설명글 속 분("하객 입장 20분이 여기 겹쳐요")에 밀려 어긋났다.
+     ★네 번째가 맞았다 — **순서만 본다(부분 수열)**.
+       `Getting Ready`~`Farewell` 구간의 시간 표기를 순서대로 뽑고,
+       [20 · 40 · 본식 · 인사와사진 · 20] 이 그 안에 **순서대로 들어 있는지**만 확인한다.
+       설명글·제목의 군더더기 숫자는 사이에 끼어도 통과하고, 행 숫자가 낡으면 순서가 끊겨 잡힌다.
+       이름을 안 보므로 `30m | The Ceremony` 든 `The Ceremony (30분)` 든 `30<small>min` 이든 다 걸린다. */
+  const want = ['20', '40', `${CE[0]}~${CE[1]}`, `${GR[0]}~${GR[1]}`, '20'];
+  /* ★숫자와 단위 사이에 태그가 낀다 — `20<span>min</span>` · `30<small>min</small>`.
+     이걸 빼먹어서 index.html 의 **보이는** 시간표 한 벌을 통째로 못 읽고 있었다(THIN).
+     '읽은 벌 수'를 함께 세지 않았다면 초록으로 통과했을 것이다. */
+  const DUR = /(\d{1,3})(?:\s*[~–-]\s*(\d{1,3}))?(?:\s|<[^>]{0,40}>)*(?:분|m\b|min)/g;
+  const bad = [];
+  let tables = 0;
+  for (const f of files) {
+    if (f === 'scripts/check-source-drift.mjs') continue;   // 이 규칙 자체가 예시로 옛 형식을 적는다
+    const src = fs.readFileSync(path.join(root, f), 'utf8');
+    /* 표의 처음·끝을 알리는 말. 영어 시퀀스명이 없는 표도 있다(sequence-modal.js 는 한글 진행표라
+       'Getting Ready' 가 한 글자도 없다 — 그래서 아홉 벌만 읽히고 한 벌이 조용히 빠져 있었다). */
+    const ANCHOR = [['Getting Ready', 'Farewell'], ['신랑·신부 도착', '마무리·배웅']];
+    for (const [head, tail] of ANCHOR) {
+    const gre = new RegExp(head, 'g');
+    let g;
+    while ((g = gre.exec(src))) {
+      const end = src.indexOf(tail, g.index);
+      if (end < 0 || end - g.index > 3000) continue;        // 표가 아니다(스쳐 가는 언급)
+      /* ★주석을 지우고 읽는다. 안 지웠더니 index.html 의 보이는 표를 30분으로 망가뜨려도
+         바로 위 주석("본식 30 → 16~24분")이 16~24 를 대신 내주어 검사가 통과했다.
+         돌연변이 시험(행을 일부러 낡게 바꿔 보기)이 아니었으면 못 찾았을 구멍이다. */
+      const region = src.slice(Math.max(0, g.index - 90), end + 90)
+        .replace(/<!--[\s\S]*?-->|\/\*[\s\S]*?\*\//g, ' ')
+        .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+      const got = [];
+      DUR.lastIndex = 0;
+      let d;
+      while ((d = DUR.exec(region))) got.push(d[2] ? `${+d[1]}~${+d[2]}` : String(+d[1]));
+      if (got.length < 5) continue;                          // 시간을 안 적은 표(화살표 나열 등)
+      tables++;
+      let k = 0;
+      for (const t of got) if (t === want[k]) k++;
+      if (k < want.length) {
+        bad.push(`${f}:${src.slice(0, g.index).split('\n').length} — [${want[k]}]분이 제자리에 없다. `
+          + `읽은 값 [${got.join(' · ')}] / 있어야 할 순서 [${want.join(' · ')}]`);
+      }
+    }
+    }
+  }
+  /* 5b) 표 밖의 산문에 적힌 길이 — "본식 16~24분의 식순과 대본이 만들어져요" 같은 문장.
+     표 검사는 `Getting Ready`~`Farewell` 안만 보므로 이런 줄을 통째로 지나친다(실측으로 뚫렸다).
+     ★띄어쓰기 두 칸까지만 붙은 것을 본다. `본식<br>36~44m | Group Record` 처럼 태그·구분자가
+       끼면 그건 이웃 항목이지 이 항목의 길이가 아니다 — 그 구분이 오탐을 막는 전부다. */
+  {
+    const N = '(\\d{1,3})(?:\\s*[~–-]\\s*(\\d{1,3}))?\\s*(?:분|m\\b|min)';
+    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:인사와 사진|Group Record)', GR, '인사와 사진']];
+    for (const f of files) {
+      if (f === 'scripts/check-source-drift.mjs') continue;
+      const src = fs.readFileSync(path.join(root, f), 'utf8');
+      for (const [nm, wantR, label] of pairs) {
+        for (const re of [new RegExp(nm + ' {0,2}' + N, 'g'), new RegExp(N + ' {0,2}' + nm, 'g')]) {
+          let m;
+          while ((m = re.exec(src))) {
+            /* ★줄 전체로 면제하지 않는다. order-preview 의 고객 문구 뒤에 붙은
+               `// … 옛 '30분 안팎'은 …` 주석 하나가 그 줄을 통째로 눈감게 했다(실측). */
+            if (EXEMPT.test(src.slice(Math.max(0, m.index - 40), m.index + m[0].length + 40))) continue;
+            const g = m.slice(1).filter((x) => x !== undefined);
+            const lo = +g[0], hi = +(g[1] || g[0]);
+            if (okRange(lo, hi, wantR)) continue;
+            bad.push(`${label} 산문 "${m[0].trim()}" (계산값 ${wantR[0]}~${wantR[1]}분) `
+              + `@ ${f}:${src.slice(0, m.index).split('\n').length}`);
+          }
+        }
+      }
+    }
+  }
+
+  /* ★한 벌이라도 '읽히지 않게' 바뀌면 검사가 조용히 눈을 감는다. 그래서 벌 수도 센다.
+     복사본을 정당히 지웠다면 이 숫자를 같은 커밋에서 내릴 것. */
+  const FLOOR = 10;
+  if (tables < FLOOR) bad.push(`시간표를 ${tables}벌밖에 못 읽었다(최소 ${FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
+  if (bad.length) no(`140분 시간표가 어긋난다 — 열 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
+  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 인사와 사진 ${GR[0]}~${GR[1]}분 · 합 60분)`);
 }
 
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');

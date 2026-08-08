@@ -1210,6 +1210,20 @@ nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3
 # [SOURCE_DRIFT] 원천 값이 손으로 적힌 자리를 찾는 검사 — 인스턴스가 아니라 병을 잡는다.
 node scripts/check-source-drift.mjs || FAIL=1
 
+# [DRIFT_MUTATION] 그 검사가 **진짜로 잡는지** 시험한다. 초록은 아무것도 증명하지 않는다 —
+#   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
+#   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.
+sh scripts/check-source-drift.test.sh || FAIL=1
+
+# [CONTRACT_V14] 계약서 3조① 본식 16~24분 · Group Record 36~44분(합 60분 고정) · 문서 v1.4.
+#   ★v1.3 서명자는 archive/v1-3.html 로 열람해야 한다 — 이 줄이 사라지면 옛 서명자가
+#     자기가 서명하지 않은 문서를 보게 된다(계약서 32조③ '이미 체결된 계약의 효력은 불변').
+chk 'archive/v1-3.html' admin.html 1
+chk 'archive/v1-3.html' mypage.html 1
+chk 'CONTRACT_V14' admin.html 1
+chk 'CONTRACT_V14' mypage.html 1
+chk "docVersion: 'v1.4'" automation/platform/70_journey.gs 1
+
 # [PHOTOCUE_BOARD] 촬영 안내는 콘솔의 '골라 트는 판'에서만 나온다.
 #   판이 없으면 녹음한 클립 10개를 틀 수단이 사라진다(한 번 그 상태로 떠 있었다).
 chk 'PHOTOCUE_BOARD' console.html 3
