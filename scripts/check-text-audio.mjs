@@ -140,6 +140,22 @@ const chorus = [];
 
 const rows = [...seen.values()].sort((a, b) => (a.k + a.slug).localeCompare(b.k + b.slug));
 const bad = rows.filter((r) => !r.ok && !r.noText);
+
+/* ★★[NO_AUDIO 2026-08-08] 위 대조는 **미리듣기에 나오는 자리**만 훑는다.
+   콘솔 전용 구간(예식 뒤 30분)과 '골라 트는 판'(D.PHOTOCUE)은 미리듣기에 안 나오므로
+   글이 아무리 새로워도 여기 안 잡힌다 — 실제로 클립 16개가 어느 목록에도 없이 떠 있었다.
+   그래서 **FILES ↔ manifest 를 통째로 대조**한다. 슬러그가 대본에 없으면 소리가 아직 없는 것이다.
+   ★이 방식은 모드와 무관해서, 앞으로 어떤 클립이 늘어도 저절로 잡힌다. */
+const manFiles = new Set(man.clips.map((c) => c.file));
+const SLUGTEXT = new Map();
+for (const S of states) { let r; try { r = Cue.build(S, { mode: 'console' }); } catch (e) { continue; }
+  for (const c of r.cues) if (c.slug && c.text) SLUGTEXT.set(c.slug, c.text); }
+for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx)) SLUGTEXT.set(g.slug, g.t);
+const noAudio = Cue.FILES.map((f, i) => ({ slug: f, no: String(i + 1).padStart(2, '0'), screen: SLUGTEXT.get(f) || '' }))
+  .filter((x) => !manFiles.has(x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
+// 녹음이 필요한 전체 = 글이 바뀐 것 ∪ 소리가 아예 없는 것 (선언 위치 주의 — --redub 블록이 먼저 쓴다)
+const badSlugs = [...new Set(bad.map((r) => r.slug).concat(noAudio.map((r) => r.slug)))].filter(Boolean).sort();
+
 const cut = (s, n = 76) => (s.length > n ? s.slice(0, n) + '…' : s);
 
 console.log(`대조한 자리 ${rows.length}곳 — 맞음 ${rows.filter((r) => r.ok).length} · 어긋남 ${bad.length} · 화면 글 없음 ${rows.filter((r) => r.noText).length}\n`);
@@ -172,10 +188,17 @@ if (process.argv.includes('--redub')) {
     '# 목소리는 전부 진행 = ' + VOICE + ' 입니다.',
     '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
     '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
-    '# 대기 ' + bad.length + '클립', ''
+    '# 대기 ' + badSlugs.length + '클립', ''
   ];
   for (const r of bad) {
     lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)'));
+    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    lines.push('');
+  }
+  // [NO_AUDIO] 소리가 아예 없는 클립 — 미리듣기에 안 나와도 녹음은 필요하다
+  for (const r of noAudio) {
+    if (bad.some((b) => b.slug === r.slug)) continue;
+    lines.push('[' + r.no + '] ' + r.slug + '   (신규)');
     for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
     lines.push('');
   }
@@ -187,18 +210,18 @@ if (process.argv.includes('--redub')) {
 // 대기 명단과 대조
 let pend = [];
 if (fs.existsSync(REDUB)) pend = [...fs.readFileSync(REDUB, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)].map((m) => m[1]);
-const badSlugs = bad.map((r) => r.slug).filter(Boolean).sort();
 const pendSorted = pend.slice().sort();
 const onlyBad = badSlugs.filter((x) => !pendSorted.includes(x));
 const onlyPend = pendSorted.filter((x) => !badSlugs.includes(x));
 
 if (chorus.length) { console.log(`\n✗ 서약 합창이 어긋납니다.`); process.exit(1); }
-if (!bad.length && !pend.length) { console.log('\n✓ 화면 글과 소리가 전부 같습니다.'); process.exit(0); }
+if (!badSlugs.length && !pend.length) { console.log('\n✓ 화면 글과 소리가 전부 같습니다.'); process.exit(0); }
 if (onlyBad.length || onlyPend.length) {
   console.log(`\n✗ 대기 명단(재더빙_리드보강.txt)이 실제와 다릅니다.`);
   onlyBad.forEach((x) => console.log(`   명단에 없는데 어긋남: ${x}  → node scripts/check-text-audio.mjs --redub`));
   onlyPend.forEach((x) => console.log(`   명단에 있는데 이제 맞음: ${x}  → 소리가 들어왔으면 명단에서 빼세요(--redub)`));
   process.exit(1);
 }
-console.log(`\n⏳ 재더빙 대기 ${bad.length}클립 — 전부 명단에 있습니다(재더빙_리드보강.txt).`);
+console.log(`\n⏳ 녹음 대기 ${badSlugs.length}클립 — 전부 명단에 있습니다(재더빙_리드보강.txt).`);
+console.log(`   글이 바뀐 것 ${bad.length} · 소리가 아직 없는 것 ${noAudio.filter((r) => !bad.some((b) => b.slug === r.slug)).length}`);
 console.log('   글은 새 것 · 소리는 아직 옛 것입니다. 붙여넣기 → wav 수급 → 조립 후 이 줄이 사라집니다.');

@@ -1207,6 +1207,13 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
+# [NO_AUDIO] 녹음 대기 목록은 FILES ↔ manifest 를 통째로 대조해 만든다.
+#   미리듣기에 안 나오는 콘솔 전용 클립이 목록에서 조용히 빠지던 것을 막는다(실제로 16개가 떠 있었다).
+chk 'NO_AUDIO' scripts/check-text-audio.mjs 2
+chk 'RETIRED_SLUG' assets/ritual-cue.js 1        # 폐지한 자리를 다시 녹음하지 않게
+chk 'NARR_CONSOLE_ONLY' assets/ritual-data.js 1  # 검사를 속이려 빌더에 죽은 변수를 넣지 않게
+chk 'NARR_CONSOLE_ONLY' scripts/check-ritual-mirror.js 1
+
 # [AFTER_PARTY] 예식 뒤 30분 — 전환 6큐(순서 고정) + 골라 트는 판 10(순서 유동).
 #   둘을 섞지 말 것: 예식은 흐름이라 체인이고, 촬영은 작업이라 판이다.
 chk 'AFTER_PARTY' assets/ritual-cue.js 2

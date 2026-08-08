@@ -321,6 +321,15 @@ var NARR={
 //   이 값이 곧 배역 대본 [26] R-vow-both 의 본문이다 — check-text-audio 가 둘을 대조한다.
 var VOWBOTH=["저희, 그렇게 살겠습니다.","지켜봐 주세요."];
 // 소요 시간 상수(estMin이던 하드코딩) — 분 단위 단일 원천
+/* ★[NARR_CONSOLE_ONLY 2026-08-08] 식순 빌더(order-preview)가 **보여주지 않는** 나레이션 키.
+   예식 뒤 30분은 고객이 고르는 자리가 아니라 디렉터 진행이라, 빌더에 사본을 둘 이유가 없다.
+   ★이 목록이 없으면 mirror 검사가 "빌더에 사본이 없다"며 실패하고,
+     통과시키려고 **쓰지도 않는 변수를 빌더에 넣게 된다**(실제로 한 번 그렇게 했다가 되돌렸다).
+     검사를 속이지 말고, 왜 없는지를 데이터 옆에 적는다.
+   ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
+     그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
+var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','onlineIn','finalWarn','finalCall','photoOut'];
+
 /* ★★[PHOTOCUE 2026-08-08] 호명·연출 안내 — **디렉터가 골라 트는 판**이다(큐 체인이 아니다).
    ★왜 체인이 아닌가: 촬영 시간은 순서가 정해지지 않는다. 어른이 먼저 가셔야 하면 순서를 바꾸고
      아이가 보채면 앞당긴다. 고정 체인은 그 유동성을 못 받는다. **예식은 흐름이고 촬영은 작업이다.**
@@ -359,5 +368,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN,PHOTOCUE:PHOTOCUE};
+return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
 });

@@ -49,7 +49,11 @@ const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push(
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));
+// [NARR_CONSOLE_ONLY] 빌더가 보여주지 않는 키는 사본을 요구하지 않는다.
+//   목록은 원천(assets/ritual-data.js)에 있다 — 검사에 또 적으면 두 곳이 갈린다.
+const CONSOLE_ONLY = new Set(D.NARR_CONSOLE_ONLY || []);
 Object.keys(D.NARR || {}).forEach((k) => {
+  if (CONSOLE_ONLY.has(k)) return;
   const v = D.NARR[k];
   if (typeof v === 'string') pushNar('NARR.' + k, v);
   else { pushNar('NARR.' + k + '.nar', v.nar); pushNar('NARR.' + k + '.end', v.end); }

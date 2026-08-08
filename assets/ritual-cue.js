@@ -35,7 +35,9 @@
     letter: { postSilenceMs: 2000, musicUpMs: 4000 },
     bless: { swellAt: 150, swellTo: -10, swellMs: 8000, longThreshold: 180 },   // 런북 §11-C
     read: { waitClipAt: 5, partnerHandoffAt: 30 },                              // 런북 §11-C
-    photo: { afterCloseMs: 30000 },
+    /* [GATHER_WAIT 2026-08-08] photo.afterCloseMs(30초 타이머) 삭제 — 폐식 뒤 사람이 모이는
+       시간을 live 로 옮겼다. 타이머로 다음 큐를 자동으로 밀던 자리라, 남겨 두면 다음 사람이
+       "왜 안 쓰지" 하고 되살린다. 되살리지 말 것. */
     goodbye: { outroHoldMs: 90000, outroFadeMs: 20000 },
     previewLiveCap: 10,    // 미리듣기에서 사람 구간을 이 초 이상 끌지 않는다(듣는 사람이 기다릴 이유가 없다)
     previewWaitMs: 1200,   // 뒤처리의 침묵·페이드도 같은 이유로 줄인다(폐식 뒤 30초 대기 등)
@@ -163,6 +165,13 @@
        **이미 S.extra.ringwarm 을 저장해 둔 초안에서도 이 순간이 사라진다.**
        실측으로 확인했다(옛 초안 흉내 → 0큐). 폐지 지시의 당연한 귀결이지만,
        그 고객이 있다면 화면이 조용히 달라지는 것이므로 사람이 알고 있어야 한다. */
+  /* ★[RETIRED_SLUG 2026-08-08] FILES 에는 있지만 **녹음하지 않는** 슬러그.
+     번호가 인덱스+1이라 폐지해도 목록에서 뺄 수 없다(빼면 뒤가 전부 개명된다).
+     그래서 자리는 남기고 여기 표시한다 — 안 하면 녹음 대기 목록이
+     "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
+     ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
+  var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1 };
+
   var GADD = { welcome: 1, bless: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
@@ -700,6 +709,6 @@
 
   return {
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
-    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, version: 'cue-v1'
+    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, version: 'cue-v1'
   };
 });
