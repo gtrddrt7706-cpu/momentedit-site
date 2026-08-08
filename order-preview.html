@@ -1317,7 +1317,13 @@ var STEPDEF={
 };
 var STEPS=[], CEREMONY=[];
 // 전체 순서 팔레트 — 고정 3개(guest·entry·폐식)와 핵심(vow·ring·declare) 빼고 어느 코스에서든 더할 수 있는 순간 (2026-07-19 사용자 지시: "코스에 없는 이벤트도 원하면 넣게") — RITUAL_ADD_PALETTE
-var GADD={welcome:1,bless:1,ringwarm:1,valley:1,letter:1,tribute:1,toast:1,song:1};
+/* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 폐지 — 사용자 지시 "링워밍은 유치하고 별로인거같아 제거하자".
+   되살리지 말 것. 이후 리뷰가 '빠진 순간 복원' 후보로 다루더라도 복원 금지.
+   ★팔레트에서만 뺀다 — 아래 카드·문안·선택지 코드는 남겨 둔다(FILES 번호가 인덱스+1이라
+     클립을 빼면 그 뒤 음원이 전부 개명되고, 대본 생성기·판정표까지 연쇄로 밀린다).
+     팔레트에 없으면 새로 넣을 길이 없다. 그게 폐지의 실체다.
+   ★원천은 assets/ritual-cue.js 의 GADD — 한쪽만 고치지 말 것. */
+var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,song:1};   // [RINGWARM_RETIRED] ringwarm 제거
 var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
@@ -2121,14 +2127,12 @@ function renderStep(k){
     if(S.bless==='on') h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.blessProxy?'checked':'')+' onchange="settgl(\'blessProxy\',this)"><span class="tk"></span>부모님이 부담되시면, 나레이션이 대신 전해 드려요</label><div class="wd" style="margin-top:7px">마이크 없이 짧은 인사만 하시거나, 미리 받은 말씀을 나레이션이 대독할 수 있어요.</div></div>';
   }
   /* [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. */
-  else if(k==='ringwarm'){
-    h+=diag('ringwarm');
-    h+=oc('ringwarm','family','가족만','양가 가족의 손만 거쳐요 · 짧고 편안한 기본',RINGWARM.family.nar,OUT_RINGWARM,null,'반지는 파우치에 고정해 분실 걱정이 없어요 · 진행은 나레이션이 먼저 설명하고, 하객은 옆으로 전달만 하면 돼요');
-    // ★RINGWARM_NO_MIN — 이 카드만 "약 2분 더"로 남아 있었다. 같은 화면 recoTxt는 이미 '인원에 따라 달라져요'라
-    //   두 문구가 정면으로 어긋났고(2026-07-26 확정 변경이 recoTxt에만 적용됨), 수치 약속 금지 규칙(CLAUDE.md)에도 걸린다.
-    //   '스물다섯 분'도 상한이지 실제 인원이 아니다(12명 예식에서 사실과 다름) → '오신 모든 분'으로.
-    h+=oc('ringwarm','all','하객 전체','오신 모든 분의 축복을 담아요 · 인원에 따라 시간이 달라져요',RINGWARM.all.nar,OUT_RINGWARM,null,null);
-  }
+  /* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 선택 카드 삭제 — 사용자 지시 "유치하고 별로인거같아 제거하자".
+     되살리지 말 것. 팔레트(GADD)에서 뺐으므로 이 자리는 애초에 열리지 않는다.
+     ★카드를 남겨 두면 '누르면 아무 일도 안 나는 버튼'이 되고, 옵션 소리 검사도 실패한다
+       (도달 불가라 큐가 안 만들어지는데 검사는 소스의 oc() 를 훑는다).
+     ★[RINGWARM_NO_MIN] 여기 있던 '약 2분 더' 문구 경고도 함께 사라진다 — 카드 자체가 없어졌으므로.
+     클립·문안·RINGWARM 상수는 그대로 둔다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). */
   else if(k==='tribute'){
     h+=clip('tribute');
     ['flower','bow','hug'].forEach(function(v){

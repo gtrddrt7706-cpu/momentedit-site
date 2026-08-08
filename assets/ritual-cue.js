@@ -147,7 +147,17 @@
 
   // ── 진행 순서 — order-preview.html의 defaultOrd/ordNow/curSeq를 그대로 옮긴 것(같은 결과여야 한다)
   // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-  var GADD = { welcome: 1, bless: 1, ringwarm: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1, free: 1 };
+  /* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 폐지 — 사용자 지시 *"링워밍은 유치하고 별로인거같아 제거하자"*.
+     되살리지 말 것. 이후 리뷰·리팩터링이 '빠진 순간 복원' 후보로 다루더라도 복원 금지.
+     ★클립(ringwarm-family · ringwarm-all · narr-ringwarm-out)과 빌더는 **남겨 둔다**:
+       ①FILES 번호가 인덱스+1이라 중간에서 빼면 그 뒤 파일이 전부 개명된다(기존 음원이 어긋난다)
+       ②지우면 FILES·판정표·대본 생성기까지 연쇄로 밀린다
+     팔레트(GADD)에서만 뺐다 — 그래서 **새로 넣을 길이 없다**. 그게 폐지의 실체다.
+     ★부작용을 정직하게 적어 둔다: GADD 에서 빠지면 isGAdd 가 false 가 되어,
+       **이미 S.extra.ringwarm 을 저장해 둔 초안에서도 이 순간이 사라진다.**
+       실측으로 확인했다(옛 초안 흉내 → 0큐). 폐지 지시의 당연한 귀결이지만,
+       그 고객이 있다면 화면이 조용히 달라지는 것이므로 사람이 알고 있어야 한다. */
+  var GADD = { welcome: 1, bless: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
