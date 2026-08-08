@@ -39,6 +39,36 @@ else {
     + (same ? '' : ' — 원천누락:' + (miss.join(',') || '없음') + ' / 원천잉여:' + (extra.join(',') || '없음') + ' / 값불일치:' + (diff.join(',') || '없음')), same);
 }
 
+// ★GADD_MIRROR — '코스 밖에서 더할 수 있는 순간'(GADD)과 그 표준 자리(RANK).
+//   엔진(assets/ritual-cue.js)과 빌더(order-preview.html)가 사본을 따로 들고 있는데
+//   둘 다 "한쪽만 고치지 말 것" 마커를 달고도 실제로는 갈라져 있었다 — 어느 검사도 안 봤다.
+//   ★free(자유 한 칸)는 **일부러 뺀다**. 엔진에만 GADD free:1 · RANK free:75 가 있고 빌더엔 없는데,
+//     빌더에 넣으면 여섯 코스 전부에서 '자유 한 칸'이 팔레트로 열리는 **고객 노출 변경**이고
+//     빌더엔 그 카드 문안조차 없다. 방향은 사람이 정할 일이라 결정 대기함에 올렸다
+//     (나중에할일_체크리스트.md). 정해지면 이 예외를 지우고 한쪽을 맞출 것.
+const PEND = new Set(['free']);
+const objOf = (src, name, tail) => {
+  const m = src.match(new RegExp('var ' + name + '\\s*=\\s*\\{([^}]*)\\}' + (tail || '')));
+  if (!m) return null;
+  const o = {};
+  m[1].split(',').forEach((kv) => {
+    const mm = kv.match(/^\s*['"]?([A-Za-z_$][\w$]*)['"]?\s*:\s*(-?\d+)\s*$/);
+    if (mm && !PEND.has(mm[1])) o[mm[1]] = Number(mm[2]);
+  });
+  return o;
+};
+const cueSrc = fs.readFileSync(path.join(root, 'assets/ritual-cue.js'), 'utf8');
+['GADD', 'RANK'].forEach((nm) => {
+  const eng = objOf(cueSrc, nm), bld = objOf(html, nm);
+  if (!eng || !bld) { ok(nm + ' 사본 파싱(엔진·빌더)', false); return; }
+  const ek = Object.keys(eng).sort(), bkk = Object.keys(bld).sort();
+  const miss = ek.filter((k) => !(k in bld)), extra = bkk.filter((k) => !(k in eng));
+  const diff = ek.filter((k) => k in bld && eng[k] !== bld[k]).map((k) => k + '(엔진' + eng[k] + '≠빌더' + bld[k] + ')');
+  const same = !miss.length && !extra.length && !diff.length;
+  ok(nm + ' 엔진↔빌더 일치(' + ek.length + '키 · free 는 결정 대기로 제외)'
+    + (same ? '' : ' — 빌더누락:' + (miss.join(',') || '없음') + ' / 빌더잉여:' + (extra.join(',') || '없음') + ' / 값불일치:' + (diff.join(',') || '없음')), same);
+});
+
 // ★BASE_MIRROR — 코스별 기본 소요분. XM 과 달리 **원천(MIN.base)이 기준**이다.
 //   코스 카드의 '약 N분' 라벨이 원천에서 나오므로, 빌더 사본이 갈리면 고객이 같은 화면에서
 //   두 숫자를 본다. 실제로 갈려 있었다 — family 30(원천 24)·damback 25(원천 20)·gamdong 29(원천 28)·

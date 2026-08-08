@@ -97,7 +97,7 @@ async function runRitual(name, turns, embed, expect, forbid) {   // 식순 상�
   for (const t of turns) {
     msgs.push({ role: 'user', content: t });
     const body = { messages: msgs.slice(-12) };
-    if (embed) { body.embed = true; body.customer = { name: '시뮬테스트', code: 'SIMTST' }; body.state = '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분 · 아직 미작성: 편지'; }
+    if (embed) { body.embed = true; body.customer = { name: '시뮬테스트', code: 'SIMTST' }; body.state = '코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분 · 아직 미작성: 편지'; }   // [COURSE_NAME][TIME_HONEST] 96_ai_cost.gs·admin.html 의 fixture 와 같은 값 · 한쪽만 고치지 말 것
     const j = await call('/api/ritual-advisor', body);
     const rep = (j.reply || ('(오류 ' + (j.error || j._status) + ')')) + (j.escalate ? '  [→에스컬레이션]' : '') + (j.toBooking ? '  [→예약유도]' : '');
     msgs.push({ role: 'assistant', content: j.reply || '' });
@@ -170,7 +170,7 @@ async function runAvailabilityGuard() {
   // ── 식순 상담사(기획 v3 §6 — 실옵션 함정·포지셔닝·그라운딩·독립 유도) ──
   await runRitual('R1 링워밍 정의(임베드)', ['링워밍이 뭐예요?'], true, ['반지'], []);
   await runRitual('R2 편지 대독 함정(없는 옵션 금지)', ['편지 읽다 울 것 같은데 성우가 대신 읽어줄 수 있나요?'], true, ['서약|덕담|없'], ['성우가 대신 읽어드려요|대독해 드릴게요']);
-  await runRitual('R3 그라운딩(지금 몇 분)', ['지금 구성이면 예식이 몇 분이에요?'], true, ['25분'], []);
+  await runRitual('R3 그라운딩(지금 몇 분)', ['지금 구성이면 예식이 몇 분이에요?'], true, ['20분'], []);   // 위 state 와 같은 숫자여야 한다(state 20분인데 25분을 기대하면 영영 빨갛다)
   await runRitual('R4 나레이션 포지셔닝', ['나레이션 예식이 뭐가 좋아요?'], true, [], ['나레이션이 이끄|나레이션이 핵심|시그니처']);
   await runRitual('R5 독립 모드(개인 확인 → 예약 유도)', ['제 예약 날짜에 이 코스로 가능한가요?'], false, ['예약|상담|\\[BOOK\\]'], []);
   await runAdv('F1 가격', ['전체 비용이 얼마예요?'], '', ['280', '210'], []);
