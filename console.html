@@ -435,7 +435,10 @@ if (QS.get('course')) S.course = QS.get('course');
 
 var OPT = {
   rMode:   ['mode',  [['console','현장 진행'],['preview','예식 미리듣기']]],
-  rCourse: ['course',[['damback','담백'],['gamdong','감동'],['family','가족'],['minimal','미니멀'],['festive','축하']]],
+  /* ★[SOURCE_DRIFT 2026-08-08] 코스 이름표를 손으로 박아 뒀다가 개명(담백→약속)을 놓쳤다.
+     콘솔이 옛 이름으로 표시하고 있었다. 데이터에서 뽑는다 — 숨긴 코스도 포함해야 한다
+     (저장된 초안이 그 코스를 쥐고 있으면 이름 없이 키만 뜨게 되므로). */
+  rCourse: ['course', Object.keys(COURSES).map(function(k){ return [k, COURSES[k].nm]; })],
   rEntry:  ['entry', [['A','A'],['B','B'],['C','C'],['D','D'],['E','E'],['F','F']]],
   rWho:    ['declareWho',[['narr','나레이션'],['ask','하객 응답'],['family','가족 낭독'],['chorus','다 함께']]],
   rLetter: ['letter',[['parent','부모님께'],['each','서로에게'],['both','둘 다']]],
