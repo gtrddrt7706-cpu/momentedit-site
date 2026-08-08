@@ -124,7 +124,7 @@ const G = [
 
   { n: 13, t: '예식 뒤 30분 · 전환 안내', tone: '진행 안내 · 또렷하고 담백하게 · 감정을 지시하지 않는다', items: [
     ['G13-1', '나눠 담기 · 대기 안내', 'narr-photo-split', D.NARR.photoSplit],
-    ['G13-2', '인사와 사진 시작', 'narr-round-open', D.NARR.roundOpen],
+    ['G13-2', '다 함께 시작', 'narr-round-open', D.NARR.roundOpen],
     ['G13-3', '온라인 인사로 부르기', 'narr-online-in', D.NARR.onlineIn],
     ['G13-4', '마지막 사진 예고', 'narr-final-warn', D.NARR.finalWarn],
     ['G13-5', '모이는 신호', 'narr-final-call', D.NARR.finalCall],

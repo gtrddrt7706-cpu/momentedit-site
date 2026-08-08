@@ -113,7 +113,7 @@ function scan(needle) {
   // 보이는 코스에서 본식 범위를 계산한다 — 손으로 적지 않는다.
   const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden).map((k) => D.MIN.base[k]);
   const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~24
-  const GR = [60 - CE[1], 60 - CE[0]];                     // 인사와 사진 36~44 (합 60분 고정)
+  const GR = [60 - CE[1], 60 - CE[0]];                     // 다 함께 36~44 (합 60분 고정)
   const okRange = (lo, hi, want) => lo >= want[0] && hi <= want[1];
 
   // 지나간 것을 보존하는 자리는 본다고 달라지지 않는다.
@@ -189,7 +189,7 @@ function scan(needle) {
        끼면 그건 이웃 항목이지 이 항목의 길이가 아니다 — 그 구분이 오탐을 막는 전부다. */
   {
     const N = '(\\d{1,3})(?:\\s*[~–-]\\s*(\\d{1,3}))?\\s*(?:분|m\\b|min)';
-    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:인사와 사진|Group Record)', GR, '인사와 사진']];
+    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:다 함께|인사와 사진|Group Record)', GR, '다 함께']];
     for (const f of files) {
       if (f === 'scripts/check-source-drift.mjs') continue;
       const src = fs.readFileSync(path.join(root, f), 'utf8');
@@ -216,7 +216,7 @@ function scan(needle) {
   const FLOOR = 10;
   if (tables < FLOOR) bad.push(`시간표를 ${tables}벌밖에 못 읽었다(최소 ${FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
   if (bad.length) no(`140분 시간표가 어긋난다 — 열 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
-  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 인사와 사진 ${GR[0]}~${GR[1]}분 · 합 60분)`);
+  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 다 함께 ${GR[0]}~${GR[1]}분 · 합 60분)`);
 }
 
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');

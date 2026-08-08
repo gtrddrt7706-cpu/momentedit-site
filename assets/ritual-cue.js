@@ -590,7 +590,7 @@
         live: { t: '불러 모으는 구도 촬영 (호명은 골라 트는 판에서)', est: 300, self: true, doing: 'move' }
       }));
       cues.push(cue({
-        k: '_greet', blockN: '인사와 사진', slug: 'narr-round-open', name: '인사와 사진 시작', text: D.NARR.roundOpen, duck: -14,
+        k: '_greet', blockN: '다 함께', slug: 'narr-round-open', name: '다 함께 시작', text: D.NARR.roundOpen, duck: -14,
         hint: '불러 모으는 구도가 끝나면',
         note: '★여기서 하객이 풀어진다. 두 분은 그 사이 카메라 앞으로 간다',
         /* ★[GATHER_WAIT] digital 이면 이 뒤에 온라인 인사가 온다. live 가 없으면 그 큐가 chain 이 되어
@@ -601,7 +601,7 @@
           : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 1200, self: true, doing: 'move' }
       }));
       if (S.digital) cues.push(cue({
-        k: '_greet', blockN: '인사와 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
+        k: '_greet', blockN: '다 함께', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
         live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 1320, self: true, doing: 'say' }
       }));
