@@ -1978,7 +1978,9 @@ function renderStep(k){
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
     if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 카드의 순서에서 빼기를 누르면 도로 빠져요</div>'; }
     var _em=parseInt(estMin().replace(/\D/g,''),10)||0;   // 부드러운 시간 안내(막지 않음) — 작은 예식은 20~30분이 몸에 맞음
-    if(_em>=35) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 작은 예식은 20~30분 안팎이 가장 몰입돼요. 더 담아도 괜찮지만 참고해 주세요.</div>';
+    // [TIME_HONEST] 문턱을 35 → 25 로. [EVENT_BUDGET] 상한이 25분이고, 순간 하나에 4분을 쓰는 호흡이라
+    //   35분이면 이미 한참 넘긴 뒤다. 막지는 않는다 — 넘었다는 것만 알려 준다.
+    if(_em>25) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 사회자 없이 나레이션으로 이끄는 예식은 25분 안쪽이 가장 편안해요. 더 담아도 괜찮지만 참고해 주세요.</div>';
     h+='</div>';
     return h;
   }
@@ -2010,7 +2012,7 @@ function renderStep(k){
     }
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 나레이션으로 흐르게 준비돼요.')+'</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
-    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
+    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
     if(S.growth==='on'){
       h+='<div class="tgl-ex" style="margin-left:0">"잠시 후, 두 사람이 걸어온 시간을 담은 짧은 영상을 함께 보시겠습니다."</div>';
       h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
