@@ -274,6 +274,10 @@ if (orphan.length) {
   }
   console.error(`  파트별 필요 개수 — ${parts.map((P) => `${P.file} ${needOf(P)}개`).join(' · ')}`);
   console.error(`  개수가 다르면 '문장별 분리'가 아니라 '전체 통합'으로 받았거나, 두 파트가 한 폴더에 섞인 것입니다.`);
+  /* [SPLIT_JOIN 2026-08-09] 세 번째 원인이 있다 — 타입캐스트가 한 문장을 쉼표에서 끊어 두 파일로 준다.
+     `신랑 신부, 입장!` 이 그렇다(입장 6클립을 받으면 23개가 아니라 29개가 온다). 실제로 두 번 당했다. */
+  console.error(`  ★개수가 **조금 더 많다면** 타입캐스트가 한 문장을 쉼표에서 쪼갠 것입니다(예: '신랑 신부, 입장!' → 2개).`);
+  console.error(`    node scripts/join-split-sentences.mjs --in <그 폴더>   ← 이걸 먼저 돌리고 그 결과 폴더를 주세요.`);
   if (!SEL) console.error(`  ★한 대목만 다시 더빙한 것이라면 --clip 을 주세요 (예: --clip entry-). 그러면 그 대목의 문장 개수로 맞춥니다.`);
   process.exit(1);
 }
