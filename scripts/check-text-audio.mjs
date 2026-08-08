@@ -81,10 +81,17 @@ for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
   for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
 // 확장 순간(팔레트로 넣는 자리)도 켜 본다 — 안 켜면 그 큐가 아예 안 나와 검사에서 조용히 빠진다.
 // ★'free'(자유 한 칸)를 빼면 그 두 클립이 검사에서 조용히 사라진다 — 추가 순간은 켜 봐야 나온다.
+// ★[EXTRA_ENABLE] 팔레트로 켜는 것만으로는 부족한 자리가 있다 — seq 에는 들어가지만
+//   빌더가 자기 S 키를 다시 보기 때문이다(bless 는 S.bless==='on', valley 는 S.valley!=='none').
+//   2026-08-07 실사고: [THREE_COURSES]로 담백 seq 에서 덕담·와인케이크가 빠지자
+//   이 두 자리가 검사에서 통째로 사라졌고, 검사는 "이제 글과 소리가 맞는다"고 보고했다.
+//   ★화면 쪽 같은 표는 order-preview.html 의 EXTRA_ON 이다. 늘어나면 둘 다 고칠 것.
+const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
 for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
-  states.push({ ...base, extra: e });
-  states.push({ ...base, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  const on = EXTRA_ON[k] || {};
+  states.push({ ...base, ...on, extra: e });
+  states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
 }
 
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}
