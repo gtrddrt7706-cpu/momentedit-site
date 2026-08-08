@@ -120,13 +120,22 @@
       valley: 'none', letter: cd.letter, bless: (s.course === 'family' ? 'on' : 'off'),
       // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
       ringwarm: 'family', tribute: 'flower', toast: 'toast', song: 'family',
-      guestVoice: 'nar', entryVoice: 'nar', blessProxy: false, digital: false, ord: null, extra: {}, tune: {}
+      guestVoice: 'nar', entryVoice: 'nar', blessProxy: false, digital: false, ord: null, extra: {}, tune: {}, off: {}
     };
     for (k in def) if (s[k] === undefined || s[k] === null) s[k] = def[k];
     if (!D.ENTRY[s.entry]) s.entry = cd.entry;
     if (!D.DECLWHO[s.declareWho]) s.declareWho = cd.declareWho;
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
+    /* ★[ALL_OPTIONAL 2026-08-07] 코스의 순서는 '추천 조합'이지 '못 빼는 목록'이 아니다.
+       사용자 결정(6코스 전부): "전부 선택사항으로전환 한다 입장부분만 고정".
+       ★뜻은 '전부 꺼짐'이 아니라 '전부 끌 수 있음'이다 — 코스를 고르면 그 코스의 추천 조합이
+         이미 켜져 있고(= seq), 고객은 아무것도 안 해도 완성된 식순을 받는다. off 는 뺀 것만 담는다.
+       ★고정은 입장 하나뿐. 예식이 시작됐다는 신호가 없으면 나머지가 전부 공중에 뜬다.
+         (성혼 선언도 뺄 수 있게 열었다 — 같은 날 사용자 결정. 대신 아래 warn 이 소리 내어 알린다.) */
+    if (!s.off || typeof s.off !== 'object') s.off = {};
+    else { var _o = {}; for (k in s.off) if (s.off[k]) _o[k] = 1; s.off = _o; }
+    delete s.off.entry;   // ★입장은 끌 수 없다 — 목록을 늘리지 말 것(늘리면 '전부 선택'이 거짓말이 된다)
     /* ★[PEAK_ONE 2026-08-07] 정점은 하나다 — 편지를 넣으면 서약을 끈다(peakOne 코스 한정).
        왜 코스 정의가 아니라 여기인가: seq/opt 만으로는 "둘 중 하나"를 표현할 수 없다.
        둘 다 켜진 조합이 만들어지는 순간 **말하는 자리가 2개**가 되고, 그때 디렉터는
@@ -165,7 +174,8 @@
       o = S.ord.filter(function (k) { return def.indexOf(k) > -1; });
       def.forEach(function (k, i) { if (o.indexOf(k) < 0) o.splice(Math.min(i, o.length), 0, k); });
     }
-    return o.filter(function (k) { return !isOptK(S, k) || S.extra[k]; });
+    // [ALL_OPTIONAL] 고객이 뺀 것을 걷어낸다 — 순서 자체는 그대로라 다시 켜면 제자리로 돌아온다.
+    return o.filter(function (k) { return (!isOptK(S, k) || S.extra[k]) && !S.off[k]; });
   }
 
   // ── 큐 하나 만들기. slug가 있으면 클립, 없으면 텍스트 전용(녹음 대상 아님)
@@ -490,8 +500,26 @@
     var seq = seqOf(S);
     var cues = [];
 
+    /* ★[ASK_PRECUE 2026-08-07] 응답형 예고는 '하객 맞이'에 얹혀 있었다.
+       [ALL_OPTIONAL] 로 하객 맞이를 뺄 수 있게 되면서, 빼는 순간 예고가 조용히 사라지고
+       하객은 답할 줄 모른 채 선언만 듣게 된다(화면은 멀쩡하다 — 가장 나쁜 종류의 구멍).
+       그래서 예고는 '하객 맞이가 있으면 거기, 없으면 선언 바로 앞'에 선다. 두 번 나가지 않는다. */
+    /* ★예고는 '선언이 실제로 남아 있을 때만' 나간다 — 선언을 뺐는데 예고만 나가면
+       하객이 답할 준비를 한 채로 아무 일도 안 일어난다(빈 약속). S.declareWho 만 보면 이걸 놓친다. */
+    var askOn = (S.declareWho === 'ask') && seq.indexOf('declare') > -1;
+    var askPre = false;
+    function askCue() {
+      askPre = true;
+      return cue({
+        k: 'guest', blockN: '식전 안내', slug: 'declare-ask-a', name: '응답형 예고 (개식 직후)',
+        text: EXTRA['declare-ask-a'],
+        note: '응답형을 고른 예식에만 붙는다 · 성혼 선언 자리가 아니라 여기서 한 번 예고한다'
+      });
+    }
+
     seq.forEach(function (k) {
       if (!BUILD[k]) return;
+      if (k === 'declare' && askOn && !askPre) cues.push(askCue());
       var got = BUILD[k](S) || [];
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
@@ -500,11 +528,7 @@
           k: 'guest', blockN: '식전 안내', slug: 'online-3-welcome', name: '온라인 참석자 환영',
           text: EXTRA['online-3-welcome'], note: 'Couples 시트 digitalAttendance = Y인 날만'
         }));
-        if (S.declareWho === 'ask') cues.push(cue({
-          k: 'guest', blockN: '식전 안내', slug: 'declare-ask-a', name: '응답형 예고 (개식 직후)',
-          text: EXTRA['declare-ask-a'],
-          note: '응답형을 고른 예식에만 붙는다 · 성혼 선언 자리가 아니라 여기서 한 번 예고한다'
-        }));
+        if (askOn) cues.push(askCue());
       }
     });
 
@@ -568,10 +592,27 @@
       if (cues[0]) cues[0].fire = 'manual';   // 첫 재생만 사람이 시작(브라우저 자동재생 정책)
     }
 
-    return { cues: cues, S: S, seq: seq, mode: mode, meta: meta(cues, S, mode) };
+    return { cues: cues, S: S, seq: seq, mode: mode, meta: meta(cues, S, mode, seq) };
   }
 
-  function meta(cues, S, mode) {
+  /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 전부 뺄 수 있게 되면서 '입장만 남은 예식'이 만들어질 수 있다.
+     막지는 않는다 — 사용자가 "전부 선택사항"이라고 결정했고, 못 빼게 하면 그 결정이 거짓말이 된다.
+     대신 **소리 내어 알린다**. 화면이 이 문장을 띄우지 않으면 고객은 빈 예식을 만들어 놓고 모른다.
+     ★셋 다 '예식이 성립하는가'를 보는 것이지 취향이 아니다. 취향 항목을 여기에 늘리지 말 것. */
+  function warnOf(seq, S) {
+    var has = {}, w = [];
+    seq.forEach(function (k) { has[k] = 1; });
+    if (S.extra) for (var e in S.extra) if (S.extra[e]) has[e] = 1;
+    if (has.vow && S.vow !== 'ok') delete has.vow;
+    if (has.ring && S.ring !== 'on') delete has.ring;
+    if (has.bless && S.bless !== 'on') delete has.bless;
+    if (!has.vow && !has.letter && !has.tribute && !has.bless) w.push('마음을 전하는 자리가 하나도 없어요. 서약·편지 중 하나는 두시는 편이 좋아요.');
+    if (!has.declare) w.push('성혼 선언이 빠졌어요. 예식이 언제 성립했는지 하객분들이 알 수 없어요.');
+    if (!has.guest) w.push('하객 맞이 안내가 빠졌어요. 시작 시점을 아무도 모른 채 입장이 시작돼요.');
+    return w;
+  }
+
+  function meta(cues, S, mode, seq) {
     var manual = 0, chain = 0, clock = 0, clipSec = 0, liveSec = 0, missing = 0;
     cues.forEach(function (c) {
       if (c.fire === 'manual') manual++; else if (c.fire === 'clock') clock++; else chain++;
@@ -583,7 +624,7 @@
       course: S.course, courseNm: c0.nm, mode: mode,
       total: cues.length, manual: manual, chain: chain, clock: clock,
       clipSec: clipSec, liveSec: liveSec, totalSec: clipSec + liveSec + cues.length * (PARAM.gapMs / 1000),
-      noClip: missing, minLabel: c0.min
+      noClip: missing, minLabel: c0.min, warn: warnOf(seq, S)
     };
   }
 

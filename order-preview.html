@@ -179,6 +179,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-mv{display:inline-flex;gap:4px}
 .mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
 .mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
+.ordwarn{background:#fdf0eb;border-left:3px solid #b34a2a;border-radius:8px;padding:9px 11px;margin:0 2px 10px;font-size:12.5px;line-height:1.6;color:#7a2f16;word-break:keep-all}
 /* [ORD_ROWCTL] 넣기·빼기 — ↑↓와 같은 크기·같은 자리. 빼기는 한 톤 진하게(되돌릴 수 있는 조작이라 진사는 쓰지 않는다) */
 .mvb-del,.mvb-add{font-size:16px;font-weight:600;color:var(--gold-deeper);margin-left:2px}
 .mvb-add{background:#F6F2EA;border-color:var(--gold-btn)}
@@ -492,7 +493,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
   </div>
 </div>
 <script>
-var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
+var S={course:'damback',off:{},entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
@@ -504,7 +505,7 @@ var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계�
    무엇이 들어와도 맞아야 하므로 **지목하지 않는다**. 여기는 인라인 사본이다. */
 var FREE_IN="이제, 두 사람이 따로 준비한 시간이 있습니다. 잠시 함께 봐 주시기 바랍니다.";
 var FREE_OUT="고맙습니다. 오늘 이 자리에 오래 남을 장면이었습니다.";
-var OUT_ENTRY="두 사람이 나란히 섰습니다. 숨을 한 번 고르셔도 좋습니다. 두 사람, 잠시 서로를 바라보아 주세요.";
+var OUT_ENTRY="두 사람이 나란히 섰습니다. 숨을 한 번 고르셔도 좋습니다. 두 분, 잠시 서로를 바라보아 주세요.";
 var OUT_RINGWARM="반지가 모두의 손을 지나, 두 사람에게 돌아왔습니다. 담긴 마음까지 함께 왔습니다.";
 var OUT_VALLEY="두 사람이 오늘의 첫 순간을 함께 나눴습니다.";
 var OUT_SONG="노래에 담긴 마음까지, 오늘 이 자리에 남았습니다. 따뜻한 박수 부탁드립니다.";
@@ -1059,7 +1060,7 @@ function ordNow(){   // 표시·진행 순서의 단일 출처(2026-07-18 사용
   });
   return o;
 }
-function curSeq(){ return ordNow().filter(function(k){ return !isOptK(k)||S.extra[k]; }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만
+function curSeq(){ return ordNow().filter(function(k){ return (!isOptK(k)||S.extra[k]) && momOn(k); }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만 ([ALL_OPTIONAL] 뺀 것 제외)
 window.momMove=function(k,d){   // 순서 위/아래 이동 — 고정 순간(FIXPOS)은 움직이지도, 밀려나지도 않는다
   if(FIXPOS[k]) return;   // 자기가 고정
   var o=ordNow().slice(), i=o.indexOf(k), j=i+d;
@@ -1129,6 +1130,15 @@ var MOMENT={
 var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'};
 
 var _navKey='';
+/* [THIN_WARN] 엔진이 계산한 경고를 렌더 뒤에 얹는다. 규칙은 엔진 한 곳에만 있다. */
+function fillWarn(){
+  var box=document.getElementById('ordWarn'); if(!box) return;
+  engine().then(function(g){
+    var el=document.getElementById('ordWarn'); if(!el||!g||!g.RitualCue) return;
+    var w=[]; try{ w=g.RitualCue.build(S,{mode:'console'}).meta.warn||[]; }catch(e){ return; }
+    el.innerHTML = w.length ? w.map(function(t){ return '<div class="ordwarn">'+esc(t)+'</div>'; }).join('') : '';
+  });
+}
 function render(){
   var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
   _stopAud();
@@ -1186,6 +1196,7 @@ function render(){
   //   키보드·낭독기 사용자는 '아버지가'를 고른 순간 자기 위치를 잃는다. 같은 자리로 되돌려 준다.
   var _fk=(_ae0&&_ae0.getAttribute)?_ae0.getAttribute('data-fk'):null;
   el.innerHTML=h;
+  fillWarn();   // [THIN_WARN] 규칙은 엔진에만 · 여기선 자리만 채운다
   if(_fk){ _fk=_fk.replace(/"/g,'');
     var _rf=el.querySelector('[data-fk="'+_fk+'"]');
     // 맨 위·맨 아래로 옮기면 그 방향 화살표가 사라진다 → 같은 카드의 제목으로 내려앉는다
@@ -1480,18 +1491,32 @@ var OPTWHY={
  festive:{song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때 더해요',
           bless:'밝은 흐름을 가볍게 유지하려 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'}
 };
-var OFFTGL={ring:1,bless:1,valley:1};
-function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='valley'?S.valley!=='none':true; }
+/* ★[ALL_OPTIONAL 2026-08-07] 뺄 수 있는 순간 = **입장 빼고 전부**.
+   사용자 결정(6코스 전부): "전부 선택사항으로전환 한다 입장부분만 고정".
+   ★ring·bless·valley 는 예전부터 자기 S 키로 켜고 껐다(S.ring='off' 등). 그 길을 그대로 둔다 —
+     저장된 초안이 그 키를 쥐고 있어서, S.off 로 옮기면 옛 초안이 조용히 다시 켜진다.
+     나머지는 전부 S.off 한 곳에 담는다(엔진 assets/ritual-cue.js 의 [ALL_OPTIONAL] 과 같은 이름·같은 뜻). */
+var OFFKEY={ring:1,bless:1,valley:1};          // 자기 S 키로 켜고 끄는 옛 3개
+var NEVEROFF={entry:1};                        // ★입장만 고정 — 늘리지 말 것(늘리면 '전부 선택'이 거짓말이 된다)
+function offable(k){ return !NEVEROFF[k]; }
+var OFFTGL=new Proxy({},{ get:function(t,k){ return offable(String(k))?1:undefined; } });
+function momOn(k){
+  if(OFFKEY[k]) return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':S.valley!=='none';
+  return !(S.off&&S.off[k]);
+}
 var _tprev=''; var _foldOpen={};
 /* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
 function fold(key,title,inner){ var o=_foldOpen[key]; return '<button type="button" class="fold'+(o?' open':'')+'" aria-expanded="'+(o?'true':'false')+'" data-fk="fold:'+key+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x" aria-hidden="true">›</span></button>'+(o?'<div class="fold-b">'+inner+'</div>':''); }   // [ORD_KEY]
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
 window.quickOff=function(k){
+  if(!offable(k)) return;   // 입장은 끌 수 없다 — 버튼도 안 그리지만, 눌러도 아무 일 없게 한 번 더 막는다
   if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
   else if(k==='bless') S.bless=(S.bless==='on')?'off':'on';
   else if(k==='valley') S.valley=(S.valley==='none')?'wine':'none';
-  render(); toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
+  else { if(!S.off) S.off={}; if(S.off[k]) delete S.off[k]; else S.off[k]=1; }
+  buildSteps(); _persist(); render();
+  toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
 };
 function rowVal(k){
   switch(k){
@@ -1537,7 +1562,12 @@ function renderStep(k){
      ★자리는 취향 판단이다. 뒤로 옮기고 싶으면 이 줄에서 순서만 바꾸면 된다. */
   if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('record')+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
   if(k==='tune'){
-    var h='<div style="margin-top:4px">';
+    /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 입장 빼고 전부 뺄 수 있게 되면서
+       '입장만 남은 예식'을 만들어 놓고 모를 수 있게 됐다. 막지는 않는다 — 사용자가 그렇게 결정했다.
+       대신 소리 내어 알린다. ★판단 규칙은 엔진(assets/ritual-cue.js warnOf)에만 있다 —
+       여기에 옮겨 적으면 규칙이 바뀌는 날 이 사본만 옛 규칙으로 경고한다. 그래서 비워 두고 뒤에서 채운다.
+       엔진을 못 불러오면 빈 칸 그대로다(없는 경고를 지어내는 것보다 조용한 쪽이 낫다). */
+    var h='<div style="margin-top:4px"><div id="ordWarn" role="status" aria-live="polite"></div>';
     /* [ORD_LEAN] 목록 앞에 안내가 네 줄(220자) 서 있어 무엇을 보는 화면인지가 뒤로 밀렸다.
        두 줄로 줄인다 — 나머지는 화면이 스스로 말한다(↑↓ 버튼·'순서에서 빼기' 버튼은 라벨이 곧 설명이다). */
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스로 시작해요 · <b>그대로 둬도 되고</b>, 하나씩 다듬어도 돼요.</div>';
@@ -1734,7 +1764,7 @@ function renderStep(k){
   }
   else if(k==='vow'){
     h+=clip('vow');
-    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 두 사람, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
+    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','지금 두 사람 사이에 오갈 말이 있습니다. 두 분, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
     // ★[VOW_CHORUS] 말로만 "마지막은 함께"라고 하면 고객이 뭘 준비해야 할지 모른다 — 문장을 그대로 보여 준다.
     //   화면이 소리를 설명하지 못하면, 폴백이 조용했던 때와 같은 사고다.
     h+='<div class="self"><span class="who">마지막 한 문장 · 하객분들을 보고 함께</span>'+esc(VOWBOTH_T)+'</div>';
@@ -1746,7 +1776,7 @@ function renderStep(k){
   }
   else if(k==='ring'){
     h+=clip('ring');
-    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 사람, 다시 정면을 바라보아 주세요.',null,null,true);
+    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 분, 다시 정면을 바라보아 주세요.',null,null,true);
     h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요 · 당황하지 않아도 돼요, 나머지는 자리에서 천천히.');
   }
@@ -1920,7 +1950,7 @@ function applyCourse(v){
   S.valley='none'; S.letter='parent';
   S.bless=(v==='family')?'on':'off';
   S.ringwarm='family'; S.tribute='flower'; S.toast='toast'; S.song='family'; S.flash=false;
-  S.tune={}; S.extra={};
+  S.tune={}; S.extra={}; S.off={};   // [ALL_OPTIONAL] 뺀 것도 코스 기본으로 되돌린다
   curSeq().forEach(function(k){ S.tune[k]=true; });   // 기본 = 모든 순간을 하나씩 보며 만들기 (2026-07-15 사용자 지시)
   buildSteps();
 }
@@ -1974,14 +2004,14 @@ var BLOCK={
     return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다. 마이크가 전해지면, 편하게 시작하시면 됩니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다.",cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
   },
   vow:function(){
-    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 두 사람, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.",self:'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',both:VOWBOTH_T,end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
+    return {n:'혼인 서약',nar:"지금 두 사람 사이에 오갈 말이 있습니다. 두 분, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.",self:'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',both:VOWBOTH_T,end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
   },
   ringwarm:function(){
     return {n:'링 워밍',nar:RINGWARM[S.ringwarm].nar,self:(S.ringwarm==='all'?'하객 전체':'양가 가족')+'가 주머니를 손에서 손으로',cue:'나레이션 안내 → 반지 주머니가 손에서 손으로 → 마지막 분이 디렉터에게 → 디렉터가 반지를 꺼내 단상 옆 트레이에 준비 → 반지 교환 나레이션과 함께 두 분께 전달 · 반지가 도는 동안은 하객 손·표정 클로즈업 구간(두 분은 반지를 따라가는 시선으로 · 정면 대기 금지)'};
   },
   ring:function(){
     if(S.ring!=='on') return null;
-    return {n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 사람, 다시 정면을 바라보아 주세요.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
+    return {n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 분, 다시 정면을 바라보아 주세요.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
   },
   declare:function(){
     var dw=S.declareWho;
