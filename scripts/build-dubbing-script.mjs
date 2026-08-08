@@ -180,15 +180,30 @@ txt.push(`# 나레이션 녹음 대본 · 붙여넣기 전용 (${no}클립)`);
 txt.push('# 자동 생성 · node scripts/build-dubbing-script.mjs');
 txt.push('');
 
-no = 0;
+/* ★★★[FILE_NO_SOURCE 2026-08-08] 번호를 여기서 세지 않는다 — 엔진에게 묻는다.
+   무엇이 잘못됐었나: 여기서 1부터 세어 붙였는데, 당일 콘솔은 `RitualCue.fileOf(slug)`
+   = **FILES 인덱스+1** 로 mp3 를 찾는다. 두 자가 달랐다.
+   FILES 에는 폐지한 `narr-ringwarm-out` 이 **53번 자리에 그대로 남아** 있다 —
+   중간에서 빼면 뒤 클립이 전부 개명되기 때문에 일부러 남긴 자리다(RINGWARM_RETIRED).
+   대본 생성기는 그 폐지 클립을 목록에서 빼면서 번호까지 당겼다. 그래서 53번부터
+   **스물두 클립이 통째로 한 칸씩 밀려** 있었다.
+   ★들키지 않는 종류의 사고다 — 검사도 통과하고 대본도 멀쩡해 보인다.
+     녹음해서 넣은 뒤 당일 콘솔이 54_ 를 찾는데 파일은 53_ 로 저장돼 있어,
+     「다 함께」 구간 나레이션이 전부 무음으로 지나갔을 것이다.
+   ★그래서 번호는 언제나 fileOf 에서 온다. 여기서 세지 않는다. */
+const RC = createRequire(import.meta.url)('../assets/ritual-cue.js');
+const padOf = (file) => {
+  const f = RC.fileOf(file);
+  if (!f || !/^\d/.test(f)) throw new Error(`✗ ${file} 이 FILES 에 없습니다 — assets/ritual-cue.js 의 FILES 끝에 붙이세요(중간에 끼우면 뒤가 전부 개명됩니다).`);
+  return f.split('_')[0];
+};
 for (const g of G) {
   md.push(`## 그룹 ${g.n} · ${g.t} (${g.items.length}클립)`, '');
   md.push(`**톤**: ${g.tone}`, '');
   if (g.note) { md.push(g.note.split('\n').map((l) => '> ' + l).join('\n'), ''); }
   txt.push(`\n===== 그룹 ${g.n} · ${g.t} =====`);
   for (const [id, label, file, text] of g.items) {
-    no++;
-    const pad = String(no).padStart(2, '0');
+    const pad = padOf(file);
     md.push(`- [ ] **${pad}. ${id} · ${label}** — \`${pad}_${file}.mp3\` (${syl(text)}음절 ≒ ${sec(text)}초)`);
     md.push(text.split('\n').map((l) => '> ' + l).join('\n>\n'), '');
     txt.push(`\n[${pad}] ${id} · ${label}  →  ${pad}_${file}.mp3`);

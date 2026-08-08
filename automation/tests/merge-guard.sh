@@ -1210,6 +1210,18 @@ nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3
 # [SOURCE_DRIFT] 원천 값이 손으로 적힌 자리를 찾는 검사 — 인스턴스가 아니라 병을 잡는다.
 node scripts/check-source-drift.mjs || FAIL=1
 
+# [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
+#   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
+#     남아 있어 **53번부터 스물두 클립이 한 칸씩 밀려** 있었다. 검사는 전부 초록이었고
+#     대본도 멀쩡해 보였다 — 녹음해 넣은 뒤 당일에야 「다 함께」 구간이 통째로 무음이 됐을 것이다.
+chk 'FILE_NO_SOURCE' scripts/build-dubbing-script.mjs 1
+chk 'padOf(file)' scripts/build-dubbing-script.mjs 1
+# [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
+#   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
+chk 'CLIP_COUNT' scripts/build-typecast-import.mjs 2
+node scripts/build-dubbing-script.mjs >/dev/null || FAIL=1
+node scripts/build-typecast-import.mjs >/dev/null || FAIL=1
+
 # [DRIFT_MUTATION] 그 검사가 **진짜로 잡는지** 시험한다. 초록은 아무것도 증명하지 않는다 —
 #   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
 #   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.

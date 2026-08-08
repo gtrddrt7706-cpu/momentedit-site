@@ -88,6 +88,13 @@ const PARTS = [
   { f: '3_진행_후반.txt', t: '편지 도입 · 선언 · 링워밍 · 헌정 · 축배', role: '진행',
     has: (id) => /^G4-|^G5-|^W2-|^G6-|^G7-|^G8-|^G9-/.test(id) },
   { f: '4_혼주편지.txt', t: '어른께 드리는 안내 편지 (3분 통낭독)', role: '편지', has: (id) => id === 'G10' },
+  /* ★[PART6_AFTER 2026-08-08] 예식 뒤 스물세 클립이 **어느 파트에도 안 들어가 있었다.**
+     G12·G13·G14 가 새로 생겼는데 has 패턴을 아무도 늘리지 않았고, 파트에 안 잡힌 클립은
+     조용히 버려진다 — 생성기는 "74클립"이라 찍으면서 붙여넣기 파일에는 51개만 넣고 있었다.
+     그래서 조립기의 대장(manifest)이 이 스물세 클립을 통째로 몰랐다.
+     ★파트에 안 잡히는 클립이 하나라도 있으면 아래 가드가 멈춘다(PART_ORPHAN). */
+  { f: '6_예식뒤.txt', t: '닫는 말 · 다 함께 · 골라 트는 판', role: '진행',
+    has: (id) => /^G1[234]-/.test(id) },
   // ★배역은 원천도 출력 폴더도 다르다. 당일 콘솔은 이 클립을 재생하지 않는다(미리듣기 전용).
   { f: '5_배역.txt', t: '배역 예시 대사 (미리듣기 전용 · 가상 인물)', role: '배역',
     src: CAST, dir: 'assets/audio/cast', has: () => true },
@@ -172,8 +179,35 @@ const parse = (file) => {
 };
 
 const clips = parse(SRC);
-// [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. (54 → 51)
-if (clips.length !== 51) { console.error(`✗ 클립 수 불일치: ${clips.length} (기대 51)`); process.exit(1); }
+/* ★[CLIP_COUNT] 클립 수는 손으로 적는다 — 일부러 그렇게 둔다. 대본이 조용히 늘거나 줄면
+   붙여넣기 파일과 이미 녹음한 mp3 의 번호가 어긋나기 때문이다. 여기서 멈추는 게 옳다.
+   ★그런데 2026-08-08 에 이 가드가 **반대로 물었다**. 51 로 굳어 있는 동안 대본은 74 가 됐고,
+     생성기가 매번 실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙었다.
+     그 사실을 아무도 못 봤다 — 실패 메시지가 사람 눈에만 뜨고, 검사에 안 걸려 있었다.
+     그래서 사용자가 녹음하려던 23클립을 조립기가 통째로 모르는 상태였다.
+   ★고칠 때는 **왜 바뀌었는지**를 여기 남길 것. 숫자만 올리면 다음 사람이 같은 함정에 빠진다.
+     54 → 51 [VEIL_RETIRED 2026-08-03] 베일 다운 폐지(전 예식 동시입장이라 실행 불가·되살리지 말 것)
+     51 → 74 [AFTER_PARTY 2026-08-08] 닫는 말 자유칸 7 + 예식 뒤 전환 6 + 골라 트는 판 10 */
+const CLIP_COUNT = 74;
+if (clips.length !== CLIP_COUNT) {
+  console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
+  console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
+  console.error(`  **이유와 함께** 고치세요. 이유 없이 숫자만 맞추면 가드가 죽습니다.`);
+  process.exit(1);
+}
+
+/* ★[PART_ORPHAN 2026-08-08] 파트에 안 잡힌 클립은 조용히 사라진다 — 실제로 23개가 사라져 있었다.
+   생성기가 "74클립"이라 찍는 자리와 실제로 파일에 들어가는 자리가 달랐고, 그 차이를 아무도 안 셌다. */
+{
+  const NARR_PARTS = PARTS.filter((P) => !P.src);
+  const orphan = clips.filter((c) => !NARR_PARTS.some((P) => P.has(c.id)));
+  if (orphan.length) {
+    console.error(`✗ 어느 파트에도 안 들어가는 클립 ${orphan.length}개 — 붙여넣기 파일에서 조용히 빠집니다.`);
+    for (const c of orphan) console.error(`   ${c.id} · ${c.label}`);
+    console.error(`  PARTS 의 has 패턴을 늘리거나 파트를 새로 만드세요.`);
+    process.exit(1);
+  }
+}
 
 const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
 // [TEXT_AUDIO 2026-08-04] 입장이 1클립 → 6클립(A~F)으로 벌어져 17 → 22.
