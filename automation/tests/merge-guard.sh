@@ -1216,6 +1216,12 @@ node scripts/check-source-drift.mjs || FAIL=1
 #     대본도 멀쩡해 보였다 — 녹음해 넣은 뒤 당일에야 「다 함께」 구간이 통째로 무음이 됐을 것이다.
 chk 'FILE_NO_SOURCE' scripts/build-dubbing-script.mjs 1
 chk 'padOf(file)' scripts/build-dubbing-script.mjs 1
+#   ★콘솔도 같은 규칙이다 — 클립을 꺼내는 세 자리 전부 번호를 noOf 에서 받는다.
+#     '대기' 버튼에 '51' 이 손으로 박혀 있었다(진짜 번호는 49 · 51 은 bridge-6-resume '재개').
+#     디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로, 당일 '대기' 를 눌렀을 때
+#     재개 안내가 나갔을 자리다. 숫자를 다시 박으면 이 줄이 빨간불을 켠다.
+chk 'CLIPS\[RitualCue.noOf' console.html 3
+nochk "CLIPS\['[0-9]" console.html 0
 # [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
 #   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
 chk 'CLIP_COUNT' scripts/build-typecast-import.mjs 2
