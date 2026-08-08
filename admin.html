@@ -868,7 +868,7 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   if(surface==='마이') return p('/api/advisor',{messages:U,page:'마이',state:'현재 단계: 입금완료 · 예식일: 2026-10-26',test:true});
   if(surface==='예약') return p('/api/schedule-advisor',{messages:U,today:today,page:'예약',test:true});
   if(surface==='애프터') return p('/api/after-concierge',{messages:U,test:true});
-  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
+  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분',test:true});
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
@@ -1031,7 +1031,7 @@ function openAiTest(){
     if(surface==='예약') return post('/api/schedule-advisor',{messages:[U(q)],today:today,page:'예약',test:true});
     if(surface==='애프터') return post('/api/after-concierge',{messages:[U(q)],test:true});
     if(surface==='핸드오프') return post('/api/handoff',{messages:[U(q),A('상담사를 연결해 드릴게요')],page:'메인',customer:{name:'테스트',code:'TEST01',stage:'입금완료'},test:true});
-    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
+    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분',test:true});
     return post('/api/advisor',{messages:[U(q)],page:'메인',test:true}); };
   var oldT=document.getElementById('ad_aiTest'); if(oldT&&oldT.parentNode) oldT.parentNode.removeChild(oldT);
   var ov=document.createElement('div'); ov.id='ad_aiTest';

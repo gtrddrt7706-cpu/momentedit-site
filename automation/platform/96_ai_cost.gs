@@ -523,7 +523,7 @@ function _aiSurfacePost_(surface, q) {   // 회귀/점검용 — 접점→엔드
   if (surface === '애프터') return _aiPost_('/api/after-concierge', { messages: [{ role: 'user', content: q }], test: true });
   if (surface === '핸드오프') return _aiPost_('/api/handoff', { messages: [{ role: 'user', content: q }, { role: 'assistant', content: '상담사를 연결해 드릴게요' }], page: '메인', customer: { name: '점검', code: 'CHK', stage: '상담' }, test: true });
   if (surface === '마이' || surface === '마이페이지') return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '마이', test: true });
-  if (surface === '식순') return _aiPost_('/api/ritual-advisor', { messages: [{ role: 'user', content: q }], embed: true, customer: { name: '점검', code: 'CHK' }, auth: (typeof _aiWidgetToken_ === 'function' ? _aiWidgetToken_('CHK') : ''), state: '코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분', test: true });   // [AI_WIDGET_HMAC] 시크릿 도입 후에도 회귀 점검이 embed 티어를 그대로 검증하도록 실토큰 동봉(미설정이면 빈값 · 종전 동작)
+  if (surface === '식순') return _aiPost_('/api/ritual-advisor', { messages: [{ role: 'user', content: q }], embed: true, customer: { name: '점검', code: 'CHK' }, auth: (typeof _aiWidgetToken_ === 'function' ? _aiWidgetToken_('CHK') : ''), state: '코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분', test: true });   // [AI_WIDGET_HMAC] 시크릿 도입 후에도 회귀 점검이 embed 티어를 그대로 검증하도록 실토큰 동봉(미설정이면 빈값 · 종전 동작)
   return _aiPost_('/api/advisor', { messages: [{ role: 'user', content: q }], page: '메인', test: true });
 }
 function _regGrade_(type, val, x) {

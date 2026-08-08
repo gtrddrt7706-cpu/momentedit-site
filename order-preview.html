@@ -609,7 +609,7 @@ var GUEST=[
      저장된 초안이 그 코스를 쥐고 있어 엔진은 종전대로 돈다. 블록을 지우지 말 것. */
 var COURSES={
  "damback": {
-  "nm": "담백",
+  "nm": "약속",
   "badge": "두 사람이 중심",
   "ready": true,
   "min": "약 20분",
@@ -622,7 +622,7 @@ var COURSES={
    "letter"
   ],
   "one": "두 사람이 중심 · 서약과 반지, 그리고 편지 한 통",
-  "feel": "담백하지만 진심이 깊게 남길 원하는 두 분께 · 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.",
+  "feel": "서로에게 건네는 약속이 하루의 가운데 있기를 바라는 두 분께 · 과하지 않게, 대신 그 자리에 오래 머물러요.",
   "flow": [
    "입장",
    "혼인 서약",
@@ -836,7 +836,7 @@ var COURSES={
     "fix": true
    }
   ],
-  "addable": "원하면 편지 낭독·링 워밍·첫인사를 더할 수 있어요. 하나 더할 때마다 약 4분이 늘어요."
+  "addable": "원하면 편지 낭독이나 첫인사를 더할 수 있어요. 하나 더할 때마다 약 4분이 늘어요."
  },
  "record": {
   "nm": "기록",
@@ -931,7 +931,7 @@ var COURSES={
     "at": 6
    }
   ],
-  "one": "담백에서 첫인사·편지를 뺀 최단 코스",
+  "one": "「약속」에서 첫인사·편지를 뺀 최단 코스",
   "feel": "약속만 또렷하게 남기고 싶은 두 분께 · 어른 하객이 많은 자리에도 편안한 가장 간결한 코스예요.",
   "flow": [
    "입장",
@@ -1873,7 +1873,14 @@ function renderStep(k){
   /* ★[RECORD_COURSE 2026-08-07] 기록형을 맨 앞에 둔다 — 이 스튜디오가 권하는 형태이기 때문이다.
      (140분 중 본식은 21%이고 나머지는 전부 촬영이다. 상품이 이미 그렇게 생겼다)
      ★자리는 취향 판단이다. 뒤로 옮기고 싶으면 이 줄에서 순서만 바꾸면 된다. */
-  if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+Object.keys(COURSES).filter(function(k){ return !COURSES[k].hidden; }).map(courseCard).join('')+'</div>'; }
+  /* ★[CARD_ORDER 2026-08-08] 카드 순서는 취향 판단이라 데이터에서 뽑지 않고 여기 적는다.
+     기록을 맨 앞에 두는 이유 — 이 스튜디오가 권하는 형태이기 때문이다(140분 중 본식은 21%이고
+     나머지가 전부 촬영이다 · 상품이 이미 그렇게 생겼다).
+     ★[THREE_COURSES] 때 하드코딩 목록을 Object.keys 로 바꾸면서 이 순서가 조용히 뒤집혔다
+       (약속·가족·기록). 숨김 처리는 데이터가 하고 **순서는 사람이 정한다** — 둘을 섞지 말 것.
+     ★목록에 없는 코스는 안 보인다. 새 코스를 만들면 여기에도 넣을 것. */
+  var CARD_ORDER=['record','damback','family','minimal','gamdong','festive'];
+  if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+CARD_ORDER.filter(function(k){ return COURSES[k] && !COURSES[k].hidden; }).map(courseCard).join('')+'</div>'; }
   if(k==='tune'){
     /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 입장 빼고 전부 뺄 수 있게 되면서
        '입장만 남은 예식'을 만들어 놓고 모를 수 있게 됐다. 막지는 않는다 — 사용자가 그렇게 결정했다.
