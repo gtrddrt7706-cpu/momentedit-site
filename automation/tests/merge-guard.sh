@@ -1207,6 +1207,14 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
+# [AFTER_PARTY] 예식 뒤 30분 — 전환 6큐(순서 고정) + 골라 트는 판 10(순서 유동).
+#   둘을 섞지 말 것: 예식은 흐름이라 체인이고, 촬영은 작업이라 판이다.
+chk 'AFTER_PARTY' assets/ritual-cue.js 2
+chk 'AFTER_PARTY' assets/ritual-data.js 1
+chk 'PHOTOCUE' assets/ritual-data.js 3
+chk 'PHOTOCUE_NO_CLIP' assets/ritual-data.js 1        # 안내가 없는 것이 정체인 연출 둘 — 클립을 만들지 말 것
+chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사회자 전제)이 되살아나면 실패
+
 # [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
 #   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
 chk 'PHOTO_LIST_V2' mypage.html 2

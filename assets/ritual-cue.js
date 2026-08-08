@@ -64,7 +64,13 @@
     'narr-entry-out', 'narr-ringwarm-out', 'narr-valley-out',
     'narr-song-out', 'narr-toast-out', 'narr-declare-family-out',
     // ★[FREE_SLOT 2026-08-07] 자유 한 칸 — 무엇이 들어오든 담기게 **지목하지 않는** 두 줄
-    'narr-free-in', 'narr-free-out'
+    'narr-free-in', 'narr-free-out',
+    /* ★[AFTER_PARTY 2026-08-08] 예식 뒤 30분 — 전환 6 + 골라 트는 판 10.
+       ★반드시 목록 **끝**에 붙였다. 번호가 인덱스+1이라 중간에 끼우면 기존 음원이 전부 개명된다.
+       앞 6개는 순서 고정(큐 체인) · 뒤 10개는 디렉터가 골라 트는 판(D.PHOTOCUE) */
+    'narr-photo-split', 'narr-round-open', 'narr-online-in', 'narr-final-warn', 'narr-final-call', 'narr-photo-out',
+    'call-family-all', 'call-parents',
+    'fx-seatrow', 'fx-vshape', 'fx-clink', 'fx-wave', 'fx-surround', 'fx-lean', 'fx-clap', 'fx-selfie'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -76,7 +82,7 @@
   var EXTRA = {
     'declare-ask-a': '오늘 예식에는 여러분이 함께 답해 주시는 순서가 한 번 있습니다. 짧은 한마디면 됩니다.',
     'declare-ask-c': '신랑 신부, 이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.',
-    'end-0-photo': '지금부터 단체 사진을 담겠습니다. 스태프가 차례로 안내해 드리니, 편안히 기다려 주시기 바랍니다.',
+    'end-0-photo': '모두 모이셨습니다. 두 분을 가운데 두고, 카메라를 봐 주세요.',
     'end-1a-farewell': '오늘의 기록이 모두 담겼습니다. 이제 두 사람이 문 앞에서 여러분을 기다립니다. 서두르지 마시고, 나가시는 길에 두 사람과 인사 나눠 주시기 바랍니다. 두고 오신 물건이 없는지 한 번만 살펴 주시면 감사하겠습니다.',
     'end-1b-farewell-online': '오늘의 기록이 모두 담겼습니다. 이제 두 사람이 문 앞에서 여러분을 기다립니다. 서두르지 마시고, 나가시는 길에 두 사람과 인사 나눠 주시기 바랍니다. 두고 오신 물건이 없는지 한 번만 살펴 주시면 감사하겠습니다. 화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다.',
     'end-2-goodbye': '오늘 이 자리를 함께 채워 주셔서 감사합니다. 여러분이 계셔서 두 사람의 처음이 외롭지 않았습니다. 돌아가시는 길, 부디 편안하시기 바랍니다.',
@@ -551,9 +557,51 @@
 
     if (mode === 'console') {
       // 후반부(단체촬영·배웅) — 미리듣기에는 넣지 않는다. 고객이 들을 대상이 아니라 디렉터 진행이다.
+      /* ★★[AFTER_PARTY 2026-08-08] 예식 뒤 30분을 세 토막으로. 옛 구조는 '단체촬영' 큐 하나(420초)였고
+         그 문안이 *"스태프가 차례로 안내해 드리니 편안히 기다려 주시기 바랍니다"* 였다 — 사회자 없이
+         나레이션이 이끈다는 결정과 어긋나고, 5차 리서치 실측(전체컷만 6~10분)과도 안 맞았다.
+         ★live.est 근거: 전체컷 360(25명은 하단값 6분) · 가족 구도 300 · 인사 라운드 1200 · 마지막 240.
+           코스에 따라 라운드가 늘어난다(본식이 짧으면 그만큼) — 그건 진행표가 현장에서 흡수한다.
+         ★호명·연출은 여기 없다. 순서가 당일 유동적이라 D.PHOTOCUE 의 '골라 트는 판'이 맡는다. */
       cues.push(cue({
-        k: '_photo', blockN: '단체촬영', slug: 'end-0-photo', name: '단체촬영 개시', text: EXTRA['end-0-photo'], duck: -14,
-        live: { t: '단체 사진 촬영 (스태프가 차례로 안내)', est: 420 }
+        k: '_photo', blockN: '단체촬영', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
+        live: { t: '전체 하객 단체컷 (전원이 앞에 모인 상태)', est: 360, note: '25명 정렬에 6분 · 20명 이상은 6~10분이 업계 실측' }
+      }));
+      cues.push(cue({
+        k: '_photo', blockN: '단체촬영', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
+        hint: '전체컷을 담고 나면',
+        note: '★뒤 문장이 대기를 「알려진 대기」로 바꾼다 — 순번을 알려 주면 이탈이 준다(하버드)',
+        live: { t: '불러 모으는 구도 촬영 (호명은 골라 트는 판에서)', est: 300, self: true, doing: 'move' }
+      }));
+      cues.push(cue({
+        k: '_greet', blockN: '인사와 사진', slug: 'narr-round-open', name: '인사와 사진 시작', text: D.NARR.roundOpen, duck: -14,
+        hint: '불러 모으는 구도가 끝나면',
+        note: '★여기서 하객이 풀어진다. 두 분은 그 사이 카메라 앞으로 간다',
+        live: S.digital ? null : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 1200, self: true, doing: 'move' }
+      }));
+      if (S.digital) cues.push(cue({
+        k: '_greet', blockN: '인사와 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
+        note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
+        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 1320, self: true, doing: 'say' }
+      }));
+      /* ★'자리 돌며 인사' 20분은 **소리가 없다.** 별도 큐로 두면 슬러그 없는 큐가 되어
+         전 조합 검사가 잡는다(실제로 잡혔다 · 20736건). 소리 없는 자리는 큐가 아니라
+         **앞 큐의 사람 구간**이다 — 디렉터는 앞 큐를 누르고 시간만 본다.
+         그래서 digital 이면 온라인 인사 큐가, 아니면 인사 시작 큐가 이 시간을 안고 간다. */
+      cues.push(cue({
+        k: '_final', blockN: '다 함께 마지막', slug: 'narr-final-warn', name: '마지막 예고', text: D.NARR.finalWarn, duck: -14,
+        hint: '한 바퀴가 거의 끝나갈 때',
+        note: '★2단계의 1단 — 단순 신호는 13%만 반응하고 이유를 말한 음성 안내는 75%가 즉시 반응한다(실측)'
+      }));
+      cues.push(cue({
+        k: '_final', blockN: '다 함께 마지막', slug: 'narr-final-call', name: '모이는 신호', text: D.NARR.finalCall, duck: -14,
+        hint: '예고 뒤 5분쯤',
+        note: '★2단계의 2단 · 이 뒤 연출은 골라 트는 판에서',
+        live: { t: '다 함께 마지막 한 장 · 연출 3개 (골라 트는 판)', est: 240, self: true, doing: 'move' }
+      }));
+      cues.push(cue({
+        k: '_final', blockN: '다 함께 마지막', slug: 'narr-photo-out', name: '마지막 닫는 말', text: D.NARR.photoOut, duck: -12,
+        note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 배웅 안내로 끝난다'
       }));
       cues.push(cue({
         k: '_farewell', blockN: '배웅', slug: S.digital ? 'end-1b-farewell-online' : 'end-1a-farewell',
