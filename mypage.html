@@ -5502,7 +5502,29 @@ function guideHubHtml(p, inv){
 var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나라도 내용을 채워 완료하면';
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
-var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
+/* ★[PHOTO_LIST_V2 2026-08-08] 구도 목록 재작성 — 5차 리서치 + 사용자 결정.
+   ★두 갈래로 나뉜다. `gather:true` 는 **여러 자리를 합쳐야 해서 불러 모으는 것**이고,
+     나머지는 **두 분이 자리를 돌 때 그 자리에서 담는 것**이다(호명이 필요 없다).
+     이 구분이 곧 나레이션 녹음량이다 — gather 만 호명 클립이 필요하다(지금 2개).
+   ★순서도 의미가 있다: 큰 그룹에서 사람만 빼가며 작은 그룹으로 간다(subtractive).
+     부부가 중앙에 고정돼 전환이 초 단위로 줄어든다(5차 리서치).
+   ★'전체 하객'은 목록에 없다 — 늘 1번으로 고정이라 photoList() 가 앞에 붙인다. */
+var PHOTO_PRESETS=[
+  { n:'양가 가족 전체', gather:true,  d:'부모님 + 형제·자매까지' },
+  { n:'양가 부모님과',  gather:true,  d:'양가 어른만' },
+  { n:'신랑 측 가족',   gather:false, d:'' },
+  { n:'신부 측 가족',   gather:false, d:'' },
+  { n:'형제·자매만',    gather:false, d:'부모님 없이 또래끼리' },
+  { n:'조부모님과',     gather:false, d:'앉으신 자리에서 · 서 계시게 하지 않아요' },
+  { n:'친구들과',       gather:false, d:'' },
+  { n:'직장·지인과',    gather:false, d:'' },
+  { n:'아이들과',       gather:false, d:'오래 못 기다리니 앞 순서를 권해요' }
+];
+var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 · 저장값은 종전대로 문자열이다
+function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
+/* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
+   작은 그룹은 그룹당 2~3분. 상한만 두면 고객은 다 채운다. **분이 늘어나는 게 보여야 스스로 조절한다.** */
+function photoMins(sel){ return 6 + (sel||[]).length * 3; }
 // 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_FX_CARDS).
 //   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
 var PHOTO_FX_CARDS=[
@@ -5513,8 +5535,10 @@ var PHOTO_FX_CARDS=[
  {n:'박수로 맺는 한 컷', c:'예식을 맺는 마무리', d:'<g fill="currentColor"><circle cx="60" cy="86" r="13"/><circle cx="92" cy="80" r="14"/><circle cx="124" cy="80" r="14"/><circle cx="150" cy="88" r="12"/></g><g stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".6"><path d="M50 64l-5-10M68 58l-2-11M118 58l2-11M136 62l5-10"/></g>'}
 ];
 var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
-var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
-var PHOTO_FX_MAX=8;   // 연출 상한
+/* ★[PHOTO_LIMIT 2026-08-08] 11 → 6. 5차 리서치 실측으로 11개는 물리적으로 불가능해졌다 —
+   전체컷 6분 + 11컷 × 3분 = 39분인데 배정 시간이 30분이다. 6개면 6+18=24분으로 들어간다. */
+var PHOTO_MAX=6;    // 전체 하객 제외 추가 구도 상한(총 7컷)
+var PHOTO_FX_MAX=3;   // 연출 상한 — 마지막 토막이 4~5분이고 연출 하나에 1분 남짓
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
@@ -5545,14 +5569,23 @@ function renderPhoto(box){
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
-    h+='<div class="ph-item"><span class="ph-no">'+(i+2)+'</span><span class="ph-nm">'+escapeHtml(n)+'</span><span class="ph-ctl">'
+    var _m=photoMeta(n);
+    // [PHOTO_LIST_V2] 갈래를 줄에 적는다 — 어떤 구도는 사람을 불러 모아야 하고 어떤 것은 자리에서 그냥 담는다.
+    //   고객이 이걸 알면 "왜 이건 앞에서 찍고 저건 나중인가"가 화면에서 설명된다.
+    var _gt=_m ? (_m.gather?'<span class="ph-fix">불러 모아요</span>':'<span class="ph-fix" style="opacity:.6">자리에서</span>') : '';
+    h+='<div class="ph-item"><span class="ph-no">'+(i+2)+'</span><span class="ph-nm">'+escapeHtml(n)+'</span>'+_gt+'<span class="ph-ctl">'
       +(i>0?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="-1" aria-label="위로">↑</button>':'<span class="ph-mv-sp"></span>')
       +(i<sel.length-1?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="1" aria-label="아래로">↓</button>':'<span class="ph-mv-sp"></span>')
       +'<button type="button" class="ph-del" data-pdel="'+i+'" aria-label="빼기">✕</button></span></div>';
   });
   h+='</div>';
-  var avail=PHOTO_PRESETS.filter(function(n){ return sel.indexOf(n)<0; });
-  if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
+  /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
+  var _pm=photoMins(sel);
+  h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
+    +(_pm>24?' <span style="color:var(--gold-deeper)">· 단체 기록 시간이 빠듯해져요</span>':'')+'</div>';
+  var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
+  if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
+    h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   // 단체컷 '함께 하는 동작' — 예시 카드형(구도가 보이는 그림 + 한 줄 의도 · 무드단어 클릭에서 개편 2026-07-20). 사진작가·디렉터 전달용
   h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';

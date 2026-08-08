@@ -1203,6 +1203,13 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
+# [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
+#   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
+chk 'PHOTO_LIST_V2' mypage.html 2
+chk 'var PHOTO_MAX=6' mypage.html 1
+chk 'var PHOTO_FX_MAX=3' mypage.html 1
+chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
+
 # [RINGWARM_RETIRED] 링 워밍 폐지(2026-08-07 사용자 "유치하고 별로") — 팔레트(GADD)에 되살리지 말 것.
 #   클립·빌더는 남아 있다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). 막는 곳은 팔레트 하나다.
 chk 'RINGWARM_RETIRED' assets/ritual-cue.js 2
