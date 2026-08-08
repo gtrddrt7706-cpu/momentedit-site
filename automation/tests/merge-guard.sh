@@ -827,7 +827,11 @@ chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <->
 chk '두 사람이 함께 나이프를 잡습니다' assets/ritual-data.js 2   # G9 케이크 동작 교정(cake+both)
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
 chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
-chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 1     # G3-15 폐식 finality cue
+# ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
+#   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
+#   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
+chk '모두 앞으로 나와, 두 분 곁에 서 주세요' assets/ritual-data.js 1     # 폐식 → 전체 하객컷 전환
+chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
 chk "'narr','ask','chorus','family'" order-preview.html 1
@@ -1203,6 +1207,69 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
+# [SOURCE_DRIFT] 원천 값이 손으로 적힌 자리를 찾는 검사 — 인스턴스가 아니라 병을 잡는다.
+node scripts/check-source-drift.mjs || FAIL=1
+
+# [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
+#   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
+#     남아 있어 **53번부터 스물두 클립이 한 칸씩 밀려** 있었다. 검사는 전부 초록이었고
+#     대본도 멀쩡해 보였다 — 녹음해 넣은 뒤 당일에야 「다 함께」 구간이 통째로 무음이 됐을 것이다.
+chk 'FILE_NO_SOURCE' scripts/build-dubbing-script.mjs 1
+chk 'padOf(file)' scripts/build-dubbing-script.mjs 1
+# [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
+#   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
+chk 'CLIP_COUNT' scripts/build-typecast-import.mjs 2
+node scripts/build-dubbing-script.mjs >/dev/null || FAIL=1
+node scripts/build-typecast-import.mjs >/dev/null || FAIL=1
+
+# [DRIFT_MUTATION] 그 검사가 **진짜로 잡는지** 시험한다. 초록은 아무것도 증명하지 않는다 —
+#   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
+#   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.
+sh scripts/check-source-drift.test.sh || FAIL=1
+
+# [CONTRACT_V14] 계약서 3조① 본식 16~24분 · Group Record 36~44분(합 60분 고정) · 문서 v1.4.
+#   ★v1.3 서명자는 archive/v1-3.html 로 열람해야 한다 — 이 줄이 사라지면 옛 서명자가
+#     자기가 서명하지 않은 문서를 보게 된다(계약서 32조③ '이미 체결된 계약의 효력은 불변').
+chk 'archive/v1-3.html' admin.html 1
+chk 'archive/v1-3.html' mypage.html 1
+chk 'CONTRACT_V14' admin.html 1
+chk 'CONTRACT_V14' mypage.html 1
+chk "docVersion: 'v1.4'" automation/platform/70_journey.gs 1
+
+# [PHOTOCUE_BOARD] 촬영 안내는 콘솔의 '골라 트는 판'에서만 나온다.
+#   판이 없으면 녹음한 클립 10개를 틀 수단이 사라진다(한 번 그 상태로 떠 있었다).
+chk 'PHOTOCUE_BOARD' console.html 3
+chk 'playLoose' console.html 2                  # 체인 밖 재생 — 진행 위치를 바꾸지 않는다
+
+# [NO_AUDIO] 녹음 대기 목록은 FILES ↔ manifest 를 통째로 대조해 만든다.
+#   미리듣기에 안 나오는 콘솔 전용 클립이 목록에서 조용히 빠지던 것을 막는다(실제로 16개가 떠 있었다).
+chk 'NO_AUDIO' scripts/check-text-audio.mjs 2
+chk 'RETIRED_SLUG' assets/ritual-cue.js 1        # 폐지한 자리를 다시 녹음하지 않게
+chk 'NARR_CONSOLE_ONLY' assets/ritual-data.js 1  # 검사를 속이려 빌더에 죽은 변수를 넣지 않게
+chk 'NARR_CONSOLE_ONLY' scripts/check-ritual-mirror.js 1
+
+# [AFTER_PARTY] 예식 뒤 30분 — 전환 6큐(순서 고정) + 골라 트는 판 10(순서 유동).
+#   둘을 섞지 말 것: 예식은 흐름이라 체인이고, 촬영은 작업이라 판이다.
+chk 'AFTER_PARTY' assets/ritual-cue.js 2
+chk 'AFTER_PARTY' assets/ritual-data.js 1
+chk 'PHOTOCUE' assets/ritual-data.js 3
+chk 'PHOTOCUE_NO_CLIP' assets/ritual-data.js 1        # 안내가 없는 것이 정체인 연출 둘 — 클립을 만들지 말 것
+chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사회자 전제)이 되살아나면 실패
+
+# [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
+#   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
+chk 'PHOTO_LIST_V2' mypage.html 2
+chk 'var PHOTO_MAX=6' mypage.html 1
+chk 'var PHOTO_FX_MAX=3' mypage.html 1
+chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
+
+# [RINGWARM_RETIRED] 링 워밍 폐지(2026-08-07 사용자 "유치하고 별로") — 팔레트(GADD)에 되살리지 말 것.
+#   클립·빌더는 남아 있다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). 막는 곳은 팔레트 하나다.
+chk 'RINGWARM_RETIRED' assets/ritual-cue.js 2
+chk 'RINGWARM_RETIRED' order-preview.html 2
+chk "ringwarm: 1" assets/ritual-cue.js 0            # GADD 에 되살아나면 실패
+chk "ringwarm:1" order-preview.html 0               # 빌더 GADD 사본도 같이
+
 # [VEIL_RETIRED] 전 예식 동시입장이라 베일 다운은 실행 불가 — 코스·팔레트·큐·KB 어디에도 되살리지 말 것
 chk 'VEIL_RETIRED' order-preview.html 3                 # 상수·장면도해·카드분기 세 자리에 폐지 사유가 남아 있어야 한다
 chk 'VEIL_RETIRED' assets/ritual-data.js 3              # 원천(코스 seq·문안·소요분)
@@ -1468,6 +1535,54 @@ if command -v node >/dev/null 2>&1; then node scripts/check-entry-alt.mjs || fai
 # ★소리가 아직 없으면 조용히 skip — 붙여넣기 전에는 잴 것이 없다. 있는데 어긋난 것만 실패다.
 chk 'ENTRY_PASTE' scripts/check-entry-alt.mjs 1         # 붙여넣기 파일이 낡으면 다시 붙여넣는 날 사고가 그대로 재발한다
 chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
+
+# ── [ORDER_AUDIT] 식순 이벤트 전수 점검 화면 (2026-08-07 · 임시) ──
+# 사용자가 코스를 다시 짜기 전에 "이벤트가 전부 나열되고 이벤트마다 나레이션을 들어 볼" 화면을 요청.
+# ★임시 화면이다. 코스 리뉴얼이 끝나면 order-audit.html 과 이 블록을 **같은 커밋에서 함께** 지운다.
+# ★이 화면은 원천이 아니다 — 목록·문안·파일 이름을 여기 적지 않고 assets/ritual-cue.js 를 돌려서 그린다.
+#   표를 화면에 다시 적는 순간, 코스가 바뀌는 날 이 화면만 낡은 식순을 보여 준다.
+# ── [LEAD_OUT] 사람의 시간은 자기 닫는 말을 갖는다 (2026-08-07 사용자
+#    *"나래이션멘트가 주인공 신랑신부가 행동하게 자연스럽게 시작과끝을 매워주고 리드해야하는데"*) ──
+# 닫는 말이 없으면 디렉터가 누르는 순간 '다음 순간의 여는 말'이 나와, 그 한 문장이 앞을 닫고
+# 뒤를 여는 두 몫을 혼자 진다 → 앞 순간이 증발한다(축가는 3분 30초를 7초 도입 하나로 열고 끝이 없었다).
+# ★디렉터의 누름은 이미 그 자리에 있다 — 수동 큐 수는 그대로 10개다(check-ritual-cue.js 가 고정).
+# ★닫는 말은 다음 순서를 지목하지 않는다 — 코스마다 순서가 다르고 사용자가 바꾼다.
+chk 'LEAD_OUT' assets/ritual-data.js 1
+chk 'entryOut' assets/ritual-data.js 1
+chk 'narr-entry-out' assets/ritual-cue.js 2
+chk 'narr-song-out' assets/ritual-cue.js 2
+chk 'LEAD_OUT' order-preview.html 2
+chk 'OUT_ENTRY' order-preview.html 2
+# ── [REDUB_PENDING] 글은 새 것 · 소리는 아직 옛 것인 창을 명단 하나로 지킨다 ──
+# 빨갛게만 두면 재더빙이 끝날 때까지 검사 전체가 빨개서 사람이 검사를 안 본다. 조용히 넘기면
+# "고쳤는데 소리는 안 바뀐" 상태가 배포된다. → **사용자가 실제로 붙여넣는 파일이 곧 명단**이고,
+# check-text-audio.mjs 가 어긋난 자리 ↔ 명단을 양방향으로 대조한다(명단을 코드에 또 적지 않는다).
+# ── [RECORD_COURSE] 기록형 — 촬영이 본체인 코스 (2026-08-07 사용자
+#    *"촬영이 메인이고 웨딩이벤트만이 줄수있는 감동의 순간들 한두개 정도 아니면 3개정도만"*) ──
+# ★긴 말하는 자리가 **하나**여야 성립하는 코스다(서약 또는 편지 택일 · peakOne).
+#   둘이 되는 순간 디렉터가 카메라를 놓아야 한다 — 끝을 사람이 재야 하는 자리라서.
+#   그 규칙은 코스 정의가 아니라 norm() 에 있다(seq/opt 로는 '둘 중 하나'를 못 적는다).
+# ★vow 빌더가 S.vow 를 봐야 한다 — 안 보면 norm() 의 결정이 조용히 무시된다.
+# ★입장 행진 없음(하객 사이를 지나 옴) · 선언은 하객이 함께(격식 축을 지키는 최소 형식).
+chk 'RECORD_COURSE' assets/ritual-data.js 1
+chk 'peakOne' assets/ritual-data.js 1
+chk 'PEAK_ONE' assets/ritual-cue.js 2
+chk 'peakOne' assets/ritual-cue.js 1
+chk "record: { entry: 'F'" assets/ritual-cue.js 1
+chk 'FREE_SLOT' assets/ritual-data.js 1
+chk 'FREE_SLOT' assets/ritual-cue.js 2
+chk 'narr-free-in' assets/ritual-cue.js 2
+chk 'free: 1' assets/ritual-cue.js 1                       # GADD — 빼면 자유 칸을 팔레트로 못 넣는다
+chk "'free'" scripts/check-text-audio.mjs 1                # 훑는 목록에서 빠지면 두 클립이 조용히 사라진다
+chk 'free:1' order-audit.html 1
+chk 'REDUB_PENDING' scripts/check-text-audio.mjs 1
+chk 'REDUB_PENDING' scripts/check-option-audio.mjs 2
+chk 'REDUB_PENDING' order-audit.html 2
+chk '재더빙_리드보강.txt' scripts/check-text-audio.mjs 1
+chk '재더빙_리드보강' scripts/check-option-audio.mjs 1
+chk 'ORDER_AUDIT' order-audit.html 1
+chk 'ritual-cue.js' order-audit.html 3                     # 엔진을 돌려서 그린다는 사실 자체가 지켜져야 한다
+chk 'noindex' order-audit.html 1                           # 고객에게 노출되는 페이지가 아니다
 if command -v node >/dev/null 2>&1; then node scripts/check-entry-voice.mjs || fail=1; fi
 
 # ── [GV_NOBACK][GV_TOPRESET] 청첩장 미리보기 좌우 넘김 (2026-08-04 사용자

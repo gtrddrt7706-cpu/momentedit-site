@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>식순 이벤트 전수 점검 · 임시</title>
+<!--
+  [ORDER_AUDIT 2026-08-07] 식순 이벤트를 한 화면에 전부 늘어놓고 하나씩 들어 보는 **임시 점검용** 페이지.
+  사용자 요청: *"이벤트가 전부 나열되어잇고 나래이션이 이벤트 마다 진행가능하게끔 임시점검용으로
+  만들어줄래? 들어보고 제거하거나 수정할부분들 체크해서 코스를 리뉴얼 구현시킬거야"*
+
+  ★이 파일은 **원천이 아니다.** 이벤트 목록·문안·파일 이름을 여기 적지 않는다 —
+    assets/ritual-cue.js 가 이미 전부 계산하므로, 이 화면은 **엔진을 돌려 나온 것만** 그린다.
+    (표를 여기 다시 적으면 코스가 바뀌는 날 이 화면만 낡은 식순을 보여 준다.)
+  ★모든 코스 × 모든 선택지를 브라우저에서 훑어 **합집합**을 만든다. 한 코스만 보면
+    링 워밍·와인·축가처럼 특정 코스에만 있는 자리가 통째로 빠진다.
+  ★엔진이 한 번도 안 내놓은 클립(폴백·대기 클립)은 마지막 '예비' 칸에 따로 모은다 —
+    조용히 사라지면 있는 줄도 모르고 지나간다.
+  ★소리는 한 번에 하나만 난다. 두 개가 겹쳐 나던 사고가 있었다.
+  ★고객에게 링크로 주는 페이지가 아니다(noindex · 메뉴·사이트맵에 넣지 않음).
+-->
+<style>
+  :root{ --ink:#2b2723; --sub:#7a7069; --line:#e6e0d8; --bg:#faf8f5; --card:#fff; --acc:#8a7a63;
+         --keep:#3f7d54; --edit:#a8791f; --drop:#a8453a; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+       font-size:15px;line-height:1.62;-webkit-text-size-adjust:100%}
+  .wrap{max-width:760px;margin:0 auto;padding:0 14px 80px}
+  header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 0 10px;
+         position:sticky;top:0;z-index:20}
+  header .wrap{padding-bottom:0}
+  h1{font-size:17px;margin:0 0 2px;letter-spacing:-.01em}
+  .lede{color:var(--sub);font-size:12.5px;margin:0 0 9px}
+  .bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  button,select{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);
+                border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+  button:active{transform:translateY(1px)}
+  .pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .prog{font-size:12.5px;color:var(--sub);margin-left:auto;white-space:nowrap}
+  #now{display:none;margin:8px 0 2px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;
+       background:#f4efe6;font-size:13px;cursor:pointer;align-items:center;gap:7px}
+  #now.on{display:flex}
+  #now .nlab{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #now .npos{margin-left:auto;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+  .ev.playing{outline:2px solid var(--ink);outline-offset:-1px}
+  .play.bad{color:var(--drop);border-color:var(--drop)}
+  .blk{margin:26px 0 8px;font-size:13px;font-weight:700;color:var(--acc);letter-spacing:.02em;
+       border-bottom:1px solid var(--line);padding-bottom:5px}
+  .ev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin:8px 0}
+  .ev.done{border-color:#d8cfc2}
+  .ev.v-keep{box-shadow:inset 3px 0 0 var(--keep)}
+  .ev.v-edit{box-shadow:inset 3px 0 0 var(--edit)}
+  .ev.v-drop{box-shadow:inset 3px 0 0 var(--drop);opacity:.72}
+  .hd{display:flex;gap:7px;align-items:baseline;flex-wrap:wrap}
+  .no{font-variant-numeric:tabular-nums;font-size:12px;color:#fff;background:var(--acc);
+      border-radius:5px;padding:1px 6px;font-weight:700}
+  .nm{font-weight:700;font-size:15px}
+  .slug{font-size:11.5px;color:#a89f95;font-family:ui-monospace,Menlo,monospace}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0}
+  .chip{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:1px 7px;color:var(--sub);background:#fbfaf8}
+  .chip.on{background:#f0ece4;border-color:#ddd5c8;color:#6b6157}
+  .chip.live{background:#f4efe6;border-color:#e3d8c4;color:#8a6f3f}
+  .chip.opt{background:#eef2f4;border-color:#dbe3e8;color:#5b6d78}
+  .tx{margin:9px 0 0;font-size:14px;color:#3c3630;white-space:pre-wrap}
+  .tx.none{color:#a89f95;font-size:12.5px}
+  .hint{margin:6px 0 0;font-size:12.5px;color:var(--sub)}
+  .plays{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+  .play{border-color:#d8cfc2;background:#fdfcfa}
+  .play.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .play .dur{font-variant-numeric:tabular-nums;opacity:.65;font-size:11.5px;margin-left:4px}
+  .cast{font-size:12px}
+  .judge{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:11px 0 0;
+         border-top:1px dashed var(--line);padding-top:9px}
+  .jb{font-size:12.5px;padding:4px 11px;border-radius:99px}
+  .jb.on[data-v=keep]{background:var(--keep);color:#fff;border-color:var(--keep)}
+  .jb.on[data-v=edit]{background:var(--edit);color:#fff;border-color:var(--edit)}
+  .jb.on[data-v=drop]{background:var(--drop);color:#fff;border-color:var(--drop)}
+  .memo{flex:1 1 100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:inherit;
+        font-size:13px;resize:vertical;min-height:34px;background:#fdfcfa}
+  .miss{color:var(--drop);font-size:12px;margin:8px 0 0}
+  .note{background:#f7f4ee;border-radius:8px;padding:7px 9px;margin:8px 0 0;font-size:12.5px;color:#6b6157}
+  #out{width:100%;min-height:200px;border:1px solid var(--line);border-radius:10px;padding:10px;
+       font:12px/1.55 ui-monospace,Menlo,monospace;background:var(--card);margin-top:10px}
+  .foot{margin:30px 0 0;font-size:12px;color:var(--sub)}
+  .sr{position:absolute;left:-9999px}
+  @media(min-width:700px){ .memo{flex:1 1 auto} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>식순 이벤트 전수 점검 <span class="slug">임시</span></h1>
+    <p class="lede">모든 코스·모든 선택지를 합쳐 놓은 목록이에요. 하나씩 들어 보고 유지·수정·제거를 눌러 주세요.</p>
+    <div class="bar">
+      <button class="pri" id="seq">▶ 전부 이어듣기</button>
+      <button id="stop">■ 정지</button>
+      <select id="fc"><option value="">전체 코스</option></select>
+      <select id="fv">
+        <option value="">전체 보기</option>
+        <option value="todo">아직 안 본 것만</option>
+        <option value="edit">수정·제거만</option>
+      </select>
+      <button id="dur">길이 재기</button>
+      <button id="copy">결과 복사</button>
+      <span class="prog" id="prog">…</span>
+    </div>
+    <div id="now" title="누르면 그 이벤트로 이동"><span>▶</span><span class="nlab"></span><span class="npos"></span></div>
+  </div>
+</header>
+
+<noscript>
+  <!-- ★[NOJS] 스크립트를 막는 창(폰 파일 미리보기 등)에서 열면 목록이 '불러오는 중…'에 멈춘다.
+       그때 누르면 아무 일도 안 나는 버튼만 남는 게 제일 나쁘다 — 버튼은 감추고,
+       카드에 붙어 있는 기본 재생기로 듣게 한다(혼자 도는 사본은 소리를 카드에 심어 둔다). -->
+  <style>.judge,.plays,#now,.bar button,.bar select,#out,#list>.lede{display:none}</style>
+  <p class="miss" style="margin:10px 0 0">이 창은 스크립트를 막고 있어요 · <b>듣기와 읽기는 그대로 됩니다</b>
+  (카드마다 있는 재생기를 누르세요). 체크·메모·결과 뽑기만 안 되니, 걸리는 번호를 적어 두었다가 알려 주세요.
+  크롬이나 사파리로 열면 전부 됩니다.</p>
+</noscript>
+
+<div class="wrap">
+  <div id="list"><p class="lede" style="margin-top:20px">불러오는 중…</p></div>
+
+  <div class="blk" style="margin-top:34px">점검 결과</div>
+  <p class="lede">아래 상자를 복사해서 저(코워크)에게 붙여넣어 주시면 그대로 반영할게요.</p>
+  <div class="bar"><button id="mk">결과 만들기</button><button id="reset">전부 지우기</button></div>
+  <textarea id="out" readonly placeholder="‘결과 만들기’를 누르면 여기에 정리돼요."></textarea>
+
+  <p class="foot">이 페이지는 점검용 임시 화면이에요. 식순의 원천은 <code>assets/ritual-cue.js</code>이고,
+  이 화면은 그걸 돌려서 그리기만 해요 — 여기서 뭘 바꿔도 실제 식순은 안 바뀝니다.</p>
+</div>
+
+<audio id="au" preload="none"></audio>
+
+<script>
+/* ── 엔진 3파일 — order-preview.html 과 같은 방식으로 가짜 전역에 싣는다.
+      (ritual-data.js 가 ENTRY·COURSES 같은 이름을 bare 전역에 올려서, 이 화면 변수와 섞이면 곤란하다) */
+var G = null;
+function engine(){
+  var g = {};
+  return Promise.all(['/assets/ritual-data.js','/assets/ritual-cue.js','/assets/ritual-story.js']
+    .map(function(u){ return fetch(u,{credentials:'same-origin'}).then(function(r){
+      if(!r.ok) throw new Error(u); return r.text(); }); }))
+    .then(function(src){
+      src.forEach(function(t,i){ (new Function('self','module','exports', t+'\n//# sourceURL=eng'+i+'.js'))(g); });
+      if(!g.RitualCue || !g.RitualStory || !g.COURSES) throw new Error('engine');
+      return (G = g);
+    });
+}
+
+/* ── 합집합 만들기 ─────────────────────────────────────────────
+   한 코스만 돌리면 그 코스에 없는 자리(링 워밍·와인·축가…)가 통째로 빠진다.
+   그래서 코스마다 ①모든 추가 순간을 켠 기준 상태 ②추가 순간을 전부 끈 상태
+   ③선택지 하나씩만 바꾼 상태 를 전부 돌려, 나온 큐를 슬러그로 모은다. */
+function sweep(){
+  var C = G.RitualCue, D = G, out = new Map();
+  var EX = {welcome:1,bless:1,ringwarm:1,valley:1,letter:1,tribute:1,toast:1,song:1,free:1};
+  var OPTS = {
+    entry:Object.keys(D.ENTRY), declare:Object.keys(D.DECLARE), declareWho:Object.keys(D.DECLWHO),
+    letter:Object.keys(D.LETTER), ringwarm:Object.keys(D.RINGWARM), tribute:Object.keys(D.TRIBUTE),
+    toast:Object.keys(D.TOAST), valley:['none','wine','cake'], song:['family','live'],
+    bless:['on','off'], ring:['on','off'], welcome:['self','nar','off'], vow:['ok','off'],
+    guestVoice:['nar','couple'], entryVoice:['nar','couple'], digital:[false,true], blessProxy:[false,true]
+  };
+  /* base = 그 코스가 **원래 하는** 자리(추가 순간을 전부 끈 상태에서 나온 것).
+     courses = 추가 순간까지 켜면 그 코스에서 **할 수 있는** 자리.
+     둘을 안 가르면 거의 모든 자리가 모든 코스에 뜬다 — 코스 필터가 아무 의미가 없어진다. */
+  function run(S, tag, mode, isBase){
+    var r; try{ r = C.build(S, {mode: mode || 'preview'}); }catch(e){ return; }
+    r.cues.forEach(function(c){
+      var key = c.slug || ('txt:' + c.blockN + '|' + c.name);
+      if(!out.has(key)){
+        var o = {}; for(var k in c) o[k] = c[k];
+        o.key = key; o.courses = new Set(); o.base = new Set(); o.tags = new Set(); o.modes = new Set();
+        out.set(key, o);
+      }
+      var e = out.get(key);
+      e.courses.add(S.course); e.modes.add(mode||'preview');
+      if(isBase) e.base.add(S.course);
+      if(tag) e.tags.add(tag);
+    });
+  }
+  Object.keys(D.COURSES).forEach(function(course){
+    ['preview','console'].forEach(function(mode){
+      var base = {course:course, extra:Object.assign({},EX), digital:true};
+      run(base, '', mode, false);
+      run(Object.assign({},base,{extra:{}}), '', mode, true);
+      Object.keys(OPTS).forEach(function(k){
+        OPTS[k].forEach(function(v){
+          run(Object.assign({},base,{extra:Object.assign({},EX)}, kv(k,v)), k+'='+v, mode, false);
+          run(Object.assign({},base,{extra:{}}, kv(k,v)), k+'='+v, mode, true);
+        });
+      });
+    });
+  });
+  function kv(k,v){ var o={}; o[k]=v; return o; }
+
+  /* 엔진이 한 번도 안 내놓은 클립 — 폴백·대기용이라 조건이 맞아야만 나온다.
+     빠뜨리면 있는 줄도 모르고 지나가므로 마지막에 따로 모은다. */
+  var got = new Set(); out.forEach(function(v,k){ if(v.slug) got.add(v.slug); });
+  var spare = C.FILES.filter(function(f){ return !got.has(f); }).map(function(f){
+    return { key:'spare:'+f, slug:f, no:C.noOf(f), file:C.fileOf(f), name:f,
+             blockN:'예비 · 폴백 클립', text:C.EXTRA[f] || '', spare:true,
+             courses:new Set(), base:new Set(), tags:new Set(), modes:new Set() };
+  });
+  var all = [].concat(Array.from(out.values()), spare);
+
+  /* 블록이 흩어지면 '한눈에' 가 안 된다 — 훑는 순서상 같은 블록이 따로 발견되기 때문이다.
+     블록이 **처음 나온 자리**를 그 블록의 자리로 삼아, 블록 단위로 묶어 준다(안은 발견 순서 그대로). */
+  var bo = {}, bi = 0;
+  all.forEach(function(e){ if(bo[e.blockN] === undefined) bo[e.blockN] = bi++; });
+  all.forEach(function(e, i){ e._i = i; });
+  all.sort(function(x, y){ return (bo[x.blockN] - bo[y.blockN]) || (x._i - y._i); });
+
+  /* ★명단은 스스로 낡음을 신고해야 한다 — 클립이 하나라도 이 목록에 안 잡히면 조용히 빠진다.
+     '전부 나열'이 목적인 화면이라 그 조용함이 제일 나쁘다. 그래서 개수를 화면에 적는다. */
+  all.cover = { have: new Set(all.filter(function(e){ return e.slug; }).map(function(e){ return e.slug; })).size,
+                need: C.FILES.length };
+  return all;
+}
+
+/* ── 저장 ───────────────────────────────────────────── */
+var KEY = 'me-order-audit-v1';
+var MARK = (function(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } })();
+/* 저장이 되는 판인지 **미리** 확인한다. 파일로 열거나 미리보기 안에서 열면 브라우저가 저장을 막는데,
+   그때 조용히 넘어가면 한참 눌러 놓고 새로고침에서 전부 날아간다 — 그게 제일 나쁘다. */
+var CAN_SAVE = (function(){ try{ localStorage.setItem(KEY+'-t','1'); localStorage.removeItem(KEY+'-t'); return true; }
+                            catch(e){ return false; } })();
+function save(){ if(CAN_SAVE){ try{ localStorage.setItem(KEY, JSON.stringify(MARK)); }catch(e){} } }
+
+/* ── 소리 주소 해석 — 화면 전체가 이 함수 하나만 쓴다.
+      기본판(사이트)은 상대 경로 그대로. 혼자 도는 사본은 카드에 심어 둔 소리를
+      AUD 에 걷어 두고 그걸 쓴다 — 재생 코드는 어느 쪽에서도 안 바뀐다. */
+var MEDIA_BASE = '', AUD = null, PENDING = {};   // [REDUB_PENDING] 빌드가 재더빙 대기 명단을 여기 심는다
+function mediaUrl(p){ return (AUD && AUD[p]) || (MEDIA_BASE + p); }
+
+/* ── 재생 — 한 번에 하나만 ───────────────────────────── */
+var AU = document.getElementById('au'), CUR = null, QUEUE = null, QTOT = 0, FAILN = 0;
+function nowBar(btn){
+  var el = document.getElementById('now');
+  if(!btn){ el.classList.remove('on'); return; }
+  el.classList.add('on');
+  el.querySelector('.nlab').textContent = btn.dataset.label || '';
+  el.querySelector('.npos').textContent = QUEUE ? ((QTOT - QUEUE.length) + ' / ' + QTOT) : '';
+  [].forEach.call(document.querySelectorAll('.ev.playing'), function(c){ c.classList.remove('playing'); });
+  var card = btn.closest('.ev'); if(card) card.classList.add('playing');
+}
+document.getElementById('now').onclick = function(){
+  if(CUR) CUR.scrollIntoView({block:'center', behavior:'smooth'});
+};
+function stopAll(){
+  AU.pause(); CUR = null; QUEUE = null; nowBar(null);
+  [].forEach.call(document.querySelectorAll('.play.on'), function(b){ b.classList.remove('on'); });
+}
+function playSrc(src, btn){
+  if(CUR === btn && !AU.paused){ stopAll(); return; }
+  [].forEach.call(document.querySelectorAll('.play.on'), function(b){ b.classList.remove('on'); });
+  CUR = btn; if(btn) btn.classList.add('on');
+  nowBar(btn);
+  AU.src = mediaUrl(src);
+  AU.play()['catch'](function(){ playFail(btn); });
+}
+function nextInQueue(){
+  if(QUEUE && QUEUE.length){
+    var nx = QUEUE.shift();
+    nx.scrollIntoView({block:'center', behavior:'smooth'});
+    playSrc(nx.dataset.src, nx);
+  } else { CUR = null; QUEUE = null; nowBar(null); }
+}
+/* ★못 불러온 클립에서 조용히 멈추지 않는다 — 이어듣기 중이면 표시만 남기고 다음으로 간다.
+   조용히 멈추면 "안 되는데?"가 된다. 두 번 연달아 실패하면 이 창 자체가 소리를 막는 것이니 위에 알린다. */
+function playFail(btn){
+  if(CUR !== btn) return;                          // 이미 다른 클립으로 넘어갔다
+  if(btn){ btn.classList.remove('on'); btn.classList.add('bad'); btn.textContent = '✕ 재생 실패'; }
+  FAILN++;
+  if(FAILN >= 2 && !document.getElementById('audwarn')){
+    var w = document.createElement('p'); w.id = 'audwarn'; w.className = 'miss';
+    w.style.cssText = 'margin:8px 0 2px;font-size:12.5px';
+    w.textContent = '소리를 계속 못 불러오고 있어요 · 지금 보시는 창이 재생을 막는 것일 수 있어요. 파일을 내려받아 크롬이나 사파리로 열면 나요.';
+    document.querySelector('header .wrap').appendChild(w);
+  }
+  nextInQueue();
+}
+AU.addEventListener('error', function(){ playFail(CUR); });
+AU.addEventListener('playing', function(){ FAILN = 0; });
+AU.addEventListener('ended', function(){
+  if(CUR) CUR.classList.remove('on');
+  nextInQueue();
+});
+
+/* ── 그리기 ──────────────────────────────────────────── */
+var EVENTS = [];
+function fmt(s){ if(!isFinite(s)) return ''; var m=Math.floor(s/60), r=Math.round(s%60);
+  return m ? m+'분 '+r+'초' : r+'초'; }
+
+function render(){
+  var fc = document.getElementById('fc').value, fv = document.getElementById('fv').value;
+  var list = document.getElementById('list'), html = [], shown = 0;
+
+  /* 코스를 고르면 **그 코스가 지금 하는 순서**를 먼저 보여 주고,
+     '넣을 수 있는 자리'는 아래에 따로 모은다 — 코스를 다시 짜려면 이 둘이 갈려 있어야 한다.
+     (둘을 섞으면 거의 모든 자리가 모든 코스에 떠서 코스별로 볼 수가 없다) */
+  function pass(pick, title){
+    var blk = null, n = 0, buf = [];
+    EVENTS.forEach(function(e){
+      if(!pick(e)) return;
+      var m = MARK[e.key] || {};
+      if(fv === 'todo' && m.v) return;
+      if(fv === 'edit' && m.v !== 'edit' && m.v !== 'drop') return;
+      n++; shown++;
+      if(e.blockN !== blk){ blk = e.blockN; buf.push('<div class="blk">'+esc(blk)+'</div>'); }
+      buf.push(card(e, m));
+    });
+    if(n && title) html.push('<div class="blk" style="color:#2b2723;font-size:14px;margin-top:30px">'+esc(title)+' · '+n+'개</div>');
+    html = html.concat(buf);
+  }
+
+  if(fc){
+    var nm = (G.COURSES[fc]||{}).nm || fc;
+    pass(function(e){ return !e.spare && e.base.has(fc); }, nm + ' 코스가 지금 하는 순서');
+    pass(function(e){ return !e.spare && !e.base.has(fc) && e.courses.has(fc); }, nm + ' 코스에 넣을 수 있는 자리');
+    pass(function(e){ return e.spare; }, '예비 클립');
+  } else {
+    pass(function(){ return true; }, '');
+  }
+  if(!shown) html.push('<p class="lede" style="margin-top:20px">조건에 맞는 이벤트가 없어요.</p>');
+  list.innerHTML = html.join('');
+  wire();
+  var done = EVENTS.filter(function(e){ return (MARK[e.key]||{}).v; }).length;
+  document.getElementById('prog').textContent = '점검 ' + done + ' / ' + EVENTS.length;
+}
+
+function card(e, m){
+  var h = [], cls = 'ev' + (m.v ? ' done v-'+m.v : '');
+  h.push('<div class="'+cls+'" data-key="'+esc(e.key)+'" id="ev-'+esc(e.key).replace(/[^\w-]/g,'_')+'">');
+  h.push('<div class="hd">');
+  if(e.no) h.push('<span class="no">'+esc(e.no)+'</span>');
+  h.push('<span class="nm">'+esc(e.name||e.slug)+'</span>');
+  if(e.slug) h.push('<span class="slug">'+esc(e.slug)+'</span>');
+  h.push('</div>');
+
+  var chips = [];
+  if(e.spare) chips.push('<span class="chip live">평소엔 안 나옴 · 조건이 맞을 때만</span>');
+  /* ★[REDUB_PENDING] 문안을 새로 썼는데 소리가 아직 안 온 자리. 표시하지 않으면
+     "글은 새 것인데 옛 소리가 나는" 상태를 사장님이 버그로 오해한다 — 화면이 먼저 말한다. */
+  if(e.slug && typeof PENDING !== 'undefined' && PENDING[e.slug])
+    chips.push('<span class="chip" style="background:#fbeee9;border-color:#e8c9c0;color:#a8453a">'
+      + (PENDING[e.slug] === '신규' ? '새 대사 · 소리 아직 없음' : '글은 새 것 · 소리는 아직 옛 것') + '</span>');
+  var base = e.base ? Array.from(e.base) : [];
+  if(base.length) base.forEach(function(c){
+    chips.push('<span class="chip on">'+esc((G.COURSES[c]||{}).nm||c)+'</span>');
+  });
+  else if(!e.spare) chips.push('<span class="chip opt">추가 순간 · 코스에 넣어야 나오는 자리</span>');
+  /* 선택지 꼬리표는 '기본 순서에 없는 자리'에만 붙인다 — 기본 자리는 이름만 봐도 뭔지 알고,
+     전 조합을 훑느라 꼬리표가 수십 개씩 붙어 오히려 안 읽힌다. */
+  var tags = (!base.length && e.tags) ? Array.from(e.tags) : [];
+  if(tags.length && tags.length <= 6) tags.forEach(function(t){ chips.push('<span class="chip opt">'+esc(t)+'</span>'); });
+  if(e.live && e.live.self) chips.push('<span class="chip live">사람의 시간 · '+esc(e.live.doing||'')+'</span>');
+  if(e.own) chips.push('<span class="chip live">두 분 목소리로 바꿀 수 있는 자리</span>');
+  if(e.est) chips.push('<span class="chip">약 '+e.est+'초</span>');
+  if(chips.length) h.push('<div class="chips">'+chips.join('')+'</div>');
+
+  h.push(e.text ? '<p class="tx">'+esc(e.text)+'</p>'
+                : '<p class="tx none">나레이션 문안이 없는 자리예요(대본은 성우 대본에 있어요).</p>');
+  if(e.hint) h.push('<p class="hint">언제 — '+esc(e.hint)+'</p>');
+  if(e.live && e.live.t) h.push('<p class="hint">현장 — '+esc(e.live.t)+'</p>');
+  if(e.note) h.push('<div class="note">'+esc(e.note)+'</div>');
+
+  var plays = [];
+  if(e.slug){
+    var src = G.RitualCue.PARAM.clipDir + e.file + '.mp3';
+    var lab = (e.no ? e.no + ' ' : '') + (e.name || e.slug) + ' · ' + e.blockN;
+    plays.push('<button class="play" data-src="'+esc(src)+'" data-nar="1" data-label="'+esc(lab)+'">▶ 나레이션<span class="dur"></span></button>');
+  }
+  var cast = [];
+  try{ cast = e.spare ? [] : (G.RitualStory.castMainOf(e)||[]).concat(G.RitualStory.castLiveOf(e)||[]); }catch(err){ cast = []; }
+  cast.forEach(function(c){
+    if(!c || !c.src) return;
+    plays.push('<button class="play cast" data-src="'+esc(c.src)+'" data-label="'+esc(((e.no?e.no+' ':'')+(e.name||e.slug))+' · 배역 '+(c.id||''))+'">▶ 배역 · '+esc(c.id||'')+'<span class="dur"></span></button>');
+  });
+  if(plays.length) h.push('<div class="plays">'+plays.join('')+'</div>');
+  else h.push('<p class="miss">미리 만들어 둔 소리가 없는 자리예요 · 글로 확인해 주세요.</p>');
+
+  h.push('<div class="judge">');
+  [['keep','유지'],['edit','수정'],['drop','제거']].forEach(function(p){
+    h.push('<button class="jb'+(m.v===p[0]?' on':'')+'" data-v="'+p[0]+'">'+p[1]+'</button>');
+  });
+  h.push('<textarea class="memo" rows="1" placeholder="메모 (어디를 어떻게)">'+esc(m.m||'')+'</textarea>');
+  h.push('</div></div>');
+  return h.join('');
+}
+
+function wire(){
+  [].forEach.call(document.querySelectorAll('.play'), function(b){
+    b.onclick = function(){ QUEUE = null; playSrc(b.dataset.src, b); };
+  });
+  [].forEach.call(document.querySelectorAll('.jb'), function(b){
+    b.onclick = function(){
+      var k = b.closest('.ev').dataset.key, v = b.dataset.v;
+      MARK[k] = MARK[k] || {};
+      MARK[k].v = (MARK[k].v === v) ? '' : v;
+      if(!MARK[k].v && !MARK[k].m) delete MARK[k];
+      save(); render();
+    };
+  });
+  [].forEach.call(document.querySelectorAll('.memo'), function(t){
+    t.onchange = t.onblur = function(){
+      var k = t.closest('.ev').dataset.key;
+      MARK[k] = MARK[k] || {}; MARK[k].m = t.value.trim();
+      if(!MARK[k].v && !MARK[k].m) delete MARK[k];
+      save();
+    };
+  });
+}
+
+function esc(s){ return String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── 상단 버튼 ───────────────────────────────────────── */
+document.getElementById('seq').onclick = function(){
+  var btns = [].slice.call(document.querySelectorAll('.play[data-nar]'));
+  if(!btns.length) return;
+  QUEUE = btns.slice(1); QTOT = btns.length;
+  btns[0].scrollIntoView({block:'center', behavior:'smooth'});
+  playSrc(btns[0].dataset.src, btns[0]);
+};
+document.getElementById('stop').onclick = stopAll;
+document.getElementById('fc').onchange = render;
+document.getElementById('fv').onchange = render;
+
+document.getElementById('dur').onclick = function(){
+  var btns = [].slice.call(document.querySelectorAll('.play')), i = 0, tot = 0, n = 0;
+  var self = this; self.textContent = '재는 중…';
+  (function step(){
+    if(i >= btns.length){ self.textContent = '전체 ' + fmt(tot) + ' (' + n + '개)'; return; }
+    var b = btns[i++], a = new Audio();
+    a.preload = 'metadata'; a.src = mediaUrl(b.dataset.src);
+    var done = false;
+    a.onloadedmetadata = function(){ if(done) return; done = true;
+      b.querySelector('.dur').textContent = ' ' + fmt(a.duration);
+      if(b.dataset.nar){ tot += a.duration; n++; } step(); };
+    a.onerror = function(){ if(done) return; done = true;
+      b.querySelector('.dur').textContent = ' ?'; step(); };
+  })();
+};
+
+document.getElementById('mk').onclick = function(){
+  var g = {drop:[], edit:[], keep:[]}, today = new Date().toISOString().slice(0,10);
+  EVENTS.forEach(function(e){
+    var m = MARK[e.key]; if(!m || (!m.v && !m.m)) return;
+    var line = '- ' + (e.no ? e.no + ' ' : '') + (e.slug || e.name) + ' · ' + (e.name||'') +
+               ' [' + e.blockN + ']' + (m.m ? ' → ' + m.m : '');
+    (g[m.v] || g.keep).push(line);
+  });
+  var t = ['[식순 이벤트 점검 결과] ' + today,
+           '전체 ' + EVENTS.length + '개 중 ' + (g.drop.length+g.edit.length+g.keep.length) + '개 표시', ''];
+  if(g.drop.length) t.push('■ 제거', g.drop.join('\n'), '');
+  if(g.edit.length) t.push('■ 수정', g.edit.join('\n'), '');
+  if(g.keep.length) t.push('■ 유지(메모 있음)', g.keep.join('\n'), '');
+  if(t.length === 3) t.push('(아직 표시한 게 없어요)');
+  document.getElementById('out').value = t.join('\n');
+};
+document.getElementById('copy').onclick = function(){
+  document.getElementById('mk').click();
+  var o = document.getElementById('out');
+  o.removeAttribute('readonly'); o.select(); o.setSelectionRange(0, 99999);
+  try{ document.execCommand('copy'); this.textContent = '복사됨'; }catch(e){ this.textContent = '길게 눌러 복사'; }
+  o.setAttribute('readonly','readonly');
+  var self = this; setTimeout(function(){ self.textContent = '결과 복사'; }, 1800);
+};
+document.getElementById('reset').onclick = function(){
+  if(!confirm('표시한 판정과 메모를 전부 지울까요?')) return;
+  MARK = {}; save(); render(); document.getElementById('out').value = '';
+};
+
+/* ── 시작 ───────────────────────────────────────────── */
+engine().then(function(){
+  /* [STANDALONE] 혼자 도는 사본은 소리를 카드 안 <audio class="na"> 에 심어 둔다.
+     아래 render() 가 그 카드를 지우고 다시 그리므로, **지우기 전에** 걷어 둔다. */
+  var na = document.querySelectorAll('audio.na');
+  if(na.length){ AUD = {}; [].forEach.call(na, function(a){ AUD[a.getAttribute('data-p')] = a.getAttribute('src'); }); }
+  EVENTS = sweep();
+  var sel = document.getElementById('fc');
+  Object.keys(G.COURSES).forEach(function(c){
+    var o = document.createElement('option'); o.value = c;
+    o.textContent = (G.COURSES[c].nm || c) + ' 코스'; sel.appendChild(o);
+  });
+  if(!CAN_SAVE){
+    var w = document.createElement('p'); w.className = 'miss';
+    w.style.cssText = 'margin:8px 0 0;font-size:12.5px';
+    w.textContent = '이 판에서는 표시가 저장되지 않아요(새로고침하면 사라져요) · 다 고르신 뒤 아래 ‘결과 만들기’로 뽑아 주세요.';
+    document.querySelector('header .wrap').appendChild(w);
+  }
+  var cv = EVENTS.cover, full = cv.have === cv.need;
+  document.querySelector('.lede').innerHTML =
+    '모든 코스·모든 선택지를 합쳐 <b>' + EVENTS.length + '개</b>예요. 하나씩 들어 보고 유지·수정·제거를 눌러 주세요.'
+    + '<br><span style="color:' + (full ? '#3f7d54' : '#a8453a') + '">나레이션 클립 ' + cv.need + '개 중 '
+    + cv.have + '개가 이 목록에 있어요' + (full ? ' · 빠진 것 없음' : ' · ★빠진 게 있어요') + '.</span>';
+  render();
+})['catch'](function(err){
+  document.getElementById('list').innerHTML =
+    '<p class="miss" style="margin-top:20px">식순 엔진을 못 불러왔어요 — ' + esc(err && err.message) + '</p>';
+});
+</script>
+</body>
+</html>

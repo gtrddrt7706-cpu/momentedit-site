@@ -11,7 +11,7 @@ const ok = (name, cond) => { console.log((cond ? 'ok ' : 'FAIL ') + name); if (!
 
 let D, KB;
 try { D = require(path.join(root, 'assets/ritual-data.js')); } catch (e) { ok('ritual-data.js 로드', false); process.exit(1); }
-ok('ritual-data.js 로드(코스 5·NARR·MIN)', Object.keys(D.COURSES).length === 5 && !!D.NARR && !!D.MIN);
+ok('ritual-data.js 로드(코스 6·NARR·MIN)', Object.keys(D.COURSES).length === 6 && !!D.NARR && !!D.MIN);   // [RECORD_COURSE] 기록형 추가로 5→6
 
 const html = fs.readFileSync(path.join(root, 'order-preview.html'), 'utf8');
 ok('빌더에 식순 AI 위젯 배선 존재', html.includes('식순 AI 상담 배선 v1'));
@@ -49,7 +49,11 @@ const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push(
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));
+// [NARR_CONSOLE_ONLY] 빌더가 보여주지 않는 키는 사본을 요구하지 않는다.
+//   목록은 원천(assets/ritual-data.js)에 있다 — 검사에 또 적으면 두 곳이 갈린다.
+const CONSOLE_ONLY = new Set(D.NARR_CONSOLE_ONLY || []);
 Object.keys(D.NARR || {}).forEach((k) => {
+  if (CONSOLE_ONLY.has(k)) return;
   const v = D.NARR[k];
   if (typeof v === 'string') pushNar('NARR.' + k, v);
   else { pushNar('NARR.' + k + '.nar', v.nar); pushNar('NARR.' + k + '.end', v.end); }
@@ -147,7 +151,20 @@ const probes = [
   D.ENTRY.A.nar, D.DECLARE['1'].nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,
 ];
 ok('KB full이 원천 대표 문안 6종을 그대로 인용', probes.every((s) => KB.full.includes(s)));
-ok('KB full이 소요분 상수를 인용', KB.full.includes('담백 ' + D.MIN.base.damback + '분'));
+/* [COURSE_HIDDEN 2026-08-08] 옛 검사는 '담백 25분'이라는 **한 코스의 이름과 숫자**를 박아 두고 있었다.
+   코스 이름이 「약속」으로 바뀌고 숨긴 코스가 생기자 곧바로 실패했다.
+   ★이름을 적지 말고 **보이는 코스 전부가 자기 숫자와 함께 실려 있는가**를 본다. */
+{
+  const shown = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden);
+  const missing = shown.filter((k) => !KB.full.includes(D.COURSES[k].nm + ' ' + D.MIN.base[k] + '분'));
+  ok(`KB full이 보이는 코스 ${shown.length}종의 소요분을 인용` + (missing.length ? ' — 빠짐: ' + missing.join(',') : ''), !missing.length);
+}
+/* ★숨긴 코스는 KB 에 **없어야** 한다 — 상담사가 고를 수 없는 코스를 권하면 안 된다. */
+{
+  const hid = Object.keys(D.COURSES).filter((k) => D.COURSES[k].hidden);
+  const leaked = hid.filter((k) => KB.full.includes('- ' + D.COURSES[k].nm + ' 코스'));
+  ok('KB full에 숨긴 코스가 안 새어 나감' + (leaked.length ? ' — 샘: ' + leaked.join(',') : ''), !leaked.length);
+}
 ok('KB lite 존재(축약판)', typeof KB.lite === 'string' && KB.lite.length > 500 && KB.lite.length < KB.full.length / 2);
 
 // 토큰 추정(보수적=과대 방향): 한국어는 BPE에서 자당 토큰이 1을 넘는 경우가 많아, 캡을 일찍 걸도록 자수×1.1로 잡는다.

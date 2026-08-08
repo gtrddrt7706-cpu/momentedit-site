@@ -31,6 +31,12 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
+
+// [REDUB_PENDING] 아직 소리가 없어도 되는 클립 — 「재더빙 대기 명단」에서 읽는다(손으로 적지 않는다)
+const REDUB_TXT = path.join(ROOT, 'docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt');
+const PENDING = new Set(fs.existsSync(REDUB_TXT)
+  ? [...fs.readFileSync(REDUB_TXT, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)].map((m) => m[1]) : []);
+const pending = [];
 const req = createRequire(path.join(ROOT, 'package.json'));
 const D = req(path.join(ROOT, 'assets/ritual-data.js'));
 const RitualCue = req(path.join(ROOT, 'assets/ritual-cue.js'));
@@ -175,11 +181,21 @@ for (const [k, v] of pairs.slice().sort()) {
     console.error(`FAIL 명단이 낡았습니다 — 「${tag}」 는 '소리 없어도 됨'으로 적혀 있는데 실제로는 ${out.length}개가 납니다. order-preview.html 의 NO_PLAY 에서 지우세요 [NO_PLAY]`);
     fail++;
   } else if (missing.length) {
-    console.error(`FAIL 「${tag}」 가 부르는 파일이 없습니다: ${missing.map((m) => m.src).join(' · ')} [OPT_KEY]`);
-    fail++;
+    // ★[REDUB_PENDING 2026-08-07] 문안을 새로 쓰면 소리는 **당분간** 없다. 그 창을 빨갛게만 두면
+    //   재더빙이 끝날 때까지 검사 전체가 빨개서 사람이 검사를 안 보게 된다.
+    //   ★그렇다고 조용히 넘기지 않는다 — 「재더빙_리드보강.txt」(사용자가 실제로 붙여넣는 파일)에
+    //     이름이 있는 것만 봐준다. 그 파일은 scripts/check-text-audio.mjs 가 양방향으로 지킨다.
+    //     명단을 여기 또 적지 않는다 — 두 군데 적으면 한쪽만 낡는다.
+    const pendOnly = missing.filter((m) => !PENDING.has(String(m.src).replace(/^.*\/\d+_/, '').replace(/\.mp3$/, '')));
+    if (!pendOnly.length) { pending.push(tag); }
+    else {
+      console.error(`FAIL 「${tag}」 가 부르는 파일이 없습니다: ${pendOnly.map((m) => m.src).join(' · ')} [OPT_KEY]`);
+      fail++;
+    }
   } else ok++;
 }
 for (const t of Object.keys(OK_SILENT)) if (!seenPair.has(t)) { console.error(`FAIL NO_PLAY 의 '${t}' 는 화면에 없는 선택지입니다 — order-preview.html 에서 지우세요 [NO_PLAY]`); fail++; }
 
 if (fail) { console.error(`\n★옵션 들어보기 ${fail}건 실패`); process.exit(1); }
+if (pending.length) console.log(`⏳ 재더빙 대기라 아직 소리가 없는 자리 ${pending.length}개 — ${[...new Set(pending)].join(' · ')} (재더빙_리드보강.txt)`);
 console.log(`ok 옵션 들어보기 ${ok}개 전부 소리 남 · 버튼 없는 카드 ${noBtn.length}개 · 소리 없어도 되는 자리 ${silent.length}개(${silent.join(' · ') || '없음'})`);

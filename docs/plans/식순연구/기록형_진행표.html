@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>기록형 예식 · 실제 진행표</title>
+<!-- [RUNSHEET 2026-08-07] 사용자 "실제 식순 예를 들어 전체 상황을 한눈에".
+     ★표의 시간·문안·현장 안내·누름은 전부 assets/ritual-cue.js 를 돌려 뽑은 값이다 — 손으로 적지 않았다.
+       (손으로 적으면 식순이 바뀌는 날 이 표만 낡은 예식을 보여 준다)
+     ★'사진' 칸만 내 판단이다. 엔진에 없는 값이라 화면에 그렇게 밝혀 둔다. -->
+<style>
+ :root{--bg:#faf8f5;--card:#fff;--line:#e6e0d8;--ink:#2b2723;--sub:#6b6157;--muted:#9a938a;
+       --acc:#b34a2a;--say:#8a6f3f;--dir:#4a6d8c}
+ @media (prefers-color-scheme:dark){:root{--bg:#1a1a19;--card:#232220;--line:#3a3733;--ink:#f4f1ec;--sub:#c3bdb3;--muted:#8e877e;--acc:#d9613f;--say:#c9a86a;--dir:#7fb0d4}}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;
+   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-text-size-adjust:100%}
+ .wrap{max-width:860px;margin:0 auto;padding:24px 15px 70px}
+ h1{font-size:20px;margin:0 0 3px;letter-spacing:-.01em}
+ .lede{color:var(--sub);font-size:13px;margin:0 0 18px}
+ .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin:14px 0}
+ h2{font-size:15px;margin:28px 0 6px}
+ .barwrap{display:flex;height:26px;border-radius:6px;overflow:hidden;margin:8px 0 6px;gap:2px}
+ .seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--sub);
+      background:color-mix(in srgb,var(--ink) 8%,transparent);white-space:nowrap;overflow:hidden}
+ .seg.on{background:var(--acc);color:#fff;font-weight:700}
+ .step{border-left:2px solid var(--line);padding:0 0 0 14px;margin:0 0 0 6px;position:relative}
+ .ev{position:relative;padding:12px 0 14px}
+ .ev:not(:last-child){border-bottom:1px dashed var(--line)}
+ .dot{position:absolute;left:-21px;top:16px;width:9px;height:9px;border-radius:50%;background:var(--line)}
+ .dot.press{background:var(--dir);box-shadow:0 0 0 3px color-mix(in srgb,var(--dir) 22%,transparent)}
+ .tm{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted)}
+ .nm{font-weight:700;font-size:15.5px;margin:1px 0 0}
+ .no{font-size:11px;color:#fff;background:var(--muted);border-radius:4px;padding:1px 5px;margin-right:5px;
+     font-variant-numeric:tabular-nums}
+ .lane{margin:9px 0 0;padding:8px 10px;border-radius:9px;font-size:13.5px}
+ .lane b{display:block;font-size:11px;letter-spacing:.03em;margin:0 0 3px;font-weight:700}
+ .l-say{background:color-mix(in srgb,var(--say) 10%,transparent)}
+ .l-say b{color:var(--say)}
+ .l-do{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+ .l-do b{color:var(--ink)}
+ .l-dir{background:color-mix(in srgb,var(--dir) 10%,transparent)}
+ .l-dir b{color:var(--dir)}
+ .l-shot{background:color-mix(in srgb,var(--acc) 8%,transparent)}
+ .l-shot b{color:var(--acc)}
+ .sec{font-size:11.5px;color:var(--muted);margin-left:6px}
+ .note{font-size:12.5px;color:var(--sub)}
+ ul{margin:8px 0;padding-left:18px} li{margin:4px 0}
+ table{border-collapse:collapse;width:100%;font-size:13px}
+ td,th{border-bottom:1px solid var(--line);padding:6px 5px;text-align:left}
+ th{font-size:11.5px;color:var(--sub);font-weight:600}
+ td.n{text-align:right;font-variant-numeric:tabular-nums}
+</style></head><body><div class="wrap">
+
+<h1>기록형 예식 · 실제 진행표</h1>
+<p class="lede">코스 <b>기록</b> · 정점 <b>서약</b> · 하객 15명 안팎. 아래 시간·문안·현장 안내·누름은 전부 식순 엔진에서 그대로 뽑았어요.</p>
+
+<div class="card">
+  <b style="font-size:13px">하루 140분에서 예식이 차지하는 자리</b>
+  <div class="barwrap"><div class="seg" style="flex:20">준비 20</div><div class="seg" style="flex:50">단독 스냅 50</div><div class="seg on" style="flex:15">본식 15</div><div class="seg" style="flex:35">단체 기록 35</div><div class="seg" style="flex:20">배웅 20</div></div>
+  <p class="note" style="margin:4px 0 0">예식을 15분으로 줄인 만큼 <b>단독 스냅 +10분 · 단체 기록 +5분</b>이 됩니다. 140분 총량은 그대로예요.</p>
+</div>
+
+<h2>본식 — 순서대로</h2>
+<p class="note" style="margin:0 0 4px">파란 점이 <b>디렉터가 누르는 자리</b>예요. 이 예식에서는 <b>7번</b> 누릅니다.</p>
+<div class="step">
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">0:00</div>
+  <div class="nm"><span class="no">10</span>신랑·신부 입장</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">13초</span></b>지금부터, 두 사람의 이야기가 시작됩니다. 오랜 시간 각자 써 내려온 두 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장을, 큰 박수로 함께 열어 주시기 바랍니다. 신랑 신부, 입장!</div>
+  <div class="lane l-do"><b>사람 · 이때 무엇을 하나<span class="sec">102초</span></b>두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음)</div>
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 신부 준비 완료 · 문 앞 대기 확인 후</div>
+  <div class="lane l-shot"><b>사진 · 무엇이 남나</b>와이드 · 공간 전체 · 하객 얼굴 · 뒷모습에서 앞모습으로</div>
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">1:57</div>
+  <div class="nm"><span class="no">52</span>입장 마무리</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">8초</span></b>두 사람이 나란히 섰습니다. 숨을 한 번 고르셔도 좋습니다. 두 사람, 잠시 서로를 바라보아 주세요.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음) 후</div>
+  
+  </div>
+<div class="ev"><span class="dot"></span>
+  <div class="tm">2:07</div>
+  <div class="nm"><span class="no">13</span>혼인 서약 시작</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">11초</span></b>두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 두 사람, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.</div>
+  <div class="lane l-do"><b>사람 · 이때 무엇을 하나<span class="sec">70초</span></b>두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께</div>
+  <div class="lane l-dir"><b>디렉터</b>아무것도 안 한다 (앞 소리가 끝나면 저절로 이어짐)</div>
+  <div class="lane l-shot"><b>사진 · 무엇이 남나</b>두 얼굴 · 눈물 · 맞잡은 손 · 듣는 사람들</div>
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">3:30</div>
+  <div class="nm"><span class="no">14</span>혼인 서약 마무리</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">5초</span></b>목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 낭독이 끝나고 2초 (55초일 수도 75초일 수도 있다 · 오늘 처음 아는 숫자)</div>
+  
+  </div>
+<div class="ev"><span class="dot"></span>
+  <div class="tm">3:37</div>
+  <div class="nm"><span class="no">15</span>반지 교환 시작</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">7초</span></b>서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.</div>
+  <div class="lane l-do"><b>사람 · 이때 무엇을 하나<span class="sec">30초</span></b>신랑 먼저, 신부 다음으로 반지 끼우기</div>
+  <div class="lane l-dir"><b>디렉터</b>아무것도 안 한다 (앞 소리가 끝나면 저절로 이어짐)</div>
+  <div class="lane l-shot"><b>사진 · 무엇이 남나</b>손 클로즈업 · 내려다보는 두 얼굴</div>
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">4:16</div>
+  <div class="nm"><span class="no">16</span>반지 교환 마무리</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">7초</span></b>같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 사람, 다시 정면을 바라보아 주세요.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 두 사람 모두 반지를 낀 것을 확인하면</div>
+  
+  </div>
+<div class="ev"><span class="dot"></span>
+  <div class="tm">4:25</div>
+  <div class="nm"><span class="no">34</span>성혼 선언 · 하객께 질문</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">21초</span></b>여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다. 이제 여러분의 차례입니다. 제가 한 가지를 여쭙겠습니다. 다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다. 그럼 시작하겠습니다. 두 사람이 평생을 함께 걸어갈 수 있도록, 곁에서 힘이 되어 주시겠습니까?</div>
+  <div class="lane l-do"><b>사람 · 이때 무엇을 하나<span class="sec">6초</span></b>하객 전원 "네, 그러겠습니다"</div>
+  <div class="lane l-dir"><b>디렉터</b>아무것도 안 한다 (앞 소리가 끝나면 저절로 이어짐)</div>
+  <div class="lane l-shot"><b>사진 · 무엇이 남나</b>하객 전원이 답하는 순간 · 박수 · 두 분 리액션</div>
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">4:54</div>
+  <div class="nm"><span class="no">35</span>성혼 선언 · 선언과 박수</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">7초</span></b>신랑 신부, 이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 하객 답이 잦아들면</div>
+  
+  </div>
+<div class="ev"><span class="dot"></span>
+  <div class="tm">5:03</div>
+  <div class="nm"><span class="no">40</span>축배 · 케이크</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">8초</span></b>이제, 이 기쁨을 모두 함께 나누겠습니다. 잔을 들어 주시기 바랍니다. 두 사람의 새로운 시작을 위하여!</div>
+  <div class="lane l-do"><b>사람 · 이때 무엇을 하나<span class="sec">45초</span></b>하객 전원 잔 들기 → 다 함께 건배</div>
+  <div class="lane l-dir"><b>디렉터</b>아무것도 안 한다 (앞 소리가 끝나면 저절로 이어짐)</div>
+  <div class="lane l-shot"><b>사진 · 무엇이 남나</b>잔을 든 전원 · 군중 에너지 한 장</div>
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">5:58</div>
+  <div class="nm"><span class="no">56</span>축배 · 케이크 마무리</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">7초</span></b>잔은 편히 내려놓으셔도 좋습니다. 오늘의 이 기쁨이, 두 사람의 첫날을 채웠습니다.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 하객 전원 잔 들기 → 다 함께 건배 후</div>
+  
+  </div>
+<div class="ev"><span class="dot"></span>
+  <div class="tm">6:07</div>
+  <div class="nm"><span class="no">26</span>폐식 · 단체촬영 전환</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">25초</span></b>오늘 예식의 마지막 순서입니다. 두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주시기 바랍니다.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>아무것도 안 한다 (앞 소리가 끝나면 저절로 이어짐)</div>
+  
+  </div>
+<div class="ev"><span class="dot press"></span>
+  <div class="tm">6:34</div>
+  <div class="nm"><span class="no">47</span>배웅 마무리 · 귀가 인사</div>
+  <div class="lane l-say"><b>소리 · 나레이션<span class="sec">11초</span></b>오늘 이 자리를 함께 채워 주셔서 감사합니다. 여러분이 계셔서 두 사람의 처음이 외롭지 않았습니다. 돌아가시는 길, 부디 편안하시기 바랍니다.</div>
+  
+  <div class="lane l-dir"><b>디렉터</b>누른다 — 하객 대부분이 나가시면</div>
+  
+  </div>
+</div>
+
+<h2>이 예식을 한 줄로</h2>
+<div class="card">
+  <p style="margin:0"><b>걸어 들어와서 · 한 번 말하고 · 반지 끼고 · 다 같이 답하고 · 잔 든다.</b></p>
+  <p class="note" style="margin:8px 0 0">긴 말하는 자리는 <b>서약 하나</b>뿐이에요. 그래서 디렉터가 카메라를 놓는 순간이 하루에 한 번입니다.
+  편지를 정점으로 고르시면 서약이 자동으로 빠지고 자리만 바뀝니다.</p>
+</div>
+
+<h2>시간에 대해 정직하게</h2>
+<div class="card">
+  <table><tr><th>코스</th><th class="n">표기</th><th class="n">대본 합계</th><th class="n">배수</th></tr>
+  <tr><td>담백</td><td class="n">25분</td><td class="n">9.7분</td><td class="n">2.6배</td></tr><tr><td>감동</td><td class="n">28분</td><td class="n">11.5분</td><td class="n">2.4배</td></tr><tr><td>가족</td><td class="n">30분</td><td class="n">15.3분</td><td class="n">2.0배</td></tr><tr><td>기록</td><td class="n">15분</td><td class="n">6.8분</td><td class="n">2.2배</td></tr><tr><td>미니멀</td><td class="n">18분</td><td class="n">5.4분</td><td class="n">3.3배</td></tr><tr><td>축하</td><td class="n">30분</td><td class="n">10.8분</td><td class="n">2.8배</td></tr></table>
+  <p class="note" style="margin:9px 0 0">위 타임라인의 시각은 <b>대본 합계</b> 기준이라 실제보다 짧아요. 실제로는 박수·이동·감정·여백이 붙어
+  <b>2~3배</b>가 됩니다. 기록형의 2.2배는 다른 코스(2.0~3.3배)와 같은 범위예요.
+  <b>기록형은 대본 6.8분 · 실제 약 15분</b>으로 보시면 됩니다.</p>
+</div>
+
+<h2>이 표에서 믿으면 안 되는 칸</h2>
+<ul>
+  <li><b>사진 칸은 제 판단</b>이에요. 엔진에 없는 값이라 실제 촬영 감각과 다를 수 있어요.</li>
+  <li><b>사람 구간 초</b>는 설계 기준값입니다. 서약 70초는 실제로 50초일 수도 120초일 수도 있어요.</li>
+  <li>나머지(문안·현장 안내·누르는 자리)는 <b>엔진에서 그대로 뽑은 값</b>이라 실제와 같습니다.</li>
+</ul>
+
+</div></body></html>

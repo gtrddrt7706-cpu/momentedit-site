@@ -490,6 +490,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .pfx-meta{padding:8px 10px 10px;flex:1}
 .pfx-ttl{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--ink,#2B2823);line-height:1.3;word-break:keep-all}
 .pfx-cap{font-size:11px;color:var(--label-soft,#6F695D);margin-top:2px;line-height:1.4;word-break:keep-all}
+    .pfx-need{font-size:10.5px;color:var(--gold-deeper);margin-top:5px;line-height:1.4;word-break:keep-all}   /* [PHOTO_FX_V2] 그림 대신 들어간 줄 — 고객에겐 '우리 자리에서 되나', 스태프에겐 준비물 */
 .pfx-ck{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid var(--border);display:none;align-items:center;justify-content:center}
 .pfx-card.on .pfx-ck{display:flex;background:var(--gold-deep);border-color:var(--gold-deep)}
 .pfx-ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6}
@@ -1250,7 +1251,8 @@ function contractSrc(product, docVersion){
   }
   if(v==='v1.1') return '/contract/archive/v1-1.html';
   if(v==='v1.2') return '/contract/archive/v1-2.html';
-  return '/contract/v1-1.html';   // 현행(v1.3)
+  if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.4)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -5502,19 +5504,60 @@ function guideHubHtml(p, inv){
 var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나라도 내용을 채워 완료하면';
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
-var PHOTO_PRESETS=['양가 부모님과','신랑 측 가족','신부 측 가족','친구들과','직장·지인과'];
+/* ★[PHOTO_LIST_V2 2026-08-08] 구도 목록 재작성 — 5차 리서치 + 사용자 결정.
+   ★두 갈래로 나뉜다. `gather:true` 는 **여러 자리를 합쳐야 해서 불러 모으는 것**이고,
+     나머지는 **두 분이 자리를 돌 때 그 자리에서 담는 것**이다(호명이 필요 없다).
+     이 구분이 곧 나레이션 녹음량이다 — gather 만 호명 클립이 필요하다(지금 2개).
+   ★순서도 의미가 있다: 큰 그룹에서 사람만 빼가며 작은 그룹으로 간다(subtractive).
+     부부가 중앙에 고정돼 전환이 초 단위로 줄어든다(5차 리서치).
+   ★'전체 하객'은 목록에 없다 — 늘 1번으로 고정이라 photoList() 가 앞에 붙인다. */
+var PHOTO_PRESETS=[
+  { n:'양가 가족 전체', gather:true,  d:'부모님 + 형제·자매까지' },
+  { n:'양가 부모님과',  gather:true,  d:'양가 어른만' },
+  { n:'신랑 측 가족',   gather:false, d:'' },
+  { n:'신부 측 가족',   gather:false, d:'' },
+  { n:'형제·자매만',    gather:false, d:'부모님 없이 또래끼리' },
+  { n:'조부모님과',     gather:false, d:'앉으신 자리에서 · 서 계시게 하지 않아요' },
+  { n:'친구들과',       gather:false, d:'' },
+  { n:'직장·지인과',    gather:false, d:'' },
+  { n:'아이들과',       gather:false, d:'오래 못 기다리니 앞 순서를 권해요' }
+];
+var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 · 저장값은 종전대로 문자열이다
+function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
+/* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
+   작은 그룹은 그룹당 2~3분. 상한만 두면 고객은 다 채운다. **분이 늘어나는 게 보여야 스스로 조절한다.** */
+function photoMins(sel){ return 6 + (sel||[]).length * 3; }
 // 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_FX_CARDS).
 //   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
+/* ★★[PHOTO_FX_V2 2026-08-08] 연출 카드 재작성 — 5차 리서치 + 사용자 결정.
+   ★그림(인라인 SVG)을 **전부 뺐다.** 2026-07-20 에 '무드단어 → 구도가 보이는 카드'로 개편하며
+     넣은 것인데, 사용자가 *"이부분 좀 어설퍼"* 라 판단했고 AI 이미지로 다시 만들 예정이다.
+     ★그림 있는 카드와 없는 카드를 섞으면 **고객이 그림 있는 쪽을 고른다** — 정보가 많아 보여서다.
+       그러면 목록을 근거로 새로 짠 의미가 사라지고 UI 가 결과를 정해 버린다. 그래서 전부 뺐다.
+     ★카드 구조(.pfx-thumb)는 남겨 뒀다. 이미지가 나오면 자리에 끼우기만 하면 된다.
+   ★대신 **`need`(필요한 것)** 를 넣었다. 그림은 "어떻게 보이나"를 말하지만, 고를 때 정작 필요한 건
+     "우리 자리에서 되나"다. 그리고 이 줄이 그대로 디렉터·작가의 준비물 목록이 된다.
+   ★뺀 것 둘 — 「다 함께 부부를 바라보기」(리서치가 짚은 유치함의 정체 = 하객에게 배역을 시키는 것) ·
+     「살짝 높은 곳에서 다 함께」(리서치가 소규모 목록에서 아예 제외 — 사다리도 없고 얼굴이 이미 다 보인다).
+     되살리지 말 것.
+   ★저장값은 **카드 제목 문자열**(photoFx)이라 스토리지·표시(guide/admin/GAS)는 무변경이다. */
 var PHOTO_FX_CARDS=[
- {n:'다 같이 모여 기대기', c:'가까이 붙어 · 소규모의 온기', d:'<g fill="currentColor"><circle cx="70" cy="74" r="15"/><circle cx="100" cy="66" r="16"/><circle cx="130" cy="74" r="15"/><circle cx="85" cy="96" r="13"/><circle cx="116" cy="96" r="13"/></g><path d="M56 120q44-26 88 0" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" opacity=".5"/>'},
- {n:'살짝 높은 곳에서 다 함께', c:'모두 한 프레임에', d:'<g fill="currentColor"><circle cx="72" cy="50" r="8"/><circle cx="100" cy="46" r="9"/><circle cx="128" cy="50" r="8"/><circle cx="58" cy="72" r="11"/><circle cx="86" cy="68" r="12"/><circle cx="114" cy="68" r="12"/><circle cx="142" cy="72" r="11"/><circle cx="90" cy="100" r="15"/><circle cx="114" cy="100" r="15"/></g>'},
- {n:'다 함께 부부를 바라보기', c:'시선이 모이는 따뜻한 컷', d:'<g fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="48" cy="82" r="12"/><circle cx="74" cy="74" r="12"/><circle cx="152" cy="82" r="12"/><circle cx="126" cy="74" r="12"/></g><g fill="currentColor"><circle cx="90" cy="78" r="14"/><circle cx="112" cy="78" r="14"/></g>'},
- {n:'다 함께 셀카', c:'부부는 폰으로 · 넓은 컷은 사진작가가 함께', d:'<rect x="120" y="26" width="54" height="94" rx="9" fill="none" stroke="currentColor" stroke-width="3" opacity=".6"/><path d="M147 120 L150 140" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".6"/><g fill="currentColor"><circle cx="56" cy="80" r="15"/><circle cx="88" cy="72" r="16"/><circle cx="116" cy="80" r="14"/></g>'},
- {n:'박수로 맺는 한 컷', c:'예식을 맺는 마무리', d:'<g fill="currentColor"><circle cx="60" cy="86" r="13"/><circle cx="92" cy="80" r="14"/><circle cx="124" cy="80" r="14"/><circle cx="150" cy="88" r="12"/></g><g stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".6"><path d="M50 64l-5-10M68 58l-2-11M118 58l2-11M136 62l5-10"/></g>'}
+ {n:'앉은 줄 + 선 줄', c:'의자에 앉은 줄 뒤로 선 줄', need:'의자 몇 개 · 어르신 대기용으로 두는 그 의자를 그대로 써요'},
+ {n:'V자로 어깨만 안쪽으로', c:'두 분 쪽으로 살짝 돌려 서요', need:'없어요 · 한 마디면 됩니다'},
+ {n:'잔 부딪히기', c:'옆사람과 잔을 부딪히는 순간 · 시선이 서로에게 가요', need:'잔 · 축배 뒤라면 이미 손에 있어요'},
+ {n:'정렬 직전', c:'줄 서기 직전의 웃음과 매무새 고치는 순간', need:'없어요 · 작가가 먼저 들고 있으면 돼요'},
+ {n:'리액션 컷', c:'두 분의 한 동작에 하객분들이 반응하는 얼굴', need:'없어요'},
+ {n:'하객 속 부부', c:'넓게 물러나 두 분을 사람들 한가운데 두고', need:'물러날 거리 · 공간을 보고 정해요'},
+ {n:'다 같이 모여 기대기', c:'가까이 붙어 서로 기대요', need:'없어요'},
+ {n:'박수로 맺는 한 컷', c:'예식을 맺는 박수', need:'없어요'},
+ {n:'다 함께 셀카', c:'두 분이 폰을 들고 · 넓은 컷은 작가가 함께', need:'두 분 휴대폰'},
+ {n:'그냥 대화하게 두기', c:'정렬을 풀고 이야기하는 그대로', need:'없어요 · 아무것도 안 하는 것도 하나의 선택이에요'}
 ];
 var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
-var PHOTO_MAX=11;   // 전체 하객 제외 추가 구도 상한(총 12컷)
-var PHOTO_FX_MAX=8;   // 연출 상한
+/* ★[PHOTO_LIMIT 2026-08-08] 11 → 6. 5차 리서치 실측으로 11개는 물리적으로 불가능해졌다 —
+   전체컷 6분 + 11컷 × 3분 = 39분인데 배정 시간이 30분이다. 6개면 6+18=24분으로 들어간다. */
+var PHOTO_MAX=6;    // 전체 하객 제외 추가 구도 상한(총 7컷)
+var PHOTO_FX_MAX=3;   // 연출 상한 — 마지막 토막이 4~5분이고 연출 하나에 1분 남짓
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
@@ -5541,24 +5584,37 @@ function renderPhoto(box){
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
   h+='<div class="sp-note" style="text-align:left;margin:0 0 8px">고른 내용은 나갈 때 자동으로 저장돼요</div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 기록</b> 시간에 남길 구도예요 · <b>번호 순서대로</b> 찍어요. 전체 하객은 늘 첫 컷이에요. 보통 부모님·가족 구도를 앞에 두면 먼저 가셔야 하는 어른들이 편해요.</div>';   // MPD_E10 산재 노트 통합
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>다 함께</b> 시간에 남길 구도예요. 전체 하객은 늘 첫 컷이고, <b>「불러 모아요」</b> 구도가 그다음으로 이어져요. <b>「자리에서」</b>는 두 분이 자리를 돌 때 담으니 번호와 상관없어요.</div>';   // MPD_E10 산재 노트 통합
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
-    h+='<div class="ph-item"><span class="ph-no">'+(i+2)+'</span><span class="ph-nm">'+escapeHtml(n)+'</span><span class="ph-ctl">'
+    var _m=photoMeta(n);
+    // [PHOTO_LIST_V2] 갈래를 줄에 적는다 — 어떤 구도는 사람을 불러 모아야 하고 어떤 것은 자리에서 그냥 담는다.
+    //   고객이 이걸 알면 "왜 이건 앞에서 찍고 저건 나중인가"가 화면에서 설명된다.
+    var _gt=_m ? (_m.gather?'<span class="ph-fix">불러 모아요</span>':'<span class="ph-fix" style="opacity:.6">자리에서</span>') : '';
+    h+='<div class="ph-item"><span class="ph-no">'+(i+2)+'</span><span class="ph-nm">'+escapeHtml(n)+'</span>'+_gt+'<span class="ph-ctl">'
       +(i>0?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="-1" aria-label="위로">↑</button>':'<span class="ph-mv-sp"></span>')
       +(i<sel.length-1?'<button type="button" class="ph-mv" data-pmv="'+i+'" data-d="1" aria-label="아래로">↓</button>':'<span class="ph-mv-sp"></span>')
       +'<button type="button" class="ph-del" data-pdel="'+i+'" aria-label="빼기">✕</button></span></div>';
   });
   h+='</div>';
-  var avail=PHOTO_PRESETS.filter(function(n){ return sel.indexOf(n)<0; });
-  if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
+  /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
+  var _pm=photoMins(sel);
+  h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
+    +(_pm>24?' <span style="color:var(--gold-deeper)">· 단체 기록 시간이 빠듯해져요</span>':'')+'</div>';
+  var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
+  if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
+    h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  // 단체컷 '함께 하는 동작' — 예시 카드형(구도가 보이는 그림 + 한 줄 의도 · 무드단어 클릭에서 개편 2026-07-20). 사진작가·디렉터 전달용
+  // 단체컷 '함께 하는 동작' — [PHOTO_FX_V2 2026-08-08] 그림을 빼고 이름·한 줄·필요한 것 세 줄로. 사진작가·디렉터 전달용
   h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">각 그림은 <b>구도만 나타낸 예시</b>예요(실제 촬영 컷과 달라요). 마음 가는 것만 눌러 주세요. 고른 개수로 비용은 바뀌지 않아요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">마음 가는 것만 <b>세 개까지</b> 골라 주세요 · 고른 개수로 비용은 바뀌지 않아요. 「필요한 것」이 없는 연출은 그 자리에서 바로 돼요.</div>';
   h+='<div class="pfx-grid">';
-  PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1; h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'"><svg class="pfx-thumb" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+c.d+'</svg><span class="pfx-ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div class="pfx-meta"><div class="pfx-ttl">'+escapeHtml(c.n)+'</div><div class="pfx-cap">'+escapeHtml(c.c)+'</div></div></div>'; });
+  PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1;
+    h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'">'
+      +'<span class="pfx-ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>'
+      +'<div class="pfx-meta"><div class="pfx-ttl">'+escapeHtml(c.n)+'</div><div class="pfx-cap">'+escapeHtml(c.c)+'</div>'
+      +'<div class="pfx-need">필요한 것 · '+escapeHtml(c.need)+'</div></div></div>'; });
   h+='</div>';
   var _fxExtra=fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; });   // 예전에 고른/직접 추가한 동작(프리셋에 없는 것) — 무음 유실 방지 위해 계속 노출
   if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }

@@ -444,7 +444,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 주체 라벨은 DECLWHO에서 읽는다(주체가 늘어도 admin이 자동으로 따라온다).
 //   과거 사고(2026-07-26): #318이 'ask'를 네 번째 주체로 추가했는데 여기 하드코딩 맵이 안 따라와,
-//   응답형을 고른 고객(감동 코스 기본값)의 상세에서 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌다.
+//   응답형을 고른 고객(당시 감동 코스 기본값 · [LEGACY_LABEL] 지금은 숨긴 코스다)의 상세에서 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌다.
 //   원천을 못 읽는 상황(스크립트 로드 실패)에서도 행이 사라지지 않도록 키를 그대로 보여주는 폴백을 둔다.
 function _declWhoLabel(k){
   if(!k) return '';
@@ -868,7 +868,7 @@ function aiAsk(surface,q){ var today=new Date().toISOString().slice(0,10); var U
   if(surface==='마이') return p('/api/advisor',{messages:U,page:'마이',state:'현재 단계: 입금완료 · 예식일: 2026-10-26',test:true});
   if(surface==='예약') return p('/api/schedule-advisor',{messages:U,today:today,page:'예약',test:true});
   if(surface==='애프터') return p('/api/after-concierge',{messages:U,test:true});
-  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
+  if(surface==='식순') return p('/api/ritual-advisor',{messages:U,embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분',test:true});
   return p('/api/advisor',{messages:U,page:'메인',test:true}); }
 
 // 교육 추가 공통 — 어디서든(테스트·인계·후보) 잘못을 발견하면 같은 흐름으로 가르친다.
@@ -1031,7 +1031,7 @@ function openAiTest(){
     if(surface==='예약') return post('/api/schedule-advisor',{messages:[U(q)],today:today,page:'예약',test:true});
     if(surface==='애프터') return post('/api/after-concierge',{messages:[U(q)],test:true});
     if(surface==='핸드오프') return post('/api/handoff',{messages:[U(q),A('상담사를 연결해 드릴게요')],page:'메인',customer:{name:'테스트',code:'TEST01',stage:'입금완료'},test:true});
-    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 담백 · 현재 화면: 편지 낭독 · 시간 합: 약 25분',test:true});
+    if(surface==='식순') return post('/api/ritual-advisor',{messages:[U(q)],embed:true,customer:{name:'테스트',code:'TEST01'},state:'코스: 약속 · 현재 화면: 편지 낭독 · 시간 합: 약 20분',test:true});
     return post('/api/advisor',{messages:[U(q)],page:'메인',test:true}); };
   var oldT=document.getElementById('ad_aiTest'); if(oldT&&oldT.parentNode) oldT.parentNode.removeChild(oldT);
   var ov=document.createElement('div'); ov.id='ad_aiTest';
@@ -2213,8 +2213,12 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('순서 흐름', (sm3.flow&&sm3.flow.length)?sm3.flow.join(' → '):'')
       +row('성혼 선언', _declWhoLabel(s3d.declareWho))   // ★DECL_ADMIN_MIRROR — 하드코딩 맵 금지 · 원천(DECLWHO)을 읽는다
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
-      +row('베일 다운', ({mother:'어머니',father:'아버지',both:'두 분',skip:'뺌'})[s3d.veil]||'')
-      +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')
+      /* ★[VEIL_RETIRED 2026-08-03] 베일 다운 행 삭제 — 전 예식 동시입장이라 실행 불가.
+         값을 만들 경로가 코스·팔레트·큐 어디에도 없어 늘 빈 줄이었다. 되살리지 말 것. */
+      /* ★[RINGWARM_RETIRED 2026-08-07 · LEGACY_LABEL] 링 워밍은 폐지됐고 새로 고를 길이 없다.
+         행을 남겨 둔 이유는 하나뿐 — 폐지 전에 저장된 초안이 이 값을 쥐고 있으면 관리자가 알아야 한다.
+         row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
+      +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
       +row('부모님 헌정', ({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||'')
       +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
@@ -2790,7 +2794,8 @@ function contractPath(product, docVersion){
   }
   if(v==='v1.1') return '/contract/archive/v1-1.html';
   if(v==='v1.2') return '/contract/archive/v1-2.html';
-  return '/contract/v1-1.html';   // 현행(v1.3) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.4) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

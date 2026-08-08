@@ -179,6 +179,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-mv{display:inline-flex;gap:4px}
 .mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
 .mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
+.ordwarn{background:#fdf0eb;border-left:3px solid #b34a2a;border-radius:8px;padding:9px 11px;margin:0 2px 10px;font-size:12.5px;line-height:1.6;color:#7a2f16;word-break:keep-all}
 /* [ORD_ROWCTL] 넣기·빼기 — ↑↓와 같은 크기·같은 자리. 빼기는 한 톤 진하게(되돌릴 수 있는 조작이라 진사는 쓰지 않는다) */
 .mvb-del,.mvb-add{font-size:16px;font-weight:600;color:var(--gold-deeper);margin-left:2px}
 .mvb-add{background:#F6F2EA;border-color:var(--gold-btn)}
@@ -492,13 +493,25 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
   </div>
 </div>
 <script>
-var S={course:'damback',entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
+var S={course:'damback',off:{},entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}};
 var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계정 전환 감지 시 상태 초기화용
-var CLOSE_NAR="오늘 예식의 마지막 순서입니다. 두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제, 이 순간을 오래 기억할 수 있도록, 가장 가까운 분들과 함께 사진에 담겠습니다. 자리에서 그대로, 두 사람의 처음을 끝까지 함께해 주시기 바랍니다.";   // 폐식 나레이션 단일 출처(카드 미리듣기·fullBlocks 공용). 단체촬영 '구도'는 예식 준비로 분리(2026-07-19)
+/* ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. 원천은 assets/ritual-data.js 의 NARR —
+   여기는 인라인 사본이다(check-ritual-mirror.js 가 원천과 대조한다). 한쪽만 고치지 말 것. */
+/* ★[FREE_SLOT 2026-08-07] 자유 한 칸 문안 — 원천은 assets/ritual-data.js 의 NARR.
+   무엇이 들어와도 맞아야 하므로 **지목하지 않는다**. 여기는 인라인 사본이다. */
+var FREE_IN="이제, 두 사람이 따로 준비한 시간이 있습니다. 잠시 함께 봐 주시기 바랍니다.";
+var FREE_OUT="고맙습니다. 오늘 이 자리에 오래 남을 장면이었습니다.";
+var OUT_ENTRY="두 사람이 나란히 섰습니다. 숨을 한 번 고르셔도 좋습니다. 두 분, 잠시 서로를 바라보아 주세요.";
+var OUT_RINGWARM="반지가 모두의 손을 지나, 두 사람에게 돌아왔습니다. 담긴 마음까지 함께 왔습니다.";
+var OUT_VALLEY="두 사람이 오늘의 첫 순간을 함께 나눴습니다.";
+var OUT_SONG="노래에 담긴 마음까지, 오늘 이 자리에 남았습니다. 따뜻한 박수 부탁드립니다.";
+var OUT_TOAST="잔은 편히 내려놓으셔도 좋습니다. 오늘의 이 기쁨이, 두 사람의 첫날을 채웠습니다.";
+var OUT_DECLARE_FAMILY="선언은 가족의 목소리로 남았습니다. 이제 두 사람은 부부입니다. 큰 박수 부탁드립니다.";
+var CLOSE_NAR="두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제 그 자리를 사진으로 남기겠습니다. 모두 앞으로 나와, 두 분 곁에 서 주세요.";   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; _lazyPersist(); render(); };
@@ -551,9 +564,9 @@ var DECLWHO={
  family:{d:'가족이 낭독',desc:'양가 부모님이나 대표 한 분이 직접 선언해요',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 신랑 신부, 이제 두 사람은 부부입니다. 가족 여러분과 함께, 두 사람에게 큰 박수를 보내 주시기 바랍니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
 };
 var LETTER={
- parent:{d:"부모님께",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음이, 오늘 이 자리에 함께합니다. 한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"부모님께 드릴 편지"},
- each:{d:"서로에게",nar:"이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"서로에게 쓸 편지"},
- both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음, 그리고 이제 서로의 평생이 될 두 사람. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
+ parent:{d:"부모님께",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음이, 오늘 이 자리에 함께합니다. 한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다. 편지를 펼치고, 천천히 읽으시면 됩니다.",prep:"부모님께 드릴 편지"},
+ each:{d:"서로에게",nar:"이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다. 편지를 펼치고, 천천히 읽으시면 됩니다.",prep:"서로에게 쓸 편지"},
+ both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음, 그리고 이제 서로의 평생이 될 두 사람. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 잠시, 그 목소리에 함께 귀 기울여 주시기 바랍니다. 편지를 펼치고, 천천히 읽으시면 됩니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
 };
 /* [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. */
 var RINGWARM={
@@ -561,7 +574,7 @@ var RINGWARM={
  all:{d:'하객 전체',nar:"이제, 두 사람의 반지가 이 자리의 모든 손을 차례로 지나갑니다. 잠시 손에 쥐고, 마음속 축복을 담아 옆으로 전해 주시기 바랍니다. 오래 쥐지 마시고, 다음 분께 바로 전해 주시면 감사하겠습니다. 이 자리의 모든 마음이 담긴 반지가, 곧 두 사람에게 돌아옵니다."}
 };
 var TRIBUTE={
- nar:"이제, 두 사람이 가장 오랜 사랑 앞으로 걸어갑니다. 말로 다 못 한 감사를, 오늘 두 사람이 몸짓으로 전합니다.",
+ nar:"이제, 두 사람이 가장 오랜 사랑 앞으로 걸어갑니다. 말로 다 못 한 감사를, 오늘 몸짓으로 전합니다. 두 사람, 천천히 다가가 주세요.",
  end:"그 사랑이 있어, 오늘의 두 사람이 있습니다. 오늘, 두 집안은 서로의 가족이 되었습니다.",
  modes:{
   flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
@@ -589,91 +602,464 @@ var GUEST=[
   "오늘 예식은 미리 준비한 안내 음성으로 진행합니다. 어떤 순서로 진행할지, 어떤 문장으로 안내할지는 두 사람이 직접 정했습니다. 잠시 후 예식이 시작됩니다. 자리에 앉아 두 사람의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다.",
   "오늘 예식은 미리 준비한 안내 음성으로 진행돼요. 어떤 순서로 진행할지, 어떤 문장으로 안내할지는 저희가 직접 정했어요. 잠시 후 저희 예식이 시작됩니다. 자리에 앉아 저희의 시작을 함께 맞아 주세요. 휴대폰은 진동으로 바꿔 주시면 감사하겠습니다."]
 ];
+/* ★[COURSE_MIRROR] 아래 COURSES 는 assets/ritual-data.js 의 COURSES 를 **프로그램으로 뽑은 사본**이다.
+   손으로 옮겨 적지 않는다 — 옮겨 적으면 원천과 갈리고, 화면이 실제와 다른 예식을 설명한다.
+   고칠 일이 생기면 원천을 먼저 고치고 다시 뽑아 넣는다. 사본이 여기 있는 이유는 [ORD_ENG_SANDBOX] 참고.
+   ★[THREE_COURSES] 보이는 코스는 셋(기록·약속·가족 · 키는 record·damback·family 그대로). hidden:true 인 셋은 지운 게 아니라 숨긴 것이고,
+     저장된 초안이 그 코스를 쥐고 있어 엔진은 종전대로 돈다. 블록을 지우지 말 것. */
 var COURSES={
-  damback:{nm:'담백', badge:'정갈하게', ready:true, min:'약 25분',
-    seq:['guest','entry','welcome','vow','ring','declare','letter','bless','valley'],
-    one:'어른 하객이 많은 두 분께 · 꼭 필요한 순간만',
-    feel:'담백하지만 진심이 깊게 남길 원하는 두 분께 · 편지 한 통에 모두가 함께 우는, 오래 기억되는 시간이에요.',
-    flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','폐식·단체촬영'],
-    detail:[
-      {n:'신랑·신부 입장', how:'나레이션의 안내에 이어 "신랑 신부, 입장!" 소리와 함께 문이 열리고, 두 분이 손을 잡고 함께 걸어 들어와요.', fx:'모두의 시선이 한 번에 문으로 쏠리며, 예식의 첫 감동이 터지는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'환영·첫인사', how:'두 분이 하객에게 짧게 감사 인사를 전해요. 나레이션이 앞뒤를 열고 닫아 줘서, 가운데 한두 문장만 준비하면 돼요.', fx:'따뜻하게 자리를 열어, 하객이 마음을 놓고 집중하게 돼요.', pick:'인사말 미리 적어 두기'}   /* ★'나레이션 대행' 선택지 복원 금지 — 8842582(환영·첫인사를 '두 분 직접' 고정)로 삭제됨. 카피만 뒤늦게 정리한 것이고, 코드는 S.welcome='self' 고정이다 */,
-      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.', fx:'모두가 조용히 숨죽이는, 가장 깊고 진한 순간이에요.', pick:'울컥하면 배우자가 대신 읽어드려요'},
-      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는, 촬영도 예쁜 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 공식적으로 선언해요.', fx:'예식의 공식 하이라이트. 어른들이 "제대로 된 예식이었다"고 느끼는 지점이에요.', pick:'나레이션 / 하객 응답 / 가족 낭독'},
-      {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'이 예식의 감정 정점. 편지 한 통에 온 하객이 함께 우는 순간이에요.', pick:'부모님께 / 서로에게'},
-      {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아, 예식이 자연스럽게 마무리돼요.', fix:true}
-    ],
-    addable:'원하면 와인 세리머니·케이크 커팅·부모님 덕담을 더할 수 있어요.'},
-  gamdong:{nm:'감동', badge:'감정 몰입', ready:true, min:'약 28분',
-    seq:['guest','entry','welcome','vow','ring','letter','tribute','declare'],
-    opt:[{k:'valley',at:9}],
-    one:'눈물 예식을 원하는 두 분께 · 편지와 서약이 정점',
-    feel:'감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 첫인사부터 편지까지 감정이 차오르는 벅찬 예식이에요.',
-    flow:['입장','첫인사','혼인 서약','반지','편지 낭독','부모님 헌정','성혼 선언','폐식·단체촬영'],
-    detail:[
-      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'첫 등장부터 감정이 차오르는, 눈물의 문을 여는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'환영·첫인사', how:'두 분이 하객에게 직접 감사 인사를 전해요.', fx:'벅찬 마음을 함께 나누며 자리가 따뜻해져요.', pick:'인사말 준비'},
-      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.', fx:'편지와 함께 이 예식의 두 정점 중 하나예요.', pick:'울컥하면 배우자가 대신'},
-      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 손끝에 새겨지는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'편지 낭독', how:'부모님과 서로에게 쓴 편지를 두 분이 직접 읽어요.', fx:'감정이 가장 깊어지는 정점. 온 하객이 함께 우는 순간이에요.', pick:'부모님께 / 서로에게 / 둘 다'},
-      {n:'부모님 헌정', how:'두 분이 양가 부모님께 다가가 꽃과 감사를 전해요.', fx:'키워 주신 사랑에 보답하는, 가족이 함께 벅차오르는 순간이에요.', pick:'꽃 헌정 / 큰절 / 포옹'},
-      {n:'성혼 선언', how:'나레이션의 물음에 하객분들이 한마디로 답하고, 그 답으로 성혼이 선언돼요.', fx:'하객 모두가 증인으로 답하며 선언이 완성되는 순간이에요.', pick:'하객 응답 / 나레이션 / 가족 낭독'},
-      {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아요.', fix:true}
-    ],
-    addable:'첫인사로 문을 열고, 하객분들이 함께 답하는 성혼 선언으로 닫는 코스예요.'},
-  family:{nm:'가족', badge:'가족 참여', ready:true, min:'약 30분',
-    seq:['guest','entry','bless','vow','ringwarm','ring','letter','tribute','declare'],
-    opt:[{k:'welcome',at:3}],
-    one:'가족이 주인공인 예식을 원하는 두 분께',
-    feel:'가족 유대를 소중히 여기는 두 분께 · 온 가족이 함께 완성하는 예식이에요.',
-    flow:['입장','부모님 덕담','혼인 서약','링 워밍','반지','편지 낭독','부모님 헌정','성혼 선언','폐식·단체촬영'],
-    detail:[
-      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'가족이 지켜보는 가운데 첫 걸음을 내딛는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'부모님 덕담', how:'예식 초입에 양가 부모님이 짧은 덕담으로 두 사람의 시작을 축복해요.', fx:'가족이 예식의 주인공임을 처음부터 보여주는 따뜻한 문이에요.', pick:'한 분 대표 / 양가 각각'},
-      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 읽어요.', fx:'가족 앞에서 건네는 평생의 약속이에요.', pick:'울컥하면 배우자가 대신'},
-      {n:'링 워밍', how:'반지를 작은 주머니에 담아 가족·가까운 하객의 손을 거치며, 각자 마음속 축복을 담아요.', fx:'모두의 축복이 반지에 스며, 손끝으로 이어지는 유대예요.', pick:'가족만 / 전체 하객'},
-      {n:'반지 교환', how:'축복이 담긴 반지를 서로에게 끼워 줘요.', fx:'가족의 마음까지 함께 나눠 끼는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'편지 낭독', how:'부모님께 쓴 편지를 두 분이 직접 읽어요.', fx:'이 예식의 감정 정점이에요.', pick:'부모님께 / 서로에게'},
-      {n:'부모님 헌정', how:'두 분이 양가 부모님께 다가가 꽃과 감사를 전해요.', fx:'키워 주신 사랑에 보답하는 순간이에요.', pick:'꽃 헌정 / 큰절 / 포옹'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'가족 모두가 증인이 되는 공식 선언이에요.', pick:'가족 낭독 / 나레이션 / 하객 응답'},
-      {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 온 가족이 함께 단체 사진을 남겨요.', fx:'양가 모든 세대가 한 프레임에 담기는 순간이에요.', fix:true}
-    ],
-    addable:'부모님 덕담·링 워밍·헌정이 이 코스의 시그니처예요.'},
-  minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, min:'약 18분',
-    seq:['guest','entry','vow','ring','declare'],
-    opt:[{k:'welcome',at:2},{k:'letter',at:5},{k:'bless',at:6}],
-    // ★[ORD_MINIMAL_ONE] '담백에서 …을 뺀' 뺄셈 정의 금지 — 다섯 코스 중 미니멀만 다른 코스의 결핍으로
-    //   설명돼 짧은 예식을 고르는 고객이 스스로를 궁색하게 느꼈다(2026-08-01). 나머지 넷과 같은 '대상' 서술로 유지할 것.
-    one:'예식은 짧게, 시간은 사진과 가족에게 쓰고 싶은 두 분께',
-    feel:'약속만 또렷하게 남기고 싶은 두 분께 · 어른 하객이 많은 자리에도 편안한 가장 간결한 코스예요.',
-    flow:['입장','혼인 서약','반지','성혼 선언','폐식·단체촬영'],
-    detail:[
-      {n:'신랑·신부 입장', how:'나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.', fx:'군더더기 없이, 두 사람에게 바로 시선이 모이는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 짧게 직접 읽어요.', fx:'가장 핵심이 되는, 조용하고 진한 순간이에요.', pick:'울컥하면 배우자가 대신'},
-      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 손끝에 새겨지는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 선언해요.', fx:'짧지만 또렷한 공식 선언으로 예식이 완성돼요.', pick:'나레이션 / 하객 응답 / 가족 낭독'},
-      {n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'짧은 예식의 여운을 그대로 사진에 담아요.', fix:true}
-    ],
-    addable:'원하면 첫인사·편지를 더할 수 있어요.'},
-  // ★FESTIVE_MIN_WHY — 축하만 순간 합 대비 여유가 16분(다른 코스 10~14분)이다. 오타가 아니라 친구 하객 환호·축배 잔 배분에 드는 시간이다(TOAST.both.cue가 '편지 낭독 중 하객 잔 미리 채움'으로 동선까지 잡아 둔다). 첫 예식 실측 전까지 낮추지 말 것.
-  festive:{nm:'축하', badge:'밝고 활기', ready:true, min:'약 30분',
-    seq:['guest','entry','welcome','vow','ring','declare','letter','toast'],
-    opt:[{k:'song',at:6},{k:'bless',at:6}],
-    one:'친구 하객이 많은 두 분께 · 웃음과 축배의 활기',
-    feel:'즐겁게 축하하고 싶은 두 분께 · 편지로 마음을 한 번 모으고, 축배·케이크로 밝게 마무리하는 코스예요.',
-    flow:['입장','첫인사','혼인 서약','반지','성혼 선언','편지 낭독','축배·케이크','폐식·단체촬영'],
-    detail:[
-      {n:'신랑·신부 입장', how:'밝은 입장곡과 함께 문이 열리고, 두 분이 활기차게 걸어 들어와요.', fx:'첫 등장부터 분위기가 환하게 열리는 순간이에요.', pick:'입장 멘트 느낌 6가지 중 선택'},
-      {n:'환영·첫인사', how:'두 분이 하객에게 직접 밝게 인사해요.', fx:'가까운 사이라 웃음으로 자리가 금세 편해져요.', pick:'인사말 준비'},
-      {n:'혼인 서약', how:'두 분이 서로에게 쓴 약속을 직접 읽어요.', fx:'밝은 분위기 속에서도 잠시 진지해지는 순간이에요.', pick:'울컥하면 배우자가 대신'},
-      {n:'반지 교환', how:'서로에게 반지를 끼워 줘요.', fx:'약속이 눈에 보이는 형태로 남는 순간이에요.', pick:'넣기 / 빼기'},
-      {n:'성혼 선언', how:'나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.', fx:'다 함께 환호로 맞이하는 공식 하이라이트예요.', pick:'나레이션 / 하객 응답 / 가족 낭독'},
-      {n:'편지 낭독', how:'부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.', fx:'밝은 예식 한가운데, 마음이 가장 깊어지는 순간이에요.', pick:'부모님께 / 서로에게'},
-      {n:'축배·케이크', how:'작은 케이크를 자르고, 모두가 잔을 들어 함께 축하해요.', fx:'감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.', pick:'축배 / 케이크 / 둘 다'},
-      {n:'폐식·단체촬영', how:'나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'환한 에너지를 그대로 사진에 담아요.', fix:true}
-    ],
-    addable:'축배·케이크가 이 코스의 시그니처예요.'}
+ "damback": {
+  "nm": "약속",
+  "badge": "두 사람이 중심",
+  "ready": true,
+  "min": "약 20분",
+  "seq": [
+   "guest",
+   "entry",
+   "vow",
+   "ring",
+   "declare",
+   "letter"
+  ],
+  "one": "두 사람이 중심 · 서약과 반지, 그리고 편지 한 통",
+  "feel": "서로에게 건네는 약속이 하루의 가운데 있기를 바라는 두 분께 · 과하지 않게, 대신 그 자리에 오래 머물러요.",
+  "flow": [
+   "입장",
+   "혼인 서약",
+   "반지",
+   "성혼 선언",
+   "편지 낭독",
+   "폐식·단체촬영"
+  ],
+  "detail": [
+   {
+    "n": "신랑·신부 입장",
+    "how": "나레이션의 안내에 이어 \"신랑 신부, 입장!\" 소리와 함께 문이 열리고, 두 분이 손을 잡고 함께 걸어 들어와요.",
+    "fx": "모두의 시선이 한 번에 문으로 쏠리며, 예식의 첫 감동이 터지는 순간이에요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "혼인 서약",
+    "how": "두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.",
+    "fx": "모두가 조용히 숨죽이는, 가장 깊고 진한 순간이에요.",
+    "pick": "울컥하면 배우자가 대신 읽어드려요"
+   },
+   {
+    "n": "반지 교환",
+    "how": "서로에게 반지를 끼워 줘요.",
+    "fx": "약속이 눈에 보이는 형태로 남는, 촬영도 예쁜 순간이에요.",
+    "pick": "넣기 / 빼기"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "나레이션이 두 사람이 부부가 되었음을 공식적으로 선언해요.",
+    "fx": "예식의 공식 하이라이트. 어른들이 \"제대로 된 예식이었다\"고 느끼는 지점이에요.",
+    "pick": "나레이션 / 하객 응답 / 가족 낭독"
+   },
+   {
+    "n": "편지 낭독",
+    "how": "부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.",
+    "fx": "이 예식의 감정 정점. 편지 한 통에 온 하객이 함께 우는 순간이에요.",
+    "pick": "부모님께 / 서로에게"
+   },
+   {
+    "n": "폐식·단체촬영",
+    "how": "나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 가장 가까운 분들과 단체 사진을 남겨요.",
+    "fx": "벅찬 여운을 그대로 사진에 담아, 예식이 자연스럽게 마무리돼요.",
+    "fix": true
+   }
+  ],
+  "addable": "원하면 첫인사·부모님 덕담·축배를 더할 수 있어요. 하나 더할 때마다 약 4분이 늘어요."
+ },
+ "gamdong": {
+  "nm": "감동",
+  "badge": "감정 몰입",
+  "ready": true,
+  "hidden": true,
+  "min": "약 28분",
+  "seq": [
+   "guest",
+   "entry",
+   "welcome",
+   "vow",
+   "ring",
+   "letter",
+   "tribute",
+   "declare"
+  ],
+  "opt": [
+   {
+    "k": "valley",
+    "at": 9
+   }
+  ],
+  "one": "눈물 예식을 원하는 두 분께 · 편지와 서약이 정점",
+  "feel": "감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 첫인사부터 편지까지 감정이 차오르는 벅찬 예식이에요.",
+  "flow": [
+   "입장",
+   "첫인사",
+   "혼인 서약",
+   "반지",
+   "편지 낭독",
+   "부모님 헌정",
+   "성혼 선언",
+   "폐식·단체촬영"
+  ],
+  "detail": [
+   {
+    "n": "신랑·신부 입장",
+    "how": "나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.",
+    "fx": "첫 등장부터 감정이 차오르는, 눈물의 문을 여는 순간이에요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "환영·첫인사",
+    "how": "두 분이 하객에게 직접 감사 인사를 전해요.",
+    "fx": "벅찬 마음을 함께 나누며 자리가 따뜻해져요.",
+    "pick": "인사말 준비"
+   },
+   {
+    "n": "혼인 서약",
+    "how": "두 분이 서로에게 쓴 약속을 직접 목소리로 읽어요.",
+    "fx": "편지와 함께 이 예식의 두 정점 중 하나예요.",
+    "pick": "울컥하면 배우자가 대신"
+   },
+   {
+    "n": "반지 교환",
+    "how": "서로에게 반지를 끼워 줘요.",
+    "fx": "약속이 손끝에 새겨지는 순간이에요.",
+    "pick": "넣기 / 빼기"
+   },
+   {
+    "n": "편지 낭독",
+    "how": "부모님과 서로에게 쓴 편지를 두 분이 직접 읽어요.",
+    "fx": "감정이 가장 깊어지는 정점. 온 하객이 함께 우는 순간이에요.",
+    "pick": "부모님께 / 서로에게 / 둘 다"
+   },
+   {
+    "n": "부모님 헌정",
+    "how": "두 분이 양가 부모님께 다가가 꽃과 감사를 전해요.",
+    "fx": "키워 주신 사랑에 보답하는, 가족이 함께 벅차오르는 순간이에요.",
+    "pick": "꽃 헌정 / 큰절 / 포옹"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "나레이션의 물음에 하객분들이 한마디로 답하고, 그 답으로 성혼이 선언돼요.",
+    "fx": "하객 모두가 증인으로 답하며 선언이 완성되는 순간이에요.",
+    "pick": "하객 응답 / 나레이션 / 가족 낭독"
+   },
+   {
+    "n": "폐식·단체촬영",
+    "how": "나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.",
+    "fx": "벅찬 여운을 그대로 사진에 담아요.",
+    "fix": true
+   }
+  ],
+  "addable": "첫인사로 문을 열고, 하객분들이 함께 답하는 성혼 선언으로 닫는 코스예요."
+ },
+ "family": {
+  "nm": "가족",
+  "badge": "어른이 중심",
+  "ready": true,
+  "min": "약 24분",
+  "seq": [
+   "guest",
+   "entry",
+   "bless",
+   "vow",
+   "ring",
+   "tribute",
+   "declare"
+  ],
+  "opt": [
+   {
+    "k": "welcome",
+    "at": 3
+   },
+   {
+    "k": "letter",
+    "at": 5
+   }
+  ],
+  "one": "어른이 중심 · 부모님이 말하는 자리와, 두 분이 부모님께 가는 자리",
+  "feel": "가족 유대를 소중히 여기는 두 분께 · 온 가족이 함께 완성하는 예식이에요.",
+  "flow": [
+   "입장",
+   "부모님 덕담",
+   "혼인 서약",
+   "반지",
+   "부모님 헌정",
+   "성혼 선언",
+   "폐식·단체촬영"
+  ],
+  "detail": [
+   {
+    "n": "신랑·신부 입장",
+    "how": "나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.",
+    "fx": "가족이 지켜보는 가운데 첫 걸음을 내딛는 순간이에요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "부모님 덕담",
+    "how": "예식 초입에 양가 부모님이 짧은 덕담으로 두 사람의 시작을 축복해요.",
+    "fx": "가족이 예식의 주인공임을 처음부터 보여주는 따뜻한 문이에요.",
+    "pick": "한 분 대표 / 양가 각각"
+   },
+   {
+    "n": "혼인 서약",
+    "how": "두 분이 서로에게 쓴 약속을 직접 읽어요.",
+    "fx": "가족 앞에서 건네는 평생의 약속이에요.",
+    "pick": "울컥하면 배우자가 대신"
+   },
+   {
+    "n": "반지 교환",
+    "how": "서로에게 반지를 끼워 줘요.",
+    "fx": "가족이 지켜보는 앞에서 약속이 손끝에 남는 순간이에요.",
+    "pick": "넣기 / 빼기"
+   },
+   {
+    "n": "부모님 헌정",
+    "how": "두 분이 양가 부모님께 다가가 꽃과 감사를 전해요.",
+    "fx": "키워 주신 사랑에 보답하는 순간이에요.",
+    "pick": "꽃 헌정 / 큰절 / 포옹"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "나레이션이 두 사람이 부부가 되었음을 선언해요.",
+    "fx": "가족 모두가 증인이 되는 공식 선언이에요.",
+    "pick": "가족 낭독 / 나레이션 / 하객 응답"
+   },
+   {
+    "n": "폐식·단체촬영",
+    "how": "나레이션이 따뜻하게 예식을 닫고, 온 가족이 함께 단체 사진을 남겨요.",
+    "fx": "양가 모든 세대가 한 프레임에 담기는 순간이에요.",
+    "fix": true
+   }
+  ],
+  "addable": "원하면 편지 낭독이나 첫인사를 더할 수 있어요. 하나 더할 때마다 약 4분이 늘어요."
+ },
+ "record": {
+  "nm": "기록",
+  "badge": "사진이 중심",
+  "ready": true,
+  "min": "약 16분",
+  "peakOne": true,
+  "seq": [
+   "guest",
+   "entry",
+   "vow",
+   "ring",
+   "declare",
+   "toast"
+  ],
+  "opt": [
+   {
+    "k": "letter",
+    "at": 2
+   },
+   {
+    "k": "free",
+    "at": 4
+   }
+  ],
+  "one": "사진이 가장 많이 남는 코스 · 마음이 움직이는 순간만 두세 개",
+  "feel": "틀에 맞춘 예식보다 오래 볼 사진이 남기를 바라는 두 분께 · 순간은 적게, 대신 깊게 머물러요.",
+  "flow": [
+   "도착",
+   "하나의 정점",
+   "성혼 선언",
+   "축배"
+  ],
+  "detail": [
+   {
+    "n": "도착",
+    "how": "행진하지 않아요. 두 분이 하객분들 사이를 지나 가운데로 걸어오시면, 나레이션이 시작을 모읍니다.",
+    "fx": "넓은 컷과 하객분들의 얼굴이 한 장에 담기는 자리예요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "하나의 정점",
+    "how": "서약과 편지 중 하나만 해요. 대신 시간을 아끼지 않고, 끝나도 바로 넘어가지 않아요.",
+    "fx": "오늘 하루에서 가장 오래 볼 사진이 여기서 나와요.",
+    "pick": "서약 또는 편지 (하나만)"
+   },
+   {
+    "n": "반지 교환",
+    "how": "기본에는 없어요. 원하시면 넣을 수 있고, 넣으면 정점 바로 뒤에 들어가요.",
+    "fx": "손과 눈이 함께 담기는, 짧고 확실한 자리예요.",
+    "pick": "빼기(기본) / 넣기"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "주례 없이, 하객분들이 함께 답하거나 가족이 낭독해요.",
+    "fx": "권위자 없이도 또렷하게 남는 공식 선언이에요.",
+    "pick": "하객 응답 / 가족 낭독 / 나레이션"
+   },
+   {
+    "n": "축배",
+    "how": "곧바로 잔을 들어요. 길게 닫는 인사 없이, 나레이션이 단체 기록으로 이어 줍니다.",
+    "fx": "모두의 표정이 한 장에 담기고, 자연스럽게 촬영 시간으로 넘어가요.",
+    "fix": true
+   }
+  ],
+  "addable": "반지 교환이나 편지를 넣거나, 두 분이 하고 싶은 것 하나를 자유 칸에 넣을 수 있어요."
+ },
+ "minimal": {
+  "nm": "미니멀",
+  "badge": "가장 짧게",
+  "ready": true,
+  "hidden": true,
+  "min": "약 18분",
+  "seq": [
+   "guest",
+   "entry",
+   "vow",
+   "ring",
+   "declare"
+  ],
+  "opt": [
+   {
+    "k": "welcome",
+    "at": 2
+   },
+   {
+    "k": "letter",
+    "at": 5
+   },
+   {
+    "k": "bless",
+    "at": 6
+   }
+  ],
+  "one": "「약속」에서 첫인사·편지를 뺀 최단 코스",
+  "feel": "약속만 또렷하게 남기고 싶은 두 분께 · 어른 하객이 많은 자리에도 편안한 가장 간결한 코스예요.",
+  "flow": [
+   "입장",
+   "혼인 서약",
+   "반지",
+   "성혼 선언",
+   "폐식·단체촬영"
+  ],
+  "detail": [
+   {
+    "n": "신랑·신부 입장",
+    "how": "나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.",
+    "fx": "군더더기 없이, 두 사람에게 바로 시선이 모이는 순간이에요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "혼인 서약",
+    "how": "두 분이 서로에게 쓴 약속을 짧게 직접 읽어요.",
+    "fx": "가장 핵심이 되는, 조용하고 진한 순간이에요.",
+    "pick": "울컥하면 배우자가 대신"
+   },
+   {
+    "n": "반지 교환",
+    "how": "서로에게 반지를 끼워 줘요.",
+    "fx": "약속이 손끝에 새겨지는 순간이에요.",
+    "pick": "넣기 / 빼기"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "나레이션이 두 사람이 부부가 되었음을 선언해요.",
+    "fx": "짧지만 또렷한 공식 선언으로 예식이 완성돼요.",
+    "pick": "나레이션 / 하객 응답 / 가족 낭독"
+   },
+   {
+    "n": "폐식·단체촬영",
+    "how": "나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.",
+    "fx": "짧은 예식의 여운을 그대로 사진에 담아요.",
+    "fix": true
+   }
+  ],
+  "addable": "원하면 첫인사·편지를 더할 수 있어요."
+ },
+ "festive": {
+  "nm": "축하",
+  "badge": "밝고 활기",
+  "ready": true,
+  "hidden": true,
+  "min": "약 30분",
+  "seq": [
+   "guest",
+   "entry",
+   "welcome",
+   "vow",
+   "ring",
+   "declare",
+   "letter",
+   "toast"
+  ],
+  "opt": [
+   {
+    "k": "bless",
+    "at": 6
+   }
+  ],
+  "one": "친구 하객이 많은 두 분께 · 웃음과 축배의 활기",
+  "feel": "즐겁게 축하하고 싶은 두 분께 · 편지로 마음을 한 번 모으고, 축배·케이크로 밝게 마무리하는 코스예요.",
+  "flow": [
+   "입장",
+   "첫인사",
+   "혼인 서약",
+   "반지",
+   "성혼 선언",
+   "편지 낭독",
+   "축배·케이크",
+   "폐식·단체촬영"
+  ],
+  "detail": [
+   {
+    "n": "신랑·신부 입장",
+    "how": "밝은 입장곡과 함께 문이 열리고, 두 분이 활기차게 걸어 들어와요.",
+    "fx": "첫 등장부터 분위기가 환하게 열리는 순간이에요.",
+    "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "n": "환영·첫인사",
+    "how": "두 분이 하객에게 직접 밝게 인사해요.",
+    "fx": "가까운 사이라 웃음으로 자리가 금세 편해져요.",
+    "pick": "인사말 준비"
+   },
+   {
+    "n": "혼인 서약",
+    "how": "두 분이 서로에게 쓴 약속을 직접 읽어요.",
+    "fx": "밝은 분위기 속에서도 잠시 진지해지는 순간이에요.",
+    "pick": "울컥하면 배우자가 대신"
+   },
+   {
+    "n": "반지 교환",
+    "how": "서로에게 반지를 끼워 줘요.",
+    "fx": "약속이 눈에 보이는 형태로 남는 순간이에요.",
+    "pick": "넣기 / 빼기"
+   },
+   {
+    "n": "성혼 선언",
+    "how": "나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.",
+    "fx": "다 함께 환호로 맞이하는 공식 하이라이트예요.",
+    "pick": "나레이션 / 하객 응답 / 가족 낭독"
+   },
+   {
+    "n": "편지 낭독",
+    "how": "부모님(또는 서로)께 쓴 편지를 두 분이 직접 읽어요.",
+    "fx": "밝은 예식 한가운데, 마음이 가장 깊어지는 순간이에요.",
+    "pick": "부모님께 / 서로에게"
+   },
+   {
+    "n": "축배·케이크",
+    "how": "작은 케이크를 자르고, 모두가 잔을 들어 함께 축하해요.",
+    "fx": "감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.",
+    "pick": "축배 / 케이크 / 둘 다"
+   },
+   {
+    "n": "폐식·단체촬영",
+    "how": "나레이션이 밝게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.",
+    "fx": "환한 에너지를 그대로 사진에 담아요.",
+    "fix": true
+   }
+  ],
+  "addable": "축배·케이크가 이 코스의 시그니처예요."
+ }
 };
 
 // ★[VOW_CHORUS 2026-08-04] 서약의 마지막 한 문장은 두 분이 함께 읽는다.
@@ -910,7 +1296,8 @@ var STEPDEF={
     질문 하나에 화면 하나: ①우리가 만드는 게 뭔가(하루의 흐름) ②우리가 할 일은 뭔가(준비할 것). */
  intro:{k:'intro',title:'우리 예식, 우리가 만들어요'},
  intro2:{k:'intro2',title:'두 분이 하실 일'},
- course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'다섯 코스 중 마음 가는 하나를 눌러 상세를 보세요.'},
+ // ★코스 개수를 문구에 적지 않는다 — 코스가 늘거나 줄면 이 문장만 낡는다(실제로 다섯→여섯이 됐다).
+ course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'마음 가는 하나를 눌러 상세를 보세요.'},
  tune:{k:'tune',title:'어떤 순간을 직접 고를까요?',sub:''},
  guest:{k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  entry:{k:'entry',title:'입장, 어떻게 열까요?',sub:'여섯 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
@@ -930,7 +1317,13 @@ var STEPDEF={
 };
 var STEPS=[], CEREMONY=[];
 // 전체 순서 팔레트 — 고정 3개(guest·entry·폐식)와 핵심(vow·ring·declare) 빼고 어느 코스에서든 더할 수 있는 순간 (2026-07-19 사용자 지시: "코스에 없는 이벤트도 원하면 넣게") — RITUAL_ADD_PALETTE
-var GADD={welcome:1,bless:1,ringwarm:1,valley:1,letter:1,tribute:1,toast:1,song:1};
+/* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 폐지 — 사용자 지시 "링워밍은 유치하고 별로인거같아 제거하자".
+   되살리지 말 것. 이후 리뷰가 '빠진 순간 복원' 후보로 다루더라도 복원 금지.
+   ★팔레트에서만 뺀다 — 아래 카드·문안·선택지 코드는 남겨 둔다(FILES 번호가 인덱스+1이라
+     클립을 빼면 그 뒤 음원이 전부 개명되고, 대본 생성기·판정표까지 연쇄로 밀린다).
+     팔레트에 없으면 새로 넣을 길이 없다. 그게 폐지의 실체다.
+   ★원천은 assets/ritual-cue.js 의 GADD — 한쪽만 고치지 말 것. */
+var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,song:1};   // [RINGWARM_RETIRED] ringwarm 제거
 var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
@@ -974,7 +1367,7 @@ function ordNow(){   // 표시·진행 순서의 단일 출처(2026-07-18 사용
   });
   return o;
 }
-function curSeq(){ return ordNow().filter(function(k){ return !isOptK(k)||S.extra[k]; }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만
+function curSeq(){ return ordNow().filter(function(k){ return (!isOptK(k)||S.extra[k]) && momOn(k); }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만 ([ALL_OPTIONAL] 뺀 것 제외)
 window.momMove=function(k,d){   // 순서 위/아래 이동 — 고정 순간(FIXPOS)은 움직이지도, 밀려나지도 않는다
   if(FIXPOS[k]) return;   // 자기가 고정
   var o=ordNow().slice(), i=o.indexOf(k), j=i+d;
@@ -1002,7 +1395,10 @@ var COURSE_DEF={
  gamdong:{entry:'D',declareWho:'ask',  declare:'1',letter:'parent'},
  family :{entry:'E',declareWho:'family',declare:'1',letter:'parent'},
  minimal:{entry:'B',declareWho:'narr', declare:'1',letter:'parent'},
- festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'}
+ festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'},
+ /* ★[RECORD_COURSE 2026-08-07] 기록형 — 선언은 하객이 함께(ask). 주례 없는 게 이 코스의 핵심이면서
+    동시에 격식 축을 지키는 최소 형식이다. 원천은 assets/ritual-cue.js 의 COURSE_DEF — 한쪽만 고치지 말 것. */
+ record :{entry:'F',declareWho:'ask',  declare:'1',letter:'parent',ring:'off'}
 };
 function cdef(c){ return COURSE_DEF[c]||COURSE_DEF.damback; }
 /* [ORD_LEAN] '안심' 줄을 걷어냈다. 열에 여덟이 '대부분 X를 골라요'였는데,
@@ -1028,7 +1424,7 @@ var MOMENT={
  entry:{ph:'식이 열려요',t:'멘트가 첫 장면을 만들어요',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
  welcome:{ph:'첫인사',t:'두 분이 하객에게 직접 인사해요',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
  vow:{ph:'혼인 서약',t:'서로에게 쓴 약속을 직접 읽어요',act:'직접 낭독 · 낭독 방식을 정해주세요.'},
- ringwarm:{ph:'링 워밍',t:'반지를 손에서 손으로 쥐며 축복을 담아요',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'},
+ ringwarm:{ph:'링 워밍',t:'반지를 손에서 손으로 쥐며 축복을 담아요',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'}, /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
  ring:{ph:'반지 교환',t:'',act:'넣을지 뺄지 골라주세요.'},
  declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 알리는 순서예요',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
  valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 하나만 더해요',act:'없음이 기본 · 원하면 하나만 더해요.'},
@@ -1038,9 +1434,18 @@ var MOMENT={
  tribute:{ph:'부모님 헌정',t:'몸짓으로 감사를 전하는 순서예요',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 짧게 말씀을 전해요',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'};
+var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'}; /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
 
 var _navKey='';
+/* [THIN_WARN] 엔진이 계산한 경고를 렌더 뒤에 얹는다. 규칙은 엔진 한 곳에만 있다. */
+function fillWarn(){
+  var box=document.getElementById('ordWarn'); if(!box) return;
+  engine().then(function(g){
+    var el=document.getElementById('ordWarn'); if(!el||!g||!g.RitualCue) return;
+    var w=[]; try{ w=g.RitualCue.build(S,{mode:'console'}).meta.warn||[]; }catch(e){ return; }
+    el.innerHTML = w.length ? w.map(function(t){ return '<div class="ordwarn">'+esc(t)+'</div>'; }).join('') : '';
+  });
+}
 function render(){
   var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
   _stopAud();
@@ -1098,6 +1503,7 @@ function render(){
   //   키보드·낭독기 사용자는 '아버지가'를 고른 순간 자기 위치를 잃는다. 같은 자리로 되돌려 준다.
   var _fk=(_ae0&&_ae0.getAttribute)?_ae0.getAttribute('data-fk'):null;
   el.innerHTML=h;
+  fillWarn();   // [THIN_WARN] 규칙은 엔진에만 · 여기선 자리만 채운다
   if(_fk){ _fk=_fk.replace(/"/g,'');
     var _rf=el.querySelector('[data-fk="'+_fk+'"]');
     // 맨 위·맨 아래로 옮기면 그 방향 화살표가 사라진다 → 같은 카드의 제목으로 내려앉는다
@@ -1175,18 +1581,24 @@ function renderMiniTL(k){
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
-  h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 30분 안팎의 식순과 나레이션 대본이 만들어져요.</div>';
+  h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 16~24분의 식순과 나레이션 대본이 만들어져요.</div>';   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   // [ORD_TIMEBUDGET] 본식은 벽이 아니라 사진과 맞바꾸는 예산이다(2026-08-01 사용자 확인:
   //   "많이 늦어지거나 줄어들지만 않으면 ±10분 정도 괜찮다 · 사진을 좀 늘리거나 줄이면 되니까").
   //   짧은 코스를 고르면 남는 분이 스냅·단체 기록으로 넘어가 하루 140분은 그대로다.
   //   화면에 이 행선지를 적지 않으면 고객은 짧은 코스를 '손해'로 읽는다 — 그래서 이 표가 그 말을 맡는다
 //   (예전엔 코스 카드마다 같은 말이 붙어 있었다 · [ORD_TIMEBUDGET] 참고).
-  var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap','본식이 짧아진 만큼 여기가 늘어나요'],['30분','본식','The Ceremony','고른 코스에 따라 18~30분',true],['30분','단체 기록','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
+  /* ★[TIME_HONEST 2026-08-07] 숫자를 실제와 맞춘다 — 사용자 결정 "드러내는 쪽".
+     짧은 걸 숨기면 당일에 알게 되고, 그때는 설명할 기회가 없다.
+     ★남는 시간의 행선지도 하나로 고쳤다 — 예전엔 스냅과 단체 기록 둘 다 "여기가 늘어나요"라고
+       적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
+       두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
+     기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
+  var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap','하객 입장 20분이 여기 겹쳐요'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['36~44분','다 함께','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
-  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 사진 시간이 늘어나요.</div></div>';
+  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 두 분이 하객분들과 인사하고 사진 남기는 시간이 늘어나요.</div></div>';
   return h;
 }
 
@@ -1371,7 +1783,7 @@ var TUNE={
  entry:{n:'입장 멘트',c:'문이 열리고 두 분이 함께 걸어 들어와요'},
  welcome:{n:'첫인사 진행',c:'두 분이 하객에게 직접 감사 인사를 전해요'},
  vow:{n:'혼인 서약',c:'서로에게 쓴 약속을 직접 목소리로 읽어요'},
- ringwarm:{n:'링 워밍',c:'반지가 가족·하객의 손을 돌며 축복을 담아요'},
+ ringwarm:{n:'링 워밍',c:'반지가 가족·하객의 손을 돌며 축복을 담아요'}, /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
  ring:{n:'반지 교환',c:'약속의 증표를 서로 끼우는 순간이에요'},
  declare:{n:'성혼 선언',c:'두 사람이 부부가 되었음을 선언해요'},
  valley:{n:'사이 순서',c:'와인 세리머니·케이크 커팅으로 분위기를 바꿔요'},
@@ -1392,18 +1804,32 @@ var OPTWHY={
  festive:{song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때 더해요',
           bless:'밝은 흐름을 가볍게 유지하려 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'}
 };
-var OFFTGL={ring:1,bless:1,valley:1};
-function momOn(k){ return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':k==='valley'?S.valley!=='none':true; }
+/* ★[ALL_OPTIONAL 2026-08-07] 뺄 수 있는 순간 = **입장 빼고 전부**.
+   사용자 결정(6코스 전부): "전부 선택사항으로전환 한다 입장부분만 고정".
+   ★ring·bless·valley 는 예전부터 자기 S 키로 켜고 껐다(S.ring='off' 등). 그 길을 그대로 둔다 —
+     저장된 초안이 그 키를 쥐고 있어서, S.off 로 옮기면 옛 초안이 조용히 다시 켜진다.
+     나머지는 전부 S.off 한 곳에 담는다(엔진 assets/ritual-cue.js 의 [ALL_OPTIONAL] 과 같은 이름·같은 뜻). */
+var OFFKEY={ring:1,bless:1,valley:1};          // 자기 S 키로 켜고 끄는 옛 3개
+var NEVEROFF={entry:1};                        // ★입장만 고정 — 늘리지 말 것(늘리면 '전부 선택'이 거짓말이 된다)
+function offable(k){ return !NEVEROFF[k]; }
+var OFFTGL=new Proxy({},{ get:function(t,k){ return offable(String(k))?1:undefined; } });
+function momOn(k){
+  if(OFFKEY[k]) return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':S.valley!=='none';
+  return !(S.off&&S.off[k]);
+}
 var _tprev=''; var _foldOpen={};
 /* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
 function fold(key,title,inner){ var o=_foldOpen[key]; return '<button type="button" class="fold'+(o?' open':'')+'" aria-expanded="'+(o?'true':'false')+'" data-fk="fold:'+key+'" onclick="foldTgl(\''+key+'\')"><span>'+title+'</span><span class="fold-x" aria-hidden="true">›</span></button>'+(o?'<div class="fold-b">'+inner+'</div>':''); }   // [ORD_KEY]
 window.tprev=function(k){ _tprev=(_tprev===k)?'':k; render(); };
 window.quickOff=function(k){
+  if(!offable(k)) return;   // 입장은 끌 수 없다 — 버튼도 안 그리지만, 눌러도 아무 일 없게 한 번 더 막는다
   if(k==='ring') S.ring=(S.ring==='on')?'off':'on';
   else if(k==='bless') S.bless=(S.bless==='on')?'off':'on';
   else if(k==='valley') S.valley=(S.valley==='none')?'wine':'none';
-  render(); toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
+  else { if(!S.off) S.off={}; if(S.off[k]) delete S.off[k]; else S.off[k]=1; }
+  buildSteps(); _persist(); render();
+  toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
 };
 function rowVal(k){
   switch(k){
@@ -1444,9 +1870,24 @@ function paletteHtml(){
 }
 
 function renderStep(k){
-  if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+courseCard('damback')+courseCard('minimal')+courseCard('gamdong')+courseCard('festive')+courseCard('family')+'</div>'; }
+  /* ★[RECORD_COURSE 2026-08-07] 기록형을 맨 앞에 둔다 — 이 스튜디오가 권하는 형태이기 때문이다.
+     (140분 중 본식은 21%이고 나머지는 전부 촬영이다. 상품이 이미 그렇게 생겼다)
+     ★자리는 취향 판단이다. 뒤로 옮기고 싶으면 이 줄에서 순서만 바꾸면 된다. */
+  /* ★[CARD_ORDER 2026-08-08] 카드 순서는 취향 판단이라 데이터에서 뽑지 않고 여기 적는다.
+     기록을 맨 앞에 두는 이유 — 이 스튜디오가 권하는 형태이기 때문이다(140분 중 본식은 21%이고
+     나머지가 전부 촬영이다 · 상품이 이미 그렇게 생겼다).
+     ★[THREE_COURSES] 때 하드코딩 목록을 Object.keys 로 바꾸면서 이 순서가 조용히 뒤집혔다
+       (약속·가족·기록). 숨김 처리는 데이터가 하고 **순서는 사람이 정한다** — 둘을 섞지 말 것.
+     ★목록에 없는 코스는 안 보인다. 새 코스를 만들면 여기에도 넣을 것. */
+  var CARD_ORDER=['record','damback','family','minimal','gamdong','festive'];
+  if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+CARD_ORDER.filter(function(k){ return COURSES[k] && !COURSES[k].hidden; }).map(courseCard).join('')+'</div>'; }
   if(k==='tune'){
-    var h='<div style="margin-top:4px">';
+    /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 입장 빼고 전부 뺄 수 있게 되면서
+       '입장만 남은 예식'을 만들어 놓고 모를 수 있게 됐다. 막지는 않는다 — 사용자가 그렇게 결정했다.
+       대신 소리 내어 알린다. ★판단 규칙은 엔진(assets/ritual-cue.js warnOf)에만 있다 —
+       여기에 옮겨 적으면 규칙이 바뀌는 날 이 사본만 옛 규칙으로 경고한다. 그래서 비워 두고 뒤에서 채운다.
+       엔진을 못 불러오면 빈 칸 그대로다(없는 경고를 지어내는 것보다 조용한 쪽이 낫다). */
+    var h='<div style="margin-top:4px"><div id="ordWarn" role="status" aria-live="polite"></div>';
     /* [ORD_LEAN] 목록 앞에 안내가 네 줄(220자) 서 있어 무엇을 보는 화면인지가 뒤로 밀렸다.
        두 줄로 줄인다 — 나머지는 화면이 스스로 말한다(↑↓ 버튼·'순서에서 빼기' 버튼은 라벨이 곧 설명이다). */
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스로 시작해요 · <b>그대로 둬도 되고</b>, 하나씩 다듬어도 돼요.</div>';
@@ -1544,7 +1985,9 @@ function renderStep(k){
     var added=Object.keys(S.extra).filter(function(k){return S.extra[k];});
     if(added.length){ h+='<div class="ex-n" style="margin:8px 2px 0">더한 순간: '+added.map(function(k){return TUNE[k]?TUNE[k].n:k;}).join(' · ')+' · 위 카드의 순서에서 빼기를 누르면 도로 빠져요</div>'; }
     var _em=parseInt(estMin().replace(/\D/g,''),10)||0;   // 부드러운 시간 안내(막지 않음) — 작은 예식은 20~30분이 몸에 맞음
-    if(_em>=35) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 작은 예식은 20~30분 안팎이 가장 몰입돼요. 더 담아도 괜찮지만 참고해 주세요.</div>';
+    // [TIME_HONEST] 문턱을 35 → 25 로. [EVENT_BUDGET] 상한이 25분이고, 순간 하나에 4분을 쓰는 호흡이라
+    //   35분이면 이미 한참 넘긴 뒤다. 막지는 않는다 — 넘었다는 것만 알려 준다.
+    if(_em>25) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 사회자 없이 나레이션으로 이끄는 예식은 25분 안쪽이 가장 편안해요. 더 담아도 괜찮지만 참고해 주세요.</div>';
     h+='</div>';
     return h;
   }
@@ -1576,7 +2019,7 @@ function renderStep(k){
     }
     h+='<div class="banner">'+(cpl?'담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 나레이션으로 흐르게 준비돼요.')+'</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
-    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 30분은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
+    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
     if(S.growth==='on'){
       h+='<div class="tgl-ex" style="margin-left:0">"잠시 후, 두 사람이 걸어온 시간을 담은 짧은 영상을 함께 보시겠습니다."</div>';
       h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
@@ -1608,6 +2051,9 @@ function renderStep(k){
     });
     h+='</div>';
     h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞춰요 · 당일엔 디렉터가 신호를 드려요</div>';
+    /* ★[LEAD_OUT] 걸어 들어온 뒤 무엇이 들리는지도 보여 준다 — 화면에 없는 소리가 나면
+       고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다. */
+    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(OUT_ENTRY)+'</div>';
     h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
     (function(){
       var v=S.entry, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
@@ -1633,14 +2079,14 @@ function renderStep(k){
     h+='<div class="proc-s"><span class="pn">1</span>나레이션이 인사의 문을 열어줘요</div>';
     h+='<div class="proc-s"><span class="pn">2</span>두 분이 하객에게 직접 짧게 인사해요 · 30초~1분</div>';
     h+='<div class="proc-s"><span class="pn">3</span>나레이션이 따뜻하게 마무리해요</div></div>';
-    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다.",null)+playBtn('welcome');
+    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("먼저, 두 사람이 준비한 첫 인사가 있습니다. 마이크가 전해지면, 편하게 시작하시면 됩니다.",null)+playBtn('welcome');
     h+='<div class="self"><span class="who">두 분이 직접</span>한두 문장·목례면 충분해요.</div>';
-    h+=fold('welNar2','인사 뒤 이어지는 나레이션',narBox("여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",null));
+    h+=fold('welNar2','인사 뒤 이어지는 나레이션',narBox("여러분과 함께라서, 오늘이 더 빛납니다.",null));
     h+=writeCard('welcome',false);   // 1차 입력 — 이 순간에서 바로 적기(마지막 글 적어두기에서 다시 확인) · WRITE_2CHECK
   }
   else if(k==='vow'){
     h+=clip('vow');
-    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
+    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','지금 두 사람 사이에 오갈 말이 있습니다. 두 분, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.','목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.',{who:'신랑신부 직접 낭독',t:''},null);
     // ★[VOW_CHORUS] 말로만 "마지막은 함께"라고 하면 고객이 뭘 준비해야 할지 모른다 — 문장을 그대로 보여 준다.
     //   화면이 소리를 설명하지 못하면, 폴백이 조용했던 때와 같은 사고다.
     h+='<div class="self"><span class="who">마지막 한 문장 · 하객분들을 보고 함께</span>'+esc(VOWBOTH_T)+'</div>';
@@ -1652,7 +2098,7 @@ function renderStep(k){
   }
   else if(k==='ring'){
     h+=clip('ring');
-    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.',null,null,true);
+    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.','같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 분, 다시 정면을 바라보아 주세요.',null,null,true);
     h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요 · 당황하지 않아도 돼요, 나머지는 자리에서 천천히.');
   }
@@ -1660,7 +2106,7 @@ function renderStep(k){
     h+=clip('declare');
     ['narr','ask','chorus','family'].forEach(function(w){
       var sel=S.declareWho===w, showNar=sel&&w!=='narr';
-      h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
+      h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,(w==='family'&&sel)?OUT_DECLARE_FAMILY:null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
       if(sel&&w==='narr'){
         h+='<div class="subq">낭독 톤</div>';
         ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',S.declare===v?DECLARE[v].nar:null,null,null,null,cdef(S.course).declare===v); });   // COURSE_DEF_MAP
@@ -1669,8 +2115,8 @@ function renderStep(k){
   }
   else if(k==='valley'){
     h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요','',null,null,null,true);
-    h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징 · 실물 준비 순서라 추가 비용은 미리 안내드려요','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.');
-    h+=oc('valley','cake','케이크 커팅','밝은 한 호흡, 촬영으로 연결 · 실물 준비 순서라 추가 비용은 미리 안내드려요','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.');
+    h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징 · 실물 준비 순서라 추가 비용은 미리 안내드려요','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.',OUT_VALLEY);
+    h+=oc('valley','cake','케이크 커팅','밝은 한 호흡, 촬영으로 연결 · 실물 준비 순서라 추가 비용은 미리 안내드려요','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.',OUT_VALLEY);
     if(_cakeDup()) h+=cakeDupNote();   // CAKE_DUP_GUARD
   }
   else if(k==='letter'){
@@ -1684,7 +2130,7 @@ function renderStep(k){
   else if(k==='bless'){
     var famOpen=(S.course==='family');
     // ★BLESS_LONG 1단(예방) — '말씀이 있습니다'는 열어만 두고 닫지 않아 길어진다. '한 말씀 청하겠습니다'가 분량을 함께 건넨다(런북 §8 1단 · §11-A).
-    var blessNar=famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님께 한 말씀 청하겠습니다.';
+    var blessNar=famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다. 마이크가 전해지면, 편히 말씀해 주시면 됩니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님께 한 말씀 청하겠습니다. 마이크가 전해지면, 편히 말씀해 주시면 됩니다.';
     var onCard=oc('bless','on','넣기',(famOpen?'예식의 문을 여는, 이 코스의 시그니처 순서예요':'부모님이나 가족 어른이 짧게 말씀을 전해요'),blessNar,'그 말씀, 두 사람이 오래 마음에 새기겠습니다.',{who:'부모님',t:'1~2분 덕담'},null);
     var blessEx='<div class="ex-n" style="margin:12px 0 4px 2px">부모님께 보여드릴 참고 예시예요 · 그대로 전하셔도, 부모님 말씀으로 바꾸셔도 좋아요</div>'
       +'<div class="ex-i">"두 사람이 손잡고 있는 모습만 봐도 오늘 하루가 다 채워집니다. 서로 아끼며, 오래오래 지금처럼 웃고 살아라. 와 주신 모든 분께도 감사드립니다."</div>'
@@ -1696,14 +2142,12 @@ function renderStep(k){
     if(S.bless==='on') h+='<div class="wcard"><label class="tgl"><input type="checkbox" '+(S.blessProxy?'checked':'')+' onchange="settgl(\'blessProxy\',this)"><span class="tk"></span>부모님이 부담되시면, 나레이션이 대신 전해 드려요</label><div class="wd" style="margin-top:7px">마이크 없이 짧은 인사만 하시거나, 미리 받은 말씀을 나레이션이 대독할 수 있어요.</div></div>';
   }
   /* [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. */
-  else if(k==='ringwarm'){
-    h+=diag('ringwarm');
-    h+=oc('ringwarm','family','가족만','양가 가족의 손만 거쳐요 · 짧고 편안한 기본',RINGWARM.family.nar,null,null,'반지는 파우치에 고정해 분실 걱정이 없어요 · 진행은 나레이션이 먼저 설명하고, 하객은 옆으로 전달만 하면 돼요');
-    // ★RINGWARM_NO_MIN — 이 카드만 "약 2분 더"로 남아 있었다. 같은 화면 recoTxt는 이미 '인원에 따라 달라져요'라
-    //   두 문구가 정면으로 어긋났고(2026-07-26 확정 변경이 recoTxt에만 적용됨), 수치 약속 금지 규칙(CLAUDE.md)에도 걸린다.
-    //   '스물다섯 분'도 상한이지 실제 인원이 아니다(12명 예식에서 사실과 다름) → '오신 모든 분'으로.
-    h+=oc('ringwarm','all','하객 전체','오신 모든 분의 축복을 담아요 · 인원에 따라 시간이 달라져요',RINGWARM.all.nar,null,null,null);
-  }
+  /* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 선택 카드 삭제 — 사용자 지시 "유치하고 별로인거같아 제거하자".
+     되살리지 말 것. 팔레트(GADD)에서 뺐으므로 이 자리는 애초에 열리지 않는다.
+     ★카드를 남겨 두면 '누르면 아무 일도 안 나는 버튼'이 되고, 옵션 소리 검사도 실패한다
+       (도달 불가라 큐가 안 만들어지는데 검사는 소스의 oc() 를 훑는다).
+     ★[RINGWARM_NO_MIN] 여기 있던 '약 2분 더' 문구 경고도 함께 사라진다 — 카드 자체가 없어졌으므로.
+     클립·문안·RINGWARM 상수는 그대로 둔다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). */
   else if(k==='tribute'){
     h+=clip('tribute');
     ['flower','bow','hug'].forEach(function(v){
@@ -1714,13 +2158,13 @@ function renderStep(k){
   }
   else if(k==='song'){
     h+=clip('song');
-    h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,null,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
+    h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,OUT_SONG,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
     h+=oc('song','live','어쿠스틱 라이브 연주','저희가 연주자를 연결해요 · 추가 비용은 미리 안내드려요');
   }
   else if(k==='toast'){
     h+=clip('toast');
     ['toast','cake','both'].forEach(function(v){
-      h+=oc('toast',v,TOAST[v].d,'',S.toast===v?TOAST[v].nar:null,null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
+      h+=oc('toast',v,TOAST[v].d,'',S.toast===v?TOAST[v].nar:null,S.toast===v?OUT_TOAST:null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
     });
     if(_cakeDup()) h+=cakeDupNote();   // CAKE_DUP_GUARD
   }
@@ -1818,13 +2262,15 @@ function applyCourse(v){
   // 코스별 기본값은 COURSE_DEF_MAP 한 곳에서만 정한다(화면 '기본' 배지와 같은 원천 · 2026-07-26 확정안 §3).
   // ★하객 합송(declareWho='chorus')은 응답형 확정으로 '보류'다 — 폐기가 아니므로 옵션 코드는 그대로 두고 기본값에서만 뺀다.
   var _cd=cdef(v);
-  S.entry=_cd.entry; S.welcome='self'; S.vow='ok'; S.ring='on'; S.ord=null;   // 순서 조정도 코스 기본으로 리셋
+  // ★[RING_OPT 2026-08-07] 반지 기본값은 코스가 정한다 — 'on' 하드코딩이었다(엔진 norm() 과 같은 규칙).
+  //   기록형만 'off'. seq 에는 그대로 있어서 켜면 제자리(선언 앞)로 돌아온다.
+  S.entry=_cd.entry; S.welcome='self'; S.vow='ok'; S.ring=(_cd.ring||'on'); S.ord=null;   // 순서 조정도 코스 기본으로 리셋
   S.declareWho=_cd.declareWho;
   S.declare=_cd.declare;
   S.valley='none'; S.letter='parent';
   S.bless=(v==='family')?'on':'off';
   S.ringwarm='family'; S.tribute='flower'; S.toast='toast'; S.song='family'; S.flash=false;
-  S.tune={}; S.extra={};
+  S.tune={}; S.extra={}; S.off={};   // [ALL_OPTIONAL] 뺀 것도 코스 기본으로 되돌린다
   curSeq().forEach(function(k){ S.tune[k]=true; });   // 기본 = 모든 순간을 하나씩 보며 만들기 (2026-07-15 사용자 지시)
   buildSteps();
 }
@@ -1875,17 +2321,17 @@ var BLOCK={
     return {n:'신랑·신부 입장',nar:eCouple?ENTRY[S.entry].self:ENTRY[S.entry].nar,self:eCouple?'두 분 목소리로 인사 (녹음·AI)':null,cue:eCouple?'두 분 목소리 인사가 흐름 → 나레이션 "입장!" 큐·입장곡 → 손잡고 함께 입장':'나레이션 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'};
   },
   welcome:function(){
-    return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다. 이제, 두 사람이 준비한 약속의 시간으로 들어갑니다.",cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
+    return {n:'환영·첫인사',nar:"먼저, 두 사람이 준비한 첫 인사가 있습니다. 마이크가 전해지면, 편하게 시작하시면 됩니다.",self:'두 분이 직접 인사',end:"여러분과 함께라서, 오늘이 더 빛납니다.",cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
   },
   vow:function(){
-    return {n:'혼인 서약',nar:"두 사람이 서로에게 건네는, 혼인 서약의 시간입니다. 오래 마음에 품어 온 말을, 지금 서로의 눈을 바라보며 전합니다.",self:'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',both:VOWBOTH_T,end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
+    return {n:'혼인 서약',nar:"지금 두 사람 사이에 오갈 말이 있습니다. 두 분, 서로를 마주 보아 주세요. 오래 마음에 품어 온 말을, 지금 그대로 전하시면 됩니다.",self:'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',both:VOWBOTH_T,end:"목소리에 담아 건넨 약속이, 이제 두 사람의 평생이 됩니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
   },
   ringwarm:function(){
     return {n:'링 워밍',nar:RINGWARM[S.ringwarm].nar,self:(S.ringwarm==='all'?'하객 전체':'양가 가족')+'가 주머니를 손에서 손으로',cue:'나레이션 안내 → 반지 주머니가 손에서 손으로 → 마지막 분이 디렉터에게 → 디렉터가 반지를 꺼내 단상 옆 트레이에 준비 → 반지 교환 나레이션과 함께 두 분께 전달 · 반지가 도는 동안은 하객 손·표정 클로즈업 구간(두 분은 반지를 따라가는 시선으로 · 정면 대기 금지)'};
   },
   ring:function(){
     if(S.ring!=='on') return null;
-    return {n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 두 사람이 나누는 반지에는, 오늘의 마음이 그대로 담깁니다.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
+    return {n:'반지 교환',nar:"서로를 향한 약속을, 이제 손끝에 새깁니다. 신랑이 먼저, 신부가 다음으로 끼워 주세요.",end:"같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 두 분, 다시 정면을 바라보아 주세요.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
   },
   declare:function(){
     var dw=S.declareWho;
@@ -1917,7 +2363,7 @@ var BLOCK={
     //   고객 화면에 '3분'을 노출하면 두 분이 부모님께 시간 제한을 전하게 되어 §8 1단(예방)의 의도와 정면으로 충돌한다.
     //   그래도 여기 두는 이유: assets/ritual-data.js가 원천이고 이 파일은 인라인 사본이라, 빠지면 두 곳의 문안이 갈린다.
     //   ★지우지 말 것 — scripts/check-ritual-mirror.js가 전수 대조해 즉시 실패한다.
-    return {n:'부모님 덕담',nar:famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님께 한 말씀 청하겠습니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다.",endLong:"오래 지켜봐 오신 마음이, 그 말씀에 다 담겨 있었습니다. 두 사람이 오래 새기겠습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
+    return {n:'부모님 덕담',nar:famOpen?'오늘 예식의 문은, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로 엽니다. 마이크가 전해지면, 편히 말씀해 주시면 됩니다.':'이제, 두 사람을 가장 오래 지켜봐 오신 부모님께 한 말씀 청하겠습니다. 마이크가 전해지면, 편히 말씀해 주시면 됩니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"그 말씀, 두 사람이 오래 마음에 새기겠습니다.",endLong:"오래 지켜봐 오신 마음이, 그 말씀에 다 담겨 있었습니다. 두 사람이 오래 새기겠습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
   }
 };
 function fullBlocks(){
@@ -2063,7 +2509,7 @@ function renderDone(){
        S.mPeak·S.mClose 상태 자체는 하위호환으로 남긴다(옛 초안에 값이 있고 Admin이 '구 입력'으로 읽는다).
        jumpTo('done')의 음악 칸 포커스 분기도 함께 제거했다. */
   // [ORD_NOTE_FIT] 이 줄이 코스와 상관없이 늘 '편지와 서약이 중심인 예식이라'로 나갔다.
-  //   미니멀 코스엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
+  //   [LEGACY_LABEL] 미니멀 코스(숨김)엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
   h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
   /* [ORD_DONEACTS 2026-08-03] 화면 끝의 부수 동작을 한 줄로 묶는다.
      사용자 지적: '목록에 없는 순서가 있나요?' 회색 판이 음악 카드와 영상 권유 사이에 홀로 떠 있어

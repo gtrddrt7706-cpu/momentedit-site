@@ -4,11 +4,11 @@
  * [CUE_GUARD_V1]
  *
  * 이 파일이 지키는 것:
- *  1) §3-A 20큐 전수 판정표 — damback+bless=on 이 수동 10 / 자동 10 이고 수동 번호가 정확히 그 10개
+ *  1) §3-A 전수 판정표 — 「약속」 코스가 수동 12 / 자동 7 / 시각고정 3 이고 번호가 정확히 그것
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
- *  4) 5코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
- *  5) FILES 51개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
+ *  4) 전 코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
+ *  5) FILES 75개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
  */
@@ -18,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
+const D = require(path.join(ROOT, 'assets/ritual-data.js'));
 
 let fail = 0;
 const ok = (m) => console.log('ok  cue: ' + m);
@@ -26,9 +27,11 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 /* ── 1. FILES 무결성 ───────────────────────────────────────── */
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 //   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
-if (C.FILES.length !== 51) no(`FILES 51개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 51) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 51개 · 중복 없음');
+// [AFTER_PARTY 2026-08-08] 예식 뒤 30분 클립 16개 추가(전환 6 + 골라 트는 판 10) → 59 → 75.
+//   ★목록 끝에 붙였다 — 번호가 인덱스+1이라 중간에 끼우면 기존 음원이 전부 개명된다.
+if (C.FILES.length !== 75) no(`FILES 75개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== 75) no('FILES에 중복 슬러그가 있다');
+else ok('FILES 75개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {
@@ -38,29 +41,46 @@ else ok('FILES 51개 · 중복 없음');
   } else ok('번호 매핑 (인덱스+1)');
 }
 
-/* ── 2. §3-A 20큐 전수 판정표 ──────────────────────────────── */
+/* ── 2. §3-A 전수 판정표 ──────────────────────────────────── */
 // ★번호는 FILES 순서에서 파생된다(인덱스+1) — 클립을 중간에 끼우면 그 뒤가 통째로 +1 밀린다.
 //   2026-08-01 narr-bless-end-long(25번) 삽입으로 25 이상이 한 칸씩 이동했다. 판정 자체는 그대로다.
 //   슬러그를 함께 적어 둔다 — 다음에 밀릴 때 "무엇이 무엇이 됐는지"를 다시 추적하지 않게.
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 //   veil 슬러그 3개가 36번 자리에서 빠져 36번 이상이 통째로 -3 밀렸다(48→45 · 50→47 · 47→44).
 //   판정 자체는 그대로다 — 담백 코스에 베일이 없었으므로 수동 10 / 자동 10도 변하지 않는다.
-const A3_MANUAL = ['01', '05', '11', '12', '14', '16', '20', '24', '45', '47'];
-//                  guest-1  entry-A  welcome-in/out  vow-out  ring-out  letter-end  bless-end  farewell  goodbye
+// [LEAD_OUT 2026-08-07] 입장에 닫는 말(52 narr-entry-out)이 생겼다.
+//   ★수동 큐 **수는 그대로 10개**다 — 11(welcome-in)이 수동에서 자동으로 내려오고 52가 그 자리에 온다.
+//     닫는 말은 사람의 시간 뒤에 붙고, 디렉터의 누름은 이미 거기 있었다. 현장 조작 횟수 변화 0.
+//     이 숫자가 늘어나면 그건 설계가 깨진 것이다 — 그때 이 검사가 먼저 화를 낸다.
+// [THREE_COURSES · EVENT_BUDGET 2026-08-07] 담백에서 첫인사·덕담·와인/케이크가 팔레트로 내려갔다.
+//   21큐 → 17큐. ★수동이 10에서 8로 준 것은 설계대로다 — 사라진 세 순간이 각각
+//   '사람의 시간'을 갖고 있었고, 그 뒤에 붙던 수동 누름이 함께 사라졌다(12 welcome-out · 24 bless-end,
+//   그리고 valley 는 담백에서 빠지며 판정표에 없던 큐가 통째로 빠졌다).
+//   ★이 표는 **얼어붙은 스냅샷**이다. 규칙 자체(앞에 live 가 있으면 manual)는 아래 3번이 전 조합으로 지킨다.
+//     여기 숫자가 흔들리면 "코스 모양이 바뀌었다"는 뜻이고, 의도한 변경인지 사람이 봐야 한다.
+// [AFTER_PARTY 2026-08-08] 뒤에 전환 6큐가 붙어 17 → 22큐. 수동 8 → 11.
+//   늘어난 수동 셋(60·61·63)은 **사람의 시간 뒤**다 — 전체컷 뒤 · 불러 모으는 구도 뒤 · 인사 라운드 뒤.
+//   디렉터가 어차피 그 자리에 서 있는 순간이라 조작이 새로 생긴 게 아니다.
+//   65(마지막 닫는 말)는 연출 촬영 뒤라 같은 이유. 45(배웅)는 종전대로.
+// [GATHER_WAIT 2026-08-08] 44(전체 하객컷)가 chain 에서 manual 로 내려왔다 — 폐식 클립이
+//   "모두 앞으로 나와 주세요"로 바뀌면서 사람이 모이는 시간(live)이 생겼기 때문이다.
+//   수동 11 → 12. ★조작이 는 게 아니라, 30초 타이머로 자동으로 나가던 것이 사람 판단으로 바뀐 것이다.
+const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '44', '60', '61', '63', '65', '47'];
+//                  guest-1 entry-A entry-out vow-out ring-out letter-end photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['13', '15', '30', '27', '23', '26', '44'];
-//                 vow-in  ring-in  declare-1-solemn  letter-parent  bless-mid  close  end-0-photo
+const A3_CHAIN = ['13', '15', '30', '27', '26', '64', '45'];
+//                 vow-in ring-in declare-1-solemn letter-parent close final-call farewell
 {
-  const r = C.build({ course: 'damback', bless: 'on' }, { mode: 'console' });
+  const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 20) no(`§3-A: 20큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 22) no(`§3-A: 22큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
-  else ok('§3-A 20큐 전수 판정표 (수동 10 / 자동 10)');
+  else ok(`§3-A 22큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
 
   // 반지 마무리 → 성혼 선언 사이 '페이드 8초 + 침묵 3초' 시간 고정 (대본 153~159행)
   const ro = r.cues.find((c) => c.slug === 'narr-ring-out');
@@ -73,7 +93,10 @@ const A3_CHAIN = ['13', '15', '30', '27', '23', '26', '44'];
 /* ── 3. CUE_FIRE_RULE 불변 (전 조합) ───────────────────────── */
 /* ── 4. 전 조합 build 스모크 ───────────────────────────────── */
 const AX = {
-  course: ['damback', 'gamdong', 'family', 'minimal', 'festive'],
+  /* ★[AXIS_FROM_SOURCE 2026-08-07] 코스 축은 원천에서 읽는다 — 손으로 적힌 5종이었다.
+     실사고: 기록형(record)을 COURSES 에 넣었는데 이 줄을 못 고쳐, 전수 검사가 그 코스를
+     통째로 건너뛰었다(초록인데 안 본 것). 목록을 두 군데 적으면 한쪽만 낡는다. */
+  course: Object.keys(D.COURSES),
   entry: ['A', 'B', 'C', 'D', 'E', 'F'],
   declareWho: ['narr', 'ask', 'family', 'chorus'],
   declare: ['1', '2'],
@@ -123,7 +146,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
                       // CUE_FIRE_RULE — 규칙이 계산하는 자리에만 적용한다.
                       //   식전 4큐(guest) · 입장(entry)은 엔진이 fire를 직접 박는 자리다.
                       //   앞 큐의 live로는 표현되지 않는 대기(신부 준비 완료 등)라서 규칙 밖이고,
-                      //   그 자리들이 옳은지는 위 §3-A 20큐 판정표 검사가 이미 고정하고 있다.
+                      //   그 자리들이 옳은지는 위 §3-A 21큐 판정표 검사가 이미 고정하고 있다.
                       //   (식전 안내 2클립은 guest 뒤에 붙지만 규칙이 계산하는 자리다)
                       // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
                       const pinned = (i === 0 || c.k === 'entry' ||
@@ -216,7 +239,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     if (m.manual < 5 || m.manual > 20) bad.push(`${course} manual=${m.manual}`);
   }
   if (bad.length) no(`코스별 큐 수 이상 (${bad.join(' ')})`);
-  else ok('코스 5종 큐 수 정상 범위');
+  else ok(`코스 ${AX.course.length}종 큐 수 정상 범위`);
 }
 
 if (fail) {

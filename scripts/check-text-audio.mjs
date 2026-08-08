@@ -80,10 +80,18 @@ for (const k of keys) for (const v of AX[k]) states.push({ ...base, [k]: v });
 for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
   for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
 // 확장 순간(팔레트로 넣는 자리)도 켜 본다 — 안 켜면 그 큐가 아예 안 나와 검사에서 조용히 빠진다.
-for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter']) {
+// ★'free'(자유 한 칸)를 빼면 그 두 클립이 검사에서 조용히 사라진다 — 추가 순간은 켜 봐야 나온다.
+// ★[EXTRA_ENABLE] 팔레트로 켜는 것만으로는 부족한 자리가 있다 — seq 에는 들어가지만
+//   빌더가 자기 S 키를 다시 보기 때문이다(bless 는 S.bless==='on', valley 는 S.valley!=='none').
+//   2026-08-07 실사고: [THREE_COURSES]로 담백 seq 에서 덕담·와인케이크가 빠지자
+//   이 두 자리가 검사에서 통째로 사라졌고, 검사는 "이제 글과 소리가 맞는다"고 보고했다.
+//   ★화면 쪽 같은 표는 order-preview.html 의 EXTRA_ON 이다. 늘어나면 둘 다 고칠 것.
+const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
+for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
-  states.push({ ...base, extra: e });
-  states.push({ ...base, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  const on = EXTRA_ON[k] || {};
+  states.push({ ...base, ...on, extra: e });
+  states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
 }
 
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}
@@ -132,6 +140,22 @@ const chorus = [];
 
 const rows = [...seen.values()].sort((a, b) => (a.k + a.slug).localeCompare(b.k + b.slug));
 const bad = rows.filter((r) => !r.ok && !r.noText);
+
+/* ★★[NO_AUDIO 2026-08-08] 위 대조는 **미리듣기에 나오는 자리**만 훑는다.
+   콘솔 전용 구간(예식 뒤 30분)과 '골라 트는 판'(D.PHOTOCUE)은 미리듣기에 안 나오므로
+   글이 아무리 새로워도 여기 안 잡힌다 — 실제로 클립 16개가 어느 목록에도 없이 떠 있었다.
+   그래서 **FILES ↔ manifest 를 통째로 대조**한다. 슬러그가 대본에 없으면 소리가 아직 없는 것이다.
+   ★이 방식은 모드와 무관해서, 앞으로 어떤 클립이 늘어도 저절로 잡힌다. */
+const manFiles = new Set(man.clips.map((c) => c.file));
+const SLUGTEXT = new Map();
+for (const S of states) { let r; try { r = Cue.build(S, { mode: 'console' }); } catch (e) { continue; }
+  for (const c of r.cues) if (c.slug && c.text) SLUGTEXT.set(c.slug, c.text); }
+for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx)) SLUGTEXT.set(g.slug, g.t);
+const noAudio = Cue.FILES.map((f, i) => ({ slug: f, no: String(i + 1).padStart(2, '0'), screen: SLUGTEXT.get(f) || '' }))
+  .filter((x) => !manFiles.has(x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
+// 녹음이 필요한 전체 = 글이 바뀐 것 ∪ 소리가 아예 없는 것 (선언 위치 주의 — --redub 블록이 먼저 쓴다)
+const badSlugs = [...new Set(bad.map((r) => r.slug).concat(noAudio.map((r) => r.slug)))].filter(Boolean).sort();
+
 const cut = (s, n = 76) => (s.length > n ? s.slice(0, n) + '…' : s);
 
 console.log(`대조한 자리 ${rows.length}곳 — 맞음 ${rows.filter((r) => r.ok).length} · 어긋남 ${bad.length} · 화면 글 없음 ${rows.filter((r) => r.noText).length}\n`);
@@ -145,5 +169,59 @@ for (const r of (ALL ? rows : bad)) {
 }
 if (chorus.length) { console.log(`\n[VOW_CHORUS] 서약 마지막 합창`); for (const m of chorus) console.log(`  ✗ ${m}`); }
 else if (ALL) console.log(`\n[VOW_CHORUS] ✓ 서약 마지막 합창 3클립이 VOWBOTH 와 같습니다.`);
-if (bad.length || chorus.length) { console.log(`\n✗ ${bad.length + chorus.length}곳에서 화면 글과 소리가 다릅니다.`); process.exit(1); }
-console.log('\n✓ 화면 글과 소리가 전부 같습니다.');
+
+// ── ★[REDUB_PENDING 2026-08-07] 문안을 고치면 소리는 **당장은** 옛 것이다.
+//   그 창을 그냥 빨갛게 두면 재더빙이 끝날 때까지 모든 검사가 빨개서, 사람이 검사를 안 보게 된다.
+//   그렇다고 조용히 넘기면 "고쳤는데 소리는 안 바뀐" 상태가 배포된다 — 이 프로젝트가 실제로 겪은 사고다.
+//   ★그래서 **붙여넣기 파일이 곧 대기 명단**이다. 어긋난 자리는 반드시 그 파일에 있어야 하고,
+//     그 파일에 있는데 이제 안 어긋나면 파일이 낡은 것이다. 양방향으로 강제한다.
+//     명단을 코드에 따로 적지 않는다 — 사용자가 실제로 쓰는 파일 하나가 명단 노릇을 한다.
+//   ★쓰기: node scripts/check-text-audio.mjs --redub   (어긋난 자리로 붙여넣기 파일을 다시 뽑는다)
+const REDUB = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt');
+const sentsOf = (t) => String(t).split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+const VOICE = (man.voice || {})['진행'] || '진행';
+
+if (process.argv.includes('--redub')) {
+  const lines = [
+    '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
+    '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
+    '# 목소리는 전부 진행 = ' + VOICE + ' 입니다.',
+    '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
+    '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
+    '# 대기 ' + badSlugs.length + '클립', ''
+  ];
+  for (const r of bad) {
+    lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)'));
+    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    lines.push('');
+  }
+  // [NO_AUDIO] 소리가 아예 없는 클립 — 미리듣기에 안 나와도 녹음은 필요하다
+  for (const r of noAudio) {
+    if (bad.some((b) => b.slug === r.slug)) continue;
+    lines.push('[' + r.no + '] ' + r.slug + '   (신규)');
+    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    lines.push('');
+  }
+  fs.writeFileSync(REDUB, lines.join('\n'));
+  console.log('\n→ 붙여넣기 파일을 다시 뽑았습니다: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+  process.exit(0);
+}
+
+// 대기 명단과 대조
+let pend = [];
+if (fs.existsSync(REDUB)) pend = [...fs.readFileSync(REDUB, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)].map((m) => m[1]);
+const pendSorted = pend.slice().sort();
+const onlyBad = badSlugs.filter((x) => !pendSorted.includes(x));
+const onlyPend = pendSorted.filter((x) => !badSlugs.includes(x));
+
+if (chorus.length) { console.log(`\n✗ 서약 합창이 어긋납니다.`); process.exit(1); }
+if (!badSlugs.length && !pend.length) { console.log('\n✓ 화면 글과 소리가 전부 같습니다.'); process.exit(0); }
+if (onlyBad.length || onlyPend.length) {
+  console.log(`\n✗ 대기 명단(재더빙_리드보강.txt)이 실제와 다릅니다.`);
+  onlyBad.forEach((x) => console.log(`   명단에 없는데 어긋남: ${x}  → node scripts/check-text-audio.mjs --redub`));
+  onlyPend.forEach((x) => console.log(`   명단에 있는데 이제 맞음: ${x}  → 소리가 들어왔으면 명단에서 빼세요(--redub)`));
+  process.exit(1);
+}
+console.log(`\n⏳ 녹음 대기 ${badSlugs.length}클립 — 전부 명단에 있습니다(재더빙_리드보강.txt).`);
+console.log(`   글이 바뀐 것 ${bad.length} · 소리가 아직 없는 것 ${noAudio.filter((r) => !bad.some((b) => b.slug === r.slug)).length}`);
+console.log('   글은 새 것 · 소리는 아직 옛 것입니다. 붙여넣기 → wav 수급 → 조립 후 이 줄이 사라집니다.');
