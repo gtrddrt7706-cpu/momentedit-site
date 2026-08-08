@@ -101,5 +101,17 @@ function scan(needle) {
   }
 }
 
+/* 5) ★140분 시간표가 여러 곳에 손으로 적혀 있다 — 옛 숫자가 남으면 고객이 다른 시간을 본다.
+   2026-08-08 실측: 같은 표가 **네 군데**(index.html · sequence-modal.js · order-preview.html ·
+   advisor-kb.js/_ritual-kb.js)에 있었고, 두 곳만 고쳤다가 나머지가 옛 숫자를 말하고 있었다.
+   ★값을 한 곳으로 모으는 게 정답이지만 정적 HTML·SEO JSON까지 묶기는 과하다.
+     대신 **옛 숫자가 남아 있으면 실패**하게 해서, 고칠 때 전부 훑게 만든다. */
+{
+  const OLD = ['본식 25분', '본식 30분', 'Ceremony 30분', 'The Ceremony 30분', 'Group Record 30분', '단체 기록 30분'];
+  const bad = OLD.flatMap((n) => scan(n).map((h) => `"${n}" @ ${h}`));
+  if (bad.length) no(`140분 시간표에 옛 숫자가 남아 있다 — 네 곳을 함께 고칠 것\n    ${bad.join('\n    ')}`);
+  else ok('140분 시간표에 옛 숫자 없음');
+}
+
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');
 process.exit(fail);
