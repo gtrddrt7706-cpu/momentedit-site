@@ -1026,11 +1026,15 @@ function panic(){
   toast('전체 정지 — 다음 큐는 손으로 눌러야 나갑니다');
 }
 
-// 대기 클립 = 51번(감정이 지나가기를 함께 기다리는 안내). 체인은 멈춘다.
+// 대기 클립(감정이 지나가기를 함께 기다리는 안내). 체인은 멈춘다.
+// [FILE_NO_SOURCE] 번호를 손으로 적지 않는다 — 여기 '51' 이 박혀 있었고, 엔진이 세는
+//   진짜 번호는 49(bridge-4-wait-emotion)였다. 51 은 bridge-6-resume('재개')이다.
+//   디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로(위 파일 적재부),
+//   당일 '대기' 를 눌렀을 때 재개 안내가 나갔을 자리다. 번호는 언제나 noOf 에서 온다.
 $('#bWait').onclick = function(){
   clearT(); audioOn();
   var slug = 'bridge-4-wait-emotion';
-  var u = CLIPS['51'] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
+  var u = CLIPS[RitualCue.noOf(slug)] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
   duckTo(PARAM.duckSpeech, 300);
   var txt = RitualCue.EXTRA[slug] || '';
   $('#nName').textContent = '잠시 기다립니다';
@@ -1068,7 +1072,7 @@ $('#bWait').onclick = function(){
 function playLoose(slug, name, txt){
   clearT(); audioOn();
   duckTo(PARAM.duckSpeech, 300);
-  var u = CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
+  var u = CLIPS[RitualCue.noOf(slug)] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
   $('#nName').textContent = name;
   $('#nTxt').className = 'txt'; $('#nTxt').textContent = txt;
   aNarr.onended = null; aNarr.onerror = null;
