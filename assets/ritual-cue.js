@@ -552,7 +552,14 @@
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '폐식 · 단체촬영 전환', text: D.NARR.close,
       duck: -12, note: '예식의 마지막 소리 · 가장 느리게',
-      post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }, { wait: PARAM.photo.afterCloseMs }]
+      /* ★[GATHER_WAIT 2026-08-08] 사람이 모이는 시간을 큐가 알아야 한다.
+         전에는 post wait 30초 뒤 다음 큐가 **자동으로** 나갔다. 그런데 이 클립이
+         "모두 앞으로 나와, 두 분 곁에 서 주세요" 라고 부르는 말이 됐다([CLOSE_V2]).
+         25명이 30초 만에 모인다는 보장이 없고, 안 모였는데 "모두 모이셨습니다"가
+         나가면 거짓말이 된다. live 를 주면 다음 큐가 manual 로 내려와 디렉터가 보고 누른다.
+         ★[CUE_FIRE_RULE] 이 전환은 규칙이 자동으로 계산한다 — 손으로 적지 않는다. */
+      live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move' },
+      post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));
 
     if (mode === 'console') {
@@ -577,7 +584,12 @@
         k: '_greet', blockN: '인사와 사진', slug: 'narr-round-open', name: '인사와 사진 시작', text: D.NARR.roundOpen, duck: -14,
         hint: '불러 모으는 구도가 끝나면',
         note: '★여기서 하객이 풀어진다. 두 분은 그 사이 카메라 앞으로 간다',
-        live: S.digital ? null : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 1200, self: true, doing: 'move' }
+        /* ★[GATHER_WAIT] digital 이면 이 뒤에 온라인 인사가 온다. live 가 없으면 그 큐가 chain 이 되어
+           안내가 끝나자마자 "두 분, 카메라 앞으로" 가 나간다 — 하객이 아직 안 풀어졌고 두 분도 안 움직였다.
+           짧은 사람 구간을 줘서 디렉터가 보고 누르게 한다. */
+        live: S.digital
+          ? { t: '하객이 자리에서 풀어짐 · 두 분이 카메라 앞으로 이동', est: 90, self: true, doing: 'move' }
+          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 1200, self: true, doing: 'move' }
       }));
       if (S.digital) cues.push(cue({
         k: '_greet', blockN: '인사와 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,

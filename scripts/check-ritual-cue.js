@@ -4,7 +4,7 @@
  * [CUE_GUARD_V1]
  *
  * 이 파일이 지키는 것:
- *  1) §3-A 전수 판정표 — 「약속」 코스가 수동 11 / 자동 8 / 시각고정 3 이고 번호가 정확히 그것
+ *  1) §3-A 전수 판정표 — 「약속」 코스가 수동 12 / 자동 7 / 시각고정 3 이고 번호가 정확히 그것
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
  *  4) 전 코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
@@ -62,12 +62,15 @@ else ok('FILES 75개 · 중복 없음');
 //   늘어난 수동 셋(60·61·63)은 **사람의 시간 뒤**다 — 전체컷 뒤 · 불러 모으는 구도 뒤 · 인사 라운드 뒤.
 //   디렉터가 어차피 그 자리에 서 있는 순간이라 조작이 새로 생긴 게 아니다.
 //   65(마지막 닫는 말)는 연출 촬영 뒤라 같은 이유. 45(배웅)는 종전대로.
-const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '60', '61', '63', '65', '47'];
-//                  guest-1 entry-A entry-out vow-out ring-out letter-end photo-split round-open final-warn photo-out goodbye
+// [GATHER_WAIT 2026-08-08] 44(전체 하객컷)가 chain 에서 manual 로 내려왔다 — 폐식 클립이
+//   "모두 앞으로 나와 주세요"로 바뀌면서 사람이 모이는 시간(live)이 생겼기 때문이다.
+//   수동 11 → 12. ★조작이 는 게 아니라, 30초 타이머로 자동으로 나가던 것이 사람 판단으로 바뀐 것이다.
+const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '44', '60', '61', '63', '65', '47'];
+//                  guest-1 entry-A entry-out vow-out ring-out letter-end photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['13', '15', '30', '27', '26', '44', '64', '45'];
-//                 vow-in ring-in declare-1-solemn letter-parent close end-0-photo final-call farewell
+const A3_CHAIN = ['13', '15', '30', '27', '26', '64', '45'];
+//                 vow-in ring-in declare-1-solemn letter-parent close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
