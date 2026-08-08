@@ -897,7 +897,7 @@ var COURSES={
    },
    {
     "n": "축배",
-    "how": "곧바로 잔을 들어요. 길게 닫는 인사 없이, 나레이션이 단체 기록으로 이어 줍니다.",
+    "how": "곧바로 잔을 들어요. 길게 닫는 인사 없이, 나레이션이 다 함께 시간으로 이어 줍니다.",
     "fx": "모두의 표정이 한 장에 담기고, 자연스럽게 촬영 시간으로 넘어가요.",
     "fix": true
    }
@@ -1977,7 +1977,7 @@ function renderStep(k){
       h+='<div class="mc-x">';
       h+='<div class="mc-media"><div class="mclip"><div style="padding:20px 14px;font-size:12.5px;line-height:1.8;color:var(--sub)">'+esc(CLOSE_NAR)+'</div></div>'
         +'<button type="button" class="rowbtn mc-play" data-mp="_close" onclick="event.stopPropagation();momPlay(this,\'_close\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';
-      h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>단체 사진 구도</b>는 마이페이지 <b>예식 준비 · 단체 사진</b>에서 골라요 · 본식 뒤 단체 기록 시간에 진행돼요.</div>';
+      h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>단체 사진 구도</b>는 마이페이지 <b>예식 준비 · 단체 사진</b>에서 골라요 · 본식 뒤 다 함께 시간에 진행돼요.</div>';
       h+='</div>';
     }
     h+='</div>';
@@ -1987,7 +1987,7 @@ function renderStep(k){
     var _em=parseInt(estMin().replace(/\D/g,''),10)||0;   // 부드러운 시간 안내(막지 않음) — 작은 예식은 20~30분이 몸에 맞음
     // [TIME_HONEST] 문턱을 35 → 25 로. [EVENT_BUDGET] 상한이 25분이고, 순간 하나에 4분을 쓰는 호흡이라
     //   35분이면 이미 한참 넘긴 뒤다. 막지는 않는다 — 넘었다는 것만 알려 준다.
-    if(_em>25) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 사회자 없이 나레이션으로 이끄는 예식은 25분 안쪽이 가장 편안해요. 더 담아도 괜찮지만 참고해 주세요.</div>';
+    if(_em>25) h+='<div class="ex-n" style="margin:6px 2px 0;color:var(--gold-deeper)">지금 약 '+_em+'분이에요 · 진행 안내는 저희가 준비하지만, 본식은 25분 안쪽이 가장 편안해요. 더 담아도 괜찮지만 참고해 주세요.</div>';
     h+='</div>';
     return h;
   }
@@ -2390,7 +2390,13 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
 function _cakeDup(){ return inSeq('valley') && S.valley==='cake' && inSeq('toast') && (S.toast==='cake'||S.toast==='both'); }
 function cakeDupNote(){ return '<div class="reassure" style="margin-top:12px">사이 순서와 축배 두 곳에서 케이크를 자르게 돼요 · 한 곳만 두시면 흐름이 또렷해요</div>'; }
 function estMin(){
-  var base={damback:25,minimal:18,gamdong:29,family:30,festive:30}[S.course]||25, m=base;
+  /* ★[BASE_MIRROR] 아래 base 는 assets/ritual-data.js 의 MIN.base 사본이다. 한쪽만 고치지 말 것
+     (check-ritual-mirror.js 가 키·값을 대조한다 · XM 과 같은 방식).
+     엔진을 동기로 못 읽어서(engine()이 비동기) 사본을 두지만, 값이 갈리면 고객이 모순을 본다 —
+     실제로 갈려 있었다: family 30(원천 24) · damback 25(원천 20) · gamdong 29(원천 28) ·
+     record 키 누락으로 ||25(원천 16). 가족 코스를 고르면 카드는 '약 24분'인데 다듬기 화면은
+     아무것도 안 더했는데 '지금 약 30분이에요 · 25분 안쪽이 편안해요' 경고를 띄웠다. */
+  var base={damback:20,minimal:18,gamdong:28,family:24,festive:30,record:16}[S.course]||20, m=base;
   if(S.ring==='off') m-=1;
   if(inSeq('valley') && S.valley!=='none') m+=3;
   if(inSeq('bless')){ var bd=(S.course==='family')?'on':'off'; if(S.bless!==bd) m+=(S.bless==='on'?2:-2); }
