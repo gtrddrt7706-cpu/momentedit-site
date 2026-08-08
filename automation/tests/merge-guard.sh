@@ -1222,6 +1222,11 @@ chk 'CLIP_COUNT' scripts/build-typecast-import.mjs 2
 node scripts/build-dubbing-script.mjs >/dev/null || FAIL=1
 node scripts/build-typecast-import.mjs >/dev/null || FAIL=1
 
+# [SPLIT_JOIN] 타입캐스트가 한 문장을 쉼표에서 쪼개 보내는 것을 도로 잇는 도구.
+#   `신랑 신부, 입장!` 이 두 파일로 와서 입장 6클립이 23 → 29개가 됐다(두 번 당했다).
+chk 'SPLIT_JOIN' scripts/join-split-sentences.mjs 1
+chk 'SPLIT_JOIN' scripts/assemble-narration.mjs 1
+
 # [DRIFT_MUTATION] 그 검사가 **진짜로 잡는지** 시험한다. 초록은 아무것도 증명하지 않는다 —
 #   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
 #   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.
