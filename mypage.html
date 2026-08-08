@@ -5601,7 +5601,7 @@ function renderPhoto(box){
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
   var _pm=photoMins(sel);
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
-    +(_pm>24?' <span style="color:var(--gold-deeper)">· 단체 기록 시간이 빠듯해져요</span>':'')+'</div>';
+    +(_pm>24?' <span style="color:var(--gold-deeper)">· 다 함께 시간이 빠듯해져요</span>':'')+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
@@ -5637,11 +5637,11 @@ function renderPhoto(box){
   function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-pdel]'), function(el){ el.addEventListener('click', function(){ sel.splice(+el.getAttribute('data-pdel'),1); rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
+  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 다 함께 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
   var inp=$('mp_photoAdd'), btn=$('mp_photoAddBtn');
   function add(){ if(!inp) return; var v=(inp.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(['전체 하객'].concat(sel).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
-    if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 단체 기록 시간에 진행돼요.'); return; }
+    if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 다 함께 시간에 진행돼요.'); return; }
     sel.push(v); inp.value=''; rerender(); }
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });

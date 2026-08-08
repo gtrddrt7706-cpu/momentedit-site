@@ -39,6 +39,29 @@ else {
     + (same ? '' : ' — 원천누락:' + (miss.join(',') || '없음') + ' / 원천잉여:' + (extra.join(',') || '없음') + ' / 값불일치:' + (diff.join(',') || '없음')), same);
 }
 
+// ★BASE_MIRROR — 코스별 기본 소요분. XM 과 달리 **원천(MIN.base)이 기준**이다.
+//   코스 카드의 '약 N분' 라벨이 원천에서 나오므로, 빌더 사본이 갈리면 고객이 같은 화면에서
+//   두 숫자를 본다. 실제로 갈려 있었다 — family 30(원천 24)·damback 25(원천 20)·gamdong 29(원천 28)·
+//   record 키 누락(원천 16). 가족 코스를 고르면 카드는 '약 24분'인데 다듬기 화면은 아무것도 안
+//   더했는데 '지금 약 30분이에요' 경고를 띄웠다. XM 만 대조하고 base 는 안 봐서 계속 초록이었다.
+//   ※ 'var base=' 는 이 파일에 셋 있다(1202 얕은복사 · 1409 다른 표 · estMin). [S.course] 로 그 하나만 집는다.
+const bsM = html.match(/var base=\{([^}]*)\}\[S\.course\]/);
+if (!bsM) { ok('빌더 var base 파싱', false); }
+else {
+  const bb = {};
+  bsM[1].split(',').forEach((kv) => {
+    const m = kv.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*(-?\d+)\s*$/);
+    if (m) bb[m[1]] = Number(m[2]);
+  });
+  const sb = D.MIN.base || {};
+  const bk = Object.keys(bb).sort(), sk = Object.keys(sb).sort();
+  const miss = sk.filter((k) => !(k in bb)), extra = bk.filter((k) => !(k in sb));
+  const diff = bk.filter((k) => k in sb && sb[k] !== bb[k]).map((k) => k + '(빌더' + bb[k] + '≠원천' + sb[k] + ')');
+  const same = miss.length === 0 && extra.length === 0 && diff.length === 0;
+  ok('MIN.base가 빌더 var base와 키·값 일치(' + sk.length + '키)'
+    + (same ? '' : ' — 빌더누락:' + (miss.join(',') || '없음') + ' / 빌더잉여:' + (extra.join(',') || '없음') + ' / 값불일치:' + (diff.join(',') || '없음')), same);
+}
+
 // ★NAR_MIRROR — 빌더는 assets/ritual-data.js를 로드하지 않고 같은 문안의 인라인 사본을 따로 들고 있다.
 //   그래서 한쪽만 고치면 고객 화면과 AI 상담 답변이 갈린다. 원천 문안이 빌더에도 있는지 전수 대조한다.
 //   (단방향 검사 · 빌더에만 있는 잉여 문안은 대상 아님)
