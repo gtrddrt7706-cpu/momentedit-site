@@ -1208,7 +1208,14 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
 # [SOURCE_DRIFT] 원천 값이 손으로 적힌 자리를 찾는 검사 — 인스턴스가 아니라 병을 잡는다.
-node scripts/check-source-drift.mjs || FAIL=1
+#   ★이 아래 네 줄은 `fail`(소문자)에 넣는다. 판정 트랩 _gate 가 읽는 변수가 그것 하나뿐이다.
+#     `FAIL`(대문자)로 적혀 있었고, 그동안 이 네 검사는 빨개져도 게이트가 초록이었다(실측:
+#     check-source-drift 를 일부러 실패시켜도 'ALL MARKERS OK' + EXIT 0). 대문자로 되돌리지 말 것.
+node scripts/check-source-drift.mjs || fail=1
+# [TIME_HONEST] 시간표를 손으로 적은 자리를 지운 커밋들의 마커 — 위 검사가 병을 잡고, 이 줄이 자리를 지킨다.
+chk 'TIME_HONEST' index.html 1
+chk 'TIME_HONEST' order-preview.html 3
+chk 'TIME_HONEST' assets/sequence-modal.js 3
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -1225,8 +1232,8 @@ nochk "CLIPS\['[0-9]" console.html 0
 # [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
 #   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
 chk 'CLIP_COUNT' scripts/build-typecast-import.mjs 2
-node scripts/build-dubbing-script.mjs >/dev/null || FAIL=1
-node scripts/build-typecast-import.mjs >/dev/null || FAIL=1
+node scripts/build-dubbing-script.mjs >/dev/null || fail=1
+node scripts/build-typecast-import.mjs >/dev/null || fail=1
 
 # [SPLIT_JOIN] 타입캐스트가 한 문장을 쉼표에서 쪼개 보내는 것을 도로 잇는 도구.
 #   `신랑 신부, 입장!` 이 두 파일로 와서 입장 6클립이 23 → 29개가 됐다(두 번 당했다).
@@ -1236,7 +1243,7 @@ chk 'SPLIT_JOIN' scripts/assemble-narration.mjs 1
 # [DRIFT_MUTATION] 그 검사가 **진짜로 잡는지** 시험한다. 초록은 아무것도 증명하지 않는다 —
 #   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
 #   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.
-sh scripts/check-source-drift.test.sh || FAIL=1
+sh scripts/check-source-drift.test.sh || fail=1
 
 # [CONTRACT_V14] 계약서 3조① 본식 16~24분 · Group Record 36~44분(합 60분 고정) · 문서 v1.4.
 #   ★v1.3 서명자는 archive/v1-3.html 로 열람해야 한다 — 이 줄이 사라지면 옛 서명자가

@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
 let joined = 0, n = 0, i = 0;
-const log = [];
+const log = [], orphan = [];
 while (i < files.length) {
   const a = files[i], b = files[i + 1];
   const pair = b && SENT.has(norm(bodyOf(a) + bodyOf(b))) && !SENT.has(norm(bodyOf(a)));
@@ -63,10 +63,20 @@ while (i < files.length) {
       '-i', path.join(IN, a), '-i', path.join(IN, b),
       '-filter_complex', `[0:a]${TRIM}[a0];[1:a]${TRIM}[a1];aevalsrc=0:d=0.28:s=48000[g];[a0][g][a1]concat=n=3:v=0:a=1[o]`,
       '-map', '[o]', '-ar', '48000', '-c:a', 'pcm_s24le', dst]);
-    if (r.status) { console.error(`✗ 잇기 실패: ${a} + ${b}\n${String(r.stderr).slice(0, 200)}`); process.exit(1); }
+    // ★status 만 보면 안 된다 — ffmpeg 이 아예 없으면(ENOENT) status 는 null 이라 이 검사를 그냥 지나간다.
+    //   그러면 파일이 안 생긴 채 "이었음" 을 찍고 초록으로 끝난다. 잇기는 못 했는데 됐다고 말하는 것이
+    //   이 도구에서 제일 나쁜 실패다(붙었다고 믿고 그대로 조립기에 넘긴다). 셋 다 본다.
+    if (r.error || r.status !== 0 || !fs.existsSync(dst)) {
+      console.error(`✗ 잇기 실패: ${a} + ${b}`);
+      console.error(r.error && r.error.code === 'ENOENT'
+        ? '  ffmpeg 이 없습니다. 설치 후 다시 실행하세요(brew install ffmpeg).'
+        : `  ${String(r.error || r.stderr).slice(0, 200)}`);
+      process.exit(1);
+    }
     log.push(`  이었음  ${a}  +  ${b}`);
     joined++; i += 2;
   } else {
+    if (!SENT.has(norm(bodyOf(a)))) orphan.push(a);   // 대장의 어떤 문장과도 안 맞는다 = 아직 조각일 수 있다
     fs.copyFileSync(path.join(IN, a), dst);
     i += 1;
   }
@@ -76,8 +86,17 @@ while (i < files.length) {
 console.log(`받은 파일 ${files.length}개 → ${n}개 (이어 붙인 자리 ${joined}곳)`);
 if (log.length) console.log(log.join('\n'));
 console.log(`→ ${OUT}`);
-if (!joined) {
-  console.log('  ★쪼개진 문장이 없습니다 — 원래 폴더를 그대로 조립기에 넘기셔도 됩니다.');
-} else {
+// ★안내가 원을 돌지 않게 한다 — 못 이은 조각이 남았는데 "그대로 넘기셔도 됩니다" 라고 하면,
+//   조립기가 개수 불일치로 멎고 그 오류문이 다시 이 도구를 가리켜 사람이 두 안내 사이를 왕복한다.
+//   대장의 어떤 문장과도 안 맞는 파일은 아직 조각일 수 있으니 그것부터 보여 주고 멈춰 세운다.
+if (orphan.length) {
+  console.log(`  ⚠ 대장의 문장과 안 맞는 파일 ${orphan.length}개 — 아직 쪼개진 조각이거나 대본이 바뀐 자리입니다.`);
+  orphan.slice(0, 8).forEach((f) => console.log(`     ${f}`));
+  if (orphan.length > 8) console.log(`     … 외 ${orphan.length - 8}개`);
+  console.log('     이대로 조립기에 넘기면 개수가 안 맞아 멎습니다. 위 파일 이름을 대본과 맞춰 보세요.');
+} else if (!joined) {
+  console.log('  ★쪼개진 문장이 없습니다 · 원래 폴더를 그대로 조립기에 넘기셔도 됩니다.');
+}
+if (joined && !orphan.length) {
   console.log(`  이어서:  node scripts/assemble-narration.mjs --in ${OUT} [--clip <대목>]`);
 }
