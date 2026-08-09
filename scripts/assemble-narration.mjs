@@ -250,8 +250,20 @@ for (const g of groups) {
 }
 pairs.sort((x, y) => (y.r - x.r) || ((y.g.hint === y.P.n ? 1 : 0) - (x.g.hint === x.P.n ? 1 : 0)));
 const usedP = new Set();
+/* ★[ONE_CANDIDATE 2026-08-09] 후보 파트가 **하나뿐**이면 상관계수로 거르지 않는다.
+   길이 상관은 '여러 후보 중 어느 파트인가'를 가리는 도구다. 후보가 하나면 가릴 것이 없다.
+   ★실제로 막혔다: 셔터 신호 2문장(`찍겠습니다.` · `하나, 둘, 셋.`)을 조립하려는데
+     두 문장의 **예상 길이가 서로 같아** 기댓값 벡터의 분산이 0 이 되고, 상관계수가
+     정의되지 않아 늘 0.85 미만이 됐다. 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎는다.
+     문장 수가 적고 길이가 비슷한 묶음에서는 이 잣대가 아무것도 재지 못한다.
+   ★순서 검증은 그대로 남는다(아래 '순서 검증 · r' 블록) — 그게 진짜 안전망이고,
+     거기서 걸리면 --force 로만 넘어간다. 여기서 느슨해진다고 순서가 안 지켜지는 게 아니다.
+   ★후보가 둘 이상이면 종전대로 0.85 를 요구한다 — 그때는 상관계수가 실제로 일을 한다. */
+const oneCand = new Map();
+for (const x of pairs) oneCand.set(x.g, (oneCand.get(x.g) || 0) + 1);
 for (const x of pairs) {
-  if (x.g.P || usedP.has(x.P.file) || x.r < 0.85) continue;
+  if (x.g.P || usedP.has(x.P.file)) continue;
+  if (x.r < 0.85 && oneCand.get(x.g) !== 1) continue;
   x.g.P = x.P; x.g.r = x.r; usedP.add(x.P.file);
 }
 

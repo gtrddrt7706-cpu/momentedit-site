@@ -2007,3 +2007,9 @@ if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/d
 # RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
 chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
 chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1
+# ── [ONE_CANDIDATE] 후보 파트가 하나면 상관계수로 거르지 않는다 (2026-08-09) ──
+# 셔터 신호 2문장은 예상 길이가 서로 같아 기댓값 분산이 0 → 상관계수가 늘 0.85 미만.
+# 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎었다. 상관은 후보를 가리는 도구지 검증이 아니다.
+# ★순서 검증(--force 로만 넘어감)은 그대로 남는다 — 그게 진짜 안전망이다.
+chk 'ONE_CANDIDATE' scripts/assemble-narration.mjs 1
+chk '후보가 둘 이상이면 종전대로' scripts/assemble-narration.mjs 1
