@@ -24,9 +24,14 @@ const m = /^\};/m.exec(s.slice(i));
 if (!m) { console.error('✗ COURSES 블록의 끝(`};`)을 못 찾았습니다'); process.exit(1); }
 const got = s.slice(i, i + m.index + m[0].length);
 
-if (got === want) { console.log('ok COURSES 사본이 원천과 같다'); process.exit(0); }
-if (!process.argv.includes('--write')) {
+/* ★[EXIT_AT_END 2026-08-09 · 코드 세션 처방] 여기서 결론 내고 나가지 않는다 —
+   뒤에 검사를 덧붙인 사람의 블록이 종료코드에 못 닿는 구조를 남기지 않는다.
+   (실제로 check-corr-claim.mjs 에서 그 일이 났다: 화면엔 ✗ 인데 exit 0) */
+let bad = 0;
+if (got === want) console.log('ok COURSES 사본이 원천과 같다');
+else if (!process.argv.includes('--write')) {
   console.error('✗ COURSES 사본이 원천과 갈렸습니다 — node scripts/build-course-mirror.mjs --write');
+  bad++;
   const a = got.split('\n'), b = want.split('\n');
   for (let k = 0, shown = 0; k < Math.max(a.length, b.length) && shown < 6; k++) {
     if (a[k] === b[k]) continue;
@@ -34,7 +39,10 @@ if (!process.argv.includes('--write')) {
     console.error(`         원천: ${(b[k] || '(없음)').trim().slice(0, 60)}`);
     shown++;
   }
-  process.exit(1);
-}
+} else {
 fs.writeFileSync(F, s.slice(0, i) + want + s.slice(i + m.index + m[0].length), 'utf8');
 console.log('✓ COURSES 사본을 원천에서 다시 뽑았습니다');
+}
+
+/* ── 결론은 여기 한 곳에서만 [EXIT_AT_END] ── */
+process.exit(bad ? 1 : 0);

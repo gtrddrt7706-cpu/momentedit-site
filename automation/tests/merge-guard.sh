@@ -2042,3 +2042,10 @@ chk 'CORR_PERMISSIVE' scripts/check-corr-claim.mjs 1
 # merge-guard 의 GUARD_FAIL_VAR·GATE_AT_EXIT 과 같은 병이다. 붉어질 수 없는 실패는 실패가 아니다.
 chk 'EXIT_AT_END' scripts/check-corr-claim.mjs 2
 chk '붉어질 수 없는 실패는' scripts/check-corr-claim.mjs 1
+
+# ── [EXIT_AT_END] 결론은 파일 맨 끝 한 곳에서만 (2026-08-09 · 코드 세션 처방을 내 검사에도) ──
+# 중간 exit 뒤에 검사를 덧붙이면 그 블록이 종료코드에 못 닿는다 — 실제로 코워크가 붙인 블록이
+# check-corr-claim 에서 그렇게 죽었다(화면엔 ✗ 인데 exit 0). GUARD_FAIL_VAR 와 같은 병이다.
+# ★고칠 것은 붙인 자리가 아니라 **구조**다. 사람이 "여기 뒤엔 붙이면 안 된다"를 기억하게 두지 않는다.
+chk 'EXIT_AT_END' scripts/check-paste-format.mjs 2
+chk 'EXIT_AT_END' scripts/build-course-mirror.mjs 2
