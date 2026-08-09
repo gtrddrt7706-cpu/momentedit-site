@@ -1250,6 +1250,11 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
+#   실측: 다 함께가 31~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
+chk 'ROUND_FIT' assets/ritual-cue.js 2
+chk 'ROUND_FIT' scripts/check-ritual-cue.js 1
+chk '_round' assets/ritual-cue.js 3
 # [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1

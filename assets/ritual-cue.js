@@ -579,15 +579,27 @@
          ★live.est 근거: 전체컷 360(25명은 하단값 6분) · 가족 구도 300 · 인사 라운드 1200 · 마지막 240.
            코스에 따라 라운드가 늘어난다(본식이 짧으면 그만큼) — 그건 진행표가 현장에서 흡수한다.
          ★호명·연출은 여기 없다. 순서가 당일 유동적이라 D.PHOTOCUE 의 '골라 트는 판'이 맡는다. */
+      /* ★★[ROUND_FIT 2026-08-09] 라운드 길이를 손으로 적지 않는다 — **남는 시간에서 계산한다.**
+         「다 함께」가 36~44 → 31~39분으로 줄었는데(DAY_PLAN) 여기 est 는 20분으로 박혀 있었다.
+         실측: digital 일 때 사람 구간 합 **39.5분** — 상한을 이미 넘고, 가족 코스(다 함께 31분)에선
+         8분 넘게 초과했다. ★마이페이지에서는 '밀도의 함정'을 막아 놓고 엔진에서는 그대로 빠진 자리다.
+         이제 고정 자리(모으기·전체컷·구도 촬영·이동·온라인·마지막)를 예산에서 빼고
+         **남은 것이 라운드**다. 코스나 DAY 가 바뀌면 라운드가 알아서 따라 움직인다.
+         ★하한 10분 — 그 아래로는 '인사했다'가 성립하지 않는다(리서치 3차 · 테이블당 하한). */
+      var _grBudget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell)
+        - (D.MIN.base[S.course] || D.MIN.base.damback);                 // 분 · 다 함께에 쓸 수 있는 시간
+      var _grFixed = 60 + 300 + 240 + (S.digital ? 90 + 120 : 0) + 180; // 초 · 라운드 말고 정해진 자리
+      var _round = Math.max(600, _grBudget * 60 - _grFixed - 120);      // 초 · 말 시간 2분 여유
+
       cues.push(cue({
         k: '_photo', blockN: '단체촬영', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
-        live: { t: '전체 하객 단체컷 (전원이 앞에 모인 상태)', est: 360, note: '25명 정렬에 6분 · 20명 이상은 6~10분이 업계 실측' }
+        live: { t: '전체 하객 단체컷 (전원이 앞에 모인 상태)', est: 300, note: '25명 정렬에 5분 · 20명 이상은 6~10분이 업계 실측이지만 [DAY_PLAN]으로 다 함께가 짧아져 5분으로 당겼다' }
       }));
       cues.push(cue({
         k: '_photo', blockN: '단체촬영', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
         hint: '전체컷을 담고 나면',
         note: '★뒤 문장이 대기를 「알려진 대기」로 바꾼다 — 순번을 알려 주면 이탈이 준다(하버드)',
-        live: { t: '불러 모으는 구도 촬영 (호명은 골라 트는 판에서)', est: 300, self: true, doing: 'move' }
+        live: { t: '불러 모으는 구도 촬영 (호명은 골라 트는 판에서)', est: 240, self: true, doing: 'move' }   // [PHOTO_CAP] 구도 상한 6→5
       }));
       cues.push(cue({
         k: '_greet', blockN: '다 함께', slug: 'narr-round-open', name: '다 함께 시작', text: D.NARR.roundOpen, duck: -14,
@@ -598,12 +610,12 @@
            짧은 사람 구간을 줘서 디렉터가 보고 누르게 한다. */
         live: S.digital
           ? { t: '하객이 자리에서 풀어짐 · 두 분이 카메라 앞으로 이동', est: 90, self: true, doing: 'move' }
-          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 1200, self: true, doing: 'move' }
+          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: _round, self: true, doing: 'move' }   // [ROUND_FIT]
       }));
       if (S.digital) cues.push(cue({
         k: '_greet', blockN: '다 함께', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
-        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 1320, self: true, doing: 'say' }
+        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 120 + _round, self: true, doing: 'say' }   // [ROUND_FIT]
       }));
       /* ★'자리 돌며 인사' 20분은 **소리가 없다.** 별도 큐로 두면 슬러그 없는 큐가 되어
          전 조합 검사가 잡는다(실제로 잡혔다 · 20736건). 소리 없는 자리는 큐가 아니라
@@ -618,7 +630,7 @@
         k: '_final', blockN: '다 함께 마지막', slug: 'narr-final-call', name: '모이는 신호', text: D.NARR.finalCall, duck: -14,
         hint: '예고 뒤 5분쯤',
         note: '★2단계의 2단 · 이 뒤 연출은 골라 트는 판에서',
-        live: { t: '다 함께 마지막 한 장 · 연출 3개 (골라 트는 판)', est: 240, self: true, doing: 'move' }
+        live: { t: '다 함께 마지막 한 장 · 연출 2개 (골라 트는 판)', est: 180, self: true, doing: 'move' }   // [PHOTO_CAP] 연출 상한 3→2
       }));
       cues.push(cue({
         k: '_final', blockN: '다 함께 마지막', slug: 'narr-photo-out', name: '마지막 닫는 말', text: D.NARR.photoOut, duck: -12,
