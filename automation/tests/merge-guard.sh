@@ -1967,3 +1967,10 @@ if command -v node >/dev/null 2>&1; then node scripts/check-done-undo-tracks.mjs
 chk 'FAQ_DODGE' index.html 2
 chk 'faq-dodge' index.html 2
 nochk "classList.toggle('hide'" index.html
+
+# ── [SETTLE_LIMIT] 정착은 '개수'만 지킨다 — 좌표는 계속 움직인다 (2026-08-09) ──
+# SWEEP_SETTLE 로 수가 멎은 뒤에도 body 높이가 22536→21384 로 줄었다. scrollIntoView 로 올려 둔
+# 요소가 곧 화면 위로 596px 밀려나, 두 세션이 FAQ_DODGE 검증에서 연달아 "안 비켜난다"고 헛짚었다.
+# 위치에 의존하는 시험은 좌표를 수렴시켜야 한다는 것을 파일 안에 남긴다.
+chk 'SETTLE_LIMIT' scripts/check-tap-targets.mjs 1
+chk '좌표를 수렴' scripts/check-tap-targets.mjs 1
