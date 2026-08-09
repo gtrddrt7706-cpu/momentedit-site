@@ -39,7 +39,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 :root{
   color-scheme:light;
   --bg:#FAFAF8;--bg2:#F5F3EF;
-  --text:#1C1B19;--sub:#4A463E;--light:#75705F;
+  --text:#1C1B19;--sub:#4A463E;--light:#6E6959;
   --gold:#B89A75;
   --accent:#3A2D22;--seal:#6B2A24;
   --border:#DDD8D1;--footer-bg:#1A1714;
@@ -194,6 +194,21 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 .nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
 .nav-mark{min-height:40px}
 @media(max-width:680px){.nav-logo{width:130px}}
+
+/* ★★[TAP44 2026-08-09] 손가락으로 누를 수 있게 — 390px 실측으로 잡았다.
+   푸터 링크(contact · My Page · 개인정보처리방침)가 전부 **높이 12px** 이었다.
+   손끝은 지름 8~10mm ≒ 45px 라, 12px 짜리는 옆 것을 같이 누르거나 아무것도 안 눌린다.
+   애플 44pt · 구글 48dp 가 업계 기준이다.
+   ★보이는 모양은 손대지 않는다 — 음수 마진으로 되돌려 줄 간격이 안 벌어지게 한다.
+     글자 크기·색·자간은 그대로다. 넓어지는 것은 **누르는 면적뿐**이다. */
+nav .nav-links a, .nav-links a, .f-links a, footer a[href^="mailto"], footer a[href$="privacy.html"],
+footer li a, footer a[href$="mypage.html"] {
+  display: inline-block;
+  padding: 15px 6px;
+  margin: -15px -6px;
+}
+.journal-card-btn { padding-top: 16px; padding-bottom: 16px; margin-top: -16px; margin-bottom: -16px; }
+.nav-back { padding: 12px 6px; margin: -12px -6px; }
 </style>
 <!-- [EDGE_BACK] 왼쪽 가장자리 스와이프 → 뒤로가기. iOS는 시스템 제스처와 충돌하므로 스크립트 내부에서 자동 제외. -->
 <script src="/shared/edge-back.js" defer></script>
