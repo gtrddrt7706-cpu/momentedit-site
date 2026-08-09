@@ -98,20 +98,24 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
 .ipt{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--accent)}
 .ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.daymap{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 15px 13px}
-.daymap-t{font-size:11px;color:var(--gold-deeper);font-weight:600;text-align:center;margin-bottom:12px;letter-spacing:.02em}
-.seqr{display:flex;align-items:flex-start;gap:11px;padding:8px 2px;border-bottom:1px solid var(--bg2)}
+/* ★[DAYMAP_AIR 2026-08-09] 사용자: "위쪽에 쏠려 있는 느낌 · 어중간 · 가독성 개선".
+   안내 1/2 는 내용이 카드 하나뿐이라 화면 아래가 통째로 비어 위만 무거워 보였다.
+   여백을 카드 **안**에 넣어 카드가 화면을 차지하게 한다(위 여백만 늘리면 어중간함이 자리만 옮긴다).
+   글자는 한 단씩 키우고 줄 간격을 넓혀 '표'가 아니라 '하루 이야기'로 읽히게. */
+.daymap{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px 20px}
+.daymap-t{font-size:13px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:16px;letter-spacing:.02em}
+.seqr{display:flex;align-items:flex-start;gap:13px;padding:12px 4px;border-bottom:1px solid var(--bg2)}
 .seqr:last-child{border-bottom:none}
-.seqr .sq-tm{flex:0 0 42px;text-align:center;font-size:11px;font-weight:600;color:var(--light);padding-top:1px}
+.seqr .sq-tm{flex:0 0 52px;text-align:center;font-size:13px;font-weight:700;color:var(--light);padding-top:1px;letter-spacing:-.01em}
 .seqr .sq-b{flex:1;min-width:0}
-.seqr .sq-n{font-size:12px;font-weight:600;color:var(--sub)}
-.seqr .sq-n small{font-size:10px;color:var(--light);font-weight:400;margin-left:5px}
-.seqr .sq-d{font-size:10px;color:#635E4F;margin-top:2px;word-break:keep-all;line-height:1.5}   /* [ORD_A11Y] --light(#75705F)는 강조 행 배경(#EEECE7) 위에서 4.19 — 10px 글자엔 4.5가 필요하다. 5.48로 */
+.seqr .sq-n{font-size:14px;font-weight:600;color:var(--accent)}
+.seqr .sq-n small{font-size:11px;color:var(--light);font-weight:400;margin-left:6px;letter-spacing:.02em}
+.seqr .sq-d{font-size:12px;color:#635E4F;margin-top:3px;word-break:keep-all;line-height:1.62}   /* [ORD_A11Y] --light 는 강조 행 배경 위에서 4.19 — #635E4F 로 5.48 확보 · [TAP44]에서 10→12px */
 .seqr.on{background:#EEECE7;border:1px solid var(--seal);border-radius:10px;padding:10px;margin:3px 0}
 .seqr.on .sq-tm{color:var(--seal)}
 .seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
 .seqr .sq-here{font-size:10px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
-.dmnote{font-size:11px;color:var(--light);text-align:center;margin-top:11px;line-height:1.6;word-break:keep-all}
+.dmnote{font-size:12px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
 .prefacts{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px}
 .pf-t{font-size:11px;color:var(--gold-deeper);font-weight:600;text-align:center;margin-bottom:11px;letter-spacing:.02em}
 .pf-i{font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all;padding:8px 0 8px 15px;position:relative;border-top:1px solid var(--bg2)}
@@ -472,13 +476,6 @@ h3.sec-l{font-size:11px;font-weight:600}
 
 /* [SCHED_PALETTE 2026-08-04] 체크 표시는 진사로 — 기본 파랑은 이 지면에 없는 색이다(마이페이지·예약·신청과 통일) */
 input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
-
-/* ★[TAP44 2026-08-09] 이 화면은 부부가 30분쯤 붙잡고 **작업**하는 곳이라
-   홈의 장식 라벨과 성격이 다르다. 읽고 판단하는 문장이 10px 이었다(390px 실측).
-   .sq-d "하객 입장 20분이 여기 겹쳐요" · "본식이 짧아진 만큼 여기가 늘어나요" 등. */
-.sq-d{font-size:12px}
-.sq-tm{font-size:13px}
-.sq-here{font-size:11.5px}
 </style>
 </head>
 <body>
@@ -1601,11 +1598,11 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','다 함께','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','다 함께','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
-  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 두 분이 하객분들과 인사하고 사진 남기는 시간이 늘어나요.</div></div>';
+  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 인사와 사진의 자유 시간이 늘어나요.</div></div>';
   return h;
 }
 
