@@ -326,7 +326,7 @@ select {
   --bg3: #edebe6;
   --text: #1c1b19;
   --sub: #5a554c;
-  --light: #75705f;
+  --light: #6E6959;
   --gold: #b89a75;
   /* [HOME_GOLD_TEXT] 장식용 골드(#b89a75)는 본문 배경에서 2.54:1 — 텍스트로 쓰면 WCAG AA(4.5) 미달.
      선·아이콘은 --gold 유지, '글자'에는 아래 진한 톤을 쓴다(마이페이지 MPD_C5와 같은 처방). */
@@ -8190,6 +8190,21 @@ function replayHeroAnimation(){
 @media (prefers-reduced-motion: reduce) {
   .me-toast { transition: none }
 }
+
+/* ★★[TAP44 2026-08-09] 손가락으로 누를 수 있게 — 390px 실측으로 잡았다.
+   푸터 링크(contact · My Page · 개인정보처리방침)가 전부 **높이 12px** 이었다.
+   손끝은 지름 8~10mm ≒ 45px 라, 12px 짜리는 옆 것을 같이 누르거나 아무것도 안 눌린다.
+   애플 44pt · 구글 48dp 가 업계 기준이다.
+   ★보이는 모양은 손대지 않는다 — 음수 마진으로 되돌려 줄 간격이 안 벌어지게 한다.
+     글자 크기·색·자간은 그대로다. 넓어지는 것은 **누르는 면적뿐**이다. */
+nav .nav-links a, .nav-links a, .f-links a, footer a[href^="mailto"], footer a[href$="privacy.html"],
+footer li a, footer a[href$="mypage.html"] {
+  display: inline-block;
+  padding: 15px 6px;
+  margin: -15px -6px;
+}
+.journal-card-btn { padding-top: 16px; padding-bottom: 16px; margin-top: -16px; margin-bottom: -16px; }
+.nav-back { padding: 12px 6px; margin: -12px -6px; }
 </style>
 <script>
 /* [POPUP_BRAND 2026-08-03] 네이티브 alert 대체용 최소 토스트. 노드 하나를 재사용하고 2.6초 뒤 스스로 사라진다.
