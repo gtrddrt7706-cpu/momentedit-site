@@ -1900,3 +1900,21 @@ chk 'Noto Serif CJK KR' scripts/measure-env-fonts.sh 2
 # 20초를 기다려도 안 멎으면 재지 않고 실패로 센다 — 움직이는 화면에서 뽑은 숫자는 증거가 아니다.
 chk 'SWEEP_SETTLE' scripts/check-tap-targets.mjs 1
 chk '재지 않았습니다' scripts/check-tap-targets.mjs 1
+
+# ── [EXIT_FEEDBACK][EXIT_TAP44][GUEST_LIGHT][AI_TIP MINIMAL] (2026-08-09) ──
+# 저장 후 나가기: 버튼 110×31(44 미달) + 첫 탭이 들어가도 화면이 아무 말을 안 했다.
+# 빗나간 탭과 들어간 탭이 똑같아 보이던 것이 '반응을 안 한다'의 정체다. 라벨로 답하게 하고,
+# 부모가 8초간 답이 없으면 스스로 잠금을 푼다(예전엔 부모 메시지가 유일한 해제 경로였다).
+chk 'EXIT_FEEDBACK' order-preview.html 1
+chk 'EXIT_TAP44' order-preview.html 1
+chk '저장 중…' order-preview.html 2
+# 미리듣기는 고객 화면인데 디렉터 콘솔의 어두운 피부를 그대로 입고 있었다. .guest 에서만 갈아입힌다.
+# ★디렉터 화면(embed 없음)은 어두워야 한다 — 예식장에서 화면 빛이 하객 쪽으로 새면 안 된다.
+chk 'GUEST_LIGHT' console.html 1
+chk 'color-scheme:light' console.html 1
+
+# ── [TWO_COUNTS] 두 숫자에 다른 이름 (2026-08-09 · 코드 세션 제안) ──
+# 정착 루프가 세는 수(화면에 보이는 타깃 전부)와 출력의 수(면제 뺀 것)가 둘 다 '대상'이었다.
+# 두 세션이 42 대 43 을 '어긋남'으로 읽고 원인을 찾아 들어갔는데 실은 같은 것이었다(차이 = 인라인 면제 1).
+chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
+chk '화면에 ' scripts/check-tap-targets.mjs 1

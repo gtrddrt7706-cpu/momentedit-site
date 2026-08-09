@@ -175,9 +175,24 @@
      그래서 자리는 남기고 여기 표시한다 — 안 하면 녹음 대기 목록이
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
-  var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1 };
+  var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+    /* [SONG_RETIRED 2026-08-09] 축가 팔레트 폐지 — 자리는 남기고 '녹음 안 함'으로 표시한다.
+       ★이미 녹음된 mp3 는 지우지 않는다. 지우면 번호가 밀리고, 되살릴 일이 생겼을 때
+         다시 녹음해야 한다. 폐지의 실체는 '새로 넣을 길이 없다'는 것이지 파일 삭제가 아니다. */
+    'narr-song': 1, 'narr-song-out': 1 };
 
-  var GADD = { welcome: 1, bless: 1, valley: 1, letter: 1, tribute: 1, toast: 1, song: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거
+  /*
+   ★[SONG_RETIRED 2026-08-09 사용자 지시 *"팔레트 빼자"*] 축가를 팔레트에서도 뺐다.
+      2026-08-07 에 기본 선택지에서 내리고(TRIM_EVENTS) 팔레트에는 남겨 뒀는데, 그 자리마저 닫는다.
+      근거는 그때 잰 그대로다 — 실측 210초로 **사람이 서 있는 시간 1위**인데 도입 7초·닫는 말 없음.
+      예식 전체에서 준비 부담 대비 화면에 남는 것이 가장 적은 자리였다.
+      ★없애는 것이 아니라 **옮기는 것**이다 — 노래하고 싶은 두 분은 「자유 한 칸(free)」에 넣는다.
+        그 칸은 애초에 '두 사람이 따로 준비한 것'을 위해 만든 자리다.
+      ★되살리지 말 것(제거 지시 보존 규칙) — 리뷰가 '유실된 기능'으로 보고 복원하기 쉬운 모양이다.
+        큐 함수·문안·클립(narr-song · narr-song-out)은 **그대로 둔다**: 번호가 인덱스+1이라
+        지우면 뒤 클립이 전부 개명된다. 팔레트에서만 닫힌 상태가 정상이다.
+   */
+  var GADD = { welcome: 1, bless: 1, valley: 1, letter: 1, tribute: 1, toast: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
