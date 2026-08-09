@@ -110,7 +110,7 @@ main.wide{max-width:600px}
   /* 터치 타깃 보강 — 칩·프리셋·저장칩·카드 내 링크를 손가락 크기로(데스크톱 밀도는 유지) */
   .dn-fpill,.dn-ai-sgg button{padding:9px 14px}
   .dn-preset button{padding:10px 15px}
-  .wiz-exit{padding:9px 15px}
+  .wiz-exit{padding:0 15px}   /* [EXIT_TAP44] 높이는 min-height:44px 가 잡는다 — 여기서 padding 으로 되돌리지 말 것 */
   .dnc-pl-a a{padding:6px 2px;display:inline-block}
   /* 리스트 헤더 카운트('검증 N곳 · 예식 후 15:00 도착 기준')가 길어 좁은 화면에선 줄바꿈 허용 — 넘침·잘림 방지 */
   .dn-head-c{white-space:normal;text-align:right;line-height:1.5}
@@ -585,7 +585,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 /* 청첩장 입력 위저드 */
 .inv-wrap{text-align:left}
 .inv-head{margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.wiz-exit{background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
+/* [EXIT_TAP44 2026-08-09] 식순 빌더(.ob-exit)와 같은 처방 — 경위는 order-preview.html 주석에.
+   청첩장·단체사진·최종확정·좌석이 이 한 규칙을 공유한다. 한쪽만 44 로 만들면 다섯이 갈라진다. */
+.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
 .wiz-exit:hover{color:var(--accent);border-color:var(--gold-btn-border);background:var(--card-bg)}
 .inv-step-n{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em}
 .inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}

@@ -1974,3 +1974,10 @@ nochk "classList.toggle('hide'" index.html
 # 위치에 의존하는 시험은 좌표를 수렴시켜야 한다는 것을 파일 안에 남긴다.
 chk 'SETTLE_LIMIT' scripts/check-tap-targets.mjs 1
 chk '좌표를 수렴' scripts/check-tap-targets.mjs 1
+# ── [COURSE_MIRROR] 빌더의 COURSES 사본이 원천과 같은지 (2026-08-09) ──
+# 파일 주석은 "다시 뽑아 넣는다"고 하는데 뽑는 도구가 없었다. 그래서 원천만 고치고 사본은
+# 그대로인 일이 실제로 났다 — 약속 코스에 축배를 넣었는데 빌더 단계에 안 생겼다(렌더해 보고 알았다).
+# 검사만 있고 도구가 없으면 사람은 결국 손으로 옮겨 적는다. 도구와 검사를 함께 둔다.
+chk 'COURSE_MIRROR' scripts/build-course-mirror.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/build-course-mirror.mjs >/dev/null \
+  || { echo 'FAIL course-mirror: 빌더 COURSES 사본이 원천과 갈렸습니다 — node scripts/build-course-mirror.mjs --write'; fail=1; }; fi
