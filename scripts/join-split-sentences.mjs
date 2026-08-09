@@ -34,7 +34,14 @@ const IN = arg('--in', '');
    편집기에서 들은 쉼은 설정한 0.3초 + 그 여백이라 0.6~0.8초였는데,
    조립기가 가장자리 여백을 깎으면서(TRIM_VENDOR_EDGE) 설정값만 남았다.
    ★그 깎기는 전체가 늘어지던 것을 잡은 규칙이라 유지한다. 대신 **여기서 되돌려 준다.** */
-const JOINGAP = arg('--gap', '0.7');
+/* ★[JOIN_GAP 2026-08-09 2차] 0.7 → 0.92. 사용자 실청: *"0.78 → 1초로 늘리자"*.
+   ★설정값과 들리는 쉼은 같지 않다 — 실측으로 잰 보정값이 아래 GAP_RESIDUAL 이다.
+     설정 0.7 로 만든 여섯 클립의 실측 쉼이 0.78 초였다(코워크 실측 · 길이 변화로 교차확인).
+     차이 0.08 초는 TRIM 이 양끝에 일부러 남기는 0.02 초 두 번과 임계값(-50dB) 여유다.
+     즉 **들리는 쉼 ≒ 설정값 + 0.08**. 1.00 초를 들으려면 0.92 를 넣어야 한다.
+   ★이 값을 바꿔도 이미 만들어진 mp3 는 안 바뀐다 — 원본 wav 폴더로 다시 조립해야 반영된다. */
+const GAP_RESIDUAL = 0.08;
+const JOINGAP = arg('--gap', '0.92');
 const OUT = arg('--out', '') || path.join(path.dirname(IN.replace(/\/$/, '')), path.basename(IN.replace(/\/$/, '')) + '_joined');
 if (!IN || !fs.existsSync(IN)) { console.error('✗ --in <타입캐스트에서 받은 폴더> 가 필요합니다.'); process.exit(1); }
 
@@ -96,6 +103,9 @@ while (i < files.length) {
 
 console.log(`받은 파일 ${files.length}개 → ${n}개 (이어 붙인 자리 ${joined}곳)`);
 if (log.length) console.log(log.join('\n'));
+/* ★설정값이 아니라 **들리는 쉼**을 찍는다 — 사람은 "1초로 해 줘"라고 말하지
+   "0.92 로 해 줘"라고 말하지 않는다. 둘이 다르다는 걸 실행할 때마다 눈으로 보게 한다. */
+console.log(`  쉼 설정 ${JOINGAP}초 → 들리는 쉼 약 ${(Number(JOINGAP) + GAP_RESIDUAL).toFixed(2)}초 (가장자리 여백 +${GAP_RESIDUAL} 실측 보정)`);
 console.log(`→ ${OUT}`);
 // ★안내가 원을 돌지 않게 한다 — 못 이은 조각이 남았는데 "그대로 넘기셔도 됩니다" 라고 하면,
 //   조립기가 개수 불일치로 멎고 그 오류문이 다시 이 도구를 가리켜 사람이 두 안내 사이를 왕복한다.
