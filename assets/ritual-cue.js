@@ -579,18 +579,13 @@
          ★live.est 근거: 전체컷 360(25명은 하단값 6분) · 가족 구도 300 · 인사 라운드 1200 · 마지막 240.
            코스에 따라 라운드가 늘어난다(본식이 짧으면 그만큼) — 그건 진행표가 현장에서 흡수한다.
          ★호명·연출은 여기 없다. 순서가 당일 유동적이라 D.PHOTOCUE 의 '골라 트는 판'이 맡는다. */
-      /* ★★[ROUND_FIT 2026-08-09] 라운드 길이를 손으로 적지 않는다 — **남는 시간에서 계산한다.**
-         「다 함께」가 36~44 → 31~39분으로 줄었는데(DAY_PLAN) 여기 est 는 20분으로 박혀 있었다.
-         실측: digital 일 때 사람 구간 합 **39.5분** — 상한을 이미 넘고, 가족 코스(다 함께 31분)에선
-         8분 넘게 초과했다. ★마이페이지에서는 '밀도의 함정'을 막아 놓고 엔진에서는 그대로 빠진 자리다.
-         이제 고정 자리(모으기·전체컷·구도 촬영·이동·온라인·마지막)를 예산에서 빼고
-         **남은 것이 라운드**다. 코스나 DAY 가 바뀌면 라운드가 알아서 따라 움직인다.
+      /* ★★[ROUND_FIT 2026-08-09 · 2패스] 라운드는 손으로 더한 합이 아니라 **큐를 세어** 정한다.
+         1차 판은 `_grFixed = 60+300+240+…` 처럼 고정 자리의 est 를 사람이 더했다. 하루 만에
+         주석·리터럴·실제 큐 합이 셋 다 달라졌다(코드 세션 실측: 1230 · 990 · 930) —
+         한 자리를 고치면 나머지를 같이 고쳐야 하는 구조는 반드시 어긋난다.
+         이제 큐를 전부 밀어 넣은 **뒤에** live.est 를 합산해 남는 시간을 라운드로 준다.
+         고정 자리 값을 바꾸면 라운드가 알아서 따라 움직인다. narr-photo-out 뒤의 IIFE 가 그 일을 한다.
          ★하한 10분 — 그 아래로는 '인사했다'가 성립하지 않는다(리서치 3차 · 테이블당 하한). */
-      var _grBudget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell)
-        - (D.MIN.base[S.course] || D.MIN.base.damback);                 // 분 · 다 함께에 쓸 수 있는 시간
-      var _grFixed = 60 + 300 + 240 + (S.digital ? 90 + 120 : 0) + 180; // 초 · 라운드 말고 정해진 자리
-      var _round = Math.max(600, _grBudget * 60 - _grFixed - 120);      // 초 · 말 시간 2분 여유
-
       cues.push(cue({
         k: '_photo', blockN: '단체촬영', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
         live: { t: '전체 하객 단체컷 (전원이 앞에 모인 상태)', est: 300, note: '25명 정렬에 5분 · 20명 이상은 6~10분이 업계 실측이지만 [DAY_PLAN]으로 다 함께가 짧아져 5분으로 당겼다' }
@@ -610,12 +605,12 @@
            짧은 사람 구간을 줘서 디렉터가 보고 누르게 한다. */
         live: S.digital
           ? { t: '하객이 자리에서 풀어짐 · 두 분이 카메라 앞으로 이동', est: 90, self: true, doing: 'move' }
-          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: _round, self: true, doing: 'move' }   // [ROUND_FIT]
+          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 라운드를 더한다
       }));
       if (S.digital) cues.push(cue({
         k: '_greet', blockN: '다 함께', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
-        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 120 + _round, self: true, doing: 'say' }   // [ROUND_FIT]
+        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 120, self: true, doing: 'say' }   // [ROUND_FIT] 2패스가 라운드를 더한다
       }));
       /* ★'자리 돌며 인사' 20분은 **소리가 없다.** 별도 큐로 두면 슬러그 없는 큐가 되어
          전 조합 검사가 잡는다(실제로 잡혔다 · 20736건). 소리 없는 자리는 큐가 아니라
@@ -636,6 +631,22 @@
         k: '_final', blockN: '다 함께 마지막', slug: 'narr-photo-out', name: '마지막 닫는 말', text: D.NARR.photoOut, duck: -12,
         note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 배웅 안내로 끝난다'
       }));
+      /* [ROUND_FIT 2패스 본체] 다 함께 블록의 est 합을 세고, 남는 시간을 캐리어(라운드를 안는 큐)에 더한다 */
+      (function () {
+        var IN = { 'narr-close': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-round-open': 1,
+                   'narr-online-in': 1, 'narr-final-warn': 1, 'narr-final-call': 1, 'narr-photo-out': 1 };
+        var fixed = 0, carrier = null;
+        for (var i = 0; i < cues.length; i++) {
+          var c = cues[i];
+          if (!IN[c.slug]) continue;
+          if (c.live && c.live.est) fixed += c.live.est;
+          if (c.slug === (S.digital ? 'narr-online-in' : 'narr-round-open')) carrier = c;
+        }
+        var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell)
+          - (D.MIN.base[S.course] || D.MIN.base.damback);   // 분 · 다 함께 몫
+        var round = Math.max(600, budget * 60 - fixed - 120);   // 120초 = 나레이션 여덟 클립의 말 시간
+        if (carrier && carrier.live) carrier.live.est += round;
+      })();
       cues.push(cue({
         k: '_farewell', blockN: '배웅', slug: S.digital ? 'end-1b-farewell-online' : 'end-1a-farewell',
         name: '촬영 종료 · 배웅 전환', text: EXTRA[S.digital ? 'end-1b-farewell-online' : 'end-1a-farewell'], duck: -14,
