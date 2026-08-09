@@ -1252,7 +1252,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.1') return '/contract/archive/v1-1.html';
   if(v==='v1.2') return '/contract/archive/v1-2.html';
   if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
-  return '/contract/v1-1.html';   // 현행(v1.4)
+  if(v==='v1.4') return '/contract/archive/v1-4.html';   // [CONTRACT_V15] v1.4 서명자는 옛 표기(스냅 40분·합 60분) 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.5)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -5125,7 +5126,7 @@ function invStepDone(box, r){
   var _kit='';
   if(String(_dr0.method||'')==='self'){
     var _kitLines=[[base.groomKo,base.brideKo].filter(Boolean).join(' · '), (g||b)?(g+(g&&b?' & ':'')+b):'', when,
-      '본예식 15분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18) · ★'15분' 수치는 i-family Arrival·weddingSequenceRef 참조표와 동기
+      '본예식 20분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18) · ★'15분' 수치는 i-family Arrival·weddingSequenceRef 참조표와 동기
     _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar">▾</span></summary>'
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">종이 청첩장에 그대로 옮겨 적으세요 · 아래 QR과 함께 쓰면 돼요.</div>'
       +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(escapeHtml).join('<br>')+'</div>'
@@ -5556,8 +5557,15 @@ var PHOTO_FX_CARDS=[
 var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
 /* ★[PHOTO_LIMIT 2026-08-08] 11 → 6. 5차 리서치 실측으로 11개는 물리적으로 불가능해졌다 —
    전체컷 6분 + 11컷 × 3분 = 39분인데 배정 시간이 30분이다. 6개면 6+18=24분으로 들어간다. */
-var PHOTO_MAX=6;    // 전체 하객 제외 추가 구도 상한(총 7컷)
-var PHOTO_FX_MAX=3;   // 연출 상한 — 마지막 토막이 4~5분이고 연출 하나에 1분 남짓
+/* ★★[PHOTO_CAP 2026-08-09 · DAY_PLAN] 상한은 「다 함께」 길이에서 나온다 — 취향이 아니다.
+   2026-08-09 사용자 결정(B안)으로 다 함께가 36~44 → **31~39분**이 됐다(단독 스냅에 이동 5분을 주느라).
+   ★시간만 줄이고 상한을 그대로 두면 **밀도의 함정**에 빠진다 — 같은 분량을 짧은 시간에 밀어 넣는 것이라
+     현장에서 라운드가 잘려 나간다. 라운드는 테이블당 3분이 하한(리서치 3차)이라 못 자른다.
+     그래서 줄인 5분을 **사진 세팅 상한**에서 되돌려 받는다.
+   구도 6 → 5 (photoMins 24 → 21분) · 연출 3 → 2 (약 1분) · 경고선 24 → 19분.
+   ★다 함께 길이를 또 바꾸면 이 셋을 함께 옮길 것. assets/ritual-data.js 의 DAY 가 원천이다. */
+var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
+var PHOTO_FX_MAX=2;   // 연출 상한 — 마지막 토막이 4~5분이고 연출 하나에 1분 남짓
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
@@ -5601,14 +5609,14 @@ function renderPhoto(box){
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
   var _pm=photoMins(sel);
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
-    +(_pm>24?' <span style="color:var(--gold-deeper)">· 다 함께 시간이 빠듯해져요</span>':'')+'</div>';
+    +(_pm>19?' <span style="color:var(--gold-deeper)">· 다 함께 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 31~39분 기준+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
   h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   // 단체컷 '함께 하는 동작' — [PHOTO_FX_V2 2026-08-08] 그림을 빼고 이름·한 줄·필요한 것 세 줄로. 사진작가·디렉터 전달용
   h+='<div class="ph-sec">함께 하는 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">마음 가는 것만 <b>세 개까지</b> 골라 주세요 · 고른 개수로 비용은 바뀌지 않아요. 「필요한 것」이 없는 연출은 그 자리에서 바로 돼요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">마음 가는 것만 <b>두 개까지</b> 골라 주세요 · 고른 개수로 비용은 바뀌지 않아요. 「필요한 것」이 없는 연출은 그 자리에서 바로 돼요.</div>';
   h+='<div class="pfx-grid">';
   PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1;
     h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'">'

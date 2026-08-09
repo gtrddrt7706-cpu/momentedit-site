@@ -361,6 +361,20 @@ var PHOTOCUE={
    **안내가 없는 것이 그 연출의 정체**다. "이제 자연스럽게 계세요"라고 말하는 순간 자연스러움이 사라진다.
    작가가 먼저 카메라를 들고 있으면 되는 것이고, 그건 진행표에 적을 일이지 녹음할 일이 아니다. */
 
+/* ★★[DAY_PLAN 2026-08-09] 하루 140분의 뼈대 — **여기가 원천이다.**
+   화면 열 군데·계약서·검사가 전부 이 숫자에서 계산된다. 손으로 옮겨 적지 말 것.
+     ready 20  도착·환복
+     snap  45  단독 스냅(캔들존 20 + 이동 5 + 화이트존 20)
+              ★이동 5분은 촬영을 쉬는 시간이 아니라 **문 여는 규칙**이다 —
+                하객이 캔들존에 들어오기 전에 두 분이 비워야 마주치지 않는다.
+                카메라는 화이트존 도착 즉시 다시 돈다.
+     farewell 20  퇴실·배웅 + 환복
+   본식 + 다 함께 = total - ready - snap - farewell = 55분 (고정)
+   ★2026-08-09 사용자 결정(B안): 촬영 20+20 을 온전히 지키고 이동 5분을 확보하는 대신
+     「다 함께」를 36~44 → 31~39 로 줄였다. 리서치 밴드(30~45분) 한가운데다.
+     줄인 5분은 인사 라운드가 아니라 **사진 세팅**에서 뺀다(라운드는 테이블당 3분이 하한). */
+var DAY = { total: 140, ready: 20, snap: 45, farewell: 20 };
+
 var MIN={
  base:{damback:20,minimal:18,gamdong:28,family:24,festive:30,record:16},   // [EVENT_BUDGET] 보이는 셋은 이벤트 수 x 4분 · 숨긴 셋은 저장된 초안이 참조하므로 그대로   // [VEIL_RETIRED 2026-08-03] 감동 29→28 · 베일 1분 제거분
  // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
@@ -368,5 +382,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
+return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,VOWBOTH:VOWBOTH,MIN:MIN,DAY:DAY,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
 });

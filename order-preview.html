@@ -1594,7 +1594,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['40분','단독 스냅','Private Snap','하객 입장 20분이 여기 겹쳐요'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['36~44분','다 함께','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','다 함께','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });

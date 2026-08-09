@@ -113,7 +113,11 @@ function scan(needle) {
   // 보이는 코스에서 본식 범위를 계산한다 — 손으로 적지 않는다.
   const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden).map((k) => D.MIN.base[k]);
   const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~24
-  const GR = [60 - CE[1], 60 - CE[0]];                     // 다 함께 36~44 (합 60분 고정)
+  /* ★합계도 손으로 적지 않는다 — D.DAY 에서 계산한다. [DAY_PLAN 2026-08-09]
+     2026-08-08 에는 합이 60분이었고 하루 뒤 55분이 됐다. 그때 이 줄이 60 으로 박혀 있었으면
+     열 벌을 다 고쳐 놓고도 검사만 옛 숫자를 들고 빨개졌을 것이다. */
+  const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
+  const GR = [SUM - CE[1], SUM - CE[0]];                   // 다 함께 31~39 (합 55분 고정)
   const okRange = (lo, hi, want) => lo >= want[0] && hi <= want[1];
 
   // 지나간 것을 보존하는 자리는 본다고 달라지지 않는다.
@@ -143,7 +147,7 @@ function scan(needle) {
        [20 · 40 · 본식 · 인사와사진 · 20] 이 그 안에 **순서대로 들어 있는지**만 확인한다.
        설명글·제목의 군더더기 숫자는 사이에 끼어도 통과하고, 행 숫자가 낡으면 순서가 끊겨 잡힌다.
        이름을 안 보므로 `30m | The Ceremony` 든 `The Ceremony (30분)` 든 `30<small>min` 이든 다 걸린다. */
-  const want = ['20', '40', `${CE[0]}~${CE[1]}`, `${GR[0]}~${GR[1]}`, '20'];
+  const want = [String(D.DAY.ready), String(D.DAY.snap), `${CE[0]}~${CE[1]}`, `${GR[0]}~${GR[1]}`, String(D.DAY.farewell)];
   /* ★숫자와 단위 사이에 태그가 낀다 — `20<span>min</span>` · `30<small>min</small>`.
      이걸 빼먹어서 index.html 의 **보이는** 시간표 한 벌을 통째로 못 읽고 있었다(THIN).
      '읽은 벌 수'를 함께 세지 않았다면 초록으로 통과했을 것이다. */
@@ -216,7 +220,7 @@ function scan(needle) {
   const FLOOR = 10;
   if (tables < FLOOR) bad.push(`시간표를 ${tables}벌밖에 못 읽었다(최소 ${FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
   if (bad.length) no(`140분 시간표가 어긋난다 — 열 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
-  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 다 함께 ${GR[0]}~${GR[1]}분 · 합 60분)`);
+  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 다 함께 ${GR[0]}~${GR[1]}분 · 합 ${SUM}분)`);
 }
 
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');
