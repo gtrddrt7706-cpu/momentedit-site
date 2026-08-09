@@ -1359,7 +1359,8 @@ var STEPS=[], CEREMONY=[];
      클립을 빼면 그 뒤 음원이 전부 개명되고, 대본 생성기·판정표까지 연쇄로 밀린다).
      팔레트에 없으면 새로 넣을 길이 없다. 그게 폐지의 실체다.
    ★원천은 assets/ritual-cue.js 의 GADD — 한쪽만 고치지 말 것. */
-var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,song:1};   // [RINGWARM_RETIRED] ringwarm 제거
+/* [SONG_RETIRED 2026-08-09] 경위는 원천 assets/ritual-cue.js 의 GADD 주석에. 한쪽만 고치지 말 것. */
+var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거
 var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
