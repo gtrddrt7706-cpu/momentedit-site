@@ -127,8 +127,17 @@ for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', '
 }
 
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}
-for (const S of states) {
-  let r; try { r = Cue.build(S, { mode: 'preview' }); } catch (e) { continue; }
+/* ★★[CONSOLE_TEXT 2026-08-09] 두 모드를 **다** 훑는다. 종전엔 'preview' 하나뿐이었다.
+   그래서 **콘솔에서만 나오는 클립은 글이 바뀌어도 아무도 안 물었다.**
+   실측으로 겪었다: 하객과 함께(61)·나눠 담기(60)·단체촬영 개시(44) 세 문안을 다시 썼는데
+   재더빙 대기가 **0클립**으로 나왔다. mp3 는 옛말을 그대로 하고 있었다.
+   그 셋은 예식 뒤 구간이라 미리듣기(preview)에 안 뜬다 — 대조 대상에서 통째로 빠져 있었던 것이다.
+   ★하필 그 구간이 **사람의 시간이 가장 긴 자리**들이다(18분·4분·5분).
+     화면엔 새 안내가, 스피커에선 옛 안내가 나갔을 자리다.
+   ★RECORDED_TRUTH · NOAUDIO_REAL 에 이어 같은 집안의 세 번째다 —
+     '안 보이는 것은 안 센다'가 늘 조용한 통과를 만든다. 여기서는 모드를 늘려 눈에 들인다. */
+for (const S of states) for (const MODE of ['preview', 'console']) {
+  let r; try { r = Cue.build(S, { mode: MODE }); } catch (e) { continue; }
   for (const c of r.cues) {
     const main = Story.castMainOf(c);
     // 배역 클립이 있으면 그것이 나레이션 클립을 대신한다(order-preview `_srcs()` 와 같은 규칙).
