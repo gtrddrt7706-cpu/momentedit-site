@@ -619,7 +619,8 @@ chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
 chk 'PLUS_Z' order-preview.html 1               # ＋− 버튼이 카드 펼침 덮개 아래 깔리던 실탭 버그 — 목록에서 .mvb 빼면 재발
-chk 'AI_TIP' order-preview.html 2               # AI 더빙은 팁 — '두 분 목소리로 만들어'로 되돌리면 남의 서비스 능력을 단정하는 거짓 안내 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+chk 'AI_TIP' order-preview.html 2               # AI 더빙은 팁 — '두 분 목소리로 만들어'로 되돌리면 남의 서비스 능력을 단정하는 거짓 안내
+chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판이 사라지면 두 축이 다시 한 줄로 섞인다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
 chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 금지 주석(2026-07-26 사용자 지시) — 삭제 금지
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)

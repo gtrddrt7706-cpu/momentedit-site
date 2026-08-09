@@ -82,7 +82,14 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .proc-s{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--sub);padding:5px 0;word-break:keep-all;line-height:1.5}
 .proc-s .pn{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .dlabel{font-size:11px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:600;margin-top:4px}
-.subq{font-size:11px;font-weight:600;color:var(--sub);margin:4px 0 -2px 4px}
+/* ★[SUBSET 2026-08-09] 성혼 선언 화면 — '누가 선언하나'(4택)와 '나레이션의 낭독 톤'(2택)이
+   같은 생김새로 한 줄에 섞여 있었다. 톤 카드가 나레이션 카드 바로 뒤에 끼어들어,
+   그 뒤의 '하객이 함께 답하기'가 톤의 세 번째 선택지처럼 읽혔다(사용자: "카테고리가 헷갈려").
+   세부 선택은 **들여쓴 곁판**에 담아 축을 눈으로 가른다 — 왼쪽 세로선이 위 카드에 붙어
+   '이건 방금 고른 것의 세부'라고 말하고, 판이 끝나면 본 축으로 돌아온 것이 보인다. */
+.subset{margin:-6px 0 16px 12px;padding:12px 12px 4px 14px;border-left:2px solid var(--seal);background:rgba(107,42,36,0.045);border-radius:0 12px 12px 0}
+.subset .oc{background:#fff}
+.subq{font-size:12px;font-weight:700;color:var(--seal);margin:0 0 8px 2px;letter-spacing:.01em}
 .lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
@@ -2012,7 +2019,7 @@ function renderStep(k){
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
-      h+='<div class="mth-ai"><b>팁 · 이런 방법도 있어요</b> — 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희가 제공하는 기능은 아니고, 목소리도 그 서비스의 AI 목소리예요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';
+      h+='<div class="mth-ai"><b>팁 · 이런 방법도 있어요</b> — 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희가 제공하는 기능은 아니고, 목소리도 그 서비스의 AI 목소리예요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';   // [AI_TIP] fold 쪽 주석 참고 — 두 자리가 같은 원칙
       h+='</div>';
     }
     if(cpl){
@@ -2117,8 +2124,9 @@ function renderStep(k){
       var sel=S.declareWho===w, showNar=sel&&w!=='narr';
       h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,(w==='family'&&sel)?OUT_DECLARE_FAMILY:null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
       if(sel&&w==='narr'){
-        h+='<div class="subq">낭독 톤</div>';
+        h+='<div class="subset"><div class="subq">나레이션의 낭독 톤</div>';   // [SUBSET] 소유를 이름에 — '낭독 톤'만 있으면 아래 하객 카드까지 톤으로 읽힌다
         ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',S.declare===v?DECLARE[v].nar:null,null,null,null,cdef(S.course).declare===v); });   // COURSE_DEF_MAP
+        h+='</div>';
       }
     });
   }
