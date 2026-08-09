@@ -1912,3 +1912,9 @@ chk '저장 중…' order-preview.html 2
 # ★디렉터 화면(embed 없음)은 어두워야 한다 — 예식장에서 화면 빛이 하객 쪽으로 새면 안 된다.
 chk 'GUEST_LIGHT' console.html 1
 chk 'color-scheme:light' console.html 1
+
+# ── [TWO_COUNTS] 두 숫자에 다른 이름 (2026-08-09 · 코드 세션 제안) ──
+# 정착 루프가 세는 수(화면에 보이는 타깃 전부)와 출력의 수(면제 뺀 것)가 둘 다 '대상'이었다.
+# 두 세션이 42 대 43 을 '어긋남'으로 읽고 원인을 찾아 들어갔는데 실은 같은 것이었다(차이 = 인라인 면제 1).
+chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
+chk '화면에 ' scripts/check-tap-targets.mjs 1

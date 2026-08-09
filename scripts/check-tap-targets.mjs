@@ -267,7 +267,14 @@ for (const page_ of pages) {
   const SP = rows.filter((r) => r.grade === 'spaced').length;
   const F = rows.filter((r) => r.grade === 'folded').length;
   steal += S.length; bad += O.length + B.length;
-  console.log(`\n━━ ${page_} — 대상 ${n} · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F} · 간격면제 ${SP})`);
+  /* ★[TWO_COUNTS 2026-08-09] 한 이름에 두 숫자를 붙였다가 두 세션이 사흘을 헷갈렸다.
+     정착 루프가 세는 43(화면에 보이는 타깃 전부)과 출력의 42(면제를 뺀 것)가
+     둘 다 '대상'이었다. 숫자가 안 맞는 줄 알고 원인을 찾아 들어갔는데,
+     실은 **같은 것을 다르게 세고 있었을 뿐**이었다(차이 1개 = 문장 속 인라인 <a>).
+     ★검사 결과를 두 사람이 대조할 거라면, 두 숫자에 반드시 다른 이름을 준다.
+       숫자가 틀린 것보다 이름이 겹치는 것이 사람을 더 멀리 돌게 만든다. */
+  console.log(`\n━━ ${page_} — 화면에 ${settled.n} · 잰 것 ${n}(면제 ${settled.n - n})`
+    + ` · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F}` + ` · 간격면제 ${SP})`);
   const LB = { steal: '★오터치', overlap: '⚠겹침 ', small: '✗작다  ' };
   const seen = new Set();
   for (const r of [...S, ...O, ...B]) {
