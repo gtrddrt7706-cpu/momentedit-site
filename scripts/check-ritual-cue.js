@@ -242,6 +242,34 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   else ok(`코스 ${AX.course.length}종 큐 수 정상 범위`);
 }
 
+/* ★★[ROUND_FIT] 「다 함께」 사람 구간 합이 그 코스에 남은 시간을 넘지 않는가.
+   2026-08-09 실측으로 이 검사를 만들었다 — DAY_PLAN 으로 다 함께가 36~44 → 31~39분이 됐는데
+   엔진의 라운드 est 는 20분으로 박혀 있어 digital 조합에서 **39.5분**이 나왔다.
+   화면(마이페이지)에서는 상한을 내려 밀도의 함정을 막아 놓고 엔진에서는 그대로 빠져 있었다.
+   ★검사가 없으면 이런 건 당일에야 드러난다 — 라운드가 끝나기 전에 배웅 시간이 오는 식으로. */
+{
+  const IN = ['narr-close', 'end-0-photo', 'narr-photo-split', 'narr-round-open',
+    'narr-online-in', 'narr-final-warn', 'narr-final-call', 'narr-photo-out'];
+  const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
+  const over = [], thin = [];
+  for (const k of Object.keys(D.COURSES).filter((x) => !D.COURSES[x].hidden)) {
+    for (const dg of [true, false]) {
+      const S = C.norm({ course: k }); S.digital = dg;
+      const r = C.build(S); const cues = Array.isArray(r) ? r : (r.cues || []);
+      const t = cues.filter((c) => IN.includes(c.slug));
+      const live = t.reduce((a, c) => a + ((c.live && c.live.est) || 0), 0) / 60;
+      const budget = SUM - D.MIN.base[k];
+      const rc = t.find((c) => c.slug === 'narr-online-in') || t.find((c) => c.slug === 'narr-round-open');
+      const round = (((rc && rc.live && rc.live.est) || 0) - (dg ? 120 : 0)) / 60;
+      if (live > budget) over.push(`${k}/digital=${dg} 사람 ${live.toFixed(1)}분 > 예산 ${budget}분`);
+      if (round < 10) thin.push(`${k}/digital=${dg} 라운드 ${round.toFixed(1)}분`);
+    }
+  }
+  if (over.length) no(`다 함께가 남은 시간을 넘는다 — ${over.join(' · ')}`);
+  else if (thin.length) no(`라운드가 10분 아래다(인사가 성립하지 않는다) — ${thin.join(' · ')}`);
+  else ok(`다 함께 전 조합이 예산 안 (합 ${SUM}분 기준)`);
+}
+
 if (fail) {
   console.log('── 큐 엔진 역전 의심: assets/ritual-cue.js 를 되돌리거나 위 항목을 고쳐라');
   process.exit(1);
