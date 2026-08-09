@@ -200,8 +200,41 @@ body.guest .main small{opacity:.72;font-weight:400}
 body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
 body.guest .now .txt.big{color:var(--text)}
 
+/* ★★[GUEST_LIGHT 2026-08-09] 고객 미리듣기만 밝은 화면으로.
+   사용자 질문: *"미리들어보기 … 어두운 컨셉은 왜그런거야?"*
+   답 — 고른 컨셉이 아니라 **디렉터 콘솔의 피부를 그대로 입고 있었다.**
+   이 파일은 셋을 겸한다(파일 머리말 CONSOLE_V1): ①현장 진행 ②고객 미리듣기 ③내부 리허설.
+   ①은 어두운 예식장에서 운영자가 쓰는 무대 도구라 검은 바탕이 맞다 — 눈이 안 부시고
+   화면 빛이 하객 쪽으로 새지 않는다. ②는 고객이 집에서 폰으로 보는 브랜드 화면이다.
+   한 파일로 둔 결정(2026-07-31)은 **순서가 갈라지지 않게** 하려던 것이지
+   피부까지 같이 쓰자는 뜻이 아니었다. 파일은 그대로 두고 `.guest` 에서만 토큰을 갈아입힌다.
+   ★디렉터 화면(embed 없음)은 건드리지 않는다 — 어두워야 하는 이유가 따로 있다.
+   ★색은 order-preview·index 와 같은 브랜드 팔레트를 그대로 가져왔다. 새 색을 만들지 않는다. */
+body.guest{
+  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6;
+  --text:#1C1B19; --sub:#5A554C; --dim:#8A8478;
+  --line:#DDD8D1;
+  --gold:#B89A75; --gold-text:#7A5F37;
+  --seal:#6B2A24;
+  color-scheme:light;
+  background:var(--bg); color:var(--text);
+}
+
+/* 인트로 — 세로 가운데로 모으고 폭을 잡는다.
+   ★옛 판은 padding 0 이라 제목이 화면 왼쪽 끝에 붙고, 버튼 아래로 검은 여백이 500px 남았다
+     (390px·1280px 실렌더로 봤다). 데스크탑에서는 버튼이 1280px 통짜로 늘어났다. */
 #gIntro{display:none;padding:36px 0 48px}
-body.guest #gIntro.on{display:block}
+body.guest #gIntro.on{
+  display:flex; flex-direction:column; justify-content:center;
+  min-height:100svh; max-width:520px; margin:0 auto; padding:40px 26px 56px;
+}
+body.guest #gIntro h1{font-size:clamp(24px,6.2vw,30px);margin-bottom:16px}
+body.guest #gIntro p{max-width:44ch}
+body.guest #gIntro .len{
+  margin-top:6px;padding-top:14px;border-top:1px solid var(--line);color:var(--sub)
+}
+body.guest #gIntro .len b{color:var(--gold-text);font-weight:600}
+body.guest .go{max-width:420px;margin-left:auto;margin-right:auto}
 #gIntro h1{font-family:var(--serif-ko);font-size:25px;font-weight:600;margin:0 0 12px;letter-spacing:-.02em;line-height:1.35}
 #gIntro p{color:var(--sub);font-size:14.5px;line-height:1.85;margin:0 0 12px}
 #gIntro .len{color:var(--gold-text);font-size:13px;margin:0 0 8px}

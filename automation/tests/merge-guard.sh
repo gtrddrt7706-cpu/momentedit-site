@@ -1900,3 +1900,15 @@ chk 'Noto Serif CJK KR' scripts/measure-env-fonts.sh 2
 # 20초를 기다려도 안 멎으면 재지 않고 실패로 센다 — 움직이는 화면에서 뽑은 숫자는 증거가 아니다.
 chk 'SWEEP_SETTLE' scripts/check-tap-targets.mjs 1
 chk '재지 않았습니다' scripts/check-tap-targets.mjs 1
+
+# ── [EXIT_FEEDBACK][EXIT_TAP44][GUEST_LIGHT][AI_TIP MINIMAL] (2026-08-09) ──
+# 저장 후 나가기: 버튼 110×31(44 미달) + 첫 탭이 들어가도 화면이 아무 말을 안 했다.
+# 빗나간 탭과 들어간 탭이 똑같아 보이던 것이 '반응을 안 한다'의 정체다. 라벨로 답하게 하고,
+# 부모가 8초간 답이 없으면 스스로 잠금을 푼다(예전엔 부모 메시지가 유일한 해제 경로였다).
+chk 'EXIT_FEEDBACK' order-preview.html 1
+chk 'EXIT_TAP44' order-preview.html 1
+chk '저장 중…' order-preview.html 2
+# 미리듣기는 고객 화면인데 디렉터 콘솔의 어두운 피부를 그대로 입고 있었다. .guest 에서만 갈아입힌다.
+# ★디렉터 화면(embed 없음)은 어두워야 한다 — 예식장에서 화면 빛이 하객 쪽으로 새면 안 된다.
+chk 'GUEST_LIGHT' console.html 1
+chk 'color-scheme:light' console.html 1

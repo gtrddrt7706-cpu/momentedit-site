@@ -176,8 +176,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mth{margin:13px 0 6px;padding:13px;background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px}
 .mth-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:9px;word-break:keep-all}
 .mth-how{font-size:12px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
-.mth-ai{font-size:12px;color:var(--gold-deeper);background:#FFFFFF;border:1px solid #E7E3DC;border-radius:12px;padding:9px 12px;margin-top:11px;line-height:1.7;word-break:keep-all}
-.mth-ai .copy-btn2{margin-top:8px}
+.mth-ai{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--sub);border-left:2px solid var(--gold-line,#E7E3DC);padding:0 0 0 10px;margin-top:12px;line-height:1.7;word-break:keep-all}
+.mth-ai-x{color:var(--light);font-size:11px}
+.mth-ai .copy-btn2{margin:0}
 .copy-btn2{background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:9px 13px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;margin-right:8px}
 .uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
 .upl-r{display:flex;align-items:center;gap:8px}
@@ -379,6 +380,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    ✕(저장 없이 닫기)는 기기 임시 저장뿐이라 다른 기기 이어서가 안 됐음 → 나가며 서버에 초안 저장. 코스 고르기 전엔 '나가기'로 표기.
    위치는 진행 스트립 1행 오른쪽(#obExitSlot) — 홀로 뜬 줄이 상단 리듬을 깨던 것 정리(2026-07-18 사용자 지적) */
 .ob-exit{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-family:var(--serif);font-size:12.5px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+/* [EXIT_TAP44 2026-08-09] 실측 110×31 — 화면 맨 위 가장자리라 첫 탭이 자주 빗나갔다.
+   보이는 모양은 그대로 두고 히트영역만 44 로. 위쪽엔 이웃 타깃이 없어 겹침이 안 생긴다
+   (푸터에서 같은 방식이 오터치를 만든 적이 있다 · TAP44_FOOT_OFF — 거긴 아래 줄에 링크가 있었다). */
+.ob-exit{position:relative}
+.ob-exit::before{content:'';position:absolute;left:-8px;right:-8px;top:50%;transform:translateY(-50%);height:44px}
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 
@@ -2033,7 +2039,12 @@ function renderStep(k){
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
-      h+='<div class="mth-ai"><b>팁 · 이런 방법도 있어요</b> — 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희가 제공하는 기능은 아니고, 목소리도 그 서비스의 AI 목소리예요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';   // [AI_TIP] fold 쪽 주석 참고 — 두 자리가 같은 원칙
+      /* [AI_TIP · MINIMAL 2026-08-09] 세 문장을 한 줄로 줄였다 — 사용자 *"이부분 미니멀하게 개선"*.
+         ★부인 문구("저희 기능이 아니에요")는 지우지 않는다. 이 팁이 팁으로 남는 근거다
+           (거짓 정보 금지 · 사용자 지시로 격하한 자리). 대신 괄호로 낮춰 문장을 하나로 만든다.
+         ★카드도 낮춘다 — 흰 바탕 + 테두리 상자였다. 팁은 본문이 아니라 곁말이라 상자를 벗기고
+           왼쪽 실선 하나로만 표시한다. 안내문 안에서 눈에 두 번째로 들어오면 안 된다. */
+      h+='<div class="mth-ai">AI 더빙(타입캐스트 · 클로바더빙)으로 만든 파일을 올리셔도 돼요 <span class="mth-ai-x">저희 기능은 아니에요</span><button class="copy-btn2" onclick="copyGuestScript()">대본 복사</button></div>';   // [AI_TIP] fold 쪽 주석 참고 — 두 자리가 같은 원칙
       h+='</div>';
     }
     if(cpl){
@@ -2782,8 +2793,30 @@ if(EMBED){
   // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
   document.body.classList.add('embed');
   var _obExiting=false;
+  var _obExitT=null;
+  /* ★★[EXIT_FEEDBACK 2026-08-09] 사용자 제보: *"저장 후 나가기 눌러도 한번에 반응을 안하고"*
+     실측으로 두 가지가 겹쳐 있었다.
+       ① 버튼이 **110×31** 이다(390px 실측 · 화면 맨 위 가장자리). 44 미달이라 첫 탭이 잘 빗나간다.
+       ② 첫 탭이 **들어가도 화면이 아무 말을 안 했다.** 라벨은 그대로 '저장 후 나가기' 이고,
+          `_obExiting` 은 부모가 답할 때까지 잠긴 채다. 그래서
+          **빗나간 탭과 들어간 탭이 사용자에게 똑같이 보인다** — 그게 '반응을 안 한다'의 정체다.
+          실측: 실좌표로 두 번 탭 → 부모로 나간 메시지는 1개뿐이었다(두 번째는 잠금에 먹혔다).
+     ★고치는 방향은 '잠금을 풀기'가 아니다. 잠금은 중복 저장을 막는 옳은 장치다.
+       고칠 것은 **말을 안 하는 것**이다. 누른 순간 라벨이 바뀌면 다시 누를 이유가 없어진다.
+     ★그리고 영영 잠기지 않게 한다 — 부모가 답을 안 하면 8초 뒤 스스로 풀고 사유를 말한다.
+       예전엔 부모의 orderExitReset 만이 유일한 해제 경로라, 그 메시지가 유실되면 버튼이 죽었다. */
   window._obExit=function(){
     if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
+    try{ var _b=document.getElementById('obExit');
+      if(_b && courseStarted && !(_doneSaved&&!_saving)){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
+    clearTimeout(_obExitT);
+    _obExitT=setTimeout(function(){
+      if(!_obExiting) return;
+      _obExiting=false;
+      try{ var _b2=document.getElementById('obExit');
+        if(_b2){ _b2.textContent=courseStarted?'저장 후 나가기':'나가기'; _b2.removeAttribute('aria-busy'); } }catch(e){}
+      try{ ordTell({title:'저장 확인이 오지 않았어요', body:'고르신 내용은 이 기기에 그대로 있어요. 잠시 뒤 다시 눌러 주세요.'}); }catch(e){}
+    },8000);
     /* [ORD_EXIT_ALWAYS] 이미 완료 저장(done:true)이 끝난 상태에서 또 나가기 저장을 보내면
        같은 초안이 done:false 로 덮여 완성이 초안으로 되돌아간다. 저장할 게 없으면 그냥 닫는다. */
     if(_doneSaved&&!_saving){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
@@ -2806,7 +2839,9 @@ if(EMBED){
     // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
     // [ORD_SAVE_STATE] 사유가 함께 오면 이 지면 안에서 브랜드 판으로 알린다 — 부모의 네이티브 alert 을 대신한다.
     if(ev.data.type==='momentedit:orderExitReset'){
-      _obExiting=false;
+      _obExiting=false; clearTimeout(_obExitT);
+      try{ var _b3=document.getElementById('obExit');
+        if(_b3){ _b3.textContent=courseStarted?'저장 후 나가기':'나가기'; _b3.removeAttribute('aria-busy'); } }catch(e){}
       if(ev.data.msg) ordTell({title:'나가기 전 저장이 안 됐어요', body:ev.data.msg+'\n\n고르신 내용은 이 기기에 그대로 있어요. 다시 눌러 주세요.'});
       return;
     }
