@@ -3031,7 +3031,7 @@ a.access-link::before,
    .faq-eg·.faq-ask-btn은 AI 위젯 스크립트가 뒤늦게 그려서 1차 계측에서 빠져 있었다(2차에 잡음). */
 .faq-eg,
 .faq-ask-btn {
-  min-height: 40px;
+  min-height: 44px;   /* [TAP44-3 2026-08-09] 40→44 · 코드 세션 전수 실측의 남은 자리 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7436,7 +7436,7 @@ function replayHeroAnimation(){
   border: none;
   cursor: pointer;
   color: var(--light);
-  padding: 11px;   /* [HOME_TAP40] 18px 아이콘 + 11×2 = 40px 탭 타깃 (구 6px = 30px) */
+  padding: 13px;   /* [TAP44-3] 18px 아이콘 + 13×2 = 44px 탭 타깃 (구 40px · 그 전 30px) */
   line-height: 0;
   border-radius: 6px;
   transition:

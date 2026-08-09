@@ -85,7 +85,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 
 /* ── 헤더 (인장 없음) ── */
 .topbar{padding:25px 24px 12px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
-.brand-link{display:inline-block;text-decoration:none;line-height:0}
+.brand-link{display:inline-block;text-decoration:none;line-height:0;position:relative}
+/* [TAP44-3] 로고 224×39 · 로그인 화면 '상담 신청 →' 224×38 — 세로 실효 44 로 (레이아웃 무변경 ::after) */
+.brand-link::after,.linkrow a::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:46px}   /* 44 정확값은 ±21.5 검사에서 서브픽셀로 갈린다 — 2px 여유 */
+.linkrow a{position:relative;z-index:1}   /* [TAP44-3] 아래 .centered 요소가 확장 띠를 가로채고 있었다 — 히트테스트가 잡음 */
 .brand-img{width:224px;max-width:71%;height:auto;display:inline-block}
 .brand-fallback{display:block;line-height:1.5}
 .wordmark{display:block;font-family:var(--serif);font-size:16px;font-weight:500;color:var(--accent);text-decoration:none}
