@@ -1918,3 +1918,13 @@ chk 'color-scheme:light' console.html 1
 # 두 세션이 42 대 43 을 '어긋남'으로 읽고 원인을 찾아 들어갔는데 실은 같은 것이었다(차이 = 인라인 면제 1).
 chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
 chk '화면에 ' scripts/check-tap-targets.mjs 1
+
+# ── [OPEN_PALETTE] 자유 한 칸을 전 코스에서 (2026-08-09 사용자 결정 "전코스개방") ──
+# 엔진 GADD 엔 처음부터 free 가 있었는데 빌더에만 없어, record 코스 말고는 도달할 길이 없었다.
+# 축가 폐지(SONG_RETIRED)의 이주로가 이 칸이라 막혀 있으면 '옮기는 것이다'가 거짓말이 된다.
+# ★팔레트 카드는 TUNE 에 문안이 있어야 그려진다 — GADD 만 열면 아무 일도 안 난다(조용히 건너뜀).
+chk 'OPEN_PALETTE' order-preview.html 2
+chk 'free:1' order-preview.html 1
+chk 'free:{n:' order-preview.html 1
+chk 'free:{ph:' order-preview.html 1
+chk "free:{k:'free'" order-preview.html 1

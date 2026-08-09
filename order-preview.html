@@ -1344,7 +1344,8 @@ var STEPDEF={
  declare:{k:'declare',title:'성혼 선언, 누가 낭독할까요?',sub:''},
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
- song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''},
+ song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
+ free:{k:'free',title:'자유 한 칸, 무엇을 넣을까요?',sub:'축가·영상·깜짝 순서처럼 두 분이 따로 준비한 것을 여기 넣어요. 나레이션은 무엇인지 지목하지 않고 앞뒤만 열고 닫아 드려요.'},
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
@@ -1359,8 +1360,15 @@ var STEPS=[], CEREMONY=[];
      클립을 빼면 그 뒤 음원이 전부 개명되고, 대본 생성기·판정표까지 연쇄로 밀린다).
      팔레트에 없으면 새로 넣을 길이 없다. 그게 폐지의 실체다.
    ★원천은 assets/ritual-cue.js 의 GADD — 한쪽만 고치지 말 것. */
-/* [SONG_RETIRED 2026-08-09] 경위는 원천 assets/ritual-cue.js 의 GADD 주석에. 한쪽만 고치지 말 것. */
-var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거
+/* [SONG_RETIRED 2026-08-09] 경위는 원천 assets/ritual-cue.js 의 GADD 주석에. 한쪽만 고치지 말 것.
+   ★★[OPEN_PALETTE 2026-08-09] free 를 넣는다 — 엔진엔 처음부터 있었고 여기만 빠져 있었다.
+     그래서 「자유 한 칸」이 record 코스(opt 에 있음)에서만 뜨고 나머지 5개 코스에선
+     **도달할 길이 없었다.** 코드 세션이 실측으로 짚었다.
+     사용자 결정(2026-08-09): *"전코스개방 하고 … 고정이 되어있는건 폐식 입장 으로만 할거니깐
+     나머지는 전부 다 조정가능하게 … 추가변경제거는 전부 할수있게 공통되게할거야"*
+     ★축가 폐지(SONG_RETIRED)의 이주로가 이 칸이다 — 이게 막혀 있으면 '옮기는 것'이 거짓말이 된다.
+       실제로 그 커밋을 쓸 때 이 칸이 5개 코스에서 안 열린다는 걸 몰랐다. */
+var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,free:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [OPEN_PALETTE] free 추가
 var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
@@ -1466,7 +1474,8 @@ var MOMENT={
  declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 알리는 순서예요',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
  valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 하나만 더해요',act:'없음이 기본 · 원하면 하나만 더해요.'},
  toast:{ph:'축배 · 케이크',t:'',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
- song:{ph:'축가',t:'',act:'누가 부를지 골라주세요.'},
+ song:{ph:'축가',t:'',act:'누가 부를지 골라주세요.'}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
+ free:{ph:'자유 한 칸',t:'두 분이 정한 순서가 들어가는 자리예요',act:'무엇을 하실지만 알려 주시면, 앞뒤는 나레이션이 열고 닫아 드려요.',info:true},
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요',act:'누구에게 전할지 골라주세요.'},
  tribute:{ph:'부모님 헌정',t:'몸짓으로 감사를 전하는 순서예요',act:'꽃 · 큰절 · 포옹 중 골라주세요.'},
  bless:{ph:'부모님 덕담',t:'부모님이 짧게 말씀을 전해요',act:'넣을지 뺄지 골라주세요.'}
@@ -1825,7 +1834,10 @@ var TUNE={
  declare:{n:'성혼 선언',c:'두 사람이 부부가 되었음을 선언해요'},
  valley:{n:'사이 순서',c:'와인 세리머니·케이크 커팅으로 분위기를 바꿔요'},
  toast:{n:'축배 · 케이크',c:'잔을 들어 함께 축하하고 케이크를 잘라요'},
- song:{n:'축가',c:'가족·지인이 축가로 마음을 전해요'},
+ song:{n:'축가',c:'가족·지인이 축가로 마음을 전해요'}, /* [LEGACY_LABEL · SONG_RETIRED] 폐지된 순서의 폴백 라벨 — 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
+ /* [OPEN_PALETTE 2026-08-09] 자유 한 칸 — 팔레트 카드는 TUNE 에 문안이 있어야 그려진다
+    (paletteCand 가 `if(!t) return;` 로 조용히 건너뛴다). GADD 만 열고 여기를 안 적으면 아무 일도 안 난다. */
+ free:{n:'자유 한 칸',c:'두 분이 따로 준비한 순서를 넣는 자리예요 · 축가·영상·깜짝 순서 무엇이든'},
  letter:{n:'편지 낭독',c:'눌러 담은 마음을 편지로 읽어요'},
  tribute:{n:'부모님 헌정',c:'부모님께 꽃과 감사를 전해요'},
  bless:{n:'부모님 덕담',c:'양가 부모님이 짧은 덕담으로 축복해요'}
