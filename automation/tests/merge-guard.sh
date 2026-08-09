@@ -42,6 +42,29 @@ _gate() {
   echo 'ALL MARKERS OK'
 }
 trap _gate EXIT
+# ★GATE_SELFTEST(2026-08-09 · 코워크 제안) — 게이트 자신을 한 번 시험하고 시작한다.
+#   왜: GUARD_FAIL_VAR 사고에서 `|| FAIL=1`(대문자 오타) 때문에 검사 실패가 통째로 흘러가
+#   게이트가 초록이었다. 검사를 아무리 늘려도 **게이트가 빨개지지 않으면 전부 무의미하다.**
+#   그래서 '일부러 실패하는 가짜 실행'을 자식 프로세스로 돌려, 그때 정말 빨개지는지 먼저 본다.
+#   check-source-drift.test.sh(돌연변이 테스트)와 같은 생각을 게이트 자신에게 적용한 것.
+#   ①MG_SELFTEST=1 → fail=1 인 채 트랩 진입(판정 분기) ②=2 → chk 미실행(GATE_RAN 분기).
+#   자식은 트랩 등록 직후 즉시 빠지므로 비용이 사실상 0이다(전체 검사를 두 번 돌지 않는다).
+#   ※ 이 블록에 '^chk ' 로 시작하는 줄을 넣지 말 것 — _exp 계수가 어긋난다.
+if [ "${MG_SELFTEST:-}" = "1" ]; then _ran=$(grep -c '^chk ' "$_SELF"); fail=1; exit 0; fi
+if [ "${MG_SELFTEST:-}" = "2" ]; then _ran=0; exit 0; fi
+for _m in 1 2; do
+  _o=$(MG_SELFTEST=$_m sh "$_SELF" 2>&1); _r=$?
+  # ★여기서만 직접 exit 한다(GUARD_TAIL 의 트랩 부재 처리와 같은 이유) — 자가시험이 빨간 것은
+  #   '판정 기구 자체가 고장'이라는 뜻이라, fail=1 을 세워 봐야 그걸 종료코드로 바꿀 주체가 없다.
+  #   실측(2026-08-09): 트랩의 fail 분기를 죽이는 돌연변이에서 경고는 2줄 찍혔는데 exit 0 이었다.
+  if [ "$_r" = "0" ]; then echo "REVERT? merge-guard 자가시험 — 일부러 실패시켰는데 종료코드 0(mode $_m). 게이트가 실패를 흘려보낸다"; exit 1; fi
+  if echo "$_o" | grep -q 'ALL MARKERS OK'; then echo "REVERT? merge-guard 자가시험 — 실패인데 'ALL MARKERS OK'를 찍었다(mode $_m)"; exit 1; fi
+done
+# ★FAIL_VAR_CASE — 실패 전파 변수는 소문자 fail 하나뿐이다. 대문자·혼합 변형이 보이면
+#   그 줄은 아무 데도 닿지 않는 죽은 대입이다(GUARD_FAIL_VAR 사고 그 자체). 정적으로도 막는다.
+if grep -nE '^[^#]*\|\|[[:space:]]*(FAIL|Fail)=' "$_SELF"; then
+  echo "REVERT? merge-guard: 실패 전파 변수가 대문자다 — 소문자 fail=1 이어야 한다(위 줄)"; fail=1
+fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
 chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
