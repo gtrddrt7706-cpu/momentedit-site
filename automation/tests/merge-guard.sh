@@ -1245,6 +1245,11 @@ chk 'TIME_HONEST' assets/sequence-modal.js 3
 #   검사가 60을 손으로 들고 있었으면 열 벌을 다 고쳐 놓고도 검사만 빨개졌을 것이다.
 chk 'DAY_PLAN' assets/ritual-data.js 1
 chk 'D.DAY' scripts/check-source-drift.mjs 3
+# [CLOCK_TABLE] 시계 숫자로 적힌 시간표 3벌(inquiry·schedule·mypage)도 DAY 에서 계산해 대조한다.
+#   실사고 2026-08-09 — 스냅 40→45로 본예식이 10:00→10:05 로 밀렸는데, 길이 표기 열 벌은 다 고쳐지고
+#   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
+chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
+chk 'ref-time' scripts/check-source-drift.mjs 1
 # [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1

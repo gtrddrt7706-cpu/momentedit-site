@@ -223,5 +223,48 @@ function scan(needle) {
   else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 다 함께 ${GR[0]}~${GR[1]}분 · 합 ${SUM}분)`);
 }
 
+/* 6) ★절대 시각형 시간표 3벌 — 위 (5)가 **못 보던 자리**다. [CLOCK_TABLE 2026-08-09]
+   (5)는 '분·m·min' 단위가 붙은 **길이** 표기만 읽는다. 그런데 inquiry·schedule·mypage 에는
+   길이가 아니라 **시계 숫자**로 적힌 표가 한 벌씩 있다(신랑·신부 도착 / 내빈 입장 시작 / 본예식 / 종료).
+   실사고 2026-08-09 — DAY_PLAN 으로 단독 스냅이 40→45분이 되자 본예식이 10:00 → 10:05 로 밀렸는데,
+   길이 표기 열 벌은 전부 고쳐졌고 **이 세 벌만 10:00 인 채 남았다**. 검사도 전부 초록이었다.
+   고객이 문의 화면에서 '본예식 10:00'을 보고 청첩장에 그렇게 적으면 5분이 어긋난 채 하루가 돈다.
+   ★그래서 여기서도 손으로 적지 않는다 — 도착 시각만 표에서 읽고 나머지 셋은 D.DAY 로 계산한다. */
+{
+  const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+  const toMin = (s) => +s.slice(0, 2) * 60 + +s.slice(3, 5);
+  // 하객이 몇 분 전에 들어오는지 — sequence-modal 의 '하객 입장' 블록 길이가 원천이다(현재 20분).
+  const modal = fs.readFileSync(path.join(root, 'assets/sequence-modal.js'), 'utf8');
+  const leadM = modal.match(/\['하객 입장',\s*'(\d+)분'/);
+  const bad6 = [];
+  if (!leadM) bad6.push("assets/sequence-modal.js 에서 '하객 입장' 블록 길이를 못 읽었다 — 형식이 바뀌었다");
+  const LEAD = leadM ? +leadM[1] : 0;
+  const CLOCK = ['inquiry.html', 'schedule.html', 'mypage.html'];
+  let slots = 0;
+  for (const f of CLOCK) {
+    const src = fs.readFileSync(path.join(root, f), 'utf8');
+    const times = [...src.matchAll(/ref-time[^>]*>(\d{2}:\d{2})</g)].map((m) => m[1]);
+    if (times.length % 4 !== 0 || times.length === 0) {
+      bad6.push(`${f}: ref-time 을 ${times.length}개 읽었다(4의 배수여야 한다) — 표 형식이 바뀌어 검사가 눈감는다`);
+      continue;
+    }
+    for (let i = 0; i < times.length; i += 4) {
+      const [arrive, enter, cere, end] = times.slice(i, i + 4);
+      const a = toMin(arrive);
+      const want = [arrive, hhmm(a + D.DAY.ready + D.DAY.snap - LEAD), hhmm(a + D.DAY.ready + D.DAY.snap), hhmm(a + D.DAY.total)];
+      const got = [arrive, enter, cere, end];
+      slots++;
+      if (want.join() !== got.join()) {
+        bad6.push(`${f} ${arrive} 시간대: 표 ${got.join(' · ')} ≠ 계산 ${want.join(' · ')}`
+          + ` (도착+준비${D.DAY.ready}+스냅${D.DAY.snap}=본예식 · 그 ${LEAD}분 전 입장 · 도착+${D.DAY.total}=종료)`);
+      }
+    }
+  }
+  const SLOT_FLOOR = 9;   // 3파일 × 오전·오후·늦은오후
+  if (slots < SLOT_FLOOR) bad6.push(`시각표를 ${slots}칸밖에 못 읽었다(최소 ${SLOT_FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
+  if (bad6.length) no(`절대 시각 시간표가 어긋난다 — 길이 표기와 함께 고칠 것\n    ${[...new Set(bad6)].join('\n    ')}`);
+  else ok(`절대 시각 시간표 ${slots}칸 일치 (본예식 = 도착+${D.DAY.ready + D.DAY.snap}분 · 입장 그 ${LEAD}분 전 · 종료 도착+${D.DAY.total}분)`);
+}
+
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');
 process.exit(fail);
