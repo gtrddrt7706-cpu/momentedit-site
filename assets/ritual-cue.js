@@ -77,7 +77,9 @@
        ★반드시 목록 **끝**이다 — 번호가 인덱스+1이라 중간에 끼우면 기존 74개가 전부 개명된다.
        toast-both-b : 나이프를 걷고 잔을 쥐여 드리는 사이를 덮는 두 번째 문안
        narr-cake-out: 케이크만 고른 자리의 마무리(잔 이야기가 나가던 자리) */
-    'toast-both-b', 'narr-cake-out'
+    'toast-both-b', 'narr-cake-out',
+    /* [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 — 목록 **끝**(번호 = 인덱스+1). */
+    'fx-count'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;

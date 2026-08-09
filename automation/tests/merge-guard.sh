@@ -1974,3 +1974,36 @@ nochk "classList.toggle('hide'" index.html
 # 위치에 의존하는 시험은 좌표를 수렴시켜야 한다는 것을 파일 안에 남긴다.
 chk 'SETTLE_LIMIT' scripts/check-tap-targets.mjs 1
 chk '좌표를 수렴' scripts/check-tap-targets.mjs 1
+# ── [COURSE_MIRROR] 빌더의 COURSES 사본이 원천과 같은지 (2026-08-09) ──
+# 파일 주석은 "다시 뽑아 넣는다"고 하는데 뽑는 도구가 없었다. 그래서 원천만 고치고 사본은
+# 그대로인 일이 실제로 났다 — 약속 코스에 축배를 넣었는데 빌더 단계에 안 생겼다(렌더해 보고 알았다).
+# 검사만 있고 도구가 없으면 사람은 결국 손으로 옮겨 적는다. 도구와 검사를 함께 둔다.
+chk 'COURSE_MIRROR' scripts/build-course-mirror.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/build-course-mirror.mjs >/dev/null \
+  || { echo 'FAIL course-mirror: 빌더 COURSES 사본이 원천과 갈렸습니다 — node scripts/build-course-mirror.mjs --write'; fail=1; }; fi
+
+# ── [NOAUDIO_REAL] '소리 없는 클립'을 대장이 아니라 파일로 판정 (2026-08-09) ──
+# 옛 판은 manifest 에 없으면 소리도 없다고 봤다. 그런데 대장은 생성기가 다시 쓰고 이 게이트가
+# 그 생성기를 매번 돌린다 → 새 클립을 넣는 순간 '소리 있음'이 된다. 실제로 fx-count 가 그랬다
+# (mp3 는 없는데 재더빙 명단 0클립). RECORDED_TRUTH 와 같은 병이 한 곳 더 남아 있었다.
+chk 'NOAUDIO_REAL' scripts/check-text-audio.mjs 1
+chk '파일이 없으면 없는 것이다' scripts/check-text-audio.mjs 1
+# ── [PHOTO_COUNT] 단체촬영 셔터 신호 ──
+chk 'PHOTO_COUNT' assets/ritual-data.js 1
+chk 'fx-count' assets/ritual-cue.js 1
+
+# ── [PASTE_VOICE] 붙여넣기 파일이 잘 돌아간 파일과 같은 꼴인지 (2026-08-09) ──
+# 이 파일은 사용자가 타입캐스트에 그대로 붙인다. 한 줄만 달라도 그 줄이 소리로 읽히고,
+# 화자 이름이 빠지면 목소리를 매번 손으로 골라야 한다 — 둘 다 실제로 겪게 만들었다.
+# ★기준을 새로 정하지 않는다. 이미 잘 돌아간 3_진행_후반.txt 의 모양이 기준이다.
+chk 'PASTE_VOICE' scripts/check-paste-format.mjs 1
+chk 'PASTE_VOICE' scripts/check-text-audio.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/dev/null \
+  || { echo 'FAIL paste: 붙여넣기 파일 형식이 다릅니다 — node scripts/check-paste-format.mjs'; fail=1; }; fi
+
+# ── [PASTE_MISSING] 붙여넣기 파일이 '없으면 통과'를 막는다 (2026-08-09 · 적대 검증) ──
+# check-paste-format 옛 판은 파일이 없으면 exit 0 이었다. 대기 명단이 「대기 1클립」이라고
+# 말하는데도 게이트까지 전부 초록이 났고, 건너뛰기 메시지는 세지도 않고 '대기 0클립'이라 단정했다.
+# RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
+chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
+chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1

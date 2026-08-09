@@ -4,11 +4,11 @@
  * [CUE_GUARD_V1]
  *
  * 이 파일이 지키는 것:
- *  1) §3-A 전수 판정표 — 「약속」 코스가 수동 12 / 자동 7 / 시각고정 3 이고 번호가 정확히 그것
+ *  1) §3-A 전수 판정표 — 「약속」 코스가 수동 13 / 자동 8 / 시각고정 3 이고 번호가 정확히 그것
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
  *  4) 전 코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
- *  5) FILES 77개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
+ *  5) FILES 78개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
  */
@@ -29,10 +29,11 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
 // [AFTER_PARTY 2026-08-08] 예식 뒤 30분 클립 16개 추가(전환 6 + 골라 트는 판 10) → 59 → 75.
 // [TOAST_SCENE 2026-08-09] 축배·케이크 장면화로 2개 추가(toast-both-b · narr-cake-out) → 77.
+// [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 1개 추가(fx-count) → 78.
 //   ★목록 끝에 붙였다 — 번호가 인덱스+1이라 중간에 끼우면 기존 음원이 전부 개명된다.
-if (C.FILES.length !== 77) no(`FILES 77개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 77) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 77개 · 중복 없음');
+if (C.FILES.length !== 78) no(`FILES 78개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== 78) no('FILES에 중복 슬러그가 있다');
+else ok('FILES 78개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {
@@ -66,22 +67,25 @@ else ok('FILES 77개 · 중복 없음');
 // [GATHER_WAIT 2026-08-08] 44(전체 하객컷)가 chain 에서 manual 로 내려왔다 — 폐식 클립이
 //   "모두 앞으로 나와 주세요"로 바뀌면서 사람이 모이는 시간(live)이 생겼기 때문이다.
 //   수동 11 → 12. ★조작이 는 게 아니라, 30초 타이머로 자동으로 나가던 것이 사람 판단으로 바뀐 것이다.
-const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '44', '60', '61', '63', '65', '47'];
-//                  guest-1 entry-A entry-out vow-out ring-out letter-end photo(전체컷) photo-split round-open final-warn photo-out goodbye
+/* [TOAST_DEFAULT 2026-08-09] 「약속」 기본에 축배가 들어왔다 → 22큐 → 24큐.
+   늘어난 둘: 40 toast-toast(chain · 문안 뒤 사람 구간) · 56 narr-toast-out(manual · 받아 닫는 말).
+   ★숫자만 맞추지 말 것 — 어느 큐가 어떤 방식으로 발사되는지가 이 표의 값이다. */
+const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
+//                  guest-1 entry-A entry-out vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['13', '15', '30', '27', '26', '64', '45'];
-//                 vow-in ring-in declare-1-solemn letter-parent close final-call farewell
+const A3_CHAIN = ['13', '15', '30', '27', '40', '26', '64', '45'];
+//                 vow-in ring-in declare-1-solemn letter-parent toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 22) no(`§3-A: 22큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 24) no(`§3-A: 24큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
-  else ok(`§3-A 22큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
+  else ok(`§3-A 24큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
 
   // 반지 마무리 → 성혼 선언 사이 '페이드 8초 + 침묵 3초' 시간 고정 (대본 153~159행)
   const ro = r.cues.find((c) => c.slug === 'narr-ring-out');

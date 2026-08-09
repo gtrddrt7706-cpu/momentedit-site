@@ -183,8 +183,18 @@ const SLUGTEXT = new Map();
 for (const S of states) { let r; try { r = Cue.build(S, { mode: 'console' }); } catch (e) { continue; }
   for (const c of r.cues) if (c.slug && c.text) SLUGTEXT.set(c.slug, c.text); }
 for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx)) SLUGTEXT.set(g.slug, g.t);
+/* ★★[NOAUDIO_REAL 2026-08-09] '소리가 없는 클립'을 **대장(manifest)이 아니라 파일로** 판정한다.
+   옛 판은 `!manFiles.has(slug)` 였다 — 대장에 없으면 소리도 없다는 뜻이었는데,
+   대장은 생성기가 다시 쓰고 이 게이트가 그 생성기를 매번 돌린다. 그래서 **새 클립을 추가하면
+   그 순간 대장에 들어가고, 곧바로 '소리 있음'으로 취급된다.** 실제로 겪었다:
+   단체촬영 셔터 신호(fx-count)를 새로 넣었는데 재더빙 명단이 0클립으로 나왔다.
+   mp3 는 없었고, 어떤 검사도 안 물었다. RECORDED_TRUTH 와 같은 병이 여기 한 곳 더 남아 있었다.
+   ★이제 폴더를 본다. 파일이 없으면 없는 것이다 — 대장이 뭐라 하든. */
+const NARDIR = path.join(root, NAR), CSTDIR = path.join(root, CST);
+const _has = (no, slug) => fs.existsSync(path.join(NARDIR, pad2(no) + '_' + slug + '.mp3'))
+  || fs.existsSync(path.join(CSTDIR, pad2(no) + '_' + slug + '.mp3'));
 const noAudio = Cue.FILES.map((f, i) => ({ slug: f, no: String(i + 1).padStart(2, '0'), screen: SLUGTEXT.get(f) || '' }))
-  .filter((x) => !manFiles.has(x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
+  .filter((x) => !_has(x.no, x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
 // 녹음이 필요한 전체 = 글이 바뀐 것 ∪ 소리가 아예 없는 것 (선언 위치 주의 — --redub 블록이 먼저 쓴다)
 const badSlugs = [...new Set(bad.map((r) => r.slug).concat(noAudio.map((r) => r.slug)))].filter(Boolean).sort();
 
@@ -254,9 +264,17 @@ if (process.argv.includes('--redub')) {
     ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen) });
   }
   ordered.sort((a, b) => a.no - b.no);
+  /* ★[PASTE_VOICE 2026-08-09] 화자 이름을 **붙인다** — 사용자 요청 *"파일붙이면 우성도 자동으로 나오게"*.
+     ★1차에는 이걸 뗐다. 그게 틀렸다 — 사용자가 "이상하게 나온다"고 한 원인은 화자가 아니라
+       머리말(`# …`)과 클립 머리(`[77] narr-cake-out (수정)`)였다. 타입캐스트가 그것까지 읽었다.
+       나는 원인을 안 가리고 **눈에 보이는 것을 다 걷어 냈고**, 그 바람에 매번 손으로
+       목소리를 고르시게 만들었다. 증상이 사라졌다고 원인을 맞힌 게 아니다.
+     ★근거는 실물이다 — 이미 잘 돌아간 3_진행_후반.txt 는 `우성: 문장` 65줄에 빈 줄 0개다.
+       그 형식을 그대로 따른다. 빈 줄도 넣지 않는다(그 파일에 없다).
+     ★배역(5_배역.txt)은 화자가 여럿이라 줄마다 다른 이름이 붙는다 — 같은 문법이다. */
   const pl = [];
-  for (const c of ordered) { for (const t of c.sents) pl.push(t); pl.push(''); }
-  fs.writeFileSync(PASTE, pl.join('\n').replace(/\n+$/, '\n'));
+  for (const c of ordered) for (const t of c.sents) pl.push(VOICE + ': ' + t);
+  fs.writeFileSync(PASTE, pl.join('\n') + '\n');
 
   console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
   console.log('→ 붙여넣기용(문장만 · 클립 번호 순): ' + path.relative(root, PASTE)
