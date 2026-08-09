@@ -2087,3 +2087,10 @@ chk 'SYL_RATE' scripts/check-syl-rate.mjs 1
 chk '안 쟀다' scripts/check-syl-rate.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-syl-rate.mjs >/dev/null \
   || { echo 'FAIL syl-rate: 음절 상수와 실측의 폭이 범위를 벗어났습니다 — node scripts/check-syl-rate.mjs'; fail=1; }; fi
+
+# ── [LEN_FRAME] 길이 수치는 '예상'인지 '실측'인지 밝힌다 (2026-08-09) ──
+# 같은 '23.3초'를 두 세션이 서로 다른 클립·다른 틀로 적어 한 번 헛돌았다(한쪽 narr-close 실측 ·
+# 한쪽 toast-toast 예상 · 둘 다 맞았다). '폐식'이라는 말도 서로 다른 클립을 가리켰다.
+# 오늘 목록 그대로다 — 같은 이름의 두 숫자는 증명을 방해한다. 그래서 화면에도 틀을 박아 둔다.
+chk '예상 · 실측 아님' scripts/check-narr-len.mjs 1
+chk '실측인지 예상인지' assets/ritual-data.js 1
