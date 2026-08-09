@@ -28,6 +28,13 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const IN = arg('--in', '');
+/* ★[JOIN_GAP] 이어 붙일 때 넣는 쉼. 0.28초로 시작했다가 **0.7초**로 늘렸다 —
+   사용자 실청: *"너무 빨라 신랑신부 하고 입장이"*.
+   왜 짧게 들렸나: 타입캐스트는 블록마다 앞뒤로 0.2~0.4초씩 자체 여백을 붙여 내보낸다.
+   편집기에서 들은 쉼은 설정한 0.3초 + 그 여백이라 0.6~0.8초였는데,
+   조립기가 가장자리 여백을 깎으면서(TRIM_VENDOR_EDGE) 설정값만 남았다.
+   ★그 깎기는 전체가 늘어지던 것을 잡은 규칙이라 유지한다. 대신 **여기서 되돌려 준다.** */
+const JOINGAP = arg('--gap', '0.7');
 const OUT = arg('--out', '') || path.join(path.dirname(IN.replace(/\/$/, '')), path.basename(IN.replace(/\/$/, '')) + '_joined');
 if (!IN || !fs.existsSync(IN)) { console.error('✗ --in <타입캐스트에서 받은 폴더> 가 필요합니다.'); process.exit(1); }
 
@@ -61,7 +68,7 @@ while (i < files.length) {
   if (pair) {
     const r = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y',
       '-i', path.join(IN, a), '-i', path.join(IN, b),
-      '-filter_complex', `[0:a]${TRIM}[a0];[1:a]${TRIM}[a1];aevalsrc=0:d=0.28:s=48000[g];[a0][g][a1]concat=n=3:v=0:a=1[o]`,
+      '-filter_complex', `[0:a]${TRIM}[a0];[1:a]${TRIM}[a1];aevalsrc=0:d=${JOINGAP}:s=48000[g];[a0][g][a1]concat=n=3:v=0:a=1[o]`,
       '-map', '[o]', '-ar', '48000', '-c:a', 'pcm_s24le', dst]);
     // ★status 만 보면 안 된다 — ffmpeg 이 아예 없으면(ENOENT) status 는 null 이라 이 검사를 그냥 지나간다.
     //   그러면 파일이 안 생긴 채 "이었음" 을 찍고 초록으로 끝난다. 잇기는 못 했는데 됐다고 말하는 것이

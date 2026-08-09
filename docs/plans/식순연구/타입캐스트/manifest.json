@@ -13,7 +13,7 @@
     "하객대표": "영목"
   },
   "gap": {
-    "head": 0.18,
+    "head": 0.4,
     "sent": 0.45,
     "tail": 0.45
   },
@@ -144,7 +144,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -181,7 +181,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -206,7 +206,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -231,7 +231,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -274,7 +274,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -299,7 +299,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -336,7 +336,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -379,7 +379,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -410,7 +410,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -441,7 +441,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -466,7 +466,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -491,7 +491,7 @@
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -516,7 +516,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -553,7 +553,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -584,7 +584,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -621,7 +621,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -658,7 +658,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -695,7 +695,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -732,7 +732,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -757,7 +757,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -776,7 +776,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -807,7 +807,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -826,7 +826,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -851,7 +851,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -876,7 +876,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -901,7 +901,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -926,7 +926,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -951,7 +951,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -970,7 +970,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -989,7 +989,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1014,7 +1014,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1039,7 +1039,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1058,7 +1058,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1083,7 +1083,7 @@
       "role": "진행",
       "part": "2_진행_전반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 2.5,
       "sents": [
         {
@@ -1120,7 +1120,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1157,7 +1157,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1188,7 +1188,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1225,7 +1225,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1268,7 +1268,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1311,7 +1311,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1348,7 +1348,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1373,7 +1373,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1428,7 +1428,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1453,7 +1453,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1490,7 +1490,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1527,7 +1527,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1558,7 +1558,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1583,7 +1583,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 4.5,
       "sents": [
         {
@@ -1614,7 +1614,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1639,7 +1639,7 @@
       "role": "진행",
       "part": "3_진행_후반.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 4.5,
       "sents": [
         {
@@ -1676,7 +1676,7 @@
       "role": "편지",
       "part": "4_혼주편지.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1917,7 +1917,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1948,7 +1948,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1967,7 +1967,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -1992,7 +1992,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2017,7 +2017,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2048,7 +2048,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2073,7 +2073,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2098,7 +2098,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2129,7 +2129,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2166,7 +2166,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2191,7 +2191,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2222,7 +2222,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2247,7 +2247,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2272,7 +2272,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2297,7 +2297,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2328,7 +2328,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2347,7 +2347,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2366,7 +2366,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2385,7 +2385,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2404,7 +2404,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2423,7 +2423,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2442,7 +2442,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2461,7 +2461,7 @@
       "role": "진행",
       "part": "6_예식뒤.txt",
       "dir": "assets/audio/narration",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2486,7 +2486,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2523,7 +2523,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2548,7 +2548,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2573,7 +2573,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2616,7 +2616,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2650,7 +2650,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2677,7 +2677,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2711,7 +2711,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2745,7 +2745,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2779,7 +2779,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2813,7 +2813,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2850,7 +2850,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2881,7 +2881,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2924,7 +2924,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2967,7 +2967,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -2992,7 +2992,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3017,7 +3017,7 @@
       "role": "신랑|신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3046,7 +3046,7 @@
       "role": "신부",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3095,7 +3095,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3138,7 +3138,7 @@
       "role": "아버님",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3181,7 +3181,7 @@
       "role": "어머님",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3218,7 +3218,7 @@
       "role": "신랑",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
@@ -3249,7 +3249,7 @@
       "role": "하객대표",
       "part": "5_배역.txt",
       "dir": "assets/audio/cast",
-      "head": 0.18,
+      "head": 0.4,
       "tail": 0.45,
       "sents": [
         {
