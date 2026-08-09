@@ -49,6 +49,13 @@ const pw = await (async () => {
   process.exit(1);
 })();
 
+/* ★★[MEASURE_FONTS 2026-08-09] 재려면 **먼저** `sh scripts/measure-env-fonts.sh` 를 돌릴 것.
+   이 컨테이너는 fonts.googleapis.com 요청이 나가지 않아(실측 0건) CSS 가 부르는
+   'Noto Serif KR' 를 로컬에서 찾는데, 설치된 실물 이름은 'Noto Serif CJK KR' 이라
+   **이름이 안 맞아 DejaVu Sans 로 떨어진다.** 한글 폭이 달라지고 → 줄바꿈이 달라지고
+   → 요소 높이와 줄 간격이 달라진다. 두 세션의 숫자가 갈렸던 진짜 원인이 이것이다.
+   실측: 16px 한글 13자 170.0px(DejaVu) → 174.4px(Noto CJK). 빽빽한 카드는 한 줄이 오간다.
+   ★숫자가 서로 안 맞으면 판정 로직보다 **폰트부터** 의심할 것. */
 const SEL = 'a,button,[role="button"],summary,input[type=checkbox],input[type=radio]';
 const PORT = process.env.PORT || 8895;
 const R = 21.5;

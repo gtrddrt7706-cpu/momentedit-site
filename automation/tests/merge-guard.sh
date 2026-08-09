@@ -1884,3 +1884,11 @@ chk 'TOAST_SCENE' assets/ritual-cue.js 2
 chk 'TOAST_SCENE' order-preview.html 3
 chk 'toast-both-b' assets/ritual-cue.js 2
 chk 'narr-cake-out' assets/ritual-cue.js 2
+
+# ── [MEASURE_FONTS] 측정 환경 폰트 (2026-08-09) ──
+# 같은 도구인데 두 세션의 탭 판정 숫자가 달랐다. 원인은 판정 로직이 아니라 폰트였다 —
+# 웹폰트 요청이 안 나가는 컨테이너에서 'Noto Serif KR' 이름이 로컬에 없어 DejaVu 로 떨어졌고,
+# 한글 폭 2.6% 차이가 줄바꿈을 바꿔 요소 높이와 줄 간격을 바꿨다.
+chk 'MEASURE_FONTS' scripts/check-tap-targets.mjs 1
+chk 'Noto Serif CJK KR' scripts/measure-env-fonts.sh 2
+[ -x scripts/measure-env-fonts.sh ] || { echo 'REVERT? measure-env-fonts.sh 실행권한이 없다'; fail=1; }
