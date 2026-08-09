@@ -3031,7 +3031,7 @@ a.access-link::before,
    .faq-eg·.faq-ask-btn은 AI 위젯 스크립트가 뒤늦게 그려서 1차 계측에서 빠져 있었다(2차에 잡음). */
 .faq-eg,
 .faq-ask-btn {
-  min-height: 40px;
+  min-height: 44px;   /* [TAP44-3 2026-08-09] 40→44 · 코드 세션 전수 실측의 남은 자리 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5315,7 +5315,7 @@ body {
 }
 </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Service","@id":"https://momentedit.kr/#signature-service","serviceType":"프라이빗 웨딩 스튜디오","provider":{"@id":"https://momentedit.kr/#localbusiness"},"areaServed":[{"@type":"City","name":"서울특별시"},{"@type":"AdministrativeArea","name":"경기도"},{"@type":"AdministrativeArea","name":"인천광역시"}],"audience":{"@type":"Audience","audienceType":"양가 직계가족 25명 마이크로웨딩 · 프라이빗 웨딩"},"name":"The 140 Signature","description":"Getting Ready 20분 · Private Snap 45분 · Ceremony 16~24분 · 다 함께 31~39분 · Farewell 20분. 촬영·예식·다이닝·디지털 참석이 통합된 140분 올인원 웨딩 패키지","offers":[{"@type":"Offer","name":"Weekend & Holiday","price":"2800000","priceCurrency":"KRW","availability":"https://schema.org/InStock"},{"@type":"Offer","name":"Weekday Special","price":"2100000","priceCurrency":"KRW","availability":"https://schema.org/InStock"}]}
+{"@context":"https://schema.org","@type":"Service","@id":"https://momentedit.kr/#signature-service","serviceType":"프라이빗 웨딩 스튜디오","provider":{"@id":"https://momentedit.kr/#localbusiness"},"areaServed":[{"@type":"City","name":"서울특별시"},{"@type":"AdministrativeArea","name":"경기도"},{"@type":"AdministrativeArea","name":"인천광역시"}],"audience":{"@type":"Audience","audienceType":"양가 직계가족 25명 마이크로웨딩 · 프라이빗 웨딩"},"name":"The 140 Signature","description":"Getting Ready 20분 · Private Snap 45분 · Ceremony 16~24분 · 하객과 함께 31~39분 · Farewell 20분. 촬영·예식·다이닝·디지털 참석이 통합된 140분 올인원 웨딩 패키지","offers":[{"@type":"Offer","name":"Weekend & Holiday","price":"2800000","priceCurrency":"KRW","availability":"https://schema.org/InStock"},{"@type":"Offer","name":"Weekday Special","price":"2100000","priceCurrency":"KRW","availability":"https://schema.org/InStock"}]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","@id":"https://momentedit.kr/#website","name":"Moment Edit","url":"https://momentedit.kr","alternateName":"모먼트에디트","inLanguage":"ko-KR","publisher":{"@id":"https://momentedit.kr/#organization"}}
@@ -5674,7 +5674,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="seq-item">
     <div class="seq-time">31~39<span>min</span></div>
     <div>
-      <div class="seq-name">Group Record<span class="seq-name-ko">다 함께</span></div>
+      <div class="seq-name">Group Record<span class="seq-name-ko">하객과 함께</span></div>
       <div class="seq-desc">양가의 모든 세대가 한 자리에 모이는, 점점 드물어지는 순간입니다. <br>따뜻한 무드와 에디토리얼 무드, 두 톤으로 남깁니다.</div>
     </div>
   </div>
@@ -7436,7 +7436,7 @@ function replayHeroAnimation(){
   border: none;
   cursor: pointer;
   color: var(--light);
-  padding: 11px;   /* [HOME_TAP40] 18px 아이콘 + 11×2 = 40px 탭 타깃 (구 6px = 30px) */
+  padding: 13px;   /* [TAP44-3] 18px 아이콘 + 13×2 = 44px 탭 타깃 (구 40px · 그 전 30px) */
   line-height: 0;
   border-radius: 6px;
   transition:

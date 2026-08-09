@@ -82,7 +82,14 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .proc-s{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--sub);padding:5px 0;word-break:keep-all;line-height:1.5}
 .proc-s .pn{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .dlabel{font-size:11px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:600;margin-top:4px}
-.subq{font-size:11px;font-weight:600;color:var(--sub);margin:4px 0 -2px 4px}
+/* ★[SUBSET 2026-08-09] 성혼 선언 화면 — '누가 선언하나'(4택)와 '나레이션의 낭독 톤'(2택)이
+   같은 생김새로 한 줄에 섞여 있었다. 톤 카드가 나레이션 카드 바로 뒤에 끼어들어,
+   그 뒤의 '하객이 함께 답하기'가 톤의 세 번째 선택지처럼 읽혔다(사용자: "카테고리가 헷갈려").
+   세부 선택은 **들여쓴 곁판**에 담아 축을 눈으로 가른다 — 왼쪽 세로선이 위 카드에 붙어
+   '이건 방금 고른 것의 세부'라고 말하고, 판이 끝나면 본 축으로 돌아온 것이 보인다. */
+.subset{margin:-6px 0 16px 12px;padding:12px 12px 4px 14px;border-left:2px solid var(--seal);background:rgba(107,42,36,0.045);border-radius:0 12px 12px 0}
+.subset .oc{background:#fff}
+.subq{font-size:12px;font-weight:700;color:var(--seal);margin:0 0 8px 2px;letter-spacing:.01em}
 .lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
@@ -95,58 +102,64 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ex-n{font-size:10px;color:var(--light);margin-top:2px}
 .banner{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:8px 12px;font-size:12px;color:var(--gold-deeper);word-break:keep-all;line-height:1.6;margin-top:12px}
 .intro-lead{font-size:14px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
-.intro-pts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
-.ipt{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--accent)}
+.intro-pts{margin-top:18px;display:flex;flex-direction:column;gap:11px}
+.ipt{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--accent)}
 .ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.daymap{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 15px 13px}
-.daymap-t{font-size:11px;color:var(--gold-deeper);font-weight:600;text-align:center;margin-bottom:12px;letter-spacing:.02em}
-.seqr{display:flex;align-items:flex-start;gap:11px;padding:8px 2px;border-bottom:1px solid var(--bg2)}
+/* ★[DAYMAP_AIR 2026-08-09] 사용자: "위쪽에 쏠려 있는 느낌 · 어중간 · 가독성 개선".
+   안내 1/2 는 내용이 카드 하나뿐이라 화면 아래가 통째로 비어 위만 무거워 보였다.
+   여백을 카드 **안**에 넣어 카드가 화면을 차지하게 한다(위 여백만 늘리면 어중간함이 자리만 옮긴다).
+   글자는 한 단씩 키우고 줄 간격을 넓혀 '표'가 아니라 '하루 이야기'로 읽히게. */
+.daymap{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px 20px}
+.daymap-t{font-size:13px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:16px;letter-spacing:.02em}
+.seqr{display:flex;align-items:flex-start;gap:13px;padding:12px 4px;border-bottom:1px solid var(--bg2)}
 .seqr:last-child{border-bottom:none}
-.seqr .sq-tm{flex:0 0 42px;text-align:center;font-size:11px;font-weight:600;color:var(--light);padding-top:1px}
+.seqr .sq-tm{flex:0 0 52px;text-align:center;font-size:13px;font-weight:700;color:var(--light);padding-top:1px;letter-spacing:-.01em}
 .seqr .sq-b{flex:1;min-width:0}
-.seqr .sq-n{font-size:12px;font-weight:600;color:var(--sub)}
-.seqr .sq-n small{font-size:10px;color:var(--light);font-weight:400;margin-left:5px}
-.seqr .sq-d{font-size:10px;color:#635E4F;margin-top:2px;word-break:keep-all;line-height:1.5}   /* [ORD_A11Y] --light(#75705F)는 강조 행 배경(#EEECE7) 위에서 4.19 — 10px 글자엔 4.5가 필요하다. 5.48로 */
+.seqr .sq-n{font-size:14px;font-weight:600;color:var(--accent)}
+.seqr .sq-n small{font-size:11px;color:var(--light);font-weight:400;margin-left:6px;letter-spacing:.02em}
+.seqr .sq-d{font-size:12px;color:#635E4F;margin-top:3px;word-break:keep-all;line-height:1.62}   /* [ORD_A11Y] --light 는 강조 행 배경 위에서 4.19 — #635E4F 로 5.48 확보 · [TAP44]에서 10→12px */
 .seqr.on{background:#EEECE7;border:1px solid var(--seal);border-radius:10px;padding:10px;margin:3px 0}
 .seqr.on .sq-tm{color:var(--seal)}
 .seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
 .seqr .sq-here{font-size:10px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
-.dmnote{font-size:11px;color:var(--light);text-align:center;margin-top:11px;line-height:1.6;word-break:keep-all}
-.prefacts{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px}
-.pf-t{font-size:11px;color:var(--gold-deeper);font-weight:600;text-align:center;margin-bottom:11px;letter-spacing:.02em}
-.pf-i{font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all;padding:8px 0 8px 15px;position:relative;border-top:1px solid var(--bg2)}
+.dmnote{font-size:12px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
+/* [DAYMAP_AIR] 2/2 도 같은 처방 — 내용이 카드 하나뿐이라 아래가 비어 위만 무거웠다 */
+.prefacts{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px 18px}
+.pf-t{font-size:13px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:14px;letter-spacing:.02em}
+.pf-i{font-size:13.5px;color:var(--sub);line-height:1.75;word-break:keep-all;padding:12px 0 12px 15px;position:relative;border-top:1px solid var(--bg2)}
 .pf-i:first-of-type{border-top:none}
 .pf-i::before{content:'';position:absolute;left:2px;top:15px;width:5px;height:5px;border-radius:50%;background:var(--light)}
 /* [ORD_INTRO2] 굵은 꼬리표 — 네 줄이 길이가 비슷한 산문이라 훑을 때 서열이 없었다.
    앞에 3~7자 꼬리표를 세워 '무슨 얘기인지'를 먼저 읽히게 한다(점은 꼬리표가 대신하므로 감춘다). */
 .pf-i.pf-key::before{display:none}
-.pf-i .pf-k{display:block;font-family:var(--serif-ko,inherit);font-size:12.5px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin:0 0 3px -13px}
+.pf-i .pf-k{display:block;font-family:var(--serif-ko,inherit);font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin:0 0 4px -13px}
 /* course */
-.crs{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:17px;transition:.18s;margin-bottom:14px}
+/* [DAYMAP_AIR] 코스 화면 — 카드 세 장 뒤가 통째로 비어 위만 무거웠다. 같은 처방 */
+.crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:22px 20px;transition:.18s;margin-bottom:16px}
 .crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#EEECE7}.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
-.crs-nm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
+.crs-nm{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--accent)}   /* [ORD_HUE] 위와 같은 이유 */
 .crs-badge{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 10px}
 .crs.soon .crs-badge{background:var(--light)}
-.crs-one{font-size:13px;color:var(--gold-deeper);margin-top:6px;word-break:keep-all;font-weight:500}
+.crs-one{font-size:13.5px;color:var(--gold-deeper);margin-top:8px;word-break:keep-all;font-weight:500}
 .crs-time{font-size:12px;color:var(--sub);margin-top:5px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_TIMEBUDGET] 12px 하한 — 읽어야 하는 정보라 장식 캡션 크기로 내리지 말 것 */
 .crs-feel{font-size:13px;color:var(--sub);margin-top:11px;line-height:1.8;word-break:keep-all}
 .crs-feel b{color:var(--accent);font-weight:600}
 .crs-flowl{font-size:10px;letter-spacing:.08em;color:var(--gold-deeper);margin:13px 0 7px;font-weight:600}
 .cflow{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
-.cflow-i{font-size:11px;color:var(--accent);background:var(--bg2);border-radius:7px;padding:4px 9px;white-space:nowrap}
+.cflow-i{font-size:12px;color:var(--accent);background:var(--bg2);border-radius:8px;padding:5px 10px;white-space:nowrap}
 .cflow-i.swap{padding-right:7px}
 .cflow-a{color:var(--light);font-size:10px}
 .crs-chev{font-size:20px;line-height:1;color:var(--gold-btn);transition:transform .2s}
 .crs.on .crs-chev{transform:rotate(90deg)}
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
-.cdet-l{font-size:10px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin-bottom:9px}
-.cdet-note{font-size:11.5px;line-height:1.65;color:var(--sub);background:var(--bg2,#F4EFE8);border-radius:8px;padding:8px 11px;margin-bottom:10px}
-.ev{padding:11px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
-.ev-n{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+.cdet-l{font-size:12px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:700;margin-bottom:10px}   /* [DAYMAP_AIR] */
+.cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);background:var(--bg2,#F4EFE8);border-radius:8px;padding:10px 13px;margin-bottom:12px}
+.ev{padding:13px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
+.ev-n{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
 .ev-n .step{font-size:10.5px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-btn);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-.ev-r{font-size:13px;color:var(--sub);margin-top:5px;line-height:1.65;word-break:keep-all}
+.ev-r{font-size:13.5px;color:var(--sub);margin-top:6px;line-height:1.7;word-break:keep-all}
 .ev-pick{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-left:auto;background:none;border:none;padding:0;display:inline-flex;align-items:center;gap:5px}
 .ev-pick::before{content:'';width:12px;height:12px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .ev-fix{font-size:11px;color:var(--light);margin-left:auto;background:none;padding:0;display:inline-flex;align-items:center;gap:5px}
@@ -453,7 +466,10 @@ button.oc-nm::after,button.crs-h::after,button.mc-t::after{
   content:'';position:absolute;left:0;top:0;right:0;bottom:0;border-radius:12px}
 button.oc-nm,button.crs-h,button.fold{width:100%}
 /* 오버레이 위에 남겨야 하는 것들(안쪽 조작·펼친 내용) */
-.oc .play,.oc .uprow,.mc-mv,.mc-act,.mc-x,.cdet{position:relative;z-index:1}
+/* ★[PLUS_Z 2026-08-09] .mvb(↑↓·＋−)가 이 목록에 빠져 카드 펼침 덮개(제목 ::after) 아래 깔려 있었다.
+   프로그램 click()은 통과해 자동 점검이 초록이었고 **실제 손가락 탭만** 카드를 펼쳤다
+   (사용자 재현 → 실좌표 탭으로 확인). z-index 2 — 1이면 덮개와 같은 층이라 DOM 뒤쪽인 덮개가 이긴다. */
+.oc .play,.oc .uprow,.mc-mv,.mc-act,.mc-x,.cdet,.mvb{position:relative;z-index:2}
 /* 흐려 둔 카드의 제목은 [ORD_OFF_OPACITY]가 정한 색을 유지(button 기본색으로 되돌아가지 않게) */
 .mc.off button.mc-t{color:#6E675E}
 
@@ -472,13 +488,6 @@ h3.sec-l{font-size:11px;font-weight:600}
 
 /* [SCHED_PALETTE 2026-08-04] 체크 표시는 진사로 — 기본 파랑은 이 지면에 없는 색이다(마이페이지·예약·신청과 통일) */
 input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
-
-/* ★[TAP44 2026-08-09] 이 화면은 부부가 30분쯤 붙잡고 **작업**하는 곳이라
-   홈의 장식 라벨과 성격이 다르다. 읽고 판단하는 문장이 10px 이었다(390px 실측).
-   .sq-d "하객 입장 20분이 여기 겹쳐요" · "본식이 짧아진 만큼 여기가 늘어나요" 등. */
-.sq-d{font-size:12px}
-.sq-tm{font-size:13px}
-.sq-here{font-size:11.5px}
 </style>
 </head>
 <body>
@@ -880,7 +889,7 @@ var COURSES={
   "detail": [
    {
     "n": "도착",
-    "how": "행진하지 않아요. 두 분이 하객분들 사이를 지나 가운데로 걸어오시면, 나레이션이 시작을 모읍니다.",
+    "how": "행진하지 않아요. 두 분이 하객분들 사이를 지나 가운데로 걸어오시면, 나레이션이 시작을 열어요.",
     "fx": "넓은 컷과 하객분들의 얼굴이 한 장에 담기는 자리예요.",
     "pick": "입장 멘트 느낌 6가지 중 선택"
    },
@@ -904,7 +913,7 @@ var COURSES={
    },
    {
     "n": "축배",
-    "how": "곧바로 잔을 들어요. 길게 닫는 인사 없이, 나레이션이 다 함께 시간으로 이어 줍니다.",
+    "how": "곧바로 잔을 들어요. 길게 닫는 인사 없이, 나레이션이 하객과 함께 시간으로 이어 줘요.",
     "fx": "모두의 표정이 한 장에 담기고, 자연스럽게 촬영 시간으로 넘어가요.",
     "fix": true
    }
@@ -1601,11 +1610,11 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','다 함께','Group Record','본식이 짧아진 만큼 여기가 늘어나요'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','하객과 함께','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
-  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 두 분이 하객분들과 인사하고 사진 남기는 시간이 늘어나요.</div></div>';
+  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 인사와 사진의 자유 시간이 늘어나요.</div></div>';
   return h;
 }
 
@@ -2010,7 +2019,7 @@ function renderStep(k){
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 대본은 <b>참고용</b>이에요 · 그대로 읽어도, 두 분 말로 바꿔도 좋아요. 조용한 곳에서 한 문장씩 녹음해 각 안내의 <b>파일 올리기</b>로 올려 주세요.</div>';
-      h+='<div class="mth-ai"><b>직접 녹음이 부담되면?</b> 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 두 분 목소리로 만들어 올려도 돼요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';
+      h+='<div class="mth-ai"><b>팁 · 이런 방법도 있어요</b> — 타입캐스트 · 클로바더빙 같은 <b>AI 더빙</b> 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희가 제공하는 기능은 아니고, 목소리도 그 서비스의 AI 목소리예요. <button class="copy-btn2" onclick="copyGuestScript()">안내 대본 전체 복사</button></div>';   // [AI_TIP] fold 쪽 주석 참고 — 두 자리가 같은 원칙
       h+='</div>';
     }
     if(cpl){
@@ -2046,7 +2055,7 @@ function renderStep(k){
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
       h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 또렷하게 녹음해 올려 주세요. 보내 주신 파일은 당일 그대로 재생돼요.</div>';
-      h+='<div style="margin-top:12px">'+fold('entryAI','직접 녹음이 부담되면 · AI 더빙','<div style="font-size:12px;color:var(--gold-deeper);line-height:1.7">타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 두 분 목소리로 만들어 올려도 돼요.</div>')+'</div>';
+      h+='<div style="margin-top:12px">'+fold('entryAI','팁 · 이런 방법도 있어요','<div style="font-size:12.5px;color:var(--gold-deeper);line-height:1.7">직접 녹음이 부담되면, 타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희 기능은 아니고 목소리도 그 서비스의 AI 목소리예요.</div>')   /* [AI_TIP] '두 분 목소리로 만들어'는 목소리 복제로 읽힌다 — 남의 서비스 능력을 단정하지 않는다(사용자: 거짓 정보 금지 · 팁으로 격하) */+'</div>';
       h+='</div>';
       h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
     }
@@ -2115,8 +2124,9 @@ function renderStep(k){
       var sel=S.declareWho===w, showNar=sel&&w!=='narr';
       h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,(w==='family'&&sel)?OUT_DECLARE_FAMILY:null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
       if(sel&&w==='narr'){
-        h+='<div class="subq">낭독 톤</div>';
+        h+='<div class="subset"><div class="subq">나레이션의 낭독 톤</div>';   // [SUBSET] 소유를 이름에 — '낭독 톤'만 있으면 아래 하객 카드까지 톤으로 읽힌다
         ['1','2'].forEach(function(v){ h+=oc('declare',v,DECLARE[v].d,'',S.declare===v?DECLARE[v].nar:null,null,null,null,cdef(S.course).declare===v); });   // COURSE_DEF_MAP
+        h+='</div>';
       }
     });
   }

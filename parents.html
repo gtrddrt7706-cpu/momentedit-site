@@ -74,7 +74,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 
 /* 읽기 도구: 글자 크기 · 인쇄 */
 .tools{max-width:var(--max);margin:0 auto;padding:0 28px 8px;display:flex;justify-content:flex-end;gap:8px}
-.tools button{font-family:var(--serif-ko);font-size:13px;font-weight:400;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:0.04em;min-width:48px;min-height:42px;transition:color 0.25s,border-color 0.25s}
+.tools button{font-family:var(--serif-ko);font-size:13px;font-weight:400;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:0.04em;min-width:48px;min-height:44px;transition:color 0.25s,border-color 0.25s}
 .tools button:hover{color:var(--accent);border-color:var(--gold)}
 @media(max-width:680px){.tools{padding:0 22px 6px}}
 
@@ -169,10 +169,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 
 /* [PAR_TAP40] 눌러야 하는 것들이 22px 안팎이었다. 손이 정확하지 않은 독자에게는 이것부터 벽이 된다.
    ★.nav-mark·.nav-back은 글자 크기를 키우지 않고 히트영역만 세로로 넓힌다(상단 바 높이 유지). */
-.nav-mark,.nav-back{min-height:40px;display:inline-flex;align-items:center}
+.nav-mark,.nav-back{min-height:44px;display:inline-flex;align-items:center}   /* [TAP44-3] */
 .nav-in{padding-top:6px;padding-bottom:6px}
 @media(max-width:680px){.nav-in{padding-top:4px;padding-bottom:4px}}
-.f-copy a{display:inline-block;min-height:40px;line-height:40px}
+.f-copy a{display:inline-block;min-height:44px;line-height:44px}   /* [TAP44-3] */
 
 /* [PAR_KO_TRACK] 영문용 트래킹(.08em)이 한글 '뒤로'에 걸려 있었다. */
 .nav-back{letter-spacing:0.02em}
@@ -192,7 +192,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
    ★이미지가 안 뜨면 종전 텍스트 조판으로 떨어진다 — 로고가 통째로 사라지지 않게. */
 .nav-logo{width:148px;height:auto;display:block}
 .nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
-.nav-mark{min-height:40px}
+.nav-mark{min-height:44px}   /* [TAP44-3] */
 @media(max-width:680px){.nav-logo{width:130px}}
 
 /* ★★[TAP44 2026-08-09] 손가락으로 누를 수 있게 — 390px 실측으로 잡았다.
