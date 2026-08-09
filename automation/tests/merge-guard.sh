@@ -2023,3 +2023,13 @@ chk 'CORR_CLAIM' scripts/check-corr-claim.mjs 1
 chk 'n=2' scripts/assemble-narration.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-corr-claim.mjs >/dev/null \
   || { echo 'FAIL corr-claim: 조립기 주석과 실제 계산이 어긋납니다 — node scripts/check-corr-claim.mjs'; fail=1; }; fi
+
+# ── [NO_SILENT_SKIP] '없으면 통과' 를 뒤집는다 (2026-08-09 · 코드 세션이 세 번째로 짚은 병) ──
+# 유령 기록(RECORDED_1TO1) · 대장을 믿던 판정(NOAUDIO_REAL) · 붙여넣기 파일 없음(PASTE_MISSING)
+# 셋이 전부 같은 꼴이었다. 그래서 남은 두 곳도 뒤집었다:
+#   check-css-tokens  — 목록에 적힌 쪽이 없으면 멈춘다(옮기거나 이름만 바꿔도 조용히 빠지던 자리)
+#   check-source-drift — FACING 목록의 파일이 없으면 신고한다(없으면 hit 0 = '안 샜다'로 읽혔다)
+# ★그리고 그 신고를 scan 이 채우는 값으로 하지 않는다 — 블록이 먼저 돌아 늘 초록이었다(실측).
+chk 'NO_SILENT_SKIP' scripts/check-css-tokens.mjs 1
+chk 'NO_SILENT_SKIP' scripts/check-source-drift.mjs 2
+chk '순서에 기대는 검사는' scripts/check-source-drift.mjs 1
