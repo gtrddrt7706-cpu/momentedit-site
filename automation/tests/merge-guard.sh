@@ -1928,3 +1928,10 @@ chk 'free:1' order-preview.html 1
 chk 'free:{n:' order-preview.html 1
 chk 'free:{ph:' order-preview.html 1
 chk "free:{k:'free'" order-preview.html 1
+
+# ── [STALE_DONE] 서버의 '완료'를 이 기기의 기억보다 앞세우지 않는다 (2026-08-09) ──
+# 재현: 완료 → 처음부터 다시 → 중간에 저장 후 나가기 → 다시 들어가면 완성 화면으로 열린다.
+# 빌더·마이페이지는 done:false 를 제대로 보내는데 서버 기록이 안 내려온다(GAS 안이라 여기선 못 본다).
+# 이 기기가 마지막으로 남긴 기록이 '중간 저장'이면 위치와 완료 표시는 그쪽을 믿는다(내용 S 는 서버 것).
+chk 'STALE_DONE' order-preview.html 1
+chk '_localMid' order-preview.html 2
