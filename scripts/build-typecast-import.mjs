@@ -193,8 +193,13 @@ const clips = parse(SRC);
      그래서 사용자가 녹음하려던 23클립을 조립기가 통째로 모르는 상태였다.
    ★고칠 때는 **왜 바뀌었는지**를 여기 남길 것. 숫자만 올리면 다음 사람이 같은 함정에 빠진다.
      54 → 51 [VEIL_RETIRED 2026-08-03] 베일 다운 폐지(전 예식 동시입장이라 실행 불가·되살리지 말 것)
-     51 → 74 [AFTER_PARTY 2026-08-08] 닫는 말 자유칸 7 + 예식 뒤 전환 6 + 골라 트는 판 10 */
-const CLIP_COUNT = 74;
+     51 → 74 [AFTER_PARTY 2026-08-08] 닫는 말 자유칸 7 + 예식 뒤 전환 6 + 골라 트는 판 10
+     74 → 76 [TOAST_SCENE 2026-08-09] 축배·케이크를 장면으로 세우며 두 자리가 늘었다.
+              toast-both-b  : 「둘 다」에서 나이프를 걷고 잔을 쥐여 드리는 15~20초를 덮는 두 번째 문안
+                              (옛 판은 이 사이가 통째로 무음이었다)
+              narr-cake-out : 케이크만 고른 자리의 닫는 말 (옛 판은 잔이 없는 손에 "잔은 편히
+                              내려놓으셔도 좋습니다"가 나갔다) */
+const CLIP_COUNT = 76;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

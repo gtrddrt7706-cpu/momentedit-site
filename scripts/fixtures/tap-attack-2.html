@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<style>
+body{margin:0;padding:20px;font:14px sans-serif}
+/* 카드 전체를 카드 자신의 ::after 가 덮는다 — 흔한 'stretched-link' 패턴 */
+#card2{display:block;position:relative;width:220px;height:80px;background:#dde}
+#card2::after{content:'';position:absolute;inset:0;z-index:5}
+</style>
+<a id="card2" href="#card">카드 링크
+  <button id="inner2" style="position:absolute;left:20px;top:18px;width:120px;height:44px">안쪽 버튼</button>
+</a>

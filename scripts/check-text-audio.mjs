@@ -44,6 +44,38 @@ const pad2 = (n) => ('0' + n).slice(-2);
 const SAY = new Map();
 for (const c of man.clips) SAY.set((c.dir || NAR) + '|' + pad2(c.no) + '_' + c.file, { text: c.sents.map((s) => s.text).join(' '), role: c.role, dir: c.dir });
 
+/* ★★[RECORDED_TRUTH 2026-08-09] 이 검사에 큰 구멍이 있었다 — 실측으로 드러났다.
+   오른쪽(소리)을 manifest.json 에서 읽는데, manifest 는 **「녹음하기로 한 글」**이지
+   「실제로 녹음된 글」이 아니다. 문안을 고치면 build-typecast-import.mjs 가 manifest 를
+   다시 쓰고, merge-guard 는 그 생성기를 매번 돌린다. 그래서 양쪽이 **함께** 새 문안이 되고
+   검사는 늘 '맞음'이라고 말한다. 그 사이 mp3 는 옛말을 그대로 하고 있다.
+     실제로 그랬다: 축배 4클립(40·41·42·56)을 다시 썼는데 어긋남 0으로 통과했다.
+     당일 화면엔 새 문안이, 스피커에선 옛 문안이 나갔을 자리다.
+   ★그래서 실제로 녹음된 글을 따로 못박아 둔다 — assets/audio/narration/_recorded.json.
+     mp3 를 만드는 순간(assemble-narration.mjs)에만 갱신되는 것이 원칙이다.
+     여기 있으면 그쪽을 먼저 믿는다. 없는 클립은 종전대로 manifest 로 떨어진다(새 클립). */
+try {
+  /* ★[RECORDED_TRUTH cast 확장 2026-08-09] 배역(cast)도 같은 구멍이었다 — 폴더마다 제
+     _recorded.json 을 읽는다. 씨앗은 cast mp3 23개 시점의 manifest 에서 떴고(나레이션과 같은
+     방식), 갱신은 assemble-narration 이 mp3 를 만드는 순간에만 한다.
+     ★폴더에 _recorded.json 자체가 없으면 멈춘다 — '파일이 없어서 대장으로 폴백'을 허용하면
+       파일을 지우는 것만으로 검사가 도로 눈을 감는다. 없음은 폴백 사유가 아니라 고장이다. */
+  const dirs = [...new Set([...SAY.keys()].map((k) => k.split('|')[0]))];
+  for (const d of dirs) {
+    const RECF = path.join(root, d, '_recorded.json');
+    if (!fs.existsSync(RECF)) { console.error(`✗ ${d}/_recorded.json 이 없다 — 실녹음 기록 없이 대조할 수 없다(RECORDED_TRUTH)`); process.exit(1); }
+    const rec = JSON.parse(fs.readFileSync(RECF, 'utf8')).clips || {};
+    for (const [key, e] of SAY) {
+      if (!key.startsWith(d + '|')) continue;
+      const k = key.slice(d.length + 1);
+      /* ★없으면 '없음'이다. 대장에 있다고 녹음된 것이 아니다 —
+         새 클립은 대장에 먼저 생기고 소리는 나중에 온다. 그 창을 '맞음'으로 세면
+         소리가 영영 안 와도 아무도 모른다. 여기 없으면 재더빙 대기로 잡힌다. */
+      e.text = Object.prototype.hasOwnProperty.call(rec, k) ? rec[k] : '';
+    }
+  }
+} catch (e) { console.error('✗ _recorded.json 을 읽지 못했습니다 — ' + e.message); process.exit(1); }
+
 // ── 비교용 정규화. 문장부호·따옴표·공백은 소리로 구분되지 않으므로 지운다.
 //   ★말이 되는 글자만 남긴다 — 여기서 너무 관대하면 다른 문장이 같아 보이고, 너무 빡빡하면
 //     쉼표 하나로 전부 빨갛게 뜬다. 한글·숫자·영문만 남기는 선이 그 사이다.
@@ -203,7 +235,33 @@ if (process.argv.includes('--redub')) {
     lines.push('');
   }
   fs.writeFileSync(REDUB, lines.join('\n'));
-  console.log('\n→ 붙여넣기 파일을 다시 뽑았습니다: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+
+  /* ★★[PASTE_ONLY 2026-08-09] 타입캐스트에 **붙여넣기만 하는** 파일을 따로 하나 더 뽑는다.
+     사용자 실사용: 위 파일을 그대로 붙였더니 이상하게 나왔다 —
+       *"이렇게하면 이상하게 나와 성우만 붙을수잇도록 해죠"*
+     당연하다. 위 파일에는 사람이 읽을 것(# 머리말 · [번호] 슬러그 · '우성:' 접두)이 섞여 있고
+     타입캐스트는 그것까지 **소리 내어 읽는다.** 대괄호 번호를 읽은 클립이 섞여 들어온다.
+     ★그렇다고 위 파일에서 머리말을 걷어내면 안 된다 — 그 파일은 「재더빙 대기 명단」이라
+       검사가 양방향으로 대조한다. 명단과 붙여넣기용은 **쓰임이 다르니 파일도 나눈다.**
+     ★순서는 **클립 번호 오름차순**이다. 조립기가 받은 파일을 정렬해 대장의 문장 순서에
+       하나씩 대응시키기 때문이다(어긋나면 길이 상관계수 r<0.85 로 멎는다). 순서를 섞지 말 것. */
+  const PASTE = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt');
+  const all = [...bad, ...noAudio.filter((r) => !bad.some((b) => b.slug === r.slug))];
+  const seen = new Set(), ordered = [];
+  for (const r of all) {
+    const no = +String(r.ids && r.ids[0] || r.no || '').split('_')[0] || 0;
+    if (seen.has(r.slug)) continue; seen.add(r.slug);
+    ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen) });
+  }
+  ordered.sort((a, b) => a.no - b.no);
+  const pl = [];
+  for (const c of ordered) { for (const t of c.sents) pl.push(t); pl.push(''); }
+  fs.writeFileSync(PASTE, pl.join('\n').replace(/\n+$/, '\n'));
+
+  console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+  console.log('→ 붙여넣기용(문장만 · 클립 번호 순): ' + path.relative(root, PASTE)
+    + ' (' + ordered.length + '클립 · ' + ordered.reduce((n, c) => n + c.sents.length, 0) + '문장)');
+  console.log('  ★순서를 섞지 마세요 — 조립기가 정렬 순서대로 자리를 매깁니다.');
   process.exit(0);
 }
 

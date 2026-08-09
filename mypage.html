@@ -87,7 +87,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .topbar{padding:25px 24px 12px;text-align:center;border-bottom:1px solid var(--hairline);background:var(--bg)}
 .brand-link{display:inline-block;text-decoration:none;line-height:0;position:relative}
 /* [TAP44-3] 로고 224×39 · 로그인 화면 '상담 신청 →' 224×38 — 세로 실효 44 로 (레이아웃 무변경 ::after) */
-.brand-link::after,.linkrow a::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:46px}   /* 44 정확값은 ±21.5 검사에서 서브픽셀로 갈린다 — 2px 여유 */
+.brand-link::after,.linkrow a::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:28px}   /* [TAP44_ROWFIT] 46→28 · 위 패딩과 같은 이유 — 46 이 이웃 줄을 파고들었다 */
+.linkrow a[href="/inquiry.html"]{margin-bottom:-13px}   /* [TAP44_ROWFIT] 이 링크만 인라인 padding-bottom:1px(밑줄 디자인)가 규칙을 이겨 대칭이 깨진다 — 종전 흐름 몫(c-12)으로 되돌리는 보정. 없으면 문서가 7px 자란다(실측) */   /* 44 정확값은 ±21.5 검사에서 서브픽셀로 갈린다 — 2px 여유 */
 .linkrow a{position:relative;z-index:1}   /* [TAP44-3] 아래 .centered 요소가 확장 띠를 가로채고 있었다 — 히트테스트가 잡음 */
 .brand-img{width:224px;max-width:71%;height:auto;display:inline-block}
 .brand-fallback{display:block;line-height:1.5}
@@ -152,7 +153,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .linkrow a{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-decoration:none;cursor:pointer;transition:color .3s}
 .linkrow a:hover{color:var(--accent)}
 /* MPD_B11 터치 타깃 44px 1차 보정(§7-3-②) — 히트박스만 확장, 시각 유지: 로그인 하단 링크·돌아가기·로그아웃·원장 '보기'·체크박스·모달 닫기X·NOW 새로고침 */
-.linkrow a{display:inline-block;padding:13px 6px;margin:-13px -6px}
+.linkrow a{display:inline-block;padding:6px;margin:-6px}   /* ★[TAP44_ROWFIT 2026-08-09] 13px 패딩이 줄 간격(29.9px)보다 큰 상자(49px)를 만들어 두 줄이 14px 씩 서로 파고들었다 — 아래 14px 를 누르면 다음 줄이 눌린다(My Page 오터치와 같은 부류 · 히트테스트 실측). 줄 간격 안에서 최대(≈29px)로 깐다. 44 를 채우려면 줄 간격 자체를 벌려야 하고 그건 로그인 화면 모양이 바뀌는 일이라 사용자 선택이 먼저다. WCAG 2.5.8 은 간격 24px+ 를 대안으로 인정한다 */
 .led-link,.led-linkbtn{position:relative}
 .led-link::before,.led-linkbtn::before{content:'';position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
 .led-modal-x{width:44px;height:44px;top:5px;right:5px}

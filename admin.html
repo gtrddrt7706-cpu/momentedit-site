@@ -24,6 +24,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* ★[TOKEN_DEFINED 2026-08-09] --bg2 를 쓰던 자리 둘을 --paper2 로 바꿨다.
+     이 파일은 --bg2 를 정의한 적이 없다(다른 페이지의 이름을 그대로 옮겨 적은 것).
+     대체값 없는 미정의 var 는 그 선언을 무효로 만들어 :active 배경이 아무 일도 안 했다.
+     scripts/check-css-tokens.mjs 가 잡았다. 없는 이름을 쓰지 말 것. */
   --paper:#FAFAF8;--paper2:#F5F3EF;--paper3:#EDEBE6;--card:#FFFFFF;
   --ink:#1C1B19;--sub:#5A554C;--light:#75705F;--accent:#3A2D22;
   --gold:#B89A75;--gold-deep:#9A7B4F;--gold-deeper:#7A5F37;--gold-line:#E6E1D8;
@@ -313,13 +317,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal .paste-row{display:flex;gap:6px;align-items:stretch}
 .modal .paste-row input{flex:1;min-width:0}
 .modal .paste-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:12px;cursor:pointer;white-space:nowrap}
-.modal .paste-btn:active{background:var(--bg2)}
+.modal .paste-btn:active{background:var(--paper2)}
 .modal .paste-hint{font-family:var(--serif-ko);font-size:11px;color:var(--seal);margin-top:4px;text-align:left;min-height:0}
 /* [ADM_AA6] 최근 본 고객 칩 — 폰 재방문 시 재검색 제거(이름·코드만 저장) */
 .recent{display:flex;flex-wrap:wrap;gap:6px;margin:8px 2px 0}
 .recent .rc-l{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);align-self:center;margin-right:2px}
 .recent button{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:6px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.recent button:active{border-color:var(--gold);background:var(--bg2)}
+.recent button:active{border-color:var(--gold);background:var(--paper2)}
 .modal .mbtns{display:flex;gap:8px;margin-top:6px}
 .modal .mbtns .btn{flex:1}
 .modal .merr{font-family:var(--serif-ko);font-size:12px;color:var(--seal);text-align:center;min-height:15px;margin-bottom:5px}

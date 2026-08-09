@@ -620,7 +620,8 @@ chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
 chk 'PLUS_Z' order-preview.html 1               # ＋− 버튼이 카드 펼침 덮개 아래 깔리던 실탭 버그 — 목록에서 .mvb 빼면 재발
 chk 'AI_TIP' order-preview.html 2               # AI 더빙은 팁 — '두 분 목소리로 만들어'로 되돌리면 남의 서비스 능력을 단정하는 거짓 안내
-chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판이 사라지면 두 축이 다시 한 줄로 섞인다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판이 사라지면 두 축이 다시 한 줄로 섞인다
+chk 'SEAL_POINT' order-preview.html 8            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
 chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 금지 주석(2026-07-26 사용자 지시) — 삭제 금지
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)
@@ -852,7 +853,16 @@ chk 'CAKE_DUP_GUARD' order-preview.html 3          # 사이 순서+축배 케이
 chk 'XM_MIRROR_9KEY' assets/ritual-data.js 1       # 소요분 9키 정합 — 빌더가 기준
 chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
-chk '두 사람이 함께 나이프를 잡습니다' assets/ritual-data.js 2   # G9 케이크 동작 교정(cake+both)
+# [TOAST_SCENE 2026-08-09] 옛 마커('두 사람이 함께 나이프를 잡습니다')는 장면화로 사라졌다.
+# 대신 **장면을 세우는 세 문장**을 지킨다 — 하나라도 빠지면 그 자리가 다시 매끄럽지 않아진다.
+#   ①카운트(케이크·둘 다 2벌) — 방 전체가 같은 순간을 보는 신호. 없으면 커팅이 언제인지 아무도 모른다
+#   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
+#   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
+chk '제가 셋을 세면' assets/ritual-data.js 2
+chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
+chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
+chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
+chk 'TOAST_SCENE' assets/ritual-story.js 2
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
 chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
@@ -1824,3 +1834,53 @@ chk 'MAST_TOP' i-family/family-05.html 1
 chk 'MAST_TOP' i-family/family-06.html 1
 chk 'MAST_TOP' i-family/family-07.html 1
 chk 'MAST_TOP' i-family/family-08.html 1
+
+# ── [TOKEN_DEFINED] 대체값 없는 미정의 CSS 변수 (2026-08-09) ──
+# 실사고: order-preview 에서 var(--gold-text) 5곳이 미정의라 카드 테두리가 **검게** 나왔다.
+# 문법이 맞아 어떤 검사도 안 잡았고 사용자가 화면을 보고 지적했다.
+# 미정의 var 는 그 선언을 계산 시점에 무효로 만든다 → border-color 는 currentColor 로 떨어진다.
+# ★대체값이 있는 var(--x, 값)은 정상이라 넘긴다 · 주석은 지우고 읽는다(사고 기록이 물리지 않게).
+chk 'TOKEN_DEFINED' scripts/check-css-tokens.mjs 1
+chk '주석을 먼저 지운다' scripts/check-css-tokens.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-css-tokens.mjs \
+  index.html inquiry.html mypage.html order-preview.html guide.html console.html schedule.html \
+  live.html admin.html parents.html privacy.html preview.html seat.html form.html cancel.html \
+  invitation-gallery.html order-audit.html >/dev/null \
+  || { echo 'FAIL token: 대체값 없는 미정의 CSS 변수 — node scripts/check-css-tokens.mjs <페이지들>'; fail=1; }; fi
+
+# ── [TAP44_FOOT_OFF] 푸터 링크를 히트영역 확장 규칙에서 뺀 것 (2026-08-09) ──
+# padding:15px + margin:-15px 은 상자를 50px 로 키우고 자리는 도로 뺏는다 → 이웃 줄로 넘쳐
+# **나중에 그려진 링크가 앞 링크의 한가운데를 가져갔다**(실측: 푸터 'My Page' 탭 → privacy.html).
+# 되살리려면 줄이 44px 를 실제로 차지해야 하고 그건 푸터 모양이 바뀌는 일이다 — 사용자 선택이 먼저.
+#   (한 줄 flex 로 모으는 판을 만들어 보였고 사용자가 *"푸터 이상한데 그냥 전으로 돌려"* 로 물렀다)
+chk 'TAP44_FOOT_OFF' index.html 1
+chk 'TAP44_FOOT_OFF' inquiry.html 1
+chk 'TAP44_FOOT_OFF' parents.html 1
+nochk 'footer a\[href\$="mypage.html"\]' index.html
+nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
+# 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
+chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
+chk '이미 크다' scripts/check-tap-targets.mjs 1
+# [CENTER_NO_MERCY] 한가운데 무관용 — 스침·조상 용서가 C 에도 적용되던 구멍을 적대 검증이 찾았다
+#   (1.4px 실오라기 강탈·stretched-link ::after 덮개가 전부 초록이었다 · scripts/fixtures/tap-attack-*.html 로 재현)
+chk 'CENTER_NO_MERCY' scripts/check-tap-targets.mjs 2
+chk 'SPACING_24' scripts/check-tap-targets.mjs 1
+chk 'CLIP_FOLD' scripts/check-tap-targets.mjs 1
+# [RECORDED_TRUTH 배선] _recorded.json 은 조립기가 mp3 를 만드는 순간에만 갱신 — 배선이 사라지면 다음 재더빙 때 반대 방향 거짓말
+chk 'RECORDED_TRUTH 2026-08-09 배선' scripts/assemble-narration.mjs 1
+chk 'RECORDED_TRUTH cast 확장' scripts/check-text-audio.mjs 1
+
+# ── [RECORDED_TRUTH] '녹음하기로 한 글' 과 '실제로 녹음된 글' 을 가른다 (2026-08-09) ──
+# 구멍이었다: check-text-audio 가 오른쪽(소리)을 manifest.json 에서 읽는데, 문안을 고치면
+# build-typecast-import 가 manifest 를 다시 쓰고 이 게이트가 그 생성기를 매번 돌린다.
+# 그래서 양쪽이 **함께** 새 문안이 되고 검사는 늘 '맞음' 이라 말한다 — mp3 는 옛말인 채로.
+#   실측: 축배 4클립을 다시 썼는데 어긋남 0 으로 통과했다. 당일 화면과 스피커가 달랐을 자리다.
+# 이제 assets/audio/narration/_recorded.json 이 '실제로 녹음된 글' 이고, 거기 없으면 '소리 없음' 이다.
+chk 'RECORDED_TRUTH' scripts/check-text-audio.mjs 1
+chk '_recorded.json' scripts/check-text-audio.mjs 2
+[ -f assets/audio/narration/_recorded.json ] || { echo 'REVERT? _recorded.json 이 없다 — 녹음된 글의 원천이다'; fail=1; }
+# ── [TOAST_SCENE] 축배·케이크 장면 ──
+chk 'TOAST_SCENE' assets/ritual-cue.js 2
+chk 'TOAST_SCENE' order-preview.html 3
+chk 'toast-both-b' assets/ritual-cue.js 2
+chk 'narr-cake-out' assets/ritual-cue.js 2

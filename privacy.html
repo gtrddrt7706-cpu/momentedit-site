@@ -121,6 +121,11 @@ section.article:first-of-type{border-top:none;padding-top:8px}
 /* Footer */
 footer{text-align:center;padding:36px 28px 36px;background:var(--footer-bg);margin-top:60px}
 .f-footer-logo{width:min(220px,46vw);height:auto;margin:0 auto;display:block}
+/* [TAP44-PV] 로고 링크 22px → 히트영역 44px. index 163a4c4 와 같은 절대배치 덧판 —
+   패딩+음수마진은 여기서 지면을 민다(index 에서 실측 2회 실패). ::after 는 흐름 밖이라 1px 도 안 민다.
+   아래 f-copy 첫 줄까지 16px+ 여유 · ±21.5 실측 전부 void 라 오터치 없음. */
+.f-footer-logo-link{position:relative}
+.f-footer-logo-link::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px}
 .f-contact{margin-top:14px;font-family:var(--serif);font-size:11px;letter-spacing:0.14em}
 .f-contact span{color:rgba(255,255,255,0.28)}
 .f-copy{font-family:var(--serif-ko);font-size:10px;color:rgba(255,255,255,0.32);margin-top:8px;letter-spacing:0.04em;line-height:1.85;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all}
@@ -163,8 +168,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
    사용자가 화면을 보고 "이 부분 푸터는 손대지 말자"고 정했다. 지금 모습이 의도된 톤이다.
    ★이후 감사·리뷰·리팩터링이 '대비 미달·탭 영역 미달'로 다시 집어내더라도 되살리지 말 것.
      (되돌려진 규칙: footer .f-copy 색상 상향 · footer .f-copy a 40px 히트영역 · line-height 1.6) */
-/* [PRV_TAP40] 상단 로고 21px · '상담 페이지로' 21px → 40px (푸터는 위 지시로 제외) */
-.nav-mark,.nav-back{min-height:40px}
+/* [PRV_TAP40→44 · TAP44-PV 2026-08-09] 상단 로고·'상담 페이지로' 히트영역 44px (푸터는 위 지시로 제외 유지).
+   min-height 는 border-box 라 앞쪽 규칙의 패딩으로는 못 키운다 — 여기가 유일한 원천이다.
+   음수 마진 2px 가 흐름 몫을 40 으로 되돌려 nav 막대 높이는 그대로다(히트테스트·nav 높이 실측). */
+.nav-mark,.nav-back{min-height:44px;margin-top:-2px;margin-bottom:-2px}
 .nav-in{padding-top:6px;padding-bottom:6px}
 /* [PRV_LOGO] 왼쪽 위 로고 — 워드마크 이미지(1545×212 · 7.29:1). 폴백은 이미지 실패 시에만. */
 .nav-logo{width:148px;height:auto;display:block}
