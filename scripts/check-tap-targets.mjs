@@ -1,0 +1,182 @@
+// 탭 영역 전수 점검 [TAP_HITTEST · 2026-08-09]
+//
+//   node scripts/check-tap-targets.mjs index.html inquiry.html ...
+//   node scripts/check-tap-targets.mjs --why            (판정 기준만 출력하고 끝)
+//   PORT=8895 로 로컬 정적 서버가 떠 있어야 한다.
+//
+// ★★왜 새로 쓰나 — 앞선 두 판이 전부 초록을 잘못 냈다.
+//   ① 1판(bbox): 요소의 사각형만 쟀다. `::before` 로 넓힌 히트영역을 못 봐서
+//      실효 44px 인 링크를 '위반'이라 했다(거짓 양성).
+//   ② 2판(히트테스트): 사각형이 이미 44×44 이상이면 **검사를 통째로 건너뛰었다**
+//      (`if (b.width>=44 && b.height>=44) return false;` — '이미 크다'는 지름길).
+//      큰 상자는 크니까 눌린다고 믿은 것이다. 그런데 **크기와 눌림은 다른 문제다.**
+//      실제 사고: 푸터 `My Page` 는 60×50 으로 충분히 큰데, 이웃 줄 링크의 상자가
+//      그 위에 겹쳐 **한가운데를 누르면 개인정보처리방침으로 갔다**(390px 실좌표 탭 재현).
+//      2판은 이 자리를 아예 안 봤다. 초록이었다.
+//   → 그래서 이 3판은 **모든 렌더된 타깃을 예외 없이 히트테스트**하고,
+//      못 눌리는 이유를 '작다'와 '가려졌다'로 나눠서 말한다. 지름길은 없다.
+//
+// 판정 기준 (--why 로도 출력된다 · 이 목록이 유일한 원천이다)
+//   대상  : a · button · [role=button] · summary · input[type=checkbox|radio]
+//   방법  : 요소를 화면 가운데로 올린 뒤 中·上·下·左·右 다섯 점에서 elementFromPoint.
+//           ±21.5px = 애플 44pt 창의 반지름. 맞은 것이 자기 자신이거나 자기 자손이면 통과.
+//           ★`t.contains(e)`(조상도 통과)를 넣으면 안 된다 — 42px 버튼이 전부 초록이 된다.
+//   면제  : ① 안 그려진 것(display:none·visibility:hidden·opacity<0.05·0크기)
+//           ② 문장 속 인라인 링크 — `display:inline` 이면서 부모에 실제 글자가 흐르는 <a>
+//              (WCAG 2.5.8 inline exception). ★<button>·inline-block·inline-flex 는 면제 아님.
+//           ③ <label>이 달린 input — 실질 히트영역은 라벨이다
+//   면제가 아닌 것: 사각형이 크다는 사실. 크기는 근거가 아니다.
+//
+// 등급
+//   ★오터치 : 어떤 점에서 **다른 조작 타깃**이 맞았다. 제일 나쁘다 — 엉뚱한 데로 간다.
+//   ✗작다   : 자기/자손이 아닌 **비조작 요소**나 아무것도 안 맞았다. 순수 크기 부족.
+//   (접힘)  : 한가운데조차 안 눌린다 + 가린 것이 조작 타깃이 아니다.
+//             접힌 아코디언·닫힌 모달 안이라 지금 화면에서 누를 대상이 아니다. 세기만 한다.
+// ★playwright 를 찾는 자리가 기계마다 다르다(로컬 설치 · 전역 설치 · NODE_PATH).
+//   ESM 의 `import 'playwright'` 는 NODE_PATH 를 안 본다 — 전역에만 깔린 환경에서 그냥 죽는다.
+//   여기서 죽으면 "검사를 못 돌린 것"이 "검사를 통과한 것"처럼 넘어가기 쉬우니, 찾는 자리를 넓히고
+//   그래도 없으면 **설치 방법을 말하며 exit 1** 로 세운다(조용히 건너뛰지 않는다).
+const pw = await (async () => {
+  // ★`$HOME/.npm-global` 로 짐작하지 않는다 — 이 컨테이너는 HOME=/root 인데 전역 모듈은
+  //   /home/claude/.npm-global 에 있다(짐작으로 썼다가 한 번 헛다리를 짚었다).
+  //   `npm root -g` 가 실제 자리를 말해 주니 그걸 묻는다.
+  let g = '';
+  try { g = (await import('node:child_process')).execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* npm 이 없을 수도 */ }
+  const tries = [process.env.PW, 'playwright', 'playwright-core',
+    g && `${g}/playwright/index.js`, '/usr/lib/node_modules/playwright/index.js'].filter(Boolean);
+  for (const t of tries) { try { return (await import(t)).default ?? (await import(t)); } catch { /* 다음 자리 */ } }
+  console.error('✗ playwright 를 못 찾았습니다.  npm i -g playwright  후 다시 실행하세요.');
+  process.exit(1);
+})();
+
+const SEL = 'a,button,[role="button"],summary,input[type=checkbox],input[type=radio]';
+const PORT = process.env.PORT || 8895;
+const R = 21.5;
+
+const WHY = `[TAP_HITTEST] 판정 기준
+  대상 : ${SEL}
+  방법 : 화면 가운데로 올린 뒤 中·上下左右(±${R}px) 5점 elementFromPoint.
+         맞은 것이 자기 자신이거나 자기 자손이면 통과(조상은 통과 아님).
+  면제 : ①안 그려진 것 ②문장 속 인라인 <a>(display:inline + 부모에 글자) ③label 달린 input
+  ★면제가 아닌 것 : 사각형이 44×44 이상이라는 사실. 크기는 눌림을 보증하지 않는다.
+  등급 : ★오터치(다른 조작 타깃이 맞음) · ✗작다(비조작 요소/공백) · (접힘)(중앙부터 안 눌림)`;
+
+if (process.argv.includes('--why')) { console.log(WHY); process.exit(0); }
+
+const pages = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+if (!pages.length) { console.error('✗ 점검할 페이지를 주세요. 예: node scripts/check-tap-targets.mjs index.html'); process.exit(1); }
+
+const br = await pw.chromium.launch();
+let bad = 0, steal = 0;
+
+for (const page_ of pages) {
+  const ctx = await br.newContext({ viewport: { width: 390, height: 844 } });
+  const pg = await ctx.newPage();
+  try { await pg.goto(`http://127.0.0.1:${PORT}/${page_}`, { waitUntil: 'domcontentloaded', timeout: 30000 }); }
+  catch { console.log(`\n━━ ${page_} — 열지 못했습니다(서버가 떠 있나요?)`); bad++; await ctx.close(); continue; }
+  await pg.waitForTimeout(2300);
+  // 지연 로딩·스크롤로 그려지는 것까지 깨운 뒤 되돌린다
+  await pg.evaluate(async () => { const h = document.body.scrollHeight; for (let y = 0; y < h; y += 700) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); } window.scrollTo(0, 0); });
+  await pg.evaluate(() => document.fonts && document.fonts.ready);
+  await pg.waitForTimeout(900);
+
+  const n = await pg.evaluate((SEL) => {
+    window.__tap = [...document.querySelectorAll(SEL)].filter((e) => {
+      const s = getComputedStyle(e), b = e.getBoundingClientRect();
+      if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.05 || b.width === 0 || b.height === 0) return false;
+      // 문장 속 인라인 링크만 면제 — inline-block·inline-flex·<button> 은 여기 안 걸린다
+      if (e.tagName === 'A' && s.display === 'inline'
+        && [...e.parentNode.childNodes].some((nd) => nd.nodeType === 3 && nd.nodeValue.trim().length > 2)) return false;
+      if (e.labels && e.labels.length) return false;
+      return true;
+    });
+    return window.__tap.length;
+  }, SEL);
+
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    /* ★자리가 멈춘 뒤에 잰다. 이 사이트는 스크롤 진입 애니메이션(.reveal)이
+       transform:translateY 로 올라온다. getBoundingClientRect 는 변형을 반영하므로
+       올라오는 도중에 재면 요소가 제 자리보다 위에 있고, 뒤 형제(.divider)와 겹쳐 보인다
+       (실제로 '어른께 드리는 안내 보기'가 그 이유로 빨갛게 나왔다 — 다 올라오면 안 겹친다).
+       두 번 연속 같은 사각형이 나올 때까지 기다린다. */
+    await pg.evaluate(async (i) => {
+      const e = window.__tap[i]; e.scrollIntoView({ block: 'center', behavior: 'instant' });
+      let prev = '', same = 0;
+      for (let k = 0; k < 10 && same < 2; k++) {
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 12)));
+        const r = e.getBoundingClientRect(), key = `${r.top.toFixed(1)},${r.left.toFixed(1)},${r.width.toFixed(1)},${r.height.toFixed(1)}`;
+        same = key === prev ? same + 1 : 0; prev = key;
+      }
+    }, i);
+    rows.push(await pg.evaluate(({ i, SEL, R }) => {
+      const e = window.__tap[i], b = e.getBoundingClientRect();
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      const name = (x) => { const id = x.id ? '#' + x.id : ''; const cl = (typeof x.className === 'string' && x.className) ? '.' + x.className.trim().split(/\s+/).slice(0, 2).join('.') : ''; return x.tagName.toLowerCase() + id + cl; };
+      // ★뷰포트 밖 좌표는 elementFromPoint 가 무조건 null 이라 '못 눌린다'로 오판된다.
+      //   문서 맨 끝 요소는 가운데로 못 올라오니 그 점은 검사에서 뺀다(거짓 양성 차단).
+      /* ★맞닿은 것과 겹친 것을 가른다.
+         44px 짜리 두 줄을 세로로 쌓으면 앞 줄의 ±21.5 점은 뒷 줄과 **0.2px 차이로 스친다**
+         (44 를 44.0 으로 재느냐 43.98 로 재느냐에 따라 판정이 뒤집힌다).
+         그건 이상적인 밀착 배치이지 결함이 아니다. 반면 'My Page' 사고는 이웃 상자가
+         **30px 를 파고든** 것이었다. 그래서 막은 놈의 상자가 내 상자를 얼마나 파고들었는지를 재고,
+         1.5px 이하로 스친 것은 결함으로 세지 않는다. 숫자 하나로 둘을 가를 수 있다. */
+      const bite = (t) => { const r = t.getBoundingClientRect();
+        const w = Math.min(b.right, r.right) - Math.max(b.left, r.left);
+        const h = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
+        return Math.min(w, h); };
+      const probe = (x, y) => {
+        if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return { s: 'skip' };
+        const t = document.elementFromPoint(x, y);
+        if (!t) return { s: 'void' };
+        if (t === e || e.contains(t)) return { s: 'ok' };
+        if (bite(t) <= 1.5) return { s: 'ok' };            // 스쳤을 뿐 — 맞닿은 이웃
+        /* ★조상이 맞았고 그 점이 내 상자 안(±1px)이면 통과다.
+           높이가 딱 44.00px 인 버튼을 ±21.5 로 찌르면 아래 0.5px 자리에서 브라우저가
+           자식이 아니라 **부모**를 돌려주는 일이 있다(반올림). 부모는 자식을 덮지 못한다
+           — 실제로 가린 것이 아니라 경계에서 미끄러진 것이다. 이걸 '작다'로 세면
+           44px 로 맞춰 놓은 칩 넷이 영영 빨갛다. */
+        if (t.contains(e) && x >= b.left - 1 && x <= b.right + 1 && y >= b.top - 1 && y <= b.bottom + 1) return { s: 'ok' };
+        const other = t.closest(SEL);
+        return other && other !== e ? { s: 'steal', by: name(other), tx: (other.innerText || other.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 18) } : { s: 'void' };
+      };
+      const P = { C: probe(cx, cy), U: probe(cx, cy - R), D: probe(cx, cy + R), L: probe(cx - R, cy), Rt: probe(cx + R, cy) };
+      const list = Object.entries(P).filter(([, v]) => v.s !== 'skip');
+      const miss = list.filter(([, v]) => v.s !== 'ok');
+      /* ★등급은 **한가운데부터** 본다. 가장자리에 뭐가 걸렸는지로 등급을 정하면
+         접힌 아코디언 속 항목이 그 아코디언 토글에 가려진 것까지 '오터치'가 된다(실제로 그랬다).
+           C 가 다른 타깃  → 오터치. 누르면 엉뚱한 데로 간다. 제일 나쁘다.
+           C 가 안 눌림    → 접힘·가려짐. 지금 화면에서 누를 대상이 아니다.
+           C 는 되는데 가장자리에 다른 타깃 → 겹침. 눌리긴 하나 44 창을 이웃과 나눠 쓴다.
+           C 는 되는데 가장자리가 빈 곳 → 작다. 순수 크기 부족. */
+      let grade = 'ok';
+      if (P.C.s === 'steal') grade = 'steal';
+      else if (P.C.s !== 'ok') grade = 'folded';
+      else if (miss.some(([, v]) => v.s === 'steal')) grade = 'overlap';
+      else if (miss.length) grade = 'small';
+      return {
+        grade, k: name(e), box: `${Math.round(b.width)}×${Math.round(b.height)}`,
+        tx: (e.innerText || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 24),
+        at: miss.map(([k, v]) => k + (v.by ? `←${v.by}"${v.tx}"` : '')).join(' '),
+      };
+    }, { i, SEL, R }));
+  }
+
+  const S = rows.filter((r) => r.grade === 'steal');
+  const O = rows.filter((r) => r.grade === 'overlap');
+  const B = rows.filter((r) => r.grade === 'small');
+  const F = rows.filter((r) => r.grade === 'folded').length;
+  steal += S.length; bad += O.length + B.length;
+  console.log(`\n━━ ${page_} — 대상 ${n} · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F})`);
+  const LB = { steal: '★오터치', overlap: '⚠겹침 ', small: '✗작다  ' };
+  const seen = new Set();
+  for (const r of [...S, ...O, ...B]) {
+    const k = r.grade + r.k + r.box; if (seen.has(k)) continue; seen.add(k);
+    console.log(`  ${LB[r.grade]} ${r.k} ${r.box} "${r.tx}"   ${r.at}`);
+  }
+  await ctx.close();
+}
+await br.close();
+
+console.log(`\n${steal || bad ? `✗ 오터치 ${steal}건 · 겹침·작다 ${bad}건` : '✓ 전부 통과'}`);
+process.exit(steal || bad ? 1 : 0);

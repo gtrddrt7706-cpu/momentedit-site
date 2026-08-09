@@ -1825,3 +1825,30 @@ chk 'MAST_TOP' i-family/family-05.html 1
 chk 'MAST_TOP' i-family/family-06.html 1
 chk 'MAST_TOP' i-family/family-07.html 1
 chk 'MAST_TOP' i-family/family-08.html 1
+
+# ── [TOKEN_DEFINED] 대체값 없는 미정의 CSS 변수 (2026-08-09) ──
+# 실사고: order-preview 에서 var(--gold-text) 5곳이 미정의라 카드 테두리가 **검게** 나왔다.
+# 문법이 맞아 어떤 검사도 안 잡았고 사용자가 화면을 보고 지적했다.
+# 미정의 var 는 그 선언을 계산 시점에 무효로 만든다 → border-color 는 currentColor 로 떨어진다.
+# ★대체값이 있는 var(--x, 값)은 정상이라 넘긴다 · 주석은 지우고 읽는다(사고 기록이 물리지 않게).
+chk 'TOKEN_DEFINED' scripts/check-css-tokens.mjs 1
+chk '주석을 먼저 지운다' scripts/check-css-tokens.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-css-tokens.mjs \
+  index.html inquiry.html mypage.html order-preview.html guide.html console.html schedule.html \
+  live.html admin.html parents.html privacy.html preview.html seat.html form.html cancel.html \
+  invitation-gallery.html order-audit.html >/dev/null \
+  || { echo 'FAIL token: 대체값 없는 미정의 CSS 변수 — node scripts/check-css-tokens.mjs <페이지들>'; fail=1; }; fi
+
+# ── [TAP44_FOOT_OFF] 푸터 링크를 히트영역 확장 규칙에서 뺀 것 (2026-08-09) ──
+# padding:15px + margin:-15px 은 상자를 50px 로 키우고 자리는 도로 뺏는다 → 이웃 줄로 넘쳐
+# **나중에 그려진 링크가 앞 링크의 한가운데를 가져갔다**(실측: 푸터 'My Page' 탭 → privacy.html).
+# 되살리려면 줄이 44px 를 실제로 차지해야 하고 그건 푸터 모양이 바뀌는 일이다 — 사용자 선택이 먼저.
+#   (한 줄 flex 로 모으는 판을 만들어 보였고 사용자가 *"푸터 이상한데 그냥 전으로 돌려"* 로 물렀다)
+chk 'TAP44_FOOT_OFF' index.html 1
+chk 'TAP44_FOOT_OFF' inquiry.html 1
+chk 'TAP44_FOOT_OFF' parents.html 1
+nochk 'footer a\[href\$="mypage.html"\]' index.html
+nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
+# 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
+chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
+chk '이미 크다' scripts/check-tap-targets.mjs 1
