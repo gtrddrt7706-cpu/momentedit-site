@@ -1892,3 +1892,11 @@ chk 'narr-cake-out' assets/ritual-cue.js 2
 chk 'MEASURE_FONTS' scripts/check-tap-targets.mjs 1
 chk 'Noto Serif CJK KR' scripts/measure-env-fonts.sh 2
 [ -x scripts/measure-env-fonts.sh ] || { echo 'REVERT? measure-env-fonts.sh 실행권한이 없다'; fail=1; }
+
+# ── [SWEEP_SETTLE] 탭 점검은 화면이 멎은 뒤에 잰다 (2026-08-09) ──
+# 두 세션이 같은 쪽에서 '대상 42' 와 '대상 48' 을 봤다. 폰트도 원인이었지만(MEASURE_FONTS)
+# 진짜는 이것 — 쓸기가 6개를 잠깐 드러냈다가 도로 감춘다(실측 곡선 늘 49→43).
+# 고정 대기는 그 사이 어디서든 자를 수 있다. 시간이 아니라 상태를 기다린다.
+# 20초를 기다려도 안 멎으면 재지 않고 실패로 센다 — 움직이는 화면에서 뽑은 숫자는 증거가 아니다.
+chk 'SWEEP_SETTLE' scripts/check-tap-targets.mjs 1
+chk '재지 않았습니다' scripts/check-tap-targets.mjs 1
