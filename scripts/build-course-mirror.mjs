@@ -28,6 +28,12 @@ const got = s.slice(i, i + m.index + m[0].length);
    뒤에 검사를 덧붙인 사람의 블록이 종료코드에 못 닿는 구조를 남기지 않는다.
    (실제로 check-corr-claim.mjs 에서 그 일이 났다: 화면엔 ✗ 인데 exit 0) */
 let bad = 0;
+/* ★★[EXIT_TRAP 2026-08-09] 마지막 결론 **뒤에** 붙은 실패도 붉게 만든다.
+   EXIT_AT_END 로 중간 exit 은 없앴지만, 주석은 "이 파일 어디에 무엇을 덧붙여도 자동으로
+   결론에 닿는다"고 단정한다. 그 말이 맨 끝 줄 뒤까지 참이려면 이것이 있어야 한다 —
+   실측: 트랩 없이 마지막 줄 뒤에 no() 를 붙이면 ✗ 를 찍고도 exit 0 이었다.
+   ★merge-guard 의 GATE_AT_EXIT 과 같은 처방이다. 사람이 '어디에 붙일지'를 기억하게 두지 않는다. */
+process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 if (got === want) console.log('ok COURSES 사본이 원천과 같다');
 else if (!process.argv.includes('--write')) {
   console.error('✗ COURSES 사본이 원천과 갈렸습니다 — node scripts/build-course-mirror.mjs --write');
@@ -44,5 +50,8 @@ fs.writeFileSync(F, s.slice(0, i) + want + s.slice(i + m.index + m[0].length), '
 console.log('✓ COURSES 사본을 원천에서 다시 뽑았습니다');
 }
 
-/* ── 결론은 여기 한 곳에서만 [EXIT_AT_END] ── */
-process.exit(bad ? 1 : 0);
+/* ── 결론은 여기 한 곳에서만 [EXIT_AT_END] ──
+   ★`process.exit()` 이 아니라 `exitCode` 다. exit() 은 그 줄에서 즉시 끝내 버려서,
+     뒤에 검사를 덧붙인 사람의 블록이 아예 **실행되지 않는다**(실측: 뒤에 bad++ 를 붙여도 exit 0).
+     exitCode 로 두면 파일 끝까지 돈 뒤 위 EXIT_TRAP 이 마지막으로 결론을 올린다. */
+process.exitCode = bad ? 1 : 0;

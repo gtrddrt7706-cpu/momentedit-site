@@ -24,6 +24,12 @@ const LIST = path.join(DIR, '재더빙_리드보강.txt');
 
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
+/* ★★[EXIT_TRAP 2026-08-09] 마지막 결론 **뒤에** 붙은 실패도 붉게 만든다.
+   EXIT_AT_END 로 중간 exit 은 없앴지만, 주석은 "이 파일 어디에 무엇을 덧붙여도 자동으로
+   결론에 닿는다"고 단정한다. 그 말이 맨 끝 줄 뒤까지 참이려면 이것이 있어야 한다 —
+   실측: 트랩 없이 마지막 줄 뒤에 no() 를 붙이면 ✗ 를 찍고도 exit 0 이었다.
+   ★merge-guard 의 GATE_AT_EXIT 과 같은 처방이다. 사람이 '어디에 붙일지'를 기억하게 두지 않는다. */
+process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 const line = /^[가-힣A-Za-z0-9]{1,10}: \S/;              // 「화자: 대사」 — 기준 파일의 모든 줄이 이 꼴이다
 
 /* 1) 기준 파일이 예상 형식인가 — 기준이 무너졌으면 그것부터 말한다 */

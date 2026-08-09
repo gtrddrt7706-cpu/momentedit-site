@@ -2049,3 +2049,13 @@ chk '붉어질 수 없는 실패는' scripts/check-corr-claim.mjs 1
 # ★고칠 것은 붙인 자리가 아니라 **구조**다. 사람이 "여기 뒤엔 붙이면 안 된다"를 기억하게 두지 않는다.
 chk 'EXIT_AT_END' scripts/check-paste-format.mjs 2
 chk 'EXIT_AT_END' scripts/build-course-mirror.mjs 2
+
+# ── [EXIT_TRAP] 마지막 결론 '뒤에' 붙은 실패도 붉게 (2026-08-09 · 적대 검증) ──
+# EXIT_AT_END 로 중간 exit 은 없앴지만, 주석은 "어디에 무엇을 덧붙여도 결론에 닿는다"고 단정한다.
+# 실측하니 맨 끝 줄 뒤에 no() 를 붙이면 ✗ 를 찍고도 exit 0 이었다 — 단정이 참이 아니었다.
+# process.on('exit') 트랩으로 참이 되게 했다(merge-guard 의 GATE_AT_EXIT 과 같은 처방).
+# ★build-course-mirror 는 마지막이 process.exit() 이라 뒤 코드가 아예 안 돌았다 → exitCode 로 바꿨다.
+chk 'EXIT_TRAP' scripts/check-paste-format.mjs 1
+chk 'EXIT_TRAP' scripts/check-corr-claim.mjs 1
+chk 'EXIT_TRAP' scripts/build-course-mirror.mjs 1
+chk 'process.exitCode = bad' scripts/build-course-mirror.mjs 1
