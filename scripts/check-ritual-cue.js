@@ -270,6 +270,48 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   else ok(`다 함께 전 조합이 예산 안 (합 ${SUM}분 기준)`);
 }
 
+/* ★★[ROUND_EXACT 2026-08-09] 위 검사는 '넘지 않는가'만 본다. 여기서는 **정확히 맞는가**를 본다.
+   2패스는 "남는 시간을 전부 라운드에 준다"는 규칙이라, 결과는 부등식이 아니라 **등식**이어야 한다:
+       블록 est 합 + 나레이션 말 시간(120초) == 예산
+   ★왜 부등식으로는 부족한가 — 두 가지 드리프트가 '넘지 않으면서' 조용히 들어온다.
+     ①캐리어 슬러그가 바뀌면 라운드가 아무 큐에도 안 실린다 → 합이 예산보다 **모자란다**.
+       화면엔 아무 일도 없고, 당일에 '다 함께'가 예정보다 일찍 끝나 배웅까지 빈다.
+     ②고정 자리 큐를 새로 넣고 엔진의 IN 목록에 안 넣으면 fixed 가 그만큼 작게 잡혀
+       라운드가 그만큼 크게 계산된다 → 합이 예산을 **넘는다**(하한 600 이 걸린 경우와 구분이 안 된다).
+   ★★위 검사의 IN 목록을 그대로 복제하지 않는다 — 그러면 손계산을 없앤 자리에 손목록이 하나 더 생겨
+     엔진과 검사가 같은 실수를 함께 한다. 여기서는 **큐 순서**로 창을 잡는다:
+     'narr-close'(폐식 직후)부터 '배웅' 블록 직전까지. 두 시선이 어긋나면 그때 빨개진다. */
+{
+  const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
+  const TALK = 120;                     // 엔진이 빼 두는 나레이션 말 시간(초) — 같은 값이어야 한다
+  const FLOOR = 600;                    // 라운드 하한(초) · 이게 걸리면 등식이 깨지는 게 정상이다
+  const bad = [];
+  let combos = 0;
+  for (const k of Object.keys(D.COURSES).filter((x) => !D.COURSES[x].hidden)) {
+    for (const dg of [true, false]) {
+      const S = C.norm({ course: k }); S.digital = dg;
+      const r = C.build(S); const cues = Array.isArray(r) ? r : (r.cues || []);
+      const from = cues.findIndex((c) => c.slug === 'narr-close');
+      const to = cues.findIndex((c, i) => i > from && c.blockN === '배웅');
+      if (from < 0 || to < 0) { bad.push(`${k}/digital=${dg} 창을 못 잡았다(narr-close ${from} · 배웅 ${to}) — 슬러그·블록 이름이 바뀌었다`); continue; }
+      const win = cues.slice(from, to);
+      const sum = win.reduce((a, c) => a + ((c.live && c.live.est) || 0), 0);
+      const want = (SUM - D.MIN.base[k]) * 60;
+      const carrier = win.find((c) => c.slug === (dg ? 'narr-online-in' : 'narr-round-open'));
+      const round = (carrier && carrier.live && carrier.live.est || 0) - (dg ? TALK : 0);
+      combos++;
+      if (sum + TALK === want) continue;
+      if (sum + TALK > want && round <= FLOOR) continue;   // 하한이 걸려 넘친 것은 위 검사가 따로 신고한다
+      bad.push(`${k}/digital=${dg} 합 ${sum}+${TALK} = ${sum + TALK}초 ≠ 예산 ${want}초`
+        + ` (${sum + TALK > want ? '초과' : '미달'} ${Math.abs(want - sum - TALK)}초`
+        + ` · 라운드 ${round}초 · 창 ${win.length}큐)`);
+    }
+  }
+  if (bad.length) {
+    no(`2패스가 예산을 정확히 채우지 못한다 — 라운드가 실릴 큐를 못 찾았거나 고정 자리 큐가 엔진 목록 밖에 있다\n    ${bad.join('\n    ')}`);
+  } else ok(`2패스가 예산을 정확히 채운다 (${combos}조합 · 합+말시간 ${TALK}초 = 예산)`);
+}
+
 if (fail) {
   console.log('── 큐 엔진 역전 의심: assets/ritual-cue.js 를 되돌리거나 위 항목을 고쳐라');
   process.exit(1);
