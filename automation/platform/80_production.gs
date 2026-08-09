@@ -537,8 +537,37 @@ function handleSaveProductionTrack(body) {
     // [예식 확인서] 확인 후 '내용 실변경'만 자동 해제(재확인 필요 · 면책 무결성) — 위저드 열고 그대로 나가기·_step 이동·자리찾기 토글은 확인 유지(재확인 피로 방지)
     if (track !== 'snap' && d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);   // 스냅 사전기획은 예식 확인서 대상이 아니라 확인 해제 트리거에서 제외(2026-07-19)
     d.tracks = d.tracks || {};
+    /* ★★[DONE_UNDO 2026-08-09] 아래 한 줄이 「처음부터 다시 만들기」를 무력화하고 있었다.
+       옛 판: `else if (d.tracks[track] !== '완료') …` — 한 번 '완료'가 되면 **영영 안 내려간다.**
+       그래서 빌더가 '비우기'로 보내는 `{S:{}, done:false}` 를 받고도 트랙은 '완료'로 남았고,
+         ① 마이페이지 식순 행이 계속 ✓ 로 보이고
+         ② 다시 들어갈 때 orderFill 이 done:true 로 나가 빌더가 **완성 화면**으로 열렸다.
+       사용자 재현: 완료 → 처음부터 다시 → 중간에 저장 후 나가기 → 다시 들어가면 완성 화면.
+       (한 번 '완료'가 된 뒤엔 그 뒤의 중간 저장도 전부 이 줄에 막혀 '완료'로 남는다)
+
+       ★고칠 때 조심한 것 — 이 가드는 이유가 있다. 스쳐 지나가는 저장 한 번이 끝낸 항목을
+         '진행중'으로 되돌리면 그것도 사고다. 그래서 **아무 done:false 나 받아 주지 않는다.**
+         **초안이 비어 있을 때만** 내려 준다. 빈 초안이 '완료'인 상태는 어떤 경우에도 옳지 않다.
+         비우기가 '진행중'으로 내려가면 그다음 중간 저장은 위 가드에 안 걸리므로 체인이 풀린다.
+       ★트랙 공통 규칙이라 다른 트랙(dining·final·seat…)에도 적용되지만, 그쪽도 같은 뜻이다 —
+         내용이 없는데 완료로 남아 있을 이유가 없다. */
+    var _emptyDraft = (function () {
+      try {
+        var dd = (body && body.draft) || {};
+        var ks = Object.keys(dd);
+        for (var i = 0; i < ks.length; i++) {
+          if (ks[i] === '_v') continue;                              // 판 번호는 내용이 아니다
+          var v = dd[ks[i]];
+          if (v === null || v === undefined) continue;
+          if (typeof v === 'string' && !v) continue;
+          if (typeof v === 'object' && !Object.keys(v).length) continue;
+          return false;
+        }
+        return true;
+      } catch (e) { return false; }                                  // 판단이 안 서면 종전대로(안 내림)
+    })();
     if (body && body.done) d.tracks[track] = '완료';
-    else if (d.tracks[track] !== '완료') d.tracks[track] = '진행중';
+    else if (d.tracks[track] !== '완료' || _emptyDraft) d.tracks[track] = '진행중';
     // [DRAFT_SIZE_CAP · PROD_COL_SPLIT] 컬럼별 캡 + 합산 상한 — 직렬화 결과(pack)를 그대로 쓰기에 넘겨 같은 초안을 두 번 stringify하지 않는다.
     var _pk = _prodPack(d, { track: track, cust: cust });   // cust = 이번에 안 쓰는 컬럼의 현재 길이까지 합산(B-6)
     if (_pk.err) return { ok: false, error: _pk.err };
