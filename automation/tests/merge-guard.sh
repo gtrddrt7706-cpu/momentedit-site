@@ -1951,3 +1951,12 @@ chk 'RECORDED_TRUTH' scripts/check-recorded.mjs 1
 chk '유령' scripts/check-recorded.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/check-recorded.mjs >/dev/null \
   || { echo 'FAIL recorded: 녹음 기록과 mp3 가 1:1 이 아닙니다 — node scripts/check-recorded.mjs'; fail=1; }; fi
+
+# ── [DONE_UNDO_TRACKS] '닿는 트랙' 목록을 사람이 지키지 않게 한다 (2026-08-09 · 코드 세션) ──
+# 이 목록을 두 번 틀렸다. 1차 "전 트랙에 적용" · 2차 "guideinfo 도 닿는다" — 두 번 다 코드는
+# 멀쩡했고 설명만 틀렸다. 그런데 다음 사람은 코드가 아니라 설명을 읽는다.
+# 판정식을 파일에서 그대로 떼어 트랙별로 통과시킨 뒤, 주석의 두 목록과 대조한다.
+chk 'DONE_UNDO_TRACKS' scripts/check-done-undo-tracks.mjs 1
+chk '닿는다   :' automation/platform/80_production.gs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-done-undo-tracks.mjs >/dev/null \
+  || { echo 'FAIL done-undo-tracks: 주석의 닿는 트랙 목록이 실제와 다릅니다 — node scripts/check-done-undo-tracks.mjs'; fail=1; }; fi
