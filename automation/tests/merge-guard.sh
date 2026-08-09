@@ -1942,3 +1942,21 @@ chk '_localMid' order-preview.html 2
 # 아무 done:false 나 받아 주지는 않는다 — **빈 초안일 때만** 내린다(빈 채로 완료인 상태는 옳지 않다).
 chk 'DONE_UNDO' automation/platform/80_production.gs 1
 chk '_emptyDraft' automation/platform/80_production.gs 2
+
+# ── [RECORDED_1TO1] 녹음 기록이 폴더와 1:1인지 (2026-08-09 · 코드 세션 지적) ──
+# narration/_recorded.json 에 파일 없는 항목 23개(배역 클립)가 섞여 있었다 — 내가 씨앗을 뜰 때
+# 폴더를 안 가리고 넣었다. text-audio 는 통과했다(유령은 조회되지 않아 조용했다).
+# 이 기록은 '소리 쪽 진실'로 쓰이므로, 유령도 기록 없는 mp3 도 없어야 한다. 양방향으로 본다.
+chk 'RECORDED_TRUTH' scripts/check-recorded.mjs 1
+chk '유령' scripts/check-recorded.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/check-recorded.mjs >/dev/null \
+  || { echo 'FAIL recorded: 녹음 기록과 mp3 가 1:1 이 아닙니다 — node scripts/check-recorded.mjs'; fail=1; }; fi
+
+# ── [DONE_UNDO_TRACKS] '닿는 트랙' 목록을 사람이 지키지 않게 한다 (2026-08-09 · 코드 세션) ──
+# 이 목록을 두 번 틀렸다. 1차 "전 트랙에 적용" · 2차 "guideinfo 도 닿는다" — 두 번 다 코드는
+# 멀쩡했고 설명만 틀렸다. 그런데 다음 사람은 코드가 아니라 설명을 읽는다.
+# 판정식을 파일에서 그대로 떼어 트랙별로 통과시킨 뒤, 주석의 두 목록과 대조한다.
+chk 'DONE_UNDO_TRACKS' scripts/check-done-undo-tracks.mjs 1
+chk '닿는다   :' automation/platform/80_production.gs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-done-undo-tracks.mjs >/dev/null \
+  || { echo 'FAIL done-undo-tracks: 주석의 닿는 트랙 목록이 실제와 다릅니다 — node scripts/check-done-undo-tracks.mjs'; fail=1; }; fi
