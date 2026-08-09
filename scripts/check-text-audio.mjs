@@ -235,7 +235,33 @@ if (process.argv.includes('--redub')) {
     lines.push('');
   }
   fs.writeFileSync(REDUB, lines.join('\n'));
-  console.log('\n→ 붙여넣기 파일을 다시 뽑았습니다: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+
+  /* ★★[PASTE_ONLY 2026-08-09] 타입캐스트에 **붙여넣기만 하는** 파일을 따로 하나 더 뽑는다.
+     사용자 실사용: 위 파일을 그대로 붙였더니 이상하게 나왔다 —
+       *"이렇게하면 이상하게 나와 성우만 붙을수잇도록 해죠"*
+     당연하다. 위 파일에는 사람이 읽을 것(# 머리말 · [번호] 슬러그 · '우성:' 접두)이 섞여 있고
+     타입캐스트는 그것까지 **소리 내어 읽는다.** 대괄호 번호를 읽은 클립이 섞여 들어온다.
+     ★그렇다고 위 파일에서 머리말을 걷어내면 안 된다 — 그 파일은 「재더빙 대기 명단」이라
+       검사가 양방향으로 대조한다. 명단과 붙여넣기용은 **쓰임이 다르니 파일도 나눈다.**
+     ★순서는 **클립 번호 오름차순**이다. 조립기가 받은 파일을 정렬해 대장의 문장 순서에
+       하나씩 대응시키기 때문이다(어긋나면 길이 상관계수 r<0.85 로 멎는다). 순서를 섞지 말 것. */
+  const PASTE = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt');
+  const all = [...bad, ...noAudio.filter((r) => !bad.some((b) => b.slug === r.slug))];
+  const seen = new Set(), ordered = [];
+  for (const r of all) {
+    const no = +String(r.ids && r.ids[0] || r.no || '').split('_')[0] || 0;
+    if (seen.has(r.slug)) continue; seen.add(r.slug);
+    ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen) });
+  }
+  ordered.sort((a, b) => a.no - b.no);
+  const pl = [];
+  for (const c of ordered) { for (const t of c.sents) pl.push(t); pl.push(''); }
+  fs.writeFileSync(PASTE, pl.join('\n').replace(/\n+$/, '\n'));
+
+  console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
+  console.log('→ 붙여넣기용(문장만 · 클립 번호 순): ' + path.relative(root, PASTE)
+    + ' (' + ordered.length + '클립 · ' + ordered.reduce((n, c) => n + c.sents.length, 0) + '문장)');
+  console.log('  ★순서를 섞지 마세요 — 조립기가 정렬 순서대로 자리를 매깁니다.');
   process.exit(0);
 }
 
