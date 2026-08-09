@@ -75,7 +75,7 @@ chk 'AbortError' mypage.html 2                     # 공유·QR 저장 폴백
 chk '발행 직전 1회만' mypage.html 1                # both 같게 미러 시점
 chk '계좌를 비워 두면' mypage.html 1               # 계좌 필수 거짓 문구 정정
 chk 'GUIDE_MAKE_COND' mypage.html 3                # 하객 안내 조건 공용 상수
-chk '본예식 15분 전' mypage.html 1                 # 인쇄 킷 도착 안내
+chk '본예식 20분 전' mypage.html 1                 # 인쇄 킷 도착 안내 · [DAY_PLAN 2026-08-09] 본식 10:05 기준 09:45 입장 = 20분 전(청첩장 16종과 같은 값)
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
 # (_coreDone 마커 폐지 2026-07-25 — 유일한 사용처 '확인서 강조'가 사용자 지시로 삭제됨(TRK_BTN_SAME). 접힘 게이트 복원 시 재등록할 것)
@@ -1240,6 +1240,25 @@ chk 'TIME_HONEST' index.html 1
 chk 'TIME_HONEST' order-preview.html 3
 chk 'TIME_HONEST' assets/sequence-modal.js 3
 
+# [DAY_PLAN] 하루 140분의 뼈대는 assets/ritual-data.js 의 DAY 하나에서만 나온다.
+#   2026-08-08 합 60분 → 2026-08-09 합 55분. 하루 만에 바뀌었다 —
+#   검사가 60을 손으로 들고 있었으면 열 벌을 다 고쳐 놓고도 검사만 빨개졌을 것이다.
+chk 'DAY_PLAN' assets/ritual-data.js 1
+chk 'D.DAY' scripts/check-source-drift.mjs 3
+# [CLOCK_TABLE] 시계 숫자로 적힌 시간표 3벌(inquiry·schedule·mypage)도 DAY 에서 계산해 대조한다.
+#   실사고 2026-08-09 — 스냅 40→45로 본예식이 10:00→10:05 로 밀렸는데, 길이 표기 열 벌은 다 고쳐지고
+#   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
+chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
+chk 'ref-time' scripts/check-source-drift.mjs 1
+# [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
+chk 'PHOTO_CAP' mypage.html 2
+chk 'PHOTO_MAX=5' mypage.html 1
+chk 'PHOTO_FX_MAX=2' mypage.html 1
+# [CONTRACT_V15] 계약서 v1.5 · v1.4 서명자는 보존본으로 열람
+chk 'archive/v1-4.html' admin.html 1
+chk 'archive/v1-4.html' mypage.html 1
+chk "docVersion: 'v1.5'" automation/platform/70_journey.gs 1
+
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
 #     남아 있어 **53번부터 스물두 클립이 한 칸씩 밀려** 있었다. 검사는 전부 초록이었고
@@ -1275,7 +1294,6 @@ chk 'archive/v1-3.html' admin.html 1
 chk 'archive/v1-3.html' mypage.html 1
 chk 'CONTRACT_V14' admin.html 1
 chk 'CONTRACT_V14' mypage.html 1
-chk "docVersion: 'v1.4'" automation/platform/70_journey.gs 1
 
 # [PHOTOCUE_BOARD] 촬영 안내는 콘솔의 '골라 트는 판'에서만 나온다.
 #   판이 없으면 녹음한 클립 10개를 틀 수단이 사라진다(한 번 그 상태로 떠 있었다).
@@ -1300,8 +1318,8 @@ chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사
 # [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
 #   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
 chk 'PHOTO_LIST_V2' mypage.html 2
-chk 'var PHOTO_MAX=6' mypage.html 1
-chk 'var PHOTO_FX_MAX=3' mypage.html 1
+chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 31~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
+chk 'var PHOTO_FX_MAX=2' mypage.html 1
 chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
 
 # [RINGWARM_RETIRED] 링 워밍 폐지(2026-08-07 사용자 "유치하고 별로") — 팔레트(GADD)에 되살리지 말 것.
