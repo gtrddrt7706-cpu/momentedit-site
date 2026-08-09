@@ -2000,3 +2000,10 @@ chk 'PASTE_VOICE' scripts/check-paste-format.mjs 1
 chk 'PASTE_VOICE' scripts/check-text-audio.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/dev/null \
   || { echo 'FAIL paste: 붙여넣기 파일 형식이 다릅니다 — node scripts/check-paste-format.mjs'; fail=1; }; fi
+
+# ── [PASTE_MISSING] 붙여넣기 파일이 '없으면 통과'를 막는다 (2026-08-09 · 적대 검증) ──
+# check-paste-format 옛 판은 파일이 없으면 exit 0 이었다. 대기 명단이 「대기 1클립」이라고
+# 말하는데도 게이트까지 전부 초록이 났고, 건너뛰기 메시지는 세지도 않고 '대기 0클립'이라 단정했다.
+# RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
+chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
+chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1
