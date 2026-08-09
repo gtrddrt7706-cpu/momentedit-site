@@ -59,7 +59,11 @@ const WHY = `[TAP_HITTEST] 판정 기준
          맞은 것이 자기 자신이거나 자기 자손이면 통과(조상은 통과 아님).
   면제 : ①안 그려진 것 ②문장 속 인라인 <a>(display:inline + 부모에 글자) ③label 달린 input
   ★면제가 아닌 것 : 사각형이 44×44 이상이라는 사실. 크기는 눌림을 보증하지 않는다.
-  등급 : ★오터치(다른 조작 타깃이 맞음) · ✗작다(비조작 요소/공백) · (접힘)(중앙부터 안 눌림)`;
+  등급 : ★오터치(다른 조작 타깃이 맞음) · ✗작다(비조작 요소/공백) · (접힘)(중앙부터 안 눌림)
+  2026-08-09 조임(적대 검증 실측 · CENTER_NO_MERCY/CLIP_FOLD/SPACING_24):
+   · 한가운데(C)는 무관용 — 스침(bite≤1.5)·조상 예외는 가장자리 전용. 조상 예외도 경계 1px 띠에서만
+   · overflow 로 0 에 가깝게 잘린 것은 (접힘) — 접힌 아코디언 속 요소가 '작다'로 새지 않게
+   · '작다'에만 WCAG 2.5.8 간격 면제 — 지름 24px 원이 다른 타깃과 안 겹치면 통과(간격면제로 표기)`;
 
 if (process.argv.includes('--why')) { console.log(WHY); process.exit(0); }
 
@@ -125,22 +129,34 @@ for (const page_ of pages) {
         const w = Math.min(b.right, r.right) - Math.max(b.left, r.left);
         const h = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
         return Math.min(w, h); };
-      const probe = (x, y) => {
+      const probe = (x, y, isCenter) => {
         if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return { s: 'skip' };
         const t = document.elementFromPoint(x, y);
         if (!t) return { s: 'void' };
         if (t === e || e.contains(t)) return { s: 'ok' };
-        if (bite(t) <= 1.5) return { s: 'ok' };            // 스쳤을 뿐 — 맞닿은 이웃
-        /* ★조상이 맞았고 그 점이 내 상자 안(±1px)이면 통과다.
+        /* ★★[CENTER_NO_MERCY 2026-08-09 · 적대 검증 실측] 두 용서(스침·조상)는 **가장자리 전용**이다.
+           둘 다 '경계에서 일어나는 측정 잡음'을 위해 만든 것인데, 한가운데에도 적용돼 있었다:
+             ①1.4px 폭 타깃 실오라기가 피해자의 세로 중심선을 통째로 차지 → bite 1.4 로 용서 → 초록
+             ②stretched-link(카드 ::after 가 inset:0 덮개) → 안쪽 버튼의 **모든 탭**이 카드로 감 →
+               가상요소는 원소유자(카드)로 잡히고, 카드는 조상이라 조상 예외로 용서 → 전부 통과
+           한가운데는 손가락의 조준점이다 — 거기서 다른 것이 맞았다면 그건 잡음이 아니라 사실이다.
+           그래서 C 프로브에서는 어떤 용서도 없다. 가장자리(±21.5)에서만 종전 규칙이 산다. */
+        if (!isCenter && bite(t) <= 1.5) return { s: 'ok' };            // 스쳤을 뿐 — 맞닿은 이웃
+        /* ★조상이 맞았고 그 점이 내 상자 **경계 1px 안**이면 통과다.
            높이가 딱 44.00px 인 버튼을 ±21.5 로 찌르면 아래 0.5px 자리에서 브라우저가
            자식이 아니라 **부모**를 돌려주는 일이 있다(반올림). 부모는 자식을 덮지 못한다
            — 실제로 가린 것이 아니라 경계에서 미끄러진 것이다. 이걸 '작다'로 세면
-           44px 로 맞춰 놓은 칩 넷이 영영 빨갛다. */
-        if (t.contains(e) && x >= b.left - 1 && x <= b.right + 1 && y >= b.top - 1 && y <= b.bottom + 1) return { s: 'ok' };
+           44px 로 맞춰 놓은 칩 넷이 영영 빨갛다.
+           ★[CENTER_NO_MERCY] 종전엔 '상자 안 어디든'이었다 — 그 넓이가 stretched-link 강탈을
+             숨겼다. 반올림은 경계에서만 일어난다. 경계 1px 띠 밖에서 조상이 잡혔다면
+             그건 미끄러짐이 아니라 **덮개**다. */
+        const nearEdge = Math.min(Math.abs(x - b.left), Math.abs(x - b.right), Math.abs(y - b.top), Math.abs(y - b.bottom)) <= 1
+          && x >= b.left - 1 && x <= b.right + 1 && y >= b.top - 1 && y <= b.bottom + 1;
+        if (t.contains(e) && nearEdge) return { s: 'ok' };
         const other = t.closest(SEL);
         return other && other !== e ? { s: 'steal', by: name(other), tx: (other.innerText || other.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 18) } : { s: 'void' };
       };
-      const P = { C: probe(cx, cy), U: probe(cx, cy - R), D: probe(cx, cy + R), L: probe(cx - R, cy), Rt: probe(cx + R, cy) };
+      const P = { C: probe(cx, cy, true), U: probe(cx, cy - R), D: probe(cx, cy + R), L: probe(cx - R, cy), Rt: probe(cx + R, cy) };
       const list = Object.entries(P).filter(([, v]) => v.s !== 'skip');
       const miss = list.filter(([, v]) => v.s !== 'ok');
       /* ★등급은 **한가운데부터** 본다. 가장자리에 뭐가 걸렸는지로 등급을 정하면
@@ -149,25 +165,71 @@ for (const page_ of pages) {
            C 가 안 눌림    → 접힘·가려짐. 지금 화면에서 누를 대상이 아니다.
            C 는 되는데 가장자리에 다른 타깃 → 겹침. 눌리긴 하나 44 창을 이웃과 나눠 쓴다.
            C 는 되는데 가장자리가 빈 곳 → 작다. 순수 크기 부족. */
+      /* ★[CLIP_FOLD 2026-08-09 · 적대 검증에서 발견] overflow 로 잘려 안 보이는 것은 등급 밖이다.
+         inquiry #dtTrigger(308×48)가 '작다 U D'로 잡혔는데, 실제로는 max-height:0·overflow:hidden
+         **접힌 아코디언 안**이었다("날짜를 정했어요"를 골라야 펼쳐진다). getBoundingClientRect 는
+         잘림을 모르고 48px 라 말하지만 그 자리엔 아무것도 그려져 있지 않다 — 지금 화면에서
+         누를 대상이 아니니 '접힘'과 같은 부류다. 잘림을 안 가르면 접힌 요소의 등급이
+         스크롤 위치 따라 작다/접힘 사이를 오간다(재현 불가능한 빨간불 = 아무도 안 믿는 검사). */
+      const clipped = (() => {
+        let vis = { l: b.left, r: b.right, t: b.top, bm: b.bottom };
+        for (let a = e.parentElement; a; a = a.parentElement) {
+          const cs = getComputedStyle(a);
+          if (!/(hidden|clip|auto|scroll)/.test(cs.overflow + cs.overflowX + cs.overflowY)) continue;
+          const ar = a.getBoundingClientRect();
+          vis = { l: Math.max(vis.l, ar.left), r: Math.min(vis.r, ar.right), t: Math.max(vis.t, ar.top), bm: Math.min(vis.bm, ar.bottom) };
+        }
+        return (vis.r - vis.l) < Math.min(8, b.width) || (vis.bm - vis.t) < Math.min(8, b.height);
+      })();
       let grade = 'ok';
-      if (P.C.s === 'steal') grade = 'steal';
+      if (clipped) grade = 'folded';
+      else if (P.C.s === 'steal') grade = 'steal';
       else if (P.C.s !== 'ok') grade = 'folded';
       else if (miss.some(([, v]) => v.s === 'steal')) grade = 'overlap';
       else if (miss.length) grade = 'small';
       return {
-        grade, k: name(e), box: `${Math.round(b.width)}×${Math.round(b.height)}`,
+        i, grade, k: name(e), box: `${Math.round(b.width)}×${Math.round(b.height)}`,
         tx: (e.innerText || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 24),
         at: miss.map(([k, v]) => k + (v.by ? `←${v.by}"${v.tx}"` : '')).join(' '),
       };
     }, { i, SEL, R }));
   }
 
+  /* ★[SPACING_24 2026-08-09] '작다'에만 WCAG 2.5.8 의 간격 면제를 적용한다 — 조문 그대로:
+     지름 24px 원을 각 타깃의 상자 중심에 놓았을 때, 그 원이 **다른 타깃의 상자**나
+     다른 미달 타깃의 원과 겹치지 않으면 크기 미달이어도 적합(AA)이다.
+     왜 필요한가 — mypage 로그인 보조 링크는 줄 간격이 29.9px 라 44px 상자를 깔면
+     서로 파고들어 **오터치**가 된다(실측). 44 를 채우는 길과 안 겹치는 길이 양립 불가한 자리다.
+     간격 24px+ 는 그 딜레마의 WCAG 공인 출구다. 줄 간격을 벌려 44 를 채우는 것은
+     화면 모양이 바뀌는 일이라 사용자 선택으로 남긴다.
+     ★오터치·겹침에는 절대 적용하지 않는다 — 그건 크기 문제가 아니라 강탈이다. */
+  {
+    const geo = await pg.evaluate(() => window.__tap.map((t) => {
+      const r = t.getBoundingClientRect();
+      return { l: r.left + scrollX, t: r.top + scrollY, r: r.right + scrollX, b: r.bottom + scrollY, small: r.width < 24 || r.height < 24 };
+    }));
+    const cir = (g) => ({ x: (g.l + g.r) / 2, y: (g.t + g.b) / 2 });
+    for (const row of rows) {
+      if (row.grade !== 'small') continue;
+      const me = geo[row.i]; const c = cir(me);
+      const clear = geo.every((g, j) => {
+        if (j === row.i) return true;
+        if (g.small || (g.r - g.l) < 44 || (g.b - g.t) < 44) {           // 상대도 미달이면 원끼리
+          const o = cir(g); return Math.hypot(c.x - o.x, c.y - o.y) >= 24;
+        }
+        const dx = Math.max(g.l - c.x, 0, c.x - g.r), dy = Math.max(g.t - c.y, 0, c.y - g.b);
+        return Math.hypot(dx, dy) >= 12;                                  // 원(반지름 12) vs 상자
+      });
+      if (clear) row.grade = 'spaced';
+    }
+  }
   const S = rows.filter((r) => r.grade === 'steal');
   const O = rows.filter((r) => r.grade === 'overlap');
   const B = rows.filter((r) => r.grade === 'small');
+  const SP = rows.filter((r) => r.grade === 'spaced').length;
   const F = rows.filter((r) => r.grade === 'folded').length;
   steal += S.length; bad += O.length + B.length;
-  console.log(`\n━━ ${page_} — 대상 ${n} · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F})`);
+  console.log(`\n━━ ${page_} — 대상 ${n} · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F} · 간격면제 ${SP})`);
   const LB = { steal: '★오터치', overlap: '⚠겹침 ', small: '✗작다  ' };
   const seen = new Set();
   for (const r of [...S, ...O, ...B]) {

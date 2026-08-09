@@ -1861,6 +1861,14 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
 chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
 chk '이미 크다' scripts/check-tap-targets.mjs 1
+# [CENTER_NO_MERCY] 한가운데 무관용 — 스침·조상 용서가 C 에도 적용되던 구멍을 적대 검증이 찾았다
+#   (1.4px 실오라기 강탈·stretched-link ::after 덮개가 전부 초록이었다 · scripts/fixtures/tap-attack-*.html 로 재현)
+chk 'CENTER_NO_MERCY' scripts/check-tap-targets.mjs 2
+chk 'SPACING_24' scripts/check-tap-targets.mjs 1
+chk 'CLIP_FOLD' scripts/check-tap-targets.mjs 1
+# [RECORDED_TRUTH 배선] _recorded.json 은 조립기가 mp3 를 만드는 순간에만 갱신 — 배선이 사라지면 다음 재더빙 때 반대 방향 거짓말
+chk 'RECORDED_TRUTH 2026-08-09 배선' scripts/assemble-narration.mjs 1
+chk 'RECORDED_TRUTH cast 확장' scripts/check-text-audio.mjs 1
 
 # ── [RECORDED_TRUTH] '녹음하기로 한 글' 과 '실제로 녹음된 글' 을 가른다 (2026-08-09) ──
 # 구멍이었다: check-text-audio 가 오른쪽(소리)을 manifest.json 에서 읽는데, 문안을 고치면

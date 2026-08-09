@@ -480,6 +480,7 @@ const norm = (f) => {                       // 48k/24bit mono로 통일해 conca
 };
 
 let made = 0;
+const _recWritten = [];   // [RECORDED_TRUTH] 이번 실행이 실제로 만든 클립 — 아래에서 _recorded.json 에 반영
 const outDirs = new Set();
 for (const w of work) {
   let k = 0;
@@ -521,6 +522,7 @@ for (const w of work) {
       '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
+    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });
     const pn = c.sents.filter((s, si) => patchMap.has(`${c.file}#${si}`)).length;
     console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''})`);
 
@@ -530,6 +532,30 @@ for (const w of work) {
       fs.copyFileSync(dst, alt);
       console.log(`  ↳ 사본 ${path.relative(root, alt)}  (parents.html 전용 경로)`);
     }
+  }
+}
+
+/* ★★[RECORDED_TRUTH 2026-08-09 배선] mp3 를 만든 그 자리에서 _recorded.json 을 갱신한다.
+   이 파일의 원칙은 「mp3 를 만드는 순간에만 갱신」이다 — 처음엔 커밋본 manifest 에서 한 번
+   떠 놓기만 했고 갱신 배선이 없었다. 그대로면 다음 재더빙 때 mp3 는 새말인데 _recorded 는
+   옛말이라, 검사가 이번엔 반대 방향으로 거짓말을 한다(멀쩡한 클립을 재더빙 대기로).
+   ★디렉터리마다 제 _recorded.json 을 가진다 — 나레이션과 배역(cast)이 폴더가 다르다.
+   ★이번에 만든 클립만 덮는다. 다른 클립의 기록은 그대로다(부분 재더빙이 흔한 흐름이다). */
+if (_recWritten.length) {
+  const byDir = new Map();
+  for (const w of _recWritten) { if (!byDir.has(w.dir)) byDir.set(w.dir, []); byDir.get(w.dir).push(w); }
+  for (const [dir, ws] of byDir) {
+    const f = path.join(dir, '_recorded.json');
+    let j = { _왜: '실제로 녹음된 글. manifest.json 은 「녹음하기로 한 글」이라 문안을 고치면 같이 바뀐다 — 그래서 둘을 대조하면 늘 같고, 소리만 옛말인 상태를 아무도 못 본다. 이 파일은 assemble-narration.mjs 가 mp3 를 만들 때만 갱신한다.', clips: {} };
+    try { if (fs.existsSync(f)) j = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* 깨진 파일이면 새로 시작 — 아래에서 통째로 다시 쓴다 */ }
+    if (!j.clips) j.clips = {};
+    for (const w of ws) j.clips[w.key] = w.text;
+    j._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신`;
+    const sorted = {};
+    for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];
+    j.clips = sorted;
+    fs.writeFileSync(f, JSON.stringify(j, null, 1) + '\n');
+    console.log(`  ↳ ${path.relative(root, f)} 갱신 (${ws.length}클립) — 검사가 이제 이 소리를 안다`);
   }
 }
 

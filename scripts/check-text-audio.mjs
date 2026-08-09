@@ -55,12 +55,19 @@ for (const c of man.clips) SAY.set((c.dir || NAR) + '|' + pad2(c.no) + '_' + c.f
      mp3 를 만드는 순간(assemble-narration.mjs)에만 갱신되는 것이 원칙이다.
      여기 있으면 그쪽을 먼저 믿는다. 없는 클립은 종전대로 manifest 로 떨어진다(새 클립). */
 try {
-  const RECF = path.join(root, NAR, '_recorded.json');
-  if (fs.existsSync(RECF)) {
+  /* ★[RECORDED_TRUTH cast 확장 2026-08-09] 배역(cast)도 같은 구멍이었다 — 폴더마다 제
+     _recorded.json 을 읽는다. 씨앗은 cast mp3 23개 시점의 manifest 에서 떴고(나레이션과 같은
+     방식), 갱신은 assemble-narration 이 mp3 를 만드는 순간에만 한다.
+     ★폴더에 _recorded.json 자체가 없으면 멈춘다 — '파일이 없어서 대장으로 폴백'을 허용하면
+       파일을 지우는 것만으로 검사가 도로 눈을 감는다. 없음은 폴백 사유가 아니라 고장이다. */
+  const dirs = [...new Set([...SAY.keys()].map((k) => k.split('|')[0]))];
+  for (const d of dirs) {
+    const RECF = path.join(root, d, '_recorded.json');
+    if (!fs.existsSync(RECF)) { console.error(`✗ ${d}/_recorded.json 이 없다 — 실녹음 기록 없이 대조할 수 없다(RECORDED_TRUTH)`); process.exit(1); }
     const rec = JSON.parse(fs.readFileSync(RECF, 'utf8')).clips || {};
     for (const [key, e] of SAY) {
-      if (!key.startsWith(NAR + '|')) continue;                // 배역(cast)은 이번 범위 밖 — 종전대로 대장을 본다
-      const k = key.slice(NAR.length + 1);
+      if (!key.startsWith(d + '|')) continue;
+      const k = key.slice(d.length + 1);
       /* ★없으면 '없음'이다. 대장에 있다고 녹음된 것이 아니다 —
          새 클립은 대장에 먼저 생기고 소리는 나중에 온다. 그 창을 '맞음'으로 세면
          소리가 영영 안 와도 아무도 모른다. 여기 없으면 재더빙 대기로 잡힌다. */

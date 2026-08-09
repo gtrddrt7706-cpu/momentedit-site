@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<style>body{margin:0;padding:20px;font:14px sans-serif}</style>
+
+<!-- 공격 A: 1.5px 폭 '실오라기' 타깃이 내 한가운데 세로줄을 차지 — bite=1.5 라 용서되는가 -->
+<div style="position:relative;width:200px;height:60px;margin-bottom:60px">
+  <a id="victimA" href="#a" style="display:block;width:200px;height:60px;background:#eee">피해자 A</a>
+  <a id="sliver" href="#s" style="position:absolute;left:99px;top:0;width:1.4px;height:60px;background:red;z-index:2" aria-label="실오라기"></a>
+</div>
+
+<!-- 공격 B: 조상 자체가 탭 타깃 + 덮개로 자식을 완전히 가림 — '조상 예외'가 진짜 강탈을 숨기는가 -->
+<a id="card" href="#card" style="display:block;position:relative;width:220px;height:80px;background:#dde;margin-bottom:60px">
+  카드 링크
+  <button id="inner" style="position:absolute;left:20px;top:18px;width:120px;height:44px">안쪽 버튼</button>
+  <span style="position:absolute;inset:0;z-index:5"></span><!-- 카드의 덮개(자식 span·버튼 아님) -->
+</a>
+
+<!-- 대조군: 진짜 30px 파고듦(My Page 사고 재현) — 반드시 steal 이어야 한다 -->
+<div style="position:relative;width:200px;height:50px">
+  <a id="victimC" href="#c" style="display:block;width:200px;height:50px;background:#efe">피해자 C</a>
+  <a id="thief" href="#t" style="position:absolute;left:0;top:10px;width:200px;height:50px;opacity:0.3;background:orange">도둑</a>
+</div>
