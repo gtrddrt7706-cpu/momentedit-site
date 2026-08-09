@@ -46,18 +46,33 @@ const EXEMPT = /RETIRED|HIDDEN|폐지|되살리|금지|주석|옛 |COURSE_NAME|T
    첫 판에서 "함께 축하해요" · "감동은 도입부로" 같은 산문이 34건 잡혔다.
    그래서 **값으로 쓰인 자리**만 본다: 따옴표로 감싼 정확한 낱말, 또는 "○○ 코스".
    ★이 좁힘이 검사의 생명이다. 오탐이 많으면 다음 사람이 검사를 무시한다. */
+/* ★[NO_SILENT_SKIP 2026-08-09] 목록에 있는데 없는 파일을 여기 모아 아래에서 한 번 신고한다.
+   종전엔 조용히 건너뛰었다 — 없으면 hit 0 이고, hit 0 은 '안 샜다'로 읽힌다.
+   즉 파일 이름을 바꾸는 것만으로 그 쪽이 검사에서 빠지고도 초록이 난다.
+   코드 세션이 세 번째로 짚은 병이다(유령 기록 · 대장을 믿던 판정 · 붙여넣기 파일 없음):
+   **'없으면 통과'는 늘 조용한 거짓말이 된다.** 이 꼴을 볼 때마다 뒤집는다. */
 function scan(needle) {
   const pats = [new RegExp("['\"]" + needle + "['\"]"), new RegExp(needle + "\\s*코스")];
   const hits = [];
   for (const f of FACING) {
     const p = path.join(root, f);
-    if (!fs.existsSync(p)) continue;
+    if (!fs.existsSync(p)) continue;   // 실재 여부는 위 0) 블록이 따로 센다
     fs.readFileSync(p, 'utf8').split('\n').forEach((line, i) => {
       if (EXEMPT.test(line)) return;
       if (pats.some((re) => re.test(line))) hits.push(`${f}:${i + 1}`);
     });
   }
   return hits;
+}
+
+/* 0) 목록이 가리키는 파일이 실재하는가 [NO_SILENT_SKIP]
+   ★scan() 이 채우는 MISSING 을 읽지 않는다 — 이 블록이 scan 보다 **먼저** 돌아서
+     늘 비어 있고, 그래서 "전부 실재"라고 초록을 냈다(내가 방금 그렇게 짜고 실행해서 봤다).
+     순서에 기대는 검사는 순서가 바뀌면 조용히 눈을 감는다. 여기서 직접 센다. */
+{
+  const gone = FACING.filter((f) => !fs.existsSync(path.join(root, f)));
+  if (gone.length) no(`고객 쪽 파일 ${gone.length}개가 목록(FACING)에 있는데 없다 — 이름이 바뀌었거나 옮겨졌다.\n    그 쪽은 '샜는지' 검사를 못 받는다: ${gone.join(' · ')}`);
+  else ok(`고객 쪽 ${FACING.length}벌 전부 실재 (검사에서 빠진 쪽 없음)`);
 }
 
 /* 1) 숨긴 코스 이름 */
