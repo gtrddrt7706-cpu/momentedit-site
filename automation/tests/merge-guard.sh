@@ -1935,3 +1935,10 @@ chk "free:{k:'free'" order-preview.html 1
 # 이 기기가 마지막으로 남긴 기록이 '중간 저장'이면 위치와 완료 표시는 그쪽을 믿는다(내용 S 는 서버 것).
 chk 'STALE_DONE' order-preview.html 1
 chk '_localMid' order-preview.html 2
+
+# ── [DONE_UNDO] 완료 표시가 영영 안 내려가던 한 줄 (2026-08-09) ──
+# `else if (d.tracks[track] !== '완료')` 때문에 한 번 완료가 되면 비우기(done:false)도 무시됐다.
+# → 마이페이지 식순 행이 계속 ✓ · 다시 들어가면 빌더가 완성 화면으로 열림(사용자 재현).
+# 아무 done:false 나 받아 주지는 않는다 — **빈 초안일 때만** 내린다(빈 채로 완료인 상태는 옳지 않다).
+chk 'DONE_UNDO' automation/platform/80_production.gs 1
+chk '_emptyDraft' automation/platform/80_production.gs 2
