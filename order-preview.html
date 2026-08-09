@@ -50,7 +50,12 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .reassure{font-size:12px;color:var(--gold-deeper);margin-top:10px;word-break:keep-all}
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:12px}
 .oc{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.18s}
-.oc.on{border-color:var(--seal);background:#EEECE7}
+/* ★★[SEAL_POINT 2026-08-09] 진사(--seal)는 **점**으로만 쓴다 — 사용자: "진사는 포인트로만 최소 사용".
+   전에는 고른 카드마다 테두리·배경·라벨이 통째로 진사여서, 화면에 붉은 덩어리가 서너 개씩 쌓였다
+   ([ORD_HUE]가 강조 행에서 이미 같은 결론을 냈다 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다).
+   규칙: 진사가 허락되는 자리는 ①체크 동그라미 ②'지금' 알약 ③오류·초과 경고, 이 셋뿐.
+   담는 그릇(테두리·배경·구획선·라벨)은 금·모래 계열로 — 고른 것은 체크와 배경 톤이 이미 말한다. */
+.oc.on{border-color:var(--gold-text);background:#F4F0E9}
 .oc-nm{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;word-break:keep-all}
 .oc-nm::before{content:'';width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:.15s;background-repeat:no-repeat;background-position:center;background-size:12px}
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
@@ -66,7 +71,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .play{margin-top:10px;display:inline-flex;align-items:center;gap:7px;border:none;background:none;padding:8px 2px;font-size:13px;color:var(--gold-deeper);cursor:pointer;font-family:var(--sans);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--gold-btn)}
 .play::before{content:'';width:0;height:0;border-style:solid;border-width:4.5px 0 4.5px 7px;border-color:transparent transparent transparent currentColor;flex-shrink:0}
 .play:active{transform:scale(.97)}
-.play.playing{color:var(--seal);text-decoration-color:var(--seal)}
+.play.playing{color:var(--gold-deeper);text-decoration-color:var(--gold-deeper)}   /* [SEAL_POINT] */
 .self{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 14px;margin-top:11px;font-size:13px;color:var(--ink2);line-height:1.75}
 .self .who{color:var(--gold-deeper);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
 .nar .alt{display:flex;gap:8px;align-items:baseline;margin-top:7px}   /* [ENTRY_ALT] 한 문장 = 한 줄 · 누가 읽는지 앞에 */
@@ -87,9 +92,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    그 뒤의 '하객이 함께 답하기'가 톤의 세 번째 선택지처럼 읽혔다(사용자: "카테고리가 헷갈려").
    세부 선택은 **들여쓴 곁판**에 담아 축을 눈으로 가른다 — 왼쪽 세로선이 위 카드에 붙어
    '이건 방금 고른 것의 세부'라고 말하고, 판이 끝나면 본 축으로 돌아온 것이 보인다. */
-.subset{margin:-6px 0 16px 12px;padding:12px 12px 4px 14px;border-left:2px solid var(--seal);background:rgba(107,42,36,0.045);border-radius:0 12px 12px 0}
+.subset{margin:-6px 0 16px 12px;padding:12px 12px 4px 14px;border-left:2px solid var(--gold);background:var(--bg2);border-radius:0 12px 12px 0}   /* [SEAL_POINT] */
 .subset .oc{background:#fff}
-.subq{font-size:12px;font-weight:700;color:var(--seal);margin:0 0 8px 2px;letter-spacing:.01em}
+.subq{font-size:12px;font-weight:700;color:var(--gold-deeper);margin:0 0 8px 2px;letter-spacing:.01em}
 .lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
@@ -118,8 +123,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .seqr .sq-n{font-size:14px;font-weight:600;color:var(--accent)}
 .seqr .sq-n small{font-size:11px;color:var(--light);font-weight:400;margin-left:6px;letter-spacing:.02em}
 .seqr .sq-d{font-size:12px;color:#635E4F;margin-top:3px;word-break:keep-all;line-height:1.62}   /* [ORD_A11Y] --light 는 강조 행 배경 위에서 4.19 — #635E4F 로 5.48 확보 · [TAP44]에서 10→12px */
-.seqr.on{background:#EEECE7;border:1px solid var(--seal);border-radius:10px;padding:10px;margin:3px 0}
-.seqr.on .sq-tm{color:var(--seal)}
+.seqr.on{background:#F4F0E9;border:1px solid var(--gold-text);border-radius:10px;padding:10px;margin:3px 0}   /* [SEAL_POINT] 알약(.sq-here)만 진사 */
+.seqr.on .sq-tm{color:var(--gold-deeper)}
 .seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
 .seqr .sq-here{font-size:10px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
 .dmnote{font-size:12px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
@@ -136,7 +141,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* course */
 /* [DAYMAP_AIR] 코스 화면 — 카드 세 장 뒤가 통째로 비어 위만 무거웠다. 같은 처방 */
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:22px 20px;transition:.18s;margin-bottom:16px}
-.crs.pick{cursor:pointer}.crs.on{border-color:var(--seal);background:#EEECE7}.crs.soon{opacity:.62}
+.crs.pick{cursor:pointer}.crs.on{border-color:var(--gold-text);background:#F4F0E9}   /* [SEAL_POINT] */.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
 .crs-nm{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--accent)}   /* [ORD_HUE] 위와 같은 이유 */
@@ -179,7 +184,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rowbtn.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
 .mc{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.18s;margin-bottom:11px}
 .mc.off{opacity:.6;background:#FAFAF8}
-.mc.open{border-color:var(--seal)}
+.mc.open{border-color:var(--gold-text)}   /* [SEAL_POINT] */
 .mc-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mc-t{font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px;word-break:keep-all;min-width:0}
 .mc-e{font-size:12.5px;color:var(--sub);margin-top:6px;word-break:keep-all;line-height:1.55}
@@ -351,11 +356,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .sr-l{flex:0 0 96px;font-family:var(--serif);font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all;line-height:1.4}
 .sr-v{flex:1;font-size:13px;color:var(--sub);word-break:keep-all;line-height:1.5}
 .sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 12px;min-width:62px}
-.sr-c:active{background:var(--bg2);color:var(--seal)}
+.sr-c:active{background:var(--bg2);color:var(--gold-deeper)}
 .fillbadge{margin-top:14px;background:#EEECE7;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px}
-.fillbadge .ft{font-size:12px;font-weight:600;color:var(--seal)}
+.fillbadge .ft{font-size:12px;font-weight:600;color:var(--gold-deeper)}
 .fillbadge .fl{font-size:11px;color:var(--sub);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.fillbadge .fl span{background:#fff;border:1px solid #E7E3DC;border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--seal)}
+.fillbadge .fl span{background:#fff;border:1px solid #E7E3DC;border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--gold-deeper)}
 /* rehearse */
 .rh-hd{text-align:center;padding:4px 0}
 .rh-hd .t{font-size:22px;font-weight:700}
@@ -363,10 +368,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .rh-auto{background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;margin:6px 0 14px}
 .rh-auto.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
 .rh-blk{border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;position:relative}
-.rh-blk.active{border-color:var(--seal);background:#EEECE7}
+.rh-blk.active{border-color:var(--gold-text);background:#F4F0E9}   /* [SEAL_POINT] */
 .rh-n{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
 .rh-cue{font-size:13px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:7px 10px;margin-top:8px;line-height:1.6;word-break:keep-all}
-.rh-cue b{color:var(--seal)}
+.rh-cue b{color:var(--gold-deeper)}   /* [SEAL_POINT] */
 /* 임베드 나가기 — 다른 위저드(청첩장·다이닝·최종 확정·좌석)와 같은 '저장 후 나가기' 구조로 통일(2026-07-18 사용자 지시).
    ✕(저장 없이 닫기)는 기기 임시 저장뿐이라 다른 기기 이어서가 안 됐음 → 나가며 서버에 초안 저장. 코스 고르기 전엔 '나가기'로 표기.
    위치는 진행 스트립 1행 오른쪽(#obExitSlot) — 홀로 뜬 줄이 상단 리듬을 깨던 것 정리(2026-07-18 사용자 지적) */
