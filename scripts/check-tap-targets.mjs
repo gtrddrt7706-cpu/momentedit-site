@@ -85,11 +85,42 @@ for (const page_ of pages) {
   const pg = await ctx.newPage();
   try { await pg.goto(`http://127.0.0.1:${PORT}/${page_}`, { waitUntil: 'domcontentloaded', timeout: 30000 }); }
   catch { console.log(`\n━━ ${page_} — 열지 못했습니다(서버가 떠 있나요?)`); bad++; await ctx.close(); continue; }
-  await pg.waitForTimeout(2300);
-  // 지연 로딩·스크롤로 그려지는 것까지 깨운 뒤 되돌린다
-  await pg.evaluate(async () => { const h = document.body.scrollHeight; for (let y = 0; y < h; y += 700) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); } window.scrollTo(0, 0); });
+  await pg.waitForTimeout(1200);
   await pg.evaluate(() => document.fonts && document.fonts.ready);
-  await pg.waitForTimeout(900);
+  /* ★★[SWEEP_SETTLE 2026-08-09] 쓸고 나서 **수가 멎을 때까지** 기다린다. 고정 대기가 아니다.
+     왜 — 두 세션이 같은 쪽에서 '대상 42' 와 '대상 48' 을 봤다. 처음엔 폰트 탓이라 생각했는데
+     (그것도 실재했다 · MEASURE_FONTS) 진짜 원인은 따로 있었다:
+       **쓸기가 6개를 잠깐 드러냈다가 도로 감춘다.** 실측 곡선이 늘 `49 → 43` 이다.
+       화면 밖 것을 깨우려고 아래까지 스크롤하면 접혀 있던 것들이 잠시 펴지고,
+       뒤늦게 도는 스크립트가 다시 접는다. 그 사이를 고정 900ms 가 어디서 자르느냐에 따라
+       49 도 되고 43 도 된다. 어느 쪽도 틀리지 않았다 — **움직이는 것을 한 번 찍었을 뿐이다.**
+     ★고정 대기를 늘리는 것으로는 안 된다. 기계가 느리면 그만큼 늦게 접힌다(CPU 6배 실측).
+       시간이 아니라 **상태**를 기다려야 한다. 2초(250ms×8) 연속 같은 수면 멎은 것으로 본다.
+     실측: CPU 1배·6배 각 2회 = 4회 전부 43. 걸린 시간 2.9~3.8초.
+     ★애니메이션 정지(getAnimations)까지 조건에 넣어 봤더니 무한 애니메이션이 있어
+       25초를 채우고도 안 끝났다. 수만 보는 편이 빠르고 정확하다. */
+  const settled = await pg.evaluate(async (SEL) => {
+    const n = () => [...document.querySelectorAll(SEL)].filter((e) => {
+      const s = getComputedStyle(e), b = e.getBoundingClientRect();
+      return !(s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.05 || b.width === 0 || b.height === 0);
+    }).length;
+    const h = document.body.scrollHeight;
+    for (let y = 0; y < h; y += 700) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); }
+    window.scrollTo(0, 0);
+    let prev = -1, same = 0, seen = [];
+    for (let i = 0; i < 80; i++) {
+      await new Promise((r) => setTimeout(r, 250));
+      const c = n(); seen.push(c); same = c === prev ? same + 1 : 0; prev = c;
+      if (same >= 8) return { n: prev, curve: [...new Set(seen)].join('→'), ok: true };
+    }
+    return { n: prev, curve: [...new Set(seen)].join('→'), ok: false };
+  }, SEL);
+  /* 20초를 기다려도 안 멎으면 **재지 않는다.** 움직이는 페이지에서 뽑은 숫자는
+     맞아도 맞은 줄 모르고, 틀려도 틀린 줄 모른다. 조용히 재는 것이 제일 나쁘다. */
+  if (!settled.ok) {
+    console.log(`\n━━ ${page_} — 화면이 20초 동안 안 멎었습니다(대상 수 ${settled.curve}). 재지 않았습니다.`);
+    bad++; await ctx.close(); continue;
+  }
 
   const n = await pg.evaluate((SEL) => {
     window.__tap = [...document.querySelectorAll(SEL)].filter((e) => {
