@@ -2067,3 +2067,13 @@ chk 'process.exitCode = bad' scripts/build-course-mirror.mjs 1
 # ★RECORDED_TRUTH · NOAUDIO_REAL 에 이은 같은 집안 세 번째 — '안 보이는 것은 안 센다'.
 chk 'CONSOLE_TEXT' scripts/check-text-audio.mjs 1
 chk "for (const MODE of \['preview', 'console'\])" scripts/check-text-audio.mjs 1
+
+# ── [NARR_LEN] 문안을 고칠 때 '합'을 보게 한다 (2026-08-09 · 적대 검증) ──
+# 필요한 문장을 하나씩 더했더니 각각은 옳은데 합이 31.5초가 됐다(지금 있는 어떤 나레이션보다 길다).
+# 그런데 그 '합'을 눈으로 잰 비교표가 통째로 틀렸다 — "편지 빼면 폐식 23.3초가 최장"이라 적었지만
+# 23.3초는 축배였고 폐식은 13.2초, 진짜 최장은 declare-1-solemn 25.9초였다.
+# 그래서 사람이 세지 않게 여기서 센다. 조립기와 같은 식(음절/300*60 + 쉼 + head/tail)을 쓴다.
+chk 'NARR_LEN' scripts/check-narr-len.mjs 1
+chk 'LEN_FIX' assets/ritual-data.js 1
+if command -v node >/dev/null 2>&1; then node scripts/check-narr-len.mjs >/dev/null \
+  || { echo 'FAIL narr-len: 주석의 길이 수치가 실측과 다릅니다 — node scripts/check-narr-len.mjs'; fail=1; }; fi
