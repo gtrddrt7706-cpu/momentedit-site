@@ -2033,3 +2033,5 @@ if command -v node >/dev/null 2>&1; then node scripts/check-corr-claim.mjs >/dev
 chk 'NO_SILENT_SKIP' scripts/check-css-tokens.mjs 1
 chk 'NO_SILENT_SKIP' scripts/check-source-drift.mjs 2
 chk '순서에 기대는 검사는' scripts/check-source-drift.mjs 1
+chk 'CORR_PERMISSIVE' scripts/assemble-narration.mjs 1
+chk 'CORR_PERMISSIVE' scripts/check-corr-claim.mjs 1
