@@ -64,7 +64,11 @@ const log = [], orphan = [];
 while (i < files.length) {
   const a = files[i], b = files[i + 1];
   const pair = b && SENT.has(norm(bodyOf(a) + bodyOf(b))) && !SENT.has(norm(bodyOf(a)));
-  const dst = path.join(OUT, `audio_${n}_${bodyOf(pair ? a : a).slice(0, 40)}.wav`);
+  /* ★[JOINED_MARK] 이어 붙인 파일은 이름에 표시를 남긴다 — 조립기가 이 파일의 **안쪽 쉼**을
+     상한(SENT_CAP 0.45초)으로 깎지 않게 하기 위해서다. 그 상한은 벤더가 멋대로 넣은 긴 쉼을
+     잡으려고 둔 것인데, 여기 쉼은 사람이 **일부러 설계한 박자**라 성격이 다르다.
+     실제로 0.7초로 이어 붙였는데 0.466초로 깎여 나갔다(사용자 실청: "아직도 너무 빠르다"). */
+  const dst = path.join(OUT, `audio_${n}_${pair ? 'JOINED_' : ''}${bodyOf(a).slice(0, 36)}.wav`);
   if (pair) {
     const r = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y',
       '-i', path.join(IN, a), '-i', path.join(IN, b),

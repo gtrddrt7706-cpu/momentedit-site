@@ -434,9 +434,15 @@ const keepOf = (f) => {
   if (d - c0 - c1 < 0.30) { c0 = 0; c1 = 0; }   // 거의 통째로 무음인 파일은 건드리지 않는다
   const a = c0, b = d - c1;
 
+  /* ★[JOINED_MARK 2026-08-09] 이어 붙인 파일(join-split-sentences)은 안쪽을 안 깎는다.
+     SENT_CAP 은 벤더가 멋대로 넣은 긴 쉼을 잡으려고 둔 상한인데, 이어 붙인 자리의 쉼은
+     사람이 **일부러 설계한 박자**다. 0.7초로 이어 붙인 것이 0.466초로 깎여 나갔고
+     사용자가 "아직도 너무 빠르다"고 했다. 상한을 전역으로 올리면 다른 클립의 벤더 쉼까지
+     같이 풀려 '턴이 길다'로 되돌아가므로, **이 파일만** 예외로 둔다. */
+  const _joined = /JOINED_/.test(path.basename(f));
   // 안쪽 무음은 가운데를 도려낸다 — 양끝 절반씩은 남겨 말끝과 들숨을 살린다
   const cut = [];
-  for (const [s0, e0] of seg) {
+  for (const [s0, e0] of (_joined ? [] : seg)) {
     const s1 = Math.max(s0, a), e1 = Math.min(e0, b);
     if (e1 - s1 <= SENT_CAP + 0.02) continue;
     cut.push([s1 + SENT_CAP / 2, e1 - SENT_CAP / 2]);
