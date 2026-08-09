@@ -7257,6 +7257,21 @@ function replayHeroAnimation(){
   pointer-events: none;
   transform: translateY(-50%) translateX(8px);
 }
+/* ★★[FAQ_DODGE 2026-08-09] FAQ 의 묻기·예시 칩 줄이 화면에 있는 동안만 레일을 비켜 준다.
+   왜 — 칩 줄 오른쪽 끝(354px)이 FAB 왼쪽(350px)과 4px 물린다(390px 실측).
+   중앙은 눌리니 못 쓰는 건 아니지만, 44px 창의 오른쪽 21.5px 를 FAB 이 먹고 있었다.
+   ★레일 자체는 안 건드린다 — 위치·크기·모양 변경 금지(2026-07-26 사용자 지시).
+     이 자리에서 **잠시 물러날 뿐**이고, 벗어나면 그대로 돌아온다(사용자 승인 ②).
+   ★숨겨도 물어볼 길이 안 막힌다 — 그 줄에 「묻기」 버튼이 이미 있다. 오히려 같은 기능이
+     30px 거리에 둘 있던 것이 줄어든다.
+   ★`hide` 를 재사용하지 않는다 — 그건 상담 패널이 열릴 때 쓰는 클래스라, 같이 쓰면
+     패널을 닫는 순간 관찰자가 다시 켜거나 그 반대가 된다. 두 사정은 따로 둔다. */
+.me-fab-stack.faq-dodge {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(8px);
+}
 /* 아이콘은 항상 노출(누끼라 거슬림 없음) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
 .me-fab {
   display: flex;
@@ -8308,6 +8323,29 @@ nav .nav-links a, .nav-links a, .f-links a {
   if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ play(); io.unobserve(e.target); } }); }, {threshold:.3}); io.observe(sc); }
   else play();
   show(0);
+})();
+</script>
+
+<script>
+/* [FAQ_DODGE 2026-08-09] 칩 줄과 레일이 실제로 겹치는 동안만 레일이 비켜난다. CSS 주석에 경위.
+   ★IntersectionObserver 로 먼저 해 봤는데 한 번도 안 붙었다(칩 줄을 위젯이 늦게 그린다 ·
+     기다려서 붙여도 안 물었다). 원인을 더 파는 대신 **재기 쉬운 방식**으로 바꿨다 —
+     두 사각형이 진짜 겹치는지 스크롤마다 직접 잰다. 판정 근거가 눈에 보이면 검증도 쉽다. */
+(function(){
+  var stack=document.getElementById('meFabStack'); if(!stack) return;
+  var zone=null, t=0;
+  function hit(){
+    if(!zone){ zone=document.querySelector('.faq-ask-eg'); if(!zone) return false; }
+    var a=zone.getBoundingClientRect(), b=stack.getBoundingClientRect();
+    if(!a.width||!b.width) return false;
+    var pad=60;   // 칩이 화면 가장자리에 걸쳐 있을 때도 손가락은 겹친다
+    return a.right > b.left - 8 && a.bottom > b.top - pad && a.top < b.bottom + pad;
+  }
+  function tick(){ t=0; stack.classList.toggle('faq-dodge', hit()); }
+  function on(){ if(t) return; t=requestAnimationFrame(tick); }
+  addEventListener('scroll',on,{passive:true}); addEventListener('resize',on);
+  var n=0, iv=setInterval(function(){ on(); if(++n>24) clearInterval(iv); },300);   // 늦게 그려지는 칩 줄을 따라잡는다
+  on();
 })();
 </script>
 </body>

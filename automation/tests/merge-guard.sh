@@ -1960,3 +1960,10 @@ chk 'DONE_UNDO_TRACKS' scripts/check-done-undo-tracks.mjs 1
 chk '닿는다   :' automation/platform/80_production.gs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-done-undo-tracks.mjs >/dev/null \
   || { echo 'FAIL done-undo-tracks: 주석의 닿는 트랙 목록이 실제와 다릅니다 — node scripts/check-done-undo-tracks.mjs'; fail=1; }; fi
+# ── [FAQ_DODGE] FAQ 칩 줄에서만 레일이 비켜난다 (2026-08-09 사용자 승인 ②) ──
+# 칩 줄 오른끝 354px 과 FAB 왼끝 350px 이 4px 물려 44px 창의 오른쪽을 먹고 있었다.
+# ★레일 자체는 안 건드린다(위치·크기·모양 변경 금지 2026-07-26) — 그 자리에서 잠시 물러날 뿐이다.
+# ★`hide` 를 재사용하지 않는다 — 상담 패널 개폐용이라 같이 쓰면 서로 켜고 끈다.
+chk 'FAQ_DODGE' index.html 2
+chk 'faq-dodge' index.html 2
+nochk "classList.toggle('hide'" index.html
