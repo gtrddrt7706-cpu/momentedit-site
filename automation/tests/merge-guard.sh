@@ -2059,3 +2059,11 @@ chk 'EXIT_TRAP' scripts/check-paste-format.mjs 1
 chk 'EXIT_TRAP' scripts/check-corr-claim.mjs 1
 chk 'EXIT_TRAP' scripts/build-course-mirror.mjs 1
 chk 'process.exitCode = bad' scripts/build-course-mirror.mjs 1
+
+# ── [CONSOLE_TEXT] 콘솔 전용 클립도 글↔소리를 대조한다 (2026-08-09) ──
+# 종전엔 preview 모드만 훑어, **예식 뒤 구간(콘솔 전용)은 글이 바뀌어도 아무도 안 물었다.**
+# 실측: 하객과 함께(61)·나눠 담기(60)·단체촬영 개시(44)를 다시 썼는데 재더빙 대기 0클립.
+# 하필 사람의 시간이 가장 긴 자리들이다(18분·4분·5분). 화면과 스피커가 다른 말을 할 뻔했다.
+# ★RECORDED_TRUTH · NOAUDIO_REAL 에 이은 같은 집안 세 번째 — '안 보이는 것은 안 센다'.
+chk 'CONSOLE_TEXT' scripts/check-text-audio.mjs 1
+chk "for (const MODE of \['preview', 'console'\])" scripts/check-text-audio.mjs 1
