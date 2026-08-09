@@ -183,8 +183,18 @@ const SLUGTEXT = new Map();
 for (const S of states) { let r; try { r = Cue.build(S, { mode: 'console' }); } catch (e) { continue; }
   for (const c of r.cues) if (c.slug && c.text) SLUGTEXT.set(c.slug, c.text); }
 for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx)) SLUGTEXT.set(g.slug, g.t);
+/* ★★[NOAUDIO_REAL 2026-08-09] '소리가 없는 클립'을 **대장(manifest)이 아니라 파일로** 판정한다.
+   옛 판은 `!manFiles.has(slug)` 였다 — 대장에 없으면 소리도 없다는 뜻이었는데,
+   대장은 생성기가 다시 쓰고 이 게이트가 그 생성기를 매번 돌린다. 그래서 **새 클립을 추가하면
+   그 순간 대장에 들어가고, 곧바로 '소리 있음'으로 취급된다.** 실제로 겪었다:
+   단체촬영 셔터 신호(fx-count)를 새로 넣었는데 재더빙 명단이 0클립으로 나왔다.
+   mp3 는 없었고, 어떤 검사도 안 물었다. RECORDED_TRUTH 와 같은 병이 여기 한 곳 더 남아 있었다.
+   ★이제 폴더를 본다. 파일이 없으면 없는 것이다 — 대장이 뭐라 하든. */
+const NARDIR = path.join(root, NAR), CSTDIR = path.join(root, CST);
+const _has = (no, slug) => fs.existsSync(path.join(NARDIR, pad2(no) + '_' + slug + '.mp3'))
+  || fs.existsSync(path.join(CSTDIR, pad2(no) + '_' + slug + '.mp3'));
 const noAudio = Cue.FILES.map((f, i) => ({ slug: f, no: String(i + 1).padStart(2, '0'), screen: SLUGTEXT.get(f) || '' }))
-  .filter((x) => !manFiles.has(x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
+  .filter((x) => !_has(x.no, x.slug) && !(Cue.RETIRED || {})[x.slug]);   // [RETIRED_SLUG] 폐지한 자리는 녹음하지 않는다
 // 녹음이 필요한 전체 = 글이 바뀐 것 ∪ 소리가 아예 없는 것 (선언 위치 주의 — --redub 블록이 먼저 쓴다)
 const badSlugs = [...new Set(bad.map((r) => r.slug).concat(noAudio.map((r) => r.slug)))].filter(Boolean).sort();
 

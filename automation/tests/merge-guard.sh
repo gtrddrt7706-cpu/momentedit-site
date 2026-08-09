@@ -1981,3 +1981,13 @@ chk '좌표를 수렴' scripts/check-tap-targets.mjs 1
 chk 'COURSE_MIRROR' scripts/build-course-mirror.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/build-course-mirror.mjs >/dev/null \
   || { echo 'FAIL course-mirror: 빌더 COURSES 사본이 원천과 갈렸습니다 — node scripts/build-course-mirror.mjs --write'; fail=1; }; fi
+
+# ── [NOAUDIO_REAL] '소리 없는 클립'을 대장이 아니라 파일로 판정 (2026-08-09) ──
+# 옛 판은 manifest 에 없으면 소리도 없다고 봤다. 그런데 대장은 생성기가 다시 쓰고 이 게이트가
+# 그 생성기를 매번 돌린다 → 새 클립을 넣는 순간 '소리 있음'이 된다. 실제로 fx-count 가 그랬다
+# (mp3 는 없는데 재더빙 명단 0클립). RECORDED_TRUTH 와 같은 병이 한 곳 더 남아 있었다.
+chk 'NOAUDIO_REAL' scripts/check-text-audio.mjs 1
+chk '파일이 없으면 없는 것이다' scripts/check-text-audio.mjs 1
+# ── [PHOTO_COUNT] 단체촬영 셔터 신호 ──
+chk 'PHOTO_COUNT' assets/ritual-data.js 1
+chk 'fx-count' assets/ritual-cue.js 1

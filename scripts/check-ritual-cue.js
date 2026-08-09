@@ -8,7 +8,7 @@
  *  2) CUE_FIRE_RULE  — "앞 큐에 live(사람 구간)가 있으면 manual, 없으면 chain"
  *  3) EXTRA_MIRROR   — ritual-cue.js가 들고 있는 문안 사본이 build-dubbing-script.mjs 원본과 verbatim 동일
  *  4) 전 코스 × 확장축 전 조합이 예외 없이 build 되고 필수 필드가 채워진다
- *  5) FILES 77개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
+ *  5) FILES 78개 · 중복 없음 · 번호(인덱스+1)와 파일명이 어긋나지 않는다
  *
  * merge-guard.sh 가 호출한다. 실패하면 exit 1.
  */
@@ -29,10 +29,11 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   veil 슬러그 3개(veil-mother/father/close)가 빠져 54 → 51이 됐다.
 // [AFTER_PARTY 2026-08-08] 예식 뒤 30분 클립 16개 추가(전환 6 + 골라 트는 판 10) → 59 → 75.
 // [TOAST_SCENE 2026-08-09] 축배·케이크 장면화로 2개 추가(toast-both-b · narr-cake-out) → 77.
+// [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 1개 추가(fx-count) → 78.
 //   ★목록 끝에 붙였다 — 번호가 인덱스+1이라 중간에 끼우면 기존 음원이 전부 개명된다.
-if (C.FILES.length !== 77) no(`FILES 77개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 77) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 77개 · 중복 없음');
+if (C.FILES.length !== 78) no(`FILES 78개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== 78) no('FILES에 중복 슬러그가 있다');
+else ok('FILES 78개 · 중복 없음');
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {

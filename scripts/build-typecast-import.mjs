@@ -198,8 +198,10 @@ const clips = parse(SRC);
               toast-both-b  : 「둘 다」에서 나이프를 걷고 잔을 쥐여 드리는 15~20초를 덮는 두 번째 문안
                               (옛 판은 이 사이가 통째로 무음이었다)
               narr-cake-out : 케이크만 고른 자리의 닫는 말 (옛 판은 잔이 없는 손에 "잔은 편히
-                              내려놓으셔도 좋습니다"가 나갔다) */
-const CLIP_COUNT = 76;
+                              내려놓으셔도 좋습니다"가 나갔다)
+     76 → 77 [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 1개(fx-count · "찍겠습니다. 하나, 둘, 셋.").
+              골라 트는 판 여덟은 자세를 만드는 말이고, '지금 찍는다'를 아무도 안 했다. */
+const CLIP_COUNT = 77;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
