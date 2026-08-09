@@ -853,7 +853,16 @@ chk 'CAKE_DUP_GUARD' order-preview.html 3          # 사이 순서+축배 케이
 chk 'XM_MIRROR_9KEY' assets/ritual-data.js 1       # 소요분 9키 정합 — 빌더가 기준
 chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
-chk '두 사람이 함께 나이프를 잡습니다' assets/ritual-data.js 2   # G9 케이크 동작 교정(cake+both)
+# [TOAST_SCENE 2026-08-09] 옛 마커('두 사람이 함께 나이프를 잡습니다')는 장면화로 사라졌다.
+# 대신 **장면을 세우는 세 문장**을 지킨다 — 하나라도 빠지면 그 자리가 다시 매끄럽지 않아진다.
+#   ①카운트(케이크·둘 다 2벌) — 방 전체가 같은 순간을 보는 신호. 없으면 커팅이 언제인지 아무도 모른다
+#   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
+#   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
+chk '제가 셋을 세면' assets/ritual-data.js 2
+chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
+chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
+chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
+chk 'TOAST_SCENE' assets/ritual-story.js 2
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
 chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
@@ -1852,3 +1861,18 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
 chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
 chk '이미 크다' scripts/check-tap-targets.mjs 1
+
+# ── [RECORDED_TRUTH] '녹음하기로 한 글' 과 '실제로 녹음된 글' 을 가른다 (2026-08-09) ──
+# 구멍이었다: check-text-audio 가 오른쪽(소리)을 manifest.json 에서 읽는데, 문안을 고치면
+# build-typecast-import 가 manifest 를 다시 쓰고 이 게이트가 그 생성기를 매번 돌린다.
+# 그래서 양쪽이 **함께** 새 문안이 되고 검사는 늘 '맞음' 이라 말한다 — mp3 는 옛말인 채로.
+#   실측: 축배 4클립을 다시 썼는데 어긋남 0 으로 통과했다. 당일 화면과 스피커가 달랐을 자리다.
+# 이제 assets/audio/narration/_recorded.json 이 '실제로 녹음된 글' 이고, 거기 없으면 '소리 없음' 이다.
+chk 'RECORDED_TRUTH' scripts/check-text-audio.mjs 1
+chk '_recorded.json' scripts/check-text-audio.mjs 2
+[ -f assets/audio/narration/_recorded.json ] || { echo 'REVERT? _recorded.json 이 없다 — 녹음된 글의 원천이다'; fail=1; }
+# ── [TOAST_SCENE] 축배·케이크 장면 ──
+chk 'TOAST_SCENE' assets/ritual-cue.js 2
+chk 'TOAST_SCENE' order-preview.html 3
+chk 'toast-both-b' assets/ritual-cue.js 2
+chk 'narr-cake-out' assets/ritual-cue.js 2

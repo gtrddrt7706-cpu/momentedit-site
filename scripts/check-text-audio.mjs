@@ -44,6 +44,31 @@ const pad2 = (n) => ('0' + n).slice(-2);
 const SAY = new Map();
 for (const c of man.clips) SAY.set((c.dir || NAR) + '|' + pad2(c.no) + '_' + c.file, { text: c.sents.map((s) => s.text).join(' '), role: c.role, dir: c.dir });
 
+/* ★★[RECORDED_TRUTH 2026-08-09] 이 검사에 큰 구멍이 있었다 — 실측으로 드러났다.
+   오른쪽(소리)을 manifest.json 에서 읽는데, manifest 는 **「녹음하기로 한 글」**이지
+   「실제로 녹음된 글」이 아니다. 문안을 고치면 build-typecast-import.mjs 가 manifest 를
+   다시 쓰고, merge-guard 는 그 생성기를 매번 돌린다. 그래서 양쪽이 **함께** 새 문안이 되고
+   검사는 늘 '맞음'이라고 말한다. 그 사이 mp3 는 옛말을 그대로 하고 있다.
+     실제로 그랬다: 축배 4클립(40·41·42·56)을 다시 썼는데 어긋남 0으로 통과했다.
+     당일 화면엔 새 문안이, 스피커에선 옛 문안이 나갔을 자리다.
+   ★그래서 실제로 녹음된 글을 따로 못박아 둔다 — assets/audio/narration/_recorded.json.
+     mp3 를 만드는 순간(assemble-narration.mjs)에만 갱신되는 것이 원칙이다.
+     여기 있으면 그쪽을 먼저 믿는다. 없는 클립은 종전대로 manifest 로 떨어진다(새 클립). */
+try {
+  const RECF = path.join(root, NAR, '_recorded.json');
+  if (fs.existsSync(RECF)) {
+    const rec = JSON.parse(fs.readFileSync(RECF, 'utf8')).clips || {};
+    for (const [key, e] of SAY) {
+      if (!key.startsWith(NAR + '|')) continue;                // 배역(cast)은 이번 범위 밖 — 종전대로 대장을 본다
+      const k = key.slice(NAR.length + 1);
+      /* ★없으면 '없음'이다. 대장에 있다고 녹음된 것이 아니다 —
+         새 클립은 대장에 먼저 생기고 소리는 나중에 온다. 그 창을 '맞음'으로 세면
+         소리가 영영 안 와도 아무도 모른다. 여기 없으면 재더빙 대기로 잡힌다. */
+      e.text = Object.prototype.hasOwnProperty.call(rec, k) ? rec[k] : '';
+    }
+  }
+} catch (e) { console.error('✗ _recorded.json 을 읽지 못했습니다 — ' + e.message); process.exit(1); }
+
 // ── 비교용 정규화. 문장부호·따옴표·공백은 소리로 구분되지 않으므로 지운다.
 //   ★말이 되는 글자만 남긴다 — 여기서 너무 관대하면 다른 문장이 같아 보이고, 너무 빡빡하면
 //     쉼표 하나로 전부 빨갛게 뜬다. 한글·숫자·영문만 남기는 선이 그 사이다.

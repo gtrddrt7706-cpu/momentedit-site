@@ -75,9 +75,19 @@ const G = [
     ['G8-out', '헌정 마무리', 'tribute-out', D.TRIBUTE.end],
   ], note: '감동 코스에서 편지와 성혼 선언 사이의 완충이다. 감정적으로 녹음하면 세 정점이 평평해진다.' },
 
-  { n: 9, t: '축배·케이크', tone: '밝고 활기 · "위하여!"는 힘 있게', items:
-    Object.keys(D.TOAST).map((k) => [`G9-${k}`, D.TOAST[k].d, `toast-${k}`, D.TOAST[k].nar]),
-    note: '축배 뒤에는 폐식으로 넘어가는 온도 낙차가 커서 무음을 4~5초로 길게 준다.' },
+  /* ★[TOAST_SCENE 2026-08-09] 「둘 다」는 문안이 둘이다 — 커팅 뒤 나이프를 걷고 잔을 쥐여 드리는
+     15~20초를 두 번째 문안이 덮는다. 키를 훑어 만들면 그 두 번째가 대본에서 빠진다(실제로 빠졌다).
+     ★nar2 가 있는 모드는 한 줄 더 낸다. 모드를 늘려도 자동으로 따라온다 — 손으로 적지 않는다. */
+  { n: 9, t: '축배·케이크', tone: '밝고 활기 · "위하여!"는 힘 있게 · 카운트(하나, 둘, 셋)는 또렷하게', items:
+    Object.keys(D.TOAST).flatMap((k) => {
+      const t = D.TOAST[k];
+      const rows = [[`G9-${k}`, t.d, `toast-${k}`, t.nar]];
+      if (t.nar2) rows.push([`G9-${k}-b`, t.d + ' · 잔을 들고 선창', 'toast-both-b', t.nar2]);
+      return rows;
+    }),
+    note: '축배 뒤에는 폐식으로 넘어가는 온도 낙차가 커서 무음을 4~5초로 길게 준다.\n'
+      + '★"다 함께 위하여, 하고 답해 주시면 됩니다"는 하객에게 답을 가르치는 문장이다 — 빼면 선창에 돌아오는 소리가 없다.\n'
+      + '★"하나, 둘, 셋"은 방 전체가 같은 순간을 보게 하는 신호다. 붙여 읽지 말고 한 박씩 띄운다.' },
 
   { n: 10, t: '어른(혼주)께 드리는 안내 편지 낭독', tone: '격식 있고 정중한 편지 낭독 · 아주 차분하게', items: [
     ['G10', '어른께 드리는 안내(전문 통낭독)', 'parents-letter', [
@@ -117,6 +127,8 @@ const G = [
     ['G12-2', '와인·케이크 닫는 말', 'narr-valley-out', D.NARR.valleyOut],
     ['G12-3', '축가 닫는 말', 'narr-song-out', D.NARR.songOut],
     ['G12-4', '축배 닫는 말', 'narr-toast-out', D.NARR.toastOut],
+    // [TOAST_SCENE 2026-08-09] 케이크만 고른 자리의 닫는 말 — 잔이 없는 손에 잔 이야기를 하지 않는다
+    ['G12-8', '케이크 커팅 닫는 말', 'narr-cake-out', D.NARR.cakeOut],
     ['G12-5', '성혼 선언(가족 낭독) 닫는 말', 'narr-declare-family-out', D.NARR.declareFamilyOut],
     ['G12-6', '자유 한 칸 여는 말', 'narr-free-in', D.NARR.freeIn],
     ['G12-7', '자유 한 칸 닫는 말', 'narr-free-out', D.NARR.freeOut],

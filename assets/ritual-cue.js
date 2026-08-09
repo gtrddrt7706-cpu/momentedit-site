@@ -72,7 +72,12 @@
        앞 6개는 순서 고정(큐 체인) · 뒤 10개는 디렉터가 골라 트는 판(D.PHOTOCUE) */
     'narr-photo-split', 'narr-round-open', 'narr-online-in', 'narr-final-warn', 'narr-final-call', 'narr-photo-out',
     'call-family-all', 'call-parents',
-    'fx-seatrow', 'fx-vshape', 'fx-clink', 'fx-wave', 'fx-surround', 'fx-lean', 'fx-clap', 'fx-selfie'
+    'fx-seatrow', 'fx-vshape', 'fx-clink', 'fx-wave', 'fx-surround', 'fx-lean', 'fx-clap', 'fx-selfie',
+    /* ★[TOAST_SCENE 2026-08-09] 축배·케이크를 장면으로 나누며 늘어난 두 자리.
+       ★반드시 목록 **끝**이다 — 번호가 인덱스+1이라 중간에 끼우면 기존 74개가 전부 개명된다.
+       toast-both-b : 나이프를 걷고 잔을 쥐여 드리는 사이를 덮는 두 번째 문안
+       narr-cake-out: 케이크만 고른 자리의 마무리(잔 이야기가 나가던 자리) */
+    'toast-both-b', 'narr-cake-out'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -439,16 +444,32 @@
       })];
     },
 
+    /* ★[TOAST_SCENE 2026-08-09] 한 덩어리 → **박자가 있는 장면**으로.
+       옛 판은 문안 하나 + 45초짜리 사람 구간 하나 + 마무리였다. 그 45초 안에서
+       잔을 집고 · 선창을 듣고 · 답하고 · 케이크를 자르고 · 포즈까지 다 일어나야 했다.
+       한 덩어리라 큐 화면도 "그냥 기다려라"밖에 못 말했다.
+       이제 데이터가 박자를 들고 있고(nar / nar2 · est / est2) 엔진은 그대로 편다:
+         [문안] → [사람 구간] → (둘 다면) [문안2] → [사람 구간2] → [마무리]
+       마무리 문안도 모드에서 고른다 — 케이크만 골랐는데 잔 이야기가 나가던 자리를 막는다. */
     toast: function (S) {
       var t = D.TOAST[S.toast] || D.TOAST.toast;
-      return [cue({
+      var seq = [cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
-        duck: PARAM.duckMusic, pick: t.d, note: '축배 뒤 무음은 4~5초로 길게(온도 낙차)',
-        live: { t: t.cue, est: 45, duck: 0, self: true, doing: 'move' }
-      }), cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: 'narr-toast-out', name: '축배 · 케이크 마무리',
-        text: D.NARR.toastOut, duck: PARAM.duckMusic
+        duck: PARAM.duckMusic, pick: t.d, note: t.note,
+        live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing }
       })];
+      if (t.nar2) seq.push(cue({
+        k: 'toast', blockN: '축배 · 케이크', slug: 'toast-both-b', name: '축배 · 잔을 들고 선창',
+        text: t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가면', note: t.note2,
+        live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say' }
+      }));
+      seq.push(cue({
+        k: 'toast', blockN: '축배 · 케이크',
+        slug: t.out === 'cakeOut' ? 'narr-cake-out' : 'narr-toast-out',
+        name: t.out === 'cakeOut' ? '케이크 커팅 마무리' : '축배 마무리',
+        text: D.NARR[t.out], duck: PARAM.duckMusic
+      }));
+      return seq;
     },
 
     letter: function (S) {
