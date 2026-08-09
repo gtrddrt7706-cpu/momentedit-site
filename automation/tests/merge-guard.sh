@@ -2007,3 +2007,19 @@ if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/d
 # RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
 chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
 chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1
+# ── [ONE_CANDIDATE] 후보 파트가 하나면 상관계수로 거르지 않는다 (2026-08-09) ──
+# 셔터 신호 2문장은 예상 길이가 서로 같아 기댓값 분산이 0 → 상관계수가 늘 0.85 미만.
+# 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎었다. 상관은 후보를 가리는 도구지 검증이 아니다.
+# ★순서 검증(--force 로만 넘어감)은 그대로 남는다 — 그게 진짜 안전망이다.
+chk 'ONE_CANDIDATE' scripts/assemble-narration.mjs 1
+chk '후보가 둘 이상이면 종전대로' scripts/assemble-narration.mjs 1
+
+# ── [CORR_CLAIM] 조립기 '길이 상관' 주석이 실제 계산과 맞는지 (2026-08-09 · 적대 검증) ──
+# ONE_CANDIDATE 완화의 근거로 "예상 길이가 같아 분산 0 · 상관계수 미정의"라 적혀 있었는데
+# 둘 다 사실이 아니었다: estSec 1.000/0.800 로 분산 0 이 아니고, NaN < 0.85 는 false 라
+# 미정의여도 안 막힌다. 진짜 이유는 n=2 라서 피어슨 상관이 늘 ±1 이 되는 것이다.
+# DONE_UNDO 주석과 같은 병 — 코드는 멀쩡한데 설명이 틀렸다. 설명을 계산으로 붙들어 둔다.
+chk 'CORR_CLAIM' scripts/check-corr-claim.mjs 1
+chk 'n=2' scripts/assemble-narration.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-corr-claim.mjs >/dev/null \
+  || { echo 'FAIL corr-claim: 조립기 주석과 실제 계산이 어긋납니다 — node scripts/check-corr-claim.mjs'; fail=1; }; fi

@@ -274,7 +274,11 @@ if (process.argv.includes('--redub')) {
      ★배역(5_배역.txt)은 화자가 여럿이라 줄마다 다른 이름이 붙는다 — 같은 문법이다. */
   const pl = [];
   for (const c of ordered) for (const t of c.sents) pl.push(VOICE + ': ' + t);
-  fs.writeFileSync(PASTE, pl.join('\n') + '\n');
+  /* ★대기가 0이면 파일을 **지운다.** 빈 파일을 남기면 ①형식 검사가 빈 줄을 물고
+     ②다음에 열어 본 사람이 "붙여넣을 게 있나?" 하고 한 번 더 확인하게 된다.
+     없는 것이 없다고 말하는 가장 정확한 방법은 파일이 없는 것이다. */
+  if (pl.length) fs.writeFileSync(PASTE, pl.join('\n') + '\n');
+  else if (fs.existsSync(PASTE)) fs.unlinkSync(PASTE);
 
   console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
   console.log('→ 붙여넣기용(문장만 · 클립 번호 순): ' + path.relative(root, PASTE)
