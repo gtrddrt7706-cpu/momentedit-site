@@ -1255,6 +1255,12 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 chk 'ROUND_FIT' assets/ritual-cue.js 2
 chk 'ROUND_FIT' scripts/check-ritual-cue.js 1
 chk '2패스가 라운드를 더한다' assets/ritual-cue.js 2   # [ROUND_FIT] 캐리어 두 곳 — 손계산 _grFixed 부활 금지
+# [ROUND_EXACT] 2패스는 '넘지 않는가'가 아니라 '정확히 채우는가'로 본다.
+#   창을 슬러그 목록이 아니라 **큐 순서**(narr-close ~ 배웅 직전)로 잡는 것이 핵심 —
+#   목록을 복제하면 엔진과 검사가 같은 실수를 함께 한다. 실측: 창 안에 고정 자리 큐를 새로 넣고
+#   엔진 IN 목록에 안 넣으면 기존 부등식 검사는 초록인데 이 검사만 '초과 240초'로 잡았다.
+chk 'ROUND_EXACT' scripts/check-ritual-cue.js 1
+chk "c.blockN === '배웅'" scripts/check-ritual-cue.js 1
 # [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1
