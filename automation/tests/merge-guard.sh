@@ -2035,3 +2035,10 @@ chk 'NO_SILENT_SKIP' scripts/check-source-drift.mjs 2
 chk '순서에 기대는 검사는' scripts/check-source-drift.mjs 1
 chk 'CORR_PERMISSIVE' scripts/assemble-narration.mjs 1
 chk 'CORR_PERMISSIVE' scripts/check-corr-claim.mjs 1
+
+# ── [EXIT_AT_END] 검사 파일의 종료코드는 맨 끝 한 곳에서만 정한다 (2026-08-09 · 적대 검증) ──
+# check-corr-claim 은 중간에 `if (bad) process.exit(1)` 이 있었고, 그 **뒤에** 붙은 CORR_PERMISSIVE
+# 블록이 실패해도 아무도 그걸 종료코드로 바꾸지 않았다 — 화면엔 ✗ 인데 'CORR_CLAIM OK' · exit 0(실측).
+# merge-guard 의 GUARD_FAIL_VAR·GATE_AT_EXIT 과 같은 병이다. 붉어질 수 없는 실패는 실패가 아니다.
+chk 'EXIT_AT_END' scripts/check-corr-claim.mjs 2
+chk '붉어질 수 없는 실패는' scripts/check-corr-claim.mjs 1
