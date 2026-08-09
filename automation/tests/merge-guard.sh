@@ -2077,3 +2077,13 @@ chk 'NARR_LEN' scripts/check-narr-len.mjs 1
 chk 'LEN_FIX' assets/ritual-data.js 1
 if command -v node >/dev/null 2>&1; then node scripts/check-narr-len.mjs >/dev/null \
   || { echo 'FAIL narr-len: 주석의 길이 수치가 실측과 다릅니다 — node scripts/check-narr-len.mjs'; fail=1; }; fi
+
+# ── [SYL_RATE] 음절 속도 상수와 실제 낭독의 폭 (2026-08-09) ──
+# 길이 예상은 음절/300*60 인데 실제 낭독은 406음절/분이다 — 예상이 35% 길게 나온다.
+# 그 예상으로 "너무 길다"를 판단하면 멀쩡한 문장을 계속 깎는다.
+# ★실제로 갈렸다: 같은 클립을 코워크는 실측 19.5초, 코드 세션은 예상 25.8초로 적었다. 둘 다 맞았다.
+# ★ffprobe 없는 세션에서는 '안 쟀다'고 밝히고 넘어간다 — 초록으로 위장하지 않는다.
+chk 'SYL_RATE' scripts/check-syl-rate.mjs 1
+chk '안 쟀다' scripts/check-syl-rate.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-syl-rate.mjs >/dev/null \
+  || { echo 'FAIL syl-rate: 음절 상수와 실측의 폭이 범위를 벗어났습니다 — node scripts/check-syl-rate.mjs'; fail=1; }; fi
