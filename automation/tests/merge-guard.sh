@@ -1869,6 +1869,40 @@ chk 'TAP44_FOOT_OFF' parents.html 1
 nochk 'footer a\[href\$="mypage.html"\]' index.html
 nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
+# ── [EST_ONE_NUMBER 2026-08-10] 예식 길이는 화면마다 같은 수여야 한다 ──
+# 실사고: 빌더 완성 화면 '약 28분' ↔ 미리듣기 인트로 '실제 예식은 약 47분'. 세 배 넘게 갈렸고
+# 거꾸로 붙어 있었다(짧은 코스일수록 큰 수). 원인은 totalSec(= 예식 + 남는 시간)을 '예식'이라 부른 것.
+# ※ check-est-one.mjs 는 여기서 실행하지 않는다 — 브라우저와 로컬 서버(:8895)가 필요해서다 [NO_GATE].
+# ── [PROBE_RULER 2026-08-10] 화면을 재는 공용 자 ──
+# 한 세션에서 같은 종류의 측정 실수를 여섯 번 했다(innerText 로 접힌 것 못 봄 · script 문자열을
+# 화면 글로 셈 · 잘려서 안 보이는 것을 넘침으로 셈 · 저장소 밖 서버 404 를 결함으로 읽음 등).
+# 자를 파일 하나로 모으고, 서버가 저장소 루트를 보는지 **재기 전에** 확인하게 했다.
+# ※ 이 파일도 게이트가 실행하지 않는다 [NO_GATE] — 브라우저·서버가 필요하다.
+chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
+chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
+chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
+chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화면 글로 세지 않는다
+chk 'EST_ONE_NUMBER' console.html 1                     # 인트로가 minLabel 을 쓰는 근거 주석
+chk 'minLabel' console.html 2                           # 디렉터 패널 '기준' + 고객 인트로 '실제 예식'
+chk 'EST_ONE_NUMBER' scripts/check-est-one.mjs 2        # 검사 자신이 왜 생겼는지
+chk 'CANT_LOOK' scripts/check-est-one.mjs 1             # 못 잰 것은 2 로 갈라 낸다
+# [EST_ALL_COURSES] 코스 목록을 리터럴로 박지 않는다 — 화면에서 읽는다.
+# 박아 두면 ritual-data 에 코스가 늘어도 검사는 모르고 '전부 통과'라고 말한다(안 본 것을 통과라 부름).
+# 적대 검증: order-preview 의 COURSES 에 7번째를 넣으니 목록에 나타나 exit 1. 리터럴 판은 건너뛰었다.
+chk 'EST_ALL_COURSES' scripts/check-est-one.mjs 2       # 왜 목록을 화면에서 읽나 + 읽는 자리
+nochk "COURSES = \['damback'" scripts/check-est-one.mjs # 리터럴 목록이 되살아나면 잡는다
+# ── [ORD_SIM_RULER 2026-08-10] 순서 시뮬레이터의 자를 고친 셋 ──
+# ① PAREN_TOO — 두 번째 토크나이저도 괄호 깊이를 센다. 안 그러면 new Proxy({},{…}) 에서 66자 일찍 멈춰
+#    「끝 지점이 다르다」로 붉게 운다. 틀린 쪽이 시뮬레이터가 아니라 자였다.
+# ② OFF_CHOKE — 축2 점검을 '18개 호출 자리'가 아니라 '길목 한 곳(curSeq→momOn)'으로 옮겼다.
+#    옛 판의 전제(inSeq 는 축1만 본다)는 [ALL_OPTIONAL] 이후 거짓 · 되살리면 멀쩡한 3줄을 결함이라 부른다.
+# ③ FIXPOS_MISSING — ordNow 의 [ORD_FIXPOS] 가지가 읽는 FIXPOS 가 DECLS 에 없었다.
+#    S.ord 가 배열일 때만 도는 가지라 3104조합(전부 ord:null)이 한 번도 안 밟았다 — '자유변수 0' 이 거짓이었다.
+chk 'PAREN_TOO' scripts/audit/ritual-order-sim-audit.mjs 1
+chk 'OFF_CHOKE' scripts/audit/ritual-order-sim-audit.mjs 1
+chk 'FIXPOS_MISSING' scripts/audit/ritual-order-sim.mjs 1
+chk "var FIXPOS={" scripts/audit/ritual-order-sim.mjs 1  # DECLS 에서 다시 빠지면 잡는다
+nochk "s.needle === 'var OFFTGL={'" scripts/audit/ritual-order-sim-audit.mjs  # 낡은 리터럴 needle 부활 차단
 chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
 chk '이미 크다' scripts/check-tap-targets.mjs 1
 # [CENTER_NO_MERCY] 한가운데 무관용 — 스침·조상 용서가 C 에도 적용되던 구멍을 적대 검증이 찾았다

@@ -1390,9 +1390,21 @@ if (GUEST) {
   try {
     // ★두 수를 같이 적는다 — 미리듣기는 사람 구간을 줄여 흘리므로 실제 예식보다 훨씬 짧다.
     //   한쪽만 적으면 "우리 예식이 4분이라고?" 또는 "26분을 앉아서 들으라고?"가 된다.
+    /* ★★[EST_ONE_NUMBER 2026-08-10] 오른쪽 수는 minLabel 이다. totalSec 이 아니다.
+       옛 판은 console 모드의 meta.totalSec 을 「실제 예식」이라 불렀다. 그 값은
+       clipSec + liveSec + 큐 사이 여백 — 즉 **예식 + 남는 시간**이라, 위 디렉터 패널이
+       같은 값을 「통틀어」라 부르는 그 수다. 예식 길이가 아니다.
+       실측(6코스): 빌더 완성 화면 16·18·22·24·28·30분 ↔ 이 줄 54·51·51·47·47·44분.
+       같은 고객이 두 화면에서 세 배 넘게 다른 수를 봤다. 게다가 **거꾸로 붙어 있었다** —
+       짧은 코스일수록 liveSec(남는 시간)이 커져 이 수가 커진다(기록 16분 → 54분).
+       meta.minLabel 은 코스 원천(ritual-data MIN.base)에서 오고, 빌더 estMin 의 base 와
+       같은 표다. 그래서 이 한 줄만 바꾸면 두 화면이 같은 원천을 말한다.
+       ★minLabel 은 이미 '약 N분' 꼴이다 — 앞에 '약'을 또 붙이지 말 것.
+       ☐ 남은 한계: 고객이 순서를 더하거나 빼면 빌더 estMin 은 따라 움직이는데 minLabel 은
+         코스 기본값 그대로다. 기본 상태에서는 6코스 전부 정확히 일치한다. */
     var gm = RitualCue.build(S, {mode:'preview'}).meta;
     var gr = RitualCue.build(S, {mode:'console'}).meta;
-    $('#giLen').textContent = '듣는 데 약 ' + fmtMin(gm.totalSec) + ' · 실제 예식은 약 ' + fmtMin(gr.totalSec) + '이에요.';
+    $('#giLen').textContent = '듣는 데 약 ' + fmtMin(gm.totalSec) + ' · 실제 예식은 ' + (gr.minLabel || ('약 ' + fmtMin(gr.totalSec))) + '이에요.';
   } catch(e){ $('#giLen').textContent = ''; }
   $('#giGo').onclick = function(){ gi.classList.remove('on'); $('#go').click(); };
 } else if (QS.get('auto') === '1') $('#go').click();
