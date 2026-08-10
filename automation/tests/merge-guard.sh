@@ -1869,6 +1869,14 @@ chk 'TAP44_FOOT_OFF' parents.html 1
 nochk 'footer a\[href\$="mypage.html"\]' index.html
 nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 크기와 눌림은 다른 문제다 — 사각형이 44 이상이면 검사를 건너뛰던 지름길이 이 사고를 초록으로 만들었다
+# ── [EST_ONE_NUMBER 2026-08-10] 예식 길이는 화면마다 같은 수여야 한다 ──
+# 실사고: 빌더 완성 화면 '약 28분' ↔ 미리듣기 인트로 '실제 예식은 약 47분'. 세 배 넘게 갈렸고
+# 거꾸로 붙어 있었다(짧은 코스일수록 큰 수). 원인은 totalSec(= 예식 + 남는 시간)을 '예식'이라 부른 것.
+# ※ check-est-one.mjs 는 여기서 실행하지 않는다 — 브라우저와 로컬 서버(:8895)가 필요해서다 [NO_GATE].
+chk 'EST_ONE_NUMBER' console.html 1                     # 인트로가 minLabel 을 쓰는 근거 주석
+chk 'minLabel' console.html 2                           # 디렉터 패널 '기준' + 고객 인트로 '실제 예식'
+chk 'EST_ONE_NUMBER' scripts/check-est-one.mjs 2        # 검사 자신이 왜 생겼는지
+chk 'CANT_LOOK' scripts/check-est-one.mjs 1             # 못 잰 것은 2 로 갈라 낸다
 chk 'TAP_HITTEST' scripts/check-tap-targets.mjs 1
 chk '이미 크다' scripts/check-tap-targets.mjs 1
 # [CENTER_NO_MERCY] 한가운데 무관용 — 스침·조상 용서가 C 에도 적용되던 구멍을 적대 검증이 찾았다
