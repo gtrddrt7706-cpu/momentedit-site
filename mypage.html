@@ -5639,7 +5639,7 @@ function renderPhoto(box){
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
   h+='<div class="sp-note" style="text-align:left;margin:0 0 8px">고른 내용은 나갈 때 자동으로 저장돼요</div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>하객과 함께</b> 시간에 남길 구도예요. 전체 하객은 늘 첫 컷이고, <b>「불러 모아요」</b> 구도가 그다음으로 이어져요. <b>「자리에서」</b>는 두 분이 자리를 돌 때 담으니 번호와 상관없어요.</div>';   // MPD_E10 산재 노트 통합
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에 남길 구도예요. 전체 하객은 늘 첫 컷이고, <b>「불러 모아요」</b> 구도가 그다음으로 이어져요. <b>「자리에서」</b>는 두 분이 자리를 돌 때 담으니 번호와 상관없어요.</div>';   // MPD_E10 산재 노트 통합
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -5656,7 +5656,7 @@ function renderPhoto(box){
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
   var _pm=photoMins(sel);
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
-    +(_pm>19?' <span style="color:var(--gold-deeper)">· 하객과 함께 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 31~39분 기준+'</div>';
+    +(_pm>19?' <span style="color:var(--gold-deeper)">· 인사 사진 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 31~39분 기준+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
@@ -5692,11 +5692,11 @@ function renderPhoto(box){
   function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-pdel]'), function(el){ el.addEventListener('click', function(){ sel.splice(+el.getAttribute('data-pdel'),1); rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 하객과 함께 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
+  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 인사 사진 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
   var inp=$('mp_photoAdd'), btn=$('mp_photoAddBtn');
   function add(){ if(!inp) return; var v=(inp.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(['전체 하객'].concat(sel).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
-    if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 하객과 함께 시간에 진행돼요.'); return; }
+    if(sel.length>=PHOTO_MAX){ mpAlert('구도가 많아요. 고른 순서대로 인사 사진 시간에 진행돼요.'); return; }
     sel.push(v); inp.value=''; rerender(); }
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });

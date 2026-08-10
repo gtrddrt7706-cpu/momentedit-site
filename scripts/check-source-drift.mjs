@@ -208,7 +208,11 @@ function scan(needle) {
        끼면 그건 이웃 항목이지 이 항목의 길이가 아니다 — 그 구분이 오탐을 막는 전부다. */
   {
     const N = '(\\d{1,3})(?:\\s*[~–-]\\s*(\\d{1,3}))?\\s*(?:분|m\\b|min)';
-    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:하객과 함께|다 함께|인사와 사진|Group Record)', GR, '하객과 함께']];
+    /* ★[GREET_PHOTO 2026-08-10] 두 번째 토막의 한글 이름은 네 번 바뀌었다 —
+       단체 기록 → 인사와 사진 → 다 함께 → 하객과 함께 → **인사 사진**(현재 · 사용자 지시).
+       옛 이름을 목록에서 빼지 않는다: 어딘가에 옛 이름이 남아 있는데 규칙에서 빠지면
+       그 줄의 숫자를 아무도 안 보게 된다('없으면 통과'와 같은 병). 이름이 늘 뿐 줄지 않는 이유다. */
+    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:인사 사진|하객과 함께|다 함께|인사와 사진|Group Record)', GR, '인사 사진']];
     for (const f of files) {
       if (f === 'scripts/check-source-drift.mjs') continue;
       const src = fs.readFileSync(path.join(root, f), 'utf8');
@@ -235,7 +239,7 @@ function scan(needle) {
   const FLOOR = 10;
   if (tables < FLOOR) bad.push(`시간표를 ${tables}벌밖에 못 읽었다(최소 ${FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
   if (bad.length) no(`140분 시간표가 어긋난다 — 열 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
-  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 하객과 함께 ${GR[0]}~${GR[1]}분 · 합 ${SUM}분)`);
+  else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 인사 사진 ${GR[0]}~${GR[1]}분 · 합 ${SUM}분)`);
 }
 
 /* 6) ★절대 시각형 시간표 3벌 — 위 (5)가 **못 보던 자리**다. [CLOCK_TABLE 2026-08-09]
