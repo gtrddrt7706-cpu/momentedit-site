@@ -1935,6 +1935,11 @@ chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
 #   로그인 뒤 제작 카드·좌석 캔버스·위저드·음료 시트는 한 번도 재지 않았다.
 #   실측 2026-08-10: index 못 잰 것 34+ · mypage 9+(잰 것보다 많다).
 #   ★실패로 세지 않는다 — 접힌 아코디언·닫힌 모달은 정당히 숨어 있다. 초록은 그대로다.
+# [RAIL_OVERLAP_OK 2026-08-10] 고정 아이콘 레일이 본문 위에 겹치는 것은 **의도된 것**이라는
+#   사용자 확인("계획된거야")과 그 실측(89줄)이 advisor-widget.js 에 적혀 있다. 지우지 말 것 —
+#   지우면 다음 세션이 같은 측정을 하고 같은 제안을 다시 들고 온다(이미 두 세션이 그랬다).
+chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
+chk '계획된거야' assets/advisor-widget.js 1
 chk 'TAP_UNSEEN' scripts/check-tap-targets.mjs 2
 chk '못 잰 것' scripts/check-tap-targets.mjs 3
 chk '보이는 데까지 봤다' scripts/check-tap-targets.mjs 1
