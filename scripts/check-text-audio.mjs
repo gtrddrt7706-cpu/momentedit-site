@@ -241,21 +241,50 @@ const VOICE = (man.voice || {})['진행'] || '진행';
    → manifest 의 clip.role 로 그 클립의 화자를 찾는다. 못 찾으면 진행으로 떨어뜨린다. */
 const ROLE_OF = new Map((man.clips || []).map((c) => [c.file, c.role]));
 const voiceOf = (slug) => (man.voice || {})[ROLE_OF.get(slug)] || VOICE;
+/* ★★[REDUB_TWIN 2026-08-10] 한 화면 자리에 **녹음이 둘**일 수 있다 — 나레이션판과 배역판.
+   guest-2-10min 이 그렇다: 02_guest-2-10min(안내·잔희 "오늘의 예식이…")과
+   02_guest-2(신부·서진 "저희 예식이…"). 글도 목소리도 다른, 서로 다른 녹음이다.
+   옛 판은 명단·붙여넣기를 **화면 슬러그로 중복 제거**했다. [REDUB_DUP] 이 이유가 있었다 —
+   같은 녹음이 모드 둘을 훑다 두 번 실리는 것을 막으려던 것이다. 그런데 그 자가 너무 굵어서,
+   **다른 녹음까지 같은 것으로 보고 버렸다.** 실측: 어긋남 5인데 붙여넣기는 4클립 14문장.
+   서진 판 두 줄이 명단에 이름만 있고 문장이 없어, 14줄을 다 녹음해도 그 클립은 옛말로 남는다.
+   ★고침: 중복 제거와 목소리 찾기를 **녹음 파일 이름**으로 한다. 진짜 중복은 ids 가 같으니
+     그대로 하나로 접히고, 다른 녹음은 갈라진다. 자를 새로 만들지 않고 **한 칸 더 잘게** 쥔다.
+   ★명단 머리는 화면 슬러그를 그대로 쓴다 — 검사의 양방향 대조가 그 이름으로 돌기 때문이다.
+     같은 슬러그가 두 줄 나오지만 includes 판정이라 해가 없다(둘 다 확인함). */
+const fileOfId = (id) => String(id || '').replace(/^\d+_/, '');
+const voiceOfRow = (r) => (man.voice || {})[ROLE_OF.get(fileOfId(r.ids && r.ids[0]))] || voiceOf(r.slug);
+const twinKey = (r) => (r.ids && r.ids.length ? r.ids.join('|') : r.slug);
 
 if (process.argv.includes('--redub')) {
+  /* ★★[WAIT_TWO_COUNTS 2026-08-10 · 코드 세션] 머리의 수와 아래 항목 수가 **다른 것을 세고 있었다.**
+     실측(REDUB_TWIN 직후): 머리는 「대기 4클립」인데 [NN] 항목은 5개였다.
+     머리는 badSlugs(=화면 자리)를 세고, 항목은 녹음(twinKey)마다 하나씩 나오기 때문이다.
+     둘 다 맞는 수인데 **이름이 같아서** 사람이 어느 쪽을 믿을지 모른다.
+     ★이 불일치가 바로 코워크가 REDUB_TWIN 버그를 찾아낸 단서였다("명단 5 vs 붙여넣기 4").
+       그대로 두면 다음에 같은 방법으로 못 찾는다 — 신호를 되살린다.
+     ★머리의 수는 **아래 적히는 항목 수**로 맞추고, 화면 자리 수는 괄호로 함께 밝힌다.
+       `# 대기 N클립` 꼴은 그대로 둔다 — check-paste-format 이 그 정규식으로 읽는다. */
+  const _twins = new Set();
+  for (const r of bad) _twins.add(twinKey(r));
+  for (const r of noAudio) if (!bad.some((b) => b.slug === r.slug)) _twins.add(twinKey(r));
+  const waitRec = _twins.size;
+  const twinNote = waitRec === badSlugs.length ? ''
+    : `   (화면 자리 ${badSlugs.length}곳 · 한 자리에 녹음이 둘인 곳이 있습니다 [REDUB_TWIN])`;
   const lines = [
     '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
     '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
     '# 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].',
     '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
     '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
-    '# 대기 ' + badSlugs.length + '클립', ''
+    '# 대기 ' + waitRec + '클립' + twinNote, ''
   ];
-  const _listed = new Set();   // [REDUB_DUP] 같은 슬러그가 두 번 실리던 것 — 모드 둘을 훑으며 생긴다
+  const _listed = new Set();   // [REDUB_DUP] 같은 **녹음**이 두 번 실리던 것 — 모드 둘을 훑으며 생긴다
   for (const r of bad) {
-    if (_listed.has(r.slug)) continue; _listed.add(r.slug);
-    lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)'));
-    for (const t of sentsOf(r.screen)) lines.push(voiceOf(r.slug) + ': ' + t);
+    if (_listed.has(twinKey(r))) continue; _listed.add(twinKey(r));   // [REDUB_TWIN] 슬러그가 아니라 녹음으로 접는다
+    lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)')
+      + (r.ids && r.ids.length ? '   ← ' + r.ids.join(' + ') : ''));   // [REDUB_TWIN] 같은 슬러그가 둘일 때 어느 녹음인지 사람이 구분할 수 있게
+    for (const t of sentsOf(r.screen)) lines.push(voiceOfRow(r) + ': ' + t);
     lines.push('');
   }
   // [NO_AUDIO] 소리가 아예 없는 클립 — 미리듣기에 안 나와도 녹음은 필요하다
@@ -281,8 +310,8 @@ if (process.argv.includes('--redub')) {
   const seen = new Set(), ordered = [];
   for (const r of all) {
     const no = +String(r.ids && r.ids[0] || r.no || '').split('_')[0] || 0;
-    if (seen.has(r.slug)) continue; seen.add(r.slug);
-    ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen) });
+    if (seen.has(twinKey(r))) continue; seen.add(twinKey(r));   // [REDUB_TWIN] 슬러그가 아니라 녹음으로
+    ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen), voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
   }
   ordered.sort((a, b) => a.no - b.no);
   /* ★[PASTE_VOICE 2026-08-09] 화자 이름을 **붙인다** — 사용자 요청 *"파일붙이면 우성도 자동으로 나오게"*.
@@ -294,7 +323,7 @@ if (process.argv.includes('--redub')) {
        그 형식을 그대로 따른다. 빈 줄도 넣지 않는다(그 파일에 없다).
      ★배역(5_배역.txt)은 화자가 여럿이라 줄마다 다른 이름이 붙는다 — 같은 문법이다. */
   const pl = [];
-  for (const c of ordered) for (const t of c.sents) pl.push(voiceOf(c.slug) + ': ' + t);
+  for (const c of ordered) for (const t of c.sents) pl.push((c.voice || voiceOf(c.slug)) + ': ' + t);
   /* ★대기가 0이면 파일을 **지운다.** 빈 파일을 남기면 ①형식 검사가 빈 줄을 물고
      ②다음에 열어 본 사람이 "붙여넣을 게 있나?" 하고 한 번 더 확인하게 된다.
      없는 것이 없다고 말하는 가장 정확한 방법은 파일이 없는 것이다. */
