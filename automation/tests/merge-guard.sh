@@ -1924,6 +1924,8 @@ chk 'GUEST_LIGHT' console.html 1
 chk 'GUEST_MIN' console.html 1                       # 고객 미리듣기 미니멀(2026-08-09) · 짙은 색은 '다음으로' 버튼 하나
 chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2
 chk 'HERO_NO_HAIR' index.html 3                      # 히어로 구분선 폐지(2026-08-10 사용자 지시) · 되살리지 말 것
+chk 'REASON_SAYS' scripts/check-hero-lockup.mjs 1    # 근거는 길이가 아니라 '값을 말하는가'로 본다(2026-08-10 적대검증)
+chk 'REASON_GAP' scripts/check-hero-lockup.mjs 2     # 그 값이 글자 크기가 아니라 **간격값**이어야 한다(2026-08-10 적대검증)
 chk 'LOCKUP_SAID' scripts/check-hero-lockup.mjs 1     # 적어 둔 숫자↔실제 값 대조 검사 · 지우지 말 것
 chk 'HERO_LOCKUP_RATIO' index.html 2                 # 자물쇠 사이 = 워드마크 대문자 높이의 0.60배(폰 13 · PC 21) · px 만 고치지 말 것
 chk 'GUEST_PREV' console.html 3                      # 고객 미리듣기 '이전 순서'(2026-08-10 사용자 지시)
