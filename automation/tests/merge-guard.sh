@@ -1267,6 +1267,18 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# ── [FAQ_MID_HOLD 2026-08-10] FAQ·JSON-LD 두 자리는 **범위 꼴로 둔다** ──
+# 이 두 자리를 가운데값(20m/35m)으로 통일하면 보기엔 깔끔한데, 그 대가로 **감시망에서 빠진다.**
+# 주변 산문에 숫자가 많아서(140분·45분·5분·55분·20분·9시 45분…) check-source-drift 가
+# 숫자를 '순서 있는 부분열'로 맞출 때, 가운데값 20 은 근처의 다른 20 으로 대신 채워진다.
+# ★두 세션이 따로 재서 같은 결과를 봤다 — 같은 자리(The Ceremony)를 30 으로 망가뜨렸을 때
+#     범위 꼴 `16~24m | The Ceremony` → drift exit 1 (CAUGHT)
+#     가운데값 `20m | The Ceremony`   → drift exit 0 (MISSED)
+# 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
+# ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
+#   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
+chk '16~24m | The Ceremony' index.html 2
+chk '31~39m | Group Record' index.html 2
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 31~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
