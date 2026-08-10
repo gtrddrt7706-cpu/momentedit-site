@@ -1924,7 +1924,7 @@ chk 'GUEST_LIGHT' console.html 1
 chk 'GUEST_MIN' console.html 1                       # 고객 미리듣기 미니멀(2026-08-09) · 짙은 색은 '다음으로' 버튼 하나
 chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2
 chk 'HERO_NO_HAIR' index.html 3                      # 히어로 구분선 폐지(2026-08-10 사용자 지시) · 되살리지 말 것
-chk 'HERO_LOCKUP_RATIO' index.html 2                 # 자물쇠 사이 = 워드마크 대문자 높이의 0.80배(폰 18 · PC 28) · px 만 고치지 말 것
+chk 'HERO_LOCKUP_RATIO' index.html 2                 # 자물쇠 사이 = 워드마크 대문자 높이의 0.60배(폰 13 · PC 21) · px 만 고치지 말 것
 chk 'GUEST_PREV' console.html 3                      # 고객 미리듣기 '이전 순서'(2026-08-10 사용자 지시)
 chk 'gPrev' scripts/check-guest-skin.mjs 2           # 조작부 허용 명단(OK)에 이름으로 올라 있어야 한다
 chk 'OK_SUBTREE' scripts/check-guest-skin.mjs 1      # 허용된 이름은 자기 자신만 면제 — 그 안에 숨은 조작기는 잡는다
