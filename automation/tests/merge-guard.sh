@@ -1873,6 +1873,15 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 실사고: 빌더 완성 화면 '약 28분' ↔ 미리듣기 인트로 '실제 예식은 약 47분'. 세 배 넘게 갈렸고
 # 거꾸로 붙어 있었다(짧은 코스일수록 큰 수). 원인은 totalSec(= 예식 + 남는 시간)을 '예식'이라 부른 것.
 # ※ check-est-one.mjs 는 여기서 실행하지 않는다 — 브라우저와 로컬 서버(:8895)가 필요해서다 [NO_GATE].
+# ── [PROBE_RULER 2026-08-10] 화면을 재는 공용 자 ──
+# 한 세션에서 같은 종류의 측정 실수를 여섯 번 했다(innerText 로 접힌 것 못 봄 · script 문자열을
+# 화면 글로 셈 · 잘려서 안 보이는 것을 넘침으로 셈 · 저장소 밖 서버 404 를 결함으로 읽음 등).
+# 자를 파일 하나로 모으고, 서버가 저장소 루트를 보는지 **재기 전에** 확인하게 했다.
+# ※ 이 파일도 게이트가 실행하지 않는다 [NO_GATE] — 브라우저·서버가 필요하다.
+chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
+chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
+chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
+chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화면 글로 세지 않는다
 chk 'EST_ONE_NUMBER' console.html 1                     # 인트로가 minLabel 을 쓰는 근거 주석
 chk 'minLabel' console.html 2                           # 디렉터 패널 '기준' + 고객 인트로 '실제 예식'
 chk 'EST_ONE_NUMBER' scripts/check-est-one.mjs 2        # 검사 자신이 왜 생겼는지
