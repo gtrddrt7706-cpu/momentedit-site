@@ -1314,6 +1314,14 @@ chk 'SPLIT_JOIN' scripts/assemble-narration.mjs 1
 #   실제로 두 번 뚫려 있었고(주석이 낡은 행을 대신 통과시킴 · 줄 뒤 주석이 그 줄을 면제시킴),
 #   둘 다 행을 일부러 낡게 바꿔 보고 나서야 드러났다. 검사를 고칠 때마다 이걸 함께 돌린다.
 sh scripts/check-source-drift.test.sh || fail=1
+# ★[2026-08-10 코드 세션] 그 돌연변이 시험 자신에게 난 구멍 셋 — 지우지 말 것.
+#   EVERY_HIT : 같은 문장이 두 곳이면 앞 하나만 시험하고 뒤는 미검증으로 남았다
+#               (index.html 162행 JSON-LD 만 시험되고 6334행 보이는 FAQ 는 한 번도 안 됐다)
+#   NO_FILE   : 파일을 못 읽으면 조용히 돌아가 그 자리가 세어지지도 않았다
+#   RAN_NONE  : 그래서 열한 자리 파일이 전부 없어도 "11자리 전부 잡힌다 · exit 0" 이 나왔다(실측)
+chk 'DRIFT_EVERY_HIT' scripts/check-source-drift.test.sh 1
+chk 'DRIFT_NO_FILE' scripts/check-source-drift.test.sh 1
+chk 'DRIFT_RAN_NONE' scripts/check-source-drift.test.sh 1
 
 # [CONTRACT_V14] 계약서 3조① 본식 16~24분 · Group Record 36~44분(합 60분 고정) · 문서 v1.4.
 #   ★v1.3 서명자는 archive/v1-3.html 로 열람해야 한다 — 이 줄이 사라지면 옛 서명자가
