@@ -1930,6 +1930,14 @@ chk 'color-scheme:light' console.html 1
 # 정착 루프가 세는 수(화면에 보이는 타깃 전부)와 출력의 수(면제 뺀 것)가 둘 다 '대상'이었다.
 # 두 세션이 42 대 43 을 '어긋남'으로 읽고 원인을 찾아 들어갔는데 실은 같은 것이었다(차이 = 인라인 면제 1).
 chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
+# [TAP_UNSEEN 2026-08-10] '전부 통과'가 '전부 쟀다'로 읽히던 것을 막는 줄. 지우지 말 것.
+#   mypage 는 화면에 7·잰 것 7·✓전부 통과였는데 그 7 이 **로그인 폼**이었다.
+#   로그인 뒤 제작 카드·좌석 캔버스·위저드·음료 시트는 한 번도 재지 않았다.
+#   실측 2026-08-10: index 못 잰 것 34+ · mypage 9+(잰 것보다 많다).
+#   ★실패로 세지 않는다 — 접힌 아코디언·닫힌 모달은 정당히 숨어 있다. 초록은 그대로다.
+chk 'TAP_UNSEEN' scripts/check-tap-targets.mjs 2
+chk '못 잰 것' scripts/check-tap-targets.mjs 3
+chk '보이는 데까지 봤다' scripts/check-tap-targets.mjs 1
 chk '화면에 ' scripts/check-tap-targets.mjs 1
 
 # ── [OPEN_PALETTE] 자유 한 칸을 전 코스에서 (2026-08-09 사용자 결정 "전코스개방") ──
