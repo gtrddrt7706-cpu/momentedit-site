@@ -29,6 +29,20 @@
     + '.me-fab-ico svg{width:22px;height:22px}'
     + '@media(max-width:680px){.me-fab-stack{right:6px}.me-fab-ico{width:46px;height:46px}.me-fab-ico svg{width:21px;height:21px}}'
     /* 아이콘은 항상 노출(누끼) — 스크롤 숨김 효과는 정신없어 제거 (2026-06-12 사용자 지시) */
+    /* ★★[RAIL_OVERLAP_OK 2026-08-10 사용자 확인] 이 레일이 본문 글자 위에 겹치는 것은 **의도된 것이다.**
+       > 사용자 원문: *"계획된거야"* (겹침 실측을 보고한 뒤의 답)
+       ★고치지 말 것. 재는 사람마다 같은 결론에 닿아 같은 제안을 다시 들고 오게 되어 있다 —
+         그러라고 여기 수치를 남긴다. 이미 두 세션이 각각 발견해 각각 고치려 했다.
+       실측 (390px · 2026-08-10):
+         글리프 띠 x 351~372 (탭 상자는 x 338~384 이지만 배경이 투명이라 칠해지는 것은 svg 뿐)
+         본문은 x 20~370 → 글자가 **실제로** 아이콘에 닿는 줄: index 64 · inquiry 24 ·
+         order-preview 1 · schedule 0 · mypage/guide 0(레일 없음). 합 89줄.
+       ★'상자 기준'으로 세면 195개가 나온다 — 그건 과장이다. 탭 상자는 투명해 아무것도 안 가린다.
+         이 둘을 섞어 세지 말 것(같은 이름의 두 숫자는 증명을 방해한다).
+       ★해결책이라며 다시 오기 쉬운 것 셋과 그 결말:
+         ①본문 오른쪽 여백 22~34px → 랜딩 폭이 통째로 바뀐다. 사용자가 '계획된 것'이라 했다.
+         ②레일을 더 오른쪽으로/작게 → 탭 44px 규칙(check-tap-targets)이 깨진다.
+         ③스크롤 자동 숨김 → **2026-06-12 사용자 지시로 이미 폐지**(바로 윗줄). 되살리지 말 것. */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
