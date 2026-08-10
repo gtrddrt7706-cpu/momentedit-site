@@ -3294,12 +3294,15 @@ footer {
   .seq-item {
     grid-template-columns: 68px 1fr;
     gap: 14px;
-    /* ★[SEQ_RAIL_DODGE 2026-08-10] 오른쪽 32px 를 비운다 — 화면에 고정된 아이콘 레일
-       (.me-fab-stack)이 이 칸 위에 떠 있어 **글자가 아이콘 밑으로 들어간다.**
-       390px 실측: 설명 칸 x=102~370 · 레일이 가로 32px · 세로 163px 만큼 겹쳤다.
-       레일은 페이지 전체에 떠 있으니 이 절은 그중 한 자리일 뿐이다(다른 절도 같은 값을 재 볼 것).
-       여기부터 비우는 이유 — 이 절이 글이 가장 길어 겹치는 줄이 제일 많다. */
-    padding: 24px 34px 24px 0;
+    /* ★★[SEQ_RAIL_DODGE 폐기 2026-08-10] 여기 있던 `padding-right: 34px` 을 **되돌렸다.**
+       내가 넣은 이유는 "고정 아이콘 레일이 본문 글자를 덮는다"였고 실측(겹침 가로 32px)도 맞았다.
+       그런데 전제가 틀렸다 — 사용자 판정: *"계획된거야"*. 겹침은 결함이 아니라 의도다
+       (근거·실측 89줄은 assets/advisor-widget.js 의 [RAIL_OVERLAP_OK] 에 있다).
+       ★그대로 두면 이 절만 34px 좁아 다른 절과 어긋나고, 옆에는 '결함을 피했다'는 낡은 설명이 남는다.
+         고친 값보다 **틀린 채 남은 이유**가 더 오래 해롭다 — 다음 사람이 그 이유를 근거로 또 움직인다.
+       ★다시 넣지 말 것. 레일과 본문이 겹쳐 보이거든 [RAIL_OVERLAP_OK] 를 먼저 읽을 것.
+         이미 두 세션이 각각 한 번씩 고치려 했다. 이것이 세 번째를 막는 자리다. */
+    padding: 24px 0;
   }
   .br-mo { display: inline; }
   .seq-time {
@@ -5687,21 +5690,21 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <div class="seq-time">20<span>min</span></div>
     <div>
       <div class="seq-name">The Ceremony<span class="seq-name-ko">본식</span></div>
-      <div class="seq-desc">두 분의 기획이 실현되는 순간. 성우의 정중한 나레이션과 함께 두 분이 설계한 식순으로 자유롭게 채워지는 시간입니다. 고르신 코스에 따라 16~24분으로 달라집니다.</div>
+      <div class="seq-desc">두 분의 기획이 실현되는 순간. 성우의 정중한 나레이션과 함께 두 분이 설계한 식순으로 자유롭게 채워지는 시간입니다. 고르신 코스에 따라 길이가 달라집니다.</div>
     </div>
   </div>
   <div class="seq-item">
     <div class="seq-time">35<span>min</span></div>
     <div>
       <div class="seq-name">Group Record<span class="seq-name-ko">인사 사진</span></div>
-      <div class="seq-desc">신부대기실에 앉아 기다리는 시간이 없습니다. 두 분이 자리마다 찾아가 인사드리고, 그 테이블에서 바로 한 장을 남깁니다. <br>사진작가가 내내 함께 다니니 원하시는 컷을 그 자리에서 부탁하셔도 되고, 폰으로 편히 찍거나 다 함께 셀카를 남기셔도 좋습니다. 양가의 모든 세대가 한자리에 모이는, 점점 드물어지는 순간입니다. 본식이 짧으면 그만큼 길어져 31~39분입니다.</div>
+      <div class="seq-desc">두 분이 자리마다 찾아가 인사를 나눕니다. 그 테이블에서 한 장씩, 폰 사진도 편하게. <br>마지막엔 다 함께 모여 단체사진을 여러 구도로 남깁니다. 본식이 짧으면 그만큼 길어집니다.</div>
     </div>
   </div>
   <div class="seq-item">
     <div class="seq-time">20<span>min</span></div>
     <div>
       <div class="seq-name">Farewell<span class="seq-name-ko">배웅</span></div>
-      <div class="seq-desc">서두르지 않는 배웅과 여유로운 마무리. 예식의 마지막 순간까지 온전한 품격을 유지합니다.</div>
+      <div class="seq-desc">입구에서 하객분들을 배웅하고, 두 분은 편하게 환복까지 마칩니다. 서두를 일이 없도록 이 시간 안에 다 들어 있습니다.</div>
     </div>
   </div>
 </div>

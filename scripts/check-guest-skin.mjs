@@ -182,10 +182,35 @@ for (const [w, h, tag] of SIZES) {
     const ctlLeak = await p.evaluate(() => {
       const inner = document.querySelector('.ctl .inner');
       if (!inner) return ['조작부(.ctl .inner)를 못 찾았습니다 — 화면 구조가 바뀌었습니다(통과 아님)'];
+      /* 고객이 조작부에서 봐도 되는 것 — **이름을 적은 것만.** 넓히려면 여기 한 줄을 늘리고
+         왜 고객 것인지를 적는다. 조건을 '버튼이면 통과' 같은 꼴로 바꾸지 말 것 —
+         그 순간 앞으로 생길 디렉터 버튼이 전부 통과한다(이 검사가 막으려던 바로 그것).
+           mBtn  : 다음 순서로
+           gPrev : 이전 순서 [GUEST_PREV 2026-08-10 사용자 지시] — 되돌아 듣는 길 */
+      const OK = ['mBtn', 'gPrev'];
+      /* ★★[OK_SUBTREE 2026-08-10 · 코드 세션 실측] 허용된 이름은 **자기 자신만** 면제된다.
+         옛 판은 `continue` 로 그 **자식까지 통째로** 건너뛰었다. 실측으로 확인한 구멍:
+           gPrev 안에 중립적인 글자 상자를 넣으면 exit 0(못 봄)
+           같은 것을 조작부 직속으로 옮기면 exit 1(잡음)
+         디렉터 도구 이름이 들어 있었으면 문구 검사(FORBID)가 대신 잡아 줬을 뿐이다 —
+         그건 이 검사가 잡은 것이 아니다. 남의 그물에 걸린 것을 내 그물이 튼튼한 증거로 쓰지 않는다.
+         ★그렇다고 자식을 전부 훑으면 mBtn 의 <small>·gPrev 의 <span> 이 매번 걸린다.
+           그래서 **조작할 수 있는 것**만 본다 — 글자 장식은 통과, 버튼·링크·입력은 신고.
+           디렉터 도구는 예외 없이 이 중 하나다(누를 수 없으면 도구가 아니다). */
+      const TOOL = 'button,a,input,select,textarea,details,summary,[role="button"]';
       const out = [];
       const walk = (el) => {
         for (const c of el.children) {
-          if (c.id === 'mBtn') continue;
+          if (OK.indexOf(c.id) >= 0) {
+            for (const d of c.querySelectorAll(TOOL)) {
+              const dr = d.getBoundingClientRect();
+              if (dr.width > 0 && dr.height > 0) {
+                out.push(`${c.id} 안에 조작기가 숨어 있다 → ` + d.tagName.toLowerCase()
+                  + (d.id ? '#' + d.id : '') + (d.className ? '.' + String(d.className).trim().split(/\s+/).join('.') : ''));
+              }
+            }
+            continue;
+          }
           const r = c.getBoundingClientRect();
           if (r.width <= 0 || r.height <= 0) continue;                 // 안 보이면 통과
           if (c.children.length && c.tagName !== 'DETAILS') { walk(c); continue; }   // 껍데기는 지나가고 실물만 짚는다

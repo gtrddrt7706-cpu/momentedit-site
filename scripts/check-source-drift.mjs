@@ -163,6 +163,16 @@ function scan(needle) {
        설명글·제목의 군더더기 숫자는 사이에 끼어도 통과하고, 행 숫자가 낡으면 순서가 끊겨 잡힌다.
        이름을 안 보므로 `30m | The Ceremony` 든 `The Ceremony (30분)` 든 `30<small>min` 이든 다 걸린다. */
   const want = [String(D.DAY.ready), String(D.DAY.snap), `${CE[0]}~${CE[1]}`, `${GR[0]}~${GR[1]}`, String(D.DAY.farewell)];
+  /* ★★[MID_FORM 2026-08-10] 같은 표를 **가운데값**으로 적는 판도 정당하다.
+     사용자 지시로 랜딩 시퀀스 표는 큰 숫자 칸에 20 · 35 만 두고 범위를 글에서 뺐다
+     ("물결이 지저분하다" → "괄호도 빼자"). 범위는 진행표 모달·FAQ·JSON-LD·계약서 등이 계속 진다.
+     ★가운데값도 **원천에서 계산한다** — 리터럴이 아니다. 코스 구성이 바뀌면 이 값도 함께 움직이고,
+       칸이 옛 숫자로 남으면 그대로 걸린다.
+     ★★슬롯마다 '범위 또는 가운데값'을 허용하면 안 된다 — 그러면 한 표 안에서 두 표기가 섞여도
+       통과해 버려 돌연변이가 다른 슬롯에 흡수된다(실제로 그렇게 새는 것을 확인했다).
+       **줄 전체가 한 형태로 맞아떨어질 때만** 통과시킨다. 그래서 두 벌을 따로 두고 OR 로 본다. */
+  const mid = (a, b2) => String(Math.round((a + b2) / 2));
+  const wantMid = [String(D.DAY.ready), String(D.DAY.snap), mid(CE[0], CE[1]), mid(GR[0], GR[1]), String(D.DAY.farewell)];
   /* ★숫자와 단위 사이에 태그가 낀다 — `20<span>min</span>` · `30<small>min</small>`.
      이걸 빼먹어서 index.html 의 **보이는** 시간표 한 벌을 통째로 못 읽고 있었다(THIN).
      '읽은 벌 수'를 함께 세지 않았다면 초록으로 통과했을 것이다. */
@@ -193,11 +203,12 @@ function scan(needle) {
       while ((d = DUR.exec(region))) got.push(d[2] ? `${+d[1]}~${+d[2]}` : String(+d[1]));
       if (got.length < 5) continue;                          // 시간을 안 적은 표(화살표 나열 등)
       tables++;
-      let k = 0;
-      for (const t of got) if (t === want[k]) k++;
-      if (k < want.length) {
-        bad.push(`${f}:${src.slice(0, g.index).split('\n').length} — [${want[k]}]분이 제자리에 없다. `
-          + `읽은 값 [${got.join(' · ')}] / 있어야 할 순서 [${want.join(' · ')}]`);
+      const run = (w) => { let k = 0; for (const t of got) if (t === w[k]) k++; return k; };
+      const kR = run(want), kM = run(wantMid);
+      if (kR < want.length && kM < wantMid.length) {
+        const w = kR >= kM ? want : wantMid, k = Math.max(kR, kM);
+        bad.push(`${f}:${src.slice(0, g.index).split('\n').length} — [${w[k]}]분이 제자리에 없다. `
+          + `읽은 값 [${got.join(' · ')}] / 있어야 할 순서 [${want.join(' · ')}] 또는 가운데값 [${wantMid.join(' · ')}]`);
       }
     }
     }

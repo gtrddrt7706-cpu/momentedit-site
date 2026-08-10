@@ -194,7 +194,7 @@ select,input[type=time],input[type=text]{
 body.guest #setup{display:none !important}
 body.guest #bPos, body.guest #bClock, body.guest #bSheet, body.guest #bExit,
 body.guest .sub3, body.guest .vol, body.guest .now .no{display:none !important}
-body.guest .ctl .inner{grid-template-columns:1fr}
+body.guest .ctl .inner{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:stretch}   /* [GUEST_PREV] 왼쪽 '이전' + 오른쪽 '다음으로' */
 body.guest .main{background:var(--bg3);color:var(--text);font-size:17px;font-weight:600;padding:20px 16px}
 body.guest .main small{opacity:.72;font-weight:400}
 body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
@@ -304,6 +304,20 @@ body.guest .ctl{border-top:1px solid var(--line);padding:12px 16px calc(14px + e
 body.guest .main{background:var(--seal);color:#fff;font-size:16px;font-weight:600;padding:17px 16px;border-radius:12px}
 body.guest .main small{opacity:.72;font-size:11.5px;margin-top:4px}
 body.guest .main.wait{background:var(--bg3);color:var(--sub)}   /* 다 들은 뒤 '다시 듣기'는 물러난다 */
+
+/* ⑨ 이전 순서 [GUEST_PREV] — 짙은 색은 여전히 「다음으로」 하나뿐이다.
+   되돌아가는 길은 **있되 앞서지 않는다**: 테두리만 있는 조용한 칸으로 두고,
+   첫 순서에서는 흐리게 죽인다(눌러도 갈 데가 없는 버튼이 살아 있으면 그게 더 헷갈린다). */
+.gprev{display:none}
+body.guest .gprev{
+  display:inline-flex;align-items:center;justify-content:center;gap:1px;
+  min-width:78px;padding:17px 12px;border-radius:12px;
+  background:transparent;border:1px solid var(--line);color:var(--sub);
+  font-size:14px;font-weight:500;line-height:1;
+}
+body.guest .gprev>span{font-size:18px;margin-right:2px}
+body.guest .gprev:disabled{opacity:.32}
+body.guest .gprev:active:not(:disabled){background:var(--bg3)}
 
 /* ⑦ 블록 머리·힌트 — 문장보다 세지 않게. 위계: 순서 이름 → 배경 설명 → 큰 제목 → 문안 */
 body.guest .blk{margin-bottom:14px;padding-bottom:12px}
@@ -470,6 +484,10 @@ body.guest .now .hint{font-size:12.5px}
   </style>
   <div class="ctl">
     <div class="inner">
+      <!-- ★[GUEST_PREV 2026-08-10 사용자 지시 "전순서도 돌아갈수잇게했으면좋겠어"]
+           고객 미리듣기에만 서는 「이전 순서」. 디렉터 화면에는 이미 뒤로(#bBack)가 있고
+           그쪽은 "되돌리고 멈춘다"라 성격이 다르다 — 여기는 **그 순서를 다시 들려주고 계속 흐른다.** -->
+      <button class="gprev" id="gPrev" type="button" disabled aria-label="이전 순서 다시 듣기"><span aria-hidden="true">‹</span>이전</button>
       <button class="main" id="mBtn">시작 <small>길게 누르면 전체 정지</small></button>
       <div>
         <div class="sub3">
@@ -950,6 +968,8 @@ function gBlock(bn){
 
 function render(){
   if (!R) return;
+  // ★[GUEST_PREV] 첫 순서에서는 되돌아갈 데가 없다 — 살아 있는 버튼으로 두지 않는다
+  var _gp = $('#gPrev'); if (_gp) _gp.disabled = !GUEST || (phase !== 'end' && cur <= 0);
   // 지금 큐는 '실제로 나간 것'을, 다음·그다음은 원래 문안을 보여 준다 — 교체 판정은 아직 안 났다.
   var c = cueAt(cur), n1 = R.cues[cur+1] || null, n2 = R.cues[cur+2] || null;
 
@@ -1107,6 +1127,7 @@ function holdEnd(){
   if (holdT) clearInterval(holdT);
   holdT = null; mBtn.classList.remove('hold'); mBtn.style.setProperty('--hold', '0%');
 }
+$('#gPrev').addEventListener('click', guestPrev);
 mBtn.addEventListener('pointerdown', holdStart);
 mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!was) mainTap(); });
 mBtn.addEventListener('pointerleave', function(){ holdEnd(); });
@@ -1120,6 +1141,21 @@ function mainTap(){
     return;
   }
   advance();
+}
+
+/* ★[GUEST_PREV] 이전 순서로 — 디렉터의 #bBack 과 다르다.
+   #bBack 은 '한 칸 되돌리고 **멈춘다**'(현장에서 사람이 다시 누를 때까지 기다려야 한다).
+   고객 미리듣기는 듣는 화면이라, 되돌아가면 **그 순서가 다시 들리고 그대로 이어 흘러야** 한다.
+   그래서 fire() 를 그냥 다시 부른다 — 재생·자동 진행이 평소 경로와 똑같아진다.
+   ★끝 화면에서는 마지막 순서로 간다(거기서 '이전'이 죽어 있으면 되돌아갈 길이 없다). */
+function guestPrev(){
+  if (!R || !R.cues.length) return;
+  audioOn();
+  clearT();
+  try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
+  var i = (phase === 'end') ? R.cues.length - 1 : cur - 1;
+  if (i < 0) return;
+  fire(i);
 }
 
 function panic(){
