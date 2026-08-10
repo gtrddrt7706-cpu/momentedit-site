@@ -1951,6 +1951,13 @@ chk '계획된거야' assets/advisor-widget.js 1
 # [CANT_LOOK 2026-08-10 코워크 제안 · 코드 세션 구현] 못 잰 것(2)과 재서 틀린 것(1)을 종료 코드로 가른다.
 #   코워크가 서버 없이 tap-targets 를 돌려 '✗ 겹침·작다 1건'을 보고 없는 결함을 고칠 뻔했다.
 #   실측 확인 — 통과 0 · 진짜 결함 1 · 서버 없음 2. 둘 다 0 이 아니라 게이트는 여전히 막는다.
+#   ★[NO_GATE] 다만 **이 게이트는 그 두 검사를 실행하지 않는다** — 여기서는 마커만 센다.
+#     내가 앞 커밋에 "2 도 0 이 아니라 게이트가 그대로 막는다"고 적은 것은 틀렸다.
+#     막는 힘이 안 줄어든 건 맞지만 **원래 0 이라서** 참이었다(코워크 지적 · 실측으로 확인).
+#     둘 다 브라우저·로컬 서버가 필요해 CI 에 넣으면 느리고 잘 운다 — 손검사로 두는 것이 판단이다.
+#     대신 그 사실을 두 파일 머리에 적었다. 없는 방벽을 근거로 안심하지 않기 위해서다.
+chk 'NO_GATE' scripts/check-tap-targets.mjs 1
+chk 'NO_GATE' scripts/check-guest-skin.mjs 1
 chk 'CANT_LOOK' scripts/check-tap-targets.mjs 2
 chk 'CANT_LOOK' scripts/check-guest-skin.mjs 1
 chk 'TAP_UNSEEN' scripts/check-tap-targets.mjs 2
