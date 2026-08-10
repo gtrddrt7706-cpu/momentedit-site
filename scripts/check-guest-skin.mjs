@@ -23,14 +23,26 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(ROOT, 'package.json'));
+/* ★★[PW_FIND 2026-08-09] playwright 를 찾는 자리를 넓힌다 — 옛 판은 한 곳(`/home/claude/.npm-global/...`)을
+   박아 두어, 그 경로가 아닌 세션에서는 **조용히 SKIP 하고 exit 0** 이었다.
+   실측: 이 검사가 지키는 GUEST_CTL_EMPTY(고객 화면에 디렉터 도구가 새는지)가
+   다른 세션에서는 한 번도 돌지 않은 채 초록이었다. merge-guard 도 이 파일은 실행하지 않는다(브라우저 필요).
+   → 검사가 있다는 것과 검사가 돈다는 것은 다르다. `npm root -g` 로 실제 자리를 묻는다.
+   ★그래도 없으면 '안 쟀다'고 밝히고 넘어간다 — SYL_RATE 와 같은 모양이다.
+     '없으면 통과'가 아니라 '없으면 안 쟀다고 말하기'. */
 let chromium;
-try {
-  chromium = require('playwright').chromium;
-} catch {
-  try {
-    chromium = (await import('/home/claude/.npm-global/lib/node_modules/playwright/index.js')).default.chromium;
-  } catch {
-    console.log('SKIP — playwright 가 없습니다. `npm i -D playwright` 후 다시 실행하세요.');
+{
+  let g = '';
+  try { g = (await import('node:child_process')).execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* npm 이 없을 수도 */ }
+  const tries = [process.env.PW, 'playwright', 'playwright-core',
+    g && `${g}/playwright/index.js`, '/home/claude/.npm-global/lib/node_modules/playwright/index.js',
+    '/usr/lib/node_modules/playwright/index.js'].filter(Boolean);
+  for (const t of tries) {
+    try { chromium = require(t).chromium; break; } catch { /* 다음 */ }
+    try { const m = await import(t); chromium = (m.default ?? m).chromium; if (chromium) break; } catch { /* 다음 */ }
+  }
+  if (!chromium) {
+    console.log('· playwright 를 못 찾아 이 검사는 이번에 아무것도 재지 않았습니다 (npm i -g playwright)');
     process.exit(0);
   }
 }
