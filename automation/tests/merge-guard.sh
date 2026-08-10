@@ -1948,6 +1948,11 @@ chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
 #   지우면 다음 세션이 같은 측정을 하고 같은 제안을 다시 들고 온다(이미 두 세션이 그랬다).
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
 chk '계획된거야' assets/advisor-widget.js 1
+# [CANT_LOOK 2026-08-10 코워크 제안 · 코드 세션 구현] 못 잰 것(2)과 재서 틀린 것(1)을 종료 코드로 가른다.
+#   코워크가 서버 없이 tap-targets 를 돌려 '✗ 겹침·작다 1건'을 보고 없는 결함을 고칠 뻔했다.
+#   실측 확인 — 통과 0 · 진짜 결함 1 · 서버 없음 2. 둘 다 0 이 아니라 게이트는 여전히 막는다.
+chk 'CANT_LOOK' scripts/check-tap-targets.mjs 2
+chk 'CANT_LOOK' scripts/check-guest-skin.mjs 1
 chk 'TAP_UNSEEN' scripts/check-tap-targets.mjs 2
 chk '못 잰 것' scripts/check-tap-targets.mjs 3
 chk '보이는 데까지 봤다' scripts/check-tap-targets.mjs 1

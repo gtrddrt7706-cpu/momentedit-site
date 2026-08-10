@@ -140,9 +140,16 @@ try {
   const r = await fetch(BASE, { method: 'GET' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
 } catch (e) {
+  /* ★★[CANT_LOOK 2026-08-10 · 코워크 제안] **못 잰 것은 2, 재서 틀린 것은 1.**
+     왜 — 코워크가 tap-targets 를 서버 없이 돌려 "✗ 겹침·작다 1건"을 보고 **없는 화면 결함을
+     고칠 뻔했다.** 실제로는 페이지를 못 연 것이었다. 색(빨강)만 보면 둘이 구분되지 않는다.
+     ★자를 늘리는 것이 아니다 — '못 잰 것'과 '재서 틀린 것'을 갈라 놓는 일이다.
+       둘을 같은 코드로 내면, 검사가 말할 수 있는 두 가지 다른 사실이 하나로 뭉개진다.
+     ★그래도 0 은 아니다. 못 본 것을 통과로 세면 검사가 거짓말을 시작한다. */
   console.log(`✗ 로컬 서버에 못 붙었습니다(${String(e.message || e)}).`);
   console.log('  저장소 루트에서 `python3 -m http.server 8765` 를 띄운 뒤 다시 실행하세요.');
-  process.exit(1);
+  console.log('  ※ 종료 코드 2 = 재지 못했다(화면 결함 아님) · 1 = 재서 틀렸다');
+  process.exit(2);
 }
 
 for (const [w, h, tag] of SIZES) {

@@ -79,12 +79,19 @@ if (!pages.length) { console.error('✗ 점검할 페이지를 주세요. 예: n
 
 const br = await pw.chromium.launch();
 let bad = 0, steal = 0;
+/* ★★[CANT_LOOK 2026-08-10 · 코워크 제안] **못 잰 것은 2, 재서 틀린 것은 1.**
+   왜 — 코워크가 이 검사를 서버 없이 돌려 「✗ 겹침·작다 1건」을 보고 **없는 화면 결함을 고칠 뻔했다.**
+   실제로는 페이지를 못 연 것이었는데, 그 실패가 `bad++` 로 결함과 같은 통에 담겨 있었다.
+   색(빨강)만 보면 둘이 구분되지 않는다 — 우리 셋이 이번 회차에 세 번 같은 종류로 헛돌았다.
+   ★자를 늘리는 것이 아니라 **'못 잰 것'과 '재서 틀린 것'을 갈라 놓는** 일이다.
+   ★그래도 0 은 아니다. 못 본 것을 통과로 세면 검사가 거짓말을 시작한다(NO_SILENT_SKIP). */
+let cantLook = 0;
 
 for (const page_ of pages) {
   const ctx = await br.newContext({ viewport: { width: 390, height: 844 } });
   const pg = await ctx.newPage();
   try { await pg.goto(`http://127.0.0.1:${PORT}/${page_}`, { waitUntil: 'domcontentloaded', timeout: 30000 }); }
-  catch { console.log(`\n━━ ${page_} — 열지 못했습니다(서버가 떠 있나요?)`); bad++; await ctx.close(); continue; }
+  catch { console.log(`\n━━ ${page_} — 열지 못했습니다(서버가 떠 있나요?) · 재지 못한 것이지 화면 결함이 아닙니다`); cantLook++; await ctx.close(); continue; }
   await pg.waitForTimeout(1200);
   await pg.evaluate(() => document.fonts && document.fonts.ready);
   /* ★★[SWEEP_SETTLE 2026-08-09] 쓸고 나서 **수가 멎을 때까지** 기다린다. 고정 대기가 아니다.
@@ -326,5 +333,7 @@ for (const page_ of pages) {
 }
 await br.close();
 
-console.log(`\n${steal || bad ? `✗ 오터치 ${steal}건 · 겹침·작다 ${bad}건` : '✓ 전부 통과'}`);
-process.exit(steal || bad ? 1 : 0);
+/* [CANT_LOOK] 결론 — 재서 틀린 것이 있으면 1(그게 더 급하다) · 그것 없이 못 잰 것만 있으면 2 · 둘 다 없으면 0 */
+if (cantLook) console.log(`\n※ 못 연 쪽 ${cantLook}개 — 종료 코드 2 = 재지 못했다(화면 결함 아님) · 1 = 재서 틀렸다`);
+console.log(`\n${steal || bad ? `✗ 오터치 ${steal}건 · 겹침·작다 ${bad}건` : (cantLook ? '· 잰 쪽에서는 결함 없음' : '✓ 전부 통과')}`);
+process.exit(steal || bad ? 1 : (cantLook ? 2 : 0));
