@@ -16,6 +16,12 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { launchBrowser } from './_browser.mjs';
+import { createRequire as _cr } from 'node:module';
+/* [RETIRED_SILENT] 폐지 목록은 **원천에서 읽는다** — 여기에 손으로 적으면 다음 폐지 때 또 어긋난다. */
+const ENGINE_RETIRED = (() => {
+  try { return _cr(import.meta.url)('../../assets/ritual-cue.js').RETIRED || {}; }
+  catch (e) { console.log('  ! ritual-cue 의 RETIRED 를 못 읽었습니다 — 폐지 면제 없이 봅니다:', e.message); return {}; }
+})();
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '../..');
 const PORT = 8233;
@@ -67,8 +73,21 @@ for (const [tag, viewport] of [['390 (폰)', { width: 390, height: 844 }], ['128
     o.__all = _srcs(window.ENG, null).map((x) => x.src);
     return o;
   }, KEYS);
-  const empty = KEYS.filter((k) => !got[k].length);
-  ok(!empty.length, `14개 순간 모두 소리가 있다${empty.length ? ' — 빈 키: ' + empty.join(' ') : ''}`);
+  /* ★[RETIRED_SILENT 2026-08-10 점검] 폐지된 순서는 소리가 없는 것이 **맞다.**
+     ringwarm(2026-08-07)·song(2026-08-09) 은 사용자 지시로 폐지됐고 ritual-cue 의 RETIRED 에 있다.
+     그런데 이 검사는 14개 전부 소리가 있어야 한다고 못 박아 두어 그때부터 계속 붉었다.
+     ★목록을 손으로 지우지 않는다 — RETIRED 를 **원천에서 읽어** 면제한다.
+       손으로 지우면 다음 폐지 때 또 붉어지고, 되살릴 때 다시 넣는 것을 잊는다.
+     ★'소리가 없어도 되는 키'를 넓히지는 말 것 — RETIRED 에 든 것만이다. */
+  const RET = Object.keys((ENGINE_RETIRED || {}));
+  const retiredKey = (k) => RET.some((f) => f === k || f.indexOf(k + '-') === 0 || f.indexOf('narr-' + k) === 0);
+  const empty = KEYS.filter((k) => !got[k].length && !retiredKey(k));
+  const _exempt = KEYS.filter((k) => !got[k].length && retiredKey(k));
+  /* [RETIRED_SILENT] 면제한 것을 **화면에 적는다** — 몇 개를 안 봤는지 말하지 않으면
+     '전부 있다'가 '전부 봤다'로 읽힌다(TAP_UNSEEN 과 같은 성격). */
+  ok(!empty.length, `${KEYS.length - _exempt.length}개 순간 모두 소리가 있다`
+    + (_exempt.length ? ` · 폐지라 면제 ${_exempt.length}개(${_exempt.join(' ')})` : '')
+    + (empty.length ? ' — 빈 키: ' + empty.join(' ') : ''));
   const firsts = KEYS.filter((k) => got[k].length).map((k) => got[k][0]);
   ok(new Set(firsts).size === firsts.length, `순간마다 첫 소리가 다르다 (${new Set(firsts).size}/${firsts.length})`);
   const missing = [...new Set(KEYS.flatMap((k) => got[k]).concat(got.__all))].filter((u) => !fs.existsSync(path.join(ROOT, u)));

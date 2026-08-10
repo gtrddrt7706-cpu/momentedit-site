@@ -1383,7 +1383,7 @@ var STEPS=[], CEREMONY=[];
      ★축가 폐지(SONG_RETIRED)의 이주로가 이 칸이다 — 이게 막혀 있으면 '옮기는 것'이 거짓말이 된다.
        실제로 그 커밋을 쓸 때 이 칸이 5개 코스에서 안 열린다는 걸 몰랐다. */
 var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,free:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [OPEN_PALETTE] free 추가
-var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,song:80,toast:85};   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
+var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,free:75,song:80,toast:85};   /* ★[FREE_RANK 2026-08-10 점검] free:75 가 여기만 빠져 있었다 — 원천 assets/ritual-cue.js 의 RANK 에는 처음부터 있다. 2026-08-09 OPEN_PALETTE 로 free 를 전 코스에 열면서 이 사본을 안 고쳤다. 없으면 gr=99 로 떨어져 「자유 한 칸」이 제자리(계곡~축가 사이)가 아니라 **맨 끝 축배 뒤**에 끼워졌다(실측). 바로 위 주석의 「한쪽만 고치지 말 것」이 가리키는 그 사고다. */   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
   return Object.keys(GADD).filter(isGAdd);
