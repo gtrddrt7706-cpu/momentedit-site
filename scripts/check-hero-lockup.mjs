@@ -101,9 +101,22 @@ if (!said.length) no('「폰 N · PC M」이라 적어 둔 자리를 하나도 �
 {
   const blocks = [...idx.matchAll(/HERO_LOCKUP_RATIO[\s\S]{0,1400}?\*\//g)].map((m) => m[0]);
   const REASON_MIN = 300;
-  if (!blocks.some((b) => b.length >= REASON_MIN)) {
+  const long_ = blocks.filter((b) => b.length >= REASON_MIN);
+  if (!long_.length) {
     no(`왜 이 값인지 적힌 근거 덩이(${REASON_MIN}자 이상)가 index.html 에 없습니다 — `
       + `값만 남고 근거가 사라지면 다음 사람이 아무렇게나 만집니다. 지워서 통과시키지 말 것`);
+  } else if (!long_.some((b) => /폰\s*\d/.test(b) && /PC\s*\d/.test(b))) {
+    /* ★★[REASON_SAYS 2026-08-10 · 코워크 적대검증] **길이는 근거가 아니다.**
+       실측: 근거 덩이를 뜻 없는 채움글 546자로 갈아 끼우니 길이 문턱을 넘어 exit 0 이 났다.
+       게다가 대조하는 자리가 6곳 → 4곳으로 조용히 줄었는데도 아무 말이 없었다.
+       ★'지웠는가'가 아니라 **'값을 말하는가'** 를 본다 — 근거 덩이가 폰·PC 수치를 스스로 적고 있어야
+         그 글이 이 값의 근거다. 길이 문턱은 값 옆 한 줄 주석과 구분하는 용도로만 남긴다. */
+    no('근거 덩이가 폰·PC 값을 하나도 말하지 않습니다 — 길이만 채운 글은 근거가 아닙니다');
+  }
+  /* ★대조한 자리가 어느 한 갈래도 빠지면 말한다. 개수를 못 박지는 않는다(글을 다듬을 때마다 울면
+     사람이 검사를 안 믿는다) — **갈래**가 비는 것만 잡는다: 근거 덩이 · 값 옆 주석 · 가드 줄. */
+  for (const kind of ['index.html 히어로 주석', 'index.html 값 옆 주석', 'merge-guard chk 줄']) {
+    if (!said.some((x) => x.where === kind)) no(`${kind} 에 「폰 N · PC M」이 한 곳도 없습니다 — 그 갈래의 설명이 사라졌습니다`);
   }
 }
 
