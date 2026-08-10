@@ -335,6 +335,28 @@ body.guest .now .hint{font-size:12.5px}
   body.guest .up{padding-top:6px}
 }
 
+/* ★★[GUEST_PC 2026-08-10 사용자 지시 "pc버전 미리듣기 섹션 비율이 어색하다"] 넓은 화면 정리.
+   실측(1920px)으로 본 어색함 셋 —
+     ① `.stage` 에 최대폭이 없어 카드가 **화면 끝까지** 늘어난다(문장 한 줄이 1100px 를 건넌다).
+        읽기 좋은 한 줄은 70~90자다. 그보다 길면 눈이 줄 끝에서 다음 줄 머리를 못 찾는다.
+     ② 세로로도 늘어난다(`align-items:stretch` + `.now{flex:1}` + `.now .txt{flex:1}`).
+        짧은 문안 하나에 카드가 700px 높이가 되고 **가운데가 통째로 빈다.**
+     ③ 오른쪽 칸(다음·그다음)은 두 줄뿐인데 폭을 절반 가까이 가져간다.
+   → 폭을 1080px 로 묶고, 늘리기를 끄고, 남는 세로를 위아래로 나눠 **가운데에 세운다.**
+     ★디렉터 화면(embed 없음)은 그대로 둔다 — 현장에서는 큰 화면 가득 쓰는 편이 맞다. */
+@media (min-width:900px){
+  body.guest .stage{
+    max-width:1080px;margin:0 auto;align-items:center;align-content:center;
+    grid-template-columns:1.6fr 1fr;gap:28px;padding:24px 24px 12px;
+  }
+  body.guest .stage>div:first-child{display:block}     /* 늘리지 않는다 — 카드는 글 길이만큼 */
+  body.guest .now{flex:none;display:block}
+  body.guest .now .txt{flex:none}
+  body.guest .now .prog{margin-top:18px}
+  body.guest .ctl .inner{max-width:1080px}
+  body.guest .up{align-content:start;border-top:0}
+  body.guest .up .upc:first-child{border-top:1px solid var(--line)}
+}
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
   .stage>div:first-child{display:flex}

@@ -528,10 +528,16 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    '원본 보기'(4자)·'보정본 받기'(5자)의 폭이 43px 벌어져 좌측 모서리가 들쭉날쭉했다.
    상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
-.trk-act{width:auto;min-width:104px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
+.trk-act{width:auto;min-width:122px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
 /* 보조 버튼(주 버튼 왼쪽) — 한 행에 둘이 서므로 작은 규격. 390px에서 이름칸을 먹지 않게 min-width를 풀고 글자를 한 단 줄인다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 예외가 아니다 — 그 규칙이 말하는 '행 버튼'은 각 행의 주 동작(오른쪽 열)이고,
    이건 주 동작이 아니라 곁들임이다. 둘을 같은 크기로 만들면 무엇이 주된 다음 걸음인지가 사라진다. */
+/* ★[TRK_ACT_ALIGN 2026-08-10 사용자 지시] 오른쪽 버튼들의 **폭을 맞춘다.**
+   min-width 104px 이던 때, 라벨이 긴 「전체 하객 + N컷」만 120px 로 자라
+   그 줄만 왼쪽으로 삐져나왔다(430px 실측: 다른 넷 L=289 · 이 하나만 L=273).
+   오른끝은 이미 맞아 있어서 **왼끝만 어긋난 계단**으로 보였다.
+   122px = 지금 가장 긴 라벨이 필요한 폭. 넷이 조금 넓어지지만 다섯이 한 열로 선다.
+   ★라벨이 더 길어지면 다시 삐져나온다 — 그때는 라벨을 줄이거나 이 값을 함께 올릴 것. */
 .trk-act.trk-act-min{min-width:auto;padding:8px 11px;font-size:12px;color:var(--sub,#5A554C)}
 .trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}   /* gap 필수 — flex 컨테이너는 자식 사이 공백 텍스트 노드를 렌더하지 않아, 넣지 않으면 체크와 글자가 '✓완료'로 붙는다 */
 /* RES_RELINK_SAME(2026-07-26 사용자 지적 연장) — 패널 안 '다시 보기'는 아래 CTA와 같은 폭으로 쌓이는데
