@@ -2165,8 +2165,33 @@ if command -v node >/dev/null 2>&1; then node scripts/check-narr-len.mjs >/dev/n
 # ★ffprobe 없는 세션에서는 '안 쟀다'고 밝히고 넘어간다 — 초록으로 위장하지 않는다.
 chk 'SYL_RATE' scripts/check-syl-rate.mjs 1
 chk '안 쟀다' scripts/check-syl-rate.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/check-syl-rate.mjs >/dev/null \
-  || { echo 'FAIL syl-rate: 음절 상수와 실측의 폭이 범위를 벗어났습니다 — node scripts/check-syl-rate.mjs'; fail=1; }; fi
+chk 'CANT_LOOK' scripts/check-syl-rate.mjs 2
+# ── [NAN_NOT_ZERO 2026-08-10] 못 읽은 길이를 값으로 삼키지 않는다 ──
+# build-chorus 의 `|| 0` 과 같은 병 · 꼴만 다르다(0 대신 NaN). ffprobe 는 못 재면 'N/A' 를 내고,
+# parseFloat('N/A') = NaN 은 **던지지 않고 비교를 무력화한다**.
+# 실측: assemble-parents-letter 의 정렬 게이트가 `r < 0.85` 라, 한 파일만 NaN 이면
+#       완전 역순(r=-1.000, 원래 막힘)이 통과로 넘어갔다. 그래서 `!(r >= 0.85)` 로 바꿨다.
+chk 'NAN_NOT_ZERO' scripts/assemble-narration.mjs 1
+chk 'NAN_NOT_ZERO' scripts/assemble-parents-letter.mjs 2
+chk 'NAN_NOT_ZERO' scripts/check-syl-rate.mjs 1
+chk 'Number.isFinite' scripts/assemble-narration.mjs 1
+chk 'Number.isFinite' scripts/assemble-parents-letter.mjs 1
+chk '!(r >= 0.85)' scripts/assemble-parents-letter.mjs 1
+nochk 'if (r < 0.85' scripts/assemble-parents-letter.mjs   # NaN 을 통과시키던 옛 비교 부활 차단
+chk 'Number.isFinite' scripts/build-chorus.mjs 1           # 같은 병을 먼저 고친 자리 — 함께 지킨다
+# ★[CANT_LOOK 2026-08-10] 0/1/2 를 갈라 읽는다. 옛 판은 `|| fail=1` 한 줄이라 0 이 아니면 전부 실패였고,
+#   그래서 이 검사가 ffprobe 없는 환경에서 **0 으로 나갈 수밖에 없었다** — 안 잰 것이 통과로 읽혔다.
+#   이제 2(못 잼)를 따로 적는다. 안 잰 것을 안 잤다고 화면에 남기면서도 게이트는 안 무너진다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/check-syl-rate.mjs >/dev/null 2>&1; _syl=$?
+  if [ "$_syl" = 1 ]; then
+    echo 'FAIL syl-rate: 음절 상수와 실측의 폭이 범위를 벗어났습니다 — node scripts/check-syl-rate.mjs'; fail=1
+  elif [ "$_syl" = 2 ]; then
+    echo 'skip syl-rate: 이번엔 재지 못했습니다(ffprobe 없음 또는 mp3 없음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_syl" != 0 ]; then
+    echo "FAIL syl-rate: 뜻 모를 종료 코드 $_syl — node scripts/check-syl-rate.mjs"; fail=1
+  fi
+fi
 
 # ★★[LOCKUP_SAID 2026-08-10] 히어로 자물쇠 — 적어 둔 숫자와 실제 값이 갈렸는지.
 #   같은 종류가 **세 번** 났다(커밋 제목·본문·가드 주석이 그때그때 실제와 달랐다).

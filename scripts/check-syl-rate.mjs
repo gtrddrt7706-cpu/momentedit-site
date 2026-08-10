@@ -27,11 +27,26 @@ process.on('exit', (c) => { if (bad && c === 0) process.exitCode = 1; });   // [
 const have = (() => { try { execFileSync('ffprobe', ['-version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
 if (!have) {
   /* ★ffprobe 가 없는 세션이 있다(코드 세션이 그렇다). 그때는 **재지 않았다고 말하고 넘어간다** —
-     '없으면 통과'가 아니라 '없으면 안 쟀다'고 밝히는 것이다. 초록으로 위장하지 않는다. */
+     '없으면 통과'가 아니라 '없으면 안 쟀다'고 밝히는 것이다. 초록으로 위장하지 않는다.
+     ★[CANT_LOOK 2026-08-10] 그런데 여기서 0 으로 나가고 있었다.
+       이 검사는 merge-guard 가 **실제로 돌리는** 몇 안 되는 소리 검사인데,
+       게이트는 화면 글을 안 보고 종료 코드만 본다(`>/dev/null`). 위 한 줄이 아무리 정직해도
+       0 은 게이트에 「쟀고 통과했다」로 읽혔다 — ffprobe 없는 환경에서 이 검사는 내내 헛돌았다.
+       → 2 로 나간다. 0 통과 · 1 재서 틀림 · 2 못 잼. merge-guard 가 2 를 '건너뜀'으로 적는다. */
   console.log('· ffprobe 가 없어 실측을 못 했습니다 — 이 검사는 이번에 아무것도 재지 않았습니다');
-  process.exit(0);
+  console.log('  ※ 종료 코드 2 = 재지 못했다(통과 아님) · 1 = 재서 틀렸다 · 0 = 쟀고 통과');
+  process.exit(2);
 }
-const dur = (p) => +execFileSync('ffprobe', ['-v', 'quiet', '-show_entries', 'format=duration', '-of', 'csv=p=0', p], { encoding: 'utf8' }).trim();
+/* [NAN_NOT_ZERO] 못 읽은 길이를 값으로 삼키지 않는다 — `+'N/A'` 는 NaN 이고,
+   NaN 은 아래 `speech > 0` 을 조용히 false 로 만들어 그 클립을 **표본에서 지운다**.
+   지워진 줄 모르고 남은 것으로 평균을 내면, 재지 못한 것이 재서 통과한 것으로 둔갑한다. */
+const unread = [];
+const dur = (p) => {
+  const raw = execFileSync('ffprobe', ['-v', 'quiet', '-show_entries', 'format=duration', '-of', 'csv=p=0', p], { encoding: 'utf8' }).trim();
+  const n = +raw;
+  if (!Number.isFinite(n) || n <= 0) { unread.push(`${path.basename(p)} ("${raw}")`); return null; }
+  return n;
+};
 const syl = (s) => (String(s).match(/[가-힣]/g) || []).length;
 
 let S = 0, T = 0, n = 0;
@@ -41,10 +56,19 @@ for (const c of man.clips) {
   const s = c.sents.reduce((a, x) => a + syl(x.text), 0);
   if (s < 10) continue;
   const gaps = c.sents.slice(0, -1).reduce((a, x, i) => a + (x.after || 0) + (c.sents[i + 1].before || 0), 0);
-  const speech = dur(p) - gaps - (c.head || 0) - (c.tail || 0);
+  const d = dur(p);
+  if (d === null) continue;                                            // 못 읽은 것은 unread 에 쌓였다
+  const speech = d - gaps - (c.head || 0) - (c.tail || 0);
   if (speech > 0) { S += s; T += speech; n++; }
 }
-if (!n) { no('잴 수 있는 클립이 없습니다 — mp3 가 하나도 없습니다'); process.exit(1); }
+if (unread.length) { no(`길이를 못 읽은 mp3 ${unread.length}개: ${unread.slice(0, 5).join(' · ')}${unread.length > 5 ? ' …' : ''} — 표본에서 조용히 빠지면 안 됩니다`); }
+if (!n) {
+  /* [CANT_LOOK] mp3 가 아예 없는 것과 있는데 못 읽는 것은 다르다 — 앞은 '못 잼', 뒤는 '틀림'이다. */
+  if (unread.length) { console.log('  ※ 종료 코드 1 = 재서 틀렸다'); process.exit(1); }
+  console.log('· 잴 수 있는 클립이 없습니다 — mp3 가 하나도 없어 이번에 아무것도 재지 않았습니다');
+  console.log('  ※ 종료 코드 2 = 재지 못했다(통과 아님) · 1 = 재서 틀렸다 · 0 = 쟀고 통과');
+  process.exit(2);
+}
 const real = S / T * 60, ratio = real / CONST;
 console.log(`실측 낭독 속도 ${real.toFixed(0)} 음절/분 (${n}클립) · 상수 ${CONST} · 예상이 실제보다 ${((ratio - 1) * 100).toFixed(0)}% 길게 나온다`);
 if (process.argv.includes('--table')) process.exit(0);
