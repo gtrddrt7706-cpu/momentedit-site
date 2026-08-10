@@ -226,7 +226,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .pal-add{flex-shrink:0}
 .upst{font-size:11px;color:var(--light)}
 .upst.done{font-size:10px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
-.upkeep{font-size:12px;color:var(--gold-deeper);margin-top:11px;word-break:keep-all;line-height:1.6}
+/* ★[NO_BACKSTAGE 2026-08-10] .upkeep 규칙 삭제 — 쓰던 자리(입장 절)가 사용자 지시로 없어져
+   부르는 곳이 0이 됐다. 새 안내를 이 이름으로 되살리지 말 것. 뒷무대 설명 전용 칸이었다. */
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-bottom:6px}
 .gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
@@ -2084,7 +2085,12 @@ function renderStep(k){
       h+='<div style="margin-top:12px">'+fold('guestScripts','안내 문구 전문 보기',_gs)+'</div>';
       h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="momPlay(this,\'guest\')">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
     }
-    h+='<div class="banner">'+(cpl?'담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.':'이 안내는 두 분이 준비한 음악 위에 나레이션으로 흐르게 준비돼요.')+'</div>';
+    /* ★[NO_BACKSTAGE 2026-08-10] 나레이션 갈래의 띠 「이 안내는 두 분이 준비한 음악 위에 나레이션으로
+       흐르게 준비돼요.」 삭제. 복원하지 말 것. 입장 절의 upkeep 줄과 **같은 자**로 잰다 —
+       고객이 정할 것 없이 층 쌓는 방식만 설명했다. 게다가 음악은 2026-07-18 지시로 준비 목록에서
+       빠져(비우면 저희가 고름) 「두 분이 준비한 음악」이라는 전제부터 낡았다.
+       두 분 목소리 갈래의 띠는 남긴다 — 마감 D-7·녹음 요령은 **고객이 해야 할 일**이다. */
+    if(cpl) h+='<div class="banner">담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
     h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
     if(S.growth==='on'){
@@ -2108,7 +2114,13 @@ function renderStep(k){
       h+='<div class="mth-how">아래 인사는 <b>참고용</b>이에요. 마음에 드는 느낌을 고른 뒤, 두 분 말로 자유롭게 바꿔 조용한 곳에서 또렷하게 녹음해 올려 주세요. 보내 주신 파일은 당일 그대로 재생돼요.</div>';
       h+='<div style="margin-top:12px">'+fold('entryAI','팁 · 이런 방법도 있어요','<div style="font-size:12.5px;color:var(--gold-deeper);line-height:1.7">직접 녹음이 부담되면, 타입캐스트 · 클로바더빙 같은 AI 더빙 사이트에서 만든 음성 파일을 올리셔도 돼요. 저희 기능은 아니고 목소리도 그 서비스의 AI 목소리예요.</div>')   /* [AI_TIP] '두 분 목소리로 만들어'는 목소리 복제로 읽힌다 — 남의 서비스 능력을 단정하지 않는다(사용자: 거짓 정보 금지 · 팁으로 격하) */+'</div>';
       h+='</div>';
-      h+='<div class="upkeep">"신랑 신부, 입장!" 큐와 입장곡은 나레이션·음악이 맡아요. 두 분 목소리는 그 위에 인사로 흐릅니다.</div>';
+      /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 입장 큐·입장곡을 누가 맡고 두 분 목소리가 그 위에
+         어떻게 얹히는지 설명하던 upkeep 줄 삭제. 복원하지 말 것.
+         (원문은 여기 옮겨 적지 않는다 — 주석이 화면 문장을 복사하면 「지워졌나」를 묻는 검사가
+          주석을 화면으로 착각해 대신 걸린다. 실제로 이번 삭제 직후 그렇게 한 번 걸렸다.)
+         고객이 여기서 정할 것이 하나도 없는데 **뒤에서 우리가 무엇을 어떻게 겹치는지**만 설명하는 줄이었다.
+         고를 것이 없는 설명은 읽을 것을 늘리고, 「그럼 내 목소리는 묻히나?」 하는 없던 걱정을 만든다.
+         같은 자를 다른 자리에도 댄다 — 아래 [NO_BACKSTAGE] 표식을 볼 것. */
     }
     h+='<div class="dlabel" style="margin-top:16px">'+(ecpl?'두 분이 읽을 인사, 느낌을 골라주세요':'입장 멘트, 느낌을 골라주세요')+'</div>';
     h+='<div class="opts" style="margin-top:10px">';
@@ -2117,11 +2129,12 @@ function renderStep(k){
       h+='<button class="ex-chip'+(S.entry===v?' on':'')+'" aria-pressed="'+(S.entry===v?'true':'false')+'" data-fk="entry:'+v+'" onclick="pick(\'entry\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';   // [ORD_DESC]
     });
     h+='</div>';
-    h+='<div class="prep-hint">걷는 속도와 멈출 자리는 리허설에서 맞춰요 · 당일엔 디렉터가 신호를 드려요</div>';
-    /* ★[LEAD_OUT] 걸어 들어온 뒤 무엇이 들리는지도 보여 준다 — 화면에 없는 소리가 나면
-       고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다. */
-    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(OUT_ENTRY)+'</div>';
-    h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
+    /* ★[STEP_TIME_ORDER 2026-08-10 사용자 지시] 이 절의 블록을 **시간 순서**로 세운다.
+       옛 판은 「도착하면 이어서」(걸어 들어온 **뒤**)가 「문이 열리기 직전에 흐르는 나레이션」보다
+       위에 있었다. 고객은 위에서 아래로 읽으므로, 나중에 나오는 말이 먼저 보이면 순서를 거꾸로 외운다.
+       지금 순서: 느낌 고르기 → 문 열리기 직전 나레이션 → 도착하면 이어서 → 팁.
+       ★「걷는 속도와 멈출 자리는 리허설에서 맞춰요」 줄은 2026-08-10 사용자 지시로 삭제.
+         복원하지 말 것. */
     (function(){
       var v=S.entry, lbl=ecpl?'참고 예시 · '+ENTRY[v].d:'문이 열리기 직전에 흐르는 나레이션 · '+ENTRY[v].d;
       /* ★[ENTRY_ALT] 두 분 목소리로 갈 때는 **누가 어느 문장을 읽는지**까지 보여준다.
@@ -2133,6 +2146,11 @@ function renderStep(k){
       h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+ebody+'</div>';
       if(ecpl) h+='<div class="prep-hint">한 문장씩 번갈아 읽어요 · 첫 문장은 '+esc(ENTRY_ALT[0])+'님 · 문장은 두 분 말로 바꾸셔도 돼요</div>';   // [ENTRY_ALT]
       h+=playBtn('entry');
+
+    /* ★[LEAD_OUT] 걸어 들어온 뒤 무엇이 들리는지도 보여 준다 — 화면에 없는 소리가 나면
+       고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다. */
+    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(OUT_ENTRY)+'</div>';
+    h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
       if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
       h+='</div>';
     })();
