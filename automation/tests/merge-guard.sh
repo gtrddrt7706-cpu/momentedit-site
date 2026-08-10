@@ -395,7 +395,7 @@ chk '보이스 가이드 (H6 채택본' docs/plans/PLAN_마이페이지_디자�
 # ── 2026-07-25 마이페이지 4차 스프린트 PR②(F1 완료 확인 · F4 음료 바 하단 고정)
 chk 'MPD4_F1' mypage.html 2                         # 저장-복귀 토스트 헬퍼+사진 경로(좌석은 인라인)
 chk '_mpNextToast' mypage.html 3                    # 지연 토스트 배선(헬퍼+좌석+사진)
-chk 'MPD4_F4' mypage.html 1                         # 음료 바 하단 고정
+chk 'DRINK_SHEET' mypage.html 3                     # 음료 = 바닥 시트(2026-08-09) · 구 MPD4_F4 '떠 있는 작은 판' 폐지
 # ── 2026-07-25 마이페이지 4차 스프린트 PR③(F2 SR 골격·포커스 복귀 · F3 칩 키보드화)
 chk 'MPD4_F2' mypage.html 5                         # sr-only CSS+h1+NEXT h2+포커스 저장/복원
 chk 'MPD4_F3' mypage.html 4                         # _kbChip 헬퍼+스냅·사진·큐시트 배선
@@ -405,7 +405,7 @@ chk 'MPD4_C3' mypage.html 1                         # 잠긴 단계 명도 계�
 chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+ci+환불+이메일)
 chk '_softHint' mypage.html 7                       # 헬퍼+배선 6곳
 chk 'MPD4_H4' mypage.html 4                         # 완료 행 접기+내 완성물(CSS·조립·요약·게이트)
-chk 'trk-fold' mypage.html 2                        # 접기 CSS+마크업
+chk 'TRK_NO_FOLD' mypage.html 2                     # 완료 행 접기 폐지(2026-08-09) · .trk-fold 는 CSS까지 삭제 · 되살리지 말 것
 chk 'MPD4_H5' mypage.html 3                         # led-foot(CSS·헬퍼·배선)
 # ── 2026-07-26 관리자 페이지 1차 스프린트 PR①(AA1 긴급 신호 · AA3 파괴 클래스 · AA9 쿠폰 과잉 완화)
 chk 'ADM_AA1' admin.html 3                          # 긴급 큐 색 바+배지 CSS+렌더
@@ -1911,6 +1911,9 @@ chk '저장 중…' order-preview.html 2
 # 미리듣기는 고객 화면인데 디렉터 콘솔의 어두운 피부를 그대로 입고 있었다. .guest 에서만 갈아입힌다.
 # ★디렉터 화면(embed 없음)은 어두워야 한다 — 예식장에서 화면 빛이 하객 쪽으로 새면 안 된다.
 chk 'GUEST_LIGHT' console.html 1
+chk 'GUEST_MIN' console.html 1                       # 고객 미리듣기 미니멀(2026-08-09) · 짙은 색은 '다음으로' 버튼 하나
+chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2 # 조작부에 디렉터 도구가 보이면 실패(명단이 아니라 구조로 본다)
+chk 'BUSY_ONE_PLACE' mypage.html 3                   # 대기 표시 = 하나·한 자리·한 낱말(2026-08-09)
 chk 'color-scheme:light' console.html 1
 
 # ── [TWO_COUNTS] 두 숫자에 다른 이름 (2026-08-09 · 코드 세션 제안) ──
@@ -2094,3 +2097,16 @@ if command -v node >/dev/null 2>&1; then node scripts/check-syl-rate.mjs >/dev/n
 # 오늘 목록 그대로다 — 같은 이름의 두 숫자는 증명을 방해한다. 그래서 화면에도 틀을 박아 둔다.
 chk '예상 · 실측 아님' scripts/check-narr-len.mjs 1
 chk '실측인지 예상인지' assets/ritual-data.js 1
+
+# ── [REDUB_VOICE] 재더빙 붙여넣기는 클립마다 제 화자를 붙인다 (2026-08-10 · 적대 검증) ──
+# 옛 판은 VOICE(진행=우성) 하나를 모든 줄에 박았다. CONSOLE_TEXT 로 훑는 범위가 넓어지며
+# 안내(잔희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
+# ★PASTE_VOICE 는 형식(`화자: 대사`)만 봤다. 꼴이 맞아도 사람은 틀릴 수 있다.
+chk 'REDUB_VOICE' scripts/check-text-audio.mjs 1
+chk 'REDUB_VOICE' scripts/check-paste-format.mjs 1
+chk 'voiceOf' scripts/check-text-audio.mjs 4
+# ── [PW_FIND] check-guest-skin 이 playwright 를 한 곳만 보던 것 ──
+# 경로를 박아 둬서, 그 경로가 아닌 세션에선 조용히 SKIP 하고 exit 0 이었다.
+# 이 검사가 지키는 GUEST_CTL_EMPTY(고객 화면에 디렉터 도구가 새는지)가 한 번도 안 돌고 초록이었다.
+chk 'PW_FIND' scripts/check-guest-skin.mjs 1
+chk 'npm root -g' scripts/check-guest-skin.mjs 1

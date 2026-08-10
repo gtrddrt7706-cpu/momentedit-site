@@ -249,6 +249,78 @@ body.guest #gBed.on{display:block;padding:9px 16px;font-size:12.5px;line-height:
 .blk .bh{font-size:13px;color:var(--sub);line-height:1.7;margin-top:4px}
 .safe{margin-top:12px;font-size:13px;color:var(--sub);line-height:1.75;border-left:2px solid var(--live);padding-left:10px}
 
+/* ★★[GUEST_MIN 2026-08-09] 고객 미리듣기 = 미니멀 · 짙은 색은 포인트로만 (사용자 지시)
+   > *"미리듣기부분 전체 디자이너 관점으로 필요한것들 빼고 미니멀하고 깔끔하게 디자인 개선
+   >   진한 색상은 포인트로만 사용 무드에맞게 색상 사용"*
+
+   ★새 색을 만들지 않는다 — GUEST_LIGHT 가 가져온 브랜드 토큰만 쓴다(위 블록의 약속).
+     바뀌는 것은 **색의 양**이다. 어디에 얼마나 칠하느냐만 고친다.
+
+   왜 무거웠나 — 이 화면은 디렉터 콘솔의 뼈대를 그대로 쓴다. 검은 바탕에서 배지를 구분하려면
+   칠해야 했고(.pill.p 짙은 보라 · .pill.l 짙은 초록), 그 칠이 밝은 고객 화면으로 오자
+   **화면에서 제일 센 것이 라벨**이 됐다. 라벨보다 문장이 세야 하는 화면인데 반대로 섰다.
+   색을 지우지 않고 **점으로 줄인다** — 뜻(고를 수 있음 · 예시 목소리)은 남고 무게만 빠진다.
+   짙은 색을 통으로 칠하는 자리는 화면에 하나 = 다음으로 가는 버튼. 그것이 '포인트'다. */
+
+/* ① 디렉터 도구 누출 — 촬영 안내 판은 현장에서 디렉터가 쓰는 것이다.
+   고객 화면 맨 아래에 **검은 막대**로 서 있었다(390px 실렌더로 확인).
+   ★GUEST_SKIN 원칙은 "고객이 보면 안 되는 것을 감춘다"인데, 감출 목록이 손으로 적는
+     명단이라 2026-08-08 에 새로 생긴 이 판이 명단에 안 들어갔다. 명단 방식의 한계다 —
+     그래서 scripts/check-guest-skin.mjs 에 '디렉터 전용 id 는 고객 화면에서 안 보인다'를
+     따로 못 박았다(글자 블랙리스트가 아니라 **보이는지**를 본다). */
+body.guest #pcBoard{display:none !important}
+
+/* ② 배지 — 칠한 알약 → 점 + 글자. 색은 점 5px 에만 남는다 */
+body.guest .now .tag{flex-wrap:wrap;gap:5px 14px;margin-bottom:11px}
+body.guest .pill{
+  background:transparent;color:var(--sub);font-weight:500;font-size:11.5px;letter-spacing:0;
+  padding:0;display:inline-flex;align-items:center;gap:6px;line-height:1.55;
+}
+body.guest .pill::before{content:'';width:5px;height:5px;border-radius:50%;flex:none;background:currentColor}
+body.guest .pill.p::before{background:#3A2E4A}      /* 고를 수 있는 자리 */
+body.guest .pill.l::before{background:var(--live)}  /* 사람이 말하는 자리 */
+
+/* ③ 지금 카드 — 회색 박스가 회색 바탕에 겹쳐 흐릿했다. 흰 종이 한 장 + 실선 한 줄로 */
+body.guest .now{background:#fff;border-color:var(--line);border-radius:14px;padding:20px 18px 18px;box-shadow:0 1px 2px rgba(58,45,34,.04)}
+body.guest .now h2{margin:0 0 12px;letter-spacing:-.015em}
+body.guest .now .txt{font-size:15.5px;line-height:1.9}
+
+/* ④ 진행 막대 — 6px 금색 띠 → 실선. 금색을 통으로 칠하는 자리는 여기 한 줄뿐 */
+body.guest .prog{height:3px;margin-top:18px}
+body.guest .tm{font-size:11px;margin-top:7px}
+
+/* ⑤ 다음·그다음 — 박스를 벗기고 줄로. 목록은 목록처럼 보이면 된다 */
+body.guest .up{margin-top:16px;gap:0;border-top:1px solid var(--line)}
+body.guest .upc{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 2px}
+body.guest .upc.dim{opacity:1}
+body.guest .upc .lb{width:34px;font-size:10.5px}
+body.guest .upc .nm{font-size:14.5px;font-weight:500;color:var(--sub)}
+body.guest .upc.dim .nm{color:var(--dim)}
+body.guest .upc .es{font-size:11.5px;color:var(--dim)}
+
+/* ⑥ 다음으로 — 짙은 색을 통으로 쓰는 유일한 자리.
+   ★옛 판은 연회색(--bg3)이라 **눌리지 않는 것처럼** 보였다(390px 실렌더). */
+body.guest .ctl{border-top:1px solid var(--line);padding:12px 16px calc(14px + env(safe-area-inset-bottom))}
+body.guest .main{background:var(--seal);color:#fff;font-size:16px;font-weight:600;padding:17px 16px;border-radius:12px}
+body.guest .main small{opacity:.72;font-size:11.5px;margin-top:4px}
+body.guest .main.wait{background:var(--bg3);color:var(--sub)}   /* 다 들은 뒤 '다시 듣기'는 물러난다 */
+
+/* ⑦ 블록 머리·힌트 — 문장보다 세지 않게. 위계: 순서 이름 → 배경 설명 → 큰 제목 → 문안 */
+body.guest .blk{margin-bottom:14px;padding-bottom:12px}
+body.guest .blk .bn{font-size:11px;letter-spacing:.08em}
+body.guest .blk .bh{font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.75}
+body.guest .now .hint{font-size:12.5px}
+
+/* ⑧ 세로 여백 — 카드 아래가 600px 비어 있었다(390px 실렌더). 다음·그다음을 바닥에 붙여
+   '다음으로' 버튼 바로 위에 둔다 — 무엇이 오는지와 그리로 가는 문이 한 손에 잡힌다.
+   ★≥900px 는 아래 미디어쿼리가 grid 로 쓰므로 여기서 건드리지 않는다(폭을 나눠 쓴다). */
+@media (max-width:899px){
+  body.guest .stage{display:flex;flex-direction:column;padding:16px 16px 4px}
+  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:center}   /* 짧은 문안이면 카드가 남는 공간의 한가운데로 — 위로 쏠려 아래가 뻥 뚫리던 것 */
+  body.guest .now{width:100%}
+  body.guest .up{padding-top:6px}
+}
+
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
   .stage>div:first-child{display:flex}

@@ -23,14 +23,26 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(ROOT, 'package.json'));
+/* ★★[PW_FIND 2026-08-09] playwright 를 찾는 자리를 넓힌다 — 옛 판은 한 곳(`/home/claude/.npm-global/...`)을
+   박아 두어, 그 경로가 아닌 세션에서는 **조용히 SKIP 하고 exit 0** 이었다.
+   실측: 이 검사가 지키는 GUEST_CTL_EMPTY(고객 화면에 디렉터 도구가 새는지)가
+   다른 세션에서는 한 번도 돌지 않은 채 초록이었다. merge-guard 도 이 파일은 실행하지 않는다(브라우저 필요).
+   → 검사가 있다는 것과 검사가 돈다는 것은 다르다. `npm root -g` 로 실제 자리를 묻는다.
+   ★그래도 없으면 '안 쟀다'고 밝히고 넘어간다 — SYL_RATE 와 같은 모양이다.
+     '없으면 통과'가 아니라 '없으면 안 쟀다고 말하기'. */
 let chromium;
-try {
-  chromium = require('playwright').chromium;
-} catch {
-  try {
-    chromium = (await import('/home/claude/.npm-global/lib/node_modules/playwright/index.js')).default.chromium;
-  } catch {
-    console.log('SKIP — playwright 가 없습니다. `npm i -D playwright` 후 다시 실행하세요.');
+{
+  let g = '';
+  try { g = (await import('node:child_process')).execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* npm 이 없을 수도 */ }
+  const tries = [process.env.PW, 'playwright', 'playwright-core',
+    g && `${g}/playwright/index.js`, '/home/claude/.npm-global/lib/node_modules/playwright/index.js',
+    '/usr/lib/node_modules/playwright/index.js'].filter(Boolean);
+  for (const t of tries) {
+    try { chromium = require(t).chromium; break; } catch { /* 다음 */ }
+    try { const m = await import(t); chromium = (m.default ?? m).chromium; if (chromium) break; } catch { /* 다음 */ }
+  }
+  if (!chromium) {
+    console.log('· playwright 를 못 찾아 이 검사는 이번에 아무것도 재지 않았습니다 (npm i -g playwright)');
     process.exit(0);
   }
 }
@@ -159,6 +171,30 @@ for (const [w, h, tag] of SIZES) {
     const snaps = await p.evaluate(() => window.__snaps);
     const pills = await p.evaluate(() => window.__pills);
     const bedOn = await p.evaluate(() => window.__bedOn);   // ★PREVIEW_BED
+    /* ★★[GUEST_CTL_EMPTY 2026-08-09] 조작부에 고객이 볼 것은 「다음 순서로」 하나뿐이다.
+       왜 글자 블랙리스트로는 못 잡았나 — 위 FORBID 는 **미리 적어 둔 낱말**을 찾는다.
+       2026-08-08 에 촬영 안내 판(#pcBoard)이 조작부에 새로 생겼는데, 그 판의 글자
+       (「촬영 안내 골라 틀기」)는 아무 목록에도 없었다. 그래서 고객 미리듣기 맨 아래에
+       **검은 막대**로 서 있는 채 검사는 전부 초록이었다(390px 실렌더로 사용자가 발견).
+       ★그래서 낱말이 아니라 **구조**를 본다 — 조작부에 mBtn 말고 무엇이든 보이면 실패다.
+         앞으로 디렉터 도구가 또 늘어도, 목록을 고치지 않아도 여기서 걸린다.
+         '감출 것을 손으로 적는 명단'은 새로 생기는 것을 영영 못 본다. */
+    const ctlLeak = await p.evaluate(() => {
+      const inner = document.querySelector('.ctl .inner');
+      if (!inner) return ['조작부(.ctl .inner)를 못 찾았습니다 — 화면 구조가 바뀌었습니다(통과 아님)'];
+      const out = [];
+      const walk = (el) => {
+        for (const c of el.children) {
+          if (c.id === 'mBtn') continue;
+          const r = c.getBoundingClientRect();
+          if (r.width <= 0 || r.height <= 0) continue;                 // 안 보이면 통과
+          if (c.children.length && c.tagName !== 'DETAILS') { walk(c); continue; }   // 껍데기는 지나가고 실물만 짚는다
+          out.push(c.tagName.toLowerCase() + (c.id ? '#' + c.id : '') + (c.className ? '.' + String(c.className).trim().split(/\s+/).join('.') : ''));
+        }
+      };
+      walk(inner);
+      return out;
+    });
     await p.close();
 
     pills.forEach(x => pillsAll.add(x));
@@ -171,6 +207,8 @@ for (const [w, h, tag] of SIZES) {
     });
     // 수집 0 = 안 본 것. 통과로 세지 않는다.
     if (snaps.length < 5) { hits.push(`수집 ${snaps.length}개 — 화면을 못 봤습니다(통과 아님)`); }
+    // ★GUEST_CTL_EMPTY — 조작부에 「다음 순서로」 말고 보이는 것이 있으면 디렉터 도구가 샌 것이다
+    if (ctlLeak.length) hits.push('조작부에 디렉터 도구가 보입니다 → ' + ctlLeak.join(' , '));
     // ★PREVIEW_BED — 소리와 고지가 같이 가야 한다. 어긋나면 화면이 거짓말을 한 것이다.
     if (bedOn !== BED_FILE) {
       hits.push(BED_FILE

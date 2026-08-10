@@ -66,6 +66,34 @@ if (!fs.existsSync(PASTE)) {
   if (!hits.length) console.log(`ok 재더빙_붙여넣기.txt — ${raw.filter((l) => l.trim()).length}줄 전부 「화자: 대사」 (기준 파일과 같은 꼴)`);
 }
 
+/* 3) 화자가 **맞는** 이름인가 [REDUB_VOICE 2026-08-10]
+   ★형식만 보던 것이 뚫렸다. `우성: 문장` 은 꼴이 맞으니 통과했는데, 그 클립의 실제 화자는
+     잔희(안내)였다. 붙여넣기 14줄 중 5줄이 그랬다 — 그대로 녹음하면 식장에서 안내만 목소리가 바뀐다.
+   ★꼴이 맞아도 사람은 틀릴 수 있다. 그래서 manifest 의 clip.role → voice 로 대조한다.
+     여기서는 '있어야 할 이름들'만 본다(줄↔클립 대응은 --redub 이 만든다). */
+{
+  const MANP = path.join(DIR, 'manifest.json');
+  if (!fs.existsSync(MANP)) no('manifest.json 이 없습니다 — 화자가 맞는지 대조할 수 없습니다');
+  else if (fs.existsSync(PASTE)) {
+    const man = JSON.parse(fs.readFileSync(MANP, 'utf8'));
+    const V = man.voice || {};
+    const known = new Set(Object.values(V));
+    const listed = new Set(fs.readFileSync(PASTE, 'utf8').split('\n')
+      .filter((l) => l.trim()).map((l) => l.split(':')[0].trim()));
+    const unknown = [...listed].filter((x) => !known.has(x));
+    if (unknown.length) no(`붙여넣기 파일에 manifest 에 없는 화자가 있습니다: ${unknown.join(' · ')} — 아는 이름은 ${[...known].join(' · ')}`);
+    /* 명단(리드보강)에 실린 클립들의 역할이 요구하는 화자가 전부 들어 있는가 */
+    const wantV = new Set();
+    for (const m of fs.readFileSync(LIST, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)) {
+      const c = (man.clips || []).find((x) => x.file === m[1]);
+      if (c && V[c.role]) wantV.add(V[c.role]);
+    }
+    const missing = [...wantV].filter((x) => !listed.has(x));
+    if (missing.length) no(`대기 클립의 화자 ${missing.join(' · ')} 가 붙여넣기 파일에 없습니다 — node scripts/check-text-audio.mjs --redub 로 다시 뽑으세요`);
+    if (!unknown.length && !missing.length) console.log(`ok 화자 ${[...listed].join(' · ')} — 대기 클립의 역할과 맞습니다`);
+  }
+}
+
 /* ── 결론은 여기 한 곳에서만 [EXIT_AT_END] ── */
 if (bad) { console.error('\nnode scripts/check-text-audio.mjs --redub 로 다시 뽑으세요.'); process.exit(1); }
 console.log('PASTE FORMAT OK');

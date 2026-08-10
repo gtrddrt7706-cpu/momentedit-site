@@ -231,26 +231,38 @@ else if (ALL) console.log(`\n[VOW_CHORUS] ✓ 서약 마지막 합창 3클립이
 const REDUB = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt');
 const sentsOf = (t) => String(t).split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
 const VOICE = (man.voice || {})['진행'] || '진행';
+/* ★★[REDUB_VOICE 2026-08-10] 화자는 **클립마다** 다르다 — 하나로 박으면 안 된다.
+   옛 판은 위 VOICE(진행=우성) 하나를 모든 줄에 붙였다. 재더빙 목록이 진행 클립뿐이던 동안은
+   맞았지만, CONSOLE_TEXT 로 훑는 범위가 넓어지며 **안내(잔희) 클립이 들어왔다.**
+   실측: 붙여넣기 14줄 중 5줄(guest-2-10min 2 · end-0-photo 3)이 안내인데 `우성:` 이 붙어 있었다.
+   그대로 붙이면 그 다섯 줄이 **다른 목소리로 녹음된다** — 식장에서 안내만 목소리가 바뀐다.
+   ★PASTE_VOICE 가 막으려던 것이 바로 "목소리를 손으로 고르게 되는 일"인데,
+     형식(`화자: 대사`)만 보고 **화자가 맞는지**는 안 봤다. 형식이 맞아도 사람은 틀릴 수 있다.
+   → manifest 의 clip.role 로 그 클립의 화자를 찾는다. 못 찾으면 진행으로 떨어뜨린다. */
+const ROLE_OF = new Map((man.clips || []).map((c) => [c.file, c.role]));
+const voiceOf = (slug) => (man.voice || {})[ROLE_OF.get(slug)] || VOICE;
 
 if (process.argv.includes('--redub')) {
   const lines = [
     '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
     '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
-    '# 목소리는 전부 진행 = ' + VOICE + ' 입니다.',
+    '# 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].',
     '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
     '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
     '# 대기 ' + badSlugs.length + '클립', ''
   ];
+  const _listed = new Set();   // [REDUB_DUP] 같은 슬러그가 두 번 실리던 것 — 모드 둘을 훑으며 생긴다
   for (const r of bad) {
+    if (_listed.has(r.slug)) continue; _listed.add(r.slug);
     lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)'));
-    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    for (const t of sentsOf(r.screen)) lines.push(voiceOf(r.slug) + ': ' + t);
     lines.push('');
   }
   // [NO_AUDIO] 소리가 아예 없는 클립 — 미리듣기에 안 나와도 녹음은 필요하다
   for (const r of noAudio) {
     if (bad.some((b) => b.slug === r.slug)) continue;
     lines.push('[' + r.no + '] ' + r.slug + '   (신규)');
-    for (const t of sentsOf(r.screen)) lines.push(VOICE + ': ' + t);
+    for (const t of sentsOf(r.screen)) lines.push(voiceOf(r.slug) + ': ' + t);
     lines.push('');
   }
   fs.writeFileSync(REDUB, lines.join('\n'));
@@ -282,7 +294,7 @@ if (process.argv.includes('--redub')) {
        그 형식을 그대로 따른다. 빈 줄도 넣지 않는다(그 파일에 없다).
      ★배역(5_배역.txt)은 화자가 여럿이라 줄마다 다른 이름이 붙는다 — 같은 문법이다. */
   const pl = [];
-  for (const c of ordered) for (const t of c.sents) pl.push(VOICE + ': ' + t);
+  for (const c of ordered) for (const t of c.sents) pl.push(voiceOf(c.slug) + ': ' + t);
   /* ★대기가 0이면 파일을 **지운다.** 빈 파일을 남기면 ①형식 검사가 빈 줄을 물고
      ②다음에 열어 본 사람이 "붙여넣을 게 있나?" 하고 한 번 더 확인하게 된다.
      없는 것이 없다고 말하는 가장 정확한 방법은 파일이 없는 것이다. */
