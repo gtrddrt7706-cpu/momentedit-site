@@ -1658,7 +1658,9 @@ function renderIntro(){
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
-  h+='<div class="dmnote">앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요 · 본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 인사와 사진의 자유 시간이 늘어나요.</div></div>';
+  /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지.
+     위 표가 이미 하루 다섯 마디를 순서대로 보여 주고 있어, 같은 말을 글로 한 번 더 한 것이었다. */
+  h+='<div class="dmnote">본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 인사와 사진의 자유 시간이 늘어나요.</div></div>';
   return h;
 }
 
@@ -2092,7 +2094,7 @@ function renderStep(k){
        두 분 목소리 갈래의 띠는 남긴다 — 마감 D-7·녹음 요령은 **고객이 해야 할 일**이다. */
     if(cpl) h+='<div class="banner">담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.</div>';
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
-    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요 · 나머지 안내(기념사진·휴대폰 등)는 나레이션이 흐름 속에서 자연스럽게 챙겨요.</div>';
+    h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요.</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(나머지 안내를 나레이션이 흐름 속에서 챙긴다는 설명) 삭제 · 복원 금지 — 켤지 말지를 정하는 데 안 쓰이는 뒷무대 설명이었다 */
     if(S.growth==='on'){
       h+='<div class="tgl-ex" style="margin-left:0">"잠시 후, 두 사람이 걸어온 시간을 담은 짧은 영상을 함께 보시겠습니다."</div>';
       h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
@@ -2240,7 +2242,7 @@ function renderStep(k){
       var m=TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
     });
-    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요 · 타이밍은 디렉터가 안내해요</div>';
+    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
   }
   else if(k==='song'){
     h+=clip('song');
