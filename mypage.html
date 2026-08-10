@@ -1598,12 +1598,12 @@ function openRitualPreview(p, inv){
      같은 순간에 bkOpen 이 새 층을 쌓으면 층이 어긋나 다음 닫기에 페이지 밖으로 튕긴다(실측으로 확인).
      듣던 소리가 처음으로 되감기지도 않으니, 그대로 두는 쪽이 사람에게도 맞다. */
   var old=$('mp_rpViewer'); if(old) return old;
-  var ov=document.createElement('div'); ov.id='mp_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리 들어보기');
+  var ov=document.createElement('div'); ov.id='mp_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리듣기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
   var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
   x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
   // ★빌더와 달리 이 ✕는 끝까지 남는다 — 미리듣기 화면(console.html 손님 모드)엔 자기 닫기 버튼이 없다.
-  var fr=document.createElement('iframe'); fr.id='mp_rpFrame'; fr.src=src; fr.title='예식 미리 들어보기';
+  var fr=document.createElement('iframe'); fr.id='mp_rpFrame'; fr.src=src; fr.title='예식 미리듣기';
   fr.setAttribute('allow','autoplay');   // 소리가 나는 화면 — 자동재생 권한을 iframe 에 넘긴다(부모가 허락받은 만큼만 넘어간다)
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(x); ov.appendChild(fr);
@@ -3454,8 +3454,8 @@ function _finalGateHtml(hard){
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
-    +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>최종 확정을 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
-    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">최종 확정 먼저 하기</button>':'')
+    +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>좌석·음료를 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
+    +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">좌석·음료 먼저 하기</button>':'')
     +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 이후 인원 추가분은 따로 안내드려요.</div></div>';
 }
 document.addEventListener('click', function(e){
@@ -4610,14 +4610,21 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   //   ★'들려줄 게 있는가'의 판단은 링크 조립기 한 곳이 한다 — 주소가 나오면 있고, 빈 문자열이면 없다.
   //     여기서 rd._v===3 같은 조건을 따로 세우면, 조립기 조건이 바뀌는 날 버튼만 남아 빈 화면을 연다.
   var _ritPre=null;
-  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리 들어보기'}; }catch(e){}
+  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
   var _prepRows=[
     { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리 들어보기」가 함께 선다
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
-    { done: (_fDone&&_seatDone), html: row('최종 확정 · 좌석', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
+    /* ★★[SEAT_DRINK_LABEL 2026-08-09 사용자 지시] 「최종 확정 · 좌석」 → 「좌석 · 음료」.
+       > 사용자 원문: *"최종확정 좌석 보단 음료 좌석 뭐이런게 좋지않나?
+       >   최종확정은 예식확인서 부분이 오히려 성격이 가깝지"*
+       맞는 지적이다 — 이 행에서 하는 일은 인원·음료·좌석을 **정하는** 것이고,
+       '최종 확정'이라는 말이 뜻하는 **마지막으로 훑어보고 확인하는** 일은 아래 「예식 확인서」가 한다.
+       한 화면에 '최종 확정'이 둘이면 어느 쪽이 진짜 마지막인지 고객이 알 수 없다.
+       ★위저드 머리(3/3)·확인서 요약 줄·잔금 안내 문구까지 같은 말로 맞췄다. 한 곳만 고치면 또 갈린다. */
+    { done: (_fDone&&_seatDone), html: row('좌석 · 음료', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
           (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
           null, {tag:(!_fDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
@@ -4653,7 +4660,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     // 완료 → 접힌 아코디언(펼쳐서 수정). 화면 깔끔 + 수정 길은 유지.
     return '<div class="consult-card" style="text-align:left">'
       + '<div class="cc-eyebrow en-22">Production</div>'
-      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">'+(_fDone?'청첩장·식순·최종 확정 완료':'청첩장·식순 완료')+' · 펼쳐서 수정</span></summary>'
+      + '<details class="cc-more" style="margin-top:6px"><summary style="text-align:left;font-family:var(--serif-ko);font-size:15px;color:var(--accent)">예식 준비 완료 <span class="trk-ok">✓</span> <span class="cc-mini" style="color:var(--label-soft)">'+(_fDone?'청첩장·식순·좌석 완료':'청첩장·식순 완료')+' · 펼쳐서 수정</span></summary>'
       + '<div style="margin-top:10px">'+tracks+'</div>'
       + '</details></div>';
   }
@@ -5991,7 +5998,7 @@ function prodConfirmHtml(p, inv){
   L+=line('애프터 웨딩', dv);
   var fv='';
   if(_fDone && fd.headcount){ fv='하객 '+escapeHtml(String(fd.headcount))+'명'+((Number(fd.standing)||0)>0?(' · 스탠딩 '+fd.standing+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b>(잔금과 함께)'):'')+(fd.drink?(' · '+escapeHtml(fd.drink)):'')+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):''); }
-  L+=line('최종 확정', fv);
+  L+=line('좌석 · 음료', fv);
   var sv='';
   if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+_seatPlacedCount(sd.tables)+'명 배치';
     sv+=' · '+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인(기본=전체 공개 · 2026-07-17)
@@ -6003,7 +6010,7 @@ function prodConfirmHtml(p, inv){
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
   if(_sDone && _fDone && sd.tables && fd.headcount){
     var _pl=_seatPlacedCount(sd.tables), _hn=parseInt(fd.headcount,10)||0;
-    if(_pl>0 && _hn>0 && _pl!==_hn) L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 최종 확정 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
+    if(_pl>0 && _hn>0 && _pl!==_hn) L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 적어 두신 인원 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
   }
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
@@ -6014,7 +6021,7 @@ function prodConfirmHtml(p, inv){
     if(p.confirmStale) C+='<div class="cf-warn">확인 후 내용이 바뀌었어요 · 아래에서 다시 확인해 주세요.</div>';
     if(_rDone && _fDone) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용대로 예식 진행을 확인합니다</button>'
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
-    else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순·최종 확정을 완료하면 확인할 수 있어요.</span></div>';
+    else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순과 좌석·음료를 완료하면 확인할 수 있어요.</span></div>';
   }
   return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 }
@@ -6190,7 +6197,7 @@ function renderSeat(box){
     +'<div class="sp-note">고르면 바로 저장돼요</div></div>';
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
-    +'<div class="inv-head"><span class="inv-step-n">최종 확정 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
+    +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
     // [자리별 3음료 + 인원 자동계산 2026-07-19 사용자 지시] 별도 인원 입력·대표음료 칩 폐지 → 자리에 이름·음료를 넣으면 인원·요금 자동. 요금 안내는 캔버스 아래.
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center;margin-bottom:6px">자리를 눌러 <b>이름과 음료</b>를 정해요.</div>'
@@ -6281,7 +6288,7 @@ function bindSeat(box){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'최종 확정', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
+var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'좌석 · 음료', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
 var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;

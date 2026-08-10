@@ -39,10 +39,10 @@ io.open(p,'w',encoding='utf-8').write(s.replace(a,b,1))
 }
 
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
-run index.html '16~24<span>' '30<span>'                                   # 보이는 시퀀스 표
+run index.html '따라 16~24분으로 달라집니다' '따라 30분으로 달라집니다'                # 보이는 시퀀스 표 · [WAVE_SOFT 2026-08-09] 큰 칸은 '약 20'이 됐고 범위는 이 설명 문장이 진다
 run index.html '16~24m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
 run index.html 'Ceremony 16~24분' 'Ceremony 30분'                          # Service JSON-LD
-run assets/sequence-modal.js "'16~24분'" "'30분'"                          # 공용 진행표 모달(한글 표)
+run assets/sequence-modal.js '따라 16~24분으로 달라지고' '따라 30분으로 달라지고'      # 공용 진행표 모달(한글 표) · [WAVE_SOFT] 소요 칸은 '약 20분' · 범위는 상세 문장이 진다
 run order-preview.html "'16~24분'" "'30분'"                                # 식순 만들기 표
 run order-preview.html '본식 16~24분' '본식 30분'                           # 표 밖 산문
 run assets/advisor-kb.js 'Ceremony 16~24분' 'Ceremony 30분'                # AI 상담사
