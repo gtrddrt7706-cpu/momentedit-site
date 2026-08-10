@@ -2552,7 +2552,7 @@ function renderDone(){
        고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
      저장 전 S 도 그대로 들린다(서버 초안이 아니라 지금 화면의 S 를 넘긴다) — 저장해야 들을 수 있으면 고르는 손이 멈춘다. */
   if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG})){
-    h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리 들어보기</button>';
+    h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리듣기</button>';
     h+='<div class="prep-hint" style="text-align:center;margin-top:7px">고른 순서 그대로 흐름을 들어봐요</div>';
   }
   h+='<button class="rehearse-btn" onclick="openRehearse()">연습 공간 열기 · 대본·연습·준비물</button>';
@@ -2619,11 +2619,11 @@ function openRitualPreview(){
      ★'닫고 다시 열기'로 고치지 말 것 — 마이페이지 쪽은 닫기가 히스토리 층을 되돌려서(bkDone→history.back),
        같은 순간에 새 층을 쌓으면 층이 어긋나 페이지 밖으로 튕긴다(실측). 두 진입점이 같은 규칙을 쓴다. */
   var old=document.getElementById('ob_rpViewer'); if(old) return old;
-  var ov=document.createElement('div'); ov.id='ob_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리 들어보기');
+  var ov=document.createElement('div'); ov.id='ob_rpViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','예식 미리듣기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
   var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
   x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
-  var fr=document.createElement('iframe'); fr.id='ob_rpFrame'; fr.src=src; fr.title='예식 미리 들어보기';
+  var fr=document.createElement('iframe'); fr.id='ob_rpFrame'; fr.src=src; fr.title='예식 미리듣기';
   fr.setAttribute('allow','autoplay');   // 소리가 나는 화면 — 자동재생 권한을 안쪽으로 넘긴다(부모가 허락받은 만큼만 넘어간다)
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(x); ov.appendChild(fr);
