@@ -242,7 +242,10 @@ var COURSES={
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, hidden:true, min:'약 18분',   // [COURSE_HIDDEN] 기록에 흡수
     seq:['guest','entry','vow','ring','declare'],
     opt:[{k:'welcome',at:2},{k:'letter',at:5},{k:'bless',at:6}],
-    one:'「약속」에서 첫인사·편지를 뺀 최단 코스',
+    /* ★[MINIMAL_ONE 2026-08-10] 「첫인사·편지를 뺀」이 아니다 — 약속 코스에는 첫인사(welcome)가
+       애초에 없다. 실제 차이는 편지(letter)와 축배(toast) 둘이다. seq 를 실측해 고쳤다.
+       ★코스를 손보면 이 한 줄도 seq 와 맞는지 다시 볼 것. 소개문은 seq 를 설명하는 글이다. */
+    one:'「약속」에서 편지·축배를 뺀 최단 코스',
     feel:'약속만 또렷하게 남기고 싶은 두 분께 · 어른 하객이 많은 자리에도 편안한 가장 간결한 코스예요.',
     flow:['입장','혼인 서약','반지','성혼 선언','폐식·단체촬영'],
     detail:[
