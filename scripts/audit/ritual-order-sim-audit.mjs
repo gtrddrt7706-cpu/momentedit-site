@@ -118,19 +118,28 @@ function mask(s, { regexAware = false } = {}) {
 }
 // 끝은 '닫는 중괄호 + (공백 건너 바로 붙은 세미콜론)'까지만 본다.
 // sliceDecl은 그 뒤 공백도 먹지만 그건 의미 없는 꼬리라 비교 전에 양쪽 다 잘라낸다.
+/* ★[PAREN_TOO 2026-08-10] 괄호 깊이도 센다 — 두 번째 의견도 같은 것을 볼 줄 알아야 의견이 된다.
+   실사고: sliceDecl 은 `new Proxy({},{…});` 를 통째로 잘라내도록 고쳤는데(pdepth),
+   이 두 번째 토크나이저는 못 배운 채로 남았다. 그래서 `({}` 의 빈 중괄호에서 66자 일찍 멈췄고,
+   감사는 「끝 지점이 다르다」고 붉게 울렸다 — **틀린 쪽은 시뮬레이터가 아니라 이 자였다.**
+   ★붉은 것도 그것만으로는 증명이 아니다. 왜 붉은지까지 봐야 한다.
+   ★그래도 이 함수는 sliceDecl 의 사본이 아니다 — 저쪽은 한 번에 훑는 상태기계,
+     이쪽은 '먼저 가리고(mask) 그 다음 세기'다. 두 의견의 값어치는 그 차이에 있다. */
 function endOfDecl2(masked, start) {
-  let i = start, depth = 0, seen = false;
+  let i = start, depth = 0, pdepth = 0, seen = false;
   while (i < masked.length) {
     const c = masked[i];
-    if (c === '{') { depth++; seen = true; }
+    if (c === '(') pdepth++;
+    else if (c === ')') pdepth--;
+    else if (c === '{') { depth++; seen = true; }
     else if (c === '}') {
       depth--;
-      if (seen && depth === 0) {
+      if (seen && depth === 0 && pdepth === 0) {
         i++; let j = i;
         while (j < masked.length && /\s/.test(masked[j])) j++;
         return masked[j] === ';' ? j + 1 : i;
       }
-    } else if (c === ';' && !seen && depth === 0) return i + 1;
+    } else if (c === ';' && depth === 0 && pdepth === 0) return i + 1;
     i++;
   }
   return -1;
@@ -292,28 +301,58 @@ console.log('\n[4] 변이 검출 — 엔진을 건드리면 티가 나는가 · 
   fs.rmSync(TMP, { recursive: true, force: true });
 }
 
-// ── [5] inSeq 축2 누수 ──────────────────────────────────────────────────────
-// inSeq(k) = curSeq().indexOf(k)>-1 — 축1만 본다. 축2(OFFTGL)로 꺼진 순간도 '있다'고 답한다.
-// 이건 이 저장소에서 두 번 사람을 속인 바로 그 함정이다(1차 시뮬레이션 오판 · _blessOpens 한 줄).
-// OFFTGL 키를 inSeq로 묻는 자리는 반드시 같은 줄에서 그 키의 값도 함께 봐야 한다.
-console.log('\n[5] inSeq 축2 누수 — 꺼진 순간을 켜졌다고 세는 자리가 있는가');
+// ── [5] 축2 누수 ────────────────────────────────────────────────────────────
+/* ★[OFF_CHOKE 2026-08-10] 이 칸을 통째로 다시 짰다. 세는 자리가 아니라 **길목**을 잰다.
+   옛 판이 하던 일: `var OFFTGL={a:1,b:1}` 리터럴에서 키를 긁고, 그 키를 `inSeq('k')` 로 묻는
+   줄마다 같은 줄에서 `S.<k>` 도 보는지 확인했다. 전제는 「inSeq 는 축1만 본다」였다.
+   ★그 전제가 지금은 거짓이다. 2026-08-03 [ALL_OPTIONAL] 리팩터가 `momOn(k)` 를
+     **curSeq() 안으로** 옮겼다 — `curSeq(){ return ordNow().filter(k => (…) && momOn(k)); }`.
+     실측(브라우저·약속 코스): S.off.letter=1 을 넣으면 inSeq('letter') 가 곧바로 false 가 된다.
+     즉 누수 자리는 18곳이 아니라 0곳이고, 막는 곳은 한 곳뿐이다.
+   ★그래서 옛 판을 그대로 되살리면 안 된다 — 되살리면 멀쩡한 3줄
+     (2266 vow · 2267 letter · 2610 letter)을 결함이라 부른다. 실제로 그렇게 울렸다.
+     늑대를 세 번 부르는 검사는 다음 진짜 늑대 때 아무도 안 본다.
+   ★대신 길목을 지킨다: curSeq 가 momOn 을 정말로 통과시키는가를 **돌려서** 본다.
+     누가 그 한 줄에서 momOn 을 빼면 18곳이 한꺼번에 새는데, 그때 여기가 혼자 붉어진다.
+   ※ 리터럴 키 목록으로 돌아가지 말 것 — OFFTGL 은 이제 Proxy 라 적힌 키가 없다(0개를 긁는다). */
+console.log('\n[5] 축2 누수 — 꺼진 순간이 curSeq 에서 정말 빠지는가(길목 한 곳)');
 {
-  const off = spans.find(s => s.needle === 'var OFFTGL={');
-  const keys = off ? [...off.text.matchAll(/(\w+)\s*:/g)].map(m => m[1]).filter(k => k !== 'OFFTGL') : [];
-  const lines = src.split('\n');
-  let checked = 0;
-  lines.forEach((ln, i) => {
-    if (ln.trim().startsWith('function inSeq')) return;
-    for (const k of keys) {
-      if (ln.indexOf(`inSeq('${k}')`) < 0) continue;
-      checked++;
-      // 같은 줄(또는 바로 뒤 블록)에서 S.<k> 값을 함께 보고 있으면 축2가 닫힌 것으로 본다.
-      const scope = ln + (lines[i + 1] || '');
-      if (scope.indexOf('S.' + k) < 0) bad(`${i + 1}행 inSeq('${k}')에 S.${k} 값 확인이 없다 — 꺼진 ${k}를 켜진 것으로 센다: ${ln.trim().slice(0, 90)}`);
+  const nev = spans.find(s => s.needle === 'var NEVEROFF={');
+  const fixed = nev ? [...nev.text.matchAll(/(\w+)\s*:/g)].map(m => m[1]).filter(k => k !== 'NEVEROFF') : [];
+  if (!spans.find(s => s.needle === 'var OFFTGL=')) bad('OFFTGL 선언을 못 짚었다 — 이름이 바뀌었나');
+  if (!fixed.length) bad('NEVEROFF 키를 못 읽었다 — 무엇이 고정인지 모르면 무엇이 꺼질 수 있는지도 모른다');
+
+  // ① 구조 — curSeq 가 momOn 을 부르는가
+  const cs = spans.find(s => s.needle === 'function curSeq(');
+  if (!cs) bad('curSeq 선언을 못 짚었다');
+  else if (cs.text.indexOf('momOn(') < 0)
+    bad('curSeq 가 momOn 을 부르지 않는다 — 꺼진 순간이 순서에 그대로 남는다(축2 전면 누수)');
+  else ok('curSeq 가 momOn 을 통과시킨다(축2를 거르는 길목이 한 곳에 있다)');
+
+  // ② 실행 — 정말 빠지는지 돌려서 본다. 구조는 꼴만 보고 값은 모른다.
+  let ran = 0, leak = [];
+  try {
+    const { factory } = loadEngine(TARGET);
+    for (const course of ['damback', 'family', 'record']) {          // 고객이 실제로 고르는 셋
+      const S = { course, extra: {}, off: {}, ord: null, ring: 'on', bless: 'on', valley: 'wine', toast: 'toast', welcome: 'self' };
+      const eng = factory(S);
+      S.ord = eng.defaultOrd();
+      const base = eng.curSeq();
+      for (const k of base) {
+        if (fixed.indexOf(k) >= 0) continue;                          // 입장은 끌 수 없다
+        S.off = {}; S.ring = 'on'; S.bless = 'on'; S.valley = 'wine';
+        if (k === 'ring') S.ring = 'off'; else if (k === 'bless') S.bless = 'off';
+        else if (k === 'valley') S.valley = 'none'; else S.off[k] = 1;
+        ran++;
+        if (eng.curSeq().indexOf(k) > -1) leak.push(`${course}/${k}`);
+      }
     }
-  });
-  if (!keys.length) bad('OFFTGL 키를 못 읽었다');
-  else ok(`축2 토글 ${keys.length}종(${keys.join('·')})을 묻는 inSeq 호출 ${checked}곳 전부 같은 자리에서 값도 확인한다`);
+  } catch (e) { bad('축2 실행 확인을 못 했다: ' + e.message); ran = -1; }
+  if (ran === 0) bad('축2를 한 번도 못 껐다 — 통과가 아니라 안 본 것이다');
+  else if (ran > 0) {
+    leak.length ? bad(`꺼도 순서에 남는 순간 ${leak.length}건: ${leak.join(' · ')}`)
+                : ok(`고정 ${fixed.join('·')} 을 뺀 순간을 하나씩 꺼 봤다 — ${ran}번 전부 curSeq 에서 빠진다`);
+  }
 }
 
 console.log('\n' + '='.repeat(88));

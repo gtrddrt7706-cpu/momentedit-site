@@ -94,6 +94,14 @@ export const DECLS = [
      ★한 겹을 벗기면 다음 겹이 나왔다: needle 꼴 → 괄호 깊이 → 빠진 심볼 셋. 세 번 다 재서 찾았다. */
   ['var OFFKEY={', false], ['var NEVEROFF={', false], ['function offable(', false],
   ['var OFFTGL=', false], ['function momOn(', false],
+  /* ★[FIXPOS_MISSING 2026-08-10] ordNow 안 [ORD_FIXPOS] 가지가 FIXPOS 를 읽는다 — 빠져 있었다.
+     ★그런데 감사의 '자유변수 0' 은 초록이었다. 그 가지가 `Array.isArray(S.ord)` 일 때만 도니,
+       3104조합을 전부 `ord:null` 로 돌린 감사는 **그 가지에 한 번도 안 들어갔다.**
+       안 들어간 길을 '자유변수 0' 의 근거로 썼던 것이다 — 안 본 것을 통과라 부른 자리.
+     ★고객 쪽에선 흔한 길이다: ↑↓로 순서를 한 번이라도 옮기거나 저장된 초안을 이어 열면
+       S.ord 가 배열이 된다. 감사만 안 가 본 길이었다.
+     ritual-order-sim-audit [5] 가 S.ord 를 배열로 넣어 이 가지를 실제로 밟는다. */
+  ['var FIXPOS={', false],
 ];
 
 export function loadEngine(file) {
@@ -106,7 +114,7 @@ export function loadEngine(file) {
   }).filter(Boolean);
 
   const body = parts.join('\n') + `
-    return { COURSES, GADD, RANK, defaultOrd, ordNow, curSeq, isGAdd, isOptK, OFFTGL, momOn,
+    return { COURSES, GADD, RANK, defaultOrd, ordNow, curSeq, isGAdd, isOptK, OFFTGL, momOn, FIXPOS,
              RANK_OV: (typeof RANK_OV!=='undefined'?RANK_OV:null) };
   `;
   // S는 바깥에서 주입 — 빌더 원본과 같은 전역 참조 구조를 만든다

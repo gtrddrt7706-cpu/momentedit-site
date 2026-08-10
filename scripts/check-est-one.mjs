@@ -27,7 +27,13 @@ import { execSync } from 'node:child_process';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(ROOT, 'package.json'));
 const PORT = process.env.PORT || 8895;
-const COURSES = ['damback', 'minimal', 'gamdong', 'family', 'record', 'festive'];
+
+/* ★[EST_ALL_COURSES 2026-08-10] 코스 목록을 여기에 적어 두지 않는다 — 화면에서 읽는다.
+   목록을 리터럴로 박으면, ritual-data 에 코스가 하나 늘어도 이 검사는 모르고
+   「전부 통과」라고 말한다. 안 본 것을 통과라고 말하는 것이 이 저장소의 단골 사고다.
+   ★고를 수 있는 코스(hidden 아님)와 감춰진 코스를 나눠 센다. 지금 고객이 고르는 것은
+     약속·가족·기록 셋뿐이고, 나머지 셋은 저장된 초안 호환으로 키만 남아 있다.
+     둘을 합쳐 「6코스」라 부르면, 고객이 못 가는 화면까지 센 수가 된다. */
 
 /* [PW_FIND] playwright 자리를 넓게 묻는다 — 한 경로를 박아 두면 다른 세션에서 조용히 안 돈다. */
 let chromium;
@@ -56,14 +62,23 @@ try {
   try { await gen.goto(B + 'order-preview.html', { waitUntil: 'load', timeout: 20000 }); }
   catch { console.log(`✗ 로컬 서버(:${PORT})에 못 붙었습니다 — 저장소 루트에서 python3 -m http.server ${PORT} 를 띄우세요.\n  ※ 종료 코드 2 = 재지 못했다 · 1 = 재서 틀렸다`); await browser.close(); process.exit(2); }
   await gen.waitForTimeout(800);
+
+  // [EST_ALL_COURSES] 목록은 화면에서 읽는다 — 리터럴로 박으면 새 코스를 조용히 건너뛴다
+  const COURSES = await gen.evaluate(() =>
+    (typeof COURSES === 'object' && COURSES) ? Object.keys(COURSES).map((k) => ({ k, hidden: !!COURSES[k].hidden })) : []);
+  if (!COURSES.length) {
+    console.log('✗ 화면에서 코스 목록(COURSES)을 못 읽었습니다 — 재지 못한 것입니다.\n  ※ 종료 코드 2 = 재지 못했다 · 1 = 재서 틀렸다');
+    await browser.close(); process.exit(2);
+  }
+
   const built = [];
-  for (const c of COURSES) {
+  for (const { k, hidden } of COURSES) {
     const r = await gen.evaluate((c) => {
       S.course = c; courseStarted = true; buildSteps(); goDone();
       const m = document.getElementById('stage').innerText.match(/약\s*([0-9]+)\s*분/);
       return { shown: m ? +m[1] : null, url: RitualPreviewLink.url(S, {}) };
-    }, c);
-    built.push({ c, ...r });
+    }, k);
+    built.push({ c: k, hidden, ...r });
   }
   await gen.close();
 
@@ -78,7 +93,7 @@ try {
     await p.close();
     const m = t.match(/실제 예식은 약\s*([0-9]+)\s*분/);
     const got = m ? +m[1] : null;
-    rows.push([b.c, b.shown, got]);
+    rows.push([b.c, b.shown, got, b.hidden]);
     if (b.shown == null) bad.push(`${b.c}: 완성 화면에서 분을 못 읽었다(화면이 바뀌었나)`);
     else if (got == null) bad.push(`${b.c}: 미리듣기 인트로에서 '실제 예식은 약 N분'을 못 읽었다`);
     else if (got !== b.shown) bad.push(`${b.c}: 완성 화면 ${b.shown}분 ↔ 미리듣기 ${got}분 — 같은 예식에 두 수`);
@@ -86,9 +101,10 @@ try {
 } finally { await browser.close(); }
 
 console.log('코스        완성 화면   미리듣기');
-rows.forEach(([c, a, d]) => console.log(`${String(c).padEnd(11)} ${String(a ?? '?').padStart(5)}분  ${String(d ?? '?').padStart(7)}분  ${a === d ? '✓' : '✗'}`));
+rows.forEach(([c, a, d, h]) => console.log(`${String(c).padEnd(11)} ${String(a ?? '?').padStart(5)}분  ${String(d ?? '?').padStart(7)}분  ${a === d ? '✓' : '✗'}${h ? '  (감춰짐)' : ''}`));
 if (!rows.length) { console.log('\n✗ 한 코스도 재지 못했습니다 — 통과가 아니라 안 본 것입니다.'); process.exit(2); }
 if (bad.length) { console.log('\n✗ 예식 길이가 화면마다 다릅니다 [EST_ONE_NUMBER]'); bad.forEach((x) => console.log('   ' + x));
   console.log('   → 미리듣기 인트로는 meta.minLabel 을 쓸 것. totalSec 은 「통틀어」(예식 + 남는 시간)다.'); process.exit(1); }
-console.log(`\n✓ ${rows.length}코스 전부 두 화면이 같은 수를 말합니다.`);
+const open = rows.filter((r) => !r[3]).length;
+console.log(`\n✓ ${rows.length}코스 전부 두 화면이 같은 수를 말합니다 (고를 수 있는 ${open} · 감춰진 ${rows.length - open}).`);
 process.exit(0);
