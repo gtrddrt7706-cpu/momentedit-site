@@ -1924,6 +1924,7 @@ chk 'GUEST_LIGHT' console.html 1
 chk 'GUEST_MIN' console.html 1                       # 고객 미리듣기 미니멀(2026-08-09) · 짙은 색은 '다음으로' 버튼 하나
 chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2
 chk 'HERO_NO_HAIR' index.html 3                      # 히어로 구분선 폐지(2026-08-10 사용자 지시) · 되살리지 말 것
+chk 'LOCKUP_SAID' scripts/check-hero-lockup.mjs 1     # 적어 둔 숫자↔실제 값 대조 검사 · 지우지 말 것
 chk 'HERO_LOCKUP_RATIO' index.html 2                 # 자물쇠 사이 = 워드마크 대문자 높이의 0.60배(폰 13 · PC 21) · px 만 고치지 말 것
 chk 'GUEST_PREV' console.html 3                      # 고객 미리듣기 '이전 순서'(2026-08-10 사용자 지시)
 chk 'gPrev' scripts/check-guest-skin.mjs 2           # 조작부 허용 명단(OK)에 이름으로 올라 있어야 한다
@@ -2118,6 +2119,13 @@ chk 'SYL_RATE' scripts/check-syl-rate.mjs 1
 chk '안 쟀다' scripts/check-syl-rate.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/check-syl-rate.mjs >/dev/null \
   || { echo 'FAIL syl-rate: 음절 상수와 실측의 폭이 범위를 벗어났습니다 — node scripts/check-syl-rate.mjs'; fail=1; }; fi
+
+# ★★[LOCKUP_SAID 2026-08-10] 히어로 자물쇠 — 적어 둔 숫자와 실제 값이 갈렸는지.
+#   같은 종류가 **세 번** 났다(커밋 제목·본문·가드 주석이 그때그때 실제와 달랐다).
+#   "패치 내기 전에 눈으로 대조하자"는 세 번 다 안 지켜졌다 — 기억에 맡기지 않고 게이트가 본다.
+#   ★파일만 읽는 검사라 브라우저·로컬 서버가 필요 없다(그래서 여기서 돌릴 수 있다).
+if command -v node >/dev/null 2>&1; then node scripts/check-hero-lockup.mjs >/dev/null \
+  || { echo 'FAIL hero-lockup: 적어 둔 숫자와 실제 값이 다릅니다 — node scripts/check-hero-lockup.mjs'; fail=1; }; fi
 
 # ── [LEN_FRAME] 길이 수치는 '예상'인지 '실측'인지 밝힌다 (2026-08-09) ──
 # 같은 '23.3초'를 두 세션이 서로 다른 클립·다른 틀로 적어 한 번 헛돌았다(한쪽 narr-close 실측 ·
