@@ -3294,7 +3294,12 @@ footer {
   .seq-item {
     grid-template-columns: 68px 1fr;
     gap: 14px;
-    padding: 24px 0;
+    /* ★[SEQ_RAIL_DODGE 2026-08-10] 오른쪽 32px 를 비운다 — 화면에 고정된 아이콘 레일
+       (.me-fab-stack)이 이 칸 위에 떠 있어 **글자가 아이콘 밑으로 들어간다.**
+       390px 실측: 설명 칸 x=102~370 · 레일이 가로 32px · 세로 163px 만큼 겹쳤다.
+       레일은 페이지 전체에 떠 있으니 이 절은 그중 한 자리일 뿐이다(다른 절도 같은 값을 재 볼 것).
+       여기부터 비우는 이유 — 이 절이 글이 가장 길어 겹치는 줄이 제일 많다. */
+    padding: 24px 34px 24px 0;
   }
   .br-mo { display: inline; }
   .seq-time {
@@ -5689,7 +5694,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <div class="seq-time">35<span>min</span></div>
     <div>
       <div class="seq-name">Group Record<span class="seq-name-ko">인사 사진</span></div>
-      <div class="seq-desc">두 분이 자리마다 찾아가 인사드리고, 그 자리에서 함께 사진을 남깁니다. <br>양가의 모든 세대가 한자리에 모이는, 점점 드물어지는 순간입니다. 본식이 짧으면 그만큼 길어져 31~39분입니다.</div>
+      <div class="seq-desc">신부대기실에 앉아 기다리는 시간이 없습니다. 두 분이 자리마다 찾아가 인사드리고, 그 테이블에서 바로 한 장을 남깁니다. <br>사진작가가 내내 함께 다니니 원하시는 컷을 그 자리에서 부탁하셔도 되고, 폰으로 편히 찍거나 다 함께 셀카를 남기셔도 좋습니다. 양가의 모든 세대가 한자리에 모이는, 점점 드물어지는 순간입니다. 본식이 짧으면 그만큼 길어져 31~39분입니다.</div>
     </div>
   </div>
   <div class="seq-item">
