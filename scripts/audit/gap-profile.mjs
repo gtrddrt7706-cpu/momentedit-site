@@ -24,6 +24,20 @@ const MIN_SIL = 0.10;    // 이보다 짧은 무음은 쉼이 아니라 자음 �
 const EOF_TOL = 0.10;
 const ALL = process.argv.includes('--all');
 
+/* ★★[CANT_LOOK 2026-08-10 · /점검] ffprobe 가 없으면 **재지 못한 것**이지 결함이 아니다.
+   옛 판은 ENOENT 스택을 그대로 뱉고 죽었다 — 읽는 사람은 "무엇이 깨졌나" 부터 뒤진다.
+   실제로 이 환경(클로드코드 컨테이너)에 ffprobe·ffmpeg 가 없어 그렇게 죽고 있었다.
+   ★check-tap-targets·check-guest-skin 과 같은 처방: **못 잼 = 2 · 재서 틀림 = 1 · 통과 = 0.**
+     0 으로 넘기지는 않는다 — 못 본 것을 통과로 세면 검사가 거짓말을 시작한다.
+   ★소리를 재는 검사라 코워크 환경에서는 정상으로 돈다. 여기서만 2 가 나온다. */
+try { await run('ffprobe', ['-version']); }
+catch {
+  console.log('· ffprobe 가 없어 이번에 아무것도 재지 못했습니다(화면·소리 결함이 아닙니다).');
+  console.log('  종료 코드 2 = 재지 못했다 · 1 = 재서 틀렸다 · 0 = 통과');
+  console.log('  소리 실측은 ffmpeg/ffprobe 가 있는 환경(코워크)에서 돌립니다.');
+  process.exit(2);
+}
+
 async function dur(f) {
   const { stdout } = await run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration',
     '-of', 'default=nw=1:nk=1', f]);

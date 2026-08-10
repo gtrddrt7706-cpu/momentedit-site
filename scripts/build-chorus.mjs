@@ -50,9 +50,31 @@ const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'chorus-'));
 const idOf = (c) => `${c.no}_${c.file}`;
 const mp3Of = (id) => path.join(root, CAST_DIR, `${id}.mp3`);
 
+/* ★★[CANT_LOOK 2026-08-10 · /점검] ffprobe·ffmpeg 가 없으면 **시작 전에** 멈춘다.
+   실측: 이 환경엔 둘 다 없어서 dur() 가 매번 실패했는데 `|| 0` 이 삼켜
+   「24_vow-both-1 0.00초 (토막 0)」처럼 **측정값처럼 생긴 0** 을 찍고 계속 갔다.
+   조립기가 그 0 으로 소리를 자르면 잘못된 결과물이 나온다 — '없으면 통과'보다 나쁘다.
+   0 은 데이터처럼 보이기 때문이다. 못 읽은 것은 못 읽었다고 말해야 한다.
+   ★종료 코드 2 = 재지 못했다 · 1 = 재서 틀렸다 · 0 = 통과 (다른 검사와 같은 약속). */
+for (const bin of ['ffprobe', 'ffmpeg']) {
+  const t = spawnSync(bin, ['-version'], { encoding: 'utf8' });
+  if (t.error || t.status !== 0) {
+    console.error(`· ${bin} 가 없어 아무것도 만들지 못했습니다(결함이 아니라 못 잰 것입니다).`);
+    console.error('  종료 코드 2 = 재지 못했다 · 1 = 재서 틀렸다 · 0 = 통과');
+    console.error('  소리 조립은 ffmpeg/ffprobe 가 있는 환경에서 돌립니다.');
+    process.exit(2);
+  }
+}
+
 function dur(f) {
   const r = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' });
-  return Number(String(r.stdout).trim()) || 0;
+  const n = Number(String(r.stdout).trim());
+  /* ★`|| 0` 을 뺐다 — 실패를 0 으로 바꾸면 그 0 이 아래 계산을 전부 오염시킨다.
+     읽지 못했으면 여기서 멈추는 것이 맞다(위 사전 점검을 지나왔는데도 실패했다면 파일 문제다). */
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`길이를 읽지 못했습니다: ${f} — ffprobe 출력이 비었습니다(0 으로 대신하지 않습니다)`);
+  }
+  return n;
 }
 // 무음 구간을 찾아 「소리 나는 토막」의 시작·끝 목록으로 바꾼다
 //
