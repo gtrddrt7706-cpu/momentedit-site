@@ -967,7 +967,7 @@ body.menu-open nav {
   letter-spacing: 0.38em;
   text-transform: uppercase;
   padding-left: 0.38em;
-  margin: 18px 0 0;
+  margin: 30px 0 0;   /* [HERO_NO_HAIR] 구분선 없이 두 줄만으로 위계가 서는 거리(390px 실측) */
   line-height: 1;
 }
 /* 티저 서브 라인 — 가치제안 한 줄(히어로 무드 보존 위해 티저로 이동 · 2026-07-04) */
@@ -987,11 +987,7 @@ body.menu-open nav {
   background: var(--hairline);
   opacity: 0.55;
 }
-.hero-logo-hair.hl-short {
-  width: 66px;
-  background: linear-gradient(90deg, transparent, var(--gold) 28%, var(--gold) 72%, transparent);
-  opacity: 0.95;
-}
+/* ★.hero-logo-hair.hl-short 규칙 삭제 — 2026-08-10 사용자 지시[HERO_NO_HAIR]. 되살릴 자리를 없앤다. */
 .hero-logo-hair.hl-seal {
   background: var(--seal);
   opacity: 0;
@@ -1015,7 +1011,7 @@ body.menu-open nav {
   font-weight: 400;
   color: #f5f0e8;
   letter-spacing: 0.27em;
-  padding: 0 0 18px;
+  padding: 0;   /* [HERO_NO_HAIR] 구분선을 받치던 아래 여백 — 줄이 사라져 함께 걷는다 */
   padding-left: 0.27em;
   line-height: 1;
   white-space: nowrap;
@@ -5411,7 +5407,11 @@ body {
 <div class="hero">
   <div class="hero-logo" aria-label="MOMENT EDIT · Private Wedding Studio">
   <div class="hero-logo-wordmark">MOMENT EDIT</div>
-  <div class="hero-logo-hair hl-short"></div>
+  <!-- ★[HERO_NO_HAIR 2026-08-10 사용자 지시] 워드마크와 태그라인 사이 가로 줄(.hl-short) 삭제.
+       두 줄짜리 로고 자물쇠에 구분선이 끼면 요소가 셋이 되어, 이미 자간으로 종속이 드러나는
+       태그라인을 한 번 더 설명하는 군더더기가 된다. 줄을 걷고 사이를 30px 로 벌려
+       「이름 · 그 아래 한 줄」 로만 읽히게 했다(390px 실측: 글자 밑 → 태그라인 30px).
+       ★되살리지 말 것. .hl-seal 은 다른 곳에서 쓰는 별개 변형이라 CSS 를 남겨 둔다. -->
   <div class="hero-logo-eyebrow">PRIVATE WEDDING STUDIO</div>
 </div>
   <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
