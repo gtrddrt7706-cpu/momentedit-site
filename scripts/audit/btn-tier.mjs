@@ -44,8 +44,18 @@ for (const W of [390, 768, 1280]) {
   const f = R.filled, o = R.outline;
   const say = (m) => { console.log(`✗ ${W}px — ${m}`); fail++; };
   if (f.length !== 3) say(`채움 전환 버튼이 3개가 아니다(${f.length}개)`);
-  if (o.length !== 1) say(`외곽 보조 버튼이 1개가 아니다(${o.length}개)`);
+  /* ★[TIER_COUNT 2026-08-10 점검] 외곽 개수를 1로 박아 뒀던 것을 푼다 — **검사가 낡았던 것이다.**
+     2026-08-01 에 청첩장 미리보기 CTA 를 .journal-guide-link 로 통일했다(index.html:4606 주석에
+     그 결정이 적혀 있다). 그때부터 외곽은 정당하게 2개인데 검사는 1을 기대해 **9일간 빨간 채**였다.
+     아무도 못 본 이유는 이 검사를 도는 게이트가 없어서다 — check-tap-targets 와 같은 자리다.
+     ★이 검사의 뜻은 개수가 아니라 **2단 체계가 유지되는가**다(규격 동일 · 채움 여부만 다름 ·
+       화살표는 외곽에만). 개수는 화면이 자라면 늘어난다. 뜻을 지키고 수는 풀어 준다.
+     ★대신 '하나도 없음'은 여전히 실패다 — 보조 이동이 통째로 사라진 것이니 알아야 한다.
+     실측 2026-08-10(390·1280): 채움 3 · 외곽 2 · 다섯 전부 h=58 · fs=14px · r=4px. */
   const uniq = (a, k) => [...new Set(a.map((x) => x[k]))];
+  const spec = (a) => [...new Set(a.map((x) => `h${x.h}/${x.fs}/${x.r}`))];
+  if (!o.length) say('외곽 보조 버튼이 하나도 없다 — 2단 체계의 한 축이 사라졌다');
+  if (spec(o).length > 1) say(`외곽 보조 버튼끼리 규격이 다르다: ${spec(o).join(' / ')}`);
   if (uniq(f, 'h').length > 1) say(`채움 버튼 높이가 서로 다르다: ${uniq(f, 'h').join('/')}`);
   if (uniq(f, 'fs').length > 1) say(`채움 버튼 글자 크기가 서로 다르다: ${uniq(f, 'fs').join('/')}`);
   if (f[0] && o[0]) {

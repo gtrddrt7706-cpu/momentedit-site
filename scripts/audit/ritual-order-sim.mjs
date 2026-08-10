@@ -29,8 +29,14 @@ const DEFAULT_TARGET = path.join(REPO, 'order-preview.html');
 // ── 1. 원문 추출 ────────────────────────────────────────────────────────────
 // 문자열·라인주석·블록주석을 인지하는 중괄호 균형 스캐너.
 // 정규식으로 자르면 문자열 안의 '}' 하나에 무너진다.
+/* ★[PAREN_DEPTH 2026-08-10 점검] 괄호도 함께 센다 — **중괄호만 세면 한 꼴에서만 맞다.**
+   실측: `var OFFTGL=new Proxy({},{ get:… });` 에서 첫 `{}` 가 닫히자마자 깊이가 0이 되어
+   `var OFFTGL=new Proxy({}` 까지만 잘렸고, 샌드박스가 「missing ) after argument list」로 죽었다.
+   needle 을 이름만 잡게 고친 뒤에야 이 두 번째 층이 드러났다 — 한 겹 벗기면 다음 겹이 나온다.
+   ★끝나는 조건은 「중괄호 0 **그리고** 괄호 0」이다. 기존 꼴도 그대로 통한다:
+     var X={…};  → 마지막 } 에서 둘 다 0 · function f(a){…} → ( ) 가 { 앞에서 이미 닫힌다. */
 export function sliceDecl(src, startIdx) {
-  let i = startIdx, depth = 0, seen = false;
+  let i = startIdx, depth = 0, seen = false, pdepth = 0;
   let inS = null, inLine = false, inBlock = false;
   while (i < src.length) {
     const c = src[i], n = src[i + 1];
@@ -44,17 +50,21 @@ export function sliceDecl(src, startIdx) {
     if (c === '/' && n === '/') { inLine = true; i += 2; continue; }
     if (c === '/' && n === '*') { inBlock = true; i += 2; continue; }
     if (c === '"' || c === "'" || c === '`') { inS = c; i++; continue; }
+    if (c === '(') { pdepth++; i++; continue; }
+    if (c === ')') { pdepth--; i++; continue; }
     if (c === '{') { depth++; seen = true; i++; continue; }
     if (c === '}') {
       depth--; i++;
-      if (seen && depth === 0) {
+      if (seen && depth === 0 && pdepth === 0) {
         // 선언 끝 — 뒤따르는 세미콜론까지 먹는다
         while (i < src.length && /[\s;]/.test(src[i])) { if (src[i] === ';') { i++; break; } i++; }
         return src.slice(startIdx, i);
       }
       continue;
     }
-    if (c === ';' && !seen && depth === 0) return src.slice(startIdx, i + 1);
+    /* `!seen` 을 뺐다 — Proxy 처럼 중괄호를 지나고도 괄호 안에 있다가 `;` 로 끝나는 꼴이 있다.
+       대신 **둘 다 0** 일 때만 끝낸다. */
+    if (c === ';' && depth === 0 && pdepth === 0) return src.slice(startIdx, i + 1);
     i++;
   }
   throw new Error('unbalanced from ' + startIdx);
@@ -72,7 +82,18 @@ export const DECLS = [
   ['var RANK_OV={', true], ['function rankOf(', true],
   ['function isGAdd(', false], ['function isOptK(', false],
   ['function defaultOrd(', false], ['function ordNow(', false], ['function curSeq(', false],
-  ['var OFFTGL={', false], ['function momOn(', false],
+  /* ★[DECL_SHAPE 2026-08-10 점검] `var OFFTGL={` 로 **선언 꼴을 박아 뒀던 것**을 푼다.
+     2026-08-03 리팩터(c792fb8 ORD_ROWCTL)에서 객체 리터럴 → `new Proxy({},{…})` 로 바뀌었다.
+     심볼도 뜻도 그대로인데 needle 이 리터럴 중괄호를 요구해 못 찾았고,
+     그 뒤 **7일간 ritual-order-sim 과 ritual-guard-scan 이 둘 다 죽어 있었다**
+     (guard-scan 이 이 grab 을 쓴다 — 하나가 막히면 둘이 멎는다). 아무도 못 본 이유는 게이트가 없어서다.
+     ★grab 은 needle 뒤를 `;` 까지 균형 있게 잘라내므로 `=` 까지만 잡으면 어느 꼴이든 통한다.
+       선언의 **모양**이 아니라 **이름**을 잡는다 — 모양은 리팩터마다 바뀐다. */
+  /* ★같은 리팩터가 데려온 의존 셋 — OFFTGL 의 Proxy 가 offable() 을, 그것이 NEVEROFF 를 부른다.
+     OFFKEY 는 옛 3키(ring·bless·valley)를 남겨 둔 표라 함께 실어야 엔진이 선다.
+     ★한 겹을 벗기면 다음 겹이 나왔다: needle 꼴 → 괄호 깊이 → 빠진 심볼 셋. 세 번 다 재서 찾았다. */
+  ['var OFFKEY={', false], ['var NEVEROFF={', false], ['function offable(', false],
+  ['var OFFTGL=', false], ['function momOn(', false],
 ];
 
 export function loadEngine(file) {

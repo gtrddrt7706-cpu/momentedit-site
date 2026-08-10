@@ -19,6 +19,15 @@ import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './_browser.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+
+/* ★[LABEL_ONE 2026-08-10 점검] 미리듣기 버튼의 라벨을 **여기 한 곳**에 둔다.
+   두 진입점(order-preview 완성 화면 · mypage 식순 행)이 **같은 말**을 해야 한다 —
+   한쪽만 바뀌면 고객이 같은 동작을 두 이름으로 만난다. 그 일치를 재는 것이 이 단정의 뜻이다.
+   실측 2026-08-10: order-preview 버튼 · mypage.html:4619 `label:'미리듣기'` 둘 다 「미리듣기」.
+   ★2026-08-10(747c3db)에 「미리 들어보기」 → 「미리듣기」로 바뀌었는데 이 파일이 옛 글자를
+     네 곳에 박아 두어 **28건이 통째로 붉었다.** 문안은 사용자 지시로 자주 바뀐다 —
+     버튼은 구조로 찾고(onclick), 글자는 이 상수 하나로만 잰다. */
+const PREVIEW_LABEL = '미리듣기';
 const SITE = path.resolve(HERE, '../..');
 const PORT = 8127;
 const VIEWPORTS = [
@@ -91,12 +100,12 @@ try {
 
       const btn = await page.evaluate(() => {
         const b = [].slice.call(document.querySelectorAll('button.rehearse-btn'))
-          .filter((x) => x.textContent.trim() === '미리 들어보기')[0];
+          .filter((x) => /openRitualPreview/.test(x.getAttribute('onclick') || ''))[0];   // [LABEL_FREE] 글자가 아니라 구조로 찾는다
         if (!b) return null;
         const r = b.getBoundingClientRect();
-        return { w: r.width, right: r.right, vw: window.innerWidth, hint: (b.nextElementSibling || {}).textContent || '' };
+        return { w: r.width, right: r.right, vw: window.innerWidth, label: b.textContent.trim(), hint: (b.nextElementSibling || {}).textContent || '' };
       });
-      ok(!!btn, '완성 화면에 「미리 들어보기」가 선다');
+      ok(!!btn, `완성 화면에 미리듣기 버튼이 선다${btn && btn.label ? ' — 라벨 「' + btn.label + '」' : ''}`);
       if (btn) {
         ok(btn.w > 0 && btn.right <= btn.vw + 0.5, '버튼이 화면 폭 안에 들어온다', btn ? `right=${btn.right} vw=${btn.vw}` : '');
         /* ★[HINT_LOOSE 2026-08-03] 예전엔 「소리로 들어봐요」를 글자 그대로 찾았다. 그 사이
@@ -110,7 +119,7 @@ try {
 
       await page.evaluate(() => {
         const b = [].slice.call(document.querySelectorAll('button.rehearse-btn'))
-          .filter((x) => x.textContent.trim() === '미리 들어보기')[0];
+          .filter((x) => /openRitualPreview/.test(x.getAttribute('onclick') || ''))[0];   // [LABEL_FREE] 글자가 아니라 구조로 찾는다
         if (b) b.click();
       });
       await new Promise((r) => setTimeout(r, 900));
@@ -161,7 +170,7 @@ try {
       // ✕ 로도 같은 결과 + 소리를 먼저 끊었는지(src 가 about:blank 로 바뀐 뒤 제거되는지)
       await page.evaluate(() => {
         const b = [].slice.call(document.querySelectorAll('button.rehearse-btn'))
-          .filter((x) => x.textContent.trim() === '미리 들어보기')[0];
+          .filter((x) => /openRitualPreview/.test(x.getAttribute('onclick') || ''))[0];   // [LABEL_FREE] 글자가 아니라 구조로 찾는다
         if (b) b.click();
       });
       await new Promise((r) => setTimeout(r, 500));
@@ -207,7 +216,7 @@ try {
         window.postMessage({ type: 'momentedit:orderFill', draft: null, done: true, digital: true }, location.origin);
         setTimeout(() => {
           const b = [].slice.call(document.querySelectorAll('button.rehearse-btn'))
-            .filter((x) => x.textContent.trim() === '미리 들어보기')[0];
+            .filter((x) => /openRitualPreview/.test(x.getAttribute('onclick') || ''))[0];   // [LABEL_FREE] 글자가 아니라 구조로 찾는다
           if (!b) return res({ err: '버튼 없음' });
           b.click();
           const fr = document.getElementById('ob_rpFrame');
@@ -278,10 +287,10 @@ try {
           vw: window.innerWidth,
         };
       });
-      ok(row.pre, '식순 행에 「미리 들어보기」 보조 버튼이 선다');
+      ok(row.pre, `식순 행에 「${PREVIEW_LABEL}」 보조 버튼이 선다`);
       ok(row.main, '주 버튼(mp_ritualStart)은 그대로 있다');
       if (row.pre && row.main) {
-        ok(row.label === '미리 들어보기', '보조 버튼 라벨', row.label);
+        ok(row.label === PREVIEW_LABEL, `보조 버튼 라벨이 완성 화면과 같다(「${PREVIEW_LABEL}」)`, row.label);
         ok(row.rPre.r <= row.rMain.l + 0.5, '보조 버튼이 주 버튼 왼쪽에 선다', `pre.right=${row.rPre.r} main.left=${row.rMain.l}`);
         ok(row.rowOverflow <= 1, '행이 가로로 넘치지 않는다', `overflow=${row.rowOverflow}px`);
         ok(row.rMain.r <= row.vw + 0.5, '주 버튼이 화면 폭 안', `right=${row.rMain.r} vw=${row.vw}`);
