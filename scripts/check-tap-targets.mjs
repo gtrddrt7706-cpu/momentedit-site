@@ -145,6 +145,30 @@ for (const page_ of pages) {
     return window.__tap.length;
   }, SEL);
 
+  /* ★★[TAP_UNSEEN 2026-08-10] **못 잰 것을 함께 말한다.**
+     실측으로 드러난 것 — `mypage.html` 은 "화면에 7 · 잰 것 7 · ✓ 전부 통과" 로 초록인데,
+     그 7 은 **로그인 폼**이다. 로그인 뒤에 있는 제작 카드 · 좌석 캔버스 · 위저드 ·
+     음료 시트(방금 44px 로 고친 그 닫기 버튼)는 **한 번도 재지 않았다.**
+     숫자만 보면 "이 쪽은 통과"로 읽힌다. 그건 이 검사가 한 말이 아니다.
+     ★그래서 DOM 에 있으나 안 그려진 타깃 수와, 그것들이 어느 껍데기 안에 있는지를 함께 찍는다.
+       실패로 세지 않는다 — 접힌 아코디언·닫힌 모달은 정당히 숨어 있다.
+       다만 **'전부 통과'가 '전부 쟀다'로 읽히는 것**을 막는다.
+     ★이 줄이 크면 게이트에 넣을 값이 적다는 뜻이다 — 게이트는 재는 것만 지킬 수 있다. */
+  const unseen = await pg.evaluate((SEL) => {
+    const box = {};
+    let hid = 0;
+    for (const e of document.querySelectorAll(SEL)) {
+      const s = getComputedStyle(e), b = e.getBoundingClientRect();
+      if (!(s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.05 || b.width === 0 || b.height === 0)) continue;
+      hid++;
+      let p = e, id = '';
+      while (p && p !== document.body) { if (p.id) id = p.id; p = p.parentElement; }   // 가장 바깥 id = 화면 이름
+      box[id || '(이름 없는 자리)'] = (box[id || '(이름 없는 자리)'] || 0) + 1;
+    }
+    const top = Object.entries(box).sort((a, b2) => b2[1] - a[1]).slice(0, 4).map(([k, v]) => `${k} ${v}`);
+    return { hid, top };
+  }, SEL);
+
   const rows = [];
   for (let i = 0; i < n; i++) {
     /* ★자리가 멈춘 뒤에 잰다. 이 사이트는 스크롤 진입 애니메이션(.reveal)이
@@ -285,6 +309,13 @@ for (const page_ of pages) {
        숫자가 틀린 것보다 이름이 겹치는 것이 사람을 더 멀리 돌게 만든다. */
   console.log(`\n━━ ${page_} — 화면에 ${settled.n} · 잰 것 ${n}(면제 ${settled.n - n})`
     + ` · ★오터치 ${S.length} · ⚠겹침 ${O.length} · ✗작다 ${B.length} · (접힘 ${F}` + ` · 간격면제 ${SP})`);
+  // ★TAP_UNSEEN — '전부 통과'가 '전부 쟀다'로 읽히지 않게. 실패는 아니다.
+  if (unseen.hid) console.log(`  · 못 잰 것 ${unseen.hid}+(안 그려진 상태 — ${unseen.top.join(' · ')})`
+    + `${unseen.hid > n ? '  ← 잰 것보다 많다. 이 쪽은 「통과」가 아니라 「보이는 데까지 봤다」이다' : ''}`);
+  /* ★'+' 를 붙인 이유 — 이 수는 **DOM 에 있으나 안 그려진 것**만 센다.
+     로그인 뒤 JS 가 나중에 만들어 붙이는 화면(제작 카드·좌석 캔버스·음료 시트)은
+     지금 DOM 에 아예 없어 **이 수에도 안 잡힌다.** 그래서 실제 못 잰 것은 늘 이보다 많다.
+     ★수를 정확히 만들려 하지 말 것. 정확한 수보다 '이게 전부가 아니다'가 중요하다. */
   const LB = { steal: '★오터치', overlap: '⚠겹침 ', small: '✗작다  ' };
   const seen = new Set();
   for (const r of [...S, ...O, ...B]) {
