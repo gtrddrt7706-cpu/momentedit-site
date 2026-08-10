@@ -73,7 +73,7 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
 run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM] 이제 가운데값을 적는다 — 겨눌 자리가 칸으로 옮겼다
-run index.html '>35<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지                # 보이는 시퀀스 표 · [WAVE_SOFT 2026-08-10] 큰 칸은 '20min' 하나 · 범위는 이 설명 문장이 진다(</div> 까지 무는 이유: 주석이 대신 맞지 않게)
+run index.html '>35<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
 run index.html '16~24m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
 run index.html 'Ceremony 16~24분' 'Ceremony 30분'                          # Service JSON-LD
 run assets/sequence-modal.js "'16~24분'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
