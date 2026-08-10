@@ -1922,7 +1922,9 @@ chk '저장 중…' order-preview.html 2
 # ★디렉터 화면(embed 없음)은 어두워야 한다 — 예식장에서 화면 빛이 하객 쪽으로 새면 안 된다.
 chk 'GUEST_LIGHT' console.html 1
 chk 'GUEST_MIN' console.html 1                       # 고객 미리듣기 미니멀(2026-08-09) · 짙은 색은 '다음으로' 버튼 하나
-chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2 # 조작부에 디렉터 도구가 보이면 실패(명단이 아니라 구조로 본다)
+chk 'GUEST_CTL_EMPTY' scripts/check-guest-skin.mjs 2
+chk 'GUEST_PREV' console.html 3                      # 고객 미리듣기 '이전 순서'(2026-08-10 사용자 지시)
+chk 'gPrev' scripts/check-guest-skin.mjs 2           # 조작부 허용 명단에 이름으로 올라 있어야 한다 # 조작부에 디렉터 도구가 보이면 실패(명단이 아니라 구조로 본다)
 chk 'BUSY_ONE_PLACE' mypage.html 3                   # 대기 표시 = 하나·한 자리·한 낱말(2026-08-09)
 chk 'color-scheme:light' console.html 1
 

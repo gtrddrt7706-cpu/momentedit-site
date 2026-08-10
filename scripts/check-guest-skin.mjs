@@ -182,10 +182,16 @@ for (const [w, h, tag] of SIZES) {
     const ctlLeak = await p.evaluate(() => {
       const inner = document.querySelector('.ctl .inner');
       if (!inner) return ['조작부(.ctl .inner)를 못 찾았습니다 — 화면 구조가 바뀌었습니다(통과 아님)'];
+      /* 고객이 조작부에서 봐도 되는 것 — **이름을 적은 것만.** 넓히려면 여기 한 줄을 늘리고
+         왜 고객 것인지를 적는다. 조건을 '버튼이면 통과' 같은 꼴로 바꾸지 말 것 —
+         그 순간 앞으로 생길 디렉터 버튼이 전부 통과한다(이 검사가 막으려던 바로 그것).
+           mBtn  : 다음 순서로
+           gPrev : 이전 순서 [GUEST_PREV 2026-08-10 사용자 지시] — 되돌아 듣는 길 */
+      const OK = ['mBtn', 'gPrev'];
       const out = [];
       const walk = (el) => {
         for (const c of el.children) {
-          if (c.id === 'mBtn') continue;
+          if (OK.indexOf(c.id) >= 0) continue;
           const r = c.getBoundingClientRect();
           if (r.width <= 0 || r.height <= 0) continue;                 // 안 보이면 통과
           if (c.children.length && c.tagName !== 'DETAILS') { walk(c); continue; }   // 껍데기는 지나가고 실물만 짚는다
