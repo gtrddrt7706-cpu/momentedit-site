@@ -257,13 +257,27 @@ const voiceOfRow = (r) => (man.voice || {})[ROLE_OF.get(fileOfId(r.ids && r.ids[
 const twinKey = (r) => (r.ids && r.ids.length ? r.ids.join('|') : r.slug);
 
 if (process.argv.includes('--redub')) {
+  /* ★★[WAIT_TWO_COUNTS 2026-08-10 · 코드 세션] 머리의 수와 아래 항목 수가 **다른 것을 세고 있었다.**
+     실측(REDUB_TWIN 직후): 머리는 「대기 4클립」인데 [NN] 항목은 5개였다.
+     머리는 badSlugs(=화면 자리)를 세고, 항목은 녹음(twinKey)마다 하나씩 나오기 때문이다.
+     둘 다 맞는 수인데 **이름이 같아서** 사람이 어느 쪽을 믿을지 모른다.
+     ★이 불일치가 바로 코워크가 REDUB_TWIN 버그를 찾아낸 단서였다("명단 5 vs 붙여넣기 4").
+       그대로 두면 다음에 같은 방법으로 못 찾는다 — 신호를 되살린다.
+     ★머리의 수는 **아래 적히는 항목 수**로 맞추고, 화면 자리 수는 괄호로 함께 밝힌다.
+       `# 대기 N클립` 꼴은 그대로 둔다 — check-paste-format 이 그 정규식으로 읽는다. */
+  const _twins = new Set();
+  for (const r of bad) _twins.add(twinKey(r));
+  for (const r of noAudio) if (!bad.some((b) => b.slug === r.slug)) _twins.add(twinKey(r));
+  const waitRec = _twins.size;
+  const twinNote = waitRec === badSlugs.length ? ''
+    : `   (화면 자리 ${badSlugs.length}곳 · 한 자리에 녹음이 둘인 곳이 있습니다 [REDUB_TWIN])`;
   const lines = [
     '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
     '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
     '# 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].',
     '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
     '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',
-    '# 대기 ' + badSlugs.length + '클립', ''
+    '# 대기 ' + waitRec + '클립' + twinNote, ''
   ];
   const _listed = new Set();   // [REDUB_DUP] 같은 **녹음**이 두 번 실리던 것 — 모드 둘을 훑으며 생긴다
   for (const r of bad) {

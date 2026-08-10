@@ -2153,6 +2153,12 @@ chk '실측인지 예상인지' assets/ritual-data.js 1
 # 안내(잔희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
 # ★PASTE_VOICE 는 형식(`화자: 대사`)만 봤다. 꼴이 맞아도 사람은 틀릴 수 있다.
 chk 'REDUB_VOICE' scripts/check-text-audio.mjs 1
+# [REDUB_TWIN 2026-08-10] 한 화면 자리에 녹음이 둘일 수 있다(guest-2-10min = 안내판 + 배역판).
+#   슬러그로 중복 제거하면 다른 녹음까지 버린다 — 녹음 파일 이름으로 접는다. 되돌리지 말 것.
+# [WAIT_TWO_COUNTS] 명단 머리의 수는 **아래 적힌 항목 수**와 같아야 한다.
+#   그 둘이 갈린 것이 REDUB_TWIN 을 찾아낸 단서였다 — 신호를 죽이지 말 것.
+chk 'REDUB_TWIN' scripts/check-text-audio.mjs 7
+chk 'WAIT_TWO_COUNTS' scripts/check-text-audio.mjs 1
 chk 'REDUB_VOICE' scripts/check-paste-format.mjs 1
 chk 'voiceOf' scripts/check-text-audio.mjs 4
 # ── [PW_FIND] check-guest-skin 이 playwright 를 한 곳만 보던 것 ──
