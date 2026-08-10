@@ -91,8 +91,23 @@ if (files.length !== paras.length) {
   process.exit(1);
 }
 
-const dur = (f) => parseFloat(execFileSync('ffprobe',
-  ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim());
+/* ★[NAN_NOT_ZERO 2026-08-10] 못 읽은 길이를 값으로 삼키지 않는다.
+   ffprobe 는 못 재면 'N/A' 를 내놓기도 한다. parseFloat('N/A') = NaN 이고,
+   NaN 은 조용히 아래 상관계수까지 흘러가 **비교 자체를 무력화한다** —
+   `NaN < 0.85` 는 false 라, 아래 정렬 게이트가 통과로 넘어간다.
+   실측: 정상 r=1.000(통과) · 완전 역순 r=-1.000(막힘) · **역순 + 한 파일 NaN → 통과**.
+   즉 못 읽은 파일 하나가 정렬 안전망을 통째로 끈다.
+   ★build-chorus 의 `|| 0` 과 같은 병이고 꼴만 다르다(0 대신 NaN).
+     읽지 못한 것을 값으로 바꾸면, 없는 사실이 데이터가 되어 오래 산다. */
+const dur = (f) => {
+  const raw = execFileSync('ffprobe',
+    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim();
+  const n = parseFloat(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} (ffprobe 응답 "${raw}") — 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다`);
+  }
+  return n;
+};
 const real = files.map(dur);
 
 // ── 순서 검증 — 문단 길이가 대본 음절수와 같은 방향으로 움직이는지
@@ -105,8 +120,12 @@ const corr = (a, b) => {
 const r = corr(real, estOf);
 console.log(`\n순서 검증 r = ${r.toFixed(3)}`);
 files.forEach((f, i) => console.log(`  ${String(i + 1).padStart(2)}  ${real[i].toFixed(1)}초 / 예상 ${estOf[i].toFixed(1)}초  ${path.basename(f).slice(0, 46)}`));
-if (r < 0.85 && !process.argv.includes('--force')) {
-  console.error('\n✗ 순서가 어긋난 것으로 보입니다 (r < 0.85). 정렬을 확인하세요. 무시하려면 --force');
+/* ★[NAN_NOT_ZERO] `r < 0.85` 이 아니라 `!(r >= 0.85)` 로 쓴다.
+   두 식은 r 이 수일 때만 같다. r 이 NaN 이면 앞엣것은 false(통과), 뒤엣것은 true(막힘)다.
+   위 dur() 가 이미 던지므로 여기까지 NaN 이 올 길은 막혔지만, 게이트는 게이트대로 닫아 둔다 —
+   재는 곳이 하나 늘 때마다 이 자리가 다시 열리는 것을 막는 값싼 자물쇠다. */
+if (!(r >= 0.85) && !process.argv.includes('--force')) {
+  console.error(`\n✗ 순서가 어긋난 것으로 보입니다 (r = ${Number.isFinite(r) ? r.toFixed(3) : '못 구함'} · 기준 0.85). 정렬을 확인하세요. 무시하려면 --force`);
   process.exit(1);
 }
 

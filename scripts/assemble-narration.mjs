@@ -164,8 +164,22 @@ if (DRY || !IN) {
 
 // ── 입력 수집
 if (!fs.existsSync(IN)) { console.error(`✗ 입력 폴더가 없습니다: ${IN}`); process.exit(1); }
-const dur = (f) => parseFloat(execFileSync('ffprobe',
-  ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim());
+/* ★[NAN_NOT_ZERO 2026-08-10] 못 읽은 길이를 값으로 삼키지 않는다.
+   ffprobe 는 못 재면 'N/A' 를 내놓기도 하고, parseFloat('N/A') 는 NaN 이다.
+   NaN 은 던지지 않고 **비교를 조용히 무력화한다** — keepOf 의
+   `seg[마지막][1] >= d - EOF_TOL` 이 false 로 떨어져 꼬리 무음이 0 으로 잡히고,
+   그 잘못된 값이 그대로 파일이 되어 남는다. 검사가 틀리면 초록 한 번으로 끝나지만,
+   **만드는 도구**가 틀리면 거짓 값이 파일로 남아 다음 사람이 그걸 사실로 읽는다.
+   ★build-chorus 의 `|| 0` 과 같은 병이고 꼴만 다르다(0 대신 NaN). */
+const dur = (f) => {
+  const raw = execFileSync('ffprobe',
+    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim();
+  const n = parseFloat(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} (ffprobe 응답 "${raw}") — 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다`);
+  }
+  return n;
+};
 
 const collect = (dir) => {
   let out = [];
