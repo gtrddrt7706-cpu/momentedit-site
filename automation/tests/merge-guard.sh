@@ -1995,6 +1995,10 @@ chk 'DOC_SELF_COUNT' scripts/check-source-drift.mjs 1
 # ②초록일 때 **안 본 것을 말한다.** 세는 이름 없는 수(「지금까지 열일곱」)는 못 잡는다.
 #   말하지 않으면 사람이 초록을 커버리지로 읽는다(★4) — 이 검사가 지키는 문서가 그 목록이다.
 chk 'HEAD_BOUNDED' scripts/check-source-drift.mjs 1
+# ★[14-b] 「잰 범위보다 넓게 말하지 않는다」 — 새 번호를 만들지 않고 ★14 본문에 붙였다.
+#   COUNT_ROTS 의 취지 그대로다(늘 것을 하나 줄인다). 항목 수를 늘리면 목차도 같이 늙는다.
+chk '14-b' docs/검사가_속인_방식_목록.md 1
+chk '실행했다는 사실이 범위를 넓혀' docs/검사가_속인_방식_목록.md 1
 chk 'NET_SAYS_GAPS' scripts/check-source-drift.mjs 1
 chk '안 보는 것' scripts/check-source-drift.mjs 1        # ★초록 줄의 고지 — 지우면 초록이 커버리지로 읽힌다
 chk '항목 번호 범위' scripts/check-source-drift.mjs 1     # ★1~★15 꼴 (말뜻 없이 잡히는 유일한 무단위)
