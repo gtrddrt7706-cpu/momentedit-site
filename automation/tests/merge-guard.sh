@@ -1974,6 +1974,20 @@ chk 'yml 에서' automation/tests/nightly-note-table.sh 2          # ★함수�
 nochk '^note() {' automation/tests/nightly-note-table.sh         # ★사본(줄머리 함수 정의)을 두면 갈라진다
 chk 'SLICE_ONLY_FN' automation/tests/nightly-note-table.sh 1     # 떼어 온 것이 함수 하나인지 확인하는 자리
 chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범위가 넘치면 붉게 — 조용히 돌리지 않는다
+# ★그물 둘은 성격이 다르다. 위(명령)는 **목록**이라 새 명령이 생기면 샌다.
+#   아래(닫힘)는 목록이 없어 일반적이다 — 함수를 파일 끝으로 옮겨 넘친 범위에 명령이
+#   하나도 없게 만든 판에서 이것만 홀로 섰다(코워크 실측 · exit 1).
+#   ★둘 다 쏴 봤다. 안 쏜 화살은 게이트에 명중으로 보인다(11-c) — 두 번째 그물에도 같다.
+chk '} 로 안 끝납니다' automation/tests/nightly-note-table.sh 1   # 닫힘 그물 — 목록이 없어 일반적이다
+chk '15. 「그 문자열이 있나」' docs/검사가_속인_방식_목록.md 1     # ★15 — 존재 확인은 범위 확인이 아니다
+chk 'SLICE_ONLY_FN' docs/검사가_속인_방식_목록.md 1
+# ★[COUNT_ROTS 2026-08-11] 이 문서가 말하는 병을 이 문서의 첫 두 줄이 앓고 있었다.
+#   제목은 「열두 줄」인데 항목은 열일곱(1~15 + 11-b·11-c) · 머리말은 「08-09~10 이틀」인데
+#   08-08 과 08-11 사고가 들어와 있었다. 적어 둔 것과 실제가 갈렸고 아무도 세어 보지 않았다(11-b).
+#   ★고침은 「17 로 고치기」가 아니다 — 그러면 다음 항목에서 또 낡는다.
+#     세지 않아도 참인 문장으로 바꿨다. 늙는 사본을 만들지 않는 것이 늙은 사본을 고치는 것보다 낫다.
+chk 'COUNT_ROTS' docs/검사가_속인_방식_목록.md 1
+nochk '^# 검사가 우리를 속인 방식 — ' docs/검사가_속인_방식_목록.md   # 제목에 개수를 다시 달지 말 것
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
