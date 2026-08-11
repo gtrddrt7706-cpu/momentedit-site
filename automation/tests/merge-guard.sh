@@ -1981,6 +1981,13 @@ chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범�
 chk '} 로 안 끝납니다' automation/tests/nightly-note-table.sh 1   # 닫힘 그물 — 목록이 없어 일반적이다
 chk '15. 「그 문자열이 있나」' docs/검사가_속인_방식_목록.md 1     # ★15 — 존재 확인은 범위 확인이 아니다
 chk 'SLICE_ONLY_FN' docs/검사가_속인_방식_목록.md 1
+# ★[COUNT_ROTS 2026-08-11] 이 문서가 말하는 병을 이 문서의 첫 두 줄이 앓고 있었다.
+#   제목은 「열두 줄」인데 항목은 열일곱(1~15 + 11-b·11-c) · 머리말은 「08-09~10 이틀」인데
+#   08-08 과 08-11 사고가 들어와 있었다. 적어 둔 것과 실제가 갈렸고 아무도 세어 보지 않았다(11-b).
+#   ★고침은 「17 로 고치기」가 아니다 — 그러면 다음 항목에서 또 낡는다.
+#     세지 않아도 참인 문장으로 바꿨다. 늙는 사본을 만들지 않는 것이 늙은 사본을 고치는 것보다 낫다.
+chk 'COUNT_ROTS' docs/검사가_속인_방식_목록.md 1
+nochk '^# 검사가 우리를 속인 방식 — ' docs/검사가_속인_방식_목록.md   # 제목에 개수를 다시 달지 말 것
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
