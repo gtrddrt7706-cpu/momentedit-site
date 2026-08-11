@@ -1983,6 +1983,13 @@ chk 'MYPAGE_UNSEEN' scripts/check-mypage-shell.mjs 1
 chk '가짜 데이터를 지어내 통과시키지 않는다' scripts/check-mypage-shell.mjs 1
 nochk 'process.exit(0)' scripts/check-mypage-shell.mjs      # ★초록을 내게 고치지 말 것
 chk 'LISTEN_REVIEW' audio-review.html 1
+# ── [SENT_PICK 2026-08-11 사용자 지시 "예를 들어 이 문단 다시 녹음 이런식으로"] ──
+# 클립 통째가 아니라 **문장 단위**로 다시 고를 수 있다. 고른 문장만 붙여넣기 대본에 실린다.
+# ★문장은 manifest 의 sents 에서 온다 — 화면에서 다시 쪼개지 않는다(규칙이 둘이면 갈라진다).
+# ★안 고르면 클립 전체다. 「하나도 안 골랐다」를 「아무것도 안 한다」로 읽지 않는다.
+chk 'SENT_PICK' audio-review.html 3
+chk 'c.sents' audio-review.html 3
+chk '고른 문장만' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
 chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
 nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
