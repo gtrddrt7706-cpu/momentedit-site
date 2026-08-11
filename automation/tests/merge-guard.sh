@@ -1916,6 +1916,10 @@ chk 'r.error' scripts/assemble-parents-letter.mjs 1
 # mp3 100개 중 사람이 들어 본 것은 6개(입장 A~F)뿐이었다. 나머지는 기계가 파형만 쟀다.
 # 이 화면은 목록을 베끼지 않는다 — manifest + _recorded 를 실행 시점에 읽는다.
 # 판정 결과가 곧바로 재더빙 붙여넣기 대본(화자: 문장)으로 나와 기존 파이프라인에 물린다.
+# ★[LISTEN_EXPORT_REAL 2026-08-11] 윗줄 「물린다」는 처음엔 **확인 안 하고 쓴 말**이었다.
+#   실제로 넣어 보니 exit 1 — 복수 화자가 `신랑|신부:` 로 나갔고 타입캐스트엔 그런 사람이 없다.
+#   꼴로는 「이름: 대사」라 멀쩡했고 화면으로도 멀쩡했다. 지금은 실행으로 확인한다
+#   (scripts/check-listen-export.mjs 가 진짜 검사를 자식 프로세스로 그대로 돌린다).
 # ── [NIGHTLY_SCREEN · MYPAGE_UNSEEN 2026-08-11] 게이트 밖 브라우저 검사를 하루 한 번 ──
 # 검사 51개 중 merge-guard 가 실행하는 것은 22개. 갈림이 우연이 아니라 **브라우저가 필요한
 # 것들만** 밖에 있었다(= 눈으로 보는 것들). 레일 사라짐을 아무 검사도 안 잡은 이유다.
@@ -1937,6 +1941,17 @@ chk 'LISTEN_REVIEW' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
 chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
 nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
+# ── [EXPORT_TRUTH · LISTEN_EXPORT_REAL] 내보낸 대본이 진짜 규격을 통과하는가 ──
+# ★규칙 둘은 실물(5_배역.txt)에서 옮겨 온 것이다. 지우면 첫 판의 사고가 그대로 돌아온다.
+#   ① role 에 `|` 가 있으면 문장마다 번갈아 읽는다  ② 합성 클립(mix)은 대본에서 뺀다
+# ★뺀 것을 **조용히** 빼지 않는다 — 상자 밖(#skipNote)에 띄운다. 상자 안에 적으면 그것도 읽힌다.
+chk 'EXPORT_TRUTH' audio-review.html 3
+chk 'PASTE_NO_COMMENT' audio-review.html 2
+chk 'showSkip' audio-review.html 2                      # 값만 세팅하고 안 띄우던 판이 실제로 있었다
+chk 'LISTEN_EXPORT_REAL' scripts/check-listen-export.mjs 1
+chk 'check-paste-format' scripts/check-listen-export.mjs 2   # 규격을 두 벌로 만들지 않는다
+chk 'NO_INJECT' scripts/check-listen-export.mjs 1       # 상태 주입 대신 실제로 단추를 누른다
+nochk 'const line = /' scripts/check-listen-export.mjs  # ★붙여넣기 규격을 여기서 다시 정의하지 말 것
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
