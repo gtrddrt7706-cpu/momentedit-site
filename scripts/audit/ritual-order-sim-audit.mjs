@@ -233,7 +233,16 @@ console.log('\n[4] 변이 검출 — 엔진을 건드리면 티가 나는가 · 
   const TMP = fs.mkdtempSync('/tmp/ordsim-audit-');
   const baseRows = enumerate(TARGET).rows;
   const run = (label, mutated, expect) => {   // expect: true=바뀌어야 / false=조용해야
-    if (mutated == null) { console.log(`  skip ${label} — 변이 지점을 못 찾았다`); return; }
+    /* ★[NO_AIM_IS_FAIL 2026-08-11] 겨냥할 곳을 못 찾으면 **붉게** 선다. 옛 판은 skip 이었다.
+       실사고: 「밸리만 자리 옮기기」가 2026-08-08 부터 사흘간 skip 이었고 아무도 몰랐다.
+       skip 은 fail 로 안 세어지니 감사는 그동안 계속 exit 0 — 시험 한 자리가 조용히 비어 있었다.
+       ★안 쏜 화살을 명중으로도 빗나감으로도 세지 않는 것이 '중립'처럼 보이지만, 게이트는
+         종료 코드만 본다. 안 쏜 것은 초록과 구별되지 않는다 — 그래서 붉게 세는 것이 맞다.
+       ★같은 규칙을 check-source-drift.test.sh 가 이미 쓴다(DRIFT_NO_FILE·DRIFT_RAN_NONE).
+         두 시험이 같은 몸을 쓰게 맞춘다.
+       겨냥이 정당하게 사라졌으면(그 기능을 폐지했으면) 시험을 지우거나 겨냥을 옮길 것.
+       붉은 채로 두지 말고, 그렇다고 조용히 넘기지도 말 것 — 그 사이가 이 사고가 살던 자리다. */
+    if (mutated == null) { bad(`${label} — 변이 지점을 못 찾았다. 시험이 겨냥을 잃었다(안 쏜 것은 통과가 아니다)`); return; }
     const f = path.join(TMP, label.replace(/[^\w]/g, '_') + '.html');
     fs.writeFileSync(f, mutated);
     let rows;
@@ -270,22 +279,44 @@ console.log('\n[4] 변이 검출 — 엔진을 건드리면 티가 나는가 · 
   //   밸리가 결과 배열에 아예 안 나왔다). order-preview.html이 주석으로 명시 금지한 역전이 조용히 통과했다.
   //   여기가 다시 0조합이 되면 상태 축이 끄기 축으로 되돌아간 것이다. 그때는 ritual-order-sim.mjs의
   //   STATES/enumerate를 볼 것 — 지표 이름이 아니라 '켜는 조합이 있는가'가 문제다.
+  /* ★★[OPT_AT_MOVE 2026-08-11] 겨냥을 seq 의 'valley' 에서 **opt 의 at:** 으로 옮긴다.
+     왜 — 이 변이는 2026-08-08 부터 사흘간 skip 이었고, 아무도 몰랐다. 원인이 둘이다:
+       ㉠ 형식: 겨냥이 `seq:['a','b']`(작은따옴표 한 줄)인데, order-preview 의 COURSES 는
+          생성기가 찍은 JSON 예쁜 판이다. 실측 — 작은따옴표 한 줄 seq **0건** / `"seq": [` **6건**.
+       ㉡ ★내용(본체): **어느 코스의 seq 에도 valley 가 없다.** 원천 6개 seq 실측 0건.
+          9ca4e25(08-08 「코스를 셋으로」)에서 valley 가 seq → opt 로 옮겨 갔다.
+          지금은 `{k:'valley',at:9}` 로 gamdong 한 곳에만 있다.
+       → ㉠만 고쳐 JSON 을 읽게 해도 여전히 0건이다. 형식은 곁가지고 본체는 ㉡다.
+
+     이 변이의 원래 목적은 **「자리 옮김이 결과를 바꾸는가」**였다(밸리라는 이름이 아니라).
+     끼워 넣는 자리는 이제 opt 의 at: 이 쥐고 있으니, 겨냥도 거기로 따라간다.
+
+     ★이름을 다시 박지 않는다 — 'valley' 를 박아 뒀다가 이 사달이 났다. 데이터에서 고른다.
+     ★고를 수 있는 코스(hidden 아님)를 먼저 본다 — 감춰진 코스만 흔들면 고객이 못 가는 길만 잰다. */
   {
     const cs = spans.find(s => s.needle === 'var COURSES={');
-    let mut = null;
+    let mut = null, aimed = '';
     if (cs) {
-      const hit = [...cs.text.matchAll(/seq:\[[^\]]*\]/g)].map(m => m[0]).find(t => t.includes("'valley'"));
-      if (hit && (cs.text.split(hit).length - 1) === 1) {
-        const items = hit.slice(5, -1).split(',');
-        const vi = items.indexOf("'valley'");
-        if (vi > 0) {
-          const moved = items.slice(); moved.splice(vi, 1);
-          vi === items.length - 1 ? moved.splice(1, 0, "'valley'") : moved.push("'valley'");
-          mut = patch(cs, hit, 'seq:[' + moved.join(',') + ']');
-        }
+      /* 사본은 JSON 예쁜 판이라 통째로 읽힌다 — 꼴을 정규식으로 짐작하지 말고 **파싱해서** 안다.
+         그래야 '이 opt 가 어느 코스 것이고 그 코스가 감춰졌는가'를 확실히 말할 수 있다. */
+      let obj = null;
+      try { obj = JSON.parse(cs.text.replace(/^var COURSES=/, '').replace(/;\s*$/, '')); } catch { /* 꼴이 바뀌었다 */ }
+      const ats = [...cs.text.matchAll(/"k":\s*"(\w+)",\s*\n\s*"at":\s*(\d+)/g)]
+        .map((m) => ({ whole: m[0], k: m[1], at: +m[2] }))
+        // 유일하게 짚히는 것만 쓴다 — 같은 문자열이 둘이면 어느 쪽을 바꿨는지 모른다
+        .filter((a) => (cs.text.split(a.whole).length - 1) === 1);
+      // 그 opt 를 가진 코스를 찾아, 고를 수 있는 코스(hidden 아님)를 앞세운다
+      const courseOf = (k, at) => obj && Object.entries(obj)
+        .find(([, v]) => (v.opt || []).some((o) => o.k === k && o.at === at));
+      for (const a of ats) { const c = courseOf(a.k, a.at); a.course = c ? c[0] : null; a.hidden = c ? !!c[1].hidden : true; }
+      const pick = ats.find((a) => !a.hidden) || ats[0];
+      if (pick) {
+        const to = pick.at === 1 ? 9 : 1;                       // 순위표를 확실히 타넘는 값으로
+        mut = patch(cs, pick.whole, pick.whole.replace(/"at":\s*\d+/, `"at": ${to}`));
+        aimed = ` (${pick.course || '?'}/${pick.k} at ${pick.at}→${to}${pick.hidden ? ' ★감춰진 코스뿐이었다' : ''})`;
       }
     }
-    run('COURSES seq에서 밸리만 자리 옮기기 (구판이 0조합으로 놓치던 변이)', mut, true);
+    run(`COURSES opt 의 끼워 넣는 자리를 옮긴다${aimed}`, mut, true);
   }
   // 음성 — 순위표는 서수다. 아무도 넘지 않는 값 변경은 조용해야 맞다(반응하면 그게 이상한 것).
   const rk = rankSpan && JSON.parse('{' + rankSpan.text.replace(/^var RANK=\{/, '').replace(/\};?\s*$/, '').replace(/(\w+):/g, '"$1":') + '}');

@@ -1922,6 +1922,16 @@ chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화
 # 적대 검증: 진짜 오류(null.x())를 심은 쪽은 그대로 exit 1 · 프록시 줄만 unseen 으로 빠져 exit 0.
 chk 'TUNNEL_UNSEEN' scripts/audit/page-probe.mjs 1
 chk 'ERR_TUNNEL_CONNECTION_FAILED' scripts/audit/page-probe.mjs 2
+# ── [OPT_AT_MOVE · NO_AIM_IS_FAIL 2026-08-11] 겨냥을 잃은 돌연변이가 사흘간 조용했다 ──
+# 「밸리만 자리 옮기기」가 08-08 부터 skip. skip 은 fail 로 안 세어져 감사는 계속 exit 0 이었다.
+# 원인 둘 — 겨냥 형식이 낡았고(작은따옴표 seq → JSON 예쁜 판), 대상이 이사했다(valley: seq → opt).
+#   실측: 옛 겨냥 적중 0건 / 새 겨냥(opt 의 at:) 적중 9건. 형식만 고쳤으면 여전히 0건이었다.
+# 이제 겨냥을 못 찾으면 붉게 선다. 적대: opt 의 at: 을 전부 없애니 FAIL + exit 1(옛 판은 0).
+chk 'OPT_AT_MOVE' scripts/audit/ritual-order-sim-audit.mjs 1
+chk 'NO_AIM_IS_FAIL' scripts/audit/ritual-order-sim-audit.mjs 1
+nochk "skip \${label}" scripts/audit/ritual-order-sim-audit.mjs   # 안 쏜 화살을 조용히 넘기던 옛 길
+chk '11-b' docs/검사가_속인_방식_목록.md 1               # 정착 전에 잰 값은 값이 아니다
+chk '11-c' docs/검사가_속인_방식_목록.md 1               # 안 쏜 화살은 게이트에 명중으로 보인다
 chk 'EST_ONE_NUMBER' console.html 1                     # 인트로가 minLabel 을 쓰는 근거 주석
 chk 'minLabel' console.html 2                           # 디렉터 패널 '기준' + 고객 인트로 '실제 예식'
 chk 'EST_ONE_NUMBER' scripts/check-est-one.mjs 2        # 검사 자신이 왜 생겼는지
