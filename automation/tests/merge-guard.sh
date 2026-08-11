@@ -2001,6 +2001,25 @@ chk 'SENT_EDIT' audio-review.html 2
 chk 'sentText' audio-review.html 3
 chk 'SENT_EDIT' scripts/check-listen-export.mjs 2
 chk '문장 고르기' scripts/check-listen-export.mjs 1
+# ★[PICK_KEEPS_SOUND 2026-08-11 실측] 문장을 고를 때 paintStage() 를 부르지 말 것 —
+#   무대를 다시 그리면 au.src 가 다시 걸려 듣던 소리가 처음으로 되감기고 멈춘다(0.66초→0.00초·paused).
+#   들으면서 표시하는 화면이라 한 문장 고르자고 처음부터 다시 듣게 된다. 그 줄의 글칸만 넣고 뺀다.
+#   ★가드를 nochk 로 짜려다 접었다 — `toggle('on'); saveNg(false);` 는 **사유 칩 손잡이**에도 있어
+#     문턱 1 을 주면 「없음」이라고 말하면서 하나를 눈감는다. 어제 적은 15-b(MARKER_TAUTOLOGY)를
+#     하루 만에 내가 다시 밟은 자리다. → 낱말 대신 **수술 자국**을 세고, 진짜 확인은 아래 ⑦이 쏜다.
+chk 'PICK_KEEPS_SOUND' audio-review.html 1
+chk 'wrap.appendChild(inp)' audio-review.html 1     # 그 줄의 글칸만 넣고 뺀다 — repaint 로 되돌리면 사라진다
+chk 'PICK_KEEPS_SOUND' scripts/check-listen-export.mjs 1   # ⑦ 소리가 살아 있나를 실제로 쏜다
+chk 'BLANK_SHOWS_TRUTH' scripts/check-listen-export.mjs 1  # ⑧ 보이는 글과 나가는 글이 같나
+# ★[SETS_OWN_STATE] ⑧ 은 ⑦ 이 남긴 상태를 물려받지 않는다 — ⑦ 이 문장을 한 번 더 눌러 고르기를 푼다.
+#   처음 짤 때 그걸 몰라 **깨끗한 나무에서도 붉었고** 돌연변이 셋도 똑같이 1 이라 「다 잡았다」로 읽을 뻔했다.
+#   게다가 ⑦ 은 브라우저가 재생을 막으면 누르지 않고 빠져나가 판마다 상태가 달라진다(★11-b).
+chk 'SETS_OWN_STATE' scripts/check-listen-export.mjs 1
+# ★[BLANK_SHOWS_TRUTH 2026-08-11 실측] 글칸을 비우면 대본엔 원문이 그대로 나간다(빈 값=안 고침).
+#   지운 사람은 「이 문장은 빠지겠지」로 읽는다 — 칸을 떠날 때 원문을 되돌려 보이는 것이 나갈 것이게 한다.
+#   ★input 이 아니라 focusout 에서 되돌린다 — 지우고 다시 쓰는 중에 되채우면 사람과 싸운다.
+chk 'BLANK_SHOWS_TRUTH' audio-review.html 1
+chk 'focusout' audio-review.html 1
 chk 'c.sents' audio-review.html 3
 chk '고른 문장만' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
