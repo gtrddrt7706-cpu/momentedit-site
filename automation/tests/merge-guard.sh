@@ -473,6 +473,13 @@ chk 'SEAT_ADD_PLUS' mypage.html 1
 #   이미 녹음된 78_fx-count.mp3 가 번호를 잃고, 새 클립이 78 을 가져가 한 번호에 두 소리가 됐다(실측).
 chk 'ENTRY_OUT_TONE' assets/ritual-data.js 1
 chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
+# ★[ENTRY_OUT_MIRROR 2026-08-11 사용자 발견] 빌더 화면도 느낌을 따라간다.
+#   갈래를 엔진에만 넣었더니 **화면은 옛 한 줄을 계속 보여 줬다** — 적힌 것과 들리는 것이 달랐다.
+#   NAR_MIRROR 는 문자열·{nar,end} 만 훑어서 {A..F} 꼴을 그냥 지나갔다.
+#   ★꼴이 새로우면 그물도 새로 짠다 — 「기존 그물을 통과했다」는 「본 적 있다」가 아니다.
+chk 'ENTRY_OUT_TONE' order-preview.html 1
+chk 'ENTRY_OUT\[S\.entry\]' order-preview.html 1
+chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
 chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
 chk 'narr-entry-out-F' assets/ritual-cue.js 1        # 다섯이 FILES 에 살아 있는가
