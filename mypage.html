@@ -528,7 +528,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    '원본 보기'(4자)·'보정본 받기'(5자)의 폭이 43px 벌어져 좌측 모서리가 들쭉날쭉했다.
    상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
-.trk-act{width:auto;min-width:122px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
+/* ★[TRK_ACT_H36 2026-08-11 사용자 지적 "미리듣기 버튼이 디자인적으로 애매한데 크기가 달라서 그런가"]
+   실측(390px): 미리듣기 34.2px · 이어하기 35.5px — **1.3px 어긋나 있었다.**
+   원인은 높이를 안 정해 두고 글자 크기에 맡긴 것이다(12px×1.35 vs 13px×1.35 = 1.35px 차).
+   ★폭이 다른 것은 위계라 그대로 둔다 — 보조(71px)와 주(122px)가 같아지면 다음 걸음이 어디인지 사라진다.
+     어긋난 것은 **높이**뿐이고, 나란히 선 두 상자의 위아래 선이 안 맞으면 위계가 아니라 실수로 읽힌다.
+   36px 는 새 값이 아니다 — 같은 행의 상태 글자(.trk-list .trk-st)가 이미 쓰던 높이다.
+   버튼과 글자가 한 높이를 공유하게 되어 행 전체가 하나의 가로선을 갖는다. */
+.trk-act{width:auto;min-width:122px;min-height:36px;display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
 /* 보조 버튼(주 버튼 왼쪽) — 한 행에 둘이 서므로 작은 규격. 390px에서 이름칸을 먹지 않게 min-width를 풀고 글자를 한 단 줄인다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 예외가 아니다 — 그 규칙이 말하는 '행 버튼'은 각 행의 주 동작(오른쪽 열)이고,
    이건 주 동작이 아니라 곁들임이다. 둘을 같은 크기로 만들면 무엇이 주된 다음 걸음인지가 사라진다. */
@@ -1058,9 +1065,30 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
          ④ 짧은 화면에서는 '배치 완료' 버튼 위에 겹쳤다.
        고침: 화면 바닥에 **꽉 찬 시트**로 붙인다. 바닥에 붙으면 '지금 뭔가 고르는 중'이 자세로 읽히고,
        머리줄(어느 자리인지)·선택 셋·닫기가 각자 자리를 얻는다. 아래 여백은 홈 인디케이터까지 계산한다. */
-    .seat-drinkbar{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;z-index:955;display:block;max-width:none;margin:0;
-      padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-      background:#fff;border:0;border-top:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 -6px 22px rgba(58,45,34,.10)}
+    /* ★★[DRINK_CENTER 2026-08-11 사용자 지시 "음료 하단말고 센터에 잘보이게 디자이너관점으로 개선해봐"]
+       바닥 시트를 **화면 가운데 대화상자**로 옮긴다. 다만 옛 옛판(둥근 쪽지)으로 되돌아가지 않는다 —
+       위에 적힌 넷은 실제 문제였고, 넷 다 고친 채로 가운데에 세운다:
+         ①폭 — 내용만큼이 아니라 **정해진 폭**(min(360px, 화면-32))으로 선다. 화면마다 같은 자리·같은 크기다.
+         ②줄바꿈 — 칩 셋은 그대로 3열 격자, 닫기(×)는 머리줄에 따로. 선택지가 넷으로 보이지 않는다.
+         ③덮는 방식 — **뒤를 어둡게 깐다.** 어중간하게 걸치는 대신 「지금은 이것을 고르는 중」이라고
+           화면 전체가 말한다. 바닥 시트가 얻었던 그 자세를 어둠이 대신 진다.
+         ④겹침 — 가운데에 뜨고 뒤가 어두우니 '배치 완료' 버튼과 다툴 일이 없다. 아래 여백(pad)도 필요 없어졌다.
+       ★왜 가운데가 나은가 — 이 창은 **방금 누른 그 자리**에 음료를 다는 창이다. 바닥에 있으면
+         눈이 자리(위)와 창(아래) 사이를 오간다. 가운데면 그 왕복이 줄고, 머리줄의 자리 이름이 눈에 바로 붙는다. */
+    /* ★가운데 세우기에 transform 을 쓰지 않는다 — 실측으로 걸렸다.
+       transform 이 걸린 요소는 **자식 position:fixed 의 기준**이 되어, 뒤를 덮으려던 ::before(inset:0)가
+       뷰포트가 아니라 이 상자 크기로 깔렸다(390px 렌더에서 상자 뒤만 회색이었다).
+       inset:0 + margin:auto + 정해진 폭 으로 세우면 기준이 뷰포트로 남는다. 되돌리지 말 것. */
+    .seat-drinkbar{position:fixed;inset:0;margin:auto;transform:none;z-index:955;display:block;
+      width:min(360px,calc(100vw - 32px));height:fit-content;max-width:none;
+      padding:16px 16px calc(14px + env(safe-area-inset-bottom));
+      background:#fff;border:0;border-radius:16px;box-shadow:0 18px 48px rgba(58,45,34,.22)}
+    /* 뒤를 덮는 어둠 — 별도 마크업 없이 이 상자가 스스로 깐다(::before 가 상자의 쌓임 안에서 뒤로 간다) */
+    /* ★어둠은 **보여 주기만** 하고 막지 않는다(pointer-events:none).
+       막으면 다른 자리를 바로 못 누른다 — 25명을 연달아 채우는 화면이라 자리→자리로 건너뛰는 흐름이
+       이 작업의 본체다(바닥 시트가 갖고 있던 장점이고, 가운데로 옮기며 잃을 이유가 없다).
+       실측으로 확인: 막았을 때 네 귀퉁이의 최상단 요소가 전부 이 상자였다(= 뒤가 안 눌린다). */
+    .seat-drinkbar::before{content:'';position:fixed;inset:0;background:rgba(58,45,34,.30);z-index:-1;pointer-events:none}
     .sdb-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
     .sdb-label{font-family:var(--serif-ko);font-size:12px;letter-spacing:.02em;font-weight:600;color:var(--gold-deep);width:auto;text-align:left;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .sdb-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -1075,7 +1103,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
     .sdb-clear{display:block;width:100%;margin-top:8px;padding:8px;border:0;background:transparent;font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);cursor:pointer;text-align:center}
     /* 시트가 덮는 만큼 카드 아래에 자리를 비워 둔다 — '배치 완료'가 시트 뒤로 숨지 않게 */
-    .seat-sheet-pad{height:152px}
+    /* ★[DRINK_CENTER] 창이 가운데로 가서 바닥을 안 가린다 — 비워 두던 자리를 0 으로 되돌린다.
+       마크업은 남긴다(그리는 쪽 조건과 함께 지우면 두 곳을 동시에 고쳐야 한다). */
+    .seat-sheet-pad{height:0}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:3px 4px}
 .rs-edit:focus,.rt-cin:focus{font-size:16px}   /* MPD_B9 좌석 입력 — 포커스 순간만 16px로 iOS 줌 방지(평시 크기는 캔버스 배치 유지) */
     .rs-edit:focus{outline:none}
@@ -1164,12 +1194,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .led-opennote{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;padding:9px 0 1px;text-align:left;word-break:keep-all}
 .led-opennote b{font-weight:500;color:var(--accent)}
     /* [02-8] 환불 예상(지금 취소하면) — 내 내역 끝 접힘 한 줄 */
-    .led-refund{margin-top:14px;border-top:1px solid var(--border);padding-top:11px}
-    .led-refund>summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);-webkit-tap-highlight-color:transparent}
-    .led-refund>summary::-webkit-details-marker{display:none}
-    .led-refund>summary b{font-weight:500;color:var(--accent)}
-    .led-refund[open]>summary .pt-ar{display:inline-block;transform:rotate(180deg)}
-    .led-refund-b{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);line-height:1.7;padding:8px 0 1px;text-align:left;word-break:keep-all}
+    /* ★[REFUND_NO_NUDGE 2026-08-11] 취소·환불 접기 상자는 폐지했다 — 그 전용 CSS 규칙도 함께 지운다.
+       ★죽은 CSS 를 남겨 두면 다음 사람이 「쓰던 자리가 있었네」 하고 되살린다.
+         왜 뺐는지는 그리는 쪽(2620행대 주석)에 적혀 있다. 이 자리에 규칙을 다시 만들지 말 것. */
     .led-editbtn{margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
     .led-editbtn:active{opacity:.7}
     .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
@@ -2621,24 +2648,26 @@ function renderLedger(l){
   var _lpd = _payDays();
   var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 '+_lpd.mid+'일 전</b>, 잔금은 <b>예식 '+_lpd.bal+'일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
-  // [02-8] 환불 예상 — 지금 취소하면(계약서 7조·9조·4조⑧ 서버 계산 · l.refundQuote). 접힌 한 줄, 펼치면 산정 근거.
-  var rq=l.refundQuote, refundSec='';
-  if(rq){
-    var rqHead = rq.needCount ? '시착 벌수 확인 후 안내' : won(rq.refund);   // 텍스트만 — 아래에서 1회 이스케이프
-    var rqBits=[];
-    if(rq.rule) rqBits.push(rq.rule);
-    if(rq.needCount) rqBits.push('진행하신 시착 벌수가 기록되면 금액을 보여드려요');
-    else {
-      if(rq.fitCount>0 && rq.penalty>0) rqBits.push('시착 '+rq.fitCount+'벌 비용은 위약금에 포함');
-      else if(rq.fitCount>0) rqBits.push('시착 '+rq.fitCount+'벌 공제 '+won(rq.fitDeduct));
-      if(rq.penalty>0) rqBits.push('위약금 '+won(rq.penalty));
-      rqBits.push('받으신 금액 '+won(rq.paid)+' 기준');
-    }
-    rqBits.push('오늘 기준 예상이며, 실제 환불액은 취소 시점에 확정돼요');
-    refundSec='<details class="led-refund"><summary>취소·환불 기준 보기 <span class="pt-ar">▾</span></summary>'+
-      '<div class="led-refund-b" style="margin-bottom:4px">지금 취소하시는 경우 · <b>'+escapeHtml(rqHead)+'</b></div>'+
-      '<div class="led-refund-b">'+rqBits.map(function(x){ return escapeHtml(x); }).join(' · ')+'</div></details>';
-  }
+  /* [02-8] 취소·환불 — ★2026-08-11 사용자 지시로 **금액 계산을 화면에서 뺐다.** [REFUND_NO_NUDGE]
+     ★되살리지 말 것. 옛 판은 접힌 상자 안에 「지금 취소하면 얼마 돌려받는지」를 원 단위로 찍고
+       위약금·공제 내역까지 서버 계산(l.refundQuote)으로 띄웠다. 뺀 이유 셋 —
+       ① **행동 경로가 없다.** 마이페이지에 계약 취소 버튼은 없다(2868행 「예약 취소」는
+          상담 예약용이고 예식 계약과 무관하다). 누를 것이 없는 금액은 알림이 아니라 암시다.
+       ② **기댈 수 없는 수다.** 그 자리 스스로 오늘 기준 예상일 뿐 실제 환불액은 취소 시점에
+          확정된다고 적었다. 정확해 보이는데 구속력은 없는 수는 정보 없이 기준점만 남긴다.
+       ③ **여는 자리가 다르다.** 「내 내역」은 결제·서류를 확인하러 여는 곳이다. 예식을
+          준비하며 열 때마다 「지금 그만두면 얼마」가 서 있으면 그것이 매번 한 번씩 묻는다.
+       > 사용자 원문: *"계약서 열어보면 나오니깐 필요하면 찾아볼수있게 굳이 안넣어도되거같은데
+       >   … 괜히 열어볼때마다 저런문구가 있으면 취소하고 싶어지니깐"*
+     ★그렇다고 접점을 0으로 만들지는 않는다 — 숨긴 것처럼 보이면 그게 더 나쁘고,
+       찾을 길이 없으면 청약철회를 어렵게 만든 모양이 된다. **한 줄로 낮춘다.**
+       금액은 빼되 「어디에 있는지」와 「누구에게 물으면 되는지」는 남긴다.
+     ★서버 계산(l.refundQuote)은 그대로 둔다. 디렉터 화면(admin.html 2137행)이 그 값을 쓴다 —
+       고객이 물어보면 사람이 확인해 답한다. 없앤 것은 화면이지 능력이 아니다. */
+  var refundSec = l.refundQuote
+    ? '<div class="led-sec"><div class="led-due">취소·환불 기준은 <b>계약서</b>에 적혀 있어요. 위 서류에서 여실 수 있어요.'
+      + '<br>따로 확인이 필요하시면 카카오톡으로 물어봐 주세요.</div></div>'
+    : '';
   // 모달 창 — 우측 FAB(내역)으로 연다. 상단 인라인 토글은 제거(요청). 닫기=X·배경·Esc.
   // ★재렌더 보존 — 캐시 로그인 뒤 silent 새로고침(loadMyState)이 열린 모달을 덮어쓰면
   //   open 클래스가 지워져 모달만 사라지고 _mpLock(body fixed)은 남아 화면 전체가 굳는다(2026-07-10 실기기 버그).
@@ -6140,7 +6169,12 @@ function renderSeat(box){
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N');
         var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':(f?'<i class="rs-dk rs-dk-none" title="음료 미정"></i>':'');   // 색점=자리별 음료 · 이름 있는데 미정이면 빈 골드 링(누가 안 정했는지 보이게 2026-07-22) · 빈자리는 표시 없음
-        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add">＋ 이름</span>')+dot+'</button></div>'; }   // 빈 좌석='＋ 이름'(탭해 이름 넣기) — 테이블 컨트롤 '자리 추가(＋)'와 헷갈리지 않게 2026-07-22
+        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
+        빈 자리 알약에서 '이름' 글자를 뺐다. 6테이블×5자리면 그 두 글자가 화면에 서른 번 반복되고,
+        정작 읽어야 할 것(이미 넣은 손님 이름)이 그 반복에 묻힌다.
+      ★소리로 읽는 사람에게는 그대로 남는다 — 버튼의 aria-label='이 자리에 이름 추가' 가 뜻을 진다.
+        보이는 ＋ 는 aria-hidden 이라 '더하기 이 자리에 이름 추가'로 두 번 읽히지 않는다.
+      ★테이블 컨트롤의 자리 추가(＋)와는 위치·크기·테두리가 달라 섞이지 않는다(2026-07-22 구분 이유). */
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
     var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));

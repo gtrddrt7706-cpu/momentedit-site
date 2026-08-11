@@ -68,6 +68,11 @@ fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
 chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# ★[NOCHK_DEFINED_FIRST 2026-08-11] nochk 정의를 chk 바로 아래로 올렸다.
+#   전엔 1248행에 있어서 그 위에서 nochk 를 부르면 `nochk: not found` 만 찍히고
+#   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
+#   쓰는 자리가 정의보다 위면 그 검사는 안 쏜 화살이 된다(★11-c). 정의를 위로 올려 그 창을 없앤다.
+nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
 chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 발행 차단
@@ -408,6 +413,29 @@ chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+
 chk '_softHint' mypage.html 7                       # 헬퍼+배선 6곳
 chk 'MPD4_H4' mypage.html 4                         # 완료 행 접기+내 완성물(CSS·조립·요약·게이트)
 chk 'TRK_NO_FOLD' mypage.html 2                     # 완료 행 접기 폐지(2026-08-09) · .trk-fold 는 CSS까지 삭제 · 되살리지 말 것
+# ── [REFUND_NO_NUDGE 2026-08-11 사용자 지시] 「내 내역」의 취소·환불 금액 계산 폐지 ──
+# 옛 판: 접힌 <details> 안에 「지금 취소하시는 경우 · 840,000원」 + 위약금·공제 내역(서버 계산).
+# 뺀 이유 — ①마이페이지에 계약 취소 버튼이 없다(누를 것 없는 금액은 알림이 아니라 암시다)
+#   ②그 자리 스스로 「예상 · 취소 시점에 확정」이라 적었다(구속력 없이 기준점만 남는 수)
+#   ③「내 내역」은 결제·서류를 보러 여는 곳이다. 열 때마다 「그만두면 얼마」가 서 있으면 안 된다.
+# ★접점은 0 으로 만들지 않았다 — 계약서 위치 + 문의처를 한 줄로 남긴다(숨긴 모양이 더 나쁘다).
+# ★서버 계산(l.refundQuote)은 살아 있다. admin.html 이 쓴다 — 없앤 것은 화면이지 능력이 아니다.
+chk 'REFUND_NO_NUDGE' mypage.html 2
+# ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
+# 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).
+#   ★보이는 ＋ 는 aria-hidden · 뜻은 버튼의 aria-label 이 진다. 글자를 도로 넣지 말 것.
+# 음료 창을 바닥 시트에서 **가운데 대화상자**로 옮겼다. 옛 옛판(둥근 쪽지)으로 되돌아간 것이 아니다 —
+#   정해진 폭 · 3열 격자 · 뒤를 덮는 어둠으로 그때의 문제 넷을 그대로 막은 채 가운데에 세웠다.
+#   ★transform 으로 가운데를 잡지 말 것 — 자식 position:fixed 의 기준이 되어 어둠이 상자만 덮는다(실측).
+#   ★어둠은 pointer-events:none — 막으면 다음 자리를 바로 못 누른다(25명 연달아 채우는 흐름).
+chk 'SEAT_ADD_PLUS' mypage.html 1
+chk 'DRINK_CENTER' mypage.html 2
+chk 'pointer-events:none' mypage.html 1
+nochk '＋ 이름' mypage.html
+nochk 'seat-drinkbar{position:fixed;left:50%' mypage.html   # ★transform 중앙정렬로 되돌리지 말 것(어둠이 상자만 덮는다)
+chk '취소·환불 기준은 <b>계약서</b>에' mypage.html 1
+nochk 'led-refund' mypage.html                      # ★접기 상자·CSS 되살리지 말 것
+nochk '지금 취소하시는 경우' mypage.html            # ★금액 문구 되살리지 말 것
 chk 'MPD4_H5' mypage.html 3                         # led-foot(CSS·헬퍼·배선)
 # ── 2026-07-26 관리자 페이지 1차 스프린트 PR①(AA1 긴급 신호 · AA3 파괴 클래스 · AA9 쿠폰 과잉 완화)
 chk 'ADM_AA1' admin.html 3                          # 긴급 큐 색 바+배지 CSS+렌더
@@ -1245,7 +1273,6 @@ chk 'tb-group' admin.html 4                             # 버튼 묶음 — 풀�
 
 # ══ 베일 다운 폐지 · 순서 고정 · 저장 상태 · 네이티브 팝업 추방 (2026-08-03) ══
 # nochk = '있으면 안 되는 것'. chk 와 달리 _ran 을 올리지 않는다(_gate 는 '^chk ' 만 센다).
-nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
 
 # [SOURCE_DRIFT] 원천 값이 손으로 적힌 자리를 찾는 검사 — 인스턴스가 아니라 병을 잡는다.
 #   ★이 아래 네 줄은 `fail`(소문자)에 넣는다. 판정 트랩 _gate 가 읽는 변수가 그것 하나뿐이다.
