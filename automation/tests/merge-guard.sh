@@ -1890,6 +1890,13 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 # 화면 글로 셈 · 잘려서 안 보이는 것을 넘침으로 셈 · 저장소 밖 서버 404 를 결함으로 읽음 등).
 # 자를 파일 하나로 모으고, 서버가 저장소 루트를 보는지 **재기 전에** 확인하게 했다.
 # ※ 이 파일도 게이트가 실행하지 않는다 [NO_GATE] — 브라우저·서버가 필요하다.
+# ── [FAQ_ASK_CLEAR 2026-08-10] 레일을 숨기지 말고 겹치는 본문 두 줄을 비켜 앉힌다 ──
+# 사용자: 「우측 아이콘 레일이 어느 지점에서 사라지는데 해결해죠」 → FAQ_DODGE 숨김 폐지.
+# 대신 .faq-ask-eg / .faq-ask-form 을 ≤700px 에서 오른쪽 24px 안쪽으로. 실측: 겹침 2건 → 0건.
+# ★숨김 규칙(opacity:0 / visibility:hidden)을 .faq-dodge 에 되살리지 말 것.
+chk 'FAQ_DODGE 폐지' index.html 1                       # 폐지 근거가 코드 옆에 남아 있어야 한다
+chk 'FAQ_ASK_CLEAR' index.html 1                        # 대체 처방
+chk 'margin-right: 24px' index.html 1                   # 그 처방의 실제 값
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
