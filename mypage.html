@@ -7112,6 +7112,34 @@ window.ME_ADV_PAGE = {
         L.push('결제: ' + pays.join(' · '));
         if (d.ledger.total != null) L.push('총액 ' + won(d.ledger.total) + ' · 납부 ' + won(d.ledger.paid || 0));
       }
+      /* ★★[REFUND_STATE 2026-08-11 사용자 지시 "물어보는 사람 현황 파악해서 정확한 안내를"]
+         옛 판은 이 상태에 환불 견적이 없어서, 상담 도우미가 규정만 말하고
+         「사람이 확인해야 한다」로 넘겼다(실측 · 라이브 응답). 서버는 이미 계산해 두고 있었다.
+
+         ★★AI 에게 **계산을 시키지 않는다.** 계약서 7조·9조·4조⑧ 로 계산하는 곳은
+           서버(_refundQuote) 하나다. 여기서는 그 결과를 **말로 옮기기만** 한다.
+           돈을 두 곳에서 셈하면 언젠가 갈라지고, 갈라진 쪽이 고객에게 먼저 닿는다.
+         ★수와 **그 근거일을 함께** 싣는다. 실측에서 배웠다 — 일부러 어긋난 값(D-9인데 10%)을
+           넣었더니 모델이 서버 값을 그대로 말했다. 서버가 이기는 것은 옳지만,
+           그러면 근거일이 빠진 수는 검증 없이 권위를 얻는다. dd·asOf 를 붙여 함께 읽히게 한다.
+         ★못 산정하는 상태(벌수 미기록·보류)는 **못 한다고 적는다.** 0원이나 추정으로 바꾸지 않는다. */
+      var rq = d.refund || d.refundQuote;
+      if (rq && !rq.pending) {
+        if (rq.needCount) {
+          L.push('취소·환불: 아직 산정 못 함 (진행하신 시착 벌수가 기록되면 금액이 나옵니다). '
+            + '★금액을 추측해 말하지 말 것.');
+        } else if (rq.refund != null) {
+          var rb = ['취소·환불 예상 ' + won(rq.refund)];
+          if (rq.rule) rb.push('구간 ' + rq.rule);
+          if (rq.penalty > 0) rb.push('위약금 ' + won(rq.penalty) + (rq.rate ? (' (' + Math.round(rq.rate * 100) + '%)') : ''));
+          if (rq.fitCount > 0) rb.push(rq.penalty > 0 ? ('시착 ' + rq.fitCount + '벌 비용은 위약금에 포함') : ('시착 ' + rq.fitCount + '벌 공제 ' + won(rq.fitDeduct)));
+          rb.push('받은 금액 ' + won(rq.paid) + ' 기준');
+          if (rq.asOf) rb.push('기준일 ' + rq.asOf + (rq.dd != null ? (' · 예식 ' + rq.dd + '일 전') : ''));
+          L.push(rb.join(' · '));
+          L.push('★위 환불 수치는 **서버가 계약서 7조·9조로 계산한 값**이다. 직접 다시 계산하지 말고 '
+            + '그대로 안내할 것. 오늘 기준 예상이며 실제 환불액은 취소 시점에 확정된다는 것도 함께 말할 것.');
+        }
+      }
       return L.length ? L.join('\n') : null;
     } catch (e) { return null; }
   },

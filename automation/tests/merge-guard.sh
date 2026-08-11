@@ -427,6 +427,20 @@ chk 'REFUND_NO_NUDGE' mypage.html 2
 # ★위치를 글로 설명하지 않는다(「오른쪽 아래」는 화면이 바뀌면 거짓이 된다) — 그 자리에서 연다.
 # ★위젯이 없으면 단추를 안 그린다 — 눌러도 안 열리는 단추는 「고장」으로 읽힌다.
 chk 'REFUND_ASK_AI' mypage.html 2
+# ── [REFUND_STATE 2026-08-11 사용자 지시 "물어보는 사람 현황 파악해서 정확한 안내를"] ──
+# 상담 도우미에 넘기는 상태에 **서버가 계산한 환불 견적**을 싣는다. 옛 판엔 없어서
+# 도우미가 규정만 말하고 「사람이 확인해야」로 넘겼다(라이브 실측).
+# ★★AI 에게 계산을 시키지 않는다 — 돈을 두 곳에서 셈하면 갈라지고, 갈라진 쪽이 고객에게 먼저 닿는다.
+#   계약서 7조·9조로 셈하는 곳은 서버(_refundQuote) 하나다. 여기서는 말로 옮기기만 한다.
+# ★수와 **근거일(dd·asOf)** 을 함께 싣는다 — 실측에서 배웠다. 일부러 어긋난 값을 넣으니
+#   모델이 서버 값을 그대로 말했다. 서버가 이기는 건 옳지만 근거 없는 수는 권위만 얻는다.
+# ★산정 못 하는 상태(벌수 미기록)는 「못 함」으로 적는다 — 라이브 실측에서 모델이 추측하지 않았다.
+# ★이 자리는 틀려도 조용하다(필드 이름 하나면 줄이 통째로 빠진다) → check-mypage-shell 이 직렬화를 쏜다.
+chk 'REFUND_STATE' mypage.html 1
+chk 'REFUND_STATE' scripts/check-mypage-shell.mjs 2
+chk '직접 다시 계산하지 말고' mypage.html 1
+chk '금액을 추측해 말하지 말 것' mypage.html 1
+nochk 'var rq = null;' mypage.html                 # ★환불 견적 싣기를 꺼 두지 말 것
 chk 'meAdvFab' mypage.html 1
 nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
