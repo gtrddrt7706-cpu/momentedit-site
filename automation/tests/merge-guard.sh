@@ -421,6 +421,41 @@ chk 'TRK_NO_FOLD' mypage.html 2                     # 완료 행 접기 폐지(2
 # ★접점은 0 으로 만들지 않았다 — 계약서 위치 + 문의처를 한 줄로 남긴다(숨긴 모양이 더 나쁘다).
 # ★서버 계산(l.refundQuote)은 살아 있다. admin.html 이 쓴다 — 없앤 것은 화면이지 능력이 아니다.
 chk 'REFUND_NO_NUDGE' mypage.html 2
+# ── [REFUND_ASK_AI 2026-08-11 사용자 지시 "카카오톡 말고 AI 채팅으로"] ──
+# ★실제로 물어보고 바꿨다 — 라이브 /api/advisor 에 「9일 뒤 취소하면?」을 넣으니
+#   「9~1일 전 50% 구간」이라고 규정을 짚고 정확한 금액은 사람에게 넘겼다. 지어내지 않는다.
+# ★위치를 글로 설명하지 않는다(「오른쪽 아래」는 화면이 바뀌면 거짓이 된다) — 그 자리에서 연다.
+# ★위젯이 없으면 단추를 안 그린다 — 눌러도 안 열리는 단추는 「고장」으로 읽힌다.
+chk 'REFUND_ASK_AI' mypage.html 2
+# ── [REFUND_STATE 2026-08-11 사용자 지시 "물어보는 사람 현황 파악해서 정확한 안내를"] ──
+# 상담 도우미에 넘기는 상태에 **서버가 계산한 환불 견적**을 싣는다. 옛 판엔 없어서
+# 도우미가 규정만 말하고 「사람이 확인해야」로 넘겼다(라이브 실측).
+# ★★AI 에게 계산을 시키지 않는다 — 돈을 두 곳에서 셈하면 갈라지고, 갈라진 쪽이 고객에게 먼저 닿는다.
+#   계약서 7조·9조로 셈하는 곳은 서버(_refundQuote) 하나다. 여기서는 말로 옮기기만 한다.
+# ★수와 **근거일(dd·asOf)** 을 함께 싣는다 — 실측에서 배웠다. 일부러 어긋난 값을 넣으니
+#   모델이 서버 값을 그대로 말했다. 서버가 이기는 건 옳지만 근거 없는 수는 권위만 얻는다.
+# ★산정 못 하는 상태(벌수 미기록)는 「못 함」으로 적는다 — 라이브 실측에서 모델이 추측하지 않았다.
+# ★이 자리는 틀려도 조용하다(필드 이름 하나면 줄이 통째로 빠진다) → check-mypage-shell 이 직렬화를 쏜다.
+chk 'REFUND_STATE' mypage.html 1
+chk 'REFUND_STATE' scripts/check-mypage-shell.mjs 2
+chk '직접 다시 계산하지 말고' mypage.html 1
+chk '금액을 추측해 말하지 말 것' mypage.html 1
+nochk 'var rq = null;' mypage.html                 # ★환불 견적 싣기를 꺼 두지 말 것
+# ── [REFUND_SHORTFALL 2026-08-11 실측] 「환불 0원」이 「더 낼 것 없음」으로 읽히는 자리 ──
+# 서버는 refund 를 Math.max(0, …) 로 깎는다(70_journey.gs out()). 그런데 9조② 위약금은
+# **총 계약금액** 기준이라, 예약금만 낸 사람이 예식 직전에 취소하면 0 원을 받는 게 아니라 차액을 낸다.
+#   실측: 받은 금액 300,000 · 위약금 1,470,000(70%) · refund 0 → 도우미가 「환불은 0원입니다」로 단정.
+#   1,170,000원을 더 내야 한다는 말은 어디에도 없었다.
+# ★여기서도 계산하지 않는다 — 차액을 말하지 않고 「넘는다」는 사실만 알리고 사람에게 넘긴다.
+#   돈을 두 곳에서 셈하지 않는다는 REFUND_STATE 원칙 그대로다.
+# ★check-mypage-shell 이 두 방향을 쏜다(넘을 때 뜨나 · 안 넘을 때 안 뜨나) — 한 방향만 쏘면
+#   「늘 뜨는 줄」도 통과하고, 그러면 멀쩡한 고객이 겁을 먹는다.
+chk 'REFUND_SHORTFALL' mypage.html 1
+chk 'REFUND_SHORTFALL' scripts/check-mypage-shell.mjs 3
+chk 'rq.penalty > rq.paid' mypage.html 1
+chk '위약금이 받은' scripts/check-mypage-shell.mjs 3   # 그물이 이 줄을 볼 수 있어야 한다(옛 그물은 못 봤다)
+chk 'meAdvFab' mypage.html 1
+nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
 # 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).
 #   ★보이는 ＋ 는 aria-hidden · 뜻은 버튼의 aria-label 이 진다. 글자를 도로 넣지 말 것.
