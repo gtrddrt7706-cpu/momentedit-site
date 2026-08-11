@@ -1998,6 +1998,11 @@ chk 'HEAD_BOUNDED' scripts/check-source-drift.mjs 1
 chk 'NET_SAYS_GAPS' scripts/check-source-drift.mjs 1
 chk '안 보는 것' scripts/check-source-drift.mjs 1        # ★초록 줄의 고지 — 지우면 초록이 커버리지로 읽힌다
 chk '항목 번호 범위' scripts/check-source-drift.mjs 1     # ★1~★15 꼴 (말뜻 없이 잡히는 유일한 무단위)
+# ★[STOP_HERE 2026-08-11 · 두 세션 합의] 이 검사는 여기서 멈춘다 — 더 조이지 말 것.
+#   멈추는 기준을 코드 옆에 적어 뒀다: **막는 결함의 값 < 헛붉음이 치를 값**이면 멈춘다.
+#   여기 결함은 「머리말 문장 하나가 낡음」(작다) · 헛붉음은 「사람이 붉은색을 무시함」(번진다 · ★9).
+#   다시 조이려면 먼저 **진짜 rot 가 그 구멍으로 샌 실사고**를 하나 들 것.
+chk 'STOP_HERE' scripts/check-source-drift.mjs 1
 # ★[COUNT_NET_OPEN 2026-08-11] '스스로를 세' 2 → 1 로 내렸다. 느슨해진 것이 아니라 **문구가 바뀌었다.**
 #   붉은 쪽 문장이 「머리말이 스스로를 세고 있다」 → 「머리말에 "수 + 세는 이름"이 있다」가 됐다.
 #   이 그물은 꼴만 보지 그 수가 목록을 센 것인지는 모르기 때문이다(헛붉음 실측 2건).
