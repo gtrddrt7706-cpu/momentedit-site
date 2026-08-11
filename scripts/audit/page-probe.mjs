@@ -111,7 +111,16 @@ export async function openProbe(pageName, opts = {}) {
   catch { try { browser = await chromium.launch(); } catch (err) { const e = new Error('브라우저를 못 띄움: ' + String(err).slice(0, 50)); e.cantLook = true; throw e; } }
   const page = await browser.newPage({ viewport: { width: opts.width || 390, height: opts.height || 900 } });
   const errors = [], unseen = [];
-  const NOISE = /fonts\.googleapis|ERR_CONNECTION_RESET|ERR_FAILED|ERR_NAME_NOT_RESOLVED|ERR_BLOCKED/;
+  /* ★[TUNNEL_UNSEEN 2026-08-11] 바깥에 못 닿은 것을 '페이지 오류'로 세지 않는다.
+     실사고: index.html 을 이 자로 재니 exit 1 이었다. 이유는
+     `console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED` 한 줄 —
+     실행 환경의 프록시가 fonts.googleapis 를 막은 것이다. 페이지 결함이 아니다.
+     ★목록에 `fonts.googleapis` 가 이미 있었는데도 안 걸렸다. 콘솔 문구에는 **주소가 없고**
+       오류 이름만 있어서다. 주소로 거르는 그물은 주소가 안 적힌 줄을 못 잡는다.
+     ★이건 이 파일이 막으려던 바로 그 실수의 일곱 번째 꼴이다(머리말 ①~⑥ 참고) —
+       재는 쪽 사정을 재이는 쪽 결함으로 읽었다. 걸러서 `unseen` 으로 보낸다.
+       안 본 것은 통과도 실패도 아니라 **안 봤다고 말할 것**이다. */
+  const NOISE = /fonts\.googleapis|fonts\.gstatic|ERR_CONNECTION_RESET|ERR_FAILED|ERR_NAME_NOT_RESOLVED|ERR_BLOCKED|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/;
   page.on('pageerror', (e) => errors.push('pageerror: ' + String(e).slice(0, 120)));
   page.on('console', (m) => { if (m.type() === 'error' && !NOISE.test(m.text())) errors.push('console: ' + m.text().slice(0, 120)); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url().split('/').pop().slice(0, 40)}`); });

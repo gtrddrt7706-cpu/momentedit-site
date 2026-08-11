@@ -171,12 +171,21 @@ if (!fs.existsSync(IN)) { console.error(`✗ 입력 폴더가 없습니다: ${IN
    그 잘못된 값이 그대로 파일이 되어 남는다. 검사가 틀리면 초록 한 번으로 끝나지만,
    **만드는 도구**가 틀리면 거짓 값이 파일로 남아 다음 사람이 그걸 사실로 읽는다.
    ★build-chorus 의 `|| 0` 과 같은 병이고 꼴만 다르다(0 대신 NaN). */
+/* ★★[DUR_SAY_WHY 2026-08-10] ffprobe 가 **0 이 아닌 코드로 끝나는 길**을 함께 받는다.
+   실측: 깨진 wav 를 물리면 execFileSync 가 먼저 던져, 아래 안내문까지 오지 못하고
+   Node 스택 덤프(pid·stdout·stderr 객체)가 그대로 화면에 뿌려졌다. 막기는 막았지만
+   **왜 막혔는지를 사람이 못 읽었다.** 실패를 0/NaN 으로 바꾸지 않는 것과, 실패를
+   읽을 수 있게 말하는 것은 다른 일이다 — 둘 다 해야 도구가 정직해진다.
+   spawnSync 로 바꿔 두 실패(비정상 종료 · 'N/A' 응답)를 한 자리에서 같은 문장으로 낸다. */
 const dur = (f) => {
-  const raw = execFileSync('ffprobe',
-    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim();
+  const r = spawnSync('ffprobe',
+    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' });
+  if (r.error) throw new Error(`ffprobe 를 실행하지 못했습니다 (${r.error.message}) — 소리를 재는 도구가 없으면 조립하지 않습니다.`);
+  const raw = String(r.stdout || '').trim();
   const n = parseFloat(raw);
   if (!Number.isFinite(n) || n <= 0) {
-    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} (ffprobe 응답 "${raw}") — 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다`);
+    const why = String(r.stderr || '').trim().split('\n')[0] || '(ffprobe 가 아무 말도 하지 않음)';
+    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} — ${why} · 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다.`);
   }
   return n;
 };

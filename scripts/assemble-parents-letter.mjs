@@ -99,12 +99,18 @@ if (files.length !== paras.length) {
    즉 못 읽은 파일 하나가 정렬 안전망을 통째로 끈다.
    ★build-chorus 의 `|| 0` 과 같은 병이고 꼴만 다르다(0 대신 NaN).
      읽지 못한 것을 값으로 바꾸면, 없는 사실이 데이터가 되어 오래 산다. */
+/* ★★[DUR_SAY_WHY 2026-08-10] assemble-narration 과 같은 몸으로 맞춘다 — 두 조립기가 같은 자를 쓴다.
+   실측: execFileSync 는 ffprobe 가 0 이 아닌 코드로 끝나면 **먼저 던져** 아래 안내문에 닿지 못하고
+   Node 스택 덤프가 뿌려졌다(깨진 wav 로 재현). 막는 것과 왜 막혔는지 말하는 것은 다른 일이다. */
 const dur = (f) => {
-  const raw = execFileSync('ffprobe',
-    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }).trim();
+  const r = spawnSync('ffprobe',
+    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' });
+  if (r.error) throw new Error(`ffprobe 를 실행하지 못했습니다 (${r.error.message}) — 소리를 재는 도구가 없으면 조립하지 않습니다.`);
+  const raw = String(r.stdout || '').trim();
   const n = parseFloat(raw);
   if (!Number.isFinite(n) || n <= 0) {
-    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} (ffprobe 응답 "${raw}") — 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다`);
+    const why = String(r.stderr || '').trim().split('\n')[0] || '(ffprobe 가 아무 말도 하지 않음)';
+    throw new Error(`길이를 못 읽었습니다: ${path.basename(f)} — ${why} · 못 읽은 것을 0 이나 NaN 으로 바꾸지 않습니다.`);
   }
   return n;
 };
