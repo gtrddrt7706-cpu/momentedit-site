@@ -1065,9 +1065,30 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
          ④ 짧은 화면에서는 '배치 완료' 버튼 위에 겹쳤다.
        고침: 화면 바닥에 **꽉 찬 시트**로 붙인다. 바닥에 붙으면 '지금 뭔가 고르는 중'이 자세로 읽히고,
        머리줄(어느 자리인지)·선택 셋·닫기가 각자 자리를 얻는다. 아래 여백은 홈 인디케이터까지 계산한다. */
-    .seat-drinkbar{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;z-index:955;display:block;max-width:none;margin:0;
-      padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-      background:#fff;border:0;border-top:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 -6px 22px rgba(58,45,34,.10)}
+    /* ★★[DRINK_CENTER 2026-08-11 사용자 지시 "음료 하단말고 센터에 잘보이게 디자이너관점으로 개선해봐"]
+       바닥 시트를 **화면 가운데 대화상자**로 옮긴다. 다만 옛 옛판(둥근 쪽지)으로 되돌아가지 않는다 —
+       위에 적힌 넷은 실제 문제였고, 넷 다 고친 채로 가운데에 세운다:
+         ①폭 — 내용만큼이 아니라 **정해진 폭**(min(360px, 화면-32))으로 선다. 화면마다 같은 자리·같은 크기다.
+         ②줄바꿈 — 칩 셋은 그대로 3열 격자, 닫기(×)는 머리줄에 따로. 선택지가 넷으로 보이지 않는다.
+         ③덮는 방식 — **뒤를 어둡게 깐다.** 어중간하게 걸치는 대신 「지금은 이것을 고르는 중」이라고
+           화면 전체가 말한다. 바닥 시트가 얻었던 그 자세를 어둠이 대신 진다.
+         ④겹침 — 가운데에 뜨고 뒤가 어두우니 '배치 완료' 버튼과 다툴 일이 없다. 아래 여백(pad)도 필요 없어졌다.
+       ★왜 가운데가 나은가 — 이 창은 **방금 누른 그 자리**에 음료를 다는 창이다. 바닥에 있으면
+         눈이 자리(위)와 창(아래) 사이를 오간다. 가운데면 그 왕복이 줄고, 머리줄의 자리 이름이 눈에 바로 붙는다. */
+    /* ★가운데 세우기에 transform 을 쓰지 않는다 — 실측으로 걸렸다.
+       transform 이 걸린 요소는 **자식 position:fixed 의 기준**이 되어, 뒤를 덮으려던 ::before(inset:0)가
+       뷰포트가 아니라 이 상자 크기로 깔렸다(390px 렌더에서 상자 뒤만 회색이었다).
+       inset:0 + margin:auto + 정해진 폭 으로 세우면 기준이 뷰포트로 남는다. 되돌리지 말 것. */
+    .seat-drinkbar{position:fixed;inset:0;margin:auto;transform:none;z-index:955;display:block;
+      width:min(360px,calc(100vw - 32px));height:fit-content;max-width:none;
+      padding:16px 16px calc(14px + env(safe-area-inset-bottom));
+      background:#fff;border:0;border-radius:16px;box-shadow:0 18px 48px rgba(58,45,34,.22)}
+    /* 뒤를 덮는 어둠 — 별도 마크업 없이 이 상자가 스스로 깐다(::before 가 상자의 쌓임 안에서 뒤로 간다) */
+    /* ★어둠은 **보여 주기만** 하고 막지 않는다(pointer-events:none).
+       막으면 다른 자리를 바로 못 누른다 — 25명을 연달아 채우는 화면이라 자리→자리로 건너뛰는 흐름이
+       이 작업의 본체다(바닥 시트가 갖고 있던 장점이고, 가운데로 옮기며 잃을 이유가 없다).
+       실측으로 확인: 막았을 때 네 귀퉁이의 최상단 요소가 전부 이 상자였다(= 뒤가 안 눌린다). */
+    .seat-drinkbar::before{content:'';position:fixed;inset:0;background:rgba(58,45,34,.30);z-index:-1;pointer-events:none}
     .sdb-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
     .sdb-label{font-family:var(--serif-ko);font-size:12px;letter-spacing:.02em;font-weight:600;color:var(--gold-deep);width:auto;text-align:left;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .sdb-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -1082,7 +1103,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
     .sdb-clear{display:block;width:100%;margin-top:8px;padding:8px;border:0;background:transparent;font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);cursor:pointer;text-align:center}
     /* 시트가 덮는 만큼 카드 아래에 자리를 비워 둔다 — '배치 완료'가 시트 뒤로 숨지 않게 */
-    .seat-sheet-pad{height:152px}
+    /* ★[DRINK_CENTER] 창이 가운데로 가서 바닥을 안 가린다 — 비워 두던 자리를 0 으로 되돌린다.
+       마크업은 남긴다(그리는 쪽 조건과 함께 지우면 두 곳을 동시에 고쳐야 한다). */
+    .seat-sheet-pad{height:0}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:3px 4px}
 .rs-edit:focus,.rt-cin:focus{font-size:16px}   /* MPD_B9 좌석 입력 — 포커스 순간만 16px로 iOS 줌 방지(평시 크기는 캔버스 배치 유지) */
     .rs-edit:focus{outline:none}
@@ -6146,7 +6169,12 @@ function renderSeat(box){
       if(isEd(ti,si)){ seats+='<div class="rs-slot" style="'+pos+'"><input class="rs-edit" data-ed data-edk="'+ti+':'+si+'" value="'+escapeHtml(nm)+'" maxlength="24" autocomplete="off" placeholder="이름"></div>'; }
       else { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N');
         var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':(f?'<i class="rs-dk rs-dk-none" title="음료 미정"></i>':'');   // 색점=자리별 음료 · 이름 있는데 미정이면 빈 골드 링(누가 안 정했는지 보이게 2026-07-22) · 빈자리는 표시 없음
-        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add">＋ 이름</span>')+dot+'</button></div>'; }   // 빈 좌석='＋ 이름'(탭해 이름 넣기) — 테이블 컨트롤 '자리 추가(＋)'와 헷갈리지 않게 2026-07-22
+        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
+        빈 자리 알약에서 '이름' 글자를 뺐다. 6테이블×5자리면 그 두 글자가 화면에 서른 번 반복되고,
+        정작 읽어야 할 것(이미 넣은 손님 이름)이 그 반복에 묻힌다.
+      ★소리로 읽는 사람에게는 그대로 남는다 — 버튼의 aria-label='이 자리에 이름 추가' 가 뜻을 진다.
+        보이는 ＋ 는 aria-hidden 이라 '더하기 이 자리에 이름 추가'로 두 번 읽히지 않는다.
+      ★테이블 컨트롤의 자리 추가(＋)와는 위치·크기·테두리가 달라 섞이지 않는다(2026-07-22 구분 이유). */
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
     var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));

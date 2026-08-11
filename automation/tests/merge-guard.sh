@@ -421,6 +421,18 @@ chk 'TRK_NO_FOLD' mypage.html 2                     # 완료 행 접기 폐지(2
 # ★접점은 0 으로 만들지 않았다 — 계약서 위치 + 문의처를 한 줄로 남긴다(숨긴 모양이 더 나쁘다).
 # ★서버 계산(l.refundQuote)은 살아 있다. admin.html 이 쓴다 — 없앤 것은 화면이지 능력이 아니다.
 chk 'REFUND_NO_NUDGE' mypage.html 2
+# ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
+# 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).
+#   ★보이는 ＋ 는 aria-hidden · 뜻은 버튼의 aria-label 이 진다. 글자를 도로 넣지 말 것.
+# 음료 창을 바닥 시트에서 **가운데 대화상자**로 옮겼다. 옛 옛판(둥근 쪽지)으로 되돌아간 것이 아니다 —
+#   정해진 폭 · 3열 격자 · 뒤를 덮는 어둠으로 그때의 문제 넷을 그대로 막은 채 가운데에 세웠다.
+#   ★transform 으로 가운데를 잡지 말 것 — 자식 position:fixed 의 기준이 되어 어둠이 상자만 덮는다(실측).
+#   ★어둠은 pointer-events:none — 막으면 다음 자리를 바로 못 누른다(25명 연달아 채우는 흐름).
+chk 'SEAT_ADD_PLUS' mypage.html 1
+chk 'DRINK_CENTER' mypage.html 2
+chk 'pointer-events:none' mypage.html 1
+nochk '＋ 이름' mypage.html
+nochk 'seat-drinkbar{position:fixed;left:50%' mypage.html   # ★transform 중앙정렬로 되돌리지 말 것(어둠이 상자만 덮는다)
 chk '취소·환불 기준은 <b>계약서</b>에' mypage.html 1
 nochk 'led-refund' mypage.html                      # ★접기 상자·CSS 되살리지 말 것
 nochk '지금 취소하시는 경우' mypage.html            # ★금액 문구 되살리지 말 것
