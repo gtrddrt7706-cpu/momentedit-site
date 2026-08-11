@@ -1252,6 +1252,10 @@ nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3
 #     `FAIL`(대문자)로 적혀 있었고, 그동안 이 네 검사는 빨개져도 게이트가 초록이었다(실측:
 #     check-source-drift 를 일부러 실패시켜도 'ALL MARKERS OK' + EXIT 0). 대문자로 되돌리지 말 것.
 node scripts/check-source-drift.mjs || fail=1
+# [NOTE_TABLE] 야간 잡의 note() — 표에 붉게 적은 것이 요약도 붉은가.
+#   ★이건 브라우저가 필요 없다(순수 셸) → 게이트가 직접 돈다. NO_GATE 대상이 아니다.
+#   ★fail(소문자)에 넣는다 — 위 GUARD_FAIL_VAR 사고와 같은 이유.
+sh automation/tests/nightly-note-table.sh || fail=1
 # [TIME_HONEST] 시간표를 손으로 적은 자리를 지운 커밋들의 마커 — 위 검사가 병을 잡고, 이 줄이 자리를 지킨다.
 chk 'TIME_HONEST' index.html 1
 chk 'TIME_HONEST' order-preview.html 3
@@ -1916,6 +1920,10 @@ chk 'r.error' scripts/assemble-parents-letter.mjs 1
 # mp3 100개 중 사람이 들어 본 것은 6개(입장 A~F)뿐이었다. 나머지는 기계가 파형만 쟀다.
 # 이 화면은 목록을 베끼지 않는다 — manifest + _recorded 를 실행 시점에 읽는다.
 # 판정 결과가 곧바로 재더빙 붙여넣기 대본(화자: 문장)으로 나와 기존 파이프라인에 물린다.
+# ★[LISTEN_EXPORT_REAL 2026-08-11] 윗줄 「물린다」는 처음엔 **확인 안 하고 쓴 말**이었다.
+#   실제로 넣어 보니 exit 1 — 복수 화자가 `신랑|신부:` 로 나갔고 타입캐스트엔 그런 사람이 없다.
+#   꼴로는 「이름: 대사」라 멀쩡했고 화면으로도 멀쩡했다. 지금은 실행으로 확인한다
+#   (scripts/check-listen-export.mjs 가 진짜 검사를 자식 프로세스로 그대로 돌린다).
 # ── [NIGHTLY_SCREEN · MYPAGE_UNSEEN 2026-08-11] 게이트 밖 브라우저 검사를 하루 한 번 ──
 # 검사 51개 중 merge-guard 가 실행하는 것은 22개. 갈림이 우연이 아니라 **브라우저가 필요한
 # 것들만** 밖에 있었다(= 눈으로 보는 것들). 레일 사라짐을 아무 검사도 안 잡은 이유다.
@@ -1937,6 +1945,35 @@ chk 'LISTEN_REVIEW' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
 chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
 nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
+# ── [EXPORT_TRUTH · LISTEN_EXPORT_REAL] 내보낸 대본이 진짜 규격을 통과하는가 ──
+# ★규칙 둘은 실물(5_배역.txt)에서 옮겨 온 것이다. 지우면 첫 판의 사고가 그대로 돌아온다.
+#   ① role 에 `|` 가 있으면 문장마다 번갈아 읽는다  ② 합성 클립(mix)은 대본에서 뺀다
+# ★뺀 것을 **조용히** 빼지 않는다 — 상자 밖(#skipNote)에 띄운다. 상자 안에 적으면 그것도 읽힌다.
+chk 'EXPORT_TRUTH' audio-review.html 3
+chk 'PASTE_NO_COMMENT' audio-review.html 2
+chk 'showSkip' audio-review.html 2                      # 값만 세팅하고 안 띄우던 판이 실제로 있었다
+chk 'LISTEN_EXPORT_REAL' scripts/check-listen-export.mjs 1
+chk 'check-paste-format' scripts/check-listen-export.mjs 2   # 규격을 두 벌로 만들지 않는다
+chk 'NO_INJECT' scripts/check-listen-export.mjs 1       # 상태 주입 대신 실제로 단추를 누른다
+nochk 'const line = /' scripts/check-listen-export.mjs  # ★붙여넣기 규격을 여기서 다시 정의하지 말 것
+# ── [NOTE_TABLE 2026-08-11] 야간 잡의 note() 는 표와 요약을 **동시에** 정한다 ──
+# 둘이 어긋나면 표엔 ✗ 인데 요약은 「전부 통과」가 된다(EXIT_TRAP · GUARD_FAIL_VAR 와 같은 병).
+# 실제로 어긋나 있었다 — 127·124·137·139 는 붉게 적히고도 worst 를 안 올렸다.
+chk 'NOTE_TABLE' .github/workflows/nightly-screen.yml 1
+chk 'NOTE_TABLE' automation/tests/nightly-note-table.sh 1
+chk '제 결론에 닿지 못' .github/workflows/nightly-screen.yml 1   # 죽은 검사 라벨 — 「못 잼」과 구분
+chk 'yml 에서' automation/tests/nightly-note-table.sh 2          # ★함수를 베끼지 말고 떼어 올 것
+# ★[SLICE_ONLY_FN 2026-08-11] 이 nochk 의 겨냥을 좁혔다 — 뜻은 그대로, 자만 정확해졌다.
+#   원래 뜻: 「note() 를 이 파일에 **베껴 두지 말 것**」(사본은 갈라지고, 갈라진 쪽이 초록을 낸다).
+#   그런데 `note() {` 를 통짜로 금지하면 **그 함수를 찾는 앵커**까지 막힌다 —
+#   yml 에서 떼어 오려면 `note() {` 라는 글자를 어딘가에는 적어야 한다(sed·awk 패턴·설명 주석).
+#   실제로 막혔다: 앵커를 그 글자로 바꾸자 REVERT? 5>0 으로 게이트가 붉어졌다.
+#   ★그때 코드를 비틀어 초록을 만들지 않았다(앵커 이름 바꾸기 = 검사 맞추려고 코드 고치기).
+#     대신 「사본」의 정의를 정확히 적는다 — 진짜 사본은 **줄머리에 선 함수 정의**다.
+#     실측: 지금 파일의 5건은 전부 주석·패턴 안이고 줄머리 정의는 0건.
+nochk '^note() {' automation/tests/nightly-note-table.sh         # ★사본(줄머리 함수 정의)을 두면 갈라진다
+chk 'SLICE_ONLY_FN' automation/tests/nightly-note-table.sh 1     # 떼어 온 것이 함수 하나인지 확인하는 자리
+chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범위가 넘치면 붉게 — 조용히 돌리지 않는다
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
