@@ -1992,6 +1992,15 @@ chk 'LISTEN_REVIEW' audio-review.html 1
 # ★문장은 manifest 의 sents 에서 온다 — 화면에서 다시 쪼개지 않는다(규칙이 둘이면 갈라진다).
 # ★안 고르면 클립 전체다. 「하나도 안 골랐다」를 「아무것도 안 한다」로 읽지 않는다.
 chk 'SENT_PICK' audio-review.html 3
+# ── [SENT_EDIT 2026-08-11 · 클로드코드 지적] 고른 문장을 **그 줄에서** 고친다 ──
+# 옛 판은 아래 글칸이 클립 전체를 고치고, 문장을 고르면 그 고침이 대본에서 빠졌다 —
+# 「고친 글이 대본으로 나갑니다」와 「고른 문장만 실려요」가 서로를 부정했다.
+# ★문구로 덮지 않고 어긋남의 뿌리를 없앴다: 고른 문장은 그 줄에서 고치고 그 글이 그대로 나간다.
+# ★check-listen-export 가 그 길을 실제로 쏜다(문장 고르기 · 고쳐 쓰기 두 발) — 돌연변이 둘 다 붉었다.
+chk 'SENT_EDIT' audio-review.html 2
+chk 'sentText' audio-review.html 3
+chk 'SENT_EDIT' scripts/check-listen-export.mjs 2
+chk '문장 고르기' scripts/check-listen-export.mjs 1
 chk 'c.sents' audio-review.html 3
 chk '고른 문장만' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선

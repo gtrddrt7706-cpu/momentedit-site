@@ -19,6 +19,7 @@
 //   (이 저장소가 「6코스」 오보로 이미 겪은 병 — S.course 를 직접 넣어 hidden 을 건너뛰었다).
 //   그래서 목록 줄과 「다시 필요」 단추를 **실제로 누른다.** 느려도 그것이 사람이 하는 일이다.
 //
+// ★[SENT_PICK] 클립 통째 경로와 **문장 하나** 경로를 둘 다 쏜다 — 안 쏜 화살은 게이트에 명중으로 보인다.
 // ★종료 코드 [CANT_LOOK]  0 통과 · 1 재서 틀림 · 2 재지 못함(브라우저·서버 없음)
 // ★[NO_GATE] merge-guard 는 이 검사를 돌리지 않는다 — 브라우저와 로컬 서버가 필요하다.
 //   야간 잡(nightly-screen.yml)이 하루 한 번 돌린다.
@@ -124,6 +125,51 @@ try {
   if (r.error) no(`진짜 검사를 돌리지 못했습니다 — ${r.error.message}`);
   else if (r.status !== 0) no(`실청 페이지가 낸 대본이 붙여넣기 규격을 통과하지 못했습니다 (종료 ${r.status})`);
   else console.log('   ✓ 통과 — 내보낸 대본이 기존 조립 규격 그대로입니다');
+  /* ── ⑤ 문장 하나만 골랐을 때 [SENT_PICK · 클로드코드 지적으로 추가] ──
+     ★이 경로는 게이트 밖이었다 — 위 ②는 클립 통째로만 「다시」를 누른다.
+       문장 고르기는 임시 스크립트로만 재 봤고, 그러면 다음에 누가 깨도 안 붉는다(11-c).
+     ★화면을 다시 거친다 — 판정을 지우고 문장 여럿인 클립 하나만 골라 2번 문장을 누른다. */
+  const one = await h.page.evaluate(() => {
+    localStorage.removeItem('me_listen_review_v1');
+    location.reload();
+  }).then(() => h.page.waitForTimeout(2200)).then(() => h.page.evaluate(() => {
+    const rows = [...document.querySelectorAll('#list .row[data-i]')];
+    for (const row of rows) {
+      row.click();
+      const s = document.getElementById('sents');
+      if (s && s.children.length >= 2) {
+        document.getElementById('ngb').click();
+        const ss = document.getElementById('sents');
+        const btn = ss.children[1].querySelector('.sent') || ss.children[1];
+        btn.click();
+        document.getElementById('mkScript').click();
+        const want = (ss.children[1].querySelector('.sent-t') || {}).textContent || '';
+        return { lines: document.getElementById('out').textContent.split('\n').filter(Boolean), want: want.trim(), n: ss.children.length };
+      }
+    }
+    return null;
+  }));
+  if (!one) no('문장이 여럿인 클립을 못 찾았습니다 — 문장 고르기를 잴 수 없습니다');
+  else if (one.lines.length !== 1) no(`문장 하나만 골랐는데 대본이 ${one.lines.length}줄입니다(1줄이어야) — ${one.lines.slice(0, 2).join(' / ')}`);
+  else if (one.lines[0].indexOf(one.want) < 0) no(`고른 문장이 대본과 다릅니다\n    고른 것: ${one.want}\n    나온 것: ${one.lines[0]}`);
+  else console.log(`   ✓ 문장 고르기 — ${one.n}문장 중 2번만 골라 대본 1줄: ${one.lines[0].slice(0, 42)}…`);
+
+  /* ── ⑥ 고른 문장을 그 줄에서 고쳤을 때 [SENT_EDIT] ──
+     ★옛 판은 아래 글칸이 클립 전체를 고치고, 문장을 고르면 그 고침이 대본에서 **빠졌다.**
+       「고친 글이 대본으로 나갑니다」와 「고른 문장만 실려요」가 서로를 부정했다(클로드코드 지적).
+       문구로 덮는 대신 고른 문장을 그 줄에서 고치게 했다 — 그 길이 실제로 대본까지 닿는지 여기서 잰다. */
+  const MARK = '검사가 넣은 고친 글입니다';
+  const two = await h.page.evaluate((mark) => {
+    const inp = document.querySelector('#sents .sent-e');
+    if (!inp) return null;
+    inp.value = mark;
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('mkScript').click();
+    return document.getElementById('out').textContent.trim();
+  }, MARK);
+  if (two === null) no('고른 문장 옆에 글칸이 안 떴습니다 — 고쳐 쓸 길이 없습니다 [SENT_EDIT]');
+  else if (two.indexOf(MARK) < 0) no(`문장을 고쳐 썼는데 대본에 안 실렸습니다 [SENT_EDIT]\n    나온 것: ${two.slice(0, 60)}`);
+  else console.log('   ✓ 문장 고쳐 쓰기 — 고친 글이 그대로 대본에 실립니다');
 } finally {
   restore();
   await h.close();
