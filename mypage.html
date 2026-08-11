@@ -1106,6 +1106,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* ★[DRINK_CENTER] 창이 가운데로 가서 바닥을 안 가린다 — 비워 두던 자리를 0 으로 되돌린다.
        마크업은 남긴다(그리는 쪽 조건과 함께 지우면 두 곳을 동시에 고쳐야 한다). */
     .seat-sheet-pad{height:0}
+    /* [REFUND_ASK_AI] 문장 안에 서는 단추 — 링크처럼 보이되 탭 영역은 넉넉하게 */
+    .led-asklink{font:inherit;color:var(--accent);background:none;border:0;padding:4px 0;margin:0;
+      text-decoration:underline;text-underline-offset:3px;cursor:pointer}
     .rs-edit{width:70px;border:1px solid var(--gold-deep);border-radius:11px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:3px 4px}
 .rs-edit:focus,.rt-cin:focus{font-size:16px}   /* MPD_B9 좌석 입력 — 포커스 순간만 16px로 iOS 줌 방지(평시 크기는 캔버스 배치 유지) */
     .rs-edit:focus{outline:none}
@@ -2664,14 +2667,31 @@ function renderLedger(l){
        금액은 빼되 「어디에 있는지」와 「누구에게 물으면 되는지」는 남긴다.
      ★서버 계산(l.refundQuote)은 그대로 둔다. 디렉터 화면(admin.html 2137행)이 그 값을 쓴다 —
        고객이 물어보면 사람이 확인해 답한다. 없앤 것은 화면이지 능력이 아니다. */
+  /* ★[REFUND_ASK_AI 2026-08-11 사용자 지시 "카카오톡 말고 AI 채팅으로 물어봐 달라고 해 줘"]
+     ★실제로 물어보고 바꿨다 — 라이브 /api/advisor 에 「지금 취소하면 환불이 얼마나 되나요?
+       예식은 9일 뒤예요」를 넣으니 「9~1일 전 50% 구간」이라고 규정을 정확히 짚고,
+       정확한 금액은 납부 내역 확인이 필요하다며 사람에게 넘겼다. 지어내지 않는다.
+       (KB api/_kb.js §5 에 구간 다섯이 계약서 9조 그대로 들어 있다)
+     ★위치를 글로 설명하지 않는다 — 「오른쪽 아래」라고 적으면 화면이 바뀌는 날 그 말이 거짓이 되고,
+       이 창이 열려 있는 동안 그 자리가 가려지는지도 매번 다시 확인해야 한다.
+       대신 **여기서 바로 열리게** 한다. 말이 필요 없으면 낡을 말도 없다.
+     ★도우미가 없는 화면(위젯 로드 실패)에서는 이 단추를 아예 안 그린다 — 눌러도 안 열리는
+       단추는 「고장」으로 읽힌다. 그때는 카카오톡 안내가 대신 선다. */
   var refundSec = l.refundQuote
     ? '<div class="led-sec"><div class="led-due">취소·환불 기준은 <b>계약서</b>에 적혀 있어요. 위 서류에서 여실 수 있어요.'
-      + '<br>따로 확인이 필요하시면 카카오톡으로 물어봐 주세요.</div></div>'
+      + '<br>궁금한 점은 <button type="button" class="led-asklink" id="mp_refundAsk">상담 도우미에 물어보기</button></div></div>'
     : '';
   // 모달 창 — 우측 FAB(내역)으로 연다. 상단 인라인 토글은 제거(요청). 닫기=X·배경·Esc.
   // ★재렌더 보존 — 캐시 로그인 뒤 silent 새로고침(loadMyState)이 열린 모달을 덮어쓰면
   //   open 클래스가 지워져 모달만 사라지고 _mpLock(body fixed)은 남아 화면 전체가 굳는다(2026-07-10 실기기 버그).
   //   → 열림 상태와 펼쳐둔 패널(예식일 변경·잔금 보기)을 기억해 재렌더 후 복원한다.
+  /* [REFUND_ASK_AI] 내역 창을 닫고 상담 도우미를 연다. 위젯이 없으면 단추 자체를 지운다. */
+  setTimeout(function(){
+    var _ra = $('mp_refundAsk'); if (!_ra) return;
+    var _fab = document.getElementById('meAdvFab');
+    if (!_fab) { _ra.outerHTML = '카카오톡으로 물어봐 주세요.'; return; }   // 눌러도 안 열릴 단추는 안 남긴다
+    _ra.onclick = function(){ try { $('mp_ledClose').click(); } catch (e) {} setTimeout(function(){ _fab.click(); }, 120); };
+  }, 0);
   var wasOpen=box.classList.contains('open');
   var _pc=$('mp_ledChgPanel'), chgWasOpen=!!(wasOpen && _pc && _pc.style.display!=='none');
   var _pb=$('mp_ledBalPanel'), balWasOpen=!!(wasOpen && _pb && _pb.style.display!=='none');

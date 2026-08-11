@@ -421,6 +421,14 @@ chk 'TRK_NO_FOLD' mypage.html 2                     # 완료 행 접기 폐지(2
 # ★접점은 0 으로 만들지 않았다 — 계약서 위치 + 문의처를 한 줄로 남긴다(숨긴 모양이 더 나쁘다).
 # ★서버 계산(l.refundQuote)은 살아 있다. admin.html 이 쓴다 — 없앤 것은 화면이지 능력이 아니다.
 chk 'REFUND_NO_NUDGE' mypage.html 2
+# ── [REFUND_ASK_AI 2026-08-11 사용자 지시 "카카오톡 말고 AI 채팅으로"] ──
+# ★실제로 물어보고 바꿨다 — 라이브 /api/advisor 에 「9일 뒤 취소하면?」을 넣으니
+#   「9~1일 전 50% 구간」이라고 규정을 짚고 정확한 금액은 사람에게 넘겼다. 지어내지 않는다.
+# ★위치를 글로 설명하지 않는다(「오른쪽 아래」는 화면이 바뀌면 거짓이 된다) — 그 자리에서 연다.
+# ★위젯이 없으면 단추를 안 그린다 — 눌러도 안 열리는 단추는 「고장」으로 읽힌다.
+chk 'REFUND_ASK_AI' mypage.html 2
+chk 'meAdvFab' mypage.html 1
+nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
 # 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).
 #   ★보이는 ＋ 는 aria-hidden · 뜻은 버튼의 aria-label 이 진다. 글자를 도로 넣지 말 것.
