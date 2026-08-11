@@ -128,6 +128,11 @@ const G = [
      ★문안은 전부 원천(D.NARR · D.PHOTOCUE)에서 읽는다. 여기 옮겨 적으면 두 곳이 갈린다. */
   { n: 12, t: '순간의 닫는 말 · 자유 한 칸', tone: '여운을 남기고 천천히 · 다음 순서를 지목하지 않는다', items: [
     ['G12-1', '입장 닫는 말', 'narr-entry-out', D.NARR.entryOut],
+    /* ★[ENTRY_OUT_TONE 2026-08-11] 입장 느낌(B~F)마다 닫는 말이 다르다.
+       ★손으로 적지 않는다 — D.NARR.entryOutBy 에서 뽑는다. 문안이 바뀌면 대본이 따라온다.
+       A 는 위 G12-1 이 이미 담고 있어 뺀다(같은 문안 · 이미 녹음됨). */
+    ...Object.keys(D.NARR.entryOutBy).filter((k) => k !== 'A')
+      .map((k) => [`G12-1${k}`, `입장 닫는 말 · ${D.ENTRY[k].d}`, `narr-entry-out-${k}`, D.NARR.entryOutBy[k]]),
     ['G12-2', '와인·케이크 닫는 말', 'narr-valley-out', D.NARR.valleyOut],
     ['G12-3', '축가 닫는 말', 'narr-song-out', D.NARR.songOut],
     ['G12-4', '축배 닫는 말', 'narr-toast-out', D.NARR.toastOut],

@@ -429,6 +429,20 @@ chk 'REFUND_NO_NUDGE' mypage.html 2
 #   ★transform 으로 가운데를 잡지 말 것 — 자식 position:fixed 의 기준이 되어 어둠이 상자만 덮는다(실측).
 #   ★어둠은 pointer-events:none — 막으면 다음 자리를 바로 못 누른다(25명 연달아 채우는 흐름).
 chk 'SEAT_ADD_PLUS' mypage.html 1
+# ── [ENTRY_OUT_TONE 2026-08-11 사용자 지시] 도착 직후 닫는 말을 입장 느낌 A~F 로 갈랐다 ──
+# 입장 느낌은 이미 여섯인데 그 뒤 닫는 말이 하나여서, 어떤 느낌을 골라도 같은 말로 닫혔다.
+# ★새로 묻지 않는다 — 같은 순간을 두 번 묻는 것이 된다. S.entry 가 이 멘트까지 정한다.
+# ★전용 키(entryOut)를 두지 않는다 — 값을 만드는 곳이 없는 키는 구멍이다([PREVIEW_KEYS] 가 막았다).
+# ★A 는 슬러그를 안 바꾼다 — 문안 그대로라 52번 음원을 그대로 쓴다.
+# ★★FILES 는 **파일 맨 끝**에 붙인다. 'narr-cake-out' 옆에 끼웠다가 fx-count 가 78→83 으로 밀려
+#   이미 녹음된 78_fx-count.mp3 가 번호를 잃고, 새 클립이 78 을 가져가 한 번호에 두 소리가 됐다(실측).
+chk 'ENTRY_OUT_TONE' assets/ritual-data.js 1
+chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
+chk 'entryOutBy' assets/ritual-data.js 1
+chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
+chk 'narr-entry-out-F' assets/ritual-cue.js 1        # 다섯이 FILES 에 살아 있는가
+nochk 'S.entryOut' assets/ritual-cue.js        # ★값을 만드는 곳 없이 키만 되살리지 말 것
+chk '진짜 끝' assets/ritual-cue.js 1            # 번호 충돌 사고의 근거 — 지우면 다시 옆에 끼운다
 chk 'DRINK_CENTER' mypage.html 2
 chk 'pointer-events:none' mypage.html 1
 nochk '＋ 이름' mypage.html
@@ -1686,7 +1700,11 @@ chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
 # ★디렉터의 누름은 이미 그 자리에 있다 — 수동 큐 수는 그대로 10개다(check-ritual-cue.js 가 고정).
 # ★닫는 말은 다음 순서를 지목하지 않는다 — 코스마다 순서가 다르고 사용자가 바꾼다.
 chk 'LEAD_OUT' assets/ritual-data.js 1
-chk 'entryOut' assets/ritual-data.js 1
+# ★[MARKER_TAUTOLOGY 2026-08-11] 전엔 `chk 'entryOut' … 1` 이었다. ENTRY_OUT_TONE 이 들어오며
+#   'entryOutBy' 가 이 낱말을 품어, **평키를 통째로 지워도 'ok … 2'** 라고 답했다(실측).
+#   재는 것이 사라졌는데 초록이던 자리다 — 낱말이 아니라 **정의 줄**(앞 빈칸+콜론)로 못박는다.
+#   ※ 지워지면 build-dubbing-script.mjs 가 죽어 게이트는 어차피 붉지만, 그건 다른 검사의 공이다.
+chk ' entryOut:' assets/ritual-data.js 1
 chk 'narr-entry-out' assets/ritual-cue.js 2
 chk 'narr-song-out' assets/ritual-cue.js 2
 chk 'LEAD_OUT' order-preview.html 2
@@ -1969,6 +1987,13 @@ chk 'MYPAGE_UNSEEN' scripts/check-mypage-shell.mjs 1
 chk '가짜 데이터를 지어내 통과시키지 않는다' scripts/check-mypage-shell.mjs 1
 nochk 'process.exit(0)' scripts/check-mypage-shell.mjs      # ★초록을 내게 고치지 말 것
 chk 'LISTEN_REVIEW' audio-review.html 1
+# ── [SENT_PICK 2026-08-11 사용자 지시 "예를 들어 이 문단 다시 녹음 이런식으로"] ──
+# 클립 통째가 아니라 **문장 단위**로 다시 고를 수 있다. 고른 문장만 붙여넣기 대본에 실린다.
+# ★문장은 manifest 의 sents 에서 온다 — 화면에서 다시 쪼개지 않는다(규칙이 둘이면 갈라진다).
+# ★안 고르면 클립 전체다. 「하나도 안 골랐다」를 「아무것도 안 한다」로 읽지 않는다.
+chk 'SENT_PICK' audio-review.html 3
+chk 'c.sents' audio-review.html 3
+chk '고른 문장만' audio-review.html 1
 chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
 chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
 nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
@@ -2008,6 +2033,8 @@ chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범�
 chk '} 로 안 끝납니다' automation/tests/nightly-note-table.sh 1   # 닫힘 그물 — 목록이 없어 일반적이다
 chk '15. 「그 문자열이 있나」' docs/검사가_속인_방식_목록.md 1     # ★15 — 존재 확인은 범위 확인이 아니다
 chk 'SLICE_ONLY_FN' docs/검사가_속인_방식_목록.md 1
+chk '15-b' docs/검사가_속인_방식_목록.md 1                        # 긴 이름이 옛 마커의 낱말을 삼킨다
+chk 'MARKER_TAUTOLOGY' docs/검사가_속인_방식_목록.md 1
 # ── [DOC_SELF_COUNT 2026-08-11] 「적지 말 것」을 사람이 아니라 기계가 지킨다 ──
 # COUNT_ROTS 로 제목의 개수는 뺐지만, 「다시 적지 말 것」은 문서 안 당부 한 줄로 남아 있었다.
 # 이 저장소는 사람이 기억해야 하는 구조를 안 남기기로 했다 → check-source-drift 가 머리말을 본다.

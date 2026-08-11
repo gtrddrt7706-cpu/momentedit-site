@@ -31,9 +31,15 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 // [TOAST_SCENE 2026-08-09] 축배·케이크 장면화로 2개 추가(toast-both-b · narr-cake-out) → 77.
 // [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 1개 추가(fx-count) → 78.
 //   ★목록 끝에 붙였다 — 번호가 인덱스+1이라 중간에 끼우면 기존 음원이 전부 개명된다.
-if (C.FILES.length !== 78) no(`FILES 78개가 아니다 (${C.FILES.length})`);
-else if (new Set(C.FILES).size !== 78) no('FILES에 중복 슬러그가 있다');
-else ok('FILES 78개 · 중복 없음');
+// [ENTRY_OUT_TONE 2026-08-11] 도착 직후 닫는 말을 입장 느낌 B~F 로 나눠 5개 추가 → 83.
+//   ★이번에 실제로 당했다 — 처음엔 'narr-cake-out' **옆에** 끼웠다. 읽기 좋으라고 그랬는데,
+//     그 뒤에 있던 fx-count 가 78 → 83 으로 밀리고 이미 녹음된 78_fx-count.mp3 가 제 번호를 잃었다.
+//     새 클립이 78 을 가져가 **한 번호에 두 소리**가 됐다. 위 두 줄이 경고하던 바로 그 사고다.
+//   ★「목록 끝」은 「비슷한 것 옆」이 아니라 **파일의 마지막 줄**이다. 다음 사람도 여기서 읽고 가길.
+const N_FILES = 83;
+if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
+else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
+else ok(`FILES ${N_FILES}개 · 중복 없음`);
 
 // 번호는 인덱스+1. fileOf/noOf가 이 규칙에서 벗어나면 클립 파일명이 통째로 어긋난다.
 {
