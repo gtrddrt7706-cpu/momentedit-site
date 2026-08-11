@@ -1912,6 +1912,14 @@ chk 'DUR_SAY_WHY' scripts/assemble-narration.mjs 1
 chk 'DUR_SAY_WHY' scripts/assemble-parents-letter.mjs 1
 chk 'r.error' scripts/assemble-narration.mjs 1
 chk 'r.error' scripts/assemble-parents-letter.mjs 1
+# ── [LISTEN_REVIEW 2026-08-11] 소리를 사람 귀로 통과시키는 유일한 자리 ──
+# mp3 100개 중 사람이 들어 본 것은 6개(입장 A~F)뿐이었다. 나머지는 기계가 파형만 쟀다.
+# 이 화면은 목록을 베끼지 않는다 — manifest + _recorded 를 실행 시점에 읽는다.
+# 판정 결과가 곧바로 재더빙 붙여넣기 대본(화자: 문장)으로 나와 기존 파이프라인에 물린다.
+chk 'LISTEN_REVIEW' audio-review.html 1
+chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
+chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
+nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
