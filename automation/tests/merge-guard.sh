@@ -1912,6 +1912,31 @@ chk 'DUR_SAY_WHY' scripts/assemble-narration.mjs 1
 chk 'DUR_SAY_WHY' scripts/assemble-parents-letter.mjs 1
 chk 'r.error' scripts/assemble-narration.mjs 1
 chk 'r.error' scripts/assemble-parents-letter.mjs 1
+# ── [LISTEN_REVIEW 2026-08-11] 소리를 사람 귀로 통과시키는 유일한 자리 ──
+# mp3 100개 중 사람이 들어 본 것은 6개(입장 A~F)뿐이었다. 나머지는 기계가 파형만 쟀다.
+# 이 화면은 목록을 베끼지 않는다 — manifest + _recorded 를 실행 시점에 읽는다.
+# 판정 결과가 곧바로 재더빙 붙여넣기 대본(화자: 문장)으로 나와 기존 파이프라인에 물린다.
+# ── [NIGHTLY_SCREEN · MYPAGE_UNSEEN 2026-08-11] 게이트 밖 브라우저 검사를 하루 한 번 ──
+# 검사 51개 중 merge-guard 가 실행하는 것은 22개. 갈림이 우연이 아니라 **브라우저가 필요한
+# 것들만** 밖에 있었다(= 눈으로 보는 것들). 레일 사라짐을 아무 검사도 안 잡은 이유다.
+# 야간 잡은 **막지 않고 알린다** — 막는 일은 merge-guard 하나로 족하다.
+# ★check-mypage-shell 은 일부러 0 을 안 낸다. 로그인 뒤가 사각지대라는 사실을 매일 알린다.
+chk 'NIGHTLY_SCREEN' .github/workflows/nightly-screen.yml 1
+chk '막지 않고 알린다' .github/workflows/nightly-screen.yml 1
+# [EXPECTED_TWO 2026-08-11] 「늘 2 인 검사」의 2 는 요약 색을 바꾸지 않는다.
+# 안 그러면 **모든 밤이 노란색**이 되어, 진짜 고장난 밤과 글자까지 같은 문구가 나온다(시뮬 실측).
+# 그러면 이 잡을 게이트에 안 넣은 이유(「잘 울면 사람이 무시한다」)를 스스로 저지르는 셈이다.
+# 네 상태가 갈리는지 확인함 — 정상 0 · 진짜 못 잼 2 · 틀림 1 · expected 인데 1 이면 그래도 1.
+chk 'EXPECTED_TWO' .github/workflows/nightly-screen.yml 1
+chk '늘 켜져 있는 신호는 신호가 아니다' .github/workflows/nightly-screen.yml 1
+chk 'note "check-mypage-shell (늘 2 · 사각지대 알림)" $? expected' .github/workflows/nightly-screen.yml 1
+chk 'MYPAGE_UNSEEN' scripts/check-mypage-shell.mjs 1
+chk '가짜 데이터를 지어내 통과시키지 않는다' scripts/check-mypage-shell.mjs 1
+nochk 'process.exit(0)' scripts/check-mypage-shell.mjs      # ★초록을 내게 고치지 말 것
+chk 'LISTEN_REVIEW' audio-review.html 1
+chk '_recorded.json' audio-review.html 2                # 목록을 베끼지 않고 원천을 읽는 배선
+chk '안 들은 것을 통과로 세지 않는다' audio-review.html 1   # 진행률의 뜻
+nochk 'const CLIPS = \[{' audio-review.html             # ★목록을 파일에 박아 넣지 말 것
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기

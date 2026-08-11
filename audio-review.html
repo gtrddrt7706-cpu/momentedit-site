@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light only">
+<title>실청 점검 · Moment Edit</title>
+<!--
+  ★★[LISTEN_REVIEW 2026-08-11] 소리를 사람 귀로 통과시키는 유일한 자리.
+  왜 만들었나 — mp3 100개 중 사람이 들어 본 것은 6개(입장 A~F)뿐이었다.
+  나머지 94개는 기계가 파형·길이·주파수만 쟀다. 코워크도 클로드코드도 소리를 못 듣는다.
+  예식은 되돌릴 수 없다. 당일에 한 클립이 이상하면 그걸로 끝이다.
+
+  ★설계 원칙 셋
+   ① 목록을 여기 적지 않는다 — manifest.json 과 _recorded.json 을 **실행 시점에 읽는다.**
+      베껴 두면 클립이 늘거나 문안이 바뀐 날 이 화면만 낡는다(이 저장소의 단골 사고).
+   ② 안 들은 것을 통과로 세지 않는다 — 진행률은 '판정한 개수'다. 남은 것을 항상 앞에 띄운다.
+   ③ 듣기와 고치기가 한 자리에 — 「다시」로 표시하면 그 자리에서 글을 고칠 수 있고,
+      결과가 곧바로 **재더빙 붙여넣기 대본**(화자: 문장)으로 나온다.
+      기존 파이프라인(재더빙_붙여넣기.txt → 타입캐스트 → assemble-narration)에 그대로 물린다.
+
+  ★판정은 브라우저에 저장된다(localStorage). 지우기 전까지 남고, 중간에 덮어도 이어서 한다.
+  ★이 화면은 내부용이다. 어디에서도 링크하지 않고 robots 로 색인을 막는다.
+-->
+<style>
+:root{
+  --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19; --accent:#3A2D22;
+  --seal:#6B2A24; --sub:#5A554C; --light:#75705F; --border:#DDD8D1;
+  --gold:#B89A75; --gold-text:#7A5F37; --green:#3B6E4F;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --serif-ko:'Noto Serif KR',serif;
+  --sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+body{font-family:var(--sans);font-size:14px;line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 18px 200px}
+
+/* ── 머리 ── */
+.hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.hd h1{font-family:var(--serif-ko);font-size:18px;font-weight:500;letter-spacing:-0.02em;margin:0}
+.hd .eyebrow{font-family:var(--serif);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-text)}
+.bar{height:6px;background:var(--bg3);border-radius:999px;overflow:hidden;margin:10px 0 6px}
+.bar>i{display:block;height:100%;background:var(--seal);width:0;transition:width .45s var(--ease)}
+.tally{display:flex;gap:14px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+.tally b{font-weight:500;color:var(--text)}
+.tally .ng{color:var(--seal)}
+
+/* ── 지금 클립 ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 16px;margin-top:14px}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--light);margin-bottom:10px}
+.pill{border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:0.04em;color:var(--sub);background:var(--bg2)}
+.pill.voice{border-color:var(--gold);color:var(--gold-text)}
+.pill.dir{border-color:var(--border)}
+.label{font-family:var(--serif-ko);font-size:16px;font-weight:500;letter-spacing:-0.02em;margin:0 0 4px}
+.said{font-size:14px;line-height:1.85;color:var(--text);white-space:pre-wrap;word-break:keep-all}
+.warn{margin-top:10px;font-size:12px;color:var(--seal);line-height:1.6;word-break:keep-all}
+
+/* ── 재생 ── */
+.play-row{display:flex;align-items:center;gap:10px;margin-top:14px}
+.btn{font-family:var(--sans);font-size:13px;letter-spacing:0.02em;border:1px solid var(--border);
+  background:#fff;color:var(--text);border-radius:8px;padding:11px 14px;min-height:44px;cursor:pointer;
+  transition:background .3s var(--ease),border-color .3s var(--ease)}
+.btn:hover{background:var(--bg2)}
+.btn:active{background:var(--bg3)}
+.btn.main{background:var(--accent);color:#fff;border-color:var(--accent);flex:1 1 auto}
+.btn.ok{background:var(--green);color:#fff;border-color:var(--green);flex:1 1 auto}
+.btn.ng{border-color:var(--seal);color:var(--seal);flex:1 1 auto}
+.btn.sm{padding:8px 11px;min-height:40px;font-size:12px}
+.btn[disabled]{opacity:.4;cursor:default}
+.time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--light);min-width:74px;text-align:right}
+.seek{width:100%;margin:10px 0 0;accent-color:var(--seal)}
+
+/* ── 판정 ── */
+.verdict{display:flex;gap:8px;margin-top:12px}
+.why{margin-top:12px;display:none}
+.why.on{display:block}
+.why-l{font-family:var(--serif-ko);font-size:12px;letter-spacing:0.04em;color:var(--sub);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;border:1px solid var(--border);background:#fff;border-radius:6px;padding:9px 10px;
+  min-height:40px;cursor:pointer;color:var(--sub)}
+.chip.on{border-color:var(--seal);color:var(--seal);background:#fff}
+.ta{width:100%;margin-top:10px;font-family:var(--sans);font-size:14px;line-height:1.8;color:var(--text);
+  border:1px solid var(--border);border-radius:8px;padding:10px;background:#fff;resize:vertical;min-height:88px}
+.hint{font-size:12px;color:var(--light);margin-top:6px;word-break:keep-all}
+
+/* ── 이동 ── */
+.nav{display:flex;gap:8px;margin-top:14px;align-items:center}
+.nav .grow{flex:1}
+.idx{font-variant-numeric:tabular-nums;font-size:12px;color:var(--sub)}
+
+/* ── 목록 ── */
+h2.sec{font-family:var(--serif);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold-text);margin:26px 0 8px}
+.list{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+.row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--bg3);
+  cursor:pointer;font-size:13px;min-height:44px}
+.row:first-child{border-top:none}
+.row:hover{background:var(--bg2)}
+.row.cur{background:var(--bg3)}
+.row .n{font-variant-numeric:tabular-nums;color:var(--light);font-size:11px;min-width:26px}
+.row .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .s{font-size:11px;min-width:52px;text-align:right}
+.s.ok{color:var(--green)} .s.ng{color:var(--seal)} .s.non{color:var(--light)}
+.filters{display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap}
+
+/* ── 바닥 고정 ── */
+.foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.96);
+  border-top:1px solid var(--border);padding:10px 18px calc(10px + env(safe-area-inset-bottom));
+  backdrop-filter:saturate(120%) blur(6px)}
+.foot .in{max-width:720px;margin:0 auto;display:flex;gap:8px;align-items:center}
+.foot .msg{flex:1;font-size:12px;color:var(--sub);word-break:keep-all}
+
+.out{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;
+  max-height:340px;overflow:auto;word-break:break-all}
+.err{background:#fff;border:1px solid var(--seal);border-radius:8px;padding:14px;color:var(--seal);
+  font-size:13px;line-height:1.7;word-break:keep-all}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="hd">
+    <div>
+      <div class="eyebrow">Listening Review</div>
+      <h1>실청 점검 · 소리를 귀로 통과시키는 자리</h1>
+    </div>
+  </div>
+  <div class="bar"><i id="barI"></i></div>
+  <div class="tally" id="tally">읽는 중…</div>
+
+  <div id="stage"></div>
+
+  <h2 class="sec">전체 목록</h2>
+  <div class="filters" id="filters"></div>
+  <div class="list" id="list"></div>
+
+  <h2 class="sec">결과 내보내기</h2>
+  <div class="card">
+    <div class="hint" style="margin-top:0">「다시」로 표시한 것만 모아 <b>재더빙 붙여넣기 대본</b>으로 냅니다.
+      타입캐스트 「대본 가져오기 → 텍스트 붙여넣기」에 그대로 넣고 <b>문장별 분리</b>로 받으면 됩니다.
+      글을 고쳤으면 고친 글이 나갑니다.</div>
+    <div class="play-row" style="margin-top:12px">
+      <button class="btn sm" id="mkScript">붙여넣기 대본 만들기</button>
+      <button class="btn sm" id="mkReport">사유 표 만들기</button>
+      <button class="btn sm" id="copyOut">복사</button>
+      <button class="btn sm" id="resetAll">판정 지우기</button>
+    </div>
+    <div class="out" id="out" style="display:none"></div>
+  </div>
+</div>
+
+<div class="foot"><div class="in">
+  <div class="msg" id="foot">Space 재생·멈춤 · Enter 좋음 · X 다시 · ← → 이동 · A 자동넘김</div>
+  <button class="btn sm" id="autoBtn">자동넘김 끔</button>
+</div></div>
+
+<audio id="au" preload="none"></audio>
+
+<script>
+(function(){
+'use strict';
+var KEY = 'me_listen_review_v1';
+var WHYS = ['소리가 튄다·잡음','너무 빠르다','너무 느리다','끊겨 들린다','목소리가 다르다','글이 틀렸다','억양이 어색하다','앞뒤 쉼이 이상하다'];
+
+var CLIPS = [], cur = 0, auto = false, V = {};
+try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
+var save = function(){ try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} };
+
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+  return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; }); };
+var au = $('au');
+
+/* ★목록을 여기 적지 않는다 — 원천 셋을 실행 시점에 읽어 맞춘다.
+   manifest = 녹음하기로 한 글 · _recorded = 실제 녹음된 글. 둘이 다르면 그 자리에서 알려 준다
+   (RECORDED_TRUTH 와 같은 원칙 — 화면이 대신 말해 주면 사람이 안 속는다). */
+function load(){
+  var P = [
+    fetch('docs/plans/%EC%8B%9D%EC%88%9C%EC%97%B0%EA%B5%AC/%ED%83%80%EC%9E%85%EC%BA%90%EC%8A%A4%ED%8A%B8/manifest.json').then(function(r){ return r.json(); }),
+    fetch('assets/audio/narration/_recorded.json').then(function(r){ return r.json(); }),
+    fetch('assets/audio/cast/_recorded.json').then(function(r){ return r.json(); })
+  ];
+  return Promise.all(P).then(function(a){
+    var man = a[0], recN = a[1].clips || {}, recC = a[2].clips || {};
+    var voice = man.voice || {};
+    var byFile = {};
+    (man.clips || []).forEach(function(c){ byFile[c.dir + '|' + c.file] = c; });
+    var out = [];
+    [['assets/audio/narration', recN], ['assets/audio/cast', recC]].forEach(function(pair){
+      var dir = pair[0], rec = pair[1];
+      Object.keys(rec).forEach(function(id){
+        var file = id.replace(/^\d+_/, '');
+        var c = byFile[dir + '|' + file] || {};
+        var want = (c.sents || []).map(function(s){ return s.text; }).join(' ').trim();
+        var said = String(rec[id] || '').trim();
+        out.push({
+          id: id, dir: dir, file: file, no: (id.match(/^\d+/) || ['00'])[0],
+          label: c.label || file, role: c.role || '', part: c.part || '',
+          voice: voice[c.role] || '', said: said,
+          drift: (want && want !== said) ? want : ''
+        });
+      });
+    });
+    /* 듣는 순서 = 예식이 흐르는 순서. 나레이션 먼저, 배역 뒤. 각 무리는 클립 번호 오름차순. */
+    out.sort(function(x, y){
+      if (x.dir !== y.dir) return x.dir < y.dir ? 1 : -1;   // narration 먼저(사전순 반대)
+      return (+x.no) - (+y.no);
+    });
+    return out;
+  });
+}
+
+function pct(){ var n = CLIPS.filter(function(c){ return V[c.id]; }).length; return { n: n, t: CLIPS.length }; }
+
+function paintTally(){
+  var p = pct();
+  var ok = CLIPS.filter(function(c){ return V[c.id] && V[c.id].v === 'ok'; }).length;
+  var ng = CLIPS.filter(function(c){ return V[c.id] && V[c.id].v === 'ng'; }).length;
+  $('barI').style.width = (p.t ? (p.n / p.t * 100) : 0) + '%';
+  $('tally').innerHTML = '들은 것 <b>' + p.n + '</b> / ' + p.t
+    + ' · 좋음 <b>' + ok + '</b>'
+    + ' · <span class="ng">다시 <b>' + ng + '</b></span>'
+    + ' · <b>남은 것 ' + (p.t - p.n) + '</b>';
+}
+
+function paintStage(){
+  var c = CLIPS[cur]; if (!c) return;
+  var v = V[c.id] || {};
+  var src = c.dir + '/' + c.id + '.mp3';
+  $('stage').innerHTML =
+    '<div class="card">'
+    + '<div class="meta">'
+      + '<span class="pill">' + esc(c.no) + '</span>'
+      + '<span class="pill voice">' + esc(c.voice || c.role || '?') + '</span>'
+      + '<span class="pill dir">' + (c.dir.indexOf('cast') > -1 ? '배역' : '나레이션') + '</span>'
+      + '<span>' + esc(c.id) + '</span>'
+    + '</div>'
+    + '<div class="label">' + esc(c.label) + '</div>'
+    + '<div class="said">' + esc(c.said || '(기록된 글이 없습니다)') + '</div>'
+    + (c.drift ? '<div class="warn">★대장(녹음하기로 한 글)과 다릅니다. 소리는 위 글입니다.<br>대장: ' + esc(c.drift) + '</div>' : '')
+    + '<div class="play-row">'
+      + '<button class="btn main" id="pb">▶ 듣기</button>'
+      + '<button class="btn sm" id="rb">처음부터</button>'
+      + '<span class="time" id="tm">0:00</span>'
+    + '</div>'
+    + '<input class="seek" id="sk" type="range" min="0" max="1000" value="0" aria-label="재생 위치">'
+    + '<div class="verdict">'
+      + '<button class="btn ok" id="okb">좋음 · 다음</button>'
+      + '<button class="btn ng" id="ngb">다시 필요</button>'
+    + '</div>'
+    + '<div class="why' + (v.v === 'ng' ? ' on' : '') + '" id="why">'
+      + '<div class="why-l">무엇이 문제인가요 (여러 개 고를 수 있어요)</div>'
+      + '<div class="chips" id="chips">' + WHYS.map(function(w, i){
+          return '<button class="chip' + ((v.why || []).indexOf(w) > -1 ? ' on' : '') + '" data-w="' + i + '">' + esc(w) + '</button>';
+        }).join('') + '</div>'
+      + '<textarea class="ta" id="ta" placeholder="다시 녹음할 글 — 그대로면 손대지 마세요">' + esc(v.text != null ? v.text : c.said) + '</textarea>'
+      + '<div class="hint">글이 틀렸으면 여기서 고치세요. 고친 글이 붙여넣기 대본으로 나갑니다.</div>'
+    + '</div>'
+    + '<div class="nav">'
+      + '<button class="btn sm" id="pv">← 이전</button>'
+      + '<span class="idx grow">' + (cur + 1) + ' / ' + CLIPS.length + '</span>'
+      + '<button class="btn sm" id="nx">다음 →</button>'
+      + '<button class="btn sm" id="nu">안 들은 다음 ▶</button>'
+    + '</div>'
+    + '</div>';
+  au.src = src;
+  au.load();
+  $('pb').onclick = toggle;
+  $('rb').onclick = function(){ au.currentTime = 0; au.play(); };
+  $('okb').onclick = function(){ mark('ok'); };
+  $('ngb').onclick = function(){ mark('ng'); };
+  $('pv').onclick = function(){ go(cur - 1); };
+  $('nx').onclick = function(){ go(cur + 1); };
+  $('nu').onclick = nextUnheard;
+  $('sk').oninput = function(){ if (au.duration) au.currentTime = au.duration * (this.value / 1000); };
+  $('chips').onclick = function(e){
+    var b = e.target.closest('.chip'); if (!b) return;
+    b.classList.toggle('on'); saveNg(false);
+  };
+  $('ta').oninput = function(){ saveNg(false); };
+  paintList();
+}
+
+function saveNg(advance){
+  var c = CLIPS[cur];
+  var why = [].slice.call(document.querySelectorAll('#chips .chip.on')).map(function(b){ return WHYS[+b.dataset.w]; });
+  var t = ($('ta') && $('ta').value || '').trim();
+  V[c.id] = { v: 'ng', why: why, text: t };
+  save(); paintTally(); paintList();
+  if (advance) go(cur + 1);
+}
+
+function mark(v){
+  var c = CLIPS[cur];
+  if (v === 'ok') { V[c.id] = { v: 'ok' }; save(); paintTally(); paintList(); go(cur + 1); return; }
+  // 다시 — 사유 칸을 열고 그 자리에 머문다(사유 없이 넘기면 왜 다시인지 다음 사람이 모른다)
+  if (!V[c.id] || V[c.id].v !== 'ng') { V[c.id] = { v: 'ng', why: [], text: c.said }; save(); }
+  $('why').classList.add('on'); paintTally(); paintList();
+  try { $('ta').focus(); } catch (e) {}
+}
+
+function go(i){
+  if (i < 0 || i >= CLIPS.length) { try { au.pause(); } catch (e) {} return; }
+  cur = i; paintStage();
+  if (auto) { setTimeout(function(){ au.play().catch(function(){}); }, 120); }
+  try { document.getElementById('wrap').scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) {}
+}
+function nextUnheard(){
+  for (var i = cur + 1; i < CLIPS.length; i++) if (!V[CLIPS[i].id]) return go(i);
+  for (var j = 0; j < CLIPS.length; j++) if (!V[CLIPS[j].id]) return go(j);
+  $('foot').textContent = '남은 것이 없습니다 — 100개 전부 판정했습니다.';
+}
+function toggle(){ if (au.paused) au.play().catch(function(){}); else au.pause(); }
+
+/* ── 목록 ── */
+var filter = 'all';
+function paintFilters(){
+  var F = [['all','전체'],['none','안 들은 것'],['ng','다시'],['ok','좋음']];
+  $('filters').innerHTML = F.map(function(f){
+    return '<button class="chip' + (filter === f[0] ? ' on' : '') + '" data-f="' + f[0] + '">' + f[1] + '</button>';
+  }).join('');
+  $('filters').onclick = function(e){ var b = e.target.closest('.chip'); if (!b) return; filter = b.dataset.f; paintFilters(); paintList(); };
+}
+function paintList(){
+  var rows = CLIPS.map(function(c, i){ return { c: c, i: i }; }).filter(function(x){
+    var v = V[x.c.id];
+    if (filter === 'none') return !v;
+    if (filter === 'ng') return v && v.v === 'ng';
+    if (filter === 'ok') return v && v.v === 'ok';
+    return true;
+  });
+  $('list').innerHTML = rows.map(function(x){
+    var v = V[x.c.id];
+    var s = !v ? '<span class="s non">·</span>' : (v.v === 'ok' ? '<span class="s ok">좋음</span>' : '<span class="s ng">다시</span>');
+    return '<div class="row' + (x.i === cur ? ' cur' : '') + '" data-i="' + x.i + '">'
+      + '<span class="n">' + esc(x.c.no) + '</span>'
+      + '<span class="t">' + esc(x.c.label) + '<span style="color:var(--light);font-size:11px"> · ' + esc(x.c.voice) + '</span></span>'
+      + s + '</div>';
+  }).join('') || '<div class="row"><span class="t" style="color:var(--light)">해당하는 것이 없습니다</span></div>';
+  $('list').onclick = function(e){ var r = e.target.closest('.row'); if (!r || !r.dataset.i) return; go(+r.dataset.i); };
+}
+
+/* ── 내보내기 ── */
+function mkScript(){
+  var ng = CLIPS.filter(function(c){ return V[c.id] && V[c.id].v === 'ng'; });
+  if (!ng.length) return '(다시 표시한 클립이 없습니다)';
+  /* 붙여넣기 형식 = 재더빙_붙여넣기.txt 와 같다: `화자: 한 문장` · 한 줄 한 문장 · 머리말 없음.
+     조립기가 정렬 순서로 자리를 매기므로 클립 번호 순서를 지킨다. */
+  var lines = [];
+  ng.forEach(function(c){
+    var t = (V[c.id].text || c.said).trim();
+    t.split(/(?<=[.!?])\s+/).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){
+      lines.push((c.voice || c.role || '진행') + ': ' + s);
+    });
+  });
+  return lines.join('\n');
+}
+function mkReport(){
+  var ng = CLIPS.filter(function(c){ return V[c.id] && V[c.id].v === 'ng'; });
+  var p = pct();
+  var head = ['실청 점검 결과', '들은 것 ' + p.n + ' / ' + p.t + ' · 다시 ' + ng.length + '개', ''];
+  if (!ng.length) return head.concat(['다시 필요한 클립이 없습니다.']).join('\n');
+  ng.forEach(function(c){
+    var v = V[c.id];
+    head.push('[' + c.no + '] ' + c.id + '  (' + (c.voice || c.role) + ' · ' + c.label + ')');
+    head.push('  사유: ' + ((v.why || []).join(' · ') || '(안 적음)'));
+    if ((v.text || '').trim() && v.text.trim() !== c.said) { head.push('  고친 글: ' + v.text.trim()); }
+    head.push('');
+  });
+  return head.join('\n');
+}
+
+/* ── 자판 ── */
+document.addEventListener('keydown', function(e){
+  if (/^(INPUT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  else if (e.key === 'Enter') { e.preventDefault(); mark('ok'); }
+  else if (e.key === 'x' || e.key === 'X' || e.key === 'ㅌ') { e.preventDefault(); mark('ng'); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+  else if (e.key === 'a' || e.key === 'A' || e.key === 'ㅁ') { e.preventDefault(); $('autoBtn').click(); }
+});
+
+au.addEventListener('timeupdate', function(){
+  var t = $('tm'), s = $('sk'); if (!t || !s) return;
+  var m = Math.floor(au.currentTime / 60), sec = Math.floor(au.currentTime % 60);
+  t.textContent = m + ':' + (sec < 10 ? '0' : '') + sec + (au.duration ? ' / ' + Math.floor(au.duration / 60) + ':' + (Math.floor(au.duration % 60) < 10 ? '0' : '') + Math.floor(au.duration % 60) : '');
+  if (au.duration) s.value = Math.round(au.currentTime / au.duration * 1000);
+});
+au.addEventListener('play', function(){ var b = $('pb'); if (b) b.textContent = '❚❚ 멈춤'; });
+au.addEventListener('pause', function(){ var b = $('pb'); if (b) b.textContent = '▶ 듣기'; });
+au.addEventListener('ended', function(){ var b = $('pb'); if (b) b.textContent = '▶ 듣기';
+  if (auto) { /* 자동넘김은 '판정'을 대신하지 않는다 — 다음으로만 옮기고 좋음은 사람이 누른다 */ go(cur + 1); } });
+au.addEventListener('error', function(){ $('foot').textContent = '이 클립의 소리 파일을 못 열었습니다 — ' + (au.src || '').split('/').pop(); });
+
+$('autoBtn').onclick = function(){ auto = !auto; this.textContent = auto ? '자동넘김 켬' : '자동넘김 끔'; };
+$('mkScript').onclick = function(){ var o = $('out'); o.style.display = 'block'; o.textContent = mkScript(); };
+$('mkReport').onclick = function(){ var o = $('out'); o.style.display = 'block'; o.textContent = mkReport(); };
+$('copyOut').onclick = function(){ var o = $('out'); if (o.style.display === 'none') return;
+  try { navigator.clipboard.writeText(o.textContent); $('foot').textContent = '복사했습니다.'; } catch (e) {} };
+$('resetAll').onclick = function(){
+  if (!confirm('판정을 전부 지웁니다. 되돌릴 수 없습니다.')) return;
+  V = {}; save(); paintTally(); paintStage(); };
+
+load().then(function(list){
+  CLIPS = list;
+  if (!CLIPS.length) throw new Error('클립을 하나도 못 읽었습니다');
+  paintFilters(); paintTally();
+  // 이어서 하기 — 안 들은 첫 자리에서 시작한다
+  var i = CLIPS.findIndex(function(c){ return !V[c.id]; });
+  cur = i < 0 ? 0 : i;
+  paintStage();
+}).catch(function(e){
+  $('stage').innerHTML = '<div class="err">목록을 못 읽었습니다 — ' + esc(e.message)
+    + '<br><br>이 화면은 <b>서버로 열어야</b> 합니다(파일을 직접 열면 브라우저가 읽기를 막습니다).'
+    + '<br>momentedit.kr/audio-review.html 로 열거나, 저장소 루트에서 <code>python3 -m http.server</code> 를 띄우세요.</div>';
+});
+})();
+</script>
+</body>
+</html>
