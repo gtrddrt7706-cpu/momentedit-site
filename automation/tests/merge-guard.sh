@@ -1897,6 +1897,15 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 chk 'FAQ_DODGE 폐지' index.html 1                       # 폐지 근거가 코드 옆에 남아 있어야 한다
 chk 'FAQ_ASK_CLEAR' index.html 1                        # 대체 처방
 chk 'margin-right: 24px' index.html 1                   # 그 처방의 실제 값
+# ── [DUR_SAY_WHY 2026-08-10] 막는 것과 왜 막혔는지 말하는 것은 다른 일이다 ──
+# execFileSync 는 ffprobe 가 비정상 종료하면 먼저 던져, dur() 의 안내문에 닿지 못하고
+# Node 스택 덤프가 뿌려졌다(깨진 wav 로 재현). spawnSync 로 두 실패를 한 문장으로 낸다.
+# 적대 실측: 깨진 파일 → 「길이를 못 읽었습니다 … Invalid data found」 exit 1 ·
+#            ffprobe 없음 → r.error ENOENT · 정상 재조립 → 5클립 바이트 동일(멱등)
+chk 'DUR_SAY_WHY' scripts/assemble-narration.mjs 1
+chk 'DUR_SAY_WHY' scripts/assemble-parents-letter.mjs 1
+chk 'r.error' scripts/assemble-narration.mjs 1
+chk 'r.error' scripts/assemble-parents-letter.mjs 1
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
