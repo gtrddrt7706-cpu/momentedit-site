@@ -87,6 +87,9 @@ body{font-family:var(--sans);font-size:14px;line-height:1.7;-webkit-text-size-ad
 .why.on{display:block}
 .why-l{font-family:var(--serif-ko);font-size:12px;letter-spacing:0.04em;color:var(--sub);margin-bottom:8px}
 /* [SENT_PICK] 문장 한 줄씩 — 눌러서 고른다. 번호는 대본에서 되짚기 위한 것이다. */
+.sent-wrap{display:flex;flex-direction:column;gap:5px}
+.sent-e{font:inherit;font-size:12.5px;color:var(--text);border:1px solid var(--accent);border-radius:8px;padding:9px 11px;margin-left:26px;background:#fff}
+.sent-e:focus{outline:none;box-shadow:0 0 0 2px rgba(58,45,34,.12)}
 .sents{display:flex;flex-direction:column;gap:6px;margin:8px 0 4px}
 .sent{display:flex;gap:8px;align-items:flex-start;text-align:left;width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font:inherit;font-size:12.5px;line-height:1.65;color:var(--sub);word-break:keep-all}
 .sent.on{border-color:var(--accent);background:#FAF6EF;color:var(--ink);box-shadow:0 0 0 1px var(--accent) inset}
@@ -294,11 +297,20 @@ function paintStage(){
           '<div class="why-l" style="margin-top:12px">어느 문장을 다시 녹음할까요 <span style="color:var(--light);font-weight:400">· 안 고르면 클립 전체</span></div>'
           + '<div class="sents" id="sents">' + c.sents.map(function(t, i){
               var on = (v.sents || []).indexOf(i) > -1;
-              return '<button class="sent' + (on ? ' on' : '') + '" data-s="' + i + '">'
-                + '<span class="sent-n">' + (i + 1) + '</span><span class="sent-t">' + esc(t) + '</span></button>';
+              /* ★[SENT_EDIT 2026-08-11 · 클로드코드 지적] 고른 문장은 **그 자리에서 고친다.**
+                 옛 판은 아래 글칸이 클립 전체를 고치고, 문장을 고르면 그 고침이 대본에서 빠졌다 —
+                 「고친 글이 대본으로 나갑니다」와 「고른 문장만 실려요」가 서로를 부정했다.
+                 문구로 덮는 대신 어긋남의 뿌리를 없앤다: 고른 문장은 그 줄에서 고치고, 그 글이 그대로 나간다. */
+              var et = (v.sentText || {})[i];
+              return '<div class="sent-wrap">'
+                + '<button class="sent' + (on ? ' on' : '') + '" data-s="' + i + '">'
+                + '<span class="sent-n">' + (i + 1) + '</span><span class="sent-t">' + esc(t) + '</span></button>'
+                + (on ? '<input class="sent-e" data-e="' + i + '" value="' + esc(et != null ? et : t) + '" '
+                        + 'aria-label="' + (i + 1) + '번 문장 고쳐 쓰기" placeholder="이 문장을 고쳐 쓰기">' : '')
+                + '</div>';
             }).join('') + '</div>') : '')
       + '<textarea class="ta" id="ta" placeholder="다시 녹음할 글 — 그대로면 손대지 마세요">' + esc(v.text != null ? v.text : c.said) + '</textarea>'
-      + '<div class="hint">글이 틀렸으면 여기서 고치세요. 고친 글이 붙여넣기 대본으로 나갑니다.<br>문장을 골랐으면 <b>고른 문장만</b> 대본에 실려요.</div>'
+      + '<div class="hint">문장을 고르면 <b>그 문장만</b> 대본에 실려요. 글을 바꾸려면 <b>그 문장 줄에서</b> 고치세요.<br>아래 글칸은 <b>문장을 하나도 안 골랐을 때</b> 클립 전체를 고쳐 쓰는 자리예요.</div>'
     + '</div>'
     + '<div class="nav">'
       + '<button class="btn sm" id="pv">← 이전</button>'
@@ -324,9 +336,37 @@ function paintStage(){
   /* [SENT_PICK] 문장 고르기 — 여러 개 고를 수 있다. 하나도 안 고르면 클립 전체를 다시 녹음한다. */
   var _se = $('sents');
   if (_se) _se.onclick = function(e){
+    if (e.target.closest('.sent-e')) return;   // [SENT_EDIT] 글칸을 누른 것은 고르기 해제가 아니다
     var b = e.target.closest('.sent'); if (!b) return;
-    b.classList.toggle('on'); saveNg(false);
+    b.classList.toggle('on');
+    /* ★[PICK_KEEPS_SOUND 2026-08-11 실측] 여기서 paintStage() 를 부르지 않는다.
+       무대를 다시 그리면 au.src 를 다시 걸어 **듣던 소리가 처음으로 되감기고 멈춘다**
+       (실측 0.66초 → 0.00초 · paused=true). 이 화면은 들으면서 표시하는 곳이라
+       한 문장 고르자고 소리가 끊기면 처음부터 다시 들어야 한다.
+       → 바뀌어야 하는 것은 그 줄의 글칸 하나뿐이니 그것만 넣고 뺀다. */
+    var si = +b.dataset.s, wrap = b.parentNode, old = wrap.querySelector('.sent-e');
+    if (b.classList.contains('on')) {
+      if (!old) {
+        var keep = ((V[c.id] || {}).sentText || {})[si];
+        var inp = document.createElement('input');
+        inp.className = 'sent-e'; inp.dataset.e = si;
+        inp.value = keep != null ? keep : c.sents[si];
+        inp.setAttribute('aria-label', (si + 1) + '번 문장 고쳐 쓰기');
+        inp.placeholder = '이 문장을 고쳐 쓰기';
+        wrap.appendChild(inp);
+      }
+    } else if (old) { wrap.removeChild(old); }
+    saveNg(false);
   };
+  /* ★[BLANK_SHOWS_TRUTH 2026-08-11 실측] 글칸을 비우면 대본엔 **원문이 그대로** 나간다
+     (빈 값은 「안 고쳤다」로 읽히니까). 지운 사람은 「이 문장은 빠지겠지」로 읽는다 —
+     화면과 대본이 어긋나는 자리다. 그래서 칸을 떠날 때 원문을 되돌려 **보이는 것이 나갈 것**이게 한다.
+     ★input 이 아니라 blur 에서 되돌린다 — 지우고 다시 쓰는 중에 되채우면 사람과 싸운다. */
+  if (_se) _se.oninput = function(e){ if (e.target.closest('.sent-e')) saveNg(false); };
+  if (_se) _se.addEventListener('focusout', function(e){
+    var inp = e.target.closest && e.target.closest('.sent-e'); if (!inp) return;
+    if (!(inp.value || '').trim()) { inp.value = c.sents[+inp.dataset.e]; saveNg(false); }
+  });
   $('ta').oninput = function(){ saveNg(false); };
   paintList();
 }
@@ -336,7 +376,13 @@ function saveNg(advance){
   var why = [].slice.call(document.querySelectorAll('#chips .chip.on')).map(function(b){ return WHYS[+b.dataset.w]; });
   var t = ($('ta') && $('ta').value || '').trim();
   var picked = [].slice.call(document.querySelectorAll('#sents .sent.on')).map(function(b){ return +b.dataset.s; });
-  V[c.id] = { v: 'ng', why: why, text: t, sents: picked };
+  /* [SENT_EDIT] 고른 문장을 그 줄에서 고친 글. 안 고쳤으면 원문 그대로라 굳이 담지 않는다. */
+  var st = {};
+  [].slice.call(document.querySelectorAll('#sents .sent-e')).forEach(function(inp){
+    var i = +inp.dataset.e, val = (inp.value || '').trim();
+    if (val && c.sents && val !== c.sents[i]) st[i] = val;
+  });
+  V[c.id] = { v: 'ng', why: why, text: t, sents: picked, sentText: st };
   save(); paintTally(); paintList();
   if (advance) go(cur + 1);
 }
@@ -409,7 +455,9 @@ function mkScript(){
     var picked = (V[c.id].sents || []);
     var arr;
     if (picked.length && c.sents && c.sents.length) {
-      arr = picked.slice().sort(function(a, b){ return a - b; }).map(function(i){ return c.sents[i]; }).filter(Boolean);
+      var stx = (V[c.id].sentText || {});
+      arr = picked.slice().sort(function(a, b){ return a - b; })
+        .map(function(i){ return (stx[i] != null && stx[i] !== '') ? stx[i] : c.sents[i]; }).filter(Boolean);
     } else {
       arr = (V[c.id].text || c.said).trim().split(/(?<=[.!?])\s+/).map(function(x){ return x.trim(); }).filter(Boolean);
     }
@@ -442,7 +490,11 @@ function mkReport(){
     if ((v.sents || []).length && c.sents && c.sents.length) {
       head.push('  다시 녹음할 문장: ' + v.sents.slice().sort(function(a,b){return a-b;}).map(function(i){ return (i + 1) + '번'; }).join(' · ')
         + ' / 전체 ' + c.sents.length + '문장');
-      v.sents.slice().sort(function(a,b){return a-b;}).forEach(function(i){ head.push('    ' + (i + 1) + ') ' + c.sents[i]); });
+      v.sents.slice().sort(function(a,b){return a-b;}).forEach(function(i){
+        var ed = (v.sentText || {})[i];
+        head.push('    ' + (i + 1) + ') ' + c.sents[i]);
+        if (ed && ed !== c.sents[i]) head.push('       → 고친 글: ' + ed);
+      });
     }
     if ((v.text || '').trim() && v.text.trim() !== c.said) { head.push('  고친 글: ' + v.text.trim()); }
     head.push('');
