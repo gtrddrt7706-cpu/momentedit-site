@@ -528,7 +528,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    '원본 보기'(4자)·'보정본 받기'(5자)의 폭이 43px 벌어져 좌측 모서리가 들쭉날쭉했다.
    상태 텍스트(.trk-st)도 같은 폭의 칸에 넣어 버튼 행과 글자 행이 하나의 세로 축을 공유한다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 연장선 — 카드마다 다른 치수로 되돌리지 말 것. */
-.trk-act{width:auto;min-width:122px;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
+/* ★[TRK_ACT_H36 2026-08-11 사용자 지적 "미리듣기 버튼이 디자인적으로 애매한데 크기가 달라서 그런가"]
+   실측(390px): 미리듣기 34.2px · 이어하기 35.5px — **1.3px 어긋나 있었다.**
+   원인은 높이를 안 정해 두고 글자 크기에 맡긴 것이다(12px×1.35 vs 13px×1.35 = 1.35px 차).
+   ★폭이 다른 것은 위계라 그대로 둔다 — 보조(71px)와 주(122px)가 같아지면 다음 걸음이 어디인지 사라진다.
+     어긋난 것은 **높이**뿐이고, 나란히 선 두 상자의 위아래 선이 안 맞으면 위계가 아니라 실수로 읽힌다.
+   36px 는 새 값이 아니다 — 같은 행의 상태 글자(.trk-list .trk-st)가 이미 쓰던 높이다.
+   버튼과 글자가 한 높이를 공유하게 되어 행 전체가 하나의 가로선을 갖는다. */
+.trk-act{width:auto;min-width:122px;min-height:36px;display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.35;letter-spacing:.02em;flex:0 0 auto;box-sizing:border-box}
 /* 보조 버튼(주 버튼 왼쪽) — 한 행에 둘이 서므로 작은 규격. 390px에서 이름칸을 먹지 않게 min-width를 풀고 글자를 한 단 줄인다.
    ★TRK_BTN_SAME(행 버튼은 전부 동일)의 예외가 아니다 — 그 규칙이 말하는 '행 버튼'은 각 행의 주 동작(오른쪽 열)이고,
    이건 주 동작이 아니라 곁들임이다. 둘을 같은 크기로 만들면 무엇이 주된 다음 걸음인지가 사라진다. */
@@ -1164,12 +1171,9 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .led-opennote{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.7;padding:9px 0 1px;text-align:left;word-break:keep-all}
 .led-opennote b{font-weight:500;color:var(--accent)}
     /* [02-8] 환불 예상(지금 취소하면) — 내 내역 끝 접힘 한 줄 */
-    .led-refund{margin-top:14px;border-top:1px solid var(--border);padding-top:11px}
-    .led-refund>summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);-webkit-tap-highlight-color:transparent}
-    .led-refund>summary::-webkit-details-marker{display:none}
-    .led-refund>summary b{font-weight:500;color:var(--accent)}
-    .led-refund[open]>summary .pt-ar{display:inline-block;transform:rotate(180deg)}
-    .led-refund-b{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);line-height:1.7;padding:8px 0 1px;text-align:left;word-break:keep-all}
+    /* ★[REFUND_NO_NUDGE 2026-08-11] 취소·환불 접기 상자는 폐지했다 — 그 전용 CSS 규칙도 함께 지운다.
+       ★죽은 CSS 를 남겨 두면 다음 사람이 「쓰던 자리가 있었네」 하고 되살린다.
+         왜 뺐는지는 그리는 쪽(2620행대 주석)에 적혀 있다. 이 자리에 규칙을 다시 만들지 말 것. */
     .led-editbtn{margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
     .led-editbtn:active{opacity:.7}
     .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
@@ -2621,24 +2625,26 @@ function renderLedger(l){
   var _lpd = _payDays();
   var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 '+_lpd.mid+'일 전</b>, 잔금은 <b>예식 '+_lpd.bal+'일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
-  // [02-8] 환불 예상 — 지금 취소하면(계약서 7조·9조·4조⑧ 서버 계산 · l.refundQuote). 접힌 한 줄, 펼치면 산정 근거.
-  var rq=l.refundQuote, refundSec='';
-  if(rq){
-    var rqHead = rq.needCount ? '시착 벌수 확인 후 안내' : won(rq.refund);   // 텍스트만 — 아래에서 1회 이스케이프
-    var rqBits=[];
-    if(rq.rule) rqBits.push(rq.rule);
-    if(rq.needCount) rqBits.push('진행하신 시착 벌수가 기록되면 금액을 보여드려요');
-    else {
-      if(rq.fitCount>0 && rq.penalty>0) rqBits.push('시착 '+rq.fitCount+'벌 비용은 위약금에 포함');
-      else if(rq.fitCount>0) rqBits.push('시착 '+rq.fitCount+'벌 공제 '+won(rq.fitDeduct));
-      if(rq.penalty>0) rqBits.push('위약금 '+won(rq.penalty));
-      rqBits.push('받으신 금액 '+won(rq.paid)+' 기준');
-    }
-    rqBits.push('오늘 기준 예상이며, 실제 환불액은 취소 시점에 확정돼요');
-    refundSec='<details class="led-refund"><summary>취소·환불 기준 보기 <span class="pt-ar">▾</span></summary>'+
-      '<div class="led-refund-b" style="margin-bottom:4px">지금 취소하시는 경우 · <b>'+escapeHtml(rqHead)+'</b></div>'+
-      '<div class="led-refund-b">'+rqBits.map(function(x){ return escapeHtml(x); }).join(' · ')+'</div></details>';
-  }
+  /* [02-8] 취소·환불 — ★2026-08-11 사용자 지시로 **금액 계산을 화면에서 뺐다.** [REFUND_NO_NUDGE]
+     ★되살리지 말 것. 옛 판은 접힌 상자 안에 「지금 취소하면 얼마 돌려받는지」를 원 단위로 찍고
+       위약금·공제 내역까지 서버 계산(l.refundQuote)으로 띄웠다. 뺀 이유 셋 —
+       ① **행동 경로가 없다.** 마이페이지에 계약 취소 버튼은 없다(2868행 「예약 취소」는
+          상담 예약용이고 예식 계약과 무관하다). 누를 것이 없는 금액은 알림이 아니라 암시다.
+       ② **기댈 수 없는 수다.** 그 자리 스스로 오늘 기준 예상일 뿐 실제 환불액은 취소 시점에
+          확정된다고 적었다. 정확해 보이는데 구속력은 없는 수는 정보 없이 기준점만 남긴다.
+       ③ **여는 자리가 다르다.** 「내 내역」은 결제·서류를 확인하러 여는 곳이다. 예식을
+          준비하며 열 때마다 「지금 그만두면 얼마」가 서 있으면 그것이 매번 한 번씩 묻는다.
+       > 사용자 원문: *"계약서 열어보면 나오니깐 필요하면 찾아볼수있게 굳이 안넣어도되거같은데
+       >   … 괜히 열어볼때마다 저런문구가 있으면 취소하고 싶어지니깐"*
+     ★그렇다고 접점을 0으로 만들지는 않는다 — 숨긴 것처럼 보이면 그게 더 나쁘고,
+       찾을 길이 없으면 청약철회를 어렵게 만든 모양이 된다. **한 줄로 낮춘다.**
+       금액은 빼되 「어디에 있는지」와 「누구에게 물으면 되는지」는 남긴다.
+     ★서버 계산(l.refundQuote)은 그대로 둔다. 디렉터 화면(admin.html 2137행)이 그 값을 쓴다 —
+       고객이 물어보면 사람이 확인해 답한다. 없앤 것은 화면이지 능력이 아니다. */
+  var refundSec = l.refundQuote
+    ? '<div class="led-sec"><div class="led-due">취소·환불 기준은 <b>계약서</b>에 적혀 있어요. 위 서류에서 여실 수 있어요.'
+      + '<br>따로 확인이 필요하시면 카카오톡으로 물어봐 주세요.</div></div>'
+    : '';
   // 모달 창 — 우측 FAB(내역)으로 연다. 상단 인라인 토글은 제거(요청). 닫기=X·배경·Esc.
   // ★재렌더 보존 — 캐시 로그인 뒤 silent 새로고침(loadMyState)이 열린 모달을 덮어쓰면
   //   open 클래스가 지워져 모달만 사라지고 _mpLock(body fixed)은 남아 화면 전체가 굳는다(2026-07-10 실기기 버그).
