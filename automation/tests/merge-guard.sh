@@ -1700,7 +1700,11 @@ chk 'ENTRY_VOICE' scripts/check-entry-voice.mjs 1
 # ★디렉터의 누름은 이미 그 자리에 있다 — 수동 큐 수는 그대로 10개다(check-ritual-cue.js 가 고정).
 # ★닫는 말은 다음 순서를 지목하지 않는다 — 코스마다 순서가 다르고 사용자가 바꾼다.
 chk 'LEAD_OUT' assets/ritual-data.js 1
-chk 'entryOut' assets/ritual-data.js 1
+# ★[MARKER_TAUTOLOGY 2026-08-11] 전엔 `chk 'entryOut' … 1` 이었다. ENTRY_OUT_TONE 이 들어오며
+#   'entryOutBy' 가 이 낱말을 품어, **평키를 통째로 지워도 'ok … 2'** 라고 답했다(실측).
+#   재는 것이 사라졌는데 초록이던 자리다 — 낱말이 아니라 **정의 줄**(앞 빈칸+콜론)로 못박는다.
+#   ※ 지워지면 build-dubbing-script.mjs 가 죽어 게이트는 어차피 붉지만, 그건 다른 검사의 공이다.
+chk ' entryOut:' assets/ritual-data.js 1
 chk 'narr-entry-out' assets/ritual-cue.js 2
 chk 'narr-song-out' assets/ritual-cue.js 2
 chk 'LEAD_OUT' order-preview.html 2
@@ -2029,6 +2033,8 @@ chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범�
 chk '} 로 안 끝납니다' automation/tests/nightly-note-table.sh 1   # 닫힘 그물 — 목록이 없어 일반적이다
 chk '15. 「그 문자열이 있나」' docs/검사가_속인_방식_목록.md 1     # ★15 — 존재 확인은 범위 확인이 아니다
 chk 'SLICE_ONLY_FN' docs/검사가_속인_방식_목록.md 1
+chk '15-b' docs/검사가_속인_방식_목록.md 1                        # 긴 이름이 옛 마커의 낱말을 삼킨다
+chk 'MARKER_TAUTOLOGY' docs/검사가_속인_방식_목록.md 1
 # ── [DOC_SELF_COUNT 2026-08-11] 「적지 말 것」을 사람이 아니라 기계가 지킨다 ──
 # COUNT_ROTS 로 제목의 개수는 뺐지만, 「다시 적지 말 것」은 문서 안 당부 한 줄로 남아 있었다.
 # 이 저장소는 사람이 기억해야 하는 구조를 안 남기기로 했다 → check-source-drift 가 머리말을 본다.
