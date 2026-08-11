@@ -126,6 +126,23 @@ const vbMiss = vb.filter((t) => !html.includes(t));
 ok('빌더 VOWBOTH 사본이 원천과 일치(' + vb.length + '문장 · drift ' + vbMiss.length + '건)', vb.length > 0 && vbMiss.length === 0);
 vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
 
+/* ★[ENTRY_OUT_MIRROR 2026-08-11] 도착 직후 닫는 말 여섯 갈래도 인라인 사본이다.
+   ★위 NAR_MIRROR 는 문자열이거나 {nar,end} 인 키만 훑는다 — entryOutBy 는 {A..F} 라 그 그물을 그냥 지나간다.
+     실제로 지나갔다: 갈래를 넣은 날 이 검사는 초록이었고, 빌더는 옛 한 줄을 계속 보여 주고 있었다.
+     엔진은 갈래대로 재생하는데 화면은 안 바뀌어 **적힌 것과 들리는 것이 달랐다**(사용자가 화면에서 발견).
+   ★꼴이 새로우면 그물도 새로 짜야 한다 — 「기존 그물을 통과했다」는 「본 적 있다」가 아니다. */
+{
+  const inline = (html.match(/var ENTRY_OUT=\{([\s\S]*?)\n\};/) || [])[1] || '';
+  const keys = Object.keys(D.NARR.entryOutBy || {});
+  ok('NARR.entryOutBy 여섯 갈래', keys.length === 6);
+  keys.forEach((k) => {
+    const g = new RegExp(k + ':"([^"]+)"').exec(inline);
+    ok(`ENTRY_OUT.${k} 사본이 원천과 같다`, !!g && g[1] === D.NARR.entryOutBy[k]);
+  });
+  /* 화면이 그 사본을 **실제로 쓰는가** — 표만 있고 안 쓰면 사본이 장식이 된다 */
+  ok('빌더가 느낌을 따라 도착 멘트를 고른다', /ENTRY_OUT\[S\.entry\]/.test(html));
+}
+
 // ★[ENTRY_SELF_MIRROR 2026-08-04] 입장 인사 예시문(ENTRY[v].self)도 인라인 사본이다 — 위 NAR_MIRROR 는 .nar 만 훑어서 안 걸렸다.
 //   이 글은 화면에만 있는 설명이 아니라 **고객이 보고 녹음해 올리는 대본**이고, 같은 글자로 성우 대본과
 //   예시 mp3 까지 만들어진다. 원천만 고치고 화면을 남겨 두면 화면에 적힌 문장과 들리는 목소리가 갈라진다.
