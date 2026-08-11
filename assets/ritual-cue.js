@@ -79,7 +79,16 @@
        narr-cake-out: 케이크만 고른 자리의 마무리(잔 이야기가 나가던 자리) */
     'toast-both-b', 'narr-cake-out',
     /* [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 — 목록 **끝**(번호 = 인덱스+1). */
-    'fx-count'
+    'fx-count',
+    /* ★[ENTRY_OUT_TONE 2026-08-11] 도착 직후 멘트를 입장 느낌 B~F 로 나누며 늘어난 다섯.
+       ★★여기가 **진짜 끝**이다. 처음엔 'narr-cake-out' 옆에 끼웠다가 실제로 당했다 —
+         그 뒤에 있던 fx-count 가 78 → 83 으로 밀렸고, 이미 녹음된 78_fx-count.mp3 가
+         제 번호를 잃었다. 그리고 새 클립 B 가 78 을 가져가 **한 번호에 두 소리**가 됐다.
+         이 파일이 위에서 두 번이나 경고하는 바로 그 사고를 내가 그대로 냈다(2026-08-11 실측).
+       ★다음에 늘릴 때도 「비슷한 것 옆」이 아니라 **파일 맨 끝**에 붙일 것.
+         옆에 두면 읽기 좋지만, 읽기 좋으라고 번호를 밀면 이미 녹음된 소리가 이름을 잃는다.
+       A 는 늘리지 않는다 — 종전 문안 그대로라 52_narr-entry-out.mp3 를 그대로 쓴다. */
+    'narr-entry-out-B', 'narr-entry-out-C', 'narr-entry-out-D', 'narr-entry-out-E', 'narr-entry-out-F'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -304,10 +313,22 @@
            남긴다 — 사진의 시작 컷이 거기서 나온다.
            ★현장 안내를 여기 한 곳에서만 갈라 둔다. 두 군데 적으면 리허설에서 두 분이 문 앞에 선다. */
         live: { t: (S.course === 'record' ? '두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음)' : '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴'), est: 102, duck: 0, self: true, doing: 'move' }
-      }), cue({
-        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-out', name: '입장 마무리',
-        text: D.NARR.entryOut, duck: -12
-      })];
+      }), (function () {
+        /* ★[ENTRY_OUT_TONE 2026-08-11] 도착 직후 멘트는 **입장 느낌을 따라간다.**
+           같은 순간을 두 번 묻지 않기 위해서다 — 두 분은 이미 입장 느낌을 골랐다.
+           ★덮어쓰기 전용 키를 두지 않는다 — 아무도 값을 안 만드는 키는 문이 아니라 구멍이다
+             ([PREVIEW_KEYS] 가 실제로 막았다 · digital 2026-08-02 사고와 같은 꼴).
+             따로 고르게 하려면 빌더에서 묻는 화면과 함께 되살릴 것.
+           ★A 는 슬러그를 안 바꾼다 — 종전 문안 그대로라 이미 녹음된 파일을 그대로 쓴다.
+             바꾸면 멀쩡한 음원 하나가 이름만 달라져 통째로 다시 녹음해야 한다. */
+        var t = String(S.entry || 'A').toUpperCase();
+        if (!D.NARR.entryOutBy[t]) t = 'A';
+        return cue({
+          k: 'entry', blockN: '신랑·신부 입장',
+          slug: (t === 'A' ? 'narr-entry-out' : 'narr-entry-out-' + t), name: '입장 마무리',
+          text: D.NARR.entryOutBy[t], duck: -12
+        });
+      })()];
     },
 
     welcome: function (S) {

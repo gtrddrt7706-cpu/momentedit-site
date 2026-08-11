@@ -429,6 +429,20 @@ chk 'REFUND_NO_NUDGE' mypage.html 2
 #   ★transform 으로 가운데를 잡지 말 것 — 자식 position:fixed 의 기준이 되어 어둠이 상자만 덮는다(실측).
 #   ★어둠은 pointer-events:none — 막으면 다음 자리를 바로 못 누른다(25명 연달아 채우는 흐름).
 chk 'SEAT_ADD_PLUS' mypage.html 1
+# ── [ENTRY_OUT_TONE 2026-08-11 사용자 지시] 도착 직후 닫는 말을 입장 느낌 A~F 로 갈랐다 ──
+# 입장 느낌은 이미 여섯인데 그 뒤 닫는 말이 하나여서, 어떤 느낌을 골라도 같은 말로 닫혔다.
+# ★새로 묻지 않는다 — 같은 순간을 두 번 묻는 것이 된다. S.entry 가 이 멘트까지 정한다.
+# ★전용 키(entryOut)를 두지 않는다 — 값을 만드는 곳이 없는 키는 구멍이다([PREVIEW_KEYS] 가 막았다).
+# ★A 는 슬러그를 안 바꾼다 — 문안 그대로라 52번 음원을 그대로 쓴다.
+# ★★FILES 는 **파일 맨 끝**에 붙인다. 'narr-cake-out' 옆에 끼웠다가 fx-count 가 78→83 으로 밀려
+#   이미 녹음된 78_fx-count.mp3 가 번호를 잃고, 새 클립이 78 을 가져가 한 번호에 두 소리가 됐다(실측).
+chk 'ENTRY_OUT_TONE' assets/ritual-data.js 1
+chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
+chk 'entryOutBy' assets/ritual-data.js 1
+chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
+chk 'narr-entry-out-F' assets/ritual-cue.js 1        # 다섯이 FILES 에 살아 있는가
+nochk 'S.entryOut' assets/ritual-cue.js        # ★값을 만드는 곳 없이 키만 되살리지 말 것
+chk '진짜 끝' assets/ritual-cue.js 1            # 번호 충돌 사고의 근거 — 지우면 다시 옆에 끼운다
 chk 'DRINK_CENTER' mypage.html 2
 chk 'pointer-events:none' mypage.html 1
 nochk '＋ 이름' mypage.html

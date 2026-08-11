@@ -200,8 +200,13 @@ const clips = parse(SRC);
               narr-cake-out : 케이크만 고른 자리의 닫는 말 (옛 판은 잔이 없는 손에 "잔은 편히
                               내려놓으셔도 좋습니다"가 나갔다)
      76 → 77 [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 1개(fx-count · "찍겠습니다. 하나, 둘, 셋.").
-              골라 트는 판 여덟은 자세를 만드는 말이고, '지금 찍는다'를 아무도 안 했다. */
-const CLIP_COUNT = 77;
+              골라 트는 판 여덟은 자세를 만드는 말이고, '지금 찍는다'를 아무도 안 했다.
+     77 → 82 [ENTRY_OUT_TONE 2026-08-11 사용자 지시] 도착 직후 닫는 말 다섯(B~F).
+              사용자 원문: *"이 멘트 다양한 멘트로 고를 수 있게 … 대본 나한테 줄래?"*
+              입장 느낌 A~F 는 이미 여섯인데 그 뒤에 오는 닫는 말만 하나였다 —
+              어떤 느낌을 골라도 같은 말로 닫히니 앞의 선택이 절반만 살았다.
+              A 는 늘리지 않는다(문안 그대로 · 52번 이미 녹음됨). 그래서 여섯이 아니라 다섯이다. */
+const CLIP_COUNT = 82;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
