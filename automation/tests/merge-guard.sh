@@ -441,6 +441,19 @@ chk 'REFUND_STATE' scripts/check-mypage-shell.mjs 2
 chk '직접 다시 계산하지 말고' mypage.html 1
 chk '금액을 추측해 말하지 말 것' mypage.html 1
 nochk 'var rq = null;' mypage.html                 # ★환불 견적 싣기를 꺼 두지 말 것
+# ── [REFUND_SHORTFALL 2026-08-11 실측] 「환불 0원」이 「더 낼 것 없음」으로 읽히는 자리 ──
+# 서버는 refund 를 Math.max(0, …) 로 깎는다(70_journey.gs out()). 그런데 9조② 위약금은
+# **총 계약금액** 기준이라, 예약금만 낸 사람이 예식 직전에 취소하면 0 원을 받는 게 아니라 차액을 낸다.
+#   실측: 받은 금액 300,000 · 위약금 1,470,000(70%) · refund 0 → 도우미가 「환불은 0원입니다」로 단정.
+#   1,170,000원을 더 내야 한다는 말은 어디에도 없었다.
+# ★여기서도 계산하지 않는다 — 차액을 말하지 않고 「넘는다」는 사실만 알리고 사람에게 넘긴다.
+#   돈을 두 곳에서 셈하지 않는다는 REFUND_STATE 원칙 그대로다.
+# ★check-mypage-shell 이 두 방향을 쏜다(넘을 때 뜨나 · 안 넘을 때 안 뜨나) — 한 방향만 쏘면
+#   「늘 뜨는 줄」도 통과하고, 그러면 멀쩡한 고객이 겁을 먹는다.
+chk 'REFUND_SHORTFALL' mypage.html 1
+chk 'REFUND_SHORTFALL' scripts/check-mypage-shell.mjs 3
+chk 'rq.penalty > rq.paid' mypage.html 1
+chk '위약금이 받은' scripts/check-mypage-shell.mjs 3   # 그물이 이 줄을 볼 수 있어야 한다(옛 그물은 못 봤다)
 chk 'meAdvFab' mypage.html 1
 nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
