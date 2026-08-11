@@ -124,7 +124,60 @@ try {
   if (/위약금이 받은 금액보다 큽니다/.test(rs.normal))
     bad.push(`위약금이 받은 금액보다 작은데 초과 경고가 뜬다(헛경고) [REFUND_SHORTFALL]`);
 
+  /* ★[ASK_SENDS 2026-08-11] 단추가 「상담 도우미에 물어보기」라고 말한다 — **정말 물어보는가.**
+     ★왜 재나 — 이 자리는 두 가지로 조용히 죽는다.
+       ① 공개 API 이름이 어긋나면 단추가 통째로 「카카오톡으로 물어봐 주세요」로 바뀐다.
+          실제로 내가 처음 판에서 전역 이름을 틀려 네 경우 전부 「없음」이 나온 적이 있다.
+       ② API 는 있는데 질문이 안 실리면 **빈 상자만 열린다.** 화면은 멀쩡하고, 단추 라벨만 거짓이 된다.
+     ★하니스를 다시 적지 않는다 — 이 파일에 손으로 옮겨 적은 코드는 세 번 제품과 달랐다.
+       그래서 **실제 mypage.html 의 그 자리 코드를 떼어 와서 그대로 돌린다**(nightly-note-table 과 같은 수법).
+       지어내는 것은 단추 한 개뿐이고, 그 모양도 mypage.html 2682행 그대로다.
+       원장 전체를 지어내지 않는다 — 이 파일이 거절하는 「허구 확인」이 되지 않게. */
+  const ask = await h.page.evaluate(() => {
+    const out = { api: null, sliced: false, q: '', kakao: false, wired: false, sent: '' };
+    out.api = (() => { const A = window.MEAdvisor;
+      return { has: !!A, available: !!(A && A.available), ask: !!(A && typeof A.ask === 'function') }; })();
+    const src = [...document.querySelectorAll('script:not([src])')].map((s) => s.textContent).join('\n');
+    const m = src.match(/setTimeout\(function\(\)\{\s*var _ra = \$\('mp_refundAsk'\);[\s\S]*?\n {2}\}, 0\);/);
+    if (!m) return out;                       // ★못 떼어 왔으면 통과가 아니라 실패다(아래에서 붉게 함)
+    out.sliced = true;
+    const qm = m[0].match(/\.ask\('([^']+)'\)/);
+    out.q = qm ? qm[1] : '';
+    const host = document.createElement('div');
+    host.innerHTML = '<button type="button" class="led-asklink" id="mp_refundAsk">상담 도우미에 물어보기</button>';
+    document.body.appendChild(host);
+    (0, eval)(m[0]);                          // 떼어 온 진짜 코드
+    return new Promise((res) => setTimeout(() => {
+      out.kakao = /카카오톡으로 물어봐 주세요/.test(host.textContent);
+      const b = document.getElementById('mp_refundAsk');
+      out.wired = !!(b && typeof b.onclick === 'function');
+      if (out.wired) b.click();
+      /* 단추 120ms + ask() 안의 320ms → 넉넉히 900ms 뒤에 상자를 본다. */
+      setTimeout(() => {
+        out.sent = [...document.querySelectorAll('.me-adv-msg.me')].map((e) => e.textContent).join(' | ');
+        res(out);
+      }, 900);
+    }, 60));
+  });
+  if (!ask.api.has || !ask.api.available || !ask.api.ask)
+    bad.push(`상담 도우미 공개 API 가 없다 (있음=${ask.api.has} available=${ask.api.available} ask=${ask.api.ask}) — 단추가 카카오톡 안내로 바뀐다 [ASK_SENDS]`);
+  if (!ask.sliced)
+    bad.push(`mypage.html 에서 그 자리 코드를 떼어 오지 못했다 — 그물이 헛돌았다(코드가 바뀌었으면 위 정규식을 고칠 것) [ASK_SENDS]`);
+  else if (!ask.q)
+    bad.push(`단추가 보낼 **질문 문구가 없다** — 빈 상자만 열린다. 라벨은 「물어보기」인데 [ASK_SENDS]`);
+  /* ★질문은 중립이라야 한다. 이 자리에서 금액 상자를 뺀 이유가 「열어볼 때마다 취소하고 싶어진다」였다.
+     한 손으로 그 이유를 지우면서 다른 손으로 취소를 선언하게 두면 앞뒤가 안 맞는다. */
+  if (ask.q && /취소하고 싶|해지하고 싶|환불해 주세요|환불해주세요/.test(ask.q))
+    bad.push(`질문이 취소를 **선언**한다 — 기준을 묻는 말이어야 한다: 「${ask.q}」 [ASK_SENDS]`);
+  if (ask.kakao)
+    bad.push(`도우미가 있는데도 단추가 카카오톡 안내로 바뀐다 — 분기 조건이 실물과 어긋났다 [ASK_SENDS]`);
+  if (ask.sliced && !ask.wired)
+    bad.push(`단추에 눌림이 안 붙었다 — 눌러도 아무 일도 안 일어난다 [ASK_SENDS]`);
+  if (ask.q && !ask.sent.includes(ask.q))
+    bad.push(`눌렀는데 그 질문이 상자에 안 실렸다 — 빈 상자만 열린다. 실린 것: 「${ask.sent || '(없음)'}」 [ASK_SENDS]`);
+
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
+  console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」`);
   console.log(`   완료 접기 ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
 } finally {

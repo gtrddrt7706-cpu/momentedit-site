@@ -454,7 +454,18 @@ chk 'REFUND_SHORTFALL' mypage.html 1
 chk 'REFUND_SHORTFALL' scripts/check-mypage-shell.mjs 3
 chk 'rq.penalty > rq.paid' mypage.html 1
 chk '위약금이 받은' scripts/check-mypage-shell.mjs 3   # 그물이 이 줄을 볼 수 있어야 한다(옛 그물은 못 봤다)
-chk 'meAdvFab' mypage.html 1
+# ★[ASK_SENDS 2026-08-11] 내부 id 대신 공개 API(MEAdvisor.ask)를 쓰고 **질문까지 보낸다.**
+#   단추가 「물어보기」라고 말하는데 빈 상자가 열리면 그 말이 거짓이 된다.
+#   ★질문은 중립이다 — 이 자리에서 금액 상자를 뺀 이유가 「볼 때마다 취소하고 싶어진다」였다.
+chk 'ASK_SENDS' mypage.html 1
+chk 'MEAdvisor' mypage.html 1
+chk '취소·환불 기준과 지금 기준 환불 예상액' mypage.html 1
+nochk "getElementById('meAdvFab')" mypage.html      # ★내부 id 를 찌르지 말 것(공개 API 가 있다)
+# ★이 자리를 **실제로 눌러 보는** 검사. 지우면 두 가지가 다시 조용히 죽는다 —
+#   ①공개 API 이름이 어긋나 단추가 카카오톡 안내로 바뀌는 것 ②질문이 안 실려 빈 상자만 열리는 것.
+#   돌연변이 넷(속성명 오타·질문 삭제·질문을 취소 선언으로·코드 구조 변경)에 전부 붉어지는 것을 확인했다.
+chk 'ASK_SENDS' scripts/check-mypage-shell.mjs 9
+chk 'mp_refundAsk' scripts/check-mypage-shell.mjs 3   # 코드를 떼어 오는 그물 · 놓는 단추 · 다시 찾기
 nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
 # 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).
