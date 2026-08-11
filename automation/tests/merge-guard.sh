@@ -1963,7 +1963,17 @@ chk 'NOTE_TABLE' .github/workflows/nightly-screen.yml 1
 chk 'NOTE_TABLE' automation/tests/nightly-note-table.sh 1
 chk '제 결론에 닿지 못' .github/workflows/nightly-screen.yml 1   # 죽은 검사 라벨 — 「못 잼」과 구분
 chk 'yml 에서' automation/tests/nightly-note-table.sh 2          # ★함수를 베끼지 말고 떼어 올 것
-nochk 'note() {' automation/tests/nightly-note-table.sh          # ★사본을 두면 갈라진다
+# ★[SLICE_ONLY_FN 2026-08-11] 이 nochk 의 겨냥을 좁혔다 — 뜻은 그대로, 자만 정확해졌다.
+#   원래 뜻: 「note() 를 이 파일에 **베껴 두지 말 것**」(사본은 갈라지고, 갈라진 쪽이 초록을 낸다).
+#   그런데 `note() {` 를 통짜로 금지하면 **그 함수를 찾는 앵커**까지 막힌다 —
+#   yml 에서 떼어 오려면 `note() {` 라는 글자를 어딘가에는 적어야 한다(sed·awk 패턴·설명 주석).
+#   실제로 막혔다: 앵커를 그 글자로 바꾸자 REVERT? 5>0 으로 게이트가 붉어졌다.
+#   ★그때 코드를 비틀어 초록을 만들지 않았다(앵커 이름 바꾸기 = 검사 맞추려고 코드 고치기).
+#     대신 「사본」의 정의를 정확히 적는다 — 진짜 사본은 **줄머리에 선 함수 정의**다.
+#     실측: 지금 파일의 5건은 전부 주석·패턴 안이고 줄머리 정의는 0건.
+nochk '^note() {' automation/tests/nightly-note-table.sh         # ★사본(줄머리 함수 정의)을 두면 갈라진다
+chk 'SLICE_ONLY_FN' automation/tests/nightly-note-table.sh 1     # 떼어 온 것이 함수 하나인지 확인하는 자리
+chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범위가 넘치면 붉게 — 조용히 돌리지 않는다
 chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기

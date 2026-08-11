@@ -20,11 +20,49 @@ set -u
 YML="$(dirname "$0")/../../.github/workflows/nightly-screen.yml"
 [ -f "$YML" ] || { echo "✗ nightly-screen.yml 이 없습니다"; exit 1; }
 
-# ── 진짜 yml 에서 note() 정의를 떼어 온다 (worst=0 초기화 줄부터 함수 닫는 } 까지) ──
-SRC=$(sed -n '/^ *worst=0$/,/^          }$/p' "$YML" | sed 's/^          //')
+# ── 진짜 yml 에서 note() 정의만 떼어 온다 ──
+#
+# ★★[SLICE_ONLY_FN 2026-08-11 · 클로드코드 적대검증] 떼어 온 것이 **함수 하나인지 확인한다.**
+#   옛 판은 `worst=0` 줄부터 `^          }$`(들여쓰기 10칸 고정) 까지를 잘라 그대로 eval 했다.
+#   들여쓰기를 두 칸 늘려 보니 닫는 } 를 못 찾아 **범위가 아래로 흘러넘쳤고**,
+#   그 안에 든 `node scripts/audit/page-probe.mjs …` 들이 **그대로 실행됐다.**
+#   화면에 뜬 것은 「· index.html@390 — 재지 못했습니다」 — 이 검사의 말이 아니라 page-probe 의 말이다.
+#   ★가드(`case "$SRC" in *"note()"*`)는 통과했다. 넓게 자른 조각에도 note() 는 들어 있으니까.
+#     「그 문자열이 있나」는 「그것만 있나」와 다르다.
+#   ★종료 코드도 거짓이었다 — 2 가 나왔는데 그건 이 검사의 [CANT_LOOK] 2 가 아니라
+#     마지막에 돌아간 남의 명령이 남긴 값이다. 뜻이 다른 두 2 가 한 자리에서 겹쳤다.
+#
+#   → 고침 셋
+#     ① 시작점을 `note() {` 로 잡는다(worst=0 이 아니라). worst=0 은 t() 가 매번 초기화하므로 필요 없다.
+#     ② 끝점을 **같은 들여쓰기의 }** 로 잡는다 — 들여쓰기 폭을 첫 줄에서 읽어 쓴다(10 을 박지 않는다).
+#     ③ 떼어 온 조각에 **명령이 섞였는지** 본다. 함수 정의에는 node·curl·npx 가 있을 리 없다.
+#        섞였으면 범위가 넘친 것이다 — 조용히 돌리지 않고 붉게 선다.
+IND=$(sed -n 's/^\( *\)note() {.*/\1/p' "$YML" | head -1)
+if [ -z "$IND" ]; then
+  echo "✗ yml 에서 'note() {' 줄을 못 찾았습니다 — 함수 이름이나 꼴이 바뀌었는지 보세요"; exit 1
+fi
+#   ※ 시작 줄에는 꼬리 주석이 붙어 있다(`note() {   # $1 이름 …`) — 통째 비교하면 안 잡힌다.
+#     **앞부분만** 본다. 끝 줄은 들여쓰기를 벗긴 뒤 정확히 `}` 인 줄이다.
+SRC=$(awk -v ind="$IND" '
+  index($0, ind "note() {") == 1 { on = 1 }
+  on { line = $0; sub("^" ind, "", line); print line; if (line == "}") exit }
+' "$YML")
+
 case "$SRC" in
   *"note()"*) : ;;
   *) echo "✗ yml 에서 note() 를 못 떼어 왔습니다 — 들여쓰기나 위치가 바뀌었는지 보세요"; exit 1 ;;
+esac
+# ★함수 하나만 잘렸는가 — 명령이 섞였으면 범위가 넘친 것이다(그대로 eval 하면 야간 잡이 여기서 돈다)
+if printf '%s\n' "$SRC" | grep -qE '^[[:space:]]*(node|npx|curl|nohup|set )[[:space:]]'; then
+  echo "✗ 떼어 온 조각에 실행 명령이 섞였습니다 — 범위가 함수 밖으로 넘쳤습니다."
+  echo "  (그대로 eval 하면 야간 잡의 검사들이 여기서 돌고, 종료 코드도 남의 것이 됩니다)"
+  printf '%s\n' "$SRC" | grep -nE '^[[:space:]]*(node|npx|curl|nohup|set )[[:space:]]' | head -3 | sed 's/^/  │ /'
+  exit 1
+fi
+# ★닫혔는가 — 마지막 줄이 } 여야 한다. 안 닫힌 조각을 eval 하면 문법 오류로 죽는다
+case "$(printf '%s\n' "$SRC" | tail -1)" in
+  '}') : ;;
+  *) echo "✗ 떼어 온 조각이 } 로 안 끝납니다 — 함수가 안 닫혔습니다(끝점을 못 찾았습니다)"; exit 1 ;;
 esac
 
 GITHUB_STEP_SUMMARY=$(mktemp); export GITHUB_STEP_SUMMARY
