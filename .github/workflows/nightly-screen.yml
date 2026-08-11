@@ -66,15 +66,27 @@ jobs:
           summary "| 검사 | 종료 코드 | 뜻 |"
           summary "|---|---|---|"
           worst=0
-          note() {                      # $1 이름 · $2 코드
+          # ★[EXPECTED_TWO 2026-08-11] 「늘 2 인 검사」의 2 는 요약 색을 바꾸지 않는다.
+          #   왜 — check-mypage-shell 은 설계상 절대 0 을 내지 않는다(로그인 뒤가 사각지대라는
+          #   사실을 매일 알리는 것이 목적). 그런데 그 2 를 worst 에 태우면 **모든 밤이 노란색**이 된다.
+          #   시뮬레이션(실측): 전부 정상인 밤도 worst=2, guest-skin 이 진짜 고장난 밤도 worst=2 —
+          #   요약 문구가 글자까지 같아 **구별이 불가능**하다.
+          #   ★그러면 이 잡이 게이트에 안 넣은 이유(「잘 울면 사람이 무시한다」)를 스스로 저지르는 셈이다.
+          #     늘 켜져 있는 신호는 신호가 아니다.
+          #   → 셋째 인자 `expected` 를 주면 그 2 는 '알림'으로만 적고 worst 를 올리지 않는다.
+          #     사각지대는 표에 그대로 남으므로 잊히지 않는다. 바뀌는 것은 **색뿐**이다.
+          #   ★1(재서 틀림)은 expected 여도 그대로 붉다 — 못 잼과 틀림은 다른 일이다.
+          note() {                      # $1 이름 · $2 코드 · $3 expected(있으면 2를 늘 그런 것으로 봄)
             case "$2" in
               0) t="통과" ;;
-              2) t="★재지 못함 (환경 · 화면 결함 아님)" ;;
+              2) [ -n "$3" ] && t="☐ 사각지대 알림 (설계상 늘 2 · 사람이 봐야 한다)" \
+                             || t="★재지 못함 (환경 · 화면 결함 아님)" ;;
               *) t="✗ 재서 틀림" ;;
             esac
             summary "| \`$1\` | $2 | $t |"
             # ★못 잼(2)은 틀림(1)보다 약하게 센다 — 둘을 같은 붉은색으로 만들면 구분이 사라진다
-            if [ "$2" = "1" ]; then worst=1; elif [ "$2" = "2" ] && [ "$worst" = "0" ]; then worst=2; fi
+            if [ "$2" = "1" ]; then worst=1
+            elif [ "$2" = "2" ] && [ -z "$3" ] && [ "$worst" = "0" ]; then worst=2; fi
           }
           set +e
           node scripts/audit/page-probe.mjs index.html order-preview.html console.html guide.html audio-review.html
@@ -84,7 +96,7 @@ jobs:
           # ★[MYPAGE_UNSEEN] 이 검사는 **일부러 절대 0 을 내지 않는다.** 로그인 뒤가 사각지대라는
           #   사실을 매일 다시 알리는 것이 목적이다. 2 로 나오는 것이 정상이고, 사람이 로그인해
           #   확인하기 전까지 계속 2 다. 초록으로 만들려고 이 검사를 고치지 말 것.
-          node scripts/check-mypage-shell.mjs; note "check-mypage-shell (늘 2 · 사각지대 알림)" $?
+          node scripts/check-mypage-shell.mjs; note "check-mypage-shell (늘 2 · 사각지대 알림)" $? expected
           for p in index.html mypage.html console.html order-preview.html guide.html; do
             node scripts/check-tap-targets.mjs "$p"; note "tap-targets $p" $?
           done

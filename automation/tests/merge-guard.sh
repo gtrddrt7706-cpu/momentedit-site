@@ -1923,6 +1923,13 @@ chk 'r.error' scripts/assemble-parents-letter.mjs 1
 # ★check-mypage-shell 은 일부러 0 을 안 낸다. 로그인 뒤가 사각지대라는 사실을 매일 알린다.
 chk 'NIGHTLY_SCREEN' .github/workflows/nightly-screen.yml 1
 chk '막지 않고 알린다' .github/workflows/nightly-screen.yml 1
+# [EXPECTED_TWO 2026-08-11] 「늘 2 인 검사」의 2 는 요약 색을 바꾸지 않는다.
+# 안 그러면 **모든 밤이 노란색**이 되어, 진짜 고장난 밤과 글자까지 같은 문구가 나온다(시뮬 실측).
+# 그러면 이 잡을 게이트에 안 넣은 이유(「잘 울면 사람이 무시한다」)를 스스로 저지르는 셈이다.
+# 네 상태가 갈리는지 확인함 — 정상 0 · 진짜 못 잼 2 · 틀림 1 · expected 인데 1 이면 그래도 1.
+chk 'EXPECTED_TWO' .github/workflows/nightly-screen.yml 1
+chk '늘 켜져 있는 신호는 신호가 아니다' .github/workflows/nightly-screen.yml 1
+chk 'note "check-mypage-shell (늘 2 · 사각지대 알림)" $? expected' .github/workflows/nightly-screen.yml 1
 chk 'MYPAGE_UNSEEN' scripts/check-mypage-shell.mjs 1
 chk '가짜 데이터를 지어내 통과시키지 않는다' scripts/check-mypage-shell.mjs 1
 nochk 'process.exit(0)' scripts/check-mypage-shell.mjs      # ★초록을 내게 고치지 말 것
