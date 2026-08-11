@@ -1,0 +1,110 @@
+# 야간 화면 검사 — 게이트 밖에 있던 브라우저 검사를 하루 한 번 돌린다 [NIGHTLY_SCREEN]
+#
+# ★왜 만들었나 (2026-08-11 · 실측이 근거다)
+#   검사 파일이 51개인데 merge-guard 가 **실행**하는 것은 22개뿐이다. 나머지는 마커만 grep 하거나
+#   사람이 손으로 돌려야 한다. 그 갈림이 우연이 아니다 — **브라우저가 필요한 검사가 정확히
+#   게이트 밖에 있다.** 즉 눈으로 보는 것들만 자동에서 빠져 있었다.
+#   실제 대가를 이미 치렀다:
+#     · 우측 아이콘 레일이 FAQ 에서 사라지던 것 — 어떤 검사도 안 잡았고 사용자가 잡았다
+#     · check-guest-skin 이 다른 세션에서 조용히 SKIP 되고 있었다(PW_FIND 로 고침)
+#     · ritual-order-sim 등 감사 6종이 최대 9일간 죽어 있었다
+#
+# ★이 잡의 성격 — **막지 않고 알린다.**
+#   배포를 막는 것은 merge-guard 하나로 충분하다. 브라우저 검사는 느리고 환경을 타서
+#   게이트에 넣으면 잘 울고, 그러면 사람이 붉은 것을 무시하기 시작한다(이 저장소가 겪은 병).
+#   그래서 여기서는 **결과만 남긴다** — 실패해도 배포는 그대로 간다.
+#
+# ★[CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함. 셋을 구분해서 적는다.
+#   「못 잼」을 「통과」로 적지 않는 것이 이 저장소의 규칙이고, 요약에도 그대로 쓴다.
+#
+# 손으로 돌리기: Actions 탭 → Nightly Screen → Run workflow
+
+name: Nightly Screen
+
+on:
+  schedule:
+    - cron: '0 18 * * *'      # UTC 18:00 = 한국 03:00 (아무도 안 쓰는 시간)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 브라우저 준비
+        run: npm i -g playwright@latest && npx --yes playwright install --with-deps chromium
+
+      # ★서버는 **저장소 루트**에서 띄운다 — 다른 자리에서 띄우면 404 가 나고,
+      #   그 404 를 화면 결함으로 읽는 사고를 이미 겪었다(page-probe 의 serverRooted 가 그래서 있다).
+      - name: 로컬 서버
+        run: |
+          nohup python3 -m http.server 8895 --directory "$GITHUB_WORKSPACE" >/dev/null 2>&1 &
+          for i in $(seq 1 20); do
+            curl -sf -o /dev/null http://127.0.0.1:8895/assets/ritual-cue.js && break
+            sleep 1
+          done
+          curl -sf -o /dev/null http://127.0.0.1:8895/assets/ritual-cue.js \
+            || { echo "✗ 서버가 저장소 루트를 못 본다 — 재기 전에 멈춘다"; exit 1; }
+
+      - name: 화면 검사 4종
+        id: run
+        env:
+          PW: playwright
+        run: |
+          summary() { printf '%s\n' "$1" >> "$GITHUB_STEP_SUMMARY"; }
+          summary "## 야간 화면 검사 ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          summary ""
+          summary "| 검사 | 종료 코드 | 뜻 |"
+          summary "|---|---|---|"
+          worst=0
+          note() {                      # $1 이름 · $2 코드
+            case "$2" in
+              0) t="통과" ;;
+              2) t="★재지 못함 (환경 · 화면 결함 아님)" ;;
+              *) t="✗ 재서 틀림" ;;
+            esac
+            summary "| \`$1\` | $2 | $t |"
+            # ★못 잼(2)은 틀림(1)보다 약하게 센다 — 둘을 같은 붉은색으로 만들면 구분이 사라진다
+            if [ "$2" = "1" ]; then worst=1; elif [ "$2" = "2" ] && [ "$worst" = "0" ]; then worst=2; fi
+          }
+          set +e
+          node scripts/audit/page-probe.mjs index.html order-preview.html console.html guide.html audio-review.html
+          note "page-probe" $?
+          node scripts/check-est-one.mjs;      note "check-est-one" $?
+          node scripts/check-guest-skin.mjs;   note "check-guest-skin" $?
+          # ★[MYPAGE_UNSEEN] 이 검사는 **일부러 절대 0 을 내지 않는다.** 로그인 뒤가 사각지대라는
+          #   사실을 매일 다시 알리는 것이 목적이다. 2 로 나오는 것이 정상이고, 사람이 로그인해
+          #   확인하기 전까지 계속 2 다. 초록으로 만들려고 이 검사를 고치지 말 것.
+          node scripts/check-mypage-shell.mjs; note "check-mypage-shell (늘 2 · 사각지대 알림)" $?
+          for p in index.html mypage.html console.html order-preview.html guide.html; do
+            node scripts/check-tap-targets.mjs "$p"; note "tap-targets $p" $?
+          done
+          set -e
+          summary ""
+          case "$worst" in
+            0) summary "**전부 통과.**" ;;
+            2) summary "**일부를 재지 못했습니다** — 환경 문제입니다. 화면 결함이 아닙니다." ;;
+            *) summary "**살펴볼 것이 있습니다.** 위 표에서 종료 코드 1 인 줄을 보세요." ;;
+          esac
+          echo "worst=$worst" >> "$GITHUB_OUTPUT"
+
+      # ★배포를 막지 않는다 — 이 잡은 알리는 자리다.
+      #   실패를 사람에게 보이게만 하고, 종료는 항상 성공으로 둔다.
+      #   (막는 일은 merge-guard 몫. 두 곳에서 막으면 사람이 어느 쪽을 봐야 할지 모른다.)
+      - name: 결과 표시
+        if: always()
+        run: |
+          case "${{ steps.run.outputs.worst }}" in
+            0) echo "::notice title=야간 화면 검사::전부 통과" ;;
+            2) echo "::warning title=야간 화면 검사::일부를 재지 못했습니다(환경 · 화면 결함 아님)" ;;
+            *) echo "::warning title=야간 화면 검사::살펴볼 것이 있습니다 — Summary 표를 보세요" ;;
+          esac
