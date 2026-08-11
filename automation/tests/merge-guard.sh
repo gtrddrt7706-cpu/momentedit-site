@@ -1981,6 +1981,25 @@ chk '실행 명령이 섞였' automation/tests/nightly-note-table.sh 1   # 범�
 chk '} 로 안 끝납니다' automation/tests/nightly-note-table.sh 1   # 닫힘 그물 — 목록이 없어 일반적이다
 chk '15. 「그 문자열이 있나」' docs/검사가_속인_방식_목록.md 1     # ★15 — 존재 확인은 범위 확인이 아니다
 chk 'SLICE_ONLY_FN' docs/검사가_속인_방식_목록.md 1
+# ── [DOC_SELF_COUNT 2026-08-11] 「적지 말 것」을 사람이 아니라 기계가 지킨다 ──
+# COUNT_ROTS 로 제목의 개수는 뺐지만, 「다시 적지 말 것」은 문서 안 당부 한 줄로 남아 있었다.
+# 이 저장소는 사람이 기억해야 하는 구조를 안 남기기로 했다 → check-source-drift 가 머리말을 본다.
+# ★머리(첫 ## 앞)만 본다. 본문의 「실사고 셋」·「돌연변이 여덟 발」은 국소 수치라 늙지 않는다.
+# ★HTML 주석은 벗기고 본다 — 사고 경위 주석에 옛 문구(「열두 줄」)가 그대로 있다.
+#   안 벗기면 경위를 적었다는 이유로 붉어진다(주석이 검사를 대신 맞는 병).
+chk 'DOC_SELF_COUNT' scripts/check-source-drift.mjs 1
+# ★[COUNT_NET_OPEN 2026-08-11] '스스로를 세' 2 → 1 로 내렸다. 느슨해진 것이 아니라 **문구가 바뀌었다.**
+#   붉은 쪽 문장이 「머리말이 스스로를 세고 있다」 → 「머리말에 "수 + 세는 이름"이 있다」가 됐다.
+#   이 그물은 꼴만 보지 그 수가 목록을 센 것인지는 모르기 때문이다(헛붉음 실측 2건).
+#   초록 쪽 문장(「스스로를 세지 않는다」)은 그대로라 1 이 맞다.
+#   ★대신 더 값나가는 것을 건다 — 붉을 때 **두 갈래를 다 말하는가**(SAY_BOTH).
+#     한 갈래만 말하면 멀쩡한 글에 틀린 지시가 나가고, 몇 번 반복되면 사람이 붉은색을 무시한다(★9).
+chk '스스로를 세' scripts/check-source-drift.mjs 1
+chk 'SAY_BOTH' scripts/check-source-drift.mjs 1
+chk '둘 중 하나다' scripts/check-source-drift.mjs 1
+chk 'COUNT_NET_OPEN' scripts/check-source-drift.mjs 1              # 목록형 그물을 일반 그물로 바꾼 자리
+nochk "'열하나', '열한'" scripts/check-source-drift.mjs            # ★수사 목록으로 되돌아가지 말 것
+chk '개수나 마감 날짜를 다시 적지 말 것' docs/검사가_속인_방식_목록.md 1
 # ★[COUNT_ROTS 2026-08-11] 이 문서가 말하는 병을 이 문서의 첫 두 줄이 앓고 있었다.
 #   제목은 「열두 줄」인데 항목은 열일곱(1~15 + 11-b·11-c) · 머리말은 「08-09~10 이틀」인데
 #   08-08 과 08-11 사고가 들어와 있었다. 적어 둔 것과 실제가 갈렸고 아무도 세어 보지 않았다(11-b).
