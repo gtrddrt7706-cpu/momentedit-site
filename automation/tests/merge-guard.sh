@@ -1897,6 +1897,12 @@ nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
 chk 'FAQ_DODGE 폐지' index.html 1                       # 폐지 근거가 코드 옆에 남아 있어야 한다
 chk 'FAQ_ASK_CLEAR' index.html 1                        # 대체 처방
 chk 'margin-right: 24px' index.html 1                   # 그 처방의 실제 값
+# [ASK_CLEAR_NUM 2026-08-11] 기준선 정정 — FAB 왼끝은 350 이 아니라 338 이다(transform 네 번 확인).
+# 옛 주석은 「20~28px 이면 350 안쪽」이라 적었는데, 338 기준으로는 0~28 어디에도 넘지 않는 값이 없다.
+# 24px 은 겹침을 없애는 값이 아니라 **한 줄을 지키며 16px → 4px 로 줄이는 값**이다.
+# 남은 4px 은 눌리는 자리를 안 뺏는다(check-tap-targets ⚠겹침 0). 겹침 자체는 RAIL_OVERLAP_OK.
+chk 'ASK_CLEAR_NUM' index.html 1                        # 정정 근거 — 350 으로 되돌아가지 않게
+nochk 'FAB 버튼 왼끝 350px' index.html                  # 틀린 기준선이 되살아나면 잡는다
 # ── [DUR_SAY_WHY 2026-08-10] 막는 것과 왜 막혔는지 말하는 것은 다른 일이다 ──
 # execFileSync 는 ffprobe 가 비정상 종료하면 먼저 던져, dur() 의 안내문에 닿지 못하고
 # Node 스택 덤프가 뿌려졌다(깨진 wav 로 재현). spawnSync 로 두 실패를 한 문장으로 낸다.
@@ -1910,6 +1916,12 @@ chk 'PROBE_RULER' scripts/audit/page-probe.mjs 1
 chk '여섯 번' scripts/audit/page-probe.mjs 1              # 왜 생겼는지가 지워지면 다시 흩어진다
 chk 'serverRooted' scripts/audit/page-probe.mjs 2         # 404 를 결함으로 읽지 않게 하는 문지기
 chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화면 글로 세지 않는다
+# [TUNNEL_UNSEEN 2026-08-11] 바깥에 못 닿은 것을 '페이지 오류'로 세지 않는다 — 그 자의 일곱 번째 꼴.
+# 실사고: index.html 을 이 자로 재니 exit 1. 원인은 프록시가 막은 googletagmanager 한 줄이었다.
+# 목록에 주소(fonts.googleapis)는 있었는데 콘솔 문구엔 주소가 없고 오류 이름만 있어 안 걸렸다.
+# 적대 검증: 진짜 오류(null.x())를 심은 쪽은 그대로 exit 1 · 프록시 줄만 unseen 으로 빠져 exit 0.
+chk 'TUNNEL_UNSEEN' scripts/audit/page-probe.mjs 1
+chk 'ERR_TUNNEL_CONNECTION_FAILED' scripts/audit/page-probe.mjs 2
 chk 'EST_ONE_NUMBER' console.html 1                     # 인트로가 minLabel 을 쓰는 근거 주석
 chk 'minLabel' console.html 2                           # 디렉터 패널 '기준' + 고객 인트로 '실제 예식'
 chk 'EST_ONE_NUMBER' scripts/check-est-one.mjs 2        # 검사 자신이 왜 생겼는지
