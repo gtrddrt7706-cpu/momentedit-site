@@ -502,6 +502,25 @@ chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
 #   갈래를 엔진에만 넣었더니 **화면은 옛 한 줄을 계속 보여 줬다** — 적힌 것과 들리는 것이 달랐다.
 #   NAR_MIRROR 는 문자열·{nar,end} 만 훑어서 {A..F} 꼴을 그냥 지나갔다.
 #   ★꼴이 새로우면 그물도 새로 짠다 — 「기존 그물을 통과했다」는 「본 적 있다」가 아니다.
+# ★[ORD_ASK_ONE · WAIT_PAST_PARENT 2026-08-12 사용자 폰 스크린샷] 알림 판이 **두 개 겹쳐** 떴다.
+#   ①나가기 자가해제가 8초라 부모(GAS 12초 · mypage 1899행)가 답하기 전에 먼저 울었고
+#   ②ordAsk 가 판을 무조건 append 해서 뒤이어 온 진짜 사유가 그 위에 쌓였다.
+#   ★기다리는 자리는 둘(완료 저장·나가기)이고 같은 부모 호출을 본다 — 수를 따로 적지 말 것.
+#     따로 적어 뒀던 것이 이 사고의 뿌리다(16000 대 8000).
+chk 'ORD_ASK_ONE' order-preview.html 3
+chk 'WAIT_PAST_PARENT' order-preview.html 2
+chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
+chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9
+# ★★[EXIT_SCAN_BOUNDED 2026-08-12 실측] 나가기 자가해제에 숫자가 박혔나 보는 확인은 **그 덩이 안만** 본다.
+#   옛 판은 `[\s\S]*?` 로 파일 끝까지 훑었고, 안 터지던 이유는 그 뒤에 `},<숫자>)` 가
+#   우연히 하나도 없어서였다. 실측 — 그 덩이 **뒤에** 무관한 `}, 200);` 한 줄을 두니
+#   「나가기 자가해제가 숫자 200ms 로 박혀 있다」고 **헛붉었다**(멀쩡한 코드를 고치라고 말한다).
+#   SLICE_WIDTH_READ 와 같은 병이다 — 비한정 스캔은 제 덩이 밖을 본다. 앵커 들여쓰기를 읽어 자른다.
+#   ★앵커가 사라지면 「헛돌았다」로 붉는다 — 전엔 조용히 통과했다(안 쏜 화살 ★11-c).
+chk 'EXIT_SCAN_BOUNDED' scripts/check-ord-dialog.mjs 1
+chk 'exitHead' scripts/check-ord-dialog.mjs 3          # 앵커 읽기 · 들여쓰기 · 시작점
+chk '헛돌았다' scripts/check-ord-dialog.mjs 1          # 앵커 실종을 조용히 넘기지 말 것
+chk 'check-ord-dialog' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 야간 잡이 돌린다(chk 는 줄 수를 센다)
 chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entry\]' order-preview.html 1
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1

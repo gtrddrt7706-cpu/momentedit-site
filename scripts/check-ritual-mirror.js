@@ -141,6 +141,16 @@ vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
   });
   /* 화면이 그 사본을 **실제로 쓰는가** — 표만 있고 안 쓰면 사본이 장식이 된다 */
   ok('빌더가 느낌을 따라 도착 멘트를 고른다', /ENTRY_OUT\[S\.entry\]/.test(html));
+  /* ★[ENTRY_OUT_PAIRED 2026-08-11] 반대 방향도 묶는다 — **느낌 쪽에만 갈래를 늘리는 날.**
+     위 `keys.length === 6` 은 「원천에 G 를 더하고 사본을 안 고치는」 실수를 잡는다(그쪽은 붉어진다).
+     그런데 `ENTRY` 에만 G 를 더하고 `entryOutBy.G` 를 잊으면 **아무 데도 안 붉어진다** —
+     ENTRY_OUT['G'] 가 없어 화면은 OUT_ENTRY(=A) 로 떨어지고, 엔진도 `!entryOutBy[t] → t='A'` 로 떨어진다.
+     둘이 **같은 A 로** 떨어지니 「적힌 것과 들리는 것이 같은가」를 보는 위 그물은 만족한다.
+     고객만 G 를 고르고 A 의 닫는 말을 듣는다. 조용한 강등이라 아무도 모른다.
+     ★그래서 두 표의 **키 집합**을 묶어 둔다 — 느낌을 늘리는 날 닫는 말도 같이 쓰게. */
+  const feel = Object.keys(D.ENTRY || {}).sort().join(',');
+  const outs = keys.slice().sort().join(',');
+  ok(`입장 느낌과 도착 멘트가 같은 갈래다 (느낌 ${feel} · 멘트 ${outs})`, !!feel && feel === outs);
 }
 
 // ★[ENTRY_SELF_MIRROR 2026-08-04] 입장 인사 예시문(ENTRY[v].self)도 인라인 사본이다 — 위 NAR_MIRROR 는 .nar 만 훑어서 안 걸렸다.
