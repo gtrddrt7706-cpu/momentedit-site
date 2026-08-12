@@ -1622,6 +1622,11 @@ chk 'VEIL_RETIRED' automation/admin/Admin.html 2         # 이름표·행 두 �
 nochk "'veil'" automation/admin/Admin.html               # ①코드 이름
 nochk '베일 다운' automation/admin/Admin.html             # ②디렉터가 읽던 말
 nochk 's3d.veil' admin.html                              # ①코드 이름(화면 관리자 · 08-03에 이미 뺌)
+# ★반대쪽도 못박는다 — 같은 자로 훑다가 **남겨야 할 것**을 지우지 않게.
+#   축가 행은 남긴다(SONG_RETIRED 원문이 「없애는 것이 아니라 옮기는 것」 · 지금도 할 수 있는 순서다).
+#   기준은 「지금 고를 수 있나」가 아니라 「지금 할 수 있나」. 베일=삭제 · 축가·링워밍=유지.
+chk 'SONG_RETIRED' automation/admin/Admin.html 1          # 남긴 근거 — 없으면 다음 사람이 베일과 같은 것으로 보고 지운다
+chk "_ko('song'" automation/admin/Admin.html 1            # 그 행 자체
 
 # [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
 chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다

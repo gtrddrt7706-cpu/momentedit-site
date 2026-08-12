@@ -804,6 +804,15 @@ function _prodTrackDetail(prod){
     if(_in('편지')) rh3+=L('편지 대상', esc(_ko('letter',rs.letter))+(rs.flash?' · 플래시 세리머니':''));
     if(_in('헌정')) rh3+=L('부모님 헌정', esc(_ko('tribute',rs.tribute)));
     if(_in('축배')) rh3+=L('축배·케이크', esc(_ko('toast',rs.toast))+' (실물 준비)');
+    /* ★[SONG_RETIRED · LEGACY_LABEL 2026-08-12] 이 행은 **남긴다.** 지우지 말 것.
+       축가는 2026-08-09 에 팔레트에서 빠졌지만, 그 폐지의 원문이
+       「없애는 것이 아니라 **옮기는 것**이다 · 노래하고 싶은 두 분은 자유 한 칸(free)에 넣는다」다
+       (assets/ritual-cue.js SONG_RETIRED). 즉 **지금도 할 수 있는 순서**다.
+       ★위 베일 행과 같은 자로 재면 여기서 갈린다 — 기준은 「지금 고를 수 있나」가 아니라
+         **「지금 할 수 있나」**다. 베일은 할 수 없어 지웠고, 이건 할 수 있어 남긴다(링 워밍과 같은 칸).
+       폐지 전 초안이 값을 쥐고 있으면 디렉터가 알아야 하고, L() 이 빈값을 거르므로
+       새 고객에겐 빈 줄조차 안 생긴다. 근거 없이 「폐지분이 남았다」로 읽고 지우지 말 것.
+       (아래 824행 songTitle/songArtist 는 아예 다른 세대의 부부폼 초안 형태다 · 그쪽도 같은 이유로 유지) */
     if(_in('축가')) rh3+=L('축가', esc(_ko('song',rs.song)));
     if(rs.valley&&rs.valley!=='none') rh3+=L('사이 순서', esc(_ko('valley',rs.valley)));
     rh3+=L('음악(편지 배경)', esc(rs.mPeak||''))+(rs.mClose?L('음악(폐식·구 입력)', esc(rs.mClose)):'');   // 폐식 음악 입력칸 폐지(2026-07-19) — 옛 저장값만 표시
