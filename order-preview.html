@@ -18,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em}
-.q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.rh-hd .t,.ev-n{font-family:var(--serif);letter-spacing:0}
+.q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.ev-n{font-family:var(--serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
 .prog{padding:15px 0 0}
 .prog-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;min-height:30px}
@@ -367,16 +367,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .fillbadge .fl{font-size:11px;color:var(--sub);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
 .fillbadge .fl span{background:#fff;border:1px solid #E7E3DC;border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--gold-deeper)}
 /* rehearse */
-.rh-hd{text-align:center;padding:4px 0}
-.rh-hd .t{font-size:22px;font-weight:700}
-.rh-hd .s{font-size:13px;color:var(--sub);margin-top:7px;word-break:keep-all;line-height:1.7}
-.rh-auto{background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;margin:6px 0 14px}
-.rh-auto.playing{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
-.rh-blk{border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;position:relative}
-.rh-blk.active{border-color:var(--gold-deeper);background:#F4F0E9}   /* [SEAL_POINT] */
-.rh-n{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
-.rh-cue{font-size:13px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:7px 10px;margin-top:8px;line-height:1.6;word-break:keep-all}
-.rh-cue b{color:var(--gold-deeper)}   /* [SEAL_POINT] */
+/* ★[REHEARSE_MERGED 2026-08-12] 연습 공간 전용 CSS(.rh-*) **삭제 — 되살리지 말 것.**
+   그 화면이 폐지되며 쓰는 곳이 0이 됐다(실측: CSS 5벌 · 쓰는 곳 0). 남겨 두면 다음 사람이
+   「모양은 아직 있는데 화면만 없네」로 읽고 화면을 되살리는 근거로 쓴다 — 좌석 화살표가
+   그렇게 되살아났던 적이 있다(제거 지시 보존 규칙). 비계까지 같이 걷는다. */
 /* 임베드 나가기 — 다른 위저드(청첩장·다이닝·최종 확정·좌석)와 같은 '저장 후 나가기' 구조로 통일(2026-07-18 사용자 지시).
    ✕(저장 없이 닫기)는 기기 임시 저장뿐이라 다른 기기 이어서가 안 됐음 → 나가며 서버에 초안 저장. 코스 고르기 전엔 '나가기'로 표기.
    위치는 진행 스트립 1행 오른쪽(#obExitSlot) — 홀로 뜬 줄이 상단 리듬을 깨던 것 정리(2026-07-18 사용자 지적) */
@@ -501,7 +495,7 @@ button.oc-nm,button.crs-h,button.fold{width:100%}
 .ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
 
 /* [ORD_H2] 단계 제목이 전부 <div>였다(h2 0개). 낭독기의 제목 이동으로는 아무 데도 못 간다. */
-h2.q-title,.done-hd h2.t,.rh-hd h2.t{margin:0}
+h2.q-title,.done-hd h2.t{margin:0}
 /* [ORD_STEPFOCUS] 단계가 바뀌면 제목으로 포커스를 옮긴다 — Tab으로는 닿지 않는 자리라 테두리는 안 그린다. */
 h2[tabindex="-1"]:focus{outline:none}
 h3.sec-l{font-size:11px;font-weight:600}
@@ -1351,6 +1345,11 @@ window.momPlay=function(b,k,pick,ovV){
   b.innerHTML='<span class="bdot"></span>불러오는 중…';   /* [BUSY_ONE] 소리 준비도 같은 표시로 */
   momSrcs(k,ovV).then(function(list){ if(AUDBTN===b&&AUDTOK===me) _start(b,_pick(list,pick),me); });
 };
+/* ★[REHEARSE_MERGED 2026-08-12] 지금 **부르는 곳이 없다**(저장소 전역 실측 0곳) — 연습 공간의
+   「처음부터 이어 듣기」가 유일한 호출부였고 그 화면이 폐지됐다. 이어 듣기는 미리듣기가 맡는다.
+   ★남겨 두는 이유 — momPlay(b,null) 한 줄이라 지울 값도 크지 않고, 지우면 「이어 듣기」라는
+     능력 자체가 코드에서 사라져 다음에 필요할 때 연습 공간을 통째로 되살리는 쪽으로 간다.
+   ★이것이 있다고 연습 공간을 되살리지 말 것 — 화면은 폐지다(위 [REHEARSE_MERGED] 근거). */
 window.listenAll=function(b){ momPlay(b,null); };   // 전 순서 이어듣기 — 고른 코스·옵션 그대로
 
 var STEPDEF={
