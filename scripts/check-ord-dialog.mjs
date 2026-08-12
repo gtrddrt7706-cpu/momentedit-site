@@ -78,8 +78,28 @@ try {
      기다리는 자리는 둘(완료 저장 _saveT · 나가기 _obExitT) — 둘 다 상수를 써야 한다. */
   const uses = (SRC.match(/PARENT_GIVEUP/g) || []).length;
   if (uses < 3) bad.push(`PARENT_GIVEUP 을 쓰는 자리가 ${uses}곳이다 — 정의 1 + 기다리는 자리 2 여야 한다(한 자리가 숫자로 되돌아갔다) [WAIT_PAST_PARENT]`);
-  const lit = SRC.match(/_obExitT\s*=\s*setTimeout\([\s\S]*?\},\s*(\d+)\s*\)/);
-  if (lit) bad.push(`나가기 자가해제가 숫자 ${lit[1]}ms 로 박혀 있다 — 부모가 시간을 바꾸는 날 같이 안 움직인다 [WAIT_PAST_PARENT]`);
+  /* ★★[EXIT_SCAN_BOUNDED 2026-08-12 실측] 이 확인은 **그 덩이 안에서만** 본다.
+     옛 판은 `/_obExitT\s*=\s*setTimeout\([\s\S]*?\},\s*(\d+)\s*\)/` 로 **파일 끝까지** 훑었다.
+     지금 안 터지는 이유는 그 뒤에 `},<숫자>)` 로 끝나는 줄이 우연히 하나도 없어서다.
+     ★실측 — 그 덩이 **뒤에** 무관한 `setTimeout(function(){ var z=1; }, 200);` 을 한 줄 두니
+       검사가 「나가기 자가해제가 숫자 200ms 로 박혀 있다」고 **헛붉었다.** 멀쩡한 코드를 두고
+       엉뚱한 자리를 고치라고 말하는 판이다. SLICE_WIDTH_READ 와 같은 병 — 비한정 스캔은 덩이 밖을 본다.
+     → 앵커 줄의 들여쓰기를 읽어 **그 덩이의 닫는 줄까지만** 자르고, 그 안에서만 숫자를 찾는다. */
+  const exitHead = SRC.match(/^([ \t]*)_obExitT\s*=\s*setTimeout\(/m);
+  if (!exitHead) {
+    bad.push(`나가기 자가해제(_obExitT) 자리를 못 찾았다 — 이 확인이 헛돌았다(통과가 아니다) [WAIT_PAST_PARENT]`);
+  } else {
+    const eInd = exitHead[1];
+    const eStart = SRC.indexOf(exitHead[0]);
+    const eEnd = SRC.indexOf('\n' + eInd + '},', eStart);
+    if (eEnd < 0) {
+      bad.push(`나가기 자가해제 덩이의 닫는 줄을 못 찾았다 — 범위를 못 정했다(통과가 아니다) [WAIT_PAST_PARENT]`);
+    } else {
+      const eBlk = SRC.slice(eStart, SRC.indexOf('\n', eEnd + 1));
+      const lit = eBlk.match(/\},\s*(\d+)\s*\)/);
+      if (lit) bad.push(`나가기 자가해제가 숫자 ${lit[1]}ms 로 박혀 있다 — 부모가 시간을 바꾸는 날 같이 안 움직인다 [WAIT_PAST_PARENT]`);
+    }
+  }
 
   console.log(`━━ order-preview.html @390  [ORD_ASK_ONE] 한 번 말함=${r.one.n}판 · 두 번 말함=${r.two.n}판(새 말 보임=${r.two.shows}) · 닫은 뒤=${r.done.n}판 · 스크롤 잠금=${r.done.bo || '풀림'}`);
   console.log(`   [WAIT_PAST_PARENT] 자가해제 ${r.giveup}ms > 부모 12000ms = ${r.giveup > 12000}`);
