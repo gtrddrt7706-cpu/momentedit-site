@@ -112,6 +112,17 @@ chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거
 #   로그인 전엔 그 요소가 안 그려져 지금까지 안 터졌을 뿐이다. 로그인 뒤 한 번이라도 돌면
 #   멀쩡한 청첩장 접힘을 보고 헛붉는다(★9 늑대). 자를 .trk-fold 로 바꿨다.
 chk 'trk-fold' scripts/check-mypage-shell.mjs 3
+# ★★[SHELL_SKELETON 2026-08-12 · 클로드코드 요청] 로그인 뒤 화면을 재는 자가 **생겼다 — 단 좁게.**
+#   renderProduction({}, null) 하나로 진짜 제작 트랙이 그려진다(실측 7줄). 서버 응답을 지어낼 게 없다.
+#   빈 객체는 허구가 아니라 **아무것도 안 채운 상태** — 제작 단계에 막 들어온 고객이 보는 화면이다.
+#   ★여기서 잴 수 있는 것은 **구조**뿐이다(폐지 클래스가 되살아났나). 값·정렬은 여전히 못 본다 —
+#     그건 지어내야 하고, 지어내면 내 허구를 확인하는 것이 된다(이 파일 머리말의 거절은 그대로 유효).
+#   돌연변이: 진짜 트랙 줄에 trk-fold 를 심으니 붉음(1개) · 빼니 통과.
+chk 'SHELL_SKELETON' scripts/check-mypage-shell.mjs 4
+chk 'renderProduction({}, null)' scripts/check-mypage-shell.mjs 1   # 빈 객체로 진짜 화면을 그리는 그 줄
+# ★못 그린 판에서 숫자를 찍지 않는다 — 옛 판은 「트랙 undefined줄 · 폐지분 undefined개(0이어야)」였다(실측).
+#   붉은 줄은 아래 서지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸**을 남기는 것이 목록 11-d 의 병이다.
+chk '아무것도 못 쟀다' scripts/check-mypage-shell.mjs 1
 nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐지분 세는 자로 되돌리지 말 것
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]

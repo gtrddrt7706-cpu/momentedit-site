@@ -39,7 +39,10 @@ const UNSEEN = [
   '좌석 · 음료 시트 — 바닥에서 올라오는지 · 3칸 타일이 균등한지 · 「선택 지우기」가 보이는지 [DRINK_SHEET]',
   '예식 준비 트랙 행 — 「좌석 · 음료」 라벨과 버튼 폭 정렬 [SEAT_DRINK_LABEL][TRK_ACT_ALIGN]',
   '저장 중 표시가 실제 저장 때 한 자리에서만 뜨는지 [BUSY_ONE_PLACE]',
-  '완료된 항목이 접히지 않고 펼쳐진 채인지 [TRK_NO_FOLD]',
+  /* ★[SHELL_SKELETON 2026-08-12] 「완료 항목이 접히지 않은 채인지 [TRK_NO_FOLD]」는 목록에서 뺐다 —
+     빈 객체로 진짜 트랙을 그려 .trk-fold 를 실제로 세게 됐다(아래 SHELL_SKELETON).
+     ★남은 것은 **값과 모양**이다. 그건 서버 데이터가 있어야 하고, 지어내면 허구 확인이 된다. */
+  '예식 준비 트랙 — 값이 채워진 뒤의 줄 모양·정렬(구조는 SHELL_SKELETON 이 본다) [TRK_ACT_ALIGN]',
   '식순 빌더·미리듣기를 iframe 으로 열었을 때 상담 도우미가 겹치지 않는지 [MP_FS_OVERLAYS]',
   '★실제 로그인 payload 에 서버가 refund 를 실어 보내는지 [REFUND_STATE] — 여기서는 직렬화만 쟀다.\n      코드 근거는 60_mypage.gs 50행(refund: buildRefundQuote). 사람이 로그인해 도우미에게\n      「지금 취소하면 얼마?」를 물어 실금액이 나오는지 한 번 확인할 것',
 ];
@@ -90,6 +93,34 @@ try {
   if (dom.fold) bad.push(`완료 행 접기(.trk-fold)가 ${dom.fold}개 되살아났다 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
   /* ★[BUSY_ONE_PLACE] 대기 표시는 한 낱말·한 자리다. 껍데기에서 잴 수 있는 것은 '짜임이 하나인가'까지. */
   if (dom.busy > 1) bad.push(`저장 표시 짜임(.busy-row)이 ${dom.busy}개 — 한 자리여야 한다`);
+
+  /* ★★[SHELL_SKELETON 2026-08-12 · 클로드코드 요청 「하네스가 되는지 봐 달라」] **된다. 단 좁게.**
+     ★이 파일 머리말은 「로그인 뒤는 서버 응답 모양을 내가 지어내야 그려진다」며 거절해 왔다.
+       그 말은 **내용 검사**에는 맞다(환불 금액·좌석 값은 지어내면 내 허구를 확인하는 것이다).
+       그런데 **구조 검사**는 다르다 — 「폐지한 클래스가 되살아났나」는 데이터 내용과 무관하다.
+     ★실측 — renderProduction({}, null) 하나로 트랙 7줄이 그려진다(글자 353자 · .trk 7).
+       아무것도 안 넘겼는데 그려진다. 즉 지어낼 것이 **없다.**
+     ★빈 객체는 허구가 아니라 **아무것도 안 채운 상태**다 — 제작 단계에 막 들어와
+       어느 트랙도 시작하지 않은 고객이 실제로 보는 화면이다. NO_INJECT 가 막으려던 것은
+       「그 화면이 거르던 것을 건너뛰는 것」인데, 여기서는 거를 것 자체를 안 넘긴다.
+     ★그래서 여기서 **딱 하나만** 잰다 — 폐지분(.trk-fold)이 진짜 트랙 화면에서도 0인가.
+       이것이 UNSEEN 4번이었다. 나머지(값·정렬·시트)는 여전히 못 본다 — 목록에 그대로 남긴다. */
+  const sk = await h.page.evaluate(async () => {
+    if (typeof window.renderProduction !== 'function') return { can: false };
+    try { window._mpStateD = { stage: '제작중' }; renderProduction({}, null); } catch (e) { return { can: false, why: e.message }; }
+    await new Promise((r) => setTimeout(r, 250));
+    const box = document.getElementById('mp_production');
+    return { can: true, shown: !!(box && box.style.display === 'block'),
+      trk: document.querySelectorAll('.trk').length,
+      fold: document.querySelectorAll('.trk-fold,[class*="trk-fold"]').length };
+  });
+  if (!sk.can) {
+    /* ★못 그렸으면 「통과」가 아니라 「못 쟀다」다 — 조용히 넘기면 안 쏜 화살이 된다(11-c). */
+    bad.push(`제작 트랙을 못 그렸다 — 이 구조 검사가 헛돌았다(통과 아님)${sk.why ? ' · ' + sk.why : ''} [SHELL_SKELETON]`);
+  } else {
+    if (!sk.shown || sk.trk < 1) bad.push(`제작 트랙이 안 그려졌다(보임=${sk.shown} · 줄 ${sk.trk}) — 겨냥이 사라졌다 [SHELL_SKELETON]`);
+    if (sk.fold) bad.push(`★진짜 트랙 화면에서 완료 행 접기(.trk-fold)가 ${sk.fold}개 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
+  }
 
   /* ★[REFUND_STATE 2026-08-11] 상담 도우미에 넘기는 상태에 **서버 환불 견적이 실리는가.**
      ★왜 여기서 재나 — 이 자리는 틀려도 **조용하다.** 필드 이름 하나만 어긋나면 줄이 통째로 빠지고,
@@ -293,6 +324,13 @@ try {
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
   console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
   console.log(`   완료 행 접기 .trk-fold ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
+  /* ★[SHELL_SKELETON · CANT_LOOK 2026-08-12] 못 그린 판에서는 **숫자를 찍지 않는다.**
+     그대로 두면 「트랙 undefined줄 · 폐지분 .trk-fold undefined개(0이어야)」가 나온다 — 실측했다.
+     붉은 줄이 바로 아래 서긴 하지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸을 남기는 것**이
+     11-d 로 적어 둔 바로 그 병이다(FOLD_ALIVE_CANT_LOOK 과 같은 얼굴 · 같은 날 세 번째). */
+  console.log(sk.can
+    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야)`
+    : `   [SHELL_SKELETON] 진짜 제작 트랙을 못 그렸다 — 여기서는 **아무것도 못 쟀다**(0개가 아니다)`);
   /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
   console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
