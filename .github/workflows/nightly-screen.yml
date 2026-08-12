@@ -118,6 +118,9 @@ jobs:
           #   사실을 매일 다시 알리는 것이 목적이다. 2 로 나오는 것이 정상이고, 사람이 로그인해
           #   확인하기 전까지 계속 2 다. 초록으로 만들려고 이 검사를 고치지 말 것.
           node scripts/check-mypage-shell.mjs; note "check-mypage-shell (늘 2 · 사각지대 알림)" $? expected
+          # ★[ORD_ASK_ONE][WAIT_PAST_PARENT] 2026-08-12 사용자 폰 스크린샷 — 알림 판이 두 개 겹쳐 떴다.
+          #   판이 하나인가 · 스크롤 잠금이 풀리는가 · 부모(12초)보다 늦게 포기하는가를 매일 다시 잰다.
+          node scripts/check-ord-dialog.mjs; note "check-ord-dialog (판 겹침·이른 포기)" $?
           for p in index.html mypage.html console.html order-preview.html guide.html; do
             node scripts/check-tap-targets.mjs "$p"; note "tap-targets $p" $?
           done

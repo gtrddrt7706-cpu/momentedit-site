@@ -502,6 +502,16 @@ chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
 #   갈래를 엔진에만 넣었더니 **화면은 옛 한 줄을 계속 보여 줬다** — 적힌 것과 들리는 것이 달랐다.
 #   NAR_MIRROR 는 문자열·{nar,end} 만 훑어서 {A..F} 꼴을 그냥 지나갔다.
 #   ★꼴이 새로우면 그물도 새로 짠다 — 「기존 그물을 통과했다」는 「본 적 있다」가 아니다.
+# ★[ORD_ASK_ONE · WAIT_PAST_PARENT 2026-08-12 사용자 폰 스크린샷] 알림 판이 **두 개 겹쳐** 떴다.
+#   ①나가기 자가해제가 8초라 부모(GAS 12초 · mypage 1899행)가 답하기 전에 먼저 울었고
+#   ②ordAsk 가 판을 무조건 append 해서 뒤이어 온 진짜 사유가 그 위에 쌓였다.
+#   ★기다리는 자리는 둘(완료 저장·나가기)이고 같은 부모 호출을 본다 — 수를 따로 적지 말 것.
+#     따로 적어 뒀던 것이 이 사고의 뿌리다(16000 대 8000).
+chk 'ORD_ASK_ONE' order-preview.html 3
+chk 'WAIT_PAST_PARENT' order-preview.html 2
+chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
+chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9
+chk 'check-ord-dialog' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 야간 잡이 돌린다(chk 는 줄 수를 센다)
 chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entry\]' order-preview.html 1
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
