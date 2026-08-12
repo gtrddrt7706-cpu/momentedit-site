@@ -1367,7 +1367,17 @@ chk 'RitualPreviewLink' order-preview.html 2            # 주소를 손으로 �
 chk 'MP_FS_OVERLAYS' mypage.html 6                      # 전체화면 오버레이 단일 목록 · 미리듣기가 빠지면 잠금 자가치유가 열린 판을 못 보고 스크롤이 굳는다
 chk 'mp_rpViewer' mypage.html 5                         # 마이페이지 미리듣기 오버레이 id(목록·열기·닫기·잠금 판정이 이 이름을 공유한다)
 chk 'ob_rpViewer' order-preview.html 4                  # 빌더 미리듣기 오버레이 id(Esc 양보 판정이 이 이름을 본다)
-chk 'trk-act-min' mypage.html 2                         # 보조 버튼 크기 위계 · 빼면 「미리 들어보기」가 주 버튼과 같은 무게로 선다
+# ★★[TRK_PRE_QUIET 2026-08-12 사용자 지시 「미리듣기 버튼도 디자이너 관점으로 개선」]
+#   높이(TRK_ACT_H36)는 2026-08-11 에 맞췄다. 남은 문제는 **한 줄에 테두리 상자가 둘**이라는 것 —
+#   크기만 다를 뿐 「고를 것이 둘」로 읽혔고, 그 줄만 목록 리듬을 끊었다(다른 다섯 줄은 상자 하나).
+#   보조에서 면·테두리를 걷고 글자만 남겼다. 실측(390px · 진짜 트랙을 그려서):
+#     보조 x148 w67 h36 테두리 0 · 주 x225 w122 h36 테두리 1
+#     주 버튼 왼끝 전부 225 · 오른끝 전부 347(한 열) · 식순 줄 높이 61 = 다른 줄과 같음
+#     탭 영역 36×67 그대로 — 걷어낸 것은 테두리·배경뿐이다.
+#   ★상자를 되돌리지 말 것 — 위계가 다시 폭 차이에만 실린다.
+chk 'trk-act-min' mypage.html 3                         # 보조 버튼 위계(규격 + 걷어낸 테두리 + hover)
+chk 'TRK_PRE_QUIET' mypage.html 1
+chk 'trk-act-min{min-width:auto;padding:8px 10px' mypage.html 1   # 테두리 없는 글자 단추 그 줄
 chk 'if(old) return old' mypage.html 1                  # 연타 = 떠 있는 판 그대로 · '닫고 다시 열기'로 되돌리면 히스토리 층이 어긋나 페이지 밖으로 튕긴다
 chk 'if(old) return old' order-preview.html 1           # 연타 = 떠 있는 판 그대로 · 떼고 새로 짜면 배경 스크롤이 잠긴 채로 남는다
 
