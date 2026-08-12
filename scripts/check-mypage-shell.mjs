@@ -324,7 +324,13 @@ try {
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
   console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
   console.log(`   완료 행 접기 .trk-fold ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
-  console.log(`   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야)`);
+  /* ★[SHELL_SKELETON · CANT_LOOK 2026-08-12] 못 그린 판에서는 **숫자를 찍지 않는다.**
+     그대로 두면 「트랙 undefined줄 · 폐지분 .trk-fold undefined개(0이어야)」가 나온다 — 실측했다.
+     붉은 줄이 바로 아래 서긴 하지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸을 남기는 것**이
+     11-d 로 적어 둔 바로 그 병이다(FOLD_ALIVE_CANT_LOOK 과 같은 얼굴 · 같은 날 세 번째). */
+  console.log(sk.can
+    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야)`
+    : `   [SHELL_SKELETON] 진짜 제작 트랙을 못 그렸다 — 여기서는 **아무것도 못 쟀다**(0개가 아니다)`);
   /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
   console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));

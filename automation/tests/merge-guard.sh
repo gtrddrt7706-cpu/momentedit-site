@@ -120,6 +120,9 @@ chk 'trk-fold' scripts/check-mypage-shell.mjs 3
 #   돌연변이: 진짜 트랙 줄에 trk-fold 를 심으니 붉음(1개) · 빼니 통과.
 chk 'SHELL_SKELETON' scripts/check-mypage-shell.mjs 4
 chk 'renderProduction({}, null)' scripts/check-mypage-shell.mjs 1   # 빈 객체로 진짜 화면을 그리는 그 줄
+# ★못 그린 판에서 숫자를 찍지 않는다 — 옛 판은 「트랙 undefined줄 · 폐지분 undefined개(0이어야)」였다(실측).
+#   붉은 줄은 아래 서지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸**을 남기는 것이 목록 11-d 의 병이다.
+chk '아무것도 못 쟀다' scripts/check-mypage-shell.mjs 1
 nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐지분 세는 자로 되돌리지 말 것
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
