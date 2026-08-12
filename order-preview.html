@@ -331,7 +331,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .sr-empty{display:block;width:-moz-fit-content;width:fit-content;font-size:10px;font-weight:600;color:var(--seal);background:#F3E9E7;border:1px solid #E4CFCB;border-radius:20px;padding:2px 8px;margin:5px 0 0;white-space:nowrap}
 /* [ORD_DONEACTS] 완성 화면 마무리 버튼 줄 — 문의·다시 만들기를 한 덩어리로(따로 노는 회색 판 제거) */
 .done-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
-.done-acts .copy-btn2{margin-right:0;flex:1 1 auto;min-width:0;padding:11px 12px;font-size:11.5px;word-break:keep-all}
+/* ★[DONE_ACTS_EVEN 2026-08-12 사용자 지시 "두 개 버튼 비율 맞추기"] 두 단추를 **반반**으로.
+   flex:1 1 auto 는 글자 길이만큼 자란다 — 「목록에 없는 순서가 있나요?」가 길어 한쪽이 훨씬 넓었다.
+   0% 를 바탕으로 두면 남은 폭을 똑같이 나눈다. 하나만 남는 날에도 그 하나가 한 줄을 다 쓴다. */
+.done-acts .copy-btn2{margin-right:0;flex:1 1 0%;min-width:0;padding:11px 12px;font-size:11.5px;word-break:keep-all}
 /* [ORD_SAVE_STATE] 저장 실패 알림 — 진사는 좌측 키라인과 제목에만(넓은 면적 금지 규칙) */
 .save-err{margin-top:12px;border:1px solid #E4CFCB;border-left:3px solid var(--seal);background:#FBF6F5;border-radius:11px;padding:11px 13px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
 .save-err b{display:block;color:var(--seal);font-weight:700;font-size:12.5px;margin-bottom:2px}
@@ -344,6 +347,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 /* [ORD_DONEACTS] (구).special 회색 판 규칙 삭제 — 그 버튼이 마무리 버튼 줄(.done-acts)로 옮겨가 아무것도 안 고르는 규칙이 됐다 */
 .copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+/* ★[DONE_ACTS 2026-08-12 사용자 지시] 완성 화면 단추 셋을 한 덩어리로 — 사이에 힌트 줄을 끼우지 말 것.
+   개별 margin 을 0 으로 눌러 **간격을 gap 하나로만** 만든다(두 값이 겹치면 위아래가 어긋난다).
+   미리듣기는 한 줄 전부, 대본 둘은 반씩. 미리듣기가 빠진 판에서도 둘이 그대로 반반이다. */
+.play-acts{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.play-acts>button{margin:0;word-break:keep-all}
+.play-acts .rehearse-btn{flex:1 1 100%}
+.play-acts .copy-btn{flex:1 1 calc(50% - 4px);width:auto}
 .sumry{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#FFFFFF;padding:6px 0 2px}
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
 .sumrow:first-of-type{border-top:none}
@@ -2610,10 +2620,17 @@ function renderDone(){
      ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
        고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
      저장 전 S 도 그대로 들린다(서버 초안이 아니라 지금 화면의 S 를 넘긴다) — 저장해야 들을 수 있으면 고르는 손이 멈춘다. */
-  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG})){
+  /* ★[DONE_ACTS 2026-08-12 사용자 지시] 완성 화면 단추 셋을 **한 덩어리로 붙인다.**
+     ★미리듣기 아래 있던 한 줄짜리 힌트(「고른 순서 그대로 …」) **삭제 — 되살리지 말 것.**
+       ★그 문장을 여기 그대로 옮겨 적지 않는다 — nochk 가 이 주석을 잡는다(실제로 한 번 잡혔다).
+       미리듣기와 대본 단추 **사이에 끼어** 셋을 두 무리로 갈라 놨다. 그리고 그 말은
+       단추 이름이 이미 하는 말이다(「미리듣기」 · 「전체 대본 복사」) — 읽을 것만 늘렸다.
+     ★셋이 같은 판·같은 모서리·같은 간격(gap 8px)으로 선다. 미리듣기가 한 줄을 다 쓰고
+       (완성 직후 가장 하고 싶은 일이라 크게), 대본 둘이 그 아래 반씩 나눈다. */
+  h+='<div class="play-acts">';   /* ★이름 주의 — 화면 맨 아래 .done-acts 와 다른 덩어리다(그쪽은 나가는 동작) */
+  /* [PREVIEW_LINK_V1] 주소가 없으면(코스 없음) 미리듣기는 빠지고 아래 둘만 남는다 — flex 라 그대로 정렬된다 */
+  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG}))
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리듣기</button>';
-    h+='<div class="prep-hint" style="text-align:center;margin-top:7px">고른 순서 그대로 흐름을 들어봐요</div>';
-  }
   /* ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
      ★「연습 공간 열기」 단추 **폐지 — 되살리지 말 것.**
        완성 화면에 듣기 단추가 둘이었다(미리듣기 · 연습 공간). 둘 다 「내 예식을 들어본다」라
@@ -2624,7 +2641,9 @@ function renderDone(){
        미리듣기는 ?S= 주소로 열리고, 그 주소에는 **고객이 쓴 글(서약문·편지·첫인사)을 싣지 않는다**
        (assets/ritual-preview-link.js 의 규칙). 「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
        그래서 대본·준비물은 이 완성 화면에 그대로 남긴다 — 글이 여기 있으니 여기가 제자리다. */
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="copyScript()">전체 대본 복사</button><button class="copy-btn" style="flex:1;word-break:keep-all" onclick="saveScriptTxt()">파일로 저장</button></div>';
+  h+='<button class="copy-btn" onclick="copyScript()">전체 대본 복사</button>'
+    +'<button class="copy-btn" onclick="saveScriptTxt()">파일로 저장</button>'
+    +'</div>';   // [DONE_ACTS] 셋이 한 덩어리 — 사이에 아무것도 끼우지 말 것
   { var _prepD=''; prep().forEach(function(p){ _prepD+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
     h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">'+_prepD+'</div>'; }
   var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
@@ -2648,17 +2667,24 @@ function renderDone(){
   });
   h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식·단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
-  // ★AI고지_부부 — 하객 고지가 음성(완곡)·인쇄물(명시)로 나뉘므로, 부부가 그 분리를 알고 승인한 상태여야 한다(회신4 §4-2 조건 ㉯).
-  //   이 줄이 없으면 "하객한테 AI 쓴다고 말했나요?"에 답할 근거가 없어진다. 지우지 말 것 · 선택 옵션으로 만들지 말 것.
-  h+='<div class="prep-hint" style="margin-top:12px">하객 안내에 "미리 준비한 안내 음성으로 진행합니다"가 들어가고, 식순지엔 AI 음성 안내로 적혀요.</div>';
+  /* ★★[★AI고지_부부 · DONE_TAIL_QUIET 2026-08-12 사용자 지시] 이 화면의 고지 줄은 **뺐다.**
+     ★뺀 것은 **줄이지 고지가 아니다.** 하객에게 실제로 알리는 두 곳은 그대로다 —
+       ①하객 맞이 안내 음성이 「미리 준비한 안내 음성으로 진행합니다」라고 말하고(NARR.guest)
+       ②식순지에 「AI 음성 안내」로 적힌다. 그 둘을 지우면 고지 자체가 사라진다. 지우지 말 것.
+     ★옛 주석의 근거(회신4 §4-2 조건 ㉯): 하객 고지가 음성(완곡)·인쇄물(명시)로 나뉘므로
+       **부부가 그 분리를 알고 승인한 상태**여야 한다. 이 줄이 그 자리를 맡고 있었다.
+       빼는 순간 「하객한테 AI 쓴다고 말했나요?」에 답할 화면 근거가 이 지면에서는 없어진다.
+     ★그래서 이 근거를 지우지 않고 여기 남긴다 — 승인 자리를 옮길 곳(계약 동의·하객 안내 트랙)이
+       정해지면 그때 이 주석을 그 자리로 옮길 것. 조용히 없던 일로 만들지 말 것. */
   /* [MUSIC_GONE 2026-08-03] 곡 선정 칸 폐지 — 사용자 지시 "노래선정부분 완전삭제".
      음악은 저희가 고른다. 부부에게 곡명을 받아 두던 칸(mPeak)과 그 안내 3줄을 통째로 뺀다.
      ★되살리지 말 것 — 이미 2026-07-18에 준비 목록에서, 07-22에 폐식곡 칸에서 한 번씩 덜어낸 자리다.
        S.mPeak·S.mClose 상태 자체는 하위호환으로 남긴다(옛 초안에 값이 있고 Admin이 '구 입력'으로 읽는다).
        jumpTo('done')의 음악 칸 포커스 분기도 함께 제거했다. */
-  // [ORD_NOTE_FIT] 이 줄이 코스와 상관없이 늘 '편지와 서약이 중심인 예식이라'로 나갔다.
-  //   [LEGACY_LABEL] 미니멀 코스(숨김)엔 편지 낭독이 아예 없다 — 고르지도 않은 순서를 근거로 권하는 말이 된다.
-  h+='<div class="note">'+(inSeq('letter')?'편지와 서약이 중심인 예식이라, 본식 영상 기록을 함께 권해드려요.':'서약을 직접 목소리로 읽는 예식이라, 그 목소리까지 남는 본식 영상 기록을 함께 권해드려요.')+'</div>';
+  /* ★[DONE_TAIL_QUIET 2026-08-12 사용자 지시 "웨멘트들 삭제"] 본식 영상 권유 줄 **삭제 — 되살리지 말 것.**
+     순서를 다 고른 자리에서 상품을 하나 더 권하는 말이었다. 고른 것을 확인하러 온 화면인데
+     마지막에 파는 말이 서면, 방금 한 선택이 아니라 다음 결제를 생각하게 된다.
+     권유가 필요하면 이 자리 말고 상담·마이페이지에서 한다. */
   /* [ORD_DONEACTS 2026-08-03] 화면 끝의 부수 동작을 한 줄로 묶는다.
      사용자 지적: '목록에 없는 순서가 있나요?' 회색 판이 음악 카드와 영상 권유 사이에 홀로 떠 있어
      "따로 노는 느낌"이었다. 실제로 그건 **입력**이 아니라 **문의**다 —
