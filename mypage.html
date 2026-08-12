@@ -1604,6 +1604,20 @@ function openRitualBuilder(p, inv){
         .then(function(r){ if(r&&r.ok) saved=true; _ack(); }).catch(function(){ _ack(); });   // r.ok 확인 — 실패한 비우기를 성공으로 세지 않게(saved는 나갈 때 대시보드 갱신 여부)
       return;
     }
+    /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장 후 나가기 말고 그냥 나가기는 없어?"]
+       초안을 **닫지 않고** 저장한다(done:false · 오버레이 유지). 이 갈래가 없어서
+       지금까지 서버 저장은 '나갈 때'와 '완성했을 때' 둘뿐이었다 — 그래서 저장이 나가기에
+       인질로 잡혔고, 버튼 하나가 두 일을 지고 라벨이 「저장 후 나가기」가 됐다.
+       ★orderSave 와 다른 점은 done 뿐이다(저 쪽은 true · 완성 확정). 여기서 true 를 보내면
+         중간 초안이 완성으로 굳어 '저장됨 · D-14' 화면으로 열린다(ORDERFILL_DONE 2026-07-25 사고).
+       ★성공·실패를 양쪽 다 돌려준다 — 조용히 실패하면 자동 저장은 거짓말이 된다(ORDER_SAVE_FAIL). */
+    if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
+      var _dfAck=function(ok){ try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail'}, location.origin); }catch(e){} };
+      apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
+        .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true); } else _dfAck(false); })
+        .catch(function(){ _dfAck(false); });
+      return;
+    }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
       /* [ORDER_SAVE_FAIL 2026-07-25 · ORD_SAVE_STATE 2026-08-03]
          성공·실패를 **양쪽 다** 빌더에 돌려준다. 예전엔 실패만 보냈다 — 성공 신호가 없으니

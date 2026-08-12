@@ -1,0 +1,148 @@
+// 식순 빌더 자동 저장 — 저장이 나가기에서 떨어져 나왔는가 [ORD_AUTOSAVE]
+//
+// ★왜 이 검사가 생겼나 (2026-08-12 사용자 질문)
+//   *"저장후 나가기 말고 그냥 나가기는없어? 저장버튼 을 만들든 아니면 팝업을 띄우든"*
+//   원인은 버튼이 아니라 구조였다 — 서버 저장 갈래가 **나갈 때**와 **완성했을 때** 둘뿐이라
+//   저장이 나가기에 인질로 잡혀 있었다. 그래서 저장을 사람 손에서 뺐다(orderDraft · done:false).
+//
+// ★이 검사가 지키는 것은 「자동 저장이 도는가」가 아니라 **네 가지 안전선**이다.
+//   ① 완성본(_doneSaved)에 done:false 를 덮지 않는가 — 덮으면 완성이 초안으로 되돌아간다
+//      (ORDERFILL_DONE 2026-07-25 실사고 · 「저장됨 · D-14」 화면이 초안에 뜨던 그 병)
+//   ② 꾸러미에 S.seen 이 실리는가 — 빠지면 미리듣기가 안 걸어온 뒷부분까지 들려준다(PREVIEW_UPTO)
+//   ③ 저장이 끝난 뒤 나가기가 **또 저장하지 않는가** — 그게 사용자가 찾던 '그냥 나가기'다
+//   ④ 회신이 성공·실패 양쪽 다 도는가 — 한쪽만 받으면 표시가 한 상태에 갇혀 거짓말을 한다
+//
+// ★[NO_GATE] 게이트는 이 검사를 돌리지 않는다 — 브라우저와 로컬 서버가 필요하다.
+//   야간 잡(nightly-screen.yml)이 돌린다.  node scripts/check-ord-autosave.mjs
+//
+// ★종료 코드 [CANT_LOOK]  0 통과 · 1 재서 틀림 · 2 재지 못함
+//
+// ★이 검사가 지어내는 것 하나 — ⑧번(완성 상태)에서 `_doneSaved` 를 **직접 세운다.**
+//   진짜로 완성까지 걸으려면 스무 단계를 눌러야 하고, 그 길이가 검사를 안 돌게 만든다.
+//   재는 것은 「완성 상태에서 자동 저장이 멈추는가」이지 「완성까지 갈 수 있는가」가 아니다.
+//   그 한계를 출력에도 적는다 — 안 잰 것을 잰 것처럼 두지 않는다.
+
+import { openProbe } from './audit/page-probe.mjs';
+
+let h;
+try {
+  h = await openProbe('order-preview.html?embed=1', { width: 390, settle: 2200 });
+} catch (e) {
+  console.log(`· 식순 빌더를 못 열었습니다 — ${e.message}`);
+  console.log('  ※ 종료 코드 2 = 재지 못했다(화면 결함 아님) · 1 = 재서 틀렸다');
+  process.exit(2);
+}
+
+const bad = [];
+try {
+  const P = h.page;
+  // 부모 노릇 — 이 지면이 부모에게 보내는 것을 그대로 받아 센다(임베드에서는 parent===window 라 자기 귀에 들어온다)
+  await P.evaluate(() => {
+    window.__sent = [];
+    window.addEventListener('message', (e) => {
+      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type)) window.__sent.push(e.data);
+    });
+  });
+
+  const label = await P.evaluate(() => (document.getElementById('obExit') || {}).textContent || '');
+  const has = await P.evaluate(() => !!document.getElementById('psave'));
+
+  /* ① 코스 고르기 전 — 저장할 게 없다. 여기서 보내면 빈 초안이 서버에 굳는다. */
+  await P.click('#next'); await P.waitForTimeout(300);
+  await P.click('#next'); await P.waitForTimeout(2600);
+  const pre = await P.evaluate(() => window.__sent.filter((m) => m.type === 'momentedit:orderDraft').length);
+
+  /* ② 코스를 고르고 값을 하나 바꾼다 — 진짜 함수로. 화면 버튼이 부르는 그 함수다. */
+  const r = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    window.__sent.length = 0;
+    startCourse('damback');
+    await wait(300);
+    pick('entry', 'B');            // 값이 실제로 바뀌는 지점(화면 칩이 부르는 그 함수)
+    await wait(2600);              // 디바운스 1500 + 여유
+    const drafts = window.__sent.filter((m) => m.type === 'momentedit:orderDraft');
+    const d0 = drafts[0] || null;
+    const saving = (document.getElementById('psave') || {}).textContent || '';
+    /* ④ 성공 회신을 준다 — 부모가 하는 그대로 */
+    parent.postMessage({ type: 'momentedit:orderDraftSaved' }, window.location.origin);
+    await wait(300);
+    const okTxt = (document.getElementById('psave') || {}).textContent || '';
+    /* ③ 저장이 끝난 뒤 나가기 — 또 저장하면 안 된다 */
+    window.__sent.length = 0;
+    window._obExit();
+    await wait(400);
+    const outs = window.__sent.map((m) => m.type);
+    return {
+      n: drafts.length,
+      seen: !!(d0 && d0.data && d0.data.S && Array.isArray(d0.data.S.seen)),
+      seenN: d0 && d0.data && d0.data.S && d0.data.S.seen ? d0.data.S.seen.length : -1,
+      course: !!(d0 && d0.data && d0.data.S && d0.data.S.course),
+      sum: !!(d0 && d0.data && d0.data.summary && d0.data.summary.course),
+      saving, okTxt, outs
+    };
+  });
+
+  /* ⑤ 실패 회신 — 표시가 갈리고 다시 시도할 수 있어야 한다 */
+  const f = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    _obExiting = false;                         // 위에서 나가기를 눌러 잠겼다 — 검사 진행을 위해 푼다
+    pick('entry', 'C');
+    await wait(2000);
+    parent.postMessage({ type: 'momentedit:orderDraftFail' }, window.location.origin);
+    await wait(300);
+    const e = document.getElementById('psave');
+    return { txt: e ? e.textContent : '', cls: e ? e.className : '', role: e ? e.getAttribute('role') : null };
+  });
+
+  /* ⑥ 완성 상태 — done:false 를 덮어쓰면 안 된다 (★이 판만 상태를 직접 세운다 · 머리말 참고) */
+  const done = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    _doneSaved = true;
+    window.__sent.length = 0;
+    pick('entry', 'D');
+    await wait(2400);
+    return { n: window.__sent.filter((m) => m.type === 'momentedit:orderDraft').length,
+             txt: (document.getElementById('psave') || {}).textContent || '' };
+  });
+
+  if (!/^나가기$/.test(label.trim()))
+    bad.push(`나가기 버튼 라벨이 「${label.trim()}」다 — 자동 저장이 도는데 저장이 나가기에 매달린 것처럼 읽힌다 [ORD_AUTOSAVE]`);
+  if (!has) bad.push('저장 상태 자리(#psave)가 없다 — 자동 저장이 조용한 게 아니라 안 보이는 게 된다 [ORD_AUTOSAVE]');
+  if (pre !== 0) bad.push(`코스를 고르기도 전에 초안을 ${pre}건 보냈다 — 빈 초안이 서버에 굳는다 [ORD_AUTOSAVE]`);
+  if (r.n < 1) bad.push('값을 바꿨는데 초안이 안 나갔다 — 자동 저장이 안 돈다 [ORD_AUTOSAVE]');
+  if (r.n > 2) bad.push(`한 번 바꿨는데 초안이 ${r.n}건 나갔다 — 디바운스가 안 먹는다(서버를 두들긴다) [ORD_AUTOSAVE]`);
+  if (!r.course) bad.push('초안 꾸러미에 S.course 가 없다 — 복원이 안 되는 초안이다 [ORD_AUTOSAVE]');
+  if (!r.sum) bad.push('초안 꾸러미에 summary 가 없다 — 마이페이지 트랙 요약이 빈다 [ORD_PAYLOAD]');
+  if (!r.seen) bad.push('초안 꾸러미에 S.seen 이 없다 — 미리듣기가 안 걸어온 뒷부분까지 들려준다 [PREVIEW_UPTO]');
+  else if (r.seenN < 1) bad.push(`S.seen 이 비었다(${r.seenN}) — 걸어온 자취가 안 실린다 [PREVIEW_UPTO]`);
+  if (!/저장 중/.test(r.saving)) bad.push(`보내는 동안 표시가 「${r.saving || '(빈칸)'}」다 — 저장 중이라고 말해야 한다 [ORD_AUTOSAVE]`);
+  if (!/저장됨/.test(r.okTxt)) bad.push(`성공 회신을 받았는데 표시가 「${r.okTxt || '(빈칸)'}」다 [ORD_AUTOSAVE]`);
+  if (r.outs.indexOf('momentedit:orderExit') >= 0)
+    bad.push('저장이 끝났는데 나가기가 또 저장한다(orderExit) — 사용자가 찾던 「그냥 나가기」가 아니다 [ORD_AUTOSAVE]');
+  if (r.outs.indexOf('momentedit:orderClose') < 0)
+    bad.push(`나가기를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${r.outs.join('·') || '없음'}) — 갇힌다 [ORD_AUTOSAVE]`);
+  if (!/저장 안 됨/.test(f.txt)) bad.push(`실패 회신을 받았는데 표시가 「${f.txt || '(빈칸)'}」다 — 조용히 실패하면 자동 저장은 거짓말이 된다 [ORD_AUTOSAVE]`);
+  if (!/bad/.test(f.cls) || f.role !== 'button') bad.push('저장 실패 표시를 누를 수 없다 — 다시 시도할 길이 없다 [ORD_AUTOSAVE]');
+  if (done.n !== 0) bad.push(`완성 저장 뒤에도 초안을 ${done.n}건 보냈다 — 완성본이 done:false 로 덮여 초안으로 되돌아간다 [ORD_AUTOSAVE]`);
+  if (done.txt !== '') bad.push(`완성 상태인데 저장 표시가 「${done.txt}」로 남아 있다 — 완성 화면에서 「저장 중」이 보인다 [ORD_AUTOSAVE]`);
+
+  const p = await h.probe();
+  if (p.errors.length) bad.push(`JS 오류 ${p.errors.length}개 — ${p.errors[0]}`);
+
+  console.log(`━━ 식순 빌더 자동 저장 @390  나가기 라벨=「${label.trim()}」 · 코스 전 초안 ${pre}건(0이어야)`);
+  console.log(`   값 하나 바꿈 → 초안 ${r.n}건 · seen ${r.seenN}개 · 보내는 중 「${r.saving}」 → 성공 회신 뒤 「${r.okTxt}」`);
+  console.log(`   저장 끝난 뒤 나가기 → ${r.outs.join(' · ') || '(아무것도 안 나감)'}  ← orderExit 가 없어야 '그냥 나가기'다`);
+  console.log(`   실패 회신 → 「${f.txt}」(누를 수 있나=${f.role === 'button'})`);
+  console.log(`   완성 상태 → 초안 ${done.n}건(0이어야) · 표시 「${done.txt || '(빈칸)'}」  ☐ 이 판은 _doneSaved 를 검사가 직접 세웠다(완성까지 걷지 않았다)`);
+  if (p.unseen.length) p.unseen.forEach((u) => console.log('   ☐ ' + u));
+
+  if (bad.length) { bad.forEach((b) => console.log('   ✖ ' + b)); process.exit(1); }
+  console.log('   ✔ 저장이 나가기에서 떨어졌다 — 나가기는 그냥 나가기다');
+  process.exit(0);
+} catch (e) {
+  console.log(`· 재는 도중에 멈췄습니다 — ${String(e).slice(0, 160)}`);
+  console.log('  ※ 종료 코드 2 = 재지 못했다. 통과가 아닙니다.');
+  process.exit(2);
+} finally {
+  await h.close();
+}

@@ -43,6 +43,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prog-fill{height:100%;background:var(--gold-deep);width:0%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .prog-sub{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}   /* 2행: 보조 정보(진행 상황 좌 · 다음 예고 우) */
 .prog-next{font-size:11px;color:var(--light);text-align:right;word-break:keep-all;flex:1}   /* [ORD_NEXTLABEL] 이름표 · 누르는 것이 아니다 */
+/* ★★[ORD_AUTOSAVE 2026-08-12] 저장 상태는 **줄을 새로 만들지 않는다.** 「순서 2 / 7 · 약 22분」
+   옆에 붙어 한 줄에 흡수된다 — 화면에 요소가 하나도 안 늘면서 알 수 있는 것만 는다.
+   ★평소엔 --light(가장 조용한 회색)다. 저장은 잘 되는 것이 정상이라 눈에 띌 이유가 없다.
+     안 됐을 때만 색이 서고, 그때만 눌리는 글자가 된다(그 한 경우에만 손이 필요하다). */
+.prog-subL{display:flex;align-items:baseline;gap:5px;flex-shrink:0;min-width:0}
+.prog-save{font-size:11px;color:var(--light);white-space:nowrap;transition:color .2s}
+.prog-save.bad{color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .stage{flex:1;padding:8px 0 12px;animation:fade .5s ease-out}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:22px;font-weight:700;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
@@ -523,7 +530,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
     <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
     <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
-    <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span></div>
+    <div class="prog-sub"><span class="prog-subL"><span class="prog-pct" id="ppct"></span><span class="prog-save" id="psave"></span></span><span class="prog-next" id="pnext"></span></div>
   </div>
   <div class="minitl" id="minitl" style="display:none"></div>
   <main class="stage" id="stage"></main>
@@ -1546,7 +1553,14 @@ function render(){
      되돌리는 것처럼 읽힌다(실제로 _obExit 이 그렇게 동작하므로 아래에서 경로도 함께 가른다). */
   var _xr0=document.getElementById('obExit');
   /* [REHEARSE_MERGED] 연습 공간이 없어져 이 단추는 늘 보인다(옛 판은 그 화면에서 숨겼다) */
-  if(_xr0){ _xr0.style.display=''; _xr0.textContent=(!courseStarted||(_doneSaved&&!_saving))?'나가기':'저장 후 나가기'; }
+  /* ★[ORD_AUTOSAVE 2026-08-12] 라벨은 늘 「나가기」다 — 저장은 이 버튼의 일이 아니게 됐다.
+     되돌리지 말 것: '저장 후 나가기'로 되돌리면 자동 저장이 도는데도 저장이 나가기에
+     매달린 것처럼 읽히고, 헤더에서 가장 무거운 글자가 다시 나가기 버튼이 된다. */
+  if(_xr0){ _xr0.style.display=''; _xr0.textContent='나가기'; }
+  /* ★[ORD_AUTOSAVE] 저장 표시는 **그릴 때마다** 상태와 맞춘다. 칠하는 곳을 자동 저장 안에만 두면
+     완성 저장으로 넘어간 순간처럼 **자동 저장이 안 도는 전환**에서 옛 글자가 그대로 남는다
+     (실측: 완성 화면에 「저장 안 됨 · 다시 시도」가 남아 있었다 — 검사가 잡았다). */
+  try{ _autoPaint(); }catch(e){}
   var st=STEPS[idx];
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var pre=(st.k==='intro'||st.k==='intro2'||st.k==='course'||st.k==='tune');
@@ -2864,7 +2878,62 @@ function _saveDone(ok,msg){
   _persist(); render();
   if(ok){ try{ toast('마이페이지에 저장했어요'); }catch(e){} }
 }
-function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
+function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} _autoQueue(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
+/* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장후 나가기 말고 그냥 나가기는없어?"]
+   ★고친 것은 버튼이 아니라 **구조**다. 지금까지 서버 저장 갈래는 둘뿐이었다 —
+     나갈 때(orderExit · done:false)와 완성했을 때(orderSave · done:true).
+     즉 **저장이 나가기에 인질로 잡혀 있었다.** 그래서 버튼 하나가 두 일을 지고
+     라벨이 「저장 후 나가기」가 됐고, 저장만 하고 계속 쓸 방법도 그냥 나갈 방법도 없었다.
+   ★그래서 저장 버튼을 새로 만들지 않았다. 저장을 **사람이 누르는 일에서 뺐다.**
+     고른 것이 바뀌면 1.5초 뒤 조용히 서버에 굳는다(부모 orderDraft · done:false).
+     누를 버튼이 없어지면 「저장했나?」라는 질문 자체가 사라진다.
+   ★확인 팝업도 만들지 않았다 — 나갈 때마다 묻는 창은 결정을 하나 더 만들 뿐이다.
+     이미 저장돼 있으면 **아무 말 없이 닫는다.** 저장이 실패했을 때만 종전 판이 뜬다.
+   ★완성본(_doneSaved)에는 절대 안 보낸다 — done:false 로 덮으면 완성이 초안으로 되돌아간다
+     (ORD_EXIT_ALWAYS · ORDERFILL_DONE 이 적어 둔 그 사고).
+   ★바뀐 것이 없으면 안 보낸다. render() 마다 _persist 가 불리므로, 그냥 앞뒤로 움직이는 것만으로
+     저장이 나가면 안 된다. 비교값에 **_seenK 도 넣는다** — 어디까지 걸었는지는 진짜 상태이고
+     미리듣기가 그걸로 뒷부분을 자른다(PREVIEW_UPTO). 빼면 걷기만 한 이동이 서버에 안 남는다. */
+var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null, _autoLast='';
+function _autoKey(){ try{ return JSON.stringify(S)+'|'+Object.keys(_seenK).join(','); }catch(e){ return ''; } }
+function _autoQueue(){
+  if(!EMBED||!courseStarted||_doneSaved||_saving) return;
+  var k=_autoKey(); if(!k||k===_autoLast) return;
+  _autoDirty=true; _autoPaint();
+  clearTimeout(_autoT); _autoT=setTimeout(_autoSend,1500);
+}
+function _autoSend(){
+  if(!EMBED||!courseStarted||_doneSaved||_saving) return;
+  if(_autoWait) return;   // 답을 기다리는 중 — 꼬리는 회신에서 다시 예약한다
+  var k=_autoKey(); if(!k||k===_autoLast){ _autoDirty=false; _autoPaint(); return; }
+  var pl; try{ pl=_ordPayload(); }catch(e){ _autoState='fail'; _autoPaint(); return; }
+  /* ★[ORD_AUTOSAVE] 보낸 표시는 **꾸러미를 지은 뒤에** 센다. _ordPayload 가 S.seen 을 채우므로
+     짓기 전 값으로 세면 보내자마자 '또 바뀐 것'이 되어 ①꼬리 저장이 한 번 더 나가고
+     ②나가기가 「아직 안 저장됨」으로 읽어 또 저장한다 — 실측으로 둘 다 났다(검사가 잡았다). */
+  _autoWait=true; _autoLast=_autoKey(); _autoState='saving'; _autoDirty=false; _autoPaint();
+  try{ parent.postMessage({type:'momentedit:orderDraft', data:pl}, window.location.origin); }
+  catch(e){ _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); return; }
+  /* 부모가 영영 답을 안 하면 스스로 푼다 — 안 그러면 자동 저장이 조용히 죽는다(EXIT_FEEDBACK 과 같은 병) */
+  clearTimeout(_autoGT); _autoGT=setTimeout(function(){ if(!_autoWait) return; _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); },PARENT_GIVEUP);
+}
+function _autoAck(ok){
+  clearTimeout(_autoGT); _autoWait=false; _autoState=ok?'ok':'fail';
+  if(!ok) _autoLast='';   // 실패한 것을 '보낸 것'으로 세지 않는다 — 다음 변화에 다시 보낸다
+  _autoPaint();
+  if(_autoKey()!==_autoLast){ clearTimeout(_autoT); _autoT=setTimeout(_autoSend,ok?600:4000); }   // 꼬리 저장(실패면 천천히)
+}
+/* 상태 한 줄 — 화면에 요소를 새로 늘리지 않고 「순서 2 / 7 · 약 22분」 옆에 붙는다.
+   ★보내기 전 1.5초 동안도 '저장 중…'으로 칠한다. 빈칸→저장 중→저장됨 세 번 깜빡이면
+     조용한 표시가 아니라 소란이 된다. 사람 눈에는 두 상태만 남긴다. */
+function _autoPaint(){
+  var e=document.getElementById('psave'); if(!e) return;
+  if(!EMBED||!courseStarted||_doneSaved){ e.textContent=''; e.className='prog-save'; e.removeAttribute('role'); e.removeAttribute('tabindex'); return; }
+  if(_autoState==='fail'){ e.textContent='· 저장 안 됨 · 다시 시도'; e.className='prog-save bad'; e.setAttribute('role','button'); e.setAttribute('tabindex','0'); return; }
+  e.removeAttribute('role'); e.removeAttribute('tabindex');
+  if(_autoDirty||_autoState==='saving'){ e.textContent='· 저장 중…'; e.className='prog-save'; return; }
+  e.textContent=_autoState==='ok'?'· 저장됨':''; e.className='prog-save';
+}
+document.addEventListener('click',function(ev){ var t=ev.target; if(t&&t.id==='psave'&&_autoState==='fail'){ _autoLast=''; clearTimeout(_autoT); _autoSend(); } });
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
@@ -2908,10 +2977,18 @@ var CUSTDIG=false;
      코스를 바꿔도 안 어긋난다). 그런데 그것이 **S 밖**에 있어서 서버 초안에도 주소에도 안 실렸다.
    ★값은 {키 목록}뿐이다 — 고객이 쓴 글이 아니다. off·ord 가 이미 같은 꼴로 주소에 실린다.
    ★완료 저장(done)에서는 비운다 — 다 걸었으면 자를 데가 없다. */
+/* ★[ORD_PAYLOAD 2026-08-12] 부모에게 보내는 꾸러미는 **한 곳에서만 짓는다.**
+   보내는 곳이 셋이 됐다 — 완성 저장(orderSave) · 나가며 저장(orderExit) · 자동 저장(orderDraft).
+   각자 지으면 한 곳만 고치는 날이 오고, 그날 그 갈래로 저장한 초안만 조용히 낡은 모양이 된다.
+   (S.seen 을 여기서 채운다 — 세 갈래 중 하나라도 빠뜨리면 미리듣기가 뒷부분을 못 자른다) */
+function _ordPayload(){
+  try{ S.seen = _doneSaved ? [] : Object.keys(_seenK); }catch(e){}
+  var _bs=fullBlocks();
+  return {S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}};
+}
 function _embedSave(){
   if(!EMBED) return;
-  try{ S.seen = _doneSaved ? [] : Object.keys(_seenK); }catch(e){}
-  try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
+  try{ parent.postMessage({type:'momentedit:orderSave', data:_ordPayload()}, window.location.origin); }catch(e){}
 }
 if(EMBED){
   // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
@@ -2931,25 +3008,36 @@ if(EMBED){
        예전엔 부모의 orderExitReset 만이 유일한 해제 경로라, 그 메시지가 유실되면 버튼이 죽었다. */
   window._obExit=function(){
     if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
-    try{ var _b=document.getElementById('obExit');
-      if(_b && courseStarted && !(_doneSaved&&!_saving)){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
+    /* ★[ORD_AUTOSAVE 2026-08-12] 라벨을 '저장 중…'으로 바꾸는 것은 **정말 저장할 때만.**
+       자동 저장이 이미 끝난 판에서는 아래 빠른 갈래로 그냥 닫히는데, 여기서 먼저 칠해 버리면
+       나가는 마지막 0.2초에 「저장 중…」이 스쳐 「또 저장하나?」로 읽힌다.
+       ★그래도 누른 티는 내야 한다(EXIT_FEEDBACK 이 고친 병) — 그건 저장 갈래에서 칠한다. */
     clearTimeout(_obExitT);
     _obExitT=setTimeout(function(){
       if(!_obExiting) return;
       _obExiting=false;
       try{ var _b2=document.getElementById('obExit');
-        if(_b2){ _b2.textContent=courseStarted?'저장 후 나가기':'나가기'; _b2.removeAttribute('aria-busy'); } }catch(e){}
+        if(_b2){ _b2.textContent='나가기'; _b2.removeAttribute('aria-busy'); } }catch(e){}
       try{ ordTell({title:'저장 확인이 오지 않았어요', body:'고르신 내용은 이 기기에 그대로 있어요. 잠시 뒤 다시 눌러 주세요.'}); }catch(e){}
     },PARENT_GIVEUP);   /* ★[WAIT_PAST_PARENT] 8000 이었다 — 부모가 아직 답하는 중인데 먼저 울었다 */
     /* [ORD_EXIT_ALWAYS] 이미 완료 저장(done:true)이 끝난 상태에서 또 나가기 저장을 보내면
        같은 초안이 done:false 로 덮여 완성이 초안으로 되돌아간다. 저장할 게 없으면 그냥 닫는다. */
     if(_doneSaved&&!_saving){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
+    /* ★[ORD_AUTOSAVE] 자동 저장이 이미 끝나 있으면 **그냥 닫는다** — 물어볼 것도, 또 보낼 것도 없다.
+       사용자가 찾던 「그냥 나가기」가 여기다. 버튼을 하나 더 만들어 준 게 아니라,
+       저장이 먼저 끝나 있어서 나가기가 저절로 그냥 나가기가 된 것이다. */
+    if(courseStarted&&_autoState==='ok'&&!_autoDirty&&!_autoWait&&_autoKey()===_autoLast){
+      clearTimeout(_obExitT); _obExiting=false;
+      try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return;
+    }
+    try{ var _b=document.getElementById('obExit');
+      if(_b && courseStarted){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
     var payload=null;
-    try{ if(courseStarted){ var _bs=fullBlocks(); payload={S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}; } }catch(e){}
+    try{ if(courseStarted) payload=_ordPayload(); }catch(e){}
     try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
   };
   var _cb=document.createElement('button'); _cb.type='button'; _cb.className='ob-exit'; _cb.id='obExit';
-  _cb.textContent=courseStarted?'저장 후 나가기':'나가기';   // 복원 진입 시 첫 렌더가 버튼 생성보다 먼저라 라벨이 어긋나던 것 — 생성 시점에 즉시 동기화
+  _cb.textContent='나가기';   // [ORD_AUTOSAVE] 상태에 따라 갈리지 않는다 — 저장은 자동이고 이 버튼은 나가기만 한다
   _cb.addEventListener('click',window._obExit);
   var _slot=document.getElementById('obExitSlot'); if(_slot) _slot.appendChild(_cb);
   document.addEventListener('keydown',function(e){
@@ -2960,12 +3048,15 @@ if(EMBED){
   window.addEventListener('message',function(ev){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
+    // [ORD_AUTOSAVE] 자동 저장 회신 — 성공·실패 둘 다 받는다. 한쪽만 받으면 표시가 한 상태에 갇힌다.
+    if(ev.data.type==='momentedit:orderDraftSaved'){ _autoAck(true); return; }
+    if(ev.data.type==='momentedit:orderDraftFail'){ _autoAck(false); return; }
     // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
     // [ORD_SAVE_STATE] 사유가 함께 오면 이 지면 안에서 브랜드 판으로 알린다 — 부모의 네이티브 alert 을 대신한다.
     if(ev.data.type==='momentedit:orderExitReset'){
       _obExiting=false; clearTimeout(_obExitT);
       try{ var _b3=document.getElementById('obExit');
-        if(_b3){ _b3.textContent=courseStarted?'저장 후 나가기':'나가기'; _b3.removeAttribute('aria-busy'); } }catch(e){}
+        if(_b3){ _b3.textContent='나가기'; _b3.removeAttribute('aria-busy'); } }catch(e){}
       if(ev.data.msg) ordTell({title:'나가기 전 저장이 안 됐어요', body:ev.data.msg+'\n\n고르신 내용은 이 기기에 그대로 있어요. 다시 눌러 주세요.'});
       return;
     }

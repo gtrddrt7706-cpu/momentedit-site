@@ -168,6 +168,28 @@ elif [ "$_sl_lay" -lt "$_sl_ask" ]; then echo "REVERT? check-mypage-shell.mjs: S
 elif [ "$_sl_lay" -ne "$_sl_last" ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행) 뒤에 또 재는 곳이 있다($_sl_last행) — 조상을 열어 둔 화면에서 재면 그 값이 오염된다 [SKEL_LAST_MEASURE]"; fail=1
 else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행) 뒤이고 **마지막으로 재는 곳**이다"; fi
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
+# ★★[ORD_AUTOSAVE 2026-08-12 사용자 질문 "저장후 나가기 말고 그냥 나가기는없어?"]
+#   고친 것은 버튼이 아니라 구조다. 서버 저장 갈래가 **나갈 때(orderExit)** 와 **완성(orderSave)**
+#   둘뿐이라 저장이 나가기에 인질로 잡혀 있었다 — 버튼 하나가 두 일을 지고 라벨이 「저장 후 나가기」가 됐다.
+#   그래서 저장 버튼을 새로 만들지 않고 **저장을 사람 손에서 뺐다**(orderDraft · done:false · 1.5초 디바운스).
+#   확인 팝업도 만들지 않았다 — 이미 저장돼 있으면 아무 말 없이 닫는다. 실패했을 때만 종전 판이 뜬다.
+#   ★안전선 넷을 scripts/check-ord-autosave.mjs 가 실브라우저에서 매일 잰다([NO_GATE] · 야간 잡).
+#     실측 통과: 코스 전 0건 · 값 하나 바꿈 1건 · seen 3개 · 저장 뒤 나가기는 orderClose 만 · 완성 상태 0건.
+#   ★검사가 실제로 두 결함을 잡았다(그물이 살아 있다는 증거):
+#     ① _autoLast 를 꾸러미 짓기 **전에** 셌더니 S.seen 이 뒤에 붙어 늘 '또 바뀜'이 됐다 —
+#        꼬리 저장이 한 번 더 나가고 나가기가 또 저장했다(= 그냥 나가기가 아니게 됐다)
+#     ② 저장 표시를 자동 저장 안에서만 칠했더니 완성 화면에 「저장 안 됨」이 남았다 → render() 에서도 칠한다
+chk 'ORD_AUTOSAVE' order-preview.html 6
+chk '_ordPayload' order-preview.html 4            # 꾸러미는 한 곳에서만 짓는다(완성·나가며·자동 셋이 같은 것을 보낸다)
+chk 'ORD_PAYLOAD' order-preview.html 1
+chk 'psave' order-preview.html 3                  # 저장 상태 자리 — 줄을 새로 만들지 않고 「순서 2/7」 옆에 붙는다
+chk '_doneSaved||_saving' order-preview.html 2    # ★완성본에 done:false 를 덮지 않는 그 두 자리
+chk 'ORD_AUTOSAVE' mypage.html 1
+chk 'orderDraftSaved' mypage.html 1               # 성공 회신 — 한쪽만 보내면 표시가 한 상태에 갇힌다
+chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 1591 · 자동 저장 1616) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
+nochk "textContent=courseStarted?'저장 후 나가기'" order-preview.html   # ★라벨을 되돌리지 말 것 — 저장은 이 버튼 일이 아니다
+chk 'ORD_AUTOSAVE' scripts/check-ord-autosave.mjs 8
+chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)

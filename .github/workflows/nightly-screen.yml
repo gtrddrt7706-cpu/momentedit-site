@@ -121,6 +121,10 @@ jobs:
           # ★[ORD_ASK_ONE][WAIT_PAST_PARENT] 2026-08-12 사용자 폰 스크린샷 — 알림 판이 두 개 겹쳐 떴다.
           #   판이 하나인가 · 스크롤 잠금이 풀리는가 · 부모(12초)보다 늦게 포기하는가를 매일 다시 잰다.
           node scripts/check-ord-dialog.mjs; note "check-ord-dialog (판 겹침·이른 포기)" $?
+          # ★[ORD_AUTOSAVE] 2026-08-12 사용자 질문 "그냥 나가기는 없어?" — 저장을 나가기에서 뗐다.
+          #   지키는 것은 자동 저장이 도는가가 아니라 안전선 넷이다: 완성본을 초안으로 안 덮는가 ·
+          #   S.seen 이 실리는가(미리듣기 자르기) · 저장 뒤 나가기가 또 저장 안 하는가 · 실패를 말하는가.
+          node scripts/check-ord-autosave.mjs; note "check-ord-autosave (저장이 나가기에서 떨어졌나)" $?
           for p in index.html mypage.html console.html order-preview.html guide.html; do
             node scripts/check-tap-targets.mjs "$p"; note "tap-targets $p" $?
           done
