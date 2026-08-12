@@ -37,7 +37,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /* 로그인 뒤에만 있는 것 — 사람이 눈으로 봐야 하는 목록. 고칠 때마다 여기에 한 줄 더한다. */
 const UNSEEN = [
   '좌석 · 음료 시트 — 바닥에서 올라오는지 · 3칸 타일이 균등한지 · 「선택 지우기」가 보이는지 [DRINK_SHEET]',
-  '예식 준비 트랙 행 — 「좌석 · 음료」 라벨과 버튼 폭 정렬 · 그 줄만이 아니라 **트랙 전체 줄 모양**을 함께 본다 [SEAT_DRINK_LABEL][TRK_ACT_ALIGN]',
+  /* ★[SKEL_LAYOUT 2026-08-12] 이 줄에서 **버튼 폭 정렬은 빠졌다** — 기계가 재게 됐다(맨 아래 SKEL_LAYOUT).
+     남는 것은 기계가 못 보는 둘: ①실제 값이 들어간 라벨 길이 ②제품이 그리는 「미리듣기」 보조 단추
+       (초안이 있어야 서는 단추라 빈 객체 판에서는 검사가 대신 하나 놓고 잰다 · 그 한계는 거기 적어 뒀다).
+     ★목록에서 지우지 않고 **좁힌다** — 지우면 「이젠 다 본다」로 읽힌다(그게 아니다). */
+  '예식 준비 트랙 행 — 실제 값이 들어간 「좌석 · 음료」 라벨 길이 · 제품이 그리는 「미리듣기」 보조 단추가 그 줄에 어떻게 서는지 [SEAT_DRINK_LABEL][TRK_ACT_ALIGN]',
   '저장 중 표시가 실제 저장 때 한 자리에서만 뜨는지 [BUSY_ONE_PLACE]',
   /* ★[SHELL_SKELETON 2026-08-12] 「완료 항목이 접히지 않은 채인지 [TRK_NO_FOLD]」는 여기서 뺐다 —
      빈 객체로 진짜 트랙을 그려 .trk-fold 를 실제로 세게 됐다(아래 SHELL_SKELETON).
@@ -336,6 +340,66 @@ try {
   if (ask.q && !ask.sent.includes(ask.q))
     bad.push(`눌렀는데 그 질문이 상자에 안 실렸다 — 빈 상자만 열린다. 실린 것: 「${ask.sent || '(없음)'}」 [ASK_SENDS]`);
 
+  /* ★★[SKEL_LAYOUT 2026-08-12 · 클로드코드 요청 「어떻게 열고 쟀는지 한 줄만」]
+     설명 대신 **하네스에 넣는다.** 임시 스크립트에만 있으면 다음에 또 각자 알아낸다.
+     ★여는 법(내가 쓴 그대로) — ①renderProduction({}, null) ②#mp_production 의 조상 중
+       display:none 인 것을 전부 block 으로 ③#loginView 를 none 으로. 그 뒤에야 좌표가 선다.
+       (SKEL_NOT_VISIBLE 이 적어 둔 그대로다 — style.display 는 보인다는 뜻이 아니다)
+     ★이 단계는 **맨 마지막**에 둔다. 조상 숨김을 여는 것은 화면을 바꾸는 일이라,
+       앞의 측정(probe·busy·REFUND_STATE·ASK_SENDS)이 끝난 뒤여야 오염이 없다.
+     ★여기서 재는 것은 [TRK_ACT_ALIGN] 하나 — **주 버튼들이 한 열에 서는가.**
+       라벨이 길어지면 그 줄만 왼쪽으로 삐져나온다(2026-08-10 실사고). 값 없이도 재진다.
+       (줄 수는 박지 않는다 — 트랙이 늘고 주는 자리라 숫자를 적으면 그 숫자가 먼저 낡는다)
+     ★「미리듣기」 보조 단추는 **초안이 있어야 서는 단추**라 빈 객체로는 안 그려진다(mypage 4691).
+       그래서 **검사가 하나 놓고** 잰다. 놓을 때 클래스를 손으로 적지 않고 원본에서 정규식으로 찾는다 —
+       ★찾는 말(패턴)은 사람이 쓴 것이 맞다. 지켜지는 것은 그 뒤다: 제품이 그 클래스 조합을 바꾸면
+         정규식이 **못 찾고 붉는다**(classFound=false). 조용히 옛 클래스로 재는 일은 없다.
+         손으로 문자열만 복사해 두면 그 자리에서 갈라진다 — 이 세션에만 세 번 그랬다.
+       ★그러니 이 수치는 「그 클래스 조합이 그 줄에서 만드는 모양」이지
+         「제품이 끝까지 만들어 낸 것」은 아니다. 그 한계를 여기 적어 둔다. */
+  const lay = await h.page.evaluate(async () => {
+    if (typeof window.renderProduction !== 'function') return { can: false };
+    window._mpStateD = { stage: '제작중' }; renderProduction({}, null);
+    let n = document.getElementById('mp_production');
+    for (let a = n; a && a !== document.body; a = a.parentElement) {
+      if (getComputedStyle(a).display === 'none') a.style.display = 'block';
+    }
+    const lv = document.getElementById('loginView'); if (lv) lv.style.display = 'none';
+    await new Promise((r) => setTimeout(r, 200));
+    const rows = [...document.querySelectorAll('.trk')];
+    const mains = rows.map((x) => x.querySelector('.trk-act:not(.trk-act-min)')).filter(Boolean);
+    if (!mains.length) return { can: false, why: '주 버튼이 하나도 안 그려졌다' };
+    const L = [...new Set(mains.map((e) => Math.round(e.getBoundingClientRect().left)))];
+    const R = [...new Set(mains.map((e) => Math.round(e.getBoundingClientRect().right)))];
+    /* 보조 단추 — 클래스는 원본에서 뽑아 온다(다시 적지 않는다) */
+    const src = [...document.querySelectorAll('script:not([src])')].map((e) => e.textContent).join('\n');
+    const cm = src.match(/class="(cc-btn-ghost trk-act trk-act-min)"/);
+    let pre = null;
+    if (cm) {
+      const row = rows.find((x) => x.querySelector('.trk-act:not(.trk-act-min)'));
+      row.querySelector('.trk-act:not(.trk-act-min)')
+        .insertAdjacentHTML('beforebegin', '<button type="button" class="' + cm[1] + '">미리듣기</button>');
+      const p2 = row.querySelector('.trk-act-min'), m2 = row.querySelector('.trk-act:not(.trk-act-min)');
+      const pb = p2.getBoundingClientRect(), mb = m2.getBoundingClientRect(), cs = getComputedStyle(p2);
+      pre = { w: Math.round(pb.width), h: Math.round(pb.height), right: Math.round(pb.right),
+        mainLeft: Math.round(mb.left), mainH: Math.round(mb.height), border: cs.borderTopWidth };
+    }
+    return { can: true, mains: mains.length, L, R, pre, classFound: !!cm };
+  });
+  if (!lay.can) {
+    bad.push(`트랙 좌표를 못 쟀다 — 이 검사가 헛돌았다(통과 아님)${lay.why ? ' · ' + lay.why : ''} [SKEL_LAYOUT]`);
+  } else {
+    if (lay.L.length !== 1 || lay.R.length !== 1)
+      bad.push(`주 버튼 ${lay.mains}개가 한 열이 아니다 — 왼끝 ${lay.L.join('/')} · 오른끝 ${lay.R.join('/')} (라벨이 길어진 줄만 삐져나온다) [TRK_ACT_ALIGN]`);
+    if (!lay.classFound)
+      bad.push(`보조 단추 클래스를 원본에서 못 뽑았다 — 그물이 헛돌았다(손으로 적지 말고 정규식을 고칠 것) [SKEL_LAYOUT]`);
+    else if (lay.pre) {
+      if (lay.pre.border !== '0px') bad.push(`보조 단추에 테두리가 돌아왔다(${lay.pre.border}) — 한 줄에 상자가 둘이 된다 [TRK_PRE_QUIET]`);
+      if (lay.pre.h !== lay.pre.mainH) bad.push(`보조(${lay.pre.h}px)와 주(${lay.pre.mainH}px) 높이가 다르다 — 나란히 선 두 상자의 위아래 선이 어긋난다 [TRK_ACT_H36]`);
+      if (lay.pre.right > lay.pre.mainLeft) bad.push(`보조 단추가 주 버튼 열을 침범한다(오른끝 ${lay.pre.right} > 주 왼끝 ${lay.pre.mainLeft}) [TRK_ACT_ALIGN]`);
+    }
+  }
+
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
   console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
   console.log(`   완료 행 접기 .trk-fold ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
@@ -344,10 +408,14 @@ try {
      붉은 줄이 바로 아래 서긴 하지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸을 남기는 것**이
      11-d 로 적어 둔 바로 그 병이다(FOLD_ALIVE_CANT_LOOK 과 같은 얼굴 · 같은 날 세 번째). */
   console.log(sk.can
-    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야) · ☐ 화면에 뜬 것은 아니다(부모가 로그인 전이라 닫혀 있음 · 좌표는 못 잼) [SKEL_NOT_VISIBLE]`
+    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야) · ☐ 이 자리에선 화면에 뜬 것이 아니다(부모가 로그인 전이라 닫혀 있음) · 좌표는 아래 [SKEL_LAYOUT] 이 따로 열고 잰다 [SKEL_NOT_VISIBLE]`
     : `   [SHELL_SKELETON] 진짜 제작 트랙을 못 그렸다 — 여기서는 **아무것도 못 쟀다**(0개가 아니다)`);
   /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
   console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);
+  console.log(lay.can
+    ? `   [SKEL_LAYOUT] 조상 열고 잰 좌표 — 주 버튼 ${lay.mains}개 왼끝 ${lay.L.join('/')} · 오른끝 ${lay.R.join('/')}`
+      + (lay.pre ? ` · 보조 w${lay.pre.w} h${lay.pre.h} 테두리 ${lay.pre.border}(☐ 이 보조는 검사가 놓은 것 — 초안이 있어야 서는 단추라서)` : '')
+    : `   [SKEL_LAYOUT] 좌표를 못 쟀다`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
 } finally {
   await h.close();
