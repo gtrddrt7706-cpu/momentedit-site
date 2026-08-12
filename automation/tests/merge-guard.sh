@@ -1606,6 +1606,15 @@ chk 'VEIL_RETIRED' api/_ritual-kb.js 3                  # AI 상담 지식
 nochk "'veil'" order-preview.html                       # 빌더 코드에 veil 키가 남으면 팔레트·순서·요약 어딘가로 다시 샌다
 nochk "'veil'" assets/ritual-cue.js
 nochk 'D.VEIL' api/_ritual-kb.js
+# ★★[VEIL_RETIRED 네 번째 겹 · 2026-08-12] 관리자 두 면도 같이 잠근다 — 목록 ★16 이 말한 「두 줄」이다.
+#   ①코드 이름 ②그 사람이 읽던 말. 08-03 폐지가 화면 admin.html 만 손대고 GAS 사본을 남겨,
+#   폐지 전 초안(기본값 'mother')에는 진행표에 실행 불가한 한 줄이 계속 섰다.
+#   ★admin.html 쪽 '읽던 말' 은 안 건다 — 그 파일의 폐지 근거 주석이 그 말을 그대로 인용하고 있어
+#     그 주석 자신을 문다(이번 세션에 다섯 번 밟은 함정). 그래서 코드 이름으로만 잠근다.
+chk 'VEIL_RETIRED' automation/admin/Admin.html 2         # 이름표·행 두 자리에 폐지 사유
+nochk "'veil'" automation/admin/Admin.html               # ①코드 이름
+nochk '베일 다운' automation/admin/Admin.html             # ②디렉터가 읽던 말
+nochk 's3d.veil' admin.html                              # ①코드 이름(화면 관리자 · 08-03에 이미 뺌)
 
 # [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
 chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다
