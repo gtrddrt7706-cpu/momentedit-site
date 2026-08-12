@@ -159,9 +159,21 @@ try {
          (안쪽 setTimeout 은 더 깊게 들여쓰여 있어 이 그물에 안 걸린다) */
     const spill = new RegExp('\\n' + (ind || '') + '[ \\t]{0,1}(setTimeout|function|var (?!_ra))', 'g');
     if (spill.test(slice.slice(head[0].length))) { out.spilled = true; return out; }
-    /* ③닫힘 그물 — 목록이 없어 일반적이다. 마지막 줄이 그 닫는 줄이어야 한다. */
+    /* ★★③깊이 그물 [SLICE_DEPTH_NET 2026-08-12 실측] — 목록이 없어 일반적이다.
+         **머리와 닫는 줄 사이의 모든 줄은 머리보다 깊게 들여쓰여 있다.**
+       ★옛 ③(「마지막 줄이 그 닫는 줄인가」)은 **구조상 늘 참이었다.** slice 를 바로 그
+         닫는 줄로 잘라 냈으니(indexOf → slice) 마지막 줄은 언제나 그것이다.
+         넘친 판에서도 참이었다 — 실측: 닫는 줄을 4칸으로 정리하고 뒤에 2칸 덩이를 하나 두니
+         **880자·19줄**(정상 16줄)을 삼켰는데도 마지막 줄은 그대로 '  }, 0);' 였다.
+         즉 ③은 아무것도 막지 못하는 죽은 그물이었고, 보호는 전부 ②(목록 그물) 하나에 얹혀 있었다.
+         ②는 「목록이라 새는 날이 온다」고 그 자리에 스스로 적어 둔 그물이다.
+       ★그래서 **자른 자리**가 아니라 **안쪽 모양**을 본다 — 자른 자리를 다시 확인하는 것은
+         내가 방금 한 일을 확인하는 것이지 조각을 확인하는 게 아니다.
+         넘치면 남의 덩이의 머리 줄(머리와 같은 깊이)이 반드시 섞여 들어온다. 목록이 없다.
+       (이 파일은 공백 들여쓰기다 — 탭이 섞이면 길이 비교가 거칠어지니 그때는 폭을 정규화할 것) */
     const lines = slice.split('\n');
-    if (lines[lines.length - 1] !== ind + '}, 0);') { out.spilled = true; return out; }
+    const inner = lines.slice(1, -1).filter((l) => l.trim());
+    if (inner.some((l) => l.match(/^[ \t]*/)[0].length <= ind.length)) { out.spilled = true; return out; }
     const m = [slice];
     out.sliced = true;
     out.sliceLines = lines.length;
