@@ -554,6 +554,18 @@ chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
 #   ★기다리는 자리는 둘(완료 저장·나가기)이고 같은 부모 호출을 본다 — 수를 따로 적지 말 것.
 #     따로 적어 뒀던 것이 이 사고의 뿌리다(16000 대 8000).
 chk 'ORD_ASK_ONE' order-preview.html 3
+# ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
+#   완성 화면에 듣기 단추가 둘이었다(미리듣기 · 연습 공간 열기). 둘 다 「내 예식을 들어본다」라
+#   무엇이 다른지 알 수 없었고, 고르는 일 자체가 일이 됐다.
+#   ★연습 공간 화면·진입점 **폐지 — 되살리지 말 것**(제거 지시 보존 규칙).
+#   ★대본 복사·파일 저장·당일까지 준비할 것은 **완성 화면에 남겼다.** 미리듣기 안에 못 넣는다 —
+#     미리듣기는 ?S= 주소로 열리고 그 주소에는 고객이 쓴 글(서약문·편지)을 싣지 않기 때문이다.
+#     「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
+chk 'REHEARSE_MERGED' order-preview.html 5
+nochk 'openRehearse' order-preview.html          # ★진입점을 되살리지 말 것
+nochk 'function renderRehearse' order-preview.html
+chk '전체 대본 복사' order-preview.html 1        # 연습 공간에서 옮겨 온 것 — 같이 사라지면 안 된다
+chk '당일까지 준비할 것' order-preview.html 1
 chk 'WAIT_PAST_PARENT' order-preview.html 2
 chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
 chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9
@@ -1757,7 +1769,11 @@ chk 'SAMPLE_FOOT' mypage.html 3                          # 판 높이에서 하�
 chk 'VOW_CHORUS' assets/ritual-data.js 1
 chk 'VOW_CHORUS' assets/ritual-cue.js 1
 chk 'VOW_CHORUS' assets/ritual-story.js 3
-chk 'VOW_CHORUS' order-preview.html 4
+# ★[REHEARSE_MERGED 2026-08-12] 4→3. 연습 공간 화면에 있던 **네 번째 표시 자리**가 그 화면과 함께 사라졌다.
+#   남은 셋은 ①VOWBOTH 인라인 사본 근거(1129) ②서약 절 화면이 문장을 보여 주는 자리(2207)
+#   ③복사되는 대본이 읽는 순서에 넣는 자리(2554). 고객이 준비하는 자리와 들고 갈 대본 둘 다 남았다.
+#   ★확인하고 줄인 것이다 — 세지 않고 숫자만 맞추면 이 마커가 지키던 것이 조용히 빠진다.
+chk 'VOW_CHORUS' order-preview.html 3
 chk 'VOW_CHORUS' scripts/assemble-narration.mjs 1
 chk 'VOW_CHORUS' scripts/check-text-audio.mjs 1
 chk 'VOW_CHORUS' scripts/check-ritual-mirror.js 1
