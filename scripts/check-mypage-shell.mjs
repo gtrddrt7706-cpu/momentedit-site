@@ -134,13 +134,37 @@ try {
        지어내는 것은 단추 한 개뿐이고, 그 모양도 mypage.html 2682행 그대로다.
        원장 전체를 지어내지 않는다 — 이 파일이 거절하는 「허구 확인」이 되지 않게. */
   const ask = await h.page.evaluate(() => {
-    const out = { api: null, sliced: false, q: '', kakao: false, wired: false, sent: '' };
+    const out = { api: null, sliced: false, spilled: false, sliceLines: 0, q: '', kakao: false, wired: false, sent: '' };
     out.api = (() => { const A = window.MEAdvisor;
       return { has: !!A, available: !!(A && A.available), ask: !!(A && typeof A.ask === 'function') }; })();
     const src = [...document.querySelectorAll('script:not([src])')].map((s) => s.textContent).join('\n');
-    const m = src.match(/setTimeout\(function\(\)\{\s*var _ra = \$\('mp_refundAsk'\);[\s\S]*?\n {2}\}, 0\);/);
-    if (!m) return out;                       // ★못 떼어 왔으면 통과가 아니라 실패다(아래에서 붉게 함)
+    /* ★★[SLICE_WIDTH_READ 2026-08-11 실측 · ★15 재발] 닫는 줄의 들여쓰기를 **박지 않는다.**
+       처음 판은 `\n {2}\}, 0\);` 로 2칸을 박아 뒀다. ★15 의 옛 `^          }$`(10칸 고정)와 같은 실수다.
+       ★실제로 넘쳐 봤다 — 이 덩이의 닫는 줄을 4칸으로 재정렬(정당한 정리)하고 뒤쪽에 2칸
+         `}, 0);` 로 끝나는 평범한 덩이를 하나 두니, 그물이 **그 사이를 통째로 삼켰다.**
+         그리고 아래 eval 이 삼킨 남의 코드를 **실행했다.** 검사는 「코드 떼옴=true · 눌림=true」로
+         조용히 초록이었다. 지금 안 터지는 유일한 이유는 이 파일에 그런 줄이 **하나뿐**이라서다 — 운이다.
+       ★그래서 ★15 의 고침 셋을 그대로 옮긴다:
+         ①폭을 **첫 줄에서 읽는다** ②넘치면 섞일 것(다른 setTimeout 머리)을 그물로 본다
+         ③조각의 **마지막 줄이 닫는 줄인지** 본다. ②는 목록이라 새는 날이 오고, ③은 목록이 없다. */
+    const head = src.match(/^([ \t]*)setTimeout\(function\(\)\{\s*\n?\s*var _ra = \$\('mp_refundAsk'\);/m);
+    if (!head) return out;
+    const ind = head[1];                                        // ← 박지 않고 읽는다
+    const start = src.indexOf(head[0]);
+    const closer = '\n' + ind + '}, 0);';
+    const end = src.indexOf(closer, start);
+    if (end < 0) return out;
+    const slice = src.slice(start, end + closer.length);
+    /* ②명령 그물 — 이 덩이 안에 **또 다른 setTimeout 머리**가 같은/바깥 들여쓰기로 있으면 넘친 것이다.
+         (안쪽 setTimeout 은 더 깊게 들여쓰여 있어 이 그물에 안 걸린다) */
+    const spill = new RegExp('\\n' + (ind || '') + '[ \\t]{0,1}(setTimeout|function|var (?!_ra))', 'g');
+    if (spill.test(slice.slice(head[0].length))) { out.spilled = true; return out; }
+    /* ③닫힘 그물 — 목록이 없어 일반적이다. 마지막 줄이 그 닫는 줄이어야 한다. */
+    const lines = slice.split('\n');
+    if (lines[lines.length - 1] !== ind + '}, 0);') { out.spilled = true; return out; }
+    const m = [slice];
     out.sliced = true;
+    out.sliceLines = lines.length;
     const qm = m[0].match(/\.ask\('([^']+)'\)/);
     out.q = qm ? qm[1] : '';
     const host = document.createElement('div');
@@ -161,7 +185,11 @@ try {
   });
   if (!ask.api.has || !ask.api.available || !ask.api.ask)
     bad.push(`상담 도우미 공개 API 가 없다 (있음=${ask.api.has} available=${ask.api.available} ask=${ask.api.ask}) — 단추가 카카오톡 안내로 바뀐다 [ASK_SENDS]`);
-  if (!ask.sliced)
+  /* ★[SLICE_WIDTH_READ] 넘친 것과 못 떼어 온 것을 **다른 말로** 알린다 —
+     둘 다 「못 떼어 왔다」로 뭉치면, 넘쳐서 남의 코드를 실행한 판을 사람이 정규식 탓으로 읽고 넓히려 든다. */
+  if (ask.spilled)
+    bad.push(`떼어 온 조각이 그 덩이 **밖으로 넘쳤다** — 아래 eval 이 남의 코드를 실행할 뻔했다(★15). 그물을 넓히지 말고 그 덩이의 닫는 줄부터 확인할 것 [ASK_SENDS]`);
+  else if (!ask.sliced)
     bad.push(`mypage.html 에서 그 자리 코드를 떼어 오지 못했다 — 그물이 헛돌았다(코드가 바뀌었으면 위 정규식을 고칠 것) [ASK_SENDS]`);
   else if (!ask.q)
     bad.push(`단추가 보낼 **질문 문구가 없다** — 빈 상자만 열린다. 라벨은 「물어보기」인데 [ASK_SENDS]`);
