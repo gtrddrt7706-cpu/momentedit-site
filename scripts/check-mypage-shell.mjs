@@ -63,13 +63,31 @@ try {
 
   const dom = await h.page.evaluate(() => ({
     login: !!(document.getElementById('loginView') && document.getElementById('loginView').offsetParent),
-    fold: document.querySelectorAll('.done-fold,[class*="done-fold"]').length,
+    /* ★★[TRK_NO_FOLD 자 교정 2026-08-12] 폐지된 것은 `.trk-fold`(예식 준비 트랙의 완료 행 접기)다.
+       이 검사는 `.done-fold` 를 세고 있었다 — 그건 **청첩장 트랙의 접힘**(하객 안내·모바일 QR)이고
+       살아 있는 화면이다. mypage.html 866~871·5215~5254 가 지금도 쓴다.
+       ★지금까지 안 터진 이유는 로그인 전 껍데기에 그 요소가 안 그려져서다 — 운이다.
+         로그인 뒤에 한 번이라도 돌면 멀쩡한 청첩장 접힘을 보고 「폐지분이 되살아났다」고 붉는다.
+         늑대를 그렇게 부르면 다음 진짜 늑대 때 아무도 안 본다(★9).
+       ★자를 잘못 든 것이지 화면이 틀린 게 아니었다(★8). 자를 바꾼다. */
+    fold: document.querySelectorAll('.trk-fold,[class*="trk-fold"]').length,
+    /* ★★[FOLD_ALIVE_CANT_LOOK 2026-08-12] 살아 있는 쪽(청첩장 접힘)은 **여기서 못 잰다.**
+       처음엔 「0 이면 오삭제 신호」로 적었는데, 실측해 보니 이 자리에서는 **언제나 0** 이다 —
+       `.done-fold` 를 그리는 두 자리(4828·5141) 가 전부 `invStepDone(...)` 이고,
+       그건 로그인한 고객이 청첩장을 발행한 뒤에만 불린다. 껍데기에는 올 일이 없다.
+       ★그러면 「0개」라는 숫자가 **잰 값처럼 보이면서 실은 안 잰 값**이 된다 —
+         방금 고친 병(자를 잘못 들어 헛붉음)의 반대쪽 얼굴이다. 0 을 본 사람이
+         2026-07-18 오삭제가 또 났다고 읽으면, 이번엔 **가짜 늑대를 우리가 만든다.**
+       [CANT_LOOK] 규칙대로 숫자 대신 「못 잼」이라 적는다.
+       ★그럼 오삭제는 누가 지키나 — merge-guard 의 `chk 'done-fold' mypage.html 3` 이 지킨다.
+         그건 화면이 아니라 **원본**을 세므로 로그인 없이도 진짜로 잰다. 여기서 겹쳐 셀 이유가 없다. */
+    foldAliveCantLook: true,
     busy: document.querySelectorAll('.busy-row').length,
     busyIds: [...document.querySelectorAll('[id*="busy"]')].map((e) => e.id),
   }));
 
   /* ★[TRK_NO_FOLD] 완료 접기는 2026-08-09 사용자 지시로 폐지했다. 마크업·CSS 모두 0 이어야 한다. */
-  if (dom.fold) bad.push(`완료 접기(.done-fold)가 ${dom.fold}개 되살아났다 — 2026-08-09 폐지분이다`);
+  if (dom.fold) bad.push(`완료 행 접기(.trk-fold)가 ${dom.fold}개 되살아났다 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
   /* ★[BUSY_ONE_PLACE] 대기 표시는 한 낱말·한 자리다. 껍데기에서 잴 수 있는 것은 '짜임이 하나인가'까지. */
   if (dom.busy > 1) bad.push(`저장 표시 짜임(.busy-row)이 ${dom.busy}개 — 한 자리여야 한다`);
 
@@ -274,7 +292,9 @@ try {
 
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
   console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
-  console.log(`   완료 접기 ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
+  console.log(`   완료 행 접기 .trk-fold ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
+  /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
+  console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
 } finally {
   await h.close();

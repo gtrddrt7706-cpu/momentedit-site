@@ -106,6 +106,13 @@ chk 'REFUND_ACCT_REQ' automation/consultation/consultation-booking.gs 3   # 관�
 chk 'RECEIPT_PAID_SPLIT' automation/platform/70_journey.gs 2   # 예약금(Bookings 입금확인) vs 계약금 잔액(Customers 입금상태) 수령 판정 분리 — 계약서 발송~계약금 입금 사이 '계약금 잔액' 초과 발행지시 차단. ★단일 게이트(_depCf 공유) 복원 금지
 chk 'RECEIPT_QUEUE_LEDGER' automation/admin/admin.gs 1   # 관리자 큐를 원장(_cashReceiptLedger) 단일 소스로 — 카드결제분 이중발급 차단·계약금 잔액 누락 해소·잔금 확정금액 반영. ★큐 자체계산 복원 금지
 chk 'done-fold' mypage.html 3                      # 완성 화면 접힘(과거 오삭제 사고)
+# ★★[TRK_NO_FOLD 자 교정 2026-08-12] 위 .done-fold 는 **청첩장 트랙의 접힘**이고 살아 있다.
+#   폐지된 것은 `.trk-fold`(예식 준비 트랙 완료 행 접기 · 2026-08-09)로 **이름이 다르다.**
+#   check-mypage-shell 이 .done-fold 를 세면서 「폐지분이 되살아났다」고 말하고 있었다 —
+#   로그인 전엔 그 요소가 안 그려져 지금까지 안 터졌을 뿐이다. 로그인 뒤 한 번이라도 돌면
+#   멀쩡한 청첩장 접힘을 보고 헛붉는다(★9 늑대). 자를 .trk-fold 로 바꿨다.
+chk 'trk-fold' scripts/check-mypage-shell.mjs 3
+nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐지분 세는 자로 되돌리지 말 것
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
@@ -1615,6 +1622,11 @@ chk 'VEIL_RETIRED' automation/admin/Admin.html 2         # 이름표·행 두 �
 nochk "'veil'" automation/admin/Admin.html               # ①코드 이름
 nochk '베일 다운' automation/admin/Admin.html             # ②디렉터가 읽던 말
 nochk 's3d.veil' admin.html                              # ①코드 이름(화면 관리자 · 08-03에 이미 뺌)
+# ★반대쪽도 못박는다 — 같은 자로 훑다가 **남겨야 할 것**을 지우지 않게.
+#   축가 행은 남긴다(SONG_RETIRED 원문이 「없애는 것이 아니라 옮기는 것」 · 지금도 할 수 있는 순서다).
+#   기준은 「지금 고를 수 있나」가 아니라 「지금 할 수 있나」. 베일=삭제 · 축가·링워밍=유지.
+chk 'SONG_RETIRED' automation/admin/Admin.html 1          # 남긴 근거 — 없으면 다음 사람이 베일과 같은 것으로 보고 지운다
+chk "_ko('song'" automation/admin/Admin.html 1            # 그 행 자체
 
 # [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
 chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다
