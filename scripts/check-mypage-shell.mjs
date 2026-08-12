@@ -116,7 +116,16 @@ try {
     try { window._mpStateD = { stage: '제작중' }; renderProduction({}, null); } catch (e) { return { can: false, why: e.message }; }
     await new Promise((r) => setTimeout(r, 250));
     const box = document.getElementById('mp_production');
-    return { can: true, shown: !!(box && box.style.display === 'block'),
+    /* ★★[SKEL_NOT_VISIBLE 2026-08-12] `style.display==='block'` 은 **보인다는 뜻이 아니다.**
+       실측: 이 자리에서 그 값은 true 인데 `offsetParent` 는 null 이고 폭·높이가 0×0 이다 —
+       부모 `#mypageView` 가 아직 display:none 이기 때문이다(로그인 전이라 당연하다).
+       ★그래서 이름을 「보임」에서 **「그리기 끝남」**으로 바꾼다. 재는 것은 인라인 속성 하나뿐이다.
+       ★여기서 세는 것(.trk-fold 개수)은 배치와 무관하므로 이 검사 목적에는 영향이 없다.
+         하지만 **좌표·폭을 재려는 사람**은 전부 0 을 받고 「무너졌다」고 읽는다 — 실제로 그럴 뻔했다.
+         좌표를 재려면 #mypageView 를 display:block 으로 열고, 「미리듣기」처럼 초안이 있어야
+         서는 단추는 ritualDraft({_v:3,S:{...}})를 함께 넘겨야 한다(mypage 4691 urlFromDraft). */
+    return { can: true, drawn: !!(box && box.style.display === 'block'),
+      offsetParent: !!(box && box.offsetParent),
       trk: document.querySelectorAll('.trk').length,
       fold: document.querySelectorAll('.trk-fold,[class*="trk-fold"]').length };
   });
@@ -124,7 +133,7 @@ try {
     /* ★못 그렸으면 「통과」가 아니라 「못 쟀다」다 — 조용히 넘기면 안 쏜 화살이 된다(11-c). */
     bad.push(`제작 트랙을 못 그렸다 — 이 구조 검사가 헛돌았다(통과 아님)${sk.why ? ' · ' + sk.why : ''} [SHELL_SKELETON]`);
   } else {
-    if (!sk.shown || sk.trk < 1) bad.push(`제작 트랙이 안 그려졌다(보임=${sk.shown} · 줄 ${sk.trk}) — 겨냥이 사라졌다 [SHELL_SKELETON]`);
+    if (!sk.drawn || sk.trk < 1) bad.push(`제작 트랙이 안 그려졌다(그리기 끝남=${sk.drawn} · 줄 ${sk.trk}) — 겨냥이 사라졌다 [SHELL_SKELETON]`);
     if (sk.fold) bad.push(`★진짜 트랙 화면에서 완료 행 접기(.trk-fold)가 ${sk.fold}개 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
   }
 
@@ -335,7 +344,7 @@ try {
      붉은 줄이 바로 아래 서긴 하지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸을 남기는 것**이
      11-d 로 적어 둔 바로 그 병이다(FOLD_ALIVE_CANT_LOOK 과 같은 얼굴 · 같은 날 세 번째). */
   console.log(sk.can
-    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야)`
+    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야) · ☐ 화면에 뜬 것은 아니다(부모가 로그인 전이라 닫혀 있음 · 좌표는 못 잼) [SKEL_NOT_VISIBLE]`
     : `   [SHELL_SKELETON] 진짜 제작 트랙을 못 그렸다 — 여기서는 **아무것도 못 쟀다**(0개가 아니다)`);
   /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
   console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);

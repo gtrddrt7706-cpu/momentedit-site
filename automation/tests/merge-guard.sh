@@ -123,6 +123,12 @@ chk 'renderProduction({}, null)' scripts/check-mypage-shell.mjs 1   # 빈 객체
 # ★못 그린 판에서 숫자를 찍지 않는다 — 옛 판은 「트랙 undefined줄 · 폐지분 undefined개(0이어야)」였다(실측).
 #   붉은 줄은 아래 서지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸**을 남기는 것이 목록 11-d 의 병이다.
 chk '아무것도 못 쟀다' scripts/check-mypage-shell.mjs 1
+# ★★[SKEL_NOT_VISIBLE 2026-08-12] style.display==='block' 은 **보인다는 뜻이 아니다.**
+#   실측: 그 값은 true 인데 offsetParent 는 null · 폭높이 0x0 이다(부모 #mypageView 가 로그인 전이라 닫혀 있다).
+#   .trk-fold 세기는 배치와 무관해 이 검사 목적엔 영향 없다. 다만 **좌표를 재려는 사람**이 0 을 받고
+#   「무너졌다」로 읽는다 — 실제로 그럴 뻔했다. 그래서 이름을 「그리기 끝남」으로 바꾸고 한계를 찍는다.
+chk 'SKEL_NOT_VISIBLE' scripts/check-mypage-shell.mjs 2
+nochk '보임=' scripts/check-mypage-shell.mjs        # ★안 잰 것을 「보임」이라 부르지 말 것
 nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐지분 세는 자로 되돌리지 말 것
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
