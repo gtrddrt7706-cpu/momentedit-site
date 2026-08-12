@@ -562,6 +562,11 @@ chk 'ORD_ASK_ONE' order-preview.html 3
 #     미리듣기는 ?S= 주소로 열리고 그 주소에는 고객이 쓴 글(서약문·편지)을 싣지 않기 때문이다.
 #     「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
 chk 'REHEARSE_MERGED' order-preview.html 5
+# ★[REHEARSE_MERGED 뒷정리 2 · 2026-08-12] `mode` 변수도 걷었다 — 연습 공간이 사라져 값이 하나뿐이었다.
+#   CSS 비계보다 **더 센 되살림 근거**다(「모드가 둘인데 하나가 비었네」로 읽힌다).
+#   쓰던 자리 넷은 늘 참이던 조건이라 그대로 뺐고, 레일이 뜨는 세 자리를 실브라우저로 확인했다:
+#     입장=block(노드 14) · 글 적어두기=block(노드 16 · 끝 노드 하나 더) · 코스=none.
+nochk "var mode=" order-preview.html      # ★모드를 다시 만들지 말 것 — 두 번째 값은 폐지된 화면이다
 nochk 'openRehearse' order-preview.html          # ★진입점을 되살리지 말 것
 nochk 'function renderRehearse' order-preview.html
 chk '전체 대본 복사' order-preview.html 1        # 연습 공간에서 옮겨 온 것 — 같이 사라지면 안 된다
