@@ -63,13 +63,21 @@ try {
 
   const dom = await h.page.evaluate(() => ({
     login: !!(document.getElementById('loginView') && document.getElementById('loginView').offsetParent),
-    fold: document.querySelectorAll('.done-fold,[class*="done-fold"]').length,
+    /* ★★[TRK_NO_FOLD 자 교정 2026-08-12] 폐지된 것은 `.trk-fold`(예식 준비 트랙의 완료 행 접기)다.
+       이 검사는 `.done-fold` 를 세고 있었다 — 그건 **청첩장 트랙의 접힘**(하객 안내·모바일 QR)이고
+       살아 있는 화면이다. mypage.html 866~871·5215~5254 가 지금도 쓴다.
+       ★지금까지 안 터진 이유는 로그인 전 껍데기에 그 요소가 안 그려져서다 — 운이다.
+         로그인 뒤에 한 번이라도 돌면 멀쩡한 청첩장 접힘을 보고 「폐지분이 되살아났다」고 붉는다.
+         늑대를 그렇게 부르면 다음 진짜 늑대 때 아무도 안 본다(★9).
+       ★자를 잘못 든 것이지 화면이 틀린 게 아니었다(★8). 자를 바꾼다. */
+    fold: document.querySelectorAll('.trk-fold,[class*="trk-fold"]').length,
+    foldAlive: document.querySelectorAll('.done-fold').length,   // 살아 있는 쪽 — 0 이면 오히려 오삭제 신호
     busy: document.querySelectorAll('.busy-row').length,
     busyIds: [...document.querySelectorAll('[id*="busy"]')].map((e) => e.id),
   }));
 
   /* ★[TRK_NO_FOLD] 완료 접기는 2026-08-09 사용자 지시로 폐지했다. 마크업·CSS 모두 0 이어야 한다. */
-  if (dom.fold) bad.push(`완료 접기(.done-fold)가 ${dom.fold}개 되살아났다 — 2026-08-09 폐지분이다`);
+  if (dom.fold) bad.push(`완료 행 접기(.trk-fold)가 ${dom.fold}개 되살아났다 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
   /* ★[BUSY_ONE_PLACE] 대기 표시는 한 낱말·한 자리다. 껍데기에서 잴 수 있는 것은 '짜임이 하나인가'까지. */
   if (dom.busy > 1) bad.push(`저장 표시 짜임(.busy-row)이 ${dom.busy}개 — 한 자리여야 한다`);
 
@@ -274,7 +282,7 @@ try {
 
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
   console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
-  console.log(`   완료 접기 ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
+  console.log(`   완료 행 접기 .trk-fold ${dom.fold}개(0이어야 · 청첩장 .done-fold 는 별개로 ${dom.foldAlive}개) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
 } finally {
   await h.close();
