@@ -120,7 +120,14 @@ export async function openProbe(pageName, opts = {}) {
      ★이건 이 파일이 막으려던 바로 그 실수의 일곱 번째 꼴이다(머리말 ①~⑥ 참고) —
        재는 쪽 사정을 재이는 쪽 결함으로 읽었다. 걸러서 `unseen` 으로 보낸다.
        안 본 것은 통과도 실패도 아니라 **안 봤다고 말할 것**이다. */
-  const NOISE = /fonts\.googleapis|fonts\.gstatic|ERR_CONNECTION_RESET|ERR_FAILED|ERR_NAME_NOT_RESOLVED|ERR_BLOCKED|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/;
+  /* ★[TUNNEL_UNSEEN 여덟 번째 꼴 · 2026-08-12] `ERR_CERT_AUTHORITY_INVALID` 를 더한다.
+     실사고: check-ord-autosave 첫 판이 이 한 줄로 exit 1 이었다(뒤이어 세 판 연속 rc=0 — 지나가는 것이다).
+     실행 환경 프록시가 자기 인증서로 가로채는데 그 뿌리를 브라우저가 모를 때 나는 줄이라,
+     **재는 쪽 사정이지 페이지 결함이 아니다.** 위 ①~⑦과 정확히 같은 병이다.
+     ★야간 잡은 매일 돈다 — 이런 줄이 하루 걸러 붉으면 그 검사는 늑대가 된다(★9).
+       고칠 자리는 각 검사가 아니라 **공용 자(이 파일)** 다. 한 곳을 고치면 전부 같이 산다.
+     ★어디까지나 '못 받았다'로 옮길 뿐 삼키지 않는다 — unseen 에 남아 화면에 찍힌다. */
+  const NOISE = /fonts\.googleapis|fonts\.gstatic|ERR_CONNECTION_RESET|ERR_FAILED|ERR_NAME_NOT_RESOLVED|ERR_BLOCKED|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY|ERR_CERT_/;
   page.on('pageerror', (e) => errors.push('pageerror: ' + String(e).slice(0, 120)));
   page.on('console', (m) => { if (m.type() === 'error' && !NOISE.test(m.text())) errors.push('console: ' + m.text().slice(0, 120)); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url().split('/').pop().slice(0, 40)}`); });

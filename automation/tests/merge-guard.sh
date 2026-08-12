@@ -168,6 +168,39 @@ elif [ "$_sl_lay" -lt "$_sl_ask" ]; then echo "REVERT? check-mypage-shell.mjs: S
 elif [ "$_sl_lay" -ne "$_sl_last" ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행) 뒤에 또 재는 곳이 있다($_sl_last행) — 조상을 열어 둔 화면에서 재면 그 값이 오염된다 [SKEL_LAST_MEASURE]"; fail=1
 else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행) 뒤이고 **마지막으로 재는 곳**이다"; fi
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
+# ★★[ORD_AUTOSAVE 2026-08-12 사용자 질문 "저장후 나가기 말고 그냥 나가기는없어?"]
+#   고친 것은 버튼이 아니라 구조다. 서버 저장 갈래가 **나갈 때(orderExit)** 와 **완성(orderSave)**
+#   둘뿐이라 저장이 나가기에 인질로 잡혀 있었다 — 버튼 하나가 두 일을 지고 라벨이 「저장 후 나가기」가 됐다.
+#   그래서 저장 버튼을 새로 만들지 않고 **저장을 사람 손에서 뺐다**(orderDraft · done:false · 1.5초 디바운스).
+#   확인 팝업도 만들지 않았다 — 이미 저장돼 있으면 아무 말 없이 닫는다. 실패했을 때만 종전 판이 뜬다.
+#   ★안전선 넷을 scripts/check-ord-autosave.mjs 가 실브라우저에서 매일 잰다([NO_GATE] · 야간 잡).
+#     실측 통과: 코스 전 0건 · 값 하나 바꿈 1건 · seen 3개 · 저장 뒤 나가기는 orderClose 만 · 완성 상태 0건.
+#   ★검사가 실제로 두 결함을 잡았다(그물이 살아 있다는 증거):
+#     ① _autoLast 를 꾸러미 짓기 **전에** 셌더니 S.seen 이 뒤에 붙어 늘 '또 바뀜'이 됐다 —
+#        꼬리 저장이 한 번 더 나가고 나가기가 또 저장했다(= 그냥 나가기가 아니게 됐다)
+#     ② 저장 표시를 자동 저장 안에서만 칠했더니 완성 화면에 「저장 안 됨」이 남았다 → render() 에서도 칠한다
+chk 'ORD_AUTOSAVE' order-preview.html 6
+chk '_ordPayload' order-preview.html 4            # 꾸러미는 한 곳에서만 짓는다(완성·나가며·자동 셋이 같은 것을 보낸다)
+chk 'ORD_PAYLOAD' order-preview.html 1
+chk 'psave' order-preview.html 3                  # 저장 상태 자리 — 줄을 새로 만들지 않고 「순서 2/7」 옆에 붙는다
+chk '_doneSaved||_saving' order-preview.html 2    # ★완성본에 done:false 를 덮지 않는 그 두 자리
+chk 'ORD_AUTOSAVE' mypage.html 1
+chk 'orderDraftSaved' mypage.html 1               # 성공 회신 — 한쪽만 보내면 표시가 한 상태에 갇힌다
+chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 1591 · 자동 저장 1616) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
+nochk "textContent=courseStarted?'저장 후 나가기'" order-preview.html   # ★라벨을 되돌리지 말 것 — 저장은 이 버튼 일이 아니다
+chk 'ORD_AUTOSAVE' scripts/check-ord-autosave.mjs 8
+chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
+# ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 완성 저장은 **자동 저장이 답을 받은 뒤에** 나간다.
+#   둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
+#   먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE 2026-07-25).
+#   ★보내는 쪽 순서만 보면 안 보인다 — 「이미 날아간 것」이 아직 안 끝났기 때문이다.
+#     실측(고치기 전): _autoWait=true 인 채 doSave() 를 부르니 orderSave 가 그대로 나갔다.
+#   ★기다리기만 하고 안 보내면 경주를 **갇힘**과 바꾼 것이다. 회신·침묵 두 갈래 다 실측 —
+#     회신 오면 그때 1건 · 부모가 침묵해도 포기 타이머(16초) 뒤 1건. 돌연변이 양방향 붉음.
+chk 'ORD_SAVE_AFTER_AUTO' order-preview.html 3
+chk '_saveAfterAuto' order-preview.html 3
+chk '_flushSaveAfterAuto' order-preview.html 3     # 회신·포기 두 자리 모두에서 흘려보낸다(한 자리만 걸면 완성이 갇힌다)
+chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-autosave.mjs 5
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
@@ -1239,6 +1272,18 @@ chk 'LIVE_DOING' console.html 1                              # 콘솔 쪽 말/�
 chk '\[CUE_GUARD_V1\]' scripts/check-ritual-cue.js 1         # 큐 엔진 회귀 검사 자체
 # 큐 엔진 회귀 검사 — §3-A 20큐 판정표 · CUE_FIRE_RULE · EXTRA 문안 대조를 전 조합에서 돌린다
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-cue.js || fail=1; fi
+# ★★[PREVIEW_UPTO 2026-08-12 사용자 제보 "중간에 저장후나가기 했는데 미리듣기는 폐식까지 나온다"]
+#   S.seen(방문한 단계 키)으로 그 뒤를 자른다. 여기가 깨져도 **화면은 멀쩡하고 소리만 달라진다** —
+#   조용히 낡는 자리라 그물이 필요하다. 브라우저가 없어도 되므로 게이트가 직접 돌린다.
+#   ★가장 중요한 안전선은 자르기가 **preview 밖으로 안 새는 것**이다. live 로 새면
+#     그날 식장에서 폐식이 안 나온다 — 되돌릴 수 없다.
+#   ★이 검사는 클로드코드가 임시 스크립트로 쟀던 다섯 갈래를 저장소에 남긴 것이다(목록 ★17).
+#   돌연변이 5발 전부 붉음(실측): preview 조건 제거 → live 24→8 · 자르기 제거 → 16→16 ·
+#     uptoAfter 하나 어긋 → 9 대 8 · KEYS 에 vowText 추가 → 주소에서 서약문 검출 ·
+#     KEYS 에서 seen 제거 → 「실어 놓고도 못 자른다」
+if command -v node >/dev/null 2>&1; then node scripts/check-preview-upto.mjs || fail=1; fi
+chk 'PREVIEW_UPTO' scripts/check-preview-upto.mjs 8
+chk "mode === 'preview' && S.seen" assets/ritual-cue.js 1    # ★자르기가 preview 안에만 사는 그 줄 · live 로 새면 식장에서 폐식이 안 나온다
 
 # ── 텍스트 장면 레이어 · 고객 미리듣기 (2026-08-02) ──────────────
 chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 장면 지문 원천 · 미리듣기 화면이 통째로 빈다
@@ -2418,6 +2463,11 @@ chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화
 # 목록에 주소(fonts.googleapis)는 있었는데 콘솔 문구엔 주소가 없고 오류 이름만 있어 안 걸렸다.
 # 적대 검증: 진짜 오류(null.x())를 심은 쪽은 그대로 exit 1 · 프록시 줄만 unseen 으로 빠져 exit 0.
 chk 'TUNNEL_UNSEEN' scripts/audit/page-probe.mjs 1
+# ★[TUNNEL_UNSEEN 여덟 번째 꼴 · 2026-08-12] ERR_CERT_AUTHORITY_INVALID 도 '못 받음'으로 옮긴다.
+#   실사고: check-ord-autosave 첫 판이 그 한 줄로 exit 1(뒤이어 세 판 rc=0 — 지나가는 것이다).
+#   프록시가 자기 인증서로 가로챌 때 나는 줄이라 재는 쪽 사정이다. 야간 잡이 매일 도는데
+#   이런 줄로 하루 걸러 붉으면 그 검사는 늑대가 된다(★9). 고칠 자리는 각 검사가 아니라 공용 자다.
+chk 'ERR_CERT_' scripts/audit/page-probe.mjs 2
 chk 'ERR_TUNNEL_CONNECTION_FAILED' scripts/audit/page-probe.mjs 2
 # ── [OPT_AT_MOVE · NO_AIM_IS_FAIL 2026-08-11] 겨냥을 잃은 돌연변이가 사흘간 조용했다 ──
 # 「밸리만 자리 옮기기」가 08-08 부터 skip. skip 은 fail 로 안 세어져 감사는 계속 exit 0 이었다.
