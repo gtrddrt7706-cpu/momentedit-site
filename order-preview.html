@@ -2867,7 +2867,18 @@ function doSave(){
   _persist();
   if(!EMBED){ _doneSaved=true; _saveErr=''; _persist(); render(); return; }
   _saving=true; _saveErr=''; render();
-  _embedSave();
+  /* ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 자동 저장이 **답을 기다리는 중이면 그것부터 끝내고** 보낸다.
+     ★왜 — 둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
+       먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다
+       (ORDERFILL_DONE 2026-07-25 그 사고 · ORD_AUTOSAVE 안전선 ①이 막으려던 바로 그것).
+       보내는 쪽 순서만 보면 안 보인다 — 「이미 날아간 것」이 아직 안 끝났기 때문이다.
+     ★실측(고치기 전): 자동 저장이 _autoWait=true 인 채로 doSave() 를 부르니
+       orderSave 가 그대로 나갔다. 두 쓰기가 서버에서 경주한다.
+     ★기다림은 유한하다 — _autoAck(회신) 또는 PARENT_GIVEUP(자동 해제) 둘 중 하나가 반드시 온다.
+       그동안 화면은 이미 '저장 중…'이라 사용자에게 달라지는 것이 없다.
+     되돌리지 말 것: 이 줄을 빼면 「완성했는데 다음 날 초안으로 되돌아가 있다」가 재현된다. */
+  if(_autoWait){ _saveAfterAuto=true; }
+  else _embedSave();
   clearTimeout(_saveT);
   // 부모의 GAS 호출은 12초 타임아웃이다. 그보다 넉넉히 잡아 두고, 응답이 아예 없으면 멈춘 채 두지 않는다.
   _saveT=setTimeout(function(){ if(_saving) _saveDone(false,'저장 확인이 오지 않았어요. 네트워크를 확인하고 다시 저장해 주세요.'); },PARENT_GIVEUP);
@@ -2895,6 +2906,7 @@ function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S
      저장이 나가면 안 된다. 비교값에 **_seenK 도 넣는다** — 어디까지 걸었는지는 진짜 상태이고
      미리듣기가 그걸로 뒷부분을 자른다(PREVIEW_UPTO). 빼면 걷기만 한 이동이 서버에 안 남는다. */
 var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null, _autoLast='';
+var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저장의 답을 기다리는 중
 function _autoKey(){ try{ return JSON.stringify(S)+'|'+Object.keys(_seenK).join(','); }catch(e){ return ''; } }
 function _autoQueue(){
   if(!EMBED||!courseStarted||_doneSaved||_saving) return;
@@ -2914,14 +2926,18 @@ function _autoSend(){
   try{ parent.postMessage({type:'momentedit:orderDraft', data:pl}, window.location.origin); }
   catch(e){ _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); return; }
   /* 부모가 영영 답을 안 하면 스스로 푼다 — 안 그러면 자동 저장이 조용히 죽는다(EXIT_FEEDBACK 과 같은 병) */
-  clearTimeout(_autoGT); _autoGT=setTimeout(function(){ if(!_autoWait) return; _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); },PARENT_GIVEUP);
+  clearTimeout(_autoGT); _autoGT=setTimeout(function(){ if(!_autoWait) return; _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); _flushSaveAfterAuto(); },PARENT_GIVEUP);
 }
 function _autoAck(ok){
   clearTimeout(_autoGT); _autoWait=false; _autoState=ok?'ok':'fail';
   if(!ok) _autoLast='';   // 실패한 것을 '보낸 것'으로 세지 않는다 — 다음 변화에 다시 보낸다
   _autoPaint();
   if(_autoKey()!==_autoLast){ clearTimeout(_autoT); _autoT=setTimeout(_autoSend,ok?600:4000); }   // 꼬리 저장(실패면 천천히)
+  _flushSaveAfterAuto();
 }
+/* [ORD_SAVE_AFTER_AUTO] 기다리던 완성 저장을 이제 보낸다. _autoWait 가 풀리는 **모든** 자리에서 부른다
+   — 회신(성공·실패)과 포기 타이머 둘. 한 자리만 걸면 부모가 침묵한 판에서 완성이 영영 안 나간다. */
+function _flushSaveAfterAuto(){ if(!_saveAfterAuto) return; _saveAfterAuto=false; if(_saving) _embedSave(); }
 /* 상태 한 줄 — 화면에 요소를 새로 늘리지 않고 「순서 2 / 7 · 약 22분」 옆에 붙는다.
    ★보내기 전 1.5초 동안도 '저장 중…'으로 칠한다. 빈칸→저장 중→저장됨 세 번 깜빡이면
      조용한 표시가 아니라 소란이 된다. 사람 눈에는 두 상태만 남긴다. */

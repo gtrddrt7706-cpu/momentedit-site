@@ -94,7 +94,30 @@ try {
     return { txt: e ? e.textContent : '', cls: e ? e.className : '', role: e ? e.getAttribute('role') : null };
   });
 
-  /* ⑥ 완성 상태 — done:false 를 덮어쓰면 안 된다 (★이 판만 상태를 직접 세운다 · 머리말 참고) */
+  /* ★★⑥ [ORD_SAVE_AFTER_AUTO] 자동 저장이 **날아가 있는 동안** 완성 저장이 나가면 안 된다.
+     둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
+     먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE).
+     ★보내는 쪽 순서만 보면 안 보인다 — 「이미 날아간 것」이 아직 안 끝났기 때문이다.
+       그래서 회신을 **일부러 늦춰** 날아간 상태를 만들고 그 위에서 doSave() 를 부른다.
+     ★기다리기만 하고 안 나가면 경주를 갇힘과 바꾼 것이다 — 회신을 준 뒤 딱 한 번 나가는지도 센다. */
+  const race = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    _obExiting = false; _doneSaved = false; _saving = false;
+    pick('entry', 'E');
+    await wait(2000);                      // 자동 저장이 나갔고 회신은 아직 안 준다
+    if (!_autoWait) return { can: false };
+    window.__sent.length = 0;
+    doSave();
+    await wait(400);
+    const during = window.__sent.filter((m) => m.type === 'momentedit:orderSave').length;
+    parent.postMessage({ type: 'momentedit:orderDraftSaved' }, window.location.origin);
+    await wait(700);
+    const after = window.__sent.filter((m) => m.type === 'momentedit:orderSave').length;
+    _saving = false;                        // 뒤 판을 위해 되돌린다(부모 회신을 안 줬으므로)
+    return { can: true, during, after };
+  });
+
+  /* ⑦ 완성 상태 — done:false 를 덮어쓰면 안 된다 (★이 판만 상태를 직접 세운다 · 머리말 참고) */
   const done = await P.evaluate(async () => {
     const wait = (ms) => new Promise((s) => setTimeout(s, ms));
     _doneSaved = true;
@@ -123,6 +146,11 @@ try {
     bad.push(`나가기를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${r.outs.join('·') || '없음'}) — 갇힌다 [ORD_AUTOSAVE]`);
   if (!/저장 안 됨/.test(f.txt)) bad.push(`실패 회신을 받았는데 표시가 「${f.txt || '(빈칸)'}」다 — 조용히 실패하면 자동 저장은 거짓말이 된다 [ORD_AUTOSAVE]`);
   if (!/bad/.test(f.cls) || f.role !== 'button') bad.push('저장 실패 표시를 누를 수 없다 — 다시 시도할 길이 없다 [ORD_AUTOSAVE]');
+  if (!race.can) bad.push('자동 저장이 날아간 상태를 못 만들었다 — 이 안전선이 헛돌았다(통과 아님) [ORD_SAVE_AFTER_AUTO]');
+  else {
+    if (race.during !== 0) bad.push(`★자동 저장이 답을 기다리는 중에 완성 저장이 ${race.during}건 나갔다 — 서버 도착 순서가 뒤집히면 완성본이 초안으로 덮인다(ORDERFILL_DONE) [ORD_SAVE_AFTER_AUTO]`);
+    if (race.after !== 1) bad.push(`자동 저장이 끝난 뒤 완성 저장이 ${race.after}건 — 딱 1건이어야 한다(0이면 완성이 갇힌다) [ORD_SAVE_AFTER_AUTO]`);
+  }
   if (done.n !== 0) bad.push(`완성 저장 뒤에도 초안을 ${done.n}건 보냈다 — 완성본이 done:false 로 덮여 초안으로 되돌아간다 [ORD_AUTOSAVE]`);
   if (done.txt !== '') bad.push(`완성 상태인데 저장 표시가 「${done.txt}」로 남아 있다 — 완성 화면에서 「저장 중」이 보인다 [ORD_AUTOSAVE]`);
 
@@ -133,6 +161,7 @@ try {
   console.log(`   값 하나 바꿈 → 초안 ${r.n}건 · seen ${r.seenN}개 · 보내는 중 「${r.saving}」 → 성공 회신 뒤 「${r.okTxt}」`);
   console.log(`   저장 끝난 뒤 나가기 → ${r.outs.join(' · ') || '(아무것도 안 나감)'}  ← orderExit 가 없어야 '그냥 나가기'다`);
   console.log(`   실패 회신 → 「${f.txt}」(누를 수 있나=${f.role === 'button'})`);
+  console.log(`   자동 저장 날아간 중 완성 누름 → 그때 ${race.during}건(0이어야) · 회신 뒤 ${race.after}건(1이어야) [ORD_SAVE_AFTER_AUTO]`);
   console.log(`   완성 상태 → 초안 ${done.n}건(0이어야) · 표시 「${done.txt || '(빈칸)'}」  ☐ 이 판은 _doneSaved 를 검사가 직접 세웠다(완성까지 걷지 않았다)`);
   if (p.unseen.length) p.unseen.forEach((u) => console.log('   ☐ ' + u));
 

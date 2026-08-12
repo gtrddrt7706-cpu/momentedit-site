@@ -190,6 +190,17 @@ chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.ht
 nochk "textContent=courseStarted?'저장 후 나가기'" order-preview.html   # ★라벨을 되돌리지 말 것 — 저장은 이 버튼 일이 아니다
 chk 'ORD_AUTOSAVE' scripts/check-ord-autosave.mjs 8
 chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
+# ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 완성 저장은 **자동 저장이 답을 받은 뒤에** 나간다.
+#   둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
+#   먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE 2026-07-25).
+#   ★보내는 쪽 순서만 보면 안 보인다 — 「이미 날아간 것」이 아직 안 끝났기 때문이다.
+#     실측(고치기 전): _autoWait=true 인 채 doSave() 를 부르니 orderSave 가 그대로 나갔다.
+#   ★기다리기만 하고 안 보내면 경주를 **갇힘**과 바꾼 것이다. 회신·침묵 두 갈래 다 실측 —
+#     회신 오면 그때 1건 · 부모가 침묵해도 포기 타이머(16초) 뒤 1건. 돌연변이 양방향 붉음.
+chk 'ORD_SAVE_AFTER_AUTO' order-preview.html 3
+chk '_saveAfterAuto' order-preview.html 3
+chk '_flushSaveAfterAuto' order-preview.html 3     # 회신·포기 두 자리 모두에서 흘려보낸다(한 자리만 걸면 완성이 갇힌다)
+chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-autosave.mjs 5
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
@@ -2452,6 +2463,11 @@ chk 'SKIP' scripts/audit/page-probe.mjs 2                 # script/style 을 화
 # 목록에 주소(fonts.googleapis)는 있었는데 콘솔 문구엔 주소가 없고 오류 이름만 있어 안 걸렸다.
 # 적대 검증: 진짜 오류(null.x())를 심은 쪽은 그대로 exit 1 · 프록시 줄만 unseen 으로 빠져 exit 0.
 chk 'TUNNEL_UNSEEN' scripts/audit/page-probe.mjs 1
+# ★[TUNNEL_UNSEEN 여덟 번째 꼴 · 2026-08-12] ERR_CERT_AUTHORITY_INVALID 도 '못 받음'으로 옮긴다.
+#   실사고: check-ord-autosave 첫 판이 그 한 줄로 exit 1(뒤이어 세 판 rc=0 — 지나가는 것이다).
+#   프록시가 자기 인증서로 가로챌 때 나는 줄이라 재는 쪽 사정이다. 야간 잡이 매일 도는데
+#   이런 줄로 하루 걸러 붉으면 그 검사는 늑대가 된다(★9). 고칠 자리는 각 검사가 아니라 공용 자다.
+chk 'ERR_CERT_' scripts/audit/page-probe.mjs 2
 chk 'ERR_TUNNEL_CONNECTION_FAILED' scripts/audit/page-probe.mjs 2
 # ── [OPT_AT_MOVE · NO_AIM_IS_FAIL 2026-08-11] 겨냥을 잃은 돌연변이가 사흘간 조용했다 ──
 # 「밸리만 자리 옮기기」가 08-08 부터 skip. skip 은 fail 로 안 세어져 감사는 계속 exit 0 이었다.
