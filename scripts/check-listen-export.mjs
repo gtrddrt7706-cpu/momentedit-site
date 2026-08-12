@@ -132,7 +132,11 @@ try {
   const one = await h.page.evaluate(() => {
     localStorage.removeItem('me_listen_review_v1');
     location.reload();
-  }).then(() => h.page.waitForTimeout(2200)).then(() => h.page.evaluate(() => {
+  /* ★[SENT_POLL] 새로고침 뒤 **목록이 실릴 때까지** 기다린다 — 2200ms 를 박아 두고 한 번만 보면
+     차가운 판에서 목록이 비어 「문장이 여럿인 클립을 못 찾았습니다」로 헛붉는다. */
+  }).then(() => h.page.waitForFunction(
+    () => document.querySelectorAll('#list .row[data-i]').length > 0, null, { timeout: 15000 }
+  ).catch(() => {})).then(() => h.page.evaluate(() => {
     const rows = [...document.querySelectorAll('#list .row[data-i]')];
     for (const row of rows) {
       row.click();
@@ -211,18 +215,32 @@ try {
      1 이라 하마터면 「다 잡았다」로 읽을 뻔했다(★11-b — 재기 전에 자를 먼저 잰다).
      게다가 ⑦ 은 브라우저가 재생을 막으면 누르지 않고 빠져나가 상태가 판마다 달라진다.
      → 여기서 **직접 골라 놓고** 시작한다. 앞이 어떻게 끝났든 같은 자리에서 잰다. */
+  /* ★★[SENT_POLL 2026-08-12 · 코워크가 찾은 병을 이 자리에도 적용] **한 시각에 한 번 보지 않는다.**
+     옛 판은 누른 뒤 200ms 에 한 번만 봤다. 그 200ms 안에 안 그려지면
+     「글칸을 못 찾았습니다」·「빈 채로 남았습니다」로 **헛붉는다.**
+     ★야간 잡은 매번 크로미움을 처음 띄우는 차가운 판이다 — 코워크가 옆 검사(check-mypage-shell)에서
+       바로 그 차가운 첫 회에 헛붉음을 실측했다. 같은 꼴이 여기 둘 더 있었다.
+     ★이 저장소 목록 11-b(「한 번 찍은 좌표는 좌표가 아니다」)를 나도 같은 날 밟았다.
+     ★느슨해지는 것이 아니다 — 안 나타나면 여전히 붉는다. 뜰 때까지 25ms 마다 보고 3초에 포기한다. */
   const blank = await h.page.evaluate(async () => {
+    const until = async (fn, ms) => {                    // 될 때까지 보고, 마감이면 마지막 값을 준다
+      const t0 = performance.now();
+      for (;;) {
+        const v = fn();
+        if (v || performance.now() - t0 > ms) return v;
+        await new Promise((r) => setTimeout(r, 25));
+      }
+    };
     const btn = document.querySelectorAll('#sents .sent')[1];
     if (!btn) return null;
-    if (!btn.classList.contains('on')) { btn.click(); await new Promise((r) => setTimeout(r, 200)); }
-    const inp = document.querySelector('#sents .sent-e');
+    if (!btn.classList.contains('on')) btn.click();
+    const inp = await until(() => document.querySelector('#sents .sent-e'), 3000);
     if (!inp) return null;
     inp.focus();
     inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true }));
     const whileTyping = inp.value;                       // 아직 칸 안이다 — 비어 있어야 한다
     inp.blur();
-    await new Promise((r) => setTimeout(r, 200));
-    const box = (document.querySelector('#sents .sent-e') || {}).value || '';
+    const box = await until(() => (document.querySelector('#sents .sent-e') || {}).value || '', 3000);
     document.getElementById('mkScript').click();
     return { whileTyping, box, out: document.getElementById('out').textContent.trim() };
   });
