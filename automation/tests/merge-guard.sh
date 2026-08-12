@@ -190,6 +190,18 @@ chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.ht
 nochk "textContent=courseStarted?'저장 후 나가기'" order-preview.html   # ★라벨을 되돌리지 말 것 — 저장은 이 버튼 일이 아니다
 chk 'ORD_AUTOSAVE' scripts/check-ord-autosave.mjs 8
 chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
+# ★★[ORD_WALK_SAVE 2026-08-12 · 클로드코드 ⑤ 「걷기만 하는 이동을 묶을지 정해 달라」에 대한 답]
+#   **묶지 않는다 — 지금 그대로 둔다.** 그 판단을 말로 두지 않고 검사에 넣었다(목록 ★17).
+#   근거: ①떠나는 가장 흔한 순간이 «새 화면을 읽고 나서»다. 5초로 늦추면 그 순간이 창 밖으로 나간다
+#         ②«어디까지 걸었는지»는 미리듣기가 자르는 데 쓰는 진짜 상태다(PREVIEW_UPTO)
+#         ③실측상 폭주가 아니다 — 사람 속도 9단계 9건 · 연타 17단계 1건(디바운스가 묶는다)
+#   ★_autoKey 에서 _seenK 를 빼지 말 것. 빼면 걷기만 한 이동이 서버에 안 남는다(실측: 9단계 → 1건).
+#   돌연변이 3발(실측): 디바운스 1500→0 → 두 그물 다 붉음(사람 10>9 · 연타 10≥10) ·
+#     _seenK 제거 → 걷기 그물만 붉음(진단이 정확하다) · 꼬리 저장 600→60ms 는 **안 붉었다**
+#     (회신 시점에 바뀐 것이 없으면 꼬리가 아예 안 걸린다 — 그래서 연타 기준을 «단계 수»에서
+#      «사람 속도 때와 견주기»로 바꿨다. 안 쏘이는 그물을 그대로 두지 않는다 ★11-c)
+chk 'ORD_WALK_SAVE' scripts/check-ord-autosave.mjs 8
+chk "JSON.stringify(S)+'|'+Object.keys(_seenK).join(',')" order-preview.html 1   # ★걷기가 저장 대상에 들어 있는 그 줄
 # ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 완성 저장은 **자동 저장이 답을 받은 뒤에** 나간다.
 #   둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
 #   먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE 2026-07-25).
