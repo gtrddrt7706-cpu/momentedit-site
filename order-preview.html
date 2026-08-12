@@ -1693,7 +1693,10 @@ function renderIntro2(){
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
   // (구 2번 '순간마다 진행 안내를 미리 들어보고 골라요' 줄 삭제 — 2026-07-18 사용자 지시. 안내 듣기는 각 카드에서 자연히 발견됨)
-  h+='<div class="ipt"><span class="n">2</span>완성본을 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
+  /* ★[REHEARSE_MERGED 2026-08-12] 「연습 공간에서」를 뺐다 — **그 화면이 없어졌는데 글만 남아 있었다.**
+     고객이 이 줄을 읽고 연습 공간을 찾으면 아무 데도 없다. 화면을 지울 때 그 화면을 가리키는
+     안내 문구까지 같이 봐야 한다(비계와 같은 이야기 · 이쪽은 고객이 직접 읽는 자리라 더 급하다). */
+  h+='<div class="ipt"><span class="n">2</span>완성본을 미리듣기로 이어들으며 당일을 익혀요.</div>';
   h+='</div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
   h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 고른 순간에만 나서요.</div>';

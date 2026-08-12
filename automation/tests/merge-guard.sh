@@ -571,6 +571,12 @@ nochk 'openRehearse' order-preview.html          # ★진입점을 되살리지 
 nochk 'function renderRehearse' order-preview.html
 chk '전체 대본 복사' order-preview.html 1        # 연습 공간에서 옮겨 온 것 — 같이 사라지면 안 된다
 chk '당일까지 준비할 것' order-preview.html 1
+# ★[REHEARSE_MERGED 2026-08-12] 고객이 읽는 안내에서도 그 화면을 가리키던 줄을 고쳤다 —
+#   「완성본을 이어듣고, **연습 공간에서** 당일을 미리 익혀요」가 그대로 남아 있었다.
+#   화면을 지울 때 **그 화면을 가리키는 안내 문구까지** 같이 본다(비계보다 이쪽이 더 급하다 —
+#   고객이 직접 읽고 없는 것을 찾으러 간다).
+nochk '연습 공간에서 당일을' order-preview.html
+chk '미리듣기로 이어들으며' order-preview.html 1
 chk 'WAIT_PAST_PARENT' order-preview.html 2
 chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
 chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9
