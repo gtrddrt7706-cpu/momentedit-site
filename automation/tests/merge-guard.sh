@@ -485,11 +485,26 @@ chk '밖으로 넘쳤다' scripts/check-mypage-shell.mjs 1
 #   ★②를 일부러 끄고 재서 ③만으로 넘침이 잡히는 것을 확인했다(끄기 전엔 초록이었다).
 #   ★덩이 **전체**를 2칸 더 들여쓰는 정당한 재정렬에는 초록인 것도 확인했다(헛붉음 아님).
 chk 'SLICE_DEPTH_NET' scripts/check-mypage-shell.mjs 1
+# ★★★[SLICE_PAREN_MATCH 2026-08-12 실측] 범위를 **들여쓰기로 찾는 것을 그만뒀다.** 괄호를 맞춘다.
+#   들여쓰기 그물을 세 판 만들었고 셋 다 구멍이 있었다 —
+#     ①닫는 폭 2칸 박음 → 정당한 재정렬에 넘침  ②「마지막 줄이 닫는 줄인가」 → 구조상 늘 참(죽은 그물)
+#     ③「안쪽은 머리보다 깊다」 → 남의 덩이 **머리를 더 깊게** 쓰면 지나간다(실측 · 880자·19줄 삼킴).
+#   ★들여쓰기는 글의 모양이고 범위는 문법이다. 모양으로 문법을 흉내 내면 다음 구멍이 또 생긴다.
+#   ★실측: 얕은 넘침·깊은 넘침·덩이 전체 재정렬 **셋 다** 정확히 16줄을 떼어 온다 —
+#     넘침을 잡는 게 아니라 **일어나지 않게** 됐다. 못 맞추면 「못 정했다」로 붉는다(통과 아님).
+chk 'SLICE_PAREN_MATCH' scripts/check-mypage-shell.mjs 2
+chk 'out.unmatched' scripts/check-mypage-shell.mjs 1     # 세우는 자리
+chk 'ask.unmatched' scripts/check-mypage-shell.mjs 1     # 읽는 자리 — 세워만 두고 안 읽으면 안 쏜 화살이다
+chk '괄호로 못 맞췄다' scripts/check-mypage-shell.mjs 1
 chk 'l.match(/\^\[ .t\]\*/)\[0\].length <= ind.length' scripts/check-mypage-shell.mjs 1   # 깊이로 재는 그 줄
 #   ★nochk 로 「폭을 박은 정규식」을 금지하려다 접었다 — 그 파일의 **주석이 옛 정규식을 인용**하고 있어
 #     깨끗한 나무에서도 붉었다(실측 1>0). 금지어 그물은 그 금지어를 설명하는 글까지 잡는다.
 #     → 없어야 할 것을 세는 대신 **있어야 할 것**을 센다. 폭을 읽어 쓰는 그 줄은 글로 흉내 낼 수 없다.
-chk "+ ind + '}, 0);'" scripts/check-mypage-shell.mjs 1
+#   ★2026-08-12 이 자리의 마커를 **정당하게 갈아 끼웠다.** 전엔 `+ ind + '}, 0);'`(폭을 읽어 닫는 줄을
+#     만드는 그 줄)을 셌는데, 그 줄 자체가 SLICE_PAREN_MATCH 로 사라졌다 — 이제 끝을 들여쓰기로
+#     찾지 않는다. 폐지된 것을 계속 세면 붉음이 거짓말이 되므로 아래 괄호 세는 줄로 옮긴다.
+#     (ind 는 아직 산다 — ② 덤 그물이 쓴다. 다만 **범위를 정하는 것**은 더 이상 ind 가 아니다.)
+chk 'if (d === 0) { endAt = i' scripts/check-mypage-shell.mjs 1
 nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
 # 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).

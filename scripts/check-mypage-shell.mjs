@@ -134,7 +134,7 @@ try {
        지어내는 것은 단추 한 개뿐이고, 그 모양도 mypage.html 2682행 그대로다.
        원장 전체를 지어내지 않는다 — 이 파일이 거절하는 「허구 확인」이 되지 않게. */
   const ask = await h.page.evaluate(() => {
-    const out = { api: null, sliced: false, spilled: false, sliceLines: 0, q: '', kakao: false, wired: false, sent: '' };
+    const out = { api: null, sliced: false, spilled: false, unmatched: false, sliceLines: 0, q: '', kakao: false, wired: false, sent: '' };
     out.api = (() => { const A = window.MEAdvisor;
       return { has: !!A, available: !!(A && A.available), ask: !!(A && typeof A.ask === 'function') }; })();
     const src = [...document.querySelectorAll('script:not([src])')].map((s) => s.textContent).join('\n');
@@ -151,12 +151,48 @@ try {
     if (!head) return out;
     const ind = head[1];                                        // ← 박지 않고 읽는다
     const start = src.indexOf(head[0]);
-    const closer = '\n' + ind + '}, 0);';
-    const end = src.indexOf(closer, start);
-    if (end < 0) return out;
-    const slice = src.slice(start, end + closer.length);
+    /* ★★★[SLICE_PAREN_MATCH 2026-08-12 실측 · 들여쓰기로 재는 것을 그만둔다]
+       여기서 끝을 **들여쓰기로 찾지 않는다.** 괄호를 맞춰 찾는다.
+
+       ★왜 그만두나 — 들여쓰기 그물을 세 판 만들었고 셋 다 구멍이 있었다.
+         ①닫는 폭을 2칸으로 박음        → 정당한 재정렬에 넘쳤다(SLICE_WIDTH_READ 가 고침)
+         ②「마지막 줄이 닫는 줄인가」   → **구조상 늘 참**이라 죽은 그물이었다(코워크가 찾음)
+         ③「안쪽은 머리보다 깊다」      → 남의 덩이 **머리를 더 깊게** 쓰면 지나간다(실측)
+           재현: 제 닫는 줄 4칸 + 뒤에 `    setTimeout(function(){ … \n  }, 0);`
+                 → 880자·19줄(정상 815자·16줄)을 삼켰는데 그물 셋 다 초록. eval 이 실행했다.
+       ★들여쓰기는 **글의 모양**이고 범위는 **문법**이다. 모양으로 문법을 흉내 내는 한
+         다음 구멍은 또 생긴다. 그래서 자를 바꾼다 — 줄자가 아니라 괄호를 센다.
+       ★문자열·주석 안의 괄호는 세지 않는다. 못 맞추면 **통과가 아니라 「못 정했다」**로 붉는다. */
+    const oi = src.indexOf('(', start);                         // setTimeout 의 여는 괄호
+    let d = 0, st = 0, endAt = -1;                              // st: 0평문 1'  2"  3`  4//  5/* */
+    for (let i = oi; i < src.length; i++) {
+      const c = src[i], n = src[i + 1], p = src[i - 1];
+      if (st === 0) {
+        if (c === '/' && n === '/') { st = 4; i++; continue; }
+        if (c === '/' && n === '*') { st = 5; i++; continue; }
+        if (c === "'") { st = 1; continue; }
+        if (c === '"') { st = 2; continue; }
+        if (c === '`') { st = 3; continue; }
+        if (c === '(') d++;
+        else if (c === ')') { d--; if (d === 0) { endAt = i; break; } }
+      } else if (st === 4) { if (c === '\n') st = 0; }
+      else if (st === 5) { if (c === '*' && n === '/') { st = 0; i++; } }
+      else if (st === 1) { if (c === '\\') i++; else if (c === "'") st = 0; }
+      else if (st === 2) { if (c === '\\') i++; else if (c === '"') st = 0; }
+      else if (st === 3) { if (c === '\\') i++; else if (c === '`') st = 0; }
+      if (p === undefined) continue;                            // (p 는 위 분기에서 안 쓰지만 형태를 남겨 둔다)
+    }
+    if (endAt < 0) { out.unmatched = true; return out; }         // 못 맞췄으면 통과가 아니다
+    const semi = src[endAt + 1] === ';' ? 1 : 0;
+    const slice = src.slice(start, endAt + 1 + semi);
+    /* ★맞춰 낸 끝이 **정말 그 setTimeout 의 끝인가** — 괄호로 찾은 자리라 이 확인은 뜻이 있다.
+       (들여쓰기로 자른 뒤 「마지막 줄이 닫는 줄인가」를 묻던 옛 ②와 다르다. 그건 늘 참이었다.) */
+    if (!/\}\s*,\s*0\s*\)\s*;?$/.test(slice)) { out.spilled = true; return out; }
+    if ((slice.match(/mp_refundAsk/g) || []).length !== 1) { out.spilled = true; return out; }
     /* ②명령 그물 — 이 덩이 안에 **또 다른 setTimeout 머리**가 같은/바깥 들여쓰기로 있으면 넘친 것이다.
-         (안쪽 setTimeout 은 더 깊게 들여쓰여 있어 이 그물에 안 걸린다) */
+       ★괄호 맞추기가 범위를 정한 뒤라 이건 **덤**이다. 남겨 두는 이유는 하나 —
+         괄호 맞추기가 언젠가 정규식 리터럴 같은 것에 걸려 헛디디면 여기서 한 번 더 걸린다.
+         (지우지 말 것. 다만 「이게 막고 있다」고 적지도 말 것 — 지금 막는 것은 괄호다.) */
     const spill = new RegExp('\\n' + (ind || '') + '[ \\t]{0,1}(setTimeout|function|var (?!_ra))', 'g');
     if (spill.test(slice.slice(head[0].length))) { out.spilled = true; return out; }
     /* ★★③깊이 그물 [SLICE_DEPTH_NET 2026-08-12 실측] — 목록이 없어 일반적이다.
@@ -199,7 +235,9 @@ try {
     bad.push(`상담 도우미 공개 API 가 없다 (있음=${ask.api.has} available=${ask.api.available} ask=${ask.api.ask}) — 단추가 카카오톡 안내로 바뀐다 [ASK_SENDS]`);
   /* ★[SLICE_WIDTH_READ] 넘친 것과 못 떼어 온 것을 **다른 말로** 알린다 —
      둘 다 「못 떼어 왔다」로 뭉치면, 넘쳐서 남의 코드를 실행한 판을 사람이 정규식 탓으로 읽고 넓히려 든다. */
-  if (ask.spilled)
+  if (ask.unmatched)
+    bad.push(`떼어 올 범위를 **괄호로 못 맞췄다** — 통과가 아니라 못 정한 것이다(정규식 리터럴 같은 것에 걸렸을 수 있다) [SLICE_PAREN_MATCH]`);
+  else if (ask.spilled)
     bad.push(`떼어 온 조각이 그 덩이 **밖으로 넘쳤다** — 아래 eval 이 남의 코드를 실행할 뻔했다(★15). 그물을 넓히지 말고 그 덩이의 닫는 줄부터 확인할 것 [ASK_SENDS]`);
   else if (!ask.sliced)
     bad.push(`mypage.html 에서 그 자리 코드를 떼어 오지 못했다 — 그물이 헛돌았다(코드가 바뀌었으면 위 정규식을 고칠 것) [ASK_SENDS]`);
