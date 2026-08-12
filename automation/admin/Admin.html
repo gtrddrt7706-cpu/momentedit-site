@@ -780,7 +780,7 @@ function _prodTrackDetail(prod){
     function _in(kw){ return !_fl || _fl.indexOf(kw)>-1; }
     var _KO={entry:{A:'서사형',B:'짧고 강하게',C:'격식과 따뜻함',D:'감성·시적',E:'감사·가족',F:'이야기의 시작'},
              letter:{parent:'부모님께',each:'서로에게',both:'부모님께·서로에게'},
-             veil:{mother:'어머니',father:'아버지',close:'가까운 분',skip:'생략'},
+             /* ★[VEIL_RETIRED 2026-08-12] veil 이름표 삭제 — 아래 행과 같은 이유(실행 불가). 되살리지 말 것. */
              ringwarm:{family:'가족만',all:'하객 전체'}, tribute:{flower:'꽃 헌정(꽃 준비 필요)',bow:'절',hug:'포옹'},
              toast:{toast:'축배',cake:'케이크 커팅',both:'축배+케이크'}, song:{family:'가족·지인 직접',live:'라이브 연주(연결 필요)'},
              valley:{none:'없음',wine:'와인 세리머니(실물 준비)',cake:'케이크 커팅(실물 준비)'}};
@@ -792,7 +792,14 @@ function _prodTrackDetail(prod){
     //   과거 사고(2026-07-26): 'ask'가 else로 떨어져 '나레이션'으로 표시됐다. 빈칸보다 나쁘다 —
     //   운영자가 이 화면만 보고 준비하면 개식 직후 예고 클립(W2-a)과 하객 응답 안내가 통째로 빠진다.
     rh3+=L('성혼 선언', rs.declareWho==='ask'?'하객 응답(개식 직후 예고 클립 필요)':(rs.declareWho==='chorus'?'하객 합송(선언문 인쇄)':(rs.declareWho==='family'?'가족 낭독(선언문 인쇄)':'나레이션')));
-    if(_in('베일')) rh3+=L('베일 다운', esc(_ko('veil',rs.veil)));
+    /* ★★[VEIL_RETIRED 2026-08-12] 베일을 내리는 행 삭제 — 전 예식 동시입장이라 **실행 불가**.
+       화면 쪽 admin.html 은 2026-08-03 에 이미 뺐는데 이 GAS 사본만 남아 있었다(같은 폐지의 네 번째 겹).
+       ★「늘 빈 줄이라 무해」가 아니었다 — 실측: 폐지 전 빌더의 기본값이 'mother' 였다(998b2b7 이전).
+         그 세대에 저장된 초안은 값을 쥐고 있어 L() 의 빈값 거르기를 통과한다 →
+         **디렉터 진행표에 실행할 수 없는 순서가 한 줄 선다.**
+       ★링 워밍은 왜 남겼나(LEGACY_LABEL)와 다른 점: 링 워밍은 더는 고를 수 없을 뿐 **할 수는 있다**.
+         이건 할 수 없다. 할 수 없는 것을 진행표에 세우면 디렉터가 현장에서 찾다가 멈춘다.
+       되살리지 말 것 · 선택 옵션으로 되돌리지도 말 것. */
     if(_in('링 워밍')) rh3+=L('링 워밍', esc(_ko('ringwarm',rs.ringwarm)));
     if(_in('편지')) rh3+=L('편지 대상', esc(_ko('letter',rs.letter))+(rs.flash?' · 플래시 세리머니':''));
     if(_in('헌정')) rh3+=L('부모님 헌정', esc(_ko('tribute',rs.tribute)));

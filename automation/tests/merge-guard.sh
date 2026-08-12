@@ -562,6 +562,13 @@ chk 'ORD_ASK_ONE' order-preview.html 3
 #     미리듣기는 ?S= 주소로 열리고 그 주소에는 고객이 쓴 글(서약문·편지)을 싣지 않기 때문이다.
 #     「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
 chk 'REHEARSE_MERGED' order-preview.html 5
+# ★[DONE_ACTS 2026-08-12 사용자 지시] 완성 화면 단추 셋을 한 덩어리로 · 사이 힌트 줄 폐지.
+#   실측(390px): 미리듣기 354px 한 줄 · 대본 둘 173+173(gap 8) · 아래 문의/초기화도 173+173 반반.
+#   ★위 .play-acts 와 아래 .done-acts 는 **다른 덩어리**다(이름이 비슷하니 주의).
+chk 'play-acts' order-preview.html 5
+chk 'DONE_ACTS_EVEN' order-preview.html 1
+chk 'DONE_TAIL_QUIET' order-preview.html 2
+nochk '흐름을 들어봐요' order-preview.html    # ★단추 이름이 이미 하는 말 — 셋 사이에 끼우지 말 것
 # ★[REHEARSE_MERGED 뒷정리 2 · 2026-08-12] `mode` 변수도 걷었다 — 연습 공간이 사라져 값이 하나뿐이었다.
 #   CSS 비계보다 **더 센 되살림 근거**다(「모드가 둘인데 하나가 비었네」로 읽힌다).
 #   쓰던 자리 넷은 늘 참이던 조건이라 그대로 뺐고, 레일이 뜨는 세 자리를 실브라우저로 확인했다:
@@ -951,7 +958,9 @@ chk 'ORD_H2' order-preview.html 5              # 단계 제목이 전부 div였�
 chk 'ORD_STEPFOCUS' order-preview.html 2       # '다음'을 눌러도 포커스가 버튼에 남아 낭독기엔 아무 일도 안 일어난 것처럼 들렸다 → 새 단계 제목으로 이동(첫 렌더 제외)
 chk 'ORD_STEPNO' order-preview.html 1          # ★'순서 N / N'이 완성 요약과 다른 숫자였다(담백 10/10 vs 7개 순서). 뺀 순간까지 세던 것 → fullBlocks 한 원천으로. 단계 수로 되돌리기 금지
 chk 'ORD_NEXTNAME' order-preview.html 1        # tune 한 단계를 세 이름으로 불렀다(예고 '함께 볼 순간 확인(전체 기본)' · 라벨 '기본 식순이 준비됐어요' · 제목 '어떤 순간을…')
-chk 'ORD_NOTE_FIT' order-preview.html 1        # ★미니멀엔 편지 낭독이 없는데 '편지와 서약이 중심인 예식이라'로 권하고 있었다 — 고르지도 않은 순서를 근거로 든 말
+# ★[DONE_TAIL_QUIET 2026-08-12 사용자 지시 "웨멘트들 삭제"] 본식 영상 권유 줄 폐지 → ORD_NOTE_FIT 도 함께 사라졌다.
+#   그 마커는 그 줄의 코스 적합성을 지키던 것이라, 줄이 없으면 지킬 것도 없다(세어 보고 뺀 것).
+nochk '본식 영상 기록을 함께 권해' order-preview.html   # ★순서 고른 자리에서 상품을 더 권하지 말 것
 chk 'ORD_AUDITION' order-preview.html 1        # 나레이션 글은 보여 주면서 들어보기는 고른 카드에만 있었다(담백 덕담·사이, 가족 링워밍 4곳) — 넣을지 판단하려고 듣는 건데 넣기 전엔 못 들었다
 chk 'ORD_DESC' order-preview.html 3            # 버튼 이름이 '아버지가'뿐이라 낭독기로는 무엇인지 알 수 없었다 → aria-describedby로 설명줄 연결
 # ── 2026-07-27 schedule.html 1라운드(상담 일정 선택 · 화면 5상태 순회 실측 · 414/360px)
@@ -1085,7 +1094,12 @@ chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참�
 chk "declareWho==='ask'" automation/admin/Admin.html 1      # GAS 관리자도 응답형을 분기(틀린 값 표시 방지)
 chk '★AI고지_G1-4' assets/ritual-data.js 1                   # G1-4 앞 2문장 = 하객 사전 고지(발각 시나리오 차단) · 원천
 chk '미리 준비한 안내 음성으로 진행합니다' order-preview.html 1   # 위 고지의 빌더 인라인 사본(NAR_MIRROR 대상)
-chk '★AI고지_부부' order-preview.html 1                       # 음성=완곡 / 인쇄=명시 분리를 부부가 알고 승인(회신4 조건 ㉯)
+# ★★[AI고지_부부 2026-08-12] 빌더 완성 화면의 **고지 줄은 뺐다**(사용자 지시). 근거 주석은 그 자리에 남겼다.
+#   ★뺀 것은 줄이지 고지가 아니다 — 하객에게 실제로 알리는 두 곳은 그대로여야 한다. 아래 둘로 못박는다.
+chk '★AI고지_부부' order-preview.html 1                       # 승인 자리를 옮길 때까지 근거를 지우지 말 것(회신4 조건 ㉯)
+chk '미리 준비한 안내 음성으로 진행합니다' assets/ritual-data.js 1   # ①하객 맞이 음성(완곡)
+chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
+nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
 chk '진행 안내는 뒷면에 있습니다' admin.html 1                  # 식순지 앞면 유도 한 줄 — 뒷면이 유일한 AI 명시 채널이라 필수(조건 ㉮)
 chk 'PRINT_FROM_SOURCE' admin.html 1                        # 인쇄물 문안 복붙 금지(네 번째 원천 방지) 표식
 chk '_DECL_CARD_WHO' admin.html 3                           # 낭독 카드 대상 주체 배열 · 합송(chorus) 분기 자리 보존
@@ -1592,6 +1606,15 @@ chk 'VEIL_RETIRED' api/_ritual-kb.js 3                  # AI 상담 지식
 nochk "'veil'" order-preview.html                       # 빌더 코드에 veil 키가 남으면 팔레트·순서·요약 어딘가로 다시 샌다
 nochk "'veil'" assets/ritual-cue.js
 nochk 'D.VEIL' api/_ritual-kb.js
+# ★★[VEIL_RETIRED 네 번째 겹 · 2026-08-12] 관리자 두 면도 같이 잠근다 — 목록 ★16 이 말한 「두 줄」이다.
+#   ①코드 이름 ②그 사람이 읽던 말. 08-03 폐지가 화면 admin.html 만 손대고 GAS 사본을 남겨,
+#   폐지 전 초안(기본값 'mother')에는 진행표에 실행 불가한 한 줄이 계속 섰다.
+#   ★admin.html 쪽 '읽던 말' 은 안 건다 — 그 파일의 폐지 근거 주석이 그 말을 그대로 인용하고 있어
+#     그 주석 자신을 문다(이번 세션에 다섯 번 밟은 함정). 그래서 코드 이름으로만 잠근다.
+chk 'VEIL_RETIRED' automation/admin/Admin.html 2         # 이름표·행 두 자리에 폐지 사유
+nochk "'veil'" automation/admin/Admin.html               # ①코드 이름
+nochk '베일 다운' automation/admin/Admin.html             # ②디렉터가 읽던 말
+nochk 's3d.veil' admin.html                              # ①코드 이름(화면 관리자 · 08-03에 이미 뺌)
 
 # [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
 chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다
