@@ -140,7 +140,13 @@ vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
     ok(`ENTRY_OUT.${k} 사본이 원천과 같다`, !!g && g[1] === D.NARR.entryOutBy[k]);
   });
   /* 화면이 그 사본을 **실제로 쓰는가** — 표만 있고 안 쓰면 사본이 장식이 된다 */
-  ok('빌더가 느낌을 따라 도착 멘트를 고른다', /ENTRY_OUT\[S\.entry\]/.test(html));
+  /* ★[ENTRY_OUT_PICK 2026-08-12] 이제 **따로 고른다.** 빌더는 S.entryOut 을 먼저 보고,
+     비어 있으면 종전대로 S.entry 로 떨어진다. 세 가지를 다 본다 —
+     ①고른 값을 쓰는가 ②빈값일 때 입장 느낌으로 떨어지는가 ③고르는 칩이 실제로 있는가.
+     ★③이 없으면 「엔진은 읽는데 값 만드는 곳이 없는 키」로 되돌아간다(2026-08-11 에 한 번 막혔던 그 꼴). */
+  ok('빌더가 도착 멘트를 따로 고른다', /ENTRY_OUT\[S\.entryOut\]/.test(html));
+  ok('안 고르면 입장 느낌으로 떨어진다', /ENTRY_OUT\[_eo\s*\|\|\s*S\.entry\]/.test(html));
+  ok('도착 멘트를 고르는 칩이 화면에 있다', /pick\([\\'"]{1,2}entryOut/.test(html));
   /* ★[ENTRY_OUT_PAIRED 2026-08-11] 반대 방향도 묶는다 — **느낌 쪽에만 갈래를 늘리는 날.**
      위 `keys.length === 6` 은 「원천에 G 를 더하고 사본을 안 고치는」 실수를 잡는다(그쪽은 붉어진다).
      그런데 `ENTRY` 에만 G 를 더하고 `entryOutBy.G` 를 잊으면 **아무 데도 안 붉어진다** —

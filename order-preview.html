@@ -2165,8 +2165,23 @@ function renderStep(k){
 
     /* ★[LEAD_OUT] 걸어 들어온 뒤 무엇이 들리는지도 보여 준다 — 화면에 없는 소리가 나면
        고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다. */
-    /* [ENTRY_OUT_TONE] 위에서 고른 느낌을 그대로 따라간다 — 엔진이 재생할 바로 그 문장이다 */
-    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(ENTRY_OUT[S.entry]||OUT_ENTRY)+'</div>';
+    /* ★[ENTRY_OUT_PICK 2026-08-12 사용자 지시 "따로따로"] 도착 멘트를 **따로 고른다.**
+       옛 판은 입장 느낌을 그대로 따라갔다(같은 순간을 두 번 묻지 않으려고). 그런데 두 말은
+       서 있는 자리가 다르다 — 앞엣말은 문이 열리기 전 하객에게 하는 말이고,
+       뒤엣말은 두 사람이 마주 선 뒤의 말이다. 짧게 들어와서 길게 머무르고 싶을 수 있다.
+       ★기본은 여전히 **「입장과 같이」**(S.entryOut 이 비어 있음)다 — 이미 저장해 둔 분들의
+         들리는 소리가 오늘 바뀌면 안 된다. 고른 사람만 갈라진다.
+       ★키(entryOut)를 **이 화면과 같은 커밋에** 넣는다. ritual-cue.js 옛 주석이
+         「키만 먼저 두지 말 것」이라고 적어 둔 그대로다 — 아무도 안 채우는 키는 문이 아니라 구멍이다. */
+    var _eo = ENTRY_OUT[S.entryOut] ? S.entryOut : '';                 // 빈값 = 입장 느낌 따라가기
+    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(ENTRY_OUT[_eo||S.entry]||OUT_ENTRY)+'</div>';
+    h+='<div class="dlabel" style="margin-top:12px">이 말만 따로 고르실 수도 있어요</div>';
+    h+='<div class="entry-chips" style="margin-top:8px">';
+    h+='<button class="ex-chip'+(_eo===''?' on':'')+'" aria-pressed="'+(_eo===''?'true':'false')+'" data-fk="entryOut:" onclick="pick(\'entryOut\',\'\')">입장과 같이</button>';
+    ['A','B','C','D','E','F'].forEach(function(v){
+      h+='<button class="ex-chip'+(_eo===v?' on':'')+'" aria-pressed="'+(_eo===v?'true':'false')+'" data-fk="entryOut:'+v+'" onclick="pick(\'entryOut\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';
+    });
+    h+='</div>';
     h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
       if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
       h+='</div>';
