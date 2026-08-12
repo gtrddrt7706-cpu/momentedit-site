@@ -451,7 +451,11 @@ body.guest .now .hint{font-size:12.5px}
 <section id="gIntro" class="wrap">
   <h1>예식, 미리 한 번 들어 보세요</h1>
   <p>사람이 말하는 부분은 예시 목소리로 들려드려요. 당일엔 두 분과 가족이 직접 말합니다.</p>
-  <p>고르신 순서 그대로 처음부터 끝까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.</p>
+  <p id="giFlow">고르신 순서 그대로 처음부터 끝까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.</p>
+  <!-- ★[PREVIEW_UPTO 2026-08-12] 중간까지만 걸어온 초안이면 여기서 그 사실을 먼저 말한다.
+       ★위 #giFlow 의 「처음부터 끝까지」도 그때는 거짓이 되므로 함께 바꾼다 —
+         한쪽만 고치면 한 화면이 서로 다른 말을 한다. -->
+  <p class="len" id="giUpto" style="display:none"></p>
   <p class="len" id="giLen"></p>
   <button class="go" id="giGo">듣기 시작</button>
 </section>
@@ -1402,9 +1406,21 @@ if (GUEST) {
        ★minLabel 은 이미 '약 N분' 꼴이다 — 앞에 '약'을 또 붙이지 말 것.
        ☐ 남은 한계: 고객이 순서를 더하거나 빼면 빌더 estMin 은 따라 움직이는데 minLabel 은
          코스 기본값 그대로다. 기본 상태에서는 6코스 전부 정확히 일치한다. */
-    var gm = RitualCue.build(S, {mode:'preview'}).meta;
+    var gp = RitualCue.build(S, {mode:'preview'});
+    var gm = gp.meta;
     var gr = RitualCue.build(S, {mode:'console'}).meta;
     $('#giLen').textContent = '듣는 데 약 ' + fmtMin(gm.totalSec) + ' · 실제 예식은 ' + (gr.minLabel || ('약 ' + fmtMin(gr.totalSec))) + '이에요.';
+    /* ★[PREVIEW_UPTO 2026-08-12 사용자 지시] 중간까지만 걸어온 초안 — **거기서 끊고 그 사실을 말한다.**
+       옛 판은 코스 기본값 덕에 폐식까지 흘렀다. 두 분이 본 적 없는 뒷부분을
+       「고르신 순서 그대로」라며 들려주던 것이라, 그 문장부터 함께 고친다. */
+    if (gp.upto) {
+      $('#giFlow').textContent = '지금까지 정하신 데까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.';
+      /* ★수를 말하지 않는다 — cues 는 한 순간에 둘씩 붙어 「N개 순서」가 거짓이 된다(실측 7 대 4).
+         무엇까지 들려주는지를 **이름**으로 말한다. 세는 단위가 바뀌어도 안 낡는다. */
+      $('#giUpto').textContent = (gp.uptoName ? ('「' + gp.uptoName + '」까지 들려드려요. ') : '')
+        + '그 뒤는 아직 정하기 전이라 담지 않았어요.';
+      $('#giUpto').style.display = '';
+    }
   } catch(e){ $('#giLen').textContent = ''; }
   $('#giGo').onclick = function(){ gi.classList.remove('on'); $('#go').click(); };
 } else if (QS.get('auto') === '1') $('#go').click();

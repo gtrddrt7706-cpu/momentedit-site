@@ -2900,8 +2900,17 @@ var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람
    ★이 선언은 첫 render() 아래에 있다(var 호이스팅). 그래서 첫 렌더 순간엔 undefined 다 —
      부르는 쪽이 !!CUSTDIG 로 못 박아 false 로 읽는다. orderFill 이 오면 값이 서고 다시 렌더된다. */
 var CUSTDIG=false;
+/* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 저장할 때 **어디까지 걸어왔는지**를 함께 보낸다.
+   ★무엇이 문제였나 — 코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 3번째 단계에서
+     「저장 후 나가기」를 해도 미리듣기는 **폐식까지** 흐른다. 화면은 「고르신 순서 그대로」라고
+     말하는데 실제로는 두 분이 본 적 없는 뒷부분까지 들려준다 — 적힌 것과 들리는 것이 다르다.
+   ★_seenK 가 이미 답이었다 — 방문한 단계 '키'를 기록하고 저장·복원까지 된다(인덱스가 아니라 키라
+     코스를 바꿔도 안 어긋난다). 그런데 그것이 **S 밖**에 있어서 서버 초안에도 주소에도 안 실렸다.
+   ★값은 {키 목록}뿐이다 — 고객이 쓴 글이 아니다. off·ord 가 이미 같은 꼴로 주소에 실린다.
+   ★완료 저장(done)에서는 비운다 — 다 걸었으면 자를 데가 없다. */
 function _embedSave(){
   if(!EMBED) return;
+  try{ S.seen = _doneSaved ? [] : Object.keys(_seenK); }catch(e){}
   try{ var _bs=fullBlocks(); parent.postMessage({type:'momentedit:orderSave', data:{S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}}}, window.location.origin); }catch(e){}
 }
 if(EMBED){

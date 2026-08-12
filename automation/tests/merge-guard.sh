@@ -619,6 +619,23 @@ chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entryOut\]' order-preview.html 1     # 고른 값을 먼저 본다
 chk 'ENTRY_OUT\[_eo||S\.entry\]' order-preview.html 1   # 안 고르면 입장 느낌으로 떨어진다
 chk 'data-fk="entryOut' order-preview.html 2               # 고르는 칩 두 줄(「입장과 같이」 + A~F 반복)
+# ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 미리듣기가 **걸어온 데까지만** 들려준다.
+#   코스를 고르면 모든 순간이 기본값으로 채워져, 중간에 「저장 후 나가기」를 해도 폐식까지 흘렀다 —
+#   두 분이 본 적 없는 뒷부분을 「고르신 순서 그대로」라며 들려주던 것이다.
+#   _seenK(방문한 단계 키 · 이미 있던 것)를 S.seen 으로 실어 보내고 엔진이 거기서 끊는다.
+#   ★키(seen)와 값을 만드는 곳(_embedSave)이 **같은 커밋**이다 — entryOut 때 배운 순서.
+#   ★수를 말하지 말 것 — cues 는 한 순간에 둘씩 붙어 「N개 순서」가 거짓이 된다(실측 7 대 4).
+#     무엇까지 들려주는지를 **이름**으로 말한다(uptoName).
+#   ★자르는 것은 미리듣기뿐이다. 디렉터 콘솔은 당일 전체를 봐야 한다.
+#   실측 — 끝까지 걸음: 큐 17 · 안 자름 / 중간(서약까지): 큐 10 · 「혼인 서약」까지 · 그 뒤 안 담음
+chk 'PREVIEW_UPTO' assets/ritual-cue.js 1
+chk 'PREVIEW_UPTO' order-preview.html 1
+chk 'PREVIEW_UPTO' assets/ritual-preview-link.js 1
+chk 'PREVIEW_UPTO' console.html 2
+chk "'seen'," assets/ritual-preview-link.js 1        # 화이트리스트에 열린 키
+chk 'S.seen = _doneSaved' order-preview.html 1        # 값을 만드는 그 줄(완료면 비운다)
+chk 'uptoName' assets/ritual-cue.js 3
+nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
 chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
