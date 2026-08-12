@@ -485,6 +485,22 @@ chk '밖으로 넘쳤다' scripts/check-mypage-shell.mjs 1
 #   ★②를 일부러 끄고 재서 ③만으로 넘침이 잡히는 것을 확인했다(끄기 전엔 초록이었다).
 #   ★덩이 **전체**를 2칸 더 들여쓰는 정당한 재정렬에는 초록인 것도 확인했다(헛붉음 아님).
 chk 'SLICE_DEPTH_NET' scripts/check-mypage-shell.mjs 1
+# ★★[SENT_POLL 2026-08-12 실측] 거품이 떴는지를 **한 시각에 한 번** 보지 않는다.
+#   옛 판은 클릭 뒤 900ms 에 한 번만 봤다. 따뜻한 판은 359ms(여유 540ms)인데
+#   **차가운 판 첫 회에서 한 번 헛붉었다**(「상자에 실린 말=없음」·exit 1 · 다음 다섯 회는 통과).
+#   야간 잡이 바로 그 차가운 판이다 — GitHub Actions 는 매번 크로미움을 처음 띄운다.
+#   ★이 저장소 목록 11-b(「정착 전에 잰 값은 값이 아니다」)를 우리가 만든 자로 밟았다.
+#   느슨해진 게 아니다 — 안 뜨면 여전히 붉는다(마감을 1ms 로 줄여 붉는 것을 확인).
+chk 'SENT_POLL' scripts/check-mypage-shell.mjs 2
+# ★[SENT_POLL 확산 2026-08-12] 같은 꼴이 **옆 검사에 둘 더** 있었다(클로드코드가 훑어 찾음).
+#   check-listen-export ⑧ — 단추 누르고 200ms 뒤 한 번만 봄(글칸) · blur 뒤 200ms 뒤 한 번만 봄(되돌아온 글).
+#   그리고 새로고침 뒤 waitForTimeout(2200) 로 목록이 실렸다 치고 바로 읽었다.
+#   차가운 판에서 각각 「글칸을 못 찾았습니다」·「빈 채로 남았습니다」·「클립을 못 찾았습니다」로 헛붉는다.
+#   → 뜰 때까지 25ms 마다 보고 3초에 포기(목록은 waitForFunction 15초). 안 나타나면 여전히 붉는다.
+#   ★돌연변이 셋 전부 제 이름으로 붉는 것을 확인했다(되돌리기 없앰·input 때 되채움·글칸 안 그림).
+chk 'SENT_POLL' scripts/check-listen-export.mjs 2
+chk 'waitForFunction' scripts/check-listen-export.mjs 1
+nochk 'setTimeout(r, 200)' scripts/check-listen-export.mjs   # ★한 시각에 한 번 보는 자로 되돌리지 말 것
 # ★★★[SLICE_PAREN_MATCH 2026-08-12 실측] 범위를 **들여쓰기로 찾는 것을 그만뒀다.** 괄호를 맞춘다.
 #   들여쓰기 그물을 세 판 만들었고 셋 다 구멍이 있었다 —
 #     ①닫는 폭 2칸 박음 → 정당한 재정렬에 넘침  ②「마지막 줄이 닫는 줄인가」 → 구조상 늘 참(죽은 그물)

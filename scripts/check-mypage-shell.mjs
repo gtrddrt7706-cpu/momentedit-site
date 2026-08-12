@@ -134,7 +134,7 @@ try {
        지어내는 것은 단추 한 개뿐이고, 그 모양도 mypage.html 2682행 그대로다.
        원장 전체를 지어내지 않는다 — 이 파일이 거절하는 「허구 확인」이 되지 않게. */
   const ask = await h.page.evaluate(() => {
-    const out = { api: null, sliced: false, spilled: false, unmatched: false, sliceLines: 0, q: '', kakao: false, wired: false, sent: '' };
+    const out = { api: null, sliced: false, spilled: false, unmatched: false, sliceLines: 0, q: '', kakao: false, wired: false, sent: '', sentMs: -1 };
     out.api = (() => { const A = window.MEAdvisor;
       return { has: !!A, available: !!(A && A.available), ask: !!(A && typeof A.ask === 'function') }; })();
     const src = [...document.querySelectorAll('script:not([src])')].map((s) => s.textContent).join('\n');
@@ -224,11 +224,29 @@ try {
       const b = document.getElementById('mp_refundAsk');
       out.wired = !!(b && typeof b.onclick === 'function');
       if (out.wired) b.click();
-      /* 단추 120ms + ask() 안의 320ms → 넉넉히 900ms 뒤에 상자를 본다. */
-      setTimeout(() => {
-        out.sent = [...document.querySelectorAll('.me-adv-msg.me')].map((e) => e.textContent).join(' | ');
-        res(out);
-      }, 900);
+      /* ★★[SENT_POLL 2026-08-12 실측 · ★11-b 를 우리가 밟았다] **한 시각에 한 번 보지 않는다.**
+         옛 판은 「단추 120ms + ask() 안의 320ms → 넉넉히 900ms」로 **한 순간만** 봤다.
+         ★실측 — 따뜻한 판에서 거품은 359·359·358ms 에 뜬다(여유 540ms). 그런데
+           **차가운 판(브라우저 첫 기동) 첫 회에서 한 번 붉었다** — 「상자에 실린 말=없음」·exit 1.
+           바로 다음 다섯 회는 전부 통과. 즉 제품이 아니라 **자가 흔들린 것**이다.
+         ★야간 잡이 바로 그 차가운 판이다. GitHub Actions 는 매번 크로미움을 처음 띄운다.
+           실험실에서만 나는 흔들림이 아니라 **운영에서 나는 쪽**의 흔들림이다.
+         ★이 문서(목록 11-b)에 「정착 전에 잰 값은 값이 아니다 · 한 번 찍은 좌표는 좌표가 아니다」라고
+           적어 두고, 그 글을 쓴 자리에서 한 순간만 보는 자를 만들었다. 늑대를 헛으로 부르는 검사는
+           다음 진짜 늑대 때 아무도 안 본다(★9) — 그래서 고친다.
+         ★느슨하게 만드는 것이 아니다. 안 뜨면 여전히 붉는다. 다만 **뜰 때까지 기다렸다가** 판정한다. */
+      const t0 = performance.now();
+      const look = () => [...document.querySelectorAll('.me-adv-msg.me')].map((e) => e.textContent).join(' | ');
+      const tick = () => {
+        const seen = look();
+        if (seen || performance.now() - t0 > 6000) {      // 떴거나 · 6초까지 안 뜨면 그대로 판정
+          out.sent = seen;
+          out.sentMs = Math.round(performance.now() - t0);
+          return res(out);
+        }
+        setTimeout(tick, 25);
+      };
+      tick();
     }, 60));
   });
   if (!ask.api.has || !ask.api.available || !ask.api.ask)
@@ -255,7 +273,7 @@ try {
     bad.push(`눌렀는데 그 질문이 상자에 안 실렸다 — 빈 상자만 열린다. 실린 것: 「${ask.sent || '(없음)'}」 [ASK_SENDS]`);
 
   console.log(`━━ mypage.html @390  로그인 화면=${dom.login} · 보이는 글 ${r.visible.length}자 · 가로스크롤 ${r.scrollsX}`);
-  console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」`);
+  console.log(`   [ASK_SENDS] 공개 API=${ask.api.has && ask.api.available && ask.api.ask} · 코드 떼옴=${ask.sliced} · 눌림=${ask.wired} · 상자에 실린 말=「${ask.sent || '없음'}」 (${ask.sentMs}ms 만에 · 6000ms 까지 기다린다) [SENT_POLL]`);
   console.log(`   완료 접기 ${dom.fold}개(0이어야) · 저장 표시 짜임 ${dom.busy}개(1 이하) · JS 오류 ${r.errors.length}`);
   r.unseen.forEach((u) => console.log('   ☐ ' + u));
 } finally {
