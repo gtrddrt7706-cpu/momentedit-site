@@ -144,6 +144,7 @@ nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐�
 #     놓을 때 클래스를 손으로 적지 않고 원본에서 찾는다. 제품이 그 조합을 바꾸면 못 찾고 붉는다
 #     (classFound=false) — 조용히 옛 클래스로 재는 일은 없다. 그 한계 표기를 지우지 말 것.
 chk 'SKEL_LAYOUT' scripts/check-mypage-shell.mjs 5
+chk 'SKEL_LAST_MEASURE' automation/tests/merge-guard.sh 2   # ★순서 가드는 「무엇 뒤인가」가 아니라 「마지막인가」로 묻는다
 chk "a.style.display = 'block'" scripts/check-mypage-shell.mjs 1        # ① 조상 여는 그 줄
 chk "getElementById('loginView'); if (lv)" scripts/check-mypage-shell.mjs 1   # ② 로그인 판 닫는 그 줄
 chk 'renderProduction({}, null)' scripts/check-mypage-shell.mjs 2       # 구조 재는 곳 + 좌표 재는 곳 둘
@@ -157,9 +158,15 @@ chk '검사가 놓은 것' scripts/check-mypage-shell.mjs 1                   # 
 #   줄 수로는 못 재니 **줄 번호로 잰다**(1088행 게이트 자가진단과 같은 방식).
 _sl_ask=$(grep -n 'ask.sent.includes' scripts/check-mypage-shell.mjs | head -1 | cut -d: -f1); _sl_ask=${_sl_ask:-0}
 _sl_lay=$(grep -n 'const lay = await h.page.evaluate' scripts/check-mypage-shell.mjs | head -1 | cut -d: -f1); _sl_lay=${_sl_lay:-0}
-if [ "$_sl_lay" -eq 0 ] || [ "$_sl_ask" -eq 0 ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT 또는 ASK_SENDS 자리를 못 찾음(ask=$_sl_ask lay=$_sl_lay) — 순서 검사가 헛돌았다"; fail=1
+# ★[SKEL_LAST_MEASURE 2026-08-12] 위 주석은 「probe·busy·REFUND_STATE·ASK_SENDS 뒤여야 한다」고 적었는데
+#   실제로 대조하던 것은 **ASK_SENDS 하나**였다. 지금은 그것이 넷 중 마지막이라 맞지만,
+#   누가 REFUND_STATE 를 뒤로 옮기면 주석은 그대로인 채 그물만 조용히 헐거워진다(★14-b — 한 칸 재고 전칭).
+#   그래서 이름을 나열하지 않고 **「이 파일의 마지막 page.evaluate 인가」**로 잰다 — 늘어나도 안 낡는다.
+_sl_last=$(grep -n 'h\.page\.evaluate' scripts/check-mypage-shell.mjs | tail -1 | cut -d: -f1); _sl_last=${_sl_last:-0}
+if [ "$_sl_lay" -eq 0 ] || [ "$_sl_ask" -eq 0 ] || [ "$_sl_last" -eq 0 ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT 또는 ASK_SENDS 자리를 못 찾음(ask=$_sl_ask lay=$_sl_lay last=$_sl_last) — 순서 검사가 헛돌았다"; fail=1
 elif [ "$_sl_lay" -lt "$_sl_ask" ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행)보다 앞이다 — 화면을 열어 놓고 단추를 누르면 앞 측정이 오염된다"; fail=1
-else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행) 뒤 — 맨 마지막에 연다"; fi
+elif [ "$_sl_lay" -ne "$_sl_last" ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행) 뒤에 또 재는 곳이 있다($_sl_last행) — 조상을 열어 둔 화면에서 재면 그 값이 오염된다 [SKEL_LAST_MEASURE]"; fail=1
+else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행) 뒤이고 **마지막으로 재는 곳**이다"; fi
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
