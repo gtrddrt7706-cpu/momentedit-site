@@ -123,6 +123,12 @@ chk 'renderProduction({}, null)' scripts/check-mypage-shell.mjs 1   # 빈 객체
 # ★못 그린 판에서 숫자를 찍지 않는다 — 옛 판은 「트랙 undefined줄 · 폐지분 undefined개(0이어야)」였다(실측).
 #   붉은 줄은 아래 서지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸**을 남기는 것이 목록 11-d 의 병이다.
 chk '아무것도 못 쟀다' scripts/check-mypage-shell.mjs 1
+# ★★[SKEL_NOT_VISIBLE 2026-08-12] style.display==='block' 은 **보인다는 뜻이 아니다.**
+#   실측: 그 값은 true 인데 offsetParent 는 null · 폭높이 0x0 이다(부모 #mypageView 가 로그인 전이라 닫혀 있다).
+#   .trk-fold 세기는 배치와 무관해 이 검사 목적엔 영향 없다. 다만 **좌표를 재려는 사람**이 0 을 받고
+#   「무너졌다」로 읽는다 — 실제로 그럴 뻔했다. 그래서 이름을 「그리기 끝남」으로 바꾸고 한계를 찍는다.
+chk 'SKEL_NOT_VISIBLE' scripts/check-mypage-shell.mjs 2
+nochk '보임=' scripts/check-mypage-shell.mjs        # ★안 잰 것을 「보임」이라 부르지 말 것
 nochk "querySelectorAll('.done-fold," scripts/check-mypage-shell.mjs   # ★폐지분 세는 자로 되돌리지 말 것
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
@@ -619,6 +625,23 @@ chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entryOut\]' order-preview.html 1     # 고른 값을 먼저 본다
 chk 'ENTRY_OUT\[_eo||S\.entry\]' order-preview.html 1   # 안 고르면 입장 느낌으로 떨어진다
 chk 'data-fk="entryOut' order-preview.html 2               # 고르는 칩 두 줄(「입장과 같이」 + A~F 반복)
+# ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 미리듣기가 **걸어온 데까지만** 들려준다.
+#   코스를 고르면 모든 순간이 기본값으로 채워져, 중간에 「저장 후 나가기」를 해도 폐식까지 흘렀다 —
+#   두 분이 본 적 없는 뒷부분을 「고르신 순서 그대로」라며 들려주던 것이다.
+#   _seenK(방문한 단계 키 · 이미 있던 것)를 S.seen 으로 실어 보내고 엔진이 거기서 끊는다.
+#   ★키(seen)와 값을 만드는 곳(_embedSave)이 **같은 커밋**이다 — entryOut 때 배운 순서.
+#   ★수를 말하지 말 것 — cues 는 한 순간에 둘씩 붙어 「N개 순서」가 거짓이 된다(실측 7 대 4).
+#     무엇까지 들려주는지를 **이름**으로 말한다(uptoName).
+#   ★자르는 것은 미리듣기뿐이다. 디렉터 콘솔은 당일 전체를 봐야 한다.
+#   실측 — 끝까지 걸음: 큐 17 · 안 자름 / 중간(서약까지): 큐 10 · 「혼인 서약」까지 · 그 뒤 안 담음
+chk 'PREVIEW_UPTO' assets/ritual-cue.js 1
+chk 'PREVIEW_UPTO' order-preview.html 1
+chk 'PREVIEW_UPTO' assets/ritual-preview-link.js 1
+chk 'PREVIEW_UPTO' console.html 2
+chk "'seen'," assets/ritual-preview-link.js 1        # 화이트리스트에 열린 키
+chk 'S.seen = _doneSaved' order-preview.html 1        # 값을 만드는 그 줄(완료면 비운다)
+chk 'uptoName' assets/ritual-cue.js 3
+nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
 chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
@@ -1367,7 +1390,17 @@ chk 'RitualPreviewLink' order-preview.html 2            # 주소를 손으로 �
 chk 'MP_FS_OVERLAYS' mypage.html 6                      # 전체화면 오버레이 단일 목록 · 미리듣기가 빠지면 잠금 자가치유가 열린 판을 못 보고 스크롤이 굳는다
 chk 'mp_rpViewer' mypage.html 5                         # 마이페이지 미리듣기 오버레이 id(목록·열기·닫기·잠금 판정이 이 이름을 공유한다)
 chk 'ob_rpViewer' order-preview.html 4                  # 빌더 미리듣기 오버레이 id(Esc 양보 판정이 이 이름을 본다)
-chk 'trk-act-min' mypage.html 2                         # 보조 버튼 크기 위계 · 빼면 「미리 들어보기」가 주 버튼과 같은 무게로 선다
+# ★★[TRK_PRE_QUIET 2026-08-12 사용자 지시 「미리듣기 버튼도 디자이너 관점으로 개선」]
+#   높이(TRK_ACT_H36)는 2026-08-11 에 맞췄다. 남은 문제는 **한 줄에 테두리 상자가 둘**이라는 것 —
+#   크기만 다를 뿐 「고를 것이 둘」로 읽혔고, 그 줄만 목록 리듬을 끊었다(다른 다섯 줄은 상자 하나).
+#   보조에서 면·테두리를 걷고 글자만 남겼다. 실측(390px · 진짜 트랙을 그려서):
+#     보조 x148 w67 h36 테두리 0 · 주 x225 w122 h36 테두리 1
+#     주 버튼 왼끝 전부 225 · 오른끝 전부 347(한 열) · 식순 줄 높이 61 = 다른 줄과 같음
+#     탭 영역 36×67 그대로 — 걷어낸 것은 테두리·배경뿐이다.
+#   ★상자를 되돌리지 말 것 — 위계가 다시 폭 차이에만 실린다.
+chk 'trk-act-min' mypage.html 3                         # 보조 버튼 위계(규격 + 걷어낸 테두리 + hover)
+chk 'TRK_PRE_QUIET' mypage.html 1
+chk 'trk-act-min{min-width:auto;padding:8px 10px' mypage.html 1   # 테두리 없는 글자 단추 그 줄
 chk 'if(old) return old' mypage.html 1                  # 연타 = 떠 있는 판 그대로 · '닫고 다시 열기'로 되돌리면 히스토리 층이 어긋나 페이지 밖으로 튕긴다
 chk 'if(old) return old' order-preview.html 1           # 연타 = 떠 있는 판 그대로 · 떼고 새로 짜면 배경 스크롤이 잠긴 채로 남는다
 

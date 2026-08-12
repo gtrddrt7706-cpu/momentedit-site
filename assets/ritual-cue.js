@@ -748,6 +748,34 @@
       }
     }
 
+    /* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] **걸어온 데까지만 들려준다.**
+       ★코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 중간에 「저장 후 나가기」를 해도
+         미리듣기는 폐식까지 흘렀다 — 두 분이 **본 적 없는 뒷부분**을 「고르신 순서 그대로」라며 들려준 것이다.
+       ★S.seen = 빌더에서 실제로 방문한 단계 키 목록(order-preview 의 _embedSave 가 만든다).
+         비어 있으면 끝까지 걸은 것이라 자르지 않는다 — 옛 초안(키 없음)도 종전대로 전부 흐른다.
+       ★자르는 것은 **미리듣기뿐**이다. 디렉터 콘솔은 당일 전체를 봐야 하므로 건드리지 않는다.
+       ★안 본 것이 하나도 안 남았으면 자르지 않는다 — 「여기까지」라고 말할 게 없는데 말하면 거짓이 된다. */
+    var upto = null, uptoAfter = 0, uptoName = '';
+    if (mode === 'preview' && S.seen && S.seen.length) {
+      var seenSet = {};
+      for (var q = 0; q < S.seen.length; q++) seenSet[String(S.seen[q])] = 1;
+      var lastSeen = -1;
+      for (var c1 = 0; c1 < cues.length; c1++) if (cues[c1].k && seenSet[cues[c1].k]) lastSeen = c1;
+      var restUnseen = 0;
+      for (var c2 = lastSeen + 1; c2 < cues.length; c2++) if (cues[c2].k && !seenSet[cues[c2].k]) restUnseen++;
+      if (lastSeen >= 0 && restUnseen > 0) {
+        upto = cues[lastSeen].k;
+        /* ★세는 단위에 속지 말 것 — cues 는 한 순간에 둘씩 붙는다(들어가는 말·닫는 말).
+           처음엔 남은 **큐 수**를 세어 「그 뒤 N개 순서」라고 적었다. 실측에서 7이 나왔는데
+           실제로 안 들려주는 순서는 반지·헌정·선언·폐식 넷이었다 — 화면이 거짓 수를 말했다.
+           ★그래서 수를 아예 말하지 않는다. 「무엇까지 들려주는가」를 이름으로 말하는 편이
+             더 정확하고, 세는 단위가 바뀌어도 안 낡는다. uptoAfter 는 검사용으로만 남긴다. */
+        uptoName = cues[lastSeen].blockN || '';
+        uptoAfter = cues.length - (lastSeen + 1);
+        cues = cues.slice(0, lastSeen + 1);
+      }
+    }
+
     if (mode === 'preview') {
       // 미리듣기: 전부 자동. 사람 구간은 '이런 순간이 여기 있다'만 알면 되므로 짧게 줄인다.
       for (var m = 0; m < cues.length; m++) {
@@ -763,7 +791,9 @@
       if (cues[0]) cues[0].fire = 'manual';   // 첫 재생만 사람이 시작(브라우저 자동재생 정책)
     }
 
-    return { cues: cues, S: S, seq: seq, mode: mode, meta: meta(cues, S, mode, seq) };
+    /* [PREVIEW_UPTO] 자른 사실을 **결과에 실어** 보낸다 — 화면이 「이 뒤는 아직」이라고 말할 근거다.
+       ★소리로는 아무 말도 만들지 않는다(새 음원 없음). 화면 글로만 닫는다. */
+    return { cues: cues, S: S, seq: seq, mode: mode, upto: upto, uptoName: uptoName, uptoAfter: uptoAfter, meta: meta(cues, S, mode, seq) };
   }
 
   /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 전부 뺄 수 있게 되면서 '입장만 남은 예식'이 만들어질 수 있다.

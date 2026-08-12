@@ -37,12 +37,18 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /* 로그인 뒤에만 있는 것 — 사람이 눈으로 봐야 하는 목록. 고칠 때마다 여기에 한 줄 더한다. */
 const UNSEEN = [
   '좌석 · 음료 시트 — 바닥에서 올라오는지 · 3칸 타일이 균등한지 · 「선택 지우기」가 보이는지 [DRINK_SHEET]',
-  '예식 준비 트랙 행 — 「좌석 · 음료」 라벨과 버튼 폭 정렬 [SEAT_DRINK_LABEL][TRK_ACT_ALIGN]',
+  '예식 준비 트랙 행 — 「좌석 · 음료」 라벨과 버튼 폭 정렬 · 그 줄만이 아니라 **트랙 전체 줄 모양**을 함께 본다 [SEAT_DRINK_LABEL][TRK_ACT_ALIGN]',
   '저장 중 표시가 실제 저장 때 한 자리에서만 뜨는지 [BUSY_ONE_PLACE]',
-  /* ★[SHELL_SKELETON 2026-08-12] 「완료 항목이 접히지 않은 채인지 [TRK_NO_FOLD]」는 목록에서 뺐다 —
+  /* ★[SHELL_SKELETON 2026-08-12] 「완료 항목이 접히지 않은 채인지 [TRK_NO_FOLD]」는 여기서 뺐다 —
      빈 객체로 진짜 트랙을 그려 .trk-fold 를 실제로 세게 됐다(아래 SHELL_SKELETON).
-     ★남은 것은 **값과 모양**이다. 그건 서버 데이터가 있어야 하고, 지어내면 허구 확인이 된다. */
-  '예식 준비 트랙 — 값이 채워진 뒤의 줄 모양·정렬(구조는 SHELL_SKELETON 이 본다) [TRK_ACT_ALIGN]',
+     ★[UNSEEN_ONE_LOOK 2026-08-12] 그때 「남은 것은 값과 모양」이라며 **줄을 하나 새로 적었다.**
+       그런데 그 남은 것을 **바로 위 줄이 이미 적고 있었다**(좌석·음료 라벨과 버튼 폭 정렬).
+       내가 일반어로 다시 적어 항목만 하나 늘린 것이다. 그래서 그 줄을 지우고 위 줄을 한 마디 넓혔다.
+     ★기준 — 이 목록은 **「한 번 열어 보면 같이 보이는 것」끼리 하나로 센다.**
+       트랙을 열면 좌석·음료 줄만 보고 나머지 줄을 안 볼 수는 없다. 둘로 적으면
+       「4번은 봤는데 2번은 아직」이라는, 있을 수 없는 상태가 있는 것처럼 읽힌다.
+     ★그리고 닫은 자리에 「남은 것」을 새로 적기 전에 **이미 적혀 있는지부터 본다.**
+       지우는 사람은 자기가 닫은 자리만 보고 있어서 위 줄을 안 읽는다. */
   '식순 빌더·미리듣기를 iframe 으로 열었을 때 상담 도우미가 겹치지 않는지 [MP_FS_OVERLAYS]',
   '★실제 로그인 payload 에 서버가 refund 를 실어 보내는지 [REFUND_STATE] — 여기서는 직렬화만 쟀다.\n      코드 근거는 60_mypage.gs 50행(refund: buildRefundQuote). 사람이 로그인해 도우미에게\n      「지금 취소하면 얼마?」를 물어 실금액이 나오는지 한 번 확인할 것',
 ];
@@ -110,7 +116,16 @@ try {
     try { window._mpStateD = { stage: '제작중' }; renderProduction({}, null); } catch (e) { return { can: false, why: e.message }; }
     await new Promise((r) => setTimeout(r, 250));
     const box = document.getElementById('mp_production');
-    return { can: true, shown: !!(box && box.style.display === 'block'),
+    /* ★★[SKEL_NOT_VISIBLE 2026-08-12] `style.display==='block'` 은 **보인다는 뜻이 아니다.**
+       실측: 이 자리에서 그 값은 true 인데 `offsetParent` 는 null 이고 폭·높이가 0×0 이다 —
+       부모 `#mypageView` 가 아직 display:none 이기 때문이다(로그인 전이라 당연하다).
+       ★그래서 이름을 「보임」에서 **「그리기 끝남」**으로 바꾼다. 재는 것은 인라인 속성 하나뿐이다.
+       ★여기서 세는 것(.trk-fold 개수)은 배치와 무관하므로 이 검사 목적에는 영향이 없다.
+         하지만 **좌표·폭을 재려는 사람**은 전부 0 을 받고 「무너졌다」고 읽는다 — 실제로 그럴 뻔했다.
+         좌표를 재려면 #mypageView 를 display:block 으로 열고, 「미리듣기」처럼 초안이 있어야
+         서는 단추는 ritualDraft({_v:3,S:{...}})를 함께 넘겨야 한다(mypage 4691 urlFromDraft). */
+    return { can: true, drawn: !!(box && box.style.display === 'block'),
+      offsetParent: !!(box && box.offsetParent),
       trk: document.querySelectorAll('.trk').length,
       fold: document.querySelectorAll('.trk-fold,[class*="trk-fold"]').length };
   });
@@ -118,7 +133,7 @@ try {
     /* ★못 그렸으면 「통과」가 아니라 「못 쟀다」다 — 조용히 넘기면 안 쏜 화살이 된다(11-c). */
     bad.push(`제작 트랙을 못 그렸다 — 이 구조 검사가 헛돌았다(통과 아님)${sk.why ? ' · ' + sk.why : ''} [SHELL_SKELETON]`);
   } else {
-    if (!sk.shown || sk.trk < 1) bad.push(`제작 트랙이 안 그려졌다(보임=${sk.shown} · 줄 ${sk.trk}) — 겨냥이 사라졌다 [SHELL_SKELETON]`);
+    if (!sk.drawn || sk.trk < 1) bad.push(`제작 트랙이 안 그려졌다(그리기 끝남=${sk.drawn} · 줄 ${sk.trk}) — 겨냥이 사라졌다 [SHELL_SKELETON]`);
     if (sk.fold) bad.push(`★진짜 트랙 화면에서 완료 행 접기(.trk-fold)가 ${sk.fold}개 — 2026-08-09 폐지분이다 [TRK_NO_FOLD]`);
   }
 
@@ -329,7 +344,7 @@ try {
      붉은 줄이 바로 아래 서긴 하지만, 요약 줄이 **안 잰 자리에 잰 값 모양의 칸을 남기는 것**이
      11-d 로 적어 둔 바로 그 병이다(FOLD_ALIVE_CANT_LOOK 과 같은 얼굴 · 같은 날 세 번째). */
   console.log(sk.can
-    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야)`
+    ? `   [SHELL_SKELETON] 진짜 제작 트랙을 빈 객체로 그려 봄 — 트랙 ${sk.trk}줄 · 폐지분 .trk-fold ${sk.fold}개(0이어야) · ☐ 화면에 뜬 것은 아니다(부모가 로그인 전이라 닫혀 있음 · 좌표는 못 잼) [SKEL_NOT_VISIBLE]`
     : `   [SHELL_SKELETON] 진짜 제작 트랙을 못 그렸다 — 여기서는 **아무것도 못 쟀다**(0개가 아니다)`);
   /* [FOLD_ALIVE_CANT_LOOK] 살아 있는 청첩장 접힘은 여기서 숫자로 말하지 않는다 — 위 주석 참고. */
   console.log(`   ☐ 청첩장 접힘(.done-fold)은 로그인 뒤에만 그려져 여기서 못 잽니다 — 원본 쪽은 merge-guard 가 셉니다`);
