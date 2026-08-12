@@ -562,10 +562,21 @@ chk 'ORD_ASK_ONE' order-preview.html 3
 #     미리듣기는 ?S= 주소로 열리고 그 주소에는 고객이 쓴 글(서약문·편지)을 싣지 않기 때문이다.
 #     「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
 chk 'REHEARSE_MERGED' order-preview.html 5
+# ★[REHEARSE_MERGED 뒷정리 2 · 2026-08-12] `mode` 변수도 걷었다 — 연습 공간이 사라져 값이 하나뿐이었다.
+#   CSS 비계보다 **더 센 되살림 근거**다(「모드가 둘인데 하나가 비었네」로 읽힌다).
+#   쓰던 자리 넷은 늘 참이던 조건이라 그대로 뺐고, 레일이 뜨는 세 자리를 실브라우저로 확인했다:
+#     입장=block(노드 14) · 글 적어두기=block(노드 16 · 끝 노드 하나 더) · 코스=none.
+nochk "var mode=" order-preview.html      # ★모드를 다시 만들지 말 것 — 두 번째 값은 폐지된 화면이다
 nochk 'openRehearse' order-preview.html          # ★진입점을 되살리지 말 것
 nochk 'function renderRehearse' order-preview.html
 chk '전체 대본 복사' order-preview.html 1        # 연습 공간에서 옮겨 온 것 — 같이 사라지면 안 된다
 chk '당일까지 준비할 것' order-preview.html 1
+# ★[REHEARSE_MERGED 2026-08-12] 고객이 읽는 안내에서도 그 화면을 가리키던 줄을 고쳤다 —
+#   「완성본을 이어듣고, **연습 공간에서** 당일을 미리 익혀요」가 그대로 남아 있었다.
+#   화면을 지울 때 **그 화면을 가리키는 안내 문구까지** 같이 본다(비계보다 이쪽이 더 급하다 —
+#   고객이 직접 읽고 없는 것을 찾으러 간다).
+nochk '연습 공간에서 당일을' order-preview.html
+chk '미리듣기로 이어들으며' order-preview.html 1
 chk 'WAIT_PAST_PARENT' order-preview.html 2
 chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
 chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9

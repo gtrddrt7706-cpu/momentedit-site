@@ -575,7 +575,12 @@ window.mockUpload=function(k){
   inp.click();
 };
 function upNm(v){ return (typeof v==='string'&&v)?v:'올림 완료'; }
-var mode='build'; var crsOpen='';
+/* ★[REHEARSE_MERGED 2026-08-12 뒷정리 2] `mode` 변수 삭제 — 값이 **하나뿐**이 됐다.
+   'build' 와 'rehearse' 둘이었는데 연습 공간이 폐지되며 'rehearse' 가 사라졌다.
+   ★남겨 두면 CSS 비계보다 **더 센 되살림 근거**가 된다 — 「모드가 둘인데 하나가 비었네」로 읽힌다.
+     좌석 화살표가 남은 비계를 근거로 되살아났던 그 자리다(제거 지시 보존 규칙).
+   ★쓰던 자리 넷은 늘 참이던 조건이라 그대로 뺐다(navKey 접두사는 'build:' 로 고정 · 값 동일). */
+var crsOpen='';
 window.pickCourse=function(v){ crsOpen=(crsOpen===v)?'':v; render(); };
 var _pT; function _lazyPersist(){ clearTimeout(_pT); _pT=setTimeout(function(){ if(typeof courseStarted!=='undefined'&&courseStarted&&typeof _persist==='function') _persist(); },500); }
 window.toast=function(m){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:10px 18px;border-radius:20px;z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.textContent=m; t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },2200); };
@@ -1615,7 +1620,7 @@ function render(){
   nx.setAttribute('aria-disabled', _saving?'true':'false');
   if(_saving) nx.setAttribute('aria-live','polite'); else nx.removeAttribute('aria-live');
   renderMiniTL(st.k);
-  var navKey=mode+':'+idx;
+  var navKey='build:'+idx;   // [REHEARSE_MERGED] 옛 mode 접두사 — 값은 그대로다
   if(navKey!==_navKey){
     // [ORD_STEPFOCUS] '다음'을 누르면 화면은 통째로 바뀌는데 포커스는 그대로 버튼에 남아,
     //   화면낭독기 사용자에겐 아무 일도 일어나지 않은 것처럼 들렸다. 새 단계 제목으로 옮겨 준다.
@@ -1629,10 +1634,10 @@ function render(){
 }
 function renderMiniTL(k){
   var el=document.getElementById('minitl'), pn=document.getElementById('pnext');
-  var isWrite=(mode==='build' && k==='write');   // 글 적어두기 단계에서도 레일 항시 노출 → 각 순간으로 자유 이동·수정 (2026-07-22 사용자 지시 · WRITE_2CHECK)
-  var blocks=(mode==='build' && k)?fullBlocks():[];
+  var isWrite=(k==='write');   // 글 적어두기 단계에서도 레일 항시 노출 → 각 순간으로 자유 이동·수정 (2026-07-22 사용자 지시 · WRITE_2CHECK)
+  var blocks=k?fullBlocks():[];
   var cur=-1; for(var i=0;i<blocks.length;i++){ if(blocks[i].k===k){ cur=i; break; } }
-  var show=(cur>-1)||(mode==='build'&&k&&curSeq().indexOf(k)>-1)||isWrite;   // 본식 단계·글 적어두기면 항상 레일 유지(빼기 상태여도 사라지지 않게)
+  var show=(cur>-1)||(k&&curSeq().indexOf(k)>-1)||isWrite;   // 본식 단계·글 적어두기면 항상 레일 유지(빼기 상태여도 사라지지 않게)
   el.style.display=show?'block':'none';
   if(pn) pn.style.display=show?'none':'block';   // 레일이 뜨면 '다음·X'는 중복 → 숨김
   if(!show) return;
@@ -1688,7 +1693,10 @@ function renderIntro2(){
   h+='<div class="intro-pts">';
   h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
   // (구 2번 '순간마다 진행 안내를 미리 들어보고 골라요' 줄 삭제 — 2026-07-18 사용자 지시. 안내 듣기는 각 카드에서 자연히 발견됨)
-  h+='<div class="ipt"><span class="n">2</span>완성본을 이어듣고, 연습 공간에서 당일을 미리 익혀요.</div>';
+  /* ★[REHEARSE_MERGED 2026-08-12] 「연습 공간에서」를 뺐다 — **그 화면이 없어졌는데 글만 남아 있었다.**
+     고객이 이 줄을 읽고 연습 공간을 찾으면 아무 데도 없다. 화면을 지울 때 그 화면을 가리키는
+     안내 문구까지 같이 봐야 한다(비계와 같은 이야기 · 이쪽은 고객이 직접 읽는 자리라 더 급하다). */
+  h+='<div class="ipt"><span class="n">2</span>완성본을 미리듣기로 이어들으며 당일을 익혀요.</div>';
   h+='</div>';
   h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
   h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 고른 순간에만 나서요.</div>';
@@ -2421,7 +2429,7 @@ window.startCourse=function(v){
 window.jumpTo=function(k){
   // [MUSIC_GONE] 옛 'done → 음악 칸으로 스크롤·포커스' 분기 제거 — 그 칸이 사라졌다
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
-  for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; mode='build'; render(); return; } }
+  for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; render(); return; } }
 };
 var editReturn=false, _editSnap=null;
 window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); jumpTo(k); };
