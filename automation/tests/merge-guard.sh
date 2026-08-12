@@ -1261,6 +1261,18 @@ chk 'LIVE_DOING' console.html 1                              # 콘솔 쪽 말/�
 chk '\[CUE_GUARD_V1\]' scripts/check-ritual-cue.js 1         # 큐 엔진 회귀 검사 자체
 # 큐 엔진 회귀 검사 — §3-A 20큐 판정표 · CUE_FIRE_RULE · EXTRA 문안 대조를 전 조합에서 돌린다
 if command -v node >/dev/null 2>&1; then node scripts/check-ritual-cue.js || fail=1; fi
+# ★★[PREVIEW_UPTO 2026-08-12 사용자 제보 "중간에 저장후나가기 했는데 미리듣기는 폐식까지 나온다"]
+#   S.seen(방문한 단계 키)으로 그 뒤를 자른다. 여기가 깨져도 **화면은 멀쩡하고 소리만 달라진다** —
+#   조용히 낡는 자리라 그물이 필요하다. 브라우저가 없어도 되므로 게이트가 직접 돌린다.
+#   ★가장 중요한 안전선은 자르기가 **preview 밖으로 안 새는 것**이다. live 로 새면
+#     그날 식장에서 폐식이 안 나온다 — 되돌릴 수 없다.
+#   ★이 검사는 클로드코드가 임시 스크립트로 쟀던 다섯 갈래를 저장소에 남긴 것이다(목록 ★17).
+#   돌연변이 5발 전부 붉음(실측): preview 조건 제거 → live 24→8 · 자르기 제거 → 16→16 ·
+#     uptoAfter 하나 어긋 → 9 대 8 · KEYS 에 vowText 추가 → 주소에서 서약문 검출 ·
+#     KEYS 에서 seen 제거 → 「실어 놓고도 못 자른다」
+if command -v node >/dev/null 2>&1; then node scripts/check-preview-upto.mjs || fail=1; fi
+chk 'PREVIEW_UPTO' scripts/check-preview-upto.mjs 8
+chk "mode === 'preview' && S.seen" assets/ritual-cue.js 1    # ★자르기가 preview 안에만 사는 그 줄 · live 로 새면 식장에서 폐식이 안 나온다
 
 # ── 텍스트 장면 레이어 · 고객 미리듣기 (2026-08-02) ──────────────
 chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 장면 지문 원천 · 미리듣기 화면이 통째로 빈다
