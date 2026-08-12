@@ -454,7 +454,32 @@ chk 'REFUND_SHORTFALL' mypage.html 1
 chk 'REFUND_SHORTFALL' scripts/check-mypage-shell.mjs 3
 chk 'rq.penalty > rq.paid' mypage.html 1
 chk '위약금이 받은' scripts/check-mypage-shell.mjs 3   # 그물이 이 줄을 볼 수 있어야 한다(옛 그물은 못 봤다)
-chk 'meAdvFab' mypage.html 1
+# ★[ASK_SENDS 2026-08-11] 내부 id 대신 공개 API(MEAdvisor.ask)를 쓰고 **질문까지 보낸다.**
+#   단추가 「물어보기」라고 말하는데 빈 상자가 열리면 그 말이 거짓이 된다.
+#   ★질문은 중립이다 — 이 자리에서 금액 상자를 뺀 이유가 「볼 때마다 취소하고 싶어진다」였다.
+chk 'ASK_SENDS' mypage.html 1
+chk 'MEAdvisor' mypage.html 1
+chk '취소·환불 기준과 지금 기준 환불 예상액' mypage.html 1
+nochk "getElementById('meAdvFab')" mypage.html      # ★내부 id 를 찌르지 말 것(공개 API 가 있다)
+# ★이 자리를 **실제로 눌러 보는** 검사. 지우면 두 가지가 다시 조용히 죽는다 —
+#   ①공개 API 이름이 어긋나 단추가 카카오톡 안내로 바뀌는 것 ②질문이 안 실려 빈 상자만 열리는 것.
+#   돌연변이 넷(속성명 오타·질문 삭제·질문을 취소 선언으로·코드 구조 변경)에 전부 붉어지는 것을 확인했다.
+chk 'ASK_SENDS' scripts/check-mypage-shell.mjs 9
+chk 'mp_refundAsk' scripts/check-mypage-shell.mjs 3   # 코드를 떼어 오는 그물 · 놓는 단추 · 다시 찾기
+# ★★[SLICE_WIDTH_READ 2026-08-11 실측 · ★15 재발] 떼어 오는 그물이 닫는 줄 들여쓰기를 **박으면 안 된다.**
+#   처음 판은 `\n {2}\}, 0\);` 로 2칸 고정이었다. ★15 의 옛 `^          }$`(10칸 고정)와 같은 실수다.
+#   실측 — 이 덩이의 닫는 줄을 4칸으로 정리하고 뒤에 2칸 `}, 0);` 로 끝나는 평범한 덩이를 하나 두니
+#     그물이 그 사이를 통째로 삼켰고, eval 이 **남의 코드를 실행했다.** 검사는 조용히 초록이었다
+#     (코드 떼옴=true · 눌림=true). 안 터지던 유일한 이유는 그런 줄이 파일에 하나뿐이라서 — 운이다.
+#   → ★15 의 고침 셋 그대로: ①폭을 첫 줄에서 읽는다 ②넘치면 섞일 것을 그물로 본다 ③마지막 줄이 닫는 줄인가.
+#   ★「넘쳤다」와 「못 떼어 왔다」를 다른 말로 알린다 — 뭉치면 사람이 정규식 탓으로 읽고 그물을 넓힌다.
+chk 'SLICE_WIDTH_READ' scripts/check-mypage-shell.mjs 2
+chk 'out.spilled' scripts/check-mypage-shell.mjs 2
+chk '밖으로 넘쳤다' scripts/check-mypage-shell.mjs 1
+#   ★nochk 로 「폭을 박은 정규식」을 금지하려다 접었다 — 그 파일의 **주석이 옛 정규식을 인용**하고 있어
+#     깨끗한 나무에서도 붉었다(실측 1>0). 금지어 그물은 그 금지어를 설명하는 글까지 잡는다.
+#     → 없어야 할 것을 세는 대신 **있어야 할 것**을 센다. 폭을 읽어 쓰는 그 줄은 글로 흉내 낼 수 없다.
+chk "+ ind + '}, 0);'" scripts/check-mypage-shell.mjs 1
 nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안내로 되돌리지 말 것
 # ── [SEAT_ADD_PLUS · DRINK_CENTER 2026-08-11 사용자 지시] ──
 # 빈 자리 알약에서 '이름' 두 글자를 뺐다(30번 반복돼 정작 읽을 손님 이름을 묻었다).

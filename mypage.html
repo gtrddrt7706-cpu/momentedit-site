@@ -2688,9 +2688,19 @@ function renderLedger(l){
   /* [REFUND_ASK_AI] 내역 창을 닫고 상담 도우미를 연다. 위젯이 없으면 단추 자체를 지운다. */
   setTimeout(function(){
     var _ra = $('mp_refundAsk'); if (!_ra) return;
-    var _fab = document.getElementById('meAdvFab');
-    if (!_fab) { _ra.outerHTML = '카카오톡으로 물어봐 주세요.'; return; }   // 눌러도 안 열릴 단추는 안 남긴다
-    _ra.onclick = function(){ try { $('mp_ledClose').click(); } catch (e) {} setTimeout(function(){ _fab.click(); }, 120); };
+    /* ★[ASK_SENDS 2026-08-11 · 클로드코드 제안] 내부 id(#meAdvFab)를 찌르지 않고 **공개 API**를 쓴다.
+       ★그리고 **질문까지 보낸다.** 단추가 「물어보기」라고 말하는데 빈 상자가 열리면 그 말이 거짓이 된다.
+       ★질문 문구는 **중립**이다 — 「취소하고 싶은데요」가 아니라 기준을 묻는 말이다.
+         원래 이 자리에서 금액 상자를 뺀 이유가 「열어볼 때마다 취소하고 싶어진다」였다.
+         한 손으로 그 이유를 지우면서 다른 손으로 취소를 선언하게 두면 앞뒤가 안 맞는다.
+       ★라이브 실측(2026-08-11): 이 문구로 물으니 구간·위약금·환불 예상액을 서버 값 그대로 답하고
+         「오늘 기준 예상 · 취소 시점에 확정」까지 붙였다. */
+    var A = window.MEAdvisor;
+    if (!(A && A.available && typeof A.ask === 'function')) { _ra.outerHTML = '카카오톡으로 물어봐 주세요.'; return; }
+    _ra.onclick = function(){
+      try { $('mp_ledClose').click(); } catch (e) {}
+      setTimeout(function(){ A.ask('취소·환불 기준과 지금 기준 환불 예상액을 알려 주세요.'); }, 120);
+    };
   }, 0);
   var wasOpen=box.classList.contains('open');
   var _pc=$('mp_ledChgPanel'), chgWasOpen=!!(wasOpen && _pc && _pc.style.display!=='none');
