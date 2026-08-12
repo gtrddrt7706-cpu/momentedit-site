@@ -532,8 +532,13 @@ nochk '카카오톡으로 물어봐 주세요.</div>' mypage.html   # ★옛 안
 chk 'SEAT_ADD_PLUS' mypage.html 1
 # ── [ENTRY_OUT_TONE 2026-08-11 사용자 지시] 도착 직후 닫는 말을 입장 느낌 A~F 로 갈랐다 ──
 # 입장 느낌은 이미 여섯인데 그 뒤 닫는 말이 하나여서, 어떤 느낌을 골라도 같은 말로 닫혔다.
-# ★새로 묻지 않는다 — 같은 순간을 두 번 묻는 것이 된다. S.entry 가 이 멘트까지 정한다.
-# ★전용 키(entryOut)를 두지 않는다 — 값을 만드는 곳이 없는 키는 구멍이다([PREVIEW_KEYS] 가 막았다).
+# ★[ENTRY_OUT_PICK 2026-08-12 사용자 지시 "따로따로"] 위 두 줄이 바뀌었다 — **따로 고른다.**
+#   옛 판은 「새로 묻지 않는다 · S.entry 가 이 멘트까지 정한다 · 전용 키를 두지 않는다」였다.
+#   사용자가 화면을 보고 따로 고르겠다고 했다. 두 말은 서 있는 자리가 다르다 —
+#   앞엣말은 문이 열리기 전 하객에게, 뒤엣말은 두 사람이 마주 선 뒤에 나온다.
+#   ★키(entryOut)는 **묻는 화면과 같은 커밋**에 넣었다. 2026-08-11 에 키만 먼저 뒀다가
+#     [PREVIEW_KEYS] 에 막혔고, 그때 「화면과 함께 되살릴 것」이라 적어 둔 그대로 했다.
+#   ★빈값이면 종전대로 S.entry 를 따라간다 — 이미 저장해 둔 분들의 소리가 오늘 바뀌면 안 된다.
 # ★A 는 슬러그를 안 바꾼다 — 문안 그대로라 52번 음원을 그대로 쓴다.
 # ★★FILES 는 **파일 맨 끝**에 붙인다. 'narr-cake-out' 옆에 끼웠다가 fx-count 가 78→83 으로 밀려
 #   이미 녹음된 78_fx-count.mp3 가 번호를 잃고, 새 클립이 78 을 가져가 한 번호에 두 소리가 됐다(실측).
@@ -549,6 +554,18 @@ chk 'ENTRY_OUT_TONE' assets/ritual-cue.js 1
 #   ★기다리는 자리는 둘(완료 저장·나가기)이고 같은 부모 호출을 본다 — 수를 따로 적지 말 것.
 #     따로 적어 뒀던 것이 이 사고의 뿌리다(16000 대 8000).
 chk 'ORD_ASK_ONE' order-preview.html 3
+# ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
+#   완성 화면에 듣기 단추가 둘이었다(미리듣기 · 연습 공간 열기). 둘 다 「내 예식을 들어본다」라
+#   무엇이 다른지 알 수 없었고, 고르는 일 자체가 일이 됐다.
+#   ★연습 공간 화면·진입점 **폐지 — 되살리지 말 것**(제거 지시 보존 규칙).
+#   ★대본 복사·파일 저장·당일까지 준비할 것은 **완성 화면에 남겼다.** 미리듣기 안에 못 넣는다 —
+#     미리듣기는 ?S= 주소로 열리고 그 주소에는 고객이 쓴 글(서약문·편지)을 싣지 않기 때문이다.
+#     「내가 준비한 말」이 빠진 대본은 연습에 쓸모가 없다.
+chk 'REHEARSE_MERGED' order-preview.html 5
+nochk 'openRehearse' order-preview.html          # ★진입점을 되살리지 말 것
+nochk 'function renderRehearse' order-preview.html
+chk '전체 대본 복사' order-preview.html 1        # 연습 공간에서 옮겨 온 것 — 같이 사라지면 안 된다
+chk '당일까지 준비할 것' order-preview.html 1
 chk 'WAIT_PAST_PARENT' order-preview.html 2
 chk 'PARENT_GIVEUP' order-preview.html 3      # 정의 1 + 기다리는 자리 2 · 하나라도 숫자로 되돌아가면 붉어진다
 chk 'ORD_ASK_ONE' scripts/check-ord-dialog.mjs 9
@@ -563,12 +580,14 @@ chk 'exitHead' scripts/check-ord-dialog.mjs 3          # 앵커 읽기 · 들여
 chk '헛돌았다' scripts/check-ord-dialog.mjs 1          # 앵커 실종을 조용히 넘기지 말 것
 chk 'check-ord-dialog' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 야간 잡이 돌린다(chk 는 줄 수를 센다)
 chk 'ENTRY_OUT_TONE' order-preview.html 1
-chk 'ENTRY_OUT\[S\.entry\]' order-preview.html 1
+chk 'ENTRY_OUT\[S\.entryOut\]' order-preview.html 1     # 고른 값을 먼저 본다
+chk 'ENTRY_OUT\[_eo||S\.entry\]' order-preview.html 1   # 안 고르면 입장 느낌으로 떨어진다
+chk 'data-fk="entryOut' order-preview.html 2               # 고르는 칩 두 줄(「입장과 같이」 + A~F 반복)
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
 chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
 chk 'narr-entry-out-F' assets/ritual-cue.js 1        # 다섯이 FILES 에 살아 있는가
-nochk 'S.entryOut' assets/ritual-cue.js        # ★값을 만드는 곳 없이 키만 되살리지 말 것
+chk 'S.entryOut' assets/ritual-cue.js 1        # ★[ENTRY_OUT_PICK] 이제 읽는다(값은 빌더 칩이 만든다)
 chk '진짜 끝' assets/ritual-cue.js 1            # 번호 충돌 사고의 근거 — 지우면 다시 옆에 끼운다
 chk 'DRINK_CENTER' mypage.html 2
 chk 'pointer-events:none' mypage.html 1
@@ -792,7 +811,12 @@ chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + �
 chk 'PLUS_Z' order-preview.html 1               # ＋− 버튼이 카드 펼침 덮개 아래 깔리던 실탭 버그 — 목록에서 .mvb 빼면 재발
 chk 'AI_TIP' order-preview.html 2               # AI 더빙은 팁 — '두 분 목소리로 만들어'로 되돌리면 남의 서비스 능력을 단정하는 거짓 안내
 chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판이 사라지면 두 축이 다시 한 줄로 섞인다
-chk 'SEAL_POINT' order-preview.html 8            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+# ★[REHEARSE_MERGED 2026-08-12] 8→6. 연습 공간 전용 CSS 두 줄(.rh-blk.active · .rh-cue b)이
+#   그 화면과 함께 사라졌다. **세어 보고 줄인 것이다** — 남은 여섯은 전부 살아 있는 화면이다:
+#   ①규칙 머리말(53) ②.play.playing(77) ③.subset(98) ④.seqr.on(129) ⑤.crs.on(147) ⑥.mc.open(191).
+#   진사를 점으로만 쓰는 자리(체크·지금 알약·경고)는 하나도 안 빠졌다.
+#   ★숫자만 맞췄으면 이 마커가 지키던 것이 조용히 빠진다 — VOW_CHORUS 4→3 과 같은 방식으로 셌다.
+chk 'SEAL_POINT' order-preview.html 6            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
 chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 금지 주석(2026-07-26 사용자 지시) — 삭제 금지
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)
@@ -1750,7 +1774,11 @@ chk 'SAMPLE_FOOT' mypage.html 3                          # 판 높이에서 하�
 chk 'VOW_CHORUS' assets/ritual-data.js 1
 chk 'VOW_CHORUS' assets/ritual-cue.js 1
 chk 'VOW_CHORUS' assets/ritual-story.js 3
-chk 'VOW_CHORUS' order-preview.html 4
+# ★[REHEARSE_MERGED 2026-08-12] 4→3. 연습 공간 화면에 있던 **네 번째 표시 자리**가 그 화면과 함께 사라졌다.
+#   남은 셋은 ①VOWBOTH 인라인 사본 근거(1129) ②서약 절 화면이 문장을 보여 주는 자리(2207)
+#   ③복사되는 대본이 읽는 순서에 넣는 자리(2554). 고객이 준비하는 자리와 들고 갈 대본 둘 다 남았다.
+#   ★확인하고 줄인 것이다 — 세지 않고 숫자만 맞추면 이 마커가 지키던 것이 조용히 빠진다.
+chk 'VOW_CHORUS' order-preview.html 3
 chk 'VOW_CHORUS' scripts/assemble-narration.mjs 1
 chk 'VOW_CHORUS' scripts/check-text-audio.mjs 1
 chk 'VOW_CHORUS' scripts/check-ritual-mirror.js 1
