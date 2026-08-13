@@ -129,8 +129,21 @@ export async function openProbe(pageName, opts = {}) {
      ★어디까지나 '못 받았다'로 옮길 뿐 삼키지 않는다 — unseen 에 남아 화면에 찍힌다. */
   const NOISE = /fonts\.googleapis|fonts\.gstatic|ERR_CONNECTION_RESET|ERR_FAILED|ERR_NAME_NOT_RESOLVED|ERR_BLOCKED|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY|ERR_CERT_/;
   page.on('pageerror', (e) => errors.push('pageerror: ' + String(e).slice(0, 120)));
-  page.on('console', (m) => { if (m.type() === 'error' && !NOISE.test(m.text())) errors.push('console: ' + m.text().slice(0, 120)); });
-  page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url().split('/').pop().slice(0, 40)}`); });
+  page.on('console', (m) => {
+    if (m.type() !== 'error' || NOISE.test(m.text())) return;
+    /* [API_501_LOCAL] response 채널과 같은 판정 — 두 귀가 다른 말을 하면 안 된다. 콘솔 줄엔 URL 이 없어
+       글자(status of 501)로 잡는다. 404 등 나머지는 종전대로 센다(response 채널이 URL 을 붙여 준다). */
+    if (/status of 501/.test(m.text())) { unseen.push('로컬 하네스에 Vercel 함수 없음(콘솔 501)'); return; }
+    errors.push('console: ' + m.text().slice(0, 120));
+  });
+  page.on('response', (r) => {
+    if (r.status() < 400) return;
+    /* [API_501_LOCAL 2026-08-13] 로컬 하네스엔 Vercel 함수(/api/*)가 없다 — python http.server 는
+       POST 에 정확히 501 을 돌려준다. 이건 화면 결함이 아니라 환경이라 unseen 으로 분류한다(삼키지 않는다).
+       진짜 서버 오류(404·500 등)와 정적 파일은 종전대로 errors 로 센다. */
+    if (r.status() === 501 && /\/api\//.test(r.url())) { unseen.push('로컬 하네스에 Vercel 함수 없음: ' + r.url().split('/').pop().slice(0, 40)); return; }
+    errors.push(`HTTP ${r.status()} ${r.url().split('/').pop().slice(0, 40)}`);
+  });
   page.on('requestfailed', (r) => { if (NOISE.test(r.failure()?.errorText || '')) unseen.push('바깥 자원 못 받음: ' + r.url().split('/')[2]); });
   await page.goto(BASE + pageName, { waitUntil: opts.waitUntil || 'domcontentloaded', timeout: opts.timeout || 25000 });
   await page.waitForTimeout(opts.settle ?? 1800);
