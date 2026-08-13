@@ -1336,6 +1336,13 @@ if command -v node >/dev/null 2>&1; then node scripts/check-ritual-cue.js || fai
 if command -v node >/dev/null 2>&1; then node scripts/check-preview-upto.mjs || fail=1; fi
 chk 'PREVIEW_UPTO' scripts/check-preview-upto.mjs 8
 chk "mode === 'preview' && S.seen" assets/ritual-cue.js 1    # ★자르기가 preview 안에만 사는 그 줄 · live 로 새면 식장에서 폐식이 안 나온다
+# ★[UPTO_CLOSE_FIXED 2026-08-13 점검 발견] 폐식(_close)은 「안 본 것」으로 세지 않는다.
+#   폐식은 방문하는 단계가 아니라 늘 붙는 고정 마무리 — S.seen 에 실릴 길이 없다. 이걸 세면
+#   고를 것을 **전부 본** 고객(글 적기까지 걷고 저장한 사람)의 미리듣기가 폐식 하나 때문에 잘리고
+#   「그 뒤는 아직 정하기 전」이라는 거짓 안내가 뜬다. 돌연변이 실측: 고침 되돌림 → rc=1
+#   「고를 것을 전부 봤는데 잘렸다(upto=toast)」. 중간 이탈 자르기는 그대로다(★③ 이 지킨다).
+chk 'UPTO_CLOSE_FIXED' assets/ritual-cue.js 1                # 제외 조건이 사는 그 줄 · 지우면 전부 걸은 고객이 다시 잘린다
+chk 'UPTO_CLOSE_FIXED' scripts/check-preview-upto.mjs 4      # 경계 그물(전부 방문 → 안 자름 + 폐식 포함) · 줄면 그물이 삭은 것
 
 # ── 텍스트 장면 레이어 · 고객 미리듣기 (2026-08-02) ──────────────
 chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 장면 지문 원천 · 미리듣기 화면이 통째로 빈다

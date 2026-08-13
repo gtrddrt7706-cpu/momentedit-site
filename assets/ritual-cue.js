@@ -762,7 +762,13 @@
       var lastSeen = -1;
       for (var c1 = 0; c1 < cues.length; c1++) if (cues[c1].k && seenSet[cues[c1].k]) lastSeen = c1;
       var restUnseen = 0;
-      for (var c2 = lastSeen + 1; c2 < cues.length; c2++) if (cues[c2].k && !seenSet[cues[c2].k]) restUnseen++;
+      /* ★[UPTO_CLOSE_FIXED 2026-08-13 점검 발견] 폐식(_close)은 「안 본 것」으로 세지 않는다.
+         폐식은 고객이 방문하는 단계가 아니라 늘 붙는 고정 마무리다 — S.seen 에 실릴 길이 없다.
+         이걸 세면 **고를 것을 전부 본** 고객(글 적기까지 걷고 저장 후 나간 사람)의 미리듣기가
+         폐식 한 큐 때문에 잘리고, 화면은 「그 뒤는 아직 정하기 전」이라는 거짓말을 한다
+         (실측: festive 전 단계 방문 → 18큐 중 폐식만 빠진 17큐 · upto=toast).
+         중간 이탈은 그대로다 — 다른 안 본 순간이 하나라도 있으면 종전대로 자른다(폐식도 꼬리에 묻어 잘림). */
+      for (var c2 = lastSeen + 1; c2 < cues.length; c2++) if (cues[c2].k && cues[c2].k !== '_close' && !seenSet[cues[c2].k]) restUnseen++;
       if (lastSeen >= 0 && restUnseen > 0) {
         upto = cues[lastSeen].k;
         /* ★세는 단위에 속지 말 것 — cues 는 한 순간에 둘씩 붙는다(들어가는 말·닫는 말).

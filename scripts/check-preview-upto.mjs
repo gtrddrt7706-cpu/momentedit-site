@@ -79,6 +79,15 @@ if (cut.uptoAfter !== full.cues.length - cut.cues.length)
 const last = cut.cues[cut.cues.length - 1];
 if (!last || last.k !== 'vow') bad.push(`마지막 큐가 서약이 아니다(${last && last.k}) — 수만 맞고 자리가 틀렸다 [PREVIEW_UPTO]`);
 
+/* ★③-b [UPTO_CLOSE_FIXED 2026-08-13 점검 발견] 고를 것을 **전부 본** 고객은 안 자른다 —
+   폐식(_close)은 방문 단계가 아니라 S.seen 에 실릴 길이 없다. 이걸 「안 본 것」으로 세면
+   글 적기까지 걷고 저장 후 나간 고객의 미리듣기가 폐식 한 큐 때문에 잘리고,
+   화면은 「그 뒤는 아직 정하기 전」이라는 거짓말을 한다(실측: 18큐 중 폐식만 빠진 17큐). */
+const allVisitable = full.cues.map((c) => c.k).filter((k, i, a) => k && k !== '_close' && a.indexOf(k) === i);
+const walkedAll = C.build({ course: CRS, seen: allVisitable.concat(['intro', 'intro2', 'course', 'tune', 'write']) }, { mode: 'preview' });
+if (walkedAll.upto) bad.push(`고를 것을 전부 봤는데 잘렸다(upto=${walkedAll.upto}) — 폐식을 「안 본 것」으로 셌다 [UPTO_CLOSE_FIXED]`);
+if (!walkedAll.cues.some((c) => c.k === '_close')) bad.push('고를 것을 전부 봤는데 폐식이 빠졌다 [UPTO_CLOSE_FIXED]');
+
 /* ★③ 끝까지 걸었으면 안 자른다 · ★④ 모르는 키가 섞여도 안 죽는다 */
 const empty = C.build({ course: CRS, seen: [] }, { mode: 'preview' });
 if (empty.upto) bad.push(`끝까지 걸었는데(빈 seen) 잘렸다 — 완성본이 짧게 들린다 [PREVIEW_UPTO]`);
@@ -120,6 +129,7 @@ console.log(`━━ 미리듣기 자르기 [PREVIEW_UPTO]  코스 ${CRS} · 안 
 console.log(`   서약까지 걸음 → ${cut.cues.length}큐에서 끊김 · 자리 「${cut.uptoName}」 · 뒤에 ${cut.uptoAfter}개 남음`);
 console.log(`   live 에 seen 을 실어도 → ${liveSeen.cues.length}큐(안 잘림)  ← 식장에서 폐식이 나와야 한다`);
 console.log(`   빈 seen ${empty.cues.length}큐 · 모르는 키만 ${odd ? odd.cues.length : '(죽음)'}큐 (둘 다 안 자름)`);
+console.log(`   고를 것 전부 방문(폐식 빼고) → ${walkedAll.cues.length}큐 · upto=${walkedAll.upto || '없음'} (안 잘리고 폐식 포함이어야) [UPTO_CLOSE_FIXED]`);
 console.log(`   주소: 글칸 vowText·letterText·welcomeText·up 실림=아니오 · seen 실림=예 · KEYS ${L.KEYS.length}개`);
 
 if (bad.length) { bad.forEach((b) => console.log('   ✖ ' + b)); process.exit(1); }
