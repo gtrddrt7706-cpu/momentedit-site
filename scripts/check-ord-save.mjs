@@ -154,6 +154,22 @@ try {
     return window.__sent.map((m) => m.type);
   });
 
+  /* ★③-b 저장 성공 뒤 **걷기만** 하고 나가기 — 판 없이 닫혀야 한다 [SEEN_NOT_DIRTY]
+     실사용 제보(2026-08-13): 저장을 눌렀는데도 나가기가 판을 띄웠다. 걸음(_seenK)을
+     「저장할 변경」으로 세던 비교값이 원인 — 고객이 고른 것(S)만 센다. */
+  const nav = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    document.getElementById('next').click();
+    await wait(500);
+    window.__sent.length = 0;
+    window._obExit();
+    await wait(400);
+    const asked = !!document.querySelector('.ord-ask');
+    if (asked) { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await wait(350); }
+    _obExiting = false;
+    return { clean: !asked, outs: window.__sent.map((m) => m.type) };
+  });
+
   /* ★② 저장 안 한 채 나가기 — 조용히 저장하지 않고 **묻는다** [EXIT_ASK]
      세 갈래를 전부 밟는다: Esc(취소·아무것도 안 나감) → 그냥 나가기(orderClose 만) →
      저장하고 나가기(orderExit · 꾸러미 실림). Esc 는 dismissNull 이 지킨다 —
@@ -195,6 +211,19 @@ try {
     await wait(300);
     const b = document.getElementById('obSave');
     return { txt: b.textContent.trim(), cls: b.className, dis: b.disabled };
+  });
+
+  /* ★⑥-b 저장 실패 상태(다시 저장)에서 나가기 — 판이 「저장이 아직 안 됐어요」라고 말해야 한다 [EXIT_ASK]
+     「저장하지 않은 변경이 있어요」는 이 상태에선 거짓이다 — 고객은 저장을 눌렀다(실사용 제보의 그 화면). */
+  const failAsk = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    window._obExit();
+    await wait(400);
+    const ov = document.querySelector('.ord-ask');
+    const title = ov ? (ov.querySelector('.oa-t') || {}).textContent || '' : '';
+    if (ov) { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await wait(350); }
+    _obExiting = false;
+    return { asked: !!ov, title };
   });
 
   /* ★⑦ [ORD_SAVE_AFTER_AUTO] 저장이 **날아가 있는 동안** 완성 저장이 나가면 안 된다.
@@ -274,6 +303,12 @@ try {
   if (dirty.outs.indexOf('momentedit:orderExit') < 0)
     bad.push(`★「저장하고 나가기」를 골랐는데 저장이 안 나갔다(나간 것: ${dirty.outs.join('·') || '없음'}) — 고친 것이 서버에 안 남는다 [EXIT_ASK]`);
   if (!dirty.hasData) bad.push('저장하고 나가기 꾸러미가 비었다 — 저장이라는 이름의 빈 봉투다 [EXIT_ASK]');
+  if (!nav.clean) bad.push('★저장 뒤 걷기만 했는데 나가기가 판을 띄웠다 — 걸음을 「변경」으로 센다 [SEEN_NOT_DIRTY]');
+  if (nav.clean && nav.outs.indexOf('momentedit:orderClose') < 0)
+    bad.push(`저장 뒤 걷고 나가기를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${nav.outs.join('·') || '없음'}) [SEEN_NOT_DIRTY]`);
+  if (!failAsk.asked) bad.push('저장 실패 상태에서 나가기를 눌렀는데 판이 안 떴다 — 실패한 저장이 조용히 버려진다 [EXIT_ASK]');
+  else if (failAsk.title.indexOf('저장이 아직 안 됐어요') < 0)
+    bad.push(`저장 실패 상태의 판 제목이 「${failAsk.title}」다 — 「변경이 있다」는 이 상태에선 거짓말이다 [EXIT_ASK]`);
 
   if (!/다시 저장/.test(f.txt)) bad.push(`실패 회신을 받았는데 버튼이 「${f.txt}」다 — 조용히 실패하면 저장은 거짓말이 된다 [ORD_SAVE_BTN]`);
   if (!/bad/.test(f.cls) || f.dis) bad.push('저장이 실패했는데 다시 누를 수 없다 [ORD_SAVE_BTN]');
@@ -293,6 +328,31 @@ try {
   else if (orphan.length)
     bad.push(`귀에 읽히는 이름이 눈에 보이는 글과 다르다 — 「${orphan[0]}」는 화면 어디에도 없는 말이다(aria-label 로 갈아끼운 자리) [BADGE_GAP]`);
 
+  /* ★⑨ 재진입 뒤 무변경 나가기 — 판 없이 닫혀야 한다 [EXIT_BASELINE]
+     기준선이 「이번 세션 저장 성공」뿐이면, 볼일만 보고 나가는 재진입 고객마다 판을 만난다. */
+  await P.evaluate(() => { _doneSaved = false; _persist(); });
+  await P.reload({ waitUntil: 'domcontentloaded' });
+  await P.waitForTimeout(2300);
+  const re = await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    window.__sent = [];
+    window.addEventListener('message', (e) => {
+      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type)) window.__sent.push(e.data);
+    });
+    if (!courseStarted) return { skip: true };
+    window._obExit();
+    await wait(400);
+    const asked = !!document.querySelector('.ord-ask');
+    if (asked) { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await wait(350); }
+    return { skip: false, clean: !asked, outs: window.__sent.map((m) => m.type) };
+  });
+  if (re.skip) bad.push('재진입 검사가 헛돌았다 — 복원이 안 됐다(통과 아님) [EXIT_BASELINE]');
+  else {
+    if (!re.clean) bad.push('★재진입 뒤 아무것도 안 바꿨는데 나가기가 판을 띄웠다 [EXIT_BASELINE]');
+    if (re.clean && re.outs.indexOf('momentedit:orderClose') < 0)
+      bad.push(`재진입 뒤 나가기를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${re.outs.join('·') || '없음'}) [EXIT_BASELINE]`);
+  }
+
   const p = await h.probe();
   if (p.errors.length) bad.push(`JS 오류 ${p.errors.length}개 — ${p.errors[0]}`);
 
@@ -300,6 +360,7 @@ try {
   console.log(`   ★값만 바꾸고 3초 기다림 → 초안 ${idle.n}건(0이어야 · 자동 저장이 걷혔다) · 버튼 「${idle.btn}」`);
   console.log(`   저장 누름 → 초안 ${hit.n}건 · seen ${hit.seenN}개 · 「${hit.busy}」 → 회신 뒤 「${hit.done}」(안 눌림=${hit.dis})`);
   console.log(`   저장 끝난 뒤 나가기 → ${outs.join(' · ') || '(아무것도 안 나감)'}  ← orderExit 가 없어야 그냥 나가기다`);
+  console.log(`   저장 뒤 걷기만 → 판 없이 ${nav.outs.join('·') || '무응답'} [SEEN_NOT_DIRTY] · 실패 상태 판 제목 「${failAsk.title}」 · 재진입 무변경 → ${re.skip ? '(못 잼)' : (re.clean ? '판 없이 닫힘' : '판 뜸')} [EXIT_BASELINE]`);
   console.log(`   ★저장 안 한 채 나가기 → 판 뜸=${dirty.asked} · Esc 취소=${dirty.stayed} · 그냥 나가기=${dirty.closeOuts.join('·') || '없음'} · 저장하고 나가기=${dirty.outs.join('·') || '없음'} [EXIT_ASK]`);
   console.log(`   실패 회신 → 「${f.txt}」(다시 누를 수 있나=${!f.dis})`);
   console.log(`   저장 날아간 중 완성 누름 → 그때 ${race.during}건(0이어야) · 회신 뒤 ${race.after}건(1이어야) [ORD_SAVE_AFTER_AUTO]`);

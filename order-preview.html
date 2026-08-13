@@ -2963,21 +2963,23 @@ function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S
    ★그래서 저장 버튼을 새로 만들지 않았다. 저장을 **사람이 누르는 일에서 뺐다.**
      고른 것이 바뀌면 1.5초 뒤 조용히 서버에 굳는다(부모 orderDraft · done:false).
      누를 버튼이 없어지면 「저장했나?」라는 질문 자체가 사라진다.
-   ★확인 팝업도 만들지 않았다 — 나갈 때마다 묻는 창은 결정을 하나 더 만들 뿐이다.
-     이미 저장돼 있으면 **아무 말 없이 닫는다.** 저장이 실패했을 때만 종전 판이 뜬다.
+   ★나가기 판은 EXIT_ASK(2026-08-13) — 바뀐 것이 없으면 아무 말 없이 닫고, 있으면 묻는다.
    ★완성본(_doneSaved)에는 절대 안 보낸다 — done:false 로 덮으면 완성이 초안으로 되돌아간다
      (ORD_EXIT_ALWAYS · ORDERFILL_DONE 이 적어 둔 그 사고).
-   ★바뀐 것이 없으면 안 보낸다. render() 마다 _persist 가 불리므로, 그냥 앞뒤로 움직이는 것만으로
-     저장이 나가면 안 된다. 비교값에 **_seenK 도 넣는다** — 어디까지 걸었는지는 진짜 상태이고
-     미리듣기가 그걸로 뒷부분을 자른다(PREVIEW_UPTO). 빼면 걷기만 한 이동이 서버에 안 남는다. */
+   ★★[SEEN_NOT_DIRTY 2026-08-13 사용자 제보 "저장눌렀는데도 (나가기) 팝업이 계속"] 비교값에서
+     _seenK(방문 기록)를 **뺐다.** 자동 저장 시절엔 걷기만 해도 저장이 나가 미리듣기 자르기가
+     늘 신선했지만, 수동 저장 체제에선 같은 비교값이 「저장 직후 한 칸만 걸어도 변경 있음」을
+     만들어 나가기가 판을 띄웠다 — 고객이 쓴 것이 아닌 걸음을 「저장할 변경」이라 부른 셈.
+     걷기 기록은 버리는 게 아니다: _ordPayload 가 보낼 때마다 그 시점의 _seenK 를 담으므로
+     다음 실제 저장·완성 저장에 실려 간다. 미리듣기 자르기는 「저장된 데까지」가 된다(정직하다).
+     ★_seenK 를 비교값에 되넣지 말 것 — 이 제보가 재현된다. */
 var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null, _autoLast='';
 var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저장의 답을 기다리는 중
-function _autoKey(){ try{ return JSON.stringify(S)+'|'+Object.keys(_seenK).join(','); }catch(e){ return ''; } }
+function _autoKey(){ try{ return JSON.stringify(S); }catch(e){ return ''; } }   // [SEEN_NOT_DIRTY] 고객이 고른 것(S)만 — 걸음(_seenK)은 위 근거로 뺐다
 /* ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
    자동 저장(1.5초 디바운스)을 **뗀다.** 값이 바뀌면 표시만 켜 두고, 보내는 것은 사람이 정한다.
-   ★그래도 잃지 않는다 — 나가기는 종전대로 저장하고 닫는다(orderExit). 즉 갈래는 셋이다:
-     저장 버튼(나가지 않고 지금) · 나가기(있으면 저장하고 닫기) · 완성(done:true).
-     그래서 **나갈 때 묻는 팝업도 안 만든다** — 물어볼 것이 없다(안 저장하고 나가는 길이 없으니까).
+   ★갈래는 셋이다(2026-08-13 EXIT_ASK 로 개정): 저장 버튼(나가지 않고 지금) ·
+     나가기(바뀐 게 없으면 그냥 닫고 · 있으면 판으로 묻는다) · 완성(done:true).
    ★기기에는 늘 남아 있다(_persist 의 localStorage). 서버로 가는 것만 사람 손이 정한다. */
 function _dirtyMark(){
   if(!EMBED||!courseStarted||_doneSaved||_saving) return;
@@ -3039,6 +3041,11 @@ function _applySaved(_sv){
   _seenK={}; (_sv.sk||[]).forEach(function(_k){ _seenK[_k]=1; });
   if(!_sv.sk && _sv.mx){ for(var _q=0;_q<=Math.min(_sv.mx,STEPS.length-1);_q++) _seenK[STEPS[_q].k]=1; }   // 구(mx 인덱스) 저장분 마이그레이션
   if(!_sv.sk && _sv.sv){ STEPS.forEach(function(_s){ _seenK[_s.k]=1; }); }   // 완료 저장본(서버 초안 주입 포함)은 전 순간 방문이 보장됨('전 순간 방문 고정') → 재방문 고객의 스트립이 전부 회색이 되지 않게 전체 시드
+  /* ★[EXIT_BASELINE 2026-08-13 사용자 제보의 둘째 갈래] 복원 직후가 비교 기준선이다.
+     이게 없으면 기준선이 「이번 세션에 저장 성공」뿐이라, 들어와서 아무것도 안 바꾸고
+     나가도 나가기 판이 뜬다 — 볼일만 보고 나가는 고객마다 결정을 하나씩 떠안는다.
+     서버 초안 주입(orderFill)도 이 함수를 지나므로 그 경로의 기준선도 여기서 잡힌다. */
+  _autoLast=_autoKey(); _autoState=''; _autoDirty=false;
   return true;
 }
 var EMBED=/[?&]embed=1/.test(window.location.search);   // (복원 정책이 임베드 여부를 알아야 해 여기서 판정)
@@ -3107,8 +3114,12 @@ if(EMBED){
     /* [ORD_EXIT_ALWAYS] 이미 완료 저장(done:true)이 끝난 상태에서 또 나가기 저장을 보내면
        같은 초안이 done:false 로 덮여 완성이 초안으로 되돌아간다. 저장할 게 없으면 그냥 닫는다. */
     if(_doneSaved&&!_saving){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
-    /* ★[ORD_AUTOSAVE] 저장이 이미 끝나 있으면 **그냥 닫는다** — 물어볼 것도, 또 보낼 것도 없다. */
-    if(courseStarted&&_autoState==='ok'&&!_autoDirty&&!_autoWait&&_autoKey()===_autoLast){
+    /* ★[ORD_AUTOSAVE] 바뀐 것이 없으면 **그냥 닫는다** — 물어볼 것도, 보낼 것도 없다.
+       [EXIT_BASELINE] 기준선(복원 직후 또는 마지막 저장 성공)과 값이 같으면 깨끗한 것이다.
+       상태 깃발(_autoState==='ok')로 재지 않는다 — 재진입 세션은 저장한 적이 없어도 깨끗하다.
+       빈 키끼리의 우연한 일치는 _k9 검사가 막는다(저장 실패 직후 _autoLast 는 '' 이다). */
+    var _k9=_autoKey();
+    if(courseStarted&&!_autoWait&&_k9&&_k9===_autoLast){
       try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return;
     }
     if(!courseStarted){
@@ -3122,8 +3133,10 @@ if(EMBED){
          저장하고 나가기(orderExit · 종전 경로) · 그냥 나가기(orderClose · 이 기기에는 남는다) ·
          취소(Esc·바깥 클릭 → dismissNull 이 null 로 갈라 준다 — false 로 받으면 Esc 가 「그냥 나가기」가 된다).
        ★몰래 저장(무조건 orderExit)으로 되돌리지 말 것 — 이 판 자체가 사용자 지시다. */
-    ordAsk({title:'저장하지 않은 변경이 있어요',
-            body:'저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.',
+    var _failed=(_autoState==='fail');   // [EXIT_ASK] 방금 저장이 실패한 상태(다시 저장) — 「변경이 있다」가 아니라 「저장이 안 됐다」가 사실이다
+    ordAsk({title:_failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',
+            body:_failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.'
+                        :'저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.',
             yes:'저장하고 나가기', no:'그냥 나가기', dismissNull:true}).then(function(v){
       if(v===null) return;   // 취소 — 그대로 있는다
       if(v===false){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
