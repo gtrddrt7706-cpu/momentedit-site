@@ -68,10 +68,16 @@ async function walkRound(pace) {
       });
       if (typeof startCourse !== 'function') return { can: false };
       startCourse('damback'); await wait(300);
-      let steps = 0;
-      while (idx < STEPS.length - 1 && steps < 40) { document.getElementById('next').click(); steps++; await wait(ms); }
+      /* ★[ORD_WALK_SAVE · 누름과 걸음은 다르다 2026-08-12 클로드코드]
+         처음엔 **누른 횟수**를 「단계」라 적었다. 연타(300ms)에서는 _navLock(400ms)이 절반을 삼켜
+         17번 눌러 9칸을 간다 — 그런데 화면엔 「17단계」로 찍혀 **더 멀리 걸은 판처럼** 읽혔다.
+         실측: 두 판 다 실제로는 9칸이다(STEPS 13 · idx 3→12). 같은 땅을 걸었고 저장만 9건 대 1건이다.
+         ★11-d 와 같은 꼴이라(이름이 뜻과 다른 수) 둘을 나눠 센다 — 판정은 **걸음**으로 한다. */
+      const start = idx;
+      let taps = 0;
+      while (idx < STEPS.length - 1 && taps < 40) { document.getElementById('next').click(); taps++; await wait(ms); }
       await wait(3000);   // 마지막 디바운스와 꼬리 저장까지 지나가게
-      return { can: true, steps, sends: n };
+      return { can: true, steps: idx - start, taps, sends: n };
     }, pace);
     return r;
   } catch (e) { return { can: false, why: String(e).slice(0, 80) }; }
@@ -219,7 +225,7 @@ try {
   }
   if (!fast.can) bad.push(`걷기(연타)를 못 쟀다 — 디바운스를 확인 못 했다(통과 아님)${fast.why ? ' · ' + fast.why : ''} [ORD_WALK_SAVE]`);
   else if (slow.can && slow.sends > 1 && fast.steps >= 2 && fast.sends >= slow.sends)   /* 걷기 자체가 안 남는 판에서는 이 견줌이 뜻을 잃는다 — 그건 위 그물이 말한다 */
-    bad.push(`연타로 ${fast.steps}단계를 훑었는데 저장이 ${fast.sends}건 — 사람 속도(${slow.steps}단계 ${slow.sends}건)보다 안 줄었다. 디바운스가 풀렸다(한 사람이 서버를 두들긴다) [ORD_WALK_SAVE]`);
+    bad.push(`연타로 ${fast.steps}칸을 훑었는데 저장이 ${fast.sends}건 — 사람 속도(${slow.steps}칸 ${slow.sends}건)보다 안 줄었다. 디바운스가 풀렸다(한 사람이 서버를 두들긴다) [ORD_WALK_SAVE]`);
 
   const p = await h.probe();
   if (p.errors.length) bad.push(`JS 오류 ${p.errors.length}개 — ${p.errors[0]}`);
@@ -230,7 +236,9 @@ try {
   console.log(`   실패 회신 → 「${f.txt}」(누를 수 있나=${f.role === 'button'})`);
   console.log(`   자동 저장 날아간 중 완성 누름 → 그때 ${race.during}건(0이어야) · 회신 뒤 ${race.after}건(1이어야) [ORD_SAVE_AFTER_AUTO]`);
   console.log(`   완성 상태 → 초안 ${done.n}건(0이어야) · 표시 「${done.txt || '(빈칸)'}」  ☐ 이 판은 _doneSaved 를 검사가 직접 세웠다(완성까지 걷지 않았다)`);
-  console.log(`   걷기만 함 — 사람 속도(2.5초) ${slow.can ? slow.steps + '단계 → 저장 ' + slow.sends + '건' : '못 잼'} · 연타(0.3초) ${fast.can ? fast.steps + '단계 → 저장 ' + fast.sends + '건' : '못 잼'}  ← 걷기도 남기되 연타는 묶는다 [ORD_WALK_SAVE]`);
+  /* [ORD_WALK_SAVE] 걸음과 누름을 따로 찍는다 — 연타 판은 _navLock 이 절반을 삼켜 누름이 더 많다.
+     같은 걸음 수에서 저장이 몇 건인지가 볼 것이다(그 수를 「단계」로 뭉뚱그리면 딴 판처럼 읽힌다). */
+  console.log(`   걷기만 함 — 사람 속도(2.5초) ${slow.can ? slow.steps + '칸 걸음(누름 ' + slow.taps + ') → 저장 ' + slow.sends + '건' : '못 잼'} · 연타(0.3초) ${fast.can ? fast.steps + '칸 걸음(누름 ' + fast.taps + ') → 저장 ' + fast.sends + '건' : '못 잼'}  ← 같은 땅을 걷는데 연타는 묶인다 [ORD_WALK_SAVE]`);
   if (p.unseen.length) p.unseen.forEach((u) => console.log('   ☐ ' + u));
 
   if (bad.length) { bad.forEach((b) => console.log('   ✖ ' + b)); process.exit(1); }

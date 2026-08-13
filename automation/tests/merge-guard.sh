@@ -202,6 +202,11 @@ chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] �
 #      «사람 속도 때와 견주기»로 바꿨다. 안 쏘이는 그물을 그대로 두지 않는다 ★11-c)
 chk 'ORD_WALK_SAVE' scripts/check-ord-autosave.mjs 8
 chk "JSON.stringify(S)+'|'+Object.keys(_seenK).join(',')" order-preview.html 1   # ★걷기가 저장 대상에 들어 있는 그 줄
+# ★[누름과 걸음은 다르다 2026-08-12 클로드코드] 연타(300ms)는 _navLock(400ms)이 절반을 삼켜
+#   **17번 눌러 9칸**을 간다 — 사람 속도(9번 9칸)와 **같은 거리**다. 처음엔 누른 횟수를 「단계」로
+#   찍어 「연타 쪽이 더 멀리 갔는데 저장이 적다」로 읽혔다. 판정은 같지만 수가 딴 뜻으로 산다(11-d).
+#   → 걸음(idx 차)과 누름을 나눠 세고 나눠 적는다. 판정에 쓰는 것은 **걸음**이다.
+chk 'taps' scripts/check-ord-autosave.mjs 4
 # ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 완성 저장은 **자동 저장이 답을 받은 뒤에** 나간다.
 #   둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
 #   먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE 2026-07-25).
