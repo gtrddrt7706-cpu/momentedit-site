@@ -2857,12 +2857,15 @@ function ordAsk(opt){
         if(!_ordOv){ document.body.style.overflow=_ordBo||''; _ordBo=null; } },200);
       res(v); }
     ov.__ordClose=close; _ordOv=ov;
-    function onKey(e){ if(e.key==='Escape'&&!e.repeat){ e.preventDefault(); close(false); }
+    /* [EXIT_ASK] dismissNull — Esc·바깥 클릭을 '아니오'와 구분해야 하는 판(예: 나가기 확인)은
+       null 로 돌려받는다. 값이 참/거짓 둘뿐이면 「닫음=아니오」가 되어, 아니오가 위험한 판에서
+       Esc 한 번이 그 위험한 갈래를 밟는다. 기존 호출부는 !ok 검사라 null 도 취소로 읽힌다(하위호환). */
+    function onKey(e){ if(e.key==='Escape'&&!e.repeat){ e.preventDefault(); close(opt.dismissNull?null:false); }
       if(e.key==='Tab'){ var f=[no,yes].filter(Boolean), i=f.indexOf(document.activeElement);
         e.preventDefault(); f[(i+(e.shiftKey?f.length-1:1))%f.length].focus(); } }   // 판 밖으로 포커스가 새지 않게
     if(no) no.addEventListener('click',function(){ close(false); });
     yes.addEventListener('click',function(){ close(true); });
-    ov.addEventListener('click',function(e){ if(e.target===ov) close(false); });
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(opt.dismissNull?null:false); });
     document.addEventListener('keydown',onKey);
     try{ (no||yes).focus(); }catch(e){}   // 기본은 '취소' — 되돌릴 수 없는 일에 손가락이 먼저 닿지 않게(알림형은 버튼이 하나뿐)
   });
@@ -3082,7 +3085,7 @@ function _embedSave(){
   try{ parent.postMessage({type:'momentedit:orderSave', data:_ordPayload(true)}, window.location.origin); }catch(e){}   // [DONE_SEEN_EMPTY] 완성 저장 — 다 걸었으니 자를 데가 없다
 }
 if(EMBED){
-  // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
+  // 나가기 — 깨끗하면 그냥 닫고, 저장 안 된 변경이 있으면 판으로 묻는다[EXIT_ASK]. 코스 시작 전엔 저장할 게 없어 그냥 닫기
   document.body.classList.add('embed');
   var _obExiting=false;
   var _obExitT=null;
@@ -3098,34 +3101,48 @@ if(EMBED){
      ★그리고 영영 잠기지 않게 한다 — 부모가 답을 안 하면 8초 뒤 스스로 풀고 사유를 말한다.
        예전엔 부모의 orderExitReset 만이 유일한 해제 경로라, 그 메시지가 유실되면 버튼이 죽었다. */
   window._obExit=function(){
-    if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
-    /* ★[ORD_AUTOSAVE 2026-08-12] 라벨을 '저장 중…'으로 바꾸는 것은 **정말 저장할 때만.**
-       자동 저장이 이미 끝난 판에서는 아래 빠른 갈래로 그냥 닫히는데, 여기서 먼저 칠해 버리면
-       나가는 마지막 0.2초에 「저장 중…」이 스쳐 「또 저장하나?」로 읽힌다.
-       ★그래도 누른 티는 내야 한다(EXIT_FEEDBACK 이 고친 병) — 그건 저장 갈래에서 칠한다. */
-    clearTimeout(_obExitT);
-    _obExitT=setTimeout(function(){
-      if(!_obExiting) return;
-      _obExiting=false;
-      try{ var _b2=document.getElementById('obExit');
-        if(_b2){ _b2.textContent='나가기'; _b2.removeAttribute('aria-busy'); } }catch(e){}
-      try{ ordTell({title:'저장 확인이 오지 않았어요', body:'고르신 내용은 이 기기에 그대로 있어요. 잠시 뒤 다시 눌러 주세요.'}); }catch(e){}
-    },PARENT_GIVEUP);   /* ★[WAIT_PAST_PARENT] 8000 이었다 — 부모가 아직 답하는 중인데 먼저 울었다 */
+    if(_obExiting) return;
+    if(_ordOv) return;   // [EXIT_ASK] 판이 떠 있는 동안 Esc·재요청이 판을 갈아치우지 않게 — 갈아치우면 옛 판이 '아니오'로 풀리며 그 갈래를 밟는다. 판의 답은 판이 받는다
     /* [ORD_EXIT_ALWAYS] 이미 완료 저장(done:true)이 끝난 상태에서 또 나가기 저장을 보내면
        같은 초안이 done:false 로 덮여 완성이 초안으로 되돌아간다. 저장할 게 없으면 그냥 닫는다. */
     if(_doneSaved&&!_saving){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
-    /* ★[ORD_AUTOSAVE] 자동 저장이 이미 끝나 있으면 **그냥 닫는다** — 물어볼 것도, 또 보낼 것도 없다.
-       사용자가 찾던 「그냥 나가기」가 여기다. 버튼을 하나 더 만들어 준 게 아니라,
-       저장이 먼저 끝나 있어서 나가기가 저절로 그냥 나가기가 된 것이다. */
+    /* ★[ORD_AUTOSAVE] 저장이 이미 끝나 있으면 **그냥 닫는다** — 물어볼 것도, 또 보낼 것도 없다. */
     if(courseStarted&&_autoState==='ok'&&!_autoDirty&&!_autoWait&&_autoKey()===_autoLast){
-      clearTimeout(_obExitT); _obExiting=false;
       try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return;
     }
-    try{ var _b=document.getElementById('obExit');
-      if(_b && courseStarted){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
-    var payload=null;
-    try{ if(courseStarted) payload=_ordPayload(); }catch(e){}
-    try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
+    if(!courseStarted){
+      try{ parent.postMessage({type:'momentedit:orderExit', data:null},window.location.origin); }catch(e){}   // 코스 시작 전 — 저장할 게 없어 부모가 그냥 닫는다(data 없음)
+      return;
+    }
+    /* ★★[EXIT_ASK 2026-08-13 사용자 지시] 저장 안 된 변경이 있으면 **조용히 저장하지 않고 묻는다.**
+       원문: "나가기 누르면 그냥 나가지던가 저장할게있으면 팝업으로 확인안내를 해주던가해야지
+             나가기누르면 자동으로 저장되는데 그럼 옆에 저장이 있을필요가없잖아"
+       — 나가기가 몰래 저장하면 저장 버튼의 존재 이유가 사라진다. 갈래는 셋:
+         저장하고 나가기(orderExit · 종전 경로) · 그냥 나가기(orderClose · 이 기기에는 남는다) ·
+         취소(Esc·바깥 클릭 → dismissNull 이 null 로 갈라 준다 — false 로 받으면 Esc 가 「그냥 나가기」가 된다).
+       ★몰래 저장(무조건 orderExit)으로 되돌리지 말 것 — 이 판 자체가 사용자 지시다. */
+    ordAsk({title:'저장하지 않은 변경이 있어요',
+            body:'저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.',
+            yes:'저장하고 나가기', no:'그냥 나가기', dismissNull:true}).then(function(v){
+      if(v===null) return;   // 취소 — 그대로 있는다
+      if(v===false){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
+      /* 저장하고 나가기 — 종전 '저장 후 나가기' 경로 그대로 */
+      if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
+      clearTimeout(_obExitT);
+      _obExitT=setTimeout(function(){
+        if(!_obExiting) return;
+        _obExiting=false;
+        try{ var _b2=document.getElementById('obExit');
+          if(_b2){ _b2.textContent='나가기'; _b2.removeAttribute('aria-busy'); } }catch(e){}
+        try{ ordTell({title:'저장 확인이 오지 않았어요', body:'고르신 내용은 이 기기에 그대로 있어요. 잠시 뒤 다시 눌러 주세요.'}); }catch(e){}
+      },PARENT_GIVEUP);   /* ★[WAIT_PAST_PARENT] 8000 이었다 — 부모가 아직 답하는 중인데 먼저 울었다 */
+      /* ★[EXIT_FEEDBACK] 누른 티는 낸다 — 라벨이 바뀌면 다시 누를 이유가 없어진다 */
+      try{ var _b=document.getElementById('obExit');
+        if(_b){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
+      var payload=null;
+      try{ payload=_ordPayload(); }catch(e){}
+      try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
+    });
   };
   /* [ORD_SAVE_BTN] 저장 버튼 — 나가지 않고 지금 담는다. 나가기보다 **앞**에 둔다(왼쪽).
      자주 쓰는 것이 먼저 오고, 화면을 떠나는 것이 끝에 온다. */

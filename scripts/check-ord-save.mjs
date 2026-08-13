@@ -8,15 +8,17 @@
 //   ★옛 이름(check-ord-autosave)은 버렸다. 이름이 하는 일과 어긋나면 다음 사람이 그 이름을
 //     근거로 읽는다 — 이 저장소가 반복해 적어 온 병이다(사본은 늙는다).
 //
-// ★지금 구조 — 서버로 가는 갈래 셋
-//   저장 버튼(나가지 않고 지금 · done:false) · 나가기(있으면 저장하고 닫기) · 완성(done:true)
-//   그래서 「저장 안 하고 나가는 길」이 없고, 나갈 때 묻는 팝업도 없다.
-//   기기에는 늘 남아 있다(localStorage) — 서버로 보내는 것만 사람 손이 정한다.
+// ★지금 구조 — 서버로 가는 갈래 셋 (2026-08-13 EXIT_ASK 로 세 번째 자 갈이)
+//   저장 버튼(나가지 않고 지금 · done:false) · 나가기(깨끗하면 그냥 닫고 · 저장 안 된 변경이
+//   있으면 판으로 묻는다: 저장하고 나가기/그냥 나가기/취소) · 완성(done:true)
+//   2026-08-13 사용자 지시 *"나가기누르면 자동으로 저장되는데 그럼 옆에 저장이 있을필요가없잖아"*
+//   — 나가기의 조용한 저장을 걷었다. 기기에는 늘 남아 있다(localStorage).
 //
 // ★안전선 일곱
 //   ① 사람이 안 눌렀으면 서버로 안 나간다 — 자동 저장이 되살아나면 여기서 붉는다 [ORD_SAVE_BTN]
-//   ② 저장 안 한 채 나가도 **잃지 않는다** — 나가기가 orderExit(저장하고 닫기)로 나간다
-//   ③ 저장이 끝난 뒤 나가기는 **또 저장하지 않는다** — 그게 「그냥 나가기」다
+//   ② 저장 안 한 채 나가기는 **조용히 저장하지 않고 묻는다** [EXIT_ASK] — 판의 세 갈래가
+//      각자 맞는 말만 내보낸다(저장하고 나가기=orderExit · 그냥 나가기=orderClose · Esc=아무것도)
+//   ③ 저장이 끝난 뒤 나가기는 **판 없이 그냥 닫는다** — 물을 것이 없다
 //   ④ 완성본(_doneSaved)에 done:false 를 덮지 않는다 (ORDERFILL_DONE 2026-07-25 실사고)
 //   ⑤ 꾸러미에 S.seen 이 실린다 — 빠지면 미리듣기가 안 걸어온 뒷부분까지 들려준다(PREVIEW_UPTO)
 //   ⑥ 회신이 성공·실패 양쪽 다 돈다 — 한쪽만 받으면 버튼이 한 상태에 갇혀 거짓말을 한다
@@ -152,7 +154,10 @@ try {
     return window.__sent.map((m) => m.type);
   });
 
-  /* ★② 저장 안 한 채 나가기 — 잃으면 안 된다(저장하고 닫아야 한다) */
+  /* ★② 저장 안 한 채 나가기 — 조용히 저장하지 않고 **묻는다** [EXIT_ASK]
+     세 갈래를 전부 밟는다: Esc(취소·아무것도 안 나감) → 그냥 나가기(orderClose 만) →
+     저장하고 나가기(orderExit · 꾸러미 실림). Esc 는 dismissNull 이 지킨다 —
+     false 로 받으면 Esc 한 번이 「그냥 나가기」가 되어 저장 없이 닫힌다. */
   const dirty = await P.evaluate(async () => {
     const wait = (ms) => new Promise((s) => setTimeout(s, ms));
     pick('entry', 'C');
@@ -160,9 +165,27 @@ try {
     const btn = (document.getElementById('obSave') || {}).textContent.trim();
     window.__sent.length = 0;
     window._obExit();
-    await wait(500);
+    await wait(300);
+    const asked = !!document.querySelector('.ord-ask');
+    const silent = window.__sent.length;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await wait(400);
+    const stayed = !document.querySelector('.ord-ask') && window.__sent.length === 0;
+    window._obExit();
+    await wait(300);
+    const noBtn = document.querySelector('.ord-ask .oa-no'); if (noBtn) noBtn.click();
+    await wait(400);
+    const closeOuts = window.__sent.map((m) => m.type);
+    window.__sent.length = 0;
+    window._obExit();
+    await wait(300);
+    const yesBtn = document.querySelector('.ord-ask .oa-yes'); if (yesBtn) yesBtn.click();
+    await wait(400);
+    const outs = window.__sent.map((m) => m.type);
+    const ex = window.__sent.find((m) => m.type === 'momentedit:orderExit');
+    const hasData = !!(ex && ex.data && ex.data.S && ex.data.S.course);
     _obExiting = false;
-    return { btn, outs: window.__sent.map((m) => m.type) };
+    return { btn, asked, silent, stayed, closeOuts, outs, hasData };
   });
 
   /* ★⑥ 실패 회신 — 버튼이 갈리고 다시 누를 수 있어야 한다 */
@@ -242,8 +265,15 @@ try {
     bad.push(`나가기를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${outs.join('·') || '없음'}) — 갇힌다 [ORD_SAVE_BTN]`);
 
   if (dirty.btn !== '저장') bad.push(`저장 안 한 변경이 있는데 버튼이 「${dirty.btn}」다 [ORD_SAVE_BTN]`);
+  if (!dirty.asked) bad.push('★저장 안 한 채 나가기를 눌렀는데 묻는 판이 안 떴다 — 조용한 저장(또는 조용한 이탈)로 되돌아갔다 [EXIT_ASK]');
+  if (dirty.silent !== 0) bad.push(`판을 띄우기 전에 벌써 ${dirty.silent}건이 나갔다 — 묻기 전에 몰래 보낸다 [EXIT_ASK]`);
+  if (!dirty.stayed) bad.push('Esc(취소)를 눌렀는데 판이 남았거나 무언가 나갔다 — 취소가 취소가 아니다 [EXIT_ASK]');
+  if (dirty.closeOuts.indexOf('momentedit:orderExit') >= 0) bad.push('「그냥 나가기」가 저장(orderExit)을 보냈다 — 이름과 행동이 다르다 [EXIT_ASK]');
+  if (dirty.closeOuts.indexOf('momentedit:orderClose') < 0)
+    bad.push(`「그냥 나가기」를 눌렀는데 닫으라는 말이 안 나갔다(나간 것: ${dirty.closeOuts.join('·') || '없음'}) — 갇힌다 [EXIT_ASK]`);
   if (dirty.outs.indexOf('momentedit:orderExit') < 0)
-    bad.push(`★저장 안 한 채 나갔는데 저장이 안 나갔다(나간 것: ${dirty.outs.join('·') || '없음'}) — 고친 것이 서버에 안 남는다 [ORD_SAVE_BTN]`);
+    bad.push(`★「저장하고 나가기」를 골랐는데 저장이 안 나갔다(나간 것: ${dirty.outs.join('·') || '없음'}) — 고친 것이 서버에 안 남는다 [EXIT_ASK]`);
+  if (!dirty.hasData) bad.push('저장하고 나가기 꾸러미가 비었다 — 저장이라는 이름의 빈 봉투다 [EXIT_ASK]');
 
   if (!/다시 저장/.test(f.txt)) bad.push(`실패 회신을 받았는데 버튼이 「${f.txt}」다 — 조용히 실패하면 저장은 거짓말이 된다 [ORD_SAVE_BTN]`);
   if (!/bad/.test(f.cls) || f.dis) bad.push('저장이 실패했는데 다시 누를 수 없다 [ORD_SAVE_BTN]');
@@ -270,7 +300,7 @@ try {
   console.log(`   ★값만 바꾸고 3초 기다림 → 초안 ${idle.n}건(0이어야 · 자동 저장이 걷혔다) · 버튼 「${idle.btn}」`);
   console.log(`   저장 누름 → 초안 ${hit.n}건 · seen ${hit.seenN}개 · 「${hit.busy}」 → 회신 뒤 「${hit.done}」(안 눌림=${hit.dis})`);
   console.log(`   저장 끝난 뒤 나가기 → ${outs.join(' · ') || '(아무것도 안 나감)'}  ← orderExit 가 없어야 그냥 나가기다`);
-  console.log(`   ★저장 안 한 채 나가기 → ${dirty.outs.join(' · ') || '(아무것도 안 나감)'}  ← orderExit 가 있어야 안 잃는다`);
+  console.log(`   ★저장 안 한 채 나가기 → 판 뜸=${dirty.asked} · Esc 취소=${dirty.stayed} · 그냥 나가기=${dirty.closeOuts.join('·') || '없음'} · 저장하고 나가기=${dirty.outs.join('·') || '없음'} [EXIT_ASK]`);
   console.log(`   실패 회신 → 「${f.txt}」(다시 누를 수 있나=${!f.dis})`);
   console.log(`   저장 날아간 중 완성 누름 → 그때 ${race.during}건(0이어야) · 회신 뒤 ${race.after}건(1이어야) [ORD_SAVE_AFTER_AUTO]`);
   console.log(`   완성 상태 → 초안 ${done.n}건(0이어야) · 버튼 보임 ${done.shown}(아니어야)  ☐ 이 판은 _doneSaved 를 검사가 직접 세웠다`);
@@ -278,7 +308,7 @@ try {
   if (p.unseen.length) p.unseen.forEach((u) => console.log('   ☐ ' + u));
 
   if (bad.length) { bad.forEach((b) => console.log('   ✖ ' + b)); process.exit(1); }
-  console.log('   ✔ 사람이 누를 때만 나가고, 안 누른 채 나가도 잃지 않습니다');
+  console.log('   ✔ 서버 저장은 사람 손이 정하고, 나가기는 몰래 저장하지 않고 묻습니다 [EXIT_ASK]');
   process.exit(0);
 } catch (e) {
   console.log(`· 재는 도중에 멈췄습니다 — ${String(e).slice(0, 160)}`);

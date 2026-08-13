@@ -187,7 +187,7 @@ else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl
 #     폭은 86px 로 못박았다: 네 상태에서 머리줄이 움찔하지 않게(가장 긴 「저장 중…」에 맞춤).
 #   실측 @390: 저장 86x44 · 나가기 68x44 · 전 단계 가로 넘침 없음 · 폭 흔들림 0 · JS 오류 0
 #   실측(검사): 값만 바꾸고 3초 → 0건 · 저장 누름 → 1건 · 저장 뒤 나가기 → orderClose만 ·
-#              저장 안 하고 나가기 → orderExit(안 잃는다) · 완성 상태 → 0건·버튼 숨김
+#              저장 안 하고 나가기 → 묻는 판(EXIT_ASK · 아래 블록) · 완성 상태 → 0건·버튼 숨김
 chk 'ORD_SAVE_BTN' order-preview.html 6
 chk 'obSave' order-preview.html 2
 chk 'function _dirtyMark' order-preview.html 1       # ★값이 바뀌면 표시만 켠다 — 타이머를 다시 걸지 말 것
@@ -197,6 +197,16 @@ chk '.ob-save,#obExit{min-width:86px}' order-preview.html 1  # ★[BTN_PAIR] 두
 chk 'ORD_SAVE_BTN' scripts/check-ord-save.mjs 8
 chk 'check-ord-save' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
 chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-save.mjs 4        # 날아간 저장 경주 — 이름이 바뀌어도 이 안전선은 남는다
+# ★★[EXIT_ASK 2026-08-13 사용자 지시] 나가기의 **조용한 저장**을 걷었다.
+#   원문: "나가기 누르면 그냥 나가지던가 저장할게있으면 팝업으로 확인안내를 해주던가해야지
+#         나가기누르면 자동으로 저장되는데 그럼 옆에 저장이 있을필요가없잖아"
+#   깨끗하면 그냥 닫고, 저장 안 된 변경이 있으면 판으로 묻는다(저장하고 나가기/그냥 나가기/취소).
+#   ★Esc·바깥 클릭은 dismissNull 이 null 로 갈라 '취소'다 — false 로 합치면 Esc 가 「그냥 나가기」가
+#     되어 저장 없이 닫힌다(돌연변이 실측: dismissNull 제거 → check-ord-save rc=1 「취소가 취소가 아니다」).
+#   ★몰래 저장(무조건 orderExit)으로 되돌리지 말 것 — 판 자체가 사용자 지시다.
+chk 'EXIT_ASK' order-preview.html 4
+chk 'dismissNull:true' order-preview.html 1                   # 나가기 판의 취소 갈래가 사는 그 줄
+chk 'EXIT_ASK' scripts/check-ord-save.mjs 10                  # 세 갈래(취소·그냥·저장하고) 전부 밟는 그물
 chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 · 손 저장) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
 chk 'orderDraftSaved' mypage.html 1                  # 성공 회신 — 한쪽만 보내면 버튼이 한 상태에 갇힌다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
