@@ -2586,6 +2586,10 @@ chk 'TUNNEL_UNSEEN' scripts/audit/page-probe.mjs 1
 #   프록시가 자기 인증서로 가로챌 때 나는 줄이라 재는 쪽 사정이다. 야간 잡이 매일 도는데
 #   이런 줄로 하루 걸러 붉으면 그 검사는 늑대가 된다(★9). 고칠 자리는 각 검사가 아니라 공용 자다.
 chk 'ERR_CERT_' scripts/audit/page-probe.mjs 2
+# ★[API_501_LOCAL 2026-08-13 점검] 로컬 하네스엔 Vercel 함수(/api/*)가 없다 — python http.server 가
+#   POST 에 501 을 돌려주고, 화면은 이미 우아하게 받는다(실측: 친절한 대체 문구·pageerror 0).
+#   response·console 두 채널 모두 unseen 으로 옮긴다(삼키지 않음) — 한 채널만 고치면 남은 귀가 또 붉힌다(실측).
+chk 'API_501_LOCAL' scripts/audit/page-probe.mjs 2
 chk 'ERR_TUNNEL_CONNECTION_FAILED' scripts/audit/page-probe.mjs 2
 # ── [OPT_AT_MOVE · NO_AIM_IS_FAIL 2026-08-11] 겨냥을 잃은 돌연변이가 사흘간 조용했다 ──
 # 「밸리만 자리 옮기기」가 08-08 부터 skip. skip 은 fail 로 안 세어져 감사는 계속 exit 0 이었다.
