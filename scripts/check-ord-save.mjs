@@ -23,6 +23,16 @@
 //   ⑦ 날아간 저장이 안 끝났는데 완성 저장이 나가지 않는다 [ORD_SAVE_AFTER_AUTO]
 //      둘 다 같은 apiTrackSave 로 나가는데 하나는 done:false 다. 도착 순서가 뒤집히면
 //      완성본이 초안으로 덮인다. 「안 보낸다」로 막은 자리는 「이미 보낸 것」을 못 막는다.
+//   ⑧ 눈에 보이는 글과 **귀에 읽히는 이름이 같은가** [BADGE_GAP]
+//      ★처음엔 「「기본」이 붙어 읽히지 않는가」를 재려 했다. 돌연변이로 배지 앞 한 칸을 지워 봤더니
+//        **안 붉었다** — 크로미움이 접근성 이름을 만들 때 스스로 한 칸을 넣기 때문이다(실측 2회).
+//        즉 그 그물은 이 엔진에서 늘 참인 죽은 그물이었다(★11-c). 그래서 겨냥을 바꿨다.
+//      ★한 칸 자체는 정적 chk 가 지킨다(merge-guard 의 BADGE_GAP 네 줄) — 소스에서 사라지면 붉는다.
+//        엔진이 넣어 주는 것에 기대지 않으려고 넣은 칸이고, 그 목적엔 정적 검사가 맞는 자다.
+//      ★여기서 재는 것은 **다른 위험**이다: aria-label 로 버튼 이름을 통째로 갈아끼우면
+//        눈에 보이는 글과 귀에 읽히는 글이 두 벌이 되고, 둘 중 하나만 고치는 날이 온다.
+//        그 길은 2026-08-13 에 일부러 안 골랐다 — 나중에 누가 고르면 여기서 붉는다(돌연변이 확인).
+//      ★재는 자리 — 배지가 있는 화면까지 걸어가서 찍는다. 다듬기엔 토글뿐이고 완성 화면엔 카드가 없다.
 //
 // ★[NO_GATE] 게이트는 이 검사를 돌리지 않는다 — 브라우저와 로컬 서버가 필요하다.
 //   야간 잡(nightly-screen.yml)이 돌린다.  node scripts/check-ord-save.mjs
@@ -81,6 +91,35 @@ try {
              btn: b ? b.textContent.trim() : '', on: b ? b.className.indexOf('on') >= 0 : false,
              dis: b ? b.disabled : null };
   });
+
+  /* ★⑧ [BADGE_GAP] 낭독기가 읽는 이름 — textContent 가 아니라 접근성 트리에서 읽는다.
+     ★배지가 **있는 화면까지 걸어가서** 찍는다. 코스를 막 고른 자리(다듬기)엔 토글뿐이라 배지가 없고,
+       뒤로 가면 완성 화면이라 카드가 없다 — 첫 두 판이 각각 그래서 「배지가 하나도 없다」로 붉었다.
+       겨냥이 있는 자리를 찾아가는 것이지, 없으면 넘어가는 것이 아니다(못 찾으면 붉는다 ★11-c). */
+  await P.evaluate(async () => {
+    const wait = (ms) => new Promise((s) => setTimeout(s, ms));
+    for (let i = 0; i < 12; i++) {
+      if (document.querySelector('.oc-rec, .seg-b .df')) return;
+      document.getElementById('next').click(); await wait(240);
+    }
+  });
+  const ear = await (async () => {
+    try {
+      const snap = await P.accessibility.snapshot();
+      const out = []; (function walk(n) { if (!n) return; if (n.role === 'button' && n.name) out.push(n.name); (n.children || []).forEach(walk); })(snap);
+      return out;
+    } catch (e) { return null; }
+  })();
+  /* 눈 — 같은 버튼들의 보이는 글. 귀와 **짝지어** 견주려고 같은 순서로 긁는다. */
+  const eye = await P.evaluate(() => [...document.querySelectorAll('button')]
+    .filter((b) => b.offsetParent !== null && b.textContent.trim())
+    .map((b) => b.textContent.replace(/\s+/g, '')));
+  const flat = (x) => String(x).replace(/\s+/g, '');
+  const withBadge = ear ? ear.filter((n) => /기본/.test(n)) : [];
+  /* ★겨냥을 **배지 붙은 버튼**으로 좁힌다. 전체 버튼에 「귀==눈」을 걸었더니 기준선에서 넷이 걸렸다 —
+     아이콘뿐이라 aria-label 이 **옳은 도구**인 자리들이다(예: 「안내 문구 전문 보기」).
+     그것까지 붉히면 늑대가 된다(★9). 여기서 막으려는 것은 「글자가 보이는데 이름을 갈아끼우는 것」뿐이다. */
+  const orphan = ear ? withBadge.filter((n) => flat(n) && eye.indexOf(flat(n)) < 0) : [];
 
   /* 저장 버튼을 누른다 — 그제서야 나가야 한다 */
   const hit = await P.evaluate(async () => {
@@ -214,6 +253,11 @@ try {
   if (done.n !== 0) bad.push(`완성 저장 뒤에도 초안을 ${done.n}건 보냈다 — 완성본이 done:false 로 덮여 초안으로 되돌아간다 [ORD_SAVE_BTN]`);
   if (done.shown) bad.push('완성 상태인데 저장 버튼이 남아 있다 — 누르면 완성이 초안으로 되돌아간다 [ORD_SAVE_BTN]');
 
+  if (!ear) bad.push('접근성 트리를 못 읽었다 — 낭독기가 읽는 이름을 재지 못했다(통과 아님) [BADGE_GAP]');
+  else if (!withBadge.length) bad.push('「기본」 배지가 붙은 버튼이 하나도 없다 — 겨냥이 사라졌다(통과 아님) [BADGE_GAP]');
+  else if (orphan.length)
+    bad.push(`귀에 읽히는 이름이 눈에 보이는 글과 다르다 — 「${orphan[0]}」는 화면 어디에도 없는 말이다(aria-label 로 갈아끼운 자리) [BADGE_GAP]`);
+
   const p = await h.probe();
   if (p.errors.length) bad.push(`JS 오류 ${p.errors.length}개 — ${p.errors[0]}`);
 
@@ -225,6 +269,7 @@ try {
   console.log(`   실패 회신 → 「${f.txt}」(다시 누를 수 있나=${!f.dis})`);
   console.log(`   저장 날아간 중 완성 누름 → 그때 ${race.during}건(0이어야) · 회신 뒤 ${race.after}건(1이어야) [ORD_SAVE_AFTER_AUTO]`);
   console.log(`   완성 상태 → 초안 ${done.n}건(0이어야) · 버튼 보임 ${done.shown}(아니어야)  ☐ 이 판은 _doneSaved 를 검사가 직접 세웠다`);
+  console.log(`   낭독기가 읽는 이름(접근성 트리 · textContent 아님) — ${withBadge.length ? withBadge.map((n) => '「' + n + '」').join(' · ') : '(「기본」 붙은 버튼 없음)'} · 배지 버튼 중 눈과 어긋난 것 ${orphan.length}개(0이어야 · 아이콘 버튼의 aria-label 은 셈에서 뺀다) [BADGE_GAP]`);
   if (p.unseen.length) p.unseen.forEach((u) => console.log('   ☐ ' + u));
 
   if (bad.length) { bad.forEach((b) => console.log('   ✖ ' + b)); process.exit(1); }
