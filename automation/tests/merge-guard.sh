@@ -193,7 +193,7 @@ chk 'obSave' order-preview.html 2
 chk 'function _dirtyMark' order-preview.html 1       # ★값이 바뀌면 표시만 켠다 — 타이머를 다시 걸지 말 것
 nochk 'setTimeout(_autoSend' order-preview.html      # ★자동 저장을 되살리지 말 것(사용자가 물린 방식)
 nochk 'id="psave"' order-preview.html                # ★진행 줄 저장 표시 폐지 — 상태는 버튼이 말한다
-chk '.ob-save{min-width:86px}' order-preview.html 1  # 네 상태에서 머리줄이 안 움찔하게
+chk '.ob-save,#obExit{min-width:86px}' order-preview.html 1  # ★[BTN_PAIR] 두 단추 같은 크기 · 상태만 다르게
 chk 'ORD_SAVE_BTN' scripts/check-ord-save.mjs 8
 chk 'check-ord-save' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
 chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-save.mjs 4        # 날아간 저장 경주 — 이름이 바뀌어도 이 안전선은 남는다

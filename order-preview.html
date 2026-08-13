@@ -436,9 +436,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* ★[ORD_SAVE_BTN] 저장 버튼은 나가기와 **같은 옷**이다 — 한 줄에 생김새가 둘이면 그게 소음이다.
    다른 것은 글자와 굵기뿐: 보낼 것이 있을 때만 진해지고(.on), 없으면 흐린 채 안 눌린다.
    실패했을 때만 인장색으로 선다(.bad) — 그때가 손이 필요한 유일한 때다. */
-/* 네 상태(저장·저장 중…·저장됨·다시 저장)에서 폭이 안 흔들리게 — 머리줄이 눌릴 때마다
-   움찔하면, 고친 것을 확인하려 보는 그 순간에 화면이 움직인다. 가장 긴 글자에 맞춘다. */
-.ob-save{min-width:86px}
+/* ★[BTN_PAIR 2026-08-13 사용자 지시 "사이즈 맞춰야지"] 머리줄 두 단추는 **같은 크기**다.
+   저장(86)과 나가기(68)가 나란히 서니 짝이 아니라 층으로 읽혔다 — 상태(색·굵기)만 다르고
+   기하는 같아야 짝이다. 폭은 가장 긴 상태(「저장 중…」)에 맞춘 86 하나로 통일한다.
+   (네 상태에서 폭이 안 흔들리는 것도 이 한 줄이 함께 지킨다 — 눌릴 때마다 움찔하지 않게) */
+.ob-save,#obExit{min-width:86px}
 .ob-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
 .ob-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
 .ob-save:disabled{opacity:.5;cursor:default}
