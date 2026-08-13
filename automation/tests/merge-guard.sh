@@ -193,7 +193,7 @@ chk 'obSave' order-preview.html 2
 chk 'function _dirtyMark' order-preview.html 1       # ★값이 바뀌면 표시만 켠다 — 타이머를 다시 걸지 말 것
 nochk 'setTimeout(_autoSend' order-preview.html      # ★자동 저장을 되살리지 말 것(사용자가 물린 방식)
 nochk 'id="psave"' order-preview.html                # ★진행 줄 저장 표시 폐지 — 상태는 버튼이 말한다
-chk '.ob-save{min-width:86px}' order-preview.html 1  # 네 상태에서 머리줄이 안 움찔하게
+chk '.ob-save,#obExit{min-width:86px}' order-preview.html 1  # ★[BTN_PAIR] 두 단추 같은 크기 · 상태만 다르게
 chk 'ORD_SAVE_BTN' scripts/check-ord-save.mjs 8
 chk 'check-ord-save' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
 chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-save.mjs 4        # 날아간 저장 경주 — 이름이 바뀌어도 이 안전선은 남는다
@@ -232,6 +232,17 @@ chk 'BADGE_GAP' order-preview.html 1
 chk "esc(nm)+(rec?' <span" order-preview.html 1      # ★배지 앞 한 칸 — 지우지 말 것(위 이유)
 chk "나레이션 <span class=\"oc-rec\">기본" order-preview.html 2
 chk "_dd?' <span class=\"df\">기본" order-preview.html 1
+# ★[BADGE_GAP · 그물 하나를 쓰다가 갈아엎었다 2026-08-13]
+#   처음엔 브라우저 검사에 「배지가 붙어 읽히는가」를 넣었다. 돌연변이로 한 칸을 지워 봤더니
+#   **안 붉었다** — 크로미움이 접근성 이름을 만들 때 스스로 한 칸을 넣는다(실측 2회).
+#   이 엔진에서 늘 참인 죽은 그물이었다(★11-c). 한 칸 자체는 **위 정적 chk 넷**이 지킨다.
+#   브라우저 쪽 겨냥은 **다른 위험**으로 바꿨다 — aria-label 로 버튼 이름을 갈아끼우면
+#   눈에 보이는 글과 귀에 읽히는 글이 두 벌이 된다. 2026-08-13 에 일부러 안 고른 길이고,
+#   나중에 누가 고르면 붉는다(돌연변이 확인: aria-label 얹으니 exit 1 · 기준선 0).
+#   ★겨냥은 「배지 붙은 버튼」으로 좁혔다 — 전체에 걸었더니 아이콘 버튼의 정당한 aria-label 넷이
+#     걸렸다(「안내 문구 전문 보기」 등). 그것까지 붉히면 늑대가 된다(★9).
+chk 'BADGE_GAP' scripts/check-ord-save.mjs 7
+chk 'accessibility.snapshot' scripts/check-ord-save.mjs 1   # ★귀는 접근성 이름으로 잰다 — textContent 로 되돌리지 말 것
 nochk 'subq-def' order-preview.html                 # ★제목 옆 「기본은 …」 한 줄로 되돌리지 말 것(소음을 바꿔 다는 것)
 nochk "oc('declare',v,DECLARE" order-preview.html   # ★세부를 다시 카드로 되돌리지 말 것(위 이유)
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
@@ -726,6 +737,16 @@ chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entryOut\]' order-preview.html 1     # 고른 값을 먼저 본다
 chk 'ENTRY_OUT\[_eo||S\.entry\]' order-preview.html 1   # 안 고르면 입장 느낌으로 떨어진다
 chk 'data-fk="entryOut' order-preview.html 2               # 고르는 칩 두 줄(「입장과 같이」 + A~F 반복)
+# ★[ENTRY_SECT 2026-08-13 사용자 지시 "위부분처럼 느낌을 골라주세요 라는식으로 아래쪽으로 따로 빼자"]
+#   도착 멘트 고르기를 입장 카드 **안**에서 꺼내 자기 절로 — 위 절과 같은 문법(라벨→칩→카드+들어보기).
+#   들어보기는 순간 전체가 아니라 그 자리 클립만 낸다(SLUG_CUE · narr-entry-out 파일 이름으로 거른다).
+#   실측 @390: 절 두 개 같은 문법 · 들어보기 2개 · C 고르면 80_narr-entry-out-C.mp3 한 개만 ·
+#             「입장과 같이」면 입장 느낌을 따라간다(52_narr-entry-out.mp3) · 넘침 없음 · JS 오류 0
+chk 'ENTRY_SECT' order-preview.html 5
+chk '도착하면 이어서, 느낌을 골라주세요' order-preview.html 1
+chk "playBtn('entryOut')" order-preview.html 1      # 아래 절에도 들어보기 — 위 절과 같은 문법
+chk 'SLUG_CUE' order-preview.html 2                 # 그 자리 클립만 내는 배관(세우는 곳·읽는 곳·거르는 곳)
+nochk '이 말만 따로 고르실 수도 있어요' order-preview.html   # ★옛 문구로 되돌리지 말 것 — 절 라벨이 그 말을 한다
 # ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 미리듣기가 **걸어온 데까지만** 들려준다.
 #   코스를 고르면 모든 순간이 기본값으로 채워져, 중간에 「저장 후 나가기」를 해도 폐식까지 흘렀다 —
 #   두 분이 본 적 없는 뒷부분을 「고르신 순서 그대로」라며 들려주던 것이다.
