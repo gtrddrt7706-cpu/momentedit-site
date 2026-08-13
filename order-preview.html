@@ -71,6 +71,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
 .oc.on .oc-nm{color:var(--accent)}   /* [ORD_HUE] 고른 카드에 진사가 셋(테두리·체크·제목)이었다 — 체크 하나만 남긴다 */
 .oc-desc{font-size:13px;color:var(--light);margin-top:3px;word-break:keep-all}
+/* ★★[BADGE_GAP 2026-08-13 · 클로드코드 ④] 「기본」 배지 **앞의 한 칸은 지우지 말 것.**
+   그 칸이 없으면 글자 흐름이 「엄숙하게기본」으로 붙는다. 크로미움은 접근성 이름을 만들 때
+   스스로 한 칸을 넣어 주지만(실측: 「엄숙하게 기본」) 그건 **엔진이 해 주는 것**이고
+   엔진마다 다르다 — 고객 폰은 iOS 사파리이고 이 세션에서는 재 볼 수 없다 [CANT_LOOK].
+   기대지 않고 우리가 넣는다. 눈에는 안 보인다(플렉스에서 끝 공백은 접힌다 · 칩 폭 158 그대로). */
 .oc-rec{font-size:11px;color:var(--gold-deeper);font-weight:400;margin-left:auto;flex-shrink:0}
 .oc:active,.crs:active{transform:scale(.985);transition:transform .12s}
 .ex-chip:active{transform:scale(.94)}
@@ -1763,7 +1768,7 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   //   [ORD_DESC] 버튼 이름은 '아버지가' 뿐이라 낭독기로는 무엇인지 알 수 없었다 → 설명줄을 이름에 딸려 읽히게 묶는다.
   var did='ocd_'+key+'_'+v;
   var h='<div class="oc'+(on?' on':'')+'">';
-  h+='<button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+(desc?'" aria-describedby="'+did:'')+'" data-fk="'+key+':'+v+'" onclick="pick(\''+key+'\',\''+v+'\')">'+esc(nm)+(rec?'<span class="oc-rec">기본</span>':'')+'</button>';
+  h+='<button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+(desc?'" aria-describedby="'+did:'')+'" data-fk="'+key+':'+v+'" onclick="pick(\''+key+'\',\''+v+'\')">'+esc(nm)+(rec?' <span class="oc-rec">기본</span>':'')+'</button>';
   if(desc) h+='<div class="oc-desc" id="'+did+'">'+esc(desc)+'</div>';
   // [ORD_AUDITION] 나레이션 글은 보여 주면서 '들어보기'는 고른 카드에만 있었다(담백 부모님 덕담·사이 순서, 가족 링워밍 4곳).
   //   넣을지 말지 판단하려고 듣는 건데, 넣기 전엔 못 듣는 구조였다 — 글이 있으면 듣기도 있게.
@@ -2134,7 +2139,7 @@ function renderStep(k){
     GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
     h+='</div>';
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션 <span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
     h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들면 저희가 틀어드려요</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -2180,7 +2185,7 @@ function renderStep(k){
     var h='<div style="margin-top:16px">';
     h+=clip('entry');
     h+='<div class="vq" style="margin-top:16px">입장 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">나레이션이 입장을 안내해요</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션 <span class="oc-rec">기본</span></button><div class="oc-desc">나레이션이 입장을 안내해요</div></div>';   // [ORD_KEY]
     h+='<div class="oc'+(ecpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(ecpl?'true':'false')+'" data-fk="entryVoice:couple" onclick="setEntryVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">두 분 목소리로 인사를 담아 흐르게 해요</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -2290,7 +2295,7 @@ function renderStep(k){
         h+='<div class="seg">';
         ['1','2'].forEach(function(v){ var _on=S.declare===v;
           h+='<button type="button" class="seg-b'+(_on?' on':'')+'" aria-pressed="'+(_on?'true':'false')+'" data-fk="declare:'+v+'" onclick="pick(\'declare\',\''+v+'\')">'+esc(DECLARE[v].d)
-            +(v===_dd?'<span class="df">기본</span>':'')+'</button>'; });
+            +(v===_dd?' <span class="df">기본</span>':'')+'</button>'; });
         h+='</div>';
         /* 대본은 고른 톤 하나만 — 칩 아래 한 장. 톤을 바꾸면 이 한 장만 갈린다. */
         if(DECLARE[S.declare]&&DECLARE[S.declare].nar) h+=narBox(DECLARE[S.declare].nar,null)+playBtn('declare',S.declare);

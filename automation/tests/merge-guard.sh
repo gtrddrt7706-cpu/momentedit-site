@@ -239,6 +239,19 @@ chk 'seg-b' order-preview.html 4
 chk '.ex-chip,.seg-b{' order-preview.html 1        # ★선택 칩의 말을 한 줄에서만 — 갈라 적지 말 것
 chk '.oc .nar,.oc .self,.subset .nar{' order-preview.html 1   # ★대본은 판이 아니라 글 — 곁판도 같은 규칙에 태운다
 chk 'seg-b .df' order-preview.html 1                # 「기본」은 칩 안 작은 글씨(최상위 배지와 층이 갈린다)
+# ★★[BADGE_GAP 2026-08-13 · 클로드코드 ④ 「낭독기가 「엄숙하게기본」으로 붙여 읽는다」]
+#   ★먼저 자를 확인했다 — 크로미움 접근성 트리는 이미 「엄숙하게 기본」으로 읽는다(실측).
+#     붙어 보인 것은 textContent 를 읽었기 때문이다(내 검사 출력도 그랬다) — ★11, 자를 잘못 든 것.
+#   ★그래도 한 칸을 넣는다. 크로미움이 넣어 주는 그 칸은 **엔진이 해 주는 것**이고,
+#     고객 폰은 iOS 사파리인데 이 세션에서는 재 볼 수 없다 [CANT_LOOK]. 기대지 않고 우리가 넣는다.
+#   ★aria-label 로 버튼 이름을 통째로 갈아끼우는 길(클로드코드 추천 ㉯)은 안 골랐다 —
+#     그 순간 «눈에 보이는 글»과 «귀에 읽히는 글»이 두 벌이 되고, 둘 중 하나만 고치는 날이 온다.
+#     이 저장소가 반복해서 당한 모양이다(사본은 늙는다). 한 칸이면 원본 하나로 끝난다.
+#   실측: 칩 폭 158 그대로(플렉스에서 끝 공백은 접힌다) · 접근성 이름 「엄숙하게 기본」 유지
+chk 'BADGE_GAP' order-preview.html 1
+chk "esc(nm)+(rec?' <span" order-preview.html 1      # ★배지 앞 한 칸 — 지우지 말 것(위 이유)
+chk "나레이션 <span class=\"oc-rec\">기본" order-preview.html 2
+chk "_dd?' <span class=\"df\">기본" order-preview.html 1
 nochk 'subq-def' order-preview.html                 # ★제목 옆 「기본은 …」 한 줄로 되돌리지 말 것(소음을 바꿔 다는 것)
 nochk "oc('declare',v,DECLARE" order-preview.html   # ★세부를 다시 카드로 되돌리지 말 것(위 이유)
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
