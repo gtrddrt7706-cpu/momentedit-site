@@ -2800,7 +2800,8 @@ function contractPath(product, docVersion){
   if(v==='v1.2') return '/contract/archive/v1-2.html';
   if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
   if(v==='v1.4') return '/contract/archive/v1-4.html';   // [CONTRACT_V15] v1.4 서명자는 옛 표기(스냅 40분·합 60분) 보존본으로 열람
-  return '/contract/v1-1.html';   // 현행(v1.5) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.6) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

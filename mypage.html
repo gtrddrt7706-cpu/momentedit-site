@@ -1338,7 +1338,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.2') return '/contract/archive/v1-2.html';
   if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
   if(v==='v1.4') return '/contract/archive/v1-4.html';   // [CONTRACT_V15] v1.4 서명자는 옛 표기(스냅 40분·합 60분) 보존본으로 열람
-  return '/contract/v1-1.html';   // 현행(v1.5)
+  if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람(서명 안 한 줄이 '확인했습니다'로 보이면 안 된다)
+  return '/contract/v1-1.html';   // 현행(v1.6)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -3447,10 +3448,17 @@ function _archiveSignedContract(sig, cb){
 }
 function doSignContract(){
   var _sd=new Date(), _sdY=_sd.getFullYear()+'-'+('0'+(_sd.getMonth()+1)).slice(-2)+'-'+('0'+_sd.getDate()).slice(-2);
+  /* ★[★AI고지_부부 2026-08-13 결정 · CONTRACT_V16] 넷째 확인 줄 — 승인 자리가 여기로 왔다.
+     하객 고지는 음성(완곡 · ritual-data NARR.guest)·식순지(명시 · admin.html)로 나뉜다(회신4 §4-2).
+     그 분리를 **부부가 알고 승인한 상태**여야 한다는 조건(㉯)의 자리가 빌더 완성 화면에서
+     빠진 뒤(DONE_TAIL_QUIET · 2026-08-12 사용자 지시) 갈 곳을 잃었었다 — 승인은 한 번 받고
+     기록으로 남아야 하므로 계약 동의(전자서명)로 옮겼다(2026-08-13 사용자 "추천대로해결").
+     계약서 v1.6 서명란 check-line 과 짝이다 — 한쪽만 고치지 말 것. */
   mpSignaturePad({ title:'계약서 서명', body:'서명하면 오늘('+_sdY+') 날짜로 계약이 성립해요. 성립 후에도 제7조 청약철회·무상취소, 제9조 위약금 규정은 그대로 적용돼요.', checkLabels:[
       '대금의 구성과 지급 일정을 확인했습니다. 중도금 납입 후에는 제9조에 따른 해제만 가능합니다. (제4조)',
       '시기별 위약금 표와 청약철회·무상취소 기간을 확인했습니다. (제7조·제9조)',
-      '저작권·초상권 사용(옵트인)과 개인정보 처리를 확인했습니다. (제13조·제14조)'
+      '저작권·초상권 사용(옵트인)과 개인정보 처리를 확인했습니다. (제13조·제14조)',
+      '예식 진행 안내 음성(나레이션)은 AI 음성으로 미리 제작되며, 하객에게는 안내 음성과 식순지 표기로 안내됨을 확인했습니다.'
     ], confirmText:'동의하고 서명' }).then(function(sig){
     if(!sig) return;
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
