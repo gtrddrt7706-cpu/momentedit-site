@@ -1269,7 +1269,18 @@ chk '★AI고지_G1-4' assets/ritual-data.js 1                   # G1-4 앞 2문
 chk '미리 준비한 안내 음성으로 진행합니다' order-preview.html 1   # 위 고지의 빌더 인라인 사본(NAR_MIRROR 대상)
 # ★★[AI고지_부부 2026-08-12] 빌더 완성 화면의 **고지 줄은 뺐다**(사용자 지시). 근거 주석은 그 자리에 남겼다.
 #   ★뺀 것은 줄이지 고지가 아니다 — 하객에게 실제로 알리는 두 곳은 그대로여야 한다. 아래 둘로 못박는다.
-chk '★AI고지_부부' order-preview.html 1                       # 승인 자리를 옮길 때까지 근거를 지우지 말 것(회신4 조건 ㉯)
+chk '★AI고지_부부' order-preview.html 1                       # 결정 기록(2026-08-13 계약 동의로 이전) · 빌더에 고지 줄 되살리기 금지
+# ★[CONTRACT_V16 2026-08-13 사용자 "추천대로해결"] 부부 승인 자리 = 계약 동의 화면(회신4 조건 ㉯).
+#   계약서 v1.6 서명란 확인 줄 + mypage 서명 판 checkLabels 넷째 줄이 짝이다 — 한쪽만 지우면
+#   판에서 확인한 것과 문서에 적힌 것이 어긋난다. v1.5 보존본 매핑을 지우면 옛 서명자가
+#   서명한 적 없는 확인 줄을 「확인했습니다」로 보게 된다.
+chk '★AI고지_부부' mypage.html 1                              # 서명 판 넷째 줄 근거 주석
+chk '★AI고지_부부' contract/v1-1.html 1                       # v1.6 서명란 확인 줄
+chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판과 문서의 같은 문안(짝)
+chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
+chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
+chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
+chk "docVersion: 'v1.6'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요)
 chk '미리 준비한 안내 음성으로 진행합니다' assets/ritual-data.js 1   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -1728,10 +1739,13 @@ chk "c.blockN === '배웅'" scripts/check-ritual-cue.js 1
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1
 chk 'PHOTO_FX_MAX=2' mypage.html 1
-# [CONTRACT_V15] 계약서 v1.5 · v1.4 서명자는 보존본으로 열람
+# [CONTRACT_V15] 계약서 v1.4 서명자는 보존본으로 열람
 chk 'archive/v1-4.html' admin.html 1
 chk 'archive/v1-4.html' mypage.html 1
-chk "docVersion: 'v1.5'" automation/platform/70_journey.gs 1
+# [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
+chk 'archive/v1-5.html' admin.html 1
+chk 'archive/v1-5.html' mypage.html 1
+chk "docVersion: 'v1.6'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
