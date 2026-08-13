@@ -207,6 +207,17 @@ chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-save.mjs 4        # 날아간 저장
 chk 'EXIT_ASK' order-preview.html 4
 chk 'dismissNull:true' order-preview.html 1                   # 나가기 판의 취소 갈래가 사는 그 줄
 chk 'EXIT_ASK' scripts/check-ord-save.mjs 10                  # 세 갈래(취소·그냥·저장하고) 전부 밟는 그물
+# ★[SEEN_NOT_DIRTY 2026-08-13 사용자 제보 "저장눌렀는데도 팝업이 계속"] dirty 비교값에서 걸음(_seenK)을 뺐다.
+#   자동 저장 시절의 비교값이 수동 저장 체제에서 「저장 직후 한 칸 걸어도 변경 있음」을 만들던 것.
+#   걸음은 _ordPayload 가 보낼 때마다 실려 가므로 버려지지 않는다 — 미리듣기 자르기는 「저장된 데까지」.
+chk 'SEEN_NOT_DIRTY' order-preview.html 2
+nochk "stringify(S)+'|'" order-preview.html                   # ★비교값에 걸음을 되넣지 말 것 — 제보가 재현된다
+chk 'SEEN_NOT_DIRTY' scripts/check-ord-save.mjs 3             # 저장 뒤 걷기만 → 판 없이 닫히는 그물
+# ★[EXIT_BASELINE 2026-08-13 같은 제보의 둘째 갈래] 복원 직후가 비교 기준선 — 없으면 재진입 고객이
+#   아무것도 안 바꾸고 나가도 판을 만난다. 실패 상태(다시 저장)의 판 제목은 「저장이 아직 안 됐어요」.
+chk 'EXIT_BASELINE' order-preview.html 2
+chk 'EXIT_BASELINE' scripts/check-ord-save.mjs 3
+chk '저장이 아직 안 됐어요' order-preview.html 1               # 실패 상태 전용 문구 — 「변경이 있다」는 그 상태에선 거짓
 chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 · 손 저장) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
 chk 'orderDraftSaved' mypage.html 1                  # 성공 회신 — 한쪽만 보내면 버튼이 한 상태에 갇힌다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
