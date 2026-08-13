@@ -123,7 +123,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
      아래 형제 카드(하객이 함께 답하기)와 같은 층으로 읽힌다 — 사용자 스크린샷이 그 모양이었다.
      부모 카드의 아래 모서리를 펴서 한 덩어리로 만든다(:has 를 못 읽는 기기에서는 모서리만 둥글다). */
 .oc:has(+ .subset){border-bottom-left-radius:0;border-bottom-right-radius:0}
-.subset{margin:0 0 16px;padding:13px 15px 12px;border:1.5px solid var(--gold-deeper);border-top:0;background:var(--bg2);border-radius:0 0 12px 12px}   /* [SEAL_POINT] */
+/* ★[SUB_SEG_JOIN 2026-08-14 사용자 제보 "디자인 끊어진 거 의도된 거야?"] 모서리는 이어 놓고(위 :has)
+   .opts 의 flex gap(12px)이 카드와 세부 패널 사이를 도로 벌려 두 덩이로 보였다 — margin-top 으로
+   그 간격을 되물려 한 몸으로 붙인다. ★.opts 의 gap 을 바꾸면 이 값도 같이 바꿀 것(짝이다). */
+.subset{margin:-12px 0 16px;padding:13px 15px 12px;border:1.5px solid var(--gold-deeper);border-top:0;background:var(--bg2);border-radius:0 0 12px 12px}   /* [SEAL_POINT] */
 .subq{font-size:12px;font-weight:700;color:var(--gold-deeper);margin:0 0 9px 1px;letter-spacing:.01em}
 /* ★[SUB_SEG] 「기본」은 **칩 안 작은 글씨**로 내린다. 처음엔 제목 옆에 「기본은 …」 한 줄로 뒀는데,
    그건 배지를 없앤 자리에 문장을 바꿔 단 것이었다 — 줄 수만 같고 소음은 그대로다.

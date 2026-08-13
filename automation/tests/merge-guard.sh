@@ -235,6 +235,10 @@ chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.ht
 chk 'orderDraftSaved' mypage.html 1                  # 성공 회신 — 한쪽만 보내면 버튼이 한 상태에 갇힌다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
+# ★[SUB_SEG_JOIN 2026-08-14 사용자 제보 "디자인 끊어진 거 의도된 거야?"] 모서리 잇기(:has)만으론
+#   부족했다 — .opts 의 flex gap(12px)이 카드와 세부 패널 사이를 도로 벌렸다(실측 12px → 0px).
+#   .subset 의 margin-top:-12px 가 그 간격을 되물린다. .opts 의 gap 과 짝 — 한쪽만 바꾸면 다시 끊긴다.
+chk 'SUB_SEG_JOIN' order-preview.html 1
 # ★★[SUB_SEG 2026-08-13 사용자 지적 "여기 디자인이 좀 이상한데 디자이너관점으로 개선"]
 #   성혼 선언 화면 — 세부 선택(낭독 톤)이 최상위와 **똑같은 카드(oc)** 를 입고 있었다.
 #   진한 ✓ 동그라미가 한 화면에 둘(무엇을 할까 / 어떤 톤으로)이라 층이 안 읽혔고,
