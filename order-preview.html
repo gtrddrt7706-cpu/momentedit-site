@@ -621,6 +621,7 @@ var OUT_DECLARE_FAMILY="선언은 가족의 목소리로 남았습니다. 이제
 var CLOSE_NAR="두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제 그 자리를 사진으로 남기겠습니다. 모두 앞으로 나와, 두 분 곁에 서 주세요.";   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
+window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(); el.style.display=(s&&!/^https?:\/\//i.test(s))?'block':'none'; };   /* [GROW_LINK_HINT] */
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; _lazyPersist(); render(); };
 window.copyGuestScript=function(){
   var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
@@ -2191,7 +2192,11 @@ function renderStep(k){
     h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요.</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(나머지 안내를 나레이션이 흐름 속에서 챙긴다는 설명) 삭제 · 복원 금지 — 켤지 말지를 정하는 데 안 쓰이는 뒷무대 설명이었다 */
     if(S.growth==='on'){
       h+='<div class="tgl-ex" style="margin-left:0">"잠시 후, 두 사람이 걸어온 시간을 담은 짧은 영상을 함께 보시겠습니다."</div>';
-      h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
+      /* ★[GROW_LINK_HINT 2026-08-13 점검] 주소 형태가 아니면 그 자리에서 알려 준다 — 안 잡으면
+         「abc」 같은 값이 그대로 저장돼 관리자 화면(ADM_LINK_CLICK)에서 눌리지 않는 맨글자가 되고,
+         디렉터는 D-3에 영상을 못 받는다. 막지는 않는다(붙여넣다 만 중간 상태가 있다) · 힌트만. */
+      h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
+      h+='<div class="wd" id="growHint" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
       h+='<div class="wd" style="margin-top:6px">가로 mp4 3~4분 이내 · D-3까지 · 링크만 붙여두면 저희가 받아둬요.</div>';
     }
     h+='</div>';

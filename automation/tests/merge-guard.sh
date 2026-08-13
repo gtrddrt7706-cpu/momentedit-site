@@ -218,6 +218,19 @@ chk 'SEEN_NOT_DIRTY' scripts/check-ord-save.mjs 3             # 저장 뒤 걷�
 chk 'EXIT_BASELINE' order-preview.html 2
 chk 'EXIT_BASELINE' scripts/check-ord-save.mjs 3
 chk '저장이 아직 안 됐어요' order-preview.html 1               # 실패 상태 전용 문구 — 「변경이 있다」는 그 상태에선 거짓
+# ★[ADM_LINK_CLICK 2026-08-13 점검 발견] 고객이 붙인 링크(성장영상·하객 사진 모으기·스냅 영감·영상)를
+#   관리자 상세에서 눌리는 링크로 — 종전엔 맨글자라 손으로 긁어 복사해야 했다.
+#   http(s) 로 시작하는 값만 a 태그(esc 유지 · javascript: 는 글자 그대로 = XSS 차단) · noopener 필수.
+chk 'ADM_LINK_CLICK' admin.html 4
+chk 'rel="noopener noreferrer"' admin.html 1
+# ★[ADM_SUM_ESC 2026-08-13 점검 발견] 요약 카드 count 가 esc 없이 붙었다 — 초안(summary)은 고객
+#   기기가 만들어 보낸 값이라 전부 외부 데이터다(저장형 XSS 경로 · 돌연변이 실측: esc 빼면 붉음).
+#   flow 는 Array.isArray 로 지킨다 — 배열 아니면(깨진 초안) join 이 던져 상세가 통째로 죽었다.
+chk 'ADM_SUM_ESC' admin.html 2
+chk 'Array.isArray(sm3.flow)' admin.html 1
+# ★[GROW_LINK_HINT 2026-08-13 점검] 성장영상 링크가 주소 형태가 아니면 그 자리에서 힌트 —
+#   안 잡으면 「abc」가 그대로 저장돼 관리자 링크(ADM_LINK_CLICK)가 맨글자가 되고 D-3에 영상을 못 받는다.
+chk 'GROW_LINK_HINT' order-preview.html 2
 chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 · 손 저장) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
 chk 'orderDraftSaved' mypage.html 1                  # 성공 회신 — 한쪽만 보내면 버튼이 한 상태에 갇힌다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
