@@ -761,7 +761,7 @@ chk 'PREVIEW_UPTO' order-preview.html 1
 chk 'PREVIEW_UPTO' assets/ritual-preview-link.js 1
 chk 'PREVIEW_UPTO' console.html 2
 chk "'seen'," assets/ritual-preview-link.js 1        # 화이트리스트에 열린 키
-chk 'S.seen = _doneSaved' order-preview.html 1        # 값을 만드는 그 줄(완료면 비운다)
+chk 'S.seen = fin ?' order-preview.html 1        # [DONE_SEEN_EMPTY] seen 을 채우는 그 줄 — 완성 저장만 비운다(옛 _doneSaved 조건은 회신 뒤에야 참이라 틀렸다)
 chk 'uptoName' assets/ritual-cue.js 3
 nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
@@ -1343,6 +1343,17 @@ chk "mode === 'preview' && S.seen" assets/ritual-cue.js 1    # ★자르기가 p
 #   「고를 것을 전부 봤는데 잘렸다(upto=toast)」. 중간 이탈 자르기는 그대로다(★③ 이 지킨다).
 chk 'UPTO_CLOSE_FIXED' assets/ritual-cue.js 1                # 제외 조건이 사는 그 줄 · 지우면 전부 걸은 고객이 다시 잘린다
 chk 'UPTO_CLOSE_FIXED' scripts/check-preview-upto.mjs 4      # 경계 그물(전부 방문 → 안 자름 + 폐식 포함) · 줄면 그물이 삭은 것
+# ★위 제외 조건은 _close 하나 집기에서 **_ 접두 전체**로 일반화됐다(병렬 발견 합침 · 자동 블록 키 여섯:
+#   _close·_farewell·_final·_goodbye·_greet·_photo). 오늘 미리듣기 꼬리엔 _close 뿐임을 전 코스×digital
+#   실측했다 — 동작 동일 · 미래만 넓힌다. '_close' 하나 집기로 되돌리면 다른 자동 블록에서 재발한다.
+chk "charAt(0) !== '_'" assets/ritual-cue.js 1
+# ★[DONE_SEEN_EMPTY 2026-08-13 같은 점검이 잡은 짝 사고] 완성 저장(done:true) 꾸러미에 seen 이 통째로
+#   실렸다 — 비우는 조건이 _doneSaved(회신 뒤에야 참)여서 「완료 저장에서는 비운다」는 의도와 코드가
+#   달랐다. 엔진 고침이 증상을 구제하지만 서버 초안 자체도 깨끗해야 한다(두 겹).
+#   돌연변이 실측: fin 인자 되돌리면 check-ord-save rc=1(「완성 저장 꾸러미의 seen 이 4개」).
+chk 'DONE_SEEN_EMPTY' order-preview.html 2
+chk '_ordPayload(true)' order-preview.html 1                 # 완성 저장만 fin — 나가며·손 저장은 seen 을 실어야 자르기가 산다
+chk 'DONE_SEEN_EMPTY' scripts/check-ord-save.mjs 2
 
 # ── 텍스트 장면 레이어 · 고객 미리듣기 (2026-08-02) ──────────────
 chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 장면 지문 원천 · 미리듣기 화면이 통째로 빈다

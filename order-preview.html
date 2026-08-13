@@ -3067,14 +3067,19 @@ var CUSTDIG=false;
    보내는 곳이 셋이 됐다 — 완성 저장(orderSave) · 나가며 저장(orderExit) · 자동 저장(orderDraft).
    각자 지으면 한 곳만 고치는 날이 오고, 그날 그 갈래로 저장한 초안만 조용히 낡은 모양이 된다.
    (S.seen 을 여기서 채운다 — 세 갈래 중 하나라도 빠뜨리면 미리듣기가 뒷부분을 못 자른다) */
-function _ordPayload(){
-  try{ S.seen = _doneSaved ? [] : Object.keys(_seenK); }catch(e){}
+/* ★[DONE_SEEN_EMPTY 2026-08-13 실사고] fin=완성 저장(done:true)인가.
+   옛 판은 _doneSaved 로 비웠는데 그 깃발은 **회신 뒤에야** 참이라, 완성 저장 꾸러미에
+   seen 이 통째로 실렸다 — 서버 초안이 그 모양으로 굳고, 마이페이지 미리듣기가
+   폐식을 잘랐다(엔진 UPTO_AUTO_BLOCK 실측 16→15큐). 「완료 저장에서는 비운다」던
+   주석의 의도와 코드가 달랐던 것이다. 이 인자를 지우고 깃발로 되돌리지 말 것. */
+function _ordPayload(fin){
+  try{ S.seen = fin ? [] : Object.keys(_seenK); }catch(e){}
   var _bs=fullBlocks();
   return {S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}};
 }
 function _embedSave(){
   if(!EMBED) return;
-  try{ parent.postMessage({type:'momentedit:orderSave', data:_ordPayload()}, window.location.origin); }catch(e){}
+  try{ parent.postMessage({type:'momentedit:orderSave', data:_ordPayload(true)}, window.location.origin); }catch(e){}   // [DONE_SEEN_EMPTY] 완성 저장 — 다 걸었으니 자를 데가 없다
 }
 if(EMBED){
   // 나가기 — 다른 위저드와 같은 '저장 후 나가기'(서버 초안 저장 후 닫기 · done:false). 코스 시작 전엔 저장할 게 없어 그냥 닫기('나가기')
