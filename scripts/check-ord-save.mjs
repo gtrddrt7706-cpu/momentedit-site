@@ -195,8 +195,12 @@ try {
     parent.postMessage({ type: 'momentedit:orderDraftSaved' }, window.location.origin);
     await wait(700);
     const after = window.__sent.filter((m) => m.type === 'momentedit:orderSave').length;
+    /* [DONE_SEEN_EMPTY] 완성 저장 꾸러미는 seen 을 비워야 한다 — _doneSaved(회신 뒤에야 참)로
+       비우던 옛 판은 모든 단계 키를 실어 보냈고, 그 초안으로 연 미리듣기가 폐식을 잘랐다(실사고). */
+    const sv = window.__sent.find((m) => m.type === 'momentedit:orderSave');
+    const doneSeen = sv && sv.data && sv.data.S && Array.isArray(sv.data.S.seen) ? sv.data.S.seen.length : -1;
     _saving = false;
-    return { can: true, during, after };
+    return { can: true, during, after, doneSeen };
   });
 
   /* ★④ 완성 상태 — done:false 를 덮어쓰면 안 된다 (★이 판만 상태를 직접 세운다 · 머리말 참고) */
@@ -248,6 +252,7 @@ try {
   else {
     if (race.during !== 0) bad.push(`★초안 저장이 답을 기다리는 중에 완성 저장이 ${race.during}건 나갔다 — 도착 순서가 뒤집히면 완성본이 초안으로 덮인다(ORDERFILL_DONE) [ORD_SAVE_AFTER_AUTO]`);
     if (race.after !== 1) bad.push(`초안 저장이 끝난 뒤 완성 저장이 ${race.after}건 — 딱 1건이어야 한다(0이면 완성이 갇힌다) [ORD_SAVE_AFTER_AUTO]`);
+    if (race.doneSeen !== 0) bad.push(`완성 저장 꾸러미의 seen 이 ${race.doneSeen}개다(0이어야) — 서버 초안이 그 모양으로 굳어 미리듣기가 폐식을 자른다 [DONE_SEEN_EMPTY]`);
   }
 
   if (done.n !== 0) bad.push(`완성 저장 뒤에도 초안을 ${done.n}건 보냈다 — 완성본이 done:false 로 덮여 초안으로 되돌아간다 [ORD_SAVE_BTN]`);
