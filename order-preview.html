@@ -47,9 +47,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    옆에 붙어 한 줄에 흡수된다 — 화면에 요소가 하나도 안 늘면서 알 수 있는 것만 는다.
    ★평소엔 --light(가장 조용한 회색)다. 저장은 잘 되는 것이 정상이라 눈에 띌 이유가 없다.
      안 됐을 때만 색이 서고, 그때만 눌리는 글자가 된다(그 한 경우에만 손이 필요하다). */
-.prog-subL{display:flex;align-items:baseline;gap:5px;flex-shrink:0;min-width:0}
-.prog-save{font-size:11px;color:var(--light);white-space:nowrap;transition:color .2s}
-.prog-save.bad{color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+/* ★[ORD_SAVE_BTN 2026-08-13] 진행 줄의 저장 표시(.prog-save)는 **폐지 — 되살리지 말 것.**
+   버튼이 생겨 상태를 스스로 말하게 됐다. 줄에도 적으면 같은 말이 두 곳에서 나고,
+   둘 중 하나만 고치는 날이 온다. 상태는 누를 것 위에 붙어 있어야 눈이 한 곳만 본다. */
 .stage{flex:1;padding:8px 0 12px;animation:fade .5s ease-out}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:22px;font-weight:700;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
@@ -71,6 +71,11 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
 .oc.on .oc-nm{color:var(--accent)}   /* [ORD_HUE] 고른 카드에 진사가 셋(테두리·체크·제목)이었다 — 체크 하나만 남긴다 */
 .oc-desc{font-size:13px;color:var(--light);margin-top:3px;word-break:keep-all}
+/* ★★[BADGE_GAP 2026-08-13 · 클로드코드 ④] 「기본」 배지 **앞의 한 칸은 지우지 말 것.**
+   그 칸이 없으면 글자 흐름이 「엄숙하게기본」으로 붙는다. 크로미움은 접근성 이름을 만들 때
+   스스로 한 칸을 넣어 주지만(실측: 「엄숙하게 기본」) 그건 **엔진이 해 주는 것**이고
+   엔진마다 다르다 — 고객 폰은 iOS 사파리이고 이 세션에서는 재 볼 수 없다 [CANT_LOOK].
+   기대지 않고 우리가 넣는다. 눈에는 안 보인다(플렉스에서 끝 공백은 접힌다 · 칩 폭 158 그대로). */
 .oc-rec{font-size:11px;color:var(--gold-deeper);font-weight:400;margin-left:auto;flex-shrink:0}
 .oc:active,.crs:active{transform:scale(.985);transition:transform .12s}
 .ex-chip:active{transform:scale(.94)}
@@ -428,6 +433,16 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
      **자주 누르는 것과 되돌리기 번거로운 것은 손가락 거리를 다르게 둔다.**
      이 패턴은 다섯 위저드(식순·청첩장·단체사진·최종확정·좌석)가 공유한다 — 함께 맞춘다. */
 .ob-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--serif);font-size:12.5px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+/* ★[ORD_SAVE_BTN] 저장 버튼은 나가기와 **같은 옷**이다 — 한 줄에 생김새가 둘이면 그게 소음이다.
+   다른 것은 글자와 굵기뿐: 보낼 것이 있을 때만 진해지고(.on), 없으면 흐린 채 안 눌린다.
+   실패했을 때만 인장색으로 선다(.bad) — 그때가 손이 필요한 유일한 때다. */
+/* 네 상태(저장·저장 중…·저장됨·다시 저장)에서 폭이 안 흔들리게 — 머리줄이 눌릴 때마다
+   움찔하면, 고친 것을 확인하려 보는 그 순간에 화면이 움직인다. 가장 긴 글자에 맞춘다. */
+.ob-save{min-width:86px}
+.ob-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
+.ob-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
+.ob-save:disabled{opacity:.5;cursor:default}
+#obExitSlot{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 
@@ -556,7 +571,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
     <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
     <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
-    <div class="prog-sub"><span class="prog-subL"><span class="prog-pct" id="ppct"></span><span class="prog-save" id="psave"></span></span><span class="prog-next" id="pnext"></span></div>
+    <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span></div>
   </div>
   <div class="minitl" id="minitl" style="display:none"></div>
   <main class="stage" id="stage"></main>
@@ -1763,7 +1778,7 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   //   [ORD_DESC] 버튼 이름은 '아버지가' 뿐이라 낭독기로는 무엇인지 알 수 없었다 → 설명줄을 이름에 딸려 읽히게 묶는다.
   var did='ocd_'+key+'_'+v;
   var h='<div class="oc'+(on?' on':'')+'">';
-  h+='<button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+(desc?'" aria-describedby="'+did:'')+'" data-fk="'+key+':'+v+'" onclick="pick(\''+key+'\',\''+v+'\')">'+esc(nm)+(rec?'<span class="oc-rec">기본</span>':'')+'</button>';
+  h+='<button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+(desc?'" aria-describedby="'+did:'')+'" data-fk="'+key+':'+v+'" onclick="pick(\''+key+'\',\''+v+'\')">'+esc(nm)+(rec?' <span class="oc-rec">기본</span>':'')+'</button>';
   if(desc) h+='<div class="oc-desc" id="'+did+'">'+esc(desc)+'</div>';
   // [ORD_AUDITION] 나레이션 글은 보여 주면서 '들어보기'는 고른 카드에만 있었다(담백 부모님 덕담·사이 순서, 가족 링워밍 4곳).
   //   넣을지 말지 판단하려고 듣는 건데, 넣기 전엔 못 듣는 구조였다 — 글이 있으면 듣기도 있게.
@@ -2134,7 +2149,7 @@ function renderStep(k){
     GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
     h+='</div>';
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션 <span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
     h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들면 저희가 틀어드려요</div></div>';
     if(cpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -2180,7 +2195,7 @@ function renderStep(k){
     var h='<div style="margin-top:16px">';
     h+=clip('entry');
     h+='<div class="vq" style="margin-top:16px">입장 안내, 누구 목소리로 할까요?</div>';
-    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션<span class="oc-rec">기본</span></button><div class="oc-desc">나레이션이 입장을 안내해요</div></div>';   // [ORD_KEY]
+    h+='<div class="oc'+(!ecpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!ecpl?'true':'false')+'" data-fk="entryVoice:nar" onclick="setEntryVoice(\'nar\')">나레이션 <span class="oc-rec">기본</span></button><div class="oc-desc">나레이션이 입장을 안내해요</div></div>';   // [ORD_KEY]
     h+='<div class="oc'+(ecpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(ecpl?'true':'false')+'" data-fk="entryVoice:couple" onclick="setEntryVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">두 분 목소리로 인사를 담아 흐르게 해요</div></div>';
     if(ecpl){
       h+='<div class="mth"><div class="mth-l">직접 녹음해서 올리기</div>';
@@ -2290,7 +2305,7 @@ function renderStep(k){
         h+='<div class="seg">';
         ['1','2'].forEach(function(v){ var _on=S.declare===v;
           h+='<button type="button" class="seg-b'+(_on?' on':'')+'" aria-pressed="'+(_on?'true':'false')+'" data-fk="declare:'+v+'" onclick="pick(\'declare\',\''+v+'\')">'+esc(DECLARE[v].d)
-            +(v===_dd?'<span class="df">기본</span>':'')+'</button>'; });
+            +(v===_dd?' <span class="df">기본</span>':'')+'</button>'; });
         h+='</div>';
         /* 대본은 고른 톤 하나만 — 칩 아래 한 장. 톤을 바꾸면 이 한 장만 갈린다. */
         if(DECLARE[S.declare]&&DECLARE[S.declare].nar) h+=narBox(DECLARE[S.declare].nar,null)+playBtn('declare',S.declare);
@@ -2925,7 +2940,7 @@ function _saveDone(ok,msg){
   _persist(); render();
   if(ok){ try{ toast('마이페이지에 저장했어요'); }catch(e){} }
 }
-function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} _autoQueue(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
+function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} _dirtyMark(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
 /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장후 나가기 말고 그냥 나가기는없어?"]
    ★고친 것은 버튼이 아니라 **구조**다. 지금까지 서버 저장 갈래는 둘뿐이었다 —
      나갈 때(orderExit · done:false)와 완성했을 때(orderSave · done:true).
@@ -2944,11 +2959,16 @@ function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S
 var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null, _autoLast='';
 var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저장의 답을 기다리는 중
 function _autoKey(){ try{ return JSON.stringify(S)+'|'+Object.keys(_seenK).join(','); }catch(e){ return ''; } }
-function _autoQueue(){
+/* ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
+   자동 저장(1.5초 디바운스)을 **뗀다.** 값이 바뀌면 표시만 켜 두고, 보내는 것은 사람이 정한다.
+   ★그래도 잃지 않는다 — 나가기는 종전대로 저장하고 닫는다(orderExit). 즉 갈래는 셋이다:
+     저장 버튼(나가지 않고 지금) · 나가기(있으면 저장하고 닫기) · 완성(done:true).
+     그래서 **나갈 때 묻는 팝업도 안 만든다** — 물어볼 것이 없다(안 저장하고 나가는 길이 없으니까).
+   ★기기에는 늘 남아 있다(_persist 의 localStorage). 서버로 가는 것만 사람 손이 정한다. */
+function _dirtyMark(){
   if(!EMBED||!courseStarted||_doneSaved||_saving) return;
   var k=_autoKey(); if(!k||k===_autoLast) return;
   _autoDirty=true; _autoPaint();
-  clearTimeout(_autoT); _autoT=setTimeout(_autoSend,1500);
 }
 function _autoSend(){
   if(!EMBED||!courseStarted||_doneSaved||_saving) return;
@@ -2967,25 +2987,29 @@ function _autoSend(){
 function _autoAck(ok){
   clearTimeout(_autoGT); _autoWait=false; _autoState=ok?'ok':'fail';
   if(!ok) _autoLast='';   // 실패한 것을 '보낸 것'으로 세지 않는다 — 다음 변화에 다시 보낸다
+  /* [ORD_SAVE_BTN] 꼬리 저장을 걷었다 — 자동으로 다시 보내면 그게 곧 자동 저장이다.
+     보내는 사이에 또 바뀌었으면 **표시만** 다시 켠다(버튼이 「저장」으로 돌아온다). */
+  if(_autoKey()!==_autoLast) _autoDirty=true;
   _autoPaint();
-  if(_autoKey()!==_autoLast){ clearTimeout(_autoT); _autoT=setTimeout(_autoSend,ok?600:4000); }   // 꼬리 저장(실패면 천천히)
   _flushSaveAfterAuto();
 }
 /* [ORD_SAVE_AFTER_AUTO] 기다리던 완성 저장을 이제 보낸다. _autoWait 가 풀리는 **모든** 자리에서 부른다
    — 회신(성공·실패)과 포기 타이머 둘. 한 자리만 걸면 부모가 침묵한 판에서 완성이 영영 안 나간다. */
 function _flushSaveAfterAuto(){ if(!_saveAfterAuto) return; _saveAfterAuto=false; if(_saving) _embedSave(); }
-/* 상태 한 줄 — 화면에 요소를 새로 늘리지 않고 「순서 2 / 7 · 약 22분」 옆에 붙는다.
-   ★보내기 전 1.5초 동안도 '저장 중…'으로 칠한다. 빈칸→저장 중→저장됨 세 번 깜빡이면
-     조용한 표시가 아니라 소란이 된다. 사람 눈에는 두 상태만 남긴다. */
+/* ★[ORD_SAVE_BTN] 상태는 **버튼이 스스로 말한다** — 따로 안내 줄을 두지 않는다.
+   자동 저장 때는 「순서 5 / 7 · 저장됨」 처럼 줄에 붙였는데, 이제 누를 것이 생겼으니
+   그 말은 누를 것 위에 있어야 한다. 상태와 손잡이가 떨어져 있으면 눈이 두 곳을 본다.
+   네 상태뿐이다: 저장(바뀐 게 있다) · 저장 중… · 저장됨(더 보낼 것이 없다·비활성) · 다시 저장(실패). */
 function _autoPaint(){
-  var e=document.getElementById('psave'); if(!e) return;
-  if(!EMBED||!courseStarted||_doneSaved){ e.textContent=''; e.className='prog-save'; e.removeAttribute('role'); e.removeAttribute('tabindex'); return; }
-  if(_autoState==='fail'){ e.textContent='· 저장 안 됨 · 다시 시도'; e.className='prog-save bad'; e.setAttribute('role','button'); e.setAttribute('tabindex','0'); return; }
-  e.removeAttribute('role'); e.removeAttribute('tabindex');
-  if(_autoDirty||_autoState==='saving'){ e.textContent='· 저장 중…'; e.className='prog-save'; return; }
-  e.textContent=_autoState==='ok'?'· 저장됨':''; e.className='prog-save';
+  var b=document.getElementById('obSave'); if(!b) return;
+  if(!EMBED||!courseStarted||_doneSaved){ b.style.display='none'; return; }
+  b.style.display='';
+  if(_autoWait){ b.textContent='저장 중…'; b.className='ob-exit ob-save'; b.disabled=true; b.setAttribute('aria-busy','true'); return; }
+  b.removeAttribute('aria-busy'); b.disabled=false;
+  if(_autoState==='fail'){ b.textContent='다시 저장'; b.className='ob-exit ob-save bad'; return; }
+  if(_autoDirty){ b.textContent='저장'; b.className='ob-exit ob-save on'; return; }
+  b.textContent='저장됨'; b.className='ob-exit ob-save'; b.disabled=true;
 }
-document.addEventListener('click',function(ev){ var t=ev.target; if(t&&t.id==='psave'&&_autoState==='fail'){ _autoLast=''; clearTimeout(_autoT); _autoSend(); } });
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){idx--;render();} });
 buildSteps();
 var _restored=false;
@@ -3088,6 +3112,12 @@ if(EMBED){
     try{ if(courseStarted) payload=_ordPayload(); }catch(e){}
     try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){}
   };
+  /* [ORD_SAVE_BTN] 저장 버튼 — 나가지 않고 지금 담는다. 나가기보다 **앞**에 둔다(왼쪽).
+     자주 쓰는 것이 먼저 오고, 화면을 떠나는 것이 끝에 온다. */
+  var _sb=document.createElement('button'); _sb.type='button'; _sb.className='ob-exit ob-save'; _sb.id='obSave';
+  _sb.textContent='저장'; _sb.style.display='none';
+  _sb.addEventListener('click',function(){ if(_autoState==='fail'){ _autoLast=''; } _autoSend(); });
+  var _slot0=document.getElementById('obExitSlot'); if(_slot0) _slot0.appendChild(_sb);
   var _cb=document.createElement('button'); _cb.type='button'; _cb.className='ob-exit'; _cb.id='obExit';
   _cb.textContent='나가기';   // [ORD_AUTOSAVE] 상태에 따라 갈리지 않는다 — 저장은 자동이고 이 버튼은 나가기만 한다
   _cb.addEventListener('click',window._obExit);

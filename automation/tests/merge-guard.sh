@@ -168,57 +168,37 @@ elif [ "$_sl_lay" -lt "$_sl_ask" ]; then echo "REVERT? check-mypage-shell.mjs: S
 elif [ "$_sl_lay" -ne "$_sl_last" ]; then echo "REVERT? check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행) 뒤에 또 재는 곳이 있다($_sl_last행) — 조상을 열어 둔 화면에서 재면 그 값이 오염된다 [SKEL_LAST_MEASURE]"; fail=1
 else echo "ok check-mypage-shell.mjs: SKEL_LAYOUT($_sl_lay행)이 ASK_SENDS($_sl_ask행) 뒤이고 **마지막으로 재는 곳**이다"; fi
 # (마커 '다이어트 2026-07-18' 폐지 2026-07-19: 옛 최종 확정 2단계 위저드가 좌석 화면으로 완전 통합됨 — 인원 자동·자리별 3음료. renderFinal은 좌석 화면 라우팅 백스톱으로만 남음)
-# ★★[ORD_AUTOSAVE 2026-08-12 사용자 질문 "저장후 나가기 말고 그냥 나가기는없어?"]
-#   고친 것은 버튼이 아니라 구조다. 서버 저장 갈래가 **나갈 때(orderExit)** 와 **완성(orderSave)**
-#   둘뿐이라 저장이 나가기에 인질로 잡혀 있었다 — 버튼 하나가 두 일을 지고 라벨이 「저장 후 나가기」가 됐다.
-#   그래서 저장 버튼을 새로 만들지 않고 **저장을 사람 손에서 뺐다**(orderDraft · done:false · 1.5초 디바운스).
-#   확인 팝업도 만들지 않았다 — 이미 저장돼 있으면 아무 말 없이 닫는다. 실패했을 때만 종전 판이 뜬다.
-#   ★안전선 넷을 scripts/check-ord-autosave.mjs 가 실브라우저에서 매일 잰다([NO_GATE] · 야간 잡).
-#     실측 통과: 코스 전 0건 · 값 하나 바꿈 1건 · seen 3개 · 저장 뒤 나가기는 orderClose 만 · 완성 상태 0건.
-#   ★검사가 실제로 두 결함을 잡았다(그물이 살아 있다는 증거):
-#     ① _autoLast 를 꾸러미 짓기 **전에** 셌더니 S.seen 이 뒤에 붙어 늘 '또 바뀜'이 됐다 —
-#        꼬리 저장이 한 번 더 나가고 나가기가 또 저장했다(= 그냥 나가기가 아니게 됐다)
-#     ② 저장 표시를 자동 저장 안에서만 칠했더니 완성 화면에 「저장 안 됨」이 남았다 → render() 에서도 칠한다
-chk 'ORD_AUTOSAVE' order-preview.html 6
-chk '_ordPayload' order-preview.html 4            # 꾸러미는 한 곳에서만 짓는다(완성·나가며·자동 셋이 같은 것을 보낸다)
-chk 'ORD_PAYLOAD' order-preview.html 1
-chk 'psave' order-preview.html 3                  # 저장 상태 자리 — 줄을 새로 만들지 않고 「순서 2/7」 옆에 붙는다
-chk '_doneSaved||_saving' order-preview.html 2    # ★완성본에 done:false 를 덮지 않는 그 두 자리
-chk 'ORD_AUTOSAVE' mypage.html 1
-chk 'orderDraftSaved' mypage.html 1               # 성공 회신 — 한쪽만 보내면 표시가 한 상태에 갇힌다
-chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 1591 · 자동 저장 1616) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
-nochk "textContent=courseStarted?'저장 후 나가기'" order-preview.html   # ★라벨을 되돌리지 말 것 — 저장은 이 버튼 일이 아니다
-chk 'ORD_AUTOSAVE' scripts/check-ord-autosave.mjs 8
-chk 'check-ord-autosave' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
-# ★★[ORD_WALK_SAVE 2026-08-12 · 클로드코드 ⑤ 「걷기만 하는 이동을 묶을지 정해 달라」에 대한 답]
-#   **묶지 않는다 — 지금 그대로 둔다.** 그 판단을 말로 두지 않고 검사에 넣었다(목록 ★17).
-#   근거: ①떠나는 가장 흔한 순간이 «새 화면을 읽고 나서»다. 5초로 늦추면 그 순간이 창 밖으로 나간다
-#         ②«어디까지 걸었는지»는 미리듣기가 자르는 데 쓰는 진짜 상태다(PREVIEW_UPTO)
-#         ③실측상 폭주가 아니다 — **같은 9칸**을 걷는데 사람 속도 9건 · 연타 1건(디바운스가 묶는다)
-#           (「17」은 누른 횟수였다 — _navLock 이 절반을 삼킨다. 걸음과 누름을 섞어 적었던 것을 고침)
-#   ★_autoKey 에서 _seenK 를 빼지 말 것. 빼면 걷기만 한 이동이 서버에 안 남는다(실측: 9단계 → 1건).
-#   돌연변이 3발(실측): 디바운스 1500→0 → 두 그물 다 붉음(사람 10>9 · 연타 10≥10) ·
-#     _seenK 제거 → 걷기 그물만 붉음(진단이 정확하다) · 꼬리 저장 600→60ms 는 **안 붉었다**
-#     (회신 시점에 바뀐 것이 없으면 꼬리가 아예 안 걸린다 — 그래서 연타 기준을 «단계 수»에서
-#      «사람 속도 때와 견주기»로 바꿨다. 안 쏘이는 그물을 그대로 두지 않는다 ★11-c)
-chk 'ORD_WALK_SAVE' scripts/check-ord-autosave.mjs 8
-chk "JSON.stringify(S)+'|'+Object.keys(_seenK).join(',')" order-preview.html 1   # ★걷기가 저장 대상에 들어 있는 그 줄
-# ★[누름과 걸음은 다르다 2026-08-12 클로드코드] 연타(300ms)는 _navLock(400ms)이 절반을 삼켜
-#   **17번 눌러 9칸**을 간다 — 사람 속도(9번 9칸)와 **같은 거리**다. 처음엔 누른 횟수를 「단계」로
-#   찍어 「연타 쪽이 더 멀리 갔는데 저장이 적다」로 읽혔다. 판정은 같지만 수가 딴 뜻으로 산다(11-d).
-#   → 걸음(idx 차)과 누름을 나눠 세고 나눠 적는다. 판정에 쓰는 것은 **걸음**이다.
-chk 'taps' scripts/check-ord-autosave.mjs 4
-# ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 완성 저장은 **자동 저장이 답을 받은 뒤에** 나간다.
-#   둘 다 부모의 같은 apiTrackSave 로 나가는데 하나는 done:false, 하나는 done:true 다.
-#   먼저 나간 done:false 가 서버에 **나중에 닿으면** 완성본이 초안으로 덮인다(ORDERFILL_DONE 2026-07-25).
-#   ★보내는 쪽 순서만 보면 안 보인다 — 「이미 날아간 것」이 아직 안 끝났기 때문이다.
-#     실측(고치기 전): _autoWait=true 인 채 doSave() 를 부르니 orderSave 가 그대로 나갔다.
-#   ★기다리기만 하고 안 보내면 경주를 **갇힘**과 바꾼 것이다. 회신·침묵 두 갈래 다 실측 —
-#     회신 오면 그때 1건 · 부모가 침묵해도 포기 타이머(16초) 뒤 1건. 돌연변이 양방향 붉음.
-chk 'ORD_SAVE_AFTER_AUTO' order-preview.html 3
-chk '_saveAfterAuto' order-preview.html 3
-chk '_flushSaveAfterAuto' order-preview.html 3     # 회신·포기 두 자리 모두에서 흘려보낸다(한 자리만 걸면 완성이 갇힌다)
-chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-autosave.mjs 5
+# ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
+#   2026-08-12 에는 저장을 나가기에서 떼면서 **자동 저장**을 골랐다(ORD_AUTOSAVE · 1.5초 디바운스).
+#   사용자가 그 방식을 물렸다 — 자동을 걷고 **손으로 누르는 저장 버튼**으로 바꾼다.
+#   ★그래도 잃지 않는다. 서버로 가는 갈래는 셋뿐이다:
+#     저장 버튼(나가지 않고 지금 · done:false) · 나가기(있으면 저장하고 닫기) · 완성(done:true).
+#     「저장 안 하고 나가는 길」이 없으므로 **나갈 때 묻는 팝업도 안 만든다.**
+#   ★그 문장의 범위를 좁혀 둔다(클로드코드 실측) — 없는 것은 **사람이 스스로 나가는 길**뿐이다.
+#     Esc·부모 닫기까지 전부 orderExitReq→_obExit 를 지나 저장한다(확인함).
+#     그러나 **탭이 죽거나 폰이 꺼지면** 서버로 가는 길이 없다 — beforeunload·pagehide·sendBeacon
+#     어느 것도 안 걸려 있다(실측 0건). 그 판에서 살아남는 것은 기기 안 localStorage 뿐이라,
+#     다른 기기로 옮겨 앉으면 마지막 「저장」 이후가 사라진다.
+#     ★이건 결함이 아니라 **사용자가 고른 값**이다(자동 저장을 물린 그 지시). 다만 어제 자동 저장의
+#       존재 이유가 바로 그 경우였으므로, 「안 잃는다」를 조건 없이 적어 두면 다음 사람이 오해한다.
+#   ★상태는 버튼이 스스로 말한다 — 진행 줄의 .prog-save 는 폐지했다(같은 말이 두 곳에 나면 갈린다).
+#     네 상태: 저장 / 저장 중… / 저장됨(비활성) / 다시 저장(실패).
+#   ★저장 버튼은 나가기와 **같은 옷**이다(.ob-exit) — 한 줄에 생김새가 둘이면 그게 소음이다.
+#     폭은 86px 로 못박았다: 네 상태에서 머리줄이 움찔하지 않게(가장 긴 「저장 중…」에 맞춤).
+#   실측 @390: 저장 86x44 · 나가기 68x44 · 전 단계 가로 넘침 없음 · 폭 흔들림 0 · JS 오류 0
+#   실측(검사): 값만 바꾸고 3초 → 0건 · 저장 누름 → 1건 · 저장 뒤 나가기 → orderClose만 ·
+#              저장 안 하고 나가기 → orderExit(안 잃는다) · 완성 상태 → 0건·버튼 숨김
+chk 'ORD_SAVE_BTN' order-preview.html 6
+chk 'obSave' order-preview.html 2
+chk 'function _dirtyMark' order-preview.html 1       # ★값이 바뀌면 표시만 켠다 — 타이머를 다시 걸지 말 것
+nochk 'setTimeout(_autoSend' order-preview.html      # ★자동 저장을 되살리지 말 것(사용자가 물린 방식)
+nochk 'id="psave"' order-preview.html                # ★진행 줄 저장 표시 폐지 — 상태는 버튼이 말한다
+chk '.ob-save{min-width:86px}' order-preview.html 1  # 네 상태에서 머리줄이 안 움찔하게
+chk 'ORD_SAVE_BTN' scripts/check-ord-save.mjs 8
+chk 'check-ord-save' .github/workflows/nightly-screen.yml 1   # [NO_GATE] 게이트가 못 도는 검사는 야간 잡이 돈다
+chk 'ORD_SAVE_AFTER_AUTO' scripts/check-ord-save.mjs 4        # 날아간 저장 경주 — 이름이 바뀌어도 이 안전선은 남는다
+chk 'draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false' mypage.html 2   # ★★둘이다(나가며 저장 · 손 저장) · done:true 면 중간 초안이 완성으로 굳는다(ORDERFILL_DONE)
+chk 'orderDraftSaved' mypage.html 1                  # 성공 회신 — 한쪽만 보내면 버튼이 한 상태에 갇힌다
 chk "row('좌석 · 음료'" mypage.html 1              # 통합 행(2026-07-19) · 라벨은 2026-08-09 '최종 확정 · 좌석'→'좌석 · 음료'[SEAT_DRINK_LABEL]
 chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '최종 확정'은 예식 확인서 쪽 성격이라 뺐다
 # ★★[SUB_SEG 2026-08-13 사용자 지적 "여기 디자인이 좀 이상한데 디자이너관점으로 개선"]
@@ -239,6 +219,19 @@ chk 'seg-b' order-preview.html 4
 chk '.ex-chip,.seg-b{' order-preview.html 1        # ★선택 칩의 말을 한 줄에서만 — 갈라 적지 말 것
 chk '.oc .nar,.oc .self,.subset .nar{' order-preview.html 1   # ★대본은 판이 아니라 글 — 곁판도 같은 규칙에 태운다
 chk 'seg-b .df' order-preview.html 1                # 「기본」은 칩 안 작은 글씨(최상위 배지와 층이 갈린다)
+# ★★[BADGE_GAP 2026-08-13 · 클로드코드 ④ 「낭독기가 「엄숙하게기본」으로 붙여 읽는다」]
+#   ★먼저 자를 확인했다 — 크로미움 접근성 트리는 이미 「엄숙하게 기본」으로 읽는다(실측).
+#     붙어 보인 것은 textContent 를 읽었기 때문이다(내 검사 출력도 그랬다) — ★11, 자를 잘못 든 것.
+#   ★그래도 한 칸을 넣는다. 크로미움이 넣어 주는 그 칸은 **엔진이 해 주는 것**이고,
+#     고객 폰은 iOS 사파리인데 이 세션에서는 재 볼 수 없다 [CANT_LOOK]. 기대지 않고 우리가 넣는다.
+#   ★aria-label 로 버튼 이름을 통째로 갈아끼우는 길(클로드코드 추천 ㉯)은 안 골랐다 —
+#     그 순간 «눈에 보이는 글»과 «귀에 읽히는 글»이 두 벌이 되고, 둘 중 하나만 고치는 날이 온다.
+#     이 저장소가 반복해서 당한 모양이다(사본은 늙는다). 한 칸이면 원본 하나로 끝난다.
+#   실측: 칩 폭 158 그대로(플렉스에서 끝 공백은 접힌다) · 접근성 이름 「엄숙하게 기본」 유지
+chk 'BADGE_GAP' order-preview.html 1
+chk "esc(nm)+(rec?' <span" order-preview.html 1      # ★배지 앞 한 칸 — 지우지 말 것(위 이유)
+chk "나레이션 <span class=\"oc-rec\">기본" order-preview.html 2
+chk "_dd?' <span class=\"df\">기본" order-preview.html 1
 nochk 'subq-def' order-preview.html                 # ★제목 옆 「기본은 …」 한 줄로 되돌리지 말 것(소음을 바꿔 다는 것)
 nochk "oc('declare',v,DECLARE" order-preview.html   # ★세부를 다시 카드로 되돌리지 말 것(위 이유)
 chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
