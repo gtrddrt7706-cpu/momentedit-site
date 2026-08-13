@@ -1300,6 +1300,10 @@ var EXTRA_ON={bless:'on',valley:'wine'};
      ①모든 oc() 옵션 키가 큐 키이거나 이 표에 있고 ②각 선택지가 실제로 소리를 내는지 전수 확인한다.
      빠뜨리면 검사가 먼저 화를 낸다 — 화면에서 조용히 사라지지 않는다. */
 var OPT_CUE={declareWho:'declare'};
+/* ★[ENTRY_SECT 2026-08-13] 도착 멘트 들어보기 — 순간(entry) **전체**가 아니라 그 자리 클립만.
+   큐에는 entryOut 이라는 k 가 없다(도착 멘트는 entry 블록의 마지막 클립이다). k 로 거르면 0개라
+   문 여는 나레이션부터 통째로 들리거나 아무것도 안 들린다 — 파일 이름(narr-entry-out)으로 거른다. */
+var SLUG_CUE={entryOut:'narr-entry-out'};
 /* ★[NO_PLAY 2026-08-04] 나레이션 글은 있는데 **들려줄 소리가 없는** 자리.
    합송은 재료가 「당일 하객 여러 목소리」라 미리 만들어 둘 수 없다 — 성우 한 사람으로 녹음하면
    합송이 아니라 다른 것이 된다. 그래서 버튼만 숨기고 **글은 남긴다**: showNar 를 끄면 텍스트까지
@@ -1310,11 +1314,13 @@ var OPT_CUE={declareWho:'declare'};
 var NO_PLAY={'declareWho=chorus':'합송은 당일 하객분들 목소리라 미리듣기가 없어요 · 글로 확인해 주세요'};
 function _srcs(g,k,ovV){
   var fk=OPT_CUE[k]||k;   // [OPT_KEY] 거를 때 쓰는 이름 · 값을 넣을 때는 원래 옵션 키(k)를 그대로 쓴다
+  var fs=SLUG_CUE[k]||'';  // [ENTRY_SECT] 파일 이름으로 거르는 옵션(자리 하나짜리 클립)
   function grab(S2){
     var r; try{ r=g.RitualCue.build(S2,{mode:'preview'}); }catch(e){ return []; }
     var dir=g.RitualCue.PARAM.clipDir, out=[];
     r.cues.forEach(function(c){
-      if(fk && c.k!==fk) return;   // [OPT_KEY]
+      if(fs){ if(!(c.file&&c.file.indexOf(fs)>=0)) return; }   // [ENTRY_SECT]
+      else if(fk && c.k!==fk) return;   // [OPT_KEY]
       var main=g.RitualStory.castMainOf(c), live=g.RitualStory.castLiveOf(c);
       if(main.length){ var mb=g.RitualStory.castBadgeOf(main); main.forEach(function(x){ out.push({src:x.src,note:mb}); }); }
       else if(c.file) out.push({src:dir+c.file+'.mp3',note:''});
@@ -2222,7 +2228,7 @@ function renderStep(k){
     /* ★[STEP_TIME_ORDER 2026-08-10 사용자 지시] 이 절의 블록을 **시간 순서**로 세운다.
        옛 판은 「도착하면 이어서」(걸어 들어온 **뒤**)가 「문이 열리기 직전에 흐르는 나레이션」보다
        위에 있었다. 고객은 위에서 아래로 읽으므로, 나중에 나오는 말이 먼저 보이면 순서를 거꾸로 외운다.
-       지금 순서: 느낌 고르기 → 문 열리기 직전 나레이션 → 도착하면 이어서 → 팁.
+       지금 순서: 느낌 고르기 → 문 열리기 직전 나레이션 → 걷기 팁 → 도착하면 이어서(자기 절 · ENTRY_SECT).
        ★「걷는 속도와 멈출 자리는 리허설에서 맞춰요」 줄은 2026-08-10 사용자 지시로 삭제.
          복원하지 말 것. */
     (function(){
@@ -2236,29 +2242,31 @@ function renderStep(k){
       h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">'+esc(lbl)+'</span>'+ebody+'</div>';
       if(ecpl) h+='<div class="prep-hint">한 문장씩 번갈아 읽어요 · 첫 문장은 '+esc(ENTRY_ALT[0])+'님 · 문장은 두 분 말로 바꾸셔도 돼요</div>';   // [ENTRY_ALT]
       h+=playBtn('entry');
+      h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
+      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
+      h+='</div>';
 
     /* ★[LEAD_OUT] 걸어 들어온 뒤 무엇이 들리는지도 보여 준다 — 화면에 없는 소리가 나면
-       고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다. */
-    /* ★[ENTRY_OUT_PICK 2026-08-12 사용자 지시 "따로따로"] 도착 멘트를 **따로 고른다.**
-       옛 판은 입장 느낌을 그대로 따라갔다(같은 순간을 두 번 묻지 않으려고). 그런데 두 말은
-       서 있는 자리가 다르다 — 앞엣말은 문이 열리기 전 하객에게 하는 말이고,
-       뒤엣말은 두 사람이 마주 선 뒤의 말이다. 짧게 들어와서 길게 머무르고 싶을 수 있다.
-       ★기본은 여전히 **「입장과 같이」**(S.entryOut 이 비어 있음)다 — 이미 저장해 둔 분들의
-         들리는 소리가 오늘 바뀌면 안 된다. 고른 사람만 갈라진다.
-       ★키(entryOut)를 **이 화면과 같은 커밋에** 넣는다. ritual-cue.js 옛 주석이
-         「키만 먼저 두지 말 것」이라고 적어 둔 그대로다 — 아무도 안 채우는 키는 문이 아니라 구멍이다. */
+       고객은 "이건 뭐지" 부터 한다. 적힌 것과 들리는 것은 같아야 한다.
+       ★[ENTRY_OUT_PICK 2026-08-12 사용자 지시 "따로따로"] 도착 멘트를 **따로 고른다.**
+         기본은 「입장과 같이」(S.entryOut 빈값) — 이미 저장해 둔 분들의 소리가 오늘 바뀌지 않게.
+       ★[ENTRY_SECT 2026-08-13 사용자 지시 "위부분처럼 느낌을 골라주세요 라는식으로 아래쪽으로 따로 빼자"]
+         입장 카드 **안**에 끼워 넣었던 것을 자기 절로 뺐다. 카드 안에 있으면 「입장의 부속」으로
+         읽혀 칩 일곱 개가 본문 속 소음이 됐고, 무엇의 느낌을 고르는 칩인지도 흐렸다.
+         위 절과 **같은 문법**을 그대로 쓴다 — 라벨(느낌을 골라주세요) → 칩 → 카드(나레이션+들어보기).
+         한 화면에 같은 일을 하는 두 절이 서로 다른 모양이면 그 다름 자체가 읽을 거리가 된다.
+       ★순서는 시간순이다(STEP_TIME_ORDER): 문 열리기 전 나레이션 → 걷기(팁) → 도착한 뒤. */
     var _eo = ENTRY_OUT[S.entryOut] ? S.entryOut : '';                 // 빈값 = 입장 느낌 따라가기
-    h+='<div class="nar" style="margin-top:8px"><b>도착하면 이어서</b><br>'+esc(ENTRY_OUT[_eo||S.entry]||OUT_ENTRY)+'</div>';
-    h+='<div class="dlabel" style="margin-top:12px">이 말만 따로 고르실 수도 있어요</div>';
-    h+='<div class="entry-chips" style="margin-top:8px">';
+    h+='<div class="dlabel" style="margin-top:22px">도착하면 이어서, 느낌을 골라주세요</div>';
+    h+='<div class="entry-chips" style="margin-top:10px">';
     h+='<button class="ex-chip'+(_eo===''?' on':'')+'" aria-pressed="'+(_eo===''?'true':'false')+'" data-fk="entryOut:" onclick="pick(\'entryOut\',\'\')">입장과 같이</button>';
     ['A','B','C','D','E','F'].forEach(function(v){
       h+='<button class="ex-chip'+(_eo===v?' on':'')+'" aria-pressed="'+(_eo===v?'true':'false')+'" data-fk="entryOut:'+v+'" onclick="pick(\'entryOut\',\''+v+'\')">'+esc(ENTRY[v].d)+'</button>';
     });
     h+='</div>';
-    h+=tip('긴장되면 맞잡은 손에 힘을 주고 서로의 눈을 보며 천천히 걸어요 · 중간에 한 번 멈춰 마주 보면 사진이 오래 남아요.');
-      if(ecpl) h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="event.stopPropagation();mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="event.stopPropagation();mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">마감 D-7 · mp3/m4a</span></span>')+'</div>';
-      h+='</div>';
+    h+='<div class="oc on" style="cursor:default;margin-top:12px"><div class="nar"><span class="lb">두 사람이 도착한 뒤 이어지는 나레이션 · '+esc(_eo?ENTRY[_eo].d:'입장과 같이 · '+ENTRY[S.entry].d)+'</span>'+esc(ENTRY_OUT[_eo||S.entry]||OUT_ENTRY)+'</div>';
+    h+=playBtn('entryOut');
+    h+='</div>';
     })();
     h+='</div></div>';
     return h;

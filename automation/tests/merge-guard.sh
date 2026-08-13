@@ -737,6 +737,16 @@ chk 'ENTRY_OUT_TONE' order-preview.html 1
 chk 'ENTRY_OUT\[S\.entryOut\]' order-preview.html 1     # 고른 값을 먼저 본다
 chk 'ENTRY_OUT\[_eo||S\.entry\]' order-preview.html 1   # 안 고르면 입장 느낌으로 떨어진다
 chk 'data-fk="entryOut' order-preview.html 2               # 고르는 칩 두 줄(「입장과 같이」 + A~F 반복)
+# ★[ENTRY_SECT 2026-08-13 사용자 지시 "위부분처럼 느낌을 골라주세요 라는식으로 아래쪽으로 따로 빼자"]
+#   도착 멘트 고르기를 입장 카드 **안**에서 꺼내 자기 절로 — 위 절과 같은 문법(라벨→칩→카드+들어보기).
+#   들어보기는 순간 전체가 아니라 그 자리 클립만 낸다(SLUG_CUE · narr-entry-out 파일 이름으로 거른다).
+#   실측 @390: 절 두 개 같은 문법 · 들어보기 2개 · C 고르면 80_narr-entry-out-C.mp3 한 개만 ·
+#             「입장과 같이」면 입장 느낌을 따라간다(52_narr-entry-out.mp3) · 넘침 없음 · JS 오류 0
+chk 'ENTRY_SECT' order-preview.html 5
+chk '도착하면 이어서, 느낌을 골라주세요' order-preview.html 1
+chk "playBtn('entryOut')" order-preview.html 1      # 아래 절에도 들어보기 — 위 절과 같은 문법
+chk 'SLUG_CUE' order-preview.html 2                 # 그 자리 클립만 내는 배관(세우는 곳·읽는 곳·거르는 곳)
+nochk '이 말만 따로 고르실 수도 있어요' order-preview.html   # ★옛 문구로 되돌리지 말 것 — 절 라벨이 그 말을 한다
 # ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 미리듣기가 **걸어온 데까지만** 들려준다.
 #   코스를 고르면 모든 순간이 기본값으로 채워져, 중간에 「저장 후 나가기」를 해도 폐식까지 흘렀다 —
 #   두 분이 본 적 없는 뒷부분을 「고르신 순서 그대로」라며 들려주던 것이다.
