@@ -13,7 +13,7 @@ function courseLines(full) {
   for (const key of Object.keys(D.COURSES)) {
     const c = D.COURSES[key];
     if (c.hidden) continue;
-    out.push(`- ${c.nm} 코스(${c.badge} · ${c.min}): ${c.one}. 흐름: ${c.flow.join(' → ')}. ${c.addable}`);
+    out.push(`- ${c.nm} 코스(${c.badge} · ${c.min}): ${c.one}. 흐름: ${c.flow.join(' → ')}.`);   // [NO_ADDABLE] addable 폐지 — 코스 요약에서 뺐다
     if (full) {
       c.detail.forEach((d) => {
         out.push(`  · ${d.n}: ${d.how}${d.pick ? ' (선택지: ' + d.pick + ')' : ''}`);
