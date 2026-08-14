@@ -260,6 +260,16 @@ chk 'TUNE_HINT_ONE' order-preview.html 1
 chk 'ORD_FLOW_ONE' order-preview.html 2
 chk 'ORD_FLOW_ONE' assets/ritual-data.js 2
 chk 'function courseFlow' order-preview.html 1
+# ★[FLOW_NO_GUEST 2026-08-14 사용자 지적 "코스 이게 적절하다고 판단한 거야?"] 하객 맞이는 **식전**이라
+#   카드 칩에서 뺀다 — 카드 옆 「약 N분」이 식전을 안 세므로(MMIN) 개수만 세면 둘이 다른 말을 한다.
+#   게다가 세 카드가 전부 같은 두 칩으로 시작해 코스끼리의 차이를 가렸다. 안쪽 목록에는 그대로 있다.
+chk 'FLOW_NO_GUEST' order-preview.html 1
+# ★★[CAKE_ONE_HOME 2026-08-14 사용자 지적 "축배 케이크랑 사이 순서 중복 아니야?"]
+#   케이크 커팅이 사이 순서와 축배 두 곳에 다 살아 목록이 같은 것을 두 번 파는 것처럼 읽혔다.
+#   집은 축배·케이크 하나(축배/케이크/둘 다 세 갈래). 사이 순서는 와인 세리머니로 좁혔다.
+#   옛 초안(S.valley==='cake')은 그대로 뜬다 — 고르는 자리에서만 뺐다.
+chk 'CAKE_ONE_HOME' order-preview.html 3
+chk '_cakeDup' order-preview.html 3                # 옛 초안 이중 커팅 경고는 유지(정의1+호출2)
 nochk 'c.flow.forEach' order-preview.html          # ★카드가 flow 를 다시 읽으면 같은 드리프트가 재발한다
 chk "k:'_close'" assets/ritual-data.js 6           # 폐식은 코스마다 자기 상세를 갖는다(기록형은 축배와 뭉쳐 있었다)
 # ★★[ORD_ADD_ALL 2026-08-14 사용자 지시 "위에 없는 다른 순서 더하기, 여기에 다 추가해 줘"]
