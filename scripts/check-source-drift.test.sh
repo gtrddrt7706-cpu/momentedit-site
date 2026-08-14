@@ -72,18 +72,18 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 }
 
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
-run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM] 이제 가운데값을 적는다 — 겨눌 자리가 칸으로 옮겼다
+run index.html '>21<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM] 이제 가운데값을 적는다 — 겨눌 자리가 칸으로 옮겼다
 run index.html '>35<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
-run index.html '16~24m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
-run index.html 'Ceremony 16~24분' 'Ceremony 30분'                          # Service JSON-LD
-run assets/sequence-modal.js "'16~24분'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
-run order-preview.html "'16~24분'" "'30분'"                                # 식순 만들기 표
-run order-preview.html '본식 16~24분' '본식 30분'                           # 표 밖 산문
-run assets/advisor-kb.js 'Ceremony 16~24분' 'Ceremony 30분'                # AI 상담사
-run api/_kb.js '16~24분 The Ceremony' '30분 The Ceremony'                  # 서버 지식
-run contract/v1-1.html '(16~24분)' '(30분)'                                # 계약서 3조
-run docs/smartstore/상세페이지_원본.html '16~24<small>' '30<small>'         # 스마트스토어 원본
-run assets/ritual-data.js 'record:16' 'record:12'                          # 원천이 바뀌면 열 벌이 함께 틀린다
+run index.html '16~25m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
+run index.html 'Ceremony 16~25분' 'Ceremony 30분'                          # Service JSON-LD
+run assets/sequence-modal.js "'16~25분'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
+run order-preview.html "'16~25분'" "'30분'"                                # 식순 만들기 표
+run order-preview.html '본식 16~25분' '본식 30분'                           # 표 밖 산문
+run assets/advisor-kb.js 'Ceremony 16~25분' 'Ceremony 30분'                # AI 상담사
+run api/_kb.js '16~25분 The Ceremony' '30분 The Ceremony'                  # 서버 지식
+run contract/v1-1.html '(16~25분)' '(30분)'                                # 계약서 3조
+run docs/smartstore/상세페이지_원본.html '16~25<small>' '30<small>'         # 스마트스토어 원본
+run assets/ritual-data.js "min:'약 16분'" "min:'약 12분'"                          # 원천이 바뀌면 열 벌이 함께 틀린다
 
 restore
 echo ""

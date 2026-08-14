@@ -283,7 +283,7 @@ chk 'SPECIAL_GONE' order-preview.html 2
 #     오늘 두 번 겪었다(GUEST_NODUP 문구 · 이 줄). 새 nochk 를 쓸 땐 주석에 못 나오는 형태로 적을 것.
 nochk 'onclick="askSpecial' order-preview.html
 # ★[TIP_QUIET 2026-08-14 사용자 지적 "팁 부분 너무 주저리야"] 팁은 상자가 아니라 왼쪽 실선 곁말.
-chk 'TIP_QUIET' order-preview.html 4
+chk 'TIP_QUIET' order-preview.html 3   # [NO_DIRECTOR_READ 2026-08-14] 서약 팁의 TIP_QUIET 주석은 그 팁을 다시 쓰며 사라졌다(같은 커밋에서 내림)
 nochk 'background:#F3EEE6;border:1px solid #E7DFD2' order-preview.html
 chk '.oc:has(+ .subset){border-bottom:0' order-preview.html 1
 # ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
@@ -336,7 +336,7 @@ chk 'BADGE_GAP' scripts/check-ord-save.mjs 7
 chk 'accessibility.snapshot' scripts/check-ord-save.mjs 1   # ★귀는 접근성 이름으로 잰다 — textContent 로 되돌리지 말 것
 nochk 'subq-def' order-preview.html                 # ★제목 옆 「기본은 …」 한 줄로 되돌리지 말 것(소음을 바꿔 다는 것)
 nochk "oc('declare',v,DECLARE" order-preview.html   # ★세부를 다시 카드로 되돌리지 말 것(위 이유)
-chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
+chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~25)는 설명 문장에 남긴다(2026-08-09)
 chk "var allDone = false" mypage.html 1            # 예식 준비 카드 항상 펼침(2026-07-19 사용자 지시 · 접힘 아코디언 부활 금지)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
@@ -1088,7 +1088,11 @@ chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판�
 #   ①규칙 머리말(53) ②.play.playing(77) ③.subset(98) ④.seqr.on(129) ⑤.crs.on(147) ⑥.mc.open(191).
 #   진사를 점으로만 쓰는 자리(체크·지금 알약·경고)는 하나도 안 빠졌다.
 #   ★숫자만 맞췄으면 이 마커가 지키던 것이 조용히 빠진다 — VOW_CHORUS 4→3 과 같은 방식으로 셌다.
-chk 'SEAL_POINT' order-preview.html 6            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+chk 'SEAL_POINT' order-preview.html 5            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+# [CRS_OPEN_CALM 2026-08-14] 6→5 — 고른 코스 카드의 베이지 바탕을 걷으며 그 자리의 SEAL_POINT 주석도 함께 내렸다.
+#   ★진행바만은 예외로 진사를 **면**으로 쓴다(PROG_SEAL) — 걸어온 만큼을 쌓아 보이는 유일한 자리라 점으로는 안 된다.
+chk 'PROG_SEAL' order-preview.html 1
+chk 'CRS_OPEN_CALM' order-preview.html 2
 chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 금지 주석(2026-07-26 사용자 지시) — 삭제 금지
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)
@@ -1489,7 +1493,15 @@ chk 'BLESS_LONG' assets/ritual-data.js 1                     # blessEndLong 문�
 chk 'BLESS_LONG' order-preview.html 1                        # 1단 예방 문안('한 말씀 청하겠습니다') 근거 주석
 chk '한 말씀 청하겠습니다' assets/ritual-data.js 1             # 열어만 두는 '말씀이 있습니다'로 되돌리기 금지(§8 1단)
 chk '한 말씀 청하겠습니다' order-preview.html 2                # 빌더 인라인 사본 2곳 · 하나만 고치면 화면과 완성 대본이 갈린다
-chk 'FALLBACK_LADDER' order-preview.html 2                   # 서약·편지 낭독 중단 안전망(§3 1~3순위) · 4순위 성우 대리는 올리지 않는다
+# [NO_DIRECTOR_READ 2026-08-14 사용자 지시 "디렉터가 대신읽어주는 건 없어 삭제"]
+#   FALLBACK_LADDER 는 「기다림 · 배우자 이어읽기 · 디렉터 대독」 셋을 한 문장에 담는 규칙이었다.
+#   그런데 셋째가 **실제로 하지 않는 일**이었다 — 근거 있는 안심만 적는다는 규칙(2026-07-15)은
+#   근거를 붙이라는 뜻이지 없는 서비스를 근거처럼 적으라는 뜻이 아니다.
+#   ★남은 사다리는 둘(기다림 · 배우자). 디렉터 대독을 되살리지 말 것.
+chk 'NO_DIRECTOR_READ' order-preview.html 2
+chk 'NO_DIRECTOR_READ' assets/ritual-story.js 1
+nochk "필요하면 대신 읽어 드려요.');" order-preview.html
+nochk '힘드시면 저희가 대신' assets/ritual-story.js
 chk 'NAR_MIRROR' order-preview.html 1                        # endLong 인라인 사본이 '안 쓰이니 지워도 된다'로 보이지 않게 하는 주석
 chk 'PHASE_CLIP' console.html 1                              # 클립 재생 중 phase를 끊는 한 줄 · 빼면 녹음이 흐르는 동안 "사람의 시간"이 남는다
 chk 'ALT_CLIP_TEST' automation/tests/console-alt-clip.mjs 1  # 실렌더 검증 스크립트 자체(브라우저 필요라 여기선 실행 안 함 · 손으로 돌릴 것)
@@ -1798,15 +1810,15 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 # 주변 산문에 숫자가 많아서(140분·45분·5분·55분·20분·9시 45분…) check-source-drift 가
 # 숫자를 '순서 있는 부분열'로 맞출 때, 가운데값 20 은 근처의 다른 20 으로 대신 채워진다.
 # ★두 세션이 따로 재서 같은 결과를 봤다 — 같은 자리(The Ceremony)를 30 으로 망가뜨렸을 때
-#     범위 꼴 `16~24m | The Ceremony` → drift exit 1 (CAUGHT)
+#     범위 꼴 `16~25m | The Ceremony` → drift exit 1 (CAUGHT)
 #     가운데값 `20m | The Ceremony`   → drift exit 0 (MISSED)
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '16~24m | The Ceremony' index.html 2
-chk '31~39m | Group Record' index.html 2
+chk '16~25m | The Ceremony' index.html 2
+chk '30~39m | Group Record' index.html 2
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
-#   실측: 다 함께가 31~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
+#   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
 chk 'ROUND_FIT' scripts/check-ritual-cue.js 1
 chk '2패스가 라운드를 더한다' assets/ritual-cue.js 2   # [ROUND_FIT] 캐리어 두 곳 — 손계산 _grFixed 부활 금지
@@ -1895,7 +1907,7 @@ chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사
 # [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
 #   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
 chk 'PHOTO_LIST_V2' mypage.html 2
-chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 31~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
+chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 30~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
 chk 'var PHOTO_FX_MAX=2' mypage.html 1
 chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
 
@@ -3093,3 +3105,46 @@ chk "v1-6.html" mypage.html 1
 chk '2,800,000원' contract/archive/v1-6.html 1
 chk '2,100,000원' contract/archive/v1-6.html 1
 chk '180,000원 · 평일 110,000원' contract/archive/v1-6.html 1
+
+# ── [WELCOME_DEFAULT] 첫인사를 세 코스 기본으로 (2026-08-14 사용자 결정) ──
+# "첫인사안내도 첫멘트로 항상 위치해놓는게 좋지안아?" → 세 코스 전부 ON.
+# 예전엔 기록·약속은 팔레트에만, 가족은 opt(선택)에만 있었다 — 하객이 앉자마자 의식이 시작돼
+# 완충이 없었고 두 분의 첫 목소리를 듣는 자리가 없었다.
+# ★seq 에 넣는 것만으로 켜지는 이유는 isGAdd 가 seq 를 먼저 보기 때문 — 그 함수를 고치면 여기가 조용히 꺼진다.
+# ★대독(나레이션 대신 읽기)은 되살리지 않는다(2026-07 사용자 지시 · S.welcome='self' 고정).
+chk 'WELCOME_DEFAULT' assets/ritual-data.js 9
+chk 'WELCOME_DEFAULT' scripts/check-welcome-default.mjs 1
+chk "seq:\['guest','entry','welcome','vow','ring','declare','toast'\]" assets/ritual-data.js 1
+chk "seq:\['guest','entry','welcome','vow','ring','declare','letter','toast'\]" assets/ritual-data.js 2
+chk "seq:\['guest','entry','welcome','bless','vow','ring','tribute','declare'\]" assets/ritual-data.js 1
+chk 'base:{damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' assets/ritual-data.js 1
+chk 'base={damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' order-preview.html 1
+# [MIN_RING_OFF] 기록 카드 라벨은 base(17)가 아니라 '고객이 보게 될 시간'(16)이다 — 반지 기본 빼기가 1분을 뺀다
+chk 'MIN_RING_OFF' assets/ritual-data.js 1
+chk "record:{nm:'기록', badge:'사진이 중심', ready:true, min:'약 16분'" assets/ritual-data.js 1
+
+# ── [FREE_BLOCK] 자유 한 칸이 완성 순서표에서 빠져 있었다 (2026-08-14 · 검사가 발견) ──
+# 엔진(ritual-cue.js)에는 narr-free-in/out 큐가 처음부터 있는데 빌더의 BLOCK 지도에만 free 가 없어,
+# 고객이 축가·영상을 넣으면 미리듣기엔 소리가 나는데 완성 순서표엔 그 줄이 없었다(순서 12 vs 블록 11).
+# ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다.
+chk 'FREE_BLOCK' order-preview.html 1
+chk 'free:function()' order-preview.html 1
+
+# ── [NARR_PICK] 나레이션 문안 후보 세 벌 (2026-08-14 사용자 지시) ──
+# "각각 이벤트마다 여러게의 대사 준비해" — 결은 담백·서정·다정 셋으로 고정한다.
+# ★index 0 은 **지금까지 쓰던 문안**이다. 저장된 초안이 고르지 않았을 때 열리는 자리라,
+#   0 을 갈아치우면 이미 만든 고객의 예식이 말없이 바뀐다. 0 은 건드리지 말 것.
+chk 'NARR_PICK' assets/ritual-data.js 1
+chk 'var NARV={' assets/ritual-data.js 1
+chk 'NARV:NARV' assets/ritual-data.js 1
+
+# ── [MUNAN_COPY] 대본 개정 제안 문안의 문구 규칙 (2026-08-14) ──
+# 문서 전체를 훑으면 설명 산문의 줄표·★ 까지 잡힌다 — 실제로 첫 판이 그랬다.
+# 문안임을 형식으로 표시하고(굵은 번호 · 결 이름 아래 인용줄), 검사는 그것만 본다.
+chk 'MUNAN_COPY' scripts/check-munan-copy.mjs 1
+# [AI_VOICE_TENSE 2026-08-14 코워크 B 지적 · 확인함] 나레이션은 AI 음성으로 **미리 제작**된다.
+#   미리 녹음된 목소리가 현장을 실시간으로 보고 있는 척하면 서명받은 AI 고지와 어긋난다
+#   (계약서 서명란 + mypage 서명 판 넷째 줄). '저도 지금 처음 봅니다'가 실제로 그랬다.
+chk 'AI_VOICE_TENSE' assets/ritual-data.js 1
+nochk 'nar:"두 사람이 몰래 준비한' assets/ritual-data.js   # [AI_VOICE_TENSE] 옛 문안 자체를 겨눈다(근거 주석은 그 말을 인용하므로 이름으로 겨누면 제 발을 밟는다 · 네 번째 사고)
+chk 'STAR_OK' scripts/check-munan-copy.mjs 1
