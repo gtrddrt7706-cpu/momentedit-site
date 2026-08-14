@@ -244,6 +244,37 @@ chk 'SUB_SEG_JOIN' order-preview.html 1
 #   여백이 그 일을 한다(실측 라벨 위 28px : 아래 9px = 3.1배 · [TYPO_RHYTHM] 2배 이상).
 #   전폭 실선으로 되돌리지 말 것 — [ADV_INDEX] "선은 가장 싸고 가장 시끄러운 구분자다".
 chk 'SUB_SEG_NOLINE' order-preview.html 1
+# ★[GUEST_NODUP 2026-08-14 사용자 지적 "이 부분 안내 전문 보기로 대체하자 · 중복 설명이야"]
+#   하객 맞이 상단의 「이렇게 흘러요 · 안내 네 번」 4줄 박스를 지웠다 — 바로 아래 전문 보기가 같은 넷을
+#   다시 보여 주고 있었다. 「네 번」은 fold 라벨이 이어받았다. 4줄 박스를 되살리지 말 것.
+chk 'GUEST_NODUP' order-preview.html 2
+chk '안내 네 번, 문구 전문 보기' order-preview.html 1
+#   ★자는 **마크업**을 겨눈다 — 문구만 겨누면 바로 위 근거 주석의 인용문을 제 발로 밟는다(실측 REVERT?).
+nochk 'proc-l">이렇게 흘러요' order-preview.html
+# ★[TUNE_HINT_ONE 2026-08-14 사용자 지시] 다듬기 안내는 한 줄 — 조작 설명(↑↓·카드 누름)은 단추가 말한다.
+chk 'TUNE_HINT_ONE' order-preview.html 1
+# ★★[ORD_FLOW_ONE 2026-08-14 사용자 지적 "코스 이벤트를 눌러 들어가면 처음 이벤트와 매칭이 안 된다"]
+#   카드 흐름은 손으로 적은 flow 가 아니라 seq 에서 뽑고, 이름은 안쪽 목록과 같은 원천(TUNE)에서 읽는다.
+#   상세(detail)는 index 가 아니라 키(k)로 붙는다 — 기록형은 칩 4/실제 6/상세 5 로 갈라져 있었고
+#   「성혼 선언」 칩이 「반지 교환」 상세의 배지를 물고 있었다(실측).
+chk 'ORD_FLOW_ONE' order-preview.html 2
+chk 'ORD_FLOW_ONE' assets/ritual-data.js 2
+chk 'function courseFlow' order-preview.html 1
+nochk 'c.flow.forEach' order-preview.html          # ★카드가 flow 를 다시 읽으면 같은 드리프트가 재발한다
+chk "k:'_close'" assets/ritual-data.js 6           # 폐식은 코스마다 자기 상세를 갖는다(기록형은 축배와 뭉쳐 있었다)
+# ★★[ORD_ADD_ALL 2026-08-14 사용자 지시 "위에 없는 다른 순서 더하기, 여기에 다 추가해 줘"]
+#   더할 수 있는 순간을 전부 목록 제자리에 세운다(꺼진 카드 + 버튼). 접힌 팔레트 상자는 폐지.
+chk 'ORD_ADD_ALL' order-preview.html 4
+chk 'paletteCand().forEach' order-preview.html 1
+nochk 'function paletteHtml' order-preview.html    # ★접힌 팔레트 UI 되살리기 금지(같은 더하기가 두 곳)
+# ★[SPECIAL_GONE 2026-08-14 사용자 지시] 「목록에 없는 순서가 있나요?」 폐지 — 자유 한 칸이 그 자리다.
+chk 'SPECIAL_GONE' order-preview.html 2
+#   ★nochk 는 **호출부 모양**을 겨눈다 — 이름만 겨누면 바로 위 근거 주석의 인용문을 제 발로 밟는다.
+#     오늘 두 번 겪었다(GUEST_NODUP 문구 · 이 줄). 새 nochk 를 쓸 땐 주석에 못 나오는 형태로 적을 것.
+nochk 'onclick="askSpecial' order-preview.html
+# ★[TIP_QUIET 2026-08-14 사용자 지적 "팁 부분 너무 주저리야"] 팁은 상자가 아니라 왼쪽 실선 곁말.
+chk 'TIP_QUIET' order-preview.html 4
+nochk 'background:#F3EEE6;border:1px solid #E7DFD2' order-preview.html
 chk '.oc:has(+ .subset){border-bottom:0' order-preview.html 1
 # ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
 #   양끝 페이드 헬퍼(GLINE) 하나로 — 딱 끊기는 전폭 직선으로 되돌리지 말 것.
