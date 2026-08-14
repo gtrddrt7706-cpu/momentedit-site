@@ -260,6 +260,16 @@ chk 'TUNE_HINT_ONE' order-preview.html 1
 chk 'ORD_FLOW_ONE' order-preview.html 2
 chk 'ORD_FLOW_ONE' assets/ritual-data.js 2
 chk 'function courseFlow' order-preview.html 1
+# ★[FLOW_NO_GUEST 2026-08-14 사용자 지적 "코스 이게 적절하다고 판단한 거야?"] 하객 맞이는 **식전**이라
+#   카드 칩에서 뺀다 — 카드 옆 「약 N분」이 식전을 안 세므로(MMIN) 개수만 세면 둘이 다른 말을 한다.
+#   게다가 세 카드가 전부 같은 두 칩으로 시작해 코스끼리의 차이를 가렸다. 안쪽 목록에는 그대로 있다.
+chk 'FLOW_NO_GUEST' order-preview.html 1
+# ★★[CAKE_ONE_HOME 2026-08-14 사용자 지적 "축배 케이크랑 사이 순서 중복 아니야?"]
+#   케이크 커팅이 사이 순서와 축배 두 곳에 다 살아 목록이 같은 것을 두 번 파는 것처럼 읽혔다.
+#   집은 축배·케이크 하나(축배/케이크/둘 다 세 갈래). 사이 순서는 와인 세리머니로 좁혔다.
+#   옛 초안(S.valley==='cake')은 그대로 뜬다 — 고르는 자리에서만 뺐다.
+chk 'CAKE_ONE_HOME' order-preview.html 3
+chk '_cakeDup' order-preview.html 3                # 옛 초안 이중 커팅 경고는 유지(정의1+호출2)
 nochk 'c.flow.forEach' order-preview.html          # ★카드가 flow 를 다시 읽으면 같은 드리프트가 재발한다
 chk "k:'_close'" assets/ritual-data.js 6           # 폐식은 코스마다 자기 상세를 갖는다(기록형은 축배와 뭉쳐 있었다)
 # ★★[ORD_ADD_ALL 2026-08-14 사용자 지시 "위에 없는 다른 순서 더하기, 여기에 다 추가해 줘"]
@@ -2991,3 +3001,45 @@ chk 'voiceOf' scripts/check-text-audio.mjs 4
 # 이 검사가 지키는 GUEST_CTL_EMPTY(고객 화면에 디렉터 도구가 새는지)가 한 번도 안 돌고 초록이었다.
 chk 'PW_FIND' scripts/check-guest-skin.mjs 1
 chk 'npm root -g' scripts/check-guest-skin.mjs 1
+
+# ── [WIZ_EXIT_ONE] 위저드 저장·나가기 = 한 벌 (2026-08-14 사용자 지시) ──
+# 원문: "식순섹션에서 했던 것이랑 통일해서 똑같이 적용 저장 나가기 /
+#        따로 저장없이 나가기 시 팝업등장 이건 전부 통일되게 적용 다른곳들도 조사해서 전부"
+# 청첩장·애프터 웨딩·좌석·단체 사진·스냅 다섯이 「저장 후 나가기」 한 버튼을 쓰고 있었다 —
+# 나가기가 몰래 저장하니 저장 버튼이 설 자리가 없었다(식순에서 2026-08-13 에 이미 고친 것).
+# ★한 버튼으로 되돌리지 말 것. 손잡이는 둘이고, 나가기는 바뀐 게 있을 때만 묻는다.
+chk 'WIZ_EXIT_ONE' mypage.html 15
+chk 'data-wiz-save' mypage.html 4
+chk 'wizActs()' mypage.html 9
+# dismissNull — Esc·바깥클릭을 '아니오'와 가른다. mpConfirm 이 이걸 안 넘기면 Esc 가 곧 '그냥 나가기'다(실측으로 잡힌 결함).
+chk 'dismissNull' mypage.html 5
+# 되살아나면 안 되는 것들 — 마크업/호출부 모양을 겨눈다(이름만 겨누면 근거 주석을 제 발로 밟는다)
+nochk '>저장 후 나가기<' mypage.html
+nochk 'data-seat-exit' mypage.html
+nochk 'mp_photoExit' mypage.html
+nochk '자동으로 저장돼요<' mypage.html
+
+# ── [WIZ_VCENTER] 카드 한 장뿐인 화면의 세로 자리 (2026-08-14 사용자 지적) ──
+# "모바일화면인데 너무 위쪽에 쏠려잇어" — 짧은 단계가 화면 위에 붙고 아래가 통째로 비었다.
+# 남는 공간이 있을 때만 먹는 auto 마진이라 긴 단계는 종전대로 위에서부터 흐른다. 높이로 조건 걸지 말 것.
+chk 'WIZ_VCENTER' mypage.html 3
+chk 'only-child{margin-top:auto' mypage.html 1
+# display:flex 는 !important 여야 한다 — renderProduction 이 인라인 display:block 을 얹는다
+chk 'display:flex!important;flex-direction:column}' mypage.html 1
+
+# ── [TOAST_STUCK] 토스트가 화면에 박히던 것 (2026-08-14 사용자 제보) ──
+# '보이기'는 rAF · '숨기기'는 그와 무관한 setTimeout 이었다. 화면을 안 그리는 동안(앱 전환·화면 꺼짐)
+# rAF 만 멈추니 숨김이 먼저 지나가고 보이기가 나중에 실행돼 아무도 안 지우는 상태가 됐다.
+# ★숨김 타이머는 '보이게 만든 그 순간'에 건다. 되돌리지 말 것.
+chk 'TOAST_STUCK' mypage.html 2
+
+# ── [INV_EN_GATE] 청첩장 영문 이름은 적는 자리에서 막는다 (2026-08-14 사용자 지시) ──
+# "eventId 생성 실패 — 영문 이름·예식 날짜를 확인해 주세요. (1014)" 가 마지막 화면에서 터졌다.
+# 영문 칸에 한글을 적으면 서버가 a-z 만 남겨 빈 문자열이 되는데, 프런트는 '비어 있지 않다'만 봤다.
+# ★판정식은 서버 _invMakeEventId(85_invitation.gs)와 같은 꼴이어야 한다 — 바꿀 땐 둘을 같이.
+chk 'INV_EN_GATE' mypage.html 4
+chk '_invEnIni' mypage.html 2
+chk '_invEnMiss' mypage.html 3
+# 실브라우저 계약 검사 — 마커만으로는 '판이 실제로 뜨는지'를 못 잰다(로컬 서버 필요 · 없으면 스스로 건너뛴다)
+chk 'WIZ_EXIT_ONE' scripts/check-wiz-exit.mjs 1
+chk 'WIZ_VCENTER' scripts/check-wiz-vcenter.mjs 1
