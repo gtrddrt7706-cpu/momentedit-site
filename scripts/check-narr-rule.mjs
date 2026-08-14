@@ -26,6 +26,8 @@
  *
  * 쓰기: node scripts/check-narr-rule.mjs           → 종료 코드 0 통과 / 1 위반
  *       node scripts/check-narr-rule.mjs --report  → 전 문안 실측표(판정 안 함)
+ *       node scripts/check-narr-rule.mjs --doc <파일> → **아직 안 들어온 제안 문안**을 같은 자로
+ *         (대본개정 문서의 제안 줄만 골라 잰다. 고르기 전에 재라고 만든 입구다)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -82,49 +84,106 @@ const PERF_CANON = '신랑 신부, 이제 두 사람은 부부입니다';
 const PERF_SNIFF = /부부(입니다|가 되었습니다|가 됩니다)/;
 const isDeclare = (id) => /^(DECLARE|DECLWHO)\./.test(id);
 
-const bad = [];
-const rows = [];
-const hit = (rule, id, why) => bad.push({ rule, id, why });
-
-for (const { id, s } of corpus) {
+/* ───────── ★판정은 **한 곳**에서만 한다.
+   종전엔 본문 루프와 자가진단이 같은 규칙을 두 벌 들고 있었다. 그 둘이 갈라지면
+   자가진단이 초록인데 본문이 틀린다 — 이 저장소가 여러 번 밟은 「이중 원천」 함정 그대로다.
+   반환값은 위반 목록이고, 부르는 쪽(원천 검사·문서 검사·자가진단)이 다 이걸 쓴다. */
+export function judge(id, s) {
+  const out = [];
   const sent = sentences(s);
-  let reqGuest = 0, reqCouple = 0, n1sent = 0, n2 = 0;
+  const hit = (rule, why) => out.push({ rule, id, why });
+  let reqGuest = 0, reqCouple = 0;
 
   sent.forEach((x) => {
     /* N1 — 문장 단위: 한 문장에 요청 동작 둘 이상 */
     const n = (x.match(new RegExp(REQ.source, 'g')) || []).length;
-    if (n >= 2) { n1sent++; hit('N1', id, `한 문장에 요청 ${n}개 · 「${x.slice(0, 34)}…」`); }
+    if (n >= 2) hit('N1', `한 문장에 요청 ${n}개 · 「${x.slice(0, 34)}…」`);
     if (n >= 1) { if (TO_COUPLE.test(x)) reqCouple++; else reqGuest++; }
 
     /* N2 — ★한 문장 안의 혼용만. 3인칭 「두 사람」을 부르며 같은 문장에서 2인칭으로 시키는 꼴.
        같은 문장에 「두 분」이 있으면 부름은 그쪽이 받는다(혼용이 아니다).
        「두 사람에게 큰 박수 부탁드립니다」류는 하객 요청이라 IMPER2 에 안 걸린다. */
     if (/두 사람/.test(x) && !/두 분/.test(x) && IMPER2.test(x)) {
-      n2++; hit('N2', id, `한 문장 안 3인칭+2인칭 혼용 · 「${x.slice(0, 34)}…」`);
+      hit('N2', `한 문장 안 3인칭+2인칭 혼용 · 「${x.slice(0, 34)}…」`);
     }
 
-    /* N7 — ★물음 자체는 안 잰다. 재는 것은 **답에 반응하는 말**이다(R4 개정 · 아래 주석). */
-    if (ANSWERED.test(x)) hit('N7', id, `현장의 답에 반응한다 · 「${x.slice(0, 34)}…」`);
+    /* N7 — ★물음 자체는 안 잰다. 재는 것은 **답에 반응하는 말**이다(R4 개정 · 위 머리말). */
+    if (ANSWERED.test(x)) hit('N7', `현장의 답에 반응한다 · 「${x.slice(0, 34)}…」`);
+
+    /* N8 — 수행문 고정 (선언 문안 안 · 또는 「신랑 신부」를 불러 선언하는 꼴)
+       ★두 가지를 **갈라서** 말한다. 이름이 틀리면 고치는 사람이 엉뚱한 데를 고친다:
+         ㉠ 문안에 표준형이 아예 없다      → 수행문 자체가 다른 꼴이다
+         ㉡ 표준형은 있는데 다른 선언이 또  → 되풀이다. 상표가 두 번 찍히면 한 번도 안 찍힌 것과 같다
+       ㉡ 은 실제로 B 의 성혼 담백 벌이 밟았다 — 여는 문장이 「…부부가 되었습니다」로 먼저
+          선언해 버리고, 바로 다음 문장이 표준 수행문이었다. 현행 `DECLARE.1` 이 같은 자리에서
+          「서로의 평생이 되었습니다」를 쓰는 것이 그 회피다. */
+    if (PERF_SNIFF.test(x) && (isDeclare(id) || /신랑 신부/.test(x)) && !x.includes(PERF_CANON)) {
+      hit('N8', s.includes(PERF_CANON)
+        ? `수행문 앞뒤에서 같은 선언을 되풀이한다 · 「${x}」 (표준형은 같은 문안 안에 이미 있다)`
+        : `수행문이 표준형과 다르다 · 「${x}」 / 표준 「${PERF_CANON}」`);
+    }
   });
 
   /* N1 보강 — 한 문안이 요구하는 동작은 **대상마다** 둘까지 */
-  if (reqGuest > 2) hit('N1', id, `한 문안에 하객 요청 ${reqGuest}개 (상한 2)`);
-  if (reqCouple > 2) hit('N1', id, `한 문안에 두 분 요청 ${reqCouple}개 (상한 2)`);
+  if (reqGuest > 2) hit('N1', `한 문안에 하객 요청 ${reqGuest}개 (상한 2)`);
+  if (reqCouple > 2) hit('N1', `한 문안에 두 분 요청 ${reqCouple}개 (상한 2)`);
 
   /* N4 — 시간어는 한 문안에 한 번 */
   const tw = (s.match(TIMEW) || []).length;
-  if (tw > 1) hit('N4', id, `시간어 ${tw}회 (상한 1) · ${(s.match(TIMEW) || []).join('·')}`);
+  if (tw > 1) hit('N4', `시간어 ${tw}회 (상한 1) · ${(s.match(TIMEW) || []).join('·')}`);
 
   /* N7 — 실시간 관찰 주장 */
-  if (LIVE.test(s)) hit('N7', id, `현장을 실시간으로 본다고 말한다 · 「${s.match(LIVE)[0]}」`);
+  if (LIVE.test(s)) hit('N7', `현장을 실시간으로 본다고 말한다 · 「${s.match(LIVE)[0]}」`);
 
-  /* N8 — 수행문 고정 (선언 문안 안 · 또는 「신랑 신부」를 불러 선언하는 꼴) */
-  const perfSent = sent.filter((x) => PERF_SNIFF.test(x) && (isDeclare(id) || /신랑 신부/.test(x)));
-  for (const x of perfSent) {
-    if (!x.includes(PERF_CANON)) hit('N8', id, `수행문이 표준형과 다르다 · 「${x}」 / 표준 「${PERF_CANON}」`);
+  out.stat = { len: s.length, sent: sent.length, reqGuest, reqCouple, tw };
+  return out;
+}
+
+const bad = [];
+const rows = [];
+for (const { id, s } of corpus) {
+  const v = judge(id, s);
+  bad.push(...v);
+  rows.push({ id, ...v.stat });
+}
+
+/* ───────── ★`--doc <파일>` — **아직 안 들어온 후보**를 같은 자로 잰다.
+   R4 까지 이 자는 저장소에 이미 들어온 문안만 봤다. 그런데 고르는 일은 **들어오기 전**에 한다 —
+   B 가 낸 36벌을 손으로 세면 R2 에서 두 번 틀린 그 자리로 정확히 되돌아간다.
+   제안 문안을 가려내는 규칙은 `check-munan-copy.mjs` 와 **같은 모양**이다:
+     ① `**숫자.** 본문`                      — 고객 예시(서약·편지) 제안
+     ② `**담백|서정|다정**` 줄 바로 아래 `> 본문` — 나레이션 제안
+   ★고객 예시(①)는 나레이션이 아니라 **기준이 다르다**(C1~C5). 세되 판정에서 뺀다 —
+     여기 넣으면 「서약 예시가 N1 위반」 같은 헛말이 나온다. */
+const DOCI = process.argv.indexOf('--doc');
+if (DOCI >= 0) {
+  const f = process.argv[DOCI + 1];
+  if (!f || !fs.existsSync(f)) { console.log(`못 잼: --doc 파일이 없다 (${f || '경로 없음'})`); process.exit(2); }
+  let tone = null, sect = '';
+  const cands = [];
+  fs.readFileSync(f, 'utf8').split('\n').forEach((raw) => {
+    const l = raw.trim();
+    const h = l.match(/^#{2,4}\s+(.+)$/); if (h) { sect = h[1].replace(/\s+/g, ' ').slice(0, 40); tone = null; return; }
+    const t = l.match(/^\*\*(담백|서정|다정|눈물|유머\+진심|짧게)\*\*$/); if (t) { tone = t[1]; return; }
+    if (l && !/^>/.test(l) && !/^\*\*\d+\.\*\*/.test(l)) tone = null;
+    const m1 = l.match(/^\*\*(\d+)\.\*\*\s+(.+)$/);
+    if (m1) { cands.push({ kind: '예시', id: `${sect} #${m1[1]}`, s: m1[2] }); return; }
+    if (/^>\s/.test(l) && tone) cands.push({ kind: '나레이션', id: `${sect} · ${tone}`, s: l.replace(/^>\s*/, '') });
+  });
+  const nar = cands.filter((c) => c.kind === '나레이션');
+  console.log(`${path.basename(f)} — 제안 ${cands.length}벌 (나레이션 ${nar.length} · 고객 예시 ${cands.length - nar.length})`);
+  console.log('★고객 예시는 기준이 달라(C1~C5) 판정에서 뺀다 — 나레이션만 잰다.\n');
+  let n = 0;
+  for (const c of nar) {
+    const v = judge('DOC.' + c.id, c.s);
+    if (!v.length) continue;
+    n++;
+    console.log(`✗ ${c.id}\n   「${c.s.slice(0, 60)}…」`);
+    for (const x of v) console.log(`   ${x.rule} — ${x.why}`);
   }
-
-  rows.push({ id, len: s.length, sent: sent.length, reqGuest, reqCouple, tw, n1sent, n2 });
+  console.log(n ? `\n나레이션 ${nar.length}벌 중 ${n}벌이 기준에 걸린다 — 나머지는 취향으로 가른다.`
+    : `\n나레이션 ${nar.length}벌 전부 기준 통과 — 전부 취향으로 가른다.`);
+  process.exit(0);
 }
 
 if (REPORT) {
@@ -148,6 +207,7 @@ const SELFTEST = [
   ['N7', 'X.__t', '저도 지금 처음 봅니다.'],
   ['N7', 'X.__t', '방금 답해 주신 그 마음으로 이어 가겠습니다.'],
   ['N8', 'DECLARE.__t', '신랑 신부, 이제 두 사람은 부부가 되었습니다.'],
+  ['N8', 'DECLARE.__t', '오늘, 신랑 신부는 모든 분을 증인으로 부부가 되었습니다. 신랑 신부, 이제 두 사람은 부부입니다.'],   // 되풀이
 ];
 /* ★반례도 함께 건다 — 잡아야 할 것만 보는 자는 절반만 재는 자다.
    아래 넷은 **걸리면 안 되는** 것들이고, 넷 다 R2·R3·R4 에서 실제로 잘못 붉었던 꼴이다. */
@@ -157,26 +217,12 @@ const SELFPASS = [
   ['N7', 'X.__t', '곁에서 힘이 되어 주시겠습니까?'],                                              // 물음 자체는 위반이 아니다
   ['N8', 'NARR.__t', '선언은 가족의 목소리로 남았습니다. 이제 두 사람은 부부입니다.'],            // 되짚음은 수행문이 아니다
 ];
-const judge = (id, sIn) => {
-  const out = [];
-  const sent = sentences(sIn);
-  let rg = 0, rc = 0;
-  sent.forEach((x) => {
-    const n = (x.match(new RegExp(REQ.source, 'g')) || []).length;
-    if (n >= 2) out.push('N1');
-    if (n >= 1) { if (TO_COUPLE.test(x)) rc++; else rg++; }
-    if (/두 사람/.test(x) && !/두 분/.test(x) && IMPER2.test(x)) out.push('N2');
-    if (ANSWERED.test(x)) out.push('N7');
-    if (PERF_SNIFF.test(x) && (isDeclare(id) || /신랑 신부/.test(x)) && !x.includes(PERF_CANON)) out.push('N8');
-  });
-  if (rg > 2 || rc > 2) out.push('N1');
-  if ((sIn.match(TIMEW) || []).length > 1) out.push('N4');
-  if (LIVE.test(sIn)) out.push('N7');
-  return out;
-};
+/* ★자가진단도 본문과 **같은 `judge`** 를 부른다 — 규칙을 두 벌 들고 있으면
+   자가진단만 초록인 날이 온다(이중 원천 함정). 부르는 자리만 다르고 자는 하나다. */
+const ruled = (id, s) => judge(id, s).map((v) => v.rule);
 const selfFail = [];
-for (const [rule, id, s] of SELFTEST) if (!judge(id, s).includes(rule)) selfFail.push(`${rule} 미검출(잡아야 하는데 놓침) · 「${s}」`);
-for (const [rule, id, s] of SELFPASS) if (judge(id, s).includes(rule)) selfFail.push(`${rule} 오검출(멀쩡한데 붉힘) · 「${s}」`);
+for (const [rule, id, s] of SELFTEST) if (!ruled(id, s).includes(rule)) selfFail.push(`${rule} 미검출(잡아야 하는데 놓침) · 「${s}」`);
+for (const [rule, id, s] of SELFPASS) if (ruled(id, s).includes(rule)) selfFail.push(`${rule} 오검출(멀쩡한데 붉힘) · 「${s}」`);
 
 const byRule = {};
 for (const b of bad) (byRule[b.rule] ||= []).push(b);

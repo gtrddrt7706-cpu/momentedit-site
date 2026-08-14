@@ -3171,3 +3171,8 @@ if command -v node >/dev/null 2>&1; then node scripts/check-narr-rule.mjs || fai
 #   ★문장의 꼴을 겨눈다(이름으로 겨누면 바로 위 근거 주석이 제 발을 밟는다 · 같은 사고 다섯 번째 방지).
 nochk '몸짓으로 전합니다. 두 사람, 천천히' assets/ritual-data.js
 nochk '몸짓으로 전합니다. 두 사람, 천천히' order-preview.html
+# [NARR_RULE --doc] 고르는 일은 **들어오기 전**에 한다 — 제안 문서도 같은 자로 잰다.
+#   손으로 세면 R2 에서 두 번 틀린 그 자리로 돌아간다(B 39벌을 손으로 셀 뻔했다).
+chk "'--doc'" scripts/check-narr-rule.mjs 1
+# ★판정은 한 곳(judge)에서만 — 자가진단이 규칙을 따로 들면 자가진단만 초록인 날이 온다(이중 원천)
+chk 'export function judge' scripts/check-narr-rule.mjs 1
