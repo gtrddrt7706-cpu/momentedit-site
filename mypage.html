@@ -5920,7 +5920,7 @@ var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터
 /* ★[PHOTO_LIMIT 2026-08-08] 11 → 6. 5차 리서치 실측으로 11개는 물리적으로 불가능해졌다 —
    전체컷 6분 + 11컷 × 3분 = 39분인데 배정 시간이 30분이다. 6개면 6+18=24분으로 들어간다. */
 /* ★★[PHOTO_CAP 2026-08-09 · DAY_PLAN] 상한은 「다 함께」 길이에서 나온다 — 취향이 아니다.
-   2026-08-09 사용자 결정(B안)으로 다 함께가 36~44 → **31~39분**이 됐다(단독 스냅에 이동 5분을 주느라).
+   2026-08-09 사용자 결정(B안)으로 다 함께가 36~44 → **30~39분**이 됐다(단독 스냅에 이동 5분을 주느라).
    ★시간만 줄이고 상한을 그대로 두면 **밀도의 함정**에 빠진다 — 같은 분량을 짧은 시간에 밀어 넣는 것이라
      현장에서 라운드가 잘려 나간다. 라운드는 테이블당 3분이 하한(리서치 3차)이라 못 자른다.
      그래서 줄인 5분을 **사진 세팅 상한**에서 되돌려 받는다.
@@ -5973,7 +5973,7 @@ function renderPhoto(box){
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
   var _pm=photoMins(sel);
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
-    +(_pm>19?' <span style="color:var(--gold-deeper)">· 인사 사진 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 31~39분 기준+'</div>';
+    +(_pm>19?' <span style="color:var(--gold-deeper)">· 인사 사진 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 30~39분 기준+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }

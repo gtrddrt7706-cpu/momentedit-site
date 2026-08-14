@@ -336,7 +336,7 @@ chk 'BADGE_GAP' scripts/check-ord-save.mjs 7
 chk 'accessibility.snapshot' scripts/check-ord-save.mjs 1   # ★귀는 접근성 이름으로 잰다 — textContent 로 되돌리지 말 것
 nochk 'subq-def' order-preview.html                 # ★제목 옆 「기본은 …」 한 줄로 되돌리지 말 것(소음을 바꿔 다는 것)
 nochk "oc('declare',v,DECLARE" order-preview.html   # ★세부를 다시 카드로 되돌리지 말 것(위 이유)
-chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~24)는 설명 문장에 남긴다(2026-08-09)
+chk 'WAVE_SOFT' index.html 1                        # 큰 칩은 '약 N' · 범위(16~25)는 설명 문장에 남긴다(2026-08-09)
 chk "var allDone = false" mypage.html 1            # 예식 준비 카드 항상 펼침(2026-07-19 사용자 지시 · 접힘 아코디언 부활 금지)
 chk '_seatNext' mypage.html 2                      # 확정 저장→좌석 자동 연결
 chk 'seat-fstrip' mypage.html 3                    # 좌석 상단 확정 요약 스트립
@@ -1798,15 +1798,15 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 # 주변 산문에 숫자가 많아서(140분·45분·5분·55분·20분·9시 45분…) check-source-drift 가
 # 숫자를 '순서 있는 부분열'로 맞출 때, 가운데값 20 은 근처의 다른 20 으로 대신 채워진다.
 # ★두 세션이 따로 재서 같은 결과를 봤다 — 같은 자리(The Ceremony)를 30 으로 망가뜨렸을 때
-#     범위 꼴 `16~24m | The Ceremony` → drift exit 1 (CAUGHT)
+#     범위 꼴 `16~25m | The Ceremony` → drift exit 1 (CAUGHT)
 #     가운데값 `20m | The Ceremony`   → drift exit 0 (MISSED)
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '16~24m | The Ceremony' index.html 2
-chk '31~39m | Group Record' index.html 2
+chk '16~25m | The Ceremony' index.html 2
+chk '30~39m | Group Record' index.html 2
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
-#   실측: 다 함께가 31~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
+#   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
 chk 'ROUND_FIT' scripts/check-ritual-cue.js 1
 chk '2패스가 라운드를 더한다' assets/ritual-cue.js 2   # [ROUND_FIT] 캐리어 두 곳 — 손계산 _grFixed 부활 금지
@@ -1895,7 +1895,7 @@ chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사
 # [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
 #   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
 chk 'PHOTO_LIST_V2' mypage.html 2
-chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 31~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
+chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 30~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
 chk 'var PHOTO_FX_MAX=2' mypage.html 1
 chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
 
@@ -3093,3 +3093,27 @@ chk "v1-6.html" mypage.html 1
 chk '2,800,000원' contract/archive/v1-6.html 1
 chk '2,100,000원' contract/archive/v1-6.html 1
 chk '180,000원 · 평일 110,000원' contract/archive/v1-6.html 1
+
+# ── [WELCOME_DEFAULT] 첫인사를 세 코스 기본으로 (2026-08-14 사용자 결정) ──
+# "첫인사안내도 첫멘트로 항상 위치해놓는게 좋지안아?" → 세 코스 전부 ON.
+# 예전엔 기록·약속은 팔레트에만, 가족은 opt(선택)에만 있었다 — 하객이 앉자마자 의식이 시작돼
+# 완충이 없었고 두 분의 첫 목소리를 듣는 자리가 없었다.
+# ★seq 에 넣는 것만으로 켜지는 이유는 isGAdd 가 seq 를 먼저 보기 때문 — 그 함수를 고치면 여기가 조용히 꺼진다.
+# ★대독(나레이션 대신 읽기)은 되살리지 않는다(2026-07 사용자 지시 · S.welcome='self' 고정).
+chk 'WELCOME_DEFAULT' assets/ritual-data.js 9
+chk 'WELCOME_DEFAULT' scripts/check-welcome-default.mjs 1
+chk "seq:\['guest','entry','welcome','vow','ring','declare','toast'\]" assets/ritual-data.js 1
+chk "seq:\['guest','entry','welcome','vow','ring','declare','letter','toast'\]" assets/ritual-data.js 2
+chk "seq:\['guest','entry','welcome','bless','vow','ring','tribute','declare'\]" assets/ritual-data.js 1
+chk 'base:{damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' assets/ritual-data.js 1
+chk 'base={damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' order-preview.html 1
+# [MIN_RING_OFF] 기록 카드 라벨은 base(17)가 아니라 '고객이 보게 될 시간'(16)이다 — 반지 기본 빼기가 1분을 뺀다
+chk 'MIN_RING_OFF' assets/ritual-data.js 1
+chk "record:{nm:'기록', badge:'사진이 중심', ready:true, min:'약 16분'" assets/ritual-data.js 1
+
+# ── [FREE_BLOCK] 자유 한 칸이 완성 순서표에서 빠져 있었다 (2026-08-14 · 검사가 발견) ──
+# 엔진(ritual-cue.js)에는 narr-free-in/out 큐가 처음부터 있는데 빌더의 BLOCK 지도에만 free 가 없어,
+# 고객이 축가·영상을 넣으면 미리듣기엔 소리가 나는데 완성 순서표엔 그 줄이 없었다(순서 12 vs 블록 11).
+# ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다.
+chk 'FREE_BLOCK' order-preview.html 1
+chk 'free:function()' order-preview.html 1

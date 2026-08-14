@@ -76,22 +76,28 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
 /* [TOAST_DEFAULT 2026-08-09] 「약속」 기본에 축배가 들어왔다 → 22큐 → 24큐.
    늘어난 둘: 40 toast-toast(chain · 문안 뒤 사람 구간) · 56 narr-toast-out(manual · 받아 닫는 말).
    ★숫자만 맞추지 말 것 — 어느 큐가 어떤 방식으로 발사되는지가 이 표의 값이다. */
-const A3_MANUAL = ['01', '05', '52', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
-//                  guest-1 entry-A entry-out vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
+/* [WELCOME_DEFAULT 2026-08-14] 「약속」 기본에 첫인사가 들어왔다 → 24큐 → 26큐.
+   늘어난 둘: 11 narr-welcome-in(chain · 입장 닫는 말 뒤 바로) · 12 narr-welcome-out(manual · 두 분이
+   말을 마치는 때를 사람만 안다). ★수동이 13 → 14 로 하나 늘었다 — 이건 설계대로다.
+   첫인사는 '사람의 시간'이고, 사람의 시간 뒤에는 언제나 수동 누름이 붙는다(위 LEAD_OUT 주석과 같은 규칙).
+   ★두 큐 다 예전부터 엔진에 있었다 — 담백에서 첫인사가 팔레트로 내려가며 빠져 있었을 뿐이다
+     (THREE_COURSES 주석의 '12 welcome-out' 이 그것). 되돌아온 것이지 새로 생긴 것이 아니다. */
+const A3_MANUAL = ['01', '05', '52', '12', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
+//                  guest-1 entry-A entry-out welcome-out vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['13', '15', '30', '27', '40', '26', '64', '45'];
-//                 vow-in ring-in declare-1-solemn letter-parent toast close final-call farewell
+const A3_CHAIN = ['11', '13', '15', '30', '27', '40', '26', '64', '45'];
+//                 welcome-in vow-in ring-in declare-1-solemn letter-parent toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 24) no(`§3-A: 24큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 26) no(`§3-A: 26큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
-  else ok(`§3-A 24큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
+  else ok(`§3-A 26큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
 
   // 반지 마무리 → 성혼 선언 사이 '페이드 8초 + 침묵 3초' 시간 고정 (대본 153~159행)
   const ro = r.cues.find((c) => c.slug === 'narr-ring-out');
@@ -254,7 +260,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
 }
 
 /* ★★[ROUND_FIT] 「다 함께」 사람 구간 합이 그 코스에 남은 시간을 넘지 않는가.
-   2026-08-09 실측으로 이 검사를 만들었다 — DAY_PLAN 으로 다 함께가 36~44 → 31~39분이 됐는데
+   2026-08-09 실측으로 이 검사를 만들었다 — DAY_PLAN 으로 다 함께가 36~44 → 30~39분이 됐는데
    엔진의 라운드 est 는 20분으로 박혀 있어 digital 조합에서 **39.5분**이 나왔다.
    화면(마이페이지)에서는 상한을 내려 밀도의 함정을 막아 놓고 엔진에서는 그대로 빠져 있었다.
    ★검사가 없으면 이런 건 당일에야 드러난다 — 라운드가 끝나기 전에 배웅 시간이 오는 식으로. */

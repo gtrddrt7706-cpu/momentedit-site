@@ -126,8 +126,13 @@ function scan(needle) {
      새 형식으로 적어도(30m·(30분)·30<small>min) 걸린다. */
 {
   // 보이는 코스에서 본식 범위를 계산한다 — 손으로 적지 않는다.
-  const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden).map((k) => D.MIN.base[k]);
-  const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~24
+  /* ★[MIN_LABEL_SOURCE 2026-08-14] base 가 아니라 **카드에 적힌 min 라벨**을 읽는다.
+     둘은 같지 않다 — 기록 코스는 반지 빼기가 기본이라 base(17)에서 1분이 빠져 16분으로 보인다.
+     산문에 적히는 「본식 N~N분」은 고객이 실제로 겪는 시간이어야 하므로 라벨이 옳은 원천이다.
+     (base 를 읽던 옛 판은 base 와 라벨이 우연히 같아서 안 드러났다 · WELCOME_DEFAULT 로 갈렸다) */
+  const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden)
+    .map((k) => { const m = String(D.COURSES[k].min || '').match(/(\d+)/); return m ? +m[1] : D.MIN.base[k]; });
+  const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~25 (기록 16 ~ 가족 25)
   /* ★합계도 손으로 적지 않는다 — D.DAY 에서 계산한다. [DAY_PLAN 2026-08-09]
      2026-08-08 에는 합이 60분이었고 하루 뒤 55분이 됐다. 그때 이 줄이 60 으로 박혀 있었으면
      열 벌을 다 고쳐 놓고도 검사만 옛 숫자를 들고 빨개졌을 것이다. */

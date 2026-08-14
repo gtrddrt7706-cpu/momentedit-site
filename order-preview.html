@@ -748,10 +748,11 @@ var COURSES={
   "nm": "약속",
   "badge": "두 사람이 중심",
   "ready": true,
-  "min": "약 22분",
+  "min": "약 23분",
   "seq": [
    "guest",
    "entry",
+   "welcome",
    "vow",
    "ring",
    "declare",
@@ -762,6 +763,7 @@ var COURSES={
   "feel": "서로에게 건네는 약속이 하루의 가운데 있기를 바라는 두 분께 · 과하지 않게, 대신 그 자리에 오래 머물러요.",
   "flow": [
    "입장 멘트",
+   "첫인사 진행",
    "혼인 서약",
    "반지 교환",
    "성혼 선언",
@@ -776,6 +778,13 @@ var COURSES={
     "how": "나레이션의 안내에 이어 \"신랑 신부, 입장!\" 소리와 함께 문이 열리고, 두 분이 손을 잡고 함께 걸어 들어와요.",
     "fx": "모두의 시선이 한 번에 문으로 쏠리며, 예식의 첫 감동이 터지는 순간이에요.",
     "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "k": "welcome",
+    "n": "환영·첫인사",
+    "how": "두 분이 하객에게 직접 감사 인사를 전해요.",
+    "fx": "두 분의 목소리로 자리가 열리고, 하객도 한 호흡 쉬어 갈 수 있어요.",
+    "pick": "인사말 준비"
    },
    {
     "k": "vow",
@@ -920,10 +929,11 @@ var COURSES={
   "nm": "가족",
   "badge": "어른이 중심",
   "ready": true,
-  "min": "약 24분",
+  "min": "약 25분",
   "seq": [
    "guest",
    "entry",
+   "welcome",
    "bless",
    "vow",
    "ring",
@@ -932,18 +942,15 @@ var COURSES={
   ],
   "opt": [
    {
-    "k": "welcome",
-    "at": 3
-   },
-   {
     "k": "letter",
-    "at": 5
+    "at": 6
    }
   ],
   "one": "어른이 중심 · 부모님이 말하는 자리와, 두 분이 부모님께 가는 자리",
   "feel": "가족 유대를 소중히 여기는 두 분께 · 온 가족이 함께 완성하는 예식이에요.",
   "flow": [
    "입장 멘트",
+   "첫인사 진행",
    "부모님 덕담",
    "혼인 서약",
    "반지 교환",
@@ -958,6 +965,13 @@ var COURSES={
     "how": "나레이션 안내에 이어 문이 열리고, 두 분이 함께 걸어 들어와요.",
     "fx": "가족이 지켜보는 가운데 첫 걸음을 내딛는 순간이에요.",
     "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "k": "welcome",
+    "n": "환영·첫인사",
+    "how": "두 분이 하객에게 직접 감사 인사를 전해요.",
+    "fx": "어른들께 두 분의 목소리로 먼저 인사드리는 자리예요.",
+    "pick": "인사말 준비"
    },
    {
     "k": "bless",
@@ -1013,6 +1027,7 @@ var COURSES={
   "seq": [
    "guest",
    "entry",
+   "welcome",
    "vow",
    "ring",
    "declare",
@@ -1021,17 +1036,18 @@ var COURSES={
   "opt": [
    {
     "k": "letter",
-    "at": 2
+    "at": 3
    },
    {
     "k": "free",
-    "at": 4
+    "at": 5
    }
   ],
   "one": "사진이 가장 많이 남는 코스 · 마음이 움직이는 순간만 두세 개",
   "feel": "틀에 맞춘 예식보다 오래 볼 사진이 남기를 바라는 두 분께 · 순간은 적게, 대신 깊게 머물러요.",
   "flow": [
    "입장 멘트",
+   "첫인사 진행",
    "혼인 서약",
    "성혼 선언",
    "축배 · 케이크",
@@ -1044,6 +1060,13 @@ var COURSES={
     "how": "행진하지 않아요. 두 분이 하객분들 사이를 지나 가운데로 걸어오시면, 나레이션이 시작을 열어요.",
     "fx": "넓은 컷과 하객분들의 얼굴이 한 장에 담기는 자리예요.",
     "pick": "입장 멘트 느낌 6가지 중 선택"
+   },
+   {
+    "k": "welcome",
+    "n": "환영·첫인사",
+    "how": "두 분이 하객에게 직접 감사 인사를 전해요.",
+    "fx": "짧게 한마디여도, 여기서 표정이 가장 자연스럽게 풀려요.",
+    "pick": "인사말 준비"
    },
    {
     "k": "vow",
@@ -1808,7 +1831,7 @@ function renderMiniTL(k){
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
-  h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 16~24분의 식순과 나레이션 대본이 만들어져요.</div>';   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
+  h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 16~25분의 식순과 나레이션 대본이 만들어져요.</div>';   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   // [ORD_TIMEBUDGET] 본식은 벽이 아니라 사진과 맞바꾸는 예산이다(2026-08-01 사용자 확인:
   //   "많이 늦어지거나 줄어들지만 않으면 ±10분 정도 괜찮다 · 사진을 좀 늘리거나 줄이면 되니까").
@@ -1821,7 +1844,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~24분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['31~39분','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~25분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['30~39분','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -2705,6 +2728,15 @@ var BLOCK={
     if(S.valley==='cake') return {n:'케이크 커팅',nar:"오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.",cue:'나레이션이 흐르는 동안 → 함께 나이프 잡고 커팅 · 포즈'};
     return null;
   },
+  /* ★★[FREE_BLOCK 2026-08-14] 「자유 한 칸」이 완성 순서표에서 통째로 빠져 있었다.
+     엔진(assets/ritual-cue.js)에는 narr-free-in / narr-free-out 큐가 처음부터 있었는데,
+     빌더의 BLOCK 지도에만 free 가 없어서 — 고객은 순서를 넣고, 미리듣기에선 소리가 나고,
+     그런데 **완성 화면의 순서표에는 그 줄이 없다.** 검사(ordsim4 · 순서 12 vs 블록 11)가 잡았다.
+     2026-08-09 OPEN_PALETTE 로 free 를 전 코스에 열 때 이 지도만 안 고친 것이다.
+     ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다. */
+  free:function(){
+    return {n:'자유 한 칸',nar:FREE_IN,self:'두 분이 정한 순서',end:FREE_OUT,cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
+  },
   song:function(){
     return {n:'축가',nar:"이제, 두 사람을 위해 준비된 노래가 있습니다. 잠시, 음악에 마음을 맡겨 주시기 바랍니다.",self:S.song==='live'?'어쿠스틱 라이브 연주(저희가 연결·추가 비용 안내)':'가족·지인이 직접 노래',cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
   },
@@ -2757,7 +2789,7 @@ function estMin(){
      실제로 갈려 있었다: family 30(원천 24) · damback 25(원천 20) · gamdong 29(원천 28) ·
      record 키 누락으로 ||25(원천 16). 가족 코스를 고르면 카드는 '약 24분'인데 다듬기 화면은
      아무것도 안 더했는데 '지금 약 30분이에요 · 25분 안쪽이 편안해요' 경고를 띄웠다. */
-  var base={damback:22,minimal:18,gamdong:28,family:24,festive:30,record:16}[S.course]||20, m=base;   // [TOAST_DEFAULT 2026-08-09] 약속 20→22(축배 기본 편입) · 원천은 assets/ritual-data.js MIN.base
+  var base={damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}[S.course]||20, m=base;   // [TOAST_DEFAULT 2026-08-09] 약속 20→22(축배 기본 편입) · [WELCOME_DEFAULT 2026-08-14] 첫인사 1분 편입(22→23·24→25·16→17) · 원천은 assets/ritual-data.js MIN.base
   if(S.ring==='off') m-=1;
   if(inSeq('valley') && S.valley!=='none') m+=3;
   if(inSeq('bless')){ var bd=(S.course==='family')?'on':'off'; if(S.bless!==bd) m+=(S.bless==='on'?2:-2); }
