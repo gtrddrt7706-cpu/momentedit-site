@@ -3188,3 +3188,14 @@ chk 'TONE_NAR:TONE_NAR' assets/ritual-data.js 1
 chk 'TONE_TABLE:BEGIN' assets/ritual-data.js 1
 chk 'TONE_TABLE' scripts/build-tone-table.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/build-tone-table.mjs || fail=1; else echo 'skip build-tone-table (node 없음)'; fi
+
+# ── [TONE_COPY] 어조 화면 이름은 문서 용어와 **따로 산다** (53_어조화면문구.md · 2026-08-14) ──
+# 화면: 간결하게 / 차분하게(기본) / 다정하게   ·   문서: 담백 / 서정 / 다정   ·   키: plain/lyric/warm
+# ★문서 용어를 화면 이름으로 갈아 끼우지 말 것 — 21_B 의 `**담백**` 라벨은 세 스크립트가 읽는
+#   **파서의 표식**이다(check-narr-rule --doc · check-munan-copy · build-tone-table).
+#   바꾸면 원천이 통째로 안 읽히고, 그때 검사는 「0벌 전부 통과」라고 조용히 초록이 된다.
+chk 'TONE_COPY' docs/plans/대본개정/53_어조화면문구.md 1
+chk '담백|서정|다정' scripts/check-narr-rule.mjs 1
+chk '담백|서정|다정' scripts/check-munan-copy.mjs 1
+# 51 은 나레이션 부분이 폐기됐다 — 배너가 사라지면 다음 사람이 「자리마다 한 벌만」을 구현한다
+chk '나레이션 부분(§1~§5)은 폐기됐다' docs/plans/대본개정/51_고른결과.md 1
