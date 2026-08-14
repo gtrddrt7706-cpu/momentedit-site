@@ -27,7 +27,11 @@ if (!files.length) {
   files = fs.readdirSync(DIR).filter((f) => f.endsWith('.md')).map((f) => path.join(DIR, f));
 }
 
-const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
+/* ★[STAR_OK 2026-08-14] ★(U+2605)·☆(U+2606)은 **관례 마커**라 CLAUDE.md 가 명시로 허용한다
+   (「상태 신호·경고·관례 마커(★)만 허용」). 그런데 U+2600-27BF 범위가 그걸 삼킨다 —
+   코워크 B가 이 그물에 걸려 **자기 문서의 ★를 ※로 바꿨다.** 규칙이 허용하는 것을
+   검사가 막아 사람이 문서를 이상하게 쓰게 된 것이다. 범위에서 빼 둔다. */
+const EMOJI = /(?![\u2605\u2606])[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
 const bad = [];
 let lines = 0;
 

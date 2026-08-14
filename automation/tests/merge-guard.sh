@@ -3142,3 +3142,9 @@ chk 'NARV:NARV' assets/ritual-data.js 1
 # 문서 전체를 훑으면 설명 산문의 줄표·★ 까지 잡힌다 — 실제로 첫 판이 그랬다.
 # 문안임을 형식으로 표시하고(굵은 번호 · 결 이름 아래 인용줄), 검사는 그것만 본다.
 chk 'MUNAN_COPY' scripts/check-munan-copy.mjs 1
+# [AI_VOICE_TENSE 2026-08-14 코워크 B 지적 · 확인함] 나레이션은 AI 음성으로 **미리 제작**된다.
+#   미리 녹음된 목소리가 현장을 실시간으로 보고 있는 척하면 서명받은 AI 고지와 어긋난다
+#   (계약서 서명란 + mypage 서명 판 넷째 줄). '저도 지금 처음 봅니다'가 실제로 그랬다.
+chk 'AI_VOICE_TENSE' assets/ritual-data.js 1
+nochk 'nar:"두 사람이 몰래 준비한' assets/ritual-data.js   # [AI_VOICE_TENSE] 옛 문안 자체를 겨눈다(근거 주석은 그 말을 인용하므로 이름으로 겨누면 제 발을 밟는다 · 네 번째 사고)
+chk 'STAR_OK' scripts/check-munan-copy.mjs 1
