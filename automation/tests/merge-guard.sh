@@ -239,6 +239,12 @@ chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '�
 #   부족했다 — .opts 의 flex gap(12px)이 카드와 세부 패널 사이를 도로 벌렸다(실측 12px → 0px).
 #   .subset 의 margin-top:-12px 가 그 간격을 되물린다. .opts 의 gap 과 짝 — 한쪽만 바꾸면 다시 끊긴다.
 chk 'SUB_SEG_JOIN' order-preview.html 1
+# ★[SUB_SEG_NOLINE 2026-08-14 사용자 지적 "갈색 텍스트박스 안에 가로줄이 올드한 느낌"]
+#   한 몸으로 붙이자 부모 카드의 아래 테두리가 베이지 상자를 반 자르는 실선으로 남았다 → 지웠다.
+#   여백이 그 일을 한다(실측 라벨 위 28px : 아래 9px = 3.1배 · [TYPO_RHYTHM] 2배 이상).
+#   전폭 실선으로 되돌리지 말 것 — [ADV_INDEX] "선은 가장 싸고 가장 시끄러운 구분자다".
+chk 'SUB_SEG_NOLINE' order-preview.html 1
+chk '.oc:has(+ .subset){border-bottom:0' order-preview.html 1
 # ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
 #   양끝 페이드 헬퍼(GLINE) 하나로 — 딱 끊기는 전폭 직선으로 되돌리지 말 것.
 #   ★가로 직선은 bbox 높이 0이라 userSpaceOnUse 그라디언트여야 칠해진다(objectBoundingBox 는 투명 · 실측).
