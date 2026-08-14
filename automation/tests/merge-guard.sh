@@ -3148,3 +3148,13 @@ chk 'MUNAN_COPY' scripts/check-munan-copy.mjs 1
 chk 'AI_VOICE_TENSE' assets/ritual-data.js 1
 nochk 'nar:"두 사람이 몰래 준비한' assets/ritual-data.js   # [AI_VOICE_TENSE] 옛 문안 자체를 겨눈다(근거 주석은 그 말을 인용하므로 이름으로 겨누면 제 발을 밟는다 · 네 번째 사고)
 chk 'STAR_OK' scripts/check-munan-copy.mjs 1
+
+# ── [NO_ADDABLE] 코스 카드 맨 아래 '더할 수 있어요' 줄 폐지 (2026-08-14 사용자 지시) ──
+# 원문: "코스중 이부분 멘트는 다 빼자"
+# 두 가지가 겹쳤다 — ①고를 것이 이미 다음 화면(다듬기)에 전부 서 있어(ORD_ADD_ALL) 같은 말이 두 번,
+# ②첫인사가 기본이 되며(WELCOME_DEFAULT) "첫인사를 더할 수 있어요"가 사실이 아니게 됐다.
+# ★되살리지 말 것(제거 지시 보존 규칙). 더할 수 있다는 안내는 다듬기 화면이 한다.
+chk 'NO_ADDABLE' assets/ritual-data.js 1
+chk 'NO_ADDABLE' order-preview.html 1
+nochk "if(c.addable)" order-preview.html
+nochk "addable:'" assets/ritual-data.js
