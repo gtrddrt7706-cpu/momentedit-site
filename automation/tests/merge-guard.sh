@@ -244,6 +244,15 @@ chk 'SUB_SEG_JOIN' order-preview.html 1
 #   여백이 그 일을 한다(실측 라벨 위 28px : 아래 9px = 3.1배 · [TYPO_RHYTHM] 2배 이상).
 #   전폭 실선으로 되돌리지 말 것 — [ADV_INDEX] "선은 가장 싸고 가장 시끄러운 구분자다".
 chk 'SUB_SEG_NOLINE' order-preview.html 1
+# ★[GUEST_NODUP 2026-08-14 사용자 지적 "이 부분 안내 전문 보기로 대체하자 · 중복 설명이야"]
+#   하객 맞이 상단의 「이렇게 흘러요 · 안내 네 번」 4줄 박스를 지웠다 — 바로 아래 전문 보기가 같은 넷을
+#   다시 보여 주고 있었다. 「네 번」은 fold 라벨이 이어받았다. 4줄 박스를 되살리지 말 것.
+chk 'GUEST_NODUP' order-preview.html 2
+chk '안내 네 번, 문구 전문 보기' order-preview.html 1
+#   ★자는 **마크업**을 겨눈다 — 문구만 겨누면 바로 위 근거 주석의 인용문을 제 발로 밟는다(실측 REVERT?).
+nochk 'proc-l">이렇게 흘러요' order-preview.html
+# ★[TUNE_HINT_ONE 2026-08-14 사용자 지시] 다듬기 안내는 한 줄 — 조작 설명(↑↓·카드 누름)은 단추가 말한다.
+chk 'TUNE_HINT_ONE' order-preview.html 1
 chk '.oc:has(+ .subset){border-bottom:0' order-preview.html 1
 # ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
 #   양끝 페이드 헬퍼(GLINE) 하나로 — 딱 끊기는 전폭 직선으로 되돌리지 말 것.

@@ -2070,7 +2070,13 @@ function renderStep(k){
     /* [ORD_LEAN] 목록 앞에 안내가 네 줄(220자) 서 있어 무엇을 보는 화면인지가 뒤로 밀렸다.
        두 줄로 줄인다 — 나머지는 화면이 스스로 말한다(↑↓ 버튼·'순서에서 빼기' 버튼은 라벨이 곧 설명이다). */
     h+='<div class="q-sub" style="margin-top:0">'+esc(COURSES[S.course].nm)+' 코스로 시작해요 · <b>그대로 둬도 되고</b>, 하나씩 다듬어도 돼요.</div>';
-    h+='<div class="tune-hint">위에서 아래가 진행 순서예요 · <b>↑↓</b>로 옮기고, 카드를 누르면 <b>연출</b>을 골라요.</div>';   // 순서 조정 안내(2026-07-18 사용자 지시) + [ORD_BADGE_AXIS] 순서 축·연출 축을 문장에서 갈라 놓음
+    /* ★[TUNE_HINT_ONE 2026-08-14 사용자 지시 "이거 문구 한 줄로 깔끔하게 미니멀하게"]
+       두 줄이던 안내를 한 줄로. 지운 것은 **조작 설명**(↑↓로 옮기고 · 카드를 누르면)이다 —
+       이 지면이 이미 여러 번 내린 것과 같은 판단이다([ORD_ROWCTL] "단추 이름이 이미 하는 말이다",
+       [ADV_INDEX] 선·설명을 덜어 여백으로 말하기). ↑↓ 단추와 › 셰브런이 자기 일을 스스로 말한다.
+       남긴 한 가지는 **버튼이 말해 주지 못하는 것** — 이 목록의 위아래가 곧 시간 순서라는 사실.
+       ★조작 설명을 되붙이지 말 것. 필요해지면 문장이 아니라 단추 모양으로 풀 것. */
+    h+='<div class="tune-hint">위에서 아래가 <b>진행 순서</b>예요</div>';
     // ★[ORD_SAVE_WHERE] 코스를 고른 여기가 두 번째(마지막) 알림 자리다 — 이 화면부터 순간 13개를 하나씩
     //   다듬느라 20분 넘게 걸리고, 다 만든 뒤 저장 배너에서야 '이 기기에만'을 알면 그때는 이미 늦다
     //   (신부 폰에서 만들고 신랑 폰으로 열면 없다 · 2026-08-01). 막지 않고 권하기만 한다 — 로그인 강요 금지.
@@ -2173,9 +2179,12 @@ function renderStep(k){
   if(k==='guest'){
     var cpl=S.guestVoice==='couple';
     var h='<div style="margin-top:16px">';
-    h+='<div class="proc"><div class="proc-l">이렇게 흘러요 · 안내 네 번</div>';
-    GUEST.forEach(function(g,gi){ h+='<div class="proc-s"><span class="pn">'+(gi+1)+'</span>'+esc(g[0])+' · '+esc(g[1].split('.')[0])+'.</div>'; });
-    h+='</div>';
+    /* ★[GUEST_NODUP 2026-08-14 사용자 지적 "이 부분 안내 전문 보기로 대체하자 · 중복 설명이야"]
+       상단 「이렇게 흘러요 · 안내 네 번」 4줄 박스 **삭제 — 되살리지 말 것.**
+       같은 네 안내의 첫 문장만 잘라 보여 주고 있었는데, 바로 아래 「안내 문구 전문 보기」가
+       같은 네 개를 시각·전문으로 다시 보여 준다. 한 화면에서 같은 것을 두 번 읽히는 자리였다.
+       ★잃은 정보는 없다 — 시점(입장 직후·10분 전·5분 전·1분 전)은 전문 보기 안 각 항목의
+         제목이 그대로 들고 있고, 「네 번」이라는 수는 아래 fold 라벨이 이어받았다. */
     h+='<div class="vq" style="margin-top:16px">이 안내, 누구 목소리로 할까요?</div>';
     h+='<div class="oc'+(!cpl?' on':'')+'"><button type="button" class="oc-nm" aria-pressed="'+(!cpl?'true':'false')+'" data-fk="guestVoice:nar" onclick="setGuestVoice(\'nar\')">나레이션 <span class="oc-rec">기본</span></button><div class="oc-desc">저희가 준비해요.</div></div>';   // [ORD_KEY]
     h+='<div class="oc'+(cpl?' on':'')+'" style="margin-top:11px"><button type="button" class="oc-nm" aria-pressed="'+(cpl?'true':'false')+'" data-fk="guestVoice:couple" onclick="setGuestVoice(\'couple\')">두 분 목소리로</button><div class="oc-desc">직접 녹음하거나 AI로 만들면 저희가 틀어드려요</div></div>';
@@ -2198,8 +2207,13 @@ function renderStep(k){
       });
     } else {
       var _gs=''; GUEST.forEach(function(g){ _gs+='<div class="gt"><div class="gt-t">'+esc(g[0])+'</div><div class="gt-x">'+esc(g[1])+'</div></div>'; });
-      h+='<div style="margin-top:12px">'+fold('guestScripts','안내 문구 전문 보기',_gs)+'</div>';
-      h+='<div style="text-align:center;margin-top:10px"><button class="play" onclick="momPlay(this,\'guest\')">안내 네 개, 흐르는 순서대로 이어듣기</button></div>';
+      /* [GUEST_NODUP] 라벨이 「네 번」을 이어받는다 — 위 박스를 지우며 사라진 유일한 정보다.
+         ★[GUEST_PLAY_ALIGN] 이어듣기는 이 지면의 다른 듣기와 **같은 자리·같은 모양**이다 —
+           가운데 정렬 래퍼를 걷었다. 저장소 전체에서 .play 는 내용 아래 왼쪽에 붙는 조용한 링크인데
+           이 한 곳만 가운데로 떠 있어 앞의 전문 보기 줄과 짝이 아닌 것처럼 읽혔다.
+           라벨도 줄인다 — 「안내 네 개」는 바로 위 줄이 방금 말했다(같은 화면 두 번 금지). */
+      h+='<div style="margin-top:12px">'+fold('guestScripts','안내 네 번, 문구 전문 보기',_gs)+'</div>';
+      h+='<button class="play" onclick="momPlay(this,\'guest\')">순서대로 이어듣기</button>';
     }
     /* ★[NO_BACKSTAGE 2026-08-10] 나레이션 갈래의 띠 「이 안내는 두 분이 준비한 음악 위에 나레이션으로
        흐르게 준비돼요.」 삭제. 복원하지 말 것. 입장 절의 upkeep 줄과 **같은 자**로 잰다 —
