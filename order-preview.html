@@ -1805,13 +1805,23 @@ var _clipDone={};
 function clip(k){
   var _was=_clipDone[k]; _clipDone[k]=true;
   var G='#B89A75', GD='#9A7B4F', C='#6B2A24';
+  /* ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 양끝을 공기에 녹인다.
+     딱 끊기는 전폭 직선은 지면을 '자'처럼 갈라 낡아 보였다 — 선을 없애지는 않는다(사람 형체가
+     딛고 서는 바닥이라 빼면 붕 뜬다 · 시안 3종 실렌더 비교로 결정). 여섯 바닥선 전부 이 헬퍼만 쓴다.
+     ★가로 직선은 bbox 높이가 0이라 기본(objectBoundingBox) 그라디언트가 안 칠해진다 — userSpaceOnUse(실측). */
+  function GLINE(x1,y,x2,id,style){
+    return '<defs><linearGradient id="gl'+id+'" gradientUnits="userSpaceOnUse" x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'">'
+      +'<stop offset="0" stop-color="'+G+'" stop-opacity="0"/><stop offset="0.16" stop-color="'+G+'" stop-opacity="1"/>'
+      +'<stop offset="0.84" stop-color="'+G+'" stop-opacity="1"/><stop offset="1" stop-color="'+G+'" stop-opacity="0"/></linearGradient></defs>'
+      +'<path d="M'+x1+' '+y+' H '+x2+'" stroke="url(#gl'+id+')" stroke-width="1" pathLength="100" class="m-draw" style="'+style+'"/>';
+  }
   var cap={entry:'문이 열리고, 두 분의 첫걸음이 시작됩니다',welcome:'두 분이 나란히, 첫인사를 드립니다',declare:'모두의 목소리가 하나로, 성혼을 선언합니다',letter:'눌러 담아 온 마음이, 편지로 전해집니다',toast:'잔이 맞닿는 순간, 축복이 울립니다',vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'}[k];
   var svg='';
   if(k==='entry'){
     var A='#3A2D22', BG='#C9A76F';
     svg='<svg viewBox="0 0 320 128" style="width:100%;height:auto">'
     // 바닥선
-    +'<path d="M18 104 H 302" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-duration:1.1s"/>'
+    +GLINE(18,104,302,k,'animation-duration:1.1s')
     // 아치: 가는 곡선 2줄 (셀프드로잉)
     +'<path d="M34 104 V 40 Q 34 16 70 16 Q 106 16 106 40 V 104" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-delay:.5s;animation-duration:1.5s"/>'
     +'<path d="M40 104 V 42 Q 40 21 70 21 Q 100 21 100 42 V 104" fill="none" stroke="'+G+'" stroke-width="1.1" pathLength="100" class="m-draw" style="animation-delay:.75s;animation-duration:1.5s"/>'
@@ -1833,7 +1843,7 @@ function clip(k){
   if(k==='welcome'){
     var A3='#3A2D22';
     svg='<svg viewBox="0 0 320 110" style="width:100%;height:auto">'
-    +'<path d="M24 96 H 296" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-duration:1s"/>'
+    +GLINE(24,96,296,k,'animation-duration:1s')
     +'<g class="m-in" style="animation-delay:.5s" opacity="0.5"><ellipse cx="52" cy="103" rx="7" ry="8" fill="#E8D9BC"/><ellipse cx="78" cy="105" rx="7" ry="7" fill="#EFE3CB"/><ellipse cx="104" cy="103" rx="7" ry="8" fill="#E8D9BC"/></g>'
     +'<g class="m-bow"><circle cx="206" cy="36" r="5" fill="'+A3+'"/><path d="M206 42 c -6 1 -8 6 -8.5 13 l -1.5 41 h4 l2 -28 h8 l2 28 h4 l-1.5 -41 c -.5 -7 -2.5 -12 -8.5 -13 z" fill="'+A3+'"/></g>'
     +'<g class="m-bow" style="animation-delay:.9s"><circle cx="242" cy="38" r="4.6" fill="'+A3+'"/><path d="M242 43 c -4.4 1.4 -6.8 8 -8.4 19 q -2.4 9 -6 11 q 10.6 2.4 16.4 -1 c 2.6 -8 1.6 -22 -2 -29 z" fill="#C9A76F"/><circle cx="232" cy="66" r="2.6" fill="'+C+'"/></g>'
@@ -1846,7 +1856,7 @@ function clip(k){
       cards+='<g class="m-rise" style="animation-delay:'+(0.7+ci*0.18)+'s"><rect x="'+(xs[ci]-11)+'" y="70" width="22" height="15" rx="2.5" fill="#FFFFFF" stroke="'+GD+'" stroke-width="1.3"/>'+(ci===2?'<circle cx="'+xs[ci]+'" cy="77.5" r="2" fill="'+C+'"/>':'')+'</g>';
     }
     svg='<svg viewBox="0 0 320 110" style="width:100%;height:auto">'
-    +'<path d="M30 92 H 290" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-duration:1s"/>'
+    +GLINE(30,92,290,k,'animation-duration:1s')
     +'<g opacity=".45"><circle cx="160" cy="26" r="4" fill="'+GD+'"/><path d="M160 31 q -6 2 -7 14 l 8 0 6 0 q -1 -12 -7 -14 z" fill="'+GD+'"/></g>'
     +cards
     +'<circle cx="140" cy="52" r="2.2" fill="'+G+'" class="m-spark" style="animation-delay:1.9s"/>'
@@ -1856,7 +1866,7 @@ function clip(k){
   if(k==='letter'){
     var A4='#3A2D22';
     svg='<svg viewBox="0 0 320 110" style="width:100%;height:auto">'
-    +'<path d="M30 96 H 290" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-duration:1s"/>'
+    +GLINE(30,96,290,k,'animation-duration:1s')
     +'<g fill="'+A4+'" opacity=".85"><circle cx="96" cy="34" r="5"/><path d="M96 40 c -6 1 -8 6 -8.5 12 l -1.5 44 h4 l2 -30 h8 l2 30 h4 l-1.5 -44 c -.5 -6 -2.5 -11 -8.5 -12 z"/></g>'
     +'<g fill="'+A4+'" opacity=".85"><circle cx="126" cy="37" r="4.6"/><path d="M126 42 c -4.4 1.4 -6.6 8 -8 19 q -2 9.4 -5.6 11.4 q 10 2.4 15.6 -1 c 2.6 -8 1.6 -22.4 -2 -29.4 z"/></g>'
     +'<g><circle cx="212" cy="36" r="4.6" fill="'+A4+'"/><path d="M212 41 c -4.4 1.4 -6.8 8 -8.4 20 q -2.4 8.6 -6 10.6 q 10.6 2.4 16.4 -1 c 2.6 -8 1.6 -22.6 -2 -29.6 z" fill="#C9A76F"/></g>'
@@ -1865,7 +1875,7 @@ function clip(k){
   }
   if(k==='toast'){
     svg='<svg viewBox="0 0 320 110" style="width:100%;height:auto">'
-    +'<path d="M70 96 H 250" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-duration:1s"/>'
+    +GLINE(70,96,250,k,'animation-duration:1s')
     +'<g class="m-clinkl"><path d="M134 44 q 2 16 12 18 l 0 26 m -8 0 h 16" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round"/><path d="M134 44 h 24 q -2 16 -12 18" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round"/></g>'
     +'<g class="m-clinkr"><path d="M162 44 q 2 16 12 18 l 0 26 m -8 0 h 16" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round"/><path d="M162 44 h 24 q -2 16 -12 18" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round"/></g>'
     +'<circle cx="160" cy="38" r="2.6" fill="'+G+'" class="m-spark" style="animation-delay:1.9s"/>'
@@ -1876,7 +1886,7 @@ function clip(k){
     svg='<svg viewBox="0 0 320 104" style="width:100%;height:auto">'
     +'<path d="M28 58 C 58 36, 84 72, 112 54 S 166 32, 194 56 S 250 68, 278 48" fill="none" stroke="'+GD+'" stroke-width="2" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-duration:2s"/>'
     +'<circle cx="287" cy="47" r="3.4" fill="'+C+'" class="m-in" style="animation-delay:2.05s"/>'
-    +'<path d="M64 82 H 256" stroke="'+G+'" stroke-width="1" pathLength="100" class="m-draw" style="animation-delay:2.3s;animation-duration:.9s"/>'
+    +GLINE(64,82,256,k,'animation-delay:2.3s;animation-duration:.9s')
     +'</svg>';
   }
   if(k==='ring'){
