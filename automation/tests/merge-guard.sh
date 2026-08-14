@@ -3176,3 +3176,15 @@ nochk '몸짓으로 전합니다. 두 사람, 천천히' order-preview.html
 chk "'--doc'" scripts/check-narr-rule.mjs 1
 # ★판정은 한 곳(judge)에서만 — 자가진단이 규칙을 따로 들면 자가진단만 초록인 날이 온다(이중 원천)
 chk 'export function judge' scripts/check-narr-rule.mjs 1
+
+# ── [TONE_PICK] 예식 어조 1회 전역 선택 (2026-08-14 사용자 지시 "전부 더빙 붙이고 고객이 고를수있게") ──
+# ★표에 **현행이 안 들어간다**는 것이 이 설계의 전부다 — 없으면 현행으로 읽는다.
+#   52 §5-3 이 「없으면 서정(index 0)」이라 적었다가 함정에 빠졌다(index 0 은 담백이다 · 52 §7).
+#   결 이름으로 폴백하면 tone 없는 옛 초안의 나레이션이 통째로 바뀐다. 되돌리지 말 것.
+chk 'TONE_PICK' assets/ritual-data.js 1
+chk 'function TONE_NAR' assets/ritual-data.js 1
+chk 'TONE_NAR:TONE_NAR' assets/ritual-data.js 1
+# 표는 손으로 안 고친다 — 원천은 21_B_제안.md §3 · 생성기가 뽑고 이 검사가 대조한다
+chk 'TONE_TABLE:BEGIN' assets/ritual-data.js 1
+chk 'TONE_TABLE' scripts/build-tone-table.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/build-tone-table.mjs || fail=1; else echo 'skip build-tone-table (node 없음)'; fi
