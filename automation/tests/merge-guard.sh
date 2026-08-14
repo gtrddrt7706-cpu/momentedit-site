@@ -239,6 +239,12 @@ chk 'SEAT_DRINK_LABEL' mypage.html 1                # 라벨 근거 주석 · '�
 #   부족했다 — .opts 의 flex gap(12px)이 카드와 세부 패널 사이를 도로 벌렸다(실측 12px → 0px).
 #   .subset 의 margin-top:-12px 가 그 간격을 되물린다. .opts 의 gap 과 짝 — 한쪽만 바꾸면 다시 끊긴다.
 chk 'SUB_SEG_JOIN' order-preview.html 1
+# ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
+#   양끝 페이드 헬퍼(GLINE) 하나로 — 딱 끊기는 전폭 직선으로 되돌리지 말 것.
+#   ★가로 직선은 bbox 높이 0이라 userSpaceOnUse 그라디언트여야 칠해진다(objectBoundingBox 는 투명 · 실측).
+chk 'GLINE_FADE' order-preview.html 1
+chk 'GLINE(' order-preview.html 7                             # 정의 1 + 바닥선 호출 6
+chk 'userSpaceOnUse' order-preview.html 1
 # ★★[SUB_SEG 2026-08-13 사용자 지적 "여기 디자인이 좀 이상한데 디자이너관점으로 개선"]
 #   성혼 선언 화면 — 세부 선택(낭독 톤)이 최상위와 **똑같은 카드(oc)** 를 입고 있었다.
 #   진한 ✓ 동그라미가 한 화면에 둘(무엇을 할까 / 어떤 톤으로)이라 층이 안 읽혔고,
