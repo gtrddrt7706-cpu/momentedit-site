@@ -3043,3 +3043,33 @@ chk '_invEnMiss' mypage.html 3
 # 실브라우저 계약 검사 — 마커만으로는 '판이 실제로 뜨는지'를 못 잰다(로컬 서버 필요 · 없으면 스스로 건너뛴다)
 chk 'WIZ_EXIT_ONE' scripts/check-wiz-exit.mjs 1
 chk 'WIZ_VCENTER' scripts/check-wiz-vcenter.mjs 1
+
+# ── [SEAT_ROW_TRUTH] 행이 읽는 값 = 그 행이 바꾸는 값 (2026-08-14 사용자 제보) ──
+# "좌석음료부분 이대로완료했는데 왜 계속 시작하기지?"
+# 「좌석 · 음료」 행이 t.final 을 읽는데, 그 버튼은 2026-07-19 이후 좌석 편집기를 연다.
+# t.final 은 이제 _seatFinSave 가 '이름 적힌 자리 수 > 0' 일 때만 세우는 파생값이라,
+# 자리·음료만 정하고 이름을 안 적으면 좌석을 끝내도 행이 영영 '시작하기'였다(확인서도 안 열렸다).
+# ★t.final 로 되돌리지 말 것. 행의 진실은 그 행이 실제로 바꾸는 트랙이다.
+chk 'SEAT_ROW_TRUTH' mypage.html 2
+chk 'PROD_ROW_TRUTH' scripts/check-prod-rows.mjs 1
+nochk "t.final==='진행중'" mypage.html
+
+# ── [PUBLISH_FAIL_CHANNEL] 성공했는데 실패라고 말하지 않기 (2026-08-14 사용자 제보) ──
+# `.then(성공처리).catch(실패문구)` 는 **성공 처리 안의 예외까지** 같은 catch 로 떨어뜨린다.
+# 그래서 청첩장이 만들어진 뒤에도 화면은 「발행이 안 됐어요」라고 말했다.
+# 통신 실패는 then 의 두 번째 인자가, 그리기 실패는 자기 자리에서 잡는다.
+chk 'PUBLISH_FAIL_CHANNEL' mypage.html 1
+
+# ── [FS_FLEX_SHRINK] flex 아이템은 min-width:0 이 없으면 안 줄어든다 (2026-08-14) ──
+# .mp-fs 를 flex 로 바꾼 그 변경이 긴 주소가 든 완성 화면을 390px 칸에서 467px 로 벌렸다.
+# "여기왜이렇게 확대가되서나오지?" — 화면이 통째로 옆으로 밀린 것이다.
+chk 'FS_FLEX_SHRINK' mypage.html 1
+chk 'min-width:0;width:100%' mypage.html 1
+chk 'FS_FLEX_SHRINK' scripts/check-fs-overflow.mjs 1
+
+# ── [PREVIEW_LINK_BOOT] 캐시 첫 페인트에도 「미리듣기」가 선다 (2026-08-14 사용자 제보) ──
+# "식순에 어쩔땐 미리듣기가 안보이고 언쩔땐 보이고" — 로드 순서였다.
+# 캐시 페인트(마이크로태스크)가 ritual-preview-link.js 보다 먼저 돌아, 첫 화면엔 늘 버튼이 없었다.
+# 검사가 순서를 정적으로도 본다(찬 캐시에서만 드러나는 결함이라 브라우저 재현만으로는 못 잡는다).
+chk 'PREVIEW_LINK_BOOT' mypage.html 1
+chk 'PREVIEW_LINK_BOOT' scripts/check-preview-link-boot.mjs 1

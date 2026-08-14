@@ -238,7 +238,12 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .dots .dot.current{width:9px;height:9px;background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,0.1)}
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
 .mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease);display:flex!important;flex-direction:column}
-.mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important}
+.mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important;min-width:0;width:100%}
+/* ★[FS_FLEX_SHRINK 2026-08-14 사용자 제보 "여기왜이렇게 확대가되서나오지?"] min-width:0 을 빼지 말 것.
+   .mp-fs 를 flex 로 바꾸면서(WIZ_VCENTER) 자식이 flex 아이템이 됐는데, flex 아이템의 기본
+   min-width 는 auto — **내용의 최소폭 아래로 안 줄어든다.** 그래서 긴 주소가 든 청첩장 완성 화면이
+   390px 칸에서 467px 로 벌어져 화면이 통째로 옆으로 밀렸다(실측). 블록일 땐 칸을 채우고 안에서
+   잘렸는데, flex 로 바뀌며 그 성질을 잃은 것이다. min-width:0 이 그 성질을 돌려준다. */
 /* [WIZ_VCENTER] 카드 한 장뿐인 단계(확인·완료·'안내 없이 진행')는 화면 위쪽에 붙어
    아래가 통째로 비어 보였다(2026-08-14 사용자 지적 · 모바일에서 특히). 세로 auto 마진은
    ★남는 공간이 있을 때만 먹으므로, 긴 단계(이름·디자인)는 종전대로 위에서부터 흐른다.
@@ -1325,6 +1330,16 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     <div class="linkrow"><a id="rs_back">← 로그인으로 돌아가기</a></div>
   </section>
 </main>
+
+<!-- ★★[PREVIEW_LINK_BOOT 2026-08-14 사용자 제보 "식순에 어쩔땐 미리듣기가 안보이고 언쩔땐 보이고"]
+     식순 행의 「미리듣기」를 세울지 말지는 이 파일의 urlFromDraft 가 정한다(PREVIEW_LINK_V1).
+     그런데 예전엔 이 태그가 **아래 인라인 스크립트보다 뒤**에 있었다 —
+     첫 화면은 localStorage 캐시로 즉시 그리는데(boot 의 Promise.resolve().then),
+     마이크로태스크는 인라인 스크립트가 끝나는 즉시 돌고 그때는 이 파일이 아직 안 온다.
+     그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
+     망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
+     ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
+<script src="/assets/ritual-preview-link.js"></script>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -4756,9 +4771,18 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
        '최종 확정'이라는 말이 뜻하는 **마지막으로 훑어보고 확인하는** 일은 아래 「예식 확인서」가 한다.
        한 화면에 '최종 확정'이 둘이면 어느 쪽이 진짜 마지막인지 고객이 알 수 없다.
        ★위저드 머리(3/3)·확인서 요약 줄·잔금 안내 문구까지 같은 말로 맞췄다. 한 곳만 고치면 또 갈린다. */
-    { done: (_fDone&&_seatDone), html: row('좌석 · 음료', (_fDone&&_seatDone)?'완료':'', 'mp_finalStart',
-          (!_fDone?((t.final==='진행중')?'이어하기':'시작하기'):(_seatDone?'완료 · 수정':'이어하기')),
-          null, {tag:(!_fDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
+    /* ★★[SEAT_ROW_TRUTH 2026-08-14 사용자 제보 "좌석음료부분 이대로완료했는데 왜 계속 시작하기지?"]
+       이 행의 라벨·✓ 가 `t.final`(최종 확정 트랙)을 읽고 있었다. 그런데 이 행의 버튼은
+       2026-07-19 '한 화면 통합' 이후 **최종 확정 위저드를 열지 않는다** — 곧장 좌석 편집기다.
+       그래서 `t.final` 은 이제 사람이 끝내는 것이 아니라 `_seatFinSave()` 가 파생 저장하는 값이고,
+       그 조건이 `done: 이름 적힌 자리 수 > 0` 이다. 자리·음료만 정하고 이름을 아직 안 적은 채
+       「배치 완료」를 누르면 좌석은 완료인데 이 행은 영원히 '시작하기'였다.
+       (같은 이유로 아래 「예식 확인서」도 안 열렸다 — 그 게이트도 _fDone 을 봤다)
+       ★행의 진실은 **그 행의 버튼이 실제로 바꾸는 값**이어야 한다. 여기서는 `t.seat` 이다.
+         `t.final` 로 되돌리지 말 것 — 되돌리면 이름 없이 끝낸 고객이 다시 갇힌다. */
+    { done: _seatDone, html: row('좌석 · 음료', _seatDone?'완료':'', 'mp_finalStart',
+          (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
+          null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
   ];
@@ -5341,14 +5365,24 @@ function doPublishInv(box){
     sendDraft=Object.assign({},sendDraft,_cp);
   }
   if(dr.method==='self'&&!dr.selfQR) sendDraft=Object.assign({},sendDraft,{method:'none'});   // #6 개인제작+QR아니요=none처럼(빈 Couples 행 X · 미응답은 1단계에서 차단됨)
+  /* ★★[PUBLISH_FAIL_CHANNEL 2026-08-14 사용자 제보 — 발행 뒤에도 「발행이 안 됐어요」]
+     예전엔 `.then(성공처리).catch(실패문구)` 였다. 그러면 **성공 처리 안에서 난 예외까지**
+     같은 catch 로 떨어져, 서버가 청첩장을 만들어 준 뒤에도 화면은 '안 됐다'고 말한다.
+     ★두 갈래를 나눈다 — 통신 실패는 두 번째 인자가 받고, 화면 그리기 실패는 자기 자리에서 잡는다.
+       그리기가 실패해도 발행은 이미 된 것이므로 '안 됐다'고 말하지 않는다.
+     ★그리고 12초 타임아웃(api 의 AbortController)은 **실패가 아니라 모름**이다 — 서버는 만들었는데
+       답만 늦은 경우가 있어, 재시도를 권하되 이미 됐을 수 있음을 함께 말한다(발행은 멱등이라 재시도 안전). */
   api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
-    if(r&&r.ok){
-      if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
-      else if(r.skipped){ INVFLOW.draft.invitationUrls=null; INVFLOW.draft.eventId=''; INVFLOW.step='done'; }   // none 전환 시 옛 링크 잔존 → 재진입이 은퇴한 청첩장을 '완성됨'으로 되살리던 것 정리(2026-07-18 리뷰)
-      invStepDone(box, r);
-    }
-    else reset(_invErrHuman((r&&r.error)||''));
-  }).catch(function(){ reset('발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
+    if(!(r&&r.ok)){ reset(_invErrHuman((r&&r.error)||'')); return; }
+    if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
+    else if(r.skipped){ INVFLOW.draft.invitationUrls=null; INVFLOW.draft.eventId=''; INVFLOW.step='done'; }   // none 전환 시 옛 링크 잔존 → 재진입이 은퇴한 청첩장을 '완성됨'으로 되살리던 것 정리(2026-07-18 리뷰)
+    try{ invStepDone(box, r); }
+    catch(e){ reset(''); _miniToast('청첩장은 만들어졌어요 · 화면을 새로고침하면 링크가 보여요'); saveInvDraft(); }
+  }, function(e){
+    var _to=(e&&(e.name==='AbortError'||/abort/i.test(String(e.message||''))));
+    reset(_to ? '응답이 늦어지고 있어요. 이미 만들어졌을 수도 있어요 · 새로고침해 확인하시고, 없으면 한 번 더 눌러 주세요.'
+              : '발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)');
+  });
 }
 /* [INV_EN_GATE] 서버 문구 중 기술어(eventId·코드)는 고객 화면에 그대로 싣지 않는다 —
    무엇을 해야 할지가 안 보이고, 그 자리에서 고칠 수도 없다. 사람 말로 바꿔 준다. */
@@ -6311,7 +6345,7 @@ function prodConfirmHtml(p, inv){
     C='<div class="cf-ok">이 내용대로 진행을 확인하셨어요 · '+escapeHtml(String(p.confirm.at))+'</div>';
   } else {
     if(p.confirmStale) C+='<div class="cf-warn">확인 후 내용이 바뀌었어요 · 아래에서 다시 확인해 주세요.</div>';
-    if(_rDone && _fDone) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용대로 예식 진행을 확인합니다</button>'
+    if(_rDone && _sDone) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용대로 예식 진행을 확인합니다</button>'
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순과 좌석·음료를 완료하면 확인할 수 있어요.</span></div>';
   }
@@ -6399,7 +6433,13 @@ function _seatFeeHtml(n){
   return head+'전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
 }
 // 배경 자동 저장(무음) — 최종 인원=이름 있는 자리 수로 파생 · 스탠딩/추가요금도 함께 담아 관리자 화면과 일치. 이름 하나라도 있으면 완료 처리.
-function _seatFinSave(){ try{ if(!SEATFLOW) return; var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={}); fd.headcount=(n?String(n):''); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){}); }catch(e){} }
+/* [SEAT_ROW_TRUTH] 파생 저장 — 이름 있는 자리 수에서 인원·요금을 만든다.
+   ★n===0 일 때 headcount 를 **지우지 않는다.** 예전엔 빈 문자열로 덮어써서, 자리·음료를 먼저 정하고
+     이름을 나중에 적는 순서(코드가 곳곳에서 지키는 그 순서)로 가면 적어 둔 인원이 사라졌다.
+     파생값이 없을 땐 손대지 않는 것이 옳다 — 없는 근거로 있는 값을 지우지 않는다. */
+function _seatFinSave(){ try{ if(!SEATFLOW) return; var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
+  if(n){ fd.headcount=String(n); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; }
+  apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){}); }catch(e){} }
 // TRK_NO_SUB: 좌석 화면 상단 안내 한 줄 — 기한(예식 N일 전·임박 시 D-n)과 좌석 안내 링크 생성을 여기서 알린다(목록 행에서 이관).
 function _seatLeadNote(){
   try{
@@ -7413,7 +7453,6 @@ window.ME_ADV_PAGE = {
   }
 };
 </script>
-<script src="/assets/ritual-preview-link.js"></script>
 <script src="/assets/advisor-kb.js"></script>
 <script src="/assets/advisor-widget.js"></script>
 <script src="/assets/email-assist.js" defer></script>
