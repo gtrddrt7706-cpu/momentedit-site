@@ -283,7 +283,7 @@ chk 'SPECIAL_GONE' order-preview.html 2
 #     오늘 두 번 겪었다(GUEST_NODUP 문구 · 이 줄). 새 nochk 를 쓸 땐 주석에 못 나오는 형태로 적을 것.
 nochk 'onclick="askSpecial' order-preview.html
 # ★[TIP_QUIET 2026-08-14 사용자 지적 "팁 부분 너무 주저리야"] 팁은 상자가 아니라 왼쪽 실선 곁말.
-chk 'TIP_QUIET' order-preview.html 4
+chk 'TIP_QUIET' order-preview.html 3   # [NO_DIRECTOR_READ 2026-08-14] 서약 팁의 TIP_QUIET 주석은 그 팁을 다시 쓰며 사라졌다(같은 커밋에서 내림)
 nochk 'background:#F3EEE6;border:1px solid #E7DFD2' order-preview.html
 chk '.oc:has(+ .subset){border-bottom:0' order-preview.html 1
 # ★[GLINE_FADE 2026-08-14 사용자 지적 "가로줄이 좀 올드한 느낌"] 일러스트 바닥선 6개 전부
@@ -1088,7 +1088,11 @@ chk 'SUBSET' order-preview.html 2                # 성혼 선언 — 톤 곁판�
 #   ①규칙 머리말(53) ②.play.playing(77) ③.subset(98) ④.seqr.on(129) ⑤.crs.on(147) ⑥.mc.open(191).
 #   진사를 점으로만 쓰는 자리(체크·지금 알약·경고)는 하나도 안 빠졌다.
 #   ★숫자만 맞췄으면 이 마커가 지키던 것이 조용히 빠진다 — VOW_CHORUS 4→3 과 같은 방식으로 셌다.
-chk 'SEAL_POINT' order-preview.html 6            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+chk 'SEAL_POINT' order-preview.html 5            # 진사는 점(체크·지금 알약·경고)으로만 — 그릇(테두리·배경·라벨)에 되돌리면 화면이 경고로 읽힌다 + me-adv-close 패딩 11px. ★크기 대신 히트영역인 이유는 밑줄·화살표 장식 보존
+# [CRS_OPEN_CALM 2026-08-14] 6→5 — 고른 코스 카드의 베이지 바탕을 걷으며 그 자리의 SEAL_POINT 주석도 함께 내렸다.
+#   ★진행바만은 예외로 진사를 **면**으로 쓴다(PROG_SEAL) — 걸어온 만큼을 쌓아 보이는 유일한 자리라 점으로는 안 된다.
+chk 'PROG_SEAL' order-preview.html 1
+chk 'CRS_OPEN_CALM' order-preview.html 2
 chk 'FAB 레일' index.html 1                      # ★아이콘 레일 변경 금지 주석(2026-07-26 사용자 지시) — 삭제 금지
 chk 'HOME_IMG_WEBP' index.html 1                # picture/source webp 전환(3223→1093KB) 설명 주석 — 삭제 금지
 chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유지(하나라도 빠지면 그 자리가 빈다)
@@ -1489,7 +1493,15 @@ chk 'BLESS_LONG' assets/ritual-data.js 1                     # blessEndLong 문�
 chk 'BLESS_LONG' order-preview.html 1                        # 1단 예방 문안('한 말씀 청하겠습니다') 근거 주석
 chk '한 말씀 청하겠습니다' assets/ritual-data.js 1             # 열어만 두는 '말씀이 있습니다'로 되돌리기 금지(§8 1단)
 chk '한 말씀 청하겠습니다' order-preview.html 2                # 빌더 인라인 사본 2곳 · 하나만 고치면 화면과 완성 대본이 갈린다
-chk 'FALLBACK_LADDER' order-preview.html 2                   # 서약·편지 낭독 중단 안전망(§3 1~3순위) · 4순위 성우 대리는 올리지 않는다
+# [NO_DIRECTOR_READ 2026-08-14 사용자 지시 "디렉터가 대신읽어주는 건 없어 삭제"]
+#   FALLBACK_LADDER 는 「기다림 · 배우자 이어읽기 · 디렉터 대독」 셋을 한 문장에 담는 규칙이었다.
+#   그런데 셋째가 **실제로 하지 않는 일**이었다 — 근거 있는 안심만 적는다는 규칙(2026-07-15)은
+#   근거를 붙이라는 뜻이지 없는 서비스를 근거처럼 적으라는 뜻이 아니다.
+#   ★남은 사다리는 둘(기다림 · 배우자). 디렉터 대독을 되살리지 말 것.
+chk 'NO_DIRECTOR_READ' order-preview.html 2
+chk 'NO_DIRECTOR_READ' assets/ritual-story.js 1
+nochk "필요하면 대신 읽어 드려요.');" order-preview.html
+nochk '힘드시면 저희가 대신' assets/ritual-story.js
 chk 'NAR_MIRROR' order-preview.html 1                        # endLong 인라인 사본이 '안 쓰이니 지워도 된다'로 보이지 않게 하는 주석
 chk 'PHASE_CLIP' console.html 1                              # 클립 재생 중 phase를 끊는 한 줄 · 빼면 녹음이 흐르는 동안 "사람의 시간"이 남는다
 chk 'ALT_CLIP_TEST' automation/tests/console-alt-clip.mjs 1  # 실렌더 검증 스크립트 자체(브라우저 필요라 여기선 실행 안 함 · 손으로 돌릴 것)

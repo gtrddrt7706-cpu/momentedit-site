@@ -40,7 +40,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-yes.danger{border-color:var(--seal,#6B2A24);background:var(--seal,#6B2A24)}
 .ord-ask button:focus-visible{outline:2px solid var(--seal,#6B2A24);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.ord-ask,.ord-ask .oa-box{transition:none}}
-.prog-fill{height:100%;background:var(--gold-deep);width:0%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+/* ★[PROG_SEAL 2026-08-14 사용자 지시 "위에 퍼센트 차는부분 진사색상으로"]
+   금(--gold-deep)은 이 화면에서 장식이 쓰는 색이라, 진행바까지 금이면 '차오르는 것'이 배경에 묻혔다.
+   진사(--seal)는 이 브랜드에서 '확정·중요'를 뜻하는 유일한 색이다 — 걸어온 만큼이 그 색으로 쌓인다. */
+.prog-fill{height:100%;background:var(--seal);width:0%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .prog-sub{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}   /* 2행: 보조 정보(진행 상황 좌 · 다음 예고 우) */
 .prog-next{font-size:11px;color:var(--light);text-align:right;word-break:keep-all;flex:1}   /* [ORD_NEXTLABEL] 이름표 · 누르는 것이 아니다 */
 /* ★★[ORD_AUTOSAVE 2026-08-12] 저장 상태는 **줄을 새로 만들지 않는다.** 「순서 2 / 7 · 약 22분」
@@ -197,13 +200,20 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* course */
 /* [DAYMAP_AIR] 코스 화면 — 카드 세 장 뒤가 통째로 비어 위만 무거웠다. 같은 처방 */
 .crs{border:1.5px solid var(--border);background:var(--card);border-radius:14px;padding:22px 20px;transition:.18s;margin-bottom:16px}
-.crs.pick{cursor:pointer}.crs.on{border-color:var(--gold-deeper);background:#F4F0E9}   /* [SEAL_POINT] */.crs.soon{opacity:.62}
+.crs.pick{cursor:pointer}
+/* ★★[CRS_OPEN_CALM 2026-08-14 사용자 지적 "코스에서 클릭해서 들어가면 너무 노란색으로 나오는거같아"]
+   펼친 카드 안에서 **베이지가 네 겹**으로 쌓여 있었다 — 카드 바탕(#F4F0E9) · 안내 상자 · 칩 · 배지.
+   거기에 금색 글자가 여섯 자리(한 줄 설명·두 라벨·단계 번호·'연출 고를 수 있어요' 다섯 줄)까지 겹쳐
+   화면이 통째로 노랗게 읽혔다. ★고른 카드를 알리는 데 필요한 것은 **테두리 하나**다 —
+   바탕까지 칠하면 '고름'이 아니라 '전부 강조'가 된다. 바탕을 되돌리지 말 것. */
+.crs.on{border-color:var(--gold-deeper);background:var(--card)}
+.crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
 .crs-nm{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--accent)}   /* [ORD_HUE] 위와 같은 이유 */
 .crs-badge{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 10px}
 .crs.soon .crs-badge{background:var(--light)}
-.crs-one{font-size:13.5px;color:var(--gold-deeper);margin-top:8px;word-break:keep-all;font-weight:500}
+.crs-one{font-size:13.5px;color:var(--accent);margin-top:8px;word-break:keep-all;font-weight:500}
 .crs-time{font-size:12px;color:var(--sub);margin-top:5px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_TIMEBUDGET] 12px 하한 — 읽어야 하는 정보라 장식 캡션 크기로 내리지 말 것 */
 .crs-feel{font-size:13px;color:var(--sub);margin-top:11px;line-height:1.8;word-break:keep-all}
 .crs-feel b{color:var(--accent);font-weight:600}
@@ -216,13 +226,14 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .crs.on .crs-chev{transform:rotate(90deg)}
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
 .cdet-l{font-size:12px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:700;margin-bottom:10px}   /* [DAYMAP_AIR] */
-.cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);background:var(--bg2,#F4EFE8);border-radius:8px;padding:10px 13px;margin-bottom:12px}
+/* [CRS_OPEN_CALM · AI_TIP·MINIMAL] 상자 대신 왼쪽 선 — 같은 말인데 면적이 1/4 이다 */
+.cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);border-left:2px solid var(--gold-line,#E7E3DC);padding:0 0 0 10px;margin-bottom:14px}
 .ev{padding:13px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
 .ev-n{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
-.ev-n .step{font-size:10.5px;color:var(--gold-deeper);background:#fff;border:1px solid var(--gold-btn);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ev-n .step{font-size:10.5px;color:var(--sub);background:#fff;border:1px solid var(--border);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .ev-r{font-size:13.5px;color:var(--sub);margin-top:6px;line-height:1.7;word-break:keep-all}
-.ev-pick{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-left:auto;background:none;border:none;padding:0;display:inline-flex;align-items:center;gap:5px}
-.ev-pick::before{content:'';width:12px;height:12px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A7B4F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
+.ev-pick{font-size:11px;color:var(--light);font-weight:500;margin-left:auto;background:none;border:none;padding:0;display:inline-flex;align-items:center;gap:5px}
+.ev-pick::before{content:'';width:12px;height:12px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8375' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .ev-fix{font-size:11px;color:var(--light);margin-left:auto;background:none;padding:0;display:inline-flex;align-items:center;gap:5px}
 .ev-fix::before{content:'';width:11px;height:11px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8375' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E")}
 .vq{font-size:17px;font-weight:700;color:var(--accent);margin:2px 0 12px;word-break:keep-all}
@@ -2410,13 +2421,12 @@ function renderStep(k){
     // ★[VOW_CHORUS] 말로만 "마지막은 함께"라고 하면 고객이 뭘 준비해야 할지 모른다 — 문장을 그대로 보여 준다.
     //   화면이 소리를 설명하지 못하면, 폴백이 조용했던 때와 같은 사고다.
     h+='<div class="self"><span class="who">마지막 한 문장 · 하객분들을 보고 함께</span>'+esc(VOWBOTH_T)+'</div>';
-    // ★FALLBACK_LADDER — 런북 §3의 1~3순위를 문장 하나에 담는다(기다림 · 배우자 이어읽기 · 디렉터 대독).
-    //   4순위 '성우 대리 낭독'은 화면에 올리지 않는다 — 두 분이 쓴 실제 서약문을 미리 녹음해 두는 방식이라
-    //   '당일까지 비밀'과 양립할 수 없고, 배타 처리로 남겨 두느니 제공하지 않는 편이 지킬 수 있는 약속이다(§11-B).
-    /* [TIP_QUIET] 127자 세 문장이었다 — 같은 상황을 편지 팁이 62자로 이미 말하고 있었다.
-       그 리듬에 맞춘다(사인 → 디렉터가 받는다). 근거는 남긴다: 「디렉터가 서약문을 준비해 두고」
-       — 근거 없는 안심 문구 금지 규칙(2026-07-15)이 지키라는 그 부분이다. */
-    h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 디렉터가 서약문을 준비해 두고, 필요하면 대신 읽어 드려요.');
+    /* ★★[NO_DIRECTOR_READ 2026-08-14 사용자 지시 "이부분에서 디렉터가 대신읽어주는 건 없어 삭제"]
+       「디렉터가 준비해 두고 필요하면 대신 읽어 드려요」는 **실제로 하지 않는 일**이었다.
+       근거 있는 안심만 적는다는 규칙(2026-07-15)은 근거를 붙이라는 뜻이지, 없는 서비스를
+       근거처럼 적으라는 뜻이 아니다 — 당일에 지킬 수 없는 약속이 화면에 남아 있었다.
+       ★남기는 것은 실제로 되는 것 하나: 배우자가 이어 읽는다. 되살리지 말 것. */
+    h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');
     h+=writeCard('vow',false);   // 1차 입력 — WRITE_2CHECK
   }
   else if(k==='ring'){
@@ -2469,7 +2479,7 @@ function renderStep(k){
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
-    h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 디렉터가 편지를 준비해 두고, 필요하면 대신 읽어 드려요.');   // FALLBACK_LADDER — 서약 카드와 같은 사다리(런북 §3)
+    h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');   // [NO_DIRECTOR_READ] 서약 카드와 같은 사다리 — 디렉터 대독은 실제로 없다
     h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
   }
   else if(k==='bless'){
