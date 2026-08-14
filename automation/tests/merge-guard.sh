@@ -3129,3 +3129,11 @@ chk "record:{nm:'기록', badge:'사진이 중심', ready:true, min:'약 16분'"
 # ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다.
 chk 'FREE_BLOCK' order-preview.html 1
 chk 'free:function()' order-preview.html 1
+
+# ── [NARR_PICK] 나레이션 문안 후보 세 벌 (2026-08-14 사용자 지시) ──
+# "각각 이벤트마다 여러게의 대사 준비해" — 결은 담백·서정·다정 셋으로 고정한다.
+# ★index 0 은 **지금까지 쓰던 문안**이다. 저장된 초안이 고르지 않았을 때 열리는 자리라,
+#   0 을 갈아치우면 이미 만든 고객의 예식이 말없이 바뀐다. 0 은 건드리지 말 것.
+chk 'NARR_PICK' assets/ritual-data.js 1
+chk 'var NARV={' assets/ritual-data.js 1
+chk 'NARV:NARV' assets/ritual-data.js 1
