@@ -3199,3 +3199,15 @@ chk '담백|서정|다정' scripts/check-narr-rule.mjs 1
 chk '담백|서정|다정' scripts/check-munan-copy.mjs 1
 # 51 은 나레이션 부분이 폐기됐다 — 배너가 사라지면 다음 사람이 「자리마다 한 벌만」을 구현한다
 chk '나레이션 부분(§1~§5)은 폐기됐다' docs/plans/대본개정/51_고른결과.md 1
+
+# ── [EX_MIRROR] 고객 예시도 빌더가 인라인 사본을 든다 (2026-08-14 · 실사고로 발견) ──
+# NAR_MIRROR 는 nar/end 만 훑어 EXVOW·EXLETTER·EXWEL 을 **한 번도 안 봤다.**
+# 서약 예시를 7→10 벌로 갈아 끼웠는데 빌더는 옛 일곱을 그대로 들고 있었고 검사는 전부 초록이었다.
+# 고객 화면엔 뺀 문안이 계속 떴을 자리다. 그물이 안 덮는 곳은 조용히 갈라진다.
+chk 'EX_MIRROR' scripts/check-ritual-mirror.js 1
+# [EXVOW_TEN] 서약 예시 10벌 · 현행 일곱 중 다섯 교체 (2026-08-14 사용자 "추천대로" · 51 §6-1)
+#   ★뺀 다섯을 되살리지 말 것 — 전부 구체 명사가 없어 「누구의 문장도 아닌」 쪽이라 뺐다(C1·B3).
+nochk '가장 가까운 친구이자' assets/ritual-data.js
+nochk '가장 가까운 친구이자' order-preview.html
+nochk '오늘부터, 영원히' assets/ritual-data.js
+nochk '오늘부터, 영원히' order-preview.html

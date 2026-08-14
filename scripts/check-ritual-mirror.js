@@ -117,6 +117,21 @@ const drift = narAll.filter(([, s]) => !html.includes(s));
 ok('빌더 인라인 사본이 원천 문안 ' + narAll.length + '개와 일치(drift ' + drift.length + '건)', drift.length === 0);
 drift.forEach(([id, s]) => console.log('   DRIFT ' + id + ' : ' + s.slice(0, 46) + '…'));
 
+/* ★[EX_MIRROR 2026-08-14] 고객 예시(EXVOW·EXLETTER·EXWEL)도 빌더가 인라인 사본을 들고 있다.
+   위 NAR_MIRROR 는 nar/end 키만 훑어서 **이 셋을 한 번도 안 봤다.**
+   실사고: 서약 예시를 7→10 벌로 갈아 끼웠는데(51 §6-1 · 현행 다섯 교체) 원천만 바뀌고
+   빌더는 옛 일곱을 그대로 들고 있었다. 검사는 전부 초록이었다 —
+   즉 **고객 화면엔 뺀 문안이 계속 떴을** 자리다. 그물이 안 덮는 곳은 조용히 갈라진다. */
+{
+  const need = [];
+  for (const [n, arr] of [['EXVOW', D.EXVOW], ['EXLETTER', D.EXLETTER], ['EXWEL', D.EXWEL]]) {
+    for (const v of arr) need.push([n, Array.isArray(v) ? v[1] : v]);
+  }
+  const miss = need.filter(([, t]) => !html.includes(t));
+  ok('빌더 고객 예시 사본이 원천과 일치(' + need.length + '벌 · drift ' + miss.length + '건)'
+    + (miss.length ? ' — ' + miss.slice(0, 3).map(([n, t]) => n + ':' + t.slice(0, 18) + '…').join(' / ') : ''), miss.length === 0);
+}
+
 // ★[VOW_CHORUS 2026-08-04] 서약 마지막 합창 문장도 인라인 사본이다 — 위 NAR_MIRROR 는 nar/end 만 훑어서 안 걸린다.
 //   이 문장은 다른 문안과 달리 **소리로도 나간다**(26_vow-both). 화면·대본·소리 셋이 같은 글자여야 하고,
 //   소리 쪽은 check-text-audio.mjs 가 본다. 여기선 화면 쪽 사본이 원천을 따라가는지만 본다.
