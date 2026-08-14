@@ -237,8 +237,13 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .dots .dot.done{width:6px;height:6px;background:var(--seal)}
 .dots .dot.current{width:9px;height:9px;background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,0.1)}
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
-.mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease)}
+.mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease);display:flex!important;flex-direction:column}
 .mp-fs>*{max-width:620px;margin-left:auto!important;margin-right:auto!important}
+/* [WIZ_VCENTER] 카드 한 장뿐인 단계(확인·완료·'안내 없이 진행')는 화면 위쪽에 붙어
+   아래가 통째로 비어 보였다(2026-08-14 사용자 지적 · 모바일에서 특히). 세로 auto 마진은
+   ★남는 공간이 있을 때만 먹으므로, 긴 단계(이름·디자인)는 종전대로 위에서부터 흐른다.
+   높이로 조건을 걸지 말 것 — 자리 계산은 브라우저가 매 렌더 정확히 한다. */
+.mp-fs>*:only-child{margin-top:auto;margin-bottom:auto}
 /* [FAB_OVER_FS] 청첩장 위저드가 열리면 .mp-fs(z-index:950·불투명 전면)가 깔리는데,
    FAB 스택은 z-index:95라 '청첩장 샘플' 아이콘이 그 밑에 파묻혔다 —
    ensureInviteFab은 정확히 위저드가 열린 동안에만 아이콘을 켜므로, 켜지는 순간 항상 안 보였다
@@ -618,6 +623,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    청첩장·단체사진·최종확정·좌석이 이 한 규칙을 공유한다. 한쪽만 44 로 만들면 다섯이 갈라진다. */
 .wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
 .wiz-exit:hover{color:var(--accent);border-color:var(--gold-btn-border);background:var(--card-bg)}
+/* [WIZ_EXIT_ONE 2026-08-14] 손잡이 둘 — 「저장」이 먼저, 「나가기」가 끝. 식순 빌더(.ob-save/#obExit)와
+   같은 차림새·같은 네 상태다. 자주 쓰는 것이 앞에 오고 화면을 떠나는 것이 뒤에 온다. */
+.wiz-acts{display:inline-flex;align-items:center;gap:6px;flex:none}
+.wiz-save{min-width:70px}
+.wiz-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
+.wiz-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
+.wiz-save:disabled{opacity:.5;cursor:default}
+.wiz-save:disabled:hover{color:var(--sub);border-color:var(--border);background:var(--card-white)}
 .inv-step-n{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em}
 .inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
@@ -1694,7 +1707,12 @@ function openRitualPreview(p, inv){
   return ov;
 }
 // 소형 비차단 토스트 — 다이얼로그 없이 1줄 안내(뒤로가기 저장 대기 등 · RITUAL_BACK_SAVE)
-function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,47,37,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:10px 18px;border-radius:999px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center'; document.body.appendChild(t); requestAnimationFrame(function(){ t.style.opacity='1'; }); setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); },300); },2600); }catch(e){} }
+function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,47,37,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:10px 18px;border-radius:999px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center'; document.body.appendChild(t);
+  /* [TOAST_STUCK] mpToast 와 같은 처방 — 숨김은 '보인 순간'에 건다(경위는 mpToast 주석).
+     여기는 매번 새 요소라 마지막에 제거까지 한다. 절대 시한도 함께 둔다. */
+  var _gone=false, _rm=function(){ if(_gone) return; _gone=true; t.style.opacity='0'; setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); },300); };
+  requestAnimationFrame(function(){ t.style.opacity='1'; setTimeout(_rm,2600); });
+  setTimeout(_rm,7000); }catch(e){} }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
 function openFittingView(){
   var doc=window._fittingDoc; if(!doc) return;
@@ -1793,15 +1811,17 @@ function mpModalOpen(o){
       gh.type='button'; gh.className='mp-modal-btn mp-modal-btn-ghost'; gh.textContent=o.cancelText||'취소';
       gh.addEventListener('click',function(){ close(false); });
       a.appendChild(gh);
-      ov.onclick=function(e){ if(e.target===ov) close(false); };
+      ov.onclick=function(e){ if(e.target===ov) close(o.dismissNull?null:false); };
     }
-    function onKey(e){ if(e.key==='Escape' && o.cancel!==false) close(false); }
+    /* [WIZ_EXIT_ONE] dismissNull — 닫기(Esc·바깥)를 '아니오'와 가른다. 식순 빌더의 ordAsk 와 같은 규칙.
+       나가기 판에서 이게 없으면 Esc 가 곧 「그냥 나가기」가 된다(취소하려다 변경을 버린다). */
+    function onKey(e){ if(e.key==='Escape' && o.cancel!==false) close(o.dismissNull?null:false); }
     document.addEventListener('keydown',onKey);
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
     try{ prim.focus(); }catch(_){}
   });
 }
-function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소', confirmSeal:o.confirmSeal }); }
+function mpConfirm(o){ o=o||{}; return mpModalOpen({ title:o.title, body:o.body, bodyHtml:o.bodyHtml, confirmText:o.yes||'확인', cancelText:o.no||'취소', confirmSeal:o.confirmSeal, dismissNull:o.dismissNull }); }   // [WIZ_EXIT_ONE] dismissNull 을 빠뜨리지 말 것 — 여기서 새면 Esc·바깥클릭이 곧 '아니오'가 된다(실측으로 잡힌 결함)
 function mpAlert(m){ var o=(m&&typeof m==='object')?m:{body:String(m==null?'':m)}; o.cancel=false; if(!o.confirmText)o.confirmText='확인'; return mpModalOpen(o); }
 // ── 손글씨 서명패드 (시착·본계약 공용) → Promise<dataURL PNG | null> ──
 function mpSignaturePad(opts){
@@ -1852,10 +1872,22 @@ function mpToast(msg){
     t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translate(-50%,8px);background:rgba(58,45,34,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 22px;border-radius:22px;z-index:12000;opacity:0;transition:opacity .28s,transform .28s;pointer-events:none;white-space:nowrap';
     document.body.appendChild(t);
     try{ t.style.bottom='calc(34px + env(safe-area-inset-bottom,0px))'; }catch(e){} }
-  t.textContent=msg; clearTimeout(t._h1); clearTimeout(t._h2);
+  t.textContent=msg; clearTimeout(t._h1); clearTimeout(t._h2); if(t._r1) cancelAnimationFrame(t._r1); if(t._r2) cancelAnimationFrame(t._r2);
   t.style.opacity='0'; t.style.transform='translate(-50%,8px)';
-  requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translate(-50%,0)'; }); });
-  t._h1=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translate(-50%,8px)'; },1600);
+  /* ★[TOAST_STUCK 2026-08-14 사용자 제보 "아래쪽 안내 문구가 안없어지는버그"]
+     예전엔 '보이게 하기'는 rAF 로, '숨기기'는 그와 무관한 setTimeout(1600) 으로 걸었다.
+     rAF 는 화면을 안 그리는 동안(탭 전환·화면 꺼짐·앱 전환) 멈추지만 setTimeout 은 그래도 깨어난다 —
+     그래서 **숨김이 먼저 지나가고 나중에 보이기가 실행되는** 순서 역전이 난다. 그 뒤엔 아무도
+     지우지 않으니 토스트가 화면에 박힌다. 저장 직후 대시보드 재조회(네트워크)와 겹칠 때 실제로 난다.
+     ★고침: 숨김 타이머를 **보이게 만든 그 순간에** 건다. 둘의 순서가 뒤집힐 수 없게 된다.
+     ★그리고 보이기 자체가 영영 안 와도 남지 않도록 절대 시한(_h2)을 하나 더 둔다. */
+  t._r1=requestAnimationFrame(function(){ t._r2=requestAnimationFrame(function(){
+    t._r1=t._r2=0;
+    t.style.opacity='1'; t.style.transform='translate(-50%,0)';
+    clearTimeout(t._h1);
+    t._h1=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translate(-50%,8px)'; },1600);
+  }); });
+  t._h2=setTimeout(function(){ if(t._r1) cancelAnimationFrame(t._r1); if(t._r2) cancelAnimationFrame(t._r2); t._r1=t._r2=0; t.style.opacity='0'; t.style.transform='translate(-50%,8px)'; },6000);
 }
 // QR 이미지 저장 — 모바일(iOS·인앱)에서 download 앵커가 무시되는 문제 대응: 공유 시트(사진 저장) → 다운로드 → 새 탭 순 폴백(2026-07-18)
 function qrSaveImage(host, fname){
@@ -4788,7 +4820,8 @@ function startInvFlow(inv, base){
   var b2 = base ? JSON.parse(JSON.stringify(base)) : {};
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
-  INVFLOW._bk=bkOpen(function(){ exitInvFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  INVFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙 — 몰래 저장하지 않는다
+  _wizStart('inv');   // [WIZ_EXIT_ONE] 기준선 — 아무것도 안 바꾸고 나가면 판이 안 뜬다
   renderInvFlow($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
@@ -4804,12 +4837,130 @@ function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 
       .then(function(again){ if(again){ exitInvFlow(); } else { bkKill(INVFLOW); INVFLOW.active=false; _mpRefresh(); } });
   });
 }
-// [저장 후 나가기] 두 위저드 공용 — 어느 단계에서든 중간 저장하고 대시보드로(2026-07-10 사용자 지시)
+/* ═══════════════════════════════════════════════════════════════════════════
+   ★★[WIZ_EXIT_ONE 2026-08-14 사용자 지시] 위저드 저장·나가기 = 한 벌
+   원문: "식순섹션에서 했던 것이랑 통일해서 똑같이 적용 저장 나가기 /
+          따로 저장없이 나가기 시 팝업등장 이건 전부 통일되게 적용 다른곳들도 조사해서 전부"
+
+   식순 빌더(order-preview.html · [ORD_SAVE_BTN][EXIT_ASK])의 규칙을 그대로 옮긴다.
+     ① 손잡이는 둘 — 「저장」(안 나간다) 과 「나가기」. 하나가 두 일을 지지 않는다.
+     ② 나가기: 바뀐 게 없으면 **그냥 나간다**(판 없음). 있으면 판을 띄운다 —
+        저장하고 나가기 / 그냥 나가기 / 닫으면(Esc·바깥) 아무 일도 안 일어난다.
+     ③ 저장 실패는 나가지 않는다 — 그 자리에 남아 다시 시도(종전 exitXxxFlow 경로 그대로).
+   ★「저장 후 나가기」 한 개 버튼으로 되돌리지 말 것 — 나가기가 몰래 저장하면 저장 버튼의
+     존재 이유가 사라진다는 것이 2026-08-13·08-14 두 번의 사용자 지시다.
+
+   기준선(WIZ_BASE)은 **열린 순간**과 **저장 성공 직후**에 잡는다. 그래서 볼일만 보고
+   나가는 고객에게는 판이 뜨지 않는다(식순의 EXIT_BASELINE 과 같은 이유).
+   ═══════════════════════════════════════════════════════════════════════════ */
+var WIZ_BASE={}, WIZ_ST={};   // id → 저장 시점 스냅샷 / {wait, fail}
+function _wizJson(o){   // UI 전용(_ 로 시작) 키는 뺀다 — 단계 이동·펼침 상태가 '변경'으로 세지 않게
+  try{ var c={}, k; for(k in (o||{})){ if(k.charAt(0)!=='_' && Object.prototype.hasOwnProperty.call(o,k)) c[k]=o[k]; }
+    return JSON.stringify(c, Object.keys(c).sort()); }catch(e){ return ''; }
+}
+var WIZ_ADAPT={
+  inv:{ on:function(){ return typeof INVFLOW!=='undefined' && INVFLOW.active; },
+        data:function(){ try{ if(INVFLOW._collect) INVFLOW._collect(); }catch(e){} return INVFLOW.draft; },
+        save:function(){ return saveInvDraft(); },
+        exitSave:function(){ exitInvFlow(); },
+        exitBare:function(){ bkKill(INVFLOW); INVFLOW.active=false; _mpRefresh(); },
+        own:function(){ return INVFLOW; } },
+  trk:{ on:function(){ return typeof TRKFLOW!=='undefined' && TRKFLOW.active; },
+        data:function(){ try{ if(TRKFLOW._collect) TRKFLOW._collect(); }catch(e){} return TRKFLOW.draft; },
+        save:function(){ return saveTrkDraft(false); },
+        exitSave:function(){ exitTrkFlow(); },
+        exitBare:function(){ bkKill(TRKFLOW); TRKFLOW.active=false; _mpRefresh(); },
+        own:function(){ return TRKFLOW; } },
+  seat:{ on:function(){ return typeof SEATFLOW!=='undefined' && SEATFLOW.active; },
+        data:function(){ try{ var bx=$('mp_production'); if(SEATFLOW.edit && typeof commitSeatEdit==='function' && bx) commitSeatEdit(bx); }catch(e){} return {t:SEATFLOW.tables}; },
+        save:function(){ return saveSeat(false); },
+        exitSave:function(){ exitSeatFlow(); },
+        exitBare:function(){ bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); },
+        own:function(){ return SEATFLOW; } },
+  photo:{ on:function(){ return typeof PHOTOFLOW!=='undefined' && PHOTOFLOW.active; },
+        data:function(){ return {s:PHOTOFLOW.sel, f:PHOTOFLOW.fx, u:PHOTOFLOW.share}; },
+        save:function(){ return savePhoto(); },
+        exitSave:function(){ exitPhotoFlow(); },
+        exitBare:function(){ _photoTearDown(); _mpRefresh(); },
+        own:function(){ return PHOTOFLOW; } },
+  snap:{ on:function(){ return typeof SNAPFLOW!=='undefined' && SNAPFLOW.active; },
+        data:function(){ _snapCollect(); return SNAPFLOW.d; },
+        save:function(){ return saveSnap(); },
+        exitSave:function(){ exitSnapFlow(); },
+        exitBare:function(){ _snapTearDown(); _mpRefresh(); },
+        own:function(){ return SNAPFLOW; } }
+};
+var WIZ_ORDER=['inv','trk','seat','photo','snap'];
+function _wizCurId(){ for(var i=0;i<WIZ_ORDER.length;i++){ var id=WIZ_ORDER[i]; try{ if(WIZ_ADAPT[id].on()) return id; }catch(e){} } return ''; }
+function _wizStart(id){ WIZ_BASE={}; WIZ_ST={}; try{ WIZ_BASE[id]=_wizJson(WIZ_ADAPT[id].data()); }catch(e){ WIZ_BASE[id]=''; } }   // 위저드를 열 때 1회 — 기준선을 여기서 잡아야 '아무것도 안 바꾸고 나가기'가 조용하다
+/* [WIZ_EXIT_ONE] 저장을 지켜본다 — **보낸 그 순간의 값**을 기준선으로 삼는다.
+   회신이 온 뒤에 다시 읽으면, 요청이 도는 동안 고친 것까지 '저장됨'으로 세어 버린다. */
+function _wizWatch(id,p){
+  var k=''; try{ k=_wizJson(WIZ_ADAPT[id].data()); }catch(e){}
+  if(!p||!p.then) return p;
+  return p.then(function(r){ if(r&&r.ok){ WIZ_BASE[id]=k; if(WIZ_ST[id]) WIZ_ST[id].fail=false; _wizPaintSoon(); } return r; });
+}
+function _wizDirty(id){ id=id||_wizCurId(); if(!id) return false;
+  var b=WIZ_BASE[id]; if(b==null) return false;   // 기준선이 없으면 물어볼 근거도 없다 — 조용히 나간다
+  var k=''; try{ k=_wizJson(WIZ_ADAPT[id].data()); }catch(e){ return false; }
+  return !!k && k!==b;
+}
+/* [WIZ_EXIT_ONE] 헤더 손잡이 HTML — 모든 위저드가 이 한 함수만 부른다.
+   그려진 뒤 상태를 칠하도록 다음 프레임에 _wizPaint 를 예약한다(innerHTML 대입 직후가 그때다). */
+function wizActs(){ _wizPaintSoon(); return '<span class="wiz-acts"><button type="button" class="wiz-exit wiz-save" data-wiz-save>저장</button><button type="button" class="wiz-exit" data-wiz-exit>나가기</button></span>'; }
+var _wizPaintT=0;
+function _wizPaintSoon(){ if(_wizPaintT) return; _wizPaintT=requestAnimationFrame(function(){ _wizPaintT=0; _wizPaint(); }); }
+/* [WIZ_EXIT_ONE·식순 _autoPaint 이식] 상태는 버튼이 스스로 말한다 — 따로 안내 줄을 두지 않는다.
+   네 상태뿐: 저장(바뀐 게 있다) · 저장 중… · 저장됨(보낼 것이 없다·비활성) · 다시 저장(실패). */
+function _wizPaint(){
+  var id=_wizCurId(); if(!id) return;
+  var st=WIZ_ST[id]||{};
+  Array.prototype.forEach.call(document.querySelectorAll('[data-wiz-save]'), function(b){
+    if(st.wait){ b.textContent='저장 중…'; b.className='wiz-exit wiz-save'; b.disabled=true; b.setAttribute('aria-busy','true'); return; }
+    b.removeAttribute('aria-busy'); b.disabled=false;
+    if(st.fail){ b.textContent='다시 저장'; b.className='wiz-exit wiz-save bad'; return; }
+    if(_wizDirty(id)){ b.textContent='저장'; b.className='wiz-exit wiz-save on'; return; }
+    b.textContent='저장됨'; b.className='wiz-exit wiz-save'; b.disabled=true;
+  });
+}
+document.addEventListener('input', function(){ if(_wizCurId()) _wizPaintSoon(); });   // 글자를 치는 동안에도 손잡이가 사실을 말하게(칩·옵션은 다시 그리며 wizActs 가 예약한다)
+/* [WIZ_EXIT_ONE] 저장 — 나가지 않는다 */
+function _wizSave(){
+  var id=_wizCurId(); if(!id) return;
+  var st=WIZ_ST[id]||(WIZ_ST[id]={});
+  if(st.wait) return;
+  st.wait=true; st.fail=false; _wizPaint();
+  var done=function(ok,msg){ st.wait=false; st.fail=!ok; _wizPaint(); if(!ok) _miniToast(String(msg||'저장이 안 됐어요 · 다시 저장을 눌러 주세요').slice(0,80)); };
+  var p; try{ p=WIZ_ADAPT[id].save(); }catch(e){ done(false,''); return; }   // 기준선 갱신은 각 save 함수 안의 _wizWatch 가 맡는다
+  if(!p||!p.then){ done(true); return; }
+  p.then(function(r){ done(!!(r&&r.ok), r&&r.error); }).catch(function(){ done(false,''); });
+}
+/* [WIZ_EXIT_ONE] 뒤로가기로 들어온 나가기를 취소하면 그 히스토리 층은 이미 소비됐다 —
+   다시 걸어 두지 않으면 다음 뒤로가기가 페이지를 통째로 떠난다(위저드 안 내용째로). */
+function _wizRearm(id){
+  try{ var o=WIZ_ADAPT[id].own&&WIZ_ADAPT[id].own(); if(!o||!WIZ_ADAPT[id].on()) return;
+    if(!bkAlive(o._bk)) o._bk=bkOpen(function(){ _wizExit(); }); }catch(e){}
+}
+/* [WIZ_EXIT_ONE] 나가기 — 바뀐 게 없으면 그냥, 있으면 물어본다 */
+function _wizExit(){
+  var id=_wizCurId(); if(!id) return;
+  if((WIZ_ST[id]||{}).ask) return;   // 판이 떠 있는 동안 재요청이 판을 갈아치우지 않게(식순 _ordOv 가드와 같은 이유)
+  var failed=!!(WIZ_ST[id]||{}).fail;
+  if(!failed && !_wizDirty(id)){ WIZ_ADAPT[id].exitBare(); return; }
+  (WIZ_ST[id]||(WIZ_ST[id]={})).ask=1;
+  mpConfirm({ title:failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',
+    body:failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요?':'저장하고 나갈까요? 저장하지 않으면 방금 고치신 내용은 남지 않아요.',
+    yes:'저장하고 나가기', no:'그냥 나가기', dismissNull:true }).then(function(v){
+    if(WIZ_ST[id]) WIZ_ST[id].ask=0;
+    if(v===null){ _wizRearm(id); return; }            // 취소 — 그대로 있는다(소비된 뒤로가기 층 재무장)
+    if(v===false){ WIZ_ADAPT[id].exitBare(); return; }
+    WIZ_ADAPT[id].exitSave();                         // 종전 경로 그대로(실패하면 그 자리에 남아 재시도)
+  });
+}
 document.addEventListener('click', function(e){
-  var t=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit]'):null;
-  if(!t) return;
-  if(typeof INVFLOW!=='undefined' && INVFLOW.active){ exitInvFlow(); }   // [BUSY_ONE] 화면을 비우지 않는다 — exitInvFlow 가 같은 베일을 켠다
-  else if(typeof TRKFLOW!=='undefined' && TRKFLOW.active){ exitTrkFlow(); }
+  var el=(e.target&&e.target.closest)?e.target.closest('[data-wiz-exit],[data-wiz-save]'):null;
+  if(!el) return;
+  if(el.hasAttribute('data-wiz-save')) _wizSave(); else _wizExit();
 });
 // [창모드 뷰어] 예시·전체 청첩장 이미지 — 새탭(preview.html) 대신 페이지 안 모달로(2026-07-11 사용자 지시)
 function mpImgView(src,title){
@@ -4843,7 +4994,7 @@ document.addEventListener('click', function(e){
 });
 // [B-2 · PROD_MULTITAB] 청첩장은 트랙 모델 밖(apiTrackSave 미경유)이라 종전엔 브로드캐스트가 없었다 —
 //   PR-B에서 청첩장도 제작_invitation 컬럼을 갖고 _prodOpenTrack이 'invitation'을 보고하므로 발신도 붙인다(같은 트랙 두 탭 편집 커버).
-function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft})
+function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return _wizWatch('inv', api({action:'saveInvitationDraft', token:getToken(), draft:INVFLOW.draft})
   .then(function(r){
     try{ if(r&&r.ok) _prodBcSend('invitation', ''); }catch(e){}
     // [후속2] 단계 이동 호출부(3곳)는 결과를 안 보고 넘어간다 — 여기서 한 번만 알린다.
@@ -4851,7 +5002,7 @@ function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step; return api({action:
     //   '무증상 대신 명시적 거부'라는 가드의 목적이 절반만 달성된다. 손상은 시트 수동 편집으로도 나는 실사용 경로.
     try{ if(r && r.ok===false && r.error) _miniToast(String(r.error).slice(0,80)); }catch(e2){}
     return r;
-  }).catch(function(){}); }
+  })).catch(function(){}); }
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
   if(!box) return;
@@ -4862,6 +5013,19 @@ function renderInvFlow(box){
   else if(INVFLOW.step==='done'){ var _ru=INVFLOW.draft.invitationUrls||{}; var _rHas=!!(_ru.online||_ru.family||_ru.live);
     invStepDone(box, _rHas?{ok:true,urls:_ru,eventId:INVFLOW.draft.eventId||''}:{ok:true,skipped:true}); }   // 발행됨 재진입 — 저장된 링크로 복원 · 링크 없는 done(청첩장 없이)은 skipped 화면으로(빈 '완성됐어요' 방지 · 2026-07-18 리뷰)
   else invStepConfirm(box);
+}
+/* ★★[INV_EN_GATE 2026-08-14 사용자 지시] 마지막에 「eventId 생성 실패 (1014)」로 터지던 것을
+   **적는 자리에서** 막는다. 원문: "이렇게 나오게하지말고 작성을 안하면 팝업나오면서 다음못넘어가게하자"
+   1014 는 예식일(10/14)만 남고 이름 쪽이 통째로 비었다는 뜻이다 — 영문 칸에 한글을 적으면
+   서버는 a-z 만 남기므로 빈 문자열이 되고, 프런트는 '비어 있지 않다'만 봐서 통과시켰다.
+   ★판정 규칙은 서버 _invMakeEventId 와 **같은 식**이어야 한다(85_invitation.gs) — 여기만 느슨하면
+     통과시켜 놓고 발행에서 터지고, 여기만 빡빡하면 서버가 받아 줄 이름을 막는다. 바꿀 땐 둘을 같이. */
+function _invEnIni(v){ return String(v||'').trim().toLowerCase().split(/\s+/).filter(Boolean).map(function(w){ return w.charAt(0); }).join('').replace(/[^a-z]/g,''); }
+function _invEnMiss(d){ var b=[]; if(!_invEnIni(d.groomEn)) b.push('신랑'); if(!_invEnIni(d.brideEn)) b.push('신부'); return b; }
+function _invEnAsk(miss, focusId){   // 판 하나로 무엇이·왜·예시까지 — 되돌아가서 헤매지 않게
+  return mpAlert({ title:'영문 이름을 적어 주세요',
+    body:miss.join('·')+' 영문 이름이 아직 비어 있어요.\n청첩장 표지와 링크 주소에 들어가는 칸이라, 알파벳으로 적어 주세요.\n성은 빼고 이름만 적으시면 돼요 (예: Heejun).',
+    confirmText:'적으러 가기' }).then(function(){ try{ var el=$(focusId); if(el){ el.focus(); el.select&&el.select(); } }catch(e){} });
 }
 function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }   // MPD_E9 self/none 경로는 혼주·디자인 단계를 건너뜀 — "1/4→4/4" 점프 거짓 예고 방지
 function invStepMethod(box){
@@ -4879,7 +5043,7 @@ function invStepMethod(box){
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / '+_invTotalSteps(d)+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'   // MPD_E9 경로별 단계 수(§8-1-⑤)
+    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / '+_invTotalSteps(d)+'</span>'+wizActs()+'</div>'   // MPD_E9 경로별 단계 수(§8-1-⑤)
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
     +names
     +'<div class="inv-gate" style="margin:16px 0 4px"><div class="inv-gate-q">어떻게 초대하실래요?</div></div>'
@@ -4908,7 +5072,8 @@ function invStepMethod(box){
     if(!mm){ mpAlert('초대 방식을 골라 주세요.'); return; }
     if(mm!=='none'){
       if(!d.groomKo||!d.brideKo){ mpAlert('신랑·신부 이름(한글)을 입력해 주세요.'); return; }
-      if(!d.groomEn||!d.brideEn){ mpAlert('영문 이름(성 제외)도 적어 주세요. 청첩장 표지와 링크에 들어가요.'); return; }
+      var _miss=_invEnMiss(d);   // [INV_EN_GATE] 빈 칸 + '알파벳이 하나도 없는 칸'(한글 입력)을 함께 막는다
+      if(_miss.length){ _invEnAsk(_miss, _miss[0]==='신랑'?'mp_gEn':'mp_bEn'); return; }
     }
     if(mm==='self' && INVFLOW.draft.selfQR!==true && INVFLOW.draft.selfQR!==false){ mpAlert('모바일 참석 QR을 받으실지 골라 주세요.'); return; }   // 미응답이 조용히 '청첩장 없이(none)'로 발행되던 함정 차단(2026-07-18 리뷰)
     saveInvDraft();
@@ -4961,7 +5126,7 @@ function invStepParents(box){
     + _accWhere
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span>'+wizActs()+'</div>'
     +'<div class="inv-q">혼주(부모님) · 마음 전하실 곳</div><div class="inv-sub">계좌를 비워 두면 마음 전하실 곳 없이 나가요 · 나머지는 선택이에요.</div>'
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
@@ -5113,7 +5278,7 @@ function updateInvPreview(){
 }
 function invStepDesign(box){
   var d=INVFLOW.draft, m=d.method;
-  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
+  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span>'+wizActs()+'</div><div class="inv-q">디자인을 골라주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
     +'<div class="cc-actions" style="margin:2px 0 12px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';   // 고르기 전에 먼저 훑어보게 상단 배치
   if(m==='offline') h+=designBlock('offline','직접 모시는 청첩장');
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
@@ -5152,7 +5317,7 @@ function invStepConfirm(box){
     :(m==='self')?(d.selfQR?'<div class="cc-note"><b>만들기</b>를 누르면 인쇄용 모바일 참석 QR·링크를 드려요. 발행 후에도 고칠 수 있어요.</div>'
       :'<div class="cc-note">저희가 만들 것 없이 청첩장 단계만 마무리돼요. QR이 필요해지면 언제든 다시 고를 수 있어요.</div>')
     :'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>';
-  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span>'+wizActs()+'</div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'+det
     +mkNote
     +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
@@ -5161,6 +5326,13 @@ function invStepConfirm(box){
   $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
 }
 function doPublishInv(box){
+  var _d0=INVFLOW.draft||{};
+  /* [INV_EN_GATE] 재진입 경로는 1단계를 안 지난다 — 저장된 초안이 _step='confirm' 이면 곧장 이 화면이 열린다.
+     그래서 게이트를 **여기에도** 둔다. 없으면 옛 초안 한 건마다 발행에서 1014 로 터진다. */
+  if(['online','offline','both'].indexOf(String(_d0.method||''))>=0){
+    var _m0=_invEnMiss(_d0);
+    if(_m0.length){ _invEnAsk(_m0,'').then(function(){ INVFLOW.step='method'; renderInvFlow(box); setTimeout(function(){ var el=$(_m0[0]==='신랑'?'mp_gEn':'mp_bEn'); if(el) el.focus(); },60); }); return; }
+  }
   var btn=$('iv_pub'); if(btn){ btn.disabled=true; btn.textContent='만드는 중…'; }
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent='청첩장 만들기'; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
   var dr=INVFLOW.draft, sendDraft=dr;
@@ -5175,8 +5347,15 @@ function doPublishInv(box){
       else if(r.skipped){ INVFLOW.draft.invitationUrls=null; INVFLOW.draft.eventId=''; INVFLOW.step='done'; }   // none 전환 시 옛 링크 잔존 → 재진입이 은퇴한 청첩장을 '완성됨'으로 되살리던 것 정리(2026-07-18 리뷰)
       invStepDone(box, r);
     }
-    else reset((r&&r.error)||'발행이 안 됐어요. 한 번 더 눌러 주세요.');
+    else reset(_invErrHuman((r&&r.error)||''));
   }).catch(function(){ reset('발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)'); });
+}
+/* [INV_EN_GATE] 서버 문구 중 기술어(eventId·코드)는 고객 화면에 그대로 싣지 않는다 —
+   무엇을 해야 할지가 안 보이고, 그 자리에서 고칠 수도 없다. 사람 말로 바꿔 준다. */
+function _invErrHuman(msg){
+  msg=String(msg||'');
+  if(/eventId|영문 이름/.test(msg)) return '영문 이름을 확인해 주세요. 1단계에서 알파벳으로 적어 주시면 바로 만들어져요.';
+  return msg||'발행이 안 됐어요. 한 번 더 눌러 주세요.';
 }
 // (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.
 //   디자인별 예시 이미지는 3단계(디자인 선택)의 각 섹션에 인라인으로 계속 노출.
@@ -5398,7 +5577,8 @@ function startSeatFlow(seatDraft, finalDraft, token, gi){
     _seatNormDrinks(t);
   });   // 음료 배열 보정(구 데이터 호환) + 대표음료 자리별 이관
   SEATFLOW={ active:true, tables:tbls, token:token||'', gi:(gi||{}), fd:(finalDraft||{}) };   // gi = 공유 패널의 공개 설정(자리 찾기·범위) 기준값 · fd = 상단 확정 요약 스트립용(통합 2026-07-19)
-  SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  SEATFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
+  _wizStart('seat');   // [WIZ_EXIT_ONE] 기준선
   renderSeat($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
@@ -5550,7 +5730,7 @@ function saveSeat(done){
   var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
   if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
   _seatFinSave();   // 최종 인원=이름 있는 자리 수로 파생 저장(별도 인원 입력 폐지 2026-07-19) — 좌석 저장과 함께
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done});
+  return _wizWatch('seat', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done}));
 }
 function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
@@ -5725,20 +5905,22 @@ function startPhotoFlow(gi){
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','단체 사진');
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 44px';
-  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
+  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:16px 16px 44px';
+  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:auto;width:100%';   // [WIZ_VCENTER] margin:auto — 남는 공간이 있을 때만 먹으므로 긴 화면은 종전대로 위에서부터
   body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // 배경 스크롤 잠금(식순·스냅과 동일)
-  PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  PHOTOFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
+  _wizStart('photo');   // [WIZ_EXIT_ONE] 기준선
   renderPhoto(inner);   // 단체 사진은 전용 오버레이(mp_photoOverlay) 사용 — 다른 세션 파일럿(PROD_OVERLAY)과 동일 패턴 채택
   body.scrollTop=0;
 }
 function renderPhoto(box){
   if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
   var h='<div class="consult-card" style="text-align:left">';
-  h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span><button type="button" class="wiz-exit" id="mp_photoExit">저장 후 나가기</button></div>';
-  h+='<div class="sp-note" style="text-align:left;margin:0 0 8px">고른 내용은 나갈 때 자동으로 저장돼요</div>';
+  h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span>'+wizActs()+'</div>';
+  /* [WIZ_EXIT_ONE] '고른 내용은 나갈 때 자동으로 저장돼요' 줄 삭제 — 나가기는 더 이상 몰래 저장하지 않는다.
+     상태는 위 「저장」 버튼이 스스로 말한다(저장/저장 중…/저장됨/다시 저장). 되살리지 말 것. */
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에 남길 구도예요. 전체 하객은 늘 첫 컷이고, <b>「불러 모아요」</b> 구도가 그다음으로 이어져요. <b>「자리에서」</b>는 두 분이 자리를 돌 때 담으니 번호와 상관없어요.</div>';   // MPD_E10 산재 노트 통합
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객</span><span class="ph-fix">고정</span></div>';
@@ -5819,13 +6001,13 @@ function renderPhoto(box){
   var psi=$('mp_photoShare');
   if(psi) psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
   photoShareQrRender();
-  var ex=$('mp_photoExit'); if(ex) ex.addEventListener('click', exitPhotoFlow);
+  /* [WIZ_EXIT_ONE] 나가기·저장은 전역 위임(data-wiz-exit·data-wiz-save)이 받는다 — 전용 리스너 폐지 */
 }
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
+  return _wizWatch('photo', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
     seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice(), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
-  }, done:true});
+  }, done:true}));
 }
 var _flowBusyT=0, _flowBusyEl=null, _flowBusyKill=0;
 /* [BUSY_ONE 2026-08-04] 대기 표시는 **하나의 취급**이다 — 점만 같아선 통일이 아니다.
@@ -5856,14 +6038,15 @@ function _flowBusy(on, label){   // 저장 중 즉시 피드백 — 오버레이
   }
   else if(v&&v.parentNode){ var el=v; el.id=''; var wait=Math.max(0, 300-(Date.now()-_flowBusyT)); clearTimeout(_flowBusyKill); _flowBusyKill=setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); if(_flowBusyEl===el) _flowBusyEl=null; }, wait); }   // id 즉시 해제(재시도 시 새 베일) + 남은 시간만큼 유지 후 제거
 }
+function _photoTearDown(){   // 오버레이·잠금·뒤로가기 층 정리(저장 성공 · '그냥 나가기' 공용)
+  _flowBusy(false);
+  if(PHOTOFLOW._bk!=null){ bkDone(PHOTOFLOW._bk); PHOTOFLOW._bk=null; }
+  var ov=$('mp_photoOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+  _mpUnlock(); PHOTOFLOW.active=false; PHOTOFLOW._exiting=false;
+}
 function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true; _flowBusy(true);   // 저장중 베일(멈춘 듯 보여 반복 클릭 방지)
-  var _tearDown=function(){   // 오버레이·잠금·가드 정리(성공/저장없이나가기 공용)
-    _flowBusy(false);
-    if(PHOTOFLOW._bk!=null){ bkDone(PHOTOFLOW._bk); PHOTOFLOW._bk=null; }
-    var ov=$('mp_photoOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
-    _mpUnlock(); PHOTOFLOW.active=false; PHOTOFLOW._exiting=false;
-  };
+  var _tearDown=_photoTearDown;
   var _close=function(){ window._mpNextToast='단체 사진 구도를 저장했어요 · 촬영 때 사진작가에게 전달돼요'; _tearDown(); _mpRefresh(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
   var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
     _flowBusy(false); PHOTOFLOW._exiting=false;
@@ -5906,19 +6089,20 @@ function startSnapFlow(sd){
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
   // 상단 고정 바·✕ 없음 — 종료는 하단 '저장하고 나가기'(+뒤로가기). 제목은 카드 안에 스크롤과 함께(2026-07-19 사용자 지시: 따라다니는 바·✕ 제거)
-  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 24px';
-  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto;width:100%';
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:20px 16px 24px';
+  var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:auto;width:100%';   // [WIZ_VCENTER] margin:auto — 남는 공간이 있을 때만 먹으므로 긴 화면은 종전대로 위에서부터
   body.appendChild(inner); ov.appendChild(body);
   // 하단 고정 저장 바 — 긴 폼에서 엄지로 바로 닿는 주 CTA(상단은 ✕만 · 2026-07-19 디자인 검토)
   var foot=document.createElement('div'); foot.style.cssText='flex:0 0 auto;border-top:1px solid var(--hairline,#E6E1D8);background:var(--bg,#FAFAF8);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))';
   var footIn=document.createElement('div'); footIn.style.cssText='max-width:620px;margin:0 auto';
-  var saveBtn=document.createElement('button'); saveBtn.type='button'; saveBtn.className='cc-btn'; saveBtn.textContent='저장 후 나가기'; saveBtn.style.cssText='width:100%;margin:0';   // 라벨 통일(제작 전 접점 '저장 후 나가기'로 일치 · 2026-07-20)
-  saveBtn.addEventListener('click', function(){ exitSnapFlow(); });
-  footIn.appendChild(saveBtn); foot.appendChild(footIn); ov.appendChild(foot);
+  footIn.innerHTML=wizActs();   // [WIZ_EXIT_ONE] 다른 위저드와 같은 손잡이 둘 — 바는 유지(긴 폼의 엄지 CTA · 2026-07-19)
+  var _fa=footIn.firstElementChild; if(_fa) _fa.className='wiz-acts wiz-bar';
+  foot.appendChild(footIn); ov.appendChild(foot);
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // 배경 스크롤 잠금(식순·계약 뷰어와 동일)
-  SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  SNAPFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
+  _wizStart('snap');   // [WIZ_EXIT_ONE] 기준선
   renderSnapFlow(inner);
   body.scrollTop=0;
 }
@@ -5994,29 +6178,37 @@ function renderSnapFlow(box){
 }
 function saveSnap(){
   var D=SNAPFLOW.d||{};
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:{
+  return _wizWatch('snap', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:{
     people:(D.people||[]).slice(), mustPeople:String(D.mustPeople||''), aboutNote:String(D.aboutNote||''),
     moodCandle:(D.moodCandle||[]).slice(), moodWhite:(D.moodWhite||[]).slice(), moodNote:String(D.moodNote||''),
     refs:(D.refs||[]).slice(), mustHaves:(D.mustHaves||[]).slice(), toneStyle:String(D.toneStyle||''), comfort:String(D.comfort||''),
     propsNote:String(D.propsNote||''), directorNote:String(D.directorNote||'')
-  }, done:_snapFilledD(D)});   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
+  }, done:_snapFilledD(D)}));   // 내용이 하나라도 있으면 완료(트랙 체크·진행바 표시) · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
+}
+function _snapCollect(){   // [WIZ_EXIT_ONE] 화면의 글상자 → SNAPFLOW.d. 저장·나가기·변경검사가 같은 값을 본다
+  if(!SNAPFLOW.d) return;
+  var _mp=$('mp_snapMustPeople'); if(_mp) SNAPFLOW.d.mustPeople=_mp.value;
+  var _ab=$('mp_snapAbout'); if(_ab) SNAPFLOW.d.aboutNote=_ab.value;
+  var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value;
+  var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value;
+  var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value;
+}
+function _snapTearDown(){   // 오버레이·잠금·뒤로가기 층 정리(저장 성공 · '그냥 나가기' 공용)
+  _flowBusy(false);
+  if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; }
+  var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+  _mpUnlock(); SNAPFLOW.active=false; SNAPFLOW._exiting=false;
 }
 function exitSnapFlow(){ _mpHoldScroll();   // 식순 빌더와 동일 — 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(SNAPFLOW._exiting) return;
-  if(SNAPFLOW.d){ var _mp=$('mp_snapMustPeople'); if(_mp) SNAPFLOW.d.mustPeople=_mp.value; var _ab=$('mp_snapAbout'); if(_ab) SNAPFLOW.d.aboutNote=_ab.value; var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value; var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value; var dr=$('mp_snapDirector'); if(dr) SNAPFLOW.d.directorNote=dr.value; }   // 마지막 텍스트 반영
+  _snapCollect();   // 마지막 텍스트 반영
   SNAPFLOW._exiting=true; _flowBusy(true);   // 저장중 베일(멈춘 듯 보여 반복 클릭 방지)
-  var _close=function(){
-    _flowBusy(false);
-    if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; }   // 층 소비(뒤로가기로 이미 닫혔으면 no-op)
-    var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
-    _mpUnlock(); SNAPFLOW.active=false; SNAPFLOW._exiting=false;
-    _mpRefresh();
-  };
+  var _close=function(){ _snapTearDown(); _mpRefresh(); };
   var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능 · alert 대신 mpConfirm(다른 플로우와 파리티 · z역전 해소로 오버레이 위에 정상 표시 2026-07-20)
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
-      .then(function(again){ if(again){ exitSnapFlow(); } else { if(SNAPFLOW._bk!=null){ bkDone(SNAPFLOW._bk); SNAPFLOW._bk=null; } var ov=$('mp_snapOverlay'); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); SNAPFLOW.active=false; _mpRefresh(); } });
+      .then(function(again){ if(again){ exitSnapFlow(); } else { _snapTearDown(); _mpRefresh(); } });
   };
   saveSnap().then(function(r){ if(r&&r.ok===false){ _fail(r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
 }
@@ -6302,7 +6494,7 @@ function renderSeat(box){
     +'<div class="sp-note">고르면 바로 저장돼요</div></div>';
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
-    +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료 · 3 / 3</span><button type="button" class="wiz-exit" data-seat-exit>저장 후 나가기</button></div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
+    +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료 · 3 / 3</span>'+wizActs()+'</div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
     // [자리별 3음료 + 인원 자동계산 2026-07-19 사용자 지시] 별도 인원 입력·대표음료 칩 폐지 → 자리에 이름·음료를 넣으면 인원·요금 자동. 요금 안내는 캔버스 아래.
     +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
     +'<div class="cc-sub" style="text-align:center;margin-bottom:6px">자리를 눌러 <b>이름과 음료</b>를 정해요.</div>'
@@ -6319,7 +6511,7 @@ function renderSeat(box){
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
     +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료</button></div>'   // 하단=완료(토큰 발급) · 위 wiz-exit=임시저장 후 나가기 → '저장 후 나가기' 문구 중복 제거(2026-07-20)
-    +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장 후 나가기\'로 저장하고 언제든 이어서 할 수 있어요.</div>'
+    +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장\'을 누르면 언제든 이어서 할 수 있어요.</div>'
     +(sel?'<div class="seat-sheet-pad" aria-hidden="true"></div>':'')   // [DRINK_SHEET] 바닥 시트가 '배치 완료'를 덮지 않게   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
     // ★좌석 편집기 안 공유 링크·QR 패널(seatSharePanelHtml) 복원 금지 — 2026-07-19 사용자 지시로 삭제. 링크·QR은 '하객 안내' 접점에서 제공(중복 제거). 완료는 위 '배치 완료 · 저장 후 나가기'로 마무리.
     +'</div>';
@@ -6343,7 +6535,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-exit],[data-seat-done],[data-drink],[data-seat-selclose]'):null;   // data-drink=자리별 3음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose]'):null;   // data-drink=자리별 3음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지
     // 이름 편집 중 배경(입력창·액션 버튼이 아닌 곳) 클릭 → 이름 확정(닫기)
     if(SEATFLOW.edit && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed]'))){ commitSeatEdit(box); renderSeat(box); return; }
     if(!el) return;
@@ -6365,7 +6557,6 @@ function bindSeat(box){
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-selclose')){ commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); return; }   // [SEAT_DRINK_SEL] 바 닫기 — 하단 고정이라 '배치 완료'를 가릴 때 치울 수 있어야 한다
     if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv=''; var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // 자리별 음료 칩 복원 2026-07-19 · _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭 무시 방지
-    if(el.hasAttribute('data-seat-exit')){ commitSeatEdit(box); SEATFLOW.sel=null; exitSeatFlow(); return; }
     // ★상단 대표음료 칩(data-fedrink) 핸들러 폐지 — 2026-07-19 사용자 지시("고르고 인원 정하는 탭 전부 제거"). 음료는 자리별(data-drink)로만. 복원 금지.
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr('');
       var names=0, undec=0;   // 이름 수 + 이름 있는데 음료 미정 수(2026-07-22 완료 전 순한 확인용)
@@ -6403,13 +6594,14 @@ function startTrkFlow(track, draft, base){
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
-  TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 브라우저 뒤로가기 = 저장 후 나가기
+  TRKFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
+  _wizStart('trk');   // [WIZ_EXIT_ONE] 기준선
   renderTrkFlow($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
 function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}).catch(function(){});
+  return _wizWatch('trk', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done})).catch(function(){});
 }
 function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   if(TRKFLOW._exiting) return; TRKFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
@@ -6433,7 +6625,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel){
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
     : '';
   return '<div class="consult-card inv-wrap">'
-    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span>'+(last?'':'<button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button>')+'</div>'
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · '+stepNo+' / '+m.steps+'</span>'+(last?'':''+wizActs()+'')+'</div>'
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
@@ -6873,7 +7065,7 @@ function renderDining(box){
   if(TRKFLOW.step===0 && !((d._favs&&d._favs.length) || String(d.venuePick||'').trim() || TRKFLOW._dnPick)){
     var m=TRK_META[TRKFLOW.track];
     box.innerHTML='<div class="consult-card inv-wrap">'
-      +'<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · 1 / '+m.steps+'</span><button type="button" class="wiz-exit" data-wiz-exit>저장 후 나가기</button></div>'
+      +'<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · 1 / '+m.steps+'</span>'+wizActs()+'</div>'
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사·카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
