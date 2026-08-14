@@ -3158,3 +3158,16 @@ chk 'NO_ADDABLE' assets/ritual-data.js 1
 chk 'NO_ADDABLE' order-preview.html 1
 nochk "if(c.addable)" order-preview.html
 nochk "addable:'" assets/ritual-data.js
+
+# ── [NARR_RULE] 나레이션 합격 기준을 손이 아니라 기계가 잰다 (2026-08-14 R4) ──
+# R2 에서 사람이 손으로 센 것이 두 번 틀렸고, R3 이 적은 N7 은 한 번 넓었다(승인된 DECLWHO.ask 가 걸렸다).
+# 셋 다 "자가 기준의 사본이라는 것을 잊는" 같은 병이라, 자를 문서 밖으로 꺼낸다.
+# ★검사 자신이 자가진단(잡아야 하는 7종) + 반례(붉히면 안 되는 4종)를 함께 돈다 —
+#   아무것도 못 잡는 채로 초록인 검사는 통과가 아니라 눈을 감은 것이다.
+chk 'NARR_RULE' scripts/check-narr-rule.mjs 1
+chk 'SELFPASS' scripts/check-narr-rule.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/check-narr-rule.mjs || fail=1; else echo 'skip check-narr-rule (node 없음)'; fi
+# [VOICE_2ND_ONE] 저장소 유일했던 '한 문장 안 3인칭+2인칭 혼용'을 R4 에서 고쳤다 — 되돌리지 말 것.
+#   ★문장의 꼴을 겨눈다(이름으로 겨누면 바로 위 근거 주석이 제 발을 밟는다 · 같은 사고 다섯 번째 방지).
+nochk '몸짓으로 전합니다. 두 사람, 천천히' assets/ritual-data.js
+nochk '몸짓으로 전합니다. 두 사람, 천천히' order-preview.html
