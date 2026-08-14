@@ -1129,7 +1129,7 @@ function openAiTeam(){
     }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
   //  핵심정보 — 가격·일정·정책의 단일 진실원. 여기서 고치면 재배포 없이 5직원 모두 최대 2분 내 반영. 변경은 이력에 남아 되돌리기 가능.
   function rFacts(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:6px">가격·일정·정책 등 <b>핵심 사실</b> · 여기서 고치면 <b>재배포 없이</b> 5직원 모두 최대 2분 내 반영돼요. 잘못 넣으면 고객에게 그대로 나가니 신중히 · 변경은 이력에 남아 되돌릴 수 있어요.</div>'
-     +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 280만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
+     +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 330만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
      +'<div style="display:flex;gap:6px;margin-bottom:8px"><input id="fDesc" placeholder="메모(선택) · 근거·출처" style="flex:1;padding:6px 8px;border:1px solid #eee5d9;border-radius:5px;font-size:12px"><button id="fAdd" style="padding:6px 14px;border:none;background:#6B2A24;color:#fff;border-radius:5px;font-size:12px;cursor:pointer">저장</button></div>'
      +'<div id="fList"></div><div id="fHist"></div>';
     /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤에 저장 호출이 이어지던 자리라, 확인 이후 전부를 .then 안으로 옮겼다.
@@ -2766,7 +2766,7 @@ function doCloseFitting(code,names){ openModal({ title:'드레스 시착 동의�
 function openSendContract(code,names,d){
   var sug=d.priceSuggest;   // {total,premium,reason,weddingYmd} | null
   var creq=d.contractReq||null;   // 고객이 입력한 계약 정보(예식일·생년월일·주소). null=요청 전
-  var preset = sug ? String(sug.total) : (snap(d.product)?'600000':'2800000');
+  var preset = sug ? String(sug.total) : (snap(d.product)?'600000':'3300000');   // [PRICE_2026_08] 기본 제안은 신가
   var wedPre = (creq && /^\d{4}-\d{2}-\d{2}$/.test(String(creq.weddingDate||''))) ? esc(creq.weddingDate)
              : ((d.pin && /^\d{4}-\d{2}-\d{2}$/.test(String(d.pin['예식일']||''))) ? esc(d.pin['예식일']) : '');
   var sugLine = creq
@@ -2779,13 +2779,23 @@ function openSendContract(code,names,d){
     +'<div class="field"><label>예식일 (고객 지정 · 필요 시 수정)</label><input type="date" id="ctWed" value="'+wedPre+'"></div>'
     +partyBlock
     +'<div class="field"><label>계약 총액</label><select id="ctSel">'+
-    '<option value="2800000">주말·공휴일 · 280만</option><option value="2100000">평일 · 210만</option><option value="600000">스냅 · 60만</option><option value="__etc">직접 입력</option></select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 예식일로 평일/주말 자동 선택돼요. 평일이라도 <b>공휴일</b>이면 주말·공휴일(280만)을 직접 골라 주세요.</div></div>'+
-    '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
+    '<option value="3300000">주말·공휴일 · 330만</option><option value="2400000">평일 · 240만</option><option value="600000">스냅 · 60만</option>'+
+    /* [PRICE_2026_08] 인상 전(280/210만) 항목은 남겨 둔다 — 2026-08-14 전에 상담 예약금을 내신 분은 구가로 계약한다.
+       지우면 그분들 계약서를 '직접 입력'으로 만들어야 하고, 손으로 치는 금액은 오타가 난다. */
+    '<option value="2800000">주말·공휴일 · 280만 (인상 전)</option><option value="2100000">평일 · 210만 (인상 전)</option>'+
+    '<option value="__etc">직접 입력</option></select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 예식일로 평일/주말 자동 선택돼요. 평일이라도 <b>공휴일</b>이면 주말·공휴일(330만)을 직접 골라 주세요.<br>※ 2026-08-14 전 예약금 납부 고객은 <b>인상 전</b> 금액으로 골라 주세요.</div></div>'+
+    '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 3300000"></div>'+
     '<div class="field"><label>계약서 링크 (기본 계약서 자동 · 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>'
     +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">채워진 계약서 미리보기 (발송 전 확인)</button></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">고객이 입력한 예식일·정보를 확인하고 발송해 주세요.</span>'+li('발송하면 고객에게 카톡이 자동으로 가요')   /* [ADM_AB3] */, extra:extra, yes:'발송',
     init:function(){ var pre=$('ctLink'); pre.value=(d.raw&&d.raw['계약서링크'])?d.raw['계약서링크']:contractFullUrl(d.product); var sel=$('ctSel'); sel.value=preset; sel.addEventListener('change',function(){ $('ctEtcWrap').style.display=(sel.value==='__etc')?'block':'none'; });
-      var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v || (sel.value!=='2800000' && sel.value!=='2100000')) return; var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?'2800000':'2100000'; });
+      /* [PRICE_2026_08] 자동 선택은 **지금 고른 세대 안에서만** 요일을 바꾼다 — 신가를 골라 뒀는데 구가로 튀거나
+         그 반대로 넘어가면, 화면은 맞아 보이는데 금액 세대가 조용히 바뀐다. */
+      var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v) return;
+        var NEW=['3300000','2400000'], OLD=['2800000','2100000'];
+        var gen = (NEW.indexOf(sel.value)>=0) ? NEW : ((OLD.indexOf(sel.value)>=0) ? OLD : null);
+        if(!gen) return;
+        var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?gen[0]:gen[1]; });
       var pv=$('ctPreview'); if(pv) pv.addEventListener('click',function(){ var s=$('ctSel').value; var tot=(s==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):s; var wv=String($('ctWed')&&$('ctWed').value||'').trim(); openContractViewer(d,{preview:true,weddingDate:wv,total:Number(tot)||0}); }); },
     onYes:function(){ var sel=$('ctSel').value; var total=(sel==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):sel; var link=String($('ctLink').value||'').trim(); var wed=String($('ctWed')&&$('ctWed').value||'').trim();
       if(!/^\d{4}-\d{2}-\d{2}$/.test(wed)){ mErr('예식일을 선택해 주세요. 중도금·잔금 일정의 기준이 돼요.'); return; }

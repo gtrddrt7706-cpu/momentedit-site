@@ -996,10 +996,13 @@ function doOpenFitting(code,names){ openModal({ title:'시착 동의서를 보�
 function doCloseFitting(code,names){ openModal({ title:'시착 동의를 닫을까요?', text:b(names)+li('고객 화면에서 동의서가 사라져요'), yes:'닫기', onYes:function(){ runAct(['adminCloseFitting',code],code,'닫기'); } }); }
 
 function openSendContract(code,names,d){
-  var preset = (d.priceSuggest && d.priceSuggest.total) ? String(d.priceSuggest.total) : (snap(d.product)?'600000':'2800000');   // 예식일 평일/주말 자동선택(오선택 방지)
+  var preset = (d.priceSuggest && d.priceSuggest.total) ? String(d.priceSuggest.total) : (snap(d.product)?'600000':'3300000');   // 예식일 평일/주말 자동선택(오선택 방지)
   var extra='<div class="field"><label>계약 총액</label><select id="ctSel">'+
-    '<option value="2800000">주말·공휴일 — 280만</option><option value="2100000">평일 — 210만</option><option value="600000">스냅 — 60만</option><option value="__etc">직접 입력</option></select></div>'+
-    '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 2800000"></div>'+
+    '<option value="3300000">주말·공휴일 — 330만</option><option value="2400000">평일 — 240만</option><option value="600000">스냅 — 60만</option>'+
+    /* [PRICE_2026_08] 인상 전 항목 유지 — 2026-08-14 전 예약금 납부 고객은 구가로 계약한다 */
+    '<option value="2800000">주말·공휴일 — 280만 (인상 전)</option><option value="2100000">평일 — 210만 (인상 전)</option>'+
+    '<option value="__etc">직접 입력</option></select></div>'+
+    '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 3300000"></div>'+
     (snap(d.product)?'':('<div class="field"><label>예식 시간 · 140분</label><select id="ctSlot"><option value="">선택 안 함 (고객 요청 유지)</option>'+['09:00','12:20','15:40'].map(function(t){ var wt=(d.contractReq&&d.contractReq.weddingTime)||''; return '<option value="'+t+'"'+(wt===t?' selected':'')+'>'+wedTimeKo(t)+'</option>'; }).join('')+'</select></div>'))+
     '<div class="field"><label>계약서 링크 (필수·https)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"></div>';
   openModal({ title:'계약서 발송', text:bumpName(names)+'님께 계약서를 발송해요.<span class="li">서명하면 72시간 기한이 시작돼요.</span>'+((d.priceSuggest&&d.priceSuggest.reason)?'<span class="li">예식일 '+esc(d.priceSuggest.reason)+' → 금액 자동 선택(확인 후 수정 가능)</span>':''), extra:extra, yes:'발송',
