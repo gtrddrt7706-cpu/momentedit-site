@@ -1367,7 +1367,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.3') return '/contract/archive/v1-3.html';   // [CONTRACT_V14] v1.3 서명자는 옛 표기(본식 30분) 보존본으로 열람
   if(v==='v1.4') return '/contract/archive/v1-4.html';   // [CONTRACT_V15] v1.4 서명자는 옛 표기(스냅 40분·합 60분) 보존본으로 열람
   if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람(서명 안 한 줄이 '확인했습니다'로 보이면 안 된다)
-  return '/contract/v1-1.html';   // 현행(v1.6)
+  if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
+  return '/contract/v1-1.html';   // 현행(v1.7)
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -3913,8 +3914,8 @@ var meCardPay = (function(){
       + '<div class="consult-sec" style="display:block"><div class="consult-card">'
       +   '<div class="cc-eyebrow en-22">Contract</div>'
       +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
-      +   '<div class="cc-sub">납부하실 금액 · <b>110,000원</b><br><span class="cc-mini">계약금 210,000 − 예약금 100,000</span></div>'
-      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="110000"','입금액 110,000원 복사'))
+      +   '<div class="cc-sub">납부하실 금액 · <b>140,000원</b><br><span class="cc-mini">계약금 240,000 − 예약금 100,000</span></div>'   // [PRICE_2026_08] 평일 예시(미리보기 전용 · 실제 금액은 서버가 계산)
+      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="140000"','입금액 140,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
       +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'

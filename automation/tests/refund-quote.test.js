@@ -96,7 +96,12 @@ function addDays(ymd, n) {
   return new Date(Date.UTC(m[0], m[1] - 1, m[2]) + n * 86400000).toISOString().slice(0, 10);
 }
 const ASOF = '2026-06-11';
-const TOTAL = 2800000;          // 주말·공휴일 (계약서 4조①)
+/* ★[PRICE_2026_08] 아래 TOTAL 은 **고정 검사값(fixture)** 이지 지금 파는 가격이 아니다.
+   여기서 재는 것은 비율 계산(10%·40%·50%·위약 구간)이라 총액이 얼마든 성립해야 한다 —
+   살아 있는 가격을 끌어다 쓰면, 가격을 올릴 때마다 기대값을 전부 다시 적어야 하고
+   그 과정에서 오히려 계산 오류를 놓친다. 살아 있는 가격끼리 어긋나는지는
+   scripts/check-price-sync.mjs 가 따로 본다. */
+const TOTAL = 2800000;          // 고정 검사값(구가 주말) — 비율 계산 검증용
 const MID = 1120000;            // 40% (계약금 잔액은 계약 시 별도 납부 · 4조③)
 const BAL = 1400000;            // 50%
 const bookingPaid = () => row({ 입금확인: '확인' });

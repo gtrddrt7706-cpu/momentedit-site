@@ -1098,8 +1098,8 @@ chk 'RINGWARM_NO_MIN' order-preview.html 1     # 링워밍 '하객 전체' 카�
 chk 'DECL_PAUSE_POS' scripts/build-dubbing-script.mjs 1   # 선언 무음이 '마지막 문장'이 아니라 '끝에서 두 번째'(선언문) 기준임 — 구 지시 복원 금지
 chk 'N0_STAY' scripts/build-dubbing-script.mjs 1          # N0가 '자리를 옮기실 때'로 되돌아가면 폐식 G3-15 '자리에서 그대로'와 다시 충돌
 # ── 2026-07-26 홈 문구·정보 정리(사용자 결정)
-chk 'HOME_PRICE_FMT' index.html 1              # 금액 표기 규칙 주석 — 삭제 금지(INVEST=₩전체자릿수 / 산문=210만 원 / 계약서 미러 조항은 50,000원 유지)
-chk '210만 원' index.html 3                    # 산문 금액이 '210만'·'210만원'으로 되돌아가면 한 페이지에 세 형식이 다시 생긴다
+chk 'HOME_PRICE_FMT' index.html 1              # 금액 표기 규칙 주석 — 삭제 금지(INVEST=₩전체자릿수 / 산문=240만 원 / 계약서 미러 조항은 50,000원 유지)
+chk '240만 원' index.html 3                    # 산문 금액이 '240만'·'240만원'으로 되돌아가면 한 페이지에 세 형식이 다시 생긴다 [PRICE_2026_08]
 chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 보조 — 영문 단독 라벨로 복원 금지
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
@@ -1361,7 +1361,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.6'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요)
+chk "docVersion: 'v1.7'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행합니다' assets/ritual-data.js 1   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -1826,7 +1826,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.6'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.7'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -3073,3 +3073,23 @@ chk 'FS_FLEX_SHRINK' scripts/check-fs-overflow.mjs 1
 # 검사가 순서를 정적으로도 본다(찬 캐시에서만 드러나는 결함이라 브라우저 재현만으로는 못 잡는다).
 chk 'PREVIEW_LINK_BOOT' mypage.html 1
 chk 'PREVIEW_LINK_BOOT' scripts/check-preview-link-boot.mjs 1
+
+# ── [PRICE_2026_08] 패키지 금액 인상 (2026-08-14 사용자 결정 "추천대로 진행") ──
+# 주말 280→330만 · 평일 210→240만 · 계약 시 납입 잔액 18만→23만 / 11만→14만.
+# 같은 금액이 화면·계약서·AI 지식·관리자 드롭다운에 열 곳 넘게 사본으로 산다 —
+# 한 곳만 고치면 고객은 옛 가격을 보고 계약서는 새 가격을 말한다. 사본 대조는 아래 검사가 한다.
+# ★인상 전 금액이 남아도 되는 곳은 둘뿐: 계약서 보존본(archive/) · 관리자 드롭다운 '(인상 전)' 항목.
+#   그 둘은 지우지 말 것 — 2026-08-14 전 예약금 납부 고객이 구가로 계약한다.
+chk 'PRICE_2026_08' automation/platform/70_journey.gs 3
+chk 'PRICE_2026_08' contract/v1-1.html 1
+chk 'PRICE_2026_08' admin.html 3
+chk 'PRICE_2026_08' automation/admin/Admin.html 1
+chk 'PRICE_SYNC' scripts/check-price-sync.mjs 1
+chk "'시그니처': { 평일: 2400000, 주말: 3300000 }" automation/platform/70_journey.gs 1
+chk 'v1.7' contract/v1-1.html 4
+chk "docVersion: 'v1.7'" automation/platform/70_journey.gs 1
+chk "v1-6.html" mypage.html 1
+# 인상 전 금액이 적힌 계약서 보존본 — 구가 서명자가 여는 문서다. 지우면 그분들이 새 금액 문서를 보게 된다
+chk '2,800,000원' contract/archive/v1-6.html 1
+chk '2,100,000원' contract/archive/v1-6.html 1
+chk '180,000원 · 평일 110,000원' contract/archive/v1-6.html 1
