@@ -3137,3 +3137,8 @@ chk 'free:function()' order-preview.html 1
 chk 'NARR_PICK' assets/ritual-data.js 1
 chk 'var NARV={' assets/ritual-data.js 1
 chk 'NARV:NARV' assets/ritual-data.js 1
+
+# ── [MUNAN_COPY] 대본 개정 제안 문안의 문구 규칙 (2026-08-14) ──
+# 문서 전체를 훑으면 설명 산문의 줄표·★ 까지 잡힌다 — 실제로 첫 판이 그랬다.
+# 문안임을 형식으로 표시하고(굵은 번호 · 결 이름 아래 인용줄), 검사는 그것만 본다.
+chk 'MUNAN_COPY' scripts/check-munan-copy.mjs 1
