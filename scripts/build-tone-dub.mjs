@@ -1,10 +1,10 @@
-// 어조 38벌의 붙여넣기 대본을 뽑는다 [TONE_DUB]
+// 어조 60벌의 붙여넣기 대본을 뽑는다 [TONE_DUB]
 //
 //   node scripts/build-tone-dub.mjs           대조만 (파일 안 씀)
 //   node scripts/build-tone-dub.mjs --write   파일 씀
 //
 // ★왜 따로 만드나 — `build-typecast-import.mjs` 는 `manifest.json` 을 원천으로 돈다.
-//   어조 38벌은 아직 manifest 에 없다(엔진 배선·생성기 재실행이 끝난 뒤에 들어온다).
+//   어조 60벌은 아직 manifest 에 없다(엔진 배선·생성기 재실행이 끝난 뒤에 들어온다).
 //   그런데 더빙은 그 전에 시작할 수 있다. 문안은 이미 `TONE` 표에 다 있기 때문이다.
 //   **대본을 먼저 뽑아 두면 사람이 기다리지 않는다.** 그게 이 파일의 존재 이유다.
 //
@@ -48,6 +48,16 @@ const GROUP = {
   toast:   { ko: '축배·케이크', slug: (k) => `toast-${k}` },
 };
 
+
+/* ★[NARV_DUB 2026-08-14] `NARV` 여섯 자리도 **아직 더빙이 없다.** 실측: manifest 나레이션
+   82클립 안에 어조 클립이 0개다. 데이터엔 있는데 소리가 한 번도 안 만들어졌다.
+   TONE 38 만 뽑아 놓고 「전부」라고 하면, 첫인사·서약·반지·덕담·자유·폐식 여섯 자리에서만
+   어조가 안 먹는 예식이 된다 — 고객은 하나를 골랐는데 절반만 바뀌는 꼴이라 가장 나쁘다.
+   ★index 0 은 뽑지 않는다 — 지금까지 쓰던 문안이고 이미 녹음돼 있다(NARR_PICK 규칙). */
+const NARV_KO = { welcome: '첫인사', vow: '혼인 서약', ring: '반지 교환', bless: '부모님 덕담', free: '자유 한 칸', close: '폐식·단체촬영' };
+const NARV_SLUG = { welcome: 'narr-welcome', vow: 'narr-vow', ring: 'narr-ring', bless: 'narr-bless', free: 'narr-free', close: 'narr-close' };
+const TONE_KEY = { '담백': 'plain', '서정': 'lyric', '다정': 'warm' };
+
 const rows = [];
 for (const g of Object.keys(GROUP)) {
   const tbl = D.TONE[g]; if (!tbl) continue;
@@ -66,22 +76,43 @@ for (const g of Object.keys(GROUP)) {
   }
 }
 
+
+/* ── NARV 여섯 자리 (index 0 제외 · nar 과 end 는 서로 다른 클립이다) ──────── */
+for (const k of Object.keys(D.NARV)) {
+  D.NARV[k].forEach((v, i) => {
+    if (i === 0) return;
+    const tone = TONE_KEY[v.t] || v.t;
+    for (const part of ['nar', 'end']) {
+      if (!v[part]) continue;
+      rows.push({
+        g: 'narv', key: k, tone,
+        slug: `${NARV_SLUG[k]}-${part === 'nar' ? 'in' : 'out'}-${tone}`,
+        ko: `${NARV_KO[k]} · ${part === 'nar' ? '여는 말' : '닫는 말'} · ${TONE_KO[tone]}`,
+        sents: splitSents(v[part]),
+      });
+    }
+  });
+}
+
 /* ── 자가검사 — 뽑은 줄이 붙여넣기 규격을 지키는가 ─────────────────────────── */
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
 const allLines = rows.flatMap((r) => r.sents.map((s) => `${VOICE}: ${s}`));
 allLines.forEach((l) => { if (!LINE.test(l)) no(`줄 꼴이 규격과 다르다: ${l.slice(0, 40)}`); });
 if (!rows.length) no('TONE 표에서 뽑힌 문안이 0벌이다');
-/* 38 은 52_전부더빙.md 가 못 박은 수다. 어긋나면 표나 문서 한쪽이 틀렸다는 뜻이다. */
-if (rows.length !== 38) no(`문안이 ${rows.length}벌이다 — 52_전부더빙.md 는 38벌로 못 박았다`);
+/* ★60 = TONE 38 + NARV 22. **사이 순서(valley)는 넣지 않는다.**
+   사용자 지시: "사이순서 없에고 어차피 축배 부분있으니깐 좋은소스들 있으면 축배쪽에 추가하고 없으면 제거".
+   지금 GADD·gamdong opt 에 살아 있는 것은 제거가 미실행일 뿐이다 —
+   곧 지울 자리에 더빙 돈과 사람이 듣는 시간을 쓰지 않는다. valley 를 여기 되살리지 말 것. */
+if (rows.length !== 60) no(`문안이 ${rows.length}벌이다 — TONE 38 + NARV 22 = 60 여야 한다`);
 { const seen = new Set(); rows.forEach((r) => { if (seen.has(r.slug)) no(`슬러그 중복: ${r.slug}`); seen.add(r.slug); }); }
 
 /* ── 산출물 ───────────────────────────────────────────────────────────────── */
 const paste = allLines.join('\n') + '\n';
 const list = [
-  '# 어조 38벌 · 재더빙 명단 (2026-08-14)',
+  '# 어조 60벌 · 더빙 명단 (2026-08-14)',
   '# 이 파일은 「무엇이 몇 번인지」 보는 명단입니다. 타입캐스트에는 옆 파일',
-  '# 「어조38_붙여넣기.txt」 를 통째로 붙여넣으세요(머리말이 없어 읽혀 나갈 것이 없습니다).',
+  '# 「어조_붙여넣기.txt」 를 통째로 붙여넣으세요(머리말이 없어 읽혀 나갈 것이 없습니다).',
   '# 목소리는 전부 진행 나레이션 · 우성 입니다.',
   `# 총 ${rows.length}벌 · ${allLines.length}문장`,
   '',
@@ -91,12 +122,12 @@ const list = [
 
 console.log(`어조 대본 — ${rows.length}벌 · ${allLines.length}문장 · 화자 ${VOICE}`);
 const byG = {}; rows.forEach((r) => { byG[r.g] = (byG[r.g] || 0) + 1; });
-console.log('  자리별:', Object.entries(byG).map(([k, v]) => `${GROUP[k].ko} ${v}`).join(' · '));
+console.log('  자리별:', Object.entries(byG).map(([k, v]) => (k === 'narv' ? 'NARV 여섯자리' : GROUP[k].ko) + ' ' + v).join(' · '));
 
 if (WRITE && !bad) {
-  fs.writeFileSync(path.join(DIR, '어조38_붙여넣기.txt'), paste);
-  fs.writeFileSync(path.join(DIR, '어조38_명단.txt'), list);
-  console.log('  썼다: 타입캐스트/어조38_붙여넣기.txt · 어조38_명단.txt');
+  fs.writeFileSync(path.join(DIR, '어조_붙여넣기.txt'), paste);
+  fs.writeFileSync(path.join(DIR, '어조_명단.txt'), list);
+  console.log('  썼다: 타입캐스트/어조_붙여넣기.txt · 어조_명단.txt');
 } else if (!WRITE) {
   console.log('  (대조만 · 쓰려면 --write)');
 }

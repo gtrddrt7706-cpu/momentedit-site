@@ -3222,3 +3222,6 @@ chk 'GAP_TRUTH' scripts/audit/gap-profile.mjs 1
 # ★§7-3: 사이 순서(valley)는 사용자 지시로 제거 대상이다. 어조·더빙을 붙이지 말 것.
 chk 'CX_AUDIT' docs/plans/대본개정/60_고객눈_점검.md 1
 chk '제거 대상이다' docs/plans/대본개정/60_고객눈_점검.md 1
+# [TONE_DUB 60] 구 어조38_* 는 지웠다 — 두 벌이 남으면 사람이 38벌짜리를 붙여넣고 22벌을 빠뜨린다
+nochk '어조38_붙여넣기' scripts/build-tone-dub.mjs
+chk 'NARV_DUB' scripts/build-tone-dub.mjs 1
