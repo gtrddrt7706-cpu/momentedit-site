@@ -3407,3 +3407,12 @@ nochk 'replace(/[(),]/g' automation/platform/80_production.gs
 #   --write 로 '고치면' 커밋된 실측 186개가 지워졌다. 구조만 대조 + --write 차단으로 그 창을 닫는다.
 chk 'STAGE_ABSENT' scripts/build-listen-tone.mjs 2
 chk '실측(_dub_stage)이 없는 곳에서는 --write 를 막는다' scripts/build-listen-tone.mjs 1
+# [PRICE_KIND_NEW 2026-08-15] 인상 때 «신가»가 이름을 잃는 자리 둘 — 게이트도 화면도 안 보던 곳.
+#   ①계약서 요약 '평일 기준' 라벨에 250 이 빠져 신가만 빈칸(구가는 붙는 역전) ②관리자 요일 자동전환
+#   NEW 가 240 을 신가로 들고 있어 250 을 고르면 전환이 조용히 멈춤(gen=null).
+chk 'PRICE_KIND_NEW' contract/v1-1.html 1
+chk 'PRICE_KIND_NEW' admin.html 1
+chk 'amt===2500000' contract/v1-1.html 1
+chk 'var GENS=' admin.html 1
+nochk "var NEW=\['3300000','2400000'\]" admin.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/price-gen-switch.mjs >/dev/null || fail=1; fi

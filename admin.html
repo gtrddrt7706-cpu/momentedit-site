@@ -2796,8 +2796,12 @@ function openSendContract(code,names,d){
       /* [PRICE_2026_08] 자동 선택은 **지금 고른 세대 안에서만** 요일을 바꾼다 — 신가를 골라 뒀는데 구가로 튀거나
          그 반대로 넘어가면, 화면은 맞아 보이는데 금액 세대가 조용히 바뀐다. */
       var wd=$('ctWed'); if(wd) wd.addEventListener('change',function(){ var v=wd.value; if(!v) return;
-        var NEW=['3300000','2400000'], OLD=['2800000','2100000'];
-        var gen = (NEW.indexOf(sel.value)>=0) ? NEW : ((OLD.indexOf(sel.value)>=0) ? OLD : null);
+        /* ★[PRICE_KIND_NEW 2026-08-15 CC] 세대가 셋이 됐다(8/15 인상으로 평일 240→250).
+           종전 NEW 가 240 을 신가로 들고 있어, **250 을 고르면 요일 자동전환이 조용히 멈췄다**
+           (gen=null → return). 세대 목록으로 바꾼다 — 주말 330 은 두 세대가 같은 값이라
+           먼저 오는 현세대(250)로 잡는다(구가는 관리자가 직접 고른다 · 드롭다운 안내문 그대로). */
+        var GENS=[['3300000','2500000'],['3300000','2400000'],['2800000','2100000']];
+        var gen=null; for(var gi=0; gi<GENS.length; gi++){ if(GENS[gi].indexOf(sel.value)>=0){ gen=GENS[gi]; break; } }
         if(!gen) return;
         var dy=new Date(v+'T00:00:00').getDay(); sel.value=(dy===0||dy===6)?gen[0]:gen[1]; });
       var pv=$('ctPreview'); if(pv) pv.addEventListener('click',function(){ var s=$('ctSel').value; var tot=(s==='__etc')?String($('ctEtc').value||'').replace(/[^0-9]/g,''):s; var wv=String($('ctWed')&&$('ctWed').value||'').trim(); openContractViewer(d,{preview:true,weddingDate:wv,total:Number(tot)||0}); }); },
