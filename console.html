@@ -356,6 +356,15 @@ body.guest .now .hint{font-size:12.5px}
   body.guest .ctl .inner{max-width:1080px}
   body.guest .up{align-content:start;border-top:0}
   body.guest .up .upc:first-child{border-top:1px solid var(--line)}
+  /* ★[GUEST_PC_FOOT 2026-08-15 사용자 지적 "다음·그다음 위치가 자연스럽지 않다"]
+     레일을 카드 **아랫변에 맞춰** 세운다. 실측(1280) 근거 —
+       전: 레일이 카드보다 125px 아래에서 시작하고 발끝은 109px 위에서 끝나, 두 칸이
+           머리도 발도 맞지 않았다(가운데 정렬이 만든 어정쩡한 두 모서리).
+       후: 발차 0 — 카드 아랫변과 레일 아랫변이 한 선. 레일↔버튼 거리도 291→182px.
+     모바일 ⑧의 뜻("다음·그다음을 '다음으로' 바로 위에 둬 무엇이 오는지와 그리로 가는 문을
+     한 손에")을 넓은 화면에서도 지키는 자리다. 머리 맞춤(align-self:start)도 재 봤지만
+     레일 아래가 399px 비어 더 떠 보였다. */
+  body.guest .up{align-self:end}
 }
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
