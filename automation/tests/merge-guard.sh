@@ -3217,3 +3217,8 @@ chk 'TONE_DUB' scripts/build-tone-dub.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/build-tone-dub.mjs || fail=1; fi
 # [GAP_TRUTH] manifest 지시값(0.4/0.45) ≠ 실측(0.23/0.50). 새 클립을 지시값으로 재면 기존 82개가 다 붉는다.
 chk 'GAP_TRUTH' scripts/audit/gap-profile.mjs 1
+
+# ── [CX_AUDIT] 고객 눈 점검 — 코워크가 화면을 걷고 코드가 데이터를 훑은 합본 ──
+# ★§7-3: 사이 순서(valley)는 사용자 지시로 제거 대상이다. 어조·더빙을 붙이지 말 것.
+chk 'CX_AUDIT' docs/plans/대본개정/60_고객눈_점검.md 1
+chk '제거 대상이다' docs/plans/대본개정/60_고객눈_점검.md 1
