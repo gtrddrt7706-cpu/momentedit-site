@@ -3219,6 +3219,20 @@ chk 'TONE_DUB' scripts/build-tone-dub.mjs 1
 chk 'TONE_DUB_SELFID' scripts/build-tone-dub.mjs 1
 chk 'TONE_DUB_DIFF' scripts/build-tone-dub.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/build-tone-dub.mjs || fail=1; fi
+
+# ── [DUB_ONEFILE 2026-08-15] 붙여넣는 파일은 **하나**다 (사용자 지시) ──
+# 원문: *"4개 파일 그냥 하나로 만들고 너한테 보내면 너가알아서 분리해도돼잖아"*
+# 합치는 쪽(build-dub-onefile) 과 되나누는 쪽(split-dub-onefile) 은 짝이다. 하나만 남으면 못 쓴다.
+chk 'DUB_ONEFILE' scripts/build-dub-onefile.mjs 1
+chk 'DUB_ONEFILE' scripts/split-dub-onefile.mjs 1
+# [PASTE_IS_ORDER] 순서의 정본은 붙여넣기 파일이다 — 명단과 순서가 다른 것은 의도된 것이라
+#   (재더빙 붙여넣기는 클립번호 오름차순 · 명단은 발견순) 「순서가 같은가」를 물으면 안 된다.
+#   실측 차이: 붙여넣기 38·63·80 / 명단 63·80·38. 이 주석을 지우면 다음 사람이 또 같게 만든다.
+chk 'PASTE_IS_ORDER' scripts/build-dub-onefile.mjs 1
+# [ORDER_CORR] 자르기 전에 길이 상관으로 순서를 확인한다 — 못 재면 통과가 아니라 멈춤(rc 2)
+chk 'ORDER_CORR' scripts/split-dub-onefile.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/build-dub-onefile.mjs || fail=1; fi
+
 # [GAP_TRUTH] manifest 지시값(0.4/0.45) ≠ 실측(0.23/0.50). 새 클립을 지시값으로 재면 기존 82개가 다 붉는다.
 chk 'GAP_TRUTH' scripts/audit/gap-profile.mjs 1
 
@@ -3316,3 +3330,14 @@ chk 'RT_DROPCOL' scripts/audit/data-roundtrip.mjs 3
 chk 'WORLD_DROPCOL' scripts/audit/_gasworld.mjs 1
 chk 'ADV_AUDIT' docs/plans/대본개정/62_적대적점검.md 1
 chk 'ADV_CLOSED' docs/plans/대본개정/62_적대적점검.md 1
+# [ADV_ROUND2 2026-08-15] 2바퀴 — 돌연변이 0 · 실버그 1건(컷 제출 8000자 vs 400개 캡 불일치)
+#   7-1 은 같은 날 [PICK_NO_SILENT] 로 수리됨 — 문서(§7·§8)가 사라지면 근거가 사라진다.
+chk 'ADV_ROUND2' docs/plans/대본개정/62_적대적점검.md 1
+chk '400개 캡과 세트' docs/plans/대본개정/62_적대적점검.md 1
+# [PICK_NO_SILENT 2026-08-15] 7-1 수리 — 상한(컷 400 · 20,000자 · 추가보정 500)은 자르지 않고 거부.
+#   절단 코드 모양이 되살아나면 164개부터 무증상 유실로 돌아간다(nochk 는 그 코드 모양을 겨눈다).
+chk 'PICK_NO_SILENT' automation/platform/80_production.gs 3
+chk 'PICK_NO_SILENT' mypage.html 1
+chk 'RT_PICKS' scripts/audit/data-roundtrip.mjs 6
+nochk 'picks.slice(0, 8000)' automation/platform/80_production.gs
+nochk 'qty = 500' automation/platform/80_production.gs
