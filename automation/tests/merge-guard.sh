@@ -3240,6 +3240,10 @@ chk 'EXIT_CANCEL' order-preview.html 3
 chk 'align-self:stretch' order-preview.html 1
 chk 'min-height:40px' order-preview.html 1
 chk 'oa-cancel' order-preview.html 1
+# [ASK_FOCUS_BOX 2026-08-15 사용자 실기기 제보] 판 첫 포커스는 버튼이 아니라 판 자체 —
+#   버튼에 주면 스크립트 포커스가 :focus-visible 을 켜서 폰에서도 씰색 테두리가 그려진다(위계 역전)
+chk 'ASK_FOCUS_BOX' order-preview.html 2
+chk 'oa-box:focus' order-preview.html 1
 
 # ── ★[SIM_ALIVE 2026-08-15 점검] 순서 엔진 시뮬레이터가 **조용히 죽지 않게** ──
 # 왜 이제야 만드나: ritual-order-sim.mjs 의 DECL_SHAPE 주석이 2026-08-10 에
