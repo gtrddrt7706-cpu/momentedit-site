@@ -3265,3 +3265,12 @@ chk 'REHEARSE_GONE' scripts/audit/order-audio-check.mjs 1
 #   이제 그 자리가 비어 있는지를(단추 셋 한 덩어리) 본다 — 멘트를 되살리면 그 검사가 붉어진다.
 chk 'HINT_RETIRED' scripts/audit/preview-entry.mjs 1
 chk 'DONE_TAIL_QUIET' order-preview.html 1
+
+# ── [MP_NX_AA · MP_TAP44 2026-08-15 디자이너 점검] 마이페이지 11단계 실측 반영 ──
+# NEXT 레일: opacity 이중 감광(기본 .72 × 행별 ×0.5)이 첫 항목 3.61:1 · 꼬리 2.03:1 을 만들었다.
+#   원근은 색 계단(.nx-far → --light 4.74:1)이 낸다 — opacity 계단으로 되돌리면 AA 아래로 뚫린다.
+chk 'MP_NX_AA' mypage.html 2
+chk 'nx-far' mypage.html 3
+nochk "1-_ni" mypage.html
+# 설문 칩 39→44 · 결과물 행 버튼은 ::after 로 손가락 자리만 44
+chk 'MP_TAP44' mypage.html 2
