@@ -74,6 +74,7 @@ border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--tex
   <b>쉼(무음)은 여기서 판정하지 마세요.</b> 문장 사이 쉼은 조립할 때 <b>숫자로</b> 넣습니다(wav 에 없습니다).
   이 화면이 주는 쉼은 듣기 편하라고 브라우저가 임시로 넣는 것이라 실제 결과물과 다릅니다.<br>
   여기서 볼 것은 <b>억양 · 강세 · 발음 · 속도</b>입니다.<br>
+  <b>단추 둘의 차이</b> — 「듣기」는 <b>이 문장 하나</b>, 「옛 클립 통째」는 그 문장이 들어 있던 <b>기존 클립 전체</b>(앞뒤 문장까지 붙은 실제 결과물)입니다.<br>
   <b>「기존에도 있음」</b>이 붙은 자리는 이미 녹음된 문장입니다 — 그 옛 클립과 <b>결이 맞는지</b> 견줘 들어 주세요.
   (실측 한 건: 「하나, 둘, 셋.」은 기존이 4.8초에 사이 쉼 0.45초씩인데 새 take 는 1.65초입니다. 사진 카운트다운이라 반응할 틈이 필요합니다.)
 </div>
@@ -179,14 +180,14 @@ function draw() {
       h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '">'
         + '<div class="tx"><div class="q">' + esc(s.t) + '</div>'
         + '<div class="mi">' + esc(s.v) + ' · audio_' + s.i
-        + (s.m ? (' · ' + s.m.d + 's') : '')
+        + (s.m ? (' · ' + (s.m.ex ? '기존 ' : '') + s.m.d + 's') : '')
         + (s.f ? (' · <b style="color:var(--gold-text)">' + esc(s.f) + '</b>') : '')
-        + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다 (판정 안 함)</b>' : '')
+        + (s.lock ? ' · <b style="color:var(--green)">이 「듣기」가 기존 녹음입니다 — 당일 나갈 소리 (판정 안 함)</b>' : '')
         + '</div></div>'
         + '<div class="ops">'
         + '<button class="btn sm" data-p="' + s.i + '">듣기</button>'
         + ((function(){ var mm = /기존에도 있음 · (\S+)/.exec(s.f || ''); return (mm && OLDA[mm[1]])
-            ? '<button class="btn sm" data-old="' + mm[1] + '">기존 듣기</button>' : ''; })())
+            ? '<button class="btn sm" data-old="' + mm[1] + '" title="옛 클립을 처음부터 끝까지 — 앞뒤 문장까지 붙은 실제 결과물">옛 클립 통째 ' + mm[1].replace(/^\d+_/, '') + '</button>' : ''; })())
         + (s.lock ? '' :
             '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-i="' + s.i + '">좋아요</button>'
           + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-i="' + s.i + '">다시</button>')
