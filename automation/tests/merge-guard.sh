@@ -3309,3 +3309,10 @@ if command -v node >/dev/null 2>&1; then
   else echo "REVERT? scripts/audit/data-roundtrip.mjs 가 붉다 — 저장 왕복 어딘가에서 값이 갈라졌다"; fail=1; fi
 fi
 chk 'DATA_ROUNDTRIP' scripts/audit/data-roundtrip.mjs 1
+# [ADV_CLOSED 2026-08-15] 코워크 돌연변이 4건을 전수화로 메움 — 표본 하나로 되돌리지 말 것
+chk 'RT_ALLTRACK' scripts/audit/data-roundtrip.mjs 3
+chk 'RT_REVIEW' scripts/audit/data-roundtrip.mjs 2
+chk 'RT_DROPCOL' scripts/audit/data-roundtrip.mjs 3
+chk 'WORLD_DROPCOL' scripts/audit/_gasworld.mjs 1
+chk 'ADV_AUDIT' docs/plans/대본개정/62_적대적점검.md 1
+chk 'ADV_CLOSED' docs/plans/대본개정/62_적대적점검.md 1

@@ -26,12 +26,20 @@ export function openWorld() {
   const COL_OF = {}; HEADERS.forEach((h, i) => { COL_OF[h] = i + 1; });
   const COL_BY_NUM = {}; HEADERS.forEach((h, i) => { COL_BY_NUM[i + 1] = h; });
 
-  function world(cells, booking) {
+  function world(cells, booking, opts) {
+    /* [WORLD_DROPCOL 2026-08-15 코워크 지적 3-1] 「헤더 없는 컬럼」이 존재할 수 있는 세계 —
+       진짜 writeCell 은 colOf 에 없는 헤더를 조용히 건너뛴다(저장 유실 사고의 그 모양).
+       전엔 HEADERS 가 항상 전 컬럼이라 이 사고를 구조적으로 재현할 수 없었다.
+       opts.dropHeaders 로 뺀 컬럼은 colOf 에 없어, 제품의 _prodColsMissing 가드가 시험된다. */
+    const drop = (opts && opts.dropHeaders) || [];
+    const H2 = HEADERS.filter((h) => drop.indexOf(h) === -1);
+    const CO = {}; H2.forEach((h, i) => { CO[h] = i + 1; });
+    const CB = {}; H2.forEach((h, i) => { CB[i + 1] = h; });
     const ev = [];                                        // 이벤트 로그(쓰기·캘린더 삭제 순서까지 기록)
     const C = Object.assign({ 개인코드: 'ME-TEST', 상품타입: '시그니처' }, cells);
     const B = booking ? Object.assign({}, booking) : null;
-    const sheetC = { getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeC', h: COL_BY_NUM[c], v }); C[COL_BY_NUM[c]] = v; } }) };
-    const sheetB = { getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeB', h: COL_BY_NUM[c], v }); if (B) B[COL_BY_NUM[c]] = v; } }) };
+    const sheetC = { getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeC', h: CB[c], v }); C[CB[c]] = v; } }) };
+    const sheetB = { getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeB', h: CB[c], v }); if (B) B[CB[c]] = v; } }) };
     const row = (o, n) => ({ num: n, get: (h) => (h in o ? o[h] : '') });
 
     G._AUTHED = true;                                     // 디스패처가 이미 인증한 상태로 진입(_requireAdmin 통과)
@@ -39,7 +47,7 @@ export function openWorld() {
     G.findCustomerByCode = () => row(C, 2);
     G.getCustomersSheet = () => sheetC;
     G.getSheet = () => sheetB;
-    G.buildHeaderIndex = () => COL_OF;
+    G.buildHeaderIndex = () => CO;
     G.findRowByPersonalCode = () => (B ? row(B, 2) : null);
     G.deleteCalendarEvent = () => { ev.push({ t: 'calBooking' }); };
     G.coupleNames = () => '테스트 · 고객';
