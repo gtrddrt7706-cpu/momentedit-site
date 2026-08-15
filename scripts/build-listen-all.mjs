@@ -1,0 +1,350 @@
+// **전체 실청 점검** — 기존 105클립 + 새 어조 63클립을 한 판에 [LISTEN_ALL]
+//
+//   node scripts/build-listen-all.mjs --out <경로>            소리 없이(가벼움)
+//   node scripts/build-listen-all.mjs --out <경로> --embed     소리 심어서(한 파일로 다 들림)
+//
+// ★왜 따로 만드나 — 2026-08-15 사용자 지시
+//   *"기존것도 전부 싱청점검에 포함하고 전부 들으면서 수정개선할수있게 직관적이게 만들어보자"*
+//   `build-listen-tone.mjs` 는 «새로 받은 어조 63클립»만 본다(조립 전 문장 wav).
+//   여기는 **이미 예식에 나가고 있는 105클립까지** 넣어 전체를 한 줄로 듣는다.
+//   둘을 한 생성기에 억지로 합치지 않는다 — 보는 것도, 소리의 성질도, 검사도 다르다.
+//     · 기존 = 조립 끝난 mp3(무음·정규화 포함) → **클립 통째로** 듣는 것이 실제 결과물이다
+//     · 어조 = 아직 문장 wav → 문장 단위로 듣는다
+//
+// ★직관 = **예식 순서**
+//   목록을 파일 이름순이 아니라 manifest 의 `no`(식순)대로 늘어놓고 파트로 나눈다.
+//   사람은 「몇 번 클립」이 아니라 「입장 다음」으로 기억한다.
+//
+// ★조립을 여기서 하지 않는다 [ONE_SPEC] — assemble-narration.mjs 몫. 여기는 듣고 표시만 한다.
+//
+// ★소리 크기 — 기존 105클립 원본 27MB. 48kbps 모노로 줄이면 base64 뒤에도 한 파일에 들어간다.
+//   ★정규화하지 않는다. 기존 클립은 이미 -16 LUFS 로 조립된 것이고, 새 어조는 받은 그대로 들어야 한다.
+//
+// ★종료 코드 [CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
+const STAGE = path.join(ROOT, '_dub_stage');
+const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
+const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+let bad = 0;
+const no = (m) => { console.error('✗ ' + m); bad++; };
+const die = (m, c = 2) => { console.error('✗ ' + m); process.exit(c); };
+if (!OUT) die('--out <경로> 가 필요하다', 2);
+
+/* ── ① 기존 105클립 (manifest = 정본) ─────────────────────────────────────── */
+const man = JSON.parse(fs.readFileSync(path.join(DIR, 'manifest.json'), 'utf8'));
+const PART_KO = { '1_안내.txt': '하객 안내', '2_진행_전반.txt': '진행 · 전반', '3_진행_후반.txt': '진행 · 후반',
+  '4_혼주편지.txt': '혼주 편지', '5_배역.txt': '배역(신랑·신부·가족)', '6_예식뒤.txt': '예식 뒤' };
+const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt', '4_혼주편지.txt', '5_배역.txt', '6_예식뒤.txt'];
+
+const srcOf = (c) => ['narration', 'cast']
+  .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
+
+const OLDC = man.clips.slice()
+  .sort((a, b) => (PART_ORDER.indexOf(a.part) - PART_ORDER.indexOf(b.part)) || (+a.no - +b.no))
+  .map((c) => ({ id: `${c.no}_${c.file}`, no: c.no, ko: c.label || c.file, part: c.part,
+    role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
+    sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
+const missing = OLDC.filter((c) => !c.has && !c.mix);
+if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
+
+/* ── ② 새 어조 63클립 ─────────────────────────────────────────────────────── */
+const lines = fs.readFileSync(path.join(DIR, '더빙_한번에.txt'), 'utf8').split('\n').filter((l) => l.trim());
+const sents = lines.map((l) => l.replace(/^[^:]*:\s*/, '').trim());
+const voices = lines.map((l) => (l.match(/^([^:]*):/) || [, '우성'])[1].trim());
+const ORDER = JSON.parse(fs.readFileSync(path.join(DIR, '더빙_한번에_순서.json'), 'utf8'));
+const USE_EXISTING = '신랑 신부, 입장!';
+const EXFROM = (slug) => { const m = /^entry-([A-F])\b/.exec(slug); if (!m) return '';
+  return `${{ A: '05', B: '06', C: '07', D: '08', E: '09', F: '10' }[m[1]]}_entry-${m[1]}`; };
+const NEWC = ORDER.클립.map((c) => {
+  const idx = []; for (let k = 0; k < c.문장수; k++) idx.push(c.시작줄 - 1 + k);
+  return { slug: c.slug, ko: c.이름, 묶음: c.묶음, idx };
+});
+
+/* 이미 녹음된 문장인지 — 견주기 힌트 */
+const OLDSENT = new Map();
+man.clips.forEach((c) => (c.sents || []).forEach((s) => {
+  const k = String(s.text || '').trim(); if (k && !OLDSENT.has(k)) OLDSENT.set(k, `${c.no}_${c.file}`); }));
+
+/* ── ③ 소리 심기 ─────────────────────────────────────────────────────────── */
+const A_OLD = {}, A_NEW = {};
+if (EMBED) {
+  const tmp = fs.mkdtempSync('/tmp/la-');
+  const enc = (src, key, bag, kbps) => {
+    const o = path.join(tmp, key.replace(/[^\w.-]/g, '_') + '.mp3');
+    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-c:a', 'libmp3lame',
+      '-b:a', kbps, '-ac', '1', '-ar', '32000', o]);
+    if (r.status !== 0 || !fs.existsSync(o)) { no(`mp3 변환 실패: ${key}`); return; }
+    bag[key] = fs.readFileSync(o).toString('base64');
+  };
+  OLDC.forEach((c) => { const s = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') }); if (s) enc(s, c.id, A_OLD, '48k'); });
+  if (fs.existsSync(STAGE)) {
+    const ff = {};
+    for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = f; }
+    for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), 'n' + i, A_NEW, '48k');
+    /* [USE_EXISTING] 입장 자리는 기존에서 잘라 온 것으로 덮는다 */
+    let cut = 0;
+    NEWC.forEach((c) => { const from = EXFROM(c.slug); if (!from) return;
+      c.idx.forEach((i) => { if (sents[i] !== USE_EXISTING) return;
+        const o = path.join(tmp, `ex_${i}.mp3`);
+        const r = spawnSync('node', [path.join(ROOT, 'scripts/extract-existing-sent.mjs'),
+          '--clip', from, '--sent', USE_EXISTING, '--out', o], { encoding: 'utf8' });
+        if (r.status !== 0 || !fs.existsSync(o)) { no(`기존 소리 잘라내기 실패: ${c.slug}`); return; }
+        A_NEW['n' + i] = fs.readFileSync(o).toString('base64'); cut++; }); });
+    if (cut) console.log(`  [USE_EXISTING] 입장 ${cut}자리에 기존 녹음을 잘라 심었다`);
+  }
+  fs.rmSync(tmp, { recursive: true, force: true });
+  const mb = (Object.values(A_OLD).join('').length + Object.values(A_NEW).join('').length) / 1048576;
+  console.log(`소리 심음 — 기존 ${Object.keys(A_OLD).length}클립 · 새 ${Object.keys(A_NEW).length}문장 · base64 ${mb.toFixed(1)}MB`);
+}
+
+/* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
+const DATA = {
+  old: OLDC.map((c) => ({ id: c.id, no: c.no, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
+    r: c.role, mix: c.mix, has: c.has, s: c.sents })),
+  neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
+    n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
+      old: OLDSENT.get(sents[i]) || '' })) })),
+  parts: PART_ORDER.map((p) => PART_KO[p]).filter(Boolean),
+  /* ★[EXPORT_TRUTH] 화자 이름을 화면에서 지어내지 않는다 — manifest 가 정한 표를 그대로 싣는다.
+     지어내면 `신랑|신부:` 같은, 타입캐스트에 없는 사람이 대본에 실린다(이 저장소가 겪은 사고). */
+  voice: man.voice || {},
+};
+const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);
+const newSents = NEWC.reduce((a, c) => a + c.idx.length, 0);
+
+/* ── ⑤ 화면 ─────────────────────────────────────────────────────────────── */
+const html = `<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>전체 실청 점검 · 기존 ${OLDC.length} + 어조 ${NEWC.length}클립 · Moment Edit</title>
+<!-- [LISTEN_ALL] 자동생성물. 손으로 고치지 말 것 — scripts/build-listen-all.mjs 를 고치고 다시 뽑는다.
+     ★목록은 manifest.json + 더빙_한번에* 에서 박았다. ★소리는 어디에도 안 올라간다. ★내부용. -->
+<style>
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
+--border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--green:#3B6E4F;--serif-ko:'Noto Serif KR',serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--serif-ko),system-ui,sans-serif;font-size:15px;line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:18px 14px 120px}
+@media (max-width:560px){.wrap{padding-bottom:170px}}
+h1{font-size:19px;margin:0 0 4px}
+.sub{color:var(--light);font-size:13px;margin:0 0 14px}
+.note{font-size:12.5px;color:var(--light);background:var(--bg2);border-radius:9px;padding:10px 12px;margin:0 0 12px}
+.bar{position:sticky;top:0;z-index:20;background:rgba(250,250,248,.97);backdrop-filter:blur(8px);
+border-bottom:1px solid var(--border);padding:9px 0;margin:0 0 12px}
+.pg{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin:6px 0}
+.pg>i{display:block;height:100%;background:var(--gold);width:0;transition:width .25s}
+.st{font-size:13px;color:var(--sub);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tab{font:inherit;font-size:13px;padding:8px 12px;min-height:40px;border:1px solid var(--border);
+background:#fff;border-radius:99px;cursor:pointer;color:var(--sub)}
+.tab.on{background:#3A2D22;color:#fff;border-color:transparent}
+.btn{font:inherit;font-size:14px;padding:9px 13px;min-height:44px;border:1px solid var(--border);
+background:#fff;color:var(--text);border-radius:9px;cursor:pointer}
+.btn.sm{font-size:13px;padding:7px 11px;min-height:40px}
+.btn.on{background:var(--green);color:#fff;border-color:transparent}
+.btn.re{background:var(--seal);color:#fff;border-color:transparent}
+.btn.play{background:var(--bg2)}
+.ph{font-size:12px;letter-spacing:.06em;color:var(--gold-text);margin:22px 0 8px;
+border-top:1px solid var(--border);padding-top:14px;font-weight:600}
+.ph:first-of-type{border-top:0;margin-top:6px}
+.clip{border:1px solid var(--border);border-radius:12px;background:#fff;margin:0 0 10px;overflow:hidden}
+.clip.done{opacity:.5}
+.ch{display:flex;gap:9px;align-items:center;padding:11px 13px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.ch .n{font-size:12px;color:var(--light);font-variant-numeric:tabular-nums}
+.ch b{font-size:15px}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--border);background:#fff;color:var(--light)}
+.tag.re{background:#fdf1ef;color:var(--seal);border-color:#e8c9c4}
+.tag.lock{background:#f2f5f2;color:var(--green);border-color:#cfe0d4}
+.tag.new{background:#fdf7ec;color:var(--gold-text);border-color:#e8dcc4}
+.sent{padding:10px 13px;border-top:1px solid var(--bg3);display:flex;gap:9px;align-items:flex-start;flex-wrap:wrap}
+.sent .tx{flex:1 1 250px;min-width:0}
+.sent .mi{font-size:12px;color:var(--light);margin-top:2px}
+.sent.re{background:#fdf7f6}
+.sent.lock{background:#f7faf8}
+.ops{display:flex;gap:6px;flex-wrap:wrap}
+.foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);
+padding:9px 14px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap;backdrop-filter:blur(8px);z-index:30}
+textarea{width:100%;min-height:170px;font:13px/1.6 ui-monospace,Menlo,monospace;padding:10px;
+border:1px solid var(--border);border-radius:9px;background:#fff}
+.hide{display:none}
+</style></head><body><div class="wrap">
+
+<h1>전체 실청 점검</h1>
+<p class="sub">[LISTEN_ALL] 지금 나가는 기존 <b>${OLDC.length}클립</b>(문장 ${oldSents}) + 새 어조 <b>${NEWC.length}클립</b>(문장 ${newSents})
+&nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다</p>
+
+<div class="note">
+  <b>기존 클립</b>은 이미 예식에 나가는 완성본입니다 — 무음·음량까지 들어간 <b>실제로 들릴 소리</b>라 클립 통째로 들려 드립니다.<br>
+  <b>새 어조</b>는 아직 조립 전이라 <b>문장 하나씩</b> 들립니다. 문장 사이 쉼은 조립할 때 숫자로 넣으니 여기서 판정하지 마세요.<br>
+  고칠 것이 보이면 그 문장에 <b>「다시」</b>를 눌러 주세요. 누른 것만 모아 <b>재더빙 대본</b>이 나옵니다.
+</div>
+
+${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border:1px solid #cfe0d4">
+  <b>소리가 이 화면 안에 있습니다.</b> 바로 「듣기」를 누르세요.
+</div>` : `<div class="note" style="background:#fdf7ec;color:var(--gold-text);border:1px solid #e8dcc4">
+  이 판은 <b>소리가 없는 가벼운 판</b>입니다(목록·판정만). 소리까지 들으려면 <code>--embed</code> 로 뽑은 판을 쓰세요.
+</div>`}
+
+<div class="bar">
+  <div class="pg"><i id="pgi"></i></div>
+  <div class="st"><span id="stTxt"></span><span id="stRe" style="color:var(--seal)"></span>
+    <label style="margin-left:auto"><input type="checkbox" id="onlyLeft"> 남은 것만</label>
+    <label><input type="checkbox" id="onlyRe"> 다시만</label></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="list"></div>
+
+<div id="outWrap" class="hide" style="margin-top:18px">
+  <p class="sub" style="margin:0 0 6px">타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.</p>
+  <textarea id="out" readonly></textarea>
+</div>
+</div>
+<div class="foot">
+  <button class="btn" id="mkOut">다시 받을 것 대본 만들기</button>
+  <button class="btn" id="copyOut">복사</button>
+  <button class="btn" id="reset">판정 지우기</button>
+</div>
+<script>
+var D = ${JSON.stringify(DATA)};
+var AO = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_OLD).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
+var AN = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_NEW).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
+var KEY = 'me_listen_all_v1';
+var V = {}; try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
+var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} };
+var $ = function (i) { return document.getElementById(i); };
+var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
+var TAB = '전체';
+var cur = null;
+function stop() { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } }
+function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = new Audio(u); cur = a; a.play(); }
+
+/* 판정 키 — 기존은 "clipId#문장번호", 새 어조는 "n<번호>" */
+function setV(k, val) { if (val) V[k] = val; else delete V[k]; save(); draw(); }
+
+function counts() {
+  var need = 0, done = 0, re = 0;
+  D.old.forEach(function (c) { c.s.forEach(function (_t, j) { var k = c.id + '#' + j; need++; if (V[k]) done++; if (V[k] === 're') re++; }); });
+  D.neu.forEach(function (c) { c.n.forEach(function (s) { if (s.lock) return; var k = 'n' + s.i; need++; if (V[k]) done++; if (V[k] === 're') re++; }); });
+  return { need: need, done: done, re: re };
+}
+
+function ops(k, playUrl) {
+  var v = V[k];
+  return '<div class="ops">'
+    + (playUrl !== null ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '')
+    + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
+    + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div>';
+}
+
+function draw() {
+  var c0 = counts();
+  $('pgi').style.width = (c0.need ? c0.done / c0.need * 100 : 0) + '%';
+  $('stTxt').textContent = '판정 ' + c0.done + ' / ' + c0.need;
+  $('stRe').textContent = c0.re ? ('다시 ' + c0.re + '문장') : '';
+  var tabs = ['전체'].concat(D.parts).concat(['새 어조']);
+  $('tabs').innerHTML = tabs.map(function (t) { return '<button class="tab' + (t === TAB ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join('');
+
+  var oL = $('onlyLeft').checked, oR = $('onlyRe').checked, h = '', lastP = '';
+  if (TAB !== '새 어조') {
+    D.old.forEach(function (c) {
+      if (TAB !== '전체' && c.p !== TAB) return;
+      var keys = c.s.map(function (_t, j) { return c.id + '#' + j; });
+      var open = keys.filter(function (k) { return !V[k]; }).length;
+      var re = keys.filter(function (k) { return V[k] === 're'; }).length;
+      if (oL && !open) return; if (oR && !re) return;
+      if (c.p !== lastP) { h += '<div class="ph">' + esc(c.p) + '</div>'; lastP = c.p; }
+      h += '<div class="clip' + (open ? '' : ' done') + '"><div class="ch"><span class="n">' + esc(c.no) + '</span><b>' + esc(c.k) + '</b>'
+        + '<span class="tag">' + esc(c.id) + '</span>' + (c.r ? '<span class="tag">' + esc(c.r) + '</span>' : '')
+        + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
+        + (c.has ? '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'
+                 : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>';
+      c.s.forEach(function (t, j) {
+        var k = c.id + '#' + j, v = V[k];
+        h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div>' + esc(t) + '</div></div>' + ops(k, null) + '</div>';
+      });
+      h += '</div>';
+    });
+  }
+  if (TAB === '전체' || TAB === '새 어조') {
+    var head = false;
+    D.neu.forEach(function (c) {
+      var keys = c.n.filter(function (s) { return !s.lock; }).map(function (s) { return 'n' + s.i; });
+      var open = keys.filter(function (k) { return !V[k]; }).length;
+      var re = keys.filter(function (k) { return V[k] === 're'; }).length;
+      if (oL && !open) return; if (oR && !re) return;
+      if (!head) { h += '<div class="ph">새 어조 (아직 예식에 안 나감 · 문장 단위)</div>'; head = true; }
+      h += '<div class="clip' + (open ? '' : ' done') + '"><div class="ch"><b>' + esc(c.k || c.s) + '</b>'
+        + '<span class="tag new">' + esc(c.s) + '</span>'
+        + (re ? '<span class="tag re">다시 ' + re + '</span>' : '') + '</div>';
+      c.n.forEach(function (s) {
+        var k = 'n' + s.i, v = V[k];
+        h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
+          + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
+              : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
+          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, null))
+          + '</div>';
+      });
+      h += '</div>';
+    });
+  }
+  $('list').innerHTML = h || '<p class="sub">해당하는 것이 없습니다.</p>';
+}
+
+$('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { TAB = b.dataset.t; draw(); window.scrollTo(0, 0); } });
+$('list').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.u != null) { var u = b.dataset.u; return play(u.charAt(0) === 'n' && AN[u] ? AN[u] : AO[u]); }
+  if (b.dataset.v) { var k = b.dataset.k; setV(k, V[k] === b.dataset.v ? null : b.dataset.v); }
+});
+$('onlyLeft').onchange = draw; $('onlyRe').onchange = draw;
+$('mkOut').onclick = function () {
+  var out = [];
+  var bad = [];
+  D.old.forEach(function (c) { c.s.forEach(function (t, j) {
+    if (V[c.id + '#' + j] !== 're') return;
+    var vn = D.voice[c.r];                       /* [EXPORT_TRUTH] manifest 표에서만 가져온다 */
+    if (!vn) { bad.push(c.id + ' (' + (c.r || '역할없음') + ')'); return; }
+    out.push(vn + ': ' + t); }); });
+  if (bad.length) alert('화자를 못 정한 클립이 있어 대본에서 뺐습니다:\\n' + bad.join('\\n') + '\\n\\n(합창처럼 여럿이 말하는 자리입니다 · 따로 알려 주세요)');
+  D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] === 're') out.push(s.v + ': ' + s.t); }); });
+  $('outWrap').className = out.length ? '' : 'hide';
+  $('out').value = out.join('\\n') + (out.length ? '\\n' : '');
+  if (!out.length) alert('「다시」로 표시한 문장이 없습니다.'); else $('outWrap').scrollIntoView({ behavior: 'smooth' });
+};
+$('copyOut').onclick = function () { var o = $('out'); if (!o.value) { alert('먼저 대본을 만들어 주세요.'); return; }
+  o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); } catch (e) {} };
+$('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
+draw();
+</script></body></html>
+`;
+
+console.log(`전체 실청 — 기존 ${OLDC.length}클립(문장 ${oldSents}) + 어조 ${NEWC.length}클립(문장 ${newSents})`);
+
+/* ★[SELF_PARSE 2026-08-15] 뽑은 화면의 **스크립트가 실제로 파싱되는지** 여기서 본다.
+   13MB 짜리를 눈으로 훑을 수 없고, 한 글자 어긋나면 화면이 통째로 백지가 된다.
+   실제로 겪었다 — 파이썬으로 문자열을 갈아 끼우다 `\n` 이스케이프가 한 단계 덜 먹어
+   alert 문자열 안에 진짜 줄바꿈이 들어갔고, SyntaxError 로 판정 화면이 하나도 안 떴다.
+   ★「만들었다」와 「돈다」는 다른 말이다. 만든 자리에서 돌려 본다. */
+{
+  const i = html.lastIndexOf('<script>'), j = html.lastIndexOf('</script>');
+  if (i < 0 || j < 0) no('script 태그를 못 찾았다');
+  else {
+    const tmpf = path.join('/tmp', 'listen-all-selfcheck.js');
+    fs.writeFileSync(tmpf, html.slice(i + 8, j));
+    const r = spawnSync(process.execPath, ['--check', tmpf], { encoding: 'utf8' });
+    fs.rmSync(tmpf, { force: true });
+    if (r.status !== 0) no('뽑은 화면의 스크립트가 문법 오류다 — 열어도 백지다\n' + String(r.stderr || '').split('\n').slice(0, 4).join('\n'));
+    else console.log('  자가검사 ok — 스크립트가 파싱된다');
+  }
+}
+
+if (!bad) { fs.writeFileSync(OUT, html); console.log(`  썼다: ${OUT} (${(fs.statSync(OUT).size / 1048576).toFixed(1)}MB)`); }
+console.log(bad ? `틀림 ${bad}건` : '전체 실청 OK');
+process.exit(bad ? 1 : 0);

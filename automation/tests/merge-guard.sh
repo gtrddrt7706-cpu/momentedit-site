@@ -3251,6 +3251,14 @@ chk 'LISTEN_TONE' scripts/build-listen-tone.mjs 1
 # [USE_EXISTING] 「신랑 신부, 입장!」은 기존 녹음을 쓴다 — 잠그는 것만으로는 부족하다.
 #   그 자리에서 **기존 소리가 실제로 나야** 한다(안 그러면 화면 말과 소리가 달라진다 · 실사고).
 chk 'EXTRACT_SENT' scripts/extract-existing-sent.mjs 1
+# ── [LISTEN_ALL 2026-08-15] 전체 실청(기존 105 + 어조 63) — 예식 순서대로 한 판 ──
+# ★산출물은 저장소에 담지 않는다(소리 심으면 13MB) — 생성기만 커밋한다.
+# [SELF_PARSE] 뽑은 화면의 스크립트를 그 자리에서 node --check 로 돌려 본다.
+#   실사고: 이스케이프 한 단계가 덜 먹어 SyntaxError → 판정 화면이 통째로 백지였다.
+# [EXPORT_TRUTH] 화자 이름은 manifest.voice 에서만 가져온다 — 지어내면 없는 사람이 대본에 실린다.
+chk 'LISTEN_ALL' scripts/build-listen-all.mjs 1
+chk 'SELF_PARSE' scripts/build-listen-all.mjs 1
+chk 'EXPORT_TRUTH' scripts/build-listen-all.mjs 1
 chk 'USE_EXISTING' scripts/build-listen-tone.mjs 1
 chk 'FOOT_CLEAR' scripts/build-listen-tone.mjs 1
 chk 'LISTEN_TONE' audio-review-tone.html 1
