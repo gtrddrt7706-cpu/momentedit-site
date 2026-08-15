@@ -3380,3 +3380,9 @@ chk 'PICK_TEXT_CAP' automation/platform/80_production.gs 2
 nochk 'picks.length > 20000' automation/platform/80_production.gs
 chk 'WORLD_BOOKING' scripts/audit/_gasworld.mjs 3
 chk 'WORLD_BOOKING' scripts/audit/data-roundtrip.mjs 4
+# [PICK_SEP_ONE 2026-08-15] 4바퀴 11-2 — 이름 씻는 집합 = 토큰 쪼개는 집합.
+#   갈리면 선택수가 부풀고 그 수가 추가보정 견적 기본값(컷당 2만원)을 만든다(돈이 틀린다).
+chk 'PICK_SEP_ONE' automation/platform/80_production.gs 3
+chk 'PICK_SEP_ONE' scripts/audit/data-roundtrip.mjs 4
+chk 'PICK_NAME_BAD' automation/platform/80_production.gs 2
+nochk 'replace(/[(),]/g' automation/platform/80_production.gs

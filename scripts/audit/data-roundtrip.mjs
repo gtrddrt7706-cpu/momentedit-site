@@ -136,6 +136,20 @@ for (const [t, mk] of Object.entries(TRACKS)) {
       ? ok(`④ 파일명 ${nameLen}자 × 400장 통과 [PICK_CAP_PAIR]`)
       : no(`④ 파일명 ${nameLen}자에서 400장이 막힘(상한 짝 어긋남) [PICK_CAP_PAIR]: ` + JSON.stringify(rr).slice(0, 90));
   }
+  /* [PICK_SEP_ONE] 4바퀴 11-2 회귀 — 이름에 구분자(공백·중점·전각쉼표)가 있어도 장수가 안 부푼다.
+     전엔 한 항목이 여러 토큰으로 갈려 선택수가 늘었고, 그 수가 추가보정 견적 기본값(컷당 2만원)을
+     만든다 — 유실이 아니라 **수와 돈이 틀리는** 버그였다(100장 → 103). */
+  for (const nm of ['DSC 0123.jpg', '봄·여름_0123.jpg', '김희준 이미쿠 본식3 0123.jpg', '가을，겨울_0123.jpg']) {
+    wRef.C['결과물상태'] = '';
+    const list = Array.from({ length: 100 }, (_, i) =>
+      ({ id: '1AbCdEfGh' + String(100000 + i), name: nm.replace('0123', String(1000 + i)) }));
+    const rn = G.handleSubmitResultSelection({ token: 't', picks: list });
+    (rn && rn['선택수'] === 100)
+      ? ok(`④ 이름 "${nm.slice(0, 12)}…" 100장 = 선택수 100 [PICK_SEP_ONE]`)
+      : no(`④ 이름에 구분자가 있어 장수가 부풂(견적 기본값이 위로 틀림) [PICK_SEP_ONE]: 선택수 ${rn && rn['선택수']}`);
+  }
+  (String(wRef.C['선택사진'] || '').indexOf('(') > -1 && !/(^|, )[^(),]+(,|$)/.test(String(wRef.C['선택사진'] || '')))
+    ? ok('  ID 없는 조각이 섞이지 않음') : no('④ 선택사진에 ID 없는 조각이 남음 [PICK_SEP_ONE]');
   wRef.C['결과물상태'] = '';
   G.handleSubmitResultSelection({ token: 't', picks: mkPicks(200) });   // 뒤 검사를 위해 상태 되돌림
   const rq = G.handleRequestExtraRetouch({ token: 't', qty: 12 });
