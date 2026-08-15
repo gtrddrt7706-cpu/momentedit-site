@@ -3235,6 +3235,15 @@ chk 'DUB_ONEFILE' scripts/split-dub-onefile.mjs 1
 chk 'PASTE_IS_ORDER' scripts/build-dub-onefile.mjs 1
 # [ORDER_CORR] 자르기 전에 길이 상관으로 순서를 확인한다 — 못 재면 통과가 아니라 멈춤(rc 2)
 chk 'ORDER_CORR' scripts/split-dub-onefile.mjs 1
+
+# ── [LISTEN_TONE 2026-08-15] 어조 63클립 실청 점검 화면 ──
+# 기존 audio-review.html 은 manifest+조립 mp3 를 읽는다. 어조 60벌은 아직 둘 다 없다 →
+# 조립 전에 문장 wav 그대로 듣고 판정하는 화면을 따로 뽑는다(자동생성물 · 손편집 금지).
+# [FOOT_CLEAR] 390px 에서 발판이 두 줄(119px)로 접힌다 — 아래 여백 150px 을 되돌리지 말 것
+chk 'LISTEN_TONE' scripts/build-listen-tone.mjs 1
+chk 'FOOT_CLEAR' scripts/build-listen-tone.mjs 1
+chk 'LISTEN_TONE' audio-review-tone.html 1
+if command -v node >/dev/null 2>&1; then node scripts/build-listen-tone.mjs >/dev/null || fail=1; fi
 if command -v node >/dev/null 2>&1; then node scripts/build-dub-onefile.mjs || fail=1; fi
 
 # [GAP_TRUTH] manifest 지시값(0.4/0.45) ≠ 실측(0.23/0.50). 새 클립을 지시값으로 재면 기존 82개가 다 붉는다.
@@ -3386,3 +3395,8 @@ chk 'PICK_SEP_ONE' automation/platform/80_production.gs 3
 chk 'PICK_SEP_ONE' scripts/audit/data-roundtrip.mjs 4
 chk 'PICK_NAME_BAD' automation/platform/80_production.gs 2
 nochk 'replace(/[(),]/g' automation/platform/80_production.gs
+# [STAGE_ABSENT 2026-08-15] 실청 화면 대조는 wav 폴더(_dub_stage · 44MB · gitignore)가 없어도 돌아야 한다.
+#   없으면 실측이 비어 생성물이 커밋본과 반드시 달라진다 → 전엔 wav 가진 사람 말고는 게이트를 못 지나갔고,
+#   --write 로 '고치면' 커밋된 실측 186개가 지워졌다. 구조만 대조 + --write 차단으로 그 창을 닫는다.
+chk 'STAGE_ABSENT' scripts/build-listen-tone.mjs 2
+chk '실측(_dub_stage)이 없는 곳에서는 --write 를 막는다' scripts/build-listen-tone.mjs 1
