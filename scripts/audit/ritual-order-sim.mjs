@@ -81,6 +81,14 @@ export const DECLS = [
   ['var COURSES={', false], ['var GADD={', false], ['var RANK={', false],
   ['var RANK_OV={', true], ['function rankOf(', true],
   ['function isGAdd(', false], ['function isOptK(', false],
+  /* ★[PALETTE_MISSING 2026-08-15 점검] `paletteCand` 가 빠져 있었다 — 세 번째로 같은 병이다.
+     2026-08-14 ORD_ADD_ALL(876adff9)이 defaultOrd 안에 `paletteCand().forEach(…)` 를 넣었는데
+     이 목록을 같이 안 고쳤다. 그 뒤로 ritual-order-sim · ritual-guard-scan · ritual-order-sim-audit
+     **셋이 함께 죽어 있었다**(defaultOrd 가 첫 줄에서 터지니 엔진이 아예 안 선다).
+     ★위 DECL_SHAPE 주석이 「아무도 못 본 이유는 게이트가 없어서다」라고 적어 뒀는데,
+       게이트를 안 만든 채 넉 달이 아니라 나흘 만에 같은 일이 났다.
+       그래서 이번엔 merge-guard 에 [SIM_ALIVE] 로 세 도구를 물렸다 — 다음엔 푸시 전에 붉어진다. */
+  ['function paletteCand(', false],
   ['function defaultOrd(', false], ['function ordNow(', false], ['function curSeq(', false],
   /* ★[DECL_SHAPE 2026-08-10 점검] `var OFFTGL={` 로 **선언 꼴을 박아 뒀던 것**을 푼다.
      2026-08-03 리팩터(c792fb8 ORD_ROWCTL)에서 객체 리터럴 → `new Proxy({},{…})` 로 바뀌었다.

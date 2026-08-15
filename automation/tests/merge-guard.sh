@@ -3240,3 +3240,20 @@ chk 'EXIT_CANCEL' order-preview.html 3
 chk 'align-self:stretch' order-preview.html 1
 chk 'min-height:40px' order-preview.html 1
 chk 'oa-cancel' order-preview.html 1
+
+# ── ★[SIM_ALIVE 2026-08-15 점검] 순서 엔진 시뮬레이터가 **조용히 죽지 않게** ──
+# 왜 이제야 만드나: ritual-order-sim.mjs 의 DECL_SHAPE 주석이 2026-08-10 에
+#   「아무도 못 본 이유는 게이트가 없어서다」라고 적어 뒀는데, 게이트를 안 만들었다.
+#   나흘 뒤 876adff9(ORD_ADD_ALL)가 defaultOrd 에 paletteCand() 를 넣으면서 같은 일이 또 났고
+#   세 도구가 함께 죽은 채 하루가 지났다. 이번엔 게이트를 만든다.
+# 이 셋은 브라우저가 필요 없고 합쳐 2초다(실측 219+928+732ms) — 게이트에 얹어도 싸다.
+#   order-audio-check 는 브라우저가 필요해 여기 안 넣는다(render-check 와 같은 이유).
+#   대신 그 검사가 폐지된 openRehearse 를 부르던 자리에 REHEARSE_GONE 마커를 남겨 물린다.
+if command -v node >/dev/null 2>&1; then
+  for _s in ritual-order-sim ritual-guard-scan ritual-order-sim-audit; do
+    if node "scripts/audit/$_s.mjs" >/dev/null 2>&1; then echo "ok scripts/audit/$_s.mjs: 엔진이 선다"
+    else echo "REVERT? scripts/audit/$_s.mjs 가 죽었다 — 순서 엔진 심볼이 바뀌었으면 DECLS 를 같은 커밋에서 갱신할 것"; fail=1; fi
+  done
+fi
+chk 'PALETTE_MISSING' scripts/audit/ritual-order-sim.mjs 1
+chk 'REHEARSE_GONE' scripts/audit/order-audio-check.mjs 1

@@ -95,20 +95,45 @@ for (const [tag, viewport] of [['390 (폰)', { width: 390, height: 844 }], ['128
   ok(got.__all.length >= 10, `전 순서 이어듣기 ${got.__all.length}개`);
   ok(!KEYS.some((k) => got[k].some((u) => /\/assets\/narration\//.test(u))), '옛 m-<키>.mp3 경로를 더는 안 부른다');
 
-  /* ③ 진짜 버튼 — 연습 공간의 블록별 「들어보기」 */
-  await page.evaluate(() => { window.openRehearse(); });
-  await page.waitForTimeout ? await page.waitForTimeout(300) : await new Promise((r) => setTimeout(r, 300));
-  const btns = await page.$$('button.play');
-  ok(btns.length > 3, `연습 공간 들어보기 버튼 ${btns.length}개`);
-  asked.length = 0;
-  if (btns.length > 3) {
-    await btns[3].click();   // 0 = 처음부터 이어 듣기가 아닌, 블록 버튼 하나
+  /* ③ 진짜 버튼 — 순서를 고르는 화면의 순간별 「들어보기」
+     ★[REHEARSE_GONE 2026-08-15 점검] 여기는 `window.openRehearse()` 를 불렀다.
+       연습 공간은 2026-08-12 사용자 지시로 폐지됐고(1d63831b REHEARSE_MERGED · "연습공간 없에고
+       미리듣기로 통합하자"), 그 함수도 같이 사라졌다. 그래서 이 검사가 그날부터 죽어 있었다 —
+       ②까지 초록을 찍고 ③에서 터지니 화면만 보면 통과처럼 읽혔다.
+     ★연습 공간을 되살리지 않는다(제거 지시 보존 규칙). 대신 **살아남은 길**을 본다:
+       순간별 「들어보기」는 지금도 빌더 안에 있다(playBtn → momPlay). 고객이 실제로 누르는 그 버튼이다.
+     ★덤으로 더 세게 본다 — 한 버튼만 누르던 것을 **서로 다른 순간 셋**으로 늘렸다.
+       이 검사가 막으려던 사고가 「어느 순간을 눌러도 같은 목소리」였는데,
+       버튼 하나만 누르면 그 사고를 정의상 못 잡는다. */
+  const PROBE = ['entry', 'vow', 'declare'];
+  const heard = [];
+  for (const k of PROBE) {
+    const drew = await page.evaluate((key) => {
+      try {
+        S.course = Object.keys(COURSES)[0]; courseStarted = true;
+        const st = document.getElementById('stage');
+        const h = renderStep(key);
+        if (!h) return false;
+        st.innerHTML = h;
+        return !!st.querySelector('button.play');
+      } catch (e) { return false; }
+    }, k);
+    if (!drew) { ok(false, `${k} 에 들어보기 버튼이 없다`); continue; }
+    asked.length = 0;
+    const b = await page.$('#stage button.play');
+    const lbl = await b.evaluate((el) => el.textContent.trim());
+    await b.click();
     await new Promise((r) => setTimeout(r, 700));
-    const lbl = await btns[3].evaluate((b) => b.textContent.trim());
-    ok(asked.length > 0, `탭 → 요청 나감: ${asked.join(' ') || '(없음)'}`);
-    ok(asked.every((u) => /^\/assets\/audio\/(narration|cast)\//.test(u)), '요청 경로가 실제 음원 폴더다');
-    ok(!/샘플/.test(lbl), `버튼 라벨에 '샘플' 없음 — "${lbl}"`);
+    ok(asked.length > 0, `${k} 탭 → 요청 나감: ${asked.join(' ') || '(없음)'}`);
+    ok(asked.every((u) => /^\/assets\/audio\/(narration|cast)\//.test(u)), `${k} 요청 경로가 실제 음원 폴더다`);
+    ok(!/샘플/.test(lbl), `${k} 버튼 라벨에 '샘플' 없음 — "${lbl}"`);
+    if (asked.length) heard.push({ k, u: asked[0] });
   }
+  /* ★이 검사의 존재 이유 그 자체 — 세 순간이 서로 **다른** 파일을 불렀는가.
+     2026-08-04 사고("여기왜 다른 오디오가나와?")는 셋이 같은 파일로 폴백한 상태였다. */
+  ok(heard.length === PROBE.length, `순간 ${heard.length}/${PROBE.length} 이 실제로 소리를 요청했다`);
+  ok(new Set(heard.map((h) => h.u)).size === heard.length,
+    `탭한 순간마다 부른 파일이 다르다 — ${heard.map((h) => h.k + ':' + h.u.split('/').pop()).join(' · ')}`);
 
   const hard = errors.filter((e) => !/favicon|net::ERR/.test(e));
   ok(!hard.length, `콘솔 오류 없음${hard.length ? ' — ' + hard.slice(0, 3).join(' | ') : ''}`);
