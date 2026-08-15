@@ -2779,11 +2779,15 @@ function openSendContract(code,names,d){
     +'<div class="field"><label>예식일 (고객 지정 · 필요 시 수정)</label><input type="date" id="ctWed" value="'+wedPre+'"></div>'
     +partyBlock
     +'<div class="field"><label>계약 총액</label><select id="ctSel">'+
-    '<option value="3300000">주말·공휴일 · 330만</option><option value="2400000">평일 · 240만</option><option value="600000">스냅 · 60만</option>'+
-    /* [PRICE_2026_08] 인상 전(280/210만) 항목은 남겨 둔다 — 2026-08-14 전에 상담 예약금을 내신 분은 구가로 계약한다.
-       지우면 그분들 계약서를 '직접 입력'으로 만들어야 하고, 손으로 치는 금액은 오타가 난다. */
-    '<option value="2800000">주말·공휴일 · 280만 (인상 전)</option><option value="2100000">평일 · 210만 (인상 전)</option>'+
-    '<option value="__etc">직접 입력</option></select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 예식일로 평일/주말 자동 선택돼요. 평일이라도 <b>공휴일</b>이면 주말·공휴일(330만)을 직접 골라 주세요.<br>※ 2026-08-14 전 예약금 납부 고객은 <b>인상 전</b> 금액으로 골라 주세요.</div></div>'+
+    '<option value="3300000">주말·공휴일 · 330만</option><option value="2500000">평일 · 250만</option><option value="600000">스냅 · 60만</option>'+
+    /* [PRICE_2026_08] 구가 항목은 남겨 둔다 — 지우면 그분들 계약서를 '직접 입력'으로 만들어야 하고,
+       손으로 치는 금액은 오타가 난다.
+       ★[PRICE_2026_08_15] 인상이 **두 번**이라 구가가 두 세대다. 240 을 빠뜨리지 말 것 —
+         8/14~8/15 사이에 예약금을 내신 분은 그때 평일 240 을 안내받았다. 그 창이 이틀뿐이라
+         「없겠지」 하고 지우기 쉬운데, 한 분이라도 있으면 손으로 치게 된다. */
+    '<option value="2400000">평일 · 240만 (8/15 인상 전)</option>'+
+    '<option value="2800000">주말·공휴일 · 280만 (8/14 인상 전)</option><option value="2100000">평일 · 210만 (8/14 인상 전)</option>'+
+    '<option value="__etc">직접 입력</option></select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 예식일로 평일/주말 자동 선택돼요. 평일이라도 <b>공휴일</b>이면 주말·공휴일(330만)을 직접 골라 주세요.<br>※ 예약금을 내신 날 기준으로 골라 주세요 — <b>8/15 전</b>이면 평일 240만, <b>8/14 전</b>이면 280/210만.</div></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 3300000"></div>'+
     '<div class="field"><label>계약서 링크 (기본 계약서 자동 · 그대로 발송)</label><input type="url" id="ctLink" inputmode="url" autocomplete="off" placeholder="https://…"><div style="font-size:11px;color:var(--label-soft);margin-top:4px">고객은 마이페이지에서 본인 정보가 채워진 계약서를 봐요. 비워두면 기본 계약서로 발송돼요.</div></div>'
     +'<div class="field"><button type="button" id="ctPreview" class="btn btn-line" style="width:100%">채워진 계약서 미리보기 (발송 전 확인)</button></div>';

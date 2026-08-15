@@ -29,7 +29,13 @@ console.log(`  · 단일 출처 — 주말 ${comma(WE)} / 평일 ${comma(WD)} ·
 
 /* ── 사본들 — [파일, 반드시 있어야 할 문자열들] ── */
 const MUST = [
+  /* ★[PRICE_MISS_INDEX 2026-08-15] 이 목록에 없던 자리 셋이 실제로 안 바뀐 채 라이브에 남았다 —
+     게이트는 초록인데 화면엔 옛 가격이 보였다(390/1280 실렌더로 잡음). 세 자리는 꼴이 서로 달라
+     한 패턴으로 안 걸린다: ①JSON-LD 의 `"price":"…"` (따옴표 사이 공백 없음)
+     ②`&nbsp;` 가 낀 산문 ③`<strong>` 로 감싼 FAQ 본문. 셋 다 여기 박아 다시는 안 새게 한다. */
   ['index.html', [`평일 ${man(WD)}만·주말 ${man(WE)}만`, `"price": "${WE}"`, `"price": "${WD}"`,
+    `"price":"${WD}"`, `평일&nbsp;${man(WD)}만 원·주말&nbsp;${man(WE)}만 원`,
+    `평일결혼식 <strong>${man(WD)}만 원</strong>`,
     `&#8361;${comma(WE)}`, `&#8361;${comma(WD)}`,
     `주말·공휴일 ${man(WE)}만 원, 평일결혼식 ${man(WD)}만 원`,
     `주말·공휴일 ${comma(deposit(WE))}원 / 평일 ${comma(deposit(WD))}원`]],
