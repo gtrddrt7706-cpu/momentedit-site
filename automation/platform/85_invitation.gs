@@ -146,7 +146,7 @@ function handleSaveInvitationDraft(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -177,7 +177,7 @@ function handlePublishInvitation(body) {
 
   var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(20000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(20000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var custSheet = getCustomersSheet(), custCol = buildHeaderIndex(custSheet);
     var cust = findCustomerByCode(code);
@@ -255,7 +255,7 @@ function saveInvitationPreview(body) {
 
   var _nq = [];   // 손상 경고 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(20000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(20000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var custSheet = getCustomersSheet(), custCol = buildHeaderIndex(custSheet);
     var cust = findCustomerByCode(code);

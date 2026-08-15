@@ -47,7 +47,7 @@ function handleAiCostLog(body) {
     var sh = _aiCostSheet_();
     if (sh.getLastRow() > 20000) return { ok: true };   // 폭주 가드(정리 전 상한)
     var isTest = (body && body.isTest) ? 'Y' : '';   // [AI_TEST_TAG] 테스트도 항상 적재·태그만 — 집계(aiCostSummary24h)가 제외
-    sh.appendRow([new Date(), _deFormula(surface), _deFormula(model), inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr), isTest]);
+    _lockedAppend(sh, [new Date(), _deFormula(surface), _deFormula(model), inn, out, cw, cr, _aiCostUSD_(model, inn, out, cw, cr), isTest]);
   } catch (e) { try { Logger.log('aiCostLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }

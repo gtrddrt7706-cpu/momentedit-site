@@ -122,7 +122,7 @@ function handleCardConfirm(body) {
   if (!paymentKey || !orderId || !(amount > 0)) return { ok: false, error: '결제 정보가 올바르지 않습니다.' };
 
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var code = String(s.row.get('개인코드') || '').trim();
     var cust = findCustomerByCode(code);

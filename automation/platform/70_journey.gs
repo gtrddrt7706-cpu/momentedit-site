@@ -61,7 +61,7 @@ function handleSignFittingConsent(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
 
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
@@ -217,7 +217,7 @@ function handleSignContract(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
 
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
@@ -393,7 +393,7 @@ function handleChangeWeddingHold(body) {
   if (WEDDING_SLOT.SLOTS.indexOf(t) === -1) return { ok: false, error: '예식 시간을 선택해 주세요.' };
   if (_ymdNum(d) < _ymdNum(_kstYmd(new Date()))) return { ok: false, error: '예식일은 오늘 이후로 선택해 주세요.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — s.row 스냅샷을 쓰면 그 사이 관리자가 쓴 영수증발행 등이 통째 유실됨
@@ -416,7 +416,7 @@ function handleCancelWeddingHold(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — 가예약 외 키(영수증발행 등) 보존
@@ -450,7 +450,7 @@ function handleRequestContract(body) {
   if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
   if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -886,7 +886,7 @@ function handleRequestWeddingChange(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var inp = _changeInput(body); if (!inp.ok) return inp;
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — s.row 스냅샷을 쓰면 그 사이 기록된 다른 키 유실
@@ -921,7 +921,7 @@ function handleCancelWeddingChange(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);                 // 락 안 최신 재읽기 — 변경요청 외 키 보존
@@ -1058,7 +1058,7 @@ function handlePaymentSignal(body) {
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
 
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
@@ -1107,7 +1107,7 @@ function handleSaveCashReceipt(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1308,7 +1308,7 @@ function handleBalanceSignal(body) {
   var payer = String((body && body.payerName) || '').trim();
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1376,7 +1376,7 @@ function handleMidSignal(body) {
   var payer = String((body && body.payerName) || '').trim();
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1667,17 +1667,24 @@ function handleSaveRefundAccount(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
-  var cust = findCustomerByCode(code);
-  if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '환불 계좌는 예약 종료 후 입력할 수 있어요.' };
-  if (_parseJsonSafe(cust.get('동의기록')).환불완료) return { ok: false, error: '이미 환불이 완료된 예약이에요.' };
   var acct = String((body && body.acct) || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   if (acct.length < 5) return { ok: false, error: '은행명·계좌번호·예금주를 함께 적어 주세요. (예: 국민 123456-78-901234 홍길동)' };
-  var bk = findRowByPersonalCode(code);
-  if (!bk) return { ok: false, error: '예약 정보를 찾을 수 없어요. 카카오톡 채널로 알려주시면 처리해 드릴게요.' };
-  var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
-  writeCell(sheet, colOf, bk.num, '환불계좌', acct);
-  _recordHandler(code, '환불 계좌 고객 입력');
+  /* [SCALE_LOCK 2026-08-15] 환불 계좌 = 돈이 흘러갈 주소 — 확인(환불완료 여부)→쓰기를 잠금 안에서.
+     알림(카톡)은 잠금 해제 뒤 — 외부 I/O 가 다른 고객의 15초를 소진하지 않게(집안 규칙 그대로). */
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  var cust;
+  try {
+    cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '환불 계좌는 예약 종료 후 입력할 수 있어요.' };
+    if (_parseJsonSafe(cust.get('동의기록')).환불완료) return { ok: false, error: '이미 환불이 완료된 예약이에요.' };
+    var bk = findRowByPersonalCode(code);
+    if (!bk) return { ok: false, error: '예약 정보를 찾을 수 없어요. 카카오톡 채널로 알려주시면 처리해 드릴게요.' };
+    var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+    writeCell(sheet, colOf, bk.num, '환불계좌', acct);
+    _recordHandler(code, '환불 계좌 고객 입력');
+  } finally { try { lock.releaseLock(); } catch (e) {} }
   notifyKakao('admin.refundAcct', code, { names: _names(cust.get('신랑이름'), cust.get('신부이름')), acct: acct });
   return { ok: true };
 }

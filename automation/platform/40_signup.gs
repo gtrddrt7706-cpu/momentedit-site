@@ -54,7 +54,7 @@ function handleSignup(body) {
 
   // 7) 행 생성은 잠금으로 직렬화(개인코드 충돌·동시 쓰기 방지)
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { throw new Error('잠시 후 다시 시도해 주세요. (서버 혼잡)'); }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal('가입'); } catch (_e) {} throw new Error('잠시 후 다시 시도해 주세요. (서버 혼잡)'); }
   var code, token;
   try {
     // 잠금 안에서 다시 한 번 dedup 확인(경합 방어)

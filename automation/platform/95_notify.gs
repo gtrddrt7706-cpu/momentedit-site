@@ -947,3 +947,27 @@ function ZZ_kakaoTestAll(code) {
   }
   Logger.log('[ZZ] 6종 발송 완료 → ' + c);
 }
+
+// ── [SCALE_LOCK 2026-08-15 사용자 지시 "손님이 늘 때 수정할 시간 없어 · 지금 모든 준비"] ──
+// 저장 잠금 15초 대기 초과가 '실제로' 나기 시작하면 관리자에게 하루 1통 메일로 알린다.
+// 이 문구("잠시 후 다시 시도")는 지금은 이론상 존재한다 — 고객이 만나기 시작하는 순간이
+// 규모 대비를 시작할 신호인데, 고객은 불평하지 않고 떠나므로 기계가 세어 준다.
+// 누적 횟수는 ScriptProperty LOCK_BUSY_N. 메일은 하루 1통(폭주 방지).
+function lockBusySignal(where) {
+  try {
+    var p = PropertiesService.getScriptProperties();
+    var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+    var n = (Number(p.getProperty('LOCK_BUSY_N')) || 0) + 1;
+    p.setProperty('LOCK_BUSY_N', String(n));
+    if (p.getProperty('LOCK_BUSY_MAILED') === today) return;
+    p.setProperty('LOCK_BUSY_MAILED', today);
+    _nfAdminLineEmail('저장 잠금 대기 초과가 났습니다' + (where ? ' (' + where + ')' : '') + ' · 누적 ' + n + '회. 같은 순간에 저장이 몰렸다는 뜻입니다. 이 메일이 잦아지면 규모 대비(DB 이관 검토)를 시작할 때입니다.');
+  } catch (e) {}
+}
+// 로그 시트 appendRow 를 잠금 아래에서 — 동시 기록 시 드물게 두 로그가 같은 행을 잡는 것을 막는다.
+// 3초 안에 못 잡으면 그냥 쓴다(로그가 고객 동작을 막으면 안 된다 · 충돌 확률 < 유실 비용).
+function _lockedAppend(sh, arr) {
+  var lk = null;
+  try { lk = LockService.getScriptLock(); if (!lk.tryLock(3000)) lk = null; } catch (e) { lk = null; }
+  try { sh.appendRow(arr); } finally { if (lk) { try { lk.releaseLock(); } catch (e) {} } }
+}

@@ -1614,7 +1614,7 @@ function adminOpenFittingConsent(code) {
 //      노쇼/미계약/강제는 현재단계를 직접 touchCustomer로 쓰고 멱등(현재===타겟)을 스스로 처리한다.
 function _adminLock() {
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); return lock; } catch (e) { return null; }
+  try { lock.waitLock(15000); return lock; } catch (e) { try { lockBusySignal('관리자'); } catch (_e) {} return null; }
 }
 var _LOCK_BUSY = '잠시 후 다시 시도해 주세요. (서버 혼잡)';
 

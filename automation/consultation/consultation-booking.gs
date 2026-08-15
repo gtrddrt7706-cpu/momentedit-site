@@ -326,7 +326,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
 
   // [P1.5 작업6] Lock + 점유 재확인으로 더블 확정 0. 점유확인~쓰기를 원자적으로.
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return infoPage('잠시 후 다시 시도해 주세요', '서버가 혼잡합니다. 잠시 후 다시 시도해 주세요.', false); }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('잠시 후 다시 시도해 주세요', '서버가 혼잡합니다. 잠시 후 다시 시도해 주세요.', false); }
   try {
     // 중복 처리 차단은 "상태가 이미 승인완료/확정"인 경우에만.
     // (고객이 시간을 다시 골라 재승인 대기 중이면 상태는 '시간선택완료' → 아래로 진행해 갱신)
@@ -801,7 +801,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
 
   // [P1.5 작업6] Lock + 점유 재확인 — 동시 제출 직렬화 + 이미 확정된 슬롯 차단(더블 확정 0)
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     if (_slotTaken(dateKey, time, row.num)) {
       return { ok: false, slotTaken: true, error: '방금 마감되었어요. 다른 시간을 선택해 주세요.' };
@@ -2029,6 +2029,11 @@ function handleSubmitSchedule(body) {
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
+/* [SCALE_LOCK 판단 2026-08-15] 취소 두 경로(cancelReservation·emailCancel)에는 일부러 전역 잠금을 안 건다.
+   본문 한가운데가 캘린더 삭제·메일 발송(느린 외부 I/O)이라, 잠그면 그 몇 초 동안
+   **다른 모든 고객의 저장이 줄을 선다** — 이 저장소가 _notifyQ 로 일부러 피해 온 반패턴이다.
+   이중 취소는 status===취소 멱등 가드가 이미 받치고, 관리자와의 경합은 사람 속도라 실충돌이 없다.
+   잠그려면 actCancel 의 I/O 를 큐로 빼는 리팩터가 먼저다 — 그 전엔 잠금이 개악이다. */
 function handleCancelReservation(body) {
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, error: a.error };
@@ -2180,7 +2185,7 @@ function handleAdvisorLog(body) {
     var flag = String((body && body.flag) || (esc ? '막힘' : '정상')).slice(0, 6);   // 정상·애매·막힘 (애매=AI가 답했지만 자신 없음)
     var surface = String((body && body.surface) || '').slice(0, 8);
     var isTest = (body && body.isTest) ? 'Y' : '';   // [AI_TEST_TAG] 테스트 호출도 적재·태그 — 집계(aiQuestionLog·aiQuestionReport)는 제외
-    sh.appendRow([fmtKST(new Date()), _deFormula(_maskPII(q)), esc, _deFormula(flag), _deFormula(surface), isTest]);
+    _lockedAppend(sh, [fmtKST(new Date()), _deFormula(_maskPII(q)), esc, _deFormula(flag), _deFormula(surface), isTest]);
   } catch (e) { try { Logger.log('advisorLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
@@ -2206,7 +2211,7 @@ function handleLeadCapture(body) {
     var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문의리드'); sh.appendRow(['시각', '이름', '연락처', '방법', '접점', '맥락', '동의', '상태', '처리일시']); }
     if (sh.getLastRow() > 5000) return { ok: true };
-    sh.appendRow([fmtKST(new Date()), _deFormula(name), _deFormula(contact), channel, _deFormula(surface), _deFormula(ctx), '동의', '신규', '']);
+    _lockedAppend(sh, [fmtKST(new Date()), _deFormula(name), _deFormula(contact), channel, _deFormula(surface), _deFormula(ctx), '동의', '신규', '']);
     try { if (typeof aiAlertAdmin === 'function') aiAlertAdmin('📨 새 문의(' + channel + '로 회신): ' + name + ' ' + contact + ' [' + surface + '] ' + ctx.slice(0, 40)); } catch (e) {}
     // 고객 접수 확인 문자(거래성 안내 · 전화 아님). ScriptProperty 'LEAD_CONFIRM_SMS'='N'이면 끔.
     try {
@@ -2247,7 +2252,7 @@ function handleLeadClick(body) {
     var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('카톡연결'); sh.appendRow(['시각', '접점']); }
     if (sh.getLastRow() > 20000) return { ok: true };
-    sh.appendRow([fmtKST(new Date()), _deFormula(surface)]);
+    _lockedAppend(sh, [fmtKST(new Date()), _deFormula(surface)]);
   } catch (e) {}
   return { ok: true };
 }
@@ -2279,7 +2284,7 @@ function handleAwDemandLog(body) {
     var sh = SpreadsheetApp.getActive().getSheetByName('애프터수요로그');
     if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('애프터수요로그'); sh.appendRow(['시각', '소스', '카테고리/프리셋', '테마', '음식', '인원']); }
     if (sh.getLastRow() > 8000) return { ok: true };   // 폭주 가드
-    sh.appendRow([fmtKST(new Date()), _deFormula(src), clean((body && (body.category || body.label)), 40), clean(body && body.theme, 16), clean(body && body.food, 24), clean(body && body.head, 8)]);
+    _lockedAppend(sh, [fmtKST(new Date()), _deFormula(src), clean((body && (body.category || body.label)), 40), clean(body && body.theme, 16), clean(body && body.food, 24), clean(body && body.head, 8)]);
   } catch (e) { try { Logger.log('awDemandLog 실패: ' + (e && e.message)); } catch (_) {} }
   return { ok: true };
 }
