@@ -1888,6 +1888,13 @@ function mpSignaturePad(opts){
     cancel.addEventListener('click',function(){ finish(null); });
     a.appendChild(prim); a.appendChild(clr); a.appendChild(cancel);
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
+    /* [SIG_FOCUS 2026-08-15 실클릭 점검] 열릴 때 포커스를 판 안으로 — 전엔 트리거 버튼에 남아
+       SR·키보드 사용자가 모달을 못 찾았다(mpModalOpen 은 잡는데 여기만 안 잡았다).
+       버튼이 아니라 **판**을 잡는다(Enter 오발 방지 · ASK_FOCUS_BOX 와 같은 이유).
+       ★Esc·바깥 클릭 닫기는 일부러 없다 — 그리던 서명이 한 번에 날아간다(서명 캔버스 보호 ·
+         edge-back 이 캔버스 위 제스처를 포기하는 것과 같은 원칙). 보이는 「취소」가 닫는 길이다.
+         '다른 모달과 비일관'을 이유로 Esc 를 달지 말 것. */
+    try { var _sc=ov.querySelector('.mp-modal-card')||ov.firstElementChild; _sc.setAttribute('tabindex','-1'); _sc.style.outline='none'; _sc.focus(); } catch(e) {}
     var _bkId=bkOpen(function(){ finish(null); }, true);   // 뒤로가기 = 서명 취소(그리다 페이지 이탈 방지) · modal 표시로 대화상자 무시 규칙과 구분
     window.addEventListener('resize',resize);
     setTimeout(resize,40);

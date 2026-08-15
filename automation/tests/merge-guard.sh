@@ -3281,3 +3281,7 @@ nochk '잠깐이면 끝나요' mypage.html
 #   그 문항 바로 위에 인라인 안내를 세운다(실측 top 392 · 칩 고르면 걷힘). 되돌리면 안내가 다시 안 보인다
 chk 'SV_MISS_AT' mypage.html 3
 chk 'srv-miss-note' mypage.html 4
+# [SIG_FOCUS · ADV_FOCUS 2026-08-15 실클릭 점검] 서명 모달·상담 패널이 열릴 때 포커스가 판 안으로.
+#   서명 모달의 Esc·바깥클릭 닫기 부재는 의도(그리던 서명 보호) — '비일관 정리'로 달지 말 것
+chk 'SIG_FOCUS' mypage.html 1
+chk 'ADV_FOCUS' assets/advisor-widget.js 1

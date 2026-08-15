@@ -47,6 +47,7 @@
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
     + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
     + '.me-adv-panel.open{transform:translateX(0);box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
+    + '.me-adv-panel:focus{outline:none}'
     /* [ADV_NOZOOM 2026-08-03] 여기 있던 `.me-adv-input{font-size:16px}`을 뺐다 — 죽은 규칙이었다.
        이 블록(36행)이 base `.me-adv-input`(아래) 보다 먼저 선언돼, 같은 특이도(0,1,0)에서
        나중에 온 base의 14px가 이겼다. 그래서 모바일에서도 14px로 렌더되고,
@@ -160,7 +161,7 @@
     + '  </button>') : '')
     + '</div>'
     + '<div class="me-adv-backdrop" id="meAdvBackdrop"></div>'
-    + '<section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">'
+    + '<section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true" tabindex="-1">'
     + '  <header class="me-adv-head">'
     + '    <div class="me-adv-head-t">'
     + '      <span class="me-adv-titles"><span class="me-adv-eyebrow">AI Wedding Concierge</span><span class="me-adv-title">상담 도우미</span></span>'
@@ -430,7 +431,10 @@
       g.classList.add('me-adv-greet');   // 인사말 버블은 하단(입력창 위)에 정렬
       body.scrollTop = 0;   // 첫 화면은 메뉴부터 보이게
     }
-    setTimeout(function () { if (window.innerWidth > 680) input.focus(); }, 480);
+    /* [ADV_FOCUS 2026-08-15 실클릭 점검] 폰(≤680)에서는 포커스가 body 에 남아 SR·키보드 사용자가
+       열린 패널을 못 찾았다. 입력창을 폰에서 안 잡는 것은 의도(키보드가 화면 반을 덮는다) —
+       대신 **패널 자체**(tabindex=-1)를 잡는다. 스크립트 포커스 링은 CSS 가 끈다(ASK_FOCUS_BOX 와 같은 수법). */
+    setTimeout(function () { if (window.innerWidth > 680) input.focus(); else try { panel.focus(); } catch (e) {} }, 480);
   }
   function close() {
     panel.classList.remove('open'); stackEl.classList.remove('hide');
