@@ -291,8 +291,10 @@ body.guest .tm{font-size:11px;margin-top:7px}
 
 /* ⑤ 다음·그다음 — 박스를 벗기고 줄로. 목록은 목록처럼 보이면 된다 */
 body.guest .up{margin-top:16px;gap:0;border-top:1px solid var(--line)}
-body.guest .upc{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 2px}
+body.guest .upc{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 18px}   /* [GUEST_PC_BAL] 카드 본문(18px 들여쓰기)과 같은 선 */
 body.guest .upc.dim{opacity:1}
+/* [GUEST_PC_BAL] 마지막 줄의 밑줄은 뺀다 — 아래 바의 윗줄과 12px 사이로 겹쳐 선이 두 겹으로 보였다 */
+body.guest .up .upc:last-child{border-bottom:0}
 body.guest .upc .lb{width:34px;font-size:10.5px}
 body.guest .upc .nm{font-size:14.5px;font-weight:500;color:var(--sub)}
 body.guest .upc.dim .nm{color:var(--dim)}
@@ -315,14 +317,23 @@ body.guest .gprev{
   background:transparent;border:1px solid var(--line);color:var(--sub);
   font-size:14px;font-weight:500;line-height:1;
 }
-body.guest .gprev>span{font-size:18px;margin-right:2px}
+body.guest .gprev .bt{font-style:normal}
 body.guest .gprev:disabled{opacity:.32}
 body.guest .gprev:active:not(:disabled){background:var(--bg3)}
 
 /* [GUEST_PAUSE] 멈춤·이어듣기 — 짙은 색은 여전히 「다음으로」 하나뿐이다.
    멈춘 동안에만 칸이 옅게 차서 '지금 서 있다'를 말한다(글자만으로는 눈에 안 걸린다). */
-body.guest .gpause{min-width:92px}
-body.guest .gpause>span{font-size:13px;margin-right:4px;letter-spacing:.06em}
+body.guest .gpause{min-width:96px}
+body.guest .gprev{min-width:96px}                    /* [GUEST_PC_BAL] 왼쪽 두 칸 폭을 한 자로 — 78/92 로 어긋나 있었다 */
+body.guest .gpause .pi,body.guest .gprev .pi{width:13px;height:13px;fill:currentColor;flex:none;margin-right:7px}
+/* ★[GUEST_PC_BAL] 좁은 화면에서는 보조 둘을 아이콘만으로 — 실측(360px) 세 버튼이 96·96·116 이라
+   주 버튼 비중이 38% 였다(셋이 비슷하면 무엇이 주인지 사라진다). 글자를 접어 66%대로 되돌린다.
+   ★뜻은 aria-label 이 계속 들고 있다(‹ 되감기 · ❙❙ 멈춤 은 재생기에서 보편 기호). */
+@media (max-width:559px){
+  body.guest .gprev{min-width:56px;padding:17px 10px}
+  body.guest .gprev .bt{display:none}
+  body.guest .gprev .pi{margin-right:0}
+}   /* ★min-width:96px 뒤에 와야 이긴다(같은 특정도 = 뒤가 이김 · 앞에 뒀다가 덮였다) */
 body.guest .gpause.on{background:var(--bg3);border-color:var(--sub);color:var(--text)}
 
 /* ⑦ 블록 머리·힌트 — 문장보다 세지 않게. 위계: 순서 이름 → 배경 설명 → 큰 제목 → 문안 */
@@ -351,26 +362,28 @@ body.guest .now .hint{font-size:12.5px}
    → 폭을 1080px 로 묶고, 늘리기를 끄고, 남는 세로를 위아래로 나눠 **가운데에 세운다.**
      ★디렉터 화면(embed 없음)은 그대로 둔다 — 현장에서는 큰 화면 가득 쓰는 편이 맞다. */
 @media (min-width:900px){
+  /* [GUEST_PC_BAL] 기둥 하나 — 카드·레일·버튼바가 같은 폭으로 선다.
+     ★.ctl 은 .stage 의 자식이 아니다 — 토큰을 .stage 에 두면 바에는 안 닿는다(상속 밖). */
+  body.guest{--col:720px}
+  /* ★[GUEST_PC_FOOT 2026-08-15 사용자 지시 "다음·그다음을 '다음 순서로' 위쪽 간격에 놓자"]
+     넓은 화면에서도 **모바일과 같은 세로 한 줄**로 놓는다 — 카드 · 다음·그다음 · 다음 순서로.
+     왜 오른쪽 칸을 버렸나:
+       ① 두 줄뿐인 목록이 폭을 절반 가까이 가져간다(위 ③ 그대로 · 넓힐수록 심해진다).
+       ② 카드 아래가 통째로 비고(1280 에서 182~291px) 그 빈자리 건너 대각선에 버튼이 있다.
+       ③ 버튼 부제("하객 맞이 · 시작 10분 전")가 레일 첫 줄과 같은 말인데 화면 반대편에 있었다.
+     세로로 세우면 '지금 → 다음 → 그리로 가는 문'이 읽는 순서 그대로 한 줄에 선다(모바일 ⑧의 뜻).
+     ★카드 폭은 계속 묶는다 — 1080px 를 통으로 쓰면 한 줄이 너무 길어 눈이 다음 줄 머리를 놓친다(①). */
   body.guest .stage{
-    max-width:1080px;margin:0 auto;align-items:center;align-content:center;
-    grid-template-columns:1.6fr 1fr;gap:28px;padding:24px 24px 12px;
+    max-width:var(--col);margin:0 auto;
+    display:flex;flex-direction:column;gap:0;padding:24px 24px 12px;
   }
-  body.guest .stage>div:first-child{display:block}     /* 늘리지 않는다 — 카드는 글 길이만큼 */
-  body.guest .now{flex:none;display:block}
+  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:center;justify-content:center}
+  body.guest .now{flex:none;display:block;width:100%;max-width:var(--col)}
   body.guest .now .txt{flex:none}
   body.guest .now .prog{margin-top:18px}
-  body.guest .ctl .inner{max-width:1080px}
-  body.guest .up{align-content:start;border-top:0}
-  body.guest .up .upc:first-child{border-top:1px solid var(--line)}
-  /* ★[GUEST_PC_FOOT 2026-08-15 사용자 지적 "다음·그다음 위치가 자연스럽지 않다"]
-     레일을 카드 **아랫변에 맞춰** 세운다. 실측(1280) 근거 —
-       전: 레일이 카드보다 125px 아래에서 시작하고 발끝은 109px 위에서 끝나, 두 칸이
-           머리도 발도 맞지 않았다(가운데 정렬이 만든 어정쩡한 두 모서리).
-       후: 발차 0 — 카드 아랫변과 레일 아랫변이 한 선. 레일↔버튼 거리도 291→182px.
-     모바일 ⑧의 뜻("다음·그다음을 '다음으로' 바로 위에 둬 무엇이 오는지와 그리로 가는 문을
-     한 손에")을 넓은 화면에서도 지키는 자리다. 머리 맞춤(align-self:start)도 재 봤지만
-     레일 아래가 399px 비어 더 떠 보였다. */
-  body.guest .up{align-self:end}
+  body.guest .ctl .inner{max-width:var(--col)}   /* [GUEST_PC_BAL] 아래 바도 같은 기둥 폭 — 카드는 좁은데 버튼만 1080 이면 딴 살림처럼 보인다 */
+  body.guest .up{width:100%;max-width:var(--col);margin:18px auto 0;align-content:start}
+  body.guest .up .upc:first-child{border-top:0}
 }
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
@@ -528,12 +541,12 @@ body.guest .now .hint{font-size:12.5px}
       <!-- ★[GUEST_PREV 2026-08-10 사용자 지시 "전순서도 돌아갈수잇게했으면좋겠어"]
            고객 미리듣기에만 서는 「이전 순서」. 디렉터 화면에는 이미 뒤로(#bBack)가 있고
            그쪽은 "되돌리고 멈춘다"라 성격이 다르다 — 여기는 **그 순서를 다시 들려주고 계속 흐른다.** -->
-      <button class="gprev" id="gPrev" type="button" disabled aria-label="이전 순서 다시 듣기"><span aria-hidden="true">‹</span>이전</button>
+      <button class="gprev" id="gPrev" type="button" disabled aria-label="이전 순서 다시 듣기"><svg class="pi" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.2 1.8 4 7l5.2 5.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="bt">이전</i></button>
       <!-- ★[GUEST_PAUSE 2026-08-15 사용자 지시 "미리듣기부분 음성정지, 재생버튼이있었으면좋겠어"]
            미리듣기는 저절로 흐른다 — 전화가 오거나 누가 말을 걸면 멈출 자리가 없었다
            (있던 건 '길게 눌러 전체 정지'뿐이고 그건 되돌아올 수 없는 문이다).
            여기서 멈추면 **그 자리에 선다** — 다시 누르면 듣던 소리의 그 지점부터 이어 간다. -->
-      <button class="gprev gpause" id="gPause" type="button" aria-label="잠시 멈춤"><span aria-hidden="true">❙❙</span>멈춤</button>
+      <button class="gprev gpause" id="gPause" type="button" aria-label="잠시 멈춤"><svg class="pi" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.4" y="1.6" width="3.2" height="10.8" rx="1.1"/><rect x="8.4" y="1.6" width="3.2" height="10.8" rx="1.1"/></svg><i class="bt">멈춤</i></button>
       <button class="main" id="mBtn">시작 <small>길게 누르면 전체 정지</small></button>
       <div>
         <div class="sub3">
@@ -1056,7 +1069,9 @@ function render(){
   var _gz = $('#gPause');
   if (_gz) {
     _gz.disabled = !GUEST || phase === 'end';
-    _gz.innerHTML = PAUSED ? '<span aria-hidden="true">▶</span>이어듣기' : '<span aria-hidden="true">❙❙</span>멈춤';
+    _gz.innerHTML = (PAUSED
+      ? '<svg class="pi" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.6 1.8 12 7 3.6 12.2z"/></svg><i class="bt">이어듣기</i>'
+      : '<svg class="pi" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.4" y="1.6" width="3.2" height="10.8" rx="1.1"/><rect x="8.4" y="1.6" width="3.2" height="10.8" rx="1.1"/></svg><i class="bt">멈춤</i>');
     _gz.setAttribute('aria-label', PAUSED ? '이어듣기' : '잠시 멈춤');
     _gz.classList.toggle('on', PAUSED);
   }
@@ -1090,7 +1105,9 @@ function render(){
                             : '아래 버튼을 누르면 첫 번째 큐가 나갑니다.');
     $('#nHint').hidden = true; $('#nSafe').hidden = true; $('#nBlk').hidden = true;
     up(n1, n2);
-    $('#mBtn').innerHTML = (GUEST ? '다음 순서로 <small>' : '시작 <small>') + (n1 ? esc(n1.name) : '') + '</small>';
+    /* [GUEST_PC_BAL] 고객 화면은 바로 위 레일이 '다음'을 이미 말한다 — 버튼은 행동만. */
+    $('#mBtn').innerHTML = (GUEST && n1) ? '다음 순서로'
+      : ((GUEST ? '다음 순서로 <small>' : '시작 <small>') + (n1 ? esc(n1.name) : '') + '</small>');
     $('#mBtn').className = 'main';
     return;
   }
@@ -1126,7 +1143,8 @@ function render(){
     $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
     up(n1, n2);
     main.className = 'main';
-    main.innerHTML = '다음 순서로 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>';
+    main.innerHTML = (GUEST && n1) ? '다음 순서로'                                   // [GUEST_PC_BAL] 레일과 같은 말 반복 금지
+    : ('다음 순서로 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>');
     return;
   }
 

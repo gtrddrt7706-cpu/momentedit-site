@@ -67,7 +67,11 @@ if grep -nE '^[^#]*\|\|[[:space:]]*(FAIL|Fail)=' "$_SELF"; then
 fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
-chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# ★[CHK_DASH_SAFE 2026-08-15] chk 에 `-e … --` 를 붙였다(nochk 는 이미 있었다).
+#   없으면 대시로 시작하는 패턴이 grep 의 옵션으로 먹힌다 — 실측: `chk '{--col:720px}' console.html 1` 가
+#   `grep --color console.html` 로 해석돼 **파일 인자를 잃고 stdin 을 기다리며 영영 멈췄다.**
+#   붉게 지는 게 아니라 매달린다 — CI 라면 6시간 타임아웃까지 간다. 그 창을 없앤다.
 # ★[NOCHK_DEFINED_FIRST 2026-08-11] nochk 정의를 chk 바로 아래로 올렸다.
 #   전엔 1248행에 있어서 그 위에서 nochk 를 부르면 `nochk: not found` 만 찍히고
 #   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
@@ -3350,9 +3354,14 @@ nochk 'qty = 500' automation/platform/80_production.gs
 #   자물쇠에 opacity 계단을 다시 실으면 먼 행이 2.21:1 로 떨어져 '고르지 않다'로 읽힌다.
 chk 'MP_LOCK_EVEN' mypage.html 1
 nochk 'nx-far .lock{opacity' mypage.html
-# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음 레일을 카드 아랫변에 맞춰 세운다.
+# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음을 '다음 순서로' 바로 위로(세로 한 줄).
+#   오른쪽 칸으로 되돌리지 말 것 — 두 줄짜리 목록이 폭 절반을 먹고 버튼과 대각선으로 갈린다.
 chk 'GUEST_PC_FOOT' console.html 1
-chk 'align-self:end' console.html 1
+nochk 'grid-template-columns:1.6fr 1fr;gap:28px' console.html
+# [GUEST_PC_BAL 2026-08-15] 한 기둥(카드·레일·바 같은 폭) + 주 버튼 비중 · 아이콘 SVG.
+#   실측 근거: 세 버튼이 96/96/116 이던 360px 에서 주 버튼 38% → 글자 접어 64%.
+chk 'GUEST_PC_BAL' console.html 6
+chk '{--col:720px}' console.html 1
 # [GUEST_PAUSE 2026-08-15] 미리듣기 멈춤·이어듣기 — 그 자리에 서고 그 지점부터 잇는다.
 #   '길게 눌러 전체 정지'와 다른 문이다(그건 끝내는 문). 지우면 미리듣기에 멈출 자리가 없어진다.
 chk 'GUEST_PAUSE' console.html 6
