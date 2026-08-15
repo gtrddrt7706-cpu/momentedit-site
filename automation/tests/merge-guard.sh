@@ -3420,3 +3420,8 @@ chk 'amt===2500000' contract/v1-1.html 1
 chk 'var GENS=' admin.html 1
 nochk "var NEW=\['3300000','2400000'\]" admin.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/price-gen-switch.mjs >/dev/null || fail=1; fi
+# [CHK_DASH_SAFE 2026-08-15] chk·nochk 의 `-e … --` 를 지우지 말 것 — 대시로 시작하는 패턴이
+#   grep 의 옵션으로 먹혀 파일 인자를 잃고 stdin 을 기다린다. 붉게 지는 게 아니라 **매달린다**
+#   (실측 10분+ · CI 면 타임아웃까지). 아래 개수엔 이 검사 줄 자신도 포함된다(자기 세기).
+chk 'CHK_DASH_SAFE' automation/tests/merge-guard.sh 2
+chk 'grep -c -e "$1" --' automation/tests/merge-guard.sh 3
