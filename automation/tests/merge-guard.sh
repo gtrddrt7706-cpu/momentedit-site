@@ -3274,3 +3274,6 @@ chk 'nx-far' mypage.html 3
 nochk "1-_ni" mypage.html
 # 설문 칩 39→44 · 결과물 행 버튼은 ::after 로 손가락 자리만 44
 chk 'MP_TAP44' mypage.html 2
+# [SV_NOW_HONEST] 후기 NOW 의 시간 약속('잠깐이면') 금지 — 11문항 앞에서 거짓 안심이 된다(2026-07-15 규칙)
+chk 'SV_NOW_HONEST' mypage.html 1
+nochk '잠깐이면 끝나요' mypage.html
