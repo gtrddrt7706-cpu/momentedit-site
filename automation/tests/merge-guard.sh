@@ -3285,3 +3285,8 @@ chk 'srv-miss-note' mypage.html 4
 #   서명 모달의 Esc·바깥클릭 닫기 부재는 의도(그리던 서명 보호) — '비일관 정리'로 달지 말 것
 chk 'SIG_FOCUS' mypage.html 1
 chk 'ADV_FOCUS' assets/advisor-widget.js 1
+# [WIZ_BASE_AFTER 2026-08-15 실클릭 점검] inv·trk 기준선은 첫 렌더 **뒤** — 앞이면 프리필이 전부 '변경'이 되어
+#   갓 열고 안 건드려도 나가기 판이 뜬다(실사고 · 좌석/사진/스냅은 모델 기반이라 무사)
+chk 'WIZ_BASE_AFTER' mypage.html 2
+# [WIZ_SAVE_AA] '저장됨' 은 opacity 흐림(2.31:1)이 아니라 색(--light 4.74:1)으로
+chk 'WIZ_SAVE_AA' mypage.html 1

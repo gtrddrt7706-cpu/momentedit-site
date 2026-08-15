@@ -503,7 +503,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 0}
 .ph-qr{display:flex;justify-content:center;margin:12px 0 0}
 .ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
-.ph-chip{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ph-chip{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
 .ph-chip:active{background:rgba(184,154,117,.08)}
 /* 단체컷 '함께 하는 동작' 예시 카드(무드단어 클릭 → 구도가 보이는 카드 개편 2026-07-20 · marker: pfx-card) */
 .pfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 0}
@@ -646,8 +646,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .wiz-save{min-width:70px}
 .wiz-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
 .wiz-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
-.wiz-save:disabled{opacity:.5;cursor:default}
-.wiz-save:disabled:hover{color:var(--sub);border-color:var(--border);background:var(--card-white)}
+.wiz-save:disabled{color:var(--light);cursor:default}   /* [WIZ_SAVE_AA 2026-08-15] opacity:.5 는 2.31:1 이었다 — '저장됨'은 상태 표시라 읽혀야 한다. --light 4.74:1(AA 하한) */
+.wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
 .inv-step-n{font-family:var(--serif);font-size:11px;color:var(--gold-deep);letter-spacing:.12em}
 .inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
@@ -4873,8 +4873,13 @@ function startInvFlow(inv, base){
   ['groomKo','brideKo','groomEn','brideEn'].forEach(function(k){ if(dr[k]) b2[k]=dr[k]; });   // 위저드에서 적은 이름이 표지·완료 화면 기준
   INVFLOW = { active:true, step:st, draft:dr, base: b2 };
   INVFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙 — 몰래 저장하지 않는다
-  _wizStart('inv');   // [WIZ_EXIT_ONE] 기준선 — 아무것도 안 바꾸고 나가면 판이 안 뜬다
   renderInvFlow($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
+  /* ★[WIZ_BASE_AFTER 2026-08-15 실클릭 점검] 기준선은 **첫 렌더 뒤에** 잡는다.
+     전엔 렌더 전에 잡아서 data() 가 빈 {} 였고, 렌더가 이름 프리필·빈문자 정규화를 채우는 순간
+     전부 '변경'이 됐다 — 갓 열고 아무것도 안 건드려도 나가기에 판이 떴다(WIZ_EXIT_ONE 헌장 위반 ·
+     좌석·사진·스냅은 data() 가 렌더 무관 모델이라 무사했고 inv·trk 만 앓았다).
+     렌더 앞으로 되돌리지 말 것 — 같은 병이 그대로 돌아온다. */
+  _wizStart('inv');   // [WIZ_EXIT_ONE] 기준선 — 아무것도 안 바꾸고 나가면 판이 안 뜬다
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
 function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
@@ -6663,8 +6668,8 @@ function startTrkFlow(track, draft, base){
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
   TRKFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
-  _wizStart('trk');   // [WIZ_EXIT_ONE] 기준선
   renderTrkFlow($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
+  _wizStart('trk');   // [WIZ_EXIT_ONE][WIZ_BASE_AFTER] 기준선 — 반드시 첫 렌더 뒤(위 inv 주석 참고)
   var b=$('mp_production'); if(b) b.scrollTop=0;
 }
 function saveTrkDraft(done){
