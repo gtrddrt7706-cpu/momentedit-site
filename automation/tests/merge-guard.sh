@@ -3330,3 +3330,7 @@ chk 'RT_DROPCOL' scripts/audit/data-roundtrip.mjs 3
 chk 'WORLD_DROPCOL' scripts/audit/_gasworld.mjs 1
 chk 'ADV_AUDIT' docs/plans/대본개정/62_적대적점검.md 1
 chk 'ADV_CLOSED' docs/plans/대본개정/62_적대적점검.md 1
+# [ADV_ROUND2 2026-08-15] 2바퀴 — 돌연변이 0 · 실버그 1건(컷 제출 8000자 vs 400개 캡 불일치)
+#   ★7-1 은 아직 **안 고친 것**이다. 문서가 사라지면 아무도 모르는 유실로 돌아간다.
+chk 'ADV_ROUND2' docs/plans/대본개정/62_적대적점검.md 1
+chk '400개 캡과 세트' docs/plans/대본개정/62_적대적점검.md 1
