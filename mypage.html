@@ -622,6 +622,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .srv-req{color:var(--gold-deep,#7A5F37);margin-left:3px;font-weight:600}   /* 필수 별표 — 연한 골드는 베이지 위에서 거의 안 보였다 */
 .srv-opt-tag{font-size:11px;color:var(--label-soft);font-weight:400;margin-left:4px}
 .srv-opts{display:flex;flex-wrap:wrap;gap:8px}
+.srv-miss-note{font-family:var(--serif-ko);font-size:12px;color:var(--seal,#6B2A24);margin:2px 0 6px}   /* [SV_MISS_AT] */
 /* [MP_TAP44] 설문 칩 39→44 — 손끝 하한. min-height 를 지우면 39px 로 돌아간다 */
 .srv-opts button{flex:0 1 auto;min-height:44px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--accent);transition:all .14s;line-height:1.3}
 .srv-opts button:hover{border-color:var(--gold);background:#fffdf9}
@@ -4213,6 +4214,7 @@ function _bindSurvey(res, nm, code){
       Array.prototype.forEach.call(grp.querySelectorAll('button'),function(x){x.classList.remove('on');});
       bt.classList.add('on'); grp.setAttribute('data-sel',bt.getAttribute('data-v'));
       var er=$('mp_svErr'); if(er) er.style.display='none';
+      Array.prototype.forEach.call(panel.querySelectorAll('.srv-miss-note'),function(n){ n.parentNode.removeChild(n); });   // [SV_MISS_AT]
     }); }); }); }
   var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click',function(){ doSubmitSurvey(res); });
 }
@@ -4467,8 +4469,14 @@ function doSubmitSurvey(res){
     var grp=panel.querySelector('.srv-opts[data-key="'+it.k+'"]'), v=grp?grp.getAttribute('data-sel'):'';
     if(v) answers[it.k]=v; else if(it.req && !missing) missing={it:it,grp:grp};   // 필수(req)만 미응답 검증 — 화면 별표 2개와 일치(나머지는 비워도 제출 가능 · GAS도 2개만 필수)
   });
-  if(missing){ var er=$('mp_svErr'); if(er){ er.textContent='‘'+missing.it.q+'’ 도 골라 주세요.'; er.style.display='block'; }
-    if(missing.grp){ try{ missing.grp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } return; }
+  if(missing){ var er=$('mp_svErr'); if(er){ er.textContent='‘'+missing.it.q+'’도 골라 주세요.'; er.style.display='block'; }
+    /* [SV_MISS_AT 2026-08-15 실클릭 점검] 안내는 스크롤이 데려간 **그 문항 옆**에도 세운다 —
+       아래(제출 버튼 위) 문구만으론 스크롤 뒤 화면 밖이었다(실측 top 1133 / 뷰포트 844).
+       사용자는 별표 문항만 보고 왜 왔는지 못 읽었다. 칩을 고르면 둘 다 걷힌다(_bindSurvey). */
+    panel.querySelectorAll('.srv-miss-note').forEach(function(n){ n.parentNode.removeChild(n); });
+    if(missing.grp){ var _no=document.createElement('div'); _no.className='srv-miss-note'; _no.textContent='이 문항도 골라 주세요';
+      missing.grp.parentNode.insertBefore(_no, missing.grp);
+      try{ missing.grp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } return; }
   var review=(($('mp_svReview')&&$('mp_svReview').value)||'').trim();
   var pub=($('mp_svPublic')&&$('mp_svPublic').checked)?'Y':'';
   var btn=$('mp_svSubmit'); if(btn){ btn.disabled=true; btn.textContent='보내는 중…'; }

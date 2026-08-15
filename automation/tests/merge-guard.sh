@@ -3277,3 +3277,7 @@ chk 'MP_TAP44' mypage.html 2
 # [SV_NOW_HONEST] 후기 NOW 의 시간 약속('잠깐이면') 금지 — 11문항 앞에서 거짓 안심이 된다(2026-07-15 규칙)
 chk 'SV_NOW_HONEST' mypage.html 1
 nochk '잠깐이면 끝나요' mypage.html
+# [SV_MISS_AT 2026-08-15 실클릭 점검] 빈 제출 안내가 스크롤 도착 화면 밖(top 1133/vh 844)이었다 —
+#   그 문항 바로 위에 인라인 안내를 세운다(실측 top 392 · 칩 고르면 걷힘). 되돌리면 안내가 다시 안 보인다
+chk 'SV_MISS_AT' mypage.html 3
+chk 'srv-miss-note' mypage.html 4
