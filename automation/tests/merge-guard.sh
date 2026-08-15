@@ -3357,3 +3357,12 @@ chk 'align-self:end' console.html 1
 #   '길게 눌러 전체 정지'와 다른 문이다(그건 끝내는 문). 지우면 미리듣기에 멈출 자리가 없어진다.
 chk 'GUEST_PAUSE' console.html 6
 chk 'gPause' console.html 3
+# [ADV_ROUND3 2026-08-15] 3바퀴 — 시드 3/4 · 새 구멍 2건(둘 다 같은 날 메움)
+#   9-3 → [PICK_CAP_PAIR] 상한을 곱셈으로 묶음 · 9-2 → [WORLD_BOOKING] 시트마다 제 헤더
+chk 'ADV_ROUND3' docs/plans/대본개정/62_적대적점검.md 1
+chk 'PICK_CAP_PAIR' automation/platform/80_production.gs 1
+chk 'PICK_CAP_PAIR' scripts/audit/data-roundtrip.mjs 3
+chk 'PICK_TEXT_CAP' automation/platform/80_production.gs 2
+nochk 'picks.length > 20000' automation/platform/80_production.gs
+chk 'WORLD_BOOKING' scripts/audit/_gasworld.mjs 3
+chk 'WORLD_BOOKING' scripts/audit/data-roundtrip.mjs 4
