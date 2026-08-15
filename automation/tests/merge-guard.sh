@@ -3248,6 +3248,10 @@ chk 'ORDER_CORR' scripts/split-dub-onefile.mjs 1
 # 조립 전에 문장 wav 그대로 듣고 판정하는 화면을 따로 뽑는다(자동생성물 · 손편집 금지).
 # [FOOT_CLEAR] 390px 에서 발판이 두 줄(119px)로 접힌다 — 아래 여백 150px 을 되돌리지 말 것
 chk 'LISTEN_TONE' scripts/build-listen-tone.mjs 1
+# [USE_EXISTING] 「신랑 신부, 입장!」은 기존 녹음을 쓴다 — 잠그는 것만으로는 부족하다.
+#   그 자리에서 **기존 소리가 실제로 나야** 한다(안 그러면 화면 말과 소리가 달라진다 · 실사고).
+chk 'EXTRACT_SENT' scripts/extract-existing-sent.mjs 1
+chk 'USE_EXISTING' scripts/build-listen-tone.mjs 1
 chk 'FOOT_CLEAR' scripts/build-listen-tone.mjs 1
 chk 'LISTEN_TONE' audio-review-tone.html 1
 if command -v node >/dev/null 2>&1; then node scripts/build-listen-tone.mjs >/dev/null || fail=1; fi
