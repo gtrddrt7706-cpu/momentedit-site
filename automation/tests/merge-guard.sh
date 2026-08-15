@@ -3395,3 +3395,8 @@ chk 'PICK_SEP_ONE' automation/platform/80_production.gs 3
 chk 'PICK_SEP_ONE' scripts/audit/data-roundtrip.mjs 4
 chk 'PICK_NAME_BAD' automation/platform/80_production.gs 2
 nochk 'replace(/[(),]/g' automation/platform/80_production.gs
+# [STAGE_ABSENT 2026-08-15] 실청 화면 대조는 wav 폴더(_dub_stage · 44MB · gitignore)가 없어도 돌아야 한다.
+#   없으면 실측이 비어 생성물이 커밋본과 반드시 달라진다 → 전엔 wav 가진 사람 말고는 게이트를 못 지나갔고,
+#   --write 로 '고치면' 커밋된 실측 186개가 지워졌다. 구조만 대조 + --write 차단으로 그 창을 닫는다.
+chk 'STAGE_ABSENT' scripts/build-listen-tone.mjs 2
+chk '실측(_dub_stage)이 없는 곳에서는 --write 를 막는다' scripts/build-listen-tone.mjs 1

@@ -354,11 +354,40 @@ draw();
 `;
 
 console.log(`실청 화면 — 클립 ${DATA.총클립} · 문장 ${DATA.총문장} · 기존 사용 ${DATA.잠금} · 의심 표시 ${flagged}`);
-if (WRITE && !bad) { fs.writeFileSync(OUT, html); console.log('  썼다: audio-review-tone.html'); }
-else if (!WRITE) {
+/* ★[STAGE_ABSENT 2026-08-15 CC] 실측치는 _dub_stage(44MB · gitignore)가 있어야 나온다.
+   그 폴더가 없는 곳(CI·다른 세션)에서는 meas 가 비어 생성물이 커밋본과 **반드시** 달라진다 —
+   전엔 그걸 '옛 판'이라 부르며 붉었고, merge-guard 가 이 스크립트를 실행하므로
+   **wav 를 가진 사람 말고는 아무도 게이트를 초록으로 못 만들었다**(실측: 이 저장소에서 rc 1).
+   더 나쁜 것은 --write 로 '고치려' 들면 커밋된 실측 186개가 통째로 지워진다는 점이다(실제로 당했다).
+   → 폴더가 없으면 **실측 부분을 뺀 구조만** 대조한다. 낡음 감지(이 검사의 목적)는 그대로 살고,
+     못 잰 것을 잰 척하지도 않는다 — 무엇을 못 댔는지 화면에 적는다("못 잼은 통과가 아니다"). */
+const MEASURED = Object.keys(meas).length > 0;
+/*   ★실측이 스며드는 자리가 셋이다 — 하나라도 빠뜨리면 '구조가 다르다'고 헛짚는다(둘을 연달아 밟았다):
+       ①문장별 "m":{…} ②못 잰 자리의 "m":null ③DATA."실측":N 과 화면 문구 '실측 N개' */
+const noMeas = (t) => t
+  .replace(/,"m":(\{[^}]*\}|null)/g, '')
+  .replace(/"실측":\d+/g, '"실측":-')
+  .replace(/실측 \d+개/g, '실측 -개');
+if (WRITE && !bad) {
+  if (!MEASURED && fs.existsSync(OUT)) no('실측(_dub_stage)이 없는 곳에서는 --write 를 막는다 — 커밋된 실측치를 지운다');
+  else { fs.writeFileSync(OUT, html); console.log('  썼다: audio-review-tone.html'); }
+} else if (!WRITE) {
   if (!fs.existsSync(OUT)) no('audio-review-tone.html 이 없다 — --write 로 뽑을 것');
-  else if (fs.readFileSync(OUT, 'utf8') !== html) no('audio-review-tone.html 이 생성물과 다르다 — 손으로 고쳤거나 옛 판이다(--write 로 다시 뽑을 것)');
-  else console.log('  대조 ok — 커밋된 화면이 생성물과 같다');
+  else {
+    const cur = fs.readFileSync(OUT, 'utf8');
+    if (MEASURED) {
+      (cur !== html) ? no('audio-review-tone.html 이 생성물과 다르다 — 손으로 고쳤거나 옛 판이다(--write 로 다시 뽑을 것)')
+        : console.log('  대조 ok — 커밋된 화면이 생성물과 같다(실측 포함)');
+    } else if (noMeas(cur) !== noMeas(html)) {
+      /* [STAGE_ABSENT] 어디가 다른지 짚어 준다 — "다르다"만 아는 검사는 고칠 수가 없다 */
+      const A = noMeas(cur), B = noMeas(html);
+      let i = 0; while (i < A.length && i < B.length && A[i] === B[i]) i++;
+      console.error('  첫 차이 ' + i + '자째\n   커밋본: …' + A.slice(i, i + 90) + '\n   생성물: …' + B.slice(i, i + 90));
+      no('audio-review-tone.html 의 목록·순서가 생성물과 다르다 — 옛 판이다(wav 가진 곳에서 --write)');
+    } else {
+      console.log('  대조 ok — 목록·순서 일치. ★실측치는 대조 못 함(_dub_stage 없음 · 44MB 는 저장소에 없다)');
+    }
+  }
 }
 console.log(bad ? `틀림 ${bad}건` : '실청 화면 OK');
 process.exit(bad ? 1 : 0);
