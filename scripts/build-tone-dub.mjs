@@ -110,7 +110,14 @@ if (rows.length !== 60) no(`문안이 ${rows.length}벌이다 — TONE 38 + NARV
 /* ── 산출물 ───────────────────────────────────────────────────────────────── */
 const paste = allLines.join('\n') + '\n';
 const list = [
-  '# 어조 60벌 · 더빙 명단 (2026-08-14)',
+  /* ★첫 줄이 스스로 버전을 말한다 [TONE_DUB_SELFID]
+     같은 대본이 세 번 옛 판으로 전달됐다. 사람은 파일 이름으로 구별을 못 한다 —
+     이름은 `어조_명단.txt` 로 고정이고, 안이 38벌인지 60벌인지는 열어야 안다.
+     그래서 **첫 줄에 벌 수를 박되 손으로 적지 않는다**(rows.length 를 쓴다).
+     손으로 적으면 하드체크만 올리고 머리말은 안 고쳐 「60벌」이라 적힌 64벌 파일이 나온다. */
+  `# [TONE_DUB] 어조 ${rows.length}벌 · 더빙 명단`,
+  `# ★최신인지 한눈에: 이 줄이 ${rows.length}벌이면 최신 · 38벌이면 옛 파일입니다.`,
+  `#   옆 「어조_붙여넣기.txt」 는 「우성:」 줄이 ${allLines.length}개여야 짝이 맞습니다.`,
   '# 이 파일은 「무엇이 몇 번인지」 보는 명단입니다. 타입캐스트에는 옆 파일',
   '# 「어조_붙여넣기.txt」 를 통째로 붙여넣으세요(머리말이 없어 읽혀 나갈 것이 없습니다).',
   '# 목소리는 전부 진행 나레이션 · 우성 입니다.',
@@ -129,7 +136,17 @@ if (WRITE && !bad) {
   fs.writeFileSync(path.join(DIR, '어조_명단.txt'), list);
   console.log('  썼다: 타입캐스트/어조_붙여넣기.txt · 어조_명단.txt');
 } else if (!WRITE) {
-  console.log('  (대조만 · 쓰려면 --write)');
+  /* ★기본 모드는 **대조**다 [TONE_DUB_DIFF]
+     여기 「대조만」이라고 적혀 있었지만 실제로는 아무것도 대조하지 않았다 —
+     세는 것은 방금 계산한 rows 였고, 커밋된 파일은 열어 보지도 않았다.
+     그래서 옛 명단이 저장소에 남아 있어도 이 검사는 초록이었다(세 번의 오전달이 그 창으로 났다).
+     build-tone-table.mjs 가 이미 쓰는 방식대로, 없거나 다르면 그 자리에서 붉게 한다. */
+  for (const [name, want] of [['어조_붙여넣기.txt', paste], ['어조_명단.txt', list]]) {
+    const p = path.join(DIR, name);
+    if (!fs.existsSync(p)) no(`${name} 이 없다 — --write 로 뽑을 것`);
+    else if (fs.readFileSync(p, 'utf8') !== want) no(`${name} 이 생성물과 다르다 — 손으로 고쳤거나 옛 판이다(--write 로 다시 뽑을 것)`);
+  }
+  if (!bad) console.log('  대조 ok — 커밋된 두 파일이 생성물과 같다');
 }
 
 console.log(bad ? `틀림 ${bad}건` : '어조 대본 OK');

@@ -3212,8 +3212,12 @@ nochk '가장 가까운 친구이자' order-preview.html
 nochk '오늘부터, 영원히' assets/ritual-data.js
 nochk '오늘부터, 영원히' order-preview.html
 
-# ── [TONE_DUB] 어조 38벌 붙여넣기 대본 — 배선보다 먼저 더빙을 시작하려고 따로 뽑는다 ──
+# ── [TONE_DUB] 어조 60벌 붙여넣기 대본 — 배선보다 먼저 더빙을 시작하려고 따로 뽑는다 ──
 chk 'TONE_DUB' scripts/build-tone-dub.mjs 1
+# [TONE_DUB_SELFID] 명단 첫 줄이 스스로 벌 수를 말한다 · [TONE_DUB_DIFF] 인자 없이 돌리면 커밋된 두 파일과 대조한다
+# ★아래 node 한 줄이 이제 진짜 대조다(전엔 세기만 했다) — 옛 명단이 남아 있으면 여기서 붉어진다
+chk 'TONE_DUB_SELFID' scripts/build-tone-dub.mjs 1
+chk 'TONE_DUB_DIFF' scripts/build-tone-dub.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/build-tone-dub.mjs || fail=1; fi
 # [GAP_TRUTH] manifest 지시값(0.4/0.45) ≠ 실측(0.23/0.50). 새 클립을 지시값으로 재면 기존 82개가 다 붉는다.
 chk 'GAP_TRUTH' scripts/audit/gap-profile.mjs 1
