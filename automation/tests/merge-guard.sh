@@ -3290,3 +3290,15 @@ chk 'ADV_FOCUS' assets/advisor-widget.js 1
 chk 'WIZ_BASE_AFTER' mypage.html 2
 # [WIZ_SAVE_AA] '저장됨' 은 opacity 흐림(2.31:1)이 아니라 색(--light 4.74:1)으로
 chk 'WIZ_SAVE_AA' mypage.html 1
+
+# ── [SCALE_LOCK 2026-08-15 사용자 지시 "손님이 늘 때 수정할 시간 없어 · 지금 모든 준비"] ──
+# ①잠금 대기 초과가 나면 관리자 메일(하루 1통·누적 집계) — 규모 신호를 기계가 센다
+# ②로그 appendRow 는 _lockedAppend 로 — 동시 기록 행 충돌 차단(3초 못 잡으면 그냥 쓴다)
+# ③환불 계좌: 확인→쓰기 잠금 안 · 알림은 잠금 밖  ④취소 경로 무잠금은 '판단'이다(주석 참고) — 잠그면 개악
+chk 'SCALE_LOCK' automation/platform/95_notify.gs 1
+chk 'lockBusySignal' automation/platform/95_notify.gs 1
+chk '_lockedAppend' automation/platform/95_notify.gs 1
+chk '_lockedAppend' automation/consultation/consultation-booking.gs 4
+chk '_lockedAppend' automation/platform/96_ai_cost.gs 1
+chk 'SCALE_LOCK' automation/platform/70_journey.gs 1
+chk 'SCALE_LOCK 판단' automation/consultation/consultation-booking.gs 1

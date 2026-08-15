@@ -29,7 +29,7 @@ function handleSaveProductionBase(body) {
 
   var _nqB = [];   // 손상 경고 메일 등 외부 I/O — 락 해제 후(finally) 발송
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
@@ -487,7 +487,7 @@ function handleSaveProductionTrack(body) {
   }
   var _notifyQ = [];   // 알림(메일·알림톡)은 외부 I/O — 락 안에서 보내면 다른 고객 저장이 waitLock 15초를 소진할 수 있어, 결정만 락 안에서 하고 발송은 finally(락 해제 직후)에서. finally 안 flush라 early return에도 유실 없음
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1073,7 +1073,7 @@ function handleSubmitResultSelection(body) {
   picks = _pkOut.join(', ');
   var n = _pkOut.length;   // 고유 토큰 수 = 장수(프론트 카운터와 동일 기준)
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1100,7 +1100,7 @@ function handleRequestExtraRetouch(body) {
   if (qty > 500) qty = 500;
   var amount = qty * RESULT.추가보정단가;
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1121,7 +1121,7 @@ function handleExtraRetouchSignal(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var payer = String((body && body.payerName) || '').trim();
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1145,7 +1145,7 @@ function handleConfirmRetouch(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1177,7 +1177,7 @@ function handleRequestRevision(body) {
   if (!cats.length && !note) return { ok: false, error: '다듬고 싶은 부분을 골라 주시거나 적어 주세요.' };
   var round = 0, sent = false;
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
@@ -1218,7 +1218,7 @@ function handleSubmitSurvey(body) {
   var review = String((body && body.review) || '').trim().slice(0, 2000);
   var reviewPublic = (String((body && body.reviewPublic) || '').trim() === 'Y') ? 'Y' : '';
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);

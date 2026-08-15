@@ -53,7 +53,7 @@ function handleAiHandoff(body) {
       ''
     ].map(_deFormula);   // CSV·수식 인젝션 방어(선행 =,+,-,@ 텍스트 고정) — id·시각·상태는 트리거 안 됨
     var lock = LockService.getScriptLock();
-    try { lock.waitLock(10000); } catch (e) { return { ok: false, error: 'busy' }; }
+    try { lock.waitLock(10000); } catch (e) { try { lockBusySignal('AI인계'); } catch (_e) {} return { ok: false, error: 'busy' }; }
     try { _aihSheet().appendRow(row); } finally { try { lock.releaseLock(); } catch (e) {} }
     try { _aihNotifyNew(row[4], brief.summary || '', custTxt, row[3]); } catch (e) {}   // 🔴 새 인계 즉시 관리자 알림(접점 표기 포함)
     return { ok: true, id: id };
