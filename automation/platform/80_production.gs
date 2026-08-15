@@ -1051,6 +1051,16 @@ function handleGetResultGallery(body) {
 var PICK_MAX = 400;                                  // 한 번에 고를 수 있는 컷
 var PICK_NAME_CAP = 40;                              // 파일명 표시 상한(진짜 신원은 ID)
 var PICK_TEXT_CAP = PICK_MAX * (PICK_NAME_CAP + 50); // = 36,000 · 항목 = 이름 + '(' + ID 44 + ')' + ', '
+/* ★[PICK_SEP_ONE 2026-08-15 적대검증 4바퀴 11-2] 쪼개는 문자와 씻는 문자를 **한 곳에서** 낸다.
+   전엔 이름에서 `( ) ,` 만 지우고(_gnm) 서버는 `[\s,;·，、]+` 로 다시 쪼갰다 — 집합이 달라
+   이름에 공백·중점·전각쉼표가 있으면 한 항목이 여러 토큰으로 갈렸다.
+   실측(100장 제출): `DSC 0123.jpg` → 101 · `김희준 이미쿠 본식3 0123.jpg` → 103.
+   ★유실이 아니라 **수와 돈이 틀리는** 버그다 — 선택수가 추가보정 견적 기본값을 만든다
+   (over = 선택수 − 포함컷 · 컷당 20,000원). 100장 골랐는데 103이면 6만원어치가 기본으로 붙는다.
+   게다가 ID 없는 조각(`김희준`)이 고른 컷인 양 남아 보정 담당이 파일을 못 찾는다.
+   ↓ 이름에서 지우는 집합 = 쪼개는 집합 ∪ 괄호. 두 곳이 다른 것을 보면 또 갈린다. */
+var PICK_SEP = /[\s,;·，、]+/;             // 토큰을 쪼개는 문자
+var PICK_NAME_BAD = /[()\s,;·，、]+/g;      // 이름에서 지울 문자 = 쪼개는 문자 + 괄호
 
 // [05-②] 고객 사진 선택 제출(A안: 번호/파일명 텍스트). 단계 전이 없음.
 function handleSubmitResultSelection(body) {
@@ -1065,7 +1075,8 @@ function handleSubmitResultSelection(body) {
     for (var _gi = 0; _gi < picksRaw.length; _gi++) {
       var _gp = picksRaw[_gi] || {};
       var _gid = String(_gp.id || '').replace(/[^A-Za-z0-9_-]/g, ''); if (!_gid || _gSeen[_gid]) continue; _gSeen[_gid] = 1;
-      var _gnm = String(_gp.name || '').replace(/[(),]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, PICK_NAME_CAP);
+      // [PICK_SEP_ONE] 구분자를 '_' 로 바꾼다 — 지우면 낱말이 붙고, 공백으로 두면 다시 쪼개진다
+      var _gnm = String(_gp.name || '').replace(PICK_NAME_BAD, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, PICK_NAME_CAP);
       _gOut.push((_gnm || '파일') + '(' + _gid + ')');
       // [PICK_NO_SILENT 2026-08-15 적대검증 2바퀴 7-1] 상한 초과 = 거부. 종전엔 루프가 400에서
       //   말없이 멈춰 401번째부터 버려졌다(ok:true · 고객은 모름). 자를 바에 거부가 정직하다.
@@ -1081,7 +1092,7 @@ function handleSubmitResultSelection(body) {
   if (picks.length > PICK_TEXT_CAP) return { ok: false, error: '선택 목록이 너무 길어요. 목록을 나눠 제출하시거나 디렉터에게 문의해 주세요.' };
   // [PICK_NORMALIZE 2026-07-25] 서버 방어층 — 프론트 캐논과 동일 최소 파이프(분리·trim·빈 제거·중복 제거(순서 유지)) · 선택수=고유 토큰 수.
   //   범위 전개("12-15")·프리픽스/확장자 제거·제로패딩은 프론트 전용(이중 구현 드리프트 방지 · 회의 A-1 명확화 1).
-  var _pkT = picks.split(/[\s,;·，、]+/), _pkOut = [], _pkSeen = {};
+  var _pkT = picks.split(PICK_SEP), _pkOut = [], _pkSeen = {};   // [PICK_SEP_ONE] 이름을 씻은 그 집합
   for (var _pi = 0; _pi < _pkT.length; _pi++) {
     var _pt = String(_pkT[_pi] || '').trim(); if (!_pt) continue;
     var _pk = _pt.toLowerCase(); if (_pkSeen[_pk]) continue;

@@ -67,7 +67,11 @@ if grep -nE '^[^#]*\|\|[[:space:]]*(FAIL|Fail)=' "$_SELF"; then
 fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
-chk(){ _ran=$((_ran+1)); n=$(grep -c "$1" "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# ★[CHK_DASH_SAFE 2026-08-15] chk 에 `-e … --` 를 붙였다(nochk 는 이미 있었다).
+#   없으면 대시로 시작하는 패턴이 grep 의 옵션으로 먹힌다 — 실측: `chk '{--col:720px}' console.html 1` 가
+#   `grep --color console.html` 로 해석돼 **파일 인자를 잃고 stdin 을 기다리며 영영 멈췄다.**
+#   붉게 지는 게 아니라 매달린다 — CI 라면 6시간 타임아웃까지 간다. 그 창을 없앤다.
 # ★[NOCHK_DEFINED_FIRST 2026-08-11] nochk 정의를 chk 바로 아래로 올렸다.
 #   전엔 1248행에 있어서 그 위에서 nochk 를 부르면 `nochk: not found` 만 찍히고
 #   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
@@ -3337,6 +3341,11 @@ chk 'ADV_ROUND2' docs/plans/대본개정/62_적대적점검.md 1
 #   9-2 모의 세계가 예약 시트 컬럼 32개를 모른다(WORLD_DROPCOL 의 쌍둥이)
 #   9-3 400 캡 vs 20,000자 캡이 여전히 짝이 아니다 — 이름 28자면 333장에서 막힌다
 chk 'ADV_ROUND3' docs/plans/대본개정/62_적대적점검.md 1
+# [ADV_ROUND4 2026-08-15] 4바퀴 — 수리 셋 튼튼 · §10-3 정정문에 구멍 1건(**아직 안 고침**)
+#   11-2 갤러리 경로: _gnm 이 공백·중점·전각쉼표를 안 지워 한 항목이 두 토큰이 된다
+#        → 선택수 부풀림 → 추가보정 견적 기본값이 위로 틀린다(20,000원/컷)
+chk 'ADV_ROUND4' docs/plans/대본개정/62_적대적점검.md 1
+chk '갤러리 경로에서 갈린다' docs/plans/대본개정/62_적대적점검.md 1
 chk 'WORLD_BOOKING' docs/plans/대본개정/62_적대적점검.md 1
 chk '400개 캡과 세트' docs/plans/대본개정/62_적대적점검.md 1
 # [PICK_NO_SILENT 2026-08-15] 7-1 수리 — 상한(컷 400 · 20,000자 · 추가보정 500)은 자르지 않고 거부.
@@ -3350,9 +3359,14 @@ nochk 'qty = 500' automation/platform/80_production.gs
 #   자물쇠에 opacity 계단을 다시 실으면 먼 행이 2.21:1 로 떨어져 '고르지 않다'로 읽힌다.
 chk 'MP_LOCK_EVEN' mypage.html 1
 nochk 'nx-far .lock{opacity' mypage.html
-# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음 레일을 카드 아랫변에 맞춰 세운다.
+# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음을 '다음 순서로' 바로 위로(세로 한 줄).
+#   오른쪽 칸으로 되돌리지 말 것 — 두 줄짜리 목록이 폭 절반을 먹고 버튼과 대각선으로 갈린다.
 chk 'GUEST_PC_FOOT' console.html 1
-chk 'align-self:end' console.html 1
+nochk 'grid-template-columns:1.6fr 1fr;gap:28px' console.html
+# [GUEST_PC_BAL 2026-08-15] 한 기둥(카드·레일·바 같은 폭) + 주 버튼 비중 · 아이콘 SVG.
+#   실측 근거: 세 버튼이 96/96/116 이던 360px 에서 주 버튼 38% → 글자 접어 64%.
+chk 'GUEST_PC_BAL' console.html 6
+chk '{--col:720px}' console.html 1
 # [GUEST_PAUSE 2026-08-15] 미리듣기 멈춤·이어듣기 — 그 자리에 서고 그 지점부터 잇는다.
 #   '길게 눌러 전체 정지'와 다른 문이다(그건 끝내는 문). 지우면 미리듣기에 멈출 자리가 없어진다.
 chk 'GUEST_PAUSE' console.html 6
@@ -3366,3 +3380,9 @@ chk 'PICK_TEXT_CAP' automation/platform/80_production.gs 2
 nochk 'picks.length > 20000' automation/platform/80_production.gs
 chk 'WORLD_BOOKING' scripts/audit/_gasworld.mjs 3
 chk 'WORLD_BOOKING' scripts/audit/data-roundtrip.mjs 4
+# [PICK_SEP_ONE 2026-08-15] 4바퀴 11-2 — 이름 씻는 집합 = 토큰 쪼개는 집합.
+#   갈리면 선택수가 부풀고 그 수가 추가보정 견적 기본값(컷당 2만원)을 만든다(돈이 틀린다).
+chk 'PICK_SEP_ONE' automation/platform/80_production.gs 3
+chk 'PICK_SEP_ONE' scripts/audit/data-roundtrip.mjs 4
+chk 'PICK_NAME_BAD' automation/platform/80_production.gs 2
+nochk 'replace(/[(),]/g' automation/platform/80_production.gs
