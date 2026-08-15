@@ -46,6 +46,14 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-cancel{display:block;width:100%;min-height:44px;margin-top:4px;border:none;background:none;
   font-family:var(--serif-ko,inherit);font-size:13px;color:var(--light,#8A857C);cursor:pointer;word-break:keep-all}
 .ord-ask button:focus-visible{outline:2px solid var(--seal,#6B2A24);outline-offset:2px}
+/* ★[ASK_FOCUS_BOX 2026-08-15 사용자 실기기 제보] 판이 열릴 때 포커스는 **판 자체**로 간다(버튼이 아니라).
+   스크립트 `.focus()` 는 :focus-visible 을 켠다(실측 · 아이폰 스크린샷으로도 확인) — 버튼에 먼저
+   포커스를 주면 열리자마자 그 버튼에 씰색 2px 테두리가 그려져, 가장 조용해야 할 「취소」가
+   danger 색으로 가장 크게 외치는 판이 됐다. 위계 역전 + 뜻 오독(씰 테두리 = 위험 버튼).
+   판(tabindex=-1)은 대화형 요소가 아니라 시각 표시가 필요 없다 — 전역 :where([tabindex]) 규칙을 덮는다.
+   키보드는 Tab 한 번에 버튼으로 들어가고(기존 순환 유지), Enter 는 아무것도 안 누른다(가장 안전한 기본).
+   버튼에 첫 포커스를 되돌리지 말 것 — 테두리가 폰에서 돌아온다. */
+.ord-ask .oa-box:focus,.ord-ask .oa-box:focus-visible{outline:none}
 @media (prefers-reduced-motion:reduce){.ord-ask,.ord-ask .oa-box{transition:none}}
 /* ★[PROG_SEAL 2026-08-14 사용자 지시 "위에 퍼센트 차는부분 진사색상으로"]
    금(--gold-deep)은 이 화면에서 장식이 쓰는 색이라, 진행바까지 금이면 '차오르는 것'이 배경에 묻혔다.
@@ -3088,9 +3096,10 @@ function ordAsk(opt){
     if(_ordOv){ try{ _ordOv.__ordClose(false); }catch(e){} }   // 새 말이 옛 말을 **대신한다**(포개지 않는다)
     var ov=document.createElement('div');
     ov.className='ord-ask'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    if(opt.title) ov.setAttribute('aria-label',opt.title);   // 스크린리더가 판에 들어설 때 제목부터 듣는다
     // opt.no===null 이면 버튼 하나(알림형 · ordTell). 그 경우에도 Esc·바깥 클릭은 살려 둔다.
     var _one=(opt.no===null);
-    ov.innerHTML='<div class="oa-box">'
+    ov.innerHTML='<div class="oa-box" tabindex="-1">'
       +'<div class="oa-t">'+esc(opt.title||'')+'</div>'
       +(opt.body?'<div class="oa-d">'+esc(opt.body)+'</div>':'')
       +'<div class="oa-btns'+(_one?' one':'')+'">'
@@ -3127,9 +3136,13 @@ function ordAsk(opt){
     if(can) can.addEventListener('click',function(){ close(opt.dismissNull?null:false); });
     ov.addEventListener('click',function(e){ if(e.target===ov) close(opt.dismissNull?null:false); });
     document.addEventListener('keydown',onKey);
-    /* 기본은 '머무는 쪽' — 되돌릴 수 없는 일에 손가락이 먼저 닿지 않게(알림형은 버튼이 하나뿐).
-       [EXIT_CANCEL] 취소가 있으면 그쪽이다: 나가기 판은 no('그냥 나가기')도 화면을 떠난다 */
-    try{ (can||no||yes).focus(); }catch(e){}
+    /* ★[ASK_FOCUS_BOX] 첫 포커스는 판 자체다 — 버튼이 아니라.
+       버튼에 주면 스크립트 포커스가 :focus-visible 을 켜서(실측 · 사용자 아이폰 스크린샷)
+       열리자마자 그 버튼에 씰색 테두리가 그려진다 — 조용해야 할 「취소」가 danger 로 읽혔다.
+       판에 주면 ①테두리 없음(위 CSS) ②Enter 가 아무것도 안 누른다(어느 버튼도 기본이 아닌 게
+       이 판의 뜻이다 — 셋 다 무게가 있는 갈래라 손가락이 먼저 닿는 쪽이 없어야 한다)
+       ③Tab 한 번이면 버튼 순환으로 들어간다(아래 onKey 가 -1 에서 첫 버튼으로 보낸다). */
+    try{ ov.querySelector('.oa-box').focus(); }catch(e){}
   });
 }
 /* [ORD_TELL 2026-08-03] 알림형(버튼 하나) — 사용자 지시로 네이티브 alert 을 전부 걷어낸다.
