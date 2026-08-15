@@ -1385,7 +1385,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.4') return '/contract/archive/v1-4.html';   // [CONTRACT_V15] v1.4 서명자는 옛 표기(스냅 40분·합 60분) 보존본으로 열람
   if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람(서명 안 한 줄이 '확인했습니다'로 보이면 안 된다)
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
-  return '/contract/v1-1.html';   // 현행(v1.7)
+  if(v==='v1.7') return '/contract/archive/v1-7.html';   // [PRICE_2026_08_15] 평일 240만 서명자(8/14~8/15 이틀 창) — 창이 짧다고 빼지 말 것. 한 분이라도 있으면 새 금액 문서를 보게 된다
+  return '/contract/v1-1.html';   // 현행(v1.8) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.

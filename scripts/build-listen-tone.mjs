@@ -25,8 +25,12 @@
 // ★소리는 올리지 않는다 — 44MB 다. 화면이 **폴더를 고르게** 한다(webkitdirectory · 업로드 없음).
 //   파일은 브라우저 안에서만 열리고 아무데도 안 나간다.
 //
-// ★[USE_EXISTING] 「신랑 신부, 입장!」 12자리는 판정 대상이 아니다 (2026-08-15 사용자 지시)
-//   기존 녹음을 쓰기로 했으므로 새 take 를 듣고 고칠 이유가 없다. 잠가서 보여만 준다.
+// ★[USE_EXISTING 철회 2026-08-15] 「신랑 신부, 입장!」도 **새 더빙을 쓴다.**
+//   같은 날 지시가 두 번 왔고 뒤엣것이 최종이다 — 둘 다 남겨 둔다(어느 쪽이 최신인지 알아야 한다):
+//     ① 오전: *"신랑 신부, 입장! 이멘트는 기존에있는걸 사용 하고 나머지는 적용"*  → 12자리 잠금
+//     ② ★뒤: *"신랑 신부, 입장! 이거 왜 기존음성으로 입히지 다시 바꿔죠"*        → 잠금 해제(지금)
+//   그래서 186문장 **전부** 판정 대상이다. 잠그는 코드를 되살리지 말 것 —
+//   되살리려면 사용자가 ③번째 지시를 준 뒤여야 한다.
 //
 // ★종료 코드 [CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함(ffprobe 없음)
 import fs from 'node:fs';
@@ -54,7 +58,7 @@ const voices = lines.map((l) => (l.match(/^([^:]*):/) || [, '우성'])[1].trim()
 const ORDER = JSON.parse(fs.readFileSync(ORDERP, 'utf8'));
 if (ORDER.총문장 !== sents.length) no(`순서.json(${ORDER.총문장})과 붙여넣기(${sents.length})가 어긋난다`);
 
-const USE_EXISTING = '신랑 신부, 입장!';
+const USE_EXISTING = null;   // ★철회됨(위 머리말) — null 이면 잠기는 자리가 없다
 
 /* ── 소리 실측 — 있으면 우선 청취 표시에 쓴다(없어도 화면은 나온다) ─────────── */
 const meas = {};
@@ -125,6 +129,37 @@ const DATA = {
   실측: Object.keys(meas).length,
 };
 const flagged = clips.flatMap((c) => c.idx).filter((i) => flagOf(i) && sents[i] !== USE_EXISTING).length;
+
+/* ── ★[EMBED_AUDIO 2026-08-15 사용자 지시 "음성입혀서 그냐 클릭하면 나오게 해죠"] ──────────
+   폴더 고르기도 한 단계다. 186개를 들으려 앉은 사람에게 그 한 단계가 문턱이 된다.
+   wav 44.5MB 는 못 넣지만 mp3 64kbps 모노면 4.6MB 다 → base64 로 한 파일 7MB대.
+   ★정규화하지 않는다 — loudnorm 은 조립기가 결과물에 거는 것. 판정은 온 소리 그대로 해야 한다.
+   ★견줄 기존 클립도 넣는다 — "옛것과 견주라" 해 놓고 옛것을 사람이 찾게 하면 안 지켜진다.
+   ★저장소에는 안 담는다 [EMBED_OUTSIDE] — `--embed <경로>` 로 **밖에** 쓴다.
+     커밋되는 것은 종전대로 가벼운 판뿐이고, 그래서 STAGE_ABSENT 대조와 부딪히지 않는다. */
+const EMBEDAT = (() => { const i = process.argv.indexOf('--embed'); return i >= 0 ? process.argv[i + 1] : ''; })();
+const B64 = {}; const OLDB64 = {};
+if (EMBEDAT) {
+  if (!Object.keys(meas).length) die('소리를 심으려면 _dub_stage 가 있어야 한다', 2);
+  const tmp = fs.mkdtempSync(path.join('/tmp', 'lt-'));
+  const enc = (src, key, bag) => {
+    const o = path.join(tmp, key + '.mp3');
+    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-c:a', 'libmp3lame', '-b:a', '64k', '-ac', '1', '-ar', '32000', o]);
+    if (r.status !== 0 || !fs.existsSync(o)) { no(`mp3 변환 실패: ${path.basename(src)}`); return; }
+    bag[key] = fs.readFileSync(o).toString('base64');
+  };
+  const ff = {};
+  for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = f; }
+  for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), i, B64);
+  const olds = new Set();
+  clips.forEach((c) => c.idx.forEach((i) => { const m = /기존에도 있음 · (\S+)/.exec(flagOf(i) || ''); if (m) olds.add(m[1]); }));
+  for (const o of olds) {
+    const p = ['narration', 'cast'].map((d) => path.join(ROOT, 'assets/audio', d, o + '.mp3')).find((x) => fs.existsSync(x));
+    if (p) enc(p, o, OLDB64); else no(`견줄 기존 클립을 못 찾음: ${o}`);
+  }
+  fs.rmSync(tmp, { recursive: true, force: true });
+  console.log(`소리 심음 — 새 ${Object.keys(B64).length}개 · 기존 ${Object.keys(OLDB64).length}개`);
+}
 
 /* ── 화면 ─────────────────────────────────────────────────────────────────── */
 const html = `<!doctype html>
@@ -207,7 +242,11 @@ border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--tex
   (실측 한 건: 「하나, 둘, 셋.」은 기존이 4.8초에 사이 쉼 0.45초씩인데 새 take 는 1.65초입니다. 사진 카운트다운이라 반응할 틈이 필요합니다.)
 </div>
 
-<div class="drop" id="drop">
+${EMBEDAT ? `<div class="note" style="background:#f2f5f2;color:var(--green);border:1px solid #cfe0d4">
+  <b>소리가 이 화면 안에 들어 있습니다.</b> 폴더를 고르실 필요 없이 「듣기」만 누르세요.
+  (새 ${Object.keys(B64).length}개 · 견줄 기존 클립 ${Object.keys(OLDB64).length}개)
+</div>` : ''}
+<div class="drop" id="drop"${EMBEDAT ? ' style="display:none"' : ''}>
   <p><b>더빙 wav 폴더를 고르세요.</b> 파일은 브라우저 안에서만 열리고 어디에도 올라가지 않습니다.</p>
   <input type="file" id="pick" webkitdirectory directory multiple class="hide">
   <button class="btn pri" id="pickBtn">폴더 고르기</button>
@@ -239,6 +278,8 @@ border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--tex
 </div>
 
 <script>
+${EMBEDAT ? `var A0 = ${JSON.stringify(Object.fromEntries(Object.entries(B64).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v])))};
+var O0 = ${JSON.stringify(Object.fromEntries(Object.entries(OLDB64).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v])))};` : 'var A0={},O0={};'}
 var D = ${JSON.stringify(DATA)};
 var KEY = 'me_listen_tone_v1';
 var V = {}; try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
@@ -247,7 +288,7 @@ var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
 
 /* 폴더에서 고른 소리 — audio_N 으로 색인. 업로드 없음(objectURL). */
-var AUD = {};
+var AUD = A0; var OLDA = O0;
 $('pickBtn').onclick = function () { $('pick').click(); };
 $('pick').onchange = function (e) {
   var fs_ = e.target.files || [], got = 0;
@@ -312,6 +353,8 @@ function draw() {
         + '</div></div>'
         + '<div class="ops">'
         + '<button class="btn sm" data-p="' + s.i + '">듣기</button>'
+        + ((function(){ var mm = /기존에도 있음 · (\\S+)/.exec(s.f || ''); return (mm && OLDA[mm[1]])
+            ? '<button class="btn sm" data-old="' + mm[1] + '">기존 듣기</button>' : ''; })())
         + (s.lock ? '' :
             '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-i="' + s.i + '">좋아요</button>'
           + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-i="' + s.i + '">다시</button>')
@@ -325,6 +368,7 @@ function draw() {
 $('list').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.p != null) return play1(+b.dataset.p);
+  if (b.dataset.old) { stop(); var u = OLDA[b.dataset.old]; if (u) { var a = new Audio(u); cur = a; a.play(); } return; }
   if (b.dataset.clip != null) return playClip(+b.dataset.clip);
   if (b.dataset.v) { var i = +b.dataset.i; setV(i, V[i] === b.dataset.v ? null : b.dataset.v); }
 });
@@ -368,10 +412,13 @@ const noMeas = (t) => t
   .replace(/,"m":(\{[^}]*\}|null)/g, '')
   .replace(/"실측":\d+/g, '"실측":-')
   .replace(/실측 \d+개/g, '실측 -개');
-if (WRITE && !bad) {
+if (EMBEDAT && !bad) {
+  fs.writeFileSync(EMBEDAT, html);
+  console.log(`  썼다: ${EMBEDAT} (${(fs.statSync(EMBEDAT).size / 1048576).toFixed(1)}MB · 소리 포함)`);
+} else if (WRITE && !bad) {
   if (!MEASURED && fs.existsSync(OUT)) no('실측(_dub_stage)이 없는 곳에서는 --write 를 막는다 — 커밋된 실측치를 지운다');
   else { fs.writeFileSync(OUT, html); console.log('  썼다: audio-review-tone.html'); }
-} else if (!WRITE) {
+} else if (!WRITE && !EMBEDAT) {
   if (!fs.existsSync(OUT)) no('audio-review-tone.html 이 없다 — --write 로 뽑을 것');
   else {
     const cur = fs.readFileSync(OUT, 'utf8');
