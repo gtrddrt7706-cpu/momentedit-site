@@ -3302,3 +3302,10 @@ chk '_lockedAppend' automation/consultation/consultation-booking.gs 4
 chk '_lockedAppend' automation/platform/96_ai_cost.gs 1
 chk 'SCALE_LOCK' automation/platform/70_journey.gs 1
 chk 'SCALE_LOCK 판단' automation/consultation/consultation-booking.gs 1
+# [DATA_ROUNDTRIP 2026-08-15] 저장 왕복 무손실 게이트 — 고객 저장 → 셀 → 재조회 → 관리자 상세가 같은 값.
+#   진짜 핸들러 호출(모의 GAS 세계 · 브라우저 불필요 · ~1초). 저장·연동이 갈라지면 푸시 전에 붉어진다
+if command -v node >/dev/null 2>&1; then
+  if node scripts/audit/data-roundtrip.mjs >/dev/null 2>&1; then echo "ok scripts/audit/data-roundtrip.mjs: 왕복 무손실"
+  else echo "REVERT? scripts/audit/data-roundtrip.mjs 가 붉다 — 저장 왕복 어딘가에서 값이 갈라졌다"; fail=1; fi
+fi
+chk 'DATA_ROUNDTRIP' scripts/audit/data-roundtrip.mjs 1
