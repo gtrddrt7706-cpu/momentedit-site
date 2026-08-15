@@ -38,6 +38,13 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-no{border:1px solid var(--border,#DDD8D1);background:var(--bg,#FAFAF8);color:var(--sub,#5A554C)}
 .ord-ask .oa-yes{border:1px solid var(--accent,#3A2D22);background:var(--accent,#3A2D22);color:#fff}
 .ord-ask .oa-yes.danger{border-color:var(--seal,#6B2A24);background:var(--seal,#6B2A24)}
+/* ★[EXIT_CANCEL 2026-08-15] 세 번째 갈래 '취소'는 **보이는 버튼**이어야 한다.
+   나가기 판의 두 버튼은 「저장하고 나가기」·「그냥 나가기」 — 둘 다 화면을 떠난다.
+   머물 길은 Esc 와 바깥 클릭뿐이었는데, 폰에는 Esc 가 없고 바깥 클릭은 배우는 동작이다.
+   잘못 눌러 판이 뜬 사람에게 「돌아가기」가 안 보이면, 안 나가려고 나가기를 한 번 더 누른다.
+   낮은 무게(테두리 없는 글자)로 아래 줄에 둔다 — 갈래는 셋이지만 무게는 둘이다. */
+.ord-ask .oa-cancel{display:block;width:100%;min-height:44px;margin-top:4px;border:none;background:none;
+  font-family:var(--serif-ko,inherit);font-size:13px;color:var(--light,#8A857C);cursor:pointer;word-break:keep-all}
 .ord-ask button:focus-visible{outline:2px solid var(--seal,#6B2A24);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.ord-ask,.ord-ask .oa-box{transition:none}}
 /* ★[PROG_SEAL 2026-08-14 사용자 지시 "위에 퍼센트 차는부분 진사색상으로"]
@@ -334,9 +341,30 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 @keyframes mclinkr{to{transform:rotate(-9deg)}}
 .mclip.mstill .m-draw{animation:none;stroke-dashoffset:0}.mclip.mstill .m-in,.mclip.mstill .m-spark{animation:none;opacity:1}.mclip.mstill .m-tilt,.mclip.mstill .m-fall{animation:none}.mclip.mstill .m-walk{animation:none;transform:translateX(128px)}.mclip.mstill .m-bob{animation:none}.mclip.mstill .m-drop{animation:none;transform:translateY(14px)}.mclip.mstill .m-bow{animation:none;transform:rotate(-26deg)}.mclip.mstill .m-rise{animation:none;transform:translateY(-13px)}.mclip.mstill .m-trem{animation:none}.mclip.mstill .m-clinkl{animation:none;transform:rotate(9deg)}.mclip.mstill .m-clinkr{animation:none;transform:rotate(-9deg)}
 @media (prefers-reduced-motion:reduce){.mclip .m-draw{animation:none;stroke-dashoffset:0}.mclip .m-in,.mclip .m-spark{animation:none;opacity:1}.mclip .m-tilt,.mclip .m-fall{animation:none}.mclip .m-walk{animation:none;transform:translateX(128px)}.mclip .m-bob{animation:none}.mclip .m-drop{animation:none;transform:translateY(14px)}.mclip .m-bow{animation:none;transform:rotate(-26deg)}.mclip .m-rise{animation:none;transform:translateY(-13px)}.mclip .m-trem,.mclip .m-clinkl,.mclip .m-clinkr{animation:none}.stage{animation:none}.prog-fill{transition:none}#_toast{transition:none!important}}
-.minitl{margin:8px 0 0;padding:6px 0 11px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:60;background:var(--bg,#FAFAF8)}   /* 진행 스트립이 스크롤을 따라옴(2026-07-16 사용자 요청 · 상단 고정 헤더 대체) */
-.mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.mtl-rail .mtl-done{font-family:inherit;font-size:11px;line-height:inherit;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+/* ★[MTL_TAP40] 안쪽 여백을 **레일에게 넘겼다**(6/11 → 0). 스트립 전체 높이는 41px 그대로.
+   여백이 스트립에 있으면 레일의 콘텐츠 상자가 23px 로 남아, 버튼을 stretch 해도 23px 밖에 안 큰다
+   (실측으로 한 번 틀렸다 — padding 을 레일에 줘 봐도 콘텐츠 상자는 그만큼 다시 줄어든다).
+   여백을 레일의 min-height 로 바꾸면 그 40px 이 곧 버튼의 높이가 된다. */
+.minitl{margin:8px 0 0;padding:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:60;background:var(--bg,#FAFAF8)}   /* 진행 스트립이 스크롤을 따라옴(2026-07-16 사용자 요청 · 상단 고정 헤더 대체) */
+/* ★[MTL_TAP40 2026-08-15] ✓ 단계 버튼의 **손가락 자리**를 40px 로. 글씨는 한 픽셀도 안 움직인다.
+   실측(390px): 표적이 34×23 · 45×23 · 58×23 이었다. 세로 23px 은 손끝보다 작아,
+   되돌아가려다 옆 단계를 누르거나 아무것도 안 눌린다(레일은 가로로 흐르니 옆이 곧 다른 단계다).
+   ★올리는 방법 — 스트립의 안쪽 여백(6/11)을 레일의 min-height 40px 으로 **옮긴다**.
+     스트립 총높이는 41px 그대로고(6+23+11+테두리 = 40+테두리), 버튼은 align-self:stretch 로 그 40px 을 받는다.
+     ★레일에 padding 을 주는 쪽은 안 된다 — 콘텐츠 상자가 그만큼 다시 줄어 stretch 가 23px 로 돌아간다(실측).
+   ★가짜 ::after 로 넓히지 않은 이유 — 레일은 overflow-x:auto 라 세로도 auto 가 된다.
+     버튼보다 큰 것을 안에 넣으면 세로 스크롤이 생기고, 스크롤바를 숨겨 둔 터라
+     그게 눈에 안 보이는 채로 레일이 위아래로 밀린다. 상자를 키우는 쪽은 그 일이 없다(실측 확인).
+   되돌리지 말 것: 여백을 지우면 표적이 23px 로 돌아간다. */
+.mtl-rail{position:relative;display:flex;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-height:40px}
+/* ★[MTL_EDGE 2026-08-15] 레일이 더 있다는 것을 **끝을 흐려서** 알린다.
+   실측: ✓ 하나만 있어도 413/354 로 이미 넘친다 — 즉 이 레일은 사실상 늘 잘려 있는데
+   잘린 자리가 화면 가장자리와 딱 붙어 끝난 것처럼 보였다. 흐림이 있으면 '옆이 더 있다'가 보인다.
+   ★넘칠 때만 건다(data-edge) — 안 넘치는데 걸면 멀쩡한 첫 글자를 지우는 꼴이다. */
+.mtl-rail[data-edge="l"]{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20px);mask-image:linear-gradient(90deg,transparent 0,#000 20px)}
+.mtl-rail[data-edge="r"]{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent 100%);mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent 100%)}
+.mtl-rail[data-edge="lr"]{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
+.mtl-rail .mtl-done{font-family:inherit;font-size:11px;line-height:inherit;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;align-self:stretch}
 .mtl-rail .mtl-done::before{content:'✓';font-size:10px}
 .mtl-rail::-webkit-scrollbar{display:none}
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
@@ -1838,6 +1866,19 @@ function renderMiniTL(k){
   el.innerHTML='<div class="mtl-rail" id="mtlRail">'+parts.join('<span class="mtl-a" aria-hidden="true">›</span>')+'</div>';
   var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
   if(rail&&now&&typeof now.offsetLeft==='number'){ rail.scrollLeft=Math.max(0, now.offsetLeft-rail.clientWidth/2+now.offsetWidth/2); }
+  if(rail){ _mtlEdge(rail); rail.addEventListener('scroll',function(){ _mtlEdge(rail); },{passive:true}); }
+}
+/* [MTL_EDGE] 어느 쪽이 잘려 있는지 표시 — CSS 가 그쪽 끝을 흐린다.
+   ★넘칠 때만 건다. 안 넘치는데 흐리면 멀쩡한 글자를 지운다.
+   1px 은 소수 픽셀 반올림 여유다(scrollLeft 가 정수로 안 떨어지는 기기가 있다). */
+function _mtlEdge(rail){
+  try{
+    var max=rail.scrollWidth-rail.clientWidth;
+    if(max<=1){ rail.removeAttribute('data-edge'); return; }
+    var l=rail.scrollLeft>1, r=rail.scrollLeft<max-1;
+    rail.setAttribute('data-edge',(l?'l':'')+(r?'r':''));
+    if(!l&&!r) rail.removeAttribute('data-edge');
+  }catch(e){}
 }
 
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
@@ -3055,12 +3096,15 @@ function ordAsk(opt){
       +'<div class="oa-btns'+(_one?' one':'')+'">'
         +(_one?'':'<button type="button" class="oa-no">'+esc(opt.no||'취소')+'</button>')
         +'<button type="button" class="oa-yes'+(opt.danger?' danger':'')+'">'+esc(opt.yes||'확인')+'</button>'
-      +'</div></div>';
+      +'</div>'
+      /* [EXIT_CANCEL] 셋째 갈래는 부르는 쪽이 켠다(opt.cancel) — 안 켠 판은 종전 그대로 두 버튼이다 */
+      +(opt.cancel?'<button type="button" class="oa-cancel">'+esc(opt.cancel)+'</button>':'')
+      +'</div>';
     if(_ordBo===null) _ordBo=document.body.style.overflow;   // [ORD_ASK_ONE] 원래 값은 첫 판만 기억
     document.body.style.overflow='hidden';
     document.body.appendChild(ov);
     requestAnimationFrame(function(){ ov.classList.add('on'); });
-    var no=ov.querySelector('.oa-no'), yes=ov.querySelector('.oa-yes'), _d=false;
+    var no=ov.querySelector('.oa-no'), yes=ov.querySelector('.oa-yes'), can=ov.querySelector('.oa-cancel'), _d=false;
     function close(v){ if(_d) return; _d=true;
       if(_ordOv===ov) _ordOv=null;
       document.removeEventListener('keydown',onKey);
@@ -3074,13 +3118,18 @@ function ordAsk(opt){
        null 로 돌려받는다. 값이 참/거짓 둘뿐이면 「닫음=아니오」가 되어, 아니오가 위험한 판에서
        Esc 한 번이 그 위험한 갈래를 밟는다. 기존 호출부는 !ok 검사라 null 도 취소로 읽힌다(하위호환). */
     function onKey(e){ if(e.key==='Escape'&&!e.repeat){ e.preventDefault(); close(opt.dismissNull?null:false); }
-      if(e.key==='Tab'){ var f=[no,yes].filter(Boolean), i=f.indexOf(document.activeElement);
+      if(e.key==='Tab'){ var f=[no,yes,can].filter(Boolean), i=f.indexOf(document.activeElement);
         e.preventDefault(); f[(i+(e.shiftKey?f.length-1:1))%f.length].focus(); } }   // 판 밖으로 포커스가 새지 않게
     if(no) no.addEventListener('click',function(){ close(false); });
     yes.addEventListener('click',function(){ close(true); });
+    /* [EXIT_CANCEL] 취소는 Esc·바깥 클릭과 **같은 값**으로 닫는다 — 셋이 한 갈래여야
+       부르는 쪽이 한 군데(v===null)만 보고 머무를 수 있다 */
+    if(can) can.addEventListener('click',function(){ close(opt.dismissNull?null:false); });
     ov.addEventListener('click',function(e){ if(e.target===ov) close(opt.dismissNull?null:false); });
     document.addEventListener('keydown',onKey);
-    try{ (no||yes).focus(); }catch(e){}   // 기본은 '취소' — 되돌릴 수 없는 일에 손가락이 먼저 닿지 않게(알림형은 버튼이 하나뿐)
+    /* 기본은 '머무는 쪽' — 되돌릴 수 없는 일에 손가락이 먼저 닿지 않게(알림형은 버튼이 하나뿐).
+       [EXIT_CANCEL] 취소가 있으면 그쪽이다: 나가기 판은 no('그냥 나가기')도 화면을 떠난다 */
+    try{ (can||no||yes).focus(); }catch(e){}
   });
 }
 /* [ORD_TELL 2026-08-03] 알림형(버튼 하나) — 사용자 지시로 네이티브 alert 을 전부 걷어낸다.
@@ -3343,13 +3392,15 @@ if(EMBED){
              나가기누르면 자동으로 저장되는데 그럼 옆에 저장이 있을필요가없잖아"
        — 나가기가 몰래 저장하면 저장 버튼의 존재 이유가 사라진다. 갈래는 셋:
          저장하고 나가기(orderExit · 종전 경로) · 그냥 나가기(orderClose · 이 기기에는 남는다) ·
-         취소(Esc·바깥 클릭 → dismissNull 이 null 로 갈라 준다 — false 로 받으면 Esc 가 「그냥 나가기」가 된다).
+         취소(버튼·Esc·바깥 클릭 → dismissNull 이 null 로 갈라 준다 — false 로 받으면 Esc 가 「그냥 나가기」가 된다).
+       ★[EXIT_CANCEL 2026-08-15] 취소는 **보이는 버튼**이다. 폰에 Esc 가 없고 바깥 클릭은 배우는 동작이라,
+         두 버튼(둘 다 떠난다)만 보이면 잘못 눌러 판을 띄운 사람이 머물 길을 못 찾는다. 다시 숨기지 말 것.
        ★몰래 저장(무조건 orderExit)으로 되돌리지 말 것 — 이 판 자체가 사용자 지시다. */
     var _failed=(_autoState==='fail');   // [EXIT_ASK] 방금 저장이 실패한 상태(다시 저장) — 「변경이 있다」가 아니라 「저장이 안 됐다」가 사실이다
     ordAsk({title:_failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',
             body:_failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.'
                         :'저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.',
-            yes:'저장하고 나가기', no:'그냥 나가기', dismissNull:true}).then(function(v){
+            yes:'저장하고 나가기', no:'그냥 나가기', cancel:'취소하고 계속 만들기', dismissNull:true}).then(function(v){
       if(v===null) return;   // 취소 — 그대로 있는다
       if(v===false){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
       /* 저장하고 나가기 — 종전 '저장 후 나가기' 경로 그대로 */

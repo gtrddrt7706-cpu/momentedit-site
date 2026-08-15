@@ -3229,3 +3229,14 @@ chk '제거 대상이다' docs/plans/대본개정/60_고객눈_점검.md 1
 # [TONE_DUB 60] 구 어조38_* 는 지웠다 — 두 벌이 남으면 사람이 38벌짜리를 붙여넣고 22벌을 빠뜨린다
 nochk '어조38_붙여넣기' scripts/build-tone-dub.mjs
 chk 'NARV_DUB' scripts/build-tone-dub.mjs 1
+
+# ── [CX_FIX 2026-08-15] 고객 눈 점검 3건을 화면에 반영 — 되돌리지 말 것 ──
+# ①표적 40px: `.minitl` 여백을 레일 min-height 로 옮겼다. 여백을 스트립에 되돌리면 표적이 23px 로 돌아간다
+#   (레일 콘텐츠 상자가 줄어 align-self:stretch 가 무력해진다 — 실측으로 한 번 밟은 함정이다)
+# ②레일 끝 흐림: 넘칠 때만 건다(data-edge) · ③나가기 판 '취소'는 보이는 버튼(폰엔 Esc 가 없다)
+chk 'MTL_TAP40' order-preview.html 2
+chk 'MTL_EDGE' order-preview.html 2
+chk 'EXIT_CANCEL' order-preview.html 3
+chk 'align-self:stretch' order-preview.html 1
+chk 'min-height:40px' order-preview.html 1
+chk 'oa-cancel' order-preview.html 1
