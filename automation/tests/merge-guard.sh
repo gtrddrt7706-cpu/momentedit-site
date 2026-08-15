@@ -3341,3 +3341,14 @@ chk 'PICK_NO_SILENT' mypage.html 1
 chk 'RT_PICKS' scripts/audit/data-roundtrip.mjs 6
 nochk 'picks.slice(0, 8000)' automation/platform/80_production.gs
 nochk 'qty = 500' automation/platform/80_production.gs
+# [MP_LOCK_EVEN 2026-08-15] 마이페이지 NEXT 자물쇠 = 전 행 같은 톤(원근은 글자 색 계단이 낸다).
+#   자물쇠에 opacity 계단을 다시 실으면 먼 행이 2.21:1 로 떨어져 '고르지 않다'로 읽힌다.
+chk 'MP_LOCK_EVEN' mypage.html 1
+nochk 'nx-far .lock{opacity' mypage.html
+# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음 레일을 카드 아랫변에 맞춰 세운다.
+chk 'GUEST_PC_FOOT' console.html 1
+chk 'align-self:end' console.html 1
+# [GUEST_PAUSE 2026-08-15] 미리듣기 멈춤·이어듣기 — 그 자리에 서고 그 지점부터 잇는다.
+#   '길게 눌러 전체 정지'와 다른 문이다(그건 끝내는 문). 지우면 미리듣기에 멈출 자리가 없어진다.
+chk 'GUEST_PAUSE' console.html 6
+chk 'gPause' console.html 3
