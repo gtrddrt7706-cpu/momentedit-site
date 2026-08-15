@@ -1050,18 +1050,24 @@ function handleSubmitResultSelection(body) {
   // [MPD3_GAL] B안 썸네일 제출 — 파일ID 배열([{id,name}])도 수용 · 선택사진엔 "파일명(ID)" CSV로 저장(관리자 썸네일 확인·A안 하위 호환)
   if (Object.prototype.toString.call(picksRaw) === '[object Array]') {
     var _gOut = [], _gSeen = {};
-    for (var _gi = 0; _gi < picksRaw.length && _gOut.length < 400; _gi++) {
+    for (var _gi = 0; _gi < picksRaw.length; _gi++) {
       var _gp = picksRaw[_gi] || {};
       var _gid = String(_gp.id || '').replace(/[^A-Za-z0-9_-]/g, ''); if (!_gid || _gSeen[_gid]) continue; _gSeen[_gid] = 1;
       var _gnm = String(_gp.name || '').replace(/[(),]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
       _gOut.push((_gnm || '파일') + '(' + _gid + ')');
+      // [PICK_NO_SILENT 2026-08-15 적대검증 2바퀴 7-1] 상한 초과 = 거부. 종전엔 루프가 400에서
+      //   말없이 멈춰 401번째부터 버려졌다(ok:true · 고객은 모름). 자를 바에 거부가 정직하다.
+      if (_gOut.length > 400) return { ok: false, error: '한 번에 400컷까지 제출할 수 있어요. 선택을 400컷 안으로 줄여 주시거나, 디렉터에게 문의해 주세요.' };
     }
     if (!_gOut.length) return { ok: false, error: '고르신 컷을 선택해 주세요.' };
     picksRaw = _gOut.join(', ');
   }
   var picks = String(picksRaw || '').trim();
   if (!picks) return { ok: false, error: '고르신 컷을 입력해 주세요.' };
-  if (picks.length > 8000) picks = picks.slice(0, 8000);   // 파일명(ID) 형식은 길어서 상한 완화(400개 캡과 세트)
+  // [PICK_NO_SILENT] 글자 상한도 거부로 — 종전 「8000자에서 자르기」는 한 항목 약 49자라 164개부터
+  //   무증상 유실이었다(선택수는 자른 뒤 계산 · 꼬리 ID 반토막 · 관리자 알림도 잘린 수). 20,000자는
+  //   400항목 × 평균 49자(약 19,600)를 수용하는 값 — 정상 제출은 여기 안 걸리고, 걸리면 자르지 않고 알린다.
+  if (picks.length > 20000) return { ok: false, error: '선택 목록이 너무 길어요. 목록을 나눠 제출하시거나 디렉터에게 문의해 주세요.' };
   // [PICK_NORMALIZE 2026-07-25] 서버 방어층 — 프론트 캐논과 동일 최소 파이프(분리·trim·빈 제거·중복 제거(순서 유지)) · 선택수=고유 토큰 수.
   //   범위 전개("12-15")·프리픽스/확장자 제거·제로패딩은 프론트 전용(이중 구현 드리프트 방지 · 회의 A-1 명확화 1).
   var _pkT = picks.split(/[\s,;·，、]+/), _pkOut = [], _pkSeen = {};
@@ -1097,7 +1103,9 @@ function handleRequestExtraRetouch(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var qty = Math.floor(Number((body && body.qty) || 0));
   if (!(qty > 0)) return { ok: false, error: '추가 보정 수량을 입력해 주세요.' };
-  if (qty > 500) qty = 500;
+  // [PICK_NO_SILENT] 수량도 자르지 않는다 — 종전 「500 초과면 500으로」는 고객이 적어 낸 수량과
+  //   다른 견적이 말없이 기록됐다. 컷 제출 상한과 같은 원칙: 자를 바에 거부하고 이유를 말한다.
+  if (qty > 500) return { ok: false, error: '추가 보정은 한 번에 500컷까지 신청할 수 있어요. 더 필요하시면 디렉터에게 문의해 주세요.' };
   var amount = qty * RESULT.추가보정단가;
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }

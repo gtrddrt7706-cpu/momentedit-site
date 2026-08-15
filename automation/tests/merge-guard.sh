@@ -3331,6 +3331,13 @@ chk 'WORLD_DROPCOL' scripts/audit/_gasworld.mjs 1
 chk 'ADV_AUDIT' docs/plans/대본개정/62_적대적점검.md 1
 chk 'ADV_CLOSED' docs/plans/대본개정/62_적대적점검.md 1
 # [ADV_ROUND2 2026-08-15] 2바퀴 — 돌연변이 0 · 실버그 1건(컷 제출 8000자 vs 400개 캡 불일치)
-#   ★7-1 은 아직 **안 고친 것**이다. 문서가 사라지면 아무도 모르는 유실로 돌아간다.
+#   7-1 은 같은 날 [PICK_NO_SILENT] 로 수리됨 — 문서(§7·§8)가 사라지면 근거가 사라진다.
 chk 'ADV_ROUND2' docs/plans/대본개정/62_적대적점검.md 1
 chk '400개 캡과 세트' docs/plans/대본개정/62_적대적점검.md 1
+# [PICK_NO_SILENT 2026-08-15] 7-1 수리 — 상한(컷 400 · 20,000자 · 추가보정 500)은 자르지 않고 거부.
+#   절단 코드 모양이 되살아나면 164개부터 무증상 유실로 돌아간다(nochk 는 그 코드 모양을 겨눈다).
+chk 'PICK_NO_SILENT' automation/platform/80_production.gs 3
+chk 'PICK_NO_SILENT' mypage.html 1
+chk 'RT_PICKS' scripts/audit/data-roundtrip.mjs 6
+nochk 'picks.slice(0, 8000)' automation/platform/80_production.gs
+nochk 'qty = 500' automation/platform/80_production.gs

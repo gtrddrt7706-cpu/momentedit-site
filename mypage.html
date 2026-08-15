@@ -4434,11 +4434,13 @@ function _galCount(){
   var g=_GAL, el=$('mp_galCount'); if(!g||!el) return;
   var n=g.order.length;
   el.innerHTML='<b>'+n+'장</b> 선택됨'
-    +(n>g.inc?(' · 포함 '+g.inc+'컷 초과 <span style="color:var(--gold-deep)">초과분은 추가 보정(컷당 '+(g.unit?fmtWon(g.unit):'별도 안내')+')으로 진행돼요</span>'):(' · 포함 보정 '+g.inc+'컷'));
+    +(n>g.inc?(' · 포함 '+g.inc+'컷 초과 <span style="color:var(--gold-deep)">초과분은 추가 보정(컷당 '+(g.unit?fmtWon(g.unit):'별도 안내')+')으로 진행돼요</span>'):(' · 포함 보정 '+g.inc+'컷'))
+    +(n>400?' · <span style="color:var(--seal)">한 번에 400컷까지 제출할 수 있어요</span>':'');
 }
 function _galSubmit(){
   var g=_GAL; if(!g) return;
   if(!g.order.length){ mpAlert('고르신 컷을 선택해 주세요.'); return; }
+  if(g.order.length>400){ mpAlert('한 번에 400컷까지 제출할 수 있어요. 선택을 400컷 안으로 줄여 주세요.'); return; }   // [PICK_NO_SILENT] 서버 상한과 동일 기준 — 제출 뒤 거부되는 헛걸음 방지
   var byId={}; g.files.forEach(function(f){ byId[f.id]=f.name; });
   var picks=g.order.map(function(id){ return { id:id, name:byId[id]||'' }; });
   var btn=$('mp_galSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }

@@ -101,5 +101,37 @@ for (const [t, mk] of Object.entries(TRACKS)) {
     ? ok('  셀도 비어 있음(부분 기록 없음)') : no('③ 컬럼 없는 세계에 부분 기록: ' + String(w2.C['제작_ritual']).slice(0, 60));
 }
 
-console.log(bad ? `\n실패 ${bad}건` : '\n왕복 전부 무손실 (전 트랙 · 전 핸들러 동의기록 · review 원문 · 컬럼 가드)');
+/* ── ④ 컷 제출(결과물 선택) — 상한 안 무손실 · 초과는 거부 [RT_PICKS]
+      2바퀴 실버그 7-1 회귀 가드: 종전 8000자 slice 는 한 항목 약 49자라 164개부터 조용히 잘렸다
+      (ok:true · 선택수는 자른 뒤 계산 · 꼬리 ID 반토막). 이 블록이 있는 한 그 절단은 다시 못 들어온다. ── */
+{
+  const w3 = world({ 현재단계: '결과물전달', 개인코드: 'ME-TEST', 원본링크: 'https://drive.google.com/x',
+    결과물상태: '', 동의기록: JSON.stringify(SEED_CONSENT) });
+  const row3 = G.findCustomerByCode('ME-TEST');
+  G.resolveSession = () => ({ ok: true, row: row3 });
+  const wRef = w3;   // consentAlive 는 바깥 w 를 본다 — 이 블록에선 w3 를 직접 검사
+  const mkPicks = (n) => Array.from({ length: n }, (_, i) =>
+    ({ id: '1AbCdEfGhIjKlMnOpQrStUvWxYz' + String(100000 + i), name: 'DSC_' + (1000 + i) + '.jpg' }));
+  const r200 = G.handleSubmitResultSelection({ token: 't', picks: mkPicks(200) });
+  const cell = String(wRef.C['선택사진'] || '');
+  (r200 && r200.ok && r200['선택수'] === 200)
+    ? ok('④ 200컷 제출 ok · 선택수 200') : no('④ 200컷 제출 실패/선택수 불일치 [RT_PICKS]: ' + JSON.stringify(r200).slice(0, 90));
+  (cell.indexOf('(1AbCdEfGhIjKlMnOpQrStUvWxYz100199)') > -1)
+    ? ok('  200번째 ID 끝까지 보존(꼬리 반토막 없음)') : no('④ 마지막 컷 ID 유실(무증상 절단!) [RT_PICKS]: …' + cell.slice(-45));
+  { let c3 = {}; try { c3 = JSON.parse(wRef.C['동의기록'] || '{}'); } catch (e) {}
+    (c3.계약금확인 === SEED_CONSENT.계약금확인) ? ok('  동의기록 보존 (submitResultSelection)') : no('동의기록 유실 @submitResultSelection'); }
+  const r401 = G.handleSubmitResultSelection({ token: 't', picks: mkPicks(401) });
+  (r401 && r401.ok === false)
+    ? ok('④ 401컷 = 거부(자르지 않음)') : no('④ 401컷이 ok — 조용한 손실 재발 [RT_PICKS]: ' + JSON.stringify(r401).slice(0, 90));
+  (Number(wRef.C['선택수']) === 200)
+    ? ok('  거부 후 셀 불변(선택수 200 유지)') : no('④ 거부인데 셀이 변함(부분 기록): ' + wRef.C['선택수']);
+  const rq = G.handleRequestExtraRetouch({ token: 't', qty: 12 });
+  (rq && rq.ok && rq.qty === 12)
+    ? ok('④ 추가 보정 12컷 신청 = 수량 그대로') : no('④ 추가 보정 수량 왜곡 [RT_PICKS]: ' + JSON.stringify(rq).slice(0, 80));
+  const rq501 = G.handleRequestExtraRetouch({ token: 't', qty: 501 });
+  (rq501 && rq501.ok === false)
+    ? ok('④ 추가 보정 501컷 = 거부(수량 무언 절단 금지)') : no('④ 501컷 신청이 ok — 수량이 조용히 잘림 [RT_PICKS]: ' + JSON.stringify(rq501).slice(0, 80));
+}
+
+console.log(bad ? `\n실패 ${bad}건` : '\n왕복 전부 무손실 (전 트랙 · 전 핸들러 동의기록 · review 원문 · 컬럼 가드 · 컷 제출)');
 process.exit(bad ? 1 : 0);
