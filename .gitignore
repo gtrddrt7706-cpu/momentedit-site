@@ -25,3 +25,7 @@ scripts/audit/_shots/
 
 # [DEPLOY_ONE] scripts/deploy.sh 가 막혔을 때 만드는 인계용 패치 — 저장소에 담지 않는다
 _deploy-patch/
+
+# 더빙 wav 스테이징 — 44MB 소리 파일. 산출물은 assets/audio 로 조립된다 [DUB_STAGE]
+_dub_stage/
+_dub_in/

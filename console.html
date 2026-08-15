@@ -194,7 +194,7 @@ select,input[type=time],input[type=text]{
 body.guest #setup{display:none !important}
 body.guest #bPos, body.guest #bClock, body.guest #bSheet, body.guest #bExit,
 body.guest .sub3, body.guest .vol, body.guest .now .no{display:none !important}
-body.guest .ctl .inner{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:stretch}   /* [GUEST_PREV] 왼쪽 '이전' + 오른쪽 '다음으로' */
+body.guest .ctl .inner{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:stretch}   /* [GUEST_PREV] 왼쪽 '이전' + [GUEST_PAUSE] '멈춤' + 오른쪽 '다음으로' */
 body.guest .main{background:var(--bg3);color:var(--text);font-size:17px;font-weight:600;padding:20px 16px}
 body.guest .main small{opacity:.72;font-weight:400}
 body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
@@ -319,6 +319,12 @@ body.guest .gprev>span{font-size:18px;margin-right:2px}
 body.guest .gprev:disabled{opacity:.32}
 body.guest .gprev:active:not(:disabled){background:var(--bg3)}
 
+/* [GUEST_PAUSE] 멈춤·이어듣기 — 짙은 색은 여전히 「다음으로」 하나뿐이다.
+   멈춘 동안에만 칸이 옅게 차서 '지금 서 있다'를 말한다(글자만으로는 눈에 안 걸린다). */
+body.guest .gpause{min-width:92px}
+body.guest .gpause>span{font-size:13px;margin-right:4px;letter-spacing:.06em}
+body.guest .gpause.on{background:var(--bg3);border-color:var(--sub);color:var(--text)}
+
 /* ⑦ 블록 머리·힌트 — 문장보다 세지 않게. 위계: 순서 이름 → 배경 설명 → 큰 제목 → 문안 */
 body.guest .blk{margin-bottom:14px;padding-bottom:12px}
 body.guest .blk .bn{font-size:11px;letter-spacing:.08em}
@@ -356,6 +362,15 @@ body.guest .now .hint{font-size:12.5px}
   body.guest .ctl .inner{max-width:1080px}
   body.guest .up{align-content:start;border-top:0}
   body.guest .up .upc:first-child{border-top:1px solid var(--line)}
+  /* ★[GUEST_PC_FOOT 2026-08-15 사용자 지적 "다음·그다음 위치가 자연스럽지 않다"]
+     레일을 카드 **아랫변에 맞춰** 세운다. 실측(1280) 근거 —
+       전: 레일이 카드보다 125px 아래에서 시작하고 발끝은 109px 위에서 끝나, 두 칸이
+           머리도 발도 맞지 않았다(가운데 정렬이 만든 어정쩡한 두 모서리).
+       후: 발차 0 — 카드 아랫변과 레일 아랫변이 한 선. 레일↔버튼 거리도 291→182px.
+     모바일 ⑧의 뜻("다음·그다음을 '다음으로' 바로 위에 둬 무엇이 오는지와 그리로 가는 문을
+     한 손에")을 넓은 화면에서도 지키는 자리다. 머리 맞춤(align-self:start)도 재 봤지만
+     레일 아래가 399px 비어 더 떠 보였다. */
+  body.guest .up{align-self:end}
 }
 @media (min-width:900px){
   .stage{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch;padding:20px 16px 8px}
@@ -514,6 +529,11 @@ body.guest .now .hint{font-size:12.5px}
            고객 미리듣기에만 서는 「이전 순서」. 디렉터 화면에는 이미 뒤로(#bBack)가 있고
            그쪽은 "되돌리고 멈춘다"라 성격이 다르다 — 여기는 **그 순서를 다시 들려주고 계속 흐른다.** -->
       <button class="gprev" id="gPrev" type="button" disabled aria-label="이전 순서 다시 듣기"><span aria-hidden="true">‹</span>이전</button>
+      <!-- ★[GUEST_PAUSE 2026-08-15 사용자 지시 "미리듣기부분 음성정지, 재생버튼이있었으면좋겠어"]
+           미리듣기는 저절로 흐른다 — 전화가 오거나 누가 말을 걸면 멈출 자리가 없었다
+           (있던 건 '길게 눌러 전체 정지'뿐이고 그건 되돌아올 수 없는 문이다).
+           여기서 멈추면 **그 자리에 선다** — 다시 누르면 듣던 소리의 그 지점부터 이어 간다. -->
+      <button class="gprev gpause" id="gPause" type="button" aria-label="잠시 멈춤"><span aria-hidden="true">❙❙</span>멈춤</button>
       <button class="main" id="mBtn">시작 <small>길게 누르면 전체 정지</small></button>
       <div>
         <div class="sub3">
@@ -732,6 +752,9 @@ var muted = false;
 var fired = {};            // clock 큐 중복 발사 막기
 var wakeLock = null;
 var progT = null;
+var progS = null;            // [GUEST_PAUSE] 지금 흐르는 진행(초·끝나면 할 일·시작시각)
+var PAUSED = false;          // [GUEST_PAUSE] 고객이 '멈춤'을 눌러 선 상태
+var bgmWas = false;          // [GUEST_PAUSE] 멈추기 직전 배경 음악이 흐르고 있었나
 var liveT0 = 0;            // 지금 흐르는 사람 구간이 시작된 시각 (ALT_CLIP 판정용)
 var shown = {};            // i → 실제로 나간 큐. alt로 바뀌었을 수 있어 화면·시트는 이쪽을 본다
 function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
@@ -841,15 +864,18 @@ function playClip(c, done){
   });
 }
 
-function runProg(sec, done){
-  var t0 = Date.now(), ms = Math.max(200, sec * 1000);
+/* ★[GUEST_PAUSE] fromSec — 멈췄던 자리에서 이어 그린다(0 부터 다시 그리면 되감긴 것처럼 보인다).
+   progS 는 '지금 무엇이 얼마나 흐르는 중인가'를 들고 있다가 멈춤/이어듣기가 그대로 되살린다. */
+function runProg(sec, done, fromSec){
+  var t0 = Date.now() - (fromSec || 0) * 1000, ms = Math.max(200, sec * 1000);
+  progS = { sec: sec, done: done, t0: t0 };
   if (progT) clearInterval(progT);
   progT = setInterval(function(){
     var el = Date.now() - t0, r = Math.min(1, el / ms);
     $('#nProg').firstElementChild.style.width = (r * 100) + '%';
     $('#nEl').textContent = fmt(el / 1000);
     $('#nTo').textContent = fmt(sec);
-    if (r >= 1) { clearInterval(progT); progT = null; if (done) done(); }
+    if (r >= 1) { clearInterval(progT); progT = null; progS = null; if (done) done(); }
   }, 200);
   $('#nTo').textContent = fmt(sec);
 }
@@ -933,6 +959,36 @@ function advance(){
   fire(cur + 1);
 }
 
+/* ★[GUEST_PAUSE 2026-08-15 사용자 지시] 미리듣기 멈춤·이어듣기.
+   멈춤  = 흐르던 타이머를 전부 걷고(clearT) 소리를 세운다. 어디까지 왔는지는 progS 가 들고 있다.
+   이어듣기 = ①소리가 아직 남았으면 그 지점부터 다시 틀고(onended 가 살아 있어 다음 순서로 이어진다)
+              ②소리 없이 문안·사람 말 자리를 세고 있었으면 남은 시간부터 다시 센다
+              ③둘 다 아니면(짧은 사이) 다음 순서로 간다.
+   ★'전체 정지'(길게 누르기)와 다르다 — 그건 끝내는 문이고 이건 세워 두는 문이다. */
+function setPaused(on){
+  if (on === PAUSED || phase === 'end') return;
+  PAUSED = on;
+  if (on) {
+    if (progS) progS.el = (Date.now() - progS.t0) / 1000;   // 걷기 전에 얼마나 왔는지 적어 둔다
+    var keep = progS;
+    clearT();                                              // clearT 가 stopProg 까지 한다
+    progS = keep;
+    bgmWas = !aBgm.paused;
+    try { aNarr.pause(); } catch (e) {}
+    try { aBgm.pause(); } catch (e) {}
+  } else {
+    if (bgmWas) { try { aBgm.play(); } catch (e) {} }
+    var hasAudio = aNarr.getAttribute('src') && isFinite(aNarr.duration) && aNarr.duration > 0 && aNarr.currentTime < aNarr.duration - 0.15;
+    if (hasAudio) {
+      if (progS) runProg(progS.sec, progS.done, progS.el || aNarr.currentTime);
+      try { aNarr.play(); } catch (e) {}
+    } else if (progS && progS.el != null && progS.el < progS.sec) {
+      runProg(progS.sec, progS.done, progS.el);
+    } else { progS = null; advance(); }
+  }
+  render();
+}
+
 function finish(){
   clearT(); phase = 'end';
   try { aNarr.pause(); } catch(e){}
@@ -996,6 +1052,14 @@ function render(){
   if (!R) return;
   // ★[GUEST_PREV] 첫 순서에서는 되돌아갈 데가 없다 — 살아 있는 버튼으로 두지 않는다
   var _gp = $('#gPrev'); if (_gp) _gp.disabled = !GUEST || (phase !== 'end' && cur <= 0);
+  // [GUEST_PAUSE] 멈춤 버튼 — 끝난 뒤엔 멈출 것이 없다. 라벨은 지금 상태가 아니라 **누르면 될 일**을 적는다.
+  var _gz = $('#gPause');
+  if (_gz) {
+    _gz.disabled = !GUEST || phase === 'end';
+    _gz.innerHTML = PAUSED ? '<span aria-hidden="true">▶</span>이어듣기' : '<span aria-hidden="true">❙❙</span>멈춤';
+    _gz.setAttribute('aria-label', PAUSED ? '이어듣기' : '잠시 멈춤');
+    _gz.classList.toggle('on', PAUSED);
+  }
   // 지금 큐는 '실제로 나간 것'을, 다음·그다음은 원래 문안을 보여 준다 — 교체 판정은 아직 안 났다.
   var c = cueAt(cur), n1 = R.cues[cur+1] || null, n2 = R.cues[cur+2] || null;
 
@@ -1154,6 +1218,7 @@ function holdEnd(){
   holdT = null; mBtn.classList.remove('hold'); mBtn.style.setProperty('--hold', '0%');
 }
 $('#gPrev').addEventListener('click', guestPrev);
+$('#gPause').addEventListener('click', function(){ setPaused(!PAUSED); });
 mBtn.addEventListener('pointerdown', holdStart);
 mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!was) mainTap(); });
 mBtn.addEventListener('pointerleave', function(){ holdEnd(); });

@@ -1040,6 +1040,18 @@ function handleGetResultGallery(body) {
   return { ok: true, files: slice, page: page, pages: pages, total: total, included: RESULT.포함보정컷 };
 }
 
+/* ★[PICK_CAP_PAIR 2026-08-15 적대검증 3바퀴 9-3] 컷 제출 상한 셋을 **곱셈 하나로 묶는다.**
+   2바퀴 수리 때 「400개 ↔ 20,000자」를 손으로 맞춰 놨는데, 그 계산은 파일명이 12자일 때만
+   성립했다(코드가 허용하는 이름은 80자). 실측 — 12자:400장 · 28자:300장 · 45자:200장 · 80자:170장.
+   유실은 아니지만(거부로 막힌다) 프런트는 「400까지」라고 미리 말하는데 300장에서 막히는
+   **막다른 길**이었고, 평범한 내보내기 이름(28자)에서 반드시 재현된다.
+   ↓ 이제 글자 상한이 개수×항목크기로 **계산되므로** 셋이 다시 어긋날 수 없다.
+   ID 는 드라이브 최대치(44자)를 잡아 두었다 — 저장할 것은 ID지 이름이 아니다(이름은 사람이 볼 힌트).
+   36,000자는 시트 셀 한도(50,000)에도 여유가 있다. ★셋 중 하나만 손으로 고치지 말 것. */
+var PICK_MAX = 400;                                  // 한 번에 고를 수 있는 컷
+var PICK_NAME_CAP = 40;                              // 파일명 표시 상한(진짜 신원은 ID)
+var PICK_TEXT_CAP = PICK_MAX * (PICK_NAME_CAP + 50); // = 36,000 · 항목 = 이름 + '(' + ID 44 + ')' + ', '
+
 // [05-②] 고객 사진 선택 제출(A안: 번호/파일명 텍스트). 단계 전이 없음.
 function handleSubmitResultSelection(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -1053,11 +1065,11 @@ function handleSubmitResultSelection(body) {
     for (var _gi = 0; _gi < picksRaw.length; _gi++) {
       var _gp = picksRaw[_gi] || {};
       var _gid = String(_gp.id || '').replace(/[^A-Za-z0-9_-]/g, ''); if (!_gid || _gSeen[_gid]) continue; _gSeen[_gid] = 1;
-      var _gnm = String(_gp.name || '').replace(/[(),]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+      var _gnm = String(_gp.name || '').replace(/[(),]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, PICK_NAME_CAP);
       _gOut.push((_gnm || '파일') + '(' + _gid + ')');
       // [PICK_NO_SILENT 2026-08-15 적대검증 2바퀴 7-1] 상한 초과 = 거부. 종전엔 루프가 400에서
       //   말없이 멈춰 401번째부터 버려졌다(ok:true · 고객은 모름). 자를 바에 거부가 정직하다.
-      if (_gOut.length > 400) return { ok: false, error: '한 번에 400컷까지 제출할 수 있어요. 선택을 400컷 안으로 줄여 주시거나, 디렉터에게 문의해 주세요.' };
+      if (_gOut.length > PICK_MAX) return { ok: false, error: '한 번에 ' + PICK_MAX + '컷까지 제출할 수 있어요. 선택을 ' + PICK_MAX + '컷 안으로 줄여 주시거나, 디렉터에게 문의해 주세요.' };
     }
     if (!_gOut.length) return { ok: false, error: '고르신 컷을 선택해 주세요.' };
     picksRaw = _gOut.join(', ');
@@ -1065,9 +1077,8 @@ function handleSubmitResultSelection(body) {
   var picks = String(picksRaw || '').trim();
   if (!picks) return { ok: false, error: '고르신 컷을 입력해 주세요.' };
   // [PICK_NO_SILENT] 글자 상한도 거부로 — 종전 「8000자에서 자르기」는 한 항목 약 49자라 164개부터
-  //   무증상 유실이었다(선택수는 자른 뒤 계산 · 꼬리 ID 반토막 · 관리자 알림도 잘린 수). 20,000자는
-  //   400항목 × 평균 49자(약 19,600)를 수용하는 값 — 정상 제출은 여기 안 걸리고, 걸리면 자르지 않고 알린다.
-  if (picks.length > 20000) return { ok: false, error: '선택 목록이 너무 길어요. 목록을 나눠 제출하시거나 디렉터에게 문의해 주세요.' };
+  //   무증상 유실이었다(선택수는 자른 뒤 계산 · 꼬리 ID 반토막 · 관리자 알림도 잘린 수).
+  if (picks.length > PICK_TEXT_CAP) return { ok: false, error: '선택 목록이 너무 길어요. 목록을 나눠 제출하시거나 디렉터에게 문의해 주세요.' };
   // [PICK_NORMALIZE 2026-07-25] 서버 방어층 — 프론트 캐논과 동일 최소 파이프(분리·trim·빈 제거·중복 제거(순서 유지)) · 선택수=고유 토큰 수.
   //   범위 전개("12-15")·프리픽스/확장자 제거·제로패딩은 프론트 전용(이중 구현 드리프트 방지 · 회의 A-1 명확화 1).
   var _pkT = picks.split(/[\s,;·，、]+/), _pkOut = [], _pkSeen = {};

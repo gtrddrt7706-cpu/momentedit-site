@@ -125,6 +125,19 @@ for (const [t, mk] of Object.entries(TRACKS)) {
     ? ok('④ 401컷 = 거부(자르지 않음)') : no('④ 401컷이 ok — 조용한 손실 재발 [RT_PICKS]: ' + JSON.stringify(r401).slice(0, 90));
   (Number(wRef.C['선택수']) === 200)
     ? ok('  거부 후 셀 불변(선택수 200 유지)') : no('④ 거부인데 셀이 변함(부분 기록): ' + wRef.C['선택수']);
+  /* [PICK_CAP_PAIR] 3바퀴 9-3 회귀 — 「400개 상한」은 파일명이 길어도 400장이어야 한다.
+     종전 손계산(20,000자)은 이름 12자일 때만 400을 채웠다(28자면 300에서 막다른 길). */
+  for (const nameLen of [12, 28, 45, 80]) {
+    wRef.C['결과물상태'] = '';
+    const big = Array.from({ length: 400 }, (_, i) =>
+      ({ id: '1AbCdEfGhIjKlMnOpQrStUvWxYz' + String(100000 + i), name: 'x'.repeat(Math.max(1, nameLen - 4)) + '.jpg' }));
+    const rr = G.handleSubmitResultSelection({ token: 't', picks: big });
+    (rr && rr.ok && rr['선택수'] === 400)
+      ? ok(`④ 파일명 ${nameLen}자 × 400장 통과 [PICK_CAP_PAIR]`)
+      : no(`④ 파일명 ${nameLen}자에서 400장이 막힘(상한 짝 어긋남) [PICK_CAP_PAIR]: ` + JSON.stringify(rr).slice(0, 90));
+  }
+  wRef.C['결과물상태'] = '';
+  G.handleSubmitResultSelection({ token: 't', picks: mkPicks(200) });   // 뒤 검사를 위해 상태 되돌림
   const rq = G.handleRequestExtraRetouch({ token: 't', qty: 12 });
   (rq && rq.ok && rq.qty === 12)
     ? ok('④ 추가 보정 12컷 신청 = 수량 그대로') : no('④ 추가 보정 수량 왜곡 [RT_PICKS]: ' + JSON.stringify(rq).slice(0, 80));
@@ -133,5 +146,23 @@ for (const [t, mk] of Object.entries(TRACKS)) {
     ? ok('④ 추가 보정 501컷 = 거부(수량 무언 절단 금지)') : no('④ 501컷 신청이 ok — 수량이 조용히 잘림 [RT_PICKS]: ' + JSON.stringify(rq501).slice(0, 80));
 }
 
-console.log(bad ? `\n실패 ${bad}건` : '\n왕복 전부 무손실 (전 트랙 · 전 핸들러 동의기록 · review 원문 · 컬럼 가드 · 컷 제출)');
+/* ── ⑤ 예약 시트 왕복 [WORLD_BOOKING] — 3바퀴 9-2 회귀 가드.
+      전엔 모의 세계가 Customers 헤더 하나를 두 시트에 다 줘서, 예약 시트 쓰기가 통째로
+      사라져도 검사는 초록이었다. 환불계좌는 '돈이 흘러갈 주소'라 여기서 못 잡으면 안 된다. ── */
+{
+  const w4 = world({ 현재단계: '취소', 개인코드: 'ME-TEST', 동의기록: '{}' },
+    { 개인코드: 'ME-TEST', 상태: '취소', 환불계좌: '' });
+  const row4 = G.findCustomerByCode('ME-TEST');
+  G.resolveSession = () => ({ ok: true, row: row4 });
+  const ACCT = '국민 123456-78-901234 김희준';
+  const r = G.handleSaveRefundAccount({ token: 't', acct: ACCT });
+  (r && r.ok) ? ok('⑤ 환불계좌 저장 ok') : no('⑤ 환불계좌 저장 실패: ' + JSON.stringify(r).slice(0, 90));
+  (w4.B && w4.B['환불계좌'] === ACCT)
+    ? ok('  예약 시트에 원문 그대로 [WORLD_BOOKING]')
+    : no('⑤ 예약 시트에 안 써짐(무증상 유실!) [WORLD_BOOKING]: ' + JSON.stringify(w4.B && w4.B['환불계좌']));
+  (w4.writes().some((e) => e.t === 'writeB' && e.h === '환불계좌'))
+    ? ok('  쓰기 이벤트가 예약 시트로 갔다') : no('⑤ 예약 시트 쓰기 이벤트 없음 [WORLD_BOOKING]');
+}
+
+console.log(bad ? `\n실패 ${bad}건` : '\n왕복 전부 무손실 (전 트랙 · 전 핸들러 동의기록 · review 원문 · 컬럼 가드 · 컷 제출 · 예약 시트)');
 process.exit(bad ? 1 : 0);

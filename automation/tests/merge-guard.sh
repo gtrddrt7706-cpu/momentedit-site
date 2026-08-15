@@ -3333,6 +3333,11 @@ chk 'ADV_CLOSED' docs/plans/대본개정/62_적대적점검.md 1
 # [ADV_ROUND2 2026-08-15] 2바퀴 — 돌연변이 0 · 실버그 1건(컷 제출 8000자 vs 400개 캡 불일치)
 #   7-1 은 같은 날 [PICK_NO_SILENT] 로 수리됨 — 문서(§7·§8)가 사라지면 근거가 사라진다.
 chk 'ADV_ROUND2' docs/plans/대본개정/62_적대적점검.md 1
+# [ADV_ROUND3 2026-08-15] 3바퀴 — 시드 3/4 · 새 구멍 2건(둘 다 **아직 안 고침**)
+#   9-2 모의 세계가 예약 시트 컬럼 32개를 모른다(WORLD_DROPCOL 의 쌍둥이)
+#   9-3 400 캡 vs 20,000자 캡이 여전히 짝이 아니다 — 이름 28자면 333장에서 막힌다
+chk 'ADV_ROUND3' docs/plans/대본개정/62_적대적점검.md 1
+chk 'WORLD_BOOKING' docs/plans/대본개정/62_적대적점검.md 1
 chk '400개 캡과 세트' docs/plans/대본개정/62_적대적점검.md 1
 # [PICK_NO_SILENT 2026-08-15] 7-1 수리 — 상한(컷 400 · 20,000자 · 추가보정 500)은 자르지 않고 거부.
 #   절단 코드 모양이 되살아나면 164개부터 무증상 유실로 돌아간다(nochk 는 그 코드 모양을 겨눈다).
@@ -3341,3 +3346,23 @@ chk 'PICK_NO_SILENT' mypage.html 1
 chk 'RT_PICKS' scripts/audit/data-roundtrip.mjs 6
 nochk 'picks.slice(0, 8000)' automation/platform/80_production.gs
 nochk 'qty = 500' automation/platform/80_production.gs
+# [MP_LOCK_EVEN 2026-08-15] 마이페이지 NEXT 자물쇠 = 전 행 같은 톤(원근은 글자 색 계단이 낸다).
+#   자물쇠에 opacity 계단을 다시 실으면 먼 행이 2.21:1 로 떨어져 '고르지 않다'로 읽힌다.
+chk 'MP_LOCK_EVEN' mypage.html 1
+nochk 'nx-far .lock{opacity' mypage.html
+# [GUEST_PC_FOOT 2026-08-15] PC 진행 콘솔 — 다음·그다음 레일을 카드 아랫변에 맞춰 세운다.
+chk 'GUEST_PC_FOOT' console.html 1
+chk 'align-self:end' console.html 1
+# [GUEST_PAUSE 2026-08-15] 미리듣기 멈춤·이어듣기 — 그 자리에 서고 그 지점부터 잇는다.
+#   '길게 눌러 전체 정지'와 다른 문이다(그건 끝내는 문). 지우면 미리듣기에 멈출 자리가 없어진다.
+chk 'GUEST_PAUSE' console.html 6
+chk 'gPause' console.html 3
+# [ADV_ROUND3 2026-08-15] 3바퀴 — 시드 3/4 · 새 구멍 2건(둘 다 같은 날 메움)
+#   9-3 → [PICK_CAP_PAIR] 상한을 곱셈으로 묶음 · 9-2 → [WORLD_BOOKING] 시트마다 제 헤더
+chk 'ADV_ROUND3' docs/plans/대본개정/62_적대적점검.md 1
+chk 'PICK_CAP_PAIR' automation/platform/80_production.gs 1
+chk 'PICK_CAP_PAIR' scripts/audit/data-roundtrip.mjs 3
+chk 'PICK_TEXT_CAP' automation/platform/80_production.gs 2
+nochk 'picks.length > 20000' automation/platform/80_production.gs
+chk 'WORLD_BOOKING' scripts/audit/_gasworld.mjs 3
+chk 'WORLD_BOOKING' scripts/audit/data-roundtrip.mjs 4
