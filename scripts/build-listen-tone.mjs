@@ -25,12 +25,16 @@
 // ★소리는 올리지 않는다 — 44MB 다. 화면이 **폴더를 고르게** 한다(webkitdirectory · 업로드 없음).
 //   파일은 브라우저 안에서만 열리고 아무데도 안 나간다.
 //
-// ★[USE_EXISTING 철회 2026-08-15] 「신랑 신부, 입장!」도 **새 더빙을 쓴다.**
-//   같은 날 지시가 두 번 왔고 뒤엣것이 최종이다 — 둘 다 남겨 둔다(어느 쪽이 최신인지 알아야 한다):
-//     ① 오전: *"신랑 신부, 입장! 이멘트는 기존에있는걸 사용 하고 나머지는 적용"*  → 12자리 잠금
-//     ② ★뒤: *"신랑 신부, 입장! 이거 왜 기존음성으로 입히지 다시 바꿔죠"*        → 잠금 해제(지금)
-//   그래서 186문장 **전부** 판정 대상이다. 잠그는 코드를 되살리지 말 것 —
-//   되살리려면 사용자가 ③번째 지시를 준 뒤여야 한다.
+// ★[USE_EXISTING 2026-08-15] 「신랑 신부, 입장!」 12자리는 **기존 녹음을 쓴다**
+//   지시가 세 번 왔고 내가 두 번째를 반대로 읽었다. 셋 다 남긴다:
+//     ① *"신랑 신부, 입장! 이멘트는 기존에있는걸 사용 하고 나머지는 적용"*
+//     ② *"이거 왜 기존음성으로 입히지 다시 바꿔죠"*  ← 내가 「새것으로 바꿔라」로 읽고 잠금을 풀었다. 틀렸다.
+//     ③ *"신랑신부 입장 이멘트만 기존꺼 쓰는건데 이해한거야 근데 아직도 그대로인데?"*
+//   ②는 **「왜 기존 음성이 안 입혀지느냐」**는 물음이었다. 화면엔 「기존 녹음을 씁니다」라 적어 두고
+//   «듣기»를 누르면 새 더빙이 났기 때문이다 — 말과 소리가 달랐으니 사용자 눈에는 안 바뀐 것이 맞다.
+//   ★그래서 잠그는 것만으로는 부족하다. **그 자리에서 기존 소리가 실제로 나야** 한다.
+//   `extract-existing-sent.mjs` 가 05~10_entry-A~F 에서 그 문장을 잘라내고, 여기서 그것을 심는다.
+//   entry-A-* 는 05_entry-A 에서, entry-B-* 는 06_entry-B 에서 — **같은 결의 take** 를 쓴다.
 //
 // ★종료 코드 [CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함(ffprobe 없음)
 import fs from 'node:fs';
@@ -58,7 +62,7 @@ const voices = lines.map((l) => (l.match(/^([^:]*):/) || [, '우성'])[1].trim()
 const ORDER = JSON.parse(fs.readFileSync(ORDERP, 'utf8'));
 if (ORDER.총문장 !== sents.length) no(`순서.json(${ORDER.총문장})과 붙여넣기(${sents.length})가 어긋난다`);
 
-const USE_EXISTING = null;   // ★철회됨(위 머리말) — null 이면 잠기는 자리가 없다
+const USE_EXISTING = '신랑 신부, 입장!';   // [USE_EXISTING] 이 문장은 기존 녹음을 쓴다(위 머리말)
 
 /* ── 소리 실측 — 있으면 우선 청취 표시에 쓴다(없어도 화면은 나온다) ─────────── */
 const meas = {};
@@ -137,6 +141,13 @@ const flagged = clips.flatMap((c) => c.idx).filter((i) => flagOf(i) && sents[i] 
    ★견줄 기존 클립도 넣는다 — "옛것과 견주라" 해 놓고 옛것을 사람이 찾게 하면 안 지켜진다.
    ★저장소에는 안 담는다 [EMBED_OUTSIDE] — `--embed <경로>` 로 **밖에** 쓴다.
      커밋되는 것은 종전대로 가벼운 판뿐이고, 그래서 STAGE_ABSENT 대조와 부딪히지 않는다. */
+/* 어느 기존 클립에서 잘라 올 것인가 — entry-A-* 는 05_entry-A 에서(같은 결의 take) */
+const EXFROM = (slug) => {
+  const m = /^entry-([A-F])\b/.exec(slug); if (!m) return '';
+  const no = { A: '05', B: '06', C: '07', D: '08', E: '09', F: '10' }[m[1]];
+  return `${no}_entry-${m[1]}`;
+};
+
 const EMBEDAT = (() => { const i = process.argv.indexOf('--embed'); return i >= 0 ? process.argv[i + 1] : ''; })();
 const B64 = {}; const OLDB64 = {};
 if (EMBEDAT) {
@@ -151,6 +162,21 @@ if (EMBEDAT) {
   const ff = {};
   for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = f; }
   for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), i, B64);
+  /* ★잠긴 자리는 **잘라낸 기존 소리**로 갈아 끼운다 — 이게 빠져서 「아직도 그대로」였다 */
+  let cut = 0;
+  clips.forEach((c) => {
+    const from = EXFROM(c.slug); if (!from) return;
+    c.idx.forEach((i) => {
+      if (sents[i] !== USE_EXISTING) return;
+      const o = path.join(tmp, `ex_${i}.mp3`);
+      const r = spawnSync('node', [path.join(ROOT, 'scripts/extract-existing-sent.mjs'),
+        '--clip', from, '--sent', USE_EXISTING, '--out', o], { encoding: 'utf8' });
+      if (r.status !== 0 || !fs.existsSync(o)) { no(`기존 소리 잘라내기 실패: ${c.slug} ← ${from}`); return; }
+      B64[i] = fs.readFileSync(o).toString('base64');   // 새 더빙 자리를 덮는다
+      cut++;
+    });
+  });
+  if (cut) console.log(`  [USE_EXISTING] 잠긴 ${cut}자리에 기존 녹음을 잘라 심었다`);
   const olds = new Set();
   clips.forEach((c) => c.idx.forEach((i) => { const m = /기존에도 있음 · (\S+)/.exec(flagOf(i) || ''); if (m) olds.add(m[1]); }));
   for (const o of olds) {
