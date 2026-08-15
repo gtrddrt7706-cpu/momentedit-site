@@ -3277,3 +3277,16 @@ chk 'MP_TAP44' mypage.html 2
 # [SV_NOW_HONEST] 후기 NOW 의 시간 약속('잠깐이면') 금지 — 11문항 앞에서 거짓 안심이 된다(2026-07-15 규칙)
 chk 'SV_NOW_HONEST' mypage.html 1
 nochk '잠깐이면 끝나요' mypage.html
+# [SV_MISS_AT 2026-08-15 실클릭 점검] 빈 제출 안내가 스크롤 도착 화면 밖(top 1133/vh 844)이었다 —
+#   그 문항 바로 위에 인라인 안내를 세운다(실측 top 392 · 칩 고르면 걷힘). 되돌리면 안내가 다시 안 보인다
+chk 'SV_MISS_AT' mypage.html 3
+chk 'srv-miss-note' mypage.html 4
+# [SIG_FOCUS · ADV_FOCUS 2026-08-15 실클릭 점검] 서명 모달·상담 패널이 열릴 때 포커스가 판 안으로.
+#   서명 모달의 Esc·바깥클릭 닫기 부재는 의도(그리던 서명 보호) — '비일관 정리'로 달지 말 것
+chk 'SIG_FOCUS' mypage.html 1
+chk 'ADV_FOCUS' assets/advisor-widget.js 1
+# [WIZ_BASE_AFTER 2026-08-15 실클릭 점검] inv·trk 기준선은 첫 렌더 **뒤** — 앞이면 프리필이 전부 '변경'이 되어
+#   갓 열고 안 건드려도 나가기 판이 뜬다(실사고 · 좌석/사진/스냅은 모델 기반이라 무사)
+chk 'WIZ_BASE_AFTER' mypage.html 2
+# [WIZ_SAVE_AA] '저장됨' 은 opacity 흐림(2.31:1)이 아니라 색(--light 4.74:1)으로
+chk 'WIZ_SAVE_AA' mypage.html 1
