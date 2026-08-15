@@ -3257,3 +3257,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'PALETTE_MISSING' scripts/audit/ritual-order-sim.mjs 1
 chk 'REHEARSE_GONE' scripts/audit/order-audio-check.mjs 1
+# [HINT_RETIRED] preview-entry 가 폐지된 「미리듣기 아래 한 줄」을 요구하다 사흘 붉었다.
+#   이제 그 자리가 비어 있는지를(단추 셋 한 덩어리) 본다 — 멘트를 되살리면 그 검사가 붉어진다.
+chk 'HINT_RETIRED' scripts/audit/preview-entry.mjs 1
+chk 'DONE_TAIL_QUIET' order-preview.html 1

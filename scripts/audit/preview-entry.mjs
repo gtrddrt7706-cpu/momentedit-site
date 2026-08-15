@@ -103,18 +103,26 @@ try {
           .filter((x) => /openRitualPreview/.test(x.getAttribute('onclick') || ''))[0];   // [LABEL_FREE] 글자가 아니라 구조로 찾는다
         if (!b) return null;
         const r = b.getBoundingClientRect();
-        return { w: r.width, right: r.right, vw: window.innerWidth, label: b.textContent.trim(), hint: (b.nextElementSibling || {}).textContent || '' };
+        const sib = (b.nextElementSibling || {});
+        return { w: r.width, right: r.right, vw: window.innerWidth, label: b.textContent.trim(),
+          sibTag: sib.tagName || '', sibCls: sib.className || '' };
       });
       ok(!!btn, `완성 화면에 미리듣기 버튼이 선다${btn && btn.label ? ' — 라벨 「' + btn.label + '」' : ''}`);
       if (btn) {
         ok(btn.w > 0 && btn.right <= btn.vw + 0.5, '버튼이 화면 폭 안에 들어온다', btn ? `right=${btn.right} vw=${btn.vw}` : '');
-        /* ★[HINT_LOOSE 2026-08-03] 예전엔 「소리로 들어봐요」를 글자 그대로 찾았다. 그 사이
-           order-preview.html 의 문구가 「고른 순서 그대로 흐름을 들어봐요」로 다듬어졌고
-           (f61bff5 · ORD_LEAN), 화면은 멀쩡한데 검사만 낡은 문장을 지키다 빨간불을 켰다.
-           문안은 앞으로도 다듬어진다 — 검사가 지켜야 할 규칙은 '이 문장'이 아니라
-           **버튼 아래에 듣는다는 한 줄이 붙어 있다**는 것이다. 그것만 본다. */
-        ok(btn.hint.trim().length > 0 && /들어|듣/.test(btn.hint),
-          '버튼 아래 한 줄 안내가 붙는다(문안은 자유 · 듣는다는 말만 있으면 된다)', btn.hint.slice(0, 40));
+        /* ★★[HINT_RETIRED 2026-08-15 점검] 여기서 「버튼 아래 듣는다는 한 줄」을 요구했다.
+             그 한 줄은 **2026-08-12 사용자 지시로 삭제됐다** — d42d1d70 [DONE_TAIL_QUIET]
+             *"이멘트삭제하고 위로 버튼세개 조화롭게 붙이기"* · 커밋이 「되살리지 말 것」이라 적어 뒀다.
+             그래서 이 검사는 그날부터 **사흘 내내 빨갰다**. 화면이 옳고 검사가 틀린 쪽이다.
+           ★HINT_LOOSE(2026-08-03) 주석이 남긴 교훈을 한 겹 더 밀어야 했다:
+             그때는 「이 문장」 대신 「듣는다는 한 줄」을 지키게 바꿨는데, 그 한 줄 자체가 폐지 대상이었다.
+             문안이 다듬어지는 것만 대비했지, **그 자리가 통째로 없어지는 것**은 대비하지 못했다.
+           ★그래서 지금 지킬 것은 그 자리에 무엇이 붙어 있느냐가 아니라,
+             단추 셋이 **한 덩어리로 남아 있느냐**다(DONE_ACTS — "사이에 아무것도 끼우지 말 것").
+             힌트를 되살리면 이 검사가 붉어진다 — 폐지 지시가 검사로 지켜진다. */
+        ok(/rehearse-btn|copy-btn/.test(btn.sibCls) || btn.sibTag === '',
+          '미리듣기 다음이 곧 대본 단추다 — 사이에 멘트가 끼지 않았다 [DONE_ACTS]',
+          `다음 형제=${btn.sibTag || '(없음)'}.${btn.sibCls || ''}`);
       }
 
       await page.evaluate(() => {
