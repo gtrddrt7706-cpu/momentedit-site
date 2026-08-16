@@ -4067,3 +4067,4 @@ chk 'WISH_DEL_ASK' mypage.html 1
 chk '이 요청을 뺄까요' mypage.html 1
 
 
+
