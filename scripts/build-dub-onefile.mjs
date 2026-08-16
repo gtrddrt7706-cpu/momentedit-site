@@ -105,10 +105,20 @@ if (!groups.length && !bad) no('합칠 것이 하나도 없다');
      원천이 달라진 것은 «틀림»이 아니라 «알림»으로 적는다.
      새로 생긴 재더빙은 이 합본이 아니라 `재더빙_붙여넣기.txt` 가 나른다(그쪽은 번호 계약이 없다).
    ★언젠가 다시 합쳐 받을 때는 `_dub_stage` 를 비우고 --write 하면 된다. 그때는 계약이 새로 맺어진다. */
+/* ★[DUB_FROZEN_FILE 2026-08-16 CC] 계약을 **저장소에 적는다.**
+   _dub_stage 로만 판정하면 소리를 가진 기계에서만 계약이 서고, 소리가 없는 곳(CI·다른 세션)은
+   「생성물이 다르다」로 붉는다 — 코워크가 [STAGE_ABSENT] 로 고친 것과 똑같은 병이다.
+   커밋된 더빙_번호계약.json 이 있으면 그것이 정본이고, 없으면 종전대로 _dub_stage 로 본다. */
 const FROZEN = (() => {
   try {
     const cur = fs.readFileSync(path.join(DIR, '더빙_한번에.txt'), 'utf8').split('\n').filter((l) => l.trim()).length;
-    if (!cur || !fs.existsSync(STAGE_DIR)) return 0;
+    if (!cur) return 0;
+    const lock = path.join(DIR, '더빙_번호계약.json');
+    if (fs.existsSync(lock)) {
+      const n = Number(JSON.parse(fs.readFileSync(lock, 'utf8')).frozen) || 0;
+      return n === cur ? cur : 0;          // 계약 수와 커밋본이 어긋나면 계약이 깨진 것이라 세우지 않는다
+    }
+    if (!fs.existsSync(STAGE_DIR)) return 0;
     const got = fs.readdirSync(STAGE_DIR).filter((f) => /^audio_\d+_/.test(f)).length;
     return got >= cur ? cur : 0;
   } catch (e) { return 0; }

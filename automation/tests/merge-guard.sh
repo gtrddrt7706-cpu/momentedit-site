@@ -3568,3 +3568,12 @@ chk '디지털 참석 페이지' index.html 1                     # 제3조⑥ �
 # [PRICE_STAGE_TABLE 2026-08-16] 계약서 단계별 지급 표가 총액과 따로 놀지 않게(평일 열이 240만이었다)
 chk 'PRICE_STAGE_TABLE' scripts/check-price-sync.mjs 1
 nochk '<td data-label="평일">240,000원</td>' contract/v1-1.html
+# [TERM_VIDEO 2026-08-16] 화면 용어는 「예식 영상」이다 — 「본식 영상」은 2026-07-25 사용자 지시로
+#   폐기(§6-B 표준 용어 G10). 계약서는 법률 문서라 「본식영상(편집본)」을 그대로 두고, 화면만 통일한다.
+#   ★되살리지 말 것 — 계약서와 다르다는 이유로 화면을 되돌리면 폐기 지시를 뒤집는 것이 된다.
+chk '예식 영상' index.html 8
+nochk '본식영상' index.html
+# [DUB_FROZEN_FILE 2026-08-16] 번호 계약은 저장소에 적는다(_dub_stage 는 gitignore 라 그것만 보면
+#   소리 가진 기계에서만 초록이 되고 CI 는 붉는다 · [STAGE_ABSENT] 와 같은 병).
+chk 'DUB_FROZEN_FILE' scripts/build-dub-onefile.mjs 1
+chk 'frozen' "docs/plans/식순연구/타입캐스트/더빙_번호계약.json" 1
