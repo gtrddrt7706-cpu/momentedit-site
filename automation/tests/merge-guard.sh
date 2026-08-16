@@ -3801,4 +3801,10 @@ chk 'PHOTO_WISH' automation/platform/80_production.gs 2
 chk 'body.draft.photoWish = _pw' automation/platform/80_production.gs 1
 chk 'photoWish' admin.html 1                     # 관리자 화면이 요청을 읽는다
 # [PHOTO_WISH] 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체된다 — 통과 목록에서 빠지면 요청이 조용히 지워진다
-chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1
+chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1# ★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정 "우리를 안거치고 부부한테 바로가는걸원해"]
+#   하객 사진은 우리를 거치지 않는다. 리뷰가 「우리 안내 페이지에서 직접 받자」를 개선안으로 되살리지 못하게 막는다.
+#   (조사: 구글 드라이브·폼은 로그인 없이 업로드 불가 → 우리가 받으려면 GAS 업로드 배관이 필요한데 그 길을 안 간다)
+chk 'PHOTOSHARE_DIRECT' mypage.html 1
+# [PHOTOSHARE_ONE] 선택지 하나(구글 포토 공유 앨범) — 카톡은 사진을 압축해 사진이 상품인 우리와 안 맞는다
+chk 'PHOTOSHARE_ONE' mypage.html 2
+chk '「공동작업」을 켜 주셔야' mypage.html 1
