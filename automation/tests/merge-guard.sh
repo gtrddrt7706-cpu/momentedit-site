@@ -3821,3 +3821,9 @@ chk 'SEAT_TRUTH_ONE' mypage.html 2
 chk 'CF_GATE_SERVER' mypage.html 1
 chk 'SEAT_NAME_PENDING' mypage.html 2
 nochk '0명 배치' mypage.html                      # [SEAT_NAME_PENDING] 테이블만 놓은 상태를 '0명 배치'로 부르지 않는다
+# ★[FIN_DRINK_NOALC 2026-08-16 재점검] 알콜이 한 자리도 없으면 대표음료는 **논알콜**이다.
+#   1차안(`SEAT_DRINK_LABEL[code||'C']`)은 전원 논알콜 예식에도 「샴페인」을 관리자 메일·화면에 보냈다 —
+#   화면 글자가 아니라 당일 준비물이 틀어지는 자리다. 되돌리지 말 것.
+chk 'FIN_DRINK_NOALC' mypage.html 1
+chk "hasN?'N':'C'" mypage.html 1
+chk 'FIN_SAVE_LOUD' mypage.html 2

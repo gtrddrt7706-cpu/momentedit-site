@@ -6881,7 +6881,8 @@ function _seatFinHeal(p){
        ★기존 키를 전부 복사한 **뒤에** 붙인다(키 순서가 달라지면 확정이 풀린다). 값이 있으면 손대지 않는다. */
     if(!String(nf.drink||'').trim()) nf.drink=_finDrinkFrom(sd.tables);
     apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:nf, done:true})
-      .then(function(r){ if(r&&r.ok) _mpRefresh(); }).catch(function(){});
+      .then(function(r){ if(r&&r.ok){ _mpRefresh(); return; } try{ console.warn('[final] 복구 저장 실패:', (r&&r.error)||'응답 없음'); }catch(e){} })   // [FIN_SAVE_LOUD]
+      .catch(function(e){ try{ console.warn('[final] 복구 저장 예외:', e); }catch(_e){} });
   }catch(e){}
 }
 function wireProdConfirm(box, p){
@@ -7027,14 +7028,28 @@ function _seatFeeHtml(n){
        확정이 풀린다(시뮬레이션으로 확인된 함정)
      ③알콜을 아직 아무 자리도 안 골랐으면 기본은 샴페인 — 자리 기본값(_seatDrinkDefault)과 같은 쪽이다
    ★GAS :409 를 지우는 쪽이 더 근본이지만 재배포가 필요하다. 이 줄은 오늘 바로 닿는다. */
+/* ★★[FIN_DRINK_NOALC 2026-08-16 재점검에서 잡음] 알콜이 한 자리도 없으면 **논알콜로 적는다.**
+   1차안은 `SEAT_DRINK_LABEL[code||'C']` 였다 — 전원 논알콜(또는 유아 물)인 예식에도 「샴페인」이 적히고,
+   그 값이 그대로 관리자 최종확정 메일(80_production.gs:656 `_f.drink`)과 관리자 화면으로 간다.
+   화면 글자가 아니라 **당일 준비물이 틀어지는** 자리다 — 안 드시는 자리에 술을 세팅하게 된다.
+   ★서버도 이 값으로 갈린다: `String(fdr.drink||'').indexOf('논알콜')===0` 이면 논알콜 잔 수(softCount)를 비운다.
+   ★자리가 아무 음료도 없을 때만 샴페인으로 떨어진다(자리 기본값 _seatDrinkDefault 와 같은 쪽).
+   ★이미 저장된 값은 **절대 덮지 않는다**(윗줄 호출부) — 덮으면 확정이 풀린다. 옛 값이 지금 자리와 달라도
+     고객 화면은 [SEAT_TRUTH_ONE]이 자리에서 세어 보여 주고, 스태프 A4 도 자리별 색점을 쓴다. */
 function _finDrinkFrom(tables){
-  var code=''; ((tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(!code && (v==='C'||v==='R')) code=v; }); });
-  return SEAT_DRINK_LABEL[code||'C'];
+  var code='', hasN=false;
+  ((tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(!code && (v==='C'||v==='R')) code=v; if(v==='N') hasN=true; }); });
+  return SEAT_DRINK_LABEL[code || (hasN?'N':'C')];
 }
 function _seatFinSave(){ try{ if(!SEATFLOW) return Promise.resolve(null); var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
   if(n){ fd.headcount=String(n); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; }
   if(n && !String(fd.drink||'').trim()) fd.drink=_finDrinkFrom(SEATFLOW.tables);   // [FIN_DRINK_FILL] 비었을 때만 · 마지막 키로
-  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
+  /* ★[FIN_SAVE_LOUD] 이 저장은 인원·추가요금(돈)의 유일한 기록인데, 실패가 완전히 조용했다 —
+     그래서 이번 사고가 3주를 살았다. 고객 화면을 어지럽히지 않되 **흔적은 남긴다**(콘솔 · 개발자 도구).
+     화면 쪽 안전망은 따로 있다: [SEAT_TRUTH_ONE] 표시 · [SEAT_FIN_HEAL] 다음 진입 때 재시도. */
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0})
+    .then(function(r){ if(!r||r.ok===false){ try{ console.warn('[final] 인원 파생 저장 실패:', (r&&r.error)||'응답 없음'); }catch(e){} } return r; })
+    .catch(function(e){ try{ console.warn('[final] 인원 파생 저장 예외:', e); }catch(_e){} return null; }); }catch(e){ return Promise.resolve(null); } }
 // TRK_NO_SUB: 좌석 화면 상단 안내 한 줄 — 기한(예식 N일 전·임박 시 D-n)과 좌석 안내 링크 생성을 여기서 알린다(목록 행에서 이관).
 function _seatLeadNote(){
   try{
