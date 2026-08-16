@@ -1796,6 +1796,29 @@ section:not(#rsvp) > *:last-child {
   position: relative;
   transition: transform 0.45s var(--ease);
 }
+/* [CORE_PRICE_LINK] 핵심 구성 카드 안의 금액 링크 — 가격 섹션으로 가는 조용한 입구.
+   ★골드를 한 색으로만 쓴다(--gold-text). 글자와 밑줄에 --gold(2.54:1)와 --gold-text 를
+     섞으면 위계로 안 읽히고 색 오류처럼 보인다(FAQ '+6' 사례와 같은 이유).
+   ★호버는 --seal(10.14:1). --gold 로 밝히면 호버하는 순간 AA 미달로 떨어진다.
+   ★padding 으로 탭 타깃을 벌리고 margin 으로 되받아 글줄 리듬은 유지한다([CTA_TYPE_QUIET] 논리). */
+/* ★밑줄은 border 가 아니라 text-decoration 이다. border-bottom 으로 그었더니 좁은 칸에서
+   링크가 두 줄로 접히면서 **밑줄이 카드 폭 전체를 가로지르는 줄**이 됐다(1180px 실렌더).
+   inline-block 의 테두리는 글자가 아니라 상자를 따라 그려진다. 밑줄은 글줄마다 따라붙어야 한다. */
+.core-price-link {
+  display: inline-block;
+  margin: 2px 0 -9px;
+  padding: 11px 0 9px;
+  color: var(--gold-text);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-text);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color 0.3s var(--ease), text-decoration-color 0.3s var(--ease);
+}
+.core-price-link:hover {
+  color: var(--seal);
+  text-decoration-color: var(--seal);
+}
 .feature:hover {
   transform: translateY(var(--hover-lift));
 }
@@ -5500,7 +5523,27 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <div class="feature">
       <div class="card-label">All Included</div>
       <div class="card-sub">미리 밝히고 시작합니다</div>
-      <p>촬영·예식·영상·청첩장이 한 견적입니다. <span class="mobile-br"></span>평일&nbsp;250만 원·주말&nbsp;330만 원, 그 밖은 미리 밝힙니다.</p>
+      <!-- ★★[CORE_PRICE_LINK 2026-08-16 사용자 결정 · 시안 A/B/C 중 B]
+           사용자 물음: *"금액을 먼저 드러내는 게 프리미엄 컨셉에 조금은 어긋난다고 생각하는데
+           … 우리 서비스는 이런 것까지 디테일하게 신경 쓴다 하고, 그렇지만 금액이 이 정도이다"*
+
+           **금액은 뺄 수 없다.** 이 카드 바로 위(700px 앞)가 THE REALITY 의 「Hidden Costs ·
+           견적에 없던 비용 · 계약 후에야 늘어나는 청구서」이고, 그 지적에 대한 즉답이 이 카드다.
+           여기서 숫자를 감추면 남의 불투명함을 지적해 놓고 우리 금액은 40% 더 스크롤해야 나오는
+           모양이 된다 — 프리미엄 손실보다 신뢰 손실이 크다(타깃은 웨딩홀 불투명함에 지친 분들이라
+           이른 숫자가 싸구려 신호가 아니라 안심 신호다).
+
+           **진짜 결함은 순서가 아니라 숫자가 혼자 서 있던 것이었다.** 실측 — 첫 금액 노출 16%
+           (4,004px/24,484px) · 포함·별도 표가 있는 가격 섹션 56%(13,724px). 둘을 잇는 링크가
+           하나도 없어서 "이게 값이다"로 끝나고 "더 자세히 적어 뒀다"로 이어지지 않았다.
+           링크 한 줄로 숫자의 성격을 **가격표 → 투명성의 증거 + 상세로 가는 입구**로 바꾼다.
+
+           ★「그 밖은 미리 밝힙니다」를 뺀 자리는 아래 본문 첫 줄이 받는다 — 약속만 하던 말이
+             '어디에 적혀 있는지'까지 말하게 됐다. merge-guard 마커도 같은 커밋에서 옮겼다.
+           ★숫자를 링크 안에 넣는 것이 핵심이다. 금액만 떼어 본문에 두고 'CTA만 링크'로 하면
+             숫자는 그대로 막다른 길로 남는다. -->
+      <p>촬영·예식·영상·청첩장이 한 견적입니다. <span class="mobile-br"></span>포함과 별도를 항목마다 적어 두었습니다.
+        <a class="core-price-link" href="#invest">평일&nbsp;250만 원·주말&nbsp;330만 원, 전부 보기</a></p>
     </div>
     <div class="feature">
       <div class="card-label">25 Guests, Yours Alone</div>
