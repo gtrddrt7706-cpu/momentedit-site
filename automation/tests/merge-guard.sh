@@ -3956,3 +3956,4 @@ chk '_dnFavSaved' mypage.html 6                    # 찜·공개 토글도 실�
 chk 'SAVE_FALSE_OK' scripts/audit/save-honesty.mjs 4
 chk 'apiTrackSave=fail' scripts/audit/save-honesty.mjs 1
 
+
