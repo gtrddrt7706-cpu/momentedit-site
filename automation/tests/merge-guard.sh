@@ -3654,6 +3654,26 @@ chk 'PHOTO_SCENE' mypage.html 5
 chk 'PHOTO_FX_LINK' mypage.html 3
 if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/dev/null \
   || { echo 'FAIL photo-scene: 단체 사진의 식순 연동 이름이 빌더 블록 이름과 다릅니다 — node scripts/check-photo-scene.mjs'; fail=1; }; fi
+
+# ── [RETIRED_SCENE] 폐지한 순서가 고객 화면·AI 지식에 남아 있나 (2026-08-16 · 코워크 요청 적대검증) ──
+# 코워크: *"폐지를 사방에 흩뿌렸다 … 한 군데라도 빠뜨렸으면 그 자리만 살아남는다.
+#   특히 mypage.html · admin.html · Admin.html · api/_ritual-kb.js 쪽은 내가 안 봤다."*
+# 실제로 둘 새어 있었다 —
+#   ① mypage `PHOTO_SCENE` 에 「와인 세리머니」·「케이크 커팅」·「축가」 (엔진은 valley 큐를 0개 낸다 · 실측)
+#   ② api/_ritual-kb.js 가 AI 상담사에게 와인·축가를 «고를 수 있는 순간»으로 알려 주고,
+#      D-14 준비 목록에서 「축가 부탁」까지 시키고 있었다(SONG_RETIRED 는 8/9 · 이레 동안).
+# ★옆의 check-photo-scene 은 이걸 못 본다 — 「이름이 파일에 있나」를 볼 뿐인데
+#   폐지 순서는 클립 번호 때문에 **일부러 파일에 남긴다**. 그래서 왼쪽을 「고를 수 있나」로 옮긴 검사를 따로 둔다.
+chk 'RETIRED_SCENE' scripts/check-retired-scene.mjs 2
+chk 'WINE_RETIRED' mypage.html 1
+chk 'WINE_RETIRED' api/_ritual-kb.js 3
+chk 'SONG_RETIRED' api/_ritual-kb.js 3
+chk '링 워밍 · 폐지' api/_ritual-kb.js 1     # 절 머리에도 폐지를 적는다 — 아래 POLICY 끝에만 있어 이 절만 읽으면 소개로 보였다
+nochk "{n:'와인 세리머니'" mypage.html        # ★되살리기 금지 — 고를 길이 없는 장면을 약속하게 된다
+nochk "{n:'축가',      " mypage.html
+nochk '축가 부탁' api/_ritual-kb.js           # ★없어진 순서를 «부탁하라»고 시키던 D-14 줄
+if command -v node >/dev/null 2>&1; then node scripts/check-retired-scene.mjs >/dev/null \
+  || { echo 'FAIL retired-scene: 폐지한 순서가 고객 화면이나 AI 지식에 살아 있습니다 — node scripts/check-retired-scene.mjs'; fail=1; }; fi
 # [MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문 "구글드라이브 주소를 주면되는거야?"] 무엇을 넣는지를 첫 줄에.
 #   주의 셋(접근범위·프로필·링크 수명)은 지운 게 아니라 접었다 — 문장이 사라지면 안 된다.
 chk 'MP_PHOTOSHARE_WHAT' mypage.html 1
