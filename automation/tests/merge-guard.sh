@@ -3930,3 +3930,15 @@ chk '+ 요청 적기' mypage.html 1
 # [WISH_LINK_ASKED 2026-08-16] 식순 연동 안내는 **적은 요청에 대해서만** — 묻지도 않은 것에 답하면 소음이고,
 #   정작 진짜로 걸리는 날 눈에 안 들어온다. 확인서 대조와 같은 기준(글자를 본다).
 chk 'WISH_LINK_ASKED' mypage.html 1
+# ★★[SAVE_FALSE_OK 2026-08-16 사용자 지시 "데이터 저장 비슷한경우 전수점검 · 버튼 하나하나"]
+#   저장이 실패했는데 화면이 성공이라고 말하지 않게 — 뿌리는 saveTrkDraft 가 거부를 삼켜
+#   **undefined** 를 돌려주던 것이었다. 받는 쪽 `if(r && r.ok===false)` 가 그 값을 통과시켜,
+#   다이닝·최종확정 '완료'가 저장 실패에도 위저드를 닫고 나갔다.
+#   ★빈 catch 로 되돌리지 말 것 · 'ok===false 가 아니면 성공' 극성으로 되돌리지 말 것.
+chk 'SAVE_FALSE_OK' mypage.html 7
+chk 'return {ok:false, error:' mypage.html 1       # saveTrkDraft 가 실패를 값으로 돌려준다(빈 catch 금지)
+nochk 'done:!!done})).catch(function(){});' mypage.html   # 거부를 삼켜 undefined 를 내보내던 첫 판
+chk '_dnFavSaved' mypage.html 6                    # 찜·공개 토글도 실패하면 되돌리고 말한다(정의 1 + 사용 5)
+# 실패를 주입해 **실제로 눌러 보는** 게이트 — 정적 읽기로는 'undefined 가 검사를 통과하는' 모양을 놓친다
+chk 'SAVE_FALSE_OK' scripts/audit/save-honesty.mjs 4
+chk 'apiTrackSave=fail' scripts/audit/save-honesty.mjs 1
