@@ -3530,3 +3530,10 @@ if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/de
 #   주의 셋(접근범위·프로필·링크 수명)은 지운 게 아니라 접었다 — 문장이 사라지면 안 된다.
 chk 'MP_PHOTOSHARE_WHAT' mypage.html 1
 chk '예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요' mypage.html 1
+# [PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 화면을 열 때 계산된다 —
+#   축배가 있을 때 「잔 부딪히기」를 골라 두고 나중에 식순에서 축배를 빼면, 화면을 다시 열지 않는 한
+#   어긋난 채로 당일을 맞는다. 확인서에서 한 번 더 대조한다(좌석 인원 대조와 같은 자리).
+#   ★판정 근거는 PHOTO_FX_CARDS 의 link 하나 — 조건을 손으로 또 적으면 화면과 확인서가 다른 말을 한다.
+chk 'PHOTO_FX_STALE' mypage.html 1
+chk 'c.link.when) <0' mypage.html 0                 # 손으로 적은 조건이 아니라 link 를 도는지(아래 줄이 진짜 판정)
+chk '_rf.indexOf(c.link.when)<0' mypage.html 1

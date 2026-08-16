@@ -6154,7 +6154,7 @@ function renderPhoto(box){
      상태는 위 「저장」 버튼이 스스로 말한다(저장/저장 중…/저장됨/다시 저장). 되살리지 말 것. */
   /* [PHOTO_GATHER_OFF] 「불러 모아요/자리에서」 두 갈래 설명을 걷어내고 **한 문장**으로.
      대신 순서가 왜 중요한지를 적는다 — 두 분은 가운데 그대로, 둘레 사람만 바뀐다(subtractive). */
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에, 모두 앞으로 모여 함께 담는 구도예요. 전체 하객이 늘 첫 컷이고, 그다음부터는 <b>고르신 순서대로</b> 이어져요. 두 분은 가운데 그대로 계시고 둘레 사람만 바뀌니, 큰 모임을 앞에 두시면 진행이 빨라요.</div>';   // MPD_E10 산재 노트 통합
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에, 함께 모여 담는 구도예요. 전체 하객이 늘 첫 컷이고, 그다음부터는 <b>고르신 순서대로</b> 이어져요. 두 분은 가운데 그대로 계시고 둘레 사람만 바뀌니, 큰 모임을 앞에 두시면 진행이 빨라요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객<span class="ph-sub">오신 분들 모두 · 늘 첫 컷이에요</span></span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -6178,18 +6178,30 @@ function renderPhoto(box){
   /* [PHOTO_SCENE] 식순에서 이어지는 장면 — 고르는 칸이 아니라 '이미 담기는 것'을 보여 주는 칸.
      식순 초안이 없으면(아직 안 정하셨거나 옛 초안) 한 줄만 남기고 목록은 그리지 않는다. */
   var _scn=photoSceneList(PHOTOFLOW.rd);
-  h+='<div class="ph-sec">식순에서 이어지는 장면 <span style="color:var(--label-soft);font-weight:400">· 고르지 않아도 담겨요</span></div>';
+  /* ★[PHOTO_SCENE_VOICE 2026-08-16 고객 관점 재검토] 문구를 두 군데 고쳤다.
+     ① 이름 — 「식순에서 이어지는 장면」은 *무엇에서 무엇으로* 이어지는지가 없어 추상적이었다.
+        「예식 순서에서 남는 사진」은 고객이 이 칸을 열고 실제로 묻는 말 그대로다.
+     ② ★안심의 근거를 붙였다(문구 규칙: 책임질 수 없는 안심 금지).
+        옛 안내는 「순서마다 남는 사진이에요」로 **결과를 보증**했다. 한 명의 작가가 도는 자리에서
+        특정 컷 목록을 보증으로 적으면, 한 장이 빠졌을 때 우리가 약속을 어긴 것이 된다.
+        「사진작가가 흐름 속에서 담아요」로 **누가·어떻게**를 적으면 같은 안심을 주면서 사실이 된다
+        (아래 접힌 설명이 이미 쓰던 어법이라 화면 안에서 말이 갈리지도 않는다).
+     ③ 「고르지 않아도 담겨요」와 「여기서 고르실 것도 없어요」가 같은 말을 두 번 했다 — 뒤엣것을 뺐다. */
+  h+='<div class="ph-sec">예식 순서에서 남는 사진 <span style="color:var(--label-soft);font-weight:400">· 고르지 않아도 담겨요</span></div>';
   if(_scn){
-    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">두 분이 정하신 순서마다 남는 사진이에요. 따로 준비하실 것도, 여기서 고르실 것도 없어요.</div>';
+    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">두 분이 정하신 순서를 따라, 사진작가가 흐름 속에서 담아요. 여기서 따로 하실 일은 없어요.</div>';
     h+='<div class="ph-scene">';
     _scn.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-s">'+escapeHtml(x.s)+'</span></div>'; });
     h+='</div>';
   } else {
-    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">식순을 정하시면, 그날 어떤 장면이 사진으로 남는지 여기에 함께 보여 드려요.</div>';
+    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">식순을 정하시면, 그날 어떤 장면이 사진으로 남는지 여기에 함께 보여 드려요 · <b>먼저 정하지 않으셔도 아래는 그대로 고르실 수 있어요</b>.</div>';   // [PHOTO_SCENE] 빈 칸이 '식순부터 해야 하나'로 읽히지 않게 — 두 트랙은 서로 독립이다
   }
   // 단체컷 '함께 하는 동작' — [PHOTO_FX_V2 2026-08-08] 그림을 빼고 이름·한 줄·필요한 것 세 줄로. 사진작가·디렉터 전달용
-  h+='<div class="ph-sec">여기에 더할 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">위 장면은 그대로 담기고, 단체 사진에 <b>더하고 싶은 동작</b>만 두 개까지 골라 주세요 · 고른 개수로 비용은 바뀌지 않아요. <b>준비할 것이 적힌 카드</b>만 미리 챙기시면 되고, 나머지는 그 자리에서 바로 돼요.</div>';
+  /* [PHOTO_SCENE_VOICE] 「여기에 더할」은 **여기가 어디인지**가 없었다(위 장면인가 단체 사진인가).
+     이름에 대상을 넣고, 안내는 두 마디로 줄인다 — 위 칸이 이미 "저건 그대로 담긴다"를 말했으므로
+     여기서 또 말하면 같은 안심이 세 번(칸 이름·안내·아래 메아리 줄) 반복된다. */
+  h+='<div class="ph-sec">단체 사진에 더할 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">모여 선 단체 사진에서 다 같이 하는 동작이에요 · <b>두 개까지</b> 고르실 수 있고, 개수로 비용은 바뀌지 않아요. <b>「준비할 것」이 적힌 카드</b>만 미리 챙기시면 돼요.</div>';
   h+='<div class="pfx-grid">';
   var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 아예 안 그린다(넘겨짚지 않는다)
   PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1;
@@ -6224,9 +6236,17 @@ function renderPhoto(box){
        **지우지 않고 접었다** — 고르기 전에 필요한 건 한 줄이고, 나머지는 고른 뒤에 읽는 것이다.
        접힌 안이라도 문장은 그대로 남는다. 사진은 우리가 아니라 그 서비스에 쌓이므로
        보관·삭제도 그쪽 규칙을 따른다 · 우리가 대신 보증하지 않는다. */
-  h+='<div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b>이나 <b>카톡 오픈채팅</b>을 하나 만들어 그 링크를 넣어 주세요 · 둘 다 링크만 있으면 하객이 바로 올릴 수 있어요. 구글 드라이브 폴더도 되지만, 하객이 올리려면 <b>편집자 권한</b>을 열어야 해서 번거로워요.</div>';
+  /* ★[PHOTOSHARE_TRUE 2026-08-16 고객 관점 재검토] 첫 판은 「둘 다 링크만 있으면 하객이 바로 올릴 수 있어요」라고
+     썼는데 **사실이 아니다.** 구글 포토 공유 앨범은 링크만으로는 보기 전용이고, 만들 때 「공동작업(공동 작업자 추가)」을
+     켜야 하객이 사진을 넣을 수 있다. 드라이브의 편집자 권한을 짚어 두고 정작 앨범의 같은 함정을 빠뜨린 셈이라,
+     그대로 뒀으면 링크를 넣고 안심한 고객이 **당일 밤에야** 아무것도 안 올라온 것을 알게 된다.
+     ★둘의 성격이 정말 다르므로 「무엇이 더 낫다」가 아니라 **맞바꿈**으로 적는다 —
+       오픈채팅은 손이 덜 가고, 공유 앨범은 하객이 프로필을 안 드러내도 된다.
+       이렇게 적어야 아래 접힌 주의(프로필 노출)와 한 화면에서 서로를 부정하지 않는다. */
+  h+='<div class="cc-note" style="text-align:left;margin-top:8px"><b>카톡 오픈채팅</b>은 방만 만들면 끝이라 손이 가장 덜 가고, <b>구글 포토 공유 앨범</b>은 하객이 프로필을 드러내지 않아도 돼요 · 앨범은 만들 때 <b>「공동작업」을 켜 주셔야</b> 하객이 사진을 넣을 수 있어요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin-top:6px">구글 드라이브 폴더도 되지만 <b>「편집자」 권한</b>을 열어야 해서, 하객이 남의 사진까지 지울 수 있게 돼요.</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">넣으시면 하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요. 아래 QR을 저장해 테이블 카드·현장 안내에 두시면 더 많이 올라와요.</div>';
-  h+='<details class="cc-more" style="margin-top:6px"><summary>넣기 전에 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px">링크를 아는 분은 누구나 들어갈 수 있어요. 오픈채팅은 참여자끼리 프로필이 보이니, 하객 부담을 줄이시려면 공유 앨범 쪽이 편해요. 사진은 그 서비스에 쌓이니 <b>예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요</b> · 사진을 먼저 옮겨 두세요.</div></details>';
+  h+='<details class="cc-more" style="margin-top:6px"><summary>넣기 전에 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px">링크를 아는 분은 누구나 들어갈 수 있어요. 오픈채팅은 참여자끼리 프로필이 보여요. 사진은 그 서비스에 쌓이니 <b>예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요</b> · 사진을 먼저 옮겨 두세요.</div></details>';   // [PHOTOSHARE_TRUE] '공유 앨범 쪽이 편해요'는 뺐다 — 맞바꿈을 위 줄이 이미 말한다(두 곳이 다른 추천을 하면 고르기가 더 어려워진다)
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
@@ -6560,6 +6580,20 @@ function prodConfirmHtml(p, inv){
   // 단체 사진 — 본식 뒤 단체 기록 구도(전체 하객 외 추가분이 있을 때만 표기 · 2026-07-19)
   var _phL=(gi.photo&&gi.photo.length)?gi.photo:null, _phFx=(gi.photoFx&&gi.photoFx.length)?gi.photoFx:null;
   if(_phL||_phFx){ var _pv=''; if(_phL) _pv='전체 하객 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">('+(_phL.length+1)+'컷)</span>'; if(_phFx) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>'; L+=line('단체 사진', _pv); }
+  /* ★★[PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 **그 화면을 열 때** 계산된다 —
+     그래서 순서를 뒤집으면 조용히 어긋난다: 축배가 있을 때 「잔 부딪히기」를 골라 두고 **나중에 식순에서 축배를 빼면**,
+     저장된 photoFx 는 그대로 남고 단체 사진 화면을 다시 열어야만 그 사실이 보인다. 안 열면 당일까지 아무도 모른다.
+     ★그래서 확인서에서 한 번 더 대조한다 — 좌석 배치 인원 ↔ 확정 인원 대조와 같은 자리·같은 이유(마지막에 한 번 더 본다).
+     ★판정 근거는 PHOTO_FX_CARDS 의 link 하나뿐이다. 여기에 조건을 손으로 또 적으면 두 곳이 갈리고,
+       그날 화면과 확인서가 서로 다른 말을 한다(그게 이 대조가 막으려는 바로 그 사고다).
+     ★막지 않는다 — 잔은 우리가 챙기면 되는 일이라 '틀렸다'가 아니라 '이렇게 진행된다'로 적는다. */
+  if(_phFx && rd && (rd.summary||{}).flow && (rd.summary.flow||[]).length){
+    var _rf=rd.summary.flow;
+    (typeof PHOTO_FX_CARDS!=='undefined'?PHOTO_FX_CARDS:[]).forEach(function(c){
+      if(!c.link || !c.link.off) return;
+      if(_phFx.indexOf(c.n)>-1 && _rf.indexOf(c.link.when)<0) L+='<div class="cf-warn">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
+    });
+  }
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
   if(_sDone && _fDone && sd.tables && fd.headcount){
     var _pl=_seatPlacedCount(sd.tables), _hn=parseInt(fd.headcount,10)||0;
