@@ -432,8 +432,8 @@ function handleSaveProductionTrack(body) {
              다시 열면 색점만 사라져 있다. 읽는 쪽(_seatDrinkSrv 819줄 주석)은 진작부터 'C|R|N'을 전제한다.
            A(구 알콜)·J(구 주스)는 프런트 _seatNormDrinks 가 이미 빈 값으로 정리해 보내므로 여기서 되살리지 않는다.
            ★이 목록은 mypage.html SEAT_DRINK_LABEL 과 한 벌 — 음료 코드를 늘리면 두 곳을 함께 고칠 것. */
-        var _dv = String(_drk[si] || '');   // 자리별 음료: '' 미정 · C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아(물)
-        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K') ? _dv : '');   // [KID_SEAT 2026-08-16] K 추가 — 빠뜨리면 유아 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
+        var _dv = String(_drk[si] || '');   // 자리별 음료: '' 미정 · C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아(물+의자) · Y 어린이(물)
+        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K' || _dv === 'Y') ? _dv : '');   // [KID_SEAT][KID_CHAIR 2026-08-16] K·Y 추가 — 빠뜨리면 아이 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
       }
       outT.push({
         name: String(_t.name || '').slice(0, 24),

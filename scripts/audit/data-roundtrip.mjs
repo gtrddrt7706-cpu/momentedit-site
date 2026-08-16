@@ -38,10 +38,12 @@ const TRACKS = {
   /* [SEAT_DRINK_SAVE] 음료 프로브가 'N' 하나뿐이던 시절, 저장 화이트리스트가 옛 코드(N·A·J)에 멈춰
      C(샴페인)·R(레드와인)을 조용히 지우는 사고를 이 게이트가 초록인 채로 통과시켰다(2026-08-16 발견).
      ★쓰는 코드를 전부 태울 것 — 하나만 태우면 나머지가 사라져도 초록이다. */
-  seat:      () => ({ tables: [{ seats: [P('seat').slice(0, 24), '나', '다', '아기'], drinks: ['C', 'R', 'N', 'K'] }] }),   // 좌석명 24자 컷 · K=[KID_SEAT] 유아(물)
+  seat:      () => ({ tables: [{ seats: [P('seat').slice(0, 24), '나', '다', '아기', '큰애'], drinks: ['C', 'R', 'N', 'K', 'Y'] }] }),   // 좌석명 24자 컷 · K=유아(물+의자)·Y=어린이(물) [KID_SEAT][KID_CHAIR]
   guideinfo: () => ({ seatMode: 'mine', reserveTime: '17:30 · 홀 A', reserveName: P('gi').slice(0, 30), photo: ['가족 <전체>', '친구"들"'] }),
   snap:      () => ({ mustPeople: P('snap') }),                                    // 120자 컷 필드
-  final:     () => ({ headcount: '20', drink: '스파클링', note: P('final') }),      // fdr 패스스루
+  /* [SEAT_NOTE] allergy = 고객이 좌석 화면에서 적는 「미리 알려주실 것」. 관리자 화면·관리자 메일·
+     서버 재통지(80_production 643)가 이 키를 읽는다 — 왕복에서 빠지면 그 셋이 조용히 빈칸이 된다. */
+  final:     () => ({ headcount: '20', drink: '스파클링', note: P('final'), allergy: P('allergy') }),   // fdr 패스스루
 };
 for (const [t, mk] of Object.entries(TRACKS)) {
   const draft = mk(); const probe = JSON.stringify(draft).slice(1, 20);   // 트랙 고유 문자열 조각
@@ -63,10 +65,20 @@ for (const [t, mk] of Object.entries(TRACKS)) {
 {
   let cell = {}; try { cell = JSON.parse(String(w.C['제작_seat'] || '{}')); } catch (e) {}
   const got = ((((cell.tables || [])[0]) || {}).drinks || []).join(',');
-  (got === 'C,R,N,K') ? ok('①-a 자리별 음료 C·R·N·K 전부 셀에 남음 [SEAT_DRINK_SAVE][KID_SEAT]') : no(`①-a 자리별 음료 유실: '${got}' (기대 C,R,N,K) [SEAT_DRINK_SAVE]`);
+  (got === 'C,R,N,K,Y') ? ok('①-a 자리별 음료 C·R·N·K·Y 전부 셀에 남음 [SEAT_DRINK_SAVE][KID_SEAT]') : no(`①-a 자리별 음료 유실: '${got}' (기대 C,R,N,K,Y) [SEAT_DRINK_SAVE]`);
   let back = {}; try { back = G._prodLoad(rowRef) || {}; } catch (e) {}
   const bg = (((((back.seatDraft || {}).tables || [])[0]) || {}).drinks || []).join(',');
-  (bg === 'C,R,N,K') ? ok('  되읽기(_prodLoad)에도 음료 넷 다 살아있다') : no(`①-a 되읽기 음료 유실: '${bg}' [SEAT_DRINK_SAVE]`);
+  (bg === 'C,R,N,K,Y') ? ok('  되읽기(_prodLoad)에도 음료 다섯 다 살아있다') : no(`①-a 되읽기 음료 유실: '${bg}' [SEAT_DRINK_SAVE]`);
+}
+
+/* ── ①-c 「미리 알려주실 것」(allergy) 왕복 [SEAT_NOTE] — 관리자·메일·재통지가 읽는 키 ── */
+{
+  let cell = {}; try { cell = JSON.parse(String(w.C['제작_final'] || '{}')); } catch (e) {}
+  hit(String(cell.allergy || ''), P('allergy'))
+    ? ok('①-c 특이사항(allergy) 셀 왕복 무손실 [SEAT_NOTE]') : no(`①-c 특이사항 유실: '${String(cell.allergy || '').slice(0, 60)}' [SEAT_NOTE]`);
+  let back = {}; try { back = G._prodLoad(rowRef) || {}; } catch (e) {}
+  hit(String(((back.finalDraft || back.fd || {}).allergy) || ''), P('allergy'))
+    ? ok('  되읽기에도 특이사항이 살아있다') : no('①-c 특이사항 되읽기 유실 [SEAT_NOTE]');
 }
 
 /* ── ①-b 청첩장(별도 핸들러) — 원문 저장 ── */

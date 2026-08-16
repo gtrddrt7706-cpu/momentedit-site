@@ -535,13 +535,13 @@ function renderFullMap(){
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
 /* [GUIDE_DRINK] 자리별 음료 — 마이페이지가 자리마다 고르는 3종과 같은 계약이다
-   (C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아 · 물 · mypage SEAT_DRINK_LABEL과 동일).
+   (C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아 · Y 어린이 · mypage SEAT_DRINK_LABEL과 동일).
    ★[KID_SEAT 2026-08-16] K 는 아이 자리 — 물과 유아용 의자를 준비한다는 뜻이다. 네 파일(mypage·guide·admin·80_production)이 한 벌.
    ★서버(seatView)가 drink를 보내줄 때만 뜬다 — 안 보내면 조용히 아무것도 안 그린다.
      없는 정보를 지어내지 않고, GAS가 필드를 싣기 시작하면 저절로 켜진다.
    ★하객에게는 '내 자리'의 음료만 보인다. 남의 음료는 취향·건강 정보라 절대 노출하지 않는다. */
-var DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'물 (유아용 의자 준비)'};
-var DRINK_TONE={C:'#B08A3E',R:'#9B4A57',N:'#5F9E86',K:'#8FA9BF'};
+var DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'물 (유아용 의자 준비)',Y:'물'};   // [KID_CHAIR] 어린이는 물만 · 의자 이야기를 붙이지 않는다(그 자리에 필요 없다)
+var DRINK_TONE={C:'#B08A3E',R:'#9B4A57',N:'#5F9E86',K:'#8FA9BF',Y:'#B9CBD8'};
 function drinkHtml(code){
   var k=String(code||'').toUpperCase(), t=DRINK_LABEL[k];
   if(!t) return '';

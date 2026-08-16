@@ -3631,7 +3631,7 @@ nochk "if(SEATFLOW.edit && typeof commitSeatEdit==='function' && bx) commitSeatE
 chk 'SEAT_DRINK_SAVE' automation/platform/80_production.gs 1
 chk "_dv === 'C' || _dv === 'R' || _dv === 'N'" automation/platform/80_production.gs 1
 chk 'SEAT_DRINK_SAVE' scripts/audit/data-roundtrip.mjs 3
-chk "drinks: \['C', 'R', 'N', 'K'\]" scripts/audit/data-roundtrip.mjs 1
+chk "drinks: \['C', 'R', 'N', 'K', 'Y'\]" scripts/audit/data-roundtrip.mjs 1
 # [PHOTO_GATHER_OFF 2026-08-16 사용자 지시 "자리에서는 무엇이지?"] 단체 사진 구도의 「불러 모아요/자리에서」
 #   두 갈래 배지 폐지 — 전 구도가 모여서 한 컷이다. 「자리에서」는 고객에게 "제대로 모여 찍지 않는다"로
 #   읽혔다(가장 갖고 싶어 하는 친구·가족 컷에서). 리뷰가 '유실된 기능'으로 되살리지 못하게 막는다.
@@ -3702,10 +3702,25 @@ chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
 # ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로"] 유아 자리 = 음료 한 칸(K).
 #   물 + 유아용 의자를 한 번에 정한다. 코드 K 는 네 파일이 한 벌 — 하나만 빠지면 저장 때 조용히 지워진다.
 chk 'KID_SEAT' mypage.html 6
+# ★★[KID_CHAIR 2026-08-16 사용자 지시 "추천대로"] 아이는 둘 — 유아(K·의자 필요)와 어린이(Y·물만).
+#   하이체어 수량은 K 만 센다. Y 를 더하면 스태프가 쓰지 않을 의자를 꺼낸다.
+chk 'KID_CHAIR' mypage.html 4
+chk 'KID_CHAIR' admin.html 1
+chk 'KID_CHAIR' guide.html 1
+chk "Y:'어린이 · 물'" mypage.html 1
+chk "_dv === 'Y'" automation/platform/80_production.gs 1
+chk 'cK+' admin.html 1                              # 의자 개수는 유아만(어린이 cY 를 더하지 말 것)
+# ★★[SEAT_NOTE 2026-08-16] 「미리 알려주실 것」 — 2026-07-19 위저드 통합 때 홀로 빠져
+#   관리자 화면·관리자 메일·서버 재통지가 반년간 빈 값을 읽던 배관을 이었다. 지우면 다시 끊긴다.
+chk 'SEAT_NOTE' mypage.html 4
+chk 'data-seat-note' mypage.html 3
+chk 'fd.allergy' mypage.html 1
+chk 'SEAT_NOTE' scripts/audit/data-roundtrip.mjs 3
+chk 'SEAT_NOTE' scripts/audit/seat-onecard.mjs 1
 chk 'KID_SEAT' guide.html 1
 chk 'KID_SEAT' admin.html 2
 chk 'KID_SEAT' automation/platform/80_production.gs 1
-chk 'KID_SEAT' scripts/audit/data-roundtrip.mjs 2   # 저장 왕복에 K 를 태워 둔다(화이트리스트가 다시 빠지면 붉게)
+chk 'KID_SEAT' scripts/audit/data-roundtrip.mjs 1   # 저장 왕복에 K 를 태워 둔다(화이트리스트가 다시 빠지면 붉게)
 chk "K:'유아 · 물'" mypage.html 1
 chk "_dv === 'K'" automation/platform/80_production.gs 1
 chk '유아용 의자' admin.html 2                    # 스태프 A4 합계 줄 + 관리자 상세(당일 준비물)

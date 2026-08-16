@@ -1115,6 +1115,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .dk-C{background:#C9A227}   /* 샴페인 · 골드 */
     .dk-R{background:#9B4A57}   /* 레드와인 · 와인 */
     .dk-K{background:#8FA9BF}   /* [KID_SEAT] 유아 · 물 — 물빛(따뜻한 셋과 확실히 구분되는 유일한 한색) */
+    .dk-Y{background:#B9CBD8}   /* [KID_CHAIR] 어린이 · 물 — 같은 물빛 계열의 옅은 톤(둘 다 '물'이라는 것이 한눈에) */
     .dk-U{background:#C9C2B6}   /* (구)미정 · 그레이 — 자리 편집기에선 쓰지 않는다(SEAT_NO_UNDEC). guide·관리자가 옛 데이터를 그릴 때만 */
     .dk-A{background:#9B4A57}   /* (구)알콜 · 와인 — 구 데이터 호환 */
     .dk-J{background:#E0912F}   /* (구)주스 · 앰버 — 구 데이터 호환 */
@@ -1124,6 +1125,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-privacy .sp-q{font-family:var(--serif-ko);font-size:13px;color:var(--accent);text-align:center;margin-bottom:10px}
     .sp-opt{display:block;position:relative;padding:11px 12px 11px 38px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
     .sp-opt input{position:absolute;left:13px;top:14px;accent-color:var(--seal)}
+    .seat-note-d{font-size:11.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin:-2px 0 9px;text-align:center}   /* [SEAT_NOTE] .sp-d 는 라디오 안쪽 전용 스코프라 여기선 안 먹는다 */
+    .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
+    .seat-note-ta:focus{outline:none;border-color:var(--seal);box-shadow:0 0 0 3px rgba(107,42,36,.08)}
+    .seat-note-ta::placeholder{color:var(--label-soft)}
     .sp-opt.on{border-color:var(--seal);background:rgba(107,42,36,.04)}
     .sp-opt .sp-t{display:block;font-size:13px;color:var(--accent);font-weight:600}
     .sp-opt .sp-tag{font-size:10px;color:var(--label-soft);border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-weight:500;vertical-align:1px;margin-left:3px}
@@ -1185,8 +1190,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
     .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
-    .sdb-opts.n3{grid-template-columns:repeat(3,1fr)}   /* [ALC_ONE] 알콜이 정해지면 셋(그 알콜·논알콜·유아) */
-    .sdb-opts.n4{grid-template-columns:repeat(2,1fr)}   /* 아직 알콜을 안 골랐을 때만 넷(샴페인·레드와인·논알콜·유아) — 2열 2줄로 나눠 한 줄에 넉 자가 끼지 않게 */
+    .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
+    .sdb-opts.n5 .dk-chip:nth-child(5){grid-column:1/-1}   /* 홀수로 남는 마지막 칸은 한 줄 통째로 — 빈 칸을 남기지 않는다 */
+    .dk-chip .dk-sub{display:block;font-size:10px;color:var(--label-soft);font-weight:500;margin-top:2px;letter-spacing:0}
+    .dk-chip.on .dk-sub{color:var(--sub)}
     .sdb-note{font-family:var(--serif-ko);font-size:11px;line-height:1.5;color:var(--label-soft);text-align:center;margin-top:9px;word-break:keep-all}
     .sdb-ok{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;background:#4E3F31;color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer}
     .sdb-ok:active{background:#3A2D22}
@@ -5710,17 +5717,21 @@ function _seatNormDrinks(t){
   if(!t) return;
   if(Object.prototype.toString.call(t.seats)!=='[object Array]') t.seats=[];
   var d=(Object.prototype.toString.call(t.drinks)==='[object Array]')?t.drinks:[];
-  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N'||v==='K')?v:''); }   // [KID_SEAT] K=유아 · 물
+  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N'||v==='K'||v==='Y')?v:''); }   // [KID_SEAT] K=유아 · 물
   t.drinks=out;
 }
 // [자리별 3음료 · 2026-07-19 사용자 지시] 상단 대표음료 입력 폐지 → 자리마다 샴페인/레드와인/논알콜 스파클링 직접 선택.
-var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알콜 스파클링'},{c:'K',t:'유아 · 물'}];
+var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알콜 스파클링'},{c:'K',t:'유아 · 물'},{c:'Y',t:'어린이 · 물'}];
 /* ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로 한다든지"]
    유아(K) = 물 + 유아용 의자. 음료 한 칸으로 받는 이유 — 두 분이 자리마다 한 번 고르면
    ①그 아이 음료(물)와 ②스태프의 하이체어 준비 수량이 **한 번에** 정해진다. 항목을 둘로 나누면 두 번 묻게 된다.
    ★알콜 1종 규칙(ALC_ONE)과 무관하다 — 유아는 알콜이 아니므로 _seatAlc 가 세지 않는다.
    ★코드 K 는 mypage·guide·admin·80_production 네 곳이 한 벌 — 하나만 고치면 저장 때 조용히 지워진다(SEAT_DRINK_SAVE 사고와 같은 모양). */
-var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'유아 · 물'};
+var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'유아 · 물',Y:'어린이 · 물'};
+/* ★[KID_CHAIR 2026-08-16 사용자 지시 "추천대로"] 아이를 **둘로 나눈다** — 유아(K)와 어린이(Y).
+   첫 판은 아이를 한 칸으로 묶어 K 를 고르면 곧바로 유아용 의자 1개로 셌다. 그러면 여섯 살·초등학생도
+   의자가 따라붙어 스태프가 쓰지 않을 의자를 꺼내 놓게 된다. 물은 둘 다 같고 **의자만 다르다.**
+   ★그래서 하이체어 수량은 K 만 센다(admin 합계 줄) — Y 를 여기에 더하지 말 것. */
 /* ★★[ALC_ONE 2026-08-16 사용자 지시 "논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인"]
    알콜은 **행사 전체에서 한 종류**만 준비된다 — 샴페인이면 샴페인, 레드와인이면 레드와인.
    논알콜 스파클링은 그와 무관하게 자리별로 언제나 고를 수 있다(안 마시는 하객·아이 배려).
@@ -6649,8 +6660,8 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
   var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
 function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·K유아(물)·U미정(옛 데이터에서만)
-  var c={C:0,R:0,N:0,K:0,U:0};
-  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else if(dv==='K')c.K++; else c.U++; }); });
+  var c={C:0,R:0,N:0,K:0,Y:0,U:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else if(dv==='K')c.K++; else if(dv==='Y')c.Y++; else c.U++; }); });
   return c;
 }
 /* ★[CF_SEAL] 'yyyy-MM-dd HH:mm'(KST 저장값) → '2026년 8월 16일 (일) 오후 3시 20분'.
@@ -6866,6 +6877,23 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
     if(!String(inp.value||'').trim() && _prevNm && _t.drinks) _t.drinks[ed.si]='';   // '있던 이름을 지운' 경우만 음료도 초기화(하객 제거). 빈 자리에 음료를 먼저 고르는 흐름에선 지우지 않음 — 재렌더 커밋이 방금 고른 음료를 즉시 삭제하던 실버그 수정(2026-07-16). 미명명 고아 음료는 saveSeat가 저장 직전 정리
   }
 }
+/* [SEAT_NOTE] 저장은 조용히 · 손을 떼고 0.8초 뒤 한 번. 자리 편집과 같은 트랙(final)이라
+   _seatFinSave 를 그대로 쓴다 — 인원·요금과 함께 실려 관리자 화면에서 한 덩어리로 보인다. */
+var _seatNoteT=null;
+function wireSeatNote(box){
+  var ta=box&&box.querySelector('[data-seat-note]'); if(!ta||ta._wired) return; ta._wired=true;
+  var st=box.querySelector('[data-seat-note-st]');
+  ta.addEventListener('input', function(){
+    if(!SEATFLOW) return; if(!SEATFLOW.fd) SEATFLOW.fd={};
+    SEATFLOW.fd.allergy=String(ta.value||'').slice(0,300);
+    if(st) st.textContent='적는 중이에요';
+    if(_seatNoteT) clearTimeout(_seatNoteT);
+    _seatNoteT=setTimeout(function(){ _seatFinSave(); if(st) st.textContent='저장됐어요'; }, 800);
+  });
+  ta.addEventListener('blur', function(){   // 화면을 떠나기 전에 한 번 더 — 0.8초를 못 채우고 나가도 남게
+    if(_seatNoteT){ clearTimeout(_seatNoteT); _seatNoteT=null; _seatFinSave(); if(st) st.textContent='저장됐어요'; }
+  });
+}
 function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
 // [최종 확정 = 좌석 화면 통합 · 별도 인원/대표음료 입력 폐지 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료가 나오게"]
 //   ★별도 인원 입력·대표음료 칩·상단 seat-ftop 블록 복원 금지 — 인원=이름 있는 자리 수로 자동 계산 · 음료=자리별 3선택(샴페인/레드와인/논알콜 스파클링).
@@ -6921,7 +6949,7 @@ function renderSeat(box){
          ②화면 가운데 음료 창(뒤가 어두워짐)이 **동시에** 켜졌다. 눈이 갈 곳이 둘이고,
          키보드를 내리기 전엔 음료 창의 아래쪽이 가려졌다. 한 자리에 할 일이 둘이면 창도 하나여야 한다.
          ★자리 알약 안 입력칸(rs-edit)으로 되돌리지 말 것 — 테이블 이름 편집(rt-cin)만 캔버스에 남는다. */
-      { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N'||dk==='K');   // [KID_SEAT] 유아 색점도 캔버스에 찍힌다
+      { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N'||dk==='K'||dk==='Y');   // [KID_SEAT] 유아 색점도 캔버스에 찍힌다
         var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료 · [SEAT_NO_UNDEC] 이름이 있으면 음료가 반드시 있으니 '미정 빈 링'은 그릴 일이 없다(빈자리는 표시 없음)
         var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 지금 창을 열어 둔 자리 — 창이 캔버스를 덮어도 어디를 고쳤는지 남게
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+(_selNow?' sel':'')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
@@ -6961,7 +6989,7 @@ function renderSeat(box){
   var _named=_seatNamedCount();   // 최종 인원=이름 있는 자리 수(별도 입력 폐지)
   var _dc=seatDrinkCounts(s.tables);   // 이름 있는 자리만 · C샴페인/R레드와인/N논알콜 스파클링/U미정
   var _lp=[]; var _dkPill=function(cls,label,n){ return '<span class="ss-dk"><i class="s-dot '+cls+'"></i>'+label+' '+n+'</span>'; };
-  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N)); if(_dc.K)_lp.push(_dkPill('dk-K','유아 · 물',_dc.K));   // [SEAT_NO_UNDEC] 미정 알약 없음 · [KID_SEAT] 유아는 하이체어 준비 수량이기도 하다
+  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N)); if(_dc.K)_lp.push(_dkPill('dk-K','유아 · 물',_dc.K)); if(_dc.Y)_lp.push(_dkPill('dk-Y','어린이 · 물',_dc.Y));   // [SEAT_NO_UNDEC] 미정 알약 없음 · [KID_SEAT] 유아는 하이체어 준비 수량이기도 하다
   var drinksInner=_lp.length ? '<div class="ss-drinks">'+_lp.join('')+'</div>' : '';   // 음료 집계 — 요약 카드 하단 줄(인원·요금과 한 카드로 · 2026-07-19 디자이너 개편)
   // [디자이너 개편 2026-07-19 사용자 지시: "아래 인원수와 음료 표시가 따로 놀지 않게 조화롭게"] 인원·요금 + 음료 집계를 한 요약 카드로 묶어 공개 방식 카드와 같은 폭으로 정렬.
   /* [ALC_ONE] 요약 카드에 '알콜은 무엇으로 정해져 있는지'를 한 줄로 세운다.
@@ -6986,9 +7014,9 @@ function renderSeat(box){
      ★[SEAT_ONE_CARD] 이제 그 창이 이름칸까지 안는다 — 한 자리를 마치는 데 필요한 것이 한 상자에 모인다. */
   var barHtml='';
   if(sel){
-    var et=s.tables[sel.ti]; var cur=(et&&et.drinks&&et.drinks[sel.si])||''; if(cur!=='C'&&cur!=='R'&&cur!=='N'&&cur!=='K')cur='';   // 구코드(A/J)=선택 없음 · [KID_SEAT] K 포함
+    var et=s.tables[sel.ti]; var cur=(et&&et.drinks&&et.drinks[sel.si])||''; if(cur!=='C'&&cur!=='R'&&cur!=='N'&&cur!=='K'&&cur!=='Y')cur='';   // 구코드(A/J)=선택 없음 · [KID_SEAT] K 포함
     var edNo=num[sel.ti]||(sel.ti+1);
-    var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'" aria-pressed="'+(cur===v?'true':'false')+'"><span class="dot '+cls+'"></span>'+label+'</button>'; };
+    var chip=function(v,label,cls,sub){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'" aria-pressed="'+(cur===v?'true':'false')+'"><span class="dot '+cls+'"></span>'+label+(sub?'<span class="dk-sub">'+sub+'</span>':'')+'</button>'; };
     /* ★[DRINK_SHEET] 머리줄에 '어느 자리인지'를 적는다 — 이름을 넣었으면 이름까지.
        옛 판은 '2번 자리 · 음료'뿐이라, 자리가 여섯이고 이름이 스물다섯인 화면에서
        내가 방금 무엇을 눌렀는지 시트만 보고는 확인할 길이 없었다. */
@@ -6998,16 +7026,18 @@ function renderSeat(box){
        섞인 옛 데이터일 때는 셋을 다 보여 준다(무엇으로 되어 있는지 보이지 않으면 고칠 수도 없다). */
     var _alcPick=_alc||((cur==='C'||cur==='R')?cur:'');
     var opts, alcNote='';
-    var _kid=chip('K','유아 · 물','dk-K');   // [KID_SEAT] 아이 자리 — 물 + 유아용 의자. 알콜 규칙과 무관하게 언제나 고를 수 있다
-    var _n4=false;
-    if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _n4=true; alcNote='알콜이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
-    else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알콜 스파클링','dk-N')+_kid; alcNote='알콜은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요 · 아이 자리는 물과 유아용 의자를 준비해요'; }
-    else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _n4=true; alcNote='알콜은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
+    /* [KID_SEAT]·[KID_CHAIR] 아이 자리는 둘 — 물은 같고 유아용 의자만 다르다.
+       라벨을 길게 늘이는 대신 작은 줄(dk-sub)로 차이를 적는다. 라벨은 요약·관리자·하객 화면이 함께 쓰는 값이라 짧아야 한다. */
+    var _kid=chip('K','유아 · 물','dk-K','유아용 의자')+chip('Y','어린이 · 물','dk-Y','의자 없이');
+    var _nOpt=0;   // 칩 개수로 격자를 정한다(넷=2열 2줄 · 다섯=마지막 칸이 한 줄)
+    if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _nOpt=5; alcNote='알콜이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
+    else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알콜 스파클링','dk-N')+_kid; _nOpt=4; alcNote='알콜은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요 · 아이 자리엔 물을 드려요'; }
+    else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _nOpt=5; alcNote='알콜은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
         +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">×</button></div>'
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
-      +'<div class="sdb-opts'+(_n4?' n4':' n3')+'">'+opts+'</div>'
+      +'<div class="sdb-opts n'+_nOpt+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
       +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
@@ -7017,7 +7047,18 @@ function renderSeat(box){
   var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객에게 어떻게 보여드릴까요?</div>'
     +'<label class="sp-opt'+(_mine?'':' on')+'"><input type="radio" name="seatmode" value="all"'+(_mine?'':' checked')+'><span class="sp-t">전체 공개 <span class="sp-tag">좌석표</span></span><span class="sp-d">성함이 보이는 좌석표 · 하객이 검색 없이 자기 자리를 바로 봐요</span></label>'
     +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span></label>'
-    +'<div class="sp-note">고르면 바로 저장돼요</div></div>';
+    +'<div class="sp-note">고르면 바로 저장돼요</div></div>'
+    /* ★★[SEAT_NOTE 2026-08-16 사용자 지시 "추천대로"] 「미리 알려주실 것」 — 되살린 것이 아니라 **끊긴 것을 이은 것**이다.
+       2026-07-19 에 최종확정 위저드를 좌석 화면으로 합치면서 인원·음료는 옮겨졌는데 이 칸만 따라오지 못했다.
+       그 뒤로 관리자 화면(admin.html '알레르기·특이사항')·관리자 메일(Admin.html)·서버 재통지(80_production 643)는
+       계속 이 값을 읽고 있었는데 **고객에게는 적을 곳이 없었다** — 배관 한쪽이 끊긴 채 반년을 돈 셈이다.
+       ★폐지 지시(2026-07-19)의 대상은 '별도 인원 입력·대표음료 라디오'였지 특이사항이 아니다. 지우지 말 것.
+       ★칩(유아/어린이)으로는 못 적는 것을 여기서 받는다 — 알레르기·거동 불편·아기 나이. */
+    + '<div class="seat-privacy seat-note-card"'+_giDis+'><div class="sp-q">미리 알려주실 것이 있나요?</div>'
+    +   '<div class="seat-note-d">알레르기, 거동이 불편한 분, 유아 나이처럼 <b>당일 준비가 달라지는 것</b>을 적어 주세요. 디렉터와 다이닝 팀이 함께 봐요.</div>'
+    +   '<textarea class="seat-note-ta" data-seat-note maxlength="300" rows="3" placeholder="예) 3번 테이블 아기 8개월 · 땅콩 알레르기 한 분"'
+    +     ' aria-label="미리 알려주실 것">'+escapeHtml(String((SEATFLOW.fd&&SEATFLOW.fd.allergy)||''))+'</textarea>'
+    +   '<div class="sp-note" data-seat-note-st>적으시면 바로 저장돼요</div></div>';
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료 · 3 / 3</span>'+wizActs()+'</div>'   // 좌석=통합 여정 3단계(2026-07-19 스탭바이스탭)
@@ -7046,6 +7087,7 @@ function renderSeat(box){
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
   wireGuideInfoEditor(box, s.gi||{});   // 공개 범위 체크(편집기 상단) — 링크 발급 전에도 설정 저장 가능
+  wireSeatNote(box);   // [SEAT_NOTE] 미리 알려주실 것 — 재렌더마다 다시 연결(_wired 로 중복 방지)
   // 최종 인원 입력창 폐지(2026-07-19) — 인원=이름 있는 자리 수로 자동 · 요금 안내(#seat_fee)는 재렌더 때 갱신 · 배경 저장은 saveSeat가 _seatFinSave로 함께 수행
   // 편집 중이면 해당 입력에 포커스 — 방금 연 편집(_edNew)만 전체 선택(바로 타이핑=교체) · 음료 칩 재렌더(_dkRe) 등에선 캐럿만 끝으로(전체 선택이면 다음 키가 이름을 덮어쓰는 사고)
   _seatKbdWatch();   // [SEAT_ONE_CARD] 창 안에 입력칸이 생겼으니 키보드가 창을 덮지 않게 — 뜬 높이만큼 창을 위로
@@ -7103,7 +7145,7 @@ function bindSeat(box){
         .then(function(ok){ if(ok){ _seatAlcSetAll(_ac); renderSeat(box); } });
       return; }
     // ★[SEAT_NO_UNDEC] '미정 일괄 채우기'(data-alc-fill) 폐지 — 2026-08-16 사용자 지시로 미정 상태 자체가 없어졌다. 복원 금지.
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N'&&dv!=='K') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 · [KID_SEAT] K(유아)까지 넷만 받는다
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N'&&dv!=='K'&&dv!=='Y') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 · [KID_SEAT] K(유아)까지 넷만 받는다
         /* [ALC_ONE] 이미 정해진 알콜과 다른 알콜을 고르면 — 이 자리만 예외로 두지 않는다.
            한 종류만 준비되므로 '전부 바꿀지'를 묻고, 아니라면 아무것도 바꾸지 않는다. */
         var _al=_seatAlc();
