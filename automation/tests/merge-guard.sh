@@ -4071,3 +4071,12 @@ chk '이 요청을 뺄까요' mypage.html 1
 
 
 
+
+# ★★[SHARE_1TO1_ASK 2026-08-16 시뮬에서 잡은 거짓 단정] open.kakao.com/o/… 는 **그룹과 1:1 이 같은 형식**이라
+#   URL 로 구분할 수 없다. 「하객끼리 서로 안 보여요」로 단정하면 그룹으로 만든 부부에게 화면이 거짓말을 한다.
+#   → 단정 대신 확인을 부탁한다. 하객 화면도 「단둘이 열려요」를 빼고 우리가 아는 것만 말한다.
+chk 'SHARE_1TO1_ASK' mypage.html 1
+chk '1:1 채팅방</b>으로 만드셨는지 확인' mypage.html 1
+nochk '하객끼리 서로 안 보여요 · 사진은' mypage.html
+nochk '단둘이</b> 열려요' guide.html
+chk '닉네임을 고를 수 있어요' guide.html 1
