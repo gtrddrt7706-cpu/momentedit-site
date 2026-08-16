@@ -330,6 +330,37 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   } else ok(`2패스가 예산을 정확히 채운다 (${combos}조합 · 합+말시간 ${TALK}초 = 예산)`);
 }
 
+/* ★[POST_LIVE_DUCK 2026-08-16 · 코워크가 판정을 요청한 자리] post 로 올린 음량을 live 가 도로 내리는 모양.
+   코워크 물음: *"narr-close 의 post 가 -8 로 올린 걸 live 가 1.2초 만에 -12 로 되돌린다. 의도인가 사고인가."*
+   ★사고였다. 세어서 확정했다 — post 로 음량을 «올리면서» live 가 있는 큐 12개 중 11개(entry-A~F)가
+     `live.duck` 을 post 목표값과 같게 **명시**한다. narr-close 하나만 명시가 없어
+     ritual-cue.js 의 `if (c.live && c.live.duck === undefined) c.live.duck = c.duck` 이 조용히 채웠다.
+   ★이 검사는 그 «조용한 채움»의 지문을 본다 — live.duck 이 clip duck 과 같은데 post 목표는 다른 모양.
+     한 큐를 고치는 것으로는 다음에 또 난다. 자동 채움이 있는 한 이 자리는 계속 생긴다.
+   ★일부러 올렸다 내리고 싶다면? runPost 는 st.ms 를 다 기다린 뒤 live 로 넘어가므로(console.html)
+     그건 «2초 올렸다가 1.2초 내리는 혹»이지 음악적 몸짓이 아니다. 원한다면 post 에 wait 을 넣어
+     머무는 시간을 주고 live.duck 을 명시하라 — 그러면 이 검사도 통과한다. */
+{
+  const seen = new Map();
+  for (const co of Object.keys(D.COURSES)) for (const M of ['console', 'preview']) {
+    let r; try { r = C.build({ course: co }, { mode: M }); } catch (e) { continue; }
+    for (const c of r.cues) {
+      const ups = (c.post || []).filter((p) => p.music === 'to');
+      if (!ups.length || !c.live) continue;
+      seen.set(c.slug + '|' + M, { c, target: ups[ups.length - 1].v, M });
+    }
+  }
+  const bad = [];
+  for (const { c, target, M } of seen.values()) {
+    if (c.live.duck === target) continue;                       // 올린 값을 그대로 지킨다
+    if (c.live.duck !== c.duck) continue;                       // 다른 값을 «일부러» 적었다면 사람의 뜻이다
+    bad.push(`${c.slug}/${M} — post 가 ${target}dB 로 올리는데 live.duck 이 clip 과 같은 ${c.duck}dB 다`
+      + ` (자동 채움의 지문 · live ${c.live.est || '?'}초 동안 도로 내려간다)`);
+  }
+  if (bad.length) no(`post 가 올린 음량을 live 가 도로 내린다 [POST_LIVE_DUCK]\n    ${bad.join('\n    ')}`);
+  else ok(`post 로 올린 음량을 live 가 지킨다 (${seen.size}자리) [POST_LIVE_DUCK]`);
+}
+
 if (fail) {
   console.log('── 큐 엔진 역전 의심: assets/ritual-cue.js 를 되돌리거나 위 항목을 고쳐라');
   process.exit(1);

@@ -3690,6 +3690,15 @@ if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/de
 #      D-14 준비 목록에서 「축가 부탁」까지 시키고 있었다(SONG_RETIRED 는 8/9 · 이레 동안).
 # ★옆의 check-photo-scene 은 이걸 못 본다 — 「이름이 파일에 있나」를 볼 뿐인데
 #   폐지 순서는 클립 번호 때문에 **일부러 파일에 남긴다**. 그래서 왼쪽을 「고를 수 있나」로 옮긴 검사를 따로 둔다.
+# ── [POST_LIVE_DUCK] post 가 올린 음량을 live 가 도로 내리는 모양 (2026-08-16 · 코워크가 판정 요청) ──
+# 코워크: *"narr-close 의 post 가 -8 로 올린 걸 live 가 1.2초 만에 -12 로 되돌린다. 의도인가 사고인가."*
+# ★사고였다 — 세어서 확정했다. post 로 «올리면서» live 가 있는 큐 12개 중 11개(entry-A~F)가
+#   live.duck 을 post 목표값과 같게 명시한다. narr-close 하나만 없어 자동 채움이 -12 를 넣었다.
+#   집 안에 이미 규칙이 있었고 이 자리만 빠뜨린 것이다(note 가 «가장 느리게»인데 2초 올렸다 1.2초 내려간다).
+# ★한 큐만 고치면 다음에 또 난다 — 자동 채움(ritual-cue.js:284)이 있는 한 계속 생기는 모양이라 검사로 잡는다.
+chk 'POST_LIVE_DUCK' assets/ritual-cue.js 2
+chk 'POST_LIVE_DUCK' scripts/check-ritual-cue.js 3
+chk "doing: 'move', duck: PARAM.duckMusic" assets/ritual-cue.js 1
 chk 'RETIRED_SCENE' scripts/check-retired-scene.mjs 2
 # ★[재점검 2026-08-16] 첫 판은 지식서를 **한 파일만** 봤다(api/_ritual-kb.js).
 #   고객이 읽는 AI 지식은 셋이고 그중 assets/advisor-kb.js 는 **공개 홈페이지**에 실린다 —
