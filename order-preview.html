@@ -61,6 +61,24 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prog-fill{height:100%;background:var(--seal);width:0%;border-radius:7px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 .prog-sub{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px}   /* 2행: 보조 정보(진행 상황 좌 · 다음 예고 우) */
 .prog-next{font-size:11px;color:var(--light);text-align:right;word-break:keep-all;flex:1}   /* [ORD_NEXTLABEL] 이름표 · 누르는 것이 아니다 */
+/* ★★[ORD_RESET_MID 2026-08-16 사용자 지시 "처음부터 다시 만들기 코스 진행하는 중간에도 클릭할 수 있게"]
+   「처음부터 다시 만들기」는 완성 화면(.done-acts)에만 있었다 — 중간에 갈아엎고 싶으면
+   끝까지 걸어가 완성 화면에 닿아야 했다. 걷는 동안에도 같은 자리에서 누를 수 있게 한다.
+   ★자리는 **진행 줄 2행 오른쪽**이다. 아래(이전·다음 옆)로 내리지 말 것 —
+     [EXIT_TAP44]가 나가기에 정한 원칙과 같다: 자주 누르는 「다음」과 되돌리기 비싼 동작은
+     손가락 거리를 다르게 둔다. 지우는 동작이라 그 원칙이 나가기보다 더 세게 적용된다.
+   ★이름표(.prog-next)와 **같은 칸을 쓴다**(둘이 동시에 서지 않게 render가 갈라 준다).
+     한 줄에 회색 글자 셋(진행·예고·다시)이 서면 어느 것이 눌리는지 읽히지 않는다.
+   ★밑줄을 남길 것 — 바로 이 자리에 있던 「다음은 · X」가 버튼으로 오독돼 네 번 눌린 적이 있다
+     ([ORD_NEXTLABEL]). 이번엔 반대 방향의 오독을 막아야 한다: 이건 **진짜 누르는 것**이다.
+   ★색은 --sub(7.08:1) — --light(4.79:1)는 이 지면의 '이름표' 색이라 뜻이 겹친다.
+   ★탭 타깃 40px은 패딩으로 만들고 같은 값의 음수 마진으로 줄 높이를 되돌린다
+     (글자만 보이고 손가락은 넉넉하게 · 줄 리듬은 종전 그대로). */
+.prog-reset{display:none;align-items:center;flex:0 0 auto;background:none;border:0;cursor:pointer;
+  font-family:var(--sans);font-size:11px;line-height:1.5;color:var(--sub);letter-spacing:-.01em;white-space:nowrap;
+  padding:15px 2px 9px;margin:-15px -2px -9px;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--border);-webkit-tap-highlight-color:transparent}
+.prog-reset:hover,.prog-reset:active{color:var(--seal);text-decoration-color:var(--seal)}
 /* ★★[ORD_AUTOSAVE 2026-08-12] 저장 상태는 **줄을 새로 만들지 않는다.** 「순서 2 / 7 · 약 22분」
    옆에 붙어 한 줄에 흡수된다 — 화면에 요소가 하나도 안 늘면서 알 수 있는 것만 는다.
    ★평소엔 --light(가장 조용한 회색)다. 저장은 잘 되는 것이 정상이라 눈에 띌 이유가 없다.
@@ -640,7 +658,8 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
     <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
     <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
-    <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span></div>
+    <!-- [ORD_RESET_MID] 2행 오른쪽 — 예고 이름표(#pnext)와 같은 칸을 나눠 쓴다(_paintReset이 갈라 준다) -->
+    <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span><button type="button" class="prog-reset" id="pReset" onclick="resetAll()">처음부터 다시 만들기</button></div>
   </div>
   <div class="minitl" id="minitl" style="display:none"></div>
   <main class="stage" id="stage"></main>
@@ -1840,6 +1859,7 @@ function render(){
   nx.setAttribute('aria-disabled', _saving?'true':'false');
   if(_saving) nx.setAttribute('aria-live','polite'); else nx.removeAttribute('aria-live');
   renderMiniTL(st.k);
+  _paintReset(st.k);   // [ORD_RESET_MID] 레일 표시를 끝낸 뒤에 — 예고 이름표의 표시 여부를 여기서 마지막으로 정한다
   var navKey='build:'+idx;   // [REHEARSE_MERGED] 옛 mode 접두사 — 값은 그대로다
   if(navKey!==_navKey){
     // [ORD_STEPFOCUS] '다음'을 누르면 화면은 통째로 바뀌는데 포커스는 그대로 버튼에 남아,
@@ -1875,6 +1895,20 @@ function renderMiniTL(k){
   var rail=document.getElementById('mtlRail'), now=rail?rail.querySelector('.mtl-now'):null;
   if(rail&&now&&typeof now.offsetLeft==='number'){ rail.scrollLeft=Math.max(0, now.offsetLeft-rail.clientWidth/2+now.offsetWidth/2); }
   if(rail){ _mtlEdge(rail); rail.addEventListener('scroll',function(){ _mtlEdge(rail); },{passive:true}); }
+}
+/* ★★[ORD_RESET_MID 2026-08-16] 걷는 동안의 「처음부터 다시 만들기」 — 보일 때와 숨을 때.
+   보인다: 코스를 시작한 뒤의 모든 단계(순간 12칸 · 순서 다듬기 · 글 적어두기).
+   숨는다: ①안내 두 화면·코스 고르기 — 아직 지울 것이 없다(코스 고르기는 그 자리에서 다시 고르면 된다)
+           ②완성 화면 — 같은 버튼이 이미 아래(.done-acts)에 있다. 한 화면에 두 개면 하나는 소음이다
+           ③수정하러 되돌아온 상태(editReturn) — 지금 눌러야 할 것은 '취소'·'저장 · 요약으로' 둘뿐이다
+   ★보일 때는 예고 이름표(#pnext)를 감춘다 — 둘은 같은 칸을 나눠 쓴다(CSS 주석 참고).
+     renderMiniTL 이 레일을 띄우는 단계에서는 이미 감춰져 있고, 다듬기 화면에서만 이 줄이 실제로 일한다
+     (그 화면의 예고는 '다음은 · 완성 보기'인데 아래 큰 버튼이 이미 「완성 보기」라 겹말이다). */
+function _paintReset(k){
+  var b=document.getElementById('pReset'); if(!b) return;
+  var show=!!courseStarted && !editReturn && k!=='done' && k!=='course' && k!=='intro' && k!=='intro2';
+  b.style.display=show?'inline-flex':'none';
+  if(show){ var pn=document.getElementById('pnext'); if(pn) pn.style.display='none'; }
 }
 /* [MTL_EDGE] 어느 쪽이 잘려 있는지 표시 — CSS 가 그쪽 끝을 흐린다.
    ★넘칠 때만 건다. 안 넘치는데 흐리면 멀쩡한 글자를 지운다.

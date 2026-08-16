@@ -3537,3 +3537,11 @@ chk '예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 �
 chk 'PHOTO_FX_STALE' mypage.html 1
 chk 'c.link.when) <0' mypage.html 0                 # 손으로 적은 조건이 아니라 link 를 도는지(아래 줄이 진짜 판정)
 chk '_rf.indexOf(c.link.when)<0' mypage.html 1
+# [ORD_RESET_MID 2026-08-16 사용자 지시 "처음부터 다시 만들기 코스 진행하는 중간에도 클릭할 수 있게"]
+#   식순 빌더 진행 줄(2행 오른쪽)의 「처음부터 다시 만들기」 — 완성 화면에만 있던 것을 걷는 동안에도 둔다.
+#   ★아래(이전·다음 옆)로 옮기지 말 것(EXIT_TAP44 와 같은 원칙 · 지우는 동작이라 더 세게 적용).
+#   ★_paintReset 이 사라지면 예고 이름표(#pnext)와 두 글자가 한 칸에서 겹친다.
+chk 'ORD_RESET_MID' order-preview.html 4
+chk 'prog-reset' order-preview.html 3
+chk '_paintReset' order-preview.html 3
+chk "id=\"pReset\"" order-preview.html 1
