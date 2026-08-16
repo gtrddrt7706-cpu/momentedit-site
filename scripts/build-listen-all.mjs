@@ -25,6 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { sentBounds, durOf } from './lib/sent-bounds.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
@@ -50,6 +51,32 @@ const OLDC = man.clips.slice()
   .map((c) => ({ id: `${c.no}_${c.file}`, no: c.no, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
+/* ★[SENT_SEEK 2026-08-16 사용자 지적 "아래쪽 대사는 나레이션이 안 입혀졌나 오디오가 안 들리는데?"]
+   기존 클립은 「클립 듣기」만 있고 문장별 듣기가 없었다. 눌러 볼 것이 없으니 «안 입혀진» 것처럼 보인다.
+   ★소리를 더 넣지 않는다 — 같은 클립을 **그 구간만** 재생하면 된다(currentTime 으로 건너뛰고 끝에서 멈춘다).
+     문장 wav 를 따로 잘라 넣으면 파일이 두 배가 되는데, 들리는 소리는 똑같다.
+   ★경계는 [GAP_MATCH] 단일 구현(lib/sent-bounds.mjs)에서 받는다. 못 정하면 null →
+     그 클립만 문장별 듣기를 안 붙이고 **왜 없는지 화면에 적는다**(조용히 빠지면 또 「안 들린다」가 된다). */
+const BOUNDS = {}, SHORT = {};
+let bOk = 0, bNo = 0;
+/* ★[TOO_SHORT 2026-08-16] 소리가 글보다 짧은 클립을 표시한다.
+   실측: 전 클립 말속도 중앙값 **초당 6.8음절**인데 11_narr-welcome-in 은 **14.3**이다.
+   한국어는 빨라야 8~9음절/초라 그 속도로는 그 글을 다 읽을 수 없다 — 글과 소리가 어긋났을 수 있다.
+   ★나는 소리를 못 듣는다. 그래서 «틀렸다»고 하지 않고 **「먼저 들어 보라」고 띄운다.**
+     판정은 귀가 한다. 기계는 어디부터 들을지만 짚어 준다. */
+const sylOf = (t) => (String(t).match(/[가-힣]/g) || []).length;
+man.clips.forEach((c) => {
+  const id = `${c.no}_${c.file}`, f = srcOf(c);
+  if (!f || !(c.sents || []).length) return;
+  const b = sentBounds(f, c.sents);
+  if (b && b.length === c.sents.length) { BOUNDS[id] = b; bOk++; } else bNo++;
+  const d = durOf(f), sy = c.sents.reduce((a, x) => a + sylOf(x.text), 0);
+  if (isFinite(d) && d > 0 && sy >= 6 && sy / d > 8.5) SHORT[id] = +(sy / d).toFixed(1);
+});
+console.log(`  문장 구간 — 찾음 ${bOk}클립 · 못 정함 ${bNo}클립(그 클립은 통째로만 듣는다)`);
+if (Object.keys(SHORT).length) console.log(`  ★소리가 글보다 짧은 클립 ${Object.keys(SHORT).length}개: ` +
+  Object.entries(SHORT).map(([k, v]) => `${k}(${v}음절/초)`).join(' · '));
+
 const missing = OLDC.filter((c) => !c.has && !c.mix);
 if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
 
@@ -106,7 +133,7 @@ if (EMBED) {
 /* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
 const DATA = {
   old: OLDC.map((c) => ({ id: c.id, no: c.no, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
-    r: c.role, mix: c.mix, has: c.has, s: c.sents })),
+    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0 })),
   neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
     n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
       old: OLDSENT.get(sents[i]) || '' })) })),
@@ -224,6 +251,16 @@ var TAB = '전체';
 var cur = null;
 function stop() { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } }
 function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = new Audio(u); cur = a; a.play(); }
+/* [SENT_SEEK] 같은 클립을 그 구간만 — 소리를 더 넣지 않고 문장 하나를 들려준다 */
+var segT = null;
+function playSeg(id, a0, b0) {
+  stop(); if (segT) { clearTimeout(segT); segT = null; }
+  var u = AO[id]; if (!u) { alert('그 클립 소리가 이 판에 없습니다.'); return; }
+  var a = new Audio(u); cur = a;
+  a.addEventListener('loadedmetadata', function () { a.currentTime = a0; a.play(); });
+  a.addEventListener('timeupdate', function () { if (a.currentTime >= b0) { try { a.pause(); } catch (e) {} } });
+  segT = setTimeout(function () { try { a.pause(); } catch (e) {} }, Math.max(300, (b0 - a0) * 1000 + 250));
+}
 
 /* 판정 키 — 기존은 "clipId#문장번호", 새 어조는 "n<번호>" */
 function setV(k, val) { if (val) V[k] = val; else delete V[k]; save(); draw(); }
@@ -263,11 +300,17 @@ function draw() {
       h += '<div class="clip' + (open ? '' : ' done') + '"><div class="ch"><span class="n">' + esc(c.no) + '</span><b>' + esc(c.k) + '</b>'
         + '<span class="tag">' + esc(c.id) + '</span>' + (c.r ? '<span class="tag">' + esc(c.r) + '</span>' : '')
         + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
+        + (c.short ? '<span class="tag re" title="말속도 ' + c.short + '음절/초 · 보통 6~7">★소리가 글보다 짧음</span>' : '')
         + (c.has ? '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'
                  : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>';
       c.s.forEach(function (t, j) {
-        var k = c.id + '#' + j, v = V[k];
-        h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div>' + esc(t) + '</div></div>' + ops(k, null) + '</div>';
+        var k = c.id + '#' + j, v = V[k], bb = c.b && c.b[j];
+        h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div>' + esc(t) + '</div>'
+          + (c.has && !bb ? '<div class="mi">문장별 듣기는 이 클립에서 자리를 못 정했어요 · 위 「클립 듣기」로 들어 주세요</div>' : '')
+          + '</div><div class="ops">'
+          + (bb ? '<button class="btn sm play" data-seek="' + c.id + '" data-a="' + bb[0] + '" data-b="' + bb[1] + '">듣기</button>' : '')
+          + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
+          + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div></div>';
       });
       h += '</div>';
     });
@@ -300,6 +343,7 @@ function draw() {
 $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { TAB = b.dataset.t; draw(); window.scrollTo(0, 0); } });
 $('list').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.seek) return playSeg(b.dataset.seek, +b.dataset.a, +b.dataset.b);
   if (b.dataset.u != null) { var u = b.dataset.u; return play(u.charAt(0) === 'n' && AN[u] ? AN[u] : AO[u]); }
   if (b.dataset.v) { var k = b.dataset.k; setV(k, V[k] === b.dataset.v ? null : b.dataset.v); }
 });
