@@ -2882,6 +2882,33 @@ if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/d
 # RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
 chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
 chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1
+
+# ── [PASTE_MAN_ORDER] 붙여넣기 **차례**가 조립기가 읽을 차례와 같은가 (2026-08-16 · 실사고) ──
+# --redub 는 붙여넣기를 **클립 번호 오름차순**으로 뽑았는데, 조립기(assemble-narration)는
+#   clipsOf(P) = man.clips.filter(...) — 즉 **대장 배열 차례**로 자리를 매긴다. 둘이 갈렸다:
+#   6_예식뒤 에서 no=80(배열 54번째) 이 no=63(배열 68번째) 보다 앞이다. 붙여넣기는 63을 먼저 놨다.
+# 실측 — 11문장 재더빙 wav 중 6개가 통째로 서로의 자리에 붙을 뻔했다(조립 r=0.578 로 멎어 살았다).
+# ★상관계수가 살려 준 것이지 검사가 잡은 것이 아니다 — 길이가 엇비슷했으면 조용히 완성됐다.
+#   그래서 ①뽑는 쪽을 대장 배열 차례로 맞추고 ②붙여넣기 파일의 차례를 검사로 못박는다.
+chk 'PASTE_MAN_ORDER' scripts/check-text-audio.mjs 2
+chk 'PASTE_MAN_ORDER' scripts/check-paste-format.mjs 2
+chk 'IDX_OF' scripts/check-text-audio.mjs 3           # 대장 배열 차례를 쓰는 자리 — 클립 번호로 되돌아가지 않게
+chk 'a.idx - b.idx' scripts/check-text-audio.mjs 1
+chk 'PASTE_PART_SPLIT' scripts/check-text-audio.mjs 1  # 파트 경계를 사람이 손으로 가르지 않게
+# 같은 병이 **두 곳**에 있었다 — 실청 페이지의 「다시 받을 것 대본」도 클립 번호 순으로 냈다.
+# 화면은 예식 순서로 보는 것이 맞다. 그러나 **대본**은 조립기가 읽을 차례여야 한다 — 그래서 낼 때만 다시 세운다.
+chk 'EXPORT_MAN_ORDER' audio-review.html 3
+chk 'EXPORT_MAN_ORDER' scripts/build-listen-all.mjs 2
+chk 'a.mi - b.mi' audio-review.html 1
+chk 'a.mi - b.mi' scripts/build-listen-all.mjs 1
+# ★틀린 옛 주석이 되살아나는 것을 막는다 — 그 말이 있으면 다음 사람이 그 말대로 다시 짠다.
+#   패턴은 옛 문장 **앞부분**이다. 뒷부분("클립 번호 순서를 지킨다")은 새 주석이 인용으로 안고 있어
+#   그것으로 세면 자기 자신에 걸린다(실측 — 1>0 으로 붉었다).
+nochk '조립기가 정렬 순서로 자리를 매기므로' audio-review.html
+# [CANT_PLACE] 대장에 없는 글은 「틀렸다」가 아니라 「못 쟀다」 — 붉히지 않되 화면에 적는다.
+# 클립 통째 재녹음 대본은 _recorded.json(녹음된 글)에서 나오고, 그 글은 대장과 다를 수 있다.
+chk 'CANT_PLACE' scripts/check-paste-format.mjs 2
+chk '못 잰 줄' scripts/check-paste-format.mjs 2
 # ── [ONE_CANDIDATE] 후보 파트가 하나면 상관계수로 거르지 않는다 (2026-08-09) ──
 # 셔터 신호 2문장은 예상 길이가 서로 같아 기댓값 분산이 0 → 상관계수가 늘 0.85 미만.
 # 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎었다. 상관은 후보를 가리는 도구지 검증이 아니다.

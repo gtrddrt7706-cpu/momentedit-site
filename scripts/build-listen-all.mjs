@@ -46,9 +46,17 @@ const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt'
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
 
-const OLDC = man.clips.slice()
-  .sort((a, b) => (PART_ORDER.indexOf(a.part) - PART_ORDER.indexOf(b.part)) || (+a.no - +b.no))
-  .map((c) => ({ id: `${c.no}_${c.file}`, no: c.no, ko: c.label || c.file, part: c.part,
+/* ★★[EXPORT_MAN_ORDER 2026-08-16] 화면 차례와 **대본 차례는 다르다.**
+   화면은 예식 순서(파트 → 클립 번호)로 보는 것이 편하다 — 사람이 식 흐름대로 듣기 때문이다.
+   그런데 「다시」로 모은 **대본**은 그대로 타입캐스트에 붙여 넣고, 받은 wav 를 조립기에 준다.
+   조립기(assemble-narration)는 `man.clips.filter(...)` — **대장 배열 차례**로 자리를 매긴다.
+   둘이 갈리는 자리가 실제로 있다: 6_예식뒤 에서 no=80(배열 54번째) 이 no=63(배열 68번째) 보다 앞이다.
+   ★그래서 대장 배열 차례(mi)를 클립마다 들고 다니다가, 대본을 낼 때만 그것으로 다시 세운다.
+     화면은 그대로 예식 순서다 — 보는 차례와 붙이는 차례는 쓰임이 다르니 따로 둔다.
+   ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
+const OLDC = man.clips.map((c, mi) => ({ c, mi }))
+  .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
+  .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
 /* ★[SENT_SEEK 2026-08-16 사용자 지적 "아래쪽 대사는 나레이션이 안 입혀졌나 오디오가 안 들리는데?"]
@@ -132,7 +140,7 @@ if (EMBED) {
 
 /* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
 const DATA = {
-  old: OLDC.map((c) => ({ id: c.id, no: c.no, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
+  old: OLDC.map((c) => ({ id: c.id, no: c.no, mi: c.mi, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
     r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0 })),
   neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
     n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
@@ -356,11 +364,16 @@ $('onlyLeft').onchange = draw; $('onlyRe').onchange = draw;
 $('mkOut').onclick = function () {
   var out = [];
   var bad = [];
+  /* [EXPORT_MAN_ORDER] 화면은 예식 순서지만 **대본은 대장 배열 차례(mi)**로 낸다 —
+     조립기가 그 차례로 자리를 매기기 때문이다. 여기서 안 세우면 받은 wav 가 서로의 자리에 붙는다. */
+  var picked = [];
   D.old.forEach(function (c) { c.s.forEach(function (t, j) {
     if (V[c.id + '#' + j] !== 're') return;
     var vn = D.voice[c.r];                       /* [EXPORT_TRUTH] manifest 표에서만 가져온다 */
     if (!vn) { bad.push(c.id + ' (' + (c.r || '역할없음') + ')'); return; }
-    out.push(vn + ': ' + t); }); });
+    picked.push({ mi: c.mi, j: j, line: vn + ': ' + t }); }); });
+  picked.sort(function (a, b) { return (a.mi - b.mi) || (a.j - b.j); });
+  picked.forEach(function (x) { out.push(x.line); });
   if (bad.length) alert('화자를 못 정한 클립이 있어 대본에서 뺐습니다:\\n' + bad.join('\\n') + '\\n\\n(합창처럼 여럿이 말하는 자리입니다 · 따로 알려 주세요)');
   D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] === 're') out.push(s.v + ': ' + s.t); }); });
   $('outWrap').className = out.length ? '' : 'hide';
