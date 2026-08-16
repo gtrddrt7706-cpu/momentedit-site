@@ -4065,3 +4065,4 @@ nochk 'class="wsh-hd"' mypage.html                # 머리 행 복원 금지
 #   표적을 줄이면 「지우는 단추」의 44px 근거가 무너지고, 칸을 밀면 없앤 머리 행이 높이로 되살아난다.
 chk 'WISH_DEL_ASK' mypage.html 1
 chk '이 요청을 뺄까요' mypage.html 1
+
