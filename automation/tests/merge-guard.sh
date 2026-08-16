@@ -3974,3 +3974,4 @@ chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
 
 
+
