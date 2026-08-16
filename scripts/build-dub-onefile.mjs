@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
 const WRITE = process.argv.includes('--write');
+const STAGE_DIR = path.join(ROOT, '_dub_stage');
 
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
@@ -95,6 +96,30 @@ for (const s of SRC) {
 }
 
 if (!groups.length && !bad) no('합칠 것이 하나도 없다');
+
+/* ★★[DUB_FROZEN 2026-08-16] 소리를 받은 뒤에는 **번호가 계약**이다 — 다시 매기지 않는다.
+   이 파일은 「몇 번째 줄 = 몇 번째 wav」로 사람과 약속한 것이고, 사람은 그 약속대로 186개를 보냈다.
+   그 뒤에 원천이 늘면(재더빙 대기가 3→4클립) 꼬리 번호가 밀리는데,
+   그러면 **받아 둔 wav 아홉 개가 조용히 다른 자리로 간다.** 되돌릴 방법도 없다(파일명엔 번호뿐이다).
+   ★그래서: `_dub_stage` 에 커밋된 문장 수만큼 소리가 있으면 **커밋된 판을 정본으로 두고**,
+     원천이 달라진 것은 «틀림»이 아니라 «알림»으로 적는다.
+     새로 생긴 재더빙은 이 합본이 아니라 `재더빙_붙여넣기.txt` 가 나른다(그쪽은 번호 계약이 없다).
+   ★언젠가 다시 합쳐 받을 때는 `_dub_stage` 를 비우고 --write 하면 된다. 그때는 계약이 새로 맺어진다. */
+const FROZEN = (() => {
+  try {
+    const cur = fs.readFileSync(path.join(DIR, '더빙_한번에.txt'), 'utf8').split('\n').filter((l) => l.trim()).length;
+    if (!cur || !fs.existsSync(STAGE_DIR)) return 0;
+    const got = fs.readdirSync(STAGE_DIR).filter((f) => /^audio_\d+_/.test(f)).length;
+    return got >= cur ? cur : 0;
+  } catch (e) { return 0; }
+})();
+if (FROZEN && FROZEN !== allLines.length) {
+  console.log(`※ [DUB_FROZEN] 커밋된 ${FROZEN}문장에 소리가 이미 와 있다 — 번호를 다시 매기지 않는다.`);
+  console.log(`   원천은 지금 ${allLines.length}문장이다(${allLines.length - FROZEN > 0 ? '+' : ''}${allLines.length - FROZEN}).`);
+  console.log('   늘어난 몫은 재더빙_붙여넣기.txt 가 나른다 — 그쪽은 번호 계약이 없다.');
+  console.log('   다시 합쳐 받으려면 _dub_stage 를 비우고 --write 할 것.');
+  process.exit(0);
+}
 
 /* ── 산출물 ───────────────────────────────────────────────────────────────── */
 const paste = allLines.join('\n') + '\n';

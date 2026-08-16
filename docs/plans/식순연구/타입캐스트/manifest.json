@@ -52,7 +52,7 @@
       "dir": "assets/audio/narration",
       "clips": 22,
       "sents": 53,
-      "chars": 1641
+      "chars": 1639
     },
     {
       "file": "3_진행_후반.txt",
@@ -749,7 +749,7 @@
         },
         {
           "i": 1,
-          "text": "마이크가 전해지면, 편하게 시작하시면 됩니다.",
+          "text": "두 분, 준비되시면 편하게 시작해 주세요.",
           "before": 0,
           "after": 0
         }

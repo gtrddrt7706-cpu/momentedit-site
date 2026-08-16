@@ -3243,6 +3243,10 @@ chk 'DUB_ONEFILE' scripts/split-dub-onefile.mjs 1
 #   (재더빙 붙여넣기는 클립번호 오름차순 · 명단은 발견순) 「순서가 같은가」를 물으면 안 된다.
 #   실측 차이: 붙여넣기 38·63·80 / 명단 63·80·38. 이 주석을 지우면 다음 사람이 또 같게 만든다.
 chk 'PASTE_IS_ORDER' scripts/build-dub-onefile.mjs 1
+# ★[DUB_FROZEN 2026-08-16] 소리를 받은 뒤에는 번호가 계약이다 — 다시 매기지 않는다.
+#   재더빙 대기가 3→4클립이 되며 꼬리 번호가 밀렸고, 그대로 두면 받아 둔 wav 9개가
+#   조용히 다른 자리로 간다(파일명엔 번호뿐이라 되돌릴 수도 없다). 가드가 실제로 잡았다.
+chk 'DUB_FROZEN' scripts/build-dub-onefile.mjs 1
 # [ORDER_CORR] 자르기 전에 길이 상관으로 순서를 확인한다 — 못 재면 통과가 아니라 멈춤(rc 2)
 chk 'ORDER_CORR' scripts/split-dub-onefile.mjs 1
 
@@ -3269,6 +3273,12 @@ chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
 chk 'ONLINE_ALREADY_ENDED' assets/ritual-cue.js 2
+# [MIC_PIN 2026-08-16] 주인공=핀 · 하객(혼주 포함)=핸드. 「마이크가 전해지면」은 핸드를 건네는 그림이라
+#   신랑·신부 자리에서 지웠다. 부모님(bless) 자리는 그대로 둔다 — 혼주는 건네받는 것이 맞다.
+chk 'MIC_PIN' docs/plans/식순연구/개편_진행판.md 1
+nochk '마이크가 전해지면, 편하게' assets/ritual-data.js
+nochk '마이크가 전해지면, 편하게' order-preview.html
+chk '마이크가 전해지면, 편히' assets/ritual-data.js 2
 nochk "S.digital ? 'end-1b-farewell-online'" assets/ritual-cue.js
 chk 'SELF_PARSE' scripts/build-listen-all.mjs 1
 chk 'EXPORT_TRUTH' scripts/build-listen-all.mjs 1
