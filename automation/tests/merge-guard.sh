@@ -3876,8 +3876,7 @@ nochk 'photoFx:\[\], photoWish' mypage.html          # 비우는 판 복원 금�
 chk 'PFX_CSS_GONE' mypage.html 1
 nochk '.pfx-grid{' mypage.html
 # [WISH_TAP44] 상자 안 보조 칩도 44px — 낮출 것은 높이가 아니라 글자 크기와 색
-chk 'WISH_TAP44' mypage.html 1
-chk 'min-height:44px;padding:9px 11px' mypage.html 1
+chk 'WISH_TAP44' mypage.html 1   # 요청 빼기 ✕ 44px(보조 칩 규칙은 [WISH_MINIMAL]로 칸과 함께 폐지)
 # [WISH_IN_TIME] 요청 개수를 시간 줄에 — 분은 더하지 않는다(별도 컷인지 얹는 동작인지 미리 못 가른다)
 chk 'WISH_IN_TIME' mypage.html 1
 # ★[TRK_ACT_ALIGN·CF_LINK_TAP·CF_INFO_TONE 2026-08-16 사용자 지시 "버튼 사이즈도 다른것도 거슬리고 디테일한부분들 체크"]
@@ -3903,3 +3902,16 @@ nochk '알레르기, 거동이 불편한 분' mypage.html
 chk 'CF_DRINK_ONE' mypage.html 3
 chk 'CF_DRINK_ONE' scripts/audit/seat-onecard.mjs 2
 nochk "음료 · '+escapeHtml(_cp" mypage.html          # 좌석 배치 줄에 집계를 되살리지 말 것
+
+
+
+# ★★[WISH_MINIMAL 2026-08-16 사용자 지적 "너무 정신없는데 미니멀하게 심플하게"]
+#   쉬는 상태 = 단추 한 줄. 요청은 눌러서 연다. 칸은 둘(자유 서술 + 링크) — '누구와' 칸과 칩 5개 폐지.
+#   ★정말 선택인 칸이 화면을 가장 많이 먹으면 그 자체가 "적어야 하나?"라는 압박이 된다. 펼친 판으로 되돌리지 말 것.
+chk 'WISH_MINIMAL' mypage.html 3
+nochk 'data-wwho' mypage.html                    # '누구와' 칩 복원 금지
+nochk 'class="cc-input wsh-who"' mypage.html     # '누구와' 전용 칸 복원 금지
+chk '+ 요청 적기' mypage.html 1
+# [WISH_LINK_ASKED 2026-08-16] 식순 연동 안내는 **적은 요청에 대해서만** — 묻지도 않은 것에 답하면 소음이고,
+#   정작 진짜로 걸리는 날 눈에 안 들어온다. 확인서 대조와 같은 기준(글자를 본다).
+chk 'WISH_LINK_ASKED' mypage.html 1
